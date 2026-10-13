@@ -7638,9 +7638,9 @@
           </div>
         </div>
 
-    <!-- OPERATIONAL MODAL: 4. فواتير المشتريات (Purchase Invoice) - FLAGSHIP POS PARITY -->
+        <!-- OPERATIONAL MODAL: 4. فواتير المشتريات (Purchase Invoice) - FLAGSHIP POS PARITY -->
     <div id="modalOpPurchase" class="hidden fixed inset-0 z-[100] modal-backdrop flex items-end sm:items-center justify-center p-2 sm:p-4">
-      <div class="glass-base w-full max-w-xl sm:max-w-2xl lg:max-w-4xl xl:max-w-5xl rounded-3xl border border-amber-500/40 p-3.5 sm:p-5 space-y-3 max-h-[94vh] overflow-y-auto shadow-2xl relative" style="background: linear-gradient(180deg, #130e06, #030712);">
+      <div class="glass-base w-full max-w-xl sm:max-w-2xl lg:max-w-4xl xl:max-w-5xl rounded-3xl border border-amber-500/40 p-3.5 sm:p-5 space-y-3 max-h-[94vh] overflow-y-auto shadow-2xl relative" style="background: linear-gradient(180deg, #120e06, #030712);">
         
         <!-- ═══════════════════════════════════════════════════════════════
              1. HEADER & INVOICE META MODULE: المربع الموحد للسطر الأول والسطر الثاني
@@ -7696,7 +7696,7 @@
               <input type="date" id="purInvoiceDate" onchange="SuitePurchasePOS.syncHeaderDatePill(this.value)" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" style="color-scheme: dark;" />
             </div>
 
-            <!-- 2. رقم التسلسل: بأسهم ميكرو فائقة الصغر في الأطراف تكاد ألا تكون مرئية ولا تشغل حيزاً إطلاقاً -->
+            <!-- 2. رقم التسلسل -->
             <div id="opPurInvoiceSwipeBox" class="flex-1 min-w-0 px-1 py-0.5 rounded-xl flex items-center justify-center shadow-sm h-[34px] cursor-grab active:cursor-grabbing select-none relative overflow-hidden transition-all duration-150" 
                  style="background: rgba(15, 23, 42, 0.85); border: 1.5px solid rgba(245, 158, 11, 0.55); box-shadow: 0 0 8px rgba(245, 158, 11, 0.2); touch-action: pan-y;" 
                  title="اسحب أو مرر يميناً أو يساراً للتنقل">
@@ -7713,7 +7713,7 @@
                       title="فاتورة الشراء السابقة">◀</button>
             </div>
 
-            <!-- 3. سعر صرف العملة: مربوط بالنظام وقاعدة البيانات + نافذة تعديل وحفظ عند النقر -->
+            <!-- 3. سعر صرف العملة -->
             <div id="purRateContainer" onclick="SuiteFXManager.openModal()" 
                  class="w-[94px] shrink-0 px-1.5 py-0.5 rounded-xl flex items-center justify-between gap-1 shadow-sm h-[34px] transition-all duration-300 cursor-pointer active:scale-95 group relative select-none" 
                  style="background: linear-gradient(135deg, #064e3b, #042f2e); border: 2px solid #10b981; box-shadow: 0 0 14px rgba(16, 185, 129, 0.6), inset 0 0 8px rgba(16, 185, 129, 0.3);" 
@@ -7738,71 +7738,96 @@
         </div>
 
         <!-- ═══════════════════════════════════════════════════════════════
-             2. SUPPLIER ZONE MODULE: وحدة المورد المستقلة
+             2. SUPPLIER ZONE MODULE: الوحدة الثانية: اسم المورد
              ═══════════════════════════════════════════════════════════════ -->
         <div class="rounded-2xl p-2.5 flex items-center justify-between gap-2 cursor-pointer transition active:scale-[0.99] relative overflow-hidden" 
-             style="background: #0d0a04; border: 1.5px solid rgba(245, 158, 11, 0.35); box-shadow: 0 4px 16px rgba(0, 0, 0, 0.75);" 
+             style="background: #0d0a04; border: 1.5px solid rgba(245, 158, 11, 0.4); box-shadow: 0 4px 18px rgba(0, 0, 0, 0.8);" 
              onclick="SuitePurchasePOS.openSupplierSearch()" title="انقر لتغيير أو بحث المورد">
+          
           <div class="flex items-center overflow-hidden flex-1">
-            <div id="suiteSupplierDisplayName" class="font-black text-sm sm:text-base truncate" style="color: #f59e0b !important;">
+            <div id="suitePurSupplierDisplayName" class="font-black text-sm sm:text-base truncate" style="color: #f59e0b !important;">
               <span style="color: #f59e0b !important;">مطاحن الخرطوم للغلال (مورد)</span>
             </div>
           </div>
-          <div class="shrink-0 flex items-center">
+
+          <div class="shrink-0 flex items-center gap-1.5">
             <button type="button" onclick="event.stopPropagation(); SuitePurchasePOS.printSupplierStatement();" 
-                    class="px-2.5 py-1 rounded-xl text-[11px] font-black transition active:scale-95 shadow-md flex items-center justify-center gap-1 cursor-pointer" 
-                    style="background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1.5px solid rgba(245, 158, 11, 0.5); box-shadow: 0 0 10px rgba(245, 158, 11, 0.25);" 
+                    class="px-2 py-1 rounded-xl text-[10.5px] font-black transition active:scale-95 shadow-md flex items-center justify-center gap-1 cursor-pointer" 
+                    style="background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1.5px solid rgba(245, 158, 11, 0.5); box-shadow: 0 0 8px rgba(245, 158, 11, 0.25);" 
                     title="كشف حساب المورد">
               <i class="fa-solid fa-file-invoice text-[10px]"></i>
               <span>كشف</span>
             </button>
+            <span class="text-[11px] text-slate-300 font-black px-2.5 py-1.5 rounded-xl bg-slate-800/90 border border-amber-500/30 flex items-center gap-1.5 text-amber-300">
+              <i class="fa-solid fa-truck-field text-xs"></i> بحث
+            </span>
           </div>
+
         </div>
         <input type="hidden" id="purchaseSupplierInput" value="مطاحن الخرطوم للغلال">
 
         <!-- ═══════════════════════════════════════════════════════════════
-             3. ITEM ENTRY FORM (الترتيب الدقيق: المخزن -> الصنف -> الكمية والسعر -> الجملة -> الإضافة والخصم والإعالة -> إجمالي الفاتورة)
+             3. WAREHOUSE & NOTES MODULE: الوحدة الثالثة: المخزن والملحوظة
              ═══════════════════════════════════════════════════════════════ -->
-        <div class="p-2 sm:p-2.5 rounded-2xl border space-y-2 text-xs shadow-2xl relative overflow-hidden" 
-             style="background: #03050a; border: 1.5px solid rgba(148, 163, 184, 0.25); box-shadow: 0 6px 24px rgba(0, 0, 0, 0.95), inset 0 1px 0 rgba(255, 255, 255, 0.04);">
-          
-          <!-- السطر الأول: المخزن المستلم والملحوظة بمساحة عرض مكبرة -->
+        <div class="rounded-2xl p-2.5 border space-y-1.5 shadow-xl relative overflow-hidden" 
+             style="background: #0d0a04; border: 1.5px solid rgba(168, 85, 247, 0.35); box-shadow: 0 4px 18px rgba(0, 0, 0, 0.8);">
           <div class="grid grid-cols-12 gap-1.5">
-            <div class="col-span-4">
-              <div onclick="SuitePurchasePOS.openWarehouseSearch()" 
-                   class="glow-input-field glow-purple flex items-center justify-center h-[42px] px-2 rounded-xl cursor-pointer transition active:scale-[0.98] select-none overflow-hidden" 
-                   style="background: rgba(15, 23, 42, 0.92) !important; border: 1.5px solid rgba(168, 85, 247, 0.55); box-shadow: 0 0 10px rgba(168, 85, 247, 0.15);" 
-                   title="انقر لاختيار المستودع المستلم">
-                <span id="suitePurWarehouseDisplayName" class="font-black text-xs sm:text-sm truncate text-center text-purple-300">المستودع الرئيسي</span>
+            <!-- 1. المستودع / المخزن: 5 أعمدة -->
+            <div class="col-span-5">
+              <label class="text-[12px] sm:text-[13px] font-black text-purple-300 mb-0.5 flex items-center gap-1 truncate">
+                <i class="fa-solid fa-warehouse text-[11px]"></i> المخزن:
+              </label>
+              <div class="glow-input-field glow-purple pos-field-interactive pos-field-warehouse w-full h-[52px] sm:h-[60px] px-1.5 flex items-center justify-center cursor-pointer transition overflow-hidden rounded-xl" 
+                   onclick="SuitePurchasePOS.openWarehouseSearch()" title="انقر لاختيار المخزن">
+                <span id="suitePurWarehouseDisplayName" class="font-black text-sm sm:text-base text-center leading-snug px-1" style="color: #ffffff !important;">المستودع الرئيسي</span>
               </div>
               <input type="hidden" id="purchaseWarehouseSelect" value="المستودع الرئيسي">
             </div>
 
-            <div class="col-span-8">
-              <div class="relative cursor-pointer" onclick="SuitePurchasePOS.openNotesModal()" title="انقر لفتح لوحة الملحوظة الكبيرة وعرض كامل التفاصيل">
-                <input type="text" id="purNotesInput" placeholder="الملحوظة (انقر للوحة المكبرة)..." 
-                       class="glow-input-field glow-sky w-full h-[42px] text-white font-bold text-xs sm:text-sm outline-none pr-3 pl-7 cursor-pointer placeholder:text-slate-400 rounded-xl" 
-                       style="background: rgba(15, 23, 42, 0.92) !important; color: #ffffff !important;" readonly />
-                <span class="absolute left-2.5 top-3.5 text-sky-400/60 text-xs pointer-events-none"><i class="fa-solid fa-expand text-[11px]"></i></span>
+            <!-- 2. الملحوظة / البيان: 7 أعمدة -->
+            <div class="col-span-7 relative">
+              <label class="text-[12px] sm:text-[13px] font-black text-cyan-300 mb-0.5 flex items-center gap-1 truncate">
+                <i class="fa-solid fa-pen text-[11px]"></i> الملحوظة:
+              </label>
+              <div class="relative">
+                <input type="text" id="purNotesInput" placeholder="الملحوظة والبيان..." 
+                       onclick="SuitePurchasePOS.openNotesModal()" 
+                       class="glow-input-field glow-cyan pos-field-interactive pos-field-note w-full h-[52px] sm:h-[60px] pr-3 pl-8 font-black text-base sm:text-lg text-white outline-none placeholder:text-slate-400 placeholder:font-black placeholder:text-sm sm:placeholder:text-base text-right cursor-pointer truncate rounded-xl" 
+                       style="background: rgba(15, 23, 42, 0.92) !important; color: #ffffff !important;" 
+                       title="انقر لتكبير واستعراض كامل الملحوظة في لوحة مخصصة" readonly />
+                <span class="absolute left-2.5 top-4 text-cyan-400/60 pointer-events-none text-sm"><i class="fa-solid fa-expand"></i></span>
               </div>
             </div>
           </div>
+        </div>
 
-          <!-- السطر الثاني: الصنف والوحدة بمساحة عرض مكبرة وخط عريض واضح -->
+        <!-- ═══════════════════════════════════════════════════════════════
+             4. ITEM ENTRY MODULE: الوحدة الرابعة: الصنف، الوحدة، الكمية، السعر، الجملة
+             ═══════════════════════════════════════════════════════════════ -->
+        <div id="suitePurItemBox" class="p-2.5 rounded-2xl border space-y-2 text-xs shadow-2xl relative overflow-hidden" 
+             style="background: #03050a; border: 1.5px solid rgba(245, 158, 11, 0.35); box-shadow: 0 6px 24px rgba(0, 0, 0, 0.95), inset 0 1px 0 rgba(255, 255, 255, 0.04);">
+          
+          <!-- السطر الأول: الصنف والوحدة -->
           <div class="grid grid-cols-12 gap-1.5">
+            <!-- 1. الصنف -->
             <div class="col-span-8">
-              <div onclick="SuitePurchasePOS.openItemSearch()" 
-                   class="glow-input-field glow-amber flex items-center justify-center h-[46px] px-3 rounded-xl cursor-pointer transition active:scale-[0.98] select-none overflow-hidden" 
-                   style="background: rgba(15, 23, 42, 0.92) !important; border: 1.5px solid rgba(245, 158, 11, 0.55); box-shadow: 0 0 10px rgba(245, 158, 11, 0.15);" 
-                   title="انقر لاختيار الصنف (بحث فوري)">
-                <span id="suitePurItemDisplayName" class="font-black text-sm sm:text-base truncate text-center text-amber-300 tracking-wide">اختر الصنف...</span>
+              <label class="text-[12px] sm:text-[13px] font-black text-amber-300 mb-0.5 flex items-center gap-1 truncate">
+                <i class="fa-solid fa-layer-group text-[11px]"></i> الصنف:
+              </label>
+              <div class="glow-input-field glow-amber pos-field-interactive pos-field-item w-full h-[56px] sm:h-[66px] px-2.5 flex items-center justify-center cursor-pointer transition overflow-hidden rounded-xl" 
+                   onclick="SuitePurchasePOS.openItemSearch()" title="انقر لاختيار الصنف أو إضافة صنف غير مسجل">
+                <span id="suitePurItemDisplayName" class="font-black text-xl sm:text-2xl truncate text-center tracking-wide" style="color: #fcd34d !important;">اختر الصنف...</span>
               </div>
               <input type="hidden" id="purItemSelectVal" value="">
             </div>
 
+            <!-- 2. الوحدة -->
             <div class="col-span-4">
+              <label class="text-[12px] sm:text-[13px] font-black text-emerald-300 mb-0.5 flex items-center gap-1 truncate">
+                <i class="fa-solid fa-scale-balanced text-[11px]"></i> الوحدة:
+              </label>
               <select id="purUnitSelect" onchange="SuitePurchasePOS.onUnitChange()" 
-                      class="glow-input-field glow-emerald w-full h-[46px] text-emerald-400 font-black text-center text-xs sm:text-sm outline-none cursor-pointer px-1.5 rounded-xl" 
+                      class="glow-input-field glow-emerald pos-field-interactive pos-field-unit w-full h-[56px] sm:h-[66px] text-emerald-400 font-black text-center text-lg sm:text-xl outline-none cursor-pointer px-1 rounded-xl" 
                       style="background: rgba(15, 23, 42, 0.92) !important; color: #34d399 !important;" 
                       title="الوحدة">
                 <option value="" disabled selected hidden>الوحدة</option>
@@ -7811,176 +7836,260 @@
             </div>
           </div>
 
-          <!-- السطر الثالث: الكمية والسعر معاً (50% / 50%) بخط بلوط تخين +4 درجات -->
+          <!-- السطر الثاني: الكمية والسعر -->
           <div class="grid grid-cols-2 gap-2">
-            <div class="relative rounded-2xl p-1.5 flex flex-col justify-center" style="background: rgba(15, 23, 42, 0.92); border: 1.5px solid rgba(56, 189, 248, 0.45); box-shadow: 0 0 10px rgba(56, 189, 248, 0.15);">
-              <div class="text-[10px] font-black text-sky-400 text-center pb-0.5 pointer-events-none select-none">الكمية</div>
-              <input type="number" id="purQtyInput" placeholder="1" min="0.01" step="any" oninput="SuitePurchasePOS.calcItemSubtotal()" 
-                     class="w-full h-[36px] font-black font-mono text-center text-white text-base sm:text-lg outline-none placeholder:text-slate-500" 
-                     style="background: transparent !important; color: #ffffff !important; font-family: 'Impact', 'Arial Black', sans-serif !important; font-weight: 900 !important; letter-spacing: 0.5px;" 
-                     inputmode="decimal" title="الكمية" />
-            </div>
-
-            <div class="relative rounded-2xl p-1.5 flex flex-col justify-center" style="background: rgba(15, 23, 42, 0.92); border: 1.5px solid rgba(34, 211, 238, 0.45); box-shadow: 0 0 10px rgba(34, 211, 238, 0.15);">
-              <div class="text-[10px] font-black text-cyan-400 text-center pb-0.5 pointer-events-none select-none">السعر</div>
-              <input type="number" id="purPriceInput" placeholder="0.00" step="any" oninput="SuitePurchasePOS.calcItemSubtotal()" 
-                     class="w-full h-[36px] font-black font-mono text-center text-cyan-300 text-base sm:text-lg outline-none placeholder:text-slate-500" 
-                     style="background: transparent !important; color: #67e8f9 !important; font-family: 'Impact', 'Arial Black', sans-serif !important; font-weight: 900 !important; letter-spacing: 0.5px;" 
-                     inputmode="decimal" title="السعر" />
-            </div>
-          </div>
-
-          <!-- السطر الرابع: الجملة (تحت السعر والكمية مباشرة = السعر × الكمية) -->
-          <div class="rounded-2xl p-2 flex items-center justify-between px-3 shadow-lg relative overflow-hidden" 
-               style="background: linear-gradient(135deg, rgba(6, 78, 59, 0.35), rgba(15, 23, 42, 0.95)); border: 1.5px solid rgba(16, 185, 129, 0.6); box-shadow: 0 0 12px rgba(16, 185, 129, 0.2);">
-            <div class="flex items-center gap-1.5">
-              <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-              <span class="text-xs sm:text-sm font-black text-emerald-400 select-none">الجملة:</span>
-              <span class="text-[10px] text-emerald-300/70 select-none">(السعر × الكمية)</span>
-            </div>
-            <div class="flex items-center">
-              <input type="text" id="purItemGrossTotal" readonly placeholder="0.00" 
-                     class="text-left font-black font-mono text-emerald-300 text-lg sm:text-xl outline-none select-none bg-transparent border-none w-36" 
-                     style="background: transparent !important; color: #34d399 !important; font-family: 'Impact', 'Arial Black', sans-serif !important; font-weight: 900 !important; text-align: left;" 
-                     title="الجملة (السعر × الكمية)" />
-            </div>
-          </div>
-
-          <!-- السطر الخامس: الإضافة -> الخصم -> الإعالة (الكلمات داخل المربعات، بدون كلمة إزالة) -->
-          <div class="grid grid-cols-3 gap-1.5 pt-0.5">
-            <div class="relative rounded-xl p-1 text-center" style="background: rgba(15, 23, 42, 0.92); border: 1.5px solid rgba(192, 132, 252, 0.45); box-shadow: 0 0 8px rgba(192, 132, 252, 0.15);">
-              <div class="text-[9.5px] font-black text-purple-300 pointer-events-none select-none pb-0.5">الإضافة</div>
-              <input type="number" id="purTaxInput" value="0" min="0" step="any" oninput="SuitePurchasePOS.calcItemSubtotal()" 
-                     class="w-full h-[28px] font-black font-mono text-center text-purple-200 text-xs sm:text-sm outline-none" 
-                     style="background: transparent !important; color: #d8b4fe !important;" 
-                     placeholder="0" title="الإضافة" />
-            </div>
-
-            <div class="relative rounded-xl p-1 text-center" style="background: rgba(15, 23, 42, 0.92); border: 1.5px solid rgba(251, 113, 133, 0.45); box-shadow: 0 0 8px rgba(251, 113, 133, 0.15);">
-              <div class="text-[9.5px] font-black text-rose-400 pointer-events-none select-none pb-0.5">الخصم</div>
-              <input type="number" id="purDiscountInput" value="0" min="0" step="any" oninput="SuitePurchasePOS.calcItemSubtotal()" 
-                     class="w-full h-[28px] font-black font-mono text-center text-rose-400 text-xs sm:text-sm outline-none" 
-                     style="background: transparent !important; color: #fb7185 !important;" 
-                     placeholder="0" title="الخصم" />
-            </div>
-
-            <div class="relative rounded-xl p-1 text-center" style="background: rgba(15, 23, 42, 0.92); border: 1.5px solid rgba(251, 191, 36, 0.45); box-shadow: 0 0 8px rgba(251, 191, 36, 0.15);">
-              <div class="text-[9.5px] font-black text-amber-300 pointer-events-none select-none pb-0.5">الإعالة</div>
-              <input type="number" id="purLaborInput" value="0" min="0" step="any" oninput="SuitePurchasePOS.calcItemSubtotal()" 
-                     class="w-full h-[28px] font-black font-mono text-center text-amber-300 text-xs sm:text-sm outline-none" 
-                     style="background: transparent !important; color: #fcd34d !important;" 
-                     placeholder="0" title="الإعالة (العتالة والخدمات)" />
-            </div>
-          </div>
-
-          <!-- السطر السادس: إجمالي الفاتورة للبند وبجواره زر إضافة -->
-          <div class="grid grid-cols-12 gap-1.5 items-center pt-0.5">
-            <div class="col-span-8 rounded-xl p-1 px-2.5 flex items-center justify-between shadow-md" 
-                 style="background: linear-gradient(135deg, rgba(120, 53, 15, 0.3), rgba(15, 23, 42, 0.95)); border: 1.5px solid rgba(245, 158, 11, 0.6); box-shadow: 0 0 10px rgba(245, 158, 11, 0.2);">
-              <div class="text-[11px] font-black text-amber-400 whitespace-nowrap select-none">
-                <span>إجمالي الفاتورة:</span>
-              </div>
-              <input type="text" id="purTotalInput" readonly placeholder="0.00" 
-                     class="flex-1 text-center font-black font-mono text-amber-300 text-base sm:text-lg outline-none select-none bg-transparent border-none" 
-                     style="background: transparent !important; color: #fcd34d !important; font-family: 'Impact', 'Arial Black', sans-serif !important; font-weight: 900 !important;" 
-                     title="إجمالي البند شاملاً الإضافة والخصم والإعالة" />
-            </div>
-
-            <div class="col-span-4">
-              <button type="button" onclick="SuitePurchasePOS.addItemToCart()" 
-                      class="w-full h-[40px] rounded-xl font-black text-xs text-white shadow-lg flex items-center justify-center gap-1.5 cursor-pointer active:scale-95 transition" 
-                      style="background: linear-gradient(135deg, #d97706, #b45309); box-shadow: 0 4px 14px rgba(217, 119, 6, 0.45); border: 1px solid rgba(251, 191, 36, 0.5);">
-                <i class="fa-solid fa-plus-circle text-sm"></i>
-                <span>إضافة</span>
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <!-- ═══════════════════════════════════════════════════════════════
-             4. CART ITEMS MODULE: بنود فاتورة المشتريات
-             ═══════════════════════════════════════════════════════════════ -->
-        <div class="p-2.5 rounded-2xl border space-y-1.5" 
-             style="background: #0d0a04; border: 1.5px solid rgba(245, 158, 11, 0.25); box-shadow: 0 4px 16px rgba(0, 0, 0, 0.75);">
-          <div class="flex justify-between items-center px-1">
-            <span class="text-xs font-black text-slate-200 flex items-center gap-1.5">
-              <i class="fa-solid fa-list-check text-amber-400"></i> بنود فاتورة المشتريات (<span id="suitePurCartCount" class="font-mono text-amber-300">0</span>)
-            </span>
-            <button type="button" onclick="SuitePurchasePOS.clearCart()" class="text-[11px] text-rose-400 hover:text-rose-300 font-bold cursor-pointer transition">تفريغ السلة 🗑️</button>
-          </div>
-
-          <div id="suitePurCartItemsContainer" class="space-y-1.5 max-h-44 overflow-y-auto pr-1">
-            <div class="text-center py-5 text-slate-500 text-xs bg-slate-900/40 rounded-2xl border border-slate-800/80">
-              <i class="fa-solid fa-cart-shopping text-xl mb-1 block opacity-40"></i>
-              لم يتم إضافة أي صنف لفاتورة الشراء بعد
-            </div>
-          </div>
-        </div>
-
-        <!-- ═══════════════════════════════════════════════════════════════
-             5. PAYMENT & TOTALS MODULE: السداد وإجمالي فاتورة الشراء النهائي
-             ═══════════════════════════════════════════════════════════════ -->
-        <div class="p-2.5 rounded-2xl border space-y-2" 
-             style="background: #0d0a04; border: 1.5px solid rgba(245, 158, 11, 0.35); box-shadow: 0 4px 18px rgba(0, 0, 0, 0.8);">
-          <div>
-            <label class="block text-[10px] text-slate-400 font-bold mb-1">طريقة السداد للمورد:</label>
-            <div class="grid grid-cols-5 gap-1 text-center">
-              <button type="button" onclick="SuitePurchasePOS.setPayMethod('cash')" id="suitePurPayBtnCash" class="suite-pur-pay-btn py-1.5 rounded-xl text-[10px] font-black border transition bg-amber-600 text-white border-amber-400 shadow-[0_0_12px_rgba(245,158,11,0.4)] flex flex-col items-center justify-center gap-0.5 cursor-pointer"><i class="fa-solid fa-money-bill-wave"></i><span>كاش</span></button>
-              <button type="button" onclick="SuitePurchasePOS.setPayMethod('bank')" id="suitePurPayBtnBank" class="suite-pur-pay-btn py-1.5 rounded-xl text-[10px] font-black border transition bg-slate-950 text-slate-400 border-slate-800 hover:text-white flex flex-col items-center justify-center gap-0.5 cursor-pointer"><i class="fa-solid fa-building-columns"></i><span>بنكك</span></button>
-              <button type="button" onclick="SuitePurchasePOS.setPayMethod('check')" id="suitePurPayBtnCheck" class="suite-pur-pay-btn py-1.5 rounded-xl text-[10px] font-black border transition bg-slate-950 text-slate-400 border-slate-800 hover:text-white flex flex-col items-center justify-center gap-0.5 cursor-pointer"><i class="fa-solid fa-money-check"></i><span>شيكات</span></button>
-              <button type="button" onclick="SuitePurchasePOS.setPayMethod('credit')" id="suitePurPayBtnCredit" class="suite-pur-pay-btn py-1.5 rounded-xl text-[10px] font-black border transition bg-slate-950 text-slate-400 border-slate-800 hover:text-white flex flex-col items-center justify-center gap-0.5 cursor-pointer"><i class="fa-solid fa-clock-rotate-left"></i><span>آجل</span></button>
-              <button type="button" onclick="SuitePurchasePOS.setPayMethod('split')" id="suitePurPayBtnSplit" class="suite-pur-pay-btn py-1.5 rounded-xl text-[10px] font-black border transition bg-slate-950 text-slate-400 border-slate-800 hover:text-white flex flex-col items-center justify-center gap-0.5 cursor-pointer"><i class="fa-solid fa-scissors"></i><span>مجزأ</span></button>
-            </div>
-            <input type="hidden" id="purchasePayMethodSelect" value="cash">
-          </div>
-
-          <!-- الإجمالي العام النهائي لفاتورة الشراء -->
-          <div class="rounded-2xl p-2.5 flex items-center justify-between border shadow-inner relative overflow-hidden" 
-               style="background: #020408; border: 1.5px solid rgba(245, 158, 11, 0.4);">
+            <!-- 1. الكمية -->
             <div>
-              <span class="text-xs font-black text-slate-300 block">إجمالي الفاتورة العام:</span>
-              <span class="text-[10px] text-amber-400/80 font-mono">الصافي الكلي للمورد</span>
+              <label class="text-[12px] sm:text-[13px] font-black text-sky-300 mb-0.5 flex items-center gap-1 truncate">
+                <i class="fa-solid fa-boxes-stacked text-[11px]"></i> الكمية:
+              </label>
+              <div class="relative rounded-xl overflow-hidden flex items-center justify-center pos-field-interactive pos-field-qty" 
+                   style="background: rgba(15, 23, 42, 0.92); border: 1.5px solid rgba(56, 189, 248, 0.45); box-shadow: 0 0 10px rgba(56, 189, 248, 0.15);">
+                <input type="number" id="purQtyInput" placeholder="الكمية" min="0.01" step="any" oninput="SuitePurchasePOS.calcItemSubtotal()" 
+                       class="w-full h-[52px] sm:h-[60px] font-black font-mono text-center text-white text-3xl sm:text-4xl outline-none placeholder:text-slate-400 placeholder:font-black placeholder:font-sans placeholder:text-xl sm:placeholder:text-2xl" 
+                       style="background: transparent !important; color: #ffffff !important; letter-spacing: 0.5px;" 
+                       inputmode="decimal" title="الكمية" />
+              </div>
             </div>
-            <div id="suitePurGrandTotalDisplay" class="text-xl sm:text-2xl font-mono font-black text-amber-300" style="color: #fcd34d !important;">
-              0.00 SDG
+
+            <!-- 2. السعر -->
+            <div>
+              <label class="text-[12px] sm:text-[13px] font-black text-cyan-300 mb-0.5 flex items-center gap-1 truncate">
+                <i class="fa-solid fa-tag text-[11px]"></i> السعر:
+              </label>
+              <div class="relative rounded-xl overflow-hidden flex items-center justify-center pos-field-interactive pos-field-price" 
+                   style="background: rgba(15, 23, 42, 0.92); border: 1.5px solid rgba(34, 211, 238, 0.45); box-shadow: 0 0 10px rgba(34, 211, 238, 0.15);">
+                <input type="number" id="purPriceInput" placeholder="السعر" step="any" oninput="SuitePurchasePOS.calcItemSubtotal()" 
+                       class="w-full h-[52px] sm:h-[60px] font-black font-mono text-center text-cyan-300 text-3xl sm:text-4xl outline-none placeholder:text-slate-400 placeholder:font-black placeholder:font-sans placeholder:text-xl sm:placeholder:text-2xl" 
+                       style="background: transparent !important; color: #67e8f9 !important; letter-spacing: 0.5px;" 
+                       inputmode="decimal" title="السعر" />
+              </div>
             </div>
           </div>
 
-          <!-- زر إضافة بند حر غير مسجل -->
-          <div class="pb-1">
-            <button type="button" onclick="SuitePurchasePOS.promptCustomItem()" class="w-full py-1.5 rounded-xl border border-dashed border-amber-500/50 bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 text-xs font-black transition flex items-center justify-center gap-1.5 cursor-pointer">
-              <i class="fa-solid fa-plus-circle"></i> إضافة بند شراء غير مسجل / خدمة / مصاريف شحن
+          <!-- السطر الثالث: الجملة (الكمية × السعر) -->
+          <div>
+            <label class="text-[12px] sm:text-[13px] font-black text-emerald-300 mb-0.5 flex items-center gap-1 truncate">
+              <i class="fa-solid fa-calculator text-[11px]"></i> الجملة (السعر × الكمية):
+            </label>
+            <div class="w-full h-[56px] sm:h-[66px] rounded-xl flex items-center justify-center px-3 shadow-lg relative overflow-hidden pos-field-interactive pos-field-gross" 
+                 style="background: linear-gradient(135deg, rgba(6, 78, 59, 0.35), rgba(15, 23, 42, 0.95)); border: 1.5px solid rgba(16, 185, 129, 0.6); box-shadow: 0 0 12px rgba(16, 185, 129, 0.2);">
+              <input type="text" id="purItemGrossTotal" readonly placeholder="الجملة" 
+                     class="w-full text-center font-black font-mono text-emerald-300 outline-none select-none bg-transparent border-none placeholder:text-emerald-400/60 placeholder:font-black placeholder:font-sans placeholder:text-2xl sm:placeholder:text-3xl cursor-default" 
+                     style="background: transparent !important; color: #34d399 !important; font-family: 'Impact', 'Arial Black', sans-serif !important; font-weight: 900 !important; font-size: 32px !important; letter-spacing: 0.5px !important;" 
+                     title="الجملة" />
+            </div>
+          </div>
+
+        </div>
+
+        <!-- ═══════════════════════════════════════════════════════════════
+             5. ADJUSTMENTS MODULE: الوحدة الخامسة: الإضافة، الخصم، الإعالة، الإجمالي
+             ═══════════════════════════════════════════════════════════════ -->
+        <div class="rounded-2xl p-2.5 border space-y-2 shadow-xl relative overflow-hidden" 
+             style="background: #0d0a04; border: 1.5px solid rgba(245, 158, 11, 0.35); box-shadow: 0 4px 20px rgba(0, 0, 0, 0.85);">
+          
+          <!-- السطر الأول: الإضافة والخصم والإعالة -->
+          <div class="grid grid-cols-3 gap-1.5">
+            <!-- 1. الإضافة -->
+            <div>
+              <label class="text-[12px] sm:text-[13px] font-black text-purple-300 mb-0.5 flex items-center gap-1 truncate">
+                <i class="fa-solid fa-plus-circle text-[11px]"></i> الإضافة:
+              </label>
+              <div class="relative rounded-xl overflow-hidden flex items-center justify-center pos-field-interactive pos-field-tax" 
+                   style="background: rgba(15, 23, 42, 0.92); border: 1.5px solid rgba(192, 132, 252, 0.45); box-shadow: 0 0 8px rgba(192, 132, 252, 0.15);">
+                <input type="number" id="purTaxInput" min="0" step="any" oninput="SuitePurchasePOS.calcItemSubtotal()" 
+                       class="w-full h-[50px] sm:h-[58px] font-black font-mono text-center text-purple-200 text-2xl sm:text-3xl outline-none placeholder:text-purple-300/60 placeholder:font-black placeholder:font-sans placeholder:text-base sm:placeholder:text-lg" 
+                       style="background: transparent !important; color: #d8b4fe !important;" 
+                       placeholder="الإضافة" inputmode="decimal" title="الإضافة" />
+              </div>
+            </div>
+
+            <!-- 2. الخصم -->
+            <div>
+              <label class="text-[12px] sm:text-[13px] font-black text-rose-300 mb-0.5 flex items-center gap-1 truncate">
+                <i class="fa-solid fa-minus-circle text-[11px]"></i> الخصم:
+              </label>
+              <div class="relative rounded-xl overflow-hidden flex items-center justify-center pos-field-interactive pos-field-discount" 
+                   style="background: rgba(15, 23, 42, 0.92); border: 1.5px solid rgba(251, 113, 133, 0.45); box-shadow: 0 0 8px rgba(251, 113, 133, 0.15);">
+                <input type="number" id="purDiscountInput" min="0" step="any" oninput="SuitePurchasePOS.calcItemSubtotal()" 
+                       class="w-full h-[50px] sm:h-[58px] font-black font-mono text-center text-rose-400 text-2xl sm:text-3xl outline-none placeholder:text-rose-400/60 placeholder:font-black placeholder:font-sans placeholder:text-base sm:placeholder:text-lg" 
+                       style="background: transparent !important; color: #fb7185 !important;" 
+                       placeholder="الخصم" inputmode="decimal" title="الخصم" />
+              </div>
+            </div>
+
+            <!-- 3. الإعالة -->
+            <div>
+              <label class="text-[12px] sm:text-[13px] font-black text-amber-300 mb-0.5 flex items-center gap-1 truncate" title="الإعالة (العتالة والخدمات)">
+                <i class="fa-solid fa-truck-ramp-box text-[11px]"></i> الإعالة:
+              </label>
+              <div class="relative rounded-xl overflow-hidden flex items-center justify-center pos-field-interactive pos-field-labor" 
+                   style="background: rgba(15, 23, 42, 0.92); border: 1.5px solid rgba(251, 191, 36, 0.45); box-shadow: 0 0 8px rgba(251, 191, 36, 0.15);">
+                <input type="number" id="purLaborInput" min="0" step="any" oninput="SuitePurchasePOS.calcItemSubtotal()" 
+                       class="w-full h-[50px] sm:h-[58px] font-black font-mono text-center text-amber-300 text-2xl sm:text-3xl outline-none placeholder:text-amber-400/60 placeholder:font-black placeholder:font-sans placeholder:text-base sm:placeholder:text-lg" 
+                       style="background: transparent !important; color: #fcd34d !important;" 
+                       placeholder="الإعالة" inputmode="decimal" title="الإعالة" />
+              </div>
+            </div>
+          </div>
+
+          <!-- السطر الثاني: الإجمالي الصافي المطلوب -->
+          <div>
+            <label class="text-[12px] sm:text-[13px] font-black text-amber-300 mb-0.5 flex items-center gap-1">
+              <i class="fa-solid fa-coins text-[11px]"></i> الإجمالي الصافي المطلوب:
+            </label>
+            <div class="w-full h-[60px] sm:h-[70px] rounded-xl flex items-center justify-center px-3 shadow-md relative overflow-hidden pos-field-interactive pos-field-total" 
+                 style="background: linear-gradient(135deg, rgba(120, 53, 15, 0.35), rgba(15, 23, 42, 0.95)); border: 1.5px solid rgba(245, 158, 11, 0.6); box-shadow: 0 0 12px rgba(245, 158, 11, 0.2);">
+              <input type="text" id="purTotalInput" readonly placeholder="الإجمالي" 
+                     class="w-full text-center font-black font-mono text-amber-300 outline-none select-none bg-transparent border-none placeholder:text-amber-400/60 placeholder:font-black placeholder:font-sans placeholder:text-2xl sm:placeholder:text-3xl cursor-default" 
+                     style="background: transparent !important; color: #fcd34d !important; font-family: 'Impact', 'Arial Black', sans-serif !important; font-weight: 900 !important; font-size: 36px !important; letter-spacing: 0.5px !important;" 
+                     title="الإجمالي" />
+            </div>
+          </div>
+
+        </div>
+
+        <!-- ═══════════════════════════════════════════════════════════════
+             6. INVOICE LINES MODULE: الوحدة السادسة: أسطر الفاتورة
+             ═══════════════════════════════════════════════════════════════ -->
+        <div class="rounded-2xl p-2.5 border space-y-2 shadow-xl relative overflow-hidden" 
+             style="background: #0d0a04; border: 1.5px solid rgba(245, 158, 11, 0.35); box-shadow: 0 4px 20px rgba(0, 0, 0, 0.85);">
+          
+          <!-- هيدر وحدة الأسطر مع العداد والإجمالي الصافي للأسطر -->
+          <div class="flex items-center justify-between pb-1.5 border-b border-slate-800">
+            <div class="flex items-center gap-1.5">
+              <span class="w-6 h-6 rounded-lg bg-amber-500/20 text-amber-300 border border-amber-500/30 flex items-center justify-center text-xs">
+                <i class="fa-solid fa-list-ol"></i>
+              </span>
+              <h3 class="font-black text-xs sm:text-sm text-white flex items-center gap-1.5">
+                <span>أسطر فاتورة المشتريات</span>
+                <span class="px-2 py-0.5 rounded-full text-[10.5px] font-mono font-black bg-amber-500/20 text-amber-300 border border-amber-500/40">
+                  <span id="suitePurCartCount">0</span> أسطر
+                </span>
+              </h3>
+            </div>
+            
+            <div class="flex items-center gap-1.5">
+              <div class="text-left font-mono">
+                <span class="text-[9.5px] text-slate-400 block leading-tight">إجمالي الأسطر:</span>
+                <span id="suitePurGrandTotalDisplay" class="font-black text-xs sm:text-sm text-amber-400 font-mono tracking-tight leading-tight">0.00 SDG</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- أزرار التحكم بالأسطر: إضافة السطر الحالي + إضافة سطر غير مسجل بالسيستم -->
+          <div class="grid grid-cols-2 gap-1.5">
+            <!-- 1. إضافة هذا السطر للفاتورة -->
+            <button type="button" onclick="SuitePurchasePOS.addItemToCart()" 
+                    class="py-2.5 px-2 rounded-xl text-white font-black text-xs flex items-center justify-center gap-1.5 shadow-md active:scale-95 transition cursor-pointer" 
+                    style="background: linear-gradient(135deg, #d97706, #b45309); border: 1.5px solid #fbbf24; box-shadow: 0 0 10px rgba(245, 158, 11, 0.35);" 
+                    title="إضافة الصنف والبيانات الحالية كسطر في فاتورة المشتريات">
+              <i class="fa-solid fa-plus-circle text-amber-200 text-sm"></i>
+              <span>إضافة السطر ↵</span>
+            </button>
+
+            <!-- 2. إضافة سطر ناقص / غير مسجل في السيستم -->
+            <button type="button" onclick="SuitePurchasePOS.promptCustomItem()" 
+                    class="py-2.5 px-2 rounded-xl text-amber-200 hover:text-white font-black text-xs flex items-center justify-center gap-1.5 shadow-md active:scale-95 transition cursor-pointer" 
+                    style="background: linear-gradient(135deg, rgba(180, 83, 9, 0.5), rgba(15, 23, 42, 0.95)); border: 1.5px solid #f59e0b; box-shadow: 0 0 10px rgba(245, 158, 11, 0.25);" 
+                    title="إضافة صنف أو سطر حر غير مسجل في السيستم">
+              <i class="fa-solid fa-file-circle-plus text-amber-300 text-sm"></i>
+              <span>سطر غير مسجل</span>
             </button>
           </div>
 
-          <!-- شريط الإجراءات والعمليات الكاملة (Direct Parity with Sales) -->
-          <div class="grid grid-cols-4 gap-1.5 pt-1">
-            <button type="button" onclick="commitOpPurchase(false)" class="py-2.5 rounded-xl bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white font-black text-xs shadow-lg flex items-center justify-center gap-1 transition active:scale-95 border border-amber-400/40 cursor-pointer">
-              <i class="fa-solid fa-check"></i> حفظ
-            </button>
-            <button type="button" onclick="commitOpPurchase(true)" class="py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-black text-xs shadow-lg flex items-center justify-center gap-1 transition active:scale-95 border border-emerald-400/40 cursor-pointer">
-              <i class="fa-solid fa-bolt"></i> حفظ وسداد
-            </button>
-            <button type="button" onclick="SuitePurchasePOS.newInvoice()" class="py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-black text-xs flex items-center justify-center gap-1 transition active:scale-95 border border-slate-700 cursor-pointer">
-              <i class="fa-solid fa-plus"></i> جديد
-            </button>
-            <button type="button" onclick="SuitePurchasePOS.clearCart()" class="py-2.5 rounded-xl bg-slate-800 hover:bg-rose-900/40 text-rose-300 font-black text-xs flex items-center justify-center gap-1 transition active:scale-95 border border-slate-700 hover:border-rose-500/40 cursor-pointer">
-              <i class="fa-solid fa-trash-can"></i> مسح
+          <!-- حاوية عرض الأسطر المضافة -->
+          <div id="suitePurCartItemsContainer" class="space-y-1.5 max-h-48 overflow-y-auto pr-0.5">
+            <div class="text-center py-4 text-slate-500 text-xs bg-slate-900/40 rounded-xl border border-slate-800/80">
+              <i class="fa-solid fa-receipt text-base mb-1 block opacity-40"></i>
+              لم يتم إضافة أي أسطر للفاتورة بعد
+            </div>
+          </div>
+
+          <!-- زر تفريغ الأسطر -->
+          <div id="suitePurCartClearWrap" class="hidden flex justify-end pt-0.5">
+            <button type="button" onclick="SuitePurchasePOS.clearCart()" class="text-[10.5px] font-bold text-rose-400/80 hover:text-rose-300 flex items-center gap-1 transition">
+              <i class="fa-solid fa-trash-can text-[10px]"></i> تفريغ كافة الأسطر
             </button>
           </div>
 
-          <div class="grid grid-cols-4 gap-1.5 pt-0.5">
-            <button type="button" onclick="SuitePurchasePOS.shareInvoice()" class="py-2 rounded-xl bg-slate-800/90 hover:bg-slate-700 text-sky-300 font-bold text-[11px] flex items-center justify-center gap-1 transition active:scale-95 border border-slate-700 cursor-pointer">
-              <i class="fa-brands fa-whatsapp"></i> مشاركة
+        </div>
+
+        <!-- حقل طريقة الدفع المخفي للاستقرار البرمجي -->
+        <input type="hidden" id="purchasePayMethodSelect" value="cash">
+
+        <!-- ═══════════════════════════════════════════════════════════════
+             7. ACTION BUTTONS: حفظ، حفظ وسداد، جديد، مسح، مشاركة، كشف الحساب، الإذن
+             ═══════════════════════════════════════════════════════════════ -->
+        <div class="space-y-2 pt-1">
+          <!-- الصف الأول: حفظ + حفظ وسداد -->
+          <div class="grid grid-cols-2 gap-2">
+            <!-- 1. حفظ -->
+            <button type="button" onclick="commitOpPurchase(false)" 
+                    class="py-3.5 px-2 rounded-2xl font-black text-sm sm:text-base text-amber-200 hover:text-white flex items-center justify-center gap-1.5 cursor-pointer active:scale-95 transition shadow-lg" 
+                    style="background: linear-gradient(135deg, rgba(120, 53, 15, 0.9), rgba(15, 23, 42, 0.95)); border: 1.5px solid #f59e0b; box-shadow: 0 4px 14px rgba(245, 158, 11, 0.25);" 
+                    title="حفظ فاتورة المشتريات">
+              <i class="fa-solid fa-floppy-disk text-amber-400 text-sm sm:text-base"></i>
+              <span>حفظ</span>
             </button>
-            <button type="button" onclick="SuitePurchasePOS.printInvoice()" class="py-2 rounded-xl bg-slate-800/90 hover:bg-slate-700 text-slate-200 font-bold text-[11px] flex items-center justify-center gap-1 transition active:scale-95 border border-slate-700 cursor-pointer">
-              <i class="fa-solid fa-print"></i> طباعة
+
+            <!-- 2. حفظ وسداد -->
+            <button type="button" onclick="commitOpPurchase(true)" 
+                    class="py-3.5 px-2 rounded-2xl font-black text-sm sm:text-base text-white flex items-center justify-center gap-1.5 cursor-pointer active:scale-95 transition shadow-xl relative overflow-hidden" 
+                    style="background: linear-gradient(135deg, #d97706, #059669); border: 1.5px solid #10b981; box-shadow: 0 6px 20px rgba(16, 185, 129, 0.45);" 
+                    title="حفظ فاتورة المشتريات والانتقال فوراً لشاشة سند الصرف المالي وتفريغ اسم المورد والمبلغ">
+              <i class="fa-solid fa-bolt text-amber-300 text-sm sm:text-base animate-pulse"></i>
+              <span>حفظ وسداد ⚡</span>
             </button>
-            <button type="button" onclick="SuitePurchasePOS.printSupplierStatement()" class="py-2 rounded-xl bg-slate-800/90 hover:bg-slate-700 text-purple-300 font-bold text-[11px] flex items-center justify-center gap-1 transition active:scale-95 border border-slate-700 cursor-pointer">
-              <i class="fa-solid fa-file-invoice"></i> كشف حساب
+          </div>
+
+          <!-- الصف الثاني: جديد + مسح + مشاركة -->
+          <div class="grid grid-cols-3 gap-2">
+            <!-- 3. جديد -->
+            <button type="button" onclick="SuitePurchasePOS.newInvoice()" 
+                    class="py-3 px-2 rounded-xl bg-slate-900/90 hover:bg-slate-800 text-amber-300 border border-amber-500/40 text-xs sm:text-sm font-black flex items-center justify-center gap-1.5 transition active:scale-95 shadow-sm cursor-pointer" 
+                    title="فاتورة جديدة وتصفير الشاشة">
+              <i class="fa-solid fa-file-circle-plus text-amber-400"></i>
+              <span>جديد</span>
             </button>
-            <button type="button" onclick="SuitePurchasePOS.printGRN()" class="py-2 rounded-xl bg-slate-800/90 hover:bg-slate-700 text-teal-300 font-bold text-[11px] flex items-center justify-center gap-1 transition active:scale-95 border border-slate-700 cursor-pointer">
-              <i class="fa-solid fa-truck-ramp-box"></i> إذن استلام
+
+            <!-- 4. مسح -->
+            <button type="button" onclick="SuitePurchasePOS.clearCurrentInputs()" 
+                    class="py-3 px-2 rounded-xl bg-slate-900/90 hover:bg-slate-800 text-rose-300 border border-rose-500/40 text-xs sm:text-sm font-black flex items-center justify-center gap-1.5 transition active:scale-95 shadow-sm cursor-pointer" 
+                    title="مسح وتفريغ خانات الصنف والكميات">
+              <i class="fa-solid fa-eraser text-rose-400"></i>
+              <span>مسح</span>
+            </button>
+
+            <!-- 5. مشاركة -->
+            <button type="button" onclick="SuitePurchasePOS.shareInvoice()" 
+                    class="py-3 px-2 rounded-xl text-xs sm:text-sm font-black flex items-center justify-center gap-1.5 transition active:scale-95 shadow-lg cursor-pointer text-amber-200 hover:text-white" 
+                    style="background: linear-gradient(135deg, rgba(180, 83, 9, 0.4), rgba(15, 23, 42, 0.95)); border: 1.5px solid #f59e0b; box-shadow: 0 0 10px rgba(245, 158, 11, 0.3);" 
+                    title="مشاركة تفاصيل فاتورة المشتريات عبر الواتساب">
+              <i class="fa-solid fa-share-nodes text-amber-400"></i>
+              <span>مشاركة</span>
+            </button>
+          </div>
+
+          <!-- الصف الثالث: كشف الحساب + الإذن (استلام مخزني GRN) -->
+          <div class="grid grid-cols-2 gap-2">
+            <!-- 6. كشف الحساب -->
+            <button type="button" id="btnSuppStatementDirect" onclick="SuitePurchasePOS.printSupplierStatement()" 
+                    class="py-3 px-2 rounded-xl text-xs sm:text-sm font-black flex items-center justify-center gap-1.5 transition active:scale-95 shadow-md cursor-pointer text-purple-200 hover:text-white" 
+                    style="background: linear-gradient(135deg, rgba(168, 85, 247, 0.25), rgba(15, 23, 42, 0.95)); border: 1.5px solid #a855f7; box-shadow: 0 0 10px rgba(168, 85, 247, 0.25);" 
+                    title="كشف حساب المورد الحالي">
+              <i class="fa-solid fa-file-invoice text-purple-400 text-sm"></i>
+              <span>كشف حساب</span>
+            </button>
+
+            <!-- 7. الإذن (استلام GRN) -->
+            <button type="button" onclick="SuitePurchasePOS.printGRN()" 
+                    class="py-3 px-2 rounded-xl text-xs sm:text-sm font-black flex items-center justify-center gap-1.5 transition active:scale-95 shadow-md cursor-pointer text-teal-200 hover:text-white" 
+                    style="background: linear-gradient(135deg, rgba(20, 184, 166, 0.25), rgba(15, 23, 42, 0.95)); border: 1.5px solid #14b8a6; box-shadow: 0 0 10px rgba(20, 184, 166, 0.25);" 
+                    title="إذن استلام وتوريد بضاعة بالمستودع (GRN)">
+              <i class="fa-solid fa-truck-ramp-box text-teal-400 text-sm"></i>
+              <span>إذن استلام (GRN)</span>
             </button>
           </div>
         </div>
