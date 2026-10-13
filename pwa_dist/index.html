@@ -292,6 +292,14 @@
       box-shadow: 0 0 38px rgba(245, 158, 11, 0.95), inset 0 0 16px rgba(245, 158, 11, 0.45) !important;
       background: linear-gradient(135deg, rgba(120, 53, 15, 0.55), rgba(15, 23, 42, 0.98)) !important;
     }
+    #suiteNotesModalDialog.notes-fullscreen-active {
+      width: 98vw !important;
+      max-width: 98vw !important;
+      height: 96vh !important;
+      max-height: 96vh !important;
+      min-height: 96vh !important;
+      border-radius: 16px !important;
+    }
 
     /* Toggleable POS Field Labels (Inside vs Top) */
     .pos-labels-inside .sales-top-label {
@@ -7039,11 +7047,11 @@
               <h2 class="text-white font-black text-sm sm:text-base tracking-wide drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)] whitespace-nowrap select-none m-0" style="color: #ffffff !important;">مبيعات</h2>
             </div>
 
-            <!-- 3. مركز الكلفة: يأتي بعد المبيعات مباشرة وبكامل المساحة المتبقية بمرونة تامة (بدون أي علامات وبدون بحث، ويفتح البحث بالنقر) -->
-            <div class="flex-1 min-w-0 px-2.5 py-1.5 rounded-xl flex items-center justify-center cursor-pointer transition active:scale-[0.99] h-9 overflow-hidden" 
+            <!-- 3. مركز الكلفة: يأتي بعد المبيعات مباشرة وبكامل المساحة المتبقية بمرونة تامة بعد حذف زر الخروج وزيادة مساحته للمركز -->
+            <div class="flex-1 min-w-0 px-3 py-1.5 rounded-xl flex items-center justify-center cursor-pointer transition active:scale-[0.99] h-9 sm:h-10 overflow-hidden" 
                  style="background: rgba(15, 23, 42, 0.85); border: 1.5px solid rgba(168, 85, 247, 0.55); box-shadow: 0 0 10px rgba(168, 85, 247, 0.2);" 
                  onclick="SuiteSalesPOS.openCostCenterSearch()" title="اضغط لاختيار أو بحث مركز الكلفة">
-              <div id="suiteCostCenterDisplayName" class="font-black text-sm sm:text-base truncate text-purple-200 text-center w-full">
+              <div id="suiteCostCenterDisplayName" class="font-black text-sm sm:text-base truncate text-purple-200 text-center w-full px-1">
                 <span>المركز الرئيسي</span>
               </div>
             </div>
@@ -7051,32 +7059,23 @@
 
             <!-- 4. أيقونة الآلة الحاسبة: في الركن الأيسر -->
             <button type="button" onclick="SuiteSalesPOS.toggleCalculator()" 
-                    class="w-8 h-8 sm:w-9 sm:h-9 rounded-xl flex items-center justify-center transition-all duration-200 active:scale-90 shadow-md shrink-0 cursor-pointer" 
+                    class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center transition-all duration-200 active:scale-90 shadow-md shrink-0 cursor-pointer" 
                     style="background: rgba(147, 51, 234, 0.25); border: 1.5px solid rgba(192, 132, 252, 0.5); box-shadow: 0 0 10px rgba(168, 85, 247, 0.3);" 
                     title="الآلة الحاسبة الذكية">
               <i class="fa-solid fa-calculator text-purple-200 text-xs sm:text-sm"></i>
             </button>
 
-            <!-- 5. زر خروج للشاشة الرئيسية -->
-            <button type="button" onclick="exitToMainDashboard('modalOpSales')" 
-                    class="h-8 sm:h-9 px-2 sm:px-2.5 rounded-xl flex items-center justify-center gap-1 transition-all duration-200 active:scale-90 shadow-md shrink-0 cursor-pointer text-rose-300 hover:text-white" 
-                    style="background: linear-gradient(135deg, rgba(225, 29, 72, 0.25), rgba(15, 23, 42, 0.95)); border: 1.5px solid rgba(244, 63, 94, 0.6); box-shadow: 0 0 10px rgba(244, 63, 94, 0.25);" 
-                    title="خروج والرجوع للشاشة الرئيسية">
-              <i class="fa-solid fa-arrow-right text-xs"></i>
-              <span class="text-xs font-black">خروج</span>
-            </button>
-
           </div>
 
-          <!-- السطر الثاني: 1. التاريخ (مكبر درجة) -> 2. رقم التسلسل (بأسهم خفيفة جداً في الأطراف لا تشغل الحيز مع السحب يمين وشمال) -> 3. سعر صرف العملة (كتابة بلوك وتغير شكلي جذري بين الدولار والجنيه) -->
+          <!-- السطر الثاني: 1. التاريخ (بنفس الحجم ومقاس الخط ولكن بولد تخين) -> 2. رقم التسلسل -> 3. سعر صرف العملة -->
           <div class="flex items-center gap-1.5 w-full pt-0.5">
             
-            <!-- 1. التاريخ: خط مكبر ومساحة محكمة مضبوطة تماماً -->
+            <!-- 1. التاريخ: بنفس مقاس وحجم التاريخ ومقاس الخط وبخط بولد تخين -->
             <div class="w-[96px] sm:w-[104px] shrink-0 px-1 py-1 rounded-xl flex items-center justify-center transition relative overflow-hidden h-[36px]" 
                  style="background: rgba(15, 23, 42, 0.85); border: 1.5px solid rgba(56, 189, 248, 0.5); box-shadow: 0 0 8px rgba(56, 189, 248, 0.15);" 
                  title="تاريخ السند / الفاتورة (انقر للتعديل)">
               <div class="flex items-center justify-center pointer-events-none select-none w-full text-center whitespace-nowrap">
-                <span id="opSalesHeaderDatePill" class="text-xs sm:text-sm font-mono font-black text-cyan-200 tracking-tight whitespace-nowrap" style="color: #67e8f9 !important; font-size: 13.5px !important;">2026-10-12</span>
+                <span id="opSalesHeaderDatePill" class="tracking-tight whitespace-nowrap" style="color: #67e8f9 !important; font-size: 13.5px !important; font-weight: 900 !important; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif !important; -webkit-text-stroke: 0.35px currentColor; letter-spacing: -0.2px;">2026-10-12</span>
               </div>
               <input type="date" id="salesInvoiceDate" onchange="SuiteSalesPOS.syncHeaderDatePill(this.value)" oninput="SuiteSalesPOS.syncHeaderDatePill(this.value)" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" style="color-scheme: dark;" />
             </div>
@@ -7221,28 +7220,34 @@
             <!-- 2. الملحوظة / البيان: محتواها محصور 100% داخل المستطيل دون خروج ومربع تكبير يفتح الشاشة المربعة -->
             <div class="col-span-7 relative">
               <label for="salesNotesInput" class="text-[11px] sm:text-xs font-bold text-cyan-300 flex items-center justify-between mb-1 text-right">
-                <span>الملحوظة</span>
-                <span onclick="SuiteSalesPOS.openNotesModal('sales');" class="text-[9.5px] text-cyan-400 hover:text-white cursor-pointer font-bold flex items-center gap-1 bg-cyan-950/60 px-1.5 py-0.5 rounded-md border border-cyan-500/30 active:scale-95 transition">
-                  <i class="fa-solid fa-expand text-[9px]"></i> تكبير المربع
+                <span class="flex items-center gap-1">
+                  <i class="fa-solid fa-note-sticky text-cyan-400 text-xs"></i>
+                  <span>الملحوظة</span>
                 </span>
+                <button type="button" onclick="SuiteSalesPOS.openNotesModal('sales'); return false;" 
+                        class="text-[10px] sm:text-[11px] text-cyan-200 hover:text-white cursor-pointer font-bold flex items-center gap-1 bg-gradient-to-r from-cyan-900/90 to-sky-900/90 hover:from-cyan-800 hover:to-sky-800 px-2 py-0.5 rounded-lg border border-cyan-400/60 shadow-sm active:scale-95 transition" 
+                        title="تكبير المربع: فتح مربع كبير لعرض كامل الكتابة دون أي اختفاء">
+                  <i class="fa-solid fa-up-right-and-down-left-from-center text-[10px] text-cyan-300"></i> تكبير المربع
+                </button>
               </label>
-              <div class="glow-input-field glow-cyan pos-field-interactive pos-field-note w-full h-[52px] sm:h-[58px] px-1.5 flex items-center gap-1.5 transition rounded-xl relative overflow-hidden" 
-                   style="background: rgba(15, 23, 42, 0.92); border: 1.5px solid rgba(56, 189, 248, 0.45); max-width: 100%; box-sizing: border-box;">
-                <!-- المربع التكبير: زر مربع أنيق لفتح الشاشة المربعة التي يظهر فيها كل ما كُتب -->
+              <div class="glow-input-field glow-cyan pos-field-interactive pos-field-note w-full h-[52px] sm:h-[58px] px-1.5 flex items-center gap-2 transition rounded-xl relative overflow-hidden" 
+                   style="background: rgba(15, 23, 42, 0.95); border: 1.5px solid rgba(56, 189, 248, 0.55); max-width: 100%; box-sizing: border-box;">
+                <!-- المربع التكبير: زر ورمز واضح جداً لفتح المربع الكبير وعرض كامل الكتابة دون اختفاء -->
                 <button type="button" id="btnZoomSalesNotes" 
                         onclick="SuiteSalesPOS.openNotesModal('sales'); return false;" 
-                        class="w-9 h-9 sm:w-10 sm:h-10 shrink-0 flex-shrink-0 rounded-xl flex items-center justify-center text-cyan-300 hover:text-white bg-cyan-500/25 hover:bg-cyan-500/40 border border-cyan-400/60 shadow-md transition active:scale-90 cursor-pointer z-20" 
-                        title="مربع التكبير: فتح الشاشة المربعة واستعراض كامل نص الملحوظة">
-                  <i class="fa-solid fa-expand text-sm pointer-events-none"></i>
+                        class="w-10 h-10 shrink-0 flex-shrink-0 rounded-xl flex items-center justify-center text-cyan-200 hover:text-white bg-gradient-to-br from-cyan-600/40 to-sky-600/40 hover:from-cyan-500/60 hover:to-sky-500/60 border border-cyan-400/70 shadow-md transition active:scale-90 cursor-pointer z-20" 
+                        title="مربع التكبير: فتح المربع الكبير واستعراض كامل نص الملحوظة دون أي اختفاء">
+                  <i class="fa-solid fa-expand text-base pointer-events-none text-cyan-300"></i>
                 </button>
-                <!-- حقل الملحوظة: مساحة كتابة آمنة، النص لا يخرج أبداً خارج المستطيل مهما طالت الكتابة -->
+                <!-- حقل الملحوظة: مساحة كتابة آمنة، النص واضح، وعند النقر يفتح المربع الكبير -->
                 <input type="text" id="salesNotesInput" 
-                       placeholder="اكتب الملحوظة..." 
+                       placeholder="اكتب الملحوظة (أو اضغط زر التكبير)..." 
+                       onclick="if(this.value && this.value.length > 20) SuiteSalesPOS.openNotesModal('sales');" 
                        ondblclick="SuiteSalesPOS.openNotesModal('sales')" 
                        autocomplete="off" 
-                       class="flex-1 min-w-0 bg-transparent font-bold text-xs sm:text-sm text-white outline-none placeholder:text-slate-400 placeholder:font-bold placeholder:text-[11px] sm:placeholder:text-xs text-right cursor-text border-none p-0 m-0 truncate" 
+                       class="flex-1 min-w-0 bg-transparent font-bold text-xs sm:text-sm text-white outline-none placeholder:text-slate-400 placeholder:font-medium placeholder:text-[11px] sm:placeholder:text-xs text-right cursor-text border-none p-0 m-0 truncate" 
                        style="color: #ffffff !important; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%; width: 0; flex: 1 1 0%; box-sizing: border-box;" 
-                       title="اكتب الملحوظة هنا دون أن تخرج عن المستطيل، أو اضغط مربع التكبير للشاشة المربعة" />
+                       title="اكتب الملحوظة هنا أو اضغط زر التكبير لفتح المربع الكبير" />
               </div>
             </div>
 
@@ -7330,16 +7335,16 @@
             </div>
           </div>
 
-          <!-- السطر الثالث: الجملة (الكمية × السعر) بنفس حجم الإجمالي المطلوب تماماً (36px وبنفس الارتفاع الفخم) -->
+          <!-- السطر الثالث: الجملة بنفس حجم خط الإجمالي الصافي تماماً وبخط مكبّر وفخم ومساوٍ له -->
           <div>
             <label class="text-[12px] sm:text-[13px] font-black text-emerald-300 mb-0.5 flex items-center gap-1 truncate">
-              <i class="fa-solid fa-calculator text-[11px]"></i> الجملة (السعر × الكمية):
+              <i class="fa-solid fa-calculator text-[11px]"></i> الجملة:
             </label>
-            <div class="w-full h-[60px] sm:h-[70px] rounded-xl flex items-center justify-center px-3 shadow-lg relative pos-field-interactive pos-field-gross" 
+            <div class="w-full h-[64px] sm:h-[72px] rounded-xl flex items-center justify-center px-3 shadow-lg relative pos-field-interactive pos-field-gross" 
                  style="background: linear-gradient(135deg, rgba(6, 78, 59, 0.35), rgba(15, 23, 42, 0.95)); border: 1.5px solid rgba(16, 185, 129, 0.6); box-shadow: 0 0 12px rgba(16, 185, 129, 0.2);">
               <input type="text" id="salesItemGrossTotal" readonly placeholder="الجملة" 
                      class="w-full h-full text-center font-black font-mono text-emerald-300 outline-none select-none bg-transparent border-none placeholder:text-emerald-400/60 placeholder:font-black placeholder:font-sans placeholder:text-2xl sm:placeholder:text-3xl cursor-default" 
-                     style="background: transparent !important; color: #34d399 !important; font-family: 'Impact', 'Arial Black', sans-serif !important; font-weight: 900 !important; font-size: 36px !important; letter-spacing: 0.5px !important;" 
+                     style="background: transparent !important; color: #34d399 !important; font-family: 'Impact', 'Arial Black', sans-serif !important; font-weight: 900 !important; font-size: 38px !important; letter-spacing: 0.5px !important;" 
                      title="الجملة" />
             </div>
           </div>
@@ -7352,63 +7357,63 @@
         <div class="rounded-2xl p-2.5 border space-y-2 shadow-xl relative overflow-hidden" 
              style="background: #050811; border: 1.5px solid rgba(16, 185, 129, 0.35); box-shadow: 0 4px 20px rgba(0, 0, 0, 0.85);">
           
-          <!-- السطر الأول: الإضافة والخصم والعتالة -->
+          <!-- السطر الأول: الإضافة والخصم والعتالة (تمت زيادة الارتفاع بنسبة 60% وتصحيح العتالة) -->
           <div class="grid grid-cols-3 gap-1.5">
-            <!-- 1. الإضافة بخط كبير وتنسيق ذكي -->
+            <!-- 1. الإضافة بخط كبير وتنسيق ذكي وارتفاع موسع 60% -->
             <div>
               <label class="text-[12px] sm:text-[13px] font-black text-purple-300 mb-0.5 flex items-center gap-1 truncate">
                 <i class="fa-solid fa-plus-circle text-[11px]"></i> الإضافة:
               </label>
-              <div class="relative rounded-xl overflow-hidden flex items-center justify-center pos-field-interactive pos-field-tax" 
+              <div class="relative rounded-2xl overflow-hidden flex items-center justify-center pos-field-interactive pos-field-tax h-[80px] sm:h-[92px]" 
                    style="background: rgba(15, 23, 42, 0.92); border: 1.5px solid rgba(192, 132, 252, 0.45); box-shadow: 0 0 8px rgba(192, 132, 252, 0.15);">
                 <input type="number" id="salesTaxInput" min="0" step="any" 
                        oninput="SuiteSalesPOS.calcItemSubtotal(); window.SmartPOSFontAI && SmartPOSFontAI.scaleTax(this);" 
-                       class="w-full h-[50px] sm:h-[58px] font-black font-mono text-center text-purple-200 outline-none placeholder:text-purple-300/60 placeholder:font-black placeholder:font-sans placeholder:text-base sm:placeholder:text-lg" 
-                       style="background: transparent !important; color: #d8b4fe !important; font-size: 26px;" 
+                       class="w-full h-full font-black font-mono text-center text-purple-200 outline-none placeholder:text-purple-300/60 placeholder:font-black placeholder:font-sans placeholder:text-base sm:placeholder:text-lg" 
+                       style="background: transparent !important; color: #d8b4fe !important; font-size: 28px;" 
                        placeholder="الإضافة" inputmode="decimal" title="الإضافة" />
               </div>
             </div>
 
-            <!-- 2. الخصم -->
+            <!-- 2. الخصم بارتفاع موسع 60% -->
             <div>
               <label class="text-[12px] sm:text-[13px] font-black text-rose-300 mb-0.5 flex items-center gap-1 truncate">
                 <i class="fa-solid fa-minus-circle text-[11px]"></i> الخصم:
               </label>
-              <div class="relative rounded-xl overflow-hidden flex items-center justify-center pos-field-interactive pos-field-discount" 
+              <div class="relative rounded-2xl overflow-hidden flex items-center justify-center pos-field-interactive pos-field-discount h-[80px] sm:h-[92px]" 
                    style="background: rgba(15, 23, 42, 0.92); border: 1.5px solid rgba(251, 113, 133, 0.45); box-shadow: 0 0 8px rgba(251, 113, 133, 0.15);">
                 <input type="number" id="salesDiscountInput" min="0" step="any" oninput="SuiteSalesPOS.calcItemSubtotal()" 
-                       class="w-full h-[50px] sm:h-[58px] font-black font-mono text-center text-rose-400 text-2xl sm:text-3xl outline-none placeholder:text-rose-400/60 placeholder:font-black placeholder:font-sans placeholder:text-base sm:placeholder:text-lg" 
+                       class="w-full h-full font-black font-mono text-center text-rose-400 text-2xl sm:text-3xl outline-none placeholder:text-rose-400/60 placeholder:font-black placeholder:font-sans placeholder:text-base sm:placeholder:text-lg" 
                        style="background: transparent !important; color: #fb7185 !important;" 
                        placeholder="الخصم" inputmode="decimal" title="الخصم" />
               </div>
             </div>
 
-            <!-- 3. العتالة / المثال -->
+            <!-- 3. العتالة بارتفاع موسع 60% وتصحيح التسمية -->
             <div>
-              <label class="text-[12px] sm:text-[13px] font-black text-amber-300 mb-0.5 flex items-center gap-1 truncate" title="العتالة (المثال)">
+              <label class="text-[12px] sm:text-[13px] font-black text-amber-300 mb-0.5 flex items-center gap-1 truncate" title="العتالة">
                 <i class="fa-solid fa-truck-ramp-box text-[11px]"></i> العتالة:
               </label>
-              <div class="relative rounded-xl overflow-hidden flex items-center justify-center pos-field-interactive pos-field-labor" 
+              <div class="relative rounded-2xl overflow-hidden flex items-center justify-center pos-field-interactive pos-field-labor h-[80px] sm:h-[92px]" 
                    style="background: rgba(15, 23, 42, 0.92); border: 1.5px solid rgba(251, 191, 36, 0.45); box-shadow: 0 0 8px rgba(251, 191, 36, 0.15);">
                 <input type="number" id="salesLaborInput" min="0" step="any" oninput="SuiteSalesPOS.calcItemSubtotal()" 
-                       class="w-full h-[50px] sm:h-[58px] font-black font-mono text-center text-amber-300 text-2xl sm:text-3xl outline-none placeholder:text-amber-400/60 placeholder:font-black placeholder:font-sans placeholder:text-base sm:placeholder:text-lg" 
+                       class="w-full h-full font-black font-mono text-center text-amber-300 text-2xl sm:text-3xl outline-none placeholder:text-amber-400/60 placeholder:font-black placeholder:font-sans placeholder:text-base sm:placeholder:text-lg" 
                        style="background: transparent !important; color: #fcd34d !important;" 
-                       placeholder="العتالة" inputmode="decimal" title="العتالة (المثال)" />
+                       placeholder="العتالة" inputmode="decimal" title="العتالة" />
               </div>
             </div>
           </div>
 
-          <!-- السطر الثاني: الإجمالي الصافي المطلوب -->
+          <!-- السطر الثاني: الإجمالي الصافي المطلوب بنفس حجم خط الجملة تماماً (38px ومساوٍ له تماماً) -->
           <div>
             <label class="text-[12px] sm:text-[13px] font-black text-amber-300 mb-0.5 flex items-center gap-1">
               <i class="fa-solid fa-coins text-[11px]"></i> الإجمالي الصافي المطلوب:
             </label>
-            <div class="w-full h-[60px] sm:h-[70px] rounded-xl flex items-center justify-center px-3 shadow-md relative overflow-hidden pos-field-interactive pos-field-total" 
+            <div class="w-full h-[64px] sm:h-[72px] rounded-xl flex items-center justify-center px-3 shadow-md relative overflow-hidden pos-field-interactive pos-field-total" 
                  style="background: linear-gradient(135deg, rgba(120, 53, 15, 0.35), rgba(15, 23, 42, 0.95)); border: 1.5px solid rgba(245, 158, 11, 0.6); box-shadow: 0 0 12px rgba(245, 158, 11, 0.2);">
               <input type="text" id="salesTotalInput" readonly placeholder="الإجمالي" 
-                     class="w-full text-center font-black font-mono text-amber-300 outline-none select-none bg-transparent border-none placeholder:text-amber-400/60 placeholder:font-black placeholder:font-sans placeholder:text-2xl sm:placeholder:text-3xl cursor-default" 
-                     style="background: transparent !important; color: #fcd34d !important; font-family: 'Impact', 'Arial Black', sans-serif !important; font-weight: 900 !important; font-size: 36px !important; letter-spacing: 0.5px !important;" 
-                     title="الإجمالي" />
+                     class="w-full h-full text-center font-black font-mono text-amber-300 outline-none select-none bg-transparent border-none placeholder:text-amber-400/60 placeholder:font-black placeholder:font-sans placeholder:text-2xl sm:placeholder:text-3xl cursor-default" 
+                     style="background: transparent !important; color: #fcd34d !important; font-family: 'Impact', 'Arial Black', sans-serif !important; font-weight: 900 !important; font-size: 38px !important; letter-spacing: 0.5px !important;" 
+                     title="الإجمالي الصافي المطلوب" />
             </div>
           </div>
 
@@ -7765,40 +7770,33 @@
               <h2 class="text-white font-black text-xs tracking-wide drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)] whitespace-nowrap select-none m-0" style="color: #ffffff !important;">مشتريات</h2>
             </div>
 
-            <!-- 3. مركز الكلفة -->
-            <div class="flex-1 min-w-0 px-2.5 py-1.5 rounded-xl flex items-center justify-center cursor-pointer transition active:scale-[0.99] h-9 overflow-hidden" 
+            <!-- 3. مركز الكلفة: يأتي بعد المشتريات مباشرة وبكامل المساحة المتبقية بمرونة تامة بعد حذف زر الخروج وزيادة مساحته للمركز -->
+            <div class="flex-1 min-w-0 px-3 py-1.5 rounded-xl flex items-center justify-center cursor-pointer transition active:scale-[0.99] h-9 sm:h-10 overflow-hidden" 
                  style="background: rgba(15, 23, 42, 0.85); border: 1.5px solid rgba(168, 85, 247, 0.55); box-shadow: 0 0 10px rgba(168, 85, 247, 0.2);" 
                  onclick="SuitePurchasePOS.openCostCenterSearch()" title="اضغط لاختيار أو بحث مركز الكلفة">
-              <div id="purCostCenterDisplayName" class="font-bold text-xs truncate text-purple-200 text-center w-full">
+              <div id="purCostCenterDisplayName" class="font-black text-sm sm:text-base truncate text-purple-200 text-center w-full px-1">
                 <span>المركز الرئيسي</span>
               </div>
             </div>
             <input type="hidden" id="purCostCenterInput" value="المركز الرئيسي">
 
-            <!-- 4. أيقونة الآلة الحاسبة + زر خروج للشاشة الرئيسية -->
+            <!-- 4. أيقونة الآلة الحاسبة: في الركن الأيسر -->
             <button type="button" onclick="SuiteSalesPOS.toggleCalculator()" 
-                    class="w-8 h-8 sm:w-9 sm:h-9 rounded-xl flex items-center justify-center transition-all duration-200 active:scale-90 shadow-md shrink-0 cursor-pointer" 
+                    class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center transition-all duration-200 active:scale-90 shadow-md shrink-0 cursor-pointer" 
                     style="background: rgba(147, 51, 234, 0.25); border: 1.5px solid rgba(192, 132, 252, 0.5); box-shadow: 0 0 10px rgba(168, 85, 247, 0.3);" 
                     title="الآلة الحاسبة الذكية">
               <i class="fa-solid fa-calculator text-purple-200 text-xs sm:text-sm"></i>
-            </button>
-            <button type="button" onclick="exitToMainDashboard('modalOpPurchase')" 
-                    class="h-8 sm:h-9 px-2 sm:px-2.5 rounded-xl flex items-center justify-center gap-1 transition-all duration-200 active:scale-90 shadow-md shrink-0 cursor-pointer text-rose-300 hover:text-white" 
-                    style="background: linear-gradient(135deg, rgba(225, 29, 72, 0.25), rgba(15, 23, 42, 0.95)); border: 1.5px solid rgba(244, 63, 94, 0.6); box-shadow: 0 0 10px rgba(244, 63, 94, 0.25);" 
-                    title="خروج والرجوع للشاشة الرئيسية">
-              <i class="fa-solid fa-arrow-right text-xs"></i>
-              <span class="text-xs font-black">خروج</span>
             </button>
           </div>
 
           <!-- السطر الثاني: التاريخ -> رقم السند -> سعر الصرف -->
           <div class="flex items-center gap-1.5 w-full pt-0.5">
-            <!-- 1. التاريخ: ارتفاع متناسق 36px -->
-            <div class="w-[88px] shrink-0 px-1 py-1 rounded-xl flex items-center justify-center transition relative overflow-hidden h-[36px]" 
+            <!-- 1. التاريخ: بنفس مقاس وحجم التاريخ ومقاس الخط وبخط بولد تخين -->
+            <div class="w-[88px] sm:w-[96px] shrink-0 px-1 py-1 rounded-xl flex items-center justify-center transition relative overflow-hidden h-[36px]" 
                  style="background: rgba(15, 23, 42, 0.85); border: 1.5px solid rgba(245, 158, 11, 0.5); box-shadow: 0 0 8px rgba(245, 158, 11, 0.15);" 
                  title="تاريخ فاتورة الشراء">
               <div class="flex items-center justify-center pointer-events-none select-none w-full text-center whitespace-nowrap">
-                <span id="opPurHeaderDatePill" class="text-[12px] font-mono font-black text-amber-200 tracking-tight whitespace-nowrap" style="color: #fde68a !important;">2026-10-12</span>
+                <span id="opPurHeaderDatePill" class="tracking-tight whitespace-nowrap" style="color: #fde68a !important; font-size: 13px !important; font-weight: 900 !important; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif !important; -webkit-text-stroke: 0.35px currentColor; letter-spacing: -0.2px;">2026-10-12</span>
               </div>
               <input type="date" id="purInvoiceDate" onchange="SuitePurchasePOS.syncHeaderDatePill(this.value)" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" style="color-scheme: dark;" />
             </div>
@@ -7908,26 +7906,34 @@
             <!-- 2. الملحوظة / البيان في المشتريات: محصورة 100% داخل المستطيل دون خروج -->
             <div class="col-span-7 relative">
               <label for="purNotesInput" class="text-[11px] sm:text-xs font-bold text-cyan-300 flex items-center justify-between mb-1 text-right">
-                <span>الملحوظة</span>
-                <span onclick="SuitePurchasePOS.openNotesModal();" class="text-[9.5px] text-cyan-400 hover:text-white cursor-pointer font-bold flex items-center gap-1 bg-cyan-950/60 px-1.5 py-0.5 rounded-md border border-cyan-500/30 active:scale-95 transition">
-                  <i class="fa-solid fa-expand text-[9px]"></i> تكبير المربع
+                <span class="flex items-center gap-1">
+                  <i class="fa-solid fa-note-sticky text-cyan-400 text-xs"></i>
+                  <span>الملحوظة</span>
                 </span>
+                <button type="button" onclick="SuitePurchasePOS.openNotesModal(); return false;" 
+                        class="text-[10px] sm:text-[11px] text-cyan-200 hover:text-white cursor-pointer font-bold flex items-center gap-1 bg-gradient-to-r from-cyan-900/90 to-sky-900/90 hover:from-cyan-800 hover:to-sky-800 px-2 py-0.5 rounded-lg border border-cyan-400/60 shadow-sm active:scale-95 transition" 
+                        title="تكبير المربع: فتح مربع كبير لعرض كامل الكتابة دون أي اختفاء">
+                  <i class="fa-solid fa-up-right-and-down-left-from-center text-[10px] text-cyan-300"></i> تكبير المربع
+                </button>
               </label>
-              <div class="glow-input-field glow-cyan pos-field-interactive pos-field-note w-full h-[52px] sm:h-[58px] px-1.5 flex items-center gap-1.5 transition rounded-xl relative overflow-hidden" 
-                   style="background: rgba(15, 23, 42, 0.92); border: 1.5px solid rgba(56, 189, 248, 0.45); max-width: 100%; box-sizing: border-box;">
+              <div class="glow-input-field glow-cyan pos-field-interactive pos-field-note w-full h-[52px] sm:h-[58px] px-1.5 flex items-center gap-2 transition rounded-xl relative overflow-hidden" 
+                   style="background: rgba(15, 23, 42, 0.95); border: 1.5px solid rgba(56, 189, 248, 0.55); max-width: 100%; box-sizing: border-box;">
+                <!-- المربع التكبير: زر ورمز واضح جداً لفتح المربع الكبير وعرض كامل الكتابة دون اختفاء -->
                 <button type="button" id="btnZoomPurNotes" 
                         onclick="SuitePurchasePOS.openNotesModal(); return false;" 
-                        class="w-9 h-9 sm:w-10 sm:h-10 shrink-0 flex-shrink-0 rounded-xl flex items-center justify-center text-cyan-300 hover:text-white bg-cyan-500/25 hover:bg-cyan-500/40 border border-cyan-400/60 shadow-md transition active:scale-90 cursor-pointer z-20" 
-                        title="مربع التكبير: فتح الشاشة المربعة واستعراض كامل نص الملحوظة">
-                  <i class="fa-solid fa-expand text-sm pointer-events-none"></i>
+                        class="w-10 h-10 shrink-0 flex-shrink-0 rounded-xl flex items-center justify-center text-cyan-200 hover:text-white bg-gradient-to-br from-cyan-600/40 to-sky-600/40 hover:from-cyan-500/60 hover:to-sky-500/60 border border-cyan-400/70 shadow-md transition active:scale-90 cursor-pointer z-20" 
+                        title="مربع التكبير: فتح المربع الكبير واستعراض كامل نص الملحوظة دون أي اختفاء">
+                  <i class="fa-solid fa-expand text-base pointer-events-none text-cyan-300"></i>
                 </button>
+                <!-- حقل الملحوظة: مساحة كتابة آمنة، النص واضح، وعند النقر يفتح المربع الكبير -->
                 <input type="text" id="purNotesInput" 
-                       placeholder="اكتب الملحوظة..." 
+                       placeholder="اكتب الملحوظة (أو اضغط زر التكبير)..." 
+                       onclick="if(this.value && this.value.length > 20) SuitePurchasePOS.openNotesModal();" 
                        ondblclick="SuitePurchasePOS.openNotesModal()" 
                        autocomplete="off" 
-                       class="flex-1 min-w-0 bg-transparent font-bold text-xs sm:text-sm text-white outline-none placeholder:text-slate-400 placeholder:font-bold placeholder:text-[11px] sm:placeholder:text-xs text-right cursor-text border-none p-0 m-0 truncate" 
+                       class="flex-1 min-w-0 bg-transparent font-bold text-xs sm:text-sm text-white outline-none placeholder:text-slate-400 placeholder:font-medium placeholder:text-[11px] sm:placeholder:text-xs text-right cursor-text border-none p-0 m-0 truncate" 
                        style="color: #ffffff !important; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%; width: 0; flex: 1 1 0%; box-sizing: border-box;" 
-                       title="اكتب الملحوظة هنا دون أن تخرج عن المستطيل، أو اضغط مربع التكبير للشاشة المربعة" />
+                       title="اكتب الملحوظة هنا أو اضغط زر التكبير لفتح المربع الكبير" />
               </div>
             </div>
 
@@ -8010,16 +8016,16 @@
             </div>
           </div>
 
-          <!-- السطر الثالث: الجملة بنفس حجم الإجمالي المطلوب -->
+          <!-- السطر الثالث: الجملة بنفس حجم خط الإجمالي الصافي تماماً وبخط مكبّر وفخم ومساوٍ له -->
           <div>
             <label class="text-[12px] sm:text-[13px] font-black text-emerald-300 mb-0.5 flex items-center gap-1 truncate">
-              <i class="fa-solid fa-calculator text-[11px]"></i> الجملة (السعر × الكمية):
+              <i class="fa-solid fa-calculator text-[11px]"></i> الجملة:
             </label>
-            <div class="w-full h-[60px] sm:h-[70px] rounded-xl flex items-center justify-center px-3 shadow-lg relative pos-field-interactive pos-field-gross" 
+            <div class="w-full h-[64px] sm:h-[72px] rounded-xl flex items-center justify-center px-3 shadow-lg relative pos-field-interactive pos-field-gross" 
                  style="background: linear-gradient(135deg, rgba(6, 78, 59, 0.35), rgba(15, 23, 42, 0.95)); border: 1.5px solid rgba(16, 185, 129, 0.6); box-shadow: 0 0 12px rgba(16, 185, 129, 0.2);">
               <input type="text" id="purItemGrossTotal" readonly placeholder="الجملة" 
                      class="w-full h-full text-center font-black font-mono text-emerald-300 outline-none select-none bg-transparent border-none placeholder:text-emerald-400/60 placeholder:font-black placeholder:font-sans placeholder:text-2xl sm:placeholder:text-3xl cursor-default" 
-                     style="background: transparent !important; color: #34d399 !important; font-family: 'Impact', 'Arial Black', sans-serif !important; font-weight: 900 !important; font-size: 36px !important; letter-spacing: 0.5px !important;" 
+                     style="background: transparent !important; color: #34d399 !important; font-family: 'Impact', 'Arial Black', sans-serif !important; font-weight: 900 !important; font-size: 38px !important; letter-spacing: 0.5px !important;" 
                      title="الجملة" />
             </div>
           </div>
@@ -8032,63 +8038,63 @@
         <div class="rounded-2xl p-2.5 border space-y-2 shadow-xl relative overflow-hidden" 
              style="background: #0d0a04; border: 1.5px solid rgba(245, 158, 11, 0.35); box-shadow: 0 4px 20px rgba(0, 0, 0, 0.85);">
           
-          <!-- السطر الأول: الإضافة والخصم والإعالة -->
+          <!-- السطر الأول: الإضافة والخصم والعتالة (تمت زيادة الارتفاع بنسبة 60% وتصحيح العتالة) -->
           <div class="grid grid-cols-3 gap-1.5">
-            <!-- 1. الإضافة بخط كبير وتنسيق ذكي -->
+            <!-- 1. الإضافة بخط كبير وتنسيق ذكي وارتفاع موسع 60% -->
             <div>
               <label class="text-[12px] sm:text-[13px] font-black text-purple-300 mb-0.5 flex items-center gap-1 truncate">
                 <i class="fa-solid fa-plus-circle text-[11px]"></i> الإضافة:
               </label>
-              <div class="relative rounded-xl overflow-hidden flex items-center justify-center pos-field-interactive pos-field-tax" 
+              <div class="relative rounded-2xl overflow-hidden flex items-center justify-center pos-field-interactive pos-field-tax h-[80px] sm:h-[92px]" 
                    style="background: rgba(15, 23, 42, 0.92); border: 1.5px solid rgba(192, 132, 252, 0.45); box-shadow: 0 0 8px rgba(192, 132, 252, 0.15);">
                 <input type="number" id="purTaxInput" min="0" step="any" 
                        oninput="SuitePurchasePOS.calcItemSubtotal(); window.SmartPOSFontAI && SmartPOSFontAI.scaleTax(this);" 
-                       class="w-full h-[50px] sm:h-[58px] font-black font-mono text-center text-purple-200 outline-none placeholder:text-purple-300/60 placeholder:font-black placeholder:font-sans placeholder:text-base sm:placeholder:text-lg" 
-                       style="background: transparent !important; color: #d8b4fe !important; font-size: 26px;" 
+                       class="w-full h-full font-black font-mono text-center text-purple-200 outline-none placeholder:text-purple-300/60 placeholder:font-black placeholder:font-sans placeholder:text-base sm:placeholder:text-lg" 
+                       style="background: transparent !important; color: #d8b4fe !important; font-size: 28px;" 
                        placeholder="الإضافة" inputmode="decimal" title="الإضافة" />
               </div>
             </div>
 
-            <!-- 2. الخصم -->
+            <!-- 2. الخصم بارتفاع موسع 60% -->
             <div>
               <label class="text-[12px] sm:text-[13px] font-black text-rose-300 mb-0.5 flex items-center gap-1 truncate">
                 <i class="fa-solid fa-minus-circle text-[11px]"></i> الخصم:
               </label>
-              <div class="relative rounded-xl overflow-hidden flex items-center justify-center pos-field-interactive pos-field-discount" 
+              <div class="relative rounded-2xl overflow-hidden flex items-center justify-center pos-field-interactive pos-field-discount h-[80px] sm:h-[92px]" 
                    style="background: rgba(15, 23, 42, 0.92); border: 1.5px solid rgba(251, 113, 133, 0.45); box-shadow: 0 0 8px rgba(251, 113, 133, 0.15);">
                 <input type="number" id="purDiscountInput" min="0" step="any" oninput="SuitePurchasePOS.calcItemSubtotal()" 
-                       class="w-full h-[50px] sm:h-[58px] font-black font-mono text-center text-rose-400 text-2xl sm:text-3xl outline-none placeholder:text-rose-400/60 placeholder:font-black placeholder:font-sans placeholder:text-base sm:placeholder:text-lg" 
+                       class="w-full h-full font-black font-mono text-center text-rose-400 text-2xl sm:text-3xl outline-none placeholder:text-rose-400/60 placeholder:font-black placeholder:font-sans placeholder:text-base sm:placeholder:text-lg" 
                        style="background: transparent !important; color: #fb7185 !important;" 
                        placeholder="الخصم" inputmode="decimal" title="الخصم" />
               </div>
             </div>
 
-            <!-- 3. الإعالة -->
+            <!-- 3. العتالة بارتفاع موسع 60% وتصحيح التسمية من الإعالة إلى العتالة -->
             <div>
-              <label class="text-[12px] sm:text-[13px] font-black text-amber-300 mb-0.5 flex items-center gap-1 truncate" title="الإعالة (العتالة والخدمات)">
-                <i class="fa-solid fa-truck-ramp-box text-[11px]"></i> الإعالة:
+              <label class="text-[12px] sm:text-[13px] font-black text-amber-300 mb-0.5 flex items-center gap-1 truncate" title="العتالة">
+                <i class="fa-solid fa-truck-ramp-box text-[11px]"></i> العتالة:
               </label>
-              <div class="relative rounded-xl overflow-hidden flex items-center justify-center pos-field-interactive pos-field-labor" 
+              <div class="relative rounded-2xl overflow-hidden flex items-center justify-center pos-field-interactive pos-field-labor h-[80px] sm:h-[92px]" 
                    style="background: rgba(15, 23, 42, 0.92); border: 1.5px solid rgba(251, 191, 36, 0.45); box-shadow: 0 0 8px rgba(251, 191, 36, 0.15);">
                 <input type="number" id="purLaborInput" min="0" step="any" oninput="SuitePurchasePOS.calcItemSubtotal()" 
-                       class="w-full h-[50px] sm:h-[58px] font-black font-mono text-center text-amber-300 text-2xl sm:text-3xl outline-none placeholder:text-amber-400/60 placeholder:font-black placeholder:font-sans placeholder:text-base sm:placeholder:text-lg" 
+                       class="w-full h-full font-black font-mono text-center text-amber-300 text-2xl sm:text-3xl outline-none placeholder:text-amber-400/60 placeholder:font-black placeholder:font-sans placeholder:text-base sm:placeholder:text-lg" 
                        style="background: transparent !important; color: #fcd34d !important;" 
-                       placeholder="الإعالة" inputmode="decimal" title="الإعالة" />
+                       placeholder="العتالة" inputmode="decimal" title="العتالة" />
               </div>
             </div>
           </div>
 
-          <!-- السطر الثاني: الإجمالي الصافي المطلوب -->
+          <!-- السطر الثاني: الإجمالي الصافي المطلوب بنفس حجم خط الجملة تماماً (38px ومساوٍ له تماماً) -->
           <div>
             <label class="text-[12px] sm:text-[13px] font-black text-amber-300 mb-0.5 flex items-center gap-1">
               <i class="fa-solid fa-coins text-[11px]"></i> الإجمالي الصافي المطلوب:
             </label>
-            <div class="w-full h-[60px] sm:h-[70px] rounded-xl flex items-center justify-center px-3 shadow-md relative overflow-hidden pos-field-interactive pos-field-total" 
+            <div class="w-full h-[64px] sm:h-[72px] rounded-xl flex items-center justify-center px-3 shadow-md relative overflow-hidden pos-field-interactive pos-field-total" 
                  style="background: linear-gradient(135deg, rgba(120, 53, 15, 0.35), rgba(15, 23, 42, 0.95)); border: 1.5px solid rgba(245, 158, 11, 0.6); box-shadow: 0 0 12px rgba(245, 158, 11, 0.2);">
               <input type="text" id="purTotalInput" readonly placeholder="الإجمالي" 
-                     class="w-full text-center font-black font-mono text-amber-300 outline-none select-none bg-transparent border-none placeholder:text-amber-400/60 placeholder:font-black placeholder:font-sans placeholder:text-2xl sm:placeholder:text-3xl cursor-default" 
-                     style="background: transparent !important; color: #fcd34d !important; font-family: 'Impact', 'Arial Black', sans-serif !important; font-weight: 900 !important; font-size: 36px !important; letter-spacing: 0.5px !important;" 
-                     title="الإجمالي" />
+                     class="w-full h-full text-center font-black font-mono text-amber-300 outline-none select-none bg-transparent border-none placeholder:text-amber-400/60 placeholder:font-black placeholder:font-sans placeholder:text-2xl sm:placeholder:text-3xl cursor-default" 
+                     style="background: transparent !important; color: #fcd34d !important; font-family: 'Impact', 'Arial Black', sans-serif !important; font-weight: 900 !important; font-size: 38px !important; letter-spacing: 0.5px !important;" 
+                     title="الإجمالي الصافي المطلوب" />
             </div>
           </div>
 
@@ -8122,24 +8128,14 @@
             </div>
           </div>
 
-          <!-- أزرار التحكم بالأسطر: إضافة السطر الحالي + إضافة سطر غير مسجل بالسيستم -->
-          <div class="grid grid-cols-2 gap-1.5">
-            <!-- 1. إضافة هذا السطر للفاتورة -->
+          <!-- زر إضافة السطر للفاتورة في المشتريات (بدلاً من الزرين السابقين) -->
+          <div class="w-full">
             <button type="button" onclick="SuitePurchasePOS.addItemToCart()" 
-                    class="py-2.5 px-2 rounded-xl text-white font-black text-xs flex items-center justify-center gap-1.5 shadow-md active:scale-95 transition cursor-pointer" 
-                    style="background: linear-gradient(135deg, #d97706, #b45309); border: 1.5px solid #fbbf24; box-shadow: 0 0 10px rgba(245, 158, 11, 0.35);" 
-                    title="إضافة الصنف والبيانات الحالية كسطر في فاتورة المشتريات">
-              <i class="fa-solid fa-plus-circle text-amber-200 text-sm"></i>
-              <span>إضافة السطر ↵</span>
-            </button>
-
-            <!-- 2. إضافة سطر ناقص / غير مسجل في السيستم -->
-            <button type="button" onclick="SuitePurchasePOS.promptCustomItem()" 
-                    class="py-2.5 px-2 rounded-xl text-amber-200 hover:text-white font-black text-xs flex items-center justify-center gap-1.5 shadow-md active:scale-95 transition cursor-pointer" 
-                    style="background: linear-gradient(135deg, rgba(180, 83, 9, 0.5), rgba(15, 23, 42, 0.95)); border: 1.5px solid #f59e0b; box-shadow: 0 0 10px rgba(245, 158, 11, 0.25);" 
-                    title="إضافة صنف أو سطر حر غير مسجل في السيستم">
-              <i class="fa-solid fa-file-circle-plus text-amber-300 text-sm"></i>
-              <span>سطر غير مسجل</span>
+                    class="w-full py-3 px-3 rounded-xl text-white font-black text-sm flex items-center justify-center gap-2 shadow-lg active:scale-95 transition cursor-pointer" 
+                    style="background: linear-gradient(135deg, #d97706, #b45309); border: 1.5px solid #fbbf24; box-shadow: 0 4px 14px rgba(245, 158, 11, 0.4);" 
+                    title="إضافة الصنف والبيانات الحالية للفاتورة">
+              <i class="fa-solid fa-plus-circle text-amber-200 text-base"></i>
+              <span>إضافة السطر للفاتورة ↵</span>
             </button>
           </div>
 
@@ -8419,67 +8415,82 @@
       </div>
     </div>
 
-    <!-- 6. DEDICATED EXPANDED NOTES SCREEN (شاشة مربعة حقيقية أنيقة يظهر فيها بالكامل كل ما كُتب في الملحوظة) -->
-    <div id="suiteSalesNotesModal" class="hidden fixed inset-0 modal-backdrop items-center justify-center p-3 bg-slate-950/90 backdrop-blur-md" 
+    <!-- 6. DEDICATED EXPANDED NOTES SCREEN (المربع الكبير للملحوظة الموسّعة لعرض وتعديل كامل الكتابة بوضوح تام دون أي اختفاء) -->
+    <div id="suiteSalesNotesModal" class="hidden fixed inset-0 modal-backdrop flex items-center justify-center p-2 sm:p-4 bg-slate-950/92 backdrop-blur-md overflow-y-auto" 
          style="z-index: 99999 !important; display: none;"
          onclick="if(event.target === this) SuiteSalesPOS.closeNotesModal();">
-      <div class="glass-base flex flex-col justify-between p-3.5 sm:p-4 relative" 
-           style="background: linear-gradient(180deg, #081225 0%, #020611 100%); 
-                  border: 2px solid rgba(56, 189, 248, 0.75); 
-                  box-shadow: 0 0 50px rgba(6, 182, 212, 0.45), 0 20px 40px rgba(0, 0, 0, 0.95); 
-                  border-radius: 26px; 
-                  width: min(92vw, 410px) !important; 
-                  height: min(92vw, 410px) !important; 
-                  aspect-ratio: 1 / 1 !important; 
-                  max-width: 410px !important; 
-                  max-height: 410px !important; 
+      <div id="suiteNotesModalDialog" class="glass-base flex flex-col justify-between p-3.5 sm:p-5 relative transition-all duration-200" 
+           style="background: linear-gradient(180deg, #091326 0%, #020611 100%); 
+                  border: 2px solid rgba(56, 189, 248, 0.85); 
+                  box-shadow: 0 0 50px rgba(6, 182, 212, 0.45), 0 20px 50px rgba(0, 0, 0, 0.95); 
+                  border-radius: 24px; 
+                  width: min(96vw, 680px) !important; 
+                  min-height: min(75vh, 480px) !important; 
+                  max-height: 94vh !important; 
+                  max-width: 680px !important; 
+                  margin: auto !important; 
                   box-sizing: border-box !important; 
                   display: flex !important; 
                   flex-direction: column !important;">
         
-        <!-- رأس الشاشة المربعة: العنوان والأيقونة وزر الإغلاق -->
-        <div class="flex items-center justify-between pb-2 border-b border-cyan-500/30 shrink-0">
-          <div class="flex items-center gap-2">
-            <div class="w-8 h-8 rounded-xl flex items-center justify-center bg-cyan-500/25 border border-cyan-400/50 text-cyan-300 shadow-sm shrink-0">
-              <i class="fa-solid fa-note-sticky text-sm"></i>
+        <!-- رأس الشاشة الموسعة للملحوظة: العنوان وشارة السياق وزر التكبير الإضافي وزر الإغلاق -->
+        <div class="flex items-center justify-between pb-3 border-b border-cyan-500/30 shrink-0">
+          <div class="flex items-center gap-2.5">
+            <div class="w-9 h-9 rounded-xl flex items-center justify-center bg-cyan-500/25 border border-cyan-400/60 text-cyan-300 shadow-sm shrink-0">
+              <i class="fa-solid fa-note-sticky text-base"></i>
             </div>
             <div>
-              <h3 class="font-black text-xs sm:text-sm text-white flex items-center gap-1.5">
-                <span>بيان وملحوظة الفاتورة</span>
-                <span id="suiteNotesContextBadge" class="text-[9.5px] px-2 py-0.5 rounded-full font-bold bg-cyan-500/20 text-cyan-300 border border-cyan-400/40">مبيعات</span>
+              <h3 class="font-black text-sm sm:text-base text-white flex items-center gap-2">
+                <span>المربع الكبير للملحوظة</span>
+                <span id="suiteNotesContextBadge" class="text-[10px] px-2.5 py-0.5 rounded-full font-bold bg-cyan-500/20 text-cyan-300 border border-cyan-400/50">فاتورة مبيعات</span>
               </h3>
+              <p id="suiteNotesPartnerInfo" class="text-[11px] text-cyan-200/70 font-bold m-0 mt-0.5">كامل الكتابة واضحة ومفتوحة دون أي اختفاء</p>
             </div>
           </div>
-          <button type="button" onclick="SuiteSalesPOS.closeNotesModal()" class="w-8 h-8 rounded-full bg-slate-800/90 hover:bg-rose-900/60 text-slate-300 hover:text-white flex items-center justify-center text-sm transition active:scale-90 cursor-pointer border border-slate-700 shrink-0">✕</button>
+          <div class="flex items-center gap-2">
+            <button type="button" id="btnToggleNotesFullscreen" onclick="SuiteSalesPOS.toggleNotesFullscreen()" 
+                    class="w-9 h-9 rounded-full bg-slate-800/90 hover:bg-cyan-900/60 text-cyan-300 hover:text-white flex items-center justify-center text-sm transition active:scale-90 cursor-pointer border border-cyan-500/50 shrink-0 shadow-sm" 
+                    title="تكبير أقصى ملء الشاشة">
+              <i id="notesFullscreenIcon" class="fa-solid fa-maximize"></i>
+            </button>
+            <button type="button" onclick="SuiteSalesPOS.closeNotesModal()" 
+                    class="w-9 h-9 rounded-full bg-slate-800/90 hover:bg-rose-900/60 text-slate-300 hover:text-white flex items-center justify-center text-base transition active:scale-90 cursor-pointer border border-slate-700 shrink-0" 
+                    title="إغلاق">✕</button>
+          </div>
         </div>
 
-        <!-- مساحة عرض وكتابة الملحوظة الكاملة: تحتل المساحة الرئيسية في الشاشة المربعة وتتسع لكافة الكلمات والنصوص بوضوح -->
-        <div class="flex-1 my-2 min-h-0 flex flex-col relative" style="flex: 1 1 0%; min-height: 0;">
+        <!-- مساحة عرض وكتابة الملحوظة الكاملة: مساحة واسعة ورحبة تستوعب كافة الأسطر والنصوص بوضوح تام -->
+        <div class="flex-1 my-3 flex flex-col relative" style="flex: 1 1 auto; min-height: 180px;">
           <textarea id="salesNotesExpandedTextarea" 
-                    placeholder="اكتب هنا الملحوظة كاملة، كل ما تم كتابته يظهر هنا بالتفصيل وبوضوح تام..." 
+                    placeholder="اكتب هنا كامل نص الملحوظة بالتفصيل... كل الكتابة والأسطر تظهر كاملة وواضحة جداً بمساحة كبيرة دون أي اختفاء أو قص." 
                     oninput="SuiteSalesPOS.updateNotesStats(); SuiteSalesPOS.syncNotesLive();" 
-                    class="w-full h-full p-3 rounded-2xl bg-slate-900/95 border-2 border-cyan-500/50 text-white font-bold text-sm sm:text-base outline-none resize-none shadow-inner placeholder:text-slate-500 focus:border-cyan-300 focus:ring-2 focus:ring-cyan-400/40 leading-relaxed overflow-y-auto"
-                    style="scrollbar-width: thin; scrollbar-color: rgba(6,182,212,0.5) transparent; line-height: 1.6; color: #ffffff !important;"></textarea>
+                    class="w-full flex-1 p-3.5 sm:p-4 rounded-2xl text-white font-bold outline-none resize-none shadow-inner placeholder:text-slate-400 focus:border-cyan-300 focus:ring-2 focus:ring-cyan-400/40 leading-relaxed overflow-y-auto" 
+                    style="scrollbar-width: thin; scrollbar-color: rgba(6,182,212,0.6) #0b1329; line-height: 1.85; color: #ffffff !important; background: #060b17 !important; border: 2px solid rgba(56, 189, 248, 0.6) !important; min-height: 180px; font-size: 18px !important; font-weight: 700 !important; border-radius: 18px;"></textarea>
         </div>
 
         <!-- عبارات سريعة مصغرة لشاشة الملحوظة -->
-        <div class="flex items-center gap-1 overflow-x-auto no-scrollbar py-1 shrink-0">
-          <button type="button" onclick="SuiteSalesPOS.appendQuickNote('توصيل للعنوان')" class="px-2 py-0.5 rounded-lg bg-slate-800/90 hover:bg-cyan-900/40 text-slate-200 text-[10px] font-bold shrink-0 border border-slate-700 active:scale-95 transition">🚚 توصيل</button>
-          <button type="button" onclick="SuiteSalesPOS.appendQuickNote('شامل الضريبة والنقل')" class="px-2 py-0.5 rounded-lg bg-slate-800/90 hover:bg-cyan-900/40 text-slate-200 text-[10px] font-bold shrink-0 border border-slate-700 active:scale-95 transition">📦 شامل النقل</button>
-          <button type="button" onclick="SuiteSalesPOS.appendQuickNote('دفع آجل')" class="px-2 py-0.5 rounded-lg bg-slate-800/90 hover:bg-cyan-900/40 text-slate-200 text-[10px] font-bold shrink-0 border border-slate-700 active:scale-95 transition">⏳ دفع آجل</button>
-          <button type="button" onclick="SuiteSalesPOS.appendQuickNote('تم استلام البضاعة')" class="px-2 py-0.5 rounded-lg bg-slate-800/90 hover:bg-cyan-900/40 text-slate-200 text-[10px] font-bold shrink-0 border border-slate-700 active:scale-95 transition">✅ تم الاستلام</button>
-          <button type="button" onclick="SuiteSalesPOS.insertTimestamp()" class="px-2 py-0.5 rounded-lg bg-amber-500/20 text-amber-300 text-[10px] font-bold shrink-0 border border-amber-500/40 active:scale-95 transition">⏰ +الوقت</button>
+        <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-1.5 shrink-0">
+          <button type="button" onclick="SuiteSalesPOS.appendQuickNote('توصيل للعنوان')" class="px-2.5 py-1 rounded-lg bg-slate-800/90 hover:bg-cyan-900/40 text-slate-200 text-xs font-bold shrink-0 border border-slate-700 active:scale-95 transition">🚚 توصيل للعنوان</button>
+          <button type="button" onclick="SuiteSalesPOS.appendQuickNote('شامل الضريبة والنقل')" class="px-2.5 py-1 rounded-lg bg-slate-800/90 hover:bg-cyan-900/40 text-slate-200 text-xs font-bold shrink-0 border border-slate-700 active:scale-95 transition">📦 شامل النقل</button>
+          <button type="button" onclick="SuiteSalesPOS.appendQuickNote('دفع آجل')" class="px-2.5 py-1 rounded-lg bg-slate-800/90 hover:bg-cyan-900/40 text-slate-200 text-xs font-bold shrink-0 border border-slate-700 active:scale-95 transition">⏳ دفع آجل</button>
+          <button type="button" onclick="SuiteSalesPOS.appendQuickNote('تم استلام البضاعة')" class="px-2.5 py-1 rounded-lg bg-slate-800/90 hover:bg-cyan-900/40 text-slate-200 text-xs font-bold shrink-0 border border-slate-700 active:scale-95 transition">✅ تم الاستلام</button>
+          <button type="button" onclick="SuiteSalesPOS.insertTimestamp()" class="px-2.5 py-1 rounded-lg bg-amber-500/20 text-amber-300 text-xs font-bold shrink-0 border border-amber-500/40 active:scale-95 transition">⏰ +الوقت</button>
         </div>
 
-        <!-- أسفل الشاشة المربعة: الإحصائيات وأزرار الحفظ والإلغاء -->
-        <div class="flex items-center justify-between gap-1.5 pt-2 border-t border-cyan-500/30 shrink-0">
-          <button type="button" onclick="SuiteSalesPOS.clearNotesExpanded()" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-rose-900/40 text-rose-300 border border-slate-700 hover:border-rose-500/50 text-[11px] font-bold transition active:scale-95 cursor-pointer">
-            مسح 🗑️
-          </button>
-          <div class="text-[10px] text-slate-400 font-mono">
-            حروف: <span id="notesCharCount" class="text-cyan-300 font-bold">0</span>
+        <!-- أسفل الشاشة الموسعة: الإحصائيات وأزرار الحفظ والإلغاء -->
+        <div class="flex items-center justify-between gap-2 pt-3 border-t border-cyan-500/30 shrink-0">
+          <div class="flex items-center gap-2">
+            <button type="button" onclick="SuiteSalesPOS.clearNotesExpanded()" class="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-rose-900/40 text-rose-300 border border-slate-700 hover:border-rose-500/50 text-xs font-bold transition active:scale-95 cursor-pointer">
+              مسح 🗑️
+            </button>
+            <button type="button" onclick="SuiteSalesPOS.copyNotesToClipboard()" class="px-3 py-2 rounded-xl bg-slate-800 hover:bg-cyan-900/40 text-cyan-300 border border-slate-700 hover:border-cyan-500/50 text-xs font-bold transition active:scale-95 cursor-pointer">
+              <span id="notesCopyFeedback"><i class="fa-solid fa-copy"></i> نسخ</span>
+            </button>
           </div>
-          <button type="button" onclick="SuiteSalesPOS.saveNotesExpanded()" class="px-4 py-1.5 rounded-xl font-black text-xs text-white shadow-lg flex items-center justify-center gap-1.5 transition active:scale-95 cursor-pointer" style="background: linear-gradient(135deg, #0284c7, #0891b2); box-shadow: 0 4px 14px rgba(6, 182, 212, 0.45); border: 1px solid rgba(34, 211, 238, 0.6);">
+          <div class="text-[11px] text-slate-400 font-mono hidden xs:block sm:block">
+            حروف: <span id="notesCharCount" class="text-cyan-300 font-bold">0</span> | كلمات: <span id="notesWordCount" class="text-amber-300 font-bold">0</span> | أسطر: <span id="notesLineCount" class="text-emerald-300 font-bold">1</span>
+          </div>
+          <button type="button" onclick="SuiteSalesPOS.saveNotesExpanded()" class="px-5 py-2 rounded-xl font-black text-xs sm:text-sm text-white shadow-lg flex items-center justify-center gap-2 transition active:scale-95 cursor-pointer" style="background: linear-gradient(135deg, #0284c7, #0891b2); box-shadow: 0 4px 14px rgba(6, 182, 212, 0.45); border: 1px solid rgba(34, 211, 238, 0.6);">
             <i class="fa-solid fa-check"></i> حفظ الملحوظة 💾
           </button>
         </div>
@@ -11217,17 +11228,18 @@
     // ═════════════════════════════════════════════════════════════════
     // SMART AI FONT COORDINATOR (تنسيق الخطوط الذكي بالذكاء الاصطناعي)
     // تنسيق تلقائي فوري لأحجام الخطوط بما يناسب المساحة المتاحة وعدد الأرقام والأحرف
+    // خط الجملة والإجمالي الصافي متساويان تماماً ومكبران (38px)
     // ═════════════════════════════════════════════════════════════════
     window.SmartPOSFontAI = {
       scaleQty(input) {
         if (!input) return;
         const raw = (input.value || '').toString().trim();
         const len = raw.replace(/[^0-9]/g, '').length;
-        let size = '36px'; // تكبير 4 درجات والخط بلوط عريض
-        if (len >= 8) size = '21px';
-        else if (len === 7) size = '25px';
-        else if (len === 6) size = '29px';
-        else size = '36px';
+        let size = '38px'; // تكبير الخطوط والخط بلوط عريض
+        if (len >= 8) size = '22px';
+        else if (len === 7) size = '26px';
+        else if (len === 6) size = '30px';
+        else size = '38px';
         input.style.fontSize = size;
         input.style.fontWeight = '900';
       },
@@ -11236,11 +11248,12 @@
         if (!input) return;
         const raw = (input.value || '').toString().trim();
         const len = raw.replace(/[^0-9]/g, '').length;
-        let size = '29px'; // تكبير 4 درجات والخط بلوط عريض
+        let size = '34px'; // تكبير السعر ليكون بارزاً وفخماً
         if (len >= 11) size = '20px';
-        else if (len === 10) size = '23px';
-        else if (len === 9) size = '26px';
-        else size = '29px';
+        else if (len >= 10) size = '24px';
+        else if (len >= 9) size = '28px';
+        else if (len >= 8) size = '31px';
+        else size = '34px';
         input.style.fontSize = size;
         input.style.fontWeight = '900';
       },
@@ -11249,11 +11262,26 @@
         if (!input) return;
         const raw = (input.value || '').toString().trim();
         const len = raw.replace(/[^0-9]/g, '').length;
-        let size = '36px'; // بنفس حجم الإجمالي المطلوب تماماً
-        if (len >= 12) size = '20px';
-        else if (len >= 10) size = '24px';
-        else if (len >= 8) size = '29px';
-        else size = '36px';
+        let size = '38px'; // حجم خط الجملة مساوٍ تماماً للإجمالي الصافي ومكبّر
+        if (len >= 13) size = '22px';
+        else if (len >= 11) size = '26px';
+        else if (len >= 9) size = '30px';
+        else if (len >= 7) size = '34px';
+        else size = '38px';
+        input.style.fontSize = size;
+        input.style.fontWeight = '900';
+      },
+
+      scaleTotal(input) {
+        if (!input) return;
+        const raw = (input.value || '').toString().trim();
+        const len = raw.replace(/[^0-9]/g, '').length;
+        let size = '38px'; // مساوٍ تماماً لحجم خط الجملة في كل درجات القياس
+        if (len >= 13) size = '22px';
+        else if (len >= 11) size = '26px';
+        else if (len >= 9) size = '30px';
+        else if (len >= 7) size = '34px';
+        else size = '38px';
         input.style.fontSize = size;
         input.style.fontWeight = '900';
       },
@@ -11307,6 +11335,7 @@
         ['purQtyInput', 'salesQtyInput'].forEach(id => this.scaleQty(document.getElementById(id)));
         ['purPriceInput', 'salesPriceInput'].forEach(id => this.scalePrice(document.getElementById(id)));
         ['purItemGrossTotal', 'salesItemGrossTotal'].forEach(id => this.scaleGross(document.getElementById(id)));
+        ['purTotalInput', 'salesTotalInput'].forEach(id => this.scaleTotal(document.getElementById(id)));
         ['purTaxInput', 'salesTaxInput'].forEach(id => this.scaleTax(document.getElementById(id)));
         ['purchaseWarehouseInput', 'salesWarehouseInput'].forEach(id => this.scaleWarehouse(document.getElementById(id)));
         ['purItemSearchInput', 'salesItemSearchInput'].forEach(id => this.scaleItem(document.getElementById(id)));
@@ -11329,6 +11358,8 @@
         bind('salesPriceInput', this.scalePrice);
         bind('purItemGrossTotal', this.scaleGross);
         bind('salesItemGrossTotal', this.scaleGross);
+        bind('purTotalInput', this.scaleTotal);
+        bind('salesTotalInput', this.scaleTotal);
         bind('purTaxInput', this.scaleTax);
         bind('salesTaxInput', this.scaleTax);
         bind('purchaseWarehouseInput', this.scaleWarehouse);
@@ -11529,8 +11560,10 @@ window.SuiteSalesPOS = {
       },
 
       // ─────────────────────────────────────────────────────────────
-      // EXPANDED NOTES MODAL HANDLERS (الشاشة الخاصة بكل ما يخص الملحوظة)
+      // EXPANDED NOTES MODAL HANDLERS (المربع الكبير المتكامل للملحوظة)
       // ─────────────────────────────────────────────────────────────
+      _isNotesFullscreen: false,
+
       openNotesModal(context = 'sales') {
         window._activeModalContext = (context === 'purchase') ? 'purchase' : 'sales';
         const modal = document.getElementById('suiteSalesNotesModal');
@@ -11538,14 +11571,34 @@ window.SuiteSalesPOS = {
         const targetId = isPur ? 'purNotesInput' : 'salesNotesInput';
         const inp = document.getElementById(targetId);
         const txt = document.getElementById('salesNotesExpandedTextarea');
+        const dlg = document.getElementById('suiteNotesModalDialog');
+        const icon = document.getElementById('notesFullscreenIcon');
         
+        // إعادة ضبط وضع ملء الشاشة إذا كان مفتوحاً سابقاً
+        this._isNotesFullscreen = false;
+        if (dlg) {
+          dlg.classList.remove('notes-dialog-fullscreen');
+          dlg.style.width = 'min(96vw, 680px)';
+          dlg.style.height = 'auto';
+          dlg.style.maxWidth = '680px';
+          dlg.style.maxHeight = '94vh';
+          dlg.style.minHeight = 'min(75vh, 480px)';
+          dlg.style.borderRadius = '24px';
+          dlg.style.margin = 'auto';
+        }
+        if (icon) icon.className = 'fa-solid fa-maximize';
+        if (txt) {
+          txt.style.minHeight = '180px';
+          txt.style.fontSize = '18px';
+        }
+
         // ضبط شارة السياق واسم الشريك
         const badge = document.getElementById('suiteNotesContextBadge');
         if (badge) {
           badge.innerText = isPur ? 'فاتورة مشتريات' : 'فاتورة مبيعات';
           badge.className = isPur 
-            ? 'text-[10px] px-2 py-0.5 rounded-full font-bold bg-amber-500/20 text-amber-300 border border-amber-400/40'
-            : 'text-[10px] px-2 py-0.5 rounded-full font-bold bg-cyan-500/20 text-cyan-300 border border-cyan-400/40';
+            ? 'text-[10px] px-2.5 py-0.5 rounded-full font-bold bg-amber-500/20 text-amber-300 border border-amber-400/50'
+            : 'text-[10px] px-2.5 py-0.5 rounded-full font-bold bg-cyan-500/20 text-cyan-300 border border-cyan-400/50';
         }
         const partnerEl = document.getElementById('suiteNotesPartnerInfo');
         if (partnerEl) {
@@ -11558,14 +11611,17 @@ window.SuiteSalesPOS = {
           }
         }
 
-        // نقل النص المسجل في الحقل إلى الشاشة المربعة بالكامل دون نقصان
+        // نقل النص المسجل في الحقل إلى المربع الكبير بالكامل دون أي نقصان
         if (txt) {
           txt.value = (inp && inp.value) ? inp.value : '';
         }
         this.updateNotesStats();
+
         if (modal) {
           modal.classList.remove('hidden');
           modal.style.display = 'flex';
+          modal.style.visibility = 'visible';
+          modal.style.opacity = '1';
           setTimeout(() => { 
             if (txt) {
               txt.focus();
@@ -11576,6 +11632,44 @@ window.SuiteSalesPOS = {
         if (window.triggerHapticPulse) triggerHapticPulse(10);
       },
 
+      toggleNotesFullscreen() {
+        const dlg = document.getElementById('suiteNotesModalDialog');
+        const icon = document.getElementById('notesFullscreenIcon');
+        const txt = document.getElementById('salesNotesExpandedTextarea');
+        if (!dlg) return;
+        this._isNotesFullscreen = !this._isNotesFullscreen;
+        if (this._isNotesFullscreen) {
+          dlg.classList.add('notes-dialog-fullscreen');
+          dlg.style.setProperty('width', '100vw', 'important');
+          dlg.style.setProperty('height', '100vh', 'important');
+          dlg.style.setProperty('max-width', '100vw', 'important');
+          dlg.style.setProperty('max-height', '100vh', 'important');
+          dlg.style.setProperty('min-height', '100vh', 'important');
+          dlg.style.setProperty('border-radius', '0px', 'important');
+          dlg.style.setProperty('margin', '0', 'important');
+          if (icon) icon.className = 'fa-solid fa-compress';
+          if (txt) {
+            txt.style.setProperty('min-height', 'calc(100vh - 220px)', 'important');
+            txt.style.setProperty('font-size', '20px', 'important');
+          }
+        } else {
+          dlg.classList.remove('notes-dialog-fullscreen');
+          dlg.style.setProperty('width', 'min(96vw, 680px)', 'important');
+          dlg.style.setProperty('height', 'auto', 'important');
+          dlg.style.setProperty('max-width', '680px', 'important');
+          dlg.style.setProperty('max-height', '94vh', 'important');
+          dlg.style.setProperty('min-height', 'min(75vh, 480px)', 'important');
+          dlg.style.setProperty('border-radius', '24px', 'important');
+          dlg.style.setProperty('margin', 'auto', 'important');
+          if (icon) icon.className = 'fa-solid fa-maximize';
+          if (txt) {
+            txt.style.setProperty('min-height', '180px', 'important');
+            txt.style.setProperty('font-size', '18px', 'important');
+          }
+        }
+        if (window.triggerHapticPulse) triggerHapticPulse(8);
+      },
+
       syncNotesLive() {
         const txt = document.getElementById('salesNotesExpandedTextarea');
         const isPur = (window._activeModalContext === 'purchase');
@@ -11583,6 +11677,7 @@ window.SuiteSalesPOS = {
         const inp = document.getElementById(targetId);
         if (inp && txt) {
           inp.value = txt.value;
+          inp.setAttribute('title', txt.value);
         }
       },
 
@@ -11590,12 +11685,17 @@ window.SuiteSalesPOS = {
         const txt = document.getElementById('salesNotesExpandedTextarea');
         const charEl = document.getElementById('notesCharCount');
         const wordEl = document.getElementById('notesWordCount');
+        const lineEl = document.getElementById('notesLineCount');
         if (!txt) return;
         const val = txt.value || '';
         if (charEl) charEl.innerText = val.length;
         if (wordEl) {
           const words = val.trim() ? val.trim().split(/\s+/).length : 0;
           wordEl.innerText = words;
+        }
+        if (lineEl) {
+          const lines = val ? val.split('\n').length : 1;
+          lineEl.innerText = lines;
         }
       },
 
@@ -11633,13 +11733,13 @@ window.SuiteSalesPOS = {
         if (!txt || !txt.value) return;
         navigator.clipboard.writeText(txt.value).then(() => {
           if (feedback) {
-            feedback.innerText = 'تم النسخ! ✓';
-            setTimeout(() => { feedback.innerText = 'نسخ النص'; }, 1500);
+            feedback.innerHTML = '<i class="fa-solid fa-check text-emerald-400"></i> تم النسخ!';
+            setTimeout(() => { feedback.innerHTML = '<i class="fa-solid fa-copy"></i> نسخ'; }, 1500);
           }
         }).catch(() => {
           if (feedback) {
             feedback.innerText = 'فشل النسخ';
-            setTimeout(() => { feedback.innerText = 'نسخ النص'; }, 1500);
+            setTimeout(() => { feedback.innerHTML = '<i class="fa-solid fa-copy"></i> نسخ'; }, 1500);
           }
         });
       },
@@ -11664,6 +11764,7 @@ window.SuiteSalesPOS = {
         const inp = document.getElementById(targetId);
         if (inp && txt) {
           inp.value = txt.value.trim();
+          inp.setAttribute('title', txt.value.trim());
         }
         this.closeNotesModal();
         if (window.triggerHapticPulse) triggerHapticPulse(15);

@@ -9,13 +9,14 @@
  * - Zero Cache Staleness for Critical Real-Time APIs
  */
 
-const CACHE_NAME = 'magaiees-pwa-v2026-10-13-exit-btn-v1';
+const CACHE_NAME = 'magaiees-pwa-v2026-10-13-ui-adjust-v3';
 
 const PRECACHE_ASSETS = [
     './manifest.json',
     './mobile_erp_global_suite.html',
     './mobile-suite.html',
     './mobile-voucher.php',
+    './mobile-dashboard.php',
     './assets/logo.png',
     './assets/icon-192.png',
     './assets/icon-256.png',
@@ -27,7 +28,8 @@ const PRECACHE_ASSETS = [
     './assets/favicon.ico',
     './css/design-system.css',
     './css/theme.css',
-    './js/pwa-manager.js'
+    './js/pwa-manager.js',
+    './js/magaies-offline-sync.js'
 ];
 
 // Install Event: Pre-cache Essential Shell Assets
@@ -64,8 +66,8 @@ self.addEventListener('fetch', (event) => {
 
     const url = new URL(request.url);
 
-    // 1. Never cache authentication gateway (index.php / login.php), dynamic JSON APIs, or heartbeat pings
-    if (url.pathname.endsWith('/index.php') || url.pathname.endsWith('/login.php') || url.pathname === '/' || url.pathname.includes('/api/') || url.pathname.includes('api_index') || url.pathname.includes('sync_queue') || url.searchParams.has('api_call') || url.searchParams.has('action')) {
+    // 1. Never cache authentication gateway (index.php / login.php), dynamic JSON APIs, or live parameters
+    if (url.pathname.endsWith('/index.php') || url.pathname.endsWith('/login.php') || url.pathname === '/' || url.pathname.includes('/api/') || url.pathname.includes('api_index') || url.pathname.includes('sync_queue') || url.searchParams.has('api_call') || url.searchParams.has('action') || url.searchParams.has('api') || url.searchParams.has('t') || url.searchParams.has('live') || url.searchParams.has('nocache')) {
         return;
     }
 
