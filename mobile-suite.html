@@ -315,8 +315,22 @@
     }
 
     /* Modal Z-Index to stay fully above offline sync badges */
-    #modalOpSales, #modalOpFinance {
+    #modalOpSales, #modalOpFinance, #modalOpPurchase {
       z-index: 100005 !important;
+    }
+    #suiteSalesNotesModal, #suiteSmartCalcModal, #suiteCurrencyRateModal,
+    #suiteCostCenterSearchModal, #suiteCustomerSearchModal,
+    #suiteWarehouseSearchModal, #suiteItemSearchModal,
+    #modalOpDelivery, #modalOpStatement, #modalStatementView, #modalOpSalesSplit {
+      z-index: 100050 !important;
+    }
+    #modalSafeExitConfirm {
+      z-index: 100090 !important;
+    }
+    .pos-thick-bold-num {
+      font-weight: 900 !important;
+      -webkit-text-stroke: 0.55px currentColor;
+      letter-spacing: 0.5px;
     }
 
     /* Ultra-Smooth Mobile GPU Acceleration & Ergonomic Performance */
@@ -7046,109 +7060,109 @@
 
         <!-- OPERATIONAL MODAL: 1. فاتورة مبيعات (Sales Invoice) - USER CUSTOMIZED FLOW -->
     <div id="modalOpSales" class="hidden fixed inset-0 z-[100] modal-backdrop flex items-end sm:items-center justify-center p-2 sm:p-4">
-      <div class="glass-base w-full max-w-xl sm:max-w-2xl lg:max-w-4xl xl:max-w-5xl rounded-3xl border border-sky-500/40 p-3.5 sm:p-5 space-y-3 max-h-[94vh] overflow-y-auto shadow-2xl relative" style="background: linear-gradient(180deg, #0b1120, #030712);">
+      <div class="glass-base w-full max-w-xl sm:max-w-2xl lg:max-w-4xl xl:max-w-5xl rounded-3xl border border-sky-500/45 p-3 sm:p-5 space-y-2.5 max-h-[94vh] overflow-y-auto shadow-[0_20px_60px_rgba(0,0,0,0.95)] relative" style="background: linear-gradient(180deg, #0b1326 0%, #050914 55%, #02050b 100%);">
         
         <!-- ═══════════════════════════════════════════════════════════════
              1. HEADER & INVOICE META MODULE: المربع الموحد للسطر الأول والسطر الثاني
-             (خلفية سوداء فاخرة متباينة مع حواف زجاجية مضيئة بتناسق وتركيز بصري فائق)
+             السطر الأول: 1. المايك -> 2. المبيعات -> 3. الدولار (سعر الصرف والعملة) -> 4. الآلة الحاسبة -> 5. زر صغير للخروج
+             السطر الثاني: 1. التاريخ -> 2. رقم السند واضح وبأسهم يمين وشمال بارزة
              ═══════════════════════════════════════════════════════════════ -->
         <div class="rounded-2xl p-2.5 space-y-2 border relative overflow-hidden" 
-             style="background: #060913; border: 1.5px solid rgba(56, 189, 248, 0.35); box-shadow: 0 4px 20px rgba(0, 0, 0, 0.85), inset 0 1px 0 rgba(255, 255, 255, 0.06);">
+             style="background: linear-gradient(180deg, #070c18, #040710); border: 1.5px solid rgba(56, 189, 248, 0.4); box-shadow: 0 6px 22px rgba(0, 0, 0, 0.85), inset 0 1px 0 rgba(255, 255, 255, 0.08);">
           
-          <!-- السطر الأول: 1. المايك -> 2. مبيعات -> 3. مركز الكلفة (بكامل المساحة المتسعة) -> 4. أيقونة الآلة الحاسبة في الركن -->
-          <div class="flex items-center gap-1.5 w-full">
+          <!-- السطر الأول: المايك -> المبيعات -> الدولار -> الآلة الحاسبة -> زر الخروج الصغير -->
+          <div class="flex items-center justify-between gap-1.5 w-full">
             
-            <!-- 1. أيقونة المايك: مربع زجاجي عصري وفخم -->
+            <!-- 1. أيقونة المايك -->
             <button type="button" id="btnSalesVoiceMic" onclick="SuiteSalesPOS.toggleVoiceFeed()" 
-                    class="w-9 h-9 rounded-xl flex items-center justify-center text-sm shadow-lg transition-all duration-200 active:scale-90 relative shrink-0 cursor-pointer" 
-                    style="background: linear-gradient(135deg, rgba(14, 165, 233, 0.3), rgba(2, 132, 199, 0.15)); border: 1.5px solid rgba(56, 189, 248, 0.6); backdrop-filter: blur(8px); box-shadow: 0 0 12px rgba(56, 189, 248, 0.35);" 
+                    class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center text-sm shadow-lg transition-all duration-200 active:scale-90 relative shrink-0 cursor-pointer" 
+                    style="background: linear-gradient(135deg, rgba(14, 165, 233, 0.32), rgba(2, 132, 199, 0.16)); border: 1.5px solid rgba(56, 189, 248, 0.65); backdrop-filter: blur(8px); box-shadow: 0 0 12px rgba(56, 189, 248, 0.35);" 
                     title="مايك التسجيل الصوتي الذكي لتغذية وتفريغ الخانات">
               <i class="fa-solid fa-microphone text-sky-300"></i>
               <span id="salesMicPulseDot" class="hidden absolute -top-1 -right-1 w-2.5 h-2.5 bg-rose-500 rounded-full animate-ping"></span>
             </button>
 
-            <!-- 2. مبيعات: في مربع مضيء أنيق ومقتصد الحجم تزيد المساحة الموفرة منه لصالح مركز الكلفة -->
-            <div class="px-2.5 py-1 h-9 rounded-xl flex items-center justify-center shrink-0" 
-                 style="background: linear-gradient(135deg, rgba(3, 105, 161, 0.4), rgba(15, 23, 42, 0.9)); border: 1.5px solid rgba(56, 189, 248, 0.85); box-shadow: 0 0 12px rgba(56, 189, 248, 0.4), inset 0 0 6px rgba(56, 189, 248, 0.2);">
+            <!-- 2. شارة المبيعات -->
+            <div class="px-3 py-1 h-9 sm:h-10 rounded-xl flex items-center justify-center shrink-0" 
+                 style="background: linear-gradient(135deg, rgba(3, 105, 161, 0.45), rgba(15, 23, 42, 0.92)); border: 1.5px solid rgba(56, 189, 248, 0.85); box-shadow: 0 0 12px rgba(56, 189, 248, 0.35), inset 0 0 6px rgba(56, 189, 248, 0.2);">
               <h2 class="text-white font-black text-sm sm:text-base tracking-wide drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)] whitespace-nowrap select-none m-0" style="color: #ffffff !important;">مبيعات</h2>
             </div>
 
-            <!-- 3. مركز الكلفة: يأتي بعد المبيعات مباشرة وبكامل المساحة المتبقية بمرونة تامة بعد حذف زر الخروج وزيادة مساحته للمركز -->
-            <div class="flex-1 min-w-0 px-3 py-1.5 rounded-xl flex items-center justify-center cursor-pointer transition active:scale-[0.99] h-9 sm:h-10 overflow-hidden" 
-                 style="background: rgba(15, 23, 42, 0.85); border: 1.5px solid rgba(168, 85, 247, 0.55); box-shadow: 0 0 10px rgba(168, 85, 247, 0.2);" 
-                 onclick="SuiteSalesPOS.openCostCenterSearch()" title="اضغط لاختيار أو بحث مركز الكلفة">
-              <div id="suiteCostCenterDisplayName" class="font-black text-xs sm:text-sm truncate text-purple-200 text-center w-full px-1" style="font-size: 13px !important;">
-                <span>المركز الرئيسي</span>
+            <!-- 3. الدولار وسعر الصرف (مرفوع في السطر الأول بوضوح فائق وأناقة عالية) -->
+            <div id="salesRateContainer" onclick="SuiteFXManager.openModal()" 
+                 class="flex-1 min-w-[92px] max-w-[180px] px-2 py-1 rounded-xl flex items-center justify-between gap-1 shadow-md h-9 sm:h-10 transition-all duration-300 cursor-pointer active:scale-95 group relative select-none" 
+                 style="background: linear-gradient(135deg, #064e3b, #022c22); border: 1.5px solid #10b981; box-shadow: 0 0 12px rgba(16, 185, 129, 0.45), inset 0 0 6px rgba(16, 185, 129, 0.25);" 
+                 title="سعر صرف العملة من السيستم - انقر للتعديل والحفظ في قاعدة البيانات">
+              
+              <div class="flex items-center gap-1 min-w-0 flex-1 justify-center pointer-events-none">
+                <span id="salesUsdRateDisplay" 
+                      class="text-center font-black tracking-wider truncate" 
+                      style="color: #ffffff !important; font-family: 'Impact', 'Arial Black', sans-serif !important; font-weight: 900 !important; font-size: 13.5px !important; letter-spacing: 0.4px !important;">2850</span>
+                <i class="fa-solid fa-pen text-[7px] text-emerald-300/70 group-hover:text-emerald-200 transition shrink-0"></i>
               </div>
-            </div>
-            <input type="hidden" id="salesCostCenterInput" value="المركز الرئيسي">
+              <input type="hidden" id="salesUsdRateInput" value="2850" />
 
-            <!-- 4. أيقونة الآلة الحاسبة: في الركن الأيسر -->
+              <!-- زر تبديل العملة ورمز الدولار بخلفية سوداء متباينة تماماً -->
+              <button type="button" id="btnSalesCurrencyToggle" onclick="event.stopPropagation(); SuiteSalesPOS.toggleCurrency()" 
+                      class="w-7 h-7 rounded-lg flex items-center justify-center shrink-0 cursor-pointer transition-all duration-200 active:scale-85 select-none shadow-md" 
+                      style="background: #000000 !important; border: 1.5px solid #22c55e !important; box-shadow: 0 0 8px rgba(34, 197, 94, 0.85) !important;" 
+                      title="العملة: دولار ($) - انقر للتحويل إلى جنيه (ج.س)">
+                <span id="salesCurrencySymbol" class="text-xs font-black leading-none pointer-events-none" style="color: #22c55e !important; font-size: 14px !important; font-weight: 900 !important; text-shadow: 0 0 5px #22c55e;">$</span>
+              </button>
+            </div>
+
+            <!-- 4. أيقونة الآلة الحاسبة -->
             <button type="button" onclick="SuiteSalesPOS.toggleCalculator()" 
                     class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center transition-all duration-200 active:scale-90 shadow-md shrink-0 cursor-pointer" 
-                    style="background: rgba(147, 51, 234, 0.25); border: 1.5px solid rgba(192, 132, 252, 0.5); box-shadow: 0 0 10px rgba(168, 85, 247, 0.3);" 
+                    style="background: linear-gradient(135deg, rgba(147, 51, 234, 0.3), rgba(88, 28, 135, 0.25)); border: 1.5px solid rgba(192, 132, 252, 0.6); box-shadow: 0 0 10px rgba(168, 85, 247, 0.3);" 
                     title="الآلة الحاسبة الذكية">
               <i class="fa-solid fa-calculator text-purple-200 text-xs sm:text-sm"></i>
             </button>
 
+            <!-- 5. زر صغير للخروج في السطر الأول -->
+            <button type="button" onclick="exitToMainDashboard('modalOpSales')" 
+                    class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center transition-all duration-200 active:scale-90 shadow-md shrink-0 cursor-pointer text-rose-200 hover:text-white" 
+                    style="background: linear-gradient(135deg, rgba(225, 29, 72, 0.35), rgba(136, 19, 55, 0.3)); border: 1.5px solid rgba(244, 63, 94, 0.75); box-shadow: 0 0 10px rgba(244, 63, 94, 0.35);" 
+                    title="خروج للشاشة الرئيسية">
+              <i class="fa-solid fa-power-off text-rose-300 text-xs sm:text-sm"></i>
+            </button>
+
           </div>
 
-          <!-- السطر الثاني: 1. التاريخ (بنفس الحجم ومقاس الخط ولكن بولد تخين) -> 2. رقم التسلسل -> 3. سعر صرف العملة -->
-          <div class="flex items-center gap-1.5 w-full pt-0.5">
+          <!-- السطر الثاني: 1. التاريخ -> 2. رقم السند وبجواره سهمان واضحان يمين وشمال -->
+          <div class="flex items-center gap-2 w-full pt-0.5">
             
-            <!-- 1. التاريخ: بنفس مقاس وحجم التاريخ ومقاس الخط وبخط بولد تخين -->
-            <div class="w-[96px] sm:w-[104px] shrink-0 px-1 py-1 rounded-xl flex items-center justify-center transition relative overflow-hidden h-[36px]" 
-                 style="background: rgba(15, 23, 42, 0.85); border: 1.5px solid rgba(56, 189, 248, 0.5); box-shadow: 0 0 8px rgba(56, 189, 248, 0.15);" 
+            <!-- 1. التاريخ: بخط بولد واضح ومتناسق -->
+            <div class="w-[106px] sm:w-[118px] shrink-0 px-2 py-1 rounded-xl flex items-center justify-center transition relative overflow-hidden h-[38px]" 
+                 style="background: rgba(15, 23, 42, 0.9); border: 1.5px solid rgba(56, 189, 248, 0.55); box-shadow: 0 0 8px rgba(56, 189, 248, 0.18);" 
                  title="تاريخ السند / الفاتورة (انقر للتعديل)">
               <div class="flex items-center justify-center pointer-events-none select-none w-full text-center whitespace-nowrap">
-                <span id="opSalesHeaderDatePill" class="tracking-tight whitespace-nowrap" style="color: #67e8f9 !important; font-size: 13.5px !important; font-weight: 900 !important; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif !important; -webkit-text-stroke: 0.35px currentColor; letter-spacing: -0.2px;">2026-10-12</span>
+                <span id="opSalesHeaderDatePill" class="tracking-tight whitespace-nowrap" style="color: #67e8f9 !important; font-size: 14px !important; font-weight: 900 !important; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif !important; -webkit-text-stroke: 0.35px currentColor; letter-spacing: -0.2px;">2026-10-12</span>
               </div>
               <input type="date" id="salesInvoiceDate" onchange="SuiteSalesPOS.syncHeaderDatePill(this.value)" oninput="SuiteSalesPOS.syncHeaderDatePill(this.value)" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" style="color-scheme: dark;" />
             </div>
 
-            <!-- 2. رقم التسلسل: بأسهم ميكرو فائقة الصغر في الأطراف تكاد ألا تكون مرئية ولا تشغل حيزاً إطلاقاً -->
-            <div id="opSalesInvoiceSwipeBox" class="flex-1 min-w-0 px-1 py-0.5 rounded-xl flex items-center justify-center shadow-sm h-[36px] cursor-grab active:cursor-grabbing select-none relative overflow-hidden transition-all duration-150" 
-                 style="background: rgba(15, 23, 42, 0.85); border: 1.5px solid rgba(245, 158, 11, 0.55); box-shadow: 0 0 8px rgba(245, 158, 11, 0.2); touch-action: pan-y;" 
-                 title="اسحب أو مرر يميناً أو يساراً للتنقل بين السندات">
+            <!-- 2. رقم السند: واضح وبأسهم يمين وشمال بارزة وواضحة للتنقل السلس -->
+            <div id="opSalesInvoiceSwipeBox" class="flex-1 min-w-0 px-1.5 py-1 rounded-xl flex items-center justify-between gap-1.5 shadow-sm h-[38px] cursor-grab active:cursor-grabbing select-none relative overflow-hidden transition-all duration-150" 
+                 style="background: rgba(15, 23, 42, 0.92); border: 1.5px solid rgba(245, 158, 11, 0.65); box-shadow: 0 0 10px rgba(245, 158, 11, 0.22); touch-action: pan-y;" 
+                 title="استخدم الأسهم أو اسحب يميناً ويساراً للتنقل بين السندات">
               
-              <!-- سهم ميكرو خافت جداً في أقصى اليمين شبه غير مرئي ولا يشغل حيزاً -->
+              <!-- سهم يمين واضح وبارز (السند التالي) -->
               <button type="button" onclick="event.stopPropagation(); SuiteSalesPOS.navigateInvoice('next'); SuiteSalesPOS.animateSwipePill('right');" 
-                      class="absolute right-0.5 top-1/2 -translate-y-1/2 w-2.5 h-full flex items-center justify-center text-[5.5px] text-amber-400/20 hover:text-amber-300/80 transition cursor-pointer select-none z-10" 
+                      class="w-7 h-7 rounded-lg flex items-center justify-center text-xs font-black text-amber-300 hover:text-white transition cursor-pointer select-none z-10 shrink-0 active:scale-90 shadow-sm" 
+                      style="background: linear-gradient(135deg, rgba(245, 158, 11, 0.3), rgba(180, 83, 9, 0.25)); border: 1px solid rgba(251, 191, 36, 0.7);"
                       title="السند التالي">▶</button>
               
-              <!-- رقم السند يستغل كامل مساحة المربع بالعرض التام وبخط مكبر -->
-              <div class="w-full flex items-center overflow-hidden px-1 text-center justify-center min-w-0">
-                <span id="opSalesInvoiceNoPill" class="font-mono font-black text-amber-300 tracking-wider whitespace-nowrap select-none inline-block transition-transform duration-150" style="color: #fcd34d !important; font-size: 14.5px !important;">S26101012</span>
+              <!-- رقم السند في المنتصف بخط واضح ومكبر -->
+              <div class="flex-1 flex items-center overflow-hidden px-1 text-center justify-center min-w-0">
+                <span id="opSalesInvoiceNoPill" class="font-mono font-black text-amber-300 tracking-wider whitespace-nowrap select-none inline-block transition-transform duration-150" style="color: #fcd34d !important; font-size: 16px !important; font-weight: 900 !important;">S26101012</span>
               </div>
 
-              <!-- سهم ميكرو خافت جداً في أقصى اليسار شبه غير مرئي ولا يشغل حيزاً -->
+              <!-- سهم شمال واضح وبارز (السند السابق) -->
               <button type="button" onclick="event.stopPropagation(); SuiteSalesPOS.navigateInvoice('prev'); SuiteSalesPOS.animateSwipePill('left');" 
-                      class="absolute left-0.5 top-1/2 -translate-y-1/2 w-2.5 h-full flex items-center justify-center text-[5.5px] text-amber-400/20 hover:text-amber-300/80 transition cursor-pointer select-none z-10" 
+                      class="w-7 h-7 rounded-lg flex items-center justify-center text-xs font-black text-amber-300 hover:text-white transition cursor-pointer select-none z-10 shrink-0 active:scale-90 shadow-sm" 
+                      style="background: linear-gradient(135deg, rgba(245, 158, 11, 0.3), rgba(180, 83, 9, 0.25)); border: 1px solid rgba(251, 191, 36, 0.7);"
                       title="السند السابق">◀</button>
-            </div>
-
-            <!-- 3. سعر صرف العملة: حجم مصغر ومدمج بنسبة 30% -->
-            <div id="salesRateContainer" onclick="SuiteFXManager.openModal()" 
-                 class="w-[72px] sm:w-[78px] shrink-0 px-1 py-0.5 rounded-xl flex items-center justify-between gap-0.5 shadow-sm h-[36px] transition-all duration-300 cursor-pointer active:scale-95 group relative select-none" 
-                 style="background: linear-gradient(135deg, #064e3b, #042f2e); border: 1.5px solid #10b981; box-shadow: 0 0 10px rgba(16, 185, 129, 0.5), inset 0 0 6px rgba(16, 185, 129, 0.25);" 
-                 title="سعر صرف العملة من السيستم - انقر للتعديل والحفظ في قاعدة البيانات">
-              
-              <!-- حقل السعر مصغر بنسبة 30% -->
-              <div class="flex items-center gap-0.5 min-w-0 flex-1 justify-center pointer-events-none">
-                <span id="salesUsdRateDisplay" 
-                      class="text-center font-black tracking-wider truncate" 
-                      style="color: #ffffff !important; font-family: 'Impact', 'Arial Black', sans-serif !important; font-weight: 900 !important; font-size: 12px !important; letter-spacing: 0.3px !important;">2850</span>
-                <i class="fa-solid fa-pen text-[6px] text-emerald-300/50 group-hover:text-emerald-200 transition shrink-0"></i>
-              </div>
-              <input type="hidden" id="salesUsdRateInput" value="2850" />
-
-              <!-- زر تبديل العملة ورمز الدولار مصغر 30% -->
-              <button type="button" id="btnSalesCurrencyToggle" onclick="event.stopPropagation(); SuiteSalesPOS.toggleCurrency()" 
-                      class="w-6 h-6 rounded-lg flex items-center justify-center shrink-0 cursor-pointer transition-all duration-200 active:scale-85 select-none shadow-md" 
-                      style="background: #000000 !important; border: 1.5px solid #22c55e !important; box-shadow: 0 0 8px rgba(34, 197, 94, 0.8) !important;" 
-                      title="العملة: دولار ($) - انقر للتحويل إلى جنيه (ج.س)">
-                <span id="salesCurrencySymbol" class="text-xs font-black leading-none pointer-events-none" style="color: #22c55e !important; font-size: 13px !important; font-weight: 900 !important; text-shadow: 0 0 4px #22c55e;">$</span>
-              </button>
             </div>
 
           </div>
@@ -7183,26 +7197,23 @@
         </div>
 
         <!-- ═══════════════════════════════════════════════════════════════
-             2. CUSTOMER ZONE MODULE: الوحدة الثانية: اسم العميل
-             (بحث ذكي منسدل فوري عند الكتابة بدون أيقونات أو كلمات، اسم العميل بالرمادي الخفيف وزر كشف)
+             2. CUSTOMER ZONE MODULE: السطر الثالث: اسم العميل + كشف (كما هو مع تحجيم ذكي للخط)
              ═══════════════════════════════════════════════════════════════ -->
-        <div class="rounded-2xl p-2.5 px-3 flex items-center justify-between gap-2 relative pos-field-interactive pos-field-customer min-h-[46px]" 
-             style="background: #060913; border: 1.5px solid rgba(56, 189, 248, 0.35); box-shadow: 0 4px 16px rgba(0, 0, 0, 0.75);">
+        <div class="rounded-2xl p-2.5 px-3 flex items-center justify-between gap-2 relative pos-field-interactive pos-field-customer min-h-[48px]" 
+             style="background: #060913; border: 1.5px solid rgba(56, 189, 248, 0.38); box-shadow: 0 4px 16px rgba(0, 0, 0, 0.75);">
           
-          <!-- خانة اسم العميل: تمتد من البداية لآخر المساحة بلون رمادي خفيف وخط منقص درجتين وبحث ذكي منسدل -->
           <div class="relative flex-1 min-w-0 flex items-center">
             <input type="text" id="salesCustomerInput" 
                    value="عميل نقدي عام" 
                    placeholder="ابحث باسم العميل أو الهاتف..." 
                    autocomplete="off" 
-                   class="w-full bg-transparent font-black text-[12px] sm:text-[13px] tracking-wide text-right outline-none cursor-text border-none p-0 m-0" 
+                   class="w-full bg-transparent font-black text-[13px] sm:text-[14px] tracking-wide text-right outline-none cursor-text border-none p-0 m-0" 
                    style="color: #38bdf8 !important; text-shadow: 0 0 10px rgba(56, 189, 248, 0.3);" 
-                   oninput="SuiteSalesPOS.onCustomerInput(this.value)" 
+                   oninput="SuiteSalesPOS.onCustomerInput(this.value); window.SmartPOSFontAI && SmartPOSFontAI.scaleCustomer(this);" 
                    onfocus="SuiteSalesPOS.onCustomerFocus(this)" 
                    onclick="this.select()" />
           </div>
 
-          <!-- زر كشف: إلى اليسار قليلاً وبدون شعار/أيقونة -->
           <div class="shrink-0 flex items-center mr-auto -ml-1">
             <button type="button" onclick="event.stopPropagation(); SuiteSalesPOS.printCustomerStatement();" 
                     class="px-2.5 py-1 rounded-xl text-[11px] font-black transition active:scale-95 shadow-md flex items-center justify-center cursor-pointer" 
@@ -7212,30 +7223,29 @@
             </button>
           </div>
 
-          <!-- قائمة منسدلة ذكية جداً للعملاء: بكامل عرض وطول شاشة الجوال (del tamaño de la pantalla completa de ancho y de largo) -->
           <div id="salesCustomerDropdown" class="hidden absolute top-full right-0 left-0 mt-2 bg-slate-950/98 backdrop-blur-2xl border-2 border-sky-500/70 rounded-2xl p-2 space-y-1.5 shadow-[0_25px_60px_rgba(0,0,0,0.98)] max-h-[75vh] overflow-y-auto z-[999] text-xs"></div>
 
         </div>
 
         <!-- ═══════════════════════════════════════════════════════════════
-             3. WAREHOUSE & NOTES MODULE: الوحدة الثالثة: المخزن والملحوظة
-             (بحث ذكي منسدل فوري بدون أيقونة وبدون كلمة)
+             3. WAREHOUSE & COST CENTER MODULE: السطر الرابع: المستودع وبجواره مركز الكلفة
+             (كلاهما متجاوران بنفس الارتفاع وبنفس الذكاء الاصطناعي لمقاس الخط والبحث المنسدل)
              ═══════════════════════════════════════════════════════════════ -->
         <div class="rounded-2xl p-2.5 border shadow-xl relative overflow-visible" 
-             style="background: #060913; border: 1.5px solid rgba(168, 85, 247, 0.35); box-shadow: 0 4px 18px rgba(0, 0, 0, 0.8);">
+             style="background: #060913; border: 1.5px solid rgba(168, 85, 247, 0.38); box-shadow: 0 4px 18px rgba(0, 0, 0, 0.8);">
           
-          <div class="grid grid-cols-12 gap-1.5 items-end relative">
-            <!-- 1. المستودع / المخزن: 5 أعمدة مع تنسيق ذكي يتسع لكلمتين مثل 'درة اللاماب' أو 'السجانة الكبير' -->
-            <div class="col-span-5 relative">
+          <div class="grid grid-cols-12 gap-2 items-end relative">
+            <!-- 1. المستودع (6 أعمدة) -->
+            <div class="col-span-6 relative">
               <label for="salesWarehouseInput" class="text-[11px] sm:text-xs font-bold text-purple-300 block mb-1 text-right">المستودع</label>
-              <div class="glow-input-field glow-purple pos-field-interactive pos-field-warehouse w-full h-[50px] sm:h-[56px] px-2 flex items-center transition rounded-xl relative overflow-hidden" 
-                   style="background: #060913; border: 1.5px solid rgba(168, 85, 247, 0.45);">
+              <div class="glow-input-field glow-purple pos-field-interactive pos-field-warehouse w-full h-[50px] sm:h-[54px] px-2 flex items-center transition rounded-xl relative overflow-hidden" 
+                   style="background: #060913; border: 1.5px solid rgba(168, 85, 247, 0.5);">
                 <input type="text" id="salesWarehouseInput" 
                        value="المستودع الرئيسي" 
                        placeholder="المستودع..." 
                        autocomplete="off" 
                        class="w-full bg-transparent font-black text-center leading-snug px-1 text-white outline-none cursor-text truncate border-none p-0 m-0" 
-                       style="font-size: 13.5px;" 
+                       style="font-size: 14px;" 
                        oninput="SuiteSalesPOS.onWarehouseInput(this.value); window.SmartPOSFontAI && SmartPOSFontAI.scaleWarehouse(this);" 
                        onfocus="SuiteSalesPOS.onWarehouseFocus(this)" 
                        onclick="this.select()" />
@@ -7243,45 +7253,54 @@
               <input type="hidden" id="salesWarehouseSelect" value="المستودع الرئيسي">
             </div>
 
-            <!-- 2. البيان في المبيعات: تم حذف كلمة ملحوظة ومربع التكبير -->
-            <div class="col-span-7 relative">
-              <label for="salesNotesInput" class="text-[11px] sm:text-xs font-bold text-cyan-300 block mb-1 text-right">
-                <i class="fa-solid fa-pen text-cyan-400 text-xs"></i> البيان
-              </label>
-              <div class="glow-input-field glow-cyan pos-field-interactive pos-field-note w-full h-[50px] sm:h-[56px] px-2.5 flex items-center transition rounded-xl relative overflow-hidden" 
-                   style="background: rgba(15, 23, 42, 0.95); border: 1.5px solid rgba(56, 189, 248, 0.55); max-width: 100%; box-sizing: border-box;">
-                <input type="text" id="salesNotesInput" 
-                       placeholder="بيان الفاتورة / ملاحظات..." 
+            <!-- 2. مركز الكلفة جوار المستودع مباشرة (6 أعمدة) -->
+            <div class="col-span-6 relative">
+              <label for="salesCostCenterInput" class="text-[11px] sm:text-xs font-bold text-sky-300 block mb-1 text-right">مركز الكلفة</label>
+              <div class="glow-input-field glow-cyan pos-field-interactive pos-field-costcenter w-full h-[50px] sm:h-[54px] px-2 flex items-center justify-between gap-1 transition rounded-xl relative overflow-hidden" 
+                   style="background: #060913; border: 1.5px solid rgba(56, 189, 248, 0.5);">
+                <input type="text" id="salesCostCenterInput" 
+                       value="المركز الرئيسي" 
+                       placeholder="مركز الكلفة..." 
                        autocomplete="off" 
-                       class="w-full bg-transparent font-bold text-xs sm:text-sm text-white outline-none placeholder:text-slate-400 placeholder:font-medium text-right cursor-text border-none p-0 m-0 truncate" 
-                       style="color: #ffffff !important; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%; width: 0; flex: 1 1 0%; box-sizing: border-box;" 
-                       title="البيان" />
+                       class="w-full bg-transparent font-black text-center leading-snug px-1 text-sky-200 outline-none cursor-text truncate border-none p-0 m-0" 
+                       style="color: #bae6fd !important; font-size: 14px;" 
+                       oninput="SuiteSalesPOS.onCostCenterInput && SuiteSalesPOS.onCostCenterInput(this.value); window.SmartPOSFontAI && SmartPOSFontAI.scaleCostCenter(this);" 
+                       onfocus="SuiteSalesPOS.onCostCenterFocus && SuiteSalesPOS.onCostCenterFocus(this)" 
+                       onclick="this.select()" />
+                <button type="button" onclick="event.stopPropagation(); SuiteSalesPOS.openCostCenterSearch();" 
+                        class="w-6 h-6 rounded-lg bg-sky-500/15 hover:bg-sky-500/30 border border-sky-400/40 text-sky-300 flex items-center justify-center text-[10px] shrink-0 cursor-pointer transition" 
+                        title="بحث واستعراض مراكز الكلفة">
+                  <i class="fa-solid fa-magnifying-glass"></i>
+                </button>
               </div>
+              <div id="suiteCostCenterDisplayName" class="hidden"><span>المركز الرئيسي</span></div>
             </div>
 
-            <!-- قائمة منسدلة ذكية للمستودعات: بكامل عرض الشاشة لجميع الـ 12 عمود ممتدة فوق الملحوظة والمستودع معاً -->
+            <!-- قائمة منسدلة ذكية للمستودعات -->
             <div id="salesWarehouseDropdown" class="hidden absolute top-full right-0 left-0 mt-2 bg-slate-950/98 backdrop-blur-2xl border-2 border-purple-500/70 rounded-2xl p-2 space-y-1.5 shadow-[0_25px_60px_rgba(0,0,0,0.98)] max-h-[75vh] overflow-y-auto z-[999] text-xs"></div>
+            <!-- قائمة منسدلة ذكية لمراكز الكلفة -->
+            <div id="salesCostCenterDropdown" class="hidden absolute top-full right-0 left-0 mt-2 bg-slate-950/98 backdrop-blur-2xl border-2 border-sky-500/70 rounded-2xl p-2 space-y-1.5 shadow-[0_25px_60px_rgba(0,0,0,0.98)] max-h-[75vh] overflow-y-auto z-[999] text-xs"></div>
           </div>
         </div>
 
         <!-- ═══════════════════════════════════════════════════════════════
-             4. ITEM ENTRY MODULE: الوحدة الرابعة: الصنف، الوحدة، الكمية، السعر، الجملة
+             4. ITEM ENTRY MODULE: الوحدة الرابعة: الصنف، الوحدات (-1 درجة)، الكمية والسعر (+4 درجات وبولد تخين)، الجملة (+3 درجات)
              ═══════════════════════════════════════════════════════════════ -->
         <div id="suiteSalesItemBox" class="p-2.5 rounded-2xl border space-y-2 text-xs shadow-2xl relative overflow-visible" 
-             style="background: #03050a; border: 1.5px solid rgba(245, 158, 11, 0.35); box-shadow: 0 6px 24px rgba(0, 0, 0, 0.95), inset 0 1px 0 rgba(255, 255, 255, 0.04);">
+             style="background: #03050a; border: 1.5px solid rgba(245, 158, 11, 0.38); box-shadow: 0 6px 24px rgba(0, 0, 0, 0.95), inset 0 1px 0 rgba(255, 255, 255, 0.04);">
           
-          <!-- السطر الأول: الصنف والوحدات (بحث محصور على المحفوظ + تصغير الوحدات درجة واحدة) -->
+          <!-- السطر الأول: الصنف (8 أعمدة بالذكاء الاصطناعي للمقاس) + الوحدات (4 أعمدة منقصة درجة واحدة) -->
           <div class="grid grid-cols-12 gap-1.5 items-end relative">
-            <!-- 1. الصنف: 8 أعمدة، المساحة كاملة مخصصة للكتابة بدون أي قص للحروف، محصور على الأصناف المحفوظة -->
+            <!-- 1. الصنف -->
             <div class="col-span-8 relative">
               <label for="salesItemSearchInput" class="text-[11px] sm:text-xs font-bold text-amber-300 block mb-1 text-right">الصنف</label>
-              <div class="glow-input-field glow-amber pos-field-interactive pos-field-item w-full h-[56px] sm:h-[64px] px-3 flex items-center transition rounded-xl relative" 
-                   style="background: #060913; border: 1.5px solid rgba(245, 158, 11, 0.45);">
+              <div class="glow-input-field glow-amber pos-field-interactive pos-field-item w-full h-[58px] sm:h-[64px] px-2.5 flex items-center transition rounded-xl relative" 
+                   style="background: #060913; border: 1.5px solid rgba(245, 158, 11, 0.5);">
                 <input type="text" id="salesItemSearchInput" 
-                       placeholder="ابحث واختر من الأصناف المحفوظة..." 
+                       placeholder="ابحث واختر الصنف (مثال: سيخ 3 لينيا أسعد 10 مللي)..." 
                        autocomplete="off" 
-                       class="w-full h-full bg-transparent font-black text-center tracking-wide outline-none cursor-text border-none p-0 m-0 truncate leading-normal" 
-                       style="color: #fcd34d !important; font-size: 14px;" 
+                       class="w-full h-full bg-transparent font-black text-center tracking-normal outline-none cursor-text border-none p-0 m-0 truncate leading-normal" 
+                       style="color: #fcd34d !important; font-size: 15px;" 
                        oninput="SuiteSalesPOS.onItemInput(this.value); window.SmartPOSFontAI && SmartPOSFontAI.scaleItem(this);" 
                        onfocus="SuiteSalesPOS.onItemFocus(this)" 
                        onblur="SuiteSalesPOS.onItemBlur(this)" 
@@ -7290,12 +7309,12 @@
               <input type="hidden" id="salesItemSelectVal" value="">
             </div>
 
-            <!-- 2. الوحدات: 4 أعمدة تم تصغير الخط درجة واحدة (12.5px) بمساحة كتابة رحبة -->
+            <!-- 2. الوحدات: تم تنقيص مقاس خط الوحدات درجة واحدة (11.5px) -->
             <div class="col-span-4">
               <label for="salesUnitSelect" class="text-[11px] sm:text-xs font-bold text-emerald-400 block mb-1 text-right">الوحدات</label>
               <select id="salesUnitSelect" onchange="SuiteSalesPOS.onUnitChange(); window.SmartPOSFontAI && SmartPOSFontAI.scaleUnit(this);" 
-                      class="glow-input-field glow-emerald pos-field-interactive pos-field-unit w-full h-[56px] sm:h-[64px] text-emerald-400 font-bold text-center outline-none cursor-pointer px-1 rounded-xl" 
-                      style="background: rgba(15, 23, 42, 0.92) !important; color: #34d399 !important; font-size: 12.5px !important;" 
+                      class="glow-input-field glow-emerald pos-field-interactive pos-field-unit w-full h-[58px] sm:h-[64px] text-emerald-400 font-bold text-center outline-none cursor-pointer px-1 rounded-xl" 
+                      style="background: rgba(15, 23, 42, 0.92) !important; color: #34d399 !important; font-size: 11.5px !important;" 
                       title="الوحدات">
                 <option value="" disabled selected hidden>الوحدات</option>
                 <option value="حبة">حبة</option>
@@ -7306,53 +7325,53 @@
               </select>
             </div>
 
-            <!-- قائمة منسدلة ذكية للأصناف: محصورة فقط على الأصناف المحفوظة -->
+            <!-- قائمة منسدلة ذكية للأصناف -->
             <div id="salesItemDropdown" class="hidden absolute top-full right-0 left-0 mt-2 bg-slate-950/98 backdrop-blur-2xl border-2 border-amber-500/70 rounded-2xl p-2 space-y-1.5 shadow-[0_25px_60px_rgba(0,0,0,0.98)] max-h-[75vh] overflow-y-auto z-[999] text-xs"></div>
           </div>
 
-          <!-- السطر الثاني: الكمية والسعر: تكبير 4 درجات + خط بلوط عريض ومساحة كاملة بدون أي قص -->
+          <!-- السطر الثاني: الكمية والسعر: خط بولد تخين جداً وزيادة 4 درجات (الكمية 45px، السعر 41px) بارتفاع موحد 62px -->
           <div class="grid grid-cols-2 gap-2">
-            <!-- 1. الكمية: مساحة واسعة (58px)، خط بلوط عريض وتكبير 4 درجات (36px) ولا يختفي أي جزء -->
+            <!-- 1. الكمية: بولد تخين + زيادة 4 درجات -->
             <div>
               <label class="text-[12px] sm:text-[13px] font-black text-sky-300 mb-0.5 flex items-center gap-1 truncate">
                 <i class="fa-solid fa-boxes-stacked text-[11px]"></i> الكمية:
               </label>
-              <div class="relative rounded-xl flex items-center justify-center pos-field-interactive pos-field-qty" 
-                   style="background: rgba(15, 23, 42, 0.92); border: 1.5px solid rgba(56, 189, 248, 0.45); box-shadow: 0 0 10px rgba(56, 189, 248, 0.15); height: 64px;">
+              <div class="relative rounded-xl flex items-center justify-center pos-field-interactive pos-field-qty h-[62px] sm:h-[66px]" 
+                   style="background: rgba(15, 23, 42, 0.94); border: 1.5px solid rgba(56, 189, 248, 0.5); box-shadow: 0 0 12px rgba(56, 189, 248, 0.18);">
                 <input type="number" id="salesQtyInput" placeholder="الكمية" min="0.01" step="any" 
                        oninput="SuiteSalesPOS.calcItemSubtotal(); window.SmartPOSFontAI && SmartPOSFontAI.scaleQty(this);" 
-                       class="w-full h-full font-black font-mono text-center text-white outline-none placeholder:text-slate-400 placeholder:font-black placeholder:font-sans placeholder:text-xl sm:placeholder:text-2xl" 
-                       style="background: transparent !important; color: #ffffff !important; letter-spacing: 0.5px; font-size: 39px !important; font-weight: 900 !important; line-height: 1 !important;" 
+                       class="w-full h-full font-black font-mono text-center text-white outline-none pos-thick-bold-num placeholder:text-slate-400 placeholder:font-black placeholder:font-sans placeholder:text-xl sm:placeholder:text-2xl" 
+                       style="background: transparent !important; color: #ffffff !important; font-family: 'Impact', 'Arial Black', system-ui, sans-serif !important; font-size: 45px !important; font-weight: 900 !important; -webkit-text-stroke: 0.6px currentColor; line-height: 1 !important;" 
                        inputmode="decimal" title="الكمية" />
               </div>
             </div>
 
-            <!-- 2. السعر: مساحة واسعة (58px)، خط بلوط عريض وتكبير 4 درجات (29px) ولا يختفي أي جزء -->
+            <!-- 2. السعر: بولد تخين + زيادة 4 درجات -->
             <div>
               <label class="text-[12px] sm:text-[13px] font-black text-cyan-300 mb-0.5 flex items-center gap-1 truncate">
                 <i class="fa-solid fa-tag text-[11px]"></i> السعر:
               </label>
-              <div class="relative rounded-xl flex items-center justify-center pos-field-interactive pos-field-price" 
-                   style="background: rgba(15, 23, 42, 0.92); border: 1.5px solid rgba(34, 211, 238, 0.45); box-shadow: 0 0 10px rgba(34, 211, 238, 0.15); height: 64px;">
+              <div class="relative rounded-xl flex items-center justify-center pos-field-interactive pos-field-price h-[62px] sm:h-[66px]" 
+                   style="background: rgba(15, 23, 42, 0.94); border: 1.5px solid rgba(34, 211, 238, 0.5); box-shadow: 0 0 12px rgba(34, 211, 238, 0.18);">
                 <input type="number" id="salesPriceInput" placeholder="السعر" step="any" 
                        oninput="SuiteSalesPOS.calcItemSubtotal(); window.SmartPOSFontAI && SmartPOSFontAI.scalePrice(this);" 
-                       class="w-full h-full font-black font-mono text-center text-cyan-300 outline-none placeholder:text-slate-400 placeholder:font-black placeholder:font-sans placeholder:text-xl sm:placeholder:text-2xl" 
-                       style="background: transparent !important; color: #67e8f9 !important; letter-spacing: 0.5px; font-size: 32px !important; font-weight: 900 !important; line-height: 1 !important;" 
+                       class="w-full h-full font-black font-mono text-center text-cyan-300 outline-none pos-thick-bold-num placeholder:text-slate-400 placeholder:font-black placeholder:font-sans placeholder:text-xl sm:placeholder:text-2xl" 
+                       style="background: transparent !important; color: #67e8f9 !important; font-family: 'Impact', 'Arial Black', system-ui, sans-serif !important; font-size: 41px !important; font-weight: 900 !important; -webkit-text-stroke: 0.6px currentColor; line-height: 1 !important;" 
                        inputmode="decimal" title="السعر" />
               </div>
             </div>
           </div>
 
-          <!-- السطر الثالث: الجملة بنفس حجم خط الإجمالي الصافي تماماً وبخط مكبّر وفخم ومساوٍ له -->
+          <!-- السطر الثالث: الجملة بزيادة 3 درجات (46px) وبارتفاع مساوٍ ومتناسق (62px) -->
           <div>
             <label class="text-[12px] sm:text-[13px] font-black text-emerald-300 mb-0.5 flex items-center gap-1 truncate">
               <i class="fa-solid fa-calculator text-[11px]"></i> الجملة:
             </label>
-            <div class="w-full h-[72px] sm:h-[80px] rounded-xl flex items-center justify-center px-3 shadow-lg relative pos-field-interactive pos-field-gross" 
-                 style="background: linear-gradient(135deg, rgba(6, 78, 59, 0.35), rgba(15, 23, 42, 0.95)); border: 1.5px solid rgba(16, 185, 129, 0.6); box-shadow: 0 0 12px rgba(16, 185, 129, 0.2);">
+            <div class="w-full h-[62px] sm:h-[66px] rounded-xl flex items-center justify-center px-3 shadow-lg relative pos-field-interactive pos-field-gross" 
+                 style="background: linear-gradient(135deg, rgba(6, 78, 59, 0.38), rgba(15, 23, 42, 0.95)); border: 1.5px solid rgba(16, 185, 129, 0.65); box-shadow: 0 0 12px rgba(16, 185, 129, 0.22);">
               <input type="text" id="salesItemGrossTotal" readonly placeholder="الجملة" 
-                     class="w-full h-full text-center font-black font-mono text-emerald-300 outline-none select-none bg-transparent border-none placeholder:text-emerald-400/60 placeholder:font-black placeholder:font-sans placeholder:text-2xl sm:placeholder:text-3xl cursor-default" 
-                     style="background: transparent !important; color: #34d399 !important; font-family: 'Impact', 'Arial Black', sans-serif !important; font-weight: 900 !important; font-size: 43px !important; letter-spacing: 0.5px !important;" 
+                     class="w-full h-full text-center font-black font-mono text-emerald-300 outline-none select-none bg-transparent border-none pos-thick-bold-num placeholder:text-emerald-400/60 placeholder:font-black placeholder:font-sans placeholder:text-2xl sm:placeholder:text-3xl cursor-default" 
+                     style="background: transparent !important; color: #34d399 !important; font-family: 'Impact', 'Arial Black', sans-serif !important; font-weight: 900 !important; font-size: 46px !important; -webkit-text-stroke: 0.5px currentColor; letter-spacing: 0.5px !important;" 
                      title="الجملة" />
             </div>
           </div>
@@ -7360,68 +7379,104 @@
         </div>
 
         <!-- ═══════════════════════════════════════════════════════════════
-             5. ADJUSTMENTS MODULE: الوحدة الخامسة: الإضافة، الخصم، العتالة (المثال)، الإجمالي
+             5. ADJUSTMENTS, NET TOTAL & NOTES MODULE:
+             - الإضافة والخصم والعتالة: تنقيص الارتفاع بنسبة 30% (62px) ليتساوى مع الجملة والكمية والسعر
+             - الإجمالي الصافي: زيادة 3 درجات (46px)
+             - تحت الإجمالي الصافي مباشرة: البيان / الملحوظة وبداخله مربع التكبير لعرض كامل الكتابة
              ═══════════════════════════════════════════════════════════════ -->
         <div class="rounded-2xl p-2.5 border space-y-2 shadow-xl relative overflow-hidden" 
-             style="background: #050811; border: 1.5px solid rgba(16, 185, 129, 0.35); box-shadow: 0 4px 20px rgba(0, 0, 0, 0.85);">
+             style="background: #050811; border: 1.5px solid rgba(16, 185, 129, 0.38); box-shadow: 0 4px 20px rgba(0, 0, 0, 0.85);">
           
-          <!-- السطر الأول: الإضافة والخصم والعتالة (تمت زيادة الارتفاع بنسبة 60% وتصحيح العتالة) -->
+          <!-- السطر الأول: الإضافة والخصم والعتالة بارتفاع منقص 30% (62px) مساوٍ تماماً للكمية والسعر والجملة -->
           <div class="grid grid-cols-3 gap-1.5">
-            <!-- 1. الإضافة بخط كبير وتنسيق ذكي وارتفاع موسع 60% -->
+            <!-- 1. الإضافة -->
             <div>
-              <label class="text-[12px] sm:text-[13px] font-black text-purple-300 mb-0.5 flex items-center gap-1 truncate">
-                <i class="fa-solid fa-plus-circle text-[11px]"></i> الإضافة:
+              <label class="text-[11.5px] sm:text-[12.5px] font-black text-purple-300 mb-0.5 flex items-center gap-1 truncate">
+                <i class="fa-solid fa-plus-circle text-[10px]"></i> الإضافة:
               </label>
-              <div class="relative rounded-2xl overflow-hidden flex items-center justify-center pos-field-interactive pos-field-tax h-[80px] sm:h-[92px]" 
-                   style="background: rgba(15, 23, 42, 0.92); border: 1.5px solid rgba(192, 132, 252, 0.45); box-shadow: 0 0 8px rgba(192, 132, 252, 0.15);">
+              <div class="relative rounded-xl overflow-hidden flex items-center justify-center pos-field-interactive pos-field-tax h-[60px] sm:h-[64px]" 
+                   style="background: rgba(15, 23, 42, 0.92); border: 1.5px solid rgba(192, 132, 252, 0.48); box-shadow: 0 0 8px rgba(192, 132, 252, 0.15);">
                 <input type="number" id="salesTaxInput" min="0" step="any" 
                        oninput="SuiteSalesPOS.calcItemSubtotal(); window.SmartPOSFontAI && SmartPOSFontAI.scaleTax(this);" 
-                       class="w-full h-full font-black font-mono text-center text-purple-200 outline-none placeholder:text-purple-300/60 placeholder:font-black placeholder:font-sans placeholder:text-base sm:placeholder:text-lg" 
-                       style="background: transparent !important; color: #d8b4fe !important; font-size: 28px;" 
+                       class="w-full h-full font-black font-mono text-center text-purple-200 outline-none pos-thick-bold-num placeholder:text-purple-300/60 placeholder:font-black placeholder:font-sans placeholder:text-sm sm:placeholder:text-base" 
+                       style="background: transparent !important; color: #d8b4fe !important; font-size: 28px !important; font-weight: 900 !important;" 
                        placeholder="الإضافة" inputmode="decimal" title="الإضافة" />
               </div>
             </div>
 
-            <!-- 2. الخصم بارتفاع موسع 60% -->
+            <!-- 2. الخصم -->
             <div>
-              <label class="text-[12px] sm:text-[13px] font-black text-rose-300 mb-0.5 flex items-center gap-1 truncate">
-                <i class="fa-solid fa-minus-circle text-[11px]"></i> الخصم:
+              <label class="text-[11.5px] sm:text-[12.5px] font-black text-rose-300 mb-0.5 flex items-center gap-1 truncate">
+                <i class="fa-solid fa-minus-circle text-[10px]"></i> الخصم:
               </label>
-              <div class="relative rounded-2xl overflow-hidden flex items-center justify-center pos-field-interactive pos-field-discount h-[80px] sm:h-[92px]" 
-                   style="background: rgba(15, 23, 42, 0.92); border: 1.5px solid rgba(251, 113, 133, 0.45); box-shadow: 0 0 8px rgba(251, 113, 133, 0.15);">
-                <input type="number" id="salesDiscountInput" min="0" step="any" oninput="SuiteSalesPOS.calcItemSubtotal()" 
-                       class="w-full h-full font-black font-mono text-center text-rose-400 text-2xl sm:text-3xl outline-none placeholder:text-rose-400/60 placeholder:font-black placeholder:font-sans placeholder:text-base sm:placeholder:text-lg" 
-                       style="background: transparent !important; color: #fb7185 !important;" 
+              <div class="relative rounded-xl overflow-hidden flex items-center justify-center pos-field-interactive pos-field-discount h-[60px] sm:h-[64px]" 
+                   style="background: rgba(15, 23, 42, 0.92); border: 1.5px solid rgba(251, 113, 133, 0.48); box-shadow: 0 0 8px rgba(251, 113, 133, 0.15);">
+                <input type="number" id="salesDiscountInput" min="0" step="any" 
+                       oninput="SuiteSalesPOS.calcItemSubtotal(); window.SmartPOSFontAI && SmartPOSFontAI.scaleTax(this);" 
+                       class="w-full h-full font-black font-mono text-center text-rose-400 outline-none pos-thick-bold-num placeholder:text-rose-400/60 placeholder:font-black placeholder:font-sans placeholder:text-sm sm:placeholder:text-base" 
+                       style="background: transparent !important; color: #fb7185 !important; font-size: 28px !important; font-weight: 900 !important;" 
                        placeholder="الخصم" inputmode="decimal" title="الخصم" />
               </div>
             </div>
 
-            <!-- 3. العتالة بارتفاع موسع 60% وتصحيح التسمية -->
+            <!-- 3. العتالة -->
             <div>
-              <label class="text-[12px] sm:text-[13px] font-black text-amber-300 mb-0.5 flex items-center gap-1 truncate" title="العتالة">
-                <i class="fa-solid fa-truck-ramp-box text-[11px]"></i> العتالة:
+              <label class="text-[11.5px] sm:text-[12.5px] font-black text-amber-300 mb-0.5 flex items-center gap-1 truncate" title="العتالة">
+                <i class="fa-solid fa-truck-ramp-box text-[10px]"></i> العتالة:
               </label>
-              <div class="relative rounded-2xl overflow-hidden flex items-center justify-center pos-field-interactive pos-field-labor h-[80px] sm:h-[92px]" 
-                   style="background: rgba(15, 23, 42, 0.92); border: 1.5px solid rgba(251, 191, 36, 0.45); box-shadow: 0 0 8px rgba(251, 191, 36, 0.15);">
-                <input type="number" id="salesLaborInput" min="0" step="any" oninput="SuiteSalesPOS.calcItemSubtotal()" 
-                       class="w-full h-full font-black font-mono text-center text-amber-300 text-2xl sm:text-3xl outline-none placeholder:text-amber-400/60 placeholder:font-black placeholder:font-sans placeholder:text-base sm:placeholder:text-lg" 
-                       style="background: transparent !important; color: #fcd34d !important;" 
+              <div class="relative rounded-xl overflow-hidden flex items-center justify-center pos-field-interactive pos-field-labor h-[60px] sm:h-[64px]" 
+                   style="background: rgba(15, 23, 42, 0.92); border: 1.5px solid rgba(251, 191, 36, 0.48); box-shadow: 0 0 8px rgba(251, 191, 36, 0.15);">
+                <input type="number" id="salesLaborInput" min="0" step="any" 
+                       oninput="SuiteSalesPOS.calcItemSubtotal(); window.SmartPOSFontAI && SmartPOSFontAI.scaleTax(this);" 
+                       class="w-full h-full font-black font-mono text-center text-amber-300 outline-none pos-thick-bold-num placeholder:text-amber-400/60 placeholder:font-black placeholder:font-sans placeholder:text-sm sm:placeholder:text-base" 
+                       style="background: transparent !important; color: #fcd34d !important; font-size: 28px !important; font-weight: 900 !important;" 
                        placeholder="العتالة" inputmode="decimal" title="العتالة" />
               </div>
             </div>
           </div>
 
-          <!-- السطر الثاني: الإجمالي الصافي المطلوب بنفس حجم خط الجملة تماماً (38px ومساوٍ له تماماً) -->
+          <!-- السطر الثاني: الإجمالي الصافي المطلوب بزيادة 3 درجات (46px) -->
           <div>
             <label class="text-[12px] sm:text-[13px] font-black text-amber-300 mb-0.5 flex items-center gap-1">
               <i class="fa-solid fa-coins text-[11px]"></i> الإجمالي الصافي المطلوب:
             </label>
-            <div class="w-full h-[72px] sm:h-[80px] rounded-xl flex items-center justify-center px-3 shadow-md relative overflow-hidden pos-field-interactive pos-field-total" 
-                 style="background: linear-gradient(135deg, rgba(120, 53, 15, 0.35), rgba(15, 23, 42, 0.95)); border: 1.5px solid rgba(245, 158, 11, 0.6); box-shadow: 0 0 12px rgba(245, 158, 11, 0.2);">
-              <input type="text" id="salesTotalInput" readonly placeholder="الإجمالي" 
-                     class="w-full h-full text-center font-black font-mono text-amber-300 outline-none select-none bg-transparent border-none placeholder:text-amber-400/60 placeholder:font-black placeholder:font-sans placeholder:text-2xl sm:placeholder:text-3xl cursor-default" 
-                     style="background: transparent !important; color: #fcd34d !important; font-family: 'Impact', 'Arial Black', sans-serif !important; font-weight: 900 !important; font-size: 43px !important; letter-spacing: 0.5px !important;" 
+            <div class="w-full h-[64px] sm:h-[68px] rounded-xl flex items-center justify-center px-3 shadow-md relative overflow-hidden pos-field-interactive pos-field-total" 
+                 style="background: linear-gradient(135deg, rgba(120, 53, 15, 0.4), rgba(15, 23, 42, 0.95)); border: 1.5px solid rgba(245, 158, 11, 0.65); box-shadow: 0 0 12px rgba(245, 158, 11, 0.22);">
+              <input type="text" id="salesTotalInput" readonly placeholder="الإجمالي الصافي" 
+                     class="w-full h-full text-center font-black font-mono text-amber-300 outline-none select-none bg-transparent border-none pos-thick-bold-num placeholder:text-amber-400/60 placeholder:font-black placeholder:font-sans placeholder:text-2xl sm:placeholder:text-3xl cursor-default" 
+                     style="background: transparent !important; color: #fcd34d !important; font-family: 'Impact', 'Arial Black', sans-serif !important; font-weight: 900 !important; font-size: 46px !important; -webkit-text-stroke: 0.5px currentColor; letter-spacing: 0.5px !important;" 
                      title="الإجمالي الصافي المطلوب" />
+            </div>
+          </div>
+
+          <!-- السطر الثالث (تحت الإجمالي الصافي مباشرة): البيان / الملحوظة وبداخله مربع التكبير لعرض كامل الكتابة بمساحة كبيرة -->
+          <div class="pt-0.5">
+            <div class="flex items-center justify-between mb-1">
+              <label for="salesNotesInput" class="text-[11.5px] sm:text-xs font-black text-cyan-300 flex items-center gap-1.5">
+                <i class="fa-solid fa-pen-to-square text-cyan-400 text-xs"></i>
+                <span>البيان / الملحوظة:</span>
+              </label>
+              <span onclick="SuiteSalesPOS.openNotesModal('sales')" class="text-[10px] text-cyan-400/80 hover:text-cyan-300 font-bold cursor-pointer select-none">
+                اضغط مربع التكبير لعرض كامل النص ⤢
+              </span>
+            </div>
+            <div class="glow-input-field glow-cyan pos-field-interactive pos-field-note w-full h-[52px] sm:h-[56px] px-2.5 flex items-center justify-between gap-2 transition rounded-xl relative overflow-hidden" 
+                 style="background: rgba(15, 23, 42, 0.95); border: 1.5px solid rgba(56, 189, 248, 0.6); box-shadow: 0 0 12px rgba(56, 189, 248, 0.15);">
+              <input type="text" id="salesNotesInput" 
+                     placeholder="اكتب البيان أو الملحوظة هنا..." 
+                     autocomplete="off" 
+                     oninput="window.SmartPOSFontAI && SmartPOSFontAI.scaleNotes(this);"
+                     class="flex-1 min-w-0 bg-transparent font-black text-sm text-white outline-none placeholder:text-slate-400 placeholder:font-bold text-right cursor-text border-none p-0 m-0 truncate" 
+                     style="color: #ffffff !important; font-size: 15px;" 
+                     title="البيان / الملحوظة" />
+              <!-- مربع صغير في البيان لتكبير مربع البيان على مساحة كبيرة من الشاشة -->
+              <button type="button" id="btnZoomSalesNotes" onclick="event.stopPropagation(); SuiteSalesPOS.openNotesModal('sales');" 
+                      class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex flex-col items-center justify-center shrink-0 cursor-pointer transition-all duration-200 active:scale-90 shadow-md" 
+                      style="background: linear-gradient(135deg, rgba(6, 182, 212, 0.32), rgba(2, 132, 199, 0.25)); border: 1.5px solid rgba(34, 211, 238, 0.85); box-shadow: 0 0 10px rgba(34, 211, 238, 0.35);" 
+                      title="تكبير مربع البيان والملحوظة بمساحة كبيرة في الشاشة لقراءة وتعديل كامل الكتابة">
+                <i class="fa-solid fa-up-right-and-down-left-from-center text-cyan-200 text-xs"></i>
+                <span class="text-[8px] font-black text-cyan-200 leading-none mt-0.5">تكبير</span>
+              </button>
             </div>
           </div>
 
@@ -7429,7 +7484,6 @@
 
         <!-- ═══════════════════════════════════════════════════════════════
              6. INVOICE LINES MODULE: الوحدة السادسة: أسطر الفاتورة
-             (مع إضافة الأسطر التي لا توجد في السيستم، وإضافة الأسطر الناقصة)
              ═══════════════════════════════════════════════════════════════ -->
         <div class="rounded-2xl p-2.5 border space-y-2 shadow-xl relative overflow-hidden" 
              style="background: #030611; border: 1.5px solid rgba(56, 189, 248, 0.35); box-shadow: 0 4px 20px rgba(0, 0, 0, 0.85);">
@@ -7456,7 +7510,7 @@
             </div>
           </div>
 
-          <!-- زر إضافة السطر للفاتورة (محصور تماماً على الأصناف المحفوظة) -->
+          <!-- زر إضافة السطر للفاتورة -->
           <div class="w-full">
             <button type="button" onclick="SuiteSalesPOS.addItemToCart()" 
                     class="w-full py-3 px-3 rounded-xl text-white font-black text-sm flex items-center justify-center gap-2 shadow-lg active:scale-95 transition cursor-pointer" 
@@ -7488,8 +7542,7 @@
         <input type="hidden" id="salesPayMethodSelect" value="cash">
 
         <!-- ═══════════════════════════════════════════════════════════════
-             7. ACTION BUTTONS: حفظ، حفظ وسداد، جديد، مسح، مشاركة، كشف الحساب، الإذن
-             (زيادة أزرار الأسفل المكتملة)
+             7. ACTION BUTTONS: حفظ، حفظ وسداد، جديد، مسح، مشاركة، كشف الحساب، الإذن، خروج
              ═══════════════════════════════════════════════════════════════ -->
         <div class="space-y-2 pt-1">
           <!-- الصف الأول: حفظ + حفظ وسداد -->
@@ -11237,104 +11290,181 @@
     // خط الجملة والإجمالي الصافي متساويان تماماً ومكبران (38px)
     // ═════════════════════════════════════════════════════════════════
     window.SmartPOSFontAI = {
+      _canvas: null,
+      _ctx: null,
+
+      _getCtx() {
+        if (!this._ctx) {
+          this._canvas = document.createElement('canvas');
+          this._ctx = this._canvas.getContext('2d');
+        }
+        return this._ctx;
+      },
+
+      // محرك ذكاء اصطناعي لقياس عرض النص الفعلي بالبيكسل مقارنة بالمساحة المتاحة داخل الخانة
+      fitTextToBox(el, text, opts = {}) {
+        if (!el) return;
+        const maxPx = opts.maxPx || 18;
+        const minPx = opts.minPx || 10.5;
+        const defPx = opts.defPx || 15;
+        const weight = opts.weight || '900';
+        const family = opts.family || "'Cairo', system-ui, -apple-system, sans-serif";
+        const paddingPx = opts.paddingPx || 20;
+
+        const clean = (text || '').toString().trim();
+        if (!clean) {
+          el.style.setProperty('font-size', defPx + 'px', 'important');
+          el.style.setProperty('font-weight', weight, 'important');
+          return;
+        }
+
+        const boxWidth = (el.clientWidth || el.parentElement?.clientWidth || 0) - paddingPx;
+        if (boxWidth <= 30) {
+          // Fallback intelligent character-length curve when modal is hidden or rendering
+          const len = clean.length;
+          let fallbackPx = maxPx;
+          if (len > 30) fallbackPx = minPx;
+          else if (len > 22) fallbackPx = Math.max(minPx, maxPx - 4.5);
+          else if (len > 15) fallbackPx = Math.max(minPx, maxPx - 3);
+          else if (len > 9) fallbackPx = Math.max(minPx, maxPx - 1.5);
+          el.style.setProperty('font-size', fallbackPx + 'px', 'important');
+          el.style.setProperty('font-weight', weight, 'important');
+          return;
+        }
+
+        const ctx = this._getCtx();
+        let chosenPx = minPx;
+        for (let px = maxPx; px >= minPx; px -= 0.5) {
+          ctx.font = `${weight} ${px}px ${family}`;
+          const measured = ctx.measureText(clean).width;
+          if (measured <= boxWidth) {
+            chosenPx = px;
+            break;
+          }
+        }
+        el.style.setProperty('font-size', chosenPx + 'px', 'important');
+        el.style.setProperty('font-weight', weight, 'important');
+      },
+
       scaleQty(input) {
         if (!input) return;
         const raw = (input.value || '').toString().trim();
-        const len = raw.replace(/[^0-9]/g, '').length;
-        let size = '41px'; // تكبير الخطوط والخط بلوط عريض (+3 درجات)
-        if (len >= 8) size = '25px';
-        else if (len === 7) size = '29px';
-        else if (len === 6) size = '33px';
-        else size = '41px';
-        input.style.fontSize = size;
-        input.style.fontWeight = '900';
+        const isSales = input.id === 'salesQtyInput';
+        const maxBase = isSales ? 45 : 41; // +4 درجات في المبيعات وبولد تخين
+        const len = raw.replace(/[^0-9.]/g, '').length;
+        let size = maxBase;
+        if (len >= 9) size = 24;
+        else if (len === 8) size = 27;
+        else if (len === 7) size = 31;
+        else if (len === 6) size = 35;
+        else if (len === 5) size = 39;
+        else size = maxBase;
+        input.style.setProperty('font-size', size + 'px', 'important');
+        input.style.setProperty('font-weight', '900', 'important');
+        input.style.setProperty('-webkit-text-stroke', '0.6px currentColor', 'important');
       },
 
       scalePrice(input) {
         if (!input) return;
         const raw = (input.value || '').toString().trim();
-        const len = raw.replace(/[^0-9]/g, '').length;
-        let size = '37px'; // تكبير السعر ليكون بارزاً وفخماً (+3 درجات)
-        if (len >= 11) size = '23px';
-        else if (len >= 10) size = '27px';
-        else if (len >= 9) size = '31px';
-        else if (len >= 8) size = '34px';
-        else size = '37px';
-        input.style.fontSize = size;
-        input.style.fontWeight = '900';
+        const isSales = input.id === 'salesPriceInput';
+        const maxBase = isSales ? 41 : 37; // +4 درجات في المبيعات وبولد تخين
+        const len = raw.replace(/[^0-9.]/g, '').length;
+        let size = maxBase;
+        if (len >= 11) size = 23;
+        else if (len >= 10) size = 26;
+        else if (len >= 9) size = 30;
+        else if (len >= 8) size = 34;
+        else if (len >= 7) size = 37;
+        else size = maxBase;
+        input.style.setProperty('font-size', size + 'px', 'important');
+        input.style.setProperty('font-weight', '900', 'important');
+        input.style.setProperty('-webkit-text-stroke', '0.6px currentColor', 'important');
       },
 
       scaleGross(input) {
         if (!input) return;
         const raw = (input.value || '').toString().trim();
+        const isSales = input.id === 'salesItemGrossTotal';
+        const maxBase = isSales ? 46 : 43; // +3 درجات إضافية في المبيعات (46px)
         const len = raw.replace(/[^0-9]/g, '').length;
-        let size = '43px'; // حجم خط الجملة مساوٍ تماماً للإجمالي الصافي ومكبّر (+5 درجات)
-        if (len >= 13) size = '27px';
-        else if (len >= 11) size = '31px';
-        else if (len >= 9) size = '35px';
-        else if (len >= 7) size = '39px';
-        else size = '43px';
-        input.style.fontSize = size;
-        input.style.fontWeight = '900';
+        let size = maxBase;
+        if (len >= 13) size = 27;
+        else if (len >= 11) size = 31;
+        else if (len >= 9) size = 36;
+        else if (len >= 7) size = 41;
+        else size = maxBase;
+        input.style.setProperty('font-size', size + 'px', 'important');
+        input.style.setProperty('font-weight', '900', 'important');
       },
 
       scaleTotal(input) {
         if (!input) return;
         const raw = (input.value || '').toString().trim();
+        const isSales = input.id === 'salesTotalInput';
+        const maxBase = isSales ? 46 : 43; // +3 درجات إضافية في المبيعات (46px)
         const len = raw.replace(/[^0-9]/g, '').length;
-        let size = '43px'; // مساوٍ تماماً لحجم خط الجملة في كل درجات القياس (+5 درجات)
-        if (len >= 13) size = '27px';
-        else if (len >= 11) size = '31px';
-        else if (len >= 9) size = '35px';
-        else if (len >= 7) size = '39px';
-        else size = '43px';
-        input.style.fontSize = size;
-        input.style.fontWeight = '900';
+        let size = maxBase;
+        if (len >= 13) size = 27;
+        else if (len >= 11) size = 31;
+        else if (len >= 9) size = 36;
+        else if (len >= 7) size = 41;
+        else size = maxBase;
+        input.style.setProperty('font-size', size + 'px', 'important');
+        input.style.setProperty('font-weight', '900', 'important');
       },
 
       scaleTax(input) {
         if (!input) return;
         const raw = (input.value || '').toString().trim();
-        const len = raw.replace(/[^0-9]/g, '').length;
-        let size = '26px';
-        if (len >= 8) size = '18px';
-        else if (len >= 6) size = '22px';
-        else size = '26px';
-        input.style.fontSize = size;
+        const len = raw.replace(/[^0-9.]/g, '').length;
+        let size = 28;
+        if (len >= 9) size = 17;
+        else if (len >= 7) size = 20;
+        else if (len >= 5) size = 24;
+        else size = 28;
+        input.style.setProperty('font-size', size + 'px', 'important');
+        input.style.setProperty('font-weight', '900', 'important');
       },
 
       scaleWarehouse(input) {
         if (!input) return;
-        const text = (input.value || '').trim();
-        const len = text.length;
-        let size = '13.5px';
-        if (len >= 17) size = '10.5px';
-        else if (len >= 13) size = '12px';
-        else size = '13.5px';
-        input.style.fontSize = size;
+        this.fitTextToBox(input, input.value, { maxPx: 16.5, minPx: 10.5, defPx: 14, paddingPx: 16 });
+      },
+
+      scaleCostCenter(input) {
+        if (!input) return;
+        const val = input.value !== undefined ? input.value : (input.innerText || '');
+        this.fitTextToBox(input, val, { maxPx: 16.5, minPx: 10.5, defPx: 14, paddingPx: 28 });
+      },
+
+      scaleCustomer(input) {
+        if (!input) return;
+        this.fitTextToBox(input, input.value, { maxPx: 16.5, minPx: 11, defPx: 14, paddingPx: 20 });
       },
 
       scaleItem(input) {
         if (!input) return;
-        const text = (input.value || '').trim();
-        const len = text.length;
-        let size = '16px';
-        if (len >= 32) size = '11.5px';
-        else if (len >= 25) size = '12.5px';
-        else if (len >= 15) size = '14px';
-        else size = '16px';
-        input.style.fontSize = size;
+        // تكبير تلقائي للأسماء القصيرة وتصغير ذكي للأسماء الطويلة مثل "سيخ 3 لينيا أسعد 10 مللي" لتظهر كاملة بوضوح
+        this.fitTextToBox(input, input.value, { maxPx: 18.5, minPx: 11.5, defPx: 15, paddingPx: 22 });
       },
 
       scaleUnit(select) {
         if (!select) return;
         const text = (select.options && select.selectedIndex >= 0) ? select.options[select.selectedIndex].text : (select.value || '');
         const len = (text || '').trim().length;
-        let size = '14px'; // تصغير درجة واحدة (كان 15px)
-        if (len >= 11) size = '10.5px'; // كان 11.5px
-        else if (len >= 5) size = '12.5px'; // كان 13.5px
-        else size = '14px';
-        select.style.fontSize = size;
+        // تنقيص مقاس الوحدات درجة واحدة كما طلب المستخدم
+        let size = '12.5px';
+        if (len >= 11) size = '9.5px';
+        else if (len >= 5) size = '11.5px';
+        else size = '12.5px';
+        select.style.setProperty('font-size', size, 'important');
+        select.style.setProperty('font-weight', '800', 'important');
+      },
+
+      scaleNotes(input) {
+        if (!input) return;
+        this.fitTextToBox(input, input.value, { maxPx: 16, minPx: 11.5, defPx: 14.5, paddingPx: 24 });
       },
 
       scaleAll() {
@@ -11342,10 +11472,13 @@
         ['purPriceInput', 'salesPriceInput'].forEach(id => this.scalePrice(document.getElementById(id)));
         ['purItemGrossTotal', 'salesItemGrossTotal'].forEach(id => this.scaleGross(document.getElementById(id)));
         ['purTotalInput', 'salesTotalInput'].forEach(id => this.scaleTotal(document.getElementById(id)));
-        ['purTaxInput', 'salesTaxInput'].forEach(id => this.scaleTax(document.getElementById(id)));
+        ['purTaxInput', 'salesTaxInput', 'salesDiscountInput', 'salesLaborInput'].forEach(id => this.scaleTax(document.getElementById(id)));
         ['purchaseWarehouseInput', 'salesWarehouseInput'].forEach(id => this.scaleWarehouse(document.getElementById(id)));
+        ['salesCostCenterInput'].forEach(id => this.scaleCostCenter(document.getElementById(id)));
+        ['salesCustomerInput', 'purchaseSupplierInput'].forEach(id => this.scaleCustomer(document.getElementById(id)));
         ['purItemSearchInput', 'salesItemSearchInput'].forEach(id => this.scaleItem(document.getElementById(id)));
         ['purUnitSelect', 'salesUnitSelect'].forEach(id => this.scaleUnit(document.getElementById(id)));
+        ['salesNotesInput', 'purNotesInput'].forEach(id => this.scaleNotes(document.getElementById(id)));
       },
 
       initListeners() {
@@ -11368,12 +11501,21 @@
         bind('salesTotalInput', this.scaleTotal);
         bind('purTaxInput', this.scaleTax);
         bind('salesTaxInput', this.scaleTax);
+        bind('salesDiscountInput', this.scaleTax);
+        bind('salesLaborInput', this.scaleTax);
         bind('purchaseWarehouseInput', this.scaleWarehouse);
         bind('salesWarehouseInput', this.scaleWarehouse);
+        bind('salesCostCenterInput', this.scaleCostCenter);
+        bind('salesCustomerInput', this.scaleCustomer);
+        bind('purchaseSupplierInput', this.scaleCustomer);
         bind('purItemSearchInput', this.scaleItem);
         bind('salesItemSearchInput', this.scaleItem);
         bind('purUnitSelect', this.scaleUnit);
         bind('salesUnitSelect', this.scaleUnit);
+        bind('salesNotesInput', this.scaleNotes);
+        bind('purNotesInput', this.scaleNotes);
+
+        window.addEventListener('resize', () => this.scaleAll());
       }
     };
 
@@ -11385,7 +11527,7 @@
 
 window.SuiteSalesPOS = {
       cart: [],
-      dbItems: [{"id":"ITEM-1781116468152","name":"ccc44","unit":"c","image":"","price":0,"stock":[],"barcode":"22","baseUnit":"c","createdBy":9,"unitsArray":[{"name":"c","factor":1}],"bundleFactor":1,"conversionFactor":1},{"id":"ITEM-1782492860575","name":"سيخ 3 لينيا fj","unit":"سيخه","image":"","price":0,"stock":{"PENDING_RECEIPT":68547},"barcode":"","baseUnit":"سيخه","createdBy":9,"unitsArray":[{"name":"سيخه","factor":1},{"name":"طن عددي","factor":135},{"name":"طن وزني","factor":146}],"bundleFactor":15,"conversionFactor":1},{"id":"ITEM-1782559307727","name":"سيخ 4 لينيا fj","unit":"سيخه","image":"","price":0,"stock":{"PENDING_RECEIPT":11053},"barcode":"","baseUnit":"سيخه","createdBy":9,"unitsArray":[{"name":"سيخه","factor":1},{"name":"طن العددي","factor":92},{"name":"طن وزني","factor":111}],"averageCost":1.8565095449199311,"bundleFactor":10,"averageCostFc":1.8565095449199311,"conversionFactor":1,"lastPurchaseCost":4.956521739130435,"lastPurchaseCostFc":4.956521739130435},{"id":"ITEM-1782559457671","name":"سيخ 3 لينيا الاسعد","unit":"سيخه","image":"","price":0,"stock":{"PENDING_RECEIPT":675},"barcode":"","baseUnit":"سيخه","createdBy":9,"unitsArray":[{"name":"سيخه","factor":1},{"name":"طن عددي","factor":135},{"name":"طن وزني","factor":140}],"bundleFactor":15,"conversionFactor":1},{"id":"ITEM-1782559559372","name":"سيخ 4 لينيا الاسعد","unit":"سيخه","image":"","price":0,"stock":[],"barcode":"","baseUnit":"سيخه","createdBy":9,"unitsArray":[{"name":"سيخه","factor":1},{"name":"طن عددي","factor":92},{"name":"طن وزني","factor":140}],"bundleFactor":10,"conversionFactor":1},{"id":"ITEM-1782561316951","name":"سيخ 5 لينيا الامجد","unit":"سيخه","image":"","price":0,"stock":[],"barcode":"","baseUnit":"سيخه","createdBy":9,"unitsArray":[{"name":"سيخه","factor":1},{"name":"طن عددي","factor":52},{"name":"طن وزني","factor":66}],"bundleFactor":5,"conversionFactor":1},{"id":"ITEM-1782562286396","name":"سيخ 5 لينيا التركي","unit":"سيخه","image":"","price":0,"stock":[],"barcode":"","baseUnit":"سيخه","createdBy":9,"unitsArray":[{"name":"سيخه","factor":1},{"name":"طن عددي","factor":52},{"name":"طن وزني","factor":55}],"bundleFactor":5,"conversionFactor":1},{"id":"ITEM-1782567905125","name":"سيخ 5 لينيا صيني","unit":"سيخه","image":"","price":0,"stock":[],"barcode":"","baseUnit":"سيخه","createdBy":9,"unitsArray":[{"name":"سيخه","factor":1},{"name":"طن عددي","factor":52},{"name":"طن وزني","factor":66}],"bundleFactor":5,"conversionFactor":1},{"id":"ITEM-1782250715067","name":"سيخ44","unit":"طن","image":"","price":0,"stock":[],"barcode":"","baseUnit":"طن","createdBy":9,"unitsArray":[{"name":"طن","factor":1}],"bundleFactor":1,"conversionFactor":1},{"id":"ITEM-1782509115624","name":"سيخ 3 لينية","unit":"طن وزني","image":"","price":0,"stock":[],"barcode":"","baseUnit":"طن وزني","createdBy":9,"unitsArray":[{"name":"طن وزني","factor":1},{"name":"طن وزني","factor":1}],"bundleFactor":1,"conversionFactor":1},{"id":"ITEM-1782511169954","name":"سيخ 5ل","unit":"طن عددي","image":"","price":0,"stock":[],"barcode":"","baseUnit":"طن عددي","createdBy":9,"unitsArray":[{"name":"طن عددي","factor":1}],"bundleFactor":1,"conversionFactor":1},{"id":"item-001","name":"أسمنت بورتلاندي 50 كجم","unit":"كيس","barcode":"1001","baseUnit":"كيس","createdBy":7,"unitsArray":[{"name":"كيس","factor":1},{"name":"طن","factor":20}],"sellingPrice":4500},{"id":"item-002","name":"حديد تسليح 12 ملم","unit":"سيخة / عود","barcode":"1002","baseUnit":"سيخة / عود","createdBy":7,"unitsArray":[{"name":"سيخة / عود","factor":1},{"name":"طن","factor":120}],"sellingPrice":12500},{"id":"item-003","name":"طوب مفرغ 20×20×40","unit":"حبة","barcode":"1003","baseUnit":"حبة","createdBy":7,"unitsArray":[{"name":"حبة","factor":1},{"name":"ألف حبة","factor":1000}],"sellingPrice":650},{"id":"item-004","name":"رمل بناء ممتاز","unit":"متر مكعب","barcode":"1004","baseUnit":"متر مكعب","createdBy":7,"unitsArray":[{"name":"متر مكعب","factor":1},{"name":"قلاب 12متر","factor":12}],"sellingPrice":8500},{"id":"item-005","name":"دهان بلاستيك مط داخلي","unit":"جالون","barcode":"1005","baseUnit":"جالون","createdBy":7,"unitsArray":[{"name":"جالون","factor":1},{"name":"كرتونة (4 جالون)","factor":4}],"sellingPrice":14000},{"id":"ITEM-1786316992222","name":"سيخ 5 لينيا fj m","unit":"سيخه","image":"","price":0,"stock":[],"barcode":"","baseUnit":"سيخه","createdBy":9,"unitsArray":[{"name":"سيخه","factor":1},{"name":"طن عددي","factor":52},{"name":"طن وزني","factor":57}],"bundleFactor":5,"conversionFactor":1},{"id":"ITEM-1786727449011","name":"سيخ 5 لينيا  الاسعد","unit":"سيخه","image":"","price":0,"stock":{"PENDING_RECEIPT":230},"barcode":"","baseUnit":"سيخه","createdBy":9,"unitsArray":[{"name":"سيخه","factor":1},{"name":"طن عددي","factor":52},{"name":"طن وزني","factor":58}],"bundleFactor":5,"conversionFactor":1},{"id":"item-001","name":"أسمنت بورتلاندي 50 كجم","unit":"كيس","barcode":"1001","baseUnit":"كيس","createdBy":405,"unitsArray":[{"name":"كيس","factor":1},{"name":"طن","factor":20}],"sellingPrice":4500},{"id":"item-002","name":"حديد تسليح 12 ملم","unit":"سيخة / عود","barcode":"1002","baseUnit":"سيخة / عود","createdBy":405,"unitsArray":[{"name":"سيخة / عود","factor":1},{"name":"طن","factor":120}],"sellingPrice":12500},{"id":"item-003","name":"طوب مفرغ 20×20×40","unit":"حبة","barcode":"1003","baseUnit":"حبة","createdBy":405,"unitsArray":[{"name":"حبة","factor":1},{"name":"ألف حبة","factor":1000}],"sellingPrice":650},{"id":"item-004","name":"رمل بناء ممتاز","unit":"متر مكعب","barcode":"1004","baseUnit":"متر مكعب","createdBy":405,"unitsArray":[{"name":"متر مكعب","factor":1},{"name":"قلاب 12متر","factor":12}],"sellingPrice":8500},{"id":"item-005","name":"دهان بلاستيك مط داخلي","unit":"جالون","barcode":"1005","baseUnit":"جالون","createdBy":405,"unitsArray":[{"name":"جالون","factor":1},{"name":"كرتونة (4 جالون)","factor":4}],"sellingPrice":14000}],
+      dbItems: [{"id":"ITEM-1781116468152","name":"ccc44","unit":"c","image":"","price":0,"stock":[],"barcode":"22","baseUnit":"c","createdBy":9,"unitsArray":[{"name":"c","factor":1}],"bundleFactor":1,"conversionFactor":1},{"id":"ITEM-1782492860575","name":"سيخ 3 لينيا fj","unit":"سيخه","image":"","price":0,"stock":{"PENDING_RECEIPT":68547},"barcode":"","baseUnit":"سيخه","createdBy":9,"unitsArray":[{"name":"سيخه","factor":1},{"name":"طن عددي","factor":135},{"name":"طن وزني","factor":146}],"bundleFactor":15,"conversionFactor":1},{"id":"ITEM-1782559307727","name":"سيخ 4 لينيا fj","unit":"سيخه","image":"","price":0,"stock":{"PENDING_RECEIPT":11053},"barcode":"","baseUnit":"سيخه","createdBy":9,"unitsArray":[{"name":"سيخه","factor":1},{"name":"طن العددي","factor":92},{"name":"طن وزني","factor":111}],"averageCost":1.8565095449199311,"bundleFactor":10,"averageCostFc":1.8565095449199311,"conversionFactor":1,"lastPurchaseCost":4.956521739130435,"lastPurchaseCostFc":4.956521739130435},{"id":"ITEM-1782559457670","name":"سيخ 3 لينيا أسعد 10 مللي","unit":"سيخه","image":"","price":18500,"sellingPrice":18500,"stock":{"PENDING_RECEIPT":500},"barcode":"1010","baseUnit":"سيخه","createdBy":9,"unitsArray":[{"name":"طن عددي","factor":135},{"name":"سيخه","factor":1},{"name":"طن وزني","factor":140}],"bundleFactor":15,"conversionFactor":1},{"id":"ITEM-1782559457671","name":"سيخ 3 لينيا الاسعد","unit":"سيخه","image":"","price":0,"stock":{"PENDING_RECEIPT":675},"barcode":"","baseUnit":"سيخه","createdBy":9,"unitsArray":[{"name":"سيخه","factor":1},{"name":"طن عددي","factor":135},{"name":"طن وزني","factor":140}],"bundleFactor":15,"conversionFactor":1},{"id":"ITEM-1782559559372","name":"سيخ 4 لينيا الاسعد","unit":"سيخه","image":"","price":0,"stock":[],"barcode":"","baseUnit":"سيخه","createdBy":9,"unitsArray":[{"name":"سيخه","factor":1},{"name":"طن عددي","factor":92},{"name":"طن وزني","factor":140}],"bundleFactor":10,"conversionFactor":1},{"id":"ITEM-1782561316951","name":"سيخ 5 لينيا الامجد","unit":"سيخه","image":"","price":0,"stock":[],"barcode":"","baseUnit":"سيخه","createdBy":9,"unitsArray":[{"name":"سيخه","factor":1},{"name":"طن عددي","factor":52},{"name":"طن وزني","factor":66}],"bundleFactor":5,"conversionFactor":1},{"id":"ITEM-1782562286396","name":"سيخ 5 لينيا التركي","unit":"سيخه","image":"","price":0,"stock":[],"barcode":"","baseUnit":"سيخه","createdBy":9,"unitsArray":[{"name":"سيخه","factor":1},{"name":"طن عددي","factor":52},{"name":"طن وزني","factor":55}],"bundleFactor":5,"conversionFactor":1},{"id":"ITEM-1782567905125","name":"سيخ 5 لينيا صيني","unit":"سيخه","image":"","price":0,"stock":[],"barcode":"","baseUnit":"سيخه","createdBy":9,"unitsArray":[{"name":"سيخه","factor":1},{"name":"طن عددي","factor":52},{"name":"طن وزني","factor":66}],"bundleFactor":5,"conversionFactor":1},{"id":"ITEM-1782250715067","name":"سيخ44","unit":"طن","image":"","price":0,"stock":[],"barcode":"","baseUnit":"طن","createdBy":9,"unitsArray":[{"name":"طن","factor":1}],"bundleFactor":1,"conversionFactor":1},{"id":"ITEM-1782509115624","name":"سيخ 3 لينية","unit":"طن وزني","image":"","price":0,"stock":[],"barcode":"","baseUnit":"طن وزني","createdBy":9,"unitsArray":[{"name":"طن وزني","factor":1},{"name":"طن وزني","factor":1}],"bundleFactor":1,"conversionFactor":1},{"id":"ITEM-1782511169954","name":"سيخ 5ل","unit":"طن عددي","image":"","price":0,"stock":[],"barcode":"","baseUnit":"طن عددي","createdBy":9,"unitsArray":[{"name":"طن عددي","factor":1}],"bundleFactor":1,"conversionFactor":1},{"id":"item-001","name":"أسمنت بورتلاندي 50 كجم","unit":"كيس","barcode":"1001","baseUnit":"كيس","createdBy":7,"unitsArray":[{"name":"كيس","factor":1},{"name":"طن","factor":20}],"sellingPrice":4500},{"id":"item-002","name":"حديد تسليح 12 ملم","unit":"سيخة / عود","barcode":"1002","baseUnit":"سيخة / عود","createdBy":7,"unitsArray":[{"name":"سيخة / عود","factor":1},{"name":"طن","factor":120}],"sellingPrice":12500},{"id":"item-003","name":"طوب مفرغ 20×20×40","unit":"حبة","barcode":"1003","baseUnit":"حبة","createdBy":7,"unitsArray":[{"name":"حبة","factor":1},{"name":"ألف حبة","factor":1000}],"sellingPrice":650},{"id":"item-004","name":"رمل بناء ممتاز","unit":"متر مكعب","barcode":"1004","baseUnit":"متر مكعب","createdBy":7,"unitsArray":[{"name":"متر مكعب","factor":1},{"name":"قلاب 12متر","factor":12}],"sellingPrice":8500},{"id":"item-005","name":"دهان بلاستيك مط داخلي","unit":"جالون","barcode":"1005","baseUnit":"جالون","createdBy":7,"unitsArray":[{"name":"جالون","factor":1},{"name":"كرتونة (4 جالون)","factor":4}],"sellingPrice":14000},{"id":"ITEM-1786316992222","name":"سيخ 5 لينيا fj m","unit":"سيخه","image":"","price":0,"stock":[],"barcode":"","baseUnit":"سيخه","createdBy":9,"unitsArray":[{"name":"سيخه","factor":1},{"name":"طن عددي","factor":52},{"name":"طن وزني","factor":57}],"bundleFactor":5,"conversionFactor":1},{"id":"ITEM-1786727449011","name":"سيخ 5 لينيا  الاسعد","unit":"سيخه","image":"","price":0,"stock":{"PENDING_RECEIPT":230},"barcode":"","baseUnit":"سيخه","createdBy":9,"unitsArray":[{"name":"سيخه","factor":1},{"name":"طن عددي","factor":52},{"name":"طن وزني","factor":58}],"bundleFactor":5,"conversionFactor":1},{"id":"item-001","name":"أسمنت بورتلاندي 50 كجم","unit":"كيس","barcode":"1001","baseUnit":"كيس","createdBy":405,"unitsArray":[{"name":"كيس","factor":1},{"name":"طن","factor":20}],"sellingPrice":4500},{"id":"item-002","name":"حديد تسليح 12 ملم","unit":"سيخة / عود","barcode":"1002","baseUnit":"سيخة / عود","createdBy":405,"unitsArray":[{"name":"سيخة / عود","factor":1},{"name":"طن","factor":120}],"sellingPrice":12500},{"id":"item-003","name":"طوب مفرغ 20×20×40","unit":"حبة","barcode":"1003","baseUnit":"حبة","createdBy":405,"unitsArray":[{"name":"حبة","factor":1},{"name":"ألف حبة","factor":1000}],"sellingPrice":650},{"id":"item-004","name":"رمل بناء ممتاز","unit":"متر مكعب","barcode":"1004","baseUnit":"متر مكعب","createdBy":405,"unitsArray":[{"name":"متر مكعب","factor":1},{"name":"قلاب 12متر","factor":12}],"sellingPrice":8500},{"id":"item-005","name":"دهان بلاستيك مط داخلي","unit":"جالون","barcode":"1005","baseUnit":"جالون","createdBy":405,"unitsArray":[{"name":"جالون","factor":1},{"name":"كرتونة (4 جالون)","factor":4}],"sellingPrice":14000}],
       dbCustomers: [{"id":"CUST-1781084281123","name":"A","notes":"","phone":"333","status":"active","address":"3سبي","createdBy":7,"bankDetails":{"bankName":"","accountNo":"","isDeactivated":false,"securityLevel":1},"creditLimit":23,"securityLevel":1,"currentBalance":323,"openingBalance":323},{"id":"CUST-1781089536278","name":"C","notes":"","phone":"32323","status":"active","address":"C","createdBy":9,"bankDetails":{"bankName":"","accountNo":"","isDeactivated":false,"securityLevel":1},"creditLimit":333,"securityLevel":1,"currentBalance":-830324,"openingBalance":33},{"id":"CUST-1782480090528","name":"ثقفغع","email":"","notes":"","phone":"","status":"active","address":"","whatsapp":"","createdBy":9,"creditLimit":0,"bankAccounts":[{"branch":"","bankName":"","accountNo":"","isDeactivated":false,"securityLevel":1}],"contactPerson":"","securityLevel":1,"currentBalance":-54323222994874,"openingBalance":0},{"id":"CUST-1782503377782","name":"التجاني","email":"","notes":"","phone":"5678","status":"active","address":"","whatsapp":"6789","createdBy":9,"creditLimit":6789,"bankAccounts":[{"branch":"","bankName":"","accountNo":"","isDeactivated":false,"securityLevel":1}],"contactPerson":"","securityLevel":1,"currentBalance":54323916528283,"openingBalance":89},{"id":"CUST-1782729918903","name":"محمد عثمان حمتو عبد الدايم","email":"","notes":"","phone":"","status":"active","address":"","whatsapp":"","createdBy":9,"creditLimit":0,"bankAccounts":[{"branch":"","bankName":"","accountNo":"","isDeactivated":false,"securityLevel":1}],"contactPerson":"","securityLevel":1,"currentBalance":7100230,"openingBalance":0},{"id":"CUST-1782835278886","name":"ابدول حمتو","email":"","notes":"","phone":"","status":"active","address":"","whatsapp":"","createdBy":9,"creditLimit":0,"bankAccounts":[{"branch":"","bankName":"","accountNo":"","isDeactivated":false,"securityLevel":1}],"contactPerson":"","securityLevel":1,"currentBalance":0,"openingBalance":0},{"id":"CUST-1782849809088","name":"مهدي مصر","email":"","notes":"","phone":"","status":"active","address":"","whatsapp":"00201550886559","createdBy":9,"creditLimit":45678,"bankAccounts":[{"branch":"","bankName":"","accountNo":"","isDeactivated":false,"securityLevel":1}],"contactPerson":"","securityLevel":1,"currentBalance":3901,"openingBalance":4567},{"id":"CUST-1782893378489","name":"عمر طارق","email":"","notes":"","phone":"","status":"active","address":"","currency":"SDG","whatsapp":"","accountNo":"","createdBy":9,"taxNumber":"","creditLimit":0,"bankAccounts":[{"branch":"","bankName":"","accountNo":"","isDeactivated":false,"securityLevel":1}],"openingDebit":0,"contactPerson":"","openingCredit":0,"securityLevel":1,"currentBalance":56789},{"id":"CUST-1783162615475","name":"شيريهان احمد عثمان تاج الدين","email":"","notes":"","phone":"00249912106075","status":"active","address":"","currency":"USD","whatsapp":"00201550886559","accountNo":"","createdBy":9,"taxNumber":"","creditLimit":2000000,"bankAccounts":[{"branch":"","bankName":"","accountNo":"","isDeactivated":false,"securityLevel":1}],"openingDebit":1000000,"contactPerson":"","openingCredit":1500000,"securityLevel":1,"currentBalance":-500000},{"id":"CUST-1783187686750","name":"حدكي","email":"","notes":"","phone":"","status":"active","address":"","currency":"SDG","whatsapp":"","accountNo":"","createdBy":9,"taxNumber":"","creditLimit":234567,"bankAccounts":[{"branch":"","bankName":"","accountNo":"","isDeactivated":false,"securityLevel":1}],"openingDebit":100000,"contactPerson":"","openingCredit":234567,"securityLevel":1,"currentBalance":-134567},{"id":"CUST-1781625556260","name":"محمد عمار","email":"A00105@gmail.com","notes":"زبوم تجريبي 1","phone":"0912300105","status":"active","address":"الخرطوم","whatsapp":"0912300112","createdBy":9,"creditLimit":33333333,"bankAccounts":[{"branch":"السجانة","bankName":"بنك الخرطوم","accountNo":"90290","isDeactivated":false,"securityLevel":1}],"contactPerson":"عمار","securityLevel":1,"currentBalance":11089,"openingBalance":100},{"id":"CUST-1782914588501","name":"حسن علي","email":"s00105@gmail.com","notes":"","phone":"00249912300111","status":"active","address":"شسيس","currency":"USD","whatsapp":"00249912300111","accountNo":"2322","createdBy":9,"taxNumber":"2322","creditLimit":3333,"bankAccounts":[{"branch":"","bankName":"","accountNo":"","isDeactivated":false,"securityLevel":1}],"openingDebit":2333,"contactPerson":"","openingCredit":3333,"securityLevel":1,"currentBalance":-1000},{"id":"CUST-1783274024802","name":"كوستا ","email":"","notes":"","phone":"","status":"active","address":"","currency":"USD","whatsapp":"","accountNo":"","createdBy":9,"taxNumber":"","creditLimit":3000000,"bankAccounts":[{"branch":"","bankName":"","accountNo":"","isDeactivated":false,"securityLevel":1}],"openingDebit":1200000,"contactPerson":"","openingCredit":2000000,"securityLevel":1,"currentBalance":-991156659},{"id":"CUST-1783281050254","name":"قلقله","email":"","notes":"","phone":"","exRate":6300,"status":"active","address":"","currency":"USD","whatsapp":"","accountNo":"","createdBy":9,"taxNumber":"","creditLimit":10000000,"bankAccounts":[{"branch":"","bankName":"","accountNo":"","isDeactivated":false,"securityLevel":1}],"openingDebit":1900000,"contactPerson":"","openingCredit":0,"securityLevel":1,"currentBalance":1900000},{"id":"C-112681","name":"محمد حسن علي مكي","email":"","phone":"","status":"active","address":"","whatsapp":"","createdBy":9,"timestamp":"2026-07-05T22:38:32.681Z","creditLimit":0,"bankAccounts":[],"securityLevel":"1","currentBalance":89898989},{"id":"CUST-1783356956592","name":"همس مهدي ","email":"@gmamahdi00622","notes":"","phone":"","exRate":622,"status":"active","address":"","currency":"USD","whatsapp":"00249912300622","accountNo":"","createdBy":9,"taxNumber":"","creditLimit":666666,"bankAccounts":[{"branch":"","bankName":"","accountNo":"","isDeactivated":false,"securityLevel":1}],"openingDebit":66666,"contactPerson":"","openingCredit":0,"securityLevel":1,"currentBalance":67233},{"id":"CUST-1783451342581","name":"جمانه مكي","email":"","notes":"","phone":"00249912106076","exRate":600,"status":"active","address":"","currency":"USD","whatsapp":"00249912300622","accountNo":"","createdBy":9,"taxNumber":"","creditLimit":888888,"bankAccounts":[{"branch":"","bankName":"","accountNo":"","isDeactivated":false,"securityLevel":1}],"openingDebit":0,"contactPerson":"","openingCredit":88888,"securityLevel":1,"currentBalance":367889},{"id":"C-751626","name":"سيد عثمان تاج الدين","email":"","phone":"","status":"active","address":"","whatsapp":"","createdBy":9,"timestamp":"2026-07-10T16:59:11.626Z","creditLimit":0,"bankAccounts":[],"securityLevel":"1","currentBalance":0},{"id":"CUST-1784063515633","name":"فقث","email":"","notes":"","phone":"","exRate":1,"status":"active","address":"","currency":"SDG","whatsapp":"","accountNo":"","createdBy":9,"taxNumber":"","creditLimit":0,"bankAccounts":[{"branch":"","bankName":"","accountNo":"","isDeactivated":false,"securityLevel":1},{"branch":"","bankName":"","accountNo":"","isDeactivated":false,"securityLevel":1}],"openingDebit":0,"contactPerson":"","openingCredit":0,"securityLevel":1,"currentBalance":0},{"id":"CUST-1784065972341","name":"تال","email":"","notes":"","phone":"","exRate":1,"status":"active","address":"","currency":"SDG","whatsapp":"","accountNo":"","createdBy":9,"taxNumber":"","creditLimit":0,"bankAccounts":[{"branch":"","bankName":"","accountNo":"","isDeactivated":false,"securityLevel":1}],"openingDebit":7654,"contactPerson":"","openingCredit":0,"securityLevel":1,"currentBalance":7654},{"id":"CUST-1784100578257","name":"عمر طارق محمد مكي","email":"","notes":"","phone":"","exRate":5620,"status":"active","address":"","currency":"USD","whatsapp":"00249912300622","accountNo":"","createdBy":9,"taxNumber":"","creditLimit":7000000,"bankAccounts":[{"branch":"","bankName":"","accountNo":"","isDeactivated":false,"securityLevel":1}],"openingDebit":0,"contactPerson":"","openingCredit":450000,"securityLevel":1,"currentBalance":450000},{"id":"CUST-1784109545826","name":"محجوب خاص","email":"","notes":"","phone":"","exRate":1,"status":"active","address":"","currency":"SDG","whatsapp":"00249912348829","accountNo":"","createdBy":395,"taxNumber":"","creditLimit":0,"bankAccounts":[{"branch":"","bankName":"","accountNo":"","isDeactivated":false,"securityLevel":1}],"openingDebit":0,"contactPerson":"","openingCredit":0,"securityLevel":1,"currentBalance":0},{"id":"CUST-1784109769001","name":"مهدي","email":"","notes":"","phone":"","exRate":1,"status":"active","address":"","currency":"SDG","whatsapp":"","accountNo":"","createdBy":395,"taxNumber":"","creditLimit":0,"bankAccounts":[{"branch":"","bankName":"","accountNo":"","isDeactivated":false,"securityLevel":1}],"openingDebit":0,"contactPerson":"","openingCredit":0,"securityLevel":1,"currentBalance":55},{"id":"CUST-1784235653011","name":"ايه مهدي محمد مكي","email":"","notes":"","phone":"","exRate":600,"status":"active","address":"","currency":"USD","whatsapp":"","accountNo":"","createdBy":9,"taxNumber":"","creditLimit":0,"bankAccounts":[{"branch":"","bankName":"","accountNo":"","isDeactivated":false,"securityLevel":1}],"openingDebit":888888,"contactPerson":"","openingCredit":0,"securityLevel":1,"currentBalance":666666},{"id":"CUST-1784628659773","name":"محمود دمباوي","email":"","notes":"","phone":"","exRate":670,"status":"active","address":"","currency":"SDG","whatsapp":"","accountNo":"","createdBy":9,"taxNumber":"","creditLimit":4000000,"bankAccounts":[{"branch":"","bankName":"","accountNo":"","isDeactivated":false,"securityLevel":1}],"openingDebit":2500000,"contactPerson":"","openingCredit":0,"securityLevel":1,"currentBalance":2500000},{"id":"CUST-1784628827641","name":"فتاح شجره","email":"","notes":"","phone":"","exRate":670,"status":"active","address":"","currency":"SDG","whatsapp":"","accountNo":"","createdBy":9,"taxNumber":"","creditLimit":4500000,"bankAccounts":[{"branch":"","bankName":"","accountNo":"","isDeactivated":false,"securityLevel":1}],"openingDebit":0,"contactPerson":"","openingCredit":1600000,"securityLevel":1,"currentBalance":-1599000},{"id":"CUST-1785237947153","name":"رضوان باشا","email":"","notes":"","phone":"","exRate":600,"status":"active","address":"","currency":"USD","whatsapp":"","accountNo":"","createdBy":9,"taxNumber":"","creditLimit":0,"bankAccounts":[{"branch":"","bankName":"","accountNo":"","isDeactivated":false,"securityLevel":1}],"openingDebit":0,"contactPerson":"","openingCredit":7000000,"securityLevel":1,"currentBalance":6000065},{"id":"CUST-1785253492699","name":"متوكل ازهري","email":"","notes":"","phone":"","exRate":500,"status":"active","address":"","currency":"USD","whatsapp":"","accountNo":"","createdBy":9,"taxNumber":"","creditLimit":0,"bankAccounts":[{"branch":"","bankName":"","accountNo":"","isDeactivated":false,"securityLevel":1}],"openingDebit":1000000,"contactPerson":"","openingCredit":0,"securityLevel":1,"currentBalance":1000000},{"id":"CUST-1785262394712","name":"حبني","email":"","notes":"","phone":"","exRate":2500,"status":"active","address":"","currency":"SDG","whatsapp":"","accountNo":"","createdBy":9,"taxNumber":"","creditLimit":0,"bankAccounts":[{"branch":"","bankName":"","accountNo":"","isDeactivated":false,"securityLevel":1}],"openingDebit":2500000,"contactPerson":"","openingCredit":0,"securityLevel":1,"currentBalance":1422314},{"id":"CUST-1785263869067","name":"طرزان في امدرمان","email":"","notes":"","phone":"","exRate":600,"status":"active","address":"","currency":"USD","whatsapp":"","accountNo":"","createdBy":9,"taxNumber":"","creditLimit":0,"bankAccounts":[{"branch":"","bankName":"","accountNo":"","isDeactivated":false,"securityLevel":1}],"openingDebit":17000000,"contactPerson":"","openingCredit":0,"securityLevel":1,"currentBalance":17000000},{"id":"CUST-1785688472616","name":"سيدو احمد حسن جمال علي","email":"","notes":"","phone":"","exRate":600,"status":"active","address":"","currency":"USD","whatsapp":"","accountNo":"","createdBy":9,"taxNumber":"","creditLimit":666666,"bankAccounts":[{"branch":"","bankName":"","accountNo":"","isDeactivated":false,"securityLevel":1}],"openingDebit":0,"contactPerson":"","openingCredit":5600000,"securityLevel":1,"currentBalance":-33164445},{"id":"CUST-1785703452552","name":"معتذ محمد","email":"","notes":"","phone":"0912300222","exRate":1,"status":"active","address":"","currency":"SDG","whatsapp":"0912300222","accountNo":"","createdBy":9,"taxNumber":"","creditLimit":0,"bankAccounts":[{"branch":"","bankName":"محم","accountNo":"","isDeactivated":false,"securityLevel":1}],"openingDebit":1111,"contactPerson":"","openingCredit":0,"securityLevel":1,"currentBalance":0},{"id":"CUST-1785752274456","name":"cvbnm","email":"","notes":"","phone":"","exRate":1,"status":"active","address":"","currency":"USD","whatsapp":"","accountNo":"","createdBy":9,"taxNumber":"2322","creditLimit":0,"bankAccounts":[{"branch":"","bankName":"","accountNo":"","isDeactivated":false,"securityLevel":1}],"openingDebit":453456789,"contactPerson":"","openingCredit":0,"securityLevel":1,"currentBalance":453456789},{"id":"CUST-1785761198609","name":"احمد ولدي","email":"","notes":"","phone":"","exRate":4400,"status":"active","address":"","currency":"USD","whatsapp":"","accountNo":"","createdBy":9,"taxNumber":"","creditLimit":0,"bankAccounts":[{"branch":"","bankName":"","accountNo":"","isDeactivated":false,"securityLevel":1}],"openingDebit":0,"contactPerson":"","openingCredit":19000000,"securityLevel":1,"currentBalance":-19000000},{"id":"CUST-1785761813481","name":"عبدو","email":"","notes":"","phone":"","exRate":4400,"status":"active","address":"","currency":"USD","whatsapp":"","accountNo":"","createdBy":9,"taxNumber":"","creditLimit":0,"bankAccounts":[{"branch":"","bankName":"","accountNo":"","isDeactivated":false,"securityLevel":1}],"openingDebit":0,"contactPerson":"","openingCredit":80000000,"securityLevel":1,"currentBalance":-80000000},{"id":"CUST-1785763080106","name":"عابدين","email":"","notes":"","phone":"","exRate":4400,"status":"active","address":"","currency":"USD","whatsapp":"","accountNo":"","createdBy":9,"taxNumber":"","creditLimit":0,"bankAccounts":[{"branch":"","bankName":"","accountNo":"","isDeactivated":false,"securityLevel":1}],"openingDebit":0,"contactPerson":"","openingCredit":44000000,"securityLevel":1,"currentBalance":-43999457},{"id":"CUST-1785763249630","name":"بشه","email":"","notes":"","phone":"","exRate":1,"status":"active","address":"","currency":"SDG","whatsapp":"","accountNo":"","createdBy":9,"taxNumber":"","creditLimit":0,"bankAccounts":[{"branch":"","bankName":"","accountNo":"","isDeactivated":false,"securityLevel":1}],"openingDebit":0,"contactPerson":"","openingCredit":80000000,"securityLevel":1,"currentBalance":-80000000},{"id":"CUST-1785764619762","name":"فغ","email":"","notes":"","phone":"","exRate":4400,"status":"active","address":"","currency":"USD","whatsapp":"","accountNo":"","createdBy":9,"taxNumber":"","creditLimit":0,"bankAccounts":[{"branch":"","bankName":"","accountNo":"","isDeactivated":false,"securityLevel":1}],"openingDebit":10000000,"contactPerson":"","openingCredit":0,"securityLevel":1,"currentBalance":10000000},{"id":"CUST-1785764729392","name":"عماد","email":"","notes":"","phone":"","exRate":4400,"status":"active","address":"","currency":"USD","whatsapp":"","accountNo":"","createdBy":9,"taxNumber":"","creditLimit":0,"bankAccounts":[{"branch":"","bankName":"","accountNo":"","isDeactivated":false,"securityLevel":1}],"openingDebit":10000000,"contactPerson":"","openingCredit":0,"securityLevel":1,"currentBalance":10000000},{"id":"CUST-1785766601523","name":"شركه","email":"","notes":"","phone":"","exRate":4400,"status":"active","address":"","currency":"USD","whatsapp":"","accountNo":"","createdBy":9,"taxNumber":"","creditLimit":0,"bankAccounts":[{"branch":"","bankName":"","accountNo":"","isDeactivated":false,"securityLevel":1}],"openingDebit":56000000,"contactPerson":"","openingCredit":0,"securityLevel":1,"currentBalance":56000000},{"id":"CUST-1785808277625","name":"موزه","email":"","notes":"","phone":"","exRate":6200,"status":"active","address":"","currency":"USD","whatsapp":"","accountNo":"","createdBy":9,"taxNumber":"","creditLimit":0,"bankAccounts":[{"branch":"","bankName":"","accountNo":"","isDeactivated":false,"securityLevel":1}],"openingDebit":0,"contactPerson":"","openingCredit":6200000,"securityLevel":1,"currentBalance":1577666},{"id":"CUST-1785928750486","name":"مكه","email":"","notes":"","phone":"","exRate":5420,"status":"active","address":"","currency":"USD","whatsapp":"","accountNo":"","createdBy":9,"taxNumber":"","creditLimit":0,"bankAccounts":[{"branch":"","bankName":"","accountNo":"","isDeactivated":false,"securityLevel":1}],"openingDebit":0,"contactPerson":"","openingCredit":20000000,"securityLevel":1,"currentBalance":-15426432},{"id":"CUST-1785968975111","name":"233","email":"","notes":"","phone":"","exRate":1,"status":"active","address":"","currency":"SDG","whatsapp":"","accountNo":"","createdBy":7,"taxNumber":"","creditLimit":0,"bankAccounts":[{"branch":"","bankName":"","accountNo":"","isDeactivated":false,"securityLevel":1}],"openingDebit":0,"contactPerson":"","openingCredit":0,"securityLevel":1,"currentBalance":0},{"id":"CUST-1786320334761","name":"فيصل العجب","email":"","notes":"","phone":"","exRate":300,"status":"active","address":"","currency":"USD","whatsapp":"","accountNo":"","createdBy":9,"taxNumber":"","creditLimit":0,"bankAccounts":[{"branch":"","bankName":"","accountNo":"","isDeactivated":false,"securityLevel":1}],"openingDebit":6000000,"contactPerson":"","openingCredit":0,"securityLevel":1,"currentBalance":6008656},{"id":"CUST-1786384017176","name":"شيخ ميرغني","email":"","notes":"","phone":"","exRate":5600,"status":"active","address":"","currency":"USD","whatsapp":"","accountNo":"","createdBy":9,"taxNumber":"","creditLimit":0,"bankAccounts":[{"branch":"","bankName":"","accountNo":"","isDeactivated":false,"securityLevel":1}],"openingDebit":0,"contactPerson":"","openingCredit":909090,"securityLevel":1,"currentBalance":-909090},{"id":"CUST-1786394925761","name":"دكتور شول","email":"","notes":"","phone":"","exRate":5600,"status":"active","address":"","currency":"USD","whatsapp":"","accountNo":"","createdBy":9,"taxNumber":"","creditLimit":0,"bankAccounts":[{"branch":"","bankName":"","accountNo":"","isDeactivated":false,"securityLevel":1}],"openingDebit":20202020,"contactPerson":"","openingCredit":0,"securityLevel":1,"currentBalance":20148723},{"id":"CUST-1786476504570","date":"2026-08-11","name":"همس مهدي شيريهان مكي","email":"","notes":"","phone":"","exRate":5600,"status":"active","address":"","currency":"USD","whatsapp":"","accountNo":"","createdAt":"2026-08-11T19:28:24.570Z","createdBy":9,"taxNumber":"","creditLimit":0,"bankAccounts":[{"branch":"","bankName":"","accountNo":"","isDeactivated":false,"securityLevel":1}],"openingDebit":650000,"contactPerson":"","openingCredit":0,"securityLevel":1,"currentBalance":650000},{"id":"CUST-1789816868387","date":"2026-09-19","name":"محمد عماد","email":"","notes":"","phone":"0123006242","exRate":1,"status":"active","address":"","currency":"USD","whatsapp":"0123006242","accountNo":"","createdAt":"2026-09-19T11:21:08.388Z","createdBy":469,"taxNumber":"","creditLimit":0,"bankAccounts":[{"branch":"","bankName":"","accountNo":"","isDeactivated":false,"securityLevel":1}],"openingDebit":5340944,"contactPerson":"","openingCredit":0,"securityLevel":1,"currentBalance":5340944}],
       dbWarehouses: [{"id":"WH-1781113448062","name":"المستودع الرئيسي","type":"مستودع رئيسي","createdBy":9,"securityLevel":1},{"id":"WH-1781116528837","name":"مخزن السجانة","type":"مستودع رئيسي","createdBy":9,"securityLevel":1},{"id":"WH-1782504163835","name":"دره اللاماب","type":"مستودع رئيسي","createdBy":9,"securityLevel":1},{"id":"WH-1782159769983","name":"مخزن الدره","type":"مستودع رئيسي","createdBy":9,"securityLevel":1},{"id":"WH-1783208966357","name":"اللاماب","type":"مستودع رئيسي","createdBy":9,"securityLevel":1},{"id":"WH-1782037611629","name":"دكان الخرطوم السجانه ","type":"معرض (نقطة بيع)","securityLevel":1}],
       dbCostCenters: [
@@ -11594,14 +11736,14 @@ window.SuiteSalesPOS = {
           dlg.style.height = 'auto';
           dlg.style.maxWidth = '680px';
           dlg.style.maxHeight = '94vh';
-          dlg.style.minHeight = 'min(75vh, 480px)';
+          dlg.style.minHeight = 'min(82vh, 540px)';
           dlg.style.borderRadius = '24px';
           dlg.style.margin = 'auto';
         }
         if (icon) icon.className = 'fa-solid fa-maximize';
         if (txt) {
-          txt.style.minHeight = '180px';
-          txt.style.fontSize = '18px';
+          txt.style.minHeight = '260px';
+          txt.style.setProperty('font-size', '21px', 'important');
         }
 
         // ضبط شارة السياق واسم الشريك
@@ -11917,6 +12059,8 @@ window.SuiteSalesPOS = {
 
       clearCurrentInputs() {
         this.selectedItemIndex = -1;
+        const itInp = document.getElementById('salesItemSearchInput');
+        if (itInp) itInp.value = '';
         const itDisp = document.getElementById('suiteItemDisplayName');
         if (itDisp) itDisp.innerHTML = '<span class="font-black text-xl sm:text-2xl truncate text-center" style="color: #fcd34d !important;">اختر الصنف...</span>';
         const itVal = document.getElementById('salesItemSelectVal');
@@ -11930,6 +12074,8 @@ window.SuiteSalesPOS = {
         const txt = document.getElementById('salesNotesExpandedTextarea');
         if (txt) txt.value = '';
 
+        this.calcItemSubtotal();
+        if (window.SmartPOSFontAI) window.SmartPOSFontAI.scaleAll();
         if (window.triggerHapticPulse) triggerHapticPulse(15);
         if (typeof showFloatingToast === 'function') {
           showFloatingToast('🧹 تم مسح وتفريغ خانات الصنف والبيان بنجاح');
@@ -12109,11 +12255,16 @@ window.SuiteSalesPOS = {
         }
         this.selectedCostCenter = name;
         const hid = document.getElementById('salesCostCenterInput');
-        if (hid) hid.value = name;
+        if (hid) {
+          hid.value = name;
+          if (window.SmartPOSFontAI) window.SmartPOSFontAI.scaleCostCenter(hid);
+        }
         const disp = document.getElementById('suiteCostCenterDisplayName');
         if (disp) {
           disp.innerHTML = `<span class="text-purple-200 font-black text-sm sm:text-base truncate">${name}</span>`;
         }
+        const drop = document.getElementById('salesCostCenterDropdown');
+        if (drop) drop.classList.add('hidden');
         this.closeCostCenterSearch();
         if (window.SafeInvoiceGuard) SafeInvoiceGuard.setUnsavedChanges(true, 'modalOpSales');
       },
@@ -14360,7 +14511,61 @@ window.SuiteSalesPOS = {
         drop.classList.remove('hidden');
       },
 
+      onCostCenterFocus(el) {
+        const wDrop = document.getElementById('salesWarehouseDropdown');
+        if (wDrop) wDrop.classList.add('hidden');
+        this.renderCostCenterDropdown(el.value || '');
+      },
+
+      onCostCenterInput(q) {
+        this.selectedCostCenter = (q || '').trim() || 'المركز الرئيسي';
+        this.renderCostCenterDropdown(q);
+      },
+
+      renderCostCenterDropdown(q) {
+        const drop = document.getElementById('salesCostCenterDropdown');
+        if (!drop) return;
+        const query = (q || '').trim();
+        const scored = (this.dbCostCenters || []).map(cc => {
+          const target = cc.name || '';
+          return {
+            cc,
+            score: SuiteSmartSearch.score(target, query),
+            match: SuiteSmartSearch.match(target, query)
+          };
+        }).filter(item => item.match)
+          .sort((a, b) => b.score - a.score);
+
+        let html = '';
+        if (query && !scored.some(x => (x.cc.name || '').toLowerCase() === query.toLowerCase())) {
+          const safeQ = query.replace(/'/g, "\\'");
+          html += `
+            <div onclick="SuiteSalesPOS.selectCostCenter('${safeQ}')" 
+                 class="py-2 px-3 rounded-xl bg-sky-950/60 hover:bg-sky-900/70 border border-sky-500/50 flex items-center justify-between cursor-pointer transition active:scale-[0.99] w-full">
+              <span class="font-bold text-sky-200 text-xs"><i class="fa-solid fa-plus-circle text-sky-400"></i> اعتماد مركز كلفة: "${query}"</span>
+              <span class="text-[10px] text-sky-300 font-mono">اختيار ↵</span>
+            </div>`;
+        }
+        scored.forEach(item => {
+          const cc = item.cc;
+          const nameHl = SuiteSmartSearch.highlight(cc.name, query);
+          const safeName = (cc.name || '').replace(/'/g, "\\'");
+          html += `
+            <div onclick="SuiteSalesPOS.selectCostCenter('${safeName}')" 
+                 class="py-2.5 px-3.5 rounded-xl bg-slate-900/95 hover:bg-slate-800 border border-slate-800/90 hover:border-sky-500/60 flex items-center cursor-pointer transition active:scale-[0.99] w-full shadow-sm">
+              <span class="font-bold text-slate-100 hover:text-sky-200 block text-[12px] sm:text-[13px] whitespace-normal break-words leading-relaxed w-full text-right">${nameHl}</span>
+            </div>`;
+        });
+        if (!html) {
+          html = '<div class="text-center py-3 text-slate-400 text-xs">لا يوجد مركز كلفة مطابق</div>';
+        }
+        drop.innerHTML = html;
+        drop.classList.remove('hidden');
+      },
+
       onWarehouseFocus(el) {
+        const ccDrop = document.getElementById('salesCostCenterDropdown');
+        if (ccDrop) ccDrop.classList.add('hidden');
         this.renderWarehouseDropdown(el.value || '');
       },
 
@@ -14571,10 +14776,13 @@ window.SuiteSalesPOS = {
       if (whInp) whInp.value = 'المستودع الرئيسي';
       const itInp = document.getElementById('salesItemSearchInput');
       if (itInp) itInp.value = '';
-      ['salesCustomerDropdown', 'salesWarehouseDropdown', 'salesItemDropdown'].forEach(id => {
+      const ccInp = document.getElementById('salesCostCenterInput');
+      if (ccInp) ccInp.value = this.selectedCostCenter || 'المركز الرئيسي';
+      ['salesCustomerDropdown', 'salesWarehouseDropdown', 'salesCostCenterDropdown', 'salesItemDropdown'].forEach(id => {
         const d = document.getElementById(id);
         if (d) d.classList.add('hidden');
       });
+      if (window.SmartPOSFontAI) setTimeout(() => window.SmartPOSFontAI.scaleAll(), 30);
     };
   }
 
@@ -14807,6 +15015,7 @@ window.SuiteSalesPOS = {
     const dropdowns = [
       { inp: 'salesCustomerInput', drop: 'salesCustomerDropdown' },
       { inp: 'salesWarehouseInput', drop: 'salesWarehouseDropdown' },
+      { inp: 'salesCostCenterInput', drop: 'salesCostCenterDropdown' },
       { inp: 'salesItemSearchInput', drop: 'salesItemDropdown' },
       { inp: 'purchaseSupplierInput', drop: 'purchaseSupplierDropdown' },
       { inp: 'purchaseWarehouseInput', drop: 'purchaseWarehouseDropdown' },
@@ -14846,8 +15055,11 @@ async function commitOpSales(andPay = false) {
           itName = SuiteSalesPOS.dbItems[SuiteSalesPOS.selectedItemIndex].name;
         }
         if (!itName) {
+          const itemInpVal = document.getElementById('salesItemSearchInput')?.value?.trim();
           const itemDisp = document.getElementById('suiteItemDisplayName')?.innerText?.trim();
-          if (itemDisp && itemDisp !== 'اختر الصنف...') {
+          if (itemInpVal) {
+            itName = itemInpVal;
+          } else if (itemDisp && itemDisp !== 'اختر الصنف...') {
             itName = itemDisp;
           } else {
             itName = 'مبيعات نقدية عامة';
@@ -14861,7 +15073,7 @@ async function commitOpSales(andPay = false) {
         const labor = parseFloat(document.getElementById('salesLaborInput')?.value || 0);
         const uSel = document.getElementById('salesUnitSelect');
         const unit = uSel ? uSel.value : 'حبة';
-        const wh = SuiteSalesPOS.selectedWarehouse || document.getElementById('salesWarehouseSelect')?.value || 'المستودع الرئيسي';
+        const wh = SuiteSalesPOS.selectedWarehouse || document.getElementById('salesWarehouseInput')?.value || document.getElementById('salesWarehouseSelect')?.value || 'المستودع الرئيسي';
         const sub = Math.max(0, (qty * prc) - disc + tax + labor);
 
         items = [{
@@ -14879,8 +15091,9 @@ async function commitOpSales(andPay = false) {
         grandTotal = sub;
       }
 
-      // Sync total if user manually typed or gross total changed
-      const manualTot = parseFloat(document.getElementById('salesTotalInput')?.value);
+      // Sync total if user manually typed or gross total changed (strip commas first!)
+      const rawTotStr = (document.getElementById('salesTotalInput')?.value || '').toString().replace(/,/g, '').trim();
+      const manualTot = parseFloat(rawTotStr);
       if (!isNaN(manualTot) && manualTot > 0) {
         grandTotal = manualTot;
       }
@@ -15823,6 +16036,10 @@ async function commitOpReceipt() {
         m.style.display = '';
         if (window.DynamicOperationalSuiteSync) {
           DynamicOperationalSuiteSync.syncModal(modalId);
+        }
+        if (window.SmartPOSFontAI && (modalId === 'modalOpSales' || modalId === 'modalOpPurchase')) {
+          requestAnimationFrame(() => window.SmartPOSFontAI.scaleAll());
+          setTimeout(() => window.SmartPOSFontAI.scaleAll(), 60);
         }
         try {
           history.pushState({ modalOpen: true, modalId: modalId }, '', window.location.href);
