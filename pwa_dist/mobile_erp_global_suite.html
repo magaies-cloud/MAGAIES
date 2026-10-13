@@ -7280,6 +7280,14 @@
           </div>
         </div>
 
+        <!-- شريط التحذير الذكي الفوري لتجاوز رصيد المستودع أو السقف الائتماني للعميل -->
+        <div id="salesStockCreditAlertBanner" class="hidden px-3 py-1.5 rounded-xl bg-rose-950/90 border border-rose-500/70 text-rose-200 text-[10.5px] font-black flex items-center justify-between gap-2 shadow-lg animate-pulse">
+          <div id="salesStockCreditAlertText" class="flex items-center gap-1.5 truncate">
+            <i class="fa-solid fa-triangle-exclamation text-amber-400"></i>
+            <span>تنبيه ائتماني / مخزني</span>
+          </div>
+        </div>
+
         <!-- ═══════════════════════════════════════════════════════════════
              3. WAREHOUSE & COST CENTER MODULE: السطر الرابع: المستودع وبجواره مركز الكلفة
              (بألوان افتراضية خفيفة جداً تمسح تلقائياً عند الكتابة)
@@ -7382,6 +7390,17 @@
 
             <!-- قائمة منسدلة ذكية للأصناف -->
             <div id="salesItemDropdown" class="hidden absolute top-full right-0 left-0 mt-2 bg-slate-950/98 backdrop-blur-2xl border-2 border-amber-500/70 rounded-2xl p-2 space-y-1.5 shadow-[0_25px_60px_rgba(0,0,0,0.98)] max-h-[75vh] overflow-y-auto z-[999] text-xs"></div>
+          </div>
+
+          <!-- شريط ذاكرة التسعير الذكية للعميل والصنف (Last Price Memory) -->
+          <div id="salesLastPriceMemoryBar" class="hidden px-2.5 py-1.5 rounded-xl bg-amber-950/75 border border-amber-500/50 flex items-center justify-between gap-2 text-[10.5px] font-bold shadow-md transition-all">
+            <div id="salesLastPriceMemoryText" class="flex items-center gap-1.5 text-amber-200 truncate">
+              <i class="fa-solid fa-clock-rotate-left text-amber-400"></i>
+              <span>آخر سعر بيع: —</span>
+            </div>
+            <button type="button" id="btnApplyLastPriceMemory" onclick="SuiteSalesPOS.applyRememberedPrice()" class="px-2.5 py-0.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-[10px] shrink-0 active:scale-95 transition cursor-pointer shadow">
+              اعتماد السعر ↵
+            </button>
           </div>
 
           <!-- السطر الثاني: الكمية والسعر: بنفس مقاس وحجم خط الخصم والإضافة والعتالة تماماً (28px) وبنص افتراضي خفيف جداً يمسح عند الكتابة -->
@@ -7499,17 +7518,47 @@
             </div>
           </div>
 
-          <!-- السطر الثاني: الإجمالي الصافي المطلوب بزيادة 3 درجات (46px) وبنص افتراضي خفيف جداً "الصافي" -->
+          <!-- السطر الثاني: الإجمالي الصافي المطلوب بزيادة 3 درجات (46px) وبنص افتراضي خفيف جداً "الصافي" + زر كاشف ربحية الفاتورة للإدارة -->
           <div>
-            <label class="text-[12px] sm:text-[13px] font-black text-amber-300 mb-0.5 flex items-center gap-1">
-              <i class="fa-solid fa-coins text-[11px]"></i> الإجمالي الصافي المطلوب:
-            </label>
+            <div class="flex items-center justify-between mb-0.5">
+              <label class="text-[12px] sm:text-[13px] font-black text-amber-300 flex items-center gap-1">
+                <i class="fa-solid fa-coins text-[11px]"></i> الإجمالي الصافي المطلوب:
+              </label>
+              <button type="button" onclick="event.stopPropagation(); SuiteSalesPOS.toggleProfitMarginPeek();" 
+                      class="px-2 py-0.5 rounded-lg bg-slate-900/90 hover:bg-emerald-950 text-emerald-300 border border-emerald-500/40 text-[10px] font-black flex items-center gap-1 transition active:scale-95 cursor-pointer shadow-sm" 
+                      title="كاشف ربحية الفاتورة اللحظي للإدارة">
+                <i class="fa-solid fa-chart-line text-[9.5px] text-emerald-400"></i>
+                <span>هامش الربح</span>
+              </button>
+            </div>
             <div onclick="document.getElementById('salesTotalInput')?.focus()" class="w-full h-[64px] sm:h-[68px] rounded-xl flex items-center justify-center px-3 shadow-md relative overflow-hidden pos-field-interactive pos-field-total cursor-pointer" 
                  style="background: linear-gradient(135deg, rgba(120, 53, 15, 0.4), rgba(15, 23, 42, 0.95)); border: 1.5px solid rgba(245, 158, 11, 0.65); box-shadow: 0 0 12px rgba(245, 158, 11, 0.22);">
               <input type="text" id="salesTotalInput" readonly placeholder="الصافي" 
                      class="w-full h-full text-center font-black font-mono text-amber-300 outline-none bg-transparent border-none pos-thick-bold-num cursor-pointer" 
                      style="background: transparent !important; color: #fcd34d !important; font-family: 'Impact', 'Arial Black', sans-serif !important; font-weight: 900 !important; font-size: 46px !important; -webkit-text-stroke: 0.5px currentColor; letter-spacing: 0.5px !important;" 
                      title="الإجمالي الصافي المطلوب (اضغط مسافة لتخصيص الخط واللون والتقريب)" />
+            </div>
+
+            <!-- لوحة تحليل ربحية الفاتورة اللحظي للإدارة (Margin Peek - مخفية افتراضياً لخصوصية الإدارة أمام العميل) -->
+            <div id="salesProfitMarginPeekBox" class="hidden mt-1.5 p-2 rounded-xl bg-slate-950/95 border border-emerald-500/50 text-[10.5px] font-bold shadow-lg space-y-1">
+              <div class="flex items-center justify-between border-b border-slate-800 pb-1">
+                <span class="text-emerald-300 font-black flex items-center gap-1"><i class="fa-solid fa-user-shield text-emerald-400"></i> تحليل الربحية الفوري (خاص بالإدارة)</span>
+                <span id="salesMarginPercentBadge" class="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-400/40 font-mono font-black">0%</span>
+              </div>
+              <div class="grid grid-cols-3 gap-1.5 text-center font-mono pt-0.5">
+                <div class="p-1 rounded-lg bg-slate-900/90 border border-slate-800">
+                  <span class="text-slate-400 block text-[9px] font-sans">التكلفة التقديرية</span>
+                  <span id="salesMarginCostVal" class="text-rose-300 font-black">0</span>
+                </div>
+                <div class="p-1 rounded-lg bg-slate-900/90 border border-slate-800">
+                  <span class="text-slate-400 block text-[9px] font-sans">صافي المبيعات</span>
+                  <span id="salesMarginRevVal" class="text-sky-300 font-black">0</span>
+                </div>
+                <div class="p-1 rounded-lg bg-slate-900/90 border border-slate-800">
+                  <span class="text-slate-400 block text-[9px] font-sans">صافي الربح</span>
+                  <span id="salesMarginProfitVal" class="text-emerald-400 font-black">0</span>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -7602,7 +7651,7 @@
         <input type="hidden" id="salesPayMethodSelect" value="cash">
 
         <!-- ═══════════════════════════════════════════════════════════════
-             7. ACTION BUTTONS: حفظ، حفظ وسداد، جديد، مسح، مشاركة، كشف الحساب، الإذن، خروج
+             7. ACTION BUTTONS: حفظ، حفظ وسداد، جديد، مسح، مشاركة، تعليق/استرجاع، كشف الحساب، الإذن، خروج
              ═══════════════════════════════════════════════════════════════ -->
         <div class="space-y-2 pt-1">
           <!-- الصف الأول: حفظ + حفظ وسداد -->
@@ -7626,7 +7675,7 @@
             </button>
           </div>
 
-          <!-- الصف الثاني: جديد + مسح + مشاركة -->
+          <!-- الصف الثاني: جديد + مسح + مشاركة (واتساب و PDF بـ QR) -->
           <div class="grid grid-cols-3 gap-2">
             <!-- 3. جديد -->
             <button type="button" onclick="SuiteSalesPOS.newInvoice()" 
@@ -7644,13 +7693,32 @@
               <span>مسح</span>
             </button>
 
-            <!-- 5. مشاركة -->
-            <button type="button" onclick="SuiteSalesPOS.shareInvoice()" 
+            <!-- 5. مشاركة (واتساب مباشر + PDF رسمي بـ QR) -->
+            <button type="button" onclick="SuiteSalesPOS.openShareInvoiceModal()" 
                     class="py-3 px-2 rounded-xl text-xs sm:text-sm font-black flex items-center justify-center gap-1.5 transition active:scale-95 shadow-lg cursor-pointer text-amber-200 hover:text-white" 
                     style="background: linear-gradient(135deg, rgba(180, 83, 9, 0.4), rgba(15, 23, 42, 0.95)); border: 1.5px solid #f59e0b; box-shadow: 0 0 10px rgba(245, 158, 11, 0.3);" 
-                    title="مشاركة تفاصيل الفاتورة">
-              <i class="fa-solid fa-share-nodes text-amber-400"></i>
-              <span>مشاركة</span>
+                    title="مشاركة الفاتورة عبر واتساب مباشرة أو طباعة PDF رسمي بـ QR Code">
+              <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+              <span>مشاركة / PDF</span>
+            </button>
+          </div>
+
+          <!-- صف الفواتير المعلقة (Hold / Park & Recall Invoice) -->
+          <div class="grid grid-cols-2 gap-2">
+            <button type="button" onclick="SuiteSalesPOS.parkCurrentInvoice()" 
+                    class="py-2.5 px-2 rounded-xl text-xs font-black flex items-center justify-center gap-1.5 transition active:scale-95 shadow-md cursor-pointer text-amber-200 hover:text-white" 
+                    style="background: linear-gradient(135deg, rgba(217, 119, 6, 0.25), rgba(15, 23, 42, 0.95)); border: 1.5px solid rgba(251, 191, 36, 0.6);" 
+                    title="تعليق الفاتورة الحالية مؤقتاً لخدمة عميل آخر مستعجل">
+              <i class="fa-solid fa-pause-circle text-amber-400 text-sm"></i>
+              <span>تعليق الفاتورة ⏸️</span>
+            </button>
+
+            <button type="button" onclick="SuiteSalesPOS.openParkedInvoicesModal()" 
+                    class="py-2.5 px-2 rounded-xl text-xs font-black flex items-center justify-center gap-1.5 transition active:scale-95 shadow-md cursor-pointer text-purple-200 hover:text-white" 
+                    style="background: linear-gradient(135deg, rgba(147, 51, 234, 0.25), rgba(15, 23, 42, 0.95)); border: 1.5px solid rgba(192, 132, 252, 0.6);" 
+                    title="استعراض واسترجاع الفواتير المعلقة بلمسة واحدة">
+              <i class="fa-solid fa-clock-rotate-left text-purple-300 text-sm"></i>
+              <span>المعلقة (<span id="salesParkedInvoicesCount">0</span>) ▶️</span>
             </button>
           </div>
 
@@ -8767,6 +8835,82 @@
           </button>
         </div>
 
+      </div>
+    </div>
+
+    <!-- 8. PARKED / HELD INVOICES MODAL (شاشة الفواتير المعلقة للاسترجاع بلمسة واحدة) -->
+    <div id="suiteParkedInvoicesModal" class="hidden fixed inset-0 modal-backdrop flex items-center justify-center p-3 sm:p-4 bg-slate-950/90 backdrop-blur-md"
+         style="z-index: 100250 !important; display: none;"
+         onclick="if(event.target === this) SuiteSalesPOS.closeParkedInvoicesModal();">
+      <div class="glass-base w-full max-w-md rounded-3xl p-4 space-y-3 relative shadow-2xl overflow-y-auto max-h-[88vh]"
+           style="background: linear-gradient(180deg, #130d26 0%, #05030d 100%); border: 2px solid rgba(192, 132, 252, 0.85); box-shadow: 0 0 50px rgba(147, 51, 234, 0.45), 0 20px 60px rgba(0,0,0,0.95); direction: rtl;">
+        <div class="flex items-center justify-between pb-2.5 border-b border-slate-800">
+          <div class="flex items-center gap-2">
+            <div class="w-9 h-9 rounded-2xl bg-purple-500/20 border border-purple-400/50 text-purple-300 flex items-center justify-center text-base shadow">
+              <i class="fa-solid fa-pause-circle"></i>
+            </div>
+            <div>
+              <h3 class="font-black text-xs sm:text-sm text-white">الفواتير المعلقة مؤقتاً</h3>
+              <p class="text-[10px] text-slate-400 font-bold m-0">اختر أي فاتورة لاسترجاع كافة بياناتها فوراً</p>
+            </div>
+          </div>
+          <button type="button" onclick="SuiteSalesPOS.closeParkedInvoicesModal()" class="w-8 h-8 rounded-full bg-slate-800 text-slate-300 hover:text-white flex items-center justify-center text-sm cursor-pointer">✕</button>
+        </div>
+        <div id="suiteParkedInvoicesList" class="space-y-2 max-h-[60vh] overflow-y-auto pr-0.5 text-xs"></div>
+      </div>
+    </div>
+
+    <!-- 9. SMART WHATSAPP & OFFICIAL QR PDF SHARE MODAL (مشاركة الفاتورة بـ QR عبر واتساب مباشرة أو طباعة PDF) -->
+    <div id="suiteShareInvoiceModal" class="hidden fixed inset-0 modal-backdrop flex items-center justify-center p-3 sm:p-4 bg-slate-950/90 backdrop-blur-md"
+         style="z-index: 100250 !important; display: none;"
+         onclick="if(event.target === this) SuiteSalesPOS.closeShareInvoiceModal();">
+      <div class="glass-base w-full max-w-md rounded-3xl p-4 space-y-3.5 relative shadow-2xl overflow-y-auto max-h-[90vh]"
+           style="background: linear-gradient(180deg, #071f18 0%, #03090c 100%); border: 2px solid rgba(16, 185, 129, 0.85); box-shadow: 0 0 50px rgba(16, 185, 129, 0.4), 0 20px 60px rgba(0,0,0,0.95); direction: rtl;">
+        <div class="flex items-center justify-between pb-2 border-b border-slate-800">
+          <div class="flex items-center gap-2">
+            <div class="w-9 h-9 rounded-2xl bg-emerald-500/20 border border-emerald-400/50 text-emerald-300 flex items-center justify-center text-lg shadow">
+              <i class="fa-brands fa-whatsapp"></i>
+            </div>
+            <div>
+              <h3 class="font-black text-xs sm:text-sm text-white">مشاركة وإرسال الفاتورة الإلكترونية (QR)</h3>
+              <p id="suiteShareModalSub" class="text-[10px] text-emerald-300 font-bold m-0">فاتورة معتمدة برمز استجابة سريعة (QR Code)</p>
+            </div>
+          </div>
+          <button type="button" onclick="SuiteSalesPOS.closeShareInvoiceModal()" class="w-8 h-8 rounded-full bg-slate-800 text-slate-300 hover:text-white flex items-center justify-center text-sm cursor-pointer">✕</button>
+        </div>
+
+        <!-- معاينة رمز الـ QR الرسمي للفاتورة -->
+        <div class="p-3 rounded-2xl bg-slate-950/90 border border-emerald-500/30 flex items-center justify-between gap-3">
+          <div class="space-y-1 flex-1 min-w-0">
+            <div id="suiteSharePreviewCustomer" class="font-black text-white text-xs truncate">العميل: عميل نقدي عام</div>
+            <div id="suiteSharePreviewTotal" class="font-black text-emerald-400 font-mono text-sm">الإجمالي: 0.00 ج.س</div>
+            <div class="pt-1">
+              <label class="text-[10px] text-slate-400 font-bold block mb-0.5">رقم واتساب العميل (اختياري للإرسال المباشر):</label>
+              <input type="tel" id="suiteShareWhatsAppPhone" placeholder="مثال: 249912345678" class="w-full px-2.5 py-1.5 rounded-xl bg-slate-900 border border-emerald-500/40 text-white font-mono text-xs outline-none" dir="ltr" />
+            </div>
+          </div>
+          <div class="shrink-0 text-center">
+            <img id="suiteShareQrImg" src="" alt="QR" class="w-20 h-20 rounded-xl border border-emerald-400/50 bg-white p-1 mx-auto" />
+            <span class="text-[9px] text-slate-400 font-bold block mt-0.5">QR الفاتورة</span>
+          </div>
+        </div>
+
+        <div class="space-y-2">
+          <button type="button" onclick="SuiteSalesPOS.sendInvoiceWhatsAppDirect()" class="w-full py-3 px-4 rounded-2xl font-black text-xs sm:text-sm text-white flex items-center justify-center gap-2 shadow-xl active:scale-95 transition cursor-pointer" style="background: linear-gradient(135deg, #16a34a, #059669); border: 1.5px solid #4ade80;">
+            <i class="fa-brands fa-whatsapp text-base"></i>
+            <span>إرسال الفاتورة + رابط QR عبر واتساب مباشرة</span>
+          </button>
+
+          <button type="button" onclick="SuiteSalesPOS.closeShareInvoiceModal(); SuiteSalesPOS.printInvoice();" class="w-full py-3 px-4 rounded-2xl font-black text-xs sm:text-sm text-amber-200 hover:text-white flex items-center justify-center gap-2 shadow-lg active:scale-95 transition cursor-pointer" style="background: linear-gradient(135deg, rgba(217, 119, 6, 0.35), rgba(15, 23, 42, 0.95)); border: 1.5px solid #fbbf24;">
+            <i class="fa-solid fa-file-pdf text-amber-400 text-base"></i>
+            <span>فتح وطباعة الفاتورة الرسمية (PDF + QR Code)</span>
+          </button>
+
+          <button type="button" onclick="SuiteSalesPOS.shareInvoice()" class="w-full py-2.5 px-4 rounded-2xl bg-slate-900 hover:bg-slate-800 text-sky-300 border border-sky-500/40 font-black text-xs flex items-center justify-center gap-2 active:scale-95 transition cursor-pointer">
+            <i class="fa-solid fa-copy text-sky-400"></i>
+            <span>نسخ نص الفاتورة / مشاركة سريعة</span>
+          </button>
+        </div>
       </div>
     </div>
 
@@ -12997,6 +13141,7 @@ window.SuiteSalesPOS = {
         this.calcItemSubtotal();
         await this.loadRecentInvoices();
         this.initDefaultCustomer();
+        if (typeof this.updateParkedCountUI === 'function') this.updateParkedCountUI();
       },
 
       initDefaultCostCenter() {
@@ -13494,6 +13639,8 @@ window.SuiteSalesPOS = {
         }
         if (window.SmartFieldCustomizer) window.SmartFieldCustomizer.applyAllSavedStyles();
         if (window.SmartPOSFontAI) window.SmartPOSFontAI.scaleAll();
+        if (typeof this.updateErpSmartStatusStrip === 'function') this.updateErpSmartStatusStrip();
+        if (typeof this.updateProfitMarginPeek === 'function') this.updateProfitMarginPeek();
         return netTotal;
       },
 
@@ -14594,8 +14741,20 @@ window.SuiteSalesPOS = {
         });
 
         // ─────────────────────────────────────────────────────────────
-        // ح) تنفيذ أمر الحفظ الصوتي الفوري ("حفظ" أو "حفظ وسداد")
+        // ح) تنفيذ الأوامر الصوتية التنفيذية الفورية ("حفظ" / "حفظ وسداد" / "تعليق الفاتورة" / "استرجاع الفاتورة" / "آخر سعر")
         // ─────────────────────────────────────────────────────────────
+        if (/(?:تعليق\s*الفاتوره|علق\s*الفاتوره|تعليق)/i.test(cleanText)) {
+          this.stopVoiceFeed(true, '⏸️ جاري تعليق الفاتورة الحالية وتفريغ الشاشة...');
+          setTimeout(() => this.parkCurrentInvoice(), 200);
+          return;
+        } else if (/(?:استرجاع\s*الفاتوره|الفواتير\s*المعلقه|استرجاع)/i.test(cleanText)) {
+          this.stopVoiceFeed(true, '▶️ جاري فتح قائمة الفواتير المعلقة...');
+          setTimeout(() => this.openParkedInvoicesModal(), 200);
+          return;
+        } else if (/(?:اخر\s*سعر|اعتمد\s*السعر)/i.test(cleanText)) {
+          this.applyRememberedPrice();
+        }
+
         if (/(?:حفظ\s*وسداد|احفظ\s*وسدد|حفظ\s*و\s*سداد)/i.test(rawOriginal) || /(?:حفظ\s*وسداد|احفظ\s*وسدد)/i.test(cleanText)) {
           this.stopVoiceFeed(true, '⚡ جاري تنفيذ أمر "حفظ وسداد" والانتقال لشاشة حركة مالية...');
           setTimeout(() => {
@@ -14887,44 +15046,576 @@ window.SuiteSalesPOS = {
         const strip = document.getElementById('salesErpSmartStatusStrip');
         const custBadge = document.getElementById('salesErpCustBalanceBadge');
         const stockBadge = document.getElementById('salesErpItemStockBadge');
-        if (!strip) return;
+        const alertBanner = document.getElementById('salesStockCreditAlertBanner');
+        const alertText = document.getElementById('salesStockCreditAlertText');
 
         const custName = (document.getElementById('salesCustomerInput')?.value || this.selectedCustomer?.name || '').trim();
         const custObj = this.selectedCustomer || (this.dbCustomers || []).find(c => c.name === custName);
-        const itObj = (this.selectedItemIndex !== -1 && this.dbItems) ? this.dbItems[this.selectedItemIndex] : null;
+        let itObj = (this.selectedItemIndex !== -1 && this.dbItems) ? this.dbItems[this.selectedItemIndex] : null;
+        if (!itObj) {
+          const itInpVal = (document.getElementById('salesItemSearchInput')?.value || '').trim();
+          if (itInpVal && itInpVal !== 'اختيار الصنف') {
+            itObj = (this.dbItems || []).find(x => x.name === itInpVal);
+          }
+        }
 
+        // تحديث شريط ذاكرة التسعير الذكية للعميل والصنف
+        if (typeof this.updateLastPriceMemoryUI === 'function') {
+          this.updateLastPriceMemoryUI(custName, itObj);
+        }
+
+        if (!strip) return;
         if ((!custName || custName === 'عميل نقدي عام') && !itObj) {
           strip.classList.add('hidden');
+          if (alertBanner) alertBanner.classList.add('hidden');
           return;
         }
         strip.classList.remove('hidden');
 
+        const bal = parseFloat(custObj?.currentBalance || custObj?.balance || custObj?.openingBalance || 0);
+        const limit = parseFloat(custObj?.creditLimit || 0);
+        const cur = custObj?.currency === 'USD' ? '$' : 'ج.س';
+        const netInp = document.getElementById('salesTotalInput');
+        const currentInvoiceNet = netInp && netInp.value ? (parseFloat(String(netInp.value).replace(/,/g, '')) || 0) : 0;
+        const projectedBal = bal + currentInvoiceNet;
+        const isOverLimit = (limit > 0 && projectedBal > limit);
+
         if (custBadge) {
-          const bal = parseFloat(custObj?.currentBalance || custObj?.balance || custObj?.openingBalance || 0);
-          const limit = parseFloat(custObj?.creditLimit || 0);
-          const cur = custObj?.currency === 'USD' ? '$' : 'ج.س';
-          const isOverLimit = (limit > 0 && bal > limit);
-          custBadge.className = 'flex items-center gap-1.5 truncate ' + (isOverLimit ? 'text-rose-400' : (bal > 0 ? 'text-amber-300' : 'text-sky-300'));
-          custBadge.innerHTML = `<i class="fa-solid fa-wallet text-[10px]"></i><span>رصيد العميل: ${bal.toLocaleString()} ${cur}${isOverLimit ? ' ⚠️ (تجاوز الحد)' : ''}</span>`;
+          custBadge.className = 'flex items-center gap-1.5 truncate ' + (isOverLimit ? 'text-rose-400 font-black' : (bal > 0 ? 'text-amber-300' : 'text-sky-300'));
+          custBadge.innerHTML = `<i class="fa-solid fa-wallet text-[10px]"></i><span>رصيد العميل: ${bal.toLocaleString()} ${cur}${limit > 0 ? ` (الحد: ${limit.toLocaleString()})` : ''}${isOverLimit ? ' ⚠️' : ''}</span>`;
         }
 
+        let numericAvailableStock = null;
+        const uSel = document.getElementById('salesUnitSelect');
+        const opt = uSel && uSel.options ? uSel.options[uSel.selectedIndex] : null;
+        const factor = opt ? (parseFloat(opt.getAttribute('data-factor')) || 1) : 1;
+        const uName = opt ? opt.value : (itObj?.unit || 'حبة');
+
         if (stockBadge) {
-          const uSel = document.getElementById('salesUnitSelect');
-          const opt = uSel && uSel.options ? uSel.options[uSel.selectedIndex] : null;
-          const factor = opt ? (opt.getAttribute('data-factor') || '1') : '1';
-          const uName = opt ? opt.value : (itObj?.unit || 'حبة');
           let stockQty = 'متاح';
           if (itObj && itObj.stock) {
             if (typeof itObj.stock === 'object' && !Array.isArray(itObj.stock)) {
-              const vals = Object.values(itObj.stock).map(v => parseFloat(v) || 0);
-              const sum = vals.reduce((a, b) => a + b, 0);
-              if (sum > 0) stockQty = sum.toLocaleString();
+              const whKey = this.selectedWarehouse || '';
+              if (whKey && itObj.stock[whKey] !== undefined) {
+                numericAvailableStock = parseFloat(itObj.stock[whKey]) || 0;
+              } else {
+                const vals = Object.values(itObj.stock).map(v => parseFloat(v) || 0);
+                numericAvailableStock = vals.reduce((a, b) => a + b, 0);
+              }
+              if (numericAvailableStock > 0) stockQty = numericAvailableStock.toLocaleString();
             } else if (Array.isArray(itObj.stock) && itObj.stock[0]?.qty !== undefined) {
-              stockQty = Number(itObj.stock[0].qty).toLocaleString();
+              numericAvailableStock = Number(itObj.stock[0].qty) || 0;
+              stockQty = numericAvailableStock.toLocaleString();
             }
           }
-          stockBadge.innerHTML = `<i class="fa-solid fa-Layer-group text-[10px]"></i><span>المخزون: ${stockQty} | ${uName} (معامل: ${factor})</span>`;
+          stockBadge.innerHTML = `<i class="fa-solid fa-layer-group text-[10px]"></i><span>المخزون: ${stockQty} | ${uName} (معامل: ${factor})</span>`;
         }
+
+        // التحقق الفوري من رصيد المستودع والحد الائتماني قبل الحفظ
+        if (alertBanner && alertText) {
+          const warnings = [];
+          const enteredQtyRaw = document.getElementById('salesQtyInput')?.value;
+          const enteredQty = enteredQtyRaw ? (parseFloat(String(enteredQtyRaw).replace(/,/g, '')) || 0) : 0;
+
+          if (numericAvailableStock !== null && numericAvailableStock > 0 && enteredQty > numericAvailableStock) {
+            warnings.push(`الكمية المطلوبة (${enteredQty}) تتجاوز الرصيد المتاح في المستودع (${numericAvailableStock.toLocaleString()})`);
+          }
+          if (isOverLimit && custName && custName !== 'عميل نقدي عام') {
+            warnings.push(`إجمالي المديونية مع الفاتورة (${projectedBal.toLocaleString()} ${cur}) يتجاوز الحد الائتماني للعميل (${limit.toLocaleString()} ${cur})`);
+          }
+
+          if (warnings.length > 0) {
+            alertText.innerText = 'تنبيه رقابي: ' + warnings.join(' • ');
+            alertBanner.classList.remove('hidden');
+          } else {
+            alertBanner.classList.add('hidden');
+          }
+        }
+      },
+
+      // ─────────────────────────────────────────────────────────────
+      // 1. ذاكرة التسعير الذكية للعميل والصنف (LAST PRICE MEMORY)
+      // ─────────────────────────────────────────────────────────────
+      _lastRememberedPriceObj: null,
+
+      getRememberedPrice(custName, itObj) {
+        if (!itObj || !itObj.name) return null;
+        const itemName = itObj.name.trim();
+        const cleanCust = (custName || '').trim();
+
+        // أولاً: فحص ذاكرة التسعير المحفوظة محلياً
+        try {
+          const mem = JSON.parse(localStorage.getItem('magaies_last_price_memory_v1') || '{}');
+          if (cleanCust && cleanCust !== 'عميل نقدي عام' && mem[`${cleanCust}__${itemName}`]) {
+            return { ...mem[`${cleanCust}__${itemName}`], scope: 'customer' };
+          }
+          if (mem[`*__${itemName}`]) {
+            return { ...mem[`*__${itemName}`], scope: 'global' };
+          }
+        } catch (e) {}
+
+        // ثانياً: فحص أرشيف الفواتير السابقة
+        const allInvs = [
+          ...(Array.isArray(this.recentInvoices) ? this.recentInvoices : []),
+          ...(function() {
+            try { return JSON.parse(localStorage.getItem('magaies_local_sales_invoices_v1') || '[]'); } catch(e) { return []; }
+          })()
+        ];
+
+        let globalMatch = null;
+        for (const inv of allInvs) {
+          if (!inv || !Array.isArray(inv.items)) continue;
+          for (const line of inv.items) {
+            const p = parseFloat(line.price || 0);
+            if (line.name === itemName && p > 0) {
+              if (cleanCust && cleanCust !== 'عميل نقدي عام' && inv.customerName === cleanCust) {
+                return { price: p, unit: line.unit || itObj.unit || 'طن عددي', date: inv.date || '', scope: 'customer', customerName: cleanCust };
+              }
+              if (!globalMatch) {
+                globalMatch = { price: p, unit: line.unit || itObj.unit || 'طن عددي', date: inv.date || '', scope: 'global' };
+              }
+            }
+          }
+        }
+        if (globalMatch) return globalMatch;
+
+        // ثالثاً: السعر الافتراضي للصنف في قاعدة البيانات إن وجد
+        const catPrice = parseFloat(itObj.sellingPrice || itObj.price || 0);
+        if (catPrice > 0) {
+          return { price: catPrice, unit: itObj.baseUnit || itObj.unit || 'حبة', date: 'التسعيرة الأساسية', scope: 'catalog' };
+        }
+        return null;
+      },
+
+      updateLastPriceMemoryUI(custName, itObj) {
+        const bar = document.getElementById('salesLastPriceMemoryBar');
+        const txt = document.getElementById('salesLastPriceMemoryText');
+        if (!bar || !txt) return;
+
+        const info = this.getRememberedPrice(custName, itObj);
+        this._lastRememberedPriceObj = info;
+        if (!info || !info.price) {
+          bar.classList.add('hidden');
+          return;
+        }
+
+        const cur = this.currencyMode === 'USD' ? '$' : 'ج.س';
+        const scopeLabel = info.scope === 'customer'
+          ? `آخر سعر بيع لـ [${custName}]`
+          : (info.scope === 'global' ? 'آخر سعر بيع للصنف' : 'سعر الصنف المسجل');
+        txt.innerHTML = `${scopeLabel}: <strong class="text-emerald-300 font-mono">${Number(info.price).toLocaleString()} ${cur}</strong> <span class="text-slate-400">(${info.unit || 'وحدة'})</span>`;
+        bar.classList.remove('hidden');
+      },
+
+      applyRememberedPrice() {
+        const info = this._lastRememberedPriceObj;
+        if (!info || !info.price) return;
+        const pInp = document.getElementById('salesPriceInput');
+        if (pInp) {
+          pInp.classList.remove('pos-ghost-default');
+          delete pInp.dataset.ghostAuto;
+          pInp.value = window.SmartFieldCustomizer
+            ? SmartFieldCustomizer.formatNumberForField('salesPriceInput', info.price)
+            : info.price;
+          if (window.SmartPOSFontAI) window.SmartPOSFontAI.scalePrice(pInp);
+        }
+        if (info.unit) {
+          const uSel = document.getElementById('salesUnitSelect');
+          if (uSel && uSel.options) {
+            for (let i = 0; i < uSel.options.length; i++) {
+              if (uSel.options[i].value === info.unit) {
+                uSel.selectedIndex = i;
+                if (window.SmartPOSFontAI) window.SmartPOSFontAI.scaleUnit(uSel);
+                break;
+              }
+            }
+          }
+        }
+        this.calcItemSubtotal();
+        if (window.triggerHapticPulse) triggerHapticPulse(15);
+        if (typeof showFloatingToast === 'function') {
+          showFloatingToast(`🏷️ تم اعتماد السعر المحفوظ (${Number(info.price).toLocaleString()}) في الفاتورة فوراً!`);
+        }
+      },
+
+      saveToLastPriceMemory(custName, items, dateStr) {
+        if (!Array.isArray(items) || items.length === 0) return;
+        try {
+          const mem = JSON.parse(localStorage.getItem('magaies_last_price_memory_v1') || '{}');
+          const cleanCust = (custName || '').trim();
+          items.forEach(it => {
+            const prc = parseFloat(it.price || 0);
+            if (it && it.name && prc > 0) {
+              const entry = { price: prc, unit: it.unit || '', date: dateStr || new Date().toISOString().split('T')[0] };
+              mem[`*__${it.name.trim()}`] = entry;
+              if (cleanCust && cleanCust !== 'عميل نقدي عام') {
+                mem[`${cleanCust}__${it.name.trim()}`] = entry;
+              }
+            }
+          });
+          localStorage.setItem('magaies_last_price_memory_v1', JSON.stringify(mem));
+        } catch (e) {}
+      },
+
+      // ─────────────────────────────────────────────────────────────
+      // 2. تحليل ربحية الفاتورة اللحظي للإدارة (PROFIT MARGIN PEEK)
+      // ─────────────────────────────────────────────────────────────
+      toggleProfitMarginPeek() {
+        const box = document.getElementById('salesProfitMarginPeekBox');
+        if (!box) return;
+        box.classList.toggle('hidden');
+        if (!box.classList.contains('hidden')) {
+          this.updateProfitMarginPeek();
+          if (window.triggerHapticPulse) triggerHapticPulse(12);
+        }
+      },
+
+      updateProfitMarginPeek() {
+        const box = document.getElementById('salesProfitMarginPeekBox');
+        if (!box || box.classList.contains('hidden')) return;
+
+        const pNum = (id) => {
+          const el = document.getElementById(id);
+          if (!el || !el.value) return 0;
+          return parseFloat(String(el.value).replace(/,/g, '')) || 0;
+        };
+
+        const qty = pNum('salesQtyInput') || 1;
+        const prc = pNum('salesPriceInput');
+        const netRev = pNum('salesTotalInput') || (qty * prc);
+        const itObj = (this.selectedItemIndex !== -1 && this.dbItems) ? this.dbItems[this.selectedItemIndex] : null;
+
+        let unitCost = parseFloat(itObj?.lastPurchaseCost || itObj?.averageCost || 0);
+        if (unitCost > 0 && prc > unitCost * 10) {
+          // إذا كانت التكلفة مسجلة للوحدة الصغرى والسعر للطن، نضرب بمعامل التحويل أو تقدير التكلفة القياسي
+          const uSel = document.getElementById('salesUnitSelect');
+          const opt = uSel && uSel.options ? uSel.options[uSel.selectedIndex] : null;
+          const factor = opt ? (parseFloat(opt.getAttribute('data-factor')) || 1) : 1;
+          unitCost = unitCost * factor;
+        }
+        if (unitCost <= 0 || unitCost >= prc * 1.5) {
+          unitCost = prc > 0 ? Math.round(prc * 0.84 * 100) / 100 : 0;
+        }
+
+        const totalCost = Math.round(qty * unitCost * 100) / 100;
+        const profit = Math.round((netRev - totalCost) * 100) / 100;
+        const pct = netRev > 0 ? Math.round((profit / netRev) * 1000) / 10 : 0;
+
+        const costEl = document.getElementById('salesMarginCostVal');
+        const revEl = document.getElementById('salesMarginRevVal');
+        const profEl = document.getElementById('salesMarginProfitVal');
+        const badgeEl = document.getElementById('salesMarginPercentBadge');
+
+        if (costEl) costEl.innerText = totalCost.toLocaleString();
+        if (revEl) revEl.innerText = netRev.toLocaleString();
+        if (profEl) {
+          profEl.innerText = (profit >= 0 ? '+' : '') + profit.toLocaleString();
+          profEl.className = 'font-mono font-black text-[11px] ' + (profit >= 0 ? 'text-emerald-400' : 'text-rose-400');
+        }
+        if (badgeEl) {
+          badgeEl.innerText = `نسبة الربح: ${pct}%`;
+          badgeEl.className = 'px-2 py-0.5 rounded-full text-[10px] font-black border ' + (pct >= 0 ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40' : 'bg-rose-500/20 text-rose-300 border-rose-500/40');
+        }
+      },
+
+      // ─────────────────────────────────────────────────────────────
+      // 3. تعليق واسترجاع الفواتير المعلقة (PARK & RECALL INVOICES)
+      // ─────────────────────────────────────────────────────────────
+      getParkedInvoices() {
+        try {
+          return JSON.parse(localStorage.getItem('magaies_parked_sales_invoices_v1') || '[]');
+        } catch (e) {
+          return [];
+        }
+      },
+
+      updateParkedCountUI() {
+        const list = this.getParkedInvoices();
+        const badge = document.getElementById('salesParkedCountBadge');
+        if (badge) {
+          badge.innerText = list.length;
+        }
+      },
+
+      parkCurrentInvoice() {
+        const cust = document.getElementById('salesCustomerInput')?.value?.trim() || this.selectedCustomer?.name || 'عميل نقدي عام';
+        const wh = document.getElementById('salesWarehouseInput')?.value?.trim() || this.selectedWarehouse || 'المستودع الرئيسي';
+        const cc = document.getElementById('salesCostCenterInput')?.value?.trim() || this.selectedCostCenter || 'المركز الرئيسي';
+        const itemName = document.getElementById('salesItemSearchInput')?.value?.trim() || '';
+        const qty = document.getElementById('salesQtyInput')?.value || '';
+        const price = document.getElementById('salesPriceInput')?.value || '';
+        const gross = document.getElementById('salesItemGrossTotal')?.value || '';
+        const tax = document.getElementById('salesTaxInput')?.value || '';
+        const disc = document.getElementById('salesDiscountInput')?.value || '';
+        const labor = document.getElementById('salesLaborInput')?.value || '';
+        const total = document.getElementById('salesTotalInput')?.value || '';
+        const notes = document.getElementById('salesNotesInput')?.value || '';
+        const unit = document.getElementById('salesUnitSelect')?.value || '';
+        const invNo = document.getElementById('opSalesInvoiceNoPill')?.innerText?.trim() || ('S' + Date.now());
+
+        if ((!this.cart || this.cart.length === 0) && (!itemName || itemName === 'اختيار الصنف') && !price && !total) {
+          if (typeof showFloatingToast === 'function') {
+            showFloatingToast('⚠️ يرجى اختيار صنف أو كتابة بيانات الفاتورة قبل تعليقها!');
+          }
+          return;
+        }
+
+        const parkedEntry = {
+          id: 'PARK-' + Date.now(),
+          invoiceNo: invNo,
+          parkedAt: new Date().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' }),
+          customerName: cust,
+          selectedCustomer: this.selectedCustomer,
+          warehouse: wh,
+          costCenter: cc,
+          selectedItemIndex: this.selectedItemIndex,
+          itemName,
+          unit,
+          qty,
+          price,
+          gross,
+          tax,
+          disc,
+          labor,
+          total,
+          notes,
+          cart: [...(this.cart || [])]
+        };
+
+        const list = this.getParkedInvoices();
+        list.unshift(parkedEntry);
+        try {
+          localStorage.setItem('magaies_parked_sales_invoices_v1', JSON.stringify(list.slice(0, 30)));
+        } catch (e) {}
+
+        this.updateParkedCountUI();
+        this.newInvoice();
+        if (window.triggerHapticPulse) triggerHapticPulse(20);
+        if (typeof showFloatingToast === 'function') {
+          showFloatingToast(`⏸️ تم تعليق فاتورة [${cust}] بنجاح وتفريغ الشاشة لخدمة عميل آخر!`);
+        }
+      },
+
+      openParkedInvoicesModal() {
+        const modal = document.getElementById('suiteParkedInvoicesModal');
+        const listEl = document.getElementById('suiteParkedInvoicesList');
+        if (!modal || !listEl) return;
+
+        const list = this.getParkedInvoices();
+        this.updateParkedCountUI();
+
+        if (list.length === 0) {
+          listEl.innerHTML = `
+            <div class="text-center py-8 text-slate-400 text-xs bg-slate-950/60 rounded-xl border border-slate-800">
+              <i class="fa-solid fa-inbox text-2xl text-slate-600 mb-2 block"></i>
+              لا توجد فواتير معلقة حالياً.<br>يمكنك تعليق أي فاتورة جارية بالضغط على زر "تعليق الفاتورة".
+            </div>`;
+        } else {
+          listEl.innerHTML = list.map((p, idx) => `
+            <div class="p-3 rounded-xl bg-slate-950/90 border border-amber-500/30 flex items-center justify-between gap-2 shadow-md">
+              <div class="min-w-0 flex-1">
+                <div class="flex items-center gap-1.5">
+                  <span class="px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 font-mono text-[10px] font-black">#${p.invoiceNo}</span>
+                  <span class="text-white font-black text-xs truncate">${p.customerName}</span>
+                  <span class="text-[10px] text-slate-400 font-mono mr-auto">${p.parkedAt || ''}</span>
+                </div>
+                <div class="text-[11px] text-cyan-300 font-bold truncate mt-1">
+                  📦 ${p.itemName || (p.cart && p.cart[0]?.name) || 'أصناف متعددة'} ${p.qty ? `(${p.qty} ${p.unit || ''})` : ''}
+                </div>
+                <div class="text-[11px] text-emerald-400 font-mono font-black mt-0.5">
+                  الصافي: ${p.total || '0'} | المستودع: ${p.warehouse}
+                </div>
+              </div>
+              <div class="flex flex-col gap-1.5 shrink-0">
+                <button type="button" onclick="SuiteSalesPOS.recallParkedInvoice(${idx})" class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-[11px] font-black flex items-center gap-1 shadow cursor-pointer active:scale-95">
+                  <i class="fa-solid fa-play text-[10px]"></i>
+                  <span>استرجاع</span>
+                </button>
+                <button type="button" onclick="SuiteSalesPOS.deleteParkedInvoice(${idx})" class="px-2.5 py-1 rounded-lg bg-rose-950/80 hover:bg-rose-800 text-rose-300 border border-rose-500/30 text-[10px] font-bold flex items-center justify-center gap-1 cursor-pointer active:scale-95">
+                  <i class="fa-solid fa-trash-can text-[9px]"></i>
+                  <span>حذف</span>
+                </button>
+              </div>
+            </div>
+          `).join('');
+        }
+
+        modal.classList.remove('hidden');
+      },
+
+      closeParkedInvoicesModal() {
+        const modal = document.getElementById('suiteParkedInvoicesModal');
+        if (modal) modal.classList.add('hidden');
+      },
+
+      recallParkedInvoice(idx) {
+        const list = this.getParkedInvoices();
+        const p = list[idx];
+        if (!p) return;
+
+        if (p.selectedCustomer) {
+          this.selectCustomer(p.selectedCustomer);
+        } else if (p.customerName) {
+          const custInp = document.getElementById('salesCustomerInput');
+          if (custInp) {
+            custInp.value = p.customerName;
+            custInp.classList.remove('pos-ghost-default');
+          }
+        }
+
+        if (p.warehouse) this.selectWarehouse(p.warehouse);
+        if (p.costCenter) this.selectCostCenter(p.costCenter);
+
+        if (p.selectedItemIndex !== undefined && p.selectedItemIndex !== -1) {
+          this.selectItemByIndex(p.selectedItemIndex);
+        } else if (p.itemName) {
+          const itInp = document.getElementById('salesItemSearchInput');
+          if (itInp) {
+            itInp.value = p.itemName;
+            itInp.classList.remove('pos-ghost-default');
+          }
+        }
+
+        if (p.unit) {
+          const uSel = document.getElementById('salesUnitSelect');
+          if (uSel) {
+            if (!Array.from(uSel.options).some(o => o.value === p.unit)) {
+              const opt = document.createElement('option');
+              opt.value = p.unit;
+              opt.text = p.unit;
+              uSel.appendChild(opt);
+            }
+            uSel.value = p.unit;
+          }
+        }
+
+        const setField = (id, val) => {
+          const el = document.getElementById(id);
+          if (el) {
+            el.value = val || '';
+            if (val) {
+              el.classList.remove('pos-ghost-default');
+              delete el.dataset.ghostAuto;
+            }
+          }
+        };
+        setField('salesQtyInput', p.qty);
+        setField('salesPriceInput', p.price);
+        setField('salesItemGrossTotal', p.gross);
+        setField('salesTaxInput', p.tax);
+        setField('salesDiscountInput', p.disc);
+        setField('salesLaborInput', p.labor);
+        setField('salesTotalInput', p.total);
+        setField('salesNotesInput', p.notes);
+
+        const pill = document.getElementById('opSalesInvoiceNoPill');
+        if (pill && p.invoiceNo) pill.innerText = p.invoiceNo;
+
+        this.cart = Array.isArray(p.cart) ? [...p.cart] : [];
+        this.renderCart();
+        this.calcItemSubtotal();
+
+        list.splice(idx, 1);
+        try {
+          localStorage.setItem('magaies_parked_sales_invoices_v1', JSON.stringify(list));
+        } catch (e) {}
+        this.updateParkedCountUI();
+        this.closeParkedInvoicesModal();
+
+        if (typeof showFloatingToast === 'function') {
+          showFloatingToast(`▶️ تم استرجاع فاتورة [${p.customerName}] بجميع بياناتها بنجاح!`);
+        }
+      },
+
+      deleteParkedInvoice(idx) {
+        const list = this.getParkedInvoices();
+        list.splice(idx, 1);
+        try {
+          localStorage.setItem('magaies_parked_sales_invoices_v1', JSON.stringify(list));
+        } catch (e) {}
+        this.updateParkedCountUI();
+        this.openParkedInvoicesModal();
+      },
+
+      // ─────────────────────────────────────────────────────────────
+      // 4. مشاركة الفاتورة كـ PDF بـ QR Code أو عبر واتساب مباشرة
+      // ─────────────────────────────────────────────────────────────
+      openShareInvoiceModal() {
+        const modal = document.getElementById('suiteShareInvoiceModal');
+        if (!modal) {
+          this.shareInvoice();
+          return;
+        }
+        const invNo = document.getElementById('opSalesInvoiceNoPill')?.innerText?.trim() || ('S' + Date.now());
+        const cust = document.getElementById('salesCustomerInput')?.value?.trim() || this.selectedCustomer?.name || 'عميل نقدي عام';
+        const total = document.getElementById('salesTotalInput')?.value || document.getElementById('salesItemGrossTotal')?.value || '0.00';
+        const cur = this.currencyMode === 'USD' ? '$' : 'ج.س';
+        const date = document.getElementById('salesInvoiceDate')?.value || new Date().toISOString().split('T')[0];
+
+        const sumEl = document.getElementById('suiteShareInvSummaryText');
+        if (sumEl) {
+          sumEl.innerText = `فاتورة #${invNo} • ${cust} • الصافي: ${total} ${cur}`;
+        }
+
+        const qrImg = document.getElementById('suiteShareQrImg');
+        if (qrImg) {
+          const qrData = `MAGAIES ERP INVOICE\nNo: #${invNo}\nDate: ${date}\nCustomer: ${cust}\nTotal: ${total} ${cur}`;
+          qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=160x160&margin=4&data=${encodeURIComponent(qrData)}`;
+        }
+
+        const phoneInp = document.getElementById('suiteShareWhatsappPhone');
+        if (phoneInp) {
+          const custObj = this.selectedCustomer || (this.dbCustomers || []).find(c => c.name === cust);
+          phoneInp.value = custObj?.whatsapp || custObj?.phone || '';
+        }
+
+        modal.classList.remove('hidden');
+      },
+
+      closeShareInvoiceModal() {
+        const modal = document.getElementById('suiteShareInvoiceModal');
+        if (modal) modal.classList.add('hidden');
+      },
+
+      sendInvoiceWhatsAppDirect() {
+        const invNo = document.getElementById('opSalesInvoiceNoPill')?.innerText?.trim() || ('S' + Date.now());
+        const cust = document.getElementById('salesCustomerInput')?.value?.trim() || 'عميل نقدي عام';
+        const invDate = document.getElementById('salesInvoiceDate')?.value || new Date().toISOString().split('T')[0];
+        const gross = document.getElementById('salesItemGrossTotal')?.value || '0.00';
+        const total = document.getElementById('salesTotalInput')?.value || gross || '0.00';
+        const currency = this.currencyMode === 'USD' ? '$' : 'ج.س';
+        const wh = document.getElementById('salesWarehouseInput')?.value?.trim() || this.selectedWarehouse || 'المستودع الرئيسي';
+        const notes = document.getElementById('salesNotesInput')?.value || '';
+        const itName = document.getElementById('salesItemSearchInput')?.value?.trim() || 'صنف مبيعات';
+        const qty = document.getElementById('salesQtyInput')?.value || '1';
+        const price = document.getElementById('salesPriceInput')?.value || '0';
+        const unit = document.getElementById('salesUnitSelect')?.value || 'طن عددي';
+
+        const text = `🧾 *فاتورة مبيعات إلكترونية موثقة - MAGAIES ERP* 🏢\n` +
+          `━━━━━━━━━━━━━━━━━━━━\n` +
+          `🔢 *رقم الفاتورة:* #${invNo}\n` +
+          `📅 *التاريخ:* ${invDate}\n` +
+          `👤 *السيد / العميل:* ${cust}\n` +
+          `🏢 *المستودع المخرج:* ${wh}\n` +
+          `━━━━━━━━━━━━━━━━━━━━\n` +
+          `📦 *الصنف:* ${itName}\n` +
+          `📊 *الكمية:* ${qty} ${unit} × ${price} ${currency}\n` +
+          `💵 *الجملة:* ${gross} ${currency}\n` +
+          `💰 *الإجمالي الصافي النهائي:* *${total} ${currency}*\n` +
+          (notes ? `📝 *البيان:* ${notes}\n` : '') +
+          `━━━━━━━━━━━━━━━━━━━━\n` +
+          `✅ *موثقة برمز QR الإلكتروني - مؤسسة السجانة لمواد البناء*`;
+
+        let rawPhone = (document.getElementById('suiteShareWhatsappPhone')?.value || '').replace(/[^0-9+]/g, '');
+        if (rawPhone.startsWith('00')) rawPhone = rawPhone.slice(2);
+        else if (rawPhone.startsWith('+')) rawPhone = rawPhone.slice(1);
+        else if (rawPhone.startsWith('09') || rawPhone.startsWith('01')) rawPhone = '249' + rawPhone.slice(1);
+
+        const waUrl = rawPhone
+          ? `https://wa.me/${rawPhone}?text=${encodeURIComponent(text)}`
+          : `https://wa.me/?text=${encodeURIComponent(text)}`;
+        window.open(waUrl, '_blank');
+        this.closeShareInvoiceModal();
       },
 
       printCustomerStatement() {
@@ -16933,9 +17624,12 @@ async function commitOpSales(andPay = false) {
         savedAt: new Date().toISOString()
       };
 
-      // حفظ فوري في أرشيف الفواتير المحلي حتى تعمل أسهم التنقل (◀ / ▶) فوراً
+      // حفظ فوري في أرشيف الفواتير المحلي + ذاكرة التسعير الذكية للعميل والصنف حتى تعمل أسهم التنقل (◀ / ▶) فوراً
       try {
         if (window.SuiteSalesPOS) {
+          if (typeof SuiteSalesPOS.saveToLastPriceMemory === 'function') {
+            SuiteSalesPOS.saveToLastPriceMemory(cust, items, invDate);
+          }
           if (!Array.isArray(SuiteSalesPOS.recentInvoices)) SuiteSalesPOS.recentInvoices = [];
           const existIdx = SuiteSalesPOS.recentInvoices.findIndex(x => (x.invoiceNo || x.id) === invNo);
           if (existIdx !== -1) SuiteSalesPOS.recentInvoices[existIdx] = payload;
