@@ -20,7 +20,31 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <script src="js/pwa-manager.js?v=2026_10_05_v35_21themes" defer></script>
+  <script>
+    (function flushLegacyMobileCaches() {
+      var CURRENT_RELEASE = '2026_10_13_ai_fonts_v3';
+      try {
+        if (localStorage.getItem('magaiees_pwa_cache_release') !== CURRENT_RELEASE) {
+          localStorage.setItem('magaiees_pwa_cache_release', CURRENT_RELEASE);
+          if (window.caches) {
+            caches.keys().then(function(keys) {
+              keys.forEach(function(key) {
+                if (key !== 'magaiees-pwa-v2026-10-13-ai-fonts-v3') {
+                  caches.delete(key);
+                }
+              });
+            });
+          }
+          if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.getRegistrations().then(function(regs) {
+              regs.forEach(function(r) { r.update(); });
+            });
+          }
+        }
+      } catch(e) {}
+    })();
+  </script>
+  <script src="js/pwa-manager.js?v=2026_10_13_ai_fonts_v3" defer></script>
   <script src="js/magaies-offline-sync.js" defer></script>
   <script>
     (function enforceAuthGate() {
