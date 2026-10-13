@@ -3233,7 +3233,7 @@
   <!-- Desktop Switcher Banner for Laptop / PC users -->
   <div class="desktop-preview-banner">
     <span>💻 أنت تتصفح نسخة الموبايل الذكية من شاشة كمبيوتر أو لابتوب.</span>
-    <a href="/ELSAJANA2/magaies/dashboard.php?force_desktop=1" class="px-3 py-1 bg-sky-600 hover:bg-sky-500 text-white rounded-lg font-bold text-xs shadow-md transition flex items-center gap-1.5">
+    <a href="dashboard.php?force_desktop=1" class="px-3 py-1 bg-sky-600 hover:bg-sky-500 text-white rounded-lg font-bold text-xs shadow-md transition flex items-center gap-1.5">
       <span>🖥️ الدخول لشاشات اللابتوب والكمبيوتر المكتبي الكاملة</span>
       <span dir="ltr">&rarr;</span>
     </a>
@@ -6961,7 +6961,7 @@
 
         <!-- OPERATIONAL MODAL: 1. فاتورة مبيعات (Sales Invoice) - USER CUSTOMIZED FLOW -->
     <div id="modalOpSales" class="hidden fixed inset-0 z-[100] modal-backdrop flex items-end sm:items-center justify-center p-2 sm:p-4">
-      <div class="glass-base w-full max-w-xl sm:max-w-[700px] rounded-3xl border border-sky-500/40 p-3.5 space-y-3 max-h-[94vh] overflow-y-auto shadow-2xl relative" style="background: linear-gradient(180deg, #0b1120, #030712);">
+      <div class="glass-base w-full max-w-xl sm:max-w-2xl lg:max-w-4xl xl:max-w-5xl rounded-3xl border border-sky-500/40 p-3.5 sm:p-5 space-y-3 max-h-[94vh] overflow-y-auto shadow-2xl relative" style="background: linear-gradient(180deg, #0b1120, #030712);">
         
         <!-- ═══════════════════════════════════════════════════════════════
              1. HEADER & INVOICE META MODULE: المربع الموحد للسطر الأول والسطر الثاني
@@ -7126,151 +7126,6 @@
 
         </div>
         <input type="hidden" id="salesCustomerInput" value="عميل نقدي عام">
-
-        <!-- SEARCHABLE COST CENTER MODAL (بحث فوري في مراكز الكلفة) -->
-        <div id="suiteCostCenterSearchModal" class="hidden p-3 rounded-2xl bg-slate-950/98 border border-purple-500/60 shadow-[0_0_35px_rgba(168,85,247,0.3)] space-y-2">
-          <div class="flex justify-between items-center pb-1 border-b border-slate-800">
-            <span class="text-xs font-black text-purple-300 flex items-center gap-1.5"><i class="fa-solid fa-crosshairs"></i> اختيار مركز الكلفة (بحث فوري)</span>
-            <button type="button" onclick="SuiteSalesPOS.closeCostCenterSearch()" class="text-slate-400 hover:text-white text-xs">✕</button>
-          </div>
-          <div class="relative">
-            <span class="absolute right-3 top-2.5 text-slate-500 text-xs"><i class="fa-solid fa-magnifying-glass"></i></span>
-            <input type="text" id="suiteCostCenterSearchFilter" oninput="SuiteSalesPOS.filterCostCenterSearch(this.value)" placeholder="ابحث عن مركز كلفة أو اكتب اسماً جديداً..." class="glow-input-field glow-purple w-full pr-8 pl-3 py-2 text-xs font-bold text-white outline-none" />
-          </div>
-          <div id="suiteCostCenterSearchResults" class="max-h-48 overflow-y-auto space-y-1 pr-1 text-xs">
-            <!-- Populated dynamically -->
-          </div>
-        </div>
-
-        <!-- SEARCHABLE CUSTOMER PICKER MODAL (بحث بالاسم والهاتف، والنتيجة تعرض الهاتف) -->
-        <div id="suiteCustomerSearchModal" class="hidden p-3 rounded-2xl bg-slate-950/98 border border-sky-500/60 shadow-[0_0_35px_rgba(56,189,248,0.3)] space-y-2">
-          <div class="flex justify-between items-center pb-1 border-b border-slate-800">
-            <span class="text-xs font-black text-sky-300 flex items-center gap-1.5"><i class="fa-solid fa-users-viewfinder"></i> اختيار عميل من قاعدة البيانات (بحث فوري)</span>
-            <button type="button" onclick="SuiteSalesPOS.closeCustomerSearch()" class="text-slate-400 hover:text-white text-xs">✕</button>
-          </div>
-          <div class="relative">
-            <span class="absolute right-3 top-2.5 text-slate-500 text-xs"><i class="fa-solid fa-magnifying-glass"></i></span>
-            <input type="text" id="suiteCustSearchFilter" oninput="SuiteSalesPOS.filterCustomerSearch(this.value)" placeholder="ابحث بالاسم أو رقم الهاتف..." class="glow-input-field glow-cyan w-full pr-8 pl-3 py-2 text-xs font-bold text-white outline-none" />
-          </div>
-          <div id="suiteCustSearchResults" class="max-h-52 overflow-y-auto space-y-1 pr-1 text-xs">
-            <!-- Populated dynamically -->
-          </div>
-        </div>
-
-        <!-- SEARCHABLE WAREHOUSE MODAL (بحث فوري في المستودعات والمخازن) -->
-        <div id="suiteWarehouseSearchModal" class="hidden p-3 rounded-2xl bg-slate-950/98 border border-purple-500/60 shadow-[0_0_35px_rgba(168,85,247,0.3)] space-y-2">
-          <div class="flex justify-between items-center pb-1 border-b border-slate-800">
-            <span class="text-xs font-black text-purple-300 flex items-center gap-1.5"><i class="fa-solid fa-warehouse"></i> اختيار المستودع / المخزن (بحث فوري)</span>
-            <button type="button" onclick="SuiteSalesPOS.closeWarehouseSearch()" class="text-slate-400 hover:text-white text-xs">✕</button>
-          </div>
-          <div class="relative">
-            <span class="absolute right-3 top-2.5 text-slate-500 text-xs"><i class="fa-solid fa-magnifying-glass"></i></span>
-            <input type="text" id="suiteWarehouseSearchFilter" oninput="SuiteSalesPOS.filterWarehouseSearch(this.value)" placeholder="ابحث باسم المستودع أو نوعه..." class="glow-input-field glow-purple w-full pr-8 pl-3 py-2 text-xs font-bold text-white outline-none" />
-          </div>
-          <div id="suiteWarehouseSearchResults" class="max-h-48 overflow-y-auto space-y-1 pr-1 text-xs">
-            <!-- Populated dynamically -->
-          </div>
-        </div>
-
-        <!-- SEARCHABLE ITEM MODAL (بحث فوري في الأصناف) -->
-        <div id="suiteItemSearchModal" class="hidden p-3 rounded-2xl bg-slate-950/98 border border-amber-500/60 shadow-[0_0_35px_rgba(245,158,11,0.3)] space-y-2">
-          <div class="flex justify-between items-center pb-1 border-b border-slate-800">
-            <span class="text-xs font-black text-amber-300 flex items-center gap-1.5"><i class="fa-solid fa-layer-group"></i> اختيار صنف من قاعدة البيانات (بحث فوري)</span>
-            <button type="button" onclick="SuiteSalesPOS.closeItemSearch()" class="text-slate-400 hover:text-white text-xs">✕</button>
-          </div>
-          <div class="relative">
-            <span class="absolute right-3 top-2.5 text-slate-500 text-xs"><i class="fa-solid fa-magnifying-glass"></i></span>
-            <input type="text" id="suiteItemSearchFilter" oninput="SuiteSalesPOS.filterItemSearch(this.value)" placeholder="ابحث باسم الصنف، الباركود، أو الوحدة..." class="glow-input-field glow-amber w-full pr-8 pl-3 py-2 text-xs font-bold text-white outline-none" />
-          </div>
-          <div id="suiteItemSearchResults" class="max-h-52 overflow-y-auto space-y-1 pr-1 text-xs">
-            <!-- Populated dynamically -->
-          </div>
-        </div>
-
-        <!-- SMART CALCULATOR POPUP -->
-        <div id="suiteSmartCalcModal" class="hidden p-3 rounded-2xl bg-slate-950/98 border border-purple-500/60 shadow-[0_0_30px_rgba(168,85,247,0.3)] space-y-2">
-          <div class="flex justify-between items-center pb-1 border-b border-slate-800">
-            <span class="text-xs font-black text-purple-300 flex items-center gap-1.5"><i class="fa-solid fa-calculator"></i> آلة حاسبة ذكية متطورة</span>
-            <button type="button" onclick="SuiteSalesPOS.toggleCalculator()" class="text-slate-400 hover:text-white text-xs">✕</button>
-          </div>
-          <div class="bg-slate-900 rounded-xl p-2 text-right border border-purple-500/30 shadow-inner">
-            <div id="suiteCalcHistory" class="text-[10px] text-slate-400 h-4 overflow-hidden font-mono"></div>
-            <div id="suiteCalcScreen" class="text-xl font-mono font-black text-emerald-400">0</div>
-          </div>
-          <div class="grid grid-cols-4 gap-1.5 text-xs font-bold font-mono">
-            <button type="button" onclick="SuiteSalesPOS.calcInput('C')" class="p-2 rounded-xl bg-rose-500/20 text-rose-300 border border-rose-500/30 active:scale-95 transition">C</button>
-            <button type="button" onclick="SuiteSalesPOS.calcInput('/')" class="p-2 rounded-xl bg-slate-800 text-sky-400 border border-slate-700 active:scale-95 transition">÷</button>
-            <button type="button" onclick="SuiteSalesPOS.calcInput('*')" class="p-2 rounded-xl bg-slate-800 text-sky-400 border border-slate-700 active:scale-95 transition">×</button>
-            <button type="button" onclick="SuiteSalesPOS.calcInput('BACK')" class="p-2 rounded-xl bg-slate-800 text-amber-400 border border-slate-700 active:scale-95 transition">⌫</button>
-
-            <button type="button" onclick="SuiteSalesPOS.calcInput('7')" class="p-2 rounded-xl bg-slate-800 text-white border border-slate-700 active:scale-95 transition">7</button>
-            <button type="button" onclick="SuiteSalesPOS.calcInput('8')" class="p-2 rounded-xl bg-slate-800 text-white border border-slate-700 active:scale-95 transition">8</button>
-            <button type="button" onclick="SuiteSalesPOS.calcInput('9')" class="p-2 rounded-xl bg-slate-800 text-white border border-slate-700 active:scale-95 transition">9</button>
-            <button type="button" onclick="SuiteSalesPOS.calcInput('-')" class="p-2 rounded-xl bg-slate-800 text-sky-400 border border-slate-700 active:scale-95 transition">-</button>
-
-            <button type="button" onclick="SuiteSalesPOS.calcInput('4')" class="p-2 rounded-xl bg-slate-800 text-white border border-slate-700 active:scale-95 transition">4</button>
-            <button type="button" onclick="SuiteSalesPOS.calcInput('5')" class="p-2 rounded-xl bg-slate-800 text-white border border-slate-700 active:scale-95 transition">5</button>
-            <button type="button" onclick="SuiteSalesPOS.calcInput('6')" class="p-2 rounded-xl bg-slate-800 text-white border border-slate-700 active:scale-95 transition">6</button>
-            <button type="button" onclick="SuiteSalesPOS.calcInput('+')" class="p-2 rounded-xl bg-slate-800 text-sky-400 border border-slate-700 active:scale-95 transition">+</button>
-
-            <button type="button" onclick="SuiteSalesPOS.calcInput('1')" class="p-2 rounded-xl bg-slate-800 text-white border border-slate-700 active:scale-95 transition">1</button>
-            <button type="button" onclick="SuiteSalesPOS.calcInput('2')" class="p-2 rounded-xl bg-slate-800 text-white border border-slate-700 active:scale-95 transition">2</button>
-            <button type="button" onclick="SuiteSalesPOS.calcInput('3')" class="p-2 rounded-xl bg-slate-800 text-white border border-slate-700 active:scale-95 transition">3</button>
-            <button type="button" onclick="SuiteSalesPOS.calcInput('=')" class="row-span-2 p-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-black text-sm flex items-center justify-center shadow-lg active:scale-95 transition">=</button>
-
-            <button type="button" onclick="SuiteSalesPOS.calcInput('0')" class="col-span-2 p-2 rounded-xl bg-slate-800 text-white border border-slate-700 active:scale-95 transition">0</button>
-            <button type="button" onclick="SuiteSalesPOS.calcInput('.')" class="p-2 rounded-xl bg-slate-800 text-white border border-slate-700 active:scale-95 transition">.</button>
-          </div>
-          <div class="flex gap-2 pt-1">
-            <button type="button" onclick="SuiteSalesPOS.pasteCalcToField('price')" class="flex-1 py-1.5 rounded-xl bg-sky-500/20 text-sky-300 border border-sky-500/30 text-[11px] font-black active:scale-95 transition">إدراج في السعر ↵</button>
-            <button type="button" onclick="SuiteSalesPOS.pasteCalcToField('qty')" class="flex-1 py-1.5 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-[11px] font-black active:scale-95 transition">إدراج في الكمية ↵</button>
-          </div>
-        </div>
-
-        <!-- EXPANDED NOTES MODAL: لوحة الملحوظة الكبيرة التفاعلية -->
-        <div id="suiteSalesNotesModal" class="hidden fixed inset-0 z-[60] modal-backdrop flex items-center justify-center p-3 sm:p-4">
-          <div class="glass-base w-full max-w-lg rounded-3xl border border-sky-400/50 p-4 space-y-3.5 shadow-2xl relative" style="background: linear-gradient(180deg, #0a0f1d, #030712); box-shadow: 0 0 40px rgba(56, 189, 248, 0.3);">
-            
-            <!-- هيدر اللوحة -->
-            <div class="flex items-center justify-between pb-2 border-b border-slate-800">
-              <div class="flex items-center gap-2">
-                <div class="w-8 h-8 rounded-xl flex items-center justify-center bg-sky-500/20 border border-sky-400/40 text-sky-300">
-                  <i class="fa-solid fa-pen-to-square text-sm"></i>
-                </div>
-                <div>
-                  <h3 class="font-black text-sm text-white">بيان وملحوظة الفاتورة</h3>
-                  <p class="text-[10.5px] text-slate-400">عرض وكتابة تفاصيل الملحوظة بخط كبير وواضح</p>
-                </div>
-              </div>
-              <button type="button" onclick="SuiteSalesPOS.closeNotesModal()" class="w-8 h-8 rounded-full bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white flex items-center justify-center text-xs transition active:scale-95 cursor-pointer">✕</button>
-            </div>
-
-            <!-- حقل النص الكبير للملحوظة -->
-            <div class="relative">
-              <textarea id="salesNotesExpandedTextarea" rows="5" 
-                        placeholder="اكتب هنا كل ما تريده في الملحوظة والبيان بالتفصيل..." 
-                        class="w-full p-3.5 rounded-2xl bg-slate-900/95 border border-sky-500/40 text-white font-bold text-base sm:text-lg outline-none resize-none shadow-inner placeholder:text-slate-500 focus:border-sky-400 focus:ring-2 focus:ring-sky-400/30 transition leading-relaxed"></textarea>
-            </div>
-
-            <!-- أزرار التحكم -->
-            <div class="flex items-center justify-between gap-2 pt-1">
-              <button type="button" onclick="SuiteSalesPOS.clearNotesExpanded()" class="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-rose-900/30 text-rose-300 border border-slate-700 hover:border-rose-500/40 text-xs font-bold transition active:scale-95 cursor-pointer">
-                مسح 🗑️
-              </button>
-              <div class="flex items-center gap-2">
-                <button type="button" onclick="SuiteSalesPOS.closeNotesModal()" class="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold transition active:scale-95 cursor-pointer">
-                  إلغاء
-                </button>
-                <button type="button" onclick="SuiteSalesPOS.saveNotesExpanded()" class="px-5 py-2 rounded-xl font-black text-xs text-white shadow-lg flex items-center justify-center gap-1.5 transition active:scale-95 cursor-pointer" style="background: linear-gradient(135deg, #0284c7, #026597); box-shadow: 0 4px 14px rgba(2, 132, 199, 0.4); border: 1px solid rgba(56, 189, 248, 0.5);">
-                  <i class="fa-solid fa-check"></i> حفظ الملحوظة
-                </button>
-              </div>
-            </div>
-
-          </div>
-        </div>
-
-        
 
         <!-- ═══════════════════════════════════════════════════════════════
              3. WAREHOUSE & NOTES MODULE: الوحدة الثالثة: المخزن والملحوظة
@@ -7784,8 +7639,8 @@
         </div>
 
     <!-- OPERATIONAL MODAL: 4. فواتير المشتريات (Purchase Invoice) - FLAGSHIP POS PARITY -->
-    <div id="modalOpPurchase" class="hidden fixed inset-0 z-50 modal-backdrop flex items-end sm:items-center justify-center p-2 sm:p-4">
-      <div class="glass-base w-full max-w-xl rounded-3xl border border-amber-500/40 p-3.5 space-y-3 max-h-[94vh] overflow-y-auto shadow-2xl relative" style="background: linear-gradient(180deg, #130e06, #030712);">
+    <div id="modalOpPurchase" class="hidden fixed inset-0 z-[100] modal-backdrop flex items-end sm:items-center justify-center p-2 sm:p-4">
+      <div class="glass-base w-full max-w-xl sm:max-w-2xl lg:max-w-4xl xl:max-w-5xl rounded-3xl border border-amber-500/40 p-3.5 sm:p-5 space-y-3 max-h-[94vh] overflow-y-auto shadow-2xl relative" style="background: linear-gradient(180deg, #130e06, #030712);">
         
         <!-- ═══════════════════════════════════════════════════════════════
              1. HEADER & INVOICE META MODULE: المربع الموحد للسطر الأول والسطر الثاني
@@ -8091,12 +7946,41 @@
             </div>
           </div>
 
-          <div class="pt-1">
-            <button type="button" onclick="commitOpPurchase()" 
-                    class="w-full py-3.5 rounded-2xl font-black text-sm text-white shadow-2xl flex items-center justify-center gap-2 cursor-pointer transition active:scale-95" 
-                    style="background: linear-gradient(135deg, #d97706, #b45309); box-shadow: 0 4px 20px rgba(217, 119, 6, 0.5); border: 1.5px solid rgba(251, 191, 36, 0.6);">
-              <i class="fa-solid fa-circle-check text-base"></i>
-              <span>حفظ واعتماد فاتورة المشتريات في قاعدة البيانات فوراً ✓</span>
+          <!-- زر إضافة بند حر غير مسجل -->
+          <div class="pb-1">
+            <button type="button" onclick="SuitePurchasePOS.promptCustomItem()" class="w-full py-1.5 rounded-xl border border-dashed border-amber-500/50 bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 text-xs font-black transition flex items-center justify-center gap-1.5 cursor-pointer">
+              <i class="fa-solid fa-plus-circle"></i> إضافة بند شراء غير مسجل / خدمة / مصاريف شحن
+            </button>
+          </div>
+
+          <!-- شريط الإجراءات والعمليات الكاملة (Direct Parity with Sales) -->
+          <div class="grid grid-cols-4 gap-1.5 pt-1">
+            <button type="button" onclick="commitOpPurchase(false)" class="py-2.5 rounded-xl bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white font-black text-xs shadow-lg flex items-center justify-center gap-1 transition active:scale-95 border border-amber-400/40 cursor-pointer">
+              <i class="fa-solid fa-check"></i> حفظ
+            </button>
+            <button type="button" onclick="commitOpPurchase(true)" class="py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-black text-xs shadow-lg flex items-center justify-center gap-1 transition active:scale-95 border border-emerald-400/40 cursor-pointer">
+              <i class="fa-solid fa-bolt"></i> حفظ وسداد
+            </button>
+            <button type="button" onclick="SuitePurchasePOS.newInvoice()" class="py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-black text-xs flex items-center justify-center gap-1 transition active:scale-95 border border-slate-700 cursor-pointer">
+              <i class="fa-solid fa-plus"></i> جديد
+            </button>
+            <button type="button" onclick="SuitePurchasePOS.clearCart()" class="py-2.5 rounded-xl bg-slate-800 hover:bg-rose-900/40 text-rose-300 font-black text-xs flex items-center justify-center gap-1 transition active:scale-95 border border-slate-700 hover:border-rose-500/40 cursor-pointer">
+              <i class="fa-solid fa-trash-can"></i> مسح
+            </button>
+          </div>
+
+          <div class="grid grid-cols-4 gap-1.5 pt-0.5">
+            <button type="button" onclick="SuitePurchasePOS.shareInvoice()" class="py-2 rounded-xl bg-slate-800/90 hover:bg-slate-700 text-sky-300 font-bold text-[11px] flex items-center justify-center gap-1 transition active:scale-95 border border-slate-700 cursor-pointer">
+              <i class="fa-brands fa-whatsapp"></i> مشاركة
+            </button>
+            <button type="button" onclick="SuitePurchasePOS.printInvoice()" class="py-2 rounded-xl bg-slate-800/90 hover:bg-slate-700 text-slate-200 font-bold text-[11px] flex items-center justify-center gap-1 transition active:scale-95 border border-slate-700 cursor-pointer">
+              <i class="fa-solid fa-print"></i> طباعة
+            </button>
+            <button type="button" onclick="SuitePurchasePOS.printSupplierStatement()" class="py-2 rounded-xl bg-slate-800/90 hover:bg-slate-700 text-purple-300 font-bold text-[11px] flex items-center justify-center gap-1 transition active:scale-95 border border-slate-700 cursor-pointer">
+              <i class="fa-solid fa-file-invoice"></i> كشف حساب
+            </button>
+            <button type="button" onclick="SuitePurchasePOS.printGRN()" class="py-2 rounded-xl bg-slate-800/90 hover:bg-slate-700 text-teal-300 font-bold text-[11px] flex items-center justify-center gap-1 transition active:scale-95 border border-slate-700 cursor-pointer">
+              <i class="fa-solid fa-truck-ramp-box"></i> إذن استلام
             </button>
           </div>
         </div>
@@ -8156,6 +8040,156 @@
         <button onclick="commitOpReceipt()" class="w-full py-3 bg-gradient-to-r from-teal-600 to-emerald-600 text-white rounded-2xl font-bold text-xs shadow-lg active:scale-95 transition cursor-pointer">
           تأكيد استلام وتخزين البضاعة في المستودع فوراً ✓
         </button>
+      </div>
+    </div>
+
+    <!-- ═════════════════════════════════════════════════════════════════════
+         🌐 SHARED POS OVERLAY MODALS (ACCESSIBLE TO BOTH SALES & PURCHASES)
+         ═════════════════════════════════════════════════════════════════════ -->
+
+    <!-- 1. SEARCHABLE COST CENTER MODAL -->
+    <div id="suiteCostCenterSearchModal" class="hidden fixed inset-0 z-[160] modal-backdrop flex items-center justify-center p-3 sm:p-4 bg-slate-950/80 backdrop-blur-md">
+      <div class="glass-base w-full max-w-md rounded-2xl p-4 bg-slate-950/98 border border-purple-500/60 shadow-[0_0_35px_rgba(168,85,247,0.3)] space-y-3">
+        <div class="flex justify-between items-center pb-2 border-b border-slate-800">
+          <span class="text-xs sm:text-sm font-black text-purple-300 flex items-center gap-1.5"><i class="fa-solid fa-crosshairs"></i> اختيار مركز الكلفة (بحث فوري)</span>
+          <button type="button" onclick="SuiteSalesPOS.closeCostCenterSearch()" class="w-7 h-7 rounded-full bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center text-xs cursor-pointer">✕</button>
+        </div>
+        <div class="relative">
+          <span class="absolute right-3 top-2.5 text-slate-500 text-xs"><i class="fa-solid fa-magnifying-glass"></i></span>
+          <input type="text" id="suiteCostCenterSearchFilter" oninput="SuitePOSRouter.filterCostCenterSearch(this.value)" placeholder="ابحث عن مركز كلفة أو اكتب اسماً جديداً..." class="glow-input-field glow-purple w-full pr-8 pl-3 py-2 text-xs font-bold text-white outline-none rounded-xl" />
+        </div>
+        <div id="suiteCostCenterSearchResults" class="max-h-56 overflow-y-auto space-y-1 pr-1 text-xs">
+          <!-- Populated dynamically -->
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. SEARCHABLE PARTNER (CUSTOMER / SUPPLIER) PICKER MODAL -->
+    <div id="suiteCustomerSearchModal" class="hidden fixed inset-0 z-[160] modal-backdrop flex items-center justify-center p-3 sm:p-4 bg-slate-950/80 backdrop-blur-md">
+      <div class="glass-base w-full max-w-lg rounded-2xl p-4 bg-slate-950/98 border border-sky-500/60 shadow-[0_0_35px_rgba(56,189,248,0.3)] space-y-3">
+        <div class="flex justify-between items-center pb-2 border-b border-slate-800">
+          <span id="suitePartnerModalTitle" class="text-xs sm:text-sm font-black text-sky-300 flex items-center gap-1.5"><i class="fa-solid fa-users-viewfinder"></i> اختيار عميل من قاعدة البيانات (بحث فوري)</span>
+          <button type="button" onclick="SuiteSalesPOS.closeCustomerSearch()" class="w-7 h-7 rounded-full bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center text-xs cursor-pointer">✕</button>
+        </div>
+        <div class="relative">
+          <span class="absolute right-3 top-2.5 text-slate-500 text-xs"><i class="fa-solid fa-magnifying-glass"></i></span>
+          <input type="text" id="suiteCustSearchFilter" oninput="SuitePOSRouter.filterPartnerSearch(this.value)" placeholder="ابحث بالاسم أو رقم الهاتف..." class="glow-input-field glow-cyan w-full pr-8 pl-3 py-2 text-xs font-bold text-white outline-none rounded-xl" />
+        </div>
+        <div id="suiteCustSearchResults" class="max-h-60 overflow-y-auto space-y-1 pr-1 text-xs">
+          <!-- Populated dynamically -->
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. SEARCHABLE WAREHOUSE MODAL -->
+    <div id="suiteWarehouseSearchModal" class="hidden fixed inset-0 z-[160] modal-backdrop flex items-center justify-center p-3 sm:p-4 bg-slate-950/80 backdrop-blur-md">
+      <div class="glass-base w-full max-w-md rounded-2xl p-4 bg-slate-950/98 border border-purple-500/60 shadow-[0_0_35px_rgba(168,85,247,0.3)] space-y-3">
+        <div class="flex justify-between items-center pb-2 border-b border-slate-800">
+          <span class="text-xs sm:text-sm font-black text-purple-300 flex items-center gap-1.5"><i class="fa-solid fa-warehouse"></i> اختيار المستودع / المخزن (بحث فوري)</span>
+          <button type="button" onclick="SuiteSalesPOS.closeWarehouseSearch()" class="w-7 h-7 rounded-full bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center text-xs cursor-pointer">✕</button>
+        </div>
+        <div class="relative">
+          <span class="absolute right-3 top-2.5 text-slate-500 text-xs"><i class="fa-solid fa-magnifying-glass"></i></span>
+          <input type="text" id="suiteWarehouseSearchFilter" oninput="SuitePOSRouter.filterWarehouseSearch(this.value)" placeholder="ابحث باسم المستودع أو نوعه..." class="glow-input-field glow-purple w-full pr-8 pl-3 py-2 text-xs font-bold text-white outline-none rounded-xl" />
+        </div>
+        <div id="suiteWarehouseSearchResults" class="max-h-56 overflow-y-auto space-y-1 pr-1 text-xs">
+          <!-- Populated dynamically -->
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. SEARCHABLE ITEM MODAL -->
+    <div id="suiteItemSearchModal" class="hidden fixed inset-0 z-[160] modal-backdrop flex items-center justify-center p-3 sm:p-4 bg-slate-950/80 backdrop-blur-md">
+      <div class="glass-base w-full max-w-lg rounded-2xl p-4 bg-slate-950/98 border border-amber-500/60 shadow-[0_0_35px_rgba(245,158,11,0.3)] space-y-3">
+        <div class="flex justify-between items-center pb-2 border-b border-slate-800">
+          <span class="text-xs sm:text-sm font-black text-amber-300 flex items-center gap-1.5"><i class="fa-solid fa-layer-group"></i> اختيار صنف من قاعدة البيانات (بحث فوري)</span>
+          <button type="button" onclick="SuiteSalesPOS.closeItemSearch()" class="w-7 h-7 rounded-full bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center text-xs cursor-pointer">✕</button>
+        </div>
+        <div class="relative">
+          <span class="absolute right-3 top-2.5 text-slate-500 text-xs"><i class="fa-solid fa-magnifying-glass"></i></span>
+          <input type="text" id="suiteItemSearchFilter" oninput="SuitePOSRouter.filterItemSearch(this.value)" placeholder="ابحث باسم الصنف، الباركود، أو الوحدة..." class="glow-input-field glow-amber w-full pr-8 pl-3 py-2 text-xs font-bold text-white outline-none rounded-xl" />
+        </div>
+        <div id="suiteItemSearchResults" class="max-h-60 overflow-y-auto space-y-1 pr-1 text-xs">
+          <!-- Populated dynamically -->
+        </div>
+      </div>
+    </div>
+
+    <!-- 5. SMART CALCULATOR MODAL -->
+    <div id="suiteSmartCalcModal" class="hidden fixed inset-0 z-[160] modal-backdrop flex items-center justify-center p-3 sm:p-4 bg-slate-950/80 backdrop-blur-md">
+      <div class="glass-base w-full max-w-xs rounded-2xl p-4 bg-slate-950/98 border border-purple-500/60 shadow-[0_0_30px_rgba(168,85,247,0.3)] space-y-2.5">
+        <div class="flex justify-between items-center pb-1 border-b border-slate-800">
+          <span class="text-xs font-black text-purple-300 flex items-center gap-1.5"><i class="fa-solid fa-calculator"></i> آلة حاسبة ذكية متطورة</span>
+          <button type="button" onclick="SuiteSalesPOS.toggleCalculator()" class="w-6 h-6 rounded-full bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center text-xs cursor-pointer">✕</button>
+        </div>
+        <div class="bg-slate-900 rounded-xl p-2 text-right border border-purple-500/30 shadow-inner">
+          <div id="suiteCalcHistory" class="text-[10px] text-slate-400 h-4 overflow-hidden font-mono"></div>
+          <div id="suiteCalcScreen" class="text-xl font-mono font-black text-emerald-400">0</div>
+        </div>
+        <div class="grid grid-cols-4 gap-1.5 text-xs font-bold font-mono">
+          <button type="button" onclick="SuiteSalesPOS.calcInput('C')" class="p-2 rounded-xl bg-rose-500/20 text-rose-300 border border-rose-500/30 active:scale-95 transition cursor-pointer">C</button>
+          <button type="button" onclick="SuiteSalesPOS.calcInput('/')" class="p-2 rounded-xl bg-slate-800 text-sky-400 border border-slate-700 active:scale-95 transition cursor-pointer">÷</button>
+          <button type="button" onclick="SuiteSalesPOS.calcInput('*')" class="p-2 rounded-xl bg-slate-800 text-sky-400 border border-slate-700 active:scale-95 transition cursor-pointer">×</button>
+          <button type="button" onclick="SuiteSalesPOS.calcInput('BACK')" class="p-2 rounded-xl bg-slate-800 text-amber-400 border border-slate-700 active:scale-95 transition cursor-pointer">⌫</button>
+
+          <button type="button" onclick="SuiteSalesPOS.calcInput('7')" class="p-2 rounded-xl bg-slate-800 text-white border border-slate-700 active:scale-95 transition cursor-pointer">7</button>
+          <button type="button" onclick="SuiteSalesPOS.calcInput('8')" class="p-2 rounded-xl bg-slate-800 text-white border border-slate-700 active:scale-95 transition cursor-pointer">8</button>
+          <button type="button" onclick="SuiteSalesPOS.calcInput('9')" class="p-2 rounded-xl bg-slate-800 text-white border border-slate-700 active:scale-95 transition cursor-pointer">9</button>
+          <button type="button" onclick="SuiteSalesPOS.calcInput('-')" class="p-2 rounded-xl bg-slate-800 text-sky-400 border border-slate-700 active:scale-95 transition cursor-pointer">-</button>
+
+          <button type="button" onclick="SuiteSalesPOS.calcInput('4')" class="p-2 rounded-xl bg-slate-800 text-white border border-slate-700 active:scale-95 transition cursor-pointer">4</button>
+          <button type="button" onclick="SuiteSalesPOS.calcInput('5')" class="p-2 rounded-xl bg-slate-800 text-white border border-slate-700 active:scale-95 transition cursor-pointer">5</button>
+          <button type="button" onclick="SuiteSalesPOS.calcInput('6')" class="p-2 rounded-xl bg-slate-800 text-white border border-slate-700 active:scale-95 transition cursor-pointer">6</button>
+          <button type="button" onclick="SuiteSalesPOS.calcInput('+')" class="p-2 rounded-xl bg-slate-800 text-sky-400 border border-slate-700 active:scale-95 transition cursor-pointer">+</button>
+
+          <button type="button" onclick="SuiteSalesPOS.calcInput('1')" class="p-2 rounded-xl bg-slate-800 text-white border border-slate-700 active:scale-95 transition cursor-pointer">1</button>
+          <button type="button" onclick="SuiteSalesPOS.calcInput('2')" class="p-2 rounded-xl bg-slate-800 text-white border border-slate-700 active:scale-95 transition cursor-pointer">2</button>
+          <button type="button" onclick="SuiteSalesPOS.calcInput('3')" class="p-2 rounded-xl bg-slate-800 text-white border border-slate-700 active:scale-95 transition cursor-pointer">3</button>
+          <button type="button" onclick="SuiteSalesPOS.calcInput('=')" class="row-span-2 p-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-black text-sm flex items-center justify-center shadow-lg active:scale-95 transition cursor-pointer">=</button>
+
+          <button type="button" onclick="SuiteSalesPOS.calcInput('0')" class="col-span-2 p-2 rounded-xl bg-slate-800 text-white border border-slate-700 active:scale-95 transition cursor-pointer">0</button>
+          <button type="button" onclick="SuiteSalesPOS.calcInput('.')" class="p-2 rounded-xl bg-slate-800 text-white border border-slate-700 active:scale-95 transition cursor-pointer">.</button>
+        </div>
+        <div class="flex gap-2 pt-1">
+          <button type="button" onclick="SuiteSalesPOS.pasteCalcToField('price')" class="flex-1 py-1.5 rounded-xl bg-sky-500/20 text-sky-300 border border-sky-500/30 text-[11px] font-black active:scale-95 transition cursor-pointer">إدراج في السعر ↵</button>
+          <button type="button" onclick="SuiteSalesPOS.pasteCalcToField('qty')" class="flex-1 py-1.5 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-[11px] font-black active:scale-95 transition cursor-pointer">إدراج في الكمية ↵</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 6. EXPANDED NOTES MODAL -->
+    <div id="suiteSalesNotesModal" class="hidden fixed inset-0 z-[160] modal-backdrop flex items-center justify-center p-3 sm:p-4 bg-slate-950/80 backdrop-blur-md">
+      <div class="glass-base w-full max-w-lg rounded-3xl border border-sky-400/50 p-4 space-y-3.5 shadow-2xl relative" style="background: linear-gradient(180deg, #0a0f1d, #030712); box-shadow: 0 0 40px rgba(56, 189, 248, 0.3);">
+        <div class="flex items-center justify-between pb-2 border-b border-slate-800">
+          <div class="flex items-center gap-2">
+            <div class="w-8 h-8 rounded-xl flex items-center justify-center bg-sky-500/20 border border-sky-400/40 text-sky-300">
+              <i class="fa-solid fa-pen-to-square text-sm"></i>
+            </div>
+            <div>
+              <h3 class="font-black text-sm text-white">بيان وملحوظة الفاتورة</h3>
+              <p class="text-[10.5px] text-slate-400">عرض وكتابة تفاصيل الملحوظة بخط كبير وواضح</p>
+            </div>
+          </div>
+          <button type="button" onclick="SuiteSalesPOS.closeNotesModal()" class="w-8 h-8 rounded-full bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white flex items-center justify-center text-xs transition active:scale-95 cursor-pointer">✕</button>
+        </div>
+        <div class="relative">
+          <textarea id="salesNotesExpandedTextarea" rows="5" 
+                    placeholder="اكتب هنا كل ما تريده في الملحوظة والبيان بالتفصيل..." 
+                    class="w-full p-3.5 rounded-2xl bg-slate-900/95 border border-sky-500/40 text-white font-bold text-base sm:text-lg outline-none resize-none shadow-inner placeholder:text-slate-500 focus:border-sky-400 focus:ring-2 focus:ring-sky-400/30 transition leading-relaxed"></textarea>
+        </div>
+        <div class="flex items-center justify-between gap-2 pt-1">
+          <button type="button" onclick="SuiteSalesPOS.clearNotesExpanded()" class="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-rose-900/30 text-rose-300 border border-slate-700 hover:border-rose-500/40 text-xs font-bold transition active:scale-95 cursor-pointer">
+            مسح 🗑️
+          </button>
+          <div class="flex items-center gap-2">
+            <button type="button" onclick="SuiteSalesPOS.closeNotesModal()" class="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold transition active:scale-95 cursor-pointer">
+              إلغاء
+            </button>
+            <button type="button" onclick="SuiteSalesPOS.saveNotesExpanded()" class="px-5 py-2 rounded-xl font-black text-xs text-white shadow-lg flex items-center justify-center gap-1.5 transition active:scale-95 cursor-pointer" style="background: linear-gradient(135deg, #0284c7, #026597); box-shadow: 0 4px 14px rgba(2, 132, 199, 0.4); border: 1px solid rgba(56, 189, 248, 0.5);">
+              <i class="fa-solid fa-check"></i> حفظ الملحوظة
+            </button>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -10773,7 +10807,93 @@
     // ═════════════════════════════════════════════════════════════════════
     // 💎 SUITE SALES POS ENGINE - DIRECT LAPTOP PARITY & MARIADB SYNC
     // ═════════════════════════════════════════════════════════════════════
-    window.SuiteSalesPOS = {
+        // ═════════════════════════════════════════════════════════════════════
+    // 🌐 SUITE POS MULTI-TARGET ROUTER (SALES & PURCHASES UNIFIED DISPATCH)
+    // ═════════════════════════════════════════════════════════════════════
+    window._activeModalContext = 'sales';
+
+    window.SuitePOSRouter = {
+      getActiveContext() {
+        const purModal = document.getElementById('modalOpPurchase');
+        if (purModal && !purModal.classList.contains('hidden')) {
+          return 'purchase';
+        }
+        return window._activeModalContext || 'sales';
+      },
+      selectItemByIndex(idx) {
+        if (this.getActiveContext() === 'purchase' && window.SuitePurchasePOS) {
+          SuitePurchasePOS.selectItemByIndex(idx);
+        } else if (window.SuiteSalesPOS) {
+          SuiteSalesPOS.selectItemByIndex(idx);
+        }
+      },
+      selectCustomItem(name) {
+        if (this.getActiveContext() === 'purchase' && window.SuitePurchasePOS) {
+          SuitePurchasePOS.selectCustomItem(name);
+        } else if (window.SuiteSalesPOS) {
+          SuiteSalesPOS.selectCustomItem(name);
+        }
+      },
+      selectPartner(partner) {
+        if (this.getActiveContext() === 'purchase' && window.SuitePurchasePOS) {
+          SuitePurchasePOS.selectSupplier(partner);
+        } else if (window.SuiteSalesPOS) {
+          SuiteSalesPOS.selectCustomer(partner);
+        }
+      },
+      selectWarehouse(name) {
+        if (this.getActiveContext() === 'purchase' && window.SuitePurchasePOS) {
+          SuitePurchasePOS.selectWarehouse(name);
+        } else if (window.SuiteSalesPOS) {
+          SuiteSalesPOS.selectWarehouse(name);
+        }
+      },
+      selectCostCenter(name) {
+        if (this.getActiveContext() === 'purchase' && window.SuitePurchasePOS) {
+          SuitePurchasePOS.selectCostCenter(name);
+        } else if (window.SuiteSalesPOS) {
+          SuiteSalesPOS.selectCostCenter(name);
+        }
+      },
+      filterItemSearch(q) {
+        if (window.SuiteSalesPOS) SuiteSalesPOS.filterItemSearch(q);
+      },
+      filterPartnerSearch(q) {
+        if (this.getActiveContext() === 'purchase') {
+          if (window.SuitePurchasePOS) SuitePurchasePOS.filterSupplierSearch(q);
+        } else {
+          if (window.SuiteSalesPOS) SuiteSalesPOS.filterCustomerSearch(q);
+        }
+      },
+      filterWarehouseSearch(q) {
+        if (window.SuiteSalesPOS) SuiteSalesPOS.filterWarehouseSearch(q);
+      },
+      filterCostCenterSearch(q) {
+        if (window.SuiteSalesPOS) SuiteSalesPOS.filterCostCenterSearch(q);
+      }
+    };
+
+    // Global desktop keyboard shortcuts
+    if (!window._suiteKeyboardShortcutsBound) {
+      window._suiteKeyboardShortcutsBound = true;
+      document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+          const modals = [
+            'suiteItemSearchModal', 'suiteCustomerSearchModal', 'suiteWarehouseSearchModal',
+            'suiteCostCenterSearchModal', 'suiteSmartCalcModal', 'suiteSalesNotesModal'
+          ];
+          for (let id of modals) {
+            const el = document.getElementById(id);
+            if (el && !el.classList.contains('hidden')) {
+              el.classList.add('hidden');
+              return;
+            }
+          }
+        }
+      });
+    }
+
+window.SuiteSalesPOS = {
       cart: [],
       dbItems: [{"id":"ITEM-1781116468152","name":"ccc44","unit":"c","image":"","price":0,"stock":[],"barcode":"22","baseUnit":"c","createdBy":9,"unitsArray":[{"name":"c","factor":1}],"bundleFactor":1,"conversionFactor":1},{"id":"ITEM-1782492860575","name":"سيخ 3 لينيا fj","unit":"سيخه","image":"","price":0,"stock":{"PENDING_RECEIPT":68547},"barcode":"","baseUnit":"سيخه","createdBy":9,"unitsArray":[{"name":"سيخه","factor":1},{"name":"طن عددي","factor":135},{"name":"طن وزني","factor":146}],"bundleFactor":15,"conversionFactor":1},{"id":"ITEM-1782559307727","name":"سيخ 4 لينيا fj","unit":"سيخه","image":"","price":0,"stock":{"PENDING_RECEIPT":11053},"barcode":"","baseUnit":"سيخه","createdBy":9,"unitsArray":[{"name":"سيخه","factor":1},{"name":"طن العددي","factor":92},{"name":"طن وزني","factor":111}],"averageCost":1.8565095449199311,"bundleFactor":10,"averageCostFc":1.8565095449199311,"conversionFactor":1,"lastPurchaseCost":4.956521739130435,"lastPurchaseCostFc":4.956521739130435},{"id":"ITEM-1782559457671","name":"سيخ 3 لينيا الاسعد","unit":"سيخه","image":"","price":0,"stock":{"PENDING_RECEIPT":675},"barcode":"","baseUnit":"سيخه","createdBy":9,"unitsArray":[{"name":"سيخه","factor":1},{"name":"طن عددي","factor":135},{"name":"طن وزني","factor":140}],"bundleFactor":15,"conversionFactor":1},{"id":"ITEM-1782559559372","name":"سيخ 4 لينيا الاسعد","unit":"سيخه","image":"","price":0,"stock":[],"barcode":"","baseUnit":"سيخه","createdBy":9,"unitsArray":[{"name":"سيخه","factor":1},{"name":"طن عددي","factor":92},{"name":"طن وزني","factor":140}],"bundleFactor":10,"conversionFactor":1},{"id":"ITEM-1782561316951","name":"سيخ 5 لينيا الامجد","unit":"سيخه","image":"","price":0,"stock":[],"barcode":"","baseUnit":"سيخه","createdBy":9,"unitsArray":[{"name":"سيخه","factor":1},{"name":"طن عددي","factor":52},{"name":"طن وزني","factor":66}],"bundleFactor":5,"conversionFactor":1},{"id":"ITEM-1782562286396","name":"سيخ 5 لينيا التركي","unit":"سيخه","image":"","price":0,"stock":[],"barcode":"","baseUnit":"سيخه","createdBy":9,"unitsArray":[{"name":"سيخه","factor":1},{"name":"طن عددي","factor":52},{"name":"طن وزني","factor":55}],"bundleFactor":5,"conversionFactor":1},{"id":"ITEM-1782567905125","name":"سيخ 5 لينيا صيني","unit":"سيخه","image":"","price":0,"stock":[],"barcode":"","baseUnit":"سيخه","createdBy":9,"unitsArray":[{"name":"سيخه","factor":1},{"name":"طن عددي","factor":52},{"name":"طن وزني","factor":66}],"bundleFactor":5,"conversionFactor":1},{"id":"ITEM-1782250715067","name":"سيخ44","unit":"طن","image":"","price":0,"stock":[],"barcode":"","baseUnit":"طن","createdBy":9,"unitsArray":[{"name":"طن","factor":1}],"bundleFactor":1,"conversionFactor":1},{"id":"ITEM-1782509115624","name":"سيخ 3 لينية","unit":"طن وزني","image":"","price":0,"stock":[],"barcode":"","baseUnit":"طن وزني","createdBy":9,"unitsArray":[{"name":"طن وزني","factor":1},{"name":"طن وزني","factor":1}],"bundleFactor":1,"conversionFactor":1},{"id":"ITEM-1782511169954","name":"سيخ 5ل","unit":"طن عددي","image":"","price":0,"stock":[],"barcode":"","baseUnit":"طن عددي","createdBy":9,"unitsArray":[{"name":"طن عددي","factor":1}],"bundleFactor":1,"conversionFactor":1},{"id":"item-001","name":"أسمنت بورتلاندي 50 كجم","unit":"كيس","barcode":"1001","baseUnit":"كيس","createdBy":7,"unitsArray":[{"name":"كيس","factor":1},{"name":"طن","factor":20}],"sellingPrice":4500},{"id":"item-002","name":"حديد تسليح 12 ملم","unit":"سيخة / عود","barcode":"1002","baseUnit":"سيخة / عود","createdBy":7,"unitsArray":[{"name":"سيخة / عود","factor":1},{"name":"طن","factor":120}],"sellingPrice":12500},{"id":"item-003","name":"طوب مفرغ 20×20×40","unit":"حبة","barcode":"1003","baseUnit":"حبة","createdBy":7,"unitsArray":[{"name":"حبة","factor":1},{"name":"ألف حبة","factor":1000}],"sellingPrice":650},{"id":"item-004","name":"رمل بناء ممتاز","unit":"متر مكعب","barcode":"1004","baseUnit":"متر مكعب","createdBy":7,"unitsArray":[{"name":"متر مكعب","factor":1},{"name":"قلاب 12متر","factor":12}],"sellingPrice":8500},{"id":"item-005","name":"دهان بلاستيك مط داخلي","unit":"جالون","barcode":"1005","baseUnit":"جالون","createdBy":7,"unitsArray":[{"name":"جالون","factor":1},{"name":"كرتونة (4 جالون)","factor":4}],"sellingPrice":14000},{"id":"ITEM-1786316992222","name":"سيخ 5 لينيا fj m","unit":"سيخه","image":"","price":0,"stock":[],"barcode":"","baseUnit":"سيخه","createdBy":9,"unitsArray":[{"name":"سيخه","factor":1},{"name":"طن عددي","factor":52},{"name":"طن وزني","factor":57}],"bundleFactor":5,"conversionFactor":1},{"id":"ITEM-1786727449011","name":"سيخ 5 لينيا  الاسعد","unit":"سيخه","image":"","price":0,"stock":{"PENDING_RECEIPT":230},"barcode":"","baseUnit":"سيخه","createdBy":9,"unitsArray":[{"name":"سيخه","factor":1},{"name":"طن عددي","factor":52},{"name":"طن وزني","factor":58}],"bundleFactor":5,"conversionFactor":1},{"id":"item-001","name":"أسمنت بورتلاندي 50 كجم","unit":"كيس","barcode":"1001","baseUnit":"كيس","createdBy":405,"unitsArray":[{"name":"كيس","factor":1},{"name":"طن","factor":20}],"sellingPrice":4500},{"id":"item-002","name":"حديد تسليح 12 ملم","unit":"سيخة / عود","barcode":"1002","baseUnit":"سيخة / عود","createdBy":405,"unitsArray":[{"name":"سيخة / عود","factor":1},{"name":"طن","factor":120}],"sellingPrice":12500},{"id":"item-003","name":"طوب مفرغ 20×20×40","unit":"حبة","barcode":"1003","baseUnit":"حبة","createdBy":405,"unitsArray":[{"name":"حبة","factor":1},{"name":"ألف حبة","factor":1000}],"sellingPrice":650},{"id":"item-004","name":"رمل بناء ممتاز","unit":"متر مكعب","barcode":"1004","baseUnit":"متر مكعب","createdBy":405,"unitsArray":[{"name":"متر مكعب","factor":1},{"name":"قلاب 12متر","factor":12}],"sellingPrice":8500},{"id":"item-005","name":"دهان بلاستيك مط داخلي","unit":"جالون","barcode":"1005","baseUnit":"جالون","createdBy":405,"unitsArray":[{"name":"جالون","factor":1},{"name":"كرتونة (4 جالون)","factor":4}],"sellingPrice":14000}],
       dbCustomers: [{"id":"CUST-1781084281123","name":"A","notes":"","phone":"333","status":"active","address":"3سبي","createdBy":7,"bankDetails":{"bankName":"","accountNo":"","isDeactivated":false,"securityLevel":1},"creditLimit":23,"securityLevel":1,"currentBalance":323,"openingBalance":323},{"id":"CUST-1781089536278","name":"C","notes":"","phone":"32323","status":"active","address":"C","createdBy":9,"bankDetails":{"bankName":"","accountNo":"","isDeactivated":false,"securityLevel":1},"creditLimit":333,"securityLevel":1,"currentBalance":-830324,"openingBalance":33},{"id":"CUST-1782480090528","name":"ثقفغع","email":"","notes":"","phone":"","status":"active","address":"","whatsapp":"","createdBy":9,"creditLimit":0,"bankAccounts":[{"branch":"","bankName":"","accountNo":"","isDeactivated":false,"securityLevel":1}],"contactPerson":"","securityLevel":1,"currentBalance":-54323222994874,"openingBalance":0},{"id":"CUST-1782503377782","name":"التجاني","email":"","notes":"","phone":"5678","status":"active","address":"","whatsapp":"6789","createdBy":9,"creditLimit":6789,"bankAccounts":[{"branch":"","bankName":"","accountNo":"","isDeactivated":false,"securityLevel":1}],"contactPerson":"","securityLevel":1,"currentBalance":54323916528283,"openingBalance":89},{"id":"CUST-1782729918903","name":"محمد عثمان حمتو عبد الدايم","email":"","notes":"","phone":"","status":"active","address":"","whatsapp":"","createdBy":9,"creditLimit":0,"bankAccounts":[{"branch":"","bankName":"","accountNo":"","isDeactivated":false,"securityLevel":1}],"contactPerson":"","securityLevel":1,"currentBalance":7100230,"openingBalance":0},{"id":"CUST-1782835278886","name":"ابدول حمتو","email":"","notes":"","phone":"","status":"active","address":"","whatsapp":"","createdBy":9,"creditLimit":0,"bankAccounts":[{"branch":"","bankName":"","accountNo":"","isDeactivated":false,"securityLevel":1}],"contactPerson":"","securityLevel":1,"currentBalance":0,"openingBalance":0},{"id":"CUST-1782849809088","name":"مهدي مصر","email":"","notes":"","phone":"","status":"active","address":"","whatsapp":"00201550886559","createdBy":9,"creditLimit":45678,"bankAccounts":[{"branch":"","bankName":"","accountNo":"","isDeactivated":false,"securityLevel":1}],"contactPerson":"","securityLevel":1,"currentBalance":3901,"openingBalance":4567},{"id":"CUST-1782893378489","name":"عمر طارق","email":"","notes":"","phone":"","status":"active","address":"","currency":"SDG","whatsapp":"","accountNo":"","createdBy":9,"taxNumber":"","creditLimit":0,"bankAccounts":[{"branch":"","bankName":"","accountNo":"","isDeactivated":false,"securityLevel":1}],"openingDebit":0,"contactPerson":"","openingCredit":0,"securityLevel":1,"currentBalance":56789},{"id":"CUST-1783162615475","name":"شيريهان احمد عثمان تاج الدين","email":"","notes":"","phone":"00249912106075","status":"active","address":"","currency":"USD","whatsapp":"00201550886559","accountNo":"","createdBy":9,"taxNumber":"","creditLimit":2000000,"bankAccounts":[{"branch":"","bankName":"","accountNo":"","isDeactivated":false,"securityLevel":1}],"openingDebit":1000000,"contactPerson":"","openingCredit":1500000,"securityLevel":1,"currentBalance":-500000},{"id":"CUST-1783187686750","name":"حدكي","email":"","notes":"","phone":"","status":"active","address":"","currency":"SDG","whatsapp":"","accountNo":"","createdBy":9,"taxNumber":"","creditLimit":234567,"bankAccounts":[{"branch":"","bankName":"","accountNo":"","isDeactivated":false,"securityLevel":1}],"openingDebit":100000,"contactPerson":"","openingCredit":234567,"securityLevel":1,"currentBalance":-134567},{"id":"CUST-1781625556260","name":"محمد عمار","email":"A00105@gmail.com","notes":"زبوم تجريبي 1","phone":"0912300105","status":"active","address":"الخرطوم","whatsapp":"0912300112","createdBy":9,"creditLimit":33333333,"bankAccounts":[{"branch":"السجانة","bankName":"بنك الخرطوم","accountNo":"90290","isDeactivated":false,"securityLevel":1}],"contactPerson":"عمار","securityLevel":1,"currentBalance":11089,"openingBalance":100},{"id":"CUST-1782914588501","name":"حسن علي","email":"s00105@gmail.com","notes":"","phone":"00249912300111","status":"active","address":"شسيس","currency":"USD","whatsapp":"00249912300111","accountNo":"2322","createdBy":9,"taxNumber":"2322","creditLimit":3333,"bankAccounts":[{"branch":"","bankName":"","accountNo":"","isDeactivated":false,"securityLevel":1}],"openingDebit":2333,"contactPerson":"","openingCredit":3333,"securityLevel":1,"currentBalance":-1000},{"id":"CUST-1783274024802","name":"كوستا ","email":"","notes":"","phone":"","status":"active","address":"","currency":"USD","whatsapp":"","accountNo":"","createdBy":9,"taxNumber":"","creditLimit":3000000,"bankAccounts":[{"branch":"","bankName":"","accountNo":"","isDeactivated":false,"securityLevel":1}],"openingDebit":1200000,"contactPerson":"","openingCredit":2000000,"securityLevel":1,"currentBalance":-991156659},{"id":"CUST-1783281050254","name":"قلقله","email":"","notes":"","phone":"","exRate":6300,"status":"active","address":"","currency":"USD","whatsapp":"","accountNo":"","createdBy":9,"taxNumber":"","creditLimit":10000000,"bankAccounts":[{"branch":"","bankName":"","accountNo":"","isDeactivated":false,"securityLevel":1}],"openingDebit":1900000,"contactPerson":"","openingCredit":0,"securityLevel":1,"currentBalance":1900000},{"id":"C-112681","name":"محمد حسن علي مكي","email":"","phone":"","status":"active","address":"","whatsapp":"","createdBy":9,"timestamp":"2026-07-05T22:38:32.681Z","creditLimit":0,"bankAccounts":[],"securityLevel":"1","currentBalance":89898989},{"id":"CUST-1783356956592","name":"همس مهدي ","email":"@gmamahdi00622","notes":"","phone":"","exRate":622,"status":"active","address":"","currency":"USD","whatsapp":"00249912300622","accountNo":"","createdBy":9,"taxNumber":"","creditLimit":666666,"bankAccounts":[{"branch":"","bankName":"","accountNo":"","isDeactivated":false,"securityLevel":1}],"openingDebit":66666,"contactPerson":"","openingCredit":0,"securityLevel":1,"currentBalance":67233},{"id":"CUST-1783451342581","name":"جمانه مكي","email":"","notes":"","phone":"00249912106076","exRate":600,"status":"active","address":"","currency":"USD","whatsapp":"00249912300622","accountNo":"","createdBy":9,"taxNumber":"","creditLimit":888888,"bankAccounts":[{"branch":"","bankName":"","accountNo":"","isDeactivated":false,"securityLevel":1}],"openingDebit":0,"contactPerson":"","openingCredit":88888,"securityLevel":1,"currentBalance":367889},{"id":"C-751626","name":"سيد عثمان تاج الدين","email":"","phone":"","status":"active","address":"","whatsapp":"","createdBy":9,"timestamp":"2026-07-10T16:59:11.626Z","creditLimit":0,"bankAccounts":[],"securityLevel":"1","currentBalance":0},{"id":"CUST-1784063515633","name":"فقث","email":"","notes":"","phone":"","exRate":1,"status":"active","address":"","currency":"SDG","whatsapp":"","accountNo":"","createdBy":9,"taxNumber":"","creditLimit":0,"bankAccounts":[{"branch":"","bankName":"","accountNo":"","isDeactivated":false,"securityLevel":1},{"branch":"","bankName":"","accountNo":"","isDeactivated":false,"securityLevel":1}],"openingDebit":0,"contactPerson":"","openingCredit":0,"securityLevel":1,"currentBalance":0},{"id":"CUST-1784065972341","name":"تال","email":"","notes":"","phone":"","exRate":1,"status":"active","address":"","currency":"SDG","whatsapp":"","accountNo":"","createdBy":9,"taxNumber":"","creditLimit":0,"bankAccounts":[{"branch":"","bankName":"","accountNo":"","isDeactivated":false,"securityLevel":1}],"openingDebit":7654,"contactPerson":"","openingCredit":0,"securityLevel":1,"currentBalance":7654},{"id":"CUST-1784100578257","name":"عمر طارق محمد مكي","email":"","notes":"","phone":"","exRate":5620,"status":"active","address":"","currency":"USD","whatsapp":"00249912300622","accountNo":"","createdBy":9,"taxNumber":"","creditLimit":7000000,"bankAccounts":[{"branch":"","bankName":"","accountNo":"","isDeactivated":false,"securityLevel":1}],"openingDebit":0,"contactPerson":"","openingCredit":450000,"securityLevel":1,"currentBalance":450000},{"id":"CUST-1784109545826","name":"محجوب خاص","email":"","notes":"","phone":"","exRate":1,"status":"active","address":"","currency":"SDG","whatsapp":"00249912348829","accountNo":"","createdBy":395,"taxNumber":"","creditLimit":0,"bankAccounts":[{"branch":"","bankName":"","accountNo":"","isDeactivated":false,"securityLevel":1}],"openingDebit":0,"contactPerson":"","openingCredit":0,"securityLevel":1,"currentBalance":0},{"id":"CUST-1784109769001","name":"مهدي","email":"","notes":"","phone":"","exRate":1,"status":"active","address":"","currency":"SDG","whatsapp":"","accountNo":"","createdBy":395,"taxNumber":"","creditLimit":0,"bankAccounts":[{"branch":"","bankName":"","accountNo":"","isDeactivated":false,"securityLevel":1}],"openingDebit":0,"contactPerson":"","openingCredit":0,"securityLevel":1,"currentBalance":55},{"id":"CUST-1784235653011","name":"ايه مهدي محمد مكي","email":"","notes":"","phone":"","exRate":600,"status":"active","address":"","currency":"USD","whatsapp":"","accountNo":"","createdBy":9,"taxNumber":"","creditLimit":0,"bankAccounts":[{"branch":"","bankName":"","accountNo":"","isDeactivated":false,"securityLevel":1}],"openingDebit":888888,"contactPerson":"","openingCredit":0,"securityLevel":1,"currentBalance":666666},{"id":"CUST-1784628659773","name":"محمود دمباوي","email":"","notes":"","phone":"","exRate":670,"status":"active","address":"","currency":"SDG","whatsapp":"","accountNo":"","createdBy":9,"taxNumber":"","creditLimit":4000000,"bankAccounts":[{"branch":"","bankName":"","accountNo":"","isDeactivated":false,"securityLevel":1}],"openingDebit":2500000,"contactPerson":"","openingCredit":0,"securityLevel":1,"currentBalance":2500000},{"id":"CUST-1784628827641","name":"فتاح شجره","email":"","notes":"","phone":"","exRate":670,"status":"active","address":"","currency":"SDG","whatsapp":"","accountNo":"","createdBy":9,"taxNumber":"","creditLimit":4500000,"bankAccounts":[{"branch":"","bankName":"","accountNo":"","isDeactivated":false,"securityLevel":1}],"openingDebit":0,"contactPerson":"","openingCredit":1600000,"securityLevel":1,"currentBalance":-1599000},{"id":"CUST-1785237947153","name":"رضوان باشا","email":"","notes":"","phone":"","exRate":600,"status":"active","address":"","currency":"USD","whatsapp":"","accountNo":"","createdBy":9,"taxNumber":"","creditLimit":0,"bankAccounts":[{"branch":"","bankName":"","accountNo":"","isDeactivated":false,"securityLevel":1}],"openingDebit":0,"contactPerson":"","openingCredit":7000000,"securityLevel":1,"currentBalance":6000065},{"id":"CUST-1785253492699","name":"متوكل ازهري","email":"","notes":"","phone":"","exRate":500,"status":"active","address":"","currency":"USD","whatsapp":"","accountNo":"","createdBy":9,"taxNumber":"","creditLimit":0,"bankAccounts":[{"branch":"","bankName":"","accountNo":"","isDeactivated":false,"securityLevel":1}],"openingDebit":1000000,"contactPerson":"","openingCredit":0,"securityLevel":1,"currentBalance":1000000},{"id":"CUST-1785262394712","name":"حبني","email":"","notes":"","phone":"","exRate":2500,"status":"active","address":"","currency":"SDG","whatsapp":"","accountNo":"","createdBy":9,"taxNumber":"","creditLimit":0,"bankAccounts":[{"branch":"","bankName":"","accountNo":"","isDeactivated":false,"securityLevel":1}],"openingDebit":2500000,"contactPerson":"","openingCredit":0,"securityLevel":1,"currentBalance":1422314},{"id":"CUST-1785263869067","name":"طرزان في امدرمان","email":"","notes":"","phone":"","exRate":600,"status":"active","address":"","currency":"USD","whatsapp":"","accountNo":"","createdBy":9,"taxNumber":"","creditLimit":0,"bankAccounts":[{"branch":"","bankName":"","accountNo":"","isDeactivated":false,"securityLevel":1}],"openingDebit":17000000,"contactPerson":"","openingCredit":0,"securityLevel":1,"currentBalance":17000000},{"id":"CUST-1785688472616","name":"سيدو احمد حسن جمال علي","email":"","notes":"","phone":"","exRate":600,"status":"active","address":"","currency":"USD","whatsapp":"","accountNo":"","createdBy":9,"taxNumber":"","creditLimit":666666,"bankAccounts":[{"branch":"","bankName":"","accountNo":"","isDeactivated":false,"securityLevel":1}],"openingDebit":0,"contactPerson":"","openingCredit":5600000,"securityLevel":1,"currentBalance":-33164445},{"id":"CUST-1785703452552","name":"معتذ محمد","email":"","notes":"","phone":"0912300222","exRate":1,"status":"active","address":"","currency":"SDG","whatsapp":"0912300222","accountNo":"","createdBy":9,"taxNumber":"","creditLimit":0,"bankAccounts":[{"branch":"","bankName":"محم","accountNo":"","isDeactivated":false,"securityLevel":1}],"openingDebit":1111,"contactPerson":"","openingCredit":0,"securityLevel":1,"currentBalance":0},{"id":"CUST-1785752274456","name":"cvbnm","email":"","notes":"","phone":"","exRate":1,"status":"active","address":"","currency":"USD","whatsapp":"","accountNo":"","createdBy":9,"taxNumber":"2322","creditLimit":0,"bankAccounts":[{"branch":"","bankName":"","accountNo":"","isDeactivated":false,"securityLevel":1}],"openingDebit":453456789,"contactPerson":"","openingCredit":0,"securityLevel":1,"currentBalance":453456789},{"id":"CUST-1785761198609","name":"احمد ولدي","email":"","notes":"","phone":"","exRate":4400,"status":"active","address":"","currency":"USD","whatsapp":"","accountNo":"","createdBy":9,"taxNumber":"","creditLimit":0,"bankAccounts":[{"branch":"","bankName":"","accountNo":"","isDeactivated":false,"securityLevel":1}],"openingDebit":0,"contactPerson":"","openingCredit":19000000,"securityLevel":1,"currentBalance":-19000000},{"id":"CUST-1785761813481","name":"عبدو","email":"","notes":"","phone":"","exRate":4400,"status":"active","address":"","currency":"USD","whatsapp":"","accountNo":"","createdBy":9,"taxNumber":"","creditLimit":0,"bankAccounts":[{"branch":"","bankName":"","accountNo":"","isDeactivated":false,"securityLevel":1}],"openingDebit":0,"contactPerson":"","openingCredit":80000000,"securityLevel":1,"currentBalance":-80000000},{"id":"CUST-1785763080106","name":"عابدين","email":"","notes":"","phone":"","exRate":4400,"status":"active","address":"","currency":"USD","whatsapp":"","accountNo":"","createdBy":9,"taxNumber":"","creditLimit":0,"bankAccounts":[{"branch":"","bankName":"","accountNo":"","isDeactivated":false,"securityLevel":1}],"openingDebit":0,"contactPerson":"","openingCredit":44000000,"securityLevel":1,"currentBalance":-43999457},{"id":"CUST-1785763249630","name":"بشه","email":"","notes":"","phone":"","exRate":1,"status":"active","address":"","currency":"SDG","whatsapp":"","accountNo":"","createdBy":9,"taxNumber":"","creditLimit":0,"bankAccounts":[{"branch":"","bankName":"","accountNo":"","isDeactivated":false,"securityLevel":1}],"openingDebit":0,"contactPerson":"","openingCredit":80000000,"securityLevel":1,"currentBalance":-80000000},{"id":"CUST-1785764619762","name":"فغ","email":"","notes":"","phone":"","exRate":4400,"status":"active","address":"","currency":"USD","whatsapp":"","accountNo":"","createdBy":9,"taxNumber":"","creditLimit":0,"bankAccounts":[{"branch":"","bankName":"","accountNo":"","isDeactivated":false,"securityLevel":1}],"openingDebit":10000000,"contactPerson":"","openingCredit":0,"securityLevel":1,"currentBalance":10000000},{"id":"CUST-1785764729392","name":"عماد","email":"","notes":"","phone":"","exRate":4400,"status":"active","address":"","currency":"USD","whatsapp":"","accountNo":"","createdBy":9,"taxNumber":"","creditLimit":0,"bankAccounts":[{"branch":"","bankName":"","accountNo":"","isDeactivated":false,"securityLevel":1}],"openingDebit":10000000,"contactPerson":"","openingCredit":0,"securityLevel":1,"currentBalance":10000000},{"id":"CUST-1785766601523","name":"شركه","email":"","notes":"","phone":"","exRate":4400,"status":"active","address":"","currency":"USD","whatsapp":"","accountNo":"","createdBy":9,"taxNumber":"","creditLimit":0,"bankAccounts":[{"branch":"","bankName":"","accountNo":"","isDeactivated":false,"securityLevel":1}],"openingDebit":56000000,"contactPerson":"","openingCredit":0,"securityLevel":1,"currentBalance":56000000},{"id":"CUST-1785808277625","name":"موزه","email":"","notes":"","phone":"","exRate":6200,"status":"active","address":"","currency":"USD","whatsapp":"","accountNo":"","createdBy":9,"taxNumber":"","creditLimit":0,"bankAccounts":[{"branch":"","bankName":"","accountNo":"","isDeactivated":false,"securityLevel":1}],"openingDebit":0,"contactPerson":"","openingCredit":6200000,"securityLevel":1,"currentBalance":1577666},{"id":"CUST-1785928750486","name":"مكه","email":"","notes":"","phone":"","exRate":5420,"status":"active","address":"","currency":"USD","whatsapp":"","accountNo":"","createdBy":9,"taxNumber":"","creditLimit":0,"bankAccounts":[{"branch":"","bankName":"","accountNo":"","isDeactivated":false,"securityLevel":1}],"openingDebit":0,"contactPerson":"","openingCredit":20000000,"securityLevel":1,"currentBalance":-15426432},{"id":"CUST-1785968975111","name":"233","email":"","notes":"","phone":"","exRate":1,"status":"active","address":"","currency":"SDG","whatsapp":"","accountNo":"","createdBy":7,"taxNumber":"","creditLimit":0,"bankAccounts":[{"branch":"","bankName":"","accountNo":"","isDeactivated":false,"securityLevel":1}],"openingDebit":0,"contactPerson":"","openingCredit":0,"securityLevel":1,"currentBalance":0},{"id":"CUST-1786320334761","name":"فيصل العجب","email":"","notes":"","phone":"","exRate":300,"status":"active","address":"","currency":"USD","whatsapp":"","accountNo":"","createdBy":9,"taxNumber":"","creditLimit":0,"bankAccounts":[{"branch":"","bankName":"","accountNo":"","isDeactivated":false,"securityLevel":1}],"openingDebit":6000000,"contactPerson":"","openingCredit":0,"securityLevel":1,"currentBalance":6008656},{"id":"CUST-1786384017176","name":"شيخ ميرغني","email":"","notes":"","phone":"","exRate":5600,"status":"active","address":"","currency":"USD","whatsapp":"","accountNo":"","createdBy":9,"taxNumber":"","creditLimit":0,"bankAccounts":[{"branch":"","bankName":"","accountNo":"","isDeactivated":false,"securityLevel":1}],"openingDebit":0,"contactPerson":"","openingCredit":909090,"securityLevel":1,"currentBalance":-909090},{"id":"CUST-1786394925761","name":"دكتور شول","email":"","notes":"","phone":"","exRate":5600,"status":"active","address":"","currency":"USD","whatsapp":"","accountNo":"","createdBy":9,"taxNumber":"","creditLimit":0,"bankAccounts":[{"branch":"","bankName":"","accountNo":"","isDeactivated":false,"securityLevel":1}],"openingDebit":20202020,"contactPerson":"","openingCredit":0,"securityLevel":1,"currentBalance":20148723},{"id":"CUST-1786476504570","date":"2026-08-11","name":"همس مهدي شيريهان مكي","email":"","notes":"","phone":"","exRate":5600,"status":"active","address":"","currency":"USD","whatsapp":"","accountNo":"","createdAt":"2026-08-11T19:28:24.570Z","createdBy":9,"taxNumber":"","creditLimit":0,"bankAccounts":[{"branch":"","bankName":"","accountNo":"","isDeactivated":false,"securityLevel":1}],"openingDebit":650000,"contactPerson":"","openingCredit":0,"securityLevel":1,"currentBalance":650000},{"id":"CUST-1789816868387","date":"2026-09-19","name":"محمد عماد","email":"","notes":"","phone":"0123006242","exRate":1,"status":"active","address":"","currency":"USD","whatsapp":"0123006242","accountNo":"","createdAt":"2026-09-19T11:21:08.388Z","createdBy":469,"taxNumber":"","creditLimit":0,"bankAccounts":[{"branch":"","bankName":"","accountNo":"","isDeactivated":false,"securityLevel":1}],"openingDebit":5340944,"contactPerson":"","openingCredit":0,"securityLevel":1,"currentBalance":5340944}],
@@ -11256,6 +11376,7 @@
       // 1. COST CENTER SEARCH (مركز الكلفة مع خانة بحث)
       // ─────────────────────────────────────────────────────────────
       openCostCenterSearch() {
+        window._activeModalContext = 'sales';
         const modal = document.getElementById('suiteCostCenterSearchModal');
         if (modal) {
           modal.classList.remove('hidden');
@@ -11304,6 +11425,10 @@
       },
 
       selectCostCenter(name) {
+        if (window.SuitePOSRouter && SuitePOSRouter.getActiveContext() === 'purchase') {
+          if (window.SuitePurchasePOS) SuitePurchasePOS.selectCostCenter(name);
+          return;
+        }
         this.selectedCostCenter = name;
         const hid = document.getElementById('salesCostCenterInput');
         if (hid) hid.value = name;
@@ -11319,11 +11444,15 @@
       // 2. CUSTOMER SEARCH (اسم العميل فقط عند الاختيار، والهاتف في البحث)
       // ─────────────────────────────────────────────────────────────
       openCustomerSearch() {
+        window._activeModalContext = 'sales';
         const modal = document.getElementById('suiteCustomerSearchModal');
         if (modal) {
           modal.classList.remove('hidden');
+          const titleEl = document.getElementById('suitePartnerModalTitle');
+          if (titleEl) titleEl.innerHTML = '<i class="fa-solid fa-users-viewfinder"></i> اختيار عميل من قاعدة البيانات (بحث فوري)';
           const inp = document.getElementById('suiteCustSearchFilter');
           if (inp) {
+            inp.placeholder = 'ابحث بالاسم أو رقم الهاتف...';
             inp.value = '';
             setTimeout(() => inp.focus(), 50);
           }
@@ -11376,6 +11505,10 @@
       },
 
       selectCustomer(c) {
+        if (window.SuitePOSRouter && SuitePOSRouter.getActiveContext() === 'purchase') {
+          if (window.SuitePurchasePOS) SuitePurchasePOS.selectSupplier(c);
+          return;
+        }
         if (!c) return;
         this.selectedCustomer = c;
         const name = c.name || 'عميل نقدي عام';
@@ -11408,6 +11541,7 @@
       // 3. WAREHOUSE SEARCH (المستودعات والمخازن مع خانة بحث)
       // ─────────────────────────────────────────────────────────────
       openWarehouseSearch() {
+        window._activeModalContext = 'sales';
         const modal = document.getElementById('suiteWarehouseSearchModal');
         if (modal) {
           modal.classList.remove('hidden');
@@ -11449,6 +11583,10 @@
       },
 
       selectWarehouse(name) {
+        if (window.SuitePOSRouter && SuitePOSRouter.getActiveContext() === 'purchase') {
+          if (window.SuitePurchasePOS) SuitePurchasePOS.selectWarehouse(name);
+          return;
+        }
         this.selectedWarehouse = name;
         const hid = document.getElementById('salesWarehouseSelect');
         if (hid) hid.value = name;
@@ -11464,6 +11602,7 @@
       // 4. ITEM SEARCH (الأصناف مع خانة بحث فوري)
       // ─────────────────────────────────────────────────────────────
       openItemSearch() {
+        window._activeModalContext = 'sales';
         const modal = document.getElementById('suiteItemSearchModal');
         if (modal) {
           modal.classList.remove('hidden');
@@ -11539,6 +11678,10 @@
       },
 
       selectCustomItem(name) {
+        if (window.SuitePOSRouter && SuitePOSRouter.getActiveContext() === 'purchase') {
+          if (window.SuitePurchasePOS) SuitePurchasePOS.selectCustomItem(name);
+          return;
+        }
         if (!name || !name.trim()) return;
         const cleanName = name.trim();
         const newItem = {
@@ -11566,6 +11709,10 @@
       },
 
       selectItemByIndex(idx) {
+        if (window.SuitePOSRouter && SuitePOSRouter.getActiveContext() === 'purchase') {
+          if (window.SuitePurchasePOS) SuitePurchasePOS.selectItemByIndex(idx);
+          return;
+        }
         this.selectedItemIndex = idx;
         const it = this.dbItems[idx];
         if (!it) return;
@@ -12518,22 +12665,84 @@
     // ═════════════════════════════════════════════════════════════════════
     // 📦 SUITE PURCHASE POS ENGINE - DIRECT PARITY WITH SALES POS
     // ═════════════════════════════════════════════════════════════════════
+        // ═════════════════════════════════════════════════════════════════════
+    // 📦 SUITE PURCHASE POS ENGINE - DIRECT PARITY WITH SALES POS
+    // ═════════════════════════════════════════════════════════════════════
     window.SuitePurchasePOS = {
       cart: [],
       selectedItemIndex: -1,
+      selectedSupplier: null,
       selectedWarehouse: 'المستودع الرئيسي',
       selectedCostCenter: 'المركز الرئيسي',
       currencyMode: 'USD',
       usdExchangeRate: 2850,
 
+      dbSuppliers: [
+        { id: 'SUP-001', name: 'مطاحن الخرطوم للغلال', phone: '0123445566', currentBalance: 0, currency: 'SDG' },
+        { id: 'SUP-002', name: 'شركة مصنع الأسعد للحديد والصلب', phone: '0123456789', currentBalance: 0, currency: 'USD' },
+        { id: 'SUP-003', name: 'شركة أوميغا للصناعات والصلب', phone: '0912345678', currentBalance: 0, currency: 'USD' },
+        { id: 'SUP-004', name: 'شركة أسمنت عطبرة المحدودة', phone: '0112345678', currentBalance: 0, currency: 'SDG' },
+        { id: 'SUP-005', name: 'مجمع جياد الصناعي', phone: '0901234567', currentBalance: 0, currency: 'USD' },
+        { id: 'SUP-006', name: 'مؤسسة الهدى للتجارة والتوريدات', phone: '0123987654', currentBalance: 0, currency: 'SDG' },
+        { id: 'SUP-007', name: 'شركة أسمنت بربر المحدودة', phone: '0912987654', currentBalance: 0, currency: 'SDG' },
+        { id: 'SUP-008', name: 'مصنع الراجحي للحديد والصلب', phone: '0123112233', currentBalance: 0, currency: 'USD' },
+        { id: 'SUP-CASH', name: 'مورد نقدي عام', phone: '', currentBalance: 0, currency: 'SDG' }
+      ],
+
       async init() {
+        this.loadSuppliersFromStorage();
         this.syncHeaderDatePill();
         if (window.SuiteFXManager) {
           await SuiteFXManager.fetchSystemRate();
           this.usdExchangeRate = SuiteFXManager.currentRate;
         }
         this.syncCurrencyDisplay();
+        this.initDefaultSupplier();
+        this.initDefaultCostCenter();
+        this.initDefaultWarehouse();
         this.renderCart();
+      },
+
+      loadSuppliersFromStorage() {
+        try {
+          const raw = localStorage.getItem('erp_suppliers_v1') || (window.getTenantKey ? localStorage.getItem(window.getTenantKey('erp_suppliers_v1')) : null);
+          if (raw) {
+            const parsed = JSON.parse(raw);
+            if (Array.isArray(parsed) && parsed.length > 0) {
+              parsed.forEach(s => {
+                if (s && s.name && !this.dbSuppliers.some(ex => ex.name === s.name)) {
+                  this.dbSuppliers.unshift(s);
+                }
+              });
+            }
+          }
+        } catch(e) {
+          console.warn('[Purchase] Could not parse stored suppliers:', e);
+        }
+      },
+
+      initDefaultSupplier() {
+        const inp = document.getElementById('purchaseSupplierInput');
+        const disp = document.getElementById('suitePurSupplierDisplayName');
+        if (!this.selectedSupplier) {
+          this.selectedSupplier = this.dbSuppliers[0];
+        }
+        if (disp && this.selectedSupplier) disp.innerText = this.selectedSupplier.name;
+        if (inp && this.selectedSupplier) inp.value = this.selectedSupplier.name;
+      },
+
+      initDefaultCostCenter() {
+        const disp = document.getElementById('purCostCenterDisplayName');
+        const inp = document.getElementById('purCostCenterInput');
+        if (disp) disp.innerText = this.selectedCostCenter;
+        if (inp) inp.value = this.selectedCostCenter;
+      },
+
+      initDefaultWarehouse() {
+        const disp = document.getElementById('suitePurWarehouseDisplayName');
+        const sel = document.getElementById('purchaseWarehouseSelect');
+        if (disp) disp.innerText = this.selectedWarehouse;
+        if (sel) sel.value = this.selectedWarehouse;
       },
 
       syncHeaderDatePill(val) {
@@ -12594,38 +12803,211 @@
         }
       },
 
-      updateUsdRate(val) {
-        const clean = (val || '').toString().slice(0, 5);
-        const num = parseFloat(clean);
-        if (!isNaN(num) && num > 0) {
-          this.usdExchangeRate = num;
-          if (this.cart && this.cart.length > 0) this.renderCart();
+      openSupplierSearch() {
+        window._activeModalContext = 'purchase';
+        const modal = document.getElementById('suiteCustomerSearchModal');
+        if (modal) {
+          modal.classList.remove('hidden');
+          const titleEl = document.getElementById('suitePartnerModalTitle');
+          if (titleEl) titleEl.innerHTML = '<i class="fa-solid fa-truck-field"></i> اختيار مورد من قاعدة البيانات (بحث فوري)';
+          const inp = document.getElementById('suiteCustSearchFilter');
+          if (inp) {
+            inp.placeholder = 'ابحث باسم المورد أو رقم الهاتف...';
+            inp.value = '';
+            setTimeout(() => inp.focus(), 50);
+          }
+          this.filterSupplierSearch('');
         }
       },
 
-      openSupplierSearch() {
-        if (window.SuiteSalesPOS) SuiteSalesPOS.openCustomerSearch();
+      filterSupplierSearch(q) {
+        const container = document.getElementById('suiteCustSearchResults');
+        if (!container) return;
+        const term = (q || '').trim().toLowerCase();
+        const list = this.dbSuppliers.filter(s => {
+          return !term || (s.name && s.name.toLowerCase().includes(term)) || (s.phone && s.phone.includes(term));
+        });
+
+        if (list.length === 0) {
+          const cleanQ = (q || '').replace(/'/g, "\\'");
+          container.innerHTML = `
+            <div class="p-3 text-center text-slate-400 bg-slate-900/60 rounded-xl space-y-2">
+              <p>لم يتم العثور على مورد بهذا الاسم</p>
+              <button type="button" onclick="SuitePOSRouter.selectPartner({ name: '${cleanQ}', phone: '' })" class="px-3 py-1 bg-amber-600 hover:bg-amber-500 text-white rounded-lg text-xs font-bold cursor-pointer">
+                + اعتماد "${cleanQ}" كمورد جديد
+              </button>
+            </div>`;
+          return;
+        }
+
+        let html = '';
+        list.forEach(s => {
+          const sJson = JSON.stringify(s).replace(/"/g, '&quot;');
+          html += `
+            <div onclick="SuitePOSRouter.selectPartner(${sJson})" class="p-2.5 rounded-xl bg-slate-900/80 hover:bg-amber-950/40 border border-slate-800 hover:border-amber-500/50 cursor-pointer flex justify-between items-center transition group">
+              <div>
+                <span class="font-bold text-white text-xs block group-hover:text-amber-300 transition">${s.name}</span>
+                ${s.phone ? `<span class="text-[10px] text-slate-400 font-mono"><i class="fa-solid fa-phone text-[9px]"></i> ${s.phone}</span>` : ''}
+              </div>
+              <div class="text-right">
+                <span class="text-[10px] px-2 py-0.5 rounded-full bg-slate-800 text-amber-300 font-bold">مورد</span>
+              </div>
+            </div>`;
+        });
+        container.innerHTML = html;
+      },
+
+      selectSupplier(s) {
+        if (!s) return;
+        this.selectedSupplier = s;
+        const disp = document.getElementById('suitePurSupplierDisplayName');
+        if (disp) disp.innerText = s.name;
+        const inp = document.getElementById('purchaseSupplierInput');
+        if (inp) inp.value = s.name;
+        this.closeCustomerSearch();
+      },
+
+      closeCustomerSearch() {
+        const modal = document.getElementById('suiteCustomerSearchModal');
+        if (modal) modal.classList.add('hidden');
       },
 
       openCostCenterSearch() {
+        window._activeModalContext = 'purchase';
         if (window.SuiteSalesPOS) SuiteSalesPOS.openCostCenterSearch();
       },
 
-      printSupplierStatement() {
-        const supp = document.getElementById('purchaseSupplierInput')?.value || 'مطاحن الخرطوم للغلال';
-        alert('جاري فتح وطباعة كشف حساب المورد: ' + supp);
+      selectCostCenter(name) {
+        this.selectedCostCenter = name;
+        const disp = document.getElementById('purCostCenterDisplayName');
+        if (disp) disp.innerText = name;
+        const inp = document.getElementById('purCostCenterInput');
+        if (inp) inp.value = name;
+        if (window.SuiteSalesPOS) SuiteSalesPOS.closeCostCenterSearch();
       },
 
       openWarehouseSearch() {
+        window._activeModalContext = 'purchase';
         if (window.SuiteSalesPOS) SuiteSalesPOS.openWarehouseSearch();
       },
 
+      selectWarehouse(name) {
+        this.selectedWarehouse = name;
+        const disp = document.getElementById('suitePurWarehouseDisplayName');
+        if (disp) disp.innerText = name;
+        const sel = document.getElementById('purchaseWarehouseSelect');
+        if (sel) sel.value = name;
+        if (window.SuiteSalesPOS) SuiteSalesPOS.closeWarehouseSearch();
+      },
+
       openItemSearch() {
-        if (window.SuiteSalesPOS) SuiteSalesPOS.openItemSearch();
+        window._activeModalContext = 'purchase';
+        const modal = document.getElementById('suiteItemSearchModal');
+        if (modal) {
+          modal.classList.remove('hidden');
+          const inp = document.getElementById('suiteItemSearchFilter');
+          if (inp) {
+            inp.value = '';
+            setTimeout(() => inp.focus(), 50);
+          }
+          if (window.SuiteSalesPOS) SuiteSalesPOS.filterItemSearch('');
+        }
+      },
+
+      closeItemSearch() {
+        const modal = document.getElementById('suiteItemSearchModal');
+        if (modal) modal.classList.add('hidden');
+      },
+
+      selectItemByIndex(idx) {
+        const items = (window.SuiteSalesPOS && SuiteSalesPOS.dbItems) ? SuiteSalesPOS.dbItems : [];
+        if (!items[idx]) return;
+        const item = items[idx];
+        this.selectedItemIndex = idx;
+
+        const disp = document.getElementById('suitePurItemDisplayName');
+        if (disp) disp.innerHTML = `<span class="font-bold text-xs sm:text-sm truncate text-amber-300">${item.name}</span>`;
+
+        const hid = document.getElementById('purItemSelectVal');
+        if (hid) hid.value = item.id || item.name;
+
+        // Populate unit select
+        const uSel = document.getElementById('purUnitSelect');
+        if (uSel) {
+          uSel.innerHTML = '';
+          const units = [];
+          if (item.baseUnit) units.push({ name: item.baseUnit, factor: 1 });
+          else if (item.unit) units.push({ name: item.unit, factor: 1 });
+          if (Array.isArray(item.unitsArray)) {
+            item.unitsArray.forEach(u => {
+              if (u && u.name && !units.some(x => x.name === u.name)) units.push(u);
+            });
+          }
+          if (units.length === 0) units.push({ name: 'حبة', factor: 1 });
+          units.forEach(u => {
+            const opt = document.createElement('option');
+            opt.value = u.name;
+            opt.innerText = u.name;
+            opt.dataset.factor = u.factor || 1;
+            uSel.appendChild(opt);
+          });
+        }
+
+        // Pre-fill last purchase price or cost if available
+        const pInp = document.getElementById('purPriceInput');
+        if (pInp) {
+          const cost = item.lastPurchaseCost || item.averageCost || item.cost || item.price || 0;
+          pInp.value = cost > 0 ? cost : '';
+        }
+
+        const qInp = document.getElementById('purQtyInput');
+        if (qInp && (!qInp.value || parseFloat(qInp.value) <= 0)) {
+          qInp.value = 1;
+        }
+
+        this.calcItemSubtotal();
+        this.closeItemSearch();
+      },
+
+      selectCustomItem(name) {
+        if (!name || !name.trim()) return;
+        const cleanName = name.trim();
+        this.selectedItemIndex = -1;
+
+        const disp = document.getElementById('suitePurItemDisplayName');
+        if (disp) disp.innerHTML = `<span class="font-bold text-xs sm:text-sm truncate text-amber-300">${cleanName} (مخصص)</span>`;
+
+        const hid = document.getElementById('purItemSelectVal');
+        if (hid) hid.value = cleanName;
+
+        const uSel = document.getElementById('purUnitSelect');
+        if (uSel) {
+          uSel.innerHTML = '<option value="خدمة">خدمة</option><option value="حبة">حبة</option><option value="طن">طن</option><option value="شحنة">شحنة</option>';
+        }
+
+        const qInp = document.getElementById('purQtyInput');
+        if (qInp && (!qInp.value || parseFloat(qInp.value) <= 0)) qInp.value = 1;
+
+        this.calcItemSubtotal();
+        this.closeItemSearch();
+      },
+
+      promptCustomItem() {
+        const name = prompt('أدخل اسم البند أو الخدمة أو المصروف للمشتريات:');
+        if (name && name.trim()) {
+          this.selectCustomItem(name.trim());
+        }
       },
 
       openNotesModal() {
-        if (window.SuiteSalesPOS) SuiteSalesPOS.openNotesModal();
+        window._activeModalContext = 'purchase';
+        const modal = document.getElementById('suiteSalesNotesModal');
+        if (modal) {
+          modal.classList.remove('hidden');
+          const ta = document.getElementById('salesNotesExpandedTextarea');
+          const inp = document.getElementById('purNotesInput');
+          if (ta) ta.value = inp ? inp.value : '';
+        }
       },
 
       onUnitChange() {
@@ -12642,27 +13024,39 @@
         const gross = qty * prc;
         const grossEl = document.getElementById('purItemGrossTotal');
         if (grossEl) {
-          grossEl.value = (gross > 0) ? gross.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : ((qty > 0 && prc > 0) ? '0.00' : '0.00');
+          grossEl.value = (gross > 0) ? gross.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '0.00';
         }
 
         const netTotal = Math.max(0, gross - disc + tax + labor);
         const totInp = document.getElementById('purTotalInput');
         if (totInp) {
-          totInp.value = (netTotal > 0) ? netTotal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : ((gross > 0 || tax > 0 || labor > 0) ? '0.00' : '0.00');
+          totInp.value = (netTotal > 0) ? netTotal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '0.00';
         }
         return netTotal;
       },
 
       addItemToCart() {
-        const itIdx = (this.selectedItemIndex !== -1) ? this.selectedItemIndex : (window.SuiteSalesPOS ? SuiteSalesPOS.selectedItemIndex : -1);
-        if (itIdx === -1 || !SuiteSalesPOS.dbItems || !SuiteSalesPOS.dbItems[itIdx]) {
+        const itIdx = this.selectedItemIndex;
+        let name = '';
+        let unit = 'حبة';
+
+        if (itIdx !== -1 && window.SuiteSalesPOS && SuiteSalesPOS.dbItems && SuiteSalesPOS.dbItems[itIdx]) {
+          const it = SuiteSalesPOS.dbItems[itIdx];
+          name = it.name;
+          const uSel = document.getElementById('purUnitSelect');
+          unit = uSel ? uSel.value : (it.baseUnit || it.unit || 'حبة');
+        } else {
+          const hid = document.getElementById('purItemSelectVal');
+          name = hid ? hid.value : '';
+          const uSel = document.getElementById('purUnitSelect');
+          unit = uSel ? uSel.value : 'حبة';
+        }
+
+        if (!name || !name.trim()) {
           alert('⚠️ يرجى اختيار صنف أولاً عبر الضغط على خانة الصنف للبحث.');
           return;
         }
-        const it = SuiteSalesPOS.dbItems[itIdx];
-        const name = it.name;
-        const uSel = document.getElementById('purUnitSelect');
-        const unit = uSel ? uSel.value : (it.baseUnit || it.unit || 'حبة');
+
         const warehouse = this.selectedWarehouse || document.getElementById('purchaseWarehouseSelect')?.value || 'المستودع الرئيسي';
         const costCenter = this.selectedCostCenter || 'المركز الرئيسي';
 
@@ -12674,7 +13068,7 @@
         const subtotal = Math.max(0, (qty * price) - discount + tax + labor);
 
         this.cart.push({
-          id: it.id || ('PUR-ITEM-' + Date.now()),
+          id: 'PUR-ITEM-' + Date.now(),
           name,
           unit,
           warehouse,
@@ -12716,6 +13110,17 @@
           this.cart = [];
           this.renderCart();
         }
+      },
+
+      newInvoice() {
+        if (this.cart.length > 0) {
+          if (!confirm('هل تريد بدء فاتورة شراء جديدة وتفريغ الحالية؟')) return;
+        }
+        this.cart = [];
+        this.selectedItemIndex = -1;
+        if (typeof fetchMirrorNumbers === 'function') fetchMirrorNumbers();
+        this.renderCart();
+        alert('✨ تم فتح فاتورة شراء جديدة!');
       },
 
       renderCart() {
@@ -12789,6 +13194,192 @@
         if (hid) hid.value = m;
       },
 
+      shareInvoice() {
+        const supp = document.getElementById('purchaseSupplierInput')?.value || (this.selectedSupplier?.name) || 'مطاحن الخرطوم للغلال';
+        const purNo = document.getElementById('opPurchaseNoPill')?.innerText || 'P-000';
+        const date = document.getElementById('purInvoiceDate')?.value || new Date().toISOString().split('T')[0];
+        const gt = document.getElementById('suitePurGrandTotalDisplay')?.innerText || '0.00 SDG';
+
+        let text = `🧾 فاتورة مشتريات: ${purNo}\n📅 التاريخ: ${date}\n🏢 المورد: ${supp}\n------------------------\n`;
+        if (this.cart.length > 0) {
+          this.cart.forEach((it, i) => {
+            text += `${i + 1}. ${it.name} | كمية: ${it.qty} ${it.unit} | سعر: ${it.price} | إجمالي: ${it.subtotal.toLocaleString()}\n`;
+          });
+        }
+        text += `------------------------\n💰 الإجمالي الصافي: ${gt}\nنظام مقاييس ERP السحابي`;
+
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(text).then(() => {
+            alert('✓ تم نسخ تفاصيل فاتورة المشتريات وجاهزة للمشاركة عبر الواتساب!');
+          }).catch(() => {
+            prompt('انسخ نص فاتورة المشتريات:', text);
+          });
+        } else {
+          prompt('انسخ نص فاتورة المشتريات:', text);
+        }
+      },
+
+      printInvoice() {
+        const purNo = document.getElementById('opPurchaseNoPill')?.innerText || 'PUR-PRINT';
+        const supp = this.selectedSupplier?.name || document.getElementById('purchaseSupplierInput')?.value || 'مطاحن الخرطوم للغلال';
+        const date = document.getElementById('purInvoiceDate')?.value || new Date().toISOString().split('T')[0];
+        const payMethod = document.getElementById('purchasePayMethodSelect')?.value || 'نقداً';
+
+        const items = this.cart.length > 0 ? this.cart : [{
+          name: this.selectedItemIndex !== -1 ? SuiteSalesPOS.dbItems[this.selectedItemIndex]?.name : 'صنف عام',
+          unit: document.getElementById('purUnitSelect')?.value || 'حبة',
+          warehouse: this.selectedWarehouse || 'المستودع الرئيسي',
+          qty: parseFloat(document.getElementById('purQtyInput')?.value || 1),
+          price: parseFloat(document.getElementById('purPriceInput')?.value || 0),
+          discount: parseFloat(document.getElementById('purDiscountInput')?.value || 0),
+          tax: parseFloat(document.getElementById('purTaxInput')?.value || 0),
+          labor: parseFloat(document.getElementById('purLaborInput')?.value || 0),
+          subtotal: parseFloat(document.getElementById('purTotalInput')?.value || 0)
+        }];
+
+        const grandTotal = items.reduce((acc, it) => acc + (it.subtotal || 0), 0);
+
+        let rowsHtml = '';
+        items.forEach((it, i) => {
+          rowsHtml += `<tr>
+            <td style="padding:6px; border:1px solid #ccc; text-align:center;">${i + 1}</td>
+            <td style="padding:6px; border:1px solid #ccc; font-weight:bold;">${it.name}</td>
+            <td style="padding:6px; border:1px solid #ccc; text-align:center;">${it.unit}</td>
+            <td style="padding:6px; border:1px solid #ccc; text-align:center;">${it.qty}</td>
+            <td style="padding:6px; border:1px solid #ccc; text-align:center;">${it.price.toLocaleString()}</td>
+            <td style="padding:6px; border:1px solid #ccc; text-align:center;">${it.discount}</td>
+            <td style="padding:6px; border:1px solid #ccc; text-align:center;">${(it.tax + it.labor)}</td>
+            <td style="padding:6px; border:1px solid #ccc; text-align:center; font-weight:bold; color:#d97706;">${it.subtotal.toLocaleString()}</td>
+          </tr>`;
+        });
+
+        const printWin = window.open('', '_blank', 'width=800,height=750');
+        printWin.document.write(`
+          <html dir="rtl" lang="ar">
+          <head>
+            <title>فاتورة مشتريات - #${purNo}</title>
+            <style>
+              body { font-family: 'Cairo', Tahoma, sans-serif; padding: 25px; color: #111; }
+              .header { display:flex; justify-content:space-between; align-items:center; border-bottom: 2px dashed #000; padding-bottom: 12px; margin-bottom: 15px; }
+              table { width:100%; border-collapse:collapse; margin-top:15px; }
+              th { background:#f3f4f6; border:1px solid #ccc; padding:8px; font-size:12px; }
+            </style>
+          </head>
+          <body>
+            <div class="header">
+              <div>
+                <h2 style="margin:0 0 4px 0; color:#0f172a;">فاتورة مشتريات وتوريد</h2>
+                <p style="margin:2px 0; color:#475569; font-size:12px;">مؤسسة السجانة لمواد البناء</p>
+                <div style="font-size:12px; margin-top:8px;">
+                  <div><strong>رقم الفاتورة:</strong> #${purNo} &nbsp;&nbsp;|&nbsp;&nbsp; <strong>التاريخ:</strong> ${date}</div>
+                  <div style="margin-top:4px;"><strong>المورد:</strong> ${supp} &nbsp;&nbsp;|&nbsp;&nbsp; <strong>طريقة السداد:</strong> ${payMethod}</div>
+                  <div style="margin-top:4px;"><strong>المستودع:</strong> ${this.selectedWarehouse} &nbsp;&nbsp;|&nbsp;&nbsp; <strong>مركز الكلفة:</strong> ${this.selectedCostCenter}</div>
+                </div>
+              </div>
+            </div>
+            <table>
+              <thead>
+                <tr>
+                  <th>#</th><th>الصنف</th><th>الوحدة</th><th>الكمية</th><th>السعر</th><th>الخصم</th><th>إضافة/إعالة</th><th>الإجمالي</th>
+                </tr>
+              </thead>
+              <tbody>${rowsHtml}</tbody>
+              <tfoot>
+                <tr>
+                  <th colspan="7" style="text-align:left; padding:10px; font-size:14px;">الإجمالي الصافي النهائي:</th>
+                  <th style="padding:10px; font-size:16px; color:#d97706; text-align:center;">${grandTotal.toLocaleString()} SDG</th>
+                </tr>
+              </tfoot>
+            </table>
+            <div style="display:flex; justify-content:space-between; margin-top:50px; text-align:center; font-size:12px;">
+              <div>توقيع واستلام أمين المخزن: ....................</div>
+              <div>ختم وتوقيع قسم المشتريات / الحسابات: ....................</div>
+            </div>
+            <script>window.onload = function() { window.print(); }<\/script>
+          </body>
+          </html>
+        `);
+        printWin.document.close();
+      },
+
+      printSupplierStatement() {
+        const supp = document.getElementById('purchaseSupplierInput')?.value || (this.selectedSupplier?.name) || 'مطاحن الخرطوم للغلال';
+        if (typeof triggerStatementForAccount === 'function' && supp) {
+          triggerStatementForAccount(supp, 'مورد', '$0.00', '0.00 SDG');
+        } else if (typeof openModal === 'function') {
+          openModal('modalOpStatement');
+        } else {
+          alert('كشف حساب المورد: ' + supp);
+        }
+      },
+
+      printGRN() {
+        const purNo = document.getElementById('opPurchaseNoPill')?.innerText || 'GRN-PRINT';
+        const supp = this.selectedSupplier?.name || document.getElementById('purchaseSupplierInput')?.value || 'مطاحن الخرطوم للغلال';
+        const date = document.getElementById('purInvoiceDate')?.value || new Date().toISOString().split('T')[0];
+
+        const items = this.cart.length > 0 ? this.cart : [{
+          name: this.selectedItemIndex !== -1 ? SuiteSalesPOS.dbItems[this.selectedItemIndex]?.name : 'صنف عام',
+          unit: document.getElementById('purUnitSelect')?.value || 'حبة',
+          warehouse: this.selectedWarehouse || 'المستودع الرئيسي',
+          qty: parseFloat(document.getElementById('purQtyInput')?.value || 1)
+        }];
+
+        let rowsHtml = '';
+        items.forEach((it, i) => {
+          rowsHtml += `<tr>
+            <td style="padding:8px; border:1px solid #ccc; text-align:center;">${i + 1}</td>
+            <td style="padding:8px; border:1px solid #ccc; font-weight:bold;">${it.name}</td>
+            <td style="padding:8px; border:1px solid #ccc; text-align:center;">${it.unit}</td>
+            <td style="padding:8px; border:1px solid #ccc; text-align:center;">${it.warehouse || 'المستودع الرئيسي'}</td>
+            <td style="padding:8px; border:1px solid #ccc; text-align:center; font-weight:bold; font-size:1.1rem; color:#d97706;">${it.qty}</td>
+            <td style="padding:8px; border:1px solid #ccc; text-align:center;">[ &nbsp; ] سليم ومطابق</td>
+          </tr>`;
+        });
+
+        const printWin = window.open('', '_blank', 'width=800,height=750');
+        printWin.document.write(`
+          <html dir="rtl" lang="ar">
+          <head>
+            <title>إذن استلام وتوريد بضاعة (GRN)</title>
+            <style>
+              body { font-family: 'Cairo', Tahoma, sans-serif; padding: 25px; color: #111; }
+              .header { display:flex; justify-content:space-between; align-items:center; border-bottom: 2px dashed #000; padding-bottom: 12px; margin-bottom: 15px; }
+              table { width:100%; border-collapse:collapse; margin-top:15px; }
+              th { background:#f3f4f6; border:1px solid #ccc; padding:8px; font-size:12px; }
+            </style>
+          </head>
+          <body>
+            <div class="header">
+              <div>
+                <h2 style="margin:0 0 4px 0; color:#0f172a;">إذن استلام وتوريد مخزني (GRN)</h2>
+                <p style="margin:2px 0; color:#475569; font-size:12px;">مؤسسة السجانة لمواد البناء • مستودعات التوزيع المركزي</p>
+                <div style="font-size:12px; margin-top:8px;">
+                  <div><strong>رقم فاتورة الشراء المرجعية:</strong> #${purNo} &nbsp;&nbsp;|&nbsp;&nbsp; <strong>تاريخ الاستلام:</strong> ${date}</div>
+                  <div style="margin-top:4px;"><strong>المورد المسلّم:</strong> ${supp}</div>
+                  <div style="margin-top:4px;"><strong>المستودع المستلم:</strong> ${this.selectedWarehouse} &nbsp;&nbsp;|&nbsp;&nbsp; <strong>مركز الكلفة:</strong> ${this.selectedCostCenter}</div>
+                </div>
+              </div>
+            </div>
+            <table>
+              <thead>
+                <tr>
+                  <th>#</th><th>الصنف المستلم</th><th>الوحدة</th><th>المخزن المستلم</th><th>الكمية الفعلية</th><th>حالة الفحص</th>
+                </tr>
+              </thead>
+              <tbody>${rowsHtml}</tbody>
+            </table>
+            <div style="display:flex; justify-content:space-between; margin-top:50px; text-align:center; font-size:12px;">
+              <div>توقيع أمين المستودع المستلم: ....................</div>
+              <div>توقيع مندوب المورد / السائق: ....................</div>
+            </div>
+            <script>window.onload = function() { window.print(); }<\/script>
+          </body>
+          </html>
+        `);
+        printWin.document.close();
+      },
+
       toggleVoiceFeed() {
         if (window.SuiteSalesPOS) SuiteSalesPOS.toggleVoiceFeed();
       },
@@ -12799,7 +13390,7 @@
       }
     };
 
-    async function commitOpSales(andPay = false) {
+async function commitOpSales(andPay = false) {
       if (window.AppHaptics) AppHaptics.success();
       const invNo = document.getElementById('opSalesInvoiceNoPill')?.innerText?.trim() || ('S' + Date.now());
       const cust = document.getElementById('salesCustomerInput')?.value?.trim() || 'عميل نقدي عام';
@@ -13094,13 +13685,14 @@
       }
     }
 
-    async function commitOpPurchase() {
+        async function commitOpPurchase(andPay = false) {
       if (window.AppHaptics) AppHaptics.success();
-      const purNo = document.getElementById('opPurchaseNoPill')?.innerText || ('P' + Date.now());
-      const supp = document.getElementById('purchaseSupplierInput')?.value || 'مطاحن الخرطوم للغلال';
+      const purNo = document.getElementById('opPurchaseNoPill')?.innerText?.trim() || ('P' + Date.now());
+      const supp = document.getElementById('purchaseSupplierInput')?.value?.trim() || 'مطاحن الخرطوم للغلال';
       const payM = document.getElementById('purchasePayMethodSelect')?.value || 'cash';
       const wh = document.getElementById('purchaseWarehouseSelect')?.value || 'المستودع الرئيسي';
       const purDate = document.getElementById('purInvoiceDate')?.value || new Date().toISOString().split('T')[0];
+      const notes = document.getElementById('purNotesInput')?.value || '';
 
       let items = [];
       let grandTotal = 0;
@@ -13110,7 +13702,7 @@
         grandTotal = items.reduce((acc, it) => acc + (it.subtotal || 0), 0);
       } else {
         const itIdx = (window.SuitePurchasePOS && SuitePurchasePOS.selectedItemIndex !== -1) ? SuitePurchasePOS.selectedItemIndex : (window.SuiteSalesPOS ? SuiteSalesPOS.selectedItemIndex : -1);
-        let itName = (itIdx !== -1 && SuiteSalesPOS.dbItems && SuiteSalesPOS.dbItems[itIdx]) ? SuiteSalesPOS.dbItems[itIdx].name : '';
+        let itName = (itIdx !== -1 && window.SuiteSalesPOS && SuiteSalesPOS.dbItems && SuiteSalesPOS.dbItems[itIdx]) ? SuiteSalesPOS.dbItems[itIdx].name : '';
 
         const qty = parseFloat(document.getElementById('purQtyInput')?.value || 1);
         const prc = parseFloat(document.getElementById('purPriceInput')?.value || 0);
@@ -13149,12 +13741,45 @@
         warehouse: wh,
         status: 'completed',
         date: purDate,
+        notes: notes,
         items: items
+      };
+
+      const handleSuccess = (invoiceNumber) => {
+        if (window.SafeInvoiceGuard) SafeInvoiceGuard.setUnsavedChanges(false, 'modalOpPurchase');
+        if (typeof fetchMirrorNumbers === 'function') fetchMirrorNumbers();
+
+        if (andPay) {
+          if (SuitePurchasePOS && SuitePurchasePOS.newInvoice) SuitePurchasePOS.newInvoice();
+          closeModal('modalOpPurchase');
+          openModal('modalOpFinance');
+          if (typeof initFinancialTransferModal === 'function') initFinancialTransferModal();
+
+          if (typeof setFinTransferCurrency === 'function') {
+            setFinTransferCurrency(SuitePurchasePOS.currencyMode === 'SDG' ? 'SDG' : 'USD');
+          }
+
+          const amtInp = document.getElementById('finTransferAmountInput');
+          if (amtInp) {
+            amtInp.value = grandTotal;
+            amtInp.dispatchEvent(new Event('input', { bubbles: true }));
+          }
+
+          const toInp = document.getElementById('finTransferToInput') || document.getElementById('financePartyInput');
+          if (toInp) toInp.value = supp;
+
+          alert(`✓ تم بنجاح حفظ واعتماد فاتورة المشتريات رقم: [${invoiceNumber}]!\nتم فتح شاشة سند الصرف لسداد مبلغ: ${grandTotal.toLocaleString()} SDG للمورد: ${supp}`);
+        } else {
+          alert(`✓ تم بنجاح حفظ وترحيل فاتورة المشتريات رقم: [${invoiceNumber}]\nتحدثت حسابات المورد والمخزن بالديسكتوب واللابتوب فوراً!`);
+          if (SuitePurchasePOS && SuitePurchasePOS.newInvoice) SuitePurchasePOS.newInvoice();
+          closeModal('modalOpPurchase');
+        }
       };
 
       if (!navigator.onLine) {
         const offId = window.MagaiesOffline ? MagaiesOffline.enqueue('purchase', payload) : 'أوفلاين';
         alert(`⚡ تم حفظ فاتورة المشتريات بنجاح في وضع الأوفلاين!\nالرقم المؤقت: [${offId}]\nستُرحّل تلقائياً إلى قاعدة البيانات الرئيسية فور توفر شبكة النت.`);
+        if (SuitePurchasePOS && SuitePurchasePOS.newInvoice) SuitePurchasePOS.newInvoice();
         closeModal('modalOpPurchase');
         return;
       }
@@ -13166,9 +13791,7 @@
         });
         const out = await res.json();
         if (out && out.success) {
-          alert(`✓ تم بنجاح حفظ وترحيل فاتورة المشتريات رقم: [${out.invoiceNo}]\nتحدثت حسابات المورد والمخزن بالديسكتوب، والرقم القادم: [${out.nextPurchaseNo}]`);
-          closeModal('modalOpPurchase');
-          fetchMirrorNumbers();
+          handleSuccess(out.invoiceNo || purNo);
         } else {
           const offId = window.MagaiesOffline ? MagaiesOffline.enqueue('purchase', payload) : 'أوفلاين';
           alert(`⚡ تعذر الاتصال المباشر! تم الحفظ أوفلاين برقم مؤقت: [${offId}]\nستُرحّل تلقائياً فور توفر الشبكة.`);
@@ -13181,7 +13804,7 @@
       }
     }
 
-    async function commitOpReceipt() {
+async function commitOpReceipt() {
       if (window.AppHaptics) AppHaptics.success();
       const recNo = document.getElementById('opReceiptNoPill')?.innerText || '';
       const refPur = document.getElementById('opReceiptPurchaseSelect')?.value || '';

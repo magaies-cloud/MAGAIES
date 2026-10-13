@@ -52,11 +52,22 @@ if (typeof caches !== 'undefined') {
 window._PRELOADED_UNITS = <?= $preloadedUnitsJson ?: '[]' ?>;
 window._PRELOADED_ITEMS = <?= $preloadedItemsJson ?: '[]' ?>;
 try {
+    let tId = '<?= isset($_SESSION['tenant_id']) ? $_SESSION['tenant_id'] : '' ?>';
+    if (!tId) {
+        try {
+            const u = JSON.parse(localStorage.getItem('user') || '{}');
+            tId = u.tenant_id || localStorage.getItem('currentTenantId') || 'default';
+        } catch(e) { tId = 'default'; }
+    }
     if (Array.isArray(window._PRELOADED_UNITS) && window._PRELOADED_UNITS.length > 0) {
-        localStorage.setItem('erp_global_units_v1', JSON.stringify(window._PRELOADED_UNITS));
+        const uStr = JSON.stringify(window._PRELOADED_UNITS);
+        localStorage.setItem('erp_global_units_v1', uStr);
+        if (tId) localStorage.setItem('tenant_' + tId + '_erp_global_units_v1', uStr);
     }
     if (Array.isArray(window._PRELOADED_ITEMS) && window._PRELOADED_ITEMS.length > 0) {
-        localStorage.setItem('erp_items_v1', JSON.stringify(window._PRELOADED_ITEMS));
+        const iStr = JSON.stringify(window._PRELOADED_ITEMS);
+        localStorage.setItem('erp_items_v1', iStr);
+        if (tId) localStorage.setItem('tenant_' + tId + '_erp_items_v1', iStr);
     }
 } catch(e) {}
 </script>

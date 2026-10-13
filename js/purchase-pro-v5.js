@@ -317,14 +317,18 @@ function initPurchaseApp() {
         ];
 
         try {
-            UOMS = JSON.parse(localStorage.getItem('erp_uoms_v1')) || [
-                {code: 'TON', name: 'طن'},
-                {code: 'KG', name: 'كيلو'},
-                {code: 'PCS', name: 'حبة'},
-                {code: 'BAG', name: 'كيس'},
-                {code: 'REBAR', name: 'سيخة / عود'},
-                {code: 'GAL', name: 'جالون'}
-            ];
+            if (window._PRELOADED_UNITS && Array.isArray(window._PRELOADED_UNITS) && window._PRELOADED_UNITS.length > 0) {
+                UOMS = window._PRELOADED_UNITS;
+            } else {
+                UOMS = JSON.parse(localStorage.getItem('erp_uoms_v1')) || JSON.parse(localStorage.getItem('erp_global_units_v1')) || [
+                    {code: 'TON', name: 'طن'},
+                    {code: 'KG', name: 'كيلو'},
+                    {code: 'PCS', name: 'حبة'},
+                    {code: 'BAG', name: 'كيس'},
+                    {code: 'REBAR', name: 'سيخة / عود'},
+                    {code: 'GAL', name: 'جالون'}
+                ];
+            }
         } catch(e) {
             UOMS = [
                 {code: 'TON', name: 'طن'},
@@ -336,7 +340,12 @@ function initPurchaseApp() {
             ];
         }
 
-        let rawItems = (JSON.parse(localStorage.getItem('erp_items_v1')) || []).filter(x => !x.deleted);
+        let rawItems = [];
+        if (window._PRELOADED_ITEMS && Array.isArray(window._PRELOADED_ITEMS) && window._PRELOADED_ITEMS.length > 0) {
+            rawItems = window._PRELOADED_ITEMS;
+        } else {
+            rawItems = (JSON.parse(localStorage.getItem('erp_items_v1')) || []).filter(x => !x.deleted);
+        }
         const invData = JSON.parse(localStorage.getItem('erp_inventory_v1')) || [];
         
         if (rawItems.length === 0) {
