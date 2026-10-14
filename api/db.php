@@ -1,5 +1,46 @@
 <?php
 // -------------------------------------------------------
+// توافقية دوال mbstring للخوادم التي لا تفعل إضافة mbstring افتراضياً
+// -------------------------------------------------------
+if (!function_exists('mb_strpos')) {
+    function mb_strpos($haystack, $needle, $offset = 0, $encoding = null) {
+        return strpos((string)$haystack, (string)$needle, (int)$offset);
+    }
+}
+if (!function_exists('mb_stripos')) {
+    function mb_stripos($haystack, $needle, $offset = 0, $encoding = null) {
+        return stripos((string)$haystack, (string)$needle, (int)$offset);
+    }
+}
+if (!function_exists('mb_strlen')) {
+    function mb_strlen($str, $encoding = null) {
+        return preg_match_all('/./us', (string)$str, $m);
+    }
+}
+if (!function_exists('mb_substr')) {
+    function mb_substr($str, $start, $length = null, $encoding = null) {
+        preg_match_all('/./us', (string)$str, $ar);
+        $slice = ($length === null) ? array_slice($ar[0], (int)$start) : array_slice($ar[0], (int)$start, (int)$length);
+        return implode('', $slice);
+    }
+}
+if (!function_exists('mb_strtolower')) {
+    function mb_strtolower($str, $encoding = null) {
+        return strtolower((string)$str);
+    }
+}
+if (!function_exists('mb_strtoupper')) {
+    function mb_strtoupper($str, $encoding = null) {
+        return strtoupper((string)$str);
+    }
+}
+if (!function_exists('mb_convert_encoding')) {
+    function mb_convert_encoding($str, $to_encoding, $from_encoding = null) {
+        return $str;
+    }
+}
+
+// -------------------------------------------------------
 // تحميل متغيرات البيئة من ملف .env
 // -------------------------------------------------------
 if (!function_exists('loadEnv')) {

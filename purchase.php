@@ -4955,10 +4955,14 @@ document.addEventListener('DOMContentLoaded', () => {
                         }
                     }
 
-                    if (isCreatingNew && data.nextPurchaseNo && purInput && purSpan) {
-                        if (purInput.value !== data.nextPurchaseNo) {
-                            purInput.value = data.nextPurchaseNo;
-                            purSpan.textContent = data.nextPurchaseNo;
+                    if (data.nextPurchaseNo) {
+                        window._mirrorNextPurchaseNo = data.nextPurchaseNo;
+                    }
+                    const bestNextPurNo = (typeof peekNextInvoiceNumber === 'function') ? peekNextInvoiceNumber() : (data.nextPurchaseNo || '');
+                    if (isCreatingNew && bestNextPurNo && purInput && purSpan) {
+                        if (purInput.value !== bestNextPurNo) {
+                            purInput.value = bestNextPurNo;
+                            purSpan.textContent = bestNextPurNo;
                             if (typeof window.autoFitVoucherNumbers === 'function') window.autoFitVoucherNumbers();
                         }
                     }

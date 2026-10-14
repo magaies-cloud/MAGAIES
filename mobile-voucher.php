@@ -54,23 +54,27 @@ if (session_status() === PHP_SESSION_ACTIVE && (!$isApiRequest || in_array($requ
     session_write_close();
 }
 
-// دالة فائقة السرعة (1ms) لحساب بصمة قاعدة البيانات عبر SQL مباشرة دون سحب وفك تشفير الجداول
+// دالة فائقة السرعة (1ms) لحساب بصمة قاعدة البيانات عبر استعلام SQL واحد مجمّع دون فك تشفير الجداول
 if (!function_exists('computeFastVoucherStateHash')) {
     function computeFastVoucherStateHash($pdo, $tenantId) {
         $effTenant = !empty($tenantId) ? (int)$tenantId : 12;
-        $parts = [];
-        $tables = ['safes', 'banks', 'customers', 'suppliers', 'accounts', 'single_payments', 'single_receipts'];
-        foreach ($tables as $tb) {
-            try {
-                $st = $pdo->prepare("SELECT COUNT(*) AS cnt, COALESCE(SUM(CRC32(COALESCE(data,''))),0) AS dcrc FROM {$tb} WHERE (tenant_id = ? OR tenant_id IS NULL)");
-                $st->execute([$effTenant]);
-                $row = $st->fetch(PDO::FETCH_ASSOC);
-                $parts[] = $tb . ':' . ($row['cnt'] ?? 0) . ':' . ($row['dcrc'] ?? 0);
-            } catch (Exception $e) {
-                $parts[] = $tb . ':0:0';
+        try {
+            $sql = "SELECT
+                (SELECT CONCAT(COUNT(*), ':', COALESCE(MAX(id),0), ':', COALESCE(MAX(updated_at),'')) FROM safes WHERE tenant_id = ?) AS s,
+                (SELECT CONCAT(COUNT(*), ':', COALESCE(MAX(id),0), ':', COALESCE(MAX(updated_at),'')) FROM banks WHERE tenant_id = ?) AS b,
+                (SELECT CONCAT(COUNT(*), ':', COALESCE(MAX(id),0), ':', COALESCE(MAX(updated_at),'')) FROM customers WHERE tenant_id = ?) AS c,
+                (SELECT CONCAT(COUNT(*), ':', COALESCE(MAX(id),0), ':', COALESCE(MAX(updated_at),'')) FROM suppliers WHERE tenant_id = ?) AS sp,
+                (SELECT CONCAT(COUNT(*), ':', COALESCE(MAX(id),0), ':', COALESCE(MAX(updated_at),'')) FROM accounts WHERE tenant_id = ?) AS a,
+                (SELECT CONCAT(COUNT(*), ':', COALESCE(MAX(id),0), ':', COALESCE(MAX(updated_at),'')) FROM single_payments WHERE tenant_id = ?) AS p,
+                (SELECT CONCAT(COUNT(*), ':', COALESCE(MAX(id),0), ':', COALESCE(MAX(updated_at),'')) FROM single_receipts WHERE tenant_id = ?) AS r";
+            $st = $pdo->prepare($sql);
+            $st->execute([$effTenant, $effTenant, $effTenant, $effTenant, $effTenant, $effTenant, $effTenant]);
+            $row = $st->fetch(PDO::FETCH_ASSOC);
+            if ($row) {
+                return md5(implode('|', array_values($row)));
             }
-        }
-        return md5(implode('|', $parts));
+        } catch (Throwable $e) {}
+        return md5('fallback:' . $effTenant);
     }
 }
 
@@ -294,7 +298,7 @@ if (!function_exists('fetchAllDbTransfers')) {
         $results = [];
         $seen = [];
         $effTenant = !empty($currentTenantId) ? (int)$currentTenantId : 12;
-        $tables = ['single_payments', 'single_receipts', 'payments', 'receipts'];
+        $tables = ['single_payments', 'single_receipts'];
         foreach ($tables as $tbl) {
             try {
                 $stmt = $pdo->prepare("SELECT id, tenant_id, data FROM `$tbl` WHERE tenant_id = ?");
@@ -323,7 +327,7 @@ if (!function_exists('fetchAllDbTransfers')) {
                         ];
                     }
                 }
-            } catch(Exception $e) {}
+            } catch(Throwable $e) {}
         }
         return $results;
     }
@@ -338,7 +342,7 @@ if (!function_exists('findTransferDuplicateInDb')) {
         $effTenant = !empty($currentTenantId) ? (int)$currentTenantId : 12;
 
         $softCandidate = null;
-        $tables = ['single_payments', 'single_receipts', 'payments', 'receipts'];
+        $tables = ['single_payments', 'single_receipts'];
         foreach ($tables as $tbl) {
             try {
                 $stmt = $pdo->prepare("SELECT id, tenant_id, data FROM `$tbl` WHERE tenant_id = ?");
@@ -412,7 +416,7 @@ if (!function_exists('findTransferDuplicateInDb')) {
                         }
                     }
                 }
-            } catch(Exception $e) {}
+            } catch(Throwable $e) {}
         }
         return $softCandidate;
     }
@@ -422,19 +426,36 @@ if (!function_exists('findTransferDuplicateInDb')) {
 // محرك الرقابة المحاسبية المزدوجة (Double-Entry GL, Balances, Fiscal Lock, Signature)
 // ────────────────────────────────────────────────────────────────────────────
 if (!function_exists('classifyVoucherNature')) {
-    function classifyVoucherNature($fromName, $toName, $accountsList = []) {
-        $findType = function($name) use ($accountsList) {
-            $clean = trim((string)$name);
+    function classifyVoucherNature($fromName, $toName, $accountsList = [], $fromId = '', $toId = '') {
+        static $cachedMap = null;
+        static $cachedCount = -1;
+        if (!empty($accountsList) && count($accountsList) !== $cachedCount) {
+            $cachedMap = [];
             foreach ($accountsList as $a) {
-                if (trim($a['name'] ?? '') === $clean) return $a['type'] ?? 'general';
+                $n = trim((string)($a['name'] ?? ''));
+                if ($n !== '') $cachedMap[$n] = $a['type'] ?? 'general';
             }
-            if (mb_strpos($clean, 'خزينة') !== false || mb_strpos($clean, 'صندوق') !== false || mb_strpos($clean, 'كاش') !== false) return 'safe';
-            if (mb_strpos($clean, 'بنك') !== false || mb_strpos($clean, 'مصرف') !== false) return 'bank';
-            if (mb_strpos($clean, 'مصروف') !== false || mb_strpos($clean, 'إيجار') !== false || mb_strpos($clean, 'مرتب') !== false) return 'expense';
+            $cachedCount = count($accountsList);
+        }
+        $findType = function($name, $accId = '') use (&$cachedMap) {
+            $idStr = trim((string)$accId);
+            if ($idStr !== '') {
+                if (strpos($idStr, 'safe_') === 0) return 'safe';
+                if (strpos($idStr, 'bank_') === 0) return 'bank';
+                if (strpos($idStr, 'exp_') === 0) return 'expense';
+                if (strpos($idStr, 'cust_') === 0 || strpos($idStr, 'supp_') === 0) return 'party';
+            }
+            $clean = trim((string)$name);
+            if ($cachedMap !== null && isset($cachedMap[$clean])) {
+                return $cachedMap[$clean];
+            }
+            if (strpos($clean, 'خزينة') !== false || strpos($clean, 'صندوق') !== false || strpos($clean, 'كاش') !== false) return 'safe';
+            if (strpos($clean, 'بنك') !== false || strpos($clean, 'مصرف') !== false) return 'bank';
+            if (strpos($clean, 'مصروف') !== false || strpos($clean, 'إيجار') !== false || strpos($clean, 'مرتب') !== false) return 'expense';
             return 'party';
         };
-        $fromType = $findType($fromName);
-        $toType = $findType($toName);
+        $fromType = $findType($fromName, $fromId);
+        $toType = $findType($toName, $toId);
         $fromIsLiquid = in_array($fromType, ['safe', 'bank'], true);
         $toIsLiquid = in_array($toType, ['safe', 'bank'], true);
 
@@ -462,7 +483,7 @@ if (!function_exists('checkFiscalPeriodOpen')) {
                 $pName = $closed['name'] ?: ($closed['start_date'] . ' إلى ' . $closed['end_date']);
                 return "لا يمكن الحفظ أو التعديل: الفترة المالية ({$pName}) مغلقة محاسبياً ومعتمدة.";
             }
-        } catch (Exception $e) {}
+        } catch (Throwable $e) {}
         return null;
     }
 }
@@ -498,7 +519,7 @@ if (!function_exists('mutateSingleAccountBalance')) {
                         return ['table' => $tbl, 'id' => $row['id'], 'oldBalance' => $oldBal, 'newBalance' => $newBal];
                     }
                 }
-            } catch (Exception $e) {}
+            } catch (Throwable $e) {}
         }
         return null;
     }
@@ -561,9 +582,9 @@ if (!function_exists('syncDoubleEntryJournal')) {
                 ],
                 'createdAt' => date('c')
             ];
-            $insStmt = $pdo->prepare("INSERT INTO gl_entries (tenant_id, data, is_deleted, created_at, updated_at) VALUES (?, ?, 0, NOW(), NOW())");
+            $insStmt = $pdo->prepare("INSERT INTO gl_entries (tenant_id, data, created_at, updated_at) VALUES (?, ?, NOW(), NOW())");
             $insStmt->execute([(int)$tenantId, json_encode($glPayload, JSON_UNESCAPED_UNICODE)]);
-        } catch (Exception $e) {}
+        } catch (Throwable $e) {}
     }
 }
 
@@ -582,9 +603,9 @@ if (!function_exists('recordVoucherAuditLog')) {
                 'after' => $afterData,
                 'timestamp' => date('c')
             ];
-            $stmt = $pdo->prepare("INSERT INTO audit_logs (tenant_id, data, is_deleted, created_at, updated_at) VALUES (?, ?, 0, NOW(), NOW())");
+            $stmt = $pdo->prepare("INSERT INTO audit_logs (tenant_id, data, created_at, updated_at) VALUES (?, ?, NOW(), NOW())");
             $stmt->execute([(int)$tenantId, json_encode($logPayload, JSON_UNESCAPED_UNICODE)]);
-        } catch (Exception $e) {}
+        } catch (Throwable $e) {}
     }
 }
 
@@ -613,11 +634,11 @@ if (!function_exists('updateLinkedInvoiceSettlement')) {
                     $d['status'] = $status;
                     $d['lastPaymentAt'] = date('c');
 
-                    $up = $pdo->prepare("UPDATE `$tbl` SET data = ?, status_val = ?, updated_at = NOW() WHERE id = ? AND tenant_id = ?");
-                    $up->execute([json_encode($d, JSON_UNESCAPED_UNICODE), $status, $row['id'], (int)$tenantId]);
+                    $up = $pdo->prepare("UPDATE `$tbl` SET data = ?, updated_at = NOW() WHERE id = ? AND tenant_id = ?");
+                    $up->execute([json_encode($d, JSON_UNESCAPED_UNICODE), $row['id'], (int)$tenantId]);
                     return ['table' => $tbl, 'invoiceNo' => $invNo, 'paidAmount' => $newPaid, 'remainingAmount' => $remaining, 'status' => $status];
                 }
-            } catch (Exception $e) {}
+            } catch (Throwable $e) {}
         }
         return null;
     }
@@ -908,8 +929,7 @@ if (isset($_GET['api']) || isset($_POST['api'])) {
                 }
             }
 
-            $liveAccountsSnapshot = fetchAllLiveAccounts($pdo, $currentTenantId);
-            $natureInfo = classifyVoucherNature($fromAccName, $toAccName, $liveAccountsSnapshot);
+            $natureInfo = classifyVoucherNature($fromAccName, $toAccName, [], $payload['fromAccountId'] ?? '', $payload['toAccountId'] ?? '');
             $signatureHash = generateServerVoucherSignature($voucherNo, $voucherDate, $amt, $fromAccName, $toAccName, $currentTenantId);
 
             $record = [
@@ -990,7 +1010,7 @@ if (isset($_GET['api']) || isset($_POST['api'])) {
                 $syncId = 'sync-' . bin2hex(random_bytes(6));
                 $stmtSync = $pdo->prepare("INSERT INTO sync_queue (id, entity_name, record_id, operation, payload, status, created_at, synced_at) VALUES (?, 'single_payments', ?, ?, ?, 'SYNCED', NOW(), NOW())");
                 $stmtSync->execute([$syncId, $voucherNo, $isNew ? 'INSERT' : 'UPDATE', $jsonRecord]);
-            } catch (Exception $es) {}
+            } catch (Throwable $es) {}
 
             $pdo->commit();
 
@@ -1005,7 +1025,7 @@ if (isset($_GET['api']) || isset($_POST['api'])) {
                 'record' => $record,
                 'message' => 'تم حفظ وترحيل السند والقيد المزدوج وتحديث الأرصدة بنجاح في MariaDB'
             ], JSON_UNESCAPED_UNICODE);
-        } catch (Exception $e) {
+        } catch (Throwable $e) {
             if ($pdo->inTransaction()) {
                 $pdo->rollBack();
             }

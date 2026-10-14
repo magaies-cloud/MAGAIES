@@ -42,12 +42,12 @@ if (!function_exists('checkEntityUsageInDatabase')) {
                 }
             }
         } else if ($entityType === 'supplier') {
-            $stmt = $pdo->prepare("SELECT id, frontend_id, search_name, search_phone, data FROM suppliers WHERE (frontend_id = ? OR id = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')) = ?) LIMIT 1");
-            $stmt->execute([$entityId, $entityId, $entityId]);
+            $stmt = $pdo->prepare("SELECT id, frontend_id, supplier_id, data FROM suppliers WHERE (frontend_id = ? OR id = ? OR supplier_id = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')) = ?) LIMIT 1");
+            $stmt->execute([$entityId, $entityId, $entityId, $entityId]);
             if ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
                 if (!empty($row['id'])) $idsToMatch[] = (string)$row['id'];
                 if (!empty($row['frontend_id'])) $idsToMatch[] = (string)$row['frontend_id'];
-                if (!empty($row['search_name'])) $namesToMatch[] = trim(mb_strtolower($row['search_name']));
+                if (!empty($row['supplier_id'])) $idsToMatch[] = (string)$row['supplier_id'];
                 $d = json_decode($row['data'] ?? '', true);
                 if ($d) {
                     if (!empty($d['id'])) $idsToMatch[] = (string)$d['id'];
@@ -83,13 +83,12 @@ if (!function_exists('checkEntityUsageInDatabase')) {
                 }
             }
         } else if ($entityType === 'employee' || $entityType === 'user') {
-            $stmt = $pdo->prepare("SELECT id, frontend_id, search_name, username, data FROM users WHERE (frontend_id = ? OR id = ? OR username = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')) = ?) LIMIT 1");
+            $stmt = $pdo->prepare("SELECT id, frontend_id, username, data FROM users WHERE (frontend_id = ? OR id = ? OR username = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')) = ?) LIMIT 1");
             $stmt->execute([$entityId, $entityId, $entityId, $entityId]);
             if ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
                 if (!empty($row['id'])) $idsToMatch[] = (string)$row['id'];
                 if (!empty($row['frontend_id'])) $idsToMatch[] = (string)$row['frontend_id'];
                 if (!empty($row['username'])) $extraToMatch[] = (string)$row['username'];
-                if (!empty($row['search_name'])) $namesToMatch[] = trim(mb_strtolower($row['search_name']));
                 $d = json_decode($row['data'] ?? '', true);
                 if ($d) {
                     if (!empty($d['id'])) $idsToMatch[] = (string)$d['id'];

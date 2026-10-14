@@ -5420,11 +5420,15 @@ try {
 
                     const invInput = document.getElementById('hdr-inv-no');
                     const invSpan = document.getElementById('inv-number');
+                    if (data.nextInvoiceNo) {
+                        window._mirrorNextSalesNo = data.nextInvoiceNo;
+                    }
                     const isCreatingNew = !window.currentViewedInvoiceNo || window.currentViewedInvoiceNo === '---';
-                    if (isCreatingNew && data.nextInvoiceNo && invInput && invSpan) {
-                        if (invInput.value !== data.nextInvoiceNo) {
-                            invInput.value = data.nextInvoiceNo;
-                            invSpan.textContent = data.nextInvoiceNo;
+                    const bestNextNo = (typeof peekNextInvoiceNumber === 'function') ? peekNextInvoiceNumber() : (data.nextInvoiceNo || '');
+                    if (isCreatingNew && bestNextNo && invInput && invSpan) {
+                        if (invInput.value !== bestNextNo) {
+                            invInput.value = bestNextNo;
+                            invSpan.textContent = bestNextNo;
                         }
                     }
                 }

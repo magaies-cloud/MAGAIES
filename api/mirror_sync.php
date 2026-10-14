@@ -529,7 +529,10 @@ function applyInvoiceEffectsInDB($pdo, $tenantId, $docType, &$data, $oldData = n
 
             $isGenericCashPartner = in_array($partnerName, ['عميل نقدي', 'عميل نقدي عام', 'مورد نقدي', 'مورد نقدي عام'], true);
             if ($partnerDelta != 0 && (!$isGenericCashPartner || $partnerId !== '')) {
-                $stmtP = $pdo->prepare("SELECT id, data FROM `$partnerTable` WHERE (tenant_id = ? OR tenant_id IS NULL) AND (is_deleted = 0 OR is_deleted IS NULL) AND (frontend_id = ? OR search_name = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.name')) = ?) LIMIT 1");
+                $partnerWhere = ($partnerTable === 'customers')
+                    ? "(frontend_id = ? OR search_name = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.name')) = ?)"
+                    : "(frontend_id = ? OR supplier_id = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.name')) = ?)";
+                $stmtP = $pdo->prepare("SELECT id, data FROM `$partnerTable` WHERE (tenant_id = ? OR tenant_id IS NULL) AND (is_deleted = 0 OR is_deleted IS NULL) AND $partnerWhere LIMIT 1");
                 $stmtP->execute([$tenantId, $partnerId ?: $partnerName, $partnerName, $partnerName]);
                 $rowP = $stmtP->fetch(PDO::FETCH_ASSOC);
                 if ($rowP) {
@@ -624,7 +627,10 @@ function applyInvoiceEffectsInDB($pdo, $tenantId, $docType, &$data, $oldData = n
                 $isReceipt = (strpos($vType, 'receipt') !== false || strpos($vType, 'قبض') !== false);
                 $tablesToTry = $isReceipt ? ['customers', 'suppliers'] : ['suppliers', 'customers'];
                 foreach ($tablesToTry as $tbl) {
-                    $stAcc = $pdo->prepare("SELECT id, data FROM `$tbl` WHERE (tenant_id = ? OR tenant_id IS NULL) AND (is_deleted = 0 OR is_deleted IS NULL) AND (frontend_id = ? OR search_name = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.name')) = ?) LIMIT 1");
+                    $tblWhere = ($tbl === 'customers')
+                        ? "(frontend_id = ? OR search_name = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.name')) = ?)"
+                        : "(frontend_id = ? OR supplier_id = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.name')) = ?)";
+                    $stAcc = $pdo->prepare("SELECT id, data FROM `$tbl` WHERE (tenant_id = ? OR tenant_id IS NULL) AND (is_deleted = 0 OR is_deleted IS NULL) AND $tblWhere LIMIT 1");
                     $stAcc->execute([$tenantId, $targetAccount, $targetAccount, $targetAccount]);
                     $rAcc = $stAcc->fetch(PDO::FETCH_ASSOC);
                     if ($rAcc) {
@@ -724,8 +730,8 @@ function applyInvoiceEffectsInDB($pdo, $tenantId, $docType, &$data, $oldData = n
                 $cleanName = trim(preg_replace('/\s*\(.*$/u', '', $accName));
                 foreach (['customers', 'suppliers', 'safes', 'banks'] as $tbl) {
                     try {
-                        $st = $pdo->prepare("SELECT id, data FROM `$tbl` WHERE (tenant_id = ? OR tenant_id IS NULL) AND (is_deleted = 0 OR is_deleted IS NULL) AND (frontend_id = ? OR search_name = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.name')) = ?) LIMIT 1");
-                        $st->execute([$tenantId, $cleanName, $cleanName, $cleanName]);
+                        $st = $pdo->prepare("SELECT id, data FROM `$tbl` WHERE (tenant_id = ? OR tenant_id IS NULL) AND (is_deleted = 0 OR is_deleted IS NULL) AND (frontend_id = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.name')) = ?) LIMIT 1");
+                        $st->execute([$tenantId, $cleanName, $cleanName]);
                         $r = $st->fetch(PDO::FETCH_ASSOC);
                         if ($r) {
                             $obj = json_decode($r['data'], true) ?: [];
@@ -738,7 +744,7 @@ function applyInvoiceEffectsInDB($pdo, $tenantId, $docType, &$data, $oldData = n
                             $up->execute([json_encode($obj, JSON_UNESCAPED_UNICODE), $r['id']]);
                             return;
                         }
-                    } catch (Exception $e) {}
+                    } catch (Throwable $e) {}
                 }
             };
             $updatePartyByName($debitName, 1.0);
@@ -746,7 +752,7 @@ function applyInvoiceEffectsInDB($pdo, $tenantId, $docType, &$data, $oldData = n
         }
 
         $data['_ledgerPosted'] = $postedMeta;
-    } catch (Exception $e) {
+    } catch (Throwable $e) {
         // Non-blocking ledger hook
     }
 }
@@ -906,21 +912,32 @@ try {
             $dateVal = $data['date'];
 
             $custName = $data['customerName'] ?? ($data['customer_name'] ?? 'عميل نقدي');
-            $totalVal = (float)($data['grandTotal'] ?? ($data['total'] ?? ($data['subTotal'] ?? 0)));
+            $totalVal = (float)($data['grandTotal'] ?? ($data['total'] ?? ($data['netTotal'] ?? ($data['subTotal'] ?? 0))));
             $statusVal = $data['status'] ?? ($data['saleType'] ?? 'completed');
             $currencyVal = $data['currency'] ?? 'SDG';
             $rateVal = (float)($data['exchangeRate'] ?? ($data['rate'] ?? 1.0));
             $userVal = $data['createdBy'] ?? 'user';
 
+            $data['customerId'] = $data['customerId'] ?? $custName;
+            $data['customerName'] = $custName;
+            $data['netTotal'] = $totalVal;
+            $data['total'] = $totalVal;
+            $data['grandTotal'] = $totalVal;
+            $data['status'] = $statusVal;
+            $data['currency'] = $currencyVal;
+            $data['exchangeRate'] = $rateVal;
+            $data['createdBy'] = $userVal;
+            $data['deleted'] = 0;
+
             applyInvoiceEffectsInDB($pdo, $tenantId, 'sales', $data, $oldData);
             $jsonRecord = json_encode($data, JSON_UNESCAPED_UNICODE);
 
             if ($existingId) {
-                $stmtUp = $pdo->prepare("UPDATE sales_invoices SET invoice_no = ?, customer_id_val = ?, date_val = ?, total_val = ?, status_val = ?, currency_val = ?, exchange_rate_val = ?, created_by_val = ?, data = ?, updated_at = NOW() WHERE id = ?");
-                $stmtUp->execute([$invNo, $custName, $dateVal, $totalVal, $statusVal, $currencyVal, $rateVal, $userVal, $jsonRecord, $existingId]);
+                $stmtUp = $pdo->prepare("UPDATE sales_invoices SET invoice_no = ?, data = ?, updated_at = NOW() WHERE id = ?");
+                $stmtUp->execute([$invNo, $jsonRecord, $existingId]);
             } else {
-                $stmtIns = $pdo->prepare("INSERT INTO sales_invoices (tenant_id, invoice_no, customer_id_val, date_val, total_val, status_val, currency_val, exchange_rate_val, created_by_val, data, created_at, updated_at, is_deleted) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW(), 0)");
-                $stmtIns->execute([$tenantId, $invNo, $custName, $dateVal, $totalVal, $statusVal, $currencyVal, $rateVal, $userVal, $jsonRecord]);
+                $stmtIns = $pdo->prepare("INSERT INTO sales_invoices (tenant_id, invoice_no, data, created_at, updated_at) VALUES (?, ?, ?, NOW(), NOW())");
+                $stmtIns->execute([$tenantId, $invNo, $jsonRecord]);
             }
 
             // Sync queue
@@ -928,7 +945,7 @@ try {
                 $syncId = $idemKey !== '' ? $idemKey : ('sync-' . bin2hex(random_bytes(6)));
                 $stmtSync = $pdo->prepare("INSERT INTO sync_queue (id, entity_name, record_id, operation, payload, status, created_at, synced_at) VALUES (?, 'sales_invoices', ?, ?, ?, 'SYNCED', NOW(), NOW()) ON DUPLICATE KEY UPDATE record_id = VALUES(record_id), status = 'SYNCED', synced_at = NOW()");
                 $stmtSync->execute([$syncId, $invNo, $existingId ? 'UPDATE' : 'INSERT', $jsonRecord]);
-            } catch (Exception $e) {}
+            } catch (Throwable $e) {}
 
             $updatedSeq = getSalesSequence($pdo, $tenantId);
             echo json_encode([
@@ -965,10 +982,16 @@ try {
             $data['updatedAt'] = date('Y-m-d H:i:s');
 
             $custName = $data['customerName'] ?? ($data['customer_name'] ?? 'عميل تجزئة');
-            $totalVal = (float)($data['grandTotal'] ?? ($data['total'] ?? 0));
+            $totalVal = (float)($data['grandTotal'] ?? ($data['total'] ?? ($data['netTotal'] ?? 0)));
             $paidVal = (float)($data['paidAmount'] ?? ($data['downPayment'] ?? 0));
             $remainingVal = $totalVal - $paidVal;
             $data['remainingBalance'] = $remainingVal;
+            $data['customerId'] = $data['customerId'] ?? $custName;
+            $data['customerName'] = $custName;
+            $data['netTotal'] = $totalVal;
+            $data['total'] = $totalVal;
+            $data['grandTotal'] = $totalVal;
+            $data['deleted'] = 0;
 
             $stmtCheck = $pdo->prepare("SELECT id, data FROM sales_invoices WHERE (tenant_id = ? OR tenant_id IS NULL) AND (invoice_no = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.invoiceNo')) = ?) LIMIT 1");
             $stmtCheck->execute([$tenantId, $invNo, $invNo]);
@@ -980,11 +1003,11 @@ try {
             $jsonRecord = json_encode($data, JSON_UNESCAPED_UNICODE);
 
             if ($existingId) {
-                $stmtUp = $pdo->prepare("UPDATE sales_invoices SET invoice_no = ?, customer_id_val = ?, date_val = ?, total_val = ?, status_val = 'split', data = ?, updated_at = NOW() WHERE id = ?");
-                $stmtUp->execute([$invNo, $custName, $data['date'], $totalVal, $jsonRecord, $existingId]);
+                $stmtUp = $pdo->prepare("UPDATE sales_invoices SET invoice_no = ?, data = ?, updated_at = NOW() WHERE id = ?");
+                $stmtUp->execute([$invNo, $jsonRecord, $existingId]);
             } else {
-                $stmtIns = $pdo->prepare("INSERT INTO sales_invoices (tenant_id, invoice_no, customer_id_val, date_val, total_val, status_val, data, created_at, updated_at, is_deleted) VALUES (?, ?, ?, ?, ?, 'split', ?, NOW(), NOW(), 0)");
-                $stmtIns->execute([$tenantId, $invNo, $custName, $data['date'], $totalVal, $jsonRecord]);
+                $stmtIns = $pdo->prepare("INSERT INTO sales_invoices (tenant_id, invoice_no, data, created_at, updated_at) VALUES (?, ?, ?, NOW(), NOW())");
+                $stmtIns->execute([$tenantId, $invNo, $jsonRecord]);
             }
 
             $updatedSeq = getSalesSequence($pdo, $tenantId);
@@ -1029,7 +1052,7 @@ try {
                         ], JSON_UNESCAPED_UNICODE);
                         exit;
                     }
-                } catch (Exception $e) {}
+                } catch (Throwable $e) {}
             }
 
             $purSeq = getPurchaseSequence($pdo, $tenantId);
@@ -1064,28 +1087,39 @@ try {
             $dateVal = $data['date'];
 
             $suppName = $data['supplierName'] ?? ($data['supplier_name'] ?? 'مورد نقدي');
-            $totalVal = (float)($data['grandTotal'] ?? ($data['total'] ?? 0));
+            $totalVal = (float)($data['grandTotal'] ?? ($data['total'] ?? ($data['netTotal'] ?? 0)));
             $statusVal = $data['status'] ?? 'completed';
             $currencyVal = $data['currency'] ?? 'SDG';
             $rateVal = (float)($data['exchangeRate'] ?? 1.0);
             $userVal = $data['createdBy'] ?? 'user';
 
+            $data['supplierId'] = $data['supplierId'] ?? $suppName;
+            $data['supplierName'] = $suppName;
+            $data['netTotal'] = $totalVal;
+            $data['total'] = $totalVal;
+            $data['grandTotal'] = $totalVal;
+            $data['status'] = $statusVal;
+            $data['currency'] = $currencyVal;
+            $data['exchangeRate'] = $rateVal;
+            $data['createdBy'] = $userVal;
+            $data['deleted'] = 0;
+
             applyInvoiceEffectsInDB($pdo, $tenantId, 'purchase', $data, $oldData);
             $jsonRecord = json_encode($data, JSON_UNESCAPED_UNICODE);
 
             if ($existingId) {
-                $stmtUp = $pdo->prepare("UPDATE purchase_invoices SET invoice_no = ?, supplier_id_val = ?, date_val = ?, total_val = ?, status_val = ?, currency_val = ?, exchange_rate_val = ?, created_by_val = ?, data = ?, updated_at = NOW() WHERE id = ?");
-                $stmtUp->execute([$purNo, $suppName, $dateVal, $totalVal, $statusVal, $currencyVal, $rateVal, $userVal, $jsonRecord, $existingId]);
+                $stmtUp = $pdo->prepare("UPDATE purchase_invoices SET invoice_no = ?, data = ?, updated_at = NOW() WHERE id = ?");
+                $stmtUp->execute([$purNo, $jsonRecord, $existingId]);
             } else {
-                $stmtIns = $pdo->prepare("INSERT INTO purchase_invoices (tenant_id, invoice_no, supplier_id_val, date_val, total_val, status_val, currency_val, exchange_rate_val, created_by_val, data, created_at, updated_at, is_deleted) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW(), 0)");
-                $stmtIns->execute([$tenantId, $purNo, $suppName, $dateVal, $totalVal, $statusVal, $currencyVal, $rateVal, $userVal, $jsonRecord]);
+                $stmtIns = $pdo->prepare("INSERT INTO purchase_invoices (tenant_id, invoice_no, data, created_at, updated_at) VALUES (?, ?, ?, NOW(), NOW())");
+                $stmtIns->execute([$tenantId, $purNo, $jsonRecord]);
             }
 
             try {
                 $syncId = $idemKey !== '' ? $idemKey : ('sync-' . bin2hex(random_bytes(6)));
                 $stmtSync = $pdo->prepare("INSERT INTO sync_queue (id, entity_name, record_id, operation, payload, status, created_at, synced_at) VALUES (?, 'purchase_invoices', ?, ?, ?, 'SYNCED', NOW(), NOW()) ON DUPLICATE KEY UPDATE record_id = VALUES(record_id), status = 'SYNCED', synced_at = NOW()");
                 $stmtSync->execute([$syncId, $purNo, $existingId ? 'UPDATE' : 'INSERT', $jsonRecord]);
-            } catch (Exception $e) {}
+            } catch (Throwable $e) {}
 
             $updatedSeq = getPurchaseSequence($pdo, $tenantId);
             echo json_encode([
@@ -1122,10 +1156,16 @@ try {
             $data['updatedAt'] = date('Y-m-d H:i:s');
 
             $suppName = $data['supplierName'] ?? ($data['supplier_name'] ?? 'مورد تجزئة');
-            $totalVal = (float)($data['grandTotal'] ?? ($data['total'] ?? 0));
+            $totalVal = (float)($data['grandTotal'] ?? ($data['total'] ?? ($data['netTotal'] ?? 0)));
             $paidVal = (float)($data['paidAmount'] ?? ($data['downPayment'] ?? 0));
             $remainingVal = $totalVal - $paidVal;
             $data['remainingBalance'] = $remainingVal;
+            $data['supplierId'] = $data['supplierId'] ?? $suppName;
+            $data['supplierName'] = $suppName;
+            $data['netTotal'] = $totalVal;
+            $data['total'] = $totalVal;
+            $data['grandTotal'] = $totalVal;
+            $data['deleted'] = 0;
 
             $stmtCheck = $pdo->prepare("SELECT id, data FROM purchase_invoices WHERE (tenant_id = ? OR tenant_id IS NULL) AND (invoice_no = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.invoiceNo')) = ?) LIMIT 1");
             $stmtCheck->execute([$tenantId, $purNo, $purNo]);
@@ -1137,11 +1177,11 @@ try {
             $jsonRecord = json_encode($data, JSON_UNESCAPED_UNICODE);
 
             if ($existingId) {
-                $stmtUp = $pdo->prepare("UPDATE purchase_invoices SET invoice_no = ?, supplier_id_val = ?, date_val = ?, total_val = ?, status_val = 'split', data = ?, updated_at = NOW() WHERE id = ?");
-                $stmtUp->execute([$purNo, $suppName, $data['date'], $totalVal, $jsonRecord, $existingId]);
+                $stmtUp = $pdo->prepare("UPDATE purchase_invoices SET invoice_no = ?, data = ?, updated_at = NOW() WHERE id = ?");
+                $stmtUp->execute([$purNo, $jsonRecord, $existingId]);
             } else {
-                $stmtIns = $pdo->prepare("INSERT INTO purchase_invoices (tenant_id, invoice_no, supplier_id_val, date_val, total_val, status_val, data, created_at, updated_at, is_deleted) VALUES (?, ?, ?, ?, ?, 'split', ?, NOW(), NOW(), 0)");
-                $stmtIns->execute([$tenantId, $purNo, $suppName, $data['date'], $totalVal, $jsonRecord]);
+                $stmtIns = $pdo->prepare("INSERT INTO purchase_invoices (tenant_id, invoice_no, data, created_at, updated_at) VALUES (?, ?, ?, NOW(), NOW())");
+                $stmtIns->execute([$tenantId, $purNo, $jsonRecord]);
             }
 
             $updatedSeq = getPurchaseSequence($pdo, $tenantId);
@@ -1175,12 +1215,13 @@ try {
             $data['id'] = $delNo;
             $data['date'] = $data['date'] ?? date('Y-m-d');
             $data['status'] = 'delivered';
+            $data['deleted'] = 0;
             $jsonRecord = json_encode($data, JSON_UNESCAPED_UNICODE);
 
             try {
-                $stmtDel = $pdo->prepare("INSERT INTO delivery_notes (tenant_id, frontend_id, data, created_at, updated_at, is_deleted) VALUES (?, ?, ?, NOW(), NOW(), 0)");
-                $stmtDel->execute([$tenantId, $delNo, $jsonRecord]);
-            } catch (Exception $e) {}
+                $stmtDel = $pdo->prepare("INSERT INTO delivery_notes (tenant_id, data, created_at, updated_at) VALUES (?, ?, NOW(), NOW())");
+                $stmtDel->execute([$tenantId, $jsonRecord]);
+            } catch (Throwable $e) {}
 
             // Update associated sales invoice if provided
             $relatedInvNo = trim($data['invoiceNo'] ?? ($data['relatedInvoice'] ?? ''));
@@ -1195,10 +1236,10 @@ try {
                         $invD['status'] = 'delivered';
                         $invD['deliveryNo'] = $delNo;
                         $invD['deliveredAt'] = date('Y-m-d H:i:s');
-                        $upStmt = $pdo->prepare("UPDATE sales_invoices SET status_val = 'delivered', data = ?, updated_at = NOW() WHERE id = ?");
+                        $upStmt = $pdo->prepare("UPDATE sales_invoices SET data = ?, updated_at = NOW() WHERE id = ?");
                         $upStmt->execute([json_encode($invD, JSON_UNESCAPED_UNICODE), $row['id']]);
                     }
-                } catch (Exception $e) {}
+                } catch (Throwable $e) {}
             }
 
             $updatedDelSeq = getDeliverySequence($pdo, $tenantId);
@@ -1232,14 +1273,17 @@ try {
             $data['type'] = 'purchase_receipt';
             $data['date'] = $data['date'] ?? date('Y-m-d');
             $data['status'] = 'received';
+            $data['supplierId'] = $data['supplierId'] ?? ($data['supplierName'] ?? 'مورد');
+            $data['netTotal'] = 0;
+            $data['deleted'] = 0;
             $jsonRecord = json_encode($data, JSON_UNESCAPED_UNICODE);
 
             $relatedPurNo = trim($data['originalInvoiceId'] ?? ($data['invoiceNo'] ?? ''));
 
             try {
-                $stmtIns = $pdo->prepare("INSERT INTO purchase_invoices (tenant_id, invoice_no, supplier_id_val, date_val, total_val, status_val, data, created_at, updated_at, is_deleted) VALUES (?, ?, ?, ?, 0, 'received', ?, NOW(), NOW(), 0)");
-                $stmtIns->execute([$tenantId, $recNo, $data['supplierName'] ?? 'مورد', $data['date'], $jsonRecord]);
-            } catch (Exception $e) {}
+                $stmtIns = $pdo->prepare("INSERT INTO purchase_invoices (tenant_id, invoice_no, data, created_at, updated_at) VALUES (?, ?, ?, NOW(), NOW())");
+                $stmtIns->execute([$tenantId, $recNo, $jsonRecord]);
+            } catch (Throwable $e) {}
 
             // Update parent purchase invoice if provided
             if (!empty($relatedPurNo)) {
@@ -1253,10 +1297,10 @@ try {
                         $pD['status'] = 'received';
                         $pD['receiptNo'] = $recNo;
                         $pD['receivedAt'] = date('Y-m-d H:i:s');
-                        $upStmt = $pdo->prepare("UPDATE purchase_invoices SET status_val = 'received', data = ?, updated_at = NOW() WHERE id = ?");
+                        $upStmt = $pdo->prepare("UPDATE purchase_invoices SET data = ?, updated_at = NOW() WHERE id = ?");
                         $upStmt->execute([json_encode($pD, JSON_UNESCAPED_UNICODE), $row['id']]);
                     }
-                } catch (Exception $e) {}
+                } catch (Throwable $e) {}
             }
 
             $updatedRecSeq = getReceiptSequence($pdo, $tenantId);
@@ -1420,10 +1464,15 @@ try {
                     $payload['id'] = $realId;
                     $payload['offline_id'] = $offlineId;
                     $payload['synced_at'] = date('Y-m-d H:i:s');
+                    $payload['customerId'] = $payload['customerId'] ?? ($payload['customerName'] ?? 'عميل');
+                    $payload['date'] = $payload['date'] ?? date('Y-m-d');
+                    $payload['netTotal'] = (float)($payload['grandTotal'] ?? ($payload['total'] ?? ($payload['netTotal'] ?? 0)));
+                    $payload['status'] = $payload['status'] ?? 'completed';
+                    $payload['deleted'] = 0;
                     applyInvoiceEffectsInDB($pdo, $tenantId, 'sales', $payload, null);
                     $json = json_encode($payload, JSON_UNESCAPED_UNICODE);
-                    $stmt = $pdo->prepare("INSERT INTO sales_invoices (tenant_id, invoice_no, customer_id_val, date_val, total_val, status_val, data, created_at, updated_at, is_deleted) VALUES (?, ?, ?, ?, ?, 'completed', ?, NOW(), NOW(), 0)");
-                    $stmt->execute([$tenantId, $realId, $payload['customerName'] ?? 'عميل', $payload['date'] ?? date('Y-m-d'), (float)($payload['grandTotal'] ?? 0), $json]);
+                    $stmt = $pdo->prepare("INSERT INTO sales_invoices (tenant_id, invoice_no, data, created_at, updated_at) VALUES (?, ?, ?, NOW(), NOW())");
+                    $stmt->execute([$tenantId, $realId, $json]);
                 } elseif ($type === 'sales_split') {
                     $sSeq = getSalesSequence($pdo, $tenantId);
                     $realId = $sSeq['nextInvoiceNo'];
@@ -1432,10 +1481,15 @@ try {
                     $payload['offline_id'] = $offlineId;
                     $payload['isSplit'] = true;
                     $payload['synced_at'] = date('Y-m-d H:i:s');
+                    $payload['customerId'] = $payload['customerId'] ?? ($payload['customerName'] ?? 'عميل');
+                    $payload['date'] = $payload['date'] ?? date('Y-m-d');
+                    $payload['netTotal'] = (float)($payload['grandTotal'] ?? ($payload['total'] ?? ($payload['netTotal'] ?? 0)));
+                    $payload['status'] = 'split';
+                    $payload['deleted'] = 0;
                     applyInvoiceEffectsInDB($pdo, $tenantId, 'sales_split', $payload, null);
                     $json = json_encode($payload, JSON_UNESCAPED_UNICODE);
-                    $stmt = $pdo->prepare("INSERT INTO sales_invoices (tenant_id, invoice_no, customer_id_val, date_val, total_val, status_val, data, created_at, updated_at, is_deleted) VALUES (?, ?, ?, ?, ?, 'split', ?, NOW(), NOW(), 0)");
-                    $stmt->execute([$tenantId, $realId, $payload['customerName'] ?? 'عميل', $payload['date'] ?? date('Y-m-d'), (float)($payload['grandTotal'] ?? 0), $json]);
+                    $stmt = $pdo->prepare("INSERT INTO sales_invoices (tenant_id, invoice_no, data, created_at, updated_at) VALUES (?, ?, ?, NOW(), NOW())");
+                    $stmt->execute([$tenantId, $realId, $json]);
                 } elseif ($type === 'purchase') {
                     $pSeq = getPurchaseSequence($pdo, $tenantId);
                     $realId = $pSeq['nextPurchaseNo'];
@@ -1443,10 +1497,15 @@ try {
                     $payload['id'] = $realId;
                     $payload['offline_id'] = $offlineId;
                     $payload['synced_at'] = date('Y-m-d H:i:s');
+                    $payload['supplierId'] = $payload['supplierId'] ?? ($payload['supplierName'] ?? 'مورد');
+                    $payload['date'] = $payload['date'] ?? date('Y-m-d');
+                    $payload['netTotal'] = (float)($payload['grandTotal'] ?? ($payload['total'] ?? ($payload['netTotal'] ?? 0)));
+                    $payload['status'] = $payload['status'] ?? 'completed';
+                    $payload['deleted'] = 0;
                     applyInvoiceEffectsInDB($pdo, $tenantId, 'purchase', $payload, null);
                     $json = json_encode($payload, JSON_UNESCAPED_UNICODE);
-                    $stmt = $pdo->prepare("INSERT INTO purchase_invoices (tenant_id, invoice_no, supplier_id_val, date_val, total_val, status_val, data, created_at, updated_at, is_deleted) VALUES (?, ?, ?, ?, ?, 'completed', ?, NOW(), NOW(), 0)");
-                    $stmt->execute([$tenantId, $realId, $payload['supplierName'] ?? 'مورد', $payload['date'] ?? date('Y-m-d'), (float)($payload['grandTotal'] ?? 0), $json]);
+                    $stmt = $pdo->prepare("INSERT INTO purchase_invoices (tenant_id, invoice_no, data, created_at, updated_at) VALUES (?, ?, ?, NOW(), NOW())");
+                    $stmt->execute([$tenantId, $realId, $json]);
                 } elseif ($type === 'purchase_split') {
                     $pSeq = getPurchaseSequence($pdo, $tenantId);
                     $realId = $pSeq['nextPurchaseNo'];
@@ -1456,10 +1515,15 @@ try {
                     $payload['isSplit'] = true;
                     $payload['purchaseType'] = 'split';
                     $payload['synced_at'] = date('Y-m-d H:i:s');
+                    $payload['supplierId'] = $payload['supplierId'] ?? ($payload['supplierName'] ?? 'مورد');
+                    $payload['date'] = $payload['date'] ?? date('Y-m-d');
+                    $payload['netTotal'] = (float)($payload['grandTotal'] ?? ($payload['total'] ?? ($payload['netTotal'] ?? 0)));
+                    $payload['status'] = 'split';
+                    $payload['deleted'] = 0;
                     applyInvoiceEffectsInDB($pdo, $tenantId, 'purchase_split', $payload, null);
                     $json = json_encode($payload, JSON_UNESCAPED_UNICODE);
-                    $stmt = $pdo->prepare("INSERT INTO purchase_invoices (tenant_id, invoice_no, supplier_id_val, date_val, total_val, status_val, data, created_at, updated_at, is_deleted) VALUES (?, ?, ?, ?, ?, 'split', ?, NOW(), NOW(), 0)");
-                    $stmt->execute([$tenantId, $realId, $payload['supplierName'] ?? 'مورد', $payload['date'] ?? date('Y-m-d'), (float)($payload['grandTotal'] ?? 0), $json]);
+                    $stmt = $pdo->prepare("INSERT INTO purchase_invoices (tenant_id, invoice_no, data, created_at, updated_at) VALUES (?, ?, ?, NOW(), NOW())");
+                    $stmt->execute([$tenantId, $realId, $json]);
                 } elseif ($type === 'delivery') {
                     $dSeq = getDeliverySequence($pdo, $tenantId);
                     $realId = $dSeq['nextDeliveryNo'];
@@ -1467,9 +1531,10 @@ try {
                     $payload['id'] = $realId;
                     $payload['offline_id'] = $offlineId;
                     $payload['synced_at'] = date('Y-m-d H:i:s');
+                    $payload['deleted'] = 0;
                     $json = json_encode($payload, JSON_UNESCAPED_UNICODE);
-                    $stmt = $pdo->prepare("INSERT INTO delivery_notes (tenant_id, frontend_id, data, created_at, updated_at, is_deleted) VALUES (?, ?, ?, NOW(), NOW(), 0)");
-                    $stmt->execute([$tenantId, $realId, $json]);
+                    $stmt = $pdo->prepare("INSERT INTO delivery_notes (tenant_id, data, created_at, updated_at) VALUES (?, ?, NOW(), NOW())");
+                    $stmt->execute([$tenantId, $json]);
                 } elseif ($type === 'purchase_receipt') {
                     $rSeq = getReceiptSequence($pdo, $tenantId);
                     $realId = $rSeq['nextReceiptNo'];
@@ -1477,9 +1542,14 @@ try {
                     $payload['id'] = $realId;
                     $payload['offline_id'] = $offlineId;
                     $payload['synced_at'] = date('Y-m-d H:i:s');
+                    $payload['supplierId'] = $payload['supplierId'] ?? ($payload['supplierName'] ?? 'مورد');
+                    $payload['date'] = $payload['date'] ?? date('Y-m-d');
+                    $payload['netTotal'] = 0;
+                    $payload['status'] = 'received';
+                    $payload['deleted'] = 0;
                     $json = json_encode($payload, JSON_UNESCAPED_UNICODE);
-                    $stmt = $pdo->prepare("INSERT INTO purchase_invoices (tenant_id, invoice_no, supplier_id_val, date_val, total_val, status_val, data, created_at, updated_at, is_deleted) VALUES (?, ?, ?, ?, 0, 'received', ?, NOW(), NOW(), 0)");
-                    $stmt->execute([$tenantId, $realId, $payload['supplierName'] ?? 'مورد', $payload['date'] ?? date('Y-m-d'), $json]);
+                    $stmt = $pdo->prepare("INSERT INTO purchase_invoices (tenant_id, invoice_no, data, created_at, updated_at) VALUES (?, ?, ?, NOW(), NOW())");
+                    $stmt->execute([$tenantId, $realId, $json]);
                 } elseif ($type === 'finance') {
                     $fSeq = getFinanceSequence($pdo, $tenantId);
                     $realId = $fSeq['nextVoucherNo'];
@@ -1498,12 +1568,13 @@ try {
                     $payload['id'] = $realId;
                     $payload['offline_id'] = $offlineId;
                     $payload['synced_at'] = date('Y-m-d H:i:s');
+                    $payload['deleted'] = 0;
                     applyInvoiceEffectsInDB($pdo, $tenantId, 'journal_entry', $payload, null);
                     $json = json_encode($payload, JSON_UNESCAPED_UNICODE);
                     try {
-                        $stmt = $pdo->prepare("INSERT INTO journal_vouchers (tenant_id, frontend_id, date_val, data, created_at, updated_at, is_deleted) VALUES (?, ?, ?, ?, NOW(), NOW(), 0)");
-                        $stmt->execute([$tenantId, $realId, $payload['date'] ?? date('Y-m-d'), $json]);
-                    } catch (Exception $e) {
+                        $stmt = $pdo->prepare("INSERT INTO journal_vouchers (tenant_id, jv_no, data, created_at, updated_at) VALUES (?, ?, ?, NOW(), NOW())");
+                        $stmt->execute([$tenantId, $realId, $json]);
+                    } catch (Throwable $e) {
                         $stmt = $pdo->prepare("INSERT INTO journal_vouchers (tenant_id, data) VALUES (?, ?)");
                         $stmt->execute([$tenantId, $json]);
                     }
@@ -1514,15 +1585,11 @@ try {
                     $payload['id'] = $realId;
                     $payload['offline_id'] = $offlineId;
                     $payload['synced_at'] = date('Y-m-d H:i:s');
+                    $payload['deleted'] = 0;
                     applyInvoiceEffectsInDB($pdo, $tenantId, 'stock_adjustment', $payload, null);
                     $json = json_encode($payload, JSON_UNESCAPED_UNICODE);
-                    try {
-                        $stmt = $pdo->prepare("INSERT INTO inventory (tenant_id, frontend_id, data, created_at, updated_at, is_deleted) VALUES (?, ?, ?, NOW(), NOW(), 0)");
-                        $stmt->execute([$tenantId, $realId, $json]);
-                    } catch (Exception $e) {
-                        $stmt = $pdo->prepare("INSERT INTO inventory (tenant_id, data) VALUES (?, ?)");
-                        $stmt->execute([$tenantId, $json]);
-                    }
+                    $stmt = $pdo->prepare("INSERT INTO inventory (tenant_id, data, created_at, updated_at) VALUES (?, ?, NOW(), NOW())");
+                    $stmt->execute([$tenantId, $json]);
                 } elseif ($type === 'warehouse_transfer') {
                     $tSeq = getInventorySequence($pdo, $tenantId, 'T');
                     $realId = $tSeq['nextDocNo'];
@@ -1530,22 +1597,18 @@ try {
                     $payload['id'] = $realId;
                     $payload['offline_id'] = $offlineId;
                     $payload['synced_at'] = date('Y-m-d H:i:s');
+                    $payload['deleted'] = 0;
                     applyInvoiceEffectsInDB($pdo, $tenantId, 'warehouse_transfer', $payload, null);
                     $json = json_encode($payload, JSON_UNESCAPED_UNICODE);
-                    try {
-                        $stmt = $pdo->prepare("INSERT INTO inventory (tenant_id, frontend_id, data, created_at, updated_at, is_deleted) VALUES (?, ?, ?, NOW(), NOW(), 0)");
-                        $stmt->execute([$tenantId, $realId, $json]);
-                    } catch (Exception $e) {
-                        $stmt = $pdo->prepare("INSERT INTO inventory (tenant_id, data) VALUES (?, ?)");
-                        $stmt->execute([$tenantId, $json]);
-                    }
+                    $stmt = $pdo->prepare("INSERT INTO inventory (tenant_id, data, created_at, updated_at) VALUES (?, ?, NOW(), NOW())");
+                    $stmt->execute([$tenantId, $json]);
                 }
 
                 if ($idemKey !== '' && $realId !== '') {
                     try {
                         $stmtLog = $pdo->prepare("INSERT INTO sync_queue (id, entity_name, record_id, operation, payload, status, created_at, synced_at) VALUES (?, ?, ?, 'INSERT', ?, 'SYNCED', NOW(), NOW()) ON DUPLICATE KEY UPDATE record_id = VALUES(record_id), status = 'SYNCED', synced_at = NOW()");
                         $stmtLog->execute([$idemKey, $type, $realId, json_encode($payload, JSON_UNESCAPED_UNICODE)]);
-                    } catch (Exception $e) {}
+                    } catch (Throwable $e) {}
                 }
 
                 $syncedResults[] = [
@@ -1585,6 +1648,7 @@ try {
             $data['id'] = $jvNo;
             $data['date'] = $data['date'] ?? date('Y-m-d');
             $data['status'] = 'posted';
+            $data['deleted'] = 0;
             $data['updatedAt'] = date('Y-m-d H:i:s');
 
             $amount = (float)($data['amount'] ?? ($data['totalDebit'] ?? 0));
@@ -1613,9 +1677,9 @@ try {
             $jsonRecord = json_encode($data, JSON_UNESCAPED_UNICODE);
 
             try {
-                $stmtIns = $pdo->prepare("INSERT INTO journal_vouchers (tenant_id, frontend_id, date_val, data, created_at, updated_at, is_deleted) VALUES (?, ?, ?, ?, NOW(), NOW(), 0)");
-                $stmtIns->execute([$tenantId, $jvNo, $data['date'], $jsonRecord]);
-            } catch (Exception $e) {
+                $stmtIns = $pdo->prepare("INSERT INTO journal_vouchers (tenant_id, jv_no, data, created_at, updated_at) VALUES (?, ?, ?, NOW(), NOW())");
+                $stmtIns->execute([$tenantId, $jvNo, $jsonRecord]);
+            } catch (Throwable $e) {
                 $stmtIns = $pdo->prepare("INSERT INTO journal_vouchers (tenant_id, data) VALUES (?, ?)");
                 $stmtIns->execute([$tenantId, $jsonRecord]);
             }
@@ -1633,12 +1697,13 @@ try {
                         'debit' => (float)($line['debit'] ?? 0),
                         'credit' => (float)($line['credit'] ?? 0),
                         'description' => $data['notes'] ?? 'قيد تسوية يومية',
-                        'source' => 'mobile_journal'
+                        'source' => 'mobile_journal',
+                        'deleted' => 0
                     ];
-                    $stmtGl = $pdo->prepare("INSERT INTO gl_entries (tenant_id, frontend_id, data, created_at, updated_at, is_deleted) VALUES (?, ?, ?, NOW(), NOW(), 0)");
-                    $stmtGl->execute([$tenantId, $glEntry['id'], json_encode($glEntry, JSON_UNESCAPED_UNICODE)]);
+                    $stmtGl = $pdo->prepare("INSERT INTO gl_entries (tenant_id, data, created_at, updated_at) VALUES (?, ?, NOW(), NOW())");
+                    $stmtGl->execute([$tenantId, json_encode($glEntry, JSON_UNESCAPED_UNICODE)]);
                 }
-            } catch (Exception $e) {}
+            } catch (Throwable $e) {}
 
             $updatedJSeq = getJournalSequence($pdo, $tenantId);
             echo json_encode([
@@ -1671,18 +1736,14 @@ try {
             $data['type'] = 'stock_adjustment';
             $data['date'] = $data['date'] ?? date('Y-m-d');
             $data['status'] = 'approved';
+            $data['deleted'] = 0;
             $data['updatedAt'] = date('Y-m-d H:i:s');
 
             applyInvoiceEffectsInDB($pdo, $tenantId, 'stock_adjustment', $data, null);
             $jsonRecord = json_encode($data, JSON_UNESCAPED_UNICODE);
 
-            try {
-                $stmtIns = $pdo->prepare("INSERT INTO inventory (tenant_id, frontend_id, data, created_at, updated_at, is_deleted) VALUES (?, ?, ?, NOW(), NOW(), 0)");
-                $stmtIns->execute([$tenantId, $docNo, $jsonRecord]);
-            } catch (Exception $e) {
-                $stmtIns = $pdo->prepare("INSERT INTO inventory (tenant_id, data) VALUES (?, ?)");
-                $stmtIns->execute([$tenantId, $jsonRecord]);
-            }
+            $stmtIns = $pdo->prepare("INSERT INTO inventory (tenant_id, data, created_at, updated_at) VALUES (?, ?, NOW(), NOW())");
+            $stmtIns->execute([$tenantId, $jsonRecord]);
 
             $updatedISeq = getInventorySequence($pdo, $tenantId, 'I');
             echo json_encode([
@@ -1715,18 +1776,14 @@ try {
             $data['type'] = 'warehouse_transfer';
             $data['date'] = $data['date'] ?? date('Y-m-d');
             $data['status'] = 'completed';
+            $data['deleted'] = 0;
             $data['updatedAt'] = date('Y-m-d H:i:s');
 
             applyInvoiceEffectsInDB($pdo, $tenantId, 'warehouse_transfer', $data, null);
             $jsonRecord = json_encode($data, JSON_UNESCAPED_UNICODE);
 
-            try {
-                $stmtIns = $pdo->prepare("INSERT INTO inventory (tenant_id, frontend_id, data, created_at, updated_at, is_deleted) VALUES (?, ?, ?, NOW(), NOW(), 0)");
-                $stmtIns->execute([$tenantId, $docNo, $jsonRecord]);
-            } catch (Exception $e) {
-                $stmtIns = $pdo->prepare("INSERT INTO inventory (tenant_id, data) VALUES (?, ?)");
-                $stmtIns->execute([$tenantId, $jsonRecord]);
-            }
+            $stmtIns = $pdo->prepare("INSERT INTO inventory (tenant_id, data, created_at, updated_at) VALUES (?, ?, NOW(), NOW())");
+            $stmtIns->execute([$tenantId, $jsonRecord]);
 
             $updatedTSeq = getInventorySequence($pdo, $tenantId, 'T');
             echo json_encode([
@@ -1954,7 +2011,7 @@ try {
             ], JSON_UNESCAPED_UNICODE);
             break;
     }
-} catch (Exception $e) {
+} catch (Throwable $e) {
     http_response_code(500);
     echo json_encode(['success' => false, 'error' => $e->getMessage()], JSON_UNESCAPED_UNICODE);
 }

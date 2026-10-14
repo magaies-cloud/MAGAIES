@@ -1332,21 +1332,27 @@
             MagaiesOffline.updateKnownSequencesFromMirror(data);
           }
           const sPill = document.getElementById('opSalesInvoiceNoPill');
-          if (sPill && data.sales && (!window.SuiteSalesPOS || SuiteSalesPOS.currentInvoiceIndex === -1)) {
-            sPill.innerText = data.sales.nextInvoiceNo;
-            if (window.SuiteSalesPOS) SuiteSalesPOS.latestGeneratedInvNo = data.sales.nextInvoiceNo;
+          const nextSalesNo = (window.SuiteSalesPOS && typeof SuiteSalesPOS.generateNewInvoiceNo === 'function')
+            ? SuiteSalesPOS.generateNewInvoiceNo()
+            : (data.sales ? data.sales.nextInvoiceNo : '');
+          if (sPill && nextSalesNo && (!window.SuiteSalesPOS || SuiteSalesPOS.currentInvoiceIndex === -1)) {
+            sPill.innerText = nextSalesNo;
+            if (window.SuiteSalesPOS) SuiteSalesPOS.latestGeneratedInvNo = nextSalesNo;
           }
           const spPill = document.getElementById('opSalesSplitInvoiceNoPill');
-          if (spPill && data.sales) spPill.innerText = data.sales.nextInvoiceNo;
+          if (spPill && nextSalesNo) spPill.innerText = nextSalesNo;
           const dPill = document.getElementById('opDeliveryNoPill');
           if (dPill && data.delivery) dPill.innerText = data.delivery.nextDeliveryNo;
           const pPill = document.getElementById('opPurchaseNoPill');
-          if (pPill && data.purchase && (!window.SuitePurchasePOS || SuitePurchasePOS.currentInvoiceIndex === -1)) {
-            pPill.innerText = data.purchase.nextPurchaseNo;
-            if (window.SuitePurchasePOS) SuitePurchasePOS.latestGeneratedInvNo = data.purchase.nextPurchaseNo;
+          const nextPurNo = (window.SuitePurchasePOS && typeof SuitePurchasePOS.generateNewInvoiceNo === 'function')
+            ? SuitePurchasePOS.generateNewInvoiceNo()
+            : (data.purchase ? data.purchase.nextPurchaseNo : '');
+          if (pPill && nextPurNo && (!window.SuitePurchasePOS || SuitePurchasePOS.currentInvoiceIndex === -1)) {
+            pPill.innerText = nextPurNo;
+            if (window.SuitePurchasePOS) SuitePurchasePOS.latestGeneratedInvNo = nextPurNo;
           }
           const psPill = document.getElementById('opPurchaseSplitNoPill');
-          if (psPill && data.purchase) psPill.innerText = data.purchase.nextPurchaseNo;
+          if (psPill && nextPurNo) psPill.innerText = nextPurNo;
           const rPill = document.getElementById('opReceiptNoPill');
           if (rPill && data.receipt) rPill.innerText = data.receipt.nextReceiptNo;
           if (typeof window.autoFitVoucherNumbers === 'function') window.autoFitVoucherNumbers();
@@ -9051,10 +9057,12 @@ async function commitOpSales(andPay = false) {
         localStorage.setItem('magaies_local_sales_invoices_v1', JSON.stringify(filtered.slice(0, 100)));
       } catch (e) {}
 
-      const handleSuccess = (invoiceNumber) => {
+      const handleSuccess = (invoiceNumber, serverNextNo = '') => {
         setTimeout(() => { window._isSavingOpSales = false; }, 450);
         if (window.SafeInvoiceGuard) SafeInvoiceGuard.setUnsavedChanges(false, 'modalOpSales');
-        if (typeof fetchMirrorNumbers === 'function') fetchMirrorNumbers();
+        if (serverNextNo && window._mirrorCache && window._mirrorCache.sales) {
+          window._mirrorCache.sales.nextInvoiceNo = serverNextNo;
+        }
 
         if (window.AudioEngine && AudioEngine.play) AudioEngine.play('success');
         if (typeof showFloatingToast === 'function') {
@@ -9063,6 +9071,7 @@ async function commitOpSales(andPay = false) {
           alert(`✓ تم بنجاح حفظ فاتورة المبيعات [#${invoiceNumber}]!`);
         }
         SuiteSalesPOS.newInvoice();
+        if (typeof fetchMirrorNumbers === 'function') fetchMirrorNumbers();
       };
 
       if (!navigator.onLine) {
@@ -9079,7 +9088,7 @@ async function commitOpSales(andPay = false) {
         });
         const out = await res.json();
         if (out && out.success) {
-          handleSuccess(out.invoiceNo || invNo);
+          handleSuccess(out.invoiceNo || invNo, out.nextInvoiceNo || '');
         } else {
           const offId = window.MagaiesOffline ? MagaiesOffline.enqueue('sales', payload) : invNo;
           handleSuccess(offId);
@@ -9228,6 +9237,12 @@ async function commitOpSales(andPay = false) {
       let items = [];
       let grandTotal = 0;
 
+      const pNum = (id, defVal = 0) => {
+        const raw = document.getElementById(id)?.value;
+        if (!raw || !String(raw).trim()) return defVal;
+        return parseFloat(String(raw).replace(/,/g, '')) || defVal;
+      };
+
       if (window.SuitePurchasePOS && SuitePurchasePOS.cart && SuitePurchasePOS.cart.length > 0) {
         items = [...SuitePurchasePOS.cart];
         grandTotal = items.reduce((acc, it) => acc + (parseFloat(it.subtotal) || 0), 0);
@@ -9237,15 +9252,19 @@ async function commitOpSales(andPay = false) {
         if (!itName && itIdx !== -1 && window.SuiteSalesPOS && SuiteSalesPOS.dbItems && SuiteSalesPOS.dbItems[itIdx]) {
           itName = SuiteSalesPOS.dbItems[itIdx].name;
         }
+        if (!itName && window.SuitePurchasePOS && SuitePurchasePOS.selectedItem && SuitePurchasePOS.selectedItem.name) {
+          itName = SuitePurchasePOS.selectedItem.name;
+        }
         if (!itName) {
           itName = document.getElementById('purItemSelectVal')?.value?.trim() || '';
         }
-
-        const pNum = (id, defVal = 0) => {
-          const raw = document.getElementById(id)?.value;
-          if (!raw || !String(raw).trim()) return defVal;
-          return parseFloat(String(raw).replace(/,/g, '')) || defVal;
-        };
+        if (!itName) {
+          const purDisp = document.getElementById('suitePurItemDisplayName')?.innerText?.trim();
+          if (purDisp && purDisp !== 'اختر الصنف...') itName = purDisp;
+        }
+        if (!itName) {
+          itName = 'بضاعة مشتريات عامة';
+        }
 
         const qty = pNum('purQtyInput', 1);
         const prc = pNum('purPriceInput', 0);
@@ -9255,11 +9274,6 @@ async function commitOpSales(andPay = false) {
         const uSel = document.getElementById('purUnitSelect');
         const unit = (uSel && uSel.value) ? uSel.value : 'حبة';
         const sub = Math.max(0, (qty * prc) - disc + tax + labor);
-
-        if (!itName && (!window.SuitePurchasePOS || SuitePurchasePOS.cart.length === 0)) {
-          alert('⚠️ يرجى اختيار صنف أولاً عبر الضغط على خانة الصنف للبحث.');
-          return;
-        }
 
         items = [{
           name: itName || 'بضاعة مشتريات عامة',
@@ -9274,6 +9288,11 @@ async function commitOpSales(andPay = false) {
           subtotal: sub
         }];
         grandTotal = sub;
+      }
+
+      const manualPurTot = pNum('purTotalInput', 0);
+      if (!isNaN(manualPurTot) && manualPurTot > 0) {
+        grandTotal = manualPurTot;
       }
 
       items = items.map(it => ({
@@ -9358,10 +9377,12 @@ async function commitOpSales(andPay = false) {
         localStorage.setItem('magaies_local_purchase_invoices_v1', JSON.stringify(filteredPur.slice(0, 100)));
       } catch (e) {}
 
-      const handleSuccess = (invoiceNumber) => {
+      const handleSuccess = (invoiceNumber, serverNextNo = '') => {
         setTimeout(() => { window._isSavingOpPurchase = false; }, 450);
         if (window.SafeInvoiceGuard) SafeInvoiceGuard.setUnsavedChanges(false, 'modalOpPurchase');
-        if (typeof fetchMirrorNumbers === 'function') fetchMirrorNumbers();
+        if (serverNextNo && window._mirrorCache && window._mirrorCache.purchase) {
+          window._mirrorCache.purchase.nextPurchaseNo = serverNextNo;
+        }
 
         if (window.AudioEngine && AudioEngine.play) AudioEngine.play('success');
         if (typeof showFloatingToast === 'function') {
@@ -9370,6 +9391,7 @@ async function commitOpSales(andPay = false) {
           alert(`✓ تم بنجاح حفظ فاتورة المشتريات [#${invoiceNumber}]!`);
         }
         if (SuitePurchasePOS && SuitePurchasePOS.newInvoice) SuitePurchasePOS.newInvoice(true);
+        if (typeof fetchMirrorNumbers === 'function') fetchMirrorNumbers();
       };
 
       if (!navigator.onLine) {
@@ -9385,7 +9407,7 @@ async function commitOpSales(andPay = false) {
         });
         const out = await res.json();
         if (out && out.success) {
-          handleSuccess(out.invoiceNo || purNo);
+          handleSuccess(out.invoiceNo || purNo, out.nextPurchaseNo || '');
         } else {
           const offId = window.MagaiesOffline ? MagaiesOffline.enqueue('purchase', payload) : purNo;
           handleSuccess(offId);
