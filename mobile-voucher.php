@@ -1603,7 +1603,7 @@ $currenciesData = [
       font-family: var(--app-font);
     }
 
-    /* Hide number spinner arrows for usdRate */
+    /* Hide number spinner arrows for usdRate and native datalist indicators that shift text vertically */
     #usdRate::-webkit-inner-spin-button,
     #usdRate::-webkit-outer-spin-button {
       -webkit-appearance: none !important;
@@ -1613,10 +1613,57 @@ $currenciesData = [
       -moz-appearance: textfield !important;
       appearance: textfield !important;
     }
+    input::-webkit-calendar-picker-indicator {
+      display: none !important;
+      -webkit-appearance: none !important;
+      opacity: 0 !important;
+      width: 0 !important;
+      height: 0 !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      pointer-events: none !important;
+    }
     @media (max-width: 600px) {
       input, select, textarea {
         font-size: 15.5px !important;
       }
+    }
+    #costCenterInput {
+      font-size: 12px !important;
+      height: 40px !important;
+      max-height: 40px !important;
+      line-height: 40px !important;
+      padding: 0 4px !important;
+      margin: 0 !important;
+      text-align: center !important;
+      vertical-align: middle !important;
+      box-sizing: border-box !important;
+    }
+    #primaryCurrencySelect {
+      font-size: 11.5px !important;
+      height: 40px !important;
+      line-height: 40px !important;
+      padding-top: 0 !important;
+      padding-bottom: 0 !important;
+    }
+    #bankNameInput {
+      font-size: 13.5px !important;
+      height: 40px !important;
+      max-height: 40px !important;
+      line-height: 38px !important;
+      padding-top: 0 !important;
+      padding-bottom: 0 !important;
+      vertical-align: middle !important;
+      box-sizing: border-box !important;
+    }
+    #transferInput {
+      height: 40px !important;
+      max-height: 40px !important;
+      line-height: 38px !important;
+      padding-top: 0 !important;
+      padding-bottom: 0 !important;
+      vertical-align: middle !important;
+      box-sizing: border-box !important;
     }
 
     .no-scrollbar::-webkit-scrollbar { display: none; }
@@ -2485,33 +2532,33 @@ $currenciesData = [
       <!-- ═════════════════════════════════════════════════════════════════
            شريط العملة + قيمة الدولار + مركز الكلفة بحواف واضحة ومضيئة
            ═════════════════════════════════════════════════════════════════ -->
-      <div class="bg-slate-900/95 border-2 border-slate-700/80 rounded-2xl p-2 flex items-center gap-1.5 shadow-[0_0_14px_rgba(56,189,248,0.15)]">
+      <div class="bg-slate-900/95 border-2 border-slate-700/80 rounded-2xl px-2 py-1.5 flex items-center gap-1.5 shadow-[0_0_14px_rgba(56,189,248,0.15)]">
         
-        <!-- مساحة العملة: جميع العملات الـ 6 المعتمدة في النظام -->
-        <div class="relative shrink-0 w-[116px]">
-          <select id="primaryCurrencySelect" onchange="selectCurrency(this.value)" class="w-full appearance-none bg-slate-950 glow-border-amber rounded-xl pr-2 pl-4 py-2 text-[11px] font-black text-amber-300 focus:outline-none focus:border-amber-400 cursor-pointer h-[44px] shadow-inner" title="اختيار العملة">
-            <option value="SDG" selected>🇸🇩 جنيه سوداني</option>
-            <option value="USD">🇺🇸 دولار ($)</option>
-            <option value="SAR">🇸🇦 ريال سعودي</option>
-            <option value="AED">🇦🇪 درهم إماراتي</option>
-            <option value="EGP">🇪🇬 جنيه مصري</option>
-            <option value="EUR">🇪🇺 يورو (€)</option>
+        <!-- مساحة العملة: مدمجة لإعطاء مساحة كاملة لاسم المخزن -->
+        <div class="relative shrink-0 w-[96px]">
+          <select id="primaryCurrencySelect" onchange="selectCurrency(this.value)" class="w-full appearance-none bg-slate-950 glow-border-amber rounded-xl pr-1.5 pl-4 py-1 text-[11px] font-black text-amber-300 focus:outline-none focus:border-amber-400 cursor-pointer h-[40px] shadow-inner" title="اختيار العملة">
+            <option value="SDG" selected>جنيه سوداني</option>
+            <option value="USD">دولار ($)</option>
+            <option value="SAR">ريال سعودي</option>
+            <option value="AED">درهم إماراتي</option>
+            <option value="EGP">جنيه مصري</option>
+            <option value="EUR">يورو (€)</option>
           </select>
-          <div class="absolute left-2 top-4 pointer-events-none text-amber-300 text-[9px]">
+          <div class="absolute left-1.5 top-3.5 pointer-events-none text-amber-300 text-[9px]">
             <i class="fa-solid fa-chevron-down"></i>
           </div>
         </div>
 
-        <!-- قيمة الصرف: زيادة الخط درجة واحدة بدون أسهم طالع ونازل -->
-        <div class="bg-slate-950 glow-border-emerald rounded-xl px-2 py-1 flex items-center gap-1 w-[96px] shrink-0 h-[44px] shadow-inner transition cursor-pointer group" onclick="document.getElementById('usdRate').focus()" title="سعر الصرف من السيستم - انقر للتعديل المباشر">
+        <!-- قيمة الصرف -->
+        <div class="bg-slate-950 glow-border-emerald rounded-xl px-1.5 py-1 flex items-center gap-1 w-[82px] shrink-0 h-[40px] shadow-inner transition cursor-pointer group" onclick="document.getElementById('usdRate').focus()" title="سعر الصرف من السيستم - انقر للتعديل المباشر">
           <span class="text-emerald-400 font-mono text-xs font-black shrink-0" id="rateSymbolLabel">$</span>
-          <input type="number" id="usdRate" value="2650" onchange="updateSystemUsdRate(this.value)" oninput="calculateExchange('rate')" class="w-full bg-transparent text-emerald-300 font-mono font-black text-lg focus:outline-none text-center cursor-text tracking-tight [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" placeholder="2650" title="سعر الصرف">
+          <input type="number" id="usdRate" value="2650" onchange="updateSystemUsdRate(this.value)" oninput="calculateExchange('rate')" class="w-full bg-transparent text-emerald-300 font-mono font-black text-base focus:outline-none text-center cursor-text tracking-tight [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" placeholder="2650" title="سعر الصرف">
           <i class="fa-solid fa-pen text-[7px] text-slate-500 group-hover:text-emerald-400 transition shrink-0"></i>
         </div>
 
-        <!-- مركز الكلفة: تصغير الخط درجة واحدة (11px) -->
-        <div class="flex-1 bg-slate-950 glow-border-indigo rounded-xl px-2.5 py-1 flex items-center h-[44px] relative shadow-inner">
-          <input type="text" id="costCenterInput" list="costCentersDataList" placeholder="مركز الكلفة" class="w-full bg-transparent text-indigo-100 placeholder:text-slate-500 placeholder:font-medium text-[11px] font-bold focus:outline-none" value="مخزن بحري الرئيسي">
+        <!-- المخزن / مركز الكلفة: يظهر كاملاً بدون قص وبدون تحرك للأعلى أو الأسفل -->
+        <div class="flex-1 min-w-0 bg-slate-950 glow-border-indigo rounded-xl px-1.5 flex items-center justify-center h-[40px] relative shadow-inner overflow-hidden">
+          <input type="text" id="costCenterInput" list="costCentersDataList" placeholder="المخزن / مركز الكلفة" class="w-full bg-transparent text-indigo-100 placeholder:text-slate-500 placeholder:font-medium text-center font-bold focus:outline-none" value="مخزن بحري الرئيسي">
           <datalist id="costCentersDataList">
             <option value="مخزن بحري الرئيسي"></option>
             <option value="مخزن أم درمان"></option>
@@ -2522,11 +2569,11 @@ $currenciesData = [
       </div>
 
       <!-- ═════════════════════════════════════════════════════════════════
-           المبالغ المالية (مستوى متساوٍ ومحاذاة تامة):
-           - اليمين: المبلغ المحلي + شارة الرتبة الرقمية الذكية (ألف / مليون / مليار)
-           - اليسار: المبلغ الأجنبي/الدولار مع شارة العملة
+           المبالغ المالية (مستوى متساوٍ ومحاذاة تامة بدون مربعات التقريب أو شارة العملة الصغيرة):
+           - اليمين: المبلغ المحلي
+           - اليسار: المبلغ الأجنبي/الدولار
            ═════════════════════════════════════════════════════════════════ -->
-      <div id="amountContainerCard" class="rounded-2xl p-2.5 space-y-2.5 backdrop-blur-md relative">
+      <div id="amountContainerCard" class="rounded-2xl p-2.5 space-y-2 backdrop-blur-md relative">
         
         <div class="grid grid-cols-2 gap-2.5">
           
@@ -2539,7 +2586,6 @@ $currenciesData = [
                 </button>
                 <span class="text-xs sm:text-sm font-black text-sky-300">المبلغ المحلي</span>
               </div>
-              <span id="sdgMagnitudeBadge" class="hidden px-1.5 py-0.5 rounded-md text-[10px] font-black bg-amber-500/20 text-amber-300 border border-amber-500/40 whitespace-nowrap"></span>
             </div>
             <div id="sdgAmountCard" class="amount-display-card bg-slate-950/90 p-2 rounded-2xl glow-border-sky relative cursor-pointer flex items-center justify-center min-h-[72px]" onclick="if(event.target.id!=='sdgAmount') openNumberPropertiesModal(event, 'sdg')" oncontextmenu="openNumberPropertiesModal(event, 'sdg'); return false;" title="انقر لتخصيص الألوان والتقريب والحجم للمبلغ المحلي">
               <input type="text" id="sdgAmount" placeholder="0" inputmode="decimal" onfocus="this.select()" onblur="formatCurrentAmountInput('sdg'); onAmountInputBlur('sdg');" oninput="handleAmountInput('sdg'); updateTafqeet(); onAmountInputLive('sdg');" onkeydown="if(event.key===' ' || event.code==='Space'){ event.preventDefault(); openNumberPropertiesModal(event, 'sdg'); }" oncontextmenu="openNumberPropertiesModal(event, 'sdg'); return false;" ondblclick="openNumberPropertiesModal(event, 'sdg')" class="amount-number-input w-full bg-transparent text-center focus:outline-none placeholder-slate-700 font-black tracking-tight" style="font-size: var(--num-size-sdg, 32px); font-weight: var(--num-weight-sdg, 900); color: var(--num-color-sdg, #ffffff); text-align: center;">
@@ -2551,7 +2597,6 @@ $currenciesData = [
             <div class="flex items-center justify-between mb-1 px-1 h-6">
               <div class="flex items-center gap-1">
                 <span class="text-xs sm:text-sm font-black text-emerald-300" id="foreignAmountTitle">مبلغ الدولار</span>
-                <span id="foreignCurrencyBadge" class="px-1.5 py-0.5 rounded text-[9.5px] font-mono font-black bg-emerald-950/90 text-emerald-300 border border-emerald-500/40">$ USD</span>
               </div>
               <div class="flex items-center gap-1.5">
                 <button type="button" onclick="startFieldVoiceInput('usd', this)" class="field-mic-btn w-6 h-6 rounded-full bg-emerald-950/95 border border-emerald-400/80 text-emerald-200 flex items-center justify-center active:scale-90 transition shrink-0" title="تسجيل صوتي للمبلغ بالدولار فقط" aria-label="تسجيل صوتي للمبلغ بالدولار">
@@ -2598,20 +2643,20 @@ $currenciesData = [
           </div>
         </div>
 
-        <!-- شريط الرصيد الحي والرصيد المتوقع بعد الصرف/السحب -->
-        <div id="fromBalanceWrapper" class="mb-1.5 flex items-center justify-between gap-1.5 px-2 py-1 rounded-xl bg-slate-950/85 border border-slate-800/90 text-[10.5px]">
-          <div class="flex items-center gap-1.5 min-w-0">
-            <span class="text-slate-400 font-bold">الرصيد:</span>
-            <span id="fromAccountSdgBalance" class="font-mono font-black text-amber-300">---</span>
-            <span class="text-slate-500 text-[9.5px]">ج.س</span>
-            <span id="fromBalanceNatureTag" class="hidden px-1.5 py-0.2 rounded text-[9px] font-black"></span>
+        <!-- شريط الرصيد الحي والرصيد بعد القيد على نفس المستوى -->
+        <div id="fromBalanceWrapper" class="mb-1.5 flex flex-wrap items-center gap-x-1.5 gap-y-0.5 px-2.5 py-1 rounded-xl bg-slate-950/85 border border-slate-800/90 text-[10.5px]">
+          <span class="text-slate-400 font-bold">الرصيد:</span>
+          <span id="fromAccountSdgBalance" class="font-mono font-black text-amber-300">---</span>
+          <span class="text-amber-300/80 text-[9.5px] font-bold">ج.س</span>
+          <span id="fromBalanceNatureTag" class="hidden px-1.5 py-0.2 rounded text-[9px] font-black"></span>
+          <span class="text-slate-600">|</span>
+          <span class="text-emerald-400 font-mono font-black text-[10.5px]">$<span id="fromAccountUsdBalance">---</span></span>
+          <span id="fromProjectedBadge" class="hidden inline-flex items-center gap-1 text-sky-300">
             <span class="text-slate-600">|</span>
-            <span class="text-emerald-400/90 font-mono font-bold text-[10px]">$<span id="fromAccountUsdBalance">---</span></span>
-          </div>
-          <div id="fromProjectedBadge" class="hidden px-2 py-0.5 rounded-md text-[10px] font-bold border transition-all flex items-center gap-1">
-            <span>بعد الحركة:</span>
-            <span id="fromProjectedAmount" class="font-mono font-black"></span>
-          </div>
+            <span id="fromProjectedLabel" class="font-bold text-sky-300">الرصيد بعد القيد:</span>
+            <span id="fromProjectedAmount" class="font-mono font-black text-sky-300">---</span>
+            <span class="text-sky-300/80 text-[9.5px] font-bold">ج.س</span>
+          </span>
         </div>
 
         <!-- حقل اسم الحساب -->
@@ -2624,29 +2669,21 @@ $currenciesData = [
       </div>
 
       <!-- ═════════════════════════════════════════════════════════════════
-           شريط الإدراك المحاسبي لاتجاه التدفق المالي + زر عكس الطرفين الفوري (⇄)
+           مؤشر اتجاه التدفق المالي من (من حساب) إلى (إلى حساب)
            ═════════════════════════════════════════════════════════════════ -->
-      <div class="flex items-center justify-between my-[-4px] px-1 relative z-20 gap-1.5">
-        <div id="cognitiveFlowSummaryBadge" class="flex-1 px-2.5 py-1 rounded-xl bg-slate-900/95 border border-slate-700/80 text-[10.5px] font-black text-slate-300 flex items-center gap-1.5 truncate shadow-inner">
-          <i class="fa-solid fa-circle-nodes text-amber-400 text-[10px] shrink-0"></i>
-          <span id="cognitiveFlowSummaryText" class="truncate">اختر طرفي القيد لتحديد اتجاه التدفق المالي تلقائياً</span>
-        </div>
-
-        <button type="button" onclick="triggerCrystalFlowAnimation()" id="crystalFlowBtn" class="kinetic-flow-capsule active:scale-90 shrink-0" title="مسار تدفق الحركة المالية من الأعلى (من حساب) إلى الأسفل (إلى حساب)">
+      <div class="flex items-center justify-center my-[-6px] relative z-20 px-4">
+        <div class="flow-stream-track"></div>
+        <button type="button" onclick="triggerCrystalFlowAnimation()" id="crystalFlowBtn" class="kinetic-flow-capsule active:scale-90 mx-2 shrink-0" title="مسار تدفق الحركة المالية من الأعلى (من حساب) إلى الأسفل (إلى حساب)">
           <div class="flex flex-col items-center justify-center leading-none gap-0.5 pointer-events-none">
             <i class="fa-solid fa-chevron-down text-[10px] chevron-stream-1"></i>
             <i class="fa-solid fa-arrow-down text-xs font-black text-white chevron-stream-2"></i>
           </div>
         </button>
-
-        <button type="button" onclick="swapFromAndToAccounts()" class="px-2.5 py-1 rounded-xl bg-amber-950/80 hover:bg-amber-900 border border-amber-500/50 text-amber-300 text-[10.5px] font-black flex items-center gap-1 active:scale-95 transition shrink-0 shadow-sm" title="عكس وتبديل حساب (مِن) وحساب (إلى) بضغطة واحدة">
-          <i class="fa-solid fa-repeat text-[10px]"></i>
-          <span>عكس ⇄</span>
-        </button>
+        <div class="flow-stream-track"></div>
       </div>
 
       <!-- ═════════════════════════════════════════════════════════════════
-           إلى حساب (الطرف المستفيد / المستلم - مدين):
+           إلى حساب (الطرف المستلم - مدين):
            - شارة الرصيد الحي + الرصيد المتوقع بعد الاستلام + زر كشف الحساب السريع
            ═════════════════════════════════════════════════════════════════ -->
       <div id="toAccountCard" class="bg-gradient-to-b from-emerald-950/40 to-slate-900/95 glow-border-emerald rounded-2xl p-3 sm:p-3.5 relative">
@@ -2656,7 +2693,7 @@ $currenciesData = [
               <i class="fa-solid fa-microphone text-[11px]"></i>
             </button>
             <span class="px-2 py-0.5 rounded-lg bg-emerald-600 text-white font-black text-xs shadow-md">إلى</span>
-            <span class="text-sm font-black text-emerald-300">إلى حساب (المستفيد):</span>
+            <span class="text-sm font-black text-emerald-300">إلى حساب (المستلم):</span>
           </div>
 
           <div class="flex items-center gap-1">
@@ -2670,73 +2707,67 @@ $currenciesData = [
           </div>
         </div>
 
-        <!-- شريط الرصيد الحي والرصيد المتوقع بعد الاستلام -->
-        <div id="toBalanceWrapper" class="mb-1.5 flex items-center justify-between gap-1.5 px-2 py-1 rounded-xl bg-slate-950/85 border border-slate-800/90 text-[10.5px]">
-          <div class="flex items-center gap-1.5 min-w-0">
-            <span class="text-slate-400 font-bold">الرصيد:</span>
-            <span id="toAccountSdgBalance" class="font-mono font-black text-amber-300">---</span>
-            <span class="text-slate-500 text-[9.5px]">ج.س</span>
-            <span id="toBalanceNatureTag" class="hidden px-1.5 py-0.2 rounded text-[9px] font-black"></span>
+        <!-- شريط الرصيد الحي والرصيد بعد القيد على نفس المستوى -->
+        <div id="toBalanceWrapper" class="mb-1.5 flex flex-wrap items-center gap-x-1.5 gap-y-0.5 px-2.5 py-1 rounded-xl bg-slate-950/85 border border-slate-800/90 text-[10.5px]">
+          <span class="text-slate-400 font-bold">الرصيد:</span>
+          <span id="toAccountSdgBalance" class="font-mono font-black text-amber-300">---</span>
+          <span class="text-amber-300/80 text-[9.5px] font-bold">ج.س</span>
+          <span id="toBalanceNatureTag" class="hidden px-1.5 py-0.2 rounded text-[9px] font-black"></span>
+          <span class="text-slate-600">|</span>
+          <span class="text-emerald-400 font-mono font-black text-[10.5px]">$<span id="toAccountUsdBalance">---</span></span>
+          <span id="toProjectedBadge" class="hidden inline-flex items-center gap-1 text-sky-300">
             <span class="text-slate-600">|</span>
-            <span class="text-emerald-400/90 font-mono font-bold text-[10px]">$<span id="toAccountUsdBalance">---</span></span>
-          </div>
-          <div id="toProjectedBadge" class="hidden px-2 py-0.5 rounded-md text-[10px] font-bold border transition-all flex items-center gap-1">
-            <span>بعد الحركة:</span>
-            <span id="toProjectedAmount" class="font-mono font-black"></span>
-          </div>
+            <span id="toProjectedLabel" class="font-bold text-sky-300">الرصيد بعد القيد:</span>
+            <span id="toProjectedAmount" class="font-mono font-black text-sky-300">---</span>
+            <span class="text-sky-300/80 text-[9.5px] font-bold">ج.س</span>
+          </span>
         </div>
 
         <!-- حقل اسم الحساب -->
         <div class="relative w-full">
-          <input type="text" id="toSearchInput" oninput="liveSearchAccount('to')" onblur="handleAccountInputBlur('to')" onclick="onAccountInputFocus('to')" onfocus="onAccountInputFocus('to')" placeholder="اضغط لاختيار أو كتابة اسم المستفيد..." value="" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" class="account-search-input w-full bg-slate-950 glow-border-emerald rounded-xl text-white focus:outline-none placeholder-slate-500">
+          <input type="text" id="toSearchInput" oninput="liveSearchAccount('to')" onblur="handleAccountInputBlur('to')" onclick="onAccountInputFocus('to')" onfocus="onAccountInputFocus('to')" placeholder="اضغط لاختيار أو كتابة اسم المستلم..." value="" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" class="account-search-input w-full bg-slate-950 glow-border-emerald rounded-xl text-white focus:outline-none placeholder-slate-500">
           
           <!-- القائمة المنسدلة الذكية الفورية مع تبويبات التصنيف الذكية -->
           <div id="toDropdown" class="hidden absolute top-full right-0 left-0 mt-1.5 bg-slate-950 border-2 border-emerald-500/60 rounded-2xl shadow-2xl z-40 max-h-72 overflow-y-auto no-scrollbar"></div>
         </div>
       </div>
 
-
       <!-- ═════════════════════════════════════════════════════════════════
-           رقم التحويلة:
-           - يحمل 14 رقماً بحجم كبير جداً وواضح للسائق وفي السيارة
-           - وإذا شال 15 أو 16 أو 20 رقماً تصغر الأرقام تلقائياً وتظل كلها ظاهرة بدون قص
-           ═════════════════════════════════════════════════════════════════ -->
-      <!-- ═════════════════════════════════════════════════════════════════
-           رقم التحويلة واسم البنك (ألوان أنيقة وخطوط واضحة):
-           - رقم التحويلة: لون ذهبي دافئ أنيق بخط كبير
+           رقم التحويلة واسم البنك (تصميم متناسق ومضغوط بدون هوامش زائدة):
+           - رقم التحويلة: لون ذهبي دافئ أنيق بخط واضح
            - اسم البنك: لون أزرق جليدي فيروزي أنيق
            ═════════════════════════════════════════════════════════════════ -->
-      <div id="transferContainer" class="bg-gradient-to-br from-slate-800/70 via-slate-900/85 to-slate-950/95 border border-slate-700/60 rounded-2xl p-2.5 space-y-2 shadow-[0_4px_20px_rgba(0,0,0,0.35),inset_0_1px_0_0_rgba(255,255,255,0.06)] backdrop-blur-md">
+      <div id="transferContainer" class="bg-gradient-to-br from-slate-800/70 via-slate-900/85 to-slate-950/95 border border-slate-700/60 rounded-2xl px-2.5 py-1.5 space-y-1 shadow-[0_4px_20px_rgba(0,0,0,0.35),inset_0_1px_0_0_rgba(255,255,255,0.06)] backdrop-blur-md">
         <input type="file" id="directReceiptCameraInput" accept="image/*" capture="environment" class="hidden" onchange="handleDirectReceiptSelected(event)">
         <input type="file" id="directReceiptGalleryInput" accept="image/*" class="hidden" onchange="handleDirectReceiptSelected(event)">
 
-        <div class="grid grid-cols-2 gap-2.5 items-start">
-          <!-- 1. رقم التحويلة بأناقة اللون الذهبي الدافئ والخط العريض -->
+        <div class="grid grid-cols-2 gap-2 items-start">
+          <!-- 1. رقم التحويلة -->
           <div class="flex flex-col">
-            <div class="flex items-center gap-1.5 mb-1.5 h-7">
-              <button type="button" onclick="startFieldVoiceInput('transfer', this)" class="field-mic-btn w-6 h-6 rounded-full bg-amber-950/95 border border-amber-400/80 text-amber-200 flex items-center justify-center active:scale-90 transition shrink-0" title="تسجيل صوتي لرقم التحويلة فقط" aria-label="تسجيل صوتي لرقم التحويلة">
-                <i class="fa-solid fa-microphone text-[10px]"></i>
+            <div class="flex items-center gap-1 mb-1 h-5">
+              <button type="button" onclick="startFieldVoiceInput('transfer', this)" class="field-mic-btn w-5 h-5 rounded-full bg-amber-950/95 border border-amber-400/80 text-amber-200 flex items-center justify-center active:scale-90 transition shrink-0" title="تسجيل صوتي لرقم التحويلة فقط" aria-label="تسجيل صوتي لرقم التحويلة">
+                <i class="fa-solid fa-microphone text-[9px]"></i>
               </button>
-              <label class="text-xs sm:text-sm font-black text-amber-300 flex items-center gap-1" id="refLabel">
-                <i class="fa-solid fa-receipt text-amber-400 text-xs"></i>
+              <label class="text-xs font-black text-amber-300 flex items-center gap-1" id="refLabel">
+                <i class="fa-solid fa-receipt text-amber-400 text-[11px]"></i>
                 <span>رقم التحويل:</span>
               </label>
             </div>
-            <input type="text" id="transferInput" oninput="handleTransferLiveInput(this.value); onTransferInputLive(this.value);" onblur="handleTransferBlur(this.value); onTransferInputBlur();" placeholder="رقم التحويل" class="w-full bg-slate-950/90 glow-border-amber rounded-xl px-2.5 h-[48px] font-mono font-black text-yellow-300 focus:outline-none tracking-tight box-border cursor-text" style="font-size: 19px; text-align: center; direction: ltr;">
+            <input type="text" id="transferInput" oninput="handleTransferLiveInput(this.value); onTransferInputLive(this.value);" onblur="handleTransferBlur(this.value); onTransferInputBlur();" placeholder="رقم التحويل" class="w-full bg-slate-950/90 glow-border-amber rounded-xl px-2 h-[40px] font-mono font-black text-yellow-300 focus:outline-none tracking-tight box-border cursor-text" style="font-size: 18px; text-align: center; direction: ltr;">
           </div>
 
-          <!-- 2. اسم البنك بأناقة الفيروزي الجليدي والخط الواضح المعزز بمحاذاة تامة ومستوى واحد -->
+          <!-- 2. اسم البنك -->
           <div class="flex flex-col">
-            <div class="flex items-center gap-1.5 mb-1.5 h-7">
-              <button type="button" onclick="startFieldVoiceInput('bank', this)" class="field-mic-btn w-6 h-6 rounded-full bg-cyan-950/95 border border-cyan-400/80 text-cyan-200 flex items-center justify-center active:scale-90 transition shrink-0" title="تسجيل صوتي لاسم البنك" aria-label="تسجيل صوتي لاسم البنك">
-                <i class="fa-solid fa-microphone text-[10px]"></i>
+            <div class="flex items-center gap-1 mb-1 h-5">
+              <button type="button" onclick="startFieldVoiceInput('bank', this)" class="field-mic-btn w-5 h-5 rounded-full bg-cyan-950/95 border border-cyan-400/80 text-cyan-200 flex items-center justify-center active:scale-90 transition shrink-0" title="تسجيل صوتي لاسم البنك" aria-label="تسجيل صوتي لاسم البنك">
+                <i class="fa-solid fa-microphone text-[9px]"></i>
               </button>
-              <label class="text-xs sm:text-sm font-black text-cyan-300 flex items-center gap-1" id="bankNameLabel">
-                <i class="fa-solid fa-building-columns text-cyan-400 text-xs"></i>
+              <label class="text-xs font-black text-cyan-300 flex items-center gap-1" id="bankNameLabel">
+                <i class="fa-solid fa-building-columns text-cyan-400 text-[11px]"></i>
                 <span>اسم البنك:</span>
               </label>
             </div>
-            <input type="text" id="bankNameInput" list="banksDataList" oninput="onBankInputLive(this.value)" onblur="onBankInputBlur()" placeholder="اسم البنك" class="w-full bg-slate-950/90 glow-border-cyan rounded-xl px-2.5 h-[48px] text-xs sm:text-sm font-black text-cyan-300 focus:outline-none box-border cursor-text" value="بنك الخرطوم">
+            <input type="text" id="bankNameInput" list="banksDataList" oninput="onBankInputLive(this.value)" onblur="onBankInputBlur()" placeholder="اسم البنك" class="w-full bg-slate-950/90 glow-border-cyan rounded-xl px-2 h-[40px] text-xs font-black text-cyan-300 focus:outline-none box-border cursor-text" value="بنك الخرطوم">
             <datalist id="banksDataList">
               <option value="بنك الخرطوم"></option>
               <option value="بنك فيصل الإسلامي"></option>
@@ -2751,8 +2782,8 @@ $currenciesData = [
             </datalist>
           </div>
 
-          <!-- شارة التحقق من رقم التحويلة تمتد بكامل العرض في الأسفل بتوازن تام -->
-          <div id="transferFeedbackBadge" class="col-span-2 min-h-[20px] transition-all flex items-center justify-center"></div>
+          <!-- شارة التحقق من رقم التحويلة (تختفي تماماً عند عدم وجود تنبيه لمنع الفراغ السفلي) -->
+          <div id="transferFeedbackBadge" class="empty:hidden col-span-2 transition-all flex items-center justify-center"></div>
         </div>
 
         <!-- بطاقة الإشعار البنكي المرفق والمثبت كمستند ثبوتي -->
@@ -4063,7 +4094,7 @@ $currenciesData = [
           </div>
           
           <div style="flex: 1; text-align: left; animation: slideLeft 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; animation-delay: 0.3s; opacity: 0;">
-            <div style="font-size: 0.75rem; color: #94a3b8; margin-bottom: 3px; font-weight:bold;">إلى حساب (المستفيد)</div>
+            <div style="font-size: 0.75rem; color: #94a3b8; margin-bottom: 3px; font-weight:bold;">إلى حساب (المستلم)</div>
             <div style="font-weight: 900; color: #f472b6; font-size: 0.95rem; line-height: 1.3;">${toName}</div>
           </div>
         </div>
@@ -4241,7 +4272,7 @@ $currenciesData = [
           </div>
         </div>
 
-        <!-- حركة أطراف السند (الدافع والمستفيد) -->
+        <!-- حركة أطراف السند (الدافع والمستلم) -->
         <div style="background:rgba(0,0,0,0.35); border-radius:16px; padding:12px; margin:12px 0; border:1px solid rgba(255,255,255,0.08); display:flex; align-items:center; justify-content:space-between; gap:10px;">
           <div style="flex:1; text-align:right;">
             <div style="font-size:0.72rem; color:#94a3b8; font-weight:700;">من حساب (الدافع):</div>
@@ -4249,7 +4280,7 @@ $currenciesData = [
           </div>
           <div style="font-size:1.3rem; color:#818cf8; flex-shrink:0;">⬅️</div>
           <div style="flex:1; text-align:left;">
-            <div style="font-size:0.72rem; color:#94a3b8; font-weight:700;">إلى حساب (المستفيد):</div>
+            <div style="font-size:0.72rem; color:#94a3b8; font-weight:700;">إلى حساب (المستلم):</div>
             <div style="font-weight:900; color:#f472b6; font-size:0.95rem; line-height:1.3; margin-top:2px;">${to}</div>
           </div>
         </div>
@@ -4368,7 +4399,7 @@ $currenciesData = [
 ✍️ *فقط:* ${tafqeet} لا غير
 ━━━━━━━━━━━━━━━━━━━
 🔴 *من حساب (الدافع):* ${from}
-🟢 *إلى حساب (المستفيد):* ${to}
+🟢 *إلى حساب (المستلم):* ${to}
 🏦 *البنك المعتمد:* ${bank}
 🔢 *رقم التحويلة / الإشعار:* ${refNo}
 📝 *البيان:* ${notes}
@@ -7256,28 +7287,8 @@ $currenciesData = [
       return { code: 'settlement', label: '🟣 قيد تسوية محاسبية', cls: 'bg-purple-500/20 border-purple-400/50 text-purple-300' };
     }
 
-    function updateMagnitudeBadgeUI(amountSdg) {
-      const badge = document.getElementById('sdgMagnitudeBadge');
-      if (!badge) return;
-      const amt = Number(amountSdg || 0);
-      if (amt < 1000) {
-        badge.classList.add('hidden');
-        return;
-      }
-      badge.classList.remove('hidden');
-      if (amt >= 1000000000) {
-        const v = (amt / 1000000000).toFixed(2).replace(/\.00$/, '');
-        badge.textContent = `${v} مليار`;
-        badge.className = 'px-1.5 py-0.5 rounded-md bg-rose-500/25 border border-rose-400/60 text-rose-200 font-black text-[9.5px] shadow-sm';
-      } else if (amt >= 1000000) {
-        const v = (amt / 1000000).toFixed(2).replace(/\.00$/, '');
-        badge.textContent = `${v} مليون`;
-        badge.className = 'px-1.5 py-0.5 rounded-md bg-amber-500/25 border border-amber-400/60 text-amber-200 font-black text-[9.5px] shadow-sm';
-      } else {
-        const v = (amt / 1000).toFixed(1).replace(/\.0$/, '');
-        badge.textContent = `${v} ألف`;
-        badge.className = 'px-1.5 py-0.5 rounded-md bg-emerald-500/20 border border-emerald-400/40 text-emerald-300 font-black text-[9.5px] shadow-sm';
-      }
+    function updateMagnitudeBadgeUI() {
+      // تم إيقاف شارة التقريب أعلى المبلغ المحلي بناءً على طلب المستخدم
     }
 
     // ════════════════════════════════════════════════════════════════
@@ -7288,8 +7299,6 @@ $currenciesData = [
       const fromName = (document.getElementById('fromSearchInput')?.value || '').trim();
       const toName = (document.getElementById('toSearchInput')?.value || '').trim();
       const activeSdgAmt = parseRawNumber(document.getElementById('sdgAmount')?.value || 0);
-
-      updateMagnitudeBadgeUI(activeSdgAmt);
 
       const fromAcc = accountsDB.find(a => a && a.name === fromName);
       const toAcc = accountsDB.find(a => a && a.name === toName);
@@ -7302,22 +7311,11 @@ $currenciesData = [
         headerBadge.textContent = natureInfo.label;
       }
 
-      const flowBadge = document.getElementById('cognitiveFlowSummaryBadge');
-      if (flowBadge) {
-        if (fromName || toName) {
-          const shortFrom = fromName ? (fromName.length > 18 ? fromName.slice(0, 18) + '…' : fromName) : '؟';
-          const shortTo = toName ? (toName.length > 18 ? toName.slice(0, 18) + '…' : toName) : '؟';
-          const amtTxt = activeSdgAmt > 0 ? ` (${Number(activeSdgAmt).toLocaleString()} ج.س)` : '';
-          flowBadge.textContent = `${natureInfo.label}: ${shortFrom} ⬅️ ${shortTo}${amtTxt}`;
-        } else {
-          flowBadge.textContent = 'اختر طرفي القيد لمعاينة اتجاه التدفق المالي';
-        }
-      }
-
       // 1. حساب من حساب (الدافع / الطرف الدائن في القيد)
       const fromSdgEl = document.getElementById('fromAccountSdgBalance');
       const fromUsdEl = document.getElementById('fromAccountUsdBalance');
       const fromBadge = document.getElementById('fromProjectedBadge');
+      const fromLabelEl = document.getElementById('fromProjectedLabel');
       const fromAmtEl = document.getElementById('fromProjectedAmount');
 
       if (fromAcc) {
@@ -7329,15 +7327,9 @@ $currenciesData = [
         if (activeSdgAmt > 0 && fromBadge && fromAmtEl) {
           // الطرف (من حساب) يُقيّد دائناً (Credit): ينقص إذا كان حساباً مديناً، ويزيد إذا كان حساباً دائناً
           const projected = (normal === 'credit') ? (curBal + activeSdgAmt) : (curBal - activeSdgAmt);
-          const isCashBank = isCashOrBankAccountJs(fromAcc, fromName);
-          fromAmtEl.textContent = Number(projected).toLocaleString('en-US') + ' ج.س';
-          if (isCashBank && projected < 0) {
-            fromBadge.className = 'px-2 py-0.5 rounded-md text-[10px] font-bold border transition-all flex items-center gap-1 bg-rose-950/90 text-rose-300 border-rose-500/70 shadow-[0_0_10px_rgba(244,63,94,0.4)] animate-pulse';
-            fromBadge.firstElementChild.textContent = '⚠️ رصيد مكشوف:';
-          } else {
-            fromBadge.className = 'px-2 py-0.5 rounded-md text-[10px] font-bold border transition-all flex items-center gap-1 bg-sky-950/80 text-sky-300 border-sky-500/50';
-            fromBadge.firstElementChild.textContent = isCashBank ? 'بعد الصرف:' : (normal === 'credit' ? 'بعد القيد (له):' : 'بعد القيد (عليه):');
-          }
+          fromAmtEl.textContent = Number(projected).toLocaleString('en-US');
+          if (fromLabelEl) fromLabelEl.textContent = 'الرصيد بعد القيد:';
+          fromBadge.className = 'inline-flex items-center gap-1 text-sky-300';
           fromBadge.classList.remove('hidden');
         } else if (fromBadge) {
           fromBadge.classList.add('hidden');
@@ -7352,6 +7344,7 @@ $currenciesData = [
       const toSdgEl = document.getElementById('toAccountSdgBalance');
       const toUsdEl = document.getElementById('toAccountUsdBalance');
       const toBadge = document.getElementById('toProjectedBadge');
+      const toLabelEl = document.getElementById('toProjectedLabel');
       const toAmtEl = document.getElementById('toProjectedAmount');
 
       if (toAcc) {
@@ -7363,10 +7356,9 @@ $currenciesData = [
         if (activeSdgAmt > 0 && toBadge && toAmtEl) {
           // الطرف (إلى حساب) يُقيّد مديناً (Debit): يزيد إذا كان حساباً مديناً (خزينة/بنك/مصروف/عميل)، وينقص إذا كان دائناً (سداد لمورد)
           const projected = (normal === 'credit') ? (curBal - activeSdgAmt) : (curBal + activeSdgAmt);
-          const isCashBank = isCashOrBankAccountJs(toAcc, toName);
-          toAmtEl.textContent = Number(projected).toLocaleString('en-US') + ' ج.س';
-          toBadge.className = 'px-2 py-0.5 rounded-md text-[10px] font-bold border transition-all flex items-center gap-1 bg-emerald-950/80 text-emerald-300 border-emerald-500/50 shadow-sm';
-          toBadge.firstElementChild.textContent = isCashBank ? 'بعد الإيداع:' : (normal === 'credit' ? 'المتبقي له:' : 'الرصيد الجديد:');
+          toAmtEl.textContent = Number(projected).toLocaleString('en-US');
+          if (toLabelEl) toLabelEl.textContent = 'الرصيد بعد القيد:';
+          toBadge.className = 'inline-flex items-center gap-1 text-sky-300';
           toBadge.classList.remove('hidden');
         } else if (toBadge) {
           toBadge.classList.add('hidden');
@@ -7989,7 +7981,7 @@ $currenciesData = [
       const toInp = document.getElementById('toSearchInput');
       if (toInp) {
         toInp.value = '';
-        toInp.placeholder = 'اضغط لاختيار أو كتابة اسم المستفيد...';
+        toInp.placeholder = 'اضغط لاختيار أو كتابة اسم المستلم...';
         toInp.scrollTop = 0;
         toInp.scrollLeft = 0;
       }
@@ -10176,9 +10168,9 @@ $currenciesData = [
         return;
       }
 
-      // 3. الطرف الثاني: حساب المستفيد (مطابق لحركة مالية: يرجى اختيار الحساب المستفيد)
+      // 3. الطرف الثاني: حساب المستلم
       if (!toAccountName) {
-        showToast("يرجى اختيار الحساب المستفيد", "error");
+        showToast("يرجى اختيار الحساب المستلم", "error");
         const toInput = document.getElementById('toSearchInput');
         if (toInput) {
           toInput.focus();
@@ -10202,7 +10194,7 @@ $currenciesData = [
       }
 
       if (normalizeArabicText(fromAccountName) === normalizeArabicText(toAccountName)) {
-        showToast("لا يمكن أن يكون حساب الدفع مطابقاً لحساب المستفيد", "warning");
+        showToast("لا يمكن أن يكون حساب الدفع مطابقاً لحساب المستلم", "warning");
         const toInput = document.getElementById('toSearchInput');
         if (toInput) toInput.focus();
         return;
