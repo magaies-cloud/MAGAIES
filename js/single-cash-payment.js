@@ -1,10 +1,26 @@
 window.getAllSinglePayments = function() {
     let localInvs = [];
+    let mobInvs = [];
+    let offQueue = [];
     try { localInvs = JSON.parse(localStorage.getItem('erp_single_payments_v1')) || []; } catch(e){}
+    try { mobInvs = JSON.parse(localStorage.getItem('magaiees_vouchers_history')) || []; } catch(e){}
+    try { offQueue = JSON.parse(localStorage.getItem('magaies_mobile_offline_queue')) || []; } catch(e){}
     let serverInvs = window.SERVER_SINGLE_PAYMENTS || [];
     let map = new Map();
-    serverInvs.forEach(inv => map.set(inv.id, inv));
-    localInvs.forEach(inv => map.set(inv.id, inv));
+    const putVoucher = (inv) => {
+        if (!inv || typeof inv !== 'object') return;
+        const vid = String(inv.id || inv.voucherNo || inv.paymentNo || inv.receiptNo || '').trim();
+        if (!vid) return;
+        if (!map.has(vid)) {
+            map.set(vid, Object.assign({ id: vid }, inv));
+        } else {
+            map.set(vid, Object.assign({}, inv, map.get(vid), { id: vid }));
+        }
+    };
+    serverInvs.forEach(putVoucher);
+    mobInvs.forEach(putVoucher);
+    offQueue.forEach(putVoucher);
+    localInvs.forEach(putVoucher);
     return Array.from(map.values());
 };
 /* ═══════════════════════════════════════════════════════
@@ -575,7 +591,7 @@ function setNextVoucherNumber() {
         spData = window.getAllSinglePayments();
     } catch(e) {}
 
-    // Base prefix on selected voucher date, not current system date
+    // Base prefix on current date (or selected date) and extract universal sequence across all E-vouchers
     const dateInput = document.getElementById('hdr-date');
     const selectedDate = (dateInput && dateInput.value) ? new Date(dateInput.value) : new Date();
     const validDate = isNaN(selectedDate.getTime()) ? new Date() : selectedDate;
@@ -583,17 +599,34 @@ function setNextVoucherNumber() {
     const mm = String(validDate.getMonth() + 1).padStart(2, '0');
     const datePrefix = 'E' + yy + mm;
 
+    const extractVoucherSeq = (raw) => {
+        const s = String(raw || '').trim();
+        if (!s || s.startsWith('PMT-')) return 0;
+        if (s.startsWith(datePrefix)) {
+            const n = parseInt(s.substring(datePrefix.length), 10);
+            if (!isNaN(n) && n > 0 && n < 1000000) return n;
+        }
+        const m = s.match(/^E\d{4}(\d{3,6})$/i);
+        if (m) {
+            const n = parseInt(m[1], 10);
+            if (!isNaN(n) && n > 0 && n < 1000000) return n;
+        }
+        return 0;
+    };
+
     let max = 0;
     spData.forEach(v => {
-        const vNo = String(v.id || v.voucherNo || '');
-        if (vNo.startsWith(datePrefix)) {
-            const seqStr = vNo.substring(datePrefix.length);
-            const seq = parseInt(seqStr, 10);
-            if (!isNaN(seq) && seq > max) {
-                max = seq;
-            }
-        }
+        const seq = extractVoucherSeq(v.id || v.voucherNo);
+        if (seq > max) max = seq;
     });
+    if (window.DB_NEXT_VOUCHER_NO) {
+        const dbSeq = extractVoucherSeq(window.DB_NEXT_VOUCHER_NO);
+        if (dbSeq - 1 > max) max = dbSeq - 1;
+    }
+    if (window.MagaiesOfflineSync && typeof window.MagaiesOfflineSync.getHighestKnownSeq === 'function') {
+        const offMax = window.MagaiesOfflineSync.getHighestKnownSeq('save_voucher');
+        if (offMax > max) max = offMax;
+    }
 
     const nextNo = `${datePrefix}${String(max + 1).padStart(4, '0')}`;
     const vNumEl = document.getElementById('voucher-number');
@@ -886,53 +919,91 @@ function renderVoucher(v) {
 
     let vid = v.id || v.voucherNo || v.paymentNo || v.receiptNo || v.invoiceNo || '';
     if (document.getElementById('voucher-number')) document.getElementById('voucher-number').innerText = vid;
-    
-    let dt = v.date || (v.createdAt ? String(v.createdAt).split('T')[0] : '');
-    if (dt && document.getElementById('hdr-date')) document.getElementById('hdr-date').value = dt;
-    
-    let toAcc = v.toAccount || v.depositAccount || v.accountId || '';
-    let fromAcc = v.fromAccount || v.withdrawalAccount || v.cashSafe || v.mainAccount || 'safe-001';
-    
-    if (document.getElementById('to-account')) document.getElementById('to-account').value = toAcc;
-    if (document.getElementById('to-account-search')) document.getElementById('to-account-search').value = getAccountName(toAcc) || toAcc;
 
-    let amt = (v.amountLocal !== undefined && v.amountLocal !== null) ? v.amountLocal : (v.amount !== undefined ? v.amount : (v.totalAmount || 0));
+    let dt = String(v.date || v.createdAt || v.savedAt || '').split('T')[0].split(' ')[0];
+    if (dt && document.getElementById('hdr-date')) document.getElementById('hdr-date').value = dt;
+
+    let rawTo = v.toAccount || v.toAccountName || v.to || v.toName || v.depositAccount || v.accountId || v.beneficiaryName || '';
+    let rawFrom = v.fromAccount || v.fromAccountName || v.from || v.fromName || v.withdrawalAccount || v.cashSafe || v.mainAccount || 'safe-001';
+
+    // مطابقة الحساب بالـ ID أو الاسم العربي في قائمة ACCOUNTS
+    const matchToObj = (typeof ACCOUNTS !== 'undefined' && Array.isArray(ACCOUNTS))
+        ? ACCOUNTS.find(a => a && (String(a.id) === String(rawTo) || a.name === rawTo))
+        : null;
+    const matchFromObj = (typeof ACCOUNTS !== 'undefined' && Array.isArray(ACCOUNTS))
+        ? ACCOUNTS.find(a => a && (String(a.id) === String(rawFrom) || a.name === rawFrom))
+        : null;
+
+    let toAcc = matchToObj ? matchToObj.id : rawTo;
+    let toAccDisplay = matchToObj ? matchToObj.name : (v.toAccountName || v.toName || v.to || getAccountName(toAcc) || toAcc);
+
+    let fromAcc = matchFromObj ? matchFromObj.id : rawFrom;
+    let fromAccDisplay = matchFromObj ? matchFromObj.name : (v.fromAccountName || v.fromName || v.from || getAccountName(fromAcc) || fromAcc);
+
+    if (document.getElementById('to-account')) document.getElementById('to-account').value = toAcc;
+    if (document.getElementById('to-account-search')) document.getElementById('to-account-search').value = toAccDisplay;
+
+    let amt = v.amountLocal ?? v.sdg ?? v.amount ?? v.totalAmount ?? 0;
     if (document.getElementById('amount-local')) document.getElementById('amount-local').value = fmtNum(amt);
     if (document.getElementById('currency')) document.getElementById('currency').value = v.currency || 'SDG';
-    
-    let rate = v.rate || v.exchangeRate || 1.0;
+
+    let rate = v.rate ?? v.exchangeRate ?? 1.0;
     if (document.getElementById('exchange-rate')) document.getElementById('exchange-rate').value = rate;
-    
-    let amtForeign = (v.amountForeign !== undefined && v.amountForeign !== null) ? v.amountForeign : (parseNum(amt) / parseNum(rate));
+
+    let amtForeign = v.amountForeign ?? v.usd ?? v.foreignAmt ?? (parseNum(amt) / (parseNum(rate) || 1));
     if (document.getElementById('amount-foreign')) document.getElementById('amount-foreign').value = fmtNum(amtForeign);
-    
-    if (document.getElementById('to-statement')) document.getElementById('to-statement').value = v.toStatement || v.statement || v.description || v.notes || '';
-    if (document.getElementById('beneficiary-name')) document.getElementById('beneficiary-name').value = v.beneficiaryName || v.beneficiary || '';
-    
+
+    const stmtText = String(v.toStatement ?? v.statement ?? v.description ?? v.notes ?? '');
+    const fromStmtText = String(v.fromStatement ?? v.statement ?? v.description ?? v.notes ?? '');
+    if (document.getElementById('to-statement')) document.getElementById('to-statement').value = stmtText;
+    if (document.getElementById('beneficiary-name')) document.getElementById('beneficiary-name').value = v.beneficiaryName || v.beneficiary || toAccDisplay || '';
+
     if (document.getElementById('from-account')) document.getElementById('from-account').value = fromAcc;
-    if (document.getElementById('from-account-search')) document.getElementById('from-account-search').value = getAccountName(fromAcc) || fromAcc;
-    if (window.fromAccChoice) window.fromAccChoice.setChoiceByValue(fromAcc);
+    if (document.getElementById('from-account-search')) document.getElementById('from-account-search').value = fromAccDisplay;
+    if (window.fromAccChoice) {
+        try { window.fromAccChoice.setChoiceByValue(fromAcc); } catch(e) {}
+    }
 
     const costCenterEl = document.getElementById('cost-center');
     if (costCenterEl) {
-        costCenterEl.value = v.costCenter || v.jobId || '';
-        if (window.ccChoice) window.ccChoice.setChoiceByValue(v.costCenter || v.jobId || '');
+        const ccVal = v.costCenter || v.jobId || '';
+        costCenterEl.value = ccVal;
+        if (window.ccChoice) {
+            try { window.ccChoice.setChoiceByValue(ccVal); } catch(e) {}
+        }
     }
 
-    if (document.getElementById('from-statement')) document.getElementById('from-statement').value = v.fromStatement || v.statement || v.description || '';
+    if (document.getElementById('from-statement')) document.getElementById('from-statement').value = fromStmtText;
 
-    // Set Payment Method
-    const method = v.paymentMethod || v.method || (v.cheques && v.cheques.length > 0 ? 'check' : (v.bankTransfers && v.bankTransfers.length > 0 ? 'mobile' : 'cash'));
-    const methodEl = document.querySelector(`input[name="payment_method"][value="${method}"]`); 
-    if (methodEl) { methodEl.checked = true; } 
-    else { const firstMethod = document.querySelector(`input[name="payment_method"]`); if(firstMethod) firstMethod.checked = true; }
-    
+    // Set Payment Method (يدعم صيغ الجوال وسطح المكتب)
+    let rawMethod = v.paymentMethod || v.method || v.payType || (v.cheques && v.cheques.length > 0 ? 'check' : (v.bankTransfers && v.bankTransfers.length > 0 ? 'mobile' : 'cash'));
+    if (rawMethod === 'transfer') rawMethod = 'mobile';
+    if (rawMethod === 'normal_cheque' || rawMethod === 'bank_cheque' || rawMethod === 'cheque') rawMethod = 'check';
+
+    const methodEl = document.querySelector(`input[name="payment_method"][value="${rawMethod}"]`);
+    if (methodEl) {
+        methodEl.checked = true;
+    } else {
+        const firstMethod = document.querySelector(`input[name="payment_method"]`);
+        if (firstMethod) firstMethod.checked = true;
+    }
+
     togglePaymentMethod();
 
     if (typeof loadVoucherPaymentDetails === 'function') {
         loadVoucherPaymentDetails(v);
     }
-    
+
+    // تعبئة رقم الإشعار/الشيك والبنك إن كانت محفوظة من شاشة الجوال
+    const refNo = v.refNo || v.mobileTransferNo || v.transferRef || v.checkNo || '';
+    const bankName = v.bankName || v.bank || '';
+    if (refNo && document.getElementById('mobile-transfer-no') && !document.getElementById('mobile-transfer-no').value) {
+        document.getElementById('mobile-transfer-no').value = refNo;
+    }
+    if (bankName && document.getElementById('mobile-bank-name') && !document.getElementById('mobile-bank-name').value) {
+        document.getElementById('mobile-bank-name').value = bankName;
+    }
+
     updateCurrency(true); // pass true to prevent overwriting historical exchange rate
     updateBalances();
     updateLedgerButtons();
@@ -1310,6 +1381,18 @@ function submitVoucherInner() {
     singlePaymentsData = (typeof window.getAllSinglePayments === 'function') ? window.getAllSinglePayments() : (singlePaymentsData || []);
     const oldVoucher = (currentViewedIndex !== -1 && singlePaymentsData && singlePaymentsData[currentViewedIndex]) ? singlePaymentsData[currentViewedIndex] : null;
 
+    if (!oldVoucher) {
+        const vSig = `${fromAcc}|${toAcc}|${amtLocal}|${document.getElementById('to-statement')?.value || ''}|${document.getElementById('hdr-date')?.value || ''}`;
+        if (window._lastSubmittedVoucherSig === vSig && (Date.now() - (window._lastSubmittedVoucherTime || 0)) < 15000) {
+            showToast(`✅ تم حفظ هذا السند مسبقاً برقم (${window._lastSubmittedVoucherId || ''}) — لن يتم تكرار الحفظ`, 'info', 3500);
+            window.isSubmitting = false;
+            return;
+        }
+        window._lastSubmittedVoucherSig = vSig;
+        window._lastSubmittedVoucherTime = Date.now();
+        window._lastSubmittedVoucherId = document.getElementById('voucher-number')?.innerText || '';
+    }
+
     const voucherData = {
         createdBy: oldVoucher?.createdBy || curUser.id,
         createdByName: oldVoucher?.createdByName || curUser.fullName || curUser.name,
@@ -1318,6 +1401,7 @@ function submitVoucherInner() {
         updatedByName: oldVoucher ? (curUser.fullName || curUser.name) : (oldVoucher?.updatedByName || null),
         updatedAt: oldVoucher ? new Date().toISOString() : (oldVoucher?.updatedAt || null),
         id: document.getElementById('voucher-number').innerText,
+        idempotencyKey: window._lastSubmittedVoucherSig ? ('LAP-E-' + btoa(unescape(encodeURIComponent(window._lastSubmittedVoucherSig))).substring(0, 32)) : ('LAP-E-' + document.getElementById('voucher-number').innerText),
         date: document.getElementById('hdr-date').value,
         time: new Date().toLocaleTimeString('en-GB', {hour: '2-digit', minute:'2-digit'}),
         type: 'single_payment',
@@ -1815,13 +1899,24 @@ function submitVoucherInner() {
             if (typeof window.triggerAutoWADispatchOnSave === 'function') {
                 window.triggerAutoWADispatchOnSave(voucherData, voucherData.id);
             }
-            // مزامنة فورية مباشرة مع قاعدة البيانات MariaDB
+            // مزامنة فورية مباشرة مع قاعدة البيانات MariaDB + طابور الأوفلاين الموحد
             try {
-                fetch('single-cash-payment.php?api=save_voucher', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(voucherData)
-                }).catch(e => console.warn('[MariaDB Sync] Save sync failed:', e));
+                if (!navigator.onLine) {
+                    if (window.MagaiesOffline && typeof window.MagaiesOffline.enqueue === 'function') {
+                        window.MagaiesOffline.enqueue('finance', voucherData, voucherData.id);
+                    }
+                } else {
+                    fetch('single-cash-payment.php?api=save_voucher', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(voucherData)
+                    }).catch(e => {
+                        console.warn('[MariaDB Sync] Save sync failed, enqueuing offline:', e);
+                        if (window.MagaiesOffline && typeof window.MagaiesOffline.enqueue === 'function') {
+                            window.MagaiesOffline.enqueue('finance', voucherData, voucherData.id);
+                        }
+                    });
+                }
             } catch(e) {}
         }
 

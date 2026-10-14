@@ -648,6 +648,7 @@
     <!-- Notification Toast Container -->
     <div class="toast-container" id="toast-container" style="position:fixed; bottom:20px; left:20px; z-index:99999; display:flex; flex-direction:column; gap:10px;"></div>
 
+    <script src="js/magaies-offline-sync.js?v=20261014"></script>
     <script defer src="js/localforage.min.js"></script>
     <script defer src="js/app.js?v=<?php echo file_exists('js/app.js') ? filemtime('js/app.js') : '1'; ?>"></script>
     <script>
@@ -803,6 +804,45 @@
             populateWarehouseSelect();
             calculatePendingGoods();
             renderPendingInvoices();
+            syncPurchaseReceiptsWithMariaDB();
+        }
+
+        let _isSyncingPurReceiptsDB = false;
+        async function syncPurchaseReceiptsWithMariaDB() {
+            if (_isSyncingPurReceiptsDB || !navigator.onLine) return;
+            _isSyncingPurReceiptsDB = true;
+            try {
+                const res = await fetch('api/mirror_sync.php?action=get_recent_purchases&_t=' + Date.now());
+                if (!res.ok) return;
+                const data = await res.json();
+                if (data && data.success && Array.isArray(data.purchases)) {
+                    let changed = false;
+                    data.purchases.forEach(remoteInv => {
+                        const rNo = remoteInv.invoiceNo || remoteInv.id;
+                        if (!rNo) return;
+                        const existIdx = allPurchases.findIndex(p => (p.invoiceNo || p.id) === rNo);
+                        if (existIdx === -1) {
+                            allPurchases.unshift(remoteInv);
+                            changed = true;
+                        } else {
+                            if (remoteInv.receiptStatus === 'received' && allPurchases[existIdx].receiptStatus !== 'received') {
+                                allPurchases[existIdx].receiptStatus = 'received';
+                                allPurchases[existIdx].status = 'received';
+                                changed = true;
+                            }
+                        }
+                    });
+                    if (changed) {
+                        localStorage.setItem('erp_purchase_invoices_v1', JSON.stringify(allPurchases));
+                        calculatePendingGoods();
+                        renderPendingInvoices(false);
+                    }
+                }
+            } catch (e) {
+                console.warn('Purchase receipt MariaDB sync warning:', e);
+            } finally {
+                _isSyncingPurReceiptsDB = false;
+            }
         }
 
         function getUserName(id) {
@@ -842,26 +882,24 @@
         }
 
         // Extremely critical: calculate actual pending balances
-        // For each invoice, sum quantities where warehouseId == 'PENDING_RECEIPT'.
+        // For each invoice, sum quantities where warehouseId == 'PENDING_RECEIPT' or unreceived Mobile purchase invoices.
         // Original invoices add positive pending qty. Returns subtract pending qty. GRNs subtract pending qty.
         function calculatePendingGoods() {
             pendingMap = {}; // target: { invId: { supplierId, date, lines: { itemId: { unitId, qty, originalLine } } } }
 
-            console.log("GRN Debug - allPurchases loaded:", allPurchases);
-
             // Base tracking by invoice
-            allPurchases.filter(inv => !inv.deleted && inv.status !== 'draft' && inv.status !== 'proforma' && inv.id !== editingGRNId).forEach(inv => {
+            allPurchases.filter(inv => !inv.deleted && inv.status !== 'draft' && inv.status !== 'proforma' && inv.receiptStatus !== 'received' && inv.status !== 'received' && inv.id !== editingGRNId).forEach(inv => {
                 const rootInvId = inv.isReturn || inv.isGRN ? inv.originalInvoiceId : (inv.invoiceNo || inv.id);
                 if (!rootInvId) {
-                    console.log("GRN Debug - Skipping invoice because rootInvId is falsy:", inv);
                     return;
                 }
 
                 if (!pendingMap[rootInvId]) {
                     pendingMap[rootInvId] = {
-                        supplierId: inv.customer || inv.customerId || inv.supplierId,
-                        date: inv.date,
-                        createdBy: inv.createdBy || 'unknown',
+                        supplierId: inv.customer || inv.customerId || inv.supplierId || inv.supplierName || inv.supplier,
+                        supplierName: inv.supplierName || inv.vendorName || inv.supplier || '',
+                        date: inv.date || (inv.savedAt ? inv.savedAt.split('T')[0] : ''),
+                        createdBy: inv.createdBy || inv.createdByName || 'unknown',
                         lines: {}
                     };
                 } else if (inv.createdBy && pendingMap[rootInvId].createdBy === 'unknown') {
@@ -871,30 +909,30 @@
                 const items = inv.items || inv.lines || [];
                 const globalWh = inv.warehouse;
 
-                console.log(`GRN Debug - Processing invoice ${rootInvId}, global warehouse: ${globalWh}`);
-
                 const isOriginal = (!inv.isReturn && !inv.isGRN);
                 items.forEach(line => {
                     const lineWh = line.warehouseId || globalWh;
-                    
-                    const isPending = (lineWh === 'PENDING_RECEIPT' || !lineWh || lineWh === '⏳ بضاعة قيد الاستلام (لم تحدد بعد)' || lineWh === '⏳ بضاعة قيد الاستلام');
-                    console.log(`GRN Debug - Item: ${line.itemId}, Line warehouse: ${lineWh}, isPending: ${isPending}`);
+                    const isMobileUnreceived = isOriginal && (inv.receiptStatus === 'pending_receipt' || (!line.warehouseId && (line.qty !== undefined || line.name !== undefined)));
+                    const isPending = isMobileUnreceived || (lineWh === 'PENDING_RECEIPT' || !lineWh || lineWh === '⏳ بضاعة قيد الاستلام (لم تحدد بعد)' || lineWh === '⏳ بضاعة قيد الاستلام');
 
                     if (isPending) {
-                        const lineKey = line.itemId + '|' + (line.unitId || line.selectedUnit || '');
+                        const resolvedItemId = line.itemId || line.id || line.name || line.itemName || 'صنف';
+                        const resolvedUnit = line.unitId || line.selectedUnit || line.unit || line.unitName || 'حبة';
+                        const lineKey = resolvedItemId + '|' + resolvedUnit;
                         if (!pendingMap[rootInvId].lines[lineKey]) {
                             pendingMap[rootInvId].lines[lineKey] = {
-                                itemId: line.itemId,
-                                unitId: line.unitId || line.selectedUnit || '',
+                                itemId: resolvedItemId,
+                                itemName: line.name || line.itemName || '',
+                                unitId: resolvedUnit,
                                 unitName: line.unitName || line.selectedUnit || line.unit || 'حبة',
-                                factor: line.customFactor || line.factor || line.equiv || line.conversionFactor || 0,
+                                factor: line.customFactor || line.factor || line.equiv || line.conversionFactor || 1,
                                 price: parseFloat(line.price) || 0,
                                 origQty: 0,
                                 pendingQty: 0
                             };
                         }
                         
-                        const q = parseFloat(line.quantity) || 0;
+                        const q = parseFloat(line.quantity !== undefined ? line.quantity : line.qty) || 0;
                         if (isOriginal && q > 0) {
                             pendingMap[rootInvId].lines[lineKey].origQty = (pendingMap[rootInvId].lines[lineKey].origQty || 0) + q;
                         }
@@ -904,8 +942,6 @@
             });
 
             // Cleanup: remove items with <= 0 pending qty, and invoices with no pending items
-            console.log("GRN Debug - pendingMap before cleanup:", JSON.parse(JSON.stringify(pendingMap)));
-
             Object.keys(pendingMap).forEach(invId => {
                 const lines = pendingMap[invId].lines;
                 Object.keys(lines).forEach(lk => {
@@ -922,19 +958,19 @@
                     delete pendingMap[invId];
                 }
             });
-
-            console.log("GRN Debug - Final pendingMap:", pendingMap);
         }
 
         function getSupplierName(id) {
             if(!id) return 'مورد نقدي';
-            const sup = suppliersDb.find(s => s.id === id);
-            return sup ? sup.name : 'مورد نقدي';
+            const sup = suppliersDb.find(s => s.id === id || s.name === id);
+            if (sup) return sup.name;
+            return String(id).startsWith('SUP-') || String(id).startsWith('vend-') ? 'مورد نقدي' : String(id);
         }
 
         function getItemName(id) {
-            const it = itemsDb.find(i => i.id === id);
-            return it ? it.name : 'صنف غير معروف';
+            if (!id) return 'صنف غير معروف';
+            const it = itemsDb.find(i => i.id === id || i.name === id);
+            return it ? it.name : String(id);
         }
 
         function renderPendingInvoices(resetCount = true) {
@@ -1633,10 +1669,27 @@
             localStorage.setItem('erp_purchase_invoices_v1', JSON.stringify(freshPurchases));
             allPurchases = freshPurchases; // Update local memory reference
             
-            // 🔥 CRITICAL: Force immediate cloud sync to prevent data loss when navigating to reports
+            // 🔥 CRITICAL: Force immediate cloud sync + Universal Offline Queue for Purchase Receipt
             if (typeof window.pushToCloud === 'function') {
                 window.pushToCloud(true);
             }
+            try {
+                if (!navigator.onLine) {
+                    if (window.MagaiesOffline && typeof window.MagaiesOffline.enqueue === 'function') {
+                        window.MagaiesOffline.enqueue('purchase_receipt', grnInv, grnInv.id);
+                    }
+                } else {
+                    fetch('api/mirror_sync.php?action=save_purchase_receipt', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(grnInv)
+                    }).catch(() => {
+                        if (window.MagaiesOffline && typeof window.MagaiesOffline.enqueue === 'function') {
+                            window.MagaiesOffline.enqueue('purchase_receipt', grnInv, grnInv.id);
+                        }
+                    });
+                }
+            } catch (eOff) {}
             
             setTimeout(() => {
                 calculatePendingGoods();

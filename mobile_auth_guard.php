@@ -80,27 +80,7 @@ if (!function_exists('mg_is_loopback_request')) {
             ];
         }
 
-        // 3. اعتماد جلسة الدخول النشطة للمستخدم السيادي (c / admin) إذا كانت الكوكيز نشطة
-        if (!empty($_COOKIE['session_active']) && $_COOKIE['session_active'] === 'true') {
-            if ($token !== '' && (str_starts_with($token, 'offline_token_') || $token === 'magaiees_sovereign_token_c')) {
-                try {
-                    $stmt = $pdo->prepare("SELECT * FROM users WHERE username IN ('c', 'C', 'admin') AND (status = 'active' OR status IS NULL) ORDER BY id ASC LIMIT 1");
-                    $stmt->execute();
-                    $cUser = $stmt->fetch(PDO::FETCH_ASSOC);
-                    if ($cUser && !empty($cUser['tenant_id'])) {
-                        return [
-                            'id'        => (int)$cUser['id'],
-                            'tenant_id' => (int)$cUser['tenant_id'],
-                            'username'  => (string)$cUser['username'],
-                            'role'      => (string)($cUser['role'] ?? 'admin'),
-                            'source'    => 'sovereign-cookie',
-                        ];
-                    }
-                } catch (Exception $e) {}
-            }
-        }
-
-        // 4. Localhost loopback development auto-login
+        // 3. في بيئة التطوير المحلية (Loopback) فقط: السماح بوضع عدم الاتصال المحلي أو الدخول التلقائي للمحاكاة
         if (mg_is_loopback_request()) {
             try {
                 $stmt = $pdo->prepare("SELECT * FROM users WHERE username IN ('c', 'C', 'admin') AND (status = 'active' OR status IS NULL) ORDER BY id ASC LIMIT 1");
@@ -128,8 +108,35 @@ if (!function_exists('mg_is_loopback_request')) {
         $method = strtoupper($_SERVER['REQUEST_METHOD'] ?? 'GET');
         if ($method === 'GET' || $method === 'HEAD' || $method === 'OPTIONS') return;
 
+        // فحص Sec-Fetch-Site في المتصفحات الحديثة لمنع طلبات cross-site حتى لو تم إخفاء Referer
+        $secFetchSite = strtolower($_SERVER['HTTP_SEC_FETCH_SITE'] ?? '');
+        if ($secFetchSite === 'cross-site') {
+            http_response_code(403);
+            header('Content-Type: application/json; charset=UTF-8');
+            echo json_encode([
+                'success' => false,
+                'error'   => 'تم رفض الطلب لانتهاك سياسة الأمان (Cross-Site Request Blocked).',
+            ], JSON_UNESCAPED_UNICODE);
+            exit;
+        }
+
         $origin = $_SERVER['HTTP_ORIGIN'] ?? ($_SERVER['HTTP_REFERER'] ?? '');
-        if ($origin === '') return;
+        if ($origin === '') {
+            // إذا لم يرسل المتصفح Origin أو Referer في طلب تعديل غير محلي، نشترط ترويسة JSON/AJAX أو Sec-Fetch-Site آمن
+            if (!mg_is_loopback_request() && !in_array($secFetchSite, ['same-origin', 'same-site', 'none'], true)) {
+                $contentType = strtolower($_SERVER['CONTENT_TYPE'] ?? ($_SERVER['HTTP_CONTENT_TYPE'] ?? ''));
+                if (strpos($contentType, 'application/json') === false && empty($_SERVER['HTTP_X_REQUESTED_WITH'])) {
+                    http_response_code(403);
+                    header('Content-Type: application/json; charset=UTF-8');
+                    echo json_encode([
+                        'success' => false,
+                        'error'   => 'تم رفض الطلب لعدم وجود ترويسة مصدر موثوقة (Missing Origin).',
+                    ], JSON_UNESCAPED_UNICODE);
+                    exit;
+                }
+            }
+            return;
+        }
 
         $originHost = parse_url($origin, PHP_URL_HOST);
         $requestHost = preg_replace('/:\d+$/', '', $_SERVER['HTTP_HOST'] ?? '');

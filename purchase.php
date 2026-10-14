@@ -1787,13 +1787,13 @@ try {
                     <!-- LEFT: Invoice & Date -->
                     <div id="invoice-info-box" style="flex: 1.3; display: flex; gap: 20px; width: 100%; align-items: center; transition: all 0.4s ease; padding: 6px 15px; border-radius: 12px;">
                         
-                        <div class="h-form-group group-invoice" style="flex: 1; display:flex; align-items:center; gap:15px; margin:0; flex-direction: row !important;">
+                        <div class="h-form-group group-invoice" style="flex: 1.15; min-width: 220px; display:flex; align-items:center; gap:10px; margin:0; flex-direction: row !important;">
                             <label id="hdr-inv-label" class="h-label" style="margin:0; font-size: 0.9rem; font-weight:bold; white-space:nowrap; transition: all 0.3s ease;">رقم الفاتورة:</label>
-                            <div class="pro-serial-container" style="flex:1; display:flex; align-items:center; justify-content:space-between; padding: 3px 8px; border-radius: 8px;">
-                                <button class="pro-serial-btn" type="button" onclick="loadPreviousInvoice()" title="السابقة" style="background: transparent; border: none; color: #fff; font-size: 1.2rem; cursor: pointer; padding: 0 10px; opacity:0.7; transition:0.2s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.7">❮</button>
-                                <span id="inv-number" class="pro-serial-number" style="font-size: 0.9rem; font-family: 'Outfit', sans-serif; font-weight: 900; letter-spacing: 2px; transition: all 0.3s ease;">---</span>
+                            <div class="pro-serial-container" style="flex:1; min-width: 135px; display:flex; align-items:center; justify-content:space-between; padding: 3px 6px; border-radius: 8px;">
+                                <button class="pro-serial-btn" type="button" onclick="loadPreviousInvoice()" title="السابقة" style="background: transparent; border: none; color: #fff; font-size: 1.1rem; cursor: pointer; padding: 0 6px; opacity:0.7; transition:0.2s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.7">❮</button>
+                                <span id="inv-number" data-auto-fit-voucher="1" class="pro-serial-number" style="font-size: 0.92rem; font-family: 'Outfit', sans-serif; font-weight: 900; letter-spacing: 0px; white-space: nowrap; text-align: center; flex: 1; transition: all 0.2s ease;">---</span>
                                 <input type="hidden" id="hdr-inv-no">
-                                <button class="pro-serial-btn" type="button" onclick="loadNextInvoice()" title="التالية" style="background: transparent; border: none; color: #fff; font-size: 1.2rem; cursor: pointer; padding: 0 10px; opacity:0.7; transition:0.2s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.7">❯</button>
+                                <button class="pro-serial-btn" type="button" onclick="loadNextInvoice()" title="التالية" style="background: transparent; border: none; color: #fff; font-size: 1.1rem; cursor: pointer; padding: 0 6px; opacity:0.7; transition:0.2s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.7">❯</button>
                             </div>
                         </div>
 
@@ -4904,12 +4904,27 @@ document.addEventListener('DOMContentLoaded', () => {
     
     <!-- Financial OCR Modal & Script -->
     <?php include 'includes/financial-ocr-modal.php'; ?>
+    <script src="js/magaies-offline-sync.js?v=20261014"></script>
     <script src="js/financial-ocr.js?v=<?php echo file_exists('js/financial-ocr.js') ? filemtime('js/financial-ocr.js') : 1; ?>"></script>
     <script>
     (function initDesktopPurchaseMirrorSync() {
         let isSyncing = false;
         async function syncPurchaseWithMariaDB() {
             if (isSyncing) return;
+            const purInput = document.getElementById('hdr-inv-no');
+            const purSpan = document.getElementById('inv-number');
+            const isCreatingNew = !window.currentViewedPurchaseNo || window.currentViewedPurchaseNo === '---';
+            if (!navigator.onLine) {
+                if (isCreatingNew && window.MagaiesOffline && typeof window.MagaiesOffline.peekNextSequentialNumber === 'function' && purInput && purSpan) {
+                    if (!purInput.value || purInput.value === '---') {
+                        const offNext = window.MagaiesOffline.peekNextSequentialNumber('purchase');
+                        purInput.value = offNext;
+                        purSpan.textContent = offNext;
+                        if (typeof window.autoFitVoucherNumbers === 'function') window.autoFitVoucherNumbers();
+                    }
+                }
+                return;
+            }
             isSyncing = true;
             try {
                 const res = await fetch('api/mirror_sync.php?action=get_recent_purchases&_t=' + Date.now());
@@ -4940,13 +4955,11 @@ document.addEventListener('DOMContentLoaded', () => {
                         }
                     }
 
-                    const purInput = document.getElementById('hdr-inv-no');
-                    const purSpan = document.getElementById('inv-number');
-                    const isCreatingNew = !window.currentViewedPurchaseNo || window.currentViewedPurchaseNo === '---';
                     if (isCreatingNew && data.nextPurchaseNo && purInput && purSpan) {
                         if (purInput.value !== data.nextPurchaseNo) {
                             purInput.value = data.nextPurchaseNo;
                             purSpan.textContent = data.nextPurchaseNo;
+                            if (typeof window.autoFitVoucherNumbers === 'function') window.autoFitVoucherNumbers();
                         }
                     }
                 }

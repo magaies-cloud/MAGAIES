@@ -148,24 +148,47 @@ window._cachedSalesInvoicesRaw = null;
 window._cachedSalesSorted = null;
 
 function getSortedSalesInvoices() {
-    const raw = localStorage.getItem('erp_sales_invoices_v1');
-    if (window._cachedSalesInvoicesRaw === raw && window._cachedSalesSorted) {
+    const rawErp = localStorage.getItem('erp_sales_invoices_v1') || '';
+    const rawLocal = localStorage.getItem('magaies_local_sales_invoices_v1') || '';
+    const rawQueue = localStorage.getItem('magaies_mobile_offline_queue_v2') || '';
+    const cacheKey = rawErp.length + '|' + rawLocal.length + '|' + rawQueue.length + '|' + rawErp.slice(0, 64) + '|' + rawLocal.slice(0, 64);
+    if (window._cachedSalesInvoicesRaw === cacheKey && window._cachedSalesSorted) {
         return window._cachedSalesSorted;
     }
-    let allSales = [];
-    try { allSales = JSON.parse(raw) || []; } catch(e) {}
-    
-    const sorted = allSales
-        .filter(inv => inv.invoiceNo && inv.invoiceNo !== 'preliminary' && !String(inv.invoiceNo).startsWith('PRE-'))
-        .sort((a, b) => {
-            const cmp = (a.date || a.createdAt || '').localeCompare(b.date || b.createdAt || '');
-            if (cmp !== 0) return cmp;
-            const tcmp = (a.time || '').localeCompare(b.time || '');
-            if (tcmp !== 0) return tcmp;
-            return String(a.invoiceNo || '').localeCompare(String(b.invoiceNo || ''));
-        });
-        
-    window._cachedSalesInvoicesRaw = raw;
+
+    const mergedMap = new Map();
+    const addInv = (inv) => {
+        if (!inv || typeof inv !== 'object') return;
+        const no = String(inv.invoiceNo || inv.id || '').trim();
+        if (!no || no === 'preliminary' || no.startsWith('PRE-')) return;
+        if (!mergedMap.has(no)) {
+            mergedMap.set(no, Object.assign({ invoiceNo: no }, inv));
+        } else {
+            mergedMap.set(no, Object.assign({}, inv, mergedMap.get(no), { invoiceNo: no }));
+        }
+    };
+
+    try { (JSON.parse(rawErp || '[]') || []).forEach(addInv); } catch(e) {}
+    try { (JSON.parse(rawLocal || '[]') || []).forEach(addInv); } catch(e) {}
+    try {
+        if (window.MagaiesOffline && typeof MagaiesOffline.getQueue === 'function') {
+            MagaiesOffline.getQueue().forEach(q => {
+                if ((q.type === 'sales' || q.type === 'sales_split') && q.payload) {
+                    addInv(Object.assign({ invoiceNo: q.tempId }, q.payload));
+                }
+            });
+        }
+    } catch(e) {}
+
+    const sorted = Array.from(mergedMap.values()).sort((a, b) => {
+        const cmp = String(a.date || a.savedAt || a.createdAt || '').localeCompare(String(b.date || b.savedAt || b.createdAt || ''));
+        if (cmp !== 0) return cmp;
+        const tcmp = String(a.time || '').localeCompare(String(b.time || ''));
+        if (tcmp !== 0) return tcmp;
+        return String(a.invoiceNo || '').localeCompare(String(b.invoiceNo || ''));
+    });
+
+    window._cachedSalesInvoicesRaw = cacheKey;
     window._cachedSalesSorted = sorted;
     return sorted;
 }
@@ -264,28 +287,43 @@ function peekNextInvoiceNumber(type) {
         const datePrefix = 'S' + yy + mm;
         
         let max = 0;
-        list.forEach(inv => {
-            if (inv.saleType !== 'preliminary' && (!inv.invoiceNo || !inv.invoiceNo.startsWith('PRE-'))) {
-                const invNo = String(inv.invoiceNo || '');
-                if (invNo.startsWith(datePrefix)) {
-                    const seqStr = invNo.substring(datePrefix.length);
-                    const seq = parseInt(seqStr, 10);
-                    if (!isNaN(seq) && seq > max) {
-                        max = seq;
-                    }
-                } else if (invNo.includes('-')) {
-                    // Fallback to match old format containing '-' if it matches current year/month
-                    let parts = invNo.split('-');
-                    let noStr = parts.length > 1 ? parts[1] : parts[0];
-                    if (noStr.startsWith(yy + mm)) {
-                        const seq = parseInt(noStr.substring(4), 10);
-                        if (!isNaN(seq) && seq > max) {
-                            max = seq;
-                        }
-                    }
+        const extractSalesSeq = (raw) => {
+            const s = String(raw || '').trim();
+            if (!s || s === 'preliminary' || s.startsWith('PRE-')) return 0;
+            if (s.startsWith(datePrefix)) {
+                const n = parseInt(s.substring(datePrefix.length), 10);
+                if (!isNaN(n) && n > 0 && n < 1000000) return n;
+            }
+            const m = s.match(/^S\d{4}(\d{3,6})$/i);
+            if (m) {
+                const n = parseInt(m[1], 10);
+                if (!isNaN(n) && n > 0 && n < 1000000) return n;
+            }
+            if (s.includes('-')) {
+                let parts = s.split('-');
+                let noStr = parts.length > 1 ? parts[1] : parts[0];
+                if (noStr.length > 4) {
+                    const n = parseInt(noStr.substring(4), 10);
+                    if (!isNaN(n) && n > 0 && n < 1000000) return n;
                 }
             }
+            return 0;
+        };
+
+        list.forEach(inv => {
+            if (inv.saleType !== 'preliminary' && (!inv.invoiceNo || !inv.invoiceNo.startsWith('PRE-'))) {
+                const seq = extractSalesSeq(inv.invoiceNo || inv.id);
+                if (seq > max) max = seq;
+            }
         });
+        if (window._mirrorNextSalesNo) {
+            const mSeq = extractSalesSeq(window._mirrorNextSalesNo);
+            if (mSeq - 1 > max) max = mSeq - 1;
+        }
+        if (window.MagaiesOfflineSync && typeof window.MagaiesOfflineSync.getHighestKnownSeq === 'function') {
+            const offMax = window.MagaiesOfflineSync.getHighestKnownSeq('save_sales_invoice');
+            if (offMax > max) max = offMax;
+        }
         return `${datePrefix}${String(max + 1).padStart(4, '0')}`;
     }
 }
@@ -691,6 +729,7 @@ function initHeader() {
     const invNo = peekNextInvoiceNumber(currentSaleType);
     document.getElementById('inv-number').textContent = invNo;
     document.getElementById('hdr-inv-no').value = invNo;
+    if (typeof window.autoFitVoucherNumbers === 'function') window.autoFitVoucherNumbers();
 
     // Date
     const today = new Date().toISOString().split('T')[0];
@@ -707,6 +746,7 @@ function setSaleType(btn, type) {
     const invNo = peekNextInvoiceNumber(type);
     document.getElementById('inv-number').textContent = invNo;
     document.getElementById('hdr-inv-no').value = invNo;
+    if (typeof window.autoFitVoucherNumbers === 'function') window.autoFitVoucherNumbers();
 }
 
 // ════════════════════════════════════════
@@ -1461,19 +1501,36 @@ function loadInvoiceFromStorage(invNo, opts = {}) {
     if (str) {
         try { data = JSON.parse(str); } catch(e) {}
     }
-    
+
     if (!data) {
-        let allSales = JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || [];
-        data = allSales.find(inv => (inv.invoiceNo || inv.id) === invNo);
+        try {
+            let allSales = JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || [];
+            data = allSales.find(inv => String(inv.invoiceNo || inv.id) === String(invNo));
+        } catch(e) {}
     }
-    
+
+    if (!data) {
+        try {
+            let localSales = JSON.parse(localStorage.getItem('magaies_local_sales_invoices_v1')) || [];
+            data = localSales.find(inv => String(inv.invoiceNo || inv.id) === String(invNo));
+        } catch(e) {}
+    }
+
+    if (!data && window.MagaiesOffline && typeof MagaiesOffline.getQueue === 'function') {
+        try {
+            const qItem = MagaiesOffline.getQueue().find(q => (q.type === 'sales' || q.type === 'sales_split') && (String(q.tempId) === String(invNo) || String(q.payload?.invoiceNo) === String(invNo)));
+            if (qItem && qItem.payload) data = Object.assign({ invoiceNo: qItem.tempId }, qItem.payload);
+        } catch(e) {}
+    }
+
     if (!data) return false;
-    
+
     try {
-        const isPosted = (data.status === 'posted' || data.effectsApplied || opts.isPosted);
+        const docNo = data.invoiceNo || data.id || invNo;
+        const isPosted = (data.status === 'posted' || data.status === 'completed' || data.effectsApplied || opts.isPosted);
         const isLocked = (isPosted || opts.isLocked === true);
 
-        currentViewedInvoiceNo = data.invoiceNo || data.id;
+        currentViewedInvoiceNo = docNo;
 
         if (data.saleType) {
             currentSaleType = data.saleType;
@@ -1483,10 +1540,12 @@ function loadInvoiceFromStorage(invNo, opts = {}) {
         // Reset form
         rows = [];
         rowIdCounter = 0;
-        
+
         // Set Header
-        document.getElementById('hdr-inv-no').value = data.invoiceNo;
-        document.getElementById('inv-number').textContent = data.invoiceNo;
+        const invNoEl = document.getElementById('hdr-inv-no');
+        if (invNoEl) invNoEl.value = docNo;
+        const invNumTxt = document.getElementById('inv-number');
+        if (invNumTxt) invNumTxt.textContent = docNo;
 
         let amendedBadge = document.getElementById('hdr-amended-badge');
         if (data.isAmended) {
@@ -1495,59 +1554,147 @@ function loadInvoiceFromStorage(invNo, opts = {}) {
                 amendedBadge.id = 'hdr-amended-badge';
                 amendedBadge.style.cssText = 'background: rgba(245, 158, 11, 0.25); border: 1px solid rgba(245, 158, 11, 0.6); color: #fbbf24; font-size: 0.72rem; padding: 2px 8px; border-radius: 6px; font-weight: 800; margin: 0 4px;';
                 const invWrap = document.querySelector('.gold-serial-wrap');
-                if (invWrap) invWrap.insertBefore(amendedBadge, document.getElementById('inv-number').nextSibling);
+                if (invWrap && invNumTxt) invWrap.insertBefore(amendedBadge, invNumTxt.nextSibling);
             }
             amendedBadge.textContent = 'مُعَدَّلَة';
             amendedBadge.style.display = 'inline-block';
         } else if (amendedBadge) {
             amendedBadge.style.display = 'none';
         }
-        if(data.date) document.getElementById('hdr-date').value = data.date;
-        if(data.description) document.getElementById('hdr-description').value = data.description;
-        if(data.notes) document.getElementById('inv-notes').value = data.notes;
-        if(data.warehouse) document.getElementById('hdr-warehouse').value = data.warehouse;
-        if(data.currency) document.getElementById('hdr-currency').value = data.currency;
-        if(data.exchangeRate !== undefined) {
+
+        // 1. التاريخ والبيان والملحوظات (تحديث كامل دائماً حتى لا تبقى بيانات فاتورة سابقة)
+        const rawDate = String(data.date || data.savedAt || data.createdAt || '').split('T')[0].split(' ')[0];
+        if (document.getElementById('hdr-date') && rawDate) {
+            document.getElementById('hdr-date').value = rawDate;
+        }
+        const descVal = String(data.description ?? data.notes ?? data.remark ?? '');
+        const notesVal = String(data.notes ?? data.description ?? data.remark ?? '');
+        if (document.getElementById('hdr-description')) document.getElementById('hdr-description').value = descVal;
+        if (document.getElementById('inv-notes')) document.getElementById('inv-notes').value = notesVal;
+
+        // 2. المستودع ومركز التكلفة (يدعم المعرف أو الاسم العربي)
+        const itemsList = data.items || data.products || [];
+        const firstIt = itemsList.length > 0 ? itemsList[0] : null;
+        const rawWh = data.warehouse || firstIt?.warehouseId || firstIt?.warehouse || '';
+        const whEl = document.getElementById('hdr-warehouse');
+        if (whEl && rawWh) {
+            const matchedWh = (typeof WAREHOUSES !== 'undefined' ? WAREHOUSES : []).find(w => String(w.id) === String(rawWh) || w.name === rawWh);
+            const whVal = matchedWh ? matchedWh.id : rawWh;
+            if (!Array.from(whEl.options || []).some(o => o.value === whVal)) {
+                const opt = document.createElement('option');
+                opt.value = whVal;
+                opt.textContent = matchedWh ? matchedWh.name : rawWh;
+                whEl.appendChild(opt);
+            }
+            whEl.value = whVal;
+        }
+
+        const rawCc = data.costCenter || firstIt?.costCenterId || firstIt?.costCenter || '';
+        const ccEl = document.getElementById('hdr-cost-center');
+        if (ccEl && rawCc) {
+            const matchedCc = (typeof COST_CENTERS !== 'undefined' ? COST_CENTERS : []).find(c => String(c.id) === String(rawCc) || c.name === rawCc);
+            const ccVal = matchedCc ? matchedCc.id : rawCc;
+            if (!Array.from(ccEl.options || []).some(o => o.value === ccVal)) {
+                const opt = document.createElement('option');
+                opt.value = ccVal;
+                opt.textContent = matchedCc ? matchedCc.name : rawCc;
+                ccEl.appendChild(opt);
+            }
+            ccEl.value = ccVal;
+        }
+
+        // 3. العملة وسعر الصرف
+        if (data.currency && document.getElementById('hdr-currency')) {
+            document.getElementById('hdr-currency').value = data.currency;
+        }
+        if (data.exchangeRate !== undefined && document.getElementById('hdr-exchange-rate')) {
             document.getElementById('hdr-exchange-rate').value = data.exchangeRate;
             document.getElementById('hdr-exchange-rate').disabled = (data.currency === 'SDG');
         }
-        
-        // Customer
-        const custId = data.customer || data.customerId;
-        if (custId) {
-            const c = CUSTOMERS.find(x => String(x.id) === String(custId));
-            if (c) selectCustomer(c.id, c.name);
+
+        // 4. العميل (يدعم البحث بالـ ID أو الاسم العربي المباشر)
+        const custIdOrName = data.customer || data.customerId || data.customerName || '';
+        const c = (typeof CUSTOMERS !== 'undefined' ? CUSTOMERS : []).find(x =>
+            String(x.id) === String(data.customer || data.customerId || '') ||
+            (data.customerName && x.name === data.customerName) ||
+            (custIdOrName && x.name === custIdOrName)
+        );
+        if (c) {
+            selectCustomer(c.id, c.name);
+        } else {
+            const fallbackCustName = data.customerName || (typeof data.customer === 'string' && !data.customer.startsWith('C-') ? data.customer : '') || 'عميل نقدي عام';
+            if (document.getElementById('hdr-customer')) document.getElementById('hdr-customer').value = data.customer || data.customerId || 'walk-in';
+            if (document.getElementById('hdr-customer-search')) document.getElementById('hdr-customer-search').value = fallbackCustName;
+            updateLedgerButton();
+            onCustomerChange();
         }
-        
-        // Rows — PERFORMANCE: direct property assignment (no recalcAll per field)
-        const itemsList = data.items || data.products || [];
-        if(itemsList && itemsList.length) {
+
+        // 5. الأصناف وأسطر الفاتورة (الكمية، السعر، الوحدة، المخزن، الملحوظة)
+        let sumItemDiscount = 0;
+        let sumItemTax = 0;
+        let sumItemLabor = 0;
+
+        if (itemsList && itemsList.length) {
             itemsList.forEach(i => {
                 addRow(true, true); // silent and skip render
-                const r = rows[rows.length-1];
-                
-                r.itemId = i.itemId || i.id || i.item_id || '';
-                r.selectedUnit = i.selectedUnit || i.unit || i.unitName || '';
+                const r = rows[rows.length - 1];
+
+                let resolvedItemId = i.itemId || i.id || i.item_id || '';
+                const rawName = i.itemName || i.name || '';
+                const matchedItem = (typeof ITEMS !== 'undefined' ? ITEMS : []).find(x =>
+                    (resolvedItemId && String(x.id) === String(resolvedItemId)) ||
+                    (rawName && x.name === rawName)
+                );
+                if (matchedItem) {
+                    resolvedItemId = matchedItem.id;
+                }
+
+                r.itemId = resolvedItemId || rawName || 'item-custom';
+                r.itemName = rawName || (matchedItem ? matchedItem.name : '');
+                r.selectedUnit = i.selectedUnit || i.unit || i.unitName || (matchedItem ? matchedItem.unit : 'حبة');
                 r.customFactor = i.customFactor !== undefined ? i.customFactor : (i.factor !== undefined ? i.factor : 1);
-                r.quantity = i.quantity !== undefined ? i.quantity : (i.qty !== undefined ? i.qty : 0);
+                r.quantity = parseFloat(i.quantity !== undefined ? i.quantity : (i.qty !== undefined ? i.qty : 1)) || 0;
                 if (i.customBaseQty !== undefined) r.customBaseQty = i.customBaseQty;
-                r.price = i.price !== undefined ? i.price : (i.rate !== undefined ? i.rate : 0);
+                r.price = parseFloat(i.price !== undefined ? i.price : (i.rate !== undefined ? i.rate : 0)) || 0;
                 if (i.fcPrice !== undefined) r.fcPrice = i.fcPrice;
-                r.warehouseId = i.warehouseId || i.warehouse || '';
-                r.costCenterId = i.costCenterId || i.costCenter || '';
+
+                const rowWhRaw = i.warehouseId || i.warehouse || data.warehouse || '';
+                const rowWhMatch = (typeof WAREHOUSES !== 'undefined' ? WAREHOUSES : []).find(w => String(w.id) === String(rowWhRaw) || w.name === rowWhRaw);
+                r.warehouseId = rowWhMatch ? rowWhMatch.id : rowWhRaw;
+
+                const rowCcRaw = i.costCenterId || i.costCenter || data.costCenter || '';
+                const rowCcMatch = (typeof COST_CENTERS !== 'undefined' ? COST_CENTERS : []).find(cc => String(cc.id) === String(rowCcRaw) || cc.name === rowCcRaw);
+                r.costCenterId = rowCcMatch ? rowCcMatch.id : rowCcRaw;
+
                 if (i.qrCode) r.qrCode = i.qrCode;
-                if (i.note) r.note = i.note;
-                if (i.itemName || i.name) r.itemName = i.itemName || i.name;
+                r.note = i.note ?? i.notes ?? notesVal ?? '';
                 if (i.buyPrice !== undefined) r.buyPrice = i.buyPrice;
                 if (i.sellPrice !== undefined) r.sellPrice = i.sellPrice;
+
+                sumItemDiscount += parseFloat(i.discount || 0) || 0;
+                sumItemTax += parseFloat(i.tax || 0) || 0;
+                sumItemLabor += parseFloat(i.labor || 0) || 0;
             });
         }
-        
+
+        // 6. المصروفات والتسويات (الخصم، الضريبة، الإضافات، العتالة، الترحيل)
+        const laborVal = data.laborCost ?? data.labor ?? sumItemLabor ?? 0;
+        const transportVal = data.transportCost ?? data.transport ?? 0;
+        const discountVal = data.discountAmt ?? data.discountCost ?? data.discount ?? sumItemDiscount ?? 0;
+        const taxVal = data.taxAmt ?? data.taxCost ?? data.vatAmount ?? data.tax ?? sumItemTax ?? 0;
+        const additionVal = data.additionAmt ?? data.additionsCost ?? 0;
+
+        if (document.getElementById('t-labor')) document.getElementById('t-labor').value = laborVal;
+        if (document.getElementById('t-transport')) document.getElementById('t-transport').value = transportVal;
+        if (document.getElementById('discount-amt')) document.getElementById('discount-amt').value = discountVal;
+        if (document.getElementById('tax-amt')) document.getElementById('tax-amt').value = taxVal;
+        if (document.getElementById('addition-amt')) document.getElementById('addition-amt').value = additionVal;
+
         renderGrid();
         recalcAll();
         loadPaymentDataIntoUI(data);
         if (typeof updateActionButtonsVisibility === 'function') updateActionButtonsVisibility();
-        
+
         // Apply strict lock state if posted or preview-only
         setInvoiceLockState(isLocked, isPosted, currentViewedInvoiceNo);
 
@@ -1816,54 +1963,6 @@ function addNewCustomer() {
 
     showToast('✅ تم إضافة العميل بنجاح');
 }
-
-function loadPreviousInvoice() {
-    const currentNo = document.getElementById('hdr-inv-no').value;
-    if (!currentNo) return;
-    
-    const sorted = getSortedSalesInvoices();
-    if (sorted.length === 0) {
-        showToast('ℹ️ لا توجد فواتير محفوظة', 'warning');
-        return;
-    }
-    
-    const idx = sorted.findIndex(inv => inv.invoiceNo === currentNo || inv.id === currentNo);
-    let targetIdx = -1;
-    if (idx === -1) {
-        targetIdx = sorted.length - 1;
-    } else if (idx > 0) {
-        targetIdx = idx - 1;
-    }
-    
-    if (targetIdx >= 0) {
-        const prevNo = sorted[targetIdx].invoiceNo;
-        if (loadInvoiceFromStorage(prevNo)) {
-            showToast(`✅ تم استرجاع الفاتورة ${prevNo}`);
-        }
-    } else {
-        showToast('ℹ️ أنت في أول فاتورة', 'warning');
-    }
-}
-
-function loadNextInvoice() {
-    const currentNo = document.getElementById('hdr-inv-no').value;
-    if (!currentNo) return;
-    
-    const sorted = getSortedSalesInvoices();
-    
-    const idx = sorted.findIndex(inv => inv.invoiceNo === currentNo || inv.id === currentNo);
-    if (idx >= 0 && idx < sorted.length - 1) {
-        const nextNo = sorted[idx + 1].invoiceNo;
-        if (loadInvoiceFromStorage(nextNo)) {
-            showToast(`✅ تم استرجاع الفاتورة ${nextNo}`);
-        }
-    } else {
-        onSuccessNewInvoice();
-        showToast('✨ فاتورة جديدة', 'success');
-    }
-}
-
-
 
 // ════════════════════════════════════════
 //  CUSTOMERS DROPDOWN LOGIC
@@ -4201,7 +4300,16 @@ function submitInvoice(ignoreWarnings = false) {
     if (currentViewedInvoiceNo) {
         committedNo = currentViewedInvoiceNo; // keep old number in edit mode
     } else {
+        const salesSig = `${custId}|${grandAmount}|${rows.map(r => `${r.itemId}:${r.quantity}:${r.price}`).join(',')}|${document.getElementById('hdr-date')?.value || ''}`;
+        if (window._lastSubmittedSalesSig === salesSig && (Date.now() - (window._lastSubmittedSalesTime || 0)) < 15000) {
+            showToast(`✅ تم حفظ هذه الفاتورة مسبقاً برقم (${window._lastSubmittedSalesNo || ''}) — لن يتم تكرار الحفظ`, 'info', 3500);
+            window.isSubmitting = false;
+            return;
+        }
         committedNo = commitInvoiceNumber(currentSaleType); // increment
+        window._lastSubmittedSalesSig = salesSig;
+        window._lastSubmittedSalesTime = Date.now();
+        window._lastSubmittedSalesNo = committedNo;
     }
 
     // Save invoice data
@@ -4237,6 +4345,7 @@ function submitInvoice(ignoreWarnings = false) {
 
     const data = {
         invoiceNo: committedNo,
+        idempotencyKey: window._lastSubmittedSalesSig ? ('LAP-S-' + btoa(unescape(encodeURIComponent(window._lastSubmittedSalesSig))).substring(0, 32)) : ('LAP-S-' + committedNo),
         date: document.getElementById('hdr-date').value,
         time: new Date().toLocaleTimeString('en-GB', {hour: '2-digit', minute:'2-digit'}),
         dueDate: dueDateValue,
@@ -4379,17 +4488,33 @@ function submitInvoice(ignoreWarnings = false) {
             console.warn("Cloud push warning:", eCloud);
         }
     }
-    // 🪞 REAL-TIME MIRROR SYNC: Commit sales invoice directly to MariaDB
+    // 🪞 REAL-TIME MIRROR SYNC + UNIVERSAL OFFLINE QUEUE: Commit sales invoice to MariaDB or Offline Queue
     try {
-        fetch('api/mirror_sync.php?action=save_sales_invoice', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data)
-        }).then(r => r.json()).then(res => {
-            if (res && res.success && res.nextInvoiceNo) {
-                window._mirrorNextSalesNo = res.nextInvoiceNo;
+        const queueType = (currentSaleType === 'split' || data.isSplit || data.saleType === 'split') ? 'sales_split' : 'sales';
+        if (!navigator.onLine) {
+            if (window.MagaiesOffline && typeof window.MagaiesOffline.enqueue === 'function') {
+                window.MagaiesOffline.enqueue(queueType, data, data.invoiceNo);
             }
-        }).catch(e => console.warn("Mirror sync sales failed:", e));
+        } else {
+            fetch('api/mirror_sync.php?action=' + (queueType === 'sales_split' ? 'save_sales_split' : 'save_sales_invoice'), {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            }).then(r => r.json()).then(res => {
+                if (res && res.success && res.nextInvoiceNo) {
+                    window._mirrorNextSalesNo = res.nextInvoiceNo;
+                } else if (!res || !res.success) {
+                    if (window.MagaiesOffline && typeof window.MagaiesOffline.enqueue === 'function') {
+                        window.MagaiesOffline.enqueue(queueType, data, data.invoiceNo);
+                    }
+                }
+            }).catch(e => {
+                console.warn("Mirror sync sales failed, enqueuing offline:", e);
+                if (window.MagaiesOffline && typeof window.MagaiesOffline.enqueue === 'function') {
+                    window.MagaiesOffline.enqueue(queueType, data, data.invoiceNo);
+                }
+            });
+        }
     } catch(eMirror) {}
 
     // Notice: Inventory is NO LONGER DEDUCTED HERE for new invoices!
@@ -5758,11 +5883,43 @@ async function sendCurrentInvoiceWA() {
 
 let activeSplitInvoice = null;
 
-function loadSplitInvoices() {
+let _isFetchingSplitSync = false;
+function loadSplitInvoices(skipRemoteFetch = false) {
     const searchVal = document.getElementById('split-invoice-search')?.value.toLowerCase() || '';
     const tbody = document.getElementById('split-invoices-body');
     const emptyState = document.getElementById('split-empty-state');
     if (!tbody) return;
+
+    if (!skipRemoteFetch && !_isFetchingSplitSync && navigator.onLine) {
+        _isFetchingSplitSync = true;
+        fetch('api/mirror_sync.php?action=get_recent_sales&_t=' + Date.now())
+            .then(r => r.json())
+            .then(res => {
+                _isFetchingSplitSync = false;
+                if (res && res.success && Array.isArray(res.sales)) {
+                    let localSales = [];
+                    try { localSales = JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || []; } catch(e) {}
+                    let updated = false;
+                    res.sales.forEach(s => {
+                        const invNo = s.invoiceNo || s.id;
+                        if (!invNo) return;
+                        const idx = localSales.findIndex(x => (x.invoiceNo || x.id) === invNo);
+                        if (idx === -1) {
+                            localSales.unshift(s);
+                            updated = true;
+                        } else if (s.wasSplit && !localSales[idx].wasSplit) {
+                            localSales[idx] = Object.assign({}, localSales[idx], s);
+                            updated = true;
+                        }
+                    });
+                    if (updated) {
+                        localStorage.setItem('erp_sales_invoices_v1', JSON.stringify(localSales));
+                        loadSplitInvoices(true);
+                    }
+                }
+            })
+            .catch(() => { _isFetchingSplitSync = false; });
+    }
     
     let invoices = [];
     try {
@@ -5771,15 +5928,16 @@ function loadSplitInvoices() {
     
     const eligible = invoices.filter(inv => 
         !inv.deleted && 
-        inv.status === 'pending_delivery' && 
+        inv.status !== 'draft' &&
+        inv.deliveryStatus !== 'delivered' &&
         inv.saleType !== 'preliminary' &&
         (!inv.wasSplit)
     );
     
     const filtered = eligible.filter(inv => {
-        const no = (inv.invoiceNo || '').toLowerCase();
-        const custName = (inv.customerName || '').toLowerCase();
-        const total = String(inv.grandTotal || '').toLowerCase();
+        const no = (inv.invoiceNo || inv.id || '').toLowerCase();
+        const custName = (inv.customerName || inv.customer || '').toLowerCase();
+        const total = String(inv.grandTotal || inv.total || '').toLowerCase();
         return no.includes(searchVal) || custName.includes(searchVal) || total.includes(searchVal);
     });
     
@@ -5793,16 +5951,18 @@ function loadSplitInvoices() {
     tbody.innerHTML = '';
     
     filtered.forEach(inv => {
+        const invNo = inv.invoiceNo || inv.id || '';
+        const invTotal = parseFloat(inv.grandTotal ?? inv.total ?? 0) || 0;
         const tr = document.createElement('tr');
         tr.innerHTML = `
-            <td><strong style="color: #38bdf8; font-size: 1.15rem;">${inv.invoiceNo}</strong></td>
-            <td><span style="font-weight: 800; font-size: 1.05rem; color:#cbd5e1;">${inv.date}</span></td>
+            <td><strong style="color: #38bdf8; font-size: 1.15rem;">${invNo}</strong></td>
+            <td><span style="font-weight: 800; font-size: 1.05rem; color:#cbd5e1;">${inv.date || ''}</span></td>
             <td><span style="font-weight: bold; font-size: 1.1rem; color:#fff;">${inv.customerName || 'عميل نقدي'}</span></td>
             <td><span class="badge" style="background: rgba(99,102,241,0.2); color: #a5b4fc; padding: 6px 12px; border-radius: 8px; font-size: 0.95rem; font-weight: 900; display: inline-flex; align-items: center; gap: 4px;">${inv.paymentMethod === 'credit' ? '✍️ آجل' : '💵 نقدي'}</span></td>
-            <td style="text-align: left; font-family: monospace; font-weight: 900; font-size: 1.3rem; color: #fff;">${parseFloat(inv.grandTotal).toLocaleString()} <span style="font-size:0.8rem; color:#94a3b8; font-family:'Tajawal', sans-serif;">SDG</span></td>
+            <td style="text-align: left; font-family: monospace; font-weight: 900; font-size: 1.3rem; color: #fff;">${invTotal.toLocaleString()} <span style="font-size:0.8rem; color:#94a3b8; font-family:'Tajawal', sans-serif;">SDG</span></td>
             <td style="text-align: center;"><span class="badge draft" style="padding: 6px 12px; border-radius: 8px; font-size: 0.95rem; font-weight: 900;">بانتظار التسليم</span></td>
             <td style="text-align: center;">
-                <button class="btn-action" style="width: auto; padding: 6px 16px; font-size: 0.95rem; font-weight: 800; background: rgba(236,72,153,0.2); color: #f472b6; border: 1px solid rgba(236,72,153,0.45); border-radius: 8px; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='rgba(236,72,153,0.35)'" onmouseout="this.style.background='rgba(236,72,153,0.2)'" onclick="startInvoiceSplit('${inv.invoiceNo}')">تقسيم الفاتورة ✂️</button>
+                <button class="btn-action" style="width: auto; padding: 6px 16px; font-size: 0.95rem; font-weight: 800; background: rgba(236,72,153,0.2); color: #f472b6; border: 1px solid rgba(236,72,153,0.45); border-radius: 8px; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='rgba(236,72,153,0.35)'" onmouseout="this.style.background='rgba(236,72,153,0.2)'" onclick="startInvoiceSplit('${invNo}')">تقسيم الفاتورة ✂️</button>
             </td>
         `;
         tbody.appendChild(tr);
@@ -5810,7 +5970,7 @@ function loadSplitInvoices() {
 }
 
 function filterSplitInvoices() {
-    loadSplitInvoices();
+    loadSplitInvoices(true);
 }
 
 function startInvoiceSplit(invoiceNo) {
@@ -5953,7 +6113,7 @@ function updateSplitCalculations() {
         }
     });
     
-    const originalSubtotal = parseFloat(activeSplitInvoice.subTotal) || 0;
+    const originalSubtotal = parseFloat(activeSplitInvoice.subTotal || activeSplitInvoice.grandTotal || activeSplitInvoice.total) || (subtotalA + subtotalB) || 1;
     const originalDiscount = parseFloat(activeSplitInvoice.discount) || 0;
     const originalTax = parseFloat(activeSplitInvoice.vatAmount) || 0;
     
@@ -6063,7 +6223,8 @@ function submitInvoiceSplit() {
     const invoiceNoB = `${activeSplitInvoice.invoiceNo}-2`;
     
     const subtotalA = itemsA.reduce((sum, item) => sum + item.total, 0);
-    const originalSubtotal = parseFloat(activeSplitInvoice.subTotal) || 0;
+    const subtotalB = itemsB.reduce((sum, item) => sum + item.total, 0);
+    const originalSubtotal = parseFloat(activeSplitInvoice.subTotal || activeSplitInvoice.grandTotal || activeSplitInvoice.total) || (subtotalA + subtotalB) || 1;
     const originalDiscount = parseFloat(activeSplitInvoice.discount) || 0;
     const originalTax = parseFloat(activeSplitInvoice.vatAmount) || 0;
     
@@ -6082,7 +6243,6 @@ function submitInvoiceSplit() {
     const additionsA = (parseFloat(activeSplitInvoice.additionsCost) || 0) * ratioA;
     const additionsFcA = (parseFloat(activeSplitInvoice.additionsCostFc) || 0) * ratioA;
     
-    const subtotalB = itemsB.reduce((sum, item) => sum + item.total, 0);
     const ratioB = subtotalB / originalSubtotal;
     const discountB = originalDiscount * ratioB;
     const taxB = originalTax * ratioB;
@@ -6102,12 +6262,14 @@ function submitInvoiceSplit() {
 
     const invoiceA = {
         ...activeSplitInvoice,
+        id: invoiceNoA,
         invoiceNo: invoiceNoA,
         items: itemsA,
         subTotal: subtotalA,
         discount: discountA,
         vatAmount: taxA,
         grandTotal: grandA,
+        total: grandA,
         cashAmount: cashA,
         creditAmount: creditA,
         bankTransfers: bankTransfersA,
@@ -6120,6 +6282,7 @@ function submitInvoiceSplit() {
         additionsCostFc: additionsFcA,
         timestamp: new Date().toISOString(),
         parentInvoice: activeSplitInvoice.invoiceNo,
+        isSplit: true,
         splitBy: curUser.id,
         splitByName: curUser.fullName || curUser.name,
         createdBy: curUser.id,
@@ -6128,12 +6291,14 @@ function submitInvoiceSplit() {
     
     const invoiceB = {
         ...activeSplitInvoice,
+        id: invoiceNoB,
         invoiceNo: invoiceNoB,
         items: itemsB,
         subTotal: subtotalB,
         discount: discountB,
         vatAmount: taxB,
         grandTotal: grandB,
+        total: grandB,
         cashAmount: cashB,
         creditAmount: creditB,
         bankTransfers: bankTransfersB,
@@ -6146,6 +6311,7 @@ function submitInvoiceSplit() {
         additionsCostFc: additionsFcB,
         timestamp: new Date().toISOString(),
         parentInvoice: activeSplitInvoice.invoiceNo,
+        isSplit: true,
         splitBy: curUser.id,
         splitByName: curUser.fullName || curUser.name,
         createdBy: curUser.id,
@@ -6157,13 +6323,15 @@ function submitInvoiceSplit() {
         allSales = JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || [];
     } catch(e) {}
     
-    const origIdx = allSales.findIndex(x => x.invoiceNo === activeSplitInvoice.invoiceNo);
+    const origIdx = allSales.findIndex(x => (x.invoiceNo || x.id) === activeSplitInvoice.invoiceNo);
+    let archivedOrig = null;
     if (origIdx !== -1) {
         allSales[origIdx].deleted = true;
         allSales[origIdx].wasSplit = true;
         allSales[origIdx].splitTo = [invoiceNoA, invoiceNoB];
         allSales[origIdx].splitBy = curUser.id;
         allSales[origIdx].splitByName = curUser.fullName || curUser.name;
+        archivedOrig = allSales[origIdx];
     }
     
     allSales.push(invoiceA);
@@ -6172,6 +6340,20 @@ function submitInvoiceSplit() {
     
     localStorage.setItem('erp_inv_' + invoiceNoA, JSON.stringify(invoiceA));
     localStorage.setItem('erp_inv_' + invoiceNoB, JSON.stringify(invoiceB));
+
+    // Sync split child invoices & archived original invoice to MariaDB so Mobile sees them immediately
+    if (navigator.onLine) {
+        [invoiceA, invoiceB, ...(archivedOrig ? [Object.assign({}, archivedOrig, { isEdit: true })] : [])].forEach(doc => {
+            fetch('api/mirror_sync.php?action=save_sales_invoice', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(doc)
+            }).catch(() => {});
+        });
+    } else if (window.MagaiesOffline && typeof window.MagaiesOffline.enqueue === 'function') {
+        window.MagaiesOffline.enqueue('sales_split', invoiceA, invoiceNoA);
+        window.MagaiesOffline.enqueue('sales_split', invoiceB, invoiceNoB);
+    }
 
     if (window.logSystemAction) {
         window.logSystemAction('تقسيم فاتورة مبيعات', 'المبيعات', activeSplitInvoice.invoiceNo, `تم تقسيم الفاتورة رقم ${activeSplitInvoice.invoiceNo} إلى ${invoiceNoA} و ${invoiceNoB}`);

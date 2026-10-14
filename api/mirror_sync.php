@@ -24,7 +24,15 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'OPTIONS') {
     exit(0);
 }
 
+if (!headers_sent() && extension_loaded('zlib') && !ini_get('zlib.output_compression')) {
+    ob_start('ob_gzhandler');
+}
+
 require_once __DIR__ . '/../db_bridge.php';
+if (session_status() === PHP_SESSION_ACTIVE) {
+    session_write_close();
+}
+
 $pdo = getDBConnection();
 $tenantId = (int)$GLOBAL_TENANT_ID;
 if (!$tenantId) $tenantId = 12;
@@ -38,130 +46,243 @@ if (empty($action) && ($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
 }
 
 // ─────────────────────────────────────────────────────────────
-// Helper Functions: Next Sequential Number Generators
+// Helper Functions: Universal Sequential Number Generators (SQL-Optimized)
 // ─────────────────────────────────────────────────────────────
 
-function getFinanceSequence($pdo, $tenantId) {
+function extractUniversalDocSeq($rawNo, $letter, $currentPrefix) {
+    $rawNo = trim((string)$rawNo);
+    if ($rawNo === '' || $rawNo === 'new' || $rawNo === 'SAL-NEW' || $rawNo === '---') return 0;
+    if (strpos($rawNo, 'أوفلاين') !== false || strpos($rawNo, 'OFF-') !== false || strpos($rawNo, 'offline') !== false) return 0;
+    if (stripos($rawNo, 'PRE-') === 0 || stripos($rawNo, 'GRN') === 0 || stripos($rawNo, 'DEL') === 0 || stripos($rawNo, 'Z') === 0) return 0;
+    if (preg_match('/\d{10,}/', $rawNo)) return 0;
+    if (preg_match('/^' . preg_quote($letter, '/') . '\d{4}(\d{5,})$/i', $rawNo, $mRand)) {
+        if ((int)$mRand[1] >= 10000) return 0;
+    }
+
+    if (stripos($rawNo, $currentPrefix) === 0) {
+        $rem = substr($rawNo, strlen($currentPrefix));
+        if (preg_match('/^\d{1,4}$/', $rem)) {
+            return (int)$rem;
+        }
+    }
+    if (preg_match('/^' . preg_quote($letter, '/') . '\d{3}(\d{4})$/i', $rawNo, $m3)) {
+        return (int)$m3[1];
+    }
+    if (preg_match('/^' . preg_quote($letter, '/') . '\d{4}(\d{4})$/i', $rawNo, $m4)) {
+        return (int)$m4[1];
+    }
+    if (preg_match('/^' . preg_quote($letter, '/') . '[-_]?(\d{1,4})$/i', $rawNo, $mShort)) {
+        return (int)$mShort[1];
+    }
+    if (preg_match('/^\d{1,5}$/', $rawNo)) {
+        $val = (int)$rawNo;
+        if ($val > 0 && $val < 10000) return $val;
+    }
+    return 0;
+}
+
+function getFinanceSequence($pdo, $tenantId, $includeLast = false) {
     $prefix = 'E' . date('ym');
     $maxSeq = 0;
     $lastVoucher = null;
+    $lastRowId = 0;
+    $lastVoucherNo = '';
     $totalCount = 0;
 
-    $stmt = $pdo->prepare("SELECT id, data FROM single_payments WHERE (tenant_id = ? OR tenant_id IS NULL) ORDER BY id ASC");
+    try {
+        $stmtCnt = $pdo->prepare("SELECT COUNT(*) FROM single_payments WHERE (tenant_id = ? OR tenant_id IS NULL) AND (is_deleted = 0 OR is_deleted IS NULL)");
+        $stmtCnt->execute([$tenantId]);
+        $totalCount = (int)$stmtCnt->fetchColumn();
+    } catch (Exception $e) {}
+
+    $stmt = $pdo->prepare("SELECT id, COALESCE(JSON_UNQUOTE(JSON_EXTRACT(data, '$.voucherNo')), JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')), '') AS v_no, COALESCE(JSON_UNQUOTE(JSON_EXTRACT(data, '$.deleted')), JSON_UNQUOTE(JSON_EXTRACT(data, '$.isDeleted')), '0') AS is_del FROM single_payments WHERE (tenant_id = ? OR tenant_id IS NULL) AND (is_deleted = 0 OR is_deleted IS NULL) ORDER BY id DESC LIMIT 300");
     $stmt->execute([$tenantId]);
     while ($r = $stmt->fetch(PDO::FETCH_ASSOC)) {
-        $totalCount++;
-        $d = json_decode($r['data'], true);
-        if (!$d) continue;
-        $lastVoucher = $d;
-        $id = (string)($d['voucherNo'] ?? ($d['id'] ?? ''));
-        if (strpos($id, $prefix) === 0) {
-            $s = (int)substr($id, strlen($prefix));
-            if ($s > $maxSeq) $maxSeq = $s;
-        } elseif (is_numeric($id)) {
-            $s = (int)$id;
-            if ($s > $maxSeq) $maxSeq = $s;
+        $isDel = strtolower((string)($r['is_del'] ?? '0'));
+        if ($isDel === 'true' || $isDel === '1') continue;
+        if ($lastRowId === 0) {
+            $lastRowId = (int)$r['id'];
         }
+        $id = (string)($r['v_no'] ?? '');
+        if ($lastVoucherNo === '' && $id !== '' && $id !== 'null') {
+            $lastVoucherNo = $id;
+        }
+        $s = extractUniversalDocSeq($id, 'E', $prefix);
+        if ($s > $maxSeq) $maxSeq = $s;
+    }
+
+    if ($includeLast && $lastRowId > 0) {
+        $stLast = $pdo->prepare("SELECT data FROM single_payments WHERE id = ? LIMIT 1");
+        $stLast->execute([$lastRowId]);
+        $rawLast = $stLast->fetchColumn();
+        if ($rawLast) $lastVoucher = json_decode($rawLast, true);
     }
 
     $nextVNo = $prefix . str_pad($maxSeq + 1, 4, '0', STR_PAD_LEFT);
-    return [
+    $res = [
         'prefix' => $prefix,
         'maxSeq' => $maxSeq,
+        'lastVoucherNo' => $lastVoucherNo,
         'nextVoucherNo' => $nextVNo,
-        'totalCount' => $totalCount,
-        'lastRecord' => $lastVoucher
+        'totalCount' => $totalCount
     ];
+    if ($includeLast) $res['lastRecord'] = $lastVoucher;
+    return $res;
 }
 
-function getSalesSequence($pdo, $tenantId) {
+function getSalesSequence($pdo, $tenantId, $includeLast = false) {
     $prefix = 'S' . date('ym');
     $maxSeq = 0;
     $lastSale = null;
+    $lastRowId = 0;
+    $lastInvoiceNo = '';
     $totalCount = 0;
+    $candidates = [];
 
-    $stmt = $pdo->prepare("SELECT id, invoice_no, total_val, data, created_at FROM sales_invoices WHERE (tenant_id = ? OR tenant_id IS NULL) AND (is_deleted = 0 OR is_deleted IS NULL) ORDER BY id ASC");
+    try {
+        $stmtCnt = $pdo->prepare("SELECT COUNT(*) FROM sales_invoices WHERE (tenant_id = ? OR tenant_id IS NULL) AND (is_deleted = 0 OR is_deleted IS NULL)");
+        $stmtCnt->execute([$tenantId]);
+        $totalCount = (int)$stmtCnt->fetchColumn();
+    } catch (Exception $e) {}
+
+    $stmt = $pdo->prepare("SELECT id, invoice_no, COALESCE(JSON_UNQUOTE(JSON_EXTRACT(data, '$.invoiceNo')), JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')), '') AS j_no, COALESCE(JSON_UNQUOTE(JSON_EXTRACT(data, '$.isDeleted')), JSON_UNQUOTE(JSON_EXTRACT(data, '$.deleted')), '0') AS is_del FROM sales_invoices WHERE (tenant_id = ? OR tenant_id IS NULL) AND (is_deleted = 0 OR is_deleted IS NULL) ORDER BY id DESC LIMIT 300");
     $stmt->execute([$tenantId]);
     while ($r = $stmt->fetch(PDO::FETCH_ASSOC)) {
-        $totalCount++;
-        $d = json_decode($r['data'], true) ?: [];
-        $invNo = (string)($r['invoice_no'] ?: ($d['invoiceNo'] ?? ($d['id'] ?? '')));
-        $d['invoiceNo'] = $invNo;
-        $d['id'] = $invNo;
-        $d['total'] = (float)($r['total_val'] ?? ($d['grandTotal'] ?? ($d['total'] ?? 0)));
-        $lastSale = $d;
+        $isDel = strtolower((string)($r['is_del'] ?? '0'));
+        if ($isDel === 'true' || $isDel === '1') continue;
+        if ($lastRowId === 0) {
+            $lastRowId = (int)$r['id'];
+        }
+        $jNo = ($r['j_no'] !== 'null') ? $r['j_no'] : '';
+        $invNo = (string)($r['invoice_no'] ?: $jNo);
+        if ($lastInvoiceNo === '' && $invNo !== '') {
+            $lastInvoiceNo = $invNo;
+        }
 
-        if (strpos($invNo, $prefix) === 0) {
-            $s = (int)substr($invNo, strlen($prefix));
-            if ($s > $maxSeq) $maxSeq = $s;
-        } elseif (preg_match('/^S\d{4}(\d{1,6})$/', $invNo, $m)) {
-            $s = (int)$m[1];
-            if ($s > $maxSeq) $maxSeq = $s;
+        $s = extractUniversalDocSeq($invNo, 'S', $prefix);
+        if ($s > 0) {
+            $candidates[] = ['no' => $invNo, 'seq' => $s];
+        }
+    }
+
+    foreach ($candidates as $c) {
+        if ($c['no'] === 'S26101012' && $totalCount < 900) continue;
+        if ($c['seq'] > $maxSeq) $maxSeq = $c['seq'];
+    }
+
+    if ($includeLast && $lastRowId > 0) {
+        $stLast = $pdo->prepare("SELECT invoice_no, total_val, data FROM sales_invoices WHERE id = ? LIMIT 1");
+        $stLast->execute([$lastRowId]);
+        $rL = $stLast->fetch(PDO::FETCH_ASSOC);
+        if ($rL) {
+            $d = json_decode($rL['data'], true) ?: [];
+            $invNo = (string)($rL['invoice_no'] ?: ($d['invoiceNo'] ?? ($d['id'] ?? '')));
+            $d['invoiceNo'] = $invNo;
+            $d['id'] = $invNo;
+            $d['total'] = (float)($rL['total_val'] ?? ($d['grandTotal'] ?? ($d['total'] ?? 0)));
+            $lastSale = $d;
         }
     }
 
     $nextInvNo = $prefix . str_pad($maxSeq + 1, 4, '0', STR_PAD_LEFT);
-    return [
+    $res = [
         'prefix' => $prefix,
         'maxSeq' => $maxSeq,
+        'lastInvoiceNo' => $lastInvoiceNo,
         'nextInvoiceNo' => $nextInvNo,
-        'totalCount' => $totalCount,
-        'lastRecord' => $lastSale
+        'totalCount' => $totalCount
     ];
+    if ($includeLast) $res['lastRecord'] = $lastSale;
+    return $res;
 }
 
-function getPurchaseSequence($pdo, $tenantId) {
+function getPurchaseSequence($pdo, $tenantId, $includeLast = false) {
     $prefix = 'P' . date('ym');
     $maxSeq = 0;
     $lastPur = null;
+    $lastRowId = 0;
+    $lastInvoiceNo = '';
     $totalCount = 0;
+    $candidates = [];
 
-    $stmt = $pdo->prepare("SELECT id, invoice_no, total_val, data, created_at FROM purchase_invoices WHERE (tenant_id = ? OR tenant_id IS NULL) AND (is_deleted = 0 OR is_deleted IS NULL) ORDER BY id ASC");
+    try {
+        $stmtCnt = $pdo->prepare("SELECT COUNT(*) FROM purchase_invoices WHERE (tenant_id = ? OR tenant_id IS NULL) AND (is_deleted = 0 OR is_deleted IS NULL) AND (invoice_no IS NULL OR (invoice_no NOT LIKE 'GRN%' AND invoice_no NOT LIKE 'Z%'))");
+        $stmtCnt->execute([$tenantId]);
+        $totalCount = (int)$stmtCnt->fetchColumn();
+    } catch (Exception $e) {}
+
+    $stmt = $pdo->prepare("SELECT id, invoice_no, COALESCE(JSON_UNQUOTE(JSON_EXTRACT(data, '$.invoiceNo')), JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')), '') AS j_no, COALESCE(JSON_UNQUOTE(JSON_EXTRACT(data, '$.isDeleted')), JSON_UNQUOTE(JSON_EXTRACT(data, '$.deleted')), '0') AS is_del, COALESCE(JSON_UNQUOTE(JSON_EXTRACT(data, '$.isGRN')), '0') AS is_grn FROM purchase_invoices WHERE (tenant_id = ? OR tenant_id IS NULL) AND (is_deleted = 0 OR is_deleted IS NULL) ORDER BY id DESC LIMIT 300");
     $stmt->execute([$tenantId]);
     while ($r = $stmt->fetch(PDO::FETCH_ASSOC)) {
-        $totalCount++;
-        $d = json_decode($r['data'], true) ?: [];
-        $invNo = (string)($r['invoice_no'] ?: ($d['invoiceNo'] ?? ($d['id'] ?? '')));
-        $d['invoiceNo'] = $invNo;
-        $d['id'] = $invNo;
-        $lastPur = $d;
+        $isDel = strtolower((string)($r['is_del'] ?? '0'));
+        $isGrn = strtolower((string)($r['is_grn'] ?? '0'));
+        if ($isDel === 'true' || $isDel === '1' || $isGrn === 'true' || $isGrn === '1') continue;
+        $jNo = ($r['j_no'] !== 'null') ? $r['j_no'] : '';
+        $invNo = (string)($r['invoice_no'] ?: $jNo);
+        if (stripos($invNo, 'GRN') === 0 || stripos($invNo, 'Z') === 0) continue;
+        if ($lastRowId === 0) {
+            $lastRowId = (int)$r['id'];
+        }
+        if ($lastInvoiceNo === '' && $invNo !== '') {
+            $lastInvoiceNo = $invNo;
+        }
 
-        if (strpos($invNo, $prefix) === 0) {
-            $s = (int)substr($invNo, strlen($prefix));
-            if ($s > $maxSeq) $maxSeq = $s;
-        } elseif (preg_match('/^P\d{4}(\d{1,6})$/', $invNo, $m)) {
-            $s = (int)$m[1];
-            if ($s > $maxSeq) $maxSeq = $s;
-        } elseif (preg_match('/^P\d{2}(\d{1,6})$/', $invNo, $m)) {
-            $s = (int)$m[1];
-            if ($s > $maxSeq) $maxSeq = $s;
+        $s = extractUniversalDocSeq($invNo, 'P', $prefix);
+        if ($s > 0) {
+            $candidates[] = ['no' => $invNo, 'seq' => $s];
+        }
+    }
+
+    foreach ($candidates as $c) {
+        if ($c['no'] === 'P26100045' && $totalCount < 40) continue;
+        if ($c['seq'] > $maxSeq) $maxSeq = $c['seq'];
+    }
+
+    if ($includeLast && $lastRowId > 0) {
+        $stLast = $pdo->prepare("SELECT invoice_no, data FROM purchase_invoices WHERE id = ? LIMIT 1");
+        $stLast->execute([$lastRowId]);
+        $rL = $stLast->fetch(PDO::FETCH_ASSOC);
+        if ($rL) {
+            $d = json_decode($rL['data'], true) ?: [];
+            $invNo = (string)($rL['invoice_no'] ?: ($d['invoiceNo'] ?? ($d['id'] ?? '')));
+            $d['invoiceNo'] = $invNo;
+            $d['id'] = $invNo;
+            $lastPur = $d;
         }
     }
 
     $nextPurNo = $prefix . str_pad($maxSeq + 1, 4, '0', STR_PAD_LEFT);
-    return [
+    $res = [
         'prefix' => $prefix,
         'maxSeq' => $maxSeq,
+        'lastInvoiceNo' => $lastInvoiceNo,
         'nextPurchaseNo' => $nextPurNo,
-        'totalCount' => $totalCount,
-        'lastRecord' => $lastPur
+        'totalCount' => $totalCount
     ];
+    if ($includeLast) $res['lastRecord'] = $lastPur;
+    return $res;
 }
 
-function getDeliverySequence($pdo, $tenantId) {
+function getDeliverySequence($pdo, $tenantId, $includeLast = false) {
     $prefix = 'DEL-' . date('ym');
     $maxSeq = 0;
     $lastDel = null;
+    $lastRowId = 0;
     $totalCount = 0;
 
     try {
-        $stmt = $pdo->prepare("SELECT id, data, frontend_id FROM delivery_notes WHERE (tenant_id = ? OR tenant_id IS NULL) AND (is_deleted = 0 OR is_deleted IS NULL) ORDER BY id ASC");
+        $stmtCnt = $pdo->prepare("SELECT COUNT(*) FROM delivery_notes WHERE (tenant_id = ? OR tenant_id IS NULL) AND (is_deleted = 0 OR is_deleted IS NULL)");
+        $stmtCnt->execute([$tenantId]);
+        $totalCount = (int)$stmtCnt->fetchColumn();
+
+        $stmt = $pdo->prepare("SELECT id, frontend_id, COALESCE(JSON_UNQUOTE(JSON_EXTRACT(data, '$.deliveryNo')), JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')), '') AS j_no FROM delivery_notes WHERE (tenant_id = ? OR tenant_id IS NULL) AND (is_deleted = 0 OR is_deleted IS NULL) ORDER BY id DESC LIMIT 300");
         $stmt->execute([$tenantId]);
         while ($r = $stmt->fetch(PDO::FETCH_ASSOC)) {
-            $totalCount++;
-            $d = json_decode($r['data'], true) ?: [];
-            $lastDel = $d;
-            $dNo = (string)($d['deliveryNo'] ?? ($r['frontend_id'] ?? ($d['id'] ?? '')));
+            if ($lastRowId === 0) {
+                $lastRowId = (int)$r['id'];
+            }
+            $jNo = ($r['j_no'] !== 'null') ? $r['j_no'] : '';
+            $dNo = (string)($jNo ?: ($r['frontend_id'] ?? ''));
             if (strpos($dNo, $prefix) === 0) {
                 $s = (int)substr($dNo, strlen($prefix));
                 if ($s > $maxSeq) $maxSeq = $s;
@@ -170,32 +291,45 @@ function getDeliverySequence($pdo, $tenantId) {
                 if ($s > $maxSeq) $maxSeq = $s;
             }
         }
+        if ($includeLast && $lastRowId > 0) {
+            $stLast = $pdo->prepare("SELECT data FROM delivery_notes WHERE id = ? LIMIT 1");
+            $stLast->execute([$lastRowId]);
+            $rawLast = $stLast->fetchColumn();
+            if ($rawLast) $lastDel = json_decode($rawLast, true);
+        }
     } catch (Exception $e) {}
 
     $nextDelNo = $prefix . str_pad($maxSeq + 1, 4, '0', STR_PAD_LEFT);
-    return [
+    $res = [
         'prefix' => $prefix,
         'maxSeq' => $maxSeq,
         'nextDeliveryNo' => $nextDelNo,
-        'totalCount' => $totalCount,
-        'lastRecord' => $lastDel
+        'totalCount' => $totalCount
     ];
+    if ($includeLast) $res['lastRecord'] = $lastDel;
+    return $res;
 }
 
-function getReceiptSequence($pdo, $tenantId) {
+function getReceiptSequence($pdo, $tenantId, $includeLast = false) {
     $prefix = 'GRN-' . date('ym');
     $maxSeq = 0;
     $lastRec = null;
+    $lastRowId = 0;
     $totalCount = 0;
 
     try {
-        $stmt = $pdo->prepare("SELECT id, invoice_no, data FROM purchase_invoices WHERE (tenant_id = ? OR tenant_id IS NULL) AND (JSON_EXTRACT(data, '$.isGRN') = true OR invoice_no LIKE 'Z%' OR invoice_no LIKE 'GRN%') ORDER BY id ASC");
+        $stmtCnt = $pdo->prepare("SELECT COUNT(*) FROM purchase_invoices WHERE (tenant_id = ? OR tenant_id IS NULL) AND (JSON_EXTRACT(data, '$.isGRN') = true OR invoice_no LIKE 'Z%' OR invoice_no LIKE 'GRN%')");
+        $stmtCnt->execute([$tenantId]);
+        $totalCount = (int)$stmtCnt->fetchColumn();
+
+        $stmt = $pdo->prepare("SELECT id, invoice_no, COALESCE(JSON_UNQUOTE(JSON_EXTRACT(data, '$.invoiceNo')), '') AS j_no FROM purchase_invoices WHERE (tenant_id = ? OR tenant_id IS NULL) AND (JSON_EXTRACT(data, '$.isGRN') = true OR invoice_no LIKE 'Z%' OR invoice_no LIKE 'GRN%') ORDER BY id DESC LIMIT 300");
         $stmt->execute([$tenantId]);
         while ($r = $stmt->fetch(PDO::FETCH_ASSOC)) {
-            $totalCount++;
-            $d = json_decode($r['data'], true) ?: [];
-            $lastRec = $d;
-            $rNo = (string)($r['invoice_no'] ?: ($d['invoiceNo'] ?? ''));
+            if ($lastRowId === 0) {
+                $lastRowId = (int)$r['id'];
+            }
+            $jNo = ($r['j_no'] !== 'null') ? $r['j_no'] : '';
+            $rNo = (string)($r['invoice_no'] ?: $jNo);
             if (strpos($rNo, $prefix) === 0) {
                 $s = (int)substr($rNo, strlen($prefix));
                 if ($s > $maxSeq) $maxSeq = $s;
@@ -204,16 +338,417 @@ function getReceiptSequence($pdo, $tenantId) {
                 if ($s > $maxSeq) $maxSeq = $s;
             }
         }
+        if ($includeLast && $lastRowId > 0) {
+            $stLast = $pdo->prepare("SELECT data FROM purchase_invoices WHERE id = ? LIMIT 1");
+            $stLast->execute([$lastRowId]);
+            $rawLast = $stLast->fetchColumn();
+            if ($rawLast) $lastRec = json_decode($rawLast, true);
+        }
     } catch (Exception $e) {}
 
     $nextRecNo = $prefix . str_pad($maxSeq + 1, 4, '0', STR_PAD_LEFT);
-    return [
+    $res = [
         'prefix' => $prefix,
         'maxSeq' => $maxSeq,
         'nextReceiptNo' => $nextRecNo,
-        'totalCount' => $totalCount,
-        'lastRecord' => $lastRec
+        'totalCount' => $totalCount
     ];
+    if ($includeLast) $res['lastRecord'] = $lastRec;
+    return $res;
+}
+
+function getJournalSequence($pdo, $tenantId, $includeLast = false) {
+    $prefix = 'J' . date('ym');
+    $maxSeq = 0;
+    $lastRec = null;
+    $totalCount = 0;
+
+    try {
+        $stmtCnt = $pdo->prepare("SELECT COUNT(*) FROM journal_vouchers WHERE (tenant_id = ? OR tenant_id IS NULL) AND (is_deleted = 0 OR is_deleted IS NULL)");
+        $stmtCnt->execute([$tenantId]);
+        $totalCount = (int)$stmtCnt->fetchColumn();
+        if ($totalCount > $maxSeq) $maxSeq = $totalCount;
+
+        $stmt = $pdo->prepare("SELECT id, frontend_id, data, created_at FROM journal_vouchers WHERE (tenant_id = ? OR tenant_id IS NULL) AND (is_deleted = 0 OR is_deleted IS NULL) ORDER BY id DESC LIMIT 300");
+        $stmt->execute([$tenantId]);
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $d = json_decode($row['data'], true);
+            if (!$d || !empty($d['deleted'])) continue;
+            $rawNo = trim($row['frontend_id'] ?? ($d['voucherNo'] ?? ($d['id'] ?? '')));
+            $seq = extractUniversalDocSeq($rawNo, 'J', $prefix);
+            if ($seq > $maxSeq) $maxSeq = $seq;
+            if ($includeLast && $lastRec === null) {
+                $lastRec = $d;
+                $lastRec['_db_id'] = $row['id'];
+            }
+        }
+    } catch (Exception $e) {}
+
+    $nextSeq = $maxSeq + 1;
+    $nextJournalNo = $prefix . str_pad((string)$nextSeq, 4, '0', STR_PAD_LEFT);
+    $res = [
+        'prefix' => $prefix,
+        'maxSeq' => $maxSeq,
+        'nextJournalNo' => $nextJournalNo,
+        'totalCount' => $totalCount
+    ];
+    if ($includeLast) $res['lastRecord'] = $lastRec;
+    return $res;
+}
+
+function getInventorySequence($pdo, $tenantId, $prefixLetter = 'I', $includeLast = false) {
+    $letter = strtoupper(substr(trim($prefixLetter ?: 'I'), 0, 1));
+    $prefix = $letter . date('ym');
+    $maxSeq = 0;
+    $lastRec = null;
+    $totalCount = 0;
+
+    try {
+        $stmtCnt = $pdo->prepare("SELECT COUNT(*) FROM inventory WHERE (tenant_id = ? OR tenant_id IS NULL) AND (is_deleted = 0 OR is_deleted IS NULL)");
+        $stmtCnt->execute([$tenantId]);
+        $totalCount = (int)$stmtCnt->fetchColumn();
+        if ($totalCount > $maxSeq) $maxSeq = $totalCount;
+
+        $stmt = $pdo->prepare("SELECT id, frontend_id, data, created_at FROM inventory WHERE (tenant_id = ? OR tenant_id IS NULL) AND (is_deleted = 0 OR is_deleted IS NULL) ORDER BY id DESC LIMIT 300");
+        $stmt->execute([$tenantId]);
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $d = json_decode($row['data'], true);
+            if (!$d || !empty($d['deleted'])) continue;
+            $rawNo = trim($row['frontend_id'] ?? ($d['docNo'] ?? ($d['id'] ?? '')));
+            $seq = extractUniversalDocSeq($rawNo, $letter, $prefix);
+            if ($seq > $maxSeq) $maxSeq = $seq;
+            if ($includeLast && $lastRec === null) {
+                $lastRec = $d;
+                $lastRec['_db_id'] = $row['id'];
+            }
+        }
+    } catch (Exception $e) {}
+
+    $nextSeq = $maxSeq + 1;
+    $nextDocNo = $prefix . str_pad((string)$nextSeq, 4, '0', STR_PAD_LEFT);
+    $res = [
+        'prefix' => $prefix,
+        'maxSeq' => $maxSeq,
+        'nextDocNo' => $nextDocNo,
+        'totalCount' => $totalCount
+    ];
+    if ($includeLast) $res['lastRecord'] = $lastRec;
+    return $res;
+}
+
+/**
+ * ─────────────────────────────────────────────────────────────
+ * IMMEDIATE LEDGER & STOCK POSTING ENGINE IN MYSQL
+ * يرحّل أرصدة (العميل / المورد / المخزون / آخر تكلفة شراء / الجرد / المناقلات / القيود اليدوية) فوراً في MySQL
+ * مع حماية كاملة ضد التكرار (Idempotent Delta Reversal عند التعديل)
+ * ─────────────────────────────────────────────────────────────
+ */
+function applyInvoiceEffectsInDB($pdo, $tenantId, $docType, &$data, $oldData = null) {
+    try {
+        // 1. إذا كان هذا تعديلاً لفاتورة سابقة سبق ترحيل أثرها، نعكس الأثر القديم أولاً بدقة
+        if (is_array($oldData) && !empty($oldData['_ledgerPosted']) && is_array($oldData['_ledgerPosted'])) {
+            $prev = $oldData['_ledgerPosted'];
+            if (!empty($prev['partnerTable']) && !empty($prev['partnerRowId']) && !empty($prev['partnerDelta'])) {
+                $pTbl = in_array($prev['partnerTable'], ['suppliers', 'customers', 'safes', 'banks', 'accounts'], true) ? $prev['partnerTable'] : 'customers';
+                $stRevP = $pdo->prepare("SELECT id, data FROM `$pTbl` WHERE id = ? LIMIT 1");
+                $stRevP->execute([(int)$prev['partnerRowId']]);
+                $rRevP = $stRevP->fetch(PDO::FETCH_ASSOC);
+                if ($rRevP) {
+                    $pObj = json_decode($rRevP['data'], true) ?: [];
+                    $curBal = (float)($pObj['currentBalance'] ?? ($pObj['balance'] ?? ($pObj['openingBalance'] ?? 0)));
+                    $pObj['currentBalance'] = round($curBal - (float)$prev['partnerDelta'], 2);
+                    if (isset($pObj['balance'])) $pObj['balance'] = $pObj['currentBalance'];
+                    $upRevP = $pdo->prepare("UPDATE `$pTbl` SET data = ?, updated_at = NOW() WHERE id = ?");
+                    $upRevP->execute([json_encode($pObj, JSON_UNESCAPED_UNICODE), $rRevP['id']]);
+                }
+            }
+            if (!empty($prev['stockDeltas']) && is_array($prev['stockDeltas'])) {
+                foreach ($prev['stockDeltas'] as $sd) {
+                    $itRowId = (int)($sd['itemRowId'] ?? 0);
+                    $deltaVal = (float)($sd['delta'] ?? 0);
+                    $whName = trim((string)($sd['warehouse'] ?? 'المستودع الرئيسي'));
+                    if ($itRowId > 0 && $deltaVal != 0) {
+                        $stRevIt = $pdo->prepare("SELECT id, data FROM items WHERE id = ? LIMIT 1");
+                        $stRevIt->execute([$itRowId]);
+                        $rRevIt = $stRevIt->fetch(PDO::FETCH_ASSOC);
+                        if ($rRevIt) {
+                            $itObj = json_decode($rRevIt['data'], true) ?: [];
+                            if (isset($itObj['stock']) && is_array($itObj['stock'])) {
+                                $isAssoc = array_keys($itObj['stock']) !== range(0, count($itObj['stock']) - 1);
+                                if ($isAssoc) {
+                                    $itObj['stock'][$whName] = round((float)($itObj['stock'][$whName] ?? 0) - $deltaVal, 3);
+                                } elseif (isset($itObj['stock'][0]['qty'])) {
+                                    $itObj['stock'][0]['qty'] = round((float)$itObj['stock'][0]['qty'] - $deltaVal, 3);
+                                }
+                            } else {
+                                $itObj['stock'] = round((float)($itObj['stock'] ?? ($itObj['quantity'] ?? 0)) - $deltaVal, 3);
+                            }
+                            $upRevIt = $pdo->prepare("UPDATE items SET data = ?, updated_at = NOW() WHERE id = ?");
+                            $upRevIt->execute([json_encode($itObj, JSON_UNESCAPED_UNICODE), $rRevIt['id']]);
+                        }
+                    }
+                }
+            }
+        }
+
+        $postedMeta = [
+            'postedAt' => date('Y-m-d H:i:s'),
+            'docType' => $docType,
+            'partnerTable' => null,
+            'partnerRowId' => null,
+            'partnerDelta' => 0,
+            'stockDeltas' => []
+        ];
+
+        // 2. تحديث رصيد العميل أو المورد في جدول customers / suppliers
+        if (in_array($docType, ['sales', 'sales_split', 'purchase', 'purchase_split'], true)) {
+            $isSales = ($docType === 'sales' || $docType === 'sales_split');
+            $partnerTable = $isSales ? 'customers' : 'suppliers';
+            $partnerName = trim((string)($isSales
+                ? ($data['customerName'] ?? ($data['customer_name'] ?? ''))
+                : ($data['supplierName'] ?? ($data['supplier_name'] ?? ''))
+            ));
+            $partnerId = trim((string)($isSales
+                ? ($data['customerId'] ?? ($data['customer'] ?? ''))
+                : ($data['supplierId'] ?? ($data['supplier'] ?? ''))
+            ));
+
+            $totalVal = (float)($data['grandTotal'] ?? ($data['total'] ?? ($data['subTotal'] ?? 0)));
+            $paidVal = (float)($data['paidAmount'] ?? ($data['downPayment'] ?? 0));
+            $payMethod = strtolower(trim((string)($data['paymentMethod'] ?? 'cash')));
+            $isSplitDoc = ($docType === 'sales_split' || $docType === 'purchase_split' || !empty($data['isSplit']));
+
+            $partnerDelta = 0.0;
+            if ($isSplitDoc) {
+                $partnerDelta = isset($data['remainingBalance']) ? (float)$data['remainingBalance'] : max(0.0, $totalVal - $paidVal);
+            } elseif (in_array($payMethod, ['credit', 'آجل', 'اجل', 'deferred'], true)) {
+                $partnerDelta = max(0.0, $totalVal - $paidVal);
+            } elseif (isset($data['remainingBalance']) && (float)$data['remainingBalance'] > 0) {
+                $partnerDelta = (float)$data['remainingBalance'];
+            }
+
+            $isGenericCashPartner = in_array($partnerName, ['عميل نقدي', 'عميل نقدي عام', 'مورد نقدي', 'مورد نقدي عام'], true);
+            if ($partnerDelta != 0 && (!$isGenericCashPartner || $partnerId !== '')) {
+                $stmtP = $pdo->prepare("SELECT id, data FROM `$partnerTable` WHERE (tenant_id = ? OR tenant_id IS NULL) AND (is_deleted = 0 OR is_deleted IS NULL) AND (frontend_id = ? OR search_name = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.name')) = ?) LIMIT 1");
+                $stmtP->execute([$tenantId, $partnerId ?: $partnerName, $partnerName, $partnerName]);
+                $rowP = $stmtP->fetch(PDO::FETCH_ASSOC);
+                if ($rowP) {
+                    $pData = json_decode($rowP['data'], true) ?: [];
+                    $curBal = (float)($pData['currentBalance'] ?? ($pData['openingBalance'] ?? 0));
+                    $pData['currentBalance'] = round($curBal + $partnerDelta, 2);
+                    $upP = $pdo->prepare("UPDATE `$partnerTable` SET data = ?, updated_at = NOW() WHERE id = ?");
+                    $upP->execute([json_encode($pData, JSON_UNESCAPED_UNICODE), $rowP['id']]);
+                    $postedMeta['partnerTable'] = $partnerTable;
+                    $postedMeta['partnerRowId'] = (int)$rowP['id'];
+                    $postedMeta['partnerDelta'] = $partnerDelta;
+                }
+            }
+
+            // 3. تحديث كمية المخزون وآخر سعر شراء في جدول items
+            $defaultWh = trim((string)($data['warehouse'] ?? ($data['warehouseName'] ?? 'المستودع الرئيسي'))) ?: 'المستودع الرئيسي';
+            $lines = (isset($data['items']) && is_array($data['items'])) ? $data['items'] : [];
+            foreach ($lines as $line) {
+                if (!is_array($line)) continue;
+                $itName = trim((string)($line['name'] ?? ($line['itemName'] ?? '')));
+                $itId = trim((string)($line['id'] ?? ($line['itemId'] ?? '')));
+                $qty = (float)($line['qty'] ?? ($line['quantity'] ?? 0));
+                $factor = (float)($line['factor'] ?? ($line['unitFactor'] ?? 1));
+                if ($factor <= 0) $factor = 1.0;
+                $lineWh = trim((string)($line['warehouse'] ?? $defaultWh)) ?: 'المستودع الرئيسي';
+                $linePrice = (float)($line['price'] ?? 0);
+
+                if ($qty <= 0 || ($itName === '' && $itId === '')) continue;
+
+                $stmtIt = $pdo->prepare("SELECT id, data FROM items WHERE (tenant_id = ? OR tenant_id IS NULL) AND (is_deleted = 0 OR is_deleted IS NULL) AND (frontend_id = ? OR search_name = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.name')) = ?) LIMIT 1");
+                $stmtIt->execute([$tenantId, $itId ?: $itName, $itName, $itName]);
+                $rowIt = $stmtIt->fetch(PDO::FETCH_ASSOC);
+                if ($rowIt) {
+                    $itData = json_decode($rowIt['data'], true) ?: [];
+                    $baseQtyDelta = ($isSales ? -1.0 : 1.0) * ($qty * $factor);
+
+                    if (isset($itData['stock']) && is_array($itData['stock'])) {
+                        $isAssoc = count($itData['stock']) > 0 && (array_keys($itData['stock']) !== range(0, count($itData['stock']) - 1));
+                        if ($isAssoc) {
+                            $itData['stock'][$lineWh] = round((float)($itData['stock'][$lineWh] ?? 0) + $baseQtyDelta, 3);
+                        } else {
+                            $matchedWh = false;
+                            foreach ($itData['stock'] as &$stEntry) {
+                                if (is_array($stEntry) && isset($stEntry['warehouse']) && $stEntry['warehouse'] === $lineWh) {
+                                    $stEntry['qty'] = round((float)($stEntry['qty'] ?? 0) + $baseQtyDelta, 3);
+                                    $matchedWh = true;
+                                    break;
+                                }
+                            }
+                            unset($stEntry);
+                            if (!$matchedWh) {
+                                if (isset($itData['stock'][0]) && is_array($itData['stock'][0]) && isset($itData['stock'][0]['qty'])) {
+                                    $itData['stock'][0]['qty'] = round((float)$itData['stock'][0]['qty'] + $baseQtyDelta, 3);
+                                } else {
+                                    $itData['stock'][$lineWh] = round($baseQtyDelta, 3);
+                                }
+                            }
+                        }
+                    } else {
+                        $curStock = (float)($itData['stock'] ?? ($itData['quantity'] ?? 0));
+                        $itData['stock'] = round($curStock + $baseQtyDelta, 3);
+                    }
+
+                    // في حالة المشتريات: حفظ آخر سعر شراء وتحديث تكلفة الصنف في قاعدة البيانات
+                    if (!$isSales && $linePrice > 0) {
+                        $unitCost = ($factor > 1 && $linePrice > $factor) ? round($linePrice / $factor, 2) : $linePrice;
+                        $itData['lastPurchaseCost'] = $linePrice;
+                        $itData['lastPurchaseUnit'] = trim((string)($line['unit'] ?? ''));
+                        $itData['lastPurchaseSupplier'] = $partnerName;
+                        $itData['lastPurchaseDate'] = $data['date'] ?? date('Y-m-d');
+                        if (empty($itData['costPrice']) || $unitCost > 0) {
+                            $itData['costPrice'] = $linePrice;
+                        }
+                    }
+
+                    $upIt = $pdo->prepare("UPDATE items SET data = ?, updated_at = NOW() WHERE id = ?");
+                    $upIt->execute([json_encode($itData, JSON_UNESCAPED_UNICODE), $rowIt['id']]);
+
+                    $postedMeta['stockDeltas'][] = [
+                        'itemRowId' => (int)$rowIt['id'],
+                        'warehouse' => $lineWh,
+                        'delta' => $baseQtyDelta
+                    ];
+                }
+            }
+        } elseif ($docType === 'finance') {
+            // السندات المالية المحفوظة عبر save_voucher أو أوفلاين
+            $vAmount = (float)($data['amount'] ?? ($data['totalAmount'] ?? ($data['total'] ?? 0)));
+            $vType = strtolower(trim((string)($data['type'] ?? ($data['voucherType'] ?? 'payment'))));
+            $targetAccount = trim((string)($data['beneficiaryName'] ?? ($data['accountName'] ?? ($data['customerName'] ?? ($data['supplierName'] ?? '')))));
+            if ($vAmount > 0 && $targetAccount !== '') {
+                $isReceipt = (strpos($vType, 'receipt') !== false || strpos($vType, 'قبض') !== false);
+                $tablesToTry = $isReceipt ? ['customers', 'suppliers'] : ['suppliers', 'customers'];
+                foreach ($tablesToTry as $tbl) {
+                    $stAcc = $pdo->prepare("SELECT id, data FROM `$tbl` WHERE (tenant_id = ? OR tenant_id IS NULL) AND (is_deleted = 0 OR is_deleted IS NULL) AND (frontend_id = ? OR search_name = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.name')) = ?) LIMIT 1");
+                    $stAcc->execute([$tenantId, $targetAccount, $targetAccount, $targetAccount]);
+                    $rAcc = $stAcc->fetch(PDO::FETCH_ASSOC);
+                    if ($rAcc) {
+                        $accObj = json_decode($rAcc['data'], true) ?: [];
+                        $curBal = (float)($accObj['currentBalance'] ?? ($accObj['openingBalance'] ?? 0));
+                        // سند القبض يخفض مديونية العميل، وسند الصرف يخفض مديونية المورد
+                        $delta = -$vAmount;
+                        $accObj['currentBalance'] = round($curBal + $delta, 2);
+                        $upAcc = $pdo->prepare("UPDATE `$tbl` SET data = ?, updated_at = NOW() WHERE id = ?");
+                        $upAcc->execute([json_encode($accObj, JSON_UNESCAPED_UNICODE), $rAcc['id']]);
+                        $postedMeta['partnerTable'] = $tbl;
+                        $postedMeta['partnerRowId'] = (int)$rAcc['id'];
+                        $postedMeta['partnerDelta'] = $delta;
+                        break;
+                    }
+                }
+            }
+        } elseif ($docType === 'stock_adjustment') {
+            // تسوية الجرد المخزني وفروقات التالف
+            $whName = trim((string)($data['warehouse'] ?? ($data['warehouseName'] ?? 'المستودع الرئيسي'))) ?: 'المستودع الرئيسي';
+            $itName = trim((string)($data['itemName'] ?? ($data['name'] ?? '')));
+            $itId = trim((string)($data['itemId'] ?? ($data['id_item'] ?? '')));
+            $actualQty = isset($data['actualQty']) ? (float)$data['actualQty'] : null;
+            $bookQty = isset($data['bookQty']) ? (float)$data['bookQty'] : null;
+            $varianceQty = isset($data['varianceDelta']) ? (float)$data['varianceDelta'] : (($actualQty !== null && $bookQty !== null) ? ($actualQty - $bookQty) : 0.0);
+
+            if ($itName !== '' || $itId !== '') {
+                $stmtIt = $pdo->prepare("SELECT id, data FROM items WHERE (tenant_id = ? OR tenant_id IS NULL) AND (is_deleted = 0 OR is_deleted IS NULL) AND (frontend_id = ? OR search_name = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.name')) = ?) LIMIT 1");
+                $stmtIt->execute([$tenantId, $itId ?: $itName, $itName, $itName]);
+                $rowIt = $stmtIt->fetch(PDO::FETCH_ASSOC);
+                if ($rowIt) {
+                    $itData = json_decode($rowIt['data'], true) ?: [];
+                    if (isset($itData['stock']) && is_array($itData['stock'])) {
+                        $isAssoc = count($itData['stock']) > 0 && (array_keys($itData['stock']) !== range(0, count($itData['stock']) - 1));
+                        if ($isAssoc) {
+                            $curW = (float)($itData['stock'][$whName] ?? 0);
+                            $itData['stock'][$whName] = ($actualQty !== null) ? round($actualQty, 3) : round($curW + $varianceQty, 3);
+                        } else {
+                            if (isset($itData['stock'][0]['qty'])) {
+                                $curW = (float)$itData['stock'][0]['qty'];
+                                $itData['stock'][0]['qty'] = ($actualQty !== null) ? round($actualQty, 3) : round($curW + $varianceQty, 3);
+                            }
+                        }
+                    } else {
+                        $curStock = (float)($itData['stock'] ?? ($itData['quantity'] ?? 0));
+                        $itData['stock'] = ($actualQty !== null) ? round($actualQty, 3) : round($curStock + $varianceQty, 3);
+                    }
+                    $upIt = $pdo->prepare("UPDATE items SET data = ?, updated_at = NOW() WHERE id = ?");
+                    $upIt->execute([json_encode($itData, JSON_UNESCAPED_UNICODE), $rowIt['id']]);
+                    $postedMeta['stockDeltas'][] = [
+                        'itemRowId' => (int)$rowIt['id'],
+                        'warehouse' => $whName,
+                        'delta' => $varianceQty
+                    ];
+                }
+            }
+        } elseif ($docType === 'warehouse_transfer') {
+            // تحويل ومناقلة بين المستودعات
+            $fromWh = trim((string)($data['fromWarehouse'] ?? 'المستودع الرئيسي'));
+            $toWh = trim((string)($data['toWarehouse'] ?? 'مخزن صالة المعرض'));
+            $itName = trim((string)($data['itemName'] ?? ($data['name'] ?? '')));
+            $itId = trim((string)($data['itemId'] ?? ''));
+            $qty = (float)($data['qty'] ?? ($data['quantity'] ?? 0));
+
+            if ($qty > 0 && ($itName !== '' || $itId !== '') && $fromWh !== $toWh) {
+                $stmtIt = $pdo->prepare("SELECT id, data FROM items WHERE (tenant_id = ? OR tenant_id IS NULL) AND (is_deleted = 0 OR is_deleted IS NULL) AND (frontend_id = ? OR search_name = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.name')) = ?) LIMIT 1");
+                $stmtIt->execute([$tenantId, $itId ?: $itName, $itName, $itName]);
+                $rowIt = $stmtIt->fetch(PDO::FETCH_ASSOC);
+                if ($rowIt) {
+                    $itData = json_decode($rowIt['data'], true) ?: [];
+                    if (!isset($itData['warehouseStocks']) || !is_array($itData['warehouseStocks'])) {
+                        $itData['warehouseStocks'] = [];
+                    }
+                    $curFrom = (float)($itData['warehouseStocks'][$fromWh] ?? ($itData['stock'] ?? 0));
+                    $curTo = (float)($itData['warehouseStocks'][$toWh] ?? 0);
+                    $itData['warehouseStocks'][$fromWh] = round(max(0, $curFrom - $qty), 3);
+                    $itData['warehouseStocks'][$toWh] = round($curTo + $qty, 3);
+                    if (isset($itData['stock']) && is_array($itData['stock'])) {
+                        $isAssoc = count($itData['stock']) > 0 && (array_keys($itData['stock']) !== range(0, count($itData['stock']) - 1));
+                        if ($isAssoc) {
+                            $itData['stock'][$fromWh] = round((float)($itData['stock'][$fromWh] ?? 0) - $qty, 3);
+                            $itData['stock'][$toWh] = round((float)($itData['stock'][$toWh] ?? 0) + $qty, 3);
+                        }
+                    }
+                    $upIt = $pdo->prepare("UPDATE items SET data = ?, updated_at = NOW() WHERE id = ?");
+                    $upIt->execute([json_encode($itData, JSON_UNESCAPED_UNICODE), $rowIt['id']]);
+                }
+            }
+        } elseif ($docType === 'journal_entry') {
+            // قيود اليومية اليدوية وتسوية الحسابات
+            $amount = (float)($data['amount'] ?? ($data['totalDebit'] ?? 0));
+            $debitName = trim((string)($data['debitAccountName'] ?? ''));
+            $creditName = trim((string)($data['creditAccountName'] ?? ''));
+            $updatePartyByName = function($accName, $deltaSign) use ($pdo, $tenantId, $amount) {
+                if ($accName === '' || $amount <= 0) return;
+                // تنظيف الاسم في حال كان يحتوي على الرصيد بين قوسين
+                $cleanName = trim(preg_replace('/\s*\(.*$/u', '', $accName));
+                foreach (['customers', 'suppliers', 'safes', 'banks'] as $tbl) {
+                    try {
+                        $st = $pdo->prepare("SELECT id, data FROM `$tbl` WHERE (tenant_id = ? OR tenant_id IS NULL) AND (is_deleted = 0 OR is_deleted IS NULL) AND (frontend_id = ? OR search_name = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.name')) = ?) LIMIT 1");
+                        $st->execute([$tenantId, $cleanName, $cleanName, $cleanName]);
+                        $r = $st->fetch(PDO::FETCH_ASSOC);
+                        if ($r) {
+                            $obj = json_decode($r['data'], true) ?: [];
+                            $cur = (float)($obj['currentBalance'] ?? ($obj['balance'] ?? ($obj['openingBalance'] ?? 0)));
+                            // بالنسبة للموردين: المدين يخفض مديونيتهم والدائن يزيدها، وللعملاء والخزائن: المدين يزيد والدائن ينقص
+                            $effectiveSign = ($tbl === 'suppliers') ? (-1.0 * $deltaSign) : $deltaSign;
+                            $obj['currentBalance'] = round($cur + ($effectiveSign * $amount), 2);
+                            if (isset($obj['balance'])) $obj['balance'] = $obj['currentBalance'];
+                            $up = $pdo->prepare("UPDATE `$tbl` SET data = ?, updated_at = NOW() WHERE id = ?");
+                            $up->execute([json_encode($obj, JSON_UNESCAPED_UNICODE), $r['id']]);
+                            return;
+                        }
+                    } catch (Exception $e) {}
+                }
+            };
+            $updatePartyByName($debitName, 1.0);
+            $updatePartyByName($creditName, -1.0);
+        }
+
+        $data['_ledgerPosted'] = $postedMeta;
+    } catch (Exception $e) {
+        // Non-blocking ledger hook
+    }
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -247,18 +782,36 @@ try {
             ], JSON_UNESCAPED_UNICODE);
             exit;
 
+        // ═════════════════════════════════════════════════════════
+        // 1A. ULTRA-LIGHTWEIGHT 2G NEXT NUMBERS (~350 bytes)
+        // ═════════════════════════════════════════════════════════
+        case 'get_next_numbers':
+            echo json_encode([
+                'success' => true,
+                'tenant_id' => $tenantId,
+                'server_time' => date('Y-m-d H:i:s'),
+                'finance' => getFinanceSequence($pdo, $tenantId, false),
+                'sales' => getSalesSequence($pdo, $tenantId, false),
+                'purchase' => getPurchaseSequence($pdo, $tenantId, false),
+                'delivery' => getDeliverySequence($pdo, $tenantId, false),
+                'receipt' => getReceiptSequence($pdo, $tenantId, false),
+                'journal' => getJournalSequence($pdo, $tenantId, false),
+                'inventory' => getInventorySequence($pdo, $tenantId, 'I', false)
+            ], JSON_UNESCAPED_UNICODE);
+            break;
 
         // ═════════════════════════════════════════════════════════
-        // 1. GET ALL MIRROR SEQUENCES & LATEST RECORDS
+        // 1B. FULL MIRROR STATUS & LATEST RECORDS
         // ═════════════════════════════════════════════════════════
         case 'get_mirror_status':
-        case 'get_next_numbers':
         default:
-            $finSeq = getFinanceSequence($pdo, $tenantId);
-            $salesSeq = getSalesSequence($pdo, $tenantId);
-            $purSeq = getPurchaseSequence($pdo, $tenantId);
-            $delSeq = getDeliverySequence($pdo, $tenantId);
-            $recSeq = getReceiptSequence($pdo, $tenantId);
+            $finSeq = getFinanceSequence($pdo, $tenantId, true);
+            $salesSeq = getSalesSequence($pdo, $tenantId, true);
+            $purSeq = getPurchaseSequence($pdo, $tenantId, true);
+            $delSeq = getDeliverySequence($pdo, $tenantId, true);
+            $recSeq = getReceiptSequence($pdo, $tenantId, true);
+            $jvSeq = getJournalSequence($pdo, $tenantId, true);
+            $invSeq = getInventorySequence($pdo, $tenantId, 'I', true);
 
             $rawItems = $pdo->query("SELECT data FROM items WHERE (is_deleted = 0 OR is_deleted IS NULL) LIMIT 100")->fetchAll(PDO::FETCH_COLUMN);
             $rawCusts = $pdo->query("SELECT data FROM customers WHERE (is_deleted = 0 OR is_deleted IS NULL) LIMIT 100")->fetchAll(PDO::FETCH_COLUMN);
@@ -277,6 +830,8 @@ try {
                 'purchase' => $purSeq,
                 'delivery' => $delSeq,
                 'receipt' => $recSeq,
+                'journal' => $jvSeq,
+                'inventory' => $invSeq,
                 'items' => $dbItems,
                 'customers' => $dbCusts,
                 'warehouses' => $dbWhs
@@ -294,18 +849,58 @@ try {
                 exit;
             }
 
+            $idemKey = trim((string)($data['idempotencyKey'] ?? ($data['idempotency_key'] ?? ($data['client_draft_id'] ?? ''))));
+            if ($idemKey !== '') {
+                try {
+                    $stmtIdem = $pdo->prepare("SELECT invoice_no, data FROM sales_invoices WHERE (tenant_id = ? OR tenant_id IS NULL) AND (is_deleted = 0 OR is_deleted IS NULL) AND JSON_UNQUOTE(JSON_EXTRACT(data, '$.idempotencyKey')) = ? LIMIT 1");
+                    $stmtIdem->execute([$tenantId, $idemKey]);
+                    $rowIdem = $stmtIdem->fetch(PDO::FETCH_ASSOC);
+                    if ($rowIdem) {
+                        $existRec = json_decode($rowIdem['data'], true) ?: [];
+                        $existNo = $rowIdem['invoice_no'] ?: ($existRec['invoiceNo'] ?? '');
+                        $updatedSeq = getSalesSequence($pdo, $tenantId);
+                        echo json_encode([
+                            'success' => true,
+                            'idempotent' => true,
+                            'message' => 'تم حفظ الفاتورة مسبقاً (منع التكرار)',
+                            'invoiceNo' => $existNo,
+                            'nextInvoiceNo' => $updatedSeq['nextInvoiceNo'],
+                            'record' => $existRec
+                        ], JSON_UNESCAPED_UNICODE);
+                        exit;
+                    }
+                } catch (Exception $e) {}
+            }
+
             $salesSeq = getSalesSequence($pdo, $tenantId);
             $invNo = trim($data['invoiceNo'] ?? ($data['id'] ?? ''));
+            $isEdit = !empty($data['isEdit']);
             $originalOfflineId = '';
             if (strpos($invNo, 'أوفلاين') !== false || strpos($invNo, 'OFF-') !== false || strpos($invNo, 'offline') !== false) {
                 $originalOfflineId = $invNo;
                 $data['offline_id'] = $invNo;
                 $invNo = $salesSeq['nextInvoiceNo'];
-            } elseif (empty($invNo) || strpos($invNo, 'undefined') !== false || $invNo === 'new' || $invNo === 'SAL-NEW') {
+            } elseif (empty($invNo) || strpos($invNo, 'undefined') !== false || $invNo === 'new' || $invNo === 'SAL-NEW' || $invNo === 'S26101012' || preg_match('/^S\d{4}\d{5,}$/i', $invNo) || preg_match('/^S\d{10,}$/i', $invNo)) {
                 $invNo = $salesSeq['nextInvoiceNo'];
             }
+
+            // Check if exists
+            $stmtCheck = $pdo->prepare("SELECT id, data FROM sales_invoices WHERE (tenant_id = ? OR tenant_id IS NULL) AND (invoice_no = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.invoiceNo')) = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')) = ?) LIMIT 1");
+            $stmtCheck->execute([$tenantId, $invNo, $invNo, $invNo]);
+            $existingRow = $stmtCheck->fetch(PDO::FETCH_ASSOC);
+            $existingId = $existingRow ? $existingRow['id'] : false;
+            $oldData = ($existingRow && !empty($existingRow['data'])) ? (json_decode($existingRow['data'], true) ?: null) : null;
+
+            // If this is a new invoice (not an explicit edit) and the number was already taken by another device (e.g. Laptop), assign the next sequential number
+            if ($existingId && !$isEdit) {
+                $invNo = $salesSeq['nextInvoiceNo'];
+                $existingId = false;
+                $oldData = null;
+            }
+
             $data['invoiceNo'] = $invNo;
             $data['id'] = $invNo;
+            if ($idemKey !== '') $data['idempotencyKey'] = $idemKey;
             $data['updatedAt'] = date('Y-m-d H:i:s');
             if (empty($data['date'])) $data['date'] = date('Y-m-d');
             $dateVal = $data['date'];
@@ -317,12 +912,8 @@ try {
             $rateVal = (float)($data['exchangeRate'] ?? ($data['rate'] ?? 1.0));
             $userVal = $data['createdBy'] ?? 'user';
 
+            applyInvoiceEffectsInDB($pdo, $tenantId, 'sales', $data, $oldData);
             $jsonRecord = json_encode($data, JSON_UNESCAPED_UNICODE);
-
-            // Check if exists
-            $stmtCheck = $pdo->prepare("SELECT id FROM sales_invoices WHERE (tenant_id = ? OR tenant_id IS NULL) AND (invoice_no = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.invoiceNo')) = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')) = ?)");
-            $stmtCheck->execute([$tenantId, $invNo, $invNo, $invNo]);
-            $existingId = $stmtCheck->fetchColumn();
 
             if ($existingId) {
                 $stmtUp = $pdo->prepare("UPDATE sales_invoices SET invoice_no = ?, customer_id_val = ?, date_val = ?, total_val = ?, status_val = ?, currency_val = ?, exchange_rate_val = ?, created_by_val = ?, data = ?, updated_at = NOW() WHERE id = ?");
@@ -334,8 +925,8 @@ try {
 
             // Sync queue
             try {
-                $syncId = 'sync-' . bin2hex(random_bytes(6));
-                $stmtSync = $pdo->prepare("INSERT INTO sync_queue (id, entity_name, record_id, operation, payload, status, created_at, synced_at) VALUES (?, 'sales_invoices', ?, ?, ?, 'SYNCED', NOW(), NOW())");
+                $syncId = $idemKey !== '' ? $idemKey : ('sync-' . bin2hex(random_bytes(6)));
+                $stmtSync = $pdo->prepare("INSERT INTO sync_queue (id, entity_name, record_id, operation, payload, status, created_at, synced_at) VALUES (?, 'sales_invoices', ?, ?, ?, 'SYNCED', NOW(), NOW()) ON DUPLICATE KEY UPDATE record_id = VALUES(record_id), status = 'SYNCED', synced_at = NOW()");
                 $stmtSync->execute([$syncId, $invNo, $existingId ? 'UPDATE' : 'INSERT', $jsonRecord]);
             } catch (Exception $e) {}
 
@@ -379,11 +970,14 @@ try {
             $remainingVal = $totalVal - $paidVal;
             $data['remainingBalance'] = $remainingVal;
 
-            $jsonRecord = json_encode($data, JSON_UNESCAPED_UNICODE);
-
-            $stmtCheck = $pdo->prepare("SELECT id FROM sales_invoices WHERE (tenant_id = ? OR tenant_id IS NULL) AND (invoice_no = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.invoiceNo')) = ?)");
+            $stmtCheck = $pdo->prepare("SELECT id, data FROM sales_invoices WHERE (tenant_id = ? OR tenant_id IS NULL) AND (invoice_no = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.invoiceNo')) = ?) LIMIT 1");
             $stmtCheck->execute([$tenantId, $invNo, $invNo]);
-            $existingId = $stmtCheck->fetchColumn();
+            $existingRow = $stmtCheck->fetch(PDO::FETCH_ASSOC);
+            $existingId = $existingRow ? $existingRow['id'] : false;
+            $oldData = ($existingRow && !empty($existingRow['data'])) ? (json_decode($existingRow['data'], true) ?: null) : null;
+
+            applyInvoiceEffectsInDB($pdo, $tenantId, 'sales_split', $data, $oldData);
+            $jsonRecord = json_encode($data, JSON_UNESCAPED_UNICODE);
 
             if ($existingId) {
                 $stmtUp = $pdo->prepare("UPDATE sales_invoices SET invoice_no = ?, customer_id_val = ?, date_val = ?, total_val = ?, status_val = 'split', data = ?, updated_at = NOW() WHERE id = ?");
@@ -415,18 +1009,56 @@ try {
                 exit;
             }
 
+            $idemKey = trim((string)($data['idempotencyKey'] ?? ($data['idempotency_key'] ?? ($data['client_draft_id'] ?? ''))));
+            if ($idemKey !== '') {
+                try {
+                    $stmtIdem = $pdo->prepare("SELECT invoice_no, data FROM purchase_invoices WHERE (tenant_id = ? OR tenant_id IS NULL) AND (is_deleted = 0 OR is_deleted IS NULL) AND JSON_UNQUOTE(JSON_EXTRACT(data, '$.idempotencyKey')) = ? LIMIT 1");
+                    $stmtIdem->execute([$tenantId, $idemKey]);
+                    $rowIdem = $stmtIdem->fetch(PDO::FETCH_ASSOC);
+                    if ($rowIdem) {
+                        $existRec = json_decode($rowIdem['data'], true) ?: [];
+                        $existNo = $rowIdem['invoice_no'] ?: ($existRec['invoiceNo'] ?? '');
+                        $updatedSeq = getPurchaseSequence($pdo, $tenantId);
+                        echo json_encode([
+                            'success' => true,
+                            'idempotent' => true,
+                            'message' => 'تم حفظ فاتورة المشتريات مسبقاً (منع التكرار)',
+                            'invoiceNo' => $existNo,
+                            'nextPurchaseNo' => $updatedSeq['nextPurchaseNo'],
+                            'record' => $existRec
+                        ], JSON_UNESCAPED_UNICODE);
+                        exit;
+                    }
+                } catch (Exception $e) {}
+            }
+
             $purSeq = getPurchaseSequence($pdo, $tenantId);
             $purNo = trim($data['invoiceNo'] ?? ($data['id'] ?? ''));
+            $isEdit = !empty($data['isEdit']);
             $originalOfflineId = '';
             if (strpos($purNo, 'أوفلاين') !== false || strpos($purNo, 'OFF-') !== false || strpos($purNo, 'offline') !== false) {
                 $originalOfflineId = $purNo;
                 $data['offline_id'] = $purNo;
                 $purNo = $purSeq['nextPurchaseNo'];
-            } elseif (empty($purNo) || strpos($purNo, 'undefined') !== false || $purNo === 'new') {
+            } elseif (empty($purNo) || strpos($purNo, 'undefined') !== false || $purNo === 'new' || $purNo === 'P26100045' || preg_match('/^P\d{10,}$/i', $purNo)) {
                 $purNo = $purSeq['nextPurchaseNo'];
             }
+
+            $stmtCheck = $pdo->prepare("SELECT id, data FROM purchase_invoices WHERE (tenant_id = ? OR tenant_id IS NULL) AND (invoice_no = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.invoiceNo')) = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')) = ?) LIMIT 1");
+            $stmtCheck->execute([$tenantId, $purNo, $purNo, $purNo]);
+            $existingRow = $stmtCheck->fetch(PDO::FETCH_ASSOC);
+            $existingId = $existingRow ? $existingRow['id'] : false;
+            $oldData = ($existingRow && !empty($existingRow['data'])) ? (json_decode($existingRow['data'], true) ?: null) : null;
+
+            if ($existingId && !$isEdit) {
+                $purNo = $purSeq['nextPurchaseNo'];
+                $existingId = false;
+                $oldData = null;
+            }
+
             $data['invoiceNo'] = $purNo;
             $data['id'] = $purNo;
+            if ($idemKey !== '') $data['idempotencyKey'] = $idemKey;
             $data['updatedAt'] = date('Y-m-d H:i:s');
             if (empty($data['date'])) $data['date'] = date('Y-m-d');
             $dateVal = $data['date'];
@@ -438,11 +1070,8 @@ try {
             $rateVal = (float)($data['exchangeRate'] ?? 1.0);
             $userVal = $data['createdBy'] ?? 'user';
 
+            applyInvoiceEffectsInDB($pdo, $tenantId, 'purchase', $data, $oldData);
             $jsonRecord = json_encode($data, JSON_UNESCAPED_UNICODE);
-
-            $stmtCheck = $pdo->prepare("SELECT id FROM purchase_invoices WHERE (tenant_id = ? OR tenant_id IS NULL) AND (invoice_no = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.invoiceNo')) = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')) = ?)");
-            $stmtCheck->execute([$tenantId, $purNo, $purNo, $purNo]);
-            $existingId = $stmtCheck->fetchColumn();
 
             if ($existingId) {
                 $stmtUp = $pdo->prepare("UPDATE purchase_invoices SET invoice_no = ?, supplier_id_val = ?, date_val = ?, total_val = ?, status_val = ?, currency_val = ?, exchange_rate_val = ?, created_by_val = ?, data = ?, updated_at = NOW() WHERE id = ?");
@@ -452,12 +1081,76 @@ try {
                 $stmtIns->execute([$tenantId, $purNo, $suppName, $dateVal, $totalVal, $statusVal, $currencyVal, $rateVal, $userVal, $jsonRecord]);
             }
 
+            try {
+                $syncId = $idemKey !== '' ? $idemKey : ('sync-' . bin2hex(random_bytes(6)));
+                $stmtSync = $pdo->prepare("INSERT INTO sync_queue (id, entity_name, record_id, operation, payload, status, created_at, synced_at) VALUES (?, 'purchase_invoices', ?, ?, ?, 'SYNCED', NOW(), NOW()) ON DUPLICATE KEY UPDATE record_id = VALUES(record_id), status = 'SYNCED', synced_at = NOW()");
+                $stmtSync->execute([$syncId, $purNo, $existingId ? 'UPDATE' : 'INSERT', $jsonRecord]);
+            } catch (Exception $e) {}
+
             $updatedSeq = getPurchaseSequence($pdo, $tenantId);
             echo json_encode([
                 'success' => true,
                 'message' => 'تم حفظ فاتورة المشتريات في قاعدة البيانات بنجاح',
                 'invoiceNo' => $purNo,
                 'nextPurchaseNo' => $updatedSeq['nextPurchaseNo'],
+                'record' => $data
+            ], JSON_UNESCAPED_UNICODE);
+            break;
+
+        // ═════════════════════════════════════════════════════════
+        // 4B. SAVE PURCHASE SPLIT / INSTALLMENTS (تقسيم مشتريات وجدولة دفعات المورد)
+        // ═════════════════════════════════════════════════════════
+        case 'save_purchase_split':
+            $raw = file_get_contents('php://input');
+            $data = json_decode($raw, true) ?: $_POST;
+            if (!$data) {
+                echo json_encode(['success' => false, 'error' => 'بيانات تقسيم المشتريات فارغة'], JSON_UNESCAPED_UNICODE);
+                exit;
+            }
+
+            $purSeq = getPurchaseSequence($pdo, $tenantId);
+            $purNo = trim($data['invoiceNo'] ?? ($data['id'] ?? ''));
+            if (empty($purNo) || $purNo === 'new') {
+                $purNo = $purSeq['nextPurchaseNo'];
+            }
+            $data['invoiceNo'] = $purNo;
+            $data['id'] = $purNo;
+            $data['isSplit'] = true;
+            $data['purchaseType'] = 'split';
+            $data['status'] = 'split';
+            $data['date'] = $data['date'] ?? date('Y-m-d');
+            $data['updatedAt'] = date('Y-m-d H:i:s');
+
+            $suppName = $data['supplierName'] ?? ($data['supplier_name'] ?? 'مورد تجزئة');
+            $totalVal = (float)($data['grandTotal'] ?? ($data['total'] ?? 0));
+            $paidVal = (float)($data['paidAmount'] ?? ($data['downPayment'] ?? 0));
+            $remainingVal = $totalVal - $paidVal;
+            $data['remainingBalance'] = $remainingVal;
+
+            $stmtCheck = $pdo->prepare("SELECT id, data FROM purchase_invoices WHERE (tenant_id = ? OR tenant_id IS NULL) AND (invoice_no = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.invoiceNo')) = ?) LIMIT 1");
+            $stmtCheck->execute([$tenantId, $purNo, $purNo]);
+            $existingRow = $stmtCheck->fetch(PDO::FETCH_ASSOC);
+            $existingId = $existingRow ? $existingRow['id'] : false;
+            $oldData = ($existingRow && !empty($existingRow['data'])) ? (json_decode($existingRow['data'], true) ?: null) : null;
+
+            applyInvoiceEffectsInDB($pdo, $tenantId, 'purchase_split', $data, $oldData);
+            $jsonRecord = json_encode($data, JSON_UNESCAPED_UNICODE);
+
+            if ($existingId) {
+                $stmtUp = $pdo->prepare("UPDATE purchase_invoices SET invoice_no = ?, supplier_id_val = ?, date_val = ?, total_val = ?, status_val = 'split', data = ?, updated_at = NOW() WHERE id = ?");
+                $stmtUp->execute([$purNo, $suppName, $data['date'], $totalVal, $jsonRecord, $existingId]);
+            } else {
+                $stmtIns = $pdo->prepare("INSERT INTO purchase_invoices (tenant_id, invoice_no, supplier_id_val, date_val, total_val, status_val, data, created_at, updated_at, is_deleted) VALUES (?, ?, ?, ?, ?, 'split', ?, NOW(), NOW(), 0)");
+                $stmtIns->execute([$tenantId, $purNo, $suppName, $data['date'], $totalVal, $jsonRecord]);
+            }
+
+            $updatedSeq = getPurchaseSequence($pdo, $tenantId);
+            echo json_encode([
+                'success' => true,
+                'message' => 'تم حفظ واعتماد فاتورة تقسيم المشتريات وجدولة دفعات المورد بنجاح',
+                'invoiceNo' => $purNo,
+                'nextPurchaseNo' => $updatedSeq['nextPurchaseNo'],
+                'remaining' => $remainingVal,
                 'record' => $data
             ], JSON_UNESCAPED_UNICODE);
             break;
@@ -585,26 +1278,64 @@ try {
                 echo json_encode(['success' => false, 'error' => 'بيانات السند فارغة'], JSON_UNESCAPED_UNICODE);
                 exit;
             }
+
+            $idemKey = trim((string)($data['idempotencyKey'] ?? ($data['idempotency_key'] ?? ($data['client_draft_id'] ?? ''))));
+            if ($idemKey !== '') {
+                try {
+                    $stmtIdem = $pdo->prepare("SELECT data FROM single_payments WHERE (tenant_id = ? OR tenant_id IS NULL) AND JSON_UNQUOTE(JSON_EXTRACT(data, '$.idempotencyKey')) = ? LIMIT 1");
+                    $stmtIdem->execute([$tenantId, $idemKey]);
+                    $rowIdem = $stmtIdem->fetch(PDO::FETCH_ASSOC);
+                    if ($rowIdem) {
+                        $existRec = json_decode($rowIdem['data'], true) ?: [];
+                        $existNo = $existRec['voucherNo'] ?? ($existRec['id'] ?? '');
+                        $updatedFinSeq = getFinanceSequence($pdo, $tenantId);
+                        echo json_encode([
+                            'success' => true,
+                            'idempotent' => true,
+                            'message' => 'تم حفظ السند المالي مسبقاً (منع التكرار)',
+                            'voucherNo' => $existNo,
+                            'id' => $existNo,
+                            'nextVoucherNo' => $updatedFinSeq['nextVoucherNo'],
+                            'record' => $existRec
+                        ], JSON_UNESCAPED_UNICODE);
+                        exit;
+                    }
+                } catch (Exception $e) {}
+            }
+
             $finSeq = getFinanceSequence($pdo, $tenantId);
             $vNo = trim($data['voucherNo'] ?? ($data['id'] ?? ''));
+            $isEdit = !empty($data['isEdit']);
             $originalOfflineId = '';
             $isOffline = (strpos($vNo, 'أوفلاين') !== false || strpos($vNo, 'OFF-') !== false || strpos($vNo, 'offline') !== false);
             if ($isOffline) {
                 $originalOfflineId = $vNo;
                 $data['offline_id'] = $vNo;
                 $vNo = $finSeq['nextVoucherNo'];
-            } elseif (empty($vNo) || $vNo === 'new' || strpos($vNo, 'undefined') !== false) {
+            } elseif (empty($vNo) || $vNo === 'new' || strpos($vNo, 'undefined') !== false || preg_match('/^E\d{10,}$/i', $vNo)) {
                 $vNo = $finSeq['nextVoucherNo'];
             }
+
+            $stmtCheck = $pdo->prepare("SELECT id, data FROM single_payments WHERE (tenant_id = ? OR tenant_id IS NULL) AND (JSON_UNQUOTE(JSON_EXTRACT(data, '$.voucherNo')) = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')) = ?) LIMIT 1");
+            $stmtCheck->execute([$tenantId, $vNo, $vNo]);
+            $existingRow = $stmtCheck->fetch(PDO::FETCH_ASSOC);
+            $existingId = $existingRow ? $existingRow['id'] : false;
+            $oldData = ($existingRow && !empty($existingRow['data'])) ? (json_decode($existingRow['data'], true) ?: null) : null;
+
+            if ($existingId && !$isEdit) {
+                $vNo = $finSeq['nextVoucherNo'];
+                $existingId = false;
+                $oldData = null;
+            }
+
             $data['voucherNo'] = $vNo;
             $data['id'] = $vNo;
+            if ($idemKey !== '') $data['idempotencyKey'] = $idemKey;
             $data['updatedAt'] = date('Y-m-d H:i:s');
             if (empty($data['date'])) $data['date'] = date('Y-m-d');
+            applyInvoiceEffectsInDB($pdo, $tenantId, 'finance', $data, $oldData);
             $jsonRecord = json_encode($data, JSON_UNESCAPED_UNICODE);
 
-            $stmtCheck = $pdo->prepare("SELECT id FROM single_payments WHERE (tenant_id = ? OR tenant_id IS NULL) AND (JSON_UNQUOTE(JSON_EXTRACT(data, '$.voucherNo')) = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')) = ?)");
-            $stmtCheck->execute([$tenantId, $vNo, $vNo]);
-            $existingId = $stmtCheck->fetchColumn();
             if ($existingId) {
                 $stmtUp = $pdo->prepare("UPDATE single_payments SET data = ?, updated_at = NOW() WHERE id = ?");
                 $stmtUp->execute([$jsonRecord, $existingId]);
@@ -614,8 +1345,8 @@ try {
             }
 
             try {
-                $syncId = 'sync-' . bin2hex(random_bytes(6));
-                $stmtSync = $pdo->prepare("INSERT INTO sync_queue (id, entity_name, record_id, operation, payload, status, created_at, synced_at) VALUES (?, 'single_payments', ?, ?, ?, 'SYNCED', NOW(), NOW())");
+                $syncId = $idemKey !== '' ? $idemKey : ('sync-' . bin2hex(random_bytes(6)));
+                $stmtSync = $pdo->prepare("INSERT INTO sync_queue (id, entity_name, record_id, operation, payload, status, created_at, synced_at) VALUES (?, 'single_payments', ?, ?, ?, 'SYNCED', NOW(), NOW()) ON DUPLICATE KEY UPDATE record_id = VALUES(record_id), status = 'SYNCED', synced_at = NOW()");
                 $stmtSync->execute([$syncId, $vNo, $existingId ? 'UPDATE' : 'INSERT', $jsonRecord]);
             } catch(Exception $e) {}
 
@@ -645,10 +1376,42 @@ try {
 
             $syncedResults = [];
             foreach ($items as $item) {
-                $type = $item['type'] ?? 'sales';
+                $rawType = strtolower(trim((string)($item['type'] ?? 'sales')));
+                if ($rawType === 'sales_invoice' || $rawType === 'sale' || $rawType === 'pos') {
+                    $type = 'sales';
+                } elseif ($rawType === 'purchase_invoice' || $rawType === 'purchases') {
+                    $type = 'purchase';
+                } elseif (in_array($rawType, ['voucher', 'cash_payment', 'cash_receipt', 'single_payment', 'single_receipt'], true)) {
+                    $type = 'finance';
+                } else {
+                    $type = $rawType;
+                }
+
                 $payload = $item['payload'] ?? ($item['data'] ?? []);
-                $offlineId = $item['offline_id'] ?? ($payload['invoiceNo'] ?? ($payload['voucherNo'] ?? ($payload['id'] ?? '')));
+                if (!is_array($payload)) $payload = [];
+                $offlineId = $item['offline_id'] ?? ($payload['offline_id'] ?? ($payload['invoiceNo'] ?? ($payload['voucherNo'] ?? ($payload['id'] ?? ''))));
+                $idemKey = trim((string)($item['idempotency_key'] ?? ($payload['idempotencyKey'] ?? ($item['id'] ?? ''))));
                 $realId = '';
+
+                // Idempotency Check: prevent duplicate numbering if connection dropped right after sync
+                if ($idemKey !== '') {
+                    try {
+                        $stmtIdem = $pdo->prepare("SELECT record_id FROM sync_queue WHERE id = ? AND status = 'SYNCED' LIMIT 1");
+                        $stmtIdem->execute([$idemKey]);
+                        $existingRealId = $stmtIdem->fetchColumn();
+                        if (!empty($existingRealId)) {
+                            $syncedResults[] = [
+                                'type' => $type,
+                                'offline_id' => $offlineId,
+                                'real_id' => $existingRealId,
+                                'status' => 'synced',
+                                'idempotent_hit' => true,
+                                'synced_at' => date('Y-m-d H:i:s')
+                            ];
+                            continue;
+                        }
+                    } catch (Exception $e) {}
+                }
 
                 if ($type === 'sales') {
                     $sSeq = getSalesSequence($pdo, $tenantId);
@@ -657,6 +1420,7 @@ try {
                     $payload['id'] = $realId;
                     $payload['offline_id'] = $offlineId;
                     $payload['synced_at'] = date('Y-m-d H:i:s');
+                    applyInvoiceEffectsInDB($pdo, $tenantId, 'sales', $payload, null);
                     $json = json_encode($payload, JSON_UNESCAPED_UNICODE);
                     $stmt = $pdo->prepare("INSERT INTO sales_invoices (tenant_id, invoice_no, customer_id_val, date_val, total_val, status_val, data, created_at, updated_at, is_deleted) VALUES (?, ?, ?, ?, ?, 'completed', ?, NOW(), NOW(), 0)");
                     $stmt->execute([$tenantId, $realId, $payload['customerName'] ?? 'عميل', $payload['date'] ?? date('Y-m-d'), (float)($payload['grandTotal'] ?? 0), $json]);
@@ -667,6 +1431,8 @@ try {
                     $payload['id'] = $realId;
                     $payload['offline_id'] = $offlineId;
                     $payload['isSplit'] = true;
+                    $payload['synced_at'] = date('Y-m-d H:i:s');
+                    applyInvoiceEffectsInDB($pdo, $tenantId, 'sales_split', $payload, null);
                     $json = json_encode($payload, JSON_UNESCAPED_UNICODE);
                     $stmt = $pdo->prepare("INSERT INTO sales_invoices (tenant_id, invoice_no, customer_id_val, date_val, total_val, status_val, data, created_at, updated_at, is_deleted) VALUES (?, ?, ?, ?, ?, 'split', ?, NOW(), NOW(), 0)");
                     $stmt->execute([$tenantId, $realId, $payload['customerName'] ?? 'عميل', $payload['date'] ?? date('Y-m-d'), (float)($payload['grandTotal'] ?? 0), $json]);
@@ -676,8 +1442,23 @@ try {
                     $payload['invoiceNo'] = $realId;
                     $payload['id'] = $realId;
                     $payload['offline_id'] = $offlineId;
+                    $payload['synced_at'] = date('Y-m-d H:i:s');
+                    applyInvoiceEffectsInDB($pdo, $tenantId, 'purchase', $payload, null);
                     $json = json_encode($payload, JSON_UNESCAPED_UNICODE);
                     $stmt = $pdo->prepare("INSERT INTO purchase_invoices (tenant_id, invoice_no, supplier_id_val, date_val, total_val, status_val, data, created_at, updated_at, is_deleted) VALUES (?, ?, ?, ?, ?, 'completed', ?, NOW(), NOW(), 0)");
+                    $stmt->execute([$tenantId, $realId, $payload['supplierName'] ?? 'مورد', $payload['date'] ?? date('Y-m-d'), (float)($payload['grandTotal'] ?? 0), $json]);
+                } elseif ($type === 'purchase_split') {
+                    $pSeq = getPurchaseSequence($pdo, $tenantId);
+                    $realId = $pSeq['nextPurchaseNo'];
+                    $payload['invoiceNo'] = $realId;
+                    $payload['id'] = $realId;
+                    $payload['offline_id'] = $offlineId;
+                    $payload['isSplit'] = true;
+                    $payload['purchaseType'] = 'split';
+                    $payload['synced_at'] = date('Y-m-d H:i:s');
+                    applyInvoiceEffectsInDB($pdo, $tenantId, 'purchase_split', $payload, null);
+                    $json = json_encode($payload, JSON_UNESCAPED_UNICODE);
+                    $stmt = $pdo->prepare("INSERT INTO purchase_invoices (tenant_id, invoice_no, supplier_id_val, date_val, total_val, status_val, data, created_at, updated_at, is_deleted) VALUES (?, ?, ?, ?, ?, 'split', ?, NOW(), NOW(), 0)");
                     $stmt->execute([$tenantId, $realId, $payload['supplierName'] ?? 'مورد', $payload['date'] ?? date('Y-m-d'), (float)($payload['grandTotal'] ?? 0), $json]);
                 } elseif ($type === 'delivery') {
                     $dSeq = getDeliverySequence($pdo, $tenantId);
@@ -685,6 +1466,7 @@ try {
                     $payload['deliveryNo'] = $realId;
                     $payload['id'] = $realId;
                     $payload['offline_id'] = $offlineId;
+                    $payload['synced_at'] = date('Y-m-d H:i:s');
                     $json = json_encode($payload, JSON_UNESCAPED_UNICODE);
                     $stmt = $pdo->prepare("INSERT INTO delivery_notes (tenant_id, frontend_id, data, created_at, updated_at, is_deleted) VALUES (?, ?, ?, NOW(), NOW(), 0)");
                     $stmt->execute([$tenantId, $realId, $json]);
@@ -694,18 +1476,76 @@ try {
                     $payload['receiptNo'] = $realId;
                     $payload['id'] = $realId;
                     $payload['offline_id'] = $offlineId;
+                    $payload['synced_at'] = date('Y-m-d H:i:s');
                     $json = json_encode($payload, JSON_UNESCAPED_UNICODE);
                     $stmt = $pdo->prepare("INSERT INTO purchase_invoices (tenant_id, invoice_no, supplier_id_val, date_val, total_val, status_val, data, created_at, updated_at, is_deleted) VALUES (?, ?, ?, ?, 0, 'received', ?, NOW(), NOW(), 0)");
                     $stmt->execute([$tenantId, $realId, $payload['supplierName'] ?? 'مورد', $payload['date'] ?? date('Y-m-d'), $json]);
-                } elseif ($type === 'finance' || $type === 'voucher') {
+                } elseif ($type === 'finance') {
                     $fSeq = getFinanceSequence($pdo, $tenantId);
                     $realId = $fSeq['nextVoucherNo'];
                     $payload['voucherNo'] = $realId;
                     $payload['id'] = $realId;
                     $payload['offline_id'] = $offlineId;
+                    $payload['synced_at'] = date('Y-m-d H:i:s');
+                    applyInvoiceEffectsInDB($pdo, $tenantId, 'finance', $payload, null);
                     $json = json_encode($payload, JSON_UNESCAPED_UNICODE);
                     $stmt = $pdo->prepare("INSERT INTO single_payments (tenant_id, data, created_at, updated_at) VALUES (?, ?, NOW(), NOW())");
                     $stmt->execute([$tenantId, $json]);
+                } elseif ($type === 'journal_entry' || $type === 'journal_voucher') {
+                    $jSeq = getJournalSequence($pdo, $tenantId);
+                    $realId = $jSeq['nextJournalNo'];
+                    $payload['voucherNo'] = $realId;
+                    $payload['id'] = $realId;
+                    $payload['offline_id'] = $offlineId;
+                    $payload['synced_at'] = date('Y-m-d H:i:s');
+                    applyInvoiceEffectsInDB($pdo, $tenantId, 'journal_entry', $payload, null);
+                    $json = json_encode($payload, JSON_UNESCAPED_UNICODE);
+                    try {
+                        $stmt = $pdo->prepare("INSERT INTO journal_vouchers (tenant_id, frontend_id, date_val, data, created_at, updated_at, is_deleted) VALUES (?, ?, ?, ?, NOW(), NOW(), 0)");
+                        $stmt->execute([$tenantId, $realId, $payload['date'] ?? date('Y-m-d'), $json]);
+                    } catch (Exception $e) {
+                        $stmt = $pdo->prepare("INSERT INTO journal_vouchers (tenant_id, data) VALUES (?, ?)");
+                        $stmt->execute([$tenantId, $json]);
+                    }
+                } elseif ($type === 'stock_adjustment') {
+                    $iSeq = getInventorySequence($pdo, $tenantId, 'I');
+                    $realId = $iSeq['nextDocNo'];
+                    $payload['docNo'] = $realId;
+                    $payload['id'] = $realId;
+                    $payload['offline_id'] = $offlineId;
+                    $payload['synced_at'] = date('Y-m-d H:i:s');
+                    applyInvoiceEffectsInDB($pdo, $tenantId, 'stock_adjustment', $payload, null);
+                    $json = json_encode($payload, JSON_UNESCAPED_UNICODE);
+                    try {
+                        $stmt = $pdo->prepare("INSERT INTO inventory (tenant_id, frontend_id, data, created_at, updated_at, is_deleted) VALUES (?, ?, ?, NOW(), NOW(), 0)");
+                        $stmt->execute([$tenantId, $realId, $json]);
+                    } catch (Exception $e) {
+                        $stmt = $pdo->prepare("INSERT INTO inventory (tenant_id, data) VALUES (?, ?)");
+                        $stmt->execute([$tenantId, $json]);
+                    }
+                } elseif ($type === 'warehouse_transfer') {
+                    $tSeq = getInventorySequence($pdo, $tenantId, 'T');
+                    $realId = $tSeq['nextDocNo'];
+                    $payload['docNo'] = $realId;
+                    $payload['id'] = $realId;
+                    $payload['offline_id'] = $offlineId;
+                    $payload['synced_at'] = date('Y-m-d H:i:s');
+                    applyInvoiceEffectsInDB($pdo, $tenantId, 'warehouse_transfer', $payload, null);
+                    $json = json_encode($payload, JSON_UNESCAPED_UNICODE);
+                    try {
+                        $stmt = $pdo->prepare("INSERT INTO inventory (tenant_id, frontend_id, data, created_at, updated_at, is_deleted) VALUES (?, ?, ?, NOW(), NOW(), 0)");
+                        $stmt->execute([$tenantId, $realId, $json]);
+                    } catch (Exception $e) {
+                        $stmt = $pdo->prepare("INSERT INTO inventory (tenant_id, data) VALUES (?, ?)");
+                        $stmt->execute([$tenantId, $json]);
+                    }
+                }
+
+                if ($idemKey !== '' && $realId !== '') {
+                    try {
+                        $stmtLog = $pdo->prepare("INSERT INTO sync_queue (id, entity_name, record_id, operation, payload, status, created_at, synced_at) VALUES (?, ?, ?, 'INSERT', ?, 'SYNCED', NOW(), NOW()) ON DUPLICATE KEY UPDATE record_id = VALUES(record_id), status = 'SYNCED', synced_at = NOW()");
+                        $stmtLog->execute([$idemKey, $type, $realId, json_encode($payload, JSON_UNESCAPED_UNICODE)]);
+                    } catch (Exception $e) {}
                 }
 
                 $syncedResults[] = [
@@ -722,6 +1562,179 @@ try {
                 'message' => 'تم ترحيل الدفعة الأوفلاين بنجاح وتخصيص الأرقام الحقيقية في قاعدة البيانات',
                 'count' => count($syncedResults),
                 'synced' => $syncedResults
+            ], JSON_UNESCAPED_UNICODE);
+            break;
+
+        // ═════════════════════════════════════════════════════════
+        // 6.7 SAVE MANUAL JOURNAL ENTRY (تسوية قيود مالية / قيد يومية يدوي)
+        // ═════════════════════════════════════════════════════════
+        case 'save_journal_entry':
+            $raw = file_get_contents('php://input');
+            $data = json_decode($raw, true) ?: $_POST;
+            if (!$data) {
+                echo json_encode(['success' => false, 'error' => 'بيانات قيد التسوية فارغة'], JSON_UNESCAPED_UNICODE);
+                exit;
+            }
+
+            $jSeq = getJournalSequence($pdo, $tenantId);
+            $jvNo = trim($data['voucherNo'] ?? ($data['id'] ?? ''));
+            if (empty($jvNo) || $jvNo === 'new' || strpos($jvNo, 'JV-2026') === 0 || strpos($jvNo, 'أوفلاين') !== false) {
+                $jvNo = $jSeq['nextJournalNo'];
+            }
+            $data['voucherNo'] = $jvNo;
+            $data['id'] = $jvNo;
+            $data['date'] = $data['date'] ?? date('Y-m-d');
+            $data['status'] = 'posted';
+            $data['updatedAt'] = date('Y-m-d H:i:s');
+
+            $amount = (float)($data['amount'] ?? ($data['totalDebit'] ?? 0));
+            $debitAccName = trim((string)($data['debitAccountName'] ?? 'حساب مدين'));
+            $creditAccName = trim((string)($data['creditAccountName'] ?? 'حساب دائن'));
+            if (empty($data['lines']) || !is_array($data['lines'])) {
+                $data['lines'] = [
+                    [
+                        'accountId' => $data['debitAccountId'] ?? 'debit',
+                        'accountName' => $debitAccName,
+                        'debit' => $amount,
+                        'credit' => 0,
+                        'notes' => $data['notes'] ?? ''
+                    ],
+                    [
+                        'accountId' => $data['creditAccountId'] ?? 'credit',
+                        'accountName' => $creditAccName,
+                        'debit' => 0,
+                        'credit' => $amount,
+                        'notes' => $data['notes'] ?? ''
+                    ]
+                ];
+            }
+
+            applyInvoiceEffectsInDB($pdo, $tenantId, 'journal_entry', $data, null);
+            $jsonRecord = json_encode($data, JSON_UNESCAPED_UNICODE);
+
+            try {
+                $stmtIns = $pdo->prepare("INSERT INTO journal_vouchers (tenant_id, frontend_id, date_val, data, created_at, updated_at, is_deleted) VALUES (?, ?, ?, ?, NOW(), NOW(), 0)");
+                $stmtIns->execute([$tenantId, $jvNo, $data['date'], $jsonRecord]);
+            } catch (Exception $e) {
+                $stmtIns = $pdo->prepare("INSERT INTO journal_vouchers (tenant_id, data) VALUES (?, ?)");
+                $stmtIns->execute([$tenantId, $jsonRecord]);
+            }
+
+            // أيضاً نسجّل القيود في gl_entries للتوافق مع دفتر الأستاذ العام باللابتوب
+            try {
+                foreach ($data['lines'] as $idx => $line) {
+                    $glEntry = [
+                        'id' => $jvNo . '-' . ($idx + 1),
+                        'voucherId' => $jvNo,
+                        'voucherNo' => $jvNo,
+                        'date' => $data['date'],
+                        'accountId' => $line['accountId'] ?? '',
+                        'accountName' => $line['accountName'] ?? '',
+                        'debit' => (float)($line['debit'] ?? 0),
+                        'credit' => (float)($line['credit'] ?? 0),
+                        'description' => $data['notes'] ?? 'قيد تسوية يومية',
+                        'source' => 'mobile_journal'
+                    ];
+                    $stmtGl = $pdo->prepare("INSERT INTO gl_entries (tenant_id, frontend_id, data, created_at, updated_at, is_deleted) VALUES (?, ?, ?, NOW(), NOW(), 0)");
+                    $stmtGl->execute([$tenantId, $glEntry['id'], json_encode($glEntry, JSON_UNESCAPED_UNICODE)]);
+                }
+            } catch (Exception $e) {}
+
+            $updatedJSeq = getJournalSequence($pdo, $tenantId);
+            echo json_encode([
+                'success' => true,
+                'message' => 'تم اعتماد وترحيل قيد التسوية المحاسبي وتحديث الأرصدة في قاعدة البيانات فوراً',
+                'voucherNo' => $jvNo,
+                'nextJournalNo' => $updatedJSeq['nextJournalNo'],
+                'record' => $data
+            ], JSON_UNESCAPED_UNICODE);
+            break;
+
+        // ═════════════════════════════════════════════════════════
+        // 6.8 SAVE STOCK ADJUSTMENT (تسوية الجرد المخزني وفروقات التالف)
+        // ═════════════════════════════════════════════════════════
+        case 'save_stock_adjustment':
+            $raw = file_get_contents('php://input');
+            $data = json_decode($raw, true) ?: $_POST;
+            if (!$data) {
+                echo json_encode(['success' => false, 'error' => 'بيانات تسوية الجرد فارغة'], JSON_UNESCAPED_UNICODE);
+                exit;
+            }
+
+            $iSeq = getInventorySequence($pdo, $tenantId, 'I');
+            $docNo = trim($data['docNo'] ?? ($data['id'] ?? ''));
+            if (empty($docNo) || $docNo === 'new' || strpos($docNo, 'ADJ-2026') === 0 || strpos($docNo, 'أوفلاين') !== false) {
+                $docNo = $iSeq['nextDocNo'];
+            }
+            $data['docNo'] = $docNo;
+            $data['id'] = $docNo;
+            $data['type'] = 'stock_adjustment';
+            $data['date'] = $data['date'] ?? date('Y-m-d');
+            $data['status'] = 'approved';
+            $data['updatedAt'] = date('Y-m-d H:i:s');
+
+            applyInvoiceEffectsInDB($pdo, $tenantId, 'stock_adjustment', $data, null);
+            $jsonRecord = json_encode($data, JSON_UNESCAPED_UNICODE);
+
+            try {
+                $stmtIns = $pdo->prepare("INSERT INTO inventory (tenant_id, frontend_id, data, created_at, updated_at, is_deleted) VALUES (?, ?, ?, NOW(), NOW(), 0)");
+                $stmtIns->execute([$tenantId, $docNo, $jsonRecord]);
+            } catch (Exception $e) {
+                $stmtIns = $pdo->prepare("INSERT INTO inventory (tenant_id, data) VALUES (?, ?)");
+                $stmtIns->execute([$tenantId, $jsonRecord]);
+            }
+
+            $updatedISeq = getInventorySequence($pdo, $tenantId, 'I');
+            echo json_encode([
+                'success' => true,
+                'message' => 'تم اعتماد تسوية الجرد وتحديث رصيد الصنف في قاعدة البيانات فوراً',
+                'docNo' => $docNo,
+                'nextDocNo' => $updatedISeq['nextDocNo'],
+                'record' => $data
+            ], JSON_UNESCAPED_UNICODE);
+            break;
+
+        // ═════════════════════════════════════════════════════════
+        // 6.9 SAVE WAREHOUSE TRANSFER (تحويل ومناقلة بين المخازن)
+        // ═════════════════════════════════════════════════════════
+        case 'save_warehouse_transfer':
+            $raw = file_get_contents('php://input');
+            $data = json_decode($raw, true) ?: $_POST;
+            if (!$data) {
+                echo json_encode(['success' => false, 'error' => 'بيانات التحويل المخزني فارغة'], JSON_UNESCAPED_UNICODE);
+                exit;
+            }
+
+            $tSeq = getInventorySequence($pdo, $tenantId, 'T');
+            $docNo = trim($data['docNo'] ?? ($data['id'] ?? ''));
+            if (empty($docNo) || $docNo === 'new' || strpos($docNo, 'TR-2026') === 0 || strpos($docNo, 'أوفلاين') !== false) {
+                $docNo = $tSeq['nextDocNo'];
+            }
+            $data['docNo'] = $docNo;
+            $data['id'] = $docNo;
+            $data['type'] = 'warehouse_transfer';
+            $data['date'] = $data['date'] ?? date('Y-m-d');
+            $data['status'] = 'completed';
+            $data['updatedAt'] = date('Y-m-d H:i:s');
+
+            applyInvoiceEffectsInDB($pdo, $tenantId, 'warehouse_transfer', $data, null);
+            $jsonRecord = json_encode($data, JSON_UNESCAPED_UNICODE);
+
+            try {
+                $stmtIns = $pdo->prepare("INSERT INTO inventory (tenant_id, frontend_id, data, created_at, updated_at, is_deleted) VALUES (?, ?, ?, NOW(), NOW(), 0)");
+                $stmtIns->execute([$tenantId, $docNo, $jsonRecord]);
+            } catch (Exception $e) {
+                $stmtIns = $pdo->prepare("INSERT INTO inventory (tenant_id, data) VALUES (?, ?)");
+                $stmtIns->execute([$tenantId, $jsonRecord]);
+            }
+
+            $updatedTSeq = getInventorySequence($pdo, $tenantId, 'T');
+            echo json_encode([
+                'success' => true,
+                'message' => 'تم اعتماد أمر التحويل المخزني وتحديث أرصدة المستودعات في قاعدة البيانات فوراً',
+                'docNo' => $docNo,
+                'nextDocNo' => $updatedTSeq['nextDocNo'],
+                'record' => $data
             ], JSON_UNESCAPED_UNICODE);
             break;
 
@@ -794,6 +1807,36 @@ try {
             }
             $delSeq = getDeliverySequence($pdo, $tenantId);
             echo json_encode(['success' => true, 'deliveries' => $list, 'nextDeliveryNo' => $delSeq['nextDeliveryNo']], JSON_UNESCAPED_UNICODE);
+            break;
+
+        case 'get_recent_journals':
+            $stmt = $pdo->prepare("SELECT id, data, frontend_id, created_at FROM journal_vouchers WHERE (tenant_id = ? OR tenant_id IS NULL) AND (is_deleted = 0 OR is_deleted IS NULL) ORDER BY id DESC LIMIT 50");
+            $stmt->execute([$tenantId]);
+            $list = [];
+            while ($r = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                $d = json_decode($r['data'], true) ?: [];
+                $jNo = $r['frontend_id'] ?: ($d['voucherNo'] ?? ($d['id'] ?? ('J-' . $r['id'])));
+                $d['voucherNo'] = $jNo;
+                $d['id'] = $jNo;
+                $list[] = $d;
+            }
+            $jSeq = getJournalSequence($pdo, $tenantId);
+            echo json_encode(['success' => true, 'journals' => $list, 'nextJournalNo' => $jSeq['nextJournalNo']], JSON_UNESCAPED_UNICODE);
+            break;
+
+        case 'get_recent_inventory_docs':
+            $stmt = $pdo->prepare("SELECT id, data, frontend_id, created_at FROM inventory WHERE (tenant_id = ? OR tenant_id IS NULL) AND (is_deleted = 0 OR is_deleted IS NULL) ORDER BY id DESC LIMIT 50");
+            $stmt->execute([$tenantId]);
+            $list = [];
+            while ($r = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                $d = json_decode($r['data'], true) ?: [];
+                $docNo = $r['frontend_id'] ?: ($d['docNo'] ?? ($d['id'] ?? ('I-' . $r['id'])));
+                $d['docNo'] = $docNo;
+                $d['id'] = $docNo;
+                $list[] = $d;
+            }
+            $iSeq = getInventorySequence($pdo, $tenantId, 'I');
+            echo json_encode(['success' => true, 'inventory_docs' => $list, 'nextDocNo' => $iSeq['nextDocNo']], JSON_UNESCAPED_UNICODE);
             break;
 
         // ═════════════════════════════════════════════════════════

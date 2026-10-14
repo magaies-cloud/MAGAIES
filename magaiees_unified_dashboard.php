@@ -3280,6 +3280,7 @@ function switchToMobileEdition() {
     }
 })();
 </script>
+<script src="js/magaies-offline-sync.js?v=20261014"></script>
 <script src="js/unified-brain.js?v=20260722"></script>
 </body>
 </html>

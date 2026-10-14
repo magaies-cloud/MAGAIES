@@ -22,6 +22,10 @@ if (file_exists(__DIR__ . '/db.php')) {
     ]);
 }
 
+if (session_status() === PHP_SESSION_ACTIVE) {
+    session_write_close();
+}
+
 header('Content-Type: application/json; charset=UTF-8');
 header('Cache-Control: no-cache, no-store, must-revalidate');
 header('Access-Control-Allow-Origin: *');
@@ -30,6 +34,10 @@ header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Tenant-Id')
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit(0);
+}
+
+if (!headers_sent() && extension_loaded('zlib') && !ini_get('zlib.output_compression')) {
+    ob_start('ob_gzhandler');
 }
 
 // 1. Determine Tenant ID with smart fallback
@@ -54,13 +62,13 @@ if (!empty($token) && empty($tenant_id)) {
     } catch (Exception $e) {}
 }
 
-// Smart Tenant Fallback: If not specified, choose tenant with most active data
+// Smart Tenant Fallback: Use unified db_bridge tenant resolution (default 12)
 if (empty($tenant_id)) {
     try {
         $bestTenant = $pdo->query("SELECT tenant_id, COUNT(*) as cnt FROM sales_invoices WHERE (is_deleted = 0 OR is_deleted IS NULL) GROUP BY tenant_id ORDER BY cnt DESC LIMIT 1")->fetchColumn();
-        $tenant_id = $bestTenant ? (int)$bestTenant : 2;
+        $tenant_id = $bestTenant ? (int)$bestTenant : 12;
     } catch (Exception $e) {
-        $tenant_id = 2;
+        $tenant_id = 12;
     }
 }
 
@@ -460,23 +468,32 @@ try {
             $senderRes = $updateEntityBalance($fromId, -$amount);
             $receiverRes = $updateEntityBalance($toId, +$amount);
 
-            // Record into receipts or journal table
+            // Record into receipts and single_payments for unified cross-platform sync
             try {
                 $transferRecord = [
-                    'id' => 'TX-' . time(),
+                    'id' => $refNumber ?: ('TX-' . time()),
+                    'voucherNo' => $refNumber ?: ('TX-' . time()),
                     'reference' => $refNumber,
                     'method' => $method,
+                    'paymentMethod' => $method,
                     'amount' => $amount,
+                    'totalAmount' => $amount,
                     'currency' => $currency,
                     'from' => $senderRes['name'] ?? $fromId,
+                    'accountName' => $senderRes['name'] ?? $fromId,
                     'to' => $receiverRes['name'] ?? $toId,
+                    'beneficiaryName' => $receiverRes['name'] ?? $toId,
                     'notes' => $notes,
+                    'description' => $notes,
+                    'date' => date('Y-m-d'),
                     'createdAt' => date('Y-m-d H:i:s'),
                     'source' => 'mobile_app'
                 ];
                 $jsonRecord = json_encode($transferRecord, JSON_UNESCAPED_UNICODE);
                 $stmtTx = $pdo->prepare("INSERT INTO receipts (tenant_id, data, is_deleted) VALUES (?, ?, 0)");
                 $stmtTx->execute([$tenant_id, $jsonRecord]);
+                $stmtSp = $pdo->prepare("INSERT INTO single_payments (tenant_id, data, created_at, updated_at) VALUES (?, ?, NOW(), NOW())");
+                $stmtSp->execute([$tenant_id, $jsonRecord]);
             } catch (Exception $e) {}
 
             echo json_encode([

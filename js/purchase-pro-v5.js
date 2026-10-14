@@ -124,13 +124,47 @@ window._cachedPurchaseInvoicesRaw = null;
 window._cachedPurchaseList = null;
 
 function getPurchaseInvoicesList() {
-    const raw = localStorage.getItem('erp_purchase_invoices_v1');
-    if (window._cachedPurchaseInvoicesRaw === raw && window._cachedPurchaseList) {
+    const rawV1 = localStorage.getItem('erp_purchase_invoices_v1') || '';
+    const rawV5 = localStorage.getItem('erp_purchases_v5') || '';
+    const rawLocal = localStorage.getItem('magaies_local_purchase_invoices_v1') || '';
+    const rawQueue = localStorage.getItem('magaies_mobile_offline_queue_v2') || '';
+    const cacheKey = rawV1.length + '|' + rawV5.length + '|' + rawLocal.length + '|' + rawQueue.length + '|' + rawV1.slice(0, 48) + '|' + rawLocal.slice(0, 48);
+    if (window._cachedPurchaseInvoicesRaw === cacheKey && window._cachedPurchaseList) {
         return window._cachedPurchaseList;
     }
-    let list = [];
-    try { list = JSON.parse(raw) || []; } catch(e) {}
-    window._cachedPurchaseInvoicesRaw = raw;
+
+    const mergedMap = new Map();
+    const addPur = (inv) => {
+        if (!inv || typeof inv !== 'object') return;
+        const no = String(inv.invoiceNo || inv.id || '').trim();
+        if (!no || no === 'preliminary' || no.startsWith('PRE-')) return;
+        if (!mergedMap.has(no)) {
+            mergedMap.set(no, Object.assign({ invoiceNo: no }, inv));
+        } else {
+            mergedMap.set(no, Object.assign({}, inv, mergedMap.get(no), { invoiceNo: no }));
+        }
+    };
+
+    try { (JSON.parse(rawV1 || '[]') || []).forEach(addPur); } catch(e) {}
+    try { (JSON.parse(rawV5 || '[]') || []).forEach(addPur); } catch(e) {}
+    try { (JSON.parse(rawLocal || '[]') || []).forEach(addPur); } catch(e) {}
+    try {
+        if (window.MagaiesOffline && typeof MagaiesOffline.getQueue === 'function') {
+            MagaiesOffline.getQueue().forEach(q => {
+                if ((q.type === 'purchase' || q.type === 'purchase_split') && q.payload) {
+                    addPur(Object.assign({ invoiceNo: q.tempId }, q.payload));
+                }
+            });
+        }
+    } catch(e) {}
+
+    const list = Array.from(mergedMap.values()).sort((a, b) => {
+        const cmp = String(a.date || a.savedAt || a.createdAt || '').localeCompare(String(b.date || b.savedAt || b.createdAt || ''));
+        if (cmp !== 0) return cmp;
+        return String(a.invoiceNo || '').localeCompare(String(b.invoiceNo || ''));
+    });
+
+    window._cachedPurchaseInvoicesRaw = cacheKey;
     window._cachedPurchaseList = list;
     return list;
 }
@@ -238,27 +272,39 @@ function peekNextInvoiceNumber(type) {
     const datePrefix = isProforma ? ('D' + yy + mm) : ('P' + yy + mm);
     
     let max = 0;
-    list.forEach(inv => {
-        const invNo = String(inv.invoiceNo || '');
-        if (invNo.startsWith(datePrefix)) {
-            const seqStr = invNo.substring(datePrefix.length);
-            const seq = parseInt(seqStr, 10);
-            if (!isNaN(seq) && seq > max) {
-                max = seq;
+    const extractPurchaseSeq = (raw) => {
+        const s = String(raw || '').trim();
+        if (!s) return 0;
+        if (s.startsWith(datePrefix)) {
+            const n = parseInt(s.substring(datePrefix.length), 10);
+            if (!isNaN(n) && n > 0 && n < 1000000) return n;
+        }
+        if (!isProforma) {
+            const m = s.match(/^P\d{4}(\d{3,6})$/i);
+            if (m) {
+                const n = parseInt(m[1], 10);
+                if (!isNaN(n) && n > 0 && n < 1000000) return n;
             }
-        } else if (!isProforma && invNo.startsWith('P260')) {
-            const seqStr = invNo.substring(4);
-            const seq = parseInt(seqStr, 10);
-            if (!isNaN(seq) && seq > max) {
-                max = seq;
-            }
-        } else if (!isProforma && (/^\d{8}$/.test(invNo) || /^C-\d+$/.test(invNo))) {
-            let seq = parseInt(invNo.replace(/\D/g, ''), 10) % 10000;
-            if (!isNaN(seq) && seq > max) {
-                max = seq;
+            if (/^\d{8}$/.test(s) || /^C-\d+$/.test(s)) {
+                const n = parseInt(s.replace(/\D/g, ''), 10) % 10000;
+                if (!isNaN(n) && n > 0 && n < 1000000) return n;
             }
         }
+        return 0;
+    };
+
+    list.forEach(inv => {
+        const seq = extractPurchaseSeq(inv.invoiceNo || inv.id);
+        if (seq > max) max = seq;
     });
+    if (!isProforma && window._mirrorNextPurchaseNo) {
+        const mSeq = extractPurchaseSeq(window._mirrorNextPurchaseNo);
+        if (mSeq - 1 > max) max = mSeq - 1;
+    }
+    if (!isProforma && window.MagaiesOfflineSync && typeof window.MagaiesOfflineSync.getHighestKnownSeq === 'function') {
+        const offMax = window.MagaiesOfflineSync.getHighestKnownSeq('save_purchase_invoice');
+        if (offMax > max) max = offMax;
+    }
     return `${datePrefix}${String(max + 1).padStart(4, '0')}`;
 }
 
@@ -701,6 +747,7 @@ function onCustomerChange() {
         if(invVal) invVal.style.fontSize = "0.9rem";
         if(dateLbl) dateLbl.style.fontSize = "0.9rem";
         if(dateVal) dateVal.style.fontSize = "0.95rem";
+        if (typeof window.autoFitVoucherNumbers === 'function') window.autoFitVoucherNumbers();
         
         ['fin-ledger','fin-checks','fin-total-debt','fin-credit-limit','fin-remaining'].forEach(el => {
             const dom = document.getElementById(el);
@@ -716,21 +763,22 @@ function onCustomerChange() {
     if (invBox && finCard) {
         finCard.style.display = 'flex';
         setTimeout(() => {
-            if (invBox) invBox.style.flex = "0.7";
+            if (invBox) invBox.style.flex = "0.75";
             if (finCard) {
                 finCard.style.flex = "1";
                 finCard.style.opacity = "1";
                 finCard.style.paddingLeft = "10px";
             }
             
-            // Shrink fonts
+            // Shrink fonts + autoFitVoucherNumbers so no digit is ever hidden
             const invLbl = document.getElementById('hdr-inv-label');
             const invVal = document.getElementById('inv-number');
             const dateLbl = document.getElementById('hdr-date-label');
             const dateVal = document.getElementById('hdr-date');
             if(invLbl) invLbl.style.fontSize = "0.75rem";
-            if(invVal) invVal.style.fontSize = "0.75rem";
+            if(invVal) invVal.style.fontSize = "0.82rem";
             if(dateLbl) dateLbl.style.fontSize = "0.75rem";
+            if (typeof window.autoFitVoucherNumbers === 'function') window.autoFitVoucherNumbers();
             if(dateVal) dateVal.style.fontSize = "0.8rem";
         }, 10);
     }
@@ -803,38 +851,44 @@ function addNewCustomer() {
 
 function loadPreviousInvoice() {
     const currentNoStr = document.getElementById('hdr-inv-no').value;
-    let list = getPurchaseInvoicesList();
-    
-    let previousInvoices = list
-        .filter(inv => inv.invoiceNo && inv.invoiceNo < currentNoStr)
-        .sort((a, b) => b.invoiceNo.localeCompare(a.invoiceNo));
-        
-    if (previousInvoices.length > 0) {
-        const prevNo = previousInvoices[0].invoiceNo;
+    const list = getPurchaseInvoicesList();
+    if (!list || list.length === 0) {
+        showToast('ℹ️ لا توجد فواتير سابقة محفوظة', 'warning');
+        return;
+    }
+
+    const idx = list.findIndex(inv => String(inv.invoiceNo || inv.id) === String(currentNoStr));
+    let targetIdx = -1;
+    if (idx === -1) {
+        // إذا كانت الشاشة على فاتورة جديدة لم تحفظ بعد، ارجع إلى آخر فاتورة محفوظة
+        targetIdx = list.length - 1;
+    } else if (idx > 0) {
+        targetIdx = idx - 1;
+    }
+
+    if (targetIdx >= 0) {
+        const prevNo = list[targetIdx].invoiceNo || list[targetIdx].id;
         if (loadInvoiceFromStorage(prevNo)) {
             showToast(`✅ تم استرجاع الفاتورة ${prevNo}`);
             return;
         }
     }
-    showToast('ℹ️ لا توجد فواتير سابقة محفوظة', 'warning');
+    showToast('ℹ️ وصلت إلى أقدم فاتورة مشتريات محفوظة', 'warning');
 }
 
 function loadNextInvoice() {
     const currentNoStr = document.getElementById('hdr-inv-no').value;
-    let list = getPurchaseInvoicesList();
-    
-    let nextInvoices = list
-        .filter(inv => inv.invoiceNo && inv.invoiceNo > currentNoStr)
-        .sort((a, b) => a.invoiceNo.localeCompare(b.invoiceNo));
-        
-    if (nextInvoices.length > 0) {
-        const nextNo = nextInvoices[0].invoiceNo;
+    const list = getPurchaseInvoicesList();
+
+    const idx = list.findIndex(inv => String(inv.invoiceNo || inv.id) === String(currentNoStr));
+    if (idx >= 0 && idx < list.length - 1) {
+        const nextNo = list[idx + 1].invoiceNo || list[idx + 1].id;
         if (loadInvoiceFromStorage(nextNo)) {
             showToast(`✅ تم استرجاع الفاتورة ${nextNo}`);
             return;
         }
     }
-    
+
     onSuccessNewInvoice();
     showToast('✨ فاتورة جديدة', 'success');
 }
@@ -857,7 +911,7 @@ function getSinglePurchaseInvoice(invNo) {
 function loadInvoiceFromStorage(invNo) {
     let data = getSinglePurchaseInvoice(invNo);
     if (!data) return false;
-    
+
     try {
         // Trigger magical animation
         const formCard = document.getElementById('form-fields-card');
@@ -874,11 +928,13 @@ function loadInvoiceFromStorage(invNo) {
             tableCard.classList.add('invoice-slide-up-anim');
         }
 
+        const docNo = data.invoiceNo || data.id || invNo;
+
         // If loading a confirmed or posted invoice, enter Edit Mode
-        if (data.status === 'confirmed' || data.status === 'posted' || localStorage.getItem('erp_pur_' + invNo)) {
-            currentViewedInvoiceNo = data.invoiceNo || data.id;
+        if (data.status === 'confirmed' || data.status === 'posted' || data.status === 'completed' || localStorage.getItem('erp_pur_' + docNo)) {
+            currentViewedInvoiceNo = docNo;
             window.currentViewedInvoiceNo = currentViewedInvoiceNo;
-            showToast('✏️ أنت الآن في وضع التعديل للفاتورة الأصلية', 'warning', 4000);
+            showToast('✏️ أنت الآن في وضع استعراض/تعديل الفاتورة #' + docNo, 'warning', 3500);
         } else {
             currentViewedInvoiceNo = null;
             window.currentViewedInvoiceNo = null;
@@ -887,109 +943,212 @@ function loadInvoiceFromStorage(invNo) {
         // Reset form
         rows = [];
         rowIdCounter = 0;
-        
-        // Set Header
-        document.getElementById('hdr-inv-no').value = data.invoiceNo;
-        document.getElementById('inv-number').textContent = data.invoiceNo;
-        if(data.date) document.getElementById('hdr-date').value = data.date;
-        if(data.description) document.getElementById('hdr-description').value = data.description;
-        if(data.notes) document.getElementById('inv-notes').value = data.notes;
-        if(data.warehouse) document.getElementById('hdr-warehouse').value = data.warehouse;
-        if(data.costCenter) { const ccEl = document.getElementById('hdr-cost-center'); if (ccEl) ccEl.value = data.costCenter; }
-        if(data.currency) document.getElementById('hdr-currency').value = data.currency;
-        if(data.exchangeRate !== undefined) {
+
+        // 1. رقم الفاتورة والتاريخ والبيان والملحوظات (تحديث كامل دائماً)
+        if (document.getElementById('hdr-inv-no')) document.getElementById('hdr-inv-no').value = docNo;
+        if (document.getElementById('inv-number')) document.getElementById('inv-number').textContent = docNo;
+
+        const rawDate = String(data.date || data.savedAt || data.createdAt || '').split('T')[0].split(' ')[0];
+        if (rawDate && document.getElementById('hdr-date')) {
+            document.getElementById('hdr-date').value = rawDate;
+        }
+        const descVal = String(data.description ?? data.notes ?? data.remark ?? '');
+        const notesVal = String(data.notes ?? data.description ?? data.remark ?? '');
+        if (document.getElementById('hdr-description')) document.getElementById('hdr-description').value = descVal;
+        if (document.getElementById('inv-notes')) document.getElementById('inv-notes').value = notesVal;
+
+        // 2. المستودع ومركز التكلفة (يدعم الـ ID أو الاسم العربي)
+        const itemsList = data.items || data.products || [];
+        const firstIt = itemsList.length > 0 ? itemsList[0] : null;
+        const rawWh = data.warehouse || firstIt?.warehouseId || firstIt?.warehouse || '';
+        const whEl = document.getElementById('hdr-warehouse');
+        if (whEl && rawWh) {
+            const matchedWh = (typeof WAREHOUSES !== 'undefined' ? WAREHOUSES : []).find(w => String(w.id) === String(rawWh) || w.name === rawWh);
+            const whVal = matchedWh ? matchedWh.id : rawWh;
+            if (!Array.from(whEl.options || []).some(o => o.value === whVal)) {
+                const opt = document.createElement('option');
+                opt.value = whVal;
+                opt.textContent = matchedWh ? matchedWh.name : rawWh;
+                whEl.appendChild(opt);
+            }
+            whEl.value = whVal;
+        }
+
+        const rawCc = data.costCenter || firstIt?.costCenterId || firstIt?.costCenter || '';
+        const ccEl = document.getElementById('hdr-cost-center');
+        if (ccEl && rawCc) {
+            const matchedCc = (typeof COST_CENTERS !== 'undefined' ? COST_CENTERS : []).find(c => String(c.id) === String(rawCc) || c.name === rawCc);
+            const ccVal = matchedCc ? matchedCc.id : rawCc;
+            if (!Array.from(ccEl.options || []).some(o => o.value === ccVal)) {
+                const opt = document.createElement('option');
+                opt.value = ccVal;
+                opt.textContent = matchedCc ? matchedCc.name : rawCc;
+                ccEl.appendChild(opt);
+            }
+            ccEl.value = ccVal;
+        }
+
+        // 3. العملة وسعر الصرف
+        if (data.currency && document.getElementById('hdr-currency')) {
+            document.getElementById('hdr-currency').value = data.currency;
+        }
+        if (data.exchangeRate !== undefined && document.getElementById('hdr-exchange-rate')) {
             document.getElementById('hdr-exchange-rate').value = data.exchangeRate;
             document.getElementById('hdr-exchange-rate').disabled = false;
         }
 
-        // Adjustments
-        document.getElementById('t-labor').value = data.laborCost !== undefined ? fmtNum(data.laborCost) : '0';
-        document.getElementById('t-labor-fc').value = data.laborCostFc !== undefined ? fmtNum(data.laborCostFc) : '0';
-        document.getElementById('t-transport').value = data.transportCost !== undefined ? fmtNum(data.transportCost) : '0';
-        document.getElementById('t-transport-fc').value = data.transportCostFc !== undefined ? fmtNum(data.transportCostFc) : '0';
-        
-        document.getElementById('t-additions-loc').value = data.additionsCost !== undefined ? fmtNum(data.additionsCost) : '0';
-        document.getElementById('t-additions-fc').value = data.additionsCostFc !== undefined ? fmtNum(data.additionsCostFc) : '0';
-        document.getElementById('t-tax-loc').value = data.taxCost !== undefined ? fmtNum(data.taxCost) : '0';
-        document.getElementById('t-tax-fc').value = data.taxCostFc !== undefined ? fmtNum(data.taxCostFc) : '0';
-        document.getElementById('t-discount-loc').value = data.discountCost !== undefined ? fmtNum(data.discountCost) : '0';
-        document.getElementById('t-discount-fc').value = data.discountCostFc !== undefined ? fmtNum(data.discountCostFc) : '0';
-        
-        // Customer
-        const custId = data.customer || data.customerId;
-        if (custId) {
-            const c = VENDORS.find(x => String(x.id) === String(custId));
-            if (c) selectCustomer(c.id, c.name);
+        // 4. المورد (يدعم البحث بالـ ID أو الاسم العربي)
+        const suppIdOrName = data.customer || data.customerId || data.supplier || data.supplierId || data.supplierName || data.vendorName || '';
+        const matchedVendor = (typeof VENDORS !== 'undefined' ? VENDORS : []).find(x =>
+            String(x.id) === String(data.customer || data.customerId || data.supplier || data.supplierId || '') ||
+            (data.supplierName && x.name === data.supplierName) ||
+            (data.vendorName && x.name === data.vendorName) ||
+            (suppIdOrName && x.name === suppIdOrName)
+        );
+        if (matchedVendor) {
+            selectCustomer(matchedVendor.id, matchedVendor.name);
+        } else {
+            const fallbackSuppName = data.supplierName || data.vendorName || data.customerName || (typeof suppIdOrName === 'string' && !suppIdOrName.startsWith('V-') ? suppIdOrName : '') || 'مورد عام';
+            if (document.getElementById('hdr-customer')) document.getElementById('hdr-customer').value = data.customer || data.supplier || 'vendor-general';
+            if (document.getElementById('hdr-customer-search')) document.getElementById('hdr-customer-search').value = fallbackSuppName;
+            if (typeof updateLedgerButton === 'function') updateLedgerButton();
+            if (typeof onCustomerChange === 'function') onCustomerChange();
         }
 
-        // Payments Loading
+        // 5. الأصناف وأسطر الفاتورة (الكمية، السعر، الوحدة، المخزن، الملحوظة)
+        let sumItemLabor = 0;
+        let sumItemTax = 0;
+        let sumItemDiscount = 0;
+
+        if (itemsList && itemsList.length) {
+            itemsList.forEach(i => {
+                addRow(true, true); // silent — no re-render per row
+                const r = rows[rows.length - 1];
+
+                let resolvedItemId = i.itemId || i.id || i.item_id || '';
+                const rawName = i.itemName || i.name || '';
+                const matchedItem = (typeof ITEMS !== 'undefined' ? ITEMS : []).find(x =>
+                    (resolvedItemId && String(x.id) === String(resolvedItemId)) ||
+                    (rawName && x.name === rawName)
+                );
+                if (matchedItem) {
+                    resolvedItemId = matchedItem.id;
+                }
+
+                r.itemId = resolvedItemId || rawName || 'item-custom';
+                r.itemName = rawName || (matchedItem ? matchedItem.name : '');
+                r.selectedUnit = i.selectedUnit || i.unit || i.unitName || (matchedItem ? matchedItem.unit : 'حبة');
+                r.customFactor = i.customFactor !== undefined ? i.customFactor : (i.factor !== undefined ? i.factor : 1);
+                r.quantity = parseFloat(i.quantity !== undefined ? i.quantity : (i.qty !== undefined ? i.qty : 1)) || 0;
+                if (i.customBaseQty !== undefined) r.customBaseQty = i.customBaseQty;
+                r.price = parseFloat(i.price !== undefined ? i.price : (i.rate !== undefined ? i.rate : 0)) || 0;
+                if (i.fcPrice !== undefined) r.fcPrice = i.fcPrice;
+
+                const rowWhRaw = i.warehouseId || i.warehouse || data.warehouse || '';
+                const rowWhMatch = (typeof WAREHOUSES !== 'undefined' ? WAREHOUSES : []).find(w => String(w.id) === String(rowWhRaw) || w.name === rowWhRaw);
+                r.warehouseId = rowWhMatch ? rowWhMatch.id : rowWhRaw;
+
+                const rowCcRaw = i.costCenterId || i.costCenter || data.costCenter || '';
+                const rowCcMatch = (typeof COST_CENTERS !== 'undefined' ? COST_CENTERS : []).find(cc => String(cc.id) === String(rowCcRaw) || cc.name === rowCcRaw);
+                r.costCenterId = rowCcMatch ? rowCcMatch.id : rowCcRaw;
+
+                if (i.qrCode) r.qrCode = i.qrCode;
+                r.note = i.note ?? i.notes ?? notesVal ?? '';
+                if (i.buyPrice !== undefined) r.buyPrice = i.buyPrice;
+                if (i.sellPrice !== undefined) r.sellPrice = i.sellPrice;
+
+                sumItemLabor += parseFloat(i.labor || 0) || 0;
+                sumItemTax += parseFloat(i.tax || 0) || 0;
+                sumItemDiscount += parseFloat(i.discount || 0) || 0;
+            });
+        }
+
+        // 6. المصروفات والتسويات (العتالة، الترحيل، الإضافات، الضريبة، الخصم)
+        const laborCostVal = data.laborCost ?? data.labor ?? sumItemLabor ?? 0;
+        const transportCostVal = data.transportCost ?? data.transport ?? 0;
+        const additionsCostVal = data.additionsCost ?? 0;
+        const taxCostVal = data.taxCost ?? data.tax ?? data.vatAmount ?? sumItemTax ?? 0;
+        const discountCostVal = data.discountCost ?? data.discount ?? sumItemDiscount ?? 0;
+
+        if (document.getElementById('t-labor')) document.getElementById('t-labor').value = fmtNum(laborCostVal);
+        if (document.getElementById('t-labor-fc')) document.getElementById('t-labor-fc').value = data.laborCostFc !== undefined ? fmtNum(data.laborCostFc) : '0';
+        if (document.getElementById('t-transport')) document.getElementById('t-transport').value = fmtNum(transportCostVal);
+        if (document.getElementById('t-transport-fc')) document.getElementById('t-transport-fc').value = data.transportCostFc !== undefined ? fmtNum(data.transportCostFc) : '0';
+        if (document.getElementById('t-additions-loc')) document.getElementById('t-additions-loc').value = fmtNum(additionsCostVal);
+        if (document.getElementById('t-additions-fc')) document.getElementById('t-additions-fc').value = data.additionsCostFc !== undefined ? fmtNum(data.additionsCostFc) : '0';
+        if (document.getElementById('t-tax-loc')) document.getElementById('t-tax-loc').value = fmtNum(taxCostVal);
+        if (document.getElementById('t-tax-fc')) document.getElementById('t-tax-fc').value = data.taxCostFc !== undefined ? fmtNum(data.taxCostFc) : '0';
+        if (document.getElementById('t-discount-loc')) document.getElementById('t-discount-loc').value = fmtNum(discountCostVal);
+        if (document.getElementById('t-discount-fc')) document.getElementById('t-discount-fc').value = data.discountCostFc !== undefined ? fmtNum(data.discountCostFc) : '0';
+
+        // 7. تفاصيل الدفع (نقدي، آجل، بنك، شيك، أو الفواتير المحفوظة من الجوال)
         document.querySelectorAll('.pay-toggle-btn').forEach(btn => btn.classList.remove('active'));
         if (document.getElementById('pay-cash-section')) document.getElementById('pay-cash-section').style.display = 'none';
         if (document.getElementById('pay-credit-section')) document.getElementById('pay-credit-section').style.display = 'none';
         if (document.getElementById('pay-bank-section')) document.getElementById('pay-bank-section').style.display = 'none';
         if (document.getElementById('pay-cheque-section')) document.getElementById('pay-cheque-section').style.display = 'none';
-        
+
         if (document.getElementById('bank-transfers-list')) document.getElementById('bank-transfers-list').innerHTML = '';
         if (document.getElementById('cheques-list')) document.getElementById('cheques-list').innerHTML = '';
 
-        if (data.cashAmount > 0) {
-            const btn = document.getElementById('toggle-cash');
-            if(btn) btn.classList.add('active');
-            if (document.getElementById('pay-cash-section')) document.getElementById('pay-cash-section').style.display = 'flex';
-            if (document.getElementById('pay-cash-amount')) document.getElementById('pay-cash-amount').value = data.cashAmount;
+        const totalInvVal = parseFloat(data.grandTotal ?? data.total ?? 0) || 0;
+        const hasExplicitSplits = (data.cashAmount > 0) || (data.creditAmount > 0) || (data.bankTransfers && data.bankTransfers.length > 0) || (data.cheques && data.cheques.length > 0);
+
+        if (hasExplicitSplits) {
+            if (data.cashAmount > 0) {
+                const btn = document.getElementById('toggle-cash');
+                if (btn) btn.classList.add('active');
+                if (document.getElementById('pay-cash-section')) document.getElementById('pay-cash-section').style.display = 'flex';
+                if (document.getElementById('pay-cash-amount')) document.getElementById('pay-cash-amount').value = data.cashAmount;
+            }
+            if (data.creditAmount > 0) {
+                const btn = document.getElementById('toggle-credit');
+                if (btn) btn.classList.add('active');
+                if (document.getElementById('pay-credit-section')) document.getElementById('pay-credit-section').style.display = 'flex';
+                if (document.getElementById('pay-credit-amount')) document.getElementById('pay-credit-amount').value = data.creditAmount;
+                if (data.dueDate && document.getElementById('pay-credit-due-date')) document.getElementById('pay-credit-due-date').value = data.dueDate;
+            }
+            if (data.bankTransfers && data.bankTransfers.length > 0) {
+                const btn = document.getElementById('toggle-bank');
+                if (btn) btn.classList.add('active');
+                if (document.getElementById('pay-bank-section')) document.getElementById('pay-bank-section').style.display = 'flex';
+                data.bankTransfers.forEach(bt => addBankTransferRow(bt));
+            }
+            if (data.cheques && data.cheques.length > 0) {
+                const btn = document.getElementById('toggle-cheque');
+                if (btn) btn.classList.add('active');
+                if (document.getElementById('pay-cheque-section')) document.getElementById('pay-cheque-section').style.display = 'flex';
+                data.cheques.forEach(ch => addChequeRow(ch));
+            }
+        } else {
+            const pm = data.paymentMethod || 'cash';
+            if (pm === 'credit' || pm === 'split') {
+                const paidAmt = parseFloat(data.paidAmount || 0) || 0;
+                const remAmt = Math.max(0, totalInvVal - paidAmt);
+                if (paidAmt > 0) {
+                    document.getElementById('toggle-cash')?.classList.add('active');
+                    if (document.getElementById('pay-cash-section')) document.getElementById('pay-cash-section').style.display = 'flex';
+                    if (document.getElementById('pay-cash-amount')) document.getElementById('pay-cash-amount').value = paidAmt;
+                }
+                document.getElementById('toggle-credit')?.classList.add('active');
+                if (document.getElementById('pay-credit-section')) document.getElementById('pay-credit-section').style.display = 'flex';
+                if (document.getElementById('pay-credit-amount')) document.getElementById('pay-credit-amount').value = remAmt || totalInvVal;
+            } else if (pm === 'bank') {
+                document.getElementById('toggle-bank')?.classList.add('active');
+                if (document.getElementById('pay-bank-section')) document.getElementById('pay-bank-section').style.display = 'flex';
+                addBankTransferRow({ bankAccountId: data.paymentAccountId || '', reference: data.reference || '', amount: totalInvVal });
+            } else {
+                document.getElementById('toggle-cash')?.classList.add('active');
+                if (document.getElementById('pay-cash-section')) document.getElementById('pay-cash-section').style.display = 'flex';
+                if (document.getElementById('pay-cash-amount')) document.getElementById('pay-cash-amount').value = totalInvVal;
+            }
         }
-        if (data.creditAmount > 0) {
-            const btn = document.getElementById('toggle-credit');
-            if(btn) btn.classList.add('active');
-            if (document.getElementById('pay-credit-section')) document.getElementById('pay-credit-section').style.display = 'flex';
-            if (document.getElementById('pay-credit-amount')) document.getElementById('pay-credit-amount').value = data.creditAmount;
-            if(data.dueDate && document.getElementById('pay-credit-due-date')) document.getElementById('pay-credit-due-date').value = data.dueDate;
-        }
-        if (data.bankTransfers && data.bankTransfers.length > 0) {
-            const btn = document.getElementById('toggle-bank');
-            if(btn) btn.classList.add('active');
-            if (document.getElementById('pay-bank-section')) document.getElementById('pay-bank-section').style.display = 'flex';
-            data.bankTransfers.forEach(bt => addBankTransferRow(bt));
-        }
-        if (data.cheques && data.cheques.length > 0) {
-            const btn = document.getElementById('toggle-cheque');
-            if(btn) btn.classList.add('active');
-            if (document.getElementById('pay-cheque-section')) document.getElementById('pay-cheque-section').style.display = 'flex';
-            data.cheques.forEach(ch => addChequeRow(ch));
-        }
-        
+
         if (data.paymentAccountId) {
             const payAccEl = document.getElementById('hdr-payment-account');
             if (payAccEl) payAccEl.value = data.paymentAccountId;
         }
-        
-        // Rows — PERFORMANCE: assign properties directly instead of calling
-        // updateRow() (which fires recalcAll on every call). We call renderGrid
-        // and recalcAll exactly ONCE after all rows are populated.
-        const itemsList = data.items || data.products || [];
-        if(itemsList && itemsList.length) {
-            itemsList.forEach(i => {
-                addRow(true, true); // silent — no re-render per row
-                const r = rows[rows.length-1];
-                
-                // Direct property assignment (no recalcAll per field)
-                r.itemId = i.itemId || i.id || i.item_id || '';
-                r.selectedUnit = i.selectedUnit || i.unit || i.unitName || '';
-                r.customFactor = i.customFactor !== undefined ? i.customFactor : (i.factor !== undefined ? i.factor : 1);
-                r.quantity = i.quantity !== undefined ? i.quantity : (i.qty !== undefined ? i.qty : 0);
-                if (i.customBaseQty !== undefined) r.customBaseQty = i.customBaseQty;
-                r.price = i.price !== undefined ? i.price : (i.rate !== undefined ? i.rate : 0);
-                if (i.fcPrice !== undefined) r.fcPrice = i.fcPrice;
-                r.warehouseId = i.warehouseId || i.warehouse || '';
-                r.costCenterId = i.costCenterId || i.costCenter || '';
-                if (i.qrCode) r.qrCode = i.qrCode;
-                if (i.note) r.note = i.note;
-                if (i.itemName || i.name) r.itemName = i.itemName || i.name;
-                if (i.buyPrice !== undefined) r.buyPrice = i.buyPrice;
-                if (i.sellPrice !== undefined) r.sellPrice = i.sellPrice;
-            });
-        }
-        
+
         renderGrid();
         recalcAll();
         if (window.renderDocumentUserBadge) {
@@ -2626,6 +2785,15 @@ function submitInvoice(ignoreWarnings = false) {
             const oldStr = localStorage.getItem('erp_pur_' + currentViewedInvoiceNo);
             if (oldStr) existingPur = JSON.parse(oldStr);
         } catch(e) {}
+    } else {
+        const purSig = `${custId}|${grandAmount}|${rows.map(r => `${r.itemId}:${r.quantity}:${r.price}`).join(',')}|${document.getElementById('hdr-date')?.value || ''}`;
+        if (window._lastSubmittedPurchaseSig === purSig && (Date.now() - (window._lastSubmittedPurchaseTime || 0)) < 15000) {
+            showToast(`✅ تم حفظ هذه الفاتورة مسبقاً برقم (${window._lastSubmittedPurchaseInvoiceNo || committedNo}) — لن يتم تكرار الحفظ`, 'info', 3500);
+            window.isSubmitting = false;
+            return;
+        }
+        window._lastSubmittedPurchaseSig = purSig;
+        window._lastSubmittedPurchaseTime = Date.now();
     }
 
     const data = {
@@ -2636,6 +2804,7 @@ function submitInvoice(ignoreWarnings = false) {
         updatedByName: currentViewedInvoiceNo ? (curUser.fullName || curUser.username) : null,
         updatedAt: currentViewedInvoiceNo ? new Date().toISOString() : null,
         invoiceNo: committedNo,
+        idempotencyKey: window._lastSubmittedPurchaseSig ? ('LAP-P-' + btoa(unescape(encodeURIComponent(window._lastSubmittedPurchaseSig))).substring(0, 32)) : ('LAP-P-' + committedNo),
         timestamp: new Date().toISOString(),
         date: document.getElementById('hdr-date').value,
         time: new Date().toLocaleTimeString('en-GB', {hour: '2-digit', minute:'2-digit'}),
@@ -2994,17 +3163,33 @@ function submitInvoice(ignoreWarnings = false) {
         window.pushToCloud(true).catch(e => console.warn("Immediate cloud sync failed:", e));
     }
 
-    // 🪞 REAL-TIME MIRROR SYNC: Commit purchase invoice directly to MariaDB
+    // 🪞 REAL-TIME MIRROR SYNC + UNIVERSAL OFFLINE QUEUE: Commit purchase invoice to MariaDB or Offline Queue
     try {
-        fetch('api/mirror_sync.php?action=save_purchase_invoice', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data)
-        }).then(r => r.json()).then(res => {
-            if (res && res.success && res.nextPurchaseNo) {
-                window._mirrorNextPurchaseNo = res.nextPurchaseNo;
+        const queueType = (typeof currentPurchaseType !== 'undefined' && currentPurchaseType === 'split' || data.isSplit || data.purchaseType === 'split') ? 'purchase_split' : 'purchase';
+        if (!navigator.onLine) {
+            if (window.MagaiesOffline && typeof window.MagaiesOffline.enqueue === 'function') {
+                window.MagaiesOffline.enqueue(queueType, data, data.invoiceNo);
             }
-        }).catch(e => console.warn("Mirror sync purchase failed:", e));
+        } else {
+            fetch('api/mirror_sync.php?action=' + (queueType === 'purchase_split' ? 'save_purchase_split' : 'save_purchase_invoice'), {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            }).then(r => r.json()).then(res => {
+                if (res && res.success && res.nextPurchaseNo) {
+                    window._mirrorNextPurchaseNo = res.nextPurchaseNo;
+                } else if (!res || !res.success) {
+                    if (window.MagaiesOffline && typeof window.MagaiesOffline.enqueue === 'function') {
+                        window.MagaiesOffline.enqueue(queueType, data, data.invoiceNo);
+                    }
+                }
+            }).catch(e => {
+                console.warn("Mirror sync purchase failed, enqueuing offline:", e);
+                if (window.MagaiesOffline && typeof window.MagaiesOffline.enqueue === 'function') {
+                    window.MagaiesOffline.enqueue(queueType, data, data.invoiceNo);
+                }
+            });
+        }
     } catch(eMirror) {}
 
     // Show professional success modal

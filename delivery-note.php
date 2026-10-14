@@ -220,13 +220,47 @@
     <script defer src="js/app.js?v=<?php echo file_exists('js/app.js') ? filemtime('js/app.js') : '1'; ?>"></script>
     <script>
         let allInvoices = [];
+        let _isSyncingDeliveryNoteDB = false;
+
+        async function syncDeliveryNotesWithMariaDB() {
+            if (_isSyncingDeliveryNoteDB || !navigator.onLine) return;
+            _isSyncingDeliveryNoteDB = true;
+            try {
+                const res = await fetch('api/mirror_sync.php?action=get_recent_sales&_t=' + Date.now());
+                if (!res.ok) return;
+                const data = await res.json();
+                if (data && data.success && Array.isArray(data.sales)) {
+                    let sales = JSON.parse(localStorage.getItem('erp_sales_invoices_v1') || '[]');
+                    let changed = false;
+                    data.sales.forEach(s => {
+                        const invNo = s.invoiceNo || s.id;
+                        if (!invNo) return;
+                        const idx = sales.findIndex(x => (x.invoiceNo || x.id) === invNo);
+                        if (idx === -1) {
+                            sales.unshift(s);
+                            changed = true;
+                        } else if (s.deliveryStatus === 'delivered' && sales[idx].deliveryStatus !== 'delivered') {
+                            sales[idx].deliveryStatus = 'delivered';
+                            changed = true;
+                        }
+                    });
+                    if (changed) {
+                        localStorage.setItem('erp_sales_invoices_v1', JSON.stringify(sales));
+                        loadData(true);
+                    }
+                }
+            } catch (e) {} finally {
+                _isSyncingDeliveryNoteDB = false;
+            }
+        }
 
         document.addEventListener('DBReady', () => {
             loadData();
         });
 
-        function loadData() {
-            // جلب المبيعات المحجوزة
+        function loadData(skipRemote = false) {
+            if (!skipRemote) syncDeliveryNotesWithMariaDB();
+            // جلب المبيعات المحجوزة والمعتمدة
             const sales      = JSON.parse(localStorage.getItem('erp_sales_invoices_v1')    || '[]');
             const reserved   = JSON.parse(localStorage.getItem('erp_reserved_sales_v1')    || '[]');
             const deliveries = JSON.parse(localStorage.getItem('erp_delivery_notes_v1')    || '[]');
@@ -236,16 +270,23 @@
             );
 
             const needDelivery = sales.filter(inv =>
-                inv.saleType === 'reserved' || inv.needsDelivery === true
+                !inv.deleted && inv.status !== 'draft' && inv.saleType !== 'preliminary'
             );
 
-            allInvoices = [...reservedInvs, ...needDelivery].map(inv => {
-                const deliveryRec = deliveries.find(d => d.invoiceNo === inv.invoiceNo);
+            const seen = new Set();
+            allInvoices = [...reservedInvs, ...needDelivery].filter(inv => {
+                const k = inv && (inv.invoiceNo || inv.id);
+                if (!k || seen.has(k)) return false;
+                seen.add(k);
+                return true;
+            }).map(inv => {
+                const deliveryRec = deliveries.find(d => d.invoiceNo === (inv.invoiceNo || inv.id));
+                const isAlreadyDelivered = deliveryRec || inv.deliveryStatus === 'delivered' || inv.status === 'delivered';
                 return {
                     ...inv,
-                    deliveryStatus: deliveryRec ? 'delivered' : 'pending',
-                    deliveredAt: deliveryRec?.deliveredAt || null,
-                    driverName:  deliveryRec?.driverName  || null
+                    deliveryStatus: isAlreadyDelivered ? 'delivered' : 'pending',
+                    deliveredAt: deliveryRec?.deliveredAt || inv.deliveredAt || null,
+                    driverName:  deliveryRec?.driverName  || inv.driverName  || null
                 };
             });
 
@@ -397,6 +438,32 @@
                 localStorage.setItem('erp_inventory_v1', JSON.stringify(invData));
             }
 
+            const deliveryPayload = {
+                deliveryNo: window.MagaiesOffline && typeof window.MagaiesOffline.peekNextSequentialNumber === 'function' ? window.MagaiesOffline.peekNextSequentialNumber('delivery') : ('D-' + Date.now()),
+                invoiceNo: invoiceNo,
+                customerName: inv.customerName || inv.customer || 'عميل',
+                driverName: driver || '-',
+                items: inv.items || [],
+                date: new Date().toISOString().split('T')[0]
+            };
+            try {
+                if (!navigator.onLine) {
+                    if (window.MagaiesOffline && typeof window.MagaiesOffline.enqueue === 'function') {
+                        window.MagaiesOffline.enqueue('delivery', deliveryPayload, deliveryPayload.deliveryNo);
+                    }
+                } else {
+                    fetch('api/mirror_sync.php?action=save_delivery_note', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(deliveryPayload)
+                    }).catch(() => {
+                        if (window.MagaiesOffline && typeof window.MagaiesOffline.enqueue === 'function') {
+                            window.MagaiesOffline.enqueue('delivery', deliveryPayload, deliveryPayload.deliveryNo);
+                        }
+                    });
+                }
+            } catch (eOff) {}
+
             if (window.logSystemAction) {
                 window.logSystemAction('Delivery', 'sales', `تم تأكيد تسليم الفاتورة ${invoiceNo} - المستلم: ${driver || '-'}`);
             }
@@ -409,6 +476,7 @@
         }
     </script>
 
+<script src="js/magaies-offline-sync.js?v=20261014"></script>
 <script src="js/global_background_media.js?v=2026_seamless_v5" defer></script>
 <script src="js/magaiees_back.js?v=2026_back_v2" defer></script>
 </body>

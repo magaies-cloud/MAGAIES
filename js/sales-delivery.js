@@ -65,8 +65,38 @@ function switchLevel(level) {
 }
 
 // Initialize on load
+async function syncSalesDeliveryWithMariaDB() {
+    if (!navigator.onLine) return;
+    try {
+        const res = await fetch('api/mirror_sync.php?action=get_recent_sales&_t=' + Date.now());
+        if (!res.ok) return;
+        const data = await res.json();
+        if (data && data.success && Array.isArray(data.sales)) {
+            let allSales = [];
+            try { allSales = JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || []; } catch(e) {}
+            let changed = false;
+            data.sales.forEach(s => {
+                const invNo = s.invoiceNo || s.id;
+                if (!invNo) return;
+                const idx = allSales.findIndex(x => (x.invoiceNo || x.id) === invNo);
+                if (idx === -1) {
+                    allSales.unshift(s);
+                    changed = true;
+                } else if (s.deliveryStatus === 'delivered' && allSales[idx].deliveryStatus !== 'delivered') {
+                    allSales[idx].deliveryStatus = 'delivered';
+                    changed = true;
+                }
+            });
+            if (changed) {
+                localStorage.setItem('erp_sales_invoices_v1', JSON.stringify(allSales));
+            }
+        }
+    } catch (e) {}
+}
+
 document.addEventListener('DBReady', () => {
     simulateUserRole(document.getElementById('demo-role-select').value);
+    syncSalesDeliveryWithMariaDB();
 });
 
 // ── CAMERA & QR LOGIC ──
@@ -487,6 +517,35 @@ function executeDelivery() {
     allSales[invIndex].personalNotes       = personalNotesVal;
 
     localStorage.setItem('erp_sales_invoices_v1', JSON.stringify(allSales));
+
+    const deliveryPayload = {
+        deliveryNo: window.MagaiesOffline && typeof window.MagaiesOffline.peekNextSequentialNumber === 'function' ? window.MagaiesOffline.peekNextSequentialNumber('delivery') : ('D-' + Date.now()),
+        invoiceNo: currentLoadedInvoice.invoiceNo,
+        customerName: currentLoadedInvoice.customerName || 'عميل',
+        warehouse: currentLoadedInvoice.warehouse || 'الرئيسي',
+        notes: warehouseNotesVal,
+        personalNotes: personalNotesVal,
+        items: rows,
+        date: new Date().toISOString().split('T')[0]
+    };
+
+    try {
+        if (!navigator.onLine) {
+            if (window.MagaiesOffline && typeof window.MagaiesOffline.enqueue === 'function') {
+                window.MagaiesOffline.enqueue('delivery', deliveryPayload, deliveryPayload.deliveryNo);
+            }
+        } else {
+            fetch('api/mirror_sync.php?action=save_delivery_note', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(deliveryPayload)
+            }).catch(() => {
+                if (window.MagaiesOffline && typeof window.MagaiesOffline.enqueue === 'function') {
+                    window.MagaiesOffline.enqueue('delivery', deliveryPayload, deliveryPayload.deliveryNo);
+                }
+            });
+        }
+    } catch (eOff) {}
 
     if (typeof window.logSystemAction === 'function') {
         window.logSystemAction('تسليم بضاعة', 'المستودعات / المبيعات', currentLoadedInvoice.invoiceNo,

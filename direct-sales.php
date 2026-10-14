@@ -32,22 +32,7 @@ try {
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <script src="js/lang.js"></script>
-<script>
-// CRITICAL: Unregister ALL Service Workers and clear ALL caches immediately
-// This runs BEFORE any other JS to ensure fresh files
-if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.getRegistrations().then(function(regs) {
-        regs.forEach(function(reg) { reg.unregister(); });
-        if (regs.length > 0) console.log('[SW] Unregistered ' + regs.length + ' service workers');
-    });
-}
-if (typeof caches !== 'undefined') {
-    caches.keys().then(function(names) {
-        names.forEach(function(name) { caches.delete(name); });
-        if (names.length > 0) console.log('[Cache] Cleared ' + names.length + ' caches');
-    });
-}
-</script>
+<script src="js/magaies-offline-sync.js?v=20261014"></script>
 <script>
 window._PRELOADED_UNITS = <?= $preloadedUnitsJson ?: '[]' ?>;
 window._PRELOADED_ITEMS = <?= $preloadedItemsJson ?: '[]' ?>;
@@ -3595,25 +3580,17 @@ try {
     </div>
     
     <script src="js/localforage.min.js"></script>
-    <script src="js/direct-sales-studio.js?v=<?php echo time(); ?>"></script>
+    <script src="js/direct-sales-studio.js?v=<?php echo file_exists('js/direct-sales-studio.js') ? filemtime('js/direct-sales-studio.js') : '1.0.0'; ?>"></script>
     <script defer src="js/html2pdf.bundle.min.js"></script>
-    <script defer src="js/whatsapp-integration.js?v=<?php echo time(); ?>"></script>
-    <script defer src="js/erp-whatsapp-suite.js?v=<?php echo time(); ?>"></script>
+    <script defer src="js/whatsapp-integration.js?v=<?php echo file_exists('js/whatsapp-integration.js') ? filemtime('js/whatsapp-integration.js') : '1.0.0'; ?>"></script>
+    <script defer src="js/erp-whatsapp-suite.js?v=<?php echo file_exists('js/erp-whatsapp-suite.js') ? filemtime('js/erp-whatsapp-suite.js') : '1.0.0'; ?>"></script>
     <script defer src="js/app.js?v=<?php echo file_exists('js/app.js') ? filemtime('js/app.js') : '1.0.0'; ?>"></script>
     <script defer src="js/accounting-engine.js?v=<?php echo file_exists('js/accounting-engine.js') ? filemtime('js/accounting-engine.js') : '1.0.0'; ?>"></script>
     <script defer src="js/print-engine.js?v=<?php echo file_exists('js/print-engine.js') ? filemtime('js/print-engine.js') : '1.0.0'; ?>"></script>
-    <script defer src="js/direct-sales-v3.js?v=<?php echo time(); ?>"></script>
+    <script defer src="js/direct-sales-v3.js?v=<?php echo file_exists('js/direct-sales-v3.js') ? filemtime('js/direct-sales-v3.js') : '1.0.0'; ?>"></script>
     <script>
-    // Force Service Worker update + clear old caches
     if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.getRegistrations().then(regs => {
-            regs.forEach(reg => reg.update());
-        });
-        if (caches) {
-            caches.keys().then(names => {
-                names.filter(n => n.includes('static-v1') || n.includes('magaies-static-v2')).forEach(n => caches.delete(n));
-            });
-        }
+        navigator.serviceWorker.register('./sw.js', { scope: './' }).catch(() => {});
     }
     </script>
 

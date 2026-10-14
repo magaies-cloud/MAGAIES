@@ -56,6 +56,8 @@ if (!function_exists('extractAllTransfersFromRecord')) {
 
 if (!function_exists('findTransferDuplicateInDb')) {
     function findTransferDuplicateInDb($pdo, $ref, $currentVNo = '', $currentTenantId = null) {
+        global $GLOBAL_TENANT_ID;
+        $tId = (int)($currentTenantId ?: (!empty($GLOBAL_TENANT_ID) ? $GLOBAL_TENANT_ID : 12));
         $ref = trim((string)$ref);
         if ($ref === '') return null;
         $cleanRefDigits = preg_replace('/\D/', '', $ref);
@@ -65,7 +67,8 @@ if (!function_exists('findTransferDuplicateInDb')) {
         $tables = ['single_payments', 'single_receipts', 'payments', 'receipts'];
         foreach ($tables as $tbl) {
             try {
-                $stmt = $pdo->query("SELECT id, tenant_id, data FROM `$tbl`");
+                $stmt = $pdo->prepare("SELECT id, tenant_id, data FROM `$tbl` WHERE tenant_id = ?");
+                $stmt->execute([$tId]);
                 while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
                     $d = json_decode($row['data'], true);
                     if (!$d) continue;
@@ -122,12 +125,15 @@ if (!function_exists('findTransferDuplicateInDb')) {
 
 if (!function_exists('fetchAllDbTransfers')) {
     function fetchAllDbTransfers($pdo, $currentTenantId = null) {
+        global $GLOBAL_TENANT_ID;
+        $tId = (int)($currentTenantId ?: (!empty($GLOBAL_TENANT_ID) ? $GLOBAL_TENANT_ID : 12));
         $results = [];
         $seen = [];
         $tables = ['single_payments', 'single_receipts', 'payments', 'receipts'];
         foreach ($tables as $tbl) {
             try {
-                $stmt = $pdo->query("SELECT id, tenant_id, data FROM `$tbl`");
+                $stmt = $pdo->prepare("SELECT id, tenant_id, data FROM `$tbl` WHERE tenant_id = ?");
+                $stmt->execute([$tId]);
                 while ($r = $stmt->fetch(PDO::FETCH_ASSOC)) {
                     $d = json_decode($r['data'], true);
                     if (!$d) continue;
@@ -3537,6 +3543,7 @@ try {
     </div>
     <!-- Financial OCR Modal & Script -->
     <?php include 'includes/financial-ocr-modal.php'; ?>
+    <script src="js/magaies-offline-sync.js?v=20261014"></script>
     <script src="js/financial-ocr.js?v=<?php echo file_exists('js/financial-ocr.js') ? filemtime('js/financial-ocr.js') : 1; ?>"></script>
 </body>
 </html>

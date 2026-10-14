@@ -687,10 +687,47 @@
             cr = Array.isArray(cr) ? cr : Object.values(cr);
             cp = Array.isArray(cp) ? cp : Object.values(cp);
             
+            if (navigator.onLine) {
+                try {
+                    const resV = await fetch('api/mirror_sync.php?action=get_recent_vouchers&_t=' + Date.now());
+                    if (resV.ok) {
+                        const dataV = await resV.json();
+                        if (dataV && dataV.success && Array.isArray(dataV.vouchers)) {
+                            const existingIds = new Set(sp.map(x => String(x?.voucherNo || x?.id || '').trim()));
+                            let addedSp = false;
+                            dataV.vouchers.forEach(v => {
+                                const vId = String(v?.voucherNo || v?.id || '').trim();
+                                if (vId && !existingIds.has(vId)) {
+                                    sp.unshift(v);
+                                    existingIds.add(vId);
+                                    addedSp = true;
+                                }
+                            });
+                            if (addedSp) {
+                                localStorage.setItem(tkSP, JSON.stringify(sp));
+                                if (typeof localforage !== 'undefined') await localforage.setItem(tkSP, sp);
+                            }
+                        }
+                    }
+                } catch (eSync) {}
+            }
+            
             let all = [];
             sr.forEach(x => { if(x && !x.deleted) all.push({...x, _type: 'سند قبض مفرد', _color: '#10b981', _date: new Date(x.date || x.createdAt || 0), _storeKey: tkSR, _source: 'sr'})});
             br.forEach(x => { if(x && !x.deleted) all.push({...x, _type: 'سند قبض متعدد', _color: '#38bdf8', _date: new Date(x.date || x.createdAt || 0), _storeKey: tkBR, _source: 'br'})});
-            sp.forEach(x => { if(x && !x.deleted) all.push({...x, _type: 'سند صرف مفرد', _color: '#f43f5e', _date: new Date(x.date || x.createdAt || 0), _storeKey: tkSP, _source: 'sp'})});
+            sp.forEach(x => {
+                if(x && !x.deleted) {
+                    const isReceipt = (x.voucherType === 'receipt' || x.type === 'receipt' || (x.notes && String(x.notes).includes('استلام')) || (x.description && String(x.description).includes('استلام')));
+                    all.push({
+                        ...x,
+                        _type: isReceipt ? 'سند قبض مفرد' : 'سند صرف مفرد',
+                        _color: isReceipt ? '#10b981' : '#f43f5e',
+                        _date: new Date(x.date || x.createdAt || 0),
+                        _storeKey: tkSP,
+                        _source: 'sp'
+                    });
+                }
+            });
             bp.forEach(x => { if(x && !x.deleted) all.push({...x, _type: 'سند صرف متعدد', _color: '#f59e0b', _date: new Date(x.date || x.createdAt || 0), _storeKey: tkBP, _source: 'bp'})});
             cr.forEach(x => { if(x && !x.deleted) all.push({...x, _type: 'سند قبض مجمع', _color: '#0ea5e9', _date: new Date(x.date || x.createdAt || 0), _storeKey: tkCR, _source: 'cr'})});
             cp.forEach(x => { if(x && !x.deleted) all.push({...x, _type: 'سند صرف مجمع', _color: '#eab308', _date: new Date(x.date || x.createdAt || 0), _storeKey: tkCP, _source: 'cp'})});

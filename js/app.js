@@ -1166,15 +1166,15 @@ JSON.parse = function(val) {
         }
 
         if (this === localStorage) {
-            if (syncKeys.includes(key) && !navigator.onLine) {
-                alert('السيرفر غير متصل! لا يمكن إجراء العملية. النظام يعمل الآن بوضع Online-Only.');
-                throw new Error('Offline mode disabled. Cannot save data.');
-            }
-
             const tenantKey = window.getTenantKey(key);
+            const isGlobalOrOfflineKey = ['authToken', 'user', 'tenant_id', 'erp_theme', 'erp_rate_usd'].includes(key) ||
+                String(key).startsWith('magaies_') || String(key).startsWith('magaiees_');
             
             // Save to In-Memory Proxy
             window.DB_STORE[tenantKey] = value;
+            if (isGlobalOrOfflineKey) {
+                window.DB_STORE[key] = value;
+            }
 
             // Broadcast to other tabs
             syncChannel.postMessage({ type: 'SYNC_KEY', tenantKey: tenantKey, value: value });
@@ -1185,11 +1185,14 @@ JSON.parse = function(val) {
             // Always save to original localStorage as a robust synchronous fallback for WebKit/iOS
             try {
                 originalSetItem.call(localStorage, tenantKey, value);
+                if (isGlobalOrOfflineKey && tenantKey !== key) {
+                    originalSetItem.call(localStorage, key, value);
+                }
             } catch (e) {
                 console.warn("localStorage quota exceeded for key", key, ". Auto-cleaning...");
                 // Auto-cleanup: find and remove largest non-essential localStorage entries
                 try {
-                    const protectedKeys = ['authToken', 'user', 'tenant_id', 'erp_settings_v1', 'session_active', 'tenant_currencies_locked'];
+                    const protectedKeys = ['authToken', 'user', 'tenant_id', 'erp_settings_v1', 'session_active', 'tenant_currencies_locked', 'magaies_offline_queue'];
                     const currentTenantKey = tenantKey; // don't delete what we're trying to save
                     
                     // Collect all entries with sizes
@@ -1223,6 +1226,9 @@ JSON.parse = function(val) {
 
             if (syncKeys.includes(key)) {
                 dirtyKeys.add(key);
+                if (!navigator.onLine) {
+                    return;
+                }
                 // Debounce Sync: Wait for 800ms of inactivity before pushing to cloud
                 if (pushTimeout) clearTimeout(pushTimeout);
                 pushTimeout = setTimeout(() => {
@@ -1252,8 +1258,11 @@ JSON.parse = function(val) {
                 return window.DB_STORE[tenantKey];
             }
             
-            // Strict Tenant Isolation: no fallback to unprefixed keys
-            return originalGetItem.call(localStorage, tenantKey);
+            const val = originalGetItem.call(localStorage, tenantKey);
+            if (val !== null) return val;
+
+            // Fallback to unprefixed key for global/auth/offline keys or shared local records
+            return originalGetItem.call(localStorage, key);
         }
         return originalGetItem.call(this, key);
     };
@@ -1592,7 +1601,7 @@ JSON.parse = function(val) {
                 return;
             }
             const token = localStorage.getItem('authToken');
-            if (!token) {
+            if (!token || !navigator.onLine) {
                 resolve();
                 return;
             }
@@ -1640,8 +1649,8 @@ JSON.parse = function(val) {
             }).then(res => {
                 resStatus = res.status;
                 if (res.status === 401) {
-                    if (window.location.hostname.includes('localhost') || window.location.hostname.includes('127.0.0.1')) {
-                        console.warn("Localhost mode: ignoring 401 push error");
+                    if (window.location.hostname.includes('localhost') || window.location.hostname.includes('127.0.0.1') || !navigator.onLine) {
+                        console.warn("Localhost/Offline mode: ignoring 401 push error");
                         return null;
                     }
                     alert('انتهت الجلسة. يرجى تسجيل الدخول مرة أخرى.');
@@ -1655,8 +1664,8 @@ JSON.parse = function(val) {
                 if (!data) return;
                 
                 if (data.error && (resStatus === 401 || data.error.includes('الجلسة') || data.error.includes('تسجيل الدخول'))) {
-                    if (window.location.hostname.includes('localhost') || window.location.hostname.includes('127.0.0.1')) {
-                        console.warn("Localhost mode: ignoring session error in push");
+                    if (window.location.hostname.includes('localhost') || window.location.hostname.includes('127.0.0.1') || !navigator.onLine) {
+                        console.warn("Localhost/Offline mode: ignoring session error in push");
                         return;
                     }
                     alert('انتهت الجلسة. يرجى تسجيل الدخول مرة أخرى.');
@@ -1670,30 +1679,33 @@ JSON.parse = function(val) {
                     // Restore dirty keys for retry
                     currentDirty.forEach(k => dirtyKeys.add(k));
                     console.warn("Cloud Sync Push Notice:", data.error || "Save failed");
-                    if (force && !window.location.hostname.includes('localhost') && !window.location.hostname.includes('127.0.0.1')) {
-                        alert(data.error || 'حدث خطأ أثناء الحفظ بالسيرفر');
-                    }
                     reject(new Error(data.error || "Save failed"));
                 } else {
                     console.log("Cloud Sync: Strict Backup Successful");
                     resolve(data);
                 }
             }).catch(err => {
-                console.error("Cloud Sync Push Failed:", err);
+                console.warn("Cloud Sync Push Deferred (Offline/Network):", err);
                 // Restore dirty keys on failure
                 currentDirty.forEach(k => dirtyKeys.add(k));
-                reject(err);
+                resolve({ success: false, offline: true });
             }).finally(() => {
                 isPushing = false;
                 hideSyncOverlay();
                 pushTimeout = null;
-                if (pushQueue) {
+                if (pushQueue && navigator.onLine) {
                     pushQueue = false;
                     pushToCloud(force);
                 }
             });
         });
     };
+
+    window.addEventListener('online', () => {
+        if (dirtyKeys.size > 0 && !isPushing) {
+            pushToCloud();
+        }
+    });
 
 
     window.pullFromCloud = function(force = false) {
@@ -1711,14 +1723,14 @@ JSON.parse = function(val) {
         // Check if we already have local data to decide if we should block the UI
         const hasLocalData = localGetItem(prefix + "erp_customers_v1") !== null || localGetItem(prefix + "erp_users_v1") !== null;
         
-        if (!hasLocalData && !isLocal) {
+        if (!hasLocalData && !isLocal && navigator.onLine) {
             showSyncOverlay('جاري جلب أحدث البيانات من السيرفر...', true);
         }
         return fetch(SYNC_PULL_URL, { headers: getAuthHeaders() })
             .then(res => {
                 if (res.status === 401) {
-                    if (isLocal) {
-                        console.warn("Localhost mode: ignoring 401 in pull");
+                    if (isLocal || !navigator.onLine) {
+                        console.warn("Localhost/Offline mode: ignoring 401 in pull");
                         return { success: false, offline: true };
                     }
                     alert('انتهت الجلسة. يرجى تسجيل الدخول مرة أخرى.');
@@ -1807,13 +1819,12 @@ JSON.parse = function(val) {
                     console.log("Cloud Sync: Strict Restore Successful for tenant:", prefix);
                     window.dispatchEvent(new Event('cloudDataRestored'));
                 } else {
-                    if (!hasLocalData && !isLocal) alert('فشل جلب البيانات من السيرفر.');
+                    console.warn("Cloud Sync Pull: using local offline cache.");
                 }
             }).catch(err => {
-                console.error("Cloud Sync Pull Failed:", err);
-                if (!hasLocalData && !isLocal) alert('فشل الاتصال بالسيرفر! تأكد من تشغيل السيرفر المحلي.');
+                console.warn("Cloud Sync Pull Deferred (Working Offline):", err);
             }).finally(() => {
-                if (!hasLocalData && !isLocal) hideSyncOverlay();
+                hideSyncOverlay();
             });
     };
 
@@ -2020,27 +2031,23 @@ document.addEventListener('DOMContentLoaded', () => {
         let userStr = localStorage.getItem('user');
         
         if (!token || !userStr) {
-            if (window.location.hostname.includes('localhost') || window.location.hostname.includes('127.0.0.1')) {
-                token = 'offline_token_' + Date.now();
-                const defaultLocalUser = {
-                    id: 1,
-                    username: 'admin',
-                    fullName: 'مدير النظام (الباشمهندس مهدي)',
-                    role: 'admin',
-                    roleId: 'admin_fallback',
-                    securityLevel: 10,
-                    subdomain: ''
-                };
-                userStr = JSON.stringify(defaultLocalUser);
-                localStorage.setItem('authToken', token);
-                localStorage.setItem('user', userStr);
-                document.cookie = "session_active=true; path=/";
-                sessionStorage.setItem('session_active', 'true');
-                sessionStorage.setItem('dashboard_unlocked', '1');
-            } else {
-                fetch('log?msg=redirecting_to_login'); window.location.href = 'login.php';
-                return;
-            }
+            // Allow cold-start offline execution or localhost fallback without redirecting to login.php
+            token = 'offline_token_' + Date.now();
+            const defaultLocalUser = {
+                id: 1,
+                username: 'admin',
+                fullName: 'مدير النظام (الباشمهندس مهدي)',
+                role: 'admin',
+                roleId: 'admin_fallback',
+                securityLevel: 10,
+                subdomain: ''
+            };
+            userStr = JSON.stringify(defaultLocalUser);
+            localStorage.setItem('authToken', token);
+            localStorage.setItem('user', userStr);
+            document.cookie = "session_active=true; path=/";
+            sessionStorage.setItem('session_active', 'true');
+            sessionStorage.setItem('dashboard_unlocked', '1');
         }
 
         const user = JSON.parse(userStr);
