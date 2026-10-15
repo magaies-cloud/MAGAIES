@@ -113,7 +113,7 @@
   })();
   </script>
   <!-- External Modular Stylesheet (Split for Fast Caching & Maintainability) -->
-  <link rel="stylesheet" href="css/mobile-suite.css?v=2026_10_15_v12">
+  <link rel="stylesheet" href="css/mobile-suite.css?v=2026_10_15_v15">
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen p-2 md:p-6 flex flex-col justify-start items-center">
 
@@ -152,17 +152,10 @@
           <span id="headerNetDot" class="status-dot w-2 h-2 rounded-full bg-emerald-400 shrink-0"></span>
         </button>
 
-        <!-- 2. أيقونة السمات بشعار السمات المعروف (لوحة ألوان الرسام الفنان العالمية 🎨) -->
-        <button id="btnThemePalette" onclick="openThemePaletteDrawer(); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="flagship-tile flagship-action-tile flagship-tile-theme" title="السمات الـ 7 الطبية والمحاسبية المعتمدة (WCAG AAA)">
-          <svg class="w-5 h-5 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M12 2C6.5 2 2 6.5 2 12c0 3.6 2 5.5 4 5.5 1 0 1.5-.5 2-1 .5-.5 1-1 2-1h1.5c4.1 0 7.5-3.4 7.5-7.5C19 4.7 15.8 2 12 2z" fill="rgba(245,158,11,0.15)"/>
-            <circle cx="7.5" cy="8" r="1.5" fill="#f43f5e" stroke="none"/>
-            <circle cx="11.5" cy="6" r="1.5" fill="#38bdf8" stroke="none"/>
-            <circle cx="15.5" cy="8.5" r="1.5" fill="#10b981" stroke="none"/>
-            <circle cx="9" cy="12" r="1.5" fill="#fbbf24" stroke="none"/>
-            <circle cx="15" cy="14" r="1.2" fill="none" stroke="currentColor" stroke-width="1.5"/>
-          </svg>
-          <span id="activeThemeBadge" class="luminous-number-badge badge-amber-glow absolute -top-1.5 -right-1.5 !min-w-[21px] !px-1 shadow-md">7</span>
+        <!-- 2. أيقونة السمات المحاسبية السبع المعتمدة (مطابقة 100% لشاشة الحركة المالية) -->
+        <button id="btnThemePalette" type="button" onclick="openThemePaletteDrawer(event); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="flagship-tile flagship-action-tile flagship-tile-theme" title="السمات المحاسبية السبع المعتمدة (7 Themes - WCAG AAA)">
+          <i class="fa-solid fa-palette text-amber-400 text-base"></i>
+          <span id="activeThemeBadge" class="hidden">7</span>
         </button>
 
         <!-- 3. أيقونة البحث الذكي الشامل (تم رفعها للصف الأول) -->
@@ -205,6 +198,41 @@
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
           </svg>
         </button>
+      </div>
+
+      <!-- نافذة سريعة لاختيار إحدى السمات السبع المعتمدة مباشرة بجوار مقاييس (مطابقة لشاشة الحركة المالية) -->
+      <div id="suiteQuickThemeDrawer" class="hidden absolute top-[54px] right-2.5 w-64 rounded-2xl bg-slate-900 border-2 border-amber-500/60 p-2.5 shadow-2xl z-[999] space-y-1.5 text-right" dir="rtl" style="background:#0f172a !important; border-color:rgba(245,158,11,0.65) !important;">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-1.5 mb-1" style="border-color:#1e293b !important;">
+          <span class="text-[11px] font-black text-amber-400" style="color:#fbbf24 !important;">🎨 السمات المحاسبية الـ 7 (AAA)</span>
+          <button type="button" onclick="document.getElementById('suiteQuickThemeDrawer').classList.add('hidden')" class="text-slate-400 hover:text-white text-xs font-bold px-1" style="color:#94a3b8 !important;">✕</button>
+        </div>
+        <div class="text-[9.5px] font-bold text-slate-400" style="color:#94a3b8 !important;">☀️ سمات نهارية فاتحة (خط داكن حاد):</div>
+        <div class="grid grid-cols-3 gap-1">
+          <button type="button" data-vtheme="warm-alabaster" onclick="applyTheme('warm-alabaster'); document.getElementById('suiteQuickThemeDrawer').classList.add('hidden');" class="p-1.5 rounded-xl border border-amber-400/60 flex flex-col items-center gap-0.5 text-[9.5px] font-black transition active:scale-95" style="background:#FBF8F1 !important; color:#18130A !important;">
+            <span style="color:#18130A !important;">📜 بيج كريمي</span>
+          </button>
+          <button type="button" data-vtheme="pure-platinum" onclick="applyTheme('pure-platinum'); document.getElementById('suiteQuickThemeDrawer').classList.add('hidden');" class="p-1.5 rounded-xl border border-slate-300 flex flex-col items-center gap-0.5 text-[9.5px] font-black transition active:scale-95" style="background:#FFFFFF !important; color:#000000 !important;">
+            <span style="color:#000000 !important;">☀️ أبيض ناصع</span>
+          </button>
+          <button type="button" data-vtheme="pearl-platinum" onclick="applyTheme('pearl-platinum'); document.getElementById('suiteQuickThemeDrawer').classList.add('hidden');" class="p-1.5 rounded-xl border border-slate-400 flex flex-col items-center gap-0.5 text-[9.5px] font-black transition active:scale-95" style="background:#EEF2F6 !important; color:#0F172A !important;">
+            <span style="color:#0F172A !important;">🏛️ بلاتيني</span>
+          </button>
+        </div>
+        <div class="text-[9.5px] font-bold text-slate-400 pt-1" style="color:#94a3b8 !important;">🌙 سمات ليلية داكنة (خط فاتح ناصع):</div>
+        <div class="grid grid-cols-2 gap-1">
+          <button type="button" data-vtheme="midnight-executive" onclick="applyTheme('midnight-executive'); document.getElementById('suiteQuickThemeDrawer').classList.add('hidden');" class="p-1.5 rounded-xl border border-indigo-500/50 flex items-center justify-center gap-1 text-[9.5px] font-black transition active:scale-95" style="background:#04091A !important; color:#F8FAFC !important;">
+            <span style="color:#F8FAFC !important;">🌌 كحلي ملكي</span>
+          </button>
+          <button type="button" data-vtheme="sepia-brown" onclick="applyTheme('sepia-brown'); document.getElementById('suiteQuickThemeDrawer').classList.add('hidden');" class="p-1.5 rounded-xl border border-amber-600/50 flex items-center justify-center gap-1 text-[9.5px] font-black transition active:scale-95" style="background:#1A110B !important; color:#FDF8F5 !important;">
+            <span style="color:#FDF8F5 !important;">☕ بني موكا</span>
+          </button>
+          <button type="button" data-vtheme="obsidian-charcoal" onclick="applyTheme('obsidian-charcoal'); document.getElementById('suiteQuickThemeDrawer').classList.add('hidden');" class="p-1.5 rounded-xl border border-zinc-600 flex items-center justify-center gap-1 text-[9.5px] font-black transition active:scale-95" style="background:#000000 !important; color:#FFFFFF !important;">
+            <span style="color:#FFFFFF !important;">🌑 أسود OLED</span>
+          </button>
+          <button type="button" data-vtheme="twilight-indigo" onclick="applyTheme('twilight-indigo'); document.getElementById('suiteQuickThemeDrawer').classList.add('hidden');" class="p-1.5 rounded-xl border border-slate-500 flex items-center justify-center gap-1 text-[9.5px] font-black transition active:scale-95" style="background:#1E293B !important; color:#F8FAFC !important;">
+            <span style="color:#F8FAFC !important;">🛡️ رمادي داكن</span>
+          </button>
+        </div>
       </div>
 
       <!-- Action Quick Bar (Secondary Operational Bar - الصف الثاني الزجاجي المنير) -->
@@ -2737,177 +2765,39 @@
   </div>
 
   <!-- ======================================================== -->
-  <!-- MODAL: السمات السبع الطبية والمحاسبية المعتمدة (7 Master Themes - WCAG AAA) -->
+  <!-- MODAL: السمات المحاسبية السبع المعتمدة (7 Master Themes - WCAG AAA) -->
   <!-- ======================================================== -->
-  <div id="modalThemePaletteDrawer" class="hidden fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md flex items-end sm:items-center justify-center p-0 sm:p-4">
-    <div class="glass-base w-full max-w-lg rounded-t-3xl sm:rounded-3xl border border-amber-500/40 p-4 space-y-3 shadow-2xl max-h-[92vh] overflow-y-auto bg-gradient-to-b from-slate-900 via-slate-900 to-slate-950">
-      
-      <!-- Modal Header -->
-      <div class="flex items-center justify-between pb-2 border-b border-slate-800">
-        <div class="flex items-center gap-2">
-          <div class="w-10 h-10 rounded-2xl bg-amber-500/20 text-amber-300 flex items-center justify-center font-black border border-amber-500/40 shadow">
-            🎨
-          </div>
-          <div>
-            <h3 class="text-sm font-black text-slate-100 flex items-center gap-1.5">
-              <span>السمات الـ 7 الطبية والمحاسبية المعتمدة</span>
-              <span class="text-[9px] bg-amber-950 text-amber-300 font-bold px-1.5 py-0.5 rounded-full border border-amber-500/30">7 سمات WCAG AAA</span>
-            </h3>
-            <p class="text-[10px] text-slate-400">مصفوفة موحدة 100% في كل الشاشات (مبيعات، مشتريات، سندات، كشوفات) بأعلى تباين للأرقام</p>
-          </div>
-        </div>
-        <button onclick="closeModal('modalThemePaletteDrawer')" class="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center transition">✕</button>
+  <div id="modalThemePaletteDrawer" class="hidden fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4" onclick="if(event.target===this)closeModal('modalThemePaletteDrawer')">
+    <div id="themeCardsContainer" class="w-72 rounded-2xl bg-slate-900 border-2 border-amber-500/60 p-3 shadow-2xl space-y-2 text-right" dir="rtl" style="background:#0f172a !important; border-color:rgba(245,158,11,0.65) !important;">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-2 mb-1" style="border-color:#1e293b !important;">
+        <span class="text-xs font-black text-amber-400" style="color:#fbbf24 !important;">🎨 السمات المحاسبية الـ 7 (AAA)</span>
+        <button type="button" onclick="closeModal('modalThemePaletteDrawer')" class="text-slate-400 hover:text-white text-xs font-bold px-1.5" style="color:#94a3b8 !important;">✕</button>
       </div>
-
-      <!-- Quick Guidance Banner -->
-      <div class="p-2.5 rounded-2xl bg-slate-950/80 border border-slate-800 text-[11px] text-slate-300 leading-relaxed">
-        💡 <strong>معيار الطب البصري وعلم النفس المحاسبي (WCAG AAA):</strong> الخلفيات الفاتحة تُعرض دائماً بخطوط داكنة فاحمة وحادة، والخلفيات الداكنة تُعرض دائماً بخطوط ناصعة مضيئة، مع توحيد كامل في جميع شاشات الجوال واللابتوب.
-      </div>
-
-      <!-- Category Filter Pills -->
-      <div class="flex gap-1.5 overflow-x-auto py-0.5 no-scrollbar text-xs font-bold">
-        <button onclick="filterThemeCategory('all')" id="btnTcAll" class="px-3 py-1.5 rounded-xl bg-amber-500 text-slate-950 font-black shrink-0 shadow flex items-center gap-1.5">
-          <span>🌟 السمات الـ 7 المعتمدة</span>
-          <span class="luminous-number-badge badge-amber-glow !min-w-[19px] !h-[19px] !text-[11px]">7</span>
+      <div class="text-[10px] font-bold text-slate-400" style="color:#94a3b8 !important;">☀️ سمات نهارية فاتحة (خط داكن حاد):</div>
+      <div class="grid grid-cols-3 gap-1.5">
+        <button type="button" data-vtheme="warm-alabaster" onclick="applyTheme('warm-alabaster')" class="theme-card tc-light p-2 rounded-xl border border-amber-400/60 flex flex-col items-center gap-0.5 text-[10px] font-black transition active:scale-95" style="background:#FBF8F1 !important; color:#18130A !important;">
+          <span style="color:#18130A !important;">📜 بيج كريمي</span>
         </button>
-        <button onclick="filterThemeCategory('light')" id="btnTcLight" class="px-3 py-1.5 rounded-xl bg-slate-800 text-amber-200 hover:text-white shrink-0 border border-amber-500/30 flex items-center gap-1.5">
-          <span>☀️ النهارية الفاتحة</span>
-          <span class="luminous-number-badge badge-amber-glow !min-w-[19px] !h-[19px] !text-[11px]">3</span>
+        <button type="button" data-vtheme="pure-platinum" onclick="applyTheme('pure-platinum')" class="theme-card tc-light p-2 rounded-xl border border-slate-300 flex flex-col items-center gap-0.5 text-[10px] font-black transition active:scale-95" style="background:#FFFFFF !important; color:#000000 !important;">
+          <span style="color:#000000 !important;">☀️ أبيض ناصع</span>
         </button>
-        <button onclick="filterThemeCategory('dark')" id="btnTcDark" class="px-3 py-1.5 rounded-xl bg-slate-800 text-cyan-200 hover:text-white shrink-0 border border-cyan-500/30 flex items-center gap-1.5">
-          <span>🌙 الليلية الداكنة والملكية</span>
-          <span class="luminous-number-badge badge-cyan-glow !min-w-[19px] !h-[19px] !text-[11px]">4</span>
+        <button type="button" data-vtheme="pearl-platinum" onclick="applyTheme('pearl-platinum')" class="theme-card tc-light p-2 rounded-xl border border-slate-400 flex flex-col items-center gap-0.5 text-[10px] font-black transition active:scale-95" style="background:#EEF2F6 !important; color:#0F172A !important;">
+          <span style="color:#0F172A !important;">🏛️ بلاتيني</span>
         </button>
       </div>
-
-      <!-- Themes Grid (The 7 Optimal Master Themes) -->
-      <div id="themeCardsContainer" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-
-        <!-- 1. WARM ALABASTER / SEPIA PAPER (العاجي الدافئ وورق السيبيا - فاتح 1) -->
-        <button onclick="applyTheme('warm-alabaster')" data-theme-key="warm-alabaster" class="theme-card tc-recommended tc-light p-3 rounded-2xl border-2 border-[#8B6F4E] bg-[#F6F0E6] text-right space-y-1 transition active:scale-95 group relative shadow">
-          <div class="flex items-center justify-between">
-            <span class="text-xs font-black text-[#1C1917] flex items-center gap-1.5">
-              <span>📜 1. العاجي الدافئ (ورق السيبيا)</span>
-              <span class="px-1.5 py-0.5 rounded bg-[#8B6F4E] text-white text-[9px] font-bold">☀️ فاتح</span>
-            </span>
-            <span class="flex gap-1">
-              <span class="w-3.5 h-3.5 rounded-full bg-[#F6F0E6] border border-[#8B6F4E]"></span>
-              <span class="w-3.5 h-3.5 rounded-full bg-[#FFFFFF] border-2 border-[#8B6F4E]"></span>
-              <span class="w-3.5 h-3.5 rounded-full bg-[#1C1917]"></span>
-            </span>
-          </div>
-          <p class="text-[10.5px] text-[#382E25] leading-tight font-bold">ورق دفاتر محاسبية عاجي دافئ يمتص 95% من الوهج الأزرق، مع خطوط إسبريسو داكنة فاحمة (تباين 15.8:1).</p>
-          <span class="text-[9.5px] text-[#8B6F4E] font-black block pt-0.5">Warm Sepia Alabaster • رقم 1 طبياً لمنع إجهاد العين</span>
+      <div class="text-[10px] font-bold text-slate-400 pt-1" style="color:#94a3b8 !important;">🌙 سمات ليلية داكنة (خط فاتح ناصع):</div>
+      <div class="grid grid-cols-2 gap-1.5">
+        <button type="button" data-vtheme="midnight-executive" onclick="applyTheme('midnight-executive')" class="theme-card tc-dark p-2 rounded-xl border border-indigo-500/50 flex items-center justify-center gap-1 text-[10px] font-black transition active:scale-95" style="background:#04091A !important; color:#F8FAFC !important;">
+          <span style="color:#F8FAFC !important;">🌌 كحلي ملكي</span>
         </button>
-
-        <!-- 2. ULTRA-CLEAN WHITE / PURE PLATINUM (الأبيض المكتبي الناصع - فاتح 2) -->
-        <button onclick="applyTheme('pure-platinum')" data-theme-key="pure-platinum" class="theme-card tc-recommended tc-light p-3 rounded-2xl border-2 border-[#2563EB] bg-[#FFFFFF] text-right space-y-1 transition active:scale-95 group relative shadow">
-          <div class="flex items-center justify-between">
-            <span class="text-xs font-black text-[#0F172A] flex items-center gap-1.5">
-              <span>⚪ 2. الأبيض المكتبي الناصع</span>
-              <span class="px-1.5 py-0.5 rounded bg-[#2563EB] text-white text-[9px] font-bold">☀️ فاتح</span>
-            </span>
-            <span class="flex gap-1">
-              <span class="w-3.5 h-3.5 rounded-full bg-[#FFFFFF] border border-[#64748B]"></span>
-              <span class="w-3.5 h-3.5 rounded-full bg-[#2563EB]"></span>
-              <span class="w-3.5 h-3.5 rounded-full bg-[#0F172A]"></span>
-            </span>
-          </div>
-          <p class="text-[10.5px] text-[#1E293B] leading-tight font-bold">خلفية بيضاء مكتبية ناصعة في كل الشاشات (مبيعات ومشتريات وسندات) مع خطوط كحلية سوداء حادة (تباين 17.4:1).</p>
-          <span class="text-[9.5px] text-[#1D4ED8] font-black block pt-0.5">Ultra-Clean Daylight White • أعلى نقاء مكتبي نهاري</span>
+        <button type="button" data-vtheme="sepia-brown" onclick="applyTheme('sepia-brown')" class="theme-card tc-dark p-2 rounded-xl border border-amber-600/50 flex items-center justify-center gap-1 text-[10px] font-black transition active:scale-95" style="background:#1A110B !important; color:#FDF8F5 !important;">
+          <span style="color:#FDF8F5 !important;">☕ بني موكا</span>
         </button>
-
-        <!-- 3. COOL EXECUTIVE GRAY / PEARL PLATINUM (الرمادي التنفيذي الفضي - فاتح 3) -->
-        <button onclick="applyTheme('pearl-platinum')" data-theme-key="pearl-platinum" class="theme-card tc-recommended tc-light p-3 rounded-2xl border-2 border-[#475569] bg-[#E5E9F0] text-right space-y-1 transition active:scale-95 group relative shadow">
-          <div class="flex items-center justify-between">
-            <span class="text-xs font-black text-[#0F172A] flex items-center gap-1.5">
-              <span>💼 3. الرمادي التنفيذي المصرفي</span>
-              <span class="px-1.5 py-0.5 rounded bg-[#475569] text-white text-[9px] font-bold">☀️ فاتح</span>
-            </span>
-            <span class="flex gap-1">
-              <span class="w-3.5 h-3.5 rounded-full bg-[#E5E9F0] border border-[#475569]"></span>
-              <span class="w-3.5 h-3.5 rounded-full bg-[#FFFFFF] border border-[#475569]"></span>
-              <span class="w-3.5 h-3.5 rounded-full bg-[#0F172A]"></span>
-            </span>
-          </div>
-          <p class="text-[10.5px] text-[#1E293B] leading-tight font-bold">رمادي بلاتيني سويسري بارد يمنع انعكاس إضاءة المكاتب الساطعة مع خطوط داكنة شديدة الحدة والوضوح.</p>
-          <span class="text-[9.5px] text-[#334155] font-black block pt-0.5">Cool Executive Gray • أناقة البنوك والشركات الكبرى</span>
+        <button type="button" data-vtheme="obsidian-charcoal" onclick="applyTheme('obsidian-charcoal')" class="theme-card tc-dark p-2 rounded-xl border border-zinc-600 flex items-center justify-center gap-1 text-[10px] font-black transition active:scale-95" style="background:#000000 !important; color:#FFFFFF !important;">
+          <span style="color:#FFFFFF !important;">🌑 أسود OLED</span>
         </button>
-
-        <!-- 4. ROYAL MIDNIGHT NAVY (الكحلي الفاحم الملكي - داكن 1) -->
-        <button onclick="applyTheme('midnight-executive')" data-theme-key="midnight-executive" class="theme-card tc-recommended tc-blue tc-dark p-3 rounded-2xl border-2 border-[#38BDF8] bg-[#070D1D] text-right space-y-1 transition active:scale-95 group relative shadow">
-          <div class="flex items-center justify-between">
-            <span class="text-xs font-black text-[#FFFFFF] flex items-center gap-1.5">
-              <span>💎 4. الكحلي الفاحم الملكي</span>
-              <span class="px-1.5 py-0.5 rounded bg-sky-500/25 text-sky-300 text-[9px] font-bold">🌙 داكن</span>
-            </span>
-            <span class="flex gap-1">
-              <span class="w-3.5 h-3.5 rounded-full bg-[#070D1D] border border-[#38BDF8]"></span>
-              <span class="w-3.5 h-3.5 rounded-full bg-[#0F1933]"></span>
-              <span class="w-3.5 h-3.5 rounded-full bg-[#38BDF8]"></span>
-            </span>
-          </div>
-          <p class="text-[10.5px] text-[#BAE6FD] leading-tight font-bold">الكحلي المصرفي السحيق في جميع الشاشات مع نصوص بيضاء وسماوية مضيئة، يعزز التركيز الذهني والتدقيق المالي.</p>
-          <span class="text-[9.5px] text-[#38BDF8] font-black block pt-0.5">Royal Midnight Navy • هيبة مصرفية وتباين فائق</span>
-        </button>
-
-        <!-- 5. MOCHA ROYAL BROWN / SEPIA BROWN (البني الملكي الدافئ - داكن 2) -->
-        <button onclick="applyTheme('sepia-brown')" data-theme-key="sepia-brown" class="theme-card tc-recommended tc-dark p-3 rounded-2xl border-2 border-[#F59E0B] bg-[#180F0A] text-right space-y-1 transition active:scale-95 group relative shadow">
-          <div class="flex items-center justify-between">
-            <span class="text-xs font-black text-[#FFFBEB] flex items-center gap-1.5">
-              <span>☕ 5. البني الملكي الدافئ (موكا)</span>
-              <span class="px-1.5 py-0.5 rounded bg-amber-500/25 text-amber-300 text-[9px] font-bold">🌙 داكن</span>
-            </span>
-            <span class="flex gap-1">
-              <span class="w-3.5 h-3.5 rounded-full bg-[#180F0A] border border-[#F59E0B]"></span>
-              <span class="w-3.5 h-3.5 rounded-full bg-[#261710]"></span>
-              <span class="w-3.5 h-3.5 rounded-full bg-[#FCD34D]"></span>
-            </span>
-          </div>
-          <p class="text-[10.5px] text-[#FDE68A] leading-tight font-bold">بني إسبريسو وشوكولاتة داكنة موحدة في كل الشاشات، يحجب الضوء الأزرق 100% مع خطوط عاجية وذهبية ساطعة.</p>
-          <span class="text-[9.5px] text-[#FBBF24] font-black block pt-0.5">Mocha Royal Brown • راحة العصب البصري في السهر</span>
-        </button>
-
-        <!-- 6. PURE OLED OBSIDIAN BLACK (السواد المطلق الفاحم - داكن 3) -->
-        <button onclick="applyTheme('obsidian-charcoal')" data-theme-key="obsidian-charcoal" class="theme-card tc-recommended tc-dark p-3 rounded-2xl border-2 border-[#10B981] bg-[#050507] text-right space-y-1 transition active:scale-95 group relative shadow">
-          <div class="flex items-center justify-between">
-            <span class="text-xs font-black text-[#FFFFFF] flex items-center gap-1.5">
-              <span>🖤 6. السواد المطلق الفاحم (OLED)</span>
-              <span class="px-1.5 py-0.5 rounded bg-emerald-500/25 text-emerald-300 text-[9px] font-bold">🌙 داكن</span>
-            </span>
-            <span class="flex gap-1">
-              <span class="w-3.5 h-3.5 rounded-full bg-[#050507] border border-[#10B981]"></span>
-              <span class="w-3.5 h-3.5 rounded-full bg-[#121215]"></span>
-              <span class="w-3.5 h-3.5 rounded-full bg-[#FFFFFF]"></span>
-            </span>
-          </div>
-          <p class="text-[10.5px] text-[#E4E4E7] leading-tight font-bold">فحم جرافيتي وسواد مطلق لشاشات OLED يوفر 35% من بطارية الجوال مع أرقام بيضاء ناصعة (تباين 20.1:1).</p>
-          <span class="text-[9.5px] text-[#34D399] font-black block pt-0.5">Pure OLED Obsidian • أقصى تباين وتوفير طاقة</span>
-        </button>
-
-        <!-- 7. TWILIGHT SLATE INDIGO (سليت فحمي مسائي - داكن 4) -->
-        <button onclick="applyTheme('twilight-indigo')" data-theme-key="twilight-indigo" class="theme-card tc-recommended tc-blue tc-dark p-3 rounded-2xl border-2 border-[#38BDF8] bg-[#0F172A] text-right space-y-1 transition active:scale-95 group relative shadow sm:col-span-2">
-          <div class="flex items-center justify-between">
-            <span class="text-xs font-black text-[#F8FAFC] flex items-center gap-1.5">
-              <span>🌌 7. سليت فحمي مسائي (Twilight Slate)</span>
-              <span class="px-1.5 py-0.5 rounded bg-indigo-500/25 text-indigo-200 text-[9px] font-bold">🌙 داكن</span>
-            </span>
-            <span class="flex gap-1">
-              <span class="w-3.5 h-3.5 rounded-full bg-[#0F172A] border border-[#38BDF8]"></span>
-              <span class="w-3.5 h-3.5 rounded-full bg-[#1E293B]"></span>
-              <span class="w-3.5 h-3.5 rounded-full bg-[#F8FAFC]"></span>
-            </span>
-          </div>
-          <p class="text-[10.5px] text-[#CBD5E1] leading-tight font-bold">رمادي فحمي مائل للزرقة الهادئة، يوازن بين الإضاءة المحيطة وشاشة الجوال واللابتوب دون سواد حاد.</p>
-          <span class="text-[9.5px] text-[#38BDF8] font-black block pt-0.5">Twilight Slate Indigo • توازن بصري مسائي هادئ</span>
-        </button>
-
-      </div>
-
-      <!-- Footer Buttons -->
-      <div class="pt-2 flex gap-2">
-        <button onclick="closeModal('modalThemePaletteDrawer')" class="flex-1 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold transition">
-          ✓ إغلاق والاحتفاظ بالسمة الموحدة
+        <button type="button" data-vtheme="twilight-indigo" onclick="applyTheme('twilight-indigo')" class="theme-card tc-dark p-2 rounded-xl border border-slate-500 flex items-center justify-center gap-1 text-[10px] font-black transition active:scale-95" style="background:#1E293B !important; color:#F8FAFC !important;">
+          <span style="color:#F8FAFC !important;">🛡️ رمادي داكن</span>
         </button>
       </div>
     </div>
@@ -6664,6 +6554,6 @@
   </div>
 
   <!-- JAVASCRIPT APP LOGIC & INTERACTIONS -->
-  <script src="js/mobile-suite.js?v=2026_10_15_v12"></script>
+  <script src="js/mobile-suite.js?v=2026_10_15_v15"></script>
 </body>
 </html>

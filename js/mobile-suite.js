@@ -12607,59 +12607,78 @@ async function commitOpSales(andPay = false) {
 
 
     // ========================================================
-    // 7 MASTER SCIENTIFIC ERGONOMIC THEMES ENGINE (معيار WCAG AAA الموحد)
+    // ========================================================
+    // 7 MASTER SCIENTIFIC ERGONOMIC THEMES ENGINE (معيار WCAG AAA الموحد - مطابق لشاشة الحركة المالية)
     // ========================================================
     const THEMES_PALETTE_CONFIG = {
-      // ☀️ 3 سمات نهارية فاتحة فائقة التباين (نصوص سوداء/كحلية حادة على خلفيات فاتحة مريحة)
-      'warm-alabaster':     { name: '١. البيج الكريمي الطبي (Warm Sepia)', icon: '📜', category: 'light', mode: 'light', desktopKey: 'warm_cream', desc: 'الأفضل طبياً ونفسياً ضد إجهاد الأرقام — يمتص الوهج مع خط كحلي/أسود فاحم' },
-      'pure-platinum':      { name: '٢. الأبيض الجليدي الفائق (Ultra-Clean White)', icon: '❄️', category: 'light', mode: 'light', desktopKey: 'ultra_white', desc: 'أبيض ناصع بتباين حاد جداً (21:1) واضح تحت الإضاءة القوية' },
-      'pearl-platinum':     { name: '٣. الرمادي البلاتيني التنفيذي (Executive Gray)', icon: '🪨', category: 'light', mode: 'light', desktopKey: 'exec_gray', desc: 'رمادي فضي بارد يمنع زغللة العين أثناء الجرد والتدقيق الطويل' },
+      // ☀️ سمات نهارية فاتحة (خط داكن حاد)
+      'warm-alabaster':     { name: 'بيج كريمي', icon: '📜', category: 'light', mode: 'light', desktopKey: 'warm_cream', bg: '#FBF8F1' },
+      'pure-platinum':      { name: 'أبيض ناصع', icon: '☀️', category: 'light', mode: 'light', desktopKey: 'ultra_white', bg: '#FFFFFF' },
+      'pearl-platinum':     { name: 'بلاتيني', icon: '🏛️', category: 'light', mode: 'light', desktopKey: 'exec_gray', bg: '#EEF2F6' },
 
-      // 🌙 4 سمات ليلية داكنة فائقة التباين (نصوص ناصعة الوضوح على خلفيات داكنة موحدة)
-      'midnight-executive': { name: '٤. الكحلي الملكي الليلي (Royal Midnight Navy)', icon: '🌌', category: 'dark', mode: 'dark', desktopKey: 'midnight_obsidian', desc: 'كحلي مصرفي عميق موحد في جميع الشاشات يمنح هيبة وأماناً بصرياً' },
-      'sepia-brown':        { name: '٥. البني الموكا الملكي (Mocha Espresso)', icon: '☕', category: 'dark', mode: 'dark', desktopKey: 'mocha_brown', desc: 'بني إسبريسو دافئ يحجب الضوء الأزرق تماماً مع أرقام ذهبية وكريمية واضحة' },
-      'obsidian-charcoal':  { name: '٦. الأسود الفحمي الصافي (Pure OLED Black)', icon: '🌑', category: 'dark', mode: 'dark', desktopKey: 'pure_oled', desc: 'أسود جرافيتي مطلق بأعلى تباين للأرقام وتوفير أقصى لبطارية الجوال' },
-      'twilight-indigo':    { name: '٧. الرمادي الداكن الاحترافي (Twilight Slate)', icon: '🛡️', category: 'dark', mode: 'dark', desktopKey: 'slate_twilight', desc: 'رمادي أردوازي داكن متوازن يريح الأعصاب في فترات العمل المسائية' }
+      // 🌙 سمات ليلية داكنة (خط فاتح ناصع)
+      'midnight-executive': { name: 'كحلي ملكي', icon: '🌌', category: 'dark', mode: 'dark', desktopKey: 'midnight_obsidian', bg: '#04091A' },
+      'sepia-brown':        { name: 'بني موكا', icon: '☕', category: 'dark', mode: 'dark', desktopKey: 'mocha_brown', bg: '#1A110B' },
+      'obsidian-charcoal':  { name: 'أسود OLED', icon: '🌑', category: 'dark', mode: 'dark', desktopKey: 'pure_oled', bg: '#000000' },
+      'twilight-indigo':    { name: 'رمادي داكن', icon: '🛡️', category: 'dark', mode: 'dark', desktopKey: 'slate_twilight', bg: '#1E293B' }
     };
 
     const THEME_ALIAS_MAP = {
       'warm_cream': 'warm-alabaster',
+      'alabaster-warm': 'warm-alabaster',
+      'paper-ivory': 'warm-alabaster',
+      'sand-linen': 'warm-alabaster',
+      'mint-breeze': 'warm-alabaster',
+      'sage-calm': 'warm-alabaster',
+      'sky-morning': 'warm-alabaster',
       'beige': 'warm-alabaster',
       'ivory': 'warm-alabaster',
       'offwhite': 'warm-alabaster',
       'light-linen': 'warm-alabaster',
       'nordic-paper': 'warm-alabaster',
       'ultra_white': 'pure-platinum',
+      'arctic-frost': 'pure-platinum',
       'light': 'pure-platinum',
       'exec_gray': 'pearl-platinum',
+      'lavender-mist': 'pearl-platinum',
+      'rose-quartz': 'pearl-platinum',
       'midnight_obsidian': 'midnight-executive',
+      'navy-command': 'midnight-executive',
+      'royal-sapphire': 'midnight-executive',
+      'oceanic-teal': 'midnight-executive',
+      'emerald-vault': 'midnight-executive',
       'navy-kohl': 'midnight-executive',
       'royal-blue': 'midnight-executive',
       'ocean-navy': 'midnight-executive',
       'petrol-cyan': 'midnight-executive',
       'dark': 'midnight-executive',
       'mocha_brown': 'sepia-brown',
+      'espresso-gold': 'sepia-brown',
+      'crimson-velvet': 'sepia-brown',
       'pale-gold': 'sepia-brown',
       'desert-mocha': 'sepia-brown',
       'pure_oled': 'obsidian-charcoal',
+      'nordic-frost': 'obsidian-charcoal',
       'midnight': 'obsidian-charcoal',
       'sunlight-titanium': 'obsidian-charcoal',
       'slate_twilight': 'twilight-indigo',
+      'amethyst-night': 'twilight-indigo',
       'emerald-forest': 'twilight-indigo'
     };
 
     function resolveMasterThemeKey(rawKey) {
-      if (!rawKey) return 'warm-alabaster';
-      if (THEMES_PALETTE_CONFIG[rawKey]) return rawKey;
-      if (THEME_ALIAS_MAP[rawKey]) return THEME_ALIAS_MAP[rawKey];
-      return 'warm-alabaster';
+      if (!rawKey) return 'midnight-executive';
+      const k = String(rawKey).trim();
+      if (THEMES_PALETTE_CONFIG[k]) return k;
+      if (THEME_ALIAS_MAP[k]) return THEME_ALIAS_MAP[k];
+      return 'midnight-executive';
     }
 
     let currentActiveTheme = resolveMasterThemeKey(
-      localStorage.getItem('magaies_active_theme') ||
       localStorage.getItem('magaiees_mobile_theme') ||
+      localStorage.getItem('magaies_active_theme') ||
       localStorage.getItem('magaiees_global_theme') ||
-      'warm-alabaster'
+      'midnight-executive'
     );
 
     function applyTheme(themeKey, showToast = true) {
@@ -12668,22 +12687,28 @@ async function commitOpSales(andPay = false) {
       currentActiveTheme = themeKey;
 
       try {
-        localStorage.setItem('magaies_active_theme', themeKey);
-        localStorage.setItem('magaiees_mobile_theme', conf.desktopKey || themeKey);
-        localStorage.setItem('magaiees_global_theme', conf.desktopKey || themeKey);
+        localStorage.setItem('magaies_active_theme', conf.desktopKey || themeKey);
+        localStorage.setItem('magaiees_mobile_theme', themeKey);
+        localStorage.setItem('magaiees_global_theme', themeKey);
         localStorage.setItem('ui_theme', conf.mode === 'light' ? 'light' : 'dark');
         localStorage.setItem('erp_theme', conf.mode === 'light' ? 'light' : 'dark');
       } catch (e) {}
 
       document.documentElement.setAttribute('data-theme', themeKey);
+      document.documentElement.setAttribute('data-theme-mode', conf.mode);
       if (document.body) {
         document.body.setAttribute('data-theme', themeKey);
+        document.body.setAttribute('data-theme-mode', conf.mode);
+      }
+      const metaTheme = document.querySelector('meta[name="theme-color"]');
+      if (metaTheme && conf.bg) {
+        metaTheme.setAttribute('content', conf.bg);
       }
 
-      // Highlight active theme card in drawer if present
-      document.querySelectorAll('#themeCardsContainer .theme-card').forEach(card => {
-        const isCurrent = (card.getAttribute('onclick') || '').includes("'" + themeKey + "'");
-        card.style.outline = isCurrent ? '2.5px solid #10b981' : '';
+      // Highlight active theme button in both quick drawer and modal drawer
+      document.querySelectorAll('[data-vtheme]').forEach(btn => {
+        const isCurrent = btn.getAttribute('data-vtheme') === themeKey;
+        btn.style.outline = isCurrent ? '2px solid #10b981' : 'none';
       });
 
       // Play audio and haptic feedback
@@ -12692,56 +12717,58 @@ async function commitOpSales(andPay = false) {
         if (typeof triggerHapticPulse === 'function') triggerHapticPulse(40);
       }
 
-      // Close modal if open
+      // Close quick drawer and modal if open
+      const quickDrawer = document.getElementById('suiteQuickThemeDrawer');
+      if (quickDrawer) quickDrawer.classList.add('hidden');
       closeModal('modalThemePaletteDrawer');
 
       if (showToast && conf) {
-        showFloatingToast(`🎨 تم توحيد وتفعيل السمة في جميع الشاشات: ${conf.icon} ${conf.name}`);
+        showFloatingToast(`🎨 تم تفعيل السمة في جميع الشاشات: ${conf.icon} ${conf.name}`);
       }
     }
 
-    function openThemePaletteDrawer() {
+    function openThemePaletteDrawer(evt) {
+      if (evt && typeof evt.stopPropagation === 'function') evt.stopPropagation();
       if (typeof AudioEngine !== 'undefined' && AudioEngine.play) AudioEngine.play('numpad');
-      if (typeof triggerHapticPulse === 'function') triggerHapticPulse(30);
-      filterThemeCategory('all');
+      if (typeof triggerHapticPulse === 'function') triggerHapticPulse(20);
+      const quickDrawer = document.getElementById('suiteQuickThemeDrawer');
+      if (quickDrawer) {
+        quickDrawer.classList.toggle('hidden');
+        document.querySelectorAll('[data-vtheme]').forEach(btn => {
+          const isCurrent = btn.getAttribute('data-vtheme') === currentActiveTheme;
+          btn.style.outline = isCurrent ? '2px solid #10b981' : 'none';
+        });
+        return;
+      }
       openModal('modalThemePaletteDrawer');
     }
 
     function closeThemePaletteDrawer() {
+      const quickDrawer = document.getElementById('suiteQuickThemeDrawer');
+      if (quickDrawer) quickDrawer.classList.add('hidden');
       closeModal('modalThemePaletteDrawer');
     }
 
-    function filterThemeCategory(cat) {
-      const btnAll = document.getElementById('btnTcAll');
-      const btnLight = document.getElementById('btnTcLight');
-      const btnDark = document.getElementById('btnTcDark');
-
-      const btns = { 'all': btnAll, 'light': btnLight, 'dark': btnDark };
-      Object.entries(btns).forEach(([k, btn]) => {
-        if (!btn) return;
-        if (k === cat) {
-          btn.className = "px-3 py-1.5 rounded-xl bg-amber-500 text-slate-950 font-black shrink-0 shadow flex items-center gap-1.5 cursor-pointer";
-        } else {
-          btn.className = "px-3 py-1.5 rounded-xl bg-slate-800 text-slate-200 hover:text-white shrink-0 border border-slate-700 flex items-center gap-1.5 cursor-pointer";
+    document.addEventListener('click', function(e) {
+      const quickDrawer = document.getElementById('suiteQuickThemeDrawer');
+      const btn = document.getElementById('btnThemePalette');
+      if (quickDrawer && !quickDrawer.classList.contains('hidden')) {
+        if (!quickDrawer.contains(e.target) && (!btn || !btn.contains(e.target))) {
+          quickDrawer.classList.add('hidden');
         }
-      });
+      }
+    });
 
-      const cards = document.querySelectorAll('#themeCardsContainer .theme-card');
-      cards.forEach(card => {
-        if (cat === 'all') {
-          card.classList.remove('hidden');
-        } else {
-          if (card.classList.contains('tc-' + cat)) {
-            card.classList.remove('hidden');
-          } else {
-            card.classList.add('hidden');
-          }
+    window.addEventListener('storage', function(e) {
+      if (e && ['magaiees_mobile_theme', 'magaies_active_theme', 'magaiees_global_theme'].includes(e.key) && e.newValue) {
+        const nextTheme = resolveMasterThemeKey(e.newValue);
+        if (nextTheme !== currentActiveTheme) {
+          applyTheme(nextTheme, false);
         }
-      });
+      }
+    });
 
-      if (typeof AudioEngine !== 'undefined' && AudioEngine.play) AudioEngine.play('numpad');
-      if (typeof triggerHapticPulse === 'function') triggerHapticPulse(25);
-    }
+    function filterThemeCategory(cat) {}
 
     // Apply saved theme immediately on startup without blocking toast
     applyTheme(currentActiveTheme, false);

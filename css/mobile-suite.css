@@ -2464,7 +2464,6 @@
     html[data-theme] #modalOpStockAdjustment > div,
     html[data-theme] #modalOpWarehouseTransfer > div,
     html[data-theme] #modalOpVouchers > div,
-    html[data-theme] #modalThemePaletteDrawer > div,
     html[data-theme] #modalBarcodeScanner > div,
     html[data-theme] #modalSafeExitConfirm > div,
     html[data-theme] #modalNonZeroBalances > div,
@@ -2490,8 +2489,8 @@
     }
 
     /* توحيد جميع الحاويات والبطاقات الفرعية ذات الخلفيات الداكنة الجزئية (bg-slate-900/80 إلخ) */
-    html[data-theme] [class*="bg-slate-950"]:not(.modal-backdrop):not([id$="Backdrop"]),
-    html[data-theme] [class*="bg-slate-900"]:not(.modal-backdrop),
+    html[data-theme] [class*="bg-slate-950"]:not(body):not(.modal-backdrop):not([id$="Backdrop"]):not(#modalThemePaletteDrawer),
+    html[data-theme] [class*="bg-slate-900"]:not(.modal-backdrop):not(#suiteQuickThemeDrawer):not(#themeCardsContainer),
     html[data-theme] [class*="from-slate-950"],
     html[data-theme] [class*="from-slate-900"],
     html[data-theme] [class*="to-slate-950"],
@@ -2504,6 +2503,62 @@
       background: var(--m-bg-zone) !important;
       border-color: var(--m-border) !important;
       color: var(--m-text-primary) !important;
+    }
+
+    /* حماية ألوان نافذة السمات السبع السريعة (مطابقة 100% لشاشة الحركة المالية) */
+    #suiteQuickThemeDrawer,
+    #modalThemePaletteDrawer #themeCardsContainer {
+      background: #0f172a !important;
+      border: 2px solid rgba(245, 158, 11, 0.65) !important;
+    }
+    #suiteQuickThemeDrawer button[data-vtheme="warm-alabaster"],
+    #suiteQuickThemeDrawer button[data-vtheme="warm-alabaster"] span,
+    #modalThemePaletteDrawer button[data-vtheme="warm-alabaster"],
+    #modalThemePaletteDrawer button[data-vtheme="warm-alabaster"] span {
+      background: #FBF8F1 !important;
+      color: #18130A !important;
+    }
+    #suiteQuickThemeDrawer button[data-vtheme="pure-platinum"],
+    #suiteQuickThemeDrawer button[data-vtheme="pure-platinum"] span,
+    #modalThemePaletteDrawer button[data-vtheme="pure-platinum"],
+    #modalThemePaletteDrawer button[data-vtheme="pure-platinum"] span {
+      background: #FFFFFF !important;
+      color: #000000 !important;
+    }
+    #suiteQuickThemeDrawer button[data-vtheme="pearl-platinum"],
+    #suiteQuickThemeDrawer button[data-vtheme="pearl-platinum"] span,
+    #modalThemePaletteDrawer button[data-vtheme="pearl-platinum"],
+    #modalThemePaletteDrawer button[data-vtheme="pearl-platinum"] span {
+      background: #EEF2F6 !important;
+      color: #0F172A !important;
+    }
+    #suiteQuickThemeDrawer button[data-vtheme="midnight-executive"],
+    #suiteQuickThemeDrawer button[data-vtheme="midnight-executive"] span,
+    #modalThemePaletteDrawer button[data-vtheme="midnight-executive"],
+    #modalThemePaletteDrawer button[data-vtheme="midnight-executive"] span {
+      background: #04091A !important;
+      color: #F8FAFC !important;
+    }
+    #suiteQuickThemeDrawer button[data-vtheme="sepia-brown"],
+    #suiteQuickThemeDrawer button[data-vtheme="sepia-brown"] span,
+    #modalThemePaletteDrawer button[data-vtheme="sepia-brown"],
+    #modalThemePaletteDrawer button[data-vtheme="sepia-brown"] span {
+      background: #1A110B !important;
+      color: #FDF8F5 !important;
+    }
+    #suiteQuickThemeDrawer button[data-vtheme="obsidian-charcoal"],
+    #suiteQuickThemeDrawer button[data-vtheme="obsidian-charcoal"] span,
+    #modalThemePaletteDrawer button[data-vtheme="obsidian-charcoal"],
+    #modalThemePaletteDrawer button[data-vtheme="obsidian-charcoal"] span {
+      background: #000000 !important;
+      color: #FFFFFF !important;
+    }
+    #suiteQuickThemeDrawer button[data-vtheme="twilight-indigo"],
+    #suiteQuickThemeDrawer button[data-vtheme="twilight-indigo"] span,
+    #modalThemePaletteDrawer button[data-vtheme="twilight-indigo"],
+    #modalThemePaletteDrawer button[data-vtheme="twilight-indigo"] span {
+      background: #1E293B !important;
+      color: #F8FAFC !important;
     }
 
     /* توحيد الوحدات الست داخل فواتير المبيعات وفواتير المشتريات */

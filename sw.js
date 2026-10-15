@@ -9,7 +9,7 @@
  * - Zero Cache Staleness for Critical Real-Time APIs
  */
 
-const CACHE_NAME = 'magaiees-pwa-v2026-10-15-fast2g-v12';
+const CACHE_NAME = 'magaiees-pwa-v2026-10-15-fast2g-v15';
 
 const PRECACHE_ASSETS = [
     './',
@@ -23,22 +23,20 @@ const PRECACHE_ASSETS = [
     './assets/favicon.ico',
     './css/tailwind.min.css',
     './css/all.min.css',
-    './css/mobile-suite.css',
+    './css/mobile-suite.css?v=2026_10_15_v15',
     './js/pwa-manager.js',
     './js/magaies-offline-sync.js',
-    './js/mobile-suite.js'
+    './js/mobile-suite.js?v=2026_10_15_v15'
 ];
 
-// Install Event: Only fetch assets not already cached
+// Install Event: Fetch fresh assets from server (bypassing stale disk cache)
 self.addEventListener('install', (event) => {
     event.waitUntil(
         caches.open(CACHE_NAME).then(async (cache) => {
             await Promise.allSettled(
                 PRECACHE_ASSETS.map(async (assetUrl) => {
                     try {
-                        const existing = await cache.match(assetUrl, { ignoreSearch: true });
-                        if (existing) return;
-                        const res = await fetch(assetUrl, { credentials: 'same-origin' });
+                        const res = await fetch(assetUrl, { cache: 'reload', credentials: 'same-origin' });
                         if (res && res.status === 200) {
                             await cache.put(assetUrl, res);
                         }
@@ -68,7 +66,7 @@ self.addEventListener('activate', (event) => {
 function fetchWithTimeout(request, timeoutMs = 2500) {
     return new Promise((resolve, reject) => {
         const timer = setTimeout(() => reject(new Error('Network timeout')), timeoutMs);
-        fetch(request)
+        fetch(request, { cache: 'no-cache' })
             .then((response) => {
                 clearTimeout(timer);
                 resolve(response);
@@ -80,7 +78,7 @@ function fetchWithTimeout(request, timeoutMs = 2500) {
     });
 }
 
-// Fetch Event: Instant App-Shell Cache-First (Stale-While-Revalidate) for 2G Speed
+// Fetch Event: Instant App-Shell with Version-Aware Asset Caching
 self.addEventListener('fetch', (event) => {
     const request = event.request;
     if (request.method !== 'GET') return;
@@ -102,16 +100,11 @@ self.addEventListener('fetch', (event) => {
         return;
     }
 
-    // 2. Navigation Requests: Serve Instantly from Cache if available (0.05s on 2G) and revalidate in background
+    // 2. Navigation Requests: Network-First with fast 2.5s timeout and instant offline cache fallback
     if (isNavigation && !url.searchParams.has('api') && !url.pathname.includes('/api/')) {
         event.respondWith(
             (async () => {
-                const cached =
-                    (await caches.match(request)) ||
-                    (await caches.match(request, { ignoreSearch: true })) ||
-                    (await caches.match(url.origin + url.pathname, { ignoreSearch: true }));
-
-                const networkFetch = fetchWithTimeout(request, 4000)
+                const networkFetch = fetchWithTimeout(request, 2500)
                     .then((networkResponse) => {
                         if (networkResponse && networkResponse.status === 200) {
                             const copy1 = networkResponse.clone();
@@ -125,14 +118,15 @@ self.addEventListener('fetch', (event) => {
                     })
                     .catch(() => null);
 
-                // If we already have the screen cached, return it IMMEDIATELY for 2G speed while updating cache in background
-                if (cached) {
-                    event.waitUntil(networkFetch);
-                    return cached;
-                }
-
                 const freshResponse = await networkFetch;
                 if (freshResponse) return freshResponse;
+
+                const cached =
+                    (await caches.match(request)) ||
+                    (await caches.match(request, { ignoreSearch: true })) ||
+                    (await caches.match(url.origin + url.pathname, { ignoreSearch: true }));
+
+                if (cached) return cached;
 
                 // Offline Fallback based on device type
                 const ua = request.headers.get('user-agent') || '';
@@ -160,7 +154,7 @@ self.addEventListener('fetch', (event) => {
         return;
     }
 
-    // 3. Static Assets (CSS, JS, Fonts, Images): Pure Cache-First (only fetch over network if missing from cache)
+    // 3. Static Assets (CSS, JS, Fonts, Images): Exact URL (including ?v=) Cache-First, Offline Fallback
     if (
         /\.(css|js|woff2?|ttf|png|jpe?g|svg|ico|webp|json)(\?.*)?$/i.test(url.pathname) ||
         url.hostname.includes('fonts.googleapis.com') ||
@@ -171,22 +165,21 @@ self.addEventListener('fetch', (event) => {
     ) {
         event.respondWith(
             (async () => {
-                const cachedResponse =
-                    (await caches.match(request)) ||
-                    (await caches.match(request, { ignoreSearch: true }));
-
-                if (cachedResponse) {
-                    return cachedResponse;
+                const exactCached = await caches.match(request);
+                if (exactCached) {
+                    return exactCached;
                 }
 
                 try {
-                    const networkResponse = await fetch(request);
+                    const networkResponse = await fetch(request, { cache: 'reload' });
                     if (networkResponse && networkResponse.status === 200) {
                         const copy = networkResponse.clone();
                         caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
                     }
                     return networkResponse;
                 } catch (e) {
+                    const fallbackCached = await caches.match(request, { ignoreSearch: true });
+                    if (fallbackCached) return fallbackCached;
                     return new Response('', { status: 408 });
                 }
             })()
