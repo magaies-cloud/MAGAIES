@@ -417,7 +417,7 @@ window.SERVER_COST_CENTERS = <?php echo $SERVER_COST_CENTERS_json; ?>;
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>حركة مالية مجمعة | مقاييس (MAGAIEES)</title>
     <link rel="stylesheet" href="css/design-system.css">
-    <link rel="stylesheet" href="css/theme.css">
+    <link rel="stylesheet" href="css/theme.css?v=<?php echo file_exists('css/theme.css') ? filemtime('css/theme.css') : '12'; ?>">
     <link rel="stylesheet" href="css/components.css?v=20260723_v14">
     <style>
         @keyframes flowOut {

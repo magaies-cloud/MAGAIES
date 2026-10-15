@@ -76,7 +76,7 @@ function switchToMobileEdition() {
     <title>Magaiees ERP - مقاييس | لوحة التحكم المتكاملة</title>
     <link rel="preload" href="css/design-system.css?v=20260723_v14" as="style">
     <link rel="stylesheet" href="css/design-system.css?v=20260723_v14">
-    <link rel="stylesheet" href="css/theme.css">
+    <link rel="stylesheet" href="css/theme.css?v=<?php echo file_exists('css/theme.css') ? filemtime('css/theme.css') : '12'; ?>">
     <link rel="stylesheet" href="css/components.css?v=20260723_v14">
     <link rel="stylesheet" href="css/unified-brain.css?v=20260722">
     <script src="js/pwa-manager.js" defer></script>

@@ -243,6 +243,7 @@ window._cachedGlobalRate = window.SYSTEM_USD_RATE;
         }
     });
 </script>
+<link rel="stylesheet" href="css/theme.css?v=<?= file_exists(__DIR__ . '/../css/theme.css') ? filemtime(__DIR__ . '/../css/theme.css') : '12' ?>">
 <script>
 // Early sidebar injector - runs BEFORE deferred app.js (340KB)
 // This tiny inline script injects the sidebar immediately when body is available

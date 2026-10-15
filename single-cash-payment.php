@@ -396,7 +396,7 @@ try {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>حركة مالية | Al-Sajana ERP</title>
-    <link rel="stylesheet" href="css/design-system.css"><link rel="stylesheet" href="css/theme.css?v=1788466095950">
+    <link rel="stylesheet" href="css/design-system.css"><link rel="stylesheet" href="css/theme.css?v=<?php echo file_exists('css/theme.css') ? filemtime('css/theme.css') : '12'; ?>">
     <link rel="stylesheet" href="css/components.css?v=1788466095949">
     <link rel="stylesheet" href="css/sales-invoice.css">
     
