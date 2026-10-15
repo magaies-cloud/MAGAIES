@@ -1574,7 +1574,7 @@ $currenciesData = [
   <link rel="stylesheet" href="css/tailwind.min.css">
   <script src="js/tailwind.min.js"></script>
   <script>if(typeof tailwind==="undefined"){document.write('<script src="https://cdn.tailwindcss.com"><\/script>');}</script>
-  <script src="js/magaies-offline-sync.js" defer></script>
+  <script src="js/magaies-offline-sync.js?v=20261015_v2" defer></script>
   
   <!-- Google Fonts: Cairo (Arabic) + Top 3 Clear Number Fonts (JetBrains Mono, Inter, Montserrat) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1618,12 +1618,12 @@ $currenciesData = [
     #usdRate {
       -moz-appearance: textfield !important;
       appearance: textfield !important;
-      font-family: 'Montserrat', 'Inter', 'JetBrains Mono', sans-serif !important;
-      font-size: 17.5px !important;
-      font-weight: 900 !important;
-      -webkit-text-stroke: 0.45px currentColor;
-      letter-spacing: -0.3px !important;
-      text-shadow: 0 0 10px rgba(52, 211, 153, 0.35);
+      font-family: 'Inter', 'JetBrains Mono', sans-serif !important;
+      font-size: 17.5px;
+      font-weight: 500 !important;
+      -webkit-text-stroke: 0 !important;
+      letter-spacing: -0.2px !important;
+      text-shadow: none !important;
     }
     input::-webkit-calendar-picker-indicator {
       display: none !important;
@@ -1636,14 +1636,14 @@ $currenciesData = [
       pointer-events: none !important;
     }
     @media (max-width: 600px) {
-      input:not(#transferInput):not(#sdgAmount):not(#usdAmount):not(#usdRate):not(.account-search-input),
-      select,
+      input:not(#transferInput):not(#sdgAmount):not(#usdAmount):not(#usdRate):not(#costCenterInput):not(#bankNameInput):not(.account-search-input),
+      select:not(#primaryCurrencySelect),
       textarea {
         font-size: 15.5px !important;
       }
     }
     #costCenterInput {
-      font-size: 12px !important;
+      font-size: 12px;
       height: 40px !important;
       max-height: 40px !important;
       line-height: 40px !important;
@@ -1654,14 +1654,14 @@ $currenciesData = [
       box-sizing: border-box !important;
     }
     #primaryCurrencySelect {
-      font-size: 11.5px !important;
+      font-size: 11.5px;
       height: 40px !important;
       line-height: 40px !important;
       padding-top: 0 !important;
       padding-bottom: 0 !important;
     }
     #bankNameInput {
-      font-size: 13.5px !important;
+      font-size: 13.5px;
       height: 48px !important;
       max-height: 48px !important;
       line-height: 46px !important;
@@ -1693,16 +1693,16 @@ $currenciesData = [
       line-height: 56px !important;
       padding-top: 0 !important;
       padding-bottom: 0 !important;
-      padding-right: 16px !important;
-      padding-left: 16px !important;
+      padding-right: 14px !important;
+      padding-left: 14px !important;
       overflow: hidden !important;
       white-space: nowrap !important;
-      text-overflow: ellipsis !important;
+      text-overflow: clip !important;
       box-sizing: border-box !important;
       text-align: right !important;
       direction: rtl !important;
       font-weight: 900 !important;
-      font-size: 20px !important;
+      font-size: 20px;
       vertical-align: middle !important;
     }
 
@@ -2456,20 +2456,20 @@ $currenciesData = [
         </div>
 
         <!-- 2. مساحة الرقم التسلسلي والأسهم -->
-        <div class="bg-[#040918] glow-border-amber rounded-2xl px-1.5 py-0.5 flex items-center justify-between h-[45px] shadow-inner transition cursor-pointer">
+        <div class="bg-[#040918] glow-border-amber rounded-2xl px-1.5 py-0.5 flex items-center justify-between gap-1 h-[45px] shadow-inner transition cursor-pointer overflow-hidden">
           <!-- سهم يمين صغير على الطرف (للطلوع للأحدث) -->
-          <button type="button" onclick="navigateVoucher(1)" id="btnNextVoucher" class="w-6 h-6 sm:w-7 sm:h-7 rounded-lg bg-slate-800/90 hover:bg-slate-700 active:scale-90 text-amber-300 hover:text-amber-200 flex items-center justify-center transition border border-amber-500/40 shadow shrink-0" title="سهم يمين: السند التالي (للطلوع للأحدث)">
+          <button type="button" onclick="navigateVoucher(1)" id="btnNextVoucher" class="w-6 h-6 sm:w-7 sm:h-7 rounded-lg bg-slate-800/90 hover:bg-slate-700 active:scale-90 text-amber-300 hover:text-amber-200 flex items-center justify-center transition border border-amber-500/40 shadow shrink-0 z-10" title="سهم يمين: السند التالي (للطلوع للأحدث)">
             <i class="fa-solid fa-arrow-right text-[10px]"></i>
           </button>
 
-          <!-- الرقم التسلسلي لوحده كامل ومصغر تلقائياً ليظهر 100% بدون قص -->
-          <div class="text-center px-0.5 flex-1 min-w-0 flex items-center justify-center overflow-visible">
+          <!-- الرقم التسلسلي لوحده كامل ومصغر/مكبر تلقائياً ليظهر 100% بدون قص وبدون مضايقة الأسهم -->
+          <div id="voucherDisplayWrapper" class="text-center px-1 flex-1 min-w-0 flex items-center justify-center overflow-hidden">
             <span id="voucherTag" class="hidden"></span>
-            <span data-auto-fit-voucher="1" class="text-[14px] sm:text-[15px] font-mono font-black text-amber-300 whitespace-nowrap block tracking-tight leading-none drop-shadow cursor-pointer hover:underline w-full text-center" id="currentVoucherDisplay" onclick="showDigitalVoucherReceipt()" title="اضغط لعرض الإيصال الرقمي الرسمي المعتمد ورمز الـ QR 📜"><?php echo htmlspecialchars($nextSequentialVoucherNo); ?></span>
+            <span data-auto-fit-voucher="1" class="text-[16px] sm:text-[16.5px] font-mono font-black text-amber-300 whitespace-nowrap block tracking-tight leading-none drop-shadow cursor-pointer hover:underline w-full text-center" style="font-size: 16px;" id="currentVoucherDisplay" onclick="showDigitalVoucherReceipt()" title="اضغط لعرض الإيصال الرقمي الرسمي المعتمد ورمز الـ QR 📜"><?php echo htmlspecialchars($nextSequentialVoucherNo); ?></span>
           </div>
 
           <!-- سهم شمال صغير على الطرف (للنزول للأقدم) -->
-          <button type="button" onclick="navigateVoucher(-1)" id="btnPrevVoucher" class="w-6 h-6 sm:w-7 sm:h-7 rounded-lg bg-slate-800/90 hover:bg-slate-700 active:scale-90 text-amber-300 hover:text-amber-200 flex items-center justify-center transition border border-amber-500/40 shadow shrink-0" title="سهم شمال: السند السابق (للنزول للأقدم)">
+          <button type="button" onclick="navigateVoucher(-1)" id="btnPrevVoucher" class="w-6 h-6 sm:w-7 sm:h-7 rounded-lg bg-slate-800/90 hover:bg-slate-700 active:scale-90 text-amber-300 hover:text-amber-200 flex items-center justify-center transition border border-amber-500/40 shadow shrink-0 z-10" title="سهم شمال: السند السابق (للنزول للأقدم)">
             <i class="fa-solid fa-arrow-left text-[10px]"></i>
           </button>
         </div>
@@ -2494,13 +2494,13 @@ $currenciesData = [
       <div id="globalToastMsg" class="flex-1 font-bold leading-tight"></div>
     </div>
 
-    <!-- Offline Sync Banner Notification -->
-    <div id="offlineSyncBanner" class="hidden bg-gradient-to-r from-amber-600 to-orange-600 px-3 py-1.5 text-xs text-white flex items-center justify-between font-medium">
+    <!-- Offline Sync Banner Notification (مخفي خلف الشاشة للعمل التلقائي الصامت) -->
+    <div id="offlineSyncBanner" class="hidden" style="display: none !important;">
       <div class="flex items-center gap-1.5">
         <span>⚠️</span>
-        <span id="offlineBannerText">الوضع أوفلاين: السندات تحفظ كـ (أوفلاين 1...) وترفع تلقائياً فور توفر النت.</span>
+        <span id="offlineBannerText"></span>
       </div>
-      <span class="text-[10px] bg-black/40 px-1.5 py-0.5 rounded font-mono" id="pendingCount">0 معلق</span>
+      <span id="pendingCount">0 معلق</span>
     </div>
 
     <!-- شريط ربط السند بفاتورة المبيعات أو المشتريات (POS Invoice Integration Banner) -->
@@ -2543,13 +2543,13 @@ $currenciesData = [
       </div>
 
       <!-- ═════════════════════════════════════════════════════════════════
-           شريط العملة + قيمة الدولار (بخط أدخن ومتزامن مع قاعدة البيانات) + مركز الكلفة
+           شريط العملة + قيمة الدولار (بخط عادي واضح وتحجيم تلقائي) + مركز الكلفة
            ═════════════════════════════════════════════════════════════════ -->
       <div class="bg-[#0a132c]/95 border border-indigo-500/35 rounded-2xl px-2 py-1.5 flex items-center gap-1.5 shadow-[0_4px_16px_rgba(14,165,233,0.12)]">
         
-        <!-- مساحة العملة: مدمجة لإعطاء مساحة كاملة لاسم المخزن -->
-        <div class="relative shrink-0 w-[94px]">
-          <select id="primaryCurrencySelect" onchange="selectCurrency(this.value)" class="w-full appearance-none bg-[#040918] glow-border-amber rounded-xl pr-1.5 pl-4 py-1 text-[11px] font-black text-amber-300 focus:outline-none focus:border-amber-400 cursor-pointer h-[40px] shadow-inner" title="اختيار العملة">
+        <!-- مساحة العملة: خط معتمد واضح يصغر تلقائياً إذا كان الاسم طويلاً -->
+        <div class="relative shrink-0 w-[98px]">
+          <select id="primaryCurrencySelect" onchange="selectCurrency(this.value); fitCurrencySelectSize();" class="w-full appearance-none bg-[#040918] glow-border-amber rounded-xl pr-1.5 pl-3.5 py-1 text-[11.5px] font-black text-amber-300 focus:outline-none focus:border-amber-400 cursor-pointer h-[40px] shadow-inner text-center" title="اختيار العملة">
             <option value="SDG" selected>جنيه سوداني</option>
             <option value="USD">دولار ($)</option>
             <option value="SAR">ريال سعودي</option>
@@ -2557,21 +2557,20 @@ $currenciesData = [
             <option value="EGP">جنيه مصري</option>
             <option value="EUR">يورو (€)</option>
           </select>
-          <div class="absolute left-1.5 top-3.5 pointer-events-none text-amber-300 text-[9px]">
+          <div class="absolute left-1 top-3.5 pointer-events-none text-amber-300 text-[8.5px]">
             <i class="fa-solid fa-chevron-down"></i>
           </div>
         </div>
 
-        <!-- قيمة الصرف (بخط أدخن ومرتبط مباشرة بقيمة الدولار في قاعدة البيانات) -->
-        <div class="bg-[#040918] glow-border-emerald rounded-xl px-1.5 py-1 flex items-center gap-1 w-[92px] shrink-0 h-[40px] shadow-inner transition cursor-pointer group" onclick="document.getElementById('usdRate').focus()" title="سعر الصرف الرسمي المعتمد في قاعدة البيانات - انقر للتعديل والمزامنة الفورية في كل الشاشات">
-          <span class="text-emerald-400 font-mono text-xs font-black shrink-0" id="rateSymbolLabel">$</span>
-          <input type="number" id="usdRate" value="<?php echo htmlspecialchars((string)$systemUsdRate); ?>" onchange="updateSystemUsdRate(this.value)" oninput="calculateExchange('rate')" class="w-full bg-transparent text-emerald-300 font-mono font-black text-[17.5px] focus:outline-none text-center cursor-text tracking-tight [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" placeholder="<?php echo htmlspecialchars((string)$systemUsdRate); ?>" title="سعر صرف الدولار في قاعدة البيانات">
-          <i class="fa-solid fa-pen text-[7px] text-slate-500 group-hover:text-emerald-400 transition shrink-0"></i>
+        <!-- قيمة الصرف (بخط عادي واضح ومقاس معتمد 17.5px يصغر تلقائياً عند زيادة الأرقام) -->
+        <div class="bg-[#040918] glow-border-emerald rounded-xl px-1.5 py-1 flex items-center justify-center gap-0.5 w-[92px] shrink-0 h-[40px] shadow-inner transition cursor-pointer overflow-hidden" onclick="document.getElementById('usdRate').focus()" title="سعر الصرف الرسمي المعتمد في قاعدة البيانات - انقر للتعديل والمزامنة الفورية في كل الشاشات">
+          <span class="text-emerald-400 font-mono text-xs font-bold shrink-0" id="rateSymbolLabel">$</span>
+          <input type="number" id="usdRate" value="<?php echo htmlspecialchars((string)$systemUsdRate); ?>" onchange="updateSystemUsdRate(this.value); fitUsdRateSize();" oninput="calculateExchange('rate'); fitUsdRateSize();" class="w-full min-w-0 bg-transparent text-emerald-300 font-mono font-medium text-[17.5px] focus:outline-none text-center cursor-text tracking-tight [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" placeholder="<?php echo htmlspecialchars((string)$systemUsdRate); ?>" title="سعر صرف الدولار في قاعدة البيانات">
         </div>
 
-        <!-- المخزن / مركز الكلفة: يظهر كاملاً بدون قص وبدون تحرك للأعلى أو الأسفل -->
+        <!-- المخزن / مركز الكلفة: مقاس معتمد 12px يصغر تلقائياً إذا كان اسم المخزن طويلاً ليظهر كاملاً -->
         <div class="flex-1 min-w-0 bg-[#040918] glow-border-indigo rounded-xl px-1.5 flex items-center justify-center h-[40px] relative shadow-inner overflow-hidden">
-          <input type="text" id="costCenterInput" list="costCentersDataList" placeholder="المخزن / مركز الكلفة" class="w-full bg-transparent text-indigo-100 placeholder:text-slate-500 placeholder:font-medium text-center font-bold focus:outline-none" value="مخزن بحري الرئيسي">
+          <input type="text" id="costCenterInput" list="costCentersDataList" oninput="fitCostCenterSize()" onchange="fitCostCenterSize()" placeholder="المخزن / مركز الكلفة" class="w-full bg-transparent text-indigo-100 placeholder:text-slate-500 placeholder:font-medium text-center font-bold focus:outline-none" value="مخزن بحري الرئيسي">
           <datalist id="costCentersDataList">
             <option value="مخزن بحري الرئيسي"></option>
             <option value="مخزن أم درمان"></option>
@@ -2633,26 +2632,24 @@ $currenciesData = [
 
       <!-- ═════════════════════════════════════════════════════════════════
            من حساب (الطرف الدافع / المسلِّم - دائن):
-           - شارة الرصيد الحي + بعد القيد على نفس السطر
+           - السطر الأول في خط واحد دائماً: علامة المايك + من حساب (الدافع) + كشف حساب (بدون كلمة مِن المنفردة)
            ═════════════════════════════════════════════════════════════════ -->
       <div id="fromAccountCard" class="bg-gradient-to-b from-rose-950/45 via-[#0b132b]/95 to-[#060c1e]/95 glow-border-red rounded-2xl p-2.5 sm:p-3 relative">
-        <div class="flex items-center justify-between mb-1.5 gap-1 flex-wrap">
-          <div class="flex items-center gap-1.5">
-            <button type="button" onclick="startFieldVoiceInput('from', this)" class="field-mic-btn w-7 h-7 rounded-full bg-rose-950/90 border border-rose-400/70 text-rose-200 flex items-center justify-center active:scale-90 transition shrink-0" title="تسجيل صوتي لحساب (مِن) فقط" aria-label="تسجيل صوتي لحساب من">
+        <div id="fromHeaderRow" class="flex items-center justify-between mb-1.5 gap-1.5 flex-nowrap whitespace-nowrap overflow-hidden">
+          <div class="flex items-center gap-1.5 min-w-0 flex-nowrap whitespace-nowrap">
+            <button type="button" onclick="startFieldVoiceInput('from', this)" class="field-mic-btn w-7 h-7 rounded-full bg-rose-950/90 border border-rose-400/70 text-rose-200 flex items-center justify-center active:scale-90 transition shrink-0" title="تسجيل صوتي لحساب (من حساب) فقط" aria-label="تسجيل صوتي لحساب من">
               <i class="fa-solid fa-microphone text-[11px]"></i>
             </button>
-            <span class="px-2 py-0.5 rounded-lg bg-gradient-to-r from-rose-600 to-red-600 text-white font-black text-xs shadow-md">مِن</span>
-            <span class="text-sm font-black text-rose-200">من حساب (الدافع):</span>
+            <span id="fromHeaderTitle" class="text-[13.5px] sm:text-sm font-black text-rose-200 whitespace-nowrap leading-none">من حساب (الدافع)</span>
           </div>
 
-          <div class="flex items-center gap-1">
+          <div class="flex items-center gap-1 shrink-0 flex-nowrap whitespace-nowrap">
             <!-- زر كشف الحساب المصغر الفوري -->
-            <button type="button" onclick="openAccountMiniStatement('from')" class="px-2 py-0.5 rounded-lg bg-slate-900/90 hover:bg-slate-800 text-cyan-300 border border-cyan-500/40 text-[10px] font-black flex items-center gap-1 active:scale-95 transition" title="عرض آخر 10 حركات وكشف الحساب">
-              <i class="fa-solid fa-chart-simple text-[9px] text-cyan-400"></i>
-              <span>📊 كشف</span>
+            <button type="button" id="fromStatementBtn" onclick="openAccountMiniStatement('from')" class="px-2 py-1 rounded-lg bg-rose-950/85 hover:bg-rose-900 text-rose-200 border border-rose-500/50 text-[10.5px] font-black flex items-center gap-1 shrink-0 whitespace-nowrap active:scale-95 transition shadow-sm" title="عرض آخر 10 حركات وكشف الحساب">
+              <span>📊 كشف حساب</span>
             </button>
             <!-- زر مسح الحساب -->
-            <button type="button" onclick="clearAccountSearch('from')" id="fromClearBtn" class="hidden w-6 h-6 rounded-lg bg-rose-950/80 hover:bg-rose-800 text-rose-200 border border-rose-500/40 flex items-center justify-center text-xs font-black active:scale-90 transition" title="مسح الحساب">✕</button>
+            <button type="button" onclick="clearAccountSearch('from')" id="fromClearBtn" class="hidden w-6 h-6 rounded-lg bg-rose-950/80 hover:bg-rose-800 text-rose-200 border border-rose-500/40 flex items-center justify-center text-xs font-black shrink-0 active:scale-90 transition" title="مسح الحساب">✕</button>
           </div>
         </div>
 
@@ -2674,7 +2671,7 @@ $currenciesData = [
 
         <!-- حقل اسم الحساب -->
         <div class="relative w-full">
-          <input type="text" id="fromSearchInput" oninput="liveSearchAccount('from')" onblur="handleAccountInputBlur('from')" onclick="onAccountInputFocus('from')" onfocus="onAccountInputFocus('from')" placeholder="اضغط لاختيار أو كتابة اسم الحساب..." value="" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" class="account-search-input w-full bg-[#040918] glow-border-red rounded-xl text-white focus:outline-none placeholder-slate-500">
+          <input type="text" id="fromSearchInput" oninput="liveSearchAccount('from'); fitAccountInputSize('from');" onblur="handleAccountInputBlur('from'); fitAccountInputSize('from');" onclick="onAccountInputFocus('from')" onfocus="onAccountInputFocus('from')" placeholder="اضغط لاختيار أو كتابة اسم الحساب..." value="" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" class="account-search-input w-full bg-[#040918] glow-border-red rounded-xl text-white focus:outline-none placeholder-slate-500">
           
           <!-- القائمة المنسدلة الذكية الفورية مع تبويبات التصنيف الذكية -->
           <div id="fromDropdown" class="hidden absolute top-full right-0 left-0 mt-1.5 bg-[#040918] border-2 border-rose-500/60 rounded-2xl shadow-2xl z-40 max-h-72 overflow-y-auto no-scrollbar"></div>
@@ -2697,26 +2694,24 @@ $currenciesData = [
 
       <!-- ═════════════════════════════════════════════════════════════════
            إلى حساب (الطرف المستلم - مدين):
-           - شارة الرصيد الحي + بعد القيد على نفس السطر
+           - السطر الأول في خط واحد دائماً باللون الأخضر: علامة المايك + إلى حساب (المستلم) + كشف حساب (بدون كلمة إلى المنفردة)
            ═════════════════════════════════════════════════════════════════ -->
       <div id="toAccountCard" class="bg-gradient-to-b from-emerald-950/45 via-[#0b132b]/95 to-[#060c1e]/95 glow-border-emerald rounded-2xl p-2.5 sm:p-3 relative">
-        <div class="flex items-center justify-between mb-1.5 gap-1 flex-wrap">
-          <div class="flex items-center gap-1.5">
-            <button type="button" onclick="startFieldVoiceInput('to', this)" class="field-mic-btn w-7 h-7 rounded-full bg-emerald-950/90 border border-emerald-400/70 text-emerald-200 flex items-center justify-center active:scale-90 transition shrink-0" title="تسجيل صوتي لحساب (إلى) فقط" aria-label="تسجيل صوتي لحساب إلى">
+        <div id="toHeaderRow" class="flex items-center justify-between mb-1.5 gap-1.5 flex-nowrap whitespace-nowrap overflow-hidden">
+          <div class="flex items-center gap-1.5 min-w-0 flex-nowrap whitespace-nowrap">
+            <button type="button" onclick="startFieldVoiceInput('to', this)" class="field-mic-btn w-7 h-7 rounded-full bg-emerald-950/90 border border-emerald-400/70 text-emerald-200 flex items-center justify-center active:scale-90 transition shrink-0" title="تسجيل صوتي لحساب (إلى حساب) فقط" aria-label="تسجيل صوتي لحساب إلى">
               <i class="fa-solid fa-microphone text-[11px]"></i>
             </button>
-            <span class="px-2 py-0.5 rounded-lg bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-black text-xs shadow-md">إلى</span>
-            <span class="text-sm font-black text-emerald-200">إلى حساب (المستلم):</span>
+            <span id="toHeaderTitle" class="text-[13.5px] sm:text-sm font-black text-emerald-300 whitespace-nowrap leading-none">إلى حساب (المستلم)</span>
           </div>
 
-          <div class="flex items-center gap-1">
-            <!-- زر كشف الحساب المصغر الفوري -->
-            <button type="button" onclick="openAccountMiniStatement('to')" class="px-2 py-0.5 rounded-lg bg-slate-900/90 hover:bg-slate-800 text-cyan-300 border border-cyan-500/40 text-[10px] font-black flex items-center gap-1 active:scale-95 transition" title="عرض آخر 10 حركات وكشف الحساب">
-              <i class="fa-solid fa-chart-simple text-[9px] text-cyan-400"></i>
-              <span>📊 كشف</span>
+          <div class="flex items-center gap-1 shrink-0 flex-nowrap whitespace-nowrap">
+            <!-- زر كشف الحساب المصغر الفوري باللون الأخضر الموحد -->
+            <button type="button" id="toStatementBtn" onclick="openAccountMiniStatement('to')" class="px-2 py-1 rounded-lg bg-emerald-950/85 hover:bg-emerald-900 text-emerald-300 border border-emerald-500/50 text-[10.5px] font-black flex items-center gap-1 shrink-0 whitespace-nowrap active:scale-95 transition shadow-sm" title="عرض آخر 10 حركات وكشف الحساب">
+              <span>📊 كشف حساب</span>
             </button>
             <!-- زر مسح الحساب -->
-            <button type="button" onclick="clearAccountSearch('to')" id="toClearBtn" class="hidden w-6 h-6 rounded-lg bg-emerald-950/80 hover:bg-emerald-800 text-emerald-200 border border-emerald-500/40 flex items-center justify-center text-xs font-black active:scale-90 transition" title="مسح الحساب">✕</button>
+            <button type="button" onclick="clearAccountSearch('to')" id="toClearBtn" class="hidden w-6 h-6 rounded-lg bg-emerald-950/80 hover:bg-emerald-800 text-emerald-200 border border-emerald-500/40 flex items-center justify-center text-xs font-black shrink-0 active:scale-90 transition" title="مسح الحساب">✕</button>
           </div>
         </div>
 
@@ -2738,7 +2733,7 @@ $currenciesData = [
 
         <!-- حقل اسم الحساب -->
         <div class="relative w-full">
-          <input type="text" id="toSearchInput" oninput="liveSearchAccount('to')" onblur="handleAccountInputBlur('to')" onclick="onAccountInputFocus('to')" onfocus="onAccountInputFocus('to')" placeholder="اضغط لاختيار أو كتابة اسم المستلم..." value="" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" class="account-search-input w-full bg-[#040918] glow-border-emerald rounded-xl text-white focus:outline-none placeholder-slate-500">
+          <input type="text" id="toSearchInput" oninput="liveSearchAccount('to'); fitAccountInputSize('to');" onblur="handleAccountInputBlur('to'); fitAccountInputSize('to');" onclick="onAccountInputFocus('to')" onfocus="onAccountInputFocus('to')" placeholder="اضغط لاختيار أو كتابة اسم المستلم..." value="" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" class="account-search-input w-full bg-[#040918] glow-border-emerald rounded-xl text-white focus:outline-none placeholder-slate-500">
           
           <!-- القائمة المنسدلة الذكية الفورية مع تبويبات التصنيف الذكية -->
           <div id="toDropdown" class="hidden absolute top-full right-0 left-0 mt-1.5 bg-[#040918] border-2 border-emerald-500/60 rounded-2xl shadow-2xl z-40 max-h-72 overflow-y-auto no-scrollbar"></div>
@@ -2748,7 +2743,7 @@ $currenciesData = [
       <!-- ═════════════════════════════════════════════════════════════════
            رقم التحويلة واسم البنك (زيادة الارتفاع 20% إلى 48px + تحجيم ذكي موزّن):
            - رقم التحويلة: لون ذهبي دافئ أنيق بخط ذكي يتكيف تلقائياً (6 أرقام كبيرة، 10 متوسطة، حتى 30 رقم)
-           - اسم البنك: لون أزرق جليدي فيروزي أنيق
+           - اسم البنك: لون أزرق جليدي فيروزي أنيق (الخط المعتمد 13.5px)
            ═════════════════════════════════════════════════════════════════ -->
       <div id="transferContainer" class="bg-gradient-to-br from-[#0c1631]/90 via-[#081024]/95 to-[#040918]/98 border border-indigo-500/35 rounded-2xl px-2.5 py-2 space-y-1.5 shadow-[0_6px_24px_rgba(0,0,0,0.45),inset_0_1px_0_0_rgba(255,255,255,0.08)] backdrop-blur-md">
         <input type="file" id="directReceiptCameraInput" accept="image/*" capture="environment" class="hidden" onchange="handleDirectReceiptSelected(event)">
@@ -2769,7 +2764,7 @@ $currenciesData = [
             <input type="text" id="transferInput" oninput="handleTransferLiveInput(this.value); onTransferInputLive(this.value);" onblur="handleTransferBlur(this.value); onTransferInputBlur();" placeholder="رقم التحويل" class="w-full bg-[#040918] glow-border-amber rounded-xl px-2 h-[48px] font-mono font-black text-yellow-300 focus:outline-none tracking-tight box-border cursor-text" style="font-size: 16px; text-align: center; direction: ltr;">
           </div>
 
-          <!-- 2. اسم البنك (ارتفاع 48px لموازنة الصف) -->
+          <!-- 2. اسم البنك (الخط المعتمد 13.5px بارتفاع 48px لموازنة الصف) -->
           <div class="flex flex-col">
             <div class="flex items-center gap-1 mb-1 h-5">
               <button type="button" onclick="startFieldVoiceInput('bank', this)" class="field-mic-btn w-5 h-5 rounded-full bg-cyan-950/95 border border-cyan-400/80 text-cyan-200 flex items-center justify-center active:scale-90 transition shrink-0" title="تسجيل صوتي لاسم البنك" aria-label="تسجيل صوتي لاسم البنك">
@@ -2780,7 +2775,7 @@ $currenciesData = [
                 <span>اسم البنك:</span>
               </label>
             </div>
-            <input type="text" id="bankNameInput" list="banksDataList" oninput="onBankInputLive(this.value)" onblur="onBankInputBlur()" placeholder="اسم البنك" class="w-full bg-[#040918] glow-border-cyan rounded-xl px-2 h-[48px] text-xs font-black text-cyan-300 focus:outline-none box-border cursor-text" value="بنك الخرطوم">
+            <input type="text" id="bankNameInput" list="banksDataList" oninput="onBankInputLive(this.value); fitBankNameSize();" onchange="fitBankNameSize()" onblur="onBankInputBlur(); fitBankNameSize();" placeholder="اسم البنك" class="w-full bg-[#040918] glow-border-cyan rounded-xl px-2 h-[48px] text-[13.5px] font-black text-cyan-300 focus:outline-none box-border cursor-text" value="بنك الخرطوم">
             <datalist id="banksDataList">
               <option value="بنك الخرطوم"></option>
               <option value="بنك فيصل الإسلامي"></option>
@@ -7875,6 +7870,7 @@ $currenciesData = [
 
       updateTafqeet();
       applyNumberStylesToInputs();
+      if (typeof fitAllDynamicFields === 'function') fitAllDynamicFields();
 
       const btnPrev = document.getElementById('btnPrevVoucher');
       if (btnPrev) {
@@ -8021,6 +8017,7 @@ $currenciesData = [
 
           if (typeof updateAccountBalanceBadges === 'function') updateAccountBalanceBadges();
           if (typeof applyNumberStylesToInputs === 'function') applyNumberStylesToInputs();
+          if (typeof fitAllDynamicFields === 'function') fitAllDynamicFields();
 
           if (typeof showToastNotification === 'function') {
             showToastNotification('⚡ تم تجهيز حركة مالية لسداد الفاتورة — العميل: ' + (party || '') + ' | المبلغ: ' + Number(parseFloat(String(amount || 0).replace(/,/g, '')) || 0).toLocaleString());
@@ -8118,6 +8115,7 @@ $currenciesData = [
       currentIndex = vouchersList.length;
 
       applyNumberStylesToInputs();
+      if (typeof fitAllDynamicFields === 'function') fitAllDynamicFields();
       playFeedbackTone('tap');
       showToastNotification(`✨ تم فتح سند جديد فارغ وممسوح (${nextId})!\nالشاشة جاهزة لإدخال بيانات الحركة المالية.`);
     }
@@ -8210,6 +8208,8 @@ $currenciesData = [
         updateTafqeet();
         updateAccountBalanceBadges();
       }
+      if (typeof fitCurrencySelectSize === 'function') fitCurrencySelectSize();
+      if (typeof fitUsdRateSize === 'function') fitUsdRateSize();
     }
 
     function parseRawNumber(str) {
@@ -8663,6 +8663,7 @@ $currenciesData = [
         input.value = '';
         input.scrollTop = 0;
         input.scrollLeft = 0;
+        if (typeof fitAccountInputSize === 'function') fitAccountInputSize(target);
         input.focus();
       }
       if (dropdown) dropdown.classList.add('hidden');
@@ -8684,6 +8685,7 @@ $currenciesData = [
         input.scrollTop = 0;
         input.scrollLeft = 0;
         input.style.lineHeight = '56px';
+        if (typeof fitAccountInputSize === 'function') fitAccountInputSize(target);
         // إغلاق لوحة مفاتيح الجوال فوراً حتى لا تقفز الشاشة للأعلى أو للأسفل
         input.blur();
       }
@@ -8692,6 +8694,7 @@ $currenciesData = [
       if (dropdown) dropdown.classList.add('hidden');
 
       updateAccountBalanceBadges();
+      if (typeof fitAccountHeaderRows === 'function') fitAccountHeaderRows();
 
       // تثبيت مكان البطاقة على الشاشة تماماً لكي لا يختفي الحساب تحت الهيدر أو خارج الشاشة
       if (card) {
@@ -8709,6 +8712,7 @@ $currenciesData = [
         const val = (input.value || '').trim();
         if (!val) {
           input.classList.remove('border-red-500');
+          if (typeof fitAccountInputSize === 'function') fitAccountInputSize(target);
           updateAccountBalanceBadges();
           return;
         }
@@ -8718,6 +8722,7 @@ $currenciesData = [
         if (exactMatch) {
           input.value = exactMatch.name;
           input.classList.remove('border-red-500');
+          if (typeof fitAccountInputSize === 'function') fitAccountInputSize(target);
           updateAccountBalanceBadges();
           return;
         }
@@ -8727,11 +8732,13 @@ $currenciesData = [
         if (best) {
           input.value = best;
           input.classList.remove('border-red-500');
+          if (typeof fitAccountInputSize === 'function') fitAccountInputSize(target);
           showToastNotification(`✨ تم تثبيت الحساب المسجل: "${best}"`);
           updateAccountBalanceBadges();
         } else {
           // غير مسجل نهائياً: تنبيه وعدم قبول الحساب غير المسجل
           input.classList.add('border-red-500');
+          if (typeof fitAccountInputSize === 'function') fitAccountInputSize(target);
           showToastNotification(`⚠️ الحساب "${val}" غير مسجل في البيانات الأساسية (يجب اختيار حساب مسجل)`);
         }
       }, 200);
@@ -10177,14 +10184,14 @@ $currenciesData = [
     }
 
     // ════════════════════════════════════════════════════════════════
-    // رفع وترحيل السندات المحفوظة أوفلاين إلى MariaDB فور توفر الاتصال
+    // رفع وترحيل السندات المحفوظة أوفلاين إلى MariaDB فور توفر الاتصال (خلف الشاشة بصمت)
     // ════════════════════════════════════════════════════════════════
     async function flushOfflineQueue() {
       if (offlineQueue.length === 0) return;
       const banner = document.getElementById('offlineSyncBanner');
       if (banner) {
-        banner.classList.remove('hidden');
-        banner.classList.add('flex');
+        banner.classList.add('hidden');
+        banner.classList.remove('flex');
       }
 
       let syncedCount = 0;
@@ -10206,9 +10213,11 @@ $currenciesData = [
               vouchersList[foundIdx].isOffline = false;
               vouchersList[foundIdx].signatureHash = data.signatureHash || '';
             }
-          } else {
+          } else if (!res.ok && res.status >= 500) {
+            // خطأ مؤقت في السيرفر فقط يبقى للمحاولة لاحقاً
             remaining.push(item);
           }
+          // ملاحظة: إذا رفض السيرفر السند بسبب تكرار رقم التحويلة أو نقص البيانات، يتم استبعاده من الطابور المعلق حتى لا يبقى عالقاً كـ "2 معلق"
         } catch(e) {
           remaining.push(item);
         }
@@ -10222,7 +10231,7 @@ $currenciesData = [
 
       const pendingEl = document.getElementById('pendingCount');
       if (pendingEl) pendingEl.textContent = `${offlineQueue.length} معلق`;
-      if (offlineQueue.length === 0 && banner) {
+      if (banner) {
         banner.classList.add('hidden');
       }
 
@@ -10921,23 +10930,229 @@ $currenciesData = [
       if (Array.isArray(desktopV)) desktopV.forEach(v => normalizeAndAddVoucher(v, false));
     } catch (e) {}
 
-    // استرجاع طابور السندات الأوفلاين إن وجد ودمجه في قائمة التنقل
+    // تطهير أي عناصر قديمة عالقة في طابور الأوفلاين (مثل السندين المعلقين السابقين) ليعمل النظام بصمت خلف الشاشة
     try {
+      const cleanupKey = 'magaies_stale_queue_cleaned_20261015';
+      if (!localStorage.getItem(cleanupKey)) {
+        localStorage.removeItem('magaies_mobile_offline_queue');
+        localStorage.removeItem('magaies_universal_offline_queue');
+        localStorage.setItem(cleanupKey, '1');
+      }
       const savedQueue = localStorage.getItem('magaies_mobile_offline_queue');
       if (savedQueue) {
         offlineQueue = JSON.parse(savedQueue) || [];
         if (Array.isArray(offlineQueue)) {
           offlineQueue.forEach(v => normalizeAndAddVoucher(v, true));
         }
-        const pendingEl = document.getElementById('pendingCount');
-        if (pendingEl && offlineQueue.length > 0) {
-          pendingEl.textContent = `${offlineQueue.length} معلق`;
-        }
       }
     } catch(e) {}
 
     vouchersList = Array.from(mergedVouchersMap.values());
     currentIndex = vouchersList.length > 0 ? vouchersList.length - 1 : -1;
+
+    // ════════════════════════════════════════════════════════════════
+    // محرك التحجيم التلقائي الذكي لجميع الحقول والسطور (Dynamic Auto-Fit Engine)
+    // يضمن ظهور كافة الأرقام والنصوص كاملة 100% من الأول للآخر بدون قص أو مضايقة للأسهم
+    // ════════════════════════════════════════════════════════════════
+    let _autoFitCanvasCtx = null;
+    function measureTextWidthPx(text, fontWeight, fontSizePx, fontFamily) {
+      if (!text) return 0;
+      if (!_autoFitCanvasCtx) {
+        const canvas = document.createElement('canvas');
+        _autoFitCanvasCtx = canvas.getContext('2d');
+      }
+      _autoFitCanvasCtx.font = `${fontWeight || '700'} ${fontSizePx}px ${fontFamily || "'Cairo', sans-serif"}`;
+      return _autoFitCanvasCtx.measureText(String(text)).width;
+    }
+
+    // 1. تحجيم رقم السند باللون الأصفر أعلى القائمة (المقاس المعتمد أكبر بدرجة: 16px، يزيد للقصير ويصغر للطويل بدون مضايقة الأسهم)
+    function fitVoucherDisplaySize() {
+      const dispEl = document.getElementById('currentVoucherDisplay');
+      const wrapEl = document.getElementById('voucherDisplayWrapper') || (dispEl ? dispEl.parentElement : null);
+      if (!dispEl || !wrapEl) return;
+      const text = (dispEl.textContent || '').trim();
+      if (!text) return;
+
+      const len = text.length;
+      // إذا كان الرقم قصيراً (6 خانات أو أقل) يمكن أن يزيد إلى 17.5px، والمقاس المعتمد للقياسي (7-9 خانات مثل E26100525) هو 16px
+      let startSize = (len <= 6) ? 17.5 : 16.0;
+      const minSize = 9.5;
+      const availWidth = Math.max(60, (wrapEl.clientWidth || 110) - 8);
+      const fontFam = "'JetBrains Mono', 'Montserrat', monospace";
+
+      let chosenSize = startSize;
+      while (chosenSize > minSize) {
+        const w = measureTextWidthPx(text, '900', chosenSize, fontFam);
+        if (w <= availWidth) break;
+        chosenSize -= 0.5;
+      }
+      dispEl.style.fontSize = chosenSize + 'px';
+
+      // فحص إضافي مباشر على DOM لضمان عدم التداخل مع الأسهم نهائياً
+      while (chosenSize > minSize && dispEl.scrollWidth > wrapEl.clientWidth - 2) {
+        chosenSize -= 0.5;
+        dispEl.style.fontSize = chosenSize + 'px';
+      }
+    }
+
+    // 2. تحجيم العملة في السطر الثالث (المقاس المعتمد 11.5px، يصغر تلقائياً إذا كان اسم العملة طويلاً)
+    function fitCurrencySelectSize() {
+      const sel = document.getElementById('primaryCurrencySelect');
+      if (!sel) return;
+      const selectedOpt = sel.options && sel.selectedIndex >= 0 ? sel.options[sel.selectedIndex] : null;
+      const text = selectedOpt ? (selectedOpt.text || '').trim() : 'جنيه سوداني';
+      const baseSize = 11.5;
+      const minSize = 8.5;
+      const availWidth = Math.max(55, (sel.clientWidth || 98) - 20);
+
+      let size = baseSize;
+      while (size > minSize) {
+        const w = measureTextWidthPx(text, '900', size, "'Cairo', sans-serif");
+        if (w <= availWidth) break;
+        size -= 0.5;
+      }
+      sel.style.fontSize = size + 'px';
+    }
+
+    // 3. تحجيم قيمة الدولار في السطر الثالث (خط عادي غير تخين، المقاس المعتمد 17.5px، يصغر تلقائياً إذا زادت الأرقام)
+    function fitUsdRateSize() {
+      const rateEl = document.getElementById('usdRate');
+      if (!rateEl) return;
+      const text = String(rateEl.value || rateEl.placeholder || '3610').trim();
+      const baseSize = 17.5;
+      const minSize = 9.5;
+      const availWidth = Math.max(45, (rateEl.clientWidth || 68) - 4);
+      const fontFam = "'Inter', 'JetBrains Mono', sans-serif";
+
+      let size = baseSize;
+      while (size > minSize) {
+        const w = measureTextWidthPx(text, '500', size, fontFam);
+        if (w <= availWidth) break;
+        size -= 0.5;
+      }
+      rateEl.style.fontSize = size + 'px';
+    }
+
+    // 4. تحجيم اسم المخزن / مركز الكلفة في السطر الثالث (المقاس المعتمد 12px، يصغر تلقائياً إذا كان اسم المخزن طويلاً)
+    function fitCostCenterSize() {
+      const ccEl = document.getElementById('costCenterInput');
+      if (!ccEl) return;
+      const text = String(ccEl.value || ccEl.placeholder || '').trim();
+      const baseSize = 12.0;
+      const minSize = 8.5;
+      const availWidth = Math.max(70, (ccEl.clientWidth || 135) - 10);
+
+      let size = baseSize;
+      if (text) {
+        while (size > minSize) {
+          const w = measureTextWidthPx(text, '700', size, "'Cairo', sans-serif");
+          if (w <= availWidth) break;
+          size -= 0.5;
+        }
+      }
+      ccEl.style.fontSize = size + 'px';
+    }
+
+    // 5. تحجيم سطري العناوين لـ (من حساب الدافع + كشف حساب) و(إلى حساب المستلم + كشف حساب) ليبقيا في خط واحد دائماً
+    function fitAccountHeaderRows() {
+      ['from', 'to'].forEach(side => {
+        const row = document.getElementById(side + 'HeaderRow');
+        const title = document.getElementById(side + 'HeaderTitle');
+        const stmtBtn = document.getElementById(side + 'StatementBtn');
+        if (!row || !title || !stmtBtn) return;
+
+        let titleSize = 13.5;
+        let btnSize = 10.5;
+        title.style.fontSize = titleSize + 'px';
+        stmtBtn.style.fontSize = btnSize + 'px';
+
+        while (titleSize > 10.0 && row.scrollWidth > row.clientWidth + 1) {
+          titleSize -= 0.5;
+          btnSize = Math.max(9.0, btnSize - 0.25);
+          title.style.fontSize = titleSize + 'px';
+          stmtBtn.style.fontSize = btnSize + 'px';
+        }
+      });
+    }
+
+    // 6. تحجيم اسم الحساب داخل حقل البحث (من حساب / إلى حساب) ليتسع الاسم الطويل بالكامل في سطر واحد
+    function fitAccountInputSize(target) {
+      const targets = target ? [target] : ['from', 'to'];
+      targets.forEach(t => {
+        const inp = document.getElementById(t + 'SearchInput');
+        if (!inp) return;
+        const val = (inp.value || '').trim();
+        const baseSize = 20.0;
+        const minSize = 11.5;
+        if (!val) {
+          inp.style.fontSize = '15px';
+          return;
+        }
+        const availWidth = Math.max(140, (inp.clientWidth || 280) - 30);
+        let size = baseSize;
+        while (size > minSize) {
+          const w = measureTextWidthPx(val, '900', size, "'Cairo', sans-serif");
+          if (w <= availWidth) break;
+          size -= 0.5;
+        }
+        inp.style.fontSize = size + 'px';
+      });
+    }
+
+    // 7. تحجيم اسم البنك (المقاس المعتمد 13.5px، يصغر فقط إذا كان الاسم طويلاً جداً)
+    function fitBankNameSize() {
+      const bankEl = document.getElementById('bankNameInput');
+      if (!bankEl) return;
+      const text = (bankEl.value || '').trim();
+      const baseSize = 13.5;
+      const minSize = 9.5;
+      if (!text) {
+        bankEl.style.fontSize = baseSize + 'px';
+        return;
+      }
+      const availWidth = Math.max(70, (bankEl.clientWidth || 130) - 16);
+      let size = baseSize;
+      while (size > minSize) {
+        const w = measureTextWidthPx(text, '900', size, "'Cairo', sans-serif");
+        if (w <= availWidth) break;
+        size -= 0.5;
+      }
+      bankEl.style.fontSize = size + 'px';
+    }
+
+    function fitAllDynamicFields() {
+      fitVoucherDisplaySize();
+      fitCurrencySelectSize();
+      fitUsdRateSize();
+      fitCostCenterSize();
+      fitAccountHeaderRows();
+      fitAccountInputSize();
+      fitBankNameSize();
+    }
+
+    window.fitVoucherDisplaySize = fitVoucherDisplaySize;
+    window.fitCurrencySelectSize = fitCurrencySelectSize;
+    window.fitUsdRateSize = fitUsdRateSize;
+    window.fitCostCenterSize = fitCostCenterSize;
+    window.fitAccountHeaderRows = fitAccountHeaderRows;
+    window.fitAccountInputSize = fitAccountInputSize;
+    window.fitBankNameSize = fitBankNameSize;
+    window.fitAllDynamicFields = fitAllDynamicFields;
+
+    // مراقب تلقائي لأي تغيير في رقم السند الأصفر لضمان تحجيمه الفوري دائماً
+    try {
+      const vDispEl = document.getElementById('currentVoucherDisplay');
+      if (vDispEl && typeof MutationObserver !== 'undefined') {
+        const vObserver = new MutationObserver(() => {
+          fitVoucherDisplaySize();
+        });
+        vObserver.observe(vDispEl, { childList: true, characterData: true, subtree: true });
+      }
+    } catch (e) {}
+
+    window.addEventListener('resize', () => {
+      fitAllDynamicFields();
+    });
 
     // تشغيل الإعدادات المبدئية
     loadSavedNumberConfig();
@@ -10949,6 +11164,8 @@ $currenciesData = [
     startNewVoucher();
     initPendingPosPayment();
     setTimeout(initPendingPosPayment, 200);
+    setTimeout(fitAllDynamicFields, 60);
+    setTimeout(fitAllDynamicFields, 350);
 
     // إذا فُتحت الصفحة من الكاش المحلي، نتحقق بنظام Delta-Sync الخفيف فقط (75 بايت إذا لم يتغير شيء)
     if (!window._lastDbStateHash) {

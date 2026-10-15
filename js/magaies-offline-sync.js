@@ -845,6 +845,10 @@
                 const elements = document.querySelectorAll(selectors);
                 elements.forEach(el => {
                     if (!el) return;
+                    if (el.id === 'currentVoucherDisplay' && typeof window.fitVoucherDisplaySize === 'function') {
+                        window.fitVoucherDisplaySize();
+                        return;
+                    }
                     const isInput = (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA');
                     const rawText = String(isInput ? (el.value || el.placeholder || '') : (el.textContent || '')).trim();
                     if (!rawText) return;
@@ -858,24 +862,25 @@
 
                     if (!el.dataset.baseFontPx) {
                         const computed = window.getComputedStyle(el);
-                        const parsed = parseFloat(computed.fontSize) || (isInput ? 15 : 13);
-                        el.dataset.baseFontPx = String(Math.max(parsed, 11));
+                        const parsed = parseFloat(computed.fontSize) || (isInput ? 16 : 15.5);
+                        el.dataset.baseFontPx = String(Math.max(parsed, 14));
                     }
 
-                    const basePx = parseFloat(el.dataset.baseFontPx) || 14;
+                    const basePx = parseFloat(el.dataset.baseFontPx) || 16;
                     const len = rawText.length;
 
                     let targetPx = basePx;
-                    if (len >= 16) targetPx = Math.min(basePx, 9.5);
-                    else if (len >= 14) targetPx = Math.min(basePx, 10.5);
-                    else if (len >= 12) targetPx = Math.min(basePx, 11.5);
-                    else if (len >= 10) targetPx = Math.min(basePx, 12.5);
-                    else if (len >= 9) targetPx = Math.min(basePx, 13.5);
+                    if (len <= 6) targetPx = Math.max(basePx, 17);
+                    else if (len >= 16) targetPx = Math.min(basePx, 10);
+                    else if (len >= 14) targetPx = Math.min(basePx, 11);
+                    else if (len >= 12) targetPx = Math.min(basePx, 12.5);
+                    else if (len >= 10) targetPx = Math.min(basePx, 14);
+                    // للأرقام القياسية المكونة من 9 خانات (مثل E26100525) يبقى المقاس المعتمد الكامل (16px)
 
                     el.style.setProperty('font-size', targetPx + 'px', 'important');
 
                     if (clientW > 10) {
-                        const minPx = 8.5;
+                        const minPx = 9.0;
                         while (el.scrollWidth > clientW + 1 && targetPx > minPx) {
                             targetPx -= 0.5;
                             el.style.setProperty('font-size', targetPx + 'px', 'important');
