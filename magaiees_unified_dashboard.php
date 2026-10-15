@@ -2512,10 +2512,13 @@ function switchToMobileEdition() {
                 document.getElementById('aiCFO-content').innerHTML = '<span style="color:#f43f5e">تعذر الاتصال بخادم الذكاء الاصطناعي.</span>';
             });
         }
-        window.addEventListener('themeChanged', () => {
-            // تطبيق الثيم بدون إعادة تحميل الصفحة - أسرع بكثير
-            const isLight = document.documentElement.classList.contains('light-theme');
-            document.documentElement.setAttribute('data-theme', isLight ? 'light' : 'dark');
+        window.addEventListener('themeChanged', (e) => {
+            // تطبيق الثيم بدون إعادة تحميل الصفحة مع الحفاظ على السمة المختارة من السمات السبع
+            const activeKey = (e && e.detail && e.detail.themeKey) || localStorage.getItem('magaies_active_theme');
+            if (activeKey) {
+                document.documentElement.setAttribute('data-theme', activeKey);
+                if (document.body) document.body.setAttribute('data-theme', activeKey);
+            }
         });
 
         // ═════════════════════════════════════════════════════════════════════

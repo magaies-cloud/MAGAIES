@@ -1,4 +1,4 @@
-`/* ═══════════════════════════════════════════════════════════════════════════════
+/* ═══════════════════════════════════════════════════════════════════════════════
    🎨 ELSAJANA ERP 2026 - THE 7 OFFICIAL MASTER THEMES (WCAG AAA CERTIFIED)
    ═══════════════════════════════════════════════════════════════════════════════
    1. warm_cream        : ورق سيبيا وبيج دافئ (Warm Beige / Sepia Paper - مريح للعين) [☀️ فاتح]
@@ -402,7 +402,6 @@ html[data-theme="pure_oled"] #mobileVoucherApp {
   background-color: #000000 !important;
   color: #ffffff !important;
 }
-`
 
 /* c:\mynewapp\frontend-pwa\css\theme.css — v5.0 Professional Overhaul */
 
@@ -1566,15 +1565,15 @@ html.inventory-hub-page .badge-category, html.hub-report-page .badge-category {
     font-size: 13px !important; /* was 11px */
 }
 
-/* ═══════════════════════════════════════════════════════
-   UNIVERSAL LIGHT THEME OVERRIDES FOR INTERNAL SCREENS
-   ═══════════════════════════════════════════════════════ */
-.light-theme .val { color: #0f172a !important; text-shadow: none !important; }
-.light-theme .neo-card-title { color: #0ea5e9 !important; }
+/* ═══════════════════════════════════════════════════════════════════════════════
+   UNIVERSAL LIGHT & DARK THEME OVERRIDES FOR ALL INTERNAL SCREENS (7 MASTER THEMES)
+   ═══════════════════════════════════════════════════════════════════════════════ */
+.light-theme .val { color: var(--text-primary, #0f172a) !important; text-shadow: none !important; }
+.light-theme .neo-card-title { color: var(--primary-accent, #0284c7) !important; }
 
 :root.light-theme body,
 :root.light-theme .ambient-bg {
-    background: #f8fafc !important;
+    background: var(--bg-color, #f8fafc) !important;
 }
 
 :root.light-theme .glass-panel,
@@ -1586,10 +1585,10 @@ html.inventory-hub-page .badge-category, html.hub-report-page .badge-category {
 :root.light-theme .premium-header,
 :root.light-theme .top-header,
 :root.light-theme .header-area {
-    background: #ffffff !important;
-    border-color: rgba(0, 0, 0, 0.08) !important;
+    background: var(--surface, #ffffff) !important;
+    border-color: var(--border, rgba(0, 0, 0, 0.1)) !important;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05) !important;
-    color: #0f172a !important;
+    color: var(--text-primary, #0f172a) !important;
 }
 
 :root.light-theme .glass-panel *,
@@ -1602,24 +1601,24 @@ html.inventory-hub-page .badge-category, html.hub-report-page .badge-category {
 :root.light-theme .pos-grid thead th,
 :root.light-theme .ledger-table th,
 :root.light-theme .report-table th {
-    background: #f1f5f9 !important;
-    color: #0f172a !important;
-    border-bottom: 2px solid #cbd5e1 !important;
+    background: var(--bg-secondary, #f1f5f9) !important;
+    color: var(--text-primary, #0f172a) !important;
+    border-bottom: 2px solid var(--border, #cbd5e1) !important;
 }
 
 :root.light-theme table.pro-table td,
 :root.light-theme .pos-grid tbody td,
 :root.light-theme .ledger-table td,
 :root.light-theme .report-table td {
-    color: #1e293b !important;
-    border-bottom: 1px solid rgba(0,0,0,0.08) !important;
+    color: var(--text-secondary, #1e293b) !important;
+    border-bottom: 1px solid var(--border, rgba(0,0,0,0.08)) !important;
 }
 
 :root.light-theme table.pro-table tbody tr:hover td,
 :root.light-theme .pos-grid tbody tr:hover td,
 :root.light-theme .ledger-table tbody tr:hover td,
 :root.light-theme .report-table tbody tr:hover td {
-    background: rgba(0,0,0,0.02) !important;
+    background: var(--surface-hover, rgba(0,0,0,0.03)) !important;
 }
 
 :root.light-theme .h-label,
@@ -1628,63 +1627,230 @@ html.inventory-hub-page .badge-category, html.hub-report-page .badge-category {
 :root.light-theme .lbl,
 :root.light-theme label,
 :root.light-theme .table-header {
-    color: #334155 !important;
+    color: var(--text-secondary, #334155) !important;
 }
 
 :root.light-theme .tot-val,
 :root.light-theme .val {
-    color: #0f172a !important;
+    color: var(--text-primary, #0f172a) !important;
 }
 
 :root.light-theme .h-form-group,
 :root.light-theme .control-panel {
     background: transparent !important;
-    border-color: rgba(0,0,0,0.08) !important;
+    border-color: var(--border, rgba(0,0,0,0.08)) !important;
 }
 
 :root.light-theme .modern-btn {
-    color: #1e293b !important;
+    color: var(--text-secondary, #1e293b) !important;
 }
 
 :root.light-theme .modern-btn:hover {
-    color: #0f172a !important;
+    color: var(--text-primary, #0f172a) !important;
 }
 
 /* Neon text colors correction for light theme */
 :root.light-theme .text-emerald-400,
 :root.light-theme span[style*="color: #34d399"],
-:root.light-theme span[style*="color:#34d399"] {
-    color: #059669 !important;
+:root.light-theme span[style*="color:#34d399"],
+:root.light-theme span[style*="color: #6ee7b7"],
+:root.light-theme span[style*="color:#6ee7b7"],
+:root.light-theme span[style*="color: #a7f3d0"],
+:root.light-theme span[style*="color:#a7f3d0"] {
+    color: #047857 !important;
 }
 
 :root.light-theme .text-rose-400,
 :root.light-theme span[style*="color: #f87171"],
-:root.light-theme span[style*="color:#f87171"] {
-    color: #e11d48 !important;
+:root.light-theme span[style*="color:#f87171"],
+:root.light-theme span[style*="color: #f43f5e"],
+:root.light-theme span[style*="color:#f43f5e"] {
+    color: #be123c !important;
 }
 
 :root.light-theme .text-sky-400,
 :root.light-theme span[style*="color: #38bdf8"],
-:root.light-theme span[style*="color:#38bdf8"] {
-    color: #0284c7 !important;
+:root.light-theme span[style*="color:#38bdf8"],
+:root.light-theme span[style*="color: #7dd3fc"],
+:root.light-theme span[style*="color:#7dd3fc"] {
+    color: #0369a1 !important;
 }
 
 :root.light-theme .text-purple-400,
 :root.light-theme span[style*="color: #c084fc"],
-:root.light-theme span[style*="color:#c084fc"] {
-    color: #7c3aed !important;
+:root.light-theme span[style*="color:#c084fc"],
+:root.light-theme span[style*="color: #d8b4fe"],
+:root.light-theme span[style*="color:#d8b4fe"],
+:root.light-theme span[style*="color: #e9d5ff"],
+:root.light-theme span[style*="color:#e9d5ff"] {
+    color: #6d28d9 !important;
 }
 
 :root.light-theme .text-amber-400,
 :root.light-theme span[style*="color: #fbbf24"],
-:root.light-theme span[style*="color:#fbbf24"] {
+:root.light-theme span[style*="color:#fbbf24"],
+:root.light-theme span[style*="color: #fef08a"],
+:root.light-theme span[style*="color:#fef08a"],
+:root.light-theme span[style*="color: #fde047"],
+:root.light-theme span[style*="color:#fde047"] {
     color: #b45309 !important;
 }
 
-
-
- }
-
-
-
-
+/* ═══════════════════════════════════════════════════════════════════════════════
+   🔒 FINAL MASTER 7 THEMES LOCK (HIGHEST PRIORITY AT END OF THEME.CSS)
+   Ensures earlier generic :root.light-theme rules never overwrite warm_cream/exec_gray
+   ═══════════════════════════════════════════════════════════════════════════════ */
+html[data-theme="warm_cream"], html[data-theme="warm-alabaster"], html[data-theme="beige"] {
+    --bg-color: #fbf7ee !important;
+    --bg-main: #fbf7ee !important;
+    --bg-dark: #fbf7ee !important;
+    --bg-secondary: #f5eedd !important;
+    --surface: #ffffff !important;
+    --surface-color: #ffffff !important;
+    --surface-hover: #f5eedd !important;
+    --panel-bg: #fdfbf7 !important;
+    --border: #dcd1be !important;
+    --border-color: #dcd1be !important;
+    --text-primary: #1c1917 !important;
+    --text-secondary: #382e25 !important;
+    --text-muted: #5c4d40 !important;
+    --text-main: #1c1917 !important;
+    --text-dim: #7c6858 !important;
+    --primary-accent: #b45309 !important;
+    --amber: #b45309 !important;
+    --green: #15803d !important;
+    --red: #b91c1c !important;
+    --blue: #0369a1 !important;
+}
+html[data-theme="ultra_white"], html[data-theme="pure-platinum"], html[data-theme="white"] {
+    --bg-color: #f8fafc !important;
+    --bg-main: #f8fafc !important;
+    --bg-dark: #f8fafc !important;
+    --bg-secondary: #f1f5f9 !important;
+    --surface: #ffffff !important;
+    --surface-color: #ffffff !important;
+    --surface-hover: #f1f5f9 !important;
+    --panel-bg: #ffffff !important;
+    --border: #cbd5e1 !important;
+    --border-color: #cbd5e1 !important;
+    --text-primary: #0f172a !important;
+    --text-secondary: #1e293b !important;
+    --text-muted: #475569 !important;
+    --text-main: #0f172a !important;
+    --text-dim: #64748b !important;
+    --primary-accent: #2563eb !important;
+    --amber: #b45309 !important;
+    --green: #047857 !important;
+    --red: #dc2626 !important;
+    --blue: #2563eb !important;
+}
+html[data-theme="exec_gray"], html[data-theme="pearl-platinum"] {
+    --bg-color: #f1f5f9 !important;
+    --bg-main: #f1f5f9 !important;
+    --bg-dark: #f1f5f9 !important;
+    --bg-secondary: #e2e8f0 !important;
+    --surface: #ffffff !important;
+    --surface-color: #ffffff !important;
+    --surface-hover: #e2e8f0 !important;
+    --panel-bg: #ffffff !important;
+    --border: #cbd5e1 !important;
+    --border-color: #cbd5e1 !important;
+    --text-primary: #0f172a !important;
+    --text-secondary: #1e293b !important;
+    --text-muted: #475569 !important;
+    --text-main: #0f172a !important;
+    --text-dim: #64748b !important;
+    --primary-accent: #1d4ed8 !important;
+    --amber: #b45309 !important;
+    --green: #047857 !important;
+    --red: #b91c1c !important;
+    --blue: #1d4ed8 !important;
+}
+html[data-theme="midnight_obsidian"], html[data-theme="midnight-executive"], html[data-theme="navy"] {
+    --bg-color: #0a1128 !important;
+    --bg-main: #0a1128 !important;
+    --bg-dark: #0a1128 !important;
+    --bg-secondary: #0b132b !important;
+    --surface: #111c44 !important;
+    --surface-color: #111c44 !important;
+    --surface-hover: #1c2a5e !important;
+    --panel-bg: #111c44 !important;
+    --border: rgba(56, 189, 248, 0.25) !important;
+    --border-color: rgba(56, 189, 248, 0.25) !important;
+    --text-primary: #ffffff !important;
+    --text-secondary: #e0f2fe !important;
+    --text-muted: #93c5fd !important;
+    --text-main: #ffffff !important;
+    --text-dim: #60a5fa !important;
+    --primary-accent: #00f2fe !important;
+    --amber: #fbbf24 !important;
+    --green: #10b981 !important;
+    --red: #ef4444 !important;
+    --blue: #38bdf8 !important;
+}
+html[data-theme="mocha_brown"], html[data-theme="sepia-brown"], html[data-theme="brown"] {
+    --bg-color: #1a0f0a !important;
+    --bg-main: #1a0f0a !important;
+    --bg-dark: #1a0f0a !important;
+    --bg-secondary: #26150e !important;
+    --surface: #2e1a12 !important;
+    --surface-color: #2e1a12 !important;
+    --surface-hover: #3d2319 !important;
+    --panel-bg: #2e1a12 !important;
+    --border: #78350f !important;
+    --border-color: #78350f !important;
+    --text-primary: #fffbeb !important;
+    --text-secondary: #fef3c7 !important;
+    --text-muted: #fde68a !important;
+    --text-main: #fffbeb !important;
+    --text-dim: #d4a373 !important;
+    --primary-accent: #f59e0b !important;
+    --amber: #f59e0b !important;
+    --green: #34d399 !important;
+    --red: #f87171 !important;
+    --blue: #38bdf8 !important;
+}
+html[data-theme="pure_oled"], html[data-theme="obsidian-charcoal"], html[data-theme="black"] {
+    --bg-color: #000000 !important;
+    --bg-main: #000000 !important;
+    --bg-dark: #000000 !important;
+    --bg-secondary: #050505 !important;
+    --surface: #0a0a0a !important;
+    --surface-color: #0a0a0a !important;
+    --surface-hover: #171717 !important;
+    --panel-bg: #0a0a0a !important;
+    --border: #262626 !important;
+    --border-color: #262626 !important;
+    --text-primary: #ffffff !important;
+    --text-secondary: #f5f5f5 !important;
+    --text-muted: #a3a3a3 !important;
+    --text-main: #ffffff !important;
+    --text-dim: #737373 !important;
+    --primary-accent: #10b981 !important;
+    --amber: #f59e0b !important;
+    --green: #10b981 !important;
+    --red: #ef4444 !important;
+    --blue: #38bdf8 !important;
+}
+html[data-theme="slate_twilight"], html[data-theme="twilight-indigo"], html[data-theme="slate"] {
+    --bg-color: #0f172a !important;
+    --bg-main: #0f172a !important;
+    --bg-dark: #0f172a !important;
+    --bg-secondary: #1e293b !important;
+    --surface: #1e293b !important;
+    --surface-color: #1e293b !important;
+    --surface-hover: #334155 !important;
+    --panel-bg: #1e293b !important;
+    --border: #334155 !important;
+    --border-color: #334155 !important;
+    --text-primary: #f8fafc !important;
+    --text-secondary: #e2e8f0 !important;
+    --text-muted: #94a3b8 !important;
+    --text-main: #f8fafc !important;
+    --text-dim: #64748b !important;
+    --primary-accent: #38bdf8 !important;
+    --amber: #fbbf24 !important;
+    --green: #34d399 !important;
+    --red: #f87171 !important;
+    --blue: #38bdf8 !important;
+}

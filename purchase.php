@@ -1561,7 +1561,7 @@ try {
         $fFamily = $cfg['fontFamily'] ?? "'Cairo', sans-serif";
         $fSize = ($cfg['fontSize'] ?? 16) . 'px';
         $fWeight = $cfg['fontWeight'] ?? 'normal';
-        $fColor = $cfg['fontColor'] ?? '#ffffff';
+        $fColorRaw = $cfg['fontColor'] ?? '#ffffff'; $fColor = (strtolower(trim($fColorRaw)) === '#ffffff' || strtolower(trim($fColorRaw)) === '#fff') ? 'var(--text-primary, #ffffff)' : $fColorRaw;
         $tAlign = $cfg['align'] ?? 'center';
         
         echo "#pos-grid, #pos-grid *, #pos-grid thead th, #pos-grid tbody td, #pos-grid tbody td input, #pos-grid tbody td select, #pos-grid tbody td span { font-family: " . $fFamily . " !important; }\n";
@@ -1572,7 +1572,7 @@ try {
         foreach ($cfg['columns'] as $col) {
             $colId = $col['id'];
             $colVisible = !isset($col['visible']) || $col['visible'];
-            $colColor = $col['color'] ?? $fColor;
+            $colColorRaw = $col['color'] ?? $fColorRaw; $colColor = (strtolower(trim($colColorRaw)) === '#ffffff' || strtolower(trim($colColorRaw)) === '#fff') ? 'var(--text-primary, #ffffff)' : $colColorRaw;
             $colSize = isset($col['fontSize']) ? ($col['fontSize'] . 'px') : $fSize;
             $colWeight = $col['fontWeight'] ?? $fWeight;
             $colAlign = $col['align'] ?? $tAlign;
@@ -1594,7 +1594,7 @@ try {
     ?>
     </style>
 </head>
-<body class="light-theme">
+<body>
     <div class="toast-container" id="toast-container"></div>
 
     <!-- ═══ Add Supplier Modal ═══ -->
@@ -1859,11 +1859,11 @@ try {
                 <div style="display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 5px; width: 100%; align-items: center;">
                     <!-- 1. Supplier -->
                     <div class="h-form-group group-supplier" style="flex: 3.3; min-width: 390px; display: flex; align-items: center; gap: 10px; flex-direction: row !important;">
-                          <label class="h-label" style="margin: 0; white-space: nowrap; min-width: 60px; color: #fef08a !important; font-size: 1.25rem !important; font-weight: 900 !important; text-shadow: 0 0 10px rgba(254, 240, 138, 0.4) !important;">👤 المورد</label>
+                          <label class="h-label" style="margin: 0; white-space: nowrap; min-width: 60px; color: var(--amber, #f59e0b); font-size: 1.25rem !important; font-weight: 900 !important;">👤 المورد</label>
                           <div class="h-input-wrapper" style="display: flex; flex-direction: row; align-items: center; gap: 8px; flex: 1;">
                               <div class="custom-dropdown" style="flex:1;">
                                   <div class="custom-dropdown-input-wrap" style="position: relative;">
-                                      <input type="text" class="ctrl-input v-input" id="hdr-customer-search" placeholder="ابحث عن اسم المورد..." onfocus="showCustomerDropdown()" onblur="hideCustomerDropdownDelayed()" oninput="filterCustomerDropdown()" style="width:100%; padding-left: 60px !important; color: #fbbf24 !important; font-size: 1.25rem !important; font-weight: 900 !important; background-color: rgba(251,191,36,0.05) !important;" autocomplete="one-time-code">
+                                      <input type="text" class="ctrl-input v-input" id="hdr-customer-search" placeholder="ابحث عن اسم المورد..." onfocus="showCustomerDropdown()" onblur="hideCustomerDropdownDelayed()" oninput="filterCustomerDropdown()" style="width:100%; padding-left: 60px !important; color: var(--amber, #fbbf24); font-size: 1.25rem !important; font-weight: 900 !important; background-color: rgba(251,191,36,0.05);" autocomplete="one-time-code">
                                       <button type="button" id="hdr-customer-ledger-btn" onclick="openGeneralLedgerForAccount(document.getElementById('hdr-customer').value)" class="ledger-btn-2027" title="دفتر الأستاذ العام">أستاذ</button>
                                       <input type="hidden" id="hdr-customer" onchange="if(typeof onCustomerChange === 'function') onCustomerChange()">
                                       <div class="custom-dropdown-list" id="customer-dropdown-list">
@@ -2088,7 +2088,7 @@ try {
                             <td class="hide-if-sdg" style="border: none;"></td>
                             <td style="padding: 10px 4px; border: none; min-width: 240px;">
                                 <div style="display: flex; gap: 8px; align-items: center;">
-                                    <span class="val amount" id="t-grand-dynamic-loc" style="flex: 1; display: flex; align-items: center; justify-content: center; width: 100%; height: 52px; font-size: 2.1rem; font-weight: 900; font-family: monospace, 'Cairo', sans-serif; color: #ffffff !important; text-align: center; background: linear-gradient(135deg, rgba(16,185,129,0.25), rgba(5,150,105,0.35)); border: 1.5px solid rgba(16,185,129,0.6); border-radius: 8px; box-shadow: 0 4px 15px rgba(16,185,129,0.25), inset 0 1px 2px rgba(255,255,255,0.2); letter-spacing: 0.5px;">0</span>
+                                    <span class="val amount" id="t-grand-dynamic-loc" style="flex: 1; display: flex; align-items: center; justify-content: center; width: 100%; height: 52px; font-size: 2.1rem; font-weight: 900; font-family: monospace, 'Cairo', sans-serif; color: #ffffff; text-align: center; background: linear-gradient(135deg, rgba(16,185,129,0.25), rgba(5,150,105,0.35)); border: 1.5px solid rgba(16,185,129,0.6); border-radius: 8px; box-shadow: 0 4px 15px rgba(16,185,129,0.25), inset 0 1px 2px rgba(255,255,255,0.2); letter-spacing: 0.5px;">0</span>
                                     <span class="val amount hide-if-sdg" id="t-grand-dynamic-fc" style="flex: 1; display: flex; align-items: center; justify-content: center; width: 100%; height: 52px; font-size: 1.6rem; font-weight: 900; font-family: monospace, 'Cairo', sans-serif; color: #10b981 !important; text-align: center; background: rgba(16, 185, 129, 0.15); border: 1.5px solid rgba(16,185,129,0.4); border-radius: 8px;">0</span>
                                 </div>
                             </td>

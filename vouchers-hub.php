@@ -398,7 +398,7 @@
         }
 
         .v-title {
-            color: #fff;
+            color: var(--text-primary, #fff);
             font-size: 1.1rem;
             font-weight: 800;
             margin: 0 0 6px 0;
@@ -625,25 +625,25 @@
     </div>
 
     <!-- Recent Transactions -->
-    <div class="premium-card" style="flex: 1; min-height: 250px; display: flex; flex-direction: column; margin-top: 15px; background: rgba(18, 15, 25, 0.85); cursor: default; transform: none; box-shadow: 0 10px 30px rgba(0,0,0,0.5); padding: 20px;">
-        <h3 style="color: #fff; margin-top: 0; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px;">🕒 أحدث العمليات (آخر 10 سندات)</h3>
+    <div class="premium-card recent-transactions-card" style="flex: 1; min-height: 250px; display: flex; flex-direction: column; margin-top: 15px; background: var(--surface, rgba(18, 15, 25, 0.85)); border: 1px solid var(--border, rgba(255,255,255,0.1)); cursor: default; transform: none; box-shadow: 0 10px 30px rgba(0,0,0,0.15); padding: 20px;">
+        <h3 style="color: var(--text-primary, #fff); margin-top: 0; border-bottom: 1px solid var(--border, rgba(255,255,255,0.1)); padding-bottom: 10px;">🕒 أحدث العمليات (آخر 10 سندات)</h3>
         <div style="overflow-y: auto; flex: 1; padding-right: 5px;" class="custom-scrollbar">
-            <table style="width: 100%; border-collapse: collapse; text-align: right; color: #fff;">
+            <table class="pro-table" style="width: 100%; border-collapse: collapse; text-align: right; color: var(--text-primary, #fff);">
                 <thead>
-                    <tr style="background: rgba(255,255,255,0.05);">
-                        <th style="padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.1);">رقم السند</th>
-                        <th style="padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.1);">النوع</th>
-                        <th style="padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.1);">التاريخ</th>
-                        <th style="padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.1);">البيان</th>
-                        <th style="padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.1);">من حساب (صُرف منه)</th>
-                        <th style="padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.1);">إلى حساب (تم الاستلام فيه)</th>
-                        <th style="padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.1);">المبلغ</th>
-                        <th style="padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.1);">المستخدم</th>
-                        <th style="padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.1);">إجراءات</th>
+                    <tr style="background: var(--surface-hover, rgba(255,255,255,0.05));">
+                        <th style="padding: 10px; border-bottom: 1px solid var(--border, rgba(255,255,255,0.1)); color: var(--text-primary, #fff);">رقم السند</th>
+                        <th style="padding: 10px; border-bottom: 1px solid var(--border, rgba(255,255,255,0.1)); color: var(--text-primary, #fff);">النوع</th>
+                        <th style="padding: 10px; border-bottom: 1px solid var(--border, rgba(255,255,255,0.1)); color: var(--text-primary, #fff);">التاريخ</th>
+                        <th style="padding: 10px; border-bottom: 1px solid var(--border, rgba(255,255,255,0.1)); color: var(--text-primary, #fff);">البيان</th>
+                        <th style="padding: 10px; border-bottom: 1px solid var(--border, rgba(255,255,255,0.1)); color: var(--text-primary, #fff);">من حساب (صُرف منه)</th>
+                        <th style="padding: 10px; border-bottom: 1px solid var(--border, rgba(255,255,255,0.1)); color: var(--text-primary, #fff);">إلى حساب (تم الاستلام فيه)</th>
+                        <th style="padding: 10px; border-bottom: 1px solid var(--border, rgba(255,255,255,0.1)); color: var(--text-primary, #fff);">المبلغ</th>
+                        <th style="padding: 10px; border-bottom: 1px solid var(--border, rgba(255,255,255,0.1)); color: var(--text-primary, #fff);">المستخدم</th>
+                        <th style="padding: 10px; border-bottom: 1px solid var(--border, rgba(255,255,255,0.1)); color: var(--text-primary, #fff);">إجراءات</th>
                     </tr>
                 </thead>
                 <tbody id="recent-transactions-body">
-                    <tr><td colspan='9' style='text-align:center; padding:20px; color:#94a3b8;'>جاري التحميل...</td></tr>
+                    <tr><td colspan='9' style='text-align:center; padding:20px; color:var(--text-muted, #94a3b8);'>جاري التحميل...</td></tr>
                 </tbody>
             </table>
         </div>
@@ -821,18 +821,18 @@
                 try { sessionStorage.setItem('_hub_voucher_' + rowIdx, JSON.stringify(x)); } catch(e) {}
                 
                 return `
-                <tr style="border-bottom: 1px solid rgba(255,255,255,0.05); transition: 0.2s; cursor: pointer;" onmouseover="this.style.background='rgba(255,255,255,0.05)'" onmouseout="this.style.background='transparent'">
+                <tr style="border-bottom: 1px solid var(--border, rgba(255,255,255,0.05)); transition: 0.2s; cursor: pointer;" onmouseover="this.style.background='var(--surface-hover, rgba(255,255,255,0.05))'" onmouseout="this.style.background='transparent'">
                     <td style="padding: 12px 10px; font-weight: bold; color: ${x._color}; text-decoration: underline;" onclick="editHubVoucher('${vid}', '${x._source}', ${rowIdx})" title="انقر لتعديل السند">${vid || '-'}</td>
-                    <td style="padding: 12px 10px;"><span style="background: ${x._color}20; color: ${x._color}; padding: 3px 8px; border-radius: 6px; font-size: 0.85rem;">${x._type}</span></td>
-                    <td style="padding: 12px 10px; color: #cbd5e1;">${!isNaN(x._date.getTime()) ? x._date.toLocaleDateString('en-GB') : '-'}</td>
-                    <td style="padding: 12px 10px; color: #cbd5e1;">${x.description || x.notes || x.statement || '-'}</td>
-                    <td style="padding: 12px 10px; color: #cbd5e1;">${fromName}</td>
-                    <td style="padding: 12px 10px; color: #cbd5e1;">${toName}</td>
-                    <td style="padding: 12px 10px; font-weight: bold; color: #fff;">${(x.amount || x.totalAmount || x.amountLocal || 0).toLocaleString()}</td>
-                    <td style="padding: 12px 10px; color: #cbd5e1; font-size: 0.85rem;"><span style="background: rgba(167,139,250,0.15); color: #c084fc; padding: 2px 8px; border-radius: 6px; font-weight: 600;">👤 ${userName}</span></td>
+                    <td style="padding: 12px 10px;"><span style="background: ${x._color}20; color: ${x._color}; padding: 3px 8px; border-radius: 6px; font-size: 0.85rem; font-weight: 700;">${x._type}</span></td>
+                    <td style="padding: 12px 10px; color: var(--text-secondary, #cbd5e1); font-weight: 600;">${!isNaN(x._date.getTime()) ? x._date.toLocaleDateString('en-GB') : '-'}</td>
+                    <td style="padding: 12px 10px; color: var(--text-secondary, #cbd5e1); font-weight: 600;">${x.description || x.notes || x.statement || '-'}</td>
+                    <td style="padding: 12px 10px; color: var(--text-secondary, #cbd5e1); font-weight: 600;">${fromName}</td>
+                    <td style="padding: 12px 10px; color: var(--text-secondary, #cbd5e1); font-weight: 600;">${toName}</td>
+                    <td style="padding: 12px 10px; font-weight: 800; color: var(--text-primary, #fff);">${(x.amount || x.totalAmount || x.amountLocal || 0).toLocaleString()}</td>
+                    <td style="padding: 12px 10px; color: var(--text-secondary, #cbd5e1); font-size: 0.85rem;"><span style="background: rgba(167,139,250,0.15); color: var(--primary-accent, #7c3aed); padding: 2px 8px; border-radius: 6px; font-weight: 700;">👤 ${userName}</span></td>
                     <td style="padding: 12px 10px; white-space: nowrap;">
-                        <button onclick="editHubVoucher('${vid}', '${x._source}', ${rowIdx})" style="background: rgba(56,189,248,0.1); color: #38bdf8; border: 1px solid rgba(56,189,248,0.3); border-radius: 4px; padding: 4px 8px; cursor: pointer; margin-left: 5px; font-family: 'Tajawal', sans-serif;">تعديل</button>
-                        <button onclick="deleteHubVoucher('${vid}', '${x._storeKey}')" style="background: rgba(244,63,94,0.1); color: #f43f5e; border: 1px solid rgba(244,63,94,0.3); border-radius: 4px; padding: 4px 8px; cursor: pointer; font-family: 'Tajawal', sans-serif;">حذف</button>
+                        <button onclick="editHubVoucher('${vid}', '${x._source}', ${rowIdx})" style="background: rgba(56,189,248,0.12); color: var(--blue, #0284c7); border: 1px solid rgba(56,189,248,0.35); border-radius: 4px; padding: 4px 8px; cursor: pointer; margin-left: 5px; font-family: 'Tajawal', sans-serif; font-weight: 700;">تعديل</button>
+                        <button onclick="deleteHubVoucher('${vid}', '${x._storeKey}')" style="background: rgba(244,63,94,0.12); color: var(--red, #e11d48); border: 1px solid rgba(244,63,94,0.35); border-radius: 4px; padding: 4px 8px; cursor: pointer; font-family: 'Tajawal', sans-serif; font-weight: 700;">حذف</button>
                     </td>
                 </tr>
             `}).join('');

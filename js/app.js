@@ -1846,11 +1846,16 @@ JSON.parse = function(val) {
 
 // --- Global Theme Initialization (runs immediately to prevent flashing) ---
 (function() {
+    const activeMasterTheme = localStorage.getItem('magaies_active_theme') || localStorage.getItem('magaiees_global_theme') || localStorage.getItem('magaiees_mobile_theme');
+    if (activeMasterTheme) {
+        if (!document.documentElement.getAttribute('data-theme')) {
+            document.documentElement.setAttribute('data-theme', activeMasterTheme);
+        }
+        return;
+    }
     const savedTheme = localStorage.getItem('erp_theme') || 'dark';
-    if (savedTheme === 'light') {
-        document.documentElement.setAttribute('data-theme', 'light');
-    } else {
-        document.documentElement.removeAttribute('data-theme');
+    if (savedTheme === 'light' && !document.documentElement.getAttribute('data-theme')) {
+        document.documentElement.setAttribute('data-theme', 'warm_cream');
     }
 })();
 
@@ -1963,13 +1968,15 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Global Theme Toggle Binding (Delegated) ---
     document.body.addEventListener('click', (e) => {
         if (e.target.closest('.theme-toggle-btn')) {
-            const currentTheme = document.documentElement.getAttribute('data-theme');
-            if (currentTheme === 'light') {
-                document.documentElement.removeAttribute('data-theme');
-                localStorage.setItem('erp_theme', 'dark');
+            if (typeof window.toggleTheme === 'function') {
+                window.toggleTheme();
             } else {
-                document.documentElement.setAttribute('data-theme', 'light');
-                localStorage.setItem('erp_theme', 'light');
+                const currentTheme = document.documentElement.getAttribute('data-theme');
+                const isLight = ['warm_cream', 'warm-alabaster', 'ultra_white', 'pure-platinum', 'exec_gray', 'pearl-platinum', 'light'].includes(currentTheme);
+                const nextTheme = isLight ? 'midnight_obsidian' : 'warm_cream';
+                document.documentElement.setAttribute('data-theme', nextTheme);
+                localStorage.setItem('magaies_active_theme', nextTheme);
+                localStorage.setItem('erp_theme', isLight ? 'dark' : 'light');
             }
             // Update charts if present on page
             if (typeof initCharts === 'function') {

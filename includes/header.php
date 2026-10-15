@@ -233,7 +233,10 @@ window._cachedGlobalRate = window.SYSTEM_USD_RATE;
 
     document.addEventListener("DOMContentLoaded", function() {
         if (document.body) {
-            document.body.classList.add(currentTheme);
+            const isLight = document.documentElement.classList.contains('light-theme');
+            document.body.classList.add(isLight ? 'light-theme' : 'dark-theme');
+            const activeTheme = document.documentElement.getAttribute('data-theme');
+            if (activeTheme) document.body.setAttribute('data-theme', activeTheme);
             if (document.documentElement.classList.contains('has-sidebar')) {
                 document.body.classList.add('has-sidebar');
             }
@@ -707,9 +710,15 @@ window._cachedGlobalRate = window.SYSTEM_USD_RATE;
             document.documentElement.classList.add('light-theme');
         }
         function toggleTheme() {
-            document.documentElement.classList.toggle('light-theme');
-            localStorage.setItem('erp_theme', document.documentElement.classList.contains('light-theme') ? 'light' : 'dark');
-            window.dispatchEvent(new Event('themeChanged'));
+            var isCurrentlyLight = document.documentElement.classList.contains('light-theme');
+            var nextTheme = isCurrentlyLight ? 'midnight_obsidian' : 'warm_cream';
+            if (typeof applyMasterTheme === 'function') {
+                applyMasterTheme(nextTheme);
+            } else {
+                document.documentElement.classList.toggle('light-theme');
+                localStorage.setItem('erp_theme', document.documentElement.classList.contains('light-theme') ? 'light' : 'dark');
+                window.dispatchEvent(new Event('themeChanged'));
+            }
         }
         </script>
     </div>
@@ -1229,9 +1238,467 @@ html.light-theme .magaiees-theme-btn-top {
 }
 </style>
 
+<style id="master-7-themes-final-override">
+/* ═══════════════════════════════════════════════════════════════════════════════
+   🛡️ MASTER 7 THEMES FINAL UNIFICATION & WCAG AAA CONTRAST ENGINE (ALL SCREENS)
+   Guarantees 100% visual consistency across Dashboard, Sales, Purchases, Vouchers,
+   Single Cash Payment, Multi Cash Payment, Reports, and Modals on Laptop & Mobile
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+/* ── 1. Exact Theme Variable Lock for All 7 Themes (Light & Dark + Aliases) ── */
+html[data-theme="warm_cream"], html[data-theme="warm-alabaster"], html[data-theme="beige"] {
+    --bg-color: #fbf7ee !important;
+    --bg-main: #fbf7ee !important;
+    --bg-dark: #fbf7ee !important;
+    --bg-secondary: #f5eedd !important;
+    --surface: #ffffff !important;
+    --surface-color: #ffffff !important;
+    --surface-hover: #f5eedd !important;
+    --panel-bg: #fdfbf7 !important;
+    --border: #dcd1be !important;
+    --border-color: #dcd1be !important;
+    --text-primary: #1c1917 !important;
+    --text-secondary: #382e25 !important;
+    --text-muted: #5c4d40 !important;
+    --text-main: #1c1917 !important;
+    --text-dim: #7c6858 !important;
+    --primary-accent: #b45309 !important;
+    --amber: #b45309 !important;
+    --green: #15803d !important;
+    --red: #b91c1c !important;
+    --blue: #0369a1 !important;
+}
+html[data-theme="ultra_white"], html[data-theme="pure-platinum"], html[data-theme="white"] {
+    --bg-color: #f8fafc !important;
+    --bg-main: #f8fafc !important;
+    --bg-dark: #f8fafc !important;
+    --bg-secondary: #f1f5f9 !important;
+    --surface: #ffffff !important;
+    --surface-color: #ffffff !important;
+    --surface-hover: #f1f5f9 !important;
+    --panel-bg: #ffffff !important;
+    --border: #cbd5e1 !important;
+    --border-color: #cbd5e1 !important;
+    --text-primary: #0f172a !important;
+    --text-secondary: #1e293b !important;
+    --text-muted: #475569 !important;
+    --text-main: #0f172a !important;
+    --text-dim: #64748b !important;
+    --primary-accent: #2563eb !important;
+    --amber: #b45309 !important;
+    --green: #047857 !important;
+    --red: #dc2626 !important;
+    --blue: #2563eb !important;
+}
+html[data-theme="exec_gray"], html[data-theme="pearl-platinum"] {
+    --bg-color: #f1f5f9 !important;
+    --bg-main: #f1f5f9 !important;
+    --bg-dark: #f1f5f9 !important;
+    --bg-secondary: #e2e8f0 !important;
+    --surface: #ffffff !important;
+    --surface-color: #ffffff !important;
+    --surface-hover: #e2e8f0 !important;
+    --panel-bg: #ffffff !important;
+    --border: #cbd5e1 !important;
+    --border-color: #cbd5e1 !important;
+    --text-primary: #0f172a !important;
+    --text-secondary: #1e293b !important;
+    --text-muted: #475569 !important;
+    --text-main: #0f172a !important;
+    --text-dim: #64748b !important;
+    --primary-accent: #1d4ed8 !important;
+    --amber: #b45309 !important;
+    --green: #047857 !important;
+    --red: #b91c1c !important;
+    --blue: #1d4ed8 !important;
+}
+html[data-theme="midnight_obsidian"], html[data-theme="midnight-executive"], html[data-theme="navy"] {
+    --bg-color: #0a1128 !important;
+    --bg-main: #0a1128 !important;
+    --bg-dark: #0a1128 !important;
+    --bg-secondary: #0b132b !important;
+    --surface: #111c44 !important;
+    --surface-color: #111c44 !important;
+    --surface-hover: #1c2a5e !important;
+    --panel-bg: #111c44 !important;
+    --border: rgba(56, 189, 248, 0.25) !important;
+    --border-color: rgba(56, 189, 248, 0.25) !important;
+    --text-primary: #ffffff !important;
+    --text-secondary: #e0f2fe !important;
+    --text-muted: #93c5fd !important;
+    --text-main: #ffffff !important;
+    --text-dim: #60a5fa !important;
+    --primary-accent: #00f2fe !important;
+    --amber: #fbbf24 !important;
+    --green: #10b981 !important;
+    --red: #ef4444 !important;
+    --blue: #38bdf8 !important;
+}
+html[data-theme="mocha_brown"], html[data-theme="sepia-brown"], html[data-theme="brown"] {
+    --bg-color: #1a0f0a !important;
+    --bg-main: #1a0f0a !important;
+    --bg-dark: #1a0f0a !important;
+    --bg-secondary: #26150e !important;
+    --surface: #2e1a12 !important;
+    --surface-color: #2e1a12 !important;
+    --surface-hover: #3d2319 !important;
+    --panel-bg: #2e1a12 !important;
+    --border: #78350f !important;
+    --border-color: #78350f !important;
+    --text-primary: #fffbeb !important;
+    --text-secondary: #fef3c7 !important;
+    --text-muted: #fde68a !important;
+    --text-main: #fffbeb !important;
+    --text-dim: #d4a373 !important;
+    --primary-accent: #f59e0b !important;
+    --amber: #f59e0b !important;
+    --green: #34d399 !important;
+    --red: #f87171 !important;
+    --blue: #38bdf8 !important;
+}
+html[data-theme="pure_oled"], html[data-theme="obsidian-charcoal"], html[data-theme="black"] {
+    --bg-color: #000000 !important;
+    --bg-main: #000000 !important;
+    --bg-dark: #000000 !important;
+    --bg-secondary: #050505 !important;
+    --surface: #0a0a0a !important;
+    --surface-color: #0a0a0a !important;
+    --surface-hover: #171717 !important;
+    --panel-bg: #0a0a0a !important;
+    --border: #262626 !important;
+    --border-color: #262626 !important;
+    --text-primary: #ffffff !important;
+    --text-secondary: #f5f5f5 !important;
+    --text-muted: #a3a3a3 !important;
+    --text-main: #ffffff !important;
+    --text-dim: #737373 !important;
+    --primary-accent: #10b981 !important;
+    --amber: #f59e0b !important;
+    --green: #10b981 !important;
+    --red: #ef4444 !important;
+    --blue: #38bdf8 !important;
+}
+html[data-theme="slate_twilight"], html[data-theme="twilight-indigo"], html[data-theme="slate"] {
+    --bg-color: #0f172a !important;
+    --bg-main: #0f172a !important;
+    --bg-dark: #0f172a !important;
+    --bg-secondary: #1e293b !important;
+    --surface: #1e293b !important;
+    --surface-color: #1e293b !important;
+    --surface-hover: #334155 !important;
+    --panel-bg: #1e293b !important;
+    --border: #334155 !important;
+    --border-color: #334155 !important;
+    --text-primary: #f8fafc !important;
+    --text-secondary: #e2e8f0 !important;
+    --text-muted: #94a3b8 !important;
+    --text-main: #f8fafc !important;
+    --text-dim: #64748b !important;
+    --primary-accent: #38bdf8 !important;
+    --amber: #fbbf24 !important;
+    --green: #34d399 !important;
+    --red: #f87171 !important;
+    --blue: #38bdf8 !important;
+}
+
+/* ── 2. Universal Canvas & Screen Unification Across All 7 Themes ── */
+html[data-theme] body,
+html[data-theme] .ambient-bg,
+html[data-theme] .dash-main,
+html[data-theme] .pos-wrapper,
+html[data-theme] .app-container,
+html[data-theme] .main-content,
+html[data-theme] .vouchers-hub-container,
+html[data-theme] #sales-hub-view,
+html[data-theme] #invoice-editor-view,
+html[data-theme] #split-invoice-view,
+html[data-theme] #delivery-hub-view,
+html[data-theme] #purchase-hub-view,
+html[data-theme] #purchase-editor-view {
+    background: var(--bg-color) !important;
+    color: var(--text-primary) !important;
+}
+
+/* ── 3. Universal Top Header Unification (No Dark Purple Mismatch) ── */
+html[data-theme] .magical-glass-header,
+html[data-theme] .top-header,
+html[data-theme] .premium-header,
+html[data-theme] .header-area {
+    background: var(--surface) !important;
+    border-color: var(--border) !important;
+    color: var(--text-primary) !important;
+}
+html[data-theme] .magical-glass-header .header-screen-title,
+html[data-theme] #header-clock {
+    color: var(--text-primary) !important;
+    -webkit-text-fill-color: var(--text-primary) !important;
+    text-shadow: none !important;
+}
+html.light-theme .magical-glass-header .magical-icon-btn {
+    background: var(--bg-secondary) !important;
+    border-color: var(--border) !important;
+    color: var(--text-primary) !important;
+}
+html.light-theme .magical-glass-header .header-divider {
+    background: var(--border) !important;
+}
+
+/* ── 4. Universal Card, Panel & Container Unification Across All Screens ── */
+html[data-theme] .neo-card,
+html[data-theme] .glass-panel,
+html[data-theme] .glass-card,
+html[data-theme] .summary-card,
+html[data-theme] .filter-panel,
+html[data-theme] .chart-card,
+html[data-theme] .kpi-card,
+html[data-theme] .premium-card,
+html[data-theme] .recent-transactions-card,
+html[data-theme] #form-fields-card,
+html[data-theme] .sales-glass-card,
+html[data-theme] .purchase-glass-card,
+html[data-theme] .gold-obsidian-card,
+html[data-theme] #items-panel,
+html[data-theme] .table-container,
+html[data-theme] .focus-zone,
+html[data-theme] .single-unified-form,
+html[data-theme] #payment-panel,
+html[data-theme] .glass-container,
+html[data-theme] .account-block,
+html[data-theme] .qa-card-wrapper,
+html[data-theme] .screen-popover {
+    background: var(--surface) !important;
+    border-color: var(--border) !important;
+    color: var(--text-primary) !important;
+}
+
+/* Secondary Bars & Strips */
+html[data-theme] .panel-header-row,
+html[data-theme] .items-toolbar,
+html[data-theme] .notes-bar,
+html[data-theme] .ds-notes-bar,
+html[data-theme] #totals-calc-card,
+html[data-theme] #inline-totals-container,
+html[data-theme] .smart-filter-bar,
+html[data-theme] .filter-time-group,
+html[data-theme] #invoice-info-box,
+html[data-theme] .pro-serial-container,
+html[data-theme] .gold-serial-wrap,
+html[data-theme] .sub-header-bar,
+html[data-theme] #payment-methods-row,
+html[data-theme] .crystal-pill,
+html[data-theme] #grand-tafqeet-container,
+html[data-theme] .block-tafqeet-row,
+html[data-theme] .scp-top-amount-row,
+html[data-theme] .mcp-voucher-desc-bar,
+html[data-theme] #fin-strip > div,
+html[data-theme] #customer-financial-card > div {
+    background: var(--bg-secondary) !important;
+    border-color: var(--border) !important;
+    color: var(--text-primary) !important;
+}
+
+/* ── 5. Light Themes: Zero Dark Islands & Strict High-Contrast Text ── */
+html.light-theme .v-input,
+html.light-theme .ctrl-input,
+html.light-theme .form-input,
+html.light-theme .form-control,
+html.light-theme .form-select,
+html.light-theme .g-input,
+html.light-theme .g-select,
+html.light-theme .date-input,
+html.light-theme #voucher-no-display,
+html.light-theme #voucher-date,
+html.light-theme #voucher-ref,
+html.light-theme #voucher-desc,
+html.light-theme #from-account-search,
+html.light-theme #to-account-search,
+html.light-theme #main-account-search,
+html.light-theme .block-account-search,
+html.light-theme input[id^="statement-"],
+html.light-theme input.block-total-amount,
+html.light-theme input.block-bank-amount,
+html.light-theme input.block-cheque-amount,
+html.light-theme input.block-transfer-no-input,
+html.light-theme input.block-cheque-no-input,
+html.light-theme input.block-bank-name-input,
+html.light-theme input.block-bank-desc-input,
+html.light-theme input.block-cheque-bank-input,
+html.light-theme input.block-cheque-date-input,
+html.light-theme input.block-cheque-desc-input,
+html.light-theme .tot-row input.tot-input {
+    background: #ffffff !important;
+    color: var(--text-primary) !important;
+    -webkit-text-fill-color: var(--text-primary) !important;
+    border-color: var(--border) !important;
+    text-shadow: none !important;
+}
+
+html.light-theme #hdr-customer-search {
+    background: #ffffff !important;
+    color: var(--primary-accent) !important;
+    -webkit-text-fill-color: var(--primary-accent) !important;
+    border-color: var(--border) !important;
+}
+
+html.light-theme .custom-dropdown-list,
+html.light-theme #customer-dropdown-list,
+html.light-theme #from-account-dropdown-list,
+html.light-theme #to-account-dropdown-list,
+html.light-theme #main-account-dropdown-list {
+    background: var(--surface) !important;
+    color: var(--text-primary) !important;
+    border-color: var(--border) !important;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12) !important;
+}
+
+html.light-theme .bal-label,
+html.light-theme .badge-label,
+html.light-theme .h-label,
+html.light-theme .form-label,
+html.light-theme .label,
+html.light-theme label,
+html.light-theme .v-title,
+html.light-theme .pro-serial-number,
+html.light-theme .pro-serial-btn,
+html.light-theme #fin-ledger,
+html.light-theme #grand-tafqeet-text,
+html.light-theme .block-tafqeet-text,
+html.light-theme #main-party-title {
+    color: var(--text-primary) !important;
+    text-shadow: none !important;
+}
+
+html.light-theme .bal-val,
+html.light-theme .badge-val {
+    color: var(--primary-accent) !important;
+    text-shadow: none !important;
+}
+
+/* Payment Method Details & Totals in Light Themes */
+html.light-theme #pay-bank-section,
+html.light-theme .block-bank-details,
+html.light-theme .total-glass-card.bank-glow {
+    background: #ecfdf5 !important;
+    border-color: #10b981 !important;
+    color: #065f46 !important;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.08) !important;
+}
+html.light-theme #unified-bank-total {
+    color: #065f46 !important;
+    text-shadow: none !important;
+}
+
+html.light-theme #pay-cheque-section,
+html.light-theme .block-cheque-details,
+html.light-theme .total-glass-card.cheque-glow {
+    background: #f5f3ff !important;
+    border-color: #a855f7 !important;
+    color: #5b21b6 !important;
+    box-shadow: 0 4px 12px rgba(168, 85, 247, 0.08) !important;
+}
+html.light-theme #unified-cheque-total {
+    color: #5b21b6 !important;
+    text-shadow: none !important;
+}
+
+html.light-theme .total-glass-card.grand-glow {
+    background: #f0f9ff !important;
+    border-color: #0284c7 !important;
+    color: #0c4a6e !important;
+    box-shadow: 0 4px 14px rgba(2, 132, 199, 0.12) !important;
+}
+html.light-theme #unified-grand-total {
+    color: #0c4a6e !important;
+    text-shadow: none !important;
+}
+
+/* Sales & Purchase Grand Total Row in Light Themes */
+html.light-theme #row-grand-total {
+    background: var(--bg-secondary) !important;
+    border-top: 2px solid #10b981 !important;
+    border-bottom: 2px solid #10b981 !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06) !important;
+}
+html.light-theme #lbl-grand-dynamic {
+    color: #047857 !important;
+    text-shadow: none !important;
+}
+html.light-theme #t-grand-dynamic-loc {
+    background: #ecfdf5 !important;
+    color: #065f46 !important;
+    -webkit-text-fill-color: #065f46 !important;
+    border: 2px solid #059669 !important;
+    text-shadow: none !important;
+    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.15) !important;
+}
+html.light-theme #t-grand-currency-badge {
+    background: #d1fae5 !important;
+    color: #065f46 !important;
+    border-color: #059669 !important;
+}
+
+/* POS Grid & Pro Table Contrast in Light Themes */
+html.light-theme #pos-grid thead tr,
+html.light-theme #pos-grid thead th,
+html.light-theme table.pro-table thead tr,
+html.light-theme table.pro-table thead th {
+    background: var(--bg-secondary) !important;
+    color: var(--text-primary) !important;
+    border-bottom: 2px solid var(--border) !important;
+}
+html.light-theme #pos-grid tbody td,
+html.light-theme #pos-grid tbody td input,
+html.light-theme #pos-grid tbody td select,
+html.light-theme #pos-grid tbody td span:not(.btn-icon):not(.add-row-btn),
+html.light-theme #pos-grid tbody td .g-input,
+html.light-theme #pos-grid tbody td .g-select,
+html.light-theme #pos-grid tbody td .g-readonly,
+html.light-theme #pos-grid tbody td .total-val,
+html.light-theme #pos-grid tbody td .avail-val {
+    color: var(--text-primary) !important;
+}
+
+/* Sticky Footers in Light Themes */
+html.light-theme .sticky-footer,
+html.light-theme .ds-footer,
+html.light-theme .purchase-footer {
+    background: var(--surface) !important;
+    border-color: var(--border) !important;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.08) !important;
+}
+
+/* ── 6. Small Solid/Dark Boxes Inside Light Themes Keep Bright Light Text ──
+   ("ربما نجد لونها فاتح ولكن مربع صغير لونه غامق. في هذه الحالة يجب أن تكون الكتابة فاتحة") */
+html.light-theme .m7-active-tag,
+html.light-theme .m7-confirm-btn,
+html.light-theme #inbound-receipts-badge-count,
+html.light-theme #amount-currency-symbol,
+html.light-theme #amount-foreign-currency-symbol,
+html.light-theme #btn-auto-categorize,
+html.light-theme #btn-auto-categorize *,
+html.light-theme .btn-save-master,
+html.light-theme .btn-save-master *,
+html.light-theme .btn-submit,
+html.light-theme .btn-submit *,
+html.light-theme .v-arrow[style*="background: #"],
+html.light-theme [style*="background: #ef4444"],
+html.light-theme [style*="background:#ef4444"],
+html.light-theme [style*="background: #10b981"],
+html.light-theme [style*="background:#10b981"],
+html.light-theme [style*="background: #3b82f6"],
+html.light-theme [style*="background:#3b82f6"],
+html.light-theme [style*="background: linear-gradient(135deg, #10b981"],
+html.light-theme [style*="background: linear-gradient(135deg, #c084fc"],
+html.light-theme [style*="background: linear-gradient(135deg, #ec4899"],
+html.light-theme [style*="background: linear-gradient(135deg, #d97706"] {
+    color: #ffffff !important;
+    -webkit-text-fill-color: #ffffff !important;
+}
+</style>
+
 <script>
 // ═══════════════════════════════════════════════════════════════════
-// 🎨 MASTER 7 THEMES JAVASCRIPT CONTROLLER
+// 🎨 MASTER 7 THEMES JAVASCRIPT CONTROLLER & CASCADE GUARD
 // ═══════════════════════════════════════════════════════════════════
 const MASTER_7_THEMES_INFO = {
     'warm_cream': { name: 'ورق سيبيا وبيج دافئ (Beige)', isLight: true },
@@ -1242,6 +1709,40 @@ const MASTER_7_THEMES_INFO = {
     'pure_oled': { name: 'سواد مطلق فاحم (Pure OLED Black)', isLight: false },
     'slate_twilight': { name: 'سليت فحمي مسائي (Twilight Slate)', isLight: false }
 };
+
+const MASTER_7_THEME_ALIASES = {
+    'warm_cream': 'warm_cream', 'beige': 'warm_cream', 'warm-alabaster': 'warm_cream', 'light': 'warm_cream',
+    'ultra_white': 'ultra_white', 'pure-platinum': 'ultra_white', 'white': 'ultra_white',
+    'exec_gray': 'exec_gray', 'pearl-platinum': 'exec_gray',
+    'midnight_obsidian': 'midnight_obsidian', 'midnight-executive': 'midnight_obsidian', 'navy-kohl': 'midnight_obsidian', 'navy': 'midnight_obsidian', 'dark': 'midnight_obsidian',
+    'mocha_brown': 'mocha_brown', 'sepia-brown': 'mocha_brown', 'desert-mocha': 'mocha_brown', 'brown': 'mocha_brown',
+    'pure_oled': 'pure_oled', 'obsidian-charcoal': 'pure_oled', 'midnight': 'pure_oled', 'black': 'pure_oled',
+    'slate_twilight': 'slate_twilight', 'twilight-indigo': 'slate_twilight', 'slate': 'slate_twilight'
+};
+
+function normalizeMaster7ThemeKey(k) {
+    if (!k) return 'warm_cream';
+    return MASTER_7_THEME_ALIASES[k] || (MASTER_7_THEMES_INFO[k] ? k : 'warm_cream');
+}
+
+// Ensure #master-7-themes-final-override stays at the very end of the document cascade
+function ensureMaster7OverrideLast() {
+    var st = document.getElementById('master-7-themes-final-override');
+    if (st && document.body && st.parentElement !== document.body) {
+        document.body.appendChild(st);
+    } else if (st && document.body && document.body.lastElementChild !== st) {
+        document.body.appendChild(st);
+    }
+}
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function() {
+        ensureMaster7OverrideLast();
+        var cur = normalizeMaster7ThemeKey(document.documentElement.getAttribute('data-theme') || localStorage.getItem('magaies_active_theme'));
+        applyMasterTheme(cur, false);
+    });
+} else {
+    ensureMaster7OverrideLast();
+}
 
 function openMaster7ThemesModal() {
     var modal = document.getElementById('master7ThemesModal');
@@ -1270,7 +1771,7 @@ function filterMaster7ThemeCategory(cat) {
 }
 
 function applyMasterTheme(themeKey, notify = true) {
-    if (!MASTER_7_THEMES_INFO[themeKey]) themeKey = 'warm_cream';
+    themeKey = normalizeMaster7ThemeKey(themeKey);
     var isLight = MASTER_7_THEMES_INFO[themeKey].isLight;
 
     // Apply to DOM
@@ -1293,6 +1794,8 @@ function applyMasterTheme(themeKey, notify = true) {
         }
     }
 
+    ensureMaster7OverrideLast();
+
     // Save across all 5 unified keys for complete ecosystem consistency
     try {
         localStorage.setItem('magaies_active_theme', themeKey);
@@ -1305,13 +1808,17 @@ function applyMasterTheme(themeKey, notify = true) {
     syncMaster7ThemeActiveUI();
 
     // Broadcast event
-    window.dispatchEvent(new CustomEvent('themeChanged', { detail: { theme: themeKey, isLight: isLight } }));
+    if (notify) {
+        window.dispatchEvent(new CustomEvent('themeChanged', { detail: { theme: themeKey, isLight: isLight } }));
+    }
 }
 
 function syncMaster7ThemeActiveUI() {
-    var cur = document.documentElement.getAttribute('data-theme') || 
-              localStorage.getItem('magaies_active_theme') || 
-              'warm_cream';
+    var cur = normalizeMaster7ThemeKey(
+        document.documentElement.getAttribute('data-theme') || 
+        localStorage.getItem('magaies_active_theme') || 
+        'warm_cream'
+    );
 
     var info = MASTER_7_THEMES_INFO[cur] || MASTER_7_THEMES_INFO['warm_cream'];
     var lbl = document.getElementById('m7CurrentThemeLabel');

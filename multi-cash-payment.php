@@ -2623,17 +2623,17 @@ window.SERVER_COST_CENTERS = <?php echo $SERVER_COST_CENTERS_json; ?>;
                     <div style="display: flex; gap: 15px; align-items: flex-end; flex-wrap: wrap; overflow: visible; padding-bottom: 10px; margin-bottom: 15px;">
 
                         <div style="flex: 0 0 35%; max-width: 35%; min-width: 250px;">
-                            <label id="main-account-label" style="color: #f43f5e !important; font-size: 1.25rem !important; font-weight: 800 !important; margin-bottom: 5px; display: flex; align-items: center; gap: 8px; transition: color 0.3s; white-space: nowrap;">من حساب (صرف) <span class="animated-arrow-left" style="color: #f43f5e;">←</span></label>
+                            <label id="main-account-label" style="color: var(--red, #f43f5e); font-size: 1.25rem !important; font-weight: 800 !important; margin-bottom: 5px; display: flex; align-items: center; gap: 8px; transition: color 0.3s; white-space: nowrap;">من حساب (صرف) <span class="animated-arrow-left" style="color: var(--red, #f43f5e);">←</span></label>
                             <div class="custom-dropdown-input-wrap" style="flex-grow: 1; width: 100%; min-width: 0; position: relative; display: flex;">
                                 <input type="hidden" id="main-account">
-                                <input type="text" autocomplete="off" class="form-control form-select" id="main-account-search" placeholder="ابحث عن حساب الصرف (خزينة/بنك)..." onfocus="showAccountDropdown('main-account')" onblur="hideAccountDropdownDelayed('main-account')" oninput="filterAccountDropdown('main-account')" style="background-color: var(--input-bg); color: #fbbf24 !important; font-size: 1.4rem !important; font-weight: 900 !important; border: 1px solid rgba(244, 63, 94, 0.5); flex: 1; border-top-left-radius: 0; border-bottom-left-radius: 0;">
+                                <input type="text" autocomplete="off" class="form-control form-select" id="main-account-search" placeholder="ابحث عن حساب الصرف (خزينة/بنك)..." onfocus="showAccountDropdown('main-account')" onblur="hideAccountDropdownDelayed('main-account')" oninput="filterAccountDropdown('main-account')" style="background-color: var(--surface, var(--input-bg)); color: var(--amber, #fbbf24); font-size: 1.4rem !important; font-weight: 900 !important; border: 1px solid rgba(244, 63, 94, 0.5); flex: 1; border-top-left-radius: 0; border-bottom-left-radius: 0;">
                                 <button type="button" class="btn-statement-glow" onclick="openLedgerForMainAccount()" title="دفتر الأستاذ العام"><i class="fa fa-book" style="margin-left: 4px;"></i> كشف حساب</button>
                                 <div class="custom-dropdown-list" id="main-account-dropdown-list" style="position: absolute; top: 100%; left: 0; right: 0; margin-top: 5px; z-index: 9999;"></div>
                             </div>
                         </div>
 
                         <div style="flex: 0.8; min-width: 90px;">
-                            <label id="currency-label" style="color: #fbbf24; font-size: 0.85rem; margin-bottom: 5px; display: block; white-space: nowrap;">العملة</label>
+                            <label id="currency-label" style="color: var(--amber, #fbbf24); font-size: 0.85rem; margin-bottom: 5px; display: block; white-space: nowrap;">العملة</label>
                             <select id="currency" class="form-input system-currency-select input-glow-focus hover-glow" onchange="typeof onCurrencyChange === 'function' ? onCurrencyChange() : (typeof updateCurrency === 'function' ? updateCurrency() : null);" style="border-radius: 10px; flex-grow: 1; min-width: 0; width: 100%; font-size: 1.1rem !important; font-weight: 800;">
                                 <option value="SDG">جنيه (SDG)</option>
                                 <option value="USD">دولار (USD)</option>
@@ -2642,40 +2642,40 @@ window.SERVER_COST_CENTERS = <?php echo $SERVER_COST_CENTERS_json; ?>;
                         </div>
                         
                         <div style="flex: 0.8; min-width: 95px; position: relative;">
-                            <label id="label-exchange-rate" style="color: #fbbf24; font-size: 0.85rem; margin-bottom: 5px; display: flex; align-items: center; justify-content: space-between; white-space: nowrap; cursor: pointer;" onclick="openNumPropsFor('exchange-rate', event)" title="كليك يمين أو يسار لتخصيص الخصائص">
+                            <label id="label-exchange-rate" style="color: var(--amber, #fbbf24); font-size: 0.85rem; margin-bottom: 5px; display: flex; align-items: center; justify-content: space-between; white-space: nowrap; cursor: pointer;" onclick="openNumPropsFor('exchange-rate', event)" title="كليك يمين أو يسار لتخصيص الخصائص">
                                 <span>التعادل (سعر $)</span>
                                 <span style="font-size: 0.85rem; opacity: 0.85; transition: transform 0.2s;" onmouseover="this.style.transform='rotate(45deg)'" onmouseout="this.style.transform='rotate(0deg)'" title="خصائص سعر الدولار">⚙️</span>
                             </label>
-                            <input type="text" inputmode="decimal" autocomplete="off" id="exchange-rate" class="form-input" value="<?php echo htmlspecialchars((string)$systemUsdRate); ?>" readonly style="font-weight: 900; font-family: monospace; text-align: center; cursor: pointer; background: rgba(16,185,129,0.1); color: #10b981; border-radius: 10px;" onclick="if(typeof window.openGlobalExchangeRateModal === 'function') window.openGlobalExchangeRateModal((r)=>{this.dataset.raw=r; this.dataset.userEdited='1'; this.value=r; if(typeof applyNumPropsToAll === 'function') applyNumPropsToAll(); if(typeof calcTotal === 'function') calcTotal(); else if(typeof recalcAll === 'function') recalcAll();});" oninput="if(typeof calcTotal === 'function') calcTotal();" title="كليك يسار لتعديل السعر | كليك يمين لتخصيص (السمك، الحجم، اللون، الخانات، الفاصلة)">
+                            <input type="text" inputmode="decimal" autocomplete="off" id="exchange-rate" class="form-input" value="<?php echo htmlspecialchars((string)$systemUsdRate); ?>" readonly style="font-weight: 900; font-family: monospace; text-align: center; cursor: pointer; background: rgba(16,185,129,0.1); color: var(--green, #10b981); border-radius: 10px;" onclick="if(typeof window.openGlobalExchangeRateModal === 'function') window.openGlobalExchangeRateModal((r)=>{this.dataset.raw=r; this.dataset.userEdited='1'; this.value=r; if(typeof applyNumPropsToAll === 'function') applyNumPropsToAll(); if(typeof calcTotal === 'function') calcTotal(); else if(typeof recalcAll === 'function') recalcAll();});" oninput="if(typeof calcTotal === 'function') calcTotal();" title="كليك يسار لتعديل السعر | كليك يمين لتخصيص (السمك، الحجم، اللون، الخانات، الفاصلة)">
                         </div>
                         
                         <!-- إجمالي المحلي والمعادل بالأجنبي متساويين مناصفة 50% / 50% (حواف أرقام حادة بدون ظل أو هالة) -->
                         <div id="totals-equal-container" style="display: flex; gap: 15px; flex: 2.8; min-width: 380px; align-items: flex-end;">
                             <div style="flex: 1 1 50%; min-width: 0; width: 50%;">
-                                <label id="label-amount-local" style="color: #10b981; font-size: 1.3rem; margin-bottom: 5px; display: block; font-weight: bold; white-space: nowrap;">💵 الإجمالي بالمحلي (SDG)</label>
+                                <label id="label-amount-local" style="color: var(--green, #10b981); font-size: 1.3rem; margin-bottom: 5px; display: block; font-weight: bold; white-space: nowrap;">💵 الإجمالي بالمحلي (SDG)</label>
                                 <input type="text" id="amount-local-hdr" class="form-input" value="0.00" readonly style="font-size: 2.6rem; font-weight: 900; font-family: 'Consolas', 'Courier New', monospace; color: #ef4444 !important; -webkit-text-fill-color: #ef4444 !important; background: #ffffff !important; text-align: center; border: 3.5px solid #ef4444 !important; border-radius: 12px !important; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06) !important; text-shadow: none !important; -webkit-text-stroke: 0px !important; filter: none !important; -webkit-font-smoothing: antialiased; text-rendering: geometricPrecision; width: 100%;">
                             </div>
                             
                             <div style="flex: 1 1 50%; min-width: 0; width: 50%;">
-                                <label id="label-amount-foreign" style="color: #ef4444; font-size: 1.3rem; margin-bottom: 5px; display: block; font-weight: bold; white-space: nowrap;">💵 المعادل بالأجنبي (USD)</label>
+                                <label id="label-amount-foreign" style="color: var(--red, #ef4444); font-size: 1.3rem; margin-bottom: 5px; display: block; font-weight: bold; white-space: nowrap;">💵 المعادل بالأجنبي (USD)</label>
                                 <input type="text" id="amount-foreign" class="form-input" value="0.00" readonly style="font-size: 2.6rem; font-weight: 900; font-family: 'Consolas', 'Courier New', monospace; color: #ef4444 !important; -webkit-text-fill-color: #ef4444 !important; background: #ffffff !important; text-align: center; border: 3.5px solid #ef4444 !important; border-radius: 12px !important; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06) !important; text-shadow: none !important; -webkit-text-stroke: 0px !important; filter: none !important; -webkit-font-smoothing: antialiased; text-rendering: geometricPrecision; width: 100%;">
                             </div>
                         </div>
                     </div>
 
                     <!-- ═══ Grand Total Live Tafqeet Bar (التفقيط المالي لإجمالي السند وحماية الأصفار) ═══ -->
-                    <div id="grand-tafqeet-container" style="display: flex; align-items: center; justify-content: space-between; gap: 12px; background: linear-gradient(135deg, rgba(15, 23, 42, 0.88) 0%, rgba(30, 41, 59, 0.85) 100%); border: 1.5px solid rgba(245, 158, 11, 0.35); border-radius: 10px; padding: 10px 16px; margin-top: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.25); transition: all 0.35s ease;">
+                    <div id="grand-tafqeet-container" style="display: flex; align-items: center; justify-content: space-between; gap: 12px; background: var(--bg-secondary, linear-gradient(135deg, rgba(15, 23, 42, 0.88) 0%, rgba(30, 41, 59, 0.85) 100%)); border: 1.5px solid rgba(245, 158, 11, 0.35); border-radius: 10px; padding: 10px 16px; margin-top: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.15); transition: all 0.35s ease;">
                         <div style="display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0;">
                             <span style="font-size: 1.35rem; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3)); flex-shrink: 0;">📜</span>
-                            <span style="color: #fbbf24; font-weight: 800; font-size: 0.95rem; white-space: nowrap; flex-shrink: 0;">إجمالي السند بالحروف:</span>
-                            <span id="grand-tafqeet-text" style="color: #fef08a; font-size: 1.12rem; font-weight: 900; font-family: 'Tajawal', sans-serif; text-shadow: 0 1px 3px rgba(0,0,0,0.6); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">فقط صفر جنيه سوداني لا غير</span>
+                            <span style="color: var(--amber, #fbbf24); font-weight: 800; font-size: 0.95rem; white-space: nowrap; flex-shrink: 0;">إجمالي السند بالحروف:</span>
+                            <span id="grand-tafqeet-text" style="color: var(--text-primary, #fef08a); font-size: 1.12rem; font-weight: 900; font-family: 'Tajawal', sans-serif; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">فقط صفر جنيه سوداني لا غير</span>
                         </div>
                         <div id="grand-fat-finger-alert" style="display: none; align-items: center; gap: 6px; font-size: 0.88rem; font-weight: 800; padding: 4px 12px; border-radius: 8px; flex-shrink: 0; transition: all 0.3s ease;"></div>
                     </div>
 
-                    <div style="display: flex; align-items: center; gap: 15px; background: rgba(0,0,0,0.25); padding: 12px 15px; min-height: 48px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.08); margin-top: 12px;">
-                        <label style="color: #fbbf24; font-size: 0.95rem; font-weight: bold; margin: 0; white-space: nowrap; display: flex; align-items: center; gap: 5px;">✍️ بيان حساب الصرف:</label>
-                        <input type="text" autocomplete="off" id="voucher-desc" class="form-input" placeholder="اكتب البيان التفصيلي لحساب الصرف هنا (الذي يظهر في كشف الأستاذ العام)..." style="flex: 1; margin: 0; background: rgba(15,23,42,0.4) !important; border: 1px solid rgba(255,255,255,0.1) !important; padding: 8px 12px; height: 38px !important; font-size: 0.95rem; color: #fff !important; border-radius: 6px;">
+                    <div class="mcp-voucher-desc-bar" style="display: flex; align-items: center; gap: 15px; background: var(--bg-secondary, rgba(0,0,0,0.25)); padding: 12px 15px; min-height: 48px; border-radius: 10px; border: 1px solid var(--border, rgba(255,255,255,0.08)); margin-top: 12px;">
+                        <label style="color: var(--amber, #fbbf24); font-size: 0.95rem; font-weight: bold; margin: 0; white-space: nowrap; display: flex; align-items: center; gap: 5px;">✍️ بيان حساب الصرف:</label>
+                        <input type="text" autocomplete="off" id="voucher-desc" class="form-input" placeholder="اكتب البيان التفصيلي لحساب الصرف هنا (الذي يظهر في كشف الأستاذ العام)..." style="flex: 1; margin: 0; background: var(--surface, rgba(15,23,42,0.4)); border: 1px solid var(--border, rgba(255,255,255,0.1)); padding: 8px 12px; height: 38px !important; font-size: 0.95rem; color: var(--text-primary, #fff); border-radius: 6px;">
                     </div>
                 </div>
 
@@ -2686,7 +2686,7 @@ window.SERVER_COST_CENTERS = <?php echo $SERVER_COST_CENTERS_json; ?>;
 
                 <!-- ═══ زر إضافة حساب جديد ═══ -->
                 <div style="display: flex; justify-content: center; align-items: center; margin-top: 6px; margin-bottom: 12px;">
-                    <button type="button" class="btn-add-account-block" onclick="addAccountBlock()" style="padding: 7px 22px; border-radius: 10px; background: rgba(16,185,129,0.14); color: #34d399; border: 2px solid #10b981 !important; font-weight: 800; font-size: 0.94rem; cursor: pointer; font-family: 'Tajawal', sans-serif; transition: all 0.25s ease; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 3px 12px rgba(16,185,129,0.2);">
+                    <button type="button" class="btn-add-account-block" onclick="addAccountBlock()" style="padding: 7px 22px; border-radius: 10px; background: rgba(16,185,129,0.14); color: var(--green, #34d399); border: 2px solid #10b981 !important; font-weight: 800; font-size: 0.94rem; cursor: pointer; font-family: 'Tajawal', sans-serif; transition: all 0.25s ease; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 3px 12px rgba(16,185,129,0.2);">
                         <span style="font-size: 1.05rem;">➕</span> <span>إضافة حساب مستلم / دافع آخر</span>
                     </button>
                 </div>
@@ -2695,8 +2695,8 @@ window.SERVER_COST_CENTERS = <?php echo $SERVER_COST_CENTERS_json; ?>;
                 <template id="account-block-template">
                     <div class="account-block glass-container glass-green" data-block-id="{ID}" style="position: relative; padding: 15px; border-radius: 12px; transition: all 0.3s ease;">
                         <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; padding-bottom: 0px;">
-                            <div style="display: flex; align-items: center; gap: 8px; font-size: 1.25rem; font-weight: 800; color: #34d399;">
-                                <span>📋</span> <span class="block-label">إلى حساب (مستلم)</span> <span class="animated-arrow-right" style="color: #34d399;">→</span>
+                            <div style="display: flex; align-items: center; gap: 8px; font-size: 1.25rem; font-weight: 800; color: var(--green, #34d399);">
+                                <span>📋</span> <span class="block-label">إلى حساب (مستلم)</span> <span class="animated-arrow-right" style="color: var(--green, #34d399);">→</span>
                             </div>
                             <button type="button" class="btn-remove-block" data-action="remove-block" data-block="{ID}" style="background: rgba(239,68,68,0.15); border: 3.5px solid #ef4444; color: #ef4444; border-radius: 50%; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1.1rem; transition: all 0.2s;" title="حذف هذا الحساب">✖</button>
                         </div>
@@ -2708,7 +2708,7 @@ window.SERVER_COST_CENTERS = <?php echo $SERVER_COST_CENTERS_json; ?>;
                                 <div class="custom-dropdown-input-wrap" style="position: relative; flex: 1; display: flex;">
                                     <input type="hidden" id="account-{ID}-id" class="block-account-id">
                                     <input type="hidden" id="account-{ID}" class="block-account-name">
-                                    <input type="text" autocomplete="off" class="form-input block-account-search" id="account-{ID}-search" placeholder="الحساب / الجهة المستفيدة..." onfocus="showAccountDropdown('account-{ID}')" onblur="hideAccountDropdownDelayed('account-{ID}')" oninput="filterAccountDropdown('account-{ID}')" style="font-size: 1.4rem !important; font-weight: 900 !important; color: #fbbf24 !important; flex: 1; margin-bottom: 0; border-top-left-radius: 0; border-bottom-left-radius: 0;">
+                                    <input type="text" autocomplete="off" class="form-input block-account-search" id="account-{ID}-search" placeholder="الحساب / الجهة المستفيدة..." onfocus="showAccountDropdown('account-{ID}')" onblur="hideAccountDropdownDelayed('account-{ID}')" oninput="filterAccountDropdown('account-{ID}')" style="font-size: 1.4rem !important; font-weight: 900 !important; color: var(--amber, #fbbf24); flex: 1; margin-bottom: 0; border-top-left-radius: 0; border-bottom-left-radius: 0;">
                                     <button type="button" class="btn-statement-glow" onclick="openLedgerForBlockAccount('{ID}')" title="دفتر الأستاذ العام"><i class="fa fa-book" style="margin-left: 4px;"></i> كشف حساب</button>
                                     <div class="custom-dropdown-list" id="account-{ID}-dropdown-list" style="position: absolute; top: 100%; left: 0; right: 0; margin-top: 5px; z-index: 9999;"></div>
                                 </div>
@@ -2719,7 +2719,7 @@ window.SERVER_COST_CENTERS = <?php echo $SERVER_COST_CENTERS_json; ?>;
                             
                             <!-- Statement (بيان التحويل - تم توسيعه لامتصاص بقية المساحة) -->
                             <div style="flex: 2.2; min-width: 180px; display: flex; flex-direction: column; position: relative;">
-                                <input type="text" autocomplete="off" id="statement-{ID}" class="form-input" placeholder="بيان التحويل (اختياري)..." style="font-size: 1rem; flex: 1; margin-bottom: 0; background: rgba(255,255,255,0.05); color: #fff; width: 100%;">
+                                <input type="text" autocomplete="off" id="statement-{ID}" class="form-input" placeholder="بيان التحويل (اختياري)..." style="font-size: 1rem; flex: 1; margin-bottom: 0; background: var(--surface, rgba(255,255,255,0.05)); color: var(--text-primary, #fff); width: 100%;">
                             </div>
 
                             <!-- Cost Center / Project / Branch / Vehicle (مركز التكلفة / المشروع) -->
@@ -2949,7 +2949,7 @@ window.SERVER_COST_CENTERS = <?php echo $SERVER_COST_CENTERS_json; ?>;
                 /* Universal Light Theme Overrides for Internal Screens */
                 :root.light-theme body,
                 :root.light-theme .ambient-bg {
-                    background: #f8fafc !important;
+                    background: var(--bg-color, #f8fafc) !important;
                 }
                 :root.light-theme .glass-panel,
                 :root.light-theme .neo-card,
@@ -2960,10 +2960,10 @@ window.SERVER_COST_CENTERS = <?php echo $SERVER_COST_CENTERS_json; ?>;
                 :root.light-theme .premium-header,
                 :root.light-theme .top-header,
                 :root.light-theme .header-area {
-                    background: #ffffff !important;
-                    border-color: rgba(0, 0, 0, 0.08) !important;
+                    background: var(--surface, #ffffff) !important;
+                    border-color: var(--border, rgba(0, 0, 0, 0.08)) !important;
                     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05) !important;
-                    color: #0f172a !important;
+                    color: var(--text-primary, #0f172a) !important;
                 }
                 :root.light-theme .glass-panel *,
                 :root.light-theme .neo-card *,

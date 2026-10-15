@@ -2318,7 +2318,471 @@ $currenciesData = [
         z-index: 40;
       }
     }
+
+    /* ═══════════════════════════════════════════════════════════════════════════
+       محرك السمات المحاسبية السبع المعتمدة (7 Master Accounting Themes - WCAG AAA)
+       توحيد لوني وبصري كامل 100% دون المساس بأي خاصية تمرير أو أبعاد (Zero Scroll Lag)
+       ═══════════════════════════════════════════════════════════════════════════ */
+    html[data-theme="warm-alabaster"] {
+      --mv-bg: #FBF8F1;
+      --mv-surface: #F4EFE4;
+      --mv-card: #EFE8D8;
+      --mv-input: #FFFFFF;
+      --mv-text: #18130A;
+      --mv-text-sub: #4A3F30;
+      --mv-border: #C8B99E;
+    }
+    html[data-theme="pure-platinum"] {
+      --mv-bg: #FFFFFF;
+      --mv-surface: #F8FAFC;
+      --mv-card: #F1F5F9;
+      --mv-input: #FFFFFF;
+      --mv-text: #000000;
+      --mv-text-sub: #1E293B;
+      --mv-border: #CBD5E1;
+    }
+    html[data-theme="pearl-platinum"] {
+      --mv-bg: #EEF2F6;
+      --mv-surface: #E2E8F0;
+      --mv-card: #E8EEF5;
+      --mv-input: #FFFFFF;
+      --mv-text: #0F172A;
+      --mv-text-sub: #334155;
+      --mv-border: #94A3B8;
+    }
+    html[data-theme="midnight-executive"] {
+      --mv-bg: #04091A;
+      --mv-surface: #081026;
+      --mv-card: #0A132C;
+      --mv-input: #040918;
+      --mv-text: #F8FAFC;
+      --mv-text-sub: #CBD5E1;
+      --mv-border: rgba(99, 102, 241, 0.38);
+    }
+    html[data-theme="sepia-brown"] {
+      --mv-bg: #1A110B;
+      --mv-surface: #241710;
+      --mv-card: #2C1D14;
+      --mv-input: #140C08;
+      --mv-text: #FDF8F5;
+      --mv-text-sub: #E7D5C9;
+      --mv-border: rgba(217, 119, 6, 0.45);
+    }
+    html[data-theme="obsidian-charcoal"] {
+      --mv-bg: #000000;
+      --mv-surface: #09090B;
+      --mv-card: #121215;
+      --mv-input: #050507;
+      --mv-text: #FFFFFF;
+      --mv-text-sub: #D4D4D8;
+      --mv-border: rgba(161, 161, 170, 0.35);
+    }
+    html[data-theme="twilight-indigo"] {
+      --mv-bg: #1E293B;
+      --mv-surface: #263349;
+      --mv-card: #2D3C54;
+      --mv-input: #0F172A;
+      --mv-text: #F8FAFC;
+      --mv-text-sub: #CBD5E1;
+      --mv-border: rgba(148, 163, 184, 0.42);
+    }
+
+    /* تطبيق الخلفيات والألوان الموحدة للسمات الداكنة المخصصة (البني الموكا، الأسود الفحمي، الرمادي الداكن) */
+    html[data-theme="sepia-brown"] body,
+    html[data-theme="obsidian-charcoal"] body,
+    html[data-theme="twilight-indigo"] body {
+      background-color: var(--mv-bg) !important;
+      color: var(--mv-text) !important;
+    }
+    html[data-theme="sepia-brown"] #mobileContainer,
+    html[data-theme="obsidian-charcoal"] #mobileContainer,
+    html[data-theme="twilight-indigo"] #mobileContainer {
+      background: var(--mv-bg) !important;
+      background-image: none !important;
+      border-color: var(--mv-border) !important;
+    }
+    html[data-theme="sepia-brown"] #mobileContainer > div.sticky,
+    html[data-theme="obsidian-charcoal"] #mobileContainer > div.sticky,
+    html[data-theme="twilight-indigo"] #mobileContainer > div.sticky,
+    html[data-theme="sepia-brown"] .bottom-bar-fixed,
+    html[data-theme="obsidian-charcoal"] .bottom-bar-fixed,
+    html[data-theme="twilight-indigo"] .bottom-bar-fixed {
+      background: var(--mv-surface) !important;
+      border-color: var(--mv-border) !important;
+    }
+    html[data-theme="sepia-brown"] #amountContainerCard,
+    html[data-theme="obsidian-charcoal"] #amountContainerCard,
+    html[data-theme="twilight-indigo"] #amountContainerCard,
+    html[data-theme="sepia-brown"] #fromAccountCard,
+    html[data-theme="obsidian-charcoal"] #fromAccountCard,
+    html[data-theme="twilight-indigo"] #fromAccountCard,
+    html[data-theme="sepia-brown"] #toAccountCard,
+    html[data-theme="obsidian-charcoal"] #toAccountCard,
+    html[data-theme="twilight-indigo"] #toAccountCard,
+    html[data-theme="sepia-brown"] #transferContainer,
+    html[data-theme="obsidian-charcoal"] #transferContainer,
+    html[data-theme="twilight-indigo"] #transferContainer,
+    html[data-theme="sepia-brown"] main > div,
+    html[data-theme="obsidian-charcoal"] main > div,
+    html[data-theme="twilight-indigo"] main > div {
+      background: var(--mv-card) !important;
+      background-image: none !important;
+    }
+    html[data-theme="sepia-brown"] #sdgAmountCard,
+    html[data-theme="obsidian-charcoal"] #sdgAmountCard,
+    html[data-theme="twilight-indigo"] #sdgAmountCard,
+    html[data-theme="sepia-brown"] #usdAmountCard,
+    html[data-theme="obsidian-charcoal"] #usdAmountCard,
+    html[data-theme="twilight-indigo"] #usdAmountCard,
+    html[data-theme="sepia-brown"] #fromSearchInput,
+    html[data-theme="obsidian-charcoal"] #fromSearchInput,
+    html[data-theme="twilight-indigo"] #fromSearchInput,
+    html[data-theme="sepia-brown"] #toSearchInput,
+    html[data-theme="obsidian-charcoal"] #toSearchInput,
+    html[data-theme="twilight-indigo"] #toSearchInput,
+    html[data-theme="sepia-brown"] #transferInput,
+    html[data-theme="obsidian-charcoal"] #transferInput,
+    html[data-theme="twilight-indigo"] #transferInput,
+    html[data-theme="sepia-brown"] #bankNameInput,
+    html[data-theme="obsidian-charcoal"] #bankNameInput,
+    html[data-theme="twilight-indigo"] #bankNameInput,
+    html[data-theme="sepia-brown"] #voucherNotes,
+    html[data-theme="obsidian-charcoal"] #voucherNotes,
+    html[data-theme="twilight-indigo"] #voucherNotes,
+    html[data-theme="sepia-brown"] #primaryCurrencySelect,
+    html[data-theme="obsidian-charcoal"] #primaryCurrencySelect,
+    html[data-theme="twilight-indigo"] #primaryCurrencySelect,
+    html[data-theme="sepia-brown"] #fromDropdown,
+    html[data-theme="obsidian-charcoal"] #fromDropdown,
+    html[data-theme="twilight-indigo"] #fromDropdown,
+    html[data-theme="sepia-brown"] #toDropdown,
+    html[data-theme="obsidian-charcoal"] #toDropdown,
+    html[data-theme="twilight-indigo"] #toDropdown,
+    html[data-theme="sepia-brown"] #fromBalanceWrapper,
+    html[data-theme="obsidian-charcoal"] #fromBalanceWrapper,
+    html[data-theme="twilight-indigo"] #fromBalanceWrapper,
+    html[data-theme="sepia-brown"] #toBalanceWrapper,
+    html[data-theme="obsidian-charcoal"] #toBalanceWrapper,
+    html[data-theme="twilight-indigo"] #toBalanceWrapper {
+      background-color: var(--mv-input) !important;
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════════════
+       تطبيق السمات الفاتحة الثلاث (الأبيض الجليدي، البيج الكريمي الطبي، الرمادي البلاتيني)
+       تباين فائق الوضوح (WCAG AAA): خلفية فاتحة موحدة + خط داكن حاد 100% في كافة العناصر
+       ═══════════════════════════════════════════════════════════════════════════ */
+    html[data-theme-mode="light"] body {
+      background-color: var(--mv-bg) !important;
+      color: var(--mv-text) !important;
+    }
+    html[data-theme-mode="light"] #mobileContainer {
+      background: var(--mv-bg) !important;
+      background-image: none !important;
+      color: var(--mv-text) !important;
+      border-color: var(--mv-border) !important;
+    }
+    html[data-theme-mode="light"] #mobileContainer > div.sticky,
+    html[data-theme-mode="light"] .bottom-bar-fixed,
+    html[data-theme-mode="light"] .desktop-screen-switcher {
+      background: var(--mv-surface) !important;
+      background-image: none !important;
+      border-color: var(--mv-border) !important;
+      color: var(--mv-text) !important;
+    }
+    html[data-theme-mode="light"] main > div,
+    html[data-theme-mode="light"] #amountContainerCard,
+    html[data-theme-mode="light"] #fromAccountCard,
+    html[data-theme-mode="light"] #toAccountCard,
+    html[data-theme-mode="light"] #transferContainer {
+      background: var(--mv-card) !important;
+      background-image: none !important;
+      border-color: var(--mv-border) !important;
+      color: var(--mv-text) !important;
+      box-shadow: 0 2px 10px rgba(15, 23, 42, 0.06) !important;
+    }
+    html[data-theme-mode="light"] #fromAccountCard {
+      background: linear-gradient(180deg, rgba(254, 226, 226, 0.55) 0%, var(--mv-card) 100%) !important;
+      border-color: #f43f5e !important;
+    }
+    html[data-theme-mode="light"] #toAccountCard {
+      background: linear-gradient(180deg, rgba(209, 250, 229, 0.55) 0%, var(--mv-card) 100%) !important;
+      border-color: #10b981 !important;
+    }
+    html[data-theme-mode="light"] #sdgAmountCard,
+    html[data-theme-mode="light"] #usdAmountCard,
+    html[data-theme-mode="light"] #fromSearchInput,
+    html[data-theme-mode="light"] #toSearchInput,
+    html[data-theme-mode="light"] #transferInput,
+    html[data-theme-mode="light"] #bankNameInput,
+    html[data-theme-mode="light"] #voucherNotes,
+    html[data-theme-mode="light"] #primaryCurrencySelect,
+    html[data-theme-mode="light"] #fromBalanceWrapper,
+    html[data-theme-mode="light"] #toBalanceWrapper,
+    html[data-theme-mode="light"] .glow-border-cyan,
+    html[data-theme-mode="light"] .glow-border-amber,
+    html[data-theme-mode="light"] .glow-border-emerald,
+    html[data-theme-mode="light"] .glow-border-indigo {
+      background: var(--mv-input) !important;
+      background-color: var(--mv-input) !important;
+      color: var(--mv-text) !important;
+    }
+    html[data-theme-mode="light"] #voucherDate {
+      color-scheme: light !important;
+    }
+    /* ضمان التباين الفائق للنصوص والأرقام داخل الحقول في السمات الفاتحة */
+    html[data-theme-mode="light"] #fromSearchInput,
+    html[data-theme-mode="light"] #toSearchInput,
+    html[data-theme-mode="light"] #costCenterInput,
+    html[data-theme-mode="light"] #voucherNotes,
+    html[data-theme-mode="light"] #voucherSearchFilterInput {
+      color: var(--mv-text) !important;
+    }
+    html[data-theme-mode="light"] #fromSearchInput::placeholder,
+    html[data-theme-mode="light"] #toSearchInput::placeholder,
+    html[data-theme-mode="light"] #costCenterInput::placeholder,
+    html[data-theme-mode="light"] #voucherNotes::placeholder,
+    html[data-theme-mode="light"] #transferInput::placeholder,
+    html[data-theme-mode="light"] #bankNameInput::placeholder {
+      color: #64748B !important;
+      opacity: 0.85 !important;
+    }
+    html[data-theme-mode="light"] #voucherDateDisplay,
+    html[data-theme-mode="light"] #bankNameInput,
+    html[data-theme-mode="light"] #bankNameLabel,
+    html[data-theme-mode="light"] #currentTime {
+      color: #0369A1 !important;
+    }
+    html[data-theme-mode="light"] #currentTime {
+      background: var(--mv-input) !important;
+      border-color: var(--mv-border) !important;
+    }
+    html[data-theme-mode="light"] #currentVoucherDisplay,
+    html[data-theme-mode="light"] #primaryCurrencySelect,
+    html[data-theme-mode="light"] #transferInput,
+    html[data-theme-mode="light"] #refLabel,
+    html[data-theme-mode="light"] #fromAccountSdgBalance,
+    html[data-theme-mode="light"] #toAccountSdgBalance {
+      color: #B45309 !important;
+    }
+    html[data-theme-mode="light"] #usdRate,
+    html[data-theme-mode="light"] #rateSymbolLabel,
+    html[data-theme-mode="light"] #foreignAmountTitle,
+    html[data-theme-mode="light"] #toHeaderTitle,
+    html[data-theme-mode="light"] #fromAccountUsdBalance,
+    html[data-theme-mode="light"] #toAccountUsdBalance {
+      color: #047857 !important;
+    }
+    html[data-theme-mode="light"] #fromHeaderTitle {
+      color: #BE123C !important;
+    }
+    html[data-theme-mode="light"] #fromStatementBtn {
+      background: #FFE4E6 !important;
+      color: #9F1239 !important;
+      border-color: #FDA4AF !important;
+    }
+    html[data-theme-mode="light"] #toStatementBtn {
+      background: #D1FAE5 !important;
+      color: #065F46 !important;
+      border-color: #6EE7B7 !important;
+    }
+    html[data-theme-mode="light"] #tafqeetDisplay {
+      background: #FEF3C7 !important;
+      border-color: #F59E0B !important;
+    }
+    html[data-theme-mode="light"] #tafqeetText {
+      color: #92400E !important;
+    }
+    /* أزرار طرق الدفع والشريط السفلي والمرفقات في السمات الفاتحة */
+    html[data-theme-mode="light"] .glass-pay-btn:not(.is-active) {
+      background: var(--mv-input) !important;
+      color: var(--mv-text) !important;
+      border-color: var(--mv-border) !important;
+      box-shadow: 0 2px 6px rgba(15, 23, 42, 0.06) !important;
+    }
+    html[data-theme-mode="light"] .glass-pay-btn.is-active {
+      background: linear-gradient(135deg, #0284C7 0%, #1E40AF 100%) !important;
+      color: #FFFFFF !important;
+      border-color: #0284C7 !important;
+    }
+    html[data-theme-mode="light"] .modern-media-card {
+      background: var(--mv-input) !important;
+      color: var(--mv-text) !important;
+      box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08) !important;
+    }
+    html[data-theme-mode="light"] .modern-media-card span {
+      color: var(--mv-text) !important;
+    }
+    html[data-theme-mode="light"] .action-btn-kinetic:not(#btnSaveMain) {
+      background: var(--mv-input) !important;
+      color: var(--mv-text) !important;
+      box-shadow: 0 2px 6px rgba(15, 23, 42, 0.08) !important;
+    }
+    html[data-theme-mode="light"] #btnNextVoucher,
+    html[data-theme-mode="light"] #btnPrevVoucher {
+      background: var(--mv-surface) !important;
+      color: #B45309 !important;
+      border-color: #F59E0B !important;
+    }
+    /* القوائم المنسدلة للحسابات والنوافذ المنبثقة في السمات الفاتحة */
+    html[data-theme-mode="light"] #fromDropdown,
+    html[data-theme-mode="light"] #toDropdown {
+      background: var(--mv-input) !important;
+      color: var(--mv-text) !important;
+      box-shadow: 0 12px 32px rgba(15, 23, 42, 0.18) !important;
+    }
+    html[data-theme-mode="light"] #fromDropdown .sticky,
+    html[data-theme-mode="light"] #toDropdown .sticky {
+      background: var(--mv-surface) !important;
+      border-color: var(--mv-border) !important;
+    }
+    html[data-theme-mode="light"] #fromDropdown .text-white,
+    html[data-theme-mode="light"] #toDropdown .text-white,
+    html[data-theme-mode="light"] #mobileContainer .text-white:not(#masterMicBtn *):not(#btnSaveMain *):not(.glass-pay-btn.is-active *) {
+      color: var(--mv-text) !important;
+    }
+    html[data-theme-mode="light"] #fromDropdown .text-amber-400,
+    html[data-theme-mode="light"] #toDropdown .text-amber-400 {
+      color: #B45309 !important;
+    }
+    html[data-theme-mode="light"] #fromDropdown .text-emerald-400,
+    html[data-theme-mode="light"] #toDropdown .text-emerald-400 {
+      color: #047857 !important;
+    }
+    html[data-theme-mode="light"] #fromDropdown > div:hover,
+    html[data-theme-mode="light"] #toDropdown > div:hover {
+      background: var(--mv-surface) !important;
+    }
+    html[data-theme-mode="light"] #modalAccountMiniStatement > div,
+    html[data-theme-mode="light"] #modalBatchIntake > div,
+    html[data-theme-mode="light"] #modalSendWhatsApp > div,
+    html[data-theme-mode="light"] #modalPrintVoucher > div,
+    html[data-theme-mode="light"] #modalSearchVouchers > div,
+    html[data-theme-mode="light"] #modalNumberProperties > div,
+    html[data-theme-mode="light"] #politeModalCard,
+    html[data-theme-mode="light"] #saveFeedbackCard {
+      background: var(--mv-bg) !important;
+      color: var(--mv-text) !important;
+      border-color: var(--mv-border) !important;
+    }
+    html[data-theme-mode="light"] #modalSearchVouchers .bg-slate-950,
+    html[data-theme-mode="light"] #modalAccountMiniStatement .bg-slate-950,
+    html[data-theme-mode="light"] #modalBatchIntake .bg-slate-950,
+    html[data-theme-mode="light"] #modalSendWhatsApp .bg-slate-950,
+    html[data-theme-mode="light"] #modalNumberProperties .bg-slate-950 {
+      background: var(--mv-surface) !important;
+      color: var(--mv-text) !important;
+      border-color: var(--mv-border) !important;
+    }
+    html[data-theme-mode="light"] #modalSearchVouchers .text-white,
+    html[data-theme-mode="light"] #modalAccountMiniStatement .text-white,
+    html[data-theme-mode="light"] #modalBatchIntake .text-white:not(.bg-emerald-600 *):not(.bg-indigo-600 *):not(.bg-amber-600 *),
+    html[data-theme-mode="light"] #modalSendWhatsApp .text-white:not(.bg-emerald-600 *),
+    html[data-theme-mode="light"] #modalNumberProperties .text-white:not(.bg-cyan-600 *):not(.bg-sky-600 *):not(.bg-emerald-600 *) {
+      color: var(--mv-text) !important;
+    }
   </style>
+  <script>
+    (function() {
+      const VOUCHER_THEME_MAP = {
+        'warm_cream': 'warm-alabaster',
+        'warm-alabaster': 'warm-alabaster',
+        'alabaster-warm': 'warm-alabaster',
+        'paper-ivory': 'warm-alabaster',
+        'sand-linen': 'warm-alabaster',
+        'mint-breeze': 'warm-alabaster',
+        'sage-calm': 'warm-alabaster',
+        'sky-morning': 'warm-alabaster',
+        'ultra_white': 'pure-platinum',
+        'pure-platinum': 'pure-platinum',
+        'light': 'pure-platinum',
+        'arctic-frost': 'pure-platinum',
+        'exec_gray': 'pearl-platinum',
+        'pearl-platinum': 'pearl-platinum',
+        'lavender-mist': 'pearl-platinum',
+        'rose-quartz': 'pearl-platinum',
+        'midnight_obsidian': 'midnight-executive',
+        'midnight-executive': 'midnight-executive',
+        'dark': 'midnight-executive',
+        'navy-command': 'midnight-executive',
+        'royal-sapphire': 'midnight-executive',
+        'oceanic-teal': 'midnight-executive',
+        'emerald-vault': 'midnight-executive',
+        'mocha_brown': 'sepia-brown',
+        'sepia-brown': 'sepia-brown',
+        'espresso-gold': 'sepia-brown',
+        'crimson-velvet': 'sepia-brown',
+        'pure_oled': 'obsidian-charcoal',
+        'obsidian-charcoal': 'obsidian-charcoal',
+        'nordic-frost': 'obsidian-charcoal',
+        'slate_twilight': 'twilight-indigo',
+        'twilight-indigo': 'twilight-indigo',
+        'amethyst-night': 'twilight-indigo'
+      };
+      const DESKTOP_SYNC_MAP = {
+        'warm-alabaster': 'warm_cream',
+        'pure-platinum': 'ultra_white',
+        'pearl-platinum': 'exec_gray',
+        'midnight-executive': 'midnight_obsidian',
+        'sepia-brown': 'mocha_brown',
+        'obsidian-charcoal': 'pure_oled',
+        'twilight-indigo': 'slate_twilight'
+      };
+      const LIGHT_THEMES = { 'warm-alabaster': true, 'pure-platinum': true, 'pearl-platinum': true };
+
+      window.resolveVoucherThemeKey = function(raw) {
+        const k = String(raw || '').trim();
+        return VOUCHER_THEME_MAP[k] || 'midnight-executive';
+      };
+      window.isVoucherLightTheme = function(k) {
+        return !!LIGHT_THEMES[window.resolveVoucherThemeKey(k)];
+      };
+      window.applyVoucherMasterTheme = function(rawKey, persist) {
+        const resolved = window.resolveVoucherThemeKey(rawKey);
+        const isLight = !!LIGHT_THEMES[resolved];
+        document.documentElement.setAttribute('data-theme', resolved);
+        document.documentElement.setAttribute('data-theme-mode', isLight ? 'light' : 'dark');
+        if (document.body) {
+          document.body.setAttribute('data-theme', resolved);
+        }
+        if (persist !== false) {
+          try {
+            const desktopKey = DESKTOP_SYNC_MAP[resolved] || 'midnight_obsidian';
+            localStorage.setItem('magaies_active_theme', desktopKey);
+            localStorage.setItem('magaiees_mobile_theme', resolved);
+            localStorage.setItem('magaiees_global_theme', resolved);
+            localStorage.setItem('ui_theme', isLight ? 'light' : 'dark');
+            localStorage.setItem('erp_theme', isLight ? 'light' : 'dark');
+          } catch (e) {}
+        }
+        if (typeof window.applyNumberStylesToInputs === 'function') {
+          window.applyNumberStylesToInputs();
+        }
+        const picker = document.getElementById('voucherQuickThemeDrawer');
+        if (picker) {
+          picker.querySelectorAll('[data-vtheme]').forEach(btn => {
+            const active = btn.getAttribute('data-vtheme') === resolved;
+            btn.style.outline = active ? '2px solid #10b981' : 'none';
+          });
+        }
+      };
+
+      try {
+        const saved = localStorage.getItem('magaiees_mobile_theme') ||
+                      localStorage.getItem('magaies_active_theme') ||
+                      localStorage.getItem('magaiees_global_theme') ||
+                      localStorage.getItem('ui_theme') ||
+                      localStorage.getItem('erp_theme') ||
+                      'midnight-executive';
+        window.applyVoucherMasterTheme(saved, false);
+      } catch (e) {}
+
+      window.addEventListener('storage', function(e) {
+        if (e && ['magaiees_mobile_theme', 'magaies_active_theme', 'magaiees_global_theme'].includes(e.key) && e.newValue) {
+          window.applyVoucherMasterTheme(e.newValue, false);
+        }
+      });
+    })();
+  </script>
 </head>
 <body class="flex flex-col items-center justify-start antialiased selection:bg-blue-600 selection:text-white">
 
@@ -2361,7 +2825,7 @@ $currenciesData = [
 
     <!-- ═════════════════════════════════════════════════════════════════
          1. السطر الأول المرفوع (الهيدر العلوي):
-         الرجوع + المايك الذكي + حركة مالية + حالة المزامنة + الساعة (مسافة مدمجة ومريحة)
+         الرجوع + المايك الذكي + حركة مالية + حالة المزامنة + السمات السبع + الساعة
          ═════════════════════════════════════════════════════════════════ -->
     <div class="px-2.5 py-1 bg-[#050b1d]/95 border-b border-indigo-950/80 flex items-center justify-between sticky top-0 z-40 select-none backdrop-blur-md">
       
@@ -2391,10 +2855,48 @@ $currenciesData = [
         </button>
       </div>
 
-      <!-- اليسار: الساعة الحقيقية (تم إخفاء شارة قيد تسوية محاسبية نهائياً بناءً على طلب المستخدم) -->
-      <div class="flex items-center gap-1.5 text-slate-300">
+      <!-- اليسار: زر السمات السبع الموحدة + الساعة الحقيقية -->
+      <div class="flex items-center gap-1.5 text-slate-300 relative">
+        <button type="button" onclick="const d=document.getElementById('voucherQuickThemeDrawer'); if(d) d.classList.toggle('hidden');" class="w-7 h-7 rounded-lg bg-slate-900/90 hover:bg-slate-800 border border-amber-500/40 text-amber-400 flex items-center justify-center text-xs shadow-sm active:scale-95 transition" title="السمات المحاسبية السبع المعتمدة (7 Themes)">
+          <i class="fa-solid fa-palette"></i>
+        </button>
         <span id="voucherNatureHeaderBadge" class="hidden"></span>
         <span id="currentTime" class="font-bold font-mono text-cyan-200/90 text-[11px] bg-slate-900/90 px-2 py-0.5 rounded-lg border border-indigo-900/60 shadow-inner">13:15</span>
+
+        <!-- نافذة سريعة لاختيار إحدى السمات السبع المعتمدة مباشرة من شاشة الحركة المالية -->
+        <div id="voucherQuickThemeDrawer" class="hidden absolute top-9 left-0 w-64 rounded-2xl bg-slate-900 border-2 border-amber-500/60 p-2.5 shadow-2xl z-50 space-y-1.5 text-right" dir="rtl">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-1.5 mb-1">
+            <span class="text-[11px] font-black text-amber-400">🎨 السمات المحاسبية الـ 7 (AAA)</span>
+            <button type="button" onclick="document.getElementById('voucherQuickThemeDrawer').classList.add('hidden')" class="text-slate-400 hover:text-white text-xs font-bold px-1">✕</button>
+          </div>
+          <div class="text-[9.5px] font-bold text-slate-400">☀️ سمات نهارية فاتحة (خط داكن حاد):</div>
+          <div class="grid grid-cols-3 gap-1">
+            <button type="button" data-vtheme="warm-alabaster" onclick="window.applyVoucherMasterTheme('warm-alabaster', true); document.getElementById('voucherQuickThemeDrawer').classList.add('hidden');" class="p-1.5 rounded-xl border border-amber-400/60 flex flex-col items-center gap-0.5 text-[9.5px] font-black" style="background:#FBF8F1; color:#18130A;">
+              <span>📜 بيج كريمي</span>
+            </button>
+            <button type="button" data-vtheme="pure-platinum" onclick="window.applyVoucherMasterTheme('pure-platinum', true); document.getElementById('voucherQuickThemeDrawer').classList.add('hidden');" class="p-1.5 rounded-xl border border-slate-300 flex flex-col items-center gap-0.5 text-[9.5px] font-black" style="background:#FFFFFF; color:#000000;">
+              <span>☀️ أبيض ناصع</span>
+            </button>
+            <button type="button" data-vtheme="pearl-platinum" onclick="window.applyVoucherMasterTheme('pearl-platinum', true); document.getElementById('voucherQuickThemeDrawer').classList.add('hidden');" class="p-1.5 rounded-xl border border-slate-400 flex flex-col items-center gap-0.5 text-[9.5px] font-black" style="background:#EEF2F6; color:#0F172A;">
+              <span>🏛️ بلاتيني</span>
+            </button>
+          </div>
+          <div class="text-[9.5px] font-bold text-slate-400 pt-1">🌙 سمات ليلية داكنة (خط فاتح ناصع):</div>
+          <div class="grid grid-cols-2 gap-1">
+            <button type="button" data-vtheme="midnight-executive" onclick="window.applyVoucherMasterTheme('midnight-executive', true); document.getElementById('voucherQuickThemeDrawer').classList.add('hidden');" class="p-1.5 rounded-xl border border-indigo-500/50 flex items-center justify-center gap-1 text-[9.5px] font-black" style="background:#04091A; color:#F8FAFC;">
+              <span>🌌 كحلي ملكي</span>
+            </button>
+            <button type="button" data-vtheme="sepia-brown" onclick="window.applyVoucherMasterTheme('sepia-brown', true); document.getElementById('voucherQuickThemeDrawer').classList.add('hidden');" class="p-1.5 rounded-xl border border-amber-600/50 flex items-center justify-center gap-1 text-[9.5px] font-black" style="background:#1A110B; color:#FDF8F5;">
+              <span>☕ بني موكا</span>
+            </button>
+            <button type="button" data-vtheme="obsidian-charcoal" onclick="window.applyVoucherMasterTheme('obsidian-charcoal', true); document.getElementById('voucherQuickThemeDrawer').classList.add('hidden');" class="p-1.5 rounded-xl border border-zinc-600 flex items-center justify-center gap-1 text-[9.5px] font-black" style="background:#000000; color:#FFFFFF;">
+              <span>🌑 أسود OLED</span>
+            </button>
+            <button type="button" data-vtheme="twilight-indigo" onclick="window.applyVoucherMasterTheme('twilight-indigo', true); document.getElementById('voucherQuickThemeDrawer').classList.add('hidden');" class="p-1.5 rounded-xl border border-slate-500 flex items-center justify-center gap-1 text-[9.5px] font-black" style="background:#1E293B; color:#F8FAFC;">
+              <span>🛡️ رمادي داكن</span>
+            </button>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -6987,11 +7489,33 @@ $currenciesData = [
     }
 
     function applyNumberStylesToInputs() {
+      const isLightMode = document.documentElement.getAttribute('data-theme-mode') === 'light';
+      const rawSdgColor = String(sdgNumberConfig.color || '#ffffff').trim().toLowerCase();
+      const rawUsdColor = String(usdNumberConfig.color || '#10b981').trim().toLowerCase();
+
+      // حماية التباين البصري (WCAG AAA): منع ظهور خط فاتح فوق خلفية فاتحة أو خط داكن فوق خلفية داكنة
+      const lightColorsSet = ['#ffffff', '#fff', '#f8fafc', '#f1f5f9', '#e2e8f0', '#fef08a', '#fde047'];
+      const darkColorsSet = ['#000000', '#000', '#0f172a', '#18130a', '#1e293b'];
+
+      let effectiveSdgColor = sdgNumberConfig.color || '#ffffff';
+      if (isLightMode && lightColorsSet.includes(rawSdgColor)) {
+        effectiveSdgColor = '#0F172A';
+      } else if (!isLightMode && darkColorsSet.includes(rawSdgColor)) {
+        effectiveSdgColor = '#FFFFFF';
+      }
+
+      let effectiveUsdColor = usdNumberConfig.color || '#10b981';
+      if (isLightMode && (lightColorsSet.includes(rawUsdColor) || rawUsdColor === '#10b981' || rawUsdColor === '#34d399')) {
+        effectiveUsdColor = '#047857';
+      } else if (!isLightMode && darkColorsSet.includes(rawUsdColor)) {
+        effectiveUsdColor = '#10b981';
+      }
+
       // 1. تطبيق خصائص المبلغ المحلي
       const sdgInp = document.getElementById('sdgAmount');
       if (sdgInp) {
         sdgInp.style.setProperty('font-size', sdgNumberConfig.fontSize || '32px', 'important');
-        sdgInp.style.setProperty('color', sdgNumberConfig.color || '#ffffff', 'important');
+        sdgInp.style.setProperty('color', effectiveSdgColor, 'important');
         sdgInp.style.setProperty('font-weight', sdgNumberConfig.fontWeight || '900', 'important');
         sdgInp.style.setProperty('font-family', `'${sdgNumberConfig.fontFamily || 'JetBrains Mono'}', monospace, sans-serif`, 'important');
       }
@@ -7000,19 +7524,20 @@ $currenciesData = [
       const usdInp = document.getElementById('usdAmount');
       if (usdInp) {
         usdInp.style.setProperty('font-size', usdNumberConfig.fontSize || '32px', 'important');
-        usdInp.style.setProperty('color', usdNumberConfig.color || '#10b981', 'important');
+        usdInp.style.setProperty('color', effectiveUsdColor, 'important');
         usdInp.style.setProperty('font-weight', usdNumberConfig.fontWeight || '900', 'important');
         usdInp.style.setProperty('font-family', `'${usdNumberConfig.fontFamily || 'JetBrains Mono'}', monospace, sans-serif`, 'important');
       }
 
       // ضبط متغيرات CSS
       document.documentElement.style.setProperty('--num-size-sdg', sdgNumberConfig.fontSize || '32px');
-      document.documentElement.style.setProperty('--num-color-sdg', sdgNumberConfig.color || '#ffffff');
+      document.documentElement.style.setProperty('--num-color-sdg', effectiveSdgColor);
       document.documentElement.style.setProperty('--num-weight-sdg', sdgNumberConfig.fontWeight || '900');
       document.documentElement.style.setProperty('--num-size-usd', usdNumberConfig.fontSize || '32px');
-      document.documentElement.style.setProperty('--num-color-usd', usdNumberConfig.color || '#10b981');
+      document.documentElement.style.setProperty('--num-color-usd', effectiveUsdColor);
       document.documentElement.style.setProperty('--num-weight-usd', usdNumberConfig.fontWeight || '900');
     }
+    window.applyNumberStylesToInputs = applyNumberStylesToInputs;
 
     function switchActiveAmountTarget(target) {
       // حفظ التغييرات المؤقتة للهدف الحالي

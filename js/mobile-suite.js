@@ -2101,12 +2101,7 @@
 
       applySavedStyleToElement(el) {
         if (!el || !el.id) return;
-        const cfg = this.getFieldConfig(el.id);
-        if (el.classList.contains('pos-ghost-default')) {
-          el.style.setProperty('color', 'rgba(148, 163, 184, 0.24)', 'important');
-        } else if (cfg && cfg.fontColor) {
-          el.style.setProperty('color', cfg.fontColor, 'important');
-        }
+        el.style.removeProperty('color');
         const saved = this.configs[el.id];
         if (saved && saved.fontSize) {
           el.style.setProperty('font-size', saved.fontSize + 'px', 'important');
@@ -2117,13 +2112,8 @@
         Object.keys(this.fieldMeta).forEach(fieldId => {
           const el = document.getElementById(fieldId);
           if (!el) return;
-          const cfg = this.getFieldConfig(fieldId);
+          el.style.removeProperty('color');
           const saved = this.configs[fieldId];
-          if (el.classList.contains('pos-ghost-default')) {
-            el.style.setProperty('color', 'rgba(148, 163, 184, 0.24)', 'important');
-          } else if (cfg && cfg.fontColor) {
-            el.style.setProperty('color', cfg.fontColor, 'important');
-          }
           if (saved) {
             if (saved.fontSize) {
               el.style.setProperty('font-size', saved.fontSize + 'px', 'important');
@@ -2520,23 +2510,16 @@
       // محرك ذكاء اصطناعي لقياس عرض النص الفعلي بالبيكسل مقارنة بالمساحة المتاحة داخل الخانة
       fitTextToBox(el, text, opts = {}) {
         if (!el) return;
-        const isGhost = el.classList.contains('pos-ghost-default');
-        if (window.SmartFieldCustomizer && el.id) {
+        el.style.removeProperty('color');
+        if (window.SmartFieldCustomizer && el.id && SmartFieldCustomizer.hasCustomConfig(el.id)) {
           const uCfg = SmartFieldCustomizer.getFieldConfig(el.id);
-          if (isGhost) {
-            el.style.setProperty('color', 'rgba(148, 163, 184, 0.24)', 'important');
-          } else if (uCfg && uCfg.fontColor) {
-            el.style.setProperty('color', uCfg.fontColor, 'important');
+          if (uCfg.fontMode === 'fixed' && uCfg.fontSize) {
+            el.style.setProperty('font-size', uCfg.fontSize + 'px', 'important');
+            el.style.setProperty('font-weight', opts.weight || '900', 'important');
+            return;
           }
-          if (SmartFieldCustomizer.hasCustomConfig(el.id)) {
-            if (uCfg.fontMode === 'fixed' && uCfg.fontSize) {
-              el.style.setProperty('font-size', uCfg.fontSize + 'px', 'important');
-              el.style.setProperty('font-weight', opts.weight || '900', 'important');
-              return;
-            }
-            if (uCfg.fontSize) {
-              opts = Object.assign({}, opts, { maxPx: uCfg.fontSize, defPx: uCfg.fontSize });
-            }
+          if (uCfg.fontSize) {
+            opts = Object.assign({}, opts, { maxPx: uCfg.fontSize, defPx: uCfg.fontSize });
           }
         }
         const maxPx = opts.maxPx || 18;
@@ -2583,22 +2566,15 @@
 
       _applyCustomNumericOrScale(input, defaultBase, stepThresholds) {
         if (!input) return;
-        const isGhost = input.classList.contains('pos-ghost-default');
-        if (window.SmartFieldCustomizer && input.id) {
+        input.style.removeProperty('color');
+        if (window.SmartFieldCustomizer && input.id && SmartFieldCustomizer.hasCustomConfig(input.id)) {
           const uCfg = SmartFieldCustomizer.getFieldConfig(input.id);
-          if (isGhost) {
-            input.style.setProperty('color', 'rgba(148, 163, 184, 0.24)', 'important');
-          } else if (uCfg && uCfg.fontColor) {
-            input.style.setProperty('color', uCfg.fontColor, 'important');
+          if (uCfg.fontMode === 'fixed' && uCfg.fontSize) {
+            input.style.setProperty('font-size', uCfg.fontSize + 'px', 'important');
+            input.style.setProperty('font-weight', '900', 'important');
+            return;
           }
-          if (SmartFieldCustomizer.hasCustomConfig(input.id)) {
-            if (uCfg.fontMode === 'fixed' && uCfg.fontSize) {
-              input.style.setProperty('font-size', uCfg.fontSize + 'px', 'important');
-              input.style.setProperty('font-weight', '900', 'important');
-              return;
-            }
-            if (uCfg.fontSize) defaultBase = uCfg.fontSize;
-          }
+          if (uCfg.fontSize) defaultBase = uCfg.fontSize;
         }
         const raw = (input.value || '').toString().trim();
         const len = raw.replace(/[^0-9.]/g, '').length;
@@ -2666,9 +2642,9 @@
 
       scaleUnit(select) {
         if (!select) return;
+        select.style.removeProperty('color');
         if (window.SmartFieldCustomizer && select.id && SmartFieldCustomizer.hasCustomConfig(select.id)) {
           const uCfg = SmartFieldCustomizer.getFieldConfig(select.id);
-          if (uCfg.fontColor) select.style.setProperty('color', uCfg.fontColor, 'important');
           if (uCfg.fontMode === 'fixed' && uCfg.fontSize) {
             select.style.setProperty('font-size', uCfg.fontSize + 'px', 'important');
             select.style.setProperty('font-weight', '800', 'important');
@@ -12630,48 +12606,85 @@ async function commitOpSales(andPay = false) {
     }
 
 
-        // ========================================================
-    // 21 SCIENTIFIC ERGONOMIC THEMES ENGINE (سيف السمات والراحة)
+    // ========================================================
+    // 7 MASTER SCIENTIFIC ERGONOMIC THEMES ENGINE (معيار WCAG AAA الموحد)
     // ========================================================
     const THEMES_PALETTE_CONFIG = {
-      // 🌟 The 4 Recommended Signature Themes (الموصى بها - قمة الرقي)
-      'warm-alabaster': { name: 'العاجي الدافئ', icon: '📜', category: 'recommended', desc: 'مستوحى من ورق الدفاتر الفاخرة لراحة ذهنية مطلقة' },
-      'pure-platinum': { name: 'الفضي النقي', icon: '❄️', category: 'recommended', desc: 'طراز المنصات العالمية بنقاء تحليلي بدون أي تشتيت' },
-      'midnight-executive': { name: 'كحلي منتصف الليل', icon: '🌌', category: 'recommended', desc: 'كحلي سحيق يبعث الأمان المالي ويخفض ضغط العين' },
-      'obsidian-charcoal': { name: 'حجر السج الجرافيتي', icon: '🪨', category: 'recommended', desc: 'فحم جرافيتي مطفأ فخامة صامتة مريح لشاشات OLED' },
+      // ☀️ 3 سمات نهارية فاتحة فائقة التباين (نصوص سوداء/كحلية حادة على خلفيات فاتحة مريحة)
+      'warm-alabaster':     { name: '١. البيج الكريمي الطبي (Warm Sepia)', icon: '📜', category: 'light', mode: 'light', desktopKey: 'warm_cream', desc: 'الأفضل طبياً ونفسياً ضد إجهاد الأرقام — يمتص الوهج مع خط كحلي/أسود فاحم' },
+      'pure-platinum':      { name: '٢. الأبيض الجليدي الفائق (Ultra-Clean White)', icon: '❄️', category: 'light', mode: 'light', desktopKey: 'ultra_white', desc: 'أبيض ناصع بتباين حاد جداً (21:1) واضح تحت الإضاءة القوية' },
+      'pearl-platinum':     { name: '٣. الرمادي البلاتيني التنفيذي (Executive Gray)', icon: '🪨', category: 'light', mode: 'light', desktopKey: 'exec_gray', desc: 'رمادي فضي بارد يمنع زغللة العين أثناء الجرد والتدقيق الطويل' },
 
-      // Light, Beige, Ivory & Off-White
-      'beige': { name: 'البيج الدافئ المريح', icon: '🌾', category: 'light', desc: 'درجة بيج رملي طبيعي دافئ يمتص الوهج البصري' },
-      'ivory': { name: 'العاجي الملكي الكلاسيكي', icon: '🥛', category: 'light', desc: 'نعومة اللون العاجي الكريمي الهادئ تريح البؤبؤ' },
-      'offwhite': { name: 'الأوف وايت الحديث المطفأ', icon: '📜', category: 'light', desc: 'أوف وايت ألاباستر عصري بدون بياض ساطع' },
-      'light-linen': { name: 'الكتان الطبيعي المريح', icon: '🧵', category: 'light', desc: 'طابع الكتان العضوي الهادئ يمنح السكينة' },
-      'pearl-platinum': { name: 'اللؤلؤي الفضي المريح', icon: '🦪', category: 'light', desc: 'رمادي لؤلؤي بلاتيني بارد يقلل انعكاس الضوء' },
-      'nordic-paper': { name: 'الورقي النوردي المريح', icon: '📄', category: 'light', desc: 'ملمس ورق الدفاتر الفاخر بدون وهج ساطع' },
-
-      // Blue & Navy Themes
-      'navy-kohl': { name: 'الكحلي الملكي الليلي', icon: '🌌', category: 'blue', desc: 'كحلي عميق فاخر مع نصوص بيضاء ناصعة ولمسات ذهبية' },
-      'royal-blue': { name: 'الأزرق الزفيري الحيوي', icon: '🔷', category: 'blue', desc: 'أزرق ملكي ساطع ينشط الذاكرة وسرعة البديهة' },
-      'ocean-navy': { name: 'الأزرق المحيطي العميق', icon: '🌊', category: 'blue', desc: 'تعزيز التفكير المنطقي والتحليل المالي' },
-      'petrol-cyan': { name: 'الأزرق البترولي والتيل', icon: '🐬', category: 'blue', desc: 'أزرق بترولي محيطي مهدئ للأعصاب' },
-      'twilight-indigo': { name: 'أزرق الشفق والإنديجو', icon: '🔮', category: 'blue', desc: 'أزرق شفق نيلي مسائي يخفف التوتر العصبي' },
-
-      // Dark, Gold & Brown
-      'midnight': { name: 'الليل الملكي الداكن', icon: '🌙', category: 'dark', desc: 'أقصى توفير لبطارية OLED وتدرج أسود عميق' },
-      'sepia-brown': { name: 'البني الإسبريسو والورق القديم', icon: '📜', category: 'dark', desc: 'حجب كامل للضوء الأزرق المسبب لإجهاد العين' },
-      'pale-gold': { name: 'الذهبي الباهت والفخامة', icon: '👑', category: 'dark', desc: 'دفء كلاسيكي ملكي وهيبة الأرقام المحاسبية' },
-      'emerald-forest': { name: 'زمرد الغابات لصفاء الذهن', icon: '🌲', category: 'dark', desc: 'راحة عصبية تخفض النبض وتمنع تبديل الأرقام' },
-      'desert-mocha': { name: 'الرمال الصحراوية وموكا', icon: '🏜️', category: 'dark', desc: 'توازن لوني دافئ ومريح للإضاءة المكتبية' },
-      'sunlight-titanium': { name: 'التيتانيوم الشمسي فائق التباين', icon: '☀️', category: 'dark', desc: 'معيار WCAG AAA للعمل الميداني تحت شمس الظهيرة' }
+      // 🌙 4 سمات ليلية داكنة فائقة التباين (نصوص ناصعة الوضوح على خلفيات داكنة موحدة)
+      'midnight-executive': { name: '٤. الكحلي الملكي الليلي (Royal Midnight Navy)', icon: '🌌', category: 'dark', mode: 'dark', desktopKey: 'midnight_obsidian', desc: 'كحلي مصرفي عميق موحد في جميع الشاشات يمنح هيبة وأماناً بصرياً' },
+      'sepia-brown':        { name: '٥. البني الموكا الملكي (Mocha Espresso)', icon: '☕', category: 'dark', mode: 'dark', desktopKey: 'mocha_brown', desc: 'بني إسبريسو دافئ يحجب الضوء الأزرق تماماً مع أرقام ذهبية وكريمية واضحة' },
+      'obsidian-charcoal':  { name: '٦. الأسود الفحمي الصافي (Pure OLED Black)', icon: '🌑', category: 'dark', mode: 'dark', desktopKey: 'pure_oled', desc: 'أسود جرافيتي مطلق بأعلى تباين للأرقام وتوفير أقصى لبطارية الجوال' },
+      'twilight-indigo':    { name: '٧. الرمادي الداكن الاحترافي (Twilight Slate)', icon: '🛡️', category: 'dark', mode: 'dark', desktopKey: 'slate_twilight', desc: 'رمادي أردوازي داكن متوازن يريح الأعصاب في فترات العمل المسائية' }
     };
 
-    let currentActiveTheme = localStorage.getItem('magaies_active_theme') || 'warm-alabaster';
+    const THEME_ALIAS_MAP = {
+      'warm_cream': 'warm-alabaster',
+      'beige': 'warm-alabaster',
+      'ivory': 'warm-alabaster',
+      'offwhite': 'warm-alabaster',
+      'light-linen': 'warm-alabaster',
+      'nordic-paper': 'warm-alabaster',
+      'ultra_white': 'pure-platinum',
+      'light': 'pure-platinum',
+      'exec_gray': 'pearl-platinum',
+      'midnight_obsidian': 'midnight-executive',
+      'navy-kohl': 'midnight-executive',
+      'royal-blue': 'midnight-executive',
+      'ocean-navy': 'midnight-executive',
+      'petrol-cyan': 'midnight-executive',
+      'dark': 'midnight-executive',
+      'mocha_brown': 'sepia-brown',
+      'pale-gold': 'sepia-brown',
+      'desert-mocha': 'sepia-brown',
+      'pure_oled': 'obsidian-charcoal',
+      'midnight': 'obsidian-charcoal',
+      'sunlight-titanium': 'obsidian-charcoal',
+      'slate_twilight': 'twilight-indigo',
+      'emerald-forest': 'twilight-indigo'
+    };
+
+    function resolveMasterThemeKey(rawKey) {
+      if (!rawKey) return 'warm-alabaster';
+      if (THEMES_PALETTE_CONFIG[rawKey]) return rawKey;
+      if (THEME_ALIAS_MAP[rawKey]) return THEME_ALIAS_MAP[rawKey];
+      return 'warm-alabaster';
+    }
+
+    let currentActiveTheme = resolveMasterThemeKey(
+      localStorage.getItem('magaies_active_theme') ||
+      localStorage.getItem('magaiees_mobile_theme') ||
+      localStorage.getItem('magaiees_global_theme') ||
+      'warm-alabaster'
+    );
 
     function applyTheme(themeKey, showToast = true) {
-      if (!THEMES_PALETTE_CONFIG[themeKey]) themeKey = 'warm-alabaster';
+      themeKey = resolveMasterThemeKey(themeKey);
+      const conf = THEMES_PALETTE_CONFIG[themeKey];
       currentActiveTheme = themeKey;
-      localStorage.setItem('magaies_active_theme', themeKey);
+
+      try {
+        localStorage.setItem('magaies_active_theme', themeKey);
+        localStorage.setItem('magaiees_mobile_theme', conf.desktopKey || themeKey);
+        localStorage.setItem('magaiees_global_theme', conf.desktopKey || themeKey);
+        localStorage.setItem('ui_theme', conf.mode === 'light' ? 'light' : 'dark');
+        localStorage.setItem('erp_theme', conf.mode === 'light' ? 'light' : 'dark');
+      } catch (e) {}
 
       document.documentElement.setAttribute('data-theme', themeKey);
+      if (document.body) {
+        document.body.setAttribute('data-theme', themeKey);
+      }
+
+      // Highlight active theme card in drawer if present
+      document.querySelectorAll('#themeCardsContainer .theme-card').forEach(card => {
+        const isCurrent = (card.getAttribute('onclick') || '').includes("'" + themeKey + "'");
+        card.style.outline = isCurrent ? '2.5px solid #10b981' : '';
+      });
 
       // Play audio and haptic feedback
       if (showToast) {
@@ -12682,16 +12695,15 @@ async function commitOpSales(andPay = false) {
       // Close modal if open
       closeModal('modalThemePaletteDrawer');
 
-      if (showToast) {
-        const conf = THEMES_PALETTE_CONFIG[themeKey];
-        showFloatingToast(`🎨 تم تفعيل سمة: ${conf.icon} ${conf.name} (${conf.desc})`);
+      if (showToast && conf) {
+        showFloatingToast(`🎨 تم توحيد وتفعيل السمة في جميع الشاشات: ${conf.icon} ${conf.name}`);
       }
     }
 
     function openThemePaletteDrawer() {
       if (typeof AudioEngine !== 'undefined' && AudioEngine.play) AudioEngine.play('numpad');
       if (typeof triggerHapticPulse === 'function') triggerHapticPulse(30);
-      filterThemeCategory('recommended');
+      filterThemeCategory('all');
       openModal('modalThemePaletteDrawer');
     }
 
@@ -12700,19 +12712,17 @@ async function commitOpSales(andPay = false) {
     }
 
     function filterThemeCategory(cat) {
-      const btnRecommended = document.getElementById('btnTcRecommended');
       const btnAll = document.getElementById('btnTcAll');
       const btnLight = document.getElementById('btnTcLight');
-      const btnBlue = document.getElementById('btnTcBlue');
       const btnDark = document.getElementById('btnTcDark');
 
-      const btns = { 'recommended': btnRecommended, 'all': btnAll, 'light': btnLight, 'blue': btnBlue, 'dark': btnDark };
+      const btns = { 'all': btnAll, 'light': btnLight, 'dark': btnDark };
       Object.entries(btns).forEach(([k, btn]) => {
         if (!btn) return;
         if (k === cat) {
-          btn.className = "px-2.5 py-1 rounded-xl bg-amber-500 text-slate-950 font-black shrink-0 shadow flex items-center gap-1.5";
+          btn.className = "px-3 py-1.5 rounded-xl bg-amber-500 text-slate-950 font-black shrink-0 shadow flex items-center gap-1.5 cursor-pointer";
         } else {
-          btn.className = "px-2.5 py-1 rounded-xl bg-slate-800 text-slate-300 hover:text-white shrink-0 border border-slate-700 flex items-center gap-1.5";
+          btn.className = "px-3 py-1.5 rounded-xl bg-slate-800 text-slate-200 hover:text-white shrink-0 border border-slate-700 flex items-center gap-1.5 cursor-pointer";
         }
       });
 

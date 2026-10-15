@@ -2271,7 +2271,8 @@ try {
         $fFamily = $cfg['fontFamily'] ?? "'Cairo', sans-serif";
         $fSize = ($cfg['fontSize'] ?? 16) . 'px';
         $fWeight = $cfg['fontWeight'] ?? 'normal';
-        $fColor = $cfg['fontColor'] ?? '#ffffff';
+        $fColorRaw = $cfg['fontColor'] ?? '#ffffff';
+        $fColor = (strtolower(trim($fColorRaw)) === '#ffffff' || strtolower(trim($fColorRaw)) === '#fff') ? 'var(--text-primary, #ffffff)' : $fColorRaw;
         $tAlign = $cfg['align'] ?? 'center';
         
         echo "#pos-grid, #pos-grid *, #pos-grid thead th, #pos-grid tbody td, #pos-grid tbody td input, #pos-grid tbody td select, #pos-grid tbody td span { font-family: " . $fFamily . " !important; }\n";
@@ -2282,7 +2283,8 @@ try {
         foreach ($cfg['columns'] as $col) {
             $colId = $col['id'];
             $colVisible = !isset($col['visible']) || $col['visible'];
-            $colColor = $col['color'] ?? $fColor;
+            $colColorRaw = $col['color'] ?? $fColorRaw;
+            $colColor = (strtolower(trim($colColorRaw)) === '#ffffff' || strtolower(trim($colColorRaw)) === '#fff') ? 'var(--text-primary, #ffffff)' : $colColorRaw;
             $colSize = isset($col['fontSize']) ? ($col['fontSize'] . 'px') : $fSize;
             $colWeight = $col['fontWeight'] ?? $fWeight;
             $colAlign = $col['align'] ?? $tAlign;
@@ -2721,7 +2723,7 @@ try {
             <div style="display: flex; flex-direction: row; align-items: center; gap: 8px; flex: 1; width: 100%;">
                 <div class="custom-dropdown" style="flex:1; min-width: 0;">
                     <div class="custom-dropdown-input-wrap" style="position: relative;">
-                        <input type="text" class="ctrl-input v-input" id="hdr-customer-search" placeholder="ابحث عن اسم العميل..." onfocus="showCustomerDropdown()" onblur="hideCustomerDropdownDelayed()" oninput="filterCustomerDropdown()" style="width:100%; padding-left: 95px !important; font-size: 1.45rem !important; font-weight: 800 !important; color: #6ee7b7 !important;" autocomplete="one-time-code">
+                        <input type="text" class="ctrl-input v-input" id="hdr-customer-search" placeholder="ابحث عن اسم العميل..." onfocus="showCustomerDropdown()" onblur="hideCustomerDropdownDelayed()" oninput="filterCustomerDropdown()" style="width:100%; padding-left: 95px !important; font-size: 1.45rem !important; font-weight: 800 !important; color: var(--green, #10b981);" autocomplete="one-time-code">
                         <button type="button" id="hdr-customer-ledger-btn" onclick="openGeneralLedgerForAccount('cust-' + document.getElementById('hdr-customer').value)" style="display: none;" title="دفتر الأستاذ العام">📖 أستاذ</button>
                         <input type="hidden" id="hdr-customer" onchange="if(typeof onCustomerChange === 'function') onCustomerChange()">
                         <div class="custom-dropdown-list" id="customer-dropdown-list" style="position: absolute; top: 100%; left: 0; right: 0; z-index: 9999; background: #1e293b; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; max-height: 250px; overflow-y: auto; text-align: right; box-shadow: 0 10px 25px rgba(0,0,0,0.5); display: none;">
@@ -2922,7 +2924,7 @@ try {
                             <td colspan="5" style="padding: 10px 12px; border: none; vertical-align: middle;">
                                 <div style="display: flex; gap: 14px; align-items: center; justify-content: flex-end; width: 100%; max-width: 580px; margin-right: auto; margin-left: 0;">
                                     <!-- ONLY Amount Number inside this stylized rectangle (Enlarged to comfortably hold 8+ integer digits) -->
-                                    <span class="val amount" id="t-grand-dynamic-loc" style="flex: 1; min-width: 280px; min-height: 60px; height: 60px; padding: 0 22px; display: flex; align-items: center; justify-content: center; font-size: 2.35rem; font-weight: 900; font-family: 'Cairo', 'JetBrains Mono', monospace, sans-serif; color: #ffffff !important; text-align: center; background: linear-gradient(135deg, rgba(16,185,129,0.45) 0%, rgba(5,150,105,0.65) 50%, rgba(4,120,87,0.8) 100%); border: 2.5px solid #10b981; border-radius: 14px; box-shadow: 0 0 25px rgba(16,185,129,0.4), inset 0 2px 5px rgba(255,255,255,0.35), inset 0 -2px 6px rgba(0,0,0,0.5); letter-spacing: 1.5px; box-sizing: border-box; text-shadow: 0 2px 6px rgba(0,0,0,0.7); white-space: nowrap; overflow: hidden;">0</span>
+                                    <span class="val amount" id="t-grand-dynamic-loc" style="flex: 1; min-width: 280px; min-height: 60px; height: 60px; padding: 0 22px; display: flex; align-items: center; justify-content: center; font-size: 2.35rem; font-weight: 900; font-family: 'Cairo', 'JetBrains Mono', monospace, sans-serif; color: #ffffff; text-align: center; background: linear-gradient(135deg, rgba(16,185,129,0.45) 0%, rgba(5,150,105,0.65) 50%, rgba(4,120,87,0.8) 100%); border: 2.5px solid #10b981; border-radius: 14px; box-shadow: 0 0 25px rgba(16,185,129,0.4), inset 0 2px 5px rgba(255,255,255,0.35), inset 0 -2px 6px rgba(0,0,0,0.5); letter-spacing: 1.5px; box-sizing: border-box; text-shadow: 0 2px 6px rgba(0,0,0,0.7); white-space: nowrap; overflow: hidden;">0</span>
                                     <!-- Currency badge completely OUTSIDE the rectangle -->
                                     <span id="t-grand-currency-badge" style="flex-shrink: 0; height: 50px; min-width: 65px; display: inline-flex; align-items: center; justify-content: center; padding: 0 16px; font-size: 1.3rem; font-weight: 900; color: #6ee7b7; background: rgba(16, 185, 129, 0.2); border: 2px solid rgba(16, 185, 129, 0.5); border-radius: 11px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); font-family: 'Tajawal', 'Cairo', sans-serif; letter-spacing: 0.5px;">SDG</span>
                                     <span id="t-grand" style="display:none;">0</span>
