@@ -2324,31 +2324,31 @@ $currenciesData = [
        توحيد لوني وبصري كامل 100% دون المساس بأي خاصية تمرير أو أبعاد (Zero Scroll Lag)
        ═══════════════════════════════════════════════════════════════════════════ */
     html[data-theme="warm-alabaster"] {
-      --mv-bg: #FBF8F1;
-      --mv-surface: #F4EFE4;
-      --mv-card: #EFE8D8;
+      --mv-bg: #F6F0E4;
+      --mv-surface: #EDE4D3;
+      --mv-card: #E5DAC4;
       --mv-input: #FFFFFF;
-      --mv-text: #18130A;
-      --mv-text-sub: #4A3F30;
-      --mv-border: #C8B99E;
+      --mv-text: #000000;
+      --mv-text-sub: #1C140D;
+      --mv-border: #785A3C;
     }
     html[data-theme="pure-platinum"] {
       --mv-bg: #FFFFFF;
-      --mv-surface: #F8FAFC;
-      --mv-card: #F1F5F9;
+      --mv-surface: #F1F5F9;
+      --mv-card: #E6ECF5;
       --mv-input: #FFFFFF;
       --mv-text: #000000;
-      --mv-text-sub: #1E293B;
-      --mv-border: #CBD5E1;
+      --mv-text-sub: #0F172A;
+      --mv-border: #475569;
     }
     html[data-theme="pearl-platinum"] {
-      --mv-bg: #EEF2F6;
-      --mv-surface: #E2E8F0;
-      --mv-card: #E8EEF5;
+      --mv-bg: #E5E9F0;
+      --mv-surface: #D8E0EB;
+      --mv-card: #DCE3EE;
       --mv-input: #FFFFFF;
-      --mv-text: #0F172A;
-      --mv-text-sub: #334155;
-      --mv-border: #94A3B8;
+      --mv-text: #000000;
+      --mv-text-sub: #0F172A;
+      --mv-border: #334155;
     }
     html[data-theme="midnight-executive"] {
       --mv-bg: #04091A;
@@ -2469,7 +2469,7 @@ $currenciesData = [
 
     /* ═══════════════════════════════════════════════════════════════════════════
        تطبيق السمات الفاتحة الثلاث (الأبيض الجليدي، البيج الكريمي الطبي، الرمادي البلاتيني)
-       تباين فائق الوضوح (WCAG AAA): خلفية فاتحة موحدة + خط داكن حاد 100% في كافة العناصر
+       تباين فائق الوضوح (WCAG AAA): خلفية فاتحة موحدة + خط داكن حاد وغامق جداً 100%
        ═══════════════════════════════════════════════════════════════════════════ */
     html[data-theme-mode="light"] body {
       background-color: var(--mv-bg) !important;
@@ -2496,18 +2496,25 @@ $currenciesData = [
     html[data-theme-mode="light"] #transferContainer {
       background: var(--mv-card) !important;
       background-image: none !important;
-      border-color: var(--mv-border) !important;
+      border: 1.5px solid var(--mv-border) !important;
       color: var(--mv-text) !important;
-      box-shadow: 0 2px 10px rgba(15, 23, 42, 0.06) !important;
+      box-shadow: 0 3px 10px rgba(15, 23, 42, 0.08) !important;
     }
+
+    /* حواف وبطاقة (من حساب - الدافع) باللون الأحمر القرمزي الغامق والواضح */
     html[data-theme-mode="light"] #fromAccountCard {
-      background: linear-gradient(180deg, rgba(254, 226, 226, 0.55) 0%, var(--mv-card) 100%) !important;
-      border-color: #f43f5e !important;
+      background: linear-gradient(180deg, rgba(254, 205, 211, 0.72) 0%, var(--mv-card) 100%) !important;
+      border: 2px solid #9F1239 !important;
+      box-shadow: 0 3px 12px rgba(159, 18, 57, 0.14) !important;
     }
+    /* حواف وبطاقة (إلى حساب - المستلم) باللون الأخضر الزمردي الغامق والواضح */
     html[data-theme-mode="light"] #toAccountCard {
-      background: linear-gradient(180deg, rgba(209, 250, 229, 0.55) 0%, var(--mv-card) 100%) !important;
-      border-color: #10b981 !important;
+      background: linear-gradient(180deg, rgba(167, 243, 208, 0.72) 0%, var(--mv-card) 100%) !important;
+      border: 2px solid #047857 !important;
+      box-shadow: 0 3px 12px rgba(4, 120, 87, 0.14) !important;
     }
+
+    /* خلفيات الحقول البيضاء الناصعة مع حواف غامقة وحادة حسب وظيفة كل حقل */
     html[data-theme-mode="light"] #sdgAmountCard,
     html[data-theme-mode="light"] #usdAmountCard,
     html[data-theme-mode="light"] #fromSearchInput,
@@ -2521,21 +2528,61 @@ $currenciesData = [
     html[data-theme-mode="light"] .glow-border-cyan,
     html[data-theme-mode="light"] .glow-border-amber,
     html[data-theme-mode="light"] .glow-border-emerald,
-    html[data-theme-mode="light"] .glow-border-indigo {
+    html[data-theme-mode="light"] .glow-border-sky,
+    html[data-theme-mode="light"] .glow-border-indigo,
+    html[data-theme-mode="light"] .glow-border-red {
       background: var(--mv-input) !important;
       background-color: var(--mv-input) !important;
       color: var(--mv-text) !important;
     }
+
+    /* تغميق الحواف الدلالية (الأحمر، الأخضر، الكهرماني، الأزرق، البنفسجي) في السمات الفاتحة */
+    html[data-theme-mode="light"] .glow-border-red,
+    html[data-theme-mode="light"] #fromSearchInput {
+      border: 2px solid #9F1239 !important;
+      box-shadow: 0 2px 6px rgba(159, 18, 57, 0.14) !important;
+    }
+    html[data-theme-mode="light"] .glow-border-emerald,
+    html[data-theme-mode="light"] #toSearchInput,
+    html[data-theme-mode="light"] #usdAmountCard {
+      border: 2px solid #047857 !important;
+      box-shadow: 0 2px 6px rgba(4, 120, 87, 0.14) !important;
+    }
+    html[data-theme-mode="light"] .glow-border-amber,
+    html[data-theme-mode="light"] #primaryCurrencySelect,
+    html[data-theme-mode="light"] #transferInput {
+      border: 2px solid #92400E !important;
+      box-shadow: 0 2px 6px rgba(146, 64, 14, 0.14) !important;
+    }
+    html[data-theme-mode="light"] .glow-border-cyan,
+    html[data-theme-mode="light"] .glow-border-sky,
+    html[data-theme-mode="light"] #sdgAmountCard,
+    html[data-theme-mode="light"] #bankNameInput {
+      border: 2px solid #075985 !important;
+      box-shadow: 0 2px 6px rgba(7, 89, 133, 0.14) !important;
+    }
+    html[data-theme-mode="light"] .glow-border-indigo,
+    html[data-theme-mode="light"] #voucherNotes {
+      border: 2px solid #3730A3 !important;
+      box-shadow: 0 2px 6px rgba(55, 48, 163, 0.14) !important;
+    }
+
     html[data-theme-mode="light"] #voucherDate {
       color-scheme: light !important;
     }
-    /* ضمان التباين الفائق للنصوص والأرقام داخل الحقول في السمات الفاتحة */
+
+    /* ضمان التباين الفائق واللون الأسود/الغامق الحاد للنصوص داخل الحقول في السمات الفاتحة */
     html[data-theme-mode="light"] #fromSearchInput,
     html[data-theme-mode="light"] #toSearchInput,
-    html[data-theme-mode="light"] #costCenterInput,
     html[data-theme-mode="light"] #voucherNotes,
     html[data-theme-mode="light"] #voucherSearchFilterInput {
-      color: var(--mv-text) !important;
+      color: #000000 !important;
+      font-weight: 900 !important;
+    }
+    /* المخزن / مركز الكلفة: لون بنفسجي/أسود غامق جداً وواضح وبولد ثقيل */
+    html[data-theme-mode="light"] #costCenterInput {
+      color: #1E1B4B !important;
+      font-weight: 900 !important;
     }
     html[data-theme-mode="light"] #fromSearchInput::placeholder,
     html[data-theme-mode="light"] #toSearchInput::placeholder,
@@ -2543,92 +2590,183 @@ $currenciesData = [
     html[data-theme-mode="light"] #voucherNotes::placeholder,
     html[data-theme-mode="light"] #transferInput::placeholder,
     html[data-theme-mode="light"] #bankNameInput::placeholder {
-      color: #64748B !important;
-      opacity: 0.85 !important;
+      color: #334155 !important;
+      opacity: 0.9 !important;
+      font-weight: 700 !important;
     }
+
+    /* التاريخ واسم البنك والوقت وعنوان المبلغ المحلي: أزرق كحلي غامق جداً */
     html[data-theme-mode="light"] #voucherDateDisplay,
     html[data-theme-mode="light"] #bankNameInput,
     html[data-theme-mode="light"] #bankNameLabel,
-    html[data-theme-mode="light"] #currentTime {
-      color: #0369A1 !important;
+    html[data-theme-mode="light"] #bankNameLabel i,
+    html[data-theme-mode="light"] #currentTime,
+    html[data-theme-mode="light"] #amountContainerCard .text-sky-300 {
+      color: #082F49 !important;
+      font-weight: 900 !important;
+    }
+    html[data-theme-mode="light"] .glow-border-cyan i.fa-calendar {
+      color: #075985 !important;
     }
     html[data-theme-mode="light"] #currentTime {
       background: var(--mv-input) !important;
       border-color: var(--mv-border) !important;
     }
+
+    /* العملة (جنيه سوداني) ورقم السند ورقم التحويل: أحمر عنابي / بني محروق غامق جداً */
+    html[data-theme-mode="light"] #primaryCurrencySelect {
+      color: #7F1D1D !important;
+      font-weight: 900 !important;
+    }
+    html[data-theme-mode="light"] #primaryCurrencySelect + div,
+    html[data-theme-mode="light"] #primaryCurrencySelect ~ div {
+      color: #7F1D1D !important;
+    }
     html[data-theme-mode="light"] #currentVoucherDisplay,
-    html[data-theme-mode="light"] #primaryCurrencySelect,
     html[data-theme-mode="light"] #transferInput,
     html[data-theme-mode="light"] #refLabel,
+    html[data-theme-mode="light"] #refLabel i,
     html[data-theme-mode="light"] #fromAccountSdgBalance,
     html[data-theme-mode="light"] #toAccountSdgBalance {
-      color: #B45309 !important;
+      color: #78350F !important;
+      font-weight: 900 !important;
     }
+
+    /* السعر الدولاري ومبلغ الدولار وإلى حساب (المستلم): أخضر غامق جداً (زمردي داكن) */
     html[data-theme-mode="light"] #usdRate,
     html[data-theme-mode="light"] #rateSymbolLabel,
     html[data-theme-mode="light"] #foreignAmountTitle,
     html[data-theme-mode="light"] #toHeaderTitle,
     html[data-theme-mode="light"] #fromAccountUsdBalance,
     html[data-theme-mode="light"] #toAccountUsdBalance {
-      color: #047857 !important;
+      color: #064E3B !important;
+      font-weight: 900 !important;
     }
+
+    /* من حساب (الدافع): أحمر قرمزي غامق جداً */
     html[data-theme-mode="light"] #fromHeaderTitle {
-      color: #BE123C !important;
+      color: #7F1D1D !important;
+      font-weight: 900 !important;
     }
     html[data-theme-mode="light"] #fromStatementBtn {
-      background: #FFE4E6 !important;
-      color: #9F1239 !important;
-      border-color: #FDA4AF !important;
+      background: #FECDD3 !important;
+      color: #7F1D1D !important;
+      border: 1.5px solid #9F1239 !important;
+      font-weight: 900 !important;
     }
     html[data-theme-mode="light"] #toStatementBtn {
-      background: #D1FAE5 !important;
-      color: #065F46 !important;
-      border-color: #6EE7B7 !important;
+      background: #A7F3D0 !important;
+      color: #064E3B !important;
+      border: 1.5px solid #047857 !important;
+      font-weight: 900 !important;
     }
+
+    /* شريط الرصيد الحي وبعد القيد داخل بطاقتي من حساب وإلى حساب */
+    html[data-theme-mode="light"] #fromBalanceWrapper {
+      border: 1.5px solid #9F1239 !important;
+    }
+    html[data-theme-mode="light"] #toBalanceWrapper {
+      border: 1.5px solid #047857 !important;
+    }
+    html[data-theme-mode="light"] #fromBalanceWrapper .text-slate-400,
+    html[data-theme-mode="light"] #toBalanceWrapper .text-slate-400 {
+      color: #000000 !important;
+      font-weight: 900 !important;
+    }
+    html[data-theme-mode="light"] #fromBalanceWrapper .text-amber-300\/80,
+    html[data-theme-mode="light"] #toBalanceWrapper .text-amber-300\/80 {
+      color: #78350F !important;
+      font-weight: 900 !important;
+    }
+    html[data-theme-mode="light"] #fromBalanceWrapper .text-emerald-400,
+    html[data-theme-mode="light"] #toBalanceWrapper .text-emerald-400 {
+      color: #064E3B !important;
+      font-weight: 900 !important;
+    }
+    html[data-theme-mode="light"] #fromProjectedBadge,
+    html[data-theme-mode="light"] #fromProjectedBadge *,
+    html[data-theme-mode="light"] #toProjectedBadge,
+    html[data-theme-mode="light"] #toProjectedBadge * {
+      color: #0C4A6E !important;
+      font-weight: 900 !important;
+    }
+
     html[data-theme-mode="light"] #tafqeetDisplay {
       background: #FEF3C7 !important;
-      border-color: #F59E0B !important;
+      border: 2px solid #B45309 !important;
     }
     html[data-theme-mode="light"] #tafqeetText {
+      color: #78350F !important;
+      font-weight: 900 !important;
+    }
+
+    /* أزرار طرق الدفع (تحويل، كاش، شيك مصرفي، شيك عادي) بلون أسود غامق وحاد جداً */
+    html[data-theme-mode="light"] .glass-pay-btn:not(.is-active) {
+      background: #FFFFFF !important;
+      color: #000000 !important;
+      border: 2px solid var(--mv-border) !important;
+      box-shadow: 0 2px 6px rgba(15, 23, 42, 0.08) !important;
+      font-weight: 900 !important;
+    }
+    html[data-theme-mode="light"] .glass-pay-btn:not(.is-active) span {
+      color: #000000 !important;
+      font-weight: 900 !important;
+    }
+    html[data-theme-mode="light"] #btn-transfer:not(.is-active) i {
+      color: #075985 !important;
+    }
+    html[data-theme-mode="light"] #btn-cash:not(.is-active) i {
+      color: #047857 !important;
+    }
+    html[data-theme-mode="light"] #btn-bank_cheque:not(.is-active) i {
       color: #92400E !important;
     }
-    /* أزرار طرق الدفع والشريط السفلي والمرفقات في السمات الفاتحة */
-    html[data-theme-mode="light"] .glass-pay-btn:not(.is-active) {
-      background: var(--mv-input) !important;
-      color: var(--mv-text) !important;
-      border-color: var(--mv-border) !important;
-      box-shadow: 0 2px 6px rgba(15, 23, 42, 0.06) !important;
+    html[data-theme-mode="light"] #btn-normal_cheque:not(.is-active) i {
+      color: #3730A3 !important;
     }
     html[data-theme-mode="light"] .glass-pay-btn.is-active {
-      background: linear-gradient(135deg, #0284C7 0%, #1E40AF 100%) !important;
+      background: linear-gradient(135deg, #0C4A6E 0%, #1E3A8A 100%) !important;
       color: #FFFFFF !important;
-      border-color: #0284C7 !important;
+      border: 2px solid #082F49 !important;
     }
+    html[data-theme-mode="light"] .glass-pay-btn.is-active span,
+    html[data-theme-mode="light"] .glass-pay-btn.is-active i {
+      color: #FFFFFF !important;
+    }
+
+    /* أزرار المرفقات والشريط السفلي في السمات الفاتحة */
     html[data-theme-mode="light"] .modern-media-card {
-      background: var(--mv-input) !important;
-      color: var(--mv-text) !important;
-      box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08) !important;
+      background: #FFFFFF !important;
+      color: #000000 !important;
+      box-shadow: 0 2px 8px rgba(15, 23, 42, 0.1) !important;
     }
     html[data-theme-mode="light"] .modern-media-card span {
-      color: var(--mv-text) !important;
+      color: #000000 !important;
+      font-weight: 900 !important;
     }
     html[data-theme-mode="light"] .action-btn-kinetic:not(#btnSaveMain) {
-      background: var(--mv-input) !important;
-      color: var(--mv-text) !important;
-      box-shadow: 0 2px 6px rgba(15, 23, 42, 0.08) !important;
+      background: #FFFFFF !important;
+      color: #000000 !important;
+      border: 1.5px solid var(--mv-border) !important;
+      box-shadow: 0 2px 6px rgba(15, 23, 42, 0.1) !important;
+    }
+    html[data-theme-mode="light"] .action-btn-kinetic:not(#btnSaveMain) span {
+      color: #000000 !important;
+      font-weight: 900 !important;
     }
     html[data-theme-mode="light"] #btnNextVoucher,
     html[data-theme-mode="light"] #btnPrevVoucher {
       background: var(--mv-surface) !important;
-      color: #B45309 !important;
-      border-color: #F59E0B !important;
+      color: #78350F !important;
+      border: 1.5px solid #92400E !important;
     }
     /* القوائم المنسدلة للحسابات والنوافذ المنبثقة في السمات الفاتحة */
     html[data-theme-mode="light"] #fromDropdown,
     html[data-theme-mode="light"] #toDropdown {
       background: var(--mv-input) !important;
-      color: var(--mv-text) !important;
-      box-shadow: 0 12px 32px rgba(15, 23, 42, 0.18) !important;
+      color: #000000 !important;
+      border: 2px solid var(--mv-border) !important;
+      box-shadow: 0 12px 32px rgba(15, 23, 42, 0.22) !important;
     }
     html[data-theme-mode="light"] #fromDropdown .sticky,
     html[data-theme-mode="light"] #toDropdown .sticky {
@@ -2637,16 +2775,18 @@ $currenciesData = [
     }
     html[data-theme-mode="light"] #fromDropdown .text-white,
     html[data-theme-mode="light"] #toDropdown .text-white,
-    html[data-theme-mode="light"] #mobileContainer .text-white:not(#masterMicBtn *):not(#btnSaveMain *):not(.glass-pay-btn.is-active *) {
-      color: var(--mv-text) !important;
+    html[data-theme-mode="light"] #mobileContainer .text-white:not(#masterMicBtn *):not(#btnSaveMain *):not(.glass-pay-btn.is-active *):not(#btnMainModeAuto *) {
+      color: #000000 !important;
     }
     html[data-theme-mode="light"] #fromDropdown .text-amber-400,
     html[data-theme-mode="light"] #toDropdown .text-amber-400 {
-      color: #B45309 !important;
+      color: #78350F !important;
+      font-weight: 900 !important;
     }
     html[data-theme-mode="light"] #fromDropdown .text-emerald-400,
     html[data-theme-mode="light"] #toDropdown .text-emerald-400 {
-      color: #047857 !important;
+      color: #064E3B !important;
+      font-weight: 900 !important;
     }
     html[data-theme-mode="light"] #fromDropdown > div:hover,
     html[data-theme-mode="light"] #toDropdown > div:hover {
@@ -2661,7 +2801,7 @@ $currenciesData = [
     html[data-theme-mode="light"] #politeModalCard,
     html[data-theme-mode="light"] #saveFeedbackCard {
       background: var(--mv-bg) !important;
-      color: var(--mv-text) !important;
+      color: #000000 !important;
       border-color: var(--mv-border) !important;
     }
     html[data-theme-mode="light"] #modalSearchVouchers .bg-slate-950,
@@ -2670,7 +2810,7 @@ $currenciesData = [
     html[data-theme-mode="light"] #modalSendWhatsApp .bg-slate-950,
     html[data-theme-mode="light"] #modalNumberProperties .bg-slate-950 {
       background: var(--mv-surface) !important;
-      color: var(--mv-text) !important;
+      color: #000000 !important;
       border-color: var(--mv-border) !important;
     }
     html[data-theme-mode="light"] #modalSearchVouchers .text-white,
@@ -2678,7 +2818,7 @@ $currenciesData = [
     html[data-theme-mode="light"] #modalBatchIntake .text-white:not(.bg-emerald-600 *):not(.bg-indigo-600 *):not(.bg-amber-600 *),
     html[data-theme-mode="light"] #modalSendWhatsApp .text-white:not(.bg-emerald-600 *),
     html[data-theme-mode="light"] #modalNumberProperties .text-white:not(.bg-cyan-600 *):not(.bg-sky-600 *):not(.bg-emerald-600 *) {
-      color: var(--mv-text) !important;
+      color: #000000 !important;
     }
   </style>
   <script>
@@ -7498,15 +7638,15 @@ $currenciesData = [
       const darkColorsSet = ['#000000', '#000', '#0f172a', '#18130a', '#1e293b'];
 
       let effectiveSdgColor = sdgNumberConfig.color || '#ffffff';
-      if (isLightMode && lightColorsSet.includes(rawSdgColor)) {
-        effectiveSdgColor = '#0F172A';
+      if (isLightMode && (lightColorsSet.includes(rawSdgColor) || rawSdgColor === '#0f172a')) {
+        effectiveSdgColor = '#000000';
       } else if (!isLightMode && darkColorsSet.includes(rawSdgColor)) {
         effectiveSdgColor = '#FFFFFF';
       }
 
       let effectiveUsdColor = usdNumberConfig.color || '#10b981';
-      if (isLightMode && (lightColorsSet.includes(rawUsdColor) || rawUsdColor === '#10b981' || rawUsdColor === '#34d399')) {
-        effectiveUsdColor = '#047857';
+      if (isLightMode && (lightColorsSet.includes(rawUsdColor) || rawUsdColor === '#10b981' || rawUsdColor === '#34d399' || rawUsdColor === '#047857')) {
+        effectiveUsdColor = '#064E3B';
       } else if (!isLightMode && darkColorsSet.includes(rawUsdColor)) {
         effectiveUsdColor = '#10b981';
       }

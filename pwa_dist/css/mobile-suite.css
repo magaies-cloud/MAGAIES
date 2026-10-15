@@ -11,16 +11,16 @@
 
     /* Dynamic Optical & Motion Input Glow */
     .glow-input-field {
-      background: rgba(15, 23, 42, 0.92) !important;
-      border: 1.5px solid rgba(148, 163, 184, 0.28) !important;
-      color: #ffffff !important;
+      background: var(--m-bg-input, rgba(15, 23, 42, 0.92)) !important;
+      border: 1.5px solid var(--m-border, rgba(148, 163, 184, 0.28)) !important;
+      color: var(--m-text-primary, #ffffff) !important;
       border-radius: 12px;
       transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4), inset 0 1px 2px rgba(255, 255, 255, 0.05);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
     }
     .glow-input-field:focus, .glow-input-field:focus-within {
       transform: scale(1.025);
-      background: rgba(15, 23, 42, 0.98) !important;
+      background: var(--m-bg-input, rgba(15, 23, 42, 0.98)) !important;
       outline: none !important;
       z-index: 10;
     }
@@ -1368,17 +1368,17 @@
     }
 
     /* Writing Boxes, Inputs, and Modals in Warm Alabaster */
-    html[data-theme="warm-alabaster"] input,
-    html[data-theme="warm-alabaster"] select,
-    html[data-theme="warm-alabaster"] textarea {
+    html[data-theme="warm-alabaster"] input:not(.border-none):not(.pos-field-interactive *):not(#modalOpSales *):not(#modalOpPurchase *),
+    html[data-theme="warm-alabaster"] select:not(.pos-field-interactive *):not(#modalOpSales *):not(#modalOpPurchase *),
+    html[data-theme="warm-alabaster"] textarea:not(.border-none):not(.pos-field-interactive *):not(#modalOpSales *):not(#modalOpPurchase *) {
       background: #ffffff !important;
-      border: 1.5px solid #8B6F4E !important;
-      color: #1c1917 !important;
+      border: 1.5px solid #6B4C30 !important;
+      color: #000000 !important;
     }
-    html[data-theme="warm-alabaster"] input:focus,
-    html[data-theme="warm-alabaster"] select:focus,
-    html[data-theme="warm-alabaster"] textarea:focus {
-      border-color: #523820 !important;
+    html[data-theme="warm-alabaster"] input:not(.border-none):not(.pos-field-interactive *):not(#modalOpSales *):not(#modalOpPurchase *):focus,
+    html[data-theme="warm-alabaster"] select:not(.pos-field-interactive *):not(#modalOpSales *):not(#modalOpPurchase *):focus,
+    html[data-theme="warm-alabaster"] textarea:not(.border-none):not(.pos-field-interactive *):not(#modalOpSales *):not(#modalOpPurchase *):focus {
+      border-color: #3E2712 !important;
       outline: none !important;
     }
     html[data-theme="warm-alabaster"] .modal-backdrop {
@@ -1769,17 +1769,17 @@
     }
 
     /* Writing Boxes, Inputs, and Modals in Pure Platinum */
-    html[data-theme="pure-platinum"] input,
-    html[data-theme="pure-platinum"] select,
-    html[data-theme="pure-platinum"] textarea {
+    html[data-theme="pure-platinum"] input:not(.border-none):not(.pos-field-interactive *):not(#modalOpSales *):not(#modalOpPurchase *),
+    html[data-theme="pure-platinum"] select:not(.pos-field-interactive *):not(#modalOpSales *):not(#modalOpPurchase *),
+    html[data-theme="pure-platinum"] textarea:not(.border-none):not(.pos-field-interactive *):not(#modalOpSales *):not(#modalOpPurchase *) {
       background: #ffffff !important;
-      border: 1.5px solid #64748B !important;
-      color: #0f172a !important;
+      border: 1.5px solid #475569 !important;
+      color: #000000 !important;
     }
-    html[data-theme="pure-platinum"] input:focus,
-    html[data-theme="pure-platinum"] select:focus,
-    html[data-theme="pure-platinum"] textarea:focus {
-      border-color: #0f172a !important;
+    html[data-theme="pure-platinum"] input:not(.border-none):not(.pos-field-interactive *):not(#modalOpSales *):not(#modalOpPurchase *):focus,
+    html[data-theme="pure-platinum"] select:not(.pos-field-interactive *):not(#modalOpSales *):not(#modalOpPurchase *):focus,
+    html[data-theme="pure-platinum"] textarea:not(.border-none):not(.pos-field-interactive *):not(#modalOpSales *):not(#modalOpPurchase *):focus {
+      border-color: #000000 !important;
       outline: none !important;
     }
     html[data-theme="pure-platinum"] .modal-backdrop {
@@ -2200,337 +2200,946 @@
       border: 1px solid #3f3f46 !important;
     }
 
-    /* ─── GROUP 1: LIGHT, BEIGE, IVORY & OFF-WHITE THEMES ─── */
-
-    /* 1. WARM BEIGE (البيج الدافئ المريح) */
-    html[data-theme="beige"] body { background: #eadeca !important; color: #23190e !important; }
-    html[data-theme="beige"] .mobile-app-wrapper { background: #f5ebe0 !important; border-color: #d6c5b0 !important; color: #23190e !important; }
-    html[data-theme="beige"] header,
-    html[data-theme="beige"] nav.glass-dock { background: rgba(245, 235, 224, 0.98) !important; border-color: #d6c5b0 !important; }
-    html[data-theme="beige"] .glass-base,
-    html[data-theme="beige"] .glass-card-interactive,
-    html[data-theme="beige"] .bg-slate-900,
-    html[data-theme="beige"] .bg-slate-950 { background: #fffcf7 !important; border-color: #e2d2bd !important; color: #23190e !important; box-shadow: 0 4px 18px rgba(180, 83, 9, 0.05) !important; }
-    html[data-theme="beige"] .bg-slate-800 { background: #eddcd0 !important; border-color: #c9b49e !important; color: #3b2814 !important; }
-    html[data-theme="beige"] .text-slate-100,
-    html[data-theme="beige"] .text-slate-200,
-    html[data-theme="beige"] .text-slate-300 { color: #23190e !important; font-weight: 700; }
-    html[data-theme="beige"] .text-slate-400 { color: #5a4632 !important; }
-    html[data-theme="beige"] .text-slate-500 { color: #78624a !important; }
-
-    /* 2. ROYAL IVORY (العاجي الملكي الهادئ) */
-    html[data-theme="ivory"] body { background: #eee9dc !important; color: #1c1813 !important; }
-    html[data-theme="ivory"] .mobile-app-wrapper { background: #faf7f0 !important; border-color: #ded6c3 !important; color: #1c1813 !important; }
-    html[data-theme="ivory"] header,
-    html[data-theme="ivory"] nav.glass-dock { background: rgba(250, 247, 240, 0.98) !important; border-color: #ded6c3 !important; }
-    html[data-theme="ivory"] .glass-base,
-    html[data-theme="ivory"] .glass-card-interactive,
-    html[data-theme="ivory"] .bg-slate-900,
-    html[data-theme="ivory"] .bg-slate-950 { background: #ffffff !important; border-color: #e6dfcd !important; color: #1c1813 !important; box-shadow: 0 4px 18px rgba(0,0,0,0.05) !important; }
-    html[data-theme="ivory"] .bg-slate-800 { background: #f0ebd8 !important; border-color: #d1c6ab !important; color: #2b231a !important; }
-    html[data-theme="ivory"] .text-slate-100,
-    html[data-theme="ivory"] .text-slate-200,
-    html[data-theme="ivory"] .text-slate-300 { color: #1c1813 !important; font-weight: 700; }
-    html[data-theme="ivory"] .text-slate-400 { color: #52473a !important; }
-    html[data-theme="ivory"] .text-slate-500 { color: #706353 !important; }
-
-    /* 3. MATTE OFF-WHITE (الأوف وايت الحديث المطفأ) */
-    html[data-theme="offwhite"] body { background: #e5e7eb !important; color: #111827 !important; }
-    html[data-theme="offwhite"] .mobile-app-wrapper { background: #f9fafb !important; border-color: #d1d5db !important; color: #111827 !important; }
-    html[data-theme="offwhite"] header,
-    html[data-theme="offwhite"] nav.glass-dock { background: rgba(249, 250, 251, 0.98) !important; border-color: #d1d5db !important; }
-    html[data-theme="offwhite"] .glass-base,
-    html[data-theme="offwhite"] .glass-card-interactive,
-    html[data-theme="offwhite"] .bg-slate-900,
-    html[data-theme="offwhite"] .bg-slate-950 { background: #ffffff !important; border-color: #e5e7eb !important; color: #111827 !important; box-shadow: 0 4px 15px rgba(0,0,0,0.06) !important; }
-    html[data-theme="offwhite"] .bg-slate-800 { background: #f3f4f6 !important; border-color: #d1d5db !important; color: #1f2937 !important; }
-    html[data-theme="offwhite"] .text-slate-100,
-    html[data-theme="offwhite"] .text-slate-200,
-    html[data-theme="offwhite"] .text-slate-300 { color: #111827 !important; font-weight: 700; }
-    html[data-theme="offwhite"] .text-slate-400 { color: #4b5563 !important; }
-    html[data-theme="offwhite"] .text-slate-500 { color: #6b7280 !important; }
-
-    /* 4. SOFT NATURAL LINEN (الكتان الطبيعي الناعم - فاتح 1) */
-    html[data-theme="light-linen"] body { background: #ded7c8 !important; color: #211f1a !important; }
-    html[data-theme="light-linen"] .mobile-app-wrapper { background: #ede7dc !important; border-color: #cfc5b3 !important; color: #211f1a !important; }
-    html[data-theme="light-linen"] header,
-    html[data-theme="light-linen"] nav.glass-dock { background: rgba(237, 231, 220, 0.98) !important; border-color: #cfc5b3 !important; }
-    html[data-theme="light-linen"] .glass-base,
-    html[data-theme="light-linen"] .glass-card-interactive,
-    html[data-theme="light-linen"] .bg-slate-900,
-    html[data-theme="light-linen"] .bg-slate-950 { background: #faf7f2 !important; border-color: #ded6c8 !important; color: #211f1a !important; box-shadow: 0 4px 18px rgba(0,0,0,0.05) !important; }
-    html[data-theme="light-linen"] .bg-slate-800 { background: #e4dcce !important; border-color: #c4b8a2 !important; color: #38342b !important; }
-    html[data-theme="light-linen"] .text-slate-100,
-    html[data-theme="light-linen"] .text-slate-200,
-    html[data-theme="light-linen"] .text-slate-300 { color: #211f1a !important; font-weight: 700; }
-    html[data-theme="light-linen"] .text-slate-400 { color: #575245 !important; }
-    html[data-theme="light-linen"] .text-slate-500 { color: #787161 !important; }
-
-    /* 5. PLATINUM PEARL GREY (اللؤلؤي الفضي المريح - فاتح 2) */
-    html[data-theme="pearl-platinum"] body { background: #dbe0e6 !important; color: #0f172a !important; }
-    html[data-theme="pearl-platinum"] .mobile-app-wrapper { background: #e9ecef !important; border-color: #cbd3dc !important; color: #0f172a !important; }
-    html[data-theme="pearl-platinum"] header,
-    html[data-theme="pearl-platinum"] nav.glass-dock { background: rgba(233, 236, 239, 0.98) !important; border-color: #cbd3dc !important; }
+    /* ═══════════════════════════════════════════════════════════════════════════
+       🏛️ MASTER THEME 3: PEARL PLATINUM (الرمادي البلاتيني التنفيذي - Cool Executive Gray)
+       ═══════════════════════════════════════════════════════════════════════════ */
+    html[data-theme="pearl-platinum"] body { background: #E5E9F0 !important; color: #0F172A !important; }
+    html[data-theme="pearl-platinum"] .mobile-app-wrapper { background: #E5E9F0 !important; border-color: #475569 !important; color: #0F172A !important; }
+    html[data-theme="pearl-platinum"] header.app-main-header,
+    html[data-theme="pearl-platinum"] nav.glass-dock { background: #E5E9F0 !important; border-color: #475569 !important; }
     html[data-theme="pearl-platinum"] .glass-base,
     html[data-theme="pearl-platinum"] .glass-card-interactive,
     html[data-theme="pearl-platinum"] .bg-slate-900,
-    html[data-theme="pearl-platinum"] .bg-slate-950 { background: #f8f9fa !important; border-color: #dee2e6 !important; color: #0f172a !important; box-shadow: 0 4px 15px rgba(15,23,42,0.06) !important; }
-    html[data-theme="pearl-platinum"] .bg-slate-800 { background: #dde2e7 !important; border-color: #bfc8d2 !important; color: #1e293b !important; }
+    html[data-theme="pearl-platinum"] .bg-slate-950 { background: #F8FAFC !important; border: 1.5px solid #475569 !important; color: #0F172A !important; box-shadow: 0 2px 6px rgba(15, 23, 42, 0.06) !important; }
+    html[data-theme="pearl-platinum"] .bg-slate-800 { background: #CBD5E1 !important; border-color: #475569 !important; color: #0F172A !important; }
     html[data-theme="pearl-platinum"] .text-slate-100,
     html[data-theme="pearl-platinum"] .text-slate-200,
-    html[data-theme="pearl-platinum"] .text-slate-300 { color: #0f172a !important; font-weight: 700; }
-    html[data-theme="pearl-platinum"] .text-slate-400 { color: #475569 !important; }
-    html[data-theme="pearl-platinum"] .text-slate-500 { color: #64748b !important; }
+    html[data-theme="pearl-platinum"] .text-slate-300,
+    html[data-theme="pearl-platinum"] .text-white:not(.op-cat-btn.active):not(.op-cat-btn.active *):not(.luminous-number-badge) { color: #0F172A !important; font-weight: 800 !important; }
+    html[data-theme="pearl-platinum"] .text-slate-400 { color: #1E293B !important; font-weight: 700 !important; }
+    html[data-theme="pearl-platinum"] .text-slate-500 { color: #334155 !important; }
+    html[data-theme="pearl-platinum"] label { color: #0F172A !important; font-weight: 800 !important; }
+    html[data-theme="pearl-platinum"] .op-btn,
+    html[data-theme="pearl-platinum"] .flagship-tile,
+    html[data-theme="pearl-platinum"] .row2-glass-tile,
+    html[data-theme="pearl-platinum"] .crystal-flagship-btn,
+    html[data-theme="pearl-platinum"] .banner-strip {
+      background: #F8FAFC !important;
+      border: 1.5px solid #475569 !important;
+      color: #0F172A !important;
+      box-shadow: 0 2px 6px rgba(15, 23, 42, 0.06) !important;
+    }
+    html[data-theme="pearl-platinum"] .op-btn span,
+    html[data-theme="pearl-platinum"] .flagship-tile span,
+    html[data-theme="pearl-platinum"] .row2-glass-tile span,
+    html[data-theme="pearl-platinum"] .crystal-flagship-btn .btn-label {
+      color: #0F172A !important;
+      font-weight: 900 !important;
+      text-shadow: none !important;
+    }
+    html[data-theme="pearl-platinum"] .op-cat-btn:not(.active) {
+      background: #F8FAFC !important;
+      color: #1E293B !important;
+      border: 1.5px solid #475569 !important;
+    }
+    html[data-theme="pearl-platinum"] .op-cat-btn.active {
+      background: #1E293B !important;
+      color: #FFFFFF !important;
+      border-color: #0F172A !important;
+    }
 
-    /* 6. NORDIC PAPER LIGHT (الورقي النوردي المريح) */
-    html[data-theme="nordic-paper"] body { background: #cbd5e1 !important; color: #0f172a !important; }
-    html[data-theme="nordic-paper"] .mobile-app-wrapper { background: #f8fafc !important; border-color: #cbd5e1 !important; color: #0f172a !important; }
-    html[data-theme="nordic-paper"] header,
-    html[data-theme="nordic-paper"] nav.glass-dock { background: rgba(248, 250, 252, 0.98) !important; border-color: #cbd5e1 !important; }
-    html[data-theme="nordic-paper"] .glass-base,
-    html[data-theme="nordic-paper"] .glass-card-interactive,
-    html[data-theme="nordic-paper"] .bg-slate-900,
-    html[data-theme="nordic-paper"] .bg-slate-950 { background: #ffffff !important; border-color: #e2e8f0 !important; color: #0f172a !important; box-shadow: 0 4px 15px rgba(0,0,0,0.06) !important; }
-    html[data-theme="nordic-paper"] .bg-slate-800 { background: #f1f5f9 !important; border-color: #cbd5e1 !important; color: #1e293b !important; }
-    html[data-theme="nordic-paper"] .text-slate-100,
-    html[data-theme="nordic-paper"] .text-slate-200,
-    html[data-theme="nordic-paper"] .text-slate-300 { color: #0f172a !important; font-weight: 700; }
-    html[data-theme="nordic-paper"] .text-slate-400 { color: #475569 !important; }
-    html[data-theme="nordic-paper"] .text-slate-500 { color: #64748b !important; }
-
-    /* ─── GROUP 2: BLUE & NAVY THEMES (درجات الأزرق والكحلي) ─── */
-
-    /* 7. DEEP MIDNIGHT NAVY (الكحلي الملكي الليلي - كحلي) */
-    html[data-theme="navy-kohl"] body { background: #030712 !important; color: #f8fafc !important; }
-    html[data-theme="navy-kohl"] .mobile-app-wrapper { background: #050c1e !important; border-color: #1a2d5a !important; color: #f8fafc !important; }
-    html[data-theme="navy-kohl"] header,
-    html[data-theme="navy-kohl"] nav.glass-dock { background: rgba(5, 12, 30, 0.96) !important; border-color: #1e356d !important; }
-    html[data-theme="navy-kohl"] .glass-base,
-    html[data-theme="navy-kohl"] .glass-card-interactive,
-    html[data-theme="navy-kohl"] .bg-slate-900,
-    html[data-theme="navy-kohl"] .bg-slate-950 { background: #0b1736 !important; border-color: #1d3368 !important; color: #f8fafc !important; box-shadow: 0 4px 20px rgba(5, 12, 30, 0.6) !important; }
-    html[data-theme="navy-kohl"] .bg-slate-800 { background: #13244d !important; border-color: #264387 !important; color: #bae6fd !important; }
-    html[data-theme="navy-kohl"] .text-slate-100,
-    html[data-theme="navy-kohl"] .text-slate-200,
-    html[data-theme="navy-kohl"] .text-slate-300 { color: #f8fafc !important; }
-    html[data-theme="navy-kohl"] .text-slate-400 { color: #94a3b8 !important; }
-
-    /* 8. EXECUTIVE ROYAL BLUE (الأزرق الزفيري الحيوي - أزرق) */
-    html[data-theme="royal-blue"] body { background: #071326 !important; color: #ffffff !important; }
-    html[data-theme="royal-blue"] .mobile-app-wrapper { background: #0a1b38 !important; border-color: #1e3e78 !important; color: #ffffff !important; }
-    html[data-theme="royal-blue"] header,
-    html[data-theme="royal-blue"] nav.glass-dock { background: rgba(10, 27, 56, 0.96) !important; border-color: #234d94 !important; }
-    html[data-theme="royal-blue"] .glass-base,
-    html[data-theme="royal-blue"] .glass-card-interactive,
-    html[data-theme="royal-blue"] .bg-slate-900,
-    html[data-theme="royal-blue"] .bg-slate-950 { background: #122852 !important; border-color: #254d8e !important; color: #ffffff !important; }
-    html[data-theme="royal-blue"] .bg-slate-800 { background: #1d3c78 !important; border-color: #3b82f6 !important; color: #dbeafe !important; }
-    html[data-theme="royal-blue"] .text-slate-100,
-    html[data-theme="royal-blue"] .text-slate-200,
-    html[data-theme="royal-blue"] .text-slate-300 { color: #ffffff !important; }
-    html[data-theme="royal-blue"] .text-slate-400 { color: #bfdbfe !important; }
-
-    /* 9. DEEP OCEANIC ROYAL NAVY (الأزرق المحيطي العميق) */
-    html[data-theme="ocean-navy"] body { background: #060e1a !important; color: #e0f2fe !important; }
-    html[data-theme="ocean-navy"] .mobile-app-wrapper { background: #0c1a2e !important; border-color: #1e3a8a !important; color: #f0f9ff !important; }
-    html[data-theme="ocean-navy"] header,
-    html[data-theme="ocean-navy"] nav.glass-dock { background: rgba(12, 26, 46, 0.96) !important; border-color: #1d4ed8 !important; }
-    html[data-theme="ocean-navy"] .glass-base,
-    html[data-theme="ocean-navy"] .glass-card-interactive,
-    html[data-theme="ocean-navy"] .bg-slate-900,
-    html[data-theme="ocean-navy"] .bg-slate-950 { background: #132742 !important; border-color: #1e40af !important; color: #e0f2fe !important; }
-    html[data-theme="ocean-navy"] .bg-slate-800 { background: #1e3a8a !important; border-color: #3b82f6 !important; color: #bae6fd !important; }
-    html[data-theme="ocean-navy"] .text-slate-100,
-    html[data-theme="ocean-navy"] .text-slate-200,
-    html[data-theme="ocean-navy"] .text-slate-300 { color: #f0f9ff !important; }
-    html[data-theme="ocean-navy"] .text-slate-400 { color: #93c5fd !important; }
-
-    /* 10. PETROL CYAN & TEAL (الأزرق البترولي المحيطي - أزرق 1) */
-    html[data-theme="petrol-cyan"] body { background: #041219 !important; color: #f0fdfa !important; }
-    html[data-theme="petrol-cyan"] .mobile-app-wrapper { background: #071c26 !important; border-color: #134658 !important; color: #f0fdfa !important; }
-    html[data-theme="petrol-cyan"] header,
-    html[data-theme="petrol-cyan"] nav.glass-dock { background: rgba(7, 28, 38, 0.96) !important; border-color: #175a72 !important; }
-    html[data-theme="petrol-cyan"] .glass-base,
-    html[data-theme="petrol-cyan"] .glass-card-interactive,
-    html[data-theme="petrol-cyan"] .bg-slate-900,
-    html[data-theme="petrol-cyan"] .bg-slate-950 { background: #0c2b3a !important; border-color: #175269 !important; color: #f0fdfa !important; }
-    html[data-theme="petrol-cyan"] .bg-slate-800 { background: #134154 !important; border-color: #14b8a6 !important; color: #99f6e4 !important; }
-    html[data-theme="petrol-cyan"] .text-slate-100,
-    html[data-theme="petrol-cyan"] .text-slate-200,
-    html[data-theme="petrol-cyan"] .text-slate-300 { color: #f0fdfa !important; }
-    html[data-theme="petrol-cyan"] .text-slate-400 { color: #99f6e4 !important; }
-
-    /* 11. TWILIGHT INDIGO (أزرق الشفق والإنديجو - أزرق 2) */
-    html[data-theme="twilight-indigo"] body { background: #090c1e !important; color: #e0e7ff !important; }
-    html[data-theme="twilight-indigo"] .mobile-app-wrapper { background: #0e122b !important; border-color: #2b356e !important; color: #e0e7ff !important; }
-    html[data-theme="twilight-indigo"] header,
-    html[data-theme="twilight-indigo"] nav.glass-dock { background: rgba(14, 18, 43, 0.96) !important; border-color: #37438c !important; }
-    html[data-theme="twilight-indigo"] .glass-base,
-    html[data-theme="twilight-indigo"] .glass-card-interactive,
-    html[data-theme="twilight-indigo"] .bg-slate-900,
-    html[data-theme="twilight-indigo"] .bg-slate-950 { background: #151b3d !important; border-color: #313d80 !important; color: #e0e7ff !important; }
-    html[data-theme="twilight-indigo"] .bg-slate-800 { background: #222b5e !important; border-color: #6366f1 !important; color: #c7d2fe !important; }
-    html[data-theme="twilight-indigo"] .text-slate-100,
-    html[data-theme="twilight-indigo"] .text-slate-200,
-    html[data-theme="twilight-indigo"] .text-slate-300 { color: #e0e7ff !important; }
-    html[data-theme="twilight-indigo"] .text-slate-400 { color: #a5b4fc !important; }
-
-    /* ─── GROUP 3: DARK, GOLD, BROWN & NATURE THEMES ─── */
-
-    /* 12. OLED MIDNIGHT DARK (الليل الملكي الداكن) */
-    html[data-theme="midnight"] body { background: #050811 !important; color: #f8fafc !important; }
-    html[data-theme="midnight"] .mobile-app-wrapper { background: #0b1120 !important; border-color: #1e293b !important; }
-
-    /* 13. VINTAGE WARM SEPIA & BROWN (البني الإسبريسو والورق القديم) */
-    html[data-theme="sepia-brown"] body { background: #141210 !important; color: #fef3c7 !important; }
-    html[data-theme="sepia-brown"] .mobile-app-wrapper { background: #1c1917 !important; border-color: #442a17 !important; color: #fef3c7 !important; }
-    html[data-theme="sepia-brown"] header,
-    html[data-theme="sepia-brown"] nav.glass-dock { background: rgba(28, 25, 23, 0.96) !important; border-color: #573318 !important; }
+    /* ═══════════════════════════════════════════════════════════════════════════
+       ☕ MASTER THEME 5: SEPIA BROWN (البني الموكا الملكي - Mocha Espresso)
+       ═══════════════════════════════════════════════════════════════════════════ */
+    html[data-theme="sepia-brown"] body { background: #18100C !important; color: #FFFBEB !important; }
+    html[data-theme="sepia-brown"] .mobile-app-wrapper { background: #18100C !important; border-color: #B45309 !important; color: #FFFBEB !important; }
+    html[data-theme="sepia-brown"] header.app-main-header,
+    html[data-theme="sepia-brown"] nav.glass-dock { background: #221610 !important; border-color: #92400E !important; }
     html[data-theme="sepia-brown"] .glass-base,
     html[data-theme="sepia-brown"] .glass-card-interactive,
     html[data-theme="sepia-brown"] .bg-slate-900,
-    html[data-theme="sepia-brown"] .bg-slate-950 { background: #292524 !important; border-color: #573318 !important; color: #fef3c7 !important; }
-    html[data-theme="sepia-brown"] .bg-slate-800 { background: #3f3228 !important; border-color: #78350f !important; color: #fed7aa !important; }
-    html[data-theme="sepia-brown"] .text-slate-100,
-    html[data-theme="sepia-brown"] .text-slate-200,
-    html[data-theme="sepia-brown"] .text-slate-300 { color: #fef3c7 !important; }
-    html[data-theme="sepia-brown"] .text-slate-400 { color: #d6bfa8 !important; }
-
-    /* 14. MUTED PALE GOLD & CHAMPAGNE (الذهبي الباهت والفخامة الملكية) */
-    html[data-theme="pale-gold"] body { background: #0c0b0a !important; color: #fef08a !important; }
-    html[data-theme="pale-gold"] .mobile-app-wrapper { background: #181614 !important; border-color: #54442b !important; color: #fef9c3 !important; }
-    html[data-theme="pale-gold"] header,
-    html[data-theme="pale-gold"] nav.glass-dock { background: rgba(24, 22, 20, 0.96) !important; border-color: #785e3a !important; }
-    html[data-theme="pale-gold"] .glass-base,
-    html[data-theme="pale-gold"] .glass-card-interactive,
-    html[data-theme="pale-gold"] .bg-slate-900,
-    html[data-theme="pale-gold"] .bg-slate-950 { background: #24201c !important; border-color: #5e4c31 !important; color: #fef08a !important; }
-    html[data-theme="pale-gold"] .bg-slate-800 { background: #383028 !important; border-color: #92723c !important; color: #fde047 !important; }
-    html[data-theme="pale-gold"] .text-slate-100,
-    html[data-theme="pale-gold"] .text-slate-200,
-    html[data-theme="pale-gold"] .text-slate-300 { color: #fef9c3 !important; }
-    html[data-theme="pale-gold"] .text-slate-400 { color: #d4c29d !important; }
-
-    /* 15. COGNITIVE FOREST EMERALD (الزمرد والغابات لصفاء الذهن) */
-    html[data-theme="emerald-forest"] body { background: #011a14 !important; color: #d1fae5 !important; }
-    html[data-theme="emerald-forest"] .mobile-app-wrapper { background: #032e24 !important; border-color: #065f46 !important; color: #ecfdf5 !important; }
-    html[data-theme="emerald-forest"] header,
-    html[data-theme="emerald-forest"] nav.glass-dock { background: rgba(3, 46, 36, 0.96) !important; border-color: #047857 !important; }
-    html[data-theme="emerald-forest"] .glass-base,
-    html[data-theme="emerald-forest"] .glass-card-interactive,
-    html[data-theme="emerald-forest"] .bg-slate-900,
-    html[data-theme="emerald-forest"] .bg-slate-950 { background: #064e3b !important; border-color: #047857 !important; color: #ecfdf5 !important; }
-    html[data-theme="emerald-forest"] .bg-slate-800 { background: #065f46 !important; border-color: #10b981 !important; color: #a7f3d0 !important; }
-    html[data-theme="emerald-forest"] .text-slate-100,
-    html[data-theme="emerald-forest"] .text-slate-200,
-    html[data-theme="emerald-forest"] .text-slate-300 { color: #ecfdf5 !important; }
-    html[data-theme="emerald-forest"] .text-slate-400 { color: #a7f3d0 !important; }
-
-    /* 16. WARM SAND & DESERT MOCHA (الرمال الصحراوية وموكا دافئة) */
-    html[data-theme="desert-mocha"] body { background: #191614 !important; color: #fef3c7 !important; }
-    html[data-theme="desert-mocha"] .mobile-app-wrapper { background: #26211d !important; border-color: #574c43 !important; color: #fef9c3 !important; }
-    html[data-theme="desert-mocha"] header,
-    html[data-theme="desert-mocha"] nav.glass-dock { background: rgba(38, 33, 29, 0.96) !important; border-color: #6e5e52 !important; }
-    html[data-theme="desert-mocha"] .glass-base,
-    html[data-theme="desert-mocha"] .glass-card-interactive,
-    html[data-theme="desert-mocha"] .bg-slate-900,
-    html[data-theme="desert-mocha"] .bg-slate-950 { background: #38302a !important; border-color: #6e5e52 !important; color: #fef3c7 !important; }
-    html[data-theme="desert-mocha"] .bg-slate-800 { background: #4a3f37 !important; border-color: #a88267 !important; color: #fde68a !important; }
-    html[data-theme="desert-mocha"] .text-slate-100,
-    html[data-theme="desert-mocha"] .text-slate-200,
-    html[data-theme="desert-mocha"] .text-slate-300 { color: #fef9c3 !important; }
-    html[data-theme="desert-mocha"] .text-slate-400 { color: #d6c4b2 !important; }
-
-    /* 17. SUNLIGHT MONOCHROME TITANIUM (التيتانيوم الشمسي فائق التباين) */
-    html[data-theme="sunlight-titanium"] body { background: #000000 !important; color: #ffffff !important; }
-    html[data-theme="sunlight-titanium"] .mobile-app-wrapper { background: #000000 !important; border-color: #ffffff !important; color: #ffffff !important; }
-    html[data-theme="sunlight-titanium"] header,
-    html[data-theme="sunlight-titanium"] nav.glass-dock { background: #000000 !important; border-color: #ffffff !important; }
-    html[data-theme="sunlight-titanium"] .glass-base,
-    html[data-theme="sunlight-titanium"] .glass-card-interactive,
-    html[data-theme="sunlight-titanium"] .bg-slate-900,
-    html[data-theme="sunlight-titanium"] .bg-slate-950 { background: #0a0a0a !important; border: 2px solid #ffffff !important; color: #ffffff !important; }
-    html[data-theme="sunlight-titanium"] .bg-slate-800 { background: #1a1a1a !important; border: 1.5px solid #ffffff !important; color: #ffffff !important; }
-    html[data-theme="sunlight-titanium"] .text-slate-100,
-    html[data-theme="sunlight-titanium"] .text-slate-200,
-    html[data-theme="sunlight-titanium"] .text-slate-300,
-    html[data-theme="sunlight-titanium"] .text-slate-400 { color: #ffffff !important; font-weight: 800 !important; }
-
-    /* ═════════════════════════════════════════════════════════════
-       UNIVERSAL CARD & TEXT OVERRIDES FOR ERGONOMIC THEMES
-       ═════════════════════════════════════════════════════════════ */
-    /* Light Themes Cards & Numbers (Beige, Ivory, Off-White, Linen, Pearl, Nordic) */
-    html[data-theme="beige"] .banner-strip,
-    html[data-theme="ivory"] .banner-strip,
-    html[data-theme="offwhite"] .banner-strip,
-    html[data-theme="light-linen"] .banner-strip,
-    html[data-theme="pearl-platinum"] .banner-strip,
-    html[data-theme="nordic-paper"] .banner-strip {
-      background: #ffffff !important;
-      border: 1px solid rgba(0, 0, 0, 0.08) !important;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04) !important;
+    html[data-theme="sepia-brown"] .bg-slate-950 { background: #261912 !important; border: 1.5px solid #92400E !important; color: #FFFBEB !important; }
+    html[data-theme="sepia-brown"] .bg-slate-800 { background: #36241B !important; border-color: #B45309 !important; color: #FDE68A !important; }
+    html[data-theme="sepia-brown"] .op-btn,
+    html[data-theme="sepia-brown"] .flagship-tile,
+    html[data-theme="sepia-brown"] .row2-glass-tile,
+    html[data-theme="sepia-brown"] .crystal-flagship-btn,
+    html[data-theme="sepia-brown"] .banner-strip {
+      background: #261912 !important;
+      border: 1.5px solid #92400E !important;
+      color: #FFFBEB !important;
     }
 
-    html[data-theme="beige"] .banner-strip .text-emerald-400,
-    html[data-theme="ivory"] .banner-strip .text-emerald-400,
-    html[data-theme="offwhite"] .banner-strip .text-emerald-400,
-    html[data-theme="light-linen"] .banner-strip .text-emerald-400,
-    html[data-theme="pearl-platinum"] .banner-strip .text-emerald-400,
-    html[data-theme="nordic-paper"] .banner-strip .text-emerald-400 {
-      color: #047857 !important;
+    /* ═══════════════════════════════════════════════════════════════════════════
+       🛡️ MASTER THEME 7: TWILIGHT INDIGO (الرمادي الداكن الاحترافي - Twilight Slate)
+       ═══════════════════════════════════════════════════════════════════════════ */
+    html[data-theme="twilight-indigo"] body { background: #111827 !important; color: #F8FAFC !important; }
+    html[data-theme="twilight-indigo"] .mobile-app-wrapper { background: #111827 !important; border-color: #4F46E5 !important; color: #F8FAFC !important; }
+    html[data-theme="twilight-indigo"] header.app-main-header,
+    html[data-theme="twilight-indigo"] nav.glass-dock { background: #1E293B !important; border-color: #4F46E5 !important; }
+    html[data-theme="twilight-indigo"] .glass-base,
+    html[data-theme="twilight-indigo"] .glass-card-interactive,
+    html[data-theme="twilight-indigo"] .bg-slate-900,
+    html[data-theme="twilight-indigo"] .bg-slate-950 { background: #1E293B !important; border: 1.5px solid #475569 !important; color: #F8FAFC !important; }
+    html[data-theme="twilight-indigo"] .bg-slate-800 { background: #334155 !important; border-color: #64748B !important; color: #F8FAFC !important; }
+    html[data-theme="twilight-indigo"] .op-btn,
+    html[data-theme="twilight-indigo"] .flagship-tile,
+    html[data-theme="twilight-indigo"] .row2-glass-tile,
+    html[data-theme="twilight-indigo"] .crystal-flagship-btn,
+    html[data-theme="twilight-indigo"] .banner-strip {
+      background: #1E293B !important;
+      border: 1.5px solid #475569 !important;
+      color: #F8FAFC !important;
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════════════
+       🌐 UNIVERSAL 7-THEME ALL-SCREENS & POS UNIFICATION ENGINE (WCAG AAA)
+          توحيد كافة الشاشات (مبيعات، مشتريات، حركة مالية، كشف حساب، مخزون)
+          ومنع ظهور أي نص فاتح على خلفية فاتحة أو نص غامق على خلفية غامقة
+       ═══════════════════════════════════════════════════════════════════════════ */
+    html[data-theme="warm-alabaster"],
+    html[data-theme="warm_cream"],
+    html[data-theme="beige"],
+    html[data-theme="ivory"],
+    html[data-theme="offwhite"],
+    html[data-theme="light-linen"],
+    html[data-theme="nordic-paper"] {
+      --m-bg-main: #F3EBDD;
+      --m-bg-card: #FAF6F0;
+      --m-bg-zone: #E6DBC8;
+      --m-bg-input: #FFFFFF;
+      --m-border: #5C3D22;
+      --m-border-strong: #2C1808;
+      --m-text-primary: #000000;
+      --m-text-muted: #291D12;
+      --m-ghost: #3E2C1C;
+      --m-placeholder: #5C4328;
+      --m-num-primary: #000000;
+      --m-num-emerald: #064E3B;
+      --m-num-cyan: #082F49;
+      --m-num-amber: #7C2D12;
+      --m-num-purple: #2E1065;
+      --m-num-rose: #7F1D1D;
+    }
+
+    html[data-theme="pure-platinum"],
+    html[data-theme="ultra_white"],
+    html[data-theme="light"] {
+      --m-bg-main: #F1F5F9;
+      --m-bg-card: #FFFFFF;
+      --m-bg-zone: #E2E8F0;
+      --m-bg-input: #FFFFFF;
+      --m-border: #334155;
+      --m-border-strong: #000000;
+      --m-text-primary: #000000;
+      --m-text-muted: #1E293B;
+      --m-ghost: #1E293B;
+      --m-placeholder: #475569;
+      --m-num-primary: #000000;
+      --m-num-emerald: #064E3B;
+      --m-num-cyan: #082F49;
+      --m-num-amber: #78350F;
+      --m-num-purple: #3B0764;
+      --m-num-rose: #881337;
+    }
+
+    html[data-theme="pearl-platinum"],
+    html[data-theme="exec_gray"] {
+      --m-bg-main: #E5E9F0;
+      --m-bg-card: #F8FAFC;
+      --m-bg-zone: #D5DDE8;
+      --m-bg-input: #FFFFFF;
+      --m-border: #334155;
+      --m-border-strong: #0F172A;
+      --m-text-primary: #000000;
+      --m-text-muted: #1E293B;
+      --m-ghost: #1E293B;
+      --m-placeholder: #475569;
+      --m-num-primary: #000000;
+      --m-num-emerald: #064E3B;
+      --m-num-cyan: #082F49;
+      --m-num-amber: #78350F;
+      --m-num-purple: #3B0764;
+      --m-num-rose: #881337;
+    }
+
+    html[data-theme="midnight-executive"],
+    html[data-theme="midnight_obsidian"],
+    html[data-theme="navy-kohl"],
+    html[data-theme="royal-blue"],
+    html[data-theme="ocean-navy"],
+    html[data-theme="petrol-cyan"],
+    html[data-theme="dark"] {
+      --m-bg-main: #061024;
+      --m-bg-card: #0B1936;
+      --m-bg-zone: #0D1F42;
+      --m-bg-input: #07132B;
+      --m-border: #2563EB;
+      --m-border-strong: #60A5FA;
+      --m-text-primary: #FFFFFF;
+      --m-text-muted: #93C5FD;
+      --m-ghost: #94A3B8;
+      --m-placeholder: rgba(148, 163, 184, 0.35);
+      --m-num-primary: #FFFFFF;
+      --m-num-emerald: #34D399;
+      --m-num-cyan: #38BDF8;
+      --m-num-amber: #FBBF24;
+      --m-num-purple: #C084FC;
+      --m-num-rose: #FB7185;
+    }
+
+    html[data-theme="sepia-brown"],
+    html[data-theme="mocha_brown"],
+    html[data-theme="pale-gold"],
+    html[data-theme="desert-mocha"] {
+      --m-bg-main: #18100C;
+      --m-bg-card: #241812;
+      --m-bg-zone: #2C1E17;
+      --m-bg-input: #140D09;
+      --m-border: #B45309;
+      --m-border-strong: #F59E0B;
+      --m-text-primary: #FFFBEB;
+      --m-text-muted: #D6C5B3;
+      --m-ghost: #A89078;
+      --m-placeholder: rgba(214, 197, 179, 0.35);
+      --m-num-primary: #FFFBEB;
+      --m-num-emerald: #6EE7B7;
+      --m-num-cyan: #7DD3FC;
+      --m-num-amber: #FCD34D;
+      --m-num-purple: #E9D5FF;
+      --m-num-rose: #FDA4AF;
+    }
+
+    html[data-theme="obsidian-charcoal"],
+    html[data-theme="pure_oled"],
+    html[data-theme="midnight"],
+    html[data-theme="sunlight-titanium"] {
+      --m-bg-main: #000000;
+      --m-bg-card: #0A0D12;
+      --m-bg-zone: #11161F;
+      --m-bg-input: #05070B;
+      --m-border: #475569;
+      --m-border-strong: #94A3B8;
+      --m-text-primary: #FFFFFF;
+      --m-text-muted: #CBD5E1;
+      --m-ghost: #94A3B8;
+      --m-placeholder: rgba(148, 163, 184, 0.35);
+      --m-num-primary: #FFFFFF;
+      --m-num-emerald: #34D399;
+      --m-num-cyan: #38BDF8;
+      --m-num-amber: #FACC15;
+      --m-num-purple: #D8B4FE;
+      --m-num-rose: #FB7185;
+    }
+
+    html[data-theme="twilight-indigo"],
+    html[data-theme="slate_twilight"],
+    html[data-theme="emerald-forest"] {
+      --m-bg-main: #111827;
+      --m-bg-card: #1E293B;
+      --m-bg-zone: #243247;
+      --m-bg-input: #0F172A;
+      --m-border: #6366F1;
+      --m-border-strong: #818CF8;
+      --m-text-primary: #F8FAFC;
+      --m-text-muted: #CBD5E1;
+      --m-ghost: #94A3B8;
+      --m-placeholder: rgba(148, 163, 184, 0.35);
+      --m-num-primary: #FFFFFF;
+      --m-num-emerald: #34D399;
+      --m-num-cyan: #38BDF8;
+      --m-num-amber: #FBBF24;
+      --m-num-purple: #C4B5FD;
+      --m-num-rose: #FB7185;
+    }
+
+    /* توحيد خلفية جميع الشاشات والنوافذ المنبثقة بنفس لون السمة المختارة 100% */
+    html[data-theme] .modal-backdrop > div,
+    html[data-theme] #modalOpSales > div,
+    html[data-theme] #modalOpPurchase > div,
+    html[data-theme] #modalOpFinance > div,
+    html[data-theme] #modalOpReceipt > div,
+    html[data-theme] #modalOpDelivery > div,
+    html[data-theme] #modalOpStatement > div,
+    html[data-theme] #modalStatementView > div,
+    html[data-theme] #modalAccountsListScreen > div,
+    html[data-theme] #modalOpSalesSplit > div,
+    html[data-theme] #modalOpPurchaseSplit > div,
+    html[data-theme] #modalOpJournal > div,
+    html[data-theme] #modalOpBalanceInquiry > div,
+    html[data-theme] #modalOpStockLocation > div,
+    html[data-theme] #modalOpStockAdjustment > div,
+    html[data-theme] #modalOpWarehouseTransfer > div,
+    html[data-theme] #modalOpVouchers > div,
+    html[data-theme] #modalBarcodeScanner > div,
+    html[data-theme] #modalSafeExitConfirm > div,
+    html[data-theme] #modalNonZeroBalances > div,
+    html[data-theme] #modalBanks > div,
+    html[data-theme] #modalSafes > div,
+    html[data-theme] #modalChecks > div,
+    html[data-theme] #accountingNumpadDrawer > div,
+    html[data-theme] #modalBankReceiptOcr > div,
+    html[data-theme] #itemSheetContainer,
+    html[data-theme] #suiteSalesNotesModal > div,
+    html[data-theme] #suiteCustomerSearchModal > div,
+    html[data-theme] #suiteItemSearchModal > div,
+    html[data-theme] #suiteWarehouseSearchModal > div,
+    html[data-theme] #suiteCostCenterSearchModal > div,
+    html[data-theme] #suiteSmartCalcModal > div,
+    html[data-theme] #suiteCurrencyRateModal > div,
+    html[data-theme] #suiteFieldStyleModal > div,
+    html[data-theme] #suiteParkedInvoicesModal > div,
+    html[data-theme] #suiteShareInvoiceModal > div {
+      background: var(--m-bg-main) !important;
+      border: 1.5px solid var(--m-border) !important;
+      color: var(--m-text-primary) !important;
+    }
+
+    /* توحيد جميع الحاويات والبطاقات الفرعية ذات الخلفيات الداكنة الجزئية (bg-slate-900/80 إلخ) */
+    html[data-theme] [class*="bg-slate-950"]:not(body):not(.modal-backdrop):not([id$="Backdrop"]):not(#modalThemePaletteDrawer),
+    html[data-theme] [class*="bg-slate-900"]:not(.modal-backdrop):not(#suiteQuickThemeDrawer):not(#themeCardsContainer),
+    html[data-theme] [class*="from-slate-950"],
+    html[data-theme] [class*="from-slate-900"],
+    html[data-theme] [class*="to-slate-950"],
+    html[data-theme] [class*="to-slate-900"] {
+      background: var(--m-bg-card) !important;
+      border-color: var(--m-border) !important;
+      color: var(--m-text-primary) !important;
+    }
+    html[data-theme] [class*="bg-slate-800"] {
+      background: var(--m-bg-zone) !important;
+      border-color: var(--m-border) !important;
+      color: var(--m-text-primary) !important;
+    }
+
+    /* حماية ألوان نافذة السمات السبع السريعة (مطابقة 100% لشاشة الحركة المالية) */
+    #suiteQuickThemeDrawer,
+    #modalThemePaletteDrawer #themeCardsContainer {
+      background: #0f172a !important;
+      border: 2px solid rgba(245, 158, 11, 0.65) !important;
+    }
+    #suiteQuickThemeDrawer button[data-vtheme="warm-alabaster"],
+    #suiteQuickThemeDrawer button[data-vtheme="warm-alabaster"] span,
+    #modalThemePaletteDrawer button[data-vtheme="warm-alabaster"],
+    #modalThemePaletteDrawer button[data-vtheme="warm-alabaster"] span {
+      background: #F5EFE4 !important;
+      color: #000000 !important;
+    }
+    #suiteQuickThemeDrawer button[data-vtheme="pure-platinum"],
+    #suiteQuickThemeDrawer button[data-vtheme="pure-platinum"] span,
+    #modalThemePaletteDrawer button[data-vtheme="pure-platinum"],
+    #modalThemePaletteDrawer button[data-vtheme="pure-platinum"] span {
+      background: #FFFFFF !important;
+      color: #000000 !important;
+    }
+    #suiteQuickThemeDrawer button[data-vtheme="pearl-platinum"],
+    #suiteQuickThemeDrawer button[data-vtheme="pearl-platinum"] span,
+    #modalThemePaletteDrawer button[data-vtheme="pearl-platinum"],
+    #modalThemePaletteDrawer button[data-vtheme="pearl-platinum"] span {
+      background: #E5E9F0 !important;
+      color: #000000 !important;
+    }
+    #suiteQuickThemeDrawer button[data-vtheme="midnight-executive"],
+    #suiteQuickThemeDrawer button[data-vtheme="midnight-executive"] span,
+    #modalThemePaletteDrawer button[data-vtheme="midnight-executive"],
+    #modalThemePaletteDrawer button[data-vtheme="midnight-executive"] span {
+      background: #04091A !important;
+      color: #F8FAFC !important;
+    }
+    #suiteQuickThemeDrawer button[data-vtheme="sepia-brown"],
+    #suiteQuickThemeDrawer button[data-vtheme="sepia-brown"] span,
+    #modalThemePaletteDrawer button[data-vtheme="sepia-brown"],
+    #modalThemePaletteDrawer button[data-vtheme="sepia-brown"] span {
+      background: #1A110B !important;
+      color: #FDF8F5 !important;
+    }
+    #suiteQuickThemeDrawer button[data-vtheme="obsidian-charcoal"],
+    #suiteQuickThemeDrawer button[data-vtheme="obsidian-charcoal"] span,
+    #modalThemePaletteDrawer button[data-vtheme="obsidian-charcoal"],
+    #modalThemePaletteDrawer button[data-vtheme="obsidian-charcoal"] span {
+      background: #000000 !important;
+      color: #FFFFFF !important;
+    }
+    #suiteQuickThemeDrawer button[data-vtheme="twilight-indigo"],
+    #suiteQuickThemeDrawer button[data-vtheme="twilight-indigo"] span,
+    #modalThemePaletteDrawer button[data-vtheme="twilight-indigo"],
+    #modalThemePaletteDrawer button[data-vtheme="twilight-indigo"] span {
+      background: #1E293B !important;
+      color: #F8FAFC !important;
+    }
+
+    /* توحيد الوحدات الست داخل فواتير المبيعات وفواتير المشتريات */
+    html[data-theme] #modalOpSales .pos-zone-1,
+    html[data-theme] #modalOpSales .pos-zone-2,
+    html[data-theme] #modalOpSales .pos-zone-3,
+    html[data-theme] #modalOpSales .pos-zone-4,
+    html[data-theme] #modalOpSales .pos-zone-5,
+    html[data-theme] #modalOpSales .pos-zone-6,
+    html[data-theme] #modalOpPurchase .pos-zone-1,
+    html[data-theme] #modalOpPurchase .pos-zone-2,
+    html[data-theme] #modalOpPurchase .pos-zone-3,
+    html[data-theme] #modalOpPurchase .pos-zone-4,
+    html[data-theme] #modalOpPurchase .pos-zone-5,
+    html[data-theme] #modalOpPurchase .pos-zone-6,
+    html[data-theme] #suiteSalesItemBox,
+    html[data-theme] #suitePurItemBox {
+      background: var(--m-bg-zone) !important;
+      border: 1.5px solid var(--m-border) !important;
+    }
+
+    /* منع ازدواج الحواف داخل مربعات الكتابة (pos-field-interactive) في جميع السمات */
+    html[data-theme] #modalOpSales .pos-field-interactive input,
+    html[data-theme] #modalOpSales .pos-field-interactive textarea,
+    html[data-theme] #modalOpPurchase .pos-field-interactive input,
+    html[data-theme] #modalOpPurchase .pos-field-interactive textarea,
+    html[data-theme] #modalOpSales input[type="date"],
+    html[data-theme] #modalOpPurchase input[type="date"] {
+      border: none !important;
+      background: transparent !important;
+      box-shadow: none !important;
+      outline: none !important;
+    }
+
+    /* توحيد صناديق الحقول والشارات والقوائم المنسدلة في المبيعات والمشتريات */
+    html[data-theme] #modalOpSales .pos-field-interactive,
+    html[data-theme] #modalOpPurchase .pos-field-interactive,
+    html[data-theme] #modalOpSales #opSalesInvoiceSwipeBox,
+    html[data-theme] #modalOpPurchase #opPurInvoiceSwipeBox,
+    html[data-theme] #modalOpSales .pos-zone-1 > div:nth-child(2) > div:first-child,
+    html[data-theme] #modalOpPurchase .pos-zone-1 > div:nth-child(2) > div:first-child,
+    html[data-theme] #modalOpSales .pos-zone-1 > div:first-child > div:nth-child(2),
+    html[data-theme] #modalOpPurchase .pos-zone-1 > div:first-child > div:nth-child(2),
+    html[data-theme] #modalOpPurchase .pos-zone-1 > div:first-child > div:nth-child(3),
+    html[data-theme] #salesRateContainer,
+    html[data-theme] #purRateContainer {
+      background: var(--m-bg-input) !important;
+      border: 1.5px solid var(--m-border) !important;
+      box-shadow: none !important;
+    }
+    html[data-theme] #modalOpSales .pos-zone-1 > div:first-child > div:nth-child(2) h2,
+    html[data-theme] #modalOpPurchase .pos-zone-1 > div:first-child > div:nth-child(2) h2 {
+      color: var(--m-text-primary) !important;
+      text-shadow: none !important;
+    }
+    html[data-theme] #salesUsdRateDisplay,
+    html[data-theme] #purUsdRateDisplay {
+      color: var(--m-num-emerald) !important;
+      text-shadow: none !important;
+    }
+
+    /* توحيد أزرار العمليات السفلية في شاشات المبيعات والمشتريات مع السمة المختارة */
+    html[data-theme] #modalOpSales > div > div:last-child .grid button,
+    html[data-theme] #modalOpPurchase > div > div:last-child .grid button {
+      background: var(--m-bg-card) !important;
+      border: 1.5px solid var(--m-border) !important;
+      color: var(--m-text-primary) !important;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06) !important;
+    }
+    html[data-theme] #modalOpSales > div > div:last-child .grid button span,
+    html[data-theme] #modalOpPurchase > div > div:last-child .grid button span {
+      color: var(--m-text-primary) !important;
+      font-weight: 900 !important;
+    }
+    /* الأزرار الأساسية المصمتة (حفظ / إضافة السطر) تظل بنص أبيض ناصع عالي التباين */
+    html[data-theme] #btnSaveOpSales,
+    html[data-theme] #btnSaveOpSales *,
+    html[data-theme] #btnSaveOpPurchase,
+    html[data-theme] #btnSaveOpPurchase *,
+    html[data-theme] button[onclick*="addItemToCart"],
+    html[data-theme] button[onclick*="addItemToCart"] * {
+      color: #ffffff !important;
+    }
+
+    html[data-theme] #salesCustomerDropdown,
+    html[data-theme] #salesWarehouseDropdown,
+    html[data-theme] #salesItemDropdown,
+    html[data-theme] #salesCostCenterDropdown,
+    html[data-theme] #purchaseSupplierDropdown,
+    html[data-theme] #purchaseWarehouseDropdown,
+    html[data-theme] #purItemDropdown {
+      background: var(--m-bg-card) !important;
+      border: 2px solid var(--m-border-strong) !important;
+      color: var(--m-text-primary) !important;
+    }
+
+    /* ── ضمان التباين الفائق للسمات الفاتحة الثلاث (1: الكريمي، 2: الأبيض الناصع، 3: البلاتيني) ── */
+    :is(
+      html[data-theme="warm-alabaster"],
+      html[data-theme="warm_cream"],
+      html[data-theme="pure-platinum"],
+      html[data-theme="ultra_white"],
+      html[data-theme="pearl-platinum"],
+      html[data-theme="exec_gray"]
+    ) :is(input, select, textarea):not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):not(.border-none):not(#modalOpSales *):not(#modalOpPurchase *) {
+      background-color: var(--m-bg-input) !important;
+      border-color: var(--m-border) !important;
+      color: var(--m-text-primary) !important;
+    }
+
+    /* ── تصميم هندسي فاخر لمربعات الكتابة (محل الكتابة) في المبيعات والمشتريات للسمات الفاتحة الثلاث ── */
+    :is(
+      html[data-theme="warm-alabaster"],
+      html[data-theme="warm_cream"],
+      html[data-theme="pure-platinum"],
+      html[data-theme="ultra_white"],
+      html[data-theme="pearl-platinum"],
+      html[data-theme="exec_gray"]
+    ) :is(#modalOpSales, #modalOpPurchase) .pos-field-interactive {
+      background: #FFFFFF !important;
+      border: 1.75px solid var(--m-border) !important;
+      box-shadow: 0 2px 5px rgba(15, 23, 42, 0.06), inset 0 1px 2px rgba(15, 23, 42, 0.03) !important;
+    }
+    /* حواف دلالية داكنة وواضحة لكل حقل كتابة في المبيعات والمشتريات بالسمات النهارية */
+    :is(
+      html[data-theme="warm-alabaster"],
+      html[data-theme="warm_cream"],
+      html[data-theme="pure-platinum"],
+      html[data-theme="ultra_white"],
+      html[data-theme="pearl-platinum"],
+      html[data-theme="exec_gray"]
+    ) :is(#modalOpSales, #modalOpPurchase) .pos-field-customer {
+      background: #FFFFFF !important;
+      border: 2px solid #075985 !important;
+    }
+    :is(
+      html[data-theme="warm-alabaster"],
+      html[data-theme="warm_cream"],
+      html[data-theme="pure-platinum"],
+      html[data-theme="ultra_white"],
+      html[data-theme="pearl-platinum"],
+      html[data-theme="exec_gray"]
+    ) :is(#modalOpSales, #modalOpPurchase) .pos-field-warehouse {
+      background: #FFFFFF !important;
+      border: 1.75px solid #4C1D95 !important;
+    }
+    :is(
+      html[data-theme="warm-alabaster"],
+      html[data-theme="warm_cream"],
+      html[data-theme="pure-platinum"],
+      html[data-theme="ultra_white"],
+      html[data-theme="pearl-platinum"],
+      html[data-theme="exec_gray"]
+    ) :is(#modalOpSales, #modalOpPurchase) .pos-field-costcenter {
+      background: #FFFFFF !important;
+      border: 1.75px solid #075985 !important;
+    }
+    :is(
+      html[data-theme="warm-alabaster"],
+      html[data-theme="warm_cream"],
+      html[data-theme="pure-platinum"],
+      html[data-theme="ultra_white"],
+      html[data-theme="pearl-platinum"],
+      html[data-theme="exec_gray"]
+    ) :is(#modalOpSales, #modalOpPurchase) .pos-field-item {
+      background: #FFFFFF !important;
+      border: 2px solid #92400E !important;
+    }
+    :is(
+      html[data-theme="warm-alabaster"],
+      html[data-theme="warm_cream"],
+      html[data-theme="pure-platinum"],
+      html[data-theme="ultra_white"],
+      html[data-theme="pearl-platinum"],
+      html[data-theme="exec_gray"]
+    ) :is(#salesUnitSelect, #purUnitSelect) {
+      background: #ECFDF5 !important;
+      border: 2px solid #047857 !important;
+      color: #064E3B !important;
+      font-weight: 900 !important;
+    }
+    :is(
+      html[data-theme="warm-alabaster"],
+      html[data-theme="warm_cream"],
+      html[data-theme="pure-platinum"],
+      html[data-theme="ultra_white"],
+      html[data-theme="pearl-platinum"],
+      html[data-theme="exec_gray"]
+    ) :is(#modalOpSales, #modalOpPurchase) .pos-field-qty {
+      background: #FFFFFF !important;
+      border: 1.75px solid #1E293B !important;
+    }
+    :is(
+      html[data-theme="warm-alabaster"],
+      html[data-theme="warm_cream"],
+      html[data-theme="pure-platinum"],
+      html[data-theme="ultra_white"],
+      html[data-theme="pearl-platinum"],
+      html[data-theme="exec_gray"]
+    ) :is(#modalOpSales, #modalOpPurchase) .pos-field-price {
+      background: #FFFFFF !important;
+      border: 1.75px solid #075985 !important;
+    }
+    :is(
+      html[data-theme="warm-alabaster"],
+      html[data-theme="warm_cream"],
+      html[data-theme="pure-platinum"],
+      html[data-theme="ultra_white"],
+      html[data-theme="pearl-platinum"],
+      html[data-theme="exec_gray"]
+    ) :is(#modalOpSales, #modalOpPurchase) .pos-field-gross {
+      background: #ECFDF5 !important;
+      border: 2px solid #047857 !important;
+    }
+    :is(
+      html[data-theme="warm-alabaster"],
+      html[data-theme="warm_cream"],
+      html[data-theme="pure-platinum"],
+      html[data-theme="ultra_white"],
+      html[data-theme="pearl-platinum"],
+      html[data-theme="exec_gray"]
+    ) :is(#modalOpSales, #modalOpPurchase) .pos-field-tax {
+      background: #FFFFFF !important;
+      border: 1.75px solid #4C1D95 !important;
+    }
+    :is(
+      html[data-theme="warm-alabaster"],
+      html[data-theme="warm_cream"],
+      html[data-theme="pure-platinum"],
+      html[data-theme="ultra_white"],
+      html[data-theme="pearl-platinum"],
+      html[data-theme="exec_gray"]
+    ) :is(#modalOpSales, #modalOpPurchase) .pos-field-discount {
+      background: #FFFFFF !important;
+      border: 1.75px solid #9F1239 !important;
+    }
+    :is(
+      html[data-theme="warm-alabaster"],
+      html[data-theme="warm_cream"],
+      html[data-theme="pure-platinum"],
+      html[data-theme="ultra_white"],
+      html[data-theme="pearl-platinum"],
+      html[data-theme="exec_gray"]
+    ) :is(#modalOpSales, #modalOpPurchase) .pos-field-labor {
+      background: #FFFFFF !important;
+      border: 1.75px solid #92400E !important;
+    }
+    :is(
+      html[data-theme="warm-alabaster"],
+      html[data-theme="warm_cream"],
+      html[data-theme="pure-platinum"],
+      html[data-theme="ultra_white"],
+      html[data-theme="pearl-platinum"],
+      html[data-theme="exec_gray"]
+    ) :is(#modalOpSales, #modalOpPurchase) .pos-field-total {
+      background: #FEF3C7 !important;
+      border: 2px solid #92400E !important;
+    }
+    :is(
+      html[data-theme="warm-alabaster"],
+      html[data-theme="warm_cream"],
+      html[data-theme="pure-platinum"],
+      html[data-theme="ultra_white"],
+      html[data-theme="pearl-platinum"],
+      html[data-theme="exec_gray"]
+    ) :is(#modalOpSales, #modalOpPurchase) .pos-field-note {
+      background: #FFFFFF !important;
+      border: 1.75px solid #075985 !important;
+    }
+    /* تحسين شريط السعر الدولاري ورقم السند والتاريخ وعناوين الحقول في السمات النهارية */
+    :is(
+      html[data-theme="warm-alabaster"],
+      html[data-theme="warm_cream"],
+      html[data-theme="pure-platinum"],
+      html[data-theme="ultra_white"],
+      html[data-theme="pearl-platinum"],
+      html[data-theme="exec_gray"]
+    ) :is(#salesRateContainer, #purRateContainer) {
+      background: #ECFDF5 !important;
+      border: 2px solid #047857 !important;
+    }
+    :is(
+      html[data-theme="warm-alabaster"],
+      html[data-theme="warm_cream"],
+      html[data-theme="pure-platinum"],
+      html[data-theme="ultra_white"],
+      html[data-theme="pearl-platinum"],
+      html[data-theme="exec_gray"]
+    ) :is(#opSalesInvoiceSwipeBox, #opPurInvoiceSwipeBox) {
+      background: #FFFBEB !important;
+      border: 1.75px solid #92400E !important;
+    }
+    :is(
+      html[data-theme="warm-alabaster"],
+      html[data-theme="warm_cream"],
+      html[data-theme="pure-platinum"],
+      html[data-theme="ultra_white"],
+      html[data-theme="pearl-platinum"],
+      html[data-theme="exec_gray"]
+    ) :is(#opSalesInvoiceSwipeBox button, #opPurInvoiceSwipeBox button) {
+      background: #FDE68A !important;
+      border: 1.5px solid #92400E !important;
+      color: #78350F !important;
+    }
+    :is(
+      html[data-theme="warm-alabaster"],
+      html[data-theme="warm_cream"],
+      html[data-theme="pure-platinum"],
+      html[data-theme="ultra_white"],
+      html[data-theme="pearl-platinum"],
+      html[data-theme="exec_gray"]
+    ) :is(#modalOpSales .pos-zone-1 > div:nth-child(2) > div:first-child, #modalOpPurchase .pos-zone-1 > div:nth-child(2) > div:first-child) {
+      background: #FFFFFF !important;
+      border: 1.75px solid #075985 !important;
+    }
+    :is(
+      html[data-theme="warm-alabaster"],
+      html[data-theme="warm_cream"],
+      html[data-theme="pure-platinum"],
+      html[data-theme="ultra_white"],
+      html[data-theme="pearl-platinum"],
+      html[data-theme="exec_gray"]
+    ) :is(#modalOpSales, #modalOpPurchase) label {
+      color: #000000 !important;
+      font-weight: 900 !important;
+    }
+    :is(
+      html[data-theme="warm-alabaster"],
+      html[data-theme="warm_cream"],
+      html[data-theme="pure-platinum"],
+      html[data-theme="ultra_white"],
+      html[data-theme="pearl-platinum"],
+      html[data-theme="exec_gray"]
+    ) :is(#modalOpSales .pos-field-customer button, #modalOpPurchase .pos-field-customer button) {
+      background: #E0F2FE !important;
+      color: #082F49 !important;
+      border: 1.5px solid #0369A1 !important;
+      box-shadow: none !important;
+      font-weight: 900 !important;
+    }
+    :is(
+      html[data-theme="warm-alabaster"],
+      html[data-theme="warm_cream"],
+      html[data-theme="pure-platinum"],
+      html[data-theme="ultra_white"],
+      html[data-theme="pearl-platinum"],
+      html[data-theme="exec_gray"]
+    ) #btnZoomSalesNotes {
+      background: #E0F2FE !important;
+      border: 1.5px solid #0369A1 !important;
+      box-shadow: none !important;
+    }
+    :is(
+      html[data-theme="warm-alabaster"],
+      html[data-theme="warm_cream"],
+      html[data-theme="pure-platinum"],
+      html[data-theme="ultra_white"],
+      html[data-theme="pearl-platinum"],
+      html[data-theme="exec_gray"]
+    ) #btnZoomSalesNotes * {
+      color: #082F49 !important;
+    }
+
+    /* توحيد ألوان النصوص والأرقام داخل جميع حقول المبيعات والمشتريات بأعلى تباين (WCAG AAA) */
+    html[data-theme] #salesCustomerInput,
+    html[data-theme] #purchaseSupplierInput,
+    html[data-theme] #salesWarehouseInput,
+    html[data-theme] #purchaseWarehouseInput,
+    html[data-theme] #salesCostCenterInput,
+    html[data-theme] #purCostCenterDisplayName,
+    html[data-theme] #purCostCenterDisplayName span,
+    html[data-theme] #salesNotesInput,
+    html[data-theme] #purNotesInput,
+    html[data-theme] #salesNotesExpandedTextarea {
+      background: transparent !important;
+      color: var(--m-text-primary) !important;
+      -webkit-text-fill-color: var(--m-text-primary) !important;
+      font-weight: 900 !important;
+      text-shadow: none !important;
+    }
+
+    html[data-theme] #salesItemSearchInput,
+    html[data-theme] #purItemSearchInput {
+      background: transparent !important;
+      color: var(--m-num-amber) !important;
+      -webkit-text-fill-color: var(--m-num-amber) !important;
+      font-weight: 900 !important;
+      text-shadow: none !important;
+    }
+
+    html[data-theme] #salesUnitSelect,
+    html[data-theme] #purUnitSelect {
+      background: var(--m-bg-input) !important;
+      color: var(--m-num-emerald) !important;
+      font-weight: 900 !important;
+    }
+    html[data-theme] #salesUnitSelect option,
+    html[data-theme] #purUnitSelect option {
+      background: var(--m-bg-card) !important;
+      color: var(--m-text-primary) !important;
+    }
+
+    html[data-theme] #salesQtyInput,
+    html[data-theme] #purQtyInput {
+      background: transparent !important;
+      color: var(--m-num-primary) !important;
+      -webkit-text-fill-color: var(--m-num-primary) !important;
+      font-weight: 900 !important;
+      text-shadow: none !important;
+    }
+
+    html[data-theme] #salesPriceInput,
+    html[data-theme] #purPriceInput {
+      background: transparent !important;
+      color: var(--m-num-cyan) !important;
+      -webkit-text-fill-color: var(--m-num-cyan) !important;
+      font-weight: 900 !important;
+      text-shadow: none !important;
+    }
+
+    html[data-theme] #salesItemGrossTotal,
+    html[data-theme] #purItemGrossTotal {
+      background: transparent !important;
+      color: var(--m-num-emerald) !important;
+      -webkit-text-fill-color: var(--m-num-emerald) !important;
+      font-weight: 900 !important;
+      text-shadow: none !important;
+    }
+
+    html[data-theme] #salesTaxInput,
+    html[data-theme] #purTaxInput {
+      background: transparent !important;
+      color: var(--m-num-purple) !important;
+      -webkit-text-fill-color: var(--m-num-purple) !important;
       font-weight: 900 !important;
     }
 
-    html[data-theme="beige"] .banner-strip .text-amber-400,
-    html[data-theme="ivory"] .banner-strip .text-amber-400,
-    html[data-theme="offwhite"] .banner-strip .text-amber-400,
-    html[data-theme="light-linen"] .banner-strip .text-amber-400,
-    html[data-theme="pearl-platinum"] .banner-strip .text-amber-400,
-    html[data-theme="nordic-paper"] .banner-strip .text-amber-400 {
-      color: #b45309 !important;
+    html[data-theme] #salesDiscountInput,
+    html[data-theme] #purDiscountInput {
+      background: transparent !important;
+      color: var(--m-num-rose) !important;
+      -webkit-text-fill-color: var(--m-num-rose) !important;
       font-weight: 900 !important;
     }
 
-    html[data-theme="beige"] .banner-strip .text-cyan-400,
-    html[data-theme="ivory"] .banner-strip .text-cyan-400,
-    html[data-theme="offwhite"] .banner-strip .text-cyan-400,
-    html[data-theme="light-linen"] .banner-strip .text-cyan-400,
-    html[data-theme="pearl-platinum"] .banner-strip .text-cyan-400,
-    html[data-theme="nordic-paper"] .banner-strip .text-cyan-400 {
-      color: #0369a1 !important;
+    html[data-theme] #salesLaborInput,
+    html[data-theme] #purLaborInput {
+      background: transparent !important;
+      color: var(--m-num-amber) !important;
+      -webkit-text-fill-color: var(--m-num-amber) !important;
       font-weight: 900 !important;
     }
 
-    html[data-theme="beige"] .banner-strip .text-rose-400,
-    html[data-theme="ivory"] .banner-strip .text-rose-400,
-    html[data-theme="offwhite"] .banner-strip .text-rose-400,
-    html[data-theme="light-linen"] .banner-strip .text-rose-400,
-    html[data-theme="pearl-platinum"] .banner-strip .text-rose-400,
-    html[data-theme="nordic-paper"] .banner-strip .text-rose-400 {
-      color: #be123c !important;
+    html[data-theme] #salesTotalInput,
+    html[data-theme] #purTotalInput,
+    html[data-theme] #opSalesInvoiceNoPill,
+    html[data-theme] #opPurchaseNoPill {
+      background: transparent !important;
+      color: var(--m-num-amber) !important;
+      -webkit-text-fill-color: var(--m-num-amber) !important;
       font-weight: 900 !important;
+      text-shadow: none !important;
     }
 
-    /* Light Themes Text Contrast Overrides */
-    html[data-theme="beige"] .text-white,
-    html[data-theme="ivory"] .text-white,
-    html[data-theme="offwhite"] .text-white,
-    html[data-theme="light-linen"] .text-white,
-    html[data-theme="pearl-platinum"] .text-white,
-    html[data-theme="nordic-paper"] .text-white {
-      color: #0f172a !important;
+    html[data-theme] #opSalesHeaderDatePill,
+    html[data-theme] #opPurHeaderDatePill {
+      background: transparent !important;
+      color: var(--m-num-cyan) !important;
+      -webkit-text-fill-color: var(--m-num-cyan) !important;
+      font-weight: 900 !important;
+      text-shadow: none !important;
     }
 
-    /* Dark/Earth Themes Custom Cards */
-    html[data-theme="sepia-brown"] .banner-strip { background: #231f1d !important; border-color: #573318 !important; }
-    html[data-theme="pale-gold"] .banner-strip { background: #1f1c18 !important; border-color: #785e3a !important; }
-    html[data-theme="emerald-forest"] .banner-strip { background: #062319 !important; border-color: #047857 !important; }
-    html[data-theme="desert-mocha"] .banner-strip { background: #29231f !important; border-color: #6e5e52 !important; }
-    html[data-theme="navy-kohl"] .banner-strip { background: #071530 !important; border-color: #1e3a8a !important; }
-    html[data-theme="royal-blue"] .banner-strip { background: #0e2448 !important; border-color: #2563eb !important; }
-    html[data-theme="petrol-cyan"] .banner-strip { background: #08282b !important; border-color: #0e7490 !important; }
-    html[data-theme="twilight-indigo"] .banner-strip { background: #151638 !important; border-color: #4338ca !important; }
-    html[data-theme="sunlight-titanium"] .banner-strip { background: #000000 !important; border: 2px solid #ffffff !important; }
+    /* معالجة القيم الافتراضية (pos-ghost-default) والنصوص الإرشادية (placeholder) بأولوية قصوى لضمان وضوحها التام في السمات الفاتحة */
+    html[data-theme] .pos-ghost-default,
+    html[data-theme] #modalOpSales input.pos-ghost-default,
+    html[data-theme] #modalOpSales textarea.pos-ghost-default,
+    html[data-theme] #modalOpPurchase input.pos-ghost-default,
+    html[data-theme] #modalOpPurchase textarea.pos-ghost-default {
+      color: var(--m-ghost) !important;
+      -webkit-text-fill-color: var(--m-ghost) !important;
+      font-weight: 900 !important;
+      opacity: 0.92 !important;
+    }
+    :is(
+      html[data-theme="warm-alabaster"],
+      html[data-theme="warm_cream"],
+      html[data-theme="pure-platinum"],
+      html[data-theme="ultra_white"],
+      html[data-theme="pearl-platinum"],
+      html[data-theme="exec_gray"]
+    ) :is(#modalOpSales, #modalOpPurchase) :is(input, textarea)::placeholder {
+      color: var(--m-placeholder) !important;
+      -webkit-text-fill-color: var(--m-placeholder) !important;
+      opacity: 0.82 !important;
+      font-weight: 800 !important;
+    }
+
+    :is(
+      html[data-theme="warm-alabaster"],
+      html[data-theme="warm_cream"],
+      html[data-theme="pure-platinum"],
+      html[data-theme="ultra_white"],
+      html[data-theme="pearl-platinum"],
+      html[data-theme="exec_gray"]
+    ) :is(
+      [class*="bg-amber-950"],
+      [class*="bg-emerald-950"],
+      [class*="bg-rose-950"],
+      [class*="bg-cyan-950"],
+      [class*="bg-cyan-900"],
+      [class*="bg-purple-950"],
+      [class*="bg-indigo-950"],
+      [class*="bg-orange-950"],
+      [class*="bg-blue-950"],
+      [class*="from-rose-950"],
+      [class*="from-emerald-950"],
+      [class*="from-cyan-950"],
+      [class*="from-amber-950"]
+    ) {
+      background: var(--m-bg-zone) !important;
+      border-color: var(--m-border) !important;
+      color: var(--m-text-primary) !important;
+    }
+    :is(
+      html[data-theme="warm-alabaster"],
+      html[data-theme="warm_cream"],
+      html[data-theme="pure-platinum"],
+      html[data-theme="ultra_white"],
+      html[data-theme="pearl-platinum"],
+      html[data-theme="exec_gray"]
+    ) :is([class*="text-amber-2"], [class*="text-amber-3"], [class*="text-amber-4"], [class*="text-yellow-3"], [class*="text-yellow-4"], [class*="text-orange-2"], [class*="text-orange-3"], [class*="text-orange-4"]) {
+      color: var(--m-num-amber) !important;
+    }
+    :is(
+      html[data-theme="warm-alabaster"],
+      html[data-theme="warm_cream"],
+      html[data-theme="pure-platinum"],
+      html[data-theme="ultra_white"],
+      html[data-theme="pearl-platinum"],
+      html[data-theme="exec_gray"]
+    ) :is([class*="text-emerald-2"], [class*="text-emerald-3"], [class*="text-emerald-4"], [class*="text-teal-2"], [class*="text-teal-3"], [class*="text-teal-4"]) {
+      color: var(--m-num-emerald) !important;
+    }
+    :is(
+      html[data-theme="warm-alabaster"],
+      html[data-theme="warm_cream"],
+      html[data-theme="pure-platinum"],
+      html[data-theme="ultra_white"],
+      html[data-theme="pearl-platinum"],
+      html[data-theme="exec_gray"]
+    ) :is([class*="text-cyan-2"], [class*="text-cyan-3"], [class*="text-cyan-4"], [class*="text-sky-2"], [class*="text-sky-3"], [class*="text-sky-4"], [class*="text-blue-3"], [class*="text-blue-4"]) {
+      color: var(--m-num-cyan) !important;
+    }
+    :is(
+      html[data-theme="warm-alabaster"],
+      html[data-theme="warm_cream"],
+      html[data-theme="pure-platinum"],
+      html[data-theme="ultra_white"],
+      html[data-theme="pearl-platinum"],
+      html[data-theme="exec_gray"]
+    ) :is([class*="text-rose-2"], [class*="text-rose-3"], [class*="text-rose-4"], [class*="text-pink-2"], [class*="text-pink-3"], [class*="text-pink-4"]) {
+      color: var(--m-num-rose) !important;
+    }
+    :is(
+      html[data-theme="warm-alabaster"],
+      html[data-theme="warm_cream"],
+      html[data-theme="pure-platinum"],
+      html[data-theme="ultra_white"],
+      html[data-theme="pearl-platinum"],
+      html[data-theme="exec_gray"]
+    ) :is([class*="text-purple-2"], [class*="text-purple-3"], [class*="text-purple-4"], [class*="text-indigo-2"], [class*="text-indigo-3"], [class*="text-indigo-4"]) {
+      color: var(--m-num-purple) !important;
+    }
 
     /* Universal High-Contrast Toast Notification */
     #privacyToastBar {
@@ -2956,22 +3565,32 @@
     }
 
     /* Light Themes Overrides for Badges */
+    html[data-theme="warm-alabaster"] .luminous-number-badge,
+    html[data-theme="warm_cream"] .luminous-number-badge,
+    html[data-theme="pure-platinum"] .luminous-number-badge,
+    html[data-theme="ultra_white"] .luminous-number-badge,
+    html[data-theme="pearl-platinum"] .luminous-number-badge,
+    html[data-theme="exec_gray"] .luminous-number-badge,
     html[data-theme="beige"] .luminous-number-badge,
     html[data-theme="ivory"] .luminous-number-badge,
     html[data-theme="offwhite"] .luminous-number-badge,
     html[data-theme="light-linen"] .luminous-number-badge,
-    html[data-theme="pearl-platinum"] .luminous-number-badge,
     html[data-theme="nordic-paper"] .luminous-number-badge {
       border: 1.5px solid #0f172a !important;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35) !important;
     }
 
     /* Light Themes Overrides for Crystal Flagship Buttons */
+    html[data-theme="warm-alabaster"] .crystal-flagship-btn,
+    html[data-theme="warm_cream"] .crystal-flagship-btn,
+    html[data-theme="pure-platinum"] .crystal-flagship-btn,
+    html[data-theme="ultra_white"] .crystal-flagship-btn,
+    html[data-theme="pearl-platinum"] .crystal-flagship-btn,
+    html[data-theme="exec_gray"] .crystal-flagship-btn,
     html[data-theme="beige"] .crystal-flagship-btn,
     html[data-theme="ivory"] .crystal-flagship-btn,
     html[data-theme="offwhite"] .crystal-flagship-btn,
     html[data-theme="light-linen"] .crystal-flagship-btn,
-    html[data-theme="pearl-platinum"] .crystal-flagship-btn,
     html[data-theme="nordic-paper"] .crystal-flagship-btn {
       background: linear-gradient(135deg, rgba(255, 255, 255, 0.96) 0%, rgba(248, 250, 252, 0.92) 100%) !important;
       box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08),
@@ -2979,21 +3598,31 @@
                   inset 0 1px 1px rgba(255, 255, 255, 1) !important;
     }
 
+    html[data-theme="warm-alabaster"] .crystal-flagship-btn .btn-label,
+    html[data-theme="warm_cream"] .crystal-flagship-btn .btn-label,
+    html[data-theme="pure-platinum"] .crystal-flagship-btn .btn-label,
+    html[data-theme="ultra_white"] .crystal-flagship-btn .btn-label,
+    html[data-theme="pearl-platinum"] .crystal-flagship-btn .btn-label,
+    html[data-theme="exec_gray"] .crystal-flagship-btn .btn-label,
     html[data-theme="beige"] .crystal-flagship-btn .btn-label,
     html[data-theme="ivory"] .crystal-flagship-btn .btn-label,
     html[data-theme="offwhite"] .crystal-flagship-btn .btn-label,
     html[data-theme="light-linen"] .crystal-flagship-btn .btn-label,
-    html[data-theme="pearl-platinum"] .crystal-flagship-btn .btn-label,
     html[data-theme="nordic-paper"] .crystal-flagship-btn .btn-label {
       color: #0f172a !important;
       font-weight: 900 !important;
     }
 
+    html[data-theme="warm-alabaster"] .crystal-flagship-btn:hover,
+    html[data-theme="warm_cream"] .crystal-flagship-btn:hover,
+    html[data-theme="pure-platinum"] .crystal-flagship-btn:hover,
+    html[data-theme="ultra_white"] .crystal-flagship-btn:hover,
+    html[data-theme="pearl-platinum"] .crystal-flagship-btn:hover,
+    html[data-theme="exec_gray"] .crystal-flagship-btn:hover,
     html[data-theme="beige"] .crystal-flagship-btn:hover,
     html[data-theme="ivory"] .crystal-flagship-btn:hover,
     html[data-theme="offwhite"] .crystal-flagship-btn:hover,
     html[data-theme="light-linen"] .crystal-flagship-btn:hover,
-    html[data-theme="pearl-platinum"] .crystal-flagship-btn:hover,
     html[data-theme="nordic-paper"] .crystal-flagship-btn:hover {
       box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12),
                   0 0 25px var(--btn-glow-active, rgba(0, 0, 0, 0.15)),
@@ -3042,7 +3671,8 @@
       body {
         padding: 0 !important;
         margin: 0 !important;
-        background: #020617 !important;
+        background: var(--m-bg-main, #020617) !important;
+        color: var(--m-text-primary, #f8fafc) !important;
         min-height: var(--app-height, 100dvh) !important;
         height: var(--app-height, 100dvh) !important;
         overflow: hidden !important;
@@ -3084,7 +3714,8 @@
     body.is-mobile-device {
       padding: 0 !important;
       margin: 0 !important;
-      background: #020617 !important;
+      background: var(--m-bg-main, #020617) !important;
+      color: var(--m-text-primary, #f8fafc) !important;
       height: var(--app-height, 100dvh) !important;
       overflow: hidden !important;
     }

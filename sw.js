@@ -9,7 +9,7 @@
  * - Zero Cache Staleness for Critical Real-Time APIs
  */
 
-const CACHE_NAME = 'magaiees-pwa-v2026-10-15-fast2g-v15';
+const CACHE_NAME = 'magaiees-pwa-v2026-10-15-fast2g-v17';
 
 const PRECACHE_ASSETS = [
     './',
@@ -23,7 +23,7 @@ const PRECACHE_ASSETS = [
     './assets/favicon.ico',
     './css/tailwind.min.css',
     './css/all.min.css',
-    './css/mobile-suite.css?v=2026_10_15_v15',
+    './css/mobile-suite.css?v=2026_10_15_v17',
     './js/pwa-manager.js?v=2026_10_15_v16',
     './js/magaies-offline-sync.js',
     './js/mobile-suite.js?v=2026_10_15_v16'

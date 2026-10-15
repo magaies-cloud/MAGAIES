@@ -1368,17 +1368,17 @@
     }
 
     /* Writing Boxes, Inputs, and Modals in Warm Alabaster */
-    html[data-theme="warm-alabaster"] input,
-    html[data-theme="warm-alabaster"] select,
-    html[data-theme="warm-alabaster"] textarea {
+    html[data-theme="warm-alabaster"] input:not(.border-none):not(.pos-field-interactive *):not(#modalOpSales *):not(#modalOpPurchase *),
+    html[data-theme="warm-alabaster"] select:not(.pos-field-interactive *):not(#modalOpSales *):not(#modalOpPurchase *),
+    html[data-theme="warm-alabaster"] textarea:not(.border-none):not(.pos-field-interactive *):not(#modalOpSales *):not(#modalOpPurchase *) {
       background: #ffffff !important;
-      border: 1.5px solid #8B6F4E !important;
-      color: #1c1917 !important;
+      border: 1.5px solid #6B4C30 !important;
+      color: #000000 !important;
     }
-    html[data-theme="warm-alabaster"] input:focus,
-    html[data-theme="warm-alabaster"] select:focus,
-    html[data-theme="warm-alabaster"] textarea:focus {
-      border-color: #523820 !important;
+    html[data-theme="warm-alabaster"] input:not(.border-none):not(.pos-field-interactive *):not(#modalOpSales *):not(#modalOpPurchase *):focus,
+    html[data-theme="warm-alabaster"] select:not(.pos-field-interactive *):not(#modalOpSales *):not(#modalOpPurchase *):focus,
+    html[data-theme="warm-alabaster"] textarea:not(.border-none):not(.pos-field-interactive *):not(#modalOpSales *):not(#modalOpPurchase *):focus {
+      border-color: #3E2712 !important;
       outline: none !important;
     }
     html[data-theme="warm-alabaster"] .modal-backdrop {
@@ -1769,17 +1769,17 @@
     }
 
     /* Writing Boxes, Inputs, and Modals in Pure Platinum */
-    html[data-theme="pure-platinum"] input,
-    html[data-theme="pure-platinum"] select,
-    html[data-theme="pure-platinum"] textarea {
+    html[data-theme="pure-platinum"] input:not(.border-none):not(.pos-field-interactive *):not(#modalOpSales *):not(#modalOpPurchase *),
+    html[data-theme="pure-platinum"] select:not(.pos-field-interactive *):not(#modalOpSales *):not(#modalOpPurchase *),
+    html[data-theme="pure-platinum"] textarea:not(.border-none):not(.pos-field-interactive *):not(#modalOpSales *):not(#modalOpPurchase *) {
       background: #ffffff !important;
-      border: 1.5px solid #64748B !important;
-      color: #0f172a !important;
+      border: 1.5px solid #475569 !important;
+      color: #000000 !important;
     }
-    html[data-theme="pure-platinum"] input:focus,
-    html[data-theme="pure-platinum"] select:focus,
-    html[data-theme="pure-platinum"] textarea:focus {
-      border-color: #0f172a !important;
+    html[data-theme="pure-platinum"] input:not(.border-none):not(.pos-field-interactive *):not(#modalOpSales *):not(#modalOpPurchase *):focus,
+    html[data-theme="pure-platinum"] select:not(.pos-field-interactive *):not(#modalOpSales *):not(#modalOpPurchase *):focus,
+    html[data-theme="pure-platinum"] textarea:not(.border-none):not(.pos-field-interactive *):not(#modalOpSales *):not(#modalOpPurchase *):focus {
+      border-color: #000000 !important;
       outline: none !important;
     }
     html[data-theme="pure-platinum"] .modal-backdrop {
@@ -2304,40 +2304,42 @@
     html[data-theme="offwhite"],
     html[data-theme="light-linen"],
     html[data-theme="nordic-paper"] {
-      --m-bg-main: #F6F0E6;
-      --m-bg-card: #FFFFFF;
-      --m-bg-zone: #EFE7DA;
+      --m-bg-main: #F3EBDD;
+      --m-bg-card: #FAF6F0;
+      --m-bg-zone: #E6DBC8;
       --m-bg-input: #FFFFFF;
-      --m-border: #8B6F4E;
-      --m-border-strong: #523820;
-      --m-text-primary: #14110F;
-      --m-text-muted: #4A3E31;
-      --m-ghost: #574838;
-      --m-num-primary: #0F172A;
-      --m-num-emerald: #065F46;
-      --m-num-cyan: #075985;
-      --m-num-amber: #78350F;
-      --m-num-purple: #4C1D95;
-      --m-num-rose: #9F1239;
+      --m-border: #5C3D22;
+      --m-border-strong: #2C1808;
+      --m-text-primary: #000000;
+      --m-text-muted: #291D12;
+      --m-ghost: #3E2C1C;
+      --m-placeholder: #5C4328;
+      --m-num-primary: #000000;
+      --m-num-emerald: #064E3B;
+      --m-num-cyan: #082F49;
+      --m-num-amber: #7C2D12;
+      --m-num-purple: #2E1065;
+      --m-num-rose: #7F1D1D;
     }
 
     html[data-theme="pure-platinum"],
     html[data-theme="ultra_white"],
     html[data-theme="light"] {
-      --m-bg-main: #F8FAFC;
+      --m-bg-main: #F1F5F9;
       --m-bg-card: #FFFFFF;
-      --m-bg-zone: #F1F5F9;
+      --m-bg-zone: #E2E8F0;
       --m-bg-input: #FFFFFF;
-      --m-border: #64748B;
-      --m-border-strong: #0F172A;
-      --m-text-primary: #090D16;
-      --m-text-muted: #334155;
-      --m-ghost: #475569;
-      --m-num-primary: #090D16;
-      --m-num-emerald: #065F46;
-      --m-num-cyan: #0C4A6E;
+      --m-border: #334155;
+      --m-border-strong: #000000;
+      --m-text-primary: #000000;
+      --m-text-muted: #1E293B;
+      --m-ghost: #1E293B;
+      --m-placeholder: #475569;
+      --m-num-primary: #000000;
+      --m-num-emerald: #064E3B;
+      --m-num-cyan: #082F49;
       --m-num-amber: #78350F;
-      --m-num-purple: #4C1D95;
+      --m-num-purple: #3B0764;
       --m-num-rose: #881337;
     }
 
@@ -2345,18 +2347,19 @@
     html[data-theme="exec_gray"] {
       --m-bg-main: #E5E9F0;
       --m-bg-card: #F8FAFC;
-      --m-bg-zone: #DCE2EC;
+      --m-bg-zone: #D5DDE8;
       --m-bg-input: #FFFFFF;
-      --m-border: #475569;
-      --m-border-strong: #1E293B;
-      --m-text-primary: #0F172A;
-      --m-text-muted: #334155;
-      --m-ghost: #475569;
-      --m-num-primary: #0F172A;
+      --m-border: #334155;
+      --m-border-strong: #0F172A;
+      --m-text-primary: #000000;
+      --m-text-muted: #1E293B;
+      --m-ghost: #1E293B;
+      --m-placeholder: #475569;
+      --m-num-primary: #000000;
       --m-num-emerald: #064E3B;
-      --m-num-cyan: #075985;
+      --m-num-cyan: #082F49;
       --m-num-amber: #78350F;
-      --m-num-purple: #4C1D95;
+      --m-num-purple: #3B0764;
       --m-num-rose: #881337;
     }
 
@@ -2376,6 +2379,7 @@
       --m-text-primary: #FFFFFF;
       --m-text-muted: #93C5FD;
       --m-ghost: #94A3B8;
+      --m-placeholder: rgba(148, 163, 184, 0.35);
       --m-num-primary: #FFFFFF;
       --m-num-emerald: #34D399;
       --m-num-cyan: #38BDF8;
@@ -2397,6 +2401,7 @@
       --m-text-primary: #FFFBEB;
       --m-text-muted: #D6C5B3;
       --m-ghost: #A89078;
+      --m-placeholder: rgba(214, 197, 179, 0.35);
       --m-num-primary: #FFFBEB;
       --m-num-emerald: #6EE7B7;
       --m-num-cyan: #7DD3FC;
@@ -2418,6 +2423,7 @@
       --m-text-primary: #FFFFFF;
       --m-text-muted: #CBD5E1;
       --m-ghost: #94A3B8;
+      --m-placeholder: rgba(148, 163, 184, 0.35);
       --m-num-primary: #FFFFFF;
       --m-num-emerald: #34D399;
       --m-num-cyan: #38BDF8;
@@ -2438,6 +2444,7 @@
       --m-text-primary: #F8FAFC;
       --m-text-muted: #CBD5E1;
       --m-ghost: #94A3B8;
+      --m-placeholder: rgba(148, 163, 184, 0.35);
       --m-num-primary: #FFFFFF;
       --m-num-emerald: #34D399;
       --m-num-cyan: #38BDF8;
@@ -2515,8 +2522,8 @@
     #suiteQuickThemeDrawer button[data-vtheme="warm-alabaster"] span,
     #modalThemePaletteDrawer button[data-vtheme="warm-alabaster"],
     #modalThemePaletteDrawer button[data-vtheme="warm-alabaster"] span {
-      background: #FBF8F1 !important;
-      color: #18130A !important;
+      background: #F5EFE4 !important;
+      color: #000000 !important;
     }
     #suiteQuickThemeDrawer button[data-vtheme="pure-platinum"],
     #suiteQuickThemeDrawer button[data-vtheme="pure-platinum"] span,
@@ -2529,8 +2536,8 @@
     #suiteQuickThemeDrawer button[data-vtheme="pearl-platinum"] span,
     #modalThemePaletteDrawer button[data-vtheme="pearl-platinum"],
     #modalThemePaletteDrawer button[data-vtheme="pearl-platinum"] span {
-      background: #EEF2F6 !important;
-      color: #0F172A !important;
+      background: #E5E9F0 !important;
+      color: #000000 !important;
     }
     #suiteQuickThemeDrawer button[data-vtheme="midnight-executive"],
     #suiteQuickThemeDrawer button[data-vtheme="midnight-executive"] span,
@@ -2578,6 +2585,19 @@
     html[data-theme] #suitePurItemBox {
       background: var(--m-bg-zone) !important;
       border: 1.5px solid var(--m-border) !important;
+    }
+
+    /* منع ازدواج الحواف داخل مربعات الكتابة (pos-field-interactive) في جميع السمات */
+    html[data-theme] #modalOpSales .pos-field-interactive input,
+    html[data-theme] #modalOpSales .pos-field-interactive textarea,
+    html[data-theme] #modalOpPurchase .pos-field-interactive input,
+    html[data-theme] #modalOpPurchase .pos-field-interactive textarea,
+    html[data-theme] #modalOpSales input[type="date"],
+    html[data-theme] #modalOpPurchase input[type="date"] {
+      border: none !important;
+      background: transparent !important;
+      box-shadow: none !important;
+      outline: none !important;
     }
 
     /* توحيد صناديق الحقول والشارات والقوائم المنسدلة في المبيعات والمشتريات */
@@ -2642,6 +2662,273 @@
       color: var(--m-text-primary) !important;
     }
 
+    /* ── ضمان التباين الفائق للسمات الفاتحة الثلاث (1: الكريمي، 2: الأبيض الناصع، 3: البلاتيني) ── */
+    :is(
+      html[data-theme="warm-alabaster"],
+      html[data-theme="warm_cream"],
+      html[data-theme="pure-platinum"],
+      html[data-theme="ultra_white"],
+      html[data-theme="pearl-platinum"],
+      html[data-theme="exec_gray"]
+    ) :is(input, select, textarea):not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):not(.border-none):not(#modalOpSales *):not(#modalOpPurchase *) {
+      background-color: var(--m-bg-input) !important;
+      border-color: var(--m-border) !important;
+      color: var(--m-text-primary) !important;
+    }
+
+    /* ── تصميم هندسي فاخر لمربعات الكتابة (محل الكتابة) في المبيعات والمشتريات للسمات الفاتحة الثلاث ── */
+    :is(
+      html[data-theme="warm-alabaster"],
+      html[data-theme="warm_cream"],
+      html[data-theme="pure-platinum"],
+      html[data-theme="ultra_white"],
+      html[data-theme="pearl-platinum"],
+      html[data-theme="exec_gray"]
+    ) :is(#modalOpSales, #modalOpPurchase) .pos-field-interactive {
+      background: #FFFFFF !important;
+      border: 1.75px solid var(--m-border) !important;
+      box-shadow: 0 2px 5px rgba(15, 23, 42, 0.06), inset 0 1px 2px rgba(15, 23, 42, 0.03) !important;
+    }
+    /* حواف دلالية داكنة وواضحة لكل حقل كتابة في المبيعات والمشتريات بالسمات النهارية */
+    :is(
+      html[data-theme="warm-alabaster"],
+      html[data-theme="warm_cream"],
+      html[data-theme="pure-platinum"],
+      html[data-theme="ultra_white"],
+      html[data-theme="pearl-platinum"],
+      html[data-theme="exec_gray"]
+    ) :is(#modalOpSales, #modalOpPurchase) .pos-field-customer {
+      background: #FFFFFF !important;
+      border: 2px solid #075985 !important;
+    }
+    :is(
+      html[data-theme="warm-alabaster"],
+      html[data-theme="warm_cream"],
+      html[data-theme="pure-platinum"],
+      html[data-theme="ultra_white"],
+      html[data-theme="pearl-platinum"],
+      html[data-theme="exec_gray"]
+    ) :is(#modalOpSales, #modalOpPurchase) .pos-field-warehouse {
+      background: #FFFFFF !important;
+      border: 1.75px solid #4C1D95 !important;
+    }
+    :is(
+      html[data-theme="warm-alabaster"],
+      html[data-theme="warm_cream"],
+      html[data-theme="pure-platinum"],
+      html[data-theme="ultra_white"],
+      html[data-theme="pearl-platinum"],
+      html[data-theme="exec_gray"]
+    ) :is(#modalOpSales, #modalOpPurchase) .pos-field-costcenter {
+      background: #FFFFFF !important;
+      border: 1.75px solid #075985 !important;
+    }
+    :is(
+      html[data-theme="warm-alabaster"],
+      html[data-theme="warm_cream"],
+      html[data-theme="pure-platinum"],
+      html[data-theme="ultra_white"],
+      html[data-theme="pearl-platinum"],
+      html[data-theme="exec_gray"]
+    ) :is(#modalOpSales, #modalOpPurchase) .pos-field-item {
+      background: #FFFFFF !important;
+      border: 2px solid #92400E !important;
+    }
+    :is(
+      html[data-theme="warm-alabaster"],
+      html[data-theme="warm_cream"],
+      html[data-theme="pure-platinum"],
+      html[data-theme="ultra_white"],
+      html[data-theme="pearl-platinum"],
+      html[data-theme="exec_gray"]
+    ) :is(#salesUnitSelect, #purUnitSelect) {
+      background: #ECFDF5 !important;
+      border: 2px solid #047857 !important;
+      color: #064E3B !important;
+      font-weight: 900 !important;
+    }
+    :is(
+      html[data-theme="warm-alabaster"],
+      html[data-theme="warm_cream"],
+      html[data-theme="pure-platinum"],
+      html[data-theme="ultra_white"],
+      html[data-theme="pearl-platinum"],
+      html[data-theme="exec_gray"]
+    ) :is(#modalOpSales, #modalOpPurchase) .pos-field-qty {
+      background: #FFFFFF !important;
+      border: 1.75px solid #1E293B !important;
+    }
+    :is(
+      html[data-theme="warm-alabaster"],
+      html[data-theme="warm_cream"],
+      html[data-theme="pure-platinum"],
+      html[data-theme="ultra_white"],
+      html[data-theme="pearl-platinum"],
+      html[data-theme="exec_gray"]
+    ) :is(#modalOpSales, #modalOpPurchase) .pos-field-price {
+      background: #FFFFFF !important;
+      border: 1.75px solid #075985 !important;
+    }
+    :is(
+      html[data-theme="warm-alabaster"],
+      html[data-theme="warm_cream"],
+      html[data-theme="pure-platinum"],
+      html[data-theme="ultra_white"],
+      html[data-theme="pearl-platinum"],
+      html[data-theme="exec_gray"]
+    ) :is(#modalOpSales, #modalOpPurchase) .pos-field-gross {
+      background: #ECFDF5 !important;
+      border: 2px solid #047857 !important;
+    }
+    :is(
+      html[data-theme="warm-alabaster"],
+      html[data-theme="warm_cream"],
+      html[data-theme="pure-platinum"],
+      html[data-theme="ultra_white"],
+      html[data-theme="pearl-platinum"],
+      html[data-theme="exec_gray"]
+    ) :is(#modalOpSales, #modalOpPurchase) .pos-field-tax {
+      background: #FFFFFF !important;
+      border: 1.75px solid #4C1D95 !important;
+    }
+    :is(
+      html[data-theme="warm-alabaster"],
+      html[data-theme="warm_cream"],
+      html[data-theme="pure-platinum"],
+      html[data-theme="ultra_white"],
+      html[data-theme="pearl-platinum"],
+      html[data-theme="exec_gray"]
+    ) :is(#modalOpSales, #modalOpPurchase) .pos-field-discount {
+      background: #FFFFFF !important;
+      border: 1.75px solid #9F1239 !important;
+    }
+    :is(
+      html[data-theme="warm-alabaster"],
+      html[data-theme="warm_cream"],
+      html[data-theme="pure-platinum"],
+      html[data-theme="ultra_white"],
+      html[data-theme="pearl-platinum"],
+      html[data-theme="exec_gray"]
+    ) :is(#modalOpSales, #modalOpPurchase) .pos-field-labor {
+      background: #FFFFFF !important;
+      border: 1.75px solid #92400E !important;
+    }
+    :is(
+      html[data-theme="warm-alabaster"],
+      html[data-theme="warm_cream"],
+      html[data-theme="pure-platinum"],
+      html[data-theme="ultra_white"],
+      html[data-theme="pearl-platinum"],
+      html[data-theme="exec_gray"]
+    ) :is(#modalOpSales, #modalOpPurchase) .pos-field-total {
+      background: #FEF3C7 !important;
+      border: 2px solid #92400E !important;
+    }
+    :is(
+      html[data-theme="warm-alabaster"],
+      html[data-theme="warm_cream"],
+      html[data-theme="pure-platinum"],
+      html[data-theme="ultra_white"],
+      html[data-theme="pearl-platinum"],
+      html[data-theme="exec_gray"]
+    ) :is(#modalOpSales, #modalOpPurchase) .pos-field-note {
+      background: #FFFFFF !important;
+      border: 1.75px solid #075985 !important;
+    }
+    /* تحسين شريط السعر الدولاري ورقم السند والتاريخ وعناوين الحقول في السمات النهارية */
+    :is(
+      html[data-theme="warm-alabaster"],
+      html[data-theme="warm_cream"],
+      html[data-theme="pure-platinum"],
+      html[data-theme="ultra_white"],
+      html[data-theme="pearl-platinum"],
+      html[data-theme="exec_gray"]
+    ) :is(#salesRateContainer, #purRateContainer) {
+      background: #ECFDF5 !important;
+      border: 2px solid #047857 !important;
+    }
+    :is(
+      html[data-theme="warm-alabaster"],
+      html[data-theme="warm_cream"],
+      html[data-theme="pure-platinum"],
+      html[data-theme="ultra_white"],
+      html[data-theme="pearl-platinum"],
+      html[data-theme="exec_gray"]
+    ) :is(#opSalesInvoiceSwipeBox, #opPurInvoiceSwipeBox) {
+      background: #FFFBEB !important;
+      border: 1.75px solid #92400E !important;
+    }
+    :is(
+      html[data-theme="warm-alabaster"],
+      html[data-theme="warm_cream"],
+      html[data-theme="pure-platinum"],
+      html[data-theme="ultra_white"],
+      html[data-theme="pearl-platinum"],
+      html[data-theme="exec_gray"]
+    ) :is(#opSalesInvoiceSwipeBox button, #opPurInvoiceSwipeBox button) {
+      background: #FDE68A !important;
+      border: 1.5px solid #92400E !important;
+      color: #78350F !important;
+    }
+    :is(
+      html[data-theme="warm-alabaster"],
+      html[data-theme="warm_cream"],
+      html[data-theme="pure-platinum"],
+      html[data-theme="ultra_white"],
+      html[data-theme="pearl-platinum"],
+      html[data-theme="exec_gray"]
+    ) :is(#modalOpSales .pos-zone-1 > div:nth-child(2) > div:first-child, #modalOpPurchase .pos-zone-1 > div:nth-child(2) > div:first-child) {
+      background: #FFFFFF !important;
+      border: 1.75px solid #075985 !important;
+    }
+    :is(
+      html[data-theme="warm-alabaster"],
+      html[data-theme="warm_cream"],
+      html[data-theme="pure-platinum"],
+      html[data-theme="ultra_white"],
+      html[data-theme="pearl-platinum"],
+      html[data-theme="exec_gray"]
+    ) :is(#modalOpSales, #modalOpPurchase) label {
+      color: #000000 !important;
+      font-weight: 900 !important;
+    }
+    :is(
+      html[data-theme="warm-alabaster"],
+      html[data-theme="warm_cream"],
+      html[data-theme="pure-platinum"],
+      html[data-theme="ultra_white"],
+      html[data-theme="pearl-platinum"],
+      html[data-theme="exec_gray"]
+    ) :is(#modalOpSales .pos-field-customer button, #modalOpPurchase .pos-field-customer button) {
+      background: #E0F2FE !important;
+      color: #082F49 !important;
+      border: 1.5px solid #0369A1 !important;
+      box-shadow: none !important;
+      font-weight: 900 !important;
+    }
+    :is(
+      html[data-theme="warm-alabaster"],
+      html[data-theme="warm_cream"],
+      html[data-theme="pure-platinum"],
+      html[data-theme="ultra_white"],
+      html[data-theme="pearl-platinum"],
+      html[data-theme="exec_gray"]
+    ) #btnZoomSalesNotes {
+      background: #E0F2FE !important;
+      border: 1.5px solid #0369A1 !important;
+      box-shadow: none !important;
+    }
+    :is(
+      html[data-theme="warm-alabaster"],
+      html[data-theme="warm_cream"],
+      html[data-theme="pure-platinum"],
+      html[data-theme="ultra_white"],
+      html[data-theme="pearl-platinum"],
+      html[data-theme="exec_gray"]
+    ) #btnZoomSalesNotes * {
+      color: #082F49 !important;
+    }
+
     /* توحيد ألوان النصوص والأرقام داخل جميع حقول المبيعات والمشتريات بأعلى تباين (WCAG AAA) */
     html[data-theme] #salesCustomerInput,
     html[data-theme] #purchaseSupplierInput,
@@ -2655,7 +2942,8 @@
     html[data-theme] #salesNotesExpandedTextarea {
       background: transparent !important;
       color: var(--m-text-primary) !important;
-      font-weight: 800 !important;
+      -webkit-text-fill-color: var(--m-text-primary) !important;
+      font-weight: 900 !important;
       text-shadow: none !important;
     }
 
@@ -2663,6 +2951,7 @@
     html[data-theme] #purItemSearchInput {
       background: transparent !important;
       color: var(--m-num-amber) !important;
+      -webkit-text-fill-color: var(--m-num-amber) !important;
       font-weight: 900 !important;
       text-shadow: none !important;
     }
@@ -2683,6 +2972,7 @@
     html[data-theme] #purQtyInput {
       background: transparent !important;
       color: var(--m-num-primary) !important;
+      -webkit-text-fill-color: var(--m-num-primary) !important;
       font-weight: 900 !important;
       text-shadow: none !important;
     }
@@ -2691,6 +2981,7 @@
     html[data-theme] #purPriceInput {
       background: transparent !important;
       color: var(--m-num-cyan) !important;
+      -webkit-text-fill-color: var(--m-num-cyan) !important;
       font-weight: 900 !important;
       text-shadow: none !important;
     }
@@ -2699,6 +2990,7 @@
     html[data-theme] #purItemGrossTotal {
       background: transparent !important;
       color: var(--m-num-emerald) !important;
+      -webkit-text-fill-color: var(--m-num-emerald) !important;
       font-weight: 900 !important;
       text-shadow: none !important;
     }
@@ -2707,6 +2999,7 @@
     html[data-theme] #purTaxInput {
       background: transparent !important;
       color: var(--m-num-purple) !important;
+      -webkit-text-fill-color: var(--m-num-purple) !important;
       font-weight: 900 !important;
     }
 
@@ -2714,6 +3007,7 @@
     html[data-theme] #purDiscountInput {
       background: transparent !important;
       color: var(--m-num-rose) !important;
+      -webkit-text-fill-color: var(--m-num-rose) !important;
       font-weight: 900 !important;
     }
 
@@ -2721,28 +3015,41 @@
     html[data-theme] #purLaborInput {
       background: transparent !important;
       color: var(--m-num-amber) !important;
+      -webkit-text-fill-color: var(--m-num-amber) !important;
       font-weight: 900 !important;
     }
 
     html[data-theme] #salesTotalInput,
     html[data-theme] #purTotalInput,
     html[data-theme] #opSalesInvoiceNoPill,
-    html[data-theme] #opPurchaseNoPill,
-    html[data-theme] #opSalesHeaderDatePill,
-    html[data-theme] #opPurHeaderDatePill {
+    html[data-theme] #opPurchaseNoPill {
       background: transparent !important;
       color: var(--m-num-amber) !important;
+      -webkit-text-fill-color: var(--m-num-amber) !important;
       font-weight: 900 !important;
       text-shadow: none !important;
     }
 
-    html[data-theme] .pos-ghost-default {
-      color: var(--m-ghost) !important;
-      -webkit-text-fill-color: var(--m-ghost) !important;
-      opacity: 0.88 !important;
+    html[data-theme] #opSalesHeaderDatePill,
+    html[data-theme] #opPurHeaderDatePill {
+      background: transparent !important;
+      color: var(--m-num-cyan) !important;
+      -webkit-text-fill-color: var(--m-num-cyan) !important;
+      font-weight: 900 !important;
+      text-shadow: none !important;
     }
 
-    /* ── ضمان التباين الفائق للسمات الفاتحة الثلاث (1، 2، 3) في كافة الشاشات والشارات والحقول ── */
+    /* معالجة القيم الافتراضية (pos-ghost-default) والنصوص الإرشادية (placeholder) بأولوية قصوى لضمان وضوحها التام في السمات الفاتحة */
+    html[data-theme] .pos-ghost-default,
+    html[data-theme] #modalOpSales input.pos-ghost-default,
+    html[data-theme] #modalOpSales textarea.pos-ghost-default,
+    html[data-theme] #modalOpPurchase input.pos-ghost-default,
+    html[data-theme] #modalOpPurchase textarea.pos-ghost-default {
+      color: var(--m-ghost) !important;
+      -webkit-text-fill-color: var(--m-ghost) !important;
+      font-weight: 900 !important;
+      opacity: 0.92 !important;
+    }
     :is(
       html[data-theme="warm-alabaster"],
       html[data-theme="warm_cream"],
@@ -2750,11 +3057,13 @@
       html[data-theme="ultra_white"],
       html[data-theme="pearl-platinum"],
       html[data-theme="exec_gray"]
-    ) :is(input, select, textarea):not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]) {
-      background-color: var(--m-bg-input) !important;
-      border-color: var(--m-border) !important;
-      color: var(--m-text-primary) !important;
+    ) :is(#modalOpSales, #modalOpPurchase) :is(input, textarea)::placeholder {
+      color: var(--m-placeholder) !important;
+      -webkit-text-fill-color: var(--m-placeholder) !important;
+      opacity: 0.82 !important;
+      font-weight: 800 !important;
     }
+
     :is(
       html[data-theme="warm-alabaster"],
       html[data-theme="warm_cream"],
