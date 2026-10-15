@@ -612,65 +612,34 @@
             }
         },
 
+        clearQueue() {
+            try {
+                localStorage.removeItem(STORAGE_KEY_QUEUE);
+                localStorage.removeItem('magaies_mobile_offline_queue');
+                this.updateUIBadge();
+            } catch (e) {}
+        },
+
         // ─────────────────────────────────────────────────────────────
-        // 8. واجهة المستخدم والشارة العائمة (Floating Offline UI Pill & Modal)
+        // 8. واجهة المستخدم والشارة العائمة (تم سحب وإخفاء الشارة السفلية تحت الواتساب لمنع التشتيت)
         // ─────────────────────────────────────────────────────────────
         updateUIBadge() {
-            let badge = document.getElementById('magaies-offline-pill');
-            const queue = this.getQueue();
-            const dev = this.getDeviceCode();
-            const count = queue.length;
-
-            if (!badge) {
-                badge = document.createElement('div');
-                badge.id = 'magaies-offline-pill';
-                badge.style.cssText = `
-                    position: fixed;
-                    bottom: 74px;
-                    left: 12px;
-                    z-index: 99999;
-                    display: flex;
-                    align-items: center;
-                    gap: 6px;
-                    padding: 5px 11px;
-                    border-radius: 9999px;
-                    font-size: 11px;
-                    font-weight: 800;
-                    font-family: inherit;
-                    cursor: pointer;
-                    backdrop-filter: blur(12px);
-                    box-shadow: 0 4px 16px rgba(0,0,0,0.4);
-                    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-                    user-select: none;
-                `;
-                badge.onclick = () => this.showQueueModal();
-                document.body.appendChild(badge);
+            const existing = document.getElementById('magaies-offline-pill');
+            if (existing) {
+                existing.style.display = 'none';
+                existing.remove();
             }
-
-            if (count > 0) {
-                // حالة وجود معلقات أوفلاين (Amber Glowing Alert)
-                badge.style.background = 'rgba(245, 158, 11, 0.22)';
-                badge.style.border = '1px solid rgba(245, 158, 11, 0.6)';
-                badge.style.color = '#fbbf24';
-                badge.innerHTML = `
-                    <span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:#fbbf24;animation:pulse 1.5s infinite;"></span>
-                    <span>جوال ${dev}</span>
-                    <span style="background:#fbbf24;color:#000;border-radius:9999px;padding:1px 6px;font-size:10px;">${count} أوفلاين</span>
-                    ${this.isSyncing ? '<span style="font-size:10px;">⚡ يرفع الآن...</span>' : ''}
-                `;
-                badge.style.display = 'flex';
-            } else {
-                // حالة متصل وطبيعي (Subtle Connected Pill)
-                badge.style.background = 'rgba(15, 23, 42, 0.78)';
-                badge.style.border = '1px solid rgba(52, 211, 153, 0.35)';
-                badge.style.color = '#34d399';
-                badge.innerHTML = `
-                    <span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#34d399;"></span>
-                    <span>جوال ${dev}</span>
-                    <span style="opacity:0.8;font-size:10px;">متزامن ✓</span>
-                `;
-                badge.style.display = 'flex';
-            }
+            // تنظيف أي معلقات تجريبية قديمة عالقة في المتصفح
+            try {
+                const q = this.getQueue();
+                if (Array.isArray(q) && q.length > 0) {
+                    const now = Date.now();
+                    const valid = q.filter(item => item && item.payload && (now - (item.created_at || 0) < 12 * 3600 * 1000));
+                    if (valid.length !== q.length) {
+                        this.saveQueue(valid);
+                    }
+                }
+            } catch (e) {}
         },
 
         showQueueModal() {
@@ -753,6 +722,7 @@
 
                     <div style="display:flex;gap:8px;">
                         <button onclick="MagaiesOffline.flushQueue(); document.getElementById('magaies-offline-modal').style.display='none';" style="flex:1;background:linear-gradient(135deg, #10b981, #059669);color:#fff;border:none;padding:10px;border-radius:10px;font-weight:800;font-size:12px;cursor:pointer;">⚡ مزامنة وترقيم الآن</button>
+                        ${queue.length > 0 ? `<button onclick="MagaiesOffline.clearQueue(); MagaiesOffline.showQueueModal();" style="background:rgba(239,68,68,0.2);color:#fca5a5;border:1px solid rgba(239,68,68,0.4);padding:10px 12px;border-radius:10px;font-weight:700;font-size:11px;cursor:pointer;">🗑️ مسح المعلق</button>` : ''}
                         <button onclick="document.getElementById('magaies-offline-modal').style.display='none';" style="background:rgba(255,255,255,0.1);color:#cbd5e1;border:none;padding:10px 14px;border-radius:10px;font-weight:700;font-size:12px;cursor:pointer;">إغلاق</button>
                     </div>
                 </div>

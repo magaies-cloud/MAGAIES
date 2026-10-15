@@ -3438,23 +3438,41 @@ window.openGlobalExchangeRateModal = function(callback) {
             }
 
             // Save to settings
+            window.SYSTEM_USD_RATE = newRate;
+            window._cachedGlobalRate = newRate;
             const tk = typeof window.getTenantKey === 'function' ? window.getTenantKey('erp_settings_v1') : 'erp_settings_v1';
             let str = localStorage.getItem(tk) || localStorage.getItem('erp_settings_v1');
             let s = {};
-            try { s = JSON.parse(str || '{}'); } catch(e){}
+            try { s = JSON.parse(str || '{}') || {}; } catch(e){}
             
             s.exchangeMode = (source === 'saas' ? 'global' : 'manual');
             s._userExplicitManual = (source === 'manual');
             s.rateUSD = newRate;
+            s.exchangeRate = newRate;
             localStorage.setItem(tk, JSON.stringify(s));
             if(tk !== 'erp_settings_v1') localStorage.setItem('erp_settings_v1', JSON.stringify(s));
             localStorage.setItem('erp_rate_usd', newRate);
+            localStorage.setItem('magaiees_system_usd_rate', newRate);
+            localStorage.setItem('magaies_custom_usd_rate', newRate);
+            localStorage.setItem('magaies_usd_rate', newRate);
+            localStorage.setItem('erp_cached_global_rate', newRate);
             if (source === 'manual') {
                 localStorage.setItem('erp_manual_rate_usd', newRate);
             }
             try {
+                let crObj = JSON.parse(localStorage.getItem('erp_currency_rates_v1') || '{}') || {};
+                crObj.USD = newRate;
+                crObj.SDG = 1;
+                localStorage.setItem('erp_currency_rates_v1', JSON.stringify(crObj));
+            } catch(e){}
+            try {
+                const _base = (() => { const o = window.location.origin; if (o === 'https://elsajana.com' || o === 'https://www.elsajana.com') return 'https://c.elsajana.com/'; let d = window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/')); if (d.endsWith('/')) d = d.slice(0,-1); return o + (d||'') + '/'; })();
+                fetch(_base + 'api/mirror_sync.php?action=save_currency_rate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'save_currency_rate', rate: newRate })
+                }).catch(() => {});
                 if (localStorage.getItem('authToken')) {
-                    const _base = (() => { const o = window.location.origin; if (o === 'https://elsajana.com' || o === 'https://www.elsajana.com') return 'https://c.elsajana.com/'; let d = window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/')); if (d.endsWith('/')) d = d.slice(0,-1); return o + (d||'') + '/'; })();
                     fetch(_base + 'api_index.php/tenant-exchange-rate', {
                         method: 'POST',
                         headers: {
@@ -3464,7 +3482,9 @@ window.openGlobalExchangeRateModal = function(callback) {
                         body: JSON.stringify({
                             payload: {
                                 exchangeMode: source,
-                                rateUSD: newRate
+                                rateUSD: newRate,
+                                current: newRate,
+                                rate: newRate
                             }
                         })
                     }).catch(() => {});
@@ -3505,9 +3525,9 @@ window.openGlobalExchangeRateModal = function(callback) {
     const tk = typeof window.getTenantKey === 'function' ? window.getTenantKey('erp_settings_v1') : 'erp_settings_v1';
     let str = localStorage.getItem(tk) || localStorage.getItem('erp_settings_v1');
     let s = {};
-    try { s = JSON.parse(str || '{}'); } catch(e){}
+    try { s = JSON.parse(str || '{}') || {}; } catch(e){}
     
-    let rate = s.rateUSD || parseFloat(localStorage.getItem('erp_rate_usd')) || 1;
+    let rate = (window.SYSTEM_USD_RATE && parseFloat(window.SYSTEM_USD_RATE) > 1 ? parseFloat(window.SYSTEM_USD_RATE) : 0) || parseFloat(localStorage.getItem('erp_rate_usd')) || s.rateUSD || 5999;
     let mode = (s.exchangeMode === 'manual' && s._userExplicitManual) ? 'manual' : 'saas';
     
     window._gemInitialRate = rate;
@@ -3997,17 +4017,21 @@ window.populateCurrencyDropdowns = function() {
 window.getExchangeRateForCurrency = function(currency) {
     if (!currency || currency === 'SDG') return 1;
     
+    // Always prioritize live database USD rate if available
+    const dbUsd = (window.SYSTEM_USD_RATE && parseFloat(window.SYSTEM_USD_RATE) > 1) ? parseFloat(window.SYSTEM_USD_RATE) : 0;
+    if (currency === 'USD' && dbUsd > 1) return dbUsd;
+
     let settings = {};
     try {
         const str = localStorage.getItem(typeof window.getTenantKey === 'function' ? window.getTenantKey('erp_settings_v1') : 'erp_settings_v1') || localStorage.getItem('erp_settings_v1');
-        if (str) settings = JSON.parse(str);
+        if (str) settings = JSON.parse(str) || {};
     } catch(e) {}
     
     // Check fallback sources for USD rate if missing
-    let fallbackUsdRate = 0;
-    if (!settings.rateUSD) {
+    let fallbackUsdRate = dbUsd;
+    if (fallbackUsdRate <= 1 && !settings.rateUSD) {
         try { 
-            const dedicated = localStorage.getItem('erp_rate_usd');
+            const dedicated = localStorage.getItem('erp_rate_usd') || localStorage.getItem('magaiees_system_usd_rate') || localStorage.getItem('magaies_usd_rate');
             if (dedicated) fallbackUsdRate = parseFloat(dedicated);
         } catch(e) {}
         
@@ -4017,11 +4041,9 @@ window.getExchangeRateForCurrency = function(currency) {
                 if (cookieMatch) fallbackUsdRate = parseFloat(cookieMatch[1]);
             } catch(e) {}
         }
-        
-        if (fallbackUsdRate > 0) {
-            settings.rateUSD = fallbackUsdRate;
-            settings.exchangeMode = settings.exchangeMode || 'manual'; // assume manual if we had to fallback to local dedicated
-        }
+    }
+    if (fallbackUsdRate > 1) {
+        settings.rateUSD = fallbackUsdRate;
     }
     
     const mode = settings.exchangeMode || 'global';
@@ -4043,14 +4065,16 @@ window.getExchangeRateForCurrency = function(currency) {
         return 0; // Return 0 so the user knows they need to enter a rate
     }
     
-    // Global mode: use central rate from header or cached API response
-    let centralRate = 0;
+    // Global mode: use central rate from DB / header / cached API response
+    let centralRate = dbUsd;
     
-    // Try header element first
-    const centralValEl = document.getElementById('global-exchange-rate-val');
-    if (centralValEl) {
-        const txt = centralValEl.innerText.replace(/,/g, '').trim();
-        if (txt && txt !== '-') centralRate = parseFloat(txt) || 0;
+    // Try header element next
+    if (centralRate <= 0) {
+        const centralValEl = document.getElementById('global-exchange-rate-val');
+        if (centralValEl) {
+            const txt = centralValEl.innerText.replace(/,/g, '').trim();
+            if (txt && txt !== '-') centralRate = parseFloat(txt) || 0;
+        }
     }
     
     // Try cached rate
@@ -4059,7 +4083,7 @@ window.getExchangeRateForCurrency = function(currency) {
     }
     if (centralRate <= 0) {
         try {
-            const cachedRateStr = localStorage.getItem('erp_cached_global_rate');
+            const cachedRateStr = localStorage.getItem('erp_cached_global_rate') || localStorage.getItem('erp_rate_usd') || localStorage.getItem('magaiees_system_usd_rate');
             if (cachedRateStr) centralRate = parseFloat(cachedRateStr);
         } catch(e) {}
     }
@@ -4076,20 +4100,24 @@ window.getExchangeRateForCurrency = function(currency) {
     if (settings.rateSAR && currency === 'SAR') return parseFloat(settings.rateSAR);
     if (settings.rateAED && currency === 'AED') return parseFloat(settings.rateAED);
     
-    return 0; // Return 0 so user sees they need to enter a rate
+    return currency === 'USD' ? 5999 : 0;
 };
 
-// Pre-fetch the global exchange rate so it's available immediately
+// Pre-fetch the global exchange rate from database so it's available immediately
 (function() {
     try {
-        fetch('api_index.php/exchange-rate', {
-            headers: { "Authorization": `Bearer ${localStorage.getItem('authToken')}` }
-        })
+        fetch('api/mirror_sync.php?action=get_currency_rate&_t=' + Date.now())
             .then(r => r.json())
             .then(d => {
-                if (d && d.rate) {
-                    window._cachedGlobalRate = parseFloat(d.rate);
-                    localStorage.setItem('erp_cached_global_rate', window._cachedGlobalRate);
+                if (d && d.rate && parseFloat(d.rate) > 1) {
+                    const dbRate = parseFloat(d.rate);
+                    window.SYSTEM_USD_RATE = dbRate;
+                    window._cachedGlobalRate = dbRate;
+                    localStorage.setItem('erp_cached_global_rate', String(dbRate));
+                    localStorage.setItem('erp_rate_usd', String(dbRate));
+                    localStorage.setItem('magaiees_system_usd_rate', String(dbRate));
+                    localStorage.setItem('magaies_custom_usd_rate', String(dbRate));
+                    localStorage.setItem('magaies_usd_rate', String(dbRate));
                 }
             }).catch(() => {});
     } catch(e) {}

@@ -4,6 +4,8 @@ $preloadedUnitsJson = '[]';
 $preloadedItemsJson = '[]';
 try {
     require_once __DIR__ . '/api/db.php';
+    if (file_exists(__DIR__ . '/db_bridge.php')) require_once __DIR__ . '/db_bridge.php';
+    $systemUsdRate = function_exists('getSystemUsdExchangeRate') ? getSystemUsdExchangeRate($pdo ?? null) : 5999.0;
     if (isset($pdo)) {
         $stmt = $pdo->prepare("SELECT setting_value FROM global_settings WHERE setting_key = 'grid_config_sales_grid'");
         $stmt->execute();
@@ -2744,7 +2746,7 @@ try {
                     <option value="AED">🇦🇪 درهم</option>
                     <option value="EGP">🇪🇬 مصري</option>
                 </select>
-                <input type="number" class="v-input ctrl-input" id="hdr-exchange-rate" value="1" placeholder="الصرف" readonly style="flex: 1.2; text-align: center; cursor:pointer; background:rgba(16,185,129,0.1); color:#10b981; font-weight:bold;" onclick="if(typeof window.openGlobalExchangeRateModal === 'function') window.openGlobalExchangeRateModal((r)=>{this.value=r; if(typeof recalcAll === 'function') recalcAll(); else if(typeof recalcTotals==='function') recalcTotals(); else if(typeof calcTotals==='function') calcTotals(); else if(typeof window.updateCurrency==='function') window.updateCurrency();});">
+                <input type="number" class="v-input ctrl-input" id="hdr-exchange-rate" value="<?php echo htmlspecialchars((string)$systemUsdRate); ?>" placeholder="الصرف" readonly style="flex: 1.2; text-align: center; cursor:pointer; background:rgba(16,185,129,0.1); color:#10b981; font-weight:bold;" onclick="if(typeof window.openGlobalExchangeRateModal === 'function') window.openGlobalExchangeRateModal((r)=>{this.value=r; this.dataset.userEdited='1'; if(typeof recalcAll === 'function') recalcAll(); else if(typeof recalcTotals==='function') recalcTotals(); else if(typeof calcTotals==='function') calcTotals(); else if(typeof window.updateCurrency==='function') window.updateCurrency();});">
             </div>
         </div>
 
@@ -3630,21 +3632,17 @@ try {
         function handleCurrencyChange(val) {
             const rateInput = document.getElementById('hdr-exchange-rate');
             if (!rateInput) return;
-            
-            if (val === 'SDG') {
-                rateInput.value = '1';
-                rateInput.disabled = true;
+            rateInput.disabled = false;
+            const targetCurr = (val === 'SDG' ? 'USD' : val);
+            if (targetCurr === 'USD' && window.SYSTEM_USD_RATE && parseFloat(window.SYSTEM_USD_RATE) > 1 && rateInput.dataset.userEdited !== '1') {
+                rateInput.value = parseFloat(window.SYSTEM_USD_RATE);
                 if (typeof recalcAll === 'function') recalcAll();
                 return;
             }
-            
-            // Always enable editing for foreign currencies
-            rateInput.disabled = false;
-            
             // Step 1: Try to get rate from local settings function
             let rate = 0;
             if (window.getExchangeRateForCurrency) {
-                rate = window.getExchangeRateForCurrency(val);
+                rate = window.getExchangeRateForCurrency(targetCurr);
             }
             
             if (rate > 0) {

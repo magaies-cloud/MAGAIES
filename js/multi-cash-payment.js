@@ -427,6 +427,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // ═══ Get Active System Dollar Exchange Rate ═══
 window.getSystemUsdRate = function() {
+    if (window.SYSTEM_USD_RATE && parseFloat(window.SYSTEM_USD_RATE) > 1) {
+        return parseFloat(window.SYSTEM_USD_RATE);
+    }
     let rate = 0;
     if (typeof window.getExchangeRateForCurrency === 'function') {
         rate = window.getExchangeRateForCurrency('USD');
@@ -435,16 +438,16 @@ window.getSystemUsdRate = function() {
         try {
             const getTenantKey = window.getTenantKey || ((k) => k);
             const settings = JSON.parse(localStorage.getItem(getTenantKey('erp_settings_v1')) || localStorage.getItem('erp_settings_v1')) || {};
-            rate = parseFloat(settings.exchangeRate) || 0;
+            rate = parseFloat(settings.rateUSD || settings.exchangeRate) || 0;
         } catch (e) {}
     }
     if (!rate || rate <= 1) {
         try {
-            const glRate = parseFloat(localStorage.getItem('erp_exchange_rate_usd')) || 0;
+            const glRate = parseFloat(localStorage.getItem('erp_rate_usd') || localStorage.getItem('erp_exchange_rate_usd')) || 0;
             if (glRate > 1) rate = glRate;
         } catch(e) {}
     }
-    return (rate && rate > 0) ? rate : 2600;
+    return (rate && rate > 0) ? rate : 5999;
 };
 
 // ═══ Update Currency UI Labels & Row Placeholders ═══

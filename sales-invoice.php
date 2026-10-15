@@ -330,7 +330,7 @@
                     </div>
                     <div class="ctrl-group">
                         <label class="label">العملة</label>
-                        <select class="ctrl-input system-currency-select" id="hdr-currency" onchange="document.getElementById('hdr-exchange-rate').disabled = (this.value === 'SDG'); document.getElementById('hdr-exchange-rate').value = (this.value === 'SDG') ? '1' : ''; recalcAll();"
+                        <select class="ctrl-input system-currency-select" id="hdr-currency" onchange="document.getElementById('hdr-exchange-rate').disabled = false; document.getElementById('hdr-exchange-rate').value = (this.value === 'SDG' || this.value === 'USD') ? (window.SYSTEM_USD_RATE || 5999) : (typeof window.getExchangeRateForCurrency === 'function' ? window.getExchangeRateForCurrency(this.value) : ''); recalcAll();"
                             <option value="SDG">جنيه سوداني محلي (SDG)</option>
                             <option value="USD">دولار أمريكي أجنبي (USD)</option>
                             <option value="SAR">ريال سعودي أجنبي (SAR)</option>
@@ -340,7 +340,7 @@
                     </div>
                     <div class="ctrl-group">
                         <label class="label">سعر الصرف (مقابل المحلي)</label>
-                        <input type="number" class="ctrl-input" id="hdr-exchange-rate" value="1" disabled placeholder="سعر الصرف" oninput="recalcAll()">
+                        <input type="number" class="ctrl-input" id="hdr-exchange-rate" value="<?php echo htmlspecialchars((string)($systemUsdRate ?? 5999)); ?>" placeholder="سعر الصرف" oninput="this.dataset.userEdited='1'; recalcAll()">
                     </div>
                     <div class="ctrl-group ctrl-full">
                         <label class="label">البيان / الوصف</label>

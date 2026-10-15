@@ -89,6 +89,68 @@ function hasCurrentBalanceColumn($pdo) {
     return $has_col;
 }
 
+// دالة موحدة لجلب سعر صرف الدولار المعتمد في النظام من قاعدة البيانات لجميع الشاشات
+function getSystemUsdExchangeRate($pdo = null, $tenantId = null) {
+    global $GLOBAL_TENANT_ID;
+    if ($pdo === null) {
+        try { $pdo = getDBConnection(); } catch (Throwable $e) { return 5999.0; }
+    }
+    if (!$pdo) return 5999.0;
+    if ($tenantId === null) {
+        $tenantId = $GLOBAL_TENANT_ID ?: 12;
+    }
+    $rate = 0.0;
+    try {
+        $tKey = 'tenant_rate_' . intval($tenantId);
+        $stmt = $pdo->prepare("SELECT setting_key, setting_value FROM global_settings WHERE setting_key IN (?, 'exchange_rate', 'erp_rate_usd', 'erp_currency_rates_v1')");
+        $stmt->execute([$tKey]);
+        $rows = $stmt->fetchAll(PDO::FETCH_KEY_PAIR);
+
+        // 1. فحص exchange_rate أولاً باعتباره السعر المركزي المحدث في قاعدة البيانات
+        if (!empty($rows['exchange_rate'])) {
+            $val = $rows['exchange_rate'];
+            if (is_numeric($val) && (float)$val > 1) {
+                $rate = (float)$val;
+            } else {
+                $d = json_decode($val, true);
+                if (is_array($d)) {
+                    if (!empty($d['rate']) && (float)$d['rate'] > 1) $rate = (float)$d['rate'];
+                    elseif (!empty($d['current']) && (float)$d['current'] > 1) $rate = (float)$d['current'];
+                    elseif (!empty($d['USD']) && (float)$d['USD'] > 1) $rate = (float)$d['USD'];
+                }
+            }
+        }
+        // 2. فحص tenant_rate_X
+        if ($rate <= 1 && !empty($rows[$tKey])) {
+            $val = $rows[$tKey];
+            if (is_numeric($val) && (float)$val > 1) {
+                $rate = (float)$val;
+            } else {
+                $d = json_decode($val, true);
+                if (is_array($d)) {
+                    if (!empty($d['current']) && (float)$d['current'] > 1) $rate = (float)$d['current'];
+                    elseif (!empty($d['rate']) && (float)$d['rate'] > 1) $rate = (float)$d['rate'];
+                }
+            }
+        }
+        // 3. فحص erp_rate_usd
+        if ($rate <= 1 && !empty($rows['erp_rate_usd']) && is_numeric($rows['erp_rate_usd']) && (float)$rows['erp_rate_usd'] > 1) {
+            $rate = (float)$rows['erp_rate_usd'];
+        }
+        // 4. فحص erp_currency_rates_v1
+        if ($rate <= 1 && !empty($rows['erp_currency_rates_v1'])) {
+            $ratesObj = json_decode($rows['erp_currency_rates_v1'], true);
+            if (is_array($ratesObj) && !empty($ratesObj['USD']) && (float)$ratesObj['USD'] > 1) {
+                $rate = (float)$ratesObj['USD'];
+            }
+        }
+    } catch (Throwable $e) {
+        error_log('DB Bridge Error in getSystemUsdExchangeRate: ' . $e->getMessage());
+    }
+    return ($rate > 1) ? $rate : 5999.0;
+}
+
+
 // -------------------------------------------------------------
 // 1. تقرير "تحليل عمق الائتمان" (Debt Concentration)
 // -------------------------------------------------------------

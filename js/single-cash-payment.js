@@ -839,7 +839,7 @@ function resetVoucherSilent() {
 
     document.getElementById('amount-local').value = '';
     document.getElementById('currency').value = localCurr;
-    document.getElementById('exchange-rate').value = '1.0';
+    document.getElementById('exchange-rate').value = String(window.SYSTEM_USD_RATE || (typeof window.getExchangeRateForCurrency === 'function' ? window.getExchangeRateForCurrency('USD') : 5999) || 5999);
     document.getElementById('exchange-rate').readOnly = true;
     document.getElementById('amount-foreign').value = '';
     document.getElementById('to-statement').value = '';

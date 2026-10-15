@@ -5,6 +5,8 @@ $preloadedUnitsJson = '[]';
 $preloadedItemsJson = '[]';
 try {
     require_once __DIR__ . '/api/db.php';
+    if (file_exists(__DIR__ . '/db_bridge.php')) require_once __DIR__ . '/db_bridge.php';
+    $systemUsdRate = function_exists('getSystemUsdExchangeRate') ? getSystemUsdExchangeRate($pdo ?? null) : 5999.0;
     if (isset($pdo)) {
         $stmt = $pdo->prepare("SELECT setting_value FROM global_settings WHERE setting_key = 'grid_config_purchase_grid'");
         $stmt->execute();
@@ -1883,7 +1885,7 @@ try {
                                 <option value="AED">🇦🇪 درهم</option>
                                 <option value="EGP">🇪🇬 مصري</option>
                             </select>
-                            <input type="number" class="v-input ctrl-input" id="hdr-exchange-rate" value="3000" placeholder="الصرف" readonly style="flex: 1.2; text-align: center; cursor:pointer; background:rgba(16,185,129,0.1); color:#10b981; font-weight:bold;" onclick="if(typeof window.openGlobalExchangeRateModal === 'function') window.openGlobalExchangeRateModal((r)=>{this.value=r; if(typeof recalcAll === 'function') recalcAll(); else if(typeof recalcTotals==='function') recalcTotals(); else if(typeof calcTotals==='function') calcTotals(); else if(typeof window.updateCurrency==='function') window.updateCurrency();});">
+                            <input type="number" class="v-input ctrl-input" id="hdr-exchange-rate" value="<?php echo htmlspecialchars((string)$systemUsdRate); ?>" placeholder="الصرف" readonly style="flex: 1.2; text-align: center; cursor:pointer; background:rgba(16,185,129,0.1); color:#10b981; font-weight:bold;" onclick="if(typeof window.openGlobalExchangeRateModal === 'function') window.openGlobalExchangeRateModal((r)=>{this.value=r; this.dataset.userEdited='1'; if(typeof recalcAll === 'function') recalcAll(); else if(typeof recalcTotals==='function') recalcTotals(); else if(typeof calcTotals==='function') calcTotals(); else if(typeof window.updateCurrency==='function') window.updateCurrency();});">
                         </div>
                     </div>
 
@@ -2592,7 +2594,7 @@ try {
             
             // If current rate is already valid and > 1, and we are switching between SDG and USD, keep it!
             const currentVal = parseFloat(rateInput.value) || 0;
-            if (currentVal > 1 && (val === 'SDG' || val === 'USD') && (prevCurrency === 'SDG' || prevCurrency === 'USD')) {
+            if (currentVal > 1 && currentVal !== 3000 && rateInput.dataset.userEdited === '1' && (val === 'SDG' || val === 'USD') && (prevCurrency === 'SDG' || prevCurrency === 'USD')) {
                 if (typeof renderGrid === 'function') renderGrid();
                 if (typeof recalcAll === 'function') recalcAll();
                 return;
@@ -2646,14 +2648,14 @@ try {
                         }
                     }
                     if (!rateInput.value || parseFloat(rateInput.value) <= 0) {
-                        rateInput.value = 3000;
+                        rateInput.value = window.SYSTEM_USD_RATE || 5999;
                     }
                     if (typeof renderGrid === 'function') renderGrid();
                     if (typeof recalcAll === 'function') recalcAll();
                 })
                 .catch(() => {
                     if (!rateInput.value || parseFloat(rateInput.value) <= 0) {
-                        rateInput.value = 3000;
+                        rateInput.value = window.SYSTEM_USD_RATE || 5999;
                     }
                     if (typeof renderGrid === 'function') renderGrid();
                     if (typeof recalcAll === 'function') recalcAll();

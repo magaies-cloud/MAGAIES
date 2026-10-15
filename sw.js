@@ -9,7 +9,7 @@
  * - Zero Cache Staleness for Critical Real-Time APIs
  */
 
-const CACHE_NAME = 'magaiees-pwa-v2026-10-14-fast2g-v7';
+const CACHE_NAME = 'magaiees-pwa-v2026-10-15-fast2g-v9';
 
 const PRECACHE_ASSETS = [
     './',

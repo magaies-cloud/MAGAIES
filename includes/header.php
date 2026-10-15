@@ -1,3 +1,106 @@
+<?php
+if (!isset($systemUsdRate) || (float)$systemUsdRate <= 1) {
+    $systemUsdRate = 5999.0;
+    try {
+        if (!function_exists('getSystemUsdExchangeRate') && file_exists(__DIR__ . '/../db_bridge.php')) {
+            require_once __DIR__ . '/../db_bridge.php';
+        }
+        if (function_exists('getSystemUsdExchangeRate')) {
+            $systemUsdRate = getSystemUsdExchangeRate(isset($pdo) ? $pdo : null);
+        } elseif (isset($pdo) && $pdo) {
+            $stmtHdrRate = $pdo->query("SELECT setting_value FROM global_settings WHERE setting_key = 'exchange_rate' LIMIT 1");
+            $valHdrRate = $stmtHdrRate ? $stmtHdrRate->fetchColumn() : null;
+            if ($valHdrRate) {
+                if (is_numeric($valHdrRate) && (float)$valHdrRate > 1) {
+                    $systemUsdRate = (float)$valHdrRate;
+                } else {
+                    $decHdrRate = json_decode($valHdrRate, true);
+                    if (is_array($decHdrRate)) {
+                        $rHdr = (float)($decHdrRate['rate'] ?? ($decHdrRate['current'] ?? ($decHdrRate['rateUSD'] ?? 0)));
+                        if ($rHdr > 1) $systemUsdRate = $rHdr;
+                    }
+                }
+            }
+        }
+    } catch (Throwable $e) {}
+}
+?>
+<script>
+window.SYSTEM_USD_RATE = <?= json_encode((float)$systemUsdRate) ?>;
+window._cachedGlobalRate = window.SYSTEM_USD_RATE;
+(function syncDatabaseUsdRateEverywhere() {
+    function applyDbUsdRate(rateVal) {
+        var r = parseFloat(rateVal);
+        if (!r || r <= 1) return;
+        window.SYSTEM_USD_RATE = r;
+        window._cachedGlobalRate = r;
+        try {
+            localStorage.setItem('erp_rate_usd', String(r));
+            localStorage.setItem('magaiees_system_usd_rate', String(r));
+            localStorage.setItem('magaies_custom_usd_rate', String(r));
+            localStorage.setItem('magaies_usd_rate', String(r));
+            localStorage.setItem('erp_cached_global_rate', String(r));
+            localStorage.setItem('erp_saas_rate_usd', String(r));
+            localStorage.setItem('erp_manual_rate_usd', String(r));
+            var cr = {};
+            try { cr = JSON.parse(localStorage.getItem('erp_currency_rates_v1') || '{}') || {}; } catch(e) { cr = {}; }
+            cr.USD = r;
+            cr.SDG = 1;
+            localStorage.setItem('erp_currency_rates_v1', JSON.stringify(cr));
+            ['erp_settings_v1'].forEach(function(baseKey) {
+                var keys = [baseKey];
+                try {
+                    var u = JSON.parse(localStorage.getItem('user') || '{}');
+                    var tId = u.tenant_id || localStorage.getItem('currentTenantId') || 'default';
+                    keys.push('tenant_' + tId + '_' + baseKey);
+                } catch(e) {}
+                keys.forEach(function(k) {
+                    try {
+                        var cfg = JSON.parse(localStorage.getItem(k) || '{}') || {};
+                        cfg.rateUSD = r;
+                        cfg.exchangeRate = r;
+                        localStorage.setItem(k, JSON.stringify(cfg));
+                    } catch(e) {}
+                });
+            });
+        } catch(e) {}
+        var updateDomInputs = function() {
+            var gVal = document.getElementById('global-exchange-rate-val');
+            var gBox = document.getElementById('global-exchange-rate-box');
+            if (gVal) gVal.innerText = r.toLocaleString('en-US', {maximumFractionDigits: 2});
+            if (gBox) gBox.style.display = 'block';
+            ['hdr-exchange-rate', 'exchange-rate'].forEach(function(id) {
+                var el = document.getElementById(id);
+                if (!el) return;
+                var curSel = document.getElementById('hdr-currency') || document.getElementById('currency');
+                var cur = curSel ? curSel.value : 'SDG';
+                if (cur === 'SDG' || cur === 'USD' || !cur) {
+                    var curVal = parseFloat(String(el.value || '').replace(/,/g, '')) || 0;
+                    if (curVal <= 1 || curVal === 3000 || curVal === 2850 || curVal === 2600 || !el.dataset.userEdited) {
+                        el.value = r;
+                        el.dataset.raw = r;
+                    }
+                }
+            });
+        };
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', updateDomInputs, { once: true });
+        } else {
+            updateDomInputs();
+        }
+    }
+    applyDbUsdRate(window.SYSTEM_USD_RATE);
+    try {
+        fetch('api/mirror_sync.php?action=get_currency_rate&_t=' + Date.now())
+            .then(function(res) { return res.json(); })
+            .then(function(data) {
+                if (data && data.success && parseFloat(data.rate) > 1) {
+                    applyDbUsdRate(parseFloat(data.rate));
+                }
+            }).catch(function() {});
+    } catch(e) {}
+})();
+</script>
 <script src="js/hls.light.min.js"></script>
 <script src="js/bban_auto_helper.js"></script>
 <script src="js/master-banks-helper.js?v=20260924_v1"></script>

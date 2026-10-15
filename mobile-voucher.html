@@ -66,7 +66,8 @@ if (!function_exists('computeFastVoucherStateHash')) {
                 (SELECT CONCAT(COUNT(*), ':', COALESCE(MAX(id),0), ':', COALESCE(MAX(updated_at),'')) FROM suppliers WHERE tenant_id = ?) AS sp,
                 (SELECT CONCAT(COUNT(*), ':', COALESCE(MAX(id),0), ':', COALESCE(MAX(updated_at),'')) FROM accounts WHERE tenant_id = ?) AS a,
                 (SELECT CONCAT(COUNT(*), ':', COALESCE(MAX(id),0), ':', COALESCE(MAX(updated_at),'')) FROM single_payments WHERE tenant_id = ?) AS p,
-                (SELECT CONCAT(COUNT(*), ':', COALESCE(MAX(id),0), ':', COALESCE(MAX(updated_at),'')) FROM single_receipts WHERE tenant_id = ?) AS r";
+                (SELECT CONCAT(COUNT(*), ':', COALESCE(MAX(id),0), ':', COALESCE(MAX(updated_at),'')) FROM single_receipts WHERE tenant_id = ?) AS r,
+                (SELECT COALESCE(GROUP_CONCAT(setting_value SEPARATOR '|'), '') FROM global_settings WHERE setting_key IN ('exchange_rate', 'erp_rate_usd', 'erp_currency_rates_v1')) AS gs";
             $st = $pdo->prepare($sql);
             $st->execute([$effTenant, $effTenant, $effTenant, $effTenant, $effTenant, $effTenant, $effTenant]);
             $row = $st->fetch(PDO::FETCH_ASSOC);
@@ -468,7 +469,7 @@ if (!function_exists('classifyVoucherNature')) {
         if ($fromIsLiquid && !$toIsLiquid) {
             return ['code' => 'payment', 'label' => 'سند صرف'];
         }
-        return ['code' => 'settlement', 'label' => 'قيد تسوية'];
+        return ['code' => 'settlement', 'label' => 'حركة مالية'];
     }
 }
 
@@ -1212,6 +1213,7 @@ if (isset($_GET['api']) || isset($_POST['api'])) {
     if ($action === 'get_data' || $action === 'sync_data') {
         $clientHash = trim($_GET['clientHash'] ?? ($_POST['clientHash'] ?? ''));
         $fastStateHash = computeFastVoucherStateHash($pdo, $currentTenantId);
+        $liveSystemUsdRate = getSystemUsdExchangeRate($pdo, $currentTenantId);
 
         // إذا لم يتغير أي شيء في قاعدة البيانات، نرد فوراً في 1 ملي ثانية بدون سحب الجداول!
         if ($clientHash !== '' && hash_equals($fastStateHash, $clientHash)) {
@@ -1220,6 +1222,7 @@ if (isset($_GET['api']) || isset($_POST['api'])) {
                 'unchanged' => true,
                 'changed' => false,
                 'stateHash' => $fastStateHash,
+                'exchangeRate' => $liveSystemUsdRate,
                 'serverTime' => date('Y-m-d H:i:s')
             ], JSON_UNESCAPED_UNICODE);
             exit;
@@ -1269,8 +1272,8 @@ if (isset($_GET['api']) || isset($_POST['api'])) {
                     $notesVal = $d['notes'] ?? ($d['toStatement'] ?? ($d['fromStatement'] ?? ($d['description'] ?? ($d['memo'] ?? ($bt0['statement'] ?? '')))));
                     if (is_array($notesVal)) $notesVal = '';
 
-                    $rateVal = (float)($d['rate'] ?? 2650);
-                    if ($rateVal <= 0) $rateVal = 2650;
+                    $rateVal = (float)($d['rate'] ?? $liveSystemUsdRate);
+                    if ($rateVal <= 0) $rateVal = $liveSystemUsdRate;
                     $amtLocal = (float)($d['amountLocal'] ?? ($d['amount'] ?? ($d['totalAmount'] ?? ($d['sdg'] ?? 0))));
                     $amtForeign = (float)($d['amountForeign'] ?? ($d['usd'] ?? ($d['foreignAmt'] ?? 0)));
                     if ($amtForeign <= 0 && $amtLocal > 0 && $rateVal > 0) {
@@ -1281,10 +1284,10 @@ if (isset($_GET['api']) || isset($_POST['api'])) {
 
                     $vNature = $d['voucherNature'] ?? '';
                     $vNatureLabel = $d['voucherNatureLabel'] ?? '';
-                    if ($vNatureLabel === '') {
+                    if ($vNatureLabel === '' || strpos($vNatureLabel, 'قيد تسوية') !== false) {
                         $natObj = classifyVoucherNature((string)$fromName, (string)$toName, $liveAccounts);
                         $vNature = $vNature ?: ($natObj['code'] ?? 'payment');
-                        $vNatureLabel = $natObj['label'] ?? 'سند صرف / حركة مالية';
+                        $vNatureLabel = $natObj['label'] ?? 'حركة مالية';
                     }
 
                     $sigHash = $d['signatureHash'] ?? generateServerVoucherSignature($vNo, $d['date'] ?? date('Y-m-d'), $amtLocal, $fromName, $toName, $currentTenantId);
@@ -1349,6 +1352,7 @@ if (isset($_GET['api']) || isset($_POST['api'])) {
             'dbConnected' => true,
             'serverTime' => date('Y-m-d H:i:s'),
             'tenantId' => $currentTenantId,
+            'exchangeRate' => $liveSystemUsdRate,
             'totalAccounts' => count($liveAccounts),
             'totalVouchers' => count($liveVouchers),
             'nextVoucherNo' => $nextVNo,
@@ -1363,6 +1367,7 @@ if (isset($_GET['api']) || isset($_POST['api'])) {
 // ────────────────────────────────────────────────────────────────────────────
 // 2. DATA PRELOADING: الحسابات، مراكز الكلفة، العملات، السندات السابقة
 // ────────────────────────────────────────────────────────────────────────────
+$systemUsdRate = getSystemUsdExchangeRate($pdo, $currentTenantId);
 $accountsList = fetchAllLiveAccounts($pdo, $currentTenantId);
 $allDbTransfersPreload = fetchAllDbTransfers($pdo, $currentTenantId);
 
@@ -1409,8 +1414,8 @@ try {
             $notesVal = $d['notes'] ?? ($d['toStatement'] ?? ($d['fromStatement'] ?? ($d['description'] ?? ($d['memo'] ?? ($bt0['statement'] ?? '')))));
             if (is_array($notesVal)) $notesVal = '';
 
-            $rateVal = (float)($d['rate'] ?? 2650);
-            if ($rateVal <= 0) $rateVal = 2650;
+            $rateVal = (float)($d['rate'] ?? $systemUsdRate);
+            if ($rateVal <= 0) $rateVal = $systemUsdRate;
             $amtLocal = (float)($d['amountLocal'] ?? ($d['amount'] ?? ($d['totalAmount'] ?? ($d['sdg'] ?? 0))));
             $amtForeign = (float)($d['amountForeign'] ?? ($d['usd'] ?? ($d['foreignAmt'] ?? 0)));
             if ($amtForeign <= 0 && $amtLocal > 0 && $rateVal > 0) {
@@ -1421,10 +1426,10 @@ try {
 
             $vNature = $d['voucherNature'] ?? '';
             $vNatureLabel = $d['voucherNatureLabel'] ?? '';
-            if ($vNatureLabel === '') {
+            if ($vNatureLabel === '' || strpos($vNatureLabel, 'قيد تسوية') !== false) {
                 $natObj = classifyVoucherNature((string)$fromName, (string)$toName, $accountsList);
                 $vNature = $vNature ?: ($natObj['code'] ?? 'payment');
-                $vNatureLabel = $natObj['label'] ?? 'سند صرف / حركة مالية';
+                $vNatureLabel = $natObj['label'] ?? 'حركة مالية';
             }
 
             $sigHash = $d['signatureHash'] ?? generateServerVoucherSignature($vNo, $d['date'] ?? date('Y-m-d'), $amtLocal, $fromName, $toName, $effTenant);
@@ -1492,10 +1497,10 @@ $costCentersList = [
     'عام / بدون مركز كلفة'
 ];
 
-// العملات النشطة وسعر الصرف الافتراضي
+// العملات النشطة وسعر الصرف الافتراضي المتزامن مع قاعدة البيانات
 $currenciesData = [
     'SDG' => ['name' => 'جنيه سوداني', 'symbol' => 'ج.س', 'flag' => '🇸🇩', 'defaultRate' => 1, 'isBase' => true],
-    'USD' => ['name' => 'دولار أمريكي', 'symbol' => '$', 'flag' => '🇺🇸', 'defaultRate' => 2650, 'isBase' => false],
+    'USD' => ['name' => 'دولار أمريكي', 'symbol' => '$', 'flag' => '🇺🇸', 'defaultRate' => $systemUsdRate, 'isBase' => false],
     'SAR' => ['name' => 'ريال سعودي', 'symbol' => 'ر.س', 'flag' => '🇸🇦', 'defaultRate' => 705, 'isBase' => false],
     'AED' => ['name' => 'درهم إماراتي', 'symbol' => 'د.إ', 'flag' => '🇦🇪', 'defaultRate' => 720, 'isBase' => false],
     'EGP' => ['name' => 'جنيه مصري', 'symbol' => 'ج.م', 'flag' => '🇪🇬', 'defaultRate' => 55, 'isBase' => false],
@@ -1507,6 +1512,7 @@ $currenciesData = [
 <head>
   <script>
     <?php $mgJsonFlags = JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT; ?>
+    window.SYSTEM_USD_RATE = <?php echo json_encode((float)$systemUsdRate, $mgJsonFlags); ?>;
     window.PHP_ACCOUNTS = <?php echo json_encode($accountsList, $mgJsonFlags); ?>;
     window.PHP_VOUCHERS = <?php echo json_encode($vouchersHistory, $mgJsonFlags); ?>;
     window.PHP_NEXT_NO = <?php echo json_encode($nextSequentialVoucherNo, $mgJsonFlags); ?>;
@@ -1612,6 +1618,12 @@ $currenciesData = [
     #usdRate {
       -moz-appearance: textfield !important;
       appearance: textfield !important;
+      font-family: 'Montserrat', 'Inter', 'JetBrains Mono', sans-serif !important;
+      font-size: 17.5px !important;
+      font-weight: 900 !important;
+      -webkit-text-stroke: 0.45px currentColor;
+      letter-spacing: -0.3px !important;
+      text-shadow: 0 0 10px rgba(52, 211, 153, 0.35);
     }
     input::-webkit-calendar-picker-indicator {
       display: none !important;
@@ -1624,7 +1636,9 @@ $currenciesData = [
       pointer-events: none !important;
     }
     @media (max-width: 600px) {
-      input, select, textarea {
+      input:not(#transferInput):not(#sdgAmount):not(#usdAmount):not(#usdRate):not(.account-search-input),
+      select,
+      textarea {
         font-size: 15.5px !important;
       }
     }
@@ -1648,22 +1662,25 @@ $currenciesData = [
     }
     #bankNameInput {
       font-size: 13.5px !important;
-      height: 40px !important;
-      max-height: 40px !important;
-      line-height: 38px !important;
+      height: 48px !important;
+      max-height: 48px !important;
+      line-height: 46px !important;
       padding-top: 0 !important;
       padding-bottom: 0 !important;
       vertical-align: middle !important;
       box-sizing: border-box !important;
     }
     #transferInput {
-      height: 40px !important;
-      max-height: 40px !important;
-      line-height: 38px !important;
+      height: 48px !important;
+      max-height: 48px !important;
+      line-height: 46px !important;
       padding-top: 0 !important;
       padding-bottom: 0 !important;
       vertical-align: middle !important;
       box-sizing: border-box !important;
+      font-family: 'JetBrains Mono', 'Montserrat', monospace !important;
+      font-weight: 900 !important;
+      -webkit-text-stroke: 0.35px currentColor;
     }
 
     .no-scrollbar::-webkit-scrollbar { display: none; }
@@ -2340,33 +2357,33 @@ $currenciesData = [
   </div>
 
   <!-- Mobile Device Screen Container -->
-  <div id="mobileContainer" class="mobile-device-outer w-full max-w-[393px] bg-slate-950 sm:rounded-[36px] sm:border-[4px] sm:border-slate-800 sm:shadow-2xl overflow-hidden flex flex-col relative transition-all duration-300 min-h-screen sm:min-h-[852px]">
+  <div id="mobileContainer" class="mobile-device-outer w-full max-w-[393px] bg-gradient-to-b from-[#04091a] via-[#070e24] to-[#030712] sm:rounded-[36px] sm:border-[4px] sm:border-slate-800/90 sm:shadow-2xl overflow-hidden flex flex-col relative transition-all duration-300 min-h-screen sm:min-h-[852px]">
 
     <!-- ═════════════════════════════════════════════════════════════════
          1. السطر الأول المرفوع (الهيدر العلوي):
-         زر الخروج الأحمر الآمن + حركة مالية + منطقة عناية متصل + الساعة و 5G
+         الرجوع + المايك الذكي + حركة مالية + حالة المزامنة + الساعة (مسافة مدمجة ومريحة)
          ═════════════════════════════════════════════════════════════════ -->
-    <div class="px-3 py-2 bg-slate-950 border-b border-slate-900 flex items-center justify-between sticky top-0 z-40 select-none">
+    <div class="px-2.5 py-1 bg-[#050b1d]/95 border-b border-indigo-950/80 flex items-center justify-between sticky top-0 z-40 select-none backdrop-blur-md">
       
-      <!-- اليمين: مايك الذكاء الصوتي الشامل + عنوان الشاشة (حركة مالية) + منطقة عناية متصل -->
-      <div class="flex items-center gap-2">
+      <!-- اليمين: مايك الذكاء الصوتي الشامل + عنوان الشاشة (حركة مالية) + منطقة المزامنة -->
+      <div class="flex items-center gap-1.5">
         <!-- زر الرجوع الفوري للشاشة الرئيسية -->
-        <a href="mobile-dashboard.php" class="w-8 h-8 rounded-xl bg-slate-900 hover:bg-slate-800 active:scale-95 text-cyan-400 border border-slate-800 flex items-center justify-center shrink-0 shadow transition cursor-pointer" title="الرجوع للشاشة الرئيسية">
-          <i class="fa-solid fa-arrow-right text-sm"></i>
+        <a href="mobile-dashboard.php" class="w-7 h-7 rounded-xl bg-slate-900/90 hover:bg-slate-800 active:scale-95 text-cyan-400 border border-cyan-500/30 flex items-center justify-center shrink-0 shadow transition cursor-pointer" title="الرجوع للشاشة الرئيسية">
+          <i class="fa-solid fa-arrow-right text-xs"></i>
         </a>
-        <!-- زر المايك الصوتي الذكي الشامل للشاشة بأكملها (في مكان زر الخروج قبل حركة مالية) -->
-        <button type="button" onclick="toggleMasterVoiceInput()" id="masterMicBtn" class="w-8 h-8 rounded-xl bg-gradient-to-r from-cyan-500 via-sky-500 to-indigo-600 hover:from-cyan-400 hover:to-indigo-500 active:scale-95 text-white flex items-center justify-center shrink-0 border border-cyan-300 shadow-[0_0_16px_rgba(6,182,212,0.6)] transition cursor-pointer relative group" title="المايك الصوتي الذكي الشامل: اضغط وتحدث لتعبئة كامل السند تلقائياً">
-          <i class="fa-solid fa-microphone text-sm text-yellow-300" id="masterMicIcon"></i>
+        <!-- زر المايك الصوتي الذكي الشامل للشاشة بأكملها -->
+        <button type="button" onclick="toggleMasterVoiceInput()" id="masterMicBtn" class="w-7 h-7 rounded-xl bg-gradient-to-r from-cyan-500 via-sky-500 to-indigo-600 hover:from-cyan-400 hover:to-indigo-500 active:scale-95 text-white flex items-center justify-center shrink-0 border border-cyan-300 shadow-[0_0_14px_rgba(6,182,212,0.55)] transition cursor-pointer relative group" title="المايك الصوتي الذكي الشامل: اضغط وتحدث لتعبئة كامل السند تلقائياً">
+          <i class="fa-solid fa-microphone text-xs text-yellow-300" id="masterMicIcon"></i>
           <span class="absolute -top-1 -right-1 w-2.5 h-2.5 bg-red-500 rounded-full animate-ping hidden" id="masterMicListeningPing"></span>
         </button>
 
-        <!-- حركة مالية فقط بخط واضح وفخم (تم حذف صرف مالي) -->
-        <span class="text-sm sm:text-base font-black text-white tracking-wide flex items-center gap-1.5 shrink-0">
-          <i class="fa-solid fa-money-bill-transfer text-cyan-400 text-sm"></i>
+        <!-- حركة مالية فقط بخط واضح وفخم -->
+        <span class="text-sm sm:text-base font-black text-white tracking-wide flex items-center gap-1 shrink-0">
+          <i class="fa-solid fa-money-bill-transfer text-cyan-400 text-xs"></i>
           <span>حركة مالية</span>
         </span>
 
-        <!-- مؤشر مزامنة وتحديث البيانات الذكي: دائرة خضراء بعد المزامنة، وتتحول لحمراء مع زر التحديث عند الحاجة -->
+        <!-- مؤشر مزامنة وتحديث البيانات الذكي -->
         <button type="button" onclick="handleUnifiedSyncRefresh()" id="networkPill" class="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/40 text-emerald-400 text-[10.5px] font-black cursor-pointer hover:bg-emerald-500/25 active:scale-95 transition shadow-sm" title="البيانات متزامنة - انقر للتحديث الفوري">
           <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_#10b981]" id="networkDot"></span>
           <i class="fa-solid fa-arrows-rotate text-[9.5px] text-red-300 hidden" id="networkRefreshIcon"></i>
@@ -2374,12 +2391,10 @@ $currenciesData = [
         </button>
       </div>
 
-      <!-- اليسار: شارة نوع السند المحاسبي الذكي + الساعة الحقيقية -->
+      <!-- اليسار: الساعة الحقيقية (تم إخفاء شارة قيد تسوية محاسبية نهائياً بناءً على طلب المستخدم) -->
       <div class="flex items-center gap-1.5 text-slate-300">
-        <span id="voucherNatureHeaderBadge" class="px-2 py-0.5 rounded-full text-[10px] font-black bg-cyan-950/90 text-cyan-300 border border-cyan-500/40 shadow-sm whitespace-nowrap">
-          💠 حركة مالية
-        </span>
-        <span id="currentTime" class="font-bold font-mono text-slate-300 text-[11px] bg-slate-900 px-1.5 py-0.5 rounded-md border border-slate-800">13:15</span>
+        <span id="voucherNatureHeaderBadge" class="hidden"></span>
+        <span id="currentTime" class="font-bold font-mono text-cyan-200/90 text-[11px] bg-slate-900/90 px-2 py-0.5 rounded-lg border border-indigo-900/60 shadow-inner">13:15</span>
       </div>
     </div>
 
@@ -2387,7 +2402,7 @@ $currenciesData = [
          شريط الاستماع الصوتي الذكي المباشر (HUD Live Audio Visualizer)
          يظهر فقط أثناء الاستماع بالمايك، ويعرض النص المباشر + عداد الصمت + زر إيقاف
          ═════════════════════════════════════════════════════════════════ -->
-    <div id="masterVoiceLiveBanner" class="hidden bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 border-b-2 border-cyan-400 p-2.5 text-xs text-white shadow-2xl sticky top-[41px] z-50 transition-all select-none">
+    <div id="masterVoiceLiveBanner" class="hidden bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 border-b-2 border-cyan-400 p-2.5 text-xs text-white shadow-2xl sticky top-[36px] z-50 transition-all select-none">
       <div class="flex items-center justify-between gap-2 mb-1.5">
         <div class="flex items-center gap-2">
           <span class="relative flex h-3 w-3">
@@ -2425,27 +2440,25 @@ $currenciesData = [
     </div>
 
     <!-- ═════════════════════════════════════════════════════════════════
-         2. السطر الثاني المخصص (نظيف وغير مزدحم نهائياً):
-          التاريخ (في منتصف المساحة المخصصة ومكبر الخط درجة) | الرقم التسلسلي (مصغر درجة) والأسهم صغيرة على الأطراف
+         2. السطر الثاني المخصص (بتقليل المسافة العلوية لدمج أنيق ومريح):
+          التاريخ | الرقم التسلسلي والأسهم
           ═════════════════════════════════════════════════════════════════ -->
-    <div class="bg-slate-900/95 px-2.5 py-2 border-b border-slate-800 sticky top-[37px] z-30 backdrop-blur-md">
-      <div class="grid grid-cols-2 gap-2.5 w-full">
+    <div class="bg-[#081026]/95 px-2.5 py-1 border-b border-indigo-950/80 sticky top-[36px] z-30 backdrop-blur-md">
+      <div class="grid grid-cols-2 gap-2 w-full">
         
-        <!-- 1. مساحة التاريخ: تصغير الخط وعكس اليوم والشهر ليظهر اليوم أولاً ثم الشهر ثم السنة (DD / MM / YYYY) -->
-        <div class="relative bg-slate-950 glow-border-cyan rounded-2xl px-2 py-1 flex items-center justify-center h-[54px] shadow-inner transition cursor-pointer select-none" onclick="triggerDatePicker()" title="انقر لتعديل التاريخ">
-          <!-- العرض المرئي الأنيق بالتنسيق المحاسبي: اليوم / الشهر / السنة بخط مصغر درجتان -->
+        <!-- 1. مساحة التاريخ: اليوم / الشهر / السنة -->
+        <div class="relative bg-[#040918] glow-border-cyan rounded-2xl px-2 py-0.5 flex items-center justify-center h-[45px] shadow-inner transition cursor-pointer select-none" onclick="triggerDatePicker()" title="انقر لتعديل التاريخ">
           <div class="flex items-center justify-center gap-1.5 pointer-events-none select-none" dir="ltr">
             <i class="fa-regular fa-calendar text-cyan-400/80 text-xs mr-0.5"></i>
-            <span id="voucherDateDisplay" class="text-cyan-200 text-[18px] sm:text-[19px] font-mono font-black tracking-tighter leading-none"><?php echo date('d/m/Y'); ?></span>
+            <span id="voucherDateDisplay" class="text-cyan-200 text-[17.5px] sm:text-[18.5px] font-mono font-black tracking-tighter leading-none"><?php echo date('d/m/Y'); ?></span>
           </div>
-          <!-- حقل التاريخ الفعلي المتزامن مع النظام والتقويم وقاعدة البيانات -->
           <input type="date" id="voucherDate" value="<?php echo date('Y-m-d'); ?>" oninput="updateVoucherDateDisplay()" onchange="updateVoucherDateDisplay()" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" style="color-scheme: dark;">
         </div>
 
-        <!-- 2. مساحة الرقم التسلسلي: تصغير الرقم درجة، وتصغير الأسهم يمين وشمال على الأطراف -->
-        <div class="bg-slate-950 glow-border-amber rounded-2xl px-1.5 py-1 flex items-center justify-between h-[54px] shadow-inner transition cursor-pointer">
+        <!-- 2. مساحة الرقم التسلسلي والأسهم -->
+        <div class="bg-[#040918] glow-border-amber rounded-2xl px-1.5 py-0.5 flex items-center justify-between h-[45px] shadow-inner transition cursor-pointer">
           <!-- سهم يمين صغير على الطرف (للطلوع للأحدث) -->
-          <button type="button" onclick="navigateVoucher(1)" id="btnNextVoucher" class="w-6 h-6 sm:w-7 sm:h-7 rounded-lg bg-slate-800 hover:bg-slate-700 active:scale-90 text-amber-300 hover:text-amber-200 flex items-center justify-center transition border border-amber-500/40 shadow shrink-0" title="سهم يمين: السند التالي (للطلوع للأحدث)">
+          <button type="button" onclick="navigateVoucher(1)" id="btnNextVoucher" class="w-6 h-6 sm:w-7 sm:h-7 rounded-lg bg-slate-800/90 hover:bg-slate-700 active:scale-90 text-amber-300 hover:text-amber-200 flex items-center justify-center transition border border-amber-500/40 shadow shrink-0" title="سهم يمين: السند التالي (للطلوع للأحدث)">
             <i class="fa-solid fa-arrow-right text-[10px]"></i>
           </button>
 
@@ -2456,7 +2469,7 @@ $currenciesData = [
           </div>
 
           <!-- سهم شمال صغير على الطرف (للنزول للأقدم) -->
-          <button type="button" onclick="navigateVoucher(-1)" id="btnPrevVoucher" class="w-6 h-6 sm:w-7 sm:h-7 rounded-lg bg-slate-800 hover:bg-slate-700 active:scale-90 text-amber-300 hover:text-amber-200 flex items-center justify-center transition border border-amber-500/40 shadow shrink-0" title="سهم شمال: السند السابق (للنزول للأقدم)">
+          <button type="button" onclick="navigateVoucher(-1)" id="btnPrevVoucher" class="w-6 h-6 sm:w-7 sm:h-7 rounded-lg bg-slate-800/90 hover:bg-slate-700 active:scale-90 text-amber-300 hover:text-amber-200 flex items-center justify-center transition border border-amber-500/40 shadow shrink-0" title="سهم شمال: السند السابق (للنزول للأقدم)">
             <i class="fa-solid fa-arrow-left text-[10px]"></i>
           </button>
         </div>
@@ -2505,24 +2518,24 @@ $currenciesData = [
     </div>
 
     <!-- Main Scrollable Content (بدون مساحات ميتة متصل بانسيابية) -->
-    <main class="flex-1 overflow-y-auto no-scrollbar p-2.5 space-y-2.5 pb-28 text-xs">
+    <main class="flex-1 overflow-y-auto no-scrollbar px-2.5 pt-1.5 pb-28 space-y-2 text-xs">
 
       <!-- أزرار الدفع الزجاجية العصرية المضيئة الحواف بوضوح تام -->
-      <div class="p-1.5 rounded-2xl bg-slate-900/95 border-2 border-slate-700/80 shadow-[0_0_15px_rgba(56,189,248,0.18)]">
+      <div class="p-1.5 rounded-2xl bg-[#0a132c]/95 border border-indigo-500/35 shadow-[0_4px_18px_rgba(14,165,233,0.14)]">
         <div class="grid grid-cols-4 gap-1.5 text-[11px] font-black" id="paymentMethodsGroup">
-          <button type="button" onclick="setPaymentType('transfer')" id="btn-transfer" class="glass-pay-btn is-active py-2 px-1 rounded-xl text-center flex flex-col items-center justify-center gap-0.5">
+          <button type="button" onclick="setPaymentType('transfer')" id="btn-transfer" class="glass-pay-btn is-active py-1.5 px-1 rounded-xl text-center flex flex-col items-center justify-center gap-0.5">
             <i class="fa-solid fa-arrow-right-arrow-left text-xs mb-0.5 text-sky-400"></i>
             <span>تحويل</span>
           </button>
-          <button type="button" onclick="setPaymentType('cash')" id="btn-cash" class="glass-pay-btn py-2 px-1 rounded-xl text-slate-200 text-center flex flex-col items-center justify-center gap-0.5">
+          <button type="button" onclick="setPaymentType('cash')" id="btn-cash" class="glass-pay-btn py-1.5 px-1 rounded-xl text-slate-200 text-center flex flex-col items-center justify-center gap-0.5">
             <i class="fa-solid fa-money-bill-wave text-xs mb-0.5 text-emerald-400"></i>
             <span>كاش</span>
           </button>
-          <button type="button" onclick="setPaymentType('bank_cheque')" id="btn-bank_cheque" class="glass-pay-btn py-2 px-1 rounded-xl text-slate-200 text-center flex flex-col items-center justify-center gap-0.5">
+          <button type="button" onclick="setPaymentType('bank_cheque')" id="btn-bank_cheque" class="glass-pay-btn py-1.5 px-1 rounded-xl text-slate-200 text-center flex flex-col items-center justify-center gap-0.5">
             <i class="fa-solid fa-money-check text-xs mb-0.5 text-amber-400"></i>
             <span>شيك مصرفي</span>
           </button>
-          <button type="button" onclick="setPaymentType('normal_cheque')" id="btn-normal_cheque" class="glass-pay-btn py-2 px-1 rounded-xl text-slate-200 text-center flex flex-col items-center justify-center gap-0.5">
+          <button type="button" onclick="setPaymentType('normal_cheque')" id="btn-normal_cheque" class="glass-pay-btn py-1.5 px-1 rounded-xl text-slate-200 text-center flex flex-col items-center justify-center gap-0.5">
             <i class="fa-regular fa-file-lines text-xs mb-0.5 text-indigo-400"></i>
             <span>شيك عادي</span>
           </button>
@@ -2530,13 +2543,13 @@ $currenciesData = [
       </div>
 
       <!-- ═════════════════════════════════════════════════════════════════
-           شريط العملة + قيمة الدولار + مركز الكلفة بحواف واضحة ومضيئة
+           شريط العملة + قيمة الدولار (بخط أدخن ومتزامن مع قاعدة البيانات) + مركز الكلفة
            ═════════════════════════════════════════════════════════════════ -->
-      <div class="bg-slate-900/95 border-2 border-slate-700/80 rounded-2xl px-2 py-1.5 flex items-center gap-1.5 shadow-[0_0_14px_rgba(56,189,248,0.15)]">
+      <div class="bg-[#0a132c]/95 border border-indigo-500/35 rounded-2xl px-2 py-1.5 flex items-center gap-1.5 shadow-[0_4px_16px_rgba(14,165,233,0.12)]">
         
         <!-- مساحة العملة: مدمجة لإعطاء مساحة كاملة لاسم المخزن -->
-        <div class="relative shrink-0 w-[96px]">
-          <select id="primaryCurrencySelect" onchange="selectCurrency(this.value)" class="w-full appearance-none bg-slate-950 glow-border-amber rounded-xl pr-1.5 pl-4 py-1 text-[11px] font-black text-amber-300 focus:outline-none focus:border-amber-400 cursor-pointer h-[40px] shadow-inner" title="اختيار العملة">
+        <div class="relative shrink-0 w-[94px]">
+          <select id="primaryCurrencySelect" onchange="selectCurrency(this.value)" class="w-full appearance-none bg-[#040918] glow-border-amber rounded-xl pr-1.5 pl-4 py-1 text-[11px] font-black text-amber-300 focus:outline-none focus:border-amber-400 cursor-pointer h-[40px] shadow-inner" title="اختيار العملة">
             <option value="SDG" selected>جنيه سوداني</option>
             <option value="USD">دولار ($)</option>
             <option value="SAR">ريال سعودي</option>
@@ -2549,15 +2562,15 @@ $currenciesData = [
           </div>
         </div>
 
-        <!-- قيمة الصرف -->
-        <div class="bg-slate-950 glow-border-emerald rounded-xl px-1.5 py-1 flex items-center gap-1 w-[82px] shrink-0 h-[40px] shadow-inner transition cursor-pointer group" onclick="document.getElementById('usdRate').focus()" title="سعر الصرف من السيستم - انقر للتعديل المباشر">
+        <!-- قيمة الصرف (بخط أدخن ومرتبط مباشرة بقيمة الدولار في قاعدة البيانات) -->
+        <div class="bg-[#040918] glow-border-emerald rounded-xl px-1.5 py-1 flex items-center gap-1 w-[92px] shrink-0 h-[40px] shadow-inner transition cursor-pointer group" onclick="document.getElementById('usdRate').focus()" title="سعر الصرف الرسمي المعتمد في قاعدة البيانات - انقر للتعديل والمزامنة الفورية في كل الشاشات">
           <span class="text-emerald-400 font-mono text-xs font-black shrink-0" id="rateSymbolLabel">$</span>
-          <input type="number" id="usdRate" value="2650" onchange="updateSystemUsdRate(this.value)" oninput="calculateExchange('rate')" class="w-full bg-transparent text-emerald-300 font-mono font-black text-base focus:outline-none text-center cursor-text tracking-tight [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" placeholder="2650" title="سعر الصرف">
+          <input type="number" id="usdRate" value="<?php echo htmlspecialchars((string)$systemUsdRate); ?>" onchange="updateSystemUsdRate(this.value)" oninput="calculateExchange('rate')" class="w-full bg-transparent text-emerald-300 font-mono font-black text-[17.5px] focus:outline-none text-center cursor-text tracking-tight [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" placeholder="<?php echo htmlspecialchars((string)$systemUsdRate); ?>" title="سعر صرف الدولار في قاعدة البيانات">
           <i class="fa-solid fa-pen text-[7px] text-slate-500 group-hover:text-emerald-400 transition shrink-0"></i>
         </div>
 
         <!-- المخزن / مركز الكلفة: يظهر كاملاً بدون قص وبدون تحرك للأعلى أو الأسفل -->
-        <div class="flex-1 min-w-0 bg-slate-950 glow-border-indigo rounded-xl px-1.5 flex items-center justify-center h-[40px] relative shadow-inner overflow-hidden">
+        <div class="flex-1 min-w-0 bg-[#040918] glow-border-indigo rounded-xl px-1.5 flex items-center justify-center h-[40px] relative shadow-inner overflow-hidden">
           <input type="text" id="costCenterInput" list="costCentersDataList" placeholder="المخزن / مركز الكلفة" class="w-full bg-transparent text-indigo-100 placeholder:text-slate-500 placeholder:font-medium text-center font-bold focus:outline-none" value="مخزن بحري الرئيسي">
           <datalist id="costCentersDataList">
             <option value="مخزن بحري الرئيسي"></option>
@@ -2587,7 +2600,7 @@ $currenciesData = [
                 <span class="text-xs sm:text-sm font-black text-sky-300">المبلغ المحلي</span>
               </div>
             </div>
-            <div id="sdgAmountCard" class="amount-display-card bg-slate-950/90 p-2 rounded-2xl glow-border-sky relative cursor-pointer flex items-center justify-center min-h-[72px]" onclick="if(event.target.id!=='sdgAmount') openNumberPropertiesModal(event, 'sdg')" oncontextmenu="openNumberPropertiesModal(event, 'sdg'); return false;" title="انقر لتخصيص الألوان والتقريب والحجم للمبلغ المحلي">
+            <div id="sdgAmountCard" class="amount-display-card bg-[#040918]/95 p-2 rounded-2xl glow-border-sky relative cursor-pointer flex items-center justify-center min-h-[72px]" onclick="if(event.target.id!=='sdgAmount') openNumberPropertiesModal(event, 'sdg')" oncontextmenu="openNumberPropertiesModal(event, 'sdg'); return false;" title="انقر لتخصيص الألوان والتقريب والحجم للمبلغ المحلي">
               <input type="text" id="sdgAmount" placeholder="0" inputmode="decimal" onfocus="this.select()" onblur="formatCurrentAmountInput('sdg'); onAmountInputBlur('sdg');" oninput="handleAmountInput('sdg'); updateTafqeet(); onAmountInputLive('sdg');" onkeydown="if(event.key===' ' || event.code==='Space'){ event.preventDefault(); openNumberPropertiesModal(event, 'sdg'); }" oncontextmenu="openNumberPropertiesModal(event, 'sdg'); return false;" ondblclick="openNumberPropertiesModal(event, 'sdg')" class="amount-number-input w-full bg-transparent text-center focus:outline-none placeholder-slate-700 font-black tracking-tight" style="font-size: var(--num-size-sdg, 32px); font-weight: var(--num-weight-sdg, 900); color: var(--num-color-sdg, #ffffff); text-align: center;">
             </div>
           </div>
@@ -2604,7 +2617,7 @@ $currenciesData = [
                 </button>
               </div>
             </div>
-            <div id="usdAmountCard" class="amount-display-card bg-slate-950/90 p-2 rounded-2xl glow-border-emerald relative cursor-pointer flex items-center justify-center min-h-[72px]" onclick="if(event.target.id!=='usdAmount') openNumberPropertiesModal(event, 'usd')" oncontextmenu="openNumberPropertiesModal(event, 'usd'); return false;" title="انقر لتخصيص الألوان والتقريب والحجم للمبلغ بالدولار">
+            <div id="usdAmountCard" class="amount-display-card bg-[#040918]/95 p-2 rounded-2xl glow-border-emerald relative cursor-pointer flex items-center justify-center min-h-[72px]" onclick="if(event.target.id!=='usdAmount') openNumberPropertiesModal(event, 'usd')" oncontextmenu="openNumberPropertiesModal(event, 'usd'); return false;" title="انقر لتخصيص الألوان والتقريب والحجم للمبلغ بالدولار">
               <input type="text" id="usdAmount" placeholder="0.00" inputmode="decimal" onfocus="this.select()" onblur="formatCurrentAmountInput('usd'); onAmountInputBlur('usd');" oninput="handleAmountInput('foreign'); updateTafqeet(); onAmountInputLive('usd');" onkeydown="if(event.key===' ' || event.code==='Space'){ event.preventDefault(); openNumberPropertiesModal(event, 'usd'); }" oncontextmenu="openNumberPropertiesModal(event, 'usd'); return false;" ondblclick="openNumberPropertiesModal(event, 'usd')" class="amount-number-input w-full bg-transparent text-center focus:outline-none placeholder-slate-700 font-black tracking-tight" style="font-size: var(--num-size-usd, 32px); font-weight: var(--num-weight-usd, 900); color: var(--num-color-usd, #10b981); text-align: center;">
             </div>
           </div>
@@ -2620,51 +2633,51 @@ $currenciesData = [
 
       <!-- ═════════════════════════════════════════════════════════════════
            من حساب (الطرف الدافع / المسلِّم - دائن):
-           - شارة الرصيد الحي + الرصيد المتوقع بعد الحركة + زر كشف الحساب السريع
+           - شارة الرصيد الحي + بعد القيد على نفس السطر
            ═════════════════════════════════════════════════════════════════ -->
-      <div id="fromAccountCard" class="bg-gradient-to-b from-red-950/40 to-slate-900/95 glow-border-red rounded-2xl p-3 sm:p-3.5 relative">
+      <div id="fromAccountCard" class="bg-gradient-to-b from-rose-950/45 via-[#0b132b]/95 to-[#060c1e]/95 glow-border-red rounded-2xl p-2.5 sm:p-3 relative">
         <div class="flex items-center justify-between mb-1.5 gap-1 flex-wrap">
           <div class="flex items-center gap-1.5">
-            <button type="button" onclick="startFieldVoiceInput('from', this)" class="field-mic-btn w-7 h-7 rounded-full bg-red-950/90 border border-red-400/70 text-red-200 flex items-center justify-center active:scale-90 transition shrink-0" title="تسجيل صوتي لحساب (مِن) فقط" aria-label="تسجيل صوتي لحساب من">
+            <button type="button" onclick="startFieldVoiceInput('from', this)" class="field-mic-btn w-7 h-7 rounded-full bg-rose-950/90 border border-rose-400/70 text-rose-200 flex items-center justify-center active:scale-90 transition shrink-0" title="تسجيل صوتي لحساب (مِن) فقط" aria-label="تسجيل صوتي لحساب من">
               <i class="fa-solid fa-microphone text-[11px]"></i>
             </button>
-            <span class="px-2 py-0.5 rounded-lg bg-red-600 text-white font-black text-xs shadow-md">مِن</span>
-            <span class="text-sm font-black text-red-300">من حساب (الدافع):</span>
+            <span class="px-2 py-0.5 rounded-lg bg-gradient-to-r from-rose-600 to-red-600 text-white font-black text-xs shadow-md">مِن</span>
+            <span class="text-sm font-black text-rose-200">من حساب (الدافع):</span>
           </div>
 
           <div class="flex items-center gap-1">
             <!-- زر كشف الحساب المصغر الفوري -->
-            <button type="button" onclick="openAccountMiniStatement('from')" class="px-2 py-0.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-cyan-300 border border-cyan-500/40 text-[10px] font-black flex items-center gap-1 active:scale-95 transition" title="عرض آخر 10 حركات وكشف الحساب">
+            <button type="button" onclick="openAccountMiniStatement('from')" class="px-2 py-0.5 rounded-lg bg-slate-900/90 hover:bg-slate-800 text-cyan-300 border border-cyan-500/40 text-[10px] font-black flex items-center gap-1 active:scale-95 transition" title="عرض آخر 10 حركات وكشف الحساب">
               <i class="fa-solid fa-chart-simple text-[9px] text-cyan-400"></i>
               <span>📊 كشف</span>
             </button>
             <!-- زر مسح الحساب -->
-            <button type="button" onclick="clearAccountSearch('from')" id="fromClearBtn" class="hidden w-6 h-6 rounded-lg bg-red-950/80 hover:bg-red-800 text-red-200 border border-red-500/40 flex items-center justify-center text-xs font-black active:scale-90 transition" title="مسح الحساب">✕</button>
+            <button type="button" onclick="clearAccountSearch('from')" id="fromClearBtn" class="hidden w-6 h-6 rounded-lg bg-rose-950/80 hover:bg-rose-800 text-rose-200 border border-rose-500/40 flex items-center justify-center text-xs font-black active:scale-90 transition" title="مسح الحساب">✕</button>
           </div>
         </div>
 
-        <!-- شريط الرصيد الحي والرصيد بعد القيد على نفس المستوى -->
-        <div id="fromBalanceWrapper" class="mb-1.5 flex flex-wrap items-center gap-x-1.5 gap-y-0.5 px-2.5 py-1 rounded-xl bg-slate-950/85 border border-slate-800/90 text-[10.5px]">
-          <span class="text-slate-400 font-bold">الرصيد:</span>
-          <span id="fromAccountSdgBalance" class="font-mono font-black text-amber-300">---</span>
-          <span class="text-amber-300/80 text-[9.5px] font-bold">ج.س</span>
-          <span id="fromBalanceNatureTag" class="hidden px-1.5 py-0.2 rounded text-[9px] font-black"></span>
-          <span class="text-slate-600">|</span>
-          <span class="text-emerald-400 font-mono font-black text-[10.5px]">$<span id="fromAccountUsdBalance">---</span></span>
-          <span id="fromProjectedBadge" class="hidden inline-flex items-center gap-1 text-sky-300">
+        <!-- شريط الرصيد الحي وبعد القيد في نفس المستوى والسطر -->
+        <div id="fromBalanceWrapper" class="mb-1.5 flex items-center whitespace-nowrap overflow-x-auto no-scrollbar gap-x-1 px-2 py-1 rounded-xl bg-[#040918]/90 border border-rose-500/25 text-[10px]">
+          <span class="text-slate-400 font-bold shrink-0">الرصيد:</span>
+          <span id="fromAccountSdgBalance" class="font-mono font-black text-amber-300 shrink-0">---</span>
+          <span class="text-amber-300/80 text-[9px] font-bold shrink-0">ج.س</span>
+          <span id="fromBalanceNatureTag" class="hidden px-1 py-0.2 rounded text-[8.5px] font-black shrink-0"></span>
+          <span class="text-slate-600 shrink-0">|</span>
+          <span class="text-emerald-400 font-mono font-black text-[10px] shrink-0">$<span id="fromAccountUsdBalance">---</span></span>
+          <span id="fromProjectedBadge" class="hidden inline-flex items-center gap-0.5 text-sky-300 shrink-0">
             <span class="text-slate-600">|</span>
-            <span id="fromProjectedLabel" class="font-bold text-sky-300">الرصيد بعد القيد:</span>
+            <span id="fromProjectedLabel" class="font-bold text-sky-300">بعد القيد:</span>
             <span id="fromProjectedAmount" class="font-mono font-black text-sky-300">---</span>
-            <span class="text-sky-300/80 text-[9.5px] font-bold">ج.س</span>
+            <span class="text-sky-300/80 text-[9px] font-bold">ج.س</span>
           </span>
         </div>
 
         <!-- حقل اسم الحساب -->
         <div class="relative w-full">
-          <input type="text" id="fromSearchInput" oninput="liveSearchAccount('from')" onblur="handleAccountInputBlur('from')" onclick="onAccountInputFocus('from')" onfocus="onAccountInputFocus('from')" placeholder="اضغط لاختيار أو كتابة اسم الحساب..." value="" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" class="account-search-input w-full bg-slate-950 glow-border-red rounded-xl text-white focus:outline-none placeholder-slate-500">
+          <input type="text" id="fromSearchInput" oninput="liveSearchAccount('from')" onblur="handleAccountInputBlur('from')" onclick="onAccountInputFocus('from')" onfocus="onAccountInputFocus('from')" placeholder="اضغط لاختيار أو كتابة اسم الحساب..." value="" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" class="account-search-input w-full bg-[#040918] glow-border-red rounded-xl text-white focus:outline-none placeholder-slate-500">
           
           <!-- القائمة المنسدلة الذكية الفورية مع تبويبات التصنيف الذكية -->
-          <div id="fromDropdown" class="hidden absolute top-full right-0 left-0 mt-1.5 bg-slate-950 border-2 border-red-500/60 rounded-2xl shadow-2xl z-40 max-h-72 overflow-y-auto no-scrollbar"></div>
+          <div id="fromDropdown" class="hidden absolute top-full right-0 left-0 mt-1.5 bg-[#040918] border-2 border-rose-500/60 rounded-2xl shadow-2xl z-40 max-h-72 overflow-y-auto no-scrollbar"></div>
         </div>
       </div>
 
@@ -2684,21 +2697,21 @@ $currenciesData = [
 
       <!-- ═════════════════════════════════════════════════════════════════
            إلى حساب (الطرف المستلم - مدين):
-           - شارة الرصيد الحي + الرصيد المتوقع بعد الاستلام + زر كشف الحساب السريع
+           - شارة الرصيد الحي + بعد القيد على نفس السطر
            ═════════════════════════════════════════════════════════════════ -->
-      <div id="toAccountCard" class="bg-gradient-to-b from-emerald-950/40 to-slate-900/95 glow-border-emerald rounded-2xl p-3 sm:p-3.5 relative">
+      <div id="toAccountCard" class="bg-gradient-to-b from-emerald-950/45 via-[#0b132b]/95 to-[#060c1e]/95 glow-border-emerald rounded-2xl p-2.5 sm:p-3 relative">
         <div class="flex items-center justify-between mb-1.5 gap-1 flex-wrap">
           <div class="flex items-center gap-1.5">
             <button type="button" onclick="startFieldVoiceInput('to', this)" class="field-mic-btn w-7 h-7 rounded-full bg-emerald-950/90 border border-emerald-400/70 text-emerald-200 flex items-center justify-center active:scale-90 transition shrink-0" title="تسجيل صوتي لحساب (إلى) فقط" aria-label="تسجيل صوتي لحساب إلى">
               <i class="fa-solid fa-microphone text-[11px]"></i>
             </button>
-            <span class="px-2 py-0.5 rounded-lg bg-emerald-600 text-white font-black text-xs shadow-md">إلى</span>
-            <span class="text-sm font-black text-emerald-300">إلى حساب (المستلم):</span>
+            <span class="px-2 py-0.5 rounded-lg bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-black text-xs shadow-md">إلى</span>
+            <span class="text-sm font-black text-emerald-200">إلى حساب (المستلم):</span>
           </div>
 
           <div class="flex items-center gap-1">
             <!-- زر كشف الحساب المصغر الفوري -->
-            <button type="button" onclick="openAccountMiniStatement('to')" class="px-2 py-0.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-cyan-300 border border-cyan-500/40 text-[10px] font-black flex items-center gap-1 active:scale-95 transition" title="عرض آخر 10 حركات وكشف الحساب">
+            <button type="button" onclick="openAccountMiniStatement('to')" class="px-2 py-0.5 rounded-lg bg-slate-900/90 hover:bg-slate-800 text-cyan-300 border border-cyan-500/40 text-[10px] font-black flex items-center gap-1 active:scale-95 transition" title="عرض آخر 10 حركات وكشف الحساب">
               <i class="fa-solid fa-chart-simple text-[9px] text-cyan-400"></i>
               <span>📊 كشف</span>
             </button>
@@ -2707,42 +2720,42 @@ $currenciesData = [
           </div>
         </div>
 
-        <!-- شريط الرصيد الحي والرصيد بعد القيد على نفس المستوى -->
-        <div id="toBalanceWrapper" class="mb-1.5 flex flex-wrap items-center gap-x-1.5 gap-y-0.5 px-2.5 py-1 rounded-xl bg-slate-950/85 border border-slate-800/90 text-[10.5px]">
-          <span class="text-slate-400 font-bold">الرصيد:</span>
-          <span id="toAccountSdgBalance" class="font-mono font-black text-amber-300">---</span>
-          <span class="text-amber-300/80 text-[9.5px] font-bold">ج.س</span>
-          <span id="toBalanceNatureTag" class="hidden px-1.5 py-0.2 rounded text-[9px] font-black"></span>
-          <span class="text-slate-600">|</span>
-          <span class="text-emerald-400 font-mono font-black text-[10.5px]">$<span id="toAccountUsdBalance">---</span></span>
-          <span id="toProjectedBadge" class="hidden inline-flex items-center gap-1 text-sky-300">
+        <!-- شريط الرصيد الحي وبعد القيد في نفس المستوى والسطر -->
+        <div id="toBalanceWrapper" class="mb-1.5 flex items-center whitespace-nowrap overflow-x-auto no-scrollbar gap-x-1 px-2 py-1 rounded-xl bg-[#040918]/90 border border-emerald-500/25 text-[10px]">
+          <span class="text-slate-400 font-bold shrink-0">الرصيد:</span>
+          <span id="toAccountSdgBalance" class="font-mono font-black text-amber-300 shrink-0">---</span>
+          <span class="text-amber-300/80 text-[9px] font-bold shrink-0">ج.س</span>
+          <span id="toBalanceNatureTag" class="hidden px-1 py-0.2 rounded text-[8.5px] font-black shrink-0"></span>
+          <span class="text-slate-600 shrink-0">|</span>
+          <span class="text-emerald-400 font-mono font-black text-[10px] shrink-0">$<span id="toAccountUsdBalance">---</span></span>
+          <span id="toProjectedBadge" class="hidden inline-flex items-center gap-0.5 text-sky-300 shrink-0">
             <span class="text-slate-600">|</span>
-            <span id="toProjectedLabel" class="font-bold text-sky-300">الرصيد بعد القيد:</span>
+            <span id="toProjectedLabel" class="font-bold text-sky-300">بعد القيد:</span>
             <span id="toProjectedAmount" class="font-mono font-black text-sky-300">---</span>
-            <span class="text-sky-300/80 text-[9.5px] font-bold">ج.س</span>
+            <span class="text-sky-300/80 text-[9px] font-bold">ج.س</span>
           </span>
         </div>
 
         <!-- حقل اسم الحساب -->
         <div class="relative w-full">
-          <input type="text" id="toSearchInput" oninput="liveSearchAccount('to')" onblur="handleAccountInputBlur('to')" onclick="onAccountInputFocus('to')" onfocus="onAccountInputFocus('to')" placeholder="اضغط لاختيار أو كتابة اسم المستلم..." value="" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" class="account-search-input w-full bg-slate-950 glow-border-emerald rounded-xl text-white focus:outline-none placeholder-slate-500">
+          <input type="text" id="toSearchInput" oninput="liveSearchAccount('to')" onblur="handleAccountInputBlur('to')" onclick="onAccountInputFocus('to')" onfocus="onAccountInputFocus('to')" placeholder="اضغط لاختيار أو كتابة اسم المستلم..." value="" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" class="account-search-input w-full bg-[#040918] glow-border-emerald rounded-xl text-white focus:outline-none placeholder-slate-500">
           
           <!-- القائمة المنسدلة الذكية الفورية مع تبويبات التصنيف الذكية -->
-          <div id="toDropdown" class="hidden absolute top-full right-0 left-0 mt-1.5 bg-slate-950 border-2 border-emerald-500/60 rounded-2xl shadow-2xl z-40 max-h-72 overflow-y-auto no-scrollbar"></div>
+          <div id="toDropdown" class="hidden absolute top-full right-0 left-0 mt-1.5 bg-[#040918] border-2 border-emerald-500/60 rounded-2xl shadow-2xl z-40 max-h-72 overflow-y-auto no-scrollbar"></div>
         </div>
       </div>
 
       <!-- ═════════════════════════════════════════════════════════════════
-           رقم التحويلة واسم البنك (تصميم متناسق ومضغوط بدون هوامش زائدة):
-           - رقم التحويلة: لون ذهبي دافئ أنيق بخط واضح
+           رقم التحويلة واسم البنك (زيادة الارتفاع 20% إلى 48px + تحجيم ذكي موزّن):
+           - رقم التحويلة: لون ذهبي دافئ أنيق بخط ذكي يتكيف تلقائياً (6 أرقام كبيرة، 10 متوسطة، حتى 30 رقم)
            - اسم البنك: لون أزرق جليدي فيروزي أنيق
            ═════════════════════════════════════════════════════════════════ -->
-      <div id="transferContainer" class="bg-gradient-to-br from-slate-800/70 via-slate-900/85 to-slate-950/95 border border-slate-700/60 rounded-2xl px-2.5 py-1.5 space-y-1 shadow-[0_4px_20px_rgba(0,0,0,0.35),inset_0_1px_0_0_rgba(255,255,255,0.06)] backdrop-blur-md">
+      <div id="transferContainer" class="bg-gradient-to-br from-[#0c1631]/90 via-[#081024]/95 to-[#040918]/98 border border-indigo-500/35 rounded-2xl px-2.5 py-2 space-y-1.5 shadow-[0_6px_24px_rgba(0,0,0,0.45),inset_0_1px_0_0_rgba(255,255,255,0.08)] backdrop-blur-md">
         <input type="file" id="directReceiptCameraInput" accept="image/*" capture="environment" class="hidden" onchange="handleDirectReceiptSelected(event)">
         <input type="file" id="directReceiptGalleryInput" accept="image/*" class="hidden" onchange="handleDirectReceiptSelected(event)">
 
-        <div class="grid grid-cols-2 gap-2 items-start">
-          <!-- 1. رقم التحويلة -->
+        <div class="grid grid-cols-[1.18fr_0.82fr] gap-2 items-start">
+          <!-- 1. رقم التحويلة (ارتفاع 48px بزيادة 20% + وزن خط تلقائي بالذكاء الاصطناعي حسب عدد الأرقام) -->
           <div class="flex flex-col">
             <div class="flex items-center gap-1 mb-1 h-5">
               <button type="button" onclick="startFieldVoiceInput('transfer', this)" class="field-mic-btn w-5 h-5 rounded-full bg-amber-950/95 border border-amber-400/80 text-amber-200 flex items-center justify-center active:scale-90 transition shrink-0" title="تسجيل صوتي لرقم التحويلة فقط" aria-label="تسجيل صوتي لرقم التحويلة">
@@ -2753,10 +2766,10 @@ $currenciesData = [
                 <span>رقم التحويل:</span>
               </label>
             </div>
-            <input type="text" id="transferInput" oninput="handleTransferLiveInput(this.value); onTransferInputLive(this.value);" onblur="handleTransferBlur(this.value); onTransferInputBlur();" placeholder="رقم التحويل" class="w-full bg-slate-950/90 glow-border-amber rounded-xl px-2 h-[40px] font-mono font-black text-yellow-300 focus:outline-none tracking-tight box-border cursor-text" style="font-size: 18px; text-align: center; direction: ltr;">
+            <input type="text" id="transferInput" oninput="handleTransferLiveInput(this.value); onTransferInputLive(this.value);" onblur="handleTransferBlur(this.value); onTransferInputBlur();" placeholder="رقم التحويل" class="w-full bg-[#040918] glow-border-amber rounded-xl px-2 h-[48px] font-mono font-black text-yellow-300 focus:outline-none tracking-tight box-border cursor-text" style="font-size: 16px; text-align: center; direction: ltr;">
           </div>
 
-          <!-- 2. اسم البنك -->
+          <!-- 2. اسم البنك (ارتفاع 48px لموازنة الصف) -->
           <div class="flex flex-col">
             <div class="flex items-center gap-1 mb-1 h-5">
               <button type="button" onclick="startFieldVoiceInput('bank', this)" class="field-mic-btn w-5 h-5 rounded-full bg-cyan-950/95 border border-cyan-400/80 text-cyan-200 flex items-center justify-center active:scale-90 transition shrink-0" title="تسجيل صوتي لاسم البنك" aria-label="تسجيل صوتي لاسم البنك">
@@ -2767,7 +2780,7 @@ $currenciesData = [
                 <span>اسم البنك:</span>
               </label>
             </div>
-            <input type="text" id="bankNameInput" list="banksDataList" oninput="onBankInputLive(this.value)" onblur="onBankInputBlur()" placeholder="اسم البنك" class="w-full bg-slate-950/90 glow-border-cyan rounded-xl px-2 h-[40px] text-xs font-black text-cyan-300 focus:outline-none box-border cursor-text" value="بنك الخرطوم">
+            <input type="text" id="bankNameInput" list="banksDataList" oninput="onBankInputLive(this.value)" onblur="onBankInputBlur()" placeholder="اسم البنك" class="w-full bg-[#040918] glow-border-cyan rounded-xl px-2 h-[48px] text-xs font-black text-cyan-300 focus:outline-none box-border cursor-text" value="بنك الخرطوم">
             <datalist id="banksDataList">
               <option value="بنك الخرطوم"></option>
               <option value="بنك فيصل الإسلامي"></option>
@@ -5497,24 +5510,71 @@ $currenciesData = [
     }
     window.handleTransferBlur = handleTransferBlur;
 
+    let _transferMeasureCanvas = null;
     function handleTransferInputScale(val) {
       const input = document.getElementById('transferInput');
       if (!input) return;
-      const len = (val || '').length;
-      if (len <= 14) {
-        input.style.fontSize = '20px';
-        input.style.letterSpacing = '-0.5px';
-      } else if (len <= 16) {
-        input.style.fontSize = '18px';
-        input.style.letterSpacing = '-0.8px';
-      } else if (len <= 18) {
-        input.style.fontSize = '16px';
-        input.style.letterSpacing = '-1px';
-      } else {
-        input.style.fontSize = '14px';
-        input.style.letterSpacing = '-1.2px';
+      const text = String(val !== undefined ? val : (input.value || '')).trim();
+      const len = text.length;
+
+      if (len === 0) {
+        input.style.setProperty('font-size', '16px', 'important');
+        input.style.setProperty('letter-spacing', '0px', 'important');
+        return;
       }
+
+      // قياس ذكي وديناميكي لمساحة الخانة الفعلية وموازنة حجم الخط والمسافات بين الأرقام (من 1 إلى 30+ رقم)
+      const availWidth = Math.max(125, (input.clientWidth || 190) - 16);
+      let targetFontSize = 26;
+      let targetSpacing = 0;
+
+      if (len <= 6) {
+        // 6 أرقام أو أقل: تكبير فخم وموزون يملأ ارتفاع وعرض الخانة بوضوح تام
+        targetFontSize = 26;
+        targetSpacing = 2.2;
+      } else if (len <= 8) {
+        targetFontSize = 23;
+        targetSpacing = 1.0;
+      } else if (len <= 10) {
+        // 10 أرقام: حجم متوازن ومريح يتناسب تماماً مع المساحة
+        targetFontSize = 20.5;
+        targetSpacing = 0.4;
+      } else if (len <= 14) {
+        targetFontSize = 17.5;
+        targetSpacing = 0;
+      } else {
+        targetFontSize = 16;
+        targetSpacing = -0.4;
+      }
+
+      try {
+        if (!_transferMeasureCanvas) {
+          _transferMeasureCanvas = document.createElement('canvas');
+        }
+        const ctx = _transferMeasureCanvas.getContext('2d');
+        if (ctx) {
+          while (targetFontSize > 8.5) {
+            ctx.font = `900 ${targetFontSize}px "JetBrains Mono", "Montserrat", monospace`;
+            const textWidth = ctx.measureText(text).width + Math.max(0, len - 1) * targetSpacing;
+            if (textWidth <= availWidth) break;
+            targetFontSize -= 0.5;
+            if (targetSpacing > -0.6) targetSpacing -= 0.15;
+          }
+        }
+      } catch (e) {
+        if (len > 14) {
+          targetFontSize = Math.max(9, Math.floor((availWidth / len) * 1.62));
+          targetSpacing = -0.5;
+        }
+      }
+
+      input.style.setProperty('font-size', `${targetFontSize}px`, 'important');
+      input.style.setProperty('letter-spacing', `${targetSpacing.toFixed(2)}px`, 'important');
     }
+    window.addEventListener('resize', () => {
+      const inp = document.getElementById('transferInput');
+      if (inp && inp.value) handleTransferInputScale(inp.value);
+    });
 
     // ════════════════════════════════════════════════════════════════
     // ════════════════════════════════════════════════════════════════
@@ -6916,12 +6976,16 @@ $currenciesData = [
       } catch(e) {}
 
       try {
-        const savedRate = localStorage.getItem('magaiees_system_usd_rate');
-        if (savedRate && parseFloat(savedRate) > 0) {
-          const rateVal = parseFloat(savedRate);
-          document.getElementById('usdRate').value = rateVal;
-          if (vouchersList[currentIndex]) vouchersList[currentIndex].rate = rateVal;
-        }
+        const dbRate = parseFloat(window.SYSTEM_USD_RATE);
+        const savedRate = parseFloat(localStorage.getItem('magaiees_system_usd_rate') || localStorage.getItem('erp_rate_usd') || 0);
+        const effectiveRate = (dbRate && dbRate > 1) ? dbRate : ((savedRate && savedRate > 1) ? savedRate : 5999);
+        window.SYSTEM_USD_RATE = effectiveRate;
+        localStorage.setItem('magaiees_system_usd_rate', String(effectiveRate));
+        localStorage.setItem('erp_rate_usd', String(effectiveRate));
+        localStorage.setItem('magaies_custom_usd_rate', String(effectiveRate));
+        const rateInp = document.getElementById('usdRate');
+        if (rateInp) rateInp.value = effectiveRate;
+        if (vouchersList[currentIndex]) vouchersList[currentIndex].rate = effectiveRate;
       } catch(e) {}
 
       applyNumberStylesToInputs();
@@ -7231,14 +7295,23 @@ $currenciesData = [
     }
 
     // ════════════════════════════════════════════════════════════════
-    // تعديل ومزامنة قيمة الدولار مع السيستم
+    // تعديل ومزامنة قيمة الدولار مع قاعدة البيانات والسيستم بالكامل
     // ════════════════════════════════════════════════════════════════
-    function updateSystemUsdRate(val) {
+    async function updateSystemUsdRate(val) {
       let rate = parseFloat(val);
-      if (!rate || rate <= 0) rate = 2650;
-      
-      localStorage.setItem('magaiees_system_usd_rate', rate);
-      
+      if (!rate || rate <= 0) rate = parseFloat(window.SYSTEM_USD_RATE) || 5999;
+
+      window.SYSTEM_USD_RATE = rate;
+      try {
+        localStorage.setItem('magaiees_system_usd_rate', String(rate));
+        localStorage.setItem('erp_rate_usd', String(rate));
+        localStorage.setItem('magaies_custom_usd_rate', String(rate));
+        const cr = JSON.parse(localStorage.getItem('erp_currency_rates_v1') || '{}');
+        cr.USD = rate;
+        cr.SDG = 1;
+        localStorage.setItem('erp_currency_rates_v1', JSON.stringify(cr));
+      } catch (e) {}
+
       if (vouchersList[currentIndex]) {
         vouchersList[currentIndex].rate = rate;
       }
@@ -7247,7 +7320,21 @@ $currenciesData = [
       updateTafqeet();
       updateAccountBalanceBadges();
 
-      showToastNotification(`✓ تم تحديث سعر صرف الدولار في السيستم إلى (${rate.toLocaleString()}) ومزامنته فورياً مع شاشة الكمبيوتر!`);
+      try {
+        const fd = new FormData();
+        fd.append('rate', String(rate));
+        const res = await fetch('api/mirror_sync.php?action=save_currency_rate', {
+          method: 'POST',
+          body: fd
+        });
+        const data = await res.json();
+        if (data && data.success) {
+          showToastNotification(`✓ تم تحديث سعر صرف الدولار في قاعدة البيانات إلى (${rate.toLocaleString()}) وتعميمه فورياً على جميع شاشات البرنامج!`);
+          return;
+        }
+      } catch (err) {}
+
+      showToastNotification(`✓ تم تحديث سعر صرف الدولار إلى (${rate.toLocaleString()}) ومزامنته مع النظام!`);
     }
 
     // ════════════════════════════════════════════════════════════════
@@ -7272,7 +7359,7 @@ $currenciesData = [
     }
 
     function classifyVoucherNatureJs(fromAcc, toAcc, fromName, toName) {
-      if (!fromName && !toName) return { code: 'draft', label: '⚡ قيد حركة مالية', cls: 'bg-indigo-500/15 border-indigo-400/40 text-indigo-300' };
+      if (!fromName && !toName) return { code: 'draft', label: 'حركة مالية', cls: 'bg-indigo-500/15 border-indigo-400/40 text-indigo-300' };
       const fromIsCash = isCashOrBankAccountJs(fromAcc, fromName);
       const toIsCash = isCashOrBankAccountJs(toAcc, toName);
       if (fromIsCash && toIsCash) {
@@ -7284,7 +7371,7 @@ $currenciesData = [
       if (fromIsCash && !toIsCash) {
         return { code: 'payment', label: '🔴 سند صرف / دفع', cls: 'bg-rose-500/20 border-rose-400/50 text-rose-300' };
       }
-      return { code: 'settlement', label: '🟣 قيد تسوية محاسبية', cls: 'bg-purple-500/20 border-purple-400/50 text-purple-300' };
+      return { code: 'settlement', label: 'حركة مالية', cls: 'bg-cyan-500/20 border-cyan-400/50 text-cyan-300' };
     }
 
     function updateMagnitudeBadgeUI() {
@@ -7295,7 +7382,7 @@ $currenciesData = [
     // حساب وعرض الرصيد وفق الطبيعة المحاسبية (مدين/دائن) واتجاه التدفق المالي
     // ════════════════════════════════════════════════════════════════
     function updateAccountBalanceBadges() {
-      const rate = parseFloat(document.getElementById('usdRate')?.value) || 2650;
+      const rate = parseFloat(document.getElementById('usdRate')?.value) || parseFloat(window.SYSTEM_USD_RATE) || 5999;
       const fromName = (document.getElementById('fromSearchInput')?.value || '').trim();
       const toName = (document.getElementById('toSearchInput')?.value || '').trim();
       const activeSdgAmt = parseRawNumber(document.getElementById('sdgAmount')?.value || 0);
@@ -7303,12 +7390,11 @@ $currenciesData = [
       const fromAcc = accountsDB.find(a => a && a.name === fromName);
       const toAcc = accountsDB.find(a => a && a.name === toName);
 
-      // تحديث شارة نوع السند الأوتوماتيكية في الهيدر وشريط الإدراك المعرفي
-      const natureInfo = classifyVoucherNatureJs(fromAcc, toAcc, fromName, toName);
+      // إخفاء شارة الهيدر (قيد تسوية محاسبية) نهائياً بناءً على طلب المستخدم
       const headerBadge = document.getElementById('voucherNatureHeaderBadge');
       if (headerBadge) {
-        headerBadge.className = `px-2 py-0.5 rounded-full border font-black text-[9.5px] transition-all ${natureInfo.cls}`;
-        headerBadge.textContent = natureInfo.label;
+        headerBadge.className = 'hidden';
+        headerBadge.textContent = '';
       }
 
       // 1. حساب من حساب (الدافع / الطرف الدائن في القيد)
@@ -7328,8 +7414,8 @@ $currenciesData = [
           // الطرف (من حساب) يُقيّد دائناً (Credit): ينقص إذا كان حساباً مديناً، ويزيد إذا كان حساباً دائناً
           const projected = (normal === 'credit') ? (curBal + activeSdgAmt) : (curBal - activeSdgAmt);
           fromAmtEl.textContent = Number(projected).toLocaleString('en-US');
-          if (fromLabelEl) fromLabelEl.textContent = 'الرصيد بعد القيد:';
-          fromBadge.className = 'inline-flex items-center gap-1 text-sky-300';
+          if (fromLabelEl) fromLabelEl.textContent = 'بعد القيد:';
+          fromBadge.className = 'inline-flex items-center gap-0.5 text-sky-300 shrink-0';
           fromBadge.classList.remove('hidden');
         } else if (fromBadge) {
           fromBadge.classList.add('hidden');
@@ -7357,8 +7443,8 @@ $currenciesData = [
           // الطرف (إلى حساب) يُقيّد مديناً (Debit): يزيد إذا كان حساباً مديناً (خزينة/بنك/مصروف/عميل)، وينقص إذا كان دائناً (سداد لمورد)
           const projected = (normal === 'credit') ? (curBal - activeSdgAmt) : (curBal + activeSdgAmt);
           toAmtEl.textContent = Number(projected).toLocaleString('en-US');
-          if (toLabelEl) toLabelEl.textContent = 'الرصيد بعد القيد:';
-          toBadge.className = 'inline-flex items-center gap-1 text-sky-300';
+          if (toLabelEl) toLabelEl.textContent = 'بعد القيد:';
+          toBadge.className = 'inline-flex items-center gap-0.5 text-sky-300 shrink-0';
           toBadge.classList.remove('hidden');
         } else if (toBadge) {
           toBadge.classList.add('hidden');
@@ -7663,7 +7749,7 @@ $currenciesData = [
       if (dateEl) dateEl.value = rawDate;
       updateVoucherDateDisplay();
 
-      const rateVal = parseFloat(v.rate ?? v.exchangeRate) || 2650;
+      const rateVal = parseFloat(v.rate ?? v.exchangeRate) || parseFloat(window.SYSTEM_USD_RATE) || 5999;
       const rateEl = document.getElementById('usdRate');
       if (rateEl) rateEl.value = rateVal;
 
@@ -7727,17 +7813,16 @@ $currenciesData = [
       selectCurrency(v.currency || 'SDG', false);
       updateAccountBalanceBadges();
 
-      // إظهار اسم السند ونوعه بوضوح تام في شارة الهيدر وعلامة السند عند الرجوع بالأسهم
       const fromAccObj = Array.isArray(accountsDB) ? accountsDB.find(a => a && a.name === fromVal) : null;
       const toAccObj = Array.isArray(accountsDB) ? accountsDB.find(a => a && a.name === toVal) : null;
       const computedNature = classifyVoucherNatureJs(fromAccObj, toAccObj, fromVal, toVal);
-      const vNatureLabel = (v.voucherNatureLabel && String(v.voucherNatureLabel).trim()) ? String(v.voucherNatureLabel).trim() : computedNature.label;
+      const rawNatureLabel = (v.voucherNatureLabel && String(v.voucherNatureLabel).trim()) ? String(v.voucherNatureLabel).trim() : computedNature.label;
+      const vNatureLabel = rawNatureLabel.includes('قيد تسوية') ? 'حركة مالية' : rawNatureLabel;
 
       const headerBadge = document.getElementById('voucherNatureHeaderBadge');
       if (headerBadge) {
-        headerBadge.className = `px-2 py-0.5 rounded-full border font-black text-[9.5px] transition-all ${computedNature.cls}`;
-        headerBadge.textContent = vNatureLabel;
-        headerBadge.classList.remove('hidden');
+        headerBadge.className = 'hidden';
+        headerBadge.textContent = '';
       }
       const tagEl = document.getElementById('voucherTag');
       if (tagEl) {
@@ -7955,7 +8040,7 @@ $currenciesData = [
       // ترقيم متسلسل دقيق موحد متصل مع اللابتوب والسيرفر سواء أونلاين أو أوفلاين
       const nextId = computeNextVoucherSequentialNo(false);
 
-      // 1. رقم السند والتاريخ اليومي
+      // 1. رقم السند والتاريخ اليومي وسعر الدولار من قاعدة البيانات
       const displayEl = document.getElementById('currentVoucherDisplay');
       if (displayEl) displayEl.textContent = nextId;
       const tagEl = document.getElementById('voucherTag');
@@ -7963,6 +8048,11 @@ $currenciesData = [
       const dateEl = document.getElementById('voucherDate');
       if (dateEl) dateEl.value = new Date().toISOString().slice(0, 10);
       updateVoucherDateDisplay();
+
+      const rateEl = document.getElementById('usdRate');
+      if (rateEl && window.SYSTEM_USD_RATE > 1) {
+        rateEl.value = window.SYSTEM_USD_RATE;
+      }
 
       // 2. تصفير ومسح كافة المبالغ المالية تماماً
       const sdgEl = document.getElementById('sdgAmount');
@@ -7995,7 +8085,10 @@ $currenciesData = [
 
       // 5. تصفير رقم التحويلة والبنك والبيان
       const transEl = document.getElementById('transferInput');
-      if (transEl) transEl.value = '';
+      if (transEl) {
+        transEl.value = '';
+        handleTransferInputScale('');
+      }
       const badge = document.getElementById('transferFeedbackBadge');
       if (badge) badge.innerHTML = '';
       const bankEl = document.getElementById('bankNameInput');
@@ -8072,8 +8165,8 @@ $currenciesData = [
     }
 
     const CURRENCY_META_MAP = {
-      'SDG': { title: 'المبلغ دولار', badge: '$ USD', rateSymbol: '$', defaultRate: 2650 },
-      'USD': { title: 'المبلغ دولار', badge: '$ USD', rateSymbol: '$', defaultRate: 2650 },
+      'SDG': { title: 'المبلغ دولار', badge: '$ USD', rateSymbol: '$', defaultRate: parseFloat(window.SYSTEM_USD_RATE) || 5999 },
+      'USD': { title: 'المبلغ دولار', badge: '$ USD', rateSymbol: '$', defaultRate: parseFloat(window.SYSTEM_USD_RATE) || 5999 },
       'SAR': { title: 'المبلغ بالريال', badge: 'ر.س SAR', rateSymbol: 'ر.س', defaultRate: 706 },
       'AED': { title: 'المبلغ بالدرهم', badge: 'د.إ AED', rateSymbol: 'د.إ', defaultRate: 721 },
       'EGP': { title: 'المبلغ بالجنيه المصري', badge: 'ج.م EGP', rateSymbol: 'ج.م', defaultRate: 54 },
@@ -8096,7 +8189,7 @@ $currenciesData = [
       if (rateSym) rateSym.textContent = meta.rateSymbol;
 
       if (recalculate) {
-        // جلب سعر الصرف من جدول العملات المحمل من السيرفر إن وجد
+        // جلب سعر الصرف من قاعدة البيانات المحمل من السيرفر
         let targetRate = meta.defaultRate;
         if (Array.isArray(window.PHP_CURRENCIES)) {
           const searchCode = (currentCurrency === 'SDG') ? 'USD' : currentCurrency;
@@ -8106,8 +8199,8 @@ $currenciesData = [
           }
         }
         if (currentCurrency === 'SDG' || currentCurrency === 'USD') {
-          const savedUsd = parseFloat(localStorage.getItem('magaiees_system_usd_rate'));
-          if (savedUsd > 0) targetRate = savedUsd;
+          const sysUsd = parseFloat(window.SYSTEM_USD_RATE) || parseFloat(localStorage.getItem('magaiees_system_usd_rate'));
+          if (sysUsd > 1) targetRate = sysUsd;
         }
         const rateInp = document.getElementById('usdRate');
         if (rateInp && targetRate > 0) {
@@ -8235,7 +8328,7 @@ $currenciesData = [
     }
 
     function calculateExchange(source) {
-      const rate = parseFloat(document.getElementById('usdRate').value) || 2650;
+      const rate = parseFloat(document.getElementById('usdRate').value) || parseFloat(window.SYSTEM_USD_RATE) || 5999;
       const sdg = document.getElementById('sdgAmount');
       const foreign = document.getElementById('usdAmount');
       if (rate <= 0) return;
@@ -8534,7 +8627,7 @@ $currenciesData = [
         results = results.filter(a => a.name.toLowerCase().includes(query) || a.category.toLowerCase().includes(query));
       }
 
-      const rate = parseFloat(document.getElementById('usdRate').value) || 2650;
+      const rate = parseFloat(document.getElementById('usdRate').value) || parseFloat(window.SYSTEM_USD_RATE) || 5999;
 
       const itemsHtml = results.length === 0
         ? `<div class="p-4 text-slate-400 text-center text-xs space-y-1">
@@ -9187,7 +9280,7 @@ $currenciesData = [
     }
 
     async function saveSingleVoucherSilently(item) {
-      const rate = parseFloat(document.getElementById('usdRate').value) || 2650;
+      const rate = parseFloat(document.getElementById('usdRate').value) || parseFloat(window.SYSTEM_USD_RATE) || 5999;
       const sdg = item.amount || parseRawNumber(document.getElementById('sdgAmount').value);
       const dec = (typeof usdNumberConfig !== 'undefined' && usdNumberConfig.decimals !== undefined) ? parseInt(usdNumberConfig.decimals) : 2;
       const usdCalc = sdg > 0 ? (sdg / rate) : 0;
@@ -9956,6 +10049,20 @@ $currenciesData = [
           if (data.stateHash) {
             window._lastDbStateHash = data.stateHash;
           }
+          const isAtNewVoucher = (currentIndex >= vouchersList.length || currentIndex === -1);
+          if (data.exchangeRate && parseFloat(data.exchangeRate) > 1) {
+            const dbRate = parseFloat(data.exchangeRate);
+            window.SYSTEM_USD_RATE = dbRate;
+            try {
+              localStorage.setItem('magaiees_system_usd_rate', String(dbRate));
+              localStorage.setItem('erp_rate_usd', String(dbRate));
+              localStorage.setItem('magaies_custom_usd_rate', String(dbRate));
+            } catch (e) {}
+            const rateInp = document.getElementById('usdRate');
+            if (rateInp && isAtNewVoucher && document.activeElement !== rateInp) {
+              rateInp.value = dbRate;
+            }
+          }
           // إذا لم يتغير شيء في قاعدة البيانات (Delta-Sync unchanged)، لا نستهلك المعالج أو البطارية أو الشبكة
           if ((data.unchanged === true || data.changed === false) && !showFeedback) {
             updateNetworkStatusUI(true, 'متزامن');
@@ -9987,7 +10094,6 @@ $currenciesData = [
             }
           }
 
-          const isAtNewVoucher = (currentIndex >= vouchersList.length || currentIndex === -1);
           // 2. تحديث السندات الحقيقية من single_payments مع الحفاظ الكامل على كافة تفاصيل كل سند
           if (Array.isArray(data.vouchers) && data.vouchers.length > 0) {
             vouchersList = data.vouchers.map(v => ({
@@ -9995,7 +10101,7 @@ $currenciesData = [
               voucherNo: v.voucherNo || v.id,
               isOffline: false,
               date: v.date || new Date().toISOString().slice(0, 10),
-              rate: v.rate || 2650,
+              rate: v.rate || parseFloat(window.SYSTEM_USD_RATE) || 5999,
               currency: v.currency || 'SDG',
               costCenter: v.costCenter || '',
               sdg: v.sdg || 0,
@@ -10334,7 +10440,7 @@ $currenciesData = [
         idempotencyKey: currentDraftIdempotencyKey,
         attachment: currentReceiptAttachment || null,
         date: document.getElementById('voucherDate').value || new Date().toISOString().slice(0, 10),
-        rate: parseFloat(document.getElementById('usdRate').value) || 2650,
+        rate: parseFloat(document.getElementById('usdRate').value) || parseFloat(window.SYSTEM_USD_RATE) || 5999,
         currency: currentCurrency || 'SDG',
         costCenter: document.getElementById('costCenterInput').value || '',
         paymentMethod: currentPayType,
@@ -10776,7 +10882,7 @@ $currenciesData = [
         voucherNo: v.voucherNo || vid,
         isOffline: Boolean(v.isOffline || isOff),
         date: String(v.date || v.createdAt || v.savedAt || new Date().toISOString()).slice(0, 10),
-        rate: parseFloat(v.rate ?? v.exchangeRate) || 2650,
+        rate: parseFloat(v.rate ?? v.exchangeRate) || parseFloat(window.SYSTEM_USD_RATE) || 5999,
         currency: v.currency || 'SDG',
         costCenter: v.costCenter || v.jobId || '',
         sdg: parseFloat(v.sdg ?? v.amountLocal ?? v.amount ?? v.totalAmount ?? 0) || 0,

@@ -241,13 +241,26 @@ if ($resource === 'smtp_settings' && $method === 'POST') {
 // EXCHANGE RATE (PUBLIC)
 // ---------------------------------------------------------
 if ($resource === 'exchange-rate' && $method === 'GET') {
-    $ex_rate = ['rate' => 1.0, 'visible' => false];
+    $resolvedRate = 5999.0;
     try {
-        $stmt_ex = $pdo->query("SELECT setting_value FROM global_settings WHERE setting_key = 'exchange_rate'");
-        $val = $stmt_ex->fetchColumn();
-        if ($val) $ex_rate = json_decode($val, true);
+        $stmt_ex = $pdo->query("SELECT setting_key, setting_value FROM global_settings WHERE setting_key IN ('exchange_rate', 'erp_rate_usd', 'erp_currency_rates_v1')");
+        $rows = $stmt_ex ? $stmt_ex->fetchAll(PDO::FETCH_KEY_PAIR) : [];
+        if (!empty($rows['exchange_rate'])) {
+            $val = trim((string)$rows['exchange_rate']);
+            if (is_numeric($val) && (float)$val > 1) {
+                $resolvedRate = (float)$val;
+            } else {
+                $dec = json_decode($val, true);
+                if (is_array($dec)) {
+                    $r = (float)($dec['rate'] ?? ($dec['current'] ?? ($dec['rateUSD'] ?? ($dec['USD'] ?? 0))));
+                    if ($r > 1) $resolvedRate = $r;
+                }
+            }
+        } elseif (!empty($rows['erp_rate_usd']) && is_numeric($rows['erp_rate_usd']) && (float)$rows['erp_rate_usd'] > 1) {
+            $resolvedRate = (float)$rows['erp_rate_usd'];
+        }
     } catch(Exception $e) {}
-    jsonResponse($ex_rate);
+    jsonResponse(['rate' => $resolvedRate, 'current' => $resolvedRate, 'visible' => true]);
 }
 
 // ----------------------------------------------------------------------------------
@@ -277,22 +290,87 @@ if ($resource === 'tenant-exchange-rate') {
         $tenant_id = $_GET['tenant_id'] ?? null;
     }
     if (!$tenant_id) {
-        jsonResponse(['success' => true, 'payload' => null]);
+        $tenant_id = 12;
     }
     $tenantKey = 'tenant_rate_' . $tenant_id;
     if ($method === 'GET') {
-        $stmt = $pdo->prepare("SELECT setting_value FROM global_settings WHERE setting_key = ?");
+        $stmt = $pdo->prepare("SELECT setting_key, setting_value FROM global_settings WHERE setting_key IN (?, 'exchange_rate', 'erp_rate_usd')");
         $stmt->execute([$tenantKey]);
-        $val = $stmt->fetchColumn();
-        $payload = $val ? json_decode($val, true) : null;
+        $rows = $stmt->fetchAll(PDO::FETCH_KEY_PAIR);
+        $payload = null;
+        if (!empty($rows['exchange_rate'])) {
+            $exObj = json_decode($rows['exchange_rate'], true);
+            if (is_array($exObj)) {
+                $r = (float)($exObj['rate'] ?? ($exObj['current'] ?? ($exObj['rateUSD'] ?? 0)));
+                if ($r > 1) {
+                    $payload = [
+                        'current' => $r,
+                        'rate' => $r,
+                        'rateUSD' => $r,
+                        'visible' => true,
+                        'history' => $exObj['history'] ?? [],
+                        'updatedAt' => round(microtime(true) * 1000)
+                    ];
+                }
+            } elseif (is_numeric($rows['exchange_rate']) && (float)$rows['exchange_rate'] > 1) {
+                $r = (float)$rows['exchange_rate'];
+                $payload = ['current' => $r, 'rate' => $r, 'rateUSD' => $r, 'visible' => true, 'history' => []];
+            }
+        }
+        if (!$payload && !empty($rows[$tenantKey])) {
+            $val = $rows[$tenantKey];
+            if (is_numeric($val) && (float)$val > 1) {
+                $r = (float)$val;
+                $payload = ['current' => $r, 'rate' => $r, 'rateUSD' => $r, 'visible' => true, 'history' => []];
+            } else {
+                $dec = json_decode($val, true);
+                if (is_array($dec)) {
+                    $r = (float)($dec['rateUSD'] ?? ($dec['current'] ?? ($dec['rate'] ?? 0)));
+                    if ($r > 1) {
+                        $dec['current'] = $r;
+                        $dec['rate'] = $r;
+                        $dec['rateUSD'] = $r;
+                    }
+                    $payload = $dec;
+                }
+            }
+        }
+        if (!$payload && !empty($rows['erp_rate_usd']) && is_numeric($rows['erp_rate_usd'])) {
+            $r = (float)$rows['erp_rate_usd'];
+            $payload = ['current' => $r, 'rate' => $r, 'rateUSD' => $r, 'visible' => true, 'history' => []];
+        }
         jsonResponse(['success' => true, 'payload' => $payload]);
     }
     if ($method === 'POST') {
-        $payload = $input['payload'] ?? null;
-        if ($payload) {
+        $payload = $input['payload'] ?? $input ?? null;
+        if (is_array($payload)) {
+            $newRate = (float)($payload['rateUSD'] ?? ($payload['current'] ?? ($payload['rate'] ?? 0)));
+            if ($newRate > 1) {
+                $payload['current'] = $newRate;
+                $payload['rate'] = $newRate;
+                $payload['rateUSD'] = $newRate;
+                $payload['visible'] = true;
+            }
             $json = json_encode($payload, JSON_UNESCAPED_UNICODE);
             $stmt = $pdo->prepare("INSERT INTO global_settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = ?");
             $stmt->execute([$tenantKey, $json, $json]);
+
+            if ($newRate > 1) {
+                // Sync global exchange_rate, erp_rate_usd, and erp_currency_rates_v1 so all screens use the exact same DB rate
+                $exPayload = json_encode([
+                    'rate' => $newRate,
+                    'current' => $newRate,
+                    'rateUSD' => $newRate,
+                    'visible' => true,
+                    'trend' => 'up',
+                    'history' => $payload['history'] ?? []
+                ], JSON_UNESCAPED_UNICODE);
+                $stmt->execute(['exchange_rate', $exPayload, $exPayload]);
+                $stmt->execute(['erp_rate_usd', (string)$newRate, (string)$newRate]);
+
+                $crPayload = json_encode(['USD' => $newRate, 'SDG' => 1], JSON_UNESCAPED_UNICODE);
+                $stmt->execute(['erp_currency_rates_v1', $crPayload, $crPayload]);
+            }
         }
         jsonResponse(['success' => true]);
     }

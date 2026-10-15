@@ -1902,36 +1902,47 @@ try {
         case 'get_currency_rate':
             $rate = 0;
             $details = [];
-            $stmt = $pdo->prepare("SELECT setting_key, setting_value FROM global_settings WHERE setting_key IN ('tenant_rate_" . intval($tenantId) . "', 'exchange_rate', 'erp_rate_usd', 'erp_currency_rates_v1')");
-            $stmt->execute();
+            $tKey = 'tenant_rate_' . intval($tenantId);
+            $stmt = $pdo->prepare("SELECT setting_key, setting_value FROM global_settings WHERE setting_key IN (?, 'exchange_rate', 'erp_rate_usd', 'erp_currency_rates_v1')");
+            $stmt->execute([$tKey]);
             $rows = $stmt->fetchAll(PDO::FETCH_KEY_PAIR);
 
-            if (!empty($rows['tenant_rate_' . intval($tenantId)])) {
-                $val = $rows['tenant_rate_' . intval($tenantId)];
-                $rate = is_numeric($val) ? (float)$val : 0;
-            }
-            if (!$rate && !empty($rows['exchange_rate'])) {
+            if (!empty($rows['exchange_rate'])) {
                 $val = $rows['exchange_rate'];
-                if (is_numeric($val)) {
+                if (is_numeric($val) && (float)$val > 1) {
                     $rate = (float)$val;
                 } else {
                     $d = json_decode($val, true);
-                    if ($d) {
+                    if (is_array($d)) {
                         $details = $d;
-                        if (!empty($d['rate'])) $rate = (float)$d['rate'];
-                        elseif (!empty($d['USD'])) $rate = (float)$d['USD'];
+                        if (!empty($d['rate']) && (float)$d['rate'] > 1) $rate = (float)$d['rate'];
+                        elseif (!empty($d['current']) && (float)$d['current'] > 1) $rate = (float)$d['current'];
+                        elseif (!empty($d['USD']) && (float)$d['USD'] > 1) $rate = (float)$d['USD'];
                     }
                 }
             }
-            if (!$rate && !empty($rows['erp_rate_usd'])) {
+            if ($rate <= 1 && !empty($rows[$tKey])) {
+                $val = $rows[$tKey];
+                if (is_numeric($val) && (float)$val > 1) {
+                    $rate = (float)$val;
+                } else {
+                    $d = json_decode($val, true);
+                    if (is_array($d)) {
+                        if (empty($details)) $details = $d;
+                        if (!empty($d['current']) && (float)$d['current'] > 1) $rate = (float)$d['current'];
+                        elseif (!empty($d['rate']) && (float)$d['rate'] > 1) $rate = (float)$d['rate'];
+                    }
+                }
+            }
+            if ($rate <= 1 && !empty($rows['erp_rate_usd']) && is_numeric($rows['erp_rate_usd'])) {
                 $rate = (float)$rows['erp_rate_usd'];
             }
-            if (!$rate && !empty($rows['erp_currency_rates_v1'])) {
+            if ($rate <= 1 && !empty($rows['erp_currency_rates_v1'])) {
                 $ratesObj = json_decode($rows['erp_currency_rates_v1'], true);
                 if (!empty($ratesObj['USD'])) $rate = (float)$ratesObj['USD'];
             }
-            if (!$rate) {
-                $rate = 2850.0;
+            if ($rate <= 1) {
+                $rate = 5999.0;
             }
 
             echo json_encode([
@@ -1962,8 +1973,9 @@ try {
             $d = $curVal ? json_decode($curVal, true) : null;
             $oldRate = 0;
             if (is_array($d)) {
-                $oldRate = (float)($d['rate'] ?? 0);
+                $oldRate = (float)($d['rate'] ?? ($d['current'] ?? 0));
                 $d['rate'] = $newRate;
+                $d['current'] = $newRate;
                 $trend = ($newRate >= $oldRate) ? 'up' : 'down';
                 $d['trend'] = $trend;
                 if (!isset($d['history']) || !is_array($d['history'])) $d['history'] = [];
@@ -1973,14 +1985,15 @@ try {
                     'rate' => $newRate,
                     'old_rate' => $oldRate,
                     'trend' => $trend,
-                    'source' => 'mobile_pos'
+                    'source' => 'system_sync'
                 ];
                 if (count($d['history']) > 50) $d['history'] = array_slice($d['history'], -50);
                 $stmtUp = $pdo->prepare("INSERT INTO global_settings (setting_key, setting_value) VALUES ('exchange_rate', ?) ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value), updated_at = NOW()");
                 $stmtUp->execute([json_encode($d, JSON_UNESCAPED_UNICODE)]);
             } else {
+                $d = ['rate' => $newRate, 'current' => $newRate, 'trend' => 'up', 'history' => [['date' => date('Y-m-d'), 'rate' => $newRate, 'source' => 'system_sync']]];
                 $stmtUp = $pdo->prepare("INSERT INTO global_settings (setting_key, setting_value) VALUES ('exchange_rate', ?) ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value), updated_at = NOW()");
-                $stmtUp->execute([json_encode(['rate' => $newRate, 'trend' => 'up', 'history' => [['date' => date('Y-m-d'), 'rate' => $newRate, 'source' => 'mobile_pos']]], JSON_UNESCAPED_UNICODE)]);
+                $stmtUp->execute([json_encode($d, JSON_UNESCAPED_UNICODE)]);
             }
 
             // 2. Update erp_currency_rates_v1
@@ -1999,8 +2012,14 @@ try {
             $stmtUpUsd->execute([(string)$newRate]);
 
             if (!empty($tenantId)) {
+                $tenantPayload = json_encode([
+                    'current' => $newRate,
+                    'rate' => $newRate,
+                    'history' => $d['history'] ?? [],
+                    'updatedAt' => round(microtime(true) * 1000)
+                ], JSON_UNESCAPED_UNICODE);
                 $stmtUpTen = $pdo->prepare("INSERT INTO global_settings (setting_key, setting_value) VALUES ('tenant_rate_" . intval($tenantId) . "', ?) ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value), updated_at = NOW()");
-                $stmtUpTen->execute([(string)$newRate]);
+                $stmtUpTen->execute([$tenantPayload]);
             }
 
             echo json_encode([

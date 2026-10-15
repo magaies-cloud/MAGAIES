@@ -17,6 +17,7 @@ if ($isMobileDevice && !$isDesktopParam && empty($_POST)) {
 require_once 'db_bridge.php';
 require_once __DIR__ . '/mobile_auth_guard.php';
 $pdo = getDBConnection();
+$systemUsdRate = function_exists('getSystemUsdExchangeRate') ? getSystemUsdExchangeRate($pdo) : 5999.0;
 global $GLOBAL_TENANT_ID;
 
 if (!function_exists('extractAllTransfersFromRecord')) {
@@ -2203,7 +2204,7 @@ try {
                             </div>
                             <div style="display: flex; align-items: center; gap: 10px;">
                                 <label class="label" style="display:flex; align-items:center; gap:5px; color:#fbbf24 !important; font-size:1.15rem; margin-bottom:0; white-space:nowrap; flex-shrink: 0;">⚖️ الصرف</label>
-                                <input type="number" class="form-input" id="exchange-rate" value="1" placeholder="الصرف" readonly style="flex: 2; text-align: center; cursor:pointer; background:rgba(16,185,129,0.12); color:#10b981; font-weight:900; height: 55px; border-radius: 10px; font-size: 1.65rem !important; letter-spacing: 1px; min-width: 130px; width: 100%; border: 1.5px solid rgba(16,185,129,0.4); box-shadow: 0 0 12px rgba(16,185,129,0.25);" onclick="if(typeof window.openGlobalExchangeRateModal === 'function') window.openGlobalExchangeRateModal((r)=>{this.value=Math.round(r); if(typeof recalcAll === 'function') recalcAll(); else if(typeof recalcTotals==='function') recalcTotals(); else if(typeof calcTotals==='function') calcTotals(); else if(typeof window.updateCurrency==='function') window.updateCurrency();});">
+                                <input type="number" class="form-input" id="exchange-rate" value="<?php echo htmlspecialchars((string)$systemUsdRate); ?>" placeholder="الصرف" readonly style="flex: 2; text-align: center; cursor:pointer; background:rgba(16,185,129,0.12); color:#10b981; font-weight:900; height: 55px; border-radius: 10px; font-size: 1.65rem !important; letter-spacing: 1px; min-width: 130px; width: 100%; border: 1.5px solid rgba(16,185,129,0.4); box-shadow: 0 0 12px rgba(16,185,129,0.25);" onclick="if(typeof window.openGlobalExchangeRateModal === 'function') window.openGlobalExchangeRateModal((r)=>{this.value=Math.round(r); this.dataset.userEdited='1'; if(typeof recalcAll === 'function') recalcAll(); else if(typeof recalcTotals==='function') recalcTotals(); else if(typeof calcTotals==='function') calcTotals(); else if(typeof window.updateCurrency==='function') window.updateCurrency();});">
                             </div>
                             <div style="display: flex; align-items: center; gap: 10px; position: relative;">
                                 <label id="label-box-2" class="label" style="display:flex; align-items:center; gap:5px; color:#cbd5e1 !important; font-size:1.1rem; margin-bottom:0; white-space:nowrap; flex-shrink: 0;">💵 القيمة (أجنبي)</label>

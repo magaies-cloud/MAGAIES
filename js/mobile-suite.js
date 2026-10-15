@@ -1701,12 +1701,12 @@
     // 🌐 SUITE FX MANAGER: REAL-TIME SYSTEM EXCHANGE RATE SYNC (DATABASE)
     // ═════════════════════════════════════════════════════════════════════
     window.SuiteFXManager = {
-      currentRate: 2850,
+      currentRate: (window.SYSTEM_USD_RATE && parseFloat(window.SYSTEM_USD_RATE) > 1) ? parseFloat(window.SYSTEM_USD_RATE) : 5999,
       isLoading: false,
 
       async fetchSystemRate() {
         try {
-          const cached = localStorage.getItem('magaies_usd_rate') || localStorage.getItem('erp_rate_usd');
+          const cached = localStorage.getItem('erp_rate_usd') || localStorage.getItem('magaiees_system_usd_rate') || localStorage.getItem('magaies_usd_rate');
           if (cached) {
             const n = parseFloat(cached);
             if (!isNaN(n) && n > 0) this.currentRate = n;
@@ -1716,8 +1716,12 @@
             const data = await res.json();
             if (data && data.success && data.rate) {
               this.currentRate = parseFloat(data.rate);
+              window.SYSTEM_USD_RATE = this.currentRate;
               localStorage.setItem('magaies_usd_rate', this.currentRate.toString());
+              localStorage.setItem('magaiees_system_usd_rate', this.currentRate.toString());
+              localStorage.setItem('magaies_custom_usd_rate', this.currentRate.toString());
               localStorage.setItem('erp_rate_usd', this.currentRate.toString());
+              localStorage.setItem('erp_cached_global_rate', this.currentRate.toString());
             }
           }
         } catch(e) {
