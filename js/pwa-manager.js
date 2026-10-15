@@ -169,14 +169,22 @@ window.PWAManager = {
     registerServiceWorker() {
         if ('serviceWorker' in navigator) {
             const doRegister = () => {
+                let savedToken = '';
+                try {
+                    savedToken = localStorage.getItem('saas_token') || localStorage.getItem('authToken') || '';
+                    if (savedToken) {
+                        document.cookie = 'saas_token=' + encodeURIComponent(savedToken) + '; path=/; max-age=31536000; SameSite=Lax';
+                    }
+                } catch (e) {}
                 navigator.serviceWorker.register('./sw.js?v=2026_10_16_offline_v18', { scope: './', updateViaCache: 'none' }).then((reg) => {
                     if (navigator.onLine) {
                         try { reg.update(); } catch (e) {}
                         setTimeout(() => {
-                            if (navigator.serviceWorker.controller) {
-                                navigator.serviceWorker.controller.postMessage({ type: 'WARM_OFFLINE_CACHE' });
+                            const swTarget = navigator.serviceWorker.controller || reg.active || reg.waiting;
+                            if (swTarget) {
+                                swTarget.postMessage({ type: 'WARM_OFFLINE_CACHE', token: savedToken });
                             }
-                        }, 1500);
+                        }, 1200);
                     }
                 }).catch(() => {});
             };

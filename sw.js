@@ -272,12 +272,17 @@ self.addEventListener('fetch', (event) => {
 self.addEventListener('message', (event) => {
     if (event.data && event.data.type === 'WARM_OFFLINE_CACHE') {
         const urls = Array.isArray(event.data.urls) ? event.data.urls : PRECACHE_ASSETS;
+        const token = event.data.token || '';
+        const fetchOpts = { credentials: 'same-origin' };
+        if (token) {
+            fetchOpts.headers = { 'X-Auth-Token': token };
+        }
         caches.open(CACHE_NAME).then(async (cache) => {
             for (const u of urls) {
                 try {
                     const hit = await cache.match(u, { ignoreSearch: true });
                     if (!hit) {
-                        const res = await fetch(u, { credentials: 'same-origin' });
+                        const res = await fetch(u, fetchOpts);
                         await storeInCache(cache, u, res);
                     }
                 } catch (e) {}
