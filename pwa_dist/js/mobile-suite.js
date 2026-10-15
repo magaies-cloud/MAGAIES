@@ -1701,12 +1701,12 @@
     // 🌐 SUITE FX MANAGER: REAL-TIME SYSTEM EXCHANGE RATE SYNC (DATABASE)
     // ═════════════════════════════════════════════════════════════════════
     window.SuiteFXManager = {
-      currentRate: 2850,
+      currentRate: (window.SYSTEM_USD_RATE && parseFloat(window.SYSTEM_USD_RATE) > 1) ? parseFloat(window.SYSTEM_USD_RATE) : 5999,
       isLoading: false,
 
       async fetchSystemRate() {
         try {
-          const cached = localStorage.getItem('magaies_usd_rate') || localStorage.getItem('erp_rate_usd');
+          const cached = localStorage.getItem('erp_rate_usd') || localStorage.getItem('magaiees_system_usd_rate') || localStorage.getItem('magaies_usd_rate');
           if (cached) {
             const n = parseFloat(cached);
             if (!isNaN(n) && n > 0) this.currentRate = n;
@@ -1716,8 +1716,12 @@
             const data = await res.json();
             if (data && data.success && data.rate) {
               this.currentRate = parseFloat(data.rate);
+              window.SYSTEM_USD_RATE = this.currentRate;
               localStorage.setItem('magaies_usd_rate', this.currentRate.toString());
+              localStorage.setItem('magaiees_system_usd_rate', this.currentRate.toString());
+              localStorage.setItem('magaies_custom_usd_rate', this.currentRate.toString());
               localStorage.setItem('erp_rate_usd', this.currentRate.toString());
+              localStorage.setItem('erp_cached_global_rate', this.currentRate.toString());
             }
           }
         } catch(e) {
@@ -2097,12 +2101,7 @@
 
       applySavedStyleToElement(el) {
         if (!el || !el.id) return;
-        const cfg = this.getFieldConfig(el.id);
-        if (el.classList.contains('pos-ghost-default')) {
-          el.style.setProperty('color', 'rgba(148, 163, 184, 0.24)', 'important');
-        } else if (cfg && cfg.fontColor) {
-          el.style.setProperty('color', cfg.fontColor, 'important');
-        }
+        el.style.removeProperty('color');
         const saved = this.configs[el.id];
         if (saved && saved.fontSize) {
           el.style.setProperty('font-size', saved.fontSize + 'px', 'important');
@@ -2113,13 +2112,8 @@
         Object.keys(this.fieldMeta).forEach(fieldId => {
           const el = document.getElementById(fieldId);
           if (!el) return;
-          const cfg = this.getFieldConfig(fieldId);
+          el.style.removeProperty('color');
           const saved = this.configs[fieldId];
-          if (el.classList.contains('pos-ghost-default')) {
-            el.style.setProperty('color', 'rgba(148, 163, 184, 0.24)', 'important');
-          } else if (cfg && cfg.fontColor) {
-            el.style.setProperty('color', cfg.fontColor, 'important');
-          }
           if (saved) {
             if (saved.fontSize) {
               el.style.setProperty('font-size', saved.fontSize + 'px', 'important');
@@ -2516,23 +2510,16 @@
       // محرك ذكاء اصطناعي لقياس عرض النص الفعلي بالبيكسل مقارنة بالمساحة المتاحة داخل الخانة
       fitTextToBox(el, text, opts = {}) {
         if (!el) return;
-        const isGhost = el.classList.contains('pos-ghost-default');
-        if (window.SmartFieldCustomizer && el.id) {
+        el.style.removeProperty('color');
+        if (window.SmartFieldCustomizer && el.id && SmartFieldCustomizer.hasCustomConfig(el.id)) {
           const uCfg = SmartFieldCustomizer.getFieldConfig(el.id);
-          if (isGhost) {
-            el.style.setProperty('color', 'rgba(148, 163, 184, 0.24)', 'important');
-          } else if (uCfg && uCfg.fontColor) {
-            el.style.setProperty('color', uCfg.fontColor, 'important');
+          if (uCfg.fontMode === 'fixed' && uCfg.fontSize) {
+            el.style.setProperty('font-size', uCfg.fontSize + 'px', 'important');
+            el.style.setProperty('font-weight', opts.weight || '900', 'important');
+            return;
           }
-          if (SmartFieldCustomizer.hasCustomConfig(el.id)) {
-            if (uCfg.fontMode === 'fixed' && uCfg.fontSize) {
-              el.style.setProperty('font-size', uCfg.fontSize + 'px', 'important');
-              el.style.setProperty('font-weight', opts.weight || '900', 'important');
-              return;
-            }
-            if (uCfg.fontSize) {
-              opts = Object.assign({}, opts, { maxPx: uCfg.fontSize, defPx: uCfg.fontSize });
-            }
+          if (uCfg.fontSize) {
+            opts = Object.assign({}, opts, { maxPx: uCfg.fontSize, defPx: uCfg.fontSize });
           }
         }
         const maxPx = opts.maxPx || 18;
@@ -2543,9 +2530,11 @@
         const paddingPx = opts.paddingPx || 20;
 
         const clean = (text || '').toString().trim();
+        const isGhost = Boolean(el.classList && el.classList.contains('pos-ghost-default'));
+        const effectiveWeight = (isGhost || !clean) ? '400' : weight;
         if (!clean) {
           el.style.setProperty('font-size', defPx + 'px', 'important');
-          el.style.setProperty('font-weight', weight, 'important');
+          el.style.setProperty('font-weight', effectiveWeight, 'important');
           return;
         }
 
@@ -2559,14 +2548,14 @@
           else if (len > 16) fallbackPx = Math.max(minPx, maxPx - 4.5);
           else if (len > 10) fallbackPx = Math.max(minPx, maxPx - 2);
           el.style.setProperty('font-size', fallbackPx + 'px', 'important');
-          el.style.setProperty('font-weight', weight, 'important');
+          el.style.setProperty('font-weight', effectiveWeight, 'important');
           return;
         }
 
         const ctx = this._getCtx();
         let chosenPx = minPx;
         for (let px = maxPx; px >= minPx; px -= 0.5) {
-          ctx.font = `${weight} ${px}px ${family}`;
+          ctx.font = `${effectiveWeight} ${px}px ${family}`;
           const measured = ctx.measureText(clean).width;
           if (measured <= boxWidth) {
             chosenPx = px;
@@ -2574,29 +2563,24 @@
           }
         }
         el.style.setProperty('font-size', chosenPx + 'px', 'important');
-        el.style.setProperty('font-weight', weight, 'important');
+        el.style.setProperty('font-weight', effectiveWeight, 'important');
       },
 
       _applyCustomNumericOrScale(input, defaultBase, stepThresholds) {
         if (!input) return;
-        const isGhost = input.classList.contains('pos-ghost-default');
-        if (window.SmartFieldCustomizer && input.id) {
-          const uCfg = SmartFieldCustomizer.getFieldConfig(input.id);
-          if (isGhost) {
-            input.style.setProperty('color', 'rgba(148, 163, 184, 0.24)', 'important');
-          } else if (uCfg && uCfg.fontColor) {
-            input.style.setProperty('color', uCfg.fontColor, 'important');
-          }
-          if (SmartFieldCustomizer.hasCustomConfig(input.id)) {
-            if (uCfg.fontMode === 'fixed' && uCfg.fontSize) {
-              input.style.setProperty('font-size', uCfg.fontSize + 'px', 'important');
-              input.style.setProperty('font-weight', '900', 'important');
-              return;
-            }
-            if (uCfg.fontSize) defaultBase = uCfg.fontSize;
-          }
-        }
+        input.style.removeProperty('color');
         const raw = (input.value || '').toString().trim();
+        const isEmpty = !raw;
+        const effectiveWeight = isEmpty ? '400' : '900';
+        if (window.SmartFieldCustomizer && input.id && SmartFieldCustomizer.hasCustomConfig(input.id)) {
+          const uCfg = SmartFieldCustomizer.getFieldConfig(input.id);
+          if (uCfg.fontMode === 'fixed' && uCfg.fontSize) {
+            input.style.setProperty('font-size', uCfg.fontSize + 'px', 'important');
+            input.style.setProperty('font-weight', effectiveWeight, 'important');
+            return;
+          }
+          if (uCfg.fontSize) defaultBase = uCfg.fontSize;
+        }
         const len = raw.replace(/[^0-9.]/g, '').length;
         let size = defaultBase;
         for (const [minLen, ratio] of stepThresholds) {
@@ -2606,7 +2590,7 @@
           }
         }
         input.style.setProperty('font-size', size + 'px', 'important');
-        input.style.setProperty('font-weight', '900', 'important');
+        input.style.setProperty('font-weight', effectiveWeight, 'important');
       },
 
       scaleQty(input) {
@@ -2662,9 +2646,9 @@
 
       scaleUnit(select) {
         if (!select) return;
+        select.style.removeProperty('color');
         if (window.SmartFieldCustomizer && select.id && SmartFieldCustomizer.hasCustomConfig(select.id)) {
           const uCfg = SmartFieldCustomizer.getFieldConfig(select.id);
-          if (uCfg.fontColor) select.style.setProperty('color', uCfg.fontColor, 'important');
           if (uCfg.fontMode === 'fixed' && uCfg.fontSize) {
             select.style.setProperty('font-size', uCfg.fontSize + 'px', 'important');
             select.style.setProperty('font-weight', '800', 'important');
@@ -8443,10 +8427,21 @@ window.SuiteSalesPOS = {
   if (window.SuitePurchasePOS) {
     Object.assign(window.SuitePurchasePOS, {
       onSupplierFocus(el) {
-        this.renderSupplierDropdown(el.value || '');
+        if (el && (el.classList.contains('pos-ghost-default') || ((el.value === 'مورد عام نقدي' || el.value === 'مطاحن الخرطوم للغلال') && !this._userPickedSupplier))) {
+          el.value = '';
+          el.classList.remove('pos-ghost-default');
+          if (window.SmartPOSFontAI) SmartPOSFontAI.scaleCustomer(el);
+        }
+        this.renderSupplierDropdown(el ? (el.value || '') : '');
       },
 
       onSupplierInput(q) {
+        const el = document.getElementById('purchaseSupplierInput');
+        if (el) {
+          el.classList.remove('pos-ghost-default');
+          this._userPickedSupplier = true;
+          if (window.SmartPOSFontAI) SmartPOSFontAI.scaleCustomer(el);
+        }
         this.renderSupplierDropdown(q);
       },
 
@@ -8487,10 +8482,21 @@ window.SuiteSalesPOS = {
       },
 
       onWarehouseFocus(el) {
-        this.renderWarehouseDropdown(el.value || '');
+        if (el && (el.classList.contains('pos-ghost-default') || (el.value === 'المستودع الرئيسي' && !this._userPickedWarehouse))) {
+          el.value = '';
+          el.classList.remove('pos-ghost-default');
+          if (window.SmartPOSFontAI) SmartPOSFontAI.scaleWarehouse(el);
+        }
+        this.renderWarehouseDropdown(el ? (el.value || '') : '');
       },
 
       onWarehouseInput(q) {
+        const el = document.getElementById('purchaseWarehouseInput');
+        if (el) {
+          el.classList.remove('pos-ghost-default');
+          this._userPickedWarehouse = true;
+          if (window.SmartPOSFontAI) SmartPOSFontAI.scaleWarehouse(el);
+        }
         this.renderWarehouseDropdown(q);
       },
 
@@ -8792,24 +8798,37 @@ window.SuiteSalesPOS = {
 
     // Wrap selectSupplier
     const origSelectSupplier = window.SuitePurchasePOS.selectSupplier;
-    window.SuitePurchasePOS.selectSupplier = function(s) {
-      origSelectSupplier.call(this, s);
+    window.SuitePurchasePOS.selectSupplier = function(s, isDefaultInit = false) {
+      origSelectSupplier.call(this, s, isDefaultInit);
       const drop = document.getElementById('purchaseSupplierDropdown');
       if (drop) drop.classList.add('hidden');
       const inp = document.getElementById('purchaseSupplierInput');
-      if (inp && s && s.name) inp.value = s.name;
+      if (inp && s && s.name) {
+        inp.value = s.name;
+        if (isDefaultInit) inp.classList.add('pos-ghost-default');
+        else {
+          inp.classList.remove('pos-ghost-default');
+          this._userPickedSupplier = true;
+        }
+        if (window.SmartPOSFontAI) SmartPOSFontAI.scaleCustomer(inp);
+      }
       if (typeof this.updateErpSmartStatusStrip === 'function') this.updateErpSmartStatusStrip();
     };
 
     // Wrap selectWarehouse
     const origPurSelectWarehouse = window.SuitePurchasePOS.selectWarehouse;
-    window.SuitePurchasePOS.selectWarehouse = function(name) {
-      origPurSelectWarehouse.call(this, name);
+    window.SuitePurchasePOS.selectWarehouse = function(name, isDefaultInit = false) {
+      origPurSelectWarehouse.call(this, name, isDefaultInit);
       const drop = document.getElementById('purchaseWarehouseDropdown');
       if (drop) drop.classList.add('hidden');
       const inp = document.getElementById('purchaseWarehouseInput');
       if (inp) {
         inp.value = name;
+        if (isDefaultInit) inp.classList.add('pos-ghost-default');
+        else {
+          inp.classList.remove('pos-ghost-default');
+          this._userPickedWarehouse = true;
+        }
         if (window.SmartPOSFontAI) SmartPOSFontAI.scaleWarehouse(inp);
       }
       if (typeof this.updateErpSmartStatusStrip === 'function') this.updateErpSmartStatusStrip();
@@ -8862,10 +8881,18 @@ window.SuiteSalesPOS = {
     if (typeof origPurNewInvoice === 'function') {
       window.SuitePurchasePOS.newInvoice = function(silent = false) {
         origPurNewInvoice.call(this, silent);
+        this._userPickedSupplier = false;
+        this._userPickedWarehouse = false;
         const suppInp = document.getElementById('purchaseSupplierInput');
-        if (suppInp) suppInp.value = 'مطاحن الخرطوم للغلال';
+        if (suppInp) {
+          suppInp.value = 'مورد عام نقدي';
+          suppInp.classList.add('pos-ghost-default');
+        }
         const whInp = document.getElementById('purchaseWarehouseInput');
-        if (whInp) whInp.value = 'المستودع الرئيسي';
+        if (whInp) {
+          whInp.value = 'المستودع الرئيسي';
+          whInp.classList.add('pos-ghost-default');
+        }
         const itInp = document.getElementById('purItemSearchInput');
         if (itInp) itInp.value = '';
         ['purchaseSupplierDropdown', 'purchaseWarehouseDropdown', 'purItemDropdown'].forEach(id => {
@@ -8873,6 +8900,7 @@ window.SuiteSalesPOS = {
           if (d) d.classList.add('hidden');
         });
         if (typeof this.updateErpSmartStatusStrip === 'function') this.updateErpSmartStatusStrip();
+        if (window.SmartPOSFontAI) setTimeout(() => window.SmartPOSFontAI.scaleAll(), 30);
       };
     }
   }
@@ -12626,48 +12654,110 @@ async function commitOpSales(andPay = false) {
     }
 
 
-        // ========================================================
-    // 21 SCIENTIFIC ERGONOMIC THEMES ENGINE (سيف السمات والراحة)
+    // ========================================================
+    // ========================================================
+    // 7 MASTER SCIENTIFIC ERGONOMIC THEMES ENGINE (معيار WCAG AAA الموحد - مطابق لشاشة الحركة المالية)
     // ========================================================
     const THEMES_PALETTE_CONFIG = {
-      // 🌟 The 4 Recommended Signature Themes (الموصى بها - قمة الرقي)
-      'warm-alabaster': { name: 'العاجي الدافئ', icon: '📜', category: 'recommended', desc: 'مستوحى من ورق الدفاتر الفاخرة لراحة ذهنية مطلقة' },
-      'pure-platinum': { name: 'الفضي النقي', icon: '❄️', category: 'recommended', desc: 'طراز المنصات العالمية بنقاء تحليلي بدون أي تشتيت' },
-      'midnight-executive': { name: 'كحلي منتصف الليل', icon: '🌌', category: 'recommended', desc: 'كحلي سحيق يبعث الأمان المالي ويخفض ضغط العين' },
-      'obsidian-charcoal': { name: 'حجر السج الجرافيتي', icon: '🪨', category: 'recommended', desc: 'فحم جرافيتي مطفأ فخامة صامتة مريح لشاشات OLED' },
+      // ☀️ سمات نهارية فاتحة (خط داكن حاد)
+      'warm-alabaster':     { name: 'بيج كريمي', icon: '📜', category: 'light', mode: 'light', desktopKey: 'warm_cream', bg: '#FBF8F1' },
+      'pure-platinum':      { name: 'أبيض ناصع', icon: '☀️', category: 'light', mode: 'light', desktopKey: 'ultra_white', bg: '#FFFFFF' },
+      'pearl-platinum':     { name: 'بلاتيني', icon: '🏛️', category: 'light', mode: 'light', desktopKey: 'exec_gray', bg: '#EEF2F6' },
 
-      // Light, Beige, Ivory & Off-White
-      'beige': { name: 'البيج الدافئ المريح', icon: '🌾', category: 'light', desc: 'درجة بيج رملي طبيعي دافئ يمتص الوهج البصري' },
-      'ivory': { name: 'العاجي الملكي الكلاسيكي', icon: '🥛', category: 'light', desc: 'نعومة اللون العاجي الكريمي الهادئ تريح البؤبؤ' },
-      'offwhite': { name: 'الأوف وايت الحديث المطفأ', icon: '📜', category: 'light', desc: 'أوف وايت ألاباستر عصري بدون بياض ساطع' },
-      'light-linen': { name: 'الكتان الطبيعي المريح', icon: '🧵', category: 'light', desc: 'طابع الكتان العضوي الهادئ يمنح السكينة' },
-      'pearl-platinum': { name: 'اللؤلؤي الفضي المريح', icon: '🦪', category: 'light', desc: 'رمادي لؤلؤي بلاتيني بارد يقلل انعكاس الضوء' },
-      'nordic-paper': { name: 'الورقي النوردي المريح', icon: '📄', category: 'light', desc: 'ملمس ورق الدفاتر الفاخر بدون وهج ساطع' },
-
-      // Blue & Navy Themes
-      'navy-kohl': { name: 'الكحلي الملكي الليلي', icon: '🌌', category: 'blue', desc: 'كحلي عميق فاخر مع نصوص بيضاء ناصعة ولمسات ذهبية' },
-      'royal-blue': { name: 'الأزرق الزفيري الحيوي', icon: '🔷', category: 'blue', desc: 'أزرق ملكي ساطع ينشط الذاكرة وسرعة البديهة' },
-      'ocean-navy': { name: 'الأزرق المحيطي العميق', icon: '🌊', category: 'blue', desc: 'تعزيز التفكير المنطقي والتحليل المالي' },
-      'petrol-cyan': { name: 'الأزرق البترولي والتيل', icon: '🐬', category: 'blue', desc: 'أزرق بترولي محيطي مهدئ للأعصاب' },
-      'twilight-indigo': { name: 'أزرق الشفق والإنديجو', icon: '🔮', category: 'blue', desc: 'أزرق شفق نيلي مسائي يخفف التوتر العصبي' },
-
-      // Dark, Gold & Brown
-      'midnight': { name: 'الليل الملكي الداكن', icon: '🌙', category: 'dark', desc: 'أقصى توفير لبطارية OLED وتدرج أسود عميق' },
-      'sepia-brown': { name: 'البني الإسبريسو والورق القديم', icon: '📜', category: 'dark', desc: 'حجب كامل للضوء الأزرق المسبب لإجهاد العين' },
-      'pale-gold': { name: 'الذهبي الباهت والفخامة', icon: '👑', category: 'dark', desc: 'دفء كلاسيكي ملكي وهيبة الأرقام المحاسبية' },
-      'emerald-forest': { name: 'زمرد الغابات لصفاء الذهن', icon: '🌲', category: 'dark', desc: 'راحة عصبية تخفض النبض وتمنع تبديل الأرقام' },
-      'desert-mocha': { name: 'الرمال الصحراوية وموكا', icon: '🏜️', category: 'dark', desc: 'توازن لوني دافئ ومريح للإضاءة المكتبية' },
-      'sunlight-titanium': { name: 'التيتانيوم الشمسي فائق التباين', icon: '☀️', category: 'dark', desc: 'معيار WCAG AAA للعمل الميداني تحت شمس الظهيرة' }
+      // 🌙 سمات ليلية داكنة (خط فاتح ناصع)
+      'midnight-executive': { name: 'كحلي ملكي', icon: '🌌', category: 'dark', mode: 'dark', desktopKey: 'midnight_obsidian', bg: '#04091A' },
+      'sepia-brown':        { name: 'بني موكا', icon: '☕', category: 'dark', mode: 'dark', desktopKey: 'mocha_brown', bg: '#1A110B' },
+      'obsidian-charcoal':  { name: 'أسود OLED', icon: '🌑', category: 'dark', mode: 'dark', desktopKey: 'pure_oled', bg: '#000000' },
+      'twilight-indigo':    { name: 'رمادي داكن', icon: '🛡️', category: 'dark', mode: 'dark', desktopKey: 'slate_twilight', bg: '#1E293B' }
     };
 
-    let currentActiveTheme = localStorage.getItem('magaies_active_theme') || 'warm-alabaster';
+    const THEME_ALIAS_MAP = {
+      'warm_cream': 'warm-alabaster',
+      'alabaster-warm': 'warm-alabaster',
+      'paper-ivory': 'warm-alabaster',
+      'sand-linen': 'warm-alabaster',
+      'mint-breeze': 'warm-alabaster',
+      'sage-calm': 'warm-alabaster',
+      'sky-morning': 'warm-alabaster',
+      'beige': 'warm-alabaster',
+      'ivory': 'warm-alabaster',
+      'offwhite': 'warm-alabaster',
+      'light-linen': 'warm-alabaster',
+      'nordic-paper': 'warm-alabaster',
+      'ultra_white': 'pure-platinum',
+      'arctic-frost': 'pure-platinum',
+      'light': 'pure-platinum',
+      'exec_gray': 'pearl-platinum',
+      'lavender-mist': 'pearl-platinum',
+      'rose-quartz': 'pearl-platinum',
+      'midnight_obsidian': 'midnight-executive',
+      'navy-command': 'midnight-executive',
+      'royal-sapphire': 'midnight-executive',
+      'oceanic-teal': 'midnight-executive',
+      'emerald-vault': 'midnight-executive',
+      'navy-kohl': 'midnight-executive',
+      'royal-blue': 'midnight-executive',
+      'ocean-navy': 'midnight-executive',
+      'petrol-cyan': 'midnight-executive',
+      'dark': 'midnight-executive',
+      'mocha_brown': 'sepia-brown',
+      'espresso-gold': 'sepia-brown',
+      'crimson-velvet': 'sepia-brown',
+      'pale-gold': 'sepia-brown',
+      'desert-mocha': 'sepia-brown',
+      'pure_oled': 'obsidian-charcoal',
+      'nordic-frost': 'obsidian-charcoal',
+      'midnight': 'obsidian-charcoal',
+      'sunlight-titanium': 'obsidian-charcoal',
+      'slate_twilight': 'twilight-indigo',
+      'amethyst-night': 'twilight-indigo',
+      'emerald-forest': 'twilight-indigo'
+    };
+
+    function resolveMasterThemeKey(rawKey) {
+      if (!rawKey) return 'midnight-executive';
+      const k = String(rawKey).trim();
+      if (THEMES_PALETTE_CONFIG[k]) return k;
+      if (THEME_ALIAS_MAP[k]) return THEME_ALIAS_MAP[k];
+      return 'midnight-executive';
+    }
+
+    let currentActiveTheme = resolveMasterThemeKey(
+      localStorage.getItem('magaiees_mobile_theme') ||
+      localStorage.getItem('magaies_active_theme') ||
+      localStorage.getItem('magaiees_global_theme') ||
+      'midnight-executive'
+    );
 
     function applyTheme(themeKey, showToast = true) {
-      if (!THEMES_PALETTE_CONFIG[themeKey]) themeKey = 'warm-alabaster';
+      themeKey = resolveMasterThemeKey(themeKey);
+      const conf = THEMES_PALETTE_CONFIG[themeKey];
       currentActiveTheme = themeKey;
-      localStorage.setItem('magaies_active_theme', themeKey);
+
+      try {
+        localStorage.setItem('magaies_active_theme', conf.desktopKey || themeKey);
+        localStorage.setItem('magaiees_mobile_theme', themeKey);
+        localStorage.setItem('magaiees_global_theme', themeKey);
+        localStorage.setItem('ui_theme', conf.mode === 'light' ? 'light' : 'dark');
+        localStorage.setItem('erp_theme', conf.mode === 'light' ? 'light' : 'dark');
+      } catch (e) {}
 
       document.documentElement.setAttribute('data-theme', themeKey);
+      document.documentElement.setAttribute('data-theme-mode', conf.mode);
+      if (document.body) {
+        document.body.setAttribute('data-theme', themeKey);
+        document.body.setAttribute('data-theme-mode', conf.mode);
+      }
+      const metaTheme = document.querySelector('meta[name="theme-color"]');
+      if (metaTheme && conf.bg) {
+        metaTheme.setAttribute('content', conf.bg);
+      }
+
+      // Highlight active theme button in both quick drawer and modal drawer
+      document.querySelectorAll('[data-vtheme]').forEach(btn => {
+        const isCurrent = btn.getAttribute('data-vtheme') === themeKey;
+        btn.style.outline = isCurrent ? '2px solid #10b981' : 'none';
+      });
 
       // Play audio and haptic feedback
       if (showToast) {
@@ -12675,61 +12765,107 @@ async function commitOpSales(andPay = false) {
         if (typeof triggerHapticPulse === 'function') triggerHapticPulse(40);
       }
 
-      // Close modal if open
+      // Close quick drawer and modal if open
+      const quickDrawer = document.getElementById('suiteQuickThemeDrawer');
+      if (quickDrawer) quickDrawer.classList.add('hidden');
       closeModal('modalThemePaletteDrawer');
 
-      if (showToast) {
-        const conf = THEMES_PALETTE_CONFIG[themeKey];
-        showFloatingToast(`🎨 تم تفعيل سمة: ${conf.icon} ${conf.name} (${conf.desc})`);
+      if (showToast && conf) {
+        showFloatingToast(`🎨 تم تفعيل السمة في جميع الشاشات: ${conf.icon} ${conf.name}`);
       }
     }
 
-    function openThemePaletteDrawer() {
+    function ensureSuiteQuickThemeDrawerDOM() {
+      const btn = document.getElementById('btnThemePalette');
+      if (btn) {
+        if (!btn.querySelector('.fa-palette')) {
+          btn.innerHTML = '<i class="fa-solid fa-palette text-amber-400 text-base"></i><span id="activeThemeBadge" class="hidden">7</span>';
+        }
+        btn.setAttribute('onclick', 'openThemePaletteDrawer(event); if(window.triggerHapticPulse)triggerHapticPulse(15);');
+      }
+      if (!document.getElementById('suiteQuickThemeDrawer')) {
+        const hdr = document.querySelector('header.app-main-header');
+        if (hdr) {
+          const drawer = document.createElement('div');
+          drawer.id = 'suiteQuickThemeDrawer';
+          drawer.dir = 'rtl';
+          drawer.className = 'hidden absolute top-[54px] right-2.5 w-64 rounded-2xl bg-slate-900 border-2 border-amber-500/60 p-2.5 shadow-2xl z-[999] space-y-1.5 text-right';
+          drawer.style.cssText = 'background:#0f172a !important; border-color:rgba(245,158,11,0.65) !important;';
+          drawer.innerHTML = `
+            <div class="flex items-center justify-between border-b border-slate-800 pb-1.5 mb-1" style="border-color:#1e293b !important;">
+              <span class="text-[11px] font-black text-amber-400" style="color:#fbbf24 !important;">🎨 السمات المحاسبية الـ 7 (AAA)</span>
+              <button type="button" onclick="document.getElementById('suiteQuickThemeDrawer').classList.add('hidden')" class="text-slate-400 hover:text-white text-xs font-bold px-1" style="color:#94a3b8 !important;">✕</button>
+            </div>
+            <div class="text-[9.5px] font-bold text-slate-400" style="color:#94a3b8 !important;">☀️ سمات نهارية فاتحة (خط داكن حاد):</div>
+            <div class="grid grid-cols-3 gap-1">
+              <button type="button" data-vtheme="warm-alabaster" onclick="applyTheme('warm-alabaster'); document.getElementById('suiteQuickThemeDrawer').classList.add('hidden');" class="p-1.5 rounded-xl border border-amber-400/60 flex flex-col items-center gap-0.5 text-[9.5px] font-black transition active:scale-95" style="background:#FBF8F1 !important; color:#18130A !important;"><span style="color:#18130A !important;">📜 بيج كريمي</span></button>
+              <button type="button" data-vtheme="pure-platinum" onclick="applyTheme('pure-platinum'); document.getElementById('suiteQuickThemeDrawer').classList.add('hidden');" class="p-1.5 rounded-xl border border-slate-300 flex flex-col items-center gap-0.5 text-[9.5px] font-black transition active:scale-95" style="background:#FFFFFF !important; color:#000000 !important;"><span style="color:#000000 !important;">☀️ أبيض ناصع</span></button>
+              <button type="button" data-vtheme="pearl-platinum" onclick="applyTheme('pearl-platinum'); document.getElementById('suiteQuickThemeDrawer').classList.add('hidden');" class="p-1.5 rounded-xl border border-slate-400 flex flex-col items-center gap-0.5 text-[9.5px] font-black transition active:scale-95" style="background:#EEF2F6 !important; color:#0F172A !important;"><span style="color:#0F172A !important;">🏛️ بلاتيني</span></button>
+            </div>
+            <div class="text-[9.5px] font-bold text-slate-400 pt-1" style="color:#94a3b8 !important;">🌙 سمات ليلية داكنة (خط فاتح ناصع):</div>
+            <div class="grid grid-cols-2 gap-1">
+              <button type="button" data-vtheme="midnight-executive" onclick="applyTheme('midnight-executive'); document.getElementById('suiteQuickThemeDrawer').classList.add('hidden');" class="p-1.5 rounded-xl border border-indigo-500/50 flex items-center justify-center gap-1 text-[9.5px] font-black transition active:scale-95" style="background:#04091A !important; color:#F8FAFC !important;"><span style="color:#F8FAFC !important;">🌌 كحلي ملكي</span></button>
+              <button type="button" data-vtheme="sepia-brown" onclick="applyTheme('sepia-brown'); document.getElementById('suiteQuickThemeDrawer').classList.add('hidden');" class="p-1.5 rounded-xl border border-amber-600/50 flex items-center justify-center gap-1 text-[9.5px] font-black transition active:scale-95" style="background:#1A110B !important; color:#FDF8F5 !important;"><span style="color:#FDF8F5 !important;">☕ بني موكا</span></button>
+              <button type="button" data-vtheme="obsidian-charcoal" onclick="applyTheme('obsidian-charcoal'); document.getElementById('suiteQuickThemeDrawer').classList.add('hidden');" class="p-1.5 rounded-xl border border-zinc-600 flex items-center justify-center gap-1 text-[9.5px] font-black transition active:scale-95" style="background:#000000 !important; color:#FFFFFF !important;"><span style="color:#FFFFFF !important;">🌑 أسود OLED</span></button>
+              <button type="button" data-vtheme="twilight-indigo" onclick="applyTheme('twilight-indigo'); document.getElementById('suiteQuickThemeDrawer').classList.add('hidden');" class="p-1.5 rounded-xl border border-slate-500 flex items-center justify-center gap-1 text-[9.5px] font-black transition active:scale-95" style="background:#1E293B !important; color:#F8FAFC !important;"><span style="color:#F8FAFC !important;">🛡️ رمادي داكن</span></button>
+            </div>
+          `;
+          const topBar = document.getElementById('flagshipTopBar');
+          if (topBar && topBar.nextSibling) {
+            hdr.insertBefore(drawer, topBar.nextSibling);
+          } else {
+            hdr.appendChild(drawer);
+          }
+        }
+      }
+    }
+
+    function openThemePaletteDrawer(evt) {
+      if (evt && typeof evt.stopPropagation === 'function') evt.stopPropagation();
+      ensureSuiteQuickThemeDrawerDOM();
       if (typeof AudioEngine !== 'undefined' && AudioEngine.play) AudioEngine.play('numpad');
-      if (typeof triggerHapticPulse === 'function') triggerHapticPulse(30);
-      filterThemeCategory('recommended');
+      if (typeof triggerHapticPulse === 'function') triggerHapticPulse(20);
+      const quickDrawer = document.getElementById('suiteQuickThemeDrawer');
+      if (quickDrawer) {
+        quickDrawer.classList.toggle('hidden');
+        document.querySelectorAll('[data-vtheme]').forEach(btn => {
+          const isCurrent = btn.getAttribute('data-vtheme') === currentActiveTheme;
+          btn.style.outline = isCurrent ? '2px solid #10b981' : 'none';
+        });
+        return;
+      }
       openModal('modalThemePaletteDrawer');
     }
 
     function closeThemePaletteDrawer() {
+      const quickDrawer = document.getElementById('suiteQuickThemeDrawer');
+      if (quickDrawer) quickDrawer.classList.add('hidden');
       closeModal('modalThemePaletteDrawer');
     }
 
-    function filterThemeCategory(cat) {
-      const btnRecommended = document.getElementById('btnTcRecommended');
-      const btnAll = document.getElementById('btnTcAll');
-      const btnLight = document.getElementById('btnTcLight');
-      const btnBlue = document.getElementById('btnTcBlue');
-      const btnDark = document.getElementById('btnTcDark');
-
-      const btns = { 'recommended': btnRecommended, 'all': btnAll, 'light': btnLight, 'blue': btnBlue, 'dark': btnDark };
-      Object.entries(btns).forEach(([k, btn]) => {
-        if (!btn) return;
-        if (k === cat) {
-          btn.className = "px-2.5 py-1 rounded-xl bg-amber-500 text-slate-950 font-black shrink-0 shadow flex items-center gap-1.5";
-        } else {
-          btn.className = "px-2.5 py-1 rounded-xl bg-slate-800 text-slate-300 hover:text-white shrink-0 border border-slate-700 flex items-center gap-1.5";
+    document.addEventListener('click', function(e) {
+      const quickDrawer = document.getElementById('suiteQuickThemeDrawer');
+      const btn = document.getElementById('btnThemePalette');
+      if (quickDrawer && !quickDrawer.classList.contains('hidden')) {
+        if (!quickDrawer.contains(e.target) && (!btn || !btn.contains(e.target))) {
+          quickDrawer.classList.add('hidden');
         }
-      });
+      }
+    });
 
-      const cards = document.querySelectorAll('#themeCardsContainer .theme-card');
-      cards.forEach(card => {
-        if (cat === 'all') {
-          card.classList.remove('hidden');
-        } else {
-          if (card.classList.contains('tc-' + cat)) {
-            card.classList.remove('hidden');
-          } else {
-            card.classList.add('hidden');
-          }
+    window.addEventListener('storage', function(e) {
+      if (e && ['magaiees_mobile_theme', 'magaies_active_theme', 'magaiees_global_theme'].includes(e.key) && e.newValue) {
+        const nextTheme = resolveMasterThemeKey(e.newValue);
+        if (nextTheme !== currentActiveTheme) {
+          applyTheme(nextTheme, false);
         }
-      });
+      }
+    });
 
-      if (typeof AudioEngine !== 'undefined' && AudioEngine.play) AudioEngine.play('numpad');
-      if (typeof triggerHapticPulse === 'function') triggerHapticPulse(25);
-    }
+    function filterThemeCategory(cat) {}
 
-    // Apply saved theme immediately on startup without blocking toast
+    // Ensure DOM and apply saved theme immediately on startup without blocking toast
+    ensureSuiteQuickThemeDrawerDOM();
     applyTheme(currentActiveTheme, false);
 
     // 30-MINUTE OPERATIONAL / SHIFT / EYE-REST TIMER ENGINE

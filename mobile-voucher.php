@@ -2571,31 +2571,66 @@ $currenciesData = [
       color-scheme: light !important;
     }
 
-    /* ضمان التباين الفائق واللون الأسود/الغامق الحاد للنصوص داخل الحقول في السمات الفاتحة */
+    /* ضمان التباين الفائق واللون الأسود/الغامق الحاد والأنيق للنصوص المكتوبة فعلياً داخل الحقول في السمات الفاتحة */
     html[data-theme-mode="light"] #fromSearchInput,
     html[data-theme-mode="light"] #toSearchInput,
     html[data-theme-mode="light"] #voucherNotes,
     html[data-theme-mode="light"] #voucherSearchFilterInput {
-      color: #000000 !important;
+      color: #0F172A !important;
       font-weight: 900 !important;
     }
-    /* المخزن / مركز الكلفة: لون بنفسجي/أسود غامق جداً وواضح وبولد ثقيل */
+    /* المخزن / مركز الكلفة: لون بنفسجي/أسود غامق جداً وأنيق عند الكتابة أو الاختيار، وأخف قليلاً كقيمة توضيحية افتراضية */
     html[data-theme-mode="light"] #costCenterInput {
       color: #1E1B4B !important;
       font-weight: 900 !important;
     }
+    html[data-theme-mode="light"] #costCenterInput.mv-ghost-default {
+      color: #64748B !important;
+      opacity: 0.68 !important;
+      font-weight: 600 !important;
+    }
+    html:not([data-theme-mode="light"]) #costCenterInput.mv-ghost-default {
+      color: rgba(165, 180, 252, 0.58) !important;
+      font-weight: 600 !important;
+    }
+
+    /* النصوص والأرقام التوضيحية (Placeholders) داخل المربعات في الحركة المالية: أخف بدرجة مريحة وأنيقة قبل الكتابة */
     html[data-theme-mode="light"] #fromSearchInput::placeholder,
     html[data-theme-mode="light"] #toSearchInput::placeholder,
     html[data-theme-mode="light"] #costCenterInput::placeholder,
     html[data-theme-mode="light"] #voucherNotes::placeholder,
     html[data-theme-mode="light"] #transferInput::placeholder,
-    html[data-theme-mode="light"] #bankNameInput::placeholder {
-      color: #334155 !important;
-      opacity: 0.9 !important;
-      font-weight: 700 !important;
+    html[data-theme-mode="light"] #bankNameInput::placeholder,
+    html[data-theme-mode="light"] #voucherSearchFilterInput::placeholder {
+      color: #64748B !important;
+      opacity: 0.55 !important;
+      font-weight: 500 !important;
+    }
+    html[data-theme-mode="light"] #sdgAmount::placeholder,
+    html[data-theme-mode="light"] #usdAmount::placeholder {
+      color: #64748B !important;
+      opacity: 0.45 !important;
+      font-weight: 500 !important;
+    }
+    html:not([data-theme-mode="light"]) #fromSearchInput::placeholder,
+    html:not([data-theme-mode="light"]) #toSearchInput::placeholder,
+    html:not([data-theme-mode="light"]) #costCenterInput::placeholder,
+    html:not([data-theme-mode="light"]) #voucherNotes::placeholder,
+    html:not([data-theme-mode="light"]) #transferInput::placeholder,
+    html:not([data-theme-mode="light"]) #bankNameInput::placeholder,
+    html:not([data-theme-mode="light"]) #voucherSearchFilterInput::placeholder {
+      color: #94A3B8 !important;
+      opacity: 0.46 !important;
+      font-weight: 500 !important;
+    }
+    html:not([data-theme-mode="light"]) #sdgAmount::placeholder,
+    html:not([data-theme-mode="light"]) #usdAmount::placeholder {
+      color: #64748B !important;
+      opacity: 0.42 !important;
+      font-weight: 500 !important;
     }
 
-    /* التاريخ واسم البنك والوقت وعنوان المبلغ المحلي: أزرق كحلي غامق جداً */
+    /* التاريخ واسم البنك والوقت وعنوان المبلغ المحلي: أزرق كحلي غامق جداً وأنيق عند الكتابة */
     html[data-theme-mode="light"] #voucherDateDisplay,
     html[data-theme-mode="light"] #bankNameInput,
     html[data-theme-mode="light"] #bankNameLabel,
@@ -2734,7 +2769,18 @@ $currenciesData = [
       color: #FFFFFF !important;
     }
 
-    /* أزرار المرفقات والشريط السفلي في السمات الفاتحة */
+    /* شريط آلية الحفظ وأزرار المرفقات والشريط السفلي ذو الصفين في السمات الفاتحة */
+    html[data-theme-mode="light"] #batchModeBarWrapper {
+      background: var(--mv-input) !important;
+      border: 1.5px solid var(--mv-border) !important;
+    }
+    html[data-theme-mode="light"] #batchModeToggleGroup {
+      background: var(--mv-surface) !important;
+      border-color: var(--mv-border) !important;
+    }
+    html[data-theme-mode="light"] #btnMainModeManual {
+      color: #1E293B !important;
+    }
     html[data-theme-mode="light"] .modern-media-card {
       background: #FFFFFF !important;
       color: #000000 !important;
@@ -2746,13 +2792,18 @@ $currenciesData = [
     }
     html[data-theme-mode="light"] .action-btn-kinetic:not(#btnSaveMain) {
       background: #FFFFFF !important;
-      color: #000000 !important;
+      color: #0F172A !important;
       border: 1.5px solid var(--mv-border) !important;
       box-shadow: 0 2px 6px rgba(15, 23, 42, 0.1) !important;
     }
     html[data-theme-mode="light"] .action-btn-kinetic:not(#btnSaveMain) span {
-      color: #000000 !important;
+      color: #0F172A !important;
       font-weight: 900 !important;
+    }
+    html[data-theme-mode="light"] #btnSaveMain,
+    html[data-theme-mode="light"] #btnSaveMain span,
+    html[data-theme-mode="light"] #btnSaveMain i {
+      color: #FFFFFF !important;
     }
     html[data-theme-mode="light"] #btnNextVoucher,
     html[data-theme-mode="light"] #btnPrevVoucher {
@@ -2775,7 +2826,7 @@ $currenciesData = [
     }
     html[data-theme-mode="light"] #fromDropdown .text-white,
     html[data-theme-mode="light"] #toDropdown .text-white,
-    html[data-theme-mode="light"] #mobileContainer .text-white:not(#masterMicBtn *):not(#btnSaveMain *):not(.glass-pay-btn.is-active *):not(#btnMainModeAuto *) {
+    html[data-theme-mode="light"] #mobileContainer .text-white:not(#masterMicBtn):not(#masterMicBtn *):not(#btnSaveMain):not(#btnSaveMain *):not(.glass-pay-btn.is-active):not(.glass-pay-btn.is-active *):not(#btnMainModeAuto):not(#btnMainModeAuto *):not(.modern-media-card i):not(#crystalFlowBtn *) {
       color: #000000 !important;
     }
     html[data-theme-mode="light"] #fromDropdown .text-amber-400,
@@ -3160,7 +3211,7 @@ $currenciesData = [
     </div>
 
     <!-- Main Scrollable Content (بدون مساحات ميتة متصل بانسيابية) -->
-    <main class="flex-1 overflow-y-auto no-scrollbar px-2.5 pt-1.5 pb-28 space-y-2 text-xs">
+    <main class="flex-1 overflow-y-auto no-scrollbar px-2.5 pt-1.5 pb-36 space-y-2 text-xs">
 
       <!-- أزرار الدفع الزجاجية العصرية المضيئة الحواف بوضوح تام -->
       <div class="p-1.5 rounded-2xl bg-[#0a132c]/95 border border-indigo-500/35 shadow-[0_4px_18px_rgba(14,165,233,0.14)]">
@@ -3212,7 +3263,7 @@ $currenciesData = [
 
         <!-- المخزن / مركز الكلفة: مقاس معتمد 12px يصغر تلقائياً إذا كان اسم المخزن طويلاً ليظهر كاملاً -->
         <div class="flex-1 min-w-0 bg-[#040918] glow-border-indigo rounded-xl px-1.5 flex items-center justify-center h-[40px] relative shadow-inner overflow-hidden">
-          <input type="text" id="costCenterInput" list="costCentersDataList" oninput="fitCostCenterSize()" onchange="fitCostCenterSize()" placeholder="المخزن / مركز الكلفة" class="w-full bg-transparent text-indigo-100 placeholder:text-slate-500 placeholder:font-medium text-center font-bold focus:outline-none" value="مخزن بحري الرئيسي">
+          <input type="text" id="costCenterInput" list="costCentersDataList" onfocus="this.classList.remove('mv-ghost-default')" oninput="this.classList.remove('mv-ghost-default'); fitCostCenterSize();" onchange="this.classList.remove('mv-ghost-default'); fitCostCenterSize();" placeholder="المخزن / مركز الكلفة" class="mv-ghost-default w-full bg-transparent text-indigo-100 placeholder:text-slate-500 placeholder:font-medium text-center font-bold focus:outline-none" value="مخزن بحري الرئيسي">
           <datalist id="costCentersDataList">
             <option value="مخزن بحري الرئيسي"></option>
             <option value="مخزن أم درمان"></option>
@@ -3417,7 +3468,7 @@ $currenciesData = [
                 <span>اسم البنك:</span>
               </label>
             </div>
-            <input type="text" id="bankNameInput" list="banksDataList" oninput="onBankInputLive(this.value); fitBankNameSize();" onchange="fitBankNameSize()" onblur="onBankInputBlur(); fitBankNameSize();" placeholder="اسم البنك" class="w-full bg-[#040918] glow-border-cyan rounded-xl px-2 h-[48px] text-[13.5px] font-black text-cyan-300 focus:outline-none box-border cursor-text" value="بنك الخرطوم">
+            <input type="text" id="bankNameInput" list="banksDataList" oninput="onBankInputLive(this.value); fitBankNameSize();" onchange="fitBankNameSize()" onblur="onBankInputBlur(); fitBankNameSize();" placeholder="اسم البنك" class="w-full bg-[#040918] glow-border-cyan rounded-xl px-2 h-[48px] text-[13.5px] font-black text-cyan-300 focus:outline-none box-border cursor-text" value="">
             <datalist id="banksDataList">
               <option value="بنك الخرطوم"></option>
               <option value="بنك فيصل الإسلامي"></option>
@@ -3475,13 +3526,6 @@ $currenciesData = [
 
       <!-- ═════════════════════════════════════════════════════════════════
            أيقونات المرفقات العصرية (الكاميرا، الاستوديو، من واتساب):
-           - أيقونات عصرية غير تقليدية تليق بمستوى الموبايل
-           - إضاءة في الحواف (Neon Edge Illumination)
-           - حجمها يزيد عند الاقتراب (Scale-up on Hover & Touch)
-           - إيماءات ضوئية وحركية مريحة
-           ═════════════════════════════════════════════════════════════════ -->
-      <!-- ═════════════════════════════════════════════════════════════════
-           أيقونات المرفقات العصرية (الكاميرا، الاستوديو، من واتساب):
            - زر تحكم لآلية الحفظ: أوتوماتيك (رنة وهزة وحفظ فوري) أو يدوي (إشعاراً بإشعار)
            - تصوير حتى 20 إشعار من الكاميرا
            - اختيار حتى 20 إشعار من الاستوديو
@@ -3490,12 +3534,12 @@ $currenciesData = [
       <div class="bg-slate-900/80 border border-slate-800/80 rounded-2xl p-2 space-y-2">
         
         <!-- زر التحكم في آلية الحفظ والتفريغ (أوتوماتيك ⚡ / يدوي 🖐️) -->
-        <div class="flex items-center justify-between p-1.5 rounded-xl bg-slate-950 border border-slate-700/70 shadow-inner">
+        <div id="batchModeBarWrapper" class="flex items-center justify-between p-1.5 rounded-xl bg-slate-950 border border-slate-700/70 shadow-inner">
           <div class="flex items-center gap-1 text-[11px] font-bold text-slate-300">
             <i class="fa-solid fa-sliders text-cyan-400 text-xs"></i>
             <span>آلية الحفظ:</span>
           </div>
-          <div class="flex items-center gap-1 bg-slate-900 p-0.5 rounded-lg border border-slate-800">
+          <div id="batchModeToggleGroup" class="flex items-center gap-1 bg-slate-900 p-0.5 rounded-lg border border-slate-800">
             <button type="button" onclick="setBatchProcessingMode('auto')" id="btnMainModeAuto" class="py-1 px-2 rounded-md text-[10px] font-black transition flex items-center gap-1 bg-emerald-600 text-white shadow-sm" title="حفظ متتابع تلقائي مع نغمة وهزة">
               <i class="fa-solid fa-bolt text-amber-300 text-[9px]"></i>
               <span>أوتوماتيك ⚡</span>
@@ -3557,59 +3601,70 @@ $currenciesData = [
     </main>
 
     <!-- ═════════════════════════════════════════════════════════════════
-         الشريط السفلي التفاعلي المريح (Thumb Zone - المنطقة الصحيحة للأزرار):
-         ترتيب الأزرار: [افتح] [جديد] [تعديل] [حذف] [طباعة] [إرسال] [رجوع] ... و [حفظ] في الآخر!
+         الشريط السفلي التفاعلي المريح مقسم باحترافية إلى صفين (4 أزرار في كل صف):
+         - الصف الأول (الأعلى): العمليات الأساسية للسند [حفظ (✓)] [جديد] [افتح] [تعديل]
+         - الصف الثاني (الأسفل): المشاركة والتوثيق والتنقل [إرسال] [طباعة] [حذف] [رجوع]
          ═════════════════════════════════════════════════════════════════ -->
     <div class="bottom-bar-fixed bg-slate-950/95 border-t border-slate-800 p-2 backdrop-blur-md">
-      <div class="flex items-center gap-1 w-full">
+      <div class="flex flex-col gap-1.5 w-full">
         
-        <!-- 1. زر افتح: فتح واستعراض وبحث في السندات -->
-        <button type="button" onclick="openSearchVouchersModal()" class="action-btn-kinetic h-11 flex-1 min-w-0 px-1 rounded-xl bg-slate-900 border border-amber-500/50 text-amber-300 font-black text-[10px] flex flex-col items-center justify-center gap-0.5 shadow-md active:scale-95 transition" title="فتح واستعراض وبحث في السندات المسجلة">
-          <i class="fa-solid fa-folder-open text-amber-400 text-xs"></i>
-          <span class="truncate w-full text-center">افتح</span>
-        </button>
+        <!-- الصف الأول (الأعلى): 4 أزرار أساسية للإنشاء والحفظ والاستعراض والتعديل -->
+        <div class="grid grid-cols-4 gap-1.5 w-full">
+          
+          <!-- 1. زر حفظ (✓): الزر الأساسي الأبرز -->
+          <button type="button" onclick="handleQuickCheckSave()" id="btnSaveMain" class="action-btn-kinetic h-[42px] sm:h-[44px] min-w-0 px-2 rounded-xl bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 hover:from-emerald-500 hover:to-cyan-500 active:scale-95 text-white font-black text-[12px] sm:text-[13px] flex items-center justify-center gap-1.5 shadow-lg shadow-emerald-950/70 border border-emerald-400/70 transition" title="تأكيد وحفظ السند">
+            <i class="fa-solid fa-check text-xs sm:text-sm font-black shrink-0"></i>
+            <span id="saveButtonLabel" class="truncate">حفظ (✓)</span>
+          </button>
 
-        <!-- 2. زر جديد: مسح الشاشة وبدء سند جديد فارغ -->
-        <button type="button" onclick="startNewVoucher()" class="action-btn-kinetic h-11 flex-1 min-w-0 px-1 rounded-xl bg-gradient-to-b from-cyan-950 via-slate-900 to-slate-950 border-2 border-cyan-400 text-cyan-200 font-black text-[10.5px] flex flex-col items-center justify-center gap-0.5 shadow-[0_0_14px_rgba(6,182,212,0.45)] active:scale-95 transition" title="مسح الشاشة وبدء سند جديد فارغ">
-          <i class="fa-solid fa-plus text-cyan-300 text-xs font-black"></i>
-          <span class="truncate w-full text-center">جديد</span>
-        </button>
+          <!-- 2. زر جديد: مسح الشاشة وبدء سند جديد فارغ -->
+          <button type="button" onclick="startNewVoucher()" class="action-btn-kinetic h-[42px] sm:h-[44px] min-w-0 px-2 rounded-xl bg-gradient-to-b from-cyan-950 via-slate-900 to-slate-950 border-2 border-cyan-400 text-cyan-200 font-black text-[12px] sm:text-[13px] flex items-center justify-center gap-1.5 shadow-[0_0_12px_rgba(6,182,212,0.35)] active:scale-95 transition" title="مسح الشاشة وبدء سند جديد فارغ">
+            <i class="fa-solid fa-plus text-cyan-400 text-xs sm:text-sm font-black shrink-0"></i>
+            <span class="truncate">جديد</span>
+          </button>
 
-        <!-- 3. زر تعديل: تعديل بيانات السند الحالي -->
-        <button type="button" onclick="handleEdit()" class="action-btn-kinetic h-11 flex-1 min-w-0 px-1 rounded-xl bg-slate-900 border border-indigo-400/50 text-indigo-300 font-black text-[10px] flex flex-col items-center justify-center gap-0.5 shadow-md active:scale-95 transition" title="تعديل بيانات السند الحالي">
-          <i class="fa-solid fa-pen text-indigo-400 text-xs"></i>
-          <span class="truncate w-full text-center">تعديل</span>
-        </button>
+          <!-- 3. زر افتح: فتح واستعراض وبحث في السندات -->
+          <button type="button" onclick="openSearchVouchersModal()" class="action-btn-kinetic h-[42px] sm:h-[44px] min-w-0 px-2 rounded-xl bg-slate-900 border border-amber-500/60 text-amber-300 font-black text-[12px] sm:text-[13px] flex items-center justify-center gap-1.5 shadow-md active:scale-95 transition" title="فتح واستعراض وبحث في السندات المسجلة">
+            <i class="fa-solid fa-folder-open text-amber-400 text-xs sm:text-sm shrink-0"></i>
+            <span class="truncate">افتح</span>
+          </button>
 
-        <!-- 4. زر حذف: حذف السند الحالي وعكس أثره المالي -->
-        <button type="button" onclick="handleDelete()" id="btnDeleteVoucher" class="action-btn-kinetic h-11 flex-1 min-w-0 px-1 rounded-xl bg-slate-900 border border-rose-500/50 text-rose-300 font-black text-[10px] flex flex-col items-center justify-center gap-0.5 shadow-md active:scale-95 transition" title="حذف السند الحالي وعكس أثره المالي">
-          <i class="fa-solid fa-trash-can text-rose-400 text-xs"></i>
-          <span class="truncate w-full text-center">حذف</span>
-        </button>
+          <!-- 4. زر تعديل: تعديل بيانات السند الحالي -->
+          <button type="button" onclick="handleEdit()" class="action-btn-kinetic h-[42px] sm:h-[44px] min-w-0 px-2 rounded-xl bg-slate-900 border border-indigo-400/60 text-indigo-300 font-black text-[12px] sm:text-[13px] flex items-center justify-center gap-1.5 shadow-md active:scale-95 transition" title="تعديل بيانات السند الحالي">
+            <i class="fa-solid fa-pen-to-square text-indigo-400 text-xs sm:text-sm shrink-0"></i>
+            <span class="truncate">تعديل</span>
+          </button>
 
-        <!-- 5. زر طباعة: طباعة إيصال حراري وسند رسمي -->
-        <button type="button" onclick="handlePrintVoucher()" class="action-btn-kinetic h-11 flex-1 min-w-0 px-1 rounded-xl bg-slate-900 border border-purple-500/50 text-purple-300 font-black text-[10px] flex flex-col items-center justify-center gap-0.5 shadow-md active:scale-95 transition" title="طباعة إيصال حراري أو سند رسمي معتمد">
-          <i class="fa-solid fa-print text-purple-400 text-xs"></i>
-          <span class="truncate w-full text-center">طباعة</span>
-        </button>
+        </div>
 
-        <!-- 6. زر إرسال واتساب -->
-        <button type="button" onclick="openSendWhatsAppModal()" class="action-btn-kinetic h-11 flex-1 min-w-0 px-1 rounded-xl bg-slate-900 border border-emerald-500/60 text-emerald-300 font-black text-[10px] flex flex-col items-center justify-center gap-0.5 shadow-md active:scale-95 transition" title="إرسال تقرير السند للعميل عبر الواتساب">
-          <i class="fa-brands fa-whatsapp text-emerald-400 text-xs"></i>
-          <span class="truncate w-full text-center">إرسال</span>
-        </button>
+        <!-- الصف الثاني (الأسفل): 4 أزرار للمشاركة والطباعة والحذف والرجوع -->
+        <div class="grid grid-cols-4 gap-1.5 w-full">
 
-        <!-- 7. زر رجوع -->
-        <button type="button" onclick="handleExit()" class="action-btn-kinetic h-11 flex-1 min-w-0 px-0.5 rounded-xl bg-slate-900 border border-red-500/50 text-red-300 font-black text-[10px] flex flex-col items-center justify-center gap-0.5 shadow-md active:scale-95 transition" title="إنهاء والرجوع للقائمة الرئيسية">
-          <i class="fa-solid fa-arrow-right text-cyan-400 text-xs"></i>
-          <span class="truncate w-full text-center">رجوع</span>
-        </button>
+          <!-- 5. زر إرسال واتساب -->
+          <button type="button" onclick="openSendWhatsAppModal()" class="action-btn-kinetic h-[42px] sm:h-[44px] min-w-0 px-2 rounded-xl bg-slate-900 border border-emerald-500/60 text-emerald-300 font-black text-[12px] sm:text-[13px] flex items-center justify-center gap-1.5 shadow-md active:scale-95 transition" title="إرسال تقرير السند للعميل عبر الواتساب">
+            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm sm:text-base shrink-0"></i>
+            <span class="truncate">إرسال</span>
+          </button>
 
-        <!-- 8. زر حفظ (في الآخر!): الزر الأساسي الأبرز والأكبر -->
-        <button type="button" onclick="handleQuickCheckSave()" id="btnSaveMain" class="action-btn-kinetic flex-[1.45] min-w-0 h-11 px-1 rounded-xl bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 hover:from-emerald-500 hover:to-cyan-500 active:scale-98 text-white font-black text-[11px] sm:text-xs flex items-center justify-center gap-1 shadow-lg shadow-emerald-950 border border-emerald-400/60 transition" title="تأكيد وحفظ السند">
-          <i class="fa-solid fa-check text-xs font-black"></i>
-          <span id="saveButtonLabel" class="truncate">حفظ (✓)</span>
-        </button>
+          <!-- 6. زر طباعة: طباعة إيصال حراري وسند رسمي -->
+          <button type="button" onclick="handlePrintVoucher()" class="action-btn-kinetic h-[42px] sm:h-[44px] min-w-0 px-2 rounded-xl bg-slate-900 border border-purple-500/60 text-purple-300 font-black text-[12px] sm:text-[13px] flex items-center justify-center gap-1.5 shadow-md active:scale-95 transition" title="طباعة إيصال حراري أو سند رسمي معتمد">
+            <i class="fa-solid fa-print text-purple-400 text-xs sm:text-sm shrink-0"></i>
+            <span class="truncate">طباعة</span>
+          </button>
+
+          <!-- 7. زر حذف: حذف السند الحالي وعكس أثره المالي -->
+          <button type="button" onclick="handleDelete()" id="btnDeleteVoucher" class="action-btn-kinetic h-[42px] sm:h-[44px] min-w-0 px-2 rounded-xl bg-slate-900 border border-rose-500/60 text-rose-300 font-black text-[12px] sm:text-[13px] flex items-center justify-center gap-1.5 shadow-md active:scale-95 transition" title="حذف السند الحالي وعكس أثره المالي">
+            <i class="fa-solid fa-trash-can text-rose-400 text-xs sm:text-sm shrink-0"></i>
+            <span class="truncate">حذف</span>
+          </button>
+
+          <!-- 8. زر رجوع -->
+          <button type="button" onclick="handleExit()" class="action-btn-kinetic h-[42px] sm:h-[44px] min-w-0 px-2 rounded-xl bg-slate-900 border border-red-500/60 text-red-300 font-black text-[12px] sm:text-[13px] flex items-center justify-center gap-1.5 shadow-md active:scale-95 transition" title="إنهاء والرجوع للقائمة الرئيسية">
+            <i class="fa-solid fa-arrow-right-from-bracket text-cyan-400 text-xs sm:text-sm shrink-0"></i>
+            <span class="truncate">رجوع</span>
+          </button>
+
+        </div>
 
         <!-- عناصر داعمة صامتة بدون أخطاء برمجية -->
         <button type="button" id="btnAutoSendToggle" onclick="toggleAutoSend()" class="hidden"></button>
@@ -8414,7 +8469,10 @@ $currenciesData = [
       if (rateEl) rateEl.value = rateVal;
 
       const ccEl = document.getElementById('costCenterInput');
-      if (ccEl) ccEl.value = v.costCenter || v.jobId || 'المكتب الرئيسي - الإدارة العامة';
+      if (ccEl) {
+        ccEl.value = v.costCenter || v.jobId || 'المكتب الرئيسي - الإدارة العامة';
+        ccEl.classList.remove('mv-ghost-default');
+      }
 
       const sdgVal = parseFloat(v.sdg ?? v.amountLocal ?? v.amount ?? v.totalAmount ?? 0) || 0;
       let usdVal = parseFloat(v.usd ?? v.foreignAmt ?? v.amountForeign ?? 0) || 0;
@@ -8635,7 +8693,10 @@ $currenciesData = [
           // 1.5 تفريغ المستودع / مركز الكلفة إذا أُرسل من شاشة المبيعات
           if (warehouse) {
             const ccInp = document.getElementById('costCenterInput');
-            if (ccInp) ccInp.value = warehouse;
+            if (ccInp) {
+              ccInp.value = warehouse;
+              ccInp.classList.remove('mv-ghost-default');
+            }
           }
 
           // 2. تفريغ الاسم (اسم العميل الذي تم البيع له) في خانة (من حساب)
@@ -8714,6 +8775,11 @@ $currenciesData = [
       const rateEl = document.getElementById('usdRate');
       if (rateEl && window.SYSTEM_USD_RATE > 1) {
         rateEl.value = window.SYSTEM_USD_RATE;
+      }
+      const ccNewEl = document.getElementById('costCenterInput');
+      if (ccNewEl) {
+        if (!ccNewEl.value) ccNewEl.value = 'مخزن بحري الرئيسي';
+        ccNewEl.classList.add('mv-ghost-default');
       }
 
       // 2. تصفير ومسح كافة المبالغ المالية تماماً
@@ -10735,9 +10801,15 @@ $currenciesData = [
               rateInp.value = dbRate;
             }
           }
+          updateNetworkStatusUI(true, 'متزامن');
+
+          // رفع أي سندات أوفلاين معلقة فوراً بمجرد عودة الاتصال حتى لو لم تتغير قاعدة البيانات (قبل فحص unchanged)
+          if (offlineQueue.length > 0) {
+            await flushOfflineQueue();
+          }
+
           // إذا لم يتغير شيء في قاعدة البيانات (Delta-Sync unchanged)، لا نستهلك المعالج أو البطارية أو الشبكة
           if ((data.unchanged === true || data.changed === false) && !showFeedback) {
-            updateNetworkStatusUI(true, 'متزامن');
             return true;
           }
 
@@ -10766,9 +10838,9 @@ $currenciesData = [
             }
           }
 
-          // 2. تحديث السندات الحقيقية من single_payments مع الحفاظ الكامل على كافة تفاصيل كل سند
+          // 2. تحديث السندات الحقيقية من single_payments مع الحفاظ الكامل على كافة تفاصيل كل سند وأي سند أوفلاين لم يكتمل رفعه بعد
           if (Array.isArray(data.vouchers) && data.vouchers.length > 0) {
-            vouchersList = data.vouchers.map(v => ({
+            const dbVouchers = data.vouchers.map(v => ({
               id: v.id,
               voucherNo: v.voucherNo || v.id,
               isOffline: false,
@@ -10793,6 +10865,9 @@ $currenciesData = [
               voucherNatureLabel: v.voucherNatureLabel || '',
               signatureHash: v.signatureHash || ''
             }));
+            const dbIds = new Set(dbVouchers.map(v => String(v.id)));
+            const pendingLocalVouchers = vouchersList.filter(v => v && v.isOffline && !dbIds.has(String(v.id)));
+            vouchersList = dbVouchers.concat(pendingLocalVouchers);
             if (isAtNewVoucher) {
               currentIndex = vouchersList.length;
             }
@@ -10815,8 +10890,6 @@ $currenciesData = [
             }
           }
 
-          updateNetworkStatusUI(true, 'متزامن');
-
           // إذا كانت إحدى القوائم المنسدلة مفتوحة حالياً، نقوم بتحديثها فوراً ليظهر أي حساب مضاف حديثاً في اللابتوب
           const fromDd = document.getElementById('fromDropdown');
           if (fromDd && !fromDd.classList.contains('hidden')) {
@@ -10827,11 +10900,6 @@ $currenciesData = [
             liveSearchAccount('to');
           }
           updateAccountBalanceBadges();
-
-          // رفع أي سندات أوفلاين معلقة
-          if (offlineQueue.length > 0 && !isOfflineMode) {
-            flushOfflineQueue();
-          }
 
           if (showFeedback) {
             showToastNotification(`🗄️ متصل بـ MariaDB مباشرة!\n- الحسابات: ${accountsDB.length} حساب نشط\n- السندات: ${vouchersList.length} سند محفوظ ومرحل`);
@@ -10849,10 +10917,24 @@ $currenciesData = [
     }
 
     // ════════════════════════════════════════════════════════════════
-    // رفع وترحيل السندات المحفوظة أوفلاين إلى MariaDB فور توفر الاتصال (خلف الشاشة بصمت)
+    // رفع وترحيل السندات المحفوظة أوفلاين إلى MariaDB فور توفر الاتصال (خلف الشاشة بصمت وبأعلى سرعة)
     // ════════════════════════════════════════════════════════════════
+    let _isFlushingOfflineQueue = false;
     async function flushOfflineQueue() {
-      if (offlineQueue.length === 0) return;
+      if (_isFlushingOfflineQueue) return;
+      try {
+        const storedQ = localStorage.getItem('magaies_mobile_offline_queue');
+        if (storedQ) {
+          const parsedQ = JSON.parse(storedQ);
+          if (Array.isArray(parsedQ) && parsedQ.length > offlineQueue.length) {
+            offlineQueue = parsedQ;
+          }
+        }
+      } catch (e) {}
+
+      if (!Array.isArray(offlineQueue) || offlineQueue.length === 0) return;
+
+      _isFlushingOfflineQueue = true;
       const banner = document.getElementById('offlineSyncBanner');
       if (banner) {
         banner.classList.add('hidden');
@@ -10861,53 +10943,81 @@ $currenciesData = [
 
       let syncedCount = 0;
       const remaining = [];
+      const queueSnapshot = [...offlineQueue];
 
-      for (const item of offlineQueue) {
-        try {
-          const res = await fetch('mobile-voucher.php?api=save_voucher', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(item)
-          });
-          const data = await res.json();
-          if (data && data.success) {
-            syncedCount++;
-            const foundIdx = vouchersList.findIndex(v => v.id === item.id);
-            if (foundIdx !== -1) {
-              vouchersList[foundIdx].id = data.voucherNo;
-              vouchersList[foundIdx].isOffline = false;
-              vouchersList[foundIdx].signatureHash = data.signatureHash || '';
-            }
-          } else if (!res.ok && res.status >= 500) {
-            // خطأ مؤقت في السيرفر فقط يبقى للمحاولة لاحقاً
-            remaining.push(item);
-          }
-          // ملاحظة: إذا رفض السيرفر السند بسبب تكرار رقم التحويلة أو نقص البيانات، يتم استبعاده من الطابور المعلق حتى لا يبقى عالقاً كـ "2 معلق"
-        } catch(e) {
-          remaining.push(item);
-        }
-      }
-
-      offlineQueue = remaining;
       try {
-        localStorage.setItem('magaies_mobile_offline_queue', JSON.stringify(offlineQueue));
-        localStorage.setItem('magaiees_vouchers_history', JSON.stringify(vouchersList));
-      } catch(e) {}
-
-      const pendingEl = document.getElementById('pendingCount');
-      if (pendingEl) pendingEl.textContent = `${offlineQueue.length} معلق`;
-      if (banner) {
-        banner.classList.add('hidden');
-      }
-
-      if (syncedCount > 0) {
-        await fetchLiveDbData(false, true);
-        showToastNotification(`🟢 تم رفع وترحيل ${syncedCount} سندات معلقة بنجاح إلى قاعدة البيانات MariaDB!`);
-        if (vouchersList.length > 0) {
-          loadVoucher(vouchersList.length - 1);
+        for (let i = 0; i < queueSnapshot.length; i++) {
+          const item = queueSnapshot[i];
+          try {
+            const controller = new AbortController();
+            const timer = setTimeout(() => controller.abort(), 6000);
+            const res = await fetch('mobile-voucher.php?api=save_voucher', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(item),
+              signal: controller.signal
+            });
+            clearTimeout(timer);
+            const data = await res.json();
+            if (data && data.success) {
+              syncedCount++;
+              updateNetworkStatusUI(true, 'متزامن');
+              const realNo = data.voucherNo || item.voucherNo || item.id;
+              const foundIdx = vouchersList.findIndex(v => v && (v.id === item.id || v.voucherNo === item.voucherNo));
+              if (foundIdx !== -1) {
+                vouchersList[foundIdx].id = realNo;
+                vouchersList[foundIdx].voucherNo = realNo;
+                vouchersList[foundIdx].isOffline = false;
+                vouchersList[foundIdx].signatureHash = data.signatureHash || '';
+              }
+              try {
+                const sSeq = extractVoucherSeqJs(realNo);
+                if (sSeq > 0) {
+                  const known = JSON.parse(localStorage.getItem('magaies_last_known_sequences_v1') || '{}');
+                  known.finance = Math.max(parseInt(known.finance, 10) || 0, sSeq);
+                  localStorage.setItem('magaies_last_known_sequences_v1', JSON.stringify(known));
+                }
+              } catch (e) {}
+            } else if (!res.ok && res.status >= 500) {
+              remaining.push(item);
+            }
+          } catch(e) {
+            // انقطع الاتصال أثناء الرفع: نحتفظ بهذا السند وبقية السندات التالية له بالترتيب
+            for (let j = i; j < queueSnapshot.length; j++) {
+              remaining.push(queueSnapshot[j]);
+            }
+            break;
+          }
         }
+
+        offlineQueue = remaining;
+        try {
+          localStorage.setItem('magaies_mobile_offline_queue', JSON.stringify(offlineQueue));
+          localStorage.setItem('magaiees_vouchers_history', JSON.stringify(vouchersList));
+        } catch(e) {}
+
+        const pendingEl = document.getElementById('pendingCount');
+        if (pendingEl) pendingEl.textContent = `${offlineQueue.length} معلق`;
+        if (banner) {
+          banner.classList.add('hidden');
+        }
+
+        if (syncedCount > 0) {
+          const wasAtNewVoucher = (currentIndex >= vouchersList.length || currentIndex === -1);
+          await fetchLiveDbData(false, true);
+          showToastNotification(`🟢 تم تلقائياً رفع وترحيل ${syncedCount} سندات أوفلاين إلى السيرفر (MariaDB) بنجاح!`);
+          if (wasAtNewVoucher) {
+            const displayEl = document.getElementById('currentVoucherDisplay');
+            if (displayEl) displayEl.textContent = computeNextVoucherSequentialNo(false);
+          } else if (vouchersList.length > 0 && currentIndex >= 0 && currentIndex < vouchersList.length) {
+            loadVoucher(currentIndex);
+          }
+        }
+      } finally {
+        _isFlushingOfflineQueue = false;
       }
     }
+    window.flushOfflineQueue = flushOfflineQueue;
 
     // ════════════════════════════════════════════════════════════════
     // الحفظ والتأكيد والخروج (الربط المباشر بقاعدة البيانات MariaDB)
@@ -11135,7 +11245,11 @@ $currenciesData = [
       let serverRejected = false;
 
       try {
-        if (!isOfflineMode) {
+        if (!isOfflineMode || navigator.onLine !== false) {
+          // إذا كانت هناك سندات أوفلاين سابقة في الطابور، نرفعها أولاً بالترتيب التسلسلي قبل حفظ السند الجديد
+          if (offlineQueue.length > 0) {
+            await flushOfflineQueue();
+          }
           showToastNotification('⏳ جارٍ الحفظ والترحيل المزدوج إلى قاعدة البيانات MariaDB...');
           try {
             const res = await fetch('mobile-voucher.php?api=save_voucher', {
@@ -11595,14 +11709,8 @@ $currenciesData = [
       if (Array.isArray(desktopV)) desktopV.forEach(v => normalizeAndAddVoucher(v, false));
     } catch (e) {}
 
-    // تطهير أي عناصر قديمة عالقة في طابور الأوفلاين (مثل السندين المعلقين السابقين) ليعمل النظام بصمت خلف الشاشة
+    // تحميل أي سندات محفوظة في طابور الأوفلاين لدمجها وعرضها ورفعها تلقائياً فور توفر الإنترنت
     try {
-      const cleanupKey = 'magaies_stale_queue_cleaned_20261015';
-      if (!localStorage.getItem(cleanupKey)) {
-        localStorage.removeItem('magaies_mobile_offline_queue');
-        localStorage.removeItem('magaies_universal_offline_queue');
-        localStorage.setItem(cleanupKey, '1');
-      }
       const savedQueue = localStorage.getItem('magaies_mobile_offline_queue');
       if (savedQueue) {
         offlineQueue = JSON.parse(savedQueue) || [];
@@ -11832,26 +11940,52 @@ $currenciesData = [
     setTimeout(fitAllDynamicFields, 60);
     setTimeout(fitAllDynamicFields, 350);
 
-    // إذا فُتحت الصفحة من الكاش المحلي، نتحقق بنظام Delta-Sync الخفيف فقط (75 بايت إذا لم يتغير شيء)
-    if (!window._lastDbStateHash) {
+    // تسجيل Service Worker لفتح الشاشة فوراً (0ms) عند انقطاع الإنترنت
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('./sw.js?v=2026_10_16_offline_v18', { scope: './', updateViaCache: 'none' }).catch(() => {});
+    }
+
+    // إذا فُتحت الصفحة من الكاش المحلي أو هناك سندات أوفلاين معلقة، نتحقق ونرفع فوراً
+    if (offlineQueue.length > 0 && navigator.onLine !== false) {
+      flushOfflineQueue();
+    } else if (!window._lastDbStateHash && navigator.onLine !== false) {
       fetchLiveDbData(false, false);
     }
 
+    // مستشعر الرفع التلقائي اللحظي (كل 3.5 ثوانٍ): يرفع السندات المعلقة (مثل 260, 261, 262, 263) تلقائياً فور وصول الإنترنت دون الحاجة لعمل سند جديد
+    setInterval(() => {
+      if (offlineQueue.length > 0) {
+        flushOfflineQueue();
+      } else if (isOfflineMode && navigator.onLine !== false) {
+        fetchLiveDbData(false, false);
+      }
+    }, 3500);
+
     // التحديث التلقائي الدوري الذكي (Delta-Sync خفيف كل 15 ثانية لا يسحب البيانات إلا عند حدوث تغيير فعلي في MariaDB)
     setInterval(() => {
-      if (!isOfflineMode && document.visibilityState !== 'hidden') {
+      if (navigator.onLine !== false && document.visibilityState !== 'hidden') {
         fetchLiveDbData(false, false);
       }
     }, 15000);
 
-    // تحديث فوري عند العودة إلى تطبيق الموبايل أو التركيز على الشاشة
-    window.addEventListener('focus', () => { fetchLiveDbData(false, false); });
+    // تحديث ورفع فوري عند العودة إلى تطبيق الموبايل أو التركيز على الشاشة
+    window.addEventListener('focus', () => {
+      if (offlineQueue.length > 0) flushOfflineQueue();
+      fetchLiveDbData(false, false);
+    });
     document.addEventListener('visibilitychange', () => {
-      if (!document.hidden) fetchLiveDbData(false, false);
+      if (!document.hidden) {
+        if (offlineQueue.length > 0) flushOfflineQueue();
+        fetchLiveDbData(false, false);
+      }
     });
 
     // استماع لحظي لحالة اتصال الشبكة
-    window.addEventListener('online', () => { handleUnifiedSyncRefresh(); });
+    window.addEventListener('online', () => {
+      isOfflineMode = false;
+      if (offlineQueue.length > 0) flushOfflineQueue();
+      handleUnifiedSyncRefresh();
+    });
     window.addEventListener('offline', () => { updateNetworkStatusUI(false, 'تحديث'); });
 
     // ════════════════════════════════════════════════════════════════
@@ -11861,6 +11995,7 @@ $currenciesData = [
       playFeedbackTone('tap');
       showToastNotification('🔄 جارٍ التحديث الحي ومزامنة قاعدة البيانات MariaDB...');
       try {
+        if (offlineQueue.length > 0) await flushOfflineQueue();
         await fetchLiveDbData(true, true);
       } catch(e) {}
     }

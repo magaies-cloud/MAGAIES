@@ -1112,14 +1112,30 @@ JSON.parse = function(val) {
     let isPushing = false;
     let pushQueue = false;
     let pushTimeout = null;
+    const DIRTY_KEYS_STORAGE_KEY = 'magaies_dirty_keys_v1';
     let dirtyKeys = new Set();
+    try {
+        const savedDirty = originalGetItem.call(localStorage, DIRTY_KEYS_STORAGE_KEY);
+        if (savedDirty) {
+            const parsedDirty = JSON.parse(savedDirty);
+            if (Array.isArray(parsedDirty)) {
+                parsedDirty.forEach(k => { if (syncKeys.includes(k)) dirtyKeys.add(k); });
+            }
+        }
+    } catch (e) {}
+
+    function persistDirtyKeys() {
+        try {
+            originalSetItem.call(localStorage, DIRTY_KEYS_STORAGE_KEY, JSON.stringify(Array.from(dirtyKeys)));
+        } catch (e) {}
+    }
 
     window.addEventListener('beforeunload', (e) => {
         if (pushTimeout) {
             clearTimeout(pushTimeout);
         }
         // Use sendBeacon for reliable delivery on page close
-        if (dirtyKeys.size > 0) {
+        if (dirtyKeys.size > 0 && navigator.onLine) {
             try {
                 const prefix = getTenantPrefix();
                 let payload = {};
@@ -1151,11 +1167,14 @@ JSON.parse = function(val) {
                         }
                         
                         dirtyKeys.clear();
+                        persistDirtyKeys();
                     }
                 }
             } catch(beaconErr) {
                 console.warn('Sync on unload failed:', beaconErr);
             }
+        } else if (dirtyKeys.size > 0) {
+            persistDirtyKeys();
         }
     });
 
@@ -1192,7 +1211,7 @@ JSON.parse = function(val) {
                 console.warn("localStorage quota exceeded for key", key, ". Auto-cleaning...");
                 // Auto-cleanup: find and remove largest non-essential localStorage entries
                 try {
-                    const protectedKeys = ['authToken', 'user', 'tenant_id', 'erp_settings_v1', 'session_active', 'tenant_currencies_locked', 'magaies_offline_queue'];
+                    const protectedKeys = ['authToken', 'user', 'tenant_id', 'erp_settings_v1', 'session_active', 'tenant_currencies_locked', 'magaies_offline_queue', DIRTY_KEYS_STORAGE_KEY];
                     const currentTenantKey = tenantKey; // don't delete what we're trying to save
                     
                     // Collect all entries with sizes
@@ -1224,12 +1243,14 @@ JSON.parse = function(val) {
                 }
             }
 
-            if (syncKeys.includes(key)) {
-                dirtyKeys.add(key);
+            const baseSyncKey = String(key).replace(/^tenant_[^_]+_/, '');
+            if (syncKeys.includes(baseSyncKey)) {
+                dirtyKeys.add(baseSyncKey);
+                persistDirtyKeys();
                 if (!navigator.onLine) {
                     return;
                 }
-                // Debounce Sync: Wait for 800ms of inactivity before pushing to cloud
+                // Debounce Sync: Wait for 600ms of inactivity before pushing to cloud
                 if (pushTimeout) clearTimeout(pushTimeout);
                 pushTimeout = setTimeout(() => {
                     if (!isPushing) {
@@ -1237,7 +1258,7 @@ JSON.parse = function(val) {
                     } else {
                         pushQueue = true;
                     }
-                }, 800);
+                }, 600);
             }
         } else {
             return originalSetItem.call(this, key, value);
@@ -1621,10 +1642,11 @@ JSON.parse = function(val) {
             // Keep a copy of current dirty keys in case we need to restore them if the sync fails
             const currentDirty = Array.from(dirtyKeys);
             dirtyKeys.clear();
+            persistDirtyKeys();
 
             keysToSync.forEach(k => {
                 const pk = window.getTenantKey(k);
-                const data = window.DB_STORE[pk] || localGetItem(pk);
+                const data = window.DB_STORE[pk] || localGetItem(pk) || localGetItem(k);
                 if (data) {
                     try {
                         payload[k] = JSON.parse(data);
@@ -1649,14 +1671,9 @@ JSON.parse = function(val) {
             }).then(res => {
                 resStatus = res.status;
                 if (res.status === 401) {
-                    if (window.location.hostname.includes('localhost') || window.location.hostname.includes('127.0.0.1') || !navigator.onLine) {
-                        console.warn("Localhost/Offline mode: ignoring 401 push error");
-                        return null;
-                    }
-                    alert('انتهت الجلسة. يرجى تسجيل الدخول مرة أخرى.');
-                    if (typeof window.logout === 'function') window.logout(true);
-                    else window.location.href = 'login.php';
-                    reject(new Error("Unauthorized"));
+                    currentDirty.forEach(k => dirtyKeys.add(k));
+                    persistDirtyKeys();
+                    console.warn("401 push response: keeping dirty keys for retry");
                     return null;
                 }
                 return res.json().catch(() => ({}));
@@ -1664,23 +1681,20 @@ JSON.parse = function(val) {
                 if (!data) return;
                 
                 if (data.error && (resStatus === 401 || data.error.includes('الجلسة') || data.error.includes('تسجيل الدخول'))) {
-                    if (window.location.hostname.includes('localhost') || window.location.hostname.includes('127.0.0.1') || !navigator.onLine) {
-                        console.warn("Localhost/Offline mode: ignoring session error in push");
-                        return;
-                    }
-                    alert('انتهت الجلسة. يرجى تسجيل الدخول مرة أخرى.');
-                    if (typeof window.logout === 'function') window.logout(true);
-                    else window.location.href = 'login.php';
-                    reject(new Error("Unauthorized"));
+                    currentDirty.forEach(k => dirtyKeys.add(k));
+                    persistDirtyKeys();
+                    console.warn("Session warning in push: keeping dirty keys safe");
                     return;
                 }
 
                 if (!data.success && data.error !== 'تمت المزامنة بنجاح') {
                     // Restore dirty keys for retry
                     currentDirty.forEach(k => dirtyKeys.add(k));
+                    persistDirtyKeys();
                     console.warn("Cloud Sync Push Notice:", data.error || "Save failed");
                     reject(new Error(data.error || "Save failed"));
                 } else {
+                    persistDirtyKeys();
                     console.log("Cloud Sync: Strict Backup Successful");
                     resolve(data);
                 }
@@ -1688,6 +1702,7 @@ JSON.parse = function(val) {
                 console.warn("Cloud Sync Push Deferred (Offline/Network):", err);
                 // Restore dirty keys on failure
                 currentDirty.forEach(k => dirtyKeys.add(k));
+                persistDirtyKeys();
                 resolve({ success: false, offline: true });
             }).finally(() => {
                 isPushing = false;
@@ -1705,7 +1720,33 @@ JSON.parse = function(val) {
         if (dirtyKeys.size > 0 && !isPushing) {
             pushToCloud();
         }
+        if (window.MagaiesOffline && typeof window.MagaiesOffline.flushQueue === 'function') {
+            window.MagaiesOffline.flushQueue();
+        }
     });
+
+    // فحص تلقائي نشط كل 4 ثوانٍ على اللابتوب والجوال لرفع أي بيانات أوفلاين فور توفر الإنترنت دون الحاجة لأي إجراء يدوي
+    setInterval(() => {
+        if (dirtyKeys.size > 0 && !isPushing && navigator.onLine !== false) {
+            pushToCloud();
+        }
+    }, 4000);
+
+    // تسجيل Service Worker وتفعيل محرك الأوفلاين الموحد تلقائياً في كافة شاشات اللابتوب والجوال
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('./sw.js?v=2026_10_16_offline_v18', { scope: './', updateViaCache: 'none' }).catch(() => {});
+    }
+    if (!window.__MAGAIES_OFFLINE_ENGINE_LOADED__ && typeof document !== 'undefined') {
+        const injectOfflineEngine = () => {
+            if (window.__MAGAIES_OFFLINE_ENGINE_LOADED__) return;
+            const s = document.createElement('script');
+            s.src = 'js/magaies-offline-sync.js?v=2026_10_16_v18';
+            s.defer = true;
+            (document.head || document.documentElement).appendChild(s);
+        };
+        if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', injectOfflineEngine);
+        else injectOfflineEngine();
+    }
 
 
     window.pullFromCloud = function(force = false) {

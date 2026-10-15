@@ -167,19 +167,33 @@ window.PWAManager = {
     // 2. PWA 1-CLICK INSTALLATION ENGINE (FIRST VISIT PROMPT & IOS GUIDANCE)
     // ────────────────────────────────────────────────────────────────────
     registerServiceWorker() {
-        if ('serviceWorker' in navigator && (window.location.protocol === 'https:' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js?v=2026_10_15_v15', { scope: './', updateViaCache: 'none' }).then((reg) => {
-                    try { reg.update(); } catch (e) {}
-                }).catch(() => {});
-                if ('caches' in window) {
-                    caches.keys().then((keys) => {
-                        keys.forEach((k) => {
-                            if (k !== 'magaiees-pwa-v2026-10-15-fast2g-v15') {
-                                caches.delete(k);
+        if ('serviceWorker' in navigator) {
+            const doRegister = () => {
+                navigator.serviceWorker.register('./sw.js?v=2026_10_16_offline_v18', { scope: './', updateViaCache: 'none' }).then((reg) => {
+                    if (navigator.onLine) {
+                        try { reg.update(); } catch (e) {}
+                        setTimeout(() => {
+                            if (navigator.serviceWorker.controller) {
+                                navigator.serviceWorker.controller.postMessage({ type: 'WARM_OFFLINE_CACHE' });
                             }
-                        });
-                    }).catch(() => {});
+                        }, 1500);
+                    }
+                }).catch(() => {});
+            };
+            if (document.readyState === 'complete') doRegister();
+            else window.addEventListener('load', doRegister);
+
+            navigator.serviceWorker.addEventListener('message', (event) => {
+                if (event.data && event.data.type === 'TRIGGER_OFFLINE_SYNC') {
+                    if (window.MagaiesOffline && typeof window.MagaiesOffline.flushQueue === 'function') {
+                        window.MagaiesOffline.flushQueue();
+                    }
+                    if (typeof window.flushOfflineQueue === 'function') {
+                        window.flushOfflineQueue();
+                    }
+                    if (typeof window.pushToCloud === 'function') {
+                        window.pushToCloud(true);
+                    }
                 }
             });
         }
@@ -414,12 +428,21 @@ window.PWAManager = {
         this.setConnectionState(navigator.onLine);
         window.addEventListener('online', () => {
             this.setConnectionState(true);
+            if (window.MagaiesOffline && typeof window.MagaiesOffline.flushQueue === 'function') {
+                window.MagaiesOffline.flushQueue();
+            }
+            if (typeof window.flushOfflineQueue === 'function') {
+                window.flushOfflineQueue();
+            }
+            if (typeof window.pushToCloud === 'function') {
+                window.pushToCloud(true);
+            }
             this.syncRealData(false);
-            if (window.showModernToast) window.showModernToast('🌐 تم استعادة الاتصال بالإنترنت', 'success', 3000);
+            if (window.showModernToast) window.showModernToast('🌐 تم استعادة الاتصال بالإنترنت وجاري رفع الحركات تلقائياً', 'success', 3000);
         });
         window.addEventListener('offline', () => {
             this.setConnectionState(false, 'لا يوجد إنترنت');
-            if (window.showModernToast) window.showModernToast('⚠️ انقطع الاتصال بالإنترنت - يعمل بالذاكرة المؤقتة', 'warning', 4000);
+            if (window.showModernToast) window.showModernToast('⚠️ انقطع الاتصال بالإنترنت - يعمل في وضع الأوفلاين الفوري', 'warning', 4000);
         });
     },
 

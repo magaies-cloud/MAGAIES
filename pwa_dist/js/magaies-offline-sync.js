@@ -437,6 +437,9 @@
         },
 
         async flushQueue() {
+            if (typeof window.flushOfflineQueue === 'function') {
+                try { window.flushOfflineQueue(); } catch (e) {}
+            }
             if (this.isSyncing) return;
             const queue = this.getQueue();
             if (queue.length === 0) return;
@@ -445,9 +448,9 @@
             this.updateUIBadge();
 
             try {
-                // إرسال الدفعة بالكامل في طلب واحد سريع جداً (Batch Request < 100ms)
+                // إرسال الدفعة بالكامل في طلب واحد سريع جداً (Batch Request < 100ms) لأضعف شبكة 2G
                 const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 5000);
+                const timeoutId = setTimeout(() => controller.abort(), 6500);
 
                 const res = await fetch('api/mirror_sync.php?action=sync_offline_batch', {
                     method: 'POST',
@@ -459,31 +462,38 @@
 
                 const out = await res.json();
                 if (out && out.success && Array.isArray(out.synced)) {
+                    this.isOnline = true;
                     // حفظ سجل التحويل من رقم أوفلاين إلى رقم السيستم الرسمي
                     this.recordSyncedHistory(out.synced);
 
-                    // تحديث الأرقام في السجلات المحلية إذا تغيرت عند الدمج في السيرفر
+                    // تحديث الأرقام في السجلات المحلية (العامة والخاصة بالشركة Tenant) إذا تغيرت عند الدمج في السيرفر
                     try {
+                        const getTK = window.getTenantKey || ((k) => k);
                         out.synced.forEach(sItem => {
                             if (!sItem.offline_id || !sItem.real_id) return;
-                            const updateLocalArr = (storageKey) => {
-                                const raw = localStorage.getItem(storageKey);
-                                if (!raw) return;
-                                const arr = JSON.parse(raw);
-                                if (!Array.isArray(arr)) return;
-                                let changed = false;
-                                arr.forEach(rec => {
-                                    if (rec && (rec.id === sItem.offline_id || rec.invoiceNo === sItem.offline_id || rec.voucherNo === sItem.offline_id || rec.deliveryNo === sItem.offline_id || rec.receiptNo === sItem.offline_id)) {
-                                        if (rec.id === sItem.offline_id) rec.id = sItem.real_id;
-                                        if (rec.invoiceNo === sItem.offline_id) rec.invoiceNo = sItem.real_id;
-                                        if (rec.voucherNo === sItem.offline_id) rec.voucherNo = sItem.real_id;
-                                        if (rec.deliveryNo === sItem.offline_id) rec.deliveryNo = sItem.real_id;
-                                        if (rec.receiptNo === sItem.offline_id) rec.receiptNo = sItem.real_id;
-                                        rec.isOffline = false;
-                                        changed = true;
-                                    }
+                            const updateLocalArr = (baseKey) => {
+                                const keysToUpdate = [baseKey];
+                                const tk = getTK(baseKey);
+                                if (tk && tk !== baseKey) keysToUpdate.push(tk);
+                                keysToUpdate.forEach(storageKey => {
+                                    const raw = localStorage.getItem(storageKey);
+                                    if (!raw) return;
+                                    const arr = JSON.parse(raw);
+                                    if (!Array.isArray(arr)) return;
+                                    let changed = false;
+                                    arr.forEach(rec => {
+                                        if (rec && (rec.id === sItem.offline_id || rec.invoiceNo === sItem.offline_id || rec.voucherNo === sItem.offline_id || rec.deliveryNo === sItem.offline_id || rec.receiptNo === sItem.offline_id)) {
+                                            if (rec.id === sItem.offline_id) rec.id = sItem.real_id;
+                                            if (rec.invoiceNo === sItem.offline_id) rec.invoiceNo = sItem.real_id;
+                                            if (rec.voucherNo === sItem.offline_id) rec.voucherNo = sItem.real_id;
+                                            if (rec.deliveryNo === sItem.offline_id) rec.deliveryNo = sItem.real_id;
+                                            if (rec.receiptNo === sItem.offline_id) rec.receiptNo = sItem.real_id;
+                                            rec.isOffline = false;
+                                            changed = true;
+                                        }
+                                    });
+                                    if (changed) localStorage.setItem(storageKey, JSON.stringify(arr));
                                 });
-                                if (changed) localStorage.setItem(storageKey, JSON.stringify(arr));
                             };
                             updateLocalArr('magaies_local_sales_invoices_v1');
                             updateLocalArr('erp_sales_invoices_v1');
@@ -493,6 +503,8 @@
                             updateLocalArr('erp_purchases_v5');
                             updateLocalArr('magaiees_vouchers_history');
                             updateLocalArr('erp_single_payments_v1');
+                            updateLocalArr('erp_payments_v1');
+                            updateLocalArr('erp_receipts_v1');
                             updateLocalArr('erp_delivery_orders_v1');
                             updateLocalArr('erp_purchase_receipts_v1');
                         });
@@ -516,10 +528,13 @@
                         window.showModernToast(successMsg, 'success', 4500);
                     }
 
-                    // تحديث أرقام المرآة في الشاشات المفتوحة فوراً
+                    // تحديث أرقام المرآة والبيانات السحابية في الشاشات المفتوحة فوراً
+                    if (typeof window.pushToCloud === 'function') {
+                        try { window.pushToCloud(true); } catch (e) {}
+                    }
                     if (typeof window.fetchMirrorNumbers === 'function') window.fetchMirrorNumbers();
                     if (typeof window.initMobileMirrorSync === 'function') window.initMobileMirrorSync();
-                    if (typeof window.fetchLiveDbData === 'function') window.fetchLiveDbData(false);
+                    if (typeof window.fetchLiveDbData === 'function') window.fetchLiveDbData(false, true);
                     if (typeof window.syncMirrorData === 'function') window.syncMirrorData();
                 }
             } catch (err) {
@@ -534,11 +549,23 @@
         // ─────────────────────────────────────────────────────────────
         // 5. مستشعر النبض الشبكي النشط (Active Micro-Pulse Heartbeat)
         // ─────────────────────────────────────────────────────────────
+        triggerAllSyncEngines() {
+            if (this.getQueue().length > 0 && !this.isSyncing) {
+                this.flushQueue();
+            }
+            if (typeof window.flushOfflineQueue === 'function') {
+                try { window.flushOfflineQueue(); } catch (e) {}
+            }
+            if (typeof window.pushToCloud === 'function' && navigator.onLine !== false) {
+                try { window.pushToCloud(); } catch (e) {}
+            }
+        },
+
         initHeartbeat() {
             window.addEventListener('online', () => {
                 this.isOnline = true;
                 this.updateUIBadge();
-                this.flushQueue();
+                this.triggerAllSyncEngines();
             });
 
             window.addEventListener('offline', () => {
@@ -547,24 +574,36 @@
             });
 
             document.addEventListener('visibilitychange', () => {
-                if (document.visibilityState === 'visible' && this.getQueue().length > 0) {
-                    this.flushQueue();
+                if (document.visibilityState === 'visible') {
+                    this.triggerAllSyncEngines();
                 }
             });
 
-            // فحص خفيف للطابور كل 6 ثوانٍ فقط عند وجود عناصر معلقة (بدون طلبات فحص مزدوجة)
+            window.addEventListener('pageshow', () => {
+                this.triggerAllSyncEngines();
+            });
+
+            // فحص تلقائي نشط للطابور كل 3.5 ثوانٍ عند وجود عناصر معلقة (يعمل حتى لو تأخر حدث online في الجوال)
             if (this.pulseInterval) clearInterval(this.pulseInterval);
             this.pulseInterval = setInterval(() => {
                 const q = this.getQueue();
-                if (q.length > 0 && !this.isSyncing && navigator.onLine !== false) {
+                let hasMobileVoucherQueue = false;
+                try {
+                    const mq = JSON.parse(localStorage.getItem('magaies_mobile_offline_queue') || '[]');
+                    hasMobileVoucherQueue = Array.isArray(mq) && mq.length > 0;
+                } catch (e) {}
+
+                if (q.length > 0 && !this.isSyncing) {
                     this.flushQueue();
                 }
-            }, 6000);
+                if (hasMobileVoucherQueue && typeof window.flushOfflineQueue === 'function') {
+                    try { window.flushOfflineQueue(); } catch (e) {}
+                }
+            }, 3500);
 
             // فحص فوري عند فتح التطبيق أو العودة للشاشة
             window.addEventListener('focus', () => {
-                const q = this.getQueue();
-                if (q.length > 0) this.flushQueue();
+                this.triggerAllSyncEngines();
             });
         },
 
@@ -612,65 +651,24 @@
             }
         },
 
+        clearQueue() {
+            try {
+                localStorage.removeItem(STORAGE_KEY_QUEUE);
+                localStorage.removeItem('magaies_mobile_offline_queue');
+                this.updateUIBadge();
+            } catch (e) {}
+        },
+
         // ─────────────────────────────────────────────────────────────
-        // 8. واجهة المستخدم والشارة العائمة (Floating Offline UI Pill & Modal)
+        // 8. واجهة المستخدم والشارة العائمة (تم سحب وإخفاء الشارة السفلية تحت الواتساب لمنع التشتيت)
         // ─────────────────────────────────────────────────────────────
         updateUIBadge() {
-            let badge = document.getElementById('magaies-offline-pill');
-            const queue = this.getQueue();
-            const dev = this.getDeviceCode();
-            const count = queue.length;
-
-            if (!badge) {
-                badge = document.createElement('div');
-                badge.id = 'magaies-offline-pill';
-                badge.style.cssText = `
-                    position: fixed;
-                    bottom: 74px;
-                    left: 12px;
-                    z-index: 99999;
-                    display: flex;
-                    align-items: center;
-                    gap: 6px;
-                    padding: 5px 11px;
-                    border-radius: 9999px;
-                    font-size: 11px;
-                    font-weight: 800;
-                    font-family: inherit;
-                    cursor: pointer;
-                    backdrop-filter: blur(12px);
-                    box-shadow: 0 4px 16px rgba(0,0,0,0.4);
-                    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-                    user-select: none;
-                `;
-                badge.onclick = () => this.showQueueModal();
-                document.body.appendChild(badge);
+            const existing = document.getElementById('magaies-offline-pill');
+            if (existing) {
+                existing.style.display = 'none';
+                existing.remove();
             }
-
-            if (count > 0) {
-                // حالة وجود معلقات أوفلاين (Amber Glowing Alert)
-                badge.style.background = 'rgba(245, 158, 11, 0.22)';
-                badge.style.border = '1px solid rgba(245, 158, 11, 0.6)';
-                badge.style.color = '#fbbf24';
-                badge.innerHTML = `
-                    <span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:#fbbf24;animation:pulse 1.5s infinite;"></span>
-                    <span>جوال ${dev}</span>
-                    <span style="background:#fbbf24;color:#000;border-radius:9999px;padding:1px 6px;font-size:10px;">${count} أوفلاين</span>
-                    ${this.isSyncing ? '<span style="font-size:10px;">⚡ يرفع الآن...</span>' : ''}
-                `;
-                badge.style.display = 'flex';
-            } else {
-                // حالة متصل وطبيعي (Subtle Connected Pill)
-                badge.style.background = 'rgba(15, 23, 42, 0.78)';
-                badge.style.border = '1px solid rgba(52, 211, 153, 0.35)';
-                badge.style.color = '#34d399';
-                badge.innerHTML = `
-                    <span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#34d399;"></span>
-                    <span>جوال ${dev}</span>
-                    <span style="opacity:0.8;font-size:10px;">متزامن ✓</span>
-                `;
-                badge.style.display = 'flex';
-            }
+            // الحفاظ الكامل على جميع الحركات المسجلة في طابور الأوفلاين حتى يتم رفعها للسيرفر مهما طالت مدة انقطاع الإنترنت
         },
 
         showQueueModal() {
@@ -753,6 +751,7 @@
 
                     <div style="display:flex;gap:8px;">
                         <button onclick="MagaiesOffline.flushQueue(); document.getElementById('magaies-offline-modal').style.display='none';" style="flex:1;background:linear-gradient(135deg, #10b981, #059669);color:#fff;border:none;padding:10px;border-radius:10px;font-weight:800;font-size:12px;cursor:pointer;">⚡ مزامنة وترقيم الآن</button>
+                        ${queue.length > 0 ? `<button onclick="MagaiesOffline.clearQueue(); MagaiesOffline.showQueueModal();" style="background:rgba(239,68,68,0.2);color:#fca5a5;border:1px solid rgba(239,68,68,0.4);padding:10px 12px;border-radius:10px;font-weight:700;font-size:11px;cursor:pointer;">🗑️ مسح المعلق</button>` : ''}
                         <button onclick="document.getElementById('magaies-offline-modal').style.display='none';" style="background:rgba(255,255,255,0.1);color:#cbd5e1;border:none;padding:10px 14px;border-radius:10px;font-weight:700;font-size:12px;cursor:pointer;">إغلاق</button>
                     </div>
                 </div>
@@ -875,6 +874,10 @@
                 const elements = document.querySelectorAll(selectors);
                 elements.forEach(el => {
                     if (!el) return;
+                    if (el.id === 'currentVoucherDisplay' && typeof window.fitVoucherDisplaySize === 'function') {
+                        window.fitVoucherDisplaySize();
+                        return;
+                    }
                     const isInput = (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA');
                     const rawText = String(isInput ? (el.value || el.placeholder || '') : (el.textContent || '')).trim();
                     if (!rawText) return;
@@ -888,24 +891,25 @@
 
                     if (!el.dataset.baseFontPx) {
                         const computed = window.getComputedStyle(el);
-                        const parsed = parseFloat(computed.fontSize) || (isInput ? 15 : 13);
-                        el.dataset.baseFontPx = String(Math.max(parsed, 11));
+                        const parsed = parseFloat(computed.fontSize) || (isInput ? 16 : 15.5);
+                        el.dataset.baseFontPx = String(Math.max(parsed, 14));
                     }
 
-                    const basePx = parseFloat(el.dataset.baseFontPx) || 14;
+                    const basePx = parseFloat(el.dataset.baseFontPx) || 16;
                     const len = rawText.length;
 
                     let targetPx = basePx;
-                    if (len >= 16) targetPx = Math.min(basePx, 9.5);
-                    else if (len >= 14) targetPx = Math.min(basePx, 10.5);
-                    else if (len >= 12) targetPx = Math.min(basePx, 11.5);
-                    else if (len >= 10) targetPx = Math.min(basePx, 12.5);
-                    else if (len >= 9) targetPx = Math.min(basePx, 13.5);
+                    if (len <= 6) targetPx = Math.max(basePx, 17);
+                    else if (len >= 16) targetPx = Math.min(basePx, 10);
+                    else if (len >= 14) targetPx = Math.min(basePx, 11);
+                    else if (len >= 12) targetPx = Math.min(basePx, 12.5);
+                    else if (len >= 10) targetPx = Math.min(basePx, 14);
+                    // للأرقام القياسية المكونة من 9 خانات (مثل E26100525) يبقى المقاس المعتمد الكامل (16px)
 
                     el.style.setProperty('font-size', targetPx + 'px', 'important');
 
                     if (clientW > 10) {
-                        const minPx = 8.5;
+                        const minPx = 9.0;
                         while (el.scrollWidth > clientW + 1 && targetPx > minPx) {
                             targetPx -= 0.5;
                             el.style.setProperty('font-size', targetPx + 'px', 'important');

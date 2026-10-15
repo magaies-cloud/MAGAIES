@@ -437,6 +437,9 @@
         },
 
         async flushQueue() {
+            if (typeof window.flushOfflineQueue === 'function') {
+                try { window.flushOfflineQueue(); } catch (e) {}
+            }
             if (this.isSyncing) return;
             const queue = this.getQueue();
             if (queue.length === 0) return;
@@ -445,9 +448,9 @@
             this.updateUIBadge();
 
             try {
-                // إرسال الدفعة بالكامل في طلب واحد سريع جداً (Batch Request < 100ms)
+                // إرسال الدفعة بالكامل في طلب واحد سريع جداً (Batch Request < 100ms) لأضعف شبكة 2G
                 const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 5000);
+                const timeoutId = setTimeout(() => controller.abort(), 6500);
 
                 const res = await fetch('api/mirror_sync.php?action=sync_offline_batch', {
                     method: 'POST',
@@ -459,31 +462,38 @@
 
                 const out = await res.json();
                 if (out && out.success && Array.isArray(out.synced)) {
+                    this.isOnline = true;
                     // حفظ سجل التحويل من رقم أوفلاين إلى رقم السيستم الرسمي
                     this.recordSyncedHistory(out.synced);
 
-                    // تحديث الأرقام في السجلات المحلية إذا تغيرت عند الدمج في السيرفر
+                    // تحديث الأرقام في السجلات المحلية (العامة والخاصة بالشركة Tenant) إذا تغيرت عند الدمج في السيرفر
                     try {
+                        const getTK = window.getTenantKey || ((k) => k);
                         out.synced.forEach(sItem => {
                             if (!sItem.offline_id || !sItem.real_id) return;
-                            const updateLocalArr = (storageKey) => {
-                                const raw = localStorage.getItem(storageKey);
-                                if (!raw) return;
-                                const arr = JSON.parse(raw);
-                                if (!Array.isArray(arr)) return;
-                                let changed = false;
-                                arr.forEach(rec => {
-                                    if (rec && (rec.id === sItem.offline_id || rec.invoiceNo === sItem.offline_id || rec.voucherNo === sItem.offline_id || rec.deliveryNo === sItem.offline_id || rec.receiptNo === sItem.offline_id)) {
-                                        if (rec.id === sItem.offline_id) rec.id = sItem.real_id;
-                                        if (rec.invoiceNo === sItem.offline_id) rec.invoiceNo = sItem.real_id;
-                                        if (rec.voucherNo === sItem.offline_id) rec.voucherNo = sItem.real_id;
-                                        if (rec.deliveryNo === sItem.offline_id) rec.deliveryNo = sItem.real_id;
-                                        if (rec.receiptNo === sItem.offline_id) rec.receiptNo = sItem.real_id;
-                                        rec.isOffline = false;
-                                        changed = true;
-                                    }
+                            const updateLocalArr = (baseKey) => {
+                                const keysToUpdate = [baseKey];
+                                const tk = getTK(baseKey);
+                                if (tk && tk !== baseKey) keysToUpdate.push(tk);
+                                keysToUpdate.forEach(storageKey => {
+                                    const raw = localStorage.getItem(storageKey);
+                                    if (!raw) return;
+                                    const arr = JSON.parse(raw);
+                                    if (!Array.isArray(arr)) return;
+                                    let changed = false;
+                                    arr.forEach(rec => {
+                                        if (rec && (rec.id === sItem.offline_id || rec.invoiceNo === sItem.offline_id || rec.voucherNo === sItem.offline_id || rec.deliveryNo === sItem.offline_id || rec.receiptNo === sItem.offline_id)) {
+                                            if (rec.id === sItem.offline_id) rec.id = sItem.real_id;
+                                            if (rec.invoiceNo === sItem.offline_id) rec.invoiceNo = sItem.real_id;
+                                            if (rec.voucherNo === sItem.offline_id) rec.voucherNo = sItem.real_id;
+                                            if (rec.deliveryNo === sItem.offline_id) rec.deliveryNo = sItem.real_id;
+                                            if (rec.receiptNo === sItem.offline_id) rec.receiptNo = sItem.real_id;
+                                            rec.isOffline = false;
+                                            changed = true;
+                                        }
+                                    });
+                                    if (changed) localStorage.setItem(storageKey, JSON.stringify(arr));
                                 });
-                                if (changed) localStorage.setItem(storageKey, JSON.stringify(arr));
                             };
                             updateLocalArr('magaies_local_sales_invoices_v1');
                             updateLocalArr('erp_sales_invoices_v1');
@@ -493,6 +503,8 @@
                             updateLocalArr('erp_purchases_v5');
                             updateLocalArr('magaiees_vouchers_history');
                             updateLocalArr('erp_single_payments_v1');
+                            updateLocalArr('erp_payments_v1');
+                            updateLocalArr('erp_receipts_v1');
                             updateLocalArr('erp_delivery_orders_v1');
                             updateLocalArr('erp_purchase_receipts_v1');
                         });
@@ -516,10 +528,13 @@
                         window.showModernToast(successMsg, 'success', 4500);
                     }
 
-                    // تحديث أرقام المرآة في الشاشات المفتوحة فوراً
+                    // تحديث أرقام المرآة والبيانات السحابية في الشاشات المفتوحة فوراً
+                    if (typeof window.pushToCloud === 'function') {
+                        try { window.pushToCloud(true); } catch (e) {}
+                    }
                     if (typeof window.fetchMirrorNumbers === 'function') window.fetchMirrorNumbers();
                     if (typeof window.initMobileMirrorSync === 'function') window.initMobileMirrorSync();
-                    if (typeof window.fetchLiveDbData === 'function') window.fetchLiveDbData(false);
+                    if (typeof window.fetchLiveDbData === 'function') window.fetchLiveDbData(false, true);
                     if (typeof window.syncMirrorData === 'function') window.syncMirrorData();
                 }
             } catch (err) {
@@ -534,11 +549,23 @@
         // ─────────────────────────────────────────────────────────────
         // 5. مستشعر النبض الشبكي النشط (Active Micro-Pulse Heartbeat)
         // ─────────────────────────────────────────────────────────────
+        triggerAllSyncEngines() {
+            if (this.getQueue().length > 0 && !this.isSyncing) {
+                this.flushQueue();
+            }
+            if (typeof window.flushOfflineQueue === 'function') {
+                try { window.flushOfflineQueue(); } catch (e) {}
+            }
+            if (typeof window.pushToCloud === 'function' && navigator.onLine !== false) {
+                try { window.pushToCloud(); } catch (e) {}
+            }
+        },
+
         initHeartbeat() {
             window.addEventListener('online', () => {
                 this.isOnline = true;
                 this.updateUIBadge();
-                this.flushQueue();
+                this.triggerAllSyncEngines();
             });
 
             window.addEventListener('offline', () => {
@@ -547,24 +574,36 @@
             });
 
             document.addEventListener('visibilitychange', () => {
-                if (document.visibilityState === 'visible' && this.getQueue().length > 0) {
-                    this.flushQueue();
+                if (document.visibilityState === 'visible') {
+                    this.triggerAllSyncEngines();
                 }
             });
 
-            // فحص خفيف للطابور كل 6 ثوانٍ فقط عند وجود عناصر معلقة (بدون طلبات فحص مزدوجة)
+            window.addEventListener('pageshow', () => {
+                this.triggerAllSyncEngines();
+            });
+
+            // فحص تلقائي نشط للطابور كل 3.5 ثوانٍ عند وجود عناصر معلقة (يعمل حتى لو تأخر حدث online في الجوال)
             if (this.pulseInterval) clearInterval(this.pulseInterval);
             this.pulseInterval = setInterval(() => {
                 const q = this.getQueue();
-                if (q.length > 0 && !this.isSyncing && navigator.onLine !== false) {
+                let hasMobileVoucherQueue = false;
+                try {
+                    const mq = JSON.parse(localStorage.getItem('magaies_mobile_offline_queue') || '[]');
+                    hasMobileVoucherQueue = Array.isArray(mq) && mq.length > 0;
+                } catch (e) {}
+
+                if (q.length > 0 && !this.isSyncing) {
                     this.flushQueue();
                 }
-            }, 6000);
+                if (hasMobileVoucherQueue && typeof window.flushOfflineQueue === 'function') {
+                    try { window.flushOfflineQueue(); } catch (e) {}
+                }
+            }, 3500);
 
             // فحص فوري عند فتح التطبيق أو العودة للشاشة
             window.addEventListener('focus', () => {
-                const q = this.getQueue();
-                if (q.length > 0) this.flushQueue();
+                this.triggerAllSyncEngines();
             });
         },
 
@@ -629,17 +668,7 @@
                 existing.style.display = 'none';
                 existing.remove();
             }
-            // تنظيف أي معلقات تجريبية قديمة عالقة في المتصفح
-            try {
-                const q = this.getQueue();
-                if (Array.isArray(q) && q.length > 0) {
-                    const now = Date.now();
-                    const valid = q.filter(item => item && item.payload && (now - (item.created_at || 0) < 12 * 3600 * 1000));
-                    if (valid.length !== q.length) {
-                        this.saveQueue(valid);
-                    }
-                }
-            } catch (e) {}
+            // الحفاظ الكامل على جميع الحركات المسجلة في طابور الأوفلاين حتى يتم رفعها للسيرفر مهما طالت مدة انقطاع الإنترنت
         },
 
         showQueueModal() {

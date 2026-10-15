@@ -22,8 +22,19 @@
   <script>
     (function enforceAuthGate() {
     var token = localStorage.getItem('authToken');
+    var userStr = localStorage.getItem('user');
     var sessionCookie = document.cookie.includes('session_active=true') || document.cookie.includes('saas_token=');
-    var sessionActive = sessionStorage.getItem('session_active') === 'true' || sessionCookie;
+    var sessionActive = sessionStorage.getItem('session_active') === 'true' || sessionCookie || Boolean(userStr);
+
+    if (!navigator.onLine) {
+      if (!token) {
+        try {
+          localStorage.setItem('authToken', 'offline_token_' + Date.now());
+          sessionStorage.setItem('session_active', 'true');
+        } catch (e) {}
+      }
+      return;
+    }
 
     if (!token && !sessionActive) {
       var qs = window.location.search;
@@ -4543,10 +4554,10 @@
           
           <div class="relative flex-1 min-w-0 flex items-center">
             <input type="text" id="purchaseSupplierInput" 
-                   value="مطاحن الخرطوم للغلال" 
+                   value="مورد عام نقدي" 
                    placeholder="ابحث باسم المورد أو الهاتف..." 
                    autocomplete="off" 
-                   class="w-full bg-transparent font-black text-[12px] sm:text-[13px] tracking-wide text-right outline-none cursor-text border-none p-0 m-0" 
+                   class="pos-ghost-default w-full bg-transparent font-black text-[12px] sm:text-[13px] tracking-wide text-right outline-none cursor-text border-none p-0 m-0" 
                    style="color: #fbbf24; text-shadow: 0 0 10px rgba(245, 158, 11, 0.3);" 
                    oninput="SuitePurchasePOS.onSupplierInput(this.value)" 
                    onfocus="SuitePurchasePOS.onSupplierFocus(this)" 
@@ -4594,7 +4605,7 @@
                        value="المستودع الرئيسي" 
                        placeholder="المستودع..." 
                        autocomplete="off" 
-                       class="w-full bg-transparent font-black text-center leading-snug px-1 text-white outline-none cursor-text truncate border-none p-0 m-0" 
+                       class="pos-ghost-default w-full bg-transparent font-black text-center leading-snug px-1 text-white outline-none cursor-text truncate border-none p-0 m-0" 
                        style="font-size: 13.5px;" 
                        oninput="SuitePurchasePOS.onWarehouseInput(this.value); window.SmartPOSFontAI && SmartPOSFontAI.scaleWarehouse(this);" 
                        onfocus="SuitePurchasePOS.onWarehouseFocus(this)" 

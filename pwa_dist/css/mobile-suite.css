@@ -226,20 +226,25 @@
       box-shadow: 0 6px 20px rgba(59, 130, 246, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.10) !important;
     }
 
-    /* ── النصوص الافتراضية المؤقتة (عميل نقدي عام، المستودع الرئيسي، اختيار الصنف، الكمية، الجملة، الخصم، الصافي) بلون خفيف جداً جداً ── */
-    #modalOpSales input.pos-ghost-default {
-      color: rgba(148, 163, 184, 0.28) !important;
+    /* ── النصوص الافتراضية المؤقتة (عميل نقدي عام، المستودع الرئيسي، المركز، اختيار الصنف، الكمية، الجملة، الإضافة، الخصم، العتالة، الصافي) بلون خفيف جداً وأنيق قبل الكتابة ── */
+    :is(#modalOpSales, #modalOpPurchase) :is(input, textarea).pos-ghost-default {
+      color: var(--m-ghost, rgba(148, 163, 184, 0.24)) !important;
+      -webkit-text-fill-color: var(--m-ghost, rgba(148, 163, 184, 0.24)) !important;
       text-shadow: none !important;
       -webkit-text-stroke: 0px transparent !important;
-      font-weight: 700 !important;
+      font-weight: 400 !important;
     }
-    #modalOpSales input::placeholder,
-    #modalOpSales textarea::placeholder {
-      color: rgba(148, 163, 184, 0.24) !important;
+    :is(#modalOpSales, #modalOpPurchase) :is(input, textarea):placeholder-shown {
+      -webkit-text-stroke: 0px transparent !important;
+      text-shadow: none !important;
+    }
+    :is(#modalOpSales, #modalOpPurchase) :is(input, textarea)::placeholder {
+      color: var(--m-placeholder, rgba(148, 163, 184, 0.22)) !important;
+      -webkit-text-fill-color: var(--m-placeholder, rgba(148, 163, 184, 0.22)) !important;
       opacity: 1 !important;
       text-shadow: none !important;
       -webkit-text-stroke: 0px transparent !important;
-      font-weight: 700 !important;
+      font-weight: 400 !important;
     }
 
     /* Ultra-Smooth Mobile GPU Acceleration & Ergonomic Performance */
@@ -2312,8 +2317,8 @@
       --m-border-strong: #2C1808;
       --m-text-primary: #000000;
       --m-text-muted: #291D12;
-      --m-ghost: #3E2C1C;
-      --m-placeholder: #5C4328;
+      --m-ghost: rgba(120, 95, 70, 0.34);
+      --m-placeholder: rgba(120, 95, 70, 0.32);
       --m-num-primary: #000000;
       --m-num-emerald: #064E3B;
       --m-num-cyan: #082F49;
@@ -2333,8 +2338,8 @@
       --m-border-strong: #000000;
       --m-text-primary: #000000;
       --m-text-muted: #1E293B;
-      --m-ghost: #1E293B;
-      --m-placeholder: #475569;
+      --m-ghost: rgba(100, 116, 139, 0.34);
+      --m-placeholder: rgba(100, 116, 139, 0.32);
       --m-num-primary: #000000;
       --m-num-emerald: #064E3B;
       --m-num-cyan: #082F49;
@@ -2353,8 +2358,8 @@
       --m-border-strong: #0F172A;
       --m-text-primary: #000000;
       --m-text-muted: #1E293B;
-      --m-ghost: #1E293B;
-      --m-placeholder: #475569;
+      --m-ghost: rgba(100, 116, 139, 0.34);
+      --m-placeholder: rgba(100, 116, 139, 0.32);
       --m-num-primary: #000000;
       --m-num-emerald: #064E3B;
       --m-num-cyan: #082F49;
@@ -2378,8 +2383,8 @@
       --m-border-strong: #60A5FA;
       --m-text-primary: #FFFFFF;
       --m-text-muted: #93C5FD;
-      --m-ghost: #94A3B8;
-      --m-placeholder: rgba(148, 163, 184, 0.35);
+      --m-ghost: rgba(148, 163, 184, 0.24);
+      --m-placeholder: rgba(148, 163, 184, 0.22);
       --m-num-primary: #FFFFFF;
       --m-num-emerald: #34D399;
       --m-num-cyan: #38BDF8;
@@ -2400,8 +2405,8 @@
       --m-border-strong: #F59E0B;
       --m-text-primary: #FFFBEB;
       --m-text-muted: #D6C5B3;
-      --m-ghost: #A89078;
-      --m-placeholder: rgba(214, 197, 179, 0.35);
+      --m-ghost: rgba(214, 197, 179, 0.26);
+      --m-placeholder: rgba(214, 197, 179, 0.24);
       --m-num-primary: #FFFBEB;
       --m-num-emerald: #6EE7B7;
       --m-num-cyan: #7DD3FC;
@@ -2422,8 +2427,8 @@
       --m-border-strong: #94A3B8;
       --m-text-primary: #FFFFFF;
       --m-text-muted: #CBD5E1;
-      --m-ghost: #94A3B8;
-      --m-placeholder: rgba(148, 163, 184, 0.35);
+      --m-ghost: rgba(148, 163, 184, 0.24);
+      --m-placeholder: rgba(148, 163, 184, 0.22);
       --m-num-primary: #FFFFFF;
       --m-num-emerald: #34D399;
       --m-num-cyan: #38BDF8;
@@ -2443,8 +2448,8 @@
       --m-border-strong: #818CF8;
       --m-text-primary: #F8FAFC;
       --m-text-muted: #CBD5E1;
-      --m-ghost: #94A3B8;
-      --m-placeholder: rgba(148, 163, 184, 0.35);
+      --m-ghost: rgba(148, 163, 184, 0.24);
+      --m-placeholder: rgba(148, 163, 184, 0.22);
       --m-num-primary: #FFFFFF;
       --m-num-emerald: #34D399;
       --m-num-cyan: #38BDF8;
@@ -3039,29 +3044,32 @@
       text-shadow: none !important;
     }
 
-    /* معالجة القيم الافتراضية (pos-ghost-default) والنصوص الإرشادية (placeholder) بأولوية قصوى لضمان وضوحها التام في السمات الفاتحة */
+    /* معالجة القيم الافتراضية التوضيحية (pos-ghost-default) والنصوص الإرشادية (placeholder) لتكون خفيفة جداً وشفافة كعلامة مائية قبل الكتابة، وتتحول إلى غامقة وأنيقة عند الكتابة */
     html[data-theme] .pos-ghost-default,
     html[data-theme] #modalOpSales input.pos-ghost-default,
     html[data-theme] #modalOpSales textarea.pos-ghost-default,
     html[data-theme] #modalOpPurchase input.pos-ghost-default,
-    html[data-theme] #modalOpPurchase textarea.pos-ghost-default {
-      color: var(--m-ghost) !important;
-      -webkit-text-fill-color: var(--m-ghost) !important;
-      font-weight: 900 !important;
-      opacity: 0.92 !important;
+    html[data-theme] #modalOpPurchase textarea.pos-ghost-default,
+    html[data-theme] #modalOpPurchase .pos-ghost-default,
+    html[data-theme] #modalOpPurchase .pos-ghost-default span {
+      color: var(--m-ghost, rgba(100, 116, 139, 0.34)) !important;
+      -webkit-text-fill-color: var(--m-ghost, rgba(100, 116, 139, 0.34)) !important;
+      font-weight: 400 !important;
+      opacity: 1 !important;
+      text-shadow: none !important;
+      -webkit-text-stroke: 0px transparent !important;
     }
-    :is(
-      html[data-theme="warm-alabaster"],
-      html[data-theme="warm_cream"],
-      html[data-theme="pure-platinum"],
-      html[data-theme="ultra_white"],
-      html[data-theme="pearl-platinum"],
-      html[data-theme="exec_gray"]
-    ) :is(#modalOpSales, #modalOpPurchase) :is(input, textarea)::placeholder {
-      color: var(--m-placeholder) !important;
-      -webkit-text-fill-color: var(--m-placeholder) !important;
-      opacity: 0.82 !important;
-      font-weight: 800 !important;
+    html[data-theme] :is(#modalOpSales, #modalOpPurchase) :is(input, textarea):placeholder-shown {
+      -webkit-text-stroke: 0px transparent !important;
+      text-shadow: none !important;
+    }
+    html[data-theme] :is(#modalOpSales, #modalOpPurchase) :is(input, textarea)::placeholder {
+      color: var(--m-placeholder, rgba(100, 116, 139, 0.32)) !important;
+      -webkit-text-fill-color: var(--m-placeholder, rgba(100, 116, 139, 0.32)) !important;
+      opacity: 1 !important;
+      font-weight: 400 !important;
+      text-shadow: none !important;
+      -webkit-text-stroke: 0px transparent !important;
     }
 
     :is(

@@ -619,33 +619,71 @@ function applyInvoiceEffectsInDB($pdo, $tenantId, $docType, &$data, $oldData = n
                 }
             }
         } elseif ($docType === 'finance') {
-            // السندات المالية المحفوظة عبر save_voucher أو أوفلاين
-            $vAmount = (float)($data['amount'] ?? ($data['totalAmount'] ?? ($data['total'] ?? 0)));
+            // السندات المالية المحفوظة عبر save_voucher أو أوفلاين (سندات فردية أو مجمعة)
+            $vAmount = (float)($data['amountLocal'] ?? ($data['sdg'] ?? ($data['amount'] ?? ($data['totalAmount'] ?? ($data['total'] ?? 0)))));
             $vType = strtolower(trim((string)($data['type'] ?? ($data['voucherType'] ?? 'payment'))));
-            $targetAccount = trim((string)($data['beneficiaryName'] ?? ($data['accountName'] ?? ($data['customerName'] ?? ($data['supplierName'] ?? '')))));
-            if ($vAmount > 0 && $targetAccount !== '') {
-                $isReceipt = (strpos($vType, 'receipt') !== false || strpos($vType, 'قبض') !== false);
-                $tablesToTry = $isReceipt ? ['customers', 'suppliers'] : ['suppliers', 'customers'];
-                foreach ($tablesToTry as $tbl) {
-                    $tblWhere = ($tbl === 'customers')
+            $fromAcc = trim((string)($data['fromAccountName'] ?? ($data['from'] ?? ($data['fromAccount'] ?? ''))));
+            $toAcc = trim((string)($data['toAccountName'] ?? ($data['to'] ?? ($data['toAccount'] ?? ($data['beneficiaryName'] ?? ($data['accountName'] ?? ($data['customerName'] ?? ($data['supplierName'] ?? ''))))))));
+
+            $adjustPartyOrTreasury = function($accIdentifier, $signedEffectForDebitNormal, $signedEffectForSupplier) use ($pdo, $tenantId) {
+                if ($accIdentifier === '' || $accIdentifier === 'حسابات فرعية متعددة') return;
+                $cleanId = preg_replace('/^(cust|supp|bank|safe|exp)-/', '', $accIdentifier);
+                $tables = ['safes', 'banks', 'customers', 'suppliers', 'accounts'];
+                foreach ($tables as $tbl) {
+                    $where = ($tbl === 'customers')
                         ? "(frontend_id = ? OR search_name = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.name')) = ?)"
-                        : "(frontend_id = ? OR supplier_id = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.name')) = ?)";
-                    $stAcc = $pdo->prepare("SELECT id, data FROM `$tbl` WHERE (tenant_id = ? OR tenant_id IS NULL) AND (is_deleted = 0 OR is_deleted IS NULL) AND $tblWhere LIMIT 1");
-                    $stAcc->execute([$tenantId, $targetAccount, $targetAccount, $targetAccount]);
-                    $rAcc = $stAcc->fetch(PDO::FETCH_ASSOC);
-                    if ($rAcc) {
-                        $accObj = json_decode($rAcc['data'], true) ?: [];
-                        $curBal = (float)($accObj['currentBalance'] ?? ($accObj['openingBalance'] ?? 0));
-                        // سند القبض يخفض مديونية العميل، وسند الصرف يخفض مديونية المورد
-                        $delta = -$vAmount;
-                        $accObj['currentBalance'] = round($curBal + $delta, 2);
-                        $upAcc = $pdo->prepare("UPDATE `$tbl` SET data = ?, updated_at = NOW() WHERE id = ?");
-                        $upAcc->execute([json_encode($accObj, JSON_UNESCAPED_UNICODE), $rAcc['id']]);
-                        $postedMeta['partnerTable'] = $tbl;
-                        $postedMeta['partnerRowId'] = (int)$rAcc['id'];
-                        $postedMeta['partnerDelta'] = $delta;
-                        break;
+                        : (($tbl === 'suppliers')
+                            ? "(frontend_id = ? OR supplier_id = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.name')) = ?)"
+                            : "(frontend_id = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')) = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.name')) = ?)");
+                    try {
+                        $st = $pdo->prepare("SELECT id, data FROM `$tbl` WHERE (tenant_id = ? OR tenant_id IS NULL) AND (is_deleted = 0 OR is_deleted IS NULL) AND $where LIMIT 1");
+                        $st->execute([$tenantId, $cleanId, $accIdentifier, $accIdentifier]);
+                        $row = $st->fetch(PDO::FETCH_ASSOC);
+                        if ($row) {
+                            $obj = json_decode($row['data'], true) ?: [];
+                            $cur = (float)($obj['currentBalance'] ?? ($obj['balance'] ?? ($obj['openingBalance'] ?? 0)));
+                            $delta = ($tbl === 'suppliers') ? $signedEffectForSupplier : $signedEffectForDebitNormal;
+                            $newBal = round($cur + $delta, 2);
+                            $obj['currentBalance'] = $newBal;
+                            if (isset($obj['balance'])) $obj['balance'] = $newBal;
+                            $up = $pdo->prepare("UPDATE `$tbl` SET data = ?, updated_at = NOW() WHERE id = ?");
+                            $up->execute([json_encode($obj, JSON_UNESCAPED_UNICODE), $row['id']]);
+                            return;
+                        }
+                    } catch (Throwable $e) {}
+                }
+            };
+
+            if (!empty($data['isGrouped']) && !empty($data['items']) && is_array($data['items'])) {
+                $isPay = ($vType === 'payment' || strpos($vType, 'صرف') !== false);
+                $mainAcc = trim((string)($data['mainAccount'] ?? ($isPay ? $fromAcc : $toAcc)));
+                if ($vAmount > 0 && $mainAcc !== '') {
+                    // في الصرف: الحساب الرئيسي (خزنة/بنك) ينقص (-)، وفي القبض يزيد (+)
+                    $mainEffect = $isPay ? -$vAmount : $vAmount;
+                    $adjustPartyOrTreasury($mainAcc, $mainEffect, -$mainEffect);
+                }
+                foreach ($data['items'] as $subItem) {
+                    if (!is_array($subItem)) continue;
+                    $subAcc = trim((string)($subItem['accountName'] ?? ($subItem['account'] ?? '')));
+                    $subAmt = (float)($subItem['amount'] ?? 0);
+                    if ($subAmt > 0 && $subAcc !== '') {
+                        if ($isPay) {
+                            // صرف لمورد يخفض التزام المورد (-)، ولعميل/مصروف يزيد رصيده المدين (+)
+                            $adjustPartyOrTreasury($subAcc, $subAmt, -$subAmt);
+                        } else {
+                            // قبض من عميل يخفض مديونية العميل (-)، ومن مورد يزيد التزام المورد (+)
+                            $adjustPartyOrTreasury($subAcc, -$subAmt, $subAmt);
+                        }
                     }
+                }
+            } elseif ($vAmount > 0) {
+                if ($fromAcc !== '' && $toAcc !== '') {
+                    // قيد مزدوج: الدافع (من حساب) دائن (- للمدين، + للمورد)، والمستلم (إلى حساب) مدين (+ للمدين، - للمورد)
+                    $adjustPartyOrTreasury($fromAcc, -$vAmount, $vAmount);
+                    $adjustPartyOrTreasury($toAcc, $vAmount, -$vAmount);
+                } elseif ($toAcc !== '') {
+                    $isReceipt = (strpos($vType, 'receipt') !== false || strpos($vType, 'قبض') !== false);
+                    $adjustPartyOrTreasury($toAcc, -$vAmount, -$vAmount);
                 }
             }
         } elseif ($docType === 'stock_adjustment') {
@@ -1552,15 +1590,23 @@ try {
                     $stmt->execute([$tenantId, $realId, $json]);
                 } elseif ($type === 'finance') {
                     $fSeq = getFinanceSequence($pdo, $tenantId);
-                    $realId = $fSeq['nextVoucherNo'];
+                    $realId = (!empty($payload['isGrouped']) && !empty($payload['voucherNo']) && strpos((string)$payload['voucherNo'], 'M') === 0)
+                        ? $payload['voucherNo']
+                        : $fSeq['nextVoucherNo'];
                     $payload['voucherNo'] = $realId;
                     $payload['id'] = $realId;
                     $payload['offline_id'] = $offlineId;
                     $payload['synced_at'] = date('Y-m-d H:i:s');
                     applyInvoiceEffectsInDB($pdo, $tenantId, 'finance', $payload, null);
                     $json = json_encode($payload, JSON_UNESCAPED_UNICODE);
-                    $stmt = $pdo->prepare("INSERT INTO single_payments (tenant_id, data, created_at, updated_at) VALUES (?, ?, NOW(), NOW())");
-                    $stmt->execute([$tenantId, $json]);
+                    if (!empty($payload['isGrouped'])) {
+                        $targetTbl = (isset($payload['type']) && $payload['type'] === 'receipt') ? 'receipt_vouchers' : 'payment_vouchers';
+                        $stmt = $pdo->prepare("INSERT INTO `$targetTbl` (tenant_id, data, created_at, updated_at) VALUES (?, ?, NOW(), NOW())");
+                        $stmt->execute([$tenantId, $json]);
+                    } else {
+                        $stmt = $pdo->prepare("INSERT INTO single_payments (tenant_id, data, created_at, updated_at) VALUES (?, ?, NOW(), NOW())");
+                        $stmt->execute([$tenantId, $json]);
+                    }
                 } elseif ($type === 'journal_entry' || $type === 'journal_voucher') {
                     $jSeq = getJournalSequence($pdo, $tenantId);
                     $realId = $jSeq['nextJournalNo'];

@@ -2525,6 +2525,15 @@ async function _saveVoucherCore() {
         // SAVE TO BOTH TENANT KEY AND BASE KEY
         saveStoredVouchers(storageKey, existingData);
 
+        if (typeof window.pushToCloud === 'function') {
+            window.pushToCloud(true);
+        }
+        try {
+            if (!navigator.onLine && window.MagaiesOffline && typeof window.MagaiesOffline.enqueue === 'function') {
+                window.MagaiesOffline.enqueue('finance', voucher, vNo);
+            }
+        } catch (eOff) {}
+
         if (window.logSystemAction) {
             const isEdit = (existingIdx > -1);
             const isPay = (type === 'payment');

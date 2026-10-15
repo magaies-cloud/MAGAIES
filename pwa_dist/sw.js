@@ -9,25 +9,65 @@
  * - Zero Cache Staleness for Critical Real-Time APIs
  */
 
-const CACHE_NAME = 'magaiees-pwa-v2026-10-15-fast2g-v17';
+const CACHE_NAME = 'magaiees-pwa-v2026-10-16-offline-v18';
 
 const PRECACHE_ASSETS = [
     './',
     './manifest.json',
     './mobile-suite.html',
+    './mobile_erp_global_suite.html',
     './mobile-voucher.php',
+    './mobile-voucher.html',
     './mobile-dashboard.php',
+    './magaiees_unified_dashboard.php',
+    './single-cash-payment.php',
+    './multi-cash-payment.php',
+    './direct-sales.php',
+    './purchase.php',
+    './purchase-receipt.php',
+    './sales-delivery.php',
+    './delivery-note.php',
     './assets/logo.png',
     './assets/icon-192.png',
     './assets/apple-touch-icon.png',
     './assets/favicon.ico',
     './css/tailwind.min.css',
     './css/all.min.css',
+    './css/design-system.css',
+    './css/theme.css',
+    './css/components.css',
     './css/mobile-suite.css?v=2026_10_15_v17',
+    './js/tailwind.min.js',
+    './js/localforage.min.js',
     './js/pwa-manager.js?v=2026_10_15_v16',
     './js/magaies-offline-sync.js',
-    './js/mobile-suite.js?v=2026_10_15_v16'
+    './js/mobile-suite.js?v=2026_10_15_v16',
+    './js/app.js',
+    './js/single-cash-payment.js',
+    './js/multi-cash-payment.js',
+    './js/direct-sales-v3.js',
+    './js/purchase-pro-v5.js',
+    './js/sales-delivery.js'
 ];
+
+function isValidCacheableResponse(res) {
+    if (!res || res.status !== 200) return false;
+    if (res.redirected) return false;
+    if (res.url && (res.url.includes('login.php') || res.url.includes('logout='))) return false;
+    return true;
+}
+
+async function storeInCache(cache, assetUrl, res) {
+    if (!isValidCacheableResponse(res)) return;
+    try {
+        const fullUrl = new URL(assetUrl, self.registration.scope);
+        const cleanUrl = fullUrl.origin + fullUrl.pathname;
+        await cache.put(assetUrl, res.clone());
+        if (cleanUrl !== fullUrl.href) {
+            await cache.put(cleanUrl, res.clone());
+        }
+    } catch (e) {}
+}
 
 // Install Event: Fetch fresh assets from server (bypassing stale disk cache)
 self.addEventListener('install', (event) => {
@@ -37,9 +77,7 @@ self.addEventListener('install', (event) => {
                 PRECACHE_ASSETS.map(async (assetUrl) => {
                     try {
                         const res = await fetch(assetUrl, { cache: 'reload', credentials: 'same-origin' });
-                        if (res && res.status === 200) {
-                            await cache.put(assetUrl, res);
-                        }
+                        await storeInCache(cache, assetUrl, res);
                     } catch (e) {}
                 })
             );
@@ -63,8 +101,11 @@ self.addEventListener('activate', (event) => {
 });
 
 // Helper: Fetch with timeout for fast offline fallback on cold start
-function fetchWithTimeout(request, timeoutMs = 2500) {
+function fetchWithTimeout(request, timeoutMs = 1800) {
     return new Promise((resolve, reject) => {
+        if (self.navigator && self.navigator.onLine === false) {
+            return reject(new Error('Device is offline'));
+        }
         const timer = setTimeout(() => reject(new Error('Network timeout')), timeoutMs);
         fetch(request, { cache: 'no-cache' })
             .then((response) => {
@@ -76,6 +117,45 @@ function fetchWithTimeout(request, timeoutMs = 2500) {
                 reject(err);
             });
     });
+}
+
+async function findBestCachedPage(request, url) {
+    const direct =
+        (await caches.match(request)) ||
+        (await caches.match(request, { ignoreSearch: true })) ||
+        (await caches.match(url.origin + url.pathname, { ignoreSearch: true }));
+    if (direct) return direct;
+
+    // Cross-match paired equivalents (e.g. mobile-voucher.php <-> mobile-voucher.html, mobile-dashboard.php <-> mobile-suite.html)
+    const path = url.pathname;
+    const scopeBase = self.registration.scope.replace(/\/$/, '');
+    if (path.endsWith('mobile-voucher.php') || path.endsWith('mobile-voucher.html')) {
+        const vMatch =
+            (await caches.match(scopeBase + '/mobile-voucher.php', { ignoreSearch: true })) ||
+            (await caches.match(scopeBase + '/mobile-voucher.html', { ignoreSearch: true }));
+        if (vMatch) return vMatch;
+    }
+
+    const ua = request.headers.get('user-agent') || '';
+    const isMobileUA = /Android|iPhone|iPad|iPod|Mobile/i.test(ua) || path.includes('mobile');
+
+    if (isMobileUA) {
+        return (
+            (await caches.match(scopeBase + '/mobile-suite.html', { ignoreSearch: true })) ||
+            (await caches.match(scopeBase + '/mobile-dashboard.php', { ignoreSearch: true })) ||
+            (await caches.match(scopeBase + '/mobile_erp_global_suite.html', { ignoreSearch: true })) ||
+            (await caches.match(scopeBase + '/mobile-voucher.php', { ignoreSearch: true })) ||
+            (await caches.match(scopeBase + '/mobile-voucher.html', { ignoreSearch: true }))
+        );
+    } else {
+        return (
+            (await caches.match(scopeBase + '/magaiees_unified_dashboard.php', { ignoreSearch: true })) ||
+            (await caches.match(scopeBase + '/single-cash-payment.php', { ignoreSearch: true })) ||
+            (await caches.match(scopeBase + '/direct-sales.php', { ignoreSearch: true })) ||
+            (await caches.match(scopeBase + '/purchase.php', { ignoreSearch: true })) ||
+            (await caches.match(scopeBase + '/mobile-suite.html', { ignoreSearch: true }))
+        );
+    }
 }
 
 // Fetch Event: Instant App-Shell with Version-Aware Asset Caching
@@ -100,53 +180,47 @@ self.addEventListener('fetch', (event) => {
         return;
     }
 
-    // 2. Navigation Requests: Network-First with fast 2.5s timeout and instant offline cache fallback
+    // Never intercept login/logout requests with cached shells
+    if (url.pathname.endsWith('/login.php') || url.searchParams.has('logout')) {
+        return;
+    }
+
+    // 2. Navigation Requests: Instant 0ms Cache when offline, or Fast Network (1.8s) with instant offline cache fallback
     if (isNavigation && !url.searchParams.has('api') && !url.pathname.includes('/api/')) {
         event.respondWith(
             (async () => {
-                const networkFetch = fetchWithTimeout(request, 2500)
-                    .then((networkResponse) => {
-                        if (networkResponse && networkResponse.status === 200) {
-                            const copy1 = networkResponse.clone();
-                            const copy2 = networkResponse.clone();
-                            caches.open(CACHE_NAME).then((cache) => {
-                                cache.put(request, copy1);
-                                cache.put(url.origin + url.pathname, copy2);
-                            });
-                        }
-                        return networkResponse;
-                    })
-                    .catch(() => null);
+                const isExplicitlyOffline = (self.navigator && self.navigator.onLine === false);
 
-                const freshResponse = await networkFetch;
-                if (freshResponse) return freshResponse;
+                if (!isExplicitlyOffline) {
+                    const freshResponse = await fetchWithTimeout(request, 1800)
+                        .then((networkResponse) => {
+                            if (isValidCacheableResponse(networkResponse)) {
+                                const copy1 = networkResponse.clone();
+                                const copy2 = networkResponse.clone();
+                                caches.open(CACHE_NAME).then((cache) => {
+                                    cache.put(request, copy1);
+                                    cache.put(url.origin + url.pathname, copy2);
+                                });
+                                return networkResponse;
+                            }
+                            // If server redirected to login.php because session cookie expired while reconnecting, serve cached app if available
+                            if (networkResponse && (networkResponse.redirected || (networkResponse.url && networkResponse.url.includes('login.php')))) {
+                                return networkResponse;
+                            }
+                            return null;
+                        })
+                        .catch(() => null);
 
-                const cached =
-                    (await caches.match(request)) ||
-                    (await caches.match(request, { ignoreSearch: true })) ||
-                    (await caches.match(url.origin + url.pathname, { ignoreSearch: true }));
-
-                if (cached) return cached;
-
-                // Offline Fallback based on device type
-                const ua = request.headers.get('user-agent') || '';
-                const isMobileUA = /Android|iPhone|iPad|iPod|Mobile/i.test(ua) || url.pathname.includes('mobile');
-
-                let fallback = null;
-                if (isMobileUA) {
-                    fallback =
-                        (await caches.match('./mobile-suite.html', { ignoreSearch: true })) ||
-                        (await caches.match('./mobile-dashboard.php', { ignoreSearch: true }));
-                } else {
-                    fallback =
-                        (await caches.match('./magaiees_unified_dashboard.php', { ignoreSearch: true })) ||
-                        (await caches.match('./mobile-suite.html', { ignoreSearch: true }));
+                    if (freshResponse) return freshResponse;
                 }
 
-                if (fallback) return fallback;
+                // Offline or network timeout: serve immediately from cache
+                const cachedPage = await findBestCachedPage(request, url);
+                if (cachedPage) return cachedPage;
 
+                // Safe non-looping offline fallback screen (only shown if browser cache was completely cleared while offline)
                 return new Response(
-                    '<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>مقاييس ERP - وضع الأوفلاين</title></head><body style="background:#0f172a;color:#fff;font-family:sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;margin:0;text-align:center;"><div><h2>⚡ جاري فتح النظام في وضع الأوفلاين...</h2><script>window.location.replace("mobile-suite.html");</script></div></body></html>',
+                    '<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>مقاييس ERP - وضع الأوفلاين</title></head><body style="background:#0f172a;color:#fff;font-family:Tajawal,sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;margin:0;text-align:center;padding:20px;"><div style="max-width:400px;background:#1e293b;border:1px solid rgba(56,189,248,0.3);border-radius:20px;padding:24px;box-shadow:0 20px 50px rgba(0,0,0,0.5);"><div style="font-size:42px;margin-bottom:10px;">⚡</div><h2 style="margin:0 0 10px;font-size:18px;color:#38bdf8;">نظام مقاييس - وضع الأوفلاين الفوري</h2><p style="font-size:13px;color:#cbd5e1;line-height:1.6;margin-bottom:18px;">اختر الشاشة التي ترغب بفتحها في وضع الأوفلاين:</p><div style="display:flex;flex-direction:column;gap:10px;"><a href="mobile-voucher.php" style="background:linear-gradient(135deg,#10b981,#059669);color:#fff;text-decoration:none;padding:12px;border-radius:12px;font-weight:bold;font-size:14px;">💸 سند حركة مالية (جوال)</a><a href="mobile-suite.html" style="background:linear-gradient(135deg,#0284c7,#0369a1);color:#fff;text-decoration:none;padding:12px;border-radius:12px;font-weight:bold;font-size:14px;">📱 منظومة الجوال الشاملة</a><a href="magaiees_unified_dashboard.php" style="background:rgba(255,255,255,0.1);color:#e2e8f0;text-decoration:none;padding:12px;border-radius:12px;font-weight:bold;font-size:14px;">💻 منظومة اللابتوب الشاملة</a></div></div></body></html>',
                     { status: 200, headers: { 'Content-Type': 'text/html; charset=utf-8' } }
                 );
             })()
@@ -154,7 +228,7 @@ self.addEventListener('fetch', (event) => {
         return;
     }
 
-    // 3. Static Assets (CSS, JS, Fonts, Images): Exact URL (including ?v=) Cache-First, Offline Fallback
+    // 3. Static Assets (CSS, JS, Fonts, Images): Exact URL Cache-First, Offline Fallback
     if (
         /\.(css|js|woff2?|ttf|png|jpe?g|svg|ico|webp|json)(\?.*)?$/i.test(url.pathname) ||
         url.hostname.includes('fonts.googleapis.com') ||
@@ -170,11 +244,17 @@ self.addEventListener('fetch', (event) => {
                     return exactCached;
                 }
 
+                if (self.navigator && self.navigator.onLine === false) {
+                    const offlineCached = await caches.match(request, { ignoreSearch: true });
+                    if (offlineCached) return offlineCached;
+                    return new Response('', { status: 408 });
+                }
+
                 try {
-                    const networkResponse = await fetch(request, { cache: 'reload' });
-                    if (networkResponse && networkResponse.status === 200) {
+                    const networkResponse = await fetchWithTimeout(request, 2000);
+                    if (isValidCacheableResponse(networkResponse)) {
                         const copy = networkResponse.clone();
-                        caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
+                        caches.open(CACHE_NAME).then((cache) => storeInCache(cache, request.url, copy));
                     }
                     return networkResponse;
                 } catch (e) {
@@ -188,7 +268,7 @@ self.addEventListener('fetch', (event) => {
     }
 });
 
-// Warm-cache message handler: ONLY fetch assets that are NOT already in cache
+// Warm-cache message handler: Fetch assets that are NOT already in cache
 self.addEventListener('message', (event) => {
     if (event.data && event.data.type === 'WARM_OFFLINE_CACHE') {
         const urls = Array.isArray(event.data.urls) ? event.data.urls : PRECACHE_ASSETS;
@@ -198,7 +278,7 @@ self.addEventListener('message', (event) => {
                     const hit = await cache.match(u, { ignoreSearch: true });
                     if (!hit) {
                         const res = await fetch(u, { credentials: 'same-origin' });
-                        if (res && res.status === 200) await cache.put(u, res);
+                        await storeInCache(cache, u, res);
                     }
                 } catch (e) {}
             }

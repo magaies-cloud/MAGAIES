@@ -2530,9 +2530,11 @@
         const paddingPx = opts.paddingPx || 20;
 
         const clean = (text || '').toString().trim();
+        const isGhost = Boolean(el.classList && el.classList.contains('pos-ghost-default'));
+        const effectiveWeight = (isGhost || !clean) ? '400' : weight;
         if (!clean) {
           el.style.setProperty('font-size', defPx + 'px', 'important');
-          el.style.setProperty('font-weight', weight, 'important');
+          el.style.setProperty('font-weight', effectiveWeight, 'important');
           return;
         }
 
@@ -2546,14 +2548,14 @@
           else if (len > 16) fallbackPx = Math.max(minPx, maxPx - 4.5);
           else if (len > 10) fallbackPx = Math.max(minPx, maxPx - 2);
           el.style.setProperty('font-size', fallbackPx + 'px', 'important');
-          el.style.setProperty('font-weight', weight, 'important');
+          el.style.setProperty('font-weight', effectiveWeight, 'important');
           return;
         }
 
         const ctx = this._getCtx();
         let chosenPx = minPx;
         for (let px = maxPx; px >= minPx; px -= 0.5) {
-          ctx.font = `${weight} ${px}px ${family}`;
+          ctx.font = `${effectiveWeight} ${px}px ${family}`;
           const measured = ctx.measureText(clean).width;
           if (measured <= boxWidth) {
             chosenPx = px;
@@ -2561,22 +2563,24 @@
           }
         }
         el.style.setProperty('font-size', chosenPx + 'px', 'important');
-        el.style.setProperty('font-weight', weight, 'important');
+        el.style.setProperty('font-weight', effectiveWeight, 'important');
       },
 
       _applyCustomNumericOrScale(input, defaultBase, stepThresholds) {
         if (!input) return;
         input.style.removeProperty('color');
+        const raw = (input.value || '').toString().trim();
+        const isEmpty = !raw;
+        const effectiveWeight = isEmpty ? '400' : '900';
         if (window.SmartFieldCustomizer && input.id && SmartFieldCustomizer.hasCustomConfig(input.id)) {
           const uCfg = SmartFieldCustomizer.getFieldConfig(input.id);
           if (uCfg.fontMode === 'fixed' && uCfg.fontSize) {
             input.style.setProperty('font-size', uCfg.fontSize + 'px', 'important');
-            input.style.setProperty('font-weight', '900', 'important');
+            input.style.setProperty('font-weight', effectiveWeight, 'important');
             return;
           }
           if (uCfg.fontSize) defaultBase = uCfg.fontSize;
         }
-        const raw = (input.value || '').toString().trim();
         const len = raw.replace(/[^0-9.]/g, '').length;
         let size = defaultBase;
         for (const [minLen, ratio] of stepThresholds) {
@@ -2586,7 +2590,7 @@
           }
         }
         input.style.setProperty('font-size', size + 'px', 'important');
-        input.style.setProperty('font-weight', '900', 'important');
+        input.style.setProperty('font-weight', effectiveWeight, 'important');
       },
 
       scaleQty(input) {
@@ -8423,10 +8427,21 @@ window.SuiteSalesPOS = {
   if (window.SuitePurchasePOS) {
     Object.assign(window.SuitePurchasePOS, {
       onSupplierFocus(el) {
-        this.renderSupplierDropdown(el.value || '');
+        if (el && (el.classList.contains('pos-ghost-default') || ((el.value === 'مورد عام نقدي' || el.value === 'مطاحن الخرطوم للغلال') && !this._userPickedSupplier))) {
+          el.value = '';
+          el.classList.remove('pos-ghost-default');
+          if (window.SmartPOSFontAI) SmartPOSFontAI.scaleCustomer(el);
+        }
+        this.renderSupplierDropdown(el ? (el.value || '') : '');
       },
 
       onSupplierInput(q) {
+        const el = document.getElementById('purchaseSupplierInput');
+        if (el) {
+          el.classList.remove('pos-ghost-default');
+          this._userPickedSupplier = true;
+          if (window.SmartPOSFontAI) SmartPOSFontAI.scaleCustomer(el);
+        }
         this.renderSupplierDropdown(q);
       },
 
@@ -8467,10 +8482,21 @@ window.SuiteSalesPOS = {
       },
 
       onWarehouseFocus(el) {
-        this.renderWarehouseDropdown(el.value || '');
+        if (el && (el.classList.contains('pos-ghost-default') || (el.value === 'المستودع الرئيسي' && !this._userPickedWarehouse))) {
+          el.value = '';
+          el.classList.remove('pos-ghost-default');
+          if (window.SmartPOSFontAI) SmartPOSFontAI.scaleWarehouse(el);
+        }
+        this.renderWarehouseDropdown(el ? (el.value || '') : '');
       },
 
       onWarehouseInput(q) {
+        const el = document.getElementById('purchaseWarehouseInput');
+        if (el) {
+          el.classList.remove('pos-ghost-default');
+          this._userPickedWarehouse = true;
+          if (window.SmartPOSFontAI) SmartPOSFontAI.scaleWarehouse(el);
+        }
         this.renderWarehouseDropdown(q);
       },
 
@@ -8772,24 +8798,37 @@ window.SuiteSalesPOS = {
 
     // Wrap selectSupplier
     const origSelectSupplier = window.SuitePurchasePOS.selectSupplier;
-    window.SuitePurchasePOS.selectSupplier = function(s) {
-      origSelectSupplier.call(this, s);
+    window.SuitePurchasePOS.selectSupplier = function(s, isDefaultInit = false) {
+      origSelectSupplier.call(this, s, isDefaultInit);
       const drop = document.getElementById('purchaseSupplierDropdown');
       if (drop) drop.classList.add('hidden');
       const inp = document.getElementById('purchaseSupplierInput');
-      if (inp && s && s.name) inp.value = s.name;
+      if (inp && s && s.name) {
+        inp.value = s.name;
+        if (isDefaultInit) inp.classList.add('pos-ghost-default');
+        else {
+          inp.classList.remove('pos-ghost-default');
+          this._userPickedSupplier = true;
+        }
+        if (window.SmartPOSFontAI) SmartPOSFontAI.scaleCustomer(inp);
+      }
       if (typeof this.updateErpSmartStatusStrip === 'function') this.updateErpSmartStatusStrip();
     };
 
     // Wrap selectWarehouse
     const origPurSelectWarehouse = window.SuitePurchasePOS.selectWarehouse;
-    window.SuitePurchasePOS.selectWarehouse = function(name) {
-      origPurSelectWarehouse.call(this, name);
+    window.SuitePurchasePOS.selectWarehouse = function(name, isDefaultInit = false) {
+      origPurSelectWarehouse.call(this, name, isDefaultInit);
       const drop = document.getElementById('purchaseWarehouseDropdown');
       if (drop) drop.classList.add('hidden');
       const inp = document.getElementById('purchaseWarehouseInput');
       if (inp) {
         inp.value = name;
+        if (isDefaultInit) inp.classList.add('pos-ghost-default');
+        else {
+          inp.classList.remove('pos-ghost-default');
+          this._userPickedWarehouse = true;
+        }
         if (window.SmartPOSFontAI) SmartPOSFontAI.scaleWarehouse(inp);
       }
       if (typeof this.updateErpSmartStatusStrip === 'function') this.updateErpSmartStatusStrip();
@@ -8842,10 +8881,18 @@ window.SuiteSalesPOS = {
     if (typeof origPurNewInvoice === 'function') {
       window.SuitePurchasePOS.newInvoice = function(silent = false) {
         origPurNewInvoice.call(this, silent);
+        this._userPickedSupplier = false;
+        this._userPickedWarehouse = false;
         const suppInp = document.getElementById('purchaseSupplierInput');
-        if (suppInp) suppInp.value = 'مطاحن الخرطوم للغلال';
+        if (suppInp) {
+          suppInp.value = 'مورد عام نقدي';
+          suppInp.classList.add('pos-ghost-default');
+        }
         const whInp = document.getElementById('purchaseWarehouseInput');
-        if (whInp) whInp.value = 'المستودع الرئيسي';
+        if (whInp) {
+          whInp.value = 'المستودع الرئيسي';
+          whInp.classList.add('pos-ghost-default');
+        }
         const itInp = document.getElementById('purItemSearchInput');
         if (itInp) itInp.value = '';
         ['purchaseSupplierDropdown', 'purchaseWarehouseDropdown', 'purItemDropdown'].forEach(id => {
@@ -8853,6 +8900,7 @@ window.SuiteSalesPOS = {
           if (d) d.classList.add('hidden');
         });
         if (typeof this.updateErpSmartStatusStrip === 'function') this.updateErpSmartStatusStrip();
+        if (window.SmartPOSFontAI) setTimeout(() => window.SmartPOSFontAI.scaleAll(), 30);
       };
     }
   }
