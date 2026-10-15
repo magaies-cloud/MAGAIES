@@ -12727,8 +12727,54 @@ async function commitOpSales(andPay = false) {
       }
     }
 
+    function ensureSuiteQuickThemeDrawerDOM() {
+      const btn = document.getElementById('btnThemePalette');
+      if (btn) {
+        if (!btn.querySelector('.fa-palette')) {
+          btn.innerHTML = '<i class="fa-solid fa-palette text-amber-400 text-base"></i><span id="activeThemeBadge" class="hidden">7</span>';
+        }
+        btn.setAttribute('onclick', 'openThemePaletteDrawer(event); if(window.triggerHapticPulse)triggerHapticPulse(15);');
+      }
+      if (!document.getElementById('suiteQuickThemeDrawer')) {
+        const hdr = document.querySelector('header.app-main-header');
+        if (hdr) {
+          const drawer = document.createElement('div');
+          drawer.id = 'suiteQuickThemeDrawer';
+          drawer.dir = 'rtl';
+          drawer.className = 'hidden absolute top-[54px] right-2.5 w-64 rounded-2xl bg-slate-900 border-2 border-amber-500/60 p-2.5 shadow-2xl z-[999] space-y-1.5 text-right';
+          drawer.style.cssText = 'background:#0f172a !important; border-color:rgba(245,158,11,0.65) !important;';
+          drawer.innerHTML = `
+            <div class="flex items-center justify-between border-b border-slate-800 pb-1.5 mb-1" style="border-color:#1e293b !important;">
+              <span class="text-[11px] font-black text-amber-400" style="color:#fbbf24 !important;">🎨 السمات المحاسبية الـ 7 (AAA)</span>
+              <button type="button" onclick="document.getElementById('suiteQuickThemeDrawer').classList.add('hidden')" class="text-slate-400 hover:text-white text-xs font-bold px-1" style="color:#94a3b8 !important;">✕</button>
+            </div>
+            <div class="text-[9.5px] font-bold text-slate-400" style="color:#94a3b8 !important;">☀️ سمات نهارية فاتحة (خط داكن حاد):</div>
+            <div class="grid grid-cols-3 gap-1">
+              <button type="button" data-vtheme="warm-alabaster" onclick="applyTheme('warm-alabaster'); document.getElementById('suiteQuickThemeDrawer').classList.add('hidden');" class="p-1.5 rounded-xl border border-amber-400/60 flex flex-col items-center gap-0.5 text-[9.5px] font-black transition active:scale-95" style="background:#FBF8F1 !important; color:#18130A !important;"><span style="color:#18130A !important;">📜 بيج كريمي</span></button>
+              <button type="button" data-vtheme="pure-platinum" onclick="applyTheme('pure-platinum'); document.getElementById('suiteQuickThemeDrawer').classList.add('hidden');" class="p-1.5 rounded-xl border border-slate-300 flex flex-col items-center gap-0.5 text-[9.5px] font-black transition active:scale-95" style="background:#FFFFFF !important; color:#000000 !important;"><span style="color:#000000 !important;">☀️ أبيض ناصع</span></button>
+              <button type="button" data-vtheme="pearl-platinum" onclick="applyTheme('pearl-platinum'); document.getElementById('suiteQuickThemeDrawer').classList.add('hidden');" class="p-1.5 rounded-xl border border-slate-400 flex flex-col items-center gap-0.5 text-[9.5px] font-black transition active:scale-95" style="background:#EEF2F6 !important; color:#0F172A !important;"><span style="color:#0F172A !important;">🏛️ بلاتيني</span></button>
+            </div>
+            <div class="text-[9.5px] font-bold text-slate-400 pt-1" style="color:#94a3b8 !important;">🌙 سمات ليلية داكنة (خط فاتح ناصع):</div>
+            <div class="grid grid-cols-2 gap-1">
+              <button type="button" data-vtheme="midnight-executive" onclick="applyTheme('midnight-executive'); document.getElementById('suiteQuickThemeDrawer').classList.add('hidden');" class="p-1.5 rounded-xl border border-indigo-500/50 flex items-center justify-center gap-1 text-[9.5px] font-black transition active:scale-95" style="background:#04091A !important; color:#F8FAFC !important;"><span style="color:#F8FAFC !important;">🌌 كحلي ملكي</span></button>
+              <button type="button" data-vtheme="sepia-brown" onclick="applyTheme('sepia-brown'); document.getElementById('suiteQuickThemeDrawer').classList.add('hidden');" class="p-1.5 rounded-xl border border-amber-600/50 flex items-center justify-center gap-1 text-[9.5px] font-black transition active:scale-95" style="background:#1A110B !important; color:#FDF8F5 !important;"><span style="color:#FDF8F5 !important;">☕ بني موكا</span></button>
+              <button type="button" data-vtheme="obsidian-charcoal" onclick="applyTheme('obsidian-charcoal'); document.getElementById('suiteQuickThemeDrawer').classList.add('hidden');" class="p-1.5 rounded-xl border border-zinc-600 flex items-center justify-center gap-1 text-[9.5px] font-black transition active:scale-95" style="background:#000000 !important; color:#FFFFFF !important;"><span style="color:#FFFFFF !important;">🌑 أسود OLED</span></button>
+              <button type="button" data-vtheme="twilight-indigo" onclick="applyTheme('twilight-indigo'); document.getElementById('suiteQuickThemeDrawer').classList.add('hidden');" class="p-1.5 rounded-xl border border-slate-500 flex items-center justify-center gap-1 text-[9.5px] font-black transition active:scale-95" style="background:#1E293B !important; color:#F8FAFC !important;"><span style="color:#F8FAFC !important;">🛡️ رمادي داكن</span></button>
+            </div>
+          `;
+          const topBar = document.getElementById('flagshipTopBar');
+          if (topBar && topBar.nextSibling) {
+            hdr.insertBefore(drawer, topBar.nextSibling);
+          } else {
+            hdr.appendChild(drawer);
+          }
+        }
+      }
+    }
+
     function openThemePaletteDrawer(evt) {
       if (evt && typeof evt.stopPropagation === 'function') evt.stopPropagation();
+      ensureSuiteQuickThemeDrawerDOM();
       if (typeof AudioEngine !== 'undefined' && AudioEngine.play) AudioEngine.play('numpad');
       if (typeof triggerHapticPulse === 'function') triggerHapticPulse(20);
       const quickDrawer = document.getElementById('suiteQuickThemeDrawer');
@@ -12770,7 +12816,8 @@ async function commitOpSales(andPay = false) {
 
     function filterThemeCategory(cat) {}
 
-    // Apply saved theme immediately on startup without blocking toast
+    // Ensure DOM and apply saved theme immediately on startup without blocking toast
+    ensureSuiteQuickThemeDrawerDOM();
     applyTheme(currentActiveTheme, false);
 
     // 30-MINUTE OPERATIONAL / SHIFT / EYE-REST TIMER ENGINE

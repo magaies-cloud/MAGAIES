@@ -24,9 +24,9 @@ const PRECACHE_ASSETS = [
     './css/tailwind.min.css',
     './css/all.min.css',
     './css/mobile-suite.css?v=2026_10_15_v15',
-    './js/pwa-manager.js',
+    './js/pwa-manager.js?v=2026_10_15_v16',
     './js/magaies-offline-sync.js',
-    './js/mobile-suite.js?v=2026_10_15_v15'
+    './js/mobile-suite.js?v=2026_10_15_v16'
 ];
 
 // Install Event: Fetch fresh assets from server (bypassing stale disk cache)

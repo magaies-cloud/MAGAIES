@@ -169,7 +169,18 @@ window.PWAManager = {
     registerServiceWorker() {
         if ('serviceWorker' in navigator && (window.location.protocol === 'https:' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js', { scope: './' }).catch(() => {});
+                navigator.serviceWorker.register('./sw.js?v=2026_10_15_v15', { scope: './', updateViaCache: 'none' }).then((reg) => {
+                    try { reg.update(); } catch (e) {}
+                }).catch(() => {});
+                if ('caches' in window) {
+                    caches.keys().then((keys) => {
+                        keys.forEach((k) => {
+                            if (k !== 'magaiees-pwa-v2026-10-15-fast2g-v15') {
+                                caches.delete(k);
+                            }
+                        });
+                    }).catch(() => {});
+                }
             });
         }
     },
