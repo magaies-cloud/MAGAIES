@@ -69,6 +69,10 @@ $files = [
     'build_production_pwa.js' => getNormalizedHash(__DIR__ . '/build_production_pwa.js'),
     'index.html' => getNormalizedHash(__DIR__ . '/index.html'),
     'royal-glass.css' => getNormalizedHash(__DIR__ . '/royal-glass.css'),
+    'mobile-suite.html' => getNormalizedHash(__DIR__ . '/mobile-suite.html'),
+    'mobile_erp_global_suite.html' => getNormalizedHash(__DIR__ . '/mobile_erp_global_suite.html'),
+    'js/mobile-suite.js' => getNormalizedHash(__DIR__ . '/js/mobile-suite.js'),
+    'mobile-voucher.php' => getNormalizedHash(__DIR__ . '/mobile-voucher.php'),
 ];
 
 // Check specific keywords inside single-cash-payment.php
@@ -108,6 +112,11 @@ $checks['purchase_overpayment_modal'] = strpos(file_get_contents(__DIR__ . '/js/
 $checks['purchase_exchange_rate_keep'] = strpos(file_get_contents(__DIR__ . '/purchase.php'), 'prevCurrency') !== false;
 $checks['virtual_cfo_engine'] = strpos(file_get_contents(__DIR__ . '/js/chatbot.js'), 'analyzeCashFlowRunway') !== false;
 $checks['ocr_invoice_scanner'] = (file_exists(__DIR__ . '/api/ocr-invoice.php') && strpos(file_get_contents(__DIR__ . '/purchase.php'), 'triggerInvoiceOCR') !== false);
+$msHtml = file_exists(__DIR__ . '/mobile-suite.html') ? file_get_contents(__DIR__ . '/mobile-suite.html') : '';
+$msJs = file_exists(__DIR__ . '/js/mobile-suite.js') ? file_get_contents(__DIR__ . '/js/mobile-suite.js') : '';
+$checks['mobile_suite_add_item_master'] = (strpos($msHtml, 'modalOpAddItemMaster') !== false && strpos($msJs, 'window.SuiteItemMaster') !== false);
+$checks['mobile_suite_returns_modal'] = (strpos($msHtml, 'modalOpReturns') !== false && strpos($msJs, 'window.SuiteReturnsManager') !== false);
+$checks['mobile_suite_quick_fx_btn'] = strpos($msHtml, 'quickFxRateHeaderBtn') !== false;
 
 
 echo json_encode([
