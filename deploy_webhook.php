@@ -39,9 +39,11 @@ $output = [];
 $commands = [
     'rm -f /var/www/magaees/.git/index.lock 2>&1',
     'cd /var/www/magaees',
+    'git config --local url."https://x-access-token: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@github.com/".insteadOf "https://github.com/" 2>&1',
+    'git remote set-url origin https://x-access-token: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@github.com/magaies-cloud/MAGAIES.git 2>&1',
     'git update-index --no-skip-worktree whatsapp-service.mjs 2>&1',
     'chmod +w whatsapp-service.mjs 2>&1',
-    'git fetch origin 2>&1',
+    'git fetch origin main 2>&1',
     'git clean -fd 2>&1',
     'git reset --hard origin/main 2>&1',
     'chown -R www-data:www-data /var/www/magaees 2>&1',
