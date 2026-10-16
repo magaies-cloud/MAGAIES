@@ -29,7 +29,7 @@ $header_theme_class = 'header-theme-reports';
     <link rel="stylesheet" href="css/components.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script defer src="js/localforage.min.js"></script>
-    <script defer src="js/app.js"></script>
+    <script defer src="js/app.js?v=20261016_v28"></script>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&family=Tajawal:wght@300;400;500;700;800;900&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -120,7 +120,6 @@ $header_theme_class = 'header-theme-reports';
             overflow: hidden;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
             height: 250px;
-            opacity: 0;
             animation: fadeInUp 0.7s ease-out forwards;
         }
 

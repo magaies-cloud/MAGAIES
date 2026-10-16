@@ -9,7 +9,7 @@
  * - Zero Cache Staleness for Critical Real-Time APIs
  */
 
-const CACHE_NAME = 'magaiees-pwa-v2026-10-16-offline-v23';
+const CACHE_NAME = 'magaiees-pwa-v2026-10-16-royal-v28';
 
 const PRECACHE_ASSETS = [
     './',
@@ -36,9 +36,11 @@ const PRECACHE_ASSETS = [
     './css/design-system.css',
     './css/theme.css',
     './css/components.css',
+    './css/magaiees-royal-buttons.css?v=2026_royal_v2',
     './css/mobile-suite.css?v=2026_10_15_v17',
     './js/tailwind.min.js',
     './js/localforage.min.js',
+    './js/magaiees-royal-buttons.js?v=2026_royal_v2',
     './js/pwa-manager.js?v=2026_10_15_v16',
     './js/magaies-offline-sync.js',
     './js/mobile-suite.js?v=2026_10_15_v16',
@@ -50,10 +52,14 @@ const PRECACHE_ASSETS = [
     './js/sales-delivery.js'
 ];
 
-function isValidCacheableResponse(res) {
+function isValidCacheableResponse(res, requireHtml = false) {
     if (!res || res.status !== 200) return false;
     if (res.redirected) return false;
     if (res.url && (res.url.includes('login.php') || res.url.includes('logout='))) return false;
+    if (requireHtml) {
+        const ct = (res.headers && res.headers.get('content-type')) ? res.headers.get('content-type').toLowerCase() : '';
+        if (ct && !ct.includes('text/html')) return false;
+    }
     return true;
 }
 
@@ -103,7 +109,7 @@ self.addEventListener('activate', (event) => {
 });
 
 // Helper: Fetch with timeout for fast offline fallback on cold start
-function fetchWithTimeout(request, timeoutMs = 1800) {
+function fetchWithTimeout(request, timeoutMs = 8000) {
     return new Promise((resolve, reject) => {
         if (self.navigator && self.navigator.onLine === false) {
             return reject(new Error('Device is offline'));
@@ -138,26 +144,20 @@ async function findBestCachedPage(request, url) {
         if (vMatch) return vMatch;
     }
 
-    const ua = request.headers.get('user-agent') || '';
-    const isMobileUA = /Android|iPhone|iPad|iPod|Mobile/i.test(ua) || path.includes('mobile');
-
-    if (isMobileUA) {
-        return (
-            (await caches.match(scopeBase + '/mobile-suite.html', { ignoreSearch: true })) ||
-            (await caches.match(scopeBase + '/mobile-dashboard.php', { ignoreSearch: true })) ||
-            (await caches.match(scopeBase + '/mobile_erp_global_suite.html', { ignoreSearch: true })) ||
-            (await caches.match(scopeBase + '/mobile-voucher.php', { ignoreSearch: true })) ||
-            (await caches.match(scopeBase + '/mobile-voucher.html', { ignoreSearch: true }))
-        );
-    } else {
-        return (
-            (await caches.match(scopeBase + '/magaiees_unified_dashboard.php', { ignoreSearch: true })) ||
-            (await caches.match(scopeBase + '/single-cash-payment.php', { ignoreSearch: true })) ||
-            (await caches.match(scopeBase + '/direct-sales.php', { ignoreSearch: true })) ||
-            (await caches.match(scopeBase + '/purchase.php', { ignoreSearch: true })) ||
-            (await caches.match(scopeBase + '/mobile-suite.html', { ignoreSearch: true }))
-        );
+    // Only fallback to dashboard shell if the root or dashboard itself was requested
+    if (path.endsWith('/') || path.endsWith('index.php') || path.endsWith('magaiees_unified_dashboard.php') || path.endsWith('mobile-dashboard.php')) {
+        const ua = request.headers.get('user-agent') || '';
+        const isMobileUA = /Android|iPhone|iPad|iPod|Mobile/i.test(ua) || path.includes('mobile');
+        if (isMobileUA) {
+            return (
+                (await caches.match(scopeBase + '/mobile-suite.html', { ignoreSearch: true })) ||
+                (await caches.match(scopeBase + '/mobile-dashboard.php', { ignoreSearch: true }))
+            );
+        } else {
+            return await caches.match(scopeBase + '/magaiees_unified_dashboard.php', { ignoreSearch: true });
+        }
     }
+    return null;
 }
 
 // Fetch Event: Instant App-Shell with Version-Aware Asset Caching + Opportunistic Outbox Sync
@@ -197,16 +197,16 @@ self.addEventListener('fetch', (event) => {
         return;
     }
 
-    // 2. Navigation Requests: Instant 0ms Cache when offline, or Fast Network (1.8s) with instant offline cache fallback
+    // 2. Navigation Requests: Network-first (8s timeout) with exact offline cache fallback
     if (isNavigation && !url.searchParams.has('api') && !url.pathname.includes('/api/')) {
         event.respondWith(
             (async () => {
                 const isExplicitlyOffline = (self.navigator && self.navigator.onLine === false);
 
                 if (!isExplicitlyOffline) {
-                    const freshResponse = await fetchWithTimeout(request, 1800)
+                    const freshResponse = await fetchWithTimeout(request, 8000)
                         .then((networkResponse) => {
-                            if (isValidCacheableResponse(networkResponse)) {
+                            if (isValidCacheableResponse(networkResponse, true)) {
                                 const copy1 = networkResponse.clone();
                                 const copy2 = networkResponse.clone();
                                 caches.open(CACHE_NAME).then((cache) => {
@@ -215,11 +215,10 @@ self.addEventListener('fetch', (event) => {
                                 });
                                 return networkResponse;
                             }
-                            // If server redirected to login.php because session cookie expired while reconnecting, serve cached app if available
                             if (networkResponse && (networkResponse.redirected || (networkResponse.url && networkResponse.url.includes('login.php')))) {
                                 return networkResponse;
                             }
-                            return null;
+                            return networkResponse || null;
                         })
                         .catch(() => null);
 
@@ -240,7 +239,7 @@ self.addEventListener('fetch', (event) => {
         return;
     }
 
-    // 3. Static Assets (CSS, JS, Fonts, Images): Exact URL Cache-First, Offline Fallback
+    // 3. Static Assets (CSS, JS, Fonts, Images): Fresh Network-First for local CSS/JS when online, Cache-First for immutable media & offline
     if (
         /\.(css|js|woff2?|ttf|png|jpe?g|svg|ico|webp|json)(\?.*)?$/i.test(url.pathname) ||
         url.hostname.includes('fonts.googleapis.com') ||
@@ -249,17 +248,32 @@ self.addEventListener('fetch', (event) => {
         url.hostname.includes('cdn.tailwindcss.com') ||
         url.hostname.includes('unpkg.com')
     ) {
+        const isLocalCodeAsset = (url.origin === self.location.origin) && /\.(css|js|json)(\?.*)?$/i.test(url.pathname);
         event.respondWith(
             (async () => {
-                const exactCached = await caches.match(request);
-                if (exactCached) {
-                    return exactCached;
-                }
-
                 if (self.navigator && self.navigator.onLine === false) {
+                    const offlineExact = await caches.match(request);
+                    if (offlineExact) return offlineExact;
                     const offlineCached = await caches.match(request, { ignoreSearch: true });
                     if (offlineCached) return offlineCached;
                     return new Response('', { status: 408 });
+                }
+
+                // For local CSS/JS/JSON when online: fetch latest first so code updates appear immediately
+                if (isLocalCodeAsset) {
+                    try {
+                        const networkResponse = await fetchWithTimeout(request, 1500);
+                        if (isValidCacheableResponse(networkResponse)) {
+                            const copy = networkResponse.clone();
+                            caches.open(CACHE_NAME).then((cache) => storeInCache(cache, request.url, copy));
+                            return networkResponse;
+                        }
+                    } catch (e) {}
+                }
+
+                const exactCached = await caches.match(request);
+                if (exactCached) {
+                    return exactCached;
                 }
 
                 try {

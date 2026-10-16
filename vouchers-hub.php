@@ -521,7 +521,7 @@
     <div class="vouchers-grid">
 
         <!-- 3. Single Payment -->
-        <a data-href="single-cash-payment.php" onclick="if(window.innerWidth < 1024 || ('ontouchstart' in window) || navigator.maxTouchPoints > 0) { window.location.href='mobile-voucher.php'; } else { window.location.href='single-cash-payment.php'; }" class="premium-card" style="--card-color: #f43f5e; --card-rgb: 244, 63, 94;">
+        <a href="single-cash-payment.php" data-href="single-cash-payment.php" onclick="if(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) && window.innerWidth < 768) { window.location.href='mobile-voucher.php'; return false; } else { window.location.href='single-cash-payment.php'; return false; }" class="premium-card" style="--card-color: #f43f5e; --card-rgb: 244, 63, 94;">
             <div class="card-glow"></div>
             <div class="flow-badge" style="background: rgba(244, 63, 94, 0.1); color: #f43f5e; border: 1px solid rgba(244, 63, 94, 0.2);">
                 <span>🔴</span> مدفوعات
@@ -538,7 +538,7 @@
         </a>
 
         <!-- Grouped Payment -->
-        <a data-href="multi-cash-payment.php" onclick="window.location.href='multi-cash-payment.php'" class="premium-card" style="--card-color: #f97316; --card-rgb: 249, 115, 22;">
+        <a href="multi-cash-payment.php" data-href="multi-cash-payment.php" onclick="window.location.href='multi-cash-payment.php'" class="premium-card" style="--card-color: #f97316; --card-rgb: 249, 115, 22;">
             <div class="card-glow"></div>
             <div class="flow-badge" style="background: rgba(249,115,22,0.1); color: #f97316; border: 1px solid rgba(249,115,22,0.2);">
                 <span>👥</span> متعددة
@@ -555,7 +555,7 @@
         </a>
 
         <!-- Journal Voucher -->
-        <a data-href="journal-voucher.php" onclick="window.location.href='journal-voucher.php'" class="premium-card" style="--card-color: #a855f7; --card-rgb: 168, 85, 247;">
+        <a href="journal-voucher.php" data-href="journal-voucher.php" onclick="window.location.href='journal-voucher.php'" class="premium-card" style="--card-color: #a855f7; --card-rgb: 168, 85, 247;">
             <div class="card-glow"></div>
             <div class="flow-badge" style="background: rgba(168,85,247,0.1); color: #a855f7; border: 1px solid rgba(168,85,247,0.2);">
                 <span>📈</span> قيود
@@ -572,7 +572,7 @@
         </a>
 
         <!-- Checks Cycle -->
-        <a data-href="checks-cycle.php" onclick="window.location.href='checks-cycle.php'" class="premium-card" style="--card-color: #f59e0b; --card-rgb: 245, 158, 11;">
+        <a href="checks-cycle.php" data-href="checks-cycle.php" onclick="window.location.href='checks-cycle.php'" class="premium-card" style="--card-color: #f59e0b; --card-rgb: 245, 158, 11;">
             <div class="card-glow"></div>
             <div class="flow-badge" style="background: rgba(245,158,11,0.1); color: #f59e0b; border: 1px solid rgba(245,158,11,0.2);">
                 <span>🧾</span> شيكات
@@ -589,7 +589,7 @@
         </a>
 
         <!-- Posting Accounts -->
-        <a data-href="posting-accounts.php" onclick="window.location.href='posting-accounts.php'" class="premium-card" style="--card-color: #38bdf8; --card-rgb: 56, 189, 248;">
+        <a href="posting-accounts.php" data-href="posting-accounts.php" onclick="window.location.href='posting-accounts.php'" class="premium-card" style="--card-color: #38bdf8; --card-rgb: 56, 189, 248;">
             <div class="card-glow"></div>
             <div class="flow-badge" style="background: rgba(56, 189, 248, 0.1); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.2);">
                 <span>🔄</span> ترحيل
@@ -606,7 +606,7 @@
         </a>
 
         <!-- AI Money Advisor -->
-        <a data-href="ai_money_advisor.php" onclick="window.location.href='ai_money_advisor.php'" class="premium-card" style="--card-color: #10b981; --card-rgb: 16, 185, 129;">
+        <a href="ai_money_advisor.php" data-href="ai_money_advisor.php" onclick="window.location.href='ai_money_advisor.php'" class="premium-card" style="--card-color: #10b981; --card-rgb: 16, 185, 129;">
             <div class="card-glow"></div>
             <div class="flow-badge" style="background: rgba(16, 185, 129, 0.1); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.2);">
                 <span>🤖</span> ذكاء اصطناعي
@@ -651,7 +651,7 @@
 </div>
 
 <script defer src="js/localforage.min.js"></script>
-    <script defer src="js/app.js?v=<?php echo file_exists('js/app.js') ? filemtime('js/app.js') : '1'; ?>"></script>
+    <script defer src="js/app.js?v=20261016_v28"></script>
     <script>
     document.addEventListener('DBReady', async () => {
         try {
@@ -1011,17 +1011,19 @@
                 cards.forEach(card => grid.appendChild(card));
             }
 
-            sortableInstance = new Sortable(grid, {
-                animation: 150,
-                disabled: true,
-                ghostClass: 'sortable-ghost',
-                onEnd: function () {
-                    const newOrder = Array.from(grid.children)
-                        .map(c => c.getAttribute('data-href'))
-                        .filter(href => href);
-                    localStorage.setItem('vouchers_hub_order', JSON.stringify(newOrder));
-                }
-            });
+            if (typeof Sortable !== 'undefined') {
+                sortableInstance = new Sortable(grid, {
+                    animation: 150,
+                    disabled: true,
+                    ghostClass: 'sortable-ghost',
+                    onEnd: function () {
+                        const newOrder = Array.from(grid.children)
+                            .map(c => c.getAttribute('data-href'))
+                            .filter(href => href);
+                        localStorage.setItem('vouchers_hub_order', JSON.stringify(newOrder));
+                    }
+                });
+            }
 
             // Prevent clicks when in edit mode
             grid.addEventListener('click', (e) => {
@@ -1061,14 +1063,14 @@
                 btn.style.color = '#fff';
                 btn.style.borderColor = '#059669';
                 grid.classList.add('edit-mode');
-                sortableInstance.option('disabled', false);
+                if (sortableInstance) sortableInstance.option('disabled', false);
             } else {
                 btn.innerHTML = '⚙️ ترتيب';
                 btn.style.background = 'rgba(234,179,8,0.2)';
                 btn.style.color = '#fbbf24';
                 btn.style.borderColor = 'rgba(234,179,8,0.4)';
                 grid.classList.remove('edit-mode');
-                sortableInstance.option('disabled', true);
+                if (sortableInstance) sortableInstance.option('disabled', true);
             }
         }
     </script>

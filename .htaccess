@@ -2,7 +2,12 @@
 # PERMANENT FIX: Redirect www.c.elsajana.com -> c.elsajana.com
 # This rule is committed to Git so it survives every deploy.
 # ============================================
+DirectoryIndex index.php dashboard.php login.php
 RewriteEngine On
+
+# Route index.html to the unified smart device router index.php unless ?stay=1 is passed
+RewriteCond %{QUERY_STRING} !(^|&)stay=1(&|$) [NC]
+RewriteRule ^index\.html$ index.php [L,QSA]
 
 # Protect direct static access to mobile suite HTML by routing to PHP auth wrappers
 RewriteRule ^mobile-suite\.html$ mobile-suite.php [L,QSA]
@@ -19,11 +24,11 @@ RewriteRule ^(.*)$ https://c.elsajana.com/$1 [R=301,L]
     Require all denied
 </FilesMatch>
 
-# Cache static assets
+# Cache static assets (instant revalidation for code files so updates appear immediately)
 <IfModule mod_expires.c>
     ExpiresActive On
-    ExpiresByType text/css "access plus 1 month"
-    ExpiresByType application/javascript "access plus 1 month"
+    ExpiresByType text/css "access plus 0 seconds"
+    ExpiresByType application/javascript "access plus 0 seconds"
     ExpiresByType image/jpeg "access plus 1 year"
     ExpiresByType image/png "access plus 1 year"
     ExpiresByType image/gif "access plus 1 year"
@@ -33,8 +38,11 @@ RewriteRule ^(.*)$ https://c.elsajana.com/$1 [R=301,L]
 </IfModule>
 
 <IfModule mod_headers.c>
+    <FilesMatch "^(sw\.js|manifest\.json|index\.php|index\.html|dashboard\.php|mobile-dashboard\.php|mobile-suite\.php|mobile-suite\.html)$">
+        Header set Cache-Control "no-cache, no-store, must-revalidate, max-age=0"
+    </FilesMatch>
     <FilesMatch "\.(css|js)$">
-        Header set Cache-Control "public, max-age=2592000"
+        Header set Cache-Control "public, max-age=0, must-revalidate"
     </FilesMatch>
     <FilesMatch "\.(jpg|jpeg|png|gif|webp|svg|woff2)$">
         Header set Cache-Control "public, max-age=31536000, immutable"

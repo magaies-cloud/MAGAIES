@@ -1,4 +1,7 @@
 <?php
+if (!defined('ALLOW_OFFLINE_DB_FALLBACK')) {
+    define('ALLOW_OFFLINE_DB_FALLBACK', true);
+}
 if (!isset($systemUsdRate) || (float)$systemUsdRate <= 1) {
     $systemUsdRate = 5999.0;
     try {
@@ -104,7 +107,7 @@ window._cachedGlobalRate = window.SYSTEM_USD_RATE;
 <script src="js/hls.light.min.js"></script>
 <script src="js/bban_auto_helper.js"></script>
 <script src="js/master-banks-helper.js?v=20260924_v1"></script>
-<script src="js/permissions-manager.js"></script>
+<script src="js/permissions-manager.js?v=<?= file_exists(__DIR__ . '/../js/permissions-manager.js') ? filemtime(__DIR__ . '/../js/permissions-manager.js') : '20261016_v28' ?>"></script>
 <script src="js/audit-tracker.js?v=20260927"></script>
 <script>
     // ═══════════════════════════════════════════════════════════════════
@@ -244,6 +247,7 @@ window._cachedGlobalRate = window.SYSTEM_USD_RATE;
     });
 </script>
 <link rel="stylesheet" href="css/theme.css?v=<?= file_exists(__DIR__ . '/../css/theme.css') ? filemtime(__DIR__ . '/../css/theme.css') : '12' ?>">
+<link rel="stylesheet" href="css/magaiees-royal-buttons.css?v=<?= file_exists(__DIR__ . '/../css/magaiees-royal-buttons.css') ? filemtime(__DIR__ . '/../css/magaiees-royal-buttons.css') : time() ?>">
 <script>
 // Early sidebar injector - runs BEFORE deferred app.js (340KB)
 // This tiny inline script injects the sidebar immediately when body is available
@@ -284,7 +288,7 @@ window._cachedGlobalRate = window.SYSTEM_USD_RATE;
     for(var i=0;i<items.length;i++){
         var it=items[i], ac=(p===it[0]?' active':'');
         var clk = (it[0] === 'mobile-dashboard.php') ? "try{localStorage.setItem('magaiees_view_preference','mobile');document.cookie='magaiees_view_preference=mobile; path=/; max-age=31536000; SameSite=Lax';}catch(e){}; window.location.href='mobile-dashboard.php?force_mobile=1';" : "window.location.href='"+it[0]+"';";
-        nav+='<a style="cursor:pointer" data-href="'+it[0]+'" onclick="'+clk+'" class="sidebar-item'+ac+'"><span class="sidebar-icon" style="color:'+it[2]+'">'+mk(it[3],it[2])+'</span><span class="sidebar-text">'+it[1]+'</span></a>';
+        nav+='<a href="'+it[0]+'" style="cursor:pointer" data-href="'+it[0]+'" onclick="'+clk+'" class="sidebar-item'+ac+'"><span class="sidebar-icon" style="color:'+it[2]+'">'+mk(it[3],it[2])+'</span><span class="sidebar-text">'+it[1]+'</span></a>';
     }
     var html='<aside class="global-sidebar"><div class="sidebar-header"><span class="sidebar-logo-icon"><svg width="26" height="26" fill="none" stroke="#38bdf8" viewBox="0 0 24 24">'+icons.brand+'</svg></span><span class="sidebar-logo-text">مقاييس (MAGAIEES)</span></div><nav class="sidebar-nav">'+nav+'</nav><div class="sidebar-footer"><a href="#" onclick="logout();return false;" class="sidebar-item sidebar-logout"><span class="sidebar-icon" style="color:#f87171"><svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24">'+icons.out+'</svg></span><span class="sidebar-text">خروج</span></a></div></aside>';
     
@@ -665,6 +669,10 @@ window._cachedGlobalRate = window.SYSTEM_USD_RATE;
                 <button class="fullscreen-toggle-btn" onclick="toggleFullScreen()" style="background:rgba(255,255,255,0.1); border:none; border-radius:50%; width:36px; height:36px; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:1.15rem; color:var(--text-primary); transition:0.2s;" data-i18n-title="header.fullscreen" title="توسيع الشاشة">⛶</button>
             </div>
             <div style="display:flex; flex-direction:column; align-items:center; gap:6px;">
+                <button id="desktop-sync-shield-btn" type="button" class="royal-crystal-btn" onclick="window.openDesktopSyncAuditModal()" style="position:relative; background:rgba(16,185,129,0.18); border:1.5px solid rgba(16,185,129,0.55); border-radius:50%; width:36px; height:36px; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:1.05rem; color:#34d399; transition:0.2s; box-shadow:0 0 12px rgba(16,185,129,0.3);" title="🛡️ درع الحماية وسجل المزامنة التلقائية (اضغط مطولاً للفحص والمزامنة الفورية)">
+                    🛡️
+                    <span id="desktop-sync-shield-badge" style="display:none; position:absolute; top:-4px; right:-4px; background:#ef4444; color:#fff; font-size:10px; font-weight:900; min-width:17px; height:17px; border-radius:999px; align-items:center; justify-content:center; padding:0 4px; border:1.5px solid #0f172a;">0</span>
+                </button>
                 <button class="theme-toggle-btn" onclick="toggleTheme()" style="background:rgba(255,255,255,0.1); border:none; border-radius:50%; width:36px; height:36px; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:1.1rem; color:var(--text-primary); transition:0.2s;" data-i18n-title="header.toggleTheme" title="تبديل المظهر">🌓</button>
             </div>
         </div>
@@ -835,6 +843,7 @@ window._cachedGlobalRate = window.SYSTEM_USD_RATE;
 <script src="js/quran_reciters_data.js?v=<?php echo file_exists(__DIR__ . '/../js/quran_reciters_data.js') ? filemtime(__DIR__ . '/../js/quran_reciters_data.js') : time(); ?>"></script>
 <script src="js/global_background_media.js?v=<?php echo file_exists(__DIR__ . '/../js/global_background_media.js') ? filemtime(__DIR__ . '/../js/global_background_media.js') : time(); ?>" defer></script>
 <script src="js/magaiees_back.js?v=<?php echo file_exists(__DIR__ . '/../js/magaiees_back.js') ? filemtime(__DIR__ . '/../js/magaiees_back.js') : time(); ?>" defer></script>
+<script src="js/magaiees-royal-buttons.js?v=<?php echo file_exists(__DIR__ . '/../js/magaiees-royal-buttons.js') ? filemtime(__DIR__ . '/../js/magaiees-royal-buttons.js') : time(); ?>" defer></script>
 <script src="js/auto-header-scroll.js?v=<?php echo file_exists(__DIR__ . '/../js/auto-header-scroll.js') ? filemtime(__DIR__ . '/../js/auto-header-scroll.js') : time(); ?>" defer></script>
 
 

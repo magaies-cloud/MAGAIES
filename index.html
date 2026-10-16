@@ -6,22 +6,41 @@
   <title>مقاييس ERP - محرك رصد المخاطر والإشعارات التنفيذية</title>
   <script>
   (function enforceAuthAndDeviceGate() {
-    var token = localStorage.getItem('authToken');
-    var sessionActive = sessionStorage.getItem('session_active') === 'true' || document.cookie.includes('session_active=true');
+    var params = new URLSearchParams(window.location.search);
     var qs = window.location.search;
-    if (!token && !sessionActive) {
+    if (params.get('stay') === '1') return;
+
+    var ua = navigator.userAgent || '';
+    var width = window.innerWidth || document.documentElement.clientWidth || screen.width;
+    var height = window.innerHeight || document.documentElement.clientHeight || screen.height;
+    var isTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+    var isAppleTablet = /iPad/i.test(ua) || (isTouch && /Macintosh/i.test(ua));
+    var isAndroidTablet = (/Android/i.test(ua) && !/Mobile/i.test(ua)) || /Tablet/i.test(ua);
+    var isTouchTabletSize = isTouch && (Math.min(width, height) >= 600 && Math.max(width, height) <= 1366);
+    var isTablet = isAppleTablet || isAndroidTablet || (isTouch && isTouchTabletSize && !/iPhone|Mobile/i.test(ua));
+    var isLaptopOrPC = !isTouch && (/Windows NT|Macintosh|X11; Linux x86_64|CrOS/i.test(ua) || width >= 1024) && !/Android|iPhone|iPad|iPod|Mobile/i.test(ua);
+
+    var token = localStorage.getItem('authToken') || localStorage.getItem('saas_token');
+    var sessionActive = sessionStorage.getItem('session_active') === 'true' || document.cookie.includes('session_active=true') || document.cookie.includes('saas_token=') || document.cookie.includes('mg_device_auth=');
+    var isLocalhost = (location.hostname === 'localhost' || location.hostname === '127.0.0.1' || location.hostname === '[::1]');
+
+    if (!token && !sessionActive && !isLocalhost) {
       window.location.replace('login.php' + qs);
       return;
     }
-    var ua = navigator.userAgent || '';
-    var isLaptopOrPC = /Windows NT|Macintosh|X11; Linux x86_64|CrOS/i.test(ua) && !/Android|iPhone|iPad|iPod|Mobile/i.test(ua);
-    var params = new URLSearchParams(window.location.search);
-    if ((isLaptopOrPC || params.get('force_desktop') === '1') && params.get('stay') !== '1') {
+
+    if (params.get('force_mobile') === '1') {
+      window.location.replace('mobile-dashboard.php' + qs);
+    } else if (params.get('force_desktop') === '1' || isLaptopOrPC) {
       window.location.replace('magaiees_unified_dashboard.php' + qs);
+    } else if (isTablet) {
+      window.location.replace('mobile-dashboard.php?device=tablet' + (qs ? '&' + qs.replace(/^\?/, '') : ''));
+    } else {
+      window.location.replace('mobile-dashboard.php' + qs);
     }
   })();
   </script>
-  <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
+  <script src="js/tailwind.min.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">

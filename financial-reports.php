@@ -352,7 +352,7 @@
         <h2 class="section-heading section-4"><span class="heading-icon" style="color:#fbbf24; box-shadow:0 0 15px rgba(251,191,36,0.2);">🏛️</span> القوائم الختامية والمحاسبية</h2>
         <div class="bento-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px;">
             <!-- 1. ميزان المراجعة -->
-            <a data-href="trial-balance.php" onclick="window.location.href='trial-balance.php'" class="bento-card" style="--glow-color: rgba(251, 191, 36, 0.65);">
+            <a href="trial-balance.php" data-href="trial-balance.php" onclick="window.location.href='trial-balance.php'" class="bento-card" style="--glow-color: rgba(251, 191, 36, 0.65);">
                 <span class="badge badge-new">متقدم</span>
                 <div class="card-icon-wrapper">⚖️</div>
                 <div class="card-content">
@@ -362,7 +362,7 @@
             </a>
 
             <!-- 2. قائمة الأرباح والخسائر -->
-            <a data-href="pl-statement.php" onclick="window.location.href='pl-statement.php'" class="bento-card" style="--glow-color: rgba(251, 191, 36, 0.65);">
+            <a href="pl-statement.php" data-href="pl-statement.php" onclick="window.location.href='pl-statement.php'" class="bento-card" style="--glow-color: rgba(251, 191, 36, 0.65);">
                 <span class="badge badge-new">متقدم</span>
                 <div class="card-icon-wrapper">📊</div>
                 <div class="card-content">
@@ -372,7 +372,7 @@
             </a>
 
             <!-- 3. قيود اليومية -->
-            <a data-href="journal-voucher.php" onclick="window.location.href='journal-voucher.php'" class="bento-card" style="--glow-color: rgba(251, 191, 36, 0.65);">
+            <a href="journal-voucher.php" data-href="journal-voucher.php" onclick="window.location.href='journal-voucher.php'" class="bento-card" style="--glow-color: rgba(251, 191, 36, 0.65);">
                 <span class="badge">مفعل</span>
                 <div class="card-icon-wrapper">✍️</div>
                 <div class="card-content">
@@ -382,7 +382,7 @@
             </a>
 
             <!-- 4. تقرير الجرد العام لنهاية السنة والأصول الثابتة وحساب الزكاة الشرعية (ممتد بعرض الشاشة طولياً) -->
-            <a data-href="annual_inventory_zakat_report.php" onclick="window.location.href='annual_inventory_zakat_report.php'" class="bento-card bento-large" style="grid-column: 1 / -1; width: 100%; --glow-color: rgba(16, 185, 129, 0.75); background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(2, 132, 199, 0.15)); border: 2.5px solid #10b981;">
+            <a href="annual_inventory_zakat_report.php" data-href="annual_inventory_zakat_report.php" onclick="window.location.href='annual_inventory_zakat_report.php'" class="bento-card bento-large" style="grid-column: 1 / -1; width: 100%; --glow-color: rgba(16, 185, 129, 0.75); background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(2, 132, 199, 0.15)); border: 2.5px solid #10b981;">
                 <span class="badge badge-new" style="background: #10b981; color: #ffffff; border: none; font-weight: 900;"><i class="fa-solid fa-star"></i> التقرير الشامل والمحدث 2026</span>
                 <div class="card-icon-wrapper" style="background: rgba(16, 185, 129, 0.2); font-size: 2.2rem;">⚖️</div>
                 <div class="card-content" style="flex: 1;">
@@ -394,7 +394,7 @@
 
     </div>
 
-    <script defer src="js/app.js?v=<?php echo file_exists('js/app.js') ? filemtime('js/app.js') : '1'; ?>"></script>
+    <script defer src="js/app.js?v=20261016_v28"></script>
     <script>
         // Clock functionality for header
         function updateClock() {

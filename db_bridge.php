@@ -17,6 +17,12 @@ function getDBConnection() {
     if ($pdo === null) {
         require_once __DIR__ . '/api/db.php';
     }
+    if (!$pdo) {
+        if ($GLOBAL_TENANT_ID === null) {
+            $GLOBAL_TENANT_ID = !empty($_COOKIE['currentTenantId']) && is_numeric($_COOKIE['currentTenantId']) ? (int)$_COOKIE['currentTenantId'] : 12;
+        }
+        return null;
+    }
     
     if ($GLOBAL_TENANT_ID === null) {
         if (session_status() === PHP_SESSION_NONE) {

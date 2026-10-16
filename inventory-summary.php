@@ -222,7 +222,7 @@ $header_theme_class = "header-theme-inventory";
     </div>
 
     <script defer src="js/localforage.min.js"></script>
-    <script defer src="js/app.js?v=<?php echo file_exists('js/app.js') ? filemtime('js/app.js') : '1'; ?>"></script>
+    <script defer src="js/app.js?v=20261016_v28"></script>
     <script>
         let invDb = [];
         let itemsDb = [];

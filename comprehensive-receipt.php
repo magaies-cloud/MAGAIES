@@ -543,7 +543,7 @@
 
     <!-- Scripts -->
     <script defer src="js/localforage.min.js"></script>
-    <script defer src="js/app.js"></script>
+    <script defer src="js/app.js?v=20261016_v28"></script>
     <script defer src="js/master-banks-helper.js?v=20260924_v1"></script>
     <script defer src="js/comprehensive-receipt.js"></script>
 

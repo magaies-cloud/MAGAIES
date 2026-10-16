@@ -28,7 +28,7 @@ try {
         }
         $preloadedItemsJson = json_encode($pItems, JSON_UNESCAPED_UNICODE);
     }
-} catch (Exception $e) {}
+} catch (\Throwable $e) {}
 ?>
 <?php $page_title = 'المبيعات'; ?>
 <!DOCTYPE html>
@@ -2464,8 +2464,8 @@ try {
                         <label style="display: block; font-size: 0.85rem; color: #94a3b8; margin-bottom: 5px; font-weight: bold;">البحث عن فاتورة نشطة للتقسيم:</label>
                         <input type="text" id="split-invoice-search" class="v-input" placeholder="ابحث برقم الفاتورة، اسم العميل، أو الإجمالي..." oninput="filterSplitInvoices()">
                     </div>
-                    <button class="btn-action" style="width: auto; height: 42px; margin-top: auto; background: rgba(255,255,255,0.05);" onclick="loadSplitInvoices()">🔄 تحديث القائمة</button>
-                    <button class="btn-action" style="width: auto; height: 42px; margin-top: auto; background: rgba(239,68,68,0.15); color: #f87171;" onclick="showSalesHub()">رجوع</button>
+                    <button class="btn-action royal-crystal-btn royal-btn-new" style="width: auto; height: 42px; margin-top: auto; padding: 0 16px; border-radius: 10px;" onclick="loadSplitInvoices()">🔄 تحديث القائمة</button>
+                    <button class="btn-action royal-crystal-btn royal-btn-back" style="width: auto; height: 42px; margin-top: auto; padding: 0 18px; border-radius: 10px;" onclick="showSalesHub()">↩️ رجوع</button>
                 </div>
                 
                 <div class="grid-scroll-wrap" style="flex: 1; max-height: 450px; overflow-y: auto; margin-top: 10px;">
@@ -2551,8 +2551,8 @@ try {
                 </div>
 
                 <div style="display: flex; gap: 15px; justify-content: flex-end; margin-top: 5px;">
-                    <button class="btn-action" style="width: auto; padding: 8px 20px; background: rgba(255,255,255,0.05);" onclick="cancelCurrentSplit()">إلغاء وتراجع</button>
-                    <button class="btn-action" style="width: auto; padding: 8px 30px; background: linear-gradient(135deg, #ec4899, #8b5cf6); color: white; font-weight: bold; border: none; box-shadow: 0 4px 15px rgba(236,72,153,0.3);" onclick="submitInvoiceSplit()">تأكيد واعتماد التقسيم ✂️</button>
+                    <button class="btn-action royal-crystal-btn royal-btn-delete" style="width: auto; padding: 8px 20px; border-radius: 10px;" onclick="cancelCurrentSplit()">🗑️ إلغاء وتراجع</button>
+                    <button class="btn-action royal-crystal-btn royal-btn-save" style="width: auto; padding: 8px 30px; border-radius: 10px;" onclick="submitInvoiceSplit()">✅ تأكيد واعتماد التقسيم ✂️</button>
                 </div>
             </div>
         </div>
@@ -2565,8 +2565,8 @@ try {
                 <span style="color: #10b981;">🚚 فواتير قيد التسليم (Pending Delivery)</span>
                 <div style="display: flex; gap: 10px;">
                     <input type="text" id="delivery-search" class="v-input" placeholder="بحث..." style="width: 250px;" oninput="filterDeliveryTransactions()">
-                    <button class="btn-action" style="width: auto; padding: 6px 12px; font-size: 0.8rem; background: rgba(255,255,255,0.05);" onclick="loadDeliveryTransactions()">🔄 تحديث</button>
-                    <button class="btn-action" style="width: auto; padding: 6px 12px; font-size: 0.8rem; background: rgba(239,68,68,0.1); color: #ef4444;" onclick="showSalesHub()">رجوع</button>
+                    <button class="btn-action royal-crystal-btn royal-btn-new" style="width: auto; padding: 6px 14px; font-size: 0.85rem; border-radius: 10px;" onclick="loadDeliveryTransactions()">🔄 تحديث</button>
+                    <button class="btn-action royal-crystal-btn royal-btn-back" style="width: auto; padding: 6px 16px; font-size: 0.85rem; border-radius: 10px;" onclick="showSalesHub()">↩️ رجوع</button>
                 </div>
             </div>
             
@@ -3478,24 +3478,26 @@ try {
 
 
         <div class="items-toolbar" style="display: flex; align-items: center; justify-content: center; padding: 15px; border-radius: 12px; background: rgba(18, 15, 25, 0.8); border: 1px solid rgba(255,255,255,0.05); margin-top: 15px; box-shadow: 0 4px 20px rgba(0,0,0,0.2);">
-            <div class="toolbar-actions" style="display: flex; gap: 12px; width: 100%; align-items: center;">
-                <button class="btn-action btn-draft" style="flex: 1; height: 45px; background: #f97316; border: none; color: #fff; font-size: 1rem; font-weight: bold; border-radius: 8px; cursor: pointer; transition: 0.3s; box-shadow: 0 2px 10px rgba(249, 115, 22, 0.3);" onmouseover="this.style.background='#ea580c'; this.style.boxShadow='0 4px 15px rgba(249, 115, 22, 0.5)';" onmouseout="this.style.background='#f97316'; this.style.boxShadow='0 2px 10px rgba(249, 115, 22, 0.3)';" onclick="saveDraft()">💾 مسودة</button>
-                
-                <button class="btn-action btn-delete" style="flex: 1; height: 45px; background: #ef4444; border: none; color: #fff; font-size: 1rem; font-weight: bold; border-radius: 8px; cursor: pointer; transition: 0.3s; box-shadow: 0 2px 10px rgba(239, 68, 68, 0.3);" onmouseover="this.style.background='#dc2626'; this.style.boxShadow='0 4px 15px rgba(239, 68, 68, 0.5)';" onmouseout="this.style.background='#ef4444'; this.style.boxShadow='0 2px 10px rgba(239, 68, 68, 0.3)';" onclick="confirmDeleteTransaction()">❌ إلغاء</button>
+            <div class="toolbar-actions" style="display: flex; gap: 10px; width: 100%; align-items: center; flex-wrap: wrap;">
+                <button type="button" class="btn-action royal-crystal-btn royal-btn-exit btn-exit" style="flex: 0.9; min-width: 95px; height: 46px; font-size: 1rem; font-weight: 900; border-radius: 10px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px;" onclick="if(typeof showSalesHub === 'function' && document.getElementById('sales-hub-view')) { showSalesHub(); } else if(typeof magaieesGoBack === 'function') { magaieesGoBack(); } else { window.location.href='dashboard-pro.php'; }" title="الخروج والرجوع لبوابة المبيعات أو الرئيسية">🚪 خروج</button>
+
+                <button type="button" class="btn-action royal-crystal-btn royal-btn-delete btn-delete" style="flex: 1; min-width: 105px; height: 46px; font-size: 1rem; font-weight: 900; border-radius: 10px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px;" onclick="confirmDeleteTransaction()" title="حذف أو إلغاء الفاتورة الحالية">🗑️ حذف / إلغاء</button>
+
+                <button type="button" class="btn-action royal-crystal-btn royal-btn-edit btn-draft" style="flex: 1; min-width: 105px; height: 46px; font-size: 1rem; font-weight: 900; border-radius: 10px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px;" onclick="saveDraft()" title="حفظ الفاتورة كمسودة قابلة للتعديل">💾 مسودة</button>
                 
                 <!-- Unified Print Studio & Preview Button -->
-                <button type="button" class="btn-action" style="flex: 2; height: 45px; background: linear-gradient(135deg, #2563eb, #0ea5e9); border: none; color: #fff; font-size: 1rem; font-weight: bold; border-radius: 8px; cursor: pointer; transition: 0.3s; box-shadow: 0 4px 15px rgba(37,99,235,0.4); display: flex; align-items: center; justify-content: center; gap: 8px;" onmouseover="this.style.boxShadow='0 6px 20px rgba(37,99,235,0.6)'; this.style.transform='translateY(-2px)';" onmouseout="this.style.boxShadow='0 4px 15px rgba(37,99,235,0.4)'; this.style.transform='none';" onclick="openStandalonePrintPreview();" title="استوديو الطباعة والمعاينة الحية">
-                    🎨👁️ استوديو المعاينة والطباعة
+                <button type="button" class="btn-action royal-crystal-btn royal-btn-print" style="flex: 1.8; min-width: 185px; height: 46px; font-size: 1rem; font-weight: 900; border-radius: 10px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px;" onclick="openStandalonePrintPreview();" title="استوديو الطباعة والمعاينة الحية">
+                    🖨️ استوديو المعاينة والطباعة
                 </button>
-                <div class="preset-selector-container" style="flex: 1.5; display: flex; gap: 5px;">
-                    <select id="preset-selector" class="ctrl-input" style="height: 45px; margin: 0; background: rgba(15, 23, 42, 0.9); border: 1px solid rgba(56, 189, 248, 0.4); border-radius: 8px; color: #fff; font-weight: bold; flex: 1;" onchange="loadPreset(this.value)">
+                <div class="preset-selector-container" style="flex: 1.3; min-width: 130px; display: flex; gap: 5px;">
+                    <select id="preset-selector" class="ctrl-input" style="height: 46px; margin: 0; background: rgba(15, 23, 42, 0.9); border: 1px solid rgba(56, 189, 248, 0.4); border-radius: 10px; color: #fff; font-weight: bold; flex: 1;" onchange="loadPreset(this.value)">
                         <option value="">⚙️ التخصيصات (0)</option>
                     </select>
                 </div>
                 
-                <!-- Share Button: Professional with dropdown (نفس زر المشاركة في المشتريات) -->
-                <div style="position: relative; flex: 1.2;" id="share-btn-wrapper">
-                    <button type="button" class="btn-action btn-share" id="btn-share-invoice" style="width: 100%; height: 45px; background: linear-gradient(135deg, #8b5cf6, #6d28d9); border: none; color: #fff; font-size: 1rem; font-weight: bold; border-radius: 8px; cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 2px 10px rgba(139, 92, 246, 0.3); display: flex; align-items: center; justify-content: center; gap: 8px;" onmouseover="this.style.background='linear-gradient(135deg, #7c3aed, #5b21b6)'; this.style.boxShadow='0 4px 18px rgba(139, 92, 246, 0.5)'; this.style.transform='translateY(-1px)';" onmouseout="this.style.background='linear-gradient(135deg, #8b5cf6, #6d28d9)'; this.style.boxShadow='0 2px 10px rgba(139, 92, 246, 0.3)'; this.style.transform='none';" onclick="toggleShareMenu(event)">
+                <!-- Share Button: Professional with dropdown -->
+                <div style="position: relative; flex: 1.1; min-width: 115px;" id="share-btn-wrapper">
+                    <button type="button" class="btn-action royal-crystal-btn royal-btn-whatsapp btn-share" id="btn-share-invoice" style="width: 100%; height: 46px; font-size: 1rem; font-weight: 900; border-radius: 10px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px;" onclick="toggleShareMenu(event)">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
                         <span>مشاركة</span>
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="opacity: 0.7;"><polyline points="6 9 12 15 18 9"/></svg>
@@ -3529,8 +3531,8 @@ try {
                     </div>
                 </div>
 
-                <!-- New Button: Solid Green Gradient (مثل المشتريات) -->
-                <button type="button" class="btn-action btn-new" id="btn-new-invoice" style="flex: 1; height: 45px; box-shadow: 0 2px 10px rgba(16, 185, 129, 0.4); background: linear-gradient(135deg, #10b981, #059669); color: #fff; border: none; font-size: 1.1rem; font-weight: bold; border-radius: 8px; cursor: pointer; transition: 0.3s; display: flex; align-items: center; justify-content: center; gap: 6px;" onmouseover="this.style.boxShadow='0 6px 20px rgba(16, 185, 129, 0.6)';" onmouseout="this.style.boxShadow='0 2px 10px rgba(16, 185, 129, 0.4)';" onclick="onSuccessNewInvoice(false);" title="بدء فاتورة مبيعات جديدة وتفريغ الحقول">✨ جديد</button>
+                <!-- New Button: Unified Cyan-Sky Crystal Gradient -->
+                <button type="button" class="btn-action royal-crystal-btn royal-btn-new btn-new" id="btn-new-invoice" style="flex: 1; min-width: 100px; height: 46px; font-size: 1.05rem; font-weight: 900; border-radius: 10px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px;" onclick="onSuccessNewInvoice(false);" title="بدء فاتورة مبيعات جديدة وتفريغ الحقول">✨ جديد</button>
 
                 <!-- زر التحكم في الإرسال التلقائي مع الحفظ -->
                 <div class="auto-send-control-box" id="auto-send-control-wrapper-sales">
@@ -3567,7 +3569,7 @@ try {
                 </div>
                 
                 <span style="display:none;" id="footer-grand"></span>
-                <button class="btn-action btn-submit" style="flex: 1.5; height: 45px; box-shadow: 0 2px 10px rgba(56, 189, 248, 0.4); background: linear-gradient(135deg, #0ea5e9, #2563eb); color: #fff; border: none; font-size: 1.1rem; font-weight: bold; border-radius: 8px; cursor: pointer; transition: 0.3s;" onmouseover="this.style.boxShadow='0 6px 20px rgba(56, 189, 248, 0.6)';" onmouseout="this.style.boxShadow='0 2px 10px rgba(56, 189, 248, 0.4)';" onclick="submitInvoice()">✅ تأكيد وحفظ</button>
+                <button type="button" class="btn-action royal-crystal-btn royal-btn-save btn-submit" style="flex: 1.5; min-width: 145px; height: 46px; font-size: 1.1rem; font-weight: 900; border-radius: 10px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px;" onclick="submitInvoice()">✅ حفظ واعتماد</button>
             </div>
         </div>
 
@@ -3588,7 +3590,7 @@ try {
     <script defer src="js/html2pdf.bundle.min.js"></script>
     <script defer src="js/whatsapp-integration.js?v=<?php echo file_exists('js/whatsapp-integration.js') ? filemtime('js/whatsapp-integration.js') : '1.0.0'; ?>"></script>
     <script defer src="js/erp-whatsapp-suite.js?v=<?php echo file_exists('js/erp-whatsapp-suite.js') ? filemtime('js/erp-whatsapp-suite.js') : '1.0.0'; ?>"></script>
-    <script defer src="js/app.js?v=<?php echo file_exists('js/app.js') ? filemtime('js/app.js') : '1.0.0'; ?>"></script>
+    <script defer src="js/app.js?v=20261016_v28"></script>
     <script defer src="js/accounting-engine.js?v=<?php echo file_exists('js/accounting-engine.js') ? filemtime('js/accounting-engine.js') : '1.0.0'; ?>"></script>
     <script defer src="js/print-engine.js?v=<?php echo file_exists('js/print-engine.js') ? filemtime('js/print-engine.js') : '1.0.0'; ?>"></script>
     <script defer src="js/direct-sales-v3.js?v=<?php echo file_exists('js/direct-sales-v3.js') ? filemtime('js/direct-sales-v3.js') : '1.0.0'; ?>"></script>

@@ -1089,7 +1089,7 @@ foreach ($chart_products as $cp) {
             }
         });
     </script>
-    <script defer src="js/app.js"></script>
+    <script defer src="js/app.js?v=20261016_v28"></script>
 </body>
 </html>
 

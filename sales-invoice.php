@@ -238,16 +238,16 @@
         <!-- --- 1. TOP ACTION BAR --- -->
         <div class="top-action-bar">
             <div class="action-tabs" id="sale-type-tabs">
-                <a data-href="direct-sales.php" onclick="window.location.href='direct-sales.php'" class="action-tab " style="text-decoration:none;">
+                <a href="direct-sales.php" data-href="direct-sales.php" onclick="window.location.href='direct-sales.php'" class="action-tab " style="text-decoration:none;">
                     <span class="tab-icon">📄</span><span class="tab-label">فواتير المبيعات</span>
                 </a>
-                <a data-href="reserved-sales.php" onclick="window.location.href='reserved-sales.php'" class="action-tab " style="text-decoration:none;">
+                <a href="reserved-sales.php" data-href="reserved-sales.php" onclick="window.location.href='reserved-sales.php'" class="action-tab " style="text-decoration:none;">
                     المبيعات المحجوزة
                 </a>
-                <a data-href="sales-delivery.php" onclick="window.location.href='sales-delivery.php'" class="action-tab" style="text-decoration:none; background: rgba(16,185,129,0.15); border-color: #10b981; color: #10b981;">
+                <a href="sales-delivery.php" data-href="sales-delivery.php" onclick="window.location.href='sales-delivery.php'" class="action-tab" style="text-decoration:none; background: rgba(16,185,129,0.15); border-color: #10b981; color: #10b981;">
                     تسليم المبيعات (المنصرف)
                 </a>
-                <a data-href="sales-invoice.php" onclick="window.location.href='sales-invoice.php'" class="action-tab active" style="text-decoration:none;">
+                <a href="sales-invoice.php" data-href="sales-invoice.php" onclick="window.location.href='sales-invoice.php'" class="action-tab active" style="text-decoration:none;">
                     <span class="tab-icon">↩️</span><span class="tab-label">مرتجع مبيعات (مردود)</span>
                 </a>
             </div>
@@ -568,7 +568,7 @@
     </div>
 
     <script defer src="js/localforage.min.js"></script>
-    <script defer src="js/app.js?v=<?php echo file_exists('js/app.js') ? filemtime('js/app.js') : '1.0.0'; ?>"></script>
+    <script defer src="js/app.js?v=20261016_v28"></script>
     <script defer src="js/print-engine.js?v=<?php echo file_exists('js/print-engine.js') ? filemtime('js/print-engine.js') : '1.0.0'; ?>"></script>
     <script defer src="js/sales-invoice.js?v=<?php echo file_exists('js/sales-invoice.js') ? filemtime('js/sales-invoice.js') : '1.0.0'; ?>"></script>
 </body>

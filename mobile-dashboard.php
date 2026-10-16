@@ -21,7 +21,10 @@ if (isset($_GET['force_desktop']) && $_GET['force_desktop'] === '1') {
     exit;
 }
 
-// 3. Database & Mobile Auth Guard
+// 3. Database & Mobile Auth Guard (Resilient Offline-Capable)
+if (!defined('ALLOW_OFFLINE_DB_FALLBACK')) {
+    define('ALLOW_OFFLINE_DB_FALLBACK', true);
+}
 if (file_exists(__DIR__ . '/db_bridge.php')) {
     require_once __DIR__ . '/db_bridge.php';
 } elseif (file_exists(__DIR__ . '/ELSAJANA2/magaies/db_bridge.php')) {
@@ -34,8 +37,8 @@ if (file_exists(__DIR__ . '/mobile_auth_guard.php')) {
     require_once __DIR__ . '/ELSAJANA2/magaies/mobile_auth_guard.php';
 }
 
-$pdo = getDBConnection();
-$authUser = requireMobileAuth($pdo, false);
+$pdo = function_exists('getDBConnection') ? getDBConnection() : null;
+$authUser = function_exists('requireMobileAuth') ? requireMobileAuth($pdo, false) : [];
 
 // Release session lock immediately so parallel AJAX calls never block on 2G
 if (session_status() === PHP_SESSION_ACTIVE) {

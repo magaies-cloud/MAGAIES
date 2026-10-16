@@ -36,7 +36,7 @@ input { background: #222; color: #fff; border: 1px solid #555; padding: 10px; fo
 </div>
 
 <script defer src="js/localforage.min.js"></script>
-<script defer src="js/app.js?v=debug"></script>
+<script defer src="js/app.js?v=20261016_v28"></script>
 <script>
 const log = [];
 function addLog(msg) {

@@ -228,7 +228,7 @@
     </div>
 
     <script defer src="js/localforage.min.js"></script>
-    <script defer src="js/app.js?v=<?php echo file_exists('js/app.js') ? filemtime('js/app.js') : '1'; ?>"></script>
+    <script defer src="js/app.js?v=20261016_v28"></script>
     <script>
         document.addEventListener('DBReady', () => {
             if (!localStorage.getItem('authToken')) { window.location.href = 'login.php'; return; }

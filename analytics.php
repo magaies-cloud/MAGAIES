@@ -1052,7 +1052,7 @@
 </div>
 
 <script defer src="js/localforage.min.js"></script>
-    <script defer src="js/app.js?v=<?php echo file_exists('js/app.js') ? filemtime('js/app.js') : '1'; ?>"></script>
+    <script defer src="js/app.js?v=20261016_v28"></script>
 <script>
     document.addEventListener('DOMContentLoaded', () => {
         // We might want to wait for DBReady, but let's initialize directly if data is in localStorage
@@ -1125,6 +1125,7 @@
     }
 
     function updateCharts(dates, salesData, purchasesData, topProductLabels, topProductData) {
+        if (typeof Chart === 'undefined') return;
         const isLightTheme = document.documentElement.classList.contains('light-theme');
         const gridColor = isLightTheme ? 'rgba(0, 0, 0, 0.15)' : 'rgba(255, 255, 255, 0.05)';
         const tickColor = isLightTheme ? '#000000' : '#ffffff';

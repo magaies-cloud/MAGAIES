@@ -90,24 +90,49 @@ if ($ssl_ca && file_exists($ssl_ca)) {
     }
 }
 
+$__scriptPath = str_replace('\\', '/', $_SERVER['SCRIPT_NAME'] ?? ($_SERVER['PHP_SELF'] ?? ''));
+$__scriptBase = basename($__scriptPath);
+$__isApiEndpoint = (strpos($__scriptPath, '/api/') !== false)
+    || ($__scriptBase === 'api_index.php')
+    || (strpos($__scriptBase, 'api_') === 0);
+$__allowUiFallback = (defined('ALLOW_OFFLINE_DB_FALLBACK') && ALLOW_OFFLINE_DB_FALLBACK) || !$__isApiEndpoint;
+
 try {
     $pdo = new PDO($dsn, $user, $pass, $options);
 } catch (\PDOException $e) {
     // إذا فشل الاتصال الدائم (Persistent Socket)، نعيد المحاولة عبر اتصال مباشر جديد بدون التأثير على المستخدم
-    if (isset($options[PDO::ATTR_PERSISTENT])) {
+    if (!empty($options[PDO::ATTR_PERSISTENT])) {
         unset($options[PDO::ATTR_PERSISTENT]);
         try {
             $pdo = new PDO($dsn, $user, $pass, $options);
         } catch (\PDOException $e2) {
-            header('Content-Type: application/json; charset=UTF-8');
             error_log('DB Connection Error: ' . $e2->getMessage());
-            echo json_encode(['error' => 'فشل الاتصال بقاعدة البيانات']);
-            exit;
+            if ($__allowUiFallback) {
+                $pdo = null;
+            } else {
+                if (!headers_sent()) {
+                    http_response_code(503);
+                    header('Content-Type: application/json; charset=UTF-8');
+                    header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+                }
+                echo json_encode(['success' => false, 'error' => 'فشل الاتصال بقاعدة البيانات']);
+                exit;
+            }
         }
     } else {
-        header('Content-Type: application/json; charset=UTF-8');
         error_log('DB Connection Error: ' . $e->getMessage());
-        echo json_encode(['error' => 'فشل الاتصال بقاعدة البيانات']);
-        exit;
+        if ($__allowUiFallback) {
+            $pdo = null;
+        } else {
+            if (!headers_sent()) {
+                http_response_code(503);
+                header('Content-Type: application/json; charset=UTF-8');
+                header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+            }
+            echo json_encode(['success' => false, 'error' => 'فشل الاتصال بقاعدة البيانات']);
+            exit;
+        }
     }
 }
+
+

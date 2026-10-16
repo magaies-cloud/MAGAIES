@@ -36,6 +36,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="css/design-system.css?v=20260723_v14"><link rel="stylesheet" href="css/theme.css?v=20260723_v14">
     <link rel="stylesheet" href="css/components.css?v=20260723_v14">
+    <link rel="stylesheet" href="css/magaiees-royal-buttons.css?v=2026_royal_v2">
+    <script src="js/magaiees-royal-buttons.js?v=2026_royal_v2" defer></script>
     <script src="js/magaiees_back.js?v=2026_back_universal" defer></script>
         <style>
         body, body.has-sidebar, body.has-sidebar.sidebar-open {
@@ -685,7 +687,7 @@
 
     <script defer src="js/localforage.min.js"></script>
     <script defer src="js/modern-alerts.js?v=<?php echo file_exists('js/modern-alerts.js') ? filemtime('js/modern-alerts.js') : '1'; ?>"></script>
-    <script defer src="js/app.js?v=<?php echo file_exists('js/app.js') ? filemtime('js/app.js') : '1'; ?>"></script>
+    <script defer src="js/app.js?v=20261016_v28"></script>
 
     <script>
         // ==================== FORGOT PASSWORD LOGIC ====================
@@ -1057,9 +1059,21 @@
     </script>
     
     <script>
-        // --- SSO Interceptor ---
+        // --- SSO & Smart Session Resume Interceptor ---
         (function() {
             const ssoParams = new URLSearchParams(window.location.search);
+            if (ssoParams.has('logout')) {
+                try {
+                    localStorage.removeItem('authToken');
+                    localStorage.removeItem('saas_token');
+                    sessionStorage.removeItem('session_active');
+                    sessionStorage.removeItem('mg_auto_resume_attempted');
+                    document.cookie = "session_active=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+                    document.cookie = "saas_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+                    document.cookie = "mg_device_auth=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+                } catch(e) {}
+                return;
+            }
             if (ssoParams.get('force_desktop') === '1') {
                 localStorage.setItem('magaiees_view_preference', 'desktop');
                 document.cookie = "magaiees_view_preference=desktop; path=/; max-age=31536000; SameSite=Lax";
@@ -1069,7 +1083,7 @@
                 if (ssoParams.has('sso_user')) {
                     localStorage.setItem('user', ssoParams.get('sso_user'));
                 }
-                document.cookie = "session_active=true; path=/";
+                document.cookie = "session_active=true; path=/; max-age=2592000; SameSite=Lax";
                 document.cookie = "saas_token=" + encodeURIComponent(ssoParams.get('sso_token')) + "; path=/; max-age=2592000; SameSite=Lax";
                 sessionStorage.setItem('session_active', 'true');
                 sessionStorage.setItem('dashboard_unlocked', '1');
@@ -1102,6 +1116,40 @@
                 }
 
                 window.location.replace(ssoParams.get('redirect') || defaultTarget);
+                return;
+            }
+
+            // استئناف الجلسة الذكي إذا كان المستخدم مسجلاً بالفعل في المتصفح ولم يطلب تسجيل خروج
+            const savedAuthToken = localStorage.getItem('authToken') || localStorage.getItem('saas_token');
+            if (savedAuthToken && !ssoParams.has('login') && !ssoParams.has('force_login') && sessionStorage.getItem('mg_auto_resume_attempted') !== '1') {
+                sessionStorage.setItem('mg_auto_resume_attempted', '1');
+                document.cookie = "session_active=true; path=/; max-age=2592000; SameSite=Lax";
+                document.cookie = "saas_token=" + encodeURIComponent(savedAuthToken) + "; path=/; max-age=2592000; SameSite=Lax";
+                const savedTid = localStorage.getItem('currentTenantId');
+                if (savedTid) {
+                    document.cookie = "currentTenantId=" + encodeURIComponent(savedTid) + "; path=/; max-age=2592000; SameSite=Lax";
+                }
+                sessionStorage.setItem('session_active', 'true');
+                sessionStorage.setItem('dashboard_unlocked', '1');
+                const ua = navigator.userAgent || '';
+                const width = window.innerWidth || document.documentElement.clientWidth || screen.width;
+                const height = window.innerHeight || document.documentElement.clientHeight || screen.height;
+                const isTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+                const isDesktopOS = /Windows NT|X11; Linux x86_64|CrOS/i.test(ua) && !/Android|iPhone|iPad|iPod|Mobile/i.test(ua);
+                const isAppleTablet = /iPad/i.test(ua) || (isTouch && /Macintosh/i.test(ua) && navigator.maxTouchPoints > 1);
+                const isAndroidTablet = (/Android/i.test(ua) && !/Mobile/i.test(ua)) || /Tablet/i.test(ua);
+                const isTouchTabletSize = !isDesktopOS && isTouch && (Math.min(width, height) >= 600 && Math.max(width, height) <= 1366);
+                const isTablet = !isDesktopOS && (isAppleTablet || isAndroidTablet || (isTouch && isTouchTabletSize && !/iPhone|Mobile/i.test(ua)));
+                const isLaptop = isDesktopOS || (!isTablet && (/Windows NT|Macintosh|X11; Linux x86_64|CrOS/i.test(ua) || width >= 1024) && !/Android|iPhone|iPad|iPod|Mobile/i.test(ua));
+
+                let resumeTarget = ssoParams.get('redirect');
+                if (!resumeTarget) {
+                    if (ssoParams.get('force_mobile') === '1') resumeTarget = 'mobile-dashboard.php?force_mobile=1';
+                    else if (ssoParams.get('force_desktop') === '1' || isLaptop) resumeTarget = 'magaiees_unified_dashboard.php?force_desktop=1';
+                    else if (isTablet) resumeTarget = 'mobile-dashboard.php?device=tablet';
+                    else resumeTarget = 'mobile-dashboard.php';
+                }
+                window.location.replace(resumeTarget);
             }
         })();
 
@@ -1132,12 +1180,14 @@
             let isLaptop = false;
             let isTablet = false;
 
-            // 1. Tablet / Apple iPad / Android Tablet
-            const isAppleTablet = /iPad/i.test(ua) || (isTouch && /Macintosh/i.test(ua));
-            const isAndroidTablet = (/Android/i.test(ua) && !/Mobile/i.test(ua)) || /Tablet/i.test(ua);
-            const isTouchTabletSize = isTouch && (Math.min(width, height) >= 600 && Math.max(width, height) <= 1366);
+            const isDesktopOS = /Windows NT|X11; Linux x86_64|CrOS/i.test(ua) && !/Android|iPhone|iPad|iPod|Mobile/i.test(ua);
 
-            if (isAppleTablet || isAndroidTablet || (isTouch && isTouchTabletSize && !/iPhone|Mobile/i.test(ua))) {
+            // 1. Tablet / Apple iPad / Android Tablet
+            const isAppleTablet = /iPad/i.test(ua) || (isTouch && /Macintosh/i.test(ua) && navigator.maxTouchPoints > 1);
+            const isAndroidTablet = (/Android/i.test(ua) && !/Mobile/i.test(ua)) || /Tablet/i.test(ua);
+            const isTouchTabletSize = !isDesktopOS && isTouch && (Math.min(width, height) >= 600 && Math.max(width, height) <= 1366);
+
+            if (!isDesktopOS && (isAppleTablet || isAndroidTablet || (isTouch && isTouchTabletSize && !/iPhone|Mobile/i.test(ua)))) {
                 type = isAppleTablet ? 'ipad' : 'tablet';
                 brand = isAppleTablet ? 'ipad' : 'tablet';
                 name = isAppleTablet ? 'آبل آيباد (Apple iPad)' : 'جهاز لوحي (Tablet)';
@@ -1147,8 +1197,8 @@
                 color = '#c084fc';
                 isTablet = true;
             }
-            // 2. Laptop / Desktop / PC (Windows, Mac without touch, Linux)
-            else if (!isTouch && (/Windows NT|Macintosh|X11; Linux x86_64|CrOS/i.test(ua) || width >= 1024)) {
+            // 2. Laptop / Desktop / PC (Windows, Mac, Linux)
+            else if (isDesktopOS || (/Windows NT|Macintosh|X11; Linux x86_64|CrOS/i.test(ua) || width >= 1024) && !/Android|iPhone|iPad|iPod|Mobile/i.test(ua)) {
                 type = /Windows/i.test(ua) ? 'windows' : (/Mac/i.test(ua) ? 'mac' : 'desktop');
                 brand = 'desktop';
                 name = /Windows/i.test(ua) ? 'كمبيوتر ويندوز (Windows PC)' : (/Mac/i.test(ua) ? 'كمبيوتر ماك (Apple Mac)' : 'كمبيوتر مكتبي / لابتوب');
@@ -1418,7 +1468,7 @@
                     }
                 }
 
-                document.cookie = "session_active=true; path=/";
+                document.cookie = "session_active=true; path=/; max-age=2592000; SameSite=Lax";
                 document.cookie = "saas_token=" + encodeURIComponent(data.token) + "; path=/; max-age=2592000; SameSite=Lax";
                 if (data.user && data.user.tenant_id) {
                     document.cookie = "currentTenantId=" + encodeURIComponent(data.user.tenant_id) + "; path=/; max-age=2592000; SameSite=Lax";
@@ -1426,6 +1476,7 @@
                 }
                 sessionStorage.setItem('session_active', 'true');
                 sessionStorage.setItem('dashboard_unlocked', '1');
+                sessionStorage.removeItem('mg_auto_resume_attempted');
                 sessionStorage.removeItem('cloud_synced');
                 localStorage.setItem('authToken', data.token);
                 localStorage.setItem('user', JSON.stringify(data.user));
@@ -1666,11 +1717,12 @@
                 };
 
                 const offlineToken = 'offline_token_' + Date.now();
-                document.cookie = "session_active=true; path=/";
+                document.cookie = "session_active=true; path=/; max-age=2592000; SameSite=Lax";
                 document.cookie = "saas_token=" + encodeURIComponent(offlineToken) + "; path=/; max-age=2592000; SameSite=Lax";
                 document.cookie = "currentTenantId=" + encodeURIComponent(fallbackUser.tenant_id) + "; path=/; max-age=2592000; SameSite=Lax";
                 sessionStorage.setItem('session_active', 'true');
                 sessionStorage.setItem('dashboard_unlocked', '1');
+                sessionStorage.removeItem('mg_auto_resume_attempted');
                 sessionStorage.setItem('cloud_synced', 'false');
                 localStorage.setItem('authToken', offlineToken);
                 localStorage.setItem('user', JSON.stringify(fallbackUser));

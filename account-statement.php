@@ -2082,7 +2082,7 @@ function runAISmartSearch() {
 }
 </script>
 
-<script src="js/permissions-manager.js?v=2026_enterprise_v2"></script>
+<script src="js/permissions-manager.js?v=20261016_v28"></script>
 <script src="js/global_background_media.js?v=2026_seamless_v5" defer></script>
 <script src="js/magaiees_back.js?v=2026_back_v2" defer></script>
 </body>

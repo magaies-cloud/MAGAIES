@@ -307,15 +307,17 @@ if ((isset($_GET['api']) && $_GET['api'] === 'save_voucher') || (isset($_POST['a
 $prefix = 'E' . date('ym');
 $maxSeq = 0;
 try {
-    $effTenant = !empty($GLOBAL_TENANT_ID) ? (int)$GLOBAL_TENANT_ID : 12;
-    $stmt = $pdo->prepare("SELECT data FROM single_payments WHERE (tenant_id = ? OR tenant_id IS NULL)");
-    $stmt->execute([$effTenant]);
-    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-        $d = json_decode($row['data'], true);
-        $id = isset($d['id']) ? (string)$d['id'] : '';
-        if (strpos($id, $prefix) === 0) {
-            $seq = (int)substr($id, strlen($prefix));
-            if ($seq > $maxSeq) $maxSeq = $seq;
+    if ($pdo) {
+        $effTenant = !empty($GLOBAL_TENANT_ID) ? (int)$GLOBAL_TENANT_ID : 12;
+        $stmt = $pdo->prepare("SELECT data FROM single_payments WHERE (tenant_id = ? OR tenant_id IS NULL)");
+        $stmt->execute([$effTenant]);
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $d = json_decode($row['data'], true);
+            $id = isset($d['id']) ? (string)$d['id'] : '';
+            if (strpos($id, $prefix) === 0) {
+                $seq = (int)substr($id, strlen($prefix));
+                if ($seq > $maxSeq) $maxSeq = $seq;
+            }
         }
     }
 } catch (Exception $e) {
@@ -326,15 +328,17 @@ $page_title = 'حركة مالية';
 $SERVER_SINGLE_PAYMENTS_json = '[]';
 $SERVER_ALL_TRANSFERS_json = '[]';
 try {
-    $effTenant = !empty($GLOBAL_TENANT_ID) ? (int)$GLOBAL_TENANT_ID : 12;
-    $stmt = $pdo->prepare("SELECT data FROM single_payments WHERE (tenant_id = ? OR tenant_id IS NULL) ORDER BY id ASC");
-    $stmt->execute([$effTenant]);
-    $arr = [];
-    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-        $arr[] = json_decode($row['data'], true);
+    if ($pdo) {
+        $effTenant = !empty($GLOBAL_TENANT_ID) ? (int)$GLOBAL_TENANT_ID : 12;
+        $stmt = $pdo->prepare("SELECT data FROM single_payments WHERE (tenant_id = ? OR tenant_id IS NULL) ORDER BY id ASC");
+        $stmt->execute([$effTenant]);
+        $arr = [];
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $arr[] = json_decode($row['data'], true);
+        }
+        $SERVER_SINGLE_PAYMENTS_json = json_encode($arr);
+        $SERVER_ALL_TRANSFERS_json = json_encode(fetchAllDbTransfers($pdo, $effTenant), JSON_UNESCAPED_UNICODE);
     }
-    $SERVER_SINGLE_PAYMENTS_json = json_encode($arr);
-    $SERVER_ALL_TRANSFERS_json = json_encode(fetchAllDbTransfers($pdo, $effTenant), JSON_UNESCAPED_UNICODE);
 } catch (Exception $e) {}
 ?>
 
@@ -349,9 +353,10 @@ try {
         document.documentElement.setAttribute('lang','en');
     }
     var width = window.innerWidth || screen.width;
-    var isTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+    var ua = navigator.userAgent || '';
+    var isRealMobileUA = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(ua);
     var params = new URLSearchParams(window.location.search);
-    if (params.get('force_desktop') !== '1' && (width < 1024 || isTouch)) {
+    if (params.get('force_desktop') !== '1' && isRealMobileUA && width < 768) {
         window.location.replace('mobile-voucher.php' + window.location.search);
     }
 })();
@@ -2484,21 +2489,22 @@ try {
         <!-- STICKY FOOTER -->
         <div class="sticky-footer" style="background: rgba(15,23,42,0.85); backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px); border-top: 1px solid rgba(56, 189, 248, 0.4); border-left: 1px solid rgba(56, 189, 248, 0.4); border-right: 1px solid rgba(56, 189, 248, 0.4); border-radius: 20px 20px 0 0; padding: 8px 15px; position: sticky; bottom: 0; z-index: 100; box-shadow: 0 -10px 40px rgba(0,0,0,0.6), inset 0 2px 15px rgba(255,255,255,0.05);">
             <div class="footer-actions unified-footer-bar" style="width: 100%; justify-content: center; gap: 10px; display: flex; flex-wrap: wrap; align-items: center;">
-                <button type="button" class="btn crystal-btn btn-exit" onclick="if(document.referrer) { window.history.back(); } else { window.location.href='dashboard-pro.php'; }" title="الرجوع للشاشة السابقة">🚪 خروج</button>
-                <button type="button" class="btn crystal-btn btn-new" onclick="resetVoucher()">✨ مستند جديد</button>
-                <button type="button" class="btn crystal-btn btn-print-preview" id="btn-preview-invoice" style="display: none; background: rgba(14, 165, 233, 0.15); border: 1px solid #0ea5e9; color: #7dd3fc;" onclick="previewVoucher()">👁️ معاينة</button>
-                <button type="button" class="btn crystal-btn btn-print" id="btn-print-invoice" style="display: none;" onclick="printVoucher()">🖨️ طباعة</button>
+                <button type="button" class="btn crystal-btn royal-crystal-btn royal-btn-exit btn-exit" onclick="if(typeof magaieesGoBack === 'function') { magaieesGoBack(); } else if(document.referrer) { window.history.back(); } else { window.location.href='dashboard-pro.php'; }" title="الخروج والرجوع للشاشة السابقة">🚪 خروج</button>
+                <button type="button" class="btn crystal-btn royal-crystal-btn royal-btn-new btn-new" onclick="resetVoucher()" title="تصفير الحقول وبدء سند جديد">✨ جديد</button>
+                <button type="button" class="btn crystal-btn royal-crystal-btn royal-btn-print btn-print-preview" id="btn-preview-invoice" style="display: inline-flex;" onclick="previewVoucher()" title="معاينة السند المالي قبل الطباعة">👁️ معاينة</button>
+                <button type="button" class="btn crystal-btn royal-crystal-btn royal-btn-print btn-print" id="btn-print-invoice" style="display: inline-flex;" onclick="printVoucher()" title="طباعة السند المالي">🖨️ طباعة</button>
                 
                 <!-- زر الواتساب - يظهر كشعار واتساب رسمي احترافي -->
-                <button type="button" class="btn crystal-btn btn-whatsapp-icon-only" id="btn-whatsapp-master" onclick="openMasterWhatsAppDispatchModal()" title="إرسال كمبيالة وإشعار السند عبر واتساب">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" style="display: block;">
+                <button type="button" class="btn crystal-btn royal-crystal-btn royal-btn-whatsapp btn-whatsapp-icon-only" id="btn-whatsapp-master" onclick="openMasterWhatsAppDispatchModal()" title="إرسال كمبيالة وإشعار السند عبر واتساب" style="display: inline-flex; align-items: center; gap: 6px; padding: 0 14px; width: auto;">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" style="display: block;">
                         <path fill-rule="evenodd" clip-rule="evenodd" d="M12 0C5.373 0 0 5.373 0 12c0 2.115.552 4.103 1.516 5.832L.057 24l6.34-1.662A11.95 11.95 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0z" fill="#25D366"/>
                         <path fill-rule="evenodd" clip-rule="evenodd" d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" fill="#ffffff"/>
                     </svg>
+                    <span>واتساب</span>
                 </button>
                 <button type="button" id="btn-whatsapp-invoice" style="display: none !important;"></button>
 
-                <button type="button" class="btn crystal-btn btn-delete" onclick="confirmDelete()">🗑️ حذف السند</button>
+                <button type="button" class="btn crystal-btn royal-crystal-btn royal-btn-delete btn-delete" onclick="confirmDelete()" title="حذف السند الحالي">🗑️ حذف</button>
 
                 <!-- ═══ زر التحكم في الإرسال التلقائي مع الحفظ ═══ -->
                 <div id="auto-send-control-wrapper">
@@ -2531,7 +2537,7 @@ try {
                     </div>
                 </div>
 
-                <button type="button" class="btn crystal-btn btn-save-master" id="btn-save" onclick="submitVoucher()" title="حفظ واعتماد وترحيل السند المالي">
+                <button type="button" class="btn crystal-btn royal-crystal-btn royal-btn-save btn-save-master" id="btn-save" onclick="submitVoucher()" title="حفظ واعتماد وترحيل السند المالي">
                     <span>✅</span> <span>حفظ واعتماد السند</span>
                 </button>
             </div>
@@ -2919,7 +2925,7 @@ try {
 
     <script defer src="js/localforage.min.js"></script>
     <script defer src="js/promissory-flight-animation.js?v=<?php echo time(); ?>"></script>
-    <script defer src="js/app.js?v=<?php echo file_exists('js/app.js') ? filemtime('js/app.js') : '1'; ?>"></script>
+    <script defer src="js/app.js?v=20261016_v28"></script>
     <script defer src="js/html2pdf.bundle.min.js"></script>
     <script defer src="js/whatsapp-integration.js?v=<?php echo time(); ?>"></script>
     

@@ -34,9 +34,15 @@ if ($forceMobile) {
 }
 
 // 2. Server-Side Mobile Hardware & Client Hints Detection
-$isExplicitTablet = (bool)preg_match('/(ipad|tablet)/i', $userAgent);
-$isPureMobile = (bool)preg_match('/(android.*mobile|iphone|ipod|blackberry|iemobile|opera mini)/i', $userAgent) || ($secChUaMobile === '?1');
-$isWindowsOrLinux = (bool)preg_match('/(windows nt|x11; linux x86_64|cros)/i', $userAgent);
+$isExplicitTablet = (bool)preg_match('/(ipad|tablet|playbook|silk)|(android(?!.*mobile))/i', $userAgent)
+    || (preg_match('/macintosh/i', $userAgent) && $secChUaMobile === '?1');
+$isPureMobile = !$isExplicitTablet && (
+    (bool)preg_match('/(android|iphone|ipod|mobile|blackberry|iemobile|opera mini|samsung|huawei|honor|harmonyos|xiaomi|redmi|poco|oppo|vivo|oneplus|pixel|realme|infinix|tecno)/i', $userAgent)
+    || ($secChUaMobile === '?1')
+);
+$isDesktopOrLaptop = !$isPureMobile && !$isExplicitTablet && (
+    (bool)preg_match('/(windows nt|macintosh|x11; linux x86_64|cros)/i', $userAgent)
+);
 
 $savedPref = $_COOKIE['magaiees_view_preference'] ?? '';
 
@@ -50,7 +56,7 @@ if ($isPureMobile && $savedPref !== 'desktop') {
     exit;
 }
 
-if ($isWindowsOrLinux && $savedPref !== 'mobile') {
+if ($isDesktopOrLaptop && $savedPref !== 'mobile') {
     header("Location: magaiees_unified_dashboard.php{$qPrefix}");
     exit;
 }

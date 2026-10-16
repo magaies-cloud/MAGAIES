@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <title>مزامنة البيانات مع MySQL</title>
     <script src="js/localforage.min.js"></script>
-    <script src="js/app.js"></script>
+    <script src="js/app.js?v=20261016_v28"></script>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: 'Tajawal', Tahoma, sans-serif; background: #0f172a; color: #e2e8f0; padding: 30px; min-height: 100vh; }

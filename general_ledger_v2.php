@@ -474,7 +474,7 @@ if (empty($ledger_entries) && empty($date_from) && empty($date_to) && (!$db_conn
             }
         });
     </script>
-    <script defer src="js/app.js"></script>
+    <script defer src="js/app.js?v=20261016_v28"></script>
 </body>
 </html>
 

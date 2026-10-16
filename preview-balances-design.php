@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 // preview-balances-design.php
 // Excel-Style Preview Page for Balances - Pro Edition with Studio Tabs & Page Setup
 ?>
@@ -590,7 +590,7 @@
 <!-- Long Press HUD Overlay for 8-second Save & Lock -->
 <?php include 'includes/studio-modals.php'; ?>
 <script src="js/localforage.min.js"></script>
-<script src="js/app.js?v=<?php echo file_exists('js/app.js') ? filemtime('js/app.js') : '1'; ?>"></script>
+<script src="js/app.js?v=20261016_v28"></script>
 <script src="js/preview-balances.js?v=<?php echo time(); ?>"></script>
 
 <script src="js/global_background_media.js?v=2026_seamless_v5" defer></script>

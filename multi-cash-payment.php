@@ -310,46 +310,50 @@ if (isset($_POST['action'])) {
 $db_num_props_json = '{}';
 $db_ocr_props_json = '{}';
 try {
-    $tId = !empty($GLOBAL_TENANT_ID) ? (string)$GLOBAL_TENANT_ID : '1';
-    $stmt = $pdo->prepare("SELECT pref_value FROM ui_preferences WHERE tenant_id IN (?, 'default', '1') AND pref_key = 'multi_cash_num_props' ORDER BY CASE WHEN tenant_id = ? THEN 1 WHEN tenant_id = '1' THEN 2 ELSE 3 END LIMIT 1");
-    $stmt->execute([$tId, $tId]);
-    $res = $stmt->fetchColumn();
-    if ($res) $db_num_props_json = $res;
+    if ($pdo) {
+        $tId = !empty($GLOBAL_TENANT_ID) ? (string)$GLOBAL_TENANT_ID : '1';
+        $stmt = $pdo->prepare("SELECT pref_value FROM ui_preferences WHERE tenant_id IN (?, 'default', '1') AND pref_key = 'multi_cash_num_props' ORDER BY CASE WHEN tenant_id = ? THEN 1 WHEN tenant_id = '1' THEN 2 ELSE 3 END LIMIT 1");
+        $stmt->execute([$tId, $tId]);
+        $res = $stmt->fetchColumn();
+        if ($res) $db_num_props_json = $res;
 
-    $stmt2 = $pdo->prepare("SELECT pref_value FROM ui_preferences WHERE tenant_id IN (?, 'default', '1') AND pref_key = 'ocr_left_col_props' ORDER BY CASE WHEN tenant_id = ? THEN 1 WHEN tenant_id = '1' THEN 2 ELSE 3 END LIMIT 1");
-    $stmt2->execute([$tId, $tId]);
-    $res2 = $stmt2->fetchColumn();
-    if ($res2) $db_ocr_props_json = $res2;
+        $stmt2 = $pdo->prepare("SELECT pref_value FROM ui_preferences WHERE tenant_id IN (?, 'default', '1') AND pref_key = 'ocr_left_col_props' ORDER BY CASE WHEN tenant_id = ? THEN 1 WHEN tenant_id = '1' THEN 2 ELSE 3 END LIMIT 1");
+        $stmt2->execute([$tId, $tId]);
+        $res2 = $stmt2->fetchColumn();
+        if ($res2) $db_ocr_props_json = $res2;
+    }
 } catch(Exception $e) {}
 // ------------------------------------------
 
+$SERVER_COST_CENTERS_json = '[]';
 try {
-    // Fetch payments
-    $stmt = $pdo->prepare("SELECT data FROM payments WHERE tenant_id = ? ORDER BY id ASC");
-    $stmt->execute([$GLOBAL_TENANT_ID]);
-    $arrPay = [];
-    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-        $arrPay[] = json_decode($row['data'], true);
-    }
-    $SERVER_PAYMENTS_json = json_encode($arrPay, JSON_UNESCAPED_UNICODE);
+    if ($pdo) {
+        // Fetch payments
+        $stmt = $pdo->prepare("SELECT data FROM payments WHERE tenant_id = ? ORDER BY id ASC");
+        $stmt->execute([$GLOBAL_TENANT_ID]);
+        $arrPay = [];
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $arrPay[] = json_decode($row['data'], true);
+        }
+        $SERVER_PAYMENTS_json = json_encode($arrPay, JSON_UNESCAPED_UNICODE);
 
-    // Fetch receipts
-    $stmt = $pdo->prepare("SELECT data FROM receipts WHERE tenant_id = ? ORDER BY id ASC");
-    $stmt->execute([$GLOBAL_TENANT_ID]);
-    $arrRec = [];
-    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-        $arrRec[] = json_decode($row['data'], true);
-    }
-    $SERVER_RECEIPTS_json = json_encode($arrRec, JSON_UNESCAPED_UNICODE);
+        // Fetch receipts
+        $stmt = $pdo->prepare("SELECT data FROM receipts WHERE tenant_id = ? ORDER BY id ASC");
+        $stmt->execute([$GLOBAL_TENANT_ID]);
+        $arrRec = [];
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $arrRec[] = json_decode($row['data'], true);
+        }
+        $SERVER_RECEIPTS_json = json_encode($arrRec, JSON_UNESCAPED_UNICODE);
 
-    // Fetch cost centers / projects
-    $SERVER_COST_CENTERS_json = '[]';
-    try {
-        $stmtCc = $pdo->prepare("SELECT setting_value FROM global_settings WHERE setting_key IN ('erp_cost_centers_v1', 'erp_jobs_v1') ORDER BY FIELD(setting_key, 'erp_cost_centers_v1', 'erp_jobs_v1') LIMIT 1");
-        $stmtCc->execute();
-        $ccVal = $stmtCc->fetchColumn();
-        if ($ccVal) $SERVER_COST_CENTERS_json = $ccVal;
-    } catch (Exception $e) {}
+        // Fetch cost centers / projects
+        try {
+            $stmtCc = $pdo->prepare("SELECT setting_value FROM global_settings WHERE setting_key IN ('erp_cost_centers_v1', 'erp_jobs_v1') ORDER BY FIELD(setting_key, 'erp_cost_centers_v1', 'erp_jobs_v1') LIMIT 1");
+            $stmtCc->execute();
+            $ccVal = $stmtCc->fetchColumn();
+            if ($ccVal) $SERVER_COST_CENTERS_json = $ccVal;
+        } catch (Exception $e) {}
+    }
 } catch (Exception $e) {}
 
 $page_title = 'حركة مالية مجمعة'; 
@@ -365,14 +369,15 @@ $page_title = 'حركة مالية مجمعة';
         document.documentElement.setAttribute('lang','en');
     }
     var width = window.innerWidth || screen.width;
-    var isTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+    var ua = navigator.userAgent || '';
+    var isRealMobileUA = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(ua);
     var params = new URLSearchParams(window.location.search);
-    if (params.get('force_desktop') !== '1' && (width < 1024 || isTouch)) {
+    if (params.get('force_desktop') !== '1' && isRealMobileUA && width < 768) {
         window.location.replace('mobile-voucher.php' + window.location.search);
     }
 })();
 window.SERVER_PAYMENTS = <?php echo $SERVER_PAYMENTS_json; ?>;
-window.DB_ALL_TRANSFER_REFS = <?php echo json_encode(fetchAllDbTransfers($pdo, $GLOBAL_TENANT_ID), JSON_UNESCAPED_UNICODE); ?>;
+window.DB_ALL_TRANSFER_REFS = <?php echo json_encode($pdo ? fetchAllDbTransfers($pdo, $GLOBAL_TENANT_ID) : [], JSON_UNESCAPED_UNICODE); ?>;
 window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
 window.SERVER_COST_CENTERS = <?php echo $SERVER_COST_CENTERS_json; ?>;
 </script>
@@ -3831,7 +3836,7 @@ window.SERVER_COST_CENTERS = <?php echo $SERVER_COST_CENTERS_json; ?>;
     <script defer src="js/localforage.min.js"></script>
     <script defer src="js/html2pdf.bundle.min.js"></script>
     <script defer src="js/whatsapp-integration.js?v=<?= file_exists('js/whatsapp-integration.js') ? filemtime('js/whatsapp-integration.js') : '1' ?>"></script>
-    <script defer src="js/app.js?v=<?= file_exists('js/app.js') ? filemtime('js/app.js') : '1' ?>"></script>
+    <script defer src="js/app.js?v=20261016_v28"></script>
     <script defer src="js/promissory-flight-animation.js?v=<?= time() ?>"></script>
     <script defer src="js/master-banks-helper.js?v=<?= file_exists('js/master-banks-helper.js') ? filemtime('js/master-banks-helper.js') : '1' ?>"></script>
     <script defer src="js/multi-cash-payment.js?v=<?= time() ?>"></script>

@@ -33,7 +33,7 @@ $header_theme_class = 'header-theme-reports';
     <link rel="stylesheet" href="css/tailwind.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script defer src="js/localforage.min.js"></script>
-    <script defer src="js/app.js"></script>
+    <script defer src="js/app.js?v=20261016_v28"></script>
     
     <style>
         :root {

@@ -126,7 +126,7 @@
         <button onclick="history.back()" style="background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); cursor:pointer; padding:4px 8px; border-radius:4px; margin-left:8px; color:#94a3b8; display:flex;">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/></svg>
         </button>
-        <a data-href="financial-reports.php" onclick="window.location.href='financial-reports.php'" style="color:#c084fc; text-decoration:none; font-weight:700;">التقارير المالية</a>
+        <a href="financial-reports.php" data-href="financial-reports.php" onclick="window.location.href='financial-reports.php'" style="color:#c084fc; text-decoration:none; font-weight:700;">التقارير المالية</a>
         <span style="margin:0 10px; color:#475569;">/</span>
         <span style="color:#f8fafc;">دفتر اليومية العام</span>
     </div>
@@ -268,7 +268,7 @@
 
 </div>
 
-<script src="js/app.js?v=1783054968.18847"></script>
+<script src="js/app.js?v=20261016_v28"></script>
 <script src="js/journal.js"></script>
 
         <!-- AI Auditor Modal -->

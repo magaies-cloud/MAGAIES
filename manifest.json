@@ -2,8 +2,8 @@
   "name": "Magaiees ERP - مقاييس",
   "short_name": "مقاييس ERP",
   "description": "منظومة مقاييس لإدارة الموارد والمبيعات والمخزون والحسابات - Magaiees ERP & POS System",
-  "id": "magaiees-erp-2026-m-brand-new-v5",
-  "start_url": "mobile-dashboard.php",
+  "id": "magaiees-erp-2026-m-brand-new-v6",
+  "start_url": "index.php",
   "scope": "./",
   "display": "standalone",
   "display_override": [

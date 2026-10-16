@@ -687,8 +687,14 @@ $page_title = 'دفتر الأستاذ (SGL) - Launcher';
         
         <!-- Controls: Preview Studio & WhatsApp Dispatch -->
         <div class="no-print" style="display: flex; gap: 8px; align-items: center; border-right: 1px solid rgba(255,255,255,0.12); padding-right: 14px; margin-right: 2px; flex-wrap: wrap;">
-            <button type="button" class="luxury-action-btn luxury-btn-primary" onclick="shareCurrentLedgerReport()" title="مشاركة كشف الحساب عبر مختلف التطبيقات (واتساب، إيميل، تيليجرام...)" style="--btn-color: #3b82f6;">
+            <button type="button" class="royal-crystal-btn royal-btn-print luxury-action-btn" onclick="window.print()" title="طباعة كشف الحساب الحالي" style="padding: 8px 16px; border-radius: 10px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+                <span style="font-size: 1.1rem;">🖨️</span> طباعة الكشف
+            </button>
+            <button type="button" class="royal-crystal-btn royal-btn-new luxury-action-btn luxury-btn-primary" onclick="shareCurrentLedgerReport()" title="مشاركة كشف الحساب عبر مختلف التطبيقات (واتساب، إيميل، تيليجرام...)" style="--btn-color: #0ea5e9; padding: 8px 16px; border-radius: 10px;">
                 <span style="font-size: 1.1rem;">🔗</span> مشاركة كشف الحساب
+            </button>
+            <button type="button" class="royal-crystal-btn royal-btn-exit luxury-action-btn" onclick="if(typeof magaieesGoBack === 'function') { magaieesGoBack(); } else { window.location.href='dashboard-pro.php'; }" title="الخروج والرجوع للشاشة السابقة" style="padding: 8px 14px; border-radius: 10px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+                <span style="font-size: 1.1rem;">🚪</span> خروج
             </button>
 
             <!-- زر الواتساب الصغير بشعار الواتساب الرسمي لكشف الحساب -->
@@ -971,7 +977,7 @@ $page_title = 'دفتر الأستاذ (SGL) - Launcher';
 
 <!-- Core JS -->
 <script src="js/localforage.min.js"></script>
-<script src="js/app.js?v=<?php echo file_exists('js/app.js') ? filemtime('js/app.js') : '1'; ?>"></script>
+<script src="js/app.js?v=20261016_v28"></script>
 <script defer src="js/html2pdf.bundle.min.js"></script>
 <script defer src="js/whatsapp-integration.js?v=<?php echo time(); ?>"></script>
 <script defer src="js/erp-whatsapp-suite.js?v=<?php echo time(); ?>"></script>

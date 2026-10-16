@@ -3016,6 +3016,8 @@ $currenciesData = [
       });
     })();
   </script>
+  <link rel="stylesheet" href="css/magaiees-royal-buttons.css?v=<?= file_exists(__DIR__ . '/css/magaiees-royal-buttons.css') ? filemtime(__DIR__ . '/css/magaiees-royal-buttons.css') : time() ?>">
+  <script src="js/magaiees-royal-buttons.js?v=<?= file_exists(__DIR__ . '/js/magaiees-royal-buttons.js') ? filemtime(__DIR__ . '/js/magaiees-royal-buttons.js') : time() ?>" defer></script>
 </head>
 <body class="flex flex-col items-center justify-start antialiased selection:bg-blue-600 selection:text-white">
 
@@ -3660,26 +3662,26 @@ $currenciesData = [
         <div class="grid grid-cols-4 gap-1.5 w-full">
           
           <!-- 1. زر حفظ (✓): الزر الأساسي الأبرز -->
-          <button type="button" onclick="handleQuickCheckSave()" id="btnSaveMain" class="action-btn-kinetic h-[42px] sm:h-[44px] min-w-0 px-2 rounded-xl bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 hover:from-emerald-500 hover:to-cyan-500 active:scale-95 text-white font-black text-[12px] sm:text-[13px] flex items-center justify-center gap-1.5 shadow-lg shadow-emerald-950/70 border border-emerald-400/70 transition" title="تأكيد وحفظ السند">
+          <button type="button" onclick="handleQuickCheckSave()" id="btnSaveMain" class="action-btn-kinetic royal-crystal-btn royal-btn-save h-[42px] sm:h-[44px] min-w-0 px-2 rounded-xl text-white font-black text-[12px] sm:text-[13px] flex items-center justify-center gap-1.5 transition" title="تأكيد وحفظ السند">
             <i class="fa-solid fa-check text-xs sm:text-sm font-black shrink-0"></i>
             <span id="saveButtonLabel" class="truncate">حفظ (✓)</span>
           </button>
 
           <!-- 2. زر جديد: مسح الشاشة وبدء سند جديد فارغ -->
-          <button type="button" onclick="startNewVoucher()" class="action-btn-kinetic h-[42px] sm:h-[44px] min-w-0 px-2 rounded-xl bg-gradient-to-b from-cyan-950 via-slate-900 to-slate-950 border-2 border-cyan-400 text-cyan-200 font-black text-[12px] sm:text-[13px] flex items-center justify-center gap-1.5 shadow-[0_0_12px_rgba(6,182,212,0.35)] active:scale-95 transition" title="مسح الشاشة وبدء سند جديد فارغ">
-            <i class="fa-solid fa-plus text-cyan-400 text-xs sm:text-sm font-black shrink-0"></i>
+          <button type="button" onclick="startNewVoucher()" id="btnNewVoucher" class="action-btn-kinetic royal-crystal-btn royal-btn-new h-[42px] sm:h-[44px] min-w-0 px-2 rounded-xl text-white font-black text-[12px] sm:text-[13px] flex items-center justify-center gap-1.5 transition" title="مسح الشاشة وبدء سند جديد فارغ">
+            <i class="fa-solid fa-plus text-white text-xs sm:text-sm font-black shrink-0"></i>
             <span class="truncate">جديد</span>
           </button>
 
           <!-- 3. زر افتح: فتح واستعراض وبحث في السندات -->
-          <button type="button" onclick="openSearchVouchersModal()" class="action-btn-kinetic h-[42px] sm:h-[44px] min-w-0 px-2 rounded-xl bg-slate-900 border border-amber-500/60 text-amber-300 font-black text-[12px] sm:text-[13px] flex items-center justify-center gap-1.5 shadow-md active:scale-95 transition" title="فتح واستعراض وبحث في السندات المسجلة">
-            <i class="fa-solid fa-folder-open text-amber-400 text-xs sm:text-sm shrink-0"></i>
+          <button type="button" onclick="openSearchVouchersModal()" id="btnOpenVoucher" class="action-btn-kinetic royal-crystal-btn royal-btn-open h-[42px] sm:h-[44px] min-w-0 px-2 rounded-xl text-white font-black text-[12px] sm:text-[13px] flex items-center justify-center gap-1.5 transition" title="فتح واستعراض وبحث في السندات المسجلة">
+            <i class="fa-solid fa-folder-open text-white text-xs sm:text-sm shrink-0"></i>
             <span class="truncate">افتح</span>
           </button>
 
           <!-- 4. زر تعديل: تعديل بيانات السند الحالي -->
-          <button type="button" onclick="handleEdit()" class="action-btn-kinetic h-[42px] sm:h-[44px] min-w-0 px-2 rounded-xl bg-slate-900 border border-indigo-400/60 text-indigo-300 font-black text-[12px] sm:text-[13px] flex items-center justify-center gap-1.5 shadow-md active:scale-95 transition" title="تعديل بيانات السند الحالي">
-            <i class="fa-solid fa-pen-to-square text-indigo-400 text-xs sm:text-sm shrink-0"></i>
+          <button type="button" onclick="handleEdit()" id="btnEditVoucher" class="action-btn-kinetic royal-crystal-btn royal-btn-edit h-[42px] sm:h-[44px] min-w-0 px-2 rounded-xl text-white font-black text-[12px] sm:text-[13px] flex items-center justify-center gap-1.5 transition" title="تعديل بيانات السند الحالي">
+            <i class="fa-solid fa-pen-to-square text-white text-xs sm:text-sm shrink-0"></i>
             <span class="truncate">تعديل</span>
           </button>
 
@@ -3689,27 +3691,27 @@ $currenciesData = [
         <div class="grid grid-cols-4 gap-1.5 w-full">
 
           <!-- 5. زر إرسال واتساب -->
-          <button type="button" onclick="openSendWhatsAppModal()" class="action-btn-kinetic h-[42px] sm:h-[44px] min-w-0 px-2 rounded-xl bg-slate-900 border border-emerald-500/60 text-emerald-300 font-black text-[12px] sm:text-[13px] flex items-center justify-center gap-1.5 shadow-md active:scale-95 transition" title="إرسال تقرير السند للعميل عبر الواتساب">
-            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm sm:text-base shrink-0"></i>
+          <button type="button" onclick="openSendWhatsAppModal()" id="btnSendWhatsApp" class="action-btn-kinetic royal-crystal-btn royal-btn-whatsapp h-[42px] sm:h-[44px] min-w-0 px-2 rounded-xl text-white font-black text-[12px] sm:text-[13px] flex items-center justify-center gap-1.5 transition" title="إرسال تقرير السند للعميل عبر الواتساب">
+            <i class="fa-brands fa-whatsapp text-white text-sm sm:text-base shrink-0"></i>
             <span class="truncate">إرسال</span>
           </button>
 
           <!-- 6. زر طباعة: طباعة إيصال حراري وسند رسمي -->
-          <button type="button" onclick="handlePrintVoucher()" class="action-btn-kinetic h-[42px] sm:h-[44px] min-w-0 px-2 rounded-xl bg-slate-900 border border-purple-500/60 text-purple-300 font-black text-[12px] sm:text-[13px] flex items-center justify-center gap-1.5 shadow-md active:scale-95 transition" title="طباعة إيصال حراري أو سند رسمي معتمد">
-            <i class="fa-solid fa-print text-purple-400 text-xs sm:text-sm shrink-0"></i>
+          <button type="button" onclick="handlePrintVoucher()" id="btnPrintVoucher" class="action-btn-kinetic royal-crystal-btn royal-btn-print h-[42px] sm:h-[44px] min-w-0 px-2 rounded-xl text-white font-black text-[12px] sm:text-[13px] flex items-center justify-center gap-1.5 transition" title="طباعة إيصال حراري أو سند رسمي معتمد">
+            <i class="fa-solid fa-print text-white text-xs sm:text-sm shrink-0"></i>
             <span class="truncate">طباعة</span>
           </button>
 
           <!-- 7. زر حذف: حذف السند الحالي وعكس أثره المالي -->
-          <button type="button" onclick="handleDelete()" id="btnDeleteVoucher" class="action-btn-kinetic h-[42px] sm:h-[44px] min-w-0 px-2 rounded-xl bg-slate-900 border border-rose-500/60 text-rose-300 font-black text-[12px] sm:text-[13px] flex items-center justify-center gap-1.5 shadow-md active:scale-95 transition" title="حذف السند الحالي وعكس أثره المالي">
-            <i class="fa-solid fa-trash-can text-rose-400 text-xs sm:text-sm shrink-0"></i>
+          <button type="button" onclick="handleDelete()" id="btnDeleteVoucher" class="action-btn-kinetic royal-crystal-btn royal-btn-delete h-[42px] sm:h-[44px] min-w-0 px-2 rounded-xl text-white font-black text-[12px] sm:text-[13px] flex items-center justify-center gap-1.5 transition" title="حذف السند الحالي وعكس أثره المالي">
+            <i class="fa-solid fa-trash-can text-white text-xs sm:text-sm shrink-0"></i>
             <span class="truncate">حذف</span>
           </button>
 
-          <!-- 8. زر رجوع -->
-          <button type="button" onclick="handleExit()" class="action-btn-kinetic h-[42px] sm:h-[44px] min-w-0 px-2 rounded-xl bg-slate-900 border border-red-500/60 text-red-300 font-black text-[12px] sm:text-[13px] flex items-center justify-center gap-1.5 shadow-md active:scale-95 transition" title="إنهاء والرجوع للقائمة الرئيسية">
-            <i class="fa-solid fa-arrow-right-from-bracket text-cyan-400 text-xs sm:text-sm shrink-0"></i>
-            <span class="truncate">رجوع</span>
+          <!-- 8. زر خروج / رجوع -->
+          <button type="button" onclick="handleExit()" id="btnBackVoucher" class="action-btn-kinetic royal-crystal-btn royal-btn-exit h-[42px] sm:h-[44px] min-w-0 px-2 rounded-xl text-white font-black text-[12px] sm:text-[13px] flex items-center justify-center gap-1.5 transition" title="إنهاء والخروج للقائمة الرئيسية">
+            <i class="fa-solid fa-arrow-right-from-bracket text-white text-xs sm:text-sm shrink-0"></i>
+            <span class="truncate">خروج</span>
           </button>
 
         </div>

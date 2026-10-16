@@ -252,7 +252,7 @@
             <div class="flow-grid">
                 
                 <!-- Row 1 -->
-                <a data-href="payment-voucher.php" onclick="window.location.href='payment-voucher.php'" class="node arrow-down">
+                <a href="payment-voucher.php" data-href="payment-voucher.php" onclick="window.location.href='payment-voucher.php'" class="node arrow-down">
                     <span class="icon">📤</span>
                     <span class="label">سند صرف</span>
                 </a>
@@ -262,7 +262,7 @@
                     <span class="label">قيد يومية</span>
                 </a>
 
-                <a data-href="cash-receipt.php" onclick="window.location.href='cash-receipt.php'" class="node arrow-down">
+                <a href="cash-receipt.php" data-href="cash-receipt.php" onclick="window.location.href='cash-receipt.php'" class="node arrow-down">
                     <span class="icon">📥</span>
                     <span class="label">سند قبض</span>
                 </a>

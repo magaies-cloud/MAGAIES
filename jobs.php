@@ -196,7 +196,7 @@
         <div class="premium-header">
             <div style="display:flex; align-items:center; gap:20px;">
                 <h1 class="header-title"><span>💼</span> متابعة المهام (شغل)</h1>
-                <a data-href="dashboard-pro.php" onclick="window.location.href='dashboard-pro.php'" style="color:#94a3b8; text-decoration:none;">الرئيسية</a>
+                <a href="dashboard-pro.php" data-href="dashboard-pro.php" onclick="window.location.href='dashboard-pro.php'" style="color:#94a3b8; text-decoration:none;">الرئيسية</a>
             </div>
             <div>
                 <button class="btn-action" onclick="openModal()">➕ إضافة مهمة جديدة</button>
@@ -271,7 +271,7 @@
 
     <!-- Required for DBReady and IndexedDB -->
     <script defer src="js/localforage.min.js"></script>
-    <script defer src="js/app.js?v=<?php echo file_exists('js/app.js') ? filemtime('js/app.js') : '1'; ?>"></script>
+    <script defer src="js/app.js?v=20261016_v28"></script>
     <script>
         let jobs = [];
 

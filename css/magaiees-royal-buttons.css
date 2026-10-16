@@ -1,0 +1,467 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   👑 MAGAIEES ROYAL LIQUID-CRYSTAL BUTTON ENGINE (دستور الأزرار الكريستالية الموحد)
+   "فاكهة الشاشة" — Unified Aesthetics, Semantic Psychology & Kinetic Micro-Gestures
+   Applies to BOTH Desktop GUI (.php) and Mobile Suite (mobile-suite.html / mobile-voucher.php)
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+:root {
+    /* 1. Save & Approve (الأخضر الزمردي الملكي - الاعتماد والنجاح) */
+    --royal-save-bg: linear-gradient(135deg, #10b981 0%, #059669 52%, #047857 100%);
+    --royal-save-border: rgba(110, 231, 183, 0.75);
+    --royal-save-glow: rgba(16, 185, 129, 0.55);
+
+    /* 2. New / Reset (السماوي السيان الكريستالي - البداية الجديدة) */
+    --royal-new-bg: linear-gradient(135deg, #0ea5e9 0%, #0284c7 52%, #0369a1 100%);
+    --royal-new-border: rgba(125, 211, 252, 0.75);
+    --royal-new-glow: rgba(14, 165, 233, 0.55);
+
+    /* 3. Open / History / Statement (الذهبي الكهرماني - الفتح والأستاذ والرجوع) */
+    --royal-amber-bg: linear-gradient(135deg, #f59e0b 0%, #d97706 52%, #b45309 100%);
+    --royal-amber-border: rgba(253, 224, 71, 0.78);
+    --royal-amber-glow: rgba(245, 158, 11, 0.55);
+
+    /* 4. Edit / Draft (النيلي الملكي - التعديل والتحرير) */
+    --royal-edit-bg: linear-gradient(135deg, #6366f1 0%, #4f46e5 52%, #3730a3 100%);
+    --royal-edit-border: rgba(165, 180, 252, 0.75);
+    --royal-edit-glow: rgba(99, 102, 241, 0.55);
+
+    /* 5. Print & Preview Studio (البنفسجي الإمبراطوري - الطباعة والمعاينة) */
+    --royal-print-bg: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 52%, #5b21b6 100%);
+    --royal-print-border: rgba(216, 180, 254, 0.75);
+    --royal-print-glow: rgba(139, 92, 246, 0.55);
+
+    /* 6. WhatsApp & Share (أخضر واتساب الزمردي الرسمي - المشاركة الفورية) */
+    --royal-wa-bg: linear-gradient(135deg, #22c55e 0%, #16a34a 52%, #15803d 100%);
+    --royal-wa-border: rgba(134, 239, 172, 0.8);
+    --royal-wa-glow: rgba(34, 197, 94, 0.55);
+
+    /* 7. Delete / Clear (الأحمر الوردي التحذيري - الحذف والمسح) */
+    --royal-delete-bg: linear-gradient(135deg, #f43f5e 0%, #e11d48 52%, #be123c 100%);
+    --royal-delete-border: rgba(253, 164, 175, 0.75);
+    --royal-delete-glow: rgba(244, 63, 94, 0.55);
+
+    /* 8. Exit / Close (الأحمر الياقوتي القرمزي - الخروج والإغلاق) */
+    --royal-exit-bg: linear-gradient(135deg, #ef4444 0%, #dc2626 52%, #991b1b 100%);
+    --royal-exit-border: rgba(252, 165, 165, 0.8);
+    --royal-exit-glow: rgba(239, 68, 68, 0.58);
+
+    /* 9. Back (الكهرماني الذهبي الداكن الفاخر - الرجوع للخلف) */
+    --royal-back-bg: linear-gradient(135deg, rgba(245, 158, 11, 0.32) 0%, rgba(15, 23, 42, 0.94) 100%);
+    --royal-back-border: #fbbf24;
+    --royal-back-glow: rgba(251, 191, 36, 0.52);
+}
+
+/* ─── Keyframe Animations: Glass Shimmer, Harmonic Micro-Vibration & Aura Pulse ─── */
+
+/* 1. Periodic Glass Wave Sweep (موجة لمعة زجاجية دورية تعبر الزر) */
+@keyframes royalGlassSweep {
+    0% {
+        transform: translateX(-160%) skewX(-25deg);
+        opacity: 0;
+    }
+    12% {
+        opacity: 0.85;
+    }
+    28% {
+        transform: translateX(220%) skewX(-25deg);
+        opacity: 0;
+    }
+    100% {
+        transform: translateX(220%) skewX(-25deg);
+        opacity: 0;
+    }
+}
+
+/* 2. Hover Micro-Vibration + Levitation (اهتزاز ترحيبي لطيف مع ارتفاع وتكبير الحجم عند اقتراب المؤشر) */
+@keyframes royalHoverVibeLift {
+    0% {
+        transform: translateY(0) scale(1) rotate(0deg);
+    }
+    18% {
+        transform: translateY(-3px) scale(1.045) rotate(-1.1deg);
+    }
+    36% {
+        transform: translateY(-5px) scale(1.06) rotate(1.1deg);
+    }
+    54% {
+        transform: translateY(-4px) scale(1.055) rotate(-0.6deg);
+    }
+    72% {
+        transform: translateY(-4.5px) scale(1.052) rotate(0.4deg);
+    }
+    100% {
+        transform: translateY(-4px) scale(1.05) rotate(0deg);
+    }
+}
+
+/* 3. Icon Expressive Dance inside Button (رقصة الأيقونة الداخلية عند التحويم) */
+@keyframes royalIconDance {
+    0% { transform: scale(1) rotate(0deg); }
+    30% { transform: scale(1.26) rotate(-10deg); filter: drop-shadow(0 0 8px rgba(255,255,255,0.9)); }
+    65% { transform: scale(1.2) rotate(7deg); filter: drop-shadow(0 0 10px rgba(255,255,255,0.95)); }
+    100% { transform: scale(1.18) rotate(0deg); filter: drop-shadow(0 0 6px rgba(255,255,255,0.8)); }
+}
+
+/* 4. Ambient Breathing Glow for Primary Save/Action Buttons (نبض ضوئي حيوي مستمر) */
+@keyframes royalAuraBreath {
+    0%, 100% {
+        box-shadow: 0 5px 16px -2px var(--btn-glow, rgba(16, 185, 129, 0.45)),
+                    inset 0 1.5px 1px rgba(255, 255, 255, 0.45),
+                    inset 0 -2px 4px rgba(0, 0, 0, 0.35);
+    }
+    50% {
+        box-shadow: 0 8px 26px 2px var(--btn-glow, rgba(16, 185, 129, 0.72)),
+                    0 0 14px var(--btn-border, rgba(110, 231, 183, 0.6)),
+                    inset 0 2px 3px rgba(255, 255, 255, 0.65),
+                    inset 0 -2px 4px rgba(0, 0, 0, 0.25);
+    }
+}
+
+/* 5. Click Ripple Wave Expansion (موجة ضوئية دائرية عند الضغط) */
+@keyframes royalRippleWave {
+    0% {
+        transform: translate(-50%, -50%) scale(0.1);
+        opacity: 0.75;
+    }
+    100% {
+        transform: translate(-50%, -50%) scale(3.6);
+        opacity: 0;
+    }
+}
+
+/* ─── Core Royal Crystal Button Architecture ─── */
+.royal-crystal-btn,
+.crystal-btn,
+.items-toolbar .btn-action,
+.unified-footer-bar .btn,
+.magaiees-back-btn,
+.magaiees-theme-btn-top,
+.luxury-action-btn,
+.btn-add,
+.hub-action-card {
+    position: relative !important;
+    overflow: hidden !important;
+    isolation: isolate;
+    transition: transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1),
+                box-shadow 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+                border-color 0.25s ease,
+                filter 0.25s ease !important;
+    will-change: transform, box-shadow;
+    box-shadow: 0 6px 18px -3px var(--btn-glow, rgba(14, 165, 233, 0.35)),
+                inset 0 1.5px 1.5px rgba(255, 255, 255, 0.42),
+                inset 0 -2.5px 5px rgba(0, 0, 0, 0.32) !important;
+}
+
+/* Top Glass Specular Sheen & Periodic Moving Shimmer Wave (::before) */
+.royal-crystal-btn::before,
+.crystal-btn::before,
+.items-toolbar .btn-action::before,
+.unified-footer-bar .btn::before,
+.magaiees-back-btn::before,
+.luxury-action-btn::before,
+.btn-add::before {
+    content: "" !important;
+    position: absolute !important;
+    top: -15% !important;
+    left: 0 !important;
+    width: 48% !important;
+    height: 130% !important;
+    background: linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0) 0%,
+        rgba(255, 255, 255, 0.12) 25%,
+        rgba(255, 255, 255, 0.48) 50%,
+        rgba(255, 255, 255, 0.12) 75%,
+        rgba(255, 255, 255, 0) 100%
+    ) !important;
+    transform: translateX(-160%) skewX(-25deg);
+    animation: royalGlassSweep 5.5s cubic-bezier(0.4, 0, 0.2, 1) infinite !important;
+    animation-delay: var(--shimmer-delay, 0s) !important;
+    pointer-events: none !important;
+    z-index: 2 !important;
+}
+
+/* Interactive Cursor Spotlight & Glass Wave Layer (::after) */
+.royal-crystal-btn::after,
+.crystal-btn::after,
+.items-toolbar .btn-action::after,
+.unified-footer-bar .btn::after,
+.magaiees-back-btn::after,
+.luxury-action-btn::after,
+.btn-add::after {
+    content: "" !important;
+    position: absolute !important;
+    inset: 0 !important;
+    background: radial-gradient(
+        110px circle at var(--royal-mx, 50%) var(--royal-my, 50%),
+        rgba(255, 255, 255, 0.34),
+        transparent 70%
+    ) !important;
+    opacity: 0;
+    transition: opacity 0.25s ease !important;
+    pointer-events: none !important;
+    z-index: 1 !important;
+}
+
+/* ─── Hover & Focus State: Harmonic Micro-Vibration + Levitation + Intense Glow ─── */
+.royal-crystal-btn:hover,
+.crystal-btn:hover,
+.items-toolbar .btn-action:hover,
+.unified-footer-bar .btn:hover,
+.magaiees-back-btn:hover,
+.magaiees-theme-btn-top:hover,
+.luxury-action-btn:hover,
+.btn-add:hover {
+    animation: royalHoverVibeLift 0.52s cubic-bezier(0.34, 1.56, 0.64, 1) forwards !important;
+    filter: brightness(1.16) saturate(1.12) !important;
+    box-shadow: 0 12px 28px -3px var(--btn-glow, rgba(56, 189, 248, 0.65)),
+                0 0 18px var(--btn-border, rgba(255, 255, 255, 0.55)),
+                inset 0 2px 3px rgba(255, 255, 255, 0.72),
+                inset 0 -2px 5px rgba(0, 0, 0, 0.25) !important;
+    z-index: 10 !important;
+}
+
+.royal-crystal-btn:hover::after,
+.crystal-btn:hover::after,
+.items-toolbar .btn-action:hover::after,
+.unified-footer-bar .btn:hover::after,
+.magaiees-back-btn:hover::after,
+.luxury-action-btn:hover::after,
+.btn-add:hover::after {
+    opacity: 1 !important;
+}
+
+/* Speed up glass wave shimmer when hovered */
+.royal-crystal-btn:hover::before,
+.crystal-btn:hover::before,
+.items-toolbar .btn-action:hover::before,
+.unified-footer-bar .btn:hover::before,
+.magaiees-back-btn:hover::before,
+.luxury-action-btn:hover::before,
+.btn-add:hover::before {
+    animation-duration: 1.8s !important;
+    animation-delay: 0s !important;
+}
+
+/* Expressive Icon Animation on Hover */
+.royal-crystal-btn:hover svg,
+.royal-crystal-btn:hover .royal-icon,
+.crystal-btn:hover svg,
+.items-toolbar .btn-action:hover svg,
+.magaiees-back-btn:hover svg {
+    animation: royalIconDance 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) forwards !important;
+}
+
+/* Tactile Press Down State */
+.royal-crystal-btn:active,
+.crystal-btn:active,
+.items-toolbar .btn-action:active,
+.unified-footer-bar .btn:active,
+.magaiees-back-btn:active {
+    transform: translateY(1px) scale(0.96) !important;
+    filter: brightness(0.98) !important;
+    transition: transform 0.08s ease !important;
+}
+
+/* Dynamic Ripple Element injected on Click */
+.royal-click-wave {
+    position: absolute;
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255,255,255,0.85) 0%, rgba(255,255,255,0.3) 50%, transparent 75%);
+    pointer-events: none;
+    z-index: 3;
+    animation: royalRippleWave 0.65s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   🎨 THE 10 UNIFIED SEMANTIC BUTTON CLASSES (دستور الألوان الموحد لكل الشاشات)
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* 1. SAVE & APPROVE (أخضر زمردي موحد للحفظ والاعتماد في كل الشاشات) */
+.royal-btn-save,
+.btn-save-master,
+.items-toolbar .btn-submit,
+#btnSaveVoucher,
+#btn-save,
+#btn-submit-invoice {
+    --btn-glow: var(--royal-save-glow);
+    --btn-border: var(--royal-save-border);
+    background: var(--royal-save-bg) !important;
+    border: 1.5px solid var(--royal-save-border) !important;
+    color: #ffffff !important;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.45) !important;
+    font-weight: 900 !important;
+    animation: royalAuraBreath 3s infinite ease-in-out;
+}
+
+/* 2. NEW / CLEAR FORM (أزرق سماوي سيان موحد لزر جديد في كل الشاشات) */
+.royal-btn-new,
+.crystal-btn.btn-new,
+.items-toolbar .btn-new,
+#btnNewVoucher,
+#btn-new-invoice {
+    --btn-glow: var(--royal-new-glow);
+    --btn-border: var(--royal-new-border);
+    background: var(--royal-new-bg) !important;
+    border: 1.5px solid var(--royal-new-border) !important;
+    color: #ffffff !important;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4) !important;
+    font-weight: 900 !important;
+}
+
+/* 3. OPEN / HISTORY / STATEMENT / LEDGER (ذهبي كهرماني موحد لفتح السجل وكشف الحساب) */
+.royal-btn-open,
+.royal-btn-ledger,
+#btnOpenVoucher,
+#hdr-customer-ledger-btn {
+    --btn-glow: var(--royal-amber-glow);
+    --btn-border: var(--royal-amber-border);
+    background: var(--royal-amber-bg) !important;
+    border: 1.5px solid var(--royal-amber-border) !important;
+    color: #ffffff !important;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.45) !important;
+    font-weight: 900 !important;
+}
+
+/* 4. EDIT / DRAFT (نيلي ملكي موحد للتعديل والمسودة) */
+.royal-btn-edit,
+.items-toolbar .btn-draft,
+#btnEditVoucher {
+    --btn-glow: var(--royal-edit-glow);
+    --btn-border: var(--royal-edit-border);
+    background: var(--royal-edit-bg) !important;
+    border: 1.5px solid var(--royal-edit-border) !important;
+    color: #ffffff !important;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4) !important;
+    font-weight: 900 !important;
+}
+
+/* 5. PRINT & PREVIEW STUDIO (بنفسجي ملكي موحد للمعاينة والطباعة) */
+.royal-btn-print,
+.crystal-btn.btn-print,
+.crystal-btn.btn-print-preview,
+.items-toolbar .btn-preview,
+#btn-preview-invoice,
+#btn-print-invoice,
+#btnPrintVoucher {
+    --btn-glow: var(--royal-print-glow);
+    --btn-border: var(--royal-print-border);
+    background: var(--royal-print-bg) !important;
+    border: 1.5px solid var(--royal-print-border) !important;
+    color: #ffffff !important;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4) !important;
+    font-weight: 900 !important;
+}
+
+/* 6. WHATSAPP & SHARE (أخضر واتساب الزمردي الرسمي للمشاركة والإرسال) */
+.royal-btn-whatsapp,
+.royal-btn-share,
+.items-toolbar .btn-share,
+#btn-share-invoice,
+#btnSendWhatsApp,
+#btn-whatsapp-master,
+#btn-whatsapp-master-ledger {
+    --btn-glow: var(--royal-wa-glow);
+    --btn-border: var(--royal-wa-border);
+    background: var(--royal-wa-bg) !important;
+    border: 1.5px solid var(--royal-wa-border) !important;
+    color: #ffffff !important;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4) !important;
+    font-weight: 900 !important;
+}
+
+/* 7. DELETE / CLEAR (أحمر وردي تحذيري موحد للحذف والمسح) */
+.royal-btn-delete,
+.crystal-btn.btn-delete,
+.items-toolbar .btn-delete,
+#btnDeleteVoucher,
+#btn-delete-invoice {
+    --btn-glow: var(--royal-delete-glow);
+    --btn-border: var(--royal-delete-border);
+    background: var(--royal-delete-bg) !important;
+    border: 1.5px solid var(--royal-delete-border) !important;
+    color: #ffffff !important;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4) !important;
+    font-weight: 900 !important;
+}
+
+/* 8. EXIT / CLOSE (أحمر ياقوتي قرمزي موحد للخروج والإغلاق في كل الشاشات) */
+.royal-btn-exit,
+.crystal-btn.btn-exit,
+.items-toolbar .btn-exit,
+.md-tab-btn.tab-exit,
+#btnBackVoucher {
+    --btn-glow: var(--royal-exit-glow);
+    --btn-border: var(--royal-exit-border);
+    background: var(--royal-exit-bg) !important;
+    border: 1.5px solid var(--royal-exit-border) !important;
+    color: #ffffff !important;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.45) !important;
+    font-weight: 900 !important;
+}
+
+/* 9. BACK TO PREVIOUS SCREEN (ذهبي كهرماني موحد للرجوع للخلف) */
+.royal-btn-back,
+#magaiees-master-back-btn {
+    --btn-glow: var(--royal-back-glow);
+    --btn-border: var(--royal-back-border);
+    background: var(--royal-back-bg) !important;
+    border: 2px solid var(--royal-back-border) !important;
+    color: #fde047 !important;
+    font-weight: 900 !important;
+}
+
+/* 10. MODAL TOP CLOSE BUTTON (زر الإغلاق العلوي الموحد في جميع النوافذ) */
+.royal-modal-close-x {
+    width: 34px !important;
+    height: 34px !important;
+    border-radius: 50% !important;
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.28), rgba(153, 27, 27, 0.55)) !important;
+    border: 1.5px solid rgba(252, 165, 165, 0.65) !important;
+    color: #fecaca !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 14px !important;
+    font-weight: 900 !important;
+    cursor: pointer !important;
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.35), inset 0 1px 1px rgba(255,255,255,0.35) !important;
+    transition: all 0.28s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+    flex-shrink: 0 !important;
+}
+.royal-modal-close-x:hover {
+    background: var(--royal-exit-bg) !important;
+    color: #ffffff !important;
+    transform: scale(1.15) rotate(90deg) !important;
+    box-shadow: 0 0 20px rgba(239, 68, 68, 0.8) !important;
+}
+
+/* ─── Mobile Unified Modal Sticky Action Bar (شريط الأزرار السفلي الموحد للنوافذ) ─── */
+.royal-mobile-modal-footer {
+    margin-top: 12px;
+    padding-top: 10px;
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+.royal-mobile-modal-footer .royal-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    width: 100%;
+}
+.royal-mobile-modal-footer .royal-crystal-btn {
+    border-radius: 12px !important;
+    min-height: 40px;
+    padding: 6px 10px;
+    font-size: 12px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    cursor: pointer;
+    white-space: nowrap;
+}

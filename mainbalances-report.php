@@ -1897,7 +1897,7 @@ $page_title = 'حساب الارصده الاساسية';
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
 <script defer src="js/localforage.min.js"></script>
-<script defer src="js/app.js?v=<?php echo file_exists('js/app.js') ? filemtime('js/app.js') : '1'; ?>"></script>
+<script defer src="js/app.js?v=20261016_v28"></script>
 <script defer src="js/mainbalances-report.js?v=<?php echo time(); ?>"></script>
 <script>
 // Debug wrapper: override runReport to catch and display errors

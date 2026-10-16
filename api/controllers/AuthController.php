@@ -508,7 +508,9 @@ class AuthController {
                 'httponly' => false,
                 'samesite' => 'Lax'
             ]);
-            setcookie('magaiees_view_preference', 'mobile', [
+            $ua = $_SERVER['HTTP_USER_AGENT'] ?? '';
+            $isMobileUa = (bool)preg_match('/(android|iphone|ipad|ipod|mobile|blackberry|iemobile|opera mini)/i', $ua);
+            setcookie('magaiees_view_preference', $isMobileUa ? 'mobile' : 'desktop', [
                 'expires'  => $cookieExpires,
                 'path'     => '/',
                 'secure'   => $isHttps,

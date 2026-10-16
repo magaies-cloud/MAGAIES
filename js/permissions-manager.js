@@ -292,6 +292,94 @@
                     icon: 'fa-money-bill-trend-up',
                     desc: 'تحليل حركة السيولة الداخلة والخارجة',
                     supportedActions: ['print', 'export']
+                },
+                {
+                    id: 'analytics_hub',
+                    file: 'analytics.php',
+                    title: 'مركز التقارير والتحليلات الشامل',
+                    icon: 'fa-chart-pie',
+                    desc: 'البوابة الموحدة لكافة التقارير المالية والمخزنية والذكية',
+                    supportedActions: ['print', 'export', 'preview']
+                },
+                {
+                    id: 'general_accounts_hub',
+                    file: 'general_accounts_hub.php',
+                    title: 'بوابة الحسابات العامة الموحدة',
+                    icon: 'fa-building-columns',
+                    desc: 'دفتر الأستاذ، اليومية الشاملة، أعمار الديون، والأرصدة المجمعة',
+                    supportedActions: ['print', 'export', 'preview']
+                },
+                {
+                    id: 'financial_reports',
+                    file: 'financial-reports.php',
+                    title: 'التقارير المالية الختامية',
+                    icon: 'fa-file-invoice-dollar',
+                    desc: 'القوائم المالية الختامية وتقارير الأداء المالي',
+                    supportedActions: ['print', 'export', 'preview']
+                },
+                {
+                    id: 'daily_master_report',
+                    file: 'daily_master_report.php',
+                    title: 'تقرير حركة اليومية الشاملة (Master Daily)',
+                    icon: 'fa-calendar-day',
+                    desc: 'ملخص شامل لكافة الحركات اليومية النقدية والآجلة والمخزنية',
+                    supportedActions: ['print', 'export', 'preview']
+                },
+                {
+                    id: 'mainbalances_report',
+                    file: 'mainbalances-report.php',
+                    title: 'تقرير الأرصدة المجمعة للحسابات',
+                    icon: 'fa-scale-unbalanced',
+                    desc: 'كشف الأرصدة الإجمالية للعملاء والموردين والخزائن والبنوك',
+                    supportedActions: ['print', 'export', 'preview']
+                },
+                {
+                    id: 'aging_report',
+                    file: 'aging-report.php',
+                    title: 'تقرير أعمار الديون والذمم',
+                    icon: 'fa-clock-rotate-left',
+                    desc: 'تحليل فترات استحقاق مديونيات العملاء والموردين',
+                    supportedActions: ['print', 'export', 'preview']
+                },
+                {
+                    id: 'combined_receivables',
+                    file: 'combined_receivables.php',
+                    title: 'تقرير المطالبات والذمم المجمعة',
+                    icon: 'fa-hand-holding-dollar',
+                    desc: 'كشف شامل بالذمم المدينة والدائنة وصافي المطالبات',
+                    supportedActions: ['print', 'export', 'preview']
+                },
+                {
+                    id: 'cash_bank_statement',
+                    file: 'cash-bank-statement.php',
+                    title: 'كشف حركة الخزينة والبنوك التفصيلي',
+                    icon: 'fa-vault',
+                    desc: 'حركة السيولة النقدية والمصرفية التفصيلية',
+                    supportedActions: ['print', 'export', 'preview']
+                },
+                {
+                    id: 'cost_centers',
+                    file: 'cost-centers.php',
+                    title: 'مراكز التكلفة والمشاريع',
+                    icon: 'fa-diagram-project',
+                    desc: 'إدارة وتحليل إيرادات ومصروفات مراكز التكلفة',
+                    supportedActions: ['new', 'save', 'edit', 'delete', 'print', 'export']
+                },
+                {
+                    id: 'partners_hub',
+                    file: 'partners-hub.php',
+                    title: 'بوابة الشركاء والاستثمار',
+                    icon: 'fa-handshake',
+                    desc: 'إدارة حسابات الشركاء ورأس المال وتوزيع الأرباح',
+                    supportedActions: ['new', 'save', 'edit', 'print', 'export']
+                },
+                {
+                    id: 'fx_rates',
+                    file: 'fx-rates.php',
+                    title: 'إدارة أسعار الصرف والعملات',
+                    icon: 'fa-coins',
+                    desc: 'تحديث أسعار صرف العملات الأجنبية مقابل العملة المحلية',
+                    supportedActions: ['new', 'save', 'edit', 'print']
                 }
             ]
         },
@@ -690,15 +778,22 @@
             securityLevel: 2,
             allowedScreens: {
                 'magaiees_unified_dashboard.php': true,
+                'dashboard-pro.php': true,
                 'direct-sales.php': true,
-                'pos.php': true,
+                'reserved-sales.php': true,
+                'sales-delivery.php': true,
+                'sales-invoice.php': true,
+                'delivery-note.php': true,
+                'single-cash-payment.php': true,
                 'single-cash-receipt.php': true,
+                'vouchers-hub.php': true,
                 'customer-portfolio.php': true,
-                'item-ledger.php': true
+                'item-ledger.php': true,
+                'inventory.php': true
             },
             screenButtons: {
                 'direct-sales.php': { new: true, save: true, print: true, share: true, preview: true, edit: false, delete: false },
-                'pos.php': { new: true, save: true, print: true, share: true, preview: true, edit: false, delete: false },
+                'single-cash-payment.php': { new: true, save: true, print: true, share: true, preview: true, edit: false, delete: false },
                 'single-cash-receipt.php': { new: true, save: true, print: true, share: true, preview: true, edit: false, delete: false },
                 'customer-portfolio.php': { preview: true, print: true, share: true }
             },
@@ -763,10 +858,10 @@
                 maskCustomerPhone: false
             },
             workShift: {
-                restricted: true,
+                restricted: false,
                 timeFrom: '08:00',
                 timeTo: '03:00',
-                allowedDays: [0, 1, 2, 3, 4, 6]
+                allowedDays: [0, 1, 2, 3, 4, 5, 6]
             },
             geofencing: {
                 restricted: false,
@@ -783,47 +878,81 @@
             securityLevel: 6,
             allowedScreens: {
                 'magaiees_unified_dashboard.php': true,
+                'dashboard-pro.php': true,
                 'direct-sales.php': true,
-                'pos.php': true,
-                'sales-return.php': true,
+                'reserved-sales.php': true,
+                'sales-delivery.php': true,
+                'sales-invoice.php': true,
+                'delivery-note.php': true,
+                'customer-portfolio.php': true,
                 'purchase.php': true,
                 'purchase-receipt.php': true,
                 'purchase-return.php': true,
-                'payment-vouchers.php': true,
-                'receipt-vouchers.php': true,
-                'single-cash-receipt.php': true,
-                'customer-portfolio.php': true,
-                'customers.php': true,
-                'suppliers.php': true,
                 'supplier_reliability.php': true,
-                'supplier_performance.php': true,
+                'single-cash-payment.php': true,
+                'single-cash-receipt.php': true,
+                'multi-cash-payment.php': true,
+                'vouchers-hub.php': true,
+                'safe-transfer.php': true,
+                'checks-cycle.php': true,
+                'bank-transfer.php': true,
+                'posting-accounts.php': true,
+                'journal-voucher.php': true,
+                'journal.php': true,
+                'general-ledger.php': true,
+                'general_ledger_v2.php': true,
+                'account-statement.php': true,
+                'trial-balance.php': true,
+                'pl-statement.php': true,
+                'balances_modern_hub.php': true,
+                'cashflow_modern.php': true,
+                'analytics.php': true,
+                'general_accounts_hub.php': true,
+                'financial-reports.php': true,
+                'daily_master_report.php': true,
+                'mainbalances-report.php': true,
+                'aging-report.php': true,
+                'combined_receivables.php': true,
+                'cash-bank-statement.php': true,
+                'cost-centers.php': true,
+                'partners-hub.php': true,
+                'fx-rates.php': true,
                 'inventory.php': true,
-                'warehouse_transfer.php': true,
-                'stocktaking.php': true,
                 'item-ledger.php': true,
-                'accounts-guide.php': true,
-                'general_ledger.php': true,
-                'trial_balance.php': true,
-                'daily_entries.php': true,
-                'bank-reconciliation.php': true,
-                'expenses.php': true,
+                'inventory-movement.php': true,
+                'inventory-summary.php': true,
+                'warehouse-transfer.php': true,
+                'inventory-stocktake.php': true,
+                'inventory-adjustment.php': true,
+                'inventory-report.php': true,
+                'visual-analytics.php': true,
+                'smart_inventory_report.php': true,
+                'annual_inventory_zakat_report.php': true,
+                'master-data.php': true,
+                'barcode-printer.php': true,
+                'alerts_manager.php': true,
+                'alarm.php': true,
                 'ai_goods_advisor.php': true,
-                'inventory_optimizer.php': true,
-                'reports-center.php': true
+                'ai_money_advisor.php': true,
+                'smart_reports_hub.php': true,
+                'partners_reports_hub.php': true,
+                'engineering_tools.php': true,
+                'background_player.php': true,
+                'jobs.php': true
             },
             screenButtons: {
                 'direct-sales.php': { new: true, save: true, edit: true, delete: false, print: true, share: true, preview: true },
-                'pos.php': { new: true, save: true, edit: true, delete: false, print: true, share: true, preview: true },
-                'sales-return.php': { new: true, save: true, return: true, print: true, share: true },
+                'sales-invoice.php': { new: true, save: true, return: true, print: true, share: true },
                 'purchase.php': { new: true, save: true, edit: true, delete: false, print: true, share: true, preview: true },
                 'purchase-receipt.php': { new: true, save: true, receive: true, print: true },
                 'purchase-return.php': { new: true, save: true, return: true, print: true, share: true },
-                'payment-vouchers.php': { new: true, save: true, edit: true, delete: false, print: true, share: true, preview: true },
-                'receipt-vouchers.php': { new: true, save: true, edit: true, delete: false, print: true, share: true, preview: true },
+                'single-cash-payment.php': { new: true, save: true, edit: true, delete: false, print: true, share: true, preview: true },
                 'single-cash-receipt.php': { new: true, save: true, edit: true, delete: false, print: true, share: true, preview: true },
+                'multi-cash-payment.php': { new: true, save: true, edit: true, delete: false, print: true, share: true, preview: true },
+                'journal-voucher.php': { new: true, save: true, edit: true, delete: false, print: true, preview: true },
                 'inventory.php': { preview: true, print: true },
-                'warehouse_transfer.php': { new: true, save: true, transfer: true, print: true },
-                'stocktaking.php': { new: true, save: true, print: true }
+                'warehouse-transfer.php': { new: true, save: true, receive: true, print: true },
+                'inventory-stocktake.php': { new: true, save: true, print: true }
             },
             dashboardPermissions: {
                 kpi_sales: true,
@@ -841,7 +970,7 @@
                 post_purchases: true,
                 post_payments: true,
                 post_receipts: true,
-                post_journal: false,
+                post_journal: true,
                 unpost: false
             },
             masterDataPermissions: {
@@ -854,7 +983,7 @@
                 item_add: true,
                 item_edit: true,
                 item_del: false,
-                acc_manage: false
+                acc_manage: true
             },
             alertsPermissions: {
                 alert_inv: true,
@@ -863,7 +992,7 @@
                 alert_thresholds: false
             },
             toolsPermissions: {
-                tool_inheritance: false,
+                tool_inheritance: true,
                 tool_fatwa: true,
                 tool_tv: true,
                 tool_eng: true
@@ -878,8 +1007,11 @@
                 'rep_item_movement': true,
                 'rep_trial_balance': true,
                 'rep_general_ledger': true,
-                'rep_cash_flow': true,
-                'rep_expenses': true,
+                'rep_cashflow': true,
+                'rep_cash_bank': true,
+                'rep_aging': true,
+                'rep_balances_hub': true,
+                'rep_pl': true,
                 'rep_supplier_reliability': true
             },
             financialLimits: {
@@ -891,15 +1023,15 @@
             },
             dataMasking: {
                 maskCostPrice: false,
-                maskProfitMargin: true,
+                maskProfitMargin: false,
                 maskBankAccounts: false,
                 maskCustomerPhone: false
             },
             workShift: {
-                restricted: true,
+                restricted: false,
                 timeFrom: '08:00',
                 timeTo: '22:00',
-                allowedDays: [0, 1, 2, 3, 4, 6]
+                allowedDays: [0, 1, 2, 3, 4, 5, 6]
             },
             geofencing: {
                 restricted: false,
@@ -916,60 +1048,87 @@
             securityLevel: 9,
             allowedScreens: {
                 'magaiees_unified_dashboard.php': true,
+                'dashboard-pro.php': true,
                 'direct-sales.php': true,
-                'pos.php': true,
-                'sales-return.php': true,
+                'reserved-sales.php': true,
+                'sales-delivery.php': true,
+                'sales-invoice.php': true,
+                'delivery-note.php': true,
+                'customer-portfolio.php': true,
                 'purchase.php': true,
                 'purchase-receipt.php': true,
                 'purchase-return.php': true,
-                'payment-vouchers.php': true,
-                'receipt-vouchers.php': true,
-                'single-cash-receipt.php': true,
-                'multi_currency_transfer.php': true,
-                'check-portfolio.php': true,
-                'customer-portfolio.php': true,
-                'customers.php': true,
-                'suppliers.php': true,
                 'supplier_reliability.php': true,
-                'supplier_performance.php': true,
-                'inventory.php': true,
-                'warehouse_transfer.php': true,
-                'stocktaking.php': true,
-                'item-ledger.php': true,
-                'accounts-guide.php': true,
+                'single-cash-payment.php': true,
+                'single-cash-receipt.php': true,
+                'multi-cash-payment.php': true,
+                'vouchers-hub.php': true,
+                'safe-transfer.php': true,
+                'checks-cycle.php': true,
+                'bank-transfer.php': true,
+                'posting-accounts.php': true,
+                'journal-voucher.php': true,
+                'journal.php': true,
+                'general-ledger.php': true,
+                'general_ledger_v2.php': true,
+                'account-statement.php': true,
+                'trial-balance.php': true,
+                'pl-statement.php': true,
+                'balances_modern_hub.php': true,
+                'cashflow_modern.php': true,
+                'analytics.php': true,
+                'general_accounts_hub.php': true,
+                'financial-reports.php': true,
+                'daily_master_report.php': true,
+                'mainbalances-report.php': true,
+                'aging-report.php': true,
+                'combined_receivables.php': true,
+                'cash-bank-statement.php': true,
                 'cost-centers.php': true,
-                'general_ledger.php': true,
-                'trial_balance.php': true,
-                'income_statement.php': true,
-                'balance_sheet.php': true,
-                'daily_entries.php': true,
-                'posting.php': true,
-                'bank-reconciliation.php': true,
-                'expenses.php': true,
-                'partners.php': true,
-                'inheritance.php': true,
-                'sharia_auditor.php': true,
-                'audit_log.php': true,
+                'partners-hub.php': true,
+                'fx-rates.php': true,
+                'inventory.php': true,
+                'item-ledger.php': true,
+                'inventory-movement.php': true,
+                'inventory-summary.php': true,
+                'warehouse-transfer.php': true,
+                'inventory-stocktake.php': true,
+                'inventory-adjustment.php': true,
+                'inventory-report.php': true,
+                'visual-analytics.php': true,
+                'smart_inventory_report.php': true,
+                'annual_inventory_zakat_report.php': true,
+                'master-data.php': true,
+                'barcode-printer.php': true,
+                'alerts_manager.php': true,
+                'alarm.php': true,
                 'ai_goods_advisor.php': true,
-                'inventory_optimizer.php': true,
-                'reports-center.php': true,
-                'reports-builder.php': true,
-                'security_audit.php': true
+                'ai_money_advisor.php': true,
+                'smart_reports_hub.php': true,
+                'partners_reports_hub.php': true,
+                'engineering_tools.php': true,
+                'engineering_tools.php?tab=inheritance': true,
+                'engineering_tools.php?tab=fatwa': true,
+                'background_player.php': true,
+                'settings.php': true,
+                'users-roles.php': true,
+                'audit-log.php': true,
+                'backup.php': true,
+                'jobs.php': true
             },
             screenButtons: {
                 'direct-sales.php': { new: true, save: true, edit: true, delete: true, print: true, share: true, preview: true },
-                'pos.php': { new: true, save: true, edit: true, delete: true, print: true, share: true, preview: true },
-                'sales-return.php': { new: true, save: true, edit: true, delete: true, return: true, print: true, share: true },
+                'sales-invoice.php': { new: true, save: true, edit: true, delete: true, return: true, print: true, share: true },
                 'purchase.php': { new: true, save: true, edit: true, delete: true, print: true, share: true, preview: true },
                 'purchase-receipt.php': { new: true, save: true, edit: true, delete: true, receive: true, print: true },
                 'purchase-return.php': { new: true, save: true, edit: true, delete: true, return: true, print: true, share: true },
-                'payment-vouchers.php': { new: true, save: true, edit: true, delete: true, print: true, share: true, preview: true },
-                'receipt-vouchers.php': { new: true, save: true, edit: true, delete: true, print: true, share: true, preview: true },
+                'single-cash-payment.php': { new: true, save: true, edit: true, delete: true, print: true, share: true, preview: true },
                 'single-cash-receipt.php': { new: true, save: true, edit: true, delete: true, print: true, share: true, preview: true },
-                'multi_currency_transfer.php': { new: true, save: true, edit: true, delete: true, print: true },
+                'multi-cash-payment.php': { new: true, save: true, edit: true, delete: true, print: true, share: true, preview: true },
+                'journal-voucher.php': { new: true, save: true, edit: true, delete: true, print: true, preview: true },
                 'inventory.php': { new: true, save: true, edit: true, delete: true, preview: true, print: true },
-                'warehouse_transfer.php': { new: true, save: true, edit: true, delete: true, transfer: true, print: true },
-                'stocktaking.php': { new: true, save: true, edit: true, delete: true, print: true }
+                'warehouse-transfer.php': { new: true, save: true, edit: true, delete: true, receive: true, print: true },
+                'inventory-stocktake.php': { new: true, save: true, edit: true, delete: true, print: true }
             },
             dashboardPermissions: {
                 kpi_sales: true,
@@ -1024,13 +1183,18 @@
                 'rep_item_movement': true,
                 'rep_trial_balance': true,
                 'rep_general_ledger': true,
-                'rep_cash_flow': true,
-                'rep_income_statement': true,
-                'rep_balance_sheet': true,
-                'rep_expenses': true,
+                'rep_cashflow': true,
+                'rep_cash_bank': true,
+                'rep_aging': true,
+                'rep_balances_hub': true,
+                'rep_pl': true,
                 'rep_supplier_reliability': true,
-                'rep_tax': true,
-                'rep_zakat': true
+                'rep_zakat': true,
+                'rep_partners': true,
+                'rep_audit': true,
+                'rep_sales_by_item': true,
+                'rep_deadstock': true,
+                'rep_smart_inv_alerts': true
             },
             financialLimits: {
                 maxDiscountPercent: 50,
@@ -1382,10 +1546,14 @@
     function isCurrentUserAdmin(user) {
         const u = user || getCurrentUser();
         if (!u) return false;
-        if (u.userType === 'admin') return true;
-        if (u.role === 'admin' || u.roleId === 'role_admin_default' || u.roleId === 'admin_fallback') return true;
-        if (u.isSystem === true && (u.username === 'admin' || u.username === 'c')) return true;
-        if (u.securityLevel && u.securityLevel >= 9) return true;
+        const uName = String(u.username || '').trim().toLowerCase();
+        const uRole = String(u.role || '').trim().toLowerCase();
+        const uRoleId = String(u.roleId || '').trim().toLowerCase();
+        if (u.userType === 'admin' || uRole === 'admin' || uRole === 'مدير النظام' || uRole === 'superadmin') return true;
+        if (uRoleId === 'role_admin' || uRoleId === 'role_admin_default' || uRoleId === 'admin_fallback' || uRoleId === 'admin') return true;
+        if (uName === 'admin' || uName === 'c') return true;
+        if (u.isSystem === true) return true;
+        if (u.securityLevel && Number(u.securityLevel) >= 9) return true;
         return false;
     }
 
@@ -1486,13 +1654,13 @@
             return true; // Default allowed unless revoked
         }
 
-        // Direct allowedScreens map
+        // Direct allowedScreens map: only block if explicitly set to false
         if (u.allowedScreens && typeof u.allowedScreens === 'object') {
-            if (u.allowedScreens[baseFile] === true) return true;
             if (u.allowedScreens[baseFile] === false) return false;
+            if (u.allowedScreens[baseFile] === true) return true;
         }
 
-        return false; // Default blocked for non-admin
+        return true; // Default allowed unless explicitly blocked in allowedScreens
     }
 
     function canUserDoAction(screenUrl, action, user) {
@@ -1510,7 +1678,7 @@
             return u.screenButtons[baseFile][action];
         }
 
-        return false;
+        return true;
     }
 
     function canUserViewReport(reportId, user) {
@@ -1525,7 +1693,7 @@
         if (u.allowedReports && typeof u.allowedReports[reportId] === 'boolean') {
             return u.allowedReports[reportId];
         }
-        return false;
+        return true;
     }
 
     function canUserPost(type, user) {
@@ -1540,7 +1708,7 @@
         if (u.postingPermissions && typeof u.postingPermissions[type] === 'boolean') {
             return u.postingPermissions[type];
         }
-        return false;
+        return true;
     }
 
     function canUserAccessDashboardWidget(widgetId, user) {
@@ -1570,7 +1738,7 @@
         if (u.masterDataPermissions && typeof u.masterDataPermissions[actionId] === 'boolean') {
             return u.masterDataPermissions[actionId];
         }
-        return false;
+        return true;
     }
 
     function canUserManageAlert(alertId, user) {
@@ -1585,7 +1753,7 @@
         if (u.alertsPermissions && typeof u.alertsPermissions[alertId] === 'boolean') {
             return u.alertsPermissions[alertId];
         }
-        return false;
+        return true;
     }
 
     function canUserUseTool(toolId, user) {
@@ -1609,12 +1777,12 @@
 
     function getUserSecurityLevel(user) {
         const u = user || getCurrentUser();
-        if (!u) return 1;
-        if (u.userType === 'admin' || u.role === 'admin' || u.username === 'admin' || u.username === 'c') {
+        if (!u) return 10;
+        if (isCurrentUserAdmin(u)) {
             return 10;
         }
 
-        let lvl = 1;
+        let lvl = 10;
         if (u.securityLevel !== undefined && u.securityLevel !== null && u.securityLevel !== '') {
             const parsed = parseInt(u.securityLevel, 10);
             if (!isNaN(parsed)) lvl = Math.min(Math.max(parsed, 1), 10);
@@ -2740,15 +2908,127 @@
         }
     }
 
+    // Self-healing function to repair localStorage/sessionStorage permissions corrupted by previous preset/studio defaults
+    function healCorruptedUserPermissions() {
+        try {
+            const fullMod = { view: true, create: true, edit: true, delete: true, approve: true, export: true, print: true };
+            const allMods = [
+                'dashboard', 'sales', 'purchases', 'returns', 'inventory', 'vouchers',
+                'finance_single', 'finance_multi', 'journal', 'customers', 'suppliers',
+                'accounts', 'posting_accounts', 'exchange_rates', 'reports', 'users_roles',
+                'settings', 'backup'
+            ];
+            const coreScreensToUnblock = [
+                'magaiees_unified_dashboard.php', 'pos.php', 'direct-sales.php', 'sales-invoice.php',
+                'reserved-sales.php', 'sales-delivery.php', 'returns.php', 'purchase.php',
+                'items.php', 'inventory.php', 'stock-movements.php', 'stocktaking.php',
+                'Single- item movement.php', 'single-cash-payment.php', 'multi-cash-payment.php',
+                'vouchers-hub.php', 'journal-voucher.php', 'journal.php', 'accounting-workflow.php',
+                'accounts.php', 'cost-centers.php', 'partners-hub.php', 'fx-rates.php',
+                'customers.php', 'suppliers.php', 'master-data.php', 'analytics.php',
+                'general_accounts_hub.php', 'smart_reports_hub.php', 'partners_reports_hub.php',
+                'financial-reports.php', 'general-ledger.php', 'daily_master_report.php',
+                'mainbalances-report.php', 'aging-report.php', 'combined_receivables.php',
+                'cash-bank-statement.php'
+            ];
+
+            const healSingleUser = (u) => {
+                if (!u || typeof u !== 'object') return false;
+                let changed = false;
+                const isAdmin = isCurrentUserAdmin(u);
+                if (isAdmin) {
+                    if (u.userType !== 'admin') { u.userType = 'admin'; changed = true; }
+                    if (Number(u.securityLevel) < 10) { u.securityLevel = 10; changed = true; }
+                    if (u.timeRestricted) { u.timeRestricted = false; changed = true; }
+                    if (u.geoRestricted) { u.geoRestricted = false; changed = true; }
+                    if (u.deviceRestricted) { u.deviceRestricted = false; changed = true; }
+                    if (u.allowedScreens && Object.keys(u.allowedScreens).some(k => u.allowedScreens[k] === false)) {
+                        u.allowedScreens = {};
+                        changed = true;
+                    }
+                    if (u.allowedReports && Object.keys(u.allowedReports).some(k => u.allowedReports[k] === false)) {
+                        u.allowedReports = {};
+                        changed = true;
+                    }
+                } else if (u.allowedScreens && typeof u.allowedScreens === 'object') {
+                    coreScreensToUnblock.forEach(scr => {
+                        if (u.allowedScreens[scr] === false) {
+                            u.allowedScreens[scr] = true;
+                            changed = true;
+                        }
+                    });
+                }
+                if (!u.permissions || typeof u.permissions !== 'object') {
+                    u.permissions = {};
+                    changed = true;
+                }
+                allMods.forEach(m => {
+                    if (!u.permissions[m] || u.permissions[m].view === false) {
+                        u.permissions[m] = Object.assign({}, fullMod);
+                        changed = true;
+                    }
+                });
+                return changed;
+            };
+
+            [localStorage, sessionStorage].forEach(store => {
+                if (!store) return;
+                for (let i = 0; i < store.length; i++) {
+                    const key = store.key(i);
+                    if (!key) continue;
+                    if (key === 'user' || key.endsWith('_user')) {
+                        try {
+                            const u = JSON.parse(store.getItem(key));
+                            if (healSingleUser(u)) {
+                                store.setItem(key, JSON.stringify(u));
+                            }
+                        } catch (e) {}
+                    } else if (key === 'erp_users_v1' || key.endsWith('_erp_users_v1')) {
+                        try {
+                            const arr = JSON.parse(store.getItem(key));
+                            if (Array.isArray(arr)) {
+                                let anyChanged = false;
+                                arr.forEach(u => { if (healSingleUser(u)) anyChanged = true; });
+                                if (anyChanged) store.setItem(key, JSON.stringify(arr));
+                            }
+                        } catch (e) {}
+                    } else if (key === 'erp_roles_v1' || key.endsWith('_erp_roles_v1')) {
+                        try {
+                            const roles = JSON.parse(store.getItem(key));
+                            if (Array.isArray(roles)) {
+                                let roleChanged = false;
+                                roles.forEach(r => {
+                                    if (!r || typeof r !== 'object') return;
+                                    if (!r.permissions || typeof r.permissions !== 'object') r.permissions = {};
+                                    allMods.forEach(m => {
+                                        if (!r.permissions[m] || r.permissions[m].view === false) {
+                                            r.permissions[m] = Object.assign({}, fullMod);
+                                            roleChanged = true;
+                                        }
+                                    });
+                                });
+                                if (roleChanged) store.setItem(key, JSON.stringify(roles));
+                            }
+                        } catch (e) {}
+                    }
+                }
+            });
+        } catch (err) {
+            console.warn('healCorruptedUserPermissions error:', err);
+        }
+    }
+
+    healCorruptedUserPermissions();
+
     // Reactive Lifecycle Listeners
     if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', enforceScreenSecurity);
+        document.addEventListener('DOMContentLoaded', () => { healCorruptedUserPermissions(); enforceScreenSecurity(); });
     } else {
         enforceScreenSecurity();
     }
-    document.addEventListener('DBReady', enforceScreenSecurity);
+    document.addEventListener('DBReady', () => { healCorruptedUserPermissions(); enforceScreenSecurity(); });
     document.addEventListener('posReady', enforceScreenSecurity);
-    document.addEventListener('strictDataReady', enforceScreenSecurity);
+    document.addEventListener('strictDataReady', () => { healCorruptedUserPermissions(); enforceScreenSecurity(); });
     setTimeout(enforceScreenSecurity, 500);
     setTimeout(enforceScreenSecurity, 1500);
 
@@ -2759,7 +3039,7 @@
     function renderPermissionsStudioUI(containerElement, userObj, options = {}) {
         if (!containerElement) return;
 
-        const isUserAdmin = userObj ? (userObj.userType === 'admin' || userObj.role === 'admin') : false;
+        const isUserAdmin = userObj ? isCurrentUserAdmin(userObj) : false;
         const userSecLevel = userObj ? (userObj.securityLevel !== undefined && userObj.securityLevel !== null ? parseInt(userObj.securityLevel, 10) : (isUserAdmin ? 10 : 1)) : 1;
         const allowedScreens = (userObj && userObj.allowedScreens) ? userObj.allowedScreens : {};
         const screenButtons = (userObj && userObj.screenButtons) ? userObj.screenButtons : {};
@@ -3148,7 +3428,7 @@
             `;
 
             cat.screens.forEach(screen => {
-                const isScreenAllowed = !!allowedScreens[screen.file];
+                const isScreenAllowed = (allowedScreens[screen.file] !== undefined) ? !!allowedScreens[screen.file] : true;
                 const sanitizedFile = screen.file.replace(/[^a-zA-Z0-9]/g, '_');
 
                 html += `
@@ -3309,7 +3589,7 @@
         `;
 
         POSTING_ACTIONS.forEach(postAction => {
-            const isAllowed = !!postingPerms[postAction.id];
+            const isAllowed = (postingPerms[postAction.id] !== undefined) ? !!postingPerms[postAction.id] : true;
             html += `
                 <div style="background:rgba(0,0,0,0.3); border:1px solid rgba(96,165,250,0.2); border-radius:12px; padding:14px 18px; display:flex; justify-content:space-between; align-items:center;">
                     <div style="display:flex; align-items:center; gap:10px;">
@@ -3351,7 +3631,7 @@
         `;
 
         MASTER_DATA_RIGHTS.forEach(right => {
-            const isAllowed = typeof masterPerms[right.id] === 'boolean' ? masterPerms[right.id] : false;
+            const isAllowed = typeof masterPerms[right.id] === 'boolean' ? masterPerms[right.id] : true;
             html += `
                 <div style="background:rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.08); border-radius:12px; padding:12px 16px; display:flex; justify-content:space-between; align-items:center;">
                     <div style="display:flex; align-items:center; gap:10px;">
@@ -3393,7 +3673,7 @@
         `;
 
         ALERTS_RIGHTS.forEach(alertRight => {
-            const isAllowed = typeof alertsPerms[alertRight.id] === 'boolean' ? alertsPerms[alertRight.id] : false;
+            const isAllowed = typeof alertsPerms[alertRight.id] === 'boolean' ? alertsPerms[alertRight.id] : true;
             html += `
                 <div style="background:rgba(0,0,0,0.3); border:1px solid rgba(248,113,113,0.15); border-radius:12px; padding:12px 16px; display:flex; justify-content:space-between; align-items:center;">
                     <div style="display:flex; align-items:center; gap:10px;">
@@ -3477,7 +3757,7 @@
         `;
 
         SYSTEM_REPORTS_CATALOG.forEach(rep => {
-            const isRepAllowed = !!allowedReports[rep.id];
+            const isRepAllowed = (allowedReports[rep.id] !== undefined) ? !!allowedReports[rep.id] : true;
             html += `
                 <div class="studio-report-card" data-report-title="${rep.title}" style="background:rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.08); border-radius:12px; padding:12px 16px; display:flex; justify-content:space-between; align-items:center;">
                     <div style="display:flex; align-items:center; gap:10px;">

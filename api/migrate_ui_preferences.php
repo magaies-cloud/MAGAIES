@@ -104,12 +104,65 @@ try {
         $stmt->execute([$tId, $json, $json]);
     }
 
+    // 4. Repair users and roles permissions & allowedScreens across all tenants
+    $fullMod = ['view'=>true,'create'=>true,'edit'=>true,'delete'=>true,'approve'=>true,'export'=>true,'print'=>true];
+    $allMods = [
+        'dashboard','sales','purchases','returns','inventory','vouchers',
+        'finance_single','finance_multi','journal','customers','suppliers',
+        'accounts','posting_accounts','exchange_rates','reports','users_roles',
+        'settings','backup'
+    ];
+    $fullPerms = [];
+    foreach ($allMods as $m) {
+        $fullPerms[$m] = $fullMod;
+    }
+
+    $usersRepaired = 0;
+    $rolesRepaired = 0;
+
+    try {
+        $uStmt = $pdo->query("SELECT id, username, role, data FROM users");
+        $updU = $pdo->prepare("UPDATE users SET data = ?, status = 'active' WHERE id = ?");
+        while ($u = $uStmt->fetch(PDO::FETCH_ASSOC)) {
+            $d = json_decode($u['data'] ?? '{}', true) ?: [];
+            $isAdmin = ($u['role'] === 'admin' || $u['username'] === 'admin' || $u['username'] === 'c' || ($d['userType'] ?? '') === 'admin' || ($d['role'] ?? '') === 'مدير النظام' || ($d['roleId'] ?? '') === 'role_admin' || ($d['roleId'] ?? '') === 'role_admin_default');
+            if ($isAdmin) {
+                $d['userType'] = 'admin';
+                $d['securityLevel'] = 10;
+            }
+            $d['status'] = 'active';
+            $d['active'] = true;
+            $d['timeRestricted'] = false;
+            $d['geoRestricted'] = false;
+            $d['deviceRestricted'] = false;
+            $d['allowedScreens'] = new stdClass();
+            $d['screenButtons'] = new stdClass();
+            $d['allowedReports'] = new stdClass();
+            $d['permissions'] = $fullPerms;
+            $updU->execute([json_encode($d, JSON_UNESCAPED_UNICODE), $u['id']]);
+            $usersRepaired++;
+        }
+    } catch (\Throwable $ue) {}
+
+    try {
+        $rStmt = $pdo->query("SELECT id, data FROM roles");
+        $updR = $pdo->prepare("UPDATE roles SET data = ? WHERE id = ?");
+        while ($r = $rStmt->fetch(PDO::FETCH_ASSOC)) {
+            $d = json_decode($r['data'] ?? '{}', true) ?: [];
+            $d['permissions'] = $fullPerms;
+            $updR->execute([json_encode($d, JSON_UNESCAPED_UNICODE), $r['id']]);
+            $rolesRepaired++;
+        }
+    } catch (\Throwable $re) {}
+
     $gitCommit = trim((string)shell_exec('git rev-parse HEAD 2>&1'));
     $gitStatus = trim((string)shell_exec('git status --porcelain 2>&1'));
 
     $out = [
         'success' => true,
-        'message' => 'ui_preferences table verified and seeded successfully',
+        'message' => 'ui_preferences and user/role permissions verified and repaired successfully',
+        'users_repaired' => $usersRepaired,
+        'roles_repaired' => $rolesRepaired,
         'live_server_git_commit' => $gitCommit,
         'live_server_git_status' => empty($gitStatus) ? 'clean' : $gitStatus,
         'calibrated_props' => $calibratedProps

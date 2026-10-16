@@ -29,7 +29,7 @@ $header_theme_class = 'header-theme-reports';
     <link rel="stylesheet" href="css/components.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script defer src="js/localforage.min.js"></script>
-    <script defer src="js/app.js"></script>
+    <script defer src="js/app.js?v=20261016_v28"></script>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&family=Tajawal:wght@300;400;500;700;800;900&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -126,7 +126,6 @@ $header_theme_class = 'header-theme-reports';
             overflow: hidden;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
             height: 240px;
-            opacity: 0;
             animation: fadeInUp 0.7s ease-out forwards;
         }
 
@@ -315,6 +314,7 @@ $header_theme_class = 'header-theme-reports';
         <br>
         
         <!-- الهيدر الترحيبي V2 -->
+        <div class="welcome-header">
             <a href="analytics.php" onclick="window.location.href='analytics.php'; return false;" style="display: inline-flex; align-items: center; gap: 8px; background: rgba(0, 255, 255, 0.1); border: 1.5px solid #00ffff; color: #00ffff; padding: 8px 20px; border-radius: 50px; text-decoration: none; font-weight: bold; font-size: 14px; margin-bottom: 20px; transition: all 0.3s; box-shadow: 0 0 15px rgba(0, 255, 255, 0.2);" onmouseover="this.style.background='#00ffff'; this.style.color='#000';" onmouseout="this.style.background='rgba(0, 255, 255, 0.1)'; this.style.color='#00ffff';">
                 <i class="fa-solid fa-arrow-right"></i> ↩️ رجوع للشاشة السابقة (التقارير الرئيسية)
             </a>

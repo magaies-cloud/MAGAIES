@@ -29,7 +29,7 @@ $header_theme_class = 'header-theme-reports';
     <link rel="stylesheet" href="css/components.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script defer src="js/localforage.min.js"></script>
-    <script defer src="js/app.js"></script>
+    <script defer src="js/app.js?v=20261016_v28"></script>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -253,7 +253,6 @@ $header_theme_class = 'header-theme-reports';
         }
 
         .report-card {
-            opacity: 0;
             animation: fadeInUp 0.7s ease-out forwards;
         }
 
@@ -325,7 +324,8 @@ $header_theme_class = 'header-theme-reports';
             10% { opacity: 0.6; }
             90% { opacity: 0.6; }
             100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
-.card-icon {
+        }
+        .card-icon {
             font-size: 45px;
             margin-bottom: 15px;
             filter: drop-shadow(0 0 10px var(--accent-color));
@@ -720,6 +720,7 @@ $header_theme_class = 'header-theme-reports';
     // === إنشاء جزيئات الخلفية المتحركة بخصائص متطورة ===
     (function() {
         const container = document.getElementById('particles');
+        if (!container) return;
         // مجموعة ألوان غنية وموسعة للوهج
         const colors = [
             '#00ffff', '#ff007f', '#00ff7f', '#ffa500', '#9d4edd', 

@@ -153,7 +153,7 @@
                 <button onclick="history.back()" class="btn btn-icon" title="العودة" style="background: transparent; border: 1px solid var(--border-color); color: var(--text-primary); padding: 5px 10px; border-radius: 6px;">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
                 </button>
-                <a data-href="dashboard-pro.php" onclick="window.location.href='dashboard-pro.php'" style="color: var(--text-muted); text-decoration: none; font-size: 0.9rem;">الرئيسية</a>
+                <a href="dashboard-pro.php" data-href="dashboard-pro.php" onclick="window.location.href='dashboard-pro.php'" style="color: var(--text-muted); text-decoration: none; font-size: 0.9rem;">الرئيسية</a>
                 <span style="color: var(--text-muted);">/</span>
                 <span style="color: var(--primary-color); font-weight: bold; font-size: 1rem;">إذن تسليم مبيعات (منصرف)</span>
             </div>
@@ -354,7 +354,7 @@
     <!-- Global App JS (for Auth, Themes) -->
     <script src="js/magaies-offline-sync.js?v=20261014"></script>
     <script defer src="js/localforage.min.js"></script>
-    <script defer src="js/app.js?v=<?php echo file_exists('js/app.js') ? filemtime('js/app.js') : '1'; ?>"></script>
+    <script defer src="js/app.js?v=20261016_v28"></script>
     <script defer src="js/print-engine.js"></script>
     <script defer src="js/sales-delivery.js"></script>
 

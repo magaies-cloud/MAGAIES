@@ -421,7 +421,7 @@ if (!function_exists('convertReportAmount')) {
         });
         <?php endif; ?>
     </script>
-    <script defer src="js/app.js"></script>
+    <script defer src="js/app.js?v=20261016_v28"></script>
 </body>
 </html>
 

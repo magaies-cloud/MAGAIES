@@ -283,7 +283,7 @@ $header_theme_class = "header-theme-inventory";
         </div>
     </div>
 
-    <script src="js/app.js"></script>
+    <script src="js/app.js?v=20261016_v28"></script>
     <script>
         let unifiedChart = null;
         let currentViewMode = 'trend';

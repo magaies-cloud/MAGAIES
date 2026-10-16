@@ -159,7 +159,7 @@ if (isset($_POST['consult_ai'])) {
     <link rel="stylesheet" href="css/tailwind.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script defer src="js/localforage.min.js"></script>
-    <script defer src="js/app.js"></script>
+    <script defer src="js/app.js?v=20261016_v28"></script>
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen font-sans" style="background-color: #05080f;">
     <div class="p-6">

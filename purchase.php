@@ -29,7 +29,7 @@ try {
         }
         $preloadedItemsJson = json_encode($pItems, JSON_UNESCAPED_UNICODE);
     }
-} catch (Exception $e) {}
+} catch (\Throwable $e) {}
 ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
@@ -2374,11 +2374,11 @@ try {
             <div class="toolbar-actions" style="display: flex; gap: 12px; width: 100%; align-items: center;">
                 
                 <!-- Preview Button: Teal Gradient (distinct from Sales blue) -->
-                <button type="button" class="btn-action btn-preview" id="btn-preview-invoice" style="flex: 1; height: 45px; background: linear-gradient(135deg, #0d9488, #0f766e); border: none; color: #fff; font-size: 1rem; font-weight: bold; border-radius: 8px; cursor: pointer; transition: 0.3s; box-shadow: 0 2px 10px rgba(13, 148, 136, 0.3); display: flex; align-items: center; justify-content: center;" onmouseover="this.style.background='linear-gradient(135deg, #0f766e, #115e59)'; this.style.boxShadow='0 4px 15px rgba(13, 148, 136, 0.5)';" onmouseout="this.style.background='linear-gradient(135deg, #0d9488, #0f766e)'; this.style.boxShadow='0 2px 10px rgba(13, 148, 136, 0.3)';" onclick="printCurrentInvoice()">👁️ معاينة الفاتورة</button>
+                <button type="button" class="btn-action royal-crystal-btn royal-btn-exit btn-exit" style="flex: 0.9; min-width: 95px; height: 46px; font-size: 1rem; font-weight: 900; border-radius: 10px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px;" onclick="if(typeof showPurchaseHub === 'function' && document.getElementById('purchase-hub-view')) { showPurchaseHub(); } else if(typeof magaieesGoBack === 'function') { magaieesGoBack(); } else { window.location.href='dashboard-pro.php'; }" title="الخروج والرجوع لبوابة المشتريات أو الرئيسية">🚪 خروج</button> <button type="button" class="btn-action royal-crystal-btn royal-btn-delete btn-delete" style="flex: 1; min-width: 105px; height: 46px; font-size: 1rem; font-weight: 900; border-radius: 10px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px;" onclick="if(typeof confirmDeleteTransaction === 'function') { confirmDeleteTransaction(); } else if(confirm('هل أنت متأكد من حذف / إلغاء فاتورة المشتريات الحالية؟')) { onSuccessNewInvoice(false); }" title="حذف أو إلغاء الفاتورة الحالية">🗑️ حذف / إلغاء</button> <button type="button" class="btn-action royal-crystal-btn royal-btn-print btn-preview" id="btn-preview-invoice" style="flex: 1.3; min-width: 135px; height: 46px; font-size: 1rem; font-weight: 900; border-radius: 10px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px;" onclick="printCurrentInvoice()">🖨️ معاينة وطباعة</button>
                 
                 <!-- Share Button: Professional with dropdown -->
                 <div style="position: relative; flex: 1.2;" id="share-btn-wrapper">
-                    <button type="button" class="btn-action btn-share" id="btn-share-invoice" style="width: 100%; height: 45px; background: linear-gradient(135deg, #8b5cf6, #6d28d9); border: none; color: #fff; font-size: 1rem; font-weight: bold; border-radius: 8px; cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 2px 10px rgba(139, 92, 246, 0.3); display: flex; align-items: center; justify-content: center; gap: 8px;" onmouseover="this.style.background='linear-gradient(135deg, #7c3aed, #5b21b6)'; this.style.boxShadow='0 4px 18px rgba(139, 92, 246, 0.5)'; this.style.transform='translateY(-1px)';" onmouseout="this.style.background='linear-gradient(135deg, #8b5cf6, #6d28d9)'; this.style.boxShadow='0 2px 10px rgba(139, 92, 246, 0.3)'; this.style.transform='none';" onclick="toggleShareMenu(event)">
+                    <button type="button" class="btn-action royal-crystal-btn royal-btn-whatsapp btn-share" id="btn-share-invoice" style="width: 100%; height: 46px; font-size: 1rem; font-weight: 900; border-radius: 10px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px;" onclick="toggleShareMenu(event)">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
                         <span>مشاركة</span>
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="opacity: 0.7;"><polyline points="6 9 12 15 18 9"/></svg>
@@ -2413,7 +2413,7 @@ try {
                 </div>
                 
                 <!-- New Button: Solid Green Gradient -->
-                <button type="button" class="btn-action btn-new" style="flex: 1; height: 45px; box-shadow: 0 2px 10px rgba(16, 185, 129, 0.4); background: linear-gradient(135deg, #10b981, #059669); color: #fff; border: none; font-size: 1.1rem; font-weight: bold; border-radius: 8px; cursor: pointer; transition: 0.3s;" onmouseover="this.style.boxShadow='0 6px 20px rgba(16, 185, 129, 0.6)';" onmouseout="this.style.boxShadow='0 2px 10px rgba(16, 185, 129, 0.4)';" onclick="onSuccessNewInvoice(false);">✨ جديد</button>
+                <button type="button" class="btn-action royal-crystal-btn royal-btn-new btn-new" style="flex: 1; min-width: 100px; height: 46px; font-size: 1.05rem; font-weight: 900; border-radius: 10px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px;" onclick="onSuccessNewInvoice(false);" title="تصفير الحقول وبدء فاتورة مشتريات جديدة">✨ جديد</button>
 
                 <!-- OCR Scanner Button: Emerald Gradient -->
                 <button type="button" class="btn-action btn-ocr" style="flex: 1.2; height: 45px; box-shadow: 0 2px 10px rgba(5, 150, 105, 0.4); background: linear-gradient(135deg, #059669, #047857); color: #fff; border: 1px solid rgba(52, 211, 153, 0.4); font-size: 1.05rem; font-weight: bold; border-radius: 8px; cursor: pointer; transition: 0.3s; display: flex; align-items: center; justify-content: center; gap: 8px;" onmouseover="this.style.boxShadow='0 6px 20px rgba(16, 185, 129, 0.7)';" onmouseout="this.style.boxShadow='0 2px 10px rgba(5, 150, 105, 0.4)';" onclick="triggerInvoiceOCR()">
@@ -2458,7 +2458,7 @@ try {
 
                 <!-- Submit Button: Solid Blue Gradient -->
                 <span style="display:none;" id="footer-grand"></span>
-                <button class="btn-action btn-submit" style="flex: 1.5; height: 45px; box-shadow: 0 2px 10px rgba(56, 189, 248, 0.4); background: linear-gradient(135deg, #0ea5e9, #2563eb); color: #fff; border: none; font-size: 1.1rem; font-weight: bold; border-radius: 8px; cursor: pointer; transition: 0.3s;" onmouseover="this.style.boxShadow='0 6px 20px rgba(56, 189, 248, 0.6)';" onmouseout="this.style.boxShadow='0 2px 10px rgba(56, 189, 248, 0.4)';" onclick="submitInvoice()">✅ تأكيد وحفظ</button>
+                <button type="button" class="btn-action royal-crystal-btn royal-btn-save btn-submit" style="flex: 1.5; min-width: 145px; height: 46px; font-size: 1.1rem; font-weight: 900; border-radius: 10px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px;" onclick="submitInvoice()">✅ حفظ واعتماد</button>
             </div>
         </div>
 
@@ -2482,7 +2482,7 @@ try {
     <script defer src="js/html2pdf.bundle.min.js"></script>
     <script defer src="js/whatsapp-integration.js?v=<?php echo time(); ?>"></script>
     <script defer src="js/erp-whatsapp-suite.js?v=<?php echo time(); ?>"></script>
-    <script defer src="js/app.js?v=<?php echo file_exists('js/app.js') ? filemtime('js/app.js') : '1.0.0'; ?>"></script>
+    <script defer src="js/app.js?v=20261016_v28"></script>
     <script defer src="js/print-engine.js"></script>
     <script defer src="js/accounting-engine.js?v=<?php echo file_exists('js/accounting-engine.js') ? filemtime('js/accounting-engine.js') : '1.0.0'; ?>"></script>
     <script defer src="js/purchase-pro-v5.js?v=<?php echo time(); ?>"></script>

@@ -84,7 +84,7 @@
     <div class="backup-container">
         
         <div style="margin-bottom: 20px;">
-            <a data-href="settings.php" onclick="window.location.href='settings.php'" class="btn-action" style="background: rgba(255,255,255,0.1); text-decoration:none; padding:8px 15px; border-radius:8px; color:white; cursor:pointer;">↩ العودة للإعدادات</a>
+            <a href="settings.php" data-href="settings.php" onclick="window.location.href='settings.php'" class="btn-action" style="background: rgba(255,255,255,0.1); text-decoration:none; padding:8px 15px; border-radius:8px; color:white; cursor:pointer;">↩ العودة للإعدادات</a>
         </div>
 
         <div class="premium-header">
@@ -140,7 +140,7 @@
 
     <!-- Required for DBReady and IndexedDB -->
     <script defer src="js/localforage.min.js"></script>
-    <script defer src="js/app.js?v=<?php echo file_exists('js/app.js') ? filemtime('js/app.js') : '1'; ?>"></script>
+    <script defer src="js/app.js?v=20261016_v28"></script>
     <script>
         document.addEventListener('DBReady', () => {
             if (!localStorage.getItem('authToken')) { window.location.href = 'login.php'; return; }
