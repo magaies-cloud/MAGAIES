@@ -374,6 +374,10 @@ async function flushIndexedDBOutboxInSW() {
 
         const out = await res.json();
         if (out && out.success && Array.isArray(out.synced)) {
+            const outboxMap = {};
+            items.forEach((it) => {
+                if (it && it.offline_id) outboxMap[String(it.offline_id)] = it;
+            });
             // مسح الحركات المرفوعة من outbox وتسجيلها في synced_ack لتتحدث الشاشات لاحقاً دون إعادة رفع
             await new Promise((resolve) => {
                 try {
@@ -383,12 +387,23 @@ async function flushIndexedDBOutboxInSW() {
                     outboxStore.clear();
                     out.synced.forEach((sItem) => {
                         if (sItem && sItem.offline_id) {
+                            const orig = outboxMap[String(sItem.offline_id)] || {};
+                            const p = orig.payload || sItem.record || {};
+                            const party = p.customerName || p.customer || p.supplierName || p.supplier ||
+                                ((p.fromAccountName || p.fromAccount) && (p.toAccountName || p.toAccount)
+                                    ? `${p.fromAccountName || p.fromAccount} ➔ ${p.toAccountName || p.toAccount}`
+                                    : (p.toAccountName || p.fromAccountName || ''));
+                            const amount = Number(p.amountLocal || p.total || p.netTotal || p.amount || 0);
                             ackStore.put({
                                 offline_id: String(sItem.offline_id),
                                 real_id: String(sItem.real_id || sItem.offline_id),
-                                type: sItem.type || 'sales',
+                                type: sItem.type || orig.type || 'sales',
+                                created_at: orig.created_at || p.createdAt || p.date || new Date().toISOString(),
                                 synced_at: sItem.synced_at || new Date().toISOString(),
-                                idempotency_key: (sItem.record && sItem.record.idempotencyKey) ? sItem.record.idempotencyKey : '',
+                                sync_mode: 'background_sw',
+                                amount: amount,
+                                party: String(party || ''),
+                                idempotency_key: (sItem.record && sItem.record.idempotencyKey) ? sItem.record.idempotencyKey : (orig.idempotency_key || ''),
                                 record: sItem.record || null
                             });
                         }

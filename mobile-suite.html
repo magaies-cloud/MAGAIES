@@ -264,9 +264,10 @@
 
       <!-- Action Quick Bar (Secondary Operational Bar - الصف الثاني النقي بدون أي تكرار: 6 أدوات تشغيلية متوازنة) -->
       <div class="mt-[8px] grid grid-cols-6 gap-1.5 pt-1 pb-0.5 px-0.5">
-        <!-- 1. زر المزامنة الشاملة والتحديث الفوري (مدمج مع السحابة) -->
-        <button id="mainRefreshBtn" onclick="PWAManager.syncRealData(true); if(typeof handleQuickCloudSync==='function')handleQuickCloudSync(); if(window.triggerRefreshAnimation)triggerRefreshAnimation(); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="row2-glass-tile r2-cyan rounded-xl flex items-center justify-center h-[38px] text-cyan-300 relative active:scale-95 transition cursor-pointer" title="مزامنة شاملة وتحديث فوري مع السيرفر والكمبيوتر">
+        <!-- 1. زر المزامنة الشاملة والتحديث الفوري (مدمج مع السحابة + ضغطة مطولة لسجل تدقيق المزامنة الخلفية) -->
+        <button id="mainRefreshBtn" onclick="PWAManager.syncRealData(true); if(typeof handleQuickCloudSync==='function')handleQuickCloudSync(); if(window.triggerRefreshAnimation)triggerRefreshAnimation(); if(window.triggerHapticPulse)triggerHapticPulse(15);" oncontextmenu="event.preventDefault(); if(window.MagaiesOffline) window.MagaiesOffline.showSyncAuditModal();" class="row2-glass-tile r2-cyan rounded-xl flex items-center justify-center h-[38px] text-cyan-300 relative active:scale-95 transition cursor-pointer" title="مزامنة شاملة وتحديث فوري (اضغط مطولاً لفتح سجل تدقيق المزامنة التلقائية والرفع الخلفي)">
           <svg id="mainRefreshIcon" class="w-4 h-4 text-cyan-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+          <span id="mainRefreshPendingBadge" class="hidden absolute -top-1 -right-1 bg-amber-500 text-slate-950 text-[8px] font-mono font-black px-1 rounded-full shadow">0</span>
         </button>
 
         <!-- 2. قارئ الإشعارات البنكية الذكي بالكاميرا (OCR) -->
@@ -542,12 +543,18 @@
             </button>
 
             <div id="execApprovalInboxBody" class="hidden p-3 space-y-2 border-t border-slate-800/80 bg-slate-950/90">
-              <div class="flex items-center justify-between mb-1">
+              <div class="flex items-center justify-between gap-1.5 mb-1 flex-wrap">
                 <span class="text-[10px] text-slate-400 font-bold">الطلبات المعلقة بانتظار توقيع الإدارة:</span>
-                <button type="button" onclick="SuiteApprovalInbox.approveAll()" class="text-[10px] bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 px-2.5 py-1 rounded-lg font-black flex items-center gap-1 cursor-pointer transition">
-                  <i class="fa-solid fa-fingerprint"></i>
-                  <span>اعتماد الكل فوراً</span>
-                </button>
+                <div class="flex items-center gap-1.5">
+                  <button type="button" onclick="if(window.MagaiesOffline) window.MagaiesOffline.showSyncAuditModal();" class="text-[10px] bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 border border-cyan-500/40 px-2 py-1 rounded-lg font-black flex items-center gap-1 cursor-pointer transition" title="سجل تدقيق المزامنة التلقائية والرفع الخلفي">
+                    <i class="fa-solid fa-shield-halved"></i>
+                    <span>سجل المزامنة</span>
+                  </button>
+                  <button type="button" onclick="SuiteApprovalInbox.approveAll()" class="text-[10px] bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 px-2.5 py-1 rounded-lg font-black flex items-center gap-1 cursor-pointer transition">
+                    <i class="fa-solid fa-fingerprint"></i>
+                    <span>اعتماد الكل فوراً</span>
+                  </button>
+                </div>
               </div>
               <div id="execApprovalListContainer" class="space-y-2">
                 <!-- Populated dynamically by SuiteApprovalInbox -->

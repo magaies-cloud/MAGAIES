@@ -214,7 +214,8 @@
                 });
 
                 if (Array.isArray(acked) && acked.length > 0) {
-                    this.recordSyncedHistory(acked);
+                    const prevQ = JSON.parse(localStorage.getItem(STORAGE_KEY_QUEUE) || '[]');
+                    this.recordSyncedHistory(acked, prevQ, 'background_sw');
                     this.applySyncedItemsToLocalState(acked);
 
                     const ackIds = new Set(acked.map(a => String(a.offline_id || '')).filter(Boolean));
@@ -509,28 +510,62 @@
             }
         },
 
-        recordSyncedHistory(syncedItems) {
+        recordSyncedHistory(syncedItems, queueItemsBeforeSync = [], defaultSyncMode = 'live_auto') {
             if (!Array.isArray(syncedItems) || syncedItems.length === 0) return;
             try {
                 const hist = this.getSyncedHistory();
-                syncedItems.forEach(item => {
-                    hist.unshift({
-                        offline_id: item.offline_id,
-                        real_id: item.real_id,
-                        type: item.type || 'sales',
-                        synced_at: item.synced_at || new Date().toISOString()
+                const qMap = {};
+                if (Array.isArray(queueItemsBeforeSync)) {
+                    queueItemsBeforeSync.forEach(q => {
+                        if (q && q.offline_id) qMap[String(q.offline_id)] = q;
                     });
+                }
+
+                syncedItems.forEach(item => {
+                    if (!item || (!item.offline_id && !item.real_id)) return;
+                    const offId = String(item.offline_id || item.real_id);
+                    const realId = String(item.real_id || item.offline_id);
+                    const qOrig = qMap[offId] || {};
+                    const p = item.record || qOrig.payload || {};
+                    const party = item.party || p.customerName || p.customer || p.supplierName || p.supplier ||
+                        ((p.fromAccountName || p.fromAccount) && (p.toAccountName || p.toAccount)
+                            ? `${p.fromAccountName || p.fromAccount} ➔ ${p.toAccountName || p.toAccount}`
+                            : (p.toAccountName || p.fromAccountName || ''));
+                    const amount = Number(item.amount || p.amountLocal || p.total || p.netTotal || p.amount || 0);
+                    const createdAt = item.created_at || qOrig.created_at || p.createdAt || p.date || new Date().toISOString();
+                    const syncedAt = item.synced_at || new Date().toISOString();
+                    const syncMode = item.sync_mode || defaultSyncMode || 'live_auto';
+                    const normType = this.normalizeType(item.type || qOrig.type || 'sales');
+
+                    // منع تكرار نفس السجل في شاشة التدقيق
+                    const existingIdx = hist.findIndex(h => h && (h.offline_id === offId || h.real_id === realId));
+                    const entry = {
+                        offline_id: offId,
+                        real_id: realId,
+                        type: normType,
+                        created_at: createdAt,
+                        synced_at: syncedAt,
+                        sync_mode: syncMode,
+                        amount: amount,
+                        party: String(party || '')
+                    };
+                    if (existingIdx !== -1) {
+                        hist[existingIdx] = Object.assign({}, hist[existingIdx], entry);
+                    } else {
+                        hist.unshift(entry);
+                    }
+
                     // تحديث الترقيم المحلي ليواكب الرقم المعتمد من السيرفر فوراً
-                    const normType = this.normalizeType(item.type || 'sales');
                     const { letter } = this.getPrefixForType(normType);
-                    const realSeq = this.extractUniversalSeq(item.real_id, letter);
+                    const realSeq = this.extractUniversalSeq(realId, letter);
                     if (realSeq > 0) {
                         const known = JSON.parse(localStorage.getItem('magaies_last_known_sequences_v1') || '{}');
                         known[normType] = Math.max(parseInt(known[normType]) || 0, realSeq);
                         localStorage.setItem('magaies_last_known_sequences_v1', JSON.stringify(known));
                     }
                 });
-                localStorage.setItem(STORAGE_KEY_SYNCED_HISTORY, JSON.stringify(hist.slice(0, 30)));
+                localStorage.setItem(STORAGE_KEY_SYNCED_HISTORY, JSON.stringify(hist.slice(0, 40)));
+                this.updateUIBadge();
             } catch(e) {}
         },
 
@@ -794,7 +829,7 @@
                 if (out && out.success && Array.isArray(out.synced)) {
                     this.isOnline = true;
                     // حفظ سجل التحويل من رقم أوفلاين إلى رقم السيستم الرسمي
-                    this.recordSyncedHistory(out.synced);
+                    this.recordSyncedHistory(out.synced, queue, 'live_auto');
                     this.applySyncedItemsToLocalState(out.synced);
 
                     // إفراغ الطابور الموحد وطابور سندات الموبايل بعد الترحيل الكامل
@@ -1003,21 +1038,87 @@
         },
 
         // ─────────────────────────────────────────────────────────────
-        // 8. واجهة المستخدم والشارة العائمة (تم سحب وإخفاء الشارة السفلية تحت الواتساب لمنع التشتيت)
+        // 8. واجهة المستخدم والشارة العائمة + سجل تدقيق المزامنة التلقائية (Sync Audit Log Modal)
         // ─────────────────────────────────────────────────────────────
+        getOperationLabel(rawType) {
+            const t = this.normalizeType(rawType);
+            const map = {
+                'finance': '💸 حركة مالية',
+                'sales': '🛍️ فاتورة مبيعات',
+                'sales_split': '✂️ تقسيم مبيعات',
+                'sales_return': '↩️ مرتجع مبيعات',
+                'purchase': '🛒 فاتورة مشتريات',
+                'purchase_split': '📑 تقسيم مشتريات',
+                'purchase_return': '↩️ مرتجع مشتريات',
+                'delivery': '🚚 تسليم بضاعة',
+                'purchase_receipt': '📦 استلام مشتريات',
+                'journal_entry': '⚖️ قيد يومية',
+                'stock_adjustment': '📋 تسوية مخزنية',
+                'warehouse_transfer': '🔄 تحويل مخزني',
+                'save_item': '🏷️ بطاقة صنف'
+            };
+            return map[t] || ('📄 ' + t);
+        },
+
+        formatAuditTime(isoStr) {
+            if (!isoStr) return '—';
+            try {
+                const d = new Date(isoStr);
+                if (isNaN(d.getTime())) return String(isoStr);
+                return d.toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            } catch (e) {
+                return String(isoStr);
+            }
+        },
+
+        async requestLockScreenNotifications() {
+            if (!('Notification' in window)) {
+                alert('متصفحك لا يدعم إشعارات شاشة القفل.');
+                return;
+            }
+            try {
+                const perm = await Notification.requestPermission();
+                if (perm === 'granted') {
+                    const msg = '🔔 تم تفعيل إشعار شاشة القفل بنجاح! سيصلك إشعار فوري عند رفع العمليات في الخلفية.';
+                    if (window.showToastNotification) window.showToastNotification(msg);
+                    else if (window.showToast) window.showToast(msg, 'success');
+                }
+                this.showSyncAuditModal();
+            } catch (e) {}
+        },
+
         updateUIBadge() {
             const existing = document.getElementById('magaies-offline-pill');
             if (existing) {
                 existing.style.display = 'none';
                 existing.remove();
             }
-            // الحفاظ الكامل على جميع الحركات المسجلة في طابور الأوفلاين حتى يتم رفعها للسيرفر مهما طالت مدة انقطاع الإنترنت
+            try {
+                const qLen = this.getQueue().length;
+                const badgeEls = document.querySelectorAll('#mainRefreshPendingBadge, #voucherSyncPendingBadge');
+                badgeEls.forEach(el => {
+                    if (qLen > 0) {
+                        el.textContent = String(qLen);
+                        el.classList.remove('hidden');
+                    } else {
+                        el.classList.add('hidden');
+                    }
+                });
+            } catch (e) {}
         },
 
-        showQueueModal() {
+        showSyncAuditModal() {
+            return this.showQueueModal();
+        },
+
+        async showQueueModal() {
+            await this.reconcileFromIndexedDB();
+            this.absorbMobileVoucherQueue();
             const queue = this.getQueue();
             const syncedHist = this.getSyncedHistory();
             const dev = this.getDeviceCode();
+            const isOnlineNow = navigator.onLine !== false;
+            const notifPerm = ('Notification' in window) ? Notification.permission : 'unsupported';
 
             let modal = document.getElementById('magaies-offline-modal');
             if (!modal) {
@@ -1025,77 +1126,132 @@
                 modal.id = 'magaies-offline-modal';
                 modal.style.cssText = `
                     position: fixed; inset: 0; z-index: 100000;
-                    background: rgba(0,0,0,0.75); backdrop-filter: blur(8px);
-                    display: flex; align-items: center; justify-content: center; padding: 16px;
+                    background: rgba(2,6,23,0.82); backdrop-filter: blur(10px);
+                    display: flex; align-items: center; justify-content: center; padding: 12px;
                 `;
+                modal.addEventListener('click', (e) => {
+                    if (e.target === modal) modal.style.display = 'none';
+                });
                 document.body.appendChild(modal);
             }
 
             let itemsHtml = '';
             if (queue.length === 0) {
-                itemsHtml = `<div style="text-align:center;padding:16px;color:#94a3b8;font-size:12px;">✨ لا توجد أي عمليات أوفلاين معلقة، كل البيانات مرحلة ومعتمدة بنجاح!</div>`;
-            } else {
-                itemsHtml = queue.map((q) => `
-                    <div style="background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.3);border-radius:10px;padding:10px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;">
-                        <div>
-                            <div style="font-weight:800;color:#fbbf24;font-size:12px;">${q.offline_id}</div>
-                            <div style="font-size:10px;color:#94a3b8;">${q.type} • ${new Date(q.created_at).toLocaleTimeString('ar-EG')}</div>
-                        </div>
-                        <span style="background:rgba(245,158,11,0.2);color:#fbbf24;padding:3px 8px;border-radius:6px;font-size:10px;font-weight:700;">⏳ بانتظار الشبكة</span>
+                itemsHtml = `
+                    <div style="background:rgba(16,185,129,0.08);border:1px dashed rgba(16,185,129,0.35);border-radius:12px;padding:12px;text-align:center;color:#6ee7b7;font-size:11.5px;font-weight:800;margin-bottom:10px;">
+                        ✨ الطابور المعلق فارغ (0 معلق) — كافة الحركات مرحلة ومعتمدة في MariaDB!
                     </div>
-                `).join('');
+                `;
+            } else {
+                itemsHtml = `
+                    <div style="font-size:11px;font-weight:900;color:#fbbf24;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center;">
+                        <span>⏳ حركات أوفلاين معلقة في الطابور (${queue.length}):</span>
+                        <span style="font-size:9.5px;color:#fde68a;">ترفع تلقائياً فور توفر الشبكة</span>
+                    </div>
+                    ${queue.map((q) => {
+                        const p = q.payload || {};
+                        const party = p.customerName || p.customer || p.supplierName || p.supplier ||
+                            ((p.fromAccountName || p.fromAccount) && (p.toAccountName || p.toAccount)
+                                ? `${p.fromAccountName || p.fromAccount} ➔ ${p.toAccountName || p.toAccount}`
+                                : (p.toAccountName || p.fromAccountName || ''));
+                        const amt = Number(p.amountLocal || p.total || p.netTotal || p.amount || 0);
+                        return `
+                            <div style="background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.4);border-radius:12px;padding:9px 11px;margin-bottom:7px;">
+                                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+                                    <span style="font-weight:900;color:#fbbf24;font-size:12px;font-family:monospace;">#${q.offline_id}</span>
+                                    <span style="background:rgba(245,158,11,0.22);color:#fde68a;padding:2px 8px;border-radius:6px;font-size:9.5px;font-weight:800;">${this.getOperationLabel(q.type)}</span>
+                                </div>
+                                ${party ? `<div style="font-size:10.5px;color:#e2e8f0;font-weight:700;margin-bottom:3px;">👤 ${party}${amt > 0 ? ` • <span style="color:#38bdf8;font-family:monospace;">${amt.toLocaleString()}</span>` : ''}</div>` : ''}
+                                <div style="font-size:9.5px;color:#94a3b8;display:flex;justify-content:space-between;">
+                                    <span>📝 وقت الإنشاء أوفلاين: ${this.formatAuditTime(q.created_at)}</span>
+                                    <span style="color:#fbbf24;font-weight:700;">محفوظ في IndexedDB 🔒</span>
+                                </div>
+                            </div>
+                        `;
+                    }).join('')}
+                `;
             }
 
             let histHtml = '';
-            if (syncedHist.length > 0) {
+            if (syncedHist.length === 0) {
                 histHtml = `
-                    <div style="margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,0.1);">
-                        <div style="font-size:11px;font-weight:800;color:#34d399;margin-bottom:6px;">✅ آخر حركات الأوفلاين التي أخذت سيريال السيستم:</div>
-                        ${syncedHist.slice(0, 6).map(h => `
-                            <div style="background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.25);border-radius:8px;padding:6px 10px;margin-bottom:5px;display:flex;justify-content:space-between;align-items:center;font-size:11px;">
-                                <span style="color:#cbd5e1;">${h.offline_id}</span>
-                                <span style="color:#34d399;font-weight:900;">➔ #${h.real_id}</span>
-                            </div>
-                        `).join('')}
+                    <div style="text-align:center;padding:14px;color:#64748b;font-size:11px;border:1px solid rgba(255,255,255,0.06);border-radius:12px;">
+                        لا توجد حركات أوفلاين مسجلة في سجل التدقيق على هذا الجهاز بعد.
+                    </div>
+                `;
+            } else {
+                histHtml = `
+                    <div style="margin-top:8px;padding-top:8px;border-top:1px solid rgba(255,255,255,0.1);">
+                        <div style="font-size:11px;font-weight:900;color:#34d399;margin-bottom:7px;display:flex;justify-content:space-between;align-items:center;">
+                            <span>✅ سجل تدقيق المزامنة التلقائية (آخر ${Math.min(syncedHist.length, 20)} حركة):</span>
+                            <span style="font-size:9.5px;color:#94a3b8;">MariaDB Verified</span>
+                        </div>
+                        ${syncedHist.slice(0, 20).map(h => {
+                            const isBg = h.sync_mode === 'background_sw';
+                            const modeBadge = isBg
+                                ? `<span style="background:rgba(14,165,233,0.2);color:#7dd3fc;border:1px solid rgba(56,189,248,0.35);padding:1.5px 6px;border-radius:5px;font-size:9px;font-weight:800;">🌙 رُفع بالخلفية (SW)</span>`
+                                : `<span style="background:rgba(16,185,129,0.2);color:#6ee7b7;border:1px solid rgba(52,211,153,0.35);padding:1.5px 6px;border-radius:5px;font-size:9px;font-weight:800;">⚡ مزامنة تلقائية فورية</span>`;
+                            const idDisplay = (h.offline_id && h.offline_id !== h.real_id)
+                                ? `<span style="color:#94a3b8;text-decoration:line-through;font-size:10px;">${h.offline_id}</span> ➔ <span style="color:#34d399;font-weight:900;font-family:monospace;">#${h.real_id}</span>`
+                                : `<span style="color:#34d399;font-weight:900;font-family:monospace;font-size:12px;">#${h.real_id || h.offline_id}</span>`;
+                            return `
+                                <div style="background:rgba(15,23,42,0.9);border:1px solid rgba(16,185,129,0.28);border-radius:11px;padding:8px 10px;margin-bottom:6px;font-size:10.5px;">
+                                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px;">
+                                        <div>${idDisplay} <span style="color:#cbd5e1;font-weight:700;margin-right:4px;">${this.getOperationLabel(h.type)}</span></div>
+                                        ${modeBadge}
+                                    </div>
+                                    ${(h.party || h.amount > 0) ? `
+                                        <div style="color:#e2e8f0;font-size:10px;font-weight:700;margin-bottom:3px;display:flex;justify-content:space-between;">
+                                            <span>${h.party ? '👤 ' + h.party : ''}</span>
+                                            ${h.amount > 0 ? `<span style="color:#38bdf8;font-family:monospace;font-weight:900;">${Number(h.amount).toLocaleString()}</span>` : ''}
+                                        </div>
+                                    ` : ''}
+                                    <div style="display:flex;justify-content:space-between;align-items:center;color:#94a3b8;font-size:9.5px;border-top:1px dashed rgba(255,255,255,0.07);padding-top:3px;">
+                                        <span>📝 أُنشئ أوفلاين: <strong style="color:#cbd5e1;font-family:monospace;">${this.formatAuditTime(h.created_at)}</strong></span>
+                                        <span>☁️ رُفع للسيرفر: <strong style="color:#34d399;font-family:monospace;">${this.formatAuditTime(h.synced_at)}</strong></span>
+                                    </div>
+                                </div>
+                            `;
+                        }).join('')}
                     </div>
                 `;
             }
 
             modal.innerHTML = `
-                <div style="background:#0f172a;border:1px solid rgba(255,255,255,0.15);border-radius:20px;width:100%;max-width:390px;padding:18px;color:#fff;direction:rtl;">
-                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-                        <h3 style="margin:0;font-size:14px;font-weight:800;display:flex;align-items:center;gap:6px;">
-                            <span>⚡ نظام الأوفلاين الذكي والترقيم الفوري</span>
-                        </h3>
-                        <button onclick="document.getElementById('magaies-offline-modal').style.display='none'" style="background:none;border:none;color:#94a3b8;font-size:18px;cursor:pointer;">✕</button>
-                    </div>
-
-                    <div style="background:rgba(59,130,246,0.1);border:1px solid rgba(59,130,246,0.3);border-radius:12px;padding:10px;margin-bottom:10px;font-size:11px;color:#93c5fd;">
-                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
-                            <span>رقم هذا الجوال: <strong style="font-size:13px;color:#fff;">[ جوال رقم ${dev} ]</strong></span>
-                            <button onclick="MagaiesOffline.promptChangeDeviceCode(); MagaiesOffline.showQueueModal();" style="background:#2563eb;color:#fff;border:none;padding:4px 10px;border-radius:6px;font-size:10px;font-weight:700;cursor:pointer;">تخصيص</button>
+                <div style="background:linear-gradient(180deg,#0f172a 0%,#020617 100%);border:1.5px solid rgba(56,189,248,0.35);border-radius:22px;width:100%;max-width:410px;padding:16px;color:#fff;direction:rtl;box-shadow:0 25px 60px rgba(0,0,0,0.85);font-family:Cairo,Tajawal,sans-serif;">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;border-bottom:1px solid rgba(255,255,255,0.1);padding-bottom:8px;">
+                        <div>
+                            <h3 style="margin:0;font-size:13.5px;font-weight:900;color:#38bdf8;display:flex;align-items:center;gap:6px;">
+                                <span>🛡️ سجل تدقيق المزامنة التلقائية والرفع الخلفي</span>
+                            </h3>
+                            <div style="font-size:10px;color:#94a3b8;margin-top:2px;">
+                                ${isOnlineNow ? '🟢 متصل حالياً بـ MariaDB' : '🟠 وضع الأوفلاين النشط'} • محرك الرفع الذاتي يعمل 24/7 بدون فتح التطبيق
+                            </div>
                         </div>
-                        <div style="display:flex;gap:5px;">
-                            ${['1','2','3','4','5'].map(n => `
-                                <button onclick="MagaiesOffline.setDeviceCode('${n}'); MagaiesOffline.showQueueModal();" style="flex:1;padding:4px 0;border-radius:6px;border:1px solid ${dev===n ? '#60a5fa' : 'rgba(255,255,255,0.15)'};background:${dev===n ? '#2563eb' : 'rgba(255,255,255,0.05)'};color:#fff;font-size:10px;font-weight:800;cursor:pointer;">جوال ${n}</button>
-                            `).join('')}
+                        <button onclick="document.getElementById('magaies-offline-modal').style.display='none'" style="background:rgba(255,255,255,0.08);border:none;color:#cbd5e1;width:28px;height:28px;border-radius:50%;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;">✕</button>
+                    </div>
+
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:10px;">
+                        <div style="background:rgba(59,130,246,0.1);border:1px solid rgba(59,130,246,0.3);border-radius:11px;padding:7px 9px;font-size:10.5px;color:#93c5fd;display:flex;justify-content:space-between;align-items:center;">
+                            <span>📱 جوال رقم: <strong style="color:#fff;">${dev}</strong></span>
+                            <button onclick="MagaiesOffline.promptChangeDeviceCode(); MagaiesOffline.showQueueModal();" style="background:#2563eb;color:#fff;border:none;padding:3px 7px;border-radius:6px;font-size:9.5px;font-weight:800;cursor:pointer;">تغيير</button>
+                        </div>
+                        <div style="background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.3);border-radius:11px;padding:7px 9px;font-size:10.5px;color:#6ee7b7;display:flex;justify-content:space-between;align-items:center;">
+                            <span>🔔 إشعار القفل:</span>
+                            ${notifPerm === 'granted'
+                                ? `<span style="color:#34d399;font-weight:900;font-size:9.5px;">مفعّل ✓</span>`
+                                : `<button onclick="MagaiesOffline.requestLockScreenNotifications();" style="background:#059669;color:#fff;border:none;padding:3px 7px;border-radius:6px;font-size:9.5px;font-weight:800;cursor:pointer;">تفعيل</button>`}
                         </div>
                     </div>
 
-                    <div style="background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.3);border-radius:12px;padding:9px 10px;margin-bottom:12px;font-size:11px;color:#6ee7b7;display:flex;justify-content:space-between;align-items:center;">
-                        <span>تثبيت كأيقونة أوفلاين على الشاشة:</span>
-                        <button onclick="MagaiesOffline.promptPWAInstall();" style="background:#059669;color:#fff;border:none;padding:4px 10px;border-radius:6px;font-size:10px;font-weight:700;cursor:pointer;">📲 تثبيت PWA</button>
-                    </div>
-
-                    <div style="max-height:210px;overflow-y:auto;margin-bottom:14px;">
+                    <div style="max-height:310px;overflow-y:auto;margin-bottom:12px;padding-left:2px;">
                         ${itemsHtml}
                         ${histHtml}
                     </div>
 
-                    <div style="display:flex;gap:8px;">
-                        <button onclick="MagaiesOffline.flushQueue(); document.getElementById('magaies-offline-modal').style.display='none';" style="flex:1;background:linear-gradient(135deg, #10b981, #059669);color:#fff;border:none;padding:10px;border-radius:10px;font-weight:800;font-size:12px;cursor:pointer;">⚡ مزامنة وترقيم الآن</button>
-                        ${queue.length > 0 ? `<button onclick="MagaiesOffline.clearQueue(); MagaiesOffline.showQueueModal();" style="background:rgba(239,68,68,0.2);color:#fca5a5;border:1px solid rgba(239,68,68,0.4);padding:10px 12px;border-radius:10px;font-weight:700;font-size:11px;cursor:pointer;">🗑️ مسح المعلق</button>` : ''}
-                        <button onclick="document.getElementById('magaies-offline-modal').style.display='none';" style="background:rgba(255,255,255,0.1);color:#cbd5e1;border:none;padding:10px 14px;border-radius:10px;font-weight:700;font-size:12px;cursor:pointer;">إغلاق</button>
+                    <div style="display:flex;gap:7px;">
+                        <button onclick="MagaiesOffline.triggerAllSyncEngines(); setTimeout(() => MagaiesOffline.showQueueModal(), 700);" style="flex:1;background:linear-gradient(135deg, #10b981, #059669);color:#fff;border:none;padding:10px;border-radius:11px;font-weight:900;font-size:11.5px;cursor:pointer;box-shadow:0 4px 14px rgba(16,185,129,0.35);">⚡ فحص ورفع فوري الآن</button>
+                        <button onclick="document.getElementById('magaies-offline-modal').style.display='none';" style="background:rgba(255,255,255,0.1);color:#cbd5e1;border:none;padding:10px 14px;border-radius:11px;font-weight:800;font-size:11.5px;cursor:pointer;">إغلاق</button>
                     </div>
                 </div>
             `;
@@ -1301,6 +1457,43 @@
             }
         },
 
+        bindSyncAuditGestureTriggers() {
+            const bindLongPress = (el) => {
+                if (!el || el.dataset.syncAuditBound === '1') return;
+                el.dataset.syncAuditBound = '1';
+                let timer = null;
+                const start = () => {
+                    if (timer) clearTimeout(timer);
+                    timer = setTimeout(() => {
+                        timer = null;
+                        if (window.navigator && window.navigator.vibrate) window.navigator.vibrate(35);
+                        this.showSyncAuditModal();
+                    }, 550);
+                };
+                const cancel = () => {
+                    if (timer) {
+                        clearTimeout(timer);
+                        timer = null;
+                    }
+                };
+                el.addEventListener('touchstart', start, { passive: true });
+                el.addEventListener('touchend', cancel, { passive: true });
+                el.addEventListener('touchmove', cancel, { passive: true });
+                el.addEventListener('touchcancel', cancel, { passive: true });
+                el.addEventListener('mousedown', (e) => { if (e.button === 0) start(); });
+                el.addEventListener('mouseup', cancel);
+                el.addEventListener('mouseleave', cancel);
+            };
+            const applyAll = () => {
+                ['networkPill', 'mainRefreshBtn', 'headerBrandLogoBadge'].forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) bindLongPress(el);
+                });
+            };
+            applyAll();
+            setTimeout(applyAll, 600);
+        },
+
         // ─────────────────────────────────────────────────────────────
         // 11. تهيئة المحرك عند التحميل
         // ─────────────────────────────────────────────────────────────
@@ -1309,6 +1502,7 @@
             this.initHeartbeat();
             this.initPWAInstallCapture();
             this.updateUIBadge();
+            this.bindSyncAuditGestureTriggers();
             this.initAutoFitVoucherObserver();
             // مطابقة فورية مع IndexedDB ودمج أي سندات معلقة ثم الرفع التلقائي
             this.reconcileFromIndexedDB().then(() => {

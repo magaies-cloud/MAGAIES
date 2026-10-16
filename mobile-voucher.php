@@ -3080,12 +3080,18 @@ $currenciesData = [
           <span>حركة مالية</span>
         </span>
 
-        <!-- مؤشر مزامنة وتحديث البيانات الذكي -->
-        <button type="button" onclick="handleUnifiedSyncRefresh()" id="networkPill" class="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/40 text-emerald-400 text-[10.5px] font-black cursor-pointer hover:bg-emerald-500/25 active:scale-95 transition shadow-sm" title="البيانات متزامنة - انقر للتحديث الفوري">
-          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_#10b981]" id="networkDot"></span>
-          <i class="fa-solid fa-arrows-rotate text-[9.5px] text-red-300 hidden" id="networkRefreshIcon"></i>
-          <span id="networkText">متزامن</span>
-        </button>
+        <!-- مؤشر مزامنة وتحديث البيانات الذكي + زر سجل تدقيق المزامنة الخلفية -->
+        <div class="flex items-center gap-1">
+          <button type="button" onclick="handleUnifiedSyncRefresh()" oncontextmenu="event.preventDefault(); if(window.MagaiesOffline) window.MagaiesOffline.showSyncAuditModal();" id="networkPill" class="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/40 text-emerald-400 text-[10.5px] font-black cursor-pointer hover:bg-emerald-500/25 active:scale-95 transition shadow-sm relative" title="انقر للتحديث الفوري • اضغط مطولاً لفتح سجل تدقيق المزامنة التلقائية">
+            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_#10b981]" id="networkDot"></span>
+            <i class="fa-solid fa-arrows-rotate text-[9.5px] text-red-300 hidden" id="networkRefreshIcon"></i>
+            <span id="networkText">متزامن</span>
+            <span id="voucherSyncPendingBadge" class="hidden bg-amber-500 text-slate-950 text-[8.5px] font-mono font-black px-1 rounded-full">0</span>
+          </button>
+          <button type="button" onclick="if(window.MagaiesOffline) window.MagaiesOffline.showSyncAuditModal();" class="w-6 h-6 rounded-full bg-slate-900/90 hover:bg-slate-800 border border-cyan-500/40 text-cyan-300 flex items-center justify-center text-[10px] active:scale-95 transition cursor-pointer shadow-sm" title="سجل تدقيق المزامنة التلقائية والرفع الخلفي (Sync Audit Log)">
+            <i class="fa-solid fa-shield-halved"></i>
+          </button>
+        </div>
       </div>
 
       <!-- اليسار: زر السمات السبع الموحدة + الساعة الحقيقية -->
@@ -11084,6 +11090,18 @@ $currenciesData = [
                   const known = JSON.parse(localStorage.getItem('magaies_last_known_sequences_v1') || '{}');
                   known.finance = Math.max(parseInt(known.finance, 10) || 0, sSeq);
                   localStorage.setItem('magaies_last_known_sequences_v1', JSON.stringify(known));
+                }
+                if (window.MagaiesOffline && typeof window.MagaiesOffline.recordSyncedHistory === 'function') {
+                  window.MagaiesOffline.recordSyncedHistory([{
+                    offline_id: String(item.voucherNo || item.id || realNo),
+                    real_id: String(realNo),
+                    type: 'finance',
+                    created_at: item.createdAt || item.date || new Date().toISOString(),
+                    synced_at: new Date().toISOString(),
+                    sync_mode: 'live_auto',
+                    amount: Number(fullSynced.amountLocal || 0),
+                    party: `${fullSynced.fromAccountName || ''} ➔ ${fullSynced.toAccountName || ''}`
+                  }], [], 'live_auto');
                 }
               } catch (e) {}
             } else if (!data || !data.duplicate) {
