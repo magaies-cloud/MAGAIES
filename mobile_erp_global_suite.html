@@ -522,6 +522,38 @@
           <button type="button" id="btnToggleOpsExpand" onclick="toggleOperationsCompactMode()" class="w-full py-1.5 px-3 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-cyan-500/30 text-[11px] font-black text-cyan-300 flex items-center justify-center gap-1.5 transition active:scale-95 cursor-pointer shadow-sm">
             <span id="opsExpandBtnLabel">✨ اختصار الشبكة لراحة العين (عرض الـ 6 عمليات الأساسية فقط) ▴</span>
           </button>
+
+          <!-- 🛡️ المرحلة 1: مركز اعتمادات المدير بضغطة واحدة (Executive 1-Tap Approval Inbox - Collapsible) -->
+          <div id="execApprovalInboxCard" class="glass-base rounded-2xl border border-amber-500/40 overflow-hidden transition-all shadow-[0_0_20px_rgba(245,158,11,0.12)]">
+            <button type="button" onclick="SuiteApprovalInbox.toggleDrawer()" class="w-full px-3.5 py-2.5 flex items-center justify-between bg-gradient-to-l from-amber-950/40 via-slate-900/90 to-slate-900/90 hover:bg-slate-800/80 transition cursor-pointer">
+              <div class="flex items-center gap-2.5">
+                <div class="w-8 h-8 rounded-xl bg-amber-500/20 border border-amber-400/40 flex items-center justify-center text-amber-300 shadow-[0_0_12px_rgba(245,158,11,0.25)]">
+                  <i class="fa-solid fa-fingerprint text-sm"></i>
+                </div>
+                <div class="text-right">
+                  <div class="flex items-center gap-1.5">
+                    <span class="text-xs font-black text-white">مركز اعتمادات المدير الفوري</span>
+                    <span id="execApprovalCountBadge" class="text-[10px] font-mono font-black bg-amber-500 text-slate-950 px-1.5 py-0.2 rounded-full animate-pulse">3 معلق</span>
+                  </div>
+                  <span class="text-[10px] text-slate-400 block">تجاوز ائتمان • خصم خاص • تسوية مخزن (بضغطة واحدة)</span>
+                </div>
+              </div>
+              <span id="execApprovalChevron" class="text-xs text-amber-300 font-black transition-transform duration-200">▾ فتح</span>
+            </button>
+
+            <div id="execApprovalInboxBody" class="hidden p-3 space-y-2 border-t border-slate-800/80 bg-slate-950/90">
+              <div class="flex items-center justify-between mb-1">
+                <span class="text-[10px] text-slate-400 font-bold">الطلبات المعلقة بانتظار توقيع الإدارة:</span>
+                <button type="button" onclick="SuiteApprovalInbox.approveAll()" class="text-[10px] bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 px-2.5 py-1 rounded-lg font-black flex items-center gap-1 cursor-pointer transition">
+                  <i class="fa-solid fa-fingerprint"></i>
+                  <span>اعتماد الكل فوراً</span>
+                </button>
+              </div>
+              <div id="execApprovalListContainer" class="space-y-2">
+                <!-- Populated dynamically by SuiteApprovalInbox -->
+              </div>
+            </div>
+          </div>
         </section>
 
         <!-- EXECUTIVE FINANCIAL HEALTH & 7-DAY TRENDLINE (مؤشر السلامة المالية ورسم 7 أيام) -->
@@ -697,6 +729,24 @@
               <div class="text-xs font-bold text-slate-300 font-mono">
                 <span class="privacy-mask" data-usd-val="3120" data-original="18,716,880" data-star="••••••••">18,716,880</span> <span class="text-[10px] text-slate-400">ج.س</span>
               </div>
+            </div>
+          </div>
+
+          <!-- 📈 المرحلة 2: مؤشر نقطة التعادل اليومية الحي (Daily Break-Even Progress Bar) -->
+          <div onclick="SuiteBreakEvenManager.promptTarget()" class="glass-base p-3 rounded-2xl border border-emerald-500/35 bg-gradient-to-l from-emerald-950/30 via-slate-900/90 to-slate-900/90 cursor-pointer hover:border-emerald-400/60 transition">
+            <div class="flex items-center justify-between mb-1.5">
+              <div class="flex items-center gap-1.5">
+                <span class="text-xs">🎯</span>
+                <span class="text-[11px] font-black text-white">مؤشر تغطية نقطة التعادل اليومية (Break-Even)</span>
+              </div>
+              <span id="breakEvenStatusPill" class="text-[10px] font-mono font-black bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 px-2 py-0.5 rounded-full">تغطية 271% ✓</span>
+            </div>
+            <div class="w-full h-2.5 bg-slate-950 rounded-full overflow-hidden border border-slate-800 p-0.5 mb-1.5">
+              <div id="breakEvenProgressBar" class="h-full rounded-full bg-gradient-to-r from-amber-500 via-emerald-400 to-cyan-400 transition-all duration-500" style="width: 100%"></div>
+            </div>
+            <div class="flex items-center justify-between text-[10px] text-slate-300 font-mono">
+              <span>نقطة التعادل: <b id="breakEvenTargetUsdText" class="text-amber-300">$1,150</b> (<span id="breakEvenTargetSdgText" data-usd-val="1150">6,898,850 ج.س</span>)</span>
+              <span id="breakEvenSurplusText" class="text-emerald-400 font-bold">فائض ربح صافي: +$1,970 ⚙</span>
             </div>
           </div>
         </section>
@@ -7094,12 +7144,60 @@
           </div>
         </div>
 
-        <div class="grid grid-cols-2 gap-2.5">
-          <button type="button" onclick="SuiteZReportManager.shareWhatsApp()" class="py-3 rounded-2xl bg-emerald-600/20 hover:bg-emerald-600/30 border border-emerald-500/40 text-emerald-300 font-black text-xs flex items-center justify-center gap-1.5 transition cursor-pointer">
-            <span>📲 مشاركة تقرير Z واتساب</span>
+        <div class="grid grid-cols-3 gap-2">
+          <button type="button" onclick="SuiteThermalPrinter.openZReportReceipt()" class="py-3 rounded-2xl bg-cyan-600/20 hover:bg-cyan-600/30 border border-cyan-500/40 text-cyan-300 font-black text-[11px] flex items-center justify-center gap-1 transition cursor-pointer">
+            <span>🖨️ طباعة بلوتوث</span>
           </button>
-          <button type="button" onclick="SuiteZReportManager.submitCloseShift()" class="py-3 rounded-2xl bg-gradient-to-r from-amber-500 to-emerald-500 text-slate-950 font-black text-xs shadow-[0_0_20px_rgba(245,158,11,0.35)] active:scale-95 transition flex items-center justify-center gap-1.5 cursor-pointer">
-            <span>🔒 اعتماد تقفيل الوردية</span>
+          <button type="button" onclick="SuiteZReportManager.shareWhatsApp()" class="py-3 rounded-2xl bg-emerald-600/20 hover:bg-emerald-600/30 border border-emerald-500/40 text-emerald-300 font-black text-[11px] flex items-center justify-center gap-1 transition cursor-pointer">
+            <span>📲 واتساب Z</span>
+          </button>
+          <button type="button" onclick="SuiteZReportManager.submitCloseShift()" class="py-3 rounded-2xl bg-gradient-to-r from-amber-500 to-emerald-500 text-slate-950 font-black text-[11px] shadow-[0_0_20px_rgba(245,158,11,0.35)] active:scale-95 transition flex items-center justify-center gap-1 cursor-pointer">
+            <span>🔒 اعتماد التقفيل</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         OPERATIONAL MODAL 15: BLUETOOTH ESC/POS 80MM THERMAL RECEIPT ENGINE
+    =========================================== -->
+    <div id="modalThermalReceiptPreview" class="modal-backdrop">
+      <div class="modal-sheet space-y-3 !max-h-[94vh] overflow-y-auto" onclick="event.stopPropagation()">
+        <div class="flex justify-between items-center border-b border-slate-800 pb-2.5 sticky top-0 bg-slate-950/95 backdrop-blur-md z-20 pt-1">
+          <div class="flex items-center gap-2">
+            <span class="w-9 h-9 rounded-xl bg-cyan-500/20 border border-cyan-500/40 flex items-center justify-center text-lg">🖨️</span>
+            <div>
+              <h3 class="text-sm font-black text-cyan-400">محرك الطباعة الحرارية المباشرة (ESC/POS 80mm)</h3>
+              <p id="btPrinterConnectionStatus" class="text-[10px] text-slate-400 font-bold">جاهز للاتصال بطابعة البلوتوث الحرارية أو الطباعة الفورية</p>
+            </div>
+          </div>
+          <button onclick="closeModal('modalThermalReceiptPreview')" class="w-8 h-8 rounded-full bg-slate-800 hover:bg-rose-500/20 hover:text-rose-400 flex items-center justify-center text-slate-400 transition cursor-pointer">✕</button>
+        </div>
+
+        <!-- 80mm Paper Simulation -->
+        <div id="thermalPaperSheet" class="bg-white text-slate-950 rounded-2xl p-4 font-mono text-xs space-y-2 shadow-2xl border-t-8 border-cyan-500 max-w-sm mx-auto">
+          <div class="text-center border-b border-dashed border-slate-400 pb-2">
+            <div class="text-sm font-black">مقاييس ERP العالمي - السجانة</div>
+            <div id="thermalReceiptTitle" class="text-[11px] font-bold text-slate-700">تقرير تقفيل الوردية (Z-REPORT)</div>
+            <div id="thermalReceiptMeta" class="text-[10px] text-slate-500">2026-10-16 | سعر الصرف: 5,999 ج.س</div>
+          </div>
+          <div id="thermalReceiptBodyLines" class="space-y-1.5 py-1 text-[11px]">
+            <!-- Filled dynamically -->
+          </div>
+          <div class="border-t border-dashed border-slate-400 pt-2 text-center text-[10px] text-slate-600">
+            <div>تم التوقيع والاعتماد إلكترونياً عبر مقاييس موبايل</div>
+            <div class="font-bold mt-0.5">MAGAIEES CLOUD ERP • C.ELSAJANA.COM</div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2.5 pt-1">
+          <button type="button" onclick="SuiteThermalPrinter.connectAndPrintBLE()" class="py-3 rounded-2xl bg-cyan-600 hover:bg-cyan-500 text-slate-950 font-black text-xs shadow-[0_0_20px_rgba(6,182,212,0.4)] flex items-center justify-center gap-1.5 transition cursor-pointer">
+            <i class="fa-brands fa-bluetooth-b text-sm"></i>
+            <span>اتصال وطباعة بلوتوث مباشر</span>
+          </button>
+          <button type="button" onclick="SuiteThermalPrinter.systemPrintSheet()" class="py-3 rounded-2xl bg-slate-800 hover:bg-slate-700 border border-slate-600 text-white font-black text-xs flex items-center justify-center gap-1.5 transition cursor-pointer">
+            <i class="fa-solid fa-print"></i>
+            <span>طباعة النظام / PDF 80mm</span>
           </button>
         </div>
       </div>
@@ -7108,6 +7206,6 @@
   </div>
 
   <!-- JAVASCRIPT APP LOGIC & INTERACTIONS -->
-  <script src="js/mobile-suite.js?v=2026_10_16_v21"></script>
+  <script src="js/mobile-suite.js?v=2026_10_16_v22"></script>
 </body>
 </html>

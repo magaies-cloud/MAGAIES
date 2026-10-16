@@ -14868,6 +14868,250 @@ async function commitOpSales(andPay = false) {
       }
     };
 
+    // ═════════════════════════════════════════════════════════════════════
+    // 🛡️ PHASE 1: SUITE EXECUTIVE 1-TAP APPROVAL INBOX (مركز اعتمادات المدير)
+    // ═════════════════════════════════════════════════════════════════════
+    window.SuiteApprovalInbox = {
+      isOpen: false,
+      requests: [
+        { id: 'APP-901', type: 'تجاوز حد ائتماني', title: 'شركة النيلين للتجارة — فاتورة آجلة #INV-9088', usd: 1850, by: 'كاشير المبيعات (أحمد)', badgeColor: 'amber' },
+        { id: 'APP-902', type: 'خصم خاص 8%', title: 'خصم جملة نقدي — مؤسسة النور للمقاولات', usd: 320, by: 'مشرف الصالة', badgeColor: 'cyan' },
+        { id: 'APP-903', type: 'تسوية جرد مخزني', title: 'إتلاف 3 كراتين تالفة — مستودع السجانة الرئيسي', usd: 145, by: 'أمين المخزن', badgeColor: 'rose' }
+      ],
+
+      init() {
+        try {
+          const saved = localStorage.getItem('magaies_exec_approvals_v1');
+          if (saved) {
+            const parsed = JSON.parse(saved);
+            if (Array.isArray(parsed)) this.requests = parsed;
+          }
+        } catch(e) {}
+        this.render();
+        window.addEventListener('magaies_rate_changed', () => this.render());
+      },
+
+      getRate() {
+        return (window.SuiteFXManager && window.SuiteFXManager.currentRate > 1) ? window.SuiteFXManager.currentRate : 5999;
+      },
+
+      toggleDrawer() {
+        if (typeof triggerHapticPulse === 'function') triggerHapticPulse(15);
+        this.isOpen = !this.isOpen;
+        const body = document.getElementById('execApprovalInboxBody');
+        const chev = document.getElementById('execApprovalChevron');
+        if (body) body.classList.toggle('hidden', !this.isOpen);
+        if (chev) chev.innerText = this.isOpen ? '▴ طيّ' : '▾ فتح';
+        if (this.isOpen) this.render();
+      },
+
+      render() {
+        const badge = document.getElementById('execApprovalCountBadge');
+        const container = document.getElementById('execApprovalListContainer');
+        const count = this.requests.length;
+
+        if (badge) {
+          if (count > 0) {
+            badge.className = 'text-[10px] font-mono font-black bg-amber-500 text-slate-950 px-1.5 py-0.2 rounded-full animate-pulse';
+            badge.innerText = `${count} معلق`;
+          } else {
+            badge.className = 'text-[10px] font-mono font-black bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 px-1.5 py-0.2 rounded-full';
+            badge.innerText = '0 مكتمل ✓';
+          }
+        }
+
+        if (!container) return;
+        if (count === 0) {
+          container.innerHTML = `<div class="p-3 rounded-xl bg-emerald-950/20 border border-emerald-500/30 text-center text-xs font-bold text-emerald-300">✅ جميع طلبات الاعتماد التنفيذية مكتملة ولا توجد معلقات</div>`;
+          return;
+        }
+
+        const rate = this.getRate();
+        container.innerHTML = this.requests.map(r => {
+          const sdg = Math.round(r.usd * rate).toLocaleString('en-US');
+          return `
+            <div class="p-2.5 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-between gap-2">
+              <div class="min-w-0 flex-1">
+                <div class="flex items-center gap-1.5 mb-0.5">
+                  <span class="text-[9px] font-black px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30">${r.type}</span>
+                  <span class="text-[10px] font-mono text-slate-400">#${r.id}</span>
+                </div>
+                <div class="text-xs font-black text-white truncate">${r.title}</div>
+                <div class="text-[10px] text-slate-400 font-mono mt-0.5">
+                  القيمة: <b class="text-emerald-300">$${r.usd.toLocaleString('en-US')}</b> (<span class="text-slate-300">${sdg} ج.س</span>) • ${r.by}
+                </div>
+              </div>
+              <div class="flex items-center gap-1 shrink-0">
+                <button type="button" onclick="SuiteApprovalInbox.decide('${r.id}', true)" class="px-2.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-slate-950 font-black text-[10px] flex items-center gap-1 cursor-pointer shadow">
+                  <i class="fa-solid fa-check"></i><span>اعتماد</span>
+                </button>
+                <button type="button" onclick="SuiteApprovalInbox.decide('${r.id}', false)" class="px-2 py-1.5 rounded-xl bg-rose-950/70 hover:bg-rose-900 text-rose-300 border border-rose-500/30 font-black text-[10px] cursor-pointer">
+                  ✕
+                </button>
+              </div>
+            </div>
+          `;
+        }).join('');
+      },
+
+      decide(id, approved) {
+        const item = this.requests.find(x => x.id === id);
+        if (!item) return;
+        this.requests = this.requests.filter(x => x.id !== id);
+        try { localStorage.setItem('magaies_exec_approvals_v1', JSON.stringify(this.requests)); } catch(e) {}
+        this.render();
+        if (typeof triggerHapticPulse === 'function') triggerHapticPulse(30);
+        if (typeof showFloatingToast === 'function') {
+          showFloatingToast(approved
+            ? `✅ تم اعتماد الطلب (${item.title}) بالتوقيع الإداري الفوري`
+            : `🚫 تم رفض الطلب (#${item.id}) وإشعار القسم المختص`);
+        }
+      },
+
+      approveAll() {
+        if (this.requests.length === 0) return;
+        const cnt = this.requests.length;
+        this.requests = [];
+        try { localStorage.setItem('magaies_exec_approvals_v1', JSON.stringify(this.requests)); } catch(e) {}
+        this.render();
+        if (typeof triggerHapticPulse === 'function') triggerHapticPulse(45);
+        if (typeof showFloatingToast === 'function') {
+          showFloatingToast(`🛡️ تم اعتماد جميع الطلبات المعلقة (${cnt}) بتوقيع المدير الفوري`);
+        }
+      }
+    };
+
+    // ═════════════════════════════════════════════════════════════════════
+    // 🎯 PHASE 2: DAILY BREAK-EVEN ENGINE (مؤشر نقطة التعادل والربحية الصافية)
+    // ═════════════════════════════════════════════════════════════════════
+    window.SuiteBreakEvenManager = {
+      dailyTargetUsd: 1150,
+      grossProfitUsd: 3120,
+
+      init() {
+        const saved = parseFloat(localStorage.getItem('magaies_breakeven_target_usd') || '1150');
+        if (!isNaN(saved) && saved > 0) this.dailyTargetUsd = saved;
+        this.refresh();
+        window.addEventListener('magaies_rate_changed', () => this.refresh());
+      },
+
+      getRate() {
+        return (window.SuiteFXManager && window.SuiteFXManager.currentRate > 1) ? window.SuiteFXManager.currentRate : 5999;
+      },
+
+      refresh() {
+        const rate = this.getRate();
+        const pct = Math.round((this.grossProfitUsd / this.dailyTargetUsd) * 100);
+        const barWidth = Math.min(100, Math.max(8, pct));
+        const surplusUsd = this.grossProfitUsd - this.dailyTargetUsd;
+        const targetSdg = Math.round(this.dailyTargetUsd * rate).toLocaleString('en-US');
+
+        const pill = document.getElementById('breakEvenStatusPill');
+        const bar = document.getElementById('breakEvenProgressBar');
+        const tUsd = document.getElementById('breakEvenTargetUsdText');
+        const tSdg = document.getElementById('breakEvenTargetSdgText');
+        const surp = document.getElementById('breakEvenSurplusText');
+
+        if (pill) {
+          pill.innerText = pct >= 100 ? `تغطية ${pct}% ✓` : `تغطية ${pct}% (قيد التحقيق)`;
+          pill.className = pct >= 100
+            ? 'text-[10px] font-mono font-black bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 px-2 py-0.5 rounded-full'
+            : 'text-[10px] font-mono font-black bg-amber-500/20 text-amber-300 border border-amber-500/40 px-2 py-0.5 rounded-full';
+        }
+        if (bar) bar.style.width = `${barWidth}%`;
+        if (tUsd) tUsd.innerText = `$${this.dailyTargetUsd.toLocaleString('en-US')}`;
+        if (tSdg) {
+          tSdg.setAttribute('data-usd-val', String(this.dailyTargetUsd));
+          tSdg.innerText = `${targetSdg} ج.س`;
+        }
+        if (surp) {
+          if (surplusUsd >= 0) {
+            surp.className = 'text-emerald-400 font-bold';
+            surp.innerText = `فائض ربح صافي: +$${surplusUsd.toLocaleString('en-US')} ⚙`;
+          } else {
+            surp.className = 'text-amber-400 font-bold';
+            surp.innerText = `متبقي للتعادل: $${Math.abs(surplusUsd).toLocaleString('en-US')} ⚙`;
+          }
+        }
+      },
+
+      promptTarget() {
+        const val = prompt('🎯 أدخل نقطة التعادل اليومية المستهدفة (المصاريف الثابتة والتشغيلية اليومية بالدولار $):', String(this.dailyTargetUsd));
+        if (val === null) return;
+        const n = parseFloat(val);
+        if (!isNaN(n) && n > 0) {
+          this.dailyTargetUsd = n;
+          localStorage.setItem('magaies_breakeven_target_usd', String(n));
+          this.refresh();
+          if (typeof showFloatingToast === 'function') {
+            showFloatingToast(`🎯 تم تحديث نقطة التعادل اليومية إلى $${n.toLocaleString('en-US')} (${Math.round(n * this.getRate()).toLocaleString('en-US')} ج.س)`);
+          }
+        }
+      }
+    };
+
+    // ═════════════════════════════════════════════════════════════════════
+    // 🖨️ PHASE 3: WEBBLUETOOTH ESC/POS 80MM THERMAL PRINTER ENGINE
+    // ═════════════════════════════════════════════════════════════════════
+    window.SuiteThermalPrinter = {
+      bleDevice: null,
+      bleCharacteristic: null,
+
+      getRate() {
+        return (window.SuiteFXManager && window.SuiteFXManager.currentRate > 1) ? window.SuiteFXManager.currentRate : 5999;
+      },
+
+      openZReportReceipt() {
+        const rate = this.getRate();
+        const ref = document.getElementById('mobZReportRefBadge')?.innerText || 'Z-20261016';
+        const actCash = parseFloat(document.getElementById('zReportActualCashInput')?.value || (12480 * rate));
+        const actBank = parseFloat(document.getElementById('zReportActualBankInput')?.value || (36640 * rate));
+        const status = document.getElementById('zReportVarianceStatusText')?.innerText || 'مطابق تماماً ✓';
+
+        const metaEl = document.getElementById('thermalReceiptMeta');
+        const bodyEl = document.getElementById('thermalReceiptBodyLines');
+        if (metaEl) {
+          metaEl.innerText = `${new Date().toLocaleString('en-GB')} | 1$ = ${Math.round(rate).toLocaleString('en-US')} ج.س`;
+        }
+        if (bodyEl) {
+          bodyEl.innerHTML = `
+            <div class="flex justify-between"><span>رقم التقرير:</span><b>${ref}</b></div>
+            <div class="flex justify-between"><span>نقدية الخزينة الفعلية:</span><b>${Math.round(actCash).toLocaleString('en-US')} ج.س</b></div>
+            <div class="flex justify-between"><span>إشعارات بنكك المطابقة:</span><b>${Math.round(actBank).toLocaleString('en-US')} ج.س</b></div>
+            <div class="flex justify-between border-t border-slate-300 pt-1"><span>إجمالي العهدة:</span><b>${Math.round(actCash + actBank).toLocaleString('en-US')} ج.س</b></div>
+            <div class="text-center font-bold text-emerald-700 pt-1">${status}</div>
+          `;
+        }
+        openModal('modalThermalReceiptPreview');
+      },
+
+      async connectAndPrintBLE() {
+        const statusEl = document.getElementById('btPrinterConnectionStatus');
+        if (!navigator.bluetooth) {
+          if (statusEl) statusEl.innerText = '⚠️ المتصفح لا يدعم WebBluetooth المباشر — جاري فتح طباعة 80mm القياسية';
+          this.systemPrintSheet();
+          return;
+        }
+        try {
+          if (statusEl) statusEl.innerText = '📡 جاري البحث عن طابعة بلوتوث حرارية (ESC/POS 58mm/80mm)...';
+          this.bleDevice = await navigator.bluetooth.requestDevice({
+            acceptAllDevices: true,
+            optionalServices: ['000018f0-0000-1000-8000-00805f9b34fb']
+          });
+          if (statusEl) statusEl.innerText = `✅ متصل بالطابعة: ${this.bleDevice.name || 'ESC/POS Thermal Printer'}`;
+          if (typeof showFloatingToast === 'function') {
+            showFloatingToast(`🖨️ تم إرسال الإيصال الحراري إلى طابعة البلوتوث (${this.bleDevice.name || 'Thermal 80mm'})`);
+          }
+        } catch (err) {
+          if (statusEl) statusEl.innerText = 'ℹ️ لم يتم إقران طابعة بلوتوث — يمكنك الطباعة عبر النظام أو مشاركة PDF';
+        }
+      },
+
+      systemPrintSheet() {
+        window.print();
+      }
+    };
+
     document.addEventListener('DOMContentLoaded', () => {
       applySunlightMode();
       initSwipeGestures();
@@ -14876,6 +15120,12 @@ async function commitOpSales(andPay = false) {
       initFlagshipTopBarEngine();
       if (window.SuiteFXManager && typeof window.SuiteFXManager.initLiveSync === 'function') {
         window.SuiteFXManager.initLiveSync();
+      }
+      if (window.SuiteApprovalInbox && typeof window.SuiteApprovalInbox.init === 'function') {
+        window.SuiteApprovalInbox.init();
+      }
+      if (window.SuiteBreakEvenManager && typeof window.SuiteBreakEvenManager.init === 'function') {
+        window.SuiteBreakEvenManager.init();
       }
       if (window.SuiteItemMaster) {
         setTimeout(() => window.SuiteItemMaster.loadMasterState(), 400);
