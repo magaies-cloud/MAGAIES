@@ -1401,10 +1401,11 @@
                 }
 
                 // Enforce Work Hours and Days (Supports overnight shift)
-                if (loggedUser.timeRestricted && loggedUser.role !== 'admin' && loggedUser.userType !== 'admin') {
+                const isPrivilegedAdmin = loggedUser.role === 'admin' || loggedUser.userType === 'admin' || loggedUser.role === 'owner' || ['c', 'c1', 'c2', 'owner'].includes(String(loggedUser.username || loggedUser.user || '').toLowerCase().trim());
+                if (loggedUser.timeRestricted && !isPrivilegedAdmin) {
                     const now = new Date();
                     const currentDay = now.getDay();
-                    const allowedDays = Array.isArray(loggedUser.allowedDays) ? loggedUser.allowedDays : [0, 1, 2, 3, 4, 6];
+                    const allowedDays = Array.isArray(loggedUser.allowedDays) ? loggedUser.allowedDays : [0, 1, 2, 3, 4, 5, 6];
                     const curMinutes = now.getHours() * 60 + now.getMinutes();
                     let fromMin = 0, toMin = 1439;
                     if (loggedUser.timeFrom && loggedUser.timeTo) {
@@ -1565,10 +1566,11 @@
             }
 
             // Enforce offline time & overnight shift
-            if (matchedUser && matchedUser.timeRestricted && matchedUser.role !== 'admin' && matchedUser.userType !== 'admin') {
+            const isPrivilegedAdminOffline = matchedUser && (matchedUser.role === 'admin' || matchedUser.userType === 'admin' || matchedUser.role === 'owner' || ['c', 'c1', 'c2', 'owner'].includes(String(matchedUser.username || matchedUser.user || '').toLowerCase().trim()));
+            if (matchedUser && matchedUser.timeRestricted && !isPrivilegedAdminOffline) {
                 const now = new Date();
                 const currentDay = now.getDay();
-                const allowedDays = Array.isArray(matchedUser.allowedDays) ? matchedUser.allowedDays : [0, 1, 2, 3, 4, 6];
+                const allowedDays = Array.isArray(matchedUser.allowedDays) ? matchedUser.allowedDays : [0, 1, 2, 3, 4, 5, 6];
                 const curMinutes = now.getHours() * 60 + now.getMinutes();
                 let fromMin = 0, toMin = 1439;
                 if (matchedUser.timeFrom && matchedUser.timeTo) {

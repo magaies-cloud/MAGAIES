@@ -1688,7 +1688,7 @@ document.addEventListener('DOMContentLoaded', function() {
         targetUser.timeRestricted = !!sourceUser.timeRestricted;
         targetUser.timeFrom = sourceUser.timeFrom || '08:00';
         targetUser.timeTo = sourceUser.timeTo || '03:00';
-        targetUser.allowedDays = Array.isArray(sourceUser.allowedDays) ? [...sourceUser.allowedDays] : [0, 1, 2, 3, 4, 6];
+        targetUser.allowedDays = Array.isArray(sourceUser.allowedDays) ? [...sourceUser.allowedDays] : [0, 1, 2, 3, 4, 5, 6];
         targetUser.geoRestricted = !!sourceUser.geoRestricted;
         targetUser.geoLat = sourceUser.geoLat !== undefined ? sourceUser.geoLat : null;
         targetUser.geoLng = sourceUser.geoLng !== undefined ? sourceUser.geoLng : null;
@@ -1827,7 +1827,7 @@ document.addEventListener('DOMContentLoaded', function() {
         users[userIndex].timeRestricted = permsData.timeRestricted !== undefined ? permsData.timeRestricted : false;
         users[userIndex].timeFrom = permsData.timeFrom || '08:00';
         users[userIndex].timeTo = permsData.timeTo || '03:00';
-        users[userIndex].allowedDays = permsData.allowedDays || [0, 1, 2, 3, 4, 6];
+        users[userIndex].allowedDays = permsData.allowedDays || [0, 1, 2, 3, 4, 5, 6];
         users[userIndex].geoRestricted = permsData.geoRestricted !== undefined ? permsData.geoRestricted : false;
         users[userIndex].geoLat = permsData.geoLat !== undefined ? permsData.geoLat : null;
         users[userIndex].geoLng = permsData.geoLng !== undefined ? permsData.geoLng : null;

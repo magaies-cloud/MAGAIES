@@ -665,7 +665,7 @@ function editUser(id) {
     document.getElementById('user-time-from').value = user.timeFrom || '08:00';
     document.getElementById('user-time-to').value = user.timeTo || '17:00';
     document.querySelectorAll('#user-allowed-days input').forEach(cb => {
-        cb.checked = (user.allowedDays || [0,1,2,3,4,6]).includes(parseInt(cb.value));
+        cb.checked = (user.allowedDays || [0,1,2,3,4,5,6]).includes(parseInt(cb.value));
     });
     toggleTimeFields();
 

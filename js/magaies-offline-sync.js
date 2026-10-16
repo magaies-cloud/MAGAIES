@@ -1095,13 +1095,15 @@
             }
             try {
                 const qLen = this.getQueue().length;
-                const badgeEls = document.querySelectorAll('#mainRefreshPendingBadge, #voucherSyncPendingBadge');
+                const badgeEls = document.querySelectorAll('#mainRefreshPendingBadge, #voucherSyncPendingBadge, #suiteSyncAuditPendingBadge, #voucherSyncAuditPendingBadge, #desktop-sync-shield-badge');
                 badgeEls.forEach(el => {
                     if (qLen > 0) {
                         el.textContent = String(qLen);
                         el.classList.remove('hidden');
+                        if (el.id === 'desktop-sync-shield-badge') el.style.display = 'inline-flex';
                     } else {
                         el.classList.add('hidden');
+                        if (el.id === 'desktop-sync-shield-badge') el.style.display = 'none';
                     }
                 });
             } catch (e) {}
@@ -1485,7 +1487,7 @@
                 el.addEventListener('mouseleave', cancel);
             };
             const applyAll = () => {
-                ['networkPill', 'mainRefreshBtn', 'headerBrandLogoBadge'].forEach(id => {
+                ['networkPill', 'mainRefreshBtn', 'headerBrandLogoBadge', 'suiteSyncAuditHeaderBtn', 'voucherSyncAuditBtn', 'desktop-sync-shield-btn'].forEach(id => {
                     const el = document.getElementById(id);
                     if (el) bindLongPress(el);
                 });

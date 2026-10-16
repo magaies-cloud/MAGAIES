@@ -279,9 +279,14 @@ $header_theme_class = 'header-theme-reports';
                 <div class="ai-badge">● مراقبة أرصدة شجرة الحسابات</div>
             </a>
 
-
-
-            <!-- 3. تقرير اليومية الشامل -->
+            <!-- 2. مركز الأرصدة والمقاييس الموحد -->
+            <a href="balances_modern_hub.php" class="report-card" style="--accent-color: #38bdf8; --shadow-color: 56, 189, 248;">
+                <div class="live-badge"><span class="live-dot"></span>مفعل (Live)</div>
+                <div class="card-icon">⚖️</div>
+                <div class="card-title">مركز الأرصدة والمقاييس الموحد</div>
+                <div class="card-desc">استعراض أرصدة المقاييس، حسابات العملاء والموردين، كشوفات الحساب التفاعلية وميزان المراجعة.</div>
+                <div class="ai-badge">● أرصدة فورية وتدقيق تفاعلي</div>
+            </a>
             <a href="daily_master_report.php" class="report-card" style="--accent-color: #a855f7; --shadow-color: 168, 85, 247;">
                 <div class="live-badge"><span class="live-dot"></span>مفعل (Live)</div>
                 <div class="card-icon">📅</div>

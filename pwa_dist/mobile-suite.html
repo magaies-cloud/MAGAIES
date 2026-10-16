@@ -17,16 +17,19 @@
   <link rel="stylesheet" href="css/tailwind.min.css">
   <script src="js/tailwind.min.js"></script>
   <script>if(typeof tailwind==="undefined"){document.write('<script src="https://cdn.tailwindcss.com"><\/script>');}</script>
-  <script src="js/pwa-manager.js?v=2026_10_16_v23" defer></script>
-  <script src="js/magaies-offline-sync.js?v=2026_10_16_v23"></script>
+  <link rel="stylesheet" href="css/magaiees-royal-buttons.css?v=2026_10_16_royal_v26">
+  <script src="js/pwa-manager.js?v=2026_10_16_royal_v26" defer></script>
+  <script src="js/magaies-offline-sync.js?v=2026_10_16_royal_v26"></script>
+  <script src="js/magaiees-royal-buttons.js?v=2026_10_16_royal_v26" defer></script>
   <script>
     (function enforceAuthGate() {
-    var token = localStorage.getItem('authToken');
+    var token = localStorage.getItem('authToken') || localStorage.getItem('saas_token');
     var userStr = localStorage.getItem('user');
     var sessionCookie = document.cookie.includes('session_active=true') || document.cookie.includes('saas_token=') || document.cookie.includes('mg_device_auth=');
     var sessionActive = sessionStorage.getItem('session_active') === 'true' || sessionCookie || Boolean(userStr);
+    var isLocalhost = (location.hostname === 'localhost' || location.hostname === '127.0.0.1' || location.hostname === '[::1]' || /^(192\.168\.|10\.|172\.(1[6-9]|2[0-9]|3[0-1])\.)/.test(location.hostname));
 
-    if (!navigator.onLine) {
+    if (!navigator.onLine || isLocalhost) {
       if (!token) {
         try {
           localStorage.setItem('authToken', 'offline_token_' + Date.now());
@@ -196,7 +199,13 @@
           </svg>
         </button>
 
-        <!-- 6. زر تنزيل وتثبيت التطبيق على الجوال PWA -->
+        <!-- 6. زر درع الأمان وسجل المزامنة التلقائية والرفع الخلفي (زر الدرع المعتمد) -->
+        <button id="suiteSyncAuditHeaderBtn" type="button" onclick="if(window.MagaiesOffline) window.MagaiesOffline.showSyncAuditModal(); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="flagship-tile flagship-action-tile flagship-tile-shield relative" title="درع الأمان والمزامنة: سجل تدقيق المزامنة التلقائية والرفع الخلفي (اضغط للعرض الفوري)">
+          <i class="fa-solid fa-shield-halved text-emerald-400 text-base"></i>
+          <span id="suiteSyncAuditPendingBadge" class="hidden absolute -top-1 -right-1 bg-amber-500 text-slate-950 text-[7px] font-mono font-black px-1 rounded-full shadow">0</span>
+        </button>
+
+        <!-- 7. زر تنزيل وتثبيت التطبيق على الجوال PWA -->
         <button id="headerPwaInstallBtn" onclick="handlePwaInstallClick(); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="flagship-tile flagship-action-tile flagship-tile-install" title="تثبيت أيقونة التطبيق على شاشة الجوال">
           <svg class="w-5 h-5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
@@ -1201,15 +1210,18 @@
             <h3 class="text-sm font-black text-slate-100">سجل المعاملات والقيود المباشر</h3>
             <p class="text-[11px] text-slate-400">تحكم كامل بكل معاملة: تعديل، حذف، طباعة، إرسال، وضبط</p>
           </div>
-          <span class="text-[10px] bg-cyan-950 text-cyan-300 border border-cyan-500/30 px-2 py-1 rounded-full font-mono">148 حركة اليوم</span>
+          <div class="flex items-center gap-1.5">
+            <span class="text-[10px] bg-cyan-950 text-cyan-300 border border-cyan-500/30 px-2 py-1 rounded-full font-mono">148 حركة اليوم</span>
+            <button type="button" onclick="switchTab('dashboard')" class="royal-btn royal-btn-back px-2.5 py-1 rounded-xl text-[11px] font-black">↩️ رجوع</button>
+          </div>
         </div>
 
-        <div class="flex gap-1.5 overflow-x-auto py-1 no-scrollbar text-xs font-bold">
-          <button class="bg-cyan-600 text-white px-3 py-1.5 rounded-xl shrink-0">الكل (148)</button>
-          <button class="bg-slate-800 text-slate-400 hover:text-white px-3 py-1.5 rounded-xl shrink-0">مبيعات (48)</button>
-          <button class="bg-slate-800 text-slate-400 hover:text-white px-3 py-1.5 rounded-xl shrink-0">مشتريات (12)</button>
-          <button class="bg-slate-800 text-slate-400 hover:text-white px-3 py-1.5 rounded-xl shrink-0">قبض وصرف (64)</button>
-          <button class="bg-slate-800 text-slate-400 hover:text-white px-3 py-1.5 rounded-xl shrink-0">تسويات وشيكات (24)</button>
+        <div id="pageTxFilterChips" class="flex gap-1.5 overflow-x-auto py-1 no-scrollbar text-xs font-bold">
+          <button type="button" onclick="filterMobileTransactionsFeed('all', this)" class="bg-cyan-600 text-white px-3 py-1.5 rounded-xl shrink-0">الكل (148)</button>
+          <button type="button" onclick="filterMobileTransactionsFeed('sales', this)" class="bg-slate-800 text-slate-400 hover:text-white px-3 py-1.5 rounded-xl shrink-0">مبيعات (48)</button>
+          <button type="button" onclick="filterMobileTransactionsFeed('purchase', this)" class="bg-slate-800 text-slate-400 hover:text-white px-3 py-1.5 rounded-xl shrink-0">مشتريات (12)</button>
+          <button type="button" onclick="filterMobileTransactionsFeed('voucher', this)" class="bg-slate-800 text-slate-400 hover:text-white px-3 py-1.5 rounded-xl shrink-0">قبض وصرف (64)</button>
+          <button type="button" onclick="filterMobileTransactionsFeed('journal', this)" class="bg-slate-800 text-slate-400 hover:text-white px-3 py-1.5 rounded-xl shrink-0">تسويات وشيكات (24)</button>
         </div>
 
         <!-- REAL TIME TRANSACTIONS FEED FROM DATABASE (حركات وفواتير حقيقية) -->
@@ -1341,9 +1353,10 @@
             <button onclick="openAiVoiceConsole()" class="bg-purple-600/30 hover:bg-purple-600/50 text-purple-200 border border-purple-500/40 text-xs font-bold px-2.5 py-1.5 rounded-xl shadow flex items-center gap-1">
               <span>🎙️ بحث صوتي</span>
             </button>
-            <button onclick="switchTab('addPartner')" class="bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-bold px-3 py-1.5 rounded-xl shadow flex items-center gap-1">
+            <button onclick="switchTab('addPartner')" class="royal-btn royal-btn-new text-white text-xs font-bold px-3 py-1.5 rounded-xl shadow flex items-center gap-1">
               <span>+ إضافة حساب</span>
             </button>
+            <button type="button" onclick="switchTab('dashboard')" class="royal-btn royal-btn-back px-2.5 py-1.5 rounded-xl text-[11px] font-black">↩️ رجوع</button>
           </div>
         </div>
 
@@ -1369,13 +1382,13 @@
 
         <!-- QUICK TOOLS BAR FOR LEDGERS -->
         <div class="flex gap-1.5 overflow-x-auto no-scrollbar text-xs font-bold">
-          <button onclick="alert('📥 جاري تصدير وطباعة تقرير أرصدة الأستاذ المجمع PDF')" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded-xl border border-slate-700 shrink-0 flex items-center gap-1">
-            <span>📥 تصدير PDF مجمع</span>
+          <button onclick="exportPageLedgerPDF()" class="royal-btn royal-btn-print px-3 py-1.5 rounded-xl shrink-0 flex items-center gap-1">
+            <span>🖨️ طباعة / PDF مجمع</span>
           </button>
-          <button onclick="alert('💬 جاري إرسال إشعارات كشوف الحسابات وتذكيرات السداد واتساب للعملاء المتعثرين')" class="bg-emerald-950/60 hover:bg-emerald-900/70 text-emerald-300 px-3 py-1.5 rounded-xl border border-emerald-500/40 shrink-0 flex items-center gap-1">
-            <span>💬 تذكيرات واتساب فورية</span>
+          <button onclick="sharePageLedgerWhatsApp()" class="royal-btn royal-btn-whatsapp px-3 py-1.5 rounded-xl shrink-0 flex items-center gap-1">
+            <span>📲 تذكيرات واتساب فورية</span>
           </button>
-          <button onclick="switchLedgerSubModule('statement')" class="bg-cyan-950/60 hover:bg-cyan-900/70 text-cyan-300 px-3 py-1.5 rounded-xl border border-cyan-500/40 shrink-0 flex items-center gap-1">
+          <button onclick="openOperationalForm('statement')" class="royal-btn royal-btn-statement px-3 py-1.5 rounded-xl shrink-0 flex items-center gap-1">
             <span>🔍 كشف حساب بالبحث</span>
           </button>
         </div>
@@ -1521,9 +1534,12 @@
             <h3 class="text-sm font-black text-slate-100">المخزون والجرد ومواقف التحكم التنفيذي</h3>
             <p class="text-[11px] text-slate-400">المراكز المتعددة، تقييم رأس المال، البضاعة الراكدة، ومعدلات الدوران</p>
           </div>
-          <button onclick="alert('📦 تم فتح جلسة جرد مخزني ذكي باستخدام الماسح الضوئي!')" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold px-3 py-1.5 rounded-xl shadow flex items-center gap-1">
-            <span>بدء جرد جديد</span>
-          </button>
+          <div class="flex items-center gap-1.5">
+            <button onclick="openOperationalForm('damagedStock')" class="royal-btn royal-btn-new text-white text-xs font-bold px-3 py-1.5 rounded-xl shadow flex items-center gap-1">
+              <span>📦 بدء جرد جديد</span>
+            </button>
+            <button type="button" onclick="switchTab('dashboard')" class="royal-btn royal-btn-back px-2.5 py-1.5 rounded-xl text-[11px] font-black">↩️ رجوع</button>
+          </div>
         </div>
 
         <!-- NEW: INVENTORY EXECUTIVE METRICS PULSE -->
@@ -1650,9 +1666,12 @@
             </h3>
             <p class="text-[11px] text-slate-400">قرارات الإدارة العليا: تجاوز سقف الائتمان، أذونات الصرف، وأوامر الشراء</p>
           </div>
-          <span id="approvalsPendingCounter" class="luminous-number-badge badge-rose-glow !px-3 !py-1 !text-xs !font-black !w-auto !rounded-full shadow-lg">
-            3 طلبات بانتظار قرارك
-          </span>
+          <div class="flex items-center gap-1.5">
+            <span id="approvalsPendingCounter" class="luminous-number-badge badge-rose-glow !px-3 !py-1 !text-xs !font-black !w-auto !rounded-full shadow-lg">
+              3 طلبات بانتظار قرارك
+            </span>
+            <button type="button" onclick="switchTab('dashboard')" class="royal-btn royal-btn-back px-2.5 py-1 rounded-xl text-[11px] font-black">↩️ رجوع</button>
+          </div>
         </div>
 
         <!-- FAST BULK APPROVAL BAR -->
@@ -1661,26 +1680,26 @@
             <span class="text-amber-300 font-bold block">⚡ اتخاذ قرار فوري مجمع</span>
             <span class="text-[10px] text-slate-400">اعتماد كافة العمليات المتوافقة بنقرة واحدة</span>
           </div>
-          <button onclick="bulkApproveAll()" class="bg-gradient-to-r from-amber-600 to-yellow-500 hover:from-amber-500 text-slate-950 font-black text-xs px-3.5 py-1.5 rounded-xl shadow-lg active:scale-95 transition">
-            اعتماد الكل دفعة واحدة
+          <button onclick="bulkApproveAll()" class="royal-btn royal-btn-save text-white font-black text-xs px-3.5 py-1.5 rounded-xl shadow-lg active:scale-95 transition">
+            ✅ اعتماد الكل دفعة واحدة
           </button>
         </div>
 
         <!-- FILTER CHIPS -->
-        <div class="flex gap-1.5 overflow-x-auto py-1 no-scrollbar text-xs font-bold">
-          <button class="bg-rose-600 text-white px-3 py-1.5 rounded-xl shrink-0 shadow flex items-center gap-1.5">
+        <div id="approvalsFilterChips" class="flex gap-1.5 overflow-x-auto py-1 no-scrollbar text-xs font-bold">
+          <button type="button" onclick="filterMobileApprovals('all', this)" class="bg-rose-600 text-white px-3 py-1.5 rounded-xl shrink-0 shadow flex items-center gap-1.5">
             <span>الكل</span>
             <span class="luminous-number-badge badge-rose-glow !min-w-[19px] !h-[19px] !text-[11px]">3</span>
           </button>
-          <button class="bg-slate-800 text-slate-300 hover:text-white px-3 py-1.5 rounded-xl shrink-0 flex items-center gap-1.5 border border-slate-700">
+          <button type="button" onclick="filterMobileApprovals('reqCard1', this)" class="bg-slate-800 text-slate-300 hover:text-white px-3 py-1.5 rounded-xl shrink-0 flex items-center gap-1.5 border border-slate-700">
             <span>سقف الائتمان</span>
             <span class="luminous-number-badge badge-rose-glow !min-w-[19px] !h-[19px] !text-[11px]">1</span>
           </button>
-          <button class="bg-slate-800 text-slate-300 hover:text-white px-3 py-1.5 rounded-xl shrink-0 flex items-center gap-1.5 border border-slate-700">
+          <button type="button" onclick="filterMobileApprovals('reqCard2', this)" class="bg-slate-800 text-slate-300 hover:text-white px-3 py-1.5 rounded-xl shrink-0 flex items-center gap-1.5 border border-slate-700">
             <span>سندات صرف</span>
             <span class="luminous-number-badge badge-rose-glow !min-w-[19px] !h-[19px] !text-[11px]">1</span>
           </button>
-          <button class="bg-slate-800 text-slate-300 hover:text-white px-3 py-1.5 rounded-xl shrink-0 flex items-center gap-1.5 border border-slate-700">
+          <button type="button" onclick="filterMobileApprovals('reqCard3', this)" class="bg-slate-800 text-slate-300 hover:text-white px-3 py-1.5 rounded-xl shrink-0 flex items-center gap-1.5 border border-slate-700">
             <span>أوامر شراء</span>
             <span class="luminous-number-badge badge-rose-glow !min-w-[19px] !h-[19px] !text-[11px]">1</span>
           </button>
@@ -1848,9 +1867,12 @@
             <h3 class="text-sm font-black text-slate-100">مركز باقة التحكم النقدي الموحد</h3>
             <p class="text-[11px] text-slate-400">إدارة حركة السيولة، التحويل بين الخزن، والتسويات</p>
           </div>
-          <span class="text-xs font-black text-amber-400 font-mono">
-            <span class="privacy-mask" data-original="$86,150" data-star="••••••••">$86,150</span>
-          </span>
+          <div class="flex items-center gap-1.5">
+            <span class="text-xs font-black text-amber-400 font-mono">
+              <span class="privacy-mask" data-original="$86,150" data-star="••••••••">$86,150</span>
+            </span>
+            <button type="button" onclick="switchTab('dashboard')" class="royal-btn royal-btn-back px-2.5 py-1 rounded-xl text-[11px] font-black">↩️ رجوع</button>
+          </div>
         </div>
 
         <div class="glass-base p-4 rounded-3xl border border-amber-500/40 space-y-3">
@@ -1858,7 +1880,7 @@
           <div class="grid grid-cols-2 gap-2 text-xs">
             <div>
               <label class="text-[10px] text-slate-400 block mb-1">من حساب (المرسل):</label>
-              <select class="w-full bg-slate-800 border border-slate-700 text-xs text-white rounded-xl p-2 focus:outline-none">
+              <select id="treasuryQuickFromSelect" class="w-full bg-slate-800 border border-slate-700 text-xs text-white rounded-xl p-2 focus:outline-none">
                 <option>الخزينة الرئيسية</option>
                 <option>خزينة المعرض</option>
                 <option>بنك الخرطوم</option>
@@ -1866,7 +1888,7 @@
             </div>
             <div>
               <label class="text-[10px] text-slate-400 block mb-1">إلى حساب (المستلم):</label>
-              <select class="w-full bg-slate-800 border border-slate-700 text-xs text-white rounded-xl p-2 focus:outline-none">
+              <select id="treasuryQuickToSelect" class="w-full bg-slate-800 border border-slate-700 text-xs text-white rounded-xl p-2 focus:outline-none">
                 <option>بنك الخرطوم</option>
                 <option>بنك فيصل الإسلامي</option>
                 <option>خزينة الطوارئ</option>
@@ -1874,8 +1896,8 @@
             </div>
           </div>
           <div class="flex gap-2">
-            <input type="number" placeholder="المبلغ المراد تحويله ($)" class="w-full bg-slate-900 border border-slate-700 text-xs text-white rounded-xl px-3 py-2 focus:outline-none font-mono" />
-            <button class="bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs px-4 rounded-xl shrink-0 shadow">تحويل فوري</button>
+            <input id="treasuryQuickAmountInput" type="number" placeholder="المبلغ المراد تحويله ($)" class="w-full bg-slate-900 border border-slate-700 text-xs text-white rounded-xl px-3 py-2 focus:outline-none font-mono" />
+            <button type="button" onclick="openQuickTreasuryTransfer()" class="royal-btn royal-btn-save text-white font-bold text-xs px-4 rounded-xl shrink-0 shadow">🔄 تحويل فوري</button>
           </div>
         </div>
       </div>
@@ -3443,16 +3465,27 @@
           <input id="finTransferNotes" type="text" placeholder="دفعة تحت الحساب نظير مبيعات / تسوية رصيد..." value="تحويل مالي بين الحسابات - دفعة معتمدة" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white text-xs focus:outline-none focus:border-cyan-400" />
         </div>
 
-        <!-- 8. أزرار الاعتماد والطباعة -->
+        <!-- 8. أزرار الاعتماد والطباعة الموحدة (Royal Crystal Suite) -->
         <div class="space-y-2 pt-1">
-          <button id="finTransferSubmitBtn" type="button" onclick="commitFinancialTransfer()" class="w-full py-3.5 bg-gradient-to-r from-emerald-600 via-teal-500 to-cyan-600 text-slate-950 rounded-2xl font-black text-sm shadow-[0_0_20px_rgba(16,185,129,0.35)] active:scale-95 transition flex items-center justify-center gap-2">
-            <svg class="w-5 h-5 text-slate-950" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
-            <span>اعتماد وترحيل الحركة المالية وتحديث الأرصدة فوراً</span>
+          <button id="finTransferSubmitBtn" type="button" onclick="commitFinancialTransfer()" class="royal-btn royal-btn-save w-full py-3.5 text-white rounded-2xl font-black text-sm shadow-xl active:scale-95 transition flex items-center justify-center gap-2">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+            <span>✅ حفظ واعتماد وترحيل الحركة المالية</span>
           </button>
 
-          <button type="button" onclick="printFinancialTransferVoucher()" class="w-full py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl font-bold text-xs border border-slate-700 active:scale-95 transition flex items-center justify-center gap-1.5">
-            <span>🖨️ طباعة سند التحويل والمناقلة المعتمد</span>
-          </button>
+          <div class="grid grid-cols-4 gap-1.5">
+            <button type="button" onclick="resetModalFields('modalOpFinance')" class="royal-btn royal-btn-new py-2.5 px-1.5 rounded-xl font-black text-xs flex items-center justify-center gap-1">
+              <span>✨ جديد</span>
+            </button>
+            <button type="button" onclick="printFinancialTransferVoucher()" class="royal-btn royal-btn-print py-2.5 px-1.5 rounded-xl font-black text-xs flex items-center justify-center gap-1">
+              <span>🖨️ طباعة</span>
+            </button>
+            <button type="button" onclick="shareModalSummaryWhatsApp('modalOpFinance', 'سند حركة مالية')" class="royal-btn royal-btn-whatsapp py-2.5 px-1.5 rounded-xl font-black text-xs flex items-center justify-center gap-1">
+              <span>📲 واتساب</span>
+            </button>
+            <button type="button" onclick="closeModal('modalOpFinance')" class="royal-btn royal-btn-exit py-2.5 px-1.5 rounded-xl font-black text-xs flex items-center justify-center gap-1">
+              <span>🚪 خروج</span>
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -3610,6 +3643,9 @@
                     title="الآلة الحاسبة الذكية">
               <i class="fa-solid fa-calculator text-purple-200 text-sm"></i>
             </button>
+
+            <!-- 5. زر إغلاق سريع علوي (✕) موحد مع كافة الشاشات -->
+            <button type="button" onclick="exitToMainDashboard('modalOpSales')" class="royal-modal-close-x" title="إغلاق شاشة المبيعات">✕</button>
 
           </div>
 
@@ -4095,15 +4131,14 @@
              7. ACTION BUTTONS: حفظ، جديد، مسح، مشاركة، تعليق/استرجاع، كشف الحساب، الإذن، خروج
              ═══════════════════════════════════════════════════════════════ -->
         <div class="space-y-2 pt-1">
-          <!-- الصف الأول: حفظ فقط (كامل العرض) -->
+          <!-- الصف الأول: حفظ فقط (كامل العرض - أخضر زمردي موحد) -->
           <div class="w-full">
             <!-- 1. حفظ -->
             <button type="button" id="btnSaveOpSales" onclick="commitOpSales(false)" 
-                    class="w-full py-3.5 px-4 rounded-2xl font-black text-sm sm:text-base text-emerald-100 hover:text-white flex items-center justify-center gap-2 cursor-pointer active:scale-95 transition shadow-xl" 
-                    style="background: linear-gradient(135deg, #065f46, #047857); border: 1.5px solid #10b981; box-shadow: 0 4px 16px rgba(16, 185, 129, 0.35);" 
+                    class="royal-btn royal-btn-save w-full py-3.5 px-4 rounded-2xl font-black text-sm sm:text-base text-white flex items-center justify-center gap-2 cursor-pointer active:scale-95 transition shadow-xl" 
                     title="حفظ الفاتورة">
-              <i class="fa-solid fa-floppy-disk text-emerald-300 text-sm sm:text-base"></i>
-              <span>حفظ</span>
+              <i class="fa-solid fa-floppy-disk text-sm sm:text-base"></i>
+              <span>✅ حفظ واعتماد</span>
             </button>
           </div>
 
@@ -4111,26 +4146,25 @@
           <div class="grid grid-cols-3 gap-2">
             <!-- 3. جديد -->
             <button type="button" onclick="SuiteSalesPOS.newInvoice()" 
-                    class="py-3 px-2 rounded-xl bg-slate-900/90 hover:bg-slate-800 text-sky-300 border border-sky-500/40 text-xs sm:text-sm font-black flex items-center justify-center gap-1.5 transition active:scale-95 shadow-sm cursor-pointer" 
+                    class="royal-btn royal-btn-new py-3 px-2 rounded-xl text-xs sm:text-sm font-black flex items-center justify-center gap-1.5 transition active:scale-95 shadow-sm cursor-pointer" 
                     title="فاتورة جديدة وتصفير الشاشة">
-              <i class="fa-solid fa-file-circle-plus text-sky-400"></i>
-              <span>جديد</span>
+              <i class="fa-solid fa-file-circle-plus"></i>
+              <span>✨ جديد</span>
             </button>
 
             <!-- 4. مسح -->
             <button type="button" onclick="SuiteSalesPOS.clearCurrentInputs()" 
-                    class="py-3 px-2 rounded-xl bg-slate-900/90 hover:bg-slate-800 text-rose-300 border border-rose-500/40 text-xs sm:text-sm font-black flex items-center justify-center gap-1.5 transition active:scale-95 shadow-sm cursor-pointer" 
+                    class="royal-btn royal-btn-delete py-3 px-2 rounded-xl text-xs sm:text-sm font-black flex items-center justify-center gap-1.5 transition active:scale-95 shadow-sm cursor-pointer" 
                     title="مسح وتفريغ خانات الصنف والكميات">
-              <i class="fa-solid fa-eraser text-rose-400"></i>
-              <span>مسح</span>
+              <i class="fa-solid fa-eraser"></i>
+              <span>🗑️ مسح</span>
             </button>
 
             <!-- 5. مشاركة (واتساب مباشر + PDF رسمي بـ QR) -->
             <button type="button" onclick="SuiteSalesPOS.openShareInvoiceModal()" 
-                    class="py-3 px-2 rounded-xl text-xs sm:text-sm font-black flex items-center justify-center gap-1.5 transition active:scale-95 shadow-lg cursor-pointer text-amber-200 hover:text-white" 
-                    style="background: linear-gradient(135deg, rgba(180, 83, 9, 0.4), rgba(15, 23, 42, 0.95)); border: 1.5px solid #f59e0b; box-shadow: 0 0 10px rgba(245, 158, 11, 0.3);" 
+                    class="royal-btn royal-btn-whatsapp py-3 px-2 rounded-xl text-xs sm:text-sm font-black flex items-center justify-center gap-1.5 transition active:scale-95 shadow-lg cursor-pointer" 
                     title="مشاركة الفاتورة عبر واتساب مباشرة أو طباعة PDF رسمي بـ QR Code">
-              <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+              <i class="fa-brands fa-whatsapp text-sm"></i>
               <span>مشاركة / PDF</span>
             </button>
           </div>
@@ -4138,18 +4172,16 @@
           <!-- صف الفواتير المعلقة (Hold / Park & Recall Invoice) -->
           <div class="grid grid-cols-2 gap-2">
             <button type="button" onclick="SuiteSalesPOS.parkCurrentInvoice()" 
-                    class="py-2.5 px-2 rounded-xl text-xs font-black flex items-center justify-center gap-1.5 transition active:scale-95 shadow-md cursor-pointer text-amber-200 hover:text-white" 
-                    style="background: linear-gradient(135deg, rgba(217, 119, 6, 0.25), rgba(15, 23, 42, 0.95)); border: 1.5px solid rgba(251, 191, 36, 0.6);" 
+                    class="royal-btn royal-btn-open py-2.5 px-2 rounded-xl text-xs font-black flex items-center justify-center gap-1.5 transition active:scale-95 shadow-md cursor-pointer" 
                     title="تعليق الفاتورة الحالية مؤقتاً لخدمة عميل آخر مستعجل">
-              <i class="fa-solid fa-pause-circle text-amber-400 text-sm"></i>
+              <i class="fa-solid fa-pause-circle text-sm"></i>
               <span>تعليق الفاتورة ⏸️</span>
             </button>
 
             <button type="button" onclick="SuiteSalesPOS.openParkedInvoicesModal()" 
-                    class="py-2.5 px-2 rounded-xl text-xs font-black flex items-center justify-center gap-1.5 transition active:scale-95 shadow-md cursor-pointer text-purple-200 hover:text-white" 
-                    style="background: linear-gradient(135deg, rgba(147, 51, 234, 0.25), rgba(15, 23, 42, 0.95)); border: 1.5px solid rgba(192, 132, 252, 0.6);" 
+                    class="royal-btn royal-btn-edit py-2.5 px-2 rounded-xl text-xs font-black flex items-center justify-center gap-1.5 transition active:scale-95 shadow-md cursor-pointer" 
                     title="استعراض واسترجاع الفواتير المعلقة بلمسة واحدة">
-              <i class="fa-solid fa-clock-rotate-left text-purple-300 text-sm"></i>
+              <i class="fa-solid fa-clock-rotate-left text-sm"></i>
               <span>المعلقة (<span id="salesParkedInvoicesCount">0</span>) ▶️</span>
             </button>
           </div>
@@ -4158,29 +4190,26 @@
           <div class="grid grid-cols-3 gap-2">
             <!-- 6. كشف الحساب -->
             <button type="button" id="btnCustStatementDirect" onclick="SuiteSalesPOS.printCustomerStatement()" 
-                    class="py-3 px-2 rounded-xl text-xs sm:text-sm font-black flex items-center justify-center gap-1.5 transition active:scale-95 shadow-md cursor-pointer text-sky-200 hover:text-white" 
-                    style="background: linear-gradient(135deg, rgba(14, 165, 233, 0.25), rgba(15, 23, 42, 0.95)); border: 1.5px solid #38bdf8; box-shadow: 0 0 10px rgba(56, 189, 248, 0.25);" 
+                    class="royal-btn royal-btn-statement py-3 px-2 rounded-xl text-xs sm:text-sm font-black flex items-center justify-center gap-1.5 transition active:scale-95 shadow-md cursor-pointer" 
                     title="كشف حساب العميل الحالي">
-              <i class="fa-solid fa-file-invoice text-sky-400 text-sm"></i>
+              <i class="fa-solid fa-file-invoice text-sm"></i>
               <span>كشف الحساب</span>
             </button>
 
             <!-- 7. الإذن -->
             <button type="button" onclick="SuiteSalesPOS.openDeliveryOrder()" 
-                    class="py-3 px-2 rounded-xl text-xs sm:text-sm font-black flex items-center justify-center gap-1.5 transition active:scale-95 shadow-md cursor-pointer text-indigo-200 hover:text-white" 
-                    style="background: linear-gradient(135deg, rgba(99, 102, 241, 0.25), rgba(15, 23, 42, 0.95)); border: 1.5px solid #818cf8; box-shadow: 0 0 10px rgba(129, 140, 248, 0.25);" 
+                    class="royal-btn royal-btn-print py-3 px-2 rounded-xl text-xs sm:text-sm font-black flex items-center justify-center gap-1.5 transition active:scale-95 shadow-md cursor-pointer" 
                     title="إذن تسليم وصرف المخزن لهذه الفاتورة">
-              <i class="fa-solid fa-truck-ramp-box text-indigo-400 text-sm"></i>
+              <i class="fa-solid fa-truck-ramp-box text-sm"></i>
               <span>الإذن (تسليم)</span>
             </button>
 
             <!-- 8. زر خروج للشاشة الرئيسية -->
             <button type="button" onclick="exitToMainDashboard('modalOpSales')" 
-                    class="py-3 px-2 rounded-xl text-xs sm:text-sm font-black flex items-center justify-center gap-1.5 transition active:scale-95 shadow-lg cursor-pointer text-rose-200 hover:text-white" 
-                    style="background: linear-gradient(135deg, rgba(225, 29, 72, 0.3), rgba(15, 23, 42, 0.95)); border: 1.5px solid #f43f5e; box-shadow: 0 0 10px rgba(244, 63, 94, 0.35);" 
+                    class="royal-btn royal-btn-exit py-3 px-2 rounded-xl text-xs sm:text-sm font-black flex items-center justify-center gap-1.5 transition active:scale-95 shadow-lg cursor-pointer" 
                     title="خروج والرجوع للشاشة الرئيسية">
-              <i class="fa-solid fa-arrow-right-from-bracket text-rose-400 text-sm"></i>
-              <span>خروج</span>
+              <i class="fa-solid fa-arrow-right-from-bracket text-sm"></i>
+              <span>🚪 خروج</span>
             </button>
           </div>
         </div>
@@ -4251,9 +4280,17 @@
           </div>
         </div>
 
-        <button onclick="commitOpSalesSplit()" class="w-full py-3 bg-gradient-to-r from-pink-600 to-rose-600 text-white rounded-2xl font-bold text-xs shadow-lg active:scale-95 transition cursor-pointer">
-          إصدار الفاتورة وجدولة الأقساط وحفظها فوراً ✓
-        </button>
+        <div class="space-y-2 pt-1">
+          <button onclick="commitOpSalesSplit()" class="royal-btn royal-btn-save w-full py-3 text-white rounded-2xl font-bold text-xs shadow-lg active:scale-95 transition cursor-pointer">
+            ✅ إصدار الفاتورة وجدولة الأقساط وحفظها فوراً
+          </button>
+          <div class="grid grid-cols-4 gap-1.5">
+            <button type="button" onclick="resetModalFields('modalOpSalesSplit')" class="royal-btn royal-btn-new py-2 rounded-xl text-[11px] font-black">✨ جديد</button>
+            <button type="button" onclick="printModalSummary('modalOpSalesSplit', 'جدولة تقسيم مبيعات')" class="royal-btn royal-btn-print py-2 rounded-xl text-[11px] font-black">🖨️ طباعة</button>
+            <button type="button" onclick="shareModalSummaryWhatsApp('modalOpSalesSplit', 'جدولة تقسيم مبيعات')" class="royal-btn royal-btn-whatsapp py-2 rounded-xl text-[11px] font-black">📲 واتساب</button>
+            <button type="button" onclick="SafeInvoiceGuard.requestExit('modalOpSalesSplit')" class="royal-btn royal-btn-exit py-2 rounded-xl text-[11px] font-black">🚪 خروج</button>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -4320,9 +4357,17 @@
           </div>
         </div>
 
-        <button onclick="commitOpPurchaseSplit()" class="w-full py-3 bg-gradient-to-r from-orange-600 to-amber-600 text-white rounded-2xl font-bold text-xs shadow-lg active:scale-95 transition cursor-pointer">
-          اعتماد تقسيم المشتريات وجدولة دفعات المورد فوراً ✓
-        </button>
+        <div class="space-y-2 pt-1">
+          <button onclick="commitOpPurchaseSplit()" class="royal-btn royal-btn-save w-full py-3 text-white rounded-2xl font-bold text-xs shadow-lg active:scale-95 transition cursor-pointer">
+            ✅ اعتماد تقسيم المشتريات وجدولة دفعات المورد فوراً
+          </button>
+          <div class="grid grid-cols-4 gap-1.5">
+            <button type="button" onclick="resetModalFields('modalOpPurchaseSplit')" class="royal-btn royal-btn-new py-2 rounded-xl text-[11px] font-black">✨ جديد</button>
+            <button type="button" onclick="printModalSummary('modalOpPurchaseSplit', 'جدولة تقسيم مشتريات')" class="royal-btn royal-btn-print py-2 rounded-xl text-[11px] font-black">🖨️ طباعة</button>
+            <button type="button" onclick="shareModalSummaryWhatsApp('modalOpPurchaseSplit', 'جدولة تقسيم مشتريات')" class="royal-btn royal-btn-whatsapp py-2 rounded-xl text-[11px] font-black">📲 واتساب</button>
+            <button type="button" onclick="closeModal('modalOpPurchaseSplit')" class="royal-btn royal-btn-exit py-2 rounded-xl text-[11px] font-black">🚪 خروج</button>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -4375,9 +4420,17 @@
           </div>
         </div>
 
-        <button onclick="commitOpDelivery()" class="w-full py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-2xl font-bold text-xs shadow-lg active:scale-95 transition cursor-pointer">
-          تأكيد التسليم وصرف الكميات من المخزن وحفظ الإذن ✓
-        </button>
+        <div class="space-y-2 pt-1">
+          <button onclick="commitOpDelivery()" class="royal-btn royal-btn-save w-full py-3 text-white rounded-2xl font-bold text-xs shadow-lg active:scale-95 transition cursor-pointer">
+            ✅ تأكيد التسليم وصرف الكميات من المخزن وحفظ الإذن
+          </button>
+          <div class="grid grid-cols-4 gap-1.5">
+            <button type="button" onclick="resetModalFields('modalOpDelivery')" class="royal-btn royal-btn-new py-2 rounded-xl text-[11px] font-black">✨ جديد</button>
+            <button type="button" onclick="printModalSummary('modalOpDelivery', 'إذن تسليم مبيعات')" class="royal-btn royal-btn-print py-2 rounded-xl text-[11px] font-black">🖨️ طباعة</button>
+            <button type="button" onclick="shareModalSummaryWhatsApp('modalOpDelivery', 'إذن تسليم مبيعات')" class="royal-btn royal-btn-whatsapp py-2 rounded-xl text-[11px] font-black">📲 واتساب</button>
+            <button type="button" onclick="closeModal('modalOpDelivery')" class="royal-btn royal-btn-exit py-2 rounded-xl text-[11px] font-black">🚪 خروج</button>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -4491,6 +4544,9 @@
                     title="الآلة الحاسبة الذكية">
               <i class="fa-solid fa-calculator text-purple-200 text-xs sm:text-sm"></i>
             </button>
+
+            <!-- 5. زر إغلاق سريع علوي (✕) موحد مع كافة الشاشات -->
+            <button type="button" onclick="exitToMainDashboard('modalOpPurchase')" class="royal-modal-close-x" title="إغلاق شاشة المشتريات">✕</button>
           </div>
 
           <!-- السطر الثاني: التاريخ -> رقم السند -> سعر الصرف -->
@@ -4893,15 +4949,14 @@
              7. ACTION BUTTONS: حفظ، جديد، مسح، مشاركة، تعليق/استرجاع، كشف الحساب، الإذن، خروج
              ═══════════════════════════════════════════════════════════════ -->
         <div class="space-y-2 pt-1">
-          <!-- الصف الأول: حفظ فقط (كامل العرض) -->
+          <!-- الصف الأول: حفظ فقط (كامل العرض - أخضر زمردي موحد) -->
           <div class="w-full">
             <!-- 1. حفظ -->
             <button type="button" id="btnSaveOpPurchase" onclick="commitOpPurchase(false)" 
-                    class="w-full py-3.5 px-4 rounded-2xl font-black text-sm sm:text-base text-amber-100 hover:text-white flex items-center justify-center gap-2 cursor-pointer active:scale-95 transition shadow-xl" 
-                    style="background: linear-gradient(135deg, #92400e, #b45309); border: 1.5px solid #f59e0b; box-shadow: 0 4px 16px rgba(245, 158, 11, 0.35);" 
+                    class="royal-btn royal-btn-save w-full py-3.5 px-4 rounded-2xl font-black text-sm sm:text-base text-white flex items-center justify-center gap-2 cursor-pointer active:scale-95 transition shadow-xl" 
                     title="حفظ فاتورة المشتريات">
-              <i class="fa-solid fa-floppy-disk text-amber-300 text-sm sm:text-base"></i>
-              <span>حفظ</span>
+              <i class="fa-solid fa-floppy-disk text-sm sm:text-base"></i>
+              <span>✅ حفظ واعتماد</span>
             </button>
           </div>
 
@@ -4909,45 +4964,42 @@
           <div class="grid grid-cols-3 gap-2">
             <!-- 3. جديد -->
             <button type="button" onclick="SuitePurchasePOS.newInvoice()" 
-                    class="py-3 px-2 rounded-xl bg-slate-900/90 hover:bg-slate-800 text-amber-300 border border-amber-500/40 text-xs sm:text-sm font-black flex items-center justify-center gap-1.5 transition active:scale-95 shadow-sm cursor-pointer" 
+                    class="royal-btn royal-btn-new py-3 px-2 rounded-xl text-xs sm:text-sm font-black flex items-center justify-center gap-1.5 transition active:scale-95 shadow-sm cursor-pointer" 
                     title="فاتورة جديدة وتصفير الشاشة">
-              <i class="fa-solid fa-file-circle-plus text-amber-400"></i>
-              <span>جديد</span>
+              <i class="fa-solid fa-file-circle-plus"></i>
+              <span>✨ جديد</span>
             </button>
 
             <!-- 4. مسح -->
             <button type="button" onclick="SuitePurchasePOS.clearCurrentInputs()" 
-                    class="py-3 px-2 rounded-xl bg-slate-900/90 hover:bg-slate-800 text-rose-300 border border-rose-500/40 text-xs sm:text-sm font-black flex items-center justify-center gap-1.5 transition active:scale-95 shadow-sm cursor-pointer" 
+                    class="royal-btn royal-btn-delete py-3 px-2 rounded-xl text-xs sm:text-sm font-black flex items-center justify-center gap-1.5 transition active:scale-95 shadow-sm cursor-pointer" 
                     title="مسح وتفريغ خانات الصنف والكميات">
-              <i class="fa-solid fa-eraser text-rose-400"></i>
-              <span>مسح</span>
+              <i class="fa-solid fa-eraser"></i>
+              <span>🗑️ مسح</span>
             </button>
 
             <!-- 5. مشاركة -->
             <button type="button" onclick="SuitePurchasePOS.shareInvoice()" 
-                    class="py-3 px-2 rounded-xl text-xs sm:text-sm font-black flex items-center justify-center gap-1.5 transition active:scale-95 shadow-lg cursor-pointer text-amber-200 hover:text-white" 
-                    style="background: linear-gradient(135deg, rgba(180, 83, 9, 0.4), rgba(15, 23, 42, 0.95)); border: 1.5px solid #f59e0b; box-shadow: 0 0 10px rgba(245, 158, 11, 0.3);" 
+                    class="royal-btn royal-btn-whatsapp py-3 px-2 rounded-xl text-xs sm:text-sm font-black flex items-center justify-center gap-1.5 transition active:scale-95 shadow-lg cursor-pointer" 
                     title="مشاركة تفاصيل فاتورة المشتريات عبر الواتساب">
-              <i class="fa-solid fa-share-nodes text-amber-400"></i>
-              <span>مشاركة</span>
+              <i class="fa-brands fa-whatsapp"></i>
+              <span>مشاركة / PDF</span>
             </button>
           </div>
 
           <!-- صف الفواتير المعلقة للمشتريات (Hold / Park & Recall Purchase Invoice) -->
           <div class="grid grid-cols-2 gap-2">
             <button type="button" onclick="SuitePurchasePOS.parkCurrentInvoice()" 
-                    class="py-2.5 px-2 rounded-xl text-xs font-black flex items-center justify-center gap-1.5 transition active:scale-95 shadow-md cursor-pointer text-amber-200 hover:text-white" 
-                    style="background: linear-gradient(135deg, rgba(217, 119, 6, 0.25), rgba(15, 23, 42, 0.95)); border: 1.5px solid rgba(251, 191, 36, 0.6);" 
+                    class="royal-btn royal-btn-open py-2.5 px-2 rounded-xl text-xs font-black flex items-center justify-center gap-1.5 transition active:scale-95 shadow-md cursor-pointer" 
                     title="تعليق فاتورة المشتريات الحالية مؤقتاً">
-              <i class="fa-solid fa-pause-circle text-amber-400 text-sm"></i>
+              <i class="fa-solid fa-pause-circle text-sm"></i>
               <span>تعليق الفاتورة ⏸️</span>
             </button>
 
             <button type="button" onclick="SuitePurchasePOS.openParkedInvoicesModal()" 
-                    class="py-2.5 px-2 rounded-xl text-xs font-black flex items-center justify-center gap-1.5 transition active:scale-95 shadow-md cursor-pointer text-purple-200 hover:text-white" 
-                    style="background: linear-gradient(135deg, rgba(147, 51, 234, 0.25), rgba(15, 23, 42, 0.95)); border: 1.5px solid rgba(192, 132, 252, 0.6);" 
+                    class="royal-btn royal-btn-edit py-2.5 px-2 rounded-xl text-xs font-black flex items-center justify-center gap-1.5 transition active:scale-95 shadow-md cursor-pointer" 
                     title="استعراض واسترجاع فواتير المشتريات المعلقة">
-              <i class="fa-solid fa-clock-rotate-left text-purple-300 text-sm"></i>
+              <i class="fa-solid fa-clock-rotate-left text-sm"></i>
               <span>المعلقة (<span id="purParkedInvoicesCount">0</span>) ▶️</span>
             </button>
           </div>
@@ -4956,29 +5008,26 @@
           <div class="grid grid-cols-3 gap-2">
             <!-- 6. كشف الحساب -->
             <button type="button" id="btnSuppStatementDirect" onclick="SuitePurchasePOS.printSupplierStatement()" 
-                    class="py-3 px-2 rounded-xl text-xs sm:text-sm font-black flex items-center justify-center gap-1.5 transition active:scale-95 shadow-md cursor-pointer text-purple-200 hover:text-white" 
-                    style="background: linear-gradient(135deg, rgba(168, 85, 247, 0.25), rgba(15, 23, 42, 0.95)); border: 1.5px solid #a855f7; box-shadow: 0 0 10px rgba(168, 85, 247, 0.25);" 
+                    class="royal-btn royal-btn-statement py-3 px-2 rounded-xl text-xs sm:text-sm font-black flex items-center justify-center gap-1.5 transition active:scale-95 shadow-md cursor-pointer" 
                     title="كشف حساب المورد الحالي">
-              <i class="fa-solid fa-file-invoice text-purple-400 text-sm"></i>
-              <span>كشف حساب</span>
+              <i class="fa-solid fa-file-invoice text-sm"></i>
+              <span>كشف الحساب</span>
             </button>
 
             <!-- 7. الإذن (استلام GRN) -->
             <button type="button" onclick="SuitePurchasePOS.printGRN()" 
-                    class="py-3 px-2 rounded-xl text-xs sm:text-sm font-black flex items-center justify-center gap-1.5 transition active:scale-95 shadow-md cursor-pointer text-teal-200 hover:text-white" 
-                    style="background: linear-gradient(135deg, rgba(20, 184, 166, 0.25), rgba(15, 23, 42, 0.95)); border: 1.5px solid #14b8a6; box-shadow: 0 0 10px rgba(20, 184, 166, 0.25);" 
+                    class="royal-btn royal-btn-print py-3 px-2 rounded-xl text-xs sm:text-sm font-black flex items-center justify-center gap-1.5 transition active:scale-95 shadow-md cursor-pointer" 
                     title="إذن استلام وتوريد بضاعة بالمستودع (GRN)">
-              <i class="fa-solid fa-truck-ramp-box text-teal-400 text-sm"></i>
+              <i class="fa-solid fa-truck-ramp-box text-sm"></i>
               <span>إذن استلام (GRN)</span>
             </button>
 
             <!-- 8. زر خروج للشاشة الرئيسية -->
             <button type="button" onclick="exitToMainDashboard('modalOpPurchase')" 
-                    class="py-3 px-2 rounded-xl text-xs sm:text-sm font-black flex items-center justify-center gap-1.5 transition active:scale-95 shadow-lg cursor-pointer text-rose-200 hover:text-white" 
-                    style="background: linear-gradient(135deg, rgba(225, 29, 72, 0.3), rgba(15, 23, 42, 0.95)); border: 1.5px solid #f43f5e; box-shadow: 0 0 10px rgba(244, 63, 94, 0.35);" 
+                    class="royal-btn royal-btn-exit py-3 px-2 rounded-xl text-xs sm:text-sm font-black flex items-center justify-center gap-1.5 transition active:scale-95 shadow-lg cursor-pointer" 
                     title="خروج والرجوع للشاشة الرئيسية">
-              <i class="fa-solid fa-arrow-right-from-bracket text-rose-400 text-sm"></i>
-              <span>خروج</span>
+              <i class="fa-solid fa-arrow-right-from-bracket text-sm"></i>
+              <span>🚪 خروج</span>
             </button>
           </div>
         </div>
@@ -5039,9 +5088,17 @@
           </div>
         </div>
 
-        <button onclick="commitOpReceipt()" class="w-full py-3 bg-gradient-to-r from-teal-600 to-emerald-600 text-white rounded-2xl font-bold text-xs shadow-lg active:scale-95 transition cursor-pointer">
-          تأكيد استلام وتخزين البضاعة في المستودع فوراً ✓
-        </button>
+        <div class="space-y-2 pt-1">
+          <button onclick="commitOpReceipt()" class="royal-btn royal-btn-save w-full py-3 text-white rounded-2xl font-bold text-xs shadow-lg active:scale-95 transition cursor-pointer">
+            ✅ تأكيد استلام وتخزين البضاعة في المستودع فوراً
+          </button>
+          <div class="grid grid-cols-4 gap-1.5">
+            <button type="button" onclick="resetModalFields('modalOpReceipt')" class="royal-btn royal-btn-new py-2 rounded-xl text-[11px] font-black">✨ جديد</button>
+            <button type="button" onclick="printModalSummary('modalOpReceipt', 'إذن استلام وفحص مشتريات GRN')" class="royal-btn royal-btn-print py-2 rounded-xl text-[11px] font-black">🖨️ طباعة</button>
+            <button type="button" onclick="shareModalSummaryWhatsApp('modalOpReceipt', 'إذن استلام وفحص مشتريات GRN')" class="royal-btn royal-btn-whatsapp py-2 rounded-xl text-[11px] font-black">📲 واتساب</button>
+            <button type="button" onclick="closeModal('modalOpReceipt')" class="royal-btn royal-btn-exit py-2 rounded-xl text-[11px] font-black">🚪 خروج</button>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -5553,9 +5610,17 @@
           </div>
         </div>
 
-        <button onclick="commitOpJournal()" class="w-full py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-2xl font-bold text-xs shadow-lg active:scale-95 transition cursor-pointer">
-          اعتماد وترحيل قيد التسوية لشجرة الحسابات فوراً ✓
-        </button>
+        <div class="space-y-2 pt-1">
+          <button onclick="commitOpJournal()" class="royal-btn royal-btn-save w-full py-3 text-white rounded-2xl font-bold text-xs shadow-lg active:scale-95 transition cursor-pointer">
+            ✅ اعتماد وترحيل قيد التسوية لشجرة الحسابات فوراً
+          </button>
+          <div class="grid grid-cols-4 gap-1.5">
+            <button type="button" onclick="resetModalFields('modalOpJournal')" class="royal-btn royal-btn-new py-2 rounded-xl text-[11px] font-black">✨ جديد</button>
+            <button type="button" onclick="printModalSummary('modalOpJournal', 'قيد تسوية محاسبي')" class="royal-btn royal-btn-print py-2 rounded-xl text-[11px] font-black">🖨️ طباعة</button>
+            <button type="button" onclick="shareModalSummaryWhatsApp('modalOpJournal', 'قيد تسوية محاسبي')" class="royal-btn royal-btn-whatsapp py-2 rounded-xl text-[11px] font-black">📲 واتساب</button>
+            <button type="button" onclick="closeModal('modalOpJournal')" class="royal-btn royal-btn-exit py-2 rounded-xl text-[11px] font-black">🚪 خروج</button>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -5592,11 +5657,11 @@
           </div>
 
           <!-- فترات الكشف -->
-          <div class="flex gap-1.5 overflow-x-auto no-scrollbar py-0.5 text-[10px] font-bold">
-            <button type="button" class="bg-blue-600 text-white px-2.5 py-1 rounded-lg">اليوم</button>
-            <button type="button" class="bg-slate-800 text-slate-300 hover:text-white px-2.5 py-1 rounded-lg">آخر 7 أيام</button>
-            <button type="button" class="bg-slate-800 text-slate-300 hover:text-white px-2.5 py-1 rounded-lg">الشهر الحالي</button>
-            <button type="button" class="bg-slate-800 text-slate-300 hover:text-white px-2.5 py-1 rounded-lg">كافة الحركات</button>
+          <div id="quickStatementPeriodChips" class="flex gap-1.5 overflow-x-auto no-scrollbar py-0.5 text-[10px] font-bold">
+            <button type="button" onclick="setStatementPeriodFilter('today', this)" class="bg-blue-600 text-white px-2.5 py-1 rounded-lg">اليوم</button>
+            <button type="button" onclick="setStatementPeriodFilter('7days', this)" class="bg-slate-800 text-slate-300 hover:text-white px-2.5 py-1 rounded-lg">آخر 7 أيام</button>
+            <button type="button" onclick="setStatementPeriodFilter('month', this)" class="bg-slate-800 text-slate-300 hover:text-white px-2.5 py-1 rounded-lg">الشهر الحالي</button>
+            <button type="button" onclick="setStatementPeriodFilter('all', this)" class="bg-slate-800 text-slate-300 hover:text-white px-2.5 py-1 rounded-lg">كافة الحركات</button>
           </div>
 
           <!-- بطاقة ملخص الرصيد -->
@@ -5643,16 +5708,19 @@
             </div>
           </div>
 
-          <!-- إجراءات كشف الحساب -->
-          <div class="grid grid-cols-3 gap-1.5 pt-1">
-            <button type="button" onclick="alert('💬 تم إرسال كشف الحساب الكامل للعميل عبر واتساب بنجاح!')" class="py-2 px-2 bg-emerald-950/80 border border-emerald-500/40 text-emerald-300 rounded-xl font-bold text-[10.5px] flex items-center justify-center gap-1 active:scale-95 transition cursor-pointer">
+          <!-- إجراءات كشف الحساب الموحدة -->
+          <div class="grid grid-cols-4 gap-1.5 pt-1">
+            <button type="button" onclick="shareStatementWhatsApp()" class="royal-btn royal-btn-whatsapp py-2 px-1.5 rounded-xl font-black text-[10.5px] flex items-center justify-center gap-1 active:scale-95 transition cursor-pointer">
               <i class="fa-brands fa-whatsapp text-sm"></i> واتساب
             </button>
-            <button type="button" onclick="alert('📥 جاري تنزيل ملف كشف الحساب بصيغة PDF الرسمية المعتمدة...')" class="py-2 px-2 bg-blue-950/80 border border-blue-500/40 text-blue-300 rounded-xl font-bold text-[10.5px] flex items-center justify-center gap-1 active:scale-95 transition cursor-pointer">
-              <i class="fa-solid fa-file-pdf text-sm"></i> PDF مجمع
+            <button type="button" onclick="exportStatementPDF()" class="royal-btn royal-btn-new py-2 px-1.5 rounded-xl font-black text-[10.5px] flex items-center justify-center gap-1 active:scale-95 transition cursor-pointer">
+              <i class="fa-solid fa-file-pdf text-sm"></i> PDF
             </button>
-            <button type="button" onclick="alert('🖨️ جاري إرسال كشف الحساب إلى الطابعة الحرارية المحمولة عبر البلوتوث...')" class="py-2 px-2 bg-slate-800 border border-slate-700 text-slate-200 rounded-xl font-bold text-[10.5px] flex items-center justify-center gap-1 active:scale-95 transition cursor-pointer">
-              <i class="fa-solid fa-print text-sm"></i> طباعة إيصال
+            <button type="button" onclick="printStatementThermal()" class="royal-btn royal-btn-print py-2 px-1.5 rounded-xl font-black text-[10.5px] flex items-center justify-center gap-1 active:scale-95 transition cursor-pointer">
+              <i class="fa-solid fa-print text-sm"></i> طباعة
+            </button>
+            <button type="button" onclick="closeModal('modalOpStatement')" class="royal-btn royal-btn-exit py-2 px-1.5 rounded-xl font-black text-[10.5px] flex items-center justify-center gap-1 active:scale-95 transition cursor-pointer">
+              <span>🚪 خروج</span>
             </button>
           </div>
         </div>
@@ -5818,7 +5886,7 @@
                 <option value="4">حديد تسليح 12 ملم (SKU-1004)</option>
                 <option value="5">معجون طماطم لاما (SKU-1005)</option>
               </select>
-              <button type="button" onclick="alert('📷 تم فتح كاميرا الهاتف لمسح باركود الصنف وتحديد موقعه بالرف مباشرة!')" class="p-2.5 bg-cyan-600 hover:bg-cyan-500 text-white rounded-xl active:scale-90 transition cursor-pointer" title="مسح باركود بالهاتف">
+              <button type="button" onclick="openQrBarcodeModal('barcode')" class="royal-btn royal-btn-new p-2.5 text-white rounded-xl active:scale-90 transition cursor-pointer" title="مسح باركود بالهاتف">
                 <i class="fa-solid fa-barcode"></i>
               </button>
             </div>
@@ -5895,12 +5963,15 @@
             </div>
           </div>
 
-          <div class="grid grid-cols-2 gap-2 pt-1">
-            <button type="button" onclick="alert('🏷️ تم إصدار أمر طباعة ملصق الرف والباركود لصندوق التخزين BIN-102!')" class="py-2.5 bg-slate-800 hover:bg-slate-700 text-cyan-300 border border-cyan-500/40 rounded-xl font-bold text-xs flex items-center justify-center gap-1 active:scale-95 transition cursor-pointer">
-              <i class="fa-solid fa-tag"></i> طباعة ملصق الرف
+          <div class="grid grid-cols-3 gap-1.5 pt-1">
+            <button type="button" onclick="printShelfLabelTag()" class="royal-btn royal-btn-print py-2.5 rounded-xl font-bold text-[11px] flex items-center justify-center gap-1 active:scale-95 transition cursor-pointer">
+              <i class="fa-solid fa-tag"></i> ملصق الرف
             </button>
-            <button type="button" onclick="closeModal('modalOpStockLocation'); openOperationalForm('warehouseTransfer');" class="py-2.5 bg-gradient-to-r from-cyan-600 to-blue-600 text-white rounded-xl font-bold text-xs flex items-center justify-center gap-1 active:scale-95 transition cursor-pointer">
-              <i class="fa-solid fa-dolly"></i> نقل لمستودع آخر
+            <button type="button" onclick="closeModal('modalOpStockLocation'); openOperationalForm('warehouseTransfer');" class="royal-btn royal-btn-new py-2.5 rounded-xl font-bold text-[11px] flex items-center justify-center gap-1 active:scale-95 transition cursor-pointer">
+              <i class="fa-solid fa-dolly"></i> مناقلة
+            </button>
+            <button type="button" onclick="closeModal('modalOpStockLocation')" class="royal-btn royal-btn-exit py-2.5 rounded-xl font-bold text-[11px] flex items-center justify-center gap-1 active:scale-95 transition cursor-pointer">
+              <span>🚪 خروج</span>
             </button>
           </div>
         </div>
@@ -5992,9 +6063,17 @@
           </div>
         </div>
 
-        <button onclick="commitOpStockAdjustment()" class="w-full py-3 bg-gradient-to-r from-rose-600 to-red-600 text-white rounded-2xl font-bold text-xs shadow-lg active:scale-95 transition cursor-pointer">
-          اعتماد تسوية الجرد وتعديل رصيد المخزن فوراً ✓
-        </button>
+        <div class="space-y-2 pt-1">
+          <button onclick="commitOpStockAdjustment()" class="royal-btn royal-btn-save w-full py-3 text-white rounded-2xl font-bold text-xs shadow-lg active:scale-95 transition cursor-pointer">
+            ✅ اعتماد تسوية الجرد وتعديل رصيد المخزن فوراً
+          </button>
+          <div class="grid grid-cols-4 gap-1.5">
+            <button type="button" onclick="resetModalFields('modalOpStockAdjustment')" class="royal-btn royal-btn-new py-2 rounded-xl text-[11px] font-black">✨ جديد</button>
+            <button type="button" onclick="printModalSummary('modalOpStockAdjustment', 'محضر تسوية جرد وتالف')" class="royal-btn royal-btn-print py-2 rounded-xl text-[11px] font-black">🖨️ طباعة</button>
+            <button type="button" onclick="shareModalSummaryWhatsApp('modalOpStockAdjustment', 'محضر تسوية جرد وتالف')" class="royal-btn royal-btn-whatsapp py-2 rounded-xl text-[11px] font-black">📲 واتساب</button>
+            <button type="button" onclick="closeModal('modalOpStockAdjustment')" class="royal-btn royal-btn-exit py-2 rounded-xl text-[11px] font-black">🚪 خروج</button>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -6072,9 +6151,17 @@
           </div>
         </div>
 
-        <button onclick="commitOpWarehouseTransfer()" class="w-full py-3 bg-gradient-to-r from-orange-600 to-amber-600 text-white rounded-2xl font-bold text-xs shadow-lg active:scale-95 transition cursor-pointer">
-          اعتماد ترحيل أمر التحويل وخصم المصدر وتغذية الوجهة ✓
-        </button>
+        <div class="space-y-2 pt-1">
+          <button onclick="commitOpWarehouseTransfer()" class="royal-btn royal-btn-save w-full py-3 text-white rounded-2xl font-bold text-xs shadow-lg active:scale-95 transition cursor-pointer">
+            ✅ اعتماد ترحيل أمر التحويل وخصم المصدر وتغذية الوجهة
+          </button>
+          <div class="grid grid-cols-4 gap-1.5">
+            <button type="button" onclick="resetModalFields('modalOpWarehouseTransfer')" class="royal-btn royal-btn-new py-2 rounded-xl text-[11px] font-black">✨ جديد</button>
+            <button type="button" onclick="printModalSummary('modalOpWarehouseTransfer', 'إذن تحويل ومناقلة مخزنية')" class="royal-btn royal-btn-print py-2 rounded-xl text-[11px] font-black">🖨️ طباعة</button>
+            <button type="button" onclick="shareModalSummaryWhatsApp('modalOpWarehouseTransfer', 'إذن تحويل ومناقلة مخزنية')" class="royal-btn royal-btn-whatsapp py-2 rounded-xl text-[11px] font-black">📲 واتساب</button>
+            <button type="button" onclick="closeModal('modalOpWarehouseTransfer')" class="royal-btn royal-btn-exit py-2 rounded-xl text-[11px] font-black">🚪 خروج</button>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -6158,9 +6245,17 @@
           </div>
         </div>
 
-        <button onclick="commitOpWarehouseVoucher()" id="btnCommitVoucher" class="w-full py-3 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-2xl font-bold text-xs shadow-lg active:scale-95 transition cursor-pointer">
-          اعتماد وطباعة إذن الاستلام المخزني (GRN) وتحديث الأرصدة ✓
-        </button>
+        <div class="space-y-2 pt-1">
+          <button onclick="commitOpWarehouseVoucher()" id="btnCommitVoucher" class="royal-btn royal-btn-save w-full py-3 text-white rounded-2xl font-bold text-xs shadow-lg active:scale-95 transition cursor-pointer">
+            ✅ اعتماد وطباعة إذن الاستلام المخزني (GRN) وتحديث الأرصدة
+          </button>
+          <div class="grid grid-cols-4 gap-1.5">
+            <button type="button" onclick="resetModalFields('modalOpVouchers')" class="royal-btn royal-btn-new py-2 rounded-xl text-[11px] font-black">✨ جديد</button>
+            <button type="button" onclick="printModalSummary('modalOpVouchers', 'إذن استلام وصرف مخزني')" class="royal-btn royal-btn-print py-2 rounded-xl text-[11px] font-black">🖨️ طباعة</button>
+            <button type="button" onclick="shareModalSummaryWhatsApp('modalOpVouchers', 'إذن استلام وصرف مخزني')" class="royal-btn royal-btn-whatsapp py-2 rounded-xl text-[11px] font-black">📲 واتساب</button>
+            <button type="button" onclick="closeModal('modalOpVouchers')" class="royal-btn royal-btn-exit py-2 rounded-xl text-[11px] font-black">🚪 خروج</button>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -6882,13 +6977,21 @@
               </div>
             </div>
 
-            <div class="flex gap-2 pt-1">
-              <button type="button" onclick="SuiteItemMaster.saveItem()" class="flex-1 py-3.5 rounded-2xl bg-gradient-to-r from-indigo-500 via-cyan-500 to-emerald-500 text-slate-950 font-black text-xs sm:text-sm shadow-[0_0_25px_rgba(99,102,241,0.4)] active:scale-95 transition flex items-center justify-center gap-2 cursor-pointer">
-                <span>💾 حفظ الصنف ومزامنته مع الكمبيوتر والسحابة ✓</span>
+            <div class="space-y-2 pt-1">
+              <button type="button" onclick="SuiteItemMaster.saveItem()" class="royal-btn royal-btn-save w-full py-3.5 rounded-2xl text-white font-black text-xs sm:text-sm shadow-xl active:scale-95 transition flex items-center justify-center gap-2 cursor-pointer">
+                <span>✅ حفظ الصنف ومزامنته مع الكمبيوتر والسحابة</span>
               </button>
-              <button type="button" onclick="SuiteItemMaster.resetForm()" class="px-4 py-3.5 rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs border border-slate-700 active:scale-95 transition cursor-pointer">
-                تفريغ
-              </button>
+              <div class="grid grid-cols-3 gap-2">
+                <button type="button" onclick="SuiteItemMaster.resetForm()" class="royal-btn royal-btn-new py-2.5 rounded-xl font-bold text-xs cursor-pointer">
+                  ✨ بطاقة جديدة
+                </button>
+                <button type="button" onclick="printModalSummary('modalOpAddItemMaster', 'بطاقة تعريف صنف')" class="royal-btn royal-btn-print py-2.5 rounded-xl font-bold text-xs cursor-pointer">
+                  🖨️ طباعة باركود
+                </button>
+                <button type="button" onclick="closeModal('modalOpAddItemMaster')" class="royal-btn royal-btn-exit py-2.5 rounded-xl font-bold text-xs cursor-pointer">
+                  🚪 خروج
+                </button>
+              </div>
             </div>
           </div>
 
@@ -7078,9 +7181,17 @@
         </div>
 
         <!-- Submit Return -->
-        <button type="button" onclick="SuiteReturnsManager.submitReturn()" class="w-full py-3.5 rounded-2xl bg-gradient-to-r from-rose-500 via-amber-500 to-emerald-500 text-slate-950 font-black text-xs sm:text-sm shadow-[0_0_25px_rgba(244,63,94,0.35)] active:scale-95 transition flex items-center justify-center gap-2 cursor-pointer">
-          <span>✅ اعتماد إشعار المرتجع وتحديث المخزن والحسابات فوراً</span>
-        </button>
+        <div class="space-y-2 pt-1">
+          <button type="button" onclick="SuiteReturnsManager.submitReturn()" class="royal-btn royal-btn-save w-full py-3.5 rounded-2xl text-white font-black text-xs sm:text-sm shadow-xl active:scale-95 transition flex items-center justify-center gap-2 cursor-pointer">
+            <span>✅ اعتماد إشعار المرتجع وتحديث المخزن والحسابات فوراً</span>
+          </button>
+          <div class="grid grid-cols-4 gap-1.5">
+            <button type="button" onclick="resetModalFields('modalOpReturns')" class="royal-btn royal-btn-new py-2 rounded-xl text-[11px] font-black">✨ جديد</button>
+            <button type="button" onclick="printModalSummary('modalOpReturns', 'إشعار مرتجع معتمد')" class="royal-btn royal-btn-print py-2 rounded-xl text-[11px] font-black">🖨️ طباعة</button>
+            <button type="button" onclick="shareModalSummaryWhatsApp('modalOpReturns', 'إشعار مرتجع معتمد')" class="royal-btn royal-btn-whatsapp py-2 rounded-xl text-[11px] font-black">📲 واتساب</button>
+            <button type="button" onclick="closeModal('modalOpReturns')" class="royal-btn royal-btn-exit py-2 rounded-xl text-[11px] font-black">🚪 خروج</button>
+          </div>
+        </div>
 
       </div>
     </div>
@@ -7151,15 +7262,18 @@
           </div>
         </div>
 
-        <div class="grid grid-cols-3 gap-2">
-          <button type="button" onclick="SuiteThermalPrinter.openZReportReceipt()" class="py-3 rounded-2xl bg-cyan-600/20 hover:bg-cyan-600/30 border border-cyan-500/40 text-cyan-300 font-black text-[11px] flex items-center justify-center gap-1 transition cursor-pointer">
-            <span>🖨️ طباعة بلوتوث</span>
+        <div class="grid grid-cols-4 gap-1.5">
+          <button type="button" onclick="SuiteThermalPrinter.openZReportReceipt()" class="royal-btn royal-btn-print py-3 rounded-2xl font-black text-[11px] flex items-center justify-center gap-1 transition cursor-pointer">
+            <span>🖨️ طباعة</span>
           </button>
-          <button type="button" onclick="SuiteZReportManager.shareWhatsApp()" class="py-3 rounded-2xl bg-emerald-600/20 hover:bg-emerald-600/30 border border-emerald-500/40 text-emerald-300 font-black text-[11px] flex items-center justify-center gap-1 transition cursor-pointer">
+          <button type="button" onclick="SuiteZReportManager.shareWhatsApp()" class="royal-btn royal-btn-whatsapp py-3 rounded-2xl font-black text-[11px] flex items-center justify-center gap-1 transition cursor-pointer">
             <span>📲 واتساب Z</span>
           </button>
-          <button type="button" onclick="SuiteZReportManager.submitCloseShift()" class="py-3 rounded-2xl bg-gradient-to-r from-amber-500 to-emerald-500 text-slate-950 font-black text-[11px] shadow-[0_0_20px_rgba(245,158,11,0.35)] active:scale-95 transition flex items-center justify-center gap-1 cursor-pointer">
-            <span>🔒 اعتماد التقفيل</span>
+          <button type="button" onclick="SuiteZReportManager.submitCloseShift()" class="royal-btn royal-btn-save py-3 rounded-2xl text-white font-black text-[11px] shadow-xl active:scale-95 transition flex items-center justify-center gap-1 cursor-pointer">
+            <span>✅ اعتماد</span>
+          </button>
+          <button type="button" onclick="closeModal('modalOpShiftZReport')" class="royal-btn royal-btn-exit py-3 rounded-2xl font-black text-[11px] flex items-center justify-center gap-1 transition cursor-pointer">
+            <span>🚪 خروج</span>
           </button>
         </div>
       </div>
@@ -7197,14 +7311,17 @@
           </div>
         </div>
 
-        <div class="grid grid-cols-2 gap-2.5 pt-1">
-          <button type="button" onclick="SuiteThermalPrinter.connectAndPrintBLE()" class="py-3 rounded-2xl bg-cyan-600 hover:bg-cyan-500 text-slate-950 font-black text-xs shadow-[0_0_20px_rgba(6,182,212,0.4)] flex items-center justify-center gap-1.5 transition cursor-pointer">
+        <div class="grid grid-cols-3 gap-2 pt-1">
+          <button type="button" onclick="SuiteThermalPrinter.connectAndPrintBLE()" class="royal-btn royal-btn-new py-3 rounded-2xl font-black text-xs flex items-center justify-center gap-1.5 transition cursor-pointer">
             <i class="fa-brands fa-bluetooth-b text-sm"></i>
-            <span>اتصال وطباعة بلوتوث مباشر</span>
+            <span>بلوتوث مباشر</span>
           </button>
-          <button type="button" onclick="SuiteThermalPrinter.systemPrintSheet()" class="py-3 rounded-2xl bg-slate-800 hover:bg-slate-700 border border-slate-600 text-white font-black text-xs flex items-center justify-center gap-1.5 transition cursor-pointer">
+          <button type="button" onclick="SuiteThermalPrinter.systemPrintSheet()" class="royal-btn royal-btn-print py-3 rounded-2xl font-black text-xs flex items-center justify-center gap-1.5 transition cursor-pointer">
             <i class="fa-solid fa-print"></i>
-            <span>طباعة النظام / PDF 80mm</span>
+            <span>طباعة / PDF</span>
+          </button>
+          <button type="button" onclick="closeModal('modalThermalReceiptPreview')" class="royal-btn royal-btn-exit py-3 rounded-2xl font-black text-xs flex items-center justify-center gap-1.5 transition cursor-pointer">
+            <span>🚪 خروج</span>
           </button>
         </div>
       </div>
@@ -7214,5 +7331,225 @@
 
   <!-- JAVASCRIPT APP LOGIC & INTERACTIONS -->
   <script src="js/mobile-suite.js?v=2026_10_16_v22"></script>
+  <script>
+    // =========================================================================
+    // 💎 UNIFIED ROYAL BUTTONS ACTION CONTROLLERS (ربط كافة الأزرار التفاعلية 100%)
+    // =========================================================================
+    window.filterMobileTransactionsFeed = function(category, btnEl) {
+      var wrap = document.getElementById('pageTxFilterChips');
+      if (wrap) {
+        wrap.querySelectorAll('button').forEach(function(b) {
+          b.className = 'bg-slate-800 text-slate-400 hover:text-white px-3 py-1.5 rounded-xl shrink-0';
+        });
+      }
+      if (btnEl) {
+        btnEl.className = 'bg-cyan-600 text-white px-3 py-1.5 rounded-xl shrink-0 shadow';
+      }
+      var cards = document.querySelectorAll('#pageTransactions .glass-card-interactive, #realTransactionsFeedList > div');
+      cards.forEach(function(card) {
+        var txt = (card.textContent || '').trim();
+        if (category === 'all') {
+          card.style.display = '';
+        } else if (category === 'sales') {
+          card.style.display = (txt.indexOf('مبيعات') !== -1 || txt.indexOf('بيع') !== -1) ? '' : 'none';
+        } else if (category === 'purchase') {
+          card.style.display = (txt.indexOf('مشتريات') !== -1 || txt.indexOf('شراء') !== -1) ? '' : 'none';
+        } else if (category === 'voucher') {
+          card.style.display = (txt.indexOf('سند') !== -1 || txt.indexOf('قبض') !== -1 || txt.indexOf('صرف') !== -1) ? '' : 'none';
+        } else if (category === 'journal') {
+          card.style.display = (txt.indexOf('قيد') !== -1 || txt.indexOf('شيك') !== -1 || txt.indexOf('تسوية') !== -1) ? '' : 'none';
+        }
+      });
+    };
+
+    window.filterMobileApprovals = function(targetCardId, btnEl) {
+      var wrap = document.getElementById('approvalsFilterChips');
+      if (wrap) {
+        wrap.querySelectorAll('button').forEach(function(b) {
+          b.className = 'bg-slate-800 text-slate-300 hover:text-white px-3 py-1.5 rounded-xl shrink-0 flex items-center gap-1.5 border border-slate-700';
+        });
+      }
+      if (btnEl) {
+        btnEl.className = 'bg-rose-600 text-white px-3 py-1.5 rounded-xl shrink-0 shadow flex items-center gap-1.5';
+      }
+      ['reqCard1', 'reqCard2', 'reqCard3'].forEach(function(id) {
+        var el = document.getElementById(id);
+        if (!el) return;
+        el.style.display = (targetCardId === 'all' || targetCardId === id) ? '' : 'none';
+      });
+    };
+
+    window.openQuickTreasuryTransfer = function() {
+      var amtEl = document.getElementById('treasuryQuickAmountInput');
+      var amt = amtEl ? amtEl.value : '';
+      if (typeof openOperationalForm === 'function') {
+        openOperationalForm('finance');
+        if (amt && document.getElementById('finTransferAmountUsd')) {
+          document.getElementById('finTransferAmountUsd').value = amt;
+          if (typeof updateFinTransferBalancesPreview === 'function') updateFinTransferBalancesPreview();
+        }
+      }
+    };
+
+    window.setStatementPeriodFilter = function(period, btnEl) {
+      var wrap = document.getElementById('quickStatementPeriodChips');
+      if (wrap) {
+        wrap.querySelectorAll('button').forEach(function(b) {
+          b.className = 'bg-slate-800 text-slate-300 hover:text-white px-2.5 py-1 rounded-lg';
+        });
+      }
+      if (btnEl) {
+        btnEl.className = 'bg-blue-600 text-white px-2.5 py-1 rounded-lg shadow';
+      }
+      var sel = document.getElementById('quickStatementAccountSelect');
+      if (sel && typeof renderQuickStatement === 'function') {
+        renderQuickStatement(sel.value);
+      }
+    };
+
+    window.shareStatementWhatsApp = function() {
+      var sel = document.getElementById('quickStatementAccountSelect');
+      var accName = sel && sel.options[sel.selectedIndex] ? sel.options[sel.selectedIndex].text : 'حساب عميل';
+      var summary = document.getElementById('quickStatementSummary');
+      var summaryText = summary ? summary.innerText.replace(/\n+/g, ' | ') : '';
+      var msg = '📊 *كشف حساب معتمد - نظام مقاييس ERP*\n' +
+                '━━━━━━━━━━━━━━\n' +
+                '👤 الحساب: ' + accName + '\n' +
+                '📌 الملخص: ' + summaryText + '\n' +
+                '📅 التاريخ: ' + new Date().toISOString().slice(0, 10);
+      window.open('https://wa.me/?text=' + encodeURIComponent(msg), '_blank');
+    };
+
+    window.exportStatementPDF = function() {
+      window.printStatementThermal();
+    };
+
+    window.printStatementThermal = function() {
+      var sel = document.getElementById('quickStatementAccountSelect');
+      var accName = sel && sel.options[sel.selectedIndex] ? sel.options[sel.selectedIndex].text : 'حساب عميل';
+      if (window.SuiteThermalPrinter && typeof document.getElementById('thermalReceiptTitle') !== 'undefined') {
+        var titleEl = document.getElementById('thermalReceiptTitle');
+        var bodyEl = document.getElementById('thermalReceiptBodyLines');
+        var summaryEl = document.getElementById('quickStatementSummary');
+        var entriesEl = document.getElementById('quickStatementEntries');
+        if (titleEl && bodyEl) {
+          titleEl.textContent = 'كشف حساب: ' + accName;
+          bodyEl.innerHTML = '<div class="p-2 bg-slate-100 rounded text-slate-900 text-xs space-y-1">' +
+            (summaryEl ? summaryEl.innerHTML : '') +
+            '<hr class="my-1 border-slate-400"/>' +
+            (entriesEl ? entriesEl.innerHTML : '') +
+            '</div>';
+          var m = document.getElementById('modalThermalReceiptPreview');
+          if (m) {
+            m.classList.remove('hidden');
+            m.classList.add('active');
+            return;
+          }
+        }
+      }
+      window.print();
+    };
+
+    window.sharePageLedgerWhatsApp = function() {
+      var msg = '📊 *ملخص أرصدة الأستاذ والمديونيات - نظام مقاييس ERP*\n' +
+                '━━━━━━━━━━━━━━\n' +
+                '🔹 مديونية العملاء: $42,650\n' +
+                '🔸 التزامات الموردين: $31,100\n' +
+                '⏱️ فترة التحصيل DSO: 18 يوم\n' +
+                '🛡️ الأمان الائتماني: 92% ممتاز';
+      window.open('https://wa.me/?text=' + encodeURIComponent(msg), '_blank');
+    };
+
+    window.exportPageLedgerPDF = function() {
+      openOperationalForm('statement');
+      setTimeout(function() {
+        window.printStatementThermal();
+      }, 250);
+    };
+
+    window.printShelfLabelTag = function() {
+      var sel = document.getElementById('stockLocationItemSelect');
+      var itemName = sel && sel.options[sel.selectedIndex] ? sel.options[sel.selectedIndex].text : 'صنف مخزني';
+      var totalQty = (document.getElementById('stockLocAvailableQty') || {}).innerText || '130';
+      var titleEl = document.getElementById('thermalReceiptTitle');
+      var bodyEl = document.getElementById('thermalReceiptBodyLines');
+      if (titleEl && bodyEl) {
+        titleEl.textContent = '🏷️ بطاقة ملصق رف مخزني (BIN TAG)';
+        bodyEl.innerHTML =
+          '<div class="text-center space-y-1.5 py-2 text-slate-900">' +
+            '<div class="font-black text-sm">' + itemName + '</div>' +
+            '<div class="font-mono text-xs bg-slate-200 py-1 px-2 rounded">الموقع: ممر A3 • رف R-04 • BIN-102</div>' +
+            '<div class="font-bold text-xs">المتاح الفوري: ' + totalQty + '</div>' +
+            '<div class="font-mono text-lg tracking-widest pt-1">|||| |||| |||| ||||</div>' +
+          '</div>';
+        var m = document.getElementById('modalThermalReceiptPreview');
+        if (m) {
+          m.classList.remove('hidden');
+          m.classList.add('active');
+          return;
+        }
+      }
+      window.print();
+    };
+
+    window.resetModalFields = function(modalId) {
+      var modal = document.getElementById(modalId);
+      if (!modal) return;
+      modal.querySelectorAll('input[type="text"]:not([readonly]), input[type="number"]:not([readonly]), textarea').forEach(function(inp) {
+        inp.value = '';
+      });
+      if (typeof showToast === 'function') {
+        showToast('✨ تم تصفير الحقول وتجهيز سجل جديد');
+      }
+    };
+
+    window.shareModalSummaryWhatsApp = function(modalId, docTitle) {
+      var modal = document.getElementById(modalId);
+      if (!modal) return;
+      var lines = ['📄 *' + (docTitle || 'مستند رسمي') + ' - نظام مقاييس ERP*', '━━━━━━━━━━━━━━'];
+      modal.querySelectorAll('input, select, textarea').forEach(function(el) {
+        if (el.type === 'hidden' || !el.value) return;
+        var label = '';
+        if (el.previousElementSibling && el.previousElementSibling.tagName === 'LABEL') {
+          label = el.previousElementSibling.innerText.trim();
+        }
+        var val = el.tagName === 'SELECT' && el.options[el.selectedIndex] ? el.options[el.selectedIndex].text : el.value;
+        if (label) lines.push('• ' + label + ' ' + val);
+      });
+      lines.push('📅 التاريخ: ' + new Date().toISOString().slice(0, 10));
+      window.open('https://wa.me/?text=' + encodeURIComponent(lines.join('\n')), '_blank');
+    };
+
+    window.printModalSummary = function(modalId, docTitle) {
+      var modal = document.getElementById(modalId);
+      if (!modal) return;
+      var titleEl = document.getElementById('thermalReceiptTitle');
+      var bodyEl = document.getElementById('thermalReceiptBodyLines');
+      if (titleEl && bodyEl) {
+        titleEl.textContent = docTitle || 'سند / إذن رسمي معتمد';
+        var html = '<div class="space-y-1 text-slate-900 text-xs">';
+        modal.querySelectorAll('input, select, textarea').forEach(function(el) {
+          if (el.type === 'hidden' || !el.value) return;
+          var label = '';
+          if (el.previousElementSibling && el.previousElementSibling.tagName === 'LABEL') {
+            label = el.previousElementSibling.innerText.trim();
+          }
+          var val = el.tagName === 'SELECT' && el.options[el.selectedIndex] ? el.options[el.selectedIndex].text : el.value;
+          if (label) {
+            html += '<div class="flex justify-between border-b border-slate-200 py-0.5"><span class="font-bold">' + label + '</span><span class="font-mono">' + val + '</span></div>';
+          }
+        });
+        html += '</div>';
+        bodyEl.innerHTML = html;
+        var m = document.getElementById('modalThermalReceiptPreview');
+        if (m) {
+          m.classList.remove('hidden');
+          m.classList.add('active');
+          return;
+        }
+      }
+      window.print();
+    };
+  </script>
 </body>
 </html>

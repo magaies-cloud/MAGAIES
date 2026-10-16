@@ -199,7 +199,13 @@
           </svg>
         </button>
 
-        <!-- 6. زر تنزيل وتثبيت التطبيق على الجوال PWA -->
+        <!-- 6. زر درع الأمان وسجل المزامنة التلقائية والرفع الخلفي (زر الدرع المعتمد) -->
+        <button id="suiteSyncAuditHeaderBtn" type="button" onclick="if(window.MagaiesOffline) window.MagaiesOffline.showSyncAuditModal(); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="flagship-tile flagship-action-tile flagship-tile-shield relative" title="درع الأمان والمزامنة: سجل تدقيق المزامنة التلقائية والرفع الخلفي (اضغط للعرض الفوري)">
+          <i class="fa-solid fa-shield-halved text-emerald-400 text-base"></i>
+          <span id="suiteSyncAuditPendingBadge" class="hidden absolute -top-1 -right-1 bg-amber-500 text-slate-950 text-[7px] font-mono font-black px-1 rounded-full shadow">0</span>
+        </button>
+
+        <!-- 7. زر تنزيل وتثبيت التطبيق على الجوال PWA -->
         <button id="headerPwaInstallBtn" onclick="handlePwaInstallClick(); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="flagship-tile flagship-action-tile flagship-tile-install" title="تثبيت أيقونة التطبيق على شاشة الجوال">
           <svg class="w-5 h-5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>

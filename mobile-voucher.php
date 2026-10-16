@@ -3090,8 +3090,9 @@ $currenciesData = [
             <span id="networkText">متزامن</span>
             <span id="voucherSyncPendingBadge" class="hidden bg-amber-500 text-slate-950 text-[8.5px] font-mono font-black px-1 rounded-full">0</span>
           </button>
-          <button type="button" onclick="if(window.MagaiesOffline) window.MagaiesOffline.showSyncAuditModal();" class="w-6 h-6 rounded-full bg-slate-900/90 hover:bg-slate-800 border border-cyan-500/40 text-cyan-300 flex items-center justify-center text-[10px] active:scale-95 transition cursor-pointer shadow-sm" title="سجل تدقيق المزامنة التلقائية والرفع الخلفي (Sync Audit Log)">
+          <button id="voucherSyncAuditBtn" type="button" onclick="if(window.MagaiesOffline) window.MagaiesOffline.showSyncAuditModal(); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="w-6 h-6 rounded-full bg-slate-900/90 hover:bg-slate-800 border border-cyan-500/40 text-cyan-300 flex items-center justify-center text-[10px] active:scale-95 transition cursor-pointer shadow-sm relative" title="درع الأمان وسجل تدقيق المزامنة التلقائية والرفع الخلفي (Sync Audit Log)">
             <i class="fa-solid fa-shield-halved"></i>
+            <span id="voucherSyncAuditPendingBadge" class="hidden absolute -top-1 -right-1 bg-amber-500 text-slate-950 text-[7px] font-mono font-black px-1 rounded-full">0</span>
           </button>
         </div>
       </div>

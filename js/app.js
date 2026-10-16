@@ -2371,7 +2371,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (user.timeRestricted && user.role !== 'admin' && user.userType !== 'admin') {
             const now = new Date();
             const currentDay = now.getDay(); // 0 = Sunday, 6 = Saturday
-            const allowedDays = Array.isArray(user.allowedDays) ? user.allowedDays : [0, 1, 2, 3, 4, 6];
+            const allowedDays = (Array.isArray(user.allowedDays) && user.allowedDays.length > 0) ? user.allowedDays : [0, 1, 2, 3, 4, 5, 6];
 
             const curMinutes = now.getHours() * 60 + now.getMinutes();
             let fromMin = 0, toMin = 1439;

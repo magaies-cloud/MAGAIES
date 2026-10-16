@@ -806,6 +806,15 @@
             </div>
         </a>
 
+        <!-- 2. Modern Balances & Measures Hub Button -->
+        <a href="balances_modern_hub.php" class="quick-report-card" style="--glow-color: rgba(56, 189, 248, 0.65); --glow-bg: rgba(56, 189, 248, 0.12);">
+            <div class="icon-wrap">⚖️</div>
+            <div class="card-info">
+                <h4>مركز الأرصدة والمقاييس الموحد</h4>
+                <p>متابعة أرصدة المقاييس، حسابات العملاء والموردين، كشوفات الحساب التفاعلية وميزان المراجعة.</p>
+            </div>
+        </a>
+
         <!-- 3. Final Statements & Accounting Reports Button -->
         <a href="financial-reports.php" class="quick-report-card" style="--glow-color: rgba(251, 191, 36, 0.65); --glow-bg: rgba(251, 191, 36, 0.12);">
             <div class="icon-wrap">🏛️</div>

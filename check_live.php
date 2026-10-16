@@ -77,6 +77,9 @@ $files = [
     'js/app.js' => getNormalizedHash(__DIR__ . '/js/app.js'),
     'mobile_auth_guard.php' => getNormalizedHash(__DIR__ . '/mobile_auth_guard.php'),
     'api/mirror_sync.php' => getNormalizedHash(__DIR__ . '/api/mirror_sync.php'),
+    'general_accounts_hub.php' => getNormalizedHash(__DIR__ . '/general_accounts_hub.php'),
+    'analytics.php' => getNormalizedHash(__DIR__ . '/analytics.php'),
+    'balances_modern_hub.php' => getNormalizedHash(__DIR__ . '/balances_modern_hub.php'),
 ];
 
 // Check specific keywords inside single-cash-payment.php
