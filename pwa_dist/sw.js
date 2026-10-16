@@ -322,6 +322,48 @@ async function flushIndexedDBOutboxInSW() {
         const db = await openSwIDB();
         if (!db) return false;
 
+        const scopeBase = self.registration.scope.replace(/\/$/, '');
+
+        // 1. فحص ورفع أي تعديلات معلقة من شاشات النظام الشاملة (js/app.js -> cloud_push_outbox)
+        const cloudOutbox = await new Promise((resolve) => {
+            try {
+                const tx = db.transaction(['meta'], 'readonly');
+                const req = tx.objectStore('meta').get('cloud_push_outbox');
+                req.onsuccess = () => resolve(req.result || null);
+                req.onerror = () => resolve(null);
+            } catch (e) { resolve(null); }
+        });
+
+        if (cloudOutbox && cloudOutbox.payload && cloudOutbox.auth_token) {
+            try {
+                const pushUrl = scopeBase + '/api_index.php/sync/push?token=' + encodeURIComponent(cloudOutbox.auth_token);
+                const cRes = await fetch(pushUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + cloudOutbox.auth_token
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify(cloudOutbox.payload)
+                });
+                if (cRes && cRes.ok) {
+                    await new Promise((resolve) => {
+                        try {
+                            const tx = db.transaction(['meta'], 'readwrite');
+                            tx.objectStore('meta').delete('cloud_push_outbox');
+                            tx.oncomplete = () => resolve(true);
+                            tx.onerror = () => resolve(false);
+                        } catch (e) { resolve(false); }
+                    });
+                    const openClients = await self.clients.matchAll({ includeUncontrolled: true });
+                    openClients.forEach((c) => c.postMessage({ type: 'CLOUD_PUSH_COMPLETED_BY_SW' }));
+                }
+            } catch (cErr) {
+                console.warn('[SW BackgroundSync] Cloud push deferred:', cErr && cErr.message ? cErr.message : cErr);
+            }
+        }
+
+        // 2. فحص ورفع طابور الحركات الموحد والسندات والمبيعات والمشتريات (MagaiesOffline -> outbox)
         const items = await new Promise((resolve) => {
             try {
                 const tx = db.transaction(['outbox'], 'readonly');
@@ -347,7 +389,6 @@ async function flushIndexedDBOutboxInSW() {
             } catch (e) { resolve({}); }
         });
 
-        const scopeBase = self.registration.scope.replace(/\/$/, '');
         const syncUrl = scopeBase + '/api/mirror_sync.php?action=sync_offline_batch';
 
         const headers = { 'Content-Type': 'application/json' };

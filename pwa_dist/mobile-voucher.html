@@ -1616,7 +1616,7 @@ $currenciesData = [
   <link rel="stylesheet" href="css/tailwind.min.css">
   <script src="js/tailwind.min.js"></script>
   <script>if(typeof tailwind==="undefined"){document.write('<script src="https://cdn.tailwindcss.com"><\/script>');}</script>
-  <script src="js/magaies-offline-sync.js?v=20261015_v2" defer></script>
+  <script src="js/magaies-offline-sync.js?v=2026_10_16_v23"></script>
   
   <!-- Google Fonts: Cairo (Arabic) + Top 3 Clear Number Fonts (JetBrains Mono, Inter, Montserrat) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -3080,12 +3080,18 @@ $currenciesData = [
           <span>حركة مالية</span>
         </span>
 
-        <!-- مؤشر مزامنة وتحديث البيانات الذكي -->
-        <button type="button" onclick="handleUnifiedSyncRefresh()" id="networkPill" class="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/40 text-emerald-400 text-[10.5px] font-black cursor-pointer hover:bg-emerald-500/25 active:scale-95 transition shadow-sm" title="البيانات متزامنة - انقر للتحديث الفوري">
-          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_#10b981]" id="networkDot"></span>
-          <i class="fa-solid fa-arrows-rotate text-[9.5px] text-red-300 hidden" id="networkRefreshIcon"></i>
-          <span id="networkText">متزامن</span>
-        </button>
+        <!-- مؤشر مزامنة وتحديث البيانات الذكي + زر سجل تدقيق المزامنة الخلفية -->
+        <div class="flex items-center gap-1">
+          <button type="button" onclick="handleUnifiedSyncRefresh()" oncontextmenu="event.preventDefault(); if(window.MagaiesOffline) window.MagaiesOffline.showSyncAuditModal();" id="networkPill" class="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/40 text-emerald-400 text-[10.5px] font-black cursor-pointer hover:bg-emerald-500/25 active:scale-95 transition shadow-sm relative" title="انقر للتحديث الفوري • اضغط مطولاً لفتح سجل تدقيق المزامنة التلقائية">
+            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_#10b981]" id="networkDot"></span>
+            <i class="fa-solid fa-arrows-rotate text-[9.5px] text-red-300 hidden" id="networkRefreshIcon"></i>
+            <span id="networkText">متزامن</span>
+            <span id="voucherSyncPendingBadge" class="hidden bg-amber-500 text-slate-950 text-[8.5px] font-mono font-black px-1 rounded-full">0</span>
+          </button>
+          <button type="button" onclick="if(window.MagaiesOffline) window.MagaiesOffline.showSyncAuditModal();" class="w-6 h-6 rounded-full bg-slate-900/90 hover:bg-slate-800 border border-cyan-500/40 text-cyan-300 flex items-center justify-center text-[10px] active:scale-95 transition cursor-pointer shadow-sm" title="سجل تدقيق المزامنة التلقائية والرفع الخلفي (Sync Audit Log)">
+            <i class="fa-solid fa-shield-halved"></i>
+          </button>
+        </div>
       </div>
 
       <!-- اليسار: زر السمات السبع الموحدة + الساعة الحقيقية -->
@@ -10138,6 +10144,13 @@ $currenciesData = [
         payload.deviceCode = devCode;
         offlineQueue.push(payload);
         try { localStorage.setItem('magaies_mobile_offline_queue', JSON.stringify(offlineQueue)); } catch(e) {}
+        if (window.MagaiesOffline) {
+          try {
+            window.MagaiesOffline.absorbMobileVoucherQueue();
+            window.MagaiesOffline.mirrorQueueToIndexedDB(window.MagaiesOffline.getQueue());
+            window.MagaiesOffline.registerBackgroundSync();
+          } catch (e) {}
+        }
         const pendingEl = document.getElementById('pendingCount');
         if (pendingEl) pendingEl.textContent = `${offlineQueue.length} معلق`;
       }
@@ -10971,11 +10984,14 @@ $currenciesData = [
     let _isFlushingOfflineQueue = false;
     async function flushOfflineQueue() {
       if (_isFlushingOfflineQueue) return;
+      if (window.MagaiesOffline && typeof window.MagaiesOffline.reconcileFromIndexedDB === 'function') {
+        try { await window.MagaiesOffline.reconcileFromIndexedDB(); } catch (e) {}
+      }
       try {
         const storedQ = localStorage.getItem('magaies_mobile_offline_queue');
         if (storedQ) {
           const parsedQ = JSON.parse(storedQ);
-          if (Array.isArray(parsedQ) && parsedQ.length > offlineQueue.length) {
+          if (Array.isArray(parsedQ)) {
             offlineQueue = parsedQ;
           }
         }
@@ -10999,10 +11015,12 @@ $currenciesData = [
           const item = queueSnapshot[i];
           try {
             const controller = new AbortController();
-            const timer = setTimeout(() => controller.abort(), 6000);
+            const timer = setTimeout(() => controller.abort(), 6500);
             const res = await fetch('mobile-voucher.php?api=save_voucher', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
+              credentials: 'include',
+              keepalive: true,
               body: JSON.stringify(item),
               signal: controller.signal
             });
@@ -11073,8 +11091,20 @@ $currenciesData = [
                   known.finance = Math.max(parseInt(known.finance, 10) || 0, sSeq);
                   localStorage.setItem('magaies_last_known_sequences_v1', JSON.stringify(known));
                 }
+                if (window.MagaiesOffline && typeof window.MagaiesOffline.recordSyncedHistory === 'function') {
+                  window.MagaiesOffline.recordSyncedHistory([{
+                    offline_id: String(item.voucherNo || item.id || realNo),
+                    real_id: String(realNo),
+                    type: 'finance',
+                    created_at: item.createdAt || item.date || new Date().toISOString(),
+                    synced_at: new Date().toISOString(),
+                    sync_mode: 'live_auto',
+                    amount: Number(fullSynced.amountLocal || 0),
+                    party: `${fullSynced.fromAccountName || ''} ➔ ${fullSynced.toAccountName || ''}`
+                  }], [], 'live_auto');
+                }
               } catch (e) {}
-            } else if (!res.ok && res.status >= 500) {
+            } else if (!data || !data.duplicate) {
               remaining.push(item);
             }
           } catch(e) {
@@ -11090,6 +11120,12 @@ $currenciesData = [
         try {
           localStorage.setItem('magaies_mobile_offline_queue', JSON.stringify(offlineQueue));
           localStorage.setItem('magaiees_vouchers_history', JSON.stringify(vouchersList));
+          if (window.MagaiesOffline) {
+            const remIds = new Set(remaining.map(r => String(r.id || r.voucherNo || '')));
+            const uniQ = JSON.parse(localStorage.getItem('magaies_universal_offline_queue') || '[]');
+            const cleanedUniQ = uniQ.filter(q => q.type !== 'finance' || remIds.has(String(q.offline_id || '')));
+            window.MagaiesOffline.saveQueue(cleanedUniQ);
+          }
         } catch(e) {}
 
         const pendingEl = document.getElementById('pendingCount');
@@ -11557,12 +11593,20 @@ $currenciesData = [
           savedId = isEditing ? vouchersList[currentIndex].id : computeNextVoucherSequentialNo(true);
           voucherPayload.id = savedId;
           voucherPayload.voucherNo = savedId;
+          voucherPayload.offline_id = savedId;
           voucherPayload.deviceCode = devCode;
           voucherPayload.isOffline = true;
           offlineQueue.push(voucherPayload);
           try {
             localStorage.setItem('magaies_mobile_offline_queue', JSON.stringify(offlineQueue));
           } catch(e) {}
+          if (window.MagaiesOffline) {
+            try {
+              window.MagaiesOffline.absorbMobileVoucherQueue();
+              window.MagaiesOffline.mirrorQueueToIndexedDB(window.MagaiesOffline.getQueue());
+              window.MagaiesOffline.registerBackgroundSync();
+            } catch (e) {}
+          }
 
           const pendingEl = document.getElementById('pendingCount');
           if (pendingEl) pendingEl.textContent = `${offlineQueue.length} معلق`;
@@ -12154,9 +12198,19 @@ $currenciesData = [
     setTimeout(fitAllDynamicFields, 60);
     setTimeout(fitAllDynamicFields, 350);
 
-    // تسجيل Service Worker لفتح الشاشة فوراً (0ms) عند انقطاع الإنترنت
+    // تسجيل Service Worker لفتح الشاشة فوراً (0ms) عند انقطاع الإنترنت والرفع الذاتي في الخلفية
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('./sw.js?v=2026_10_16_offline_v20', { scope: './', updateViaCache: 'none' }).catch(() => {});
+      navigator.serviceWorker.register('./sw.js?v=2026_10_16_offline_v23', { scope: './', updateViaCache: 'none' }).then((reg) => {
+        if (reg && reg.sync && typeof reg.sync.register === 'function') {
+          reg.sync.register('sync-offline-outbox').catch(() => {});
+        }
+      }).catch(() => {});
+      navigator.serviceWorker.addEventListener('message', (ev) => {
+        if (!ev.data) return;
+        if (ev.data.type === 'OFFLINE_SYNC_COMPLETED_BY_SW' || ev.data.type === 'TRIGGER_OFFLINE_SYNC') {
+          flushOfflineQueue();
+        }
+      });
     }
 
     // إذا فُتحت الصفحة من الكاش المحلي أو هناك سندات أوفلاين معلقة، نتحقق ونرفع فوراً
