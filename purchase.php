@@ -4915,7 +4915,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (isSyncing) return;
             const purInput = document.getElementById('hdr-inv-no');
             const purSpan = document.getElementById('inv-number');
-            const isCreatingNew = !window.currentViewedPurchaseNo || window.currentViewedPurchaseNo === '---';
+            const isCreatingNew = !window.currentViewedInvoiceNo || window.currentViewedInvoiceNo === '---';
             if (!navigator.onLine) {
                 if (isCreatingNew && window.MagaiesOffline && typeof window.MagaiesOffline.peekNextSequentialNumber === 'function' && purInput && purSpan) {
                     if (!purInput.value || purInput.value === '---') {
@@ -4929,29 +4929,53 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             isSyncing = true;
             try {
+                if (window.MagaiesOffline && typeof window.MagaiesOffline.flushQueue === 'function') {
+                    await window.MagaiesOffline.flushQueue();
+                }
                 const res = await fetch('api/mirror_sync.php?action=get_recent_purchases&_t=' + Date.now());
                 const data = await res.json();
                 if (data && data.success && Array.isArray(data.purchases)) {
                     let localPurchases = JSON.parse(localStorage.getItem('erp_purchase_invoices_v1')) || [];
+                    if (!Array.isArray(localPurchases)) localPurchases = [];
                     let localMap = new Map();
                     localPurchases.forEach(inv => {
-                        const no = inv.invoiceNo || inv.id;
+                        const no = inv && (inv.invoiceNo || inv.id);
                         if (no) localMap.set(String(no), inv);
                     });
 
-                    let hasNew = false;
+                    let hasChanges = false;
                     data.purchases.forEach(serverInv => {
-                        const pNo = String(serverInv.invoiceNo || serverInv.id);
+                        if (!serverInv || typeof serverInv !== 'object') return;
+                        const pNo = String(serverInv.invoiceNo || serverInv.id || '').trim();
+                        if (!pNo) return;
                         if (!localMap.has(pNo)) {
                             localPurchases.push(serverInv);
                             localMap.set(pNo, serverInv);
-                            hasNew = true;
+                            try { localStorage.setItem('erp_pur_' + pNo, JSON.stringify(serverInv)); } catch(e) {}
+                            hasChanges = true;
+                        } else {
+                            const existing = localMap.get(pNo);
+                            const merged = Object.assign({}, serverInv, existing);
+                            if ((!merged.items || !merged.items.length) && Array.isArray(serverInv.items) && serverInv.items.length) {
+                                merged.items = serverInv.items;
+                                hasChanges = true;
+                            }
+                            if (existing.isOffline) {
+                                merged.isOffline = false;
+                                hasChanges = true;
+                            }
+                            localMap.set(pNo, merged);
+                            try { localStorage.setItem('erp_pur_' + pNo, JSON.stringify(merged)); } catch(e) {}
                         }
                     });
 
-                    if (hasNew) {
-                        localStorage.setItem('erp_purchase_invoices_v1', JSON.stringify(localPurchases));
-                        localStorage.setItem('erp_purchases_v1', JSON.stringify(localPurchases));
+                    if (hasChanges) {
+                        const finalArr = Array.from(localMap.values());
+                        localStorage.setItem('erp_purchase_invoices_v1', JSON.stringify(finalArr));
+                        localStorage.setItem('erp_purchases_v1', JSON.stringify(finalArr));
+                        localStorage.setItem('magaies_local_purchase_invoices_v1', JSON.stringify(finalArr));
+                        window._cachedPurchaseInvoicesRaw = null;
+                        window._cachedPurchaseList = null;
                         if (typeof loadHubTransactions === 'function' && typeof currentPurchaseView !== 'undefined' && currentPurchaseView === 'hub') {
                             loadHubTransactions();
                         }
@@ -4975,6 +4999,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 isSyncing = false;
             }
         }
+        window.initDesktopPurchaseMirrorSync = syncPurchaseWithMariaDB;
 
         window.addEventListener('DOMContentLoaded', () => {
             setTimeout(syncPurchaseWithMariaDB, 600);

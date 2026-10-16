@@ -3613,7 +3613,7 @@
               
               <!-- رقم السند في المنتصف بخط واضح ومكبر -->
               <div class="flex-1 flex items-center overflow-hidden px-1 text-center justify-center min-w-0">
-                <span id="opSalesInvoiceNoPill" class="font-mono font-black text-amber-300 tracking-wider whitespace-nowrap select-none inline-block transition-transform duration-150" style="color: #fcd34d; font-size: 16px !important; font-weight: 900 !important;">S26100001</span>
+                <span id="opSalesInvoiceNoPill" class="font-mono font-black text-amber-300 tracking-wider whitespace-nowrap select-none inline-block transition-transform duration-150" style="color: #fcd34d; font-size: 24px !important; font-weight: 900 !important;">S26100001</span>
               </div>
 
               <!-- سهم شمال واضح وبارز (السند السابق) -->
@@ -3665,8 +3665,8 @@
                    data-default-val="عميل نقدي عام"
                    placeholder="عميل نقدي عام" 
                    autocomplete="off" 
-                   class="pos-ghost-default w-full bg-transparent font-black text-[13px] sm:text-[14px] tracking-wide text-right outline-none cursor-text border-none p-0 m-0" 
-                   style="color: #38bdf8; text-shadow: 0 0 10px rgba(56, 189, 248, 0.3);" 
+                   class="pos-ghost-default w-full bg-transparent font-black text-[21px] tracking-wide text-right outline-none cursor-text border-none p-0 m-0" 
+                   style="color: #38bdf8; font-size: 21px; font-weight: 900 !important; text-shadow: 0 0 10px rgba(56, 189, 248, 0.3);" 
                    oninput="SuiteSalesPOS.onCustomerInput(this.value); window.SmartPOSFontAI && SmartPOSFontAI.scaleCustomer(this);" 
                    onfocus="SuiteSalesPOS.onCustomerFocus(this)" 
                    onblur="SuiteSalesPOS.onCustomerBlur && SuiteSalesPOS.onCustomerBlur(this)" />
@@ -3790,8 +3790,8 @@
             <div class="col-span-4">
               <label for="salesUnitSelect" class="text-[11px] sm:text-xs font-bold text-emerald-400 block mb-1 text-right">الوحدات</label>
               <select id="salesUnitSelect" onchange="SuiteSalesPOS.onUnitChange(); window.SmartPOSFontAI && SmartPOSFontAI.scaleUnit(this);" 
-                      class="glow-input-field glow-emerald pos-field-interactive pos-field-unit w-full h-[58px] sm:h-[64px] text-emerald-400 font-bold text-center outline-none cursor-pointer px-1 rounded-xl" 
-                      style="background: rgba(15, 23, 42, 0.92); color: #34d399; font-size: 11.5px !important;" 
+                      class="glow-input-field glow-emerald pos-field-interactive pos-field-unit w-full h-[58px] sm:h-[64px] text-emerald-400 font-black text-center outline-none cursor-pointer px-1 rounded-xl" 
+                      style="background: rgba(15, 23, 42, 0.92); color: #34d399; font-size: 21px; font-weight: 900 !important;" 
                       title="الوحدات">
                 <option value="" disabled selected hidden>الوحدات</option>
                 <option value="حبة" data-factor="1">حبة</option>
@@ -4489,7 +4489,7 @@
                       title="فاتورة الشراء التالية">▶</button>
               
               <div class="flex-1 flex items-center overflow-hidden px-1 text-center justify-center min-w-0">
-                <span id="opPurchaseNoPill" class="font-mono font-black text-amber-300 tracking-wider whitespace-nowrap select-none inline-block" style="color: #fcd34d; font-size: 16px !important; font-weight: 900 !important;">P26100001</span>
+                <span id="opPurchaseNoPill" class="font-mono font-black text-amber-300 tracking-wider whitespace-nowrap select-none inline-block" style="color: #fcd34d; font-size: 24px !important; font-weight: 900 !important;">P26100001</span>
               </div>
 
               <button type="button" onclick="event.stopPropagation(); SuitePurchasePOS.navigateInvoice('prev');" 
@@ -4557,9 +4557,9 @@
                    value="مورد عام نقدي" 
                    placeholder="ابحث باسم المورد أو الهاتف..." 
                    autocomplete="off" 
-                   class="pos-ghost-default w-full bg-transparent font-black text-[12px] sm:text-[13px] tracking-wide text-right outline-none cursor-text border-none p-0 m-0" 
-                   style="color: #fbbf24; text-shadow: 0 0 10px rgba(245, 158, 11, 0.3);" 
-                   oninput="SuitePurchasePOS.onSupplierInput(this.value)" 
+                   class="pos-ghost-default w-full bg-transparent font-black text-[21px] tracking-wide text-right outline-none cursor-text border-none p-0 m-0" 
+                   style="color: #fbbf24; font-size: 21px; font-weight: 900 !important; text-shadow: 0 0 10px rgba(245, 158, 11, 0.3);" 
+                   oninput="SuitePurchasePOS.onSupplierInput(this.value); window.SmartPOSFontAI && SmartPOSFontAI.scaleCustomer(this);" 
                    onfocus="SuitePurchasePOS.onSupplierFocus(this)" 
                    onclick="this.select()" />
           </div>
@@ -4663,8 +4663,8 @@
             <div class="col-span-4">
               <label for="purUnitSelect" class="text-[11px] sm:text-xs font-bold text-emerald-400 block mb-1 text-right">الوحدات</label>
               <select id="purUnitSelect" onchange="SuitePurchasePOS.onUnitChange(); window.SmartPOSFontAI && SmartPOSFontAI.scaleUnit(this);" 
-                      class="glow-input-field glow-emerald pos-field-interactive pos-field-unit w-full h-[56px] sm:h-[64px] text-emerald-400 font-bold text-center outline-none cursor-pointer px-1 rounded-xl" 
-                      style="background: rgba(15, 23, 42, 0.92); color: #34d399; font-size: 12.5px !important;" 
+                      class="glow-input-field glow-emerald pos-field-interactive pos-field-unit w-full h-[56px] sm:h-[64px] text-emerald-400 font-black text-center outline-none cursor-pointer px-1 rounded-xl" 
+                      style="background: rgba(15, 23, 42, 0.92); color: #34d399; font-size: 21px; font-weight: 900 !important;" 
                       title="الوحدات">
                 <option value="" disabled selected hidden>الوحدات</option>
                 <option value="حبة">حبة</option>

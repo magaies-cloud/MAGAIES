@@ -577,39 +577,81 @@
         });
       }
 
-      // Sync directly with mobile-voucher.php?api=save_voucher for atomic double-entry GL & balance mutation
+      // Sync directly with mirror_sync.php & mobile-voucher.php for atomic double-entry GL & balance mutation + full field preservation
+      const fromNameStr = sender ? sender.name : (fromSelect.options[fromSelect.selectedIndex]?.text || '');
+      const toNameStr = receiver ? receiver.name : (toSelect.options[toSelect.selectedIndex]?.text || '');
+      const noteStr = notesInput && notesInput.value ? notesInput.value : 'تحويل ومناقلة مالية من الجناح التشغيلي';
+      const bankNameStr = currentFinTransferMethod === 'bank' ? toNameStr : (currentFinTransferMethod === 'check' || currentFinTransferMethod === 'bank_check' ? fromNameStr : '');
       const voucherPayload = {
         idempotencyKey: 'FIN-' + finSig,
+        id: refStr,
+        voucherNo: refStr,
         date: new Date().toISOString().slice(0, 10),
-        fromAccount: sender ? sender.name : (fromSelect.options[fromSelect.selectedIndex]?.text || ''),
+        fromAccount: fromNameStr,
+        fromAccountName: fromNameStr,
+        from: fromNameStr,
         fromAccountId: fromVal,
-        toAccount: receiver ? receiver.name : (toSelect.options[toSelect.selectedIndex]?.text || ''),
+        toAccount: toNameStr,
+        toAccountName: toNameStr,
+        to: toNameStr,
         toAccountId: toVal,
         paymentMethod: currentFinTransferMethod === 'cash' ? 'cash' : (currentFinTransferMethod === 'bank' ? 'bank' : 'check'),
         currency: currentFinTransferCurrency,
         amountSdg: amtSdg,
+        sdg: amtSdg,
+        amountLocal: amtSdg,
         amountUsd: amtUsd,
+        usd: amtUsd,
+        amountForeign: amtUsd,
         exchangeRate: SDG_RATE,
-        transferNo: currentFinTransferMethod === 'bank' ? refStr : '',
+        rate: SDG_RATE,
+        refNo: refStr,
+        mobileTransferNo: refStr,
+        transferNo: currentFinTransferMethod === 'bank' ? refStr : refStr,
         checkNo: (currentFinTransferMethod === 'check' || currentFinTransferMethod === 'bank_check') ? refStr : '',
-        notes: notesInput && notesInput.value ? notesInput.value : 'تحويل ومناقلة مالية من الجناح التشغيلي'
+        bankName: bankNameStr,
+        bank: bankNameStr,
+        notes: noteStr,
+        mobileNote: noteStr,
+        statement: noteStr,
+        toStatement: noteStr,
+        fromStatement: noteStr,
+        bankTransfers: currentFinTransferMethod === 'bank' ? [{ bankName: bankNameStr, refNo: refStr, amountSdg: amtSdg, amountUsd: amtUsd }] : [],
+        savedAt: new Date().toISOString()
       };
+
+      try {
+        ['magaies_vouchers_cache', 'magaiees_vouchers_history', 'erp_single_payments_v1'].forEach(k => {
+          const arr = JSON.parse(localStorage.getItem(k) || '[]');
+          if (Array.isArray(arr)) {
+            const idx = arr.findIndex(x => x && String(x.voucherNo || x.id || '') === String(refStr));
+            if (idx >= 0) arr[idx] = Object.assign({}, arr[idx], voucherPayload);
+            else arr.unshift(voucherPayload);
+            localStorage.setItem(k, JSON.stringify(arr.slice(0, 250)));
+          }
+        });
+      } catch (e) {}
 
       if (!navigator.onLine) {
         if (window.MagaiesOffline) {
-          refStr = MagaiesOffline.enqueue('finance', voucherPayload);
+          refStr = MagaiesOffline.enqueue('finance', voucherPayload, refStr);
         }
       } else {
         try {
+          fetch('api/mirror_sync.php?action=save_voucher', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(voucherPayload)
+          }).catch(() => {});
           fetch('mobile-voucher.php?api=save_voucher', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(voucherPayload)
           }).catch(() => {
-            if (window.MagaiesOffline) MagaiesOffline.enqueue('finance', voucherPayload);
+            if (window.MagaiesOffline) MagaiesOffline.enqueue('finance', voucherPayload, refStr);
           });
         } catch (e) {
-          if (window.MagaiesOffline) MagaiesOffline.enqueue('finance', voucherPayload);
+          if (window.MagaiesOffline) MagaiesOffline.enqueue('finance', voucherPayload, refStr);
         }
       }
 
@@ -1939,11 +1981,11 @@
       tempConfig: null,
 
       fieldMeta: {
-        salesCustomerInput:    { label: 'اسم العميل', isNumeric: false, defSize: 15, defColor: '#38bdf8', defMode: 'ai' },
+        salesCustomerInput:    { label: 'اسم العميل', isNumeric: false, defSize: 21, defColor: '#38bdf8', defMode: 'ai' },
         salesWarehouseInput:   { label: 'المستودع', isNumeric: false, defSize: 14.5, defColor: '#ffffff', defMode: 'ai' },
         salesCostCenterInput:  { label: 'مركز الكلفة', isNumeric: false, defSize: 14.5, defColor: '#bae6fd', defMode: 'ai' },
         salesItemSearchInput:  { label: 'الصنف', isNumeric: false, defSize: 21, defColor: '#fcd34d', defMode: 'ai' },
-        salesUnitSelect:       { label: 'الوحدات', isNumeric: false, defSize: 12, defColor: '#34d399', defMode: 'ai' },
+        salesUnitSelect:       { label: 'الوحدات', isNumeric: false, defSize: 21, defColor: '#34d399', defMode: 'ai' },
         salesQtyInput:         { label: 'الكمية', isNumeric: true, defSize: 28, defColor: '#ffffff', defMode: 'fixed', defDecimals: 'auto', defThousands: ',' },
         salesPriceInput:       { label: 'السعر', isNumeric: true, defSize: 28, defColor: '#67e8f9', defMode: 'fixed', defDecimals: 'auto', defThousands: ',' },
         salesItemGrossTotal:   { label: 'الجملة', isNumeric: true, defSize: 46, defColor: '#34d399', defMode: 'fixed', defDecimals: 2, defThousands: ',' },
@@ -1955,10 +1997,10 @@
         salesUsdRateDisplay:   { label: 'سعر صرف الدولار', isNumeric: true, defSize: 19, defColor: '#ffffff', defMode: 'fixed', defDecimals: 'auto', defThousands: 'none' },
         salesNotesInput:       { label: 'البيان / الملحوظة', isNumeric: false, defSize: 15, defColor: '#ffffff', defMode: 'ai' },
         // حقول المشتريات أيضاً
-        purchaseSupplierInput: { label: 'اسم المورد (مشتريات)', isNumeric: false, defSize: 14, defColor: '#fbbf24', defMode: 'ai' },
+        purchaseSupplierInput: { label: 'اسم المورد (مشتريات)', isNumeric: false, defSize: 21, defColor: '#fbbf24', defMode: 'ai' },
         purchaseWarehouseInput:{ label: 'المستودع (مشتريات)', isNumeric: false, defSize: 14, defColor: '#ffffff', defMode: 'ai' },
         purItemSearchInput:    { label: 'الصنف (مشتريات)', isNumeric: false, defSize: 21, defColor: '#fcd34d', defMode: 'ai' },
-        purUnitSelect:         { label: 'الوحدات (مشتريات)', isNumeric: false, defSize: 12.5, defColor: '#34d399', defMode: 'ai' },
+        purUnitSelect:         { label: 'الوحدات (مشتريات)', isNumeric: false, defSize: 21, defColor: '#34d399', defMode: 'ai' },
         purQtyInput:           { label: 'الكمية (مشتريات)', isNumeric: true, defSize: 39, defColor: '#ffffff', defMode: 'fixed', defDecimals: 'auto', defThousands: ',' },
         purPriceInput:         { label: 'السعر (مشتريات)', isNumeric: true, defSize: 32, defColor: '#67e8f9', defMode: 'fixed', defDecimals: 'auto', defThousands: ',' },
         purItemGrossTotal:     { label: 'الجملة (مشتريات)', isNumeric: true, defSize: 43, defColor: '#34d399', defMode: 'fixed', defDecimals: 2, defThousands: ',' },
@@ -1982,6 +2024,12 @@
           if (raw) {
             const parsed = JSON.parse(raw);
             if (parsed && typeof parsed === 'object') {
+              ['salesCustomerInput', 'purchaseSupplierInput', 'salesUnitSelect', 'purUnitSelect'].forEach(fid => {
+                if (parsed[fid] && parsed[fid].fontMode !== 'fixed' && parsed[fid].fontSize && parsed[fid].fontSize <= 16) {
+                  parsed[fid].fontSize = 21;
+                  parsed[fid].fontMode = 'ai';
+                }
+              });
               this.configs = parsed;
             }
           }
@@ -2103,7 +2151,7 @@
         if (!el || !el.id) return;
         el.style.removeProperty('color');
         const saved = this.configs[el.id];
-        if (saved && saved.fontSize) {
+        if (saved && saved.fontSize && saved.fontMode === 'fixed') {
           el.style.setProperty('font-size', saved.fontSize + 'px', 'important');
         }
       },
@@ -2115,7 +2163,7 @@
           el.style.removeProperty('color');
           const saved = this.configs[fieldId];
           if (saved) {
-            if (saved.fontSize) {
+            if (saved.fontSize && saved.fontMode === 'fixed') {
               el.style.setProperty('font-size', saved.fontSize + 'px', 'important');
             }
             if (this.fieldMeta[fieldId].isNumeric && el.value && el.value.trim() !== '') {
@@ -2126,6 +2174,9 @@
             }
           }
         });
+        if (window.SmartPOSFontAI && typeof SmartPOSFontAI.scaleAll === 'function') {
+          SmartPOSFontAI.scaleAll();
+        }
       },
 
       showQuickPillForField(el) {
@@ -2635,13 +2686,14 @@
 
       scaleCustomer(input) {
         if (!input) return;
-        this.fitTextToBox(input, input.value, { maxPx: 16.5, minPx: 11, defPx: 14, paddingPx: 20 });
+        // مقاس اسم العميل والمورد 21px (نفس مقاس الصنف/السيخ تماماً) مع تصغير تلقائي ذكي إذا كان الاسم طويلاً ليظهر بالكامل
+        this.fitTextToBox(input, input.value, { maxPx: 21, minPx: 10.5, defPx: 21, paddingPx: 16 });
       },
 
       scaleItem(input) {
         if (!input) return;
-        // تكبير اسم الصنف ليكون كبيراً وملائماً للمساحة المخصصة له (يكبر أوتوماتيك حتى 26px للأسماء القصيرة ويصغر أوتوماتيك للأسماء الطويلة)
-        this.fitTextToBox(input, input.value, { maxPx: 26, minPx: 13.5, defPx: 21, paddingPx: 14 });
+        // مقاس الصنف (السيخ) 21px (نفس مقاس اسم العميل والوحدات) مع تصغير تلقائي ذكي إذا كان الاسم طويلاً ليظهر بالكامل
+        this.fitTextToBox(input, input.value, { maxPx: 21, minPx: 10.5, defPx: 21, paddingPx: 14 });
       },
 
       scaleUnit(select) {
@@ -2656,14 +2708,8 @@
           }
         }
         const text = (select.options && select.selectedIndex >= 0) ? select.options[select.selectedIndex].text : (select.value || '');
-        const len = (text || '').trim().length;
-        // تنقيص مقاس الوحدات درجة واحدة كما طلب المستخدم
-        let size = '12.5px';
-        if (len >= 11) size = '9.5px';
-        else if (len >= 5) size = '11.5px';
-        else size = '12.5px';
-        select.style.setProperty('font-size', size, 'important');
-        select.style.setProperty('font-weight', '800', 'important');
+        // مقاس الوحدات 21px (نفس مقاس خط السيخ/الصنف واسم العميل) ويصغر تلقائياً إذا كانت الوحدة طويلة ليظهر النص كله
+        this.fitTextToBox(select, text, { maxPx: 21, minPx: 10, defPx: 21, paddingPx: 18, weight: '900' });
       },
 
       scaleNotes(input) {
@@ -2677,16 +2723,18 @@
         const clean = String(val).trim();
         if (!clean) return;
         const len = clean.length;
-        let px = 14.5;
-        if (len >= 15) px = 9.5;
-        else if (len >= 13) px = 10.5;
-        else if (len >= 11) px = 11.5;
-        else if (len >= 9) px = 12.5;
+        // رقم السند أكبر من مقاس الصنف/العميل (24px) ويصغر تلقائياً إذا كان الرقم طويلاً ليظهر بالكامل
+        let px = 24;
+        if (len >= 16) px = 12;
+        else if (len >= 14) px = 14;
+        else if (len >= 12) px = 16;
+        else if (len >= 10) px = 19;
+        else if (len >= 8) px = 22;
         el.style.setProperty('font-size', px + 'px', 'important');
         el.style.setProperty('white-space', 'nowrap', 'important');
         const parentW = (el.parentElement ? el.parentElement.clientWidth : el.clientWidth) || 0;
         if (parentW > 20) {
-          while (el.scrollWidth > parentW && px > 8.5) {
+          while (el.scrollWidth > parentW && px > 10) {
             px -= 0.5;
             el.style.setProperty('font-size', px + 'px', 'important');
           }
@@ -4221,8 +4269,17 @@ window.SuiteSalesPOS = {
           if (existingIdx === -1) {
             merged.push(s);
           } else {
-            // دمج الحقول الناقصة إن وجدت نسخة أكمل
-            merged[existingIdx] = Object.assign({}, s, merged[existingIdx]);
+            const cur = merged[existingIdx];
+            const next = Object.assign({}, s, cur);
+            Object.keys(s).forEach(k => {
+              if (s[k] !== undefined && s[k] !== null && s[k] !== '' && (next[k] === undefined || next[k] === null || next[k] === '')) {
+                next[k] = s[k];
+              }
+            });
+            if (Array.isArray(s.items) && s.items.length > 0 && (!Array.isArray(cur.items) || cur.items.length === 0 || (s.items[0]?.unit && !cur.items[0]?.unit))) {
+              next.items = s.items;
+            }
+            merged[existingIdx] = next;
           }
         };
         const sortNewestFirst = (arr) => {
@@ -4245,7 +4302,8 @@ window.SuiteSalesPOS = {
           if (window.MagaiesOffline && typeof MagaiesOffline.getQueue === 'function') {
             MagaiesOffline.getQueue().forEach(q => {
               if ((q.type === 'sales' || q.type === 'sales_split') && q.payload) {
-                addUnique(Object.assign({ invoiceNo: q.tempId }, q.payload));
+                const qDocId = q.offline_id || q.tempId || q.payload.invoiceNo || q.payload.id || '';
+                addUnique(Object.assign({ invoiceNo: qDocId, id: qDocId }, q.payload));
               }
             });
           }
@@ -4254,12 +4312,22 @@ window.SuiteSalesPOS = {
           if (merged.length > 0) this.recentInvoices = sortNewestFirst(merged);
         } catch(e) {}
         try {
+          if (navigator.onLine && window.MagaiesOffline && typeof MagaiesOffline.flushQueue === 'function') {
+            await MagaiesOffline.flushQueue();
+          }
           const res = await fetch('api/mirror_sync.php?action=get_recent_sales&_t=' + Date.now());
           if (!res.ok) return;
           const data = await res.json();
           if (data && Array.isArray(data.sales) && data.sales.length > 0) {
             data.sales.forEach(addUnique);
             this.recentInvoices = sortNewestFirst(merged);
+            try {
+              localStorage.setItem('magaies_local_sales_invoices_v1', JSON.stringify(this.recentInvoices.slice(0, 150)));
+              localStorage.setItem('erp_sales_invoices_v1', JSON.stringify(this.recentInvoices.slice(0, 150)));
+            } catch (e) {}
+            if (this.currentInvoiceIndex >= 0 && this.recentInvoices[this.currentInvoiceIndex]) {
+              this.displayArchivedInvoice(this.recentInvoices[this.currentInvoiceIndex]);
+            }
           }
         } catch(e) {}
       },
@@ -6318,9 +6386,10 @@ window.SuiteSalesPOS = {
         this.initDefaultCostCenter();
         this.initDefaultWarehouse();
         this.updateParkedCountUI();
-        this.loadRecentInvoices();
+        await this.loadRecentInvoices();
         this.generateNewInvoiceNo();
         this.renderCart();
+        if (window.SmartPOSFontAI) window.SmartPOSFontAI.scaleAll();
       },
 
       loadSuppliersFromStorage() {
@@ -6807,15 +6876,18 @@ window.SuiteSalesPOS = {
           maxSeq = Math.max(maxSeq, extractSeq(inv.invoiceNo || inv.id));
         });
         try {
-          const loc = JSON.parse(localStorage.getItem('magaies_local_purchase_invoices_v1') || '[]');
-          if (Array.isArray(loc)) loc.forEach(inv => { maxSeq = Math.max(maxSeq, extractSeq(inv.invoiceNo || inv.id)); });
-          const erpLoc = JSON.parse(localStorage.getItem('erp_purchases_v5') || '[]');
-          if (Array.isArray(erpLoc)) erpLoc.forEach(inv => { maxSeq = Math.max(maxSeq, extractSeq(inv.invoiceNo || inv.id)); });
+          ['magaies_local_purchase_invoices_v1', 'erp_purchase_invoices_v1', 'erp_purchases_v5', 'erp_purchases_v1'].forEach(k => {
+            const loc = JSON.parse(localStorage.getItem(k) || '[]');
+            if (Array.isArray(loc)) loc.forEach(inv => { maxSeq = Math.max(maxSeq, extractSeq(inv.invoiceNo || inv.id)); });
+          });
         } catch (e) {}
 
         const newNo = `${prefix}${String(maxSeq + 1).padStart(4, '0')}`;
         const pill = document.getElementById('opPurchaseNoPill');
-        if (pill) pill.innerText = newNo;
+        if (pill) {
+          pill.innerText = newNo;
+          if (window.SmartPOSFontAI) window.SmartPOSFontAI.scaleVoucherPill(pill);
+        }
         this.latestGeneratedInvNo = newNo;
         return newNo;
       },
@@ -7613,7 +7685,17 @@ window.SuiteSalesPOS = {
           if (existingIdx === -1) {
             merged.push(p);
           } else {
-            merged[existingIdx] = Object.assign({}, p, merged[existingIdx]);
+            const cur = merged[existingIdx];
+            const next = Object.assign({}, p, cur);
+            Object.keys(p).forEach(k => {
+              if (p[k] !== undefined && p[k] !== null && p[k] !== '' && (next[k] === undefined || next[k] === null || next[k] === '')) {
+                next[k] = p[k];
+              }
+            });
+            if (Array.isArray(p.items) && p.items.length > 0 && (!Array.isArray(cur.items) || cur.items.length === 0 || (p.items[0]?.unit && !cur.items[0]?.unit))) {
+              next.items = p.items;
+            }
+            merged[existingIdx] = next;
           }
         };
         const sortNewestFirst = (arr) => {
@@ -7629,16 +7711,24 @@ window.SuiteSalesPOS = {
           });
         };
         try {
-          const localSaved = JSON.parse(localStorage.getItem('magaies_local_purchase_invoices_v1') || '[]');
-          if (Array.isArray(localSaved)) localSaved.forEach(addUnique);
-          const erpV1 = JSON.parse(localStorage.getItem('erp_purchase_invoices_v1') || '[]');
-          if (Array.isArray(erpV1)) erpV1.forEach(addUnique);
-          const erpSaved = JSON.parse(localStorage.getItem('erp_purchases_v5') || '[]');
-          if (Array.isArray(erpSaved)) erpSaved.forEach(addUnique);
+          ['magaies_local_purchase_invoices_v1', 'erp_purchase_invoices_v1', 'erp_purchases_v5', 'erp_purchases_v1'].forEach(k => {
+            const arr = JSON.parse(localStorage.getItem(k) || '[]');
+            if (Array.isArray(arr)) arr.forEach(addUnique);
+          });
+          for (let i = 0; i < localStorage.length; i++) {
+            const k = localStorage.key(i);
+            if (k && k.startsWith('erp_pur_')) {
+              try {
+                const pObj = JSON.parse(localStorage.getItem(k) || 'null');
+                if (pObj && typeof pObj === 'object') addUnique(pObj);
+              } catch (e) {}
+            }
+          }
           if (window.MagaiesOffline && typeof MagaiesOffline.getQueue === 'function') {
             MagaiesOffline.getQueue().forEach(q => {
               if ((q.type === 'purchase' || q.type === 'purchase_split') && q.payload) {
-                addUnique(Object.assign({ invoiceNo: q.tempId }, q.payload));
+                const qDocId = q.offline_id || q.tempId || q.payload.invoiceNo || q.payload.id || '';
+                addUnique(Object.assign({ invoiceNo: qDocId, id: qDocId }, q.payload));
               }
             });
           }
@@ -7647,12 +7737,24 @@ window.SuiteSalesPOS = {
           if (merged.length > 0) this.recentInvoices = sortNewestFirst(merged);
         } catch(e) {}
         try {
+          if (navigator.onLine && window.MagaiesOffline && typeof MagaiesOffline.flushQueue === 'function') {
+            await MagaiesOffline.flushQueue();
+          }
           const res = await fetch('api/mirror_sync.php?action=get_recent_purchases&_t=' + Date.now());
           if (!res.ok) return;
           const data = await res.json();
           if (data && Array.isArray(data.purchases) && data.purchases.length > 0) {
             data.purchases.forEach(addUnique);
             this.recentInvoices = sortNewestFirst(merged);
+            try {
+              localStorage.setItem('magaies_local_purchase_invoices_v1', JSON.stringify(this.recentInvoices.slice(0, 150)));
+              localStorage.setItem('erp_purchase_invoices_v1', JSON.stringify(this.recentInvoices.slice(0, 150)));
+            } catch (e) {}
+            if (this.currentInvoiceIndex >= 0 && this.recentInvoices[this.currentInvoiceIndex]) {
+              this.displayArchivedInvoice(this.recentInvoices[this.currentInvoiceIndex]);
+            } else if (this.currentInvoiceIndex === -1) {
+              this.generateNewInvoiceNo();
+            }
           }
         } catch(e) {}
       },
@@ -9005,17 +9107,32 @@ async function commitOpSales(andPay = false) {
         grandTotal = manualTot;
       }
 
-      items = items.map(it => ({
-        ...it,
-        name: it.name || it.itemName || 'صنف',
-        itemName: it.itemName || it.name || 'صنف',
-        qty: parseFloat(it.qty ?? it.quantity ?? 1) || 1,
-        quantity: parseFloat(it.quantity ?? it.qty ?? 1) || 1,
-        subtotal: parseFloat(it.subtotal ?? it.total ?? 0) || 0,
-        total: parseFloat(it.total ?? it.subtotal ?? 0) || 0
-      }));
-
       const notesVal = document.getElementById('salesNotesInput')?.value?.trim() || '';
+      const defaultUnitVal = document.getElementById('salesUnitSelect')?.value || 'طن عددي';
+      items = items.map(it => {
+        const q = parseFloat(it.qty ?? it.quantity ?? 1) || 1;
+        const p = parseFloat(it.price ?? 0) || 0;
+        const u = it.unit || it.selectedUnit || it.unitName || defaultUnitVal || 'طن عددي';
+        return {
+          ...it,
+          name: it.name || it.itemName || 'صنف',
+          itemName: it.itemName || it.name || 'صنف',
+          unit: u,
+          selectedUnit: u,
+          unitName: u,
+          warehouse: it.warehouse || wh,
+          costCenter: it.costCenter || costCenter,
+          qty: q,
+          quantity: q,
+          price: p,
+          grossTotal: parseFloat(it.grossTotal ?? (q * p)) || (q * p),
+          subtotal: parseFloat(it.subtotal ?? it.total ?? (q * p)) || (q * p),
+          total: parseFloat(it.total ?? it.subtotal ?? (q * p)) || (q * p),
+          notes: it.notes || it.note || notesVal,
+          note: it.note || it.notes || notesVal
+        };
+      });
+
       const salesSig = `${invNo}|${cust}|${wh}|${grandTotal}|${invDate}|${items.map(i => `${i.name}:${i.qty}:${i.price}`).join(',')}`;
       if (window._lastSavedSalesSig === salesSig) {
         if (typeof showFloatingToast === 'function') {
@@ -9027,13 +9144,21 @@ async function commitOpSales(andPay = false) {
       window._isSavingOpSales = true;
       window._lastSavedSalesSig = salesSig;
 
+      const firstLine = items[0] || {};
       const payload = {
         idempotencyKey: 'SALES-' + salesSig,
         invoiceNo: invNo,
         id: invNo,
         customerName: cust,
+        customer: cust,
         warehouse: wh,
         costCenter: costCenter,
+        itemName: firstLine.name || '',
+        unit: firstLine.unit || defaultUnitVal,
+        qty: firstLine.qty || 1,
+        quantity: firstLine.qty || 1,
+        price: firstLine.price || 0,
+        grossTotal: firstLine.grossTotal || grandTotal,
         subTotal: grandTotal,
         grandTotal: grandTotal,
         total: grandTotal,
@@ -9079,10 +9204,13 @@ async function commitOpSales(andPay = false) {
           else SuiteSalesPOS.recentInvoices.unshift(payload);
           SuiteSalesPOS.currentInvoiceIndex = -1;
         }
-        const savedList = JSON.parse(localStorage.getItem('magaies_local_sales_invoices_v1') || '[]');
-        const filtered = savedList.filter(x => (x.invoiceNo || x.id) !== invNo);
-        filtered.unshift(payload);
-        localStorage.setItem('magaies_local_sales_invoices_v1', JSON.stringify(filtered.slice(0, 100)));
+        ['magaies_local_sales_invoices_v1', 'erp_sales_invoices_v1'].forEach(k => {
+          const savedList = JSON.parse(localStorage.getItem(k) || '[]');
+          const filtered = Array.isArray(savedList) ? savedList.filter(x => (x.invoiceNo || x.id) !== invNo) : [];
+          filtered.unshift(payload);
+          localStorage.setItem(k, JSON.stringify(filtered.slice(0, 150)));
+        });
+        localStorage.setItem('erp_inv_' + invNo, JSON.stringify(payload));
       } catch (e) {}
 
       const handleSuccess = (invoiceNumber, serverNextNo = '') => {
@@ -9103,7 +9231,7 @@ async function commitOpSales(andPay = false) {
       };
 
       if (!navigator.onLine) {
-        const offId = window.MagaiesOffline ? MagaiesOffline.enqueue('sales', payload) : invNo;
+        const offId = window.MagaiesOffline ? MagaiesOffline.enqueue('sales', payload, invNo) : invNo;
         handleSuccess(offId);
         return;
       }
@@ -9323,15 +9451,30 @@ async function commitOpSales(andPay = false) {
         grandTotal = manualPurTot;
       }
 
-      items = items.map(it => ({
-        ...it,
-        name: it.name || it.itemName || 'بضاعة مشتريات عامة',
-        itemName: it.itemName || it.name || 'بضاعة مشتريات عامة',
-        qty: parseFloat(it.qty ?? it.quantity ?? 1) || 1,
-        quantity: parseFloat(it.quantity ?? it.qty ?? 1) || 1,
-        subtotal: parseFloat(it.subtotal ?? it.total ?? 0) || 0,
-        total: parseFloat(it.total ?? it.subtotal ?? 0) || 0
-      }));
+      const defaultPurUnitVal = document.getElementById('purUnitSelect')?.value || 'حبة';
+      items = items.map(it => {
+        const q = parseFloat(it.qty ?? it.quantity ?? 1) || 1;
+        const p = parseFloat(it.price ?? 0) || 0;
+        const u = it.unit || it.selectedUnit || it.unitName || defaultPurUnitVal || 'حبة';
+        return {
+          ...it,
+          name: it.name || it.itemName || 'بضاعة مشتريات عامة',
+          itemName: it.itemName || it.name || 'بضاعة مشتريات عامة',
+          unit: u,
+          selectedUnit: u,
+          unitName: u,
+          warehouse: it.warehouse || wh,
+          costCenter: it.costCenter || costCenter,
+          qty: q,
+          quantity: q,
+          price: p,
+          grossTotal: parseFloat(it.grossTotal ?? (q * p)) || (q * p),
+          subtotal: parseFloat(it.subtotal ?? it.total ?? (q * p)) || (q * p),
+          total: parseFloat(it.total ?? it.subtotal ?? (q * p)) || (q * p),
+          notes: it.notes || it.note || notes,
+          note: it.note || it.notes || notes
+        };
+      });
 
       const purSig = `${purNo}|${supp}|${wh}|${grandTotal}|${purDate}|${items.map(i => `${i.name}:${i.qty}:${i.price}`).join(',')}`;
       if (window._lastSavedPurchaseSig === purSig) {
@@ -9344,11 +9487,21 @@ async function commitOpSales(andPay = false) {
       window._isSavingOpPurchase = true;
       window._lastSavedPurchaseSig = purSig;
 
+      const firstPurLine = items[0] || {};
       const payload = {
         idempotencyKey: 'PUR-' + purSig,
         invoiceNo: purNo,
         id: purNo,
         supplierName: supp,
+        vendorName: supp,
+        customerName: supp,
+        supplier: supp,
+        itemName: firstPurLine.name || '',
+        unit: firstPurLine.unit || defaultPurUnitVal,
+        qty: firstPurLine.qty || 1,
+        quantity: firstPurLine.qty || 1,
+        price: firstPurLine.price || 0,
+        grossTotal: firstPurLine.grossTotal || grandTotal,
         subTotal: grandTotal,
         grandTotal: grandTotal,
         total: grandTotal,
@@ -9399,10 +9552,13 @@ async function commitOpSales(andPay = false) {
           else SuitePurchasePOS.recentInvoices.unshift(payload);
           SuitePurchasePOS.currentInvoiceIndex = -1;
         }
-        const savedPur = JSON.parse(localStorage.getItem('magaies_local_purchase_invoices_v1') || '[]');
-        const filteredPur = savedPur.filter(x => (x.invoiceNo || x.id) !== purNo);
-        filteredPur.unshift(payload);
-        localStorage.setItem('magaies_local_purchase_invoices_v1', JSON.stringify(filteredPur.slice(0, 100)));
+        ['magaies_local_purchase_invoices_v1', 'erp_purchase_invoices_v1', 'erp_purchases_v5'].forEach(k => {
+          const savedPur = JSON.parse(localStorage.getItem(k) || '[]');
+          const filteredPur = Array.isArray(savedPur) ? savedPur.filter(x => (x.invoiceNo || x.id) !== purNo) : [];
+          filteredPur.unshift(payload);
+          localStorage.setItem(k, JSON.stringify(filteredPur.slice(0, 150)));
+        });
+        localStorage.setItem('erp_pur_' + purNo, JSON.stringify(payload));
       } catch (e) {}
 
       const handleSuccess = (invoiceNumber, serverNextNo = '') => {
@@ -9423,7 +9579,7 @@ async function commitOpSales(andPay = false) {
       };
 
       if (!navigator.onLine) {
-        const offId = window.MagaiesOffline ? MagaiesOffline.enqueue('purchase', payload) : purNo;
+        const offId = window.MagaiesOffline ? MagaiesOffline.enqueue('purchase', payload, purNo) : purNo;
         handleSuccess(offId);
         return;
       }
@@ -9609,7 +9765,8 @@ async function commitOpSales(andPay = false) {
           }
           if (window.MagaiesOffline && typeof MagaiesOffline.getQueue === 'function') {
             MagaiesOffline.getQueue().filter(q => q.type === type && q.payload).forEach(q => {
-              addUnique(Object.assign({ id: q.tempId }, q.payload), 'id');
+              const qDocId = q.offline_id || q.tempId || q.payload.id || q.payload.invoiceNo || q.payload.deliveryNo || q.payload.receiptNo || '';
+              addUnique(Object.assign({ id: qDocId }, q.payload), 'id');
             });
           }
         } catch (e) {}
@@ -9822,10 +9979,12 @@ async function commitOpSales(andPay = false) {
           return;
         }
       } catch (err) {
-        if (window.MagaiesOfflineSync && typeof MagaiesOfflineSync.enqueue === 'function') {
-          const q = MagaiesOfflineSync.enqueue('journal_entry', payload);
+        const offEngine = window.MagaiesOffline || window.MagaiesOfflineSync;
+        if (offEngine && typeof offEngine.enqueue === 'function') {
+          const q = offEngine.enqueue('journal_entry', payload, voucherNumber);
+          const docId = (typeof q === 'string') ? q : (q?.docNo || q?.offline_id || voucherNumber);
           if (typeof showFloatingToast === 'function') {
-            showFloatingToast(`📴 تم حفظ القيد #${q.docNo} محلياً وسيُرحّل تلقائياً فور عودة الشبكة`);
+            showFloatingToast(`📴 تم حفظ القيد #${docId} محلياً وسيُرحّل تلقائياً فور عودة الشبكة`);
           }
           closeModal('modalOpJournal');
           return;
@@ -9886,10 +10045,12 @@ async function commitOpSales(andPay = false) {
           return;
         }
       } catch (err) {
-        if (window.MagaiesOfflineSync && typeof MagaiesOfflineSync.enqueue === 'function') {
-          const q = MagaiesOfflineSync.enqueue('stock_adjustment', payload);
+        const offEngine = window.MagaiesOffline || window.MagaiesOfflineSync;
+        if (offEngine && typeof offEngine.enqueue === 'function') {
+          const q = offEngine.enqueue('stock_adjustment', payload, docNo);
+          const docId = (typeof q === 'string') ? q : (q?.docNo || q?.offline_id || docNo);
           if (typeof showFloatingToast === 'function') {
-            showFloatingToast(`📴 تم حفظ تسوية الجرد #${q.docNo} محلياً للمزامنة التلقائية`);
+            showFloatingToast(`📴 تم حفظ تسوية الجرد #${docId} محلياً للمزامنة التلقائية`);
           }
           closeModal('modalOpStockAdjustment');
           return;
@@ -9947,10 +10108,12 @@ async function commitOpSales(andPay = false) {
           return;
         }
       } catch (err) {
-        if (window.MagaiesOfflineSync && typeof MagaiesOfflineSync.enqueue === 'function') {
-          const q = MagaiesOfflineSync.enqueue('warehouse_transfer', payload);
+        const offEngine = window.MagaiesOffline || window.MagaiesOfflineSync;
+        if (offEngine && typeof offEngine.enqueue === 'function') {
+          const q = offEngine.enqueue('warehouse_transfer', payload, badgeText);
+          const docId = (typeof q === 'string') ? q : (q?.docNo || q?.offline_id || badgeText);
           if (typeof showFloatingToast === 'function') {
-            showFloatingToast(`📴 تم حفظ أمر التحويل #${q.docNo} محلياً للمزامنة التلقائية`);
+            showFloatingToast(`📴 تم حفظ أمر التحويل #${docId} محلياً للمزامنة التلقائية`);
           }
           closeModal('modalOpWarehouseTransfer');
           return;
@@ -10008,10 +10171,12 @@ async function commitOpSales(andPay = false) {
           return;
         }
       } catch (err) {
-        if (window.MagaiesOfflineSync && typeof MagaiesOfflineSync.enqueue === 'function') {
-          const q = MagaiesOfflineSync.enqueue(offlineType, payload);
+        const offEngine = window.MagaiesOffline || window.MagaiesOfflineSync;
+        if (offEngine && typeof offEngine.enqueue === 'function') {
+          const q = offEngine.enqueue(offlineType, payload, docNo);
+          const docId = (typeof q === 'string') ? q : (q?.docNo || q?.offline_id || docNo);
           if (typeof showFloatingToast === 'function') {
-            showFloatingToast(`📴 تم حفظ الإذن #${q.docNo} محلياً للمزامنة التلقائية`);
+            showFloatingToast(`📴 تم حفظ الإذن #${docId} محلياً للمزامنة التلقائية`);
           }
           closeModal('modalOpVouchers');
           return;

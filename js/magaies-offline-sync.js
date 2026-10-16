@@ -386,6 +386,7 @@
                 id: 'q-' + Date.now() + '-' + Math.random().toString(36).substr(2, 6),
                 type: type,
                 offline_id: offlineId,
+                tempId: offlineId,
                 device_code: devCode,
                 idempotency_key: idemKey,
                 created_at: new Date().toISOString(),
@@ -411,6 +412,7 @@
             }
             payload.isOffline = true;
             payload.offline_id = offlineId;
+            payload.tempId = offlineId;
             payload.deviceCode = devCode;
 
             queue.push(queueItem);
@@ -436,6 +438,10 @@
             return this.flushQueue();
         },
 
+        syncNow() {
+            return this.flushQueue();
+        },
+
         async flushQueue() {
             if (typeof window.flushOfflineQueue === 'function') {
                 try { window.flushOfflineQueue(); } catch (e) {}
@@ -450,7 +456,7 @@
             try {
                 // إرسال الدفعة بالكامل في طلب واحد سريع جداً (Batch Request < 100ms) لأضعف شبكة 2G
                 const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 6500);
+                const timeoutId = setTimeout(() => controller.abort(), 8500);
 
                 const res = await fetch('api/mirror_sync.php?action=sync_offline_batch', {
                     method: 'POST',
@@ -466,47 +472,90 @@
                     // حفظ سجل التحويل من رقم أوفلاين إلى رقم السيستم الرسمي
                     this.recordSyncedHistory(out.synced);
 
-                    // تحديث الأرقام في السجلات المحلية (العامة والخاصة بالشركة Tenant) إذا تغيرت عند الدمج في السيرفر
+                    // تحديث الأرقام وكامل البيانات في السجلات المحلية (العامة والخاصة بالشركة Tenant) عند الدمج في السيرفر
                     try {
                         const getTK = window.getTenantKey || ((k) => k);
                         out.synced.forEach(sItem => {
                             if (!sItem.offline_id || !sItem.real_id) return;
-                            const updateLocalArr = (baseKey) => {
+                            const sType = this.normalizeType(sItem.type || 'sales');
+                            const serverRec = (sItem.record && typeof sItem.record === 'object') ? sItem.record : null;
+
+                            const updateLocalArr = (baseKey, allowInsert = false) => {
                                 const keysToUpdate = [baseKey];
                                 const tk = getTK(baseKey);
                                 if (tk && tk !== baseKey) keysToUpdate.push(tk);
                                 keysToUpdate.forEach(storageKey => {
-                                    const raw = localStorage.getItem(storageKey);
-                                    if (!raw) return;
-                                    const arr = JSON.parse(raw);
-                                    if (!Array.isArray(arr)) return;
-                                    let changed = false;
-                                    arr.forEach(rec => {
-                                        if (rec && (rec.id === sItem.offline_id || rec.invoiceNo === sItem.offline_id || rec.voucherNo === sItem.offline_id || rec.deliveryNo === sItem.offline_id || rec.receiptNo === sItem.offline_id)) {
-                                            if (rec.id === sItem.offline_id) rec.id = sItem.real_id;
-                                            if (rec.invoiceNo === sItem.offline_id) rec.invoiceNo = sItem.real_id;
-                                            if (rec.voucherNo === sItem.offline_id) rec.voucherNo = sItem.real_id;
-                                            if (rec.deliveryNo === sItem.offline_id) rec.deliveryNo = sItem.real_id;
-                                            if (rec.receiptNo === sItem.offline_id) rec.receiptNo = sItem.real_id;
-                                            rec.isOffline = false;
-                                            changed = true;
+                                    let arr = [];
+                                    try {
+                                        const raw = localStorage.getItem(storageKey);
+                                        if (raw) arr = JSON.parse(raw);
+                                        if (!Array.isArray(arr)) arr = [];
+                                    } catch (e) { arr = []; }
+
+                                    let matched = false;
+                                    for (let i = 0; i < arr.length; i++) {
+                                        const rec = arr[i];
+                                        if (!rec) continue;
+                                        const recId = rec.id || rec.invoiceNo || rec.voucherNo || rec.deliveryNo || rec.receiptNo || rec.docNo || '';
+                                        if (recId === sItem.offline_id || rec.offline_id === sItem.offline_id || recId === sItem.real_id) {
+                                            if (serverRec) {
+                                                arr[i] = Object.assign({}, rec, serverRec, {
+                                                    id: sItem.real_id,
+                                                    isOffline: false,
+                                                    synced: true
+                                                });
+                                            } else {
+                                                if (rec.id === sItem.offline_id) rec.id = sItem.real_id;
+                                                if (rec.invoiceNo === sItem.offline_id) rec.invoiceNo = sItem.real_id;
+                                                if (rec.voucherNo === sItem.offline_id) rec.voucherNo = sItem.real_id;
+                                                if (rec.deliveryNo === sItem.offline_id) rec.deliveryNo = sItem.real_id;
+                                                if (rec.receiptNo === sItem.offline_id) rec.receiptNo = sItem.real_id;
+                                                rec.isOffline = false;
+                                                rec.synced = true;
+                                            }
+                                            matched = true;
                                         }
-                                    });
-                                    if (changed) localStorage.setItem(storageKey, JSON.stringify(arr));
+                                    }
+                                    if (!matched && allowInsert && serverRec) {
+                                        arr.unshift(Object.assign({}, serverRec, { id: sItem.real_id, isOffline: false, synced: true }));
+                                    }
+                                    if (matched || (allowInsert && serverRec)) {
+                                        localStorage.setItem(storageKey, JSON.stringify(arr));
+                                    }
                                 });
                             };
-                            updateLocalArr('magaies_local_sales_invoices_v1');
-                            updateLocalArr('erp_sales_invoices_v1');
-                            updateLocalArr('erp_sales_v3');
-                            updateLocalArr('magaies_local_purchase_invoices_v1');
-                            updateLocalArr('erp_purchase_invoices_v1');
-                            updateLocalArr('erp_purchases_v5');
-                            updateLocalArr('magaiees_vouchers_history');
-                            updateLocalArr('erp_single_payments_v1');
-                            updateLocalArr('erp_payments_v1');
-                            updateLocalArr('erp_receipts_v1');
-                            updateLocalArr('erp_delivery_orders_v1');
-                            updateLocalArr('erp_purchase_receipts_v1');
+
+                            if (sType === 'sales' || sType === 'sales_split') {
+                                updateLocalArr('magaies_local_sales_invoices_v1', true);
+                                updateLocalArr('erp_sales_invoices_v1', true);
+                                updateLocalArr('erp_sales_v3', false);
+                                if (serverRec) {
+                                    try { localStorage.setItem('erp_inv_' + sItem.real_id, JSON.stringify(serverRec)); } catch (e) {}
+                                }
+                            } else if (sType === 'purchase' || sType === 'purchase_split') {
+                                updateLocalArr('magaies_local_purchase_invoices_v1', true);
+                                updateLocalArr('erp_purchase_invoices_v1', true);
+                                updateLocalArr('erp_purchases_v5', false);
+                                if (serverRec) {
+                                    try { localStorage.setItem('erp_pur_' + sItem.real_id, JSON.stringify(serverRec)); } catch (e) {}
+                                }
+                            } else if (sType === 'finance') {
+                                updateLocalArr('magaiees_vouchers_history', true);
+                                updateLocalArr('magaies_vouchers_cache', true);
+                                updateLocalArr('erp_single_payments_v1', true);
+                                updateLocalArr('erp_payments_v1', false);
+                                updateLocalArr('erp_receipts_v1', false);
+                            } else if (sType === 'delivery') {
+                                updateLocalArr('magaies_local_deliveries_v1', true);
+                                updateLocalArr('erp_delivery_orders_v1', true);
+                            } else if (sType === 'purchase_receipt') {
+                                updateLocalArr('magaies_local_receipts_v1', true);
+                                updateLocalArr('erp_purchase_receipts_v1', true);
+                            } else if (sType === 'journal_entry') {
+                                updateLocalArr('magaies_local_journals_v1', true);
+                            } else if (sType === 'stock_adjustment' || sType === 'warehouse_transfer') {
+                                updateLocalArr('magaies_local_inventory_docs_v1', true);
+                            }
                         });
                     } catch (e) {}
 
@@ -516,7 +565,7 @@
                     // إعلام واجهة المستخدم بالنجاح والتحول للسيريال الرسمي
                     const count = out.synced.length;
                     const sample = out.synced[0] ? (out.synced[0].offline_id === out.synced[0].real_id ? `(اعتمدت برقم #${out.synced[0].real_id})` : `(${out.synced[0].offline_id} ➔ اعتمدت برقم #${out.synced[0].real_id})`) : '';
-                    const successMsg = `🟢 تم تلقائياً اعتماد وترحيل ${count} حركة أوفلاين في السيستم! ${sample}`;
+                    const successMsg = `🟢 تم تلقائياً اعتماد وترحيل ${count} حركة أوفلاين بكامل بياناتها في السيستم! ${sample}`;
                     
                     if (window.showFloatingToast) {
                         window.showFloatingToast(successMsg);
@@ -536,6 +585,18 @@
                     if (typeof window.initMobileMirrorSync === 'function') window.initMobileMirrorSync();
                     if (typeof window.fetchLiveDbData === 'function') window.fetchLiveDbData(false, true);
                     if (typeof window.syncMirrorData === 'function') window.syncMirrorData();
+                    if (window.SuiteSalesPOS && typeof window.SuiteSalesPOS.loadRecentInvoices === 'function') {
+                        try { window.SuiteSalesPOS.loadRecentInvoices(); } catch (e) {}
+                    }
+                    if (window.SuitePurchasePOS && typeof window.SuitePurchasePOS.loadRecentInvoices === 'function') {
+                        try { window.SuitePurchasePOS.loadRecentInvoices(); } catch (e) {}
+                    }
+                    if (typeof window.initDesktopPurchaseMirrorSync === 'function') {
+                        try { window.initDesktopPurchaseMirrorSync(); } catch (e) {}
+                    }
+                    if (typeof window.initDesktopMirrorSync === 'function') {
+                        try { window.initDesktopMirrorSync(); } catch (e) {}
+                    }
                 }
             } catch (err) {
                 // النت لم يكتمل بعد أو انقطع مجدداً أثناء الطلب - نحتفظ بالطابور بأمان تام
@@ -878,6 +939,13 @@
                         window.fitVoucherDisplaySize();
                         return;
                     }
+                    if (window.SmartPOSFontAI && typeof window.SmartPOSFontAI.scaleVoucherPill === 'function') {
+                        const suiteIds = ['opSalesInvoiceNoPill', 'opPurchaseNoPill', 'opSalesSplitInvoiceNoPill', 'opPurchaseSplitNoPill', 'opDeliveryNoPill', 'opReceiptNoPill', 'finTransferVoucherNo', 'finTransferCashReceiptNo', 'voucherDocNumber'];
+                        if (suiteIds.includes(el.id)) {
+                            window.SmartPOSFontAI.scaleVoucherPill(el);
+                            return;
+                        }
+                    }
                     const isInput = (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA');
                     const rawText = String(isInput ? (el.value || el.placeholder || '') : (el.textContent || '')).trim();
                     if (!rawText) return;
@@ -891,25 +959,25 @@
 
                     if (!el.dataset.baseFontPx) {
                         const computed = window.getComputedStyle(el);
-                        const parsed = parseFloat(computed.fontSize) || (isInput ? 16 : 15.5);
-                        el.dataset.baseFontPx = String(Math.max(parsed, 14));
+                        const parsed = parseFloat(computed.fontSize) || 23;
+                        el.dataset.baseFontPx = String(Math.max(parsed, 22));
                     }
 
-                    const basePx = parseFloat(el.dataset.baseFontPx) || 16;
+                    const basePx = parseFloat(el.dataset.baseFontPx) || 23;
                     const len = rawText.length;
 
                     let targetPx = basePx;
-                    if (len <= 6) targetPx = Math.max(basePx, 17);
-                    else if (len >= 16) targetPx = Math.min(basePx, 10);
-                    else if (len >= 14) targetPx = Math.min(basePx, 11);
-                    else if (len >= 12) targetPx = Math.min(basePx, 12.5);
-                    else if (len >= 10) targetPx = Math.min(basePx, 14);
-                    // للأرقام القياسية المكونة من 9 خانات (مثل E26100525) يبقى المقاس المعتمد الكامل (16px)
+                    if (len <= 6) targetPx = Math.max(basePx, 24);
+                    else if (len >= 18) targetPx = Math.min(basePx, 11.5);
+                    else if (len >= 15) targetPx = Math.min(basePx, 13.5);
+                    else if (len >= 13) targetPx = Math.min(basePx, 15.5);
+                    else if (len >= 11) targetPx = Math.min(basePx, 17.5);
+                    else if (len >= 9) targetPx = Math.min(basePx, 20.5);
 
                     el.style.setProperty('font-size', targetPx + 'px', 'important');
 
                     if (clientW > 10) {
-                        const minPx = 9.0;
+                        const minPx = 10.0;
                         while (el.scrollWidth > clientW + 1 && targetPx > minPx) {
                             targetPx -= 0.5;
                             el.style.setProperty('font-size', targetPx + 'px', 'important');

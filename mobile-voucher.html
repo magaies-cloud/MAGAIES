@@ -757,17 +757,23 @@ if (isset($_GET['api']) || isset($_POST['api'])) {
             exit;
         }
 
-        $amt = (float)($payload['amountLocal'] ?? 0);
-        $foreignAmt = (float)($payload['amountForeign'] ?? 0);
-        $rate = (float)($payload['rate'] ?? 2650);
+        $bt0 = (!empty($payload['bankTransfers']) && is_array($payload['bankTransfers']) && isset($payload['bankTransfers'][0]) && is_array($payload['bankTransfers'][0])) ? $payload['bankTransfers'][0] : [];
+        $ch0 = (!empty($payload['cheques']) && is_array($payload['cheques']) && isset($payload['cheques'][0]) && is_array($payload['cheques'][0])) ? $payload['cheques'][0] : [];
+
+        $amt = (float)($payload['amountLocal'] ?? ($payload['sdg'] ?? ($payload['amount'] ?? ($payload['totalAmount'] ?? ($bt0['amount'] ?? ($ch0['amount'] ?? 0))))));
+        $foreignAmt = (float)($payload['amountForeign'] ?? ($payload['usd'] ?? ($payload['foreignAmt'] ?? 0)));
+        $rate = (float)($payload['rate'] ?? ($payload['exchangeRate'] ?? 2650));
+        if ($rate <= 0) $rate = 2650;
         if ($amt <= 0 && $foreignAmt > 0 && $rate > 0) {
             $amt = round($foreignAmt * $rate, 2);
+        } elseif ($foreignAmt <= 0 && $amt > 0 && $rate > 0) {
+            $foreignAmt = round($amt / $rate, 2);
         }
-        $transferRef = trim($payload['mobileTransferNo'] ?? ($payload['refNo'] ?? ''));
-        $payMethod = $payload['paymentMethod'] ?? 'transfer';
+        $transferRef = trim((string)($payload['mobileTransferNo'] ?? ($payload['refNo'] ?? ($payload['transferNo'] ?? ($payload['transferRef'] ?? ($payload['checkNo'] ?? ($bt0['transferNo'] ?? ($ch0['checkNo'] ?? ''))))))));
+        $payMethod = $payload['paymentMethod'] ?? ($payload['payType'] ?? ($payload['method'] ?? 'transfer'));
         $currency = $payload['currency'] ?? 'SDG';
-        $costCenter = trim($payload['costCenter'] ?? '');
-        $linkedInvoiceNo = trim($payload['linkedInvoiceNo'] ?? ($payload['invoiceRef'] ?? ''));
+        $costCenter = trim((string)($payload['costCenter'] ?? ($payload['jobId'] ?? '')));
+        $linkedInvoiceNo = trim((string)($payload['linkedInvoiceNo'] ?? ($payload['invoiceRef'] ?? '')));
         $confirmSimilarTransfer = !empty($payload['confirmSimilarTransfer']);
 
         if ($amt <= 0 && $foreignAmt <= 0) {
@@ -775,9 +781,10 @@ if (isset($_GET['api']) || isset($_POST['api'])) {
             exit;
         }
 
-        $bankName = trim($payload['bankName'] ?? '');
-        $fromAccName = trim($payload['fromAccountName'] ?? ($payload['from'] ?? ''));
-        $toAccName = trim($payload['toAccountName'] ?? ($payload['to'] ?? ''));
+        $bankName = trim((string)($payload['bankName'] ?? ($payload['bank'] ?? ($payload['mobileNote'] ?? ($payload['checkBranch'] ?? ($bt0['bankName'] ?? ($bt0['note'] ?? ($ch0['checkBranch'] ?? ''))))))));
+        $fromAccName = trim((string)($payload['fromAccountName'] ?? ($payload['fromName'] ?? ($payload['from'] ?? ($payload['fromAccount'] ?? '')))));
+        $toAccName = trim((string)($payload['toAccountName'] ?? ($payload['toName'] ?? ($payload['to'] ?? ($payload['toAccount'] ?? ($payload['beneficiaryName'] ?? ''))))));
+        $notesText = trim((string)($payload['notes'] ?? ($payload['toStatement'] ?? ($payload['fromStatement'] ?? ($payload['statement'] ?? ($payload['description'] ?? ($bt0['statement'] ?? '')))))));
 
         if (empty($fromAccName)) {
             echo json_encode(['success' => false, 'error' => 'يرجى اختيار حساب الدفع (الدافع)'], JSON_UNESCAPED_UNICODE);
@@ -840,12 +847,14 @@ if (isset($_GET['api']) || isset($_POST['api'])) {
             if ($isNew) {
                 $prefix = 'E' . date('ym');
                 $maxSeq = 0;
+                $existingVoucherNos = [];
                 $stmtSeq = $pdo->prepare("SELECT data FROM single_payments WHERE tenant_id = ? FOR UPDATE");
                 $stmtSeq->execute([$currentTenantId ?: 12]);
                 while ($row = $stmtSeq->fetch(PDO::FETCH_ASSOC)) {
                     $d = json_decode($row['data'], true);
                     if (!$d || !empty($d['deleted'])) continue;
                     $id = trim((string)($d['voucherNo'] ?? ($d['id'] ?? '')));
+                    if ($id !== '') $existingVoucherNos[strtoupper($id)] = true;
 
                     // حماية صارمة ضد التكرار عند النقر المتعدد على زر الحفظ (أونلاين أو أوفلاين)
                     if ($idemKeyReq !== '' && !empty($d['idempotencyKey']) && $d['idempotencyKey'] === $idemKeyReq) {
@@ -883,7 +892,12 @@ if (isset($_GET['api']) || isset($_POST['api'])) {
                         if ($seq > $maxSeq) $maxSeq = $seq;
                     }
                 }
-                $voucherNo = $prefix . str_pad($maxSeq + 1, 4, '0', STR_PAD_LEFT);
+                $requestedOfflineNo = trim((string)($payload['voucherNo'] ?? ($payload['id'] ?? '')));
+                if ($requestedOfflineNo !== '' && strpos($requestedOfflineNo, 'أوفلاين') === false && !isset($existingVoucherNos[strtoupper($requestedOfflineNo)])) {
+                    $voucherNo = $requestedOfflineNo;
+                } else {
+                    $voucherNo = $prefix . str_pad($maxSeq + 1, 4, '0', STR_PAD_LEFT);
+                }
             } else {
                 $voucherNo = trim($payload['voucherNo'] ?? ($payload['id'] ?? ''));
                 $stmtPrev = $pdo->prepare("SELECT data FROM single_payments WHERE tenant_id = ? AND (JSON_UNQUOTE(JSON_EXTRACT(data, '$.voucherNo')) = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')) = ?) LIMIT 1 FOR UPDATE");
@@ -933,6 +947,17 @@ if (isset($_GET['api']) || isset($_POST['api'])) {
             $natureInfo = classifyVoucherNature($fromAccName, $toAccName, [], $payload['fromAccountId'] ?? '', $payload['toAccountId'] ?? '');
             $signatureHash = generateServerVoucherSignature($voucherNo, $voucherDate, $amt, $fromAccName, $toAccName, $currentTenantId);
 
+            $bankTransfersArr = (!empty($payload['bankTransfers']) && is_array($payload['bankTransfers']))
+                ? $payload['bankTransfers']
+                : (($transferRef !== '' || $bankName !== '') ? [[
+                    'id' => 1,
+                    'amount' => $amt,
+                    'transferNo' => $transferRef,
+                    'bankName' => $bankName,
+                    'note' => $bankName,
+                    'statement' => $notesText
+                ]] : []);
+
             $record = [
                 'id' => $voucherNo,
                 'voucherNo' => $voucherNo,
@@ -941,26 +966,43 @@ if (isset($_GET['api']) || isset($_POST['api'])) {
                 'voucherNature' => $natureInfo['code'],
                 'voucherNatureLabel' => $natureInfo['label'],
                 'paymentMethod' => $payMethod,
-                'fromAccount' => $payload['fromAccountId'] ?? '',
+                'payType' => $payMethod,
+                'method' => $payMethod,
+                'fromAccount' => $payload['fromAccountId'] ?? ($payload['fromAccount'] ?? $fromAccName),
                 'fromAccountName' => $fromAccName,
-                'toAccount' => $payload['toAccountId'] ?? '',
+                'fromName' => $fromAccName,
+                'from' => $fromAccName,
+                'toAccount' => $payload['toAccountId'] ?? ($payload['toAccount'] ?? $toAccName),
                 'toAccountName' => $toAccName,
+                'toName' => $toAccName,
+                'to' => $toAccName,
                 'beneficiaryName' => $toAccName,
                 'recipient' => $toAccName,
                 'amount' => $amt > 0 ? $amt : $foreignAmt,
                 'amountLocal' => $amt,
+                'sdg' => $amt,
+                'totalAmount' => $amt,
                 'amountForeign' => $foreignAmt,
+                'usd' => $foreignAmt,
+                'foreignAmt' => $foreignAmt,
                 'currency' => $currency,
                 'rate' => $rate,
+                'exchangeRate' => $rate,
                 'costCenter' => $costCenter,
                 'bankName' => $bankName,
                 'bank' => $bankName,
+                'mobileNote' => $bankName,
                 'mobileTransferNo' => $transferRef,
                 'transferRef' => $transferRef,
+                'transferNo' => $transferRef,
                 'refNo' => $transferRef,
+                'bankTransfers' => $bankTransfersArr,
                 'linkedInvoiceNo' => $linkedInvoiceNo,
-                'notes' => $payload['notes'] ?? '',
-                'toStatement' => $payload['notes'] ?? '',
+                'notes' => $notesText,
+                'toStatement' => $notesText,
+                'fromStatement' => $notesText,
+                'statement' => $notesText,
+                'description' => $notesText,
                 'attachment' => $attachmentPath,
                 'idempotencyKey' => $idempotencyKey,
                 'signatureHash' => $signatureHash,
@@ -3158,7 +3200,7 @@ $currenciesData = [
           <!-- الرقم التسلسلي لوحده كامل ومصغر/مكبر تلقائياً ليظهر 100% بدون قص وبدون مضايقة الأسهم -->
           <div id="voucherDisplayWrapper" class="text-center px-1 flex-1 min-w-0 flex items-center justify-center overflow-hidden">
             <span id="voucherTag" class="hidden"></span>
-            <span data-auto-fit-voucher="1" class="text-[16px] sm:text-[16.5px] font-mono font-black text-amber-300 whitespace-nowrap block tracking-tight leading-none drop-shadow cursor-pointer hover:underline w-full text-center" style="font-size: 16px;" id="currentVoucherDisplay" onclick="showDigitalVoucherReceipt()" title="اضغط لعرض الإيصال الرقمي الرسمي المعتمد ورمز الـ QR 📜"><?php echo htmlspecialchars($nextSequentialVoucherNo); ?></span>
+            <span data-auto-fit-voucher="1" class="text-[22px] sm:text-[23px] font-mono font-black text-amber-300 whitespace-nowrap block tracking-tight leading-none drop-shadow cursor-pointer hover:underline w-full text-center" style="font-size: 22px;" id="currentVoucherDisplay" onclick="showDigitalVoucherReceipt()" title="اضغط لعرض الإيصال الرقمي الرسمي المعتمد ورمز الـ QR 📜"><?php echo htmlspecialchars($nextSequentialVoucherNo); ?></span>
           </div>
 
           <!-- سهم شمال صغير على الطرف (للنزول للأقدم) -->
@@ -8454,10 +8496,15 @@ $currenciesData = [
       if (index < 0 || index >= vouchersList.length) return;
       currentIndex = index;
       const v = vouchersList[index] || {};
+      const firstTr = (Array.isArray(v.bankTransfers) && v.bankTransfers[0]) ? v.bankTransfers[0] : {};
+      const firstCh = (Array.isArray(v.cheques) && v.cheques[0]) ? v.cheques[0] : {};
 
       const vId = v.id || v.voucherNo || v.paymentNo || v.receiptNo || '';
       const dispEl = document.getElementById('currentVoucherDisplay');
-      if (dispEl) dispEl.textContent = vId;
+      if (dispEl) {
+        dispEl.textContent = vId;
+        if (typeof fitVoucherDisplaySize === 'function') fitVoucherDisplaySize();
+      }
 
       const rawDate = String(v.date || v.createdAt || v.savedAt || new Date().toISOString()).slice(0, 10);
       const dateEl = document.getElementById('voucherDate');
@@ -8474,10 +8521,12 @@ $currenciesData = [
         ccEl.classList.remove('mv-ghost-default');
       }
 
-      const sdgVal = parseFloat(v.sdg ?? v.amountLocal ?? v.amount ?? v.totalAmount ?? 0) || 0;
+      let sdgVal = parseFloat(v.sdg ?? v.amountLocal ?? v.amount ?? v.totalAmount ?? firstTr.amount ?? firstCh.amount ?? 0) || 0;
       let usdVal = parseFloat(v.usd ?? v.foreignAmt ?? v.amountForeign ?? 0) || 0;
       if (usdVal <= 0 && sdgVal > 0 && rateVal > 0) {
         usdVal = parseFloat((sdgVal / rateVal).toFixed(2));
+      } else if (sdgVal <= 0 && usdVal > 0 && rateVal > 0) {
+        sdgVal = parseFloat((usdVal * rateVal).toFixed(2));
       }
 
       const sdgInp = document.getElementById('sdgAmount');
@@ -8485,7 +8534,7 @@ $currenciesData = [
       const usdInp = document.getElementById('usdAmount');
       if (usdInp) usdInp.value = usdVal > 0 ? formatNumberWithConfig(usdVal, usdNumberConfig) : '';
 
-      const notesVal = String(v.notes ?? v.toStatement ?? v.fromStatement ?? v.statement ?? v.description ?? '');
+      const notesVal = String(v.notes ?? v.toStatement ?? v.fromStatement ?? v.statement ?? v.description ?? firstTr.statement ?? '');
       const notesInp = document.getElementById('voucherNotes');
       if (notesInp) notesInp.value = notesVal;
 
@@ -8562,8 +8611,8 @@ $currenciesData = [
         if (typeof removeAttachedReceipt === 'function') removeAttachedReceipt();
       }
 
-      const refVal = v.refNo ?? v.mobileTransferNo ?? v.transferRef ?? v.checkNo ?? '';
-      const bankVal = v.bankName ?? v.bank ?? '';
+      const refVal = v.refNo ?? v.mobileTransferNo ?? v.transferNo ?? v.transferRef ?? v.checkNo ?? firstTr.transferNo ?? firstCh.checkNo ?? '';
+      const bankVal = v.bankName ?? v.bank ?? v.mobileNote ?? firstTr.bankName ?? firstTr.note ?? firstCh.checkBranch ?? '';
 
       let resolvedPayType = v.payType || v.paymentMethod || v.method || 'transfer';
       if (resolvedPayType === 'mobile') resolvedPayType = 'transfer';
@@ -10963,13 +11012,60 @@ $currenciesData = [
               syncedCount++;
               updateNetworkStatusUI(true, 'متزامن');
               const realNo = data.voucherNo || item.voucherNo || item.id;
-              const foundIdx = vouchersList.findIndex(v => v && (v.id === item.id || v.voucherNo === item.voucherNo));
+              const srvRec = data.record || {};
+              const fullSynced = {
+                id: realNo,
+                voucherNo: realNo,
+                isOffline: false,
+                idempotencyKey: item.idempotencyKey || srvRec.idempotencyKey || '',
+                attachment: srvRec.attachment || item.attachment || null,
+                date: srvRec.date || item.date || new Date().toISOString().slice(0, 10),
+                rate: parseFloat(srvRec.rate ?? item.rate ?? item.exchangeRate) || parseFloat(window.SYSTEM_USD_RATE) || 5999,
+                currency: srvRec.currency || item.currency || 'SDG',
+                costCenter: srvRec.costCenter || item.costCenter || '',
+                sdg: parseFloat(srvRec.sdg ?? srvRec.amountLocal ?? item.amountLocal ?? item.sdg ?? item.amount ?? 0) || 0,
+                amountLocal: parseFloat(srvRec.amountLocal ?? srvRec.sdg ?? item.amountLocal ?? item.sdg ?? item.amount ?? 0) || 0,
+                usd: parseFloat(srvRec.usd ?? srvRec.amountForeign ?? item.amountForeign ?? item.usd ?? item.foreignAmt ?? 0) || 0,
+                foreignAmt: parseFloat(srvRec.foreignAmt ?? srvRec.amountForeign ?? item.amountForeign ?? item.usd ?? item.foreignAmt ?? 0) || 0,
+                amountForeign: parseFloat(srvRec.amountForeign ?? srvRec.usd ?? item.amountForeign ?? item.usd ?? item.foreignAmt ?? 0) || 0,
+                payType: srvRec.paymentMethod || item.paymentMethod || item.payType || 'transfer',
+                paymentMethod: srvRec.paymentMethod || item.paymentMethod || item.payType || 'transfer',
+                from: srvRec.fromAccountName || item.fromAccountName || item.from || item.fromName || '',
+                fromName: srvRec.fromAccountName || item.fromAccountName || item.fromName || item.from || '',
+                fromAccountName: srvRec.fromAccountName || item.fromAccountName || item.fromName || item.from || '',
+                to: srvRec.toAccountName || item.toAccountName || item.to || item.toName || '',
+                toName: srvRec.toAccountName || item.toAccountName || item.toName || item.to || '',
+                toAccountName: srvRec.toAccountName || item.toAccountName || item.toName || item.to || '',
+                refNo: srvRec.refNo || srvRec.mobileTransferNo || item.refNo || item.mobileTransferNo || item.transferNo || '',
+                mobileTransferNo: srvRec.mobileTransferNo || srvRec.refNo || item.mobileTransferNo || item.refNo || item.transferNo || '',
+                bankName: srvRec.bankName || srvRec.bank || item.bankName || item.bank || '',
+                bank: srvRec.bank || srvRec.bankName || item.bankName || item.bank || '',
+                notes: srvRec.notes || srvRec.toStatement || item.notes || item.toStatement || item.statement || '',
+                toStatement: srvRec.toStatement || srvRec.notes || item.notes || item.toStatement || item.statement || '',
+                linkedInvoiceNo: srvRec.linkedInvoiceNo || item.linkedInvoiceNo || '',
+                voucherNature: data.voucherNature || srvRec.voucherNature || item.voucherNature || '',
+                voucherNatureLabel: data.voucherNatureLabel || srvRec.voucherNatureLabel || item.voucherNatureLabel || 'حركة مالية',
+                signatureHash: data.signatureHash || srvRec.signatureHash || ''
+              };
+              const foundIdx = vouchersList.findIndex(v => v && (v.id === item.id || v.voucherNo === item.voucherNo || v.id === realNo));
               if (foundIdx !== -1) {
-                vouchersList[foundIdx].id = realNo;
-                vouchersList[foundIdx].voucherNo = realNo;
-                vouchersList[foundIdx].isOffline = false;
-                vouchersList[foundIdx].signatureHash = data.signatureHash || '';
+                vouchersList[foundIdx] = Object.assign({}, vouchersList[foundIdx], fullSynced);
+              } else {
+                vouchersList.push(fullSynced);
               }
+              try {
+                ['magaies_vouchers_cache', 'erp_single_payments_v1'].forEach(k => {
+                  const getTK = window.getTenantKey || ((key) => key);
+                  const tk = k === 'erp_single_payments_v1' ? getTK(k) : k;
+                  const arr = JSON.parse(localStorage.getItem(tk) || '[]');
+                  if (Array.isArray(arr)) {
+                    const ix = arr.findIndex(x => x && (String(x.id) === String(item.id) || String(x.voucherNo) === String(item.voucherNo) || String(x.id) === String(realNo)));
+                    if (ix > -1) arr[ix] = Object.assign({}, arr[ix], fullSynced);
+                    else arr.push(fullSynced);
+                    localStorage.setItem(tk, JSON.stringify(arr));
+                  }
+                });
+              } catch (e) {}
               try {
                 const sSeq = extractVoucherSeqJs(realNo);
                 if (sSeq > 0) {
@@ -11008,7 +11104,10 @@ $currenciesData = [
           showToastNotification(`🟢 تم تلقائياً رفع وترحيل ${syncedCount} سندات أوفلاين إلى السيرفر (MariaDB) بنجاح!`);
           if (wasAtNewVoucher) {
             const displayEl = document.getElementById('currentVoucherDisplay');
-            if (displayEl) displayEl.textContent = computeNextVoucherSequentialNo(false);
+            if (displayEl) {
+              displayEl.textContent = computeNextVoucherSequentialNo(false);
+              if (typeof fitVoucherDisplaySize === 'function') fitVoucherDisplaySize();
+            }
           } else if (vouchersList.length > 0 && currentIndex >= 0 && currentIndex < vouchersList.length) {
             loadVoucher(currentIndex);
           }
@@ -11217,25 +11316,60 @@ $currenciesData = [
       const toAccObj = Array.isArray(accountsDB) ? accountsDB.find(a => a && a.name === toAccountName) : null;
       const localNatureInfo = classifyVoucherNatureJs(fromAccObj, toAccObj, fromAccountName, toAccountName);
 
+      const rateNum = parseFloat(document.getElementById('usdRate').value) || parseFloat(window.SYSTEM_USD_RATE) || 5999;
+      const notesStr = document.getElementById('voucherNotes').value || '';
+      const dateStr = document.getElementById('voucherDate').value || new Date().toISOString().slice(0, 10);
+      const ccStr = document.getElementById('costCenterInput').value || '';
+
       const voucherPayload = {
         isEditing: isEditing,
         voucherNo: isEditing ? vouchersList[currentIndex].id : '',
         id: isEditing ? vouchersList[currentIndex].id : '',
         idempotencyKey: currentDraftIdempotencyKey,
         attachment: currentReceiptAttachment || null,
-        date: document.getElementById('voucherDate').value || new Date().toISOString().slice(0, 10),
-        rate: parseFloat(document.getElementById('usdRate').value) || parseFloat(window.SYSTEM_USD_RATE) || 5999,
+        date: dateStr,
+        rate: rateNum,
+        exchangeRate: rateNum,
         currency: currentCurrency || 'SDG',
-        costCenter: document.getElementById('costCenterInput').value || '',
+        costCenter: ccStr,
         paymentMethod: currentPayType,
+        payType: currentPayType,
+        method: currentPayType,
         amountLocal: sdg,
+        sdg: sdg,
+        amount: sdg > 0 ? sdg : usd,
+        totalAmount: sdg,
         amountForeign: usd,
+        usd: usd,
+        foreignAmt: usd,
+        fromAccount: fromAccObj ? fromAccObj.id : fromAccountName,
         fromAccountName: fromAccountName,
+        fromName: fromAccountName,
+        from: fromAccountName,
+        toAccount: toAccObj ? toAccObj.id : toAccountName,
         toAccountName: toAccountName,
+        toName: toAccountName,
+        to: toAccountName,
+        beneficiaryName: toAccountName,
         mobileTransferNo: transferVal,
+        transferNo: transferVal,
+        transferRef: transferVal,
         refNo: transferVal,
         bankName: bankVal,
-        notes: document.getElementById('voucherNotes').value || '',
+        bank: bankVal,
+        mobileNote: bankVal,
+        notes: notesStr,
+        toStatement: notesStr,
+        fromStatement: notesStr,
+        statement: notesStr,
+        bankTransfers: (transferVal || bankVal) ? [{
+          id: 1,
+          amount: sdg,
+          transferNo: transferVal,
+          bankName: bankVal,
+          note: bankVal,
+          statement: notesStr
+        }] : [],
         linkedInvoiceNo: linkedInvoiceNo,
         confirmSimilarTransfer: confirmSimilarTransfer
       };
@@ -11270,19 +11404,28 @@ $currenciesData = [
                 attachment: resData.record?.attachment || currentReceiptAttachment || null,
                 date: voucherPayload.date,
                 rate: voucherPayload.rate,
+                exchangeRate: voucherPayload.rate,
                 currency: voucherPayload.currency,
                 costCenter: voucherPayload.costCenter,
                 sdg: sdg,
+                amountLocal: sdg,
                 usd: usd,
                 foreignAmt: usd,
+                amountForeign: usd,
                 payType: currentPayType,
+                paymentMethod: currentPayType,
                 from: voucherPayload.fromAccountName,
                 fromName: voucherPayload.fromAccountName,
+                fromAccountName: voucherPayload.fromAccountName,
                 to: voucherPayload.toAccountName,
                 toName: voucherPayload.toAccountName,
+                toAccountName: voucherPayload.toAccountName,
                 refNo: transferVal,
+                mobileTransferNo: transferVal,
                 bankName: bankVal,
+                bank: bankVal,
                 notes: voucherPayload.notes,
+                toStatement: voucherPayload.notes,
                 voucherNature: resData.voucherNature || localNatureInfo.code,
                 voucherNatureLabel: resData.voucherNatureLabel || localNatureInfo.label,
                 signatureHash: resData.signatureHash || ''
@@ -11310,7 +11453,10 @@ $currenciesData = [
               } catch(e) {}
 
               const displayEl = document.getElementById('currentVoucherDisplay');
-              if (displayEl) displayEl.textContent = savedId;
+              if (displayEl) {
+                displayEl.textContent = savedId;
+                if (typeof fitVoucherDisplaySize === 'function') fitVoucherDisplaySize();
+              }
               const tagEl = document.getElementById('voucherTag');
               if (tagEl) tagEl.textContent = savedVoucher.voucherNatureLabel || 'MariaDB مرحل';
 
@@ -11322,11 +11468,9 @@ $currenciesData = [
               showToast(isEditing ? `تم تعديل السند رقم (${savedId}) بنجاح` : `تم حفظ السند رقم (${savedId}) بنجاح`, 'success');
               showUndoToast(savedId, savedVoucher, isEditing, previousVoucherData);
 
-              // مزامنة فورية مع جدول السندات الفردية لسطح المكتب (erp_single_payments_v1)
+              // مزامنة فورية مع جدول السندات الفردية لسطح المكتب (erp_single_payments_v1) وكاش الجوال (magaies_vouchers_cache)
               try {
                 const getTenantKey = window.getTenantKey || ((k) => k);
-                const tKey = getTenantKey('erp_single_payments_v1');
-                let existingSP = JSON.parse(localStorage.getItem(tKey) || '[]');
                 const spItem = {
                   id: savedId,
                   voucherNo: savedId,
@@ -11335,26 +11479,46 @@ $currenciesData = [
                   type: 'single_payment',
                   fromAccount: fromAccountName,
                   fromAccountName: fromAccountName,
+                  fromName: fromAccountName,
+                  from: fromAccountName,
                   toAccount: toAccountName,
                   toAccountName: toAccountName,
+                  toName: toAccountName,
+                  to: toAccountName,
                   amountLocal: sdg,
+                  sdg: sdg,
+                  amount: sdg > 0 ? sdg : usd,
                   currency: currentCurrency || 'SDG',
                   rate: voucherPayload.rate,
+                  exchangeRate: voucherPayload.rate,
                   amountForeign: usd,
+                  usd: usd,
+                  foreignAmt: usd,
                   paymentMethod: currentPayType,
+                  payType: currentPayType,
                   bankName: bankVal,
+                  bank: bankVal,
+                  mobileNote: bankVal,
                   mobileTransferNo: transferVal,
+                  transferNo: transferVal,
                   refNo: transferVal,
                   notes: voucherPayload.notes,
+                  toStatement: voucherPayload.notes,
+                  fromStatement: voucherPayload.notes,
+                  bankTransfers: voucherPayload.bankTransfers,
                   costCenter: voucherPayload.costCenter,
                   voucherNature: savedVoucher.voucherNature,
                   voucherNatureLabel: savedVoucher.voucherNatureLabel,
                   signatureHash: savedVoucher.signatureHash
                 };
-                const exIdx = existingSP.findIndex(x => String(x.id) === String(savedId));
-                if (exIdx > -1) existingSP[exIdx] = spItem;
-                else existingSP.push(spItem);
-                localStorage.setItem(tKey, JSON.stringify(existingSP));
+                [getTenantKey('erp_single_payments_v1'), 'magaies_vouchers_cache'].forEach(k => {
+                  let arr = JSON.parse(localStorage.getItem(k) || '[]');
+                  if (!Array.isArray(arr)) arr = [];
+                  const exIdx = arr.findIndex(x => x && (String(x.id) === String(savedId) || String(x.voucherNo) === String(savedId)));
+                  if (exIdx > -1) arr[exIdx] = spItem;
+                  else arr.push(spItem);
+                  localStorage.setItem(k, JSON.stringify(arr));
+                });
               } catch(e) {}
 
               if (isAutoSendEnabled) {
@@ -11411,19 +11575,30 @@ $currenciesData = [
             attachment: currentReceiptAttachment || null,
             date: voucherPayload.date,
             rate: voucherPayload.rate,
+            exchangeRate: voucherPayload.rate,
             currency: voucherPayload.currency,
             costCenter: voucherPayload.costCenter,
             sdg: sdg,
+            amountLocal: sdg,
             usd: usd,
             foreignAmt: usd,
+            amountForeign: usd,
             payType: currentPayType,
+            paymentMethod: currentPayType,
             from: voucherPayload.fromAccountName,
             fromName: voucherPayload.fromAccountName,
+            fromAccountName: voucherPayload.fromAccountName,
             to: voucherPayload.toAccountName,
             toName: voucherPayload.toAccountName,
+            toAccountName: voucherPayload.toAccountName,
             refNo: transferVal,
+            mobileTransferNo: transferVal,
             bankName: bankVal,
+            bank: bankVal,
             notes: voucherPayload.notes,
+            toStatement: voucherPayload.notes,
+            fromStatement: voucherPayload.notes,
+            bankTransfers: voucherPayload.bankTransfers,
             voucherNature: localNatureInfo.code,
             voucherNatureLabel: localNatureInfo.label
           };
@@ -11441,6 +11616,15 @@ $currenciesData = [
 
           try {
             localStorage.setItem('magaiees_vouchers_history', JSON.stringify(vouchersList));
+            const getTenantKey = window.getTenantKey || ((k) => k);
+            [getTenantKey('erp_single_payments_v1'), 'magaies_vouchers_cache'].forEach(k => {
+              let arr = JSON.parse(localStorage.getItem(k) || '[]');
+              if (!Array.isArray(arr)) arr = [];
+              const exIdx = arr.findIndex(x => x && (String(x.id) === String(savedId) || String(x.voucherNo) === String(savedId)));
+              if (exIdx > -1) arr[exIdx] = newVoucher;
+              else arr.push(newVoucher);
+              localStorage.setItem(k, JSON.stringify(arr));
+            });
           } catch(e) {}
 
           showProfessionalSuccess(savedId, fromAccountName, toAccountName, sdg || usd, currentCurrency || 'SDG', isEditing ? 'تم التعديل محلياً' : 'تم الحفظ محلياً', newVoucher);
@@ -11665,25 +11849,35 @@ $currenciesData = [
       if (!v || typeof v !== 'object') return;
       const vid = String(v.id || v.voucherNo || v.paymentNo || v.receiptNo || '').trim();
       if (!vid) return;
+      const firstTr = (Array.isArray(v.bankTransfers) && v.bankTransfers[0]) ? v.bankTransfers[0] : {};
+      const firstCh = (Array.isArray(v.cheques) && v.cheques[0]) ? v.cheques[0] : {};
+      const rateVal = parseFloat(v.rate ?? v.exchangeRate) || parseFloat(window.SYSTEM_USD_RATE) || 5999;
+      let sdgVal = parseFloat(v.sdg ?? v.amountLocal ?? v.amount ?? v.totalAmount ?? firstTr.amount ?? firstCh.amount ?? 0) || 0;
+      let usdVal = parseFloat(v.usd ?? v.foreignAmt ?? v.amountForeign ?? 0) || 0;
+      if (usdVal <= 0 && sdgVal > 0 && rateVal > 0) {
+        usdVal = parseFloat((sdgVal / rateVal).toFixed(2));
+      } else if (sdgVal <= 0 && usdVal > 0 && rateVal > 0) {
+        sdgVal = parseFloat((usdVal * rateVal).toFixed(2));
+      }
       const normalized = {
         id: vid,
         voucherNo: v.voucherNo || vid,
         isOffline: Boolean(v.isOffline || isOff),
         date: String(v.date || v.createdAt || v.savedAt || new Date().toISOString()).slice(0, 10),
-        rate: parseFloat(v.rate ?? v.exchangeRate) || parseFloat(window.SYSTEM_USD_RATE) || 5999,
+        rate: rateVal,
         currency: v.currency || 'SDG',
         costCenter: v.costCenter || v.jobId || '',
-        sdg: parseFloat(v.sdg ?? v.amountLocal ?? v.amount ?? v.totalAmount ?? 0) || 0,
-        usd: parseFloat(v.usd ?? v.foreignAmt ?? v.amountForeign ?? 0) || 0,
-        foreignAmt: parseFloat(v.foreignAmt ?? v.usd ?? v.amountForeign ?? 0) || 0,
+        sdg: sdgVal,
+        usd: usdVal,
+        foreignAmt: usdVal,
         payType: v.payType || v.paymentMethod || v.method || 'transfer',
         from: v.from || v.fromName || v.fromAccountName || v.fromAccount || '',
         fromName: v.fromName || v.fromAccountName || v.from || v.fromAccount || '',
         to: v.to || v.toName || v.toAccountName || v.toAccount || v.beneficiaryName || '',
         toName: v.toName || v.toAccountName || v.to || v.toAccount || v.beneficiaryName || '',
-        refNo: v.refNo ?? v.mobileTransferNo ?? v.transferRef ?? v.checkNo ?? '',
-        bankName: v.bankName ?? v.bank ?? '',
-        notes: v.notes ?? v.toStatement ?? v.fromStatement ?? v.statement ?? v.description ?? '',
+        refNo: v.refNo ?? v.mobileTransferNo ?? v.transferNo ?? v.transferRef ?? v.checkNo ?? firstTr.transferNo ?? firstCh.checkNo ?? '',
+        bankName: v.bankName ?? v.bank ?? v.mobileNote ?? firstTr.bankName ?? firstTr.note ?? firstCh.checkBranch ?? '',
+        notes: v.notes ?? v.toStatement ?? v.fromStatement ?? v.statement ?? v.description ?? firstTr.statement ?? '',
         attachment: v.attachment || null,
         linkedInvoiceNo: v.linkedInvoiceNo || '',
         voucherNature: v.voucherNature || '',
@@ -11693,7 +11887,18 @@ $currenciesData = [
       if (!mergedVouchersMap.has(vid)) {
         mergedVouchersMap.set(vid, normalized);
       } else {
-        mergedVouchersMap.set(vid, Object.assign({}, normalized, mergedVouchersMap.get(vid)));
+        const prev = mergedVouchersMap.get(vid);
+        const combined = Object.assign({}, prev);
+        Object.keys(normalized).forEach(k => {
+          const val = normalized[k];
+          if (val !== undefined && val !== null && val !== '' && val !== 0) {
+            combined[k] = val;
+          } else if (combined[k] === undefined || combined[k] === null || combined[k] === '') {
+            combined[k] = val;
+          }
+        });
+        if (!normalized.isOffline) combined.isOffline = false;
+        mergedVouchersMap.set(vid, combined);
       }
     };
 
@@ -11703,6 +11908,10 @@ $currenciesData = [
     try {
       const cachedH = JSON.parse(localStorage.getItem('magaiees_vouchers_history') || '[]');
       if (Array.isArray(cachedH)) cachedH.forEach(v => normalizeAndAddVoucher(v, false));
+    } catch (e) {}
+    try {
+      const cachedM = JSON.parse(localStorage.getItem('magaies_vouchers_cache') || '[]');
+      if (Array.isArray(cachedM)) cachedM.forEach(v => normalizeAndAddVoucher(v, Boolean(v && v.isOffline)));
     } catch (e) {}
     try {
       const desktopV = JSON.parse(localStorage.getItem('erp_single_payments_v1') || '[]');
@@ -11717,6 +11926,12 @@ $currenciesData = [
         if (Array.isArray(offlineQueue)) {
           offlineQueue.forEach(v => normalizeAndAddVoucher(v, true));
         }
+      }
+      if (window.MagaiesOffline && typeof window.MagaiesOffline.getQueue === 'function') {
+        const uniQ = window.MagaiesOffline.getQueue() || [];
+        uniQ.filter(q => q && q.type === 'finance' && q.payload).forEach(q => {
+          normalizeAndAddVoucher(q.payload, true);
+        });
       }
     } catch(e) {}
 
@@ -11738,7 +11953,7 @@ $currenciesData = [
       return _autoFitCanvasCtx.measureText(String(text)).width;
     }
 
-    // 1. تحجيم رقم السند باللون الأصفر أعلى القائمة (المقاس المعتمد أكبر بدرجة: 16px، يزيد للقصير ويصغر للطويل بدون مضايقة الأسهم)
+    // 1. تحجيم رقم السند باللون الأصفر أعلى القائمة (مقاس كبير واضح 22px-24px يظهر كاملاً ويصغر تلقائياً إذا كان الرقم طويلاً بدون مضايقة الأسهم)
     function fitVoucherDisplaySize() {
       const dispEl = document.getElementById('currentVoucherDisplay');
       const wrapEl = document.getElementById('voucherDisplayWrapper') || (dispEl ? dispEl.parentElement : null);
@@ -11747,10 +11962,9 @@ $currenciesData = [
       if (!text) return;
 
       const len = text.length;
-      // إذا كان الرقم قصيراً (6 خانات أو أقل) يمكن أن يزيد إلى 17.5px، والمقاس المعتمد للقياسي (7-9 خانات مثل E26100525) هو 16px
-      let startSize = (len <= 6) ? 17.5 : 16.0;
+      let startSize = (len <= 6) ? 24.0 : 22.0;
       const minSize = 9.5;
-      const availWidth = Math.max(60, (wrapEl.clientWidth || 110) - 8);
+      const availWidth = Math.max(60, (wrapEl.clientWidth || 115) - 6);
       const fontFam = "'JetBrains Mono', 'Montserrat', monospace";
 
       let chosenSize = startSize;
@@ -11942,7 +12156,7 @@ $currenciesData = [
 
     // تسجيل Service Worker لفتح الشاشة فوراً (0ms) عند انقطاع الإنترنت
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('./sw.js?v=2026_10_16_offline_v18', { scope: './', updateViaCache: 'none' }).catch(() => {});
+      navigator.serviceWorker.register('./sw.js?v=2026_10_16_offline_v19', { scope: './', updateViaCache: 'none' }).catch(() => {});
     }
 
     // إذا فُتحت الصفحة من الكاش المحلي أو هناك سندات أوفلاين معلقة، نتحقق ونرفع فوراً

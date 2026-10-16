@@ -795,6 +795,198 @@ function applyInvoiceEffectsInDB($pdo, $tenantId, $docType, &$data, $oldData = n
     }
 }
 
+/**
+ * توحيد واستكمال كافة حقول السند المالي (حركة مالية) لضمان عدم ضياع أي بيان بين الأوفلاين والأونلاين والجوال وسطح المكتب
+ */
+function normalizeVoucherRecord(array $d, string $fallbackId = ''): array {
+    $vNo = trim((string)($d['voucherNo'] ?? ($d['id'] ?? $fallbackId)));
+    if ($vNo !== '') {
+        $d['voucherNo'] = $vNo;
+        $d['id'] = $vNo;
+    }
+    $rawDate = trim((string)($d['date'] ?? ($d['createdAt'] ?? ($d['savedAt'] ?? date('Y-m-d')))));
+    $d['date'] = substr($rawDate, 0, 10) ?: date('Y-m-d');
+
+    $rate = (float)($d['rate'] ?? ($d['exchangeRate'] ?? ($d['usdRate'] ?? 5999)));
+    if ($rate <= 0) $rate = 5999.0;
+
+    $sdg = (float)($d['sdg'] ?? ($d['amountLocal'] ?? ($d['amountSdg'] ?? ($d['amount'] ?? ($d['totalAmount'] ?? 0)))));
+    $usd = (float)($d['usd'] ?? ($d['amountForeign'] ?? ($d['amountUsd'] ?? ($d['foreignAmt'] ?? 0))));
+    if ($usd <= 0 && $sdg > 0 && $rate > 0) {
+        $usd = round($sdg / $rate, 2);
+    } elseif ($sdg <= 0 && $usd > 0 && $rate > 0) {
+        $sdg = round($usd * $rate, 2);
+    }
+
+    $fromName = trim((string)($d['fromAccountName'] ?? ($d['fromName'] ?? ($d['from'] ?? ($d['fromAccount'] ?? '')))));
+    $toName   = trim((string)($d['toAccountName'] ?? ($d['toName'] ?? ($d['to'] ?? ($d['toAccount'] ?? ($d['beneficiaryName'] ?? ''))))));
+    $fromAcc  = trim((string)($d['fromAccount'] ?? $fromName));
+    $toAcc    = trim((string)($d['toAccount'] ?? $toName));
+
+    $transfers = (isset($d['bankTransfers']) && is_array($d['bankTransfers'])) ? $d['bankTransfers'] : [];
+    $firstTr   = (!empty($transfers[0]) && is_array($transfers[0])) ? $transfers[0] : [];
+
+    $refNo = trim((string)($d['refNo'] ?? ($d['mobileTransferNo'] ?? ($d['transferNo'] ?? ($d['transferRef'] ?? ($firstTr['transferNo'] ?? ($d['checkNo'] ?? '')))))));
+    $bankName = trim((string)($d['bankName'] ?? ($d['bank'] ?? ($d['mobileNote'] ?? ($firstTr['note'] ?? ($firstTr['bankName'] ?? ''))))));
+    $notes = trim((string)($d['notes'] ?? ($d['toStatement'] ?? ($d['fromStatement'] ?? ($d['statement'] ?? ($d['description'] ?? ($firstTr['statement'] ?? '')))))));
+
+    $payMethod = trim((string)($d['paymentMethod'] ?? ($d['payType'] ?? ($d['method'] ?? (($refNo !== '' || $bankName !== '') ? 'mobile' : 'cash')))));
+    if ($payMethod === '') $payMethod = ($refNo !== '' || $bankName !== '') ? 'mobile' : 'cash';
+
+    if (empty($transfers) && ($refNo !== '' || $bankName !== '' || $payMethod === 'mobile' || $payMethod === 'transfer')) {
+        $transfers = [[
+            'id' => 1,
+            'transferNo' => $refNo,
+            'note' => $bankName,
+            'bankName' => $bankName,
+            'amount' => $sdg,
+            'statement' => $notes
+        ]];
+    } elseif (!empty($transfers)) {
+        if ($refNo === '' && !empty($transfers[0]['transferNo'])) $refNo = trim((string)$transfers[0]['transferNo']);
+        if ($bankName === '' && !empty($transfers[0]['note'])) $bankName = trim((string)$transfers[0]['note']);
+        if ($notes === '' && !empty($transfers[0]['statement'])) $notes = trim((string)$transfers[0]['statement']);
+    }
+
+    $d['rate'] = $rate;
+    $d['exchangeRate'] = $rate;
+    $d['currency'] = $d['currency'] ?? 'SDG';
+    $d['costCenter'] = $d['costCenter'] ?? ($d['jobId'] ?? 'المركز الرئيسي');
+    $d['sdg'] = $sdg;
+    $d['amountLocal'] = $sdg;
+    $d['amountSdg'] = $sdg;
+    $d['amount'] = $sdg;
+    $d['usd'] = $usd;
+    $d['amountForeign'] = $usd;
+    $d['amountUsd'] = $usd;
+    $d['foreignAmt'] = $usd;
+    $d['fromAccount'] = $fromAcc;
+    $d['fromAccountName'] = $fromName !== '' ? $fromName : $fromAcc;
+    $d['from'] = $d['fromAccountName'];
+    $d['fromName'] = $d['fromAccountName'];
+    $d['toAccount'] = $toAcc;
+    $d['toAccountName'] = $toName !== '' ? $toName : $toAcc;
+    $d['to'] = $d['toAccountName'];
+    $d['toName'] = $d['toAccountName'];
+    $d['refNo'] = $refNo;
+    $d['mobileTransferNo'] = $refNo;
+    $d['transferNo'] = $refNo;
+    $d['bankName'] = $bankName;
+    $d['bank'] = $bankName;
+    $d['mobileNote'] = $bankName;
+    $d['notes'] = $notes;
+    $d['toStatement'] = !empty($d['toStatement']) ? $d['toStatement'] : $notes;
+    $d['fromStatement'] = !empty($d['fromStatement']) ? $d['fromStatement'] : $notes;
+    $d['statement'] = $notes;
+    $d['description'] = $notes;
+    $d['paymentMethod'] = $payMethod;
+    $d['payType'] = ($payMethod === 'mobile') ? 'transfer' : $payMethod;
+    $d['bankTransfers'] = $transfers;
+    if (!isset($d['cheques']) || !is_array($d['cheques'])) $d['cheques'] = [];
+
+    return $d;
+}
+
+/**
+ * توحيد واستكمال كافة حقول فاتورة المبيعات أو المشتريات وأصنافها ووحداتها ومستودعاتها وملاحظاتها
+ */
+function normalizeInvoiceRecord(array $d, string $docKind = 'sales', string $fallbackId = ''): array {
+    $invNo = trim((string)($d['invoiceNo'] ?? ($d['id'] ?? $fallbackId)));
+    if ($invNo !== '') {
+        $d['invoiceNo'] = $invNo;
+        $d['id'] = $invNo;
+    }
+    $rawDate = trim((string)($d['date'] ?? ($d['createdAt'] ?? ($d['savedAt'] ?? date('Y-m-d')))));
+    $d['date'] = substr($rawDate, 0, 10) ?: date('Y-m-d');
+
+    $items = (isset($d['items']) && is_array($d['items'])) ? $d['items'] : [];
+    $firstItem = (!empty($items[0]) && is_array($items[0])) ? $items[0] : [];
+
+    $warehouse = trim((string)($d['warehouse'] ?? ($d['warehouseName'] ?? ($firstItem['warehouse'] ?? ($firstItem['warehouseName'] ?? 'المخزن الرئيسي')))));
+    if ($warehouse === '') $warehouse = 'المخزن الرئيسي';
+    $d['warehouse'] = $warehouse;
+    $d['warehouseName'] = $warehouse;
+    $d['costCenter'] = $d['costCenter'] ?? ($d['costCenterName'] ?? 'المركز الرئيسي');
+
+    $generalNotes = trim((string)($d['notes'] ?? ($d['note'] ?? ($d['generalNote'] ?? ($firstItem['notes'] ?? ($firstItem['note'] ?? ''))))));
+    $d['notes'] = $generalNotes;
+    $d['note'] = $generalNotes;
+
+    if ($docKind === 'purchase') {
+        $party = trim((string)($d['supplierName'] ?? ($d['supplier'] ?? ($d['supplier_name'] ?? ($d['customerName'] ?? ($d['supplierId'] ?? 'مورد نقدي'))))));
+        if ($party === '') $party = 'مورد نقدي';
+        $d['supplierName'] = $party;
+        $d['supplier'] = $party;
+        $d['supplierId'] = $d['supplierId'] ?? $party;
+        $d['customerName'] = $d['customerName'] ?? $party;
+    } else {
+        $party = trim((string)($d['customerName'] ?? ($d['customer'] ?? ($d['customer_name'] ?? ($d['customerId'] ?? 'عميل نقدي')))));
+        if ($party === '') $party = 'عميل نقدي';
+        $d['customerName'] = $party;
+        $d['customer'] = $party;
+        $d['customerId'] = $d['customerId'] ?? $party;
+    }
+
+    $computedSubTotal = 0.0;
+    $normalizedItems = [];
+    foreach ($items as $it) {
+        if (!is_array($it)) continue;
+        $itName = trim((string)($it['name'] ?? ($it['itemName'] ?? ($it['productName'] ?? ''))));
+        $itUnit = trim((string)($it['unit'] ?? ($it['selectedUnit'] ?? ($it['unitName'] ?? 'قطعة'))));
+        if ($itUnit === '') $itUnit = 'قطعة';
+        $itQty = (float)($it['qty'] ?? ($it['quantity'] ?? 1));
+        $itPrice = (float)($it['price'] ?? ($it['unitPrice'] ?? 0));
+        $itGross = (float)($it['grossTotal'] ?? ($it['subtotal'] ?? ($it['total'] ?? ($itQty * $itPrice))));
+        if ($itGross <= 0 && $itQty > 0 && $itPrice > 0) {
+            $itGross = round($itQty * $itPrice, 2);
+        }
+        $itWh = trim((string)($it['warehouse'] ?? ($it['warehouseName'] ?? $warehouse)));
+        $itNote = trim((string)($it['notes'] ?? ($it['note'] ?? $generalNotes)));
+
+        $it['name'] = $itName;
+        $it['itemName'] = $itName;
+        $it['unit'] = $itUnit;
+        $it['selectedUnit'] = $itUnit;
+        $it['unitName'] = $itUnit;
+        $it['qty'] = $itQty;
+        $it['quantity'] = $itQty;
+        $it['price'] = $itPrice;
+        $it['grossTotal'] = $itGross;
+        $it['subtotal'] = $itGross;
+        $it['total'] = $itGross;
+        $it['warehouse'] = $itWh;
+        $it['warehouseName'] = $itWh;
+        $it['notes'] = $itNote;
+        $it['note'] = $itNote;
+
+        $computedSubTotal += $itGross;
+        $normalizedItems[] = $it;
+    }
+    $d['items'] = $normalizedItems;
+
+    $subTotal = (float)($d['subTotal'] ?? ($d['subtotal'] ?? $computedSubTotal));
+    if ($subTotal <= 0 && $computedSubTotal > 0) $subTotal = $computedSubTotal;
+    $discount = (float)($d['discount'] ?? 0);
+    $tax = (float)($d['tax'] ?? ($d['taxAmount'] ?? 0));
+    $labor = (float)($d['labor'] ?? ($d['shipping'] ?? 0));
+    $grandTotal = (float)($d['grandTotal'] ?? ($d['total'] ?? ($d['netTotal'] ?? ($subTotal - $discount + $tax + $labor))));
+    if ($grandTotal <= 0 && $subTotal > 0) {
+        $grandTotal = max(0, $subTotal - $discount + $tax + $labor);
+    }
+
+    $d['subTotal'] = $subTotal;
+    $d['discount'] = $discount;
+    $d['tax'] = $tax;
+    $d['labor'] = $labor;
+    $d['grandTotal'] = $grandTotal;
+    $d['total'] = $grandTotal;
+    $d['netTotal'] = $grandTotal;
+    $d['currency'] = $d['currency'] ?? 'SDG';
+    $d['exchangeRate'] = (float)($d['exchangeRate'] ?? ($d['rate'] ?? 1.0));
+
+    return $d;
+}
+
 // ─────────────────────────────────────────────────────────────
 // MAIN DISPATCHER
 // ─────────────────────────────────────────────────────────────
@@ -947,6 +1139,7 @@ try {
             if ($idemKey !== '') $data['idempotencyKey'] = $idemKey;
             $data['updatedAt'] = date('Y-m-d H:i:s');
             if (empty($data['date'])) $data['date'] = date('Y-m-d');
+            $data = normalizeInvoiceRecord($data, 'sales', $invNo);
             $dateVal = $data['date'];
 
             $custName = $data['customerName'] ?? ($data['customer_name'] ?? 'عميل نقدي');
@@ -990,6 +1183,7 @@ try {
                 'success' => true,
                 'message' => 'تم حفظ فاتورة المبيعات في قاعدة البيانات بنجاح',
                 'invoiceNo' => $invNo,
+                'original_offline_id' => $originalOfflineId,
                 'nextInvoiceNo' => $updatedSeq['nextInvoiceNo'],
                 'record' => $data
             ], JSON_UNESCAPED_UNICODE);
@@ -1008,7 +1202,7 @@ try {
 
             $salesSeq = getSalesSequence($pdo, $tenantId);
             $invNo = trim($data['invoiceNo'] ?? ($data['id'] ?? ''));
-            if (empty($invNo) || $invNo === 'new') {
+            if (empty($invNo) || $invNo === 'new' || strpos($invNo, 'أوفلاين') !== false || strpos($invNo, 'OFF-') !== false) {
                 $invNo = $salesSeq['nextInvoiceNo'];
             }
             $data['invoiceNo'] = $invNo;
@@ -1018,6 +1212,7 @@ try {
             $data['status'] = 'split';
             $data['date'] = $data['date'] ?? date('Y-m-d');
             $data['updatedAt'] = date('Y-m-d H:i:s');
+            $data = normalizeInvoiceRecord($data, 'sales', $invNo);
 
             $custName = $data['customerName'] ?? ($data['customer_name'] ?? 'عميل تجزئة');
             $totalVal = (float)($data['grandTotal'] ?? ($data['total'] ?? ($data['netTotal'] ?? 0)));
@@ -1079,6 +1274,7 @@ try {
                     if ($rowIdem) {
                         $existRec = json_decode($rowIdem['data'], true) ?: [];
                         $existNo = $rowIdem['invoice_no'] ?: ($existRec['invoiceNo'] ?? '');
+                        $existRec = normalizeInvoiceRecord($existRec, 'purchase', $existNo);
                         $updatedSeq = getPurchaseSequence($pdo, $tenantId);
                         echo json_encode([
                             'success' => true,
@@ -1122,6 +1318,7 @@ try {
             if ($idemKey !== '') $data['idempotencyKey'] = $idemKey;
             $data['updatedAt'] = date('Y-m-d H:i:s');
             if (empty($data['date'])) $data['date'] = date('Y-m-d');
+            $data = normalizeInvoiceRecord($data, 'purchase', $purNo);
             $dateVal = $data['date'];
 
             $suppName = $data['supplierName'] ?? ($data['supplier_name'] ?? 'مورد نقدي');
@@ -1164,6 +1361,7 @@ try {
                 'success' => true,
                 'message' => 'تم حفظ فاتورة المشتريات في قاعدة البيانات بنجاح',
                 'invoiceNo' => $purNo,
+                'original_offline_id' => $originalOfflineId,
                 'nextPurchaseNo' => $updatedSeq['nextPurchaseNo'],
                 'record' => $data
             ], JSON_UNESCAPED_UNICODE);
@@ -1182,7 +1380,7 @@ try {
 
             $purSeq = getPurchaseSequence($pdo, $tenantId);
             $purNo = trim($data['invoiceNo'] ?? ($data['id'] ?? ''));
-            if (empty($purNo) || $purNo === 'new') {
+            if (empty($purNo) || $purNo === 'new' || strpos($purNo, 'أوفلاين') !== false || strpos($purNo, 'OFF-') !== false) {
                 $purNo = $purSeq['nextPurchaseNo'];
             }
             $data['invoiceNo'] = $purNo;
@@ -1192,6 +1390,7 @@ try {
             $data['status'] = 'split';
             $data['date'] = $data['date'] ?? date('Y-m-d');
             $data['updatedAt'] = date('Y-m-d H:i:s');
+            $data = normalizeInvoiceRecord($data, 'purchase', $purNo);
 
             $suppName = $data['supplierName'] ?? ($data['supplier_name'] ?? 'مورد تجزئة');
             $totalVal = (float)($data['grandTotal'] ?? ($data['total'] ?? ($data['netTotal'] ?? 0)));
@@ -1246,7 +1445,7 @@ try {
 
             $delSeq = getDeliverySequence($pdo, $tenantId);
             $delNo = trim($data['deliveryNo'] ?? ($data['id'] ?? ''));
-            if (empty($delNo) || $delNo === 'new') {
+            if (empty($delNo) || $delNo === 'new' || strpos($delNo, 'أوفلاين') !== false || strpos($delNo, 'OFF-') !== false) {
                 $delNo = $delSeq['nextDeliveryNo'];
             }
             $data['deliveryNo'] = $delNo;
@@ -1285,7 +1484,8 @@ try {
                 'success' => true,
                 'message' => 'تم تسجيل وتوثيق تسليم المبيعات وخصم المخزون بنجاح',
                 'deliveryNo' => $delNo,
-                'nextDeliveryNo' => $updatedDelSeq['nextDeliveryNo']
+                'nextDeliveryNo' => $updatedDelSeq['nextDeliveryNo'],
+                'record' => $data
             ], JSON_UNESCAPED_UNICODE);
             break;
 
@@ -1302,7 +1502,7 @@ try {
 
             $recSeq = getReceiptSequence($pdo, $tenantId);
             $recNo = trim($data['receiptNo'] ?? ($data['grnNo'] ?? ($data['id'] ?? '')));
-            if (empty($recNo) || $recNo === 'new') {
+            if (empty($recNo) || $recNo === 'new' || strpos($recNo, 'أوفلاين') !== false || strpos($recNo, 'OFF-') !== false) {
                 $recNo = $recSeq['nextReceiptNo'];
             }
             $data['receiptNo'] = $recNo;
@@ -1346,7 +1546,8 @@ try {
                 'success' => true,
                 'message' => 'تم فحص واستلام بضاعة المشتريات وإضافتها للمخزن بنجاح',
                 'receiptNo' => $recNo,
-                'nextReceiptNo' => $updatedRecSeq['nextReceiptNo']
+                'nextReceiptNo' => $updatedRecSeq['nextReceiptNo'],
+                'record' => $data
             ], JSON_UNESCAPED_UNICODE);
             break;
 
@@ -1370,6 +1571,7 @@ try {
                     if ($rowIdem) {
                         $existRec = json_decode($rowIdem['data'], true) ?: [];
                         $existNo = $existRec['voucherNo'] ?? ($existRec['id'] ?? '');
+                        $existRec = normalizeVoucherRecord($existRec, $existNo);
                         $updatedFinSeq = getFinanceSequence($pdo, $tenantId);
                         echo json_encode([
                             'success' => true,
@@ -1415,6 +1617,9 @@ try {
             if ($idemKey !== '') $data['idempotencyKey'] = $idemKey;
             $data['updatedAt'] = date('Y-m-d H:i:s');
             if (empty($data['date'])) $data['date'] = date('Y-m-d');
+            $data = normalizeVoucherRecord($data, $vNo);
+            $data['isOffline'] = false;
+            $data['synced'] = true;
             applyInvoiceEffectsInDB($pdo, $tenantId, 'finance', $data, $oldData);
             $jsonRecord = json_encode($data, JSON_UNESCAPED_UNICODE);
 
@@ -1471,24 +1676,26 @@ try {
 
                 $payload = $item['payload'] ?? ($item['data'] ?? []);
                 if (!is_array($payload)) $payload = [];
-                $offlineId = $item['offline_id'] ?? ($payload['offline_id'] ?? ($payload['invoiceNo'] ?? ($payload['voucherNo'] ?? ($payload['id'] ?? ''))));
+                $offlineId = $item['offline_id'] ?? ($item['tempId'] ?? ($payload['offline_id'] ?? ($payload['invoiceNo'] ?? ($payload['voucherNo'] ?? ($payload['id'] ?? '')))));
                 $idemKey = trim((string)($item['idempotency_key'] ?? ($payload['idempotencyKey'] ?? ($item['id'] ?? ''))));
                 $realId = '';
 
                 // Idempotency Check: prevent duplicate numbering if connection dropped right after sync
                 if ($idemKey !== '') {
                     try {
-                        $stmtIdem = $pdo->prepare("SELECT record_id FROM sync_queue WHERE id = ? AND status = 'SYNCED' LIMIT 1");
+                        $stmtIdem = $pdo->prepare("SELECT record_id, payload FROM sync_queue WHERE id = ? AND status = 'SYNCED' LIMIT 1");
                         $stmtIdem->execute([$idemKey]);
-                        $existingRealId = $stmtIdem->fetchColumn();
-                        if (!empty($existingRealId)) {
+                        $rowIdem = $stmtIdem->fetch(PDO::FETCH_ASSOC);
+                        if ($rowIdem && !empty($rowIdem['record_id'])) {
+                            $existingPayload = !empty($rowIdem['payload']) ? (json_decode($rowIdem['payload'], true) ?: $payload) : $payload;
                             $syncedResults[] = [
                                 'type' => $type,
                                 'offline_id' => $offlineId,
-                                'real_id' => $existingRealId,
+                                'real_id' => $rowIdem['record_id'],
                                 'status' => 'synced',
                                 'idempotent_hit' => true,
-                                'synced_at' => date('Y-m-d H:i:s')
+                                'synced_at' => date('Y-m-d H:i:s'),
+                                'record' => $existingPayload
                             ];
                             continue;
                         }
@@ -1502,9 +1709,9 @@ try {
                     $payload['id'] = $realId;
                     $payload['offline_id'] = $offlineId;
                     $payload['synced_at'] = date('Y-m-d H:i:s');
-                    $payload['customerId'] = $payload['customerId'] ?? ($payload['customerName'] ?? 'عميل');
-                    $payload['date'] = $payload['date'] ?? date('Y-m-d');
-                    $payload['netTotal'] = (float)($payload['grandTotal'] ?? ($payload['total'] ?? ($payload['netTotal'] ?? 0)));
+                    $payload['isOffline'] = false;
+                    $payload['synced'] = true;
+                    $payload = normalizeInvoiceRecord($payload, 'sales', $realId);
                     $payload['status'] = $payload['status'] ?? 'completed';
                     $payload['deleted'] = 0;
                     applyInvoiceEffectsInDB($pdo, $tenantId, 'sales', $payload, null);
@@ -1519,9 +1726,9 @@ try {
                     $payload['offline_id'] = $offlineId;
                     $payload['isSplit'] = true;
                     $payload['synced_at'] = date('Y-m-d H:i:s');
-                    $payload['customerId'] = $payload['customerId'] ?? ($payload['customerName'] ?? 'عميل');
-                    $payload['date'] = $payload['date'] ?? date('Y-m-d');
-                    $payload['netTotal'] = (float)($payload['grandTotal'] ?? ($payload['total'] ?? ($payload['netTotal'] ?? 0)));
+                    $payload['isOffline'] = false;
+                    $payload['synced'] = true;
+                    $payload = normalizeInvoiceRecord($payload, 'sales', $realId);
                     $payload['status'] = 'split';
                     $payload['deleted'] = 0;
                     applyInvoiceEffectsInDB($pdo, $tenantId, 'sales_split', $payload, null);
@@ -1535,9 +1742,9 @@ try {
                     $payload['id'] = $realId;
                     $payload['offline_id'] = $offlineId;
                     $payload['synced_at'] = date('Y-m-d H:i:s');
-                    $payload['supplierId'] = $payload['supplierId'] ?? ($payload['supplierName'] ?? 'مورد');
-                    $payload['date'] = $payload['date'] ?? date('Y-m-d');
-                    $payload['netTotal'] = (float)($payload['grandTotal'] ?? ($payload['total'] ?? ($payload['netTotal'] ?? 0)));
+                    $payload['isOffline'] = false;
+                    $payload['synced'] = true;
+                    $payload = normalizeInvoiceRecord($payload, 'purchase', $realId);
                     $payload['status'] = $payload['status'] ?? 'completed';
                     $payload['deleted'] = 0;
                     applyInvoiceEffectsInDB($pdo, $tenantId, 'purchase', $payload, null);
@@ -1553,9 +1760,9 @@ try {
                     $payload['isSplit'] = true;
                     $payload['purchaseType'] = 'split';
                     $payload['synced_at'] = date('Y-m-d H:i:s');
-                    $payload['supplierId'] = $payload['supplierId'] ?? ($payload['supplierName'] ?? 'مورد');
-                    $payload['date'] = $payload['date'] ?? date('Y-m-d');
-                    $payload['netTotal'] = (float)($payload['grandTotal'] ?? ($payload['total'] ?? ($payload['netTotal'] ?? 0)));
+                    $payload['isOffline'] = false;
+                    $payload['synced'] = true;
+                    $payload = normalizeInvoiceRecord($payload, 'purchase', $realId);
                     $payload['status'] = 'split';
                     $payload['deleted'] = 0;
                     applyInvoiceEffectsInDB($pdo, $tenantId, 'purchase_split', $payload, null);
@@ -1569,6 +1776,8 @@ try {
                     $payload['id'] = $realId;
                     $payload['offline_id'] = $offlineId;
                     $payload['synced_at'] = date('Y-m-d H:i:s');
+                    $payload['isOffline'] = false;
+                    $payload['synced'] = true;
                     $payload['deleted'] = 0;
                     $json = json_encode($payload, JSON_UNESCAPED_UNICODE);
                     $stmt = $pdo->prepare("INSERT INTO delivery_notes (tenant_id, data, created_at, updated_at) VALUES (?, ?, NOW(), NOW())");
@@ -1579,7 +1788,11 @@ try {
                     $payload['receiptNo'] = $realId;
                     $payload['id'] = $realId;
                     $payload['offline_id'] = $offlineId;
+                    $payload['isGRN'] = true;
+                    $payload['type'] = 'purchase_receipt';
                     $payload['synced_at'] = date('Y-m-d H:i:s');
+                    $payload['isOffline'] = false;
+                    $payload['synced'] = true;
                     $payload['supplierId'] = $payload['supplierId'] ?? ($payload['supplierName'] ?? 'مورد');
                     $payload['date'] = $payload['date'] ?? date('Y-m-d');
                     $payload['netTotal'] = 0;
@@ -1597,6 +1810,9 @@ try {
                     $payload['id'] = $realId;
                     $payload['offline_id'] = $offlineId;
                     $payload['synced_at'] = date('Y-m-d H:i:s');
+                    $payload['isOffline'] = false;
+                    $payload['synced'] = true;
+                    $payload = normalizeVoucherRecord($payload, $realId);
                     applyInvoiceEffectsInDB($pdo, $tenantId, 'finance', $payload, null);
                     $json = json_encode($payload, JSON_UNESCAPED_UNICODE);
                     if (!empty($payload['isGrouped'])) {
@@ -1614,6 +1830,8 @@ try {
                     $payload['id'] = $realId;
                     $payload['offline_id'] = $offlineId;
                     $payload['synced_at'] = date('Y-m-d H:i:s');
+                    $payload['isOffline'] = false;
+                    $payload['synced'] = true;
                     $payload['deleted'] = 0;
                     applyInvoiceEffectsInDB($pdo, $tenantId, 'journal_entry', $payload, null);
                     $json = json_encode($payload, JSON_UNESCAPED_UNICODE);
@@ -1631,6 +1849,8 @@ try {
                     $payload['id'] = $realId;
                     $payload['offline_id'] = $offlineId;
                     $payload['synced_at'] = date('Y-m-d H:i:s');
+                    $payload['isOffline'] = false;
+                    $payload['synced'] = true;
                     $payload['deleted'] = 0;
                     applyInvoiceEffectsInDB($pdo, $tenantId, 'stock_adjustment', $payload, null);
                     $json = json_encode($payload, JSON_UNESCAPED_UNICODE);
@@ -1643,6 +1863,8 @@ try {
                     $payload['id'] = $realId;
                     $payload['offline_id'] = $offlineId;
                     $payload['synced_at'] = date('Y-m-d H:i:s');
+                    $payload['isOffline'] = false;
+                    $payload['synced'] = true;
                     $payload['deleted'] = 0;
                     applyInvoiceEffectsInDB($pdo, $tenantId, 'warehouse_transfer', $payload, null);
                     $json = json_encode($payload, JSON_UNESCAPED_UNICODE);
@@ -1662,7 +1884,8 @@ try {
                     'offline_id' => $offlineId,
                     'real_id' => $realId,
                     'status' => 'synced',
-                    'synced_at' => date('Y-m-d H:i:s')
+                    'synced_at' => date('Y-m-d H:i:s'),
+                    'record' => $payload
                 ];
             }
 
@@ -1845,18 +2068,22 @@ try {
         // 7. GET RECENT TRANSACTIONS FOR MIRROR SYNC ON DEVICES
         // ═════════════════════════════════════════════════════════
         case 'get_recent_sales':
-            $stmt = $pdo->prepare("SELECT id, invoice_no, total_val, customer_id_val, date_val, status_val, data, created_at FROM sales_invoices WHERE (tenant_id = ? OR tenant_id IS NULL) AND (is_deleted = 0 OR is_deleted IS NULL) ORDER BY id DESC LIMIT 50");
-            $stmt->execute([$tenantId]);
+            try {
+                $stmt = $pdo->prepare("SELECT id, invoice_no, data, created_at FROM sales_invoices WHERE (tenant_id = ? OR tenant_id IS NULL) AND (is_deleted = 0 OR is_deleted IS NULL) ORDER BY id DESC LIMIT 60");
+                $stmt->execute([$tenantId]);
+            } catch (Throwable $e) {
+                $stmt = $pdo->prepare("SELECT id, data, created_at FROM sales_invoices WHERE (tenant_id = ? OR tenant_id IS NULL) ORDER BY id DESC LIMIT 60");
+                $stmt->execute([$tenantId]);
+            }
             $list = [];
             while ($r = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                $d = json_decode($r['data'], true) ?: [];
-                $invNo = $r['invoice_no'] ?: ($d['invoiceNo'] ?? ('S-' . $r['id']));
-                $d['invoiceNo'] = $invNo;
-                $d['id'] = $invNo;
-                $d['customerName'] = $r['customer_id_val'] ?: ($d['customerName'] ?? ($d['customer_name'] ?? 'عميل نقدي'));
-                $d['total'] = (float)($r['total_val'] ?? ($d['grandTotal'] ?? ($d['total'] ?? 0)));
-                $d['grandTotal'] = $d['total'];
-                $d['date'] = $r['date_val'] ?: ($d['date'] ?? date('Y-m-d', strtotime($r['created_at'])));
+                $d = json_decode($r['data'] ?? '', true) ?: [];
+                if (!empty($d['deleted'])) continue;
+                $invNo = ($r['invoice_no'] ?? '') ?: ($d['invoiceNo'] ?? ($d['id'] ?? ('S-' . $r['id'])));
+                if (empty($d['date']) && !empty($r['created_at'])) {
+                    $d['date'] = date('Y-m-d', strtotime($r['created_at']));
+                }
+                $d = normalizeInvoiceRecord($d, 'sales', (string)$invNo);
                 $list[] = $d;
             }
             $salesSeq = getSalesSequence($pdo, $tenantId);
@@ -1864,33 +2091,52 @@ try {
             break;
 
         case 'get_recent_purchases':
-            $stmt = $pdo->prepare("SELECT id, invoice_no, total_val, supplier_id_val, date_val, status_val, data, created_at FROM purchase_invoices WHERE (tenant_id = ? OR tenant_id IS NULL) AND (is_deleted = 0 OR is_deleted IS NULL) ORDER BY id DESC LIMIT 50");
-            $stmt->execute([$tenantId]);
+            try {
+                $stmt = $pdo->prepare("SELECT id, invoice_no, data, created_at FROM purchase_invoices WHERE (tenant_id = ? OR tenant_id IS NULL) AND (is_deleted = 0 OR is_deleted IS NULL) ORDER BY id DESC LIMIT 60");
+                $stmt->execute([$tenantId]);
+            } catch (Throwable $e) {
+                $stmt = $pdo->prepare("SELECT id, data, created_at FROM purchase_invoices WHERE (tenant_id = ? OR tenant_id IS NULL) ORDER BY id DESC LIMIT 60");
+                $stmt->execute([$tenantId]);
+            }
             $list = [];
+            $receipts = [];
             while ($r = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                $d = json_decode($r['data'], true) ?: [];
-                $purNo = $r['invoice_no'] ?: ($d['invoiceNo'] ?? ('P-' . $r['id']));
-                $d['invoiceNo'] = $purNo;
-                $d['id'] = $purNo;
-                $d['supplierName'] = $r['supplier_id_val'] ?: ($d['supplierName'] ?? ($d['supplier_name'] ?? 'مورد نقدي'));
-                $d['total'] = (float)($r['total_val'] ?? ($d['grandTotal'] ?? 0));
-                $d['grandTotal'] = $d['total'];
-                $d['date'] = $r['date_val'] ?: ($d['date'] ?? date('Y-m-d', strtotime($r['created_at'])));
+                $d = json_decode($r['data'] ?? '', true) ?: [];
+                if (!empty($d['deleted'])) continue;
+                $purNo = ($r['invoice_no'] ?? '') ?: ($d['invoiceNo'] ?? ($d['receiptNo'] ?? ($d['id'] ?? ('P-' . $r['id']))));
+                if (!empty($d['isGRN']) || ($d['type'] ?? '') === 'purchase_receipt' || strpos((string)$purNo, 'REC-') === 0) {
+                    $d['receiptNo'] = $d['receiptNo'] ?? $purNo;
+                    $d['id'] = $d['receiptNo'];
+                    $receipts[] = $d;
+                    continue;
+                }
+                if (empty($d['date']) && !empty($r['created_at'])) {
+                    $d['date'] = date('Y-m-d', strtotime($r['created_at']));
+                }
+                $d = normalizeInvoiceRecord($d, 'purchase', (string)$purNo);
                 $list[] = $d;
             }
             $purSeq = getPurchaseSequence($pdo, $tenantId);
-            echo json_encode(['success' => true, 'purchases' => $list, 'nextPurchaseNo' => $purSeq['nextPurchaseNo']], JSON_UNESCAPED_UNICODE);
+            echo json_encode(['success' => true, 'purchases' => $list, 'receipts' => $receipts, 'nextPurchaseNo' => $purSeq['nextPurchaseNo']], JSON_UNESCAPED_UNICODE);
             break;
 
         case 'get_recent_vouchers':
-            $stmt = $pdo->prepare("SELECT id, data, date_val, created_at FROM single_payments WHERE (tenant_id = ? OR tenant_id IS NULL) AND (is_deleted = 0 OR is_deleted IS NULL) ORDER BY id DESC LIMIT 50");
-            $stmt->execute([$tenantId]);
+            try {
+                $stmt = $pdo->prepare("SELECT id, data, created_at FROM single_payments WHERE (tenant_id = ? OR tenant_id IS NULL) AND (is_deleted = 0 OR is_deleted IS NULL) ORDER BY id DESC LIMIT 60");
+                $stmt->execute([$tenantId]);
+            } catch (Throwable $e) {
+                $stmt = $pdo->prepare("SELECT id, data, created_at FROM single_payments WHERE (tenant_id = ? OR tenant_id IS NULL) ORDER BY id DESC LIMIT 60");
+                $stmt->execute([$tenantId]);
+            }
             $list = [];
             while ($r = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                $d = json_decode($r['data'], true) ?: [];
+                $d = json_decode($r['data'] ?? '', true) ?: [];
+                if (!empty($d['deleted'])) continue;
                 $vNo = $d['voucherNo'] ?? ($d['id'] ?? ('E-' . $r['id']));
-                $d['voucherNo'] = $vNo;
-                $d['id'] = $vNo;
+                if (empty($d['date']) && !empty($r['created_at'])) {
+                    $d['date'] = date('Y-m-d', strtotime($r['created_at']));
+                }
+                $d = normalizeVoucherRecord($d, (string)$vNo);
                 $list[] = $d;
             }
             $finSeq = getFinanceSequence($pdo, $tenantId);

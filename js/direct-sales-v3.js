@@ -162,9 +162,21 @@ function getSortedSalesInvoices() {
         const no = String(inv.invoiceNo || inv.id || '').trim();
         if (!no || no === 'preliminary' || no.startsWith('PRE-')) return;
         if (!mergedMap.has(no)) {
-            mergedMap.set(no, Object.assign({ invoiceNo: no }, inv));
+            mergedMap.set(no, Object.assign({ invoiceNo: no, id: no }, inv));
         } else {
-            mergedMap.set(no, Object.assign({}, inv, mergedMap.get(no), { invoiceNo: no }));
+            const prev = mergedMap.get(no);
+            const combined = Object.assign({}, prev);
+            Object.keys(inv).forEach(k => {
+                const val = inv[k];
+                if (Array.isArray(val)) {
+                    if (val.length > 0) combined[k] = val;
+                } else if (val !== undefined && val !== null && val !== '') {
+                    combined[k] = val;
+                }
+            });
+            combined.invoiceNo = no;
+            combined.id = no;
+            mergedMap.set(no, combined);
         }
     };
 
@@ -174,7 +186,8 @@ function getSortedSalesInvoices() {
         if (window.MagaiesOffline && typeof MagaiesOffline.getQueue === 'function') {
             MagaiesOffline.getQueue().forEach(q => {
                 if ((q.type === 'sales' || q.type === 'sales_split') && q.payload) {
-                    addInv(Object.assign({ invoiceNo: q.tempId }, q.payload));
+                    const qNo = q.offline_id || q.tempId || q.payload.invoiceNo || q.payload.id;
+                    addInv(Object.assign({ invoiceNo: qNo, id: qNo }, q.payload));
                 }
             });
         }
@@ -1502,24 +1515,24 @@ function loadInvoiceFromStorage(invNo, opts = {}) {
         try { data = JSON.parse(str); } catch(e) {}
     }
 
-    if (!data) {
-        try {
-            let allSales = JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || [];
-            data = allSales.find(inv => String(inv.invoiceNo || inv.id) === String(invNo));
-        } catch(e) {}
-    }
-
-    if (!data) {
-        try {
-            let localSales = JSON.parse(localStorage.getItem('magaies_local_sales_invoices_v1')) || [];
-            data = localSales.find(inv => String(inv.invoiceNo || inv.id) === String(invNo));
-        } catch(e) {}
+    const sortedAll = getSortedSalesInvoices();
+    const listMatch = sortedAll.find(inv => String(inv.invoiceNo || inv.id) === String(invNo));
+    if (data && listMatch) {
+        data = Object.assign({}, listMatch, data);
+        if ((!data.items || !data.items.length) && Array.isArray(listMatch.items) && listMatch.items.length) {
+            data.items = listMatch.items;
+        }
+    } else if (!data && listMatch) {
+        data = listMatch;
     }
 
     if (!data && window.MagaiesOffline && typeof MagaiesOffline.getQueue === 'function') {
         try {
-            const qItem = MagaiesOffline.getQueue().find(q => (q.type === 'sales' || q.type === 'sales_split') && (String(q.tempId) === String(invNo) || String(q.payload?.invoiceNo) === String(invNo)));
-            if (qItem && qItem.payload) data = Object.assign({ invoiceNo: qItem.tempId }, qItem.payload);
+            const qItem = MagaiesOffline.getQueue().find(q => (q.type === 'sales' || q.type === 'sales_split') && (String(q.offline_id || q.tempId) === String(invNo) || String(q.payload?.invoiceNo || q.payload?.id) === String(invNo)));
+            if (qItem && qItem.payload) {
+                const qNo = qItem.offline_id || qItem.tempId || invNo;
+                data = Object.assign({ invoiceNo: qNo, id: qNo }, qItem.payload);
+            }
         } catch(e) {}
     }
 
@@ -1575,7 +1588,7 @@ function loadInvoiceFromStorage(invNo, opts = {}) {
         // 2. المستودع ومركز التكلفة (يدعم المعرف أو الاسم العربي)
         const itemsList = data.items || data.products || [];
         const firstIt = itemsList.length > 0 ? itemsList[0] : null;
-        const rawWh = data.warehouse || firstIt?.warehouseId || firstIt?.warehouse || '';
+        const rawWh = data.warehouse || data.warehouseId || firstIt?.warehouseId || firstIt?.warehouse || '';
         const whEl = document.getElementById('hdr-warehouse');
         if (whEl && rawWh) {
             const matchedWh = (typeof WAREHOUSES !== 'undefined' ? WAREHOUSES : []).find(w => String(w.id) === String(rawWh) || w.name === rawWh);
@@ -1607,8 +1620,9 @@ function loadInvoiceFromStorage(invNo, opts = {}) {
         if (data.currency && document.getElementById('hdr-currency')) {
             document.getElementById('hdr-currency').value = data.currency;
         }
-        if (data.exchangeRate !== undefined && document.getElementById('hdr-exchange-rate')) {
-            document.getElementById('hdr-exchange-rate').value = data.exchangeRate;
+        const exRateLoaded = data.exchangeRate ?? data.rate;
+        if (exRateLoaded !== undefined && document.getElementById('hdr-exchange-rate')) {
+            document.getElementById('hdr-exchange-rate').value = exRateLoaded;
             document.getElementById('hdr-exchange-rate').disabled = (data.currency === 'SDG');
         }
 
@@ -1640,27 +1654,55 @@ function loadInvoiceFromStorage(invNo, opts = {}) {
                 const r = rows[rows.length - 1];
 
                 let resolvedItemId = i.itemId || i.id || i.item_id || '';
-                const rawName = i.itemName || i.name || '';
-                const matchedItem = (typeof ITEMS !== 'undefined' ? ITEMS : []).find(x =>
+                const rawName = (i.itemName || i.name || '').trim();
+                const unitStr = (i.selectedUnit || i.unit || i.unitName || '').trim();
+                let matchedItem = (typeof ITEMS !== 'undefined' ? ITEMS : []).find(x =>
                     (resolvedItemId && String(x.id) === String(resolvedItemId)) ||
-                    (rawName && x.name === rawName)
+                    (rawName && x.name && x.name.trim() === rawName)
                 );
+                if (!matchedItem && rawName && typeof ITEMS !== 'undefined' && Array.isArray(ITEMS)) {
+                    const synId = resolvedItemId || ('it_sync_' + rawName);
+                    const defU = unitStr || 'قطعة';
+                    matchedItem = {
+                        id: synId,
+                        name: rawName,
+                        unit: defU,
+                        baseUnit: defU,
+                        conversionFactor: 1,
+                        bundleFactor: 1,
+                        price: parseFloat(i.price ?? i.rate ?? 0) || 0,
+                        sellingPrice: parseFloat(i.price ?? i.rate ?? 0) || 0,
+                        unitsArray: [{ name: defU, unitName: defU, factor: parseFloat(i.customFactor ?? i.factor ?? 1) || 1, price: parseFloat(i.price ?? i.rate ?? 0) || 0 }]
+                    };
+                    ITEMS.push(matchedItem);
+                }
                 if (matchedItem) {
                     resolvedItemId = matchedItem.id;
+                    if (unitStr) {
+                        const uArr = typeof extractItemUnits === 'function' ? extractItemUnits(matchedItem) : (matchedItem.unitsArray || []);
+                        if (!uArr.some(u => u.name === unitStr || u.unitName === unitStr)) {
+                            uArr.push({ name: unitStr, unitName: unitStr, factor: parseFloat(i.customFactor ?? i.factor ?? 1) || 1, price: parseFloat(i.price ?? i.rate ?? 0) || 0 });
+                        }
+                        matchedItem.unitsArray = uArr;
+                    }
                 }
 
                 r.itemId = resolvedItemId || rawName || 'item-custom';
                 r.itemName = rawName || (matchedItem ? matchedItem.name : '');
-                r.selectedUnit = i.selectedUnit || i.unit || i.unitName || (matchedItem ? matchedItem.unit : 'حبة');
+                r.name = r.itemName;
+                r.selectedUnit = unitStr || (matchedItem ? matchedItem.unit : 'حبة');
+                r.unit = r.selectedUnit;
                 r.customFactor = i.customFactor !== undefined ? i.customFactor : (i.factor !== undefined ? i.factor : 1);
                 r.quantity = parseFloat(i.quantity !== undefined ? i.quantity : (i.qty !== undefined ? i.qty : 1)) || 0;
+                r.qty = r.quantity;
                 if (i.customBaseQty !== undefined) r.customBaseQty = i.customBaseQty;
                 r.price = parseFloat(i.price !== undefined ? i.price : (i.rate !== undefined ? i.rate : 0)) || 0;
                 if (i.fcPrice !== undefined) r.fcPrice = i.fcPrice;
 
-                const rowWhRaw = i.warehouseId || i.warehouse || data.warehouse || '';
+                const rowWhRaw = i.warehouseId || i.warehouse || data.warehouse || data.warehouseId || '';
                 const rowWhMatch = (typeof WAREHOUSES !== 'undefined' ? WAREHOUSES : []).find(w => String(w.id) === String(rowWhRaw) || w.name === rowWhRaw);
                 r.warehouseId = rowWhMatch ? rowWhMatch.id : rowWhRaw;
+                r.warehouse = rowWhMatch ? rowWhMatch.name : rowWhRaw;
 
                 const rowCcRaw = i.costCenterId || i.costCenter || data.costCenter || '';
                 const rowCcMatch = (typeof COST_CENTERS !== 'undefined' ? COST_CENTERS : []).find(cc => String(cc.id) === String(rowCcRaw) || cc.name === rowCcRaw);
@@ -1668,6 +1710,7 @@ function loadInvoiceFromStorage(invNo, opts = {}) {
 
                 if (i.qrCode) r.qrCode = i.qrCode;
                 r.note = i.note ?? i.notes ?? notesVal ?? '';
+                r.notes = r.note;
                 if (i.buyPrice !== undefined) r.buyPrice = i.buyPrice;
                 if (i.sellPrice !== undefined) r.sellPrice = i.sellPrice;
 
@@ -4365,17 +4408,49 @@ function submitInvoice(ignoreWarnings = false) {
         creditAmount: creditAmt,
         bankTransfers: bankTransfers,
         cheques: cheques,
-        warehouse: document.getElementById('hdr-warehouse').value,
+        warehouseId: document.getElementById('hdr-warehouse').value,
+        warehouse: ((typeof WAREHOUSES !== 'undefined' && Array.isArray(WAREHOUSES)) ? (WAREHOUSES.find(w => String(w.id) === String(document.getElementById('hdr-warehouse').value))?.name || document.getElementById('hdr-warehouse').value) : document.getElementById('hdr-warehouse').value),
         description: document.getElementById('hdr-description').value,
-        items: rows.map(r => ({...r})),
+        items: rows.map(r => {
+            const itObj = (typeof ITEMS !== 'undefined' && Array.isArray(ITEMS)) ? ITEMS.find(i => String(i.id) === String(r.itemId)) : null;
+            const rName = r.itemName || r.name || (itObj ? itObj.name : String(r.itemId || ''));
+            const rUnit = r.selectedUnit || r.unit || (itObj ? (itObj.unit || itObj.baseUnit || 'قطعة') : 'قطعة');
+            const rQty = parseFloat(r.quantity ?? r.qty ?? 0) || 0;
+            const rPrice = parseFloat(r.price ?? 0) || 0;
+            const rGross = rQty * rPrice;
+            const rWhRaw = r.warehouseId || r.warehouse || document.getElementById('hdr-warehouse').value;
+            const rWhObj = (typeof WAREHOUSES !== 'undefined' && Array.isArray(WAREHOUSES)) ? WAREHOUSES.find(w => String(w.id) === String(rWhRaw) || w.name === rWhRaw) : null;
+            return {
+                ...r,
+                name: rName,
+                itemName: rName,
+                unit: rUnit,
+                selectedUnit: rUnit,
+                unitName: rUnit,
+                qty: rQty,
+                quantity: rQty,
+                price: rPrice,
+                subtotal: rGross,
+                grossTotal: rGross,
+                total: rGross,
+                warehouseId: rWhObj ? rWhObj.id : rWhRaw,
+                warehouse: rWhObj ? rWhObj.name : rWhRaw,
+                note: r.note || r.notes || document.getElementById('inv-notes').value || '',
+                notes: r.note || r.notes || document.getElementById('inv-notes').value || ''
+            };
+        }),
         notes: document.getElementById('inv-notes').value,
         subTotal: parseNum(document.getElementById('t-subtotal')?.textContent || document.getElementById('t-invoice-total')?.textContent || 0),
+        subtotal: parseNum(document.getElementById('t-subtotal')?.textContent || document.getElementById('t-invoice-total')?.textContent || 0),
         discount: parseNum(document.getElementById('t-discount')?.value || document.getElementById('t-discount')?.textContent || 0),
         vatAmount: parseNum(document.getElementById('t-vat')?.textContent || document.getElementById('t-tax')?.textContent || 0),
         grandTotal: grandAmount,
+        total: grandAmount,
+        netTotal: grandAmount,
+        totalAmount: grandAmount,
         status: finalStatus,
         timestamp: new Date().toISOString(),
-        customerName: cust ? cust.name : 'عميل نقدي',
+        customerName: cust ? cust.name : (document.getElementById('hdr-customer-search')?.value || 'عميل نقدي'),
         effectsApplied: (currentSaleType !== 'preliminary' && postingMode === 'auto'),
         isAmended: wasAmending ? true : !!(oldInv?.isAmended),
         amendmentCount: wasAmending ? ((Number(oldInv?.amendmentCount) || 0) + 1) : (oldInv?.amendmentCount || 0),
@@ -4454,16 +4529,18 @@ function submitInvoice(ignoreWarnings = false) {
 
     localStorage.setItem('erp_inv_' + committedNo, JSON.stringify(data));
 
-    // Append or Update global sales invoices array
-    let allSales = JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || [];
-    if (currentViewedInvoiceNo) {
-        const idx = allSales.findIndex(inv => inv.invoiceNo === currentViewedInvoiceNo);
-        if (idx !== -1) allSales[idx] = data;
-        else allSales.push(data);
-    } else {
-        allSales.push(data);
-    }
-    localStorage.setItem('erp_sales_invoices_v1', JSON.stringify(allSales));
+    // Append or Update global sales invoices array & mobile mirror
+    ['erp_sales_invoices_v1', 'magaies_local_sales_invoices_v1'].forEach(storageKey => {
+        try {
+            let listArr = JSON.parse(localStorage.getItem(storageKey)) || [];
+            if (!Array.isArray(listArr)) listArr = [];
+            const targetNo = currentViewedInvoiceNo || committedNo;
+            const idx = listArr.findIndex(inv => inv && (String(inv.invoiceNo) === String(targetNo) || String(inv.id) === String(targetNo)));
+            if (idx !== -1) listArr[idx] = data;
+            else listArr.push(data);
+            localStorage.setItem(storageKey, JSON.stringify(listArr));
+        } catch (e) {}
+    });
 
     if (window.logSystemAction) {
         const actionType = currentViewedInvoiceNo ? 'تعديل فاتورة مبيعات' : (currentSaleType === 'preliminary' ? 'فاتورة مبيعات مبدئية' : 'إصدار فاتورة مبيعات');

@@ -5383,14 +5383,18 @@ try {
     
     <!-- Financial OCR Modal & Script -->
     <?php include 'includes/financial-ocr-modal.php'; ?>
+    <script src="js/magaies-offline-sync.js?v=20261016"></script>
     <script src="js/financial-ocr.js?v=<?php echo file_exists('js/financial-ocr.js') ? filemtime('js/financial-ocr.js') : 1; ?>"></script>
     <script>
-    (function initDesktopSalesMirrorSync() {
+    window.initDesktopMirrorSync = (function initDesktopSalesMirrorSync() {
         let isSyncing = false;
         async function syncSalesWithMariaDB() {
             if (isSyncing) return;
             isSyncing = true;
             try {
+                if (navigator.onLine && window.MagaiesOffline && typeof MagaiesOffline.flushQueue === 'function') {
+                    await MagaiesOffline.flushQueue();
+                }
                 const res = await fetch('api/mirror_sync.php?action=get_recent_sales&_t=' + Date.now());
                 const data = await res.json();
                 if (data && data.success && Array.isArray(data.sales)) {
@@ -5404,15 +5408,24 @@ try {
                     let hasNew = false;
                     data.sales.forEach(serverInv => {
                         const sNo = String(serverInv.invoiceNo || serverInv.id);
+                        if (!sNo) return;
+                        localStorage.setItem('erp_inv_' + sNo, JSON.stringify(serverInv));
                         if (!localMap.has(sNo)) {
                             localSales.push(serverInv);
                             localMap.set(sNo, serverInv);
                             hasNew = true;
+                        } else {
+                            const cur = localMap.get(sNo);
+                            const idx = localSales.findIndex(x => String(x.invoiceNo || x.id) === sNo);
+                            if (idx >= 0) {
+                                localSales[idx] = Object.assign({}, serverInv, cur, { items: (Array.isArray(serverInv.items) && serverInv.items.length > 0) ? serverInv.items : cur.items });
+                            }
                         }
                     });
 
                     if (hasNew) {
                         localStorage.setItem('erp_sales_invoices_v1', JSON.stringify(localSales));
+                        localStorage.setItem('magaies_local_sales_invoices_v1', JSON.stringify(localSales));
                         if (typeof loadHubTransactions === 'function' && typeof currentView !== 'undefined' && currentView === 'hub') {
                             loadHubTransactions();
                         }
@@ -5444,6 +5457,8 @@ try {
         });
         setInterval(syncSalesWithMariaDB, 4000);
         window.addEventListener('focus', syncSalesWithMariaDB);
+        window.addEventListener('online', syncSalesWithMariaDB);
+        return syncSalesWithMariaDB;
     })();
     </script>
 </body>

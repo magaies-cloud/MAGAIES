@@ -1,26 +1,60 @@
 window.getAllSinglePayments = function() {
+    const getTK = window.getTenantKey || ((k) => k);
     let localInvs = [];
+    let tenantInvs = [];
     let mobInvs = [];
+    let cacheInvs = [];
     let offQueue = [];
+    let uniQueue = [];
     try { localInvs = JSON.parse(localStorage.getItem('erp_single_payments_v1')) || []; } catch(e){}
+    try {
+        const tk = getTK('erp_single_payments_v1');
+        if (tk !== 'erp_single_payments_v1') tenantInvs = JSON.parse(localStorage.getItem(tk)) || [];
+    } catch(e){}
     try { mobInvs = JSON.parse(localStorage.getItem('magaiees_vouchers_history')) || []; } catch(e){}
+    try { cacheInvs = JSON.parse(localStorage.getItem('magaies_vouchers_cache')) || []; } catch(e){}
     try { offQueue = JSON.parse(localStorage.getItem('magaies_mobile_offline_queue')) || []; } catch(e){}
+    try {
+        if (window.MagaiesOffline && typeof window.MagaiesOffline.getQueue === 'function') {
+            uniQueue = window.MagaiesOffline.getQueue()
+                .filter(q => q && (q.type === 'finance' || q.type === 'voucher' || q.type === 'single_payment') && q.payload)
+                .map(q => Object.assign({}, q.payload, { id: q.offline_id || q.tempId || q.payload.voucherNo || q.payload.id, isOffline: true }));
+        }
+    } catch(e){}
     let serverInvs = window.SERVER_SINGLE_PAYMENTS || [];
     let map = new Map();
+    const mergeSmart = (oldObj, newObj) => {
+        const res = Object.assign({}, oldObj);
+        Object.keys(newObj).forEach(k => {
+            const val = newObj[k];
+            if (val !== undefined && val !== null && val !== '') {
+                if (Array.isArray(val) && val.length === 0 && Array.isArray(res[k]) && res[k].length > 0) return;
+                if ((val === 0 || val === '0') && (typeof res[k] === 'number' && res[k] > 0)) return;
+                res[k] = val;
+            } else if (res[k] === undefined) {
+                res[k] = val;
+            }
+        });
+        return res;
+    };
     const putVoucher = (inv) => {
         if (!inv || typeof inv !== 'object') return;
-        const vid = String(inv.id || inv.voucherNo || inv.paymentNo || inv.receiptNo || '').trim();
+        const vid = String(inv.voucherNo || inv.id || inv.paymentNo || inv.receiptNo || '').trim();
         if (!vid) return;
+        const normalized = Object.assign({}, inv, { id: vid, voucherNo: vid });
         if (!map.has(vid)) {
-            map.set(vid, Object.assign({ id: vid }, inv));
+            map.set(vid, normalized);
         } else {
-            map.set(vid, Object.assign({}, inv, map.get(vid), { id: vid }));
+            map.set(vid, mergeSmart(map.get(vid), normalized));
         }
     };
     serverInvs.forEach(putVoucher);
     mobInvs.forEach(putVoucher);
+    cacheInvs.forEach(putVoucher);
     offQueue.forEach(putVoucher);
+    uniQueue.forEach(putVoucher);
     localInvs.forEach(putVoucher);
+    tenantInvs.forEach(putVoucher);
     return Array.from(map.values());
 };
 /* ═══════════════════════════════════════════════════════
@@ -917,44 +951,59 @@ function renderVoucher(v) {
     window.isVoucherLoadedFromDrilldown = true;
     window.isLoadingVoucher = true;
 
-    let vid = v.id || v.voucherNo || v.paymentNo || v.receiptNo || v.invoiceNo || '';
+    let vid = v.voucherNo || v.id || v.paymentNo || v.receiptNo || v.invoiceNo || '';
     if (document.getElementById('voucher-number')) document.getElementById('voucher-number').innerText = vid;
 
     let dt = String(v.date || v.createdAt || v.savedAt || '').split('T')[0].split(' ')[0];
     if (dt && document.getElementById('hdr-date')) document.getElementById('hdr-date').value = dt;
 
     let rawTo = v.toAccount || v.toAccountName || v.to || v.toName || v.depositAccount || v.accountId || v.beneficiaryName || '';
+    let rawToName = v.toAccountName || v.toName || v.to || v.beneficiaryName || rawTo;
     let rawFrom = v.fromAccount || v.fromAccountName || v.from || v.fromName || v.withdrawalAccount || v.cashSafe || v.mainAccount || 'safe-001';
+    let rawFromName = v.fromAccountName || v.fromName || v.from || rawFrom;
 
     // مطابقة الحساب بالـ ID أو الاسم العربي في قائمة ACCOUNTS
     const matchToObj = (typeof ACCOUNTS !== 'undefined' && Array.isArray(ACCOUNTS))
-        ? ACCOUNTS.find(a => a && (String(a.id) === String(rawTo) || a.name === rawTo))
+        ? ACCOUNTS.find(a => a && (String(a.id) === String(rawTo) || a.name === rawTo || a.name === rawToName))
         : null;
     const matchFromObj = (typeof ACCOUNTS !== 'undefined' && Array.isArray(ACCOUNTS))
-        ? ACCOUNTS.find(a => a && (String(a.id) === String(rawFrom) || a.name === rawFrom))
+        ? ACCOUNTS.find(a => a && (String(a.id) === String(rawFrom) || a.name === rawFrom || a.name === rawFromName))
         : null;
 
     let toAcc = matchToObj ? matchToObj.id : rawTo;
-    let toAccDisplay = matchToObj ? matchToObj.name : (v.toAccountName || v.toName || v.to || getAccountName(toAcc) || toAcc);
+    let toAccDisplay = matchToObj ? matchToObj.name : (rawToName || getAccountName(toAcc) || toAcc);
 
     let fromAcc = matchFromObj ? matchFromObj.id : rawFrom;
-    let fromAccDisplay = matchFromObj ? matchFromObj.name : (v.fromAccountName || v.fromName || v.from || getAccountName(fromAcc) || fromAcc);
+    let fromAccDisplay = matchFromObj ? matchFromObj.name : (rawFromName || getAccountName(fromAcc) || fromAcc);
 
     if (document.getElementById('to-account')) document.getElementById('to-account').value = toAcc;
     if (document.getElementById('to-account-search')) document.getElementById('to-account-search').value = toAccDisplay;
 
-    let amt = v.amountLocal ?? v.sdg ?? v.amount ?? v.totalAmount ?? 0;
+    let amt = parseFloat(v.amountLocal ?? v.sdg ?? v.amountSdg ?? v.amount ?? v.totalAmount ?? 0) || 0;
+    let rawRate = parseFloat(v.rate ?? v.exchangeRate ?? v.usdRate ?? 0) || 0;
+    let rawForeign = parseFloat(v.amountForeign ?? v.usd ?? v.amountUsd ?? v.foreignAmt ?? 0) || 0;
+
+    let rate = rawRate;
+    if (rate <= 1 && amt > 0 && rawForeign > 0) {
+        rate = Math.round((amt / rawForeign) * 100) / 100;
+    }
+    if (rate <= 0) {
+        rate = parseFloat(window.SYSTEM_USD_RATE) || (typeof window.getExchangeRateForCurrency === 'function' ? window.getExchangeRateForCurrency('USD') : 5999) || 5999;
+    }
+
+    let amtForeign = rawForeign > 0 ? rawForeign : (rate > 0 ? (amt / rate) : 0);
+    if (amt <= 0 && amtForeign > 0 && rate > 0) {
+        amt = amtForeign * rate;
+    }
+
     if (document.getElementById('amount-local')) document.getElementById('amount-local').value = fmtNum(amt);
     if (document.getElementById('currency')) document.getElementById('currency').value = v.currency || 'SDG';
-
-    let rate = v.rate ?? v.exchangeRate ?? 1.0;
     if (document.getElementById('exchange-rate')) document.getElementById('exchange-rate').value = rate;
+    if (document.getElementById('amount-foreign')) document.getElementById('amount-foreign').value = fmtNum(Number(amtForeign.toFixed(2)));
 
-    let amtForeign = v.amountForeign ?? v.usd ?? v.foreignAmt ?? (parseNum(amt) / (parseNum(rate) || 1));
-    if (document.getElementById('amount-foreign')) document.getElementById('amount-foreign').value = fmtNum(amtForeign);
-
-    const stmtText = String(v.toStatement ?? v.statement ?? v.description ?? v.notes ?? '');
-    const fromStmtText = String(v.fromStatement ?? v.statement ?? v.description ?? v.notes ?? '');
+    const firstTr = (v.bankTransfers && Array.isArray(v.bankTransfers) && v.bankTransfers[0]) ? v.bankTransfers[0] : {};
+    const stmtText = String(v.toStatement || v.notes || v.statement || v.description || firstTr.statement || '');
+    const fromStmtText = String(v.fromStatement || v.notes || v.statement || v.description || firstTr.statement || '');
     if (document.getElementById('to-statement')) document.getElementById('to-statement').value = stmtText;
     if (document.getElementById('beneficiary-name')) document.getElementById('beneficiary-name').value = v.beneficiaryName || v.beneficiary || toAccDisplay || '';
 
@@ -975,10 +1024,16 @@ function renderVoucher(v) {
 
     if (document.getElementById('from-statement')) document.getElementById('from-statement').value = fromStmtText;
 
-    // Set Payment Method (يدعم صيغ الجوال وسطح المكتب)
-    let rawMethod = v.paymentMethod || v.method || v.payType || (v.cheques && v.cheques.length > 0 ? 'check' : (v.bankTransfers && v.bankTransfers.length > 0 ? 'mobile' : 'cash'));
-    if (rawMethod === 'transfer') rawMethod = 'mobile';
+    const refNo = String(v.refNo ?? v.mobileTransferNo ?? v.transferNo ?? v.transferRef ?? firstTr.transferNo ?? v.checkNo ?? '').trim();
+    const bankName = String(v.bankName ?? v.bank ?? v.mobileNote ?? firstTr.note ?? firstTr.bankName ?? '').trim();
+
+    // Set Payment Method (يدعم صيغ الجوال وسطح المكتب والأوفلاين)
+    let rawMethod = v.paymentMethod || v.method || v.payType || (v.cheques && v.cheques.length > 0 ? 'check' : ((v.bankTransfers && v.bankTransfers.length > 0) || refNo || bankName ? 'mobile' : 'cash'));
+    if (rawMethod === 'transfer' || rawMethod === 'bank') rawMethod = 'mobile';
     if (rawMethod === 'normal_cheque' || rawMethod === 'bank_cheque' || rawMethod === 'cheque') rawMethod = 'check';
+    if (rawMethod === 'cash' && (refNo || bankName || (v.bankTransfers && v.bankTransfers.length > 0))) {
+        rawMethod = 'mobile';
+    }
 
     const methodEl = document.querySelector(`input[name="payment_method"][value="${rawMethod}"]`);
     if (methodEl) {
@@ -994,9 +1049,6 @@ function renderVoucher(v) {
         loadVoucherPaymentDetails(v);
     }
 
-    // تعبئة رقم الإشعار/الشيك والبنك إن كانت محفوظة من شاشة الجوال
-    const refNo = v.refNo || v.mobileTransferNo || v.transferRef || v.checkNo || '';
-    const bankName = v.bankName || v.bank || '';
     if (refNo && document.getElementById('mobile-transfer-no') && !document.getElementById('mobile-transfer-no').value) {
         document.getElementById('mobile-transfer-no').value = refNo;
     }
@@ -1005,6 +1057,23 @@ function renderVoucher(v) {
     }
 
     updateCurrency(true); // pass true to prevent overwriting historical exchange rate
+    // تثبيت قيم السعر والدولار والمبلغ المحلي المحفوظة في السند بدقة تامة
+    const amtEl = document.getElementById('amount-local');
+    const rateEl = document.getElementById('exchange-rate');
+    const eqEl = document.getElementById('amount-foreign');
+    if (amtEl) {
+        if (amtEl.animationInterval) clearInterval(amtEl.animationInterval);
+        amtEl.value = fmtNum(amt);
+    }
+    if (rateEl) {
+        if (rateEl.animationInterval) clearInterval(rateEl.animationInterval);
+        rateEl.value = rate;
+    }
+    if (eqEl) {
+        if (eqEl.animationInterval) clearInterval(eqEl.animationInterval);
+        eqEl.value = fmtNum(Number(amtForeign.toFixed(2)));
+    }
+
     updateBalances();
     updateLedgerButtons();
     if (typeof updateActionButtonsVisibility === 'function') updateActionButtonsVisibility();
@@ -1393,6 +1462,14 @@ function submitVoucherInner() {
         window._lastSubmittedVoucherId = document.getElementById('voucher-number')?.innerText || '';
     }
 
+    const vIdVal = (document.getElementById('voucher-number')?.innerText || '').trim();
+    const rateVal = parseNum(document.getElementById('exchange-rate')?.value) || parseFloat(window.SYSTEM_USD_RATE) || 5999;
+    const foreignVal = parseNum(document.getElementById('amount-foreign')?.value) || (rateVal > 0 ? Number((amtLocal / rateVal).toFixed(2)) : 0);
+    const toStmtVal = (document.getElementById('to-statement')?.value || '').trim();
+    const fromStmtVal = (document.getElementById('from-statement')?.value || '').trim();
+    const fromSearchVal = (document.getElementById('from-account-search')?.value || '').trim();
+    const toSearchVal = (document.getElementById('to-account-search')?.value || '').trim();
+
     const voucherData = {
         createdBy: oldVoucher?.createdBy || curUser.id,
         createdByName: oldVoucher?.createdByName || curUser.fullName || curUser.name,
@@ -1400,25 +1477,43 @@ function submitVoucherInner() {
         updatedBy: oldVoucher ? curUser.id : (oldVoucher?.updatedBy || null),
         updatedByName: oldVoucher ? (curUser.fullName || curUser.name) : (oldVoucher?.updatedByName || null),
         updatedAt: oldVoucher ? new Date().toISOString() : (oldVoucher?.updatedAt || null),
-        id: document.getElementById('voucher-number').innerText,
-        idempotencyKey: window._lastSubmittedVoucherSig ? ('LAP-E-' + btoa(unescape(encodeURIComponent(window._lastSubmittedVoucherSig))).substring(0, 32)) : ('LAP-E-' + document.getElementById('voucher-number').innerText),
+        id: vIdVal,
+        voucherNo: vIdVal,
+        idempotencyKey: window._lastSubmittedVoucherSig ? ('LAP-E-' + btoa(unescape(encodeURIComponent(window._lastSubmittedVoucherSig))).substring(0, 32)) : ('LAP-E-' + vIdVal),
         date: document.getElementById('hdr-date').value,
         time: new Date().toLocaleTimeString('en-GB', {hour: '2-digit', minute:'2-digit'}),
         type: 'single_payment',
         
         toAccount: toAcc,
+        toAccountName: toSearchVal || getAccountName(toAcc) || toAcc,
+        to: toSearchVal || getAccountName(toAcc) || toAcc,
+        toName: toSearchVal || getAccountName(toAcc) || toAcc,
         amountLocal: amtLocal,
+        sdg: amtLocal,
+        amountSdg: amtLocal,
+        amount: amtLocal,
         currency: document.getElementById('currency').value,
-        rate: parseNum(document.getElementById('exchange-rate').value),
-        amountForeign: parseNum(document.getElementById('amount-foreign').value),
-        toStatement: document.getElementById('to-statement').value,
-        beneficiaryName: document.getElementById('beneficiary-name').value,
+        rate: rateVal,
+        exchangeRate: rateVal,
+        amountForeign: foreignVal,
+        usd: foreignVal,
+        amountUsd: foreignVal,
+        foreignAmt: foreignVal,
+        toStatement: toStmtVal,
+        beneficiaryName: document.getElementById('beneficiary-name').value || toSearchVal || toAcc,
         
         fromAccount: document.getElementById('from-account').value,
-        fromStatement: document.getElementById('from-statement').value,
+        fromAccountName: fromSearchVal || getAccountName(document.getElementById('from-account').value) || document.getElementById('from-account').value,
+        from: fromSearchVal || getAccountName(document.getElementById('from-account').value) || document.getElementById('from-account').value,
+        fromName: fromSearchVal || getAccountName(document.getElementById('from-account').value) || document.getElementById('from-account').value,
+        fromStatement: fromStmtVal,
+        notes: toStmtVal || fromStmtVal || '',
+        statement: toStmtVal || fromStmtVal || '',
+        description: toStmtVal || fromStmtVal || '',
         costCenter: document.getElementById('cost-center') ? document.getElementById('cost-center').value : '',
         
         paymentMethod: method,
+        payType: method === 'mobile' ? 'transfer' : method,
         
         timestamp: new Date().toISOString(),
         systemExchangeRate: (typeof window.getExchangeRateForCurrency === 'function' ? window.getExchangeRateForCurrency('USD') : 1) || 1
@@ -1480,7 +1575,7 @@ function submitVoucherInner() {
                 return;
             }
 
-            transfers.push({ transferNo: trNo, note: trNote, amount: trAmt, statement: trStmt });
+            transfers.push({ transferNo: trNo, note: trNote, bankName: trNote, amount: trAmt, statement: trStmt });
             totalTransfersAmount += trAmt;
         });
 
@@ -1494,7 +1589,16 @@ function submitVoucherInner() {
         voucherData.bankTransfers = transfers;
         if (transfers.length > 0) {
             voucherData.mobileTransferNo = transfers[0].transferNo;
+            voucherData.refNo = transfers[0].transferNo;
+            voucherData.transferNo = transfers[0].transferNo;
             voucherData.mobileNote = transfers[0].note;
+            voucherData.bankName = transfers[0].note;
+            voucherData.bank = transfers[0].note;
+            if (!voucherData.notes && transfers[0].statement) {
+                voucherData.notes = transfers[0].statement;
+                voucherData.statement = transfers[0].statement;
+                voucherData.toStatement = transfers[0].statement;
+            }
         }
     } else if (method === 'check') {
         const chContainer = document.getElementById('cheques-container');
@@ -1577,7 +1681,10 @@ function submitVoucherInner() {
         voucherData.cheques = cheques;
         if (cheques.length > 0) {
             voucherData.checkNo = cheques[0].checkNo;
+            voucherData.refNo = cheques[0].checkNo;
             voucherData.checkBranch = cheques[0].checkBranch;
+            voucherData.bankName = cheques[0].checkBranch;
+            voucherData.bank = cheques[0].checkBranch;
             voucherData.checkDate = cheques[0].checkDate;
             voucherData.checkDueDate = '';
             voucherData.checkRef = '';
@@ -1658,7 +1765,7 @@ function submitVoucherInner() {
                 return;
             }
 
-            transfers.push({ transferNo: trNo, note: trNote, amount: trAmt, statement: trStmt });
+            transfers.push({ transferNo: trNo, note: trNote, bankName: trNote, amount: trAmt, statement: trStmt });
             totalTransfersAmount += trAmt;
         });
 
@@ -1722,7 +1829,11 @@ function submitVoucherInner() {
         voucherData.bankTransfers = transfers;
         if (transfers.length > 0) {
             voucherData.mobileTransferNo = transfers[0].transferNo;
+            voucherData.refNo = transfers[0].transferNo;
+            voucherData.transferNo = transfers[0].transferNo;
             voucherData.mobileNote = transfers[0].note;
+            voucherData.bankName = transfers[0].note;
+            voucherData.bank = transfers[0].note;
         }
         voucherData.cheques = cheques;
         if (cheques.length > 0) {
@@ -1842,9 +1953,13 @@ function submitVoucherInner() {
     }
 
         let fromSearch = document.getElementById('from-account-search');
-        let fromName = fromSearch && fromSearch.value ? fromSearch.value : voucherData.fromAccount;
+        let fromName = fromSearch && fromSearch.value ? fromSearch.value : voucherData.fromAccountName;
         let toSearch = document.getElementById('to-account-search');
-        let toName = toSearch && toSearch.value ? toSearch.value : voucherData.toAccount;
+        let toName = toSearch && toSearch.value ? toSearch.value : voucherData.toAccountName;
+        voucherData.fromAccountName = fromName;
+        voucherData.from = fromName;
+        voucherData.toAccountName = toName;
+        voucherData.to = toName;
         
         if (currentViewedIndex !== -1) {
             if (!window.canEditRecord(voucherData.date, 'finance')) return;
@@ -1859,6 +1974,9 @@ function submitVoucherInner() {
             singlePaymentsData[currentViewedIndex] = voucherData;
             const tKey = getTenantKey('erp_single_payments_v1');
             localStorage.setItem(tKey, JSON.stringify(singlePaymentsData));
+            if (tKey !== 'erp_single_payments_v1') localStorage.setItem('erp_single_payments_v1', JSON.stringify(singlePaymentsData));
+            localStorage.setItem('magaies_vouchers_cache', JSON.stringify(singlePaymentsData));
+            localStorage.setItem('magaiees_vouchers_history', JSON.stringify(singlePaymentsData));
             window.SERVER_SINGLE_PAYMENTS = singlePaymentsData;
             if (typeof window.rebuildGLFromAllTables === 'function') window.rebuildGLFromAllTables(false);
             if (window.logSystemAction) {
@@ -1873,11 +1991,28 @@ function submitVoucherInner() {
             }
             // مزامنة فورية مباشرة مع قاعدة البيانات MariaDB
             try {
-                fetch('single-cash-payment.php?api=save_voucher', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(voucherData)
-                }).catch(e => console.warn('[MariaDB Sync] Edit sync failed:', e));
+                if (!navigator.onLine) {
+                    voucherData.isOffline = true;
+                    if (window.MagaiesOffline && typeof window.MagaiesOffline.enqueue === 'function') {
+                        window.MagaiesOffline.enqueue('finance', voucherData, voucherData.id);
+                    }
+                } else {
+                    fetch('api/mirror_sync.php?action=save_voucher', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(Object.assign({}, voucherData, { isEdit: true }))
+                    }).catch(() => {});
+                    fetch('single-cash-payment.php?api=save_voucher', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(voucherData)
+                    }).catch(e => {
+                        console.warn('[MariaDB Sync] Edit sync failed:', e);
+                        if (window.MagaiesOffline && typeof window.MagaiesOffline.enqueue === 'function') {
+                            window.MagaiesOffline.enqueue('finance', voucherData, voucherData.id);
+                        }
+                    });
+                }
             } catch(e) {}
         } else {
             applyPaymentEffect(voucherData.fromAccount, voucherData.toAccount, voucherData.amountLocal, false);
@@ -1885,6 +2020,9 @@ function submitVoucherInner() {
             currentViewedIndex = singlePaymentsData.length - 1; // Keep the saved voucher on screen
             const tKey = getTenantKey('erp_single_payments_v1');
             localStorage.setItem(tKey, JSON.stringify(singlePaymentsData));
+            if (tKey !== 'erp_single_payments_v1') localStorage.setItem('erp_single_payments_v1', JSON.stringify(singlePaymentsData));
+            localStorage.setItem('magaies_vouchers_cache', JSON.stringify(singlePaymentsData));
+            localStorage.setItem('magaiees_vouchers_history', JSON.stringify(singlePaymentsData));
             window.SERVER_SINGLE_PAYMENTS = singlePaymentsData;
             const currentSeq = parseInt(localStorage.getItem(getTenantKey('erp_single_payment_seq')) || localStorage.getItem('erp_single_payment_seq') || '0');
             localStorage.setItem('erp_single_payment_seq', currentSeq + 1);
@@ -1902,10 +2040,16 @@ function submitVoucherInner() {
             // مزامنة فورية مباشرة مع قاعدة البيانات MariaDB + طابور الأوفلاين الموحد
             try {
                 if (!navigator.onLine) {
+                    voucherData.isOffline = true;
                     if (window.MagaiesOffline && typeof window.MagaiesOffline.enqueue === 'function') {
                         window.MagaiesOffline.enqueue('finance', voucherData, voucherData.id);
                     }
                 } else {
+                    fetch('api/mirror_sync.php?action=save_voucher', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(voucherData)
+                    }).catch(() => {});
                     fetch('single-cash-payment.php?api=save_voucher', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
@@ -3534,7 +3678,19 @@ window.syncFirstRowAmount = function() {
 };
 
 window.loadVoucherPaymentDetails = function(v) {
-    const method = v.paymentMethod || 'cash';
+    const firstTr = (v.bankTransfers && Array.isArray(v.bankTransfers) && v.bankTransfers[0]) ? v.bankTransfers[0] : {};
+    const refNo = String(v.mobileTransferNo ?? v.refNo ?? v.transferNo ?? v.transferRef ?? firstTr.transferNo ?? '').trim();
+    const bankName = String(v.mobileNote ?? v.bankName ?? v.bank ?? firstTr.note ?? firstTr.bankName ?? '').trim();
+    const amt = parseFloat(v.amountLocal ?? v.sdg ?? v.amountSdg ?? v.amount ?? v.totalAmount ?? 0) || 0;
+    const stmt = String(v.notes || v.toStatement || v.fromStatement || v.statement || v.description || firstTr.statement || '');
+
+    let method = v.paymentMethod || v.method || v.payType || ((v.cheques && v.cheques.length > 0) ? 'check' : (((v.bankTransfers && v.bankTransfers.length > 0) || refNo || bankName) ? 'mobile' : 'cash'));
+    if (method === 'transfer' || method === 'bank') method = 'mobile';
+    if (method === 'normal_cheque' || method === 'bank_cheque' || method === 'cheque') method = 'check';
+    if (method === 'cash' && (refNo || bankName || (v.bankTransfers && v.bankTransfers.length > 0))) {
+        method = 'mobile';
+    }
+
     const transfersContainer = document.getElementById('transfers-container');
     const chequesContainer = document.getElementById('cheques-container');
     if (transfersContainer) transfersContainer.innerHTML = '';
@@ -3543,19 +3699,24 @@ window.loadVoucherPaymentDetails = function(v) {
     if (method === 'mobile' || method === 'hybrid') {
         if (v.bankTransfers && Array.isArray(v.bankTransfers) && v.bankTransfers.length > 0) {
             v.bankTransfers.forEach(tr => {
-                addTransferRow(tr.transferNo, tr.note, tr.amount, tr.statement || '');
+                addTransferRow(
+                    tr.transferNo || refNo || '',
+                    tr.note || tr.bankName || bankName || '',
+                    tr.amount || amt || 0,
+                    tr.statement || stmt || ''
+                );
             });
         } else {
-            addTransferRow(v.mobileTransferNo || '', v.mobileNote || '', v.amountLocal || 0, v.statement || '');
+            addTransferRow(refNo, bankName, amt, stmt);
         }
     }
     if (method === 'check' || method === 'hybrid') {
         if (v.cheques && Array.isArray(v.cheques) && v.cheques.length > 0) {
             v.cheques.forEach(ch => {
-                addChequeRow(ch.checkBranch, ch.checkNo, ch.checkDate, ch.amount, ch.statement || '');
+                addChequeRow(ch.checkBranch || bankName || '', ch.checkNo || refNo || '', ch.checkDate || v.date || '', ch.amount || amt || 0, ch.statement || stmt || '');
             });
         } else {
-            addChequeRow(v.checkBranch || '', v.checkNo || '', v.checkDate || '', v.amountLocal || 0, v.statement || '');
+            addChequeRow(v.checkBranch || bankName || '', v.checkNo || refNo || '', v.checkDate || v.date || '', amt, stmt);
         }
     }
     if (method === 'cash') {

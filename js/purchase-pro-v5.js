@@ -139,9 +139,21 @@ function getPurchaseInvoicesList() {
         const no = String(inv.invoiceNo || inv.id || '').trim();
         if (!no || no === 'preliminary' || no.startsWith('PRE-')) return;
         if (!mergedMap.has(no)) {
-            mergedMap.set(no, Object.assign({ invoiceNo: no }, inv));
+            mergedMap.set(no, Object.assign({ invoiceNo: no, id: no }, inv));
         } else {
-            mergedMap.set(no, Object.assign({}, inv, mergedMap.get(no), { invoiceNo: no }));
+            const prev = mergedMap.get(no);
+            const combined = Object.assign({}, prev);
+            Object.keys(inv).forEach(k => {
+                const val = inv[k];
+                if (Array.isArray(val)) {
+                    if (val.length > 0) combined[k] = val;
+                } else if (val !== undefined && val !== null && val !== '') {
+                    combined[k] = val;
+                }
+            });
+            combined.invoiceNo = no;
+            combined.id = no;
+            mergedMap.set(no, combined);
         }
     };
 
@@ -152,7 +164,8 @@ function getPurchaseInvoicesList() {
         if (window.MagaiesOffline && typeof MagaiesOffline.getQueue === 'function') {
             MagaiesOffline.getQueue().forEach(q => {
                 if ((q.type === 'purchase' || q.type === 'purchase_split') && q.payload) {
-                    addPur(Object.assign({ invoiceNo: q.tempId }, q.payload));
+                    const qNo = q.offline_id || q.tempId || q.payload.invoiceNo || q.payload.id;
+                    addPur(Object.assign({ invoiceNo: qNo, id: qNo }, q.payload));
                 }
             });
         }
@@ -895,12 +908,21 @@ function loadNextInvoice() {
 
 function getSinglePurchaseInvoice(invNo) {
     if (!invNo) return null;
+    let directObj = null;
     let str = localStorage.getItem('erp_pur_' + invNo) || localStorage.getItem('erp_draft_' + invNo);
     if (str) {
-        try { return JSON.parse(str); } catch(e) {}
+        try { directObj = JSON.parse(str); } catch(e) {}
     }
     let allPurchases = getPurchaseInvoicesList();
-    const data = allPurchases.find(inv => String(inv.invoiceNo) === String(invNo) || String(inv.id) === String(invNo));
+    const listObj = allPurchases.find(inv => String(inv.invoiceNo) === String(invNo) || String(inv.id) === String(invNo));
+    if (directObj && listObj) {
+        const merged = Object.assign({}, listObj, directObj);
+        if ((!merged.items || !merged.items.length) && Array.isArray(listObj.items) && listObj.items.length) {
+            merged.items = listObj.items;
+        }
+        return merged;
+    }
+    const data = directObj || listObj;
     if (data) {
         try { localStorage.setItem('erp_pur_' + (data.invoiceNo || invNo), JSON.stringify(data)); } catch(e) {}
         return data;
@@ -960,7 +982,7 @@ function loadInvoiceFromStorage(invNo) {
         // 2. المستودع ومركز التكلفة (يدعم الـ ID أو الاسم العربي)
         const itemsList = data.items || data.products || [];
         const firstIt = itemsList.length > 0 ? itemsList[0] : null;
-        const rawWh = data.warehouse || firstIt?.warehouseId || firstIt?.warehouse || '';
+        const rawWh = data.warehouse || data.warehouseId || firstIt?.warehouseId || firstIt?.warehouse || '';
         const whEl = document.getElementById('hdr-warehouse');
         if (whEl && rawWh) {
             const matchedWh = (typeof WAREHOUSES !== 'undefined' ? WAREHOUSES : []).find(w => String(w.id) === String(rawWh) || w.name === rawWh);
@@ -992,17 +1014,19 @@ function loadInvoiceFromStorage(invNo) {
         if (data.currency && document.getElementById('hdr-currency')) {
             document.getElementById('hdr-currency').value = data.currency;
         }
-        if (data.exchangeRate !== undefined && document.getElementById('hdr-exchange-rate')) {
-            document.getElementById('hdr-exchange-rate').value = data.exchangeRate;
+        const exRateLoaded = data.exchangeRate ?? data.rate;
+        if (exRateLoaded !== undefined && document.getElementById('hdr-exchange-rate')) {
+            document.getElementById('hdr-exchange-rate').value = exRateLoaded;
             document.getElementById('hdr-exchange-rate').disabled = false;
         }
 
         // 4. المورد (يدعم البحث بالـ ID أو الاسم العربي)
-        const suppIdOrName = data.customer || data.customerId || data.supplier || data.supplierId || data.supplierName || data.vendorName || '';
+        const suppIdOrName = data.customer || data.customerId || data.supplier || data.supplierId || data.supplierName || data.vendorName || data.customerName || '';
         const matchedVendor = (typeof VENDORS !== 'undefined' ? VENDORS : []).find(x =>
             String(x.id) === String(data.customer || data.customerId || data.supplier || data.supplierId || '') ||
             (data.supplierName && x.name === data.supplierName) ||
             (data.vendorName && x.name === data.vendorName) ||
+            (data.customerName && x.name === data.customerName) ||
             (suppIdOrName && x.name === suppIdOrName)
         );
         if (matchedVendor) {
@@ -1026,27 +1050,55 @@ function loadInvoiceFromStorage(invNo) {
                 const r = rows[rows.length - 1];
 
                 let resolvedItemId = i.itemId || i.id || i.item_id || '';
-                const rawName = i.itemName || i.name || '';
-                const matchedItem = (typeof ITEMS !== 'undefined' ? ITEMS : []).find(x =>
+                const rawName = (i.itemName || i.name || '').trim();
+                const unitStr = (i.selectedUnit || i.unit || i.unitName || '').trim();
+                let matchedItem = (typeof ITEMS !== 'undefined' ? ITEMS : []).find(x =>
                     (resolvedItemId && String(x.id) === String(resolvedItemId)) ||
-                    (rawName && x.name === rawName)
+                    (rawName && x.name && x.name.trim() === rawName)
                 );
+                if (!matchedItem && rawName && typeof ITEMS !== 'undefined' && Array.isArray(ITEMS)) {
+                    const synId = resolvedItemId || ('it_sync_' + rawName);
+                    const defU = unitStr || 'قطعة';
+                    matchedItem = {
+                        id: synId,
+                        name: rawName,
+                        unit: defU,
+                        baseUnit: defU,
+                        conversionFactor: 1,
+                        bundleFactor: 1,
+                        price: parseFloat(i.price ?? i.rate ?? 0) || 0,
+                        sellingPrice: parseFloat(i.price ?? i.rate ?? 0) || 0,
+                        unitsArray: [{ name: defU, unitName: defU, factor: parseFloat(i.customFactor ?? i.factor ?? 1) || 1, price: parseFloat(i.price ?? i.rate ?? 0) || 0 }]
+                    };
+                    ITEMS.push(matchedItem);
+                }
                 if (matchedItem) {
                     resolvedItemId = matchedItem.id;
+                    if (unitStr) {
+                        const uArr = extractItemUnits(matchedItem);
+                        if (!uArr.some(u => u.name === unitStr || u.unitName === unitStr)) {
+                            uArr.push({ name: unitStr, unitName: unitStr, factor: parseFloat(i.customFactor ?? i.factor ?? 1) || 1, price: parseFloat(i.price ?? i.rate ?? 0) || 0 });
+                        }
+                        matchedItem.unitsArray = uArr;
+                    }
                 }
 
                 r.itemId = resolvedItemId || rawName || 'item-custom';
                 r.itemName = rawName || (matchedItem ? matchedItem.name : '');
-                r.selectedUnit = i.selectedUnit || i.unit || i.unitName || (matchedItem ? matchedItem.unit : 'حبة');
+                r.name = r.itemName;
+                r.selectedUnit = unitStr || (matchedItem ? matchedItem.unit : 'حبة');
+                r.unit = r.selectedUnit;
                 r.customFactor = i.customFactor !== undefined ? i.customFactor : (i.factor !== undefined ? i.factor : 1);
                 r.quantity = parseFloat(i.quantity !== undefined ? i.quantity : (i.qty !== undefined ? i.qty : 1)) || 0;
+                r.qty = r.quantity;
                 if (i.customBaseQty !== undefined) r.customBaseQty = i.customBaseQty;
                 r.price = parseFloat(i.price !== undefined ? i.price : (i.rate !== undefined ? i.rate : 0)) || 0;
                 if (i.fcPrice !== undefined) r.fcPrice = i.fcPrice;
 
-                const rowWhRaw = i.warehouseId || i.warehouse || data.warehouse || '';
+                const rowWhRaw = i.warehouseId || i.warehouse || data.warehouse || data.warehouseId || '';
                 const rowWhMatch = (typeof WAREHOUSES !== 'undefined' ? WAREHOUSES : []).find(w => String(w.id) === String(rowWhRaw) || w.name === rowWhRaw);
                 r.warehouseId = rowWhMatch ? rowWhMatch.id : rowWhRaw;
+                r.warehouse = rowWhMatch ? rowWhMatch.name : rowWhRaw;
 
                 const rowCcRaw = i.costCenterId || i.costCenter || data.costCenter || '';
                 const rowCcMatch = (typeof COST_CENTERS !== 'undefined' ? COST_CENTERS : []).find(cc => String(cc.id) === String(rowCcRaw) || cc.name === rowCcRaw);
@@ -1054,6 +1106,7 @@ function loadInvoiceFromStorage(invNo) {
 
                 if (i.qrCode) r.qrCode = i.qrCode;
                 r.note = i.note ?? i.notes ?? notesVal ?? '';
+                r.notes = r.note;
                 if (i.buyPrice !== undefined) r.buyPrice = i.buyPrice;
                 if (i.sellPrice !== undefined) r.sellPrice = i.sellPrice;
 
@@ -2796,7 +2849,44 @@ function submitInvoice(ignoreWarnings = false) {
         window._lastSubmittedPurchaseTime = Date.now();
     }
 
+    const rawMainWh = document.getElementById('hdr-warehouse') ? document.getElementById('hdr-warehouse').value : '';
+    const mainWhObj = (typeof WAREHOUSES !== 'undefined' && Array.isArray(WAREHOUSES)) ? WAREHOUSES.find(w => String(w.id) === String(rawMainWh) || w.name === rawMainWh) : null;
+    const resolvedMainWhName = mainWhObj ? mainWhObj.name : (rawMainWh || 'المستودع الرئيسي');
+    const suppDisplayName = (supplierSearchEl && supplierSearchEl.value ? supplierSearchEl.value.trim() : '') || 'مورد عام';
+    const invNotesStr = (document.getElementById('inv-notes') ? document.getElementById('inv-notes').value : '') || (document.getElementById('hdr-description') ? document.getElementById('hdr-description').value : '');
+
+    const enrichedItems = rows.map(r => {
+        const itObj = (typeof ITEMS !== 'undefined' && Array.isArray(ITEMS)) ? ITEMS.find(i => String(i.id) === String(r.itemId)) : null;
+        const rName = r.itemName || r.name || (itObj ? itObj.name : String(r.itemId || ''));
+        const rUnit = r.selectedUnit || r.unit || (itObj ? (itObj.unit || itObj.baseUnit || 'قطعة') : 'قطعة');
+        const rQty = parseFloat(r.quantity ?? r.qty ?? 0) || 0;
+        const rPrice = parseFloat(r.price ?? 0) || 0;
+        const rGross = rQty * rPrice;
+        const rWhRaw = r.warehouseId || r.warehouse || rawMainWh;
+        const rWhObj = (typeof WAREHOUSES !== 'undefined' && Array.isArray(WAREHOUSES)) ? WAREHOUSES.find(w => String(w.id) === String(rWhRaw) || w.name === rWhRaw) : null;
+        const rWhName = rWhObj ? rWhObj.name : (rWhRaw || resolvedMainWhName);
+        return {
+            ...r,
+            name: rName,
+            itemName: rName,
+            unit: rUnit,
+            selectedUnit: rUnit,
+            unitName: rUnit,
+            qty: rQty,
+            quantity: rQty,
+            price: rPrice,
+            subtotal: rGross,
+            grossTotal: rGross,
+            total: rGross,
+            warehouseId: rWhObj ? rWhObj.id : rWhRaw,
+            warehouse: rWhName,
+            note: r.note || r.notes || invNotesStr || '',
+            notes: r.note || r.notes || invNotesStr || ''
+        };
+    });
+
     const data = {
+        id: committedNo,
         createdBy: existingPur?.createdBy || curUser.id || curUser.username || 'unknown',
         createdByName: existingPur?.createdByName || curUser.fullName || curUser.username || 'مستخدم',
         createdByUsername: existingPur?.createdByUsername || curUser.username || 'user',
@@ -2811,10 +2901,13 @@ function submitInvoice(ignoreWarnings = false) {
         customer: custId,
         supplierId: custId,
         supplier: custId,
-        supplierName: supplierSearchEl ? supplierSearchEl.value : '',
+        supplierName: suppDisplayName,
+        vendorName: suppDisplayName,
+        customerName: suppDisplayName,
         saleType: currentSaleType,
         currency: cur,
         exchangeRate: document.getElementById('hdr-exchange-rate').value,
+        rate: parseFloat(document.getElementById('hdr-exchange-rate').value) || 1,
         systemExchangeRate: (typeof window.getExchangeRateForCurrency === 'function' ? window.getExchangeRateForCurrency('USD') : 1) || 1,
         paymentMethod: paymentMethod,
         paymentAccountId: document.getElementById('hdr-payment-account') ? document.getElementById('hdr-payment-account').value : '',
@@ -2823,12 +2916,17 @@ function submitInvoice(ignoreWarnings = false) {
         bankTransfers: bankTransfers,
         cheques: cheques,
         dueDate: creditAmt > 0 ? document.getElementById('pay-credit-due-date').value : '',
-        warehouse: document.getElementById('hdr-warehouse').value,
+        warehouseId: rawMainWh,
+        warehouse: resolvedMainWhName,
+        warehouseName: resolvedMainWhName,
         costCenter: document.getElementById('hdr-cost-center')?.value || '',
-        description: document.getElementById('hdr-description') ? document.getElementById('hdr-description').value : '',
-        items: rows.map(r => ({...r})),
-        notes: document.getElementById('inv-notes') ? document.getElementById('inv-notes').value : '',
+        description: document.getElementById('hdr-description') ? document.getElementById('hdr-description').value : invNotesStr,
+        items: enrichedItems,
+        notes: invNotesStr,
         status: 'confirmed',
+        total: grandAmount,
+        netTotal: grandAmount,
+        subtotal: grandAmount,
         grandTotal: grandAmount,
         totalAmount: grandAmount,
         localTotal: localGrandAmount,
@@ -3057,16 +3155,18 @@ function submitInvoice(ignoreWarnings = false) {
 
     localStorage.setItem('erp_pur_' + committedNo, JSON.stringify(data));
 
-    // Append or Update global purchase invoices array for inventory calculation
-    let allPurchases = JSON.parse(localStorage.getItem('erp_purchase_invoices_v1')) || [];
-    if (currentViewedInvoiceNo) {
-        const idx = allPurchases.findIndex(inv => inv.invoiceNo === currentViewedInvoiceNo);
-        if (idx !== -1) allPurchases[idx] = data;
-        else allPurchases.push(data);
-    } else {
-        allPurchases.push(data);
-    }
-    localStorage.setItem('erp_purchase_invoices_v1', JSON.stringify(allPurchases));
+    // Append or Update global purchase invoices array for inventory calculation & mobile mirror
+    ['erp_purchase_invoices_v1', 'magaies_local_purchase_invoices_v1'].forEach(storageKey => {
+        try {
+            let listArr = JSON.parse(localStorage.getItem(storageKey)) || [];
+            if (!Array.isArray(listArr)) listArr = [];
+            const targetNo = currentViewedInvoiceNo || committedNo;
+            const idx = listArr.findIndex(inv => inv && (String(inv.invoiceNo) === String(targetNo) || String(inv.id) === String(targetNo)));
+            if (idx !== -1) listArr[idx] = data;
+            else listArr.push(data);
+            localStorage.setItem(storageKey, JSON.stringify(listArr));
+        } catch (e) {}
+    });
     if (typeof window.logSystemAction === 'function') {
         const actionLabel = currentViewedInvoiceNo ? 'تعديل فاتورة مشتريات' : 'حفظ فاتورة مشتريات';
         window.logSystemAction(actionLabel, 'المشتريات', 
