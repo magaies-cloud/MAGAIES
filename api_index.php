@@ -1654,7 +1654,7 @@ if ($resource === 'sync') {
                                     $existingUsers = $stmtCheck->fetchAll(PDO::FETCH_ASSOC);
                                     $userMap = [];
                                     foreach ($existingUsers as $eu) {
-                                        $userMap[$eu['username']] = $eu['id'];
+                                        $userMap[strtolower(trim($eu['username']))] = $eu['id'];
                                     }
                                     
                                     $usersToUpdatePass = [];
@@ -1927,9 +1927,13 @@ try {
             if (!$id) jsonResponse(["error" => "معرّف السجل مطلوب للتعديل"], 400);
 
             // Fetch existing for immutability check
-            $stmtEx = $pdo->prepare("SELECT status_val FROM `$resource` WHERE tenant_id = :tid AND (id = :id OR JSON_EXTRACT(data, '$.id') = :id_json)");
-            $stmtEx->execute(['tid' => $tenant_id, 'id' => $id, 'id_json' => $id]);
-            $existingRow = $stmtEx->fetch(PDO::FETCH_ASSOC) ?: null;
+            $isFinRes = in_array($resource, ['sales_invoices', 'purchase_invoices', 'gl_entries', 'receipts', 'payments', 'journal_vouchers', 'single_receipts', 'single_payments']);
+            $existingRow = null;
+            if ($isFinRes) {
+                $stmtEx = $pdo->prepare("SELECT status_val FROM `$resource` WHERE tenant_id = :tid AND (id = :id OR JSON_EXTRACT(data, '$.id') = :id_json)");
+                $stmtEx->execute(['tid' => $tenant_id, 'id' => $id, 'id_json' => $id]);
+                $existingRow = $stmtEx->fetch(PDO::FETCH_ASSOC) ?: null;
+            }
             checkFinancialRules($pdo, $tenant_id, $resource, $input, $existingRow);
 
             if (!isset($input['createdBy']) && !empty($userId)) {
@@ -1944,7 +1948,9 @@ try {
         case 'DELETE':
             if (!$id) jsonResponse(["error" => "معرّف السجل مطلوب للحذف"], 400);
             // Soft Delete: Inject "deleted": true into JSON
-            $stmt = $pdo->prepare("SELECT data, status_val FROM `$resource` WHERE tenant_id = :tid AND (id = :id OR JSON_EXTRACT(data, '$.id') = :id_json)");
+            $isFinDel = in_array($resource, ['sales_invoices', 'purchase_invoices', 'gl_entries', 'receipts', 'payments', 'journal_vouchers', 'single_receipts', 'single_payments']);
+            $selCols = $isFinDel ? 'data, status_val' : 'data';
+            $stmt = $pdo->prepare("SELECT $selCols FROM `$resource` WHERE tenant_id = :tid AND (id = :id OR JSON_EXTRACT(data, '$.id') = :id_json)");
             $stmt->execute(['tid' => $tenant_id, 'id' => $id, 'id_json' => $id]);
             $row = $stmt->fetch(PDO::FETCH_ASSOC);
             
