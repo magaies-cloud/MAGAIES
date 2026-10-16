@@ -1722,12 +1722,22 @@
         modalId = 'modalOpBalanceInquiry';
       } else if (formType === 'stockLocationCheck') {
         modalId = 'modalOpStockLocation';
-      } else if (formType === 'stockAdjustment') {
+      } else if (formType === 'stockAdjustment' || formType === 'damagedStock') {
         modalId = 'modalOpStockAdjustment';
       } else if (formType === 'warehouseTransfer') {
         modalId = 'modalOpWarehouseTransfer';
       } else if (formType === 'inventoryVouchers') {
         modalId = 'modalOpVouchers';
+      } else if (formType === 'addItemMaster') {
+        modalId = 'modalOpAddItemMaster';
+        setTimeout(() => {
+          if (window.SuiteItemMaster) window.SuiteItemMaster.open();
+        }, 40);
+      } else if (formType === 'returnsInvoice') {
+        modalId = 'modalOpReturns';
+        setTimeout(() => {
+          if (window.SuiteReturnsManager) window.SuiteReturnsManager.open();
+        }, 40);
       }
 
       if (modalId) {
@@ -1775,6 +1785,10 @@
 
       broadcastRate(rate) {
         this.currentRate = rate;
+        const hdrFxEl = document.getElementById('headerQuickFxRateVal');
+        if (hdrFxEl && !isNaN(parseFloat(rate))) {
+          hdrFxEl.innerText = Math.round(parseFloat(rate)).toLocaleString('en-US');
+        }
         const sDisplay = document.getElementById('salesUsdRateDisplay');
         const sInp = document.getElementById('salesUsdRateInput');
         if (sDisplay) sDisplay.innerText = rate.toString().slice(0, 5);
@@ -1791,6 +1805,10 @@
         if (window.SuitePurchasePOS) {
           window.SuitePurchasePOS.usdExchangeRate = rate;
           if (window.SuitePurchasePOS.cart && window.SuitePurchasePOS.cart.length > 0) window.SuitePurchasePOS.renderCart();
+        }
+
+        if (window.SuiteItemMaster && typeof window.SuiteItemMaster.onSellingPriceInput === 'function') {
+          window.SuiteItemMaster.onSellingPriceInput();
         }
 
         window.dispatchEvent(new CustomEvent('magaies_rate_changed', { detail: { rate } }));
@@ -12974,6 +12992,21 @@ async function commitOpSales(andPay = false) {
               <button type="button" data-vtheme="obsidian-charcoal" onclick="applyTheme('obsidian-charcoal'); document.getElementById('suiteQuickThemeDrawer').classList.add('hidden');" class="p-1.5 rounded-xl border border-zinc-600 flex items-center justify-center gap-1 text-[9.5px] font-black transition active:scale-95" style="background:#000000 !important; color:#FFFFFF !important;"><span style="color:#FFFFFF !important;">🌑 أسود OLED</span></button>
               <button type="button" data-vtheme="twilight-indigo" onclick="applyTheme('twilight-indigo'); document.getElementById('suiteQuickThemeDrawer').classList.add('hidden');" class="p-1.5 rounded-xl border border-slate-500 flex items-center justify-center gap-1 text-[9.5px] font-black transition active:scale-95" style="background:#1E293B !important; color:#F8FAFC !important;"><span style="color:#F8FAFC !important;">🛡️ رمادي داكن</span></button>
             </div>
+            <div class="pt-1.5 mt-1 border-t border-slate-800" style="border-color:#1e293b !important;">
+              <div class="text-[9.5px] font-bold text-slate-400 mb-1" style="color:#94a3b8 !important;">👁️ راحة العين وحجم وسماكة الخط:</div>
+              <div class="grid grid-cols-3 gap-1">
+                <button type="button" id="fontSizeCycleBtn" onclick="cycleFontSize(); triggerHapticPulse(20);" class="p-1.5 rounded-xl bg-slate-800 border border-indigo-500/40 text-indigo-300 flex items-center justify-center gap-1 text-[10px] font-black active:scale-95 transition">
+                  <span>A+</span>
+                  <span id="fontSizeBadge" class="text-[8px] px-1 rounded bg-indigo-600 text-white">100%</span>
+                </button>
+                <button type="button" id="fontBoldToggleBtn" onclick="toggleGlobalFontWeight(); triggerHapticPulse(20);" class="p-1.5 rounded-xl bg-slate-800 border border-emerald-500/40 text-emerald-300 flex items-center justify-center gap-1 text-[10px] font-black active:scale-95 transition">
+                  <span>B عريض</span>
+                </button>
+                <button type="button" id="sunlightModeBtn" onclick="toggleSunlightMode(); triggerHapticPulse(25);" class="p-1.5 rounded-xl bg-slate-800 border border-amber-500/40 text-amber-300 flex items-center justify-center gap-1 text-[10px] font-black active:scale-95 transition">
+                  <span>☀️ شمس</span>
+                </button>
+              </div>
+            </div>
           `;
           const topBar = document.getElementById('flagshipTopBar');
           if (topBar && topBar.nextSibling) {
@@ -13480,6 +13513,20 @@ async function commitOpSales(andPay = false) {
       if (!code) return;
 
       closeBarcodeScannerModal();
+
+      if (window.SuiteItemMaster && window.SuiteItemMaster.pendingBarcodeFieldId) {
+        const targetId = window.SuiteItemMaster.pendingBarcodeFieldId;
+        window.SuiteItemMaster.pendingBarcodeFieldId = null;
+        const targetInput = document.getElementById(targetId);
+        if (targetInput) {
+          targetInput.value = code;
+          targetInput.dispatchEvent(new Event('input', { bubbles: true }));
+          targetInput.dispatchEvent(new Event('change', { bubbles: true }));
+          if (typeof showFloatingToast === 'function') showFloatingToast(`✅ تم إدراج الباركود (${code}) في بطاقة الصنف`);
+          return;
+        }
+      }
+
       focusOmniSearch();
 
       const omniInput = document.getElementById('omniSearchInput');
@@ -13551,15 +13598,1079 @@ async function commitOpSales(andPay = false) {
     }
     window.closeBarcodeScannerModal = closeBarcodeScannerModal;
 
+    // ═════════════════════════════════════════════════════════════════════
+    // 📦 SUITE ITEM MASTER ENGINE: 100% LAPTOP PARITY (6 SECTIONS + UNITS + CATEGORIES)
+    // ═════════════════════════════════════════════════════════════════════
+    window.SuiteItemMaster = {
+      currentSubTab: 'card',
+      editingItemId: null,
+      pendingBarcodeFieldId: null,
+      unitRows: [],
+      categories: [],
+      globalUnits: [],
+
+      defaultCategories: [
+        { id: 'CAT-01', name: 'مواد بناء', account: '1104 - مخزون البضاعة', subCategories: ['أسمنت', 'حديد تسليح', 'طوب وبلاط', 'بويات وعوازل'] },
+        { id: 'CAT-02', name: 'مواد غذائية وتموينية', account: '1104 - مخزون البضاعة', subCategories: ['سكر ودقيق', 'زيوت وسمن', 'بقوليات وحبوب', 'معلبات'] },
+        { id: 'CAT-03', name: 'أجهزة وكهربائيات', account: '1104 - مخزون البضاعة', subCategories: ['كابلات وأسلاك', 'إنارة ولمبات', 'طاقة شمسية', 'معدات'] },
+        { id: 'CAT-04', name: 'عام', account: '1104 - مخزون البضاعة', subCategories: ['متنوع', 'مستلزمات'] }
+      ],
+
+      defaultGlobalUnits: [
+        { name: 'قطعة', symbol: 'قطعة', type: 'عددية' },
+        { name: 'كرتونة', symbol: 'كرتونة', type: 'عبوة جملة' },
+        { name: 'جوال', symbol: 'جوال', type: 'عبوة جملة' },
+        { name: 'شيلة', symbol: 'شيلة', type: 'عبوة جملة' },
+        { name: 'طن', symbol: 'طن', type: 'وزنية' },
+        { name: 'كيلو', symbol: 'كجم', type: 'وزنية' },
+        { name: 'لتر', symbol: 'لتر', type: 'حجمية' },
+        { name: 'متر', symbol: 'م', type: 'طولية' },
+        { name: 'دستة', symbol: 'دستة', type: 'عبوة جملة' },
+        { name: 'صندوق', symbol: 'صندوق', type: 'عبوة جملة' },
+        { name: 'باكت', symbol: 'باكت', type: 'عبوة جملة' }
+      ],
+
+      async open(itemIdToEdit = null) {
+        await this.loadMasterState();
+        this.populateCategorySelects();
+        this.populateBaseUnitSelect();
+        this.renderCategories();
+        this.renderGlobalUnits();
+        this.renderDirectory();
+
+        if (itemIdToEdit) {
+          this.editItem(itemIdToEdit);
+        } else if (!this.editingItemId && this.unitRows.length === 0) {
+          this.resetForm();
+        } else {
+          this.updateDirectoryCount();
+        }
+      },
+
+      async loadMasterState() {
+        try {
+          const rawCats = localStorage.getItem('erp_categories_v1');
+          this.categories = rawCats ? JSON.parse(rawCats) : [];
+          if (!Array.isArray(this.categories) || this.categories.length === 0) {
+            this.categories = JSON.parse(JSON.stringify(this.defaultCategories));
+            localStorage.setItem('erp_categories_v1', JSON.stringify(this.categories));
+          }
+        } catch(e) {
+          this.categories = JSON.parse(JSON.stringify(this.defaultCategories));
+        }
+
+        try {
+          const rawUnits = localStorage.getItem('erp_global_units_v1');
+          this.globalUnits = rawUnits ? JSON.parse(rawUnits) : [];
+          if (!Array.isArray(this.globalUnits) || this.globalUnits.length === 0) {
+            this.globalUnits = JSON.parse(JSON.stringify(this.defaultGlobalUnits));
+            localStorage.setItem('erp_global_units_v1', JSON.stringify(this.globalUnits));
+          }
+        } catch(e) {
+          this.globalUnits = JSON.parse(JSON.stringify(this.defaultGlobalUnits));
+        }
+
+        // Sync live items from server if available
+        try {
+          const res = await fetch('api/get_master_data.php?_t=' + Date.now());
+          if (res.ok) {
+            const data = await res.json();
+            if (data && Array.isArray(data.items) && data.items.length > 0) {
+              const localItems = this.getStoredItems();
+              const mergedMap = new Map();
+              localItems.forEach(it => { if (it && it.id) mergedMap.set(String(it.id), it); });
+              data.items.forEach(srv => {
+                const id = String(srv.id || srv.sku || '');
+                if (!id) return;
+                const existing = mergedMap.get(id) || {};
+                mergedMap.set(id, Object.assign({}, existing, srv, { id }));
+              });
+              const merged = Array.from(mergedMap.values());
+              localStorage.setItem('erp_items_v1', JSON.stringify(merged));
+            }
+            if (data && Array.isArray(data.categories) && data.categories.length > 0) {
+              this.categories = data.categories;
+              localStorage.setItem('erp_categories_v1', JSON.stringify(this.categories));
+            }
+            if (data && Array.isArray(data.units) && data.units.length > 0) {
+              this.globalUnits = data.units;
+              localStorage.setItem('erp_global_units_v1', JSON.stringify(this.globalUnits));
+            }
+          }
+        } catch(err) {
+          // Offline mode fallback uses localStorage seamlessly
+        }
+      },
+
+      getStoredItems() {
+        let items = [];
+        try {
+          const raw = localStorage.getItem('erp_items_v1');
+          if (raw) items = JSON.parse(raw);
+        } catch(e) { items = []; }
+        if (!Array.isArray(items)) items = [];
+
+        // Also merge any items discovered in window.LIVE_MARIADB_DISCOVERY.items
+        if (window.LIVE_MARIADB_DISCOVERY && Array.isArray(window.LIVE_MARIADB_DISCOVERY.items)) {
+          const existingIds = new Set(items.map(i => String(i.id || i.name)));
+          window.LIVE_MARIADB_DISCOVERY.items.forEach(dbIt => {
+            const key = String(dbIt.sku || dbIt.id || dbIt.name || '');
+            if (key && !existingIds.has(key)) {
+              existingIds.add(key);
+              items.push({
+                id: String(dbIt.sku || ('SKU-' + (dbIt.id || Math.floor(1000 + Math.random() * 9000)))),
+                name: dbIt.name || 'صنف',
+                nameLatin: dbIt.name_latin || '',
+                barcode: dbIt.barcode || '',
+                category: dbIt.category || 'عام',
+                subCategory: dbIt.sub_category || '',
+                nature: dbIt.nature || 'مخزني',
+                brand: dbIt.brand || '',
+                status: 'active',
+                sellingPrice: parseFloat(dbIt.selling_price || dbIt.price || 0),
+                maxDiscount: 10,
+                taxable: 'yes',
+                taxRate: 17,
+                costMethod: 'lastPurchase',
+                openingQty: parseFloat(dbIt.stock_qty || dbIt.qty || 0),
+                openingValue: parseFloat(dbIt.cost_price || dbIt.cost || 0),
+                binLocation: dbIt.bin_location || 'A-01',
+                maxLimit: 1000,
+                minLimit: 10,
+                reorderLevel: 50,
+                baseUnit: dbIt.unit || 'قطعة',
+                unit: dbIt.unit || 'قطعة',
+                bundleFactor: parseFloat(dbIt.bundle_factor || 1),
+                units: Array.isArray(dbIt.units) ? dbIt.units : [],
+                description: dbIt.description || ''
+              });
+            }
+          });
+        }
+        return items;
+      },
+
+      switchSubTab(tab) {
+        this.currentSubTab = tab;
+        const tabs = ['card', 'directory', 'categories', 'units'];
+        tabs.forEach(t => {
+          const panel = document.getElementById('mobItemSubTab_' + t);
+          const btn = document.getElementById('mobItemSubTabBtn_' + t);
+          if (panel) panel.classList.toggle('hidden', t !== tab);
+          if (btn) {
+            if (t === tab) {
+              btn.className = 'py-2 px-1.5 rounded-xl bg-gradient-to-r from-indigo-600 to-cyan-600 text-white shadow flex items-center justify-center gap-1 transition cursor-pointer';
+            } else {
+              btn.className = 'py-2 px-1.5 rounded-xl text-slate-400 hover:text-white flex items-center justify-center gap-1 transition cursor-pointer';
+            }
+          }
+        });
+        if (tab === 'directory') this.renderDirectory();
+        if (tab === 'categories') this.renderCategories();
+        if (tab === 'units') this.renderGlobalUnits();
+      },
+
+      populateCategorySelects() {
+        const catSel = document.getElementById('mobItemCategory');
+        if (!catSel) return;
+        const currentVal = catSel.value;
+        catSel.innerHTML = this.categories.map(c => `<option value="${c.name}">${c.name}</option>`).join('');
+        if (currentVal && this.categories.some(c => c.name === currentVal)) {
+          catSel.value = currentVal;
+        }
+        this.onCategoryChange();
+      },
+
+      onCategoryChange() {
+        const catSel = document.getElementById('mobItemCategory');
+        const subSel = document.getElementById('mobItemSubCategory');
+        if (!catSel || !subSel) return;
+        const selectedCat = this.categories.find(c => c.name === catSel.value);
+        const subs = (selectedCat && Array.isArray(selectedCat.subCategories)) ? selectedCat.subCategories : [];
+        subSel.innerHTML = `<option value="">-- بدون فئة فرعية --</option>` + subs.map(s => `<option value="${s}">${s}</option>`).join('');
+      },
+
+      populateBaseUnitSelect() {
+        const baseSel = document.getElementById('mobItemBaseUnit');
+        if (!baseSel) return;
+        const cur = baseSel.value || 'قطعة';
+        baseSel.innerHTML = this.globalUnits.map(u => `<option value="${u.name}">${u.name} (${u.symbol || u.name})</option>`).join('');
+        if (this.globalUnits.some(u => u.name === cur)) baseSel.value = cur;
+      },
+
+      generateSku() {
+        const items = this.getStoredItems();
+        const nextNum = 1001 + items.length;
+        const sku = `SKU-${nextNum}`;
+        const el = document.getElementById('mobItemSku');
+        if (el) el.value = sku;
+        return sku;
+      },
+
+      generateBarcode() {
+        const randomDigits = Math.floor(100000 + Math.random() * 900000);
+        const code = `628100${randomDigits}`;
+        const el = document.getElementById('mobItemBarcode');
+        if (el) el.value = code;
+        this.updateQrPreview();
+        return code;
+      },
+
+      scanBarcodeIntoField(fieldId) {
+        this.pendingBarcodeFieldId = fieldId;
+        if (typeof openQrBarcodeModal === 'function') {
+          openQrBarcodeModal('barcode');
+        }
+      },
+
+      onSellingPriceInput() {
+        const priceSdg = parseFloat(document.getElementById('mobItemSellingPrice')?.value || 0);
+        const rate = (window.SuiteFXManager && window.SuiteFXManager.currentRate > 0) ? window.SuiteFXManager.currentRate : 2650;
+        const usd = rate > 0 ? (priceSdg / rate) : 0;
+        const badge = document.getElementById('mobItemUsdPreviewBadge');
+        if (badge) badge.innerText = `≈ $${usd.toFixed(2)}`;
+
+        // Also sync base unit row price if unitRows[0] exists and has factor 1
+        if (this.unitRows.length > 0 && parseFloat(this.unitRows[0].factor) === 1) {
+          this.unitRows[0].cashPrice = priceSdg;
+          if (!this.unitRows[0].creditPrice || this.unitRows[0].creditPrice < priceSdg) {
+            this.unitRows[0].creditPrice = Math.round(priceSdg * 1.05);
+          }
+          if (!this.unitRows[0].minPrice) {
+            this.unitRows[0].minPrice = Math.round(priceSdg * 0.95);
+          }
+          this.renderUnitRows();
+        }
+      },
+
+      onTaxToggle() {
+        const taxable = document.getElementById('mobItemTaxable')?.value;
+        const rateInp = document.getElementById('mobItemTaxRate');
+        if (rateInp) {
+          if (taxable === 'no') {
+            rateInp.value = 0;
+            rateInp.disabled = true;
+          } else {
+            if (parseFloat(rateInp.value || 0) === 0) rateInp.value = 17;
+            rateInp.disabled = false;
+          }
+        }
+      },
+
+      recalcOpeningTotal() {
+        const qty = parseFloat(document.getElementById('mobItemOpeningQty')?.value || 0);
+        const val = parseFloat(document.getElementById('mobItemOpeningValue')?.value || 0);
+        const tot = qty * val;
+        const badge = document.getElementById('mobItemTotalOpeningValBadge');
+        if (badge) badge.innerText = `إجمالي الافتتاحي: ${Math.round(tot).toLocaleString('en-US')} ج.س`;
+        if (this.unitRows.length > 0 && parseFloat(this.unitRows[0].factor) === 1) {
+          this.unitRows[0].stock = qty;
+          this.renderUnitRows();
+        }
+      },
+
+      onBaseUnitChange() {
+        const baseUnit = document.getElementById('mobItemBaseUnit')?.value || 'قطعة';
+        if (this.unitRows.length === 0) {
+          this.addUnitRow({ unitName: baseUnit, factor: 1 });
+        } else {
+          this.unitRows[0].unitName = baseUnit;
+          this.unitRows[0].factor = 1;
+          this.renderUnitRows();
+        }
+      },
+
+      addUnitRow(preset = null) {
+        const basePrice = parseFloat(document.getElementById('mobItemSellingPrice')?.value || 0);
+        const baseBar = document.getElementById('mobItemBarcode')?.value || '';
+        const baseQty = parseFloat(document.getElementById('mobItemOpeningQty')?.value || 0);
+        const baseUnit = document.getElementById('mobItemBaseUnit')?.value || 'قطعة';
+
+        const isFirst = this.unitRows.length === 0;
+        const defaultFactor = isFirst ? 1 : 12;
+        const row = Object.assign({
+          unitName: isFirst ? baseUnit : 'كرتونة',
+          factor: defaultFactor,
+          barcode: isFirst ? baseBar : (baseBar ? `${baseBar}-${this.unitRows.length + 1}` : ''),
+          cashPrice: isFirst ? basePrice : Math.round(basePrice * defaultFactor),
+          creditPrice: isFirst ? Math.round(basePrice * 1.05) : Math.round(basePrice * defaultFactor * 1.05),
+          minPrice: isFirst ? Math.round(basePrice * 0.95) : Math.round(basePrice * defaultFactor * 0.95),
+          weight: isFirst ? 1 : defaultFactor,
+          stock: isFirst ? baseQty : (defaultFactor > 0 ? +(baseQty / defaultFactor).toFixed(2) : 0)
+        }, preset || {});
+
+        this.unitRows.push(row);
+        this.renderUnitRows();
+      },
+
+      removeUnitRow(idx) {
+        if (this.unitRows.length <= 1) {
+          if (typeof showFloatingToast === 'function') showFloatingToast('⚠️ يجب الاحتفاظ بالوحدة الأساسية على الأقل');
+          return;
+        }
+        this.unitRows.splice(idx, 1);
+        this.renderUnitRows();
+      },
+
+      updateUnitField(idx, field, val) {
+        if (!this.unitRows[idx]) return;
+        if (['factor', 'cashPrice', 'creditPrice', 'minPrice', 'weight', 'stock'].includes(field)) {
+          this.unitRows[idx][field] = parseFloat(val) || 0;
+          if (field === 'factor' && idx > 0) {
+            const basePrice = parseFloat(document.getElementById('mobItemSellingPrice')?.value || 0);
+            const f = this.unitRows[idx].factor || 1;
+            if (basePrice > 0) {
+              this.unitRows[idx].cashPrice = Math.round(basePrice * f);
+              this.unitRows[idx].creditPrice = Math.round(basePrice * f * 1.05);
+              this.unitRows[idx].minPrice = Math.round(basePrice * f * 0.95);
+              this.renderUnitRows();
+            }
+          }
+        } else {
+          this.unitRows[idx][field] = val;
+        }
+      },
+
+      renderUnitRows() {
+        const container = document.getElementById('mobItemUnitsContainer');
+        if (!container) return;
+        const unitOptionsHtml = this.globalUnits.map(u => `<option value="${u.name}">${u.name}</option>`).join('');
+
+        container.innerHTML = this.unitRows.map((u, idx) => {
+          const isBase = idx === 0;
+          const badgeText = isBase ? 'الوحدة الأساسية (معامل = 1)' : `وحدة فرعية / كبرى #${idx + 1}`;
+          const borderCls = isBase ? 'border-cyan-500/40 bg-slate-950/90' : 'border-indigo-500/40 bg-slate-950/75';
+          const barInputId = `mobUnitBarcode_${idx}`;
+
+          return `
+            <div class="p-2.5 rounded-xl border ${borderCls} space-y-2 text-xs">
+              <div class="flex justify-between items-center border-b border-slate-800/80 pb-1">
+                <span class="text-[10px] font-black ${isBase ? 'text-cyan-300' : 'text-indigo-300'}">⚖️ ${badgeText}</span>
+                ${!isBase ? `<button type="button" onclick="SuiteItemMaster.removeUnitRow(${idx})" class="text-[10px] text-rose-400 hover:text-rose-300 font-black px-1.5 py-0.5 rounded bg-rose-950/50 border border-rose-500/30 cursor-pointer">🗑️ حذف الوحدة</button>` : `<span class="text-[9px] text-emerald-400 font-bold">أساسية</span>`}
+              </div>
+              <div class="grid grid-cols-3 gap-2">
+                <div>
+                  <label class="text-[9px] text-slate-400 block mb-0.5">اسم الوحدة</label>
+                  <select onchange="SuiteItemMaster.updateUnitField(${idx}, 'unitName', this.value)" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2 py-1.5 text-[11px] font-bold text-white outline-none">
+                    ${unitOptionsHtml}
+                    <option value="${u.unitName}" ${!this.globalUnits.some(gu => gu.name === u.unitName) ? 'selected' : ''}>${u.unitName}</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="text-[9px] text-slate-400 block mb-0.5">معامل التحويل (الشد)</label>
+                  <input type="number" step="any" value="${u.factor}" ${isBase ? 'readonly' : ''} onchange="SuiteItemMaster.updateUnitField(${idx}, 'factor', this.value)" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2 py-1.5 text-[11px] font-mono font-black text-amber-300 outline-none" />
+                </div>
+                <div>
+                  <label class="text-[9px] text-slate-400 block mb-0.5">باركود الوحدة</label>
+                  <div class="flex gap-1">
+                    <input id="${barInputId}" type="text" value="${u.barcode || ''}" oninput="SuiteItemMaster.updateUnitField(${idx}, 'barcode', this.value)" placeholder="باركود..." class="w-full bg-slate-900 border border-slate-700 rounded-lg px-1.5 py-1.5 text-[10px] font-mono text-cyan-300 outline-none" />
+                    <button type="button" onclick="SuiteItemMaster.scanBarcodeIntoField('${barInputId}')" class="px-1.5 rounded-lg bg-slate-800 border border-slate-700 text-[10px] cursor-pointer">📷</button>
+                  </div>
+                </div>
+              </div>
+              <div class="grid grid-cols-4 gap-1.5">
+                <div>
+                  <label class="text-[9px] text-emerald-400 block mb-0.5">سعر نقدي (ج.س)</label>
+                  <input type="number" step="any" value="${u.cashPrice || 0}" oninput="SuiteItemMaster.updateUnitField(${idx}, 'cashPrice', this.value)" class="w-full bg-slate-900 border border-emerald-500/40 rounded-lg px-1.5 py-1 text-[11px] font-mono font-black text-emerald-400 outline-none" />
+                </div>
+                <div>
+                  <label class="text-[9px] text-amber-300 block mb-0.5">سعر آجل (ج.س)</label>
+                  <input type="number" step="any" value="${u.creditPrice || 0}" oninput="SuiteItemMaster.updateUnitField(${idx}, 'creditPrice', this.value)" class="w-full bg-slate-900 border border-amber-500/40 rounded-lg px-1.5 py-1 text-[11px] font-mono font-bold text-amber-300 outline-none" />
+                </div>
+                <div>
+                  <label class="text-[9px] text-rose-300 block mb-0.5">أدنى سعر بيع</label>
+                  <input type="number" step="any" value="${u.minPrice || 0}" oninput="SuiteItemMaster.updateUnitField(${idx}, 'minPrice', this.value)" class="w-full bg-slate-900 border border-rose-500/40 rounded-lg px-1.5 py-1 text-[11px] font-mono font-bold text-rose-300 outline-none" />
+                </div>
+                <div>
+                  <label class="text-[9px] text-slate-400 block mb-0.5">الوزن (كجم)</label>
+                  <input type="number" step="any" value="${u.weight || 0}" oninput="SuiteItemMaster.updateUnitField(${idx}, 'weight', this.value)" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-1.5 py-1 text-[11px] font-mono text-slate-300 outline-none" />
+                </div>
+              </div>
+            </div>
+          `;
+        }).join('');
+
+        // Set selected values on unit selects
+        const selects = container.querySelectorAll('select');
+        selects.forEach((sel, idx) => {
+          if (this.unitRows[idx]) sel.value = this.unitRows[idx].unitName;
+        });
+      },
+
+      updateQrPreview() {
+        const name = document.getElementById('mobItemName')?.value.trim() || 'صنف جديد';
+        const bar = document.getElementById('mobItemBarcode')?.value.trim() || document.getElementById('mobItemSku')?.value.trim() || '628100000';
+        const box = document.getElementById('mobItemQrPreviewBox');
+        const lbl = document.getElementById('mobItemQrPreviewName');
+        if (box) box.innerText = `|| ${bar} ||`;
+        if (lbl) lbl.innerText = name;
+      },
+
+      resetForm() {
+        this.editingItemId = null;
+        const titleEl = document.getElementById('mobItemModalTitle');
+        if (titleEl) titleEl.innerText = 'بطاقة تعريف صنف شاملة (مطابقة اللابتوب 100%)';
+
+        this.generateSku();
+        this.generateBarcode();
+
+        const setVal = (id, v) => { const el = document.getElementById(id); if (el) el.value = v; };
+        setVal('mobItemName', '');
+        setVal('mobItemNameLatin', '');
+        setVal('mobItemBrand', '');
+        setVal('mobItemNature', 'مخزني');
+        setVal('mobItemStatus', 'active');
+        setVal('mobItemSellingPrice', '');
+        setVal('mobItemMaxDiscount', '10');
+        setVal('mobItemTaxable', 'yes');
+        setVal('mobItemTaxRate', '17');
+        setVal('mobItemCostMethod', 'lastPurchase');
+        setVal('mobItemOpeningQty', '0');
+        setVal('mobItemOpeningValue', '0');
+        setVal('mobItemBinLocation', 'A-01-01');
+        setVal('mobItemMaxLimit', '1000');
+        setVal('mobItemReorderLevel', '50');
+        setVal('mobItemMinLimit', '10');
+        setVal('mobItemBaseUnit', 'قطعة');
+        setVal('mobItemBundleFactor', '1');
+        setVal('mobItemDescription', '');
+
+        this.unitRows = [];
+        this.addUnitRow({ unitName: 'قطعة', factor: 1, cashPrice: 0, creditPrice: 0, minPrice: 0, weight: 1, stock: 0 });
+        this.onSellingPriceInput();
+        this.recalcOpeningTotal();
+        this.updateQrPreview();
+        this.updateDirectoryCount();
+      },
+
+      async saveItem() {
+        const name = (document.getElementById('mobItemName')?.value || '').trim();
+        if (!name) {
+          if (typeof showFloatingToast === 'function') showFloatingToast('⚠️ يرجى إدخال اسم الصنف التجاري بالعربي');
+          document.getElementById('mobItemName')?.focus();
+          return;
+        }
+
+        const sku = (document.getElementById('mobItemSku')?.value || '').trim() || this.generateSku();
+        const barcode = (document.getElementById('mobItemBarcode')?.value || '').trim() || this.generateBarcode();
+        const sellingPrice = parseFloat(document.getElementById('mobItemSellingPrice')?.value || 0);
+        const openingQty = parseFloat(document.getElementById('mobItemOpeningQty')?.value || 0);
+        const openingValue = parseFloat(document.getElementById('mobItemOpeningValue')?.value || 0);
+        const baseUnit = document.getElementById('mobItemBaseUnit')?.value || 'قطعة';
+        const bundleFactor = parseFloat(document.getElementById('mobItemBundleFactor')?.value || 1) || 1;
+
+        if (this.unitRows.length === 0) {
+          this.addUnitRow({ unitName: baseUnit, factor: 1, barcode, cashPrice: sellingPrice });
+        } else {
+          this.unitRows[0].unitName = baseUnit;
+          this.unitRows[0].factor = 1;
+          if (!this.unitRows[0].barcode) this.unitRows[0].barcode = barcode;
+          if (!this.unitRows[0].cashPrice && sellingPrice > 0) this.unitRows[0].cashPrice = sellingPrice;
+          this.unitRows[0].stock = openingQty;
+        }
+
+        // Exact Laptop master-data.php itemData schema
+        const itemData = {
+          id: sku,
+          sku: sku,
+          name: name,
+          nameLatin: (document.getElementById('mobItemNameLatin')?.value || '').trim(),
+          barcode: barcode,
+          category: document.getElementById('mobItemCategory')?.value || 'عام',
+          subCategory: document.getElementById('mobItemSubCategory')?.value || '',
+          nature: document.getElementById('mobItemNature')?.value || 'مخزني',
+          brand: (document.getElementById('mobItemBrand')?.value || '').trim(),
+          status: document.getElementById('mobItemStatus')?.value || 'active',
+          sellingPrice: sellingPrice,
+          price: sellingPrice,
+          selling_price: sellingPrice,
+          maxDiscount: parseFloat(document.getElementById('mobItemMaxDiscount')?.value || 10),
+          taxable: document.getElementById('mobItemTaxable')?.value || 'yes',
+          taxRate: parseFloat(document.getElementById('mobItemTaxRate')?.value || 17),
+          costMethod: document.getElementById('mobItemCostMethod')?.value || 'lastPurchase',
+          openingQty: openingQty,
+          stock_qty: openingQty,
+          qty: openingQty,
+          openingValue: openingValue,
+          cost_price: openingValue,
+          cost: openingValue,
+          binLocation: (document.getElementById('mobItemBinLocation')?.value || 'A-01').trim(),
+          maxLimit: parseFloat(document.getElementById('mobItemMaxLimit')?.value || 1000),
+          minLimit: parseFloat(document.getElementById('mobItemMinLimit')?.value || 10),
+          reorderLevel: parseFloat(document.getElementById('mobItemReorderLevel')?.value || 50),
+          baseUnit: baseUnit,
+          unit: baseUnit,
+          bundleFactor: bundleFactor,
+          units: JSON.parse(JSON.stringify(this.unitRows)),
+          unitsArray: JSON.parse(JSON.stringify(this.unitRows)),
+          description: (document.getElementById('mobItemDescription')?.value || '').trim(),
+          updatedAt: new Date().toISOString()
+        };
+
+        // 1. Update localStorage ('erp_items_v1')
+        const items = this.getStoredItems();
+        const existingIdx = items.findIndex(i => String(i.id) === String(sku) || (this.editingItemId && String(i.id) === String(this.editingItemId)));
+        if (existingIdx >= 0) {
+          items[existingIdx] = itemData;
+        } else {
+          items.unshift(itemData);
+        }
+        localStorage.setItem('erp_items_v1', JSON.stringify(items));
+
+        // 2. Update LIVE_MARIADB_DISCOVERY.items so Sales POS, Purchase POS, and Inventory Page see it immediately
+        if (!window.LIVE_MARIADB_DISCOVERY) window.LIVE_MARIADB_DISCOVERY = { items: [], partners: [] };
+        if (!Array.isArray(window.LIVE_MARIADB_DISCOVERY.items)) window.LIVE_MARIADB_DISCOVERY.items = [];
+        const dbIdx = window.LIVE_MARIADB_DISCOVERY.items.findIndex(i => String(i.sku || i.id) === String(sku) || i.name === name);
+        const dbRecord = Object.assign({}, itemData, {
+          sku: sku,
+          selling_price: sellingPrice,
+          cost_price: openingValue,
+          stock_qty: openingQty
+        });
+        if (dbIdx >= 0) {
+          window.LIVE_MARIADB_DISCOVERY.items[dbIdx] = dbRecord;
+        } else {
+          window.LIVE_MARIADB_DISCOVERY.items.unshift(dbRecord);
+        }
+
+        if (typeof renderLiveInventoryItems === 'function') {
+          try { renderLiveInventoryItems(window.LIVE_MARIADB_DISCOVERY.items); } catch(e) {}
+        }
+        if (window.SuiteSalesPOS) {
+          if (typeof window.SuiteSalesPOS.syncLiveErpCatalog === 'function') {
+            window.SuiteSalesPOS.syncLiveErpCatalog();
+          }
+          if (Array.isArray(window.SuiteSalesPOS.dbItems)) {
+            const posIdx = window.SuiteSalesPOS.dbItems.findIndex(x => x.name === name || String(x.id) === String(sku));
+            if (posIdx >= 0) window.SuiteSalesPOS.dbItems[posIdx] = itemData;
+            else window.SuiteSalesPOS.dbItems.unshift(itemData);
+          }
+        }
+
+        // 3. Persist to Laptop & Live Server API (api/save_master_data.php)
+        const syncBadge = document.getElementById('mobItemLiveSyncBadge');
+        if (syncBadge) syncBadge.innerText = '⏳ جاري المزامنة مع السيرفر واللابتوب...';
+
+        let syncedServer = false;
+        try {
+          const resp = await fetch('api/save_master_data.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ type: 'save_item', data: itemData })
+          });
+          if (resp.ok) {
+            const resJson = await resp.json();
+            if (resJson && (resJson.status === 'success' || resJson.success)) {
+              syncedServer = true;
+            }
+          }
+        } catch(err) {
+          console.warn('[SuiteItemMaster] Offline queue fallback:', err);
+        }
+
+        if (!syncedServer && window.MagaiesOffline && typeof window.MagaiesOffline.enqueue === 'function') {
+          window.MagaiesOffline.enqueue('api/save_master_data.php', { type: 'save_item', data: itemData }, `حفظ بطاقة صنف: ${name}`);
+        }
+
+        if (syncBadge) {
+          syncBadge.innerText = syncedServer
+            ? '✅ تمت المزامنة الفورية مع اللابتوب والسحابة'
+            : '📥 حُفظ محلياً وفي طابور المزامنة السحابية';
+        }
+
+        if (typeof triggerHapticPulse === 'function') triggerHapticPulse(40);
+        if (typeof showFloatingToast === 'function') {
+          showFloatingToast(`✅ تم حفظ الصنف (${name}) بكامل وحداته ومزامنته مع الفواتير واللابتوب`);
+        }
+
+        this.updateDirectoryCount();
+        this.renderDirectory();
+      },
+
+      editItem(itemId) {
+        const items = this.getStoredItems();
+        const item = items.find(i => String(i.id) === String(itemId) || String(i.sku) === String(itemId));
+        if (!item) return;
+
+        this.editingItemId = item.id;
+        this.switchSubTab('card');
+
+        const titleEl = document.getElementById('mobItemModalTitle');
+        if (titleEl) titleEl.innerText = `تعديل بطاقة الصنف: ${item.name}`;
+
+        const setVal = (id, v) => { const el = document.getElementById(id); if (el) el.value = v ?? ''; };
+        setVal('mobItemSku', item.id || item.sku || '');
+        setVal('mobItemBarcode', item.barcode || '');
+        setVal('mobItemName', item.name || '');
+        setVal('mobItemNameLatin', item.nameLatin || '');
+        setVal('mobItemBrand', item.brand || '');
+        this.populateCategorySelects();
+        setVal('mobItemCategory', item.category || 'عام');
+        this.onCategoryChange();
+        setVal('mobItemSubCategory', item.subCategory || '');
+        setVal('mobItemNature', item.nature || 'مخزني');
+        setVal('mobItemStatus', item.status || 'active');
+        setVal('mobItemSellingPrice', item.sellingPrice ?? item.price ?? 0);
+        setVal('mobItemMaxDiscount', item.maxDiscount ?? 10);
+        setVal('mobItemTaxable', item.taxable || 'yes');
+        setVal('mobItemTaxRate', item.taxRate ?? 17);
+        setVal('mobItemCostMethod', item.costMethod || 'lastPurchase');
+        setVal('mobItemOpeningQty', item.openingQty ?? item.stock_qty ?? 0);
+        setVal('mobItemOpeningValue', item.openingValue ?? item.cost_price ?? 0);
+        setVal('mobItemBinLocation', item.binLocation || 'A-01');
+        setVal('mobItemMaxLimit', item.maxLimit ?? 1000);
+        setVal('mobItemReorderLevel', item.reorderLevel ?? 50);
+        setVal('mobItemMinLimit', item.minLimit ?? 10);
+        this.populateBaseUnitSelect();
+        setVal('mobItemBaseUnit', item.baseUnit || item.unit || 'قطعة');
+        setVal('mobItemBundleFactor', item.bundleFactor ?? 1);
+        setVal('mobItemDescription', item.description || '');
+
+        this.unitRows = Array.isArray(item.units) && item.units.length > 0
+          ? JSON.parse(JSON.stringify(item.units))
+          : [{
+              unitName: item.baseUnit || item.unit || 'قطعة',
+              factor: 1,
+              barcode: item.barcode || '',
+              cashPrice: parseFloat(item.sellingPrice || item.price || 0),
+              creditPrice: Math.round(parseFloat(item.sellingPrice || item.price || 0) * 1.05),
+              minPrice: Math.round(parseFloat(item.sellingPrice || item.price || 0) * 0.95),
+              weight: 1,
+              stock: parseFloat(item.openingQty || item.stock_qty || 0)
+            }];
+
+        this.renderUnitRows();
+        this.onSellingPriceInput();
+        this.recalcOpeningTotal();
+        this.updateQrPreview();
+      },
+
+      async deleteItem(itemId) {
+        if (!confirm('هل أنت متأكد من حذف هذا الصنف من دليل الأصناف؟')) return;
+        const items = this.getStoredItems().filter(i => String(i.id) !== String(itemId));
+        localStorage.setItem('erp_items_v1', JSON.stringify(items));
+        try {
+          await fetch('api/save_master_data.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ type: 'delete_item', id: itemId })
+          });
+        } catch(e) {}
+        this.renderDirectory();
+        this.updateDirectoryCount();
+        if (typeof showFloatingToast === 'function') showFloatingToast('🗑️ تم حذف الصنف وتحديث الدليل');
+      },
+
+      updateDirectoryCount() {
+        const badge = document.getElementById('mobItemDirectoryCountBadge');
+        if (badge) badge.innerText = this.getStoredItems().length;
+      },
+
+      renderDirectory(query = '') {
+        this.updateDirectoryCount();
+        const container = document.getElementById('mobItemDirectoryList');
+        if (!container) return;
+        const q = (query || document.getElementById('mobItemDirectorySearch')?.value || '').trim().toLowerCase();
+        const items = this.getStoredItems().filter(it => {
+          if (!q) return true;
+          return (it.name || '').toLowerCase().includes(q) ||
+                 String(it.id || '').toLowerCase().includes(q) ||
+                 String(it.barcode || '').toLowerCase().includes(q) ||
+                 (it.category || '').toLowerCase().includes(q);
+        });
+
+        if (items.length === 0) {
+          container.innerHTML = `<div class="p-6 text-center text-xs text-slate-400 bg-slate-900/60 rounded-2xl border border-slate-800">لا توجد أصناف مطابقة للبحث حالياً</div>`;
+          return;
+        }
+
+        container.innerHTML = items.map(it => {
+          const price = parseFloat(it.sellingPrice ?? it.price ?? 0);
+          const qty = parseFloat(it.openingQty ?? it.stock_qty ?? 0);
+          const unitsCount = Array.isArray(it.units) && it.units.length > 0 ? it.units.length : 1;
+          const safeId = String(it.id || '').replace(/'/g, "\\'");
+          return `
+            <div class="p-3 rounded-2xl bg-slate-900/90 border border-slate-800 hover:border-indigo-500/40 flex justify-between items-center gap-2 transition">
+              <div class="min-w-0 flex-1">
+                <div class="flex items-center gap-1.5 flex-wrap">
+                  <span class="text-xs font-black text-white truncate">${it.name}</span>
+                  <span class="text-[9px] font-mono bg-indigo-950 text-indigo-300 px-1.5 py-0.5 rounded border border-indigo-500/30">${it.id}</span>
+                  <span class="text-[9px] bg-slate-800 text-cyan-300 px-1.5 py-0.5 rounded">${it.category || 'عام'}</span>
+                </div>
+                <div class="flex items-center gap-3 mt-1 text-[10px] text-slate-400 font-mono">
+                  <span>السعر: <strong class="text-emerald-400">${price.toLocaleString('en-US')} ج.س</strong></span>
+                  <span>الرصيد: <strong class="text-amber-300">${qty} ${it.baseUnit || it.unit || 'قطعة'}</strong></span>
+                  <span>الوحدات: <strong class="text-cyan-300">${unitsCount}</strong></span>
+                </div>
+              </div>
+              <div class="flex items-center gap-1 shrink-0">
+                <button type="button" onclick="SuiteItemMaster.editItem('${safeId}')" class="px-2.5 py-1.5 rounded-xl bg-indigo-500/20 hover:bg-indigo-500/30 text-indigo-300 border border-indigo-500/40 text-[10px] font-black cursor-pointer">✏️ تعديل</button>
+                <button type="button" onclick="SuiteItemMaster.deleteItem('${safeId}')" class="px-2 py-1.5 rounded-xl bg-rose-500/15 hover:bg-rose-500/25 text-rose-300 border border-rose-500/30 text-[10px] font-black cursor-pointer">🗑️</button>
+              </div>
+            </div>
+          `;
+        }).join('');
+      },
+
+      async saveCategory() {
+        const name = (document.getElementById('mobNewCatName')?.value || '').trim();
+        if (!name) {
+          if (typeof showFloatingToast === 'function') showFloatingToast('⚠️ يرجى إدخال اسم الفئة الرئيسية');
+          return;
+        }
+        const id = (document.getElementById('mobNewCatId')?.value || '').trim() || `CAT-0${this.categories.length + 1}`;
+        const account = (document.getElementById('mobNewCatAccount')?.value || '1104 - مخزون البضاعة').trim();
+        const subRaw = (document.getElementById('mobNewCatSub')?.value || '').trim();
+        const subCategories = subRaw ? subRaw.split(/[،,]/).map(s => s.trim()).filter(Boolean) : [];
+
+        const existingIdx = this.categories.findIndex(c => c.id === id || c.name === name);
+        if (existingIdx >= 0) {
+          this.categories[existingIdx] = { id, name, account, subCategories };
+        } else {
+          this.categories.push({ id, name, account, subCategories });
+        }
+
+        localStorage.setItem('erp_categories_v1', JSON.stringify(this.categories));
+        try {
+          await fetch('api/save_master_data.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ type: 'categories', data: this.categories })
+          });
+        } catch(e) {}
+
+        document.getElementById('mobNewCatId').value = '';
+        document.getElementById('mobNewCatName').value = '';
+        document.getElementById('mobNewCatSub').value = '';
+
+        this.populateCategorySelects();
+        this.renderCategories();
+        if (typeof showFloatingToast === 'function') showFloatingToast(`✅ تم حفظ الفئة (${name}) ومزامنتها مع اللابتوب`);
+      },
+
+      async deleteCategory(catId) {
+        this.categories = this.categories.filter(c => c.id !== catId);
+        localStorage.setItem('erp_categories_v1', JSON.stringify(this.categories));
+        try {
+          await fetch('api/save_master_data.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ type: 'categories', data: this.categories })
+          });
+        } catch(e) {}
+        this.populateCategorySelects();
+        this.renderCategories();
+      },
+
+      renderCategories() {
+        const container = document.getElementById('mobCategoriesListContainer');
+        if (!container) return;
+        container.innerHTML = this.categories.map(c => `
+          <div class="p-2.5 rounded-xl bg-slate-900 border border-slate-800 flex justify-between items-center text-xs">
+            <div>
+              <div class="flex items-center gap-1.5">
+                <span class="font-black text-white">${c.name}</span>
+                <span class="text-[9px] font-mono text-indigo-300 bg-indigo-950 px-1.5 py-0.5 rounded">${c.id}</span>
+              </div>
+              <span class="text-[10px] text-slate-400 block mt-0.5">الفرعية: ${(c.subCategories || []).join(' ، ') || 'بدون'}</span>
+            </div>
+            <button type="button" onclick="SuiteItemMaster.deleteCategory('${c.id}')" class="text-[10px] text-rose-400 bg-rose-950/50 border border-rose-500/30 px-2 py-1 rounded-lg cursor-pointer">حذف</button>
+          </div>
+        `).join('');
+      },
+
+      async saveGlobalUnit() {
+        const name = (document.getElementById('mobNewUnitName')?.value || '').trim();
+        if (!name) {
+          if (typeof showFloatingToast === 'function') showFloatingToast('⚠️ يرجى إدخال اسم الوحدة');
+          return;
+        }
+        const symbol = (document.getElementById('mobNewUnitSymbol')?.value || name).trim();
+        const type = document.getElementById('mobNewUnitType')?.value || 'عددية';
+
+        if (!this.globalUnits.some(u => u.name === name)) {
+          this.globalUnits.push({ name, symbol, type });
+          localStorage.setItem('erp_global_units_v1', JSON.stringify(this.globalUnits));
+          try {
+            await fetch('api/save_master_data.php', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ type: 'units', data: this.globalUnits })
+            });
+          } catch(e) {}
+        }
+
+        document.getElementById('mobNewUnitName').value = '';
+        document.getElementById('mobNewUnitSymbol').value = '';
+        this.populateBaseUnitSelect();
+        this.renderUnitRows();
+        this.renderGlobalUnits();
+        if (typeof showFloatingToast === 'function') showFloatingToast(`✅ تم إضافة الوحدة (${name}) ومزامنتها`);
+      },
+
+      async deleteGlobalUnit(idx) {
+        this.globalUnits.splice(idx, 1);
+        localStorage.setItem('erp_global_units_v1', JSON.stringify(this.globalUnits));
+        try {
+          await fetch('api/save_master_data.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ type: 'units', data: this.globalUnits })
+          });
+        } catch(e) {}
+        this.populateBaseUnitSelect();
+        this.renderUnitRows();
+        this.renderGlobalUnits();
+      },
+
+      renderGlobalUnits() {
+        const container = document.getElementById('mobGlobalUnitsListContainer');
+        if (!container) return;
+        container.innerHTML = this.globalUnits.map((u, idx) => `
+          <div class="p-2 rounded-xl bg-slate-900 border border-slate-800 flex justify-between items-center text-xs">
+            <div>
+              <span class="font-black text-cyan-300 block">${u.name}</span>
+              <span class="text-[9px] text-slate-400">${u.type || 'قياسية'} (${u.symbol || u.name})</span>
+            </div>
+            <button type="button" onclick="SuiteItemMaster.deleteGlobalUnit(${idx})" class="text-[10px] text-rose-400 px-1.5 py-0.5 rounded bg-rose-950/40 cursor-pointer">✕</button>
+          </div>
+        `).join('');
+      }
+    };
+
+    // ═════════════════════════════════════════════════════════════════════
+    // ↩️ SUITE RETURNS MANAGER: SALES & PURCHASE RETURNS (مرتجع المبيعات والمشتريات)
+    // ═════════════════════════════════════════════════════════════════════
+    window.SuiteReturnsManager = {
+      returnType: 'sales_return', // 'sales_return' | 'purchase_return'
+      lines: [],
+
+      open(defaultType = 'sales_return') {
+        this.setReturnType(defaultType);
+        if (this.lines.length === 0) {
+          this.addLine();
+        } else {
+          this.renderLines();
+        }
+      },
+
+      setReturnType(type) {
+        this.returnType = type;
+        const sBtn = document.getElementById('mobReturnTypeSalesBtn');
+        const pBtn = document.getElementById('mobReturnTypePurchaseBtn');
+        const partnerLbl = document.getElementById('mobReturnPartnerLabel');
+        const hintEl = document.getElementById('mobReturnEffectHint');
+
+        if (type === 'sales_return') {
+          if (sBtn) sBtn.className = 'py-2.5 rounded-xl bg-gradient-to-r from-rose-600 to-amber-600 text-white shadow flex items-center justify-center gap-1.5 transition cursor-pointer';
+          if (pBtn) pBtn.className = 'py-2.5 rounded-xl text-slate-400 hover:text-white flex items-center justify-center gap-1.5 transition cursor-pointer';
+          if (partnerLbl) partnerLbl.innerText = 'العميل صاحب المرتجع *';
+          if (hintEl) {
+            hintEl.innerText = '➕ يضاف للمخزن ويخصم من مديونية العميل (إشعار دائن)';
+            hintEl.className = 'text-[10px] text-emerald-400 font-bold';
+          }
+        } else {
+          if (pBtn) pBtn.className = 'py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow flex items-center justify-center gap-1.5 transition cursor-pointer';
+          if (sBtn) sBtn.className = 'py-2.5 rounded-xl text-slate-400 hover:text-white flex items-center justify-center gap-1.5 transition cursor-pointer';
+          if (partnerLbl) partnerLbl.innerText = 'المورد المرجع إليه البضاعة *';
+          if (hintEl) {
+            hintEl.innerText = '➖ يخصم من المخزن ويخفض رصيد المورد (إشعار مدين)';
+            hintEl.className = 'text-[10px] text-amber-300 font-bold';
+          }
+        }
+        this.populatePartners();
+        this.recalcTotals();
+      },
+
+      populatePartners() {
+        const sel = document.getElementById('mobReturnPartnerSelect');
+        if (!sel) return;
+        const partners = (window.LIVE_MARIADB_DISCOVERY && Array.isArray(window.LIVE_MARIADB_DISCOVERY.partners))
+          ? window.LIVE_MARIADB_DISCOVERY.partners
+          : [];
+        const defaultName = this.returnType === 'sales_return' ? 'عميل نقدي عام' : 'مورد عام';
+        const names = [defaultName, ...partners.map(p => p.name).filter(Boolean)];
+        const unique = Array.from(new Set(names));
+        sel.innerHTML = unique.map(n => `<option value="${n}">${n}</option>`).join('');
+      },
+
+      getAvailableItems() {
+        const items = window.SuiteItemMaster ? window.SuiteItemMaster.getStoredItems() : [];
+        if (items.length > 0) return items;
+        return [
+          { id: 'SKU-1001', name: 'أسمنت عطبرة بورتلاندي 50 كجم', sellingPrice: 185000, baseUnit: 'طن' },
+          { id: 'SKU-1002', name: 'سيخ تسليح 16 مم الأسعد', sellingPrice: 920000, baseUnit: 'طن' }
+        ];
+      },
+
+      addLine() {
+        const items = this.getAvailableItems();
+        const first = items[0] || { name: 'صنف عام', sellingPrice: 1000, baseUnit: 'قطعة' };
+        this.lines.push({
+          itemName: first.name,
+          unit: first.baseUnit || first.unit || 'قطعة',
+          qty: 1,
+          price: parseFloat(first.sellingPrice || first.price || 0)
+        });
+        this.renderLines();
+        this.recalcTotals();
+      },
+
+      removeLine(idx) {
+        if (this.lines.length <= 1) return;
+        this.lines.splice(idx, 1);
+        this.renderLines();
+        this.recalcTotals();
+      },
+
+      onItemSelect(idx, itemName) {
+        const items = this.getAvailableItems();
+        const found = items.find(i => i.name === itemName);
+        if (this.lines[idx]) {
+          this.lines[idx].itemName = itemName;
+          if (found) {
+            this.lines[idx].unit = found.baseUnit || found.unit || 'قطعة';
+            this.lines[idx].price = parseFloat(found.sellingPrice || found.price || 0);
+          }
+          this.renderLines();
+          this.recalcTotals();
+        }
+      },
+
+      updateLine(idx, field, val) {
+        if (!this.lines[idx]) return;
+        if (field === 'qty' || field === 'price') {
+          this.lines[idx][field] = parseFloat(val) || 0;
+        } else {
+          this.lines[idx][field] = val;
+        }
+        this.recalcTotals();
+      },
+
+      renderLines() {
+        const container = document.getElementById('mobReturnLinesContainer');
+        if (!container) return;
+        const items = this.getAvailableItems();
+
+        container.innerHTML = this.lines.map((ln, idx) => {
+          const itemOpts = items.map(it => `<option value="${it.name}" ${it.name === ln.itemName ? 'selected' : ''}>${it.name}</option>`).join('');
+          return `
+            <div class="p-2.5 rounded-xl bg-slate-950 border border-slate-800 space-y-1.5 text-xs">
+              <div class="flex justify-between items-center gap-2">
+                <select onchange="SuiteReturnsManager.onItemSelect(${idx}, this.value)" class="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-2 py-1.5 text-xs font-bold text-white outline-none">
+                  ${itemOpts}
+                </select>
+                ${this.lines.length > 1 ? `<button type="button" onclick="SuiteReturnsManager.removeLine(${idx})" class="text-rose-400 px-2 py-1 rounded bg-rose-950/40 text-[10px] font-black cursor-pointer">✕</button>` : ''}
+              </div>
+              <div class="grid grid-cols-3 gap-2">
+                <div>
+                  <span class="text-[9px] text-slate-400 block">الوحدة</span>
+                  <input type="text" value="${ln.unit}" oninput="SuiteReturnsManager.updateLine(${idx}, 'unit', this.value)" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2 py-1 text-[11px] font-bold text-cyan-300 outline-none" />
+                </div>
+                <div>
+                  <span class="text-[9px] text-slate-400 block">الكمية المرتجعة</span>
+                  <input type="number" step="any" value="${ln.qty}" oninput="SuiteReturnsManager.updateLine(${idx}, 'qty', this.value)" class="w-full bg-slate-900 border border-amber-500/40 rounded-lg px-2 py-1 text-[11px] font-mono font-black text-amber-300 outline-none" />
+                </div>
+                <div>
+                  <span class="text-[9px] text-slate-400 block">سعر الوحدة (ج.س)</span>
+                  <input type="number" step="any" value="${ln.price}" oninput="SuiteReturnsManager.updateLine(${idx}, 'price', this.value)" class="w-full bg-slate-900 border border-emerald-500/40 rounded-lg px-2 py-1 text-[11px] font-mono font-black text-emerald-400 outline-none" />
+                </div>
+              </div>
+            </div>
+          `;
+        }).join('');
+      },
+
+      recalcTotals() {
+        const totalSdg = this.lines.reduce((acc, l) => acc + ((parseFloat(l.qty) || 0) * (parseFloat(l.price) || 0)), 0);
+        const rate = (window.SuiteFXManager && window.SuiteFXManager.currentRate > 0) ? window.SuiteFXManager.currentRate : 2650;
+        const totalUsd = rate > 0 ? (totalSdg / rate) : 0;
+
+        const sdgEl = document.getElementById('mobReturnTotalSdg');
+        const usdEl = document.getElementById('mobReturnTotalUsd');
+        if (sdgEl) sdgEl.innerText = `${Math.round(totalSdg).toLocaleString('en-US')} ج.س`;
+        if (usdEl) usdEl.innerText = `≈ $${totalUsd.toFixed(2)}`;
+        return { totalSdg, totalUsd };
+      },
+
+      async submitReturn() {
+        const { totalSdg, totalUsd } = this.recalcTotals();
+        if (totalSdg <= 0) {
+          if (typeof showFloatingToast === 'function') showFloatingToast('⚠️ يرجى إدخال كمية وسعر صحيح للأصناف المرتجعة');
+          return;
+        }
+
+        const partner = document.getElementById('mobReturnPartnerSelect')?.value || 'عميل عام';
+        const warehouse = document.getElementById('mobReturnWarehouseSelect')?.value || 'المستودع الرئيسي (الخرطوم)';
+        const origInv = document.getElementById('mobReturnOrigInvoice')?.value || 'بدون مرجع';
+        const reason = document.getElementById('mobReturnReason')?.value || 'مرتجع';
+        const settlement = document.getElementById('mobReturnSettlement')?.value || 'credit';
+        const refNo = `RET-${Math.floor(100000 + Math.random() * 900000)}`;
+
+        // Update local stock quantities
+        if (window.SuiteItemMaster) {
+          const items = window.SuiteItemMaster.getStoredItems();
+          this.lines.forEach(ln => {
+            const idx = items.findIndex(i => i.name === ln.itemName);
+            if (idx >= 0) {
+              const curStock = parseFloat(items[idx].openingQty ?? items[idx].stock_qty ?? 0);
+              const delta = this.returnType === 'sales_return' ? (+ln.qty) : (-ln.qty);
+              const nextStock = Math.max(0, curStock + delta);
+              items[idx].openingQty = nextStock;
+              items[idx].stock_qty = nextStock;
+            }
+          });
+          localStorage.setItem('erp_items_v1', JSON.stringify(items));
+        }
+
+        const payload = {
+          action: 'commit_operation',
+          op_type: this.returnType,
+          ref_no: refNo,
+          partner_name: partner,
+          warehouse: warehouse,
+          orig_invoice: origInv,
+          reason: reason,
+          settlement_mode: settlement,
+          amount_sdg: totalSdg,
+          amount_usd: totalUsd,
+          items: this.lines,
+          created_at: new Date().toISOString()
+        };
+
+        try {
+          if (window.MagaiesOffline && typeof window.MagaiesOffline.executeOrEnqueue === 'function') {
+            await window.MagaiesOffline.executeOrEnqueue('api/mirror_sync.php', payload, `إشعار مرتجع ${refNo} - ${partner}`);
+          } else {
+            await fetch('api/mirror_sync.php', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(payload)
+            });
+          }
+        } catch(e) {}
+
+        if (typeof triggerHapticPulse === 'function') triggerHapticPulse(45);
+        if (typeof showFloatingToast === 'function') {
+          showFloatingToast(`✅ تم اعتماد إشعار المرتجع (${refNo}) بقيمة ${Math.round(totalSdg).toLocaleString('en-US')} ج.س وتحديث المخزن والحسابات`);
+        }
+        closeModal('modalOpReturns');
+      }
+    };
+
     document.addEventListener('DOMContentLoaded', () => {
       applySunlightMode();
       initSwipeGestures();
       attachNumpadTriggers();
       initAlertRulesUI();
       initFlagshipTopBarEngine();
+      if (window.SuiteItemMaster) {
+        setTimeout(() => window.SuiteItemMaster.loadMasterState(), 400);
+      }
 
       if (window.location.search.includes('open_themes=1') || window.location.search.includes('themes=1') || window.location.hash === '#themes') {
         setTimeout(openThemePaletteDrawer, 300);
       }
     });
+
 

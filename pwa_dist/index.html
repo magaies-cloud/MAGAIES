@@ -17,7 +17,7 @@
   <link rel="stylesheet" href="css/tailwind.min.css">
   <script src="js/tailwind.min.js"></script>
   <script>if(typeof tailwind==="undefined"){document.write('<script src="https://cdn.tailwindcss.com"><\/script>');}</script>
-  <script src="js/pwa-manager.js?v=2026_10_15_v16" defer></script>
+  <script src="js/pwa-manager.js?v=2026_10_16_v20" defer></script>
   <script src="js/magaies-offline-sync.js?v=2026_10_14_fast_v1" defer></script>
   <script>
     (function enforceAuthGate() {
@@ -211,10 +211,10 @@
         </button>
       </div>
 
-      <!-- نافذة سريعة لاختيار إحدى السمات السبع المعتمدة مباشرة بجوار مقاييس (مطابقة لشاشة الحركة المالية) -->
-      <div id="suiteQuickThemeDrawer" class="hidden absolute top-[54px] right-2.5 w-64 rounded-2xl bg-slate-900 border-2 border-amber-500/60 p-2.5 shadow-2xl z-[999] space-y-1.5 text-right" dir="rtl" style="background:#0f172a !important; border-color:rgba(245,158,11,0.65) !important;">
+      <!-- نافذة سريعة لاختيار إحدى السمات السبع المعتمدة وإعدادات الخط وراحة العين مباشرة بجوار مقاييس -->
+      <div id="suiteQuickThemeDrawer" class="hidden absolute top-[54px] right-2.5 w-72 rounded-2xl bg-slate-900 border-2 border-amber-500/60 p-2.5 shadow-2xl z-[999] space-y-1.5 text-right" dir="rtl" style="background:#0f172a !important; border-color:rgba(245,158,11,0.65) !important;">
         <div class="flex items-center justify-between border-b border-slate-800 pb-1.5 mb-1" style="border-color:#1e293b !important;">
-          <span class="text-[11px] font-black text-amber-400" style="color:#fbbf24 !important;">🎨 السمات المحاسبية الـ 7 (AAA)</span>
+          <span class="text-[11px] font-black text-amber-400" style="color:#fbbf24 !important;">🎨 السمات المحاسبية الـ 7 وراحة العين</span>
           <button type="button" onclick="document.getElementById('suiteQuickThemeDrawer').classList.add('hidden')" class="text-slate-400 hover:text-white text-xs font-bold px-1" style="color:#94a3b8 !important;">✕</button>
         </div>
         <div class="text-[9.5px] font-bold text-slate-400" style="color:#94a3b8 !important;">☀️ سمات نهارية فاتحة (خط داكن حاد):</div>
@@ -244,185 +244,68 @@
             <span style="color:#F8FAFC !important;">🛡️ رمادي داكن</span>
           </button>
         </div>
+        <!-- إعدادات الخط والوضوح الشمسي المدمجة لراحة العين -->
+        <div class="border-t border-slate-800 pt-2 mt-1.5" style="border-color:#1e293b !important;">
+          <div class="text-[9.5px] font-bold text-slate-400 mb-1" style="color:#94a3b8 !important;">👁️ التحكم في حجم الخط والسطوع الشمسي:</div>
+          <div class="grid grid-cols-3 gap-1.5">
+            <button id="fontSizeCycleBtn" type="button" onclick="cycleFontSize(); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="p-1.5 rounded-xl bg-slate-800/90 border border-cyan-500/40 flex items-center justify-center gap-1 text-cyan-300 text-[10px] font-black relative active:scale-95 transition" title="مفتاح تكبير الخط بـ 4 درجات">
+              <span>حجم A+</span>
+              <span id="fontSizeBadge" class="luminous-number-badge badge-cyan-glow !min-w-[16px] !h-[16px] !text-[9px]">2</span>
+            </button>
+            <button id="fontBoldToggleBtn" type="button" onclick="toggleFontBold(); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="p-1.5 rounded-xl bg-slate-800/90 border border-amber-500/40 flex items-center justify-center gap-1 text-amber-300 text-[10px] font-black active:scale-95 transition" title="الخط العريض التخين (أعلى وضوح)">
+              <span>عريض B</span>
+            </button>
+            <button id="sunlightModeBtn" type="button" onclick="toggleSunlightMode(); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="p-1.5 rounded-xl bg-slate-800/90 border border-yellow-500/40 flex items-center justify-center gap-1 text-yellow-300 text-[10px] font-black active:scale-95 transition" title="وضع السطوع الشمسي فائق التباين">
+              <span>☀️ شمس</span>
+            </button>
+          </div>
+        </div>
       </div>
 
-      <!-- Action Quick Bar (Secondary Operational Bar - الصف الثاني الزجاجي المنير) -->
-      <div class="mt-[10px] flex items-center justify-between gap-[8.5px] overflow-x-auto pt-1.5 pb-1 px-0.5 no-scrollbar">
-        <!-- زر المزامنة والتحديث الفوري -->
-        <button id="mainRefreshBtn" onclick="PWAManager.syncRealData(true); if(window.triggerRefreshAnimation)triggerRefreshAnimation(); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="row2-glass-tile r2-cyan rounded-xl flex items-center justify-center w-[52.5px] h-[40px] shrink-0 text-cyan-300" title="مزامنة وتحديث البيانات من الكمبيوتر">
-          <svg id="mainRefreshIcon" class="w-4 h-4 text-cyan-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+      <!-- Action Quick Bar (Secondary Operational Bar - الصف الثاني النقي بدون أي تكرار: 6 أدوات تشغيلية متوازنة) -->
+      <div class="mt-[8px] grid grid-cols-6 gap-1.5 pt-1 pb-0.5 px-0.5">
+        <!-- 1. زر المزامنة الشاملة والتحديث الفوري (مدمج مع السحابة) -->
+        <button id="mainRefreshBtn" onclick="PWAManager.syncRealData(true); if(typeof handleQuickCloudSync==='function')handleQuickCloudSync(); if(window.triggerRefreshAnimation)triggerRefreshAnimation(); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="row2-glass-tile r2-cyan rounded-xl flex items-center justify-center h-[38px] text-cyan-300 relative active:scale-95 transition cursor-pointer" title="مزامنة شاملة وتحديث فوري مع السيرفر والكمبيوتر">
+          <svg id="mainRefreshIcon" class="w-4 h-4 text-cyan-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
         </button>
 
-        <!-- زر مسح الباركود ورمز الـ QR بالكاميرا -->
-        <button id="quickQrBarcodeBtn" onclick="openBarcodeScannerModal(); if(window.triggerHapticPulse)triggerHapticPulse(20);" class="row2-glass-tile r2-indigo rounded-xl flex items-center justify-center w-[52.5px] h-[40px] shrink-0 text-indigo-300 relative cursor-pointer active:scale-95 transition" title="مسح باركود / QR بالكاميرا">
+        <!-- 2. قارئ الإشعارات البنكية الذكي بالكاميرا (OCR) -->
+        <button id="bankOcrQuickBtn" onclick="openBankReceiptOcrModal(); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="row2-glass-tile r2-mint rounded-xl flex items-center justify-center h-[38px] text-emerald-300 transition relative group active:scale-95 cursor-pointer" title="قارئ الإشعارات البنكية الذكي بالكاميرا (OCR)">
+          <svg class="w-4 h-4 text-emerald-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+          <span class="absolute -top-1 -right-1 bg-emerald-500 text-slate-950 text-[7px] font-black px-1 rounded-full shadow">OCR</span>
+        </button>
+
+        <!-- 3. زر مسح الباركود ورمز الـ QR بالكاميرا -->
+        <button id="quickQrBarcodeBtn" onclick="openBarcodeScannerModal(); if(window.triggerHapticPulse)triggerHapticPulse(20);" class="row2-glass-tile r2-indigo rounded-xl flex items-center justify-center h-[38px] text-indigo-300 relative cursor-pointer active:scale-95 transition" title="مسح باركود / QR بالكاميرا">
           <svg class="w-4 h-4 text-indigo-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/></svg>
           <span class="absolute -top-1 -right-1 bg-indigo-500 text-slate-950 text-[7px] font-black px-1 rounded-full shadow">QR</span>
         </button>
 
-        <!-- زر الحاسبة الذكية - أيقونة الحاسبة فقط دون أي كتابة -->
-        <button 
-          id="quickCalcHeaderBtn" 
-          onclick="openAccountingNumpad(null, 'الآلة الحاسبة'); if(window.triggerHapticPulse)triggerHapticPulse(20);" 
-          class="row2-glass-tile r2-gold rounded-xl flex items-center justify-center w-[52.5px] h-[40px] shrink-0 text-amber-300 relative cursor-pointer active:scale-95 transition group shadow-[0_0_12px_rgba(245,158,11,0.25)] border border-amber-500/40" 
-          title="الآلة الحاسبة الذكية">
-          <svg class="w-5 h-5 text-amber-300 group-hover:scale-110 transition-transform shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <!-- 4. زر الحاسبة الذكية -->
+        <button id="quickCalcHeaderBtn" onclick="openAccountingNumpad(null, 'الآلة الحاسبة'); if(window.triggerHapticPulse)triggerHapticPulse(20);" class="row2-glass-tile r2-gold rounded-xl flex items-center justify-center h-[38px] text-amber-300 relative cursor-pointer active:scale-95 transition group shadow-[0_0_12px_rgba(245,158,11,0.2)] border border-amber-500/40" title="الآلة الحاسبة الذكية">
+          <svg class="w-4 h-4 text-amber-300 group-hover:scale-110 transition-transform shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor">
             <rect x="4" y="2" width="16" height="20" rx="3" stroke-width="2"/>
             <line x1="8" y1="6" x2="16" y2="6" stroke-width="2"/>
-            <circle cx="8" cy="11" r="1.2" fill="currentColor"/>
-            <circle cx="12" cy="11" r="1.2" fill="currentColor"/>
-            <circle cx="16" cy="11" r="1.2" fill="currentColor"/>
-            <circle cx="8" cy="15" r="1.2" fill="currentColor"/>
-            <circle cx="12" cy="15" r="1.2" fill="currentColor"/>
-            <circle cx="16" cy="15" r="1.2" fill="currentColor"/>
-            <circle cx="8" cy="18.5" r="1.2" fill="currentColor"/>
-            <circle cx="12" cy="18.5" r="1.2" fill="currentColor"/>
-            <circle cx="16" cy="18.5" r="1.2" fill="currentColor"/>
+            <circle cx="8" cy="11" r="1.2" fill="currentColor"/><circle cx="12" cy="11" r="1.2" fill="currentColor"/><circle cx="16" cy="11" r="1.2" fill="currentColor"/>
+            <circle cx="8" cy="15" r="1.2" fill="currentColor"/><circle cx="12" cy="15" r="1.2" fill="currentColor"/><circle cx="16" cy="15" r="1.2" fill="currentColor"/>
           </svg>
         </button>
 
-        <!-- تايمر الوردية والمطابقة والتركيز 30 دقيقة -->
-        <button 
-          id="btnTopHeaderTimer" 
-          onclick="openOperationalTimerModal(); if(window.triggerHapticPulse)triggerHapticPulse(15);" 
-          class="row2-glass-tile r2-cyan px-2.5 py-1 rounded-xl flex items-center justify-center min-w-[76px] h-[40px] shrink-0 text-cyan-300 relative active:scale-95 transition group" 
-          title="تايمر الوردية والمطابقة والتركيز (30 دقيقة)">
-          <span class="flex items-center gap-1 font-mono text-[11px] font-black">
-            <span id="timerPulseDot" class="w-2 h-2 rounded-full bg-cyan-400 animate-ping"></span>
+        <!-- 5. زر سعر الصرف المعتمد الفوري ($ USD/SDG) -->
+        <button id="quickFxRateHeaderBtn" onclick="if(window.SuiteFXManager)SuiteFXManager.openModal(); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="row2-glass-tile r2-emerald px-1 rounded-xl flex items-center justify-center h-[38px] text-emerald-300 relative active:scale-95 transition cursor-pointer" title="سعر الصرف المعتمد (اضغط للتحديث الفوري في جميع الشاشات)">
+          <span class="flex items-center gap-0.5 font-mono text-[10.5px] font-black">
+            <span class="text-amber-400">$</span>
+            <span id="headerQuickFxRateVal">2650</span>
+          </span>
+        </button>
+
+        <!-- 6. تايمر الوردية والمطابقة والتركيز 30 دقيقة -->
+        <button id="btnTopHeaderTimer" onclick="openOperationalTimerModal(); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="row2-glass-tile r2-cyan px-1 rounded-xl flex items-center justify-center h-[38px] text-cyan-300 relative active:scale-95 transition group cursor-pointer" title="تايمر الوردية والمطابقة والتركيز (30 دقيقة)">
+          <span class="flex items-center gap-1 font-mono text-[10.5px] font-black">
+            <span id="timerPulseDot" class="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-ping"></span>
             <span id="timerCompactText">30:00</span>
           </span>
-          <span class="absolute -top-1 -right-1 bg-amber-500 text-slate-950 text-[8px] font-black px-1 rounded-full">⏱️</span>
         </button>
-
-        <!-- زر المزامنة السحابية الفورية لقاعدة البيانات -->
-        <button id="quickCloudSyncBtn" onclick="handleQuickCloudSync(); if(window.triggerHapticPulse)triggerHapticPulse(20);" class="row2-glass-tile r2-emerald rounded-xl flex items-center justify-center w-[52.5px] h-[40px] shrink-0 text-emerald-300 relative cursor-pointer active:scale-95 transition" title="مزامنة السحابة الفورية لقاعدة البيانات">
-          <svg id="quickCloudSyncIcon" class="w-4 h-4 text-emerald-300 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"/></svg>
-        </button>
-
-        <!-- 4-Level Dynamic Font Scaler Button (4 درجات تكبير) -->
-        <button 
-          id="fontSizeCycleBtn" 
-          onclick="cycleFontSize(); if(window.triggerHapticPulse)triggerHapticPulse(15);" 
-          class="row2-glass-tile r2-cyan rounded-xl flex items-center justify-center w-[52.5px] h-[40px] shrink-0 text-cyan-300 transition relative group" 
-          title="مفتاح تكبير الخط بـ 4 درجات">
-          <span class="text-sm font-black tracking-tighter flex items-center">A<span class="text-[10px] text-cyan-400 font-extrabold">+</span></span>
-          <span id="fontSizeBadge" class="luminous-number-badge badge-cyan-glow absolute -top-1.5 -right-1.5 shadow">2</span>
-        </button>
-
-        <!-- Bold / Heavy Font Weight Toggle Button (الخط التخين العريض) -->
-        <button 
-          id="fontBoldToggleBtn" 
-          onclick="toggleFontBold(); if(window.triggerHapticPulse)triggerHapticPulse(15);" 
-          class="row2-glass-tile r2-amber rounded-xl flex items-center justify-center w-[52.5px] h-[40px] shrink-0 text-amber-300 transition relative group" 
-          title="الخط العريض التخين (أعلى وضوح وتباين للعين والشمس)">
-          <span class="text-base font-black">B</span>
-        </button>
-
-        <!-- Sunlight High-Contrast Mode Toggle (وضع السطوع الشمسي فائق التباين) -->
-        <button 
-          id="sunlightModeBtn" 
-          onclick="toggleSunlightMode(); if(window.triggerHapticPulse)triggerHapticPulse(15);" 
-          class="row2-glass-tile r2-gold rounded-xl flex items-center justify-center w-[52.5px] h-[40px] shrink-0 text-yellow-300 transition relative group" 
-          title="وضع السطوع الشمسي فائق التباين (للعمل الميداني تحت أشعة الشمس)">
-          <svg class="w-5 h-5 text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
-        </button>
-
-        <!-- Smart Bank Receipt OCR Camera Button (قارئ الإشعارات البنكية الذكي بالكاميرا) -->
-        <button 
-          id="bankOcrQuickBtn" 
-          onclick="openBankReceiptOcrModal(); if(window.triggerHapticPulse)triggerHapticPulse(15);" 
-          class="row2-glass-tile r2-mint rounded-xl flex items-center justify-center w-[52.5px] h-[40px] shrink-0 text-cyan-300 transition relative group" 
-          title="قارئ الإشعارات البنكية الذكي بالكاميرا (OCR)">
-          <svg class="w-5 h-5 text-emerald-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-          <span class="absolute -top-1 -right-1 bg-emerald-500 text-slate-950 text-[8px] font-black px-1 rounded-full shadow">OCR</span>
-        </button>
-      </div>
-
-      <!-- FLAGSHIP CRYSTAL ACTION BUTTONS HUB (أزرار وأيقونة البرنامج العالمية - الصف الثالث المرفوع) -->
-      <div class="mt-[4.5px] pt-[4.5px] border-t border-slate-800/40">
-        <div class="crystal-flagship-container">
-
-          <!-- 2. قارئ الإشعارات البنكية OCR -->
-          <button onclick="openBankReceiptOcrModal(); triggerFlagshipClick(this);" class="crystal-flagship-btn flagship-emerald" title="قارئ إشعار بنكك الذكي OCR">
-            <div class="btn-emblem">
-              <svg class="w-4 h-4 text-emerald-300" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
-              </svg>
-            </div>
-            <span class="btn-label">قارئ الإشعارات</span>
-          </button>
-
-          <!-- 4. الموافقات -->
-          <button onclick="switchTab('approvals'); triggerFlagshipClick(this);" class="crystal-flagship-btn flagship-rose" title="شاشة الموافقات والاعتمادات">
-            <div class="btn-emblem relative">
-              <svg class="w-4 h-4 text-rose-300" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
-              </svg>
-            </div>
-            <span class="btn-label">الموافقات</span>
-            <span id="badgeApprovalsQuick" class="luminous-number-badge badge-rose-glow mr-1">3</span>
-          </button>
-
-          <!-- 5. كشوفات (الحسابات والديون) -->
-          <button onclick="switchTab('ledgers'); triggerFlagshipClick(this);" class="crystal-flagship-btn flagship-indigo" title="كشوفات الحسابات والديون">
-            <div class="btn-emblem">
-              <svg class="w-4 h-4 text-indigo-300" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
-              </svg>
-            </div>
-            <span class="btn-label">كشوفات</span>
-          </button>
-
-          <!-- 6. المعاملات (الفواتير والمبيعات) -->
-          <button onclick="switchTab('transactions'); triggerFlagshipClick(this);" class="crystal-flagship-btn flagship-cyan" title="سجل فواتير المبيعات والمشتريات">
-            <div class="btn-emblem">
-              <svg class="w-4 h-4 text-cyan-300" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/>
-              </svg>
-            </div>
-            <span class="btn-label">المعاملات</span>
-          </button>
-
-          <!-- 7. المخزون -->
-          <button onclick="switchTab('inventory'); triggerFlagshipClick(this);" class="crystal-flagship-btn flagship-amber" title="المخزون والجرد والتحكم">
-            <div class="btn-emblem">
-              <svg class="w-4 h-4 text-amber-300" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
-              </svg>
-            </div>
-            <span class="btn-label">المخزون</span>
-          </button>
-
-          <!-- 8. الأرصدة -->
-          <button onclick="openNonZeroBalancesModal(); triggerFlagshipClick(this);" class="crystal-flagship-btn flagship-emerald" title="ميزان الأرصدة والحسابات النشطة">
-            <div class="btn-emblem">
-              <svg class="w-4 h-4 text-emerald-300" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3"/>
-              </svg>
-            </div>
-            <span class="btn-label">الأرصدة</span>
-          </button>
-
-          <!-- 9. السيولة -->
-          <button onclick="switchTab('treasury'); triggerFlagshipClick(this);" class="crystal-flagship-btn flagship-gold" title="السيولة والخزينة والبنوك">
-            <div class="btn-emblem">
-              <svg class="w-4 h-4 text-yellow-300" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z"/>
-              </svg>
-            </div>
-            <span class="btn-label">السيولة</span>
-          </button>
-
-          <!-- 10. إضافة شريك -->
-          <button onclick="switchTab('addPartner'); triggerFlagshipClick(this);" class="crystal-flagship-btn flagship-cyan" title="إضافة عميل أو مورد جديد">
-            <div class="btn-emblem">
-              <svg class="w-4 h-4 text-teal-300" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
-              </svg>
-            </div>
-            <span class="btn-label">إضافة شريك</span>
-          </button>
-        </div>
       </div>
     </header>
 
@@ -444,18 +327,14 @@
       <div id="pageDashboard" class="space-y-3">
 
         <!-- ======================================================== -->
-        <!-- منطقة العمليات المباشرة (DIRECT OPERATIONS COMMAND TILES - 13 عملية متكاملة) -->
+        <!-- منطقة العمليات المباشرة الشاملة (18 عملية متكاملة 6×3 بدون أي تكرار) -->
         <!-- ======================================================== -->
         <section id="sectionOperations" class="pt-0 space-y-2">
-          <!-- تبويبات التصفية السريعة للعمليات -->
+          <!-- تبويبات التصفية السريعة للعمليات (كل عائلة محاسبية بـ 3 عمليات متناسقة) -->
           <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5 text-[11px] font-bold" id="opCategoryTabs">
             <button type="button" onclick="filterOperationsCategory('all', this)" class="op-cat-btn active bg-cyan-600 text-white px-3 py-1.5 rounded-xl shrink-0 transition shadow-[0_0_10px_rgba(6,182,212,0.4)] cursor-pointer flex items-center gap-1.5">
               <span>الكل</span>
-              <span class="luminous-number-badge badge-cyan-glow !min-w-[19px] !h-[19px] !text-[11px]">13</span>
-            </button>
-            <button type="button" onclick="filterOperationsCategory('finance', this)" class="op-cat-btn bg-slate-900/80 hover:bg-slate-800 text-slate-300 px-3 py-1.5 rounded-xl border border-slate-700/60 shrink-0 transition cursor-pointer flex items-center gap-1.5">
-              <span>المالية والقيود</span>
-              <span class="luminous-number-badge badge-emerald-glow !min-w-[19px] !h-[19px] !text-[11px]">4</span>
+              <span class="luminous-number-badge badge-cyan-glow !min-w-[19px] !h-[19px] !text-[11px]">18</span>
             </button>
             <button type="button" onclick="filterOperationsCategory('sales', this)" class="op-cat-btn bg-slate-900/80 hover:bg-slate-800 text-slate-300 px-3 py-1.5 rounded-xl border border-slate-700/60 shrink-0 transition cursor-pointer flex items-center gap-1.5">
               <span>المبيعات</span>
@@ -463,57 +342,63 @@
             </button>
             <button type="button" onclick="filterOperationsCategory('purchases', this)" class="op-cat-btn bg-slate-900/80 hover:bg-slate-800 text-slate-300 px-3 py-1.5 rounded-xl border border-slate-700/60 shrink-0 transition cursor-pointer flex items-center gap-1.5">
               <span>المشتريات</span>
-              <span class="luminous-number-badge badge-amber-glow !min-w-[19px] !h-[19px] !text-[11px]">2</span>
+              <span class="luminous-number-badge badge-amber-glow !min-w-[19px] !h-[19px] !text-[11px]">3</span>
+            </button>
+            <button type="button" onclick="filterOperationsCategory('master', this)" class="op-cat-btn bg-slate-900/80 hover:bg-slate-800 text-slate-300 px-3 py-1.5 rounded-xl border border-slate-700/60 shrink-0 transition cursor-pointer flex items-center gap-1.5">
+              <span>الأصناف والمرتجعات</span>
+              <span class="luminous-number-badge badge-emerald-glow !min-w-[19px] !h-[19px] !text-[11px]">3</span>
+            </button>
+            <button type="button" onclick="filterOperationsCategory('finance', this)" class="op-cat-btn bg-slate-900/80 hover:bg-slate-800 text-slate-300 px-3 py-1.5 rounded-xl border border-slate-700/60 shrink-0 transition cursor-pointer flex items-center gap-1.5">
+              <span>المالية والقيود</span>
+              <span class="luminous-number-badge badge-emerald-glow !min-w-[19px] !h-[19px] !text-[11px]">3</span>
             </button>
             <button type="button" onclick="filterOperationsCategory('inventory', this)" class="op-cat-btn bg-slate-900/80 hover:bg-slate-800 text-slate-300 px-3 py-1.5 rounded-xl border border-slate-700/60 shrink-0 transition cursor-pointer flex items-center gap-1.5">
               <span>المخازن والجرد</span>
-              <span class="luminous-number-badge badge-amber-glow !min-w-[19px] !h-[19px] !text-[11px]">4</span>
+              <span class="luminous-number-badge badge-amber-glow !min-w-[19px] !h-[19px] !text-[11px]">3</span>
+            </button>
+            <button type="button" onclick="filterOperationsCategory('reports', this)" class="op-cat-btn bg-slate-900/80 hover:bg-slate-800 text-slate-300 px-3 py-1.5 rounded-xl border border-slate-700/60 shrink-0 transition cursor-pointer flex items-center gap-1.5">
+              <span>الكشوفات والأذونات</span>
+              <span class="luminous-number-badge badge-cyan-glow !min-w-[19px] !h-[19px] !text-[11px]">3</span>
             </button>
           </div>
 
           <div class="grid grid-cols-3 gap-2" id="operationsGrid">
-            <!-- 1. حركة مالية -->
-            <button data-category="finance" onclick="window.location.href='mobile-voucher.php'; if(window.triggerHapticPulse)triggerHapticPulse(15);" class="op-btn p-2 rounded-2xl flex flex-col items-center justify-center text-center group active:scale-95 transition cursor-pointer min-h-[76px]" title="حركة مالية">
-              <div class="w-9 h-9 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center mb-1.5 shadow-[0_0_12px_rgba(16,185,129,0.3)] group-hover:scale-110 transition">
-                <i class="fa-solid fa-money-bill-transfer text-base"></i>
-              </div>
-              <span class="text-xs font-black text-slate-200">حركة مالية</span>
-            </button>
-
-            <!-- 2. فاتورة مبيعات -->
-            <button data-category="sales" onclick="openOperationalForm('sales'); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="op-btn p-2 rounded-2xl flex flex-col items-center justify-center text-center group active:scale-95 transition cursor-pointer min-h-[76px]" title="فاتورة مبيعات">
+            <!-- ═══ الصف الأول: عائلة المبيعات ومقتنياتها (3 أزرار) ═══ -->
+            <!-- 1. فاتورة مبيعات -->
+            <button data-category="sales" onclick="openOperationalForm('sales'); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="op-btn p-2 rounded-2xl flex flex-col items-center justify-center text-center group active:scale-95 transition cursor-pointer min-h-[74px]" title="فاتورة مبيعات">
               <div class="w-9 h-9 rounded-xl bg-sky-500/20 text-sky-400 flex items-center justify-center mb-1.5 shadow-[0_0_12px_rgba(56,189,248,0.35)] group-hover:scale-110 transition">
                 <i class="fa-solid fa-bag-shopping text-base"></i>
               </div>
               <span class="text-xs font-black text-slate-200">فاتورة مبيعات</span>
             </button>
 
-            <!-- 3. تقسيم مبيعات -->
-            <button data-category="sales" onclick="openOperationalForm('salesSplit'); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="op-btn p-2 rounded-2xl flex flex-col items-center justify-center text-center group active:scale-95 transition cursor-pointer min-h-[76px]" title="تقسيم مبيعات">
+            <!-- 2. تقسيم مبيعات -->
+            <button data-category="sales" onclick="openOperationalForm('salesSplit'); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="op-btn p-2 rounded-2xl flex flex-col items-center justify-center text-center group active:scale-95 transition cursor-pointer min-h-[74px]" title="تقسيم مبيعات">
               <div class="w-9 h-9 rounded-xl bg-pink-500/20 text-pink-400 flex items-center justify-center mb-1.5 shadow-[0_0_12px_rgba(244,114,182,0.35)] group-hover:scale-110 transition">
                 <i class="fa-solid fa-scissors text-base"></i>
               </div>
               <span class="text-xs font-black text-slate-200">تقسيم مبيعات</span>
             </button>
 
-            <!-- 4. استلام مبيعات -->
-            <button data-category="sales" onclick="openOperationalForm('salesDelivery'); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="op-btn p-2 rounded-2xl flex flex-col items-center justify-center text-center group active:scale-95 transition cursor-pointer min-h-[76px]" title="استلام مبيعات">
+            <!-- 3. استلام مبيعات -->
+            <button data-category="sales" onclick="openOperationalForm('salesDelivery'); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="op-btn p-2 rounded-2xl flex flex-col items-center justify-center text-center group active:scale-95 transition cursor-pointer min-h-[74px]" title="استلام مبيعات">
               <div class="w-9 h-9 rounded-xl bg-indigo-500/20 text-indigo-400 flex items-center justify-center mb-1.5 shadow-[0_0_12px_rgba(129,140,248,0.35)] group-hover:scale-110 transition">
                 <i class="fa-solid fa-truck-ramp-box text-base"></i>
               </div>
               <span class="text-xs font-black text-slate-200">استلام مبيعات</span>
             </button>
 
-            <!-- 5. مشتريات -->
-            <button data-category="purchases" onclick="openOperationalForm('purchaseInvoice'); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="op-btn p-2 rounded-2xl flex flex-col items-center justify-center text-center group active:scale-95 transition cursor-pointer min-h-[76px]" title="مشتريات">
+            <!-- ═══ الصف الثاني: عائلة المشتريات ومقتنياتها (3 أزرار) ═══ -->
+            <!-- 4. فاتورة مشتريات -->
+            <button data-category="purchases" onclick="openOperationalForm('purchaseInvoice'); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="op-btn p-2 rounded-2xl flex flex-col items-center justify-center text-center group active:scale-95 transition cursor-pointer min-h-[74px]" title="مشتريات">
               <div class="w-9 h-9 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center mb-1.5 shadow-[0_0_12px_rgba(245,158,11,0.35)] group-hover:scale-110 transition">
                 <i class="fa-solid fa-cart-shopping text-base"></i>
               </div>
               <span class="text-xs font-black text-slate-200">مشتريات</span>
             </button>
 
-            <!-- 5B. تقسيم مشتريات -->
-            <button data-category="purchases" onclick="openOperationalForm('purchaseSplit'); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="op-btn p-2 rounded-2xl flex flex-col items-center justify-center text-center group active:scale-95 transition cursor-pointer min-h-[76px]" title="تقسيم مشتريات">
+            <!-- 5. تقسيم مشتريات -->
+            <button data-category="purchases" onclick="openOperationalForm('purchaseSplit'); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="op-btn p-2 rounded-2xl flex flex-col items-center justify-center text-center group active:scale-95 transition cursor-pointer min-h-[74px]" title="تقسيم مشتريات">
               <div class="w-9 h-9 rounded-xl bg-orange-500/20 text-orange-400 flex items-center justify-center mb-1.5 shadow-[0_0_12px_rgba(249,115,22,0.35)] group-hover:scale-110 transition">
                 <i class="fa-solid fa-layer-group text-base"></i>
               </div>
@@ -521,67 +406,111 @@
             </button>
 
             <!-- 6. استلام مشتريات -->
-            <button data-category="purchases" onclick="openOperationalForm('purchaseReceive'); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="op-btn p-2 rounded-2xl flex flex-col items-center justify-center text-center group active:scale-95 transition cursor-pointer min-h-[76px]" title="استلام مشتريات">
+            <button data-category="purchases" onclick="openOperationalForm('purchaseReceive'); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="op-btn p-2 rounded-2xl flex flex-col items-center justify-center text-center group active:scale-95 transition cursor-pointer min-h-[74px]" title="استلام مشتريات">
               <div class="w-9 h-9 rounded-xl bg-teal-500/20 text-teal-400 flex items-center justify-center mb-1.5 shadow-[0_0_12px_rgba(20,184,166,0.35)] group-hover:scale-110 transition">
                 <i class="fa-solid fa-boxes-packing text-base"></i>
               </div>
               <span class="text-xs font-black text-slate-200">استلام مشتريات</span>
             </button>
 
-            <!-- 7. تسوية قيود -->
-            <button data-category="finance" onclick="openOperationalForm('journalSettlement'); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="op-btn p-2 rounded-2xl flex flex-col items-center justify-center text-center group active:scale-95 transition cursor-pointer min-h-[76px]" title="تسوية قيود">
+            <!-- ═══ الصف الثالث: التأسيس والأصناف والمرتجعات (3 أزرار جوهرية) ═══ -->
+            <!-- 7. إضافة صنف جديد (مطابق للابتوب 100%) -->
+            <button data-category="master" onclick="openOperationalForm('addItemMaster'); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="op-btn p-2 rounded-2xl flex flex-col items-center justify-center text-center group active:scale-95 transition cursor-pointer min-h-[74px] border border-cyan-500/30" title="إضافة صنف جديد (بطاقة الصنف الكاملة والوحدات والأسعار)">
+              <div class="w-9 h-9 rounded-xl bg-cyan-500/25 text-cyan-300 flex items-center justify-center mb-1.5 shadow-[0_0_14px_rgba(6,182,212,0.4)] group-hover:scale-110 transition">
+                <i class="fa-solid fa-box-open text-base"></i>
+              </div>
+              <span class="text-xs font-black text-cyan-200">إضافة صنف</span>
+            </button>
+
+            <!-- 8. إضافة شريك (عميل / مورد) -->
+            <button data-category="master" onclick="switchTab('addPartner'); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="op-btn p-2 rounded-2xl flex flex-col items-center justify-center text-center group active:scale-95 transition cursor-pointer min-h-[74px]" title="إضافة عميل أو مورد جديد">
+              <div class="w-9 h-9 rounded-xl bg-emerald-500/20 text-emerald-300 flex items-center justify-center mb-1.5 shadow-[0_0_12px_rgba(16,185,129,0.35)] group-hover:scale-110 transition">
+                <i class="fa-solid fa-user-plus text-base"></i>
+              </div>
+              <span class="text-xs font-black text-slate-200">إضافة شريك</span>
+            </button>
+
+            <!-- 9. مرتجع مبيعات / مشتريات -->
+            <button data-category="master" onclick="openOperationalForm('returnsInvoice'); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="op-btn p-2 rounded-2xl flex flex-col items-center justify-center text-center group active:scale-95 transition cursor-pointer min-h-[74px]" title="مرتجع مبيعات ومردودات مشتريات (إشعار دائن ومدين)">
+              <div class="w-9 h-9 rounded-xl bg-rose-500/20 text-rose-400 flex items-center justify-center mb-1.5 shadow-[0_0_12px_rgba(244,63,94,0.35)] group-hover:scale-110 transition">
+                <i class="fa-solid fa-rotate-left text-base"></i>
+              </div>
+              <span class="text-xs font-black text-slate-200">مرتجع فواتير</span>
+            </button>
+
+            <!-- ═══ الصف الرابع: المالية والقيود والإشعارات (3 أزرار) ═══ -->
+            <!-- 10. حركة مالية -->
+            <button data-category="finance" onclick="window.location.href='mobile-voucher.php'; if(window.triggerHapticPulse)triggerHapticPulse(15);" class="op-btn p-2 rounded-2xl flex flex-col items-center justify-center text-center group active:scale-95 transition cursor-pointer min-h-[74px]" title="حركة مالية (سند قبض / صرف / تحويل)">
+              <div class="w-9 h-9 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center mb-1.5 shadow-[0_0_12px_rgba(16,185,129,0.3)] group-hover:scale-110 transition">
+                <i class="fa-solid fa-money-bill-transfer text-base"></i>
+              </div>
+              <span class="text-xs font-black text-slate-200">حركة مالية</span>
+            </button>
+
+            <!-- 11. تسوية قيود -->
+            <button data-category="finance" onclick="openOperationalForm('journalSettlement'); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="op-btn p-2 rounded-2xl flex flex-col items-center justify-center text-center group active:scale-95 transition cursor-pointer min-h-[74px]" title="تسوية قيود">
               <div class="w-9 h-9 rounded-xl bg-purple-500/20 text-purple-400 flex items-center justify-center mb-1.5 shadow-[0_0_12px_rgba(168,85,247,0.35)] group-hover:scale-110 transition">
                 <i class="fa-solid fa-scale-balanced text-base"></i>
               </div>
               <span class="text-xs font-black text-slate-200">تسوية قيود</span>
             </button>
 
-            <!-- 8. حساب كشف حساب -->
-            <button data-category="finance" onclick="openOperationalForm('accountStatement'); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="op-btn p-2 rounded-2xl flex flex-col items-center justify-center text-center group active:scale-95 transition cursor-pointer min-h-[76px]" title="حساب كشف حساب">
-              <div class="w-9 h-9 rounded-xl bg-blue-500/20 text-blue-400 flex items-center justify-center mb-1.5 shadow-[0_0_12px_rgba(59,130,246,0.35)] group-hover:scale-110 transition">
-                <i class="fa-solid fa-file-invoice-dollar text-base"></i>
+            <!-- 12. قارئ إشعار بنكك OCR -->
+            <button data-category="finance" onclick="openBankReceiptOcrModal(); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="op-btn p-2 rounded-2xl flex flex-col items-center justify-center text-center group active:scale-95 transition cursor-pointer min-h-[74px]" title="قارئ الإشعارات البنكية الذكي بالكاميرا">
+              <div class="w-9 h-9 rounded-xl bg-teal-500/20 text-teal-300 flex items-center justify-center mb-1.5 shadow-[0_0_12px_rgba(20,184,166,0.35)] group-hover:scale-110 transition">
+                <i class="fa-solid fa-camera text-base"></i>
               </div>
-              <span class="text-xs font-black text-slate-200">حساب كشف حساب</span>
+              <span class="text-xs font-black text-slate-200">قارئ الإشعارات</span>
             </button>
 
-            <!-- 9. استلام رصيد -->
-            <button data-category="finance" onclick="openOperationalForm('balanceInquiry'); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="op-btn p-2 rounded-2xl flex flex-col items-center justify-center text-center group active:scale-95 transition cursor-pointer min-h-[76px]" title="استلام رصيد">
-              <div class="w-9 h-9 rounded-xl bg-yellow-500/20 text-yellow-400 flex items-center justify-center mb-1.5 shadow-[0_0_12px_rgba(234,179,8,0.35)] group-hover:scale-110 transition">
-                <i class="fa-solid fa-coins text-base"></i>
-              </div>
-              <span class="text-xs font-black text-slate-200">استلام رصيد</span>
-            </button>
-
-            <!-- 10. فحص المخزن -->
-            <button data-category="inventory" onclick="openOperationalForm('stockLocationCheck'); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="op-btn p-2 rounded-2xl flex flex-col items-center justify-center text-center group active:scale-95 transition cursor-pointer min-h-[76px]" title="فحص المخزن">
+            <!-- ═══ الصف الخامس: المخازن والجرد (3 أزرار) ═══ -->
+            <!-- 13. فحص المخزن -->
+            <button data-category="inventory" onclick="openOperationalForm('stockLocationCheck'); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="op-btn p-2 rounded-2xl flex flex-col items-center justify-center text-center group active:scale-95 transition cursor-pointer min-h-[74px]" title="فحص المخزن">
               <div class="w-9 h-9 rounded-xl bg-cyan-500/20 text-cyan-400 flex items-center justify-center mb-1.5 shadow-[0_0_12px_rgba(6,182,212,0.35)] group-hover:scale-110 transition">
                 <i class="fa-solid fa-warehouse text-base"></i>
               </div>
               <span class="text-xs font-black text-slate-200">فحص المخزن</span>
             </button>
 
-            <!-- 11. تسوية جرد تالف -->
-            <button data-category="inventory" onclick="openOperationalForm('stockAdjustment'); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="op-btn p-2 rounded-2xl flex flex-col items-center justify-center text-center group active:scale-95 transition cursor-pointer min-h-[76px]" title="تسوية جرد تالف">
-              <div class="w-9 h-9 rounded-xl bg-rose-500/20 text-rose-400 flex items-center justify-center mb-1.5 shadow-[0_0_12px_rgba(244,63,94,0.35)] group-hover:scale-110 transition">
-                <i class="fa-solid fa-triangle-exclamation text-base"></i>
-              </div>
-              <span class="text-xs font-black text-slate-200">تسوية جرد تالف</span>
-            </button>
-
-            <!-- 12. تحويل مخازن -->
-            <button data-category="inventory" onclick="openOperationalForm('warehouseTransfer'); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="op-btn p-2 rounded-2xl flex flex-col items-center justify-center text-center group active:scale-95 transition cursor-pointer min-h-[76px]" title="تحويل مخازن">
+            <!-- 14. تحويل مخازن -->
+            <button data-category="inventory" onclick="openOperationalForm('warehouseTransfer'); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="op-btn p-2 rounded-2xl flex flex-col items-center justify-center text-center group active:scale-95 transition cursor-pointer min-h-[74px]" title="تحويل مخازن">
               <div class="w-9 h-9 rounded-xl bg-orange-500/20 text-orange-400 flex items-center justify-center mb-1.5 shadow-[0_0_12px_rgba(249,115,22,0.35)] group-hover:scale-110 transition">
                 <i class="fa-solid fa-dolly text-base"></i>
               </div>
               <span class="text-xs font-black text-slate-200">تحويل مخازن</span>
             </button>
 
-            <!-- 13. أذونات استلام، صرف -->
-            <button data-category="inventory" onclick="openOperationalForm('inventoryVouchers'); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="op-btn p-2 rounded-2xl flex flex-col items-center justify-center text-center group active:scale-95 transition cursor-pointer min-h-[76px]" title="أذونات استلام، صرف">
+            <!-- 15. تسوية جرد تالف -->
+            <button data-category="inventory" onclick="openOperationalForm('stockAdjustment'); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="op-btn p-2 rounded-2xl flex flex-col items-center justify-center text-center group active:scale-95 transition cursor-pointer min-h-[74px]" title="تسوية جرد تالف">
+              <div class="w-9 h-9 rounded-xl bg-rose-500/20 text-rose-400 flex items-center justify-center mb-1.5 shadow-[0_0_12px_rgba(244,63,94,0.35)] group-hover:scale-110 transition">
+                <i class="fa-solid fa-triangle-exclamation text-base"></i>
+              </div>
+              <span class="text-xs font-black text-slate-200">تسوية جرد تالف</span>
+            </button>
+
+            <!-- ═══ الصف السادس: الكشوفات والأرصدة والأذونات (3 أزرار) ═══ -->
+            <!-- 16. أذونات استلام، صرف -->
+            <button data-category="reports" onclick="openOperationalForm('inventoryVouchers'); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="op-btn p-2 rounded-2xl flex flex-col items-center justify-center text-center group active:scale-95 transition cursor-pointer min-h-[74px]" title="أذونات استلام، صرف">
               <div class="w-9 h-9 rounded-xl bg-emerald-500/20 text-emerald-300 flex items-center justify-center mb-1.5 shadow-[0_0_12px_rgba(52,211,153,0.35)] group-hover:scale-110 transition">
                 <i class="fa-solid fa-clipboard-check text-base"></i>
               </div>
               <span class="text-xs font-black text-slate-200">أذونات استلام، صرف</span>
+            </button>
+
+            <!-- 17. حساب كشف حساب -->
+            <button data-category="reports" onclick="openOperationalForm('accountStatement'); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="op-btn p-2 rounded-2xl flex flex-col items-center justify-center text-center group active:scale-95 transition cursor-pointer min-h-[74px]" title="حساب كشف حساب">
+              <div class="w-9 h-9 rounded-xl bg-blue-500/20 text-blue-400 flex items-center justify-center mb-1.5 shadow-[0_0_12px_rgba(59,130,246,0.35)] group-hover:scale-110 transition">
+                <i class="fa-solid fa-file-invoice-dollar text-base"></i>
+              </div>
+              <span class="text-xs font-black text-slate-200">حساب كشف حساب</span>
+            </button>
+
+            <!-- 18. استلام رصيد (ميزان الأرصدة) -->
+            <button data-category="reports" onclick="openOperationalForm('balanceInquiry'); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="op-btn p-2 rounded-2xl flex flex-col items-center justify-center text-center group active:scale-95 transition cursor-pointer min-h-[74px]" title="استلام رصيد">
+              <div class="w-9 h-9 rounded-xl bg-yellow-500/20 text-yellow-400 flex items-center justify-center mb-1.5 shadow-[0_0_12px_rgba(234,179,8,0.35)] group-hover:scale-110 transition">
+                <i class="fa-solid fa-coins text-base"></i>
+              </div>
+              <span class="text-xs font-black text-slate-200">استلام رصيد</span>
             </button>
           </div>
         </section>
@@ -1528,14 +1457,17 @@
 
         <!-- QUICK INVENTORY TOOLS BAR -->
         <div class="flex gap-1.5 overflow-x-auto no-scrollbar text-xs font-bold">
-          <button onclick="alert('📱 تم تفعيل كاميرا الهاتف لمسح باركود الأصناف فوراً')" class="bg-slate-800 hover:bg-slate-700 text-cyan-300 px-3 py-1.5 rounded-xl border border-slate-700 shrink-0 flex items-center gap-1">
+          <button onclick="openOperationalForm('addItemMaster')" class="bg-gradient-to-r from-indigo-600 to-cyan-600 hover:from-indigo-500 hover:to-cyan-500 text-white px-3.5 py-1.5 rounded-xl border border-indigo-400/50 shadow-[0_0_15px_rgba(99,102,241,0.35)] shrink-0 flex items-center gap-1.5 font-black">
+            <span>➕ إضافة صنف جديد (كامل)</span>
+          </button>
+          <button onclick="openQrBarcodeModal('barcode')" class="bg-slate-800 hover:bg-slate-700 text-cyan-300 px-3 py-1.5 rounded-xl border border-slate-700 shrink-0 flex items-center gap-1">
             <span>📱 مسح باركود بالهاتف</span>
           </button>
-          <button onclick="openOperationalForm('financeMovement')" class="bg-slate-800 hover:bg-slate-700 text-indigo-300 px-3 py-1.5 rounded-xl border border-slate-700 shrink-0 flex items-center gap-1">
+          <button onclick="openOperationalForm('warehouseTransfer')" class="bg-slate-800 hover:bg-slate-700 text-indigo-300 px-3 py-1.5 rounded-xl border border-slate-700 shrink-0 flex items-center gap-1">
             <span>🔄 مناقلة بين المستودعات</span>
           </button>
-          <button onclick="alert('📉 تم تجهيز حملة تصفية بخصم 15% على البضاعة الراكدة بقيمة 22,400 دولار')" class="bg-rose-950/60 hover:bg-rose-900/70 text-rose-300 px-3 py-1.5 rounded-xl border border-rose-500/40 shrink-0 flex items-center gap-1">
-            <span>📉 تصفية الراكد بخصم</span>
+          <button onclick="openOperationalForm('damagedStock')" class="bg-rose-950/60 hover:bg-rose-900/70 text-rose-300 px-3 py-1.5 rounded-xl border border-rose-500/40 shrink-0 flex items-center gap-1">
+            <span>📉 تسوية جرد وتالف</span>
           </button>
         </div>
 
@@ -1566,7 +1498,10 @@
         <div class="glass-base p-4 rounded-3xl border border-indigo-500/40 space-y-2.5">
           <div class="flex justify-between items-center border-b border-slate-800 pb-2">
             <span class="text-xs font-black text-indigo-300">📦 الأصناف والمخزون الحقيقي (MariaDB)</span>
-            <span class="text-[10px] text-cyan-400 font-mono">ربط حي بالكمبيوتر</span>
+            <div class="flex items-center gap-2">
+              <button onclick="openOperationalForm('addItemMaster')" class="text-[10px] font-black bg-indigo-500/20 hover:bg-indigo-500/30 text-indigo-200 border border-indigo-500/40 px-2.5 py-1 rounded-lg transition active:scale-95">+ صنف جديد</button>
+              <span class="text-[10px] text-cyan-400 font-mono">ربط حي</span>
+            </div>
           </div>
           <div id="realInventoryItemsList" class="space-y-2 max-h-[360px] overflow-y-auto no-scrollbar">
             <div class="p-4 bg-slate-900/60 rounded-2xl text-center text-xs text-slate-400">جاري تحميل الأصناف الحقيقية من الكمبيوتر...</div>
@@ -5079,7 +5014,10 @@
       <div class="glass-base w-full max-w-lg rounded-2xl p-4 bg-slate-950/98 border border-amber-500/60 shadow-[0_0_35px_rgba(245,158,11,0.3)] space-y-3">
         <div class="flex justify-between items-center pb-2 border-b border-slate-800">
           <span class="text-xs sm:text-sm font-black text-amber-300 flex items-center gap-1.5"><i class="fa-solid fa-layer-group"></i> اختيار صنف من قاعدة البيانات (بحث فوري)</span>
-          <button type="button" onclick="SuiteSalesPOS.closeItemSearch()" class="w-7 h-7 rounded-full bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center text-xs cursor-pointer">✕</button>
+          <div class="flex items-center gap-1.5">
+            <button type="button" onclick="SuiteSalesPOS.closeItemSearch(); openOperationalForm('addItemMaster');" class="px-2.5 py-1 rounded-lg bg-indigo-500/20 hover:bg-indigo-500/30 border border-indigo-400/50 text-indigo-200 text-[10px] font-black cursor-pointer">+ صنف جديد</button>
+            <button type="button" onclick="SuiteSalesPOS.closeItemSearch()" class="w-7 h-7 rounded-full bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center text-xs cursor-pointer">✕</button>
+          </div>
         </div>
         <div class="relative">
           <span class="absolute right-3 top-2.5 text-slate-500 text-xs"><i class="fa-solid fa-magnifying-glass"></i></span>
@@ -6562,9 +6500,503 @@
       </div>
     </div>
 
+    <!-- ======================================================== -->
+    <!-- 17. MASTER ITEM CARD MODAL - FULL LAPTOP PARITY (إضافة صنف جديد - كامل مكونات اللابتوب الـ 6) -->
+    <!-- ======================================================== -->
+    <div id="modalOpAddItemMaster" class="hidden fixed inset-0 z-50 modal-backdrop flex items-end sm:items-center justify-center p-1.5 sm:p-3">
+      <div class="glass-base w-full max-w-2xl rounded-3xl border border-indigo-500/60 p-3.5 sm:p-5 space-y-3 max-h-[94vh] overflow-y-auto shadow-[0_0_60px_rgba(99,102,241,0.35)] bg-slate-950/98">
+        
+        <!-- Header -->
+        <div class="flex justify-between items-center border-b border-slate-800 pb-2.5 sticky top-0 bg-slate-950/95 z-20 pt-1">
+          <div class="flex items-center gap-2.5">
+            <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-indigo-500/30 to-cyan-500/20 border border-indigo-400/50 text-indigo-300 flex items-center justify-center text-lg font-black shadow-inner">
+              📦
+            </div>
+            <div>
+              <div class="flex items-center gap-1.5 flex-wrap">
+                <h3 id="mobItemModalTitle" class="text-sm sm:text-base font-black text-white">بطاقة تعريف صنف شاملة (مطابقة اللابتوب 100%)</h3>
+                <span class="bg-indigo-950 text-indigo-300 border border-indigo-500/40 text-[9px] px-2 py-0.5 rounded-full font-black">6 أقسام + الشيلة</span>
+              </div>
+              <p class="text-[10px] text-slate-400">مزامنة حية وفورية مع جدول الأصناف والفئات والوحدات في الكمبيوتر والسحابة</p>
+            </div>
+          </div>
+          <button type="button" onclick="closeModal('modalOpAddItemMaster')" class="w-8 h-8 rounded-full bg-slate-800/90 text-slate-300 hover:text-white flex items-center justify-center font-bold text-sm cursor-pointer">✕</button>
+        </div>
+
+        <!-- Master Top Sub-Tabs (Card / Categories / Units / Directory) -->
+        <div class="grid grid-cols-4 gap-1 bg-slate-900/90 p-1 rounded-2xl border border-slate-800 text-[10px] sm:text-xs font-black">
+          <button type="button" id="mobItemSubTabBtn_card" onclick="SuiteItemMaster.switchSubTab('card')" class="py-2 px-1.5 rounded-xl bg-gradient-to-r from-indigo-600 to-cyan-600 text-white shadow flex items-center justify-center gap-1 transition cursor-pointer">
+            <span>📦</span><span>بطاقة الصنف</span>
+          </button>
+          <button type="button" id="mobItemSubTabBtn_directory" onclick="SuiteItemMaster.switchSubTab('directory')" class="py-2 px-1.5 rounded-xl text-slate-400 hover:text-white flex items-center justify-center gap-1 transition cursor-pointer">
+            <span>📋</span><span>دليل الأصناف (<span id="mobItemDirectoryCountBadge">0</span>)</span>
+          </button>
+          <button type="button" id="mobItemSubTabBtn_categories" onclick="SuiteItemMaster.switchSubTab('categories')" class="py-2 px-1.5 rounded-xl text-slate-400 hover:text-white flex items-center justify-center gap-1 transition cursor-pointer">
+            <span>📂</span><span>الفئات</span>
+          </button>
+          <button type="button" id="mobItemSubTabBtn_units" onclick="SuiteItemMaster.switchSubTab('units')" class="py-2 px-1.5 rounded-xl text-slate-400 hover:text-white flex items-center justify-center gap-1 transition cursor-pointer">
+            <span>⚖️</span><span>الوحدات</span>
+          </button>
+        </div>
+
+        <!-- ===================================================== -->
+        <!-- SUB-TAB 1: FULL 6-SECTION ITEM MASTER FORM -->
+        <!-- ===================================================== -->
+        <div id="mobItemSubTab_card" class="space-y-3.5">
+          
+          <!-- Quick Section Jump Pills -->
+          <div class="flex gap-1.5 overflow-x-auto no-scrollbar pb-1 text-[10px] font-bold">
+            <a href="#mobItemSec1" class="px-2.5 py-1 rounded-full bg-indigo-950/90 text-indigo-300 border border-indigo-500/40 shrink-0">1. الأساسية والباركود</a>
+            <a href="#mobItemSec2" class="px-2.5 py-1 rounded-full bg-emerald-950/90 text-emerald-300 border border-emerald-500/40 shrink-0">2. التسعير والضرائب</a>
+            <a href="#mobItemSec3" class="px-2.5 py-1 rounded-full bg-amber-950/90 text-amber-300 border border-amber-500/40 shrink-0">3. التكلفة والافتتاحي</a>
+            <a href="#mobItemSec4" class="px-2.5 py-1 rounded-full bg-purple-950/90 text-purple-300 border border-purple-500/40 shrink-0">4. الحدود والرفوف</a>
+            <a href="#mobItemSec5" class="px-2.5 py-1 rounded-full bg-cyan-950/90 text-cyan-300 border border-cyan-500/40 shrink-0">5. مصفوفة الوحدات والشيلة</a>
+            <a href="#mobItemSec6" class="px-2.5 py-1 rounded-full bg-slate-800 text-slate-300 border border-slate-700 shrink-0">6. المواصفات والحفظ</a>
+          </div>
+
+          <!-- SECTION 1: البيانات الأساسية والتصنيف (General & Classification) -->
+          <div id="mobItemSec1" class="p-3.5 rounded-2xl bg-slate-900/90 border border-indigo-500/35 space-y-2.5">
+            <div class="flex justify-between items-center border-b border-slate-800 pb-1.5">
+              <span class="text-xs font-black text-indigo-300 flex items-center gap-1.5">
+                <span class="w-5 h-5 rounded-lg bg-indigo-500/20 text-indigo-300 flex items-center justify-center text-[11px]">1</span>
+                <span>البيانات الأساسية والتصنيف والباركود</span>
+              </span>
+              <button type="button" onclick="SuiteItemMaster.resetForm()" class="text-[10px] font-bold bg-slate-800 hover:bg-slate-700 text-cyan-300 px-2.5 py-1 rounded-lg border border-slate-700 cursor-pointer">🔄 بطاقة جديدة</button>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2.5">
+              <div>
+                <label class="text-[10px] font-bold text-slate-400 block mb-1">رقم الصنف القياسي (SKU / Code)</label>
+                <div class="flex gap-1">
+                  <input id="mobItemSku" type="text" placeholder="SKU-1001" class="w-full bg-slate-950 border border-indigo-500/40 rounded-xl px-2.5 py-2 text-xs font-mono font-black text-indigo-300 outline-none" />
+                  <button type="button" onclick="SuiteItemMaster.generateSku()" title="توليد كود جديد" class="px-2.5 rounded-xl bg-indigo-500/20 border border-indigo-500/40 text-indigo-300 text-xs font-black cursor-pointer">⚡</button>
+                </div>
+              </div>
+              <div>
+                <label class="text-[10px] font-bold text-slate-400 block mb-1">الباركود العالمي (Barcode)</label>
+                <div class="flex gap-1">
+                  <input id="mobItemBarcode" type="text" placeholder="6281000..." oninput="SuiteItemMaster.updateQrPreview()" class="w-full bg-slate-950 border border-cyan-500/40 rounded-xl px-2.5 py-2 text-xs font-mono font-black text-cyan-300 outline-none" />
+                  <button type="button" onclick="SuiteItemMaster.generateBarcode()" title="توليد باركود تلقائي" class="px-2 rounded-xl bg-cyan-500/20 border border-cyan-500/40 text-cyan-300 text-xs font-black cursor-pointer">🎲</button>
+                  <button type="button" onclick="SuiteItemMaster.scanBarcodeIntoField('mobItemBarcode')" title="مسح بالكاميرا" class="px-2 rounded-xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-xs font-black cursor-pointer">📷</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+              <div>
+                <label class="text-[10px] font-bold text-amber-300 block mb-1">اسم الصنف التجاري (بالعربي) *</label>
+                <input id="mobItemName" type="text" placeholder="مثال: أسمنت عطبرة بورتلاندي 50 كجم..." oninput="SuiteItemMaster.updateQrPreview()" class="w-full bg-slate-950 border border-amber-500/50 rounded-xl px-3 py-2 text-xs font-black text-white outline-none focus:border-amber-400" />
+              </div>
+              <div>
+                <label class="text-[10px] font-bold text-slate-400 block mb-1">الاسم اللاتيني / الإنجليزي (Latin Name)</label>
+                <input id="mobItemNameLatin" type="text" placeholder="e.g. Atbara Portland Cement 50kg" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs font-bold text-slate-200 outline-none" />
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+              <div>
+                <div class="flex justify-between items-center mb-1">
+                  <label class="text-[10px] font-bold text-slate-400">الفئة الرئيسية (Category)</label>
+                  <button type="button" onclick="SuiteItemMaster.switchSubTab('categories')" class="text-[9px] text-indigo-400 font-black hover:underline cursor-pointer">+ فئة</button>
+                </div>
+                <select id="mobItemCategory" onchange="SuiteItemMaster.onCategoryChange()" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-2.5 py-2 text-xs font-bold text-white outline-none">
+                  <option value="عام">عام</option>
+                </select>
+              </div>
+              <div>
+                <label class="text-[10px] font-bold text-slate-400 block mb-1">الفئة الفرعية (Sub-Category)</label>
+                <select id="mobItemSubCategory" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-2.5 py-2 text-xs font-bold text-white outline-none">
+                  <option value="">-- بدون فئة فرعية --</option>
+                </select>
+              </div>
+              <div class="col-span-2 sm:col-span-1">
+                <label class="text-[10px] font-bold text-slate-400 block mb-1">العلامة التجارية (Brand)</label>
+                <input id="mobItemBrand" type="text" placeholder="الماركة / المصنع..." class="w-full bg-slate-950 border border-slate-700 rounded-xl px-2.5 py-2 text-xs font-bold text-white outline-none" />
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2.5">
+              <div>
+                <label class="text-[10px] font-bold text-slate-400 block mb-1">طبيعة الصنف (Item Nature)</label>
+                <select id="mobItemNature" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-2.5 py-2 text-xs font-bold text-cyan-300 outline-none">
+                  <option value="مخزني">📦 مخزني (سلعة ملموسة)</option>
+                  <option value="خدمي">🛠️ خدمي (بدون رصيد مخزني)</option>
+                  <option value="تجميعي">🧩 مركب / تجميعي (BOM)</option>
+                </select>
+              </div>
+              <div>
+                <label class="text-[10px] font-bold text-slate-400 block mb-1">حالة الصنف (Status)</label>
+                <select id="mobItemStatus" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-2.5 py-2 text-xs font-bold text-emerald-400 outline-none">
+                  <option value="active">🟢 نشط ومسموح بالتداول</option>
+                  <option value="inactive">🔴 موقوف مؤقتاً</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- SECTION 2: التسعير والضرائب (Pricing & Tax) -->
+          <div id="mobItemSec2" class="p-3.5 rounded-2xl bg-slate-900/90 border border-emerald-500/35 space-y-2.5">
+            <div class="flex justify-between items-center border-b border-slate-800 pb-1.5">
+              <span class="text-xs font-black text-emerald-300 flex items-center gap-1.5">
+                <span class="w-5 h-5 rounded-lg bg-emerald-500/20 text-emerald-300 flex items-center justify-center text-[11px]">2</span>
+                <span>سياسة التسعير والضرائب والخصومات</span>
+              </span>
+              <span id="mobItemUsdPreviewBadge" class="text-[10px] font-mono font-black text-emerald-400 bg-emerald-950/80 px-2 py-0.5 rounded-full border border-emerald-500/30">≈ $0.00</span>
+            </div>
+
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+              <div class="col-span-2 sm:col-span-1">
+                <label class="text-[10px] font-bold text-emerald-300 block mb-1">سعر البيع الافتراضي (ج.س) *</label>
+                <input id="mobItemSellingPrice" type="number" step="any" placeholder="0" oninput="SuiteItemMaster.onSellingPriceInput()" class="w-full bg-slate-950 border border-emerald-500/50 rounded-xl px-2.5 py-2 text-xs font-mono font-black text-emerald-400 outline-none" />
+              </div>
+              <div>
+                <label class="text-[10px] font-bold text-slate-400 block mb-1">أقصى خصم مسموح (%)</label>
+                <input id="mobItemMaxDiscount" type="number" step="any" value="10" placeholder="10%" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-2.5 py-2 text-xs font-mono font-bold text-amber-300 outline-none" />
+              </div>
+              <div>
+                <label class="text-[10px] font-bold text-slate-400 block mb-1">خاضع للضريبة (VAT)</label>
+                <select id="mobItemTaxable" onchange="SuiteItemMaster.onTaxToggle()" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-2.5 py-2 text-xs font-bold text-white outline-none">
+                  <option value="yes">نعم (خاضع)</option>
+                  <option value="no">معفى من الضريبة</option>
+                </select>
+              </div>
+              <div>
+                <label class="text-[10px] font-bold text-slate-400 block mb-1">نسبة الضريبة (%)</label>
+                <input id="mobItemTaxRate" type="number" step="any" value="17" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-2.5 py-2 text-xs font-mono font-bold text-cyan-300 outline-none" />
+              </div>
+            </div>
+          </div>
+
+          <!-- SECTION 3: التكلفة والرصيد الافتتاحي (Costing & Opening Stock) -->
+          <div id="mobItemSec3" class="p-3.5 rounded-2xl bg-slate-900/90 border border-amber-500/35 space-y-2.5">
+            <div class="flex justify-between items-center border-b border-slate-800 pb-1.5">
+              <span class="text-xs font-black text-amber-300 flex items-center gap-1.5">
+                <span class="w-5 h-5 rounded-lg bg-amber-500/20 text-amber-300 flex items-center justify-center text-[11px]">3</span>
+                <span>سياسة التكلفة والرصيد الافتتاحي</span>
+              </span>
+              <span id="mobItemTotalOpeningValBadge" class="text-[10px] font-mono font-black text-amber-300 bg-amber-950/80 px-2 py-0.5 rounded-full border border-amber-500/30">إجمالي الافتتاحي: 0 ج.س</span>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+              <div>
+                <label class="text-[10px] font-bold text-slate-400 block mb-1">طريقة احتساب التكلفة</label>
+                <select id="mobItemCostMethod" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-2.5 py-2 text-xs font-bold text-amber-200 outline-none">
+                  <option value="lastPurchase">آخر سعر شراء (Last Purchase)</option>
+                  <option value="highest">الأعلى سعراً (Highest Cost)</option>
+                  <option value="opening">التكلفة الافتتاحية / المتوسط المرجح</option>
+                </select>
+              </div>
+              <div>
+                <label class="text-[10px] font-bold text-slate-400 block mb-1">الرصيد الافتتاحي (الكمية بالأساسية)</label>
+                <input id="mobItemOpeningQty" type="number" step="any" value="0" oninput="SuiteItemMaster.recalcOpeningTotal()" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-2.5 py-2 text-xs font-mono font-black text-white outline-none" />
+              </div>
+              <div>
+                <label class="text-[10px] font-bold text-slate-400 block mb-1">تكلفة الوحدة الافتتاحية (ج.س)</label>
+                <input id="mobItemOpeningValue" type="number" step="any" value="0" oninput="SuiteItemMaster.recalcOpeningTotal()" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-2.5 py-2 text-xs font-mono font-black text-amber-400 outline-none" />
+              </div>
+            </div>
+          </div>
+
+          <!-- SECTION 4: الحدود المخزنية والموقع (Stock Limits & Bin Location) -->
+          <div id="mobItemSec4" class="p-3.5 rounded-2xl bg-slate-900/90 border border-purple-500/35 space-y-2.5">
+            <div class="flex justify-between items-center border-b border-slate-800 pb-1.5">
+              <span class="text-xs font-black text-purple-300 flex items-center gap-1.5">
+                <span class="w-5 h-5 rounded-lg bg-purple-500/20 text-purple-300 flex items-center justify-center text-[11px]">4</span>
+                <span>الحدود المخزنية وموقع الرف (Bin Location)</span>
+              </span>
+              <span class="text-[9px] text-purple-300 font-bold">رادار التنبيه الآلي</span>
+            </div>
+
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+              <div>
+                <label class="text-[10px] font-bold text-slate-400 block mb-1">موقع التخزين (الرف/الممر)</label>
+                <input id="mobItemBinLocation" type="text" placeholder="A-01-04" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-2.5 py-2 text-xs font-mono font-bold text-purple-300 outline-none" />
+              </div>
+              <div>
+                <label class="text-[10px] font-bold text-slate-400 block mb-1">الحد الأعلى (Max Limit)</label>
+                <input id="mobItemMaxLimit" type="number" step="any" value="1000" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-2.5 py-2 text-xs font-mono font-bold text-emerald-300 outline-none" />
+              </div>
+              <div>
+                <label class="text-[10px] font-bold text-slate-400 block mb-1">حد إعادة الطلب (Reorder)</label>
+                <input id="mobItemReorderLevel" type="number" step="any" value="50" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-2.5 py-2 text-xs font-mono font-bold text-amber-300 outline-none" />
+              </div>
+              <div>
+                <label class="text-[10px] font-bold text-slate-400 block mb-1">الحد الأدنى للخطر (Min)</label>
+                <input id="mobItemMinLimit" type="number" step="any" value="10" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-2.5 py-2 text-xs font-mono font-bold text-rose-400 outline-none" />
+              </div>
+            </div>
+          </div>
+
+          <!-- SECTION 5: مصفوفة الوحدات ومعامل الشيلة (Unit Matrix & Bundle Factor) -->
+          <div id="mobItemSec5" class="p-3.5 rounded-2xl bg-slate-900/90 border border-cyan-500/45 space-y-3">
+            <div class="flex justify-between items-center border-b border-slate-800 pb-1.5">
+              <span class="text-xs font-black text-cyan-300 flex items-center gap-1.5">
+                <span class="w-5 h-5 rounded-lg bg-cyan-500/20 text-cyan-300 flex items-center justify-center text-[11px]">5</span>
+                <span>مصفوفة الوحدات المتعددة ومعامل الشيلة (اللابتوب)</span>
+              </span>
+              <button type="button" onclick="SuiteItemMaster.addUnitRow()" class="px-2.5 py-1 rounded-xl bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-400/50 text-cyan-200 text-[10px] font-black cursor-pointer">+ إضافة وحدة فرعية/كبرى</button>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2.5 bg-slate-950/90 p-2.5 rounded-xl border border-cyan-500/25">
+              <div>
+                <div class="flex justify-between items-center mb-1">
+                  <label class="text-[10px] font-bold text-cyan-300">الوحدة الأساسية للصنف (Base Unit)</label>
+                  <button type="button" onclick="SuiteItemMaster.switchSubTab('units')" class="text-[9px] text-cyan-400 font-black hover:underline cursor-pointer">+ وحدة</button>
+                </div>
+                <select id="mobItemBaseUnit" onchange="SuiteItemMaster.onBaseUnitChange()" class="w-full bg-slate-900 border border-cyan-500/40 rounded-xl px-2.5 py-2 text-xs font-black text-white outline-none">
+                  <option value="قطعة">قطعة</option>
+                  <option value="كرتونة">كرتونة</option>
+                  <option value="جوال">جوال</option>
+                  <option value="كيلو">كيلو</option>
+                  <option value="طن">طن</option>
+                  <option value="لتر">لتر</option>
+                  <option value="متر">متر</option>
+                  <option value="صندوق">صندوق</option>
+                  <option value="دستة">دستة</option>
+                  <option value="باكت">باكت</option>
+                </select>
+              </div>
+              <div>
+                <label class="text-[10px] font-bold text-amber-300 block mb-1">معامل الشيلة / الربطة (Bundle Factor)</label>
+                <input id="mobItemBundleFactor" type="number" step="any" value="1" placeholder="1" class="w-full bg-slate-900 border border-amber-500/40 rounded-xl px-2.5 py-2 text-xs font-mono font-black text-amber-300 outline-none" />
+                <span class="text-[9px] text-slate-400 block mt-0.5">عدد الوحدات في الشيلة الواحدة بحسابات الجملة</span>
+              </div>
+            </div>
+
+            <!-- Dynamic Units Rows Container -->
+            <div id="mobItemUnitsContainer" class="space-y-2">
+              <!-- Populated dynamically by SuiteItemMaster.renderUnitRows() -->
+            </div>
+          </div>
+
+          <!-- SECTION 6: المواصفات الفنية، معاينة الباركود، والحفظ الموحد -->
+          <div id="mobItemSec6" class="p-3.5 rounded-2xl bg-slate-900/90 border border-slate-700 space-y-3">
+            <div class="flex justify-between items-center border-b border-slate-800 pb-1.5">
+              <span class="text-xs font-black text-slate-200 flex items-center gap-1.5">
+                <span class="w-5 h-5 rounded-lg bg-slate-700 text-white flex items-center justify-center text-[11px]">6</span>
+                <span>المواصفات الفنية وبطاقة الباركود الذكية</span>
+              </span>
+              <span id="mobItemLiveSyncBadge" class="text-[10px] text-emerald-400 font-bold">⚡ جاهز للحفظ والمزامنة</span>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 items-center">
+              <div class="sm:col-span-2">
+                <label class="text-[10px] font-bold text-slate-400 block mb-1">المواصفات الفنية والملاحظات (Description)</label>
+                <textarea id="mobItemDescription" rows="2" placeholder="أدخل المواصفات الفنية، بلد المنشأ، شروط التخزين أو أي تفاصيل إضافية..." class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white outline-none"></textarea>
+              </div>
+              <div class="bg-slate-950 p-2.5 rounded-xl border border-slate-800 flex flex-col items-center justify-center text-center">
+                <span class="text-[9px] text-slate-400 mb-1">معاينة بطاقة الباركود</span>
+                <div id="mobItemQrPreviewBox" class="font-mono text-[11px] font-black text-cyan-300 tracking-widest bg-slate-900 px-3 py-1.5 rounded-lg border border-cyan-500/30 w-full truncate">|||| |||| ||||</div>
+                <span id="mobItemQrPreviewName" class="text-[9px] text-slate-400 mt-1 truncate w-full">صنف جديد</span>
+              </div>
+            </div>
+
+            <div class="flex gap-2 pt-1">
+              <button type="button" onclick="SuiteItemMaster.saveItem()" class="flex-1 py-3.5 rounded-2xl bg-gradient-to-r from-indigo-500 via-cyan-500 to-emerald-500 text-slate-950 font-black text-xs sm:text-sm shadow-[0_0_25px_rgba(99,102,241,0.4)] active:scale-95 transition flex items-center justify-center gap-2 cursor-pointer">
+                <span>💾 حفظ الصنف ومزامنته مع الكمبيوتر والسحابة ✓</span>
+              </button>
+              <button type="button" onclick="SuiteItemMaster.resetForm()" class="px-4 py-3.5 rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs border border-slate-700 active:scale-95 transition cursor-pointer">
+                تفريغ
+              </button>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- ===================================================== -->
+        <!-- SUB-TAB 2: ITEMS DIRECTORY (دليل الأصناف - بحث وتعديل وحذف) -->
+        <!-- ===================================================== -->
+        <div id="mobItemSubTab_directory" class="hidden space-y-3">
+          <div class="flex gap-2">
+            <input id="mobItemDirectorySearch" type="text" oninput="SuiteItemMaster.renderDirectory(this.value)" placeholder="🔍 ابحث في جميع الأصناف بالاسم، الكود SKU، الباركود، أو الفئة..." class="w-full bg-slate-900 border border-indigo-500/40 rounded-xl px-3 py-2.5 text-xs font-bold text-white outline-none" />
+            <button type="button" onclick="SuiteItemMaster.switchSubTab('card'); SuiteItemMaster.resetForm();" class="px-3 py-2 rounded-xl bg-indigo-600 text-white text-xs font-black shrink-0 cursor-pointer">+ جديد</button>
+          </div>
+          <div id="mobItemDirectoryList" class="space-y-2 max-h-[62vh] overflow-y-auto pr-1">
+            <!-- Populated dynamically by SuiteItemMaster.renderDirectory() -->
+          </div>
+        </div>
+
+        <!-- ===================================================== -->
+        <!-- SUB-TAB 3: CATEGORIES MANAGER (إدارة الفئات والتصنيفات - مطابق اللابتوب) -->
+        <!-- ===================================================== -->
+        <div id="mobItemSubTab_categories" class="hidden space-y-3">
+          <div class="p-3.5 rounded-2xl bg-slate-900/90 border border-indigo-500/35 space-y-2.5">
+            <h4 class="text-xs font-black text-indigo-300">📂 إضافة / تحديث فئة أصناف رئيسية وفرعية</h4>
+            <div class="grid grid-cols-2 gap-2">
+              <div>
+                <label class="text-[10px] text-slate-400 block mb-1">كود الفئة</label>
+                <input id="mobNewCatId" type="text" placeholder="CAT-01" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-2.5 py-2 text-xs font-mono font-bold text-indigo-300 outline-none" />
+              </div>
+              <div>
+                <label class="text-[10px] text-slate-400 block mb-1">اسم الفئة الرئيسية *</label>
+                <input id="mobNewCatName" type="text" placeholder="مثال: مواد بناء" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-2.5 py-2 text-xs font-bold text-white outline-none" />
+              </div>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <div>
+                <label class="text-[10px] text-slate-400 block mb-1">الحساب المحاسبي المرتبط</label>
+                <input id="mobNewCatAccount" type="text" value="1104 - مخزون البضاعة" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-2.5 py-2 text-xs font-bold text-emerald-300 outline-none" />
+              </div>
+              <div>
+                <label class="text-[10px] text-slate-400 block mb-1">الفئات الفرعية (مفصولة بفاصلة ،)</label>
+                <input id="mobNewCatSub" type="text" placeholder="أسمنت، حديد تسليح، طوب..." class="w-full bg-slate-950 border border-slate-700 rounded-xl px-2.5 py-2 text-xs font-bold text-cyan-300 outline-none" />
+              </div>
+            </div>
+            <button type="button" onclick="SuiteItemMaster.saveCategory()" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-cyan-600 text-white font-black text-xs shadow active:scale-95 transition cursor-pointer">
+              + حفظ الفئة ومزامنتها مع اللابتوب
+            </button>
+          </div>
+
+          <div id="mobCategoriesListContainer" class="space-y-2 max-h-[45vh] overflow-y-auto pr-1">
+            <!-- Populated dynamically -->
+          </div>
+        </div>
+
+        <!-- ===================================================== -->
+        <!-- SUB-TAB 4: GLOBAL UNITS MANAGER (إدارة الوحدات القياسية - مطابق اللابتوب) -->
+        <!-- ===================================================== -->
+        <div id="mobItemSubTab_units" class="hidden space-y-3">
+          <div class="p-3.5 rounded-2xl bg-slate-900/90 border border-cyan-500/35 space-y-2.5">
+            <h4 class="text-xs font-black text-cyan-300">⚖️ إضافة وحدة قياس عالمية جديدة</h4>
+            <div class="grid grid-cols-3 gap-2">
+              <div>
+                <label class="text-[10px] text-slate-400 block mb-1">اسم الوحدة *</label>
+                <input id="mobNewUnitName" type="text" placeholder="مثال: جوال 50 كجم" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-2.5 py-2 text-xs font-bold text-white outline-none" />
+              </div>
+              <div>
+                <label class="text-[10px] text-slate-400 block mb-1">الرمز المختصر</label>
+                <input id="mobNewUnitSymbol" type="text" placeholder="جوال" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-2.5 py-2 text-xs font-bold text-cyan-300 outline-none" />
+              </div>
+              <div>
+                <label class="text-[10px] text-slate-400 block mb-1">نوع الوحدة</label>
+                <select id="mobNewUnitType" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-2 py-2 text-xs font-bold text-amber-300 outline-none">
+                  <option value="عددية">عددية (Count)</option>
+                  <option value="وزنية">وزنية (Weight)</option>
+                  <option value="حجمية">حجمية (Volume)</option>
+                  <option value="طولية">طولية (Length)</option>
+                  <option value="عبوة جملة">عبوة جملة (Pack)</option>
+                </select>
+              </div>
+            </div>
+            <button type="button" onclick="SuiteItemMaster.saveGlobalUnit()" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-cyan-600 to-teal-600 text-slate-950 font-black text-xs shadow active:scale-95 transition cursor-pointer">
+              + إضافة الوحدة لقائمة الوحدات القياسية
+            </button>
+          </div>
+
+          <div id="mobGlobalUnitsListContainer" class="grid grid-cols-2 sm:grid-cols-3 gap-2 max-h-[45vh] overflow-y-auto pr-1">
+            <!-- Populated dynamically -->
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ======================================================== -->
+    <!-- 18. SALES & PURCHASE RETURNS MODAL (مرتجع فواتير المبيعات والمشتريات) -->
+    <!-- ======================================================== -->
+    <div id="modalOpReturns" class="hidden fixed inset-0 z-50 modal-backdrop flex items-end sm:items-center justify-center p-1.5 sm:p-3">
+      <div class="glass-base w-full max-w-xl rounded-3xl border border-rose-500/60 p-4 space-y-3.5 max-h-[92vh] overflow-y-auto shadow-[0_0_55px_rgba(244,63,94,0.3)] bg-slate-950/98">
+        
+        <!-- Header -->
+        <div class="flex justify-between items-center border-b border-slate-800 pb-2.5">
+          <div class="flex items-center gap-2.5">
+            <div class="w-10 h-10 rounded-2xl bg-rose-500/20 border border-rose-500/40 text-rose-300 flex items-center justify-center text-lg font-black">
+              ↩️
+            </div>
+            <div>
+              <h3 class="text-sm sm:text-base font-black text-white">مرتجع الفواتير المعتمد (مبيعات / مشتريات)</h3>
+              <p class="text-[10px] text-slate-400">إشعار دائن/مدين فوري مع عكس الأثر المخزني والقيد المحاسبي آلياً</p>
+            </div>
+          </div>
+          <button type="button" onclick="closeModal('modalOpReturns')" class="w-8 h-8 rounded-full bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center text-sm cursor-pointer">✕</button>
+        </div>
+
+        <!-- Return Type Switcher -->
+        <div class="grid grid-cols-2 gap-2 bg-slate-900 p-1.5 rounded-2xl border border-slate-800 text-xs font-black">
+          <button type="button" id="mobReturnTypeSalesBtn" onclick="SuiteReturnsManager.setReturnType('sales_return')" class="py-2.5 rounded-xl bg-gradient-to-r from-rose-600 to-amber-600 text-white shadow flex items-center justify-center gap-1.5 transition cursor-pointer">
+            <span>🔄</span><span>مرتجع مبيعات (من عميل)</span>
+          </button>
+          <button type="button" id="mobReturnTypePurchaseBtn" onclick="SuiteReturnsManager.setReturnType('purchase_return')" class="py-2.5 rounded-xl text-slate-400 hover:text-white flex items-center justify-center gap-1.5 transition cursor-pointer">
+            <span>📦</span><span>مرتجع مشتريات (لمورد)</span>
+          </button>
+        </div>
+
+        <!-- Metadata Fields -->
+        <div class="grid grid-cols-2 gap-2.5 text-xs">
+          <div>
+            <label id="mobReturnPartnerLabel" class="text-[10px] font-bold text-slate-400 block mb-1">العميل صاحب المرتجع *</label>
+            <select id="mobReturnPartnerSelect" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-2.5 py-2 text-xs font-bold text-white outline-none">
+              <!-- Populated dynamically -->
+            </select>
+          </div>
+          <div>
+            <label class="text-[10px] font-bold text-slate-400 block mb-1">المستودع المستلم / الصارف</label>
+            <select id="mobReturnWarehouseSelect" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-2.5 py-2 text-xs font-bold text-cyan-300 outline-none">
+              <option value="المستودع الرئيسي (الخرطوم)">المستودع الرئيسي (الخرطوم)</option>
+              <option value="مخزن صالة المعرض">مخزن صالة المعرض</option>
+              <option value="مخزن فرع بحري">مخزن فرع بحري</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-3 gap-2 text-xs">
+          <div>
+            <label class="text-[10px] font-bold text-slate-400 block mb-1">رقم الفاتورة الأصلية</label>
+            <input id="mobReturnOrigInvoice" type="text" placeholder="INV-..." class="w-full bg-slate-900 border border-slate-700 rounded-xl px-2.5 py-2 text-xs font-mono font-bold text-amber-300 outline-none" />
+          </div>
+          <div>
+            <label class="text-[10px] font-bold text-slate-400 block mb-1">سبب الإرجاع</label>
+            <select id="mobReturnReason" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-2 py-2 text-xs font-bold text-white outline-none">
+              <option value="فائض عن حاجة العميل">فائض عن الحاجة</option>
+              <option value="عدم مطابقة المواصفات">عدم مطابقة المواصفات</option>
+              <option value="تالف مصنعي">تالف / عيب مصنعي</option>
+              <option value="تعديل كمية الفاتورة">تعديل كمية الفاتورة</option>
+            </select>
+          </div>
+          <div>
+            <label class="text-[10px] font-bold text-slate-400 block mb-1">طريقة التسوية المالية</label>
+            <select id="mobReturnSettlement" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-2 py-2 text-xs font-bold text-emerald-300 outline-none">
+              <option value="credit">خصم من الحساب (آجل)</option>
+              <option value="cash">رد نقدي فوري (الخزينة)</option>
+              <option value="bank">رد بنكي (بنكك / فوري)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Return Items List -->
+        <div class="p-3 rounded-2xl bg-slate-900/90 border border-rose-500/30 space-y-2">
+          <div class="flex justify-between items-center">
+            <span class="text-xs font-black text-rose-300">📋 الأصناف المرتجعة والكميات</span>
+            <button type="button" onclick="SuiteReturnsManager.addLine()" class="px-2.5 py-1 rounded-xl bg-rose-500/20 hover:bg-rose-500/30 border border-rose-500/40 text-rose-200 text-[10px] font-black cursor-pointer">+ إضافة صنف مرتجع</button>
+          </div>
+          <div id="mobReturnLinesContainer" class="space-y-2 max-h-52 overflow-y-auto pr-1">
+            <!-- Populated dynamically -->
+          </div>
+        </div>
+
+        <!-- Return Summary Bar -->
+        <div class="p-3 rounded-2xl bg-slate-900 border border-slate-800 flex justify-between items-center">
+          <div>
+            <span class="text-[10px] text-slate-400 block">إجمالي قيمة الإشعار المرتجع:</span>
+            <span id="mobReturnEffectHint" class="text-[10px] text-emerald-400 font-bold">➕ يضاف للمخزن ويخصم من مديونية العميل</span>
+          </div>
+          <div class="text-left">
+            <span id="mobReturnTotalSdg" class="text-base font-mono font-black text-rose-400 block">0 ج.س</span>
+            <span id="mobReturnTotalUsd" class="text-[10px] font-mono font-bold text-slate-400">≈ $0.00</span>
+          </div>
+        </div>
+
+        <!-- Submit Return -->
+        <button type="button" onclick="SuiteReturnsManager.submitReturn()" class="w-full py-3.5 rounded-2xl bg-gradient-to-r from-rose-500 via-amber-500 to-emerald-500 text-slate-950 font-black text-xs sm:text-sm shadow-[0_0_25px_rgba(244,63,94,0.35)] active:scale-95 transition flex items-center justify-center gap-2 cursor-pointer">
+          <span>✅ اعتماد إشعار المرتجع وتحديث المخزن والحسابات فوراً</span>
+        </button>
+
+      </div>
+    </div>
+
   </div>
 
   <!-- JAVASCRIPT APP LOGIC & INTERACTIONS -->
-  <script src="js/mobile-suite.js?v=2026_10_15_v16"></script>
+  <script src="js/mobile-suite.js?v=2026_10_16_v20"></script>
 </body>
 </html>

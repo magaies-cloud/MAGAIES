@@ -12156,7 +12156,7 @@ $currenciesData = [
 
     // تسجيل Service Worker لفتح الشاشة فوراً (0ms) عند انقطاع الإنترنت
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('./sw.js?v=2026_10_16_offline_v19', { scope: './', updateViaCache: 'none' }).catch(() => {});
+      navigator.serviceWorker.register('./sw.js?v=2026_10_16_offline_v20', { scope: './', updateViaCache: 'none' }).catch(() => {});
     }
 
     // إذا فُتحت الصفحة من الكاش المحلي أو هناك سندات أوفلاين معلقة، نتحقق ونرفع فوراً

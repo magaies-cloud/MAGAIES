@@ -176,7 +176,7 @@ window.PWAManager = {
                         document.cookie = 'saas_token=' + encodeURIComponent(savedToken) + '; path=/; max-age=31536000; SameSite=Lax';
                     }
                 } catch (e) {}
-                navigator.serviceWorker.register('./sw.js?v=2026_10_16_offline_v19', { scope: './', updateViaCache: 'none' }).then((reg) => {
+                navigator.serviceWorker.register('./sw.js?v=2026_10_16_offline_v20', { scope: './', updateViaCache: 'none' }).then((reg) => {
                     if (navigator.onLine) {
                         try { reg.update(); } catch (e) {}
                         setTimeout(() => {
