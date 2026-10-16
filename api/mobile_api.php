@@ -88,14 +88,46 @@ try {
         // ═════════════════════════════════════════════════════════════════════
         case 'get_full_mobile_data':
         default:
-            $currencyRateUSD = 2800; // Default SDG per USD fallback
+            $currencyRateUSD = 5999.0; // Default SDG per USD fallback
             try {
-                $stmtCr = $pdo->prepare("SELECT setting_value FROM global_settings WHERE setting_key = 'erp_currency_rates_v1'");
-                $stmtCr->execute();
-                $crVal = $stmtCr->fetchColumn();
-                if ($crVal) {
-                    $rates = json_decode($crVal, true);
-                    if (!empty($rates['USD'])) $currencyRateUSD = (float)$rates['USD'];
+                $tKey = 'tenant_rate_' . intval($tenant_id);
+                $stmtCr = $pdo->prepare("SELECT setting_key, setting_value FROM global_settings WHERE setting_key IN ('exchange_rate', 'erp_rate_usd', 'erp_currency_rates_v1', ?)");
+                $stmtCr->execute([$tKey]);
+                $rowsCr = $stmtCr->fetchAll(PDO::FETCH_KEY_PAIR);
+                $resolvedRate = 0;
+                if (!empty($rowsCr['exchange_rate'])) {
+                    $val = trim((string)$rowsCr['exchange_rate']);
+                    if (is_numeric($val) && (float)$val > 1) {
+                        $resolvedRate = (float)$val;
+                    } else {
+                        $dec = json_decode($val, true);
+                        if (is_array($dec)) {
+                            $r = (float)($dec['rate'] ?? ($dec['current'] ?? ($dec['rateUSD'] ?? ($dec['USD'] ?? 0))));
+                            if ($r > 1) $resolvedRate = $r;
+                        }
+                    }
+                }
+                if ($resolvedRate <= 1 && !empty($rowsCr[$tKey])) {
+                    $valT = trim((string)$rowsCr[$tKey]);
+                    if (is_numeric($valT) && (float)$valT > 1) {
+                        $resolvedRate = (float)$valT;
+                    } else {
+                        $decT = json_decode($valT, true);
+                        if (is_array($decT)) {
+                            $r = (float)($decT['current'] ?? ($decT['rate'] ?? ($decT['rateUSD'] ?? 0)));
+                            if ($r > 1) $resolvedRate = $r;
+                        }
+                    }
+                }
+                if ($resolvedRate <= 1 && !empty($rowsCr['erp_rate_usd']) && is_numeric($rowsCr['erp_rate_usd']) && (float)$rowsCr['erp_rate_usd'] > 1) {
+                    $resolvedRate = (float)$rowsCr['erp_rate_usd'];
+                }
+                if ($resolvedRate <= 1 && !empty($rowsCr['erp_currency_rates_v1'])) {
+                    $rates = json_decode($rowsCr['erp_currency_rates_v1'], true);
+                    if (!empty($rates['USD']) && (float)$rates['USD'] > 1) $resolvedRate = (float)$rates['USD'];
+                }
+                if ($resolvedRate > 1) {
+                    $currencyRateUSD = $resolvedRate;
                 }
             } catch (Exception $e) {}
 

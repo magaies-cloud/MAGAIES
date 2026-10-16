@@ -635,6 +635,27 @@ window.PWAManager = {
     hydrateViewsWithRealData(data, isCached = false) {
         if (!data) return;
 
+        if (window.SuiteFXManager && typeof window.SuiteFXManager.fetchSystemRate === 'function' && !isCached) {
+            window.SuiteFXManager.fetchSystemRate();
+        }
+        if (data.currency_rate_usd && parseFloat(data.currency_rate_usd) > 1) {
+            const dbRate = parseFloat(data.currency_rate_usd);
+            window.SYSTEM_USD_RATE = dbRate;
+            try {
+                localStorage.setItem('magaies_usd_rate', dbRate.toString());
+                localStorage.setItem('magaiees_system_usd_rate', dbRate.toString());
+                localStorage.setItem('erp_rate_usd', dbRate.toString());
+                localStorage.setItem('erp_cached_global_rate', dbRate.toString());
+            } catch (e) {}
+            const hdrFxEl = document.getElementById('headerQuickFxRateVal');
+            if (hdrFxEl) {
+                hdrFxEl.innerText = Math.round(dbRate).toLocaleString('en-US');
+            }
+            if (window.SuiteFXManager && typeof window.SuiteFXManager.broadcastRate === 'function') {
+                window.SuiteFXManager.broadcastRate(dbRate);
+            }
+        }
+
         // 1. Update Master Accounts List in memory for transfers, dropdowns, searches
         if (Array.isArray(data.master_accounts) && data.master_accounts.length > 0) {
             window.masterAccountsList = data.master_accounts;

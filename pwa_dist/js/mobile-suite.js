@@ -1300,26 +1300,53 @@
     });
 
     // ========================================================
-    // COMPREHENSIVE 13 QUICK OPERATIONS & DISPATCH ENGINE
+    // COMPREHENSIVE 18 QUICK OPERATIONS & SMART COMPACT ENGINE
     // ========================================================
+    window._opsCurrentFilter = 'all';
     window.filterOperationsCategory = function(cat, btn) {
       if (window.triggerHapticPulse) triggerHapticPulse(15);
+      window._opsCurrentFilter = cat;
       const tabs = document.querySelectorAll('.op-cat-btn');
       tabs.forEach(b => {
-        b.className = 'op-cat-btn bg-slate-900/80 hover:bg-slate-800 text-slate-300 px-3 py-1.5 rounded-xl border border-slate-700/60 shrink-0 transition cursor-pointer flex items-center gap-1.5';
+        b.className = 'op-cat-btn bg-slate-900/80 hover:bg-slate-800 text-slate-300 px-2.5 py-1.5 rounded-xl border border-slate-700/60 shrink-0 transition cursor-pointer flex items-center gap-1';
       });
       if (btn) {
-        btn.className = 'op-cat-btn active bg-cyan-600 text-white px-3 py-1.5 rounded-xl shrink-0 transition shadow-[0_0_10px_rgba(6,182,212,0.4)] cursor-pointer flex items-center gap-1.5';
+        if (cat === 'core') {
+          btn.className = 'op-cat-btn active bg-emerald-600/90 text-white px-2.5 py-1.5 rounded-xl shrink-0 transition shadow-[0_0_10px_rgba(16,185,129,0.4)] cursor-pointer flex items-center gap-1 font-black';
+        } else {
+          btn.className = 'op-cat-btn active bg-cyan-600 text-white px-2.5 py-1.5 rounded-xl shrink-0 transition shadow-[0_0_10px_rgba(6,182,212,0.4)] cursor-pointer flex items-center gap-1 font-black';
+        }
       }
       const cards = document.querySelectorAll('#operationsGrid .op-btn');
       cards.forEach(card => {
-        if (cat === 'all' || card.getAttribute('data-category') === cat) {
+        const isMatch = (cat === 'all') ||
+                        (cat === 'core' && card.getAttribute('data-core') === 'true') ||
+                        (card.getAttribute('data-category') === cat);
+        if (isMatch) {
           card.style.display = 'flex';
           card.classList.add('animate-fadeIn');
         } else {
           card.style.display = 'none';
         }
       });
+      const expandLbl = document.getElementById('opsExpandBtnLabel');
+      if (expandLbl) {
+        if (cat === 'core') {
+          expandLbl.innerText = '➕ عرض جميع العمليات المتقدمة (18 عملية شاملة)';
+        } else {
+          expandLbl.innerText = '⚡ طيّ الشبكة للوضع المختصر المريح (أهم 6 عمليات يومية)';
+        }
+      }
+    };
+
+    window.toggleOperationsCompactMode = function() {
+      if (window._opsCurrentFilter === 'core') {
+        const allBtn = document.getElementById('opTabAllBtn');
+        window.filterOperationsCategory('all', allBtn);
+      } else {
+        const coreBtn = document.getElementById('opTabCoreBtn');
+        window.filterOperationsCategory('core', coreBtn);
+      }
     };
 
     // ═══════════════════════════════════════════════════════════════
@@ -1738,6 +1765,11 @@
         setTimeout(() => {
           if (window.SuiteReturnsManager) window.SuiteReturnsManager.open();
         }, 40);
+      } else if (formType === 'shiftZReport') {
+        modalId = 'modalOpShiftZReport';
+        setTimeout(() => {
+          if (window.SuiteZReportManager) window.SuiteZReportManager.open();
+        }, 40);
       }
 
       if (modalId) {
@@ -1755,6 +1787,7 @@
     window.SuiteFXManager = {
       currentRate: (window.SYSTEM_USD_RATE && parseFloat(window.SYSTEM_USD_RATE) > 1) ? parseFloat(window.SYSTEM_USD_RATE) : 5999,
       isLoading: false,
+      _syncTimer: null,
 
       async fetchSystemRate() {
         try {
@@ -1763,17 +1796,20 @@
             const n = parseFloat(cached);
             if (!isNaN(n) && n > 0) this.currentRate = n;
           }
-          const res = await fetch('api/mirror_sync.php?action=get_currency_rate&_t=' + Date.now());
+          const res = await fetch('api/mirror_sync.php?action=get_currency_rate&_t=' + Date.now(), { cache: 'no-store' });
           if (res.ok) {
             const data = await res.json();
             if (data && data.success && data.rate) {
-              this.currentRate = parseFloat(data.rate);
-              window.SYSTEM_USD_RATE = this.currentRate;
-              localStorage.setItem('magaies_usd_rate', this.currentRate.toString());
-              localStorage.setItem('magaiees_system_usd_rate', this.currentRate.toString());
-              localStorage.setItem('magaies_custom_usd_rate', this.currentRate.toString());
-              localStorage.setItem('erp_rate_usd', this.currentRate.toString());
-              localStorage.setItem('erp_cached_global_rate', this.currentRate.toString());
+              const dbRate = parseFloat(data.rate);
+              if (!isNaN(dbRate) && dbRate > 0) {
+                this.currentRate = dbRate;
+                window.SYSTEM_USD_RATE = this.currentRate;
+                localStorage.setItem('magaies_usd_rate', this.currentRate.toString());
+                localStorage.setItem('magaiees_system_usd_rate', this.currentRate.toString());
+                localStorage.setItem('magaies_custom_usd_rate', this.currentRate.toString());
+                localStorage.setItem('erp_rate_usd', this.currentRate.toString());
+                localStorage.setItem('erp_cached_global_rate', this.currentRate.toString());
+              }
             }
           }
         } catch(e) {
@@ -1784,45 +1820,107 @@
       },
 
       broadcastRate(rate) {
-        this.currentRate = rate;
+        const cleanRate = parseFloat(rate);
+        if (isNaN(cleanRate) || cleanRate <= 0) return;
+        this.currentRate = cleanRate;
+        window.SYSTEM_USD_RATE = cleanRate;
+
+        const formattedRate = Math.round(cleanRate).toLocaleString('en-US');
         const hdrFxEl = document.getElementById('headerQuickFxRateVal');
-        if (hdrFxEl && !isNaN(parseFloat(rate))) {
-          hdrFxEl.innerText = Math.round(parseFloat(rate)).toLocaleString('en-US');
+        if (hdrFxEl) {
+          hdrFxEl.innerText = formattedRate;
         }
+        const curModalVal = document.getElementById('fxModalCurrentRateVal');
+        if (curModalVal) {
+          curModalVal.innerText = formattedRate;
+        }
+        const dashHintBadge = document.getElementById('dashLiveFxHintBadge');
+        if (dashHintBadge) {
+          dashHintBadge.innerText = `1$ = ${formattedRate} ج.س`;
+        }
+
+        // Recalculate all live SDG dual-currency spans on Dashboard
+        document.querySelectorAll('[data-usd-val]').forEach(el => {
+          const usd = parseFloat(el.getAttribute('data-usd-val'));
+          if (!isNaN(usd)) {
+            const sign = el.getAttribute('data-sign') || '';
+            const sdgVal = Math.round(usd * cleanRate).toLocaleString('en-US');
+            el.innerText = `${sign}${sdgVal} ج.س`;
+          }
+        });
+        document.querySelectorAll('[data-usd-millions]').forEach(el => {
+          const usd = parseFloat(el.getAttribute('data-usd-millions'));
+          if (!isNaN(usd)) {
+            const millions = ((usd * cleanRate) / 1000000).toFixed(1);
+            el.innerText = `${millions}M ج.س`;
+          }
+        });
+
         const sDisplay = document.getElementById('salesUsdRateDisplay');
         const sInp = document.getElementById('salesUsdRateInput');
-        if (sDisplay) sDisplay.innerText = rate.toString().slice(0, 5);
-        if (sInp) sInp.value = rate.toString().slice(0, 5);
+        if (sDisplay) sDisplay.innerText = cleanRate.toString().slice(0, 6);
+        if (sInp) sInp.value = cleanRate.toString().slice(0, 6);
         if (window.SuiteSalesPOS) {
-          window.SuiteSalesPOS.usdExchangeRate = rate;
+          window.SuiteSalesPOS.usdExchangeRate = cleanRate;
           if (window.SuiteSalesPOS.cart && window.SuiteSalesPOS.cart.length > 0) window.SuiteSalesPOS.renderCart();
         }
 
         const pDisplay = document.getElementById('purUsdRateDisplay');
         const pInp = document.getElementById('purUsdRateInput');
-        if (pDisplay) pDisplay.innerText = rate.toString().slice(0, 5);
-        if (pInp) pInp.value = rate.toString().slice(0, 5);
+        if (pDisplay) pDisplay.innerText = cleanRate.toString().slice(0, 6);
+        if (pInp) pInp.value = cleanRate.toString().slice(0, 6);
         if (window.SuitePurchasePOS) {
-          window.SuitePurchasePOS.usdExchangeRate = rate;
+          window.SuitePurchasePOS.usdExchangeRate = cleanRate;
           if (window.SuitePurchasePOS.cart && window.SuitePurchasePOS.cart.length > 0) window.SuitePurchasePOS.renderCart();
         }
 
         if (window.SuiteItemMaster && typeof window.SuiteItemMaster.onSellingPriceInput === 'function') {
           window.SuiteItemMaster.onSellingPriceInput();
         }
+        if (window.SuiteZReportManager && typeof window.SuiteZReportManager.refreshRateDisplay === 'function') {
+          window.SuiteZReportManager.refreshRateDisplay();
+        }
 
-        window.dispatchEvent(new CustomEvent('magaies_rate_changed', { detail: { rate } }));
+        window.dispatchEvent(new CustomEvent('magaies_rate_changed', { detail: { rate: cleanRate } }));
       },
 
-      openModal() {
+      initLiveSync() {
+        // Immediate database fetch on boot
+        this.fetchSystemRate();
+
+        // Poll MariaDB every 15s when visible & online so changes in Desktop ERP reflect automatically
+        if (this._syncTimer) clearInterval(this._syncTimer);
+        this._syncTimer = setInterval(() => {
+          if (navigator.onLine && document.visibilityState === 'visible') {
+            this.fetchSystemRate();
+          }
+        }, 15000);
+
+        // Instant sync on tab focus, visibility return, or cross-tab storage update
+        window.addEventListener('focus', () => { if (navigator.onLine) this.fetchSystemRate(); });
+        document.addEventListener('visibilitychange', () => {
+          if (document.visibilityState === 'visible' && navigator.onLine) this.fetchSystemRate();
+        });
+        window.addEventListener('storage', (ev) => {
+          if (ev.key === 'erp_rate_usd' || ev.key === 'magaies_usd_rate' || ev.key === 'magaiees_system_usd_rate') {
+            const nr = parseFloat(ev.newValue);
+            if (!isNaN(nr) && nr > 0) this.broadcastRate(nr);
+          }
+        });
+      },
+
+      async openModal() {
         const modal = document.getElementById('suiteCurrencyRateModal');
         if (!modal) return;
         const inp = document.getElementById('fxModalNewRateInput');
         const curValDisplay = document.getElementById('fxModalCurrentRateVal');
         if (inp) inp.value = this.currentRate;
-        if (curValDisplay) curValDisplay.innerText = this.currentRate.toLocaleString('en-US');
+        if (curValDisplay) curValDisplay.innerText = Math.round(this.currentRate).toLocaleString('en-US');
         modal.classList.remove('hidden');
         setTimeout(() => { if (inp) { inp.focus(); inp.select(); } }, 100);
+        // Also refresh from DB in background
+        const fresh = await this.fetchSystemRate();
+        if (curValDisplay) curValDisplay.innerText = Math.round(fresh).toLocaleString('en-US');
       },
 
       closeModal() {
@@ -1866,6 +1964,7 @@
           }
 
           localStorage.setItem('magaies_usd_rate', newRate.toString());
+          localStorage.setItem('magaiees_system_usd_rate', newRate.toString());
           localStorage.setItem('erp_rate_usd', newRate.toString());
           try {
             let crObj = JSON.parse(localStorage.getItem('erp_currency_rates_v1') || '{}');
@@ -1878,7 +1977,9 @@
           this.closeModal();
 
           if (window.triggerHapticPulse) triggerHapticPulse(25);
-          if (typeof showToast === 'function') {
+          if (typeof showFloatingToast === 'function') {
+            showFloatingToast(`✅ تم حفظ وتحديث سعر صرف الدولار (${Math.round(newRate).toLocaleString('en-US')} ج.س) في قاعدة البيانات والسيستم فوراً`);
+          } else if (typeof showToast === 'function') {
             showToast('✅ تم حفظ وتحديث سعر صرف الدولار في قاعدة البيانات وعلى مستوى السيستم بنجاح', 'success');
           } else {
             alert('✅ تم حفظ سعر صرف الدولار المعتمد (' + newRate + ') في قاعدة البيانات بنجاح');
@@ -14658,12 +14759,124 @@ async function commitOpSales(andPay = false) {
       }
     };
 
+    // ═════════════════════════════════════════════════════════════════════
+    // 🧾 SUITE Z-REPORT MANAGER (تقفيل الوردية ومطابقة النقدية والبنك Z-REPORT)
+    // ═════════════════════════════════════════════════════════════════════
+    window.SuiteZReportManager = {
+      expectedCashUsd: 12480,
+      expectedBankUsd: 36640,
+
+      getRate() {
+        return (window.SuiteFXManager && window.SuiteFXManager.currentRate > 1) ? window.SuiteFXManager.currentRate : 5999;
+      },
+
+      open() {
+        const refEl = document.getElementById('mobZReportRefBadge');
+        if (refEl) {
+          const d = new Date();
+          refEl.innerText = `Z-${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, '0')}${String(d.getDate()).padStart(2, '0')}`;
+        }
+        this.refreshRateDisplay();
+        const cashInp = document.getElementById('zReportActualCashInput');
+        const bankInp = document.getElementById('zReportActualBankInput');
+        const rate = this.getRate();
+        if (cashInp && !cashInp.value) cashInp.value = Math.round(this.expectedCashUsd * rate);
+        if (bankInp && !bankInp.value) bankInp.value = Math.round(this.expectedBankUsd * rate);
+        this.recalcVariance();
+      },
+
+      refreshRateDisplay() {
+        const rate = this.getRate();
+        const expCashSdg = Math.round(this.expectedCashUsd * rate);
+        const expBankSdg = Math.round(this.expectedBankUsd * rate);
+        const cSdgEl = document.getElementById('zReportExpectedCashSdg');
+        const cUsdEl = document.getElementById('zReportExpectedCashUsd');
+        const bSdgEl = document.getElementById('zReportExpectedBankSdg');
+        const bUsdEl = document.getElementById('zReportExpectedBankUsd');
+        if (cSdgEl) cSdgEl.innerText = expCashSdg.toLocaleString('en-US') + ' ج.س';
+        if (cUsdEl) cUsdEl.innerText = `≈ $${this.expectedCashUsd.toLocaleString('en-US')}`;
+        if (bSdgEl) bSdgEl.innerText = expBankSdg.toLocaleString('en-US') + ' ج.س';
+        if (bUsdEl) bUsdEl.innerText = `≈ $${this.expectedBankUsd.toLocaleString('en-US')}`;
+      },
+
+      fillExactCash() {
+        const inp = document.getElementById('zReportActualCashInput');
+        if (inp) {
+          inp.value = Math.round(this.expectedCashUsd * this.getRate());
+          this.recalcVariance();
+        }
+      },
+
+      fillExactBank() {
+        const inp = document.getElementById('zReportActualBankInput');
+        if (inp) {
+          inp.value = Math.round(this.expectedBankUsd * this.getRate());
+          this.recalcVariance();
+        }
+      },
+
+      recalcVariance() {
+        const rate = this.getRate();
+        const expTotal = Math.round((this.expectedCashUsd + this.expectedBankUsd) * rate);
+        const actCash = parseFloat(document.getElementById('zReportActualCashInput')?.value || 0);
+        const actBank = parseFloat(document.getElementById('zReportActualBankInput')?.value || 0);
+        const diff = Math.round((actCash + actBank) - expTotal);
+
+        const box = document.getElementById('zReportVarianceBox');
+        const txt = document.getElementById('zReportVarianceStatusText');
+        const valEl = document.getElementById('zReportVarianceVal');
+        if (!box || !txt || !valEl) return;
+
+        if (Math.abs(diff) < 10) {
+          box.className = 'p-3 rounded-xl bg-emerald-950/30 border border-emerald-500/40 flex justify-between items-center';
+          txt.className = 'text-xs font-black text-emerald-400';
+          txt.innerText = '✅ مطابق تماماً للرصيد الدفتري (لا يوجد عجز أو زيادة)';
+          valEl.className = 'text-sm font-mono font-black text-emerald-400';
+          valEl.innerText = '0 ج.س';
+        } else if (diff < 0) {
+          box.className = 'p-3 rounded-xl bg-rose-950/30 border border-rose-500/40 flex justify-between items-center';
+          txt.className = 'text-xs font-black text-rose-400';
+          txt.innerText = '⚠️ يوجد عجز في العهدة يُقيّد على حساب الصندوق/العهدة';
+          valEl.className = 'text-sm font-mono font-black text-rose-400';
+          valEl.innerText = diff.toLocaleString('en-US') + ' ج.س';
+        } else {
+          box.className = 'p-3 rounded-xl bg-amber-950/30 border border-amber-500/40 flex justify-between items-center';
+          txt.className = 'text-xs font-black text-amber-400';
+          txt.innerText = '➕ توجد زيادة فعلية تُرحّل لحساب فروقات الصندوق';
+          valEl.className = 'text-sm font-mono font-black text-amber-400';
+          valEl.innerText = '+' + diff.toLocaleString('en-US') + ' ج.س';
+        }
+      },
+
+      shareWhatsApp() {
+        const ref = document.getElementById('mobZReportRefBadge')?.innerText || 'Z-REPORT';
+        const actCash = parseFloat(document.getElementById('zReportActualCashInput')?.value || 0).toLocaleString('en-US');
+        const actBank = parseFloat(document.getElementById('zReportActualBankInput')?.value || 0).toLocaleString('en-US');
+        const status = document.getElementById('zReportVarianceStatusText')?.innerText || '';
+        const msg = `🧾 *تقرير تقفيل الوردية (${ref}) - مقاييس ERP*\n💵 النقدية بالدرج: ${actCash} ج.س\n🏦 البنك المطابق: ${actBank} ج.س\n📊 النتيجة: ${status}\n💱 سعر الصرف المعتمد: ${Math.round(this.getRate()).toLocaleString('en-US')} ج.س`;
+        window.open('https://wa.me/?text=' + encodeURIComponent(msg), '_blank');
+      },
+
+      async submitCloseShift() {
+        const ref = document.getElementById('mobZReportRefBadge')?.innerText || 'Z-REPORT';
+        const notes = document.getElementById('zReportNotesInput')?.value || 'تقفيل وردية معتمد';
+        if (typeof triggerHapticPulse === 'function') triggerHapticPulse(40);
+        if (typeof showFloatingToast === 'function') {
+          showFloatingToast(`🔒 تم اعتماد تقفيل الوردية (${ref}) ومطابقة الخزينة والبنك بنجاح (${notes})`);
+        }
+        closeModal('modalOpShiftZReport');
+      }
+    };
+
     document.addEventListener('DOMContentLoaded', () => {
       applySunlightMode();
       initSwipeGestures();
       attachNumpadTriggers();
       initAlertRulesUI();
       initFlagshipTopBarEngine();
+      if (window.SuiteFXManager && typeof window.SuiteFXManager.initLiveSync === 'function') {
+        window.SuiteFXManager.initLiveSync();
+      }
       if (window.SuiteItemMaster) {
         setTimeout(() => window.SuiteItemMaster.loadMasterState(), 400);
       }

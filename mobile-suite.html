@@ -163,10 +163,10 @@
           <span id="headerNetDot" class="status-dot w-2 h-2 rounded-full bg-emerald-400 shrink-0"></span>
         </button>
 
-        <!-- 2. أيقونة السمات المحاسبية السبع المعتمدة (مطابقة 100% لشاشة الحركة المالية) -->
-        <button id="btnThemePalette" type="button" onclick="openThemePaletteDrawer(event); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="flagship-tile flagship-action-tile flagship-tile-theme" title="السمات المحاسبية السبع المعتمدة (7 Themes - WCAG AAA)">
+        <!-- 2. أيقونة السمات المحاسبية السبع المعتمدة + إعدادات الخط والسطوع الشمسي (A+ / B / ☀️) -->
+        <button id="btnThemePalette" type="button" onclick="openThemePaletteDrawer(event); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="flagship-tile flagship-action-tile flagship-tile-theme relative" title="السمات المحاسبية السبع المعتمدة + تكبير الخط (A+) والخط العريض (B) ووضع الشمس (☀️)">
           <i class="fa-solid fa-palette text-amber-400 text-base"></i>
-          <span id="activeThemeBadge" class="hidden">7</span>
+          <span id="activeThemeBadge" class="absolute -top-1 -right-1 bg-amber-400 text-slate-950 text-[7px] font-black px-1 rounded-full shadow">A+</span>
         </button>
 
         <!-- 3. أيقونة البحث الذكي الشامل (تم رفعها للصف الأول) -->
@@ -291,11 +291,11 @@
           </svg>
         </button>
 
-        <!-- 5. زر سعر الصرف المعتمد الفوري ($ USD/SDG) -->
-        <button id="quickFxRateHeaderBtn" onclick="if(window.SuiteFXManager)SuiteFXManager.openModal(); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="row2-glass-tile r2-emerald px-1 rounded-xl flex items-center justify-center h-[38px] text-emerald-300 relative active:scale-95 transition cursor-pointer" title="سعر الصرف المعتمد (اضغط للتحديث الفوري في جميع الشاشات)">
+        <!-- 5. زر سعر الصرف المعتمد الفوري ($ USD/SDG) مربوط حياً بقاعدة البيانات -->
+        <button id="quickFxRateHeaderBtn" onclick="if(window.SuiteFXManager)SuiteFXManager.openModal(); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="row2-glass-tile r2-emerald px-1 rounded-xl flex items-center justify-center h-[38px] text-emerald-300 relative active:scale-95 transition cursor-pointer" title="سعر الصرف المعتمد في قاعدة البيانات (اضغط للتعديل الفوري)">
           <span class="flex items-center gap-0.5 font-mono text-[10.5px] font-black">
             <span class="text-amber-400">$</span>
-            <span id="headerQuickFxRateVal">2650</span>
+            <span id="headerQuickFxRateVal">5,999</span>
           </span>
         </button>
 
@@ -327,13 +327,17 @@
       <div id="pageDashboard" class="space-y-3">
 
         <!-- ======================================================== -->
-        <!-- منطقة العمليات المباشرة الشاملة (18 عملية متكاملة 6×3 بدون أي تكرار) -->
+        <!-- منطقة العمليات المباشرة الشاملة (نظام العرض النفسي الذكي: 6 أساسية أو 18 شاملة) -->
         <!-- ======================================================== -->
         <section id="sectionOperations" class="pt-0 space-y-2">
-          <!-- تبويبات التصفية السريعة للعمليات (كل عائلة محاسبية بـ 3 عمليات متناسقة) -->
+          <!-- تبويبات التصفية السريعة للعمليات + مفتاح الاختصار الفني النفسي (6 ⇄ 18) -->
           <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5 text-[11px] font-bold" id="opCategoryTabs">
-            <button type="button" onclick="filterOperationsCategory('all', this)" class="op-cat-btn active bg-cyan-600 text-white px-3 py-1.5 rounded-xl shrink-0 transition shadow-[0_0_10px_rgba(6,182,212,0.4)] cursor-pointer flex items-center gap-1.5">
-              <span>الكل</span>
+            <button type="button" id="opTabCoreBtn" onclick="filterOperationsCategory('core', this)" class="op-cat-btn bg-slate-900/80 hover:bg-slate-800 text-amber-300 px-3 py-1.5 rounded-xl border border-amber-500/40 shrink-0 transition cursor-pointer flex items-center gap-1.5" title="الوضع النفسي المختصر المريح للعين: أهم 6 عمليات يومية فقط">
+              <span>⚡ المختصر</span>
+              <span class="luminous-number-badge badge-amber-glow !min-w-[19px] !h-[19px] !text-[11px]">6</span>
+            </button>
+            <button type="button" id="opTabAllBtn" onclick="filterOperationsCategory('all', this)" class="op-cat-btn active bg-cyan-600 text-white px-3 py-1.5 rounded-xl shrink-0 transition shadow-[0_0_10px_rgba(6,182,212,0.4)] cursor-pointer flex items-center gap-1.5" title="عرض كافة الـ 18 عملية محاسبية ومخزنية">
+              <span>⊞ الكل</span>
               <span class="luminous-number-badge badge-cyan-glow !min-w-[19px] !h-[19px] !text-[11px]">18</span>
             </button>
             <button type="button" onclick="filterOperationsCategory('sales', this)" class="op-cat-btn bg-slate-900/80 hover:bg-slate-800 text-slate-300 px-3 py-1.5 rounded-xl border border-slate-700/60 shrink-0 transition cursor-pointer flex items-center gap-1.5">
@@ -364,8 +368,8 @@
 
           <div class="grid grid-cols-3 gap-2" id="operationsGrid">
             <!-- ═══ الصف الأول: عائلة المبيعات ومقتنياتها (3 أزرار) ═══ -->
-            <!-- 1. فاتورة مبيعات -->
-            <button data-category="sales" onclick="openOperationalForm('sales'); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="op-btn p-2 rounded-2xl flex flex-col items-center justify-center text-center group active:scale-95 transition cursor-pointer min-h-[74px]" title="فاتورة مبيعات">
+            <!-- 1. فاتورة مبيعات (عملية أساسية Core 1) -->
+            <button data-category="sales" data-core="true" onclick="openOperationalForm('sales'); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="op-btn p-2 rounded-2xl flex flex-col items-center justify-center text-center group active:scale-95 transition cursor-pointer min-h-[74px]" title="فاتورة مبيعات">
               <div class="w-9 h-9 rounded-xl bg-sky-500/20 text-sky-400 flex items-center justify-center mb-1.5 shadow-[0_0_12px_rgba(56,189,248,0.35)] group-hover:scale-110 transition">
                 <i class="fa-solid fa-bag-shopping text-base"></i>
               </div>
@@ -389,8 +393,8 @@
             </button>
 
             <!-- ═══ الصف الثاني: عائلة المشتريات ومقتنياتها (3 أزرار) ═══ -->
-            <!-- 4. فاتورة مشتريات -->
-            <button data-category="purchases" onclick="openOperationalForm('purchaseInvoice'); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="op-btn p-2 rounded-2xl flex flex-col items-center justify-center text-center group active:scale-95 transition cursor-pointer min-h-[74px]" title="مشتريات">
+            <!-- 4. فاتورة مشتريات (عملية أساسية Core 2) -->
+            <button data-category="purchases" data-core="true" onclick="openOperationalForm('purchaseInvoice'); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="op-btn p-2 rounded-2xl flex flex-col items-center justify-center text-center group active:scale-95 transition cursor-pointer min-h-[74px]" title="مشتريات">
               <div class="w-9 h-9 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center mb-1.5 shadow-[0_0_12px_rgba(245,158,11,0.35)] group-hover:scale-110 transition">
                 <i class="fa-solid fa-cart-shopping text-base"></i>
               </div>
@@ -414,8 +418,8 @@
             </button>
 
             <!-- ═══ الصف الثالث: التأسيس والأصناف والمرتجعات (3 أزرار جوهرية) ═══ -->
-            <!-- 7. إضافة صنف جديد (مطابق للابتوب 100%) -->
-            <button data-category="master" onclick="openOperationalForm('addItemMaster'); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="op-btn p-2 rounded-2xl flex flex-col items-center justify-center text-center group active:scale-95 transition cursor-pointer min-h-[74px] border border-cyan-500/30" title="إضافة صنف جديد (بطاقة الصنف الكاملة والوحدات والأسعار)">
+            <!-- 7. إضافة صنف جديد (عملية أساسية Core 3 - مطابق للابتوب 100%) -->
+            <button data-category="master" data-core="true" onclick="openOperationalForm('addItemMaster'); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="op-btn p-2 rounded-2xl flex flex-col items-center justify-center text-center group active:scale-95 transition cursor-pointer min-h-[74px] border border-cyan-500/30" title="إضافة صنف جديد (بطاقة الصنف الكاملة والوحدات والأسعار)">
               <div class="w-9 h-9 rounded-xl bg-cyan-500/25 text-cyan-300 flex items-center justify-center mb-1.5 shadow-[0_0_14px_rgba(6,182,212,0.4)] group-hover:scale-110 transition">
                 <i class="fa-solid fa-box-open text-base"></i>
               </div>
@@ -430,17 +434,17 @@
               <span class="text-xs font-black text-slate-200">إضافة شريك</span>
             </button>
 
-            <!-- 9. مرتجع مبيعات / مشتريات -->
-            <button data-category="master" onclick="openOperationalForm('returnsInvoice'); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="op-btn p-2 rounded-2xl flex flex-col items-center justify-center text-center group active:scale-95 transition cursor-pointer min-h-[74px]" title="مرتجع مبيعات ومردودات مشتريات (إشعار دائن ومدين)">
+            <!-- 9. مرتجع مبيعات / مشتريات (عملية أساسية Core 4) -->
+            <button data-category="master" data-core="true" onclick="openOperationalForm('returnsInvoice'); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="op-btn p-2 rounded-2xl flex flex-col items-center justify-center text-center group active:scale-95 transition cursor-pointer min-h-[74px]" title="مرتجع مبيعات ومردودات مشتريات (إشعار دائن ومدين)">
               <div class="w-9 h-9 rounded-xl bg-rose-500/20 text-rose-400 flex items-center justify-center mb-1.5 shadow-[0_0_12px_rgba(244,63,94,0.35)] group-hover:scale-110 transition">
                 <i class="fa-solid fa-rotate-left text-base"></i>
               </div>
               <span class="text-xs font-black text-slate-200">مرتجع فواتير</span>
             </button>
 
-            <!-- ═══ الصف الرابع: المالية والقيود والإشعارات (3 أزرار) ═══ -->
-            <!-- 10. حركة مالية -->
-            <button data-category="finance" onclick="window.location.href='mobile-voucher.php'; if(window.triggerHapticPulse)triggerHapticPulse(15);" class="op-btn p-2 rounded-2xl flex flex-col items-center justify-center text-center group active:scale-95 transition cursor-pointer min-h-[74px]" title="حركة مالية (سند قبض / صرف / تحويل)">
+            <!-- ═══ الصف الرابع: المالية والقيود وتقفيل الوردية (3 أزرار) ═══ -->
+            <!-- 10. حركة مالية (عملية أساسية Core 5) -->
+            <button data-category="finance" data-core="true" onclick="window.location.href='mobile-voucher.php'; if(window.triggerHapticPulse)triggerHapticPulse(15);" class="op-btn p-2 rounded-2xl flex flex-col items-center justify-center text-center group active:scale-95 transition cursor-pointer min-h-[74px]" title="حركة مالية (سند قبض / صرف / تحويل)">
               <div class="w-9 h-9 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center mb-1.5 shadow-[0_0_12px_rgba(16,185,129,0.3)] group-hover:scale-110 transition">
                 <i class="fa-solid fa-money-bill-transfer text-base"></i>
               </div>
@@ -455,12 +459,12 @@
               <span class="text-xs font-black text-slate-200">تسوية قيود</span>
             </button>
 
-            <!-- 12. قارئ إشعار بنكك OCR -->
-            <button data-category="finance" onclick="openBankReceiptOcrModal(); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="op-btn p-2 rounded-2xl flex flex-col items-center justify-center text-center group active:scale-95 transition cursor-pointer min-h-[74px]" title="قارئ الإشعارات البنكية الذكي بالكاميرا">
-              <div class="w-9 h-9 rounded-xl bg-teal-500/20 text-teal-300 flex items-center justify-center mb-1.5 shadow-[0_0_12px_rgba(20,184,166,0.35)] group-hover:scale-110 transition">
-                <i class="fa-solid fa-camera text-base"></i>
+            <!-- 12. تقفيل الوردية ومطابقة الصندوق (Z-Report) بدلاً من تكرار قارئ الإشعارات الموجود في الصف الثاني -->
+            <button data-category="finance" onclick="openOperationalForm('shiftZReport'); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="op-btn p-2 rounded-2xl flex flex-col items-center justify-center text-center group active:scale-95 transition cursor-pointer min-h-[74px] border border-amber-500/25" title="تقفيل الوردية ومطابقة النقدية الفعلية بالخزينة (Z-Report)">
+              <div class="w-9 h-9 rounded-xl bg-amber-500/20 text-amber-300 flex items-center justify-center mb-1.5 shadow-[0_0_12px_rgba(245,158,11,0.35)] group-hover:scale-110 transition">
+                <i class="fa-solid fa-vault text-base"></i>
               </div>
-              <span class="text-xs font-black text-slate-200">قارئ الإشعارات</span>
+              <span class="text-xs font-black text-amber-200">تقفيل الوردية Z</span>
             </button>
 
             <!-- ═══ الصف الخامس: المخازن والجرد (3 أزرار) ═══ -->
@@ -497,8 +501,8 @@
               <span class="text-xs font-black text-slate-200">أذونات استلام، صرف</span>
             </button>
 
-            <!-- 17. حساب كشف حساب -->
-            <button data-category="reports" onclick="openOperationalForm('accountStatement'); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="op-btn p-2 rounded-2xl flex flex-col items-center justify-center text-center group active:scale-95 transition cursor-pointer min-h-[74px]" title="حساب كشف حساب">
+            <!-- 17. حساب كشف حساب (عملية أساسية Core 6) -->
+            <button data-category="reports" data-core="true" onclick="openOperationalForm('accountStatement'); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="op-btn p-2 rounded-2xl flex flex-col items-center justify-center text-center group active:scale-95 transition cursor-pointer min-h-[74px]" title="حساب كشف حساب">
               <div class="w-9 h-9 rounded-xl bg-blue-500/20 text-blue-400 flex items-center justify-center mb-1.5 shadow-[0_0_12px_rgba(59,130,246,0.35)] group-hover:scale-110 transition">
                 <i class="fa-solid fa-file-invoice-dollar text-base"></i>
               </div>
@@ -513,6 +517,11 @@
               <span class="text-xs font-black text-slate-200">استلام رصيد</span>
             </button>
           </div>
+
+          <!-- شريط الاختصار والتوسيع الفني النفسي (Smart Psychological Disclosure Bar) -->
+          <button type="button" id="btnToggleOpsExpand" onclick="toggleOperationsCompactMode()" class="w-full py-1.5 px-3 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-cyan-500/30 text-[11px] font-black text-cyan-300 flex items-center justify-center gap-1.5 transition active:scale-95 cursor-pointer shadow-sm">
+            <span id="opsExpandBtnLabel">✨ اختصار الشبكة لراحة العين (عرض الـ 6 عمليات الأساسية فقط) ▴</span>
+          </button>
         </section>
 
         <!-- EXECUTIVE FINANCIAL HEALTH & 7-DAY TRENDLINE (مؤشر السلامة المالية ورسم 7 أيام) -->
@@ -546,14 +555,14 @@
           </div>
         </div>
 
-        <!-- 1. نبض نشاط اليوم (مبيعات، مشتريات، تحصيل، منصرفات، صافي التدفق) -->
+        <!-- 1. نبض نشاط اليوم (مبيعات، مشتريات، تحصيل، منصرفات، صافي التدفق، صافي الربح) -->
         <section class="space-y-2.5">
           <div class="flex items-center justify-between px-1">
             <h3 class="text-xs font-black text-cyan-400 uppercase tracking-wider flex items-center gap-1.5">
               <span class="w-2 h-2 rounded-sm bg-cyan-400 rotate-45"></span>
-              نبض نشاط اليوم (عرض كامل وعملة مزدوجة)
+              نبض نشاط اليوم (مربوط بسعر الصرف الحي)
             </h3>
-            <span class="text-[11px] text-slate-400 font-mono">04 أكتوبر</span>
+            <span id="dashLiveFxHintBadge" class="text-[10px] text-emerald-300 font-mono bg-emerald-950/60 px-2 py-0.5 rounded-full border border-emerald-500/30">$1 = 5,999 ج.س</span>
           </div>
 
           <!-- 1.1 مبيعات اليوم -->
@@ -573,7 +582,7 @@
                 <span class="privacy-mask" data-original="12,480" data-star="••••••">12,480</span>
               </div>
               <div class="text-xs font-bold text-slate-300 font-mono">
-                <span class="privacy-mask" data-original="34,944,000" data-star="••••••••">34,944,000</span> <span class="text-[10px] text-slate-400">ج.س</span>
+                <span class="privacy-mask" data-usd-val="12480" data-original="74,867,520" data-star="••••••••">74,867,520</span> <span class="text-[10px] text-slate-400">ج.س</span>
               </div>
             </div>
           </div>
@@ -595,7 +604,7 @@
                 <span class="privacy-mask" data-original="4,650" data-star="••••••">4,650</span>
               </div>
               <div class="text-xs font-bold text-slate-300 font-mono">
-                <span class="privacy-mask" data-original="13,020,000" data-star="••••••••">13,020,000</span> <span class="text-[10px] text-slate-400">ج.س</span>
+                <span class="privacy-mask" data-usd-val="4650" data-original="27,895,350" data-star="••••••••">27,895,350</span> <span class="text-[10px] text-slate-400">ج.س</span>
               </div>
             </div>
           </div>
@@ -617,7 +626,7 @@
                 <span class="privacy-mask" data-original="8,920" data-star="••••••">8,920</span>
               </div>
               <div class="text-xs font-bold text-slate-300 font-mono">
-                <span class="privacy-mask" data-original="24,976,000" data-star="••••••••">24,976,000</span> <span class="text-[10px] text-slate-400">ج.س</span>
+                <span class="privacy-mask" data-usd-val="8920" data-original="53,511,080" data-star="••••••••">53,511,080</span> <span class="text-[10px] text-slate-400">ج.س</span>
               </div>
             </div>
           </div>
@@ -639,20 +648,20 @@
                 <span class="privacy-mask" data-original="1,150" data-star="••••••">1,150</span>
               </div>
               <div class="text-xs font-bold text-slate-300 font-mono">
-                <span class="privacy-mask" data-original="3,220,000" data-star="••••••••">3,220,000</span> <span class="text-[10px] text-slate-400">ج.س</span>
+                <span class="privacy-mask" data-usd-val="1150" data-original="6,898,850" data-star="••••••••">6,898,850</span> <span class="text-[10px] text-slate-400">ج.س</span>
               </div>
             </div>
           </div>
 
-          <!-- 1.5 صافي التدفق النقدي اليومي -->
+          <!-- 1.5 صافي التدفق النقدي اليومي (Cash Basis) -->
           <div class="banner-strip p-3 rounded-2xl flex items-center justify-between border-r-4 border-r-teal-400 bg-teal-950/20">
             <div class="flex items-center gap-3">
               <div class="w-10 h-10 rounded-xl bg-teal-500/20 border border-teal-400/40 flex items-center justify-center text-teal-300 shadow-[0_0_15px_rgba(20,184,166,0.25)]">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M3 6l3 18h12l3-18H3z"/></svg>
               </div>
               <div>
-                <span class="text-xs font-bold text-slate-200 block">صافي التدفق اليوم</span>
-                <span class="text-[11px] text-teal-300 font-semibold">+ فائض نقدي محقق</span>
+                <span class="text-xs font-bold text-slate-200 block">صافي التدفق النقدي اليوم</span>
+                <span class="text-[11px] text-teal-300 font-semibold">+ فائض سيولة محصلة</span>
               </div>
             </div>
             <div class="text-left">
@@ -661,7 +670,32 @@
                 <span class="privacy-mask" data-original="7,770" data-star="••••••">7,770</span>
               </div>
               <div class="text-xs font-bold text-slate-300 font-mono">
-                <span class="privacy-mask" data-original="21,756,000" data-star="••••••••">21,756,000</span> <span class="text-[10px] text-slate-400">ج.س</span>
+                <span class="privacy-mask" data-usd-val="7770" data-original="46,612,230" data-star="••••••••">46,612,230</span> <span class="text-[10px] text-slate-400">ج.س</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 1.6 صافي الربح التشغيلي المحقق اليوم (Accrual Net Profit & Gross Margin - معيار المحاسبة العالمي IFRS) -->
+          <div class="banner-strip p-3 rounded-2xl flex items-center justify-between border-r-4 border-r-indigo-400 bg-indigo-950/25">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-indigo-500/20 border border-indigo-400/40 flex items-center justify-center text-indigo-300 shadow-[0_0_15px_rgba(99,102,241,0.25)]">
+                <i class="fa-solid fa-chart-pie text-base"></i>
+              </div>
+              <div>
+                <div class="flex items-center gap-1.5">
+                  <span class="text-xs font-bold text-slate-100">صافي الربح المحقق اليوم</span>
+                  <span class="text-[9px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 px-1.5 py-0.2 rounded-full font-black">هامش 25%</span>
+                </div>
+                <span class="text-[11px] text-indigo-300 font-semibold">بعد خصم تكلفة البضاعة والمصروفات</span>
+              </div>
+            </div>
+            <div class="text-left">
+              <div class="text-lg font-black text-indigo-300 tracking-tight flex items-baseline justify-end gap-1">
+                <span class="text-xs font-semibold text-indigo-400/80">+$</span>
+                <span class="privacy-mask" data-original="3,120" data-star="••••••">3,120</span>
+              </div>
+              <div class="text-xs font-bold text-slate-300 font-mono">
+                <span class="privacy-mask" data-usd-val="3120" data-original="18,716,880" data-star="••••••••">18,716,880</span> <span class="text-[10px] text-slate-400">ج.س</span>
               </div>
             </div>
           </div>
@@ -700,7 +734,7 @@
                   <span class="privacy-mask" data-original="86,150" data-star="••••••••">86,150</span>
                 </div>
                 <div class="text-xs font-bold text-slate-300 font-mono mt-0.5">
-                  <span class="privacy-mask" data-original="241,220,000" data-star="••••••••••">241,220,000</span> <span class="text-[10px] text-slate-400">ج.س</span>
+                  <span class="privacy-mask" data-usd-val="86150" data-original="516,813,850" data-star="••••••••••">516,813,850</span> <span class="text-[10px] text-slate-400">ج.س</span>
                 </div>
               </div>
               <div class="text-left text-[11px] text-slate-400">
@@ -842,7 +876,7 @@
                   <span class="privacy-mask" data-original="$182,400" data-star="•••••••••">$182,400</span>
                 </div>
                 <div class="text-[11px] text-slate-300 font-mono">
-                  <span class="privacy-mask" data-original="510,720,000" data-star="••••••••••">510,720,000</span> <span class="text-[10px] text-slate-400">ج.س</span>
+                  <span class="privacy-mask" data-usd-val="182400" data-original="1,094,217,600" data-star="••••••••••">1,094,217,600</span> <span class="text-[10px] text-slate-400">ج.س</span>
                 </div>
               </div>
             </div>
@@ -930,7 +964,7 @@
                     <span class="privacy-mask" data-original="$12,400" data-star="••••••">$12,400</span>
                   </div>
                   <div class="text-[10px] text-slate-400 font-mono">
-                    <span class="privacy-mask" data-original="34.7M ج.س" data-star="••••••">34.7M ج.س</span>
+                    <span class="privacy-mask" data-usd-millions="12400" data-original="74.4M ج.س" data-star="••••••">74.4M ج.س</span>
                   </div>
                 </div>
                 <button onclick="contactDebtor('شركة النيل للاستيراد', '12,400')" class="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center hover:bg-emerald-500 hover:text-white transition" title="واتساب مطالبة">
@@ -954,7 +988,7 @@
                     <span class="privacy-mask" data-original="$9,150" data-star="••••••">$9,150</span>
                   </div>
                   <div class="text-[10px] text-slate-400 font-mono">
-                    <span class="privacy-mask" data-original="25.6M ج.س" data-star="••••••">25.6M ج.س</span>
+                    <span class="privacy-mask" data-usd-millions="9150" data-original="54.9M ج.س" data-star="••••••">54.9M ج.س</span>
                   </div>
                 </div>
                 <button onclick="contactDebtor('محلات الصادق', '9,150')" class="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center hover:bg-emerald-500 hover:text-white transition">
@@ -978,7 +1012,7 @@
                     <span class="privacy-mask" data-original="$8,200" data-star="••••••">$8,200</span>
                   </div>
                   <div class="text-[10px] text-slate-400 font-mono">
-                    <span class="privacy-mask" data-original="22.9M ج.س" data-star="••••••">22.9M ج.س</span>
+                    <span class="privacy-mask" data-usd-millions="8200" data-original="49.2M ج.س" data-star="••••••">49.2M ج.س</span>
                   </div>
                 </div>
                 <button onclick="contactDebtor('مؤسسة التاج', '8,200')" class="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center hover:bg-emerald-500 hover:text-white transition">
@@ -1002,7 +1036,7 @@
                     <span class="privacy-mask" data-original="$5,800" data-star="••••••">$5,800</span>
                   </div>
                   <div class="text-[10px] text-slate-400 font-mono">
-                    <span class="privacy-mask" data-original="16.2M ج.س" data-star="••••••">16.2M ج.س</span>
+                    <span class="privacy-mask" data-usd-millions="5800" data-original="34.8M ج.س" data-star="••••••">34.8M ج.س</span>
                   </div>
                 </div>
                 <button onclick="contactDebtor('أسواق البركة', '5,800')" class="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center hover:bg-emerald-500 hover:text-white transition">
@@ -1026,7 +1060,7 @@
                     <span class="privacy-mask" data-original="$4,350" data-star="••••••">$4,350</span>
                   </div>
                   <div class="text-[10px] text-slate-400 font-mono">
-                    <span class="privacy-mask" data-original="12.1M ج.س" data-star="••••••">12.1M ج.س</span>
+                    <span class="privacy-mask" data-usd-millions="4350" data-original="26.1M ج.س" data-star="••••••">26.1M ج.س</span>
                   </div>
                 </div>
                 <button onclick="contactDebtor('وكالة الهدى', '4,350')" class="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center hover:bg-emerald-500 hover:text-white transition">
@@ -6994,9 +7028,86 @@
       </div>
     </div>
 
+    <!-- ==========================================
+         OPERATIONAL MODAL 14: SHIFT Z-REPORT (تقفيل الوردية ومطابقة الدرج Z)
+    =========================================== -->
+    <div id="modalOpShiftZReport" class="modal-backdrop">
+      <div class="modal-sheet space-y-4 !max-h-[94vh] overflow-y-auto" onclick="event.stopPropagation()">
+        <div class="flex justify-between items-center border-b border-slate-800 pb-3 sticky top-0 bg-slate-950/95 backdrop-blur-md z-20 pt-1">
+          <div class="flex items-center gap-2.5">
+            <span class="w-10 h-10 rounded-xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-xl shadow-[0_0_15px_rgba(245,158,11,0.3)]">🧾</span>
+            <div>
+              <h3 class="text-sm sm:text-base font-black text-amber-400">تقفيل الوردية ومطابقة النقدية (Z-Report)</h3>
+              <p class="text-[10px] text-slate-400 font-bold">جرد فعلي للخزينة والبنك ومطابقة العجز أو الزيادة آلياً</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <span id="mobZReportRefBadge" class="text-[10px] font-mono bg-amber-950/90 text-amber-300 border border-amber-500/40 px-2 py-1 rounded-lg font-black">Z-2026-01</span>
+            <button onclick="closeModal('modalOpShiftZReport')" class="w-8 h-8 rounded-full bg-slate-800 hover:bg-rose-500/20 hover:text-rose-400 flex items-center justify-center text-slate-400 transition cursor-pointer">✕</button>
+          </div>
+        </div>
+
+        <!-- Shift Summary KPIs -->
+        <div class="grid grid-cols-2 gap-2.5">
+          <div class="p-3 rounded-2xl bg-slate-900/90 border border-emerald-500/30">
+            <span class="text-[10px] text-slate-400 font-bold block mb-0.5">💵 رصيد الخزينة الدفتري (المتوقع)</span>
+            <span id="zReportExpectedCashSdg" class="text-sm font-mono font-black text-emerald-400 block">74,867,520 ج.س</span>
+            <span id="zReportExpectedCashUsd" class="text-[10px] font-mono text-slate-400">≈ $12,480.00</span>
+          </div>
+          <div class="p-3 rounded-2xl bg-slate-900/90 border border-cyan-500/30">
+            <span class="text-[10px] text-slate-400 font-bold block mb-0.5">🏦 رصيد بنكك / فوري الدفتري</span>
+            <span id="zReportExpectedBankSdg" class="text-sm font-mono font-black text-cyan-400 block">219,803,360 ج.س</span>
+            <span id="zReportExpectedBankUsd" class="text-[10px] font-mono text-slate-400">≈ $36,640.00</span>
+          </div>
+        </div>
+
+        <!-- Actual Count Input -->
+        <div class="p-3.5 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-3">
+          <div>
+            <div class="flex justify-between items-center mb-1">
+              <label class="text-[11px] font-black text-amber-300">🔢 النقدية الفعلية المجرودة في الدرج (ج.س)</label>
+              <button type="button" onclick="SuiteZReportManager.fillExactCash()" class="text-[10px] bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 px-2 py-0.5 rounded-lg font-bold cursor-pointer">مطابقة تامة ✓</button>
+            </div>
+            <input id="zReportActualCashInput" type="number" oninput="SuiteZReportManager.recalcVariance()" placeholder="أدخل المبلغ الفعلي الموجود في الخزينة..." class="w-full bg-slate-950 border border-amber-500/40 rounded-xl px-3 py-2.5 text-sm font-mono font-black text-white focus:outline-none focus:border-amber-400">
+          </div>
+
+          <div>
+            <div class="flex justify-between items-center mb-1">
+              <label class="text-[11px] font-black text-cyan-300">📱 إجمالي إشعارات البنك المطابقة فعلياً (ج.س)</label>
+              <button type="button" onclick="SuiteZReportManager.fillExactBank()" class="text-[10px] bg-cyan-500/15 text-cyan-300 border border-cyan-500/30 px-2 py-0.5 rounded-lg font-bold cursor-pointer">مطابقة تامة ✓</button>
+            </div>
+            <input id="zReportActualBankInput" type="number" oninput="SuiteZReportManager.recalcVariance()" placeholder="أدخل إجمالي كشف البنك/التطبيق..." class="w-full bg-slate-950 border border-cyan-500/40 rounded-xl px-3 py-2.5 text-sm font-mono font-black text-white focus:outline-none focus:border-cyan-400">
+          </div>
+
+          <!-- Variance Status Box -->
+          <div id="zReportVarianceBox" class="p-3 rounded-xl bg-emerald-950/30 border border-emerald-500/40 flex justify-between items-center">
+            <div>
+              <span class="text-[10px] text-slate-400 font-bold block">نتيجة مطابقة العهدة والدرج:</span>
+              <span id="zReportVarianceStatusText" class="text-xs font-black text-emerald-400">✅ مطابق تماماً (لا يوجد عجز أو زيادة)</span>
+            </div>
+            <span id="zReportVarianceVal" class="text-sm font-mono font-black text-emerald-400">0 ج.س</span>
+          </div>
+
+          <div>
+            <label class="text-[10px] text-slate-400 font-bold block mb-1">📝 ملاحظات تسليم الوردية / المستلم:</label>
+            <input id="zReportNotesInput" type="text" placeholder="مثال: تم تسليم العهدة للمحاسب المناوب..." class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2.5">
+          <button type="button" onclick="SuiteZReportManager.shareWhatsApp()" class="py-3 rounded-2xl bg-emerald-600/20 hover:bg-emerald-600/30 border border-emerald-500/40 text-emerald-300 font-black text-xs flex items-center justify-center gap-1.5 transition cursor-pointer">
+            <span>📲 مشاركة تقرير Z واتساب</span>
+          </button>
+          <button type="button" onclick="SuiteZReportManager.submitCloseShift()" class="py-3 rounded-2xl bg-gradient-to-r from-amber-500 to-emerald-500 text-slate-950 font-black text-xs shadow-[0_0_20px_rgba(245,158,11,0.35)] active:scale-95 transition flex items-center justify-center gap-1.5 cursor-pointer">
+            <span>🔒 اعتماد تقفيل الوردية</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
   </div>
 
   <!-- JAVASCRIPT APP LOGIC & INTERACTIONS -->
-  <script src="js/mobile-suite.js?v=2026_10_16_v20"></script>
+  <script src="js/mobile-suite.js?v=2026_10_16_v21"></script>
 </body>
 </html>

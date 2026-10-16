@@ -2303,14 +2303,17 @@ try {
             $stmtUpUsd = $pdo->prepare("INSERT INTO global_settings (setting_key, setting_value) VALUES ('erp_rate_usd', ?) ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value), updated_at = NOW()");
             $stmtUpUsd->execute([(string)$newRate]);
 
-            if (!empty($tenantId)) {
-                $tenantPayload = json_encode([
-                    'current' => $newRate,
-                    'rate' => $newRate,
-                    'history' => $d['history'] ?? [],
-                    'updatedAt' => round(microtime(true) * 1000)
-                ], JSON_UNESCAPED_UNICODE);
-                $stmtUpTen = $pdo->prepare("INSERT INTO global_settings (setting_key, setting_value) VALUES ('tenant_rate_" . intval($tenantId) . "', ?) ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value), updated_at = NOW()");
+            $tenantPayload = json_encode([
+                'current' => $newRate,
+                'rate' => $newRate,
+                'rateUSD' => $newRate,
+                'visible' => true,
+                'history' => $d['history'] ?? [],
+                'updatedAt' => round(microtime(true) * 1000)
+            ], JSON_UNESCAPED_UNICODE);
+            $tenantIdsToSync = array_unique(array_filter([intval($tenantId ?: 12), 12, 2]));
+            foreach ($tenantIdsToSync as $tidSync) {
+                $stmtUpTen = $pdo->prepare("INSERT INTO global_settings (setting_key, setting_value) VALUES ('tenant_rate_" . intval($tidSync) . "', ?) ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value), updated_at = NOW()");
                 $stmtUpTen->execute([$tenantPayload]);
             }
 
