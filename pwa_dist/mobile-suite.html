@@ -17,13 +17,13 @@
   <link rel="stylesheet" href="css/tailwind.min.css">
   <script src="js/tailwind.min.js"></script>
   <script>if(typeof tailwind==="undefined"){document.write('<script src="https://cdn.tailwindcss.com"><\/script>');}</script>
-  <script src="js/pwa-manager.js?v=2026_10_16_v20" defer></script>
-  <script src="js/magaies-offline-sync.js?v=2026_10_14_fast_v1" defer></script>
+  <script src="js/pwa-manager.js?v=2026_10_16_v23" defer></script>
+  <script src="js/magaies-offline-sync.js?v=2026_10_16_v23"></script>
   <script>
     (function enforceAuthGate() {
     var token = localStorage.getItem('authToken');
     var userStr = localStorage.getItem('user');
-    var sessionCookie = document.cookie.includes('session_active=true') || document.cookie.includes('saas_token=');
+    var sessionCookie = document.cookie.includes('session_active=true') || document.cookie.includes('saas_token=') || document.cookie.includes('mg_device_auth=');
     var sessionActive = sessionStorage.getItem('session_active') === 'true' || sessionCookie || Boolean(userStr);
 
     if (!navigator.onLine) {

@@ -176,7 +176,7 @@ window.PWAManager = {
                         document.cookie = 'saas_token=' + encodeURIComponent(savedToken) + '; path=/; max-age=31536000; SameSite=Lax';
                     }
                 } catch (e) {}
-                navigator.serviceWorker.register('./sw.js?v=2026_10_16_offline_v20', { scope: './', updateViaCache: 'none' }).then((reg) => {
+                navigator.serviceWorker.register('./sw.js?v=2026_10_16_offline_v23', { scope: './', updateViaCache: 'none' }).then((reg) => {
                     if (navigator.onLine) {
                         try { reg.update(); } catch (e) {}
                         setTimeout(() => {
@@ -186,13 +186,17 @@ window.PWAManager = {
                             }
                         }, 1200);
                     }
+                    if (reg && reg.sync && typeof reg.sync.register === 'function') {
+                        reg.sync.register('sync-offline-outbox').catch(() => {});
+                    }
                 }).catch(() => {});
             };
             if (document.readyState === 'complete') doRegister();
             else window.addEventListener('load', doRegister);
 
             navigator.serviceWorker.addEventListener('message', (event) => {
-                if (event.data && event.data.type === 'TRIGGER_OFFLINE_SYNC') {
+                if (!event.data) return;
+                if (event.data.type === 'TRIGGER_OFFLINE_SYNC') {
                     if (window.MagaiesOffline && typeof window.MagaiesOffline.flushQueue === 'function') {
                         window.MagaiesOffline.flushQueue();
                     }
@@ -201,6 +205,13 @@ window.PWAManager = {
                     }
                     if (typeof window.pushToCloud === 'function') {
                         window.pushToCloud(true);
+                    }
+                } else if (event.data.type === 'OFFLINE_SYNC_COMPLETED_BY_SW') {
+                    if (window.MagaiesOffline && typeof window.MagaiesOffline.reconcileFromIndexedDB === 'function') {
+                        window.MagaiesOffline.reconcileFromIndexedDB();
+                    }
+                    if (typeof window.flushOfflineQueue === 'function') {
+                        window.flushOfflineQueue();
                     }
                 }
             });

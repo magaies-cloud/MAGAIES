@@ -9,7 +9,7 @@
  * - Zero Cache Staleness for Critical Real-Time APIs
  */
 
-const CACHE_NAME = 'magaiees-pwa-v2026-10-16-offline-v22';
+const CACHE_NAME = 'magaiees-pwa-v2026-10-16-offline-v23';
 
 const PRECACHE_ASSETS = [
     './',
@@ -85,7 +85,7 @@ self.addEventListener('install', (event) => {
     );
 });
 
-// Activate Event: Clear Legacy Caches & Claim Clients Immediately
+// Activate Event: Clear Legacy Caches & Claim Clients Immediately + Flush Any Pending Offline Outbox
 self.addEventListener('activate', (event) => {
     event.waitUntil(
         caches.keys().then((keys) => {
@@ -96,7 +96,9 @@ self.addEventListener('activate', (event) => {
                     }
                 })
             );
-        }).then(() => self.clients.claim())
+        }).then(() => self.clients.claim()).then(() => {
+            return flushIndexedDBOutboxInSW().catch(() => {});
+        })
     );
 });
 
@@ -158,9 +160,19 @@ async function findBestCachedPage(request, url) {
     }
 }
 
-// Fetch Event: Instant App-Shell with Version-Aware Asset Caching
+// Fetch Event: Instant App-Shell with Version-Aware Asset Caching + Opportunistic Outbox Sync
 self.addEventListener('fetch', (event) => {
     const request = event.request;
+
+    // فحص انتهازي صامت (كل 5 ثوانٍ) لرفع أي حركات أوفلاين معلقة في IndexedDB بمجرد مرور أي نشاط شبكي
+    if (self.navigator && self.navigator.onLine !== false && !_swSyncInProgress) {
+        const nowMs = Date.now();
+        if (nowMs - _lastSwOpportunisticCheck > 5000 && !request.url.includes('sync_offline_batch')) {
+            _lastSwOpportunisticCheck = nowMs;
+            event.waitUntil(flushIndexedDBOutboxInSW().catch(() => {}));
+        }
+    }
+
     if (request.method !== 'GET') return;
 
     const url = new URL(request.url);
@@ -268,39 +280,207 @@ self.addEventListener('fetch', (event) => {
     }
 });
 
-// Warm-cache message handler: Fetch assets that are NOT already in cache
+// ────────────────────────────────────────────────────────────────────
+// 🚀 محرك المزامنة الذاتية في الخلفية بدون فتح التطبيق (Zero-UI Autonomous Background Sync)
+// يقرأ الحركات المعلقة من IndexedDB ويرفعها مباشرة إلى MariaDB فور عودة الإنترنت
+// حتى لو كان المستخدم نائماً أو الهاتف مقفلاً والتطبيق مغلقاً بالكامل
+// ────────────────────────────────────────────────────────────────────
+let _swSyncInProgress = false;
+let _lastSwOpportunisticCheck = 0;
+
+function openSwIDB() {
+    return new Promise((resolve) => {
+        if (typeof indexedDB === 'undefined') return resolve(null);
+        try {
+            const req = indexedDB.open('MagaiesOfflineIDB_v1', 2);
+            req.onupgradeneeded = (e) => {
+                const db = e.target.result;
+                if (!db.objectStoreNames.contains('outbox')) {
+                    db.createObjectStore('outbox', { keyPath: 'id' });
+                }
+                if (!db.objectStoreNames.contains('meta')) {
+                    db.createObjectStore('meta', { keyPath: 'key' });
+                }
+                if (!db.objectStoreNames.contains('synced_ack')) {
+                    db.createObjectStore('synced_ack', { keyPath: 'offline_id' });
+                }
+            };
+            req.onsuccess = (e) => resolve(e.target.result);
+            req.onerror = () => resolve(null);
+        } catch (err) {
+            resolve(null);
+        }
+    });
+}
+
+async function flushIndexedDBOutboxInSW() {
+    if (_swSyncInProgress) return false;
+    if (self.navigator && self.navigator.onLine === false) return false;
+
+    _swSyncInProgress = true;
+    try {
+        const db = await openSwIDB();
+        if (!db) return false;
+
+        const items = await new Promise((resolve) => {
+            try {
+                const tx = db.transaction(['outbox'], 'readonly');
+                const req = tx.objectStore('outbox').getAll();
+                req.onsuccess = () => resolve(req.result || []);
+                req.onerror = () => resolve([]);
+            } catch (e) { resolve([]); }
+        });
+
+        if (!Array.isArray(items) || items.length === 0) {
+            // حتى لو كان IndexedDB فارغاً، نرسل إشارة لأي نافذة مفتوحة إن وجدت
+            const openClients = await self.clients.matchAll({ includeUncontrolled: true });
+            openClients.forEach((c) => c.postMessage({ type: 'TRIGGER_OFFLINE_SYNC' }));
+            return true;
+        }
+
+        const meta = await new Promise((resolve) => {
+            try {
+                const tx = db.transaction(['meta'], 'readonly');
+                const req = tx.objectStore('meta').get('sync_context');
+                req.onsuccess = () => resolve(req.result || {});
+                req.onerror = () => resolve({});
+            } catch (e) { resolve({}); }
+        });
+
+        const scopeBase = self.registration.scope.replace(/\/$/, '');
+        const syncUrl = scopeBase + '/api/mirror_sync.php?action=sync_offline_batch';
+
+        const headers = { 'Content-Type': 'application/json' };
+        if (meta && meta.auth_token) {
+            headers['X-Auth-Token'] = meta.auth_token;
+        }
+
+        const res = await fetch(syncUrl, {
+            method: 'POST',
+            headers: headers,
+            credentials: 'include',
+            body: JSON.stringify({
+                items: items,
+                device_code: (meta && meta.device_code) ? meta.device_code : '1',
+                tenant_id: (meta && meta.tenant_id) ? meta.tenant_id : '12',
+                auth_token: (meta && meta.auth_token) ? meta.auth_token : '',
+                source: 'service_worker_background'
+            })
+        });
+
+        if (!res || !res.ok) {
+            throw new Error('SW sync HTTP ' + (res ? res.status : 'failed'));
+        }
+
+        const out = await res.json();
+        if (out && out.success && Array.isArray(out.synced)) {
+            // مسح الحركات المرفوعة من outbox وتسجيلها في synced_ack لتتحدث الشاشات لاحقاً دون إعادة رفع
+            await new Promise((resolve) => {
+                try {
+                    const tx = db.transaction(['outbox', 'synced_ack'], 'readwrite');
+                    const outboxStore = tx.objectStore('outbox');
+                    const ackStore = tx.objectStore('synced_ack');
+                    outboxStore.clear();
+                    out.synced.forEach((sItem) => {
+                        if (sItem && sItem.offline_id) {
+                            ackStore.put({
+                                offline_id: String(sItem.offline_id),
+                                real_id: String(sItem.real_id || sItem.offline_id),
+                                type: sItem.type || 'sales',
+                                synced_at: sItem.synced_at || new Date().toISOString(),
+                                idempotency_key: (sItem.record && sItem.record.idempotencyKey) ? sItem.record.idempotencyKey : '',
+                                record: sItem.record || null
+                            });
+                        }
+                    });
+                    tx.oncomplete = () => resolve(true);
+                    tx.onerror = () => resolve(false);
+                } catch (e) { resolve(false); }
+            });
+
+            // إعلام أي نافذة مفتوحة بتحديث أرقامها فوراً
+            const clients = await self.clients.matchAll({ includeUncontrolled: true });
+            clients.forEach((client) => {
+                client.postMessage({
+                    type: 'OFFLINE_SYNC_COMPLETED_BY_SW',
+                    synced: out.synced
+                });
+            });
+
+            // إظهار إشعار على شاشة القفل (إن كانت الصلاحية مفعلة) لطمأنة المستخدم أن الحركات ارتفعت تلقائياً
+            try {
+                if (self.Notification && self.Notification.permission === 'granted' && out.synced.length > 0) {
+                    const count = out.synced.length;
+                    const first = out.synced[0];
+                    const docInfo = first ? ` (#${first.real_id || first.offline_id})` : '';
+                    await self.registration.showNotification('🟢 مقاييس ERP: تم رفع الحركات تلقائياً', {
+                        body: `تم في الخلفية ترحيل واعتماد ${count} حركة أوفلاين إلى قاعدة البيانات بنجاح${docInfo} دون الحاجة لفتح التطبيق.`,
+                        icon: './assets/icon-192.png',
+                        badge: './assets/icon-192.png',
+                        tag: 'magaiees-bg-sync-success',
+                        renotify: false,
+                        data: { url: './mobile-suite.html' }
+                    });
+                }
+            } catch (e) {}
+
+            return true;
+        }
+        return false;
+    } catch (err) {
+        console.warn('[SW BackgroundSync] Deferred until stable connection:', err && err.message ? err.message : err);
+        throw err; // إرجاع الخطأ ليعيد نظام تشغيل الهاتف (OS) المحاولة تلقائياً عند استقرار الشبكة
+    } finally {
+        _swSyncInProgress = false;
+    }
+}
+
+// Warm-cache & instant sync message handler
 self.addEventListener('message', (event) => {
-    if (event.data && event.data.type === 'WARM_OFFLINE_CACHE') {
+    if (!event.data) return;
+
+    if (event.data.type === 'SW_SYNC_NOW') {
+        event.waitUntil(flushIndexedDBOutboxInSW().catch(() => {}));
+        return;
+    }
+
+    if (event.data.type === 'WARM_OFFLINE_CACHE') {
         const urls = Array.isArray(event.data.urls) ? event.data.urls : PRECACHE_ASSETS;
         const token = event.data.token || '';
         const fetchOpts = { credentials: 'same-origin' };
         if (token) {
             fetchOpts.headers = { 'X-Auth-Token': token };
         }
-        caches.open(CACHE_NAME).then(async (cache) => {
-            for (const u of urls) {
-                try {
-                    const hit = await cache.match(u, { ignoreSearch: true });
-                    if (!hit) {
-                        const res = await fetch(u, fetchOpts);
-                        await storeInCache(cache, u, res);
+        event.waitUntil(
+            Promise.allSettled([
+                flushIndexedDBOutboxInSW().catch(() => {}),
+                caches.open(CACHE_NAME).then(async (cache) => {
+                    for (const u of urls) {
+                        try {
+                            const hit = await cache.match(u, { ignoreSearch: true });
+                            if (!hit) {
+                                const res = await fetch(u, fetchOpts);
+                                await storeInCache(cache, u, res);
+                            }
+                        } catch (e) {}
                     }
-                } catch (e) {}
-            }
-        });
+                })
+            ])
+        );
     }
 });
 
-// Background Sync Event for Offline Queue
+// 1. OS-Level Background Sync Event: يعمل تلقائياً فور عودة الإنترنت للهاتف حتى والتطبيق مغلق تماماً
 self.addEventListener('sync', (event) => {
-    if (event.tag === 'sync-offline-outbox') {
-        event.waitUntil(
-            self.clients.matchAll().then((clients) => {
-                clients.forEach((client) => {
-                    client.postMessage({ type: 'TRIGGER_OFFLINE_SYNC' });
-                });
-            })
-        );
+    if (event.tag === 'sync-offline-outbox' || event.tag.startsWith('sync-offline')) {
+        event.waitUntil(flushIndexedDBOutboxInSW());
+    }
+});
+
+// 2. Periodic Background Sync Event: فحص دوري في الخلفية لرفع أي حركات معلقة
+self.addEventListener('periodicsync', (event) => {
+    if (event.tag === 'periodic-offline-outbox' || event.tag.startsWith('periodic-offline')) {
+        event.waitUntil(flushIndexedDBOutboxInSW().catch(() => {}));
     }
 });
 
@@ -343,7 +523,10 @@ self.addEventListener('push', (event) => {
     };
 
     event.waitUntil(
-        self.registration.showNotification(payload.title, options)
+        Promise.allSettled([
+            flushIndexedDBOutboxInSW().catch(() => {}),
+            self.registration.showNotification(payload.title, options)
+        ])
     );
 });
 

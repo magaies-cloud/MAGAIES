@@ -26,8 +26,46 @@ if (!function_exists('mg_is_loopback_request')) {
         return in_array($host, ['localhost', '127.0.0.1', '[::1]'], true);
     }
 
+    function mg_get_hmac_secret(): string {
+        return getenv('MAGAIEES_AUTH_HMAC_KEY') ?: 'ELSAJANA_MAGAIEES_PERSISTENT_MOBILE_SYNC_KEY_2026';
+    }
+
+    function mg_generate_device_token(int $userId, int $tenantId, string $username, string $role = 'admin'): string {
+        $payload = json_encode([
+            'u'   => $userId,
+            't'   => $tenantId,
+            'n'   => $username,
+            'r'   => $role,
+            'exp' => time() + (365 * 86400)
+        ], JSON_UNESCAPED_UNICODE);
+        $b64 = rtrim(strtr(base64_encode($payload), '+/', '-_'), '=');
+        $sig = hash_hmac('sha256', $b64, mg_get_hmac_secret());
+        return 'MGD1.' . $b64 . '.' . $sig;
+    }
+
+    function mg_verify_device_token(string $token): ?array {
+        $token = trim($token);
+        if (strpos($token, 'MGD1.') !== 0) return null;
+        $parts = explode('.', $token);
+        if (count($parts) !== 3) return null;
+        [, $b64, $sig] = $parts;
+        $expected = hash_hmac('sha256', $b64, mg_get_hmac_secret());
+        if (!hash_equals($expected, $sig)) return null;
+        $json = base64_decode(strtr($b64, '-_', '+/'));
+        $data = json_decode($json ?: '', true);
+        if (!is_array($data) || empty($data['t'])) return null;
+        if (!empty($data['exp']) && (int)$data['exp'] < time()) return null;
+        return [
+            'id'        => (int)($data['u'] ?? 1),
+            'tenant_id' => (int)$data['t'],
+            'username'  => (string)($data['n'] ?? 'mobile_user'),
+            'role'      => (string)($data['r'] ?? 'admin'),
+            'source'    => 'device-hmac',
+        ];
+    }
+
     function mg_get_request_token(): string {
-        $token = $_COOKIE['saas_token'] ?? ($_COOKIE['authToken'] ?? '');
+        $token = $_COOKIE['saas_token'] ?? ($_COOKIE['authToken'] ?? ($_COOKIE['mg_device_auth'] ?? ''));
         if ($token === '' && !empty($_SERVER['HTTP_AUTHORIZATION'])) {
             $token = trim(preg_replace('/^Bearer\s+/i', '', $_SERVER['HTTP_AUTHORIZATION']));
         }
@@ -37,7 +75,32 @@ if (!function_exists('mg_is_loopback_request')) {
         if ($token === '' && !empty($_GET['token'])) {
             $token = trim($_GET['token']);
         }
+        if ($token === '' && ($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
+            $rawBody = file_get_contents('php://input');
+            if ($rawBody) {
+                $parsed = json_decode($rawBody, true);
+                if (is_array($parsed) && !empty($parsed['auth_token'])) {
+                    $token = trim((string)$parsed['auth_token']);
+                }
+            }
+        }
         return trim(urldecode((string)$token));
+    }
+
+    function mg_persist_device_cookie(array $user): void {
+        if (headers_sent() || empty($user['tenant_id'])) return;
+        $devToken = mg_generate_device_token(
+            (int)($user['id'] ?? 1),
+            (int)$user['tenant_id'],
+            (string)($user['username'] ?? 'user'),
+            (string)($user['role'] ?? 'admin')
+        );
+        if (empty($_COOKIE['mg_device_auth']) || $_COOKIE['mg_device_auth'] !== $devToken) {
+            @setcookie('mg_device_auth', $devToken, time() + (365 * 86400), '/', '', false, false);
+        }
+        if (empty($_COOKIE['currentTenantId']) || (int)$_COOKIE['currentTenantId'] !== (int)$user['tenant_id']) {
+            @setcookie('currentTenantId', (string)((int)$user['tenant_id']), time() + (365 * 86400), '/', '', false, false);
+        }
     }
 
     /**
@@ -46,6 +109,15 @@ if (!function_exists('mg_is_loopback_request')) {
     function mg_authenticate_user(PDO $pdo): ?array {
         $token = mg_get_request_token();
 
+        // 0. فحص التوكن الموقع للجهاز (يعمل حتى لو انتهت جلسة PHP أثناء النوم أو الأوفلاين الطويل)
+        if ($token !== '' && strpos($token, 'MGD1.') === 0) {
+            $verified = mg_verify_device_token($token);
+            if ($verified) {
+                mg_persist_device_cookie($verified);
+                return $verified;
+            }
+        }
+
         // 1. فحص التوكن في قاعدة البيانات جدول users
         if ($token !== '') {
             try {
@@ -53,13 +125,15 @@ if (!function_exists('mg_is_loopback_request')) {
                 $stmt->execute([$token]);
                 $row = $stmt->fetch(PDO::FETCH_ASSOC);
                 if ($row && !empty($row['tenant_id'])) {
-                    return [
+                    $user = [
                         'id'        => (int)$row['id'],
                         'tenant_id' => (int)$row['tenant_id'],
                         'username'  => (string)($row['username'] ?? ''),
                         'role'      => (string)($row['role'] ?? ($row['user_type'] ?? 'admin')),
                         'source'    => 'token',
                     ];
+                    mg_persist_device_cookie($user);
+                    return $user;
                 }
             } catch (Exception $e) {
                 error_log('mobile_auth_guard: token lookup failed: ' . $e->getMessage());
@@ -71,13 +145,23 @@ if (!function_exists('mg_is_loopback_request')) {
             @session_start();
         }
         if (!empty($_SESSION['user']['tenant_id']) && !empty($_SESSION['user']['id'])) {
-            return [
+            $user = [
                 'id'        => (int)$_SESSION['user']['id'],
                 'tenant_id' => (int)$_SESSION['user']['tenant_id'],
                 'username'  => (string)($_SESSION['user']['username'] ?? ''),
                 'role'      => (string)($_SESSION['user']['role'] ?? 'admin'),
                 'source'    => 'session',
             ];
+            mg_persist_device_cookie($user);
+            return $user;
+        }
+
+        // 2.5 فحص كوكي المصادقة الدائمة للجهاز (mg_device_auth) عند انتهاء جلسة PHP أثناء الأوفلاين
+        if (!empty($_COOKIE['mg_device_auth'])) {
+            $verified = mg_verify_device_token((string)$_COOKIE['mg_device_auth']);
+            if ($verified) {
+                return $verified;
+            }
         }
 
         // 3. في بيئة التطوير المحلية (Loopback) فقط: السماح بوضع عدم الاتصال المحلي أو الدخول التلقائي للمحاكاة
@@ -87,13 +171,15 @@ if (!function_exists('mg_is_loopback_request')) {
                 $stmt->execute();
                 $cUser = $stmt->fetch(PDO::FETCH_ASSOC);
                 if ($cUser && !empty($cUser['tenant_id'])) {
-                    return [
+                    $user = [
                         'id'        => (int)$cUser['id'],
                         'tenant_id' => (int)$cUser['tenant_id'],
                         'username'  => (string)$cUser['username'],
                         'role'      => (string)($cUser['role'] ?? 'admin'),
                         'source'    => 'localhost-auto',
                     ];
+                    mg_persist_device_cookie($user);
+                    return $user;
                 }
             } catch (Exception $e) {}
         }

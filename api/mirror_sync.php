@@ -1661,15 +1661,57 @@ try {
                 exit;
             }
 
+            // التحقق من هوية الشركة في الخلفية حتى لو انتهت جلسة PHP أثناء نوم المستخدم
+            if (!empty($req['auth_token']) || !empty($_COOKIE['mg_device_auth'])) {
+                $tok = trim((string)($req['auth_token'] ?? ($_COOKIE['mg_device_auth'] ?? '')));
+                if (strpos($tok, 'MGD1.') === 0) {
+                    $parts = explode('.', $tok);
+                    if (count($parts) === 3) {
+                        $secret = getenv('MAGAIEES_AUTH_HMAC_KEY') ?: 'ELSAJANA_MAGAIEES_PERSISTENT_MOBILE_SYNC_KEY_2026';
+                        if (hash_equals(hash_hmac('sha256', $parts[1], $secret), $parts[2])) {
+                            $dec = json_decode(base64_decode(strtr($parts[1], '-_', '+/')) ?: '', true);
+                            if (!empty($dec['t'])) {
+                                $tenantId = (int)$dec['t'];
+                            }
+                        }
+                    }
+                } elseif ($tok !== '') {
+                    try {
+                        $stTok = $pdo->prepare("SELECT tenant_id FROM users WHERE token = ? LIMIT 1");
+                        $stTok->execute([$tok]);
+                        $tokTenant = (int)$stTok->fetchColumn();
+                        if ($tokTenant > 0) $tenantId = $tokTenant;
+                    } catch (Throwable $e) {}
+                }
+            }
+            if (!empty($req['tenant_id']) && is_numeric($req['tenant_id']) && (int)$req['tenant_id'] > 0 && !$tenantId) {
+                $tenantId = (int)$req['tenant_id'];
+            }
+            if (!$tenantId) $tenantId = 12;
+
             $syncedResults = [];
             foreach ($items as $item) {
                 $rawType = strtolower(trim((string)($item['type'] ?? 'sales')));
                 if ($rawType === 'sales_invoice' || $rawType === 'sale' || $rawType === 'pos') {
                     $type = 'sales';
+                } elseif ($rawType === 'salessplit' || $rawType === 'sales_split' || $rawType === 'split_sales') {
+                    $type = 'sales_split';
                 } elseif ($rawType === 'purchase_invoice' || $rawType === 'purchases') {
                     $type = 'purchase';
-                } elseif (in_array($rawType, ['voucher', 'cash_payment', 'cash_receipt', 'single_payment', 'single_receipt'], true)) {
+                } elseif ($rawType === 'purchasesplit' || $rawType === 'purchase_split' || $rawType === 'split_purchase') {
+                    $type = 'purchase_split';
+                } elseif (in_array($rawType, ['delivery', 'delivery_order', 'sales_delivery', 'delivery_note', 'salesdelivery'], true)) {
+                    $type = 'delivery';
+                } elseif (in_array($rawType, ['purchase_receipt', 'purchasereceive', 'purchase_receive', 'grn'], true)) {
+                    $type = 'purchase_receipt';
+                } elseif (in_array($rawType, ['voucher', 'cash_payment', 'cash_receipt', 'single_payment', 'single_receipt', 'financial', 'finance'], true)) {
                     $type = 'finance';
+                } elseif (in_array($rawType, ['sales_return', 'return_sales', 'sales_returns'], true)) {
+                    $type = 'sales_return';
+                } elseif (in_array($rawType, ['purchase_return', 'return_purchase', 'purchase_returns'], true)) {
+                    $type = 'purchase_return';
+                } elseif (in_array($rawType, ['save_item', 'item_master', 'new_item'], true) || strpos($rawType, 'save_master_data') !== false) {
+                    $type = 'save_item';
                 } else {
                     $type = $rawType;
                 }
@@ -1700,6 +1742,29 @@ try {
                             continue;
                         }
                     } catch (Exception $e) {}
+                }
+
+                // فحص إضافي لمنع تكرار السند المالي في single_payments إذا تم رفعه عبر save_voucher مسبقاً
+                if ($type === 'finance' && $idemKey !== '') {
+                    try {
+                        $stmtFinIdem = $pdo->prepare("SELECT data FROM single_payments WHERE tenant_id = ? AND JSON_UNQUOTE(JSON_EXTRACT(data, '$.idempotencyKey')) = ? LIMIT 1");
+                        $stmtFinIdem->execute([$tenantId, $idemKey]);
+                        $rowFin = $stmtFinIdem->fetch(PDO::FETCH_ASSOC);
+                        if ($rowFin && !empty($rowFin['data'])) {
+                            $existingFin = json_decode($rowFin['data'], true) ?: $payload;
+                            $existingNo = $existingFin['voucherNo'] ?? ($existingFin['id'] ?? $offlineId);
+                            $syncedResults[] = [
+                                'type' => 'finance',
+                                'offline_id' => $offlineId,
+                                'real_id' => $existingNo,
+                                'status' => 'synced',
+                                'idempotent_hit' => true,
+                                'synced_at' => date('Y-m-d H:i:s'),
+                                'record' => $existingFin
+                            ];
+                            continue;
+                        }
+                    } catch (Throwable $e) {}
                 }
 
                 if ($type === 'sales') {
@@ -1735,6 +1800,26 @@ try {
                     $json = json_encode($payload, JSON_UNESCAPED_UNICODE);
                     $stmt = $pdo->prepare("INSERT INTO sales_invoices (tenant_id, invoice_no, data, created_at, updated_at) VALUES (?, ?, ?, NOW(), NOW())");
                     $stmt->execute([$tenantId, $realId, $json]);
+                } elseif ($type === 'sales_return') {
+                    $sSeq = getSalesSequence($pdo, $tenantId);
+                    $realId = $sSeq['nextInvoiceNo'];
+                    $payload['invoiceNo'] = $realId;
+                    $payload['returnNo'] = $realId;
+                    $payload['id'] = $realId;
+                    $payload['offline_id'] = $offlineId;
+                    $payload['isReturn'] = true;
+                    $payload['type'] = 'sales_return';
+                    $payload['synced_at'] = date('Y-m-d H:i:s');
+                    $payload['isOffline'] = false;
+                    $payload['synced'] = true;
+                    $payload = normalizeInvoiceRecord($payload, 'sales', $realId);
+                    $payload['status'] = 'returned';
+                    $payload['deleted'] = 0;
+                    // عكس الأثر المخزني والمالي لمرتجع المبيعات
+                    applyInvoiceEffectsInDB($pdo, $tenantId, 'sales', null, $payload);
+                    $json = json_encode($payload, JSON_UNESCAPED_UNICODE);
+                    $stmt = $pdo->prepare("INSERT INTO sales_invoices (tenant_id, invoice_no, data, created_at, updated_at) VALUES (?, ?, ?, NOW(), NOW())");
+                    $stmt->execute([$tenantId, $realId, $json]);
                 } elseif ($type === 'purchase') {
                     $pSeq = getPurchaseSequence($pdo, $tenantId);
                     $realId = $pSeq['nextPurchaseNo'];
@@ -1766,6 +1851,26 @@ try {
                     $payload['status'] = 'split';
                     $payload['deleted'] = 0;
                     applyInvoiceEffectsInDB($pdo, $tenantId, 'purchase_split', $payload, null);
+                    $json = json_encode($payload, JSON_UNESCAPED_UNICODE);
+                    $stmt = $pdo->prepare("INSERT INTO purchase_invoices (tenant_id, invoice_no, data, created_at, updated_at) VALUES (?, ?, ?, NOW(), NOW())");
+                    $stmt->execute([$tenantId, $realId, $json]);
+                } elseif ($type === 'purchase_return') {
+                    $pSeq = getPurchaseSequence($pdo, $tenantId);
+                    $realId = $pSeq['nextPurchaseNo'];
+                    $payload['invoiceNo'] = $realId;
+                    $payload['returnNo'] = $realId;
+                    $payload['id'] = $realId;
+                    $payload['offline_id'] = $offlineId;
+                    $payload['isReturn'] = true;
+                    $payload['type'] = 'purchase_return';
+                    $payload['synced_at'] = date('Y-m-d H:i:s');
+                    $payload['isOffline'] = false;
+                    $payload['synced'] = true;
+                    $payload = normalizeInvoiceRecord($payload, 'purchase', $realId);
+                    $payload['status'] = 'returned';
+                    $payload['deleted'] = 0;
+                    // عكس الأثر المخزني والمالي لمرتجع المشتريات
+                    applyInvoiceEffectsInDB($pdo, $tenantId, 'purchase', null, $payload);
                     $json = json_encode($payload, JSON_UNESCAPED_UNICODE);
                     $stmt = $pdo->prepare("INSERT INTO purchase_invoices (tenant_id, invoice_no, data, created_at, updated_at) VALUES (?, ?, ?, NOW(), NOW())");
                     $stmt->execute([$tenantId, $realId, $json]);
@@ -1812,6 +1917,9 @@ try {
                     $payload['synced_at'] = date('Y-m-d H:i:s');
                     $payload['isOffline'] = false;
                     $payload['synced'] = true;
+                    if ($idemKey !== '' && empty($payload['idempotencyKey'])) {
+                        $payload['idempotencyKey'] = $idemKey;
+                    }
                     $payload = normalizeVoucherRecord($payload, $realId);
                     applyInvoiceEffectsInDB($pdo, $tenantId, 'finance', $payload, null);
                     $json = json_encode($payload, JSON_UNESCAPED_UNICODE);
@@ -1870,6 +1978,17 @@ try {
                     $json = json_encode($payload, JSON_UNESCAPED_UNICODE);
                     $stmt = $pdo->prepare("INSERT INTO inventory (tenant_id, data, created_at, updated_at) VALUES (?, ?, NOW(), NOW())");
                     $stmt->execute([$tenantId, $json]);
+                } elseif ($type === 'save_item') {
+                    $itemRec = $payload['record'] ?? $payload;
+                    $realId = trim((string)($itemRec['code'] ?? ($itemRec['id'] ?? ('ITM-' . time()))));
+                    $itemRec['id'] = $realId;
+                    $itemRec['code'] = $realId;
+                    $itemRec['synced_at'] = date('Y-m-d H:i:s');
+                    try {
+                        $stmtItm = $pdo->prepare("INSERT INTO items (tenant_id, data, created_at, updated_at) VALUES (?, ?, NOW(), NOW())");
+                        $stmtItm->execute([$tenantId, json_encode($itemRec, JSON_UNESCAPED_UNICODE)]);
+                    } catch (Throwable $e) {}
+                    $payload = $itemRec;
                 }
 
                 if ($idemKey !== '' && $realId !== '') {

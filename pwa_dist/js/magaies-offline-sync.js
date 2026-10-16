@@ -37,15 +37,226 @@
             const t = String(type || 'sales').toLowerCase().trim();
             if (t === 'sales_invoice' || t === 'sale' || t === 'pos') return 'sales';
             if (t === 'salessplit' || t === 'sales_split' || t === 'split_sales') return 'sales_split';
+            if (t === 'sales_return' || t === 'return_sales' || t === 'sales_returns') return 'sales_return';
             if (t === 'purchase_invoice' || t === 'purchases') return 'purchase';
             if (t === 'purchasesplit' || t === 'purchase_split' || t === 'split_purchase') return 'purchase_split';
-            if (t === 'sales_delivery' || t === 'delivery_note' || t === 'salesdelivery') return 'delivery';
+            if (t === 'purchase_return' || t === 'return_purchase' || t === 'purchase_returns') return 'purchase_return';
+            if (t === 'sales_delivery' || t === 'delivery_note' || t === 'salesdelivery' || t === 'delivery_order') return 'delivery';
             if (t === 'purchasereceive' || t === 'purchase_receive' || t === 'purchase_receipt' || t === 'grn') return 'purchase_receipt';
             if (t === 'voucher' || t === 'cash_payment' || t === 'cash_receipt' || t === 'single_payment' || t === 'single_receipt' || t === 'financial') return 'finance';
             if (t === 'journal' || t === 'journal_voucher' || t === 'journal_entry') return 'journal_entry';
             if (t === 'stock_adjustment' || t === 'adjustment' || t === 'inventory_adjustment') return 'stock_adjustment';
             if (t === 'warehouse_transfer' || t === 'transfer') return 'warehouse_transfer';
+            if (t === 'save_item' || t === 'item_master' || t.includes('save_master_data')) return 'save_item';
             return t;
+        },
+
+        // ─────────────────────────────────────────────────────────────
+        // 0. جسر IndexedDB المشترك مع ServiceWorker (يعمل والتطبيق مغلق أو الهاتف مقفل)
+        // ─────────────────────────────────────────────────────────────
+        openIDB() {
+            return new Promise((resolve) => {
+                if (typeof indexedDB === 'undefined') return resolve(null);
+                try {
+                    const req = indexedDB.open('MagaiesOfflineIDB_v1', 2);
+                    req.onupgradeneeded = (e) => {
+                        const db = e.target.result;
+                        if (!db.objectStoreNames.contains('outbox')) {
+                            db.createObjectStore('outbox', { keyPath: 'id' });
+                        }
+                        if (!db.objectStoreNames.contains('meta')) {
+                            db.createObjectStore('meta', { keyPath: 'key' });
+                        }
+                        if (!db.objectStoreNames.contains('synced_ack')) {
+                            db.createObjectStore('synced_ack', { keyPath: 'offline_id' });
+                        }
+                    };
+                    req.onsuccess = (e) => resolve(e.target.result);
+                    req.onerror = () => resolve(null);
+                } catch (err) {
+                    resolve(null);
+                }
+            });
+        },
+
+        getAuthAndTenantContext() {
+            let authToken = '';
+            let tenantId = '12';
+            try {
+                const cookieStr = document.cookie || '';
+                const mDev = cookieStr.match(/(?:^|;\s*)mg_device_auth=([^;]+)/);
+                const mSaas = cookieStr.match(/(?:^|;\s*)saas_token=([^;]+)/);
+                const mTen = cookieStr.match(/(?:^|;\s*)currentTenantId=([^;]+)/);
+                authToken = (mDev ? decodeURIComponent(mDev[1]) : '') ||
+                            (mSaas ? decodeURIComponent(mSaas[1]) : '') ||
+                            localStorage.getItem('saas_token') ||
+                            localStorage.getItem('authToken') || '';
+                tenantId = (mTen ? decodeURIComponent(mTen[1]) : '') ||
+                           localStorage.getItem('currentTenantId') ||
+                           localStorage.getItem('erp_tenant_id') || '12';
+            } catch (e) {}
+            return {
+                device_code: this.getDeviceCode(),
+                tenant_id: tenantId,
+                auth_token: authToken,
+                updated_at: new Date().toISOString()
+            };
+        },
+
+        async mirrorQueueToIndexedDB(queueArray) {
+            try {
+                const db = await this.openIDB();
+                if (!db) return;
+                const ctx = this.getAuthAndTenantContext();
+                const tx = db.transaction(['outbox', 'meta'], 'readwrite');
+                const outboxStore = tx.objectStore('outbox');
+                const metaStore = tx.objectStore('meta');
+                outboxStore.clear();
+                if (Array.isArray(queueArray)) {
+                    queueArray.forEach((item) => {
+                        if (item && item.id) {
+                            outboxStore.put(item);
+                        }
+                    });
+                }
+                metaStore.put(Object.assign({ key: 'sync_context' }, ctx));
+            } catch (e) {}
+        },
+
+        registerBackgroundSync() {
+            if (!('serviceWorker' in navigator)) return;
+            try {
+                navigator.serviceWorker.ready.then(async (reg) => {
+                    if (reg && reg.sync && typeof reg.sync.register === 'function') {
+                        try { await reg.sync.register('sync-offline-outbox'); } catch (e) {}
+                    }
+                    if (reg && reg.periodicSync && typeof reg.periodicSync.register === 'function') {
+                        try {
+                            await reg.periodicSync.register('periodic-offline-outbox', { minInterval: 60 * 1000 });
+                        } catch (e) {}
+                    }
+                    const sw = navigator.serviceWorker.controller || (reg && (reg.active || reg.waiting));
+                    if (sw) {
+                        sw.postMessage({
+                            type: 'SW_SYNC_NOW',
+                            context: this.getAuthAndTenantContext()
+                        });
+                    }
+                }).catch(() => {});
+            } catch (e) {}
+        },
+
+        // دمج طابور سندات الجوال (magaies_mobile_offline_queue) داخل الطابور الموحد لضمان رفعه في الخلفية حتى لو أُغلق التطبيق
+        absorbMobileVoucherQueue() {
+            try {
+                const rawMq = localStorage.getItem('magaies_mobile_offline_queue');
+                if (!rawMq) return false;
+                const mq = JSON.parse(rawMq);
+                if (!Array.isArray(mq) || mq.length === 0) return false;
+
+                const queue = JSON.parse(localStorage.getItem(STORAGE_KEY_QUEUE) || '[]');
+                const devCode = this.getDeviceCode();
+                let changed = false;
+
+                mq.forEach((v) => {
+                    if (!v || typeof v !== 'object') return;
+                    const vId = String(v.voucherNo || v.id || v.offline_id || '').trim();
+                    const idem = String(v.idempotencyKey || v.idempotency_key || '').trim();
+                    const alreadyExists = queue.some((q) => {
+                        if (!q) return false;
+                        if (idem && (q.idempotency_key === idem || (q.payload && q.payload.idempotencyKey === idem))) return true;
+                        if (vId && (q.offline_id === vId || (q.payload && (q.payload.voucherNo === vId || q.payload.id === vId)))) return true;
+                        return false;
+                    });
+                    if (!alreadyExists) {
+                        const finalId = vId || this.getNextSequentialNumber('finance', true);
+                        const finalIdem = idem || ('idempotent-vch-dev' + devCode + '-' + Date.now() + '-' + Math.random().toString(36).substr(2, 6));
+                        v.id = finalId;
+                        v.voucherNo = finalId;
+                        v.offline_id = finalId;
+                        v.idempotencyKey = finalIdem;
+                        v.isOffline = true;
+                        queue.push({
+                            id: 'q-vch-' + finalId + '-' + Date.now(),
+                            type: 'finance',
+                            offline_id: finalId,
+                            tempId: finalId,
+                            device_code: v.deviceCode || devCode,
+                            idempotency_key: finalIdem,
+                            created_at: new Date().toISOString(),
+                            payload: v
+                        });
+                        changed = true;
+                    }
+                });
+
+                if (changed) {
+                    localStorage.setItem(STORAGE_KEY_QUEUE, JSON.stringify(queue));
+                }
+                return changed;
+            } catch (e) {
+                return false;
+            }
+        },
+
+        // مطابقة ما تم رفعه بواسطة ServiceWorker في الخلفية أثناء نوم المستخدم أو إغلاق التطبيق
+        async reconcileFromIndexedDB() {
+            try {
+                const db = await this.openIDB();
+                if (!db) return;
+                const acked = await new Promise((resolve) => {
+                    try {
+                        const tx = db.transaction(['synced_ack'], 'readonly');
+                        const req = tx.objectStore('synced_ack').getAll();
+                        req.onsuccess = () => resolve(req.result || []);
+                        req.onerror = () => resolve([]);
+                    } catch (e) { resolve([]); }
+                });
+
+                if (Array.isArray(acked) && acked.length > 0) {
+                    this.recordSyncedHistory(acked);
+                    this.applySyncedItemsToLocalState(acked);
+
+                    const ackIds = new Set(acked.map(a => String(a.offline_id || '')).filter(Boolean));
+                    const ackIdems = new Set(acked.map(a => String(a.idempotency_key || (a.record && a.record.idempotencyKey) || '')).filter(Boolean));
+
+                    // إزالة الحركات المرفوعة من الطابور المحلي
+                    try {
+                        const curQ = JSON.parse(localStorage.getItem(STORAGE_KEY_QUEUE) || '[]');
+                        const filteredQ = curQ.filter(q => {
+                            if (!q) return false;
+                            if (ackIds.has(String(q.offline_id || ''))) return false;
+                            if (q.idempotency_key && ackIdems.has(String(q.idempotency_key))) return false;
+                            return true;
+                        });
+                        localStorage.setItem(STORAGE_KEY_QUEUE, JSON.stringify(filteredQ));
+                    } catch (e) {}
+
+                    // إزالة السندات المرفوعة من طابور mobile-voucher.php
+                    try {
+                        const curMq = JSON.parse(localStorage.getItem('magaies_mobile_offline_queue') || '[]');
+                        if (Array.isArray(curMq) && curMq.length > 0) {
+                            const filteredMq = curMq.filter(v => {
+                                if (!v) return false;
+                                const vid = String(v.voucherNo || v.id || v.offline_id || '');
+                                const videm = String(v.idempotencyKey || '');
+                                if (vid && ackIds.has(vid)) return false;
+                                if (videm && ackIdems.has(videm)) return false;
+                                return true;
+                            });
+                            localStorage.setItem('magaies_mobile_offline_queue', JSON.stringify(filteredMq));
+                            const pendingEl = document.getElementById('pendingCount');
+                            if (pendingEl) pendingEl.textContent = `${filteredMq.length} معلق`;
+                        }
+                    } catch (e) {}
+
+                    // مسح synced_ack بعد المطابقة
+                    try {
+                        const txClear = db.transaction(['synced_ack'], 'readwrite');
+                        txClear.objectStore('synced_ack').clear();
+                    } catch (e) {}
+                }
+            } catch (e) {}
         },
 
         // ─────────────────────────────────────────────────────────────
@@ -84,8 +295,8 @@
             const type = this.normalizeType(rawType);
             const now = new Date();
             const yymm = String(now.getFullYear()).slice(-2) + String(now.getMonth() + 1).padStart(2, '0');
-            if (type === 'sales' || type === 'sales_split') return { letter: 'S', prefix: 'S' + yymm };
-            if (type === 'purchase' || type === 'purchase_split') return { letter: 'P', prefix: 'P' + yymm };
+            if (type === 'sales' || type === 'sales_split' || type === 'sales_return') return { letter: 'S', prefix: 'S' + yymm };
+            if (type === 'purchase' || type === 'purchase_split' || type === 'purchase_return') return { letter: 'P', prefix: 'P' + yymm };
             if (type === 'finance') return { letter: 'E', prefix: 'E' + yymm };
             if (type === 'delivery') return { letter: 'D', prefix: 'D' + yymm };
             if (type === 'purchase_receipt') return { letter: 'R', prefix: 'R' + yymm };
@@ -149,10 +360,10 @@
 
             try {
                 const known = JSON.parse(localStorage.getItem('magaies_last_known_sequences_v1') || '{}');
-                const relatedTypes = (type === 'sales' || type === 'sales_split')
-                    ? ['sales', 'sales_split']
-                    : (type === 'purchase' || type === 'purchase_split')
-                        ? ['purchase', 'purchase_split']
+                const relatedTypes = (type === 'sales' || type === 'sales_split' || type === 'sales_return')
+                    ? ['sales', 'sales_split', 'sales_return']
+                    : (type === 'purchase' || type === 'purchase_split' || type === 'purchase_return')
+                        ? ['purchase', 'purchase_split', 'purchase_return']
                         : [type];
                 relatedTypes.forEach(rt => {
                     if (known[rt] && parseInt(known[rt], 10) > maxSeq) {
@@ -164,12 +375,12 @@
             // فحص الكاش الحي من السيرفر إن وجد
             try {
                 if (window._mirrorCache) {
-                    if ((type === 'sales' || type === 'sales_split') && window._mirrorCache.sales) {
+                    if ((type === 'sales' || type === 'sales_split' || type === 'sales_return') && window._mirrorCache.sales) {
                         const s = this.extractUniversalSeq(window._mirrorCache.sales.nextInvoiceNo, 'S');
                         if (s > 1 && (s - 1) > maxSeq) maxSeq = s - 1;
                         const sLast = this.extractUniversalSeq(window._mirrorCache.sales.lastInvoiceNo, 'S');
                         if (sLast > maxSeq) maxSeq = sLast;
-                    } else if ((type === 'purchase' || type === 'purchase_split') && window._mirrorCache.purchase) {
+                    } else if ((type === 'purchase' || type === 'purchase_split' || type === 'purchase_return') && window._mirrorCache.purchase) {
                         const s = this.extractUniversalSeq(window._mirrorCache.purchase.nextInvoiceNo, 'P');
                         if (s > 1 && (s - 1) > maxSeq) maxSeq = s - 1;
                         const sLast = this.extractUniversalSeq(window._mirrorCache.purchase.lastInvoiceNo, 'P');
@@ -185,9 +396,9 @@
 
             // فحص السجلات المحلية في المتصفح (اللابتوب + الجوال + الطابور)
             const keysToScan = [];
-            if (type === 'sales' || type === 'sales_split') {
+            if (type === 'sales' || type === 'sales_split' || type === 'sales_return') {
                 keysToScan.push('magaies_local_sales_invoices_v1', 'erp_sales_invoices_v1', 'erp_sales_v3');
-            } else if (type === 'purchase' || type === 'purchase_split') {
+            } else if (type === 'purchase' || type === 'purchase_split' || type === 'purchase_return') {
                 keysToScan.push('magaies_local_purchase_invoices_v1', 'erp_purchase_invoices_v1', 'erp_purchases_v5');
             } else if (type === 'finance') {
                 keysToScan.push('magaiees_vouchers_history', 'erp_single_payments_v1', 'magaies_mobile_offline_queue');
@@ -221,8 +432,8 @@
                 q.forEach(qItem => {
                     const qType = this.normalizeType(qItem.type);
                     const samePool = (qType === type) ||
-                        ((type === 'sales' || type === 'sales_split') && (qType === 'sales' || qType === 'sales_split')) ||
-                        ((type === 'purchase' || type === 'purchase_split') && (qType === 'purchase' || qType === 'purchase_split'));
+                        ((type === 'sales' || type === 'sales_split' || type === 'sales_return') && (qType === 'sales' || qType === 'sales_split' || qType === 'sales_return')) ||
+                        ((type === 'purchase' || type === 'purchase_split' || type === 'purchase_return') && (qType === 'purchase' || qType === 'purchase_split' || qType === 'purchase_return'));
                     if (samePool) {
                         const seq = this.extractUniversalSeq(qItem.offline_id, letter);
                         if (seq > maxSeq) maxSeq = seq;
@@ -248,10 +459,10 @@
                 try {
                     const known = JSON.parse(localStorage.getItem('magaies_last_known_sequences_v1') || '{}');
                     known[type] = nextSeq;
-                    if (type === 'sales' || type === 'sales_split') {
+                    if (type === 'sales' || type === 'sales_split' || type === 'sales_return') {
                         known['sales'] = nextSeq;
                         known['sales_split'] = nextSeq;
-                    } else if (type === 'purchase' || type === 'purchase_split') {
+                    } else if (type === 'purchase' || type === 'purchase_split' || type === 'purchase_return') {
                         known['purchase'] = nextSeq;
                         known['purchase_split'] = nextSeq;
                     }
@@ -267,10 +478,11 @@
         },
 
         // ─────────────────────────────────────────────────────────────
-        // 3. إدارة طابور الأوفلاين وسجل الاعتماد (Universal Offline Queue)
+        // 3. إدارة طابور الأوفلاين وسجل الاعتماد (Universal Offline Queue + IndexedDB)
         // ─────────────────────────────────────────────────────────────
         getQueue() {
             try {
+                this.absorbMobileVoucherQueue();
                 return JSON.parse(localStorage.getItem(STORAGE_KEY_QUEUE) || '[]');
             } catch(e) {
                 return [];
@@ -278,9 +490,14 @@
         },
 
         saveQueue(q) {
+            const cleanQ = Array.isArray(q) ? q : [];
             try {
-                localStorage.setItem(STORAGE_KEY_QUEUE, JSON.stringify(q));
+                localStorage.setItem(STORAGE_KEY_QUEUE, JSON.stringify(cleanQ));
             } catch(e) {}
+            this.mirrorQueueToIndexedDB(cleanQ);
+            if (cleanQ.length > 0) {
+                this.registerBackgroundSync();
+            }
             this.updateUIBadge();
         },
 
@@ -315,6 +532,95 @@
                 });
                 localStorage.setItem(STORAGE_KEY_SYNCED_HISTORY, JSON.stringify(hist.slice(0, 30)));
             } catch(e) {}
+        },
+
+        applySyncedItemsToLocalState(syncedItems) {
+            if (!Array.isArray(syncedItems) || syncedItems.length === 0) return;
+            try {
+                const getTK = window.getTenantKey || ((k) => k);
+                syncedItems.forEach(sItem => {
+                    if (!sItem || (!sItem.offline_id && !sItem.real_id)) return;
+                    const sType = this.normalizeType(sItem.type || 'sales');
+                    const serverRec = (sItem.record && typeof sItem.record === 'object') ? sItem.record : null;
+
+                    const updateLocalArr = (baseKey, allowInsert = false) => {
+                        const keysToUpdate = [baseKey];
+                        const tk = getTK(baseKey);
+                        if (tk && tk !== baseKey) keysToUpdate.push(tk);
+                        keysToUpdate.forEach(storageKey => {
+                            let arr = [];
+                            try {
+                                const raw = localStorage.getItem(storageKey);
+                                if (raw) arr = JSON.parse(raw);
+                                if (!Array.isArray(arr)) arr = [];
+                            } catch (e) { arr = []; }
+
+                            let matched = false;
+                            for (let i = 0; i < arr.length; i++) {
+                                const rec = arr[i];
+                                if (!rec) continue;
+                                const recId = rec.id || rec.invoiceNo || rec.voucherNo || rec.deliveryNo || rec.receiptNo || rec.docNo || '';
+                                if (recId === sItem.offline_id || rec.offline_id === sItem.offline_id || recId === sItem.real_id) {
+                                    if (serverRec) {
+                                        arr[i] = Object.assign({}, rec, serverRec, {
+                                            id: sItem.real_id,
+                                            isOffline: false,
+                                            synced: true
+                                        });
+                                    } else {
+                                        if (rec.id === sItem.offline_id) rec.id = sItem.real_id;
+                                        if (rec.invoiceNo === sItem.offline_id) rec.invoiceNo = sItem.real_id;
+                                        if (rec.voucherNo === sItem.offline_id) rec.voucherNo = sItem.real_id;
+                                        if (rec.deliveryNo === sItem.offline_id) rec.deliveryNo = sItem.real_id;
+                                        if (rec.receiptNo === sItem.offline_id) rec.receiptNo = sItem.real_id;
+                                        rec.isOffline = false;
+                                        rec.synced = true;
+                                    }
+                                    matched = true;
+                                }
+                            }
+                            if (!matched && allowInsert && serverRec) {
+                                arr.unshift(Object.assign({}, serverRec, { id: sItem.real_id, isOffline: false, synced: true }));
+                            }
+                            if (matched || (allowInsert && serverRec)) {
+                                localStorage.setItem(storageKey, JSON.stringify(arr));
+                            }
+                        });
+                    };
+
+                    if (sType === 'sales' || sType === 'sales_split' || sType === 'sales_return') {
+                        updateLocalArr('magaies_local_sales_invoices_v1', true);
+                        updateLocalArr('erp_sales_invoices_v1', true);
+                        updateLocalArr('erp_sales_v3', false);
+                        if (serverRec) {
+                            try { localStorage.setItem('erp_inv_' + sItem.real_id, JSON.stringify(serverRec)); } catch (e) {}
+                        }
+                    } else if (sType === 'purchase' || sType === 'purchase_split' || sType === 'purchase_return') {
+                        updateLocalArr('magaies_local_purchase_invoices_v1', true);
+                        updateLocalArr('erp_purchase_invoices_v1', true);
+                        updateLocalArr('erp_purchases_v5', false);
+                        if (serverRec) {
+                            try { localStorage.setItem('erp_pur_' + sItem.real_id, JSON.stringify(serverRec)); } catch (e) {}
+                        }
+                    } else if (sType === 'finance') {
+                        updateLocalArr('magaiees_vouchers_history', true);
+                        updateLocalArr('magaies_vouchers_cache', true);
+                        updateLocalArr('erp_single_payments_v1', true);
+                        updateLocalArr('erp_payments_v1', false);
+                        updateLocalArr('erp_receipts_v1', false);
+                    } else if (sType === 'delivery') {
+                        updateLocalArr('magaies_local_deliveries_v1', true);
+                        updateLocalArr('erp_delivery_orders_v1', true);
+                    } else if (sType === 'purchase_receipt') {
+                        updateLocalArr('magaies_local_receipts_v1', true);
+                        updateLocalArr('erp_purchase_receipts_v1', true);
+                    } else if (sType === 'journal_entry') {
+                        updateLocalArr('magaies_local_journals_v1', true);
+                    } else if (sType === 'stock_adjustment' || sType === 'warehouse_transfer') {
+                        updateLocalArr('magaies_local_inventory_docs_v1', true);
+                    }
+                });
+            } catch (e) {}
         },
 
         computePayloadFingerprint(type, payload) {
@@ -394,10 +700,10 @@
             };
 
             // إرفاق المعرف المتسلسل داخل كائن الفاتورة/السند
-            if (type === 'sales' || type === 'sales_split') {
+            if (type === 'sales' || type === 'sales_split' || type === 'sales_return') {
                 payload.invoiceNo = offlineId;
                 payload.id = offlineId;
-            } else if (type === 'purchase' || type === 'purchase_split') {
+            } else if (type === 'purchase' || type === 'purchase_split' || type === 'purchase_return') {
                 payload.invoiceNo = offlineId;
                 payload.id = offlineId;
             } else if (type === 'delivery') {
@@ -431,6 +737,17 @@
             return offlineId;
         },
 
+        async executeOrEnqueue(endpointOrType, payload = {}, label = '') {
+            const normType = this.normalizeType(payload.type || payload.entity || endpointOrType);
+            const offlineId = this.enqueue(normType, payload, payload.returnNo || payload.invoiceNo || payload.voucherNo || payload.id);
+            if (navigator.onLine !== false) {
+                try {
+                    await this.flushQueue();
+                } catch (e) {}
+            }
+            return { success: true, offline_id: offlineId, label: label };
+        },
+
         // ─────────────────────────────────────────────────────────────
         // 4. المزامنة التلقائية اللحظية (Instant Auto-Sync Engine)
         // ─────────────────────────────────────────────────────────────
@@ -443,9 +760,9 @@
         },
 
         async flushQueue() {
-            if (typeof window.flushOfflineQueue === 'function') {
-                try { window.flushOfflineQueue(); } catch (e) {}
-            }
+            await this.reconcileFromIndexedDB();
+            this.absorbMobileVoucherQueue();
+
             if (this.isSyncing) return;
             const queue = this.getQueue();
             if (queue.length === 0) return;
@@ -454,14 +771,21 @@
             this.updateUIBadge();
 
             try {
-                // إرسال الدفعة بالكامل في طلب واحد سريع جداً (Batch Request < 100ms) لأضعف شبكة 2G
+                const ctx = this.getAuthAndTenantContext();
                 const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 8500);
+                const timeoutId = setTimeout(() => controller.abort(), 9500);
 
                 const res = await fetch('api/mirror_sync.php?action=sync_offline_batch', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ items: queue, device_code: this.getDeviceCode() }),
+                    credentials: 'include',
+                    keepalive: true,
+                    body: JSON.stringify({
+                        items: queue,
+                        device_code: ctx.device_code,
+                        tenant_id: ctx.tenant_id,
+                        auth_token: ctx.auth_token
+                    }),
                     signal: controller.signal
                 });
                 clearTimeout(timeoutId);
@@ -471,96 +795,15 @@
                     this.isOnline = true;
                     // حفظ سجل التحويل من رقم أوفلاين إلى رقم السيستم الرسمي
                     this.recordSyncedHistory(out.synced);
+                    this.applySyncedItemsToLocalState(out.synced);
 
-                    // تحديث الأرقام وكامل البيانات في السجلات المحلية (العامة والخاصة بالشركة Tenant) عند الدمج في السيرفر
-                    try {
-                        const getTK = window.getTenantKey || ((k) => k);
-                        out.synced.forEach(sItem => {
-                            if (!sItem.offline_id || !sItem.real_id) return;
-                            const sType = this.normalizeType(sItem.type || 'sales');
-                            const serverRec = (sItem.record && typeof sItem.record === 'object') ? sItem.record : null;
-
-                            const updateLocalArr = (baseKey, allowInsert = false) => {
-                                const keysToUpdate = [baseKey];
-                                const tk = getTK(baseKey);
-                                if (tk && tk !== baseKey) keysToUpdate.push(tk);
-                                keysToUpdate.forEach(storageKey => {
-                                    let arr = [];
-                                    try {
-                                        const raw = localStorage.getItem(storageKey);
-                                        if (raw) arr = JSON.parse(raw);
-                                        if (!Array.isArray(arr)) arr = [];
-                                    } catch (e) { arr = []; }
-
-                                    let matched = false;
-                                    for (let i = 0; i < arr.length; i++) {
-                                        const rec = arr[i];
-                                        if (!rec) continue;
-                                        const recId = rec.id || rec.invoiceNo || rec.voucherNo || rec.deliveryNo || rec.receiptNo || rec.docNo || '';
-                                        if (recId === sItem.offline_id || rec.offline_id === sItem.offline_id || recId === sItem.real_id) {
-                                            if (serverRec) {
-                                                arr[i] = Object.assign({}, rec, serverRec, {
-                                                    id: sItem.real_id,
-                                                    isOffline: false,
-                                                    synced: true
-                                                });
-                                            } else {
-                                                if (rec.id === sItem.offline_id) rec.id = sItem.real_id;
-                                                if (rec.invoiceNo === sItem.offline_id) rec.invoiceNo = sItem.real_id;
-                                                if (rec.voucherNo === sItem.offline_id) rec.voucherNo = sItem.real_id;
-                                                if (rec.deliveryNo === sItem.offline_id) rec.deliveryNo = sItem.real_id;
-                                                if (rec.receiptNo === sItem.offline_id) rec.receiptNo = sItem.real_id;
-                                                rec.isOffline = false;
-                                                rec.synced = true;
-                                            }
-                                            matched = true;
-                                        }
-                                    }
-                                    if (!matched && allowInsert && serverRec) {
-                                        arr.unshift(Object.assign({}, serverRec, { id: sItem.real_id, isOffline: false, synced: true }));
-                                    }
-                                    if (matched || (allowInsert && serverRec)) {
-                                        localStorage.setItem(storageKey, JSON.stringify(arr));
-                                    }
-                                });
-                            };
-
-                            if (sType === 'sales' || sType === 'sales_split') {
-                                updateLocalArr('magaies_local_sales_invoices_v1', true);
-                                updateLocalArr('erp_sales_invoices_v1', true);
-                                updateLocalArr('erp_sales_v3', false);
-                                if (serverRec) {
-                                    try { localStorage.setItem('erp_inv_' + sItem.real_id, JSON.stringify(serverRec)); } catch (e) {}
-                                }
-                            } else if (sType === 'purchase' || sType === 'purchase_split') {
-                                updateLocalArr('magaies_local_purchase_invoices_v1', true);
-                                updateLocalArr('erp_purchase_invoices_v1', true);
-                                updateLocalArr('erp_purchases_v5', false);
-                                if (serverRec) {
-                                    try { localStorage.setItem('erp_pur_' + sItem.real_id, JSON.stringify(serverRec)); } catch (e) {}
-                                }
-                            } else if (sType === 'finance') {
-                                updateLocalArr('magaiees_vouchers_history', true);
-                                updateLocalArr('magaies_vouchers_cache', true);
-                                updateLocalArr('erp_single_payments_v1', true);
-                                updateLocalArr('erp_payments_v1', false);
-                                updateLocalArr('erp_receipts_v1', false);
-                            } else if (sType === 'delivery') {
-                                updateLocalArr('magaies_local_deliveries_v1', true);
-                                updateLocalArr('erp_delivery_orders_v1', true);
-                            } else if (sType === 'purchase_receipt') {
-                                updateLocalArr('magaies_local_receipts_v1', true);
-                                updateLocalArr('erp_purchase_receipts_v1', true);
-                            } else if (sType === 'journal_entry') {
-                                updateLocalArr('magaies_local_journals_v1', true);
-                            } else if (sType === 'stock_adjustment' || sType === 'warehouse_transfer') {
-                                updateLocalArr('magaies_local_inventory_docs_v1', true);
-                            }
-                        });
-                    } catch (e) {}
-
-                    // إفراغ الطابور بعد الترحيل الكامل
+                    // إفراغ الطابور الموحد وطابور سندات الموبايل بعد الترحيل الكامل
                     this.saveQueue([]);
+                    try {
+                        localStorage.setItem('magaies_mobile_offline_queue', '[]');
+                        const pendingEl = document.getElementById('pendingCount');
+                        if (pendingEl) pendingEl.textContent = '0 معلق';
+                    } catch (e) {}
 
                     // إعلام واجهة المستخدم بالنجاح والتحول للسيريال الرسمي
                     const count = out.synced.length;
@@ -599,8 +842,9 @@
                     }
                 }
             } catch (err) {
-                // النت لم يكتمل بعد أو انقطع مجدداً أثناء الطلب - نحتفظ بالطابور بأمان تام
-                console.log('[OfflineEngine] Sync pulse interrupted, keeping queue safe:', err.message);
+                // النت لم يكتمل بعد أو انقطع مجدداً أثناء الطلب - نحتفظ بالطابور بأمان تام ونسجل المزامنة الخلفية
+                console.log('[OfflineEngine] Sync pulse interrupted, keeping queue safe in IndexedDB & registering SW Background Sync:', err.message);
+                this.registerBackgroundSync();
             } finally {
                 this.isSyncing = false;
                 this.updateUIBadge();
@@ -608,11 +852,19 @@
         },
 
         // ─────────────────────────────────────────────────────────────
-        // 5. مستشعر النبض الشبكي النشط (Active Micro-Pulse Heartbeat)
+        // 5. مستشعر النبض الشبكي النشط (Active Micro-Pulse Heartbeat + Background Keepalive)
         // ─────────────────────────────────────────────────────────────
         triggerAllSyncEngines() {
-            if (this.getQueue().length > 0 && !this.isSyncing) {
-                this.flushQueue();
+            this.absorbMobileVoucherQueue();
+            const q = this.getQueue();
+            if (q.length > 0) {
+                this.mirrorQueueToIndexedDB(q);
+                this.registerBackgroundSync();
+                if (!this.isSyncing) {
+                    this.flushQueue();
+                }
+            } else {
+                this.reconcileFromIndexedDB();
             }
             if (typeof window.flushOfflineQueue === 'function') {
                 try { window.flushOfflineQueue(); } catch (e) {}
@@ -631,12 +883,32 @@
 
             window.addEventListener('offline', () => {
                 this.isOnline = false;
+                this.absorbMobileVoucherQueue();
+                this.mirrorQueueToIndexedDB(this.getQueue());
+                this.registerBackgroundSync();
                 this.updateUIBadge();
             });
 
             document.addEventListener('visibilitychange', () => {
                 if (document.visibilityState === 'visible') {
                     this.triggerAllSyncEngines();
+                } else {
+                    // عند قفل شاشة الجوال أو الخروج للخلفية: حفظ فوري في IndexedDB وتسجيل BackgroundSync ليرفعها الـ ServiceWorker والهاتف مقفل
+                    this.absorbMobileVoucherQueue();
+                    const q = this.getQueue();
+                    if (q.length > 0) {
+                        this.mirrorQueueToIndexedDB(q);
+                        this.registerBackgroundSync();
+                    }
+                }
+            });
+
+            window.addEventListener('pagehide', () => {
+                this.absorbMobileVoucherQueue();
+                const q = this.getQueue();
+                if (q.length > 0) {
+                    this.mirrorQueueToIndexedDB(q);
+                    this.registerBackgroundSync();
                 }
             });
 
@@ -644,21 +916,30 @@
                 this.triggerAllSyncEngines();
             });
 
+            // الاستماع لرسائل الـ ServiceWorker عند إتمام الرفع التلقائي في الخلفية
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.addEventListener('message', (event) => {
+                    if (!event.data) return;
+                    if (event.data.type === 'OFFLINE_SYNC_COMPLETED_BY_SW') {
+                        this.reconcileFromIndexedDB().then(() => {
+                            if (typeof window.fetchLiveDbData === 'function') window.fetchLiveDbData(false, true);
+                            if (typeof window.fetchMirrorNumbers === 'function') window.fetchMirrorNumbers();
+                        });
+                    } else if (event.data.type === 'TRIGGER_OFFLINE_SYNC') {
+                        this.triggerAllSyncEngines();
+                    }
+                });
+            }
+
             // فحص تلقائي نشط للطابور كل 3.5 ثوانٍ عند وجود عناصر معلقة (يعمل حتى لو تأخر حدث online في الجوال)
             if (this.pulseInterval) clearInterval(this.pulseInterval);
             this.pulseInterval = setInterval(() => {
+                this.absorbMobileVoucherQueue();
                 const q = this.getQueue();
-                let hasMobileVoucherQueue = false;
-                try {
-                    const mq = JSON.parse(localStorage.getItem('magaies_mobile_offline_queue') || '[]');
-                    hasMobileVoucherQueue = Array.isArray(mq) && mq.length > 0;
-                } catch (e) {}
-
                 if (q.length > 0 && !this.isSyncing) {
                     this.flushQueue();
-                }
-                if (hasMobileVoucherQueue && typeof window.flushOfflineQueue === 'function') {
-                    try { window.flushOfflineQueue(); } catch (e) {}
+                } else {
+                    this.reconcileFromIndexedDB();
                 }
             }, 3500);
 
@@ -716,6 +997,7 @@
             try {
                 localStorage.removeItem(STORAGE_KEY_QUEUE);
                 localStorage.removeItem('magaies_mobile_offline_queue');
+                this.mirrorQueueToIndexedDB([]);
                 this.updateUIBadge();
             } catch (e) {}
         },
@@ -1028,8 +1310,18 @@
             this.initPWAInstallCapture();
             this.updateUIBadge();
             this.initAutoFitVoucherObserver();
-            // فحص أولي للمزامنة
+            // مطابقة فورية مع IndexedDB ودمج أي سندات معلقة ثم الرفع التلقائي
+            this.reconcileFromIndexedDB().then(() => {
+                this.absorbMobileVoucherQueue();
+                const q = this.getQueue();
+                this.mirrorQueueToIndexedDB(q);
+                if (q.length > 0) {
+                    this.registerBackgroundSync();
+                    this.flushQueue();
+                }
+            });
             setTimeout(() => {
+                this.absorbMobileVoucherQueue();
                 if (this.getQueue().length > 0) this.flushQueue();
             }, 1000);
             console.log(`[MagaiesOffline] Universal Offline Engine Initialized on Device [${this.getDeviceCode()}] 🚀`);
