@@ -73,6 +73,10 @@ $files = [
     'mobile_erp_global_suite.html' => getNormalizedHash(__DIR__ . '/mobile_erp_global_suite.html'),
     'js/mobile-suite.js' => getNormalizedHash(__DIR__ . '/js/mobile-suite.js'),
     'mobile-voucher.php' => getNormalizedHash(__DIR__ . '/mobile-voucher.php'),
+    'js/magaies-offline-sync.js' => getNormalizedHash(__DIR__ . '/js/magaies-offline-sync.js'),
+    'js/app.js' => getNormalizedHash(__DIR__ . '/js/app.js'),
+    'mobile_auth_guard.php' => getNormalizedHash(__DIR__ . '/mobile_auth_guard.php'),
+    'api/mirror_sync.php' => getNormalizedHash(__DIR__ . '/api/mirror_sync.php'),
 ];
 
 // Check specific keywords inside single-cash-payment.php
@@ -114,9 +118,17 @@ $checks['virtual_cfo_engine'] = strpos(file_get_contents(__DIR__ . '/js/chatbot.
 $checks['ocr_invoice_scanner'] = (file_exists(__DIR__ . '/api/ocr-invoice.php') && strpos(file_get_contents(__DIR__ . '/purchase.php'), 'triggerInvoiceOCR') !== false);
 $msHtml = file_exists(__DIR__ . '/mobile-suite.html') ? file_get_contents(__DIR__ . '/mobile-suite.html') : '';
 $msJs = file_exists(__DIR__ . '/js/mobile-suite.js') ? file_get_contents(__DIR__ . '/js/mobile-suite.js') : '';
+$offlineSyncJs = file_exists(__DIR__ . '/js/magaies-offline-sync.js') ? file_get_contents(__DIR__ . '/js/magaies-offline-sync.js') : '';
+$swJs = file_exists(__DIR__ . '/sw.js') ? file_get_contents(__DIR__ . '/sw.js') : '';
+$mvPhp = file_exists(__DIR__ . '/mobile-voucher.php') ? file_get_contents(__DIR__ . '/mobile-voucher.php') : '';
 $checks['mobile_suite_add_item_master'] = (strpos($msHtml, 'modalOpAddItemMaster') !== false && strpos($msJs, 'window.SuiteItemMaster') !== false);
 $checks['mobile_suite_returns_modal'] = (strpos($msHtml, 'modalOpReturns') !== false && strpos($msJs, 'window.SuiteReturnsManager') !== false);
 $checks['mobile_suite_quick_fx_btn'] = strpos($msHtml, 'quickFxRateHeaderBtn') !== false;
+$checks['sync_audit_shield_btn'] = strpos($msHtml, 'suiteSyncAuditHeaderBtn') !== false;
+$checks['sync_audit_modal'] = strpos($offlineSyncJs, 'showSyncAuditModal') !== false;
+$checks['sync_audit_long_press'] = strpos($offlineSyncJs, 'bindSyncAuditGestureTriggers') !== false;
+$checks['sw_zero_ui_flush'] = strpos($swJs, 'flushIndexedDBOutboxInSW') !== false;
+$checks['voucher_sync_audit_btn'] = strpos($mvPhp, 'voucherSyncAuditBtn') !== false;
 
 
 echo json_encode([

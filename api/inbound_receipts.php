@@ -174,8 +174,12 @@ switch ($action) {
             }
 
             // Handle file upload
+            $allowedReceiptExts = ['png', 'jpg', 'jpeg', 'webp'];
             if (!empty($_FILES['receipt_file']['tmp_name'])) {
                 $ext = strtolower(pathinfo($_FILES['receipt_file']['name'], PATHINFO_EXTENSION)) ?: 'png';
+                if (!in_array($ext, $allowedReceiptExts, true)) {
+                    $ext = 'png';
+                }
                 $filename = 'bankak_' . time() . '_' . rand(1000, 9999) . '.' . $ext;
                 $target = $uploadDir . $filename;
                 if (move_uploaded_file($_FILES['receipt_file']['tmp_name'], $target)) {
@@ -184,9 +188,12 @@ switch ($action) {
             } elseif (!empty($_POST['receipt_base64']) || !empty($jsonData['receipt_base64'])) {
                 $b64 = $_POST['receipt_base64'] ?? $jsonData['receipt_base64'];
                 if (preg_match('/^data:image\/(\w+);base64,/', $b64, $m)) {
-                    $ext = $m[1];
+                    $ext = strtolower($m[1]);
                     $b64 = substr($b64, strpos($b64, ',') + 1);
                 } else {
+                    $ext = 'png';
+                }
+                if (!in_array($ext, $allowedReceiptExts, true)) {
                     $ext = 'png';
                 }
                 $decoded = base64_decode($b64);
