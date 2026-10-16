@@ -1124,9 +1124,68 @@ JSON.parse = function(val) {
         }
     } catch (e) {}
 
+    let _idbMirrorTimer = null;
+    function mirrorDirtyKeysToSwIDB() {
+        if (_idbMirrorTimer) clearTimeout(_idbMirrorTimer);
+        _idbMirrorTimer = setTimeout(() => {
+            try {
+                if (typeof indexedDB === 'undefined') return;
+                const req = indexedDB.open('MagaiesOfflineIDB_v1', 2);
+                req.onupgradeneeded = (e) => {
+                    const db = e.target.result;
+                    if (!db.objectStoreNames.contains('outbox')) db.createObjectStore('outbox', { keyPath: 'id' });
+                    if (!db.objectStoreNames.contains('meta')) db.createObjectStore('meta', { keyPath: 'key' });
+                    if (!db.objectStoreNames.contains('synced_ack')) db.createObjectStore('synced_ack', { keyPath: 'offline_id' });
+                };
+                req.onsuccess = (e) => {
+                    try {
+                        const db = e.target.result;
+                        const tx = db.transaction(['meta'], 'readwrite');
+                        const store = tx.objectStore('meta');
+                        if (dirtyKeys.size === 0) {
+                            store.delete('cloud_push_outbox');
+                            return;
+                        }
+                        const payload = {};
+                        let hasData = false;
+                        Array.from(dirtyKeys).forEach(k => {
+                            const pk = window.getTenantKey(k);
+                            const d = (window.DB_STORE && window.DB_STORE[pk]) || localGetItem(pk) || localGetItem(k);
+                            if (d) {
+                                try { payload[k] = JSON.parse(d); hasData = true; } catch (err) {}
+                            }
+                        });
+                        const token = localStorage.getItem('authToken') || '';
+                        if (hasData && token) {
+                            store.put({
+                                key: 'cloud_push_outbox',
+                                payload: payload,
+                                auth_token: token,
+                                keys: Array.from(dirtyKeys),
+                                updated_at: Date.now()
+                            });
+                            if (window.MagaiesOffline && typeof window.MagaiesOffline.registerBackgroundSync === 'function') {
+                                window.MagaiesOffline.registerBackgroundSync();
+                            } else if ('serviceWorker' in navigator && navigator.serviceWorker.ready) {
+                                navigator.serviceWorker.ready.then(reg => {
+                                    if (reg && reg.sync && typeof reg.sync.register === 'function') {
+                                        reg.sync.register('sync-offline-outbox').catch(() => {});
+                                    }
+                                }).catch(() => {});
+                            }
+                        } else {
+                            store.delete('cloud_push_outbox');
+                        }
+                    } catch (txErr) {}
+                };
+            } catch (err) {}
+        }, 120);
+    }
+
     function persistDirtyKeys() {
         try {
             originalSetItem.call(localStorage, DIRTY_KEYS_STORAGE_KEY, JSON.stringify(Array.from(dirtyKeys)));
+            mirrorDirtyKeysToSwIDB();
         } catch (e) {}
     }
 
@@ -1734,13 +1793,27 @@ JSON.parse = function(val) {
 
     // تسجيل Service Worker وتفعيل محرك الأوفلاين الموحد تلقائياً في كافة شاشات اللابتوب والجوال
     if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('./sw.js?v=2026_10_16_offline_v18', { scope: './', updateViaCache: 'none' }).catch(() => {});
+        navigator.serviceWorker.register('./sw.js?v=2026_10_16_offline_v23', { scope: './', updateViaCache: 'none' }).catch(() => {});
+        navigator.serviceWorker.addEventListener('message', (event) => {
+            if (!event.data) return;
+            if (event.data.type === 'CLOUD_PUSH_COMPLETED_BY_SW') {
+                dirtyKeys.clear();
+                persistDirtyKeys();
+            } else if (event.data.type === 'TRIGGER_OFFLINE_SYNC') {
+                if (dirtyKeys.size > 0 && !isPushing && navigator.onLine !== false) {
+                    pushToCloud();
+                }
+            }
+        });
+    }
+    if (dirtyKeys.size > 0) {
+        mirrorDirtyKeysToSwIDB();
     }
     if (!window.__MAGAIES_OFFLINE_ENGINE_LOADED__ && typeof document !== 'undefined') {
         const injectOfflineEngine = () => {
             if (window.__MAGAIES_OFFLINE_ENGINE_LOADED__) return;
             const s = document.createElement('script');
-            s.src = 'js/magaies-offline-sync.js?v=2026_10_16_v18';
+            s.src = 'js/magaies-offline-sync.js?v=2026_10_16_v23';
             s.defer = true;
             (document.head || document.documentElement).appendChild(s);
         };
