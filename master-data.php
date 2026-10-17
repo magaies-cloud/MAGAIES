@@ -746,9 +746,25 @@
                             <button onclick="clearCustomerForm()" class="btn-action" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); padding: 4px 10px; border-radius: 6px; cursor: pointer; font-size: 0.85rem;">🔄 تفريغ الحقول (عميل جديد)</button>
                         </div>
                         <div class="form-grid">
-                            <div class="input-group" style="grid-column: span 2; min-width: 280px;"><label style="font-weight: 800; color: #38bdf8;">👤 اسم العميل / الشركة</label><input type="text" id="cust-name" placeholder="مثال: شركة النيل للتجارة والاستثمار" style="font-size: 1.05rem; font-weight: 800; border-color: rgba(56,189,248,0.4); background: rgba(56,189,248,0.05);"></div>
-                            <div class="input-group"><label>📞 رقم الهاتف</label><input type="text" id="cust-phone" placeholder="00249123000000" style="width: 100%; font-size: 1rem; font-weight: 700; text-align: center; direction: ltr;"></div>
-                            <div class="input-group"><label>💬 رقم الواتساب</label><input type="text" id="cust-whatsapp" placeholder="00249123000000" style="width: 100%; font-size: 1rem; font-weight: 700; text-align: center; direction: ltr;"></div>
+                            <div class="input-group" style="grid-column: span 2; min-width: 280px;"><label style="font-weight: 800; color: #38bdf8;">👤 اسم العميل / الشركة</label><input type="text" id="cust-name" placeholder="مثال: كوستابون / شركة النيل للتجارة" style="font-size: 1.05rem; font-weight: 800; border-color: rgba(56,189,248,0.4); background: rgba(56,189,248,0.05);"></div>
+                            <div class="input-group" style="background: rgba(16, 185, 129, 0.07); border: 1px solid rgba(16, 185, 129, 0.35); padding: 8px 10px; border-radius: 10px;">
+                                <label style="color: #10b981; font-weight: 800; display:flex; justify-content:space-between; align-items:center;">
+                                    <span>🔢 كود الإشعارات الرقمي (خيار 1)</span>
+                                    <span style="font-size:0.7rem; background:rgba(16,185,129,0.2); padding:1px 6px; border-radius:6px;">تلقائي قابل للتعديل</span>
+                                </label>
+                                <input type="number" id="cust-receipt-code-num" min="1" step="1" placeholder="تلقائي (1، 2، ...)" style="width: 100%; font-size: 1.1rem; font-weight: 900; text-align: center; direction: ltr; color: #34d399; border-color: rgba(16, 185, 129, 0.5); background: rgba(0,0,0,0.35);">
+                                <small style="color: #94a3b8; font-size: 0.71rem; display: block; margin-top: 3px;">يبدأ من 1 تلقائياً ويملأ الفراغات، ويمكنك تغييره (مثلاً: 105 أو 100)</small>
+                            </div>
+                            <div class="input-group" style="background: rgba(56, 189, 248, 0.07); border: 1px solid rgba(56, 189, 248, 0.35); padding: 8px 10px; border-radius: 10px;">
+                                <label style="color: #38bdf8; font-weight: 800; display:flex; justify-content:space-between; align-items:center;">
+                                    <span>🏷️ كود الإشعارات النصي (خيار 2)</span>
+                                    <span style="font-size:0.7rem; background:rgba(56,189,248,0.2); padding:1px 6px; border-radius:6px;">كلمة أو جملة</span>
+                                </label>
+                                <input type="text" id="cust-receipt-code-word" placeholder="مثال: بون (لحساب كوستابون)" style="width: 100%; font-size: 1.05rem; font-weight: 800; text-align: center; color: #38bdf8; border-color: rgba(56, 189, 248, 0.5); background: rgba(0,0,0,0.35);">
+                                <small style="color: #94a3b8; font-size: 0.71rem; display: block; margin-top: 3px;">عند كتابة الرقم أو الكلمة أو كليهما معاً ينزل الإشعار بالحساب</small>
+                            </div>
+                            <div class="input-group"><label>📞 رقم الهاتف الأساسي</label><input type="text" id="cust-phone" placeholder="00249123000000" style="width: 100%; font-size: 1rem; font-weight: 700; text-align: center; direction: ltr;"></div>
+                            <div class="input-group"><label>💬 رقم الواتساب (لإرسال الإشعارات للعميل)</label><input type="text" id="cust-whatsapp" placeholder="00249123000000" style="width: 100%; font-size: 1rem; font-weight: 700; text-align: center; direction: ltr;"></div>
                             <div class="input-group"><label>✉️ الايميل (البريد الإلكتروني)</label><input type="email" id="cust-email" placeholder="example@email.com" style="width: 100%;"></div>
                             <div class="input-group" style="grid-column: span 1;"><label>📍 العنوان</label><input type="text" id="cust-address" placeholder="مثال: الخرطوم، مقاييس" style="width: 100%;"></div>
                             <div class="input-group"><label>العملة</label><select id="cust-currency" class="system-currency-select" onchange="updateCustExchangeRate()"></select></div>
@@ -764,9 +780,25 @@
                             <div class="input-group"><label style="color: var(--danger-color);">حد الائتمان (أقصى سقف)</label><input type="number" id="cust-limit" placeholder="المبلغ المسموح للدين"></div>
                             <div class="input-group"><label>درجة السرية</label><select id="cust-security"><option value="1">1 (الأقل سرية)</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10 (الأعلى سرية)</option></select></div>
                             <div class="input-group"><label>حالة العميل (القائمة السوداء)</label><select id="cust-status" style="font-weight: bold;"><option value="active" style="color: var(--success-color);">🟢 نشط (عادي)</option><option value="vip" style="color: var(--primary-accent);">🌟 VIP (مميز)</option><option value="blacklisted" style="color: var(--danger-color);">🔴 قائمة سوداء (محظور)</option></select></div>
-                            <div class="input-group"><label>كود العميل</label><input type="text" id="cust-id" disabled style="background: rgba(0,0,0,0.05); font-weight: bold; cursor: not-allowed; border-color: transparent;" placeholder="تلقائي عند الحفظ"></div>
+                            <input type="hidden" id="cust-id" value="">
                             <div class="input-group"><label>الشخص المسؤول</label><input type="text" id="cust-contact" placeholder="اسم المندوب / الشخص المسؤول"></div>
                             <div class="input-group" style="grid-column: 1 / -1;"><label>ملاحظات إضافية</label><textarea id="cust-notes" placeholder="أضف أي ملاحظات عن العميل هنا..." style="width: 100%; padding: 8px 10px; border-radius: 8px; border: 1px solid var(--glass-border); background: var(--bg-color); color: var(--text-primary); outline: none; font-family: inherit; resize: none; height: 50px; box-sizing: border-box;"></textarea></div>
+
+                            <!-- أرقام موبايلات مرسلي الإشعارات التابعين للعميل (المناديب / الفروع) -->
+                            <div style="grid-column: 1 / -1; margin-top: 6px; padding: 15px; border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 12px; background: rgba(56, 189, 248, 0.04);">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-wrap: wrap; gap: 8px;">
+                                    <div>
+                                        <h4 style="margin: 0; color: #38bdf8; display:flex; align-items:center; gap:8px; font-size: 0.98rem;">
+                                            <span>📱</span> أرقام موبايلات مرسلي الإشعارات التابعين لهذا الحساب (المناديب / الفروع)
+                                        </h4>
+                                        <small style="color: #94a3b8; font-size: 0.78rem;">أي إشعار بنكي يُرسل من هذه الأرقام على الواتساب ينزل تلقائياً في حساب هذا العميل حتى بدون كتابة الكود</small>
+                                    </div>
+                                    <button type="button" onclick="addCustomerSubPhone()" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.35); padding: 5px 12px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: bold;">+ إضافة رقم مرسل تابع</button>
+                                </div>
+                                <div id="cust-sub-phones-container" style="display: flex; flex-direction: column; gap: 10px;">
+                                    <!-- Sub-sender phones injected here -->
+                                </div>
+                            </div>
 
                             <!-- بيانات الحساب البنكي للعميل -->
                             <div style="grid-column: 1 / -1; margin-top: 10px; padding: 15px; border: 1px solid var(--glass-border); border-radius: 12px; background: rgba(0,0,0,0.1);">
@@ -786,15 +818,15 @@
 
                     <!-- Customer Search Bar -->
                     <div style="margin-bottom: 15px; display: flex; align-items: center;">
-                        <div class="input-group" style="width: 100%; max-width: 500px; position: relative; margin-bottom: 0;">
+                        <div class="input-group" style="width: 100%; max-width: 550px; position: relative; margin-bottom: 0;">
                             <span style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); font-size: 1.2rem; pointer-events: none;">🔍</span>
-                            <input type="text" id="customer-search-input" onkeyup="filterCustomers()" placeholder="ابحث ذكياً باسم العميل، رقم الهاتف، أو الإيميل..." style="padding-right: 45px; border-radius: 12px; border: 1px solid rgba(56,189,248,0.3); background: rgba(0,0,0,0.3); font-size: 1rem; color: #fff; width: 100%; box-shadow: inset 0 2px 5px rgba(0,0,0,0.5);">
+                            <input type="text" id="customer-search-input" onkeyup="filterCustomers()" placeholder="ابحث باسم العميل، كود الإشعارات الرقمي (105) أو النصي (بون)، أو رقم الهاتف..." style="padding-right: 45px; border-radius: 12px; border: 1px solid rgba(56,189,248,0.3); background: rgba(0,0,0,0.3); font-size: 1rem; color: #fff; width: 100%; box-shadow: inset 0 2px 5px rgba(0,0,0,0.5);">
                         </div>
                     </div>
 
                     <div class="table-responsive" style="overflow-x: auto;">
                         <table class="pro-table">
-                            <thead><tr><th style="width: 70px; text-align: center;">كود</th><th style="width: 35%; min-width: 250px; text-align: right;">اسم العميل / الشركة</th><th style="width: 115px; text-align: center;">الهاتف</th><th style="width: 90px; text-align: center;">الحالة</th><th style="width: 130px; text-align: center;">الرصيد الحالي</th><th style="width: 120px; text-align: center;">حد الائتمان</th><th style="width: 120px; text-align: center;">المسؤول</th><th style="width: 60px; text-align: center;">السرية</th><th style="width: 100px; text-align: center;">الإجراء</th></tr></thead>
+                            <thead><tr><th style="width: 130px; text-align: center;">كود الإشعارات</th><th style="width: 32%; min-width: 220px; text-align: right;">اسم العميل / الشركة</th><th style="width: 135px; text-align: center;">الهاتف / المرسلين</th><th style="width: 90px; text-align: center;">الحالة</th><th style="width: 130px; text-align: center;">الرصيد الحالي</th><th style="width: 120px; text-align: center;">حد الائتمان</th><th style="width: 120px; text-align: center;">المسؤول</th><th style="width: 60px; text-align: center;">السرية</th><th style="width: 100px; text-align: center;">الإجراء</th></tr></thead>
                             <tbody id="customers-tbody"></tbody>
                         </table>
                     </div>
@@ -1445,6 +1477,11 @@
         }
         function renderAllMasterData() {
             renderCustomers();
+            const custIdEl = document.getElementById('cust-id');
+            const codeNumEl = document.getElementById('cust-receipt-code-num');
+            if (codeNumEl && (!custIdEl || !custIdEl.value)) {
+                codeNumEl.value = getNextAvailableCustomerReceiptCode('');
+            }
             renderSuppliers();
             renderEmployees();
             if(typeof renderBanks === 'function') renderBanks();
@@ -1624,6 +1661,105 @@
         }
 
         // ================= CUSTOMERS LOGIC =================
+        function normalizeDigitsToAscii(str) {
+            if (str === null || str === undefined) return '';
+            const ar = ['٠','١','٢','٣','٤','٥','٦','٧','٨','٩'];
+            const fa = ['۰','۱','۲','۳','۴','۵','۶','۷','۸','۹'];
+            let s = String(str);
+            for (let i = 0; i < 10; i++) {
+                s = s.replace(new RegExp(ar[i], 'g'), String(i)).replace(new RegExp(fa[i], 'g'), String(i));
+            }
+            return s;
+        }
+
+        function ensureCustomerReceiptCodes() {
+            let customers = [];
+            try {
+                customers = JSON.parse(localStorage.getItem('erp_customers_v1')) || [];
+                if (!Array.isArray(customers)) customers = [];
+            } catch(e) { customers = []; }
+
+            const usedNums = new Set();
+            customers.forEach(c => {
+                if (!c || c.deleted) return;
+                const n = parseInt(normalizeDigitsToAscii(c.receiptCodeNum), 10);
+                if (!isNaN(n) && n >= 1 && !usedNums.has(n)) {
+                    usedNums.add(n);
+                    c.receiptCodeNum = n;
+                } else {
+                    c.receiptCodeNum = null;
+                }
+            });
+
+            let changed = false;
+            let nextCandidate = 1;
+            customers.forEach(c => {
+                if (!c || c.deleted) return;
+                if (!c.receiptCodeNum || c.receiptCodeNum < 1) {
+                    while (usedNums.has(nextCandidate)) {
+                        nextCandidate++;
+                    }
+                    c.receiptCodeNum = nextCandidate;
+                    usedNums.add(nextCandidate);
+                    changed = true;
+                }
+            });
+
+            if (changed) {
+                localStorage.setItem('erp_customers_v1', JSON.stringify(customers));
+                if (typeof syncToBackend === 'function') {
+                    syncToBackend('customers_bulk', customers);
+                }
+            }
+            return customers;
+        }
+
+        function getNextAvailableCustomerReceiptCode(excludeCustId = '') {
+            let customers = [];
+            try {
+                customers = JSON.parse(localStorage.getItem('erp_customers_v1')) || [];
+                if (!Array.isArray(customers)) customers = [];
+            } catch(e) { customers = []; }
+
+            const usedNums = new Set();
+            customers.forEach(c => {
+                if (!c || c.deleted) return;
+                if (excludeCustId && String(c.id) === String(excludeCustId)) return;
+                const n = parseInt(normalizeDigitsToAscii(c.receiptCodeNum), 10);
+                if (!isNaN(n) && n >= 1) {
+                    usedNums.add(n);
+                }
+            });
+
+            let candidate = 1;
+            while (usedNums.has(candidate)) {
+                candidate++;
+            }
+            return candidate;
+        }
+
+        function addCustomerSubPhone(data = null) {
+            const container = document.getElementById('cust-sub-phones-container');
+            if (!container) return;
+            const row = document.createElement('div');
+            row.className = 'cust-sub-phone-row';
+            row.style.cssText = 'display: grid; grid-template-columns: 1fr 1fr auto; gap: 12px; padding: 10px 12px; background: rgba(255,255,255,0.03); border: 1px solid rgba(56,189,248,0.2); border-radius: 8px; align-items: end;';
+            const phoneVal = data ? (typeof data === 'string' ? data : (data.phone || '')) : '';
+            const labelVal = data && typeof data === 'object' ? (data.label || '') : '';
+            row.innerHTML = `
+                <div class="input-group" style="margin-bottom:0;">
+                    <label style="font-size:0.78rem; color:#38bdf8;">📱 رقم موبايل / واتساب المرسل التابع</label>
+                    <input type="text" class="sub-phone-number" placeholder="مثال: 0912345678 أو 249912345678" value="${phoneVal}" style="direction:ltr; text-align:center; font-weight:800;">
+                </div>
+                <div class="input-group" style="margin-bottom:0;">
+                    <label style="font-size:0.78rem; color:#94a3b8;">👤 اسم المرسل / الصفة (اختياري)</label>
+                    <input type="text" class="sub-phone-label" placeholder="مثال: مندوب أم درمان / فرع بحري" value="${labelVal}">
+                </div>
+                <button type="button" onclick="this.closest('.cust-sub-phone-row').remove()" style="background: rgba(244,63,94,0.15); color: #f43f5e; border: 1px solid rgba(244,63,94,0.3); border-radius: 6px; cursor: pointer; padding: 8px 12px; font-weight:bold;" title="حذف الرقم">🗑️ حذف</button>
+            `;
+            container.appendChild(row);
+        }
+
         function saveCustomer() {
             const id = document.getElementById('cust-id').value || 'CUST-' + Date.now();
             const name = document.getElementById('cust-name').value;
@@ -1662,6 +1798,15 @@
                 });
             });
 
+            const subPhones = [];
+            document.querySelectorAll('.cust-sub-phone-row').forEach(row => {
+                const spNum = (row.querySelector('.sub-phone-number')?.value || '').trim();
+                const spLabel = (row.querySelector('.sub-phone-label')?.value || '').trim();
+                if (spNum) {
+                    subPhones.push({ phone: spNum, label: spLabel });
+                }
+            });
+
             if (!name) { alert('الرجاء إدخال اسم العميل'); return; }
 
             // Check for duplicate names in Customers and Suppliers
@@ -1674,22 +1819,42 @@
                 if(!Array.isArray(allSups)) allSups = [];
             } catch(e) {}
             
-            const isCustDup = allCusts.some(c => c.name && c.name.trim().toLowerCase() === currentName && c.id !== id);
-            const isSupDup = allSups.some(s => s.name && s.name.trim().toLowerCase() === currentName && s.id !== id);
+            const isCustDup = allCusts.some(c => !c.deleted && c.name && c.name.trim().toLowerCase() === currentName && c.id !== id);
+            const isSupDup = allSups.some(s => !s.deleted && s.name && s.name.trim().toLowerCase() === currentName && s.id !== id);
             
             if (isCustDup || isSupDup) {
                 alert('هذا الاسم موجود مسبقاً (كعميل أو مورد). لا يمكن تكرار الأسماء!');
                 return;
             }
 
-            let customers = allCusts;
-            try {
-                customers = JSON.parse(localStorage.getItem('erp_customers_v1')) || [];
-                if (!Array.isArray(customers)) customers = [];
-            } catch(e) {
-                customers = [];
+            // Validate & Auto-generate Receipt Code Number (Option 1: 1..infinity with gap-filling)
+            const rawCodeNumInput = normalizeDigitsToAscii(document.getElementById('cust-receipt-code-num')?.value || '').trim();
+            let receiptCodeNum = parseInt(rawCodeNumInput, 10);
+            if (isNaN(receiptCodeNum) || receiptCodeNum < 1) {
+                receiptCodeNum = getNextAvailableCustomerReceiptCode(id);
+            } else {
+                const dupCodeNumCust = allCusts.find(c => !c.deleted && c.id !== id && parseInt(normalizeDigitsToAscii(c.receiptCodeNum), 10) === receiptCodeNum);
+                if (dupCodeNumCust) {
+                    alert(`⚠️ كود الإرسال الرقمي (${receiptCodeNum}) مسجل مسبقاً للعميل: "${dupCodeNumCust.name}".\nيرجى اختيار رقم آخر غير مسجل، أو اتركه ليتم توليده تلقائياً.`);
+                    return;
+                }
             }
-            
+
+            // Validate Receipt Code Word/Phrase (Option 2: e.g. "بون" for "كوستابون")
+            const receiptCodeWord = (document.getElementById('cust-receipt-code-word')?.value || '').trim();
+            if (receiptCodeWord) {
+                const wordLower = receiptCodeWord.toLowerCase();
+                const dupCodeWordCust = allCusts.find(c => !c.deleted && c.id !== id && (
+                    ((c.receiptCodeWord || '').trim().toLowerCase() === wordLower) ||
+                    ((c.name || '').trim().toLowerCase() === wordLower)
+                ));
+                if (dupCodeWordCust) {
+                    alert(`⚠️ كود الإرسال النصي (${receiptCodeWord}) مسجل مسبقاً للعميل: "${dupCodeWordCust.name}".\nيرجى اختيار كلمة أو جملة أخرى مميزة.`);
+                    return;
+                }
+            }
+
+            let customers = allCusts;
             const existingIdx = customers.findIndex(c => c.id === id);
             
             const todayStr = new Date().toISOString().split('T')[0];
@@ -1697,6 +1862,9 @@
             
             const custData = {
                 id, name, phone, whatsapp, email, contactPerson, address, 
+                receiptCodeNum,
+                receiptCodeWord,
+                subPhones,
                 openingDebit, openingCredit, 
                 currency, exRate, taxNumber, accountNo,
                 currentBalance: (openingDebit - openingCredit), 
@@ -1709,6 +1877,9 @@
 
             if (existingIdx > -1) {
                 custData.currentBalance = customers[existingIdx].currentBalance;
+                if (customers[existingIdx].whatsappLid && !custData.whatsappLid) {
+                    custData.whatsappLid = customers[existingIdx].whatsappLid;
+                }
                 customers[existingIdx] = custData;
             } else {
                 customers.push(custData);
@@ -1718,29 +1889,38 @@
             syncToBackend('save_customer', custData);
             clearCustomerForm();
             renderCustomers();
-            if (typeof showToast === 'function') showToast('✅ تم حفظ العميل نهائياً في قاعدة البيانات بنجاح', 'success');
+            if (typeof showToast === 'function') showToast(`✅ تم حفظ العميل "${name}" بكود إشعارات (#${receiptCodeNum}${receiptCodeWord ? ' | ' + receiptCodeWord : ''}) بنجاح`, 'success');
         }
 
         function renderCustomers(query = '') {
             const tbody = document.getElementById('customers-tbody');
             if(!tbody) return;
-            let customers = [];
-            try {
-                customers = JSON.parse(localStorage.getItem('erp_customers_v1')) || [];
-                if (!Array.isArray(customers)) customers = [];
-            } catch(e) {
-                customers = [];
-            }
+            let customers = ensureCustomerReceiptCodes();
             customers = customers.filter(c => !c.deleted);
 
             if (query) {
-                const q = query.toLowerCase();
-                customers = customers.filter(c => 
-                    (c.name && c.name.toLowerCase().includes(q)) || 
-                    (c.phone && c.phone.toLowerCase().includes(q)) || 
-                    (c.email && c.email.toLowerCase().includes(q))
-                );
+                const q = normalizeDigitsToAscii(query).trim().toLowerCase();
+                const qCleanCode = q.replace(/^#/, '');
+                customers = customers.filter(c => {
+                    const codeNumStr = String(c.receiptCodeNum || '');
+                    const codeWordStr = (c.receiptCodeWord || '').toLowerCase();
+                    const subPhonesMatch = Array.isArray(c.subPhones) && c.subPhones.some(sp => {
+                        const p = typeof sp === 'string' ? sp : (sp.phone || '');
+                        const l = typeof sp === 'object' ? (sp.label || '') : '';
+                        return p.toLowerCase().includes(q) || l.toLowerCase().includes(q);
+                    });
+                    return (c.name && c.name.toLowerCase().includes(q)) || 
+                           (c.phone && c.phone.toLowerCase().includes(q)) || 
+                           (c.whatsapp && c.whatsapp.toLowerCase().includes(q)) ||
+                           (c.email && c.email.toLowerCase().includes(q)) ||
+                           (codeNumStr === qCleanCode || codeNumStr.includes(qCleanCode)) ||
+                           (codeWordStr && codeWordStr.includes(q)) ||
+                           subPhonesMatch;
+                });
             }
+
+            // Sort by receiptCodeNum ascending so sequence 1, 2, 3... is clear
+            customers.sort((a, b) => (parseInt(a.receiptCodeNum, 10) || 999999) - (parseInt(b.receiptCodeNum, 10) || 999999));
 
             tbody.innerHTML = '';
             customers.forEach(c => {
@@ -1750,17 +1930,23 @@
                 const balColor = bal > 0 ? '#f87171' : (bal < 0 ? '#34d399' : '#94a3b8');
                 const balLabel = bal > 0 ? 'عليه' : (bal < 0 ? 'له' : 'مسدد');
                 const balDisplay = `<span style="color:${balColor}; font-weight:900; font-family:monospace;">${Math.abs(bal).toLocaleString()}</span> <small style="color:${balColor}; opacity:0.8;">${balLabel}</small>`;
-                const shortId = (c.id || '').replace('CUST-', '').slice(-6);
+                
+                const codeNumBadge = `<span style="background:rgba(16,185,129,0.16); color:#34d399; border:1px solid rgba(16,185,129,0.4); padding:2px 8px; border-radius:7px; font-weight:900; font-family:monospace; font-size:0.9rem; display:inline-block;" title="كود الإشعارات الرقمي">#${c.receiptCodeNum || '-'}</span>`;
+                const codeWordBadge = c.receiptCodeWord ? `<div style="margin-top:4px;"><span style="background:rgba(56,189,248,0.16); color:#38bdf8; border:1px solid rgba(56,189,248,0.35); padding:1px 7px; border-radius:6px; font-weight:800; font-size:0.78rem; display:inline-block;" title="كود الإشعارات النصي">🏷️ ${c.receiptCodeWord}</span></div>` : '';
+                
+                const subCount = Array.isArray(c.subPhones) ? c.subPhones.length : 0;
+                const subPhonesBadge = subCount > 0 ? `<div style="margin-top:3px;"><span style="background:rgba(56,189,248,0.12); color:#38bdf8; padding:1px 6px; border-radius:6px; font-size:0.72rem; font-weight:700;">📱 +${subCount} مرسل تابع</span></div>` : '';
+
                 tbody.insertAdjacentHTML('beforeend', `<tr>
-                    <td style="font-family:monospace; font-size:0.8rem; color:#94a3b8;">${shortId}</td>
+                    <td style="text-align:center;">${codeNumBadge}${codeWordBadge}</td>
                     <td style="font-weight:bold;">${c.name}</td>
-                    <td>${c.phone || '-'}</td>
-                    <td>${statusBadge}</td>
-                    <td>${balDisplay}</td>
-                    <td>${(c.creditLimit || 0).toLocaleString()} SDG</td>
-                    <td style="font-size:0.85rem;">${c.contactPerson || '-'}</td>
+                    <td style="text-align:center; direction:ltr;"><div>${c.phone || c.whatsapp || '-'}</div>${subPhonesBadge}</td>
+                    <td style="text-align:center;">${statusBadge}</td>
+                    <td style="text-align:center;">${balDisplay}</td>
+                    <td style="text-align:center;">${(c.creditLimit || 0).toLocaleString()} SDG</td>
+                    <td style="font-size:0.85rem; text-align:center;">${c.contactPerson || '-'}</td>
                     <td style="text-align:center;">${c.securityLevel || 1}</td>
-                    <td><button class="btn-text" onclick="editCustomer('${c.id}')">تعديل</button><button class="btn-text" style="color:var(--danger-color); margin-right:10px;" onclick="deleteCustomer('${c.id}')">حذف</button></td>
+                    <td style="text-align:center;"><button class="btn-text" onclick="editCustomer('${c.id}')">تعديل</button><button class="btn-text" style="color:var(--danger-color); margin-right:10px;" onclick="deleteCustomer('${c.id}')">حذف</button></td>
                 </tr>`);
             });
         }
@@ -1806,8 +1992,13 @@
         }
 
         function clearCustomerForm() {
+            ensureCustomerReceiptCodes();
             document.getElementById('cust-id').value = '';
             document.getElementById('cust-name').value = '';
+            const codeNumEl = document.getElementById('cust-receipt-code-num');
+            if (codeNumEl) codeNumEl.value = getNextAvailableCustomerReceiptCode('');
+            const codeWordEl = document.getElementById('cust-receipt-code-word');
+            if (codeWordEl) codeWordEl.value = '';
             document.getElementById('cust-phone').value = '';
             document.getElementById('cust-whatsapp').value = '';
             document.getElementById('cust-email').value = '';
@@ -1823,6 +2014,11 @@
             document.getElementById('cust-status').value = 'active';
             document.getElementById('cust-notes').value = '';
             
+            const subPhonesContainer = document.getElementById('cust-sub-phones-container');
+            if (subPhonesContainer) {
+                subPhonesContainer.innerHTML = '';
+            }
+
             const bankContainer = document.getElementById('cust-bank-accounts-container');
             if(bankContainer) {
                 bankContainer.innerHTML = '';
@@ -1831,18 +2027,16 @@
         }
 
         function editCustomer(id) {
-            let customers = [];
-            try {
-                customers = JSON.parse(localStorage.getItem('erp_customers_v1')) || [];
-                if (!Array.isArray(customers)) customers = [];
-            } catch(e) {
-                customers = [];
-            }
+            let customers = ensureCustomerReceiptCodes();
             customers = customers.filter(c => !c.deleted);
             const cust = customers.find(c => c.id === id);
             if(!cust) return;
             document.getElementById('cust-id').value = cust.id;
             document.getElementById('cust-name').value = cust.name;
+            const codeNumEl = document.getElementById('cust-receipt-code-num');
+            if (codeNumEl) codeNumEl.value = cust.receiptCodeNum || getNextAvailableCustomerReceiptCode(cust.id);
+            const codeWordEl = document.getElementById('cust-receipt-code-word');
+            if (codeWordEl) codeWordEl.value = cust.receiptCodeWord || '';
             document.getElementById('cust-phone').value = cust.phone || '';
             document.getElementById('cust-whatsapp').value = cust.whatsapp || '';
             document.getElementById('cust-email').value = cust.email || '';
@@ -1859,6 +2053,14 @@
             document.getElementById('cust-status').value = cust.status || 'active';
             document.getElementById('cust-notes').value = cust.notes || '';
             
+            const subPhonesContainer = document.getElementById('cust-sub-phones-container');
+            if (subPhonesContainer) {
+                subPhonesContainer.innerHTML = '';
+                if (Array.isArray(cust.subPhones) && cust.subPhones.length > 0) {
+                    cust.subPhones.forEach(sp => addCustomerSubPhone(sp));
+                }
+            }
+
             const bankContainer = document.getElementById('cust-bank-accounts-container');
             if(bankContainer) bankContainer.innerHTML = '';
             

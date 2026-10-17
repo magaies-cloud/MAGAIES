@@ -283,6 +283,48 @@ try {
                     echo json_encode(['success' => false, 'error' => 'الاسم موجود مسبقاً، يرجى اختيار اسم آخر لتجنب التكرار.']);
                     exit;
                 }
+
+                // Validate or auto-generate gap-aware receiptCodeNum (1..infinity) & receiptCodeWord
+                $stmtAllCust = $pdo->prepare("SELECT frontend_id, customer_id, data FROM customers WHERE tenant_id = ? AND (is_deleted = 0 OR is_deleted IS NULL)");
+                $stmtAllCust->execute([$tenant_id]);
+                $usedCodeNums = [];
+                $reqCodeNum = isset($data['receiptCodeNum']) ? (int)$data['receiptCodeNum'] : 0;
+                $reqCodeWord = trim((string)($data['receiptCodeWord'] ?? ''));
+
+                while ($cRow = $stmtAllCust->fetch(PDO::FETCH_ASSOC)) {
+                    $cObj = json_decode($cRow['data'], true) ?: [];
+                    if (!empty($cObj['deleted'])) continue;
+                    $otherId = (string)($cObj['id'] ?? $cRow['frontend_id'] ?? $cRow['customer_id'] ?? '');
+                    if ($otherId === $cId) continue;
+
+                    $otherNum = isset($cObj['receiptCodeNum']) ? (int)$cObj['receiptCodeNum'] : 0;
+                    if ($otherNum >= 1) {
+                        $usedCodeNums[$otherNum] = $cObj['name'] ?? 'عميل آخر';
+                    }
+                    if ($reqCodeNum >= 1 && $otherNum === $reqCodeNum) {
+                        echo json_encode(['success' => false, 'error' => 'كود الإشعارات الرقمي (' . $reqCodeNum . ') مسجل مسبقاً باسم العميل: ' . ($cObj['name'] ?? '')]);
+                        exit;
+                    }
+                    if (!empty($reqCodeWord)) {
+                        $otherWord = trim((string)($cObj['receiptCodeWord'] ?? ''));
+                        if (!empty($otherWord) && mb_strtolower($otherWord) === mb_strtolower($reqCodeWord)) {
+                            echo json_encode(['success' => false, 'error' => 'كود الإشعارات النصي (' . $reqCodeWord . ') مسجل مسبقاً باسم العميل: ' . ($cObj['name'] ?? '')]);
+                            exit;
+                        }
+                    }
+                }
+
+                if ($reqCodeNum < 1) {
+                    $cand = 1;
+                    while (isset($usedCodeNums[$cand])) {
+                        $cand++;
+                    }
+                    $data['receiptCodeNum'] = $cand;
+                } else {
+                    $data['receiptCodeNum'] = $reqCodeNum;
+                }
+                $data['receiptCodeWord'] = $reqCodeWord;
+
                 $data['deleted'] = 0;
                 $jsonData = json_encode($data, JSON_UNESCAPED_UNICODE);
                 $stmtCheck = $pdo->prepare("SELECT id FROM customers WHERE tenant_id = ? AND (frontend_id = ? OR customer_id = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')) = ?) LIMIT 1");

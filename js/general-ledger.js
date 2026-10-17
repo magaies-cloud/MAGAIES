@@ -107,7 +107,14 @@ function buildAccountsList() {
     
     try {
         const custs = (JSON.parse(localStorage.getItem('erp_customers_v1')) || []).filter(x => !x.deleted);
-        custs.forEach(c => ALL_ACCOUNTS.push({ id: `cust-${c.id}`, name: c.name, icon: '👤', type: 'عميل' }));
+        custs.forEach(c => ALL_ACCOUNTS.push({
+            id: `cust-${c.id}`,
+            name: c.name,
+            icon: '👤',
+            type: 'عميل',
+            receiptCodeNum: c.receiptCodeNum ? String(c.receiptCodeNum).trim() : '',
+            receiptCodeWord: c.receiptCodeWord ? String(c.receiptCodeWord).trim() : ''
+        }));
     } catch(e) { console.warn('Error loading customers:', e); }
 
     try {
@@ -235,7 +242,15 @@ function onAccountSearch() {
         const cleanName = String(a.name || '').replace(/^\[\d+\]\s*/, '').replace(/^\d+\s*[-–]\s*/, '');
         const nameNorm = normStr(cleanName);
         const idNorm = normStr(a.id);
-        return qTokens.every(tok => nameNorm.includes(tok) || idNorm.includes(tok));
+        const codeNumNorm = normStr(a.receiptCodeNum || '');
+        const codeWordNorm = normStr(a.receiptCodeWord || '');
+        return qTokens.every(tok => {
+            const cleanTok = tok.replace(/^#/, '');
+            return nameNorm.includes(tok)
+                || idNorm.includes(tok)
+                || (codeNumNorm && (codeNumNorm === cleanTok || codeNumNorm.includes(cleanTok)))
+                || (codeWordNorm && codeWordNorm.includes(tok));
+        });
     });
     
     // Live Bank Transfer Lookup in Autocomplete
@@ -297,12 +312,16 @@ function onAccountSearch() {
         
         const cleanName = String(a.name || '').replace(/^\[\d+\]\s*/, '').replace(/^\d+\s*[-–]\s*/, '');
         const highlightedName = highlightSearchMatches(cleanName, q);
+        const codeBadges = [];
+        if (a.receiptCodeNum) codeBadges.push(`<span style="background:rgba(16,185,129,0.2); color:#34d399; border:1px solid rgba(16,185,129,0.4); padding:2px 7px; border-radius:6px; font-size:0.8rem; font-family:monospace; font-weight:900;">#${a.receiptCodeNum}</span>`);
+        if (a.receiptCodeWord) codeBadges.push(`<span style="background:rgba(245,158,11,0.2); color:#fbbf24; border:1px solid rgba(245,158,11,0.4); padding:2px 7px; border-radius:6px; font-size:0.8rem; font-weight:800;">🏷️ ${a.receiptCodeWord}</span>`);
 
         li.innerHTML = `
             <div style="display:flex; justify-content:space-between; align-items:center; width:100%; gap:12px;">
-                <span class="acc-name-text" style="font-weight: 800; font-size: 1.25rem; color: #ffd700; display: inline-flex; align-items: center; gap: 8px; text-shadow: 0 0 10px rgba(250, 204, 21, 0.35);">
+                <span class="acc-name-text" style="font-weight: 800; font-size: 1.25rem; color: #ffd700; display: inline-flex; align-items: center; gap: 8px; flex-wrap: wrap; text-shadow: 0 0 10px rgba(250, 204, 21, 0.35);">
                     <span style="font-size: 1.25rem;">${a.icon}</span>
                     <span>${highlightedName}</span>
+                    ${codeBadges.join('')}
                 </span>
                 <span style="background:${badgeColor}; color:white; padding:4px 10px; border-radius:6px; font-size:0.85rem; font-weight: bold; min-width: 52px; text-align: center;">${a.type}</span>
             </div>

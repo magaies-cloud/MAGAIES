@@ -2774,7 +2774,14 @@ function buildAccountsArray() {
             const name = item.name || item.accountName || item.customerName || item.supplierName || item.bankName || item.safeName;
             const id = item.id || item.code || '';
             if (name) {
-                ACCOUNTS.push({ id: store.prefix + id, name: name, rawId: id });
+                ACCOUNTS.push({
+                    id: store.prefix + id,
+                    name: name,
+                    rawId: id,
+                    receiptCodeNum: item.receiptCodeNum ? String(item.receiptCodeNum).trim() : '',
+                    receiptCodeWord: item.receiptCodeWord ? String(item.receiptCodeWord).trim() : '',
+                    phone: item.whatsapp || item.phone || ''
+                });
             }
         });
     }
@@ -2794,13 +2801,23 @@ function renderAccountDropdown(type, filter = '') {
     
     listEl.innerHTML = '';
     const term = filter.toLowerCase().trim();
+    const cleanCodeTerm = term.replace(/^#/, '');
     const normalizedTerm = window.normalizeArabic ? window.normalizeArabic(term) : term;
     
     try {
         let filtered = ACCOUNTS.filter(a => {
             if (!term) return true;
             const normalizedName = window.normalizeArabic ? window.normalizeArabic(a.name) : a.name.toLowerCase();
-            return normalizedName.includes(normalizedTerm) || String(a.id).includes(term);
+            const codeNum = String(a.receiptCodeNum || '').toLowerCase();
+            const codeWord = window.normalizeArabic ? window.normalizeArabic(a.receiptCodeWord || '') : String(a.receiptCodeWord || '').toLowerCase();
+            const combinedCode1 = `${codeNum} ${codeWord}`.trim();
+            const combinedCode2 = `${codeWord} ${codeNum}`.trim();
+            return normalizedName.includes(normalizedTerm)
+                || String(a.id).toLowerCase().includes(term)
+                || (codeNum && (codeNum === cleanCodeTerm || codeNum.includes(cleanCodeTerm)))
+                || (codeWord && codeWord.includes(normalizedTerm))
+                || (combinedCode1 && combinedCode1.includes(normalizedTerm))
+                || (combinedCode2 && combinedCode2.includes(normalizedTerm));
         });
 
         const totalFound = filtered.length;
@@ -2832,11 +2849,15 @@ function renderAccountDropdown(type, filter = '') {
             else if (String(a.id).startsWith('exp-')) typeTag = '<span style="font-size:0.8rem; background:rgba(251,191,36,0.15); color:#fbbf24; padding: 4px 12px; border-radius: 20px; font-weight: bold; min-width: 60px; text-align: center; box-shadow: inset 0 0 5px rgba(251,191,36,0.3);">مصروف</span>';
 
             const highlightedName = window.highlightSearchMatches ? window.highlightSearchMatches(a.name, filter) : a.name;
+            const codeBadges = [];
+            if (a.receiptCodeNum) codeBadges.push(`<span style="background:rgba(16,185,129,0.2); color:#34d399; border:1px solid rgba(16,185,129,0.4); padding:1px 7px; border-radius:6px; font-size:0.78rem; font-family:monospace; font-weight:900;">#${a.receiptCodeNum}</span>`);
+            if (a.receiptCodeWord) codeBadges.push(`<span style="background:rgba(245,158,11,0.2); color:#fbbf24; border:1px solid rgba(245,158,11,0.4); padding:1px 7px; border-radius:6px; font-size:0.78rem; font-weight:800;">🏷️ ${a.receiptCodeWord}</span>`);
 
             div.innerHTML = `
                 <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
-                    <div style="display: flex; align-items: center; gap: 8px;">
+                    <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
                         <span style="font-weight: bold; color: #fff;">${highlightedName}</span>
+                        ${codeBadges.join('')}
                     </div>
                     ${typeTag}
                 </div>
@@ -4907,15 +4928,20 @@ window.getVoucherContactDetails = function(accountId, accountName) {
     // 1. Check customers in localStorage
     try {
         const custs = JSON.parse(localStorage.getItem('erp_customers_v1') || '[]').filter(x => !x.deleted);
+        const cleanCode = (cleanName || cleanId || '').replace(/^#/, '').trim();
         const customer = custs.find(c => 
             (cleanId && (String(c.id) === cleanId || String(c.id) === cleanId.replace('cust-', ''))) ||
-            (cleanName && c.name && c.name.trim() === cleanName)
+            (cleanName && c.name && c.name.trim() === cleanName) ||
+            (cleanCode && c.receiptCodeNum && String(c.receiptCodeNum).trim() === cleanCode) ||
+            (cleanCode && c.receiptCodeWord && String(c.receiptCodeWord).trim().toLowerCase() === cleanCode.toLowerCase())
         );
         if (customer && (customer.phone || customer.whatsapp)) {
             return {
                 name: customer.name,
                 phone: customer.whatsapp || customer.phone || '',
-                type: 'customer'
+                type: 'customer',
+                receiptCodeNum: customer.receiptCodeNum || '',
+                receiptCodeWord: customer.receiptCodeWord || ''
             };
         }
     } catch(e) {}

@@ -57,16 +57,45 @@ try {
     }
     $response['warehouses'] = $whs;
 
-    // 5. Customers
-    $stmtCust = $pdo->prepare("SELECT data FROM customers WHERE (tenant_id = ? OR tenant_id IS NULL) AND (is_deleted = 0 OR is_deleted IS NULL)");
+    // 5. Customers (with automatic gap-aware receiptCodeNum 1..infinity assignment)
+    $stmtCust = $pdo->prepare("SELECT id, data FROM customers WHERE (tenant_id = ? OR tenant_id IS NULL) AND (is_deleted = 0 OR is_deleted IS NULL) ORDER BY id ASC");
     $stmtCust->execute([$tenant_id]);
+    $custRows = $stmtCust->fetchAll(PDO::FETCH_ASSOC);
+    $usedCodeNums = [];
     $custs = [];
-    while ($row = $stmtCust->fetch(PDO::FETCH_ASSOC)) {
+    foreach ($custRows as $row) {
         if (!empty($row['data'])) {
             $d = json_decode($row['data'], true);
-            if ($d && empty($d['deleted'])) $custs[] = $d;
+            if ($d && empty($d['deleted'])) {
+                $codeNum = isset($d['receiptCodeNum']) ? (int)$d['receiptCodeNum'] : 0;
+                if ($codeNum >= 1 && !isset($usedCodeNums[$codeNum])) {
+                    $usedCodeNums[$codeNum] = true;
+                    $d['receiptCodeNum'] = $codeNum;
+                } else {
+                    $d['receiptCodeNum'] = 0;
+                }
+                $d['_db_row_id'] = (int)$row['id'];
+                $custs[] = $d;
+            }
         }
     }
+    $nextCodeCandidate = 1;
+    foreach ($custs as &$cItem) {
+        $dbRowId = $cItem['_db_row_id'] ?? 0;
+        unset($cItem['_db_row_id']);
+        if (empty($cItem['receiptCodeNum']) || $cItem['receiptCodeNum'] < 1) {
+            while (isset($usedCodeNums[$nextCodeCandidate])) {
+                $nextCodeCandidate++;
+            }
+            $cItem['receiptCodeNum'] = $nextCodeCandidate;
+            $usedCodeNums[$nextCodeCandidate] = true;
+            if ($dbRowId > 0) {
+                $updC = $pdo->prepare("UPDATE customers SET data = ? WHERE id = ?");
+                $updC->execute([json_encode($cItem, JSON_UNESCAPED_UNICODE), $dbRowId]);
+            }
+        }
+    }
+    unset($cItem);
     $response['customers'] = $custs;
 
     // 6. Suppliers

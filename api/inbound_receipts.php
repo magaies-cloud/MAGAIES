@@ -132,9 +132,10 @@ switch ($action) {
             $currency = trim($_POST['currency'] ?? $jsonData['currency'] ?? 'SDG');
             $notes = trim($_POST['notes'] ?? $jsonData['notes'] ?? '');
             $caption = trim($_POST['caption'] ?? $jsonData['caption'] ?? '');
+            $customerCodeHint = trim($_POST['customer_code'] ?? $jsonData['customer_code'] ?? '');
             $imagePath = '';
 
-            // Handle Caption extraction (if customer wrote details in WhatsApp message)
+            // Handle Caption extraction (if customer wrote details or code in WhatsApp message)
             if (!empty($caption)) {
                 if (empty($notes)) {
                     $notes = $caption;
@@ -149,14 +150,16 @@ switch ($action) {
                         $transferNo = $mTx2[1];
                     }
                 }
-                // Try extracting amount
-                if ($amount <= 0 && preg_match('/(?:مبلغ|تحويل|قيمة|مبلغ قدره)?\s*([0-9]+(?:\.[0-9]+)?|[0-9]{1,3}(?:,[0-9]{3})*(?:\.[0-9]+)?)\s*(?:ج|جنيه|sdg)?/ui', $caption, $mAmt)) {
-                    $amount = floatval(str_replace(',', '', $mAmt[1]));
+                // Only extract amount from caption if explicitly labeled as an amount or currency (so customer codes like 105 aren't mistaken for amount)
+                if ($amount <= 0 && preg_match('/(?:(?:مبلغ|تحويل|قيمة|مبلغ قدره)\s*([0-9]+(?:\.[0-9]+)?|[0-9]{1,3}(?:,[0-9]{3})*(?:\.[0-9]+)?)|([0-9]{1,3}(?:,[0-9]{3})+(?:\.[0-9]+)?|[0-9]{4,}(?:\.[0-9]+)?)\s*(?:ج|جنيه|sdg))/ui', $caption, $mAmt)) {
+                    $amtStr = !empty($mAmt[1]) ? $mAmt[1] : ($mAmt[2] ?? '0');
+                    $amount = floatval(str_replace(',', '', $amtStr));
                 }
             }
 
-            // Auto-Match Customer from DB by WhatsApp phone, LID, or Arabic/English name
-            $resolvedCust = resolveInboundCustomer($pdo, $activeTenantId, $custId, $custName, $custPhone);
+            // Auto-Match Customer from DB by Receipt Code (Number or Word or Both), WhatsApp phone / Delegate SubPhone, LID, or Name
+            $routingHint = trim($customerCodeHint . ' ' . $caption . ' ' . $notes);
+            $resolvedCust = resolveInboundCustomer($pdo, $activeTenantId, $custId, $custName, $custPhone, $routingHint);
             if (!empty($resolvedCust['id'])) {
                 $custId = $resolvedCust['id'];
                 $custName = $resolvedCust['name'] ?: $custName;
@@ -422,32 +425,275 @@ switch ($action) {
         }
         break;
 
+    case 'assign_customer_by_code':
+        try {
+            $id = intval($_POST['id'] ?? $jsonData['id'] ?? 0);
+            $codeOrName = trim($_POST['customer_code'] ?? $jsonData['customer_code'] ?? '');
+            $linkSenderPhone = !empty($_POST['link_sender_phone']) || !empty($jsonData['link_sender_phone']);
+
+            if (!$id || empty($codeOrName)) {
+                echo json_encode(['success' => false, 'error' => 'معرّف الإشعار وكود/اسم العميل مطلوبان']);
+                exit;
+            }
+
+            $rStmt = $pdo->prepare("SELECT * FROM inbound_bank_receipts WHERE id = ? AND tenant_id = ? LIMIT 1");
+            $rStmt->execute([$id, $activeTenantId]);
+            $recRow = $rStmt->fetch(PDO::FETCH_ASSOC);
+            if (!$recRow) {
+                echo json_encode(['success' => false, 'error' => 'الإشعار غير موجود']);
+                exit;
+            }
+
+            $senderPhone = trim((string)($recRow['customer_phone'] ?? ''));
+            $resolved = resolveInboundCustomer($pdo, $activeTenantId, $codeOrName, $codeOrName, '', $codeOrName);
+            if (empty($resolved['row']) || empty($resolved['id'])) {
+                echo json_encode(['success' => false, 'error' => 'لم يتم العثور على عميل مسجل بهذا الكود أو الاسم: ' . $codeOrName]);
+                exit;
+            }
+
+            $targetCustRow = $resolved['row'];
+            $targetCustObj = json_decode($targetCustRow['data'], true) ?: [];
+            $targetCustId = $resolved['id'];
+            $targetCustName = $resolved['name'];
+
+            // Optionally link sender's phone to customer's subPhones so future receipts from this phone route automatically
+            $linkedPhoneMsg = '';
+            if ($linkSenderPhone && !empty($senderPhone) && strlen(preg_replace('/\D/', '', $senderPhone)) >= 7) {
+                $cleanSender = preg_replace('/\D/', '', $senderPhone);
+                $last9Sender = substr($cleanSender, -9);
+                $subPhones = isset($targetCustObj['subPhones']) && is_array($targetCustObj['subPhones']) ? $targetCustObj['subPhones'] : [];
+                $alreadyLinked = false;
+                foreach ($subPhones as $sp) {
+                    $spNum = is_array($sp) ? ($sp['phone'] ?? '') : (string)$sp;
+                    $spDigits = preg_replace('/\D/', '', $spNum);
+                    if ($spDigits === $cleanSender || (strlen($spDigits) >= 9 && substr($spDigits, -9) === $last9Sender)) {
+                        $alreadyLinked = true;
+                        break;
+                    }
+                }
+                if (!$alreadyLinked) {
+                    $subPhones[] = [
+                        'phone' => $senderPhone,
+                        'label' => 'مرسل إشعار #' . $id
+                    ];
+                    $targetCustObj['subPhones'] = $subPhones;
+                    $updSub = $pdo->prepare("UPDATE customers SET data = ? WHERE id = ?");
+                    $updSub->execute([json_encode($targetCustObj, JSON_UNESCAPED_UNICODE), $targetCustRow['id']]);
+                    $linkedPhoneMsg = ' + تم ربط رقم المرسل (' . $senderPhone . ') بحساب العميل تلقائياً';
+                }
+            }
+
+            // Update receipt customer_id and customer_name
+            $newNotes = trim((string)($recRow['notes'] ?? ''));
+            $codeBadge = $resolved['matched_code'] ?? $codeOrName;
+            $routeNote = '🎯 توجيه لحساب: ' . $targetCustName . ' (كود: ' . $codeBadge . ')';
+            if (mb_strpos($newNotes, $routeNote) === false) {
+                $newNotes = !empty($newNotes) ? ($newNotes . ' | ' . $routeNote) : $routeNote;
+            }
+
+            // Clear old voucher if it was previously posted to another customer so postInboundReceiptToAccounts posts to the new customer
+            $oldVoucherNo = trim((string)($recRow['voucher_no'] ?? ''));
+            if (!empty($oldVoucherNo)) {
+                $delOldRec = $pdo->prepare("DELETE FROM receipts WHERE tenant_id = ? AND (frontend_id = ? OR receipt_no = ?)");
+                $delOldRec->execute([$activeTenantId, $oldVoucherNo, $oldVoucherNo]);
+                $delOldGl = $pdo->prepare("DELETE FROM gl_entries WHERE tenant_id = ? AND data LIKE ?");
+                $delOldGl->execute([$activeTenantId, '%' . $oldVoucherNo . '%']);
+            }
+
+            $uStmt = $pdo->prepare("UPDATE inbound_bank_receipts SET customer_id = ?, customer_name = ?, voucher_no = NULL, notes = ? WHERE id = ?");
+            $uStmt->execute([$targetCustId, $targetCustName, $newNotes, $id]);
+
+            $postRes = postInboundReceiptToAccounts($pdo, $id);
+            echo json_encode([
+                'success' => true,
+                'customer_id' => $targetCustId,
+                'customer_name' => $targetCustName,
+                'posting' => $postRes,
+                'customer' => $postRes['customer'] ?? $targetCustObj,
+                'message' => '✅ تم توجيه الإشعار وتنزيله في حساب (' . $targetCustName . ') بنجاح' . $linkedPhoneMsg
+            ]);
+        } catch (Exception $e) {
+            echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+        }
+        break;
+
     default:
         echo json_encode(['success' => false, 'error' => 'إجراء غير معروف']);
         break;
 }
 
 // -------------------------------------------------------------
-// Helper: Resolve Customer from WhatsApp Phone / LID / Arabic & English Name
+// Helper: Normalize Arabic/Persian Digits to ASCII
 // -------------------------------------------------------------
-function resolveInboundCustomer($pdo, $tenantId, $custId = '', $custName = '', $custPhone = '') {
+function normalizeInboundDigits($str) {
+    $ar = ['٠','١','٢','٣','٤','٥','٦','٧','٨','٩'];
+    $fa = ['۰','۱','۲','۳','۴','۵','۶','۷','۸','۹'];
+    $en = ['0','1','2','3','4','5','6','7','8','9'];
+    return str_replace($fa, $en, str_replace($ar, $en, (string)$str));
+}
+
+// -------------------------------------------------------------
+// Helper: Ensure all active customers in DB have gap-aware receiptCodeNum (1..infinity)
+// -------------------------------------------------------------
+function fetchAndEnsureCustomerCodes($pdo, $tenantId) {
+    try {
+        $stmt = $pdo->prepare("SELECT id, frontend_id, search_name, search_phone, data FROM customers WHERE (tenant_id = ? OR tenant_id IS NULL) AND (is_deleted = 0 OR is_deleted IS NULL) ORDER BY id ASC");
+        $stmt->execute([$tenantId]);
+        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } catch (Exception $e) {
+        return [];
+    }
+
+    $usedNums = [];
+    foreach ($rows as &$r) {
+        $cObj = json_decode($r['data'], true) ?: [];
+        if (!empty($cObj['deleted'])) continue;
+        $num = isset($cObj['receiptCodeNum']) ? (int)normalizeInboundDigits($cObj['receiptCodeNum']) : 0;
+        if ($num >= 1 && !isset($usedNums[$num])) {
+            $usedNums[$num] = true;
+            $cObj['receiptCodeNum'] = $num;
+        } else {
+            $cObj['receiptCodeNum'] = 0;
+        }
+        $r['_parsed'] = $cObj;
+    }
+    unset($r);
+
+    $nextCandidate = 1;
+    foreach ($rows as &$r) {
+        $cObj = $r['_parsed'] ?? [];
+        if (!empty($cObj['deleted'])) continue;
+        if (empty($cObj['receiptCodeNum']) || $cObj['receiptCodeNum'] < 1) {
+            while (isset($usedNums[$nextCandidate])) {
+                $nextCandidate++;
+            }
+            $cObj['receiptCodeNum'] = $nextCandidate;
+            $usedNums[$nextCandidate] = true;
+            $newJson = json_encode($cObj, JSON_UNESCAPED_UNICODE);
+            $r['data'] = $newJson;
+            $r['_parsed'] = $cObj;
+            try {
+                $u = $pdo->prepare("UPDATE customers SET data = ? WHERE id = ?");
+                $u->execute([$newJson, $r['id']]);
+            } catch (Exception $e) {}
+        }
+    }
+    unset($r);
+
+    return $rows;
+}
+
+// -------------------------------------------------------------
+// Helper: Resolve Customer from Receipt Code (Numeric 1..∞ or Word/Phrase or Both),
+// WhatsApp Primary Phone / Delegate SubPhones / LID, or Arabic & English Name
+// -------------------------------------------------------------
+function resolveInboundCustomer($pdo, $tenantId, $custId = '', $custName = '', $custPhone = '', $routingHint = '') {
     $cleanCustId = preg_replace('/^cust-/', '', trim((string)$custId));
     $custName = trim((string)$custName);
     $custPhone = trim((string)$custPhone);
-    $cleanPhone = preg_replace('/\D/', '', $custPhone);
+    $cleanPhone = preg_replace('/\D/', '', normalizeInboundDigits($custPhone));
+    $routingHint = trim((string)$routingHint);
 
-    try {
-        $stmt = $pdo->prepare("SELECT id, frontend_id, search_name, search_phone, data FROM customers WHERE tenant_id = ? AND (is_deleted = 0 OR is_deleted IS NULL) ORDER BY id DESC");
-        $stmt->execute([$tenantId]);
-        $allCusts = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    } catch (Exception $e) {
+    $allCusts = fetchAndEnsureCustomerCodes($pdo, $tenantId);
+    if (empty($allCusts)) {
         return ['row' => null, 'id' => $cleanCustId, 'name' => $custName, 'phone' => $custPhone];
+    }
+
+    // 0. Match by Customer Receipt Code (Option 1: Numeric Code e.g. 105, Option 2: Word/Phrase Code e.g. بون, or Both together!)
+    $combinedCodePool = normalizeInboundDigits(trim($routingHint . ' ' . $cleanCustId . ' ' . $custName));
+    if (!empty($combinedCodePool)) {
+        // 0a. Check Word/Phrase Code (`receiptCodeWord`) first (longest match first so specific phrases win)
+        $wordMatchedCust = null;
+        $bestWordLen = 0;
+        foreach ($allCusts as $cRow) {
+            $cObj = $cRow['_parsed'] ?? (json_decode($cRow['data'], true) ?: []);
+            if (!empty($cObj['deleted'])) continue;
+            $codeWord = trim((string)($cObj['receiptCodeWord'] ?? ''));
+            if (empty($codeWord)) continue;
+
+            $pattern = '/(?:^|[\s#:\-_.,\/|()0-9])' . preg_quote($codeWord, '/') . '(?:$|[\s#:\-_.,\/|()0-9])/ui';
+            if (mb_strtolower($cleanCustId) === mb_strtolower($codeWord) ||
+                mb_strtolower($custName) === mb_strtolower($codeWord) ||
+                preg_match($pattern, $combinedCodePool)) {
+                $len = mb_strlen($codeWord);
+                if ($len > $bestWordLen) {
+                    $bestWordLen = $len;
+                    $fId = $cRow['frontend_id'] ?: ($cObj['id'] ?? '');
+                    $codeNum = $cObj['receiptCodeNum'] ?? '';
+                    $wordMatchedCust = [
+                        'row' => $cRow,
+                        'id' => $fId,
+                        'name' => $cObj['name'] ?? $cRow['search_name'] ?? $custName,
+                        'phone' => $cObj['whatsapp'] ?: ($cObj['phone'] ?: $custPhone),
+                        'matched_by' => 'code_word',
+                        'matched_code' => ($codeNum ? '#' . $codeNum . ' - ' : '') . $codeWord,
+                        'sender_phone' => $custPhone
+                    ];
+                }
+            }
+        }
+        if ($wordMatchedCust) {
+            return $wordMatchedCust;
+        }
+
+        // 0b. Check Numeric Code (`receiptCodeNum`: 1..infinity)
+        // Look for explicit code patterns (e.g. "#105", "كود 105", "حساب 105") OR standalone short number tokens in routingHint / cleanCustId / custName
+        $candidateCodeNums = [];
+        $cleanIdDigits = normalizeInboundDigits($cleanCustId);
+        if (preg_match('/^[1-9][0-9]{0,5}$/', $cleanIdDigits)) {
+            $candidateCodeNums[] = (int)$cleanIdDigits;
+        }
+        $cleanNameDigits = normalizeInboundDigits($custName);
+        if (preg_match('/^#?([1-9][0-9]{0,5})$/', $cleanNameDigits, $mNameCode)) {
+            $candidateCodeNums[] = (int)$mNameCode[1];
+        }
+        if (!empty($routingHint)) {
+            $normHint = normalizeInboundDigits($routingHint);
+            // Explicit prefix like: كود 105 / #105 / رقم الكود 105 / حساب 105
+            if (preg_match_all('/(?:كود|الكود|حساب|رقم\s*الكود|رمز|#)\s*[:\-]?\s*([1-9][0-9]{0,5})(?!\d)/ui', $normHint, $mExplicit)) {
+                foreach ($mExplicit[1] as $numStr) {
+                    $candidateCodeNums[] = (int)$numStr;
+                }
+            }
+            // Standalone number in caption/notes (1 to 4 digits, not preceded by مبلغ/قيمة/عملية/سند)
+            // Strip out known system tags ("رقم العملية: ...", "بالسند ...") first so we only inspect user-written caption/notes
+            $userHintOnly = preg_replace('/(?:تم الفحص التلقائي|رقم العملية|مسجل بالسند|تم التنزيل في الحسابات).*$/u', '', $normHint);
+            if (preg_match_all('/(?<!مبلغ\s)(?<!قيمة\s)(?<!عملية\s)(?:^|[\s|,\-\/])#?([1-9][0-9]{0,4})(?:$|[\s|,\-\/])/u', trim($userHintOnly), $mStandalone)) {
+                foreach ($mStandalone[1] as $numStr) {
+                    $candidateCodeNums[] = (int)$numStr;
+                }
+            }
+        }
+
+        $candidateCodeNums = array_values(array_unique($candidateCodeNums));
+        if (!empty($candidateCodeNums)) {
+            foreach ($candidateCodeNums as $targetCodeNum) {
+                foreach ($allCusts as $cRow) {
+                    $cObj = $cRow['_parsed'] ?? (json_decode($cRow['data'], true) ?: []);
+                    if (!empty($cObj['deleted'])) continue;
+                    $cNum = isset($cObj['receiptCodeNum']) ? (int)$cObj['receiptCodeNum'] : 0;
+                    if ($cNum >= 1 && $cNum === $targetCodeNum) {
+                        $fId = $cRow['frontend_id'] ?: ($cObj['id'] ?? '');
+                        $codeWord = trim((string)($cObj['receiptCodeWord'] ?? ''));
+                        return [
+                            'row' => $cRow,
+                            'id' => $fId,
+                            'name' => $cObj['name'] ?? $cRow['search_name'] ?? $custName,
+                            'phone' => $cObj['whatsapp'] ?: ($cObj['phone'] ?: $custPhone),
+                            'matched_by' => 'code_num',
+                            'matched_code' => '#' . $cNum . ($codeWord ? ' - ' . $codeWord : ''),
+                            'sender_phone' => $custPhone
+                        ];
+                    }
+                }
+            }
+        }
     }
 
     // 1. Direct match by frontend_id
     if (!empty($cleanCustId)) {
         foreach ($allCusts as $cRow) {
-            $cObj = json_decode($cRow['data'], true) ?: [];
+            $cObj = $cRow['_parsed'] ?? (json_decode($cRow['data'], true) ?: []);
             $fId = $cRow['frontend_id'] ?: ($cObj['id'] ?? '');
             if ($fId === $cleanCustId) {
                 return [
@@ -460,11 +706,12 @@ function resolveInboundCustomer($pdo, $tenantId, $custId = '', $custName = '', $
         }
     }
 
-    // 2. Match by WhatsApp Phone Number (last 9 digits or exact LID)
+    // 2. Match by WhatsApp Phone Number (Primary phone/whatsapp/LID OR Delegate subPhones!)
     if (strlen($cleanPhone) >= 7) {
         $last9 = substr($cleanPhone, -9);
         foreach ($allCusts as $cRow) {
-            $cObj = json_decode($cRow['data'], true) ?: [];
+            $cObj = $cRow['_parsed'] ?? (json_decode($cRow['data'], true) ?: []);
+            if (!empty($cObj['deleted'])) continue;
             $candPhones = [
                 $cRow['search_phone'] ?? '',
                 $cObj['whatsapp'] ?? '',
@@ -473,7 +720,7 @@ function resolveInboundCustomer($pdo, $tenantId, $custId = '', $custName = '', $
                 $cObj['whatsappLid'] ?? ''
             ];
             foreach ($candPhones as $cp) {
-                $cpDigits = preg_replace('/\D/', '', (string)$cp);
+                $cpDigits = preg_replace('/\D/', '', normalizeInboundDigits((string)$cp));
                 if (empty($cpDigits)) continue;
                 if ($cpDigits === $cleanPhone || (strlen($cpDigits) >= 9 && substr($cpDigits, -9) === $last9)) {
                     $fId = $cRow['frontend_id'] ?: ($cObj['id'] ?? '');
@@ -481,8 +728,32 @@ function resolveInboundCustomer($pdo, $tenantId, $custId = '', $custName = '', $
                         'row' => $cRow,
                         'id' => $fId,
                         'name' => $cObj['name'] ?? $cRow['search_name'] ?? $custName,
-                        'phone' => $cObj['whatsapp'] ?: ($cObj['phone'] ?: $custPhone)
+                        'phone' => $cObj['whatsapp'] ?: ($cObj['phone'] ?: $custPhone),
+                        'matched_by' => 'primary_phone',
+                        'sender_phone' => $custPhone
                     ];
+                }
+            }
+
+            // Also check Delegate / Sub-Sender Phones (`subPhones`)
+            if (!empty($cObj['subPhones']) && is_array($cObj['subPhones'])) {
+                foreach ($cObj['subPhones'] as $sp) {
+                    $spPhone = is_array($sp) ? ($sp['phone'] ?? '') : (string)$sp;
+                    $spLabel = is_array($sp) ? ($sp['label'] ?? '') : '';
+                    $spDigits = preg_replace('/\D/', '', normalizeInboundDigits((string)$spPhone));
+                    if (empty($spDigits)) continue;
+                    if ($spDigits === $cleanPhone || (strlen($spDigits) >= 9 && substr($spDigits, -9) === $last9)) {
+                        $fId = $cRow['frontend_id'] ?: ($cObj['id'] ?? '');
+                        return [
+                            'row' => $cRow,
+                            'id' => $fId,
+                            'name' => $cObj['name'] ?? $cRow['search_name'] ?? $custName,
+                            'phone' => $cObj['whatsapp'] ?: ($cObj['phone'] ?: $custPhone),
+                            'matched_by' => 'sub_phone',
+                            'delegate_label' => $spLabel,
+                            'sender_phone' => $custPhone
+                        ];
+                    }
                 }
             }
         }
@@ -530,7 +801,7 @@ function resolveInboundCustomer($pdo, $tenantId, $custId = '', $custName = '', $
 
         // 3a. Exact normalized name match
         foreach ($allCusts as $cRow) {
-            $cObj = json_decode($cRow['data'], true) ?: [];
+            $cObj = $cRow['_parsed'] ?? (json_decode($cRow['data'], true) ?: []);
             $dbName = trim($cObj['name'] ?? $cRow['search_name'] ?? '');
             if (empty($dbName)) continue;
             if (mb_strtolower($dbName) === mb_strtolower($custName)) {
@@ -549,7 +820,7 @@ function resolveInboundCustomer($pdo, $tenantId, $custId = '', $custName = '', $
             $bestMatch = null;
             $bestScore = 0.0;
             foreach ($allCusts as $cRow) {
-                $cObj = json_decode($cRow['data'], true) ?: [];
+                $cObj = $cRow['_parsed'] ?? (json_decode($cRow['data'], true) ?: []);
                 $dbName = trim($cObj['name'] ?? $cRow['search_name'] ?? '');
                 if (empty($dbName)) continue;
                 $dbTokens = $normalizeTokens($dbName);
@@ -798,7 +1069,8 @@ function postInboundReceiptToAccounts($pdo, $receiptId) {
     }
 
     // 1. Resolve or Auto-Create Customer in `customers` table and update balance
-    $resolvedCust = resolveInboundCustomer($pdo, $tenantId, $custId, $custName, $custPhone);
+    $originalSenderPhone = $custPhone;
+    $resolvedCust = resolveInboundCustomer($pdo, $tenantId, $custId, $custName, $custPhone, $receipt['notes'] ?? '');
     $matchedCustomerRow = $resolvedCust['row'] ?? null;
     $cleanCustId = $resolvedCust['id'] ?: preg_replace('/^cust-/', '', $custId);
     if (!empty($resolvedCust['name'])) {
@@ -823,9 +1095,26 @@ function postInboundReceiptToAccounts($pdo, $receiptId) {
         if (empty($custName) || $custName === 'زبون مباشر') {
             $custName = !empty($custPhone) ? ('عميل بنكك (' . $custPhone . ')') : ('عميل بنكك #' . $receiptId);
         }
+        // Compute lowest available gap-aware receiptCodeNum (1..infinity)
+        $existingCustRows = fetchAndEnsureCustomerCodes($pdo, $tenantId);
+        $usedCodeNums = [];
+        foreach ($existingCustRows as $ecr) {
+            $ecObj = $ecr['_parsed'] ?? (json_decode($ecr['data'], true) ?: []);
+            if (!empty($ecObj['deleted'])) continue;
+            $n = isset($ecObj['receiptCodeNum']) ? (int)$ecObj['receiptCodeNum'] : 0;
+            if ($n >= 1) $usedCodeNums[$n] = true;
+        }
+        $nextCodeNum = 1;
+        while (isset($usedCodeNums[$nextCodeNum])) {
+            $nextCodeNum++;
+        }
+
         $custObj = [
             'id' => $custFrontendId,
             'name' => $custName,
+            'receiptCodeNum' => $nextCodeNum,
+            'receiptCodeWord' => '',
+            'subPhones' => [],
             'phone' => $custPhone,
             'whatsapp' => $custPhone,
             'email' => '',
@@ -917,7 +1206,17 @@ function postInboundReceiptToAccounts($pdo, $receiptId) {
 
     $today = date('Y-m-d');
     $nowTime = date('H:i');
-    $voucherDesc = 'سداد إشعار تحويل بنكي (' . $bankName . ') رقم العملية: ' . $transferNo . ' - العميل: ' . $custName . ' إلى ' . $resolvedBankName;
+    $routingAuditSuffix = '';
+    if (!empty($resolvedCust['matched_code'])) {
+        $routingAuditSuffix .= ' [كود: ' . $resolvedCust['matched_code'] . ']';
+    }
+    if (!empty($resolvedCust['delegate_label'])) {
+        $routingAuditSuffix .= ' [مرسل: ' . $resolvedCust['delegate_label'] . ']';
+    } elseif (!empty($originalSenderPhone) && $originalSenderPhone !== $custPhone) {
+        $routingAuditSuffix .= ' [مرسل: ' . $originalSenderPhone . ']';
+    }
+    $voucherDesc = 'سداد إشعار تحويل بنكي (' . $bankName . ') رقم العملية: ' . $transferNo . ' - العميل: ' . $custName . $routingAuditSuffix . ' إلى ' . $resolvedBankName;
+    $itemStatement = 'إشعار تحويل ' . $bankName . ' رقم ' . $transferNo . $routingAuditSuffix;
 
     $voucherObj = [
         'id' => $vNo,
@@ -954,7 +1253,7 @@ function postInboundReceiptToAccounts($pdo, $receiptId) {
                 'accountId' => 'cust-' . $custFrontendId,
                 'accountName' => $custName,
                 'amount' => $amount,
-                'statement' => 'إشعار تحويل ' . $bankName . ' رقم ' . $transferNo,
+                'statement' => $itemStatement,
                 'costCenter' => '',
                 'costCenterId' => '',
                 'costCenterName' => '',
@@ -969,7 +1268,7 @@ function postInboundReceiptToAccounts($pdo, $receiptId) {
                         'amount' => $amount,
                         'bankName' => $resolvedBankName,
                         'transferNo' => $transferNo,
-                        'statement' => 'إشعار وارد #' . $receiptId . ' - ' . $custName
+                        'statement' => 'إشعار وارد #' . $receiptId . ' - ' . $custName . $routingAuditSuffix
                     ]
                 ],
                 'chequeAmount' => 0,
@@ -1217,26 +1516,28 @@ function performBackendReceiptOCR($pdo, $receiptId, $fraudCheck = false) {
     $cleanRefDigits = preg_replace('/\D/', '', $extractedRef);
     $status = 'verified';
     $issueReason = null;
-    $notes = $summary ?: ('تم الفحص التلقائي بنجاح | رقم العملية: ' . $extractedRef);
+    $existingNotes = trim((string)($receipt['notes'] ?? ''));
+    $ocrSummaryNote = $summary ?: ('تم الفحص التلقائي بنجاح | رقم العملية: ' . $extractedRef);
+    $notes = !empty($existingNotes) ? ($existingNotes . ' | ' . $ocrSummaryNote) : $ocrSummaryNote;
 
     if (strlen($cleanRefDigits) < 6) {
         $status = 'pending';
         $issueReason = 'invalid_transfer_no_under_6_digits';
-        $notes = '⚠️ مرفوض: رقم التحويل يجب ألا يقل عن 6 أرقام (' . ($extractedRef ?: 'غير موجود') . ')';
+        $notes = (!empty($existingNotes) ? $existingNotes . ' | ' : '') . '⚠️ مرفوض: رقم التحويل يجب ألا يقل عن 6 أرقام (' . ($extractedRef ?: 'غير موجود') . ')';
     } elseif ($extractedAmount <= 0) {
         $status = 'pending';
         $issueReason = 'zero_amount';
-        $notes = '⚠️ المبلغ غير واضح في الإشعار';
+        $notes = (!empty($existingNotes) ? $existingNotes . ' | ' : '') . '⚠️ المبلغ غير واضح في الإشعار';
     } else {
         $dupCheck = checkTransferConflictInDB($pdo, $tenantId, $extractedRef, (int)$receiptId);
         if ($dupCheck['is_duplicate']) {
             $status = 'duplicate_rejected';
             $issueReason = 'duplicate_voucher_' . ($dupCheck['conflicting_voucher'] ?? '');
-            $notes = '⚠️ كشف تكرار مالي: رقم العملية ' . $extractedRef . ' مسجل بالسند ' . ($dupCheck['conflicting_voucher'] ?? '');
+            $notes = (!empty($existingNotes) ? $existingNotes . ' | ' : '') . '⚠️ كشف تكرار مالي: رقم العملية ' . $extractedRef . ' مسجل بالسند ' . ($dupCheck['conflicting_voucher'] ?? '');
         }
     }
 
-    // Customer resolution via WhatsApp phone, LID, or name
+    // Customer resolution via Receipt Code (Number / Word / Both), WhatsApp phone / Delegate SubPhone, LID, or name
     $custName = $receipt['customer_name'];
     if (!empty($extractedSender) && ($custName === 'زبون مباشر' || str_starts_with($custName, 'عميل واتساب') || $custName === 'amar00105')) {
         $custName = $extractedSender;
@@ -1244,7 +1545,8 @@ function performBackendReceiptOCR($pdo, $receiptId, $fraudCheck = false) {
     $custId = $receipt['customer_id'];
     $custPhone = $receipt['customer_phone'];
 
-    $resolvedCust = resolveInboundCustomer($pdo, $tenantId, $custId, $custName, $custPhone);
+    $ocrRoutingHint = trim($existingNotes . ' ' . ($d['comment'] ?? '') . ' ' . ($d['notes'] ?? '') . ' ' . $summary);
+    $resolvedCust = resolveInboundCustomer($pdo, $tenantId, $custId, $custName, $custPhone, $ocrRoutingHint);
     if (!empty($resolvedCust['id'])) {
         $custId = $resolvedCust['id'];
         $custName = $resolvedCust['name'] ?: $custName;

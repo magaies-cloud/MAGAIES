@@ -107,8 +107,9 @@ $currentActiveTenant = !empty($GLOBAL_TENANT_ID) ? (string)$GLOBAL_TENANT_ID : '
         </div>
         <form id="inboundManualUploadForm" onsubmit="InboundBankakManager.handleManualUploadSubmit(event)" style="display:flex; flex-direction:column; gap:10px;">
             <div>
-                <label style="font-size:0.80rem; color:#cbd5e1; font-weight:800; margin-bottom:4px; display:block;">اسم الزبون / العميل: *</label>
-                <input type="text" id="manualCustName" required style="width:100%; box-sizing:border-box; background:rgba(0,0,0,0.4); border:1px solid rgba(255,255,255,0.2); border-radius:8px; padding:8px 12px; color:#fff; font-family:'Tajawal',sans-serif;">
+                <label style="font-size:0.80rem; color:#38bdf8; font-weight:800; margin-bottom:4px; display:block;">👤 اسم العميل أو كود الإشعارات (رقمي مثل 105 أو نصي مثل بون): *</label>
+                <input type="text" id="manualCustName" required oninput="InboundBankakManager.onManualCodeOrNameInput(this.value)" placeholder="مثال: 105 أو بون أو كوستابون" style="width:100%; box-sizing:border-box; background:rgba(0,0,0,0.4); border:1px solid rgba(56,189,248,0.4); border-radius:8px; padding:8px 12px; color:#fff; font-weight:800; font-family:'Tajawal',sans-serif;">
+                <div id="manualCustCodeHint" style="font-size:0.75rem; color:#34d399; margin-top:3px; display:none; font-weight:800;"></div>
             </div>
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
                 <div>
@@ -146,7 +147,7 @@ $currentActiveTenant = !empty($GLOBAL_TENANT_ID) ? (string)$GLOBAL_TENANT_ID : '
                 <span style="font-size:1.6rem;">📲</span>
                 <div>
                     <h3 style="margin:0; font-size:1.15rem; font-weight:900; color:#25d366;">إرسال تنبيه رسمي للزبون عبر واتساب</h3>
-                    <span style="font-size:0.75rem; color:#94a3b8; font-weight:700;">إبلاغ العميل بخلل أو تأكيد إشعار بنكك المرسل بنقرة واحدة</span>
+                    <span style="font-size:0.75rem; color:#94a3b8; font-weight:700;">إبلاغ العميل بخلل أو تأكيد إشعار بنكك المرسل بنقرة واحدة أو عبر كود العميل</span>
                 </div>
             </div>
             <button type="button" onclick="InboundBankakManager.closeCustomerAlertModal()" style="background:none; border:none; color:#94a3b8; font-size:1.3rem; cursor:pointer; font-weight:900;">✕</button>
@@ -155,13 +156,19 @@ $currentActiveTenant = !empty($GLOBAL_TENANT_ID) ? (string)$GLOBAL_TENANT_ID : '
         <input type="hidden" id="cust-alert-receipt-id">
         <input type="hidden" id="cust-alert-phone">
 
+        <!-- Quick Lookup by Customer Code (Numeric or Word) -->
+        <div style="background:rgba(16,185,129,0.08); border:1px solid rgba(16,185,129,0.35); border-radius:10px; padding:8px 12px; display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+            <span style="font-size:0.78rem; color:#34d399; font-weight:800;">🎯 إرسال إلى كود عميل:</span>
+            <input type="text" id="cust-alert-code-lookup" oninput="InboundBankakManager.lookupCustomerForAlertByCode(this.value)" placeholder="اكتب كود العميل (مثلاً: 105 أو بون) لجلب رقمه تلقائياً..." style="flex:1; min-width:180px; background:rgba(0,0,0,0.45); border:1px solid rgba(56,189,248,0.4); border-radius:7px; padding:5px 10px; color:#fff; font-family:'Tajawal',sans-serif; font-size:0.82rem; font-weight:800;">
+        </div>
+
         <!-- Target Customer Info -->
-        <div style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1); border-radius:10px; padding:8px 14px; display:flex; align-items:center; justify-content:space-between;">
+        <div style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1); border-radius:10px; padding:8px 14px; display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap;">
             <div>
                 <span style="font-size:0.75rem; color:#94a3b8;">العميل:</span>
                 <strong id="cust-alert-name" style="font-size:0.92rem; color:#ffffff; margin-right:4px;"></strong>
             </div>
-            <div>
+            <div style="display:flex; align-items:center; gap:6px;">
                 <span style="font-size:0.75rem; color:#94a3b8;">الهاتف:</span>
                 <strong id="cust-alert-phone-display" style="font-size:0.90rem; color:#7dd3fc; font-family:'Consolas',monospace; direction:ltr; display:inline-block;"></strong>
             </div>
@@ -785,6 +792,11 @@ window.InboundBankakManager = {
                         </button>
                         ` : ''}
 
+                        <!-- زر توجيه الإشعار لحساب عميل بالكود الرقمي أو النصي وربط رقم المرسل -->
+                        <button type="button" onclick="InboundBankakManager.promptAssignByCode(${r.id})" style="height:32px; padding:0 8px; border-radius:7px; background:rgba(16,185,129,0.16); border:1px solid rgba(16,185,129,0.45); color:#6ee7b7; font-size:0.74rem; font-weight:800; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:3px;" title="توجيه الإشعار لحساب عميل بواسطة الكود الرقمي (مثل 105) أو النصي (مثل بون) مع خيار ربط رقم الموبايل بالحساب">
+                            <span>🏷️</span> <span>توجيه بكود</span>
+                        </button>
+
                         <!-- زر كشف حساب العميل -->
                         <a href="general-ledger.php?accountId=${encodeURIComponent(r.customer_id ? ('cust-' + String(r.customer_id).replace(/^cust-/, '')) : '')}&name=${encodeURIComponent(r.customer_name || '')}" style="height:32px; padding:0 8px; border-radius:7px; background:rgba(56,189,248,0.12); border:1px solid rgba(56,189,248,0.35); color:#7dd3fc; font-size:0.74rem; font-weight:800; text-decoration:none; display:flex; align-items:center; justify-content:center; gap:3px;" title="فتح كشف حساب هذا العميل">
                             <span>📊</span> <span>كشف الحساب</span>
@@ -805,6 +817,130 @@ window.InboundBankakManager = {
         });
 
         container.innerHTML = html;
+    },
+
+    findCustomerByCodeOrName: function(rawQuery) {
+        if (!rawQuery) return null;
+        const ar = ['٠','١','٢','٣','٤','٥','٦','٧','٨','٩'];
+        const fa = ['۰','۱','۲','۳','۴','۵','۶','۷','۸','۹'];
+        let q = String(rawQuery).trim();
+        for (let i = 0; i < 10; i++) {
+            q = q.replace(new RegExp(ar[i], 'g'), String(i)).replace(new RegExp(fa[i], 'g'), String(i));
+        }
+        const qLower = q.toLowerCase().replace(/^#/, '').trim();
+        if (!qLower) return null;
+
+        let custs = [];
+        try {
+            custs = JSON.parse(localStorage.getItem('erp_customers_v1') || '[]');
+            if (!Array.isArray(custs)) custs = [];
+        } catch(e) { custs = []; }
+        custs = custs.filter(c => c && !c.deleted);
+
+        // 1. Exact match by receiptCodeNum or receiptCodeWord or both
+        for (const c of custs) {
+            const cNum = c.receiptCodeNum ? String(c.receiptCodeNum).trim() : '';
+            const cWord = (c.receiptCodeWord || '').trim().toLowerCase();
+            if (cNum && (qLower === cNum || qLower === ('كود ' + cNum))) return c;
+            if (cWord && qLower === cWord) return c;
+            if (cNum && cWord && (qLower === `${cNum} ${cWord}` || qLower === `${cWord} ${cNum}`)) return c;
+        }
+        // 2. Exact name match
+        for (const c of custs) {
+            if ((c.name || '').trim().toLowerCase() === qLower) return c;
+        }
+        // 3. Partial word code or name match
+        for (const c of custs) {
+            const cWord = (c.receiptCodeWord || '').trim().toLowerCase();
+            if (cWord && qLower.split(/\s+/).includes(cWord)) return c;
+        }
+        return null;
+    },
+
+    onManualCodeOrNameInput: function(val) {
+        const hintEl = document.getElementById('manualCustCodeHint');
+        if (!hintEl) return;
+        const matched = this.findCustomerByCodeOrName(val);
+        if (matched) {
+            hintEl.style.display = 'block';
+            hintEl.innerHTML = `✅ تم التعرف على الحساب: <strong>${escapeHtml(matched.name)}</strong> (كود #${matched.receiptCodeNum || '-'}${matched.receiptCodeWord ? ' | ' + escapeHtml(matched.receiptCodeWord) : ''})`;
+            const phoneEl = document.getElementById('manualCustPhone');
+            if (phoneEl && !phoneEl.value && (matched.whatsapp || matched.phone)) {
+                phoneEl.value = matched.whatsapp || matched.phone;
+            }
+        } else {
+            hintEl.style.display = 'none';
+            hintEl.innerHTML = '';
+        }
+    },
+
+    lookupCustomerForAlertByCode: function(val) {
+        const matched = this.findCustomerByCodeOrName(val);
+        if (!matched) return;
+        const targetPhone = matched.whatsapp || matched.phone || '';
+        const nameEl = document.getElementById('cust-alert-name');
+        const phoneHidden = document.getElementById('cust-alert-phone');
+        const phoneDisp = document.getElementById('cust-alert-phone-display');
+        if (nameEl) nameEl.textContent = `${matched.name} (#${matched.receiptCodeNum || '-'}${matched.receiptCodeWord ? ' | ' + matched.receiptCodeWord : ''})`;
+        if (phoneHidden) phoneHidden.value = targetPhone;
+        if (phoneDisp) phoneDisp.textContent = targetPhone || 'غير مسجل';
+    },
+
+    promptAssignByCode: async function(receiptId) {
+        const r = this.receipts.find(x => Number(x.id) === Number(receiptId));
+        if (!r) return;
+        const codeInput = prompt(
+            `🎯 توجيه الإشعار #${receiptId} إلى حساب عميل:\n` +
+            `أدخل كود العميل الرقمي (مثال: 105) أو الكود النصي (مثال: بون) أو كليهما معاً أو اسم العميل:`,
+            ''
+        );
+        if (!codeInput || !codeInput.trim()) return;
+
+        let linkPhone = false;
+        if (r.customer_phone && String(r.customer_phone).replace(/\D/g, '').length >= 7) {
+            linkPhone = confirm(`هل تريد أيضاً ربط رقم المرسل (${r.customer_phone}) بحساب هذا العميل دائماً بحيث تنزل أي إشعارات قادمة من هذا الرقم في نفس الحساب تلقائياً؟`);
+        }
+
+        const tId = this.getActiveTenantId();
+        try {
+            const res = await fetch('api/inbound_receipts.php?action=assign_customer_by_code&tenant_id=' + encodeURIComponent(tId), {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    action: 'assign_customer_by_code',
+                    tenant_id: tId,
+                    id: receiptId,
+                    customer_code: codeInput.trim(),
+                    link_sender_phone: linkPhone
+                })
+            });
+            const data = await res.json();
+            if (data && data.success) {
+                if (data.customer && data.customer.id) {
+                    try {
+                        let custs = JSON.parse(localStorage.getItem('erp_customers_v1') || '[]');
+                        if (!Array.isArray(custs)) custs = [];
+                        const idx = custs.findIndex(c => c && String(c.id) === String(data.customer.id));
+                        if (idx > -1) custs[idx] = data.customer;
+                        else custs.push(data.customer);
+                        localStorage.setItem('erp_customers_v1', JSON.stringify(custs));
+                    } catch(e) {}
+                }
+                if (data.posting && data.posting.voucher_no) {
+                    this.syncPostedReceiptToLocalErp(r, data.posting);
+                }
+                this.refreshReceipts();
+                if (typeof showToast === 'function') {
+                    showToast(data.message || '✅ تم توجيه الإشعار وتنزيله بالحساب بنجاح', 'success', 6000);
+                } else {
+                    alert(data.message);
+                }
+            } else {
+                alert('⚠️ ' + (data?.error || 'تعذر العثور على العميل بهذا الكود'));
+            }
+        } catch (err) {
+            alert('خطأ في الاتصال: ' + err.message);
+        }
     },
 
     // ═══ فحص التزوير والتلاعب الجنائي عند الطلب فقط (On-Demand Forgery Inspection) ═══
