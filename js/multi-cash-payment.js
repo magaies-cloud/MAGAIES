@@ -2461,8 +2461,9 @@ async function _saveVoucherCore() {
     // Determine storage key based on type
     const storageKey = type === 'payment' ? 'erp_payments_v1' : 'erp_receipts_v1';
     let existingData = getStoredVouchers(storageKey);
-    const existingIdx = existingData.findIndex(v => (v && (v.voucherNo === vNo || v.id === vNo) && v.isGrouped));
+    const existingIdx = existingData.findIndex(v => (v && ((v.voucherNo === vNo || v.id === vNo) || (window._activeInboundReceiptId && v.inboundReceiptId && String(v.inboundReceiptId) === String(window._activeInboundReceiptId))) && v.isGrouped));
     const oldVoucher = (existingIdx > -1) ? existingData[existingIdx] : null;
+    if (oldVoucher && oldVoucher.voucherNo) vNo = oldVoucher.voucherNo;
     const curUser = (typeof window.getCurrentUserInfo === 'function') ? window.getCurrentUserInfo() : { id: 1, name: 'المسؤول', username: 'admin' };
 
     // Build the voucher object
@@ -2494,6 +2495,7 @@ async function _saveVoucherCore() {
         isPosted: true, // Auto-post to reflect in general ledger immediately
         createdAt: oldVoucher?.createdAt || new Date().toISOString(),
         idempotencyKey: (window.IdempotencyGuard ? window.IdempotencyGuard.getKey() : null),
+        inboundReceiptId: window._activeInboundReceiptId || oldVoucher?.inboundReceiptId || null,
         systemExchangeRate: (typeof window.getExchangeRateForCurrency === 'function' ? window.getExchangeRateForCurrency('USD') : 1) || 1,
         createdBy: oldVoucher?.createdBy || curUser.id,
         createdByName: oldVoucher?.createdByName || curUser.fullName || curUser.name,
@@ -2515,6 +2517,11 @@ async function _saveVoucherCore() {
     }
     
     try {
+        // Revert old voucher balance effects first if editing an existing voucher
+        if (existingIdx > -1 && oldVoucher && typeof applyGroupedVoucherEffect === 'function') {
+            applyGroupedVoucherEffect(oldVoucher, true);
+        }
+
         // Update existing record if editing, otherwise insert
         if (existingIdx > -1) {
             existingData[existingIdx] = voucher;
@@ -2525,6 +2532,16 @@ async function _saveVoucherCore() {
         // SAVE TO BOTH TENANT KEY AND BASE KEY
         saveStoredVouchers(storageKey, existingData);
 
+        // Apply dynamic account balance effects BEFORE pushing to cloud
+        if (typeof applyGroupedVoucherEffect === 'function') {
+            applyGroupedVoucherEffect(voucher, false);
+        }
+
+        // Rebuild GL immediately so General Ledger reflects new voucher BEFORE pushing to cloud
+        if (window.rebuildGLFromAllTables) {
+            try { window.rebuildGLFromAllTables(false); } catch(e) {}
+        }
+
         if (typeof window.pushToCloud === 'function') {
             window.pushToCloud(true);
         }
@@ -2534,6 +2551,24 @@ async function _saveVoucherCore() {
             }
         } catch (eOff) {}
 
+        // If this voucher is reconciling an inbound bank receipt, mark it verified/reconciled on the backend
+        if (window._activeInboundReceiptId) {
+            const activeReceiptId = window._activeInboundReceiptId;
+            window._activeInboundReceiptId = null;
+            fetch('api/inbound_receipts.php?action=reconcile_receipt', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    receipt_id: activeReceiptId,
+                    voucher_no: vNo
+                })
+            }).then(() => {
+                if (window.InboundBankakDrawer && typeof window.InboundBankakDrawer.fetchReceipts === 'function') {
+                    window.InboundBankakDrawer.fetchReceipts();
+                }
+            }).catch(() => {});
+        }
+
         if (window.logSystemAction) {
             const isEdit = (existingIdx > -1);
             const isPay = (type === 'payment');
@@ -2542,16 +2577,6 @@ async function _saveVoucherCore() {
         }
         if (window.renderDocumentUserBadge) {
             window.renderDocumentUserBadge('multi-voucher-user-audit-container', voucher, false);
-        }
-
-        // Rebuild GL immediately so General Ledger reflects new voucher
-        if (window.rebuildGLFromAllTables) {
-            try { window.rebuildGLFromAllTables(false); } catch(e) {}
-        }
-
-        // Apply dynamic account balance effects
-        if (typeof applyGroupedVoucherEffect === 'function') {
-            applyGroupedVoucherEffect(voucher, false);
         }
         
         // Clear dirty flag so user doesn't get unsaved changes warning on exit
@@ -3512,54 +3537,76 @@ function applyGroupedVoucherEffect(voucher, isRevert = false) {
     const multiplier = isRevert ? -1 : 1;
     const getTenantKey = window.getTenantKey || ((k) => k);
     
-    // Helper function to update balance
+    // Helper function to update balance in both tenant key and base key
+    function saveEntityList(baseKey, list) {
+        const str = JSON.stringify(list);
+        try { localStorage.setItem(getTenantKey(baseKey), str); } catch(e){}
+        try { localStorage.setItem(baseKey, str); } catch(e){}
+    }
+    function loadEntityList(baseKey) {
+        try {
+            return JSON.parse(localStorage.getItem(getTenantKey(baseKey)) || localStorage.getItem(baseKey) || '[]') || [];
+        } catch(e) { return []; }
+    }
+
     function applyBalanceChange(accId, amtEffect) {
         if (!accId || amtEffect === 0) return;
+        accId = String(accId).trim();
         
         if (accId.startsWith('safe-')) {
             let id = accId.substring(5);
-            let safes = [];
-            try { safes = JSON.parse(localStorage.getItem(getTenantKey('erp_safes_v1'))) || []; } catch(e){}
-            let idx = safes.findIndex(s => String(s.id) === String(id));
+            let safes = loadEntityList('erp_safes_v1');
+            let idx = safes.findIndex(s => s && String(s.id) === String(id));
             if (idx > -1) {
                 safes[idx].currentBalance = (parseFloat(safes[idx].currentBalance) || 0) + amtEffect;
-                localStorage.setItem(getTenantKey('erp_safes_v1'), JSON.stringify(safes));
+                saveEntityList('erp_safes_v1', safes);
             }
         } else if (accId.startsWith('bank-')) {
             let id = accId.substring(5);
-            let banks = [];
-            try { banks = JSON.parse(localStorage.getItem(getTenantKey('erp_banks_v1'))) || []; } catch(e){}
-            let idx = banks.findIndex(b => String(b.id) === String(id));
+            let banks = loadEntityList('erp_banks_v1');
+            let idx = banks.findIndex(b => b && String(b.id) === String(id));
             if (idx > -1) {
                 banks[idx].currentBalance = (parseFloat(banks[idx].currentBalance) || 0) + amtEffect;
-                localStorage.setItem(getTenantKey('erp_banks_v1'), JSON.stringify(banks));
+                saveEntityList('erp_banks_v1', banks);
             }
         } else if (accId.startsWith('cust-')) {
             let id = accId.substring(5);
-            let custs = [];
-            try { custs = JSON.parse(localStorage.getItem(getTenantKey('erp_customers_v1'))) || []; } catch(e){}
-            let idx = custs.findIndex(c => String(c.id) === String(id));
+            let custs = loadEntityList('erp_customers_v1');
+            let idx = custs.findIndex(c => c && String(c.id) === String(id));
             if (idx > -1) {
                 custs[idx].currentBalance = (parseFloat(custs[idx].currentBalance) || 0) + amtEffect;
-                localStorage.setItem(getTenantKey('erp_customers_v1'), JSON.stringify(custs));
+                saveEntityList('erp_customers_v1', custs);
             }
         } else if (accId.startsWith('supp-')) {
             let id = accId.substring(5);
-            let sups = [];
-            try { sups = JSON.parse(localStorage.getItem(getTenantKey('erp_suppliers_v1'))) || []; } catch(e){}
-            let idx = sups.findIndex(s => String(s.id) === String(id));
+            let sups = loadEntityList('erp_suppliers_v1');
+            let idx = sups.findIndex(s => s && String(s.id) === String(id));
             if (idx > -1) {
                 sups[idx].currentBalance = (parseFloat(sups[idx].currentBalance) || 0) + amtEffect;
-                localStorage.setItem(getTenantKey('erp_suppliers_v1'), JSON.stringify(sups));
+                saveEntityList('erp_suppliers_v1', sups);
             }
         } else if (accId.startsWith('exp-')) {
             let id = accId.substring(4);
-            let accounts = [];
-            try { accounts = JSON.parse(localStorage.getItem(getTenantKey('erp_accounts_v1'))) || []; } catch(e){}
-            let idx = accounts.findIndex(a => String(a.id) === String(id));
+            let accounts = loadEntityList('erp_accounts_v1');
+            let idx = accounts.findIndex(a => a && String(a.id) === String(id));
             if (idx > -1) {
                 accounts[idx].currentBalance = (parseFloat(accounts[idx].currentBalance) || 0) + amtEffect;
-                localStorage.setItem(getTenantKey('erp_accounts_v1'), JSON.stringify(accounts));
+                saveEntityList('erp_accounts_v1', accounts);
+            }
+        } else {
+            // Fallback: match by customer or bank name if ID has no prefix
+            let custs = loadEntityList('erp_customers_v1');
+            let cIdx = custs.findIndex(c => c && !c.deleted && (String(c.id) === accId || (c.name && c.name.trim() === accId)));
+            if (cIdx > -1) {
+                custs[cIdx].currentBalance = (parseFloat(custs[cIdx].currentBalance) || 0) + amtEffect;
+                saveEntityList('erp_customers_v1', custs);
+                return;
+            }
+            let banks = loadEntityList('erp_banks_v1');
+            let bIdx = banks.findIndex(b => b && !b.deleted && (String(b.id) === accId || b.name === accId || b.bankName === accId));
+            if (bIdx > -1) {
+                banks[bIdx].currentBalance = (parseFloat(banks[bIdx].currentBalance) || 0) + amtEffect;
+                saveEntityList('erp_banks_v1', banks);
             }
         }
     }
@@ -4290,6 +4337,7 @@ window.checkTransferDuplicate = async function(tno, currentVoucherId) {
         for (let v of vouchers) {
             if (!v || v.deleted) continue;
             if (currentVoucherId && (v.id === currentVoucherId || v.voucherNo === currentVoucherId)) continue;
+            if (window._activeInboundReceiptId && v.inboundReceiptId && String(v.inboundReceiptId) === String(window._activeInboundReceiptId)) continue;
             
             // 1. Check top-level bankTransfers
             if (v.bankTransfers && Array.isArray(v.bankTransfers)) {

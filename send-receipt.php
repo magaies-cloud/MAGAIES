@@ -6,7 +6,8 @@
 require_once 'db_bridge.php';
 $pdo = getDBConnection();
 
-$tenantId = $_GET['tenant_id'] ?? $_GET['t'] ?? '1';
+global $GLOBAL_TENANT_ID;
+$tenantId = $_GET['tenant_id'] ?? $_GET['t'] ?? (!empty($GLOBAL_TENANT_ID) ? (string)$GLOBAL_TENANT_ID : '12');
 $companyName = 'مقاييس لإدارة الأعمال والحلول الذكية';
 try {
     if ($pdo) {
@@ -195,14 +196,14 @@ try {
                     </select>
                 </div>
                 <div class="form-group">
-                    <label>المبلغ المحول (SDG): <span style="color:#ef4444;">*</span></label>
-                    <input type="number" step="any" id="amount" name="amount" placeholder="مثال: 150000" required style="font-family:'Consolas',monospace;">
+                    <label>المبلغ المحول (SDG):</label>
+                    <input type="number" step="any" id="amount" name="amount" placeholder="مثال: 150000 (أو ارفع الصورة)" style="font-family:'Consolas',monospace;">
                 </div>
             </div>
 
             <div class="form-group">
-                <label>رقم المعاملة / العملية المصرفية: <span style="color:#ef4444;">*</span></label>
-                <input type="text" id="transferNo" name="transfer_no" placeholder="مثال: 84920184" required style="font-family:'Consolas',monospace; letter-spacing:1px;">
+                <label>رقم المعاملة / العملية المصرفية:</label>
+                <input type="text" id="transferNo" name="transfer_no" placeholder="مثال: 84920184 (أو يُقرأ تلقائياً من الصورة)" style="font-family:'Consolas',monospace; letter-spacing:1px;">
             </div>
 
             <div class="form-group">
@@ -212,7 +213,7 @@ try {
                     <div id="uploadPlaceholder">
                         <span style="font-size: 2.2rem; display: block; margin-bottom: 6px;">📷</span>
                         <strong style="color: #7dd3fc; font-size: 0.92rem; display: block;">انقر لاختيار أو تصوير إشعار بنكك</strong>
-                        <span style="font-size: 0.76rem; color: #94a3b8;">يدعم صور PNG, JPG, WEBP</span>
+                        <span style="font-size: 0.76rem; color: #94a3b8;">يتم فحص الصورة بالذكاء الاصطناعي وتنزيلها في الحسابات فوراً</span>
                     </div>
                     <img id="filePreview" style="display:none; max-height:160px; max-width:100%; border-radius:10px; margin:0 auto; object-fit:contain;">
                 </div>
@@ -225,18 +226,19 @@ try {
 
         <!-- Success Result Card -->
         <div id="successCard" class="success-card">
-            <div style="width: 80px; height: 80px; border-radius: 50%; background: rgba(16, 185, 129, 0.2); border: 2.5px solid #10b981; display: flex; align-items: center; justify-content: center; font-size: 2.6rem; margin: 0 auto 16px auto; box-shadow: 0 0 35px rgba(16, 185, 129, 0.5);">
+            <div id="resIconBox" style="width: 80px; height: 80px; border-radius: 50%; background: rgba(16, 185, 129, 0.2); border: 2.5px solid #10b981; display: flex; align-items: center; justify-content: center; font-size: 2.6rem; margin: 0 auto 16px auto; box-shadow: 0 0 35px rgba(16, 185, 129, 0.5);">
                 ✅
             </div>
-            <h3 style="font-size: 1.35rem; font-weight: 900; color: #f8fafc; margin-bottom: 8px;">
-                تم استلام إشعارك بنجاح!
+            <h3 id="resTitle" style="font-size: 1.35rem; font-weight: 900; color: #f8fafc; margin-bottom: 8px;">
+                تم استلام وفحص إشعارك بنجاح!
             </h3>
-            <p style="font-size: 0.90rem; color: #cbd5e1; line-height: 1.5; margin-bottom: 16px;">
-                وصل إشعار التحويل المالي إلى إدارة الحسابات في <strong style="color:#38bdf8;"><?= htmlspecialchars($companyName) ?></strong>، وجاري الفحص والمطابقة الآلية.
+            <p id="resMessage" style="font-size: 0.90rem; color: #cbd5e1; line-height: 1.5; margin-bottom: 16px;">
+                تم فحص إشعار التحويل المالي وتنزيله في حسابكم لدى <strong style="color:#38bdf8;"><?= htmlspecialchars($companyName) ?></strong>.
             </p>
             <div style="background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 12px; font-size: 0.85rem; margin-bottom: 20px; text-align: right;">
                 <div style="margin-bottom: 4px;">رقم المعاملة: <strong id="resTransferNo" style="color:#fef08a; font-family:'Consolas',monospace;"></strong></div>
-                <div>المبلغ: <strong id="resAmount" style="color:#38bdf8; font-family:'Consolas',monospace;"></strong> SDG</div>
+                <div style="margin-bottom: 4px;">المبلغ المعتمد: <strong id="resAmount" style="color:#38bdf8; font-family:'Consolas',monospace;"></strong> SDG</div>
+                <div id="resVoucherRow" style="display:none;">رقم سند القبض بالحسابات: <strong id="resVoucherNo" style="color:#34d399; font-family:'Consolas',monospace;"></strong></div>
             </div>
             <button type="button" onclick="location.reload()" style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.2); color: #fff; padding: 10px 24px; border-radius: 10px; font-weight: 800; cursor: pointer;">
                 إرسال إشعار آخر ➕
@@ -261,10 +263,19 @@ try {
 
     async function submitReceipt(e) {
         e.preventDefault();
+        const fileIn = document.getElementById('receiptFile');
+        const amtIn = document.getElementById('amount');
+        const tnoIn = document.getElementById('transferNo');
+        const hasFile = fileIn && fileIn.files && fileIn.files.length > 0;
+        if (!hasFile && (!amtIn.value || !tnoIn.value.trim())) {
+            alert('يرجى إما رفع صورة إشعار البنك أو إدخال المبلغ ورقم العملية المصرفية.');
+            return;
+        }
+
         const btn = document.getElementById('btnSubmit');
         btn.disabled = true;
         btn.style.opacity = '0.7';
-        btn.innerHTML = '<span>🔄 جاري الإرسال والمطابقة...</span>';
+        btn.innerHTML = '<span>🔄 جاري فحص الإشعار وتنزيله في الحسابات...</span>';
 
         const form = document.getElementById('receiptForm');
         const formData = new FormData(form);
@@ -279,8 +290,19 @@ try {
 
             if (data.success) {
                 form.style.display = 'none';
-                document.getElementById('resTransferNo').textContent = document.getElementById('transferNo').value;
-                document.getElementById('resAmount').textContent = Number(document.getElementById('amount').value).toLocaleString();
+                document.getElementById('resTransferNo').textContent = data.transfer_no || tnoIn.value || '---';
+                document.getElementById('resAmount').textContent = Number(data.amount || amtIn.value || 0).toLocaleString();
+                if (data.status === 'duplicate_rejected') {
+                    const iconBox = document.getElementById('resIconBox');
+                    iconBox.textContent = '⚠️';
+                    iconBox.style.borderColor = '#ef4444';
+                    iconBox.style.background = 'rgba(239,68,68,0.2)';
+                    document.getElementById('resTitle').textContent = 'تنبيه: إشعار مكرر مسجل مسبقاً!';
+                    document.getElementById('resMessage').textContent = 'رقم العملية المصرفية المرسل مسجل ومعتمد مسبقاً في النظام المالي.';
+                } else if (data.voucher_no) {
+                    document.getElementById('resVoucherRow').style.display = 'block';
+                    document.getElementById('resVoucherNo').textContent = data.voucher_no;
+                }
                 document.getElementById('successCard').style.display = 'block';
             } else {
                 alert('خطأ: ' + (data.error || 'تعذر إرسال الإشعار'));

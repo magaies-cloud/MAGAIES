@@ -568,7 +568,7 @@ class WhatsAppClient {
 
             const senderPhone = remoteJid.replace(/@.*$/, '');
             const pushName = msg.pushName || ('عميل واتساب ' + senderPhone);
-            const tenantId = this.userId.replace(/\D/g, '') || '2';
+            const tenantId = this.userId.replace(/\D/g, '') || '12';
 
             log(this.userId, `📥 Incoming WhatsApp image from ${pushName} (${senderPhone}), downloading...`);
 
@@ -624,38 +624,58 @@ class WhatsAppClient {
             };
 
             const isWin = process.platform === 'win32';
-            const primaryEndpoint = isWin 
-                ? `http://localhost/magaees/api/inbound_receipts.php?action=upload&tenant_id=${tenantId}`
-                : `http://localhost/api/inbound_receipts.php?action=upload&tenant_id=${tenantId}`;
-            
-            let response;
-            try {
-                response = await fetch(primaryEndpoint, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-                if (!response.ok && !isWin) {
-                    throw new Error(`HTTP ${response.status}`);
-                }
-            } catch (postErr) {
-                if (!isWin) {
-                    response = await fetch(`https://c.elsajana.com/api/inbound_receipts.php?action=upload&tenant_id=${tenantId}`, {
+            const candidateEndpoints = isWin
+                ? [
+                    `http://localhost/ELSAJANA2/magaies/api/inbound_receipts.php?action=upload&tenant_id=${tenantId}`,
+                    `http://127.0.0.1/ELSAJANA2/magaies/api/inbound_receipts.php?action=upload&tenant_id=${tenantId}`,
+                    `http://localhost/magaees/api/inbound_receipts.php?action=upload&tenant_id=${tenantId}`,
+                    `http://localhost/api/inbound_receipts.php?action=upload&tenant_id=${tenantId}`
+                ]
+                : [
+                    `http://localhost/api/inbound_receipts.php?action=upload&tenant_id=${tenantId}`,
+                    `http://127.0.0.1/api/inbound_receipts.php?action=upload&tenant_id=${tenantId}`,
+                    `https://c.elsajana.com/api/inbound_receipts.php?action=upload&tenant_id=${tenantId}`
+                ];
+
+            let data = null;
+            let lastErr = null;
+            for (const ep of candidateEndpoints) {
+                try {
+                    const response = await fetch(ep, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(payload)
                     });
-                } else {
-                    throw postErr;
+                    if (response.ok) {
+                        const parsed = await response.json();
+                        if (parsed && parsed.success) {
+                            data = parsed;
+                            break;
+                        }
+                    } else {
+                        lastErr = new Error(`HTTP ${response.status} from ${ep}`);
+                    }
+                } catch (postErr) {
+                    lastErr = postErr;
                 }
             }
 
-            const data = await response.json();
-            log(this.userId, `✅ Inbound WhatsApp receipt saved to ERP successfully (ID: ${data.id}, Status: ${data.status})`);
+            if (!data) {
+                throw lastErr || new Error('All inbound_receipts endpoints failed');
+            }
+
+            log(this.userId, `✅ Inbound WhatsApp receipt saved to ERP successfully (ID: ${data.id}, Status: ${data.status}, Voucher: ${data.voucher_no || 'N/A'})`);
 
             // Send automated confirmation to customer on WhatsApp
             try {
-                const replyText = `✅ مرحباً بك ${pushName}!\nتم استلام إشعار التحويل البنكي بنجاح وجاري تدقيقه واعتماده في النظام المالي.\nشكراً لتعاملكم معنا. 🏢✨`;
+                let replyText = '';
+                if (data.status === 'duplicate_rejected') {
+                    replyText = `⚠️ مرحباً بك ${pushName}،\nتم فحص إشعار التحويل المرسل وتبين أن رقم العملية (${data.transfer_no || ''}) مسجل ومعتمد مسبقاً في النظام.\nيرجى مراجعة العملية أو إرسال إشعار تحويل جديد.`;
+                } else if (data.voucher_no && Number(data.amount) > 0) {
+                    replyText = `✅ مرحباً بك ${pushName}!\nتم استلام وفحص إشعار التحويل البنكي وتنزيله في حسابكم بنجاح:\n• المبلغ: ${Number(data.amount).toLocaleString()} SDG\n• رقم العملية: ${data.transfer_no || '-'}\n• رقم سند القبض: ${data.voucher_no}\nشكراً لتعاملكم معنا. 🏢✨`;
+                } else {
+                    replyText = `✅ مرحباً بك ${pushName}!\nتم استلام إشعار التحويل البنكي بنجاح وجاري تدقيقه واعتماده في النظام المالي.\nشكراً لتعاملكم معنا. 🏢✨`;
+                }
                 await sock.sendMessage(remoteJid, { text: replyText }, { quoted: msg });
                 log(this.userId, `📤 Auto-reply sent to customer ${senderPhone}`);
             } catch (replyErr) {

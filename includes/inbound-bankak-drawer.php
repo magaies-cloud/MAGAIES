@@ -4,7 +4,7 @@
 // صينية مراجعة وفحص إشعارات بنكك الواردة من العملاء والربط مع السند المتعدد
 // =============================================================
 global $GLOBAL_TENANT_ID;
-$currentActiveTenant = !empty($GLOBAL_TENANT_ID) ? (string)$GLOBAL_TENANT_ID : '2';
+$currentActiveTenant = !empty($GLOBAL_TENANT_ID) ? (string)$GLOBAL_TENANT_ID : '12';
 ?>
 <!-- Inbound Bankak Receipts Floating Drawer Overlay -->
 <div id="inbound-bankak-drawer-overlay" style="display:none; position:fixed; inset:0; background:rgba(2, 6, 23, 0.75); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); z-index:999999; justify-content:flex-end; align-items:stretch; transition:all 0.3s ease;" onclick="if(event.target===this) InboundBankakManager.closeDrawer()">
@@ -28,7 +28,7 @@ $currentActiveTenant = !empty($GLOBAL_TENANT_ID) ? (string)$GLOBAL_TENANT_ID : '
                             <span>إشعارات بنكك والتحصيلات الواردة</span>
                             <span id="drawer-live-pulse" style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#10b981; box-shadow:0 0 8px #10b981; animation:pulseScale 1.4s infinite alternate;"></span>
                         </h3>
-                        <span style="font-size:0.78rem; color:#94a3b8; font-weight:700;">فحص تلقائي بالذكاء الاصطناعي ومطابقة فورية بالسند</span>
+                        <span style="font-size:0.78rem; color:#94a3b8; font-weight:700;">فحص تلقائي بالذكاء الاصطناعي وتنزيل فوري في الحسابات</span>
                     </div>
                 </div>
                 <div style="display:flex; align-items:center; gap:6px;">
@@ -44,7 +44,7 @@ $currentActiveTenant = !empty($GLOBAL_TENANT_ID) ? (string)$GLOBAL_TENANT_ID : '
             <!-- Stats Bar -->
             <div style="display:flex; gap:8px; align-items:center; justify-content:space-between; background:rgba(0,0,0,0.35); border:1px solid rgba(255,255,255,0.08); padding:6px 12px; border-radius:10px;">
                 <div style="display:flex; align-items:center; gap:6px; font-size:0.8rem; font-weight:800; color:#a7f3d0;">
-                    <span>🟢 سليم وجاهز:</span>
+                    <span>🟢 سليم ومنزل بالحسابات:</span>
                     <strong id="stat-verified-count" style="font-family:'Consolas',monospace; font-size:0.95rem;">0</strong>
                 </div>
                 <div style="display:flex; align-items:center; gap:6px; font-size:0.8rem; font-weight:800; color:#fca5a5;">
@@ -63,7 +63,7 @@ $currentActiveTenant = !empty($GLOBAL_TENANT_ID) ? (string)$GLOBAL_TENANT_ID : '
                     الكل (<span id="tab-all-count">0</span>)
                 </button>
                 <button type="button" class="drawer-tab-btn" data-filter="verified" onclick="InboundBankakManager.filterTab('verified', this)" style="flex:1; padding:6px 8px; border-radius:8px; border:1px solid rgba(255,255,255,0.1); background:rgba(255,255,255,0.04); color:#94a3b8; font-weight:800; font-size:0.82rem; cursor:pointer;">
-                    🟢 سليم
+                    🟢 سليم / منزل
                 </button>
                 <button type="button" class="drawer-tab-btn" data-filter="duplicate_rejected" onclick="InboundBankakManager.filterTab('duplicate_rejected', this)" style="flex:1; padding:6px 8px; border-radius:8px; border:1px solid rgba(255,255,255,0.1); background:rgba(255,255,255,0.04); color:#94a3b8; font-weight:800; font-size:0.82rem; cursor:pointer;">
                     🔴 مكرر
@@ -91,7 +91,7 @@ $currentActiveTenant = !empty($GLOBAL_TENANT_ID) ? (string)$GLOBAL_TENANT_ID : '
                     <span>⚡</span> <span>محاكاة إشعار فوري (تجربة)</span>
                 </button>
             </div>
-            <a href="send-receipt.php" target="_blank" style="text-align:center; color:#38bdf8; font-size:0.78rem; text-decoration:none; font-weight:800; padding:2px;">
+            <a href="send-receipt.php?tenant_id=<?php echo urlencode($currentActiveTenant); ?>" target="_blank" style="text-align:center; color:#38bdf8; font-size:0.78rem; text-decoration:none; font-weight:800; padding:2px;">
                 🔗 فتح بوابة الزبائن الخارجية (send-receipt.php)
             </a>
         </div>
@@ -102,7 +102,7 @@ $currentActiveTenant = !empty($GLOBAL_TENANT_ID) ? (string)$GLOBAL_TENANT_ID : '
 <div id="inbound-manual-upload-modal" style="display:none; position:fixed; inset:0; background:rgba(2, 6, 23, 0.85); backdrop-filter:blur(10px); z-index:9999999; justify-content:center; align-items:center; padding:16px; font-family:'Tajawal',sans-serif; direction:rtl;" onclick="if(event.target===this) InboundBankakManager.closeManualUploadModal()">
     <div style="width:100%; max-width:480px; background:linear-gradient(145deg, rgba(15,23,42,0.98), rgba(30,41,59,0.98)); border:2px solid #10b981; border-radius:20px; box-shadow:0 25px 60px rgba(0,0,0,0.9); padding:20px 22px; color:#fff; display:flex; flex-direction:column; gap:12px;">
         <div style="display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:8px;">
-            <h3 style="margin:0; font-size:1.15rem; font-weight:900; color:#34d399;">📥 رفع إشعار تحويل جديد</h3>
+            <h3 style="margin:0; font-size:1.15rem; font-weight:900; color:#34d399;">📥 رفع وفحص إشعار تحويل جديد</h3>
             <button type="button" onclick="InboundBankakManager.closeManualUploadModal()" style="background:none; border:none; color:#94a3b8; font-size:1.2rem; cursor:pointer;">✕</button>
         </div>
         <form id="inboundManualUploadForm" onsubmit="InboundBankakManager.handleManualUploadSubmit(event)" style="display:flex; flex-direction:column; gap:10px;">
@@ -112,12 +112,12 @@ $currentActiveTenant = !empty($GLOBAL_TENANT_ID) ? (string)$GLOBAL_TENANT_ID : '
             </div>
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
                 <div>
-                    <label style="font-size:0.80rem; color:#cbd5e1; font-weight:800; margin-bottom:4px; display:block;">المبلغ (SDG): *</label>
-                    <input type="number" step="any" id="manualAmount" required style="width:100%; box-sizing:border-box; background:rgba(0,0,0,0.4); border:1px solid rgba(255,255,255,0.2); border-radius:8px; padding:8px 12px; color:#fff; font-family:'Consolas',monospace;">
+                    <label style="font-size:0.80rem; color:#cbd5e1; font-weight:800; margin-bottom:4px; display:block;">المبلغ (SDG):</label>
+                    <input type="number" step="any" id="manualAmount" placeholder="يُقرأ تلقائياً من الصورة" style="width:100%; box-sizing:border-box; background:rgba(0,0,0,0.4); border:1px solid rgba(255,255,255,0.2); border-radius:8px; padding:8px 12px; color:#fff; font-family:'Consolas',monospace;">
                 </div>
                 <div>
-                    <label style="font-size:0.80rem; color:#cbd5e1; font-weight:800; margin-bottom:4px; display:block;">رقم المعاملة / العملية: *</label>
-                    <input type="text" id="manualTransferNo" required style="width:100%; box-sizing:border-box; background:rgba(0,0,0,0.4); border:1px solid rgba(255,255,255,0.2); border-radius:8px; padding:8px 12px; color:#fff; font-family:'Consolas',monospace;">
+                    <label style="font-size:0.80rem; color:#cbd5e1; font-weight:800; margin-bottom:4px; display:block;">رقم المعاملة / العملية:</label>
+                    <input type="text" id="manualTransferNo" placeholder="يُقرأ تلقائياً من الصورة" style="width:100%; box-sizing:border-box; background:rgba(0,0,0,0.4); border:1px solid rgba(255,255,255,0.2); border-radius:8px; padding:8px 12px; color:#fff; font-family:'Consolas',monospace;">
                 </div>
             </div>
             <div>
@@ -125,12 +125,12 @@ $currentActiveTenant = !empty($GLOBAL_TENANT_ID) ? (string)$GLOBAL_TENANT_ID : '
                 <input type="tel" id="manualCustPhone" placeholder="09xxxxxxxx" style="width:100%; box-sizing:border-box; background:rgba(0,0,0,0.4); border:1px solid rgba(255,255,255,0.2); border-radius:8px; padding:8px 12px; color:#fff; font-family:'Consolas',monospace;">
             </div>
             <div>
-                <label style="font-size:0.80rem; color:#cbd5e1; font-weight:800; margin-bottom:4px; display:block;">صورة الإشعار (اختياري):</label>
+                <label style="font-size:0.80rem; color:#cbd5e1; font-weight:800; margin-bottom:4px; display:block;">صورة الإشعار (للفحص بالذكاء الاصطناعي):</label>
                 <input type="file" id="manualReceiptFile" accept="image/*" style="width:100%; box-sizing:border-box; background:rgba(0,0,0,0.4); border:1px solid rgba(255,255,255,0.2); border-radius:8px; padding:6px; color:#fff; font-size:0.82rem;">
             </div>
             <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:8px;">
                 <button type="button" onclick="InboundBankakManager.closeManualUploadModal()" style="height:36px; padding:0 16px; border-radius:8px; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.2); color:#fff; font-weight:800; cursor:pointer;">إلغاء</button>
-                <button type="submit" id="btnSubmitManualUpload" style="height:36px; padding:0 20px; border-radius:8px; background:linear-gradient(135deg, #10b981, #059669); border:1.5px solid #34d399; color:#fff; font-weight:900; cursor:pointer;">حفظ وإنزال في الصندوق 🚀</button>
+                <button type="submit" id="btnSubmitManualUpload" style="height:36px; padding:0 20px; border-radius:8px; background:linear-gradient(135deg, #10b981, #059669); border:1.5px solid #34d399; color:#fff; font-weight:900; cursor:pointer;">فحص وتنزيل في الحسابات 🚀</button>
             </div>
         </form>
     </div>
@@ -254,6 +254,7 @@ $currentActiveTenant = !empty($GLOBAL_TENANT_ID) ? (string)$GLOBAL_TENANT_ID : '
 window.InboundBankakManager = {
     receipts: [],
     knownReceiptIds: new Set(),
+    syncedVoucherNos: new Set(),
     _hasInitialLoaded: false,
     activeFilter: 'all',
     currentReceiptForAlert: null,
@@ -262,7 +263,7 @@ window.InboundBankakManager = {
         return (window.SERVER_TENANT && window.SERVER_TENANT.id) 
             || (JSON.parse(localStorage.getItem('user')||'{}').tenant_id) 
             || '<?php echo $currentActiveTenant; ?>' 
-            || '2';
+            || '12';
     },
 
     init: function() {
@@ -300,12 +301,201 @@ window.InboundBankakManager = {
         if (overlay) overlay.style.display = 'none';
     },
 
+    // Sync a posted inbound receipt into localStorage (erp_receipts_v1, erp_customers_v1, erp_banks_v1) and General Ledger
+    syncPostedReceiptToLocalErp: function(r, postingData = null) {
+        if (!r || (!r.voucher_no && !(postingData && postingData.voucher_no))) return;
+        const vNo = (postingData && postingData.voucher_no) ? postingData.voucher_no : r.voucher_no;
+        if (!vNo) return;
+
+        const getTenantKey = window.getTenantKey || ((k) => k);
+        const rKey = getTenantKey('erp_receipts_v1');
+        let storedReceipts = [];
+        try {
+            storedReceipts = JSON.parse(localStorage.getItem(rKey) || localStorage.getItem('erp_receipts_v1') || '[]');
+            if (!Array.isArray(storedReceipts)) storedReceipts = [];
+        } catch (e) { storedReceipts = []; }
+
+        const alreadyInLocal = storedReceipts.some(v => v && (v.voucherNo === vNo || v.id === vNo));
+        if (alreadyInLocal && this.syncedVoucherNos.has(vNo) && !postingData) {
+            return;
+        }
+        this.syncedVoucherNos.add(vNo);
+
+        // 1. Sync Customer in erp_customers_v1
+        const cKey = getTenantKey('erp_customers_v1');
+        let custs = [];
+        try {
+            custs = JSON.parse(localStorage.getItem(cKey) || localStorage.getItem('erp_customers_v1') || '[]');
+            if (!Array.isArray(custs)) custs = [];
+        } catch (e) { custs = []; }
+
+        let rawCustId = (postingData && postingData.customer_id) ? postingData.customer_id : (r.customer_id || '');
+        rawCustId = String(rawCustId).replace(/^cust-/, '');
+        const custName = (postingData && postingData.customer_name) ? postingData.customer_name : (r.customer_name || 'عميل بنكك');
+        const amt = parseFloat(r.amount || (postingData && postingData.voucher && postingData.voucher.totalAmount) || 0) || 0;
+
+        let cIdx = custs.findIndex(c => c && (String(c.id) === rawCustId || (c.name && c.name.trim() === custName.trim())));
+        if (cIdx > -1) {
+            rawCustId = String(custs[cIdx].id);
+            if (postingData && postingData.customer && postingData.customer.currentBalance !== undefined) {
+                custs[cIdx].currentBalance = parseFloat(postingData.customer.currentBalance) || 0;
+            } else if (!alreadyInLocal && amt > 0) {
+                custs[cIdx].currentBalance = (parseFloat(custs[cIdx].currentBalance) || 0) - amt;
+            }
+        } else if (postingData && postingData.customer) {
+            rawCustId = String(postingData.customer.id || rawCustId || ('CUST-' + Date.now()));
+            custs.push(postingData.customer);
+        } else if (custName) {
+            rawCustId = rawCustId || ('CUST-' + Date.now());
+            custs.push({
+                id: rawCustId,
+                name: custName,
+                phone: r.customer_phone || '',
+                whatsapp: r.customer_phone || '',
+                currentBalance: -amt,
+                status: 'active'
+            });
+        }
+        try {
+            localStorage.setItem(cKey, JSON.stringify(custs));
+            localStorage.setItem('erp_customers_v1', JSON.stringify(custs));
+        } catch (e) {}
+
+        // 2. Sync Bank in erp_banks_v1
+        const bKey = getTenantKey('erp_banks_v1');
+        let banks = [];
+        try {
+            banks = JSON.parse(localStorage.getItem(bKey) || localStorage.getItem('erp_banks_v1') || '[]');
+            if (!Array.isArray(banks)) banks = [];
+        } catch (e) { banks = []; }
+
+        let rawBankId = (postingData && postingData.bank_id) ? postingData.bank_id : '';
+        rawBankId = String(rawBankId).replace(/^bank-/, '');
+        let bIdx = banks.findIndex(b => b && ((rawBankId && String(b.id) === rawBankId) || (b.type !== 'safe' && b.name && (b.name.includes('الخرطوم') || (r.bank_name && r.bank_name.includes(b.name))))));
+        if (bIdx === -1) {
+            bIdx = banks.findIndex(b => b && b.type !== 'safe');
+        }
+        let resolvedBankName = r.bank_name || 'بنك الخرطوم';
+        if (bIdx > -1) {
+            rawBankId = String(banks[bIdx].id);
+            resolvedBankName = banks[bIdx].name || resolvedBankName;
+            if (postingData && postingData.bank && postingData.bank.currentBalance !== undefined) {
+                banks[bIdx].currentBalance = parseFloat(postingData.bank.currentBalance) || 0;
+            } else if (!alreadyInLocal && amt > 0) {
+                banks[bIdx].currentBalance = (parseFloat(banks[bIdx].currentBalance) || 0) + amt;
+            }
+            try {
+                localStorage.setItem(bKey, JSON.stringify(banks));
+                localStorage.setItem('erp_banks_v1', JSON.stringify(banks));
+            } catch (e) {}
+        } else if (postingData && postingData.bank) {
+            rawBankId = String(postingData.bank.id || 'B-1700000000001');
+            resolvedBankName = postingData.bank.name || resolvedBankName;
+            banks.push(postingData.bank);
+            try {
+                localStorage.setItem(bKey, JSON.stringify(banks));
+                localStorage.setItem('erp_banks_v1', JSON.stringify(banks));
+            } catch (e) {}
+        }
+
+        // 3. Sync Voucher in erp_receipts_v1
+        const sysRate = (typeof window.getSystemUsdRate === 'function' ? window.getSystemUsdRate() : 5999) || 5999;
+        const voucherDesc = `سداد إشعار تحويل بنكي (${r.bank_name || 'بنكك'}) رقم العملية: ${r.transfer_no || ''} - العميل: ${custName}`;
+        const voucherObj = (postingData && postingData.voucher) ? postingData.voucher : {
+            id: vNo,
+            voucherNo: vNo,
+            type: 'receipt',
+            isGrouped: true,
+            mainAccount: 'bank-' + (rawBankId || 'B-1700000000001'),
+            toAccount: 'bank-' + (rawBankId || 'B-1700000000001'),
+            fromAccount: 'حسابات فرعية متعددة',
+            date: (r.created_at ? r.created_at.substring(0, 10) : new Date().toISOString().substring(0, 10)),
+            time: new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }),
+            description: voucherDesc,
+            notes: voucherDesc,
+            totalAmount: amt,
+            amountLocal: amt,
+            foreignAmount: +(amt / sysRate).toFixed(2),
+            amountForeign: +(amt / sysRate).toFixed(2),
+            currency: r.currency || 'SDG',
+            exchangeRate: 1,
+            systemExchangeRate: sysRate,
+            paymentMethod: 'hybrid',
+            inboundReceiptId: Number(r.id),
+            items: [
+                {
+                    account: 'cust-' + rawCustId,
+                    accountId: 'cust-' + rawCustId,
+                    accountName: custName,
+                    amount: amt,
+                    statement: `إشعار تحويل ${r.bank_name || 'بنكك'} رقم ${r.transfer_no || ''}`,
+                    costCenter: '',
+                    costCenterId: '',
+                    costCenterName: '',
+                    paymentMethods: ['bank'],
+                    paymentMethod: 'bank',
+                    cashAmount: 0,
+                    cashSafe: '',
+                    cashStatement: '',
+                    bankAmount: amt,
+                    bankTransfers: [
+                        {
+                            amount: amt,
+                            bankName: resolvedBankName,
+                            transferNo: r.transfer_no || '',
+                            statement: `إشعار وارد #${r.id} - ${custName}`
+                        }
+                    ],
+                    chequeAmount: 0,
+                    cheques: [],
+                    bankName: resolvedBankName,
+                    transferNo: r.transfer_no || '',
+                    chequeBank: '',
+                    chequeNo: '',
+                    chequeDate: '',
+                    chequeDueDate: ''
+                }
+            ],
+            isPosted: true,
+            createdAt: new Date().toISOString()
+        };
+
+        const vIdx = storedReceipts.findIndex(v => v && (v.voucherNo === vNo || v.id === vNo));
+        if (vIdx > -1) {
+            storedReceipts[vIdx] = voucherObj;
+        } else {
+            storedReceipts.push(voucherObj);
+        }
+        try {
+            localStorage.setItem(rKey, JSON.stringify(storedReceipts));
+            localStorage.setItem('erp_receipts_v1', JSON.stringify(storedReceipts));
+        } catch (e) {}
+
+        // 4. Rebuild Accounts Dropdown & General Ledger
+        if (typeof window.buildAccountsArray === 'function') {
+            try { window.buildAccountsArray(); } catch (e) {}
+        }
+        if (typeof window.rebuildGLFromAllTables === 'function') {
+            try { window.rebuildGLFromAllTables(false); } catch (e) {}
+        }
+        if (typeof window.refreshVoucherNavigationList === 'function') {
+            try { window.refreshVoucherNavigationList(); } catch (e) {}
+        }
+    },
+
     refreshReceipts: function(isSilent = false) {
         const tId = this.getActiveTenantId();
         fetch('api/inbound_receipts.php?action=list&tenant_id=' + encodeURIComponent(tId))
             .then(res => res.json())
             .then(res => {
                 if (res.success && Array.isArray(res.data)) {
+                    // Sync any backend-posted receipts to local ERP storage & GL
+                    res.data.forEach(r => {
+                        if (r.voucher_no && (r.status === 'verified' || r.status === 'reconciled')) {
+                            this.syncPostedReceiptToLocalErp(r);
+                        }
+                    });
+
                     // Check if new receipts arrived in real-time
                     if (this._hasInitialLoaded) {
                         const newReceipts = res.data.filter(r => !this.knownReceiptIds.has(Number(r.id)));
@@ -375,17 +565,18 @@ window.InboundBankakManager = {
             animation: slideInRightToast 0.35s cubic-bezier(0.16, 1, 0.3, 1);
             cursor: pointer;
         `;
+        const vBadge = receipt.voucher_no ? `<span style="font-size:0.75rem; background:rgba(16,185,129,0.25); border:1px solid #10b981; color:#6ee7b7; padding:1px 6px; border-radius:6px;">نزل بالحسابات (${escapeHtml(receipt.voucher_no)})</span>` : `<span style="font-size:0.75rem; background:rgba(56,189,248,0.2); color:#7dd3fc; padding:1px 6px; border-radius:6px;">بنكك</span>`;
         div.innerHTML = `
             <div style="width:44px; height:44px; border-radius:12px; background:rgba(16,185,129,0.25); border:1.8px solid #34d399; display:flex; align-items:center; justify-content:center; font-size:1.5rem; flex-shrink:0;">
                 📥
             </div>
             <div style="display:flex; flex-direction:column; gap:2px;">
                 <div style="display:flex; align-items:center; gap:8px;">
-                    <strong style="color:#34d399; font-size:0.95rem;">⚡ إشعار بنكك جديد وصل الآن!</strong>
-                    <span style="font-size:0.75rem; background:rgba(56,189,248,0.2); color:#7dd3fc; padding:1px 6px; border-radius:6px;">بنكك</span>
+                    <strong style="color:#34d399; font-size:0.95rem;">⚡ إشعار بنكك جديد تم فحصه!</strong>
+                    ${vBadge}
                 </div>
                 <span style="font-size:0.86rem; color:#f8fafc; font-weight:800;">من: ${escapeHtml(receipt.customer_name)}</span>
-                <span style="font-size:0.80rem; color:#cbd5e1;">المبلغ: <strong style="color:#fef08a;">${Number(receipt.amount||0).toLocaleString()} SDG</strong> | انقر للفحص بالسند 🚀</span>
+                <span style="font-size:0.80rem; color:#cbd5e1;">المبلغ: <strong style="color:#fef08a;">${Number(receipt.amount||0).toLocaleString()} SDG</strong> | انقر للعرض بالسند 🚀</span>
             </div>
             <button type="button" onclick="event.stopPropagation(); this.parentElement.remove()" style="background:none; border:none; color:#94a3b8; font-size:1.2rem; cursor:pointer; padding:0 4px;">✕</button>
         `;
@@ -400,7 +591,7 @@ window.InboundBankakManager = {
     updateStats: function(stats) {
         if (!stats) return;
         const total = stats.total || 0;
-        const verified = stats.verified || 0;
+        const verified = (stats.verified || 0);
         const dup = stats.duplicate_rejected || 0;
         const pending = stats.pending || 0;
 
@@ -450,7 +641,11 @@ window.InboundBankakManager = {
 
         let filtered = this.receipts;
         if (this.activeFilter !== 'all') {
-            filtered = this.receipts.filter(r => r.status === this.activeFilter);
+            if (this.activeFilter === 'verified') {
+                filtered = this.receipts.filter(r => r.status === 'verified' || r.status === 'reconciled');
+            } else {
+                filtered = this.receipts.filter(r => r.status === this.activeFilter);
+            }
         }
 
         if (filtered.length === 0) {
@@ -467,15 +662,17 @@ window.InboundBankakManager = {
         let html = '';
         filtered.forEach(r => {
             const isDup = r.status === 'duplicate_rejected';
-            const isVer = r.status === 'verified';
-            const isPen = r.status === 'pending';
+            const isVer = r.status === 'verified' || r.status === 'reconciled';
+            const isPosted = !!(r.voucher_no);
             const cardClass = isDup ? 'card-duplicate' : (isVer ? 'card-verified' : 'card-pending');
 
             const statusBadge = isDup 
                 ? '<span style="background:rgba(239,68,68,0.2); border:1px solid #ef4444; color:#fca5a5; padding:2px 8px; border-radius:6px; font-size:0.72rem; font-weight:900;">⚠️ إشعار مكرر (خطر)</span>'
-                : (isVer 
-                    ? '<span style="background:rgba(16,185,129,0.2); border:1px solid #10b981; color:#6ee7b7; padding:2px 8px; border-radius:6px; font-size:0.72rem; font-weight:900;">✅ سليم وجاهز للاعتماد</span>'
-                    : '<span style="background:rgba(245,158,11,0.2); border:1px solid #f59e0b; color:#fde047; padding:2px 8px; border-radius:6px; font-size:0.72rem; font-weight:900;">⏳ بانتظار الفحص</span>');
+                : (isPosted
+                    ? `<span style="background:rgba(16,185,129,0.25); border:1px solid #10b981; color:#6ee7b7; padding:2px 8px; border-radius:6px; font-size:0.72rem; font-weight:900;">✅ تم الفحص والتنزيل (${escapeHtml(r.voucher_no)})</span>`
+                    : (isVer 
+                        ? '<span style="background:rgba(16,185,129,0.2); border:1px solid #10b981; color:#6ee7b7; padding:2px 8px; border-radius:6px; font-size:0.72rem; font-weight:900;">✅ سليم وجاهز للتنزيل</span>'
+                        : '<span style="background:rgba(245,158,11,0.2); border:1px solid #f59e0b; color:#fde047; padding:2px 8px; border-radius:6px; font-size:0.72rem; font-weight:900;">⏳ بانتظار الفحص</span>'));
 
             const formattedAmt = parseFloat(r.amount || 0).toLocaleString('en-US', { minimumFractionDigits: 2 });
 
@@ -509,20 +706,26 @@ window.InboundBankakManager = {
                     ${r.notes ? `<div style="font-size:0.75rem; color:${isDup ? '#fca5a5' : '#cbd5e1'}; background:rgba(0,0,0,0.2); padding:4px 8px; border-radius:6px; line-height:1.3;">${escapeHtml(r.notes)}</div>` : ''}
 
                     <!-- Actions Row -->
-                    <div style="display:flex; gap:6px; margin-top:2px; align-items:center;">
-                        <!-- زر الفحص والمطابقة في السند -->
-                        <button type="button" onclick="InboundBankakManager.inspectInVoucher(${r.id})" style="flex:1.2; height:32px; border-radius:7px; background:linear-gradient(135deg, rgba(56,189,248,0.25), rgba(14,165,233,0.4)); border:1.2px solid #38bdf8; color:#ffffff; font-size:0.78rem; font-weight:900; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:4px; box-shadow:0 0 10px rgba(56,189,248,0.2);" title="فتح شاشة السند وتفريغ بيانات هذا الإشعار بالـ AI فوراً">
-                            <span>🔍</span> <span>فحص ومطابقة بالسند</span>
+                    <div style="display:flex; gap:6px; margin-top:2px; align-items:center; flex-wrap:wrap;">
+                        <!-- زر الفحص والتنزيل في السند والحسابات -->
+                        <button type="button" onclick="InboundBankakManager.inspectInVoucher(${r.id})" style="flex:1.3; height:32px; border-radius:7px; background:linear-gradient(135deg, rgba(56,189,248,0.25), rgba(14,165,233,0.4)); border:1.2px solid #38bdf8; color:#ffffff; font-size:0.78rem; font-weight:900; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:4px; box-shadow:0 0 10px rgba(56,189,248,0.2);" title="فحص الإشعار وتفريغ بياناته في السند وتنزيله في الحسابات">
+                            <span>🔍</span> <span>${isPosted ? 'عرض ومطابقة بالسند' : 'فحص وتنزيل بالسند'}</span>
                         </button>
 
+                        ${(!isPosted && !isDup && parseFloat(r.amount || 0) > 0) ? `
+                        <button type="button" onclick="InboundBankakManager.postToAccountsDirect(${r.id}, this)" style="height:32px; padding:0 10px; border-radius:7px; background:linear-gradient(135deg, rgba(16,185,129,0.3), rgba(5,150,105,0.5)); border:1.2px solid #10b981; color:#a7f3d0; font-size:0.76rem; font-weight:900; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:3px;" title="تنزيل فوري في حساب العميل وحساب البنك وإصدار سند قبض">
+                            <span>⚡</span> <span>تنزيل بالحسابات</span>
+                        </button>
+                        ` : ''}
+
                         ${(!r.amount || parseFloat(r.amount) <= 0 || !r.transfer_no) ? `
-                        <button type="button" onclick="InboundBankakManager.triggerOCR(${r.id}, this)" style="height:32px; padding:0 8px; border-radius:7px; background:linear-gradient(135deg, rgba(245,158,11,0.25), rgba(217,119,6,0.35)); border:1.2px solid #f59e0b; color:#fde047; font-size:0.75rem; font-weight:900; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:3px;" title="استخراج المبلغ ورقم العملية بالذكاء الاصطناعي الآن">
+                        <button type="button" onclick="InboundBankakManager.triggerOCR(${r.id}, this)" style="height:32px; padding:0 8px; border-radius:7px; background:linear-gradient(135deg, rgba(245,158,11,0.25), rgba(217,119,6,0.35)); border:1.2px solid #f59e0b; color:#fde047; font-size:0.75rem; font-weight:900; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:3px;" title="استخراج المبلغ ورقم العملية بالذكاء الاصطناعي وتنزيله في الحسابات">
                             <span>⚡</span> <span>فحص AI</span>
                         </button>
                         ` : ''}
 
                         <!-- زر إشعار الزبون عبر واتساب -->
-                        <button type="button" onclick="InboundBankakManager.openCustomerAlertModal(${r.id})" style="flex:1; height:32px; border-radius:7px; background:linear-gradient(135deg, rgba(37,211,102,0.25), rgba(16,185,129,0.35)); border:1.2px solid #25d366; color:#a7f3d0; font-size:0.78rem; font-weight:900; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:4px;" title="إرسال تنبيه رسمي للزبون عبر واتساب بالخلل أو التأكيد">
+                        <button type="button" onclick="InboundBankakManager.openCustomerAlertModal(${r.id})" style="flex:0.9; height:32px; border-radius:7px; background:linear-gradient(135deg, rgba(37,211,102,0.25), rgba(16,185,129,0.35)); border:1.2px solid #25d366; color:#a7f3d0; font-size:0.78rem; font-weight:900; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:4px;" title="إرسال تنبيه رسمي للزبون عبر واتساب بالخلل أو التأكيد">
                             <span>📲</span> <span>إشعار الزبون</span>
                         </button>
 
@@ -538,6 +741,40 @@ window.InboundBankakManager = {
         container.innerHTML = html;
     },
 
+    // ═══ تنزيل فوري في الحسابات بنقرة واحدة ═══
+    postToAccountsDirect: async function(receiptId, btnElement) {
+        if (btnElement) {
+            btnElement.disabled = true;
+            btnElement.innerHTML = '<span>🔄</span> <span>جاري التنزيل...</span>';
+        }
+        try {
+            const tId = this.getActiveTenantId();
+            const res = await fetch(`api/inbound_receipts.php?action=post_to_accounts&id=${receiptId}&tenant_id=${encodeURIComponent(tId)}`);
+            const data = await res.json();
+            if (data.success && data.voucher_no) {
+                const r = this.receipts.find(x => x.id == receiptId) || { id: receiptId, voucher_no: data.voucher_no };
+                r.voucher_no = data.voucher_no;
+                this.syncPostedReceiptToLocalErp(r, data);
+                this.refreshReceipts();
+                if (typeof showToast === 'function') {
+                    showToast(`✅ تم تنزيل الإشعار في حساب العميل (${data.customer_name}) وحساب البنك بنجاح بالسند رقم (${data.voucher_no})!`, 'success');
+                }
+            } else {
+                alert(data.error || 'تعذر تنزيل الإشعار في الحسابات');
+                if (btnElement) {
+                    btnElement.disabled = false;
+                    btnElement.innerHTML = '<span>⚡</span> <span>تنزيل بالحسابات</span>';
+                }
+            }
+        } catch (e) {
+            alert('خطأ أثناء التنزيل في الحسابات: ' + e.message);
+            if (btnElement) {
+                btnElement.disabled = false;
+                btnElement.innerHTML = '<span>⚡</span> <span>تنزيل بالحسابات</span>';
+            }
+        }
+    },
+
     // ═══ فحص سريع بالذكاء الاصطناعي من داخل الصينية ═══
     triggerOCR: async function(receiptId, btnElement) {
         if (btnElement) {
@@ -548,8 +785,12 @@ window.InboundBankakManager = {
             const res = await fetch(`api/inbound_receipts.php?action=scan_receipt&id=${receiptId}`);
             const data = await res.json();
             if (data.success && data.data) {
+                if (data.data.posting && data.data.posting.voucher_no) {
+                    this.syncPostedReceiptToLocalErp(data.data, data.data.posting);
+                }
                 if (typeof showToast === 'function') {
-                    showToast(`✅ تم فحص الإشعار بالـ AI: المبلغ (${parseFloat(data.data.amount||0).toLocaleString()} SDG) برقم (${data.data.transfer_no})`, 'success');
+                    const vMsg = data.data.voucher_no ? ` وتم تنزيله في الحسابات بالسند (${data.data.voucher_no})` : '';
+                    showToast(`✅ تم فحص الإشعار بالـ AI: المبلغ (${parseFloat(data.data.amount||0).toLocaleString()} SDG) برقم (${data.data.transfer_no})${vMsg}`, 'success');
                 }
                 this.refreshReceipts();
             } else {
@@ -568,21 +809,26 @@ window.InboundBankakManager = {
         }
     },
 
-    // ═══ الفحص الذكي في السند المتعدد (Deep Link & Auto-Fill in Multi-Cash-Payment) ═══
+    // ═══ الفحص الذكي والتنزيل في السند المتعدد والحسابات (Deep Link & Auto-Fill in Multi-Cash-Payment) ═══
     inspectInVoucher: async function(receiptId) {
         let r = this.receipts.find(x => x.id == receiptId);
         if (!r) return;
 
+        const tId = this.getActiveTenantId();
+
         // 1. If amount is 0 or transfer_no is missing, scan it now via API
         if ((!r.amount || parseFloat(r.amount) <= 0 || !r.transfer_no) && r.receipt_image) {
             if (typeof showToast === 'function') {
-                showToast('⏳ جاري فحص الإشعار بالذكاء الاصطناعي واستخراج المبلغ...', 'info', 4000);
+                showToast('⏳ جاري فحص الإشعار بالذكاء الاصطناعي واستخراج المبلغ وتنزيله بالحسابات...', 'info');
             }
             try {
-                const scanRes = await fetch(`api/inbound_receipts.php?action=scan_receipt&id=${r.id}`);
+                const scanRes = await fetch(`api/inbound_receipts.php?action=scan_receipt&id=${r.id}&tenant_id=${encodeURIComponent(tId)}`);
                 const scanData = await scanRes.json();
                 if (scanData.success && scanData.data) {
                     r = Object.assign(r, scanData.data);
+                    if (scanData.data.posting && scanData.data.posting.voucher_no) {
+                        this.syncPostedReceiptToLocalErp(r, scanData.data.posting);
+                    }
                     this.refreshReceipts(true);
                 }
             } catch (e) {
@@ -590,52 +836,191 @@ window.InboundBankakManager = {
             }
         }
 
-        // 2. Close drawer
-        this.closeDrawer();
-
-        // 3. Set Voucher Type to Receipt (سند قبض / استلام من عميل)
-        if (typeof window.setVoucherType === 'function') {
-            window.setVoucherType('receipt');
+        // 2. If receipt is valid and not yet posted to accounts, post it now!
+        let postDetails = null;
+        if (r.status !== 'duplicate_rejected' && parseFloat(r.amount || 0) > 0 && !r.voucher_no) {
+            try {
+                const postRes = await fetch(`api/inbound_receipts.php?action=post_to_accounts&id=${r.id}&tenant_id=${encodeURIComponent(tId)}`);
+                const postData = await postRes.json();
+                if (postData && postData.success && postData.voucher_no) {
+                    r.voucher_no = postData.voucher_no;
+                    r.customer_id = postData.customer_id || r.customer_id;
+                    r.customer_name = postData.customer_name || r.customer_name;
+                    postDetails = postData;
+                    this.syncPostedReceiptToLocalErp(r, postData);
+                    this.refreshReceipts(true);
+                }
+            } catch (e) {
+                console.warn('Auto post to accounts warning:', e);
+            }
+        } else if (r.voucher_no) {
+            this.syncPostedReceiptToLocalErp(r);
         }
 
-        // 4. Populate Block 1 Customer
+        // 3. Close drawer & remember active inbound receipt ID
+        this.closeDrawer();
+        window._activeInboundReceiptId = r.id;
+
+        // 4. Set Voucher Type to Receipt (سند قبض / استلام من عميل)
+        if (typeof window.setVoucherType === 'function') {
+            window.setVoucherType('receipt');
+        } else {
+            const vTypeEl = document.getElementById('voucher-type');
+            if (vTypeEl) vTypeEl.value = 'receipt';
+        }
+
+        // 5. Dynamically resolve the real .account-block data-block-id (NEVER hardcode '1')
         setTimeout(() => {
-            const accSearch = document.getElementById('account-1-search');
-            const accId = document.getElementById('account-1-id');
+            const container = document.getElementById('accounts-blocks-container');
+            let targetBlock = container ? container.querySelector('.account-block') : document.querySelector('.account-block');
+            if (!targetBlock && typeof window.addAccountBlock === 'function') {
+                window.addAccountBlock();
+                targetBlock = container ? container.querySelector('.account-block') : document.querySelector('.account-block');
+            }
+            if (!targetBlock) return;
+
+            const blockId = targetBlock.getAttribute('data-block-id');
+
+            // Set voucher number if already assigned in DB so saving updates the same voucher
+            if (r.voucher_no) {
+                const vNoEl = document.getElementById('voucher-no-display');
+                if (vNoEl) vNoEl.value = r.voucher_no;
+            }
+
+            // Rebuild ACCOUNTS so newly matched/created customer & bank are available
+            if (typeof window.buildAccountsArray === 'function') {
+                try { window.buildAccountsArray(); } catch (e) {}
+            }
+
+            // 6. Populate Main Account (Receiving Bank)
+            const mainAccInput = document.getElementById('main-account');
+            const mainAccSearch = document.getElementById('main-account-search');
+            if (typeof ACCOUNTS !== 'undefined' && Array.isArray(ACCOUNTS)) {
+                let bankAcc = ACCOUNTS.find(a => a.id && a.id.startsWith('bank-') && (
+                    (r.bank_name && a.name && r.bank_name.includes(a.name)) ||
+                    (a.name && a.name.includes('الخرطوم'))
+                ));
+                if (!bankAcc) {
+                    bankAcc = ACCOUNTS.find(a => a.id && a.id.startsWith('bank-'));
+                }
+                if (bankAcc) {
+                    if (mainAccInput) {
+                        mainAccInput.value = bankAcc.id;
+                        mainAccInput.setAttribute('data-id', bankAcc.id);
+                    }
+                    if (mainAccSearch) {
+                        mainAccSearch.value = bankAcc.name;
+                    }
+                }
+            }
+
+            // 7. Populate Customer Account in Block
+            const rawCustId = String(r.customer_id || '').replace(/^cust-/, '');
+            let fullCustAccId = rawCustId ? ('cust-' + rawCustId) : '';
+            if (typeof ACCOUNTS !== 'undefined' && Array.isArray(ACCOUNTS)) {
+                const matchedCustAcc = ACCOUNTS.find(a =>
+                    (fullCustAccId && String(a.id) === fullCustAccId) ||
+                    (r.customer_name && a.name && a.name.trim() === r.customer_name.trim())
+                );
+                if (matchedCustAcc) {
+                    fullCustAccId = matchedCustAcc.id;
+                }
+            }
+
+            const accSearch = document.getElementById(`account-${blockId}-search`);
+            const accHidden = document.getElementById(`account-${blockId}`);
+            const accId = document.getElementById(`account-${blockId}-id`);
             if (accSearch) {
-                accSearch.value = r.customer_name;
-                accSearch.dispatchEvent(new Event('input', { bubbles: true }));
+                accSearch.value = r.customer_name || '';
+            }
+            if (accHidden) {
+                accHidden.value = fullCustAccId || r.customer_name || '';
             }
             if (accId) {
-                accId.value = r.customer_id || r.customer_name;
+                accId.value = fullCustAccId || r.customer_name || '';
             }
 
-            // 5. Activate Bank Payment Method in Block 1
-            const btnBank = document.getElementById('pm-bank-1');
+            // 8. Activate Bank Payment Method in targetBlock (and deactivate Cash if active)
+            const btnCash = document.getElementById(`pm-cash-${blockId}`);
+            const btnBank = document.getElementById(`pm-bank-${blockId}`);
+            if (btnCash && btnCash.classList.contains('active') && typeof window.toggleBlockPayment === 'function') {
+                window.toggleBlockPayment(blockId, 'cash');
+            }
             if (btnBank && !btnBank.classList.contains('active')) {
-                btnBank.click();
+                if (typeof window.toggleBlockPayment === 'function') {
+                    window.toggleBlockPayment(blockId, 'bank');
+                } else {
+                    btnBank.click();
+                }
             }
 
-            // 6. Fill Bank Details
+            // Ensure sub-fields and sub-bank containers are visible
+            const subFields = document.getElementById(`sub-fields-${blockId}`);
+            const subBank = document.getElementById(`sub-bank-${blockId}`);
+            if (subFields) subFields.style.display = 'block';
+            if (subBank) subBank.style.display = 'block';
+
+            // 9. Fill Bank Transfer Row Details & Totals
             setTimeout(() => {
-                const bAmt = document.querySelector('#block-1 .block-bank-amount') || document.getElementById('amount-1');
-                if (bAmt && r.amount) {
-                    bAmt.value = r.amount;
-                    bAmt.dispatchEvent(new Event('input', { bubbles: true }));
-                    bAmt.dispatchEvent(new Event('change', { bubbles: true }));
+                let bankRow = targetBlock.querySelector('.bank-row');
+                if (!bankRow && typeof window.addBankRow === 'function') {
+                    window.addBankRow(blockId);
+                    bankRow = targetBlock.querySelector('.bank-row');
                 }
 
-                const bTransfer = document.querySelector('#block-1 .block-transfer-no-input');
-                if (bTransfer && r.transfer_no) {
-                    bTransfer.value = r.transfer_no;
-                    bTransfer.dispatchEvent(new Event('input', { bubbles: true }));
-                    bTransfer.dispatchEvent(new Event('change', { bubbles: true }));
+                const cleanAmt = parseFloat(r.amount || 0) || 0;
+                const formattedAmtStr = (typeof fmtNum === 'function') ? fmtNum(cleanAmt) : cleanAmt.toLocaleString('en-US');
+
+                if (bankRow) {
+                    const bAmt = bankRow.querySelector('.block-bank-amount');
+                    if (bAmt && cleanAmt > 0) {
+                        bAmt.value = formattedAmtStr;
+                        bAmt.dispatchEvent(new Event('input', { bubbles: true }));
+                        bAmt.dispatchEvent(new Event('change', { bubbles: true }));
+                    }
+
+                    const bTransfer = bankRow.querySelector('.block-transfer-no-input');
+                    if (bTransfer) {
+                        bTransfer.value = r.transfer_no || '';
+                        bTransfer.dispatchEvent(new Event('input', { bubbles: true }));
+                        bTransfer.dispatchEvent(new Event('change', { bubbles: true }));
+                    }
+
+                    const bName = bankRow.querySelector('.block-bank-name-input');
+                    if (bName) {
+                        bName.value = r.bank_name || 'بنك الخرطوم (بنكك)';
+                        bName.dispatchEvent(new Event('input', { bubbles: true }));
+                    }
+
+                    const bDesc = bankRow.querySelector('.block-bank-desc-input');
+                    if (bDesc) {
+                        bDesc.value = `إشعار وارد #${r.id} - ${r.customer_name || ''}`;
+                    }
                 }
 
-                const bName = document.querySelector('#block-1 .block-bank-name-input');
-                if (bName) {
-                    bName.value = r.bank_name || 'بنك الخرطوم (بنكك)';
-                    bName.dispatchEvent(new Event('input', { bubbles: true }));
+                const mainBlockAmt = document.getElementById(`amount-${blockId}`);
+                if (mainBlockAmt && cleanAmt > 0) {
+                    mainBlockAmt.value = formattedAmtStr;
+                }
+
+                const stmtInput = document.getElementById(`statement-${blockId}`);
+                if (stmtInput) {
+                    stmtInput.value = `سداد إشعار ${r.bank_name || 'بنكك'} رقم العملية ${r.transfer_no || ''}`;
+                }
+
+                const vDescInput = document.getElementById('voucher-desc');
+                if (vDescInput) {
+                    vDescInput.value = `إشعار تحويل بنكي (${r.bank_name || 'بنكك'}) رقم العملية: ${r.transfer_no || ''} - العميل: ${r.customer_name || ''}`;
+                }
+
+                if (typeof window.recalcBlockTotal === 'function') {
+                    window.recalcBlockTotal(blockId);
+                }
+                if (typeof window.updateBlockTafqeetAndTier === 'function') {
+                    window.updateBlockTafqeetAndTier(blockId);
+                }
+                if (typeof window.calcTotal === 'function') {
+                    window.calcTotal();
                 }
 
                 // If duplicate, show alert banner
@@ -643,18 +1028,12 @@ window.InboundBankakManager = {
                     if (typeof showCenterError === 'function') {
                         showCenterError(`⚠️ تنبيه رقابي صارم: إشعار التحويل برقم ( ${r.transfer_no} ) للعميل ( ${r.customer_name} ) تم صرفه مسبقاً!<br><br>استخدم زر (إشعار الزبون) لإبلاغه فورياً عبر واتساب.`, 'duplicate');
                     }
+                } else if (typeof showToast === 'function') {
+                    const vInfo = r.voucher_no ? ` وتم تنزيله في الحسابات بالسند (${r.voucher_no})` : '';
+                    showToast(`✅ تم فحص إشعار (${r.customer_name}) بمبلغ (${cleanAmt.toLocaleString()} SDG) وتفريغه بالسند${vInfo}!`, 'success');
                 }
-
-                // 7. Launch FinancialOCR Review Modal directly with image and extracted fields!
-                if (typeof FinancialOCR !== 'undefined' && typeof FinancialOCR.inspectReceiptDirect === 'function') {
-                    FinancialOCR.inspectReceiptDirect(r, '1');
-                }
-
-                if (typeof showToast === 'function') {
-                    showToast(`⚡ تم فحص إشعار (${r.customer_name}) بمبلغ (${parseFloat(r.amount||0).toLocaleString()} SDG) وتفريغه بالسند!`, 'success', 5000);
-                }
-            }, 300);
-        }, 150);
+            }, 200);
+        }, 120);
     },
 
     inspectById: function(rId) {
@@ -682,7 +1061,7 @@ window.InboundBankakManager = {
         document.getElementById('cust-alert-phone-display').textContent = r.customer_phone || 'غير مسجل';
 
         // Select initial template based on receipt status
-        const initType = (r.status === 'duplicate_rejected') ? 'duplicate' : ((r.status === 'verified') ? 'reconciled' : 'unclear');
+        const initType = (r.status === 'duplicate_rejected') ? 'duplicate' : ((r.status === 'verified' || r.status === 'reconciled') ? 'reconciled' : 'unclear');
         const activeBtn = document.querySelector(`.alert-type-btn[data-type="${initType}"]`) || document.querySelector('.alert-type-btn');
         this.selectAlertTemplate(initType, activeBtn);
 
@@ -725,6 +1104,7 @@ window.InboundBankakManager = {
         const tNo = r.transfer_no || '---';
         const amt = r.amount ? parseFloat(r.amount).toLocaleString('en-US') : '0.00';
         const curr = r.currency || 'SDG';
+        const vNoLine = r.voucher_no ? `\n• رقم سند القبض: *${r.voucher_no}*` : '';
 
         let msg = '';
         if (type === 'duplicate') {
@@ -734,7 +1114,7 @@ window.InboundBankakManager = {
         } else if (type === 'amount_mismatch') {
             msg = `السلام عليكم ورحمة الله وبركاته،\nعزيزنا العميل: *${custName}*\n\nنود إعلامكم بأن المبلغ الوارد في إشعار التحويل هو: *(${amt} ${curr})* برقم عملية *(${tNo})*، ويوجد تباين مع الرصيد المطلوب للمطابقة.\n\nيرجى مراجعة الإدارة المالية لتسوية الفاتورة.\n\nمع فائق الاحترام والتقدير،\n*إدارة الحسابات* 🏢`;
         } else if (type === 'reconciled') {
-            msg = `السلام عليكم ورحمة الله وبركاته،\nعزيزنا العميل: *${custName}*\n\n✅ *تم بنجاح استلام وتأكيد تحويلكم البنكي*:\n• رقم العملية: *${tNo}*\n• المبلغ المقيد: *${amt} ${curr}*\n• تم قيد المبلغ بحسابكم وإصدار سند القبض الرسمي.\n\nسعداء دائماً بخدمتكم،\n*إدارة الحسابات والمالية* 🏢✨`;
+            msg = `السلام عليكم ورحمة الله وبركاته،\nعزيزنا العميل: *${custName}*\n\n✅ *تم بنجاح استلام وفحص وتنزيل تحويلكم البنكي في الحسابات*:\n• رقم العملية: *${tNo}*\n• المبلغ المقيد: *${amt} ${curr}*${vNoLine}\n• تم قيد المبلغ بحسابكم وإصدار سند القبض الرسمي.\n\nسعداء دائماً بخدمتكم،\n*إدارة الحسابات والمالية* 🏢✨`;
         }
 
         const txtArea = document.getElementById('cust-alert-message-text');
@@ -832,21 +1212,30 @@ window.InboundBankakManager = {
 
     handleManualUploadSubmit: async function(e) {
         e.preventDefault();
+        const fileInput = document.getElementById('manualReceiptFile');
+        const amtVal = document.getElementById('manualAmount').value.trim();
+        const tnoVal = document.getElementById('manualTransferNo').value.trim();
+        const hasFile = fileInput && fileInput.files && fileInput.files[0];
+
+        if (!hasFile && (!amtVal || !tnoVal)) {
+            alert('يرجى إما اختيار صورة الإشعار لفحصها بالذكاء الاصطناعي أو إدخال المبلغ ورقم العملية.');
+            return;
+        }
+
         const btn = document.getElementById('btnSubmitManualUpload');
         btn.disabled = true;
-        btn.innerHTML = 'جاري الحفظ... ⏳';
+        btn.innerHTML = 'جاري الفحص والتنزيل في الحسابات... ⏳';
 
         const tId = this.getActiveTenantId();
         const formData = new FormData();
         formData.append('action', 'upload');
         formData.append('tenant_id', tId);
         formData.append('customer_name', document.getElementById('manualCustName').value.trim());
-        formData.append('amount', document.getElementById('manualAmount').value.trim());
-        formData.append('transfer_no', document.getElementById('manualTransferNo').value.trim());
+        formData.append('amount', amtVal);
+        formData.append('transfer_no', tnoVal);
         formData.append('customer_phone', document.getElementById('manualCustPhone').value.trim());
 
-        const fileInput = document.getElementById('manualReceiptFile');
-        if (fileInput.files && fileInput.files[0]) {
+        if (hasFile) {
             formData.append('receipt_file', fileInput.files[0]);
         }
 
@@ -857,11 +1246,21 @@ window.InboundBankakManager = {
             });
             const data = await res.json();
             if (data.success) {
+                if (data.posting && data.posting.voucher_no) {
+                    this.syncPostedReceiptToLocalErp(data.receipt || data, data.posting);
+                }
                 this.closeManualUploadModal();
                 this.refreshReceipts();
                 this.playNotificationChime();
                 if (typeof showToast === 'function') {
-                    showToast('✅ تم حفظ الإشعار بنجاح ونزل في صندوق العمليات!', 'success', 5000);
+                    const msg = data.voucher_no
+                        ? `✅ تم فحص الإشعار وتنزيله في الحسابات بنجاح بالسند رقم (${data.voucher_no})!`
+                        : '✅ تم حفظ الإشعار بنجاح ونزل في صندوق العمليات!';
+                    showToast(msg, 'success');
+                }
+                // Also populate into current voucher screen immediately
+                if (data.id) {
+                    setTimeout(() => this.inspectInVoucher(data.id), 300);
                 }
             } else {
                 alert('خطأ: ' + (data.error || 'فشل الحفظ'));
@@ -870,21 +1269,21 @@ window.InboundBankakManager = {
             alert('حدث خطأ في الاتصال: ' + err.message);
         } finally {
             btn.disabled = false;
-            btn.innerHTML = 'حفظ وإنزال في الصندوق 🚀';
+            btn.innerHTML = 'فحص وتنزيل في الحسابات 🚀';
         }
     },
 
     // ═══ محاكاة إشعار بنكك فوري للاختبار والتجربة الحية ═══
     simulateIncomingReceipt: async function() {
         const sampleNames = [
+            'مهدي مكي',
+            'همس مهدي شيريهان مكي',
+            'دكتور شول',
             'مؤسسة التضامن الهندسية',
-            'شركة الرواد للاستيراد والتصدير',
-            'محلات البركة لمواد البناء',
-            'شركة الفيحاء للتجارة المحدودة',
-            'مكتب الأفق للخدمات اللوجستية'
+            'شركة الرواد للاستيراد والتصدير'
         ];
         const randomName = sampleNames[Math.floor(Math.random() * sampleNames.length)];
-        const randomAmt = (Math.floor(Math.random() * 50) + 10) * 10000; // e.g. 150,000 to 600,000
+        const randomAmt = (Math.floor(Math.random() * 50) + 10) * 10000; // e.g. 100,000 to 600,000
         const randomNo = String(Math.floor(Math.random() * 89999999) + 10000000); // 8-digit transfer no
         const tId = this.getActiveTenantId();
 
@@ -902,11 +1301,14 @@ window.InboundBankakManager = {
                     bank_name: 'بنك الخرطوم (بنكك)',
                     bank_code: '170',
                     receipt_image: 'assets/sample_receipt_bok.png',
-                    notes: 'تحويل بنكك تم استلامه ومطابقته فورياً'
+                    notes: 'تحويل بنكك تم استلامه وفحصه وتنزيله في الحسابات فورياً'
                 })
             });
             const data = await res.json();
             if (data.success) {
+                if (data.posting && data.posting.voucher_no) {
+                    this.syncPostedReceiptToLocalErp(data.receipt || data, data.posting);
+                }
                 // Instantly refresh & trigger live sound and toast
                 this.refreshReceipts();
             }

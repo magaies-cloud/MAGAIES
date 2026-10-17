@@ -5508,14 +5508,19 @@
             if (!container) return;
 
             let targetBlockId = this.activeContext.blockId;
-            if (!targetBlockId) {
+            let targetBlockEl = targetBlockId ? container.querySelector(`.account-block[data-block-id="${targetBlockId}"]`) : null;
+            if (!targetBlockEl) {
                 const firstBlock = container.querySelector('.account-block');
                 if (firstBlock) {
                     targetBlockId = firstBlock.getAttribute('data-block-id');
+                    targetBlockEl = firstBlock;
                 } else if (typeof window.addAccountBlock === 'function') {
                     window.addAccountBlock();
                     const newBlock = container.querySelector('.account-block:last-child');
-                    if (newBlock) targetBlockId = newBlock.getAttribute('data-block-id');
+                    if (newBlock) {
+                        targetBlockId = newBlock.getAttribute('data-block-id');
+                        targetBlockEl = newBlock;
+                    }
                 }
             }
 
@@ -5524,57 +5529,135 @@
                 return;
             }
 
+            const getTenantKey = window.getTenantKey || ((k) => k);
             let totalAmount = 0;
+
             items.forEach(doc => {
                 const amt = parseFloat(doc.amount) || 0;
                 totalAmount += amt;
                 const isCheque = (doc.doc_type === 'cheque');
 
+                // Auto-match Main Bank Account if empty
+                const mainAccInput = document.getElementById('main-account');
+                const mainAccSearch = document.getElementById('main-account-search');
+                if (doc.bank_name && mainAccInput && !mainAccInput.value) {
+                    try {
+                        const banks = JSON.parse(localStorage.getItem(getTenantKey('erp_banks_v1')) || localStorage.getItem('erp_banks_v1') || '[]');
+                        const bClean = String(doc.bank_name).trim();
+                        const matchedBank = banks.find(b => b && !b.deleted && ((b.name && b.name.includes(bClean)) || (b.bankName && b.bankName.includes(bClean)) || bClean.includes(b.name || '___')));
+                        if (matchedBank) {
+                            const bDisplay = matchedBank.bankName || matchedBank.name;
+                            const bId = 'bank-' + matchedBank.id;
+                            if (mainAccSearch) mainAccSearch.value = bDisplay;
+                            mainAccInput.value = bId;
+                            mainAccInput.setAttribute('data-id', bId);
+                        }
+                    } catch (e) {}
+                }
+
+                // Auto-match Sub-Account (Customer/Supplier) in Block if empty
+                const accSearch = document.getElementById(`account-${targetBlockId}-search`);
+                const accHidden = document.getElementById(`account-${targetBlockId}`);
+                const accIdInput = document.getElementById(`account-${targetBlockId}-id`);
+                const voucherType = document.getElementById('voucher-type')?.value || 'receipt';
+                const partyName = (voucherType === 'receipt' ? (doc.sender_name || doc.drawer_name || doc.beneficiary_name) : (doc.beneficiary_name || doc.sender_name || doc.drawer_name)) || '';
+
+                if (partyName && accSearch && !accSearch.value.trim()) {
+                    let matchedId = '';
+                    let matchedName = partyName.trim();
+                    try {
+                        const custs = JSON.parse(localStorage.getItem(getTenantKey('erp_customers_v1')) || localStorage.getItem('erp_customers_v1') || '[]');
+                        const foundCust = custs.find(c => c && !c.deleted && c.name && (c.name.trim() === matchedName || c.name.includes(matchedName) || matchedName.includes(c.name.trim())));
+                        if (foundCust) {
+                            matchedId = 'cust-' + foundCust.id;
+                            matchedName = foundCust.name;
+                        } else {
+                            const sups = JSON.parse(localStorage.getItem(getTenantKey('erp_suppliers_v1')) || localStorage.getItem('erp_suppliers_v1') || '[]');
+                            const foundSup = sups.find(s => s && !s.deleted && s.name && (s.name.trim() === matchedName || s.name.includes(matchedName) || matchedName.includes(s.name.trim())));
+                            if (foundSup) {
+                                matchedId = 'supp-' + foundSup.id;
+                                matchedName = foundSup.name;
+                            }
+                        }
+                    } catch (e) {}
+                    accSearch.value = matchedName;
+                    if (accHidden) accHidden.value = matchedId || matchedName;
+                    if (accIdInput) accIdInput.value = matchedId || matchedName;
+                }
+
                 if (isCheque) {
                     const chBtn = document.getElementById('pm-cheque-' + targetBlockId);
                     if (chBtn && !chBtn.classList.contains('active')) chBtn.click();
 
-                    if (typeof window.addChequeRow === 'function') {
+                    const chContainer = document.getElementById('cheque-rows-' + targetBlockId);
+                    let targetRow = null;
+                    if (chContainer) {
+                        const existingRows = Array.from(chContainer.querySelectorAll('.cheque-row'));
+                        targetRow = existingRows.find(r => {
+                            const aVal = parseFloat((r.querySelector('.block-cheque-amount')?.value || '').replace(/,/g, '')) || 0;
+                            const nVal = (r.querySelector('.block-cheque-no-input')?.value || '').trim();
+                            return aVal <= 0 && !nVal;
+                        });
+                    }
+                    if (!targetRow && typeof window.addChequeRow === 'function') {
                         window.addChequeRow(targetBlockId);
-                        const chContainer = document.getElementById('cheque-rows-' + targetBlockId);
-                        const lastRow = chContainer?.querySelector('.cheque-row:last-child');
-                        if (lastRow) {
-                            const amtIn = lastRow.querySelector('.block-cheque-amount');
-                            const bankIn = lastRow.querySelector('.block-cheque-bank-input');
-                            const noIn = lastRow.querySelector('.block-cheque-no-input');
-                            const dateIn = lastRow.querySelector('.block-cheque-date-input');
+                        targetRow = chContainer?.querySelector('.cheque-row:last-child');
+                    }
+                    if (targetRow) {
+                        const amtIn = targetRow.querySelector('.block-cheque-amount');
+                        const bankIn = targetRow.querySelector('.block-cheque-bank-input');
+                        const noIn = targetRow.querySelector('.block-cheque-no-input');
+                        const dateIn = targetRow.querySelector('.block-cheque-date-input');
 
-                            if (amtIn) amtIn.value = Math.round(amt).toLocaleString('en-US');
-                            if (bankIn) bankIn.value = doc.bank_name || '';
-                            if (noIn) noIn.value = doc.cheque_number || doc.transaction_ref || '';
-                            if (dateIn) dateIn.value = doc.due_date || doc.date || '';
-                        }
+                        if (amtIn) amtIn.value = Math.round(amt).toLocaleString('en-US');
+                        if (bankIn) bankIn.value = doc.bank_name || '';
+                        if (noIn) noIn.value = doc.cheque_number || doc.transaction_ref || '';
+                        if (dateIn) dateIn.value = doc.due_date || doc.date || '';
                     }
                 } else {
                     const bBtn = document.getElementById('pm-bank-' + targetBlockId);
                     if (bBtn && !bBtn.classList.contains('active')) bBtn.click();
 
-                    if (typeof window.addBankRow === 'function') {
-                        window.addBankRow(targetBlockId);
-                        const bContainer = document.getElementById('bank-rows-' + targetBlockId);
-                        const lastRow = bContainer?.querySelector('.bank-row:last-child');
-                        if (lastRow) {
-                            const amtIn = lastRow.querySelector('.block-bank-amount');
-                            const bankIn = lastRow.querySelector('.block-bank-name-input');
-                            const noIn = lastRow.querySelector('.block-transfer-no-input');
-                            const descIn = lastRow.querySelector('.block-bank-desc-input');
-
-                            if (amtIn) amtIn.value = Math.round(amt).toLocaleString('en-US');
-                            if (bankIn) bankIn.value = doc.bank_name || '';
-                            if (noIn) noIn.value = doc.transaction_ref || '';
-                            if (descIn) descIn.value = doc.notes || '';
-                        }
+                    const bContainer = document.getElementById('bank-rows-' + targetBlockId);
+                    let targetRow = null;
+                    if (bContainer) {
+                        const existingRows = Array.from(bContainer.querySelectorAll('.bank-row'));
+                        targetRow = existingRows.find(r => {
+                            const aVal = parseFloat((r.querySelector('.block-bank-amount')?.value || '').replace(/,/g, '')) || 0;
+                            const nVal = (r.querySelector('.block-transfer-no-input')?.value || '').trim();
+                            return aVal <= 0 && !nVal;
+                        });
                     }
+                    if (!targetRow && typeof window.addBankRow === 'function') {
+                        window.addBankRow(targetBlockId);
+                        targetRow = bContainer?.querySelector('.bank-row:last-child');
+                    }
+                    if (targetRow) {
+                        const amtIn = targetRow.querySelector('.block-bank-amount');
+                        const bankIn = targetRow.querySelector('.block-bank-name-input');
+                        const noIn = targetRow.querySelector('.block-transfer-no-input');
+                        const descIn = targetRow.querySelector('.block-bank-desc-input');
+
+                        if (amtIn) amtIn.value = Math.round(amt).toLocaleString('en-US');
+                        if (bankIn) bankIn.value = doc.bank_name || 'بنك الخرطوم (بنكك)';
+                        if (noIn) noIn.value = doc.transaction_ref || '';
+                        if (descIn) descIn.value = doc.notes || (partyName ? `إشعار تحويل - ${partyName}` : '');
+                    }
+                }
+
+                // Populate block statement if empty
+                const stmtInput = document.getElementById(`statement-${targetBlockId}`);
+                if (stmtInput && !stmtInput.value.trim()) {
+                    const refStr = doc.transaction_ref || doc.cheque_number || '';
+                    stmtInput.value = doc.notes || `إشعار ${doc.bank_name || 'بنكك'}${refStr ? ' رقم ' + refStr : ''}${partyName ? ' - ' + partyName : ''}`;
                 }
             });
 
             if (typeof window.recalcBlockTotal === 'function') {
                 window.recalcBlockTotal(targetBlockId);
+            }
+            if (typeof window.updateBlockTafqeetAndTier === 'function') {
+                window.updateBlockTafqeetAndTier(targetBlockId);
             }
             if (typeof window.calcTotal === 'function') {
                 window.calcTotal();
