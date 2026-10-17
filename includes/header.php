@@ -688,6 +688,41 @@ window._cachedGlobalRate = window.SYSTEM_USD_RATE;
 
         <!-- Universal Go Back Master Button (Amber-Gold Luxury) -->
         <!-- 🎨 زر السمات السبعة المعتمدة والموحدة (بجوار زر الرجوع مباشرة) -->
+        <?php
+        $is_dashboard_page = (isset($current_page_name) && $current_page_name === 'magaiees_unified_dashboard.php') || (isset($header_theme_class) && $header_theme_class === 'header-theme-dashboard');
+        if ($is_dashboard_page):
+        ?>
+        <!-- 🌟 الأزرار الأربعة الرأسية في لوحة التحكم (نسخة الهاتف + تثبيت التطبيق + السمات + الرجوع للخلف مكدسة فوق بعض) -->
+        <div id="magaiees-dashboard-header-stack" class="header-quad-stack">
+            <!-- 1. زر نسخة الموبايل -->
+            <button id="magaiees-top-mobile-btn" type="button" onclick="if(typeof switchToMobileEdition==='function'){switchToMobileEdition();}else{try{localStorage.setItem('magaiees_view_preference','mobile');document.cookie='magaiees_view_preference=mobile; path=/; max-age=31536000; SameSite=Lax';}catch(e){}window.location.href='mobile-dashboard.php?force_mobile=1';}" class="magaiees-stack-btn stack-btn-mobile" title="التبديل إلى نسخة الموبايل والتابلت السريعة">
+                <span class="stack-btn-icon"><i class="fa-solid fa-mobile-screen-button"></i></span>
+                <span class="stack-btn-text">نسخة الهاتف 📱</span>
+            </button>
+
+            <!-- 2. زر تثبيت التطبيق -->
+            <button id="magaiees-top-install-btn" type="button" onclick="if(window.PWAManager && PWAManager.triggerInstall){PWAManager.triggerInstall();}else{alert('لتثبيت تطبيق مقاييس: اضغط على أيقونة التثبيت ⊕ في شريط عنوان المتصفح بالأعلى');}" class="magaiees-stack-btn stack-btn-install" title="تثبيت تطبيق مقاييس على جهازك كبرنامج مستقل">
+                <span class="stack-btn-icon"><i class="fa-solid fa-download"></i></span>
+                <span class="stack-btn-text">تثبيت التطبيق 📲</span>
+            </button>
+
+            <!-- 3. زر السمات -->
+            <button id="magaiees-master-themes-btn" type="button" class="magaiees-stack-btn stack-btn-themes magaiees-theme-btn-top" onclick="openMaster7ThemesModal()" title="السمات السبعة المعتمدة والموحدة (7 سمات رئيسية)">
+                <span class="theme-icon-art" style="font-size: 0.95rem;">🎨</span>
+                <span class="theme-btn-text">السمات</span>
+                <span class="theme-count-badge">7</span>
+            </button>
+
+            <!-- 4. زر الرجوع للخلف -->
+            <button id="magaiees-master-back-btn" class="magaiees-stack-btn stack-btn-back magaiees-back-btn" onclick="magaieesGoBack()" title="الرجوع للخلف (الشاشة السابقة)">
+                <svg class="back-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" style="width: 14px; height: 14px;">
+                    <line x1="19" y1="12" x2="5" y2="12"></line>
+                    <polyline points="12 19 19 12 12 5"></polyline>
+                </svg>
+                <span class="back-btn-text">الرجوع للخلف</span>
+            </button>
+        </div>
+        <?php else: ?>
         <button id="magaiees-master-themes-btn" type="button" class="magaiees-theme-btn-top" onclick="openMaster7ThemesModal()" title="السمات السبعة المعتمدة والموحدة (7 سمات رئيسية)">
             <span class="theme-icon-art">🎨</span>
             <span class="theme-btn-text">السمات</span>
@@ -701,6 +736,7 @@ window._cachedGlobalRate = window.SYSTEM_USD_RATE;
             </svg>
             <span class="back-btn-text">الرجوع للخلف</span>
         </button>
+        <?php endif; ?>
         <script>
         function toggleFullScreen() {
             if (!document.fullscreenElement) {
@@ -1037,6 +1073,101 @@ html.light-theme .magaiees-theme-btn-top {
     border-color: #d97706 !important;
     color: #92400e !important;
     box-shadow: 0 4px 12px rgba(217, 119, 6, 0.2);
+}
+
+/* ── الأزرار الأربعة الرأسية في لوحة التحكم (مكدسة فوق بعض) ── */
+.header-quad-stack {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 4px !important;
+    min-width: 145px !important;
+    align-items: stretch !important;
+    justify-content: center !important;
+}
+.magaiees-stack-btn {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 6px !important;
+    height: 29px !important;
+    min-height: 29px !important;
+    padding: 2px 10px !important;
+    border-radius: 9px !important;
+    font-size: 0.81rem !important;
+    font-weight: 800 !important;
+    font-family: 'Tajawal', sans-serif !important;
+    white-space: nowrap !important;
+    cursor: pointer !important;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    box-sizing: border-box !important;
+    width: 100% !important;
+    text-decoration: none !important;
+    line-height: 1 !important;
+}
+.magaiees-stack-btn:hover {
+    transform: translateY(-1px) scale(1.02) !important;
+}
+.stack-btn-mobile {
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.25), rgba(6, 182, 212, 0.25)) !important;
+    border: 1.5px solid #10b981 !important;
+    color: #34d399 !important;
+    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.25) !important;
+}
+.stack-btn-mobile:hover {
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.4), rgba(6, 182, 212, 0.4)) !important;
+    box-shadow: 0 4px 14px rgba(16, 185, 129, 0.5) !important;
+    color: #ffffff !important;
+}
+.stack-btn-install {
+    background: linear-gradient(135deg, rgba(14, 165, 233, 0.25), rgba(99, 102, 241, 0.25)) !important;
+    border: 1.5px solid #38bdf8 !important;
+    color: #38bdf8 !important;
+    box-shadow: 0 2px 8px rgba(56, 189, 248, 0.25) !important;
+}
+.stack-btn-install:hover {
+    background: linear-gradient(135deg, rgba(14, 165, 233, 0.4), rgba(99, 102, 241, 0.4)) !important;
+    box-shadow: 0 4px 14px rgba(56, 189, 248, 0.5) !important;
+    color: #ffffff !important;
+}
+.stack-btn-themes {
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.22), rgba(217, 119, 6, 0.32)) !important;
+    border: 1.5px solid #fbbf24 !important;
+    color: #fde047 !important;
+    box-shadow: 0 2px 8px rgba(245, 158, 11, 0.25) !important;
+}
+.stack-btn-themes:hover {
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.38), rgba(217, 119, 6, 0.48)) !important;
+    box-shadow: 0 4px 14px rgba(245, 158, 11, 0.5) !important;
+}
+.stack-btn-back {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%) !important;
+    border: 1.5px solid #fef08a !important;
+    color: #ffffff !important;
+    box-shadow: 0 2px 8px rgba(245, 158, 11, 0.35) !important;
+}
+.stack-btn-back:hover {
+    box-shadow: 0 4px 14px rgba(245, 158, 11, 0.6) !important;
+}
+
+/* Light Theme Adaptations */
+html.light-theme .stack-btn-mobile {
+    background: linear-gradient(135deg, #d1fae5, #a7f3d0) !important;
+    border-color: #059669 !important;
+    color: #065f46 !important;
+}
+html.light-theme .stack-btn-install {
+    background: linear-gradient(135deg, #e0f2fe, #bae6fd) !important;
+    border-color: #0284c7 !important;
+    color: #0369a1 !important;
+}
+html.light-theme .stack-btn-themes {
+    background: linear-gradient(135deg, #fef3c7, #fde68a) !important;
+    border-color: #d97706 !important;
+    color: #92400e !important;
+}
+html.light-theme .stack-btn-back {
+    background: linear-gradient(135deg, #f59e0b, #d97706) !important;
+    color: #ffffff !important;
 }
 
 /* ── Modal Styles ── */
