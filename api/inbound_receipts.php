@@ -155,42 +155,14 @@ switch ($action) {
                 }
             }
 
-            // Auto-Match Customer from DB by phone or name if customer_id not supplied
-            if (empty($custId) && !empty($custPhone)) {
-                $cleanPhone = preg_replace('/\D/', '', $custPhone);
-                if (strlen($cleanPhone) >= 7) {
-                    $last9 = substr($cleanPhone, -9);
-                    try {
-                        $cStmt = $pdo->prepare("SELECT frontend_id, search_name FROM customers 
-                            WHERE tenant_id = ? 
-                              AND (is_deleted = 0 OR is_deleted IS NULL)
-                              AND (search_phone LIKE ? OR data LIKE ?)
-                            ORDER BY id DESC LIMIT 1");
-                        $cStmt->execute([$activeTenantId, '%' . $last9 . '%', '%' . $last9 . '%']);
-                        $matchedCust = $cStmt->fetch(PDO::FETCH_ASSOC);
-                        if ($matchedCust) {
-                            $custId = $matchedCust['frontend_id'];
-                            if ($custName === 'زبون مباشر' || str_starts_with($custName, 'عميل واتساب') || $custName === 'عميل غير معروف') {
-                                $custName = $matchedCust['search_name'];
-                            }
-                        }
-                    } catch (Exception $ce) {}
+            // Auto-Match Customer from DB by WhatsApp phone, LID, or Arabic/English name
+            $resolvedCust = resolveInboundCustomer($pdo, $activeTenantId, $custId, $custName, $custPhone);
+            if (!empty($resolvedCust['id'])) {
+                $custId = $resolvedCust['id'];
+                $custName = $resolvedCust['name'] ?: $custName;
+                if (!empty($resolvedCust['phone'])) {
+                    $custPhone = $resolvedCust['phone'];
                 }
-            }
-            if (empty($custId) && !empty($custName) && $custName !== 'زبون مباشر' && !str_starts_with($custName, 'عميل واتساب')) {
-                try {
-                    $cStmt2 = $pdo->prepare("SELECT frontend_id, search_name FROM customers 
-                        WHERE tenant_id = ? 
-                          AND (is_deleted = 0 OR is_deleted IS NULL)
-                          AND (search_name = ? OR search_name LIKE ?)
-                        ORDER BY id DESC LIMIT 1");
-                    $cStmt2->execute([$activeTenantId, $custName, '%' . $custName . '%']);
-                    $matchedCust2 = $cStmt2->fetch(PDO::FETCH_ASSOC);
-                    if ($matchedCust2) {
-                        $custId = $matchedCust2['frontend_id'];
-                        $custName = $matchedCust2['search_name'] ?: $custName;
-                    }
-                } catch (Exception $ce2) {}
             }
 
             // Handle file upload
@@ -226,17 +198,21 @@ switch ($action) {
                 $imagePath = $_POST['receipt_image'] ?? $jsonData['receipt_image'];
             }
 
-            // Quick pre-check for duplicate if transfer_no is provided
+            // Quick pre-check for transfer_no length (>= 6 digits) & duplicate if transfer_no is provided
             $initialStatus = 'pending';
             $issueReason = null;
             $cleanTnoDigits = preg_replace('/\D/', '', $transferNo);
-            if (!empty($cleanTnoDigits) && strlen($cleanTnoDigits) >= 6) {
+            if (!empty($transferNo) && strlen($cleanTnoDigits) < 6) {
+                $initialStatus = 'pending';
+                $issueReason = 'invalid_transfer_no_under_6_digits';
+                $notes = '⚠️ رقم التحويل يجب ألا يقل عن 6 أرقام (' . $transferNo . ')';
+            } elseif (!empty($cleanTnoDigits) && strlen($cleanTnoDigits) >= 6) {
                 $dupCheck = checkTransferConflictInDB($pdo, $activeTenantId, $transferNo);
                 if ($dupCheck['is_duplicate']) {
                     $initialStatus = 'duplicate_rejected';
                     $issueReason = 'duplicate_voucher_' . ($dupCheck['conflicting_voucher'] ?? '');
                     $notes = '⚠️ كشف تكرار مالي: رقم العملية ' . $transferNo . ' مسجل بالسند ' . ($dupCheck['conflicting_voucher'] ?? '');
-                } else {
+                } elseif ($amount > 0) {
                     $initialStatus = 'verified';
                 }
             }
@@ -249,9 +225,9 @@ switch ($action) {
             ]);
             $newId = (int)$pdo->lastInsertId();
 
-            // Automatic Backend OCR if amount or transfer_no is missing and image exists
-            if (($amount <= 0 || empty($transferNo)) && !empty($imagePath)) {
-                $ocrRes = performBackendReceiptOCR($pdo, $newId);
+            // Automatic Backend OCR (WITHOUT forgery check — fraud_check = false) if amount or transfer_no is missing and image exists
+            if (($amount <= 0 || strlen($cleanTnoDigits) < 6) && !empty($imagePath)) {
+                $ocrRes = performBackendReceiptOCR($pdo, $newId, false);
                 if (!empty($ocrRes['success']) && !empty($ocrRes['data'])) {
                     $initialStatus = $ocrRes['data']['status'] ?? $initialStatus;
                     $issueReason = $ocrRes['data']['issue_reason'] ?? $issueReason;
@@ -259,12 +235,12 @@ switch ($action) {
                     $transferNo = $ocrRes['data']['transfer_no'] ?? $transferNo;
                     $custName = $ocrRes['data']['customer_name'] ?? $custName;
                     $custId = $ocrRes['data']['customer_id'] ?? $custId;
+                    $postingResult = $ocrRes['data']['posting'] ?? null;
                 }
             }
 
-            // Automatic Account Posting if receipt is verified and valid
-            $postingResult = null;
-            if ($initialStatus === 'verified' && $amount > 0 && strlen(preg_replace('/\D/', '', (string)$transferNo)) >= 6) {
+            // Automatic Account Posting if receipt is verified and valid (and not already posted inside performBackendReceiptOCR)
+            if (empty($postingResult) && $initialStatus === 'verified' && $amount > 0 && strlen(preg_replace('/\D/', '', (string)$transferNo)) >= 6) {
                 $postingResult = postInboundReceiptToAccounts($pdo, $newId);
             }
 
@@ -273,22 +249,31 @@ switch ($action) {
             $finalStmt->execute([$newId]);
             $finalRow = $finalStmt->fetch(PDO::FETCH_ASSOC);
 
+            $finalVoucherNo = $finalRow['voucher_no'] ?? ($postingResult['voucher_no'] ?? null);
+            $finalCustName = $finalRow['customer_name'] ?? $custName;
+            $finalAmount = (float)($finalRow['amount'] ?? $amount);
+            $finalTransferNo = $finalRow['transfer_no'] ?? $transferNo;
+
+            $adminNotificationText = $postingResult['admin_notification'] ?? null;
+
             echo json_encode([
                 'success' => true,
                 'id' => $newId,
                 'status' => $finalRow['status'] ?? $initialStatus,
                 'issue_reason' => $finalRow['issue_reason'] ?? $issueReason,
-                'amount' => (float)($finalRow['amount'] ?? $amount),
-                'transfer_no' => $finalRow['transfer_no'] ?? $transferNo,
+                'amount' => $finalAmount,
+                'transfer_no' => $finalTransferNo,
                 'customer_id' => $finalRow['customer_id'] ?? $custId,
-                'customer_name' => $finalRow['customer_name'] ?? $custName,
-                'voucher_no' => $finalRow['voucher_no'] ?? ($postingResult['voucher_no'] ?? null),
+                'customer_name' => $finalCustName,
+                'customer_phone' => $finalRow['customer_phone'] ?? $custPhone,
+                'voucher_no' => $finalVoucherNo,
                 'receipt_image' => $imagePath,
                 'posting' => $postingResult,
                 'receipt' => $finalRow,
-                'message' => !empty($postingResult['voucher_no'])
-                    ? ('تم فحص إشعار البنك وتنزيله في الحسابات بنجاح بالسند رقم ' . $postingResult['voucher_no'])
-                    : 'تم استلام وحفظ وفحص إشعار بنكك بنجاح بالذكاء الاصطناعي'
+                'admin_notification' => $adminNotificationText,
+                'message' => !empty($finalVoucherNo)
+                    ? ('تم فحص إشعار البنك وتنزيله في حساب (' . $finalCustName . ') إلى بنك الخرطوم بالسند رقم ' . $finalVoucherNo)
+                    : 'تم استلام وحفظ وفحص إشعار بنكك بنجاح'
             ]);
         } catch (Exception $e) {
             echo json_encode(['success' => false, 'error' => $e->getMessage()]);
@@ -303,10 +288,66 @@ switch ($action) {
                 echo json_encode(['success' => false, 'error' => 'معرّف الإشعار مطلوب']);
                 exit;
             }
-            $ocrRes = performBackendReceiptOCR($pdo, $id);
+            // Automatic / standard OCR always runs WITHOUT forgery check (fraudCheck = false)
+            $ocrRes = performBackendReceiptOCR($pdo, $id, false);
             echo json_encode($ocrRes);
         } catch (Exception $e) {
             echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+        }
+        break;
+
+    case 'check_forgery':
+    case 'forensic_check':
+        // On-Demand Forgery Check ONLY when requested by user ("فحص التزوير عند الطلب فقط")
+        try {
+            $id = intval($_GET['id'] ?? $_POST['id'] ?? $jsonData['id'] ?? 0);
+            if (!$id) {
+                echo json_encode(['success' => false, 'error' => 'معرّف الإشعار مطلوب لفحص التزوير']);
+                exit;
+            }
+            $forgeryRes = performBackendReceiptOCR($pdo, $id, true);
+            echo json_encode($forgeryRes);
+        } catch (Exception $e) {
+            echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+        }
+        break;
+
+    case 'scan_pending_batch':
+        // Sequentially scan all pending receipts for tenant without duplicate scanning and without forgery check
+        try {
+            $pStmt = $pdo->prepare("SELECT id FROM inbound_bank_receipts WHERE tenant_id = ? AND (status = 'pending' OR (status = 'verified' AND (voucher_no IS NULL OR voucher_no = ''))) ORDER BY id ASC LIMIT 50");
+            $pStmt->execute([$activeTenantId]);
+            $pendingIds = $pStmt->fetchAll(PDO::FETCH_COLUMN);
+            $results = [];
+            $postedItems = [];
+            foreach ($pendingIds as $pid) {
+                $resItem = performBackendReceiptOCR($pdo, (int)$pid, false);
+                $results[] = $resItem;
+                if (!empty($resItem['success']) && !empty($resItem['data']['voucher_no'])) {
+                    $postedItems[] = $resItem['data'];
+                }
+            }
+            echo json_encode([
+                'success' => true,
+                'processed_count' => count($results),
+                'posted_count' => count($postedItems),
+                'posted_items' => $postedItems,
+                'results' => $results
+            ]);
+        } catch (Exception $e) {
+            echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+        }
+        break;
+
+    case 'get_admin_notifications':
+        try {
+            $nStmt = $pdo->prepare("SELECT pref_value FROM ui_preferences WHERE tenant_id = ? AND pref_key = 'admin_inbound_notifications' LIMIT 1");
+            $nStmt->execute([$activeTenantId]);
+            $rawNotifs = $nStmt->fetchColumn();
+            $list = $rawNotifs ? (json_decode($rawNotifs, true) ?: []) : [];
+            echo json_encode(['success' => true, 'notifications' => $list]);
+        } catch (Exception $e) {
+            echo json_encode(['success' => false, 'notifications' => []]);
         }
         break;
 
@@ -331,7 +372,7 @@ switch ($action) {
             $excludeId = intval($_GET['receipt_id'] ?? $_POST['receipt_id'] ?? $jsonData['receipt_id'] ?? 0);
             
             if (empty($transferNo) || strlen(preg_replace('/\D/', '', $transferNo)) < 6) {
-                echo json_encode(['success' => true, 'is_duplicate' => false, 'message' => 'رقم المعاملة قصير أو غير متوفر']);
+                echo json_encode(['success' => true, 'is_duplicate' => false, 'invalid_length' => true, 'message' => 'رقم المعاملة يجب ألا يقل عن 6 أرقام']);
                 exit;
             }
 
@@ -387,6 +428,211 @@ switch ($action) {
 }
 
 // -------------------------------------------------------------
+// Helper: Resolve Customer from WhatsApp Phone / LID / Arabic & English Name
+// -------------------------------------------------------------
+function resolveInboundCustomer($pdo, $tenantId, $custId = '', $custName = '', $custPhone = '') {
+    $cleanCustId = preg_replace('/^cust-/', '', trim((string)$custId));
+    $custName = trim((string)$custName);
+    $custPhone = trim((string)$custPhone);
+    $cleanPhone = preg_replace('/\D/', '', $custPhone);
+
+    try {
+        $stmt = $pdo->prepare("SELECT id, frontend_id, search_name, search_phone, data FROM customers WHERE tenant_id = ? AND (is_deleted = 0 OR is_deleted IS NULL) ORDER BY id DESC");
+        $stmt->execute([$tenantId]);
+        $allCusts = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } catch (Exception $e) {
+        return ['row' => null, 'id' => $cleanCustId, 'name' => $custName, 'phone' => $custPhone];
+    }
+
+    // 1. Direct match by frontend_id
+    if (!empty($cleanCustId)) {
+        foreach ($allCusts as $cRow) {
+            $cObj = json_decode($cRow['data'], true) ?: [];
+            $fId = $cRow['frontend_id'] ?: ($cObj['id'] ?? '');
+            if ($fId === $cleanCustId) {
+                return [
+                    'row' => $cRow,
+                    'id' => $fId,
+                    'name' => $cObj['name'] ?? $cRow['search_name'] ?? $custName,
+                    'phone' => $cObj['whatsapp'] ?? $cObj['phone'] ?? $custPhone
+                ];
+            }
+        }
+    }
+
+    // 2. Match by WhatsApp Phone Number (last 9 digits or exact LID)
+    if (strlen($cleanPhone) >= 7) {
+        $last9 = substr($cleanPhone, -9);
+        foreach ($allCusts as $cRow) {
+            $cObj = json_decode($cRow['data'], true) ?: [];
+            $candPhones = [
+                $cRow['search_phone'] ?? '',
+                $cObj['whatsapp'] ?? '',
+                $cObj['phone'] ?? '',
+                $cObj['mobile'] ?? '',
+                $cObj['whatsappLid'] ?? ''
+            ];
+            foreach ($candPhones as $cp) {
+                $cpDigits = preg_replace('/\D/', '', (string)$cp);
+                if (empty($cpDigits)) continue;
+                if ($cpDigits === $cleanPhone || (strlen($cpDigits) >= 9 && substr($cpDigits, -9) === $last9)) {
+                    $fId = $cRow['frontend_id'] ?: ($cObj['id'] ?? '');
+                    return [
+                        'row' => $cRow,
+                        'id' => $fId,
+                        'name' => $cObj['name'] ?? $cRow['search_name'] ?? $custName,
+                        'phone' => $cObj['whatsapp'] ?: ($cObj['phone'] ?: $custPhone)
+                    ];
+                }
+            }
+        }
+    }
+
+    // 3. Match by Arabic or English Transliterated Customer Name (e.g. "Mahdi Mohammed Mekki" -> "مهدي مكي")
+    if (!empty($custName) && $custName !== 'زبون مباشر' && !str_starts_with($custName, 'عميل واتساب') && $custName !== 'عميل غير معروف') {
+        $enToArMap = [
+            'mahdi' => 'مهدي', 'mehdi' => 'مهدي', 'mahdy' => 'مهدي',
+            'mohammed' => 'محمد', 'mohamed' => 'محمد', 'muhammad' => 'محمد', 'mohammad' => 'محمد', 'mhmd' => 'محمد',
+            'mekki' => 'مكي', 'makki' => 'مكي', 'maki' => 'مكي', 'meki' => 'مكي', 'مكى' => 'مكي',
+            'ahmed' => 'احمد', 'ahmad' => 'احمد', 'أحمد' => 'احمد', 'إبراهيم' => 'ابراهيم',
+            'omer' => 'عمر', 'omar' => 'عمر', 'umar' => 'عمر',
+            'ali' => 'علي', 'aly' => 'علي', 'على' => 'علي',
+            'hassan' => 'حسن', 'hasan' => 'حسن',
+            'osman' => 'عثمان', 'othman' => 'عثمان', 'uthman' => 'عثمان',
+            'amar' => 'عمار', 'ammar' => 'عمار',
+            'tarig' => 'طارق', 'tariq' => 'طارق', 'tarek' => 'طارق',
+            'hams' => 'همس', 'hamas' => 'همس',
+            'aya' => 'ايه', 'ayah' => 'ايه', 'آية' => 'ايه', 'آيه' => 'ايه', 'أيه' => 'ايه',
+            'shol' => 'شول', 'chol' => 'شول', 'dr' => 'دكتور', 'doctor' => 'دكتور',
+            'khalid' => 'خالد', 'khaled' => 'خالد',
+            'ibrahim' => 'ابراهيم', 'mustafa' => 'مصطفى', 'mostafa' => 'مصطفى',
+            'abdo' => 'عبدو', 'abdu' => 'عبدو', 'abdelrahim' => 'عبدالرحيم', 'abdulrahim' => 'عبدالرحيم'
+        ];
+
+        $normalizeTokens = function($str) use ($enToArMap) {
+            $s = mb_strtolower(trim((string)$str));
+            $s = str_replace(['أ','إ','آ'], 'ا', $s);
+            $s = str_replace(['ى'], 'ي', $s);
+            $s = str_replace(['ة'], 'ه', $s);
+            $rawWords = preg_split('/[\s\-_.,\/]+/u', $s, -1, PREG_SPLIT_NO_EMPTY);
+            $tokens = [];
+            foreach ($rawWords as $w) {
+                if (isset($enToArMap[$w])) {
+                    $tokens[] = $enToArMap[$w];
+                } elseif (mb_strlen($w) >= 2) {
+                    $tokens[] = $w;
+                }
+            }
+            return array_values(array_unique($tokens));
+        };
+
+        $inputTokens = $normalizeTokens($custName);
+
+        // 3a. Exact normalized name match
+        foreach ($allCusts as $cRow) {
+            $cObj = json_decode($cRow['data'], true) ?: [];
+            $dbName = trim($cObj['name'] ?? $cRow['search_name'] ?? '');
+            if (empty($dbName)) continue;
+            if (mb_strtolower($dbName) === mb_strtolower($custName)) {
+                $fId = $cRow['frontend_id'] ?: ($cObj['id'] ?? '');
+                return [
+                    'row' => $cRow,
+                    'id' => $fId,
+                    'name' => $dbName,
+                    'phone' => $cObj['whatsapp'] ?: ($cObj['phone'] ?: $custPhone)
+                ];
+            }
+        }
+
+        // 3b. Token overlap scoring (prioritizing customers whose full name tokens are completely present in inputTokens, e.g. "مهدي مكي" inside "مهدي محمد مكي")
+        if (!empty($inputTokens)) {
+            $bestMatch = null;
+            $bestScore = 0.0;
+            foreach ($allCusts as $cRow) {
+                $cObj = json_decode($cRow['data'], true) ?: [];
+                $dbName = trim($cObj['name'] ?? $cRow['search_name'] ?? '');
+                if (empty($dbName)) continue;
+                $dbTokens = $normalizeTokens($dbName);
+                if (empty($dbTokens)) continue;
+
+                $common = array_intersect($dbTokens, $inputTokens);
+                $matchCount = count($common);
+                if ($matchCount < 2 && !(count($dbTokens) === 1 && $matchCount === 1 && count($inputTokens) === 1)) {
+                    continue;
+                }
+
+                // Calculate score: coverage of dbTokens + coverage of inputTokens + first & last token match bonus
+                $dbCoverage = $matchCount / count($dbTokens);
+                $inCoverage = $matchCount / count($inputTokens);
+                $score = ($dbCoverage * 60.0) + ($inCoverage * 30.0) + ($matchCount * 5.0);
+                if ($dbTokens[0] === $inputTokens[0]) {
+                    $score += 15.0;
+                }
+                if (end($dbTokens) === end($inputTokens)) {
+                    $score += 15.0;
+                }
+
+                if ($score > $bestScore) {
+                    $bestScore = $score;
+                    $bestMatch = [
+                        'row' => $cRow,
+                        'id' => $cRow['frontend_id'] ?: ($cObj['id'] ?? ''),
+                        'name' => $dbName,
+                        'phone' => $cObj['whatsapp'] ?: ($cObj['phone'] ?: $custPhone)
+                    ];
+                }
+            }
+
+            if ($bestMatch && $bestScore >= 75.0) {
+                // Save WhatsApp LID on matched customer so future messages match by ID/LID directly
+                if (!empty($cleanPhone) && strlen($cleanPhone) >= 12) {
+                    try {
+                        $mObj = json_decode($bestMatch['row']['data'], true) ?: [];
+                        if (($mObj['whatsappLid'] ?? '') !== $cleanPhone) {
+                            $mObj['whatsappLid'] = $cleanPhone;
+                            $uStmt = $pdo->prepare("UPDATE customers SET data = ? WHERE id = ?");
+                            $uStmt->execute([json_encode($mObj, JSON_UNESCAPED_UNICODE), $bestMatch['row']['id']]);
+                        }
+                    } catch (Exception $e) {}
+                }
+                return $bestMatch;
+            }
+        }
+    }
+
+    return ['row' => null, 'id' => $cleanCustId, 'name' => $custName, 'phone' => $custPhone];
+}
+
+// -------------------------------------------------------------
+// Helper: Record System Admin Notification
+// -------------------------------------------------------------
+function recordAdminInboundNotification($pdo, $tenantId, $notifItem) {
+    try {
+        $pdo->exec("CREATE TABLE IF NOT EXISTS ui_preferences (
+            tenant_id VARCHAR(50) NOT NULL,
+            pref_key VARCHAR(100) NOT NULL,
+            pref_value LONGTEXT,
+            PRIMARY KEY (tenant_id, pref_key)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
+
+        $stmt = $pdo->prepare("SELECT pref_value FROM ui_preferences WHERE tenant_id = ? AND pref_key = 'admin_inbound_notifications' LIMIT 1");
+        $stmt->execute([$tenantId]);
+        $existingJson = $stmt->fetchColumn();
+        $list = $existingJson ? (json_decode($existingJson, true) ?: []) : [];
+        if (!is_array($list)) $list = [];
+
+        array_unshift($list, $notifItem);
+        if (count($list) > 50) {
+            $list = array_slice($list, 0, 50);
+        }
+
+        $encoded = json_encode($list, JSON_UNESCAPED_UNICODE);
+        $up = $pdo->prepare("INSERT INTO ui_preferences (tenant_id, pref_key, pref_value) VALUES (?, 'admin_inbound_notifications', ?) ON DUPLICATE KEY UPDATE pref_value = VALUES(pref_value)");
+        $up->execute([$tenantId, $encoded]);
+    } catch (Exception $e) {}
+}
+
+// -------------------------------------------------------------
 // Helper: Check duplicate transfer number across existing data
 // -------------------------------------------------------------
 function checkTransferConflictInDB($pdo, $tenantId, $transferNo, $excludeReceiptId = 0) {
@@ -409,7 +655,7 @@ function checkTransferConflictInDB($pdo, $tenantId, $transferNo, $excludeReceipt
     // 1. Check existing inbound receipts
     $sql1 = "SELECT id, customer_name, voucher_no, amount, created_at, transfer_no 
              FROM inbound_bank_receipts 
-             WHERE tenant_id = ? AND id != ? AND transfer_no LIKE ? AND status IN ('verified', 'reconciled')
+             WHERE tenant_id = ? AND id != ? AND transfer_no LIKE ? AND (status IN ('verified', 'reconciled') OR (voucher_no IS NOT NULL AND voucher_no != ''))
              LIMIT 1";
     $stmt1 = $pdo->prepare($sql1);
     $stmt1->execute([$tenantId, $excludeReceiptId, '%' . $suffix]);
@@ -499,7 +745,7 @@ function checkTransferConflictInDB($pdo, $tenantId, $transferNo, $excludeReceipt
 }
 
 // -------------------------------------------------------------
-// Helper: Post Verified Inbound Receipt to Accounts (Receipts, Customers, Banks, GL)
+// Helper: Post Verified Inbound Receipt to Accounts (Receipts, Customers, Bank of Khartoum, GL)
 // -------------------------------------------------------------
 function postInboundReceiptToAccounts($pdo, $receiptId) {
     $stmt = $pdo->prepare("SELECT * FROM inbound_bank_receipts WHERE id = ? LIMIT 1");
@@ -523,6 +769,10 @@ function postInboundReceiptToAccounts($pdo, $receiptId) {
     }
     if ($amount <= 0) {
         return ['success' => false, 'error' => 'مبلغ الإشعار يجب أن يكون أكبر من الصفر لتنزيله في الحسابات'];
+    }
+    $cleanRefDigits = preg_replace('/\D/', '', $transferNo);
+    if (strlen($cleanRefDigits) < 6) {
+        return ['success' => false, 'error' => 'رقم التحويل يجب ألا يقل عن 6 أرقام لتنزيله في الحسابات'];
     }
 
     // Check if already posted to receipts table (Idempotency)
@@ -548,29 +798,14 @@ function postInboundReceiptToAccounts($pdo, $receiptId) {
     }
 
     // 1. Resolve or Auto-Create Customer in `customers` table and update balance
-    $cleanCustId = preg_replace('/^cust-/', '', $custId);
-    $matchedCustomerRow = null;
-
-    if (!empty($cleanCustId)) {
-        $cStmt = $pdo->prepare("SELECT id, data FROM customers WHERE tenant_id = ? AND (is_deleted = 0 OR is_deleted IS NULL) AND frontend_id = ? LIMIT 1");
-        $cStmt->execute([$tenantId, $cleanCustId]);
-        $matchedCustomerRow = $cStmt->fetch(PDO::FETCH_ASSOC);
+    $resolvedCust = resolveInboundCustomer($pdo, $tenantId, $custId, $custName, $custPhone);
+    $matchedCustomerRow = $resolvedCust['row'] ?? null;
+    $cleanCustId = $resolvedCust['id'] ?: preg_replace('/^cust-/', '', $custId);
+    if (!empty($resolvedCust['name'])) {
+        $custName = $resolvedCust['name'];
     }
-
-    if (!$matchedCustomerRow && !empty($custPhone)) {
-        $cleanPhone = preg_replace('/\D/', '', $custPhone);
-        if (strlen($cleanPhone) >= 7) {
-            $last9 = substr($cleanPhone, -9);
-            $cStmt = $pdo->prepare("SELECT id, data FROM customers WHERE tenant_id = ? AND (is_deleted = 0 OR is_deleted IS NULL) AND (search_phone LIKE ? OR data LIKE ?) ORDER BY id DESC LIMIT 1");
-            $cStmt->execute([$tenantId, '%' . $last9 . '%', '%' . $last9 . '%']);
-            $matchedCustomerRow = $cStmt->fetch(PDO::FETCH_ASSOC);
-        }
-    }
-
-    if (!$matchedCustomerRow && !empty($custName) && $custName !== 'زبون مباشر' && !str_starts_with($custName, 'عميل واتساب')) {
-        $cStmt = $pdo->prepare("SELECT id, data FROM customers WHERE tenant_id = ? AND (is_deleted = 0 OR is_deleted IS NULL) AND (search_name = ? OR search_name LIKE ?) ORDER BY id DESC LIMIT 1");
-        $cStmt->execute([$tenantId, $custName, '%' . $custName . '%']);
-        $matchedCustomerRow = $cStmt->fetch(PDO::FETCH_ASSOC);
+    if (!empty($resolvedCust['phone'])) {
+        $custPhone = $resolvedCust['phone'];
     }
 
     if ($matchedCustomerRow) {
@@ -615,7 +850,7 @@ function postInboundReceiptToAccounts($pdo, $receiptId) {
         $insCust->execute([$tenantId, $custFrontendId, json_encode($custObj, JSON_UNESCAPED_UNICODE)]);
     }
 
-    // 2. Resolve or Auto-Create Bank in `banks` table and update balance
+    // 2. Always Resolve to Bank of Khartoum (`بنك الخرطوم`) in `banks` table and update balance
     $matchedBankRow = null;
     $bStmt = $pdo->prepare("SELECT id, data FROM banks WHERE tenant_id = ? AND (is_deleted = 0 OR is_deleted IS NULL) ORDER BY id ASC");
     $bStmt->execute([$tenantId]);
@@ -630,7 +865,7 @@ function postInboundReceiptToAccounts($pdo, $receiptId) {
             if (!$matchedBankRow) {
                 $matchedBankRow = $bRow;
             }
-            if (!empty($bRowName) && (mb_stripos($bankName, $bRowName) !== false || mb_stripos($bRowName, 'الخرطوم') !== false || mb_stripos($bRowName, 'بنكك') !== false)) {
+            if (!empty($bRowName) && (mb_stripos($bRowName, 'الخرطوم') !== false || mb_stripos($bRowName, 'بنكك') !== false)) {
                 $matchedBankRow = $bRow;
                 break;
             }
@@ -639,13 +874,13 @@ function postInboundReceiptToAccounts($pdo, $receiptId) {
 
     if ($matchedBankRow) {
         $bankObj = json_decode($matchedBankRow['data'], true) ?: [];
-        $bankFrontendId = $bankObj['id'] ?? 'B-1700000000001';
-        $resolvedBankName = $bankObj['name'] ?? $bankName;
+        $bankFrontendId = $bankObj['id'] ?? 'B-1781625755439';
+        $resolvedBankName = $bankObj['name'] ?? 'بنك الخرطوم';
         $bankObj['currentBalance'] = (float)($bankObj['currentBalance'] ?? 0) + $amount;
         $updBank = $pdo->prepare("UPDATE banks SET data = ? WHERE id = ?");
         $updBank->execute([json_encode($bankObj, JSON_UNESCAPED_UNICODE), $matchedBankRow['id']]);
     } else {
-        $bankFrontendId = 'B-1700000000001';
+        $bankFrontendId = 'B-1781625755439';
         $resolvedBankName = 'بنك الخرطوم';
         $bankObj = [
             'id' => $bankFrontendId,
@@ -682,7 +917,7 @@ function postInboundReceiptToAccounts($pdo, $receiptId) {
 
     $today = date('Y-m-d');
     $nowTime = date('H:i');
-    $voucherDesc = 'سداد إشعار تحويل بنكي (' . $bankName . ') رقم العملية: ' . $transferNo . ' - العميل: ' . $custName;
+    $voucherDesc = 'سداد إشعار تحويل بنكي (' . $bankName . ') رقم العملية: ' . $transferNo . ' - العميل: ' . $custName . ' إلى ' . $resolvedBankName;
 
     $voucherObj = [
         'id' => $vNo,
@@ -801,7 +1036,7 @@ function postInboundReceiptToAccounts($pdo, $receiptId) {
         error_log('Inbound Receipt GL Insert Warning: ' . $glErr->getMessage());
     }
 
-    // 5. Update `inbound_bank_receipts` with voucher_no and customer_id
+    // 5. Update `inbound_bank_receipts` with voucher_no, customer_id, customer_name, customer_phone
     $updatedNotes = trim((string)($receipt['notes'] ?? ''));
     $postedTag = '✅ تم التنزيل في الحسابات بالسند ' . $vNo;
     if (mb_strpos($updatedNotes, $vNo) === false) {
@@ -809,9 +1044,22 @@ function postInboundReceiptToAccounts($pdo, $receiptId) {
     }
 
     $updInb = $pdo->prepare("UPDATE inbound_bank_receipts 
-        SET customer_id = ?, customer_name = ?, voucher_no = ?, status = 'verified', notes = ?, updated_at = NOW() 
+        SET customer_id = ?, customer_name = ?, customer_phone = ?, voucher_no = ?, status = 'verified', notes = ?, updated_at = NOW() 
         WHERE id = ?");
-    $updInb->execute([$custFrontendId, $custName, $vNo, $updatedNotes, $receiptId]);
+    $updInb->execute([$custFrontendId, $custName, $custPhone, $vNo, $updatedNotes, $receiptId]);
+
+    $adminNotificationText = "🔔 إشعار لمدير النظام: تم فحص وإضافة إشعار بنكي بمبلغ (" . number_format($amount, 2) . " SDG) رقم العملية (" . $transferNo . ") في حساب (" . $custName . ") إلى حساب (" . $resolvedBankName . ") وحفظه تلقائياً بالسند رقم (" . $vNo . ").";
+    recordAdminInboundNotification($pdo, (string)$tenantId, [
+        'receipt_id' => (int)$receiptId,
+        'voucher_no' => $vNo,
+        'customer_id' => $custFrontendId,
+        'customer_name' => $custName,
+        'bank_name' => $resolvedBankName,
+        'amount' => $amount,
+        'transfer_no' => $transferNo,
+        'message' => $adminNotificationText,
+        'created_at' => date('Y-m-d H:i:s')
+    ]);
 
     return [
         'success' => true,
@@ -819,24 +1067,47 @@ function postInboundReceiptToAccounts($pdo, $receiptId) {
         'voucher_no' => $vNo,
         'customer_id' => $custFrontendId,
         'customer_name' => $custName,
+        'customer_phone' => $custPhone,
         'bank_id' => $bankFrontendId,
         'bank_name' => $resolvedBankName,
         'voucher' => $voucherObj,
         'customer' => $custObj,
         'bank' => $bankObj,
-        'message' => 'تم فحص الإشعار وتنزيله في الحسابات بنجاح بالسند رقم ' . $vNo
+        'admin_notification' => $adminNotificationText,
+        'message' => 'تم فحص الإشعار وتنزيله في حساب (' . $custName . ') إلى (' . $resolvedBankName . ') بنجاح بالسند رقم ' . $vNo
     ];
 }
 
 // -------------------------------------------------------------
 // Helper: Perform Backend AI OCR on Inbound Receipt Image
+// ($fraudCheck = false by default; true ONLY when user requests "فحص التزوير")
 // -------------------------------------------------------------
-function performBackendReceiptOCR($pdo, $receiptId) {
+function performBackendReceiptOCR($pdo, $receiptId, $fraudCheck = false) {
     $stmt = $pdo->prepare("SELECT * FROM inbound_bank_receipts WHERE id = ?");
     $stmt->execute([$receiptId]);
     $receipt = $stmt->fetch(PDO::FETCH_ASSOC);
     if (!$receipt || empty($receipt['receipt_image'])) {
         return ['success' => false, 'error' => 'الإشعار أو مسار الصورة غير موجود'];
+    }
+
+    // Prevent duplicate inspection if already verified & posted (unless on-demand forgery check is requested)
+    if (!$fraudCheck && !empty($receipt['voucher_no']) && $receipt['status'] === 'verified' && (float)$receipt['amount'] > 0 && strlen(preg_replace('/\D/', '', (string)$receipt['transfer_no'])) >= 6) {
+        return [
+            'success' => true,
+            'already_inspected' => true,
+            'data' => [
+                'id' => $receiptId,
+                'amount' => (float)$receipt['amount'],
+                'transfer_no' => $receipt['transfer_no'],
+                'customer_id' => $receipt['customer_id'],
+                'customer_name' => $receipt['customer_name'],
+                'bank_name' => $receipt['bank_name'],
+                'status' => $receipt['status'],
+                'issue_reason' => $receipt['issue_reason'],
+                'voucher_no' => $receipt['voucher_no'],
+                'notes' => $receipt['notes']
+            ]
+        ];
     }
 
     $imageRel = $receipt['receipt_image'];
@@ -859,7 +1130,8 @@ function performBackendReceiptOCR($pdo, $receiptId) {
     // Call OCR endpoint internally using dynamic URL resolution
     $ocrPayload = json_encode([
         'image' => $base64,
-        'doc_hint' => 'transfer'
+        'doc_hint' => 'transfer',
+        'fraud_check' => (bool)$fraudCheck
     ]);
 
     $candidateUrls = [];
@@ -918,37 +1190,67 @@ function performBackendReceiptOCR($pdo, $receiptId) {
 
     $tenantId = $receipt['tenant_id'];
 
-    // Check duplicate
+    // If this is an On-Demand Forgery Check ("فحص التزوير عند الطلب فقط"), return forensic result without re-posting
+    if ($fraudCheck) {
+        $tamperingScore = (int)($d['tampering_score'] ?? 0);
+        $isSuspicious = !empty($d['is_suspicious']) || $tamperingScore >= 40;
+        $tamperingReasons = trim($d['tampering_reasons'] ?? '');
+        if (empty($tamperingReasons)) {
+            $tamperingReasons = $isSuspicious
+                ? 'تم رصد مؤشرات اشتباه أو تلاعب في بيانات الإشعار'
+                : 'الإشعار سليم وأصلي — لم يتم رصد أي تلاعب رقمي أو تعديل في خانات رقم العملية أو المبلغ';
+        }
+        return [
+            'success' => true,
+            'fraud_checked' => true,
+            'id' => $receiptId,
+            'tampering_score' => $tamperingScore,
+            'is_suspicious' => $isSuspicious,
+            'tampering_reasons' => $tamperingReasons,
+            'amount' => $extractedAmount,
+            'transfer_no' => $extractedRef,
+            'ocr_details' => $d
+        ];
+    }
+
+    // Validate Transfer Number (>= 6 digits) & Check Duplicate
+    $cleanRefDigits = preg_replace('/\D/', '', $extractedRef);
     $status = 'verified';
     $issueReason = null;
-    $notes = $summary ?: ('تم الفحص بالذكاء الاصطناعي بنجاح | رقم العملية: ' . $extractedRef);
+    $notes = $summary ?: ('تم الفحص التلقائي بنجاح | رقم العملية: ' . $extractedRef);
 
-    if (!empty($extractedRef) && strlen(preg_replace('/\D/', '', $extractedRef)) >= 6) {
+    if (strlen($cleanRefDigits) < 6) {
+        $status = 'pending';
+        $issueReason = 'invalid_transfer_no_under_6_digits';
+        $notes = '⚠️ مرفوض: رقم التحويل يجب ألا يقل عن 6 أرقام (' . ($extractedRef ?: 'غير موجود') . ')';
+    } elseif ($extractedAmount <= 0) {
+        $status = 'pending';
+        $issueReason = 'zero_amount';
+        $notes = '⚠️ المبلغ غير واضح في الإشعار';
+    } else {
         $dupCheck = checkTransferConflictInDB($pdo, $tenantId, $extractedRef, (int)$receiptId);
         if ($dupCheck['is_duplicate']) {
             $status = 'duplicate_rejected';
             $issueReason = 'duplicate_voucher_' . ($dupCheck['conflicting_voucher'] ?? '');
             $notes = '⚠️ كشف تكرار مالي: رقم العملية ' . $extractedRef . ' مسجل بالسند ' . ($dupCheck['conflicting_voucher'] ?? '');
         }
-    } elseif ($extractedAmount <= 0) {
-        $status = 'pending';
     }
 
-    // Customer name resolution if generic
+    // Customer resolution via WhatsApp phone, LID, or name
     $custName = $receipt['customer_name'];
     if (!empty($extractedSender) && ($custName === 'زبون مباشر' || str_starts_with($custName, 'عميل واتساب') || $custName === 'amar00105')) {
         $custName = $extractedSender;
     }
-
-    // Match customer from DB if possible
     $custId = $receipt['customer_id'];
-    if (empty($custId) && !empty($custName)) {
-        try {
-            $cStmt = $pdo->prepare("SELECT frontend_id FROM customers WHERE tenant_id = ? AND (is_deleted = 0 OR is_deleted IS NULL) AND (search_name LIKE ? OR data LIKE ?) LIMIT 1");
-            $cStmt->execute([$tenantId, '%' . $custName . '%', '%' . $custName . '%']);
-            $fId = $cStmt->fetchColumn();
-            if ($fId) $custId = $fId;
-        } catch (Exception $ce) {}
+    $custPhone = $receipt['customer_phone'];
+
+    $resolvedCust = resolveInboundCustomer($pdo, $tenantId, $custId, $custName, $custPhone);
+    if (!empty($resolvedCust['id'])) {
+        $custId = $resolvedCust['id'];
+        $custName = $resolvedCust['name'] ?: $custName;
+        if (!empty($resolvedCust['phone'])) {
+            $custPhone = $resolvedCust['phone'];
+        }
     }
 
     $updateStmt = $pdo->prepare("UPDATE inbound_bank_receipts 
@@ -956,6 +1258,7 @@ function performBackendReceiptOCR($pdo, $receiptId) {
             transfer_no = ?, 
             customer_id = ?,
             customer_name = ?,
+            customer_phone = ?,
             bank_name = ?,
             status = ?, 
             issue_reason = ?, 
@@ -966,6 +1269,7 @@ function performBackendReceiptOCR($pdo, $receiptId) {
         $extractedRef,
         $custId,
         $custName,
+        $custPhone,
         $extractedBank,
         $status,
         $issueReason,
@@ -973,13 +1277,14 @@ function performBackendReceiptOCR($pdo, $receiptId) {
         $receiptId
     ]);
 
-    // Automatically post to accounts if verified
+    // Automatically post to accounts (from Customer to Bank of Khartoum) if verified
     $postingResult = null;
-    if ($status === 'verified' && $extractedAmount > 0 && strlen(preg_replace('/\D/', '', $extractedRef)) >= 6) {
+    if ($status === 'verified' && $extractedAmount > 0 && strlen($cleanRefDigits) >= 6) {
         $postingResult = postInboundReceiptToAccounts($pdo, $receiptId);
         if (!empty($postingResult['voucher_no'])) {
             $custId = $postingResult['customer_id'] ?? $custId;
             $custName = $postingResult['customer_name'] ?? $custName;
+            $custPhone = $postingResult['customer_phone'] ?? $custPhone;
         }
     }
 
@@ -991,6 +1296,7 @@ function performBackendReceiptOCR($pdo, $receiptId) {
             'transfer_no' => $extractedRef,
             'customer_id' => $custId,
             'customer_name' => $custName,
+            'customer_phone' => $custPhone,
             'bank_name' => $extractedBank,
             'status' => $status,
             'issue_reason' => $issueReason,
@@ -1001,4 +1307,5 @@ function performBackendReceiptOCR($pdo, $receiptId) {
         ]
     ];
 }
+
 

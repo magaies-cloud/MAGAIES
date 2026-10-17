@@ -111,7 +111,10 @@ class WhatsAppClient {
         this._isDestroying     = false;
 
         // Message cache for retry requests (prevents phantom messages)
-        this.messageCache      = new Map();
+        this.messageCache       = new Map();
+        this.lidToPhoneMap      = new Map();
+        this.processedWaMsgIds  = new Set();
+        this.inboundBatchQueues = new Map();
     }
 
     get authFolder() {
@@ -365,6 +368,27 @@ class WhatsAppClient {
                 this._handleConnectionUpdate(update);
             });
 
+            // ── Map WhatsApp Privacy LIDs to real phone numbers ──
+            const indexContactLid = (c) => {
+                if (!c) return;
+                const lid = c.lid || (c.id && String(c.id).endsWith('@lid') ? c.id : '');
+                const pn  = c.phoneNumber || c.pn || (c.id && String(c.id).endsWith('@s.whatsapp.net') ? c.id : '');
+                if (lid && pn) {
+                    const cleanPn = String(pn).replace(/:.*$/, '').replace(/@.*$/, '');
+                    this.lidToPhoneMap.set(String(lid), cleanPn);
+                    this.lidToPhoneMap.set(String(lid).replace(/:.*$/, '').replace(/@.*$/, ''), cleanPn);
+                }
+            };
+            sock.ev.on('contacts.upsert', (contacts) => {
+                try { (contacts || []).forEach(indexContactLid); } catch (_) {}
+            });
+            sock.ev.on('contacts.update', (updates) => {
+                try { (updates || []).forEach(indexContactLid); } catch (_) {}
+            });
+            sock.ev.on('chats.upsert', (chats) => {
+                try { (chats || []).forEach(indexContactLid); } catch (_) {}
+            });
+
             // ── Cache messages for retries & Inbound Receipt Listener ──
             sock.ev.on('messages.upsert', async (upsert) => {
                 try {
@@ -471,7 +495,7 @@ class WhatsAppClient {
                     log(this.userId, 'Disconnected with code 401 (Logged Out) — session invalidated. Cleaning auth and re-initializing for fresh QR.');
                     this.phoneNumber = null;
                     this.reconnectAttempts = 0;
-                    // Delete corrupted/old auth and re-initialize to generate fresh QR
+                    // Delete corrupted/old auth and re-initializing to generate fresh QR
                     this._deleteAuthFolder();
                     this._setState('IDLE');
                     // Auto re-init after a short delay to generate fresh QR
@@ -561,16 +585,48 @@ class WhatsAppClient {
         }
     }
 
+    _resolveSenderPhone(msg, sock) {
+        const remoteJid = msg?.key?.remoteJid || '';
+        const candidates = [
+            msg?.key?.senderPn,
+            msg?.key?.remoteJidAlt,
+            msg?.key?.participantAlt,
+            msg?.participant,
+            this.lidToPhoneMap.get(remoteJid),
+            this.lidToPhoneMap.get(remoteJid.replace(/@.*$/, '')),
+            (!remoteJid.endsWith('@lid') ? remoteJid : '')
+        ];
+        for (const c of candidates) {
+            if (c && !String(c).endsWith('@lid')) {
+                const cleaned = String(c).replace(/:.*$/, '').replace(/@.*$/, '').replace(/\D/g, '');
+                if (cleaned.length >= 9) return cleaned;
+            }
+        }
+        return remoteJid.replace(/:.*$/, '').replace(/@.*$/, '');
+    }
+
     async _processIncomingWhatsAppReceipt(msg, sock, unwrapped) {
         try {
             const remoteJid = msg.key.remoteJid || '';
             if (remoteJid.includes('@g.us') || remoteJid.includes('status@broadcast')) return;
 
-            const senderPhone = remoteJid.replace(/@.*$/, '');
+            const msgId = msg.key?.id || '';
+            if (msgId && this.processedWaMsgIds.has(msgId)) {
+                return;
+            }
+            if (msgId) {
+                this.processedWaMsgIds.add(msgId);
+                if (this.processedWaMsgIds.size > 1000) {
+                    const first = this.processedWaMsgIds.values().next().value;
+                    this.processedWaMsgIds.delete(first);
+                }
+            }
+
+            const senderPhone = this._resolveSenderPhone(msg, sock);
             const pushName = msg.pushName || ('عميل واتساب ' + senderPhone);
             const tenantId = this.userId.replace(/\D/g, '') || '12';
 
-            log(this.userId, `📥 Incoming WhatsApp image from ${pushName} (${senderPhone}), downloading...`);
+            log(this.userId, `📥 Incoming WhatsApp receipt image from ${pushName} (${senderPhone}), downloading...`);
 
             const unwrappedContent = unwrapped || unwrapWAMessage(msg) || msg.message;
             const caption = unwrappedContent?.imageMessage?.caption || unwrappedContent?.documentMessage?.caption || '';
@@ -610,89 +666,218 @@ class WhatsAppClient {
 
             const relativePath = `uploads/receipts_inbox/${tenantId}/${filename}`;
 
-            // 1. Send immediate acknowledgment reply to customer right after receiving the receipt image
-            try {
-                await sock.sendMessage(remoteJid, {
-                    text: `✅ مرحباً بك ${pushName}!\nتم استلام إشعار التحويل البنكي بنجاح وجاري تدقيقه واعتماده في النظام المالي.\nشكراً لتعاملكم معنا. 🏢✨`
-                }, { quoted: msg });
-                log(this.userId, `📤 Immediate receipt acknowledgment sent to customer ${senderPhone}`);
-            } catch (ackErr) {
-                logErr(this.userId, 'Failed to send immediate acknowledgment:', ackErr.message);
+            // Queue into sender's batch so multiple images sent together are inspected sequentially without duplicate/race conditions
+            let batchState = this.inboundBatchQueues.get(remoteJid);
+            if (!batchState) {
+                batchState = {
+                    items: [],
+                    timer: null,
+                    isProcessing: false,
+                    ackSent: false
+                };
+                this.inboundBatchQueues.set(remoteJid, batchState);
             }
 
-            // 2. Forward to ERP Inbound API for AI OCR inspection & automatic account posting
-            const payload = {
-                action: 'upload',
-                tenant_id: tenantId,
-                customer_name: pushName,
-                customer_phone: senderPhone,
-                receipt_image: relativePath,
-                caption: caption,
-                bank_name: 'بنك الخرطوم (بنكك)',
-                source: 'whatsapp',
-                notes: caption ? `إشعار تحويل وارد من واتساب (${caption})` : 'إشعار تحويل وارد تلقائياً عبر محادثة واتساب'
-            };
+            batchState.items.push({
+                msg,
+                sock,
+                remoteJid,
+                senderPhone,
+                pushName,
+                tenantId,
+                relativePath,
+                caption
+            });
 
-            const isWin = process.platform === 'win32';
-            const candidateEndpoints = isWin
-                ? [
-                    `http://localhost/ELSAJANA2/magaies/api/inbound_receipts.php?action=upload&tenant_id=${tenantId}`,
-                    `http://127.0.0.1/ELSAJANA2/magaies/api/inbound_receipts.php?action=upload&tenant_id=${tenantId}`,
-                    `http://localhost/magaees/api/inbound_receipts.php?action=upload&tenant_id=${tenantId}`,
-                    `http://localhost/api/inbound_receipts.php?action=upload&tenant_id=${tenantId}`
-                ]
-                : [
-                    `http://localhost/api/inbound_receipts.php?action=upload&tenant_id=${tenantId}`,
-                    `http://127.0.0.1/api/inbound_receipts.php?action=upload&tenant_id=${tenantId}`,
-                    `https://c.elsajana.com/api/inbound_receipts.php?action=upload&tenant_id=${tenantId}`
-                ];
-
-            let data = null;
-            let lastErr = null;
-            for (const ep of candidateEndpoints) {
+            // 1. Send immediate acknowledgment reply once per batch right after receiving the first receipt image
+            if (!batchState.ackSent) {
+                batchState.ackSent = true;
                 try {
-                    const response = await fetch(ep, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(payload)
-                    });
-                    if (response.ok) {
-                        const parsed = await response.json();
-                        if (parsed && parsed.success) {
-                            data = parsed;
-                            break;
-                        }
-                    } else {
-                        lastErr = new Error(`HTTP ${response.status} from ${ep}`);
-                    }
-                } catch (postErr) {
-                    lastErr = postErr;
+                    await sock.sendMessage(remoteJid, {
+                        text: `✅ مرحباً بك ${pushName}!\nتم استلام إشعار التحويل البنكي بنجاح وجاري تدقيقه واعتماده في النظام المالي.\nشكراً لتعاملكم معنا. 🏢✨`
+                    }, { quoted: msg });
+                    log(this.userId, `📤 Immediate receipt acknowledgment sent to customer ${senderPhone}`);
+                } catch (ackErr) {
+                    logErr(this.userId, 'Failed to send immediate acknowledgment:', ackErr.message);
                 }
             }
 
-            if (!data) {
-                throw lastErr || new Error('All inbound_receipts endpoints failed');
+            if (batchState.timer) {
+                clearTimeout(batchState.timer);
             }
+            batchState.timer = setTimeout(() => {
+                this._flushInboundReceiptBatch(remoteJid).catch(err => {
+                    logErr(this.userId, 'Batch flush error:', err.message);
+                });
+            }, 1800);
+        } catch (err) {
+            logErr(this.userId, 'Failed to queue WhatsApp receipt image:', err.message);
+        }
+    }
 
-            log(this.userId, `✅ Inbound WhatsApp receipt saved to ERP successfully (ID: ${data.id}, Status: ${data.status}, Voucher: ${data.voucher_no || 'N/A'})`);
+    async _flushInboundReceiptBatch(remoteJid) {
+        const batchState = this.inboundBatchQueues.get(remoteJid);
+        if (!batchState || batchState.isProcessing || batchState.items.length === 0) return;
 
-            // 3. Send follow-up accounting confirmation once inspection & account posting finish
+        batchState.isProcessing = true;
+        const currentBatch = batchState.items.splice(0, batchState.items.length);
+        batchState.ackSent = false;
+
+        const firstItem = currentBatch[0];
+        const sock = firstItem.sock;
+        const tenantId = firstItem.tenantId;
+        const isWin = process.platform === 'win32';
+        const candidateEndpoints = isWin
+            ? [
+                `http://localhost/ELSAJANA2/magaies/api/inbound_receipts.php?action=upload&tenant_id=${tenantId}`,
+                `http://127.0.0.1/ELSAJANA2/magaies/api/inbound_receipts.php?action=upload&tenant_id=${tenantId}`,
+                `http://localhost/magaees/api/inbound_receipts.php?action=upload&tenant_id=${tenantId}`,
+                `http://localhost/api/inbound_receipts.php?action=upload&tenant_id=${tenantId}`
+            ]
+            : [
+                `http://localhost/api/inbound_receipts.php?action=upload&tenant_id=${tenantId}`,
+                `http://127.0.0.1/api/inbound_receipts.php?action=upload&tenant_id=${tenantId}`,
+                `https://c.elsajana.com/api/inbound_receipts.php?action=upload&tenant_id=${tenantId}`
+            ];
+
+        const postedReceipts = [];
+        const duplicateReceipts = [];
+        const invalidReceipts = [];
+        let resolvedCustomerName = firstItem.pushName;
+
+        // Process each receipt in the batch strictly sequentially (non-duplicated, no forgery check)
+        for (const item of currentBatch) {
             try {
-                let followUpText = '';
+                const payload = {
+                    action: 'upload',
+                    tenant_id: item.tenantId,
+                    customer_name: item.pushName,
+                    customer_phone: item.senderPhone,
+                    receipt_image: item.relativePath,
+                    caption: item.caption,
+                    bank_name: 'بنك الخرطوم (بنكك)',
+                    source: 'whatsapp',
+                    notes: item.caption ? `إشعار تحويل وارد من واتساب (${item.caption})` : 'إشعار تحويل وارد تلقائياً عبر محادثة واتساب'
+                };
+
+                let data = null;
+                let lastErr = null;
+                for (const ep of candidateEndpoints) {
+                    try {
+                        const response = await fetch(ep, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(payload)
+                        });
+                        if (response.ok) {
+                            const parsed = await response.json();
+                            if (parsed && parsed.success) {
+                                data = parsed;
+                                break;
+                            }
+                        } else {
+                            lastErr = new Error(`HTTP ${response.status} from ${ep}`);
+                        }
+                    } catch (postErr) {
+                        lastErr = postErr;
+                    }
+                }
+
+                if (!data) {
+                    throw lastErr || new Error('All inbound_receipts endpoints failed');
+                }
+
+                if (data.customer_name) {
+                    resolvedCustomerName = data.customer_name;
+                }
+
+                log(this.userId, `✅ Batch item processed (ID: ${data.id}, Status: ${data.status}, Voucher: ${data.voucher_no || 'N/A'}, Ref: ${data.transfer_no || 'N/A'})`);
+
                 if (data.status === 'duplicate_rejected') {
-                    followUpText = `⚠️ تنبيه مراجعة مالية (${pushName}):\nتبين بعد الفحص أن رقم العملية (${data.transfer_no || ''}) مسجل ومعتمد مسبقاً في النظام.\nيرجى مراجعة العملية أو إرسال إشعار تحويل جديد.`;
+                    duplicateReceipts.push(data);
                 } else if (data.voucher_no && Number(data.amount) > 0) {
-                    followUpText = `🏦 تم فحص الإشعار وتنزيله في حسابكم بنجاح:\n• المبلغ: ${Number(data.amount).toLocaleString()} SDG\n• رقم العملية: ${data.transfer_no || '-'}\n• رقم سند القبض: ${data.voucher_no}\nشكراً لتعاملكم معنا. ✨`;
+                    postedReceipts.push(data);
+                } else {
+                    invalidReceipts.push(data);
                 }
-                if (followUpText) {
-                    await sock.sendMessage(remoteJid, { text: followUpText }, { quoted: msg });
-                    log(this.userId, `📤 Accounting confirmation sent to customer ${senderPhone}`);
-                }
-            } catch (replyErr) {
-                logErr(this.userId, 'Failed to send accounting confirmation to customer:', replyErr.message);
+            } catch (itemErr) {
+                logErr(this.userId, 'Failed processing batch item:', itemErr.message);
             }
-        } catch(err) {
-            logErr(this.userId, 'Failed to process WhatsApp receipt image:', err.message);
+        }
+
+        // 2. Send consolidated confirmation reply to the customer
+        try {
+            const replyParts = [];
+            if (postedReceipts.length === 1) {
+                const p = postedReceipts[0];
+                replyParts.push(
+                    `🏦 تم فحص الإشعار وتنزيله في حسابكم (${resolvedCustomerName}) بنجاح:\n` +
+                    `• المبلغ: ${Number(p.amount).toLocaleString()} SDG\n` +
+                    `• رقم العملية: ${p.transfer_no || '-'}\n` +
+                    `• إلى حساب: بنك الخرطوم\n` +
+                    `• رقم سند القبض: ${p.voucher_no}`
+                );
+            } else if (postedReceipts.length > 1) {
+                const totalAmt = postedReceipts.reduce((s, r) => s + (Number(r.amount) || 0), 0);
+                const lines = postedReceipts.map((p, idx) =>
+                    `${idx + 1}. مبلغ *${Number(p.amount).toLocaleString()} SDG* | عملية *${p.transfer_no}* | سند *${p.voucher_no}*`
+                ).join('\n');
+                replyParts.push(
+                    `🏦 تم فحص وإضافة (*${postedReceipts.length}*) إشعارات بنكية وتنزيلها في حسابكم (*${resolvedCustomerName}*) إلى حساب *بنك الخرطوم* بنجاح:\n` +
+                    `${lines}\n` +
+                    `💰 *إجمالي المبلغ المضاف:* ${totalAmt.toLocaleString()} SDG`
+                );
+            }
+
+            if (duplicateReceipts.length > 0) {
+                const dupRefs = duplicateReceipts.map(d => d.transfer_no || `#${d.id}`).join('، ');
+                replyParts.push(`⚠️ إشعارات مكررة لم يتم إضافتها (${duplicateReceipts.length}): رقم العملية (${dupRefs}) مسجل ومعتمد مسبقاً.`);
+            }
+
+            if (invalidReceipts.length > 0) {
+                replyParts.push(`⚠️ عدد (${invalidReceipts.length}) إشعار قيد المراجعة اليدوية (رقم التحويل أقل من 6 أرقام أو غير واضح).`);
+            }
+
+            if (replyParts.length > 0) {
+                replyParts.push('شكراً لتعاملكم معنا. ✨');
+                await sock.sendMessage(remoteJid, { text: replyParts.join('\n\n') }, { quoted: firstItem.msg });
+            }
+        } catch (replyErr) {
+            logErr(this.userId, 'Failed to send batch confirmation to customer:', replyErr.message);
+        }
+
+        // 3. Send System Admin Notification ("رسالة لمدير النظام على أنه تم إضافة كذا إشعار كذا كذا في حساب كذا")
+        if (postedReceipts.length > 0) {
+            try {
+                const totalAmt = postedReceipts.reduce((s, r) => s + (Number(r.amount) || 0), 0);
+                const detailsLines = postedReceipts.map((p, idx) =>
+                    `✅ إشعار #${idx + 1}: مبلغ *${Number(p.amount).toLocaleString()} SDG* | رقم العملية: *${p.transfer_no}* | سند: *${p.voucher_no}*`
+                ).join('\n');
+
+                const adminMsg =
+                    `🔔 *إشعار لمدير النظام المالي*\n` +
+                    `تم فحص وإضافة عدد (*${postedReceipts.length}*) إشعار بنكي تلقائياً في حساب: *${resolvedCustomerName}*\n` +
+                    `إلى حساب: *بنك الخرطوم*\n` +
+                    `━━━━━━━━━━━━━━\n` +
+                    `${detailsLines}\n` +
+                    `━━━━━━━━━━━━━━\n` +
+                    `💰 *إجمالي المبلغ المضاف:* ${totalAmt.toLocaleString()} SDG\n` +
+                    `📒 تم الحفظ والترحيل أوتوماتيكياً في كشف حساب (${resolvedCustomerName}).`;
+
+                const adminPhoneClean = (this.phoneNumber || '249123005622').replace(/\D/g, '');
+                if (adminPhoneClean) {
+                    const adminJid = `${adminPhoneClean}@s.whatsapp.net`;
+                    await sock.sendMessage(adminJid, { text: adminMsg });
+                    log(this.userId, `📤 System Admin notification sent to ${adminJid} for ${postedReceipts.length} receipt(s)`);
+                }
+            } catch (adminErr) {
+                logErr(this.userId, 'Failed to send System Admin WhatsApp notification:', adminErr.message);
+            }
+        }
+
+        batchState.isProcessing = false;
+        if (batchState.items.length > 0) {
+            this._flushInboundReceiptBatch(remoteJid).catch(() => {});
         }
     }
 

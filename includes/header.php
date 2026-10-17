@@ -2306,3 +2306,120 @@ window.addEventListener('keydown', function(e) {
     }
 });
 </script>
+<?php
+// ═══════════════════════════════════════════════════════════════════════════
+// 🔄 المزامنة الفورية لإشعارات الواتساب البنكية والعملاء والبنوك مع كشف الحساب
+// ═══════════════════════════════════════════════════════════════════════════
+$_hdrSyncCustomers = [];
+$_hdrSyncBanks = [];
+$_hdrSyncReceipts = [];
+try {
+    if (!isset($pdo) || !$pdo) {
+        if (function_exists('getDBConnection')) {
+            $pdo = getDBConnection();
+        }
+    }
+    if (isset($pdo) && $pdo) {
+        $_hdrTid = !empty($GLOBAL_TENANT_ID) ? (string)$GLOBAL_TENANT_ID : '12';
+        $stmtC = $pdo->prepare("SELECT data FROM customers WHERE tenant_id IN (?, '12', '1', 'default')");
+        $stmtC->execute([$_hdrTid]);
+        while ($rc = $stmtC->fetch(PDO::FETCH_ASSOC)) {
+            $dc = json_decode($rc['data'] ?? '', true);
+            if ($dc && !empty($dc['id'])) $_hdrSyncCustomers[$dc['id']] = $dc;
+        }
+
+        $stmtB = $pdo->prepare("SELECT data FROM banks WHERE tenant_id IN (?, '12', '1', 'default')");
+        $stmtB->execute([$_hdrTid]);
+        while ($rb = $stmtB->fetch(PDO::FETCH_ASSOC)) {
+            $db = json_decode($rb['data'] ?? '', true);
+            if ($db && !empty($db['id'])) $_hdrSyncBanks[$db['id']] = $db;
+        }
+
+        $stmtR = $pdo->prepare("SELECT data FROM receipts WHERE tenant_id IN (?, '12', '1', 'default') ORDER BY id ASC");
+        $stmtR->execute([$_hdrTid]);
+        while ($rr = $stmtR->fetch(PDO::FETCH_ASSOC)) {
+            $dr = json_decode($rr['data'] ?? '', true);
+            if ($dr && (!empty($dr['voucherNo']) || !empty($dr['id']))) {
+                $k = $dr['voucherNo'] ?? $dr['id'];
+                $_hdrSyncReceipts[$k] = $dr;
+            }
+        }
+    }
+} catch (Throwable $_eSync) {}
+?>
+<script id="erp-live-whatsapp-receipts-sync">
+(function() {
+    var srvCustomers = <?= json_encode(array_values($_hdrSyncCustomers), JSON_UNESCAPED_UNICODE) ?>;
+    var srvBanks     = <?= json_encode(array_values($_hdrSyncBanks), JSON_UNESCAPED_UNICODE) ?>;
+    var srvReceipts  = <?= json_encode(array_values($_hdrSyncReceipts), JSON_UNESCAPED_UNICODE) ?>;
+
+    function mergeArrayIntoLocal(baseKey, serverItems, idField, altIdField) {
+        if (!Array.isArray(serverItems) || serverItems.length === 0) return;
+        var keys = [baseKey, 'tenant_12_' + baseKey];
+        try {
+            var u = JSON.parse(localStorage.getItem('user') || '{}');
+            var tId = u.tenant_id || localStorage.getItem('currentTenantId') || '12';
+            if (keys.indexOf('tenant_' + tId + '_' + baseKey) === -1) {
+                keys.push('tenant_' + tId + '_' + baseKey);
+            }
+        } catch(e) {}
+
+        var localArr = [];
+        try {
+            localArr = JSON.parse(localStorage.getItem(baseKey) || '[]');
+            if (!Array.isArray(localArr)) localArr = [];
+        } catch(e) { localArr = []; }
+
+        var indexMap = {};
+        for (var i = 0; i < localArr.length; i++) {
+            var item = localArr[i];
+            if (!item) continue;
+            var k1 = item[idField] ? String(item[idField]) : '';
+            var k2 = (altIdField && item[altIdField]) ? String(item[altIdField]) : '';
+            if (k1) indexMap[k1] = i;
+            if (k2) indexMap[k2] = i;
+        }
+
+        var changed = false;
+        for (var j = 0; j < serverItems.length; j++) {
+            var sItem = serverItems[j];
+            if (!sItem) continue;
+            var sk1 = sItem[idField] ? String(sItem[idField]) : '';
+            var sk2 = (altIdField && sItem[altIdField]) ? String(sItem[altIdField]) : '';
+            var existingIdx = (sk1 && indexMap[sk1] !== undefined) ? indexMap[sk1] : ((sk2 && indexMap[sk2] !== undefined) ? indexMap[sk2] : -1);
+            if (existingIdx > -1) {
+                localArr[existingIdx] = Object.assign({}, localArr[existingIdx], sItem);
+                changed = true;
+            } else {
+                indexMap[sk1 || sk2] = localArr.length;
+                localArr.push(sItem);
+                changed = true;
+            }
+        }
+
+        if (changed) {
+            var jsonStr = JSON.stringify(localArr);
+            keys.forEach(function(k) {
+                try { localStorage.setItem(k, jsonStr); } catch(e) {}
+            });
+        }
+    }
+
+    mergeArrayIntoLocal('erp_customers_v1', srvCustomers, 'id', 'name');
+    mergeArrayIntoLocal('erp_banks_v1', srvBanks, 'id', 'name');
+    mergeArrayIntoLocal('erp_receipts_v1', srvReceipts, 'voucherNo', 'id');
+
+    document.addEventListener('DOMContentLoaded', function() {
+        if (typeof window.rebuildGLFromAllTables === 'function') {
+            try { window.rebuildGLFromAllTables(false); } catch(e) {}
+        }
+        if (typeof window.buildAccountsList === 'function') {
+            try { window.buildAccountsList(); } catch(e) {}
+        }
+        if (typeof window.extractFilters === 'function') {
+            try { window.extractFilters(); } catch(e) {}
+        }
+    });
+})();
+</script>
+

@@ -483,6 +483,8 @@ window.InboundBankakManager = {
         }
     },
 
+    _isBatchScanning: false,
+
     refreshReceipts: function(isSilent = false) {
         const tId = this.getActiveTenantId();
         fetch('api/inbound_receipts.php?action=list&tenant_id=' + encodeURIComponent(tId))
@@ -496,15 +498,32 @@ window.InboundBankakManager = {
                         }
                     });
 
+                    // Auto-scan any pending receipts in batch (excluding forgery check)
+                    const pendingWithImg = res.data.filter(r => r.status === 'pending' && r.receipt_image && (!r.amount || parseFloat(r.amount) <= 0 || !r.transfer_no));
+                    if (pendingWithImg.length > 0 && !this._isBatchScanning) {
+                        this._isBatchScanning = true;
+                        fetch('api/inbound_receipts.php?action=scan_pending_batch&tenant_id=' + encodeURIComponent(tId))
+                            .then(r2 => r2.json())
+                            .then(batchRes => {
+                                this._isBatchScanning = false;
+                                if (batchRes && batchRes.success && Number(batchRes.scanned_count || 0) > 0) {
+                                    this.refreshReceipts(true);
+                                }
+                            })
+                            .catch(() => { this._isBatchScanning = false; });
+                    }
+
                     // Check if new receipts arrived in real-time
                     if (this._hasInitialLoaded) {
                         const newReceipts = res.data.filter(r => !this.knownReceiptIds.has(Number(r.id)));
                         if (newReceipts.length > 0) {
-                            newReceipts.forEach(r => {
-                                this.knownReceiptIds.add(Number(r.id));
-                                this.playNotificationChime();
-                                this.showLiveInboundToast(r);
-                            });
+                            newReceipts.forEach(r => this.knownReceiptIds.add(Number(r.id)));
+                            this.playNotificationChime();
+                            if (newReceipts.length === 1) {
+                                this.showLiveInboundToast(newReceipts[0]);
+                            } else {
+                                this.showAdminBatchNotification(newReceipts);
+                            }
                         }
                     } else {
                         res.data.forEach(r => this.knownReceiptIds.add(Number(r.id)));
@@ -519,6 +538,43 @@ window.InboundBankakManager = {
             .catch(err => {
                 if (!isSilent) console.error('Failed to load inbound receipts:', err);
             });
+    },
+
+    showAdminBatchNotification: function(batchReceipts) {
+        if (!Array.isArray(batchReceipts) || batchReceipts.length === 0) return;
+        const verifiedList = batchReceipts.filter(r => r.status === 'verified' || r.voucher_no);
+        const custName = batchReceipts[0].customer_name || 'عميل واتساب';
+        const custId = batchReceipts[0].customer_id || '';
+        const totalAmt = verifiedList.reduce((acc, r) => acc + (parseFloat(r.amount) || 0), 0);
+        const toastId = 'admin-batch-toast-' + Date.now();
+        const div = document.createElement('div');
+        div.id = toastId;
+        div.style.cssText = `
+            position: fixed; top: 24px; right: 24px;
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.98) 0%, rgba(30, 41, 59, 0.98) 100%);
+            border: 2px solid #10b981; border-radius: 16px; padding: 16px 20px; color: #fff;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.85), 0 0 25px rgba(16,185,129,0.5);
+            z-index: 99999999; display: flex; flex-direction: column; gap: 8px;
+            font-family: 'Tajawal', sans-serif; direction: rtl; max-width: 440px;
+            animation: slideInRightToast 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+        `;
+        div.innerHTML = `
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <strong style="color:#34d399; font-size:1rem;">🔔 إشعار مدير النظام — إضافة إشعارات بالحسابات</strong>
+                <button type="button" onclick="this.parentElement.parentElement.remove()" style="background:none; border:none; color:#94a3b8; font-size:1.1rem; cursor:pointer;">✕</button>
+            </div>
+            <div style="font-size:0.86rem; color:#f8fafc; line-height:1.5;">
+                تم فحص وإضافة <strong>(${verifiedList.length || batchReceipts.length}) إشعار بنكي</strong> تلقائياً من حساب الزبون:
+                <strong style="color:#ffd700;">${escapeHtml(custName)}</strong> إلى حساب <strong style="color:#38bdf8;">بنك الخرطوم</strong>
+                بإجمالي <strong style="color:#34d399;">${totalAmt.toLocaleString('en-US')} SDG</strong>.
+            </div>
+            <div style="display:flex; gap:8px; margin-top:4px;">
+                <a href="general-ledger.php?accountId=${encodeURIComponent(custId ? ('cust-' + String(custId).replace(/^cust-/, '')) : '')}&name=${encodeURIComponent(custName)}" style="flex:1; text-align:center; padding:6px 10px; border-radius:8px; background:#10b981; color:#fff; font-weight:900; font-size:0.8rem; text-decoration:none;">📊 فتح كشف حساب ${escapeHtml(custName)}</a>
+                <button type="button" onclick="InboundBankakManager.toggleDrawer(); this.parentElement.parentElement.remove();" style="padding:6px 12px; border-radius:8px; background:rgba(56,189,248,0.2); border:1px solid #38bdf8; color:#e0f2fe; font-weight:800; font-size:0.8rem; cursor:pointer;">📥 عرض الإشعارات</button>
+            </div>
+        `;
+        document.body.appendChild(div);
+        setTimeout(() => { if (div.parentElement) div.remove(); }, 18000);
     },
 
     playNotificationChime: function() {
@@ -708,12 +764,17 @@ window.InboundBankakManager = {
                     <!-- Actions Row -->
                     <div style="display:flex; gap:6px; margin-top:2px; align-items:center; flex-wrap:wrap;">
                         <!-- زر الفحص والتنزيل في السند والحسابات -->
-                        <button type="button" onclick="InboundBankakManager.inspectInVoucher(${r.id})" style="flex:1.3; height:32px; border-radius:7px; background:linear-gradient(135deg, rgba(56,189,248,0.25), rgba(14,165,233,0.4)); border:1.2px solid #38bdf8; color:#ffffff; font-size:0.78rem; font-weight:900; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:4px; box-shadow:0 0 10px rgba(56,189,248,0.2);" title="فحص الإشعار وتفريغ بياناته في السند وتنزيله في الحسابات">
-                            <span>🔍</span> <span>${isPosted ? 'عرض ومطابقة بالسند' : 'فحص وتنزيل بالسند'}</span>
+                        <button type="button" onclick="InboundBankakManager.inspectInVoucher(${r.id})" style="flex:1.2; height:32px; border-radius:7px; background:linear-gradient(135deg, rgba(56,189,248,0.25), rgba(14,165,233,0.4)); border:1.2px solid #38bdf8; color:#ffffff; font-size:0.76rem; font-weight:900; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:4px; box-shadow:0 0 10px rgba(56,189,248,0.2);" title="فحص الإشعار وتفريغ بياناته في السند وتنزيله في الحسابات">
+                            <span>🔍</span> <span>${isPosted ? 'عرض بالسند' : 'فحص وتنزيل'}</span>
+                        </button>
+
+                        <!-- زر فحص التزوير عند الطلب فقط -->
+                        <button type="button" onclick="InboundBankakManager.checkForgeryOnDemand(${r.id}, this)" style="height:32px; padding:0 9px; border-radius:7px; background:linear-gradient(135deg, rgba(168,85,247,0.25), rgba(126,34,206,0.4)); border:1.2px solid #a855f7; color:#e9d5ff; font-size:0.75rem; font-weight:900; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:3px;" title="فحص التزوير والتلاعب الجنائي بالصورة (عند الطلب فقط)">
+                            <span>🕵️</span> <span>فحص التزوير</span>
                         </button>
 
                         ${(!isPosted && !isDup && parseFloat(r.amount || 0) > 0) ? `
-                        <button type="button" onclick="InboundBankakManager.postToAccountsDirect(${r.id}, this)" style="height:32px; padding:0 10px; border-radius:7px; background:linear-gradient(135deg, rgba(16,185,129,0.3), rgba(5,150,105,0.5)); border:1.2px solid #10b981; color:#a7f3d0; font-size:0.76rem; font-weight:900; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:3px;" title="تنزيل فوري في حساب العميل وحساب البنك وإصدار سند قبض">
+                        <button type="button" onclick="InboundBankakManager.postToAccountsDirect(${r.id}, this)" style="height:32px; padding:0 10px; border-radius:7px; background:linear-gradient(135deg, rgba(16,185,129,0.3), rgba(5,150,105,0.5)); border:1.2px solid #10b981; color:#a7f3d0; font-size:0.76rem; font-weight:900; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:3px;" title="تنزيل فوري في حساب العميل وحساب بنك الخرطوم وإصدار سند قبض">
                             <span>⚡</span> <span>تنزيل بالحسابات</span>
                         </button>
                         ` : ''}
@@ -724,13 +785,18 @@ window.InboundBankakManager = {
                         </button>
                         ` : ''}
 
+                        <!-- زر كشف حساب العميل -->
+                        <a href="general-ledger.php?accountId=${encodeURIComponent(r.customer_id ? ('cust-' + String(r.customer_id).replace(/^cust-/, '')) : '')}&name=${encodeURIComponent(r.customer_name || '')}" style="height:32px; padding:0 8px; border-radius:7px; background:rgba(56,189,248,0.12); border:1px solid rgba(56,189,248,0.35); color:#7dd3fc; font-size:0.74rem; font-weight:800; text-decoration:none; display:flex; align-items:center; justify-content:center; gap:3px;" title="فتح كشف حساب هذا العميل">
+                            <span>📊</span> <span>كشف الحساب</span>
+                        </a>
+
                         <!-- زر إشعار الزبون عبر واتساب -->
-                        <button type="button" onclick="InboundBankakManager.openCustomerAlertModal(${r.id})" style="flex:0.9; height:32px; border-radius:7px; background:linear-gradient(135deg, rgba(37,211,102,0.25), rgba(16,185,129,0.35)); border:1.2px solid #25d366; color:#a7f3d0; font-size:0.78rem; font-weight:900; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:4px;" title="إرسال تنبيه رسمي للزبون عبر واتساب بالخلل أو التأكيد">
-                            <span>📲</span> <span>إشعار الزبون</span>
+                        <button type="button" onclick="InboundBankakManager.openCustomerAlertModal(${r.id})" style="height:32px; padding:0 8px; border-radius:7px; background:linear-gradient(135deg, rgba(37,211,102,0.25), rgba(16,185,129,0.35)); border:1.2px solid #25d366; color:#a7f3d0; font-size:0.75rem; font-weight:900; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:3px;" title="إرسال تنبيه رسمي للزبون عبر واتساب بالخلل أو التأكيد">
+                            <span>📲</span> <span>إشعار</span>
                         </button>
 
                         <!-- زر حذف / تجاهل -->
-                        <button type="button" onclick="InboundBankakManager.dismissReceipt(${r.id})" style="width:32px; height:32px; border-radius:7px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.15); color:#94a3b8; font-size:0.85rem; cursor:pointer; display:flex; align-items:center; justify-content:center;" title="أرشفة أو تجاهل الإشعار">
+                        <button type="button" onclick="InboundBankakManager.dismissReceipt(${r.id})" style="width:30px; height:32px; border-radius:7px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.15); color:#94a3b8; font-size:0.85rem; cursor:pointer; display:flex; align-items:center; justify-content:center;" title="أرشفة أو تجاهل الإشعار">
                             ✕
                         </button>
                     </div>
@@ -739,6 +805,69 @@ window.InboundBankakManager = {
         });
 
         container.innerHTML = html;
+    },
+
+    // ═══ فحص التزوير والتلاعب الجنائي عند الطلب فقط (On-Demand Forgery Inspection) ═══
+    checkForgeryOnDemand: async function(receiptId, btnElement) {
+        const origHtml = btnElement ? btnElement.innerHTML : '';
+        if (btnElement) {
+            btnElement.disabled = true;
+            btnElement.innerHTML = '<span>⏳</span> <span>جاري الفحص الجنائي...</span>';
+        }
+        try {
+            const tId = this.getActiveTenantId();
+            const res = await fetch(`api/inbound_receipts.php?action=check_forgery&id=${receiptId}&tenant_id=${encodeURIComponent(tId)}`);
+            const data = await res.json();
+            if (data.success && data.forgery_check) {
+                const fc = data.forgery_check;
+                const isSusp = fc.is_suspicious || Number(fc.tampering_score || 0) >= 50;
+                const reasonsHtml = (Array.isArray(fc.tampering_reasons) && fc.tampering_reasons.length > 0)
+                    ? fc.tampering_reasons.map(x => `<li style="margin-bottom:4px;">${escapeHtml(x)}</li>`).join('')
+                    : '<li>لم يتم رصد أي آثار تعديل برمجي (Photoshop / Canva) في بيانات الصورة.</li><li>بنية الخطوط والأرقام متطابقة مع القالب القياسي للبنك.</li>';
+
+                const modalId = 'forgery-report-modal';
+                if (document.getElementById(modalId)) document.getElementById(modalId).remove();
+                const div = document.createElement('div');
+                div.id = modalId;
+                div.style.cssText = 'position:fixed; inset:0; background:rgba(2,6,23,0.85); backdrop-filter:blur(8px); z-index:99999999; display:flex; align-items:center; justify-content:center; padding:16px; font-family:Tajawal,sans-serif; direction:rtl;';
+                div.innerHTML = `
+                    <div style="width:100%; max-width:480px; background:linear-gradient(145deg, #0f172a, #1e293b); border:2px solid ${isSusp ? '#ef4444' : '#10b981'}; border-radius:18px; padding:20px 22px; color:#fff; box-shadow:0 25px 60px rgba(0,0,0,0.9);">
+                        <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(255,255,255,0.12); padding-bottom:10px; margin-bottom:12px;">
+                            <div style="display:flex; align-items:center; gap:8px;">
+                                <span style="font-size:1.6rem;">${isSusp ? '🚨' : '🛡️'}</span>
+                                <div>
+                                    <h3 style="margin:0; font-size:1.1rem; font-weight:900; color:${isSusp ? '#fca5a5' : '#34d399'};">تقرير فحص التزوير الجنائي (عند الطلب)</h3>
+                                    <span style="font-size:0.75rem; color:#94a3b8;">إشعار رقم #${receiptId} — ${escapeHtml(data.data?.customer_name || '')}</span>
+                                </div>
+                            </div>
+                            <button type="button" onclick="document.getElementById('${modalId}').remove()" style="background:none; border:none; color:#94a3b8; font-size:1.2rem; cursor:pointer;">✕</button>
+                        </div>
+                        <div style="background:rgba(0,0,0,0.35); border-radius:10px; padding:10px 14px; margin-bottom:12px; display:flex; justify-content:space-between; align-items:center;">
+                            <span style="font-size:0.85rem; color:#cbd5e1; font-weight:700;">درجة الاشتباه بالتلاعب:</span>
+                            <strong style="font-size:1.15rem; color:${isSusp ? '#ef4444' : '#10b981'}; font-family:Consolas,monospace;">${Number(fc.tampering_score || 0)}% (${isSusp ? 'اشتباه تزوير' : 'سليم وأصلي'})</strong>
+                        </div>
+                        <div style="font-size:0.85rem; color:#e2e8f0; line-height:1.6; margin-bottom:16px;">
+                            <strong style="color:#38bdf8; display:block; margin-bottom:4px;">نتائج الفحص الجنائي للصورة:</strong>
+                            <ul style="margin:0; padding-right:18px;">${reasonsHtml}</ul>
+                        </div>
+                        <div style="display:flex; justify-content:flex-end;">
+                            <button type="button" onclick="document.getElementById('${modalId}').remove()" style="height:36px; padding:0 20px; border-radius:8px; background:${isSusp ? '#ef4444' : '#10b981'}; border:none; color:#fff; font-weight:900; cursor:pointer;">إغلاق التقرير</button>
+                        </div>
+                    </div>
+                `;
+                document.body.appendChild(div);
+                this.refreshReceipts(true);
+            } else {
+                alert(data.error || 'تعذر إجراء فحص التزوير');
+            }
+        } catch (e) {
+            alert('خطأ أثناء فحص التزوير: ' + e.message);
+        } finally {
+            if (btnElement) {
+                btnElement.disabled = false;
+                btnElement.innerHTML = origHtml || '<span>🕵️</span> <span>فحص التزوير</span>';
+            }
+        }
     },
 
     // ═══ تنزيل فوري في الحسابات بنقرة واحدة ═══
