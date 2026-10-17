@@ -610,7 +610,17 @@ class WhatsAppClient {
 
             const relativePath = `uploads/receipts_inbox/${tenantId}/${filename}`;
 
-            // Forward to ERP Inbound API
+            // 1. Send immediate acknowledgment reply to customer right after receiving the receipt image
+            try {
+                await sock.sendMessage(remoteJid, {
+                    text: `✅ مرحباً بك ${pushName}!\nتم استلام إشعار التحويل البنكي بنجاح وجاري تدقيقه واعتماده في النظام المالي.\nشكراً لتعاملكم معنا. 🏢✨`
+                }, { quoted: msg });
+                log(this.userId, `📤 Immediate receipt acknowledgment sent to customer ${senderPhone}`);
+            } catch (ackErr) {
+                logErr(this.userId, 'Failed to send immediate acknowledgment:', ackErr.message);
+            }
+
+            // 2. Forward to ERP Inbound API for AI OCR inspection & automatic account posting
             const payload = {
                 action: 'upload',
                 tenant_id: tenantId,
@@ -666,20 +676,20 @@ class WhatsAppClient {
 
             log(this.userId, `✅ Inbound WhatsApp receipt saved to ERP successfully (ID: ${data.id}, Status: ${data.status}, Voucher: ${data.voucher_no || 'N/A'})`);
 
-            // Send automated confirmation to customer on WhatsApp
+            // 3. Send follow-up accounting confirmation once inspection & account posting finish
             try {
-                let replyText = '';
+                let followUpText = '';
                 if (data.status === 'duplicate_rejected') {
-                    replyText = `⚠️ مرحباً بك ${pushName}،\nتم فحص إشعار التحويل المرسل وتبين أن رقم العملية (${data.transfer_no || ''}) مسجل ومعتمد مسبقاً في النظام.\nيرجى مراجعة العملية أو إرسال إشعار تحويل جديد.`;
+                    followUpText = `⚠️ تنبيه مراجعة مالية (${pushName}):\nتبين بعد الفحص أن رقم العملية (${data.transfer_no || ''}) مسجل ومعتمد مسبقاً في النظام.\nيرجى مراجعة العملية أو إرسال إشعار تحويل جديد.`;
                 } else if (data.voucher_no && Number(data.amount) > 0) {
-                    replyText = `✅ مرحباً بك ${pushName}!\nتم استلام وفحص إشعار التحويل البنكي وتنزيله في حسابكم بنجاح:\n• المبلغ: ${Number(data.amount).toLocaleString()} SDG\n• رقم العملية: ${data.transfer_no || '-'}\n• رقم سند القبض: ${data.voucher_no}\nشكراً لتعاملكم معنا. 🏢✨`;
-                } else {
-                    replyText = `✅ مرحباً بك ${pushName}!\nتم استلام إشعار التحويل البنكي بنجاح وجاري تدقيقه واعتماده في النظام المالي.\nشكراً لتعاملكم معنا. 🏢✨`;
+                    followUpText = `🏦 تم فحص الإشعار وتنزيله في حسابكم بنجاح:\n• المبلغ: ${Number(data.amount).toLocaleString()} SDG\n• رقم العملية: ${data.transfer_no || '-'}\n• رقم سند القبض: ${data.voucher_no}\nشكراً لتعاملكم معنا. ✨`;
                 }
-                await sock.sendMessage(remoteJid, { text: replyText }, { quoted: msg });
-                log(this.userId, `📤 Auto-reply sent to customer ${senderPhone}`);
+                if (followUpText) {
+                    await sock.sendMessage(remoteJid, { text: followUpText }, { quoted: msg });
+                    log(this.userId, `📤 Accounting confirmation sent to customer ${senderPhone}`);
+                }
             } catch (replyErr) {
-                logErr(this.userId, 'Failed to send auto-reply to customer:', replyErr.message);
+                logErr(this.userId, 'Failed to send accounting confirmation to customer:', replyErr.message);
             }
         } catch(err) {
             logErr(this.userId, 'Failed to process WhatsApp receipt image:', err.message);

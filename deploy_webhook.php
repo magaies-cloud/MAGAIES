@@ -49,6 +49,7 @@ $commands = [
     'chown -R www-data:www-data /var/www/magaees 2>&1',
     'chmod -R 755 /var/www/magaees 2>&1',
     'php /var/www/magaees/api/migrate_ui_preferences.php 2>&1',
+    '(pm2 restart all 2>/dev/null || systemctl restart whatsapp-service 2>/dev/null || true)',
 ];
 
 $result = shell_exec(implode(' && ', $commands) . ' 2>&1');
