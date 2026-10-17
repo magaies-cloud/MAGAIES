@@ -1,5 +1,5 @@
 <?php
-$token = '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';
+$token = getenv('GITHUB_TOKEN') ?: '';
 $url = 'https://api.github.com/repos/magaies-cloud/magaies/contents/balances-report.php';
 
 $options = [

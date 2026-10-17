@@ -127,7 +127,7 @@
   })();
   </script>
   <!-- External Modular Stylesheet (Split for Fast Caching & Maintainability) -->
-  <link rel="stylesheet" href="css/mobile-suite.css?v=2026_10_15_v17">
+  <link rel="stylesheet" href="css/mobile-suite.css?v=2026_10_17_v23">
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen p-2 md:p-6 flex flex-col justify-start items-center">
 
@@ -157,13 +157,12 @@
 
     <!-- APP HEADER -->
     <header class="app-main-header px-2.5 pt-1.5 pb-1 bg-slate-900/95 backdrop-blur-xl border-b border-slate-800/80 sticky top-0 z-30 shrink-0">
-      <!-- 🌟 صف الأيقونات القيادي الملكي السبعة (Flagship 7-Icon Top Row) -->
+      <!-- 🌟 صف الأيقونات القيادي الملكي (Flagship Top Row - توزيع متساوٍ أنيق بدون زر الإغلاق الأحمر وبدون النقطة الخضراء) -->
       <div class="flagship-top-bar" id="flagshipTopBar">
-        <!-- 1. الشعار المعتمد مقاييس: شعار M المعتمد (برتقالي وأحمر وأزرق وسماوي) + مؤشر اتصال الإنترنت الحي -->
+        <!-- 1. الشعار المعتمد مقاييس: بحجم مدمج أنيق وحافة خضراء سميكة (+30%) تدل على الأونلاين والأوفلاين بدون نقطة -->
         <button id="headerBrandLogoBadge" onclick="switchTab('dashboard'); if(window.AudioEngine)AudioEngine.play('numpad'); if(window.triggerHapticPulse)triggerHapticPulse(25);" class="flagship-tile flagship-brand-badge is-online" title="مقاييس ERP - متصل بالإنترنت وقاعدة البيانات (اضغط للرئيسية)">
-          <img src="assets/logo.png" alt="شعار مقاييس M" class="w-7 h-7 object-contain shrink-0 drop-shadow-[0_0_6px_rgba(249,115,22,0.8)]">
-          <span id="headerBrandText" class="brand-text text-[13px] font-black tracking-tight shrink-0">مقاييس</span>
-          <span id="headerNetDot" class="status-dot w-2 h-2 rounded-full bg-emerald-400 shrink-0"></span>
+          <img src="assets/logo.png" alt="شعار مقاييس M" class="w-5 h-5 object-contain shrink-0 drop-shadow-[0_0_5px_rgba(249,115,22,0.8)]">
+          <span id="headerBrandText" class="brand-text text-[11.5px] font-black tracking-tight shrink-0">مقاييس</span>
         </button>
 
         <!-- 2. أيقونة السمات المحاسبية السبع المعتمدة + إعدادات الخط والسطوع الشمسي (A+ / B / ☀️) -->
@@ -172,14 +171,14 @@
           <span id="activeThemeBadge" class="absolute -top-1 -right-1 bg-amber-400 text-slate-950 text-[7px] font-black px-1 rounded-full shadow">A+</span>
         </button>
 
-        <!-- 3. أيقونة البحث الذكي الشامل (تم رفعها للصف الأول) -->
+        <!-- 3. أيقونة البحث الذكي الشامل -->
         <button id="headerOmniSearchBtn" onclick="focusOmniSearch(); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="flagship-tile flagship-action-tile flagship-tile-search" title="البحث الذكي الشامل">
           <svg class="w-5 h-5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"/>
           </svg>
         </button>
 
-        <!-- 4. المساعد الصوتي الذكي (المايك AI Copilot - السمة المضيئة) -->
+        <!-- 4. المساعد الصوتي الذكي (المايك AI Copilot) -->
         <button id="headerAiVoiceBtn" onclick="openAiVoiceConsole(); if(window.triggerHapticPulse)triggerHapticPulse(20);" class="flagship-tile flagship-action-tile flagship-tile-mic" title="المساعد الصوتي الذكي (AI Voice Copilot)">
           <svg class="w-5 h-5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/>
@@ -209,13 +208,6 @@
         <button id="headerPwaInstallBtn" onclick="handlePwaInstallClick(); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="flagship-tile flagship-action-tile flagship-tile-install" title="تثبيت أيقونة التطبيق على شاشة الجوال">
           <svg class="w-5 h-5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
-          </svg>
-        </button>
-
-        <!-- 7. زر تسجيل الخروج الآمن -->
-        <button id="headerLogoutBtn" onclick="handleMobileLogout(); if(window.triggerHapticPulse)triggerHapticPulse(25);" class="flagship-tile flagship-action-tile flagship-tile-logout" title="تسجيل الخروج والرجوع لشاشة الدخول">
-          <svg class="w-5 h-5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
           </svg>
         </button>
       </div>
@@ -271,38 +263,38 @@
         </div>
       </div>
 
-      <!-- Action Quick Bar (Secondary Operational Bar - الصف الثاني النقي بدون أي تكرار: 6 أدوات تشغيلية متوازنة) -->
-      <div class="mt-[8px] grid grid-cols-6 gap-1.5 pt-1 pb-0.5 px-0.5">
-        <!-- 1. زر المزامنة الشاملة والتحديث الفوري (مدمج مع السحابة + ضغطة مطولة لسجل تدقيق المزامنة الخلفية) -->
-        <button id="mainRefreshBtn" onclick="PWAManager.syncRealData(true); if(typeof handleQuickCloudSync==='function')handleQuickCloudSync(); if(window.triggerRefreshAnimation)triggerRefreshAnimation(); if(window.triggerHapticPulse)triggerHapticPulse(15);" oncontextmenu="event.preventDefault(); if(window.MagaiesOffline) window.MagaiesOffline.showSyncAuditModal();" class="row2-glass-tile r2-cyan rounded-xl flex items-center justify-center h-[38px] text-cyan-300 relative active:scale-95 transition cursor-pointer" title="مزامنة شاملة وتحديث فوري (اضغط مطولاً لفتح سجل تدقيق المزامنة التلقائية والرفع الخلفي)">
-          <svg id="mainRefreshIcon" class="w-4 h-4 text-cyan-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
-          <span id="mainRefreshPendingBadge" class="hidden absolute -top-1 -right-1 bg-amber-500 text-slate-950 text-[8px] font-mono font-black px-1 rounded-full shadow">0</span>
+      <!-- Action Quick Bar (Secondary Operational Bar - الصف الثاني بأزرار كبسولية أصغر قليلاً وأيقونات داخلية مكبّرة وواضحة وألوان متمايزة عن الخلفية والصف الأول) -->
+      <div class="mt-[6px] grid grid-cols-6 gap-1.5 pt-0.5 pb-0.5 px-0.5 items-center justify-items-center" id="row2OperationalBar">
+        <!-- 1. زر المزامنة الشاملة والتحديث الفوري -->
+        <button id="mainRefreshBtn" onclick="PWAManager.syncRealData(true); if(typeof handleQuickCloudSync==='function')handleQuickCloudSync(); if(window.triggerRefreshAnimation)triggerRefreshAnimation(); if(window.triggerHapticPulse)triggerHapticPulse(15);" oncontextmenu="event.preventDefault(); if(window.MagaiesOffline) window.MagaiesOffline.showSyncAuditModal();" class="row2-glass-tile r2-cyan flex items-center justify-center text-cyan-300 relative active:scale-95 transition cursor-pointer" title="مزامنة شاملة وتحديث فوري (اضغط مطولاً لفتح سجل تدقيق المزامنة التلقائية والرفع الخلفي)">
+          <svg id="mainRefreshIcon" class="row2-inner-icon text-cyan-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.35" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+          <span id="mainRefreshPendingBadge" class="hidden absolute -top-1 -right-0.5 bg-amber-500 text-slate-950 text-[7px] font-mono font-black px-1 rounded-full shadow">0</span>
         </button>
 
-        <!-- 2. قارئ الإشعارات البنكية الذكي بالكاميرا (OCR) -->
-        <button id="bankOcrQuickBtn" onclick="openBankReceiptOcrModal(); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="row2-glass-tile r2-mint rounded-xl flex items-center justify-center h-[38px] text-emerald-300 transition relative group active:scale-95 cursor-pointer" title="قارئ الإشعارات البنكية الذكي بالكاميرا (OCR)">
-          <svg class="w-4 h-4 text-emerald-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-          <span class="absolute -top-1 -right-1 bg-emerald-500 text-slate-950 text-[7px] font-black px-1 rounded-full shadow">OCR</span>
+        <!-- 2. قارئ الإشعارات البنكية الذكي بالكاميرا (OCR - أيقونة كاميرا مكبّرة وواضحة) -->
+        <button id="bankOcrQuickBtn" onclick="openBankReceiptOcrModal(); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="row2-glass-tile r2-mint flex items-center justify-center text-emerald-300 transition relative group active:scale-95 cursor-pointer" title="قارئ الإشعارات البنكية الذكي بالكاميرا (OCR)">
+          <svg class="row2-inner-icon text-emerald-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.3" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.3" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+          <span class="row2-mini-tag bg-emerald-500 text-slate-950">OCR</span>
         </button>
 
-        <!-- 3. زر مسح الباركود ورمز الـ QR بالكاميرا -->
-        <button id="quickQrBarcodeBtn" onclick="openBarcodeScannerModal(); if(window.triggerHapticPulse)triggerHapticPulse(20);" class="row2-glass-tile r2-indigo rounded-xl flex items-center justify-center h-[38px] text-indigo-300 relative cursor-pointer active:scale-95 transition" title="مسح باركود / QR بالكاميرا">
-          <svg class="w-4 h-4 text-indigo-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/></svg>
-          <span class="absolute -top-1 -right-1 bg-indigo-500 text-slate-950 text-[7px] font-black px-1 rounded-full shadow">QR</span>
+        <!-- 3. زر مسح الباركود ورمز الـ QR بالكاميرا (أيقونة QR مكبّرة وواضحة) -->
+        <button id="quickQrBarcodeBtn" onclick="openBarcodeScannerModal(); if(window.triggerHapticPulse)triggerHapticPulse(20);" class="row2-glass-tile r2-indigo flex items-center justify-center text-indigo-300 relative cursor-pointer active:scale-95 transition" title="مسح باركود / QR بالكاميرا">
+          <svg class="row2-inner-icon text-indigo-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.35" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/></svg>
+          <span class="row2-mini-tag bg-indigo-500 text-slate-950">QR</span>
         </button>
 
-        <!-- 4. زر الحاسبة الذكية -->
-        <button id="quickCalcHeaderBtn" onclick="openAccountingNumpad(null, 'الآلة الحاسبة'); if(window.triggerHapticPulse)triggerHapticPulse(20);" class="row2-glass-tile r2-gold rounded-xl flex items-center justify-center h-[38px] text-amber-300 relative cursor-pointer active:scale-95 transition group shadow-[0_0_12px_rgba(245,158,11,0.2)] border border-amber-500/40" title="الآلة الحاسبة الذكية">
-          <svg class="w-4 h-4 text-amber-300 group-hover:scale-110 transition-transform shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-            <rect x="4" y="2" width="16" height="20" rx="3" stroke-width="2"/>
-            <line x1="8" y1="6" x2="16" y2="6" stroke-width="2"/>
-            <circle cx="8" cy="11" r="1.2" fill="currentColor"/><circle cx="12" cy="11" r="1.2" fill="currentColor"/><circle cx="16" cy="11" r="1.2" fill="currentColor"/>
-            <circle cx="8" cy="15" r="1.2" fill="currentColor"/><circle cx="12" cy="15" r="1.2" fill="currentColor"/><circle cx="16" cy="15" r="1.2" fill="currentColor"/>
+        <!-- 4. زر الآلة الحاسبة الذكية (أيقونة آلة حاسبة مكبّرة وواضحة) -->
+        <button id="quickCalcHeaderBtn" onclick="openAccountingNumpad(null, 'الآلة الحاسبة'); if(window.triggerHapticPulse)triggerHapticPulse(20);" class="row2-glass-tile r2-gold flex items-center justify-center text-amber-300 relative cursor-pointer active:scale-95 transition group" title="الآلة الحاسبة الذكية">
+          <svg class="row2-inner-icon text-amber-300 group-hover:scale-110 transition-transform shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <rect x="4" y="2" width="16" height="20" rx="3" stroke-width="2.3"/>
+            <line x1="7.5" y1="6.5" x2="16.5" y2="6.5" stroke-width="2.3" stroke-linecap="round"/>
+            <circle cx="8" cy="11.5" r="1.4" fill="currentColor"/><circle cx="12" cy="11.5" r="1.4" fill="currentColor"/><circle cx="16" cy="11.5" r="1.4" fill="currentColor"/>
+            <circle cx="8" cy="16" r="1.4" fill="currentColor"/><circle cx="12" cy="16" r="1.4" fill="currentColor"/><circle cx="16" cy="16" r="1.4" fill="currentColor"/>
           </svg>
         </button>
 
         <!-- 5. زر سعر الصرف المعتمد الفوري ($ USD/SDG) مربوط حياً بقاعدة البيانات -->
-        <button id="quickFxRateHeaderBtn" onclick="if(window.SuiteFXManager)SuiteFXManager.openModal(); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="row2-glass-tile r2-emerald px-1 rounded-xl flex items-center justify-center h-[38px] text-emerald-300 relative active:scale-95 transition cursor-pointer" title="سعر الصرف المعتمد في قاعدة البيانات (اضغط للتعديل الفوري)">
+        <button id="quickFxRateHeaderBtn" onclick="if(window.SuiteFXManager)SuiteFXManager.openModal(); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="row2-glass-tile r2-emerald px-1 flex items-center justify-center text-emerald-300 relative active:scale-95 transition cursor-pointer" title="سعر الصرف المعتمد في قاعدة البيانات (اضغط للتعديل الفوري)">
           <span class="flex items-center gap-0.5 font-mono text-[10.5px] font-black">
             <span class="text-amber-400">$</span>
             <span id="headerQuickFxRateVal">5,999</span>
@@ -310,9 +302,9 @@
         </button>
 
         <!-- 6. تايمر الوردية والمطابقة والتركيز 30 دقيقة -->
-        <button id="btnTopHeaderTimer" onclick="openOperationalTimerModal(); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="row2-glass-tile r2-cyan px-1 rounded-xl flex items-center justify-center h-[38px] text-cyan-300 relative active:scale-95 transition group cursor-pointer" title="تايمر الوردية والمطابقة والتركيز (30 دقيقة)">
+        <button id="btnTopHeaderTimer" onclick="openOperationalTimerModal(); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="row2-glass-tile r2-rose px-1 flex items-center justify-center text-rose-300 relative active:scale-95 transition group cursor-pointer" title="تايمر الوردية والمطابقة والتركيز (30 دقيقة)">
           <span class="flex items-center gap-1 font-mono text-[10.5px] font-black">
-            <span id="timerPulseDot" class="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-ping"></span>
+            <span id="timerPulseDot" class="w-1.5 h-1.5 rounded-full bg-rose-400 animate-ping"></span>
             <span id="timerCompactText">30:00</span>
           </span>
         </button>
@@ -7199,8 +7191,8 @@
     <!-- ==========================================
          OPERATIONAL MODAL 14: SHIFT Z-REPORT (تقفيل الوردية ومطابقة الدرج Z)
     =========================================== -->
-    <div id="modalOpShiftZReport" class="modal-backdrop">
-      <div class="modal-sheet space-y-4 !max-h-[94vh] overflow-y-auto" onclick="event.stopPropagation()">
+    <div id="modalOpShiftZReport" class="hidden fixed inset-0 z-50 modal-backdrop flex items-end sm:items-center justify-center p-1.5 sm:p-3" style="display:none;">
+      <div class="glass-base w-full max-w-xl rounded-3xl border border-amber-500/60 p-4 space-y-4 !max-h-[92vh] overflow-y-auto shadow-[0_0_50px_rgba(245,158,11,0.28)] bg-slate-950/98" onclick="event.stopPropagation()">
         <div class="flex justify-between items-center border-b border-slate-800 pb-3 sticky top-0 bg-slate-950/95 backdrop-blur-md z-20 pt-1">
           <div class="flex items-center gap-2.5">
             <span class="w-10 h-10 rounded-xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-xl shadow-[0_0_15px_rgba(245,158,11,0.3)]">🧾</span>
@@ -7282,8 +7274,8 @@
     <!-- ==========================================
          OPERATIONAL MODAL 15: BLUETOOTH ESC/POS 80MM THERMAL RECEIPT ENGINE
     =========================================== -->
-    <div id="modalThermalReceiptPreview" class="modal-backdrop">
-      <div class="modal-sheet space-y-3 !max-h-[94vh] overflow-y-auto" onclick="event.stopPropagation()">
+    <div id="modalThermalReceiptPreview" class="hidden fixed inset-0 z-50 modal-backdrop flex items-end sm:items-center justify-center p-1.5 sm:p-3" style="display:none;">
+      <div class="glass-base w-full max-w-md rounded-3xl border border-cyan-500/60 p-4 space-y-3 !max-h-[92vh] overflow-y-auto shadow-[0_0_50px_rgba(6,182,212,0.28)] bg-slate-950/98" onclick="event.stopPropagation()">
         <div class="flex justify-between items-center border-b border-slate-800 pb-2.5 sticky top-0 bg-slate-950/95 backdrop-blur-md z-20 pt-1">
           <div class="flex items-center gap-2">
             <span class="w-9 h-9 rounded-xl bg-cyan-500/20 border border-cyan-500/40 flex items-center justify-center text-lg">🖨️</span>
@@ -7330,7 +7322,7 @@
   </div>
 
   <!-- JAVASCRIPT APP LOGIC & INTERACTIONS -->
-  <script src="js/mobile-suite.js?v=2026_10_16_v22"></script>
+  <script src="js/mobile-suite.js?v=2026_10_17_v23"></script>
   <script>
     // =========================================================================
     // 💎 UNIFIED ROYAL BUTTONS ACTION CONTROLLERS (ربط كافة الأزرار التفاعلية 100%)
@@ -7439,10 +7431,8 @@
             '<hr class="my-1 border-slate-400"/>' +
             (entriesEl ? entriesEl.innerHTML : '') +
             '</div>';
-          var m = document.getElementById('modalThermalReceiptPreview');
-          if (m) {
-            m.classList.remove('hidden');
-            m.classList.add('active');
+          if (typeof openModal === 'function') {
+            openModal('modalThermalReceiptPreview');
             return;
           }
         }
@@ -7482,10 +7472,8 @@
             '<div class="font-bold text-xs">المتاح الفوري: ' + totalQty + '</div>' +
             '<div class="font-mono text-lg tracking-widest pt-1">|||| |||| |||| ||||</div>' +
           '</div>';
-        var m = document.getElementById('modalThermalReceiptPreview');
-        if (m) {
-          m.classList.remove('hidden');
-          m.classList.add('active');
+        if (typeof openModal === 'function') {
+          openModal('modalThermalReceiptPreview');
           return;
         }
       }
@@ -7541,10 +7529,8 @@
         });
         html += '</div>';
         bodyEl.innerHTML = html;
-        var m = document.getElementById('modalThermalReceiptPreview');
-        if (m) {
-          m.classList.remove('hidden');
-          m.classList.add('active');
+        if (typeof openModal === 'function') {
+          openModal('modalThermalReceiptPreview');
           return;
         }
       }

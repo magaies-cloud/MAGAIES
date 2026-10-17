@@ -15112,7 +15112,20 @@ async function commitOpSales(andPay = false) {
       }
     };
 
+    function enforceStartupModalsHidden() {
+      ['modalOpShiftZReport', 'modalThermalReceiptPreview'].forEach(function(id) {
+        var el = document.getElementById(id);
+        if (el) {
+          el.classList.add('hidden');
+          el.classList.remove('active');
+          el.style.display = 'none';
+        }
+      });
+    }
+    enforceStartupModalsHidden();
+
     document.addEventListener('DOMContentLoaded', () => {
+      enforceStartupModalsHidden();
       applySunlightMode();
       initSwipeGestures();
       attachNumpadTriggers();
@@ -15135,5 +15148,6 @@ async function commitOpSales(andPay = false) {
         setTimeout(openThemePaletteDrawer, 300);
       }
     });
+
 
 

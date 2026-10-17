@@ -1,5 +1,5 @@
 <?php
-$token = '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';
+$token = getenv('GITHUB_TOKEN') ?: '';
 $runId = 29733820517;
 
 // Try downloading the full logs as ZIP

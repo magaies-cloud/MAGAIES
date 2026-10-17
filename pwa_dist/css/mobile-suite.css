@@ -434,57 +434,63 @@
       transform: scale(0.94) translateY(0) !important;
     }
 
-    /* 1. BRAND BADGE (مقاييس - Live Internet indicator) */
+    /* 1. BRAND BADGE (مقاييس - Compact Badge with +30% Thicker Online/Offline Border & No Status Dot) */
     .flagship-brand-badge {
       flex: 0 0 auto !important;
-      min-width: 92px !important;
-      padding: 0 7px !important;
-      gap: 5px !important;
+      min-width: 72px !important;
+      padding: 0 6px !important;
+      gap: 3.5px !important;
       justify-content: center !important;
       transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
     }
+    .flagship-brand-badge .status-dot {
+      display: none !important;
+    }
 
-    /* When Online (Emerald Live Neon) */
+    @keyframes brandOnlineBorderPulse {
+      0%, 100% {
+        border-color: #10b981;
+        box-shadow: 0 0 12px rgba(16, 185, 129, 0.55), inset 0 0 8px rgba(16, 185, 129, 0.25);
+      }
+      50% {
+        border-color: #34d399;
+        box-shadow: 0 0 20px rgba(52, 211, 153, 0.85), inset 0 0 12px rgba(52, 211, 153, 0.4);
+      }
+    }
+
+    /* When Online (Emerald Live Neon Border - +30% Thicker = 2.4px) */
     .flagship-brand-badge.is-online {
-      border: 1.5px solid #10b981 !important;
+      border: 2.4px solid #10b981 !important;
       box-shadow: 
-        0 0 14px rgba(16, 185, 129, 0.45),
-        0 4px 14px -2px rgba(16, 185, 129, 0.4),
-        inset 0 0 8px rgba(16, 185, 129, 0.2) !important;
+        0 0 14px rgba(16, 185, 129, 0.55),
+        0 4px 14px -2px rgba(16, 185, 129, 0.45),
+        inset 0 0 8px rgba(16, 185, 129, 0.25) !important;
+      animation: brandOnlineBorderPulse 2.8s ease-in-out infinite !important;
     }
     .flagship-brand-badge.is-online .brand-text {
       color: #34d399 !important;
       text-shadow: 0 0 10px rgba(16, 185, 129, 0.7) !important;
     }
-    .flagship-brand-badge.is-online .status-dot {
-      background-color: #10b981 !important;
-      box-shadow: 0 0 8px #10b981, 0 0 12px #34d399 !important;
-    }
     .flagship-brand-badge.is-online:hover,
     .flagship-brand-badge.is-online.touch-active {
       border-color: #34d399 !important;
       box-shadow: 
-        0 0 22px rgba(16, 185, 129, 0.75),
-        0 6px 18px rgba(16, 185, 129, 0.55),
+        0 0 22px rgba(16, 185, 129, 0.85),
+        0 6px 18px rgba(16, 185, 129, 0.6),
         inset 0 0 12px rgba(16, 185, 129, 0.35) !important;
     }
 
-    /* When Offline (Ruby Red Warning Neon) */
+    /* When Offline (Ruby Red Warning Neon Border - +30% Thicker = 2.4px) */
     .flagship-brand-badge.is-offline {
-      border: 1.5px solid #ef4444 !important;
+      border: 2.4px solid #ef4444 !important;
       box-shadow: 
-        0 0 16px rgba(239, 68, 68, 0.65),
-        0 4px 14px -2px rgba(239, 68, 68, 0.5),
-        inset 0 0 8px rgba(239, 68, 68, 0.25) !important;
+        0 0 16px rgba(239, 68, 68, 0.7),
+        0 4px 14px -2px rgba(239, 68, 68, 0.55),
+        inset 0 0 8px rgba(239, 68, 68, 0.3) !important;
     }
     .flagship-brand-badge.is-offline .brand-text {
       color: #f87171 !important;
       text-shadow: 0 0 10px rgba(239, 68, 68, 0.8) !important;
-    }
-    .flagship-brand-badge.is-offline .status-dot {
-      background-color: #ef4444 !important;
-      box-shadow: 0 0 8px #ef4444, 0 0 12px #f87171 !important;
-      animation: ping 1s cubic-bezier(0, 0, 0.2, 1) infinite !important;
     }
     .flagship-brand-badge.is-offline:hover,
     .flagship-brand-badge.is-offline.touch-active {
@@ -3884,4 +3890,236 @@
     .pos-field-interactive input {
       /* Keep large fonts for numbers in POS */
     }
+
+    /* ═══════════════════════════════════════════════════════════════════════════
+       🌟 MASTER MOBILE HEADER V23:
+       1. Row 1: Compact Magaiees Badge (+30% Thicker Online/Offline Border, No Dot),
+          No Red Logout Button, Even Space Distribution across 6 Flagship Icons.
+       2. Row 2: Slightly Smaller Capsule Buttons (34px height, 999px pill radius)
+          with Enlarged Inner Icons (Camera, QR, Calc = 21px), Soft Contrasting
+          Tinted Surfaces, and Gentle Optical/Kinetic Micro-Animations.
+       3. Startup Protection: Z-Report & Thermal Printer Modals Strictly Hidden
+          Until Explicitly Triggered.
+       ═══════════════════════════════════════════════════════════════════════════ */
+
+    #modalOpShiftZReport.hidden,
+    #modalThermalReceiptPreview.hidden {
+      display: none !important;
+      visibility: hidden !important;
+      pointer-events: none !important;
+    }
+
+    /* Row 1: Compact Magaiees Brand Badge + 30% Thicker Online/Offline Border */
+    html #headerBrandLogoBadge.flagship-brand-badge {
+      flex: 0 0 auto !important;
+      min-width: 70px !important;
+      height: 40px !important;
+      padding: 0 6px !important;
+      gap: 3.5px !important;
+      border-radius: 12px !important;
+    }
+    html #headerBrandLogoBadge.flagship-brand-badge .status-dot,
+    html #headerNetDot {
+      display: none !important;
+    }
+    html #headerBrandLogoBadge.flagship-brand-badge.is-online {
+      border: 2.5px solid #10b981 !important;
+      box-shadow: 0 0 14px rgba(16, 185, 129, 0.5), inset 0 0 8px rgba(16, 185, 129, 0.22) !important;
+      animation: brandOnlineBorderPulse 2.8s ease-in-out infinite !important;
+    }
+    html #headerBrandLogoBadge.flagship-brand-badge.is-offline {
+      border: 2.5px solid #ef4444 !important;
+      box-shadow: 0 0 14px rgba(239, 68, 68, 0.6), inset 0 0 8px rgba(239, 68, 68, 0.25) !important;
+      animation: none !important;
+    }
+    html[data-theme="warm-alabaster"] #headerBrandLogoBadge.flagship-brand-badge.is-online,
+    html[data-theme="pure-platinum"] #headerBrandLogoBadge.flagship-brand-badge.is-online,
+    html[data-theme="pearl-platinum"] #headerBrandLogoBadge.flagship-brand-badge.is-online,
+    html[data-theme="beige"] #headerBrandLogoBadge.flagship-brand-badge.is-online,
+    html[data-theme="ivory"] #headerBrandLogoBadge.flagship-brand-badge.is-online {
+      border: 2.5px solid #059669 !important;
+      box-shadow: 0 0 10px rgba(5, 150, 105, 0.35), inset 0 0 6px rgba(16, 185, 129, 0.16) !important;
+    }
+
+    /* Evenly distribute remaining top bar width across the 6 flagship icons */
+    #flagshipTopBar {
+      display: flex !important;
+      align-items: center !important;
+      justify-content: space-between !important;
+      gap: 6px !important;
+      width: 100% !important;
+    }
+    #flagshipTopBar .flagship-action-tile {
+      flex: 1 1 0% !important;
+      min-width: 0 !important;
+      height: 40px !important;
+      border-radius: 12px !important;
+    }
+
+    /* Row 2: Distinct Sculpted Capsule Pill Shape (Smaller Outer Button, Enlarged Inner Icon) */
+    @keyframes row2GentleOpticalBreathe {
+      0%, 100% {
+        transform: translateY(0px) scale(1);
+      }
+      50% {
+        transform: translateY(-1px) scale(1.04);
+      }
+    }
+
+    html #row2OperationalBar .row2-glass-tile {
+      height: 34px !important;
+      min-height: 34px !important;
+      max-height: 34px !important;
+      width: 100% !important;
+      min-width: 0 !important;
+      max-width: 52px !important;
+      border-radius: 999px !important;
+      padding: 0 4px !important;
+      overflow: visible !important;
+      transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+    }
+    html #row2OperationalBar #quickFxRateHeaderBtn.row2-glass-tile,
+    html #row2OperationalBar #btnTopHeaderTimer.row2-glass-tile {
+      max-width: none !important;
+      width: 100% !important;
+      padding: 0 5px !important;
+    }
+
+    /* Enlarged, Crisp Inner Icons inside Row 2 (Camera, QR, Calculator, Refresh) */
+    html #row2OperationalBar .row2-glass-tile svg.row2-inner-icon,
+    html #row2OperationalBar .row2-glass-tile svg {
+      width: 21px !important;
+      height: 21px !important;
+      min-width: 21px !important;
+      min-height: 21px !important;
+      flex-shrink: 0 !important;
+      animation: row2GentleOpticalBreathe 3.4s ease-in-out infinite !important;
+      filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.25));
+    }
+    html #row2OperationalBar .row2-glass-tile:nth-child(2) svg { animation-delay: 0.4s !important; }
+    html #row2OperationalBar .row2-glass-tile:nth-child(3) svg { animation-delay: 0.8s !important; }
+    html #row2OperationalBar .row2-glass-tile:nth-child(4) svg { animation-delay: 1.2s !important; }
+
+    /* Compact corner badge (OCR / QR) so it never obscures the enlarged icon */
+    .row2-mini-tag {
+      position: absolute !important;
+      top: -4px !important;
+      right: -2px !important;
+      font-size: 6.5px !important;
+      font-weight: 900 !important;
+      padding: 0px 3.5px !important;
+      border-radius: 999px !important;
+      line-height: 1.35 !important;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4) !important;
+      z-index: 5 !important;
+      pointer-events: none !important;
+    }
+
+    /* Soft, Contrasting Tinted Surfaces for Row 2 in Dark Themes (Distinct from Header Background & Row 1) */
+    html #row2OperationalBar .row2-glass-tile.r2-cyan {
+      background: linear-gradient(145deg, rgba(14, 165, 233, 0.30), rgba(6, 182, 212, 0.18)) !important;
+      border: 1.6px solid rgba(56, 189, 248, 0.78) !important;
+      box-shadow: 0 3px 10px rgba(14, 165, 233, 0.25), inset 0 1px 1px rgba(255, 255, 255, 0.35) !important;
+      color: #7dd3fc !important;
+    }
+    html #row2OperationalBar .row2-glass-tile.r2-mint {
+      background: linear-gradient(145deg, rgba(16, 185, 129, 0.32), rgba(5, 150, 105, 0.19)) !important;
+      border: 1.6px solid rgba(52, 211, 153, 0.82) !important;
+      box-shadow: 0 3px 10px rgba(16, 185, 129, 0.25), inset 0 1px 1px rgba(255, 255, 255, 0.35) !important;
+      color: #6ee7b7 !important;
+    }
+    html #row2OperationalBar .row2-glass-tile.r2-indigo {
+      background: linear-gradient(145deg, rgba(139, 92, 246, 0.34), rgba(99, 102, 241, 0.20)) !important;
+      border: 1.6px solid rgba(167, 139, 250, 0.82) !important;
+      box-shadow: 0 3px 10px rgba(139, 92, 246, 0.26), inset 0 1px 1px rgba(255, 255, 255, 0.35) !important;
+      color: #c4b5fd !important;
+    }
+    html #row2OperationalBar .row2-glass-tile.r2-gold {
+      background: linear-gradient(145deg, rgba(245, 158, 11, 0.32), rgba(217, 119, 6, 0.19)) !important;
+      border: 1.6px solid rgba(251, 191, 36, 0.85) !important;
+      box-shadow: 0 3px 10px rgba(245, 158, 11, 0.26), inset 0 1px 1px rgba(255, 255, 255, 0.35) !important;
+      color: #fde047 !important;
+    }
+    html #row2OperationalBar .row2-glass-tile.r2-emerald {
+      background: linear-gradient(145deg, rgba(20, 184, 166, 0.30), rgba(13, 148, 136, 0.18)) !important;
+      border: 1.6px solid rgba(45, 212, 191, 0.78) !important;
+      box-shadow: 0 3px 10px rgba(20, 184, 166, 0.24), inset 0 1px 1px rgba(255, 255, 255, 0.35) !important;
+      color: #5eead4 !important;
+    }
+    html #row2OperationalBar .row2-glass-tile.r2-rose {
+      background: linear-gradient(145deg, rgba(244, 63, 94, 0.30), rgba(225, 29, 72, 0.18)) !important;
+      border: 1.6px solid rgba(251, 113, 133, 0.78) !important;
+      box-shadow: 0 3px 10px rgba(244, 63, 94, 0.24), inset 0 1px 1px rgba(255, 255, 255, 0.35) !important;
+      color: #fda4af !important;
+    }
+
+    /* Soft, Contrasting Pastel Tints for Row 2 in Light Themes (Warm Alabaster, Pure Platinum, Pearl Platinum) */
+    :is(html[data-theme="warm-alabaster"], html[data-theme="pure-platinum"], html[data-theme="pearl-platinum"], html[data-theme="beige"], html[data-theme="ivory"]) #row2OperationalBar .row2-glass-tile.r2-cyan {
+      background: linear-gradient(145deg, #e0f2fe, #bae6fd) !important;
+      border: 1.6px solid #0284c7 !important;
+      box-shadow: 0 2px 6px rgba(2, 132, 199, 0.16) !important;
+      color: #0369a1 !important;
+    }
+    :is(html[data-theme="warm-alabaster"], html[data-theme="pure-platinum"], html[data-theme="pearl-platinum"], html[data-theme="beige"], html[data-theme="ivory"]) #row2OperationalBar .row2-glass-tile.r2-cyan svg {
+      stroke: #0369a1 !important;
+      color: #0369a1 !important;
+      filter: none !important;
+    }
+
+    :is(html[data-theme="warm-alabaster"], html[data-theme="pure-platinum"], html[data-theme="pearl-platinum"], html[data-theme="beige"], html[data-theme="ivory"]) #row2OperationalBar .row2-glass-tile.r2-mint {
+      background: linear-gradient(145deg, #d1fae5, #a7f3d0) !important;
+      border: 1.6px solid #059669 !important;
+      box-shadow: 0 2px 6px rgba(5, 150, 105, 0.16) !important;
+      color: #065f46 !important;
+    }
+    :is(html[data-theme="warm-alabaster"], html[data-theme="pure-platinum"], html[data-theme="pearl-platinum"], html[data-theme="beige"], html[data-theme="ivory"]) #row2OperationalBar .row2-glass-tile.r2-mint svg {
+      stroke: #065f46 !important;
+      color: #065f46 !important;
+      filter: none !important;
+    }
+
+    :is(html[data-theme="warm-alabaster"], html[data-theme="pure-platinum"], html[data-theme="pearl-platinum"], html[data-theme="beige"], html[data-theme="ivory"]) #row2OperationalBar .row2-glass-tile.r2-indigo {
+      background: linear-gradient(145deg, #ede9fe, #ddd6fe) !important;
+      border: 1.6px solid #7c3aed !important;
+      box-shadow: 0 2px 6px rgba(124, 58, 237, 0.16) !important;
+      color: #5b21b6 !important;
+    }
+    :is(html[data-theme="warm-alabaster"], html[data-theme="pure-platinum"], html[data-theme="pearl-platinum"], html[data-theme="beige"], html[data-theme="ivory"]) #row2OperationalBar .row2-glass-tile.r2-indigo svg {
+      stroke: #5b21b6 !important;
+      color: #5b21b6 !important;
+      filter: none !important;
+    }
+
+    :is(html[data-theme="warm-alabaster"], html[data-theme="pure-platinum"], html[data-theme="pearl-platinum"], html[data-theme="beige"], html[data-theme="ivory"]) #row2OperationalBar .row2-glass-tile.r2-gold {
+      background: linear-gradient(145deg, #fef3c7, #fde68a) !important;
+      border: 1.6px solid #d97706 !important;
+      box-shadow: 0 2px 6px rgba(217, 119, 6, 0.16) !important;
+      color: #92400e !important;
+    }
+    :is(html[data-theme="warm-alabaster"], html[data-theme="pure-platinum"], html[data-theme="pearl-platinum"], html[data-theme="beige"], html[data-theme="ivory"]) #row2OperationalBar .row2-glass-tile.r2-gold svg {
+      stroke: #92400e !important;
+      color: #92400e !important;
+      filter: none !important;
+    }
+
+    :is(html[data-theme="warm-alabaster"], html[data-theme="pure-platinum"], html[data-theme="pearl-platinum"], html[data-theme="beige"], html[data-theme="ivory"]) #row2OperationalBar .row2-glass-tile.r2-emerald {
+      background: linear-gradient(145deg, #ccfbf1, #99f6e4) !important;
+      border: 1.6px solid #0d9488 !important;
+      box-shadow: 0 2px 6px rgba(13, 148, 136, 0.16) !important;
+      color: #115e59 !important;
+    }
+    :is(html[data-theme="warm-alabaster"], html[data-theme="pure-platinum"], html[data-theme="pearl-platinum"], html[data-theme="beige"], html[data-theme="ivory"]) #row2OperationalBar .row2-glass-tile.r2-emerald span {
+      color: #115e59 !important;
+    }
+
+    :is(html[data-theme="warm-alabaster"], html[data-theme="pure-platinum"], html[data-theme="pearl-platinum"], html[data-theme="beige"], html[data-theme="ivory"]) #row2OperationalBar .row2-glass-tile.r2-rose {
+      background: linear-gradient(145deg, #ffe4e6, #fecdd3) !important;
+      border: 1.6px solid #e11d48 !important;
+      box-shadow: 0 2px 6px rgba(225, 29, 72, 0.16) !important;
+      color: #9f1239 !important;
+    }
+    :is(html[data-theme="warm-alabaster"], html[data-theme="pure-platinum"], html[data-theme="pearl-platinum"], html[data-theme="beige"], html[data-theme="ivory"]) #row2OperationalBar .row2-glass-tile.r2-rose span {
+      color: #9f1239 !important;
+    }
+
 
