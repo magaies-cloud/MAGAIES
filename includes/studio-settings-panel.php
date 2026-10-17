@@ -1,4 +1,4 @@
-﻿<link rel="stylesheet" href="css/studio-ribbon-v4.css?v=<?php echo filemtime('css/studio-ribbon-v4.css'); ?>">
+<link rel="stylesheet" href="css/studio-ribbon-v4.css?v=<?php echo filemtime('css/studio-ribbon-v4.css'); ?>">
 
 <div class="settings-panel no-print" id="settings-panel">
 
@@ -11,7 +11,7 @@
     </div>
     <div class="sr-qat" style="display:flex; align-items:center; gap:8px;">
         <button type="button" class="sr-save-panel-btn" onclick="if(typeof saveCurrentPresetAndLock==='function'){saveCurrentPresetAndLock();}else{saveCurrentPreset();}" style="background: linear-gradient(135deg, #10b981, #059669); color: #fff; border: 1px solid rgba(255,255,255,0.25); padding: 5px 16px; border-radius: 8px; font-weight: 900; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 3px 10px rgba(16,185,129,0.4); font-family: 'Tajawal', sans-serif;">
-            <span>💾</span> حفظ التصميم وقفل القالب 🔒
+            <span>💾</span> حفظ التصميم وتعميمه للكل
         </button>
         <button type="button" class="sr-qat-btn" onclick="if(typeof resetDefaultColumnOrder==='function')resetDefaultColumnOrder();" title="استعادة الترتيب الافتراضي">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12.5 8c-2.65 0-5.05.99-6.9 2.6L2 7v9h9l-3.62-3.62c1.39-1.16 3.16-1.88 5.12-1.88 3.54 0 6.55 2.31 7.6 5.5l2.37-.78C21.08 11.03 17.15 8 12.5 8z"/></svg>

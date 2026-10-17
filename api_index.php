@@ -940,14 +940,22 @@ if ($resource === 'report-layout') {
         if (empty($reportKey)) {
             jsonResponse(['error' => 'مفتاح التقرير مفقود'], 400);
         }
-        $fullKey = 'report_layout_' . $layoutTenantId . '_' . $reportKey;
-        $stmt = $pdo->prepare("SELECT setting_value FROM global_settings WHERE setting_key = ?");
-        $stmt->execute([$fullKey]);
-        $val = $stmt->fetchColumn();
+        // Prioritize the unified global master key so default designs propagate to all companies and users
+        $stmtGlobal = $pdo->prepare("SELECT setting_value FROM global_settings WHERE setting_key = ?");
+        $stmtGlobal->execute([$reportKey]);
+        $val = $stmtGlobal->fetchColumn();
+
         if (!$val) {
-            $stmtLegacy = $pdo->prepare("SELECT setting_value FROM global_settings WHERE setting_key = ?");
-            $stmtLegacy->execute([$reportKey]);
-            $val = $stmtLegacy->fetchColumn();
+            $fullKey = 'report_layout_' . $layoutTenantId . '_' . $reportKey;
+            $stmt = $pdo->prepare("SELECT setting_value FROM global_settings WHERE setting_key = ?");
+            $stmt->execute([$fullKey]);
+            $val = $stmt->fetchColumn();
+        }
+        if (!$val) {
+            $defaultKey = 'report_layout_default_' . $reportKey;
+            $stmtDef = $pdo->prepare("SELECT setting_value FROM global_settings WHERE setting_key = ?");
+            $stmtDef->execute([$defaultKey]);
+            $val = $stmtDef->fetchColumn();
         }
         jsonResponse([
             'success' => true,
@@ -962,13 +970,24 @@ if ($resource === 'report-layout') {
             jsonResponse(['error' => 'بيانات التقرير غير صالحة'], 400);
         }
         $fullKey = 'report_layout_' . $layoutTenantId . '_' . $reportKey;
+        $defaultKey = 'report_layout_default_' . $reportKey;
         $val = json_encode($layoutData, JSON_UNESCAPED_UNICODE);
         
+        // Save for current tenant
         $stmt = $pdo->prepare("INSERT INTO global_settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = ?");
         $stmt->execute([$fullKey, $val, $val]);
+
+        // Save for default tenant
+        $stmtDef = $pdo->prepare("INSERT INTO global_settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = ?");
+        $stmtDef->execute([$defaultKey, $val, $val]);
         
+        // Save to master global key across all companies and users
         $stmtLegacy = $pdo->prepare("INSERT INTO global_settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = ?");
         $stmtLegacy->execute([$reportKey, $val, $val]);
+
+        // Propagate to all existing company/tenant layout records for this report
+        $stmtAllTenants = $pdo->prepare("UPDATE global_settings SET setting_value = ? WHERE setting_key LIKE ?");
+        $stmtAllTenants->execute([$val, 'report_layout_%_' . $reportKey]);
         
         jsonResponse(['success' => true]);
     }

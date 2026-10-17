@@ -1910,6 +1910,14 @@ function loadGLColumnSettings() {
 function saveGLColumnSettings() {
     try {
         localStorage.setItem('gl_column_settings_v5', JSON.stringify(activeGLColumnSettings));
+        const token = localStorage.getItem('erp_token') || '';
+        const headers = { 'Content-Type': 'application/json' };
+        if (token) headers['Authorization'] = 'Bearer ' + token;
+        fetch('api_index.php/report-layout', {
+            method: 'POST',
+            headers: headers,
+            body: JSON.stringify({ reportKey: 'gl_column_settings_v5', layout: activeGLColumnSettings })
+        }).catch(err => console.warn('[GLColSync] POST failed:', err));
     } catch(e){}
 }
 
@@ -2831,20 +2839,20 @@ function renderLedgerPresets() {
     try { presets = JSON.parse(localStorage.getItem(PRESETS_STORAGE_KEY) || '[]'); } catch(e){}
 
     const defaultPresets = [
-        { name: '💎 افتراضي 1', showInRibbon: true, isLocked: true },
-        { name: '⭐ افتراضي 2', showInRibbon: true, isLocked: true },
-        { name: '🎨 افتراضي 3', showInRibbon: true, isLocked: true },
-        { name: '🔥 افتراضي 4', showInRibbon: true, isLocked: true },
-        { name: '✨ افتراضي 5', showInRibbon: true, isLocked: true },
-        { name: '🚀 افتراضي 6', showInRibbon: true, isLocked: true }
+        { name: '💎 افتراضي 1', showInRibbon: true, isLocked: false },
+        { name: '⭐ افتراضي 2', showInRibbon: true, isLocked: false },
+        { name: '🎨 افتراضي 3', showInRibbon: true, isLocked: false },
+        { name: '🔥 افتراضي 4', showInRibbon: true, isLocked: false },
+        { name: '✨ افتراضي 5', showInRibbon: true, isLocked: false },
+        { name: '🚀 افتراضي 6', showInRibbon: true, isLocked: false }
     ];
 
     if (!Array.isArray(presets) || presets.length === 0) {
         presets = defaultPresets;
     }
 
-    // Lock all default presets permanently
-    presets.forEach(p => { p.isLocked = true; });
+    // Unlock all presets for design customization
+    presets.forEach(p => { p.isLocked = false; });
     try { localStorage.setItem(PRESETS_STORAGE_KEY, JSON.stringify(presets)); } catch(e){}
 
     presets.slice(0, 6).forEach((p, idx) => {
@@ -2862,18 +2870,20 @@ function renderLedgerPresets() {
         else if (idx === 5) color = '#64748b';
         
         btn.style.cssText = `--btn-color: ${color};`;
-        btn.innerHTML = p.name || ('نموذج ' + (idx + 1));
+        const cleanName = (p.name || ('نموذج ' + (idx + 1))).replace(/\s*[🔒🔓]\s*$/g, '');
+        btn.innerHTML = cleanName + ' 🔓';
+        btn.title = 'اضغط لفتح وتصميم ' + cleanName + ' (الأعمدة، الألوان، الخطوط، الأحجام، وتعميمه كافتراضي للكل)';
         
         btn.onclick = (e) => {
             if (e) e.preventDefault();
-            openPresetModal(idx, p.name || ('نموذج ' + (idx + 1)), true);
+            openPresetModal(idx, cleanName, false);
         };
         container.appendChild(btn);
     });
 }
 window.renderLedgerPresets = renderLedgerPresets;
 
-async function openPresetModal(presetIndex, presetName, isLocked = true) {
+async function openPresetModal(presetIndex, presetName, isLocked = false) {
     try {
         await prepareLedgerPreviewData();
     } catch (e) {
@@ -2899,17 +2909,40 @@ async function openPresetModal(presetIndex, presetName, isLocked = true) {
     modal.innerHTML = `
         <div style="background: #1e293b; border: 1px solid rgba(56,189,248,0.3); border-radius: 16px; width: 99%; max-width: 100%; height: 98vh; display: flex; flex-direction: column; box-shadow: 0 25px 60px rgba(0,0,0,0.5); overflow: hidden;">
             <!-- Modal Header -->
-            <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px 20px; background: linear-gradient(135deg, #0f172a, #1e293b); border-bottom: 2px solid #ca8a04;">
+            <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px 18px; background: linear-gradient(135deg, #0f172a, #1e293b); border-bottom: 2px solid #ca8a04; flex-wrap: wrap; gap: 8px;">
                 <div style="display: flex; align-items: center; gap: 10px;">
-                    <span style="background: linear-gradient(135deg, #ca8a04, #854d0e); color: #fff; padding: 4px 14px; border-radius: 16px; font-weight: 900; font-size: 0.95rem;">${presetName}</span>
-                    <span style="color: #f8fafc; font-weight: 800; font-size: 1rem;">📄 معاينة وطباعة التقرير بالتصميم المخصص (دفتر الأستاذ)</span>
+                    <span style="background: linear-gradient(135deg, #ca8a04, #854d0e); color: #fff; padding: 4px 14px; border-radius: 16px; font-weight: 900; font-size: 0.95rem;">${presetName} 🔓</span>
+                    <span style="color: #f8fafc; font-weight: 800; font-size: 0.95rem;">🎨 استوديو التصميم والمعاينة (مفتوح للتعديل والتعميم لكل الشركات والمستخدمين)</span>
                 </div>
-                <div style="display: flex; align-items: center; gap: 8px;">
-                    <button type="button" onclick="window.shareCurrentLedgerReport(${presetIndex}, '${presetName}')" style="background: linear-gradient(135deg, #3b82f6, #1d4ed8); color: #fff; border: none; padding: 7px 16px; border-radius: 20px; font-weight: 900; font-size: 0.9rem; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 3px 10px rgba(59,130,246,0.4);" title="مشاركة كشف الحساب عبر التطبيقات">
+                <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                    <button type="button" onclick="
+                        const cw = document.getElementById('preset-modal-iframe').contentWindow;
+                        if (cw && typeof cw.toggleSettingsPanel === 'function') {
+                            cw.toggleSettingsPanel();
+                        }
+                    " style="background: linear-gradient(135deg, #eab308, #ca8a04); color: #fff; border: none; padding: 7px 14px; border-radius: 20px; font-weight: 900; font-size: 0.88rem; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 3px 10px rgba(234,179,8,0.4);" title="إظهار أو إخفاء لوحة تصميم الأعمدة والألوان والخطوط">
+                        ⚙️ أدوات التصميم
+                    </button>
+
+                    <button type="button" onclick="
+                        const cw = document.getElementById('preset-modal-iframe').contentWindow;
+                        if (cw && typeof cw.saveCurrentPreset === 'function') {
+                            cw.saveCurrentPreset(cw.currentPresetIndex !== undefined ? cw.currentPresetIndex : ${presetIndex});
+                            if (typeof window.renderLedgerPresets === 'function') window.renderLedgerPresets();
+                        }
+                    " style="background: linear-gradient(135deg, #10b981, #059669); color: #fff; border: none; padding: 7px 16px; border-radius: 20px; font-weight: 900; font-size: 0.9rem; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 3px 10px rgba(16,185,129,0.4);" title="حفظ التصميم الحالي وتعميمه كافتراضي لكل الشركات والشاشات والمستخدمين">
+                        💾 حفظ التصميم وتعميمه للكل
+                    </button>
+
+                    <button type="button" onclick="window.location.href='preview-ledger.php?presetIndex=${presetIndex}&openStudio=1'" style="background: linear-gradient(135deg, #8b5cf6, #6d28d9); color: #fff; border: none; padding: 7px 14px; border-radius: 20px; font-weight: 900; font-size: 0.88rem; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 3px 10px rgba(139,92,246,0.4);" title="فتح استوديو التصميم في شاشة كاملة">
+                        🖥️ شاشة كاملة
+                    </button>
+
+                    <button type="button" onclick="window.shareCurrentLedgerReport(${presetIndex}, '${presetName}')" style="background: linear-gradient(135deg, #3b82f6, #1d4ed8); color: #fff; border: none; padding: 7px 14px; border-radius: 20px; font-weight: 900; font-size: 0.88rem; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 3px 10px rgba(59,130,246,0.4);" title="مشاركة كشف الحساب عبر التطبيقات">
                         🔗 مشاركة
                     </button>
 
-                    <button type="button" onclick="window.openLedgerWhatsAppModal()" style="background: linear-gradient(135deg, #25d366, #128c7e); color: #fff; border: none; padding: 7px 16px; border-radius: 20px; font-weight: 900; font-size: 0.9rem; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 3px 10px rgba(37,211,102,0.4);" title="إرسال كشف الحساب للشخص المعني عبر واتساب">
+                    <button type="button" onclick="window.openLedgerWhatsAppModal()" style="background: linear-gradient(135deg, #25d366, #128c7e); color: #fff; border: none; padding: 7px 14px; border-radius: 20px; font-weight: 900; font-size: 0.88rem; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 3px 10px rgba(37,211,102,0.4);" title="إرسال كشف الحساب للشخص المعني عبر واتساب">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="display:inline-block; vertical-align:middle;">
                             <path fill-rule="evenodd" clip-rule="evenodd" d="M12 0C5.373 0 0 5.373 0 12c0 2.115.552 4.103 1.516 5.832L.057 24l6.34-1.662A11.95 11.95 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0z" fill="#ffffff"/>
                             <path fill-rule="evenodd" clip-rule="evenodd" d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" fill="#ffffff"/>
@@ -2917,18 +2950,18 @@ async function openPresetModal(presetIndex, presetName, isLocked = true) {
                         <span>واتساب</span>
                     </button>
 
-                    <button type="button" onclick="document.getElementById('preset-modal-iframe').contentWindow.executePrintWithPermission()" style="background: linear-gradient(135deg, #0284c7, #0369a1); color: #fff; border: none; padding: 7px 18px; border-radius: 20px; font-weight: 900; font-size: 0.9rem; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 3px 10px rgba(2,132,199,0.4);">
+                    <button type="button" onclick="document.getElementById('preset-modal-iframe').contentWindow.executePrintWithPermission()" style="background: linear-gradient(135deg, #0284c7, #0369a1); color: #fff; border: none; padding: 7px 16px; border-radius: 20px; font-weight: 900; font-size: 0.88rem; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 3px 10px rgba(2,132,199,0.4);">
                         🖨️ طباعة
                     </button>
 
-                    <button type="button" onclick="document.getElementById('preset-preview-modal').style.display='none'" style="background: rgba(239,68,68,0.2); color: #f87171; border: 1px solid rgba(239,68,68,0.4); padding: 7px 16px; border-radius: 20px; font-weight: 900; font-size: 0.9rem; cursor: pointer;">
-                        ❌ Close
+                    <button type="button" onclick="document.getElementById('preset-preview-modal').style.display='none'" style="background: rgba(239,68,68,0.2); color: #f87171; border: 1px solid rgba(239,68,68,0.4); padding: 7px 16px; border-radius: 20px; font-weight: 900; font-size: 0.88rem; cursor: pointer;">
+                        ❌ إغلاق
                     </button>
                 </div>
             </div>
             <!-- Iframe Container -->
             <div style="flex: 1; background: #fff; position: relative;">
-                <iframe id="preset-modal-iframe" src="preview-ledger.php?presetIndex=${presetIndex}&hideRibbon=1" style="width: 100%; height: 100%; border: none;"></iframe>
+                <iframe id="preset-modal-iframe" src="preview-ledger.php?presetIndex=${presetIndex}&openStudio=1" style="width: 100%; height: 100%; border: none;"></iframe>
             </div>
         </div>
     `;
@@ -3013,8 +3046,20 @@ document.addEventListener('DOMContentLoaded', () => {
         .then(res => res.json())
         .then(data => {
             if (data && data.success && Array.isArray(data.layout) && data.layout.length > 0) {
+                data.layout.forEach(p => { p.isLocked = false; });
                 localStorage.setItem('ledger_preview_presets_v20', JSON.stringify(data.layout));
                 renderLedgerPresets();
+            }
+        })
+        .catch(e => {});
+
+    fetch('api_index.php/report-layout?reportKey=gl_column_settings_v5', { headers: headers })
+        .then(res => res.json())
+        .then(data => {
+            if (data && data.success && Array.isArray(data.layout) && data.layout.length > 0) {
+                localStorage.setItem('gl_column_settings_v5', JSON.stringify(data.layout));
+                activeGLColumnSettings = loadGLColumnSettings();
+                if (typeof runReport === 'function') runReport();
             }
         })
         .catch(e => {});

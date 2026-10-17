@@ -2425,15 +2425,20 @@ async function openPresetModal(presetIndex, presetName) {
                     <span style="color: #f8fafc; font-weight: 800; font-size: 1rem;">📄 معاينة وطباعة التقرير بالتصميم المخصص</span>
                 </div>
                 <div style="display: flex; align-items: center; gap: 10px;">
-                    ${presetIndex === 0 ? '' : `
+                    <button type="button" onclick="
+                        const cw = document.getElementById('preset-modal-iframe').contentWindow;
+                        if (cw && typeof cw.toggleSettingsPanel === 'function') cw.toggleSettingsPanel();
+                    " style="background: linear-gradient(135deg, #eab308, #ca8a04); color: #fff; border: none; padding: 7px 14px; border-radius: 20px; font-weight: 900; font-size: 0.9rem; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 3px 10px rgba(234,179,8,0.4);">
+                        ⚙️ أدوات التصميم
+                    </button>
                       <button type="button" id="mega-save-btn-modal" onclick="
                           const cw = document.getElementById('preset-modal-iframe').contentWindow;
                           if (cw && cw.saveCurrentPreset) {
-                              cw.saveCurrentPreset(${presetIndex});
+                              cw.saveCurrentPreset(cw.currentPresetIndex !== undefined ? cw.currentPresetIndex : ${presetIndex});
                               let presets = [];
                               try { presets = JSON.parse(localStorage.getItem('balances_preview_presets_v7') || '[]'); } catch(e){}
                               if (presets[${presetIndex}]) {
-                                  presets[${presetIndex}].isLocked = true;
+                                  presets[${presetIndex}].isLocked = false;
                                   localStorage.setItem('balances_preview_presets_v7', JSON.stringify(presets));
                                   if (typeof window.renderBalancesPresets === 'function') window.renderBalancesPresets();
                                   
@@ -2446,26 +2451,24 @@ async function openPresetModal(presetIndex, presetName) {
                                       body: JSON.stringify({ reportKey: 'balances_preview_presets_v7', layout: presets })
                                   }).catch(e => {});
                               }
-                              if (typeof showToast === 'function') showToast('تم الحفظ وتم إعادة القفل!', 'success');
-                              document.getElementById('preset-preview-modal').style.display='none';
+                              if (typeof showToast === 'function') showToast('💾 تم حفظ التصميم وتعميمه كافتراضي لكل الشركات والشاشات والمستخدمين!', 'success');
                           }
                       " style="background: linear-gradient(135deg, #10b981, #059669); color: #fff; border: none; padding: 7px 18px; border-radius: 20px; font-weight: 900; font-size: 0.9rem; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 3px 10px rgba(16,185,129,0.4);">
-                          \uD83D\uDCBE \u062d\u0641\u0638 \u0627\u0644\u062a\u0635\u0645\u064a\u0645 \u0648\u0642\u0641\u0644 \u0627\u0644\u0637\u0628\u0644\u0629 \uD83D\uDD12
+                          💾 حفظ التصميم وتعميمه للكل
                       </button>
-                    `}
                       <button type="button" onclick="document.getElementById('preset-modal-iframe').contentWindow.executePrintWithPermission()" style="background: linear-gradient(135deg, #0284c7, #0369a1); color: #fff; border: none; padding: 7px 18px; border-radius: 20px; font-weight: 900; font-size: 0.9rem; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 3px 10px rgba(2,132,199,0.4);">
                         🖨️ طباعة
                     </button>
 
                     <button type="button" onclick="document.getElementById('preset-preview-modal').style.display='none'" style="background: rgba(239,68,68,0.2); color: #f87171; border: 1px solid rgba(239,68,68,0.4); padding: 7px 16px; border-radius: 20px; font-weight: 900; font-size: 0.9rem; cursor: pointer;">
-                        ❌ Close
+                        ❌ إغلاق
                     </button>
                 </div>
             </div>
 
             <!-- Modal Iframe Body Container -->
             <div style="flex: 1; position: relative; width: 100%; height: 100%; min-height: 0; background: #f8fafc;">
-                <iframe id="preset-modal-iframe" src="preview-balances-design.php?presetIndex=${presetIndex}&hideRibbon=1" style="width: 100%; height: 100%; border: none;"></iframe>
+                <iframe id="preset-modal-iframe" src="preview-balances-design.php?presetIndex=${presetIndex}&openStudio=1" style="width: 100%; height: 100%; border: none;"></iframe>
             </div>
         </div>
     `;

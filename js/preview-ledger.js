@@ -649,15 +649,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         loadPreset(0);
     }
 
-    if (urlParams.get('hideRibbon') === '1') {
-        const ribbon = document.querySelector('.ribbon');
-        if (ribbon) ribbon.style.display = 'none';
-        const panel = document.querySelector('.settings-panel');
-        if (panel) panel.style.display = 'none';
-        document.body.style.padding = '0';
-        const printArea = document.querySelector('.print-area');
-        if (printArea) {
-            printArea.style.margin = '10px auto';
+    // Keep design ribbon and studio panel unlocked and accessible for designing Default 1..6
+    const ribbon = document.querySelector('.ribbon');
+    if (ribbon) ribbon.style.display = 'flex';
+    if (urlParams.get('openStudio') === '1') {
+        const panel = document.getElementById('settings-panel');
+        if (panel && !panel.classList.contains('show')) {
+            panel.classList.add('show');
+            if (selectedColIndex === null) selectColumn(6);
         }
     }
     initResetButton();
@@ -950,7 +949,11 @@ function initPresets() {
     }
     if (!Array.isArray(list) || list.length === 0) {
         list = JSON.parse(JSON.stringify(FACTORY_PRESETS_LEDGER));
+        list.forEach(p => { p.isLocked = false; });
         savePresets(list);
+    } else {
+        list.forEach(p => { p.isLocked = false; });
+        localStorage.setItem(PRESETS_STORAGE_KEY, JSON.stringify(list));
     }
     
     renderPresetButtons();
@@ -961,6 +964,8 @@ function initPresets() {
 
     loadPresetsFromDB(PRESETS_STORAGE_KEY, PRESETS_STORAGE_KEY, function(dbLayout) {
         if (Array.isArray(dbLayout) && dbLayout.length > 0) {
+            dbLayout.forEach(p => { p.isLocked = false; });
+            localStorage.setItem(PRESETS_STORAGE_KEY, JSON.stringify(dbLayout));
             renderPresetButtons();
             renderPresetsManagementList();
             if (typeof currentPresetIndex !== 'undefined') loadPreset(currentPresetIndex);
@@ -973,22 +978,20 @@ function loadPreset(idx) {
     if (!presets || !presets[idx]) return;
     currentPresetIndex = idx;
     const p = presets[idx];
-    if (idx === 0) p.isLocked = true; // Default 1 is permanently locked
+    p.isLocked = false; // Unlocked for design customization
     
     applyDesignState(p);
     renderPresetButtons();
     renderPresetsManagementList();
     
-    const isActuallyLocked = (idx === 0 || p.isLocked !== false);
-    
     const saveBtn = document.getElementById('mega-save-btn');
     if (saveBtn) {
-        saveBtn.style.display = isActuallyLocked ? 'none' : '';
+        saveBtn.style.display = '';
     }
 
     const panelSaveBtn = document.querySelector('.sr-save-panel-btn');
     if (panelSaveBtn) {
-        panelSaveBtn.style.display = isActuallyLocked ? 'none' : '';
+        panelSaveBtn.style.display = '';
     }
 }
 
@@ -1003,12 +1006,6 @@ function applyPreset(idx) {
 
 function saveCurrentPreset(targetIdx) {
     const idx = (typeof targetIdx === 'number') ? targetIdx : currentPresetIndex;
-    if (idx === 0) {
-        if (typeof showToast === 'function') {
-            showToast('افتراضي 1 مقفل نهائياً ولا يمكن حفظ أي تعديل عليه', 'error');
-        }
-        return;
-    }
     const presets = getSavedPresets();
     if (!presets || !presets[idx]) return;
     const p = presets[idx];
@@ -1020,8 +1017,12 @@ function saveCurrentPreset(targetIdx) {
     p.paperSize = window.currentPaperSize || currentPaperSize || 'A4';
     p.orientation = window.currentOrientation || currentOrientation || 'landscape';
     p.margins = window.currentMargins || currentMargins || 'normal';
+    p.tableWidth = typeof currentTableWidth !== 'undefined' ? currentTableWidth : 100;
+    p.rowHeight = typeof currentRowHeight !== 'undefined' ? currentRowHeight : 'normal';
+    p.darkMode = document.body.classList.contains('dark-mode');
     p.showLogo = showHeaderLogo;
     p.showInfo = showHeaderInfo;
+    p.isLocked = false;
     
     const uChk = document.getElementById('hdr-show-user-chk');
     const uPos = document.getElementById('meta-user-pos-select');
@@ -1039,6 +1040,14 @@ function saveCurrentPreset(targetIdx) {
     renderPresetButtons();
     renderPresetsManagementList();
 
+    // If Default 1 (idx === 0) is saved, also store it as the global custom default reset state
+    if (idx === 0) {
+        try {
+            localStorage.setItem('balances_custom_reset_v1', JSON.stringify(p));
+            syncPresetsToDB('balances_custom_reset_v1', [p]);
+        } catch(e){}
+    }
+
     try {
         if (window.DB_STORE && window.getTenantKey) {
             const tk = window.getTenantKey(PRESETS_STORAGE_KEY);
@@ -1047,10 +1056,13 @@ function saveCurrentPreset(targetIdx) {
         if (typeof localforage !== 'undefined') {
             localforage.setItem(PRESETS_STORAGE_KEY, presets);
         }
+        if (window.parent && window.parent !== window && typeof window.parent.renderLedgerPresets === 'function') {
+            window.parent.renderLedgerPresets();
+        }
     } catch(e){}
 
     if (typeof showToast === 'function') {
-        showToast('💾 تم حفظ التعديلات في "' + p.name + '" بنجاح!', 'success');
+        showToast('💾 تم حفظ تصميم "' + p.name + '" وتعميمه كافتراضي لكل الشركات والشاشات والمستخدمين بنجاح!', 'success');
     }
 }
 
@@ -1060,6 +1072,7 @@ function resetPresetToFactory(idx) {
     if (!presets || !presets[idx]) return;
     
     presets[idx] = JSON.parse(JSON.stringify(factory));
+    presets[idx].isLocked = false;
     savePresets(presets);
     
     if (idx === currentPresetIndex) {
@@ -1076,6 +1089,7 @@ function resetPresetToFactory(idx) {
 function resetAllPresetsToFactory() {
     if (!confirm('⚠️ هل أنت متأكد من استرجاع كافة القوالب والتصميمات إلى ضبط المصنع الأصلي للنظام؟')) return;
     const presets = JSON.parse(JSON.stringify(FACTORY_PRESETS_LEDGER));
+    presets.forEach(p => { p.isLocked = false; });
     savePresets(presets);
     currentPresetIndex = 0;
     loadPreset(0);
@@ -1097,43 +1111,14 @@ function renderPresetButtons() {
         const btn = document.createElement('button');
         btn.type = 'button';
         btn.className = 'preset-btn' + (idx === currentPresetIndex ? ' active' : '');
-        btn.innerHTML = p.name + (idx === currentPresetIndex ? ' 🎯' : '');
-        btn.title = 'تطبيق ' + p.name;
+        btn.innerHTML = p.name + (idx === currentPresetIndex ? ' 🎯' : ' 🔓');
+        btn.title = 'تطبيق وتصميم ' + p.name;
         
-        let pressTimer;
-        let isLongPress = false;
-        
-        if (idx === 0) {
-            const startPress = (e) => {
-                if (e.button === 2) return;
-                isLongPress = false;
-                pressTimer = setTimeout(() => {
-                    isLongPress = true;
-                }, 600);
-            };
-            const cancelPress = () => { clearTimeout(pressTimer); };
-            btn.addEventListener('mousedown', startPress);
-            btn.addEventListener('touchstart', startPress, {passive: true});
-            btn.addEventListener('mouseup', cancelPress);
-            btn.addEventListener('mouseleave', cancelPress);
-            btn.addEventListener('touchend', cancelPress);
-            
-            btn.onclick = function(e) {
-                if (e) e.preventDefault();
-                if (isLongPress) {
-                    isLongPress = false;
-                    return; // Ignore long press on Default 1 completely
-                }
-                loadPreset(0);
-                if (typeof showToast === 'function') showToast('تم تطبيق [' + p.name + ']', 'info');
-            };
-        } else {
-            btn.onclick = function(e) {
-                if (e) e.preventDefault();
-                loadPreset(idx);
-                if (typeof showToast === 'function') showToast('تم تطبيق [' + p.name + ']', 'info');
-            };
-        }
+        btn.onclick = function(e) {
+            if (e) e.preventDefault();
+            loadPreset(idx);
+            if (typeof showToast === 'function') showToast('تم فتح [' + p.name + '] للتصميم والمعاينة', 'info');
+        };
         container.appendChild(btn);
     });
 }
@@ -1174,7 +1159,7 @@ function renderPresetsManagementList() {
                 <button type="button" class="sr-preset-btn sr-preset-btn-apply" onclick="loadPreset(${idx}); switchStudioTab('cols');" title="تطبيق هذا القالب" style="font-size:10px; padding:2px 4px;">
                     ✨ تطبيق
                 </button>
-                ${idx === 0 ? '<span style="font-size:10px; font-weight:800; color:#ef4444; background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.25); padding:2px 8px; border-radius:4px; display:inline-flex; align-items:center; gap:2px;">🔒 مقفل نهائياً</span>' : '<button type="button" class="sr-preset-btn sr-preset-btn-save" onclick="saveCurrentPreset(' + idx + ')" title="حفظ التصميم الحالي" style="font-size:10px; padding:2px 4px;">💾 حفظ</button>'}
+                <button type="button" class="sr-preset-btn sr-preset-btn-save" onclick="saveCurrentPreset(${idx})" title="حفظ التصميم الحالي في هذا القالب وتعميمه للكل" style="font-size:10px; padding:2px 6px; background:#10b981; color:#fff; font-weight:900;">💾 حفظ للكل</button>
                 ${hasFactory ? `
                 <button type="button" class="sr-preset-btn sr-preset-btn-reset" onclick="resetPresetToFactory(${idx})" title="استرجاع ضبط المصنع الأصلي لهذا القالب" style="font-size:10px; padding:2px 4px;">
                     🔄 مصنع
@@ -2101,6 +2086,7 @@ function applyDesignState(state) {
     currentFont = state.font || 'font-newsons';
     currentPaperSize = state.paperSize || 'A4';
     currentOrientation = state.orientation || 'landscape';
+    currentMargins = state.margins || 'normal';
     showHeaderLogo = state.showLogo !== undefined ? state.showLogo : true;
     showHeaderInfo = state.showInfo !== undefined ? state.showInfo : true;
 
@@ -2108,6 +2094,15 @@ function applyDesignState(state) {
     setNumberFont(currentFont);
     setPaperSize(currentPaperSize, true);
     setPageOrientation(currentOrientation, true);
+    if (typeof setPageMargins === 'function' && state.margins) {
+        setPageMargins(state.margins);
+    }
+    if (typeof setTableWidth === 'function' && state.tableWidth) {
+        setTableWidth(state.tableWidth);
+    }
+    if (state.darkMode !== undefined) {
+        document.body.classList.toggle('dark-mode', !!state.darkMode);
+    }
     
     const logoChk = document.getElementById('hdr-show-logo-chk');
     const infoChk = document.getElementById('hdr-show-info-chk');
@@ -2117,6 +2112,9 @@ function applyDesignState(state) {
     toggleHeaderElement('info', showHeaderInfo);
 
     renderTable();
+    if (typeof setRowHeight === 'function' && state.rowHeight) {
+        setRowHeight(state.rowHeight);
+    }
     updateHiddenColumnsDropdown();
     populateSelectedColDropdown();
     

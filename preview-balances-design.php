@@ -504,15 +504,14 @@
         
         <script>
         function saveCurrentPresetAndLock() {
+            const activeIdx = (typeof currentPresetIndex === 'number') ? currentPresetIndex : (window.currentPresetIndex || 0);
             if (typeof saveCurrentPreset === 'function') {
-                saveCurrentPreset(window.currentPresetIndex || 0);
+                saveCurrentPreset(activeIdx);
                 let presets = getSavedPresets();
-                if (presets[window.currentPresetIndex || 0]) {
-                    presets[window.currentPresetIndex || 0].isLocked = true;
+                if (presets[activeIdx]) {
+                    presets[activeIdx].isLocked = false;
                     savePresets(presets);
                     syncPresetsToDB('balances_preview_presets_v7', presets);
-                    if (typeof showToast === 'function') showToast('\u062a\u0645 \u062d\u0641\u0638 \u0627\u0644\u062a\u0635\u0645\u064a\u0645 \u0648\u0625\u0639\u0627\u062f\u0629 \u0627\u0644\u0642\u0641\u0644 \u0628\u0646\u062c\u0627\u062d\u0021', 'success');
-                    setTimeout(() => { window.history.back(); }, 800);
                 }
             }
         }
@@ -522,8 +521,8 @@
             <button class="ribbon-btn" onclick="toggleSettingsPanel()" style="background: linear-gradient(135deg, #eab308, #ca8a04); border:none; margin:0;">
                 <span>⚙️</span> إعدادات التصميم
             </button>
-            <button class="ribbon-btn" id="mega-save-btn" onclick="saveCurrentPresetAndLock()" style="background: linear-gradient(135deg, #10b981, #059669); color: #fff; border:none; margin:0; display:none;">
-                <span>💾</span> حفظ التصميم 🔒
+            <button class="ribbon-btn" id="mega-save-btn" onclick="saveCurrentPresetAndLock()" style="background: linear-gradient(135deg, #10b981, #059669); color: #fff; border:none; margin:0;">
+                <span>💾</span> حفظ التصميم وتعميمه للكل
             </button>
         </div>
         <button class="ribbon-btn" onclick="toggleDarkMode()">🌙 عكس الألوان</button>

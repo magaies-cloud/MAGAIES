@@ -1,4 +1,4 @@
-﻿// js/preview-balances.js - Pro Studio Edition
+// js/preview-balances.js - Pro Studio Edition
 
 const PRESETS_STORAGE_KEY = 'balances_preview_presets_v20';
 const MAX_PRESETS_LIMIT = 6;
@@ -232,15 +232,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         loadPreset(0);
     }
 
-    if (urlParams.get('hideRibbon') === '1') {
-        const ribbon = document.querySelector('.ribbon');
-        if (ribbon) ribbon.style.display = 'none';
-        const panel = document.querySelector('.settings-panel');
-        if (panel) panel.style.display = 'none';
-        document.body.style.padding = '0';
-        const printArea = document.querySelector('.print-area');
-        if (printArea) {
-            printArea.style.margin = '10px auto';
+    const ribbon = document.querySelector('.ribbon');
+    if (ribbon) ribbon.style.display = 'flex';
+    if (urlParams.get('openStudio') === '1') {
+        const panel = document.getElementById('settings-panel');
+        if (panel && !panel.classList.contains('show')) {
+            panel.classList.add('show');
         }
     }
     initResetButton();
@@ -541,13 +538,14 @@ function loadPreset(idx) {
     if (!presets || !presets[idx]) return;
     currentPresetIndex = idx;
     const p = presets[idx];
+    p.isLocked = false;
     applyDesignState(p);
     renderPresetButtons();
     renderPresetsManagementList();
     
     const saveBtn = document.getElementById('mega-save-btn');
     if (saveBtn) {
-        saveBtn.style.display = (idx === 0) ? 'none' : '';
+        saveBtn.style.display = '';
     }
 }
 
@@ -575,6 +573,7 @@ function saveCurrentPreset(targetIdx) {
     p.margins = window.currentMargins || currentMargins || 'normal';
     p.showLogo = showHeaderLogo;
     p.showInfo = showHeaderInfo;
+    p.isLocked = false;
     
     const uChk = document.getElementById('hdr-show-user-chk');
     const uPos = document.getElementById('meta-user-pos-select');
@@ -603,7 +602,7 @@ function saveCurrentPreset(targetIdx) {
     } catch(e){}
 
     if (typeof showToast === 'function') {
-        showToast('💾 تم حفظ التعديلات في "' + p.name + '" بنجاح!', 'success');
+        showToast('💾 تم حفظ تصميم "' + p.name + '" وتعميمه كافتراضي لكل الشركات والشاشات والمستخدمين بنجاح!', 'success');
     }
 }
 
@@ -613,6 +612,7 @@ function resetPresetToFactory(idx) {
     if (!presets || !presets[idx]) return;
     
     presets[idx] = JSON.parse(JSON.stringify(factory));
+    presets[idx].isLocked = false;
     savePresets(presets);
     
     if (idx === currentPresetIndex) {
@@ -629,6 +629,7 @@ function resetPresetToFactory(idx) {
 function resetAllPresetsToFactory() {
     if (!confirm('⚠️ هل أنت متأكد من استرجاع كافة القوالب والتصميمات إلى ضبط المصنع الأصلي للنظام؟')) return;
     const presets = JSON.parse(JSON.stringify(FACTORY_PRESETS_BALANCES));
+    presets.forEach(p => { p.isLocked = false; });
     savePresets(presets);
     currentPresetIndex = 0;
     loadPreset(0);
@@ -646,14 +647,12 @@ function renderPresetButtons() {
     const presets = getSavedPresets();
     
     presets.forEach((p, idx) => {
-        // Hide "افتراضي 1" from the preview and print screen toolbar
-        if (idx === 0 || (p.name && p.name.includes('افتراضي 1'))) return;
         if (p.showInRibbon === false) return;
         const btn = document.createElement('button');
         btn.type = 'button';
         btn.className = 'preset-btn' + (idx === currentPresetIndex ? ' active' : '');
-        btn.innerHTML = p.name + (idx === currentPresetIndex ? ' 🟢' : '');
-        btn.title = 'تطبيق ' + p.name;
+        btn.innerHTML = p.name + (idx === currentPresetIndex ? ' 🟢' : ' 🔓');
+        btn.title = 'تطبيق وتصميم ' + p.name;
         btn.onclick = function(e) {
             if (e) e.preventDefault();
             loadPreset(idx);
@@ -699,13 +698,9 @@ function renderPresetsManagementList() {
                 <button type="button" class="sr-preset-btn sr-preset-btn-apply" onclick="loadPreset(${idx}); switchStudioTab('cols');" title="تطبيق هذا القالب" style="font-size:10px; padding:2px 4px;">
                     ✨ تطبيق
                 </button>
-                ${idx === 0 ? `
-<span style="font-size:10px; font-weight:800; color:#ef4444; background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.25); padding:2px 8px; border-radius:4px; display:inline-flex; align-items:center; gap:2px;">🔒 مقفل نهائياً</span>
-` : `
-<button type="button" class="sr-preset-btn sr-preset-btn-save" onclick="saveCurrentPreset(${idx})" title="حفظ التصميم الحالي" style="font-size:10px; padding:2px 4px;">
-    💾 حفظ
-</button>
-`}
+                <button type="button" class="sr-preset-btn sr-preset-btn-save" onclick="saveCurrentPreset(${idx})" title="حفظ التصميم الحالي وتعميمه للكل" style="font-size:10px; padding:2px 6px; background:#10b981; color:#fff; font-weight:900;">
+                    💾 حفظ للكل
+                </button>
                 ${hasFactory ? `
                 <button type="button" class="sr-preset-btn sr-preset-btn-reset" onclick="resetPresetToFactory(${idx})" title="استرجاع ضبط المصنع الأصلي لهذا القالب" style="font-size:10px; padding:2px 4px;">
                     🔄 مصنع

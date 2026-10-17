@@ -511,32 +511,31 @@
 
         <script>
         function saveCurrentPresetAndLock() {
+            const activeIdx = (typeof currentPresetIndex === 'number') ? currentPresetIndex : (window.currentPresetIndex || 0);
             if (typeof saveCurrentPreset === 'function') {
-                saveCurrentPreset(window.currentPresetIndex || 0);
+                saveCurrentPreset(activeIdx);
                 let presets = getSavedPresets();
-                if (presets[window.currentPresetIndex || 0]) {
-                    presets[window.currentPresetIndex || 0].isLocked = true;
+                if (presets[activeIdx]) {
+                    presets[activeIdx].isLocked = false;
                     savePresets(presets);
                     syncPresetsToDB('ledger_preview_presets_v20', presets);
-                    if (typeof showToast === 'function') showToast('تم حفظ التصميم وقفل الطبلة بنجاح!', 'success');
-                    setTimeout(() => { window.history.back(); }, 800);
                 }
             }
-            function shareCurrentLedgerReportFromPreview() {
-                if (window.parent && window.parent !== window && typeof window.parent.shareCurrentLedgerReport === 'function') {
-                    window.parent.shareCurrentLedgerReport(window.currentPresetIndex || 0, 'كشف الحساب');
-                } else if (typeof window.shareCurrentLedgerReport === 'function') {
-                    window.shareCurrentLedgerReport(window.currentPresetIndex || 0, 'كشف الحساب');
-                } else if (typeof window.openLedgerWhatsAppModal === 'function') {
-                    window.openLedgerWhatsAppModal();
-                }
+        }
+        function shareCurrentLedgerReportFromPreview() {
+            if (window.parent && window.parent !== window && typeof window.parent.shareCurrentLedgerReport === 'function') {
+                window.parent.shareCurrentLedgerReport(window.currentPresetIndex || 0, 'كشف الحساب');
+            } else if (typeof window.shareCurrentLedgerReport === 'function') {
+                window.shareCurrentLedgerReport(window.currentPresetIndex || 0, 'كشف الحساب');
+            } else if (typeof window.openLedgerWhatsAppModal === 'function') {
+                window.openLedgerWhatsAppModal();
             }
-            function openLedgerWhatsAppFromPreview() {
-                if (window.parent && window.parent !== window && typeof window.parent.openLedgerWhatsAppModal === 'function') {
-                    window.parent.openLedgerWhatsAppModal();
-                } else if (typeof window.openLedgerWhatsAppModal === 'function') {
-                    window.openLedgerWhatsAppModal();
-                }
+        }
+        function openLedgerWhatsAppFromPreview() {
+            if (window.parent && window.parent !== window && typeof window.parent.openLedgerWhatsAppModal === 'function') {
+                window.parent.openLedgerWhatsAppModal();
+            } else if (typeof window.openLedgerWhatsAppModal === 'function') {
+                window.openLedgerWhatsAppModal();
             }
         }
         </script>
@@ -558,8 +557,8 @@
             <button class="ribbon-btn" onclick="toggleSettingsPanel()" style="--btn-color: #eab308; margin:0;">
                 <span style="font-size: 1.05rem;">⚙️</span> إعدادات التصميم
             </button>
-            <button class="ribbon-btn" id="mega-save-btn" onclick="saveCurrentPresetAndLock()" style="--btn-color: #10b981; font-weight: 900; display: none; margin:0;">
-                <span style="font-size: 1.05rem;">💾</span> حفظ التصميم 🔒
+            <button class="ribbon-btn" id="mega-save-btn" onclick="saveCurrentPresetAndLock()" style="--btn-color: #10b981; font-weight: 900; margin:0;">
+                <span style="font-size: 1.05rem;">💾</span> حفظ التصميم وتعميمه للكل
             </button>
         </div>
 
