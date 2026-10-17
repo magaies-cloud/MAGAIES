@@ -359,16 +359,16 @@ window._cachedGlobalRate = window.SYSTEM_USD_RATE;
     background: rgba(20, 10, 40, 0.6) !important;
     border: 1px solid rgba(192, 132, 252, 0.25) !important;
     backdrop-filter: blur(12px);
-    border-radius: 14px !important;
-    transition: all 0.3s ease;
+    border-radius: 8px !important;
+    transition: all 0.25s ease;
 }
 .magical-glass-header .clock-container:hover, 
 .magical-glass-header .user-info:hover, 
 .magical-glass-header #online-users-badge:hover,
 .magical-glass-header #global-exchange-rate-box:hover {
     border-color: rgba(192, 132, 252, 0.8) !important;
-    box-shadow: 0 0 20px rgba(192, 132, 252, 0.4), inset 0 0 10px rgba(192, 132, 252, 0.2) !important;
-    transform: translateY(-2px);
+    box-shadow: 0 0 16px rgba(192, 132, 252, 0.35), inset 0 0 8px rgba(192, 132, 252, 0.18) !important;
+    transform: translateY(-1px);
     background: rgba(30, 15, 60, 0.7) !important;
 }
 .magical-glass-header .header-page-title {
@@ -377,21 +377,21 @@ window._cachedGlobalRate = window.SYSTEM_USD_RATE;
 }
 .magical-glass-header button.fullscreen-toggle-btn,
 .magical-glass-header button.theme-toggle-btn {
-    background: rgba(168, 85, 247, 0.15) !important;
-    border: 1px solid rgba(168, 85, 247, 0.4) !important;
+    background: rgba(168, 85, 247, 0.16) !important;
+    border: 1.5px solid rgba(168, 85, 247, 0.42) !important;
     color: #e9d5ff !important;
-    border-radius: 50% !important;
+    border-radius: 9px !important;
 }
 .magical-glass-header button.fullscreen-toggle-btn:hover,
 .magical-glass-header button.theme-toggle-btn:hover {
-    background: rgba(168, 85, 247, 0.4) !important;
-    box-shadow: 0 0 15px rgba(168, 85, 247, 0.6) !important;
-    transform: scale(1.15) rotate(8deg);
+    background: rgba(168, 85, 247, 0.38) !important;
+    box-shadow: 0 4px 14px rgba(168, 85, 247, 0.5) !important;
+    transform: translateY(-2px) scale(1.06) !important;
     color: #fff !important;
 }
 .magical-glass-header #header-clock {
-    color: #d8b4fe !important;
-    text-shadow: 0 0 12px rgba(192, 132, 252, 0.6) !important;
+    color: #34d399 !important;
+    text-shadow: 0 0 10px rgba(16, 185, 129, 0.45) !important;
 }
 @media (max-width: 768px) {
     .magical-glass-header {
@@ -626,116 +626,129 @@ window._cachedGlobalRate = window.SYSTEM_USD_RATE;
         </div>
     </div>
 
-    <!-- Right: Controls -->
-    <div style="display:flex; align-items:center; gap:10px; flex:0 0 auto; justify-content:flex-end;">
-        <!-- User Info & Online Users -->
-        <div style="display:flex; flex-direction:column; align-items:flex-end; justify-content:center; gap:6px; margin:6px 0;">
-            <div class="user-info" style="display: flex; flex-direction: column; align-items: center; justify-content: center; background: rgba(255,255,255,0.05); padding: 5px 15px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.08); cursor: pointer; min-width: 90px;" onclick="document.getElementById('profile-modal').style.display='flex'">
-                <div id="header-user-name" style="font-size: 0.95rem; font-weight: 800; color: #fff; text-align: center;"><script>try{var _u=JSON.parse(localStorage.getItem('user')||'{}');document.write(_u.fullName||_u.username||'مستخدم')}catch(e){document.write('مستخدم')}</script></div>
-                <div id="header-user-role" style="font-size: 0.75rem; color: #38bdf8; text-align: center;" data-i18n="header.sysAdmin">مدير النظام</div>
+    <!-- Right: Enterprise World-Class Controls Bar -->
+    <div class="header-enterprise-controls" style="display:flex; align-items:center; gap:8px; flex:0 0 auto; justify-content:flex-end;">
+
+        <!-- 1. Compact Identity, Online Status, Exchange Rate & Time/Date Pod -->
+        <div class="header-enterprise-meta-pod">
+            <!-- Top Row: User Pill + Online Pill + Exchange Rate Pill -->
+            <div class="meta-pod-row-top">
+                <div class="user-info enterprise-user-pill" onclick="document.getElementById('profile-modal').style.display='flex'" title="الملف الشخصي وصلاحيات الحساب">
+                    <span class="user-pill-avatar">👤</span>
+                    <span id="header-user-name"><script>try{var _u=JSON.parse(localStorage.getItem('user')||'{}');document.write(_u.fullName||_u.username||'مستخدم')}catch(e){document.write('مستخدم')}</script></span>
+                    <span class="user-pill-sep">•</span>
+                    <span id="header-user-role" data-i18n="header.sysAdmin">مدير النظام</span>
+                </div>
+
+                <div id="online-users-badge" class="enterprise-online-pill" onclick="alert('المستخدمين المتصلين حالياً: \n' + (window.onlineUsersList || []).join('\n'))" title="عرض قائمة المتصلين الآن">
+                    <span class="online-pulse-dot"></span>
+                    <span class="online-label-txt" data-i18n="header.onlineNow">متصل:</span>
+                    <span id="online-users-count">1</span>
+                </div>
+
+                <div id="global-exchange-rate-box" class="enterprise-fx-pill" style="display:none;" onclick="toggleExchangeHistory(event)" title="سجل وتفاصيل سعر الصرف">
+                    <span class="fx-pill-inner">
+                        <span id="global-exchange-rate-trend" style="margin-left:2px;"></span>
+                        <span data-i18n="header.exchangeRate">سعر الصرف:</span>
+                        <span id="global-exchange-rate-val">-</span>
+                    </span>
+                </div>
             </div>
-            <div id="online-users-badge" style="background:rgba(16,185,129,0.15); border:1px solid rgba(16,185,129,0.3); border-radius:10px; padding:3px 12px; min-width:90px; text-align:center; box-shadow:inset 0 0 10px rgba(16,185,129,0.1); cursor:pointer;" onclick="alert('المستخدمين المتصلين حالياً: \n' + (window.onlineUsersList || []).join('\n'))">
-                <span style="color:#6ee7b7; font-size:0.7rem; font-weight:800;"><span data-i18n="header.onlineNow">متصل الآن:</span> <span id="online-users-count" style="color:#fff; font-size:0.8rem;">1</span> <span style="font-size:0.6rem;">🟢</span></span>
+
+            <!-- Bottom Row: Unified Sleek Date & Clock Capsule (Date & Time side-by-side) -->
+            <div class="clock-container enterprise-time-pill">
+                <span id="header-date-mini"><script>document.write(new Date().toLocaleDateString('ar-EG-u-nu-latn',{weekday:'short',day:'numeric',month:'short'}))</script></span>
+                <span class="time-pill-divider">|</span>
+                <span id="header-clock"><script>var _n=new Date();document.write(_n.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false}))</script></span>
             </div>
         </div>
 
-        <!-- Clock & Exchange Rate -->
-        <div class="header-time-stack" style="display:flex; flex-direction:column; gap:6px; align-items:center; margin:6px 0;">
-            <div class="clock-container" style="display:flex; flex-direction:column; align-items:center; background:rgba(15,23,42,0.6); padding:4px 14px; border-radius:12px; border:1px solid rgba(255,255,255,0.08); min-width:110px; width:100%; box-sizing:border-box;">
-                <span id="header-clock" style="color:#34d399; font-size:1.1rem; font-weight:800; font-variant-numeric:tabular-nums; letter-spacing:1px; text-shadow: 0 0 10px rgba(16,185,129,0.5);"><script>var _n=new Date();document.write(_n.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false}))</script></span>
-                <span id="header-date-mini" style="color:var(--text-secondary); font-size:0.65rem; margin-top:1px;"><script>document.write(new Date().toLocaleDateString('ar-EG-u-nu-latn',{weekday:'short',day:'numeric',month:'short'}))</script></span>
-            </div>
-            <div id="global-exchange-rate-box" style="display:none; position:relative; cursor:pointer; background:rgba(245,158,11,0.15); border:1px solid rgba(245,158,11,0.3); border-radius:10px; padding:3px 12px; min-width:110px; text-align:center; box-shadow:inset 0 0 10px rgba(245,158,11,0.1); width:100%; box-sizing:border-box;" onclick="toggleExchangeHistory(event)">
-                <span style="color:#fbd38d; font-size:0.75rem; font-weight:800;">
-                    <span id="global-exchange-rate-trend" style="margin-left:4px;"></span>
-                    <span data-i18n="header.exchangeRate">سعر الصرف:</span> 
-                    <span id="global-exchange-rate-val" style="color:#fff; font-size:0.85rem;">-</span>
-                </span>
-            </div>
-        </div>
-        <!-- Theme & Currency -->
-        <div style="display:flex; align-items:center; gap:8px;">
-            <?php
-            $current_page_name = basename($_SERVER['PHP_SELF']);
-            $show_header_currency = false; // Disabled by user request
-            if ($show_header_currency):
-                $header_curr = isset($_COOKIE['currency']) ? $_COOKIE['currency'] : (isset($_GET['currency']) ? $_GET['currency'] : 'SDG');
-            ?>
-            <?php endif; ?>
-
-            <div style="display:flex; flex-direction:column; align-items:center; gap:6px;">
-                <a href="mobile-dashboard.php?force_mobile=1" target="_blank" id="header-mobile-quick-btn" onclick="try{localStorage.setItem('magaiees_view_preference','mobile');document.cookie='magaiees_view_preference=mobile; path=/; max-age=31536000; SameSite=Lax';}catch(e){}" style="background:rgba(56,189,248,0.18); border:1.5px solid rgba(56,189,248,0.5); border-radius:50%; width:36px; height:36px; display:flex; align-items:center; justify-content:center; text-decoration:none; font-size:1.1rem; color:#38bdf8; transition:0.2s; box-shadow:0 0 10px rgba(56,189,248,0.25);" title="📱 فتح نسخة الجوال الذكية (Mobile Edition) في نافذة مستقلة">📱</a>
-                <button class="audit-tracker-btn" onclick="window.openAuditTrackerModal()" style="background:rgba(56,189,248,0.18); border:1.5px solid rgba(56,189,248,0.4); border-radius:50%; width:36px; height:36px; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:1rem; color:#38bdf8; transition:0.2s; box-shadow:0 0 10px rgba(56,189,248,0.25);" title="متعقب المستندات وسجل تتبع المستخدمين (من فعل ماذا) - اضغط Alt+T">🔍</button>
-                <button class="fullscreen-toggle-btn" onclick="toggleFullScreen()" style="background:rgba(255,255,255,0.1); border:none; border-radius:50%; width:36px; height:36px; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:1.15rem; color:var(--text-primary); transition:0.2s;" data-i18n-title="header.fullscreen" title="توسيع الشاشة">⛶</button>
-            </div>
-            <div style="display:flex; flex-direction:column; align-items:center; gap:6px;">
-                <button id="desktop-sync-shield-btn" type="button" class="royal-crystal-btn" onclick="window.openDesktopSyncAuditModal()" style="position:relative; background:rgba(16,185,129,0.18); border:1.5px solid rgba(16,185,129,0.55); border-radius:50%; width:36px; height:36px; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:1.05rem; color:#34d399; transition:0.2s; box-shadow:0 0 12px rgba(16,185,129,0.3);" title="🛡️ درع الحماية وسجل المزامنة التلقائية (اضغط مطولاً للفحص والمزامنة الفورية)">
-                    🛡️
-                    <span id="desktop-sync-shield-badge" style="display:none; position:absolute; top:-4px; right:-4px; background:#ef4444; color:#fff; font-size:10px; font-weight:900; min-width:17px; height:17px; border-radius:999px; align-items:center; justify-content:center; padding:0 4px; border:1.5px solid #0f172a;">0</span>
-                </button>
-                <button class="theme-toggle-btn" onclick="toggleTheme()" style="background:rgba(255,255,255,0.1); border:none; border-radius:50%; width:36px; height:36px; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:1.1rem; color:var(--text-primary); transition:0.2s;" data-i18n-title="header.toggleTheme" title="تبديل المظهر">🌓</button>
-            </div>
-        </div>
-
-        <!-- 📺 SACRED TV & QURAN MINI CONTROLLER (1cm x 2.5cm - Non-Obtrusive) -->
-        <div id="header-media-control-wrap" style="position:relative; display:flex; align-items:center;">
-            <button id="header-media-btn" type="button" onclick="toggleHeaderMediaPopover(event)" class="header-tv-mini-btn" title="قنوات التلفاز والقرآن الكريم (بث حي في الخلفية)">
-                <span id="header-media-icon" class="header-tv-icon">📺</span>
-                <span id="header-media-label" class="header-tv-label">التلفاز</span>
-                <span id="header-media-dot" class="header-tv-status-dot" style="display: none;"></span>
-            </button>
-        </div>
-
-        <!-- Universal Go Back Master Button (Amber-Gold Luxury) -->
-        <!-- 🎨 زر السمات السبعة المعتمدة والموحدة (بجوار زر الرجوع مباشرة) -->
+        <!-- 2. Unified Horizontal Crystal Icon Dock (Shield, Search/Audit, Fullscreen, Theme Toggle, TV) -->
         <?php
+        $current_page_name = basename($_SERVER['PHP_SELF']);
         $is_dashboard_page = (isset($current_page_name) && $current_page_name === 'magaiees_unified_dashboard.php') || (isset($header_theme_class) && $header_theme_class === 'header-theme-dashboard');
-        if ($is_dashboard_page):
+        $show_header_currency = false; // Disabled by user request
+        if ($show_header_currency):
+            $header_curr = isset($_COOKIE['currency']) ? $_COOKIE['currency'] : (isset($_GET['currency']) ? $_GET['currency'] : 'SDG');
+        endif;
         ?>
-        <!-- 🌟 الأزرار الأربعة الرأسية في لوحة التحكم (نسخة الهاتف + تثبيت التطبيق + السمات + الرجوع للخلف مكدسة فوق بعض) -->
-        <div id="magaiees-dashboard-header-stack" class="header-quad-stack">
-            <!-- 1. زر نسخة الموبايل -->
-            <button id="magaiees-top-mobile-btn" type="button" onclick="if(typeof switchToMobileEdition==='function'){switchToMobileEdition();}else{try{localStorage.setItem('magaiees_view_preference','mobile');document.cookie='magaiees_view_preference=mobile; path=/; max-age=31536000; SameSite=Lax';}catch(e){}window.location.href='mobile-dashboard.php?force_mobile=1';}" class="magaiees-stack-btn stack-btn-mobile" title="التبديل إلى نسخة الموبايل والتابلت السريعة">
-                <span class="stack-btn-icon"><i class="fa-solid fa-mobile-screen-button"></i></span>
-                <span class="stack-btn-text">نسخة الهاتف 📱</span>
+        <div class="header-crystal-icon-dock">
+            <button id="desktop-sync-shield-btn" type="button" class="royal-crystal-btn dock-icon-btn dock-icon-shield" onclick="window.openDesktopSyncAuditModal()" title="🛡️ درع الحماية وسجل المزامنة التلقائية (اضغط مطولاً للفحص والمزامنة الفورية)">
+                🛡️
+                <span id="desktop-sync-shield-badge" style="display:none; position:absolute; top:-4px; right:-4px; background:#ef4444; color:#fff; font-size:9.5px; font-weight:900; min-width:16px; height:16px; border-radius:999px; align-items:center; justify-content:center; padding:0 3px; border:1.5px solid #0f172a;">0</span>
             </button>
 
-            <!-- 2. زر تثبيت التطبيق -->
-            <button id="magaiees-top-install-btn" type="button" onclick="if(window.PWAManager && PWAManager.triggerInstall){PWAManager.triggerInstall();}else{alert('لتثبيت تطبيق مقاييس: اضغط على أيقونة التثبيت ⊕ في شريط عنوان المتصفح بالأعلى');}" class="magaiees-stack-btn stack-btn-install" title="تثبيت تطبيق مقاييس على جهازك كبرنامج مستقل">
-                <span class="stack-btn-icon"><i class="fa-solid fa-download"></i></span>
-                <span class="stack-btn-text">تثبيت التطبيق 📲</span>
-            </button>
+            <button class="audit-tracker-btn dock-icon-btn dock-icon-search" onclick="window.openAuditTrackerModal()" title="متعقب المستندات وسجل تتبع المستخدمين (من فعل ماذا) - اضغط Alt+T">🔍</button>
 
-            <!-- 3. زر السمات -->
-            <button id="magaiees-master-themes-btn" type="button" class="magaiees-stack-btn stack-btn-themes magaiees-theme-btn-top" onclick="openMaster7ThemesModal()" title="السمات السبعة المعتمدة والموحدة (7 سمات رئيسية)">
-                <span class="theme-icon-art" style="font-size: 0.95rem;">🎨</span>
-                <span class="theme-btn-text">السمات</span>
-                <span class="theme-count-badge">7</span>
-            </button>
+            <button class="fullscreen-toggle-btn dock-icon-btn dock-icon-fullscreen" onclick="toggleFullScreen()" data-i18n-title="header.fullscreen" title="توسيع الشاشة">⛶</button>
 
-            <!-- 4. زر الرجوع للخلف -->
-            <button id="magaiees-master-back-btn" class="magaiees-stack-btn stack-btn-back magaiees-back-btn" onclick="magaieesGoBack()" title="الرجوع للخلف (الشاشة السابقة)">
-                <svg class="back-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" style="width: 14px; height: 14px;">
-                    <line x1="19" y1="12" x2="5" y2="12"></line>
-                    <polyline points="12 19 19 12 12 5"></polyline>
-                </svg>
-                <span class="back-btn-text">الرجوع للخلف</span>
-            </button>
+            <button class="theme-toggle-btn dock-icon-btn dock-icon-theme" onclick="toggleTheme()" data-i18n-title="header.toggleTheme" title="تبديل المظهر السريع (فاتح / داكن)">🌓</button>
+
+            <a href="mobile-dashboard.php?force_mobile=1" target="_blank" id="header-mobile-quick-btn" class="dock-icon-btn dock-icon-mobile" onclick="try{localStorage.setItem('magaiees_view_preference','mobile');document.cookie='magaiees_view_preference=mobile; path=/; max-age=31536000; SameSite=Lax';}catch(e){}" style="<?php echo $is_dashboard_page ? 'display:none !important;' : ''; ?>" title="📱 فتح نسخة الجوال الذكية (Mobile Edition) في نافذة مستقلة">📱</a>
+
+            <!-- 📺 SACRED TV & QURAN MINI CONTROLLER -->
+            <div id="header-media-control-wrap" style="position:relative; display:flex; align-items:center;">
+                <button id="header-media-btn" type="button" onclick="toggleHeaderMediaPopover(event)" class="header-tv-mini-btn" title="قنوات التلفاز والقرآن الكريم (بث حي في الخلفية)">
+                    <span id="header-media-icon" class="header-tv-icon">📺</span>
+                    <span id="header-media-label" class="header-tv-label">التلفاز</span>
+                    <span id="header-media-dot" class="header-tv-status-dot" style="display: none;"></span>
+                </button>
+            </div>
+        </div>
+
+        <!-- 3. Symmetrical 2x2 Paired Action Matrix:
+             Right Column: نسخة الموبايل (top) + تثبيت التطبيق (bottom / تحتها)
+             Left Column (يسارها): السمات (top) + الرجوع (bottom / ثم الرجوع) -->
+        <?php if ($is_dashboard_page): ?>
+        <div id="magaiees-dashboard-header-stack" class="header-quad-matrix">
+            <!-- العمود الأيمن: نسخة الموبايل وتحتها تثبيت التطبيق -->
+            <div class="quad-matrix-col quad-col-right">
+                <button id="magaiees-top-mobile-btn" type="button" onclick="if(typeof switchToMobileEdition==='function'){switchToMobileEdition();}else{try{localStorage.setItem('magaiees_view_preference','mobile');document.cookie='magaiees_view_preference=mobile; path=/; max-age=31536000; SameSite=Lax';}catch(e){}window.location.href='mobile-dashboard.php?force_mobile=1';}" class="magaiees-stack-btn stack-btn-mobile" title="التبديل إلى نسخة الموبايل والتابلت السريعة">
+                    <span class="stack-btn-icon"><i class="fa-solid fa-mobile-screen-button"></i></span>
+                    <span class="stack-btn-text">نسخة الموبايل 📱</span>
+                </button>
+
+                <button id="magaiees-top-install-btn" type="button" onclick="if(window.PWAManager && PWAManager.triggerInstall){PWAManager.triggerInstall();}else{alert('لتثبيت تطبيق مقاييس: اضغط على أيقونة التثبيت ⊕ في شريط عنوان المتصفح بالأعلى');}" class="magaiees-stack-btn stack-btn-install" title="تثبيت تطبيق مقاييس على جهازك كبرنامج مستقل">
+                    <span class="stack-btn-icon"><i class="fa-solid fa-download"></i></span>
+                    <span class="stack-btn-text">تثبيت التطبيق 📲</span>
+                </button>
+            </div>
+
+            <!-- العمود الأيسر (يسارها): السمات وتحتها الرجوع -->
+            <div class="quad-matrix-col quad-col-left">
+                <button id="magaiees-master-themes-btn" type="button" class="magaiees-stack-btn stack-btn-themes magaiees-theme-btn-top" onclick="openMaster7ThemesModal()" title="السمات السبعة المعتمدة والموحدة (7 سمات رئيسية)">
+                    <span class="theme-icon-art" style="font-size: 0.9rem;">🎨</span>
+                    <span class="theme-btn-text">السمات</span>
+                    <span class="theme-count-badge">7</span>
+                </button>
+
+                <button id="magaiees-master-back-btn" class="magaiees-stack-btn stack-btn-back magaiees-back-btn" onclick="magaieesGoBack()" title="الرجوع للخلف (الشاشة السابقة)">
+                    <svg class="back-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" style="width: 13px; height: 13px;">
+                        <line x1="19" y1="12" x2="5" y2="12"></line>
+                        <polyline points="12 19 19 12 12 5"></polyline>
+                    </svg>
+                    <span class="back-btn-text">الرجوع للخلف</span>
+                </button>
+            </div>
         </div>
         <?php else: ?>
-        <button id="magaiees-master-themes-btn" type="button" class="magaiees-theme-btn-top" onclick="openMaster7ThemesModal()" title="السمات السبعة المعتمدة والموحدة (7 سمات رئيسية)">
-            <span class="theme-icon-art">🎨</span>
-            <span class="theme-btn-text">السمات</span>
-            <span class="theme-count-badge">7</span>
-        </button>
+        <div id="magaiees-dashboard-header-stack" class="header-quad-matrix header-duo-matrix">
+            <div class="quad-matrix-col quad-col-left">
+                <button id="magaiees-master-themes-btn" type="button" class="magaiees-stack-btn stack-btn-themes magaiees-theme-btn-top" onclick="openMaster7ThemesModal()" title="السمات السبعة المعتمدة والموحدة (7 سمات رئيسية)">
+                    <span class="theme-icon-art" style="font-size: 0.9rem;">🎨</span>
+                    <span class="theme-btn-text">السمات</span>
+                    <span class="theme-count-badge">7</span>
+                </button>
 
-        <button id="magaiees-master-back-btn" class="magaiees-back-btn" onclick="magaieesGoBack()" title="الرجوع للخلف (الشاشة السابقة)">
-            <svg class="back-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
-                <line x1="19" y1="12" x2="5" y2="12"></line>
-                <polyline points="12 19 19 12 12 5"></polyline>
-            </svg>
-            <span class="back-btn-text">الرجوع للخلف</span>
-        </button>
+                <button id="magaiees-master-back-btn" class="magaiees-stack-btn stack-btn-back magaiees-back-btn" onclick="magaieesGoBack()" title="الرجوع للخلف (الشاشة السابقة)">
+                    <svg class="back-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" style="width: 13px; height: 13px;">
+                        <line x1="19" y1="12" x2="5" y2="12"></line>
+                        <polyline points="12 19 19 12 12 5"></polyline>
+                    </svg>
+                    <span class="back-btn-text">الرجوع للخلف</span>
+                </button>
+            </div>
+        </div>
         <?php endif; ?>
         <script>
         function toggleFullScreen() {
@@ -1034,66 +1047,304 @@ window._cachedGlobalRate = window.SYSTEM_USD_RATE;
 </div>
 
 <style>
-/* ── الأزرار العلوية للسمات بجوار زر الرجوع ── */
-.magaiees-theme-btn-top {
+/* ═══════════════════════════════════════════════════════════════════════════
+   🌐 WORLD-CLASS ENTERPRISE HEADER CONTROLS ARCHITECTURE (Bespoke SaaS UI)
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* 1. Compact Identity, Status & Time Capsule Pod */
+.header-enterprise-meta-pod {
+    display: inline-flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 4px;
+    background: rgba(15, 23, 42, 0.45);
+    border: 1px solid rgba(255, 255, 255, 0.09);
+    border-radius: 12px;
+    padding: 4px 6px;
+    box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.05), 0 4px 14px rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+}
+.meta-pod-row-top {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    white-space: nowrap;
+}
+.enterprise-user-pill {
+    display: inline-flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 5px !important;
+    height: 26px !important;
+    padding: 0 9px !important;
+    border-radius: 8px !important;
+    background: rgba(255, 255, 255, 0.06) !important;
+    border: 1px solid rgba(255, 255, 255, 0.12) !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+    min-width: 0 !important;
+}
+.enterprise-user-pill:hover {
+    background: rgba(56, 189, 248, 0.14) !important;
+    border-color: rgba(56, 189, 248, 0.45) !important;
+    transform: translateY(-1px);
+}
+.enterprise-user-pill .user-pill-avatar {
+    font-size: 0.72rem;
+    line-height: 1;
+    opacity: 0.9;
+}
+.enterprise-user-pill #header-user-name {
+    font-size: 0.76rem !important;
+    font-weight: 800 !important;
+    color: #f8fafc !important;
+    letter-spacing: 0.2px;
+    line-height: 1 !important;
+}
+.enterprise-user-pill .user-pill-sep {
+    color: rgba(148, 163, 184, 0.5);
+    font-size: 0.7rem;
+    line-height: 1;
+}
+.enterprise-user-pill #header-user-role {
+    font-size: 0.68rem !important;
+    font-weight: 800 !important;
+    color: #38bdf8 !important;
+    background: rgba(56, 189, 248, 0.14);
+    padding: 2px 6px;
+    border-radius: 5px;
+    line-height: 1 !important;
+    letter-spacing: 0.1px;
+}
+
+.enterprise-online-pill {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 4px !important;
+    height: 26px !important;
+    padding: 0 8px !important;
+    border-radius: 8px !important;
+    background: rgba(16, 185, 129, 0.13) !important;
+    border: 1px solid rgba(16, 185, 129, 0.32) !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+    min-width: 0 !important;
+}
+.enterprise-online-pill:hover {
+    background: rgba(16, 185, 129, 0.24) !important;
+    border-color: rgba(16, 185, 129, 0.6) !important;
+    transform: translateY(-1px);
+}
+.online-pulse-dot {
+    width: 6.5px;
+    height: 6.5px;
+    border-radius: 50%;
+    background: #10b981;
+    box-shadow: 0 0 8px #10b981;
+    display: inline-block;
+    flex-shrink: 0;
+}
+.enterprise-online-pill .online-label-txt {
+    color: #6ee7b7;
+    font-size: 0.69rem;
+    font-weight: 800;
+    line-height: 1;
+}
+.enterprise-online-pill #online-users-count {
+    color: #ffffff;
+    font-size: 0.76rem;
+    font-weight: 900;
+    line-height: 1;
+}
+
+.enterprise-fx-pill {
+    position: relative;
+    align-items: center !important;
+    justify-content: center !important;
+    height: 26px !important;
+    padding: 0 8px !important;
+    border-radius: 8px !important;
+    background: rgba(245, 158, 11, 0.14) !important;
+    border: 1px solid rgba(245, 158, 11, 0.35) !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+    min-width: 0 !important;
+    width: auto !important;
+}
+#global-exchange-rate-box[style*="block"] {
+    display: inline-flex !important;
+}
+.enterprise-fx-pill .fx-pill-inner {
+    color: #fde68a;
+    font-size: 0.69rem;
+    font-weight: 800;
     display: inline-flex;
     align-items: center;
-    gap: 7px;
-    background: linear-gradient(135deg, rgba(245, 158, 11, 0.18), rgba(217, 119, 6, 0.28)) !important;
-    border: 1.8px solid #fbbf24 !important;
-    color: #fde047 !important;
-    padding: 6px 14px;
-    border-radius: 12px;
-    font-size: 0.88rem;
-    font-weight: 800;
-    cursor: pointer;
-    box-shadow: 0 4px 15px rgba(245, 158, 11, 0.25);
-    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    gap: 3px;
+    line-height: 1;
 }
-.magaiees-theme-btn-top:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(245, 158, 11, 0.45);
-    background: linear-gradient(135deg, rgba(245, 158, 11, 0.3), rgba(217, 119, 6, 0.4)) !important;
-}
-.magaiees-theme-btn-top .theme-icon-art {
-    font-size: 1.15rem;
-}
-.magaiees-theme-btn-top .theme-count-badge {
-    background: #f59e0b;
-    color: #000000;
-    font-size: 11px;
+.enterprise-fx-pill #global-exchange-rate-val {
+    color: #ffffff;
+    font-size: 0.75rem;
     font-weight: 900;
-    padding: 1px 6px;
-    border-radius: 999px;
 }
 
-/* Light Mode header button adaptation */
-html.light-theme .magaiees-theme-btn-top {
-    background: linear-gradient(135deg, #fef3c7, #fde68a) !important;
-    border-color: #d97706 !important;
-    color: #92400e !important;
-    box-shadow: 0 4px 12px rgba(217, 119, 6, 0.2);
+.enterprise-time-pill {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 8px !important;
+    height: 25px !important;
+    padding: 0 10px !important;
+    border-radius: 7px !important;
+    background: rgba(15, 23, 42, 0.65) !important;
+    border: 1px solid rgba(255, 255, 255, 0.07) !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+}
+.enterprise-time-pill #header-date-mini {
+    color: #cbd5e1 !important;
+    font-size: 0.69rem !important;
+    font-weight: 700 !important;
+    margin: 0 !important;
+    white-space: nowrap;
+    line-height: 1;
+}
+.enterprise-time-pill .time-pill-divider {
+    color: rgba(148, 163, 184, 0.35);
+    font-size: 0.7rem;
+    line-height: 1;
+}
+.enterprise-time-pill #header-clock {
+    color: #34d399 !important;
+    font-size: 0.84rem !important;
+    font-weight: 900 !important;
+    font-variant-numeric: tabular-nums !important;
+    letter-spacing: 0.8px !important;
+    direction: ltr;
+    line-height: 1;
+    text-shadow: 0 0 8px rgba(16, 185, 129, 0.35);
 }
 
-/* ── الأزرار الأربعة الرأسية في لوحة التحكم (مكدسة فوق بعض) ── */
-.header-quad-stack {
+/* 2. Unified Horizontal Crystal Icon Dock (Shield, Search, Fullscreen, Theme, TV) */
+.header-crystal-icon-dock {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 7px;
+    border-radius: 12px;
+    background: rgba(15, 23, 42, 0.45);
+    border: 1px solid rgba(255, 255, 255, 0.09);
+    box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.05), 0 4px 14px rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+}
+.header-crystal-icon-dock .dock-icon-btn {
+    position: relative;
+    width: 34px !important;
+    height: 34px !important;
+    min-width: 34px !important;
+    min-height: 34px !important;
+    border-radius: 9px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+    font-size: 0.96rem !important;
+    text-decoration: none !important;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    box-sizing: border-box !important;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+.header-crystal-icon-dock .dock-icon-btn:hover {
+    transform: translateY(-2px) scale(1.06) !important;
+}
+.header-crystal-icon-dock .dock-icon-shield {
+    background: rgba(16, 185, 129, 0.16) !important;
+    border: 1.5px solid rgba(16, 185, 129, 0.5) !important;
+    color: #34d399 !important;
+    box-shadow: 0 2px 10px rgba(16, 185, 129, 0.2) !important;
+}
+.header-crystal-icon-dock .dock-icon-shield:hover {
+    background: rgba(16, 185, 129, 0.28) !important;
+    box-shadow: 0 4px 14px rgba(16, 185, 129, 0.45) !important;
+}
+.header-crystal-icon-dock .dock-icon-search {
+    background: rgba(56, 189, 248, 0.15) !important;
+    border: 1.5px solid rgba(56, 189, 248, 0.45) !important;
+    color: #38bdf8 !important;
+    box-shadow: 0 2px 10px rgba(56, 189, 248, 0.18) !important;
+}
+.header-crystal-icon-dock .dock-icon-search:hover {
+    background: rgba(56, 189, 248, 0.28) !important;
+    box-shadow: 0 4px 14px rgba(56, 189, 248, 0.4) !important;
+}
+.header-crystal-icon-dock .dock-icon-fullscreen,
+.header-crystal-icon-dock .dock-icon-theme {
+    background: rgba(255, 255, 255, 0.08) !important;
+    border: 1.5px solid rgba(255, 255, 255, 0.16) !important;
+    color: #f8fafc !important;
+}
+.header-crystal-icon-dock .dock-icon-fullscreen:hover,
+.header-crystal-icon-dock .dock-icon-theme:hover {
+    background: rgba(168, 85, 247, 0.25) !important;
+    border-color: rgba(192, 132, 252, 0.6) !important;
+    box-shadow: 0 4px 14px rgba(168, 85, 247, 0.35) !important;
+}
+.header-crystal-icon-dock .dock-icon-mobile {
+    background: rgba(56, 189, 248, 0.16) !important;
+    border: 1.5px solid rgba(56, 189, 248, 0.45) !important;
+    color: #38bdf8 !important;
+}
+.header-crystal-icon-dock .header-tv-mini-btn {
+    height: 34px !important;
+    padding: 0 10px !important;
+    border-radius: 9px !important;
+    font-size: 0.78rem !important;
+    font-weight: 800 !important;
+}
+
+/* 3. Symmetrical 2x2 Paired Action Matrix:
+      Right Column: نسخة الموبايل (top) + تثبيت التطبيق (bottom)
+      Left Column (يسارها): السمات (top) + الرجوع (bottom) */
+.header-quad-matrix {
+    display: inline-flex !important;
+    flex-direction: row !important;
+    direction: rtl !important;
+    align-items: stretch !important;
+    gap: 5px !important;
+    background: rgba(15, 23, 42, 0.45) !important;
+    border: 1px solid rgba(255, 255, 255, 0.09) !important;
+    border-radius: 12px !important;
+    padding: 4px 5px !important;
+    box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.05), 0 4px 14px rgba(0, 0, 0, 0.2) !important;
+}
+.quad-matrix-col {
     display: flex !important;
     flex-direction: column !important;
     gap: 4px !important;
-    min-width: 145px !important;
-    align-items: stretch !important;
     justify-content: center !important;
+    min-width: 118px !important;
 }
-.magaiees-stack-btn {
-    display: flex !important;
+.magaiees-stack-btn,
+header #magaiees-dashboard-header-stack #magaiees-master-back-btn.magaiees-back-btn:not(.floating-docked) {
+    display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
-    gap: 6px !important;
-    height: 29px !important;
-    min-height: 29px !important;
-    padding: 2px 10px !important;
-    border-radius: 9px !important;
-    font-size: 0.81rem !important;
+    gap: 5px !important;
+    height: 26px !important;
+    min-height: 26px !important;
+    max-height: 26px !important;
+    padding: 0 10px !important;
+    margin: 0 !important;
+    border-radius: 8px !important;
+    font-size: 0.76rem !important;
     font-weight: 800 !important;
     font-family: 'Tajawal', sans-serif !important;
     white-space: nowrap !important;
@@ -1104,52 +1355,119 @@ html.light-theme .magaiees-theme-btn-top {
     text-decoration: none !important;
     line-height: 1 !important;
 }
-.magaiees-stack-btn:hover {
+.magaiees-stack-btn:hover,
+header #magaiees-dashboard-header-stack #magaiees-master-back-btn.magaiees-back-btn:not(.floating-docked):hover {
     transform: translateY(-1px) scale(1.02) !important;
 }
 .stack-btn-mobile {
     background: linear-gradient(135deg, rgba(16, 185, 129, 0.25), rgba(6, 182, 212, 0.25)) !important;
     border: 1.5px solid #10b981 !important;
     color: #34d399 !important;
-    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.25) !important;
+    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.2) !important;
 }
 .stack-btn-mobile:hover {
-    background: linear-gradient(135deg, rgba(16, 185, 129, 0.4), rgba(6, 182, 212, 0.4)) !important;
-    box-shadow: 0 4px 14px rgba(16, 185, 129, 0.5) !important;
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.42), rgba(6, 182, 212, 0.42)) !important;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.45) !important;
     color: #ffffff !important;
 }
 .stack-btn-install {
     background: linear-gradient(135deg, rgba(14, 165, 233, 0.25), rgba(99, 102, 241, 0.25)) !important;
     border: 1.5px solid #38bdf8 !important;
     color: #38bdf8 !important;
-    box-shadow: 0 2px 8px rgba(56, 189, 248, 0.25) !important;
+    box-shadow: 0 2px 8px rgba(56, 189, 248, 0.2) !important;
 }
 .stack-btn-install:hover {
-    background: linear-gradient(135deg, rgba(14, 165, 233, 0.4), rgba(99, 102, 241, 0.4)) !important;
-    box-shadow: 0 4px 14px rgba(56, 189, 248, 0.5) !important;
+    background: linear-gradient(135deg, rgba(14, 165, 233, 0.42), rgba(99, 102, 241, 0.42)) !important;
+    box-shadow: 0 4px 12px rgba(56, 189, 248, 0.45) !important;
     color: #ffffff !important;
 }
-.stack-btn-themes {
+.stack-btn-themes,
+.magaiees-theme-btn-top {
     background: linear-gradient(135deg, rgba(245, 158, 11, 0.22), rgba(217, 119, 6, 0.32)) !important;
     border: 1.5px solid #fbbf24 !important;
     color: #fde047 !important;
-    box-shadow: 0 2px 8px rgba(245, 158, 11, 0.25) !important;
+    box-shadow: 0 2px 8px rgba(245, 158, 11, 0.22) !important;
 }
-.stack-btn-themes:hover {
+.stack-btn-themes:hover,
+.magaiees-theme-btn-top:hover {
     background: linear-gradient(135deg, rgba(245, 158, 11, 0.38), rgba(217, 119, 6, 0.48)) !important;
-    box-shadow: 0 4px 14px rgba(245, 158, 11, 0.5) !important;
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.45) !important;
 }
-.stack-btn-back {
+.magaiees-theme-btn-top .theme-count-badge {
+    background: #f59e0b;
+    color: #000000;
+    font-size: 10px;
+    font-weight: 900;
+    padding: 1px 5px;
+    border-radius: 999px;
+    line-height: 1.1;
+}
+.stack-btn-back,
+header #magaiees-dashboard-header-stack #magaiees-master-back-btn.magaiees-back-btn:not(.floating-docked) {
     background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%) !important;
     border: 1.5px solid #fef08a !important;
     color: #ffffff !important;
-    box-shadow: 0 2px 8px rgba(245, 158, 11, 0.35) !important;
+    box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3) !important;
 }
-.stack-btn-back:hover {
-    box-shadow: 0 4px 14px rgba(245, 158, 11, 0.6) !important;
+header #magaiees-dashboard-header-stack #magaiees-master-back-btn.magaiees-back-btn:not(.floating-docked) .back-icon-svg {
+    width: 13px !important;
+    height: 13px !important;
 }
 
-/* Light Theme Adaptations */
+/* ── Light Mode Adaptations for Enterprise Header Controls ── */
+html.light-theme .header-enterprise-meta-pod,
+html.light-theme .header-crystal-icon-dock,
+html.light-theme .header-quad-matrix {
+    background: rgba(255, 255, 255, 0.78) !important;
+    border-color: rgba(15, 23, 42, 0.12) !important;
+    box-shadow: 0 2px 10px rgba(15, 23, 42, 0.06) !important;
+}
+html.light-theme .enterprise-user-pill {
+    background: rgba(15, 23, 42, 0.05) !important;
+    border-color: rgba(15, 23, 42, 0.14) !important;
+}
+html.light-theme .enterprise-user-pill #header-user-name {
+    color: #0f172a !important;
+}
+html.light-theme .enterprise-user-pill #header-user-role {
+    color: #0369a1 !important;
+    background: rgba(2, 132, 199, 0.14) !important;
+}
+html.light-theme .enterprise-online-pill {
+    background: rgba(16, 185, 129, 0.15) !important;
+    border-color: rgba(5, 150, 105, 0.35) !important;
+}
+html.light-theme .enterprise-online-pill .online-label-txt {
+    color: #065f46 !important;
+}
+html.light-theme .enterprise-online-pill #online-users-count {
+    color: #047857 !important;
+}
+html.light-theme .enterprise-fx-pill {
+    background: rgba(245, 158, 11, 0.16) !important;
+    border-color: rgba(217, 119, 6, 0.4) !important;
+}
+html.light-theme .enterprise-fx-pill .fx-pill-inner,
+html.light-theme .enterprise-fx-pill #global-exchange-rate-val {
+    color: #92400e !important;
+}
+html.light-theme .enterprise-time-pill {
+    background: rgba(15, 23, 42, 0.06) !important;
+    border-color: rgba(15, 23, 42, 0.1) !important;
+}
+html.light-theme .enterprise-time-pill #header-date-mini {
+    color: #334155 !important;
+}
+html.light-theme .enterprise-time-pill #header-clock {
+    color: #047857 !important;
+    text-shadow: none !important;
+}
+html.light-theme .header-crystal-icon-dock .dock-icon-fullscreen,
+html.light-theme .header-crystal-icon-dock .dock-icon-theme {
+    background: rgba(15, 23, 42, 0.06) !important;
+    border-color: rgba(15, 23, 42, 0.15) !important;
+    color: #0f172a !important;
+}
 html.light-theme .stack-btn-mobile {
     background: linear-gradient(135deg, #d1fae5, #a7f3d0) !important;
     border-color: #059669 !important;
@@ -1160,12 +1478,14 @@ html.light-theme .stack-btn-install {
     border-color: #0284c7 !important;
     color: #0369a1 !important;
 }
-html.light-theme .stack-btn-themes {
+html.light-theme .stack-btn-themes,
+html.light-theme .magaiees-theme-btn-top {
     background: linear-gradient(135deg, #fef3c7, #fde68a) !important;
     border-color: #d97706 !important;
     color: #92400e !important;
 }
-html.light-theme .stack-btn-back {
+html.light-theme .stack-btn-back,
+html.light-theme header #magaiees-dashboard-header-stack #magaiees-master-back-btn.magaiees-back-btn:not(.floating-docked) {
     background: linear-gradient(135deg, #f59e0b, #d97706) !important;
     color: #ffffff !important;
 }
