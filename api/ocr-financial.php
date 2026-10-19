@@ -349,76 +349,6 @@ $payload = [
     ]
 ];
 
-// Multi-Model Cascade: automatically fallback across active models if primary hits rate limit (429), spikes (503), or quota exhaustion
-$modelsCascade = [
-    $model,
-    'gemini-2.5-flash',
-    'gemini-3.5-flash',
-    'gemini-flash-lite-latest',
-    'gemini-flash-latest'
-];
-$modelsCascade = array_values(array_unique(array_filter($modelsCascade)));
-
-$response = false;
-$httpCode = 0;
-$curlError = '';
-$lastErrorMsg = '';
-$usedModel = $modelsCascade[0] ?? $model;
-
-$hadQuotaIssue = false;
-if (strpos($apiKey, 'AIza') === 0) {
-    foreach ($modelsCascade as $idx => $currentModel) {
-        if ($idx > 0) {
-            usleep(300000); // 0.3s
-        }
-        $usedModel = $currentModel;
-
-        $url = "https://generativelanguage.googleapis.com/v1beta/models/" . $currentModel . ":generateContent?key=" . $apiKey;
-
-        $ch = curl_init($url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload));
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
-        curl_setopt($ch, CURLOPT_TCP_NODELAY, 1);
-        curl_setopt($ch, CURLOPT_ENCODING, '');
-        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 25);
-
-        $response = curl_exec($ch);
-        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        $curlError = curl_error($ch);
-        curl_close($ch);
-
-        if ($httpCode === 200 && $response !== false) {
-            break;
-        }
-
-        if ($httpCode === 429) {
-            $hadQuotaIssue = true;
-        }
-
-        if ($response !== false) {
-            $respJson = json_decode($response, true);
-            $lastErrorMsg = $respJson['error']['message'] ?? "HTTP {$httpCode}";
-            if (strpos($lastErrorMsg, 'quota') !== false || strpos($lastErrorMsg, 'Resource has been exhausted') !== false) {
-                $hadQuotaIssue = true;
-            }
-        } else {
-            $lastErrorMsg = $curlError;
-        }
-
-        if ($httpCode === 401 || $httpCode === 403 || strpos($lastErrorMsg, 'API key not valid') !== false) {
-            break;
-        }
-    }
-} else {
-    $httpCode = 401;
-    $lastErrorMsg = 'Using local vision OCR engine';
-}
-
 if (!function_exists('runLocalReceiptOcrFallback')) {
     function runLocalReceiptOcrFallback($imageBase64, $mimeType, $fraudCheck = false) {
         $rawBytes = base64_decode($imageBase64);
@@ -886,8 +816,75 @@ if (!function_exists('runLocalReceiptOcrFallback')) {
     }
 }
 
-if ($response === false || $httpCode >= 400) {
+// 1. ULTRA-FAST OFFLINE PRIORITY ON WINDOWS: Run local Windows OCR first (0 internet needed, <0.4s)
+$localOcrData = null;
+if (PHP_OS_FAMILY === 'Windows' && empty($inputData['is_refresh'])) {
     $localOcrData = runLocalReceiptOcrFallback($imageBase64, $mimeType, $fraudCheck);
+    if ($localOcrData !== null && (float)($localOcrData['amount'] ?? 0) > 0 && strlen(preg_replace('/\D/', '', (string)($localOcrData['transaction_ref'] ?? ''))) >= 6) {
+        echo json_encode([
+            'success' => true,
+            'data' => $localOcrData,
+            'model_used' => 'local-vision-ocr-turbo'
+        ], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+}
+
+// 2. GEMINI AI FALLBACK (Only if local OCR was skipped or missed amount/transfer_ref)
+$modelsToTry = array_values(array_unique([$model, 'gemini-2.5-flash']));
+$response = false;
+$httpCode = 0;
+$curlError = '';
+$lastErrorMsg = '';
+$hadQuotaIssue = false;
+
+foreach ($modelsToTry as $tryModel) {
+    foreach ($apiKeys as $tryKey) {
+        $apiUrl = "https://generativelanguage.googleapis.com/v1beta/models/{$tryModel}:generateContent?key={$tryKey}";
+
+        $ch = curl_init($apiUrl);
+        curl_setopt_array($ch, [
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_POST => true,
+            CURLOPT_HTTPHEADER => ['Content-Type: application/json'],
+            CURLOPT_POSTFIELDS => json_encode($payload),
+            CURLOPT_SSL_VERIFYPEER => false,
+            CURLOPT_TIMEOUT => 8,
+            CURLOPT_CONNECTTIMEOUT => 3
+        ]);
+
+        $tryResponse = curl_exec($ch);
+        $tryHttpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $tryCurlError = curl_error($ch);
+        curl_close($ch);
+
+        if ($tryResponse === false) {
+            $curlError = $tryCurlError;
+            break; // Network/DNS issue, don't waste time retrying more keys
+        }
+
+        if ($tryHttpCode >= 200 && $tryHttpCode < 300) {
+            $response = $tryResponse;
+            $httpCode = $tryHttpCode;
+            $model = $tryModel;
+            break 2;
+        }
+
+        $httpCode = $tryHttpCode;
+        $response = $tryResponse;
+        $errData = json_decode($tryResponse, true);
+        $lastErrorMsg = $errData['error']['message'] ?? '';
+
+        if ($tryHttpCode === 429 || strpos($lastErrorMsg, 'quota') !== false || strpos($lastErrorMsg, 'Resource has been exhausted') !== false) {
+            $hadQuotaIssue = true;
+        }
+    }
+}
+
+if ($response === false || $httpCode >= 400) {
+    if ($localOcrData === null) {
+        $localOcrData = runLocalReceiptOcrFallback($imageBase64, $mimeType, $fraudCheck);
+    }
     if ($localOcrData !== null) {
         echo json_encode([
             'success' => true,

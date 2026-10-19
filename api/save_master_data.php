@@ -45,14 +45,14 @@ try {
 }
 
 $input = json_decode(file_get_contents('php://input'), true);
-if (!$input || !isset($input['type'])) {
+$type = $input['type'] ?? $input['action'] ?? null;
+if (!$input || !$type) {
     http_response_code(400);
     echo json_encode(['success' => false, 'error' => 'Invalid payload'], JSON_UNESCAPED_UNICODE);
     exit;
 }
 
-$type = $input['type'];
-$data = $input['data'] ?? null;
+$data = $input['data'] ?? $input['customer'] ?? null;
 
 function isDuplicateNameDB($pdo, $tenant_id, $table, $name, $currentId) {
     if (empty(trim($name))) return false;

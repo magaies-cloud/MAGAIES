@@ -299,7 +299,6 @@ switch ($action) {
     case 'list':
     case 'get_inbound_receipts':
         try {
-            syncInboundReceiptsFromCloud($pdo, $activeTenantId, $uploadDir);
             $filterStatus = $_GET['status'] ?? '';
             $sql = "SELECT * FROM inbound_bank_receipts WHERE tenant_id = ?";
             $params = [$activeTenantId];
@@ -371,6 +370,16 @@ switch ($action) {
                 'active_voucher_nos' => $activeVoucherNos,
                 'tenant_id' => $activeTenantId
             ]);
+
+            // Pull new cloud receipts asynchronously in background after sending instant response to UI
+            if (function_exists('finishClientResponseEarly')) {
+                finishClientResponseEarly();
+            }
+            register_shutdown_function(function () use ($pdo, $activeTenantId, $uploadDir) {
+                try {
+                    syncInboundReceiptsFromCloud($pdo, $activeTenantId, $uploadDir);
+                } catch (Throwable $e) {}
+            });
         } catch (Exception $e) {
             echo json_encode(['success' => false, 'error' => $e->getMessage()]);
         }
@@ -1230,9 +1239,39 @@ function fetchAndEnsureCustomerCodes($pdo, $tenantId) {
         return [];
     }
 
-    // Also collect existing supplier PINs so customer PINs never collide with supplier PINs
     $usedNums = [];
     $usedPins = [];
+    $needsAssignment = false;
+
+    foreach ($rows as &$r) {
+        $cObj = json_decode($r['data'], true) ?: [];
+        if (!empty($cObj['deleted'])) continue;
+        $num = isset($cObj['receiptCodeNum']) ? (int)normalizeInboundDigits($cObj['receiptCodeNum']) : 0;
+        if ($num >= 1 && !isset($usedNums[$num])) {
+            $usedNums[$num] = true;
+            $cObj['receiptCodeNum'] = $num;
+        } else {
+            $cObj['receiptCodeNum'] = 0;
+            $needsAssignment = true;
+        }
+
+        $pin = preg_replace('/[^0-9]/', '', normalizeInboundDigits((string)($cObj['statementPin'] ?? '')));
+        if ($pin !== '' && !isset($usedPins[$pin])) {
+            $usedPins[$pin] = true;
+            $cObj['statementPin'] = $pin;
+        } else {
+            $cObj['statementPin'] = '';
+            $needsAssignment = true;
+        }
+        $r['_parsed'] = $cObj;
+    }
+    unset($r);
+
+    if (!$needsAssignment) {
+        return $rows;
+    }
+
+    // Only collect existing supplier PINs when we actually need to assign new customer codes/PINs
     try {
         $sStmt = $pdo->prepare("SELECT data FROM suppliers WHERE (tenant_id = ? OR tenant_id IS NULL) AND (is_deleted = 0 OR is_deleted IS NULL)");
         $sStmt->execute([$tenantId]);
@@ -1245,28 +1284,6 @@ function fetchAndEnsureCustomerCodes($pdo, $tenantId) {
             if ($sNum >= 1) $usedNums[$sNum] = true;
         }
     } catch (Exception $e) {}
-
-    foreach ($rows as &$r) {
-        $cObj = json_decode($r['data'], true) ?: [];
-        if (!empty($cObj['deleted'])) continue;
-        $num = isset($cObj['receiptCodeNum']) ? (int)normalizeInboundDigits($cObj['receiptCodeNum']) : 0;
-        if ($num >= 1 && !isset($usedNums[$num])) {
-            $usedNums[$num] = true;
-            $cObj['receiptCodeNum'] = $num;
-        } else {
-            $cObj['receiptCodeNum'] = 0;
-        }
-
-        $pin = preg_replace('/[^0-9]/', '', normalizeInboundDigits((string)($cObj['statementPin'] ?? '')));
-        if ($pin !== '' && !isset($usedPins[$pin])) {
-            $usedPins[$pin] = true;
-            $cObj['statementPin'] = $pin;
-        } else {
-            $cObj['statementPin'] = '';
-        }
-        $r['_parsed'] = $cObj;
-    }
-    unset($r);
 
     $nextCandidate = 1;
     $nextPinSeed = 101;
@@ -2392,59 +2409,62 @@ function postInboundReceiptToAccounts($pdo, $receiptId, $options = []) {
 function sendInboundWhatsAppNotification($tenantId, $phone, $message) {
     $phone = trim((string)$phone);
     if (empty($phone) || empty($message)) return false;
-    try {
-        $userId = 'wa_tenant_' . (int)$tenantId;
-        $payload = json_encode([
-            'userId' => $userId,
-            'phone' => $phone,
-            'message' => $message
-        ], JSON_UNESCAPED_UNICODE);
 
-        // When running on the local laptop, send via the 24/7 Cloud WhatsApp Hub (https://c.elsajana.com) first
-        if (function_exists('isLocalInboundLaptopEnv') && isLocalInboundLaptopEnv()) {
-            $cloudUrl = 'https://c.elsajana.com/api_index.php?r=wa-tenant&endpoint=send&userId=' . urlencode($userId) . '&local_only=1';
-            $chCloud = curl_init($cloudUrl);
-            curl_setopt($chCloud, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($chCloud, CURLOPT_POST, true);
-            curl_setopt($chCloud, CURLOPT_POSTFIELDS, $payload);
-            curl_setopt($chCloud, CURLOPT_HTTPHEADER, [
+    $userId = 'wa_tenant_' . (int)$tenantId;
+    $payload = json_encode([
+        'userId' => $userId,
+        'phone' => $phone,
+        'message' => $message
+    ], JSON_UNESCAPED_UNICODE);
+
+    // Dispatch WhatsApp HTTP calls asynchronously after flushing HTTP response to the browser/caller
+    register_shutdown_function(function () use ($userId, $payload) {
+        try {
+            if (function_exists('finishClientResponseEarly')) {
+                finishClientResponseEarly();
+            }
+            // When running on the local laptop, send via the 24/7 Cloud WhatsApp Hub (https://c.elsajana.com) first
+            if (function_exists('isLocalInboundLaptopEnv') && isLocalInboundLaptopEnv()) {
+                $cloudUrl = 'https://c.elsajana.com/api_index.php?r=wa-tenant&endpoint=send&userId=' . urlencode($userId) . '&local_only=1';
+                $chCloud = curl_init($cloudUrl);
+                curl_setopt($chCloud, CURLOPT_RETURNTRANSFER, true);
+                curl_setopt($chCloud, CURLOPT_POST, true);
+                curl_setopt($chCloud, CURLOPT_POSTFIELDS, $payload);
+                curl_setopt($chCloud, CURLOPT_HTTPHEADER, [
+                    'Content-Type: application/json',
+                    'Content-Length: ' . strlen($payload)
+                ]);
+                curl_setopt($chCloud, CURLOPT_CONNECTTIMEOUT, 2);
+                curl_setopt($chCloud, CURLOPT_TIMEOUT, 5);
+                curl_setopt($chCloud, CURLOPT_SSL_VERIFYPEER, false);
+                curl_setopt($chCloud, CURLOPT_SSL_VERIFYHOST, false);
+                $cResp = curl_exec($chCloud);
+                $cCode = (int)curl_getinfo($chCloud, CURLINFO_HTTP_CODE);
+                curl_close($chCloud);
+                if ($cCode === 200 && !empty($cResp)) {
+                    $cDec = json_decode($cResp, true);
+                    if (!empty($cDec['success'])) {
+                        return;
+                    }
+                }
+            }
+
+            $ch = curl_init('http://127.0.0.1:3001/wa/send');
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_POST, true);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, [
                 'Content-Type: application/json',
                 'Content-Length: ' . strlen($payload)
             ]);
-            curl_setopt($chCloud, CURLOPT_CONNECTTIMEOUT, 2);
-            curl_setopt($chCloud, CURLOPT_TIMEOUT, 6);
-            curl_setopt($chCloud, CURLOPT_SSL_VERIFYPEER, false);
-            curl_setopt($chCloud, CURLOPT_SSL_VERIFYHOST, false);
-            $cResp = curl_exec($chCloud);
-            $cCode = (int)curl_getinfo($chCloud, CURLINFO_HTTP_CODE);
-            curl_close($chCloud);
-            if ($cCode === 200 && !empty($cResp)) {
-                $cDec = json_decode($cResp, true);
-                if (!empty($cDec['success'])) {
-                    return true;
-                }
-            }
-        }
+            curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 1);
+            curl_setopt($ch, CURLOPT_TIMEOUT, 3);
+            curl_exec($ch);
+            curl_close($ch);
+        } catch (Throwable $e) {}
+    });
 
-        $ch = curl_init('http://127.0.0.1:3001/wa/send');
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, [
-            'Content-Type: application/json',
-            'Content-Length: ' . strlen($payload)
-        ]);
-        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 1);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 3);
-        $resp = curl_exec($ch);
-        $httpCode = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close($ch);
-        if ($httpCode === 200 && !empty($resp)) {
-            $dec = json_decode($resp, true);
-            return !empty($dec['success']);
-        }
-    } catch (Throwable $e) {}
-    return false;
+    return true;
 }
 
 // -------------------------------------------------------------

@@ -35,21 +35,29 @@ try {
 
     $arLines = @()
     $enLines = @()
+    $hasAr = $false
+    $hasEn = $false
 
     foreach ($lang in [Windows.Media.Ocr.OcrEngine]::AvailableRecognizerLanguages) {
         $tag = $lang.LanguageTag
+        $isAr = ($tag -like 'ar*') -and (-not $hasAr)
+        $isEn = ($tag -like 'en*') -and (-not $hasEn)
+        if (-not $isAr -and -not $isEn) { continue }
         $engine = [Windows.Media.Ocr.OcrEngine]::TryCreateFromLanguage($lang)
         if ($null -ne $engine) {
             $res = Await ($engine.RecognizeAsync($bitmap)) ([Windows.Media.Ocr.OcrResult])
-            if ($tag -like 'ar*') {
+            if ($isAr) {
+                $hasAr = $true
                 foreach ($line in $res.Lines) {
                     $arLines += [PSCustomObject]@{ text = $line.Text }
                 }
-            } elseif ($tag -like 'en*') {
+            } elseif ($isEn) {
+                $hasEn = $true
                 foreach ($line in $res.Lines) {
                     $enLines += [PSCustomObject]@{ text = $line.Text }
                 }
             }
+            if ($hasAr -and $hasEn) { break }
         }
     }
 

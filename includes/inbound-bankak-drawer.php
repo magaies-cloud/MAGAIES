@@ -443,15 +443,19 @@ window.InboundBankakManager = {
     },
 
     // Sync a posted or staged inbound receipt into localStorage (erp_receipts_v1, erp_customers_v1, erp_banks_v1) and General Ledger
-    syncPostedReceiptToLocalErp: function(r, postingData = null) {
-        if (!r || (!r.voucher_no && !(postingData && postingData.voucher_no))) return;
+    syncPostedReceiptToLocalErp: function(r, postingData = null, options = {}) {
+        if (!r || (!r.voucher_no && !(postingData && postingData.voucher_no))) return false;
         const vNo = (postingData && postingData.voucher_no) ? postingData.voucher_no : r.voucher_no;
-        if (!vNo) return;
+        if (!vNo) return false;
 
         const isAwaitingApproval = (postingData && postingData.approval_mode === 'review_first') ||
             (postingData && postingData.voucher && postingData.voucher.isPosted === false) ||
             (r.issue_reason === 'awaiting_posting_approval' && r.status === 'pending' && !(postingData && postingData.status === 'verified'));
         const isActuallyPosted = !isAwaitingApproval;
+
+        if (this.syncedVoucherNos.has(vNo) && !postingData) {
+            return false;
+        }
 
         const getTenantKey = window.getTenantKey || ((k) => k);
         const rKey = getTenantKey('erp_receipts_v1');
@@ -461,11 +465,22 @@ window.InboundBankakManager = {
             if (!Array.isArray(storedReceipts)) storedReceipts = [];
         } catch (e) { storedReceipts = []; }
 
+        let rawCustId = (postingData && postingData.customer_id) ? postingData.customer_id : (r.customer_id || '');
+        rawCustId = String(rawCustId).replace(/^cust-/, '');
+        const custName = (postingData && postingData.customer_name) ? postingData.customer_name : (r.customer_name || 'عميل بنكك');
+        const amt = parseFloat(r.amount || (postingData && postingData.voucher && postingData.voucher.totalAmount) || 0) || 0;
+
         const existingLocalVoucher = storedReceipts.find(v => v && (v.voucherNo === vNo || v.id === vNo));
         const alreadyInLocal = Boolean(existingLocalVoucher);
         const wasAlreadyPostedInLocal = Boolean(existingLocalVoucher && existingLocalVoucher.isPosted);
-        if (alreadyInLocal && this.syncedVoucherNos.has(vNo) && !postingData && wasAlreadyPostedInLocal === isActuallyPosted) {
-            return;
+        if (alreadyInLocal && !postingData && wasAlreadyPostedInLocal === isActuallyPosted) {
+            const existingItem = existingLocalVoucher.items && existingLocalVoucher.items[0];
+            const existingCustMatch = !rawCustId || (existingItem && String(existingItem.accountId || existingItem.account || '').replace(/^cust-/, '') === rawCustId);
+            const existingAmtMatch = Math.abs((parseFloat(existingLocalVoucher.totalAmount) || 0) - amt) < 0.01;
+            if (existingCustMatch && existingAmtMatch) {
+                this.syncedVoucherNos.add(vNo);
+                return false;
+            }
         }
         this.syncedVoucherNos.add(vNo);
 
@@ -476,11 +491,6 @@ window.InboundBankakManager = {
             custs = JSON.parse(localStorage.getItem(cKey) || localStorage.getItem('erp_customers_v1') || '[]');
             if (!Array.isArray(custs)) custs = [];
         } catch (e) { custs = []; }
-
-        let rawCustId = (postingData && postingData.customer_id) ? postingData.customer_id : (r.customer_id || '');
-        rawCustId = String(rawCustId).replace(/^cust-/, '');
-        const custName = (postingData && postingData.customer_name) ? postingData.customer_name : (r.customer_name || 'عميل بنكك');
-        const amt = parseFloat(r.amount || (postingData && postingData.voucher && postingData.voucher.totalAmount) || 0) || 0;
 
         let cIdx = custs.findIndex(c => c && (String(c.id) === rawCustId || (c.name && c.name.trim() === custName.trim())));
         if (cIdx > -1) {
@@ -637,16 +647,19 @@ window.InboundBankakManager = {
             localStorage.setItem('erp_receipts_v1', JSON.stringify(storedReceipts));
         } catch (e) {}
 
-        // 4. Rebuild Accounts Dropdown & General Ledger
-        if (typeof window.buildAccountsArray === 'function') {
-            try { window.buildAccountsArray(); } catch (e) {}
+        // 4. Rebuild Accounts Dropdown & General Ledger (unless batched via options.skipRebuild)
+        if (!options || !options.skipRebuild) {
+            if (typeof window.buildAccountsArray === 'function') {
+                try { window.buildAccountsArray(); } catch (e) {}
+            }
+            if (isActuallyPosted && typeof window.rebuildGLFromAllTables === 'function') {
+                try { window.rebuildGLFromAllTables(false); } catch (e) {}
+            }
+            if (typeof window.refreshVoucherNavigationList === 'function') {
+                try { window.refreshVoucherNavigationList(); } catch (e) {}
+            }
         }
-        if (isActuallyPosted && typeof window.rebuildGLFromAllTables === 'function') {
-            try { window.rebuildGLFromAllTables(false); } catch (e) {}
-        }
-        if (typeof window.refreshVoucherNavigationList === 'function') {
-            try { window.refreshVoucherNavigationList(); } catch (e) {}
-        }
+        return true;
     },
 
     pruneOrphanedInboundVouchers: function(activeVoucherNos, deletedVoucherNo = '', deletedReceiptId = 0) {
@@ -718,12 +731,26 @@ window.InboundBankakManager = {
                         this.pruneOrphanedInboundVouchers(res.active_voucher_nos);
                     }
 
-                    // Sync any backend-posted or staged receipts to local ERP storage & GL
+                    // Sync any backend-posted or staged receipts to local ERP storage & GL (batched rebuild once at end)
+                    let anySynced = false;
                     res.data.forEach(r => {
                         if (r.voucher_no && (r.status === 'verified' || r.status === 'reconciled' || r.issue_reason === 'awaiting_posting_approval')) {
-                            this.syncPostedReceiptToLocalErp(r);
+                            if (this.syncPostedReceiptToLocalErp(r, null, { skipRebuild: true })) {
+                                anySynced = true;
+                            }
                         }
                     });
+                    if (anySynced) {
+                        if (typeof window.buildAccountsArray === 'function') {
+                            try { window.buildAccountsArray(); } catch (e) {}
+                        }
+                        if (typeof window.rebuildGLFromAllTables === 'function') {
+                            try { window.rebuildGLFromAllTables(false); } catch (e) {}
+                        }
+                        if (typeof window.refreshVoucherNavigationList === 'function') {
+                            try { window.refreshVoucherNavigationList(); } catch (e) {}
+                        }
+                    }
 
                     // Auto-scan any pending receipts in batch (excluding forgery check)
                     const pendingWithImg = res.data.filter(r => r.status === 'pending' && r.issue_reason !== 'awaiting_posting_approval' && r.receipt_image && (!r.amount || parseFloat(r.amount) <= 0 || !r.transfer_no));
@@ -2273,8 +2300,8 @@ window.InboundBankakManager = {
             return;
         }
 
-        // Persist the entered/updated WhatsApp phone to the customer's record in MySQL & localStorage
-        await this.saveCustomerPhoneToBackend(custId, phone, custName);
+        // Persist the entered/updated WhatsApp phone to the customer's record in MySQL & localStorage (non-blocking)
+        this.saveCustomerPhoneToBackend(custId, phone, custName);
 
         // Clean and format phone for WhatsApp (preserve @lid if present, otherwise Sudan 249)
         let cleanPhone = phone.trim();

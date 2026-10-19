@@ -29,7 +29,7 @@ $page_title = 'دفتر الأستاذ (SGL) - Launcher';
     <link rel="stylesheet" href="css/theme.css?v=20260726">
     <link rel="stylesheet" href="css/components.css?v=20260726">
     <link rel="stylesheet" href="css/sales-invoice.css?v=20260726">
-    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts" defer></script>
     <style>
         /* ── Modern Launcher Styling ── */
         .report-header { 

@@ -1080,14 +1080,20 @@ async function syncLiveMasterAndReceiptsForGL(forceRefreshUI = true) {
         const masterData = await masterRes.json();
         if (masterData && masterData.status === 'success') {
             if (Array.isArray(masterData.customers)) {
-                localStorage.setItem(getTenantKey('erp_customers_v1'), JSON.stringify(masterData.customers));
-                localStorage.setItem('erp_customers_v1', JSON.stringify(masterData.customers));
-                changed = true;
+                const newCustStr = JSON.stringify(masterData.customers);
+                if (localStorage.getItem(getTenantKey('erp_customers_v1')) !== newCustStr) {
+                    localStorage.setItem(getTenantKey('erp_customers_v1'), newCustStr);
+                    localStorage.setItem('erp_customers_v1', newCustStr);
+                    changed = true;
+                }
             }
             if (Array.isArray(masterData.suppliers)) {
-                localStorage.setItem(getTenantKey('erp_suppliers_v1'), JSON.stringify(masterData.suppliers));
-                localStorage.setItem('erp_suppliers_v1', JSON.stringify(masterData.suppliers));
-                changed = true;
+                const newSuppStr = JSON.stringify(masterData.suppliers);
+                if (localStorage.getItem(getTenantKey('erp_suppliers_v1')) !== newSuppStr) {
+                    localStorage.setItem(getTenantKey('erp_suppliers_v1'), newSuppStr);
+                    localStorage.setItem('erp_suppliers_v1', newSuppStr);
+                    changed = true;
+                }
             }
         }
 
@@ -1098,8 +1104,9 @@ async function syncLiveMasterAndReceiptsForGL(forceRefreshUI = true) {
             if (window.InboundBankakManager && typeof window.InboundBankakManager.syncPostedReceiptToLocalErp === 'function') {
                 recData.data.forEach(r => {
                     if (r.voucher_no && (r.status === 'verified' || r.status === 'reconciled')) {
-                        window.InboundBankakManager.syncPostedReceiptToLocalErp(r);
-                        changed = true;
+                        if (window.InboundBankakManager.syncPostedReceiptToLocalErp(r, null, { skipRebuild: true })) {
+                            changed = true;
+                        }
                     }
                 });
             }

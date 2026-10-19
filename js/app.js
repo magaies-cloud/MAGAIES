@@ -6986,7 +6986,6 @@ window.rebuildGLFromAllTables = function(skipSave = false) {
         let baseRef = String(t.ref).replace(/-PAID$/, '').replace(/-BT\d+$/, '').replace(/-CH\d+$/, '');
         let source = dataMap.get(baseRef);
         if (source) {
-            t._source = source;
             const isBaseSDG = (t.currency === 'SDG');
             const amt = t.debit || t.credit || 0;
             const matchAmt = (val) => {
