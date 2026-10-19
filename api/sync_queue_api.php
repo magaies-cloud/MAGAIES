@@ -32,6 +32,12 @@ function ensureSyncInfrastructure($pdo) {
     static $initialized = false;
     if ($initialized) return;
 
+    $stampFile = sys_get_temp_dir() . '/magaies_sync_infra_v2.stamp';
+    if (file_exists($stampFile)) {
+        $initialized = true;
+        return;
+    }
+
     try {
         // 1. Ensure sync_queue table exists
         $pdo->exec("CREATE TABLE IF NOT EXISTS `sync_queue` (
@@ -96,6 +102,7 @@ function ensureSyncInfrastructure($pdo) {
           KEY `idx_tenant` (`tenant_id`)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
 
+        @file_put_contents($stampFile, (string)time());
         $initialized = true;
     } catch (Exception $e) {
         // Log silently, allow request to proceed

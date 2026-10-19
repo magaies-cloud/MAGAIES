@@ -4,15 +4,38 @@
 // يربط كافة التقارير الاستراتيجية بقاعدة البيانات الحقيقية
 // ==============================================================
 
-define('DB_HOST', 'localhost');
+define('DB_HOST', '127.0.0.1');
 define('DB_NAME', 'magaees'); // تأكد من مطابقة اسم قاعدة بياناتك الحقيقية
 define('DB_USER', 'root');     
 define('DB_PASS', '');         
 
 $GLOBAL_TENANT_ID = null;
 
+if (!function_exists('finishClientResponseEarly')) {
+    function finishClientResponseEarly() {
+        if (function_exists('fastcgi_finish_request')) {
+            @fastcgi_finish_request();
+            return;
+        }
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            @session_write_close();
+        }
+        @ignore_user_abort(true);
+        if (!headers_sent()) {
+            header('Connection: close');
+            $len = ob_get_length();
+            if ($len !== false && $len >= 0) {
+                header('Content-Length: ' . $len);
+            }
+        }
+        while (ob_get_level() > 0) {
+            @ob_end_flush();
+        }
+        @flush();
+    }
+}
+
 function getDBConnection() {
-    global $GLOBAL_TENANT_ID;
     global $pdo, $GLOBAL_TENANT_ID;
     if ($pdo === null) {
         require_once __DIR__ . '/api/db.php';
@@ -25,16 +48,16 @@ function getDBConnection() {
     }
     
     if ($GLOBAL_TENANT_ID === null) {
-        if (session_status() === PHP_SESSION_NONE) {
-            @session_start();
+        if (session_status() === PHP_SESSION_NONE && !headers_sent()) {
+            @session_start(['read_and_close' => true]);
+        } elseif (session_status() === PHP_SESSION_ACTIVE) {
+            @session_write_close();
         }
         
         $token = $_COOKIE['saas_token'] ?? $_COOKIE['authToken'] ?? '';
         if (empty($token) && !empty($_SERVER['HTTP_AUTHORIZATION'])) {
             $token = trim(str_replace('Bearer', '', $_SERVER['HTTP_AUTHORIZATION']));
         }
-        
-        $isLocalhost = (php_sapi_name() === 'cli' || ($_SERVER['SERVER_NAME'] ?? '') === 'localhost' || ($_SERVER['SERVER_NAME'] ?? '') === '127.0.0.1');
         
         $tenantId = false;
         if (!empty($token)) {

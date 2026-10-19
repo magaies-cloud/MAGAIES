@@ -60,7 +60,9 @@ if ($__isLocalMirrorEnv && ($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST' && e
     if ($__shouldForward) {
         register_shutdown_function(function() use ($action, $tenantId, $rawBodyString) {
             try {
-                if (function_exists('fastcgi_finish_request')) {
+                if (function_exists('finishClientResponseEarly')) {
+                    finishClientResponseEarly();
+                } elseif (function_exists('fastcgi_finish_request')) {
                     @fastcgi_finish_request();
                 }
                 $qs = $_SERVER['QUERY_STRING'] ?? '';
@@ -88,8 +90,9 @@ if ($__isLocalMirrorEnv && ($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST' && e
                         'X-Tenant-Id: ' . (int)$tenantId
                     ]);
                 }
+                curl_setopt($ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
                 curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 2);
-                curl_setopt($ch, CURLOPT_TIMEOUT, 6);
+                curl_setopt($ch, CURLOPT_TIMEOUT, 5);
                 curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
                 curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
                 curl_exec($ch);

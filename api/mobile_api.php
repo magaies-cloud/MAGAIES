@@ -16,7 +16,7 @@ if (file_exists(__DIR__ . '/db.php')) {
 } elseif (file_exists(dirname(__DIR__) . '/ELSAJANA2/magaies/api/db.php')) {
     require_once dirname(__DIR__) . '/ELSAJANA2/magaies/api/db.php';
 } else {
-    $pdo = new PDO("mysql:host=localhost;dbname=magaees;charset=utf8mb4", "root", "", [
+    $pdo = new PDO("mysql:host=127.0.0.1;dbname=magaees;charset=utf8mb4", "root", "", [
         PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
         PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
     ]);

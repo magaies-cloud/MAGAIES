@@ -1,13 +1,10 @@
 <?php
 // ============================================================
-// Webhook للنشر التلقائي - يتم استدعاؤه من GitHub عند كل push
-// يعمل بشكل مستقل عن GitHub Actions (لا يحتاج دقائق)
+// Webhook للنشر التلقائي الفوري - فائق السرعة (Ultra-Fast Deploy)
 // ============================================================
 
-// Secret token for security - must match GitHub webhook secret
 $WEBHOOK_SECRET = 'magaees_deploy_2026_secure';
 
-// Verify the request is from GitHub
 $signature = $_SERVER['HTTP_X_HUB_SIGNATURE_256'] ?? '';
 $payload = file_get_contents('php://input');
 
@@ -19,7 +16,6 @@ if (!empty($WEBHOOK_SECRET)) {
     }
 }
 
-// Only deploy on push to main
 $data = json_decode($payload, true);
 $ref = $data['ref'] ?? '';
 if ($ref !== 'refs/heads/main') {
@@ -27,34 +23,30 @@ if ($ref !== 'refs/heads/main') {
     die(json_encode(['status' => 'skipped', 'reason' => 'Not main branch']));
 }
 
-// Log the deployment
 $logFile = '/var/www/magaees/deploy_webhook.log';
 $timestamp = date('Y-m-d H:i:s');
 $commitMsg = $data['head_commit']['message'] ?? 'unknown';
 
-file_put_contents($logFile, "[$timestamp] Deploying: $commitMsg\n", FILE_APPEND);
+@file_put_contents($logFile, "[$timestamp] Deploying: $commitMsg\n", FILE_APPEND);
 
-// Execute deployment
-$output = [];
+// Fast selective deployment:
+// 1. Fetch & reset to origin/main without scanning node_modules or uploads
+// 2. Only run migrate_ui_preferences.php if it changed
+// 3. Only restart whatsapp-service if whatsapp-service.mjs or server.js changed
 $commands = [
     'rm -f /var/www/magaees/.git/index.lock 2>&1',
     'cd /var/www/magaees',
-    'sed -i "/insteadOf/d" /var/www/magaees/.git/config 2>&1 || true',
-    'git remote set-url origin https://github.com/magaies-cloud/MAGAIES.git 2>&1',
-    'git update-index --no-skip-worktree whatsapp-service.mjs 2>&1',
-    'chmod +w whatsapp-service.mjs 2>&1',
-    'git fetch origin main 2>&1',
-    'git clean -fd 2>&1',
+    'git fetch origin main --depth=5 2>&1',
+    'CHANGED_FILES=$(git diff --name-only HEAD origin/main 2>/dev/null || echo "")',
     'git reset --hard origin/main 2>&1',
-    '(chown -R www-data:www-data /var/www/magaees 2>/dev/null || true)',
-    '(chmod -R 755 /var/www/magaees 2>/dev/null || true)',
-    'php /var/www/magaees/api/migrate_ui_preferences.php 2>&1',
-    '(pm2 restart all 2>/dev/null || systemctl restart whatsapp-service 2>/dev/null || pkill -f "whatsapp-service" 2>/dev/null || true)',
+    '(find /var/www/magaees -maxdepth 2 -not -path "*/.*" -not -path "/var/www/magaees/node_modules*" -not -path "/var/www/magaees/uploads*" -not -path "/var/www/magaees/baileys_auth*" -exec chown www-data:www-data {} + 2>/dev/null || true)',
+    'if echo "$CHANGED_FILES" | grep -q "migrate_ui_preferences.php"; then php /var/www/magaees/api/migrate_ui_preferences.php 2>&1; fi',
+    'if echo "$CHANGED_FILES" | grep -qE "(whatsapp-service\.mjs|server\.js)"; then (pm2 restart all 2>/dev/null || systemctl restart whatsapp-service 2>/dev/null || pkill -f "whatsapp-service" 2>/dev/null || true); fi',
 ];
 
 $result = shell_exec(implode(' && ', $commands) . ' 2>&1');
 
-file_put_contents($logFile, "[$timestamp] Result: $result\n", FILE_APPEND);
+@file_put_contents($logFile, "[$timestamp] Result: $result\n", FILE_APPEND);
 
 http_response_code(200);
 echo json_encode([

@@ -41,34 +41,38 @@ if ($activeTenantId === 'default' || $activeTenantId === '0' || $activeTenantId 
     $activeTenantId = (!empty($GLOBAL_TENANT_ID) && is_numeric($GLOBAL_TENANT_ID) && (int)$GLOBAL_TENANT_ID > 1) ? (string)$GLOBAL_TENANT_ID : '12';
 }
 
-// 2. Ensure Table Exists
-try {
-    $pdo->exec("CREATE TABLE IF NOT EXISTS inbound_bank_receipts (
-        id INT AUTO_INCREMENT PRIMARY KEY,
-        tenant_id VARCHAR(50) NOT NULL DEFAULT '12',
-        customer_id VARCHAR(50) NULL,
-        customer_name VARCHAR(255) NOT NULL,
-        customer_phone VARCHAR(50) NULL,
-        receipt_image VARCHAR(500) NULL,
-        bank_name VARCHAR(100) DEFAULT 'بنك الخرطوم (بنكك)',
-        bank_code VARCHAR(20) DEFAULT '170',
-        transfer_no VARCHAR(100) NULL,
-        amount DECIMAL(15,2) DEFAULT 0.00,
-        currency VARCHAR(10) DEFAULT 'SDG',
-        status ENUM('pending', 'verified', 'duplicate_rejected', 'reconciled') DEFAULT 'pending',
-        issue_reason VARCHAR(255) NULL,
-        voucher_no VARCHAR(50) NULL,
-        source VARCHAR(50) DEFAULT 'whatsapp',
-        notes TEXT NULL,
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-        INDEX idx_tenant (tenant_id),
-        INDEX idx_status (status),
-        INDEX idx_transfer_no (transfer_no)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
-} catch (Exception $e) {
-    echo json_encode(['success' => false, 'error' => 'Database error: ' . $e->getMessage()]);
-    exit;
+// 2. Ensure Table Exists (Cached via stamp file to avoid DDL lock on every poll)
+$__inbStamp = sys_get_temp_dir() . '/magaies_inb_table_v2.stamp';
+if (!file_exists($__inbStamp)) {
+    try {
+        $pdo->exec("CREATE TABLE IF NOT EXISTS inbound_bank_receipts (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            tenant_id VARCHAR(50) NOT NULL DEFAULT '12',
+            customer_id VARCHAR(50) NULL,
+            customer_name VARCHAR(255) NOT NULL,
+            customer_phone VARCHAR(50) NULL,
+            receipt_image VARCHAR(500) NULL,
+            bank_name VARCHAR(100) DEFAULT 'بنك الخرطوم (بنكك)',
+            bank_code VARCHAR(20) DEFAULT '170',
+            transfer_no VARCHAR(100) NULL,
+            amount DECIMAL(15,2) DEFAULT 0.00,
+            currency VARCHAR(10) DEFAULT 'SDG',
+            status ENUM('pending', 'verified', 'duplicate_rejected', 'reconciled') DEFAULT 'pending',
+            issue_reason VARCHAR(255) NULL,
+            voucher_no VARCHAR(50) NULL,
+            source VARCHAR(50) DEFAULT 'whatsapp',
+            notes TEXT NULL,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            INDEX idx_tenant (tenant_id),
+            INDEX idx_status (status),
+            INDEX idx_transfer_no (transfer_no)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
+        @file_put_contents($__inbStamp, (string)time());
+    } catch (Exception $e) {
+        echo json_encode(['success' => false, 'error' => 'Database error: ' . $e->getMessage()]);
+        exit;
+    }
 }
 
 // Ensure uploads directory exists
@@ -99,7 +103,9 @@ if (isLocalInboundLaptopEnv() && ($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST
         $__rawInbBody = file_get_contents('php://input');
         register_shutdown_function(function() use ($action, $activeTenantId, $__rawInbBody) {
             try {
-                if (function_exists('fastcgi_finish_request')) {
+                if (function_exists('finishClientResponseEarly')) {
+                    finishClientResponseEarly();
+                } elseif (function_exists('fastcgi_finish_request')) {
                     @fastcgi_finish_request();
                 }
                 $qs = $_SERVER['QUERY_STRING'] ?? '';
@@ -120,6 +126,7 @@ if (isLocalInboundLaptopEnv() && ($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST
                     curl_setopt($ch, CURLOPT_POSTFIELDS, $__rawInbBody ?: json_encode($GLOBALS['jsonData'] ?? [], JSON_UNESCAPED_UNICODE));
                     curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json', 'X-Forwarded-From-Local: 1']);
                 }
+                curl_setopt($ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
                 curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 2);
                 curl_setopt($ch, CURLOPT_TIMEOUT, 5);
                 curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
@@ -139,9 +146,9 @@ function syncInboundReceiptsFromCloud($pdo, $activeTenantId, $uploadDir) {
     if (!isLocalInboundLaptopEnv() || !empty($_GET['no_cloud_pull'])) {
         return;
     }
-    // Throttle cloud polling to once every 4 seconds so local UI stays ultra-fast
+    // Throttle cloud polling to once every 8 seconds so local UI stays ultra-fast
     $stampFile = sys_get_temp_dir() . '/magaies_cloud_inb_pull_' . (int)$activeTenantId . '.stamp';
-    if (empty($_GET['force_cloud_pull']) && file_exists($stampFile) && (time() - @filemtime($stampFile)) < 4) {
+    if (empty($_GET['force_cloud_pull']) && file_exists($stampFile) && (time() - @filemtime($stampFile)) < 8) {
         return;
     }
     @file_put_contents($stampFile, (string)time());
@@ -150,8 +157,9 @@ function syncInboundReceiptsFromCloud($pdo, $activeTenantId, $uploadDir) {
         $cloudUrl = 'https://c.elsajana.com/api/inbound_receipts.php?action=list&tenant_id=' . (int)$activeTenantId . '&no_cloud_pull=1';
         $ch = curl_init($cloudUrl);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 2);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 4);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 3);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
         curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
         $resp = curl_exec($ch);
@@ -198,27 +206,28 @@ function syncInboundReceiptsFromCloud($pdo, $activeTenantId, $uploadDir) {
                 $matchedLocal = $byImage[$cImgBase];
             }
 
-            // Ensure receipt image is downloaded locally if missing
-            if ($cImgRel !== '' && $cImgBase !== '') {
-                $localImgPath = $uploadDir . $cImgBase;
-                if (!file_exists($localImgPath)) {
-                    $imgUrl = 'https://c.elsajana.com/' . ltrim($cImgRel, '/');
-                    $chImg = curl_init($imgUrl);
-                    curl_setopt($chImg, CURLOPT_RETURNTRANSFER, true);
-                    curl_setopt($chImg, CURLOPT_CONNECTTIMEOUT, 2);
-                    curl_setopt($chImg, CURLOPT_TIMEOUT, 5);
-                    curl_setopt($chImg, CURLOPT_SSL_VERIFYPEER, false);
-                    curl_setopt($chImg, CURLOPT_SSL_VERIFYHOST, false);
-                    $imgBytes = curl_exec($chImg);
-                    $imgCode = (int)curl_getinfo($chImg, CURLINFO_HTTP_CODE);
-                    curl_close($chImg);
-                    if ($imgCode === 200 && !empty($imgBytes)) {
-                        @file_put_contents($localImgPath, $imgBytes);
+            if (!$matchedLocal) {
+                // Ensure receipt image is downloaded locally for new receipts
+                if ($cImgRel !== '' && $cImgBase !== '') {
+                    $localImgPath = $uploadDir . $cImgBase;
+                    if (!file_exists($localImgPath)) {
+                        $imgUrl = 'https://c.elsajana.com/' . ltrim($cImgRel, '/');
+                        $chImg = curl_init($imgUrl);
+                        curl_setopt($chImg, CURLOPT_RETURNTRANSFER, true);
+                        curl_setopt($chImg, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
+                        curl_setopt($chImg, CURLOPT_CONNECTTIMEOUT, 2);
+                        curl_setopt($chImg, CURLOPT_TIMEOUT, 3);
+                        curl_setopt($chImg, CURLOPT_SSL_VERIFYPEER, false);
+                        curl_setopt($chImg, CURLOPT_SSL_VERIFYHOST, false);
+                        $imgBytes = curl_exec($chImg);
+                        $imgCode = (int)curl_getinfo($chImg, CURLINFO_HTTP_CODE);
+                        curl_close($chImg);
+                        if ($imgCode === 200 && !empty($imgBytes)) {
+                            @file_put_contents($localImgPath, $imgBytes);
+                        }
                     }
                 }
-            }
 
-            if (!$matchedLocal) {
                 $ins = $pdo->prepare("INSERT INTO inbound_bank_receipts 
                     (tenant_id, customer_id, customer_name, customer_phone, receipt_image, bank_name, bank_code, transfer_no, amount, currency, status, issue_reason, voucher_no, source, notes, created_at)
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");

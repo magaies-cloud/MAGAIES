@@ -180,17 +180,12 @@ function migrateLocalBaileysSessionToCloud($sessionUserId = 'wa_tenant_12') {
         return false;
     }
 
-    // Throttle migration attempts to once every 60 seconds
+    // Throttle migration attempts to once every 300 seconds (5 minutes)
     $stampFile = sys_get_temp_dir() . '/magaies_wa_cloud_mig_' . $safeUid . '.stamp';
-    if (file_exists($stampFile) && (time() - @filemtime($stampFile)) < 60 && empty($_GET['force_migrate'])) {
+    if (file_exists($stampFile) && (time() - @filemtime($stampFile)) < 300 && empty($_GET['force_migrate'])) {
         return false;
     }
     @file_put_contents($stampFile, (string)time());
-
-    // Stop any local Windows node process for whatsapp-service so it does not compete with the cloud socket
-    if (stristr(PHP_OS, 'WIN')) {
-        @exec('wmic process where "name=\'node.exe\' and commandline like \'%whatsapp-service%\'" call terminate >NUL 2>&1');
-    }
 
     $filesPayload = [];
     foreach (scandir($authDir) as $fname) {
@@ -214,8 +209,9 @@ function migrateLocalBaileysSessionToCloud($sessionUserId = 'wa_tenant_12') {
     curl_setopt($ch, CURLOPT_HTTPHEADER, [
         'Content-Type: application/json'
     ]);
-    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 4);
-    curl_setopt($ch, CURLOPT_TIMEOUT, 20);
+    curl_setopt($ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
+    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 3);
+    curl_setopt($ch, CURLOPT_TIMEOUT, 12);
     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
     curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
     $resp = curl_exec($ch);
@@ -234,8 +230,9 @@ function proxyWhatsAppRequestToCloud($endpoint, $queryParams, $method, $rawInput
 
     $ch = curl_init($cloudUrl);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 3);
-    curl_setopt($ch, CURLOPT_TIMEOUT, 15);
+    curl_setopt($ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
+    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 2);
+    curl_setopt($ch, CURLOPT_TIMEOUT, 10);
     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
     curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
 
@@ -276,11 +273,12 @@ function proxyWhatsAppRequestToCloud($endpoint, $queryParams, $method, $rawInput
         if (is_array($dec) && empty($dec['phoneNumber']) && ($dec['status'] ?? '') !== 'CONNECTED') {
             $targetUid = $queryParams['userId'] ?? 'wa_tenant_12';
             if (migrateLocalBaileysSessionToCloud($targetUid)) {
-                usleep(2500000); // Wait 2.5s for cloud socket to connect after import
+                usleep(1000000); // Wait 1s for cloud socket to connect after import
                 $chRetry = curl_init($cloudUrl);
                 curl_setopt($chRetry, CURLOPT_RETURNTRANSFER, true);
-                curl_setopt($chRetry, CURLOPT_CONNECTTIMEOUT, 3);
-                curl_setopt($chRetry, CURLOPT_TIMEOUT, 10);
+                curl_setopt($chRetry, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
+                curl_setopt($chRetry, CURLOPT_CONNECTTIMEOUT, 2);
+                curl_setopt($chRetry, CURLOPT_TIMEOUT, 6);
                 curl_setopt($chRetry, CURLOPT_SSL_VERIFYPEER, false);
                 curl_setopt($chRetry, CURLOPT_SSL_VERIFYHOST, false);
                 $retryResp = curl_exec($chRetry);
@@ -2184,31 +2182,48 @@ if ($resource === 'sync') {
             }
             $pdo->commit();
 
-            // Mirror local laptop sync/push directly to the 24/7 Cloud Server (https://c.elsajana.com)
-            // so customer balances and statements ("رصيد" / "كشف حساب") are always 100% up-to-date when the laptop is off
+            // Mirror local laptop sync/push asynchronously in background to 24/7 Cloud Server (https://c.elsajana.com)
+            // so the browser response returns immediately without waiting on internet roundtrip
             $cloudMirrored = false;
             if (isLocalLaptopEnvironment() && empty($_SERVER['HTTP_X_FORWARDED_FROM_LOCAL']) && !empty($rawInput)) {
-                try {
-                    $chMirror = curl_init('https://c.elsajana.com/api_index.php/sync/push');
-                    curl_setopt($chMirror, CURLOPT_RETURNTRANSFER, true);
-                    curl_setopt($chMirror, CURLOPT_POST, true);
-                    curl_setopt($chMirror, CURLOPT_POSTFIELDS, $rawInput);
-                    curl_setopt($chMirror, CURLOPT_HTTPHEADER, [
-                        'Content-Type: application/json',
-                        'Authorization: Bearer ' . ($token ?: 'offline_token_fallback'),
-                        'X-Forwarded-From-Local: 1'
-                    ]);
-                    curl_setopt($chMirror, CURLOPT_CONNECTTIMEOUT, 2);
-                    curl_setopt($chMirror, CURLOPT_TIMEOUT, 6);
-                    curl_setopt($chMirror, CURLOPT_SSL_VERIFYPEER, false);
-                    curl_setopt($chMirror, CURLOPT_SSL_VERIFYHOST, false);
-                    $mResp = curl_exec($chMirror);
-                    $mCode = (int)curl_getinfo($chMirror, CURLINFO_HTTP_CODE);
-                    curl_close($chMirror);
-                    $cloudMirrored = ($mCode >= 200 && $mCode < 300);
-                } catch (Throwable $mirrorErr) {
-                    error_log('Cloud mirror sync push warning: ' . $mirrorErr->getMessage());
-                }
+                $cloudMirrored = true;
+                register_shutdown_function(function() use ($rawInput, $token) {
+                    try {
+                        if (function_exists('finishClientResponseEarly')) {
+                            finishClientResponseEarly();
+                        } elseif (function_exists('fastcgi_finish_request')) {
+                            @fastcgi_finish_request();
+                        } else {
+                            if (session_status() === PHP_SESSION_ACTIVE) @session_write_close();
+                            @ignore_user_abort(true);
+                            if (!headers_sent()) {
+                                header('Connection: close');
+                                $len = ob_get_length();
+                                if ($len !== false && $len >= 0) header('Content-Length: ' . $len);
+                            }
+                            while (ob_get_level() > 0) @ob_end_flush();
+                            @flush();
+                        }
+                        $chMirror = curl_init('https://c.elsajana.com/api_index.php/sync/push');
+                        curl_setopt($chMirror, CURLOPT_RETURNTRANSFER, true);
+                        curl_setopt($chMirror, CURLOPT_POST, true);
+                        curl_setopt($chMirror, CURLOPT_POSTFIELDS, $rawInput);
+                        curl_setopt($chMirror, CURLOPT_HTTPHEADER, [
+                            'Content-Type: application/json',
+                            'Authorization: Bearer ' . ($token ?: 'offline_token_fallback'),
+                            'X-Forwarded-From-Local: 1'
+                        ]);
+                        curl_setopt($chMirror, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
+                        curl_setopt($chMirror, CURLOPT_CONNECTTIMEOUT, 2);
+                        curl_setopt($chMirror, CURLOPT_TIMEOUT, 6);
+                        curl_setopt($chMirror, CURLOPT_SSL_VERIFYPEER, false);
+                        curl_setopt($chMirror, CURLOPT_SSL_VERIFYHOST, false);
+                        curl_exec($chMirror);
+                        curl_close($chMirror);
+                    } catch (Throwable $mirrorErr) {
+                        error_log('Cloud mirror sync push warning: ' . $mirrorErr->getMessage());
+                    }
+                });
             }
 
             jsonResponse(['success' => true, 'cloud_mirrored' => $cloudMirrored, 'message' => 'تمت المزامنة بنجاح']);
