@@ -2365,6 +2365,19 @@ function postInboundReceiptToAccounts($pdo, $receiptId, $options = []) {
         $shouldNotifyCustomerWa = !empty($options['notify_customer_whatsapp']) || (!empty($cleanTargetDigits) && $cleanTargetDigits !== $cleanSenderDigits);
         if ($shouldNotifyCustomerWa) {
             $curBal = (float)($custObj['currentBalance'] ?? 0);
+            try {
+                if (function_exists('buildDetailedAccountStatementForWhatsApp')) {
+                    $balCheck = buildDetailedAccountStatementForWhatsApp($pdo, $tenantId, 'customer', $custObj, [
+                        'mode' => 'balance_only',
+                        'returnStructured' => true
+                    ]);
+                    if (is_array($balCheck) && isset($balCheck['voucher_data']['net_balance_local'])) {
+                        $netAbs = (float)$balCheck['voucher_data']['net_balance_local'];
+                        $stType = $balCheck['voucher_data']['status_type'] ?? 'settled';
+                        $curBal = ($stType === 'debit') ? $netAbs : (($stType === 'credit') ? -$netAbs : 0.0);
+                    }
+                }
+            } catch (Throwable $e) {}
             $balLabel = $curBal > 0.009 ? (number_format($curBal, 2) . ' ' . $currency . ' (مدين / عليه)') : ($curBal < -0.009 ? (number_format(abs($curBal), 2) . ' ' . $currency . ' (دائن / له)') : '0.00 (خالص)');
             $custPinBadge = !empty($custObj['statementPin']) ? ("\n🔐 *رمز الحساب (الباسورد):* " . $custObj['statementPin']) : '';
             $waCustomerMsg = "✅ *إشعار قيد مالي معتمد*\n"
@@ -4607,6 +4620,11 @@ function buildDetailedAccountStatementForWhatsApp($pdo, $tenantId, $entityType, 
             $intrinsicBal = -abs($rawOpBal);
         } else {
             $intrinsicBal = abs($rawOpBal);
+        }
+    } elseif (empty($filtered)) {
+        $fallbackCurBal = $parseNum($entityObj['currentBalance'] ?? 0);
+        if ($fallbackCurBal != 0) {
+            $intrinsicBal = $fallbackCurBal;
         }
     }
 

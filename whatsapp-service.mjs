@@ -1119,7 +1119,7 @@ class WhatsAppClient {
                 }
                 if (data.id) {
                     allProcessedIds.push(data.id);
-                    if (!activeCaption && !data.customer_id) {
+                    if (!activeCaption) {
                         unroutedProcessedIds.push(data.id);
                     }
                 }
