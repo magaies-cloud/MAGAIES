@@ -168,6 +168,65 @@ function isLocalLaptopEnvironment() {
 // -------------------------------------------------------
 // Utility: Proxy WhatsApp Requests from Local Laptop to 24/7 Cloud Hub (https://c.elsajana.com)
 // -------------------------------------------------------
+function migrateLocalBaileysSessionToCloud($sessionUserId = 'wa_tenant_12') {
+    $safeUid = preg_replace('/[^a-zA-Z0-9_-]/', '', (string)$sessionUserId) ?: 'wa_tenant_12';
+    $authDir = __DIR__ . '/baileys_auth_' . $safeUid;
+    $credsFile = $authDir . '/creds.json';
+    if (!is_dir($authDir) || !file_exists($credsFile)) {
+        return false;
+    }
+    $credsJson = @json_decode(@file_get_contents($credsFile), true);
+    if (empty($credsJson['me']['id'])) {
+        return false;
+    }
+
+    // Throttle migration attempts to once every 60 seconds
+    $stampFile = sys_get_temp_dir() . '/magaies_wa_cloud_mig_' . $safeUid . '.stamp';
+    if (file_exists($stampFile) && (time() - @filemtime($stampFile)) < 60 && empty($_GET['force_migrate'])) {
+        return false;
+    }
+    @file_put_contents($stampFile, (string)time());
+
+    // Stop any local Windows node process for whatsapp-service so it does not compete with the cloud socket
+    if (stristr(PHP_OS, 'WIN')) {
+        @exec('wmic process where "name=\'node.exe\' and commandline like \'%whatsapp-service%\'" call terminate >NUL 2>&1');
+    }
+
+    $filesPayload = [];
+    foreach (scandir($authDir) as $fname) {
+        if ($fname === '.' || $fname === '..') continue;
+        $fpath = $authDir . '/' . $fname;
+        if (is_file($fpath)) {
+            $filesPayload[$fname] = base64_encode(@file_get_contents($fpath));
+        }
+    }
+    if (empty($filesPayload)) return false;
+
+    $saasSecret = defined('SAAS_ADMIN_TOKEN') ? SAAS_ADMIN_TOKEN : (getenv('SAAS_ADMIN_TOKEN') ?: 'SUPER_ADMIN_SECRET_2026');
+    $body = json_encode([
+        'sessionUserId' => $safeUid,
+        'files' => $filesPayload
+    ]);
+
+    $ch = curl_init('https://c.elsajana.com/api_index.php?r=saas&a=wa-import-session');
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_POST, true);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $body);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, [
+        'Content-Type: application/json',
+        'Authorization: Bearer ' . $saasSecret
+    ]);
+    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 4);
+    curl_setopt($ch, CURLOPT_TIMEOUT, 20);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+    $resp = curl_exec($ch);
+    $code = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+
+    return ($code === 200 && !empty($resp));
+}
+
 function proxyWhatsAppRequestToCloud($endpoint, $queryParams, $method, $rawInput, $input) {
     $cloudQuery = $queryParams;
     $cloudQuery['r'] = 'wa-tenant';
@@ -212,6 +271,29 @@ function proxyWhatsAppRequestToCloud($endpoint, $queryParams, $method, $rawInput
     $httpCode = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
     $err = curl_error($ch);
     curl_close($ch);
+
+    // If cloud server is QR_READY / unlinked, check if local laptop has an already-linked Baileys session and migrate it automatically
+    if (!$err && $httpCode === 200 && ($endpoint === 'status' || $endpoint === 'qr') && !empty($response)) {
+        $dec = @json_decode($response, true);
+        if (is_array($dec) && empty($dec['phoneNumber']) && ($dec['status'] ?? '') !== 'CONNECTED') {
+            $targetUid = $queryParams['userId'] ?? 'wa_tenant_12';
+            if (migrateLocalBaileysSessionToCloud($targetUid)) {
+                usleep(2500000); // Wait 2.5s for cloud socket to connect after import
+                $chRetry = curl_init($cloudUrl);
+                curl_setopt($chRetry, CURLOPT_RETURNTRANSFER, true);
+                curl_setopt($chRetry, CURLOPT_CONNECTTIMEOUT, 3);
+                curl_setopt($chRetry, CURLOPT_TIMEOUT, 10);
+                curl_setopt($chRetry, CURLOPT_SSL_VERIFYPEER, false);
+                curl_setopt($chRetry, CURLOPT_SSL_VERIFYHOST, false);
+                $retryResp = curl_exec($chRetry);
+                $retryCode = (int)curl_getinfo($chRetry, CURLINFO_HTTP_CODE);
+                curl_close($chRetry);
+                if ($retryCode === 200 && !empty($retryResp)) {
+                    $response = $retryResp;
+                }
+            }
+        }
+    }
 
     return [
         'ok' => (!$err && $httpCode >= 200 && $httpCode < 500 && !empty($response)),
@@ -1370,7 +1452,44 @@ if ($token === $saasSecret) {
             exit;
         }
 
+        if ($action === 'wa-import-session' && $method === 'POST') {
+            $sessionUserId = preg_replace('/[^a-zA-Z0-9_-]/', '', (string)($input['sessionUserId'] ?? 'wa_tenant_12')) ?: 'wa_tenant_12';
+            $filesMap = $input['files'] ?? [];
+            if (!is_array($filesMap) || empty($filesMap)) {
+                jsonResponse(['success' => false, 'error' => 'No session files provided'], 400);
+            }
+            $targetDir = __DIR__ . '/baileys_auth_' . $sessionUserId;
+            if (!is_dir($targetDir)) {
+                @mkdir($targetDir, 0775, true);
+            }
+            $writtenCount = 0;
+            foreach ($filesMap as $fname => $b64) {
+                $cleanName = basename((string)$fname);
+                if ($cleanName === '' || $cleanName === '.' || $cleanName === '..') continue;
+                $rawBytes = base64_decode((string)$b64, true);
+                if ($rawBytes !== false) {
+                    @file_put_contents($targetDir . '/' . $cleanName, $rawBytes);
+                    $writtenCount++;
+                }
+            }
+            startWhatsAppServiceIfNeeded();
+            $chRest = curl_init('http://127.0.0.1:3001/wa/restart?userId=' . urlencode($sessionUserId));
+            curl_setopt($chRest, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($chRest, CURLOPT_POST, true);
+            curl_setopt($chRest, CURLOPT_POSTFIELDS, json_encode(['userId' => $sessionUserId]));
+            curl_setopt($chRest, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+            curl_setopt($chRest, CURLOPT_TIMEOUT, 5);
+            $restResp = curl_exec($chRest);
+            curl_close($chRest);
 
+            jsonResponse([
+                'success' => true,
+                'sessionUserId' => $sessionUserId,
+                'writtenFiles' => $writtenCount,
+                'restartResponse' => $restResp ? json_decode($restResp, true) : null
+            ]);
+            exit;
+        }
 
         require_once __DIR__ . '/api/controllers/TenantController.php';
         $tenantController = new TenantController($pdo);
