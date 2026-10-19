@@ -2518,8 +2518,51 @@ try {
             ], JSON_UNESCAPED_UNICODE);
             break;
 
+        case 'receive_cloud_aux_sync':
+            $inSettings = $rawInput['global_settings'] ?? [];
+            $inReceipts = $rawInput['inbound_bank_receipts'] ?? [];
+            $upSet = 0;
+            $upInb = 0;
+            if (is_array($inSettings)) {
+                $stSet = $pdo->prepare("INSERT INTO global_settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value), updated_at = NOW()");
+                foreach ($inSettings as $k => $v) {
+                    if ($k !== '') {
+                        $stSet->execute([(string)$k, (string)$v]);
+                        $upSet++;
+                    }
+                }
+            }
+            if (is_array($inReceipts)) {
+                foreach ($inReceipts as $r) {
+                    if (!is_array($r) || empty($r['id'])) continue;
+                    $stInb = $pdo->prepare("INSERT INTO inbound_bank_receipts (id, tenant_id, customer_id, customer_name, customer_phone, receipt_image, bank_name, bank_code, transfer_no, amount, currency, status, issue_reason, voucher_no, source, notes, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE customer_id=VALUES(customer_id), customer_name=VALUES(customer_name), bank_name=VALUES(bank_name), bank_code=VALUES(bank_code), transfer_no=VALUES(transfer_no), amount=VALUES(amount), status=VALUES(status), voucher_no=VALUES(voucher_no), notes=VALUES(notes)");
+                    $stInb->execute([
+                        (int)$r['id'],
+                        (string)($r['tenant_id'] ?? $tenantId),
+                        $r['customer_id'] ?? null,
+                        (string)($r['customer_name'] ?? ''),
+                        $r['customer_phone'] ?? null,
+                        $r['receipt_image'] ?? null,
+                        (string)($r['bank_name'] ?? 'بنك الخرطوم (بنكك)'),
+                        (string)($r['bank_code'] ?? '170'),
+                        $r['transfer_no'] ?? null,
+                        (float)($r['amount'] ?? 0),
+                        (string)($r['currency'] ?? 'SDG'),
+                        (string)($r['status'] ?? 'verified'),
+                        $r['issue_reason'] ?? null,
+                        $r['voucher_no'] ?? null,
+                        (string)($r['source'] ?? 'whatsapp'),
+                        $r['notes'] ?? null,
+                        $r['created_at'] ?? date('Y-m-d H:i:s')
+                    ]);
+                    $upInb++;
+                }
+            }
+            echo json_encode(['success' => true, 'updated_settings' => $upSet, 'updated_inbound' => $upInb], JSON_UNESCAPED_UNICODE);
+            break;
+
         case 'push_all_local_to_cloud':
-            $tables = ['customers', 'suppliers', 'banks', 'safes', 'accounts', 'settings', 'receipts', 'payments', 'single_receipts', 'single_payments', 'sales_invoices', 'purchase_invoices', 'journal_vouchers'];
+            $tables = ['customers', 'suppliers', 'banks', 'safes', 'accounts', 'receipts', 'payments', 'single_receipts', 'single_payments', 'sales_invoices', 'purchase_invoices', 'journal_vouchers'];
             $syncedSummary = [];
             foreach ($tables as $t) {
                 try {
@@ -2541,8 +2584,9 @@ try {
                     }
                     $batches = array_chunk($rows, 35);
                     $pushedCount = 0;
+                    $erpKey = 'erp_' . $t . '_v1';
                     foreach ($batches as $batch) {
-                        $payload = json_encode(['changes' => [$t => $batch]], JSON_UNESCAPED_UNICODE);
+                        $payload = json_encode([$erpKey => $batch], JSON_UNESCAPED_UNICODE);
                         $ch = curl_init('https://c.elsajana.com/api_index.php/sync/push');
                         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
                         curl_setopt($ch, CURLOPT_POST, true);
@@ -2569,6 +2613,38 @@ try {
                     $syncedSummary[$t] = 'err: ' . $te->getMessage();
                 }
             }
+
+            // Also sync global_settings (exchange rates, WhatsApp policies) and inbound_bank_receipts
+            try {
+                $gsStmt = $pdo->query("SELECT setting_key, setting_value FROM global_settings");
+                $gsMap = $gsStmt ? $gsStmt->fetchAll(PDO::FETCH_KEY_PAIR) : [];
+                $inbStmt = $pdo->prepare("SELECT * FROM inbound_bank_receipts WHERE tenant_id = ? ORDER BY id ASC");
+                $inbStmt->execute([(string)$tenantId]);
+                $inbRows = $inbStmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+                $auxPayload = json_encode([
+                    'global_settings' => $gsMap,
+                    'inbound_bank_receipts' => $inbRows
+                ], JSON_UNESCAPED_UNICODE);
+                $chAux = curl_init('https://c.elsajana.com/api/mirror_sync.php?action=receive_cloud_aux_sync&tenant_id=' . (int)$tenantId);
+                curl_setopt($chAux, CURLOPT_RETURNTRANSFER, true);
+                curl_setopt($chAux, CURLOPT_POST, true);
+                curl_setopt($chAux, CURLOPT_POSTFIELDS, $auxPayload);
+                curl_setopt($chAux, CURLOPT_HTTPHEADER, [
+                    'Content-Type: application/json',
+                    'X-Forwarded-From-Local: 1'
+                ]);
+                curl_setopt($chAux, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
+                curl_setopt($chAux, CURLOPT_CONNECTTIMEOUT, 3);
+                curl_setopt($chAux, CURLOPT_TIMEOUT, 15);
+                curl_setopt($chAux, CURLOPT_SSL_VERIFYPEER, false);
+                curl_setopt($chAux, CURLOPT_SSL_VERIFYHOST, false);
+                $auxResp = curl_exec($chAux);
+                curl_close($chAux);
+                $syncedSummary['aux'] = json_decode((string)$auxResp, true);
+            } catch (Throwable $ae) {
+                $syncedSummary['aux'] = 'err: ' . $ae->getMessage();
+            }
+
             echo json_encode(['success' => true, 'synced' => $syncedSummary], JSON_UNESCAPED_UNICODE);
             break;
     }
