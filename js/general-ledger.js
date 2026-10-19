@@ -106,20 +106,33 @@ function buildAccountsList() {
     } catch(e) { console.warn('Error loading banks:', e); }
     
     try {
-        const custs = (JSON.parse(localStorage.getItem('erp_customers_v1')) || []).filter(x => !x.deleted);
+        const getTenantKey = window.getTenantKey || ((k) => k);
+        const custs = (JSON.parse(localStorage.getItem(getTenantKey('erp_customers_v1')) || localStorage.getItem('erp_customers_v1')) || []).filter(x => x && !x.deleted);
         custs.forEach(c => ALL_ACCOUNTS.push({
             id: `cust-${c.id}`,
             name: c.name,
             icon: '👤',
             type: 'عميل',
+            statementPin: c.statementPin ? String(c.statementPin).trim() : '',
             receiptCodeNum: c.receiptCodeNum ? String(c.receiptCodeNum).trim() : '',
-            receiptCodeWord: c.receiptCodeWord ? String(c.receiptCodeWord).trim() : ''
+            receiptCodeWord: c.receiptCodeWord ? String(c.receiptCodeWord).trim() : '',
+            phone: String(c.whatsapp || c.phone || '').trim()
         }));
     } catch(e) { console.warn('Error loading customers:', e); }
 
     try {
-        const sups  = (JSON.parse(localStorage.getItem('erp_suppliers_v1')) || []).filter(x => !x.deleted);
-        sups.forEach(s  => ALL_ACCOUNTS.push({ id: `supp-${s.id}`, name: s.name, icon: '🏭', type: 'مورد' }));
+        const getTenantKey = window.getTenantKey || ((k) => k);
+        const sups  = (JSON.parse(localStorage.getItem(getTenantKey('erp_suppliers_v1')) || localStorage.getItem('erp_suppliers_v1')) || []).filter(x => x && !x.deleted);
+        sups.forEach(s  => ALL_ACCOUNTS.push({
+            id: `supp-${s.id}`,
+            name: s.name,
+            icon: '🏭',
+            type: 'مورد',
+            statementPin: s.statementPin ? String(s.statementPin).trim() : '',
+            receiptCodeNum: s.receiptCodeNum ? String(s.receiptCodeNum).trim() : '',
+            receiptCodeWord: s.receiptCodeWord ? String(s.receiptCodeWord).trim() : '',
+            phone: String(s.whatsapp || s.phone || '').trim()
+        }));
     } catch(e) { console.warn('Error loading suppliers:', e); }
 
     // Fallback default accounts if local storage has no accounts
@@ -227,13 +240,17 @@ function onAccountSearch() {
     list.innerHTML = '';
     
     function normStr(s) {
-        return String(s || '').toLowerCase()
+        return String(s || '')
+            .replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d))
+            .replace(/[۰-۹]/g, d => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d))
+            .toLowerCase()
             .replace(/[أإآ]/g, 'ا')
             .replace(/ة/g, 'ه')
             .replace(/ى/g, 'ي');
     }
     
     const normQ = normStr(q);
+    const cleanPinQ = normQ.replace(/^(باسورد|رمز|كود|#)\s*/, '').trim();
     const qTokens = normQ.split(/\s+/).filter(Boolean);
     
     let results = ALL_ACCOUNTS.filter(a => {
@@ -242,16 +259,36 @@ function onAccountSearch() {
         const cleanName = String(a.name || '').replace(/^\[\d+\]\s*/, '').replace(/^\d+\s*[-–]\s*/, '');
         const nameNorm = normStr(cleanName);
         const idNorm = normStr(a.id);
+        const pinNorm = normStr(a.statementPin || '');
         const codeNumNorm = normStr(a.receiptCodeNum || '');
         const codeWordNorm = normStr(a.receiptCodeWord || '');
+        const phoneNorm = normStr(a.phone || '');
+        if (cleanPinQ && ((pinNorm && pinNorm === cleanPinQ) || (codeNumNorm && codeNumNorm === cleanPinQ))) {
+            return true;
+        }
         return qTokens.every(tok => {
             const cleanTok = tok.replace(/^#/, '');
             return nameNorm.includes(tok)
                 || idNorm.includes(tok)
+                || (pinNorm && (pinNorm === cleanTok || pinNorm.startsWith(cleanTok)))
                 || (codeNumNorm && (codeNumNorm === cleanTok || codeNumNorm.includes(cleanTok)))
-                || (codeWordNorm && codeWordNorm.includes(tok));
+                || (codeWordNorm && codeWordNorm.includes(tok))
+                || (phoneNorm && cleanTok.length >= 4 && phoneNorm.includes(cleanTok));
         });
     });
+
+    // Prioritize exact PIN or exact Code or exact Name match at the top
+    if (cleanPinQ) {
+        results.sort((a, b) => {
+            const aPin = normStr(a.statementPin || '');
+            const bPin = normStr(b.statementPin || '');
+            const aCode = normStr(a.receiptCodeNum || '');
+            const bCode = normStr(b.receiptCodeNum || '');
+            const aExact = (aPin && aPin === cleanPinQ) ? 3 : ((aCode && aCode === cleanPinQ) ? 2 : (normStr(a.name) === normQ ? 1 : 0));
+            const bExact = (bPin && bPin === cleanPinQ) ? 3 : ((bCode && bCode === cleanPinQ) ? 2 : (normStr(b.name) === normQ ? 1 : 0));
+            return bExact - aExact;
+        });
+    }
     
     // Live Bank Transfer Lookup in Autocomplete
     if (q.length >= 3 || /\d/.test(q)) {
@@ -313,7 +350,8 @@ function onAccountSearch() {
         const cleanName = String(a.name || '').replace(/^\[\d+\]\s*/, '').replace(/^\d+\s*[-–]\s*/, '');
         const highlightedName = highlightSearchMatches(cleanName, q);
         const codeBadges = [];
-        if (a.receiptCodeNum) codeBadges.push(`<span style="background:rgba(16,185,129,0.2); color:#34d399; border:1px solid rgba(16,185,129,0.4); padding:2px 7px; border-radius:6px; font-size:0.8rem; font-family:monospace; font-weight:900;">#${a.receiptCodeNum}</span>`);
+        if (a.statementPin) codeBadges.push(`<span style="background:rgba(16,185,129,0.22); color:#34d399; border:1px solid rgba(16,185,129,0.45); padding:2px 7px; border-radius:6px; font-size:0.8rem; font-family:monospace; font-weight:900;" title="باسورد كشف الحساب والواتساب">🔐 ${a.statementPin}</span>`);
+        if (a.receiptCodeNum && a.receiptCodeNum !== a.statementPin) codeBadges.push(`<span style="background:rgba(56,189,248,0.2); color:#38bdf8; border:1px solid rgba(56,189,248,0.4); padding:2px 7px; border-radius:6px; font-size:0.8rem; font-family:monospace; font-weight:900;">#${a.receiptCodeNum}</span>`);
         if (a.receiptCodeWord) codeBadges.push(`<span style="background:rgba(245,158,11,0.2); color:#fbbf24; border:1px solid rgba(245,158,11,0.4); padding:2px 7px; border-radius:6px; font-size:0.8rem; font-weight:800;">🏷️ ${a.receiptCodeWord}</span>`);
 
         li.innerHTML = `
@@ -775,10 +813,18 @@ window.inspectBankTransfer = function(query) {
     });
 
     if (operations.length === 0) {
+        const cleanPinSearch = qLower.replace(/^(باسورد|رمز|كود|#)\s*/, '').trim();
         let foundAccount = ALL_ACCOUNTS.find(a => {
             if (!a || a.id === 'ALL') return false;
             const cleanName = String(a.name || '').replace(/^\[\d+\]\s*/, '').replace(/^\d+\s*[-–]\s*/, '').trim().toLowerCase();
-            return cleanName === qLower || a.id.toLowerCase() === qLower;
+            const pinStr = String(a.statementPin || '').trim().toLowerCase();
+            const codeNumStr = String(a.receiptCodeNum || '').trim().toLowerCase();
+            const codeWordStr = String(a.receiptCodeWord || '').trim().toLowerCase();
+            return cleanName === qLower
+                || a.id.toLowerCase() === qLower
+                || (cleanPinSearch && pinStr && pinStr === cleanPinSearch)
+                || (cleanPinSearch && codeNumStr && codeNumStr === cleanPinSearch)
+                || (codeWordStr && codeWordStr === qLower);
         });
 
         if (foundAccount) {
@@ -1019,6 +1065,66 @@ function extractFilters() {
     }
 }
 
+/* ─── Real-Time Master Data & Inbound Receipts Sync for General Ledger ─── */
+let _isSyncingGLBackend = false;
+async function syncLiveMasterAndReceiptsForGL(forceRefreshUI = true) {
+    if (_isSyncingGLBackend) return;
+    _isSyncingGLBackend = true;
+    try {
+        const getTenantKey = window.getTenantKey || ((k) => k);
+        const tId = (window.SERVER_TENANT && window.SERVER_TENANT.id) || (JSON.parse(localStorage.getItem('user') || '{}').tenant_id) || '12';
+        let changed = false;
+
+        // 1. Fetch fresh customers & suppliers from MySQL
+        const masterRes = await fetch('api/get_master_data.php?tenant_id=' + encodeURIComponent(tId) + '&_t=' + Date.now());
+        const masterData = await masterRes.json();
+        if (masterData && masterData.status === 'success') {
+            if (Array.isArray(masterData.customers)) {
+                localStorage.setItem(getTenantKey('erp_customers_v1'), JSON.stringify(masterData.customers));
+                localStorage.setItem('erp_customers_v1', JSON.stringify(masterData.customers));
+                changed = true;
+            }
+            if (Array.isArray(masterData.suppliers)) {
+                localStorage.setItem(getTenantKey('erp_suppliers_v1'), JSON.stringify(masterData.suppliers));
+                localStorage.setItem('erp_suppliers_v1', JSON.stringify(masterData.suppliers));
+                changed = true;
+            }
+        }
+
+        // 2. Fetch fresh verified/posted WhatsApp receipts from MySQL
+        const recRes = await fetch('api/inbound_receipts.php?action=list&tenant_id=' + encodeURIComponent(tId) + '&_t=' + Date.now());
+        const recData = await recRes.json();
+        if (recData && recData.success && Array.isArray(recData.data)) {
+            if (window.InboundBankakManager && typeof window.InboundBankakManager.syncPostedReceiptToLocalErp === 'function') {
+                recData.data.forEach(r => {
+                    if (r.voucher_no && (r.status === 'verified' || r.status === 'reconciled')) {
+                        window.InboundBankakManager.syncPostedReceiptToLocalErp(r);
+                        changed = true;
+                    }
+                });
+            }
+        }
+
+        if (changed) {
+            const currentSelectedId = document.getElementById('filter-account')?.value || 'ALL';
+            buildAccountsList();
+            if (currentSelectedId && currentSelectedId !== 'ALL') {
+                const selEl = document.getElementById('filter-account');
+                if (selEl) selEl.value = currentSelectedId;
+            }
+            ALL_TXNS = collectAllTransactions();
+            if (forceRefreshUI && typeof applyLedgerFilters === 'function') {
+                applyLedgerFilters();
+            }
+        }
+    } catch (e) {
+        console.warn('syncLiveMasterAndReceiptsForGL warning:', e);
+    } finally {
+        _isSyncingGLBackend = false;
+    }
+}
+window.syncLiveMasterAndReceiptsForGL = syncLiveMasterAndReceiptsForGL;
+
 /* ─── Initialization ─── */
 let choicesInstances = [];
 function initGeneralLedgerApp() {
@@ -1050,37 +1156,58 @@ function initGeneralLedgerApp() {
         });
     }
 
-    // Auto load account from URL parameter if present
-    try {
-        const urlParams = new URLSearchParams(window.location.search);
-        const accountIdParam = urlParams.get('accountId') || urlParams.get('partner_id') || urlParams.get('id');
-        const nameParam = urlParams.get('name') || urlParams.get('partner_name');
+    // Auto load account from URL parameter if present (supports accountId, partner_id, id, pin, or name)
+    const applyUrlAccountSelection = () => {
+        try {
+            const urlParams = new URLSearchParams(window.location.search);
+            const accountIdParam = urlParams.get('accountId') || urlParams.get('partner_id') || urlParams.get('id') || urlParams.get('pin');
+            const nameParam = urlParams.get('name') || urlParams.get('partner_name');
 
-        if (accountIdParam || nameParam) {
-            let found = null;
-            if (accountIdParam) {
-                found = ALL_ACCOUNTS.find(a => String(a.id) === String(accountIdParam));
-                if (!found) {
-                    const cleanParam = String(accountIdParam).replace(/^(cust|supp|bank|safe|exp|sub|sust)-/i, '');
-                    found = ALL_ACCOUNTS.find(a => String(a.id).replace(/^(cust|supp|bank|safe|exp|sub|sust)-/i, '') === cleanParam);
+            if (accountIdParam || nameParam) {
+                let found = null;
+                if (accountIdParam) {
+                    const cleanParam = String(accountIdParam).replace(/^(cust|supp|bank|safe|exp|sub|sust)-/i, '').trim();
+                    found = ALL_ACCOUNTS.find(a =>
+                        String(a.id) === String(accountIdParam) ||
+                        String(a.id).replace(/^(cust|supp|bank|safe|exp|sub|sust)-/i, '') === cleanParam ||
+                        (a.statementPin && String(a.statementPin).trim() === cleanParam) ||
+                        (a.receiptCodeNum && String(a.receiptCodeNum).trim() === cleanParam)
+                    );
+                }
+                if (!found && nameParam) {
+                    const normName = String(nameParam).trim().toLowerCase();
+                    found = ALL_ACCOUNTS.find(a => String(a.name).trim().toLowerCase() === normName || String(a.name).includes(nameParam));
+                }
+
+                if (found) {
+                    selectAccount(found.id, found.name, found.icon);
+                } else if (accountIdParam || nameParam) {
+                    const targetId = accountIdParam || nameParam;
+                    const targetName = nameParam || accountIdParam;
+                    selectAccount(targetId, targetName, '👤');
                 }
             }
-            if (!found && nameParam) {
-                const normName = String(nameParam).trim().toLowerCase();
-                found = ALL_ACCOUNTS.find(a => String(a.name).trim().toLowerCase() === normName || String(a.name).includes(nameParam));
-            }
-
-            if (found) {
-                selectAccount(found.id, found.name, found.icon);
-            } else if (accountIdParam || nameParam) {
-                const targetId = accountIdParam || nameParam;
-                const targetName = nameParam || accountIdParam;
-                selectAccount(targetId, targetName, '👤');
-            }
+        } catch (e) {
+            console.error("Error parsing URL accountId:", e);
         }
-    } catch (e) {
-        console.error("Error parsing URL accountId:", e);
-    }
+    };
+
+    applyUrlAccountSelection();
+
+    // Immediately sync fresh customers/PINs and WhatsApp receipts from MySQL
+    syncLiveMasterAndReceiptsForGL(true).then(() => {
+        applyUrlAccountSelection();
+    });
+
+    // Keep General Ledger live when switching tabs or when new receipts arrive
+    window.addEventListener('focus', () => syncLiveMasterAndReceiptsForGL(true));
+    window.addEventListener('storage', (ev) => {
+        if (!ev.key || ev.key.includes('erp_customers_v1') || ev.key.includes('erp_suppliers_v1') || ev.key.includes('erp_receipts_v1') || ev.key.includes('erp_gl_v1')) {
+            buildAccountsList();
+            ALL_TXNS = collectAllTransactions();
+            if (typeof applyLedgerFilters === 'function') applyLedgerFilters();
+        }
+    });
 }
 
 if (window.APP_READY) {

@@ -18,6 +18,15 @@ async function fetchExchangeRate() {
 async function initApp() {
     if (isLoaded) return;
     isLoaded = true;
+    try {
+        const params = new URLSearchParams(window.location.search);
+        if (params.get('filter') === 'whatsapp') {
+            currentType = 'whatsapp';
+            document.querySelectorAll('.type-chip').forEach(chip => chip.classList.remove('active'));
+            const waChip = document.getElementById('type-whatsapp');
+            if (waChip) waChip.classList.add('active');
+        }
+    } catch (e) {}
     await fetchExchangeRate();
     await loadAllTransactions();
 }
@@ -40,6 +49,16 @@ let selectedRowIndex = -1;
 let searchQuery = '';
 let dateFrom = '';
 let dateTo = '';
+
+function isWhatsAppReceiptItem(item) {
+    if (!item) return false;
+    return Boolean(
+        item.isWhatsAppInbound ||
+        item.source === 'whatsapp_inbound' ||
+        item.inboundReceiptId ||
+        String(item.voucherNo || item.id || '').startsWith('BNK-WA-')
+    );
+}
 
 const fmtCurrency = (num) => Number(num || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
@@ -368,6 +387,7 @@ function updateFilterChipsCounts() {
 
     const counts = {
         all: statusData.length,
+        whatsapp: statusData.filter(item => isWhatsAppReceiptItem(item)).length,
         sales: statusData.filter(item => item._typeEn === 'sales').length,
         purchases: statusData.filter(item => item._typeEn === 'purchases').length,
         receipt: statusData.filter(item => item._typeEn === 'receipt').length,
@@ -377,6 +397,7 @@ function updateFilterChipsCounts() {
 
     const labels = {
         all: 'الكل',
+        whatsapp: 'إشعارات واتساب',
         sales: 'مبيعات',
         purchases: 'مشتريات',
         receipt: 'سندات قبض',
@@ -386,6 +407,7 @@ function updateFilterChipsCounts() {
 
     const icons = {
         all: '📂',
+        whatsapp: '📲',
         sales: '🛍️',
         purchases: '📥',
         receipt: '💰',
@@ -404,7 +426,7 @@ function updateFilterChipsCounts() {
     for (const type in counts) {
         const btn = document.getElementById(`type-${type}`);
         if (btn) {
-            if (counts[type] === 0) {
+            if (counts[type] === 0 && type !== 'whatsapp') {
                 btn.style.display = 'none';
             } else {
                 btn.style.display = 'flex';
@@ -430,7 +452,11 @@ function applyFiltersAndRender() {
         if (!statusMatch) return false;
         
         // Type Filter
-        if (currentType !== 'all' && item._typeEn !== currentType) return false;
+        if (currentType === 'whatsapp') {
+            if (!isWhatsAppReceiptItem(item)) return false;
+        } else if (currentType !== 'all' && item._typeEn !== currentType) {
+            return false;
+        }
         
         // Date Filter
         const itemTime = item._date.getTime();
@@ -439,7 +465,7 @@ function applyFiltersAndRender() {
         // Search Query Filter
         if (searchQuery) {
             const amt = item.totalAmount || item.amountLocal || item.amount || item.netTotal || item.total || item.grandTotal || 0;
-            const ref = (item.id || item.invoiceNo || item.voucherNo || '').toLowerCase();
+            const ref = (item.id || item.invoiceNo || item.voucherNo || item.transferNo || '').toLowerCase();
             const customer = (item.customerName || item.supplierName || item.customer || item.supplier || item.description || '').toLowerCase();
             
             if (!ref.includes(searchQuery) && !customer.includes(searchQuery) && !String(amt).includes(searchQuery)) {
@@ -453,9 +479,106 @@ function applyFiltersAndRender() {
     renderMasterTable();
 }
 
+async function syncWhatsAppReceiptsIntoLocalBeforeLoad() {
+    try {
+        const tId = localStorage.getItem('magaies_active_tenant') || 'default';
+        const res = await fetch('api/inbound_receipts.php?action=list&tenant_id=' + encodeURIComponent(tId));
+        const data = await res.json();
+        if (!data || !data.success) return;
+
+        if (Array.isArray(data.banks) && data.banks.length > 0 && (!Array.isArray(banksList) || banksList.length === 0)) {
+            banksList = data.banks;
+            buildAccountNamesMap();
+        }
+
+        const waReceipts = Array.isArray(data.data) ? data.data : [];
+        if (waReceipts.length === 0) return;
+
+        let localReceipts = [];
+        try {
+            localReceipts = JSON.parse(localStorage.getItem('erp_receipts_v1') || '[]');
+            if (!Array.isArray(localReceipts)) localReceipts = [];
+        } catch (e) { localReceipts = []; }
+
+        let changed = false;
+        waReceipts.forEach(r => {
+            if (!r || !r.voucher_no) return;
+            const amt = parseFloat(r.amount || 0);
+            if (amt <= 0) return;
+            const isPostedFlag = (r.status === 'verified' && r.issue_reason !== 'awaiting_posting_approval');
+            const vNo = String(r.voucher_no);
+            const bankName = r.bank_name || 'بنك الخرطوم (بنكك)';
+            const bankAccId = (Array.isArray(banksList) && banksList.find(b => b.name === bankName)?.id) || 'BANK-BOK-001';
+            const existingIdx = localReceipts.findIndex(v => v && (v.voucherNo === vNo || v.id === vNo));
+            const voucherObj = {
+                id: vNo,
+                voucherNo: vNo,
+                type: 'receipt',
+                date: r.transfer_date || (r.created_at ? r.created_at.split(' ')[0] : new Date().toISOString().split('T')[0]),
+                mainAccount: bankAccId,
+                toAccount: bankAccId,
+                fromAccount: r.matched_customer_id || r.customer_name || '',
+                customerId: r.matched_customer_id || '',
+                customerName: r.customer_name || '',
+                totalAmount: amt,
+                amount: amt,
+                currency: 'SDG',
+                exchangeRate: 1,
+                paymentMethod: 'bank',
+                description: `إشعار واتساب وارد رقم #${r.transfer_no || r.id} - ${r.customer_name || ''}`,
+                source: 'whatsapp_inbound',
+                isWhatsAppInbound: true,
+                inboundReceiptId: r.id,
+                receiptImage: r.receipt_image || '',
+                transferNo: r.transfer_no || '',
+                senderPhone: r.customer_phone || '',
+                bankAccountId: bankAccId,
+                bankName: bankName,
+                isPosted: isPostedFlag,
+                items: [{
+                    account: r.matched_customer_id || r.customer_name || '',
+                    accountName: r.customer_name || '',
+                    amount: amt,
+                    currency: 'SDG',
+                    exchangeRate: 1,
+                    amountForeign: amt,
+                    paymentMethod: 'bank',
+                    paymentMethods: ['bank'],
+                    bankAmount: amt,
+                    bankName: bankName,
+                    bankAccountId: bankAccId,
+                    transferNo: r.transfer_no || '',
+                    receiptImage: r.receipt_image || '',
+                    bankTransfers: [{
+                        amount: amt,
+                        bankName: bankName,
+                        bankAccountId: bankAccId,
+                        refNo: r.transfer_no || '',
+                        transferNo: r.transfer_no || '',
+                        image: r.receipt_image || ''
+                    }],
+                    statement: `إشعار واتساب وارد رقم #${r.transfer_no || r.id}`
+                }]
+            };
+            if (existingIdx >= 0) {
+                localReceipts[existingIdx] = { ...localReceipts[existingIdx], ...voucherObj };
+            } else {
+                localReceipts.unshift(voucherObj);
+                changed = true;
+            }
+        });
+        if (changed || waReceipts.length > 0) {
+            localStorage.setItem('erp_receipts_v1', JSON.stringify(localReceipts));
+        }
+    } catch (e) {
+        console.warn('syncWhatsAppReceiptsIntoLocalBeforeLoad warn:', e);
+    }
+}
+
 async function loadAllTransactions() {
     try {
         await loadEntities();
+        await syncWhatsAppReceiptsIntoLocalBeforeLoad();
         const getTenantKey = window.getTenantKey || ((k) => k);
         const keys = [
             { key: 'erp_sales_invoices_v1', type: 'مبيعات', typeEn: 'sales', class: 'type-sales' },
@@ -510,11 +633,12 @@ async function loadAllTransactions() {
                         return; // Skip invalid or epoch 1970 dates
                     }
 
+                    const isWA = isWhatsAppReceiptItem(item);
                     allData.push({
                         ...item,
                         _sourceKey: tKey,
                         _metaKey: meta.key,
-                        _typeLabel: meta.type,
+                        _typeLabel: isWA ? '📲 إشعار واتساب' : meta.type,
                         _typeClass: meta.class,
                         _typeEn: meta.typeEn,
                         _date: parsedDate
@@ -728,8 +852,65 @@ function renderDetailPane(index) {
             </div>
     `;
 
+    // 0. WhatsApp Inbound Receipt Review & Target Bank Selection Card
+    if (isWhatsAppReceiptItem(item)) {
+        const waImg = item.receiptImage || (item.items && item.items[0] && item.items[0].receiptImage) || '';
+        const waTransferNo = item.transferNo || (item.items && item.items[0] && item.items[0].transferNo) || ref;
+        const currentBankId = item.bankAccountId || item.toAccount || item.mainAccount || 'BANK-BOK-001';
+        const currentBankName = item.bankName || (item.items && item.items[0] && item.items[0].bankName) || getAccName(currentBankId) || 'بنك الخرطوم (بنكك)';
+        const availableBanks = (Array.isArray(banksList) && banksList.length > 0)
+            ? banksList
+            : [{ id: 'BANK-BOK-001', name: 'بنك الخرطوم (بنكك)' }, { id: 'BANK-FAISAL', name: 'بنك فيصل الإسلامي (فوري)' }, { id: 'BANK-OMD', name: 'بنك أم درمان الوطني (أوكاش)' }];
+
+        const bankOptionsHtml = availableBanks.map(b => {
+            const bId = String(b.id || b.name);
+            const bName = String(b.name || b.id);
+            const isSel = (bId === String(currentBankId) || bName === String(currentBankName)) ? 'selected' : '';
+            return `<option value="${bId}" style="background:#0f172a; color:#fff;" ${isSel}>🏦 ${bName}</option>`;
+        }).join('');
+
+        html += `
+            <div style="background:linear-gradient(145deg, rgba(16,185,129,0.12), rgba(15,23,42,0.85)); border:1px solid rgba(16,185,129,0.4); border-radius:14px; padding:14px; margin-bottom:14px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; flex-wrap:wrap; gap:8px;">
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <span style="font-size:1.3rem;">📲</span>
+                        <div>
+                            <div style="font-size:0.95rem; font-weight:900; color:#34d399;">مراجعة وتمرير إشعار واتساب وارد</div>
+                            <div style="font-size:0.78rem; color:#94a3b8;">رقم العملية البنكية: <strong style="color:#38bdf8; font-family:monospace;">#${waTransferNo}</strong> ${item.senderPhone ? `| هاتف المرسل: <span style="font-family:monospace; color:#cbd5e1;">${item.senderPhone}</span>` : ''}</div>
+                        </div>
+                    </div>
+                    ${item.inboundReceiptId ? `
+                        <button type="button" onclick="if(window.InboundBankakManager){InboundBankakManager.checkForgeryOnDemand(${Number(item.inboundReceiptId)}, this);}" style="height:30px; padding:0 12px; border-radius:8px; background:rgba(245,158,11,0.18); border:1px solid rgba(245,158,11,0.45); color:#fbbf24; font-family:'Tajawal',sans-serif; font-size:0.78rem; font-weight:800; cursor:pointer; display:inline-flex; align-items:center; gap:5px;">
+                            <span>🕵️</span> <span>فحص التزوير الجنائي</span>
+                        </button>
+                    ` : ''}
+                </div>
+
+                <div style="display:grid; grid-template-columns:${waImg ? '110px 1fr' : '1fr'}; gap:12px; align-items:center;">
+                    ${waImg ? `
+                        <div onclick="if(window.InboundBankakManager){InboundBankakManager.previewReceiptImage('${waImg}', 'إشعار #${waTransferNo}', '${amt}', '${customer}', ${Number(item.inboundReceiptId || 0)});}else{window.open('${waImg}','_blank');}" style="cursor:pointer; position:relative; border-radius:10px; overflow:hidden; border:2px solid rgba(56,189,248,0.45); height:110px; background:#020617;" title="اضغط لتكبير صورة الإشعار">
+                            <img src="${waImg}" style="width:100%; height:100%; object-fit:cover;">
+                            <div style="position:absolute; bottom:0; inset-inline:0; background:rgba(2,6,23,0.82); color:#38bdf8; font-size:0.7rem; font-weight:800; text-align:center; padding:2px 0;">🔍 تكبير الإشعار</div>
+                        </div>
+                    ` : ''}
+                    <div style="display:flex; flex-direction:column; gap:8px;">
+                        <label style="font-size:0.82rem; font-weight:900; color:#e2e8f0; display:flex; align-items:center; gap:6px;">
+                            <span>🏦</span> <span>تحديد الحساب البنكي المستلم لهذا الإشعار:</span>
+                        </label>
+                        <select id="posting-wa-bank-select" onchange="onChangeWhatsAppTargetBank(${index}, this.value)" style="width:100%; height:38px; border-radius:10px; background:rgba(15,23,42,0.95); border:1px solid rgba(56,189,248,0.5); color:#38bdf8; font-family:'Tajawal',sans-serif; font-size:0.88rem; font-weight:900; padding:0 10px; cursor:pointer; outline:none;">
+                            ${bankOptionsHtml}
+                        </select>
+                        <div style="font-size:0.75rem; color:#94a3b8;">
+                            💡 عند اعتماد وترحيل هذا الإشعار، سينزل المبلغ (<strong style="color:#10b981;">${fmtCurrency(amt)} SDG</strong>) في حساب العميل (<strong style="color:#fff;">${customer}</strong>) وفي حساب البنك المختار أعلاه مباشرةً.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
     // 1. Items List (For Invoices/Sales/Purchases)
-    if (item.items && item.items.length > 0) {
+    if (item.items && item.items.length > 0 && !isWhatsAppReceiptItem(item)) {
         html += `
             <div class="detail-section-items">
                 <div class="section-title"><span>📦</span> تفاصيل الأصناف والفاتورة</div>
@@ -781,8 +962,8 @@ function renderDetailPane(index) {
         crAccount = item.fromAccount || 'safe-001';
     } else if (item._metaKey === 'erp_single_receipts_v1' || item._metaKey === 'erp_receipts_v1') {
         isVoucher = true;
-        drAccount = item.toAccount || 'safe-001';
-        crAccount = item.fromAccount;
+        drAccount = item.bankName || item.toAccount || 'safe-001';
+        crAccount = item.fromAccount || (item.items && item.items[0] && (item.items[0].accountName || item.items[0].account)) || customer;
     }
 
     if (isVoucher) {
@@ -876,6 +1057,67 @@ function renderDetailPane(index) {
     }
 
     detailContent.innerHTML = html;
+}
+
+async function onChangeWhatsAppTargetBank(index, bankId) {
+    const item = filteredData[index];
+    if (!item || !bankId) return;
+    const matchedBank = (Array.isArray(banksList) && banksList.find(b => String(b.id) === String(bankId) || String(b.name) === String(bankId))) || { id: bankId, name: bankId };
+    const bankName = matchedBank.name || bankId;
+    const bankAccId = matchedBank.id || bankId;
+
+    item.bankAccountId = bankAccId;
+    item.bankName = bankName;
+    item.toAccount = bankAccId;
+    item.mainAccount = bankAccId;
+    if (Array.isArray(item.items)) {
+        item.items.forEach(sub => {
+            sub.bankName = bankName;
+            sub.bankAccountId = bankAccId;
+            if (Array.isArray(sub.bankTransfers)) {
+                sub.bankTransfers.forEach(bt => {
+                    bt.bankName = bankName;
+                    bt.bankAccountId = bankAccId;
+                });
+            }
+        });
+    }
+    accountNamesMap.set(String(bankAccId).toLowerCase(), bankName);
+    accountNamesMap.set(String(bankName).toLowerCase(), bankName);
+
+    try {
+        let localReceipts = JSON.parse(localStorage.getItem('erp_receipts_v1') || '[]');
+        if (Array.isArray(localReceipts)) {
+            const refId = item.id || item.voucherNo;
+            const rIdx = localReceipts.findIndex(x => x && (x.id === refId || x.voucherNo === refId));
+            if (rIdx >= 0) {
+                localReceipts[rIdx] = { ...localReceipts[rIdx], bankAccountId: bankAccId, bankName: bankName, toAccount: bankAccId, mainAccount: bankAccId, items: item.items };
+                localStorage.setItem('erp_receipts_v1', JSON.stringify(localReceipts));
+            }
+        }
+    } catch (e) {}
+
+    if (item.inboundReceiptId) {
+        try {
+            const tId = localStorage.getItem('magaies_active_tenant') || 'default';
+            await fetch('api/inbound_receipts.php?action=change_target_bank&tenant_id=' + encodeURIComponent(tId), {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    action: 'change_target_bank',
+                    tenant_id: tId,
+                    id: item.inboundReceiptId,
+                    bank_id: bankAccId,
+                    bank_name: bankName,
+                    post_now: false
+                })
+            });
+        } catch (e) {}
+    }
+
+    renderMasterTable();
+    renderDetailPane(index);
+    showToast(`🏦 تم توجيه الإشعار إلى بنك (${bankName}) بنجاح`, 'success');
 }
 
 // Logic for calculating debits/credits based on meta
@@ -1064,6 +1306,28 @@ function updateStickyBar() {
 
 async function saveItemPosted(item) {
     try {
+        if (isWhatsAppReceiptItem(item) && item.inboundReceiptId) {
+            try {
+                const tId = localStorage.getItem('magaies_active_tenant') || 'default';
+                const bankId = item.bankAccountId || item.toAccount || '';
+                const res = await fetch(`api/inbound_receipts.php?action=post_to_accounts&id=${encodeURIComponent(item.inboundReceiptId)}&force_post=1&bank_id=${encodeURIComponent(bankId)}&tenant_id=${encodeURIComponent(tId)}`);
+                const bData = await res.json();
+                if (bData && bData.success && window.InboundBankakManager && typeof window.InboundBankakManager.syncPostedReceiptToLocalErp === 'function') {
+                    window.InboundBankakManager.syncPostedReceiptToLocalErp({
+                        id: item.inboundReceiptId,
+                        voucher_no: bData.voucher_no || item.voucherNo,
+                        amount: item.totalAmount || item.amount,
+                        transfer_no: item.transferNo || '',
+                        receipt_image: item.receiptImage || '',
+                        status: 'verified',
+                        issue_reason: null
+                    }, bData);
+                }
+            } catch (waErr) {
+                console.warn('Backend WhatsApp receipt post sync warning:', waErr);
+            }
+        }
+
         const tKey = item._sourceKey;
         let data = [];
         if (typeof localforage !== 'undefined') {

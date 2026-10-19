@@ -155,6 +155,48 @@ try {
         }
     } catch (\Throwable $re) {}
 
+    // 5. Ensure alert_settings and alert_logs have tenant_id & clean orphaned WhatsApp receipts/GL entries
+    $orphanedReceiptsCleaned = 0;
+    $orphanedGlCleaned = 0;
+    try {
+        $alertCols = $pdo->query("DESCRIBE alert_settings")->fetchAll(PDO::FETCH_COLUMN);
+        if (!in_array('tenant_id', $alertCols)) {
+            $pdo->exec("ALTER TABLE alert_settings ADD COLUMN tenant_id INT(11) NOT NULL DEFAULT 12 FIRST");
+            try {
+                $pdo->exec("ALTER TABLE alert_settings DROP PRIMARY KEY, ADD PRIMARY KEY (tenant_id, rule_key)");
+            } catch (\Throwable $pkEx) {}
+        }
+        $logCols = $pdo->query("DESCRIBE alert_logs")->fetchAll(PDO::FETCH_COLUMN);
+        if (!in_array('tenant_id', $logCols)) {
+            $pdo->exec("ALTER TABLE alert_logs ADD COLUMN tenant_id INT(11) NOT NULL DEFAULT 12 AFTER id");
+        }
+        if (!in_array('screen_file', $logCols)) {
+            $pdo->exec("ALTER TABLE alert_logs ADD COLUMN screen_file VARCHAR(100) DEFAULT '' AFTER message");
+        }
+    } catch (\Throwable $ae) {}
+
+    try {
+        $delRec = $pdo->exec("
+            DELETE r FROM receipts r
+            LEFT JOIN inbound_bank_receipts ibr
+              ON r.tenant_id = ibr.tenant_id
+             AND CONVERT(r.frontend_id USING utf8mb4) COLLATE utf8mb4_unicode_ci = CONVERT(ibr.voucher_no USING utf8mb4) COLLATE utf8mb4_unicode_ci
+            WHERE JSON_UNQUOTE(JSON_EXTRACT(r.data, '$.source')) = 'whatsapp_inbound'
+              AND ibr.id IS NULL
+        ");
+        $orphanedReceiptsCleaned = (int)$delRec;
+
+        $delGl = $pdo->exec("
+            DELETE g FROM gl_entries g
+            LEFT JOIN inbound_bank_receipts ibr
+              ON g.tenant_id = ibr.tenant_id
+             AND CONVERT(JSON_UNQUOTE(JSON_EXTRACT(g.data, '$.voucherNo')) USING utf8mb4) COLLATE utf8mb4_unicode_ci = CONVERT(ibr.voucher_no USING utf8mb4) COLLATE utf8mb4_unicode_ci
+            WHERE g.frontend_id REGEXP '^GL-M[0-9]+-(DR|CR)$'
+              AND ibr.id IS NULL
+        ");
+        $orphanedGlCleaned = (int)$delGl;
+    } catch (\Throwable $ce) {}
+
     $gitCommit = trim((string)shell_exec('git rev-parse HEAD 2>&1'));
     $gitStatus = trim((string)shell_exec('git status --porcelain 2>&1'));
 
@@ -163,6 +205,8 @@ try {
         'message' => 'ui_preferences and user/role permissions verified and repaired successfully',
         'users_repaired' => $usersRepaired,
         'roles_repaired' => $rolesRepaired,
+        'orphaned_receipts_cleaned' => $orphanedReceiptsCleaned,
+        'orphaned_gl_cleaned' => $orphanedGlCleaned,
         'live_server_git_commit' => $gitCommit,
         'live_server_git_status' => empty($gitStatus) ? 'clean' : $gitStatus,
         'calibrated_props' => $calibratedProps

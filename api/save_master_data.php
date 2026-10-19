@@ -1,22 +1,47 @@
 <?php
 require_once __DIR__ . '/db.php';
+require_once __DIR__ . '/../db_bridge.php';
 require_once __DIR__ . '/check_entity_usage.php';
 header('Content-Type: application/json; charset=UTF-8');
 header('Cache-Control: no-cache, no-store, must-revalidate');
 
-$tenant_id = 1;
-if (!empty($_SERVER['HTTP_X_TENANT_ID'])) {
-    $tenant_id = (int)$_SERVER['HTTP_X_TENANT_ID'];
-} elseif (!empty($_GET['tenant_id'])) {
-    $tenant_id = (int)$_GET['tenant_id'];
+getDBConnection();
+global $GLOBAL_TENANT_ID;
+$tenant_id = !empty($GLOBAL_TENANT_ID) ? (int)$GLOBAL_TENANT_ID : 12;
+
+$reqHeaderTid = $_SERVER['HTTP_X_TENANT_ID'] ?? '';
+$reqGetTid = $_GET['tenant_id'] ?? '';
+$reqCookieTid = $_COOKIE['currentTenantId'] ?? '';
+
+if (is_numeric($reqHeaderTid) && (int)$reqHeaderTid > 1) {
+    $tenant_id = (int)$reqHeaderTid;
+} elseif (is_numeric($reqGetTid) && (int)$reqGetTid > 1) {
+    $tenant_id = (int)$reqGetTid;
+} elseif (is_numeric($reqCookieTid) && (int)$reqCookieTid > 1) {
+    $tenant_id = (int)$reqCookieTid;
 }
+
 $authHeader = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
-$token = str_replace('Bearer ', '', $authHeader);
+$token = trim(str_replace('Bearer', '', $authHeader));
+if (empty($token)) {
+    $token = $_COOKIE['saas_token'] ?? $_COOKIE['authToken'] ?? '';
+}
 if (!empty($token)) {
     $stmtAuth = $pdo->prepare('SELECT tenant_id FROM users WHERE token = ? LIMIT 1');
     $stmtAuth->execute([$token]);
     $t = $stmtAuth->fetchColumn();
     if ($t) { $tenant_id = (int)$t; }
+}
+
+// Verify tenant_id exists in tenants table to prevent Foreign Key constraint failures
+try {
+    $stmtVerifyTenant = $pdo->prepare('SELECT id FROM tenants WHERE id = ? LIMIT 1');
+    $stmtVerifyTenant->execute([$tenant_id]);
+    if (!$stmtVerifyTenant->fetchColumn()) {
+        $tenant_id = !empty($GLOBAL_TENANT_ID) && (int)$GLOBAL_TENANT_ID > 1 ? (int)$GLOBAL_TENANT_ID : 12;
+    }
+} catch (Exception $e) {
+    if ($tenant_id <= 1) $tenant_id = 12;
 }
 
 $input = json_decode(file_get_contents('php://input'), true);
@@ -78,6 +103,14 @@ try {
                 $crJson = json_encode($data, JSON_UNESCAPED_UNICODE);
                 $stmt = $pdo->prepare("INSERT INTO global_settings (setting_key, setting_value) VALUES ('erp_currency_rates_v1', ?) ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value), updated_at = NOW()");
                 $stmt->execute([$crJson]);
+            }
+            break;
+
+        case 'whatsapp_statement_policy':
+            if (is_array($data)) {
+                $polJson = json_encode($data, JSON_UNESCAPED_UNICODE);
+                $stmt = $pdo->prepare("INSERT INTO global_settings (setting_key, setting_value) VALUES ('erp_whatsapp_statement_policy_v1', ?) ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value), updated_at = NOW()");
+                $stmt->execute([$polJson]);
             }
             break;
 
@@ -284,10 +317,16 @@ try {
                     exit;
                 }
 
-                // Validate or auto-generate gap-aware receiptCodeNum (1..infinity) & receiptCodeWord
+                // Normalize requested statementPin (Password)
+                $rawPin = trim((string)($data['statementPin'] ?? ''));
+                $rawPin = strtr($rawPin, ['٠'=>'0','١'=>'1','٢'=>'2','٣'=>'3','٤'=>'4','٥'=>'5','٦'=>'6','٧'=>'7','٨'=>'8','٩'=>'9','۰'=>'0','۱'=>'1','۲'=>'2','۳'=>'3','۴'=>'4','۵'=>'5','۶'=>'6','۷'=>'7','۸'=>'8','۹'=>'9']);
+                $reqPin = preg_replace('/[^0-9]/', '', $rawPin);
+
+                // Validate unique statementPin across Customers & Suppliers (and maintain background receiptCodeNum)
                 $stmtAllCust = $pdo->prepare("SELECT frontend_id, customer_id, data FROM customers WHERE tenant_id = ? AND (is_deleted = 0 OR is_deleted IS NULL)");
                 $stmtAllCust->execute([$tenant_id]);
                 $usedCodeNums = [];
+                $usedPins = [];
                 $reqCodeNum = isset($data['receiptCodeNum']) ? (int)$data['receiptCodeNum'] : 0;
                 $reqCodeWord = trim((string)($data['receiptCodeWord'] ?? ''));
 
@@ -301,20 +340,40 @@ try {
                     if ($otherNum >= 1) {
                         $usedCodeNums[$otherNum] = $cObj['name'] ?? 'عميل آخر';
                     }
-                    if ($reqCodeNum >= 1 && $otherNum === $reqCodeNum) {
-                        echo json_encode(['success' => false, 'error' => 'كود الإشعارات الرقمي (' . $reqCodeNum . ') مسجل مسبقاً باسم العميل: ' . ($cObj['name'] ?? '')]);
-                        exit;
-                    }
-                    if (!empty($reqCodeWord)) {
-                        $otherWord = trim((string)($cObj['receiptCodeWord'] ?? ''));
-                        if (!empty($otherWord) && mb_strtolower($otherWord) === mb_strtolower($reqCodeWord)) {
-                            echo json_encode(['success' => false, 'error' => 'كود الإشعارات النصي (' . $reqCodeWord . ') مسجل مسبقاً باسم العميل: ' . ($cObj['name'] ?? '')]);
+                    $otherPinRaw = trim((string)($cObj['statementPin'] ?? ''));
+                    $otherPinRaw = strtr($otherPinRaw, ['٠'=>'0','١'=>'1','٢'=>'2','٣'=>'3','٤'=>'4','٥'=>'5','٦'=>'6','٧'=>'7','٨'=>'8','٩'=>'9','۰'=>'0','۱'=>'1','۲'=>'2','۳'=>'3','۴'=>'4','۵'=>'5','۶'=>'6','۷'=>'7','۸'=>'8','۹'=>'9']);
+                    $otherPin = preg_replace('/[^0-9]/', '', $otherPinRaw);
+                    if ($otherPin !== '') {
+                        $usedPins[$otherPin] = $cObj['name'] ?? 'عميل آخر';
+                        if ($reqPin !== '' && $otherPin === $reqPin) {
+                            echo json_encode(['success' => false, 'error' => 'الرقم السري / الباسورد (' . $reqPin . ') مسجل مسبقاً باسم العميل: ' . ($cObj['name'] ?? '') . ' — يرجى اختيار باسورد آخر أو توليد رقم جديد.']);
                             exit;
                         }
                     }
                 }
 
-                if ($reqCodeNum < 1) {
+                $stmtAllSupp = $pdo->prepare("SELECT frontend_id, supplier_id, data FROM suppliers WHERE tenant_id = ? AND (is_deleted = 0 OR is_deleted IS NULL)");
+                $stmtAllSupp->execute([$tenant_id]);
+                while ($sRow = $stmtAllSupp->fetch(PDO::FETCH_ASSOC)) {
+                    $sObj = json_decode($sRow['data'], true) ?: [];
+                    if (!empty($sObj['deleted'])) continue;
+                    $otherNum = isset($sObj['receiptCodeNum']) ? (int)$sObj['receiptCodeNum'] : 0;
+                    if ($otherNum >= 1) {
+                        $usedCodeNums[$otherNum] = $sObj['name'] ?? 'مورد آخر';
+                    }
+                    $otherPinRaw = trim((string)($sObj['statementPin'] ?? ''));
+                    $otherPinRaw = strtr($otherPinRaw, ['٠'=>'0','١'=>'1','٢'=>'2','٣'=>'3','٤'=>'4','٥'=>'5','٦'=>'6','٧'=>'7','٨'=>'8','٩'=>'9','۰'=>'0','۱'=>'1','۲'=>'2','۳'=>'3','۴'=>'4','۵'=>'5','۶'=>'6','۷'=>'7','۸'=>'8','۹'=>'9']);
+                    $otherPin = preg_replace('/[^0-9]/', '', $otherPinRaw);
+                    if ($otherPin !== '') {
+                        $usedPins[$otherPin] = $sObj['name'] ?? 'مورد آخر';
+                        if ($reqPin !== '' && $otherPin === $reqPin) {
+                            echo json_encode(['success' => false, 'error' => 'الرقم السري / الباسورد (' . $reqPin . ') مسجل مسبقاً باسم المورد: ' . ($sObj['name'] ?? '') . ' — يرجى اختيار باسورد آخر أو توليد رقم جديد.']);
+                            exit;
+                        }
+                    }
+                }
+
+                if ($reqCodeNum < 1 || isset($usedCodeNums[$reqCodeNum])) {
                     $cand = 1;
                     while (isset($usedCodeNums[$cand])) {
                         $cand++;
@@ -324,6 +383,30 @@ try {
                     $data['receiptCodeNum'] = $reqCodeNum;
                 }
                 $data['receiptCodeWord'] = $reqCodeWord;
+
+                if ($reqPin === '') {
+                    for ($att = 0; $att < 900; $att++) {
+                        $candPin = (string)random_int(100, 999);
+                        if (!isset($usedPins[$candPin])) {
+                            $reqPin = $candPin;
+                            break;
+                        }
+                    }
+                    if ($reqPin === '') {
+                        $seqPin = 100;
+                        while (isset($usedPins[(string)$seqPin])) {
+                            $seqPin++;
+                        }
+                        $reqPin = (string)$seqPin;
+                    }
+                }
+                $data['statementPin'] = $reqPin;
+                $mode = trim((string)($data['statementAccessMode'] ?? ''));
+                if (!in_array($mode, ['disabled', 'balance_only', 'detailed'], true)) {
+                    $mode = (isset($data['allowStatementRequest']) && !$data['allowStatementRequest']) ? 'disabled' : 'detailed';
+                }
+                $data['statementAccessMode'] = $mode;
+                $data['allowStatementRequest'] = ($mode !== 'disabled');
 
                 $data['deleted'] = 0;
                 $jsonData = json_encode($data, JSON_UNESCAPED_UNICODE);
@@ -346,6 +429,15 @@ try {
                 foreach ($data as $item) {
                     if (!$item || !isset($item['id'])) continue;
                     $cId = (string)$item['id'];
+                    $rawPin = trim((string)($item['statementPin'] ?? ''));
+                    $rawPin = strtr($rawPin, ['٠'=>'0','١'=>'1','٢'=>'2','٣'=>'3','٤'=>'4','٥'=>'5','٦'=>'6','٧'=>'7','٨'=>'8','٩'=>'9','۰'=>'0','۱'=>'1','۲'=>'2','۳'=>'3','۴'=>'4','۵'=>'5','۶'=>'6','۷'=>'7','۸'=>'8','۹'=>'9']);
+                    $item['statementPin'] = preg_replace('/[^0-9]/', '', $rawPin);
+                    $mode = trim((string)($item['statementAccessMode'] ?? ''));
+                    if (!in_array($mode, ['disabled', 'balance_only', 'detailed'], true)) {
+                        $mode = (isset($item['allowStatementRequest']) && !$item['allowStatementRequest']) ? 'disabled' : 'detailed';
+                    }
+                    $item['statementAccessMode'] = $mode;
+                    $item['allowStatementRequest'] = ($mode !== 'disabled');
                     $item['deleted'] = !empty($item['deleted']) ? 1 : 0;
                     $jsonData = json_encode($item, JSON_UNESCAPED_UNICODE);
 
@@ -409,17 +501,109 @@ try {
                     echo json_encode(['success' => false, 'error' => 'الاسم موجود مسبقاً، يرجى اختيار اسم آخر لتجنب التكرار.']);
                     exit;
                 }
+
+                // Normalize requested statementPin (Password)
+                $rawPin = trim((string)($data['statementPin'] ?? ''));
+                $rawPin = strtr($rawPin, ['٠'=>'0','١'=>'1','٢'=>'2','٣'=>'3','٤'=>'4','٥'=>'5','٦'=>'6','٧'=>'7','٨'=>'8','٩'=>'9','۰'=>'0','۱'=>'1','۲'=>'2','۳'=>'3','۴'=>'4','۵'=>'5','۶'=>'6','۷'=>'7','۸'=>'8','۹'=>'9']);
+                $reqPin = preg_replace('/[^0-9]/', '', $rawPin);
+
+                // Validate unique statementPin across Customers & Suppliers (and maintain background receiptCodeNum)
+                $usedCodeNums = [];
+                $usedPins = [];
+                $reqCodeNum = isset($data['receiptCodeNum']) ? (int)$data['receiptCodeNum'] : 0;
+                $reqCodeWord = trim((string)($data['receiptCodeWord'] ?? ''));
+
+                $stmtAllCust = $pdo->prepare("SELECT frontend_id, customer_id, data FROM customers WHERE tenant_id = ? AND (is_deleted = 0 OR is_deleted IS NULL)");
+                $stmtAllCust->execute([$tenant_id]);
+                while ($cRow = $stmtAllCust->fetch(PDO::FETCH_ASSOC)) {
+                    $cObj = json_decode($cRow['data'], true) ?: [];
+                    if (!empty($cObj['deleted'])) continue;
+                    $otherNum = isset($cObj['receiptCodeNum']) ? (int)$cObj['receiptCodeNum'] : 0;
+                    if ($otherNum >= 1) {
+                        $usedCodeNums[$otherNum] = $cObj['name'] ?? 'عميل آخر';
+                    }
+                    $otherPinRaw = trim((string)($cObj['statementPin'] ?? ''));
+                    $otherPinRaw = strtr($otherPinRaw, ['٠'=>'0','١'=>'1','٢'=>'2','٣'=>'3','٤'=>'4','٥'=>'5','٦'=>'6','٧'=>'7','٨'=>'8','٩'=>'9','۰'=>'0','۱'=>'1','۲'=>'2','۳'=>'3','۴'=>'4','۵'=>'5','۶'=>'6','۷'=>'7','۸'=>'8','۹'=>'9']);
+                    $otherPin = preg_replace('/[^0-9]/', '', $otherPinRaw);
+                    if ($otherPin !== '') {
+                        $usedPins[$otherPin] = $cObj['name'] ?? 'عميل آخر';
+                        if ($reqPin !== '' && $otherPin === $reqPin) {
+                            echo json_encode(['success' => false, 'error' => 'الرقم السري / الباسورد (' . $reqPin . ') مسجل مسبقاً باسم العميل: ' . ($cObj['name'] ?? '') . ' — يرجى اختيار باسورد آخر أو توليد رقم جديد.']);
+                            exit;
+                        }
+                    }
+                }
+
+                $stmtAllSupp = $pdo->prepare("SELECT frontend_id, supplier_id, data FROM suppliers WHERE tenant_id = ? AND (is_deleted = 0 OR is_deleted IS NULL)");
+                $stmtAllSupp->execute([$tenant_id]);
+                while ($sRow = $stmtAllSupp->fetch(PDO::FETCH_ASSOC)) {
+                    $sObj = json_decode($sRow['data'], true) ?: [];
+                    if (!empty($sObj['deleted'])) continue;
+                    $otherId = (string)($sObj['id'] ?? $sRow['frontend_id'] ?? $sRow['supplier_id'] ?? '');
+                    if ($otherId === $sId) continue;
+
+                    $otherNum = isset($sObj['receiptCodeNum']) ? (int)$sObj['receiptCodeNum'] : 0;
+                    if ($otherNum >= 1) {
+                        $usedCodeNums[$otherNum] = $sObj['name'] ?? 'مورد آخر';
+                    }
+                    $otherPinRaw = trim((string)($sObj['statementPin'] ?? ''));
+                    $otherPinRaw = strtr($otherPinRaw, ['٠'=>'0','١'=>'1','٢'=>'2','٣'=>'3','٤'=>'4','٥'=>'5','٦'=>'6','٧'=>'7','٨'=>'8','٩'=>'9','۰'=>'0','۱'=>'1','۲'=>'2','۳'=>'3','۴'=>'4','۵'=>'5','۶'=>'6','۷'=>'7','۸'=>'8','۹'=>'9']);
+                    $otherPin = preg_replace('/[^0-9]/', '', $otherPinRaw);
+                    if ($otherPin !== '') {
+                        $usedPins[$otherPin] = $sObj['name'] ?? 'مورد آخر';
+                        if ($reqPin !== '' && $otherPin === $reqPin) {
+                            echo json_encode(['success' => false, 'error' => 'الرقم السري / الباسورد (' . $reqPin . ') مسجل مسبقاً باسم المورد: ' . ($sObj['name'] ?? '') . ' — يرجى اختيار باسورد آخر أو توليد رقم جديد.']);
+                            exit;
+                        }
+                    }
+                }
+
+                if ($reqCodeNum < 1 || isset($usedCodeNums[$reqCodeNum])) {
+                    $cand = 1;
+                    while (isset($usedCodeNums[$cand])) {
+                        $cand++;
+                    }
+                    $data['receiptCodeNum'] = $cand;
+                } else {
+                    $data['receiptCodeNum'] = $reqCodeNum;
+                }
+                $data['receiptCodeWord'] = $reqCodeWord;
+
+                if ($reqPin === '') {
+                    for ($att = 0; $att < 900; $att++) {
+                        $candPin = (string)random_int(100, 999);
+                        if (!isset($usedPins[$candPin])) {
+                            $reqPin = $candPin;
+                            break;
+                        }
+                    }
+                    if ($reqPin === '') {
+                        $seqPin = 100;
+                        while (isset($usedPins[(string)$seqPin])) {
+                            $seqPin++;
+                        }
+                        $reqPin = (string)$seqPin;
+                    }
+                }
+                $data['statementPin'] = $reqPin;
+                $mode = trim((string)($data['statementAccessMode'] ?? ''));
+                if (!in_array($mode, ['disabled', 'balance_only', 'detailed'], true)) {
+                    $mode = (isset($data['allowStatementRequest']) && !$data['allowStatementRequest']) ? 'disabled' : 'detailed';
+                }
+                $data['statementAccessMode'] = $mode;
+                $data['allowStatementRequest'] = ($mode !== 'disabled');
                 $data['deleted'] = 0;
+                $sPhoneVal = trim((string)($data['phone'] ?? $data['whatsapp'] ?? ''));
                 $jsonData = json_encode($data, JSON_UNESCAPED_UNICODE);
                 $stmtCheck = $pdo->prepare("SELECT id FROM suppliers WHERE tenant_id = ? AND (frontend_id = ? OR supplier_id = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')) = ?) LIMIT 1");
                 $stmtCheck->execute([$tenant_id, $sId, $sId, $sId]);
                 $existingId = $stmtCheck->fetchColumn();
                 if ($existingId) {
-                    $stmtUp = $pdo->prepare("UPDATE suppliers SET supplier_id = ?, data = ?, updated_at = NOW() WHERE id = ?");
-                    $stmtUp->execute([$sId, $jsonData, $existingId]);
+                    $stmtUp = $pdo->prepare("UPDATE suppliers SET supplier_id = ?, search_name = ?, search_phone = ?, data = ?, updated_at = NOW() WHERE id = ?");
+                    $stmtUp->execute([$sId, trim((string)$sName), $sPhoneVal, $jsonData, $existingId]);
                 } else {
-                    $stmtIns = $pdo->prepare("INSERT INTO suppliers (tenant_id, supplier_id, data) VALUES (?, ?, ?)");
-                    $stmtIns->execute([$tenant_id, $sId, $jsonData]);
+                    $stmtIns = $pdo->prepare("INSERT INTO suppliers (tenant_id, supplier_id, search_name, search_phone, data) VALUES (?, ?, ?, ?, ?)");
+                    $stmtIns->execute([$tenant_id, $sId, trim((string)$sName), $sPhoneVal, $jsonData]);
                 }
             }
             break;
@@ -430,6 +614,17 @@ try {
                 foreach ($data as $item) {
                     if (!$item || !isset($item['id'])) continue;
                     $sId = (string)$item['id'];
+                    $sNameVal = trim((string)($item['name'] ?? ''));
+                    $sPhoneVal = trim((string)($item['phone'] ?? $item['whatsapp'] ?? ''));
+                    $rawPin = trim((string)($item['statementPin'] ?? ''));
+                    $rawPin = strtr($rawPin, ['٠'=>'0','١'=>'1','٢'=>'2','٣'=>'3','٤'=>'4','٥'=>'5','٦'=>'6','٧'=>'7','٨'=>'8','٩'=>'9','۰'=>'0','۱'=>'1','۲'=>'2','۳'=>'3','۴'=>'4','۵'=>'5','۶'=>'6','۷'=>'7','۸'=>'8','۹'=>'9']);
+                    $item['statementPin'] = preg_replace('/[^0-9]/', '', $rawPin);
+                    $mode = trim((string)($item['statementAccessMode'] ?? ''));
+                    if (!in_array($mode, ['disabled', 'balance_only', 'detailed'], true)) {
+                        $mode = (isset($item['allowStatementRequest']) && !$item['allowStatementRequest']) ? 'disabled' : 'detailed';
+                    }
+                    $item['statementAccessMode'] = $mode;
+                    $item['allowStatementRequest'] = ($mode !== 'disabled');
                     $item['deleted'] = !empty($item['deleted']) ? 1 : 0;
                     $jsonData = json_encode($item, JSON_UNESCAPED_UNICODE);
 
@@ -438,11 +633,11 @@ try {
                     $existingId = $stmtCheck->fetchColumn();
 
                     if ($existingId) {
-                        $stmtUp = $pdo->prepare("UPDATE suppliers SET supplier_id = ?, data = ?, updated_at = NOW() WHERE id = ?");
-                        $stmtUp->execute([$sId, $jsonData, $existingId]);
+                        $stmtUp = $pdo->prepare("UPDATE suppliers SET supplier_id = ?, search_name = ?, search_phone = ?, data = ?, updated_at = NOW() WHERE id = ?");
+                        $stmtUp->execute([$sId, $sNameVal, $sPhoneVal, $jsonData, $existingId]);
                     } else {
-                        $stmtIns = $pdo->prepare("INSERT INTO suppliers (tenant_id, supplier_id, data) VALUES (?, ?, ?)");
-                        $stmtIns->execute([$tenant_id, $sId, $jsonData]);
+                        $stmtIns = $pdo->prepare("INSERT INTO suppliers (tenant_id, supplier_id, search_name, search_phone, data) VALUES (?, ?, ?, ?, ?)");
+                        $stmtIns->execute([$tenant_id, $sId, $sNameVal, $sPhoneVal, $jsonData]);
                     }
                 }
             }
@@ -924,7 +1119,7 @@ try {
             break;
     }
 
-    echo json_encode(['success' => true, 'type' => $type], JSON_UNESCAPED_UNICODE);
+    echo json_encode(['success' => true, 'type' => $type, 'data' => $data, 'tenant_id' => $tenant_id], JSON_UNESCAPED_UNICODE);
 } catch (Exception $e) {
     http_response_code(500);
     echo json_encode(['success' => false, 'error' => $e->getMessage()], JSON_UNESCAPED_UNICODE);

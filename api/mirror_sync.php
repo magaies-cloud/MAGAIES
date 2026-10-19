@@ -818,19 +818,36 @@ function normalizeVoucherRecord(array $d, string $fallbackId = ''): array {
         $sdg = round($usd * $rate, 2);
     }
 
-    $fromName = trim((string)($d['fromAccountName'] ?? ($d['fromName'] ?? ($d['from'] ?? ($d['fromAccount'] ?? '')))));
-    $toName   = trim((string)($d['toAccountName'] ?? ($d['toName'] ?? ($d['to'] ?? ($d['toAccount'] ?? ($d['beneficiaryName'] ?? ''))))));
-    $fromAcc  = trim((string)($d['fromAccount'] ?? $fromName));
-    $toAcc    = trim((string)($d['toAccount'] ?? $toName));
+    $scalarStr = static function ($val): string {
+        if (is_array($val)) {
+            foreach (['accountName', 'name', 'label', 'title', 'account', 'code', 'id'] as $k) {
+                if (isset($val[$k]) && !is_array($val[$k]) && trim((string)$val[$k]) !== '') {
+                    return trim((string)$val[$k]);
+                }
+            }
+            foreach ($val as $item) {
+                if (is_scalar($item) && trim((string)$item) !== '') {
+                    return trim((string)$item);
+                }
+            }
+            return '';
+        }
+        return is_scalar($val) ? trim((string)$val) : '';
+    };
+
+    $fromName = $scalarStr($d['fromAccountName'] ?? ($d['fromName'] ?? ($d['from'] ?? ($d['fromAccount'] ?? ''))));
+    $toName   = $scalarStr($d['toAccountName'] ?? ($d['toName'] ?? ($d['to'] ?? ($d['toAccount'] ?? ($d['beneficiaryName'] ?? '')))));
+    $fromAcc  = $scalarStr($d['fromAccount'] ?? '') ?: $fromName;
+    $toAcc    = $scalarStr($d['toAccount'] ?? '') ?: $toName;
 
     $transfers = (isset($d['bankTransfers']) && is_array($d['bankTransfers'])) ? $d['bankTransfers'] : [];
     $firstTr   = (!empty($transfers[0]) && is_array($transfers[0])) ? $transfers[0] : [];
 
-    $refNo = trim((string)($d['refNo'] ?? ($d['mobileTransferNo'] ?? ($d['transferNo'] ?? ($d['transferRef'] ?? ($firstTr['transferNo'] ?? ($d['checkNo'] ?? '')))))));
-    $bankName = trim((string)($d['bankName'] ?? ($d['bank'] ?? ($d['mobileNote'] ?? ($firstTr['note'] ?? ($firstTr['bankName'] ?? ''))))));
-    $notes = trim((string)($d['notes'] ?? ($d['toStatement'] ?? ($d['fromStatement'] ?? ($d['statement'] ?? ($d['description'] ?? ($firstTr['statement'] ?? '')))))));
+    $refNo = $scalarStr($d['refNo'] ?? ($d['mobileTransferNo'] ?? ($d['transferNo'] ?? ($d['transferRef'] ?? ($firstTr['transferNo'] ?? ($d['checkNo'] ?? ''))))));
+    $bankName = $scalarStr($d['bankName'] ?? ($d['bank'] ?? ($d['mobileNote'] ?? ($firstTr['note'] ?? ($firstTr['bankName'] ?? '')))));
+    $notes = $scalarStr($d['notes'] ?? ($d['toStatement'] ?? ($d['fromStatement'] ?? ($d['statement'] ?? ($d['description'] ?? ($firstTr['statement'] ?? ''))))));
 
-    $payMethod = trim((string)($d['paymentMethod'] ?? ($d['payType'] ?? ($d['method'] ?? (($refNo !== '' || $bankName !== '') ? 'mobile' : 'cash')))));
+    $payMethod = $scalarStr($d['paymentMethod'] ?? ($d['payType'] ?? ($d['method'] ?? (($refNo !== '' || $bankName !== '') ? 'mobile' : 'cash'))));
     if ($payMethod === '') $payMethod = ($refNo !== '' || $bankName !== '') ? 'mobile' : 'cash';
 
     if (empty($transfers) && ($refNo !== '' || $bankName !== '' || $payMethod === 'mobile' || $payMethod === 'transfer')) {

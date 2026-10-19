@@ -41,20 +41,13 @@ try {
         $engine = [Windows.Media.Ocr.OcrEngine]::TryCreateFromLanguage($lang)
         if ($null -ne $engine) {
             $res = Await ($engine.RecognizeAsync($bitmap)) ([Windows.Media.Ocr.OcrResult])
-            foreach ($line in $res.Lines) {
-                $wordsLtr = ($line.Words | Sort-Object { $_.BoundingRect.X } | ForEach-Object { $_.Text }) -join " "
-                $wordsRtl = ($line.Words | Sort-Object { $_.BoundingRect.X } -Descending | ForEach-Object { $_.Text }) -join " "
-                if ($tag -like 'ar*') {
-                    $arLines += [PSCustomObject]@{
-                        text = $line.Text
-                        ltr  = $wordsLtr
-                        rtl  = $wordsRtl
-                    }
-                } elseif ($tag -like 'en*') {
-                    $enLines += [PSCustomObject]@{
-                        text = $line.Text
-                        ltr  = $wordsLtr
-                    }
+            if ($tag -like 'ar*') {
+                foreach ($line in $res.Lines) {
+                    $arLines += [PSCustomObject]@{ text = $line.Text }
+                }
+            } elseif ($tag -like 'en*') {
+                foreach ($line in $res.Lines) {
+                    $enLines += [PSCustomObject]@{ text = $line.Text }
                 }
             }
         }

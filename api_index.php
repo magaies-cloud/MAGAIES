@@ -66,7 +66,7 @@ function is_disposable_email($email) {
 
 function normalizePhoneNumber($phone) {
     // Strip all non-numeric characters
-    $phone = preg_replace('/[^0-9]/', '', $phone);
+    $phone = preg_replace('/[^0-9]/', '', (string)$phone);
     
     // Strip leading 00
     if (strpos($phone, '00') === 0) {
@@ -76,19 +76,22 @@ function normalizePhoneNumber($phone) {
     // Check if it starts with 0
     if (strpos($phone, '0') === 0) {
         if (strpos($phone, '09') === 0) {
-            // Sudan (e.g. 0912300105 -> 249912300105)
+            // Sudan Zain/MTN (e.g. 0912300105 -> 249912300105)
+            $phone = '249' . substr($phone, 1);
+        } elseif (strpos($phone, '01') === 0 && strlen($phone) === 10) {
+            // Sudan Sudani/Canar 10-digit (e.g. 0123065893 / 0115637300 -> 249123065893)
             $phone = '249' . substr($phone, 1);
         } elseif (strpos($phone, '05') === 0) {
             // Saudi Arabia (e.g. 0501234567 -> 966501234567)
             $phone = '966' . substr($phone, 1);
         } elseif (strpos($phone, '01') === 0) {
-            // Egypt (e.g. 01012345678 -> 201012345678)
+            // Egypt 11-digit (e.g. 01012345678 -> 201012345678)
             $phone = '20' . substr($phone, 1);
         }
     } else {
         // No leading 0. Check if they omitted country code
-        if (strpos($phone, '9') === 0 && strlen($phone) === 9) {
-            // Sudan without leading 0 (e.g. 912300105 -> 249912300105)
+        if ((strpos($phone, '9') === 0 || strpos($phone, '1') === 0) && strlen($phone) === 9) {
+            // Sudan without leading 0 (e.g. 912300105 or 123065893 -> 249912300105)
             $phone = '249' . $phone;
         } elseif (strpos($phone, '5') === 0 && strlen($phone) === 9) {
             // Saudi Arabia without leading 0 (e.g. 501234567 -> 966501234567)
@@ -152,10 +155,10 @@ function generateToken() {
 // PUBLIC ROUTES (No token required)
 // ---------------------------------------------------------
 
-if ($resource === 'wa-tenant' || $action === 'wa-proxy') {
+if ($resource === 'wa-tenant' || $resource === 'wa' || $action === 'wa-proxy') {
     startWhatsAppServiceIfNeeded();
     $endpoint = ltrim($_GET['a2'] ?? $_GET['endpoint'] ?? $action ?? 'status', '/');
-    if ($endpoint === 'wa-proxy' || $endpoint === 'wa-tenant') {
+    if ($endpoint === 'wa-proxy' || $endpoint === 'wa-tenant' || $endpoint === 'wa') {
         $endpoint = 'status';
     }
     
@@ -1753,8 +1756,11 @@ if ($resource === 'sync') {
                                     }
                                 } else {
                                     $isFin = in_array($table, ['sales_invoices', 'purchase_invoices', 'gl_entries', 'receipts', 'payments', 'journal_vouchers', 'single_receipts', 'single_payments']);
+                                    $isPartyTable = in_array($table, ['customers', 'suppliers'], true);
                                     if ($isFin) {
                                         $stmtAll = $pdo->prepare("SELECT id, status_val, updated_at, COALESCE(JSON_EXTRACT(data, '$.id'), JSON_EXTRACT(data, '$.invoiceNo'), JSON_EXTRACT(data, '$.receiptNo'), JSON_EXTRACT(data, '$.paymentNo'), JSON_EXTRACT(data, '$.jvNo')) as doc_id FROM `$table` WHERE tenant_id = ?");
+                                    } elseif ($isPartyTable) {
+                                        $stmtAll = $pdo->prepare("SELECT id, data, COALESCE(JSON_EXTRACT(data, '$.id'), JSON_EXTRACT(data, '$.invoiceNo'), JSON_EXTRACT(data, '$.receiptNo'), JSON_EXTRACT(data, '$.paymentNo'), JSON_EXTRACT(data, '$.jvNo')) as doc_id FROM `$table` WHERE tenant_id = ?");
                                     } else {
                                         $stmtAll = $pdo->prepare("SELECT id, COALESCE(JSON_EXTRACT(data, '$.id'), JSON_EXTRACT(data, '$.invoiceNo'), JSON_EXTRACT(data, '$.receiptNo'), JSON_EXTRACT(data, '$.paymentNo'), JSON_EXTRACT(data, '$.jvNo')) as doc_id FROM `$table` WHERE tenant_id = ?");
                                     }
@@ -1776,9 +1782,26 @@ if ($resource === 'sync') {
                                         $closedPeriods = $stmtP->fetchAll(PDO::FETCH_ASSOC);
                                     }
 
+                                    // Load active WhatsApp inbound voucher numbers so stale browser tabs never re-insert deleted/reassigned WhatsApp receipts or GL entries
+                                    $activeInboundVouchersMap = [];
+                                    if ($table === 'receipts' || $table === 'gl_entries') {
+                                        try {
+                                            $stmtInb = $pdo->prepare("SELECT voucher_no FROM inbound_bank_receipts WHERE tenant_id = ? AND voucher_no IS NOT NULL AND voucher_no != ''");
+                                            $stmtInb->execute([(string)$tenant_id]);
+                                            foreach ($stmtInb->fetchAll(PDO::FETCH_COLUMN) as $vNoItem) {
+                                                $vNoClean = trim((string)$vNoItem);
+                                                if ($vNoClean !== '') {
+                                                    $activeInboundVouchersMap[$vNoClean] = true;
+                                                }
+                                            }
+                                        } catch (Exception $inbEx) {}
+                                    }
+
                                     $updateSql = "UPDATE `$table` SET data = CASE id ";
                                     $idsToUpdate = [];
+                                    $idsToDelete = [];
                                     $insertValues = [];
+                                    $seenRecordIds = [];
 
                                     foreach ($records as $record) {
                                         // Unified identifier extraction
@@ -1795,7 +1818,29 @@ if ($resource === 'sync') {
                                             $record['createdBy'] = $userId;
                                         }
 
-                                        $strRecordId = (string)$recordId;
+                                        $strRecordId = trim((string)$recordId);
+                                        if ($strRecordId === '' || isset($seenRecordIds[$strRecordId])) {
+                                            continue;
+                                        }
+                                        $seenRecordIds[$strRecordId] = true;
+
+                                        // Guard against re-inserting deleted or reassigned WhatsApp inbound receipts & GL entries from stale localStorage
+                                        if ($table === 'receipts' && (($record['source'] ?? '') === 'whatsapp_inbound' || !empty($record['inboundReceiptId']))) {
+                                            if (!isset($activeInboundVouchersMap[$strRecordId])) {
+                                                if (isset($existingMap[$strRecordId])) {
+                                                    $idsToDelete[] = (int)$existingMap[$strRecordId]['id'];
+                                                }
+                                                continue;
+                                            }
+                                        } elseif ($table === 'gl_entries' && preg_match('/^GL-(M\d+)-(DR|CR)$/i', $strRecordId, $mGl)) {
+                                            $glVoucherNo = $mGl[1];
+                                            if (!isset($activeInboundVouchersMap[$glVoucherNo])) {
+                                                if (isset($existingMap[$strRecordId])) {
+                                                    $idsToDelete[] = (int)$existingMap[$strRecordId]['id'];
+                                                }
+                                                continue;
+                                            }
+                                        }
                                         
                                         // Financial rules checks
                                         if (isset($isFin) && $isFin) {
@@ -1817,6 +1862,35 @@ if ($resource === 'sync') {
                                             }
                                         }
 
+                                        // Protect critical customer/supplier PIN, code, and WhatsApp fields from being wiped by stale tab syncs
+                                        if ($isPartyTable && isset($existingMap[$strRecordId]) && !empty($existingMap[$strRecordId]['data'])) {
+                                            $dbPartyObj = json_decode($existingMap[$strRecordId]['data'], true);
+                                            if (is_array($dbPartyObj)) {
+                                                if (empty($record['statementPin']) && !empty($dbPartyObj['statementPin'])) {
+                                                    $record['statementPin'] = $dbPartyObj['statementPin'];
+                                                }
+                                                if (empty($record['receiptCodeNum']) && !empty($dbPartyObj['receiptCodeNum'])) {
+                                                    $record['receiptCodeNum'] = $dbPartyObj['receiptCodeNum'];
+                                                }
+                                                if (empty($record['statementAccessMode']) && !empty($dbPartyObj['statementAccessMode'])) {
+                                                    $record['statementAccessMode'] = $dbPartyObj['statementAccessMode'];
+                                                    $record['allowStatementRequest'] = ($dbPartyObj['statementAccessMode'] !== 'disabled');
+                                                }
+                                                if (empty($record['subPhones']) && !empty($dbPartyObj['subPhones'])) {
+                                                    $record['subPhones'] = $dbPartyObj['subPhones'];
+                                                }
+                                                if (empty($record['whatsappLid']) && !empty($dbPartyObj['whatsappLid'])) {
+                                                    $record['whatsappLid'] = $dbPartyObj['whatsappLid'];
+                                                }
+                                                if (empty($record['phone']) && !empty($dbPartyObj['phone'])) {
+                                                    $record['phone'] = $dbPartyObj['phone'];
+                                                }
+                                                if (empty($record['whatsapp']) && !empty($dbPartyObj['whatsapp'])) {
+                                                    $record['whatsapp'] = $dbPartyObj['whatsapp'];
+                                                }
+                                            }
+                                        }
+
                                         $jsonData = json_encode($record, JSON_UNESCAPED_UNICODE);
 
                                         if (isset($existingMap[$strRecordId])) {
@@ -1827,20 +1901,25 @@ if ($resource === 'sync') {
                                             $insertValues[] = "($tenant_id, " . $pdo->quote($jsonData) . ")";
                                         }
                                     }
+
+                                    if (!empty($idsToDelete)) {
+                                        $pdo->exec("DELETE FROM `$table` WHERE id IN (" . implode(',', array_map('intval', $idsToDelete)) . ")");
+                                    }
                                     
                                     if (!empty($idsToUpdate)) {
                                         $updateSql .= "END WHERE id IN (" . implode(',', $idsToUpdate) . ")";
                                         $pdo->exec($updateSql);
                                     }
                                     if (!empty($insertValues)) {
+                                        $insertSql = "INSERT INTO `$table` (tenant_id, data) VALUES " . implode(", ", $insertValues) . " ON DUPLICATE KEY UPDATE data = VALUES(data)";
                                         try {
-                                            $pdo->exec("INSERT INTO `$table` (tenant_id, data) VALUES " . implode(", ", $insertValues));
+                                            $pdo->exec($insertSql);
                                         } catch (PDOException $insertErr) {
                                             // If auto-increment error 1467 occurs, auto-repair AUTO_INCREMENT counter and retry insert
                                             if (strpos($insertErr->getMessage(), '1467') !== false || strpos($insertErr->getMessage(), 'auto-increment') !== false) {
                                                 $maxId = (int)$pdo->query("SELECT IFNULL(MAX(id), 0) FROM `$table`")->fetchColumn();
                                                 $pdo->exec("ALTER TABLE `$table` AUTO_INCREMENT = " . ($maxId + 1));
-                                                $pdo->exec("INSERT INTO `$table` (tenant_id, data) VALUES " . implode(", ", $insertValues));
+                                                $pdo->exec($insertSql);
                                             } else {
                                                 throw $insertErr;
                                             }

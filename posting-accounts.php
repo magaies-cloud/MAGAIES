@@ -1045,9 +1045,14 @@
                     <label style="color:#94a3b8; font-size:0.85rem; font-weight:bold;">إلى:</label>
                     <input type="date" id="date-to" class="date-input" onchange="handleFilterChange()">
                 </div>
+
+                <button type="button" onclick="if(window.InboundBankakManager){InboundBankakManager.toggleDrawer(true); InboundBankakManager.setFilter('awaiting_approval');}" style="height:38px; padding:0 14px; border-radius:10px; background:linear-gradient(135deg, rgba(16,185,129,0.22), rgba(5,150,105,0.15)); border:1px solid rgba(16,185,129,0.5); color:#34d399; font-family:'Tajawal',sans-serif; font-size:0.85rem; font-weight:900; cursor:pointer; display:inline-flex; align-items:center; gap:6px; white-space:nowrap; box-shadow:0 4px 12px rgba(16,185,129,0.15);">
+                    <span>📥</span> <span>صينية استلام إشعارات الواتساب</span>
+                </button>
             </div>
             <div class="type-filters" id="type-filters">
                 <button class="type-chip active" id="type-all" onclick="setType('all')">الكل</button>
+                <button class="type-chip" id="type-whatsapp" onclick="setType('whatsapp')" style="border-color:rgba(16,185,129,0.45); color:#34d399;">📲 إشعارات واتساب</button>
                 <button class="type-chip" id="type-sales" onclick="setType('sales')">مبيعات</button>
                 <button class="type-chip" id="type-purchases" onclick="setType('purchases')">مشتريات</button>
                 <button class="type-chip" id="type-receipt" onclick="setType('receipt')">سندات قبض</button>
@@ -1174,6 +1179,7 @@
             location.reload();
         }
     </script>
+    <?php include_once 'includes/inbound-bankak-drawer.php'; ?>
 </body>
 </html>
 

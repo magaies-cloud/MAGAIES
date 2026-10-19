@@ -674,6 +674,177 @@
         :root.light-theme .text-rose-400, :root.light-theme span[style*="color: #f87171"], :root.light-theme span[style*="color:#f87171"] { color: #e11d48 !important; }
         :root.light-theme .text-sky-400, :root.light-theme span[style*="color: #38bdf8"], :root.light-theme span[style*="color:#38bdf8"] { color: #0284c7 !important; }
         :root.light-theme .text-purple-400, :root.light-theme span[style*="color: #c084fc"], :root.light-theme span[style*="color:#c084fc"] { color: #7c3aed !important; }
+
+        /* ═══════════════════════════════════════════════════════════════════════════
+           تنسيق هندسي موحد وعالي الدقة لشاشة العملاء والموردين (Symmetrical ERP Grid)
+           جميع الحقول مستطيلة متطابقة الأبعاد والارتفاع والمحاذاة بنسبة 100%
+           ═══════════════════════════════════════════════════════════════════════════ */
+        .pro-entity-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 14px;
+            align-items: stretch;
+            margin-bottom: 14px;
+        }
+        @media (max-width: 1200px) {
+            .pro-entity-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+        @media (max-width: 680px) {
+            .pro-entity-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        .pro-field-card {
+            background: rgba(15, 23, 42, 0.55);
+            border: 1px solid rgba(255, 255, 255, 0.11);
+            border-radius: 12px;
+            padding: 10px 14px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            height: 98px !important;
+            min-height: 98px !important;
+            max-height: 98px !important;
+            box-sizing: border-box !important;
+            margin: 0 !important;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+        }
+        .pro-field-card:focus-within {
+            border-color: #38bdf8 !important;
+            box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2) !important;
+            background: rgba(15, 23, 42, 0.8) !important;
+        }
+        .pro-field-card.accent-sky {
+            background: linear-gradient(135deg, rgba(56, 189, 248, 0.08), rgba(15, 23, 42, 0.6));
+            border-color: rgba(56, 189, 248, 0.38);
+        }
+        .pro-field-card.accent-emerald {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.09), rgba(15, 23, 42, 0.6));
+            border-color: rgba(16, 185, 129, 0.42);
+        }
+        .pro-field-card.accent-purple {
+            background: linear-gradient(135deg, rgba(168, 85, 247, 0.10), rgba(15, 23, 42, 0.6));
+            border-color: rgba(168, 85, 247, 0.45);
+        }
+        .pro-field-card.accent-whatsapp {
+            background: linear-gradient(135deg, rgba(37, 211, 102, 0.09), rgba(15, 23, 42, 0.6));
+            border-color: rgba(37, 211, 102, 0.42);
+        }
+        .pro-field-card .pro-field-label {
+            display: flex !important;
+            align-items: center !important;
+            justify-content: space-between !important;
+            gap: 6px !important;
+            height: 24px !important;
+            min-height: 24px !important;
+            max-height: 24px !important;
+            margin: 0 0 6px 0 !important;
+            padding: 0 !important;
+            font-size: 0.92rem !important;
+            font-weight: 800 !important;
+            color: #e2e8f0 !important;
+            white-space: nowrap !important;
+            overflow: hidden !important;
+        }
+        .pro-field-card .pro-field-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            height: 20px;
+            padding: 0 7px;
+            border-radius: 6px;
+            font-size: 0.72rem;
+            font-weight: 800;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+        .pro-field-card input:not([type="checkbox"]):not([type="hidden"]),
+        .pro-field-card select,
+        .pro-field-card textarea {
+            height: 46px !important;
+            min-height: 46px !important;
+            max-height: 46px !important;
+            width: 100% !important;
+            padding: 0 12px !important;
+            border-radius: 9px !important;
+            border: 1px solid rgba(255, 255, 255, 0.14) !important;
+            background: rgba(0, 0, 0, 0.36) !important;
+            color: #ffffff !important;
+            font-size: 1.12rem !important;
+            font-weight: 700 !important;
+            line-height: 44px !important;
+            box-sizing: border-box !important;
+            margin: 0 !important;
+            resize: none !important;
+        }
+        .pro-field-card textarea {
+            padding-top: 8px !important;
+            padding-bottom: 8px !important;
+            line-height: 1.35 !important;
+        }
+        .pro-field-card input.pro-num-input {
+            font-size: 1.28rem !important;
+            font-weight: 900 !important;
+            font-family: 'Outfit', 'Tajawal', sans-serif !important;
+            text-align: center !important;
+            direction: ltr !important;
+            letter-spacing: 0.5px !important;
+        }
+        .pro-guide-bar {
+            display: grid;
+            grid-template-columns: repeat(5, minmax(0, 1fr));
+            gap: 8px;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        @media (max-width: 1100px) {
+            .pro-guide-bar {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+        @media (max-width: 640px) {
+            .pro-guide-bar {
+                grid-template-columns: 1fr;
+            }
+        }
+        .pro-guide-item {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 8px;
+            padding: 6px 10px;
+            font-size: 0.76rem;
+            color: #cbd5e1;
+            line-height: 1.3;
+        }
+        .pro-guide-item strong {
+            white-space: nowrap;
+            font-weight: 900;
+        }
+        :root.light-theme .pro-field-card {
+            background: #f8fafc !important;
+            border-color: rgba(15, 23, 42, 0.12) !important;
+        }
+        :root.light-theme .pro-field-card .pro-field-label {
+            color: #1e293b !important;
+        }
+        :root.light-theme .pro-field-card input:not([type="checkbox"]):not([type="hidden"]),
+        :root.light-theme .pro-field-card select,
+        :root.light-theme .pro-field-card textarea {
+            background: #ffffff !important;
+            color: #0f172a !important;
+            border-color: rgba(15, 23, 42, 0.2) !important;
+        }
+        :root.light-theme .pro-guide-item {
+            background: #f1f5f9 !important;
+            border-color: rgba(15, 23, 42, 0.1) !important;
+            color: #334155 !important;
+        }
     </style>
 
 </head>
@@ -738,95 +909,327 @@
 
             <div id="tab-customers" class="md-tab-content">
                 <div class="md-card">
-                    <div id="customer-form" class="md-card" style="display: block; margin-bottom: 25px; border: 1px solid var(--glass-border); background: rgba(0,0,0,0.2);">
-                        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 5px; margin-bottom: 10px;">
-                            <h4 style="margin: 0; font-size: 1.1rem; color: var(--primary-accent); display: flex; align-items: center; gap: 10px;">
-                                <span style="font-size: 1.2rem;">👥</span> إضافة / تعديل بيانات عميل
-                            </h4>
-                            <button onclick="clearCustomerForm()" class="btn-action" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); padding: 4px 10px; border-radius: 6px; cursor: pointer; font-size: 0.85rem;">🔄 تفريغ الحقول (عميل جديد)</button>
+                    <!-- لوحة تحكم مدير النظام العليا لطلبات الواتساب (العملاء) + شريط الشرح المختصر -->
+                    <div id="admin-wa-policy-panel-cust" style="margin-bottom: 18px; border: 1px solid rgba(168, 85, 247, 0.4); border-radius: 14px; background: linear-gradient(135deg, rgba(88, 28, 135, 0.22), rgba(15, 23, 42, 0.82)); padding: 12px 16px; box-shadow: 0 4px 18px rgba(0,0,0,0.25);">
+                        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                            <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                                <span style="background: rgba(168, 85, 247, 0.25); color: #e9d5ff; border: 1px solid rgba(168, 85, 247, 0.5); height: 32px; padding: 0 12px; border-radius: 8px; font-weight: 900; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 6px;">
+                                    <span>🛡️</span> <span>تحكم مدير النظام (واتساب العملاء)</span>
+                                </span>
+                                <span class="wa-policy-status-badge" style="background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.35); height: 30px; padding: 0 12px; border-radius: 20px; font-size: 0.78rem; font-weight: 800; display: inline-flex; align-items: center;">
+                                    🎯 الوضع الحالي: حسب صلاحية كل حساب
+                                </span>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+                                <span style="font-size: 0.76rem; color: #cbd5e1; font-weight: 800; margin-left: 4px;">تعميم سريع:</span>
+                                <button type="button" onclick="bulkSetEntityStatementMode('customer', 'detailed')" style="height: 32px; background: rgba(16, 185, 129, 0.18); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.45); padding: 0 10px; border-radius: 8px; font-size: 0.76rem; font-weight: 800; cursor: pointer;">📊 كشف مفصل للكل</button>
+                                <button type="button" onclick="bulkSetEntityStatementMode('customer', 'balance_only')" style="height: 32px; background: rgba(245, 158, 11, 0.18); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.45); padding: 0 10px; border-radius: 8px; font-size: 0.76rem; font-weight: 800; cursor: pointer;">💰 الرصيد فقط للكل</button>
+                                <button type="button" onclick="bulkSetEntityStatementMode('customer', 'disabled')" style="height: 32px; background: rgba(239, 68, 68, 0.16); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.4); padding: 0 10px; border-radius: 8px; font-size: 0.76rem; font-weight: 800; cursor: pointer;">🔒 إيقاف الكل</button>
+                                <button type="button" onclick="bulkGenerateEntityPins('customer')" title="توليد رقم سري (باسورد) فريد من 3 أرقام لجميع العملاء الذين ليس لديهم رقم سري" style="height: 32px; background: rgba(56, 189, 248, 0.18); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.45); padding: 0 10px; border-radius: 8px; font-size: 0.76rem; font-weight: 800; cursor: pointer;">🔐 توليد باسورد للكل</button>
+                                <button type="button" onclick="toggleAdminWaPolicyDrawer()" style="height: 32px; background: rgba(168, 85, 247, 0.22); color: #d8b4fe; border: 1px solid rgba(168, 85, 247, 0.5); padding: 0 12px; border-radius: 8px; font-size: 0.78rem; font-weight: 800; cursor: pointer;">⚙️ السياسة العليا</button>
+                            </div>
                         </div>
-                        <div class="form-grid">
-                            <div class="input-group" style="grid-column: span 2; min-width: 280px;"><label style="font-weight: 800; color: #38bdf8;">👤 اسم العميل / الشركة</label><input type="text" id="cust-name" placeholder="مثال: كوستابون / شركة النيل للتجارة" style="font-size: 1.05rem; font-weight: 800; border-color: rgba(56,189,248,0.4); background: rgba(56,189,248,0.05);"></div>
-                            <div class="input-group" style="background: rgba(16, 185, 129, 0.07); border: 1px solid rgba(16, 185, 129, 0.35); padding: 8px 10px; border-radius: 10px;">
-                                <label style="color: #10b981; font-weight: 800; display:flex; justify-content:space-between; align-items:center;">
-                                    <span>🔢 كود الإشعارات الرقمي (خيار 1)</span>
-                                    <span style="font-size:0.7rem; background:rgba(16,185,129,0.2); padding:1px 6px; border-radius:6px;">تلقائي قابل للتعديل</span>
-                                </label>
-                                <input type="number" id="cust-receipt-code-num" min="1" step="1" placeholder="تلقائي (1، 2، ...)" style="width: 100%; font-size: 1.1rem; font-weight: 900; text-align: center; direction: ltr; color: #34d399; border-color: rgba(16, 185, 129, 0.5); background: rgba(0,0,0,0.35);">
-                                <small style="color: #94a3b8; font-size: 0.71rem; display: block; margin-top: 3px;">يبدأ من 1 تلقائياً ويملأ الفراغات، ويمكنك تغييره (مثلاً: 105 أو 100)</small>
+
+                        <!-- شريط الشرح المختصر لآلية العمل -->
+                        <div class="pro-guide-bar">
+                            <div class="pro-guide-item"><strong style="color:#f87171;">🔒 موقوف:</strong> <span>منع سحب الكشف أو الرصيد بالواتساب</span></div>
+                            <div class="pro-guide-item"><strong style="color:#fbbf24;">💰 الرصيد فقط:</strong> <span>يرد بالرصيد الصافي (له/عليه) بدون الفواتير</span></div>
+                            <div class="pro-guide-item"><strong style="color:#34d399;">📊 كشف مفصل:</strong> <span>يرد بكشف الحساب الكامل وجميع الحركات</span></div>
+                            <div class="pro-guide-item"><strong style="color:#4ade80;">📱 الرقم المعتمد:</strong> <span>يرسل الإشعار مباشرة، أو يرسل (<b>كشف</b> / <b>ك</b> / <b>رصيد</b> / <b>ر</b>) بدون باسورد</span></div>
+                            <div class="pro-guide-item"><strong style="color:#d8b4fe;">🔐 الباسورد السري:</strong> <span>للأرقام غير المسجلة أو للتحويل لحساب آخر (يرسل الباسورد مثل <b style="direction:ltr;display:inline-block;">532</b> أو <b>532 ر</b> أو <b>532 ك</b>)</span></div>
+                        </div>
+
+                        <!-- 🏛️ منطقة اسم الشركة وختم المصادقة المالية الإلكترونية للسندات والإشعارات -->
+                        <div class="wa-voucher-branding-bar" style="margin-top: 10px; padding: 10px 12px; border-radius: 10px; background: rgba(15, 23, 42, 0.72); border: 1px solid rgba(250, 204, 21, 0.35); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+                            <div style="display: flex; align-items: center; gap: 8px; flex: 1; min-width: 260px;">
+                                <span style="color: #fde047; font-weight: 900; font-size: 0.82rem; white-space: nowrap;">🏢 اسم الشركة (تحت سند رصيد):</span>
+                                <input type="text" class="wa-policy-company-name" placeholder="مثال: الشركة العالمية للمقاولات" onchange="syncAdminWaPolicyFromUI(this)" style="flex: 1; height: 34px; padding: 0 10px; border-radius: 8px; border: 1px solid rgba(250, 204, 21, 0.45); background: rgba(0, 0, 0, 0.4); color: #ffffff; font-weight: 800; font-size: 0.9rem;">
                             </div>
-                            <div class="input-group" style="background: rgba(56, 189, 248, 0.07); border: 1px solid rgba(56, 189, 248, 0.35); padding: 8px 10px; border-radius: 10px;">
-                                <label style="color: #38bdf8; font-weight: 800; display:flex; justify-content:space-between; align-items:center;">
-                                    <span>🏷️ كود الإشعارات النصي (خيار 2)</span>
-                                    <span style="font-size:0.7rem; background:rgba(56,189,248,0.2); padding:1px 6px; border-radius:6px;">كلمة أو جملة</span>
-                                </label>
-                                <input type="text" id="cust-receipt-code-word" placeholder="مثال: بون (لحساب كوستابون)" style="width: 100%; font-size: 1.05rem; font-weight: 800; text-align: center; color: #38bdf8; border-color: rgba(56, 189, 248, 0.5); background: rgba(0,0,0,0.35);">
-                                <small style="color: #94a3b8; font-size: 0.71rem; display: block; margin-top: 3px;">عند كتابة الرقم أو الكلمة أو كليهما معاً ينزل الإشعار بالحساب</small>
+                            <div style="display: flex; align-items: center; gap: 8px; flex: 1; min-width: 260px;">
+                                <span style="color: #34d399; font-weight: 900; font-size: 0.82rem; white-space: nowrap;">💮 نص الختم المعتمد:</span>
+                                <input type="text" class="wa-policy-stamp-text" placeholder="ختم مصادقة مالية إلكترونية" onchange="syncAdminWaPolicyFromUI(this)" style="flex: 1; height: 34px; padding: 0 10px; border-radius: 8px; border: 1px solid rgba(52, 211, 153, 0.45); background: rgba(0, 0, 0, 0.4); color: #ffffff; font-weight: 800; font-size: 0.9rem;">
                             </div>
-                            <div class="input-group"><label>📞 رقم الهاتف الأساسي</label><input type="text" id="cust-phone" placeholder="00249123000000" style="width: 100%; font-size: 1rem; font-weight: 700; text-align: center; direction: ltr;"></div>
-                            <div class="input-group"><label>💬 رقم الواتساب (لإرسال الإشعارات للعميل)</label><input type="text" id="cust-whatsapp" placeholder="00249123000000" style="width: 100%; font-size: 1rem; font-weight: 700; text-align: center; direction: ltr;"></div>
-                            <div class="input-group"><label>✉️ الايميل (البريد الإلكتروني)</label><input type="email" id="cust-email" placeholder="example@email.com" style="width: 100%;"></div>
-                            <div class="input-group" style="grid-column: span 1;"><label>📍 العنوان</label><input type="text" id="cust-address" placeholder="مثال: الخرطوم، مقاييس" style="width: 100%;"></div>
-                            <div class="input-group"><label>العملة</label><select id="cust-currency" class="system-currency-select" onchange="updateCustExchangeRate()"></select></div>
-                            <div class="input-group" id="cust-ex-rate-group" style="display: none;"><label id="cust-ex-rate-label" style="color:#38bdf8; font-weight:800;">💵 سعر الصرف (مقابل المحلية)</label><input type="number" id="cust-ex-rate" step="any" value="1" placeholder="سعر الصرف مقابل SDG" style="font-weight:800; color:#38bdf8;"></div>
-                            <div class="input-group"><label>الرقم الضريبي</label><input type="text" id="cust-tax" placeholder="الرقم الضريبي للعميل"></div>
-                            <input type="hidden" id="cust-account-no" value="">
-                            <div class="input-group">
-                                <label>الرصيد الافتتاحي <small style="color:#f97316; font-weight:normal;">(موجب = عليه | سالب = له (يريد منا))</small></label>
-                                <input type="number" id="cust-opening-balance" step="any" placeholder="0.00" style="direction:ltr; text-align:center;">
+                            <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+                                <label style="height: 34px; background: rgba(52, 211, 153, 0.18); color: #6ee7b7; border: 1px solid rgba(52, 211, 153, 0.5); padding: 0 10px; border-radius: 8px; font-size: 0.78rem; font-weight: 800; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; margin: 0;">
+                                    <span>📤 رفع صورة الختم</span>
+                                    <input type="file" accept="image/*" onchange="handleWaVoucherStampUpload(this)" style="display: none;">
+                                </label>
+                                <img class="wa-policy-stamp-preview" src="" alt="الختم" style="display: none; height: 34px; width: auto; max-width: 70px; object-fit: contain; border-radius: 6px; border: 1px solid rgba(250, 204, 21, 0.5); background: rgba(255,255,255,0.08); padding: 2px;">
+                                <button type="button" class="wa-policy-stamp-clear-btn" onclick="clearWaVoucherStampImage()" style="display: none; height: 34px; background: rgba(239, 68, 68, 0.18); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.45); padding: 0 8px; border-radius: 8px; font-size: 0.76rem; font-weight: 800; cursor: pointer;" title="حذف صورة الختم">🗑️</button>
+                                <button type="button" onclick="syncAdminWaPolicyFromUI(this)" style="height: 34px; background: linear-gradient(135deg, #eab308, #ca8a04); color: #04120e; border: none; padding: 0 14px; border-radius: 8px; font-size: 0.8rem; font-weight: 900; cursor: pointer;">💾 حفظ الاسم والختم</button>
+                            </div>
+                        </div>
+
+                        <!-- درج السياسات العليا لمدير النظام -->
+                        <div class="admin-wa-policy-drawer" style="display: none; margin-top: 14px; padding-top: 12px; border-top: 1px dashed rgba(168, 85, 247, 0.35);">
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 12px; align-items: end;">
+                                <div class="input-group" style="margin-bottom: 0;">
+                                    <label style="color: #e9d5ff; font-size: 0.8rem; font-weight: 800;">👑 قرار مدير النظام لكشف الحساب</label>
+                                    <select class="wa-policy-master-mode" onchange="syncAdminWaPolicyFromUI(this)" style="font-weight: 800; font-size: 0.85rem; border-color: rgba(168,85,247,0.45);">
+                                        <option value="per_account">🎯 حسب الصلاحية المحددة أمام كل عميل/مورد</option>
+                                        <option value="force_detailed_all">📊 إجباري: تفعيل (كشف حساب مفصل) للجميع</option>
+                                        <option value="force_balance_only_all">💰 إجباري: تفعيل (معرفة الرصيد فقط) للجميع</option>
+                                        <option value="force_disabled_all">🔒 طوارئ: إيقاف الخدمة كلياً عن الجميع</option>
+                                    </select>
+                                </div>
+                                <div class="input-group" style="margin-bottom: 0;">
+                                    <label style="color: #10b981; font-size: 0.8rem; font-weight: 800;">⚡ سياسة اعتماد إشعارات الواتساب الواردة</label>
+                                    <select class="wa-policy-receipt-approval-mode" onchange="syncAdminWaPolicyFromUI(this)" style="font-weight: 800; font-size: 0.85rem; border-color: rgba(16,185,129,0.5);">
+                                        <option value="per_account">🎯 حسب إعداد كل حساب (الافتراضي: اعتماد فوري طوالي ⚡)</option>
+                                        <option value="auto_post_all">⚡ اعتماد وترحيل فوري (طوالي) لجميع الحسابات مباشرة</option>
+                                        <option value="review_first_all">👁️ مراجعة وتمرير يدوي (في الترحيل / صينية الاستلام) للجميع</option>
+                                    </select>
+                                </div>
+                                <div class="input-group" style="margin-bottom: 0;">
+                                    <label style="color: #fbbf24; font-size: 0.8rem; font-weight: 800;">🏦 البنك الافتراضي لاستقبال إشعارات الواتساب</label>
+                                    <select class="wa-policy-default-bank-id" onchange="syncAdminWaPolicyFromUI(this)" style="font-weight: 800; font-size: 0.85rem; border-color: rgba(245,158,11,0.5);">
+                                        <option value="">🏦 تلقائي (بنك الخرطوم أو البنك المحدد في بطاقة العميل)</option>
+                                    </select>
+                                </div>
+                                <div class="input-group" style="margin-bottom: 0;">
+                                    <label style="color: #38bdf8; font-size: 0.8rem; font-weight: 800;">🛡️ سياسة التحقق من رقم واتساب المرسل والباسورد السري</label>
+                                    <select class="wa-policy-phone-verification" onchange="syncAdminWaPolicyFromUI(this)" style="font-weight: 800; font-size: 0.85rem; border-color: rgba(56,189,248,0.4);">
+                                        <option value="phone_or_pin">🔐 الخيار الافتراضي (موصى به): الرقم المعتمد مباشرة، أو أي رقم يُدخل الباسورد السري (مثل 532)</option>
+                                        <option value="any_phone_with_code">🔑 السماح لأي رقم يرسل الباسورد السري الصحيح للحساب</option>
+                                        <option value="registered_if_set">📱 التحقق من مطابقة الرقم المعتمد أو الباسورد السري</option>
+                                        <option value="strict_registered_only">🔒 حصرياً للأرقام المسجلة في بطاقة الحساب فقط</option>
+                                        <option value="pin_always">🛡️ أقصى أمان: اشتراط كتابة الباسورد السري (مثل 532) دائماً لجميع الطلبات</option>
+                                    </select>
+                                </div>
+                                <div class="input-group" style="margin-bottom: 0;">
+                                    <label style="color: #34d399; font-size: 0.8rem; font-weight: 800;">🗂️ نطاق حركات كشف الحساب المفصل</label>
+                                    <select class="wa-policy-statement-scope" onchange="syncAdminWaPolicyFromUI(this)" style="font-weight: 800; font-size: 0.85rem; border-color: rgba(16,185,129,0.4);">
+                                        <option value="all">📑 كامل الحركات المالية من البداية</option>
+                                        <option value="last_30_days">🗓️ آخر 30 يوماً فقط + رصيد سابق مرحّل</option>
+                                        <option value="last_20">⏳ آخر 20 حركة فقط + رصيد سابق مرحّل</option>
+                                        <option value="last_50">⏳ آخر 50 حركة فقط + رصيد سابق مرحّل</option>
+                                        <option value="current_month">📅 حركات الشهر الحالي فقط + رصيد سابق مرحّل</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 15px; margin-top: 12px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.06);">
+                                <div style="display: flex; align-items: center; gap: 18px; flex-wrap: wrap;">
+                                    <label style="display: inline-flex; align-items: center; gap: 7px; cursor: pointer; font-size: 0.82rem; font-weight: 800; color: #e2e8f0;">
+                                        <input type="checkbox" class="wa-policy-include-items" onchange="syncAdminWaPolicyFromUI(this)" checked style="width: 16px; height: 16px; accent-color: #10b981;">
+                                        <span>📦 إظهار تفاصيل الأصناف والأسعار داخل الفواتير في الكشف المفصل</span>
+                                    </label>
+                                    <label style="display: inline-flex; align-items: center; gap: 7px; cursor: pointer; font-size: 0.82rem; font-weight: 800; color: #fbbf24;">
+                                        <input type="checkbox" class="wa-policy-notify-admin" onchange="syncAdminWaPolicyFromUI(this)" style="width: 16px; height: 16px; accent-color: #f59e0b;">
+                                        <span>🔔 إرسال إشعار رقابي لمدير النظام عند سحب أي كشف أو رصيد</span>
+                                    </label>
+                                    <label style="display: inline-flex; align-items: center; gap: 7px; cursor: pointer; font-size: 0.82rem; font-weight: 800; color: #38bdf8;">
+                                        <input type="checkbox" class="wa-policy-antispam" onchange="syncAdminWaPolicyFromUI(this)" checked style="width: 16px; height: 16px; accent-color: #38bdf8;">
+                                        <span>🛡️ حماية ضد الإزعاج (منع تكرار الكشف لنفس الحساب خلال أقل من دقيقتين)</span>
+                                    </label>
+                                </div>
+                                <span style="font-size: 0.74rem; color: #94a3b8;">⚡ يتم حفظ وتطبيق إعدادات مدير النظام فوراً على خدمة الواتساب</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="customer-form" class="md-card" style="display: block; margin-bottom: 22px; border: 1px solid rgba(255,255,255,0.1); background: rgba(8, 12, 24, 0.45); padding: 18px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 12px; margin-bottom: 16px; flex-wrap: wrap; gap: 10px;">
+                            <h4 style="margin: 0; font-size: 1.12rem; color: #38bdf8; display: flex; align-items: center; gap: 10px; font-weight: 900;">
+                                <span style="font-size: 1.25rem;">👥</span> <span>بيانات العميل وإعدادات الإشعارات وكشف الحساب</span>
+                            </h4>
+                            <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                                <input type="hidden" id="cust-id" value="">
+                                <input type="hidden" id="cust-allow-statement" value="1">
+                                <input type="hidden" id="cust-statement-mode" value="detailed">
+                                <input type="hidden" id="cust-receipt-approval-mode" value="auto_post">
+                                <input type="hidden" id="cust-receipt-code-num" value="">
+                                <input type="hidden" id="cust-receipt-code-word" value="">
+                                <input type="hidden" id="cust-phone" value="">
+                                <input type="hidden" id="cust-account-no" value="">
                                 <input type="hidden" id="cust-opening-debit" value="0">
                                 <input type="hidden" id="cust-opening-credit" value="0">
+                                <div style="display: inline-flex; align-items: center; background: rgba(15, 23, 42, 0.85); border: 1px solid rgba(148, 163, 184, 0.3); border-radius: 10px; padding: 3px; gap: 4px; height: 36px; box-sizing: border-box;" title="تحكم مدير النظام في صلاحية استعلام العميل عبر الواتساب">
+                                    <span style="font-size: 0.75rem; color: #cbd5e1; font-weight: 800; padding: 0 6px;">كشف الحساب:</span>
+                                    <button type="button" id="cust-mode-btn-disabled" onclick="setFormStatementMode('cust', 'disabled', true)" style="height: 28px; padding: 0 9px; border-radius: 7px; border: 1px solid transparent; font-size: 0.74rem; font-weight: 800; cursor: pointer; transition: all 0.18s;">🔒 موقوف</button>
+                                    <button type="button" id="cust-mode-btn-balance_only" onclick="setFormStatementMode('cust', 'balance_only', true)" style="height: 28px; padding: 0 9px; border-radius: 7px; border: 1px solid transparent; font-size: 0.74rem; font-weight: 800; cursor: pointer; transition: all 0.18s;">💰 الرصيد</button>
+                                    <button type="button" id="cust-mode-btn-detailed" onclick="setFormStatementMode('cust', 'detailed', true)" style="height: 28px; padding: 0 9px; border-radius: 7px; border: 1px solid transparent; font-size: 0.74rem; font-weight: 800; cursor: pointer; transition: all 0.18s;">📊 كشف نشط</button>
+                                </div>
+                                <div style="display: inline-flex; align-items: center; background: rgba(15, 23, 42, 0.85); border: 1px solid rgba(16, 185, 129, 0.35); border-radius: 10px; padding: 3px; gap: 4px; height: 36px; box-sizing: border-box;" title="هل إشعارات الواتساب لهذا العميل تُعتمد وتُرحل فوراً (طوالي) أم تنزل في الترحيل للمراجعة والتمرير؟">
+                                    <span style="font-size: 0.75rem; color: #a7f3d0; font-weight: 800; padding: 0 6px;">إشعارات الواتساب:</span>
+                                    <button type="button" id="cust-rcpt-btn-auto_post" onclick="setFormReceiptApprovalMode('cust', 'auto_post', true)" style="height: 28px; padding: 0 9px; border-radius: 7px; border: 1px solid transparent; font-size: 0.74rem; font-weight: 800; cursor: pointer; transition: all 0.18s;">⚡ قبول طوالي</button>
+                                    <button type="button" id="cust-rcpt-btn-review_first" onclick="setFormReceiptApprovalMode('cust', 'review_first', true)" style="height: 28px; padding: 0 9px; border-radius: 7px; border: 1px solid transparent; font-size: 0.74rem; font-weight: 800; cursor: pointer; transition: all 0.18s;">👁️ مراجعة بالترحيل</button>
+                                </div>
+                                <select id="cust-default-bank-id" class="entity-default-bank-select" title="البنك المستلم لإشعارات هذا العميل (اتركه تلقائي لاستخدام بنك النظام الافتراضي)" style="height: 36px; background: rgba(15, 23, 42, 0.9); color: #fcd34d; border: 1px solid rgba(245, 158, 11, 0.4); border-radius: 10px; padding: 0 10px; font-size: 0.78rem; font-weight: 800; max-width: 210px;">
+                                    <option value="">🏦 بنك الإشعارات: افتراضي النظام</option>
+                                </select>
+                                <button type="button" onclick="copyCurrentFormWhatsAppCard('cust')" title="نسخ بطاقة الباسورد السري وتعليمات الواتساب لإرسالها للعميل" style="height: 36px; background: rgba(168, 85, 247, 0.18); color: #e9d5ff; border: 1px solid rgba(168, 85, 247, 0.45); padding: 0 12px; border-radius: 10px; cursor: pointer; font-size: 0.82rem; font-weight: 800;">📋 نسخ بطاقة الواتساب</button>
+                                <button type="button" onclick="clearCustomerForm()" class="btn-action" style="height: 36px; background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.35); padding: 0 14px; border-radius: 10px; cursor: pointer; font-size: 0.84rem; font-weight: 800;">🔄 عميل جديد (تفريغ)</button>
                             </div>
-                            <div class="input-group"><label style="color: var(--danger-color);">حد الائتمان (أقصى سقف)</label><input type="number" id="cust-limit" placeholder="المبلغ المسموح للدين"></div>
-                            <div class="input-group"><label>درجة السرية</label><select id="cust-security"><option value="1">1 (الأقل سرية)</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10 (الأعلى سرية)</option></select></div>
-                            <div class="input-group"><label>حالة العميل (القائمة السوداء)</label><select id="cust-status" style="font-weight: bold;"><option value="active" style="color: var(--success-color);">🟢 نشط (عادي)</option><option value="vip" style="color: var(--primary-accent);">🌟 VIP (مميز)</option><option value="blacklisted" style="color: var(--danger-color);">🔴 قائمة سوداء (محظور)</option></select></div>
-                            <input type="hidden" id="cust-id" value="">
-                            <div class="input-group"><label>الشخص المسؤول</label><input type="text" id="cust-contact" placeholder="اسم المندوب / الشخص المسؤول"></div>
-                            <div class="input-group" style="grid-column: 1 / -1;"><label>ملاحظات إضافية</label><textarea id="cust-notes" placeholder="أضف أي ملاحظات عن العميل هنا..." style="width: 100%; padding: 8px 10px; border-radius: 8px; border: 1px solid var(--glass-border); background: var(--bg-color); color: var(--text-primary); outline: none; font-family: inherit; resize: none; height: 50px; box-sizing: border-box;"></textarea></div>
+                        </div>
 
+                        <!-- الشبكة الهندسية الموحدة (4 أعمدة متساوية الأبعاد والارتفاع 100%) -->
+                        <div class="pro-entity-grid">
+                            <!-- الصف الأول: الهوية (عمودين) + الرقم السري الموحد + رقم الواتساب -->
+                            <div class="pro-field-card accent-sky" style="grid-column: span 2;">
+                                <label class="pro-field-label" style="color: #38bdf8 !important;">
+                                    <span>👤 اسم العميل / الشركة</span>
+                                    <span class="pro-field-badge" style="background:rgba(56,189,248,0.18); color:#7dd3fc; border:1px solid rgba(56,189,248,0.35);">أساسي *</span>
+                                </label>
+                                <input type="text" id="cust-name" placeholder="مثال: شركة النيل للتجارة">
+                            </div>
+
+                            <div class="pro-field-card accent-purple">
+                                <label class="pro-field-label" style="color: #d8b4fe !important;">
+                                    <span>🔐 الرقم السري (الباسورد)</span>
+                                    <span style="display:inline-flex; align-items:center; gap:4px;">
+                                        <span id="cust-pin-combined-preview" class="pro-field-badge" style="background:rgba(168,85,247,0.18); color:#e9d5ff; border:1px solid rgba(168,85,247,0.38); font-family:monospace;">فريد لكل حساب</span>
+                                        <button type="button" onclick="generateRandomFormPin('cust')" class="pro-field-badge" style="background:rgba(168,85,247,0.32); color:#fff; border:1px solid rgba(168,85,247,0.6); cursor:pointer;" title="توليد باسورد عشوائي فريد غير مكرر">🎲 توليد</button>
+                                    </span>
+                                </label>
+                                <input type="text" id="cust-statement-pin" class="pro-num-input" maxlength="8" oninput="updateCombinedPinPreview('cust')" placeholder="مثال: 532" style="color: #e9d5ff !important;">
+                            </div>
+
+                            <div class="pro-field-card accent-whatsapp">
+                                <label class="pro-field-label" style="color: #4ade80 !important;">
+                                    <span>💬 رقم الواتساب المعتمد</span>
+                                    <span class="pro-field-badge" style="background:rgba(37,211,102,0.18); color:#86efac; border:1px solid rgba(37,211,102,0.35);">مباشر بدون باسورد</span>
+                                </label>
+                                <input type="text" id="cust-whatsapp" class="pro-num-input" oninput="document.getElementById('cust-phone').value = this.value" placeholder="00249123000000">
+                            </div>
+
+                            <!-- الصف الثاني: الرصيد الافتتاحي + حد الائتمان + العملة + حالة العميل -->
+                            <div class="pro-field-card">
+                                <label class="pro-field-label">
+                                    <span>💰 الرصيد الافتتاحي</span>
+                                    <span class="pro-field-badge" style="background:rgba(249,115,22,0.15); color:#fdba74; border:1px solid rgba(249,115,22,0.3);">+ عليه | - له</span>
+                                </label>
+                                <input type="number" id="cust-opening-balance" class="pro-num-input" step="any" placeholder="0.00">
+                            </div>
+
+                            <div class="pro-field-card">
+                                <label class="pro-field-label">
+                                    <span style="color: #fca5a5;">🛑 حد الائتمان (أقصى سقف)</span>
+                                    <span class="pro-field-badge" style="background:rgba(239,68,68,0.14); color:#fca5a5;">سقف الدين</span>
+                                </label>
+                                <input type="number" id="cust-limit" class="pro-num-input" placeholder="0.00">
+                            </div>
+
+                            <div class="pro-field-card">
+                                <label class="pro-field-label">
+                                    <span>💱 العملة</span>
+                                    <span class="pro-field-badge" style="background:rgba(148,163,184,0.14); color:#cbd5e1;">عملة الحساب</span>
+                                </label>
+                                <select id="cust-currency" class="system-currency-select" onchange="updateCustExchangeRate()"></select>
+                            </div>
+
+                            <div class="pro-field-card">
+                                <label class="pro-field-label">
+                                    <span>🟢 حالة العميل</span>
+                                    <span class="pro-field-badge" style="background:rgba(16,185,129,0.14); color:#6ee7b7;">التصنيف</span>
+                                </label>
+                                <select id="cust-status">
+                                    <option value="active">🟢 نشط (عادي)</option>
+                                    <option value="vip">🌟 VIP (مميز)</option>
+                                    <option value="blacklisted">🔴 قائمة سوداء (محظور)</option>
+                                </select>
+                            </div>
+
+                            <!-- الصف الثالث: المسؤول + العنوان + الرقم الضريبي + درجة السرية -->
+                            <div class="pro-field-card">
+                                <label class="pro-field-label">
+                                    <span>👔 الشخص المسؤول / المندوب</span>
+                                </label>
+                                <input type="text" id="cust-contact" placeholder="اسم الشخص المسؤول">
+                            </div>
+
+                            <div class="pro-field-card">
+                                <label class="pro-field-label">
+                                    <span>📍 العنوان</span>
+                                </label>
+                                <input type="text" id="cust-address" placeholder="المدينة / الموقع">
+                            </div>
+
+                            <div class="pro-field-card">
+                                <label class="pro-field-label">
+                                    <span>🧾 الرقم الضريبي</span>
+                                </label>
+                                <input type="text" id="cust-tax" placeholder="الرقم الضريبي (اختياري)">
+                            </div>
+
+                            <div class="pro-field-card">
+                                <label class="pro-field-label">
+                                    <span>🛡️ درجة السرية</span>
+                                </label>
+                                <select id="cust-security">
+                                    <option value="1">1 (الأقل سرية)</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10 (الأعلى سرية)</option>
+                                </select>
+                            </div>
+
+                            <!-- الصف الرابع: البريد الإلكتروني + سعر الصرف (إن وجد) + الملاحظات -->
+                            <div class="pro-field-card">
+                                <label class="pro-field-label">
+                                    <span>✉️ البريد الإلكتروني</span>
+                                </label>
+                                <input type="email" id="cust-email" placeholder="example@email.com" style="direction:ltr; text-align:center;">
+                            </div>
+
+                            <div class="pro-field-card accent-sky" id="cust-ex-rate-group" style="display: none;">
+                                <label class="pro-field-label" id="cust-ex-rate-label" style="color:#38bdf8 !important;">
+                                    <span>💵 سعر الصرف</span>
+                                </label>
+                                <input type="number" id="cust-ex-rate" class="pro-num-input" step="any" value="1" placeholder="1">
+                            </div>
+
+                            <div class="pro-field-card" id="cust-notes-card" style="grid-column: span 3;">
+                                <label class="pro-field-label">
+                                    <span>📝 ملاحظات إضافية</span>
+                                </label>
+                                <textarea id="cust-notes" placeholder="أضف أي ملاحظات إضافية عن العميل هنا..."></textarea>
+                            </div>
+                        </div>
+
+                        <!-- الأقسام الفرعية الإضافية (المناديب التابعين + الحسابات البنكية) بتنسيق مدمج وأنيق -->
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 14px; margin-top: 6px;">
                             <!-- أرقام موبايلات مرسلي الإشعارات التابعين للعميل (المناديب / الفروع) -->
-                            <div style="grid-column: 1 / -1; margin-top: 6px; padding: 15px; border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 12px; background: rgba(56, 189, 248, 0.04);">
-                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-wrap: wrap; gap: 8px;">
+                            <div style="padding: 12px 14px; border: 1px solid rgba(56, 189, 248, 0.28); border-radius: 12px; background: rgba(15, 23, 42, 0.45);">
+                                <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px;">
                                     <div>
-                                        <h4 style="margin: 0; color: #38bdf8; display:flex; align-items:center; gap:8px; font-size: 0.98rem;">
-                                            <span>📱</span> أرقام موبايلات مرسلي الإشعارات التابعين لهذا الحساب (المناديب / الفروع)
+                                        <h4 style="margin: 0; color: #38bdf8; display:flex; align-items:center; gap:6px; font-size: 0.92rem; font-weight: 800;">
+                                            <span>📱</span> <span>أرقام مرسلي الإشعارات التابعين (المناديب / الفروع)</span>
                                         </h4>
-                                        <small style="color: #94a3b8; font-size: 0.78rem;">أي إشعار بنكي يُرسل من هذه الأرقام على الواتساب ينزل تلقائياً في حساب هذا العميل حتى بدون كتابة الكود</small>
+                                        <small style="color: #94a3b8; font-size: 0.74rem;">ينزل الإشعار المرسل منهم بحساب العميل تلقائياً بدون الحاجة لباسورد</small>
                                     </div>
-                                    <button type="button" onclick="addCustomerSubPhone()" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.35); padding: 5px 12px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: bold;">+ إضافة رقم مرسل تابع</button>
+                                    <button type="button" onclick="addCustomerSubPhone()" style="height: 32px; background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.35); padding: 0 12px; border-radius: 8px; cursor: pointer; font-size: 0.8rem; font-weight: 800; white-space: nowrap;">+ إضافة رقم تابع</button>
                                 </div>
-                                <div id="cust-sub-phones-container" style="display: flex; flex-direction: column; gap: 10px;">
-                                    <!-- Sub-sender phones injected here -->
-                                </div>
+                                <div id="cust-sub-phones-container" style="display: flex; flex-direction: column; gap: 10px; margin-top: 8px;"></div>
                             </div>
 
                             <!-- بيانات الحساب البنكي للعميل -->
-                            <div style="grid-column: 1 / -1; margin-top: 10px; padding: 15px; border: 1px solid var(--glass-border); border-radius: 12px; background: rgba(0,0,0,0.1);">
-                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                                    <h4 style="margin: 0; color: var(--primary-accent); display:flex; align-items:center; gap:8px;"><span>🏦</span> بيانات الحسابات البنكية للعميل</h4>
-                                    <button type="button" onclick="addCustomerBankAccount()" style="background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3); padding: 4px 10px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: bold;">+ إضافة حساب آخر</button>
+                            <div style="padding: 12px 14px; border: 1px solid rgba(16, 185, 129, 0.28); border-radius: 12px; background: rgba(15, 23, 42, 0.45);">
+                                <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px;">
+                                    <div>
+                                        <h4 style="margin: 0; color: #34d399; display:flex; align-items:center; gap:6px; font-size: 0.92rem; font-weight: 800;">
+                                            <span>🏦</span> <span>الحسابات البنكية الخاصة بالعميل</span>
+                                        </h4>
+                                        <small style="color: #94a3b8; font-size: 0.74rem;">تسجيل أرقام حسابات العميل البنكية المعتمدة (اختياري)</small>
+                                    </div>
+                                    <button type="button" onclick="addCustomerBankAccount()" style="height: 32px; background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.35); padding: 0 12px; border-radius: 8px; cursor: pointer; font-size: 0.8rem; font-weight: 800; white-space: nowrap;">+ إضافة حساب بنكي</button>
                                 </div>
-                                <div id="cust-bank-accounts-container" style="display: flex; flex-direction: column; gap: 15px;">
-                                    <!-- Bank accounts will be injected here -->
-                                </div>
+                                <div id="cust-bank-accounts-container" style="display: flex; flex-direction: column; gap: 10px; margin-top: 8px;"></div>
                             </div>
                         </div>
-                        <div style="margin-top: 20px; text-align: right;">
-                            <button type="button" class="btn-add" style="background: var(--success-color); padding: 10px 25px; font-weight: bold; border-radius: 8px; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);" onclick="saveCustomer()">💾 حفظ العميل</button>
+
+                        <div style="margin-top: 16px; display: flex; justify-content: flex-end;">
+                            <button type="button" class="btn-add" style="height: 44px; background: linear-gradient(135deg, #10b981, #059669); padding: 0 28px; font-weight: 900; font-size: 0.95rem; border-radius: 10px; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);" onclick="saveCustomer()">💾 حفظ بيانات العميل</button>
                         </div>
                     </div>
 
                     <!-- Customer Search Bar -->
-                    <div style="margin-bottom: 15px; display: flex; align-items: center;">
+                    <div style="margin-bottom: 14px; display: flex; align-items: center;">
                         <div class="input-group" style="width: 100%; max-width: 550px; position: relative; margin-bottom: 0;">
                             <span style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); font-size: 1.2rem; pointer-events: none;">🔍</span>
-                            <input type="text" id="customer-search-input" onkeyup="filterCustomers()" placeholder="ابحث باسم العميل، كود الإشعارات الرقمي (105) أو النصي (بون)، أو رقم الهاتف..." style="padding-right: 45px; border-radius: 12px; border: 1px solid rgba(56,189,248,0.3); background: rgba(0,0,0,0.3); font-size: 1rem; color: #fff; width: 100%; box-shadow: inset 0 2px 5px rgba(0,0,0,0.5);">
+                            <input type="text" id="customer-search-input" onkeyup="filterCustomers()" placeholder="ابحث باسم العميل، الرقم السري / الباسورد (مثال: 532)، أو رقم الواتساب..." style="padding-right: 45px; border-radius: 12px; border: 1px solid rgba(56,189,248,0.3); background: rgba(0,0,0,0.3); font-size: 1rem; color: #fff; width: 100%; box-shadow: inset 0 2px 5px rgba(0,0,0,0.5);">
                         </div>
                     </div>
 
                     <div class="table-responsive" style="overflow-x: auto;">
                         <table class="pro-table">
-                            <thead><tr><th style="width: 130px; text-align: center;">كود الإشعارات</th><th style="width: 32%; min-width: 220px; text-align: right;">اسم العميل / الشركة</th><th style="width: 135px; text-align: center;">الهاتف / المرسلين</th><th style="width: 90px; text-align: center;">الحالة</th><th style="width: 130px; text-align: center;">الرصيد الحالي</th><th style="width: 120px; text-align: center;">حد الائتمان</th><th style="width: 120px; text-align: center;">المسؤول</th><th style="width: 60px; text-align: center;">السرية</th><th style="width: 100px; text-align: center;">الإجراء</th></tr></thead>
+                            <thead><tr><th style="width: 125px; text-align: center;">🔐 الباسورد السري</th><th style="width: 25%; min-width: 190px; text-align: right;">اسم العميل / الشركة</th><th style="width: 135px; text-align: center;">رقم الواتساب</th><th style="width: 185px; text-align: center;">صلاحية كشف الحساب</th><th style="width: 85px; text-align: center;">الحالة</th><th style="width: 125px; text-align: center;">الرصيد الحالي</th><th style="width: 110px; text-align: center;">حد الائتمان</th><th style="width: 95px; text-align: center;">المسؤول</th><th style="width: 55px; text-align: center;">السرية</th><th style="width: 110px; text-align: center;">الإجراء</th></tr></thead>
                             <tbody id="customers-tbody"></tbody>
                         </table>
                     </div>
@@ -836,43 +1239,302 @@
             <!-- Suppliers Tab -->
             <div id="tab-suppliers" class="md-tab-content">
                 <div class="md-card">
-                    <div id="supplier-form" class="md-card" style="display: block; margin-bottom: 25px; border: 1px solid var(--glass-border); background: rgba(0,0,0,0.2);">
-                        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 5px; margin-bottom: 10px;">
-                            <h4 style="margin: 0; font-size: 1.1rem; color: var(--primary-accent); display: flex; align-items: center; gap: 10px;">
-                                <span style="font-size: 1.2rem;">🏭</span> إضافة / تعديل بيانات مورد
-                            </h4>
-                            <button onclick="clearSupplierForm()" class="btn-action" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); padding: 4px 10px; border-radius: 6px; cursor: pointer; font-size: 0.85rem;">🔄 تفريغ الحقول (مورد جديد)</button>
+                    <!-- لوحة تحكم مدير النظام العليا لطلبات الواتساب (الموردين) + شريط الشرح المختصر -->
+                    <div id="admin-wa-policy-panel-sup" style="margin-bottom: 18px; border: 1px solid rgba(168, 85, 247, 0.4); border-radius: 14px; background: linear-gradient(135deg, rgba(88, 28, 135, 0.22), rgba(15, 23, 42, 0.82)); padding: 12px 16px; box-shadow: 0 4px 18px rgba(0,0,0,0.25);">
+                        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                            <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                                <span style="background: rgba(168, 85, 247, 0.25); color: #e9d5ff; border: 1px solid rgba(168, 85, 247, 0.5); height: 32px; padding: 0 12px; border-radius: 8px; font-weight: 900; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 6px;">
+                                    <span>🛡️</span> <span>تحكم مدير النظام (واتساب الموردين)</span>
+                                </span>
+                                <span class="wa-policy-status-badge" style="background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.35); height: 30px; padding: 0 12px; border-radius: 20px; font-size: 0.78rem; font-weight: 800; display: inline-flex; align-items: center;">
+                                    🎯 الوضع الحالي: حسب صلاحية كل حساب
+                                </span>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+                                <span style="font-size: 0.76rem; color: #cbd5e1; font-weight: 800; margin-left: 4px;">تعميم سريع:</span>
+                                <button type="button" onclick="bulkSetEntityStatementMode('supplier', 'detailed')" style="height: 32px; background: rgba(16, 185, 129, 0.18); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.45); padding: 0 10px; border-radius: 8px; font-size: 0.76rem; font-weight: 800; cursor: pointer;">📊 كشف مفصل للكل</button>
+                                <button type="button" onclick="bulkSetEntityStatementMode('supplier', 'balance_only')" style="height: 32px; background: rgba(245, 158, 11, 0.18); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.45); padding: 0 10px; border-radius: 8px; font-size: 0.76rem; font-weight: 800; cursor: pointer;">💰 الرصيد فقط للكل</button>
+                                <button type="button" onclick="bulkSetEntityStatementMode('supplier', 'disabled')" style="height: 32px; background: rgba(239, 68, 68, 0.16); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.4); padding: 0 10px; border-radius: 8px; font-size: 0.76rem; font-weight: 800; cursor: pointer;">🔒 إيقاف الكل</button>
+                                <button type="button" onclick="bulkGenerateEntityPins('supplier')" title="توليد رقم سري (باسورد) فريد من 3 أرقام لجميع الموردين الذين ليس لديهم رقم سري" style="height: 32px; background: rgba(56, 189, 248, 0.18); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.45); padding: 0 10px; border-radius: 8px; font-size: 0.76rem; font-weight: 800; cursor: pointer;">🔐 توليد باسورد للكل</button>
+                                <button type="button" onclick="toggleAdminWaPolicyDrawer()" style="height: 32px; background: rgba(168, 85, 247, 0.22); color: #d8b4fe; border: 1px solid rgba(168, 85, 247, 0.5); padding: 0 12px; border-radius: 8px; font-size: 0.78rem; font-weight: 800; cursor: pointer;">⚙️ السياسة العليا</button>
+                            </div>
                         </div>
-                        <div class="form-grid">
-                            <div class="input-group" style="grid-column: span 2; min-width: 280px;"><label style="font-weight: 800; color: #38bdf8;">🏭 اسم المورد / المصنع / الشركة</label><input type="text" id="sup-name" placeholder="مثال: شركة جياد للصناعات الهندسية" style="font-size: 1.05rem; font-weight: 800; border-color: rgba(56,189,248,0.4); background: rgba(56,189,248,0.05);"></div>
-                            <div class="input-group"><label>📞 رقم الهاتف</label><input type="text" id="sup-phone" placeholder="00249123000000" style="width: 100%; font-size: 1rem; font-weight: 700; text-align: center; direction: ltr;"></div>
-                            <div class="input-group"><label>💬 رقم الواتساب</label><input type="text" id="sup-whatsapp" placeholder="00249123000000" style="width: 100%; font-size: 1rem; font-weight: 700; text-align: center; direction: ltr;"></div>
-                            <div class="input-group"><label>✉️ الايميل (البريد الإلكتروني)</label><input type="email" id="sup-email" placeholder="example@email.com" style="width: 100%;"></div>
-                            <div class="input-group" style="grid-column: span 1;"><label>📍 العنوان</label><input type="text" id="sup-address" placeholder="موقع المصنع / المعرض" style="width: 100%;"></div>
-                            <div class="input-group"><label>العملة</label><select id="sup-currency" class="system-currency-select" onchange="updateSupExchangeRate()"></select></div>
-                            <div class="input-group" id="sup-ex-rate-group" style="display: none;"><label id="sup-ex-rate-label" style="color:#38bdf8; font-weight:800;">💵 سعر الصرف (مقابل المحلية)</label><input type="number" id="sup-ex-rate" step="any" value="1" placeholder="سعر الصرف مقابل SDG" style="font-weight:800; color:#38bdf8;"></div>
-                            <div class="input-group"><label>الرقم الضريبي</label><input type="text" id="sup-tax" placeholder="الرقم الضريبي للمورد"></div>
-                            <input type="hidden" id="sup-account-no" value="">
-                            <div class="input-group">
-                                <label>الرصيد الافتتاحي <small style="color:#f97316; font-weight:normal;">(موجب = له | سالب = عليه (نريد منه))</small></label>
-                                <input type="number" id="sup-opening-balance" step="any" placeholder="0.00" style="direction:ltr; text-align:center;">
+
+                        <!-- شريط الشرح المختصر لآلية العمل -->
+                        <div class="pro-guide-bar">
+                            <div class="pro-guide-item"><strong style="color:#f87171;">🔒 موقوف:</strong> <span>منع سحب الكشف أو الرصيد بالواتساب</span></div>
+                            <div class="pro-guide-item"><strong style="color:#fbbf24;">💰 الرصيد فقط:</strong> <span>يرد بالرصيد الصافي (له/عليه) بدون الفواتير</span></div>
+                            <div class="pro-guide-item"><strong style="color:#34d399;">📊 كشف مفصل:</strong> <span>يرد بكشف الحساب الكامل وجميع الحركات</span></div>
+                            <div class="pro-guide-item"><strong style="color:#4ade80;">📱 الرقم المعتمد:</strong> <span>يرسل (<b>كشف</b> / <b>ك</b> / <b>رصيد</b> / <b>ر</b>) مباشرة بدون باسورد</span></div>
+                            <div class="pro-guide-item"><strong style="color:#d8b4fe;">🔐 الباسورد السري:</strong> <span>للأرقام غير المسجلة أو للاستعلام لحساب آخر (يرسل الباسورد مثل <b style="direction:ltr;display:inline-block;">532</b> أو <b>532 ر</b> أو <b>532 ك</b>)</span></div>
+                        </div>
+
+                        <!-- 🏛️ منطقة اسم الشركة وختم المصادقة المالية الإلكترونية للسندات والإشعارات -->
+                        <div class="wa-voucher-branding-bar" style="margin-top: 10px; padding: 10px 12px; border-radius: 10px; background: rgba(15, 23, 42, 0.72); border: 1px solid rgba(250, 204, 21, 0.35); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+                            <div style="display: flex; align-items: center; gap: 8px; flex: 1; min-width: 260px;">
+                                <span style="color: #fde047; font-weight: 900; font-size: 0.82rem; white-space: nowrap;">🏢 اسم الشركة (تحت سند رصيد):</span>
+                                <input type="text" class="wa-policy-company-name" placeholder="مثال: الشركة العالمية للمقاولات" onchange="syncAdminWaPolicyFromUI(this)" style="flex: 1; height: 34px; padding: 0 10px; border-radius: 8px; border: 1px solid rgba(250, 204, 21, 0.45); background: rgba(0, 0, 0, 0.4); color: #ffffff; font-weight: 800; font-size: 0.9rem;">
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 8px; flex: 1; min-width: 260px;">
+                                <span style="color: #34d399; font-weight: 900; font-size: 0.82rem; white-space: nowrap;">💮 نص الختم المعتمد:</span>
+                                <input type="text" class="wa-policy-stamp-text" placeholder="ختم مصادقة مالية إلكترونية" onchange="syncAdminWaPolicyFromUI(this)" style="flex: 1; height: 34px; padding: 0 10px; border-radius: 8px; border: 1px solid rgba(52, 211, 153, 0.45); background: rgba(0, 0, 0, 0.4); color: #ffffff; font-weight: 800; font-size: 0.9rem;">
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+                                <label style="height: 34px; background: rgba(52, 211, 153, 0.18); color: #6ee7b7; border: 1px solid rgba(52, 211, 153, 0.5); padding: 0 10px; border-radius: 8px; font-size: 0.78rem; font-weight: 800; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; margin: 0;">
+                                    <span>📤 رفع صورة الختم</span>
+                                    <input type="file" accept="image/*" onchange="handleWaVoucherStampUpload(this)" style="display: none;">
+                                </label>
+                                <img class="wa-policy-stamp-preview" src="" alt="الختم" style="display: none; height: 34px; width: auto; max-width: 70px; object-fit: contain; border-radius: 6px; border: 1px solid rgba(250, 204, 21, 0.5); background: rgba(255,255,255,0.08); padding: 2px;">
+                                <button type="button" class="wa-policy-stamp-clear-btn" onclick="clearWaVoucherStampImage()" style="display: none; height: 34px; background: rgba(239, 68, 68, 0.18); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.45); padding: 0 8px; border-radius: 8px; font-size: 0.76rem; font-weight: 800; cursor: pointer;" title="حذف صورة الختم">🗑️</button>
+                                <button type="button" onclick="syncAdminWaPolicyFromUI(this)" style="height: 34px; background: linear-gradient(135deg, #eab308, #ca8a04); color: #04120e; border: none; padding: 0 14px; border-radius: 8px; font-size: 0.8rem; font-weight: 900; cursor: pointer;">💾 حفظ الاسم والختم</button>
+                            </div>
+                        </div>
+
+                        <!-- درج السياسات العليا لمدير النظام -->
+                        <div class="admin-wa-policy-drawer" style="display: none; margin-top: 14px; padding-top: 12px; border-top: 1px dashed rgba(168, 85, 247, 0.35);">
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 12px; align-items: end;">
+                                <div class="input-group" style="margin-bottom: 0;">
+                                    <label style="color: #e9d5ff; font-size: 0.8rem; font-weight: 800;">👑 قرار مدير النظام لكشف الحساب</label>
+                                    <select class="wa-policy-master-mode" onchange="syncAdminWaPolicyFromUI(this)" style="font-weight: 800; font-size: 0.85rem; border-color: rgba(168,85,247,0.45);">
+                                        <option value="per_account">🎯 حسب الصلاحية المحددة أمام كل عميل/مورد</option>
+                                        <option value="force_detailed_all">📊 إجباري: تفعيل (كشف حساب مفصل) للجميع</option>
+                                        <option value="force_balance_only_all">💰 إجباري: تفعيل (معرفة الرصيد فقط) للجميع</option>
+                                        <option value="force_disabled_all">🔒 طوارئ: إيقاف الخدمة كلياً عن الجميع</option>
+                                    </select>
+                                </div>
+                                <div class="input-group" style="margin-bottom: 0;">
+                                    <label style="color: #10b981; font-size: 0.8rem; font-weight: 800;">⚡ سياسة اعتماد إشعارات الواتساب الواردة</label>
+                                    <select class="wa-policy-receipt-approval-mode" onchange="syncAdminWaPolicyFromUI(this)" style="font-weight: 800; font-size: 0.85rem; border-color: rgba(16,185,129,0.5);">
+                                        <option value="per_account">🎯 حسب إعداد كل حساب (الافتراضي: اعتماد فوري طوالي ⚡)</option>
+                                        <option value="auto_post_all">⚡ اعتماد وترحيل فوري (طوالي) لجميع الحسابات مباشرة</option>
+                                        <option value="review_first_all">👁️ مراجعة وتمرير يدوي (في الترحيل / صينية الاستلام) للجميع</option>
+                                    </select>
+                                </div>
+                                <div class="input-group" style="margin-bottom: 0;">
+                                    <label style="color: #fbbf24; font-size: 0.8rem; font-weight: 800;">🏦 البنك الافتراضي لاستقبال إشعارات الواتساب</label>
+                                    <select class="wa-policy-default-bank-id" onchange="syncAdminWaPolicyFromUI(this)" style="font-weight: 800; font-size: 0.85rem; border-color: rgba(245,158,11,0.5);">
+                                        <option value="">🏦 تلقائي (بنك الخرطوم أو البنك المحدد في بطاقة المورد)</option>
+                                    </select>
+                                </div>
+                                <div class="input-group" style="margin-bottom: 0;">
+                                    <label style="color: #38bdf8; font-size: 0.8rem; font-weight: 800;">🛡️ سياسة التحقق من رقم واتساب المرسل والباسورد السري</label>
+                                    <select class="wa-policy-phone-verification" onchange="syncAdminWaPolicyFromUI(this)" style="font-weight: 800; font-size: 0.85rem; border-color: rgba(56,189,248,0.4);">
+                                        <option value="phone_or_pin">🔐 الخيار الافتراضي (موصى به): الرقم المعتمد مباشرة، أو أي رقم يُدخل الباسورد السري (مثل 532)</option>
+                                        <option value="any_phone_with_code">🔑 السماح لأي رقم يرسل الباسورد السري الصحيح للحساب</option>
+                                        <option value="registered_if_set">📱 التحقق من مطابقة الرقم المعتمد أو الباسورد السري</option>
+                                        <option value="strict_registered_only">🔒 حصرياً للأرقام المسجلة في بطاقة الحساب فقط</option>
+                                        <option value="pin_always">🛡️ أقصى أمان: اشتراط كتابة الباسورد السري (مثل 532) دائماً لجميع الطلبات</option>
+                                    </select>
+                                </div>
+                                <div class="input-group" style="margin-bottom: 0;">
+                                    <label style="color: #34d399; font-size: 0.8rem; font-weight: 800;">🗂️ نطاق حركات كشف الحساب المفصل</label>
+                                    <select class="wa-policy-statement-scope" onchange="syncAdminWaPolicyFromUI(this)" style="font-weight: 800; font-size: 0.85rem; border-color: rgba(16,185,129,0.4);">
+                                        <option value="all">📑 كامل الحركات المالية من البداية</option>
+                                        <option value="last_30_days">🗓️ آخر 30 يوماً فقط + رصيد سابق مرحّل</option>
+                                        <option value="last_20">⏳ آخر 20 حركة فقط + رصيد سابق مرحّل</option>
+                                        <option value="last_50">⏳ آخر 50 حركة فقط + رصيد سابق مرحّل</option>
+                                        <option value="current_month">📅 حركات الشهر الحالي فقط + رصيد سابق مرحّل</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 15px; margin-top: 12px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.06);">
+                                <div style="display: flex; align-items: center; gap: 18px; flex-wrap: wrap;">
+                                    <label style="display: inline-flex; align-items: center; gap: 7px; cursor: pointer; font-size: 0.82rem; font-weight: 800; color: #e2e8f0;">
+                                        <input type="checkbox" class="wa-policy-include-items" onchange="syncAdminWaPolicyFromUI(this)" checked style="width: 16px; height: 16px; accent-color: #10b981;">
+                                        <span>📦 إظهار تفاصيل الأصناف والأسعار داخل الفواتير في الكشف المفصل</span>
+                                    </label>
+                                    <label style="display: inline-flex; align-items: center; gap: 7px; cursor: pointer; font-size: 0.82rem; font-weight: 800; color: #fbbf24;">
+                                        <input type="checkbox" class="wa-policy-notify-admin" onchange="syncAdminWaPolicyFromUI(this)" style="width: 16px; height: 16px; accent-color: #f59e0b;">
+                                        <span>🔔 إرسال إشعار رقابي لمدير النظام عند سحب أي كشف أو رصيد</span>
+                                    </label>
+                                    <label style="display: inline-flex; align-items: center; gap: 7px; cursor: pointer; font-size: 0.82rem; font-weight: 800; color: #38bdf8;">
+                                        <input type="checkbox" class="wa-policy-antispam" onchange="syncAdminWaPolicyFromUI(this)" checked style="width: 16px; height: 16px; accent-color: #38bdf8;">
+                                        <span>🛡️ حماية ضد الإزعاج (منع تكرار الكشف لنفس الحساب خلال أقل من دقيقتين)</span>
+                                    </label>
+                                </div>
+                                <span style="font-size: 0.74rem; color: #94a3b8;">⚡ يتم حفظ وتطبيق إعدادات مدير النظام فوراً على خدمة الواتساب</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="supplier-form" class="md-card" style="display: block; margin-bottom: 22px; border: 1px solid rgba(255,255,255,0.1); background: rgba(8, 12, 24, 0.45); padding: 18px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 12px; margin-bottom: 16px; flex-wrap: wrap; gap: 10px;">
+                            <h4 style="margin: 0; font-size: 1.12rem; color: #c084fc; display: flex; align-items: center; gap: 10px; font-weight: 900;">
+                                <span style="font-size: 1.25rem;">🏭</span> <span>بيانات المورد وإعدادات الإشعارات وكشف الحساب</span>
+                            </h4>
+                            <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                                <input type="hidden" id="sup-id" value="">
+                                <input type="hidden" id="sup-allow-statement" value="1">
+                                <input type="hidden" id="sup-statement-mode" value="detailed">
+                                <input type="hidden" id="sup-receipt-approval-mode" value="auto_post">
+                                <input type="hidden" id="sup-receipt-code-num" value="">
+                                <input type="hidden" id="sup-receipt-code-word" value="">
+                                <input type="hidden" id="sup-phone" value="">
+                                <input type="hidden" id="sup-account-no" value="">
                                 <input type="hidden" id="sup-opening-debit" value="0">
                                 <input type="hidden" id="sup-opening-credit" value="0">
+                                <div style="display: inline-flex; align-items: center; background: rgba(15, 23, 42, 0.85); border: 1px solid rgba(148, 163, 184, 0.3); border-radius: 10px; padding: 3px; gap: 4px; height: 36px; box-sizing: border-box;" title="تحكم مدير النظام في صلاحية استعلام المورد عبر الواتساب">
+                                    <span style="font-size: 0.75rem; color: #cbd5e1; font-weight: 800; padding: 0 6px;">كشف الحساب:</span>
+                                    <button type="button" id="sup-mode-btn-disabled" onclick="setFormStatementMode('sup', 'disabled', true)" style="height: 28px; padding: 0 9px; border-radius: 7px; border: 1px solid transparent; font-size: 0.74rem; font-weight: 800; cursor: pointer; transition: all 0.18s;">🔒 موقوف</button>
+                                    <button type="button" id="sup-mode-btn-balance_only" onclick="setFormStatementMode('sup', 'balance_only', true)" style="height: 28px; padding: 0 9px; border-radius: 7px; border: 1px solid transparent; font-size: 0.74rem; font-weight: 800; cursor: pointer; transition: all 0.18s;">💰 الرصيد</button>
+                                    <button type="button" id="sup-mode-btn-detailed" onclick="setFormStatementMode('sup', 'detailed', true)" style="height: 28px; padding: 0 9px; border-radius: 7px; border: 1px solid transparent; font-size: 0.74rem; font-weight: 800; cursor: pointer; transition: all 0.18s;">📊 كشف نشط</button>
+                                </div>
+                                <div style="display: inline-flex; align-items: center; background: rgba(15, 23, 42, 0.85); border: 1px solid rgba(16, 185, 129, 0.35); border-radius: 10px; padding: 3px; gap: 4px; height: 36px; box-sizing: border-box;" title="هل إشعارات الواتساب لهذا المورد تُعتمد وتُرحل فوراً (طوالي) أم تنزل في الترحيل للمراجعة والتمرير؟">
+                                    <span style="font-size: 0.75rem; color: #a7f3d0; font-weight: 800; padding: 0 6px;">إشعارات الواتساب:</span>
+                                    <button type="button" id="sup-rcpt-btn-auto_post" onclick="setFormReceiptApprovalMode('sup', 'auto_post', true)" style="height: 28px; padding: 0 9px; border-radius: 7px; border: 1px solid transparent; font-size: 0.74rem; font-weight: 800; cursor: pointer; transition: all 0.18s;">⚡ قبول طوالي</button>
+                                    <button type="button" id="sup-rcpt-btn-review_first" onclick="setFormReceiptApprovalMode('sup', 'review_first', true)" style="height: 28px; padding: 0 9px; border-radius: 7px; border: 1px solid transparent; font-size: 0.74rem; font-weight: 800; cursor: pointer; transition: all 0.18s;">👁️ مراجعة بالترحيل</button>
+                                </div>
+                                <select id="sup-default-bank-id" class="entity-default-bank-select" title="البنك المستلم لإشعارات هذا المورد (اتركه تلقائي لاستخدام بنك النظام الافتراضي)" style="height: 36px; background: rgba(15, 23, 42, 0.9); color: #fcd34d; border: 1px solid rgba(245, 158, 11, 0.4); border-radius: 10px; padding: 0 10px; font-size: 0.78rem; font-weight: 800; max-width: 210px;">
+                                    <option value="">🏦 بنك الإشعارات: افتراضي النظام</option>
+                                </select>
+                                <button type="button" onclick="copyCurrentFormWhatsAppCard('sup')" title="نسخ بطاقة الباسورد السري وتعليمات الواتساب لإرسالها للمورد" style="height: 36px; background: rgba(168, 85, 247, 0.18); color: #e9d5ff; border: 1px solid rgba(168, 85, 247, 0.45); padding: 0 12px; border-radius: 10px; cursor: pointer; font-size: 0.82rem; font-weight: 800;">📋 نسخ بطاقة الواتساب</button>
+                                <button type="button" onclick="clearSupplierForm()" class="btn-action" style="height: 36px; background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.35); padding: 0 14px; border-radius: 10px; cursor: pointer; font-size: 0.84rem; font-weight: 800;">🔄 مورد جديد (تفريغ)</button>
                             </div>
-                            <div class="input-group"><label style="color: var(--danger-color);">حد الائتمان (أقصى سقف)</label><input type="number" id="sup-limit" placeholder="أقصى سقف"></div>
-                            <div class="input-group"><label>درجة السرية</label><select id="sup-security"><option value="1">1 (الأقل سرية)</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10 (الأعلى سرية)</option></select></div>
-                            <div class="input-group"><label>حالة المورد</label><select id="sup-status" style="font-weight: bold;"><option value="active" style="color: var(--success-color);">🟢 مورد نشط</option><option value="blacklisted" style="color: var(--danger-color);">🔴 قائمة سوداء</option></select></div>
-                            <div class="input-group"><label>كود المورد</label><input type="text" id="sup-id" disabled style="background: rgba(0,0,0,0.05); font-weight: bold; cursor: not-allowed; border-color: transparent;" placeholder="تلقائي عند الحفظ"></div>
-                            <div class="input-group" style="grid-column: 1 / -1;"><label>ملاحظات إضافية</label><textarea id="sup-notes" placeholder="أي ملاحظات حول المورد..." style="width: 100%; padding: 8px 10px; border-radius: 8px; border: 1px solid var(--glass-border); background: var(--bg-color); color: var(--text-primary); outline: none; font-family: inherit; resize: none; height: 50px; box-sizing: border-box;"></textarea></div>
                         </div>
-                        <div style="margin-top: 20px; text-align: right;">
-                            <button type="button" class="btn-add" style="background: var(--success-color); padding: 10px 25px; font-weight: bold; border-radius: 8px; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);" onclick="saveSupplier()">💾 حفظ بيانات المورد</button>
+
+                        <!-- الشبكة الهندسية الموحدة (4 أعمدة متساوية الأبعاد والارتفاع 100%) -->
+                        <div class="pro-entity-grid">
+                            <!-- الصف الأول: اسم المورد (عمودين) + الرقم السري الموحد + رقم الواتساب -->
+                            <div class="pro-field-card accent-sky" style="grid-column: span 2;">
+                                <label class="pro-field-label" style="color: #38bdf8 !important;">
+                                    <span>🏭 اسم المورد / الشركة</span>
+                                    <span class="pro-field-badge" style="background:rgba(56,189,248,0.18); color:#7dd3fc; border:1px solid rgba(56,189,248,0.35);">أساسي *</span>
+                                </label>
+                                <input type="text" id="sup-name" placeholder="مثال: شركة جياد للصناعات الهندسية">
+                            </div>
+
+                            <div class="pro-field-card accent-purple">
+                                <label class="pro-field-label" style="color: #d8b4fe !important;">
+                                    <span>🔐 الرقم السري (الباسورد)</span>
+                                    <span style="display:inline-flex; align-items:center; gap:4px;">
+                                        <span id="sup-pin-combined-preview" class="pro-field-badge" style="background:rgba(168,85,247,0.18); color:#e9d5ff; border:1px solid rgba(168,85,247,0.38); font-family:monospace;">فريد لكل حساب</span>
+                                        <button type="button" onclick="generateRandomFormPin('sup')" class="pro-field-badge" style="background:rgba(168,85,247,0.32); color:#fff; border:1px solid rgba(168,85,247,0.6); cursor:pointer;" title="توليد باسورد عشوائي فريد غير مكرر">🎲 توليد</button>
+                                    </span>
+                                </label>
+                                <input type="text" id="sup-statement-pin" class="pro-num-input" maxlength="8" oninput="updateCombinedPinPreview('sup')" placeholder="مثال: 532" style="color: #e9d5ff !important;">
+                            </div>
+
+                            <div class="pro-field-card accent-whatsapp">
+                                <label class="pro-field-label" style="color: #4ade80 !important;">
+                                    <span>💬 رقم الواتساب المعتمد</span>
+                                    <span class="pro-field-badge" style="background:rgba(37,211,102,0.18); color:#86efac; border:1px solid rgba(37,211,102,0.35);">مباشر بدون باسورد</span>
+                                </label>
+                                <input type="text" id="sup-whatsapp" class="pro-num-input" oninput="document.getElementById('sup-phone').value = this.value" placeholder="00249123000000">
+                            </div>
+
+                            <!-- الصف الثاني: الرصيد الافتتاحي + حد الائتمان + العملة + حالة المورد -->
+                            <div class="pro-field-card">
+                                <label class="pro-field-label">
+                                    <span>💰 الرصيد الافتتاحي</span>
+                                    <span class="pro-field-badge" style="background:rgba(249,115,22,0.15); color:#fdba74; border:1px solid rgba(249,115,22,0.3);">+ له | - عليه</span>
+                                </label>
+                                <input type="number" id="sup-opening-balance" class="pro-num-input" step="any" placeholder="0.00">
+                            </div>
+
+                            <div class="pro-field-card">
+                                <label class="pro-field-label">
+                                    <span style="color: #fca5a5;">🛑 حد الائتمان (أقصى سقف)</span>
+                                    <span class="pro-field-badge" style="background:rgba(239,68,68,0.14); color:#fca5a5;">سقف الائتمان</span>
+                                </label>
+                                <input type="number" id="sup-limit" class="pro-num-input" placeholder="0.00">
+                            </div>
+
+                            <div class="pro-field-card">
+                                <label class="pro-field-label">
+                                    <span>💱 العملة</span>
+                                    <span class="pro-field-badge" style="background:rgba(148,163,184,0.14); color:#cbd5e1;">عملة الحساب</span>
+                                </label>
+                                <select id="sup-currency" class="system-currency-select" onchange="updateSupExchangeRate()"></select>
+                            </div>
+
+                            <div class="pro-field-card">
+                                <label class="pro-field-label">
+                                    <span>🟢 حالة المورد</span>
+                                    <span class="pro-field-badge" style="background:rgba(16,185,129,0.14); color:#6ee7b7;">التصنيف</span>
+                                </label>
+                                <select id="sup-status">
+                                    <option value="active">🟢 مورد نشط</option>
+                                    <option value="blacklisted">🔴 قائمة سوداء</option>
+                                </select>
+                            </div>
+
+                            <!-- الصف الثالث: العنوان + البريد الإلكتروني + الرقم الضريبي + درجة السرية -->
+                            <div class="pro-field-card">
+                                <label class="pro-field-label">
+                                    <span>📍 العنوان</span>
+                                </label>
+                                <input type="text" id="sup-address" placeholder="موقع المصنع / المعرض">
+                            </div>
+
+                            <div class="pro-field-card">
+                                <label class="pro-field-label">
+                                    <span>✉️ البريد الإلكتروني</span>
+                                </label>
+                                <input type="email" id="sup-email" placeholder="example@email.com" style="direction:ltr; text-align:center;">
+                            </div>
+
+                            <div class="pro-field-card">
+                                <label class="pro-field-label">
+                                    <span>🧾 الرقم الضريبي</span>
+                                </label>
+                                <input type="text" id="sup-tax" placeholder="الرقم الضريبي (اختياري)">
+                            </div>
+
+                            <div class="pro-field-card">
+                                <label class="pro-field-label">
+                                    <span>🛡️ درجة السرية</span>
+                                </label>
+                                <select id="sup-security">
+                                    <option value="1">1 (الأقل سرية)</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10 (الأعلى سرية)</option>
+                                </select>
+                            </div>
+
+                            <!-- الصف الرابع: سعر الصرف (إن وجد) + الملاحظات -->
+                            <div class="pro-field-card accent-sky" id="sup-ex-rate-group" style="display: none;">
+                                <label class="pro-field-label" id="sup-ex-rate-label" style="color:#38bdf8 !important;">
+                                    <span>💵 سعر الصرف</span>
+                                </label>
+                                <input type="number" id="sup-ex-rate" class="pro-num-input" step="any" value="1" placeholder="1">
+                            </div>
+
+                            <div class="pro-field-card" id="sup-notes-card" style="grid-column: 1 / -1;">
+                                <label class="pro-field-label">
+                                    <span>📝 ملاحظات إضافية</span>
+                                </label>
+                                <textarea id="sup-notes" placeholder="أضف أي ملاحظات إضافية حول المورد هنا..."></textarea>
+                            </div>
+                        </div>
+
+                        <!-- أرقام موبايلات التابعين للمورد (المناديب / الفروع) -->
+                        <div style="margin-top: 6px; padding: 12px 14px; border: 1px solid rgba(56, 189, 248, 0.28); border-radius: 12px; background: rgba(15, 23, 42, 0.45);">
+                            <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px;">
+                                <div>
+                                    <h4 style="margin: 0; color: #38bdf8; display:flex; align-items:center; gap:6px; font-size: 0.92rem; font-weight: 800;">
+                                        <span>📱</span> <span>أرقام الممثلين / المناديب التابعين للمورد</span>
+                                    </h4>
+                                    <small style="color: #94a3b8; font-size: 0.74rem;">يُسمح لهذه الأرقام بالاستعلام أو إرسال الإشعارات نيابة عن المورد مباشرة بدون باسورد</small>
+                                </div>
+                                <button type="button" onclick="addSupplierSubPhone()" style="height: 32px; background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.35); padding: 0 12px; border-radius: 8px; cursor: pointer; font-size: 0.8rem; font-weight: 800; white-space: nowrap;">+ إضافة رقم تابع</button>
+                            </div>
+                            <div id="sup-sub-phones-container" style="display: flex; flex-direction: column; gap: 10px; margin-top: 8px;"></div>
+                        </div>
+
+                        <div style="margin-top: 16px; display: flex; justify-content: flex-end;">
+                            <button type="button" class="btn-add" style="height: 44px; background: linear-gradient(135deg, #10b981, #059669); padding: 0 28px; font-weight: 900; font-size: 0.95rem; border-radius: 10px; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);" onclick="saveSupplier()">💾 حفظ بيانات المورد</button>
+                        </div>
+                    </div>
+
+                    <!-- Supplier Search Bar -->
+                    <div style="margin-bottom: 14px; display: flex; align-items: center;">
+                        <div class="input-group" style="width: 100%; max-width: 550px; position: relative; margin-bottom: 0;">
+                            <span style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); font-size: 1.2rem; pointer-events: none;">🔍</span>
+                            <input type="text" id="supplier-search-input" onkeyup="filterSuppliers()" placeholder="ابحث باسم المورد، الرقم السري / الباسورد (مثال: 532)، أو رقم الواتساب..." style="padding-right: 45px; border-radius: 12px; border: 1px solid rgba(56,189,248,0.3); background: rgba(0,0,0,0.3); font-size: 1rem; color: #fff; width: 100%; box-shadow: inset 0 2px 5px rgba(0,0,0,0.5);">
                         </div>
                     </div>
 
                     <div class="table-responsive" style="overflow-x: auto;">
                         <table class="pro-table" id="tab-suppliers-table">
-                            <thead><tr><th style="width: 70px; text-align: center;">كود</th><th style="width: 38%; min-width: 260px; text-align: right;">اسم المورد / الشركة</th><th style="width: 115px; text-align: center;">الهاتف</th><th style="width: 90px; text-align: center;">الحالة</th><th style="width: 130px; text-align: center;">الرصيد الحالي</th><th style="width: 120px; text-align: center;">حد الائتمان</th><th style="width: 60px; text-align: center;">السرية</th><th style="width: 100px; text-align: center;">الإجراء</th></tr></thead>
+                            <thead><tr><th style="width: 125px; text-align: center;">🔐 الباسورد السري</th><th style="width: 28%; min-width: 200px; text-align: right;">اسم المورد / الشركة</th><th style="width: 135px; text-align: center;">رقم الواتساب</th><th style="width: 185px; text-align: center;">صلاحية كشف الحساب</th><th style="width: 85px; text-align: center;">الحالة</th><th style="width: 125px; text-align: center;">الرصيد الحالي</th><th style="width: 115px; text-align: center;">حد الائتمان</th><th style="width: 55px; text-align: center;">السرية</th><th style="width: 110px; text-align: center;">الإجراء</th></tr></thead>
                             <tbody></tbody>
                         </table>
                     </div>
@@ -1467,6 +2129,9 @@
                     if (d.currency_rates) {
                         localStorage.setItem('erp_currency_rates_v1', JSON.stringify(d.currency_rates));
                     }
+                    if (d.whatsapp_statement_policy) {
+                        localStorage.setItem('erp_whatsapp_statement_policy_v1', JSON.stringify(d.whatsapp_statement_policy));
+                    }
                     renderAllMasterData();
                     if (typeof renderGlobalUnitsList === 'function') renderGlobalUnitsList();
                     if (typeof updateUnitDropdowns === 'function') updateUnitDropdowns();
@@ -1476,13 +2141,29 @@
             }
         }
         function renderAllMasterData() {
+            if (typeof renderAdminWaPolicyUI === 'function') renderAdminWaPolicyUI();
             renderCustomers();
+            renderSuppliers();
             const custIdEl = document.getElementById('cust-id');
             const codeNumEl = document.getElementById('cust-receipt-code-num');
             if (codeNumEl && (!custIdEl || !custIdEl.value)) {
                 codeNumEl.value = getNextAvailableCustomerReceiptCode('');
+                const custPinEl = document.getElementById('cust-statement-pin');
+                if (custPinEl && !custPinEl.value) {
+                    custPinEl.value = getNextUniqueStatementPin('');
+                    updateCombinedPinPreview('cust');
+                }
             }
-            renderSuppliers();
+            const supIdEl = document.getElementById('sup-id');
+            const supCodeNumEl = document.getElementById('sup-receipt-code-num');
+            if (supCodeNumEl && (!supIdEl || !supIdEl.value)) {
+                supCodeNumEl.value = getNextAvailableCustomerReceiptCode('');
+                const supPinEl = document.getElementById('sup-statement-pin');
+                if (supPinEl && !supPinEl.value) {
+                    supPinEl.value = getNextUniqueStatementPin('');
+                    updateCombinedPinPreview('sup');
+                }
+            }
             renderEmployees();
             if(typeof renderBanks === 'function') renderBanks();
             if(typeof renderSafes === 'function') renderSafes();
@@ -1491,17 +2172,17 @@
             if(typeof renderCostCenters === 'function') renderCostCenters();
         }
 
-        document.addEventListener('DBReady', () => {
+        document.addEventListener('DBReady', async () => {
             if (!localStorage.getItem('authToken')) window.location.href = 'login.php';
             if (window.location.hash) {
                 const tabId = window.location.hash.substring(1);
                 const tabBtn = document.querySelector(`button[onclick*="${tabId}"]`);
                 if (tabBtn) tabBtn.click();
             }
+            await loadMasterDataFromBackend();
             clearCustomerForm();
             clearSupplierForm();
             renderAllMasterData();
-            loadMasterDataFromBackend();
         });
 
         // Re-render when cloud sync completes (essential for iOS Safari first load/fresh sessions)
@@ -1672,14 +2353,755 @@
             return s;
         }
 
-        function ensureCustomerReceiptCodes() {
+        function isSystemAdminForStatementControl(showDenyToast = true) {
+            try {
+                const u = JSON.parse(localStorage.getItem('user') || localStorage.getItem('erp_current_user') || '{}');
+                const role = String(u.role || u.userRole || localStorage.getItem('userRole') || '').trim().toLowerCase();
+                if (!role) return true;
+                const adminRoles = ['admin', 'system_admin', 'super_admin', 'superadmin', 'manager', 'owner', 'مدير النظام', 'مدير عام', 'مدير', 'المدير العام'];
+                const isAdmin = adminRoles.some(r => role.includes(r));
+                if (!isAdmin && showDenyToast && typeof showToast === 'function') {
+                    showToast('⛔ عذراً، التحكم في صلاحيات كشف الحساب ومعرفة الرصيد عبر الواتساب حصري لمدير النظام فقط', 'error');
+                }
+                return isAdmin;
+            } catch (e) {
+                return true;
+            }
+        }
+
+        function getEntityStatementMode(obj) {
+            if (!obj) return 'disabled';
+            if (obj.statementAccessMode && ['disabled', 'balance_only', 'detailed'].includes(obj.statementAccessMode)) {
+                return obj.statementAccessMode;
+            }
+            return obj.allowStatementRequest ? 'detailed' : 'disabled';
+        }
+
+        function getEntityReceiptApprovalMode(obj) {
+            if (!obj) return 'auto_post';
+            if (obj.receiptApprovalMode && ['auto_post', 'review_first'].includes(obj.receiptApprovalMode)) {
+                return obj.receiptApprovalMode;
+            }
+            return 'auto_post';
+        }
+
+        function getActiveSystemBanksList() {
+            try {
+                const list = JSON.parse(localStorage.getItem('erp_banks_v1') || '[]');
+                if (Array.isArray(list)) {
+                    return list.filter(b => b && !b.deleted && !b.isDeactivated);
+                }
+            } catch (e) {}
+            return [];
+        }
+
+        function populateWaReceiptBankDropdowns() {
+            const banks = getActiveSystemBanksList();
+            const policy = getAdminWaPolicy();
+
+            document.querySelectorAll('.wa-policy-default-bank-id').forEach(sel => {
+                const prev = sel.value || policy.defaultReceiptBankId || '';
+                sel.innerHTML = `<option value="">🏦 تلقائي (بنك الخرطوم أو البنك المحدد في بطاقة الحساب)</option>` +
+                    banks.map(b => `<option value="${b.id}">🏦 ${b.name}${b.accountNo ? ' (' + b.accountNo + ')' : ''}</option>`).join('');
+                sel.value = prev;
+            });
+
+            ['cust', 'sup'].forEach(prefix => {
+                const sel = document.getElementById(`${prefix}-default-bank-id`);
+                if (!sel) return;
+                const prev = sel.value || '';
+                sel.innerHTML = `<option value="">🏦 بنك الإشعارات: افتراضي النظام</option>` +
+                    banks.map(b => `<option value="${b.id}">🏦 ${b.name}</option>`).join('');
+                sel.value = prev;
+            });
+        }
+
+        function getAdminWaPolicy() {
+            let fallbackCompany = '';
+            try {
+                const sysCfg = JSON.parse(localStorage.getItem('erp_settings_v1') || '{}');
+                fallbackCompany = (sysCfg.companyName || sysCfg.company_name || '').trim();
+            } catch (e) {}
+            const defaults = {
+                masterMode: 'per_account',
+                receiptApprovalMode: 'per_account',
+                defaultReceiptBankId: '',
+                defaultReceiptBankName: '',
+                voucherCompanyName: fallbackCompany,
+                voucherStampText: 'ختم مصادقة مالية إلكترونية',
+                voucherStampImage: '',
+                phoneVerification: 'phone_or_pin',
+                statementScope: 'all',
+                includeInvoiceItems: true,
+                notifyAdminOnRequest: false,
+                antiSpamCooldown: true
+            };
+            try {
+                const saved = JSON.parse(localStorage.getItem('erp_whatsapp_statement_policy_v1') || '{}');
+                if (saved && typeof saved === 'object') {
+                    const merged = Object.assign({}, defaults, saved);
+                    if (!merged.voucherCompanyName && fallbackCompany) {
+                        merged.voucherCompanyName = fallbackCompany;
+                    }
+                    if (!merged.voucherStampText) {
+                        merged.voucherStampText = 'ختم مصادقة مالية إلكترونية';
+                    }
+                    return merged;
+                }
+            } catch (e) {}
+            return defaults;
+        }
+
+        function getNextUniqueStatementPin(excludeId = '', extraUsedSet = null) {
             let customers = [];
+            let suppliers = [];
             try {
                 customers = JSON.parse(localStorage.getItem('erp_customers_v1')) || [];
                 if (!Array.isArray(customers)) customers = [];
             } catch(e) { customers = []; }
+            try {
+                suppliers = JSON.parse(localStorage.getItem('erp_suppliers_v1')) || [];
+                if (!Array.isArray(suppliers)) suppliers = [];
+            } catch(e) { suppliers = []; }
+
+            const usedPins = new Set(extraUsedSet ? Array.from(extraUsedSet) : []);
+            customers.forEach(c => {
+                if (!c || c.deleted) return;
+                if (excludeId && String(c.id) === String(excludeId)) return;
+                const p = normalizeDigitsToAscii(c.statementPin || '').replace(/[^0-9]/g, '');
+                if (p) usedPins.add(p);
+            });
+            suppliers.forEach(s => {
+                if (!s || s.deleted) return;
+                if (excludeId && String(s.id) === String(excludeId)) return;
+                const p = normalizeDigitsToAscii(s.statementPin || '').replace(/[^0-9]/g, '');
+                if (p) usedPins.add(p);
+            });
+
+            for (let attempt = 0; attempt < 900; attempt++) {
+                const cand = String(Math.floor(100 + Math.random() * 900));
+                if (!usedPins.has(cand)) return cand;
+            }
+            let seq = 100;
+            while (usedPins.has(String(seq))) {
+                seq++;
+            }
+            return String(seq);
+        }
+
+        function updateCombinedPinPreview(prefix) {
+            const pinEl = document.getElementById(`${prefix}-statement-pin`);
+            const prevEl = document.getElementById(`${prefix}-pin-combined-preview`);
+            if (!prevEl) return;
+            const rawPin = normalizeDigitsToAscii(pinEl ? pinEl.value : '').replace(/[^0-9]/g, '');
+            if (pinEl && pinEl.value !== rawPin) pinEl.value = rawPin;
+            if (rawPin) {
+                prevEl.innerHTML = `الباسورد: <b style="color:#34d399; font-family:monospace; direction:ltr; display:inline-block;">${rawPin}</b>`;
+            } else {
+                prevEl.innerHTML = `فريد لكل حساب`;
+            }
+        }
+
+        function generateRandomFormPin(prefix) {
+            const pinEl = document.getElementById(`${prefix}-statement-pin`);
+            if (!pinEl) return;
+            const currentId = document.getElementById(`${prefix}-id`)?.value || '';
+            pinEl.value = getNextUniqueStatementPin(currentId);
+            updateCombinedPinPreview(prefix);
+        }
+
+        function bulkGenerateEntityPins(entityType) {
+            if (!isSystemAdminForStatementControl(true)) return;
+            const isCust = entityType === 'customer';
+            const storageKey = isCust ? 'erp_customers_v1' : 'erp_suppliers_v1';
+            const otherStorageKey = isCust ? 'erp_suppliers_v1' : 'erp_customers_v1';
+            const bulkSyncKey = isCust ? 'customers_bulk' : 'suppliers_bulk';
+            const roleLabel = isCust ? 'العملاء' : 'الموردين';
+
+            let list = [];
+            let otherList = [];
+            try {
+                list = JSON.parse(localStorage.getItem(storageKey)) || [];
+                if (!Array.isArray(list)) list = [];
+            } catch (e) { list = []; }
+            try {
+                otherList = JSON.parse(localStorage.getItem(otherStorageKey)) || [];
+                if (!Array.isArray(otherList)) otherList = [];
+            } catch (e) { otherList = []; }
+
+            const usedPins = new Set();
+            otherList.forEach(item => {
+                if (!item || item.deleted) return;
+                const p = normalizeDigitsToAscii(item.statementPin || '').replace(/[^0-9]/g, '');
+                if (p) usedPins.add(p);
+            });
+            list.forEach(item => {
+                if (!item || item.deleted) return;
+                const p = normalizeDigitsToAscii(item.statementPin || '').replace(/[^0-9]/g, '');
+                if (p && !usedPins.has(p)) {
+                    usedPins.add(p);
+                    item.statementPin = p;
+                } else {
+                    item.statementPin = '';
+                }
+            });
+
+            let generatedCount = 0;
+            list.forEach(item => {
+                if (!item || item.deleted) return;
+                const cleanPin = normalizeDigitsToAscii(item.statementPin || '').replace(/[^0-9]/g, '');
+                if (!cleanPin) {
+                    const newPin = getNextUniqueStatementPin(item.id, usedPins);
+                    item.statementPin = newPin;
+                    usedPins.add(newPin);
+                    generatedCount++;
+                }
+            });
+
+            if (generatedCount === 0) {
+                if (confirm(`جميع حسابات ${roleLabel} لديها رقم سري (باسورد) فريد مسجل مسبقاً.\nهل ترغب في إعادة توليد أرقام سرية عشوائية جديدة وفريدة لجميع ${roleLabel}؟`)) {
+                    const rebuildPins = new Set();
+                    otherList.forEach(item => {
+                        if (!item || item.deleted) return;
+                        const p = normalizeDigitsToAscii(item.statementPin || '').replace(/[^0-9]/g, '');
+                        if (p) rebuildPins.add(p);
+                    });
+                    list.forEach(item => {
+                        if (!item || item.deleted) return;
+                        const newPin = getNextUniqueStatementPin(item.id, rebuildPins);
+                        item.statementPin = newPin;
+                        rebuildPins.add(newPin);
+                        generatedCount++;
+                    });
+                } else {
+                    return;
+                }
+            }
+
+            localStorage.setItem(storageKey, JSON.stringify(list));
+            if (typeof syncToBackend === 'function') {
+                syncToBackend(bulkSyncKey, list);
+            }
+            if (isCust) {
+                renderCustomers(document.getElementById('customer-search-input')?.value || '');
+            } else {
+                renderSuppliers(document.getElementById('supplier-search-input')?.value || '');
+            }
+            if (typeof showToast === 'function') {
+                showToast(`🔐 تم توليد وحفظ باسورد سري فريد لـ (${generatedCount}) من ${roleLabel} بنجاح`, 'success');
+            }
+        }
+
+        function buildWhatsAppCardText(isCust, name, codeNum, pin) {
+            const cleanPin = normalizeDigitsToAscii(pin || '').replace(/[^0-9]/g, '');
+            const roleTitle = isCust ? 'عميلنا العزيز' : 'موردنا العزيز';
+            return (
+                `📋 *بطاقة الخدمة الذاتية عبر الواتساب*\n` +
+                `━━━━━━━━━━━━━━\n` +
+                `مرحباً بك ${roleTitle}: *${name || 'الكريم'}*\n` +
+                (cleanPin ? `🔐 الباسورد السري الخاص بحسابكم: *${cleanPin}*\n` : '') +
+                `━━━━━━━━━━━━━━\n` +
+                `🟢 *أولاً: من رقمكم المعتمد المسجل لدينا (مباشر بدون باسورد):*\n` +
+                `• لإرسال إشعار (أو 10 إشعارات دفعة واحدة): أرسل *صور الإشعارات فقط* وستنزل في حسابكم فوراً\n` +
+                `• لسحب كشف الحساب المفصل أرسل كلمة: *كشف*\n` +
+                `• لمعرفة الرصيد الصافي فقط أرسل كلمة: *رصيد*\n` +
+                (cleanPin
+                    ? `━━━━━━━━━━━━━━\n` +
+                      `🟣 *ثانياً: من أي رقم آخر (أو لتنزيل الإشعارات في حسابكم):*\n` +
+                      `• لإرسال إشعار واحد أو 10 إشعارات دفعة واحدة: اكتب الباسورد *${cleanPin}* *مرة واحدة فقط* (إما في تعليق أول صورة، أو في رسالة قبل الصور، أو في رسالة مباشرة بعد الصور)\n` +
+                      `• لسحب كشف الحساب أرسل: *${cleanPin} كشف* (أو *${cleanPin}* فقط)\n` +
+                      `• لمعرفة الرصيد الصافي أرسل: *${cleanPin} رصيد*`
+                    : '')
+            );
+        }
+
+        function copyEntityWhatsAppCard(entityType, id) {
+            const isCust = entityType === 'customer';
+            const storageKey = isCust ? 'erp_customers_v1' : 'erp_suppliers_v1';
+            let list = [];
+            try {
+                list = JSON.parse(localStorage.getItem(storageKey)) || [];
+            } catch (e) { list = []; }
+            const item = list.find(x => x && String(x.id) === String(id));
+            if (!item) return;
+            const codeNum = item.receiptCodeNum || '';
+            const pin = item.statementPin || '';
+            const cardText = buildWhatsAppCardText(isCust, item.name, codeNum, pin);
+
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(cardText).then(() => {
+                    if (typeof showToast === 'function') showToast(`📋 تم نسخ بطاقة الواتساب لـ "${item.name}" (🔐 ${pin}) بنجاح`, 'success');
+                });
+            }
+        }
+
+        function copyCurrentFormWhatsAppCard(prefix) {
+            const isCust = prefix === 'cust';
+            const name = (document.getElementById(`${prefix}-name`)?.value || '').trim();
+            const codeNum = normalizeDigitsToAscii(document.getElementById(`${prefix}-receipt-code-num`)?.value || '').replace(/[^0-9]/g, '');
+            let pin = normalizeDigitsToAscii(document.getElementById(`${prefix}-statement-pin`)?.value || '').replace(/[^0-9]/g, '');
+            if (!pin) {
+                generateRandomFormPin(prefix);
+                pin = normalizeDigitsToAscii(document.getElementById(`${prefix}-statement-pin`)?.value || '').replace(/[^0-9]/g, '');
+            }
+            const cardText = buildWhatsAppCardText(isCust, name || (isCust ? 'عميلنا الكريم' : 'موردنا الكريم'), codeNum, pin);
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(cardText).then(() => {
+                    if (typeof showToast === 'function') showToast(`📋 تم نسخ بطاقة الواتساب للباسورد (🔐 ${pin}) بنجاح`, 'success');
+                });
+            }
+        }
+
+        function renderAdminWaPolicyUI() {
+            populateWaReceiptBankDropdowns();
+            const policy = getAdminWaPolicy();
+            document.querySelectorAll('.wa-policy-master-mode').forEach(el => { el.value = policy.masterMode || 'per_account'; });
+            document.querySelectorAll('.wa-policy-receipt-approval-mode').forEach(el => { el.value = policy.receiptApprovalMode || 'per_account'; });
+            document.querySelectorAll('.wa-policy-default-bank-id').forEach(el => { el.value = policy.defaultReceiptBankId || ''; });
+            document.querySelectorAll('.wa-policy-company-name').forEach(el => { el.value = policy.voucherCompanyName || ''; });
+            document.querySelectorAll('.wa-policy-stamp-text').forEach(el => { el.value = policy.voucherStampText || 'ختم مصادقة مالية إلكترونية'; });
+            document.querySelectorAll('.wa-policy-stamp-preview').forEach(img => {
+                if (policy.voucherStampImage) {
+                    img.src = policy.voucherStampImage;
+                    img.style.display = 'inline-block';
+                } else {
+                    img.src = '';
+                    img.style.display = 'none';
+                }
+            });
+            document.querySelectorAll('.wa-policy-stamp-clear-btn').forEach(btn => {
+                btn.style.display = policy.voucherStampImage ? 'inline-block' : 'none';
+            });
+            document.querySelectorAll('.wa-policy-phone-verification').forEach(el => { el.value = policy.phoneVerification || 'phone_or_pin'; });
+            document.querySelectorAll('.wa-policy-statement-scope').forEach(el => { el.value = policy.statementScope || 'all'; });
+            document.querySelectorAll('.wa-policy-include-items').forEach(el => { el.checked = policy.includeInvoiceItems !== false; });
+            document.querySelectorAll('.wa-policy-notify-admin').forEach(el => { el.checked = Boolean(policy.notifyAdminOnRequest); });
+            document.querySelectorAll('.wa-policy-antispam').forEach(el => { el.checked = policy.antiSpamCooldown !== false; });
+
+            const badgeConfig = {
+                'per_account': { text: '🎯 الوضع الحالي: حسب صلاحية كل حساب', bg: 'rgba(16, 185, 129, 0.15)', color: '#34d399', border: 'rgba(16, 185, 129, 0.35)' },
+                'force_detailed_all': { text: '📊 قرار المدير العام: كشف مفصل للجميع', bg: 'rgba(56, 189, 248, 0.18)', color: '#38bdf8', border: 'rgba(56, 189, 248, 0.45)' },
+                'force_balance_only_all': { text: '💰 قرار المدير العام: معرفة الرصيد فقط للجميع', bg: 'rgba(245, 158, 11, 0.18)', color: '#fbbf24', border: 'rgba(245, 158, 11, 0.45)' },
+                'force_disabled_all': { text: '🔒 قرار المدير العام: الخدمة موقوفة كلياً عن الجميع', bg: 'rgba(239, 68, 68, 0.18)', color: '#f87171', border: 'rgba(239, 68, 68, 0.45)' }
+            };
+            const cfg = badgeConfig[policy.masterMode] || badgeConfig['per_account'];
+            document.querySelectorAll('.wa-policy-status-badge').forEach(badge => {
+                badge.textContent = cfg.text;
+                badge.style.background = cfg.bg;
+                badge.style.color = cfg.color;
+                badge.style.borderColor = cfg.border;
+            });
+        }
+
+        function toggleAdminWaPolicyDrawer() {
+            if (!isSystemAdminForStatementControl(true)) return;
+            document.querySelectorAll('.admin-wa-policy-drawer').forEach(drawer => {
+                drawer.style.display = (drawer.style.display === 'none' || !drawer.style.display) ? 'block' : 'none';
+            });
+            renderAdminWaPolicyUI();
+        }
+
+        function syncAdminWaPolicyFromUI(sourceEl, extraPatch = null) {
+            if (!isSystemAdminForStatementControl(true)) {
+                renderAdminWaPolicyUI();
+                return;
+            }
+            const curPolicy = getAdminWaPolicy();
+            const rootPanel = sourceEl ? (sourceEl.closest('[id^="admin-wa-policy-panel-"]') || document) : document;
+            const drawerPanel = rootPanel.querySelector('.admin-wa-policy-drawer') || document.querySelector('.admin-wa-policy-drawer') || rootPanel;
+            const selectedBankId = drawerPanel.querySelector('.wa-policy-default-bank-id')?.value ?? curPolicy.defaultReceiptBankId ?? '';
+            const banks = getActiveSystemBanksList();
+            const foundBank = banks.find(b => String(b.id) === String(selectedBankId));
+            const compInput = rootPanel.querySelector('.wa-policy-company-name') || document.querySelector('.wa-policy-company-name');
+            const stampTextInput = rootPanel.querySelector('.wa-policy-stamp-text') || document.querySelector('.wa-policy-stamp-text');
+
+            const policy = Object.assign({}, curPolicy, {
+                masterMode: drawerPanel.querySelector('.wa-policy-master-mode')?.value || curPolicy.masterMode || 'per_account',
+                receiptApprovalMode: drawerPanel.querySelector('.wa-policy-receipt-approval-mode')?.value || curPolicy.receiptApprovalMode || 'per_account',
+                defaultReceiptBankId: selectedBankId,
+                defaultReceiptBankName: foundBank ? foundBank.name : '',
+                voucherCompanyName: compInput ? compInput.value.trim() : (curPolicy.voucherCompanyName || ''),
+                voucherStampText: (stampTextInput ? stampTextInput.value.trim() : '') || 'ختم مصادقة مالية إلكترونية',
+                phoneVerification: drawerPanel.querySelector('.wa-policy-phone-verification')?.value || curPolicy.phoneVerification || 'phone_or_pin',
+                statementScope: drawerPanel.querySelector('.wa-policy-statement-scope')?.value || curPolicy.statementScope || 'all',
+                includeInvoiceItems: drawerPanel.querySelector('.wa-policy-include-items') ? Boolean(drawerPanel.querySelector('.wa-policy-include-items').checked) : (curPolicy.includeInvoiceItems !== false),
+                notifyAdminOnRequest: drawerPanel.querySelector('.wa-policy-notify-admin') ? Boolean(drawerPanel.querySelector('.wa-policy-notify-admin').checked) : Boolean(curPolicy.notifyAdminOnRequest),
+                antiSpamCooldown: drawerPanel.querySelector('.wa-policy-antispam') ? Boolean(drawerPanel.querySelector('.wa-policy-antispam').checked) : (curPolicy.antiSpamCooldown !== false)
+            }, extraPatch || {});
+
+            localStorage.setItem('erp_whatsapp_statement_policy_v1', JSON.stringify(policy));
+            renderAdminWaPolicyUI();
+            if (typeof syncToBackend === 'function') {
+                syncToBackend('whatsapp_statement_policy', policy);
+            }
+            renderCustomers(document.getElementById('customer-search-input')?.value || '');
+            renderSuppliers(document.getElementById('supplier-search-input')?.value || '');
+            if (typeof showToast === 'function') {
+                showToast('🏛️ تم حفظ اسم الشركة والختم وإعدادات سندات الواتساب بنجاح', 'success');
+            }
+        }
+
+        function handleWaVoucherStampUpload(inputEl) {
+            if (!isSystemAdminForStatementControl(true)) return;
+            const file = inputEl && inputEl.files && inputEl.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+                const img = new Image();
+                img.onload = function() {
+                    const maxDim = 260;
+                    let w = img.width || 200;
+                    let h = img.height || 200;
+                    if (w > maxDim || h > maxDim) {
+                        if (w > h) {
+                            h = Math.round((h * maxDim) / w);
+                            w = maxDim;
+                        } else {
+                            w = Math.round((w * maxDim) / h);
+                            h = maxDim;
+                        }
+                    }
+                    const canvas = document.createElement('canvas');
+                    canvas.width = w;
+                    canvas.height = h;
+                    const ctx = canvas.getContext('2d');
+                    ctx.clearRect(0, 0, w, h);
+                    ctx.drawImage(img, 0, 0, w, h);
+                    const dataUrl = canvas.toDataURL('image/png');
+                    syncAdminWaPolicyFromUI(inputEl, { voucherStampImage: dataUrl });
+                };
+                img.src = evt.target.result;
+            };
+            reader.readAsDataURL(file);
+            inputEl.value = '';
+        }
+
+        function clearWaVoucherStampImage() {
+            if (!isSystemAdminForStatementControl(true)) return;
+            syncAdminWaPolicyFromUI(null, { voucherStampImage: '' });
+        }
+
+        function setFormReceiptApprovalMode(prefix, mode, triggerSaveIfEditing = false) {
+            if (triggerSaveIfEditing && !isSystemAdminForStatementControl(true)) return;
+            const normalizedMode = (mode === 'review_first') ? 'review_first' : 'auto_post';
+            const modeEl = document.getElementById(`${prefix}-receipt-approval-mode`);
+            if (modeEl) modeEl.value = normalizedMode;
+
+            const btnConfigs = {
+                'auto_post': {
+                    activeBg: 'rgba(16, 185, 129, 0.24)',
+                    activeColor: '#6ee7b7',
+                    activeBorder: 'rgba(16, 185, 129, 0.6)',
+                    activeShadow: '0 0 10px rgba(16, 185, 129, 0.25)'
+                },
+                'review_first': {
+                    activeBg: 'rgba(245, 158, 11, 0.24)',
+                    activeColor: '#fcd34d',
+                    activeBorder: 'rgba(245, 158, 11, 0.6)',
+                    activeShadow: '0 0 10px rgba(245, 158, 11, 0.25)'
+                }
+            };
+
+            ['auto_post', 'review_first'].forEach(m => {
+                const btn = document.getElementById(`${prefix}-rcpt-btn-${m}`);
+                if (!btn) return;
+                if (m === normalizedMode) {
+                    const c = btnConfigs[m];
+                    btn.style.background = c.activeBg;
+                    btn.style.color = c.activeColor;
+                    btn.style.borderColor = c.activeBorder;
+                    btn.style.boxShadow = c.activeShadow;
+                } else {
+                    btn.style.background = 'transparent';
+                    btn.style.color = '#64748b';
+                    btn.style.borderColor = 'transparent';
+                    btn.style.boxShadow = 'none';
+                }
+            });
+
+            if (triggerSaveIfEditing) {
+                const idEl = document.getElementById(`${prefix}-id`);
+                const currentId = idEl ? idEl.value.trim() : '';
+                if (currentId) {
+                    setEntityReceiptApprovalMode(prefix === 'cust' ? 'customer' : 'supplier', currentId, normalizedMode);
+                }
+            }
+        }
+
+        function setEntityReceiptApprovalMode(entityType, id, targetMode = null) {
+            if (!isSystemAdminForStatementControl(true)) return;
+            const isCust = entityType === 'customer';
+            const storageKey = isCust ? 'erp_customers_v1' : 'erp_suppliers_v1';
+            const syncAction = isCust ? 'save_customer' : 'save_supplier';
+            let list = [];
+            try {
+                list = JSON.parse(localStorage.getItem(storageKey)) || [];
+                if (!Array.isArray(list)) list = [];
+            } catch (e) { list = []; }
+
+            const idx = list.findIndex(item => item && String(item.id) === String(id));
+            if (idx === -1) return;
+
+            const currentMode = getEntityReceiptApprovalMode(list[idx]);
+            const nextMode = (targetMode && ['auto_post', 'review_first'].includes(targetMode))
+                ? targetMode
+                : (currentMode === 'auto_post' ? 'review_first' : 'auto_post');
+
+            list[idx].receiptApprovalMode = nextMode;
+            localStorage.setItem(storageKey, JSON.stringify(list));
+
+            if (typeof syncToBackend === 'function') {
+                syncToBackend(syncAction, list[idx]);
+            }
+
+            const prefix = isCust ? 'cust' : 'sup';
+            const openId = document.getElementById(`${prefix}-id`)?.value || '';
+            if (String(openId) === String(id)) {
+                setFormReceiptApprovalMode(prefix, nextMode, false);
+            }
+
+            if (isCust) {
+                renderCustomers(document.getElementById('customer-search-input')?.value || '');
+            } else {
+                renderSuppliers(document.getElementById('supplier-search-input')?.value || '');
+            }
+
+            if (typeof showToast === 'function') {
+                if (nextMode === 'review_first') {
+                    showToast(`👁️ تم ضبط إشعارات "${list[idx].name}" على: (مراجعة وتمرير يدوي في شاشة الترحيل)`, 'info');
+                } else {
+                    showToast(`⚡ تم ضبط إشعارات "${list[idx].name}" على: (اعتماد وترحيل فوري طوالي بالحساب)`, 'success');
+                }
+            }
+        }
+
+        function setFormStatementMode(prefix, mode, triggerSaveIfEditing = false) {
+            if (triggerSaveIfEditing && !isSystemAdminForStatementControl(true)) return;
+            const normalizedMode = ['disabled', 'balance_only', 'detailed'].includes(mode) ? mode : (mode ? 'detailed' : 'disabled');
+            const modeEl = document.getElementById(`${prefix}-statement-mode`);
+            const allowEl = document.getElementById(`${prefix}-allow-statement`);
+            if (modeEl) modeEl.value = normalizedMode;
+            if (allowEl) allowEl.value = (normalizedMode !== 'disabled') ? '1' : '0';
+
+            const btnConfigs = {
+                'disabled': {
+                    activeBg: 'rgba(239, 68, 68, 0.22)',
+                    activeColor: '#fca5a5',
+                    activeBorder: 'rgba(239, 68, 68, 0.55)',
+                    activeShadow: '0 0 10px rgba(239, 68, 68, 0.2)'
+                },
+                'balance_only': {
+                    activeBg: 'rgba(245, 158, 11, 0.24)',
+                    activeColor: '#fcd34d',
+                    activeBorder: 'rgba(245, 158, 11, 0.6)',
+                    activeShadow: '0 0 10px rgba(245, 158, 11, 0.25)'
+                },
+                'detailed': {
+                    activeBg: 'rgba(16, 185, 129, 0.24)',
+                    activeColor: '#6ee7b7',
+                    activeBorder: 'rgba(16, 185, 129, 0.6)',
+                    activeShadow: '0 0 10px rgba(16, 185, 129, 0.25)'
+                }
+            };
+
+            ['disabled', 'balance_only', 'detailed'].forEach(m => {
+                const btn = document.getElementById(`${prefix}-mode-btn-${m}`);
+                if (!btn) return;
+                if (m === normalizedMode) {
+                    const c = btnConfigs[m];
+                    btn.style.background = c.activeBg;
+                    btn.style.color = c.activeColor;
+                    btn.style.borderColor = c.activeBorder;
+                    btn.style.boxShadow = c.activeShadow;
+                } else {
+                    btn.style.background = 'transparent';
+                    btn.style.color = '#64748b';
+                    btn.style.borderColor = 'transparent';
+                    btn.style.boxShadow = 'none';
+                }
+            });
+
+            if (triggerSaveIfEditing) {
+                const idEl = document.getElementById(`${prefix}-id`);
+                const currentId = idEl ? idEl.value.trim() : '';
+                if (currentId) {
+                    setEntityStatementMode(prefix === 'cust' ? 'customer' : 'supplier', currentId, normalizedMode);
+                }
+            }
+        }
+
+        function setFormStatementBtnUI(prefix, modeOrBool) {
+            const mode = ['disabled', 'balance_only', 'detailed'].includes(modeOrBool)
+                ? modeOrBool
+                : (modeOrBool ? 'detailed' : 'disabled');
+            setFormStatementMode(prefix, mode, false);
+        }
+
+        function setEntityStatementMode(entityType, id, targetMode = null) {
+            if (!isSystemAdminForStatementControl(true)) return;
+            const isCust = entityType === 'customer';
+            const storageKey = isCust ? 'erp_customers_v1' : 'erp_suppliers_v1';
+            const syncAction = isCust ? 'save_customer' : 'save_supplier';
+            let list = [];
+            try {
+                list = JSON.parse(localStorage.getItem(storageKey)) || [];
+                if (!Array.isArray(list)) list = [];
+            } catch (e) { list = []; }
+
+            const idx = list.findIndex(item => item && String(item.id) === String(id));
+            if (idx === -1) return;
+
+            const currentMode = getEntityStatementMode(list[idx]);
+            const cycleOrder = ['disabled', 'balance_only', 'detailed'];
+            const nextMode = (targetMode && cycleOrder.includes(targetMode))
+                ? targetMode
+                : cycleOrder[(cycleOrder.indexOf(currentMode) + 1) % cycleOrder.length];
+
+            list[idx].statementAccessMode = nextMode;
+            list[idx].allowStatementRequest = (nextMode !== 'disabled');
+            localStorage.setItem(storageKey, JSON.stringify(list));
+
+            if (typeof syncToBackend === 'function') {
+                syncToBackend(syncAction, list[idx]);
+            }
+
+            const prefix = isCust ? 'cust' : 'sup';
+            const openId = document.getElementById(`${prefix}-id`)?.value || '';
+            if (String(openId) === String(id)) {
+                setFormStatementMode(prefix, nextMode, false);
+            }
+
+            if (isCust) {
+                renderCustomers(document.getElementById('customer-search-input')?.value || '');
+            } else {
+                renderSuppliers(document.getElementById('supplier-search-input')?.value || '');
+            }
+
+            if (typeof showToast === 'function') {
+                const pinLabel = list[idx].statementPin ? `🔐 ${list[idx].statementPin}` : '';
+                if (nextMode === 'detailed') {
+                    showToast(`📊 تم تفعيل (كشف حساب مفصل) لـ "${list[idx].name}" ${pinLabel}`, 'success');
+                } else if (nextMode === 'balance_only') {
+                    showToast(`💰 تم تحديد صلاحية (معرفة الرصيد فقط) لـ "${list[idx].name}" ${pinLabel}`, 'info');
+                } else {
+                    showToast(`🔒 تم إيقاف خدمة استعلام الواتساب لـ "${list[idx].name}"`, 'info');
+                }
+            }
+        }
+
+        function toggleEntityStatementRequest(entityType, id, forcedState = null) {
+            if (forcedState === true) return setEntityStatementMode(entityType, id, 'detailed');
+            if (forcedState === false) return setEntityStatementMode(entityType, id, 'disabled');
+            return setEntityStatementMode(entityType, id, null);
+        }
+
+        function bulkSetEntityStatementMode(entityType, mode) {
+            if (!isSystemAdminForStatementControl(true)) return;
+            if (!['disabled', 'balance_only', 'detailed'].includes(mode)) return;
+            const isCust = entityType === 'customer';
+            const storageKey = isCust ? 'erp_customers_v1' : 'erp_suppliers_v1';
+            const bulkSyncKey = isCust ? 'customers_bulk' : 'suppliers_bulk';
+            const roleLabel = isCust ? 'العملاء' : 'الموردين';
+            const modeLabel = mode === 'detailed' ? '📊 كشف حساب مفصل' : (mode === 'balance_only' ? '💰 معرفة الرصيد فقط' : '🔒 إيقاف الخدمة');
+
+            let list = [];
+            try {
+                list = JSON.parse(localStorage.getItem(storageKey)) || [];
+                if (!Array.isArray(list)) list = [];
+            } catch (e) { list = []; }
+
+            let updatedCount = 0;
+            list.forEach(item => {
+                if (!item || item.deleted) return;
+                item.statementAccessMode = mode;
+                item.allowStatementRequest = (mode !== 'disabled');
+                updatedCount++;
+            });
+
+            localStorage.setItem(storageKey, JSON.stringify(list));
+            if (typeof syncToBackend === 'function') {
+                syncToBackend(bulkSyncKey, list);
+            }
+
+            if (isCust) {
+                renderCustomers(document.getElementById('customer-search-input')?.value || '');
+            } else {
+                renderSuppliers(document.getElementById('supplier-search-input')?.value || '');
+            }
+
+            if (typeof showToast === 'function') {
+                showToast(`🛡️ تم تعميم صلاحية (${modeLabel}) على جميع ${roleLabel} (${updatedCount} حساب) بنجاح`, 'success');
+            }
+        }
+
+        function buildTableStatementControlHtml(entityType, item) {
+            const mode = getEntityStatementMode(item);
+            const rcptMode = getEntityReceiptApprovalMode(item);
+            const policy = getAdminWaPolicy();
+            const masterMode = policy.masterMode || 'per_account';
+            const policyRcptMode = policy.receiptApprovalMode || 'per_account';
+
+            const btnStyle = (targetMode) => {
+                const isActive = (mode === targetMode);
+                if (targetMode === 'disabled') {
+                    return isActive
+                        ? 'background:rgba(239,68,68,0.22); color:#fca5a5; border:1px solid rgba(239,68,68,0.55); font-weight:900;'
+                        : 'background:rgba(255,255,255,0.03); color:#64748b; border:1px solid rgba(148,163,184,0.18); opacity:0.75;';
+                }
+                if (targetMode === 'balance_only') {
+                    return isActive
+                        ? 'background:rgba(245,158,11,0.24); color:#fcd34d; border:1px solid rgba(245,158,11,0.6); font-weight:900; box-shadow:0 0 8px rgba(245,158,11,0.22);'
+                        : 'background:rgba(255,255,255,0.03); color:#64748b; border:1px solid rgba(148,163,184,0.18); opacity:0.75;';
+                }
+                return isActive
+                    ? 'background:rgba(16,185,129,0.24); color:#6ee7b7; border:1px solid rgba(16,185,129,0.6); font-weight:900; box-shadow:0 0 8px rgba(16,185,129,0.22);'
+                    : 'background:rgba(255,255,255,0.03); color:#64748b; border:1px solid rgba(148,163,184,0.18); opacity:0.75;';
+            };
+
+            let overrideHint = '';
+            if (masterMode === 'force_detailed_all') {
+                overrideHint = `<div style="margin-top:3px; font-size:0.68rem; color:#38bdf8; font-weight:800;">👑 عام: كشف مفصل</div>`;
+            } else if (masterMode === 'force_balance_only_all') {
+                overrideHint = `<div style="margin-top:3px; font-size:0.68rem; color:#fbbf24; font-weight:800;">👑 عام: الرصيد فقط</div>`;
+            } else if (masterMode === 'force_disabled_all') {
+                overrideHint = `<div style="margin-top:3px; font-size:0.68rem; color:#f87171; font-weight:800;">👑 عام: موقوف كلياً</div>`;
+            }
+
+            const effectiveRcptMode = policyRcptMode === 'review_first_all' ? 'review_first' : (policyRcptMode === 'auto_post_all' ? 'auto_post' : rcptMode);
+            const rcptPillHtml = effectiveRcptMode === 'review_first'
+                ? `<button type="button" onclick="setEntityReceiptApprovalMode('${entityType}', '${item.id}')" title="اضغط للتبديل إلى القبول الفوري طوالي" style="margin-top:4px; background:rgba(245,158,11,0.2); color:#fcd34d; border:1px solid rgba(245,158,11,0.5); padding:2px 8px; border-radius:6px; font-size:0.69rem; font-weight:800; cursor:pointer; display:inline-flex; align-items:center; gap:4px;">👁️ إشعارات: مراجعة بالترحيل</button>`
+                : `<button type="button" onclick="setEntityReceiptApprovalMode('${entityType}', '${item.id}')" title="اضغط للتبديل إلى المراجعة والتمرير اليدوي في شاشة الترحيل" style="margin-top:4px; background:rgba(16,185,129,0.15); color:#6ee7b7; border:1px solid rgba(16,185,129,0.4); padding:2px 8px; border-radius:6px; font-size:0.69rem; font-weight:800; cursor:pointer; display:inline-flex; align-items:center; gap:4px;">⚡ إشعارات: قبول طوالي</button>`;
+
+            const customBankBadge = item.defaultBankName
+                ? `<div style="margin-top:2px; font-size:0.67rem; color:#fcd34d; font-weight:800;">🏦 ${item.defaultBankName}</div>`
+                : '';
+
+            return `
+                <div style="display:inline-flex; align-items:center; gap:3px; background:rgba(15,23,42,0.65); padding:3px; border-radius:8px; border:1px solid rgba(148,163,184,0.2);">
+                    <button type="button" onclick="setEntityStatementMode('${entityType}', '${item.id}', 'disabled')" title="إيقاف الخدمة لهذا الحساب" style="${btnStyle('disabled')} padding:3px 6px; border-radius:6px; font-size:0.71rem; cursor:pointer; white-space:nowrap;">🔒 موقوف</button>
+                    <button type="button" onclick="setEntityStatementMode('${entityType}', '${item.id}', 'balance_only')" title="معرفة الرصيد الصافي فقط بدون تفاصيل الفواتير" style="${btnStyle('balance_only')} padding:3px 6px; border-radius:6px; font-size:0.71rem; cursor:pointer; white-space:nowrap;">💰 الرصيد</button>
+                    <button type="button" onclick="setEntityStatementMode('${entityType}', '${item.id}', 'detailed')" title="كشف حساب تفصيلي كامل بالحركات" style="${btnStyle('detailed')} padding:3px 6px; border-radius:6px; font-size:0.71rem; cursor:pointer; white-space:nowrap;">📊 كشف</button>
+                </div>
+                <div>${rcptPillHtml}</div>
+                ${customBankBadge}
+                ${overrideHint}
+            `;
+        }
+
+        function ensureCustomerReceiptCodes() {
+            let customers = [];
+            let suppliers = [];
+            try {
+                customers = JSON.parse(localStorage.getItem('erp_customers_v1')) || [];
+                if (!Array.isArray(customers)) customers = [];
+            } catch(e) { customers = []; }
+            try {
+                suppliers = JSON.parse(localStorage.getItem('erp_suppliers_v1')) || [];
+                if (!Array.isArray(suppliers)) suppliers = [];
+            } catch(e) { suppliers = []; }
 
             const usedNums = new Set();
+            const usedPins = new Set();
             customers.forEach(c => {
                 if (!c || c.deleted) return;
                 const n = parseInt(normalizeDigitsToAscii(c.receiptCodeNum), 10);
@@ -1688,6 +3110,24 @@
                     c.receiptCodeNum = n;
                 } else {
                     c.receiptCodeNum = null;
+                }
+                const p = normalizeDigitsToAscii(c.statementPin || '').replace(/[^0-9]/g, '');
+                if (p && !usedPins.has(p)) {
+                    usedPins.add(p);
+                    c.statementPin = p;
+                } else {
+                    c.statementPin = '';
+                }
+            });
+            suppliers.forEach(s => {
+                if (!s || s.deleted) return;
+                const n = parseInt(normalizeDigitsToAscii(s.receiptCodeNum), 10);
+                if (!isNaN(n) && n >= 1 && !usedNums.has(n)) {
+                    usedNums.add(n);
+                }
+                const p = normalizeDigitsToAscii(s.statementPin || '').replace(/[^0-9]/g, '');
+                if (p && !usedPins.has(p)) {
+                    usedPins.add(p);
                 }
             });
 
@@ -1703,6 +3143,12 @@
                     usedNums.add(nextCandidate);
                     changed = true;
                 }
+                if (!c.statementPin) {
+                    const newPin = getNextUniqueStatementPin(c.id, usedPins);
+                    c.statementPin = newPin;
+                    usedPins.add(newPin);
+                    changed = true;
+                }
             });
 
             if (changed) {
@@ -1714,18 +3160,96 @@
             return customers;
         }
 
-        function getNextAvailableCustomerReceiptCode(excludeCustId = '') {
+        function ensureSupplierReceiptCodes() {
+            let customers = ensureCustomerReceiptCodes();
+            let suppliers = [];
+            try {
+                suppliers = JSON.parse(localStorage.getItem('erp_suppliers_v1')) || [];
+                if (!Array.isArray(suppliers)) suppliers = [];
+            } catch(e) { suppliers = []; }
+
+            const usedNums = new Set();
+            const usedPins = new Set();
+            customers.forEach(c => {
+                if (!c || c.deleted) return;
+                const n = parseInt(normalizeDigitsToAscii(c.receiptCodeNum), 10);
+                if (!isNaN(n) && n >= 1) usedNums.add(n);
+                const p = normalizeDigitsToAscii(c.statementPin || '').replace(/[^0-9]/g, '');
+                if (p) usedPins.add(p);
+            });
+
+            suppliers.forEach(s => {
+                if (!s || s.deleted) return;
+                const n = parseInt(normalizeDigitsToAscii(s.receiptCodeNum), 10);
+                if (!isNaN(n) && n >= 1 && !usedNums.has(n)) {
+                    usedNums.add(n);
+                    s.receiptCodeNum = n;
+                } else {
+                    s.receiptCodeNum = null;
+                }
+                const p = normalizeDigitsToAscii(s.statementPin || '').replace(/[^0-9]/g, '');
+                if (p && !usedPins.has(p)) {
+                    usedPins.add(p);
+                    s.statementPin = p;
+                } else {
+                    s.statementPin = '';
+                }
+            });
+
+            let changed = false;
+            let nextCandidate = 1;
+            suppliers.forEach(s => {
+                if (!s || s.deleted) return;
+                if (!s.receiptCodeNum || s.receiptCodeNum < 1) {
+                    while (usedNums.has(nextCandidate)) {
+                        nextCandidate++;
+                    }
+                    s.receiptCodeNum = nextCandidate;
+                    usedNums.add(nextCandidate);
+                    changed = true;
+                }
+                if (!s.statementPin) {
+                    const newPin = getNextUniqueStatementPin(s.id, usedPins);
+                    s.statementPin = newPin;
+                    usedPins.add(newPin);
+                    changed = true;
+                }
+            });
+
+            if (changed) {
+                localStorage.setItem('erp_suppliers_v1', JSON.stringify(suppliers));
+                if (typeof syncToBackend === 'function') {
+                    syncToBackend('suppliers_bulk', suppliers);
+                }
+            }
+            return suppliers;
+        }
+
+        function getNextAvailableCustomerReceiptCode(excludeId = '') {
             let customers = [];
+            let suppliers = [];
             try {
                 customers = JSON.parse(localStorage.getItem('erp_customers_v1')) || [];
                 if (!Array.isArray(customers)) customers = [];
             } catch(e) { customers = []; }
+            try {
+                suppliers = JSON.parse(localStorage.getItem('erp_suppliers_v1')) || [];
+                if (!Array.isArray(suppliers)) suppliers = [];
+            } catch(e) { suppliers = []; }
 
             const usedNums = new Set();
             customers.forEach(c => {
                 if (!c || c.deleted) return;
-                if (excludeCustId && String(c.id) === String(excludeCustId)) return;
+                if (excludeId && String(c.id) === String(excludeId)) return;
                 const n = parseInt(normalizeDigitsToAscii(c.receiptCodeNum), 10);
+                if (!isNaN(n) && n >= 1) {
+                    usedNums.add(n);
+                }
+            });
+            suppliers.forEach(s => {
+                if (!s || s.deleted) return;
+                if (excludeId && String(s.id) === String(excludeId)) return;
+                const n = parseInt(normalizeDigitsToAscii(s.receiptCodeNum), 10);
                 if (!isNaN(n) && n >= 1) {
                     usedNums.add(n);
                 }
@@ -1760,13 +3284,14 @@
             container.appendChild(row);
         }
 
-        function saveCustomer() {
+        async function saveCustomer() {
             const id = document.getElementById('cust-id').value || 'CUST-' + Date.now();
             const name = document.getElementById('cust-name').value;
             if(!name.trim()) { alert('الرجاء إدخال اسم العميل'); return; }
             if(isDuplicateName('erp_customers_v1', name, id)) { alert('الاسم موجود مسبقاً، يرجى اختيار اسم آخر لتجنب التكرار.'); return; }
-            const phone = document.getElementById('cust-phone').value;
-            const whatsapp = document.getElementById('cust-whatsapp').value;
+            const rawWhatsapp = (document.getElementById('cust-whatsapp')?.value || document.getElementById('cust-phone')?.value || '').trim();
+            const whatsapp = rawWhatsapp;
+            const phone = rawWhatsapp;
             const email = document.getElementById('cust-email').value;
             const contactPerson = document.getElementById('cust-contact').value;
             const address = document.getElementById('cust-address').value;
@@ -1786,16 +3311,30 @@
             const security = parseInt(document.getElementById('cust-security').value) || 1;
             const status = document.getElementById('cust-status').value || 'active';
             const notes = document.getElementById('cust-notes').value;
+            const rawCustMode = document.getElementById('cust-statement-mode')?.value || '';
+            const statementAccessMode = ['disabled', 'balance_only', 'detailed'].includes(rawCustMode)
+                ? rawCustMode
+                : 'detailed';
+            const allowStatementRequest = (statementAccessMode !== 'disabled');
+            const receiptApprovalMode = (document.getElementById('cust-receipt-approval-mode')?.value === 'review_first') ? 'review_first' : 'auto_post';
+            const defaultBankId = (document.getElementById('cust-default-bank-id')?.value || '').trim();
+            const foundDefaultBank = getActiveSystemBanksList().find(b => String(b.id) === String(defaultBankId));
+            const defaultBankName = foundDefaultBank ? foundDefaultBank.name : '';
 
             const bankAccounts = [];
             document.querySelectorAll('.cust-bank-row').forEach(row => {
-                bankAccounts.push({
-                    bankName: row.querySelector('.bank-name').value,
-                    branch: row.querySelector('.bank-branch').value,
-                    accountNo: row.querySelector('.bank-acc').value,
-                    securityLevel: parseInt(row.querySelector('.bank-security').value) || 1,
-                    isDeactivated: row.querySelector('.bank-deactive').checked
-                });
+                const bName = (row.querySelector('.bank-name')?.value || '').trim();
+                const bBranch = (row.querySelector('.bank-branch')?.value || '').trim();
+                const bAcc = (row.querySelector('.bank-acc')?.value || '').trim();
+                if (bName || bBranch || bAcc) {
+                    bankAccounts.push({
+                        bankName: bName,
+                        branch: bBranch,
+                        accountNo: bAcc,
+                        securityLevel: parseInt(row.querySelector('.bank-security')?.value) || 1,
+                        isDeactivated: Boolean(row.querySelector('.bank-deactive')?.checked)
+                    });
+                }
             });
 
             const subPhones = [];
@@ -1827,29 +3366,25 @@
                 return;
             }
 
-            // Validate & Auto-generate Receipt Code Number (Option 1: 1..infinity with gap-filling)
+            // Maintain background receiptCodeNum automatically
             const rawCodeNumInput = normalizeDigitsToAscii(document.getElementById('cust-receipt-code-num')?.value || '').trim();
             let receiptCodeNum = parseInt(rawCodeNumInput, 10);
-            if (isNaN(receiptCodeNum) || receiptCodeNum < 1) {
+            const dupCodeNumCust = allCusts.find(c => !c.deleted && c.id !== id && parseInt(normalizeDigitsToAscii(c.receiptCodeNum), 10) === receiptCodeNum);
+            const dupCodeNumSup = allSups.find(s => !s.deleted && s.id !== id && parseInt(normalizeDigitsToAscii(s.receiptCodeNum), 10) === receiptCodeNum);
+            if (isNaN(receiptCodeNum) || receiptCodeNum < 1 || dupCodeNumCust || dupCodeNumSup) {
                 receiptCodeNum = getNextAvailableCustomerReceiptCode(id);
-            } else {
-                const dupCodeNumCust = allCusts.find(c => !c.deleted && c.id !== id && parseInt(normalizeDigitsToAscii(c.receiptCodeNum), 10) === receiptCodeNum);
-                if (dupCodeNumCust) {
-                    alert(`⚠️ كود الإرسال الرقمي (${receiptCodeNum}) مسجل مسبقاً للعميل: "${dupCodeNumCust.name}".\nيرجى اختيار رقم آخر غير مسجل، أو اتركه ليتم توليده تلقائياً.`);
-                    return;
-                }
             }
 
-            // Validate Receipt Code Word/Phrase (Option 2: e.g. "بون" for "كوستابون")
-            const receiptCodeWord = (document.getElementById('cust-receipt-code-word')?.value || '').trim();
-            if (receiptCodeWord) {
-                const wordLower = receiptCodeWord.toLowerCase();
-                const dupCodeWordCust = allCusts.find(c => !c.deleted && c.id !== id && (
-                    ((c.receiptCodeWord || '').trim().toLowerCase() === wordLower) ||
-                    ((c.name || '').trim().toLowerCase() === wordLower)
-                ));
-                if (dupCodeWordCust) {
-                    alert(`⚠️ كود الإرسال النصي (${receiptCodeWord}) مسجل مسبقاً للعميل: "${dupCodeWordCust.name}".\nيرجى اختيار كلمة أو جملة أخرى مميزة.`);
+            const receiptCodeWord = '';
+            let statementPin = normalizeDigitsToAscii(document.getElementById('cust-statement-pin')?.value || '').replace(/[^0-9]/g, '');
+            if (!statementPin) {
+                statementPin = getNextUniqueStatementPin(id);
+            } else {
+                const dupPinCust = allCusts.find(c => !c.deleted && c.id !== id && normalizeDigitsToAscii(c.statementPin || '').replace(/[^0-9]/g, '') === statementPin);
+                const dupPinSup = allSups.find(s => !s.deleted && s.id !== id && normalizeDigitsToAscii(s.statementPin || '').replace(/[^0-9]/g, '') === statementPin);
+                if (dupPinCust || dupPinSup) {
+                    const dupOwner = dupPinCust ? `العميل "${dupPinCust.name}"` : `المورد "${dupPinSup.name}"`;
+                    alert(`⚠️ الرقم السري / الباسورد (${statementPin}) مسجل مسبقاً لـ ${dupOwner}.\nيرجى اختيار باسورد آخر أو الضغط على زر (🎲 توليد).`);
                     return;
                 }
             }
@@ -1864,6 +3399,12 @@
                 id, name, phone, whatsapp, email, contactPerson, address, 
                 receiptCodeNum,
                 receiptCodeWord,
+                statementPin,
+                statementAccessMode,
+                allowStatementRequest,
+                receiptApprovalMode,
+                defaultBankId,
+                defaultBankName,
                 subPhones,
                 openingDebit, openingCredit, 
                 currency, exRate, taxNumber, accountNo,
@@ -1886,13 +3427,22 @@
             }
 
             localStorage.setItem('erp_customers_v1', JSON.stringify(customers));
-            syncToBackend('save_customer', custData);
+            const backendRes = await syncToBackend('save_customer', custData);
+            if (backendRes && backendRes.success && backendRes.data) {
+                const srvCust = backendRes.data;
+                const sIdx = customers.findIndex(c => c.id === id);
+                if (sIdx > -1) {
+                    customers[sIdx] = Object.assign({}, custData, srvCust);
+                    localStorage.setItem('erp_customers_v1', JSON.stringify(customers));
+                }
+            }
             clearCustomerForm();
             renderCustomers();
-            if (typeof showToast === 'function') showToast(`✅ تم حفظ العميل "${name}" بكود إشعارات (#${receiptCodeNum}${receiptCodeWord ? ' | ' + receiptCodeWord : ''}) بنجاح`, 'success');
+            if (typeof showToast === 'function') showToast(`✅ تم حفظ العميل "${name}" في قاعدة البيانات فوراً (🔐 الباسورد السري: ${statementPin})`, 'success');
         }
 
         function renderCustomers(query = '') {
+            populateWaReceiptBankDropdowns();
             const tbody = document.getElementById('customers-tbody');
             if(!tbody) return;
             let customers = ensureCustomerReceiptCodes();
@@ -1902,8 +3452,7 @@
                 const q = normalizeDigitsToAscii(query).trim().toLowerCase();
                 const qCleanCode = q.replace(/^#/, '');
                 customers = customers.filter(c => {
-                    const codeNumStr = String(c.receiptCodeNum || '');
-                    const codeWordStr = (c.receiptCodeWord || '').toLowerCase();
+                    const pinStr = String(c.statementPin || '');
                     const subPhonesMatch = Array.isArray(c.subPhones) && c.subPhones.some(sp => {
                         const p = typeof sp === 'string' ? sp : (sp.phone || '');
                         const l = typeof sp === 'object' ? (sp.label || '') : '';
@@ -1913,13 +3462,11 @@
                            (c.phone && c.phone.toLowerCase().includes(q)) || 
                            (c.whatsapp && c.whatsapp.toLowerCase().includes(q)) ||
                            (c.email && c.email.toLowerCase().includes(q)) ||
-                           (codeNumStr === qCleanCode || codeNumStr.includes(qCleanCode)) ||
-                           (codeWordStr && codeWordStr.includes(q)) ||
+                           (pinStr && pinStr.includes(qCleanCode)) ||
                            subPhonesMatch;
                 });
             }
 
-            // Sort by receiptCodeNum ascending so sequence 1, 2, 3... is clear
             customers.sort((a, b) => (parseInt(a.receiptCodeNum, 10) || 999999) - (parseInt(b.receiptCodeNum, 10) || 999999));
 
             tbody.innerHTML = '';
@@ -1931,22 +3478,25 @@
                 const balLabel = bal > 0 ? 'عليه' : (bal < 0 ? 'له' : 'مسدد');
                 const balDisplay = `<span style="color:${balColor}; font-weight:900; font-family:monospace;">${Math.abs(bal).toLocaleString()}</span> <small style="color:${balColor}; opacity:0.8;">${balLabel}</small>`;
                 
-                const codeNumBadge = `<span style="background:rgba(16,185,129,0.16); color:#34d399; border:1px solid rgba(16,185,129,0.4); padding:2px 8px; border-radius:7px; font-weight:900; font-family:monospace; font-size:0.9rem; display:inline-block;" title="كود الإشعارات الرقمي">#${c.receiptCodeNum || '-'}</span>`;
-                const codeWordBadge = c.receiptCodeWord ? `<div style="margin-top:4px;"><span style="background:rgba(56,189,248,0.16); color:#38bdf8; border:1px solid rgba(56,189,248,0.35); padding:1px 7px; border-radius:6px; font-weight:800; font-size:0.78rem; display:inline-block;" title="كود الإشعارات النصي">🏷️ ${c.receiptCodeWord}</span></div>` : '';
+                const cleanPin = normalizeDigitsToAscii(c.statementPin || '').replace(/[^0-9]/g, '');
+                const pinBadge = `<span onclick="copyEntityWhatsAppCard('customer', '${c.id}')" style="background:rgba(168,85,247,0.18); color:#e9d5ff; border:1px solid rgba(168,85,247,0.45); padding:3px 10px; border-radius:8px; font-weight:900; font-family:monospace; font-size:0.88rem; display:inline-block; cursor:pointer;" title="الباسورد السري الفريد (${cleanPin || '-'}) — اضغط لنسخ بطاقة الواتساب للعميل">🔐 ${cleanPin || '-'} 📋</span>`;
                 
                 const subCount = Array.isArray(c.subPhones) ? c.subPhones.length : 0;
                 const subPhonesBadge = subCount > 0 ? `<div style="margin-top:3px;"><span style="background:rgba(56,189,248,0.12); color:#38bdf8; padding:1px 6px; border-radius:6px; font-size:0.72rem; font-weight:700;">📱 +${subCount} مرسل تابع</span></div>` : '';
 
+                const stmtToggleBtn = buildTableStatementControlHtml('customer', c);
+
                 tbody.insertAdjacentHTML('beforeend', `<tr>
-                    <td style="text-align:center;">${codeNumBadge}${codeWordBadge}</td>
+                    <td style="text-align:center;">${pinBadge}</td>
                     <td style="font-weight:bold;">${c.name}</td>
-                    <td style="text-align:center; direction:ltr;"><div>${c.phone || c.whatsapp || '-'}</div>${subPhonesBadge}</td>
+                    <td style="text-align:center; direction:ltr;"><div style="font-family:monospace; font-weight:800;">${c.whatsapp || c.phone || '-'}</div>${subPhonesBadge}</td>
+                    <td style="text-align:center;">${stmtToggleBtn}</td>
                     <td style="text-align:center;">${statusBadge}</td>
                     <td style="text-align:center;">${balDisplay}</td>
                     <td style="text-align:center;">${(c.creditLimit || 0).toLocaleString()} SDG</td>
                     <td style="font-size:0.85rem; text-align:center;">${c.contactPerson || '-'}</td>
                     <td style="text-align:center;">${c.securityLevel || 1}</td>
-                    <td style="text-align:center;"><button class="btn-text" onclick="editCustomer('${c.id}')">تعديل</button><button class="btn-text" style="color:var(--danger-color); margin-right:10px;" onclick="deleteCustomer('${c.id}')">حذف</button></td>
+                    <td style="text-align:center;"><button class="btn-text" style="color:#38bdf8; font-weight:800;" onclick="editCustomer('${c.id}')">✏️ تعديل</button><button class="btn-text" style="color:var(--danger-color); font-weight:800; margin-right:8px;" onclick="deleteCustomer('${c.id}')">🗑️ حذف</button></td>
                 </tr>`);
             });
         }
@@ -1993,12 +3543,20 @@
 
         function clearCustomerForm() {
             ensureCustomerReceiptCodes();
+            populateWaReceiptBankDropdowns();
             document.getElementById('cust-id').value = '';
             document.getElementById('cust-name').value = '';
             const codeNumEl = document.getElementById('cust-receipt-code-num');
             if (codeNumEl) codeNumEl.value = getNextAvailableCustomerReceiptCode('');
             const codeWordEl = document.getElementById('cust-receipt-code-word');
             if (codeWordEl) codeWordEl.value = '';
+            const pinEl = document.getElementById('cust-statement-pin');
+            if (pinEl) pinEl.value = getNextUniqueStatementPin('');
+            updateCombinedPinPreview('cust');
+            setFormStatementMode('cust', 'detailed', false);
+            setFormReceiptApprovalMode('cust', 'auto_post', false);
+            const defBankEl = document.getElementById('cust-default-bank-id');
+            if (defBankEl) defBankEl.value = '';
             document.getElementById('cust-phone').value = '';
             document.getElementById('cust-whatsapp').value = '';
             document.getElementById('cust-email').value = '';
@@ -2022,11 +3580,12 @@
             const bankContainer = document.getElementById('cust-bank-accounts-container');
             if(bankContainer) {
                 bankContainer.innerHTML = '';
-                addCustomerBankAccount();
             }
+            if (typeof updateCustExchangeRate === 'function') updateCustExchangeRate();
         }
 
         function editCustomer(id) {
+            populateWaReceiptBankDropdowns();
             let customers = ensureCustomerReceiptCodes();
             customers = customers.filter(c => !c.deleted);
             const cust = customers.find(c => c.id === id);
@@ -2036,15 +3595,24 @@
             const codeNumEl = document.getElementById('cust-receipt-code-num');
             if (codeNumEl) codeNumEl.value = cust.receiptCodeNum || getNextAvailableCustomerReceiptCode(cust.id);
             const codeWordEl = document.getElementById('cust-receipt-code-word');
-            if (codeWordEl) codeWordEl.value = cust.receiptCodeWord || '';
-            document.getElementById('cust-phone').value = cust.phone || '';
-            document.getElementById('cust-whatsapp').value = cust.whatsapp || '';
+            if (codeWordEl) codeWordEl.value = '';
+            const pinEl = document.getElementById('cust-statement-pin');
+            if (pinEl) pinEl.value = cust.statementPin || getNextUniqueStatementPin(cust.id);
+            updateCombinedPinPreview('cust');
+            setFormStatementMode('cust', getEntityStatementMode(cust), false);
+            setFormReceiptApprovalMode('cust', getEntityReceiptApprovalMode(cust), false);
+            const defBankEl = document.getElementById('cust-default-bank-id');
+            if (defBankEl) defBankEl.value = cust.defaultBankId || '';
+            const unifiedWa = cust.whatsapp || cust.phone || '';
+            document.getElementById('cust-phone').value = unifiedWa;
+            document.getElementById('cust-whatsapp').value = unifiedWa;
             document.getElementById('cust-email').value = cust.email || '';
             document.getElementById('cust-contact').value = cust.contactPerson || '';
             document.getElementById('cust-address').value = cust.address || '';
             const bal = (cust.openingDebit || 0) - (cust.openingCredit || 0);
             document.getElementById('cust-opening-balance').value = bal || '';
             document.getElementById('cust-currency').value = cust.currency || 'SDG';
+            if (typeof updateCustExchangeRate === 'function') updateCustExchangeRate();
 
             document.getElementById('cust-tax').value = cust.taxNumber || '';
             document.getElementById('cust-account-no').value = cust.accountNo || '';
@@ -2065,11 +3633,10 @@
             if(bankContainer) bankContainer.innerHTML = '';
             
             if (cust.bankAccounts && cust.bankAccounts.length > 0) {
-                cust.bankAccounts.forEach(acc => addCustomerBankAccount(acc));
-            } else if (cust.bankDetails) {
+                const validBanks = cust.bankAccounts.filter(acc => acc && (acc.bankName || acc.branch || acc.accountNo));
+                validBanks.forEach(acc => addCustomerBankAccount(acc));
+            } else if (cust.bankDetails && (cust.bankDetails.bankName || cust.bankDetails.accountNo)) {
                 addCustomerBankAccount(cust.bankDetails);
-            } else {
-                addCustomerBankAccount();
             }
             
             document.getElementById('customer-form').scrollIntoView({ behavior: 'smooth' });
@@ -2080,13 +3647,36 @@
         }
 
         // ================= SUPPLIERS LOGIC =================
-        function saveSupplier() {
+        function addSupplierSubPhone(data = null) {
+            const container = document.getElementById('sup-sub-phones-container');
+            if (!container) return;
+            const row = document.createElement('div');
+            row.className = 'sup-sub-phone-row';
+            row.style.cssText = 'display: grid; grid-template-columns: 1fr 1fr auto; gap: 12px; padding: 10px 12px; background: rgba(255,255,255,0.03); border: 1px solid rgba(56,189,248,0.2); border-radius: 8px; align-items: end;';
+            const phoneVal = data ? (typeof data === 'string' ? data : (data.phone || '')) : '';
+            const labelVal = data && typeof data === 'object' ? (data.label || '') : '';
+            row.innerHTML = `
+                <div class="input-group" style="margin-bottom:0;">
+                    <label style="font-size:0.78rem; color:#38bdf8;">📱 رقم موبايل / واتساب المندوب التابع</label>
+                    <input type="text" class="sub-phone-number" placeholder="مثال: 0912345678 أو 249912345678" value="${phoneVal}" style="direction:ltr; text-align:center; font-weight:800;">
+                </div>
+                <div class="input-group" style="margin-bottom:0;">
+                    <label style="font-size:0.78rem; color:#94a3b8;">👤 اسم المندوب / الصفة (اختياري)</label>
+                    <input type="text" class="sub-phone-label" placeholder="مثال: مدير المبيعات / مندوب التوزيع" value="${labelVal}">
+                </div>
+                <button type="button" onclick="this.closest('.sup-sub-phone-row').remove()" style="background: rgba(244,63,94,0.15); color: #f43f5e; border: 1px solid rgba(244,63,94,0.3); border-radius: 6px; cursor: pointer; padding: 8px 12px; font-weight:bold;" title="حذف الرقم">🗑️ حذف</button>
+            `;
+            container.appendChild(row);
+        }
+
+        async function saveSupplier() {
             const id = document.getElementById('sup-id').value || 'SUP-' + Date.now();
             const name = document.getElementById('sup-name').value;
             if(!name.trim()) { alert('الرجاء إدخال اسم المورد'); return; }
             if(isDuplicateName('erp_suppliers_v1', name, id)) { alert('الاسم موجود مسبقاً، يرجى اختيار اسم آخر لتجنب التكرار.'); return; }
-            const phone = document.getElementById('sup-phone').value;
-            const whatsapp = document.getElementById('sup-whatsapp').value;
+            const rawWhatsapp = (document.getElementById('sup-whatsapp')?.value || document.getElementById('sup-phone')?.value || '').trim();
+            const whatsapp = rawWhatsapp;
+            const phone = rawWhatsapp;
             const email = document.getElementById('sup-email').value;
             const address = document.getElementById('sup-address').value;
             const opBalance = parseFloat(document.getElementById('sup-opening-balance').value) || 0;
@@ -2105,6 +3695,24 @@
             const security = parseInt(document.getElementById('sup-security').value) || 1;
             const status = document.getElementById('sup-status').value || 'active';
             const notes = document.getElementById('sup-notes').value;
+            const rawSupMode = document.getElementById('sup-statement-mode')?.value || '';
+            const statementAccessMode = ['disabled', 'balance_only', 'detailed'].includes(rawSupMode)
+                ? rawSupMode
+                : 'detailed';
+            const allowStatementRequest = (statementAccessMode !== 'disabled');
+            const receiptApprovalMode = (document.getElementById('sup-receipt-approval-mode')?.value === 'review_first') ? 'review_first' : 'auto_post';
+            const defaultBankId = (document.getElementById('sup-default-bank-id')?.value || '').trim();
+            const foundDefaultBank = getActiveSystemBanksList().find(b => String(b.id) === String(defaultBankId));
+            const defaultBankName = foundDefaultBank ? foundDefaultBank.name : '';
+
+            const subPhones = [];
+            document.querySelectorAll('.sup-sub-phone-row').forEach(row => {
+                const spNum = (row.querySelector('.sub-phone-number')?.value || '').trim();
+                const spLabel = (row.querySelector('.sub-phone-label')?.value || '').trim();
+                if (spNum) {
+                    subPhones.push({ phone: spNum, label: spLabel });
+                }
+            });
 
             if (!name) { alert('الرجاء إدخال اسم المورد'); return; }
 
@@ -2118,22 +3726,38 @@
                 if(!Array.isArray(allSups)) allSups = [];
             } catch(e) {}
             
-            const isCustDup = allCusts.some(c => c.name && c.name.trim().toLowerCase() === currentName && c.id !== id);
-            const isSupDup = allSups.some(s => s.name && s.name.trim().toLowerCase() === currentName && s.id !== id);
+            const isCustDup = allCusts.some(c => !c.deleted && c.name && c.name.trim().toLowerCase() === currentName && c.id !== id);
+            const isSupDup = allSups.some(s => !s.deleted && s.name && s.name.trim().toLowerCase() === currentName && s.id !== id);
             
             if (isCustDup || isSupDup) {
                 alert('هذا الاسم موجود مسبقاً (كعميل أو مورد). لا يمكن تكرار الأسماء!');
                 return;
             }
 
-            let suppliers = allSups;
-            try {
-                suppliers = JSON.parse(localStorage.getItem('erp_suppliers_v1')) || [];
-                if (!Array.isArray(suppliers)) suppliers = [];
-            } catch(e) {
-                suppliers = [];
+            // Maintain background receiptCodeNum automatically
+            const rawCodeNumInput = normalizeDigitsToAscii(document.getElementById('sup-receipt-code-num')?.value || '').trim();
+            let receiptCodeNum = parseInt(rawCodeNumInput, 10);
+            const dupCodeNumCust = allCusts.find(c => !c.deleted && c.id !== id && parseInt(normalizeDigitsToAscii(c.receiptCodeNum), 10) === receiptCodeNum);
+            const dupCodeNumSup = allSups.find(s => !s.deleted && s.id !== id && parseInt(normalizeDigitsToAscii(s.receiptCodeNum), 10) === receiptCodeNum);
+            if (isNaN(receiptCodeNum) || receiptCodeNum < 1 || dupCodeNumCust || dupCodeNumSup) {
+                receiptCodeNum = getNextAvailableCustomerReceiptCode(id);
             }
-            
+
+            const receiptCodeWord = '';
+            let statementPin = normalizeDigitsToAscii(document.getElementById('sup-statement-pin')?.value || '').replace(/[^0-9]/g, '');
+            if (!statementPin) {
+                statementPin = getNextUniqueStatementPin(id);
+            } else {
+                const dupPinCust = allCusts.find(c => !c.deleted && c.id !== id && normalizeDigitsToAscii(c.statementPin || '').replace(/[^0-9]/g, '') === statementPin);
+                const dupPinSup = allSups.find(s => !s.deleted && s.id !== id && normalizeDigitsToAscii(s.statementPin || '').replace(/[^0-9]/g, '') === statementPin);
+                if (dupPinCust || dupPinSup) {
+                    const dupOwner = dupPinCust ? `العميل "${dupPinCust.name}"` : `المورد "${dupPinSup.name}"`;
+                    alert(`⚠️ الرقم السري / الباسورد (${statementPin}) مسجل مسبقاً لـ ${dupOwner}.\nيرجى اختيار باسورد آخر أو الضغط على زر (🎲 توليد).`);
+                    return;
+                }
+            }
+
+            let suppliers = allSups;
             const existingIdx = suppliers.findIndex(s => s.id === id);
             
             const todayStr = new Date().toISOString().split('T')[0];
@@ -2141,6 +3765,15 @@
 
             const supData = {
                 id, name, phone, whatsapp, email, address, 
+                receiptCodeNum,
+                receiptCodeWord,
+                statementPin,
+                statementAccessMode,
+                allowStatementRequest,
+                receiptApprovalMode,
+                defaultBankId,
+                defaultBankName,
+                subPhones,
                 openingDebit, openingCredit, 
                 currency, exRate, taxNumber, accountNo,
                 currentBalance: (openingCredit - openingDebit), 
@@ -2158,24 +3791,27 @@
             }
 
             localStorage.setItem('erp_suppliers_v1', JSON.stringify(suppliers));
-            syncToBackend('save_supplier', supData);
+            const backendRes = await syncToBackend('save_supplier', supData);
+            if (backendRes && backendRes.success && backendRes.data) {
+                const srvSup = backendRes.data;
+                const sIdx = suppliers.findIndex(s => s.id === id);
+                if (sIdx > -1) {
+                    suppliers[sIdx] = Object.assign({}, supData, srvSup);
+                    localStorage.setItem('erp_suppliers_v1', JSON.stringify(suppliers));
+                }
+            }
             clearSupplierForm();
             renderSuppliers();
-            if (typeof showToast === 'function') showToast('✅ تم حفظ المورد نهائياً في قاعدة البيانات بنجاح', 'success');
+            if (typeof showToast === 'function') showToast(`✅ تم حفظ المورد "${name}" في قاعدة البيانات فوراً (🔐 الباسورد السري: ${statementPin})`, 'success');
         }
 
-        function renderSuppliers() {
+        function renderSuppliers(query = '') {
+            populateWaReceiptBankDropdowns();
             const tbody = document.querySelector('#tab-suppliers-table tbody');
             if(!tbody) return;
-            let suppliers = [];
-            try {
-                suppliers = JSON.parse(localStorage.getItem('erp_suppliers_v1')) || [];
-                if (!Array.isArray(suppliers)) suppliers = [];
-            } catch(e) {
-                suppliers = [];
-            }
+            let suppliers = ensureSupplierReceiptCodes();
             suppliers = suppliers.filter(s => !s.deleted);
-            if (suppliers.length === 0) {
+            if (suppliers.length === 0 && !query) {
                 suppliers = [
     { id: 'SUP-001', code: 'SUP-001', name: 'شركة مصنع الأسعد للحديد والصلب', phone: '0123456789', currentBalance: 0, creditLimit: 50000000, status: 'active', securityLevel: 1 },
     { id: 'SUP-002', code: 'SUP-002', name: 'شركة أوميغا للصناعات والصلب', phone: '0912345678', currentBalance: 0, creditLimit: 30000000, status: 'active', securityLevel: 1 },
@@ -2186,7 +3822,29 @@
     { id: 'SUP-007', code: 'SUP-007', name: 'مصنع الراجحي للحديد والصلب', phone: '0123112233', currentBalance: 0, creditLimit: 40000000, status: 'active', securityLevel: 1 }
 ];
                 try { localStorage.setItem('erp_suppliers_v1', JSON.stringify(suppliers)); } catch(e){}
+                suppliers = ensureSupplierReceiptCodes().filter(s => !s.deleted);
             }
+
+            if (query) {
+                const q = normalizeDigitsToAscii(query).trim().toLowerCase();
+                const qCleanCode = q.replace(/^#/, '');
+                suppliers = suppliers.filter(s => {
+                    const pinStr = String(s.statementPin || '');
+                    const subPhonesMatch = Array.isArray(s.subPhones) && s.subPhones.some(sp => {
+                        const p = typeof sp === 'string' ? sp : (sp.phone || '');
+                        const l = typeof sp === 'object' ? (sp.label || '') : '';
+                        return p.toLowerCase().includes(q) || l.toLowerCase().includes(q);
+                    });
+                    return (s.name && s.name.toLowerCase().includes(q)) ||
+                           (s.phone && s.phone.toLowerCase().includes(q)) ||
+                           (s.whatsapp && s.whatsapp.toLowerCase().includes(q)) ||
+                           (pinStr && pinStr.includes(qCleanCode)) ||
+                           subPhonesMatch;
+                });
+            }
+
+            suppliers.sort((a, b) => (parseInt(a.receiptCodeNum, 10) || 999999) - (parseInt(b.receiptCodeNum, 10) || 999999));
+
             tbody.innerHTML = '';
             suppliers.forEach(s => {
                 const statusMap = {'vip': '<span style="background:rgba(168,85,247,0.15); color:#a855f7; padding:2px 8px; border-radius:10px; font-size:0.8rem; font-weight:700;">🌟 VIP</span>', 'blacklisted': '<span style="background:rgba(239,68,68,0.15); color:#ef4444; padding:2px 8px; border-radius:10px; font-size:0.8rem; font-weight:700;">🔴 محظور</span>'};
@@ -2195,23 +3853,50 @@
                 const balColor = bal > 0 ? '#34d399' : (bal < 0 ? '#f87171' : '#94a3b8');
                 const balLabel = bal > 0 ? 'له' : (bal < 0 ? 'عليه' : 'مسدد');
                 const balDisplay = `<span style="color:${balColor}; font-weight:900; font-family:monospace;">${Math.abs(bal).toLocaleString()}</span> <small style="color:${balColor}; opacity:0.8;">${balLabel}</small>`;
-                const shortId = (s.id || '').replace('SUP-', '').slice(-6);
+                
+                const cleanPin = normalizeDigitsToAscii(s.statementPin || '').replace(/[^0-9]/g, '');
+                const pinBadge = `<span onclick="copyEntityWhatsAppCard('supplier', '${s.id}')" style="background:rgba(168,85,247,0.18); color:#e9d5ff; border:1px solid rgba(168,85,247,0.45); padding:3px 10px; border-radius:8px; font-weight:900; font-family:monospace; font-size:0.88rem; display:inline-block; cursor:pointer;" title="الباسورد السري الفريد (${cleanPin || '-'}) — اضغط لنسخ بطاقة الواتساب للمورد">🔐 ${cleanPin || '-'} 📋</span>`;
+
+                const subCount = Array.isArray(s.subPhones) ? s.subPhones.length : 0;
+                const subPhonesBadge = subCount > 0 ? `<div style="margin-top:3px;"><span style="background:rgba(56,189,248,0.12); color:#38bdf8; padding:1px 6px; border-radius:6px; font-size:0.72rem; font-weight:700;">📱 +${subCount} مرسل تابع</span></div>` : '';
+
+                const stmtToggleBtn = buildTableStatementControlHtml('supplier', s);
+
                 tbody.insertAdjacentHTML('beforeend', `<tr>
-                    <td style="font-family:monospace; font-size:0.8rem; color:#94a3b8;">${shortId}</td>
+                    <td style="text-align:center;">${pinBadge}</td>
                     <td style="font-weight:bold;">${s.name}</td>
-                    <td>${s.phone || '-'}</td>
-                    <td>${statusBadge}</td>
-                    <td>${balDisplay}</td>
-                    <td>${(s.creditLimit || 0).toLocaleString()} SDG</td>
+                    <td style="text-align:center; direction:ltr;"><div style="font-family:monospace; font-weight:800;">${s.whatsapp || s.phone || '-'}</div>${subPhonesBadge}</td>
+                    <td style="text-align:center;">${stmtToggleBtn}</td>
+                    <td style="text-align:center;">${statusBadge}</td>
+                    <td style="text-align:center;">${balDisplay}</td>
+                    <td style="text-align:center;">${(s.creditLimit || 0).toLocaleString()} SDG</td>
                     <td style="text-align:center;">${s.securityLevel || 1}</td>
-                    <td><button class="btn-text" onclick="editSupplier('${s.id}')">تعديل</button><button class="btn-text" style="color:var(--danger-color); margin-right:10px;" onclick="deleteSupplier('${s.id}')">حذف</button></td>
+                    <td style="text-align:center;"><button class="btn-text" style="color:#38bdf8; font-weight:800;" onclick="editSupplier('${s.id}')">✏️ تعديل</button><button class="btn-text" style="color:var(--danger-color); font-weight:800; margin-right:8px;" onclick="deleteSupplier('${s.id}')">🗑️ حذف</button></td>
                 </tr>`);
             });
         }
+
+        function filterSuppliers() {
+            const query = document.getElementById('supplier-search-input')?.value || '';
+            renderSuppliers(query);
+        }
         
         function clearSupplierForm() {
+            ensureSupplierReceiptCodes();
+            populateWaReceiptBankDropdowns();
             document.getElementById('sup-id').value = '';
             document.getElementById('sup-name').value = '';
+            const codeNumEl = document.getElementById('sup-receipt-code-num');
+            if (codeNumEl) codeNumEl.value = getNextAvailableCustomerReceiptCode('');
+            const codeWordEl = document.getElementById('sup-receipt-code-word');
+            if (codeWordEl) codeWordEl.value = '';
+            const pinEl = document.getElementById('sup-statement-pin');
+            if (pinEl) pinEl.value = getNextUniqueStatementPin('');
+            updateCombinedPinPreview('sup');
+            setFormStatementMode('sup', 'detailed', false);
+            setFormReceiptApprovalMode('sup', 'auto_post', false);
+            const defBankEl = document.getElementById('sup-default-bank-id');
+            if (defBankEl) defBankEl.value = '';
             document.getElementById('sup-phone').value = '';
             document.getElementById('sup-whatsapp').value = '';
             document.getElementById('sup-email').value = '';
@@ -2225,28 +3910,41 @@
             document.getElementById('sup-security').value = '1';
             document.getElementById('sup-status').value = 'active';
             document.getElementById('sup-notes').value = '';
+            const subPhonesContainer = document.getElementById('sup-sub-phones-container');
+            if (subPhonesContainer) {
+                subPhonesContainer.innerHTML = '';
+            }
+            if (typeof updateSupExchangeRate === 'function') updateSupExchangeRate();
         }
         
         function editSupplier(id) {
-            let suppliers = [];
-            try {
-                suppliers = JSON.parse(localStorage.getItem('erp_suppliers_v1')) || [];
-                if (!Array.isArray(suppliers)) suppliers = [];
-            } catch(e) {
-                suppliers = [];
-            }
+            populateWaReceiptBankDropdowns();
+            let suppliers = ensureSupplierReceiptCodes();
             suppliers = suppliers.filter(s => !s.deleted);
             const sup = suppliers.find(s => s.id === id);
             if(!sup) return;
             document.getElementById('sup-id').value = sup.id;
             document.getElementById('sup-name').value = sup.name;
-            document.getElementById('sup-phone').value = sup.phone || '';
-            document.getElementById('sup-whatsapp').value = sup.whatsapp || '';
+            const codeNumEl = document.getElementById('sup-receipt-code-num');
+            if (codeNumEl) codeNumEl.value = sup.receiptCodeNum || getNextAvailableCustomerReceiptCode(sup.id);
+            const codeWordEl = document.getElementById('sup-receipt-code-word');
+            if (codeWordEl) codeWordEl.value = '';
+            const pinEl = document.getElementById('sup-statement-pin');
+            if (pinEl) pinEl.value = sup.statementPin || getNextUniqueStatementPin(sup.id);
+            updateCombinedPinPreview('sup');
+            setFormStatementMode('sup', getEntityStatementMode(sup), false);
+            setFormReceiptApprovalMode('sup', getEntityReceiptApprovalMode(sup), false);
+            const defBankEl = document.getElementById('sup-default-bank-id');
+            if (defBankEl) defBankEl.value = sup.defaultBankId || '';
+            const unifiedWa = sup.whatsapp || sup.phone || '';
+            document.getElementById('sup-phone').value = unifiedWa;
+            document.getElementById('sup-whatsapp').value = unifiedWa;
             document.getElementById('sup-email').value = sup.email || '';
             document.getElementById('sup-address').value = sup.address || '';
             const bal = (sup.openingCredit || 0) - (sup.openingDebit || 0);
             document.getElementById('sup-opening-balance').value = bal || '';
             document.getElementById('sup-currency').value = sup.currency || 'SDG';
+            if (typeof updateSupExchangeRate === 'function') updateSupExchangeRate();
 
             document.getElementById('sup-tax').value = sup.taxNumber || '';
             document.getElementById('sup-account-no').value = sup.accountNo || '';
@@ -2254,6 +3952,13 @@
             document.getElementById('sup-security').value = sup.securityLevel || '1';
             document.getElementById('sup-status').value = sup.status || 'active';
             document.getElementById('sup-notes').value = sup.notes || '';
+            const subPhonesContainer = document.getElementById('sup-sub-phones-container');
+            if (subPhonesContainer) {
+                subPhonesContainer.innerHTML = '';
+                if (Array.isArray(sup.subPhones) && sup.subPhones.length > 0) {
+                    sup.subPhones.forEach(sp => addSupplierSubPhone(sp));
+                }
+            }
             
             document.getElementById('supplier-form').scrollIntoView({ behavior: 'smooth' });
         }
@@ -4426,16 +6131,35 @@
             const cur = curSelect.value || 'SDG';
             const rates = getCurrencyRates();
             const defaultRate = rates[cur] || 1;
+            const isProCard = exGroup && exGroup.classList.contains('pro-field-card');
             
             if (cur !== 'SDG' && cur !== '') {
-                if (exGroup) exGroup.style.display = 'block';
-                if (exLabel) exLabel.innerHTML = `💵 سعر الصرف (قيمة 1 ${cur} مقابل العملة المحلية SDG - مسجل بالإعدادات: ${defaultRate.toLocaleString()})`;
+                if (exGroup) exGroup.style.display = isProCard ? 'flex' : 'block';
+                if (exLabel) {
+                    exLabel.innerHTML = isProCard
+                        ? `<span>💵 سعر الصرف (1 ${cur})</span><span class="pro-field-badge" style="color:#fcd34d; background:rgba(245,158,11,0.14); border-color:rgba(245,158,11,0.35);">${defaultRate.toLocaleString()} SDG</span>`
+                        : `💵 سعر الصرف (قيمة 1 ${cur} مقابل العملة المحلية SDG - مسجل بالإعدادات: ${defaultRate.toLocaleString()})`;
+                }
                 if (!exInput.value || exInput.value == 1 || exInput.value == 600) {
                     exInput.value = defaultRate;
+                }
+                if (groupId === 'cust-ex-rate-group') {
+                    const notesCard = document.getElementById('cust-notes-card');
+                    if (notesCard) notesCard.style.gridColumn = 'span 2';
+                } else if (groupId === 'sup-ex-rate-group') {
+                    const notesCard = document.getElementById('sup-notes-card');
+                    if (notesCard) notesCard.style.gridColumn = 'span 1';
                 }
             } else {
                 if (exGroup) exGroup.style.display = 'none';
                 exInput.value = 1;
+                if (groupId === 'cust-ex-rate-group') {
+                    const notesCard = document.getElementById('cust-notes-card');
+                    if (notesCard) notesCard.style.gridColumn = 'span 3';
+                } else if (groupId === 'sup-ex-rate-group') {
+                    const notesCard = document.getElementById('sup-notes-card');
+                    if (notesCard) notesCard.style.gridColumn = 'span 2';
+                }
             }
         }
 

@@ -292,14 +292,18 @@
     // ═══ Phone Number Helper ═══
     function cleanPhoneNumber(phone) {
         if (!phone) return '';
+        let str = String(phone).trim();
+        if (str.includes('@lid') || str.includes('@s.whatsapp.net')) return str;
         // Normalize Eastern Arabic numerals to Western digits
-        let cleaned = String(phone).replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d));
+        let cleaned = str.replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d));
         cleaned = cleaned.replace(/[^\d+]/g, '');
-        // If phone starts with 0 and has 10 digits (e.g. Sudan 09xxxxxxx or 01xxxxxxx)
+        if (cleaned.startsWith('+')) cleaned = cleaned.substring(1);
+        if (cleaned.startsWith('00')) cleaned = cleaned.substring(2);
+        // If phone starts with 0 and has 10 digits (e.g. Sudan 09xxxxxxxx or 01xxxxxxxx)
         if (cleaned.startsWith('0') && cleaned.length === 10) {
             cleaned = '249' + cleaned.substring(1);
-        } else if (cleaned.startsWith('+')) {
-            cleaned = cleaned.substring(1);
+        } else if (cleaned.length === 9 && (cleaned.startsWith('9') || cleaned.startsWith('1'))) {
+            cleaned = '249' + cleaned;
         }
         return cleaned;
     }
@@ -307,6 +311,7 @@
     // ═══ Robust Arabic Text Normalizer ═══
     function normalizeArabic(s) {
         return String(s || '').trim().toLowerCase()
+            .replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d))
             .replace(/[أإآ]/g, 'ا')
             .replace(/ة/g, 'ه')
             .replace(/ى/g, 'ي')
@@ -319,16 +324,16 @@
 
     function extractPhoneFromEntity(obj) {
         if (!obj) return '';
-        return cleanPhoneNumber(obj.whatsapp || obj.phone || obj.mobile || obj.tel || obj.phone1 || obj.contactNumber || '');
+        return cleanPhoneNumber(obj.whatsapp || obj.phone || obj.mobile || obj.tel || obj.phone1 || obj.contactNumber || obj.whatsappLid || '');
     }
 
     // ═══ Universal Party & Phone Resolver ═══
     function resolvePartyInfo(partyIdOrName) {
-        const result = { name: '', phone: '', type: 'party', id: '' };
+        const result = { name: '', phone: '', type: 'party', id: '', statementPin: '' };
         if (!partyIdOrName) return result;
 
         const rawStr = String(partyIdOrName).trim();
-        const normQuery = normalizeArabic(rawStr);
+        const normQuery = normalizeArabic(rawStr).trim();
 
         function getStoredList(key) {
             let list = [];
@@ -336,31 +341,42 @@
             if ((!list || list.length === 0) && typeof getTenantKey === 'function') {
                 try { list = JSON.parse(localStorage.getItem(getTenantKey(key))) || []; } catch(e){}
             }
-            return Array.isArray(list) ? list : [];
+            return Array.isArray(list) ? list.filter(x => x && !x.deleted) : [];
         }
 
         const customers = getStoredList('erp_customers_v1');
         const suppliers = getStoredList('erp_suppliers_v1');
 
-        // 1. Direct ID match
-        let cleanId = rawStr.replace(/^cust-/, '').replace(/^supp-/, '');
+        // 1. Direct ID or statementPin or receiptCodeNum match
+        let cleanId = rawStr.replace(/^cust-/, '').replace(/^supp-/, '').replace(/^#/, '').trim();
         if (rawStr.startsWith('cust-') || !rawStr.startsWith('supp-')) {
-            const found = customers.find(c => String(c.id) === cleanId || String(c.id) === rawStr);
+            const found = customers.find(c =>
+                String(c.id) === cleanId ||
+                String(c.id) === rawStr ||
+                (c.statementPin && String(c.statementPin).trim() === cleanId) ||
+                (c.receiptCodeNum && String(c.receiptCodeNum).trim() === cleanId)
+            );
             if (found) {
                 result.name = found.name;
                 result.phone = extractPhoneFromEntity(found);
                 result.type = 'customer';
                 result.id = found.id;
+                result.statementPin = found.statementPin || '';
                 return result;
             }
         }
         if (rawStr.startsWith('supp-') || !result.phone) {
-            const found = suppliers.find(s => String(s.id) === cleanId || String(s.id) === rawStr);
+            const found = suppliers.find(s =>
+                String(s.id) === cleanId ||
+                String(s.id) === rawStr ||
+                (s.statementPin && String(s.statementPin).trim() === cleanId)
+            );
             if (found) {
                 result.name = found.name;
                 result.phone = extractPhoneFromEntity(found);
                 result.type = 'supplier';
                 result.id = found.id;
+                result.statementPin = found.statementPin || '';
                 return result;
             }
         }
@@ -381,6 +397,7 @@
                 result.phone = extractPhoneFromEntity(found);
                 result.type = 'customer';
                 result.id = found.id;
+                result.statementPin = found.statementPin || '';
                 return result;
             }
 
@@ -398,11 +415,65 @@
                 result.phone = extractPhoneFromEntity(found);
                 result.type = 'supplier';
                 result.id = found.id;
+                result.statementPin = found.statementPin || '';
                 return result;
             }
         }
 
         return result;
+    }
+
+    // ═══ Persist Entered/Updated WhatsApp Phone to Customer/Supplier in MySQL & LocalStorage ═══
+    async function savePartyPhoneToMasterData(contextData, newPhone) {
+        if (!newPhone || !contextData) return;
+        const cleanPh = cleanPhoneNumber(newPhone);
+        if (!cleanPh) return;
+
+        const getTenantKey = window.getTenantKey || ((k) => k);
+        const rawPartyId = String(contextData.accountId || contextData.customerId || contextData.supplierId || contextData.partyId || '').trim();
+        const rawPartyName = String(contextData.accountName || contextData.customerName || contextData.supplierName || contextData.recipientName || '').trim();
+        const resolved = resolvePartyInfo(rawPartyId || rawPartyName);
+        const targetType = resolved.type === 'supplier' || rawPartyId.startsWith('supp-') ? 'supplier' : 'customer';
+        const storageKey = targetType === 'supplier' ? 'erp_suppliers_v1' : 'erp_customers_v1';
+        const tenantStorageKey = getTenantKey(storageKey);
+
+        let list = [];
+        try {
+            list = JSON.parse(localStorage.getItem(tenantStorageKey) || localStorage.getItem(storageKey) || '[]');
+            if (!Array.isArray(list)) list = [];
+        } catch (e) { list = []; }
+
+        const cleanTargetId = String(resolved.id || rawPartyId).replace(/^(cust|supp)-/, '').trim();
+        const normTargetName = normalizeArabic(resolved.name || rawPartyName);
+
+        let idx = list.findIndex(item => item && !item.deleted && (
+            (cleanTargetId && String(item.id) === cleanTargetId) ||
+            (normTargetName && normalizeArabic(item.name) === normTargetName)
+        ));
+
+        if (idx > -1) {
+            list[idx].whatsapp = cleanPh;
+            if (!list[idx].phone) list[idx].phone = cleanPh;
+            try {
+                localStorage.setItem(tenantStorageKey, JSON.stringify(list));
+                localStorage.setItem(storageKey, JSON.stringify(list));
+            } catch (e) {}
+
+            try {
+                const tId = (window.SERVER_TENANT && window.SERVER_TENANT.id) || (JSON.parse(localStorage.getItem('user') || '{}').tenant_id) || '12';
+                await fetch('api/save_master_data.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        action: targetType === 'supplier' ? 'save_supplier' : 'save_customer',
+                        tenant_id: tId,
+                        data: list[idx]
+                    })
+                });
+            } catch (err) {
+                console.warn('Auto-save party WhatsApp phone warning:', err);
+            }
+        }
     }
 
     // ═══ Get Auto-Send Settings ═══
@@ -704,8 +775,8 @@
         printWin.document.close();
     };
 
-    // ═══ Execute WhatsApp Send ═══
-    window.executeSuiteWASend = function(method = 'web') {
+    // ═══ Execute WhatsApp Send (Auto-Save Phone to DB + Direct WA Service Delivery) ═══
+    window.executeSuiteWASend = async function(method = 'direct') {
         if (!activeModalContext) return;
 
         const phoneInput = document.getElementById('erp-wa-phone-input');
@@ -713,7 +784,7 @@
 
         if (!phone) {
             if (typeof showToast === 'function') {
-                showToast('⚠️ يرجى إدخال رقم الواتساب أولاً للمستلم', 'warning');
+                showToast('⚠️ يرجى إدخال رقم الواتساب أولاً للمستلم ليتم حفظه والإرسال إليه', 'warning');
             } else {
                 alert('⚠️ يرجى إدخال رقم الواتساب أولاً للمستلم');
             }
@@ -723,13 +794,43 @@
 
         const textEl = document.getElementById('erp-wa-preview-text');
         const messageText = textEl ? (textEl.textContent || textEl.innerText) : '';
+        const ctxData = activeModalContext.data || {};
 
-        // Universal Direct WhatsApp Link (Works instantly across Web, Desktop & Mobile)
-        const waUrl = `https://api.whatsapp.com/send?phone=${phone}&text=${encodeURIComponent(messageText)}`;
+        // 1. Auto-save the entered/updated WhatsApp phone to Customer/Supplier in MySQL & LocalStorage
+        savePartyPhoneToMasterData(ctxData, phone);
+
+        // 2. Try Direct Background WhatsApp Service (wa_tenant_12) first unless explicitly forced to 'web_only'
+        if (method !== 'web_only') {
+            try {
+                const userId = (typeof getWAUserId === 'function' ? getWAUserId() : (window.getWAUserId ? window.getWAUserId() : (localStorage.getItem('erp_wa_user_id') || 'wa_tenant_12')));
+                const formData = new FormData();
+                formData.append('userId', userId);
+                formData.append('phone', phone);
+                formData.append('message', messageText);
+
+                const res = await fetch(`api_index.php?r=wa-tenant&endpoint=send&userId=${encodeURIComponent(userId)}`, {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await res.json();
+                if (data && data.success) {
+                    if (typeof showToast === 'function') {
+                        showToast(`⚡ تم حفظ رقم الواتساب (${phone}) وإرسال المستند مباشرة للعميل بنجاح!`, 'success', 6000);
+                    }
+                    window.closeSuiteWAModal();
+                    return;
+                }
+            } catch (err) {
+                console.warn('Direct WA send fallback to Web:', err);
+            }
+        }
+
+        // 3. Fallback: Universal Direct WhatsApp Link (Web, Desktop & Mobile)
+        const waUrl = `https://api.whatsapp.com/send?phone=${encodeURIComponent(phone.replace(/\D/g, ''))}&text=${encodeURIComponent(messageText)}`;
         window.open(waUrl, '_blank');
 
         if (typeof showToast === 'function') {
-            showToast('🚀 تم فتح محادثة الواتساب وتجهيز المستند بنجاح', 'success');
+            showToast('🚀 تم حفظ الرقم وفتح محادثة الواتساب وتجهيز المستند بنجاح', 'success');
         }
         window.closeSuiteWAModal();
     };
@@ -1373,35 +1474,65 @@
         } else if (activeModalContext.screen === 'ledger') {
             const d = activeModalContext.data;
             if (tabName === 'statement_text') {
-                descEl.innerHTML = '📝 <strong>ملخص كشف الحساب:</strong> إرسال ملخص مالي دقيق بالأرصدة والمديونيات للفترة المحددة مباشرة للعميل/المورد.';
+                descEl.innerHTML = '📝 <strong>كشف الحساب المختصر المعتمد:</strong> صيغة كشف الحساب المباشرة للواتساب مع تمايز ألوان الجنيه السوداني (🟡)، الدولار (💵)، والرصيد التراكمي (🔷/🔶).';
                 
-                const balNum = parseFloat(String(d.totalBalance).replace(/,/g, '')) || 0;
-                const balType = (balNum > 0) ? 'مدين (عليه)' : ((balNum < 0) ? 'دائن (له)' : 'متزن (0.00)');
+                const sysRate = parseFloat(localStorage.getItem('erp_exchange_rate_usd') || window.systemExchangeRate || 6000) || 6000;
+                const nowStr = new Date().toISOString().slice(0, 16).replace('T', ' ');
+                const periodLbl = (d.dateFrom === 'البداية' && d.dateTo === 'الآن') ? 'كامل الفترة' : `من ${d.dateFrom} إلى ${d.dateTo}`;
 
-                let txnsSnippet = '';
-                if (window.currentTxns && Array.isArray(window.currentTxns) && window.currentTxns.length > 0) {
-                    const recent = window.currentTxns.slice(-4);
-                    txnsSnippet = '\n*أحدث الحركات المسجلة:*\n' + recent.map(t => {
-                        const date = t.date || '-';
-                        const stmt = (t.statement || t.desc || '-').substring(0, 30);
+                const fmtBalTag = (netVal, netUsdOverride) => {
+                    const absSdg = Math.round(Math.abs(netVal)).toLocaleString('en-US');
+                    const usdVal = (netUsdOverride !== undefined && netUsdOverride !== null) ? Math.abs(netUsdOverride) : (sysRate > 0 ? Math.abs(netVal) / sysRate : 0);
+                    const usdStr = '$' + usdVal.toFixed(1) + ' USD';
+                    if (netVal > 0.009) return `🔶 *${absSdg} ج.س  〘 \`${usdStr}\` 〙 (مدين عليه)*`;
+                    if (netVal < -0.009) return `🔷 *${absSdg} ج.س  〘 \`${usdStr}\` 〙 (دائن له)*`;
+                    return `⚪ *0 ج.س  〘 \`$0.0 USD\` 〙 (مسدد / متوازن)*`;
+                };
+
+                let movLines = [];
+                let runNet = 0;
+                let runNetUsd = 0;
+                const txList = (window.currentTxns && Array.isArray(window.currentTxns)) ? window.currentTxns : ((window.opener && Array.isArray(window.opener.currentTxns)) ? window.opener.currentTxns : []);
+                if (txList.length > 0) {
+                    txList.forEach((t, idx) => {
                         const deb = parseFloat(t.debit) || 0;
                         const crd = parseFloat(t.credit) || 0;
-                        const amtStr = deb > 0 ? `مدين: ${deb.toLocaleString()}` : `دائن: ${crd.toLocaleString()}`;
-                        return `• ${date} | ${stmt} (${amtStr})`;
-                    }).join('\n') + '\n';
+                        const txRate = parseFloat(t.exchangeRate || t.rate || sysRate) || sysRate;
+                        const debUsd = parseFloat(t.debitForeign) || (deb > 0 ? deb / txRate : 0);
+                        const crdUsd = parseFloat(t.creditForeign) || (crd > 0 ? crd / txRate : 0);
+                        runNet += (deb - crd);
+                        runNetUsd += (debUsd - crdUsd);
+                        const icon = deb > 0 ? '🔴' : '🟢';
+                        const rateDiff = Math.abs(txRate - sysRate) >= 1 ? ` | الصرف: ${Math.round(txRate)} ج.س` : '';
+                        const amtLine = deb > 0
+                            ? `مدين (عليه): 🟡 *${Math.round(deb).toLocaleString('en-US')} ج.س* 〘 💵 \`$${debUsd.toFixed(1)}\`${rateDiff} 〙`
+                            : `دائن (له): 🟡 *${Math.round(crd).toLocaleString('en-US')} ج.س* 〘 💵 \`$${crdUsd.toFixed(1)}\`${rateDiff} 〙`;
+                        const stmt = t.statement || t.desc || '-';
+                        let blk = `${icon} *(${idx + 1}) ${t.date || '-'} |*\n   • ${amtLine}\n   • البيان: ${stmt}\n`;
+                        if (t.transferNo || t.bankName) {
+                            const det = [];
+                            if (t.bankName) det.push(`البنك: ${t.bankName}`);
+                            if (t.transferNo) det.push(`رقم العملية: ${t.transferNo}`);
+                            blk += `   • التفاصيل: ${det.join(' | ')}\n`;
+                        }
+                        blk += `   • الرصيد التراكمي: ${fmtBalTag(runNet, runNetUsd)}`;
+                        movLines.push(blk);
+                    });
                 }
 
-                const waText = `*كشف حساب معتمد* 📊\n` +
-                    `*السيد/السادة:* ${d.accountName}\n` +
-                    `*الفترة:* من ${d.dateFrom} إلى ${d.dateTo}\n\n` +
-                    `*الملخص المحاسبي والمالي:*\n` +
-                    `• إجمالي المدين: ${d.totalDebit} SDG\n` +
-                    `• إجمالي الدائن: ${d.totalCredit} SDG\n` +
-                    `• *الرصيد النهائي الحالي:* ${Math.abs(balNum).toLocaleString()} SDG (${balType})\n` +
-                    txnsSnippet +
-                    `──────────────────\n` +
-                    `يرجى مراجعة الرصيد ومطابقته. للاستفسار نرجو التواصل مع الإدارة المالية.\n` +
-                    `شاكرين ومقدرين حسن تعاونكم الدائم 🌟`;
+                const balNum = parseFloat(String(d.totalBalance).replace(/,/g, '')) || runNet;
+                const waText = `🏛️ *مـنـظـومـة مـقـايـيـس الـمـحـاسـبـيـة الـعـالـمـيـة*\n` +
+                    `══════════\n` +
+                    `   📊 *كَـشْـف حِـسَـاب*\n` +
+                    `${nowStr}\n` +
+                    ` ${periodLbl}\n` +
+                    `الصرف: ${Math.round(sysRate)}  ج س \n` +
+                    ` *الاسم:* *${d.accountName}*\n` +
+                    `  \n` +
+                    `🏁 *الرصيد الافتتاحي:* 🟡 0 ج.س 〘 💵 \`$0.0 USD\` 〙\n` +
+                    (movLines.length > 0 ? movLines.join('\n') + '\n' : '') +
+                    `══════════\n` +
+                    `• الرصيد الختامي: ${fmtBalTag(balNum, runNetUsd || (sysRate > 0 ? balNum / sysRate : 0))}`;
 
                 textEl.textContent = waText;
                 charCountEl.textContent = `${waText.length} حرف`;

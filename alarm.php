@@ -34,6 +34,13 @@ function ensureAlertTablesExist($pdo, $tenant_id) {
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
 
         $cols = $pdo->query("DESCRIBE alert_settings")->fetchAll(PDO::FETCH_COLUMN);
+        if (!in_array('tenant_id', $cols)) {
+            $defaultTid = (int)($tenant_id ?: 12);
+            $pdo->exec("ALTER TABLE alert_settings ADD COLUMN tenant_id INT(11) NOT NULL DEFAULT {$defaultTid} FIRST");
+            try {
+                $pdo->exec("ALTER TABLE alert_settings DROP PRIMARY KEY, ADD PRIMARY KEY (tenant_id, rule_key)");
+            } catch (Exception $pkEx) {}
+        }
         $neededCols = [
             'category' => "VARCHAR(50) DEFAULT 'GENERAL'",
             'screen_name' => "VARCHAR(100) DEFAULT ''",
@@ -58,6 +65,15 @@ function ensureAlertTablesExist($pdo, $tenant_id) {
             screen_file VARCHAR(100) DEFAULT '',
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
+
+        $logCols = $pdo->query("DESCRIBE alert_logs")->fetchAll(PDO::FETCH_COLUMN);
+        if (!in_array('tenant_id', $logCols)) {
+            $defaultTid = (int)($tenant_id ?: 12);
+            $pdo->exec("ALTER TABLE alert_logs ADD COLUMN tenant_id INT(11) NOT NULL DEFAULT {$defaultTid} AFTER id");
+        }
+        if (!in_array('screen_file', $logCols)) {
+            $pdo->exec("ALTER TABLE alert_logs ADD COLUMN screen_file VARCHAR(100) DEFAULT '' AFTER message");
+        }
 
         $allRules = [
             [
