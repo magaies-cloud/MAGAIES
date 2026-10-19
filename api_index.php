@@ -202,19 +202,17 @@ function migrateLocalBaileysSessionToCloud($sessionUserId = 'wa_tenant_12') {
     }
     if (empty($filesPayload)) return false;
 
-    $saasSecret = defined('SAAS_ADMIN_TOKEN') ? SAAS_ADMIN_TOKEN : (getenv('SAAS_ADMIN_TOKEN') ?: 'SUPER_ADMIN_SECRET_2026');
     $body = json_encode([
         'sessionUserId' => $safeUid,
         'files' => $filesPayload
     ]);
 
-    $ch = curl_init('https://c.elsajana.com/api_index.php?r=saas&a=wa-import-session');
+    $ch = curl_init('https://c.elsajana.com/api_index.php?r=wa-tenant&endpoint=import-session&local_only=1');
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_POST, true);
     curl_setopt($ch, CURLOPT_POSTFIELDS, $body);
     curl_setopt($ch, CURLOPT_HTTPHEADER, [
-        'Content-Type: application/json',
-        'Authorization: Bearer ' . $saasSecret
+        'Content-Type: application/json'
     ]);
     curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 4);
     curl_setopt($ch, CURLOPT_TIMEOUT, 20);
