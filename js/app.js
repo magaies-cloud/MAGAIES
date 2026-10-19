@@ -1782,6 +1782,12 @@ JSON.parse = function(val) {
         if (window.MagaiesOffline && typeof window.MagaiesOffline.flushQueue === 'function') {
             window.MagaiesOffline.flushQueue();
         }
+        if (typeof window.flushWhatsAppOutboxQueue === 'function') {
+            window.flushWhatsAppOutboxQueue();
+        }
+        if (typeof window.pullFromCloud === 'function') {
+            setTimeout(() => { window.pullFromCloud(true); }, 1500);
+        }
     });
 
     // فحص تلقائي نشط كل 4 ثوانٍ على اللابتوب والجوال لرفع أي بيانات أوفلاين فور توفر الإنترنت دون الحاجة لأي إجراء يدوي
@@ -1821,6 +1827,83 @@ JSON.parse = function(val) {
         else injectOfflineEngine();
     }
 
+    function applySmartMergePayload(payloadData, markDirtyOnNewServerItems = false) {
+        if (!payloadData || typeof payloadData !== 'object') return false;
+        let anyMerged = false;
+        Object.keys(payloadData).forEach(key => {
+            if (payloadData[key]) {
+                const pk = window.getTenantKey(key);
+                const localDataStr = window.DB_STORE[pk] || localGetItem(pk);
+                const serverVal = payloadData[key];
+
+                let serverHasData = false;
+                if (Array.isArray(serverVal)) {
+                    serverHasData = serverVal.length > 0;
+                } else if (typeof serverVal === 'object' && serverVal !== null) {
+                    serverHasData = Object.keys(serverVal).length > 0;
+                }
+
+                let localIsEmpty = !localDataStr || localDataStr === '{}' || localDataStr === '[]';
+
+                // NEVER overwrite existing local settings with empty server data
+                if (key.includes('settings') && !serverHasData && !localIsEmpty) {
+                    return;
+                }
+
+                if (serverHasData || localIsEmpty) {
+                    let finalVal = serverVal;
+                    
+                    if (Array.isArray(serverVal) && !localIsEmpty) {
+                        try {
+                            const localArr = JSON.parse(localDataStr);
+                            if (Array.isArray(localArr) && localArr.length > 0) {
+                                const serverIds = new Set();
+                                serverVal.forEach(rec => {
+                                    if (rec?.id) serverIds.add(String(rec.id));
+                                    if (rec?.invoiceNo) serverIds.add(String(rec.invoiceNo));
+                                    if (rec?.receiptNo) serverIds.add(String(rec.receiptNo));
+                                    if (rec?.voucherNo) serverIds.add(String(rec.voucherNo));
+                                    if (rec?.paymentNo) serverIds.add(String(rec.paymentNo));
+                                    if (rec?.jvNo) serverIds.add(String(rec.jvNo));
+                                });
+                                
+                                const localOnlyRecords = localArr.filter(rec => {
+                                    const rid = rec?.id || rec?.invoiceNo || rec?.receiptNo || rec?.voucherNo || rec?.paymentNo || rec?.jvNo;
+                                    const invNo = rec?.invoiceNo;
+                                    const recId = rec?.id;
+                                    let existsOnServer = false;
+                                    if (rid && serverIds.has(String(rid))) existsOnServer = true;
+                                    if (invNo && serverIds.has(String(invNo))) existsOnServer = true;
+                                    if (recId && serverIds.has(String(recId))) existsOnServer = true;
+                                    return !existsOnServer;
+                                });
+                                
+                                if (localOnlyRecords.length > 0) {
+                                    finalVal = [...serverVal, ...localOnlyRecords];
+                                    dirtyKeys.add(key);
+                                }
+                                if (markDirtyOnNewServerItems && finalVal.length > localArr.length) {
+                                    dirtyKeys.add(key);
+                                    anyMerged = true;
+                                }
+                            }
+                        } catch(mergeErr) {
+                            console.warn(`[Smart Merge] Failed for ${key}:`, mergeErr);
+                        }
+                    } else if (markDirtyOnNewServerItems && serverHasData && localIsEmpty) {
+                        dirtyKeys.add(key);
+                        anyMerged = true;
+                    }
+
+                    const valStr = typeof finalVal === 'string' ? finalVal : JSON.stringify(finalVal);
+                    window.DB_STORE[pk] = valStr;
+                    if (typeof localforage !== 'undefined') localforage.setItem(pk, valStr).catch(e=>{});
+                    try { localSetItem(pk, valStr); } catch(e){}
+                }
+            }
+        });
+        return anyMerged;
+    }
 
     window.pullFromCloud = function(force = false) {
         if (!navigator.onLine) return Promise.resolve();
@@ -1861,79 +1944,30 @@ JSON.parse = function(val) {
                         userObj.max_users = data.max_users;
                         localStorage.setItem('user', JSON.stringify(userObj));
                     }
-                    Object.keys(data.data).forEach(key => {
-                        if (data.data[key]) {
-                            const pk = window.getTenantKey(key);
-                            const localDataStr = window.DB_STORE[pk] || localGetItem(pk);
-                            const serverVal = data.data[key];
-
-                            let serverHasData = false;
-                            if (Array.isArray(serverVal)) {
-                                serverHasData = serverVal.length > 0;
-                            } else if (typeof serverVal === 'object' && serverVal !== null) {
-                                serverHasData = Object.keys(serverVal).length > 0;
-                            }
-
-                            let localIsEmpty = !localDataStr || localDataStr === '{}' || localDataStr === '[]';
-
-                            // NEVER overwrite existing local settings with empty server data
-                            if (key.includes('settings') && !serverHasData && !localIsEmpty) {
-                                console.log(`Skipping settings sync overwrite: local has settings, server has empty.`);
-                                return;
-                            }
-
-                            if (serverHasData || localIsEmpty) {
-                                let finalVal = serverVal;
-                                
-                                if (Array.isArray(serverVal) && !localIsEmpty) {
-                                    try {
-                                        const localArr = JSON.parse(localDataStr);
-                                        if (Array.isArray(localArr) && localArr.length > 0) {
-                                            const serverIds = new Set();
-                                            serverVal.forEach(rec => {
-                                                if (rec?.id) serverIds.add(String(rec.id));
-                                                if (rec?.invoiceNo) serverIds.add(String(rec.invoiceNo));
-                                                if (rec?.receiptNo) serverIds.add(String(rec.receiptNo));
-                                                if (rec?.paymentNo) serverIds.add(String(rec.paymentNo));
-                                                if (rec?.jvNo) serverIds.add(String(rec.jvNo));
-                                            });
-                                            
-                                            const localOnlyRecords = localArr.filter(rec => {
-                                                const rid = rec?.id || rec?.invoiceNo || rec?.receiptNo || rec?.paymentNo || rec?.jvNo;
-                                                const invNo = rec?.invoiceNo;
-                                                const recId = rec?.id;
-                                                let existsOnServer = false;
-                                                if (rid && serverIds.has(String(rid))) existsOnServer = true;
-                                                if (invNo && serverIds.has(String(invNo))) existsOnServer = true;
-                                                if (recId && serverIds.has(String(recId))) existsOnServer = true;
-                                                return !existsOnServer;
-                                            });
-                                            
-                                            if (localOnlyRecords.length > 0) {
-                                                console.log(`[Smart Merge] ${key}: Preserving ${localOnlyRecords.length} local-only records not yet on server`);
-                                                finalVal = [...serverVal, ...localOnlyRecords];
-                                                dirtyKeys.add(key);
-                                            }
-                                        }
-                                    } catch(mergeErr) {
-                                        console.warn(`[Smart Merge] Failed for ${key}:`, mergeErr);
-                                    }
-                                }
-
-                                const valStr = typeof finalVal === 'string' ? finalVal : JSON.stringify(finalVal);
-                                window.DB_STORE[pk] = valStr;
-                                if (typeof localforage !== 'undefined') localforage.setItem(pk, valStr).catch(e=>{});
-                                try { localSetItem(pk, valStr); } catch(e){}
-                            } else {
-                                console.log(`Skipping overwrite of ${key}: server sent empty data but local has data.`);
-                            }
-                        }
-                    });
+                    applySmartMergePayload(data.data, false);
                     sessionStorage.setItem("cloud_synced", "true");
                     console.log("Cloud Sync: Strict Restore Successful for tenant:", prefix);
                     window.dispatchEvent(new Event('cloudDataRestored'));
                 } else {
                     console.warn("Cloud Sync Pull: using local offline cache.");
+                }
+
+                // When running on Local Laptop (localhost / 127.0.0.1), also pull & smart-merge from 24/7 Cloud Server (https://c.elsajana.com)
+                // so any receipts/vouchers/customers processed on the live server while the laptop was off are merged into the laptop
+                if (isLocal && navigator.onLine) {
+                    fetch('https://c.elsajana.com/api_index.php/sync/pull', { headers: getAuthHeaders() })
+                        .then(rCloud => rCloud.ok ? rCloud.json() : null)
+                        .then(cloudData => {
+                            if (cloudData && cloudData.success && cloudData.data) {
+                                const mergedNew = applySmartMergePayload(cloudData.data, true);
+                                if (mergedNew || dirtyKeys.size > 0) {
+                                    persistDirtyKeys();
+                                    pushToCloud();
+                                    window.dispatchEvent(new Event('cloudDataRestored'));
+                                }
+                            }
+                        })
+                        .catch(() => {});
                 }
             }).catch(err => {
                 console.warn("Cloud Sync Pull Deferred (Working Offline):", err);

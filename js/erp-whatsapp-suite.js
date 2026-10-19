@@ -775,7 +775,92 @@
         printWin.document.close();
     };
 
-    // ═══ Execute WhatsApp Send (Auto-Save Phone to DB + Direct WA Service Delivery) ═══
+    // ═══ Offline WhatsApp Outbox Queue (Auto-Dispatch When Internet Returns) ═══
+    const WA_OUTBOX_QUEUE_KEY = 'erp_wa_outbox_queue_v1';
+    let _isFlushingWAOutbox = false;
+
+    window.enqueueWhatsAppOutboxMessage = function(item) {
+        try {
+            const raw = localStorage.getItem(WA_OUTBOX_QUEUE_KEY);
+            const queue = raw ? (JSON.parse(raw) || []) : [];
+            queue.push({
+                id: 'waq_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7),
+                userId: item.userId || 'wa_tenant_12',
+                phone: item.phone,
+                message: item.message || '',
+                createdAt: new Date().toISOString()
+            });
+            localStorage.setItem(WA_OUTBOX_QUEUE_KEY, JSON.stringify(queue));
+            return true;
+        } catch (e) {
+            console.warn('Failed to enqueue WA message:', e);
+            return false;
+        }
+    };
+
+    window.flushWhatsAppOutboxQueue = async function() {
+        if (_isFlushingWAOutbox || navigator.onLine === false) return;
+        let queue = [];
+        try {
+            queue = JSON.parse(localStorage.getItem(WA_OUTBOX_QUEUE_KEY) || '[]');
+        } catch (e) { queue = []; }
+        if (!Array.isArray(queue) || queue.length === 0) return;
+
+        _isFlushingWAOutbox = true;
+        const remaining = [];
+        let sentCount = 0;
+
+        for (let i = 0; i < queue.length; i++) {
+            const item = queue[i];
+            if (!item || !item.phone || !item.message) continue;
+            try {
+                const formData = new FormData();
+                formData.append('userId', item.userId || 'wa_tenant_12');
+                formData.append('phone', item.phone);
+                formData.append('message', item.message);
+
+                const res = await fetch(`api_index.php?r=wa-tenant&endpoint=send&userId=${encodeURIComponent(item.userId || 'wa_tenant_12')}`, {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await res.json();
+                if (data && data.success) {
+                    sentCount++;
+                } else if (data && data.offline_queued) {
+                    // Still offline from cloud hub; keep remaining items in queue
+                    remaining.push(...queue.slice(i));
+                    break;
+                } else {
+                    // Keep if transient error and less than 24 hours old
+                    const ageMs = Date.now() - (new Date(item.createdAt || 0).getTime() || 0);
+                    if (ageMs < 86400000) remaining.push(item);
+                }
+            } catch (err) {
+                remaining.push(...queue.slice(i));
+                break;
+            }
+        }
+
+        try {
+            localStorage.setItem(WA_OUTBOX_QUEUE_KEY, JSON.stringify(remaining));
+        } catch (e) {}
+        _isFlushingWAOutbox = false;
+
+        if (sentCount > 0 && typeof showToast === 'function') {
+            showToast(`✅ تم إرسال (${sentCount}) رسالة واتساب معلقة تلقائياً بعد عودة الاتصال بالإنترنت!`, 'success', 6000);
+        }
+    };
+
+    window.addEventListener('online', () => {
+        setTimeout(() => { window.flushWhatsAppOutboxQueue(); }, 1500);
+    });
+    setInterval(() => {
+        if (navigator.onLine !== false) {
+            window.flushWhatsAppOutboxQueue();
+        }
+    }, 10000);
+
+    // ═══ Execute WhatsApp Send (Auto-Save Phone to DB + Direct 24/7 Cloud WA Delivery + Offline Queue) ═══
     window.executeSuiteWASend = async function(method = 'direct') {
         if (!activeModalContext) return;
 
@@ -799,10 +884,20 @@
         // 1. Auto-save the entered/updated WhatsApp phone to Customer/Supplier in MySQL & LocalStorage
         savePartyPhoneToMasterData(ctxData, phone);
 
-        // 2. Try Direct Background WhatsApp Service (wa_tenant_12) first unless explicitly forced to 'web_only'
+        // 2. Try Direct Background WhatsApp Service (wa_tenant_12 on 24/7 Cloud Hub) first unless explicitly forced to 'web_only'
         if (method !== 'web_only') {
+            const userId = (typeof getWAUserId === 'function' ? getWAUserId() : (window.getWAUserId ? window.getWAUserId() : (localStorage.getItem('erp_wa_user_id') || 'wa_tenant_12')));
+
+            if (navigator.onLine === false) {
+                window.enqueueWhatsAppOutboxMessage({ userId, phone, message: messageText });
+                if (typeof showToast === 'function') {
+                    showToast(`📥 لا يوجد إنترنت حالياً — تم حفظ الرسالة للرقم (${phone}) في طابور الانتظار وسيتم إرسالها تلقائياً فور عودة الإنترنت`, 'info', 7000);
+                }
+                window.closeSuiteWAModal();
+                return;
+            }
+
             try {
-                const userId = (typeof getWAUserId === 'function' ? getWAUserId() : (window.getWAUserId ? window.getWAUserId() : (localStorage.getItem('erp_wa_user_id') || 'wa_tenant_12')));
                 const formData = new FormData();
                 formData.append('userId', userId);
                 formData.append('phone', phone);
@@ -820,7 +915,23 @@
                     window.closeSuiteWAModal();
                     return;
                 }
+                if (data && data.offline_queued) {
+                    window.enqueueWhatsAppOutboxMessage({ userId, phone, message: messageText });
+                    if (typeof showToast === 'function') {
+                        showToast(`📥 اللابتوب غير متصل بالإنترنت — تم حفظ الرسالة للرقم (${phone}) في طابور الانتظار وسيتم إرسالها تلقائياً فور عودة الإنترنت`, 'info', 7000);
+                    }
+                    window.closeSuiteWAModal();
+                    return;
+                }
             } catch (err) {
+                if (navigator.onLine === false) {
+                    window.enqueueWhatsAppOutboxMessage({ userId, phone, message: messageText });
+                    if (typeof showToast === 'function') {
+                        showToast(`📥 تم حفظ الرسالة للرقم (${phone}) في طابور الانتظار وسيتم إرسالها تلقائياً فور عودة الإنترنت`, 'info', 7000);
+                    }
+                    window.closeSuiteWAModal();
+                    return;
+                }
                 console.warn('Direct WA send fallback to Web:', err);
             }
         }

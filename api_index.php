@@ -151,12 +151,81 @@ function generateToken() {
     return bin2hex(random_bytes(32));
 }
 
+// -------------------------------------------------------
+// Utility: Detect if running on Local Shop Laptop vs Cloud Server (c.elsajana.com)
+// -------------------------------------------------------
+function isLocalLaptopEnvironment() {
+    $host = strtolower($_SERVER['HTTP_HOST'] ?? $_SERVER['SERVER_NAME'] ?? '');
+    if (strpos($host, 'elsajana.com') !== false) {
+        return false;
+    }
+    if (strpos($host, 'localhost') !== false || strpos($host, '127.0.0.1') !== false || strpos($host, '192.168.') === 0 || strpos($host, '10.') === 0) {
+        return true;
+    }
+    return (bool)stristr(PHP_OS, 'WIN');
+}
+
+// -------------------------------------------------------
+// Utility: Proxy WhatsApp Requests from Local Laptop to 24/7 Cloud Hub (https://c.elsajana.com)
+// -------------------------------------------------------
+function proxyWhatsAppRequestToCloud($endpoint, $queryParams, $method, $rawInput, $input) {
+    $cloudQuery = $queryParams;
+    $cloudQuery['r'] = 'wa-tenant';
+    $cloudQuery['endpoint'] = $endpoint;
+    $cloudQuery['local_only'] = '1'; // Instruct cloud server to execute on its own local 127.0.0.1:3001
+    $cloudUrl = 'https://c.elsajana.com/api_index.php?' . http_build_query($cloudQuery);
+
+    $ch = curl_init($cloudUrl);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 3);
+    curl_setopt($ch, CURLOPT_TIMEOUT, 15);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+
+    if ($method === 'POST') {
+        curl_setopt($ch, CURLOPT_POST, true);
+        if (!empty($_FILES)) {
+            $postFields = $_POST;
+            if (!isset($postFields['userId']) && !empty($queryParams['userId'])) {
+                $postFields['userId'] = $queryParams['userId'];
+            }
+            foreach ($_FILES as $key => $file) {
+                if (!empty($file['tmp_name']) && is_uploaded_file($file['tmp_name'])) {
+                    $postFields[$key] = new CURLFile($file['tmp_name'], $file['type'], $file['name']);
+                }
+            }
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $postFields);
+        } elseif (!empty($_POST)) {
+            $postFields = $_POST;
+            if (!isset($postFields['userId']) && !empty($queryParams['userId'])) {
+                $postFields['userId'] = $queryParams['userId'];
+            }
+            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($postFields, JSON_UNESCAPED_UNICODE));
+            curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+        } else {
+            curl_setopt($ch, CURLOPT_POSTFIELDS, !empty($rawInput) ? $rawInput : json_encode($input ?: [], JSON_UNESCAPED_UNICODE));
+            curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+        }
+    }
+
+    $response = curl_exec($ch);
+    $httpCode = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $err = curl_error($ch);
+    curl_close($ch);
+
+    return [
+        'ok' => (!$err && $httpCode >= 200 && $httpCode < 500 && !empty($response)),
+        'httpCode' => $httpCode ?: 200,
+        'response' => $response,
+        'error' => $err
+    ];
+}
+
 // ---------------------------------------------------------
 // PUBLIC ROUTES (No token required)
 // ---------------------------------------------------------
 
 if ($resource === 'wa-tenant' || $resource === 'wa' || $action === 'wa-proxy') {
-    startWhatsAppServiceIfNeeded();
     $endpoint = ltrim($_GET['a2'] ?? $_GET['endpoint'] ?? $action ?? 'status', '/');
     if ($endpoint === 'wa-proxy' || $endpoint === 'wa-tenant' || $endpoint === 'wa') {
         $endpoint = 'status';
@@ -164,7 +233,7 @@ if ($resource === 'wa-tenant' || $resource === 'wa' || $action === 'wa-proxy') {
     
     // Build query params for target NodeJS service
     $queryParams = $_GET;
-    unset($queryParams['r'], $queryParams['a'], $queryParams['a2'], $queryParams['endpoint']);
+    unset($queryParams['r'], $queryParams['a'], $queryParams['a2'], $queryParams['endpoint'], $queryParams['local_only']);
     
     // Resolve userId dynamically if provided via GET, POST, or JSON body
     if (empty($queryParams['userId'])) {
@@ -174,6 +243,35 @@ if ($resource === 'wa-tenant' || $resource === 'wa' || $action === 'wa-proxy') {
             $queryParams['userId'] = $input['userId'];
         }
     }
+
+    // 24/7 Cloud-First WhatsApp Hub: When running on the local laptop, route WhatsApp through https://c.elsajana.com
+    // so the session stays permanently alive on the cloud server 24/7 even when the laptop is turned off!
+    if (isLocalLaptopEnvironment() && empty($_GET['local_only'])) {
+        $cloudRes = proxyWhatsAppRequestToCloud($endpoint, $queryParams, $method, $rawInput, $input);
+        if ($cloudRes['ok']) {
+            header('Content-Type: application/json; charset=UTF-8');
+            http_response_code($cloudRes['httpCode']);
+            echo $cloudRes['response'];
+            exit;
+        }
+        // If laptop is offline (cannot reach c.elsajana.com), do NOT spawn a competing local WhatsApp session.
+        // Instead, signal the frontend to queue outbound messages for automatic dispatch on reconnect.
+        if ($endpoint === 'send') {
+            jsonResponse([
+                'success' => false,
+                'offline_queued' => true,
+                'error' => 'اللابتوب غير متصل بالإنترنت حالياً — تم حفظ الرسالة في طابور الانتظار وسيتم إرسالها تلقائياً فور عودة الإنترنت'
+            ], 200);
+        }
+        jsonResponse([
+            'success' => false,
+            'status' => 'OFFLINE_CLOUD',
+            'cloudHub' => true,
+            'error' => 'اللابتوب غير متصل بالإنترنت حالياً — خادم الواتساب السحابي (c.elsajana.com) مستمر في العمل 24/7 للعملاء'
+        ], 200);
+    }
+
+    startWhatsAppServiceIfNeeded();
     
     $queryString = http_build_query($queryParams);
     $url = 'http://127.0.0.1:3001/wa/' . $endpoint . ($queryString ? '?' . $queryString : '');
@@ -625,7 +723,6 @@ function startWhatsAppServiceIfNeeded() {
 }
 
 function sendWhatsAppOTP($phone, $otp) {
-    startWhatsAppServiceIfNeeded();
     $message = "رمز التحقق (OTP) الخاص بك للتسجيل في السجّانة ERP هو: *" . $otp . "*\n\nينتهي صلاحية الرمز خلال 10 دقائق. يرجى عدم مشاركته مع أي شخص. 🌸";
     
     // Clean and normalize phone number
@@ -635,7 +732,19 @@ function sendWhatsAppOTP($phone, $otp) {
         'userId' => 'default-saas-admin',
         'phone' => $phone,
         'message' => $message
-    ]);
+    ], JSON_UNESCAPED_UNICODE);
+
+    if (function_exists('isLocalLaptopEnvironment') && isLocalLaptopEnvironment()) {
+        $cloudRes = proxyWhatsAppRequestToCloud('send', ['userId' => 'default-saas-admin'], 'POST', $payload, json_decode($payload, true));
+        if ($cloudRes['ok']) {
+            $cloudData = json_decode($cloudRes['response'], true);
+            if (!empty($cloudData['success'])) {
+                return ['success' => true];
+            }
+        }
+    }
+
+    startWhatsAppServiceIfNeeded();
     
     $ch = curl_init('http://127.0.0.1:3001/wa/send');
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -1935,7 +2044,35 @@ if ($resource === 'sync') {
                 }
             }
             $pdo->commit();
-            jsonResponse(['success' => true, 'message' => 'تمت المزامنة بنجاح']);
+
+            // Mirror local laptop sync/push directly to the 24/7 Cloud Server (https://c.elsajana.com)
+            // so customer balances and statements ("رصيد" / "كشف حساب") are always 100% up-to-date when the laptop is off
+            $cloudMirrored = false;
+            if (isLocalLaptopEnvironment() && empty($_SERVER['HTTP_X_FORWARDED_FROM_LOCAL']) && !empty($rawInput)) {
+                try {
+                    $chMirror = curl_init('https://c.elsajana.com/api_index.php/sync/push');
+                    curl_setopt($chMirror, CURLOPT_RETURNTRANSFER, true);
+                    curl_setopt($chMirror, CURLOPT_POST, true);
+                    curl_setopt($chMirror, CURLOPT_POSTFIELDS, $rawInput);
+                    curl_setopt($chMirror, CURLOPT_HTTPHEADER, [
+                        'Content-Type: application/json',
+                        'Authorization: Bearer ' . ($token ?: 'offline_token_fallback'),
+                        'X-Forwarded-From-Local: 1'
+                    ]);
+                    curl_setopt($chMirror, CURLOPT_CONNECTTIMEOUT, 2);
+                    curl_setopt($chMirror, CURLOPT_TIMEOUT, 6);
+                    curl_setopt($chMirror, CURLOPT_SSL_VERIFYPEER, false);
+                    curl_setopt($chMirror, CURLOPT_SSL_VERIFYHOST, false);
+                    $mResp = curl_exec($chMirror);
+                    $mCode = (int)curl_getinfo($chMirror, CURLINFO_HTTP_CODE);
+                    curl_close($chMirror);
+                    $cloudMirrored = ($mCode >= 200 && $mCode < 300);
+                } catch (Throwable $mirrorErr) {
+                    error_log('Cloud mirror sync push warning: ' . $mirrorErr->getMessage());
+                }
+            }
+
+            jsonResponse(['success' => true, 'cloud_mirrored' => $cloudMirrored, 'message' => 'تمت المزامنة بنجاح']);
         } catch (Exception $e) {
             $pdo->rollBack();
             error_log('Sync push error: ' . $e->getMessage());

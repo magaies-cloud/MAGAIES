@@ -350,6 +350,28 @@ async function checkWAStatus(retryCount = 0) {
         const data = await res.json();
         if (isLoggingOut) return;
 
+        if (data.status === 'OFFLINE_CLOUD') {
+            if (statusText) {
+                statusText.textContent = '🌐 اللابتوب غير متصل بالإنترنت — واتساب السحابة يعمل 24/7 للعملاء';
+                statusText.style.color = '#38bdf8';
+            }
+            if (instructionText) {
+                instructionText.style.display = 'block';
+                instructionText.textContent = 'خادم الواتساب السحابي (c.elsajana.com) مستمر في استقبال الإشعارات والرد التلقائي على الأرصدة، وأي رسالة ترسلها من اللابتوب الآن ستُحفظ وتُرسل تلقائياً فور عودة الإنترنت.';
+            }
+            const container = document.getElementById('wa-qr-container');
+            if (container) {
+                container.innerHTML = `
+                    <div class="wa-state-wrapper" style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 220px; color: #1e293b; text-align: center; padding: 10px;">
+                        <div style="font-size: 3rem; margin-bottom: 10px;">☁️⚡</div>
+                        <div style="font-weight: 800; font-size: 1rem; color: #0284c7; margin-bottom: 6px;">الربط السحابي الدائم نشط (24/7)</div>
+                        <div style="font-size: 0.8rem; color: #475569; line-height: 1.5;">اللابتوب يعمل حالياً بدون إنترنت. ستُرسل رسائلك المعلقة تلقائياً بمجرد عودة الشبكة.</div>
+                    </div>
+                `;
+            }
+            return;
+        }
+
         if ((data.status === 'CONNECTED' || data.status === 'AUTHENTICATED') || (data.status !== 'QR_READY' && data.status !== 'FAILED' && data.phoneNumber && data.phoneNumber.length > 5)) {
             if (currentWAState === 'QR_CODE') {
                 // Artificial delay to show "Pairing..." after scanning
@@ -601,17 +623,55 @@ async function sendPDFViaWhatsApp(elementToPrint, phoneNumber, message) {
         alert('يرجى إدخال رقم الهاتف (يجب أن يحتوي على المفتاح الدولي).');
         return;
     }
+
+    const queueFallback = () => {
+        if (typeof window.enqueueWhatsAppOutboxMessage === 'function') {
+            window.enqueueWhatsAppOutboxMessage({
+                userId: getWAUserId(),
+                phone: phoneNumber,
+                message: message || 'تم إصدار مستند مالي جديد في حسابكم.'
+            });
+        } else {
+            try {
+                const q = JSON.parse(localStorage.getItem('erp_wa_outbox_queue_v1') || '[]');
+                q.push({
+                    id: 'waq_' + Date.now(),
+                    userId: getWAUserId(),
+                    phone: phoneNumber,
+                    message: message || 'تم إصدار مستند مالي جديد في حسابكم.',
+                    createdAt: new Date().toISOString()
+                });
+                localStorage.setItem('erp_wa_outbox_queue_v1', JSON.stringify(q));
+            } catch (e) {}
+        }
+        if (typeof showToast === 'function') {
+            showToast('📥 اللابتوب غير متصل بالإنترنت — تم حفظ الرسالة في طابور الانتظار وسيتم إرسالها تلقائياً فور عودة الإنترنت', 'info', 6000);
+        }
+    };
+
+    if (navigator.onLine === false) {
+        queueFallback();
+        return;
+    }
     
     // Check status first
     try {
         const statusRes = await fetch(`${WA_SERVER_URL}status&userId=${getWAUserId()}`);
         const statusData = await statusRes.json();
+        if (statusData.status === 'OFFLINE_CLOUD') {
+            queueFallback();
+            return;
+        }
         if (statusData.status !== 'CONNECTED' && statusData.status !== 'AUTHENTICATED') {
             alert('يجب ربط الواتساب أولاً قبل إرسال الفاتورة.');
             openWAModal();
             return;
         }
     } catch (err) {
+        if (navigator.onLine === false) {
+            queueFallback();
+            return;
+        }
         alert('خادم الواتساب غير متصل حالياً.');
         return;
     }
@@ -666,12 +726,18 @@ async function sendPDFViaWhatsApp(elementToPrint, phoneNumber, message) {
         const sendData = await sendRes.json();
         if (sendData.success) {
             showToast('✅ تم إرسال المستند بنجاح عبر الواتساب!', 'success', 4000);
+        } else if (sendData.offline_queued) {
+            queueFallback();
         } else {
             alert('فشل الإرسال: ' + (sendData.error || 'Unknown error'));
         }
     } catch (err) {
         console.error('Error sending PDF', err);
-        alert('حدث خطأ غير متوقع أثناء الإرسال.');
+        if (navigator.onLine === false) {
+            queueFallback();
+        } else {
+            alert('حدث خطأ غير متوقع أثناء الإرسال.');
+        }
     }
 }
 

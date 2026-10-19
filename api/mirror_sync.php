@@ -37,11 +37,65 @@ $pdo = getDBConnection();
 $tenantId = (int)$GLOBAL_TENANT_ID;
 if (!$tenantId) $tenantId = 12;
 
+$rawBodyString = (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') ? file_get_contents('php://input') : '';
+$rawInput = !empty($rawBodyString) ? json_decode($rawBodyString, true) : null;
+
 $action = $_GET['action'] ?? ($_POST['action'] ?? '');
-if (empty($action) && ($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
-    $rawInput = json_decode(file_get_contents('php://input'), true);
-    if (!empty($rawInput['action'])) {
-        $action = $rawInput['action'];
+if (empty($action) && is_array($rawInput) && !empty($rawInput['action'])) {
+    $action = $rawInput['action'];
+}
+
+// Mirror mutating POST operations from Local Laptop to 24/7 Cloud Server (https://c.elsajana.com)
+$__mirrorHost = strtolower($_SERVER['HTTP_HOST'] ?? $_SERVER['SERVER_NAME'] ?? '');
+$__isLocalMirrorEnv = (strpos($__mirrorHost, 'elsajana.com') === false) && (strpos($__mirrorHost, 'localhost') !== false || strpos($__mirrorHost, '127.0.0.1') !== false || strpos($__mirrorHost, '192.168.') === 0 || (bool)stristr(PHP_OS, 'WIN'));
+if ($__isLocalMirrorEnv && ($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST' && empty($_SERVER['HTTP_X_FORWARDED_FROM_LOCAL'])) {
+    $__mutatingActions = ['save_', 'delete_', 'update_', 'sync_', 'post_', 'approve_'];
+    $__shouldForward = false;
+    foreach ($__mutatingActions as $__prefix) {
+        if (strpos($action, $__prefix) === 0) {
+            $__shouldForward = true;
+            break;
+        }
+    }
+    if ($__shouldForward) {
+        register_shutdown_function(function() use ($action, $tenantId, $rawBodyString) {
+            try {
+                if (function_exists('fastcgi_finish_request')) {
+                    @fastcgi_finish_request();
+                }
+                $qs = $_SERVER['QUERY_STRING'] ?? '';
+                if (strpos($qs, 'action=') === false && !empty($action)) {
+                    $qs = ($qs ? $qs . '&' : '') . 'action=' . urlencode($action);
+                }
+                if (strpos($qs, 'tenant_id=') === false && $tenantId) {
+                    $qs = ($qs ? $qs . '&' : '') . 'tenant_id=' . (int)$tenantId;
+                }
+                $cloudUrl = 'https://c.elsajana.com/api/mirror_sync.php' . ($qs ? '?' . $qs : '');
+                $ch = curl_init($cloudUrl);
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                curl_setopt($ch, CURLOPT_POST, true);
+                if (!empty($rawBodyString)) {
+                    curl_setopt($ch, CURLOPT_POSTFIELDS, $rawBodyString);
+                    curl_setopt($ch, CURLOPT_HTTPHEADER, [
+                        'Content-Type: application/json',
+                        'X-Forwarded-From-Local: 1',
+                        'X-Tenant-Id: ' . (int)$tenantId
+                    ]);
+                } else {
+                    curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($_POST));
+                    curl_setopt($ch, CURLOPT_HTTPHEADER, [
+                        'X-Forwarded-From-Local: 1',
+                        'X-Tenant-Id: ' . (int)$tenantId
+                    ]);
+                }
+                curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 2);
+                curl_setopt($ch, CURLOPT_TIMEOUT, 6);
+                curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+                curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+                curl_exec($ch);
+                curl_close($ch);
+            } catch (Throwable $e) {}
+        });
     }
 }
 

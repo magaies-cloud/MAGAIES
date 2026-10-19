@@ -77,11 +77,220 @@ if (!is_dir($uploadDir)) {
     @mkdir($uploadDir, 0777, true);
 }
 
+function isLocalInboundLaptopEnv() {
+    $host = strtolower($_SERVER['HTTP_HOST'] ?? $_SERVER['SERVER_NAME'] ?? '');
+    if (strpos($host, 'elsajana.com') !== false) {
+        return false;
+    }
+    if (strpos($host, 'localhost') !== false || strpos($host, '127.0.0.1') !== false || strpos($host, '192.168.') === 0 || strpos($host, '10.') === 0) {
+        return true;
+    }
+    return (bool)stristr(PHP_OS, 'WIN');
+}
+
+// Mirror mutating inbound receipt actions (approvals, bank changes, policy settings) from Local Laptop to 24/7 Cloud Server
+if (isLocalInboundLaptopEnv() && ($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST' && empty($_SERVER['HTTP_X_FORWARDED_FROM_LOCAL'])) {
+    $__cloudSyncActions = [
+        'post_to_accounts', 'reconcile_receipt', 'approve_batch', 'change_target_bank',
+        'update_status', 'dismiss', 'delete', 'save_statement_policy',
+        'update_customer_statement_settings', 'save_customer_pin', 'assign_customer'
+    ];
+    if (in_array($action, $__cloudSyncActions, true)) {
+        $__rawInbBody = file_get_contents('php://input');
+        register_shutdown_function(function() use ($action, $activeTenantId, $__rawInbBody) {
+            try {
+                if (function_exists('fastcgi_finish_request')) {
+                    @fastcgi_finish_request();
+                }
+                $qs = $_SERVER['QUERY_STRING'] ?? '';
+                if (strpos($qs, 'action=') === false) {
+                    $qs = ($qs ? $qs . '&' : '') . 'action=' . urlencode($action);
+                }
+                if (strpos($qs, 'tenant_id=') === false) {
+                    $qs = ($qs ? $qs . '&' : '') . 'tenant_id=' . (int)$activeTenantId;
+                }
+                $cloudUrl = 'https://c.elsajana.com/api/inbound_receipts.php?' . $qs;
+                $ch = curl_init($cloudUrl);
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                curl_setopt($ch, CURLOPT_POST, true);
+                if (!empty($_POST)) {
+                    curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($_POST));
+                    curl_setopt($ch, CURLOPT_HTTPHEADER, ['X-Forwarded-From-Local: 1']);
+                } else {
+                    curl_setopt($ch, CURLOPT_POSTFIELDS, $__rawInbBody ?: json_encode($GLOBALS['jsonData'] ?? [], JSON_UNESCAPED_UNICODE));
+                    curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json', 'X-Forwarded-From-Local: 1']);
+                }
+                curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 2);
+                curl_setopt($ch, CURLOPT_TIMEOUT, 5);
+                curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+                curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+                curl_exec($ch);
+                curl_close($ch);
+            } catch (Throwable $e) {}
+        });
+    }
+}
+
+/**
+ * Pulls new or updated inbound Bankak receipts from the 24/7 Cloud Server (https://c.elsajana.com)
+ * into the Local Laptop's MySQL database and posts any verified receipts to local accounts.
+ */
+function syncInboundReceiptsFromCloud($pdo, $activeTenantId, $uploadDir) {
+    if (!isLocalInboundLaptopEnv() || !empty($_GET['no_cloud_pull'])) {
+        return;
+    }
+    // Throttle cloud polling to once every 4 seconds so local UI stays ultra-fast
+    $stampFile = sys_get_temp_dir() . '/magaies_cloud_inb_pull_' . (int)$activeTenantId . '.stamp';
+    if (empty($_GET['force_cloud_pull']) && file_exists($stampFile) && (time() - @filemtime($stampFile)) < 4) {
+        return;
+    }
+    @file_put_contents($stampFile, (string)time());
+
+    try {
+        $cloudUrl = 'https://c.elsajana.com/api/inbound_receipts.php?action=list&tenant_id=' . (int)$activeTenantId . '&no_cloud_pull=1';
+        $ch = curl_init($cloudUrl);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 2);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 4);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+        $resp = curl_exec($ch);
+        $httpCode = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+
+        if ($httpCode !== 200 || empty($resp)) return;
+        $cloudPayload = json_decode($resp, true);
+        if (empty($cloudPayload['success']) || empty($cloudPayload['data']) || !is_array($cloudPayload['data'])) return;
+
+        // Load existing local receipts for fast deduplication
+        $locStmt = $pdo->prepare("SELECT id, transfer_no, receipt_image, voucher_no, status, issue_reason FROM inbound_bank_receipts WHERE tenant_id = ?");
+        $locStmt->execute([$activeTenantId]);
+        $localRows = $locStmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $byTransfer = [];
+        $byImage = [];
+        $byVoucher = [];
+        foreach ($localRows as $lr) {
+            $tClean = preg_replace('/\D/', '', (string)($lr['transfer_no'] ?? ''));
+            if (strlen($tClean) >= 6) $byTransfer[$tClean] = $lr;
+            $imgBase = basename((string)($lr['receipt_image'] ?? ''));
+            if ($imgBase !== '') $byImage[$imgBase] = $lr;
+            $vNo = trim((string)($lr['voucher_no'] ?? ''));
+            if ($vNo !== '') $byVoucher[$vNo] = $lr;
+        }
+
+        // Process oldest first so vouchers are created in chronological order
+        $cloudReceipts = array_reverse($cloudPayload['data']);
+        foreach ($cloudReceipts as $cRow) {
+            $cTransferClean = preg_replace('/\D/', '', (string)($cRow['transfer_no'] ?? ''));
+            $cImgRel = trim((string)($cRow['receipt_image'] ?? ''));
+            $cImgBase = basename($cImgRel);
+            $cVoucherNo = trim((string)($cRow['voucher_no'] ?? ''));
+            $cStatus = (string)($cRow['status'] ?? 'pending');
+            $cIssue = $cRow['issue_reason'] ?? null;
+
+            $matchedLocal = null;
+            if (strlen($cTransferClean) >= 6 && isset($byTransfer[$cTransferClean])) {
+                $matchedLocal = $byTransfer[$cTransferClean];
+            } elseif ($cVoucherNo !== '' && isset($byVoucher[$cVoucherNo])) {
+                $matchedLocal = $byVoucher[$cVoucherNo];
+            } elseif ($cImgBase !== '' && isset($byImage[$cImgBase])) {
+                $matchedLocal = $byImage[$cImgBase];
+            }
+
+            // Ensure receipt image is downloaded locally if missing
+            if ($cImgRel !== '' && $cImgBase !== '') {
+                $localImgPath = $uploadDir . $cImgBase;
+                if (!file_exists($localImgPath)) {
+                    $imgUrl = 'https://c.elsajana.com/' . ltrim($cImgRel, '/');
+                    $chImg = curl_init($imgUrl);
+                    curl_setopt($chImg, CURLOPT_RETURNTRANSFER, true);
+                    curl_setopt($chImg, CURLOPT_CONNECTTIMEOUT, 2);
+                    curl_setopt($chImg, CURLOPT_TIMEOUT, 5);
+                    curl_setopt($chImg, CURLOPT_SSL_VERIFYPEER, false);
+                    curl_setopt($chImg, CURLOPT_SSL_VERIFYHOST, false);
+                    $imgBytes = curl_exec($chImg);
+                    $imgCode = (int)curl_getinfo($chImg, CURLINFO_HTTP_CODE);
+                    curl_close($chImg);
+                    if ($imgCode === 200 && !empty($imgBytes)) {
+                        @file_put_contents($localImgPath, $imgBytes);
+                    }
+                }
+            }
+
+            if (!$matchedLocal) {
+                $ins = $pdo->prepare("INSERT INTO inbound_bank_receipts 
+                    (tenant_id, customer_id, customer_name, customer_phone, receipt_image, bank_name, bank_code, transfer_no, amount, currency, status, issue_reason, voucher_no, source, notes, created_at)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                $ins->execute([
+                    $activeTenantId,
+                    $cRow['customer_id'] ?? null,
+                    $cRow['customer_name'] ?? 'عميل واتساب',
+                    $cRow['customer_phone'] ?? null,
+                    $cImgRel,
+                    $cRow['bank_name'] ?? 'بنك الخرطوم (بنكك)',
+                    $cRow['bank_code'] ?? '170',
+                    $cRow['transfer_no'] ?? null,
+                    (float)($cRow['amount'] ?? 0),
+                    $cRow['currency'] ?? 'SDG',
+                    $cStatus,
+                    $cIssue,
+                    $cVoucherNo ?: null,
+                    $cRow['source'] ?? 'whatsapp',
+                    $cRow['notes'] ?? null,
+                    $cRow['created_at'] ?? date('Y-m-d H:i:s')
+                ]);
+                $newLocalId = (int)$pdo->lastInsertId();
+                if ($newLocalId > 0 && (float)($cRow['amount'] ?? 0) > 0 && strlen($cTransferClean) >= 6 && $cStatus !== 'duplicate_rejected') {
+                    if ($cStatus === 'verified' || $cStatus === 'reconciled' || $cIssue === 'awaiting_posting_approval') {
+                        postInboundReceiptToAccounts($pdo, $newLocalId, [
+                            'force_post' => ($cStatus === 'verified' || $cStatus === 'reconciled'),
+                            'target_bank_id' => (string)($cRow['bank_code'] ?? ''),
+                            'target_bank_name' => (string)($cRow['bank_name'] ?? ''),
+                            'suppress_whatsapp_notify' => true
+                        ]);
+                    }
+                }
+            } else {
+                // If local row was still pending while cloud row got verified/posted, upgrade local row and post to local accounts
+                $locStatus = (string)($matchedLocal['status'] ?? 'pending');
+                if ($locStatus === 'pending' && ($cStatus === 'verified' || $cStatus === 'reconciled')) {
+                    $upd = $pdo->prepare("UPDATE inbound_bank_receipts SET customer_id = COALESCE(NULLIF(?, ''), customer_id), customer_name = COALESCE(NULLIF(?, ''), customer_name), bank_name = COALESCE(NULLIF(?, ''), bank_name), bank_code = COALESCE(NULLIF(?, ''), bank_code), transfer_no = COALESCE(NULLIF(?, ''), transfer_no), amount = IF(? > 0, ?, amount), voucher_no = COALESCE(NULLIF(?, ''), voucher_no), status = ?, issue_reason = ?, notes = COALESCE(NULLIF(?, ''), notes) WHERE id = ?");
+                    $amtVal = (float)($cRow['amount'] ?? 0);
+                    $upd->execute([
+                        (string)($cRow['customer_id'] ?? ''),
+                        (string)($cRow['customer_name'] ?? ''),
+                        (string)($cRow['bank_name'] ?? ''),
+                        (string)($cRow['bank_code'] ?? ''),
+                        (string)($cRow['transfer_no'] ?? ''),
+                        $amtVal,
+                        $amtVal,
+                        $cVoucherNo,
+                        $cStatus,
+                        $cIssue,
+                        (string)($cRow['notes'] ?? ''),
+                        (int)$matchedLocal['id']
+                    ]);
+                    postInboundReceiptToAccounts($pdo, (int)$matchedLocal['id'], [
+                        'force_post' => true,
+                        'target_bank_id' => (string)($cRow['bank_code'] ?? ''),
+                        'target_bank_name' => (string)($cRow['bank_name'] ?? ''),
+                        'suppress_whatsapp_notify' => true
+                    ]);
+                }
+            }
+        }
+    } catch (Throwable $e) {
+        error_log('Cloud inbound receipt sync notice: ' . $e->getMessage());
+    }
+}
+
 // 3. Dispatch Handlers
 switch ($action) {
     case 'list':
     case 'get_inbound_receipts':
         try {
+            syncInboundReceiptsFromCloud($pdo, $activeTenantId, $uploadDir);
             $filterStatus = $_GET['status'] ?? '';
             $sql = "SELECT * FROM inbound_bank_receipts WHERE tenant_id = ?";
             $params = [$activeTenantId];
@@ -2122,8 +2331,9 @@ function postInboundReceiptToAccounts($pdo, $receiptId, $options = []) {
 
     // Send WhatsApp notification directly to customer's registered WhatsApp number when manually assigned/approved OR when routed via PIN/Name from a different sender phone
     $whatsappNotified = false;
+    $suppressWaNotify = !empty($options['suppress_whatsapp_notify']);
     $custTargetWa = trim((string)($custObj['whatsapp'] ?? ($custObj['phone'] ?? ($custObj['whatsappLid'] ?? ''))));
-    if ($shouldPostNow && !empty($custTargetWa) && strlen(preg_replace('/\D/', '', $custTargetWa)) >= 7) {
+    if (!$suppressWaNotify && $shouldPostNow && !empty($custTargetWa) && strlen(preg_replace('/\D/', '', $custTargetWa)) >= 7) {
         $cleanTargetDigits = substr(preg_replace('/\D/', '', $custTargetWa), -9);
         $cleanSenderDigits = substr(preg_replace('/\D/', '', (string)$originalSenderPhone), -9);
         $shouldNotifyCustomerWa = !empty($options['notify_customer_whatsapp']) || (!empty($cleanTargetDigits) && $cleanTargetDigits !== $cleanSenderDigits);
@@ -2168,17 +2378,45 @@ function postInboundReceiptToAccounts($pdo, $receiptId, $options = []) {
 }
 
 // -------------------------------------------------------------
-// Helper: Send Direct WhatsApp Notification to Customer via Local Service (Port 3001)
+// Helper: Send Direct WhatsApp Notification to Customer via 24/7 Cloud Hub or Local Service (Port 3001)
 // -------------------------------------------------------------
 function sendInboundWhatsAppNotification($tenantId, $phone, $message) {
     $phone = trim((string)$phone);
     if (empty($phone) || empty($message)) return false;
     try {
+        $userId = 'wa_tenant_' . (int)$tenantId;
         $payload = json_encode([
-            'userId' => 'wa_tenant_' . (int)$tenantId,
+            'userId' => $userId,
             'phone' => $phone,
             'message' => $message
         ], JSON_UNESCAPED_UNICODE);
+
+        // When running on the local laptop, send via the 24/7 Cloud WhatsApp Hub (https://c.elsajana.com) first
+        if (function_exists('isLocalInboundLaptopEnv') && isLocalInboundLaptopEnv()) {
+            $cloudUrl = 'https://c.elsajana.com/api_index.php?r=wa-tenant&endpoint=send&userId=' . urlencode($userId) . '&local_only=1';
+            $chCloud = curl_init($cloudUrl);
+            curl_setopt($chCloud, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($chCloud, CURLOPT_POST, true);
+            curl_setopt($chCloud, CURLOPT_POSTFIELDS, $payload);
+            curl_setopt($chCloud, CURLOPT_HTTPHEADER, [
+                'Content-Type: application/json',
+                'Content-Length: ' . strlen($payload)
+            ]);
+            curl_setopt($chCloud, CURLOPT_CONNECTTIMEOUT, 2);
+            curl_setopt($chCloud, CURLOPT_TIMEOUT, 6);
+            curl_setopt($chCloud, CURLOPT_SSL_VERIFYPEER, false);
+            curl_setopt($chCloud, CURLOPT_SSL_VERIFYHOST, false);
+            $cResp = curl_exec($chCloud);
+            $cCode = (int)curl_getinfo($chCloud, CURLINFO_HTTP_CODE);
+            curl_close($chCloud);
+            if ($cCode === 200 && !empty($cResp)) {
+                $cDec = json_decode($cResp, true);
+                if (!empty($cDec['success'])) {
+                    return true;
+                }
+            }
+        }
+
         $ch = curl_init('http://127.0.0.1:3001/wa/send');
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_POST, true);
