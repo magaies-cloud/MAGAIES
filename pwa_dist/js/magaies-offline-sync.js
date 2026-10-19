@@ -907,6 +907,16 @@
             if (typeof window.pushToCloud === 'function' && navigator.onLine !== false) {
                 try { window.pushToCloud(); } catch (e) {}
             }
+            try {
+                const h = (window.location.hostname || '').toLowerCase();
+                if (navigator.onLine !== false && (h === 'localhost' || h === '127.0.0.1' || h.startsWith('192.168.'))) {
+                    const nowTs = Date.now();
+                    if (!this._lastCloudDbMirrorTs || (nowTs - this._lastCloudDbMirrorTs) > 60000) {
+                        this._lastCloudDbMirrorTs = nowTs;
+                        fetch('api/mirror_sync.php?action=push_all_local_to_cloud', { method: 'POST' }).catch(() => {});
+                    }
+                }
+            } catch (e) {}
         },
 
         initHeartbeat() {
