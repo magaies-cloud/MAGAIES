@@ -2517,6 +2517,60 @@ try {
                 'message' => 'تم حفظ وتحديث سعر صرف الدولار بنجاح في قاعدة البيانات وعلى مستوى السيستم بالكامل'
             ], JSON_UNESCAPED_UNICODE);
             break;
+
+        case 'push_all_local_to_cloud':
+            $tables = ['customers', 'suppliers', 'banks', 'safes', 'accounts', 'settings', 'receipts', 'payments', 'single_receipts', 'single_payments', 'sales_invoices', 'purchase_invoices', 'journal_vouchers'];
+            $syncedSummary = [];
+            foreach ($tables as $t) {
+                try {
+                    $stmt = $pdo->prepare("SELECT data FROM `$t` WHERE (tenant_id = ? OR tenant_id IS NULL) AND (is_deleted = 0 OR is_deleted IS NULL) ORDER BY id ASC");
+                    $stmt->execute([$tenantId]);
+                    $rows = [];
+                    while ($r = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                        $d = json_decode($r['data'] ?? '', true);
+                        if (is_array($d)) {
+                            if (empty($d['id'])) {
+                                $d['id'] = $d['voucherNo'] ?? $d['invoiceNo'] ?? $d['receiptNo'] ?? $d['paymentNo'] ?? $d['jvNo'] ?? ('ROW-' . uniqid());
+                            }
+                            $rows[] = $d;
+                        }
+                    }
+                    if (empty($rows)) {
+                        $syncedSummary[$t] = 0;
+                        continue;
+                    }
+                    $batches = array_chunk($rows, 35);
+                    $pushedCount = 0;
+                    foreach ($batches as $batch) {
+                        $payload = json_encode(['changes' => [$t => $batch]], JSON_UNESCAPED_UNICODE);
+                        $ch = curl_init('https://c.elsajana.com/api_index.php/sync/push');
+                        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                        curl_setopt($ch, CURLOPT_POST, true);
+                        curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
+                        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+                            'Content-Type: application/json',
+                            'Authorization: Bearer offline_token_fallback',
+                            'X-Forwarded-From-Local: 1'
+                        ]);
+                        curl_setopt($ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
+                        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 3);
+                        curl_setopt($ch, CURLOPT_TIMEOUT, 15);
+                        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+                        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+                        $resp = curl_exec($ch);
+                        $code = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                        curl_close($ch);
+                        if ($code === 200) {
+                            $pushedCount += count($batch);
+                        }
+                    }
+                    $syncedSummary[$t] = $pushedCount;
+                } catch (Throwable $te) {
+                    $syncedSummary[$t] = 'err: ' . $te->getMessage();
+                }
+            }
+            echo json_encode(['success' => true, 'synced' => $syncedSummary], JSON_UNESCAPED_UNICODE);
+            break;
     }
 } catch (Throwable $e) {
     http_response_code(500);

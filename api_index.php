@@ -197,8 +197,24 @@ function migrateLocalBaileysSessionToCloud($sessionUserId = 'wa_tenant_12') {
     }
     if (empty($filesPayload)) return false;
 
-    // Upload in small chunks (30 files per request, ~120 KB) to stay well below Nginx's 1 MB body limit
-    $chunks = array_chunk($filesPayload, 30, true);
+    // Group into chunks of max 400 KB of base64 payload to stay well below Nginx's 1 MB body limit
+    $chunks = [];
+    $curChunk = [];
+    $curBytes = 0;
+    foreach ($filesPayload as $fn => $b64) {
+        $len = strlen($b64);
+        if (($curBytes + $len) > 400000 && !empty($curChunk)) {
+            $chunks[] = $curChunk;
+            $curChunk = [];
+            $curBytes = 0;
+        }
+        $curChunk[$fn] = $b64;
+        $curBytes += $len;
+    }
+    if (!empty($curChunk)) {
+        $chunks[] = $curChunk;
+    }
+
     $totalChunks = count($chunks);
     $allOk = true;
 
@@ -228,7 +244,7 @@ function migrateLocalBaileysSessionToCloud($sessionUserId = 'wa_tenant_12') {
         ]);
         curl_setopt($ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 3);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 12);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 15);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
         curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
         $resp = curl_exec($ch);
@@ -2031,11 +2047,11 @@ if ($resource === 'sync') {
                                     $isFin = in_array($table, ['sales_invoices', 'purchase_invoices', 'gl_entries', 'receipts', 'payments', 'journal_vouchers', 'single_receipts', 'single_payments']);
                                     $isPartyTable = in_array($table, ['customers', 'suppliers'], true);
                                     if ($isFin) {
-                                        $stmtAll = $pdo->prepare("SELECT id, status_val, updated_at, COALESCE(JSON_EXTRACT(data, '$.id'), JSON_EXTRACT(data, '$.invoiceNo'), JSON_EXTRACT(data, '$.receiptNo'), JSON_EXTRACT(data, '$.paymentNo'), JSON_EXTRACT(data, '$.jvNo')) as doc_id FROM `$table` WHERE tenant_id = ?");
+                                        $stmtAll = $pdo->prepare("SELECT id, status_val, updated_at, COALESCE(JSON_EXTRACT(data, '$.id'), JSON_EXTRACT(data, '$.voucherNo'), JSON_EXTRACT(data, '$.invoiceNo'), JSON_EXTRACT(data, '$.receiptNo'), JSON_EXTRACT(data, '$.paymentNo'), JSON_EXTRACT(data, '$.jvNo')) as doc_id FROM `$table` WHERE tenant_id = ?");
                                     } elseif ($isPartyTable) {
-                                        $stmtAll = $pdo->prepare("SELECT id, data, COALESCE(JSON_EXTRACT(data, '$.id'), JSON_EXTRACT(data, '$.invoiceNo'), JSON_EXTRACT(data, '$.receiptNo'), JSON_EXTRACT(data, '$.paymentNo'), JSON_EXTRACT(data, '$.jvNo')) as doc_id FROM `$table` WHERE tenant_id = ?");
+                                        $stmtAll = $pdo->prepare("SELECT id, data, COALESCE(JSON_EXTRACT(data, '$.id'), JSON_EXTRACT(data, '$.voucherNo'), JSON_EXTRACT(data, '$.invoiceNo'), JSON_EXTRACT(data, '$.receiptNo'), JSON_EXTRACT(data, '$.paymentNo'), JSON_EXTRACT(data, '$.jvNo')) as doc_id FROM `$table` WHERE tenant_id = ?");
                                     } else {
-                                        $stmtAll = $pdo->prepare("SELECT id, COALESCE(JSON_EXTRACT(data, '$.id'), JSON_EXTRACT(data, '$.invoiceNo'), JSON_EXTRACT(data, '$.receiptNo'), JSON_EXTRACT(data, '$.paymentNo'), JSON_EXTRACT(data, '$.jvNo')) as doc_id FROM `$table` WHERE tenant_id = ?");
+                                        $stmtAll = $pdo->prepare("SELECT id, COALESCE(JSON_EXTRACT(data, '$.id'), JSON_EXTRACT(data, '$.voucherNo'), JSON_EXTRACT(data, '$.invoiceNo'), JSON_EXTRACT(data, '$.receiptNo'), JSON_EXTRACT(data, '$.paymentNo'), JSON_EXTRACT(data, '$.jvNo')) as doc_id FROM `$table` WHERE tenant_id = ?");
                                     }
                                     $stmtAll->execute([$tenant_id]);
                                     $allRows = $stmtAll->fetchAll(PDO::FETCH_ASSOC);
@@ -2078,7 +2094,7 @@ if ($resource === 'sync') {
 
                                     foreach ($records as $record) {
                                         // Unified identifier extraction
-                                        $recordId = $record['id'] ?? $record['invoiceNo'] ?? $record['receiptNo'] ?? $record['paymentNo'] ?? $record['jvNo'] ?? null;
+                                        $recordId = $record['id'] ?? $record['voucherNo'] ?? $record['invoiceNo'] ?? $record['receiptNo'] ?? $record['paymentNo'] ?? $record['jvNo'] ?? null;
                                         if (!$recordId) continue;
                                         
                                         // Ensure the JSON always has an 'id' for consistent querying next time
