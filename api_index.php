@@ -1458,6 +1458,28 @@ if ($token === $saasSecret) {
             if (!is_array($filesMap) || empty($filesMap)) {
                 jsonResponse(['success' => false, 'error' => 'No session files provided'], 400);
             }
+            startWhatsAppServiceIfNeeded();
+
+            // Forward to Node service /wa/import-session first (since Node owns baileys_auth_* on Linux)
+            $nodePayload = json_encode(['sessionUserId' => $sessionUserId, 'files' => $filesMap]);
+            $chNode = curl_init('http://127.0.0.1:3001/wa/import-session');
+            curl_setopt($chNode, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($chNode, CURLOPT_POST, true);
+            curl_setopt($chNode, CURLOPT_POSTFIELDS, $nodePayload);
+            curl_setopt($chNode, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+            curl_setopt($chNode, CURLOPT_TIMEOUT, 15);
+            $nodeResp = curl_exec($chNode);
+            $nodeCode = (int)curl_getinfo($chNode, CURLINFO_HTTP_CODE);
+            curl_close($chNode);
+
+            if ($nodeCode === 200 && !empty($nodeResp)) {
+                $nodeDec = json_decode($nodeResp, true);
+                if (!empty($nodeDec['success'])) {
+                    jsonResponse($nodeDec);
+                }
+            }
+
+            // Fallback: PHP direct write + /wa/restart
             $targetDir = __DIR__ . '/baileys_auth_' . $sessionUserId;
             if (!is_dir($targetDir)) {
                 @mkdir($targetDir, 0775, true);
@@ -1468,11 +1490,11 @@ if ($token === $saasSecret) {
                 if ($cleanName === '' || $cleanName === '.' || $cleanName === '..') continue;
                 $rawBytes = base64_decode((string)$b64, true);
                 if ($rawBytes !== false) {
-                    @file_put_contents($targetDir . '/' . $cleanName, $rawBytes);
-                    $writtenCount++;
+                    if (@file_put_contents($targetDir . '/' . $cleanName, $rawBytes) !== false) {
+                        $writtenCount++;
+                    }
                 }
             }
-            startWhatsAppServiceIfNeeded();
             $chRest = curl_init('http://127.0.0.1:3001/wa/restart?userId=' . urlencode($sessionUserId));
             curl_setopt($chRest, CURLOPT_RETURNTRANSFER, true);
             curl_setopt($chRest, CURLOPT_POST, true);
@@ -1483,7 +1505,7 @@ if ($token === $saasSecret) {
             curl_close($chRest);
 
             jsonResponse([
-                'success' => true,
+                'success' => ($writtenCount > 0),
                 'sessionUserId' => $sessionUserId,
                 'writtenFiles' => $writtenCount,
                 'restartResponse' => $restResp ? json_decode($restResp, true) : null

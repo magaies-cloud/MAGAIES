@@ -2838,6 +2838,42 @@ app.post('/wa/restart', async (req, res) => {
     }
 });
 
+// ── POST /wa/import-session ────────────────────────────────────
+app.post('/wa/import-session', async (req, res) => {
+    const sessionUserId = String(req.body?.sessionUserId || req.query.userId || 'wa_tenant_12').replace(/[^a-zA-Z0-9_-]/g, '') || 'wa_tenant_12';
+    const filesMap = req.body?.files || {};
+    if (!filesMap || typeof filesMap !== 'object' || Object.keys(filesMap).length === 0) {
+        return res.status(400).json({ success: false, error: 'No session files provided' });
+    }
+    try {
+        const client = manager.get(sessionUserId);
+        await client._destroySocket();
+        const targetDir = path.join(AUTH_BASE_DIR, `baileys_auth_${sessionUserId}`);
+        if (!fs.existsSync(targetDir)) {
+            fs.mkdirSync(targetDir, { recursive: true });
+        }
+        // Clear any stale QR-only files before importing linked credentials
+        for (const oldF of fs.readdirSync(targetDir)) {
+            try { fs.unlinkSync(path.join(targetDir, oldF)); } catch (_) {}
+        }
+        let writtenCount = 0;
+        for (const [fname, b64] of Object.entries(filesMap)) {
+            const cleanName = path.basename(String(fname));
+            if (!cleanName || cleanName === '.' || cleanName === '..') continue;
+            const buf = Buffer.from(String(b64), 'base64');
+            fs.writeFileSync(path.join(targetDir, cleanName), buf);
+            writtenCount++;
+        }
+        client._loadLidMapFromDisk();
+        client.reconnectAttempts = 0;
+        client.init().catch(e => logErr(sessionUserId, 'import-session init error:', e.message));
+        res.json({ success: true, sessionUserId, writtenFiles: writtenCount });
+    } catch (e) {
+        logErr(sessionUserId, 'import-session error:', e.message);
+        res.status(500).json({ success: false, error: e.message });
+    }
+});
+
 
 // ── GET /wa/health ─────────────────────────────────────────────
 app.get('/wa/health', (_req, res) => {
