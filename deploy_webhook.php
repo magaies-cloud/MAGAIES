@@ -29,6 +29,12 @@ $commitMsg = $data['head_commit']['message'] ?? 'unknown';
 
 @file_put_contents($logFile, "[$timestamp] Deploying: $commitMsg\n", FILE_APPEND);
 
+// Prevent concurrent webhook runs (e.g. GitHub auto-webhook + manual trigger_webhook) from colliding on .git/index.lock
+$lockFp = @fopen('/tmp/magaees_deploy.lock', 'c+');
+if ($lockFp) {
+    @flock($lockFp, LOCK_EX);
+}
+
 // Fast selective deployment:
 // 1. Fetch & reset to origin/main without scanning node_modules or uploads
 // 2. Only run migrate_ui_preferences.php if it changed
@@ -45,6 +51,11 @@ $commands = [
 ];
 
 $result = shell_exec(implode(' && ', $commands) . ' 2>&1');
+
+if ($lockFp) {
+    @flock($lockFp, LOCK_UN);
+    @fclose($lockFp);
+}
 
 @file_put_contents($logFile, "[$timestamp] Result: $result\n", FILE_APPEND);
 
