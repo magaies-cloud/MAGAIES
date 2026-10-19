@@ -44,6 +44,8 @@ $commands = [
     'cd /var/www/magaees',
     'git config core.autocrlf false 2>/dev/null || true',
     'git config core.fileMode false 2>/dev/null || true',
+    'git update-index --no-skip-worktree whatsapp-service.mjs 2>/dev/null || true',
+    'chmod 644 whatsapp-service.mjs 2>/dev/null || true',
     'git fetch origin main --depth=5 2>&1',
     'CHANGED_FILES=$(git diff --name-only HEAD origin/main 2>/dev/null || echo "")',
     '(git update-index --refresh -q 2>/dev/null || true) && (git reset --hard origin/main 2>&1 || (git checkout -f origin/main 2>&1 && git reset --hard origin/main 2>&1))',

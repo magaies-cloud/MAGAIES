@@ -2517,13 +2517,14 @@ class AutoHealer {
             return;
         }
 
-        // ── Case 2: IDLE — only auto-init if auth folder exists (user previously linked) ──
-        if (status === 'IDLE') {
+        // ── Case 2: IDLE or DISCONNECTED — auto-init if auth folder exists (user previously linked) ──
+        if (status === 'IDLE' || (status === 'DISCONNECTED' && process.platform !== 'win32')) {
             const credsPath = path.join(client.authFolder, 'creds.json');
             if (!fs.existsSync(credsPath)) return; // User never linked — don't force init
-            this._log(userId, 'AUTO_INIT', 'Status was IDLE with existing auth → initializing');
+            this._log(userId, 'AUTO_INIT', `Status was ${status} with existing auth → initializing`);
             this.stats.fixes++;
             client.lastInitTime = 0;
+            client._isInitializing = false;
             await client.init();
             return;
         }
@@ -2841,33 +2842,43 @@ app.post('/wa/restart', async (req, res) => {
 // ── POST /wa/import-session ────────────────────────────────────
 app.post('/wa/import-session', async (req, res) => {
     const sessionUserId = String(req.body?.sessionUserId || req.query.userId || 'wa_tenant_12').replace(/[^a-zA-Z0-9_-]/g, '') || 'wa_tenant_12';
+    const mode = String(req.body?.mode || req.query.mode || 'single').toLowerCase(); // 'start' | 'append' | 'finish' | 'single'
     const filesMap = req.body?.files || {};
-    if (!filesMap || typeof filesMap !== 'object' || Object.keys(filesMap).length === 0) {
+    if (mode !== 'finish' && (!filesMap || typeof filesMap !== 'object' || Object.keys(filesMap).length === 0)) {
         return res.status(400).json({ success: false, error: 'No session files provided' });
     }
     try {
         const client = manager.get(sessionUserId);
-        await client._destroySocket();
         const targetDir = path.join(AUTH_BASE_DIR, `baileys_auth_${sessionUserId}`);
         if (!fs.existsSync(targetDir)) {
             fs.mkdirSync(targetDir, { recursive: true });
         }
-        // Clear any stale QR-only files before importing linked credentials
-        for (const oldF of fs.readdirSync(targetDir)) {
-            try { fs.unlinkSync(path.join(targetDir, oldF)); } catch (_) {}
+        if (mode === 'start' || mode === 'single') {
+            await client._destroySocket();
+            client._setState('IDLE');
+            // Clear any stale QR-only files before importing linked credentials
+            for (const oldF of fs.readdirSync(targetDir)) {
+                try { fs.unlinkSync(path.join(targetDir, oldF)); } catch (_) {}
+            }
         }
         let writtenCount = 0;
-        for (const [fname, b64] of Object.entries(filesMap)) {
-            const cleanName = path.basename(String(fname));
-            if (!cleanName || cleanName === '.' || cleanName === '..') continue;
-            const buf = Buffer.from(String(b64), 'base64');
-            fs.writeFileSync(path.join(targetDir, cleanName), buf);
-            writtenCount++;
+        if (filesMap && typeof filesMap === 'object') {
+            for (const [fname, b64] of Object.entries(filesMap)) {
+                const cleanName = path.basename(String(fname));
+                if (!cleanName || cleanName === '.' || cleanName === '..') continue;
+                const buf = Buffer.from(String(b64), 'base64');
+                fs.writeFileSync(path.join(targetDir, cleanName), buf);
+                writtenCount++;
+            }
         }
-        client._loadLidMapFromDisk();
-        client.reconnectAttempts = 0;
-        client.init().catch(e => logErr(sessionUserId, 'import-session init error:', e.message));
-        res.json({ success: true, sessionUserId, writtenFiles: writtenCount });
+        if (mode === 'finish' || mode === 'single') {
+            client._loadLidMapFromDisk();
+            client.reconnectAttempts = 0;
+            client.lastInitTime = 0;
+            client._isInitializing = false;
+            client.init().catch(e => logErr(sessionUserId, 'import-session init error:', e.message));
+        }
+        res.json({ success: true, sessionUserId, mode, writtenFiles: writtenCount });
     } catch (e) {
         logErr(sessionUserId, 'import-session error:', e.message);
         res.status(500).json({ success: false, error: e.message });
@@ -3019,29 +3030,34 @@ const server = app.listen(PORT, () => {
         } catch (_) {}
     }, 1500);
 
-    // Auto-discover and connect any saved WhatsApp sessions on disk
-    let discoveredSessions = 0;
-    try {
-        const authDirs = fs.readdirSync(AUTH_BASE_DIR);
-        for (const dir of authDirs) {
-            if (dir.startsWith('baileys_auth_')) {
-                const credsFile = path.join(AUTH_BASE_DIR, dir, 'creds.json');
-                if (fs.existsSync(credsFile)) {
-                    const uid = dir.replace('baileys_auth_', '');
-                    discoveredSessions++;
-                    log('STARTUP', `Discovered existing saved WhatsApp session: ${uid}`);
-                    manager.initClient(uid).catch(e => logErr(uid, 'startup auto-init failed:', e.message));
+    // Auto-discover and connect any saved WhatsApp sessions on disk (Cloud 24/7 Server only, unless FORCE_LOCAL_WA=1 on Windows)
+    const allowStartupConnect = (process.platform !== 'win32') || (process.env.FORCE_LOCAL_WA === '1');
+    if (!allowStartupConnect) {
+        log('STARTUP', '☁️ Running on Windows local laptop — skipping local Baileys auto-connect so 24/7 Cloud Hub (c.elsajana.com) retains exclusive connection.');
+    } else {
+        let discoveredSessions = 0;
+        try {
+            const authDirs = fs.readdirSync(AUTH_BASE_DIR);
+            for (const dir of authDirs) {
+                if (dir.startsWith('baileys_auth_')) {
+                    const credsFile = path.join(AUTH_BASE_DIR, dir, 'creds.json');
+                    if (fs.existsSync(credsFile)) {
+                        const uid = dir.replace('baileys_auth_', '');
+                        discoveredSessions++;
+                        log('STARTUP', `Discovered existing saved WhatsApp session: ${uid}`);
+                        manager.initClient(uid).catch(e => logErr(uid, 'startup auto-init failed:', e.message));
+                    }
                 }
             }
+        } catch (e) {
+            logErr('STARTUP', 'Session discovery failed:', e.message);
         }
-    } catch (e) {
-        logErr('STARTUP', 'Session discovery failed:', e.message);
-    }
 
-    if (discoveredSessions === 0) {
-        manager.initClient('default-saas-admin');
+        if (discoveredSessions === 0) {
+            manager.initClient('default-saas-admin');
+        }
+        healer.start();
     }
-    healer.start();
 });
 
 

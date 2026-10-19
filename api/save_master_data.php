@@ -44,7 +44,8 @@ try {
     if ($tenant_id <= 1) $tenant_id = 12;
 }
 
-$input = json_decode(file_get_contents('php://input'), true);
+$rawBodyMaster = file_get_contents('php://input');
+$input = json_decode($rawBodyMaster, true);
 $type = $input['type'] ?? $input['action'] ?? null;
 if (!$input || !$type) {
     http_response_code(400);
@@ -53,6 +54,36 @@ if (!$input || !$type) {
 }
 
 $data = $input['data'] ?? $input['customer'] ?? null;
+
+$__masterHost = strtolower($_SERVER['HTTP_HOST'] ?? $_SERVER['SERVER_NAME'] ?? '');
+$__isLocalMasterEnv = (strpos($__masterHost, 'elsajana.com') === false) && (strpos($__masterHost, 'localhost') !== false || strpos($__masterHost, '127.0.0.1') !== false || strpos($__masterHost, '192.168.') === 0 || (bool)stristr(PHP_OS, 'WIN'));
+if ($__isLocalMasterEnv && empty($_SERVER['HTTP_X_FORWARDED_FROM_LOCAL']) && !in_array($type, ['check_entity_usage', 'check_item_usage'], true)) {
+    register_shutdown_function(function() use ($rawBodyMaster, $tenant_id) {
+        try {
+            if (function_exists('finishClientResponseEarly')) {
+                finishClientResponseEarly();
+            } elseif (function_exists('fastcgi_finish_request')) {
+                @fastcgi_finish_request();
+            }
+            $ch = curl_init('https://c.elsajana.com/api/save_master_data.php?tenant_id=' . (int)$tenant_id);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_POST, true);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $rawBodyMaster);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, [
+                'Content-Type: application/json',
+                'X-Forwarded-From-Local: 1',
+                'X-Tenant-Id: ' . (int)$tenant_id
+            ]);
+            curl_setopt($ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
+            curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 2);
+            curl_setopt($ch, CURLOPT_TIMEOUT, 5);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+            curl_exec($ch);
+            curl_close($ch);
+        } catch (Throwable $e) {}
+    });
+}
 
 function isDuplicateNameDB($pdo, $tenant_id, $table, $name, $currentId) {
     if (empty(trim($name))) return false;

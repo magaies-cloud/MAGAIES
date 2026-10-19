@@ -197,28 +197,51 @@ function migrateLocalBaileysSessionToCloud($sessionUserId = 'wa_tenant_12') {
     }
     if (empty($filesPayload)) return false;
 
-    $body = json_encode([
-        'sessionUserId' => $safeUid,
-        'files' => $filesPayload
-    ]);
+    // Upload in small chunks (30 files per request, ~120 KB) to stay well below Nginx's 1 MB body limit
+    $chunks = array_chunk($filesPayload, 30, true);
+    $totalChunks = count($chunks);
+    $allOk = true;
 
-    $ch = curl_init('https://c.elsajana.com/api_index.php?r=wa-tenant&endpoint=import-session&local_only=1');
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_POST, true);
-    curl_setopt($ch, CURLOPT_POSTFIELDS, $body);
-    curl_setopt($ch, CURLOPT_HTTPHEADER, [
-        'Content-Type: application/json'
-    ]);
-    curl_setopt($ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
-    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 3);
-    curl_setopt($ch, CURLOPT_TIMEOUT, 12);
-    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
-    $resp = curl_exec($ch);
-    $code = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    curl_close($ch);
+    foreach ($chunks as $idx => $chunkFiles) {
+        if ($totalChunks === 1) {
+            $mode = 'single';
+        } elseif ($idx === 0) {
+            $mode = 'start';
+        } elseif ($idx === $totalChunks - 1) {
+            $mode = 'finish';
+        } else {
+            $mode = 'append';
+        }
 
-    return ($code === 200 && !empty($resp));
+        $body = json_encode([
+            'sessionUserId' => $safeUid,
+            'mode' => $mode,
+            'files' => $chunkFiles
+        ]);
+
+        $ch = curl_init('https://c.elsajana.com/api_index.php?r=wa-tenant&endpoint=import-session&local_only=1');
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $body);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'Content-Type: application/json'
+        ]);
+        curl_setopt($ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 3);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 12);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+        $resp = curl_exec($ch);
+        $code = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+
+        if ($code !== 200 || empty($resp)) {
+            $allOk = false;
+            break;
+        }
+    }
+
+    return $allOk;
 }
 
 function proxyWhatsAppRequestToCloud($endpoint, $queryParams, $method, $rawInput, $input) {
@@ -763,6 +786,10 @@ function isWhatsAppServiceProcessRunning() {
 }
 
 function startWhatsAppServiceIfNeeded() {
+    // Never spawn a competing local Baileys process on the shop laptop — 24/7 Cloud Hub (c.elsajana.com) holds the session!
+    if (function_exists('isLocalLaptopEnvironment') && isLocalLaptopEnvironment() && empty($_GET['force_local_wa'])) {
+        return false;
+    }
     if (isWhatsAppServiceProcessRunning()) {
         return true;
     }
@@ -2071,20 +2098,23 @@ if ($resource === 'sync') {
                                         $seenRecordIds[$strRecordId] = true;
 
                                         // Guard against re-inserting deleted or reassigned WhatsApp inbound receipts & GL entries from stale localStorage
-                                        if ($table === 'receipts' && (($record['source'] ?? '') === 'whatsapp_inbound' || !empty($record['inboundReceiptId']))) {
-                                            if (!isset($activeInboundVouchersMap[$strRecordId])) {
-                                                if (isset($existingMap[$strRecordId])) {
-                                                    $idsToDelete[] = (int)$existingMap[$strRecordId]['id'];
+                                        $isForwardedFromLocal = !empty($_SERVER['HTTP_X_FORWARDED_FROM_LOCAL']);
+                                        if (!$isForwardedFromLocal && !empty($activeInboundVouchersMap)) {
+                                            if ($table === 'receipts' && (($record['source'] ?? '') === 'whatsapp_inbound' || !empty($record['inboundReceiptId']))) {
+                                                if (!isset($activeInboundVouchersMap[$strRecordId])) {
+                                                    if (isset($existingMap[$strRecordId])) {
+                                                        $idsToDelete[] = (int)$existingMap[$strRecordId]['id'];
+                                                    }
+                                                    continue;
                                                 }
-                                                continue;
-                                            }
-                                        } elseif ($table === 'gl_entries' && preg_match('/^GL-(M\d+)-(DR|CR)$/i', $strRecordId, $mGl)) {
-                                            $glVoucherNo = $mGl[1];
-                                            if (!isset($activeInboundVouchersMap[$glVoucherNo])) {
-                                                if (isset($existingMap[$strRecordId])) {
-                                                    $idsToDelete[] = (int)$existingMap[$strRecordId]['id'];
+                                            } elseif ($table === 'gl_entries' && preg_match('/^GL-(M\d+)-(DR|CR)$/i', $strRecordId, $mGl)) {
+                                                $glVoucherNo = $mGl[1];
+                                                if (!isset($activeInboundVouchersMap[$glVoucherNo])) {
+                                                    if (isset($existingMap[$strRecordId])) {
+                                                        $idsToDelete[] = (int)$existingMap[$strRecordId]['id'];
+                                                    }
+                                                    continue;
                                                 }
-                                                continue;
                                             }
                                         }
                                         

@@ -95,6 +95,7 @@ function isLocalInboundLaptopEnv() {
 // Mirror mutating inbound receipt actions (approvals, bank changes, policy settings) from Local Laptop to 24/7 Cloud Server
 if (isLocalInboundLaptopEnv() && ($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST' && empty($_SERVER['HTTP_X_FORWARDED_FROM_LOCAL'])) {
     $__cloudSyncActions = [
+        'upload', 'save_inbound', 'assign_customer_by_code', 'assign_batch_by_code',
         'post_to_accounts', 'reconcile_receipt', 'approve_batch', 'change_target_bank',
         'update_status', 'dismiss', 'delete', 'save_statement_policy',
         'update_customer_statement_settings', 'save_customer_pin', 'assign_customer'
