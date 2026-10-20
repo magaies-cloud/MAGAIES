@@ -2850,6 +2850,7 @@ function loadWhatsAppStatementPolicy($pdo, $tenantId) {
         'defaultReceiptBankId' => '', // Optional default receiving bank ID from `banks`
         'defaultReceiptBankName' => '',
         'voucherCompanyName' => '',
+        'voucherLogoImage' => '',
         'voucherStampText' => 'ختم مصادقة مالية إلكترونية',
         'voucherStampImage' => '',
         'includeInvoiceItems' => true,
@@ -2866,6 +2867,9 @@ function loadWhatsAppStatementPolicy($pdo, $tenantId) {
                 $policy = array_merge($policy, $decoded);
                 if (!empty($policy['voucherStampImage']) && strlen((string)$policy['voucherStampImage']) < 150) {
                     $policy['voucherStampImage'] = '';
+                }
+                if (!empty($policy['voucherLogoImage']) && strlen((string)$policy['voucherLogoImage']) < 100) {
+                    $policy['voucherLogoImage'] = '';
                 }
             }
         }
@@ -4771,11 +4775,15 @@ function buildDetailedAccountStatementForWhatsApp($pdo, $tenantId, $entityType, 
         } catch (Exception $e) {}
     }
     $stampText = trim((string)($pol['voucherStampText'] ?? '')) ?: 'ختم مصادقة مالية إلكترونية';
+    $companyLogo = trim((string)($pol['voucherLogoImage'] ?? ''));
+    if ($companyLogo !== '' && strlen($companyLogo) < 100) {
+        $companyLogo = '';
+    }
     $stampImage = trim((string)($pol['voucherStampImage'] ?? ''));
     if ($stampImage !== '' && strlen($stampImage) < 150) {
         $stampImage = '';
     }
-    if ($stampImage === '') {
+    if ($stampImage === '' || $companyLogo === '') {
         try {
             $stmtSetStamp = $pdo->prepare("SELECT data FROM settings WHERE (tenant_id = ? OR tenant_id IS NULL) ORDER BY id DESC LIMIT 1");
             $stmtSetStamp->execute([$tenantId]);
@@ -4783,9 +4791,17 @@ function buildDetailedAccountStatementForWhatsApp($pdo, $tenantId, $entityType, 
             if ($rawSetStamp) {
                 $setDecStamp = json_decode((string)$rawSetStamp, true);
                 if (is_array($setDecStamp)) {
-                    $candStamp = trim((string)($setDecStamp['voucherStampImage'] ?? $setDecStamp['stampImage'] ?? $setDecStamp['signatureImage'] ?? $setDecStamp['stamp'] ?? $setDecStamp['signature'] ?? ''));
-                    if (strlen($candStamp) >= 150) {
-                        $stampImage = $candStamp;
+                    if ($stampImage === '') {
+                        $candStamp = trim((string)($setDecStamp['voucherStampImage'] ?? $setDecStamp['stampImage'] ?? $setDecStamp['signatureImage'] ?? $setDecStamp['stamp'] ?? $setDecStamp['signature'] ?? ''));
+                        if (strlen($candStamp) >= 150) {
+                            $stampImage = $candStamp;
+                        }
+                    }
+                    if ($companyLogo === '') {
+                        $candLogo = trim((string)($setDecStamp['voucherLogoImage'] ?? $setDecStamp['companyLogo'] ?? $setDecStamp['logo'] ?? ''));
+                        if (strlen($candLogo) >= 100) {
+                            $companyLogo = $candLogo;
+                        }
                     }
                 }
             }
@@ -4815,6 +4831,7 @@ function buildDetailedAccountStatementForWhatsApp($pdo, $tenantId, $entityType, 
         'issue_date' => $issueDate,
         'issue_time' => $issueTime,
         'company_name' => $companyName,
+        'company_logo' => $companyLogo,
         'stamp_text' => $stampText,
         'stamp_image' => $stampImage,
         'entity_type' => $entityType,

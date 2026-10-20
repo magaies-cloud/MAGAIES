@@ -726,8 +726,13 @@ window.InboundBankakManager = {
                         this.policy = res.policy;
                         try {
                             const locPol = JSON.parse(localStorage.getItem('erp_whatsapp_statement_policy_v1') || '{}') || {};
-                            if (locPol.voucherStampImage && String(locPol.voucherStampImage).length >= 150 && (!res.policy.voucherStampImage || String(res.policy.voucherStampImage).length < 150)) {
-                                const mergedSyncPol = Object.assign({}, res.policy, locPol, { voucherStampImage: locPol.voucherStampImage });
+                            const needStampSync = locPol.voucherStampImage && String(locPol.voucherStampImage).length >= 150 && (!res.policy.voucherStampImage || String(res.policy.voucherStampImage).length < 150);
+                            const needLogoSync = locPol.voucherLogoImage && String(locPol.voucherLogoImage).length >= 100 && (!res.policy.voucherLogoImage || String(res.policy.voucherLogoImage).length < 100);
+                            if (needStampSync || needLogoSync) {
+                                const patchObj = {};
+                                if (needStampSync) patchObj.voucherStampImage = locPol.voucherStampImage;
+                                if (needLogoSync) patchObj.voucherLogoImage = locPol.voucherLogoImage;
+                                const mergedSyncPol = Object.assign({}, res.policy, locPol, patchObj);
                                 this.policy = mergedSyncPol;
                                 localStorage.setItem('erp_whatsapp_statement_policy_v1', JSON.stringify(mergedSyncPol));
                                 fetch('api/save_master_data.php?tenant_id=' + encodeURIComponent(tId), {

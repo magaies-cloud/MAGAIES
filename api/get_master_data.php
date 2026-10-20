@@ -216,6 +216,7 @@ try {
         'phoneVerification' => 'phone_or_pin', // 'any_phone_with_code' | 'registered_if_set' | 'strict_registered_only' | 'phone_or_pin' | 'pin_always'
         'statementScope' => 'all', // 'all' | 'last_20' | 'last_50' | 'current_month'
         'voucherCompanyName' => '',
+        'voucherLogoImage' => '',
         'voucherStampText' => 'ختم مصادقة مالية إلكترونية',
         'voucherStampImage' => '',
         'includeInvoiceItems' => true,
@@ -229,6 +230,9 @@ try {
         $mergedPol = is_array($parsedPol) ? array_merge($defaultPolicy, $parsedPol) : $defaultPolicy;
         if (!empty($mergedPol['voucherStampImage']) && strlen((string)$mergedPol['voucherStampImage']) < 150) {
             $mergedPol['voucherStampImage'] = '';
+        }
+        if (!empty($mergedPol['voucherLogoImage']) && strlen((string)$mergedPol['voucherLogoImage']) < 100) {
+            $mergedPol['voucherLogoImage'] = '';
         }
         if (empty($mergedPol['voucherCompanyName'])) {
             try {

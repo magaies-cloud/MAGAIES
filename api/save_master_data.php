@@ -162,7 +162,8 @@ try {
                 } catch (Exception $e) {}
 
                 $forceClearStamp = !empty($data['_forceClearStamp']);
-                unset($data['_forceClearStamp']);
+                $forceClearLogo = !empty($data['_forceClearLogo']);
+                unset($data['_forceClearStamp'], $data['_forceClearLogo']);
 
                 $mergedPol = array_merge($existingPol, $data);
                 if (!$forceClearStamp && empty($data['voucherStampImage']) && !empty($existingPol['voucherStampImage']) && strlen((string)$existingPol['voucherStampImage']) > 150) {
@@ -170,6 +171,12 @@ try {
                 }
                 if (isset($mergedPol['voucherStampImage']) && strlen((string)$mergedPol['voucherStampImage']) < 150) {
                     $mergedPol['voucherStampImage'] = '';
+                }
+                if (!$forceClearLogo && empty($data['voucherLogoImage']) && !empty($existingPol['voucherLogoImage']) && strlen((string)$existingPol['voucherLogoImage']) > 100) {
+                    $mergedPol['voucherLogoImage'] = $existingPol['voucherLogoImage'];
+                }
+                if (isset($mergedPol['voucherLogoImage']) && strlen((string)$mergedPol['voucherLogoImage']) < 100) {
+                    $mergedPol['voucherLogoImage'] = '';
                 }
 
                 $polJson = json_encode($mergedPol, JSON_UNESCAPED_UNICODE);

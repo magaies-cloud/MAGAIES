@@ -939,24 +939,32 @@
                             <div class="pro-guide-item"><strong style="color:#d8b4fe;">🔐 الباسورد السري:</strong> <span>للأرقام غير المسجلة أو للتحويل لحساب آخر (يرسل الباسورد مثل <b style="direction:ltr;display:inline-block;">532</b> أو <b>532 ر</b> أو <b>532 ك</b>)</span></div>
                         </div>
 
-                        <!-- 🏛️ منطقة اسم الشركة وختم المصادقة المالية الإلكترونية للسندات والإشعارات -->
+                        <!-- 🏛️ منطقة اسم المنشأة والشعار والتوقيع / الختم المعتمد للسندات والإشعارات -->
                         <div class="wa-voucher-branding-bar" style="margin-top: 10px; padding: 10px 12px; border-radius: 10px; background: rgba(15, 23, 42, 0.72); border: 1px solid rgba(250, 204, 21, 0.35); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
-                            <div style="display: flex; align-items: center; gap: 8px; flex: 1; min-width: 260px;">
-                                <span style="color: #fde047; font-weight: 900; font-size: 0.82rem; white-space: nowrap;">🏢 اسم الشركة (تحت سند رصيد):</span>
-                                <input type="text" class="wa-policy-company-name" placeholder="مثال: الشركة العالمية للمقاولات" onchange="syncAdminWaPolicyFromUI(this)" style="flex: 1; height: 34px; padding: 0 10px; border-radius: 8px; border: 1px solid rgba(250, 204, 21, 0.45); background: rgba(0, 0, 0, 0.4); color: #ffffff; font-weight: 800; font-size: 0.9rem;">
+                            <div style="display: flex; align-items: center; gap: 8px; flex: 1; min-width: 240px;">
+                                <span style="color: #fde047; font-weight: 900; font-size: 0.82rem; white-space: nowrap;">🏢 اسم المنشأة (تحت سند رصيد):</span>
+                                <input type="text" class="wa-policy-company-name" placeholder="مثال: منظومة السودان بلد الأحرار" onchange="syncAdminWaPolicyFromUI(this)" style="flex: 1; height: 34px; padding: 0 10px; border-radius: 8px; border: 1px solid rgba(250, 204, 21, 0.45); background: rgba(0, 0, 0, 0.4); color: #ffffff; font-weight: 800; font-size: 0.9rem;">
                             </div>
-                            <div style="display: flex; align-items: center; gap: 8px; flex: 1; min-width: 260px;">
-                                <span style="color: #34d399; font-weight: 900; font-size: 0.82rem; white-space: nowrap;">💮 نص الختم المعتمد:</span>
+                            <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+                                <label style="height: 34px; background: rgba(250, 204, 21, 0.18); color: #fde047; border: 1px solid rgba(250, 204, 21, 0.5); padding: 0 10px; border-radius: 8px; font-size: 0.78rem; font-weight: 800; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; margin: 0;">
+                                    <span>🖼️ رفع شعار المنشأة</span>
+                                    <input type="file" accept="image/*" onchange="handleWaVoucherLogoUpload(this)" style="display: none;">
+                                </label>
+                                <img class="wa-policy-logo-preview" src="" alt="الشعار" style="display: none; height: 34px; width: auto; max-width: 55px; object-fit: contain; border-radius: 6px; border: 1px solid rgba(250, 204, 21, 0.5); background: rgba(255,255,255,0.12); padding: 2px;">
+                                <button type="button" class="wa-policy-logo-clear-btn" onclick="clearWaVoucherLogoImage()" style="display: none; height: 34px; background: rgba(239, 68, 68, 0.18); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.45); padding: 0 8px; border-radius: 8px; font-size: 0.76rem; font-weight: 800; cursor: pointer;" title="حذف شعار المنشأة">🗑️</button>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 8px; flex: 1; min-width: 220px;">
+                                <span style="color: #34d399; font-weight: 900; font-size: 0.82rem; white-space: nowrap;">💮 نص التوقيع/الختم:</span>
                                 <input type="text" class="wa-policy-stamp-text" placeholder="ختم مصادقة مالية إلكترونية" onchange="syncAdminWaPolicyFromUI(this)" style="flex: 1; height: 34px; padding: 0 10px; border-radius: 8px; border: 1px solid rgba(52, 211, 153, 0.45); background: rgba(0, 0, 0, 0.4); color: #ffffff; font-weight: 800; font-size: 0.9rem;">
                             </div>
                             <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
                                 <label style="height: 34px; background: rgba(52, 211, 153, 0.18); color: #6ee7b7; border: 1px solid rgba(52, 211, 153, 0.5); padding: 0 10px; border-radius: 8px; font-size: 0.78rem; font-weight: 800; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; margin: 0;">
-                                    <span>📤 رفع صورة الختم</span>
+                                    <span>✍️ رفع التوقيع / الختم</span>
                                     <input type="file" accept="image/*" onchange="handleWaVoucherStampUpload(this)" style="display: none;">
                                 </label>
-                                <img class="wa-policy-stamp-preview" src="" alt="الختم" style="display: none; height: 34px; width: auto; max-width: 70px; object-fit: contain; border-radius: 6px; border: 1px solid rgba(250, 204, 21, 0.5); background: rgba(255,255,255,0.08); padding: 2px;">
-                                <button type="button" class="wa-policy-stamp-clear-btn" onclick="clearWaVoucherStampImage()" style="display: none; height: 34px; background: rgba(239, 68, 68, 0.18); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.45); padding: 0 8px; border-radius: 8px; font-size: 0.76rem; font-weight: 800; cursor: pointer;" title="حذف صورة الختم">🗑️</button>
-                                <button type="button" onclick="syncAdminWaPolicyFromUI(this)" style="height: 34px; background: linear-gradient(135deg, #eab308, #ca8a04); color: #04120e; border: none; padding: 0 14px; border-radius: 8px; font-size: 0.8rem; font-weight: 900; cursor: pointer;">💾 حفظ الاسم والختم</button>
+                                <img class="wa-policy-stamp-preview" src="" alt="التوقيع" style="display: none; height: 34px; width: auto; max-width: 85px; object-fit: contain; border-radius: 6px; border: 1px solid rgba(250, 204, 21, 0.5); background: #ffffff; padding: 2px;">
+                                <button type="button" class="wa-policy-stamp-clear-btn" onclick="clearWaVoucherStampImage()" style="display: none; height: 34px; background: rgba(239, 68, 68, 0.18); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.45); padding: 0 8px; border-radius: 8px; font-size: 0.76rem; font-weight: 800; cursor: pointer;" title="حذف التوقيع / الختم">🗑️</button>
+                                <button type="button" onclick="syncAdminWaPolicyFromUI(this)" style="height: 34px; background: linear-gradient(135deg, #eab308, #ca8a04); color: #04120e; border: none; padding: 0 14px; border-radius: 8px; font-size: 0.8rem; font-weight: 900; cursor: pointer;">💾 حفظ الهوية والشعار والتوقيع</button>
                             </div>
                         </div>
 
@@ -1269,24 +1277,32 @@
                             <div class="pro-guide-item"><strong style="color:#d8b4fe;">🔐 الباسورد السري:</strong> <span>للأرقام غير المسجلة أو للاستعلام لحساب آخر (يرسل الباسورد مثل <b style="direction:ltr;display:inline-block;">532</b> أو <b>532 ر</b> أو <b>532 ك</b>)</span></div>
                         </div>
 
-                        <!-- 🏛️ منطقة اسم الشركة وختم المصادقة المالية الإلكترونية للسندات والإشعارات -->
+                        <!-- 🏛️ منطقة اسم المنشأة والشعار والتوقيع / الختم المعتمد للسندات والإشعارات -->
                         <div class="wa-voucher-branding-bar" style="margin-top: 10px; padding: 10px 12px; border-radius: 10px; background: rgba(15, 23, 42, 0.72); border: 1px solid rgba(250, 204, 21, 0.35); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
-                            <div style="display: flex; align-items: center; gap: 8px; flex: 1; min-width: 260px;">
-                                <span style="color: #fde047; font-weight: 900; font-size: 0.82rem; white-space: nowrap;">🏢 اسم الشركة (تحت سند رصيد):</span>
-                                <input type="text" class="wa-policy-company-name" placeholder="مثال: الشركة العالمية للمقاولات" onchange="syncAdminWaPolicyFromUI(this)" style="flex: 1; height: 34px; padding: 0 10px; border-radius: 8px; border: 1px solid rgba(250, 204, 21, 0.45); background: rgba(0, 0, 0, 0.4); color: #ffffff; font-weight: 800; font-size: 0.9rem;">
+                            <div style="display: flex; align-items: center; gap: 8px; flex: 1; min-width: 240px;">
+                                <span style="color: #fde047; font-weight: 900; font-size: 0.82rem; white-space: nowrap;">🏢 اسم المنشأة (تحت سند رصيد):</span>
+                                <input type="text" class="wa-policy-company-name" placeholder="مثال: منظومة السودان بلد الأحرار" onchange="syncAdminWaPolicyFromUI(this)" style="flex: 1; height: 34px; padding: 0 10px; border-radius: 8px; border: 1px solid rgba(250, 204, 21, 0.45); background: rgba(0, 0, 0, 0.4); color: #ffffff; font-weight: 800; font-size: 0.9rem;">
                             </div>
-                            <div style="display: flex; align-items: center; gap: 8px; flex: 1; min-width: 260px;">
-                                <span style="color: #34d399; font-weight: 900; font-size: 0.82rem; white-space: nowrap;">💮 نص الختم المعتمد:</span>
+                            <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+                                <label style="height: 34px; background: rgba(250, 204, 21, 0.18); color: #fde047; border: 1px solid rgba(250, 204, 21, 0.5); padding: 0 10px; border-radius: 8px; font-size: 0.78rem; font-weight: 800; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; margin: 0;">
+                                    <span>🖼️ رفع شعار المنشأة</span>
+                                    <input type="file" accept="image/*" onchange="handleWaVoucherLogoUpload(this)" style="display: none;">
+                                </label>
+                                <img class="wa-policy-logo-preview" src="" alt="الشعار" style="display: none; height: 34px; width: auto; max-width: 55px; object-fit: contain; border-radius: 6px; border: 1px solid rgba(250, 204, 21, 0.5); background: rgba(255,255,255,0.12); padding: 2px;">
+                                <button type="button" class="wa-policy-logo-clear-btn" onclick="clearWaVoucherLogoImage()" style="display: none; height: 34px; background: rgba(239, 68, 68, 0.18); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.45); padding: 0 8px; border-radius: 8px; font-size: 0.76rem; font-weight: 800; cursor: pointer;" title="حذف شعار المنشأة">🗑️</button>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 8px; flex: 1; min-width: 220px;">
+                                <span style="color: #34d399; font-weight: 900; font-size: 0.82rem; white-space: nowrap;">💮 نص التوقيع/الختم:</span>
                                 <input type="text" class="wa-policy-stamp-text" placeholder="ختم مصادقة مالية إلكترونية" onchange="syncAdminWaPolicyFromUI(this)" style="flex: 1; height: 34px; padding: 0 10px; border-radius: 8px; border: 1px solid rgba(52, 211, 153, 0.45); background: rgba(0, 0, 0, 0.4); color: #ffffff; font-weight: 800; font-size: 0.9rem;">
                             </div>
                             <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
                                 <label style="height: 34px; background: rgba(52, 211, 153, 0.18); color: #6ee7b7; border: 1px solid rgba(52, 211, 153, 0.5); padding: 0 10px; border-radius: 8px; font-size: 0.78rem; font-weight: 800; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; margin: 0;">
-                                    <span>📤 رفع صورة الختم</span>
+                                    <span>✍️ رفع التوقيع / الختم</span>
                                     <input type="file" accept="image/*" onchange="handleWaVoucherStampUpload(this)" style="display: none;">
                                 </label>
-                                <img class="wa-policy-stamp-preview" src="" alt="الختم" style="display: none; height: 34px; width: auto; max-width: 70px; object-fit: contain; border-radius: 6px; border: 1px solid rgba(250, 204, 21, 0.5); background: rgba(255,255,255,0.08); padding: 2px;">
-                                <button type="button" class="wa-policy-stamp-clear-btn" onclick="clearWaVoucherStampImage()" style="display: none; height: 34px; background: rgba(239, 68, 68, 0.18); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.45); padding: 0 8px; border-radius: 8px; font-size: 0.76rem; font-weight: 800; cursor: pointer;" title="حذف صورة الختم">🗑️</button>
-                                <button type="button" onclick="syncAdminWaPolicyFromUI(this)" style="height: 34px; background: linear-gradient(135deg, #eab308, #ca8a04); color: #04120e; border: none; padding: 0 14px; border-radius: 8px; font-size: 0.8rem; font-weight: 900; cursor: pointer;">💾 حفظ الاسم والختم</button>
+                                <img class="wa-policy-stamp-preview" src="" alt="التوقيع" style="display: none; height: 34px; width: auto; max-width: 85px; object-fit: contain; border-radius: 6px; border: 1px solid rgba(250, 204, 21, 0.5); background: #ffffff; padding: 2px;">
+                                <button type="button" class="wa-policy-stamp-clear-btn" onclick="clearWaVoucherStampImage()" style="display: none; height: 34px; background: rgba(239, 68, 68, 0.18); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.45); padding: 0 8px; border-radius: 8px; font-size: 0.76rem; font-weight: 800; cursor: pointer;" title="حذف التوقيع / الختم">🗑️</button>
+                                <button type="button" onclick="syncAdminWaPolicyFromUI(this)" style="height: 34px; background: linear-gradient(135deg, #eab308, #ca8a04); color: #04120e; border: none; padding: 0 14px; border-radius: 8px; font-size: 0.8rem; font-weight: 900; cursor: pointer;">💾 حفظ الهوية والشعار والتوقيع</button>
                             </div>
                         </div>
 
@@ -2134,6 +2150,9 @@
                         if (srvPol.voucherStampImage && String(srvPol.voucherStampImage).length < 150) {
                             srvPol.voucherStampImage = '';
                         }
+                        if (srvPol.voucherLogoImage && String(srvPol.voucherLogoImage).length < 100) {
+                            srvPol.voucherLogoImage = '';
+                        }
                         let localPol = {};
                         try {
                             localPol = JSON.parse(localStorage.getItem('erp_whatsapp_statement_policy_v1') || '{}') || {};
@@ -2142,6 +2161,10 @@
                         const mergedPol = Object.assign({}, localPol, srvPol);
                         if ((!srvPol.voucherStampImage || String(srvPol.voucherStampImage).length < 150) && localPol.voucherStampImage && String(localPol.voucherStampImage).length >= 150) {
                             mergedPol.voucherStampImage = localPol.voucherStampImage;
+                            needsResync = true;
+                        }
+                        if ((!srvPol.voucherLogoImage || String(srvPol.voucherLogoImage).length < 100) && localPol.voucherLogoImage && String(localPol.voucherLogoImage).length >= 100) {
+                            mergedPol.voucherLogoImage = localPol.voucherLogoImage;
                             needsResync = true;
                         }
                         if (!srvPol.voucherCompanyName && localPol.voucherCompanyName) {
@@ -2449,6 +2472,7 @@
                 defaultReceiptBankId: '',
                 defaultReceiptBankName: '',
                 voucherCompanyName: fallbackCompany,
+                voucherLogoImage: '',
                 voucherStampText: 'ختم مصادقة مالية إلكترونية',
                 voucherStampImage: '',
                 phoneVerification: 'phone_or_pin',
@@ -2680,6 +2704,18 @@
             document.querySelectorAll('.wa-policy-receipt-approval-mode').forEach(el => { el.value = policy.receiptApprovalMode || 'per_account'; });
             document.querySelectorAll('.wa-policy-default-bank-id').forEach(el => { el.value = policy.defaultReceiptBankId || ''; });
             document.querySelectorAll('.wa-policy-company-name').forEach(el => { el.value = policy.voucherCompanyName || ''; });
+            document.querySelectorAll('.wa-policy-logo-preview').forEach(img => {
+                if (policy.voucherLogoImage) {
+                    img.src = policy.voucherLogoImage;
+                    img.style.display = 'inline-block';
+                } else {
+                    img.src = '';
+                    img.style.display = 'none';
+                }
+            });
+            document.querySelectorAll('.wa-policy-logo-clear-btn').forEach(btn => {
+                btn.style.display = policy.voucherLogoImage ? 'inline-block' : 'none';
+            });
             document.querySelectorAll('.wa-policy-stamp-text').forEach(el => { el.value = policy.voucherStampText || 'ختم مصادقة مالية إلكترونية'; });
             document.querySelectorAll('.wa-policy-stamp-preview').forEach(img => {
                 if (policy.voucherStampImage) {
@@ -2736,6 +2772,16 @@
             const compInput = rootPanel.querySelector('.wa-policy-company-name') || document.querySelector('.wa-policy-company-name');
             const stampTextInput = rootPanel.querySelector('.wa-policy-stamp-text') || document.querySelector('.wa-policy-stamp-text');
 
+            let domLogoImg = curPolicy.voucherLogoImage || '';
+            if (!domLogoImg || String(domLogoImg).length < 100) {
+                document.querySelectorAll('.wa-policy-logo-preview').forEach(imgEl => {
+                    const attrSrc = imgEl.getAttribute('src') || '';
+                    if (attrSrc.startsWith('data:image/') && attrSrc.length >= 100) {
+                        domLogoImg = attrSrc;
+                    }
+                });
+            }
+
             let domStampImg = curPolicy.voucherStampImage || '';
             if (!domStampImg || String(domStampImg).length < 150) {
                 document.querySelectorAll('.wa-policy-stamp-preview').forEach(imgEl => {
@@ -2752,6 +2798,7 @@
                 defaultReceiptBankId: selectedBankId,
                 defaultReceiptBankName: foundBank ? foundBank.name : '',
                 voucherCompanyName: compInput ? compInput.value.trim() : (curPolicy.voucherCompanyName || ''),
+                voucherLogoImage: domLogoImg,
                 voucherStampText: (stampTextInput ? stampTextInput.value.trim() : '') || 'ختم مصادقة مالية إلكترونية',
                 voucherStampImage: domStampImg,
                 phoneVerification: drawerPanel.querySelector('.wa-policy-phone-verification')?.value || curPolicy.phoneVerification || 'phone_or_pin',
@@ -2763,6 +2810,7 @@
 
             const syncPayload = Object.assign({}, policy);
             delete policy._forceClearStamp;
+            delete policy._forceClearLogo;
             localStorage.setItem('erp_whatsapp_statement_policy_v1', JSON.stringify(policy));
             renderAdminWaPolicyUI();
             if (typeof syncToBackend === 'function') {
@@ -2771,11 +2819,11 @@
             renderCustomers(document.getElementById('customer-search-input')?.value || '');
             renderSuppliers(document.getElementById('supplier-search-input')?.value || '');
             if (typeof showToast === 'function') {
-                showToast('🏛️ تم حفظ اسم الشركة والختم وإعدادات سندات الواتساب بنجاح', 'success');
+                showToast('🏛️ تم حفظ اسم المنشأة والشعار والتوقيع وإعدادات السندات بنجاح', 'success');
             }
         }
 
-        function handleWaVoucherStampUpload(inputEl) {
+        function handleWaVoucherLogoUpload(inputEl) {
             if (!isSystemAdminForStatementControl(true)) return;
             const file = inputEl && inputEl.files && inputEl.files[0];
             if (!file) return;
@@ -2783,9 +2831,9 @@
             reader.onload = function(evt) {
                 const img = new Image();
                 img.onload = function() {
-                    const maxDim = 360;
-                    let w = img.width || 240;
-                    let h = img.height || 240;
+                    const maxDim = 320;
+                    let w = img.width || 200;
+                    let h = img.height || 200;
                     if (w > maxDim || h > maxDim) {
                         if (w > h) {
                             h = Math.round((h * maxDim) / w);
@@ -2802,6 +2850,97 @@
                     ctx.clearRect(0, 0, w, h);
                     ctx.drawImage(img, 0, 0, w, h);
                     const dataUrl = canvas.toDataURL('image/png');
+                    document.querySelectorAll('.wa-policy-logo-preview').forEach(pImg => {
+                        pImg.src = dataUrl;
+                        pImg.style.display = 'inline-block';
+                    });
+                    syncAdminWaPolicyFromUI(inputEl, { voucherLogoImage: dataUrl });
+                };
+                img.src = evt.target.result;
+            };
+            reader.readAsDataURL(file);
+            inputEl.value = '';
+        }
+
+        function clearWaVoucherLogoImage() {
+            if (!isSystemAdminForStatementControl(true)) return;
+            document.querySelectorAll('.wa-policy-logo-preview').forEach(pImg => {
+                pImg.setAttribute('src', '');
+                pImg.style.display = 'none';
+            });
+            syncAdminWaPolicyFromUI(null, { voucherLogoImage: '', _forceClearLogo: true });
+        }
+
+        function handleWaVoucherStampUpload(inputEl) {
+            if (!isSystemAdminForStatementControl(true)) return;
+            const file = inputEl && inputEl.files && inputEl.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+                const img = new Image();
+                img.onload = function() {
+                    const maxDim = 750;
+                    let w = img.width || 400;
+                    let h = img.height || 250;
+                    if (w > maxDim || h > maxDim) {
+                        if (w > h) {
+                            h = Math.round((h * maxDim) / w);
+                            w = maxDim;
+                        } else {
+                            w = Math.round((w * maxDim) / h);
+                            h = maxDim;
+                        }
+                    }
+                    const canvas = document.createElement('canvas');
+                    canvas.width = w;
+                    canvas.height = h;
+                    const ctx = canvas.getContext('2d');
+                    ctx.clearRect(0, 0, w, h);
+                    ctx.drawImage(img, 0, 0, w, h);
+
+                    // Strip white/near-white paper background so only the transparent writing remains, then auto-crop transparent margins
+                    let finalCanvas = canvas;
+                    try {
+                        const imgData = ctx.getImageData(0, 0, w, h);
+                        const d = imgData.data;
+                        for (let i = 0; i < d.length; i += 4) {
+                            const r = d[i], g = d[i + 1], b = d[i + 2], a = d[i + 3];
+                            if (a > 0 && r > 228 && g > 228 && b > 228) {
+                                d[i + 3] = 0;
+                            } else if (a > 15 && r > 205 && g > 205 && b > 205) {
+                                const maxCh = Math.max(r, g, b);
+                                d[i + 3] = Math.round(a * Math.max(0, (240 - maxCh) / 35));
+                            }
+                        }
+                        ctx.putImageData(imgData, 0, 0);
+
+                        let minX = w, minY = h, maxX = -1, maxY = -1;
+                        for (let y = 0; y < h; y++) {
+                            for (let x = 0; x < w; x++) {
+                                const alpha = d[(y * w + x) * 4 + 3];
+                                if (alpha > 20) {
+                                    if (x < minX) minX = x;
+                                    if (x > maxX) maxX = x;
+                                    if (y < minY) minY = y;
+                                    if (y > maxY) maxY = y;
+                                }
+                            }
+                        }
+                        if (maxX >= minX && maxY >= minY) {
+                            const pad = 6;
+                            const cx = Math.max(0, minX - pad);
+                            const cy = Math.max(0, minY - pad);
+                            const cw = Math.min(w - cx, (maxX - minX + 1) + pad * 2);
+                            const ch = Math.min(h - cy, (maxY - minY + 1) + pad * 2);
+                            const cropCanvas = document.createElement('canvas');
+                            cropCanvas.width = cw;
+                            cropCanvas.height = ch;
+                            cropCanvas.getContext('2d').drawImage(canvas, cx, cy, cw, ch, 0, 0, cw, ch);
+                            finalCanvas = cropCanvas;
+                        }
+                    } catch (e) {}
+
+                    const dataUrl = finalCanvas.toDataURL('image/png');
                     document.querySelectorAll('.wa-policy-stamp-preview').forEach(pImg => {
                         pImg.src = dataUrl;
                         pImg.style.display = 'inline-block';

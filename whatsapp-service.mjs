@@ -1629,12 +1629,28 @@ class WhatsAppClient {
         const issueTime = v.issue_time || dtParts[1] || rawDateTime;
 
         const companyName = String(v.company_name || '').trim();
+        const rawCompanyLogo = String(v.company_logo || '').trim();
+        const companyLogo = rawCompanyLogo.length >= 100 ? rawCompanyLogo : '';
         const stampText = String(v.stamp_text || '').trim() || 'ختم مصادقة مالية إلكترونية';
         const rawStampImage = String(v.stamp_image || '').trim();
         const stampImage = rawStampImage.length >= 150 ? rawStampImage : '';
         const localUnitFull = String(v.currency_full_ar || '').trim() || 'جنيه سوداني';
         const tafqeetLocal = String(v.tafqeet_ar || '').trim() || `فقط صفر ${localUnitFull}`;
         const tafqeetUsd = String(v.tafqeet_usd_ar || '').trim() || 'فقط صفر دولار أمريكي';
+
+        const companyLogoHtml = companyLogo
+            ? `<img src="${companyLogo}" alt="Company Logo" class="company-logo-img" />`
+            : `<svg viewBox="0 0 100 100" width="74" height="74" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                  <linearGradient id="compGold" x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0%" stop-color="#fef08a"/>
+                    <stop offset="50%" stop-color="#facc15"/>
+                    <stop offset="100%" stop-color="#ca8a04"/>
+                  </linearGradient>
+                </defs>
+                <circle cx="50" cy="50" r="42" fill="rgba(250,204,21,0.12)" stroke="url(#compGold)" stroke-width="3.5"/>
+                <path d="M26 70 L74 70 M32 70 L32 42 L50 28 L68 42 L68 70 M43 70 L43 52 L57 52 L57 70" stroke="url(#compGold)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+              </svg>`;
 
         // Increased font sizing (+2 steps) for Sudanese Pound & US Dollar values
         const localAmtLen = String(netLocalFmt || '').length;
@@ -1753,30 +1769,73 @@ class WhatsAppClient {
     direction: ltr;
   }
 
-  /* لوحة سند رصيد وتحتها اسم الشركة مباشرة */
+  /* لوحة سند رصيد وتحتها شريط شعار واسم المنشأة بنفس فخامة ترويسة المنظومة */
   .title-plaque {
     margin-top: 12px;
-    background: linear-gradient(135deg, rgba(212, 175, 55, 0.36) 0%, rgba(9, 42, 34, 0.97) 50%, rgba(212, 175, 55, 0.36) 100%);
+    background: linear-gradient(135deg, rgba(212, 175, 55, 0.34) 0%, rgba(9, 42, 34, 0.97) 50%, rgba(212, 175, 55, 0.34) 100%);
     border: 3px solid #facc15;
-    border-radius: 18px;
-    padding: 13px 18px 15px;
+    border-radius: 20px;
+    padding: 10px 18px 14px;
     text-align: center;
     box-shadow: 0 10px 26px rgba(0,0,0,0.6), inset 0 0 24px rgba(250,204,21,0.22);
   }
   .voucher-main-title {
-    font-size: 66px;
+    font-size: 50px;
     font-weight: 900;
     color: #ffffff;
     text-shadow: 0 4px 18px rgba(250,204,21,0.65);
-    line-height: 1.1;
+    line-height: 1.08;
+    letter-spacing: 0.5px;
+  }
+  .company-brand-row {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 2px dashed rgba(250, 204, 21, 0.55);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+  .company-logo-right {
+    width: 96px;
+    height: 96px;
+    flex-shrink: 0;
+    border-radius: 20px;
+    border: 2.5px solid rgba(250, 204, 21, 0.9);
+    background: radial-gradient(circle, rgba(255,255,255,0.18) 0%, rgba(6,22,34,0.96) 82%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 20px rgba(250, 204, 21, 0.28), inset 0 0 12px rgba(250, 204, 21, 0.2);
+    padding: 6px;
+    overflow: hidden;
+  }
+  .company-logo-img {
+    width: 82px;
+    height: 82px;
+    object-fit: contain;
+    filter: drop-shadow(0 4px 10px rgba(0,0,0,0.55));
+  }
+  .company-name-center {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    overflow: hidden;
+    padding: 2px 6px;
   }
   .voucher-company-name {
-    margin-top: 6px;
-    font-size: 38px;
+    font-family: 'Amiri', 'Traditional Arabic', 'Sakkal Majalla', 'Simplified Arabic', 'Dubai', 'Segoe UI', 'Tahoma', sans-serif;
+    font-size: 76px;
     font-weight: 900;
     color: #fde047;
-    text-shadow: 0 2px 10px rgba(0,0,0,0.85);
-    line-height: 1.2;
+    text-shadow: 0 4px 18px rgba(250, 204, 21, 0.58), 0 2px 8px rgba(0, 0, 0, 0.92);
+    line-height: 1.15;
+    white-space: nowrap;
+    display: inline-block;
+    transform-origin: center center;
   }
 
   /* 2. شريط اسم العميل كاملاً (يصغر تلقائياً إذا كان طويلاً) وأمامه شارة صغيرة (دائن له بالأخضر / مدين عليه بالأحمر) */
@@ -2034,14 +2093,14 @@ class WhatsAppClient {
   .meta-value.emerald { color: #6ee7b7; font-size: 36px; }
   .meta-value.rose { color: #fda4af; font-size: 34px; letter-spacing: 0.5px; }
 
-  /* 6. ختم مصادقة مالية إلكترونية أسفل السند */
+  /* 6. منطقة التوقيع والختم المعتمد أسفل السند */
   .voucher-footer {
     border-top: 2px solid rgba(229, 193, 88, 0.45);
-    padding-top: 14px;
+    padding-top: 20px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 16px;
+    gap: 18px;
     padding-left: 6px;
     padding-right: 6px;
   }
@@ -2055,6 +2114,33 @@ class WhatsAppClient {
     padding: 10px 26px;
     text-align: right;
     white-space: nowrap;
+  }
+  .seal-badge.seal-signature-full {
+    flex: 1;
+    min-height: 152px;
+    background: #ffffff;
+    border: 3.5px solid #facc15;
+    border-radius: 22px;
+    padding: 14px 24px 10px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 10px 26px rgba(0, 0, 0, 0.55);
+  }
+  .seal-floating-label {
+    position: absolute;
+    top: -16px;
+    right: 24px;
+    background: linear-gradient(135deg, #092c23 0%, #051824 100%);
+    border: 2px solid #facc15;
+    border-radius: 999px;
+    padding: 2px 16px;
+    font-size: 19px;
+    font-weight: 900;
+    color: #fde047;
+    white-space: nowrap;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
   }
   .seal-icon {
     width: 54px;
@@ -2071,17 +2157,16 @@ class WhatsAppClient {
     flex-shrink: 0;
   }
   .seal-custom-img {
-    height: 84px;
-    width: auto;
-    min-width: 84px;
-    max-width: 195px;
+    width: 100%;
+    height: 126px;
+    max-width: 100%;
     object-fit: contain;
-    border-radius: 12px;
-    background: rgba(255, 255, 255, 0.96);
-    padding: 5px 10px;
-    border: 2.5px solid #facc15;
-    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45);
-    flex-shrink: 0;
+    background: transparent !important;
+    border: none !important;
+    border-radius: 0 !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+    display: block;
   }
   .seal-text-main {
     font-size: 29px;
@@ -2147,10 +2232,18 @@ class WhatsAppClient {
             </div>
           </div>
 
-          <!-- تحتها مباشرة: سند رصيد + اسم الشركة -->
+          <!-- تحتها مباشرة: سند رصيد + شعار واسم المنشأة بملء المساحة -->
           <div class="title-plaque">
             <div class="voucher-main-title">سند رصيد</div>
-            ${companyName ? `<div class="voucher-company-name">${esc(companyName)}</div>` : ''}
+            ${(companyName || companyLogo) ? `
+            <div class="company-brand-row">
+              <div class="company-logo-right">
+                ${companyLogoHtml}
+              </div>
+              <div class="company-name-center">
+                <div class="voucher-company-name">${esc(companyName || 'منظومة السودان بلد الأحرار')}</div>
+              </div>
+            </div>` : ''}
           </div>
         </div>
 
@@ -2243,15 +2336,20 @@ class WhatsAppClient {
           </div>
         </div>
 
-        <!-- 6. ختم مصادقة مالية إلكترونية في الأسفل -->
+        <!-- 6. منطقة التوقيع / الختم المعتمد في الأسفل -->
         <div class="voucher-footer">
+          ${stampImage ? `
+          <div class="seal-badge seal-signature-full">
+            <div class="seal-floating-label">${esc(stampText)}${companyName ? ' • ' + esc(companyName) : ''}</div>
+            <img src="${stampImage}" alt="Signature" class="seal-custom-img" />
+          </div>` : `
           <div class="seal-badge">
-            ${stampImage ? `<img src="${stampImage}" alt="Stamp" class="seal-custom-img" />` : `<div class="seal-icon">✔</div>`}
+            <div class="seal-icon">✔</div>
             <div>
               <div class="seal-text-main">${esc(stampText)}</div>
               <div class="seal-text-sub">${companyName ? esc(companyName) : 'CERTIFIED • MAGAIEES ERP'}</div>
             </div>
-          </div>
+          </div>`}
           <div class="barcode-box">
             <div class="barcode-bars">||| |||| || ||| |||| ||| ||</div>
             <div class="barcode-label">${esc(v.voucher_serial)}</div>
@@ -2262,6 +2360,26 @@ class WhatsAppClient {
   </div>
   <script>
     (function() {
+      // 0. Auto-fit Company Name (يكبر ويصغر تلقائياً ليملأ المنطقة المخصصة له بالكامل في المنتصف بجانب الشعار)
+      const compCenter = document.querySelector('.company-name-center');
+      const compNameEl = document.querySelector('.voucher-company-name');
+      if (compCenter && compNameEl) {
+        const targetW = Math.max(200, compCenter.clientWidth - 20);
+        let cSize = 86;
+        compNameEl.style.fontSize = cSize + 'px';
+        while (compNameEl.scrollWidth > targetW && cSize > 22) {
+          cSize -= 1;
+          compNameEl.style.fontSize = cSize + 'px';
+        }
+        const naturalW = compNameEl.scrollWidth;
+        if (naturalW > 0 && naturalW < targetW * 0.95) {
+          const stretchX = Math.min(1.18, (targetW * 0.95) / naturalW);
+          if (stretchX > 1.02) {
+            compNameEl.style.transform = 'scaleX(' + stretchX.toFixed(3) + ')';
+          }
+        }
+      }
+
       // 1. Auto-scale customer name so the full name is always shown on one single line
       const group = document.querySelector('.holder-right-group');
       const nameEl = document.querySelector('.holder-name');
@@ -2319,7 +2437,7 @@ class WhatsAppClient {
         if (!globalThis.__voucherImgCache) {
             globalThis.__voucherImgCache = new Map();
         }
-        const cacheKey = `${v.entity_type || ''}_${v.entity_name || ''}_${v.net_balance_local || 0}_${v.net_balance_usd || 0}_${v.movements_count || 0}_${v.status_type || ''}_${companyName}_${stampText}_${stampImage ? stampImage.length : 0}`;
+        const cacheKey = `${v.entity_type || ''}_${v.entity_name || ''}_${v.net_balance_local || 0}_${v.net_balance_usd || 0}_${v.movements_count || 0}_${v.status_type || ''}_${companyName}_${companyLogo ? companyLogo.length : 0}_${stampText}_${stampImage ? stampImage.length : 0}_v2`;
         const cachedEntry = globalThis.__voucherImgCache.get(cacheKey);
         if (cachedEntry && (Date.now() - cachedEntry.ts <= 10000) && cachedEntry.buf) {
             return cachedEntry.buf;
@@ -2338,10 +2456,63 @@ class WhatsAppClient {
         }
         try {
             await page.setContent(html, { waitUntil: 'domcontentloaded', timeout: 6000 });
-            if (stampImage) {
+            if (stampImage || companyLogo) {
                 await page.evaluate(async () => {
                     const imgs = Array.from(document.querySelectorAll('img'));
                     await Promise.all(imgs.map(img => img.complete ? Promise.resolve() : new Promise(r => { img.onload = r; img.onerror = r; setTimeout(r, 1500); })));
+
+                    // Process signature image so any white paper background is stripped to transparent and empty margins are trimmed
+                    const sigImg = document.querySelector('.seal-custom-img');
+                    if (sigImg && sigImg.naturalWidth > 0 && sigImg.naturalHeight > 0) {
+                        try {
+                            const w = sigImg.naturalWidth;
+                            const h = sigImg.naturalHeight;
+                            const c = document.createElement('canvas');
+                            c.width = w;
+                            c.height = h;
+                            const ctx = c.getContext('2d');
+                            ctx.drawImage(sigImg, 0, 0, w, h);
+                            const imgData = ctx.getImageData(0, 0, w, h);
+                            const d = imgData.data;
+
+                            for (let i = 0; i < d.length; i += 4) {
+                                const r = d[i], g = d[i + 1], b = d[i + 2], a = d[i + 3];
+                                if (a > 0 && r > 228 && g > 228 && b > 228) {
+                                    d[i + 3] = 0;
+                                } else if (a > 15 && r > 205 && g > 205 && b > 205) {
+                                    const maxCh = Math.max(r, g, b);
+                                    d[i + 3] = Math.round(a * Math.max(0, (240 - maxCh) / 35));
+                                }
+                            }
+                            ctx.putImageData(imgData, 0, 0);
+
+                            let minX = w, minY = h, maxX = -1, maxY = -1;
+                            for (let y = 0; y < h; y++) {
+                                for (let x = 0; x < w; x++) {
+                                    const alpha = d[(y * w + x) * 4 + 3];
+                                    if (alpha > 20) {
+                                        if (x < minX) minX = x;
+                                        if (x > maxX) maxX = x;
+                                        if (y < minY) minY = y;
+                                        if (y > maxY) maxY = y;
+                                    }
+                                }
+                            }
+                            if (maxX >= minX && maxY >= minY) {
+                                const pad = 4;
+                                const cx = Math.max(0, minX - pad);
+                                const cy = Math.max(0, minY - pad);
+                                const cw = Math.min(w - cx, (maxX - minX + 1) + pad * 2);
+                                const ch = Math.min(h - cy, (maxY - minY + 1) + pad * 2);
+                                const cropC = document.createElement('canvas');
+                                cropC.width = cw;
+                                cropC.height = ch;
+                                cropC.getContext('2d').drawImage(c, cx, cy, cw, ch, 0, 0, cw, ch);
+                                sigImg.src = cropC.toDataURL('image/png');
+                                if (sigImg.decode) await sigImg.decode().catch(() => {});
+                            }
+                        } catch (_) {}
+                    }
                 });
             }
             const cardEl = await page.$('#voucher-card');
