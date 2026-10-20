@@ -511,9 +511,10 @@ function initPurchaseApp() {
         }
     });
 
-    // Deep Drill-down: Check if URL has ?id= to load specific invoice
+    // Deep Drill-down: Check if URL has ?id= or ?action=
     const urlParams = new URLSearchParams(window.location.search);
     const invoiceId = urlParams.get('id');
+    const actionParam = urlParams.get('action');
     if (invoiceId) {
         // Try direct load by invoice number (or id)
         const loaded = loadInvoiceFromStorage(invoiceId);
@@ -526,6 +527,13 @@ function initPurchaseApp() {
             }
         }
     } else {
+        if (actionParam === 'direct' || actionParam === 'proforma') {
+            if (typeof openPurchaseEditor === 'function') {
+                openPurchaseEditor(actionParam);
+            } else {
+                setSaleType(actionParam);
+            }
+        }
         // Initialize an empty row by default if creating a new invoice
         if (rows.length === 0) {
             addRow(true);
@@ -607,8 +615,8 @@ function initPurchaseApp() {
                 return;
             }
 
-            // 2. Grid Inputs (Item Search -> Qty -> Price -> New Row)
-            if (target.classList.contains('g-input') || target.classList.contains('ctrl-input')) {
+            // 2. Grid Inputs (Item Search -> Unit -> Qty -> Price -> New Row)
+            if (target.classList.contains('g-input') || target.classList.contains('g-select') || target.classList.contains('ctrl-input')) {
                 e.preventDefault(); 
                 
                 if (target.id && target.id.startsWith('item-search-')) {
@@ -689,6 +697,7 @@ function populateDropdowns() {
     
     // Init Multi-Payment System
     initMultiPaymentSystem();
+    if (typeof window.autoFitHeaderFields === 'function') setTimeout(window.autoFitHeaderFields, 40);
 }
 
 function initHeader() {
@@ -704,6 +713,7 @@ function initHeader() {
     const __day = String(__d.getDate()).padStart(2, '0');
     const today = `${__y}-${__m}-${__day}`;
     document.getElementById('hdr-date').value = today;
+    if (typeof window.autoFitHeaderFields === 'function') setTimeout(window.autoFitHeaderFields, 40);
 }
 
 // ════════════════════════════════════════
@@ -728,6 +738,7 @@ function setSaleType(type) {
     const invNo = peekNextInvoiceNumber(type);
     document.getElementById('inv-number').textContent = invNo;
     document.getElementById('hdr-inv-no').value = invNo;
+    if (typeof window.autoFitHeaderFields === 'function') setTimeout(window.autoFitHeaderFields, 30);
 }
 
 // ════════════════════════════════════════
@@ -735,6 +746,7 @@ function setSaleType(type) {
 // ════════════════════════════════════════
 function onCustomerChange() {
     updateLedgerButton();
+    if (typeof window.autoFitHeaderFields === 'function') window.autoFitHeaderFields();
     const idEl = document.getElementById('hdr-customer');
     if (!idEl) return;
     const id = idEl.value;
@@ -748,19 +760,13 @@ function onCustomerChange() {
         if(finCard) {
             finCard.style.flex = "0";
             finCard.style.opacity = "0";
-            setTimeout(() => { if(finCard && finCard.style.opacity === "0") finCard.style.display = 'none'; }, 400);
+            setTimeout(() => {
+                if(finCard && finCard.style.opacity === "0") finCard.style.display = 'none';
+                if (typeof window.autoFitHeaderFields === 'function') window.autoFitHeaderFields();
+            }, 350);
         }
         
-        // Restore fonts
-        const invLbl = document.getElementById('hdr-inv-label');
-        const invVal = document.getElementById('inv-number');
-        const dateLbl = document.getElementById('hdr-date-label');
-        const dateVal = document.getElementById('hdr-date');
-        if(invLbl) invLbl.style.fontSize = "0.9rem";
-        if(invVal) invVal.style.fontSize = "0.9rem";
-        if(dateLbl) dateLbl.style.fontSize = "0.9rem";
-        if(dateVal) dateVal.style.fontSize = "0.95rem";
-        if (typeof window.autoFitVoucherNumbers === 'function') window.autoFitVoucherNumbers();
+        if (typeof window.autoFitHeaderFields === 'function') window.autoFitHeaderFields();
         
         ['fin-ledger','fin-checks','fin-total-debt','fin-credit-limit','fin-remaining'].forEach(el => {
             const dom = document.getElementById(el);
@@ -776,23 +782,16 @@ function onCustomerChange() {
     if (invBox && finCard) {
         finCard.style.display = 'flex';
         setTimeout(() => {
-            if (invBox) invBox.style.flex = "0.75";
+            if (invBox) invBox.style.flex = "1.18";
             if (finCard) {
-                finCard.style.flex = "1";
+                finCard.style.flex = "1.02";
                 finCard.style.opacity = "1";
-                finCard.style.paddingLeft = "10px";
+                finCard.style.paddingLeft = "0px";
             }
-            
-            // Shrink fonts + autoFitVoucherNumbers so no digit is ever hidden
-            const invLbl = document.getElementById('hdr-inv-label');
-            const invVal = document.getElementById('inv-number');
-            const dateLbl = document.getElementById('hdr-date-label');
-            const dateVal = document.getElementById('hdr-date');
-            if(invLbl) invLbl.style.fontSize = "0.75rem";
-            if(invVal) invVal.style.fontSize = "0.82rem";
-            if(dateLbl) dateLbl.style.fontSize = "0.75rem";
-            if (typeof window.autoFitVoucherNumbers === 'function') window.autoFitVoucherNumbers();
-            if(dateVal) dateVal.style.fontSize = "0.8rem";
+            if (typeof window.autoFitHeaderFields === 'function') window.autoFitHeaderFields();
+            setTimeout(() => {
+                if (typeof window.autoFitHeaderFields === 'function') window.autoFitHeaderFields();
+            }, 380);
         }, 10);
     }
 
@@ -818,9 +817,9 @@ function onCustomerChange() {
     const statusEl = document.getElementById('fin-status-msg');
     if(statusEl) {
         if (cust.status === 'blacklisted') {
-            statusEl.innerHTML = `<span class="status-dot danger"></span> ⛔ تنبيه حرج: هذا المورد في القائمة السوداء!`;
+            statusEl.innerHTML = `<span class="status-dot danger"></span> ⛔ قائمة سوداء!`;
         } else {
-            statusEl.innerHTML = `<span class="status-dot good"></span> مورد نشط`;
+            statusEl.innerHTML = `<span class="status-dot good"></span> نشط`;
         }
     }
 }
@@ -1605,7 +1604,7 @@ function selectRowItem(rowId, itemId, isMobile = false) {
         if (trIndex !== -1) {
             const tr = document.querySelectorAll('#grid-body tr')[trIndex];
             if (tr) {
-                const qtyInput = tr.querySelector('[data-col-id="col_qty"] input');
+                const qtyInput = tr.querySelector('[data-qty-input]') || tr.querySelector('[data-col-id="quantity"] input');
                 if (qtyInput) {
                     qtyInput.focus();
                     qtyInput.select();
@@ -1684,6 +1683,17 @@ function filterItemDropdown(rowId, isMobile = false) {
     renderItemDropdown(rowId, isMobile, searchEl.value);
     document.getElementById(`${prefix}item-dropdown-list-${rowId}`).classList.add('show');
 }
+
+function handleItemSearchKeydown(event, rowId) {
+    if (event.key === 'Escape') {
+        const listEl = document.getElementById(`item-dropdown-list-${rowId}`);
+        if (listEl) {
+            listEl.classList.remove('show');
+            listEl.style.display = 'none';
+        }
+    }
+}
+window.handleItemSearchKeydown = handleItemSearchKeydown;
 
 // ════════════════════════════════════════
 //  QUICK ITEM ADD LOGIC
@@ -1824,7 +1834,7 @@ function selectQuickItem(itemId) {
     setTimeout(() => {
         const lastTr = document.querySelector('#grid-body tr:last-child');
         if (lastTr) {
-            const qtyInput = lastTr.querySelector('[data-col-id="col_qty"] input');
+            const qtyInput = lastTr.querySelector('[data-qty-input]') || lastTr.querySelector('[data-col-id="quantity"] input');
             if (qtyInput) {
                 qtyInput.focus();
                 qtyInput.select();
@@ -1957,6 +1967,7 @@ function updateRow(id, field, value) {
     // Live update without full re-render (keeps focus)
     updateRowCalcs(id);
     recalcAll();
+    if (typeof window.autoFitGridCells === 'function') window.autoFitGridCells();
 }
 
 // ════════════════════════════════════════
@@ -2032,7 +2043,39 @@ function updateRowCalcs(id) {
 
     if (availEl) {
         availEl.textContent = calcs.availQty === '—' ? '—' : fmtNum(calcs.availQty, 'available');
-        availEl.className = 'g-readonly ' + (calcs.availQty !== '—' && calcs.availQty < row.quantity ? 'warn-val' : 'avail-val');
+        availEl.className = 'g-readonly avail-val';
+    }
+
+    // Smart Tactical Price Variance Indicator (مؤشر الرقابة الذكية على سعر الشراء)
+    const priceHintEl = document.querySelector(`[data-price-hint="${id}"]`);
+    if (priceHintEl) {
+        const refPrice = getLastPurchasePriceForItem(row.itemId, row.selectedUnit);
+        const curPrice = parseNum(row.price);
+        if (row.itemId && refPrice > 0 && curPrice > 0 && getCurrency() === 'SDG') {
+            const diffPct = ((curPrice - refPrice) / refPrice) * 100;
+            priceHintEl.style.display = 'inline-flex';
+            if (diffPct > 1) {
+                priceHintEl.style.setProperty('color', '#fb7185', 'important');
+                priceHintEl.style.setProperty('background', 'rgba(244, 63, 94, 0.22)', 'important');
+                priceHintEl.style.setProperty('border-color', 'rgba(244, 63, 94, 0.55)', 'important');
+                priceHintEl.textContent = `↑ +${Math.round(diffPct)}%`;
+                priceHintEl.title = `تنبيه رقابي: السعر أعلى من السعر المرجعي (${fmtNum(refPrice)}) بنسبة ${diffPct.toFixed(1)}%`;
+            } else if (diffPct < -1) {
+                priceHintEl.style.setProperty('color', '#34d399', 'important');
+                priceHintEl.style.setProperty('background', 'rgba(16, 185, 129, 0.22)', 'important');
+                priceHintEl.style.setProperty('border-color', 'rgba(16, 185, 129, 0.55)', 'important');
+                priceHintEl.textContent = `↓ ${Math.round(diffPct)}%`;
+                priceHintEl.title = `وفرة سعرية: السعر أقل من السعر المرجعي (${fmtNum(refPrice)}) بنسبة ${Math.abs(diffPct).toFixed(1)}%`;
+            } else {
+                priceHintEl.style.setProperty('color', '#38bdf8', 'important');
+                priceHintEl.style.setProperty('background', 'rgba(56, 189, 248, 0.16)', 'important');
+                priceHintEl.style.setProperty('border-color', 'rgba(56, 189, 248, 0.4)', 'important');
+                priceHintEl.textContent = `= مرجعي`;
+                priceHintEl.title = `مطابق للسعر المرجعي للصنف (${fmtNum(refPrice)}) — اضغط لعرض سجل الأسعار`;
+            }
+        } else {
+            priceHintEl.style.display = 'none';
+        }
     }
 
     // Mobile
@@ -2054,6 +2097,25 @@ function getCurrency() {
     return document.getElementById('hdr-currency').value;
 }
 
+function getLastPurchasePriceForItem(itemId, unitName) {
+    if (!itemId) return 0;
+    try {
+        const item = ITEMS.find(i => String(i.id) === String(itemId));
+        if (item) {
+            if (unitName && Array.isArray(item.unitsArray)) {
+                const u = item.unitsArray.find(x => x.name === unitName);
+                if (u && parseFloat(u.buyPrice || u.costPrice || u.price) > 0) {
+                    return parseFloat(u.buyPrice || u.costPrice || u.price);
+                }
+            }
+            if (parseFloat(item.costPrice || item.buyPrice || item.price) > 0) {
+                return parseFloat(item.costPrice || item.buyPrice || item.price);
+            }
+        }
+    } catch (e) {}
+    return 0;
+}
+
 // ════════════════════════════════════════
 //  ADVANCED COLUMN SETTINGS
 // ════════════════════════════════════════
@@ -2072,20 +2134,29 @@ function renderGridHead() {
     if (!thead) return;
     
     const isBaseSDG = (getCurrency() === 'SDG');
-    const priceHeader = isBaseSDG ? 'السعر' : 'السعر (دولار)';
-    const totalHeader = isBaseSDG ? 'الجملة' : 'الجملة (دولار)';
+    const getColName = (id, fallback) => {
+        if (window.CurrentGridConfig && Array.isArray(window.CurrentGridConfig.columns)) {
+            const c = window.CurrentGridConfig.columns.find(col => String(col.id) === String(id));
+            if (c && c.name) return c.name;
+        }
+        return fallback;
+    };
+    const basePriceName = getColName('price', 'السعر');
+    const baseTotalName = getColName('total', 'الجملة');
+    const priceHeader = isBaseSDG ? basePriceName : `${basePriceName} (دولار)`;
+    const totalHeader = isBaseSDG ? baseTotalName : `${baseTotalName} (دولار)`;
 
     thead.innerHTML = `
         <tr>
-            <th data-col-id="col_index" style="width: 45px; text-align: center; font-size: 1.1rem; font-weight: bold;">#</th>
-            <th data-col-id="available" style="width: 110px; text-align: center; font-size: 1.25rem; font-weight: bold;" title="الكمية المتوفرة بالمخزن تلقائياً">المتاح</th>
-            <th data-col-id="item" style="width: auto; min-width: 250px; text-align: right; font-size: 1.25rem; font-weight: bold;">الصنف</th>
-            <th data-col-id="unit" style="width: 100px; text-align: center; font-size: 1.25rem; font-weight: bold;">الوحدة</th>
-            <th data-col-id="quantity" style="width: 100px; text-align: center; font-size: 1.25rem; font-weight: bold;">الكمية</th>
-            <th data-col-id="price" style="width: 130px; text-align: center; font-size: 1.25rem; font-weight: bold;">${priceHeader}</th>
-            <th data-col-id="warehouse" style="width: 130px; text-align: center; font-size: 1.1rem; font-weight: bold;">المخزن</th>
-            <th data-col-id="total" style="width: 240px; min-width: 240px; text-align: center; font-size: 1.25rem; font-weight: bold;">${totalHeader}</th>
-            <th data-col-id="action" style="width: 90px; text-align: center; font-size: 1.05rem;">إجراء</th>
+            <th data-col-id="col_index" style="width: 45px; text-align: center; font-weight: 800;">${getColName('col_index', '#')}</th>
+            <th data-col-id="available" style="width: 110px; text-align: center; font-weight: 800;" title="الكمية المتوفرة بالمخزن تلقائياً">${getColName('available', 'المتاح')}</th>
+            <th data-col-id="item" style="width: auto; min-width: 250px; text-align: right; font-weight: 800;">${getColName('item', 'الصنف')}</th>
+            <th data-col-id="unit" style="width: 100px; text-align: center; font-weight: 800;">${getColName('unit', 'الوحدة')}</th>
+            <th data-col-id="quantity" style="width: 100px; text-align: center; font-weight: 800;">${getColName('quantity', 'الكمية')}</th>
+            <th data-col-id="price" style="width: 130px; text-align: center; font-weight: 800;">${priceHeader}</th>
+            <th data-col-id="warehouse" style="width: 130px; text-align: center; font-weight: 800;">${getColName('warehouse', 'المخزن')}</th>
+            <th data-col-id="total" style="width: 240px; min-width: 240px; text-align: center; font-weight: 800;">${totalHeader}</th>
+            <th data-col-id="action" style="width: 90px; text-align: center; font-weight: 800;">${getColName('action', 'إجراء')}</th>
         </tr>
     `;
     if (typeof applyGridSettings === 'function') {
@@ -2241,7 +2312,7 @@ function renderGrid() {
             <td data-col-id="col_index" style="text-align: center;"><div class="row-num">${idx + 1}</div></td>
             <td data-col-id="available" style="text-align: center;">
                 <span class="g-readonly avail-val" data-avail="${row.id}" style="display: inline-block; width: 100%; text-align: center; background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.2); border-radius: 6px; padding: 5px 2px;" title="الكمية المتوفرة حالياً بالمخزن تلقائياً">
-                    ${row.availableQty !== undefined ? fmtNum(row.availableQty, 'available') : '0'}
+                    ${fmtNum(calcs.availQty, 'available')}
                 </span>
             </td>
             <td data-col-id="item" style="position:relative; text-align: right;">
@@ -2273,14 +2344,15 @@ function renderGrid() {
                     onfocus="this.select()" oninput="updateRow(${row.id},'quantity',this.value)"
                     onblur="this.value=parseNum(this.value)||''" style="text-align: center; width: 95%; margin: 0 auto; display: block;">
             </td>
-            <td data-col-id="price" style="text-align: center;">
+            <td data-col-id="price" style="text-align: center; position: relative;">
                 <input type="text" inputmode="decimal" class="g-input" data-price-input="${row.id}" value="${fmtNum(row.price, 'price')}"
                     onfocus="this.select()" oninput="updateRow(${row.id},'price',this.value)"
                     onblur="this.value=fmtNum(parseNum(this.value), 'price')" 
                     style="text-align: center; width: 100%;">
+                <span class="btn-icon" data-price-hint="${row.id}" onclick="if(typeof showPriceHistory==='function') showPriceHistory(${row.id}, 'purchase')" style="display:none; align-items:center; gap:2px; position:absolute; top:2px; left:10px; font-size:0.68rem !important; font-weight:800 !important; padding:1px 6px; border-radius:10px; border:1px solid transparent; cursor:pointer; z-index:15; backdrop-filter:blur(6px); direction:ltr; line-height:1.2;"></span>
             </td>
             <td data-col-id="warehouse" style="text-align: center;">
-                <select class="g-select" onchange="updateRow(${row.id},'warehouseId',this.value)" tabindex="-1" style="text-align: center; width: 100%;">
+                <select class="g-select" onchange="updateRow(${row.id},'warehouseId',this.value); if(window.autoFitGridCells) window.autoFitGridCells();" tabindex="-1" style="text-align: center; width: 100%;">
                     <option value="">نفس الفاتورة ↩</option>
                     ${WAREHOUSES.map(w => `<option value="${w.id}" ${w.id === row.warehouseId ? 'selected' : ''}>${w.name}</option>`).join('')}
                 </select>
@@ -2289,12 +2361,12 @@ function renderGrid() {
                 <span class="g-readonly total-val" data-total="${row.id}" style="display: block; text-align: center;">${fmtNum(calcs.total, 'total')}</span>
             </td>
             <td data-col-id="action" style="text-align: center;">
-                <div style="display: flex; gap: 5px; justify-content: center; align-items: center;">
-                    <button type="button" class="add-row-btn" onclick="addRow()" title="إضافة سطر جديد" style="background: linear-gradient(135deg, rgba(16,185,129,0.25), rgba(5,150,105,0.35)); border: 1px solid rgba(16,185,129,0.5); color: #34d399; border-radius: 6px; padding: 6px 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s ease;">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                <div style="display: inline-flex; gap: 6px; justify-content: center; align-items: center;">
+                    <button type="button" class="add-row-btn" onclick="addRow()" title="إضافة سطر جديد" style="width: 32px; height: 32px; background: linear-gradient(135deg, rgba(16,185,129,0.22), rgba(5,150,105,0.38)); border: 1px solid rgba(16,185,129,0.5); color: #34d399; border-radius: 8px; padding: 0; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; transition: all 0.2s ease; box-shadow: 0 2px 6px rgba(16,185,129,0.18);">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
                     </button>
-                    <button class="del-btn" onclick="removeRow(${row.id})" title="حذف السطر" style="display: flex; align-items: center; justify-content: center;">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                    <button type="button" class="del-btn" onclick="removeRow(${row.id})" title="حذف السطر" style="width: 32px; height: 32px; background: linear-gradient(135deg, rgba(239,68,68,0.18), rgba(185,28,28,0.32)); border: 1px solid rgba(239,68,68,0.45); color: #f87171; border-radius: 8px; padding: 0; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; transition: all 0.2s ease; box-shadow: 0 2px 6px rgba(239,68,68,0.15);">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
                     </button>
                 </div>
             </td>
@@ -2389,10 +2461,14 @@ function renderGrid() {
             <div class="m-card-total" data-m-total="${row.id}">${fmtNum(calcs.total)} ${getCurrency()}</div>
         `;
         mCards.appendChild(card);
+        updateRowCalcs(row.id);
     });
 
     if (typeof applyGridSettings === 'function') {
         applyGridSettings();
+    }
+    if (typeof window.autoFitGridCells === 'function') {
+        requestAnimationFrame(() => window.autoFitGridCells());
     }
 }
 
@@ -2581,12 +2657,14 @@ function saveDraft() {
     if (chequeActive) {
         document.querySelectorAll('#cheques-list .payment-row-item').forEach(row => {
             const chequeNo = row.querySelector('.ch-no-input') ? row.querySelector('.ch-no-input').value : '';
-            const bankAccountId = row.querySelector('.ch-bank-select') ? row.querySelector('.ch-bank-select').value : '';
+            const bankSelectEl = row.querySelector('.ch-bank-select');
+            const bankAccountId = bankSelectEl ? bankSelectEl.value : '';
+            const bankName = bankSelectEl && bankSelectEl.selectedIndex >= 0 ? bankSelectEl.options[bankSelectEl.selectedIndex].text : bankAccountId;
             const dueDate = row.querySelector('.ch-date-input') ? row.querySelector('.ch-date-input').value : '';
             const amountEl = row.querySelector('.ch-amount-input');
             const amount = amountEl ? parseNum(amountEl.value) : 0;
             if (amount > 0) {
-                cheques.push({ chequeNo, bankName, dueDate, amount });
+                cheques.push({ chequeNo, bankAccountId, bankName, dueDate, amount });
             }
         });
     }
@@ -5566,7 +5644,7 @@ function applyScannedInvoiceToGrid() {
     const supNameInput = document.getElementById('ocr-supplier-name');
     if (supNameInput && supNameInput.value.trim()) {
         const supName = supNameInput.value.trim();
-        const supInput = document.getElementById('hdr-supplier-input');
+        const supInput = document.getElementById('hdr-customer-search') || document.getElementById('hdr-supplier-input');
         if (supInput) {
             supInput.value = supName;
             if (typeof selectSupplierByName === 'function') {
@@ -5586,7 +5664,8 @@ function applyScannedInvoiceToGrid() {
         const hdrCur = document.getElementById('hdr-currency');
         if (hdrCur && hdrCur.value !== curSelect.value) {
             hdrCur.value = curSelect.value;
-            if (typeof onCurrencyChange === 'function') onCurrencyChange();
+            if (typeof handleCurrencyChange === 'function') handleCurrencyChange(hdrCur.value);
+            else if (typeof onCurrencyChange === 'function') onCurrencyChange();
         }
     }
 

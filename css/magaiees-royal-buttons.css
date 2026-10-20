@@ -338,12 +338,9 @@
     font-weight: 900 !important;
 }
 
-/* 5. PRINT & PREVIEW STUDIO (بنفسجي ملكي موحد للمعاينة والطباعة) */
+/* 5A. PRINT STUDIO (بنفسجي ملكي للطباعة) */
 .royal-btn-print,
 .crystal-btn.btn-print,
-.crystal-btn.btn-print-preview,
-.items-toolbar .btn-preview,
-#btn-preview-invoice,
 #btn-print-invoice,
 #btnPrintVoucher {
     --btn-glow: var(--royal-print-glow);
@@ -352,6 +349,20 @@
     border: 1.5px solid var(--royal-print-border) !important;
     color: #ffffff !important;
     text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4) !important;
+    font-weight: 900 !important;
+}
+
+/* 5B. PREVIEW STUDIO (ذهبي كهرماني ساطع للمعاينة - تباين لوني كامل مع زر الطباعة) */
+.royal-btn-preview,
+.crystal-btn.btn-print-preview,
+.items-toolbar .btn-preview,
+#btn-preview-invoice {
+    --btn-glow: var(--royal-amber-glow);
+    --btn-border: var(--royal-amber-border);
+    background: var(--royal-amber-bg) !important;
+    border: 1.5px solid var(--royal-amber-border) !important;
+    color: #ffffff !important;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.45) !important;
     font-weight: 900 !important;
 }
 

@@ -1712,6 +1712,312 @@ try {
             border: 1px solid rgba(56, 189, 248, 0.6) !important;
         }
 
+        /* ═══════════════════════════════════════════════════════════════════════════
+           2027 WORLD-CLASS INTERACTIVE BORDER ILLUMINATION & SEMANTIC GLOW SYSTEM
+           (Psychologically Calibrated Ergonomic Palette — Matching Purchases Screen)
+           ═══════════════════════════════════════════════════════════════════════════ */
+
+        /* 0. Ledger Button 2027 (Always Visible & Glowing) */
+        .ledger-btn-2027,
+        #hdr-customer-ledger-btn {
+            position: absolute !important;
+            left: 6px !important;
+            top: 50% !important;
+            transform: translateY(-50%) !important;
+            z-index: 10 !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            gap: 4px !important;
+            font-size: 0.78rem !important;
+            font-weight: 800 !important;
+            padding: 0 10px !important;
+            height: 27px !important;
+            background: linear-gradient(135deg, rgba(14, 165, 233, 0.22), rgba(99, 102, 241, 0.28)) !important;
+            color: #e0f2fe !important;
+            border: 1.5px solid rgba(56, 189, 248, 0.65) !important;
+            border-radius: 7px !important;
+            box-shadow: 0 0 10px rgba(56, 189, 248, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+            cursor: pointer !important;
+            font-family: 'Tajawal', sans-serif !important;
+            transition: all 0.22s cubic-bezier(0.22, 1, 0.36, 1) !important;
+            white-space: nowrap !important;
+        }
+        .ledger-btn-2027:hover,
+        #hdr-customer-ledger-btn:hover {
+            background: linear-gradient(135deg, #0ea5e9, #4f46e5) !important;
+            color: #ffffff !important;
+            border-color: #7dd3fc !important;
+            box-shadow: 0 0 18px rgba(56, 189, 248, 0.65), 0 0 28px rgba(99, 102, 241, 0.4) !important;
+            transform: translateY(-50%) scale(1.04) !important;
+        }
+        :root.light-theme .ledger-btn-2027,
+        :root.light-theme #hdr-customer-ledger-btn {
+            background: linear-gradient(135deg, rgba(14, 165, 233, 0.18), rgba(37, 99, 235, 0.25)) !important;
+            color: #0c4a6e !important;
+            border-color: #0284c7 !important;
+        }
+        :root.light-theme .ledger-btn-2027:hover,
+        :root.light-theme #hdr-customer-ledger-btn:hover {
+            background: linear-gradient(135deg, #0284c7, #2563eb) !important;
+            color: #ffffff !important;
+        }
+
+        /* 1. Quick Search Bar & Customer Search — Resting Visible Frame + Hover/Focus Neon Illumination */
+        #quick-item-search {
+            border: 1.5px solid rgba(56, 189, 248, 0.38) !important;
+            border-radius: 10px !important;
+            background: rgba(15, 23, 42, 0.78) !important;
+            transition: border-color 0.22s cubic-bezier(0.22, 1, 0.36, 1),
+                        box-shadow 0.22s cubic-bezier(0.22, 1, 0.36, 1),
+                        background-color 0.22s ease,
+                        transform 0.18s ease !important;
+        }
+        #quick-item-search:hover {
+            border-color: rgba(56, 189, 248, 0.85) !important;
+            box-shadow: 0 0 14px rgba(56, 189, 248, 0.35), inset 0 0 8px rgba(56, 189, 248, 0.12) !important;
+            background: rgba(15, 23, 42, 0.92) !important;
+        }
+        #quick-item-search:focus {
+            border-color: #38bdf8 !important;
+            box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.22), 0 0 22px rgba(56, 189, 248, 0.55), inset 0 0 10px rgba(56, 189, 248, 0.15) !important;
+            background: rgba(10, 18, 36, 0.98) !important;
+        }
+
+        /* 2. Grid Cells — Visible Resting Borders + Semantic Per-Column Border Illumination */
+        #pos-grid tbody td {
+            position: relative;
+            transition: background-color 0.2s ease, box-shadow 0.2s ease !important;
+        }
+        #pos-grid tbody tr:hover td {
+            background-color: rgba(30, 41, 59, 0.45);
+        }
+        #pos-grid tbody tr:focus-within td {
+            background-color: rgba(15, 23, 42, 0.72);
+        }
+
+        /* Base visible frame for all interactive inputs & selects inside the grid */
+        #pos-grid .g-input,
+        #pos-grid .g-select {
+            border: 1.5px solid rgba(148, 163, 184, 0.28) !important;
+            border-radius: 8px !important;
+            background: rgba(15, 23, 42, 0.65) !important;
+            padding: 5px 8px !important;
+            transition: border-color 0.2s cubic-bezier(0.22, 1, 0.36, 1),
+                        box-shadow 0.2s cubic-bezier(0.22, 1, 0.36, 1),
+                        background-color 0.2s ease,
+                        transform 0.15s ease !important;
+        }
+
+        /* A. Item Search Column (col_item / الصنف) — Sky Cyan Illumination (#38bdf8) */
+        #pos-grid td[data-col-id="col_item"] .g-input,
+        #pos-grid td[data-col-id="item"] .g-input {
+            border-color: rgba(56, 189, 248, 0.32) !important;
+        }
+        #pos-grid td[data-col-id="col_item"]:hover .g-input,
+        #pos-grid td[data-col-id="col_item"] .g-input:hover,
+        #pos-grid td[data-col-id="item"]:hover .g-input,
+        #pos-grid td[data-col-id="item"] .g-input:hover {
+            border-color: #38bdf8 !important;
+            box-shadow: 0 0 12px rgba(56, 189, 248, 0.42), inset 0 0 6px rgba(56, 189, 248, 0.12) !important;
+            background: rgba(14, 165, 233, 0.10) !important;
+        }
+        #pos-grid td[data-col-id="col_item"] .g-input:focus,
+        #pos-grid td[data-col-id="item"] .g-input:focus {
+            border-color: #7dd3fc !important;
+            box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.22), 0 0 18px rgba(56, 189, 248, 0.6), inset 0 0 8px rgba(56, 189, 248, 0.16) !important;
+            background: rgba(8, 20, 42, 0.96) !important;
+        }
+
+        /* B. Available Stock Column (col_avail / المتاح) — Aqua Teal Illumination (#2dd4bf) */
+        #pos-grid td[data-col-id="col_avail"] .g-readonly,
+        #pos-grid td[data-col-id="available"] .avail-val {
+            border: 1.5px solid rgba(45, 212, 191, 0.25) !important;
+            border-radius: 8px !important;
+            padding: 4px 8px !important;
+            background: rgba(20, 184, 166, 0.07) !important;
+            transition: all 0.2s ease !important;
+        }
+        #pos-grid td[data-col-id="col_avail"]:hover .g-readonly,
+        #pos-grid td[data-col-id="available"]:hover .avail-val {
+            border-color: #2dd4bf !important;
+            box-shadow: 0 0 12px rgba(45, 212, 191, 0.4), inset 0 0 6px rgba(45, 212, 191, 0.15) !important;
+            background: rgba(20, 184, 166, 0.14) !important;
+        }
+
+        /* C. Unit Column (col_unit / الوحدات) — Royal Purple Illumination (#a78bfa) */
+        #pos-grid td[data-col-id="col_unit"] .g-select,
+        #pos-grid td[data-col-id="unit"] .g-select {
+            border-color: rgba(167, 139, 250, 0.35) !important;
+        }
+        #pos-grid td[data-col-id="col_unit"]:hover .g-select,
+        #pos-grid td[data-col-id="col_unit"] .g-select:hover,
+        #pos-grid td[data-col-id="unit"]:hover .g-select,
+        #pos-grid td[data-col-id="unit"] .g-select:hover {
+            border-color: #a78bfa !important;
+            box-shadow: 0 0 12px rgba(167, 139, 250, 0.45), inset 0 0 6px rgba(167, 139, 250, 0.14) !important;
+            background: rgba(139, 92, 246, 0.12) !important;
+        }
+        #pos-grid td[data-col-id="col_unit"] .g-select:focus,
+        #pos-grid td[data-col-id="unit"] .g-select:focus {
+            border-color: #c4b5fd !important;
+            box-shadow: 0 0 0 3px rgba(167, 139, 250, 0.25), 0 0 18px rgba(167, 139, 250, 0.6) !important;
+            background: rgba(18, 16, 46, 0.96) !important;
+        }
+
+        /* C2. Factor & Base Qty Columns (col_factor, col_baseqty / التعادل، عدد الوحدة الأساسية) — Indigo Illumination (#818cf8) */
+        #pos-grid td[data-col-id="col_factor"] .g-input,
+        #pos-grid td[data-col-id="col_baseqty"] .g-input {
+            border-color: rgba(129, 140, 248, 0.34) !important;
+        }
+        #pos-grid td[data-col-id="col_factor"]:hover .g-input,
+        #pos-grid td[data-col-id="col_factor"] .g-input:hover,
+        #pos-grid td[data-col-id="col_baseqty"]:hover .g-input,
+        #pos-grid td[data-col-id="col_baseqty"] .g-input:hover {
+            border-color: #818cf8 !important;
+            box-shadow: 0 0 12px rgba(129, 140, 248, 0.45), inset 0 0 6px rgba(129, 140, 248, 0.14) !important;
+            background: rgba(99, 102, 241, 0.11) !important;
+        }
+        #pos-grid td[data-col-id="col_factor"] .g-input:focus,
+        #pos-grid td[data-col-id="col_baseqty"] .g-input:focus {
+            border-color: #a5b4fc !important;
+            box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.25), 0 0 18px rgba(129, 140, 248, 0.6) !important;
+            background: rgba(16, 18, 46, 0.96) !important;
+        }
+
+        /* D. Quantity Column (col_qty / الكمية) — Warm Gold/Amber Illumination (#fbbf24) */
+        #pos-grid td[data-col-id="col_qty"] .g-input,
+        #pos-grid td[data-col-id="quantity"] .g-input {
+            border-color: rgba(251, 191, 36, 0.38) !important;
+        }
+        #pos-grid td[data-col-id="col_qty"]:hover .g-input,
+        #pos-grid td[data-col-id="col_qty"] .g-input:hover,
+        #pos-grid td[data-col-id="quantity"]:hover .g-input,
+        #pos-grid td[data-col-id="quantity"] .g-input:hover {
+            border-color: #fbbf24 !important;
+            box-shadow: 0 0 13px rgba(251, 191, 36, 0.45), inset 0 0 6px rgba(251, 191, 36, 0.14) !important;
+            background: rgba(245, 158, 11, 0.11) !important;
+        }
+        #pos-grid td[data-col-id="col_qty"] .g-input:focus,
+        #pos-grid td[data-col-id="quantity"] .g-input:focus {
+            border-color: #fde047 !important;
+            box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.25), 0 0 20px rgba(251, 191, 36, 0.65), inset 0 0 8px rgba(251, 191, 36, 0.18) !important;
+            background: rgba(28, 22, 10, 0.96) !important;
+        }
+
+        /* E. Price Column (col_price / السعر) — Financial Emerald Illumination (#34d399) */
+        #pos-grid td[data-col-id="col_price"] .g-input,
+        #pos-grid td[data-col-id="price"] .g-input {
+            border-color: rgba(52, 211, 153, 0.38) !important;
+        }
+        #pos-grid td[data-col-id="col_price"]:hover .g-input,
+        #pos-grid td[data-col-id="col_price"] .g-input:hover,
+        #pos-grid td[data-col-id="price"]:hover .g-input,
+        #pos-grid td[data-col-id="price"] .g-input:hover {
+            border-color: #34d399 !important;
+            box-shadow: 0 0 13px rgba(52, 211, 153, 0.45), inset 0 0 6px rgba(52, 211, 153, 0.14) !important;
+            background: rgba(16, 185, 129, 0.11) !important;
+        }
+        #pos-grid td[data-col-id="col_price"] .g-input:focus,
+        #pos-grid td[data-col-id="price"] .g-input:focus {
+            border-color: #6ee7b7 !important;
+            box-shadow: 0 0 0 3px rgba(52, 211, 153, 0.25), 0 0 20px rgba(16, 185, 129, 0.65), inset 0 0 8px rgba(16, 185, 129, 0.18) !important;
+            background: rgba(6, 28, 22, 0.96) !important;
+        }
+
+        /* F. Total Column (col_total / الجملة) — Luminous Cyan-Emerald Frame */
+        #pos-grid td[data-col-id="col_total"] .total-val,
+        #pos-grid td[data-col-id="total"] .total-val {
+            display: inline-block;
+            width: 100%;
+            border: 1.5px solid rgba(56, 189, 248, 0.28) !important;
+            border-radius: 8px !important;
+            padding: 5px 8px !important;
+            background: rgba(14, 165, 233, 0.08) !important;
+            transition: all 0.22s ease !important;
+        }
+        #pos-grid td[data-col-id="col_total"]:hover .total-val,
+        #pos-grid td[data-col-id="total"]:hover .total-val,
+        #pos-grid tbody tr:focus-within td[data-col-id="col_total"] .total-val,
+        #pos-grid tbody tr:focus-within td[data-col-id="total"] .total-val {
+            border-color: #38bdf8 !important;
+            box-shadow: 0 0 14px rgba(56, 189, 248, 0.45), inset 0 0 8px rgba(56, 189, 248, 0.15) !important;
+            background: rgba(14, 165, 233, 0.16) !important;
+        }
+
+        /* G. Warehouse Column (col_wh / المخزن) — Coral Orange Illumination (#fb923c) */
+        #pos-grid td[data-col-id="col_wh"] .g-select,
+        #pos-grid td[data-col-id="warehouse"] .g-select {
+            border-color: rgba(251, 146, 60, 0.34) !important;
+        }
+        #pos-grid td[data-col-id="col_wh"]:hover .g-select,
+        #pos-grid td[data-col-id="col_wh"] .g-select:hover,
+        #pos-grid td[data-col-id="warehouse"]:hover .g-select,
+        #pos-grid td[data-col-id="warehouse"] .g-select:hover {
+            border-color: #fb923c !important;
+            box-shadow: 0 0 12px rgba(251, 146, 60, 0.42), inset 0 0 6px rgba(251, 146, 60, 0.12) !important;
+            background: rgba(249, 115, 22, 0.11) !important;
+        }
+        #pos-grid td[data-col-id="col_wh"] .g-select:focus,
+        #pos-grid td[data-col-id="warehouse"] .g-select:focus {
+            border-color: #fdba74 !important;
+            box-shadow: 0 0 0 3px rgba(251, 146, 60, 0.24), 0 0 18px rgba(251, 146, 60, 0.6) !important;
+        }
+
+        /* H. Note Column (col_note / الملحوظة) — Slate Sky Illumination (#60a5fa) */
+        #pos-grid td[data-col-id="col_note"] .g-input,
+        #pos-grid td[data-col-id="note"] .g-input {
+            border-color: rgba(148, 163, 184, 0.28) !important;
+        }
+        #pos-grid td[data-col-id="col_note"]:hover .g-input,
+        #pos-grid td[data-col-id="col_note"] .g-input:hover,
+        #pos-grid td[data-col-id="note"]:hover .g-input,
+        #pos-grid td[data-col-id="note"] .g-input:hover {
+            border-color: #60a5fa !important;
+            box-shadow: 0 0 12px rgba(96, 165, 250, 0.38), inset 0 0 6px rgba(96, 165, 250, 0.1) !important;
+            background: rgba(59, 130, 246, 0.10) !important;
+        }
+        #pos-grid td[data-col-id="col_note"] .g-input:focus,
+        #pos-grid td[data-col-id="note"] .g-input:focus {
+            border-color: #93c5fd !important;
+            box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.22), 0 0 16px rgba(96, 165, 250, 0.55) !important;
+        }
+
+        /* 3. Header Controls Hover & Focus Illumination */
+        #hdr-customer-search:hover {
+            border-color: #f59e0b !important;
+            box-shadow: 0 0 14px rgba(245, 158, 11, 0.4), inset 0 0 8px rgba(245, 158, 11, 0.12) !important;
+        }
+        #hdr-customer-search:focus {
+            border-color: #fbbf24 !important;
+            box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.24), 0 0 22px rgba(245, 158, 11, 0.58) !important;
+        }
+        #hdr-currency:hover, #hdr-exchange-rate:hover {
+            border-color: #34d399 !important;
+            box-shadow: 0 0 14px rgba(52, 211, 153, 0.42), inset 0 0 6px rgba(52, 211, 153, 0.12) !important;
+        }
+        #hdr-warehouse:hover, #hdr-cost-center:hover, #hdr-description:hover, #hdr-date:hover {
+            border-color: #38bdf8 !important;
+            box-shadow: 0 0 14px rgba(56, 189, 248, 0.4), inset 0 0 6px rgba(56, 189, 248, 0.1) !important;
+        }
+
+        /* Light Theme Harmonious Ergonomic Calibration */
+        :root.light-theme #quick-item-search {
+            background: #ffffff !important;
+            border-color: #93c5fd !important;
+            color: #0f172a !important;
+        }
+        :root.light-theme #quick-item-search:hover,
+        :root.light-theme #quick-item-search:focus {
+            border-color: #0284c7 !important;
+            box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.18), 0 4px 12px rgba(2, 132, 199, 0.15) !important;
+        }
+        :root.light-theme #pos-grid .g-input,
+        :root.light-theme #pos-grid .g-select {
+            background: #ffffff !important;
+            border-color: #cbd5e1 !important;
+        }
+
         .hub-table { width: 100%; border-collapse: separate !important; border-spacing: 0 8px !important; }
         .hub-table thead th {
             background: rgba(15, 23, 42, 0.8) !important; 
@@ -2606,8 +2912,8 @@ try {
                 <!-- Form Fields -->
                 <div class="neo-card expanded-form sales-glass-card gold-obsidian-card" id="form-fields-card" style="
                     margin-bottom: 0; 
-                    padding: 25px; 
-                    border-radius: 18px; 
+                    padding: 12px 16px; 
+                    border-radius: 16px; 
                     position: relative;
                     overflow: visible;
                     width: 100%;
@@ -2615,13 +2921,13 @@ try {
                     <!-- Ambient Glow & Integrated Glass Facets -->
 
                     <!-- Ambient Glow -->
-                    <div style="position:absolute; top:0; left:0; width:100%; height:100%; overflow:hidden; border-radius:18px; z-index:0; pointer-events:none;">
+                    <div style="position:absolute; top:0; left:0; width:100%; height:100%; overflow:hidden; border-radius:16px; z-index:0; pointer-events:none;">
                         <div style="position:absolute; top:-50%; left:-50%; width:200%; height:200%; background:radial-gradient(circle, rgba(212,175,55,0.08) 0%, transparent 60%);"></div>
                     </div>
                     
-                    <div style="display: flex; flex-direction: column; gap: 18px; position:relative; z-index:1;">
+                    <div style="display: flex; flex-direction: column; gap: 8px; position:relative; z-index:1;">
                         <!-- Saved Invoice Edit Advisory Banner -->
-                        <div id="saved-invoice-edit-banner" style="display:none; margin-bottom: 8px; background: linear-gradient(135deg, rgba(245, 158, 11, 0.15), rgba(180, 83, 9, 0.25)); border: 1.5px solid rgba(245, 158, 11, 0.6); border-radius: 12px; padding: 12px 18px; box-shadow: 0 4px 15px rgba(245, 158, 11, 0.25);">
+                        <div id="saved-invoice-edit-banner" style="display:none; margin-bottom: 4px; background: linear-gradient(135deg, rgba(245, 158, 11, 0.15), rgba(180, 83, 9, 0.25)); border: 1.5px solid rgba(245, 158, 11, 0.6); border-radius: 12px; padding: 10px 16px; box-shadow: 0 4px 15px rgba(245, 158, 11, 0.25);">
                             <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
                                 <div style="display: flex; align-items: center; gap: 12px;">
                                     <span style="font-size: 1.6rem;">⚠️</span>
@@ -2642,129 +2948,292 @@ try {
                             </div>
                         </div>
 
-    <!-- ROW 1 WRAPPER (Invoice Info & Financial Strip) -->
-    <div style="display: flex; width: 100%; gap: 15px; margin-bottom: 12px; transition: all 0.4s ease;">
-        
-        <!-- Row 1: Invoice Number & Date -->
-        <div id="invoice-info-box" style="flex: 1; display: flex; gap: 12px; width: 100%; padding: 4px 10px; border-radius: 12px; align-items: center; justify-content: space-between;">
-            <div class="h-form-group group-invoice" style="flex: 1.1; display:flex; align-items:center; gap:8px; margin:0; min-width: 0;">
-                <label class="h-label" style="margin:0; font-size: 0.95rem; font-weight:bold; white-space:nowrap;">رقم الفاتورة:</label>
-                <div class="gold-serial-wrap" style="display:flex; align-items:center; justify-content:space-between; flex:1; padding: 3px 8px; border-radius: 9px; min-width: 0;">
-                    <button class="pro-serial-btn" onclick="loadPreviousInvoice()" title="السابقة" style="background: transparent; border: none; font-size: 1.1rem; cursor: pointer; padding: 0 5px; opacity:0.85; transition:0.2s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.85">❮</button>
-                    <span id="inv-number" class="pro-serial-number gold-serial-text" style="font-size: 1.1rem; font-family: 'Outfit', sans-serif; font-weight: 900; letter-spacing: 1.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">---</span>
+    <!-- ROW 0 WRAPPER (Slim 2027 Unified Bar: Invoice Info + Audit Badge + Inline Financial Strip) -->
+    <style id="sales-worldclass-ux-styles">
+        #sales-row0-bar {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            gap: 10px;
+            margin-bottom: 2px;
+            min-height: 40px;
+        }
+        #invoice-info-box {
+            flex: 1 1 auto;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: flex-start !important;
+            gap: 10px !important;
+            padding: 3px 10px !important;
+            height: 42px !important;
+            min-height: 42px !important;
+            max-height: 42px !important;
+            border-radius: 10px !important;
+            box-sizing: border-box !important;
+        }
+        /* Keep user audit badge strictly single-line & slim inside the top bar (matching purchase.php) */
+        #sales-user-audit-container {
+            display: flex !important;
+            align-items: center !important;
+            height: 34px !important;
+            flex-shrink: 0 !important;
+        }
+        #sales-user-audit-container .user-audit-badge,
+        #sales-user-audit-container > div {
+            display: inline-flex !important;
+            flex-direction: row !important;
+            align-items: center !important;
+            justify-content: center !important;
+            gap: 6px !important;
+            height: 32px !important;
+            min-height: 32px !important;
+            max-height: 32px !important;
+            padding: 0 10px !important;
+            border-radius: 8px !important;
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.85), rgba(30, 41, 59, 0.75)) !important;
+            border: 1px solid rgba(56, 189, 248, 0.32) !important;
+            white-space: nowrap !important;
+            margin: 0 !important;
+            box-sizing: border-box !important;
+        }
+        #sales-user-audit-container .user-audit-badge .uab-row {
+            display: inline-flex !important;
+            flex-direction: row !important;
+            align-items: center !important;
+            gap: 5px !important;
+            flex-wrap: nowrap !important;
+        }
+        #sales-user-audit-container .user-audit-badge .uab-edit-row,
+        #sales-user-audit-container .user-audit-badge .uab-deliv-row {
+            display: none !important;
+        }
+        #sales-user-audit-container .user-audit-badge .uab-label {
+            font-size: 0.75rem !important;
+            color: #94a3b8 !important;
+            font-weight: 700 !important;
+        }
+        #sales-user-audit-container .user-audit-badge .uab-val {
+            font-size: 0.84rem !important;
+            color: #38bdf8 !important;
+            font-weight: 900 !important;
+        }
+        #sales-user-audit-container .user-audit-badge .uab-tag {
+            padding: 1px 6px !important;
+            font-size: 0.68rem !important;
+            border-radius: 5px !important;
+        }
+        #sales-user-audit-container span {
+            white-space: nowrap !important;
+            line-height: 1 !important;
+        }
+        /* Slimmer inline financial strip */
+        #fin-strip.fin-strip-inline.visible {
+            flex: 1.35 1 0% !important;
+            width: auto !important;
+            opacity: 1 !important;
+        }
+        #fin-strip .fin-strip-inner-box {
+            height: 42px !important;
+            min-height: 42px !important;
+            max-height: 42px !important;
+            padding: 2px 10px !important;
+            border-radius: 10px !important;
+            box-sizing: border-box !important;
+        }
+        /* Row 1 controls height & smart auto-fit text readiness */
+        #sales-row1-bar .h-label {
+            font-size: 0.84rem !important;
+            font-weight: 800 !important;
+            min-width: auto !important;
+            margin: 0 !important;
+            white-space: nowrap !important;
+        }
+        #sales-row1-bar .ctrl-input,
+        #sales-row1-bar select.ctrl-input,
+        :root.light-theme #sales-row1-bar .ctrl-input,
+        :root.light-theme #sales-row1-bar select.ctrl-input {
+            height: 40px !important;
+            min-height: 40px !important;
+            max-height: 40px !important;
+            padding-top: 0 !important;
+            padding-bottom: 0 !important;
+            border-radius: 10px !important;
+            box-sizing: border-box !important;
+        }
+        :root.light-theme #hdr-customer-search {
+            padding-left: 68px !important;
+            padding-right: 10px !important;
+        }
+        /* Protect Ledger Button in both Dark & Light Themes */
+        #hdr-customer-ledger-btn,
+        .ledger-btn-2027,
+        :root.light-theme #hdr-customer-ledger-btn,
+        :root.light-theme .ledger-btn-2027 {
+            position: absolute !important;
+            left: 5px !important;
+            top: 50% !important;
+            transform: translateY(-50%) !important;
+            z-index: 15 !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            gap: 4px !important;
+            height: 28px !important;
+            min-height: 28px !important;
+            max-height: 28px !important;
+            padding: 0 9px !important;
+            border-radius: 7px !important;
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.22), rgba(5, 150, 105, 0.35)) !important;
+            border: 1.5px solid rgba(16, 185, 129, 0.65) !important;
+            color: #34d399 !important;
+            font-family: 'Cairo', 'Tajawal', sans-serif !important;
+            font-size: 0.76rem !important;
+            font-weight: 900 !important;
+            cursor: pointer !important;
+            box-shadow: 0 2px 8px rgba(16, 185, 129, 0.25) !important;
+            white-space: nowrap !important;
+            line-height: 1 !important;
+        }
+        :root.light-theme #hdr-customer-ledger-btn,
+        :root.light-theme .ledger-btn-2027 {
+            background: linear-gradient(135deg, #10b981, #059669) !important;
+            color: #ffffff !important;
+            border-color: #047857 !important;
+        }
+        #hdr-exchange-rate {
+            font-size: 1.38rem !important;
+            font-weight: 900 !important;
+            font-family: 'Outfit', 'Cairo', monospace !important;
+            letter-spacing: 0.5px !important;
+            padding: 0 4px !important;
+        }
+        #hdr-warehouse, #hdr-cost-center, #hdr-currency {
+            text-overflow: ellipsis !important;
+            white-space: nowrap !important;
+            overflow: hidden !important;
+            padding-right: 8px !important;
+            padding-left: 18px !important;
+        }
+    </style>
+
+    <div id="sales-row0-bar">
+        <!-- Row 0 Left/Right: Invoice Number, Date & User Audit Badge -->
+        <div id="invoice-info-box">
+            <div class="h-form-group group-invoice" style="flex: 0 1 255px; display:flex; align-items:center; gap:6px; margin:0; min-width: 185px;">
+                <label class="h-label" style="margin:0; font-size: 0.85rem; font-weight:800; white-space:nowrap;">رقم الفاتورة:</label>
+                <div class="gold-serial-wrap" style="display:flex; align-items:center; justify-content:space-between; flex:1; padding: 2px 6px; height: 32px; border-radius: 8px; min-width: 0;">
+                    <button type="button" class="pro-serial-btn" onclick="loadPreviousInvoice()" title="السابقة" style="background: transparent; border: none; font-size: 0.95rem; cursor: pointer; padding: 0 4px; opacity:0.85; transition:0.2s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.85">❮</button>
+                    <span id="inv-number" class="pro-serial-number gold-serial-text" style="font-size: 1.05rem; font-family: 'Outfit', sans-serif; font-weight: 900; letter-spacing: 1px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">---</span>
                     <input type="hidden" id="hdr-inv-no">
-                    <button class="pro-serial-btn" onclick="loadNextInvoice()" title="التالية" style="background: transparent; border: none; font-size: 1.1rem; cursor: pointer; padding: 0 5px; opacity:0.85; transition:0.2s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.85">❯</button>
+                    <button type="button" class="pro-serial-btn" onclick="loadNextInvoice()" title="التالية" style="background: transparent; border: none; font-size: 0.95rem; cursor: pointer; padding: 0 4px; opacity:0.85; transition:0.2s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.85">❯</button>
                 </div>
             </div>
 
-            <div style="width: 1px; height: 28px; background: rgba(255,255,255,0.1); margin: 0 2px;"></div>
+            <div style="width: 1px; height: 22px; background: rgba(255,255,255,0.1); flex-shrink: 0;"></div>
 
-            <div class="h-form-group group-date" style="flex: 0.9; display:flex; align-items:center; gap:8px; margin:0; min-width: 0;">
-                <label class="h-label" id="hdr-date-label" style="margin:0; font-size: 0.95rem; font-weight:bold; white-space:nowrap;">التاريخ:</label>
-                <input type="date" class="v-input ctrl-input" id="hdr-date" style="flex:1; text-align: center; border-radius: 8px; padding:3px 6px; font-family:'Outfit',sans-serif; font-weight:bold; font-size:1.05rem; min-width: 0;">
+            <div class="h-form-group group-date" style="flex: 0 1 205px; display:flex; align-items:center; gap:6px; margin:0; min-width: 155px;">
+                <label class="h-label" id="hdr-date-label" style="margin:0; font-size: 0.85rem; font-weight:800; white-space:nowrap;">التاريخ:</label>
+                <input type="date" class="v-input ctrl-input" id="hdr-date" style="flex:1; height: 32px !important; min-height: 32px !important; text-align: center; border-radius: 8px; padding: 2px 6px; font-family:'Outfit',sans-serif; font-weight:800; font-size:0.95rem; min-width: 0;">
             </div>
 
-            <div style="width: 1px; height: 28px; background: rgba(255,255,255,0.1); margin: 0 2px;"></div>
-            <div id="sales-user-audit-container" style="display:flex; align-items:center;"></div>
+            <div style="width: 1px; height: 22px; background: rgba(255,255,255,0.1); flex-shrink: 0;"></div>
+            <div id="sales-user-audit-container" style="display:inline-flex; align-items:center; flex-shrink: 0;"></div>
         </div>
 
-        <!-- RIGHT: Financial Strip -->
-        <div id="fin-strip" class="fin-strip-inline" style="flex: 0; width: 0; opacity: 0; overflow: hidden; transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); display: flex;">
-            <div style="width: 100%; background: linear-gradient(90deg, rgba(15,23,42,0.4), rgba(30,58,138,0.2)); border: 1px solid rgba(56, 189, 248, 0.6); border-radius: 12px; padding: 4px 12px; display: flex; align-items: center; justify-content: space-between; gap: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.2), inset 0 2px 5px rgba(255,255,255,0.05); min-width: auto;">
-                <div style="display: flex; align-items: center; gap: 6px; flex-shrink: 0;">
-                    <span style="font-size: 1.1rem;">📊</span>
-                    <div style="display:flex; flex-direction:column;">
-                        <span style="font-weight: 800; color:#fff; font-size:0.75rem; white-space: nowrap;">الحالة المالية للعميل</span>
-                        <span id="fin-status-badge" style="display:none;"><span class="status-dot neutral"></span></span>
-                    </div>
+        <!-- Inline Financial Strip (Matches Slim 42px Bar Height) -->
+        <div id="fin-strip" class="fin-strip-inline" style="flex: 0; width: 0; opacity: 0; overflow: hidden; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); display: flex;">
+            <div class="fin-strip-inner-box" style="width: 100%; background: linear-gradient(90deg, rgba(15,23,42,0.55), rgba(30,58,138,0.25)); border: 1px solid rgba(56, 189, 248, 0.55); display: flex; align-items: center; justify-content: space-between; gap: 6px; box-shadow: 0 2px 10px rgba(0,0,0,0.2);">
+                <div style="display: flex; align-items: center; gap: 5px; flex-shrink: 0;">
+                    <span style="font-size: 0.95rem;">📊</span>
+                    <span style="font-weight: 800; color:#e2e8f0; font-size:0.72rem; white-space: nowrap;">حالة العميل</span>
+                    <span id="fin-status-badge" style="display:none;"><span class="status-dot neutral"></span><span id="fin-status-txt" style="font-size:0.68rem; margin-right:3px;"></span></span>
                 </div>
                 
-                <div style="display:flex; gap: 12px; align-items: center; flex: 1; justify-content: flex-end; min-width: 0;">
-                    <div style="display:flex; flex-direction:column; align-items:center; min-width: 0;">
-                        <span style="font-size:0.6rem; color:#94a3b8; font-weight:700; white-space: nowrap;">الرصيد الدفتري</span>
-                        <span id="fin-ledger" style="font-weight:800; color:#fff; font-size:0.75rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">0</span>
+                <div style="display:flex; gap: 10px; align-items: center; flex: 1; justify-content: flex-end; min-width: 0;">
+                    <div style="display:flex; align-items:center; gap: 4px; min-width: 0;">
+                        <span style="font-size:0.65rem; color:#94a3b8; font-weight:700; white-space: nowrap;">الرصيد:</span>
+                        <span id="fin-ledger" style="font-weight:900; color:#fff; font-size:0.8rem; font-family:'Outfit',sans-serif; white-space: nowrap;">0</span>
                     </div>
-                    <div style="width:1px; height:15px; background:rgba(255,255,255,0.1); flex-shrink: 0;"></div>
+                    <div style="width:1px; height:14px; background:rgba(255,255,255,0.12); flex-shrink: 0;"></div>
                     
-                    <div style="display:flex; flex-direction:column; align-items:center; min-width: 0;">
-                        <span style="font-size:0.6rem; color:#f59e0b; font-weight:700; white-space: nowrap;">شيكات معلقة</span>
-                        <span id="fin-checks" style="font-weight:800; color:#f59e0b; font-size:0.75rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">0</span>
+                    <div style="display:flex; align-items:center; gap: 4px; min-width: 0;">
+                        <span style="font-size:0.65rem; color:#f59e0b; font-weight:700; white-space: nowrap;">شيكات:</span>
+                        <span id="fin-checks" style="font-weight:900; color:#f59e0b; font-size:0.8rem; font-family:'Outfit',sans-serif; white-space: nowrap;">0</span>
                     </div>
-                    <div style="width:1px; height:15px; background:rgba(255,255,255,0.1); flex-shrink: 0;"></div>
+                    <div style="width:1px; height:14px; background:rgba(255,255,255,0.12); flex-shrink: 0;"></div>
                     
-                    <div style="display:flex; flex-direction:column; align-items:center; min-width: 0;">
-                        <span style="font-size:0.6rem; color:#ef4444; font-weight:700; white-space: nowrap;">المديونية</span>
-                        <span id="fin-total-debt" style="font-weight:800; color:#ef4444; font-size:0.75rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">0</span>
+                    <div style="display:flex; align-items:center; gap: 4px; min-width: 0;">
+                        <span style="font-size:0.65rem; color:#ef4444; font-weight:700; white-space: nowrap;">المديونية:</span>
+                        <span id="fin-total-debt" style="font-weight:900; color:#ef4444; font-size:0.8rem; font-family:'Outfit',sans-serif; white-space: nowrap;">0</span>
                     </div>
-                    <div style="width:1px; height:15px; background:rgba(255,255,255,0.1); flex-shrink: 0;"></div>
+                    <div style="width:1px; height:14px; background:rgba(255,255,255,0.12); flex-shrink: 0;"></div>
                     
-                    <div style="display:flex; flex-direction:column; align-items:center; min-width: 0;">
-                        <span style="font-weight:800; color:#38bdf8; font-size:0.75rem; white-space: nowrap;">حد الائتمان</span>
-                        <span id="fin-credit-limit" style="font-weight:800; color:#38bdf8; font-size:0.75rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">0</span>
+                    <div style="display:flex; align-items:center; gap: 4px; min-width: 0;">
+                        <span style="font-weight:700; color:#38bdf8; font-size:0.65rem; white-space: nowrap;">الائتمان:</span>
+                        <span id="fin-credit-limit" style="font-weight:900; color:#38bdf8; font-size:0.8rem; font-family:'Outfit',sans-serif; white-space: nowrap;">0</span>
                     </div>
-                    <div style="width:1px; height:15px; background:rgba(255,255,255,0.1); flex-shrink: 0;"></div>
+                    <div style="width:1px; height:14px; background:rgba(255,255,255,0.12); flex-shrink: 0;"></div>
                     
-                    <div style="display:flex; flex-direction:column; align-items:center; background: rgba(16,185,129,0.15); padding: 3px 8px; border-radius: 8px; border: 1px solid rgba(16,185,129,0.3); flex-shrink: 0; text-align: center;">
-                        <span style="font-size:0.65rem; color:#34d399; font-weight:800; white-space: nowrap;">✨ المتاح</span>
-                        <span id="fin-remaining" style="font-weight:900; color:#34d399; font-size:0.85rem; white-space: nowrap;">0</span>
+                    <div style="display:inline-flex; align-items:center; gap: 4px; background: rgba(16,185,129,0.15); padding: 2px 7px; border-radius: 6px; border: 1px solid rgba(16,185,129,0.35); flex-shrink: 0;">
+                        <span style="font-size:0.65rem; color:#34d399; font-weight:800; white-space: nowrap;">✨ المتاح:</span>
+                        <span id="fin-remaining" style="font-weight:900; color:#34d399; font-size:0.82rem; font-family:'Outfit',sans-serif; white-space: nowrap;">0</span>
                     </div>
                 </div>
             </div>
         </div>
-
     </div>
     
-    <!-- Unified Row 1: Customer, Currency & Exchange Rate, Warehouse, Cost Center -->
-    <div style="display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 12px; width: 100%; align-items: center;">
+    <!-- Unified Row 1: Customer (Expanded + Always-Visible Ledger Icon), Currency & Exchange Rate (Bold Auto-fit), Warehouse & Cost Center (Auto-fit) -->
+    <div id="sales-row1-bar" style="display: flex; gap: 10px; flex-wrap: nowrap; margin-bottom: 6px; width: 100%; align-items: center;">
         
-        <!-- 1. Customer Field -->
-        <div class="h-form-group group-supplier" style="flex: 2.8; min-width: 325px; display:flex; align-items:center; gap:10px;">
-            <label class="h-label" style="margin:0; white-space:nowrap; font-size: 1.25rem !important; font-weight: 800 !important; color: #34d399;">👤 العميل <span id="fin-status-badge" style="display:none;"><span class="status-dot neutral"></span></span></label>
-            <div style="display: flex; flex-direction: row; align-items: center; gap: 8px; flex: 1; width: 100%;">
+        <!-- 1. Customer Field (Wider allocation + auto-fit customer name + always-visible Ledger icon) -->
+        <div class="h-form-group group-supplier" style="flex: 3.4; min-width: 340px; display:flex; align-items:center; gap:7px; flex-direction: row !important; margin: 0;">
+            <label class="h-label" style="margin:0; white-space:nowrap; font-size: 0.95rem !important; font-weight: 800 !important; color: var(--amber, #f59e0b);">👤 العميل</label>
+            <div class="h-input-wrapper" style="display: flex; flex-direction: row; align-items: center; gap: 6px; flex: 1; min-width: 0; width: 100%;">
                 <div class="custom-dropdown" style="flex:1; min-width: 0;">
                     <div class="custom-dropdown-input-wrap" style="position: relative;">
-                        <input type="text" class="ctrl-input v-input" id="hdr-customer-search" placeholder="ابحث عن اسم العميل..." onfocus="showCustomerDropdown()" onblur="hideCustomerDropdownDelayed()" oninput="filterCustomerDropdown()" style="width:100%; padding-left: 95px !important; font-size: 1.45rem !important; font-weight: 800 !important; color: var(--green, #10b981);" autocomplete="one-time-code">
-                        <button type="button" id="hdr-customer-ledger-btn" onclick="openGeneralLedgerForAccount('cust-' + document.getElementById('hdr-customer').value)" style="display: none;" title="دفتر الأستاذ العام">📖 أستاذ</button>
-                        <input type="hidden" id="hdr-customer" onchange="if(typeof onCustomerChange === 'function') onCustomerChange()">
+                        <input type="text" class="ctrl-input v-input" id="hdr-customer-search" placeholder="ابحث عن اسم العميل..." onfocus="showCustomerDropdown()" onblur="hideCustomerDropdownDelayed()" oninput="filterCustomerDropdown(); if(window.autoFitHeaderFields) window.autoFitHeaderFields();" style="width:100%; padding-left: 72px !important; padding-right: 10px !important; font-size: 1.15rem; font-weight: 900; color: var(--amber, #fbbf24); background-color: rgba(251,191,36,0.06); border: 1px solid rgba(251,191,36,0.35);" autocomplete="one-time-code">
+                        <button type="button" id="hdr-customer-ledger-btn" onclick="if(typeof window.openCustomerLedgerFromHeader==='function'){window.openCustomerLedgerFromHeader();}else{openGeneralLedgerForAccount('cust-' + document.getElementById('hdr-customer').value);}" class="ledger-btn-2027" title="دفتر الأستاذ العام">📖 أستاذ</button>
+                        <input type="hidden" id="hdr-customer" onchange="if(typeof onCustomerChange === 'function') onCustomerChange(); if(window.autoFitHeaderFields) window.autoFitHeaderFields();">
                         <div class="custom-dropdown-list" id="customer-dropdown-list" style="position: absolute; top: 100%; left: 0; right: 0; z-index: 9999; background: #1e293b; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; max-height: 250px; overflow-y: auto; text-align: right; box-shadow: 0 10px 25px rgba(0,0,0,0.5); display: none;">
                             <!-- Populated via JS -->
                         </div>
                     </div>
                 </div>
-                <button onclick="openModal('add-customer-modal')" style="flex-shrink: 0; background: linear-gradient(135deg, #10b981, #059669); color: #fff; border: 1px solid rgba(16,212,143,0.3); width: 38px; height: 38px; border-radius: 8px; font-size: 1.2rem; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 10px rgba(16, 185, 129, 0.2); transition: 0.2s;" title="إضافة عميل">
+                <button type="button" onclick="openModal('add-customer-modal')" style="flex-shrink: 0; background: linear-gradient(135deg, #10b981, #059669); color: #fff; border: 1px solid rgba(16,212,143,0.4); width: 36px; height: 36px; border-radius: 8px; font-size: 1.1rem; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 10px rgba(16, 185, 129, 0.25); transition: 0.2s;" title="إضافة عميل جديد">
                     ➕
                 </button>
             </div>
         </div>
 
-        <!-- 2. Exchange Rate Field -->
-        <div class="h-form-group group-currency" style="flex: 1.6; min-width: 200px; display:flex; align-items:center; gap:10px;">
+        <!-- 2. Currency & Exchange Rate Field (Larger bold number, auto-fit) -->
+        <div class="h-form-group group-currency" style="flex: 1.55; min-width: 215px; display:flex; align-items:center; gap:6px; flex-direction: row !important; margin: 0;">
             <label class="h-label" style="margin:0; white-space:nowrap;">💱 الصرف</label>
-            <div style="display: flex; flex-direction: row; align-items: center; gap: 5px; flex: 1; width: 100%;">
-                <select class="v-input ctrl-input system-currency-select" id="hdr-currency" onchange="handleCurrencyChange(this.value)" style="flex: 1.2; min-width:0;">
+            <div class="h-input-wrapper" style="display: flex; flex-direction: row; align-items: center; gap: 5px; flex: 1; min-width: 0; width: 100%;">
+                <select class="v-input ctrl-input system-currency-select" id="hdr-currency" onchange="handleCurrencyChange(this.value); if(window.autoFitHeaderFields) window.autoFitHeaderFields();" style="flex: 1.05; min-width: 82px; padding: 0 6px;">
                     <option value="SDG">🇸🇩 جنيه</option>
                     <option value="USD">🇺🇸 دولار</option>
                     <option value="SAR">🇸🇦 ريال</option>
                     <option value="AED">🇦🇪 درهم</option>
                     <option value="EGP">🇪🇬 مصري</option>
                 </select>
-                <input type="number" class="v-input ctrl-input" id="hdr-exchange-rate" value="<?php echo htmlspecialchars((string)$systemUsdRate); ?>" placeholder="الصرف" readonly style="flex: 1.2; text-align: center; cursor:pointer; background:rgba(16,185,129,0.1); color:#10b981; font-weight:bold;" onclick="if(typeof window.openGlobalExchangeRateModal === 'function') window.openGlobalExchangeRateModal((r)=>{this.value=r; this.dataset.userEdited='1'; if(typeof recalcAll === 'function') recalcAll(); else if(typeof recalcTotals==='function') recalcTotals(); else if(typeof calcTotals==='function') calcTotals(); else if(typeof window.updateCurrency==='function') window.updateCurrency();});">
+                <input type="number" class="v-input ctrl-input" id="hdr-exchange-rate" value="<?php echo htmlspecialchars((string)$systemUsdRate); ?>" placeholder="الصرف" readonly style="flex: 1.25; min-width: 92px; text-align: center; cursor:pointer; background:rgba(16,185,129,0.12); color:#34d399; border: 1px solid rgba(16,185,129,0.45);" onclick="if(typeof window.openGlobalExchangeRateModal === 'function') window.openGlobalExchangeRateModal((r)=>{this.value=r; this.dataset.userEdited='1'; if(window.autoFitHeaderFields) window.autoFitHeaderFields(); if(typeof recalcAll === 'function') recalcAll(); else if(typeof recalcTotals==='function') recalcTotals(); else if(typeof calcTotals==='function') calcTotals(); else if(typeof window.updateCurrency==='function') window.updateCurrency();});">
             </div>
         </div>
 
-        <!-- 3. Warehouse -->
-        <div class="h-form-group group-warehouse" style="flex: 1.3; min-width: 170px; display:flex; align-items:center; gap:10px;">
-            <label class="h-label" style="margin:0; white-space:nowrap; min-width:60px;">📦 المخزن</label>
-            <div style="flex:1;">
-                <select class="v-input ctrl-input" id="hdr-warehouse" onchange="onMainWarehouseChange()" style="width:100%;"></select>
+        <!-- 3. Warehouse (Auto-fit text inside allocated box) -->
+        <div class="h-form-group group-warehouse" style="flex: 1.25; min-width: 165px; display:flex; align-items:center; gap:6px; flex-direction: row !important; margin: 0;">
+            <label class="h-label" style="margin:0; white-space:nowrap;">📦 المخزن</label>
+            <div class="h-input-wrapper" style="flex:1; min-width: 0;">
+                <select class="v-input ctrl-input" id="hdr-warehouse" onchange="onMainWarehouseChange(); if(window.autoFitHeaderFields) window.autoFitHeaderFields();" style="width:100%; font-weight: 800;"></select>
             </div>
         </div>
 
-        <!-- 4. Cost Center -->
-        <div class="h-form-group group-cost-center" style="flex: 1.3; min-width: 170px; display:flex; align-items:center; gap:10px;">
-            <label class="h-label" style="margin:0; white-space:nowrap; min-width:75px;">🏷️ مركز التكلفة</label>
-            <div style="flex:1;">
-                <select class="v-input ctrl-input" id="hdr-cost-center" style="width:100%;">
+        <!-- 4. Cost Center / Sub-branch (Auto-fit text inside allocated box) -->
+        <div class="h-form-group group-cost-center" style="flex: 1.25; min-width: 165px; display:flex; align-items:center; gap:6px; flex-direction: row !important; margin: 0;">
+            <label class="h-label" style="margin:0; white-space:nowrap;">🏷️ الفرع</label>
+            <div class="h-input-wrapper" style="flex:1; min-width: 0;">
+                <select class="v-input ctrl-input" id="hdr-cost-center" onchange="if(window.autoFitHeaderFields) window.autoFitHeaderFields();" style="width:100%; font-weight: 800;">
                     <option value="cc-001">الفرع الرئيسي</option>
                     <option value="cc-002">فرع بحري</option>
                 </select>
@@ -3477,30 +3946,207 @@ try {
         <style id="dynamic-studio-styles"></style>
 
 
-        <div class="items-toolbar" style="display: flex; align-items: center; justify-content: center; padding: 15px; border-radius: 12px; background: rgba(18, 15, 25, 0.8); border: 1px solid rgba(255,255,255,0.05); margin-top: 15px; box-shadow: 0 4px 20px rgba(0,0,0,0.2);">
-            <div class="toolbar-actions" style="display: flex; gap: 10px; width: 100%; align-items: center; flex-wrap: wrap;">
-                <button type="button" class="btn-action royal-crystal-btn royal-btn-exit btn-exit" style="flex: 0.9; min-width: 95px; height: 46px; font-size: 1rem; font-weight: 900; border-radius: 10px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px;" onclick="if(typeof showSalesHub === 'function' && document.getElementById('sales-hub-view')) { showSalesHub(); } else if(typeof magaieesGoBack === 'function') { magaieesGoBack(); } else { window.location.href='dashboard-pro.php'; }" title="الخروج والرجوع لبوابة المبيعات أو الرئيسية">🚪 خروج</button>
+        <style id="sales-buttons-typography-2027">
+            /* ═══════════════════════════════════════════════════════════════════════
+               2027 WORLD-CLASS BUTTON TYPOGRAPHY, ALIGNMENT & AUTO-FIT SYSTEM
+               ═══════════════════════════════════════════════════════════════════════ */
+            #invoice-editor-view button,
+            #invoice-editor-view .btn-action,
+            #invoice-editor-view .royal-crystal-btn,
+            #invoice-editor-view .pay-toggle-btn,
+            #invoice-editor-view .tot-toggle-btn,
+            #invoice-editor-view .crystal-btn,
+            :root.light-theme #invoice-editor-view .btn-action,
+            :root.light-theme #invoice-editor-view .royal-crystal-btn,
+            :root.light-theme #invoice-editor-view .pay-toggle-btn,
+            :root.light-theme #invoice-editor-view .tot-toggle-btn {
+                font-family: 'Cairo', 'Tajawal', sans-serif !important;
+                white-space: nowrap !important;
+                line-height: 1.15 !important;
+                letter-spacing: 0 !important;
+                text-align: center !important;
+                vertical-align: middle !important;
+                box-sizing: border-box !important;
+            }
 
-                <button type="button" class="btn-action royal-crystal-btn royal-btn-delete btn-delete" style="flex: 1; min-width: 105px; height: 46px; font-size: 1rem; font-weight: 900; border-radius: 10px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px;" onclick="confirmDeleteTransaction()" title="حذف أو إلغاء الفاتورة الحالية">🗑️ حذف / إلغاء</button>
+            /* Bottom Toolbar Container & Buttons (100% Matched with Purchase Screen) */
+            #invoice-editor-view .items-toolbar {
+                padding: 12px 14px !important;
+                border-radius: 14px !important;
+                background: linear-gradient(145deg, rgba(15, 23, 42, 0.88), rgba(18, 15, 28, 0.92)) !important;
+                border: 1px solid rgba(56, 189, 248, 0.18) !important;
+                margin-top: 14px !important;
+                box-shadow: 0 8px 28px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.06) !important;
+            }
+            #invoice-editor-view .toolbar-actions {
+                display: flex !important;
+                gap: 8px !important;
+                width: 100% !important;
+                align-items: center !important;
+                justify-content: space-between !important;
+                flex-wrap: nowrap !important;
+            }
+            @media (max-width: 1180px) {
+                #invoice-editor-view .toolbar-actions {
+                    flex-wrap: wrap !important;
+                }
+            }
+            #invoice-editor-view .toolbar-actions .btn-action,
+            :root.light-theme #invoice-editor-view .toolbar-actions .btn-action {
+                height: 44px !important;
+                min-height: 44px !important;
+                max-height: 44px !important;
+                padding: 0 12px !important;
+                border-radius: 11px !important;
+                display: inline-flex !important;
+                flex-direction: row !important;
+                align-items: center !important;
+                justify-content: center !important;
+                gap: 6px !important;
+                font-size: 0.94rem !important;
+                font-weight: 900 !important;
+                white-space: nowrap !important;
+                overflow: hidden !important;
+                text-overflow: ellipsis !important;
+                line-height: 1 !important;
+            }
+            #invoice-editor-view .toolbar-actions .btn-action svg,
+            #invoice-editor-view .pay-toggle-btn svg,
+            #invoice-editor-view .tot-toggle-btn svg {
+                flex-shrink: 0 !important;
+                display: block !important;
+            }
+            #invoice-editor-view .toolbar-actions .btn-action span,
+            #invoice-editor-view .pay-toggle-btn span,
+            #invoice-editor-view .tot-toggle-btn span {
+                display: inline-block !important;
+                line-height: 1.15 !important;
+                white-space: nowrap !important;
+            }
 
-                <button type="button" class="btn-action royal-crystal-btn royal-btn-edit btn-draft" style="flex: 1; min-width: 105px; height: 46px; font-size: 1rem; font-weight: 900; border-radius: 10px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px;" onclick="saveDraft()" title="حفظ الفاتورة كمسودة قابلة للتعديل">💾 مسودة</button>
+            /* Auto-Send Control Box in Bottom Toolbar */
+            #auto-send-control-wrapper-sales {
+                height: 44px !important;
+                min-height: 44px !important;
+                max-height: 44px !important;
+                display: inline-flex !important;
+                align-items: stretch !important;
+                flex-shrink: 0 !important;
+            }
+            #btn-toggle-auto-send-sales,
+            :root.light-theme #btn-toggle-auto-send-sales {
+                height: 44px !important;
+                min-height: 44px !important;
+                max-height: 44px !important;
+                padding: 0 10px !important;
+                display: inline-flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                gap: 5px !important;
+                white-space: nowrap !important;
+                font-size: 0.86rem !important;
+                font-weight: 800 !important;
+            }
+            #btn-auto-send-options-sales,
+            :root.light-theme #btn-auto-send-options-sales {
+                height: 44px !important;
+                min-height: 44px !important;
+                max-height: 44px !important;
+                width: 30px !important;
+                padding: 0 !important;
+                display: inline-flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                font-size: 0.78rem !important;
+            }
+
+            /* Preset Selector in Bottom Toolbar */
+            #invoice-editor-view #preset-selector,
+            :root.light-theme #invoice-editor-view #preset-selector {
+                height: 44px !important;
+                min-height: 44px !important;
+                max-height: 44px !important;
+                padding: 0 10px !important;
+                font-size: 0.88rem !important;
+                font-weight: 800 !important;
+                font-family: 'Cairo', 'Tajawal', sans-serif !important;
+                text-align: center !important;
+                border-radius: 11px !important;
+                white-space: nowrap !important;
+                text-overflow: ellipsis !important;
+            }
+
+            /* Payment Toggles & Extra Cost Toggles Typography */
+            #invoice-editor-view .pay-toggle-btn,
+            :root.light-theme #invoice-editor-view .pay-toggle-btn {
+                height: 36px !important;
+                min-height: 36px !important;
+                padding: 0 13px !important;
+                border-radius: 18px !important;
+                font-size: 0.88rem !important;
+                font-weight: 800 !important;
+                display: inline-flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                gap: 6px !important;
+                white-space: nowrap !important;
+                line-height: 1 !important;
+            }
+            #invoice-editor-view .tot-toggle-btn,
+            :root.light-theme #invoice-editor-view .tot-toggle-btn {
+                height: 35px !important;
+                min-height: 35px !important;
+                padding: 0 13px !important;
+                border-radius: 9px !important;
+                font-size: 0.88rem !important;
+                font-weight: 800 !important;
+                display: inline-flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                gap: 5px !important;
+                white-space: nowrap !important;
+                line-height: 1 !important;
+            }
+        </style>
+
+        <div class="items-toolbar">
+            <div class="toolbar-actions">
+                <!-- Exit Button -->
+                <button type="button" class="btn-action royal-crystal-btn royal-btn-exit btn-exit" style="flex: 0.75; min-width: 84px;" onclick="if(typeof showSalesHub === 'function' && document.getElementById('sales-hub-view')) { showSalesHub(); } else if(typeof magaieesGoBack === 'function') { magaieesGoBack(); } else { window.location.href='dashboard-pro.php'; }" title="الخروج والرجوع لبوابة المبيعات أو الرئيسية">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                    <span>خروج</span>
+                </button>
+
+                <!-- Delete / Cancel Button -->
+                <button type="button" class="btn-action royal-crystal-btn royal-btn-delete btn-delete" style="flex: 0.95; min-width: 112px; background: linear-gradient(135deg, rgba(225, 29, 72, 0.85), rgba(159, 18, 57, 0.92)) !important; border: 1px solid rgba(251, 113, 133, 0.45) !important; box-shadow: 0 4px 15px rgba(225, 29, 72, 0.28) !important;" onclick="confirmDeleteTransaction()" title="حذف أو إلغاء الفاتورة الحالية">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+                    <span>حذف / إلغاء</span>
+                </button>
+
+                <!-- Draft Button -->
+                <button type="button" class="btn-action royal-crystal-btn royal-btn-edit btn-draft" style="flex: 0.85; min-width: 92px;" onclick="saveDraft()" title="حفظ الفاتورة كمسودة قابلة للتعديل">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                    <span>مسودة</span>
+                </button>
                 
                 <!-- Unified Print Studio & Preview Button -->
-                <button type="button" class="btn-action royal-crystal-btn royal-btn-print" style="flex: 1.8; min-width: 185px; height: 46px; font-size: 1rem; font-weight: 900; border-radius: 10px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px;" onclick="openStandalonePrintPreview();" title="استوديو الطباعة والمعاينة الحية">
-                    🖨️ استوديو المعاينة والطباعة
+                <button type="button" class="btn-action royal-crystal-btn royal-btn-print" style="flex: 1.25; min-width: 140px;" onclick="openStandalonePrintPreview();" title="استوديو الطباعة والمعاينة الحية">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+                    <span>معاينة وطباعة</span>
                 </button>
-                <div class="preset-selector-container" style="flex: 1.3; min-width: 130px; display: flex; gap: 5px;">
-                    <select id="preset-selector" class="ctrl-input" style="height: 46px; margin: 0; background: rgba(15, 23, 42, 0.9); border: 1px solid rgba(56, 189, 248, 0.4); border-radius: 10px; color: #fff; font-weight: bold; flex: 1;" onchange="loadPreset(this.value)">
+
+                <div class="preset-selector-container" style="flex: 1.05; min-width: 120px; display: flex; gap: 4px;">
+                    <select id="preset-selector" class="ctrl-input" style="margin: 0; background: rgba(15, 23, 42, 0.9); border: 1px solid rgba(56, 189, 248, 0.4); color: #fff; flex: 1;" onchange="loadPreset(this.value)">
                         <option value="">⚙️ التخصيصات (0)</option>
                     </select>
                 </div>
                 
                 <!-- Share Button: Professional with dropdown -->
-                <div style="position: relative; flex: 1.1; min-width: 115px;" id="share-btn-wrapper">
-                    <button type="button" class="btn-action royal-crystal-btn royal-btn-whatsapp btn-share" id="btn-share-invoice" style="width: 100%; height: 46px; font-size: 1rem; font-weight: 900; border-radius: 10px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px;" onclick="toggleShareMenu(event)">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+                <div style="position: relative; flex: 0.95; min-width: 104px;" id="share-btn-wrapper">
+                    <button type="button" class="btn-action royal-crystal-btn royal-btn-whatsapp btn-share" id="btn-share-invoice" style="width: 100%;" onclick="toggleShareMenu(event)">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
                         <span>مشاركة</span>
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="opacity: 0.7;"><polyline points="6 9 12 15 18 9"/></svg>
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="opacity: 0.75;"><polyline points="6 9 12 15 18 9"/></svg>
                     </button>
                     <!-- Share Popup Menu -->
                     <div id="share-popup-menu" style="display: none; position: absolute; bottom: 55px; left: 50%; transform: translateX(-50%) scale(0.9); opacity: 0; min-width: 220px; background: linear-gradient(160deg, rgba(30,27,50,0.98), rgba(15,12,30,0.98)); border: 1px solid rgba(139, 92, 246, 0.35); border-radius: 16px; padding: 8px; box-shadow: 0 15px 40px rgba(0,0,0,0.5), 0 0 30px rgba(139, 92, 246, 0.15); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); z-index: 9999; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);">
@@ -3532,44 +4178,80 @@ try {
                 </div>
 
                 <!-- New Button: Unified Cyan-Sky Crystal Gradient -->
-                <button type="button" class="btn-action royal-crystal-btn royal-btn-new btn-new" id="btn-new-invoice" style="flex: 1; min-width: 100px; height: 46px; font-size: 1.05rem; font-weight: 900; border-radius: 10px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px;" onclick="onSuccessNewInvoice(false);" title="بدء فاتورة مبيعات جديدة وتفريغ الحقول">✨ جديد</button>
+                <button type="button" class="btn-action royal-crystal-btn royal-btn-new btn-new" id="btn-new-invoice" style="flex: 0.85; min-width: 88px;" onclick="onSuccessNewInvoice(false);" title="بدء فاتورة مبيعات جديدة وتفريغ الحقول">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    <span>جديد</span>
+                </button>
 
                 <!-- زر التحكم في الإرسال التلقائي مع الحفظ -->
                 <div class="auto-send-control-box" id="auto-send-control-wrapper-sales">
                     <button type="button" class="btn crystal-btn btn-auto-send-toggle-unit inactive" id="btn-toggle-auto-send-sales" onclick="window.toggleSalesAutoSendMode()" title="التحكم في الإرسال التلقائي: انقر للتبديل بين الحفظ مع الإرسال، أو الحفظ فقط بدون إرسال">
-                        <span id="auto-send-sales-icon" style="font-size: 1.1rem;">💾</span>
-                        <span id="auto-send-sales-label" style="font-weight: 800;">إرسال تلقائي:</span>
-                        <span id="auto-send-sales-status-pill" style="padding: 2px 8px; border-radius: 7px; font-size: 0.76rem; font-weight: 900;">معطّل (حفظ فقط)</span>
+                        <span id="auto-send-sales-icon" style="font-size: 1.02rem;">💾</span>
+                        <span id="auto-send-sales-label" style="font-weight: 800; font-size: 0.85rem;">إرسال تلقائي:</span>
+                        <span id="auto-send-sales-status-pill" style="padding: 2px 7px; border-radius: 6px; font-size: 0.73rem; font-weight: 900;">معطّل (حفظ فقط)</span>
                     </button>
                     <button type="button" class="btn crystal-btn btn-auto-send-options-unit inactive" id="btn-auto-send-options-sales" onclick="window.toggleSalesAutoSendDropdown(event)" title="خيارات نوع الإرسال التلقائي (إذن استلام، فاتورة وكشف)">
                         ▼
                     </button>
                     
-                    <!-- القائمة المنسدلة للخيارات السريعة -->
-                    <div class="auto-send-menu-dropdown" id="auto-send-sales-dropdown-menu">
-                        <div style="font-size: 0.78rem; color: #94a3b8; font-weight: 800; padding: 5px 10px; border-bottom: 1px solid rgba(255,255,255,0.1); margin-bottom: 4px; display: flex; justify-content: space-between; align-items: center;">
-                            <span>⚙️ نوع الإرسال التلقائي عند الحفظ:</span>
+                    <!-- القائمة المنسدلة الملكية للخيارات السريعة -->
+                    <div class="auto-send-menu-dropdown" id="auto-send-sales-dropdown-menu" style="display: none;">
+                        <div class="auto-send-menu-header">
+                            <span style="display: inline-flex; align-items: center; gap: 7px;">
+                                <span style="font-size: 1rem;">⚙️</span>
+                                <span>نوع الإرسال التلقائي عند الحفظ</span>
+                            </span>
+                            <span style="font-size: 0.68rem; padding: 2px 8px; border-radius: 20px; background: rgba(56, 189, 248, 0.16); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3);">واتساب ذكي</span>
                         </div>
-                        <div class="auto-send-menu-item" onclick="window.selectSalesAutoSendOption('disabled')">
-                            <span>💾</span> <span>حفظ فقط (بدون إرسال)</span>
+                        <div class="auto-send-menu-item active-option" data-mode="disabled" onclick="window.selectSalesAutoSendOption('disabled')">
+                            <span class="auto-send-item-icon" style="background: linear-gradient(135deg, rgba(100, 116, 139, 0.35), rgba(51, 65, 85, 0.6)) !important; border-color: rgba(148, 163, 184, 0.4) !important;">💾</span>
+                            <div class="auto-send-item-content">
+                                <span class="auto-send-item-title" style="color: #f1f5f9;">حفظ فقط (بدون إرسال)</span>
+                                <span class="auto-send-item-sub">اعتماد وحفظ الفاتورة دون إرسال رسائل</span>
+                            </div>
+                            <span class="auto-send-item-check">✓</span>
                         </div>
-                        <div class="auto-send-menu-item" onclick="window.selectSalesAutoSendOption('delivery_order_doc')" style="color: #38bdf8;">
-                            <span>📄</span> <span>إذن استلام وتسليم رسمي (كميات فقط)</span>
+                        <div class="auto-send-menu-item" data-mode="delivery_order_doc" onclick="window.selectSalesAutoSendOption('delivery_order_doc')">
+                            <span class="auto-send-item-icon" style="background: linear-gradient(135deg, rgba(14, 165, 233, 0.3), rgba(2, 132, 199, 0.55)) !important; border-color: rgba(56, 189, 248, 0.45) !important;">📄</span>
+                            <div class="auto-send-item-content">
+                                <span class="auto-send-item-title" style="color: #38bdf8;">إذن استلام وتسليم رسمي (كميات فقط)</span>
+                                <span class="auto-send-item-sub">مستند استلام مخزني معتمد بدون أسعار</span>
+                            </div>
+                            <span class="auto-send-item-check">✓</span>
                         </div>
-                        <div class="auto-send-menu-item" onclick="window.selectSalesAutoSendOption('delivery_order_text')" style="color: #f59e0b;">
-                            <span>📝</span> <span>إذن استلام كتابة كمعلومة (نص سريع)</span>
+                        <div class="auto-send-menu-item" data-mode="delivery_order_text" onclick="window.selectSalesAutoSendOption('delivery_order_text')">
+                            <span class="auto-send-item-icon" style="background: linear-gradient(135deg, rgba(245, 158, 11, 0.3), rgba(217, 119, 6, 0.55)) !important; border-color: rgba(251, 191, 36, 0.45) !important;">📝</span>
+                            <div class="auto-send-item-content">
+                                <span class="auto-send-item-title" style="color: #fbbf24;">إذن استلام كتابة كمعلومة (نص سريع)</span>
+                                <span class="auto-send-item-sub">رسالة نصية سريعة بتفاصيل الأصناف</span>
+                            </div>
+                            <span class="auto-send-item-check">✓</span>
                         </div>
-                        <div class="auto-send-menu-item" onclick="window.selectSalesAutoSendOption('invoice_doc')" style="color: #ca8a04;">
-                            <span>🧾</span> <span>فاتورة مبيعات مصممة (تصميم رسمي)</span>
+                        <div class="auto-send-menu-item" data-mode="invoice_doc" onclick="window.selectSalesAutoSendOption('invoice_doc')">
+                            <span class="auto-send-item-icon" style="background: linear-gradient(135deg, rgba(168, 85, 247, 0.3), rgba(126, 34, 206, 0.55)) !important; border-color: rgba(192, 132, 252, 0.45) !important;">🧾</span>
+                            <div class="auto-send-item-content">
+                                <span class="auto-send-item-title" style="color: #c084fc;">فاتورة مبيعات مصممة (تصميم رسمي)</span>
+                                <span class="auto-send-item-sub">إرسال صورة/مستند الفاتورة الكاملة للعميل</span>
+                            </div>
+                            <span class="auto-send-item-check">✓</span>
                         </div>
-                        <div class="auto-send-menu-item" onclick="window.selectSalesAutoSendOption('invoice')" style="color: #10b981;">
-                            <span>💰</span> <span>نص الفاتورة وكشف الحساب</span>
+                        <div class="auto-send-menu-item" data-mode="invoice" onclick="window.selectSalesAutoSendOption('invoice')">
+                            <span class="auto-send-item-icon" style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.3), rgba(5, 150, 105, 0.55)) !important; border-color: rgba(52, 211, 153, 0.45) !important;">💰</span>
+                            <div class="auto-send-item-content">
+                                <span class="auto-send-item-title" style="color: #34d399;">نص الفاتورة وكشف الحساب</span>
+                                <span class="auto-send-item-sub">ملخص مالي للفاتورة مع الرصيد وكشف الحساب</span>
+                            </div>
+                            <span class="auto-send-item-check">✓</span>
                         </div>
                     </div>
                 </div>
                 
+                <!-- Submit Button -->
                 <span style="display:none;" id="footer-grand"></span>
-                <button type="button" class="btn-action royal-crystal-btn royal-btn-save btn-submit" style="flex: 1.5; min-width: 145px; height: 46px; font-size: 1.1rem; font-weight: 900; border-radius: 10px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px;" onclick="submitInvoice()">✅ حفظ واعتماد</button>
+                <button type="button" class="btn-action royal-crystal-btn royal-btn-save btn-submit" style="flex: 1.35; min-width: 138px;" onclick="submitInvoice()">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                    <span>حفظ واعتماد</span>
+                </button>
             </div>
         </div>
 
@@ -3769,9 +4451,13 @@ try {
             
             // If creating a new invoice, reset the editor form and load the next invoice number
             if (!isEdit && typeof onSuccessNewInvoice === 'function') {
-                onSuccessNewInvoice(false);
+                onSuccessNewInvoice(true);
             }
             
+            requestAnimationFrame(() => {
+                if (typeof window.autoFitHeaderFields === 'function') window.autoFitHeaderFields();
+                if (typeof window.autoFitGridCells === 'function') window.autoFitGridCells();
+            });
             window.dispatchEvent(new Event('resize'));
         }
 
@@ -4298,11 +4984,20 @@ try {
             loadHubTransactions();
         }
 
-        // Initialize view on load
+        // Initialize view on load (Respects ?action=new & ?id=... URL parameters)
         document.addEventListener('DBReady', () => {
-            // Wait a brief moment for other scripts to initialize
             setTimeout(() => {
-                showSalesHub();
+                const urlParams = new URLSearchParams(window.location.search);
+                const actionParam = urlParams.get('action');
+                const idParam = urlParams.get('id');
+                if (idParam) {
+                    return;
+                }
+                if (actionParam === 'new' || actionParam === 'direct' || actionParam === 'pending_delivery' || actionParam === 'preliminary' || actionParam === 'proforma') {
+                    openInvoiceEditor(actionParam === 'new' || actionParam === 'direct' ? 'pending_delivery' : (actionParam === 'proforma' ? 'preliminary' : actionParam));
+                } else {
+                    showSalesHub();
+                }
             }, 50);
         });
 
@@ -4982,9 +5677,26 @@ try {
             }
         }
     };
+    // Smart Canvas Text-Width Measurement Engine (2027 World-Class Precision)
+    let _salesHeaderMeasureCanvas = null;
+    function measureSalesTextWidthPx(text, fontStr) {
+        try {
+            if (!_salesHeaderMeasureCanvas) _salesHeaderMeasureCanvas = document.createElement('canvas');
+            const ctx = _salesHeaderMeasureCanvas.getContext('2d');
+            ctx.font = fontStr;
+            return ctx.measureText(text || '').width;
+        } catch (e) {
+            return (text ? text.length : 0) * 10;
+        }
+    }
+
     window.applyGridSettings = function() {
         let cfg = window.CurrentGridConfig;
         if (!cfg || !cfg.columns) return;
+
+        // Clear initial SSR dynamic style so live customization rules take 100% precedence
+        const ssrStyle = document.getElementById('dynamic-pos-grid-style');
+        if (ssrStyle) ssrStyle.innerHTML = '';
         
         let style = document.getElementById('dynamic-grid-style');
         if (!style) {
@@ -4993,40 +5705,74 @@ try {
             document.head.appendChild(style);
         }
         
+        const baseFontSize = (cfg.fontSize || 16) + 'px';
+        const baseFontWeight = cfg.fontWeight || 'normal';
+        const baseFontFamily = cfg.fontFamily || "'Cairo', sans-serif";
+        const baseFontColor = cfg.fontColor || '#ffffff';
+
         let css = `
-            #pos-grid {
-                font-size: ${cfg.fontSize || 16}px !important;
-                font-weight: ${cfg.fontWeight || 'normal'} !important;
-                font-family: ${cfg.fontFamily || "'Cairo', sans-serif"} !important;
-                color: ${cfg.fontColor || '#ffffff'} !important;
+            body #pos-grid,
+            body #pos-grid .g-input,
+            body #pos-grid .g-select,
+            body #pos-grid .total-val,
+            body #pos-grid .g-readonly {
+                font-size: ${baseFontSize} !important;
+                font-weight: ${baseFontWeight} !important;
+                font-family: ${baseFontFamily} !important;
+                color: ${baseFontColor} !important;
             }
         `;
         
         cfg.columns.forEach(col => {
             if (col.visible === false || col.visible === "false" || col.visible === 0) {
                 css += `
-                    #pos-grid th[data-col-id="${col.id}"],
-                    #pos-grid td[data-col-id="${col.id}"] {
+                    body #pos-grid th[data-col-id="${col.id}"],
+                    body #pos-grid td[data-col-id="${col.id}"] {
                         display: none !important;
                     }
                 `;
             } else {
-                let width = col.width ? col.width : 'auto';
+                let rawW = (col.width && col.width !== 'auto') ? String(col.width).trim() : 'auto';
+                if (rawW !== 'auto' && !rawW.endsWith('px') && !rawW.endsWith('%')) rawW += 'px';
+                let widthCss = (rawW !== 'auto')
+                    ? `width: ${rawW} !important; min-width: ${rawW} !important; max-width: ${rawW} !important;`
+                    : `width: auto !important; min-width: 140px !important;`;
                 let align = col.align ? col.align : (cfg.align || 'center');
-                let fontSize = col.fontSize ? col.fontSize + 'px' : 'inherit';
-                let color = col.color ? col.color : 'inherit';
-                let fontWeight = col.fontWeight ? col.fontWeight : 'inherit';
+                let fontSize = col.fontSize ? (String(col.fontSize).replace('px','') + 'px') : baseFontSize;
+                let color = col.color ? col.color : baseFontColor;
+                let fontWeight = col.fontWeight ? col.fontWeight : baseFontWeight;
                 
                 css += `
-                    #pos-grid th[data-col-id="${col.id}"],
-                    #pos-grid td[data-col-id="${col.id}"] {
-                        width: ${width} !important;
-                        min-width: ${width} !important;
-                        max-width: ${width} !important;
+                    body #pos-grid thead tr th[data-col-id="${col.id}"] {
+                        display: table-cell !important;
+                        ${widthCss}
+                        text-align: ${align} !important;
+                        font-size: ${fontSize} !important;
+                        font-weight: ${fontWeight === 'normal' ? '800' : fontWeight} !important;
+                        color: ${col.color && col.color.toLowerCase() !== '#ffffff' && col.color.toLowerCase() !== '#fafafa' ? color : '#38bdf8'} !important;
+                    }
+                    body #pos-grid tbody tr td[data-col-id="${col.id}"] {
+                        display: table-cell !important;
+                        ${widthCss}
                         text-align: ${align} !important;
                         color: ${color} !important;
                         font-size: ${fontSize} !important;
                         font-weight: ${fontWeight} !important;
+                    }
+                    body #pos-grid tbody tr td[data-col-id="${col.id}"] input.g-input,
+                    body #pos-grid tbody tr td[data-col-id="${col.id}"] select.g-select,
+                    body #pos-grid tbody tr td[data-col-id="${col.id}"] .total-val,
+                    body #pos-grid tbody tr td[data-col-id="${col.id}"] .avail-val,
+                    body #pos-grid tbody tr td[data-col-id="${col.id}"] .g-readonly,
+                    :root.light-theme body #pos-grid tbody tr td[data-col-id="${col.id}"] input.g-input,
+                    :root.light-theme body #pos-grid tbody tr td[data-col-id="${col.id}"] select.g-select,
+                    :root.light-theme body #pos-grid tbody tr td[data-col-id="${col.id}"] .total-val,
+                    :root.light-theme body #pos-grid tbody tr td[data-col-id="${col.id}"] .g-readonly {
+                        text-align: ${align} !important;
+                        color: ${color} !important;
+                        font-size: ${fontSize} !important;
+                        font-weight: ${fontWeight} !important;
+                        font-family: ${baseFontFamily} !important;
                     }
                 `;
             }
@@ -5034,16 +5780,21 @@ try {
         
         style.innerHTML = css;
 
-        // DOM Reordering
+        // DOM Reordering & Header Name Synchronization
         const table = document.getElementById('pos-grid');
         if (!table) return;
 
-        // Reorder thead
+        // Reorder thead & sync column names
         const theadTr = table.querySelector('thead tr');
         if (theadTr) {
             cfg.columns.forEach(col => {
                 const th = theadTr.querySelector(`th[data-col-id="${col.id}"]`);
                 if (th) {
+                    if (col.name && col.id !== 'col_price' && col.id !== 'col_total') {
+                        const resizer = th.querySelector('.col-resizer');
+                        th.textContent = col.name;
+                        if (resizer) th.appendChild(resizer);
+                    }
                     theadTr.appendChild(th);
                 }
             });
@@ -5052,7 +5803,6 @@ try {
         // Reorder tbody
         const tbodyRows = table.querySelectorAll('tbody tr');
         tbodyRows.forEach(tr => {
-            // skip rows that span across (e.g. empty state)
             if (tr.children.length === 1 && tr.children[0].colSpan > 1) return;
             
             cfg.columns.forEach(col => {
@@ -5085,7 +5835,273 @@ try {
                 }
             });
         }
+
+        if (typeof window.initSalesColumnResizers === 'function') window.initSalesColumnResizers();
+        if (typeof window.autoFitGridCells === 'function') {
+            requestAnimationFrame(() => window.autoFitGridCells());
+        }
     };
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    //  2027 SMART AUTO-FIT FONT SCALING (Header Fields + Grid Cells via Canvas)
+    // ═══════════════════════════════════════════════════════════════════════════
+    window.autoFitHeaderFields = function() {
+        try {
+            // 1. Invoice Number (#inv-number)
+            const invNoEl = document.getElementById('inv-number');
+            if (invNoEl) {
+                const invText = (invNoEl.textContent || '').trim();
+                const parentW = (invNoEl.parentElement ? invNoEl.parentElement.clientWidth : 170) - 52;
+                let invPx = 20;
+                if (invText && parentW > 40) {
+                    while (invPx > 13.5 && measureSalesTextWidthPx(invText, `900 ${invPx}px 'Outfit', sans-serif`) > parentW) {
+                        invPx -= 0.5;
+                    }
+                }
+                invNoEl.style.setProperty('font-size', invPx + 'px', 'important');
+            }
+
+            // 2. Customer Search Input (#hdr-customer-search) — Scales with name length & box width
+            const custInput = document.getElementById('hdr-customer-search');
+            if (custInput) {
+                const val = (custInput.value || '').trim();
+                const availW = Math.max(120, (custInput.clientWidth || 280) - 82);
+                let px = 19.5;
+                if (val) {
+                    while (px > 12.5 && measureSalesTextWidthPx(val, `900 ${px}px 'Cairo', 'Tajawal', sans-serif`) > availW) {
+                        px -= 0.5;
+                    }
+                }
+                custInput.style.setProperty('font-size', px + 'px', 'important');
+            }
+
+            // 3. Exchange Rate (#hdr-exchange-rate) — Prominent Bold Number Fitted to Box
+            const rateInput = document.getElementById('hdr-exchange-rate');
+            if (rateInput) {
+                const val = String(rateInput.value || '').trim();
+                const availW = Math.max(60, (rateInput.clientWidth || 100) - 14);
+                let px = 22;
+                if (val) {
+                    while (px > 14.5 && measureSalesTextWidthPx(val, `900 ${px}px 'Outfit', sans-serif`) > availW) {
+                        px -= 0.5;
+                    }
+                }
+                rateInput.style.setProperty('font-size', px + 'px', 'important');
+            }
+
+            // 4. Currency Select (#hdr-currency)
+            const curSel = document.getElementById('hdr-currency');
+            if (curSel && curSel.options && curSel.selectedIndex >= 0) {
+                const optText = (curSel.options[curSel.selectedIndex].text || '').trim();
+                const availW = Math.max(55, (curSel.clientWidth || 88) - 24);
+                let px = 15.5;
+                if (optText) {
+                    while (px > 11.5 && measureSalesTextWidthPx(optText, `800 ${px}px 'Cairo', 'Tajawal', sans-serif`) > availW) {
+                        px -= 0.5;
+                    }
+                }
+                curSel.style.setProperty('font-size', px + 'px', 'important');
+            }
+
+            // 5. Warehouse (#hdr-warehouse) & Sub-branch / Cost Center (#hdr-cost-center)
+            ['hdr-warehouse', 'hdr-cost-center'].forEach(selId => {
+                const sel = document.getElementById(selId);
+                if (!sel || !sel.options || sel.selectedIndex < 0) return;
+                const optText = (sel.options[sel.selectedIndex].text || '').trim();
+                const availW = Math.max(75, (sel.clientWidth || 140) - 30);
+                let px = 15.5;
+                if (optText) {
+                    while (px > 11.5 && measureSalesTextWidthPx(optText, `800 ${px}px 'Cairo', 'Tajawal', sans-serif`) > availW) {
+                        px -= 0.5;
+                    }
+                }
+                sel.style.setProperty('font-size', px + 'px', 'important');
+            });
+
+            // 6. Auto-Fit Text Inside Action & Toggle Buttons (#invoice-editor-view)
+            const editorBtns = document.querySelectorAll('#invoice-editor-view .toolbar-actions .btn-action, #invoice-editor-view .pay-toggle-btn, #invoice-editor-view .tot-toggle-btn');
+            editorBtns.forEach(btn => {
+                const btnW = btn.clientWidth;
+                if (!btnW || btnW < 40) return;
+                const txt = (btn.textContent || '').replace(/\s+/g, ' ').trim();
+                if (!txt) return;
+                const hasSvg = !!btn.querySelector('svg');
+                const iconSpace = hasSvg ? 44 : 28;
+                const availW = Math.max(36, btnW - iconSpace);
+                let px = btn.classList.contains('btn-submit') ? 16 : 15;
+                while (px > 11 && measureSalesTextWidthPx(txt, `900 ${px}px 'Cairo', 'Tajawal', sans-serif`) > availW) {
+                    px -= 0.5;
+                }
+                btn.style.setProperty('font-size', px + 'px', 'important');
+            });
+        } catch (e) {}
+    };
+
+    window.autoFitGridCells = function(targetRow) {
+        try {
+            const table = document.getElementById('pos-grid');
+            const cfg = window.CurrentGridConfig;
+            if (!table || !cfg || !cfg.columns) return;
+            const fontFam = cfg.fontFamily || "'Cairo', sans-serif";
+            const baseGlobalFs = parseFloat(cfg.fontSize) || 18;
+
+            cfg.columns.forEach(col => {
+                if (col.visible === false || col.visible === 'false' || col.visible === 0) return;
+                const basePx = parseFloat(col.fontSize) || baseGlobalFs;
+                const weight = col.fontWeight || cfg.fontWeight || '800';
+
+                // 1. Synchronize Column Header (th) with basePx so enlarging "السعر" or "الكمية" scales both header & cell numbers
+                if (!targetRow) {
+                    const th = table.querySelector(`thead th[data-col-id="${col.id}"]`);
+                    if (th && col.id !== 'col_del' && col.id !== 'action') {
+                        const thText = (th.textContent || col.name || '').trim();
+                        const thAvailW = Math.max(36, (th.clientWidth || parseInt(col.width) || 100) - 18);
+                        let thPx = basePx;
+                        if (thText && thAvailW > 25) {
+                            while (thPx > 12 && measureSalesTextWidthPx(thText, `800 ${thPx}px ${fontFam}`) > thAvailW) {
+                                thPx -= 0.5;
+                            }
+                        }
+                        th.style.setProperty('font-size', thPx + 'px', 'important');
+                    }
+                }
+
+                // 2. Synchronize Cell Inputs/Selects/Values to basePx & auto-fit long values to column width
+                const rowsToScan = targetRow ? [targetRow] : Array.from(table.querySelectorAll('tbody tr'));
+                rowsToScan.forEach(tr => {
+                    const td = tr.querySelector(`td[data-col-id="${col.id}"]`);
+                    if (!td) return;
+                    const ctrl = td.querySelector('input.g-input, select.g-select, .total-val, .avail-val, .g-readonly');
+                    if (!ctrl) return;
+
+                    let textVal = '';
+                    if (ctrl.tagName === 'SELECT') {
+                        textVal = (ctrl.options && ctrl.selectedIndex >= 0) ? (ctrl.options[ctrl.selectedIndex].text || '').trim() : '';
+                    } else if (ctrl.tagName === 'INPUT') {
+                        textVal = (ctrl.value || '').trim();
+                    } else {
+                        textVal = (ctrl.textContent || '').trim();
+                    }
+
+                    const tdW = td.clientWidth || parseInt(col.width) || 120;
+                    const paddingOffset = (col.id === 'col_item' || col.id === 'item') ? 48 : (ctrl.tagName === 'SELECT' ? 28 : 18);
+                    const availW = Math.max(36, tdW - paddingOffset);
+
+                    let targetPx = basePx;
+                    if (textVal && availW > 30) {
+                        while (targetPx > 12 && measureSalesTextWidthPx(textVal, `${weight} ${targetPx}px ${fontFam}`) > availW) {
+                            targetPx -= 0.5;
+                        }
+                    }
+                    ctrl.style.setProperty('font-size', targetPx + 'px', 'important');
+                });
+            });
+        } catch (e) {}
+    };
+
+    // Interactive Column Resizer with Proportional Font Scaling for Price & Qty
+    window.initSalesColumnResizers = function() {
+        const table = document.getElementById('pos-grid');
+        if (!table) return;
+        const row = table.querySelector('thead tr');
+        const cols = row ? row.children : [];
+        if (!cols) return;
+
+        table.querySelectorAll('.col-resizer').forEach(r => r.remove());
+
+        for (let i = 0; i < cols.length; i++) {
+            const th = cols[i];
+            const colId = th.getAttribute('data-col-id');
+            if (colId === 'col_del' || colId === 'action') continue;
+
+            const resizer = document.createElement('div');
+            resizer.className = 'col-resizer';
+            resizer.style.cssText = 'position:absolute; left:0; top:0; width:8px; height:100%; cursor:col-resize; user-select:none; z-index:20; transition: background-color 0.2s;';
+            resizer.addEventListener('mouseenter', () => resizer.style.backgroundColor = 'rgba(56, 189, 248, 0.75)');
+            resizer.addEventListener('mouseleave', () => resizer.style.backgroundColor = 'transparent');
+            th.appendChild(resizer);
+
+            let startX, startWidth, startFontSize;
+
+            resizer.addEventListener('mousedown', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                startX = e.clientX;
+                startWidth = th.offsetWidth || parseInt(th.style.width) || 120;
+                const cfg = window.CurrentGridConfig;
+                const colSetting = cfg && cfg.columns ? cfg.columns.find(c => String(c.id) === String(colId)) : null;
+                startFontSize = colSetting ? (parseFloat(colSetting.fontSize) || 20) : 20;
+
+                function doDrag(ev) {
+                    const dx = ev.clientX - startX;
+                    const newWidth = Math.max(50, startWidth - dx); // RTL
+
+                    th.style.setProperty('width', newWidth + 'px', 'important');
+                    th.style.setProperty('min-width', newWidth + 'px', 'important');
+                    th.style.setProperty('max-width', newWidth + 'px', 'important');
+
+                    const tds = table.querySelectorAll(`tbody td[data-col-id="${colId}"]`);
+                    tds.forEach(td => {
+                        td.style.setProperty('width', newWidth + 'px', 'important');
+                        td.style.setProperty('min-width', newWidth + 'px', 'important');
+                        td.style.setProperty('max-width', newWidth + 'px', 'important');
+                    });
+
+                    if (colSetting) {
+                        colSetting.width = newWidth + 'px';
+                        // Proportional header + number scaling when widening/narrowing Price or Qty columns
+                        if (colId === 'col_price' || colId === 'col_qty') {
+                            const ratio = newWidth / Math.max(60, startWidth);
+                            const scaledFs = Math.max(15, Math.min(34, Math.round(startFontSize * (0.65 + 0.35 * ratio))));
+                            colSetting.fontSize = scaledFs;
+                        }
+                        if (window.autoFitGridCells) window.autoFitGridCells();
+                    }
+                }
+
+                function stopDrag() {
+                    document.removeEventListener('mousemove', doDrag);
+                    document.removeEventListener('mouseup', stopDrag);
+                    if (window.CurrentGridConfig) {
+                        applyGridSettings();
+                        saveGridConfigToDB(window.CurrentGridConfig);
+                    }
+                }
+
+                document.addEventListener('mousemove', doDrag);
+                document.addEventListener('mouseup', stopDrag);
+            });
+        }
+    };
+
+    // Ensure modal column property changes immediately preview on the grid
+    const _origOnSelectedColPropChange = window.onSelectedColPropChange;
+    window.onSelectedColPropChange = function(prop, val) {
+        if (typeof _origOnSelectedColPropChange === 'function') {
+            _origOnSelectedColPropChange(prop, val);
+        }
+        if (tempGridConfig) {
+            window.CurrentGridConfig = JSON.parse(JSON.stringify(tempGridConfig));
+            applyGridSettings();
+        }
+    };
+
+    document.addEventListener('DOMContentLoaded', () => {
+        setTimeout(() => {
+            if (window.autoFitHeaderFields) window.autoFitHeaderFields();
+            if (window.autoFitGridCells) window.autoFitGridCells();
+        }, 250);
+    });
+    window.addEventListener('resize', () => {
+        if (window.autoFitHeaderFields) window.autoFitHeaderFields();
+        if (window.autoFitGridCells) window.autoFitGridCells();
+    });
+    document.addEventListener('input', (e) => {
+        if (e.target && e.target.closest && e.target.closest('#pos-grid')) {
+            const tr = e.target.closest('tr');
+            if (window.autoFitGridCells) window.autoFitGridCells(tr);
+        }
+    });
 
 
 
@@ -5428,7 +6444,7 @@ try {
                     if (hasNew) {
                         localStorage.setItem('erp_sales_invoices_v1', JSON.stringify(localSales));
                         localStorage.setItem('magaies_local_sales_invoices_v1', JSON.stringify(localSales));
-                        if (typeof loadHubTransactions === 'function' && typeof currentView !== 'undefined' && currentView === 'hub') {
+                        if (typeof loadHubTransactions === 'function' && typeof currentSalesView !== 'undefined' && currentSalesView === 'hub') {
                             loadHubTransactions();
                         }
                     }

@@ -307,6 +307,7 @@ window._cachedGlobalRate = window.SYSTEM_USD_RATE;
     }
 })();
 </script>
+<script defer src="js/sidebar-panoramic-flyout.js?v=<?= file_exists(__DIR__ . '/../js/sidebar-panoramic-flyout.js') ? filemtime(__DIR__ . '/../js/sidebar-panoramic-flyout.js') : time() ?>"></script>
 <script defer src="js/erp_alerts_guard.js?v=20260902_v1"></script>
 <style>
 @keyframes neonPulseHeader {

@@ -84,24 +84,24 @@
         }
         :root.light-theme .md-tab-btn {
             background: #ffffff !important;
-            border-color: rgba(0,0,0,0.06) !important;
-            color: #64748b !important;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+            border-color: var(--tab-border-color, rgba(0,0,0,0.15)) !important;
+            color: #0f172a !important;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.04);
             transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
         :root.light-theme .md-tab-btn:hover {
-            background: linear-gradient(135deg, #f8fafc, #f1f5f9) !important;
-            color: #0f172a !important;
+            background: var(--tab-hover-bg, linear-gradient(135deg, #f8fafc, #f1f5f9)) !important;
+            color: #ffffff !important;
             transform: translateY(-3px) scale(1.03);
-            box-shadow: 0 8px 20px rgba(0,0,0,0.08);
-            border-color: rgba(0,0,0,0.12) !important;
+            box-shadow: 0 8px 20px var(--tab-glow-color, rgba(0,0,0,0.12));
+            border-color: var(--tab-border-color, rgba(0,0,0,0.2)) !important;
         }
         :root.light-theme .md-tab-btn.active {
-            background: linear-gradient(135deg, #3b82f6, #60a5fa) !important;
-            border-color: transparent !important;
+            background: var(--tab-active-bg, linear-gradient(135deg, #3b82f6, #60a5fa)) !important;
+            border-color: var(--tab-border-color, transparent) !important;
             color: #ffffff !important;
-            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4) !important;
-            transform: scale(1.05) translateY(-2px);
+            box-shadow: 0 8px 25px var(--tab-glow-color, rgba(59, 130, 246, 0.4)) !important;
+            transform: scale(1.04) translateY(-2px);
         }
         :root.light-theme .md-sidebar-panel {
             background: #ffffff !important;
@@ -181,36 +181,66 @@
             -webkit-backdrop-filter: blur(25px);
             border: 2px solid rgba(255, 255, 255, 0.1);
             border-radius: 20px;
-            padding: 12px;
+            padding: clamp(6px, 0.75vw, 12px);
             display: flex;
             flex-direction: row;
-            align-items: center;
-            overflow-x: auto;
-            gap: 12px;
+            align-items: stretch;
+            justify-content: space-between;
+            overflow: visible;
+            gap: clamp(4px, 0.65vw, 10px);
             box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5), inset 0 1px 2px rgba(255, 255, 255, 0.1);
             margin-bottom: 5px;
+            width: 100%;
+            box-sizing: border-box;
         }
 
         .md-tab-btn {
             position: relative;
+            flex: 1 1 0;
+            min-width: 0;
+            min-height: clamp(44px, 4vw, 60px);
             background: rgba(255, 255, 255, 0.04);
             backdrop-filter: blur(14px);
             -webkit-backdrop-filter: blur(14px);
-            border: 3.8px solid var(--tab-border-color, rgba(255, 255, 255, 0.2)); /* زيادة سمك الحواف بـ 1.5 مرة (3.8px) */
+            border: 3.8px solid var(--tab-border-color, rgba(255, 255, 255, 0.2));
             border-radius: 14px;
-            padding: 11px 18px;
-            font-size: 1.05rem;
-            font-weight: 800;
+            padding: clamp(4px, 0.45vw, 8px) clamp(4px, 0.55vw, 10px);
+            font-size: clamp(0.9rem, 1.65vw, 1.7rem);
+            font-weight: 900;
+            line-height: 1.1;
             color: #e2e8f0;
             cursor: pointer;
             display: flex;
             align-items: center;
-            gap: 10px;
+            justify-content: center;
+            text-align: center;
+            gap: 0;
             white-space: nowrap;
             overflow: hidden;
-            transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+            transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.35s ease, background 0.35s ease, border-color 0.35s ease;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
             z-index: 1;
+            box-sizing: border-box;
+        }
+
+        .md-tab-btn.tab-costcenters {
+            flex: 1.42 1 0;
+        }
+
+        .md-tab-icon {
+            display: none !important;
+        }
+
+        .md-tab-label {
+            display: inline-block;
+            position: relative;
+            z-index: 4;
+            font-weight: 900;
+            line-height: 1.1;
+            white-space: nowrap;
+            text-align: center;
+            pointer-events: none;
+            transform-origin: center center;
         }
 
         /* تأثير لمعة الجليتر البرّاقة الجذابة في الداخل */
@@ -862,18 +892,75 @@
         <?php $header_theme_class = 'header-theme-masterdata'; include 'includes/header.php'; ?>
 
         <aside class="md-tabs-sidebar">
-            <button class="md-tab-btn tab-warehouses active" onclick="openTab(event, 'tab-warehouses')"><span class="md-tab-icon">🏢</span> المخازن</button>
-            <button class="md-tab-btn tab-customers" onclick="openTab(event, 'tab-customers')"><span class="md-tab-icon">👥</span> العملاء</button>
-            <button class="md-tab-btn tab-suppliers" onclick="openTab(event, 'tab-suppliers')"><span class="md-tab-icon">🏭</span> الموردين</button>
-            <button class="md-tab-btn tab-banks" onclick="openTab(event, 'tab-banks')"><span class="md-tab-icon">🏦</span> البنوك</button>
-            <button class="md-tab-btn tab-safes" onclick="openTab(event, 'tab-safes')"><span class="md-tab-icon">💰</span> الخزن</button>
-            <button class="md-tab-btn tab-items" onclick="openTab(event, 'tab-items')"><span class="md-tab-icon">📦</span> الأصناف والوحدات</button>
-            <button class="md-tab-btn tab-employees" onclick="openTab(event, 'tab-employees')"><span class="md-tab-icon">👤</span> الموظفين</button>
-            <button class="md-tab-btn tab-costcenters" onclick="openTab(event, 'tab-costcenters')"><span class="md-tab-icon">📊</span> مراكز التكلفة</button>
-
-            <div style="flex: 1;"></div>
-            <button class="md-tab-btn tab-exit" onclick="goBackOrExit()"><span class="md-tab-icon">🚪</span> خروج / رجوع</button>
+            <button class="md-tab-btn tab-warehouses active" onclick="openTab(event, 'tab-warehouses')"><span class="md-tab-label">المخازن</span></button>
+            <button class="md-tab-btn tab-customers" onclick="openTab(event, 'tab-customers')"><span class="md-tab-label">العملاء</span></button>
+            <button class="md-tab-btn tab-suppliers" onclick="openTab(event, 'tab-suppliers')"><span class="md-tab-label">الموردين</span></button>
+            <button class="md-tab-btn tab-banks" onclick="openTab(event, 'tab-banks')"><span class="md-tab-label">البنوك</span></button>
+            <button class="md-tab-btn tab-safes" onclick="openTab(event, 'tab-safes')"><span class="md-tab-label">الخزن</span></button>
+            <button class="md-tab-btn tab-items" onclick="openTab(event, 'tab-items')"><span class="md-tab-label">الأصناف</span></button>
+            <button class="md-tab-btn tab-employees" onclick="openTab(event, 'tab-employees')"><span class="md-tab-label">الموظفين</span></button>
+            <button class="md-tab-btn tab-costcenters" onclick="openTab(event, 'tab-costcenters')"><span class="md-tab-label">مركز التكلفة</span></button>
+            <button class="md-tab-btn tab-exit" onclick="goBackOrExit()"><span class="md-tab-label">خروج</span></button>
         </aside>
+        <script>
+        (function initMasterDataProportionalTabLabels() {
+            function fitMasterDataTabButtons() {
+                var sidebar = document.querySelector('.md-tabs-sidebar');
+                if (!sidebar) return;
+                var buttons = sidebar.querySelectorAll('.md-tab-btn');
+                if (!buttons.length) return;
+
+                for (var i = 0; i < buttons.length; i++) {
+                    var btn = buttons[i];
+                    var label = btn.querySelector('.md-tab-label');
+                    if (!label) continue;
+
+                    var btnW = btn.clientWidth;
+                    var btnH = btn.clientHeight;
+                    if (btnW <= 0 || btnH <= 0) continue;
+
+                    label.style.transform = 'none';
+                    label.style.fontSize = '20px';
+                    var textWAt20 = label.scrollWidth || label.offsetWidth || 1;
+
+                    var availW = Math.max(14, btnW * 0.85);
+                    var availH = Math.max(12, btnH * 0.52);
+
+                    var fontByW = (20 * availW) / textWAt20;
+                    var fontByH = availH;
+                    var targetFont = Math.max(7, Math.min(fontByW, fontByH, 32));
+                    label.style.fontSize = targetFont.toFixed(2) + 'px';
+
+                    var finalTextW = label.scrollWidth || label.offsetWidth || 0;
+                    var maxAllowedW = btnW * 0.90;
+                    if (finalTextW > maxAllowedW && finalTextW > 0) {
+                        var ratio = maxAllowedW / finalTextW;
+                        label.style.transform = 'scale(' + ratio.toFixed(3) + ')';
+                    }
+                }
+            }
+
+            fitMasterDataTabButtons();
+            window.addEventListener('resize', fitMasterDataTabButtons);
+            window.addEventListener('load', fitMasterDataTabButtons);
+            if (window.visualViewport) {
+                window.visualViewport.addEventListener('resize', fitMasterDataTabButtons);
+            }
+            if (document.fonts && document.fonts.ready) {
+                document.fonts.ready.then(fitMasterDataTabButtons).catch(function(){});
+            }
+            if (typeof ResizeObserver !== 'undefined') {
+                var ro = new ResizeObserver(function() {
+                    requestAnimationFrame(fitMasterDataTabButtons);
+                });
+                var sb = document.querySelector('.md-tabs-sidebar');
+                if (sb) {
+                    ro.observe(sb);
+                    sb.querySelectorAll('.md-tab-btn').forEach(function(b) { ro.observe(b); });
+                }
+            }
+        })();
+        </script>
 
         <main class="md-content-area">
             

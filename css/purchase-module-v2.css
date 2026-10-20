@@ -116,7 +116,7 @@ table.pos-grid thead th {
     color: #38bdf8 !important;
     border-bottom: 2px solid rgba(56, 189, 248, 0.4) !important;
     font-weight: 800 !important;
-    font-size: 0.85rem !important;
+    /* font-size controlled dynamically by grid config */
     letter-spacing: 0.5px !important;
     text-shadow: 0 0 6px rgba(56, 189, 248, 0.4) !important;
     padding: 10px 8px !important;

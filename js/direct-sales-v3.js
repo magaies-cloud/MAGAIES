@@ -763,65 +763,10 @@ function setSaleType(btn, type) {
 }
 
 // ════════════════════════════════════════
-//  CUSTOMER CHANGE → Financial Panel
+//  CUSTOMER CHANGE → Financial Panel (Unified below with Customer Dropdown)
 // ════════════════════════════════════════
-function onCustomerChange() {
-    const id = document.getElementById('hdr-customer').value;
-    const cust = CUSTOMERS.find(c => String(c.id) === String(id));
-    const cur = document.getElementById('hdr-currency').value;
-    const strip = document.getElementById('fin-strip');
-    const badge = document.getElementById('fin-status-badge');
-
-    if (!cust || id === '') {
-        ['fin-ledger','fin-checks','fin-total-debt','fin-credit-limit','fin-remaining'].forEach(el => {
-            const dom = document.getElementById(el);
-            if (dom) dom.textContent = '—';
-        });
-        if (strip) strip.classList.remove('visible');
-        if (badge) badge.style.display = 'none';
-        return;
-    }
-
-    const totalDebt = cust.ledger + cust.checks;
-    const remaining = cust.creditLimit - totalDebt;
-
-    document.getElementById('fin-ledger').textContent      = fmtNum(cust.ledger)      + ' ' + cur;
-    document.getElementById('fin-checks').textContent      = fmtNum(cust.checks)      + ' ' + cur;
-    document.getElementById('fin-total-debt').textContent  = fmtNum(totalDebt)        + ' ' + cur;
-    document.getElementById('fin-credit-limit').textContent= fmtNum(cust.creditLimit) + ' ' + cur;
-    document.getElementById('fin-remaining').textContent   = fmtNum(remaining)        + ' ' + cur;
-
-    // إظهار الشريط المالي الأفقي بأنيميشن
-    if (strip) {
-        // أعد تشغيل الأنيميشن بإزالة وإعادة الكلاس
-        strip.classList.remove('visible');
-        requestAnimationFrame(() => requestAnimationFrame(() => strip.classList.add('visible')));
-    }
-
-    // badge الحالة بجانب عنوان اللوحة
-    if (badge) {
-        const txtEl = document.getElementById('fin-status-txt');
-        const dot = badge.querySelector('.status-dot');
-        if (cust.status === 'blacklisted') {
-            if (dot) dot.className = 'status-dot danger';
-            if (txtEl) txtEl.textContent = '⛔ قائمة سوداء';
-            showToast('تحذير: هذا العميل في القائمة السوداء!', 'error', 5000);
-        } else if (remaining > 20000) {
-            if (dot) dot.className = 'status-dot good';
-            if (txtEl) txtEl.textContent = '✅ ائتمان جيد';
-        } else if (remaining > 0) {
-            if (dot) dot.className = 'status-dot warn';
-            if (txtEl) txtEl.textContent = '⚠️ ائتمان منخفض';
-        } else {
-            if (dot) dot.className = 'status-dot danger';
-            if (txtEl) txtEl.textContent = '🚫 تجاوز الحد';
-        }
-        badge.style.display = 'inline-flex';
-    }
-}
-
 function toggleFinancialPanel() { /* deprecated - kept for compatibility */ }
-function expandFinancialPanel()  { onCustomerChange(); }
+function expandFinancialPanel()  { if (typeof onCustomerChange === 'function') onCustomerChange(); }
 function collapseFinancialPanel() {
     const strip = document.getElementById('fin-strip');
     if (strip) strip.classList.remove('visible');
@@ -1797,11 +1742,15 @@ function renderCustomerDropdown(filter = '') {
             const phoneH = c.phone ? (window.highlightSearchMatches ? window.highlightSearchMatches(String(c.phone), filter) : c.phone) : '';
             const emailH = c.email ? (window.highlightSearchMatches ? window.highlightSearchMatches(String(c.email), filter) : c.email) : '';
 
-            item.innerHTML = `<div style="display: flex; justify-content: space-between; align-items: center; width: 100%; text-align: right; dir: rtl;"><div style="display: inline-flex; align-items: center; gap: 6px; flex-wrap: wrap;"><span style="font-weight: bold; color: #fff;">${nameH}</span>${phoneH ? `<span style="font-size:0.8rem; color:#94a3b8;">(${phoneH})</span>` : ''}${emailH ? `<span style="font-size:0.8rem; color:#64748b;">[${emailH}]</span>` : ''}</div></div>`;
+            item.innerHTML = `<div style="display: flex; justify-content: space-between; align-items: center; width: 100%; text-align: right; dir: rtl; padding: 6px 4px;"><div style="display: inline-flex; align-items: center; gap: 10px; flex-wrap: wrap;"><span style="font-weight: 800; font-size: 1.35rem; color: #6ee7b7; text-shadow: 0 0 6px rgba(110,231,183,0.2);">${nameH}</span>${phoneH ? `<span style="font-size:0.95rem; color:#94a3b8; font-weight:600;">(${phoneH})</span>` : ''}${emailH ? `<span style="font-size:0.85rem; color:#64748b;">[${emailH}]</span>` : ''}</div></div>`;
             item.onmousedown = () => selectCustomer(c.id, c.name); 
             item.onpointerdown = () => selectCustomer(c.id, c.name);
             listEl.appendChild(item);
         });
+        if (typeof GridCustomizer !== 'undefined') {
+            GridCustomizer.attachEvents();
+            GridCustomizer.applyStyles();
+        }
     } catch (e) {
         console.error(e);
         listEl.innerHTML = '<div class="custom-dropdown-empty">حدث خطأ داخلي</div>';
@@ -1844,9 +1793,8 @@ function hideCustomerDropdownDelayed() {
             if (exactMatch) {
                 selectCustomer(exactMatch.id, exactMatch.name);
             }
-        } else {
-            document.getElementById('hdr-customer-search').value = '';
         }
+        if (typeof window.autoFitHeaderFields === 'function') window.autoFitHeaderFields();
     }, 200);
 }
 
@@ -1860,6 +1808,7 @@ function filterCustomerDropdown() {
         listEl.style.display = 'block';
         listEl.classList.add('show');
     }
+    if (typeof window.autoFitHeaderFields === 'function') window.autoFitHeaderFields();
 }
 
 function selectCustomer(id, name) {
@@ -1876,15 +1825,33 @@ function selectCustomer(id, name) {
     }
     updateLedgerButton();
     onCustomerChange();
+    if (typeof window.autoFitHeaderFields === 'function') window.autoFitHeaderFields();
 }
 
 function updateLedgerButton() {
     const custVal = document.getElementById('hdr-customer') ? document.getElementById('hdr-customer').value : '';
     const btn = document.getElementById('hdr-customer-ledger-btn');
     if (btn) {
-        btn.style.display = (custVal && custVal !== 'walk-in') ? 'inline-flex' : 'none';
+        btn.style.display = 'inline-flex';
+        btn.style.opacity = (custVal && custVal !== 'walk-in') ? '1' : '0.88';
     }
 }
+
+window.openCustomerLedgerFromHeader = function() {
+    const custVal = document.getElementById('hdr-customer')?.value || '';
+    const custName = document.getElementById('hdr-customer-search')?.value.trim() || '';
+    if (custVal && custVal !== 'walk-in') {
+        if (typeof openGeneralLedgerForAccount === 'function') {
+            openGeneralLedgerForAccount('cust-' + custVal);
+        } else {
+            window.open('general-ledger.php?accountId=' + encodeURIComponent('cust-' + custVal), '_blank');
+        }
+    } else if (custName) {
+        window.open('general-ledger.php?name=' + encodeURIComponent(custName), '_blank');
+    } else {
+        window.open('general-ledger.php', '_blank');
+    }
+};
 
 function onCustomerChange() {
     updateLedgerButton();
@@ -1901,28 +1868,26 @@ function onCustomerChange() {
         });
         if (strip) strip.classList.remove('visible');
         if (badge) badge.style.display = 'none';
+        if (typeof window.autoFitHeaderFields === 'function') window.autoFitHeaderFields();
         return;
     }
 
-    const totalDebt = cust.ledger + cust.checks;
-    const remaining = cust.creditLimit - totalDebt;
+    const totalDebt = (parseFloat(cust.ledger) || 0) + (parseFloat(cust.checks) || 0);
+    const remaining = (parseFloat(cust.creditLimit) || 0) - totalDebt;
 
-    document.getElementById('fin-ledger').textContent      = fmtNum(cust.ledger)      + ' ' + cur;
-    document.getElementById('fin-checks').textContent      = fmtNum(cust.checks)      + ' ' + cur;
-    document.getElementById('fin-total-debt').textContent  = fmtNum(totalDebt)        + ' ' + cur;
-    document.getElementById('fin-credit-limit').textContent= fmtNum(cust.creditLimit) + ' ' + cur;
-    document.getElementById('fin-remaining').textContent   = fmtNum(remaining)        + ' ' + cur;
+    if (document.getElementById('fin-ledger')) document.getElementById('fin-ledger').textContent = fmtNum(cust.ledger) + ' ' + cur;
+    if (document.getElementById('fin-checks')) document.getElementById('fin-checks').textContent = fmtNum(cust.checks) + ' ' + cur;
+    if (document.getElementById('fin-total-debt')) document.getElementById('fin-total-debt').textContent = fmtNum(totalDebt) + ' ' + cur;
+    if (document.getElementById('fin-credit-limit')) document.getElementById('fin-credit-limit').textContent = fmtNum(cust.creditLimit) + ' ' + cur;
+    if (document.getElementById('fin-remaining')) document.getElementById('fin-remaining').textContent = fmtNum(remaining) + ' ' + cur;
 
-    // إظهار الشريط المالي الأفقي بأنيميشن
     if (strip) {
-        // أعد تشغيل الأنيميشن بإزالة وإعادة الكلاس
         strip.classList.remove('visible');
         requestAnimationFrame(() => requestAnimationFrame(() => strip.classList.add('visible')));
     }
 
-    // badge الحالة بجانب عنوان اللوحة
     if (badge) {
-        const txtEl = document.getElementById('fin-status-txt');
+        const txtEl = document.getElementById('fin-status-txt') || document.getElementById('fin-status-msg');
         const dot = badge.querySelector('.status-dot');
         if (cust.status === 'blacklisted') {
             if (dot) dot.className = 'status-dot danger';
@@ -1940,151 +1905,7 @@ function onCustomerChange() {
         }
         badge.style.display = 'inline-flex';
     }
-}
-
-function toggleFinancialPanel() { /* deprecated - kept for compatibility */ }
-function expandFinancialPanel()  { onCustomerChange(); }
-function collapseFinancialPanel() {
-    const strip = document.getElementById('fin-strip');
-    if (strip) strip.classList.remove('visible');
-}
-
-function addNewCustomer() {
-    const name = document.getElementById('new-cust-name').value.trim();
-    const phone = document.getElementById('new-cust-phone').value.trim();
-    const whatsapp = document.getElementById('new-cust-whatsapp') ? document.getElementById('new-cust-whatsapp').value.trim() : '';
-    const email = document.getElementById('new-cust-email') ? document.getElementById('new-cust-email').value.trim() : '';
-    const address = document.getElementById('new-cust-address') ? document.getElementById('new-cust-address').value.trim() : '';
-    const securityLevel = document.getElementById('new-cust-security') ? document.getElementById('new-cust-security').value : '1';
-    const openingBalance = document.getElementById('new-cust-opening') ? parseNum(document.getElementById('new-cust-opening').value) : 0;
-    const credit = document.getElementById('new-cust-credit') ? parseNum(document.getElementById('new-cust-credit').value) : 0;
-
-    if (!name) { showToast('❌ يرجى إدخال اسم العميل', 'error'); return; }
-
-    const newId = 'C-' + String(Date.now()).slice(-6);
-    const openingDebit = openingBalance >= 0 ? openingBalance : 0;
-    const openingCredit = openingBalance < 0 ? Math.abs(openingBalance) : 0;
-    const newCust = { 
-        id: newId, 
-        name: name, 
-        phone: phone,
-        whatsapp: whatsapp,
-        email: email,
-        address: address,
-        securityLevel: securityLevel,
-        openingDebit: openingDebit,
-        openingCredit: openingCredit,
-        currentBalance: openingBalance,
-        creditLimit: credit,
-        status: 'active',
-        bankAccounts: [],
-        timestamp: new Date().toISOString()
-    };
-    
-    if (typeof CUSTOMERS !== 'undefined') {
-        CUSTOMERS.push(newCust);
-    }
-
-    let allCustomers = [];
-    try {
-        allCustomers = JSON.parse(localStorage.getItem('erp_customers_v1')) || [];
-    } catch(e) {}
-    allCustomers.push(newCust);
-    localStorage.setItem('erp_customers_v1', JSON.stringify(allCustomers));
-
-    selectCustomer(newId, name);
-    closeModal('add-customer-modal');
-    
-    document.getElementById('new-cust-name').value = '';
-    document.getElementById('new-cust-phone').value = '';
-    if(document.getElementById('new-cust-whatsapp')) document.getElementById('new-cust-whatsapp').value = '';
-    if(document.getElementById('new-cust-email')) document.getElementById('new-cust-email').value = '';
-    if(document.getElementById('new-cust-address')) document.getElementById('new-cust-address').value = '';
-    if(document.getElementById('new-cust-opening')) document.getElementById('new-cust-opening').value = '';
-    if(document.getElementById('new-cust-credit')) document.getElementById('new-cust-credit').value = '';
-    if(document.getElementById('new-cust-security')) document.getElementById('new-cust-security').value = '1';
-
-    showToast('✅ تم إضافة العميل بنجاح');
-}
-
-// ════════════════════════════════════════
-//  CUSTOMERS DROPDOWN LOGIC
-// ════════════════════════════════════════
-function renderCustomerDropdown(filter = '') {
-    const listEl = document.getElementById('customer-dropdown-list');
-    listEl.innerHTML = '';
-    const term = filter.toLowerCase().trim();
-    
-    let matches = CUSTOMERS;
-    if (term) {
-        matches = CUSTOMERS.filter(c => c.name.toLowerCase().includes(term));
-    }
-
-    if (matches.length === 0) {
-        listEl.innerHTML = `<div class="custom-dropdown-empty">لا يوجد عميل بهذا الاسم.<br><small style="color:#888;">(إجمالي العملاء: ${CUSTOMERS.length})</small></div>`;
-        return;
-    }
-
-    matches.slice(0, 50).forEach(c => {
-        const item = document.createElement('div');
-        item.className = 'custom-dropdown-item';
-        
-        const nameH = window.highlightSearchMatches ? window.highlightSearchMatches(c.name, filter) : c.name;
-        const phoneH = c.phone ? (window.highlightSearchMatches ? window.highlightSearchMatches(String(c.phone), filter) : c.phone) : '';
-        const emailH = c.email ? (window.highlightSearchMatches ? window.highlightSearchMatches(String(c.email), filter) : c.email) : '';
-
-        item.innerHTML = `<div style="display: flex; justify-content: space-between; align-items: center; width: 100%; text-align: right; dir: rtl; padding: 6px 4px;"><div style="display: inline-flex; align-items: center; gap: 10px; flex-wrap: wrap;"><span style="font-weight: 800; font-size: 1.45rem; color: #6ee7b7; text-shadow: 0 0 6px rgba(110,231,183,0.2);">${nameH}</span>${phoneH ? `<span style="font-size:1rem; color:#94a3b8; font-weight:600;">(${phoneH})</span>` : ''}${emailH ? `<span style="font-size:0.9rem; color:#64748b;">[${emailH}]</span>` : ''}</div></div>`;
-        item.onmousedown = () => selectCustomer(c.id, c.name); 
-        item.onpointerdown = () => selectCustomer(c.id, c.name);
-        listEl.appendChild(item);
-    });
-    if (typeof GridCustomizer !== 'undefined') {
-        GridCustomizer.attachEvents();
-        GridCustomizer.applyStyles();
-    }
-}
-
-function showCustomerDropdown() {
-    renderCustomerDropdown(document.getElementById('hdr-customer-search').value);
-    const listEl = document.getElementById('customer-dropdown-list');
-    if (listEl) {
-        listEl.classList.add('show');
-        listEl.style.display = 'block';
-    }
-}
-
-function hideCustomerDropdownDelayed() {
-    setTimeout(() => {
-        const listEl = document.getElementById('customer-dropdown-list');
-        if(listEl) listEl.classList.remove('show'); listEl.style.display = 'none';
-        
-        const idVal = document.getElementById('hdr-customer').value;
-        const searchVal = document.getElementById('hdr-customer-search').value.trim();
-        if (idVal) {
-            const cust = CUSTOMERS.find(c => String(c.id) === String(idVal));
-            if (cust && cust.name !== searchVal) {
-                document.getElementById('hdr-customer-search').value = cust.name;
-            }
-        } else {
-            // Allow walk-in customers or custom names without disappearing
-            // 
-        }
-    }, 150);
-}
-
-function filterCustomerDropdown() {
-    document.getElementById('hdr-customer').value = '';
-    onCustomerChange();
-    renderCustomerDropdown(document.getElementById('hdr-customer-search').value);
-    document.getElementById('customer-dropdown-list').classList.add('show');
-}
-
-function selectCustomer(id, name) {
-    document.getElementById('hdr-customer').value = id;
-    document.getElementById('hdr-customer-search').value = name;
-    
-    document.getElementById('customer-dropdown-list').classList.remove('show');
-    onCustomerChange();
+    if (typeof window.autoFitHeaderFields === 'function') window.autoFitHeaderFields();
 }
 
 // ════════════════════════════════════════
@@ -2890,6 +2711,9 @@ function updateRowCalcs(id) {
 
     const mFcPriceEl = document.querySelector(`[data-m-fcprice-input="${id}"]`);
     const mTotalFcEl = document.querySelector(`[data-m-total-fc="${id}"]`);
+    const curVal = document.getElementById('hdr-currency')?.value || 'SDG';
+    const exRateVal = parseNum(document.getElementById('hdr-exchange-rate')?.value) || 1;
+    const computedFcPrice = row.fcPrice !== undefined ? parseFloat(row.fcPrice) || 0 : (curVal === 'SDG' ? (parseFloat(row.price) || 0) / exRateVal : (parseFloat(row.price) || 0) * exRateVal);
     if (mFcPriceEl && document.activeElement !== mFcPriceEl) mFcPriceEl.value = fmtNum(computedFcPrice, 'col_fcprice');
     if (mTotalFcEl) mTotalFcEl.textContent = fmtNum(computedFcPrice * (row.quantity || 0), 'col_fctotal');
 
@@ -2897,6 +2721,11 @@ function updateRowCalcs(id) {
     const mShilaRemEl = document.querySelector(`[data-m-shila-rem="${id}"]`);
     if (mShilaEl) mShilaEl.textContent = fmtNum(calcs.shilaQty, 'col_shila');
     if (mShilaRemEl) mShilaRemEl.textContent = fmtNum(calcs.shilaRem, 'col_shila_rem');
+
+    if (typeof window.autoFitGridCells === 'function') {
+        const trEl = totalEl ? totalEl.closest('tr') : null;
+        window.autoFitGridCells(trEl || undefined);
+    }
 }
 
 function getCurrency() {
@@ -3098,6 +2927,9 @@ function renderGrid() {
 
     if (typeof applyGridSettings === 'function') {
         applyGridSettings();
+    }
+    if (typeof window.autoFitGridCells === 'function') {
+        requestAnimationFrame(() => window.autoFitGridCells());
     }
 
     // FINAL PASS: Force-populate all unit selects after DOM reordering
@@ -6847,14 +6679,21 @@ function unpostSalesInvoice(invNo) {
     showToast('↩️ تم إلغاء ترحيل الفاتورة بنجاح', 'success');
 }
 
-// Deep Drill-down
+// Deep Drill-down & ?action=new handler
 document.addEventListener('DOMContentLoaded', () => {
     const urlParams = new URLSearchParams(window.location.search);
     const invoiceId = urlParams.get('id');
+    const actionParam = urlParams.get('action');
     if (invoiceId) {
         setTimeout(() => {
             if (typeof loadInvoiceFromStorage === 'function') loadInvoiceFromStorage(invoiceId);
         }, 500);
+    } else if (actionParam === 'new' || actionParam === 'direct' || actionParam === 'pending_delivery' || actionParam === 'preliminary' || actionParam === 'proforma') {
+        setTimeout(() => {
+            if (typeof openInvoiceEditor === 'function') {
+                openInvoiceEditor(actionParam === 'new' || actionParam === 'direct' ? 'pending_delivery' : (actionParam === 'proforma' ? 'preliminary' : actionParam));
+            }
+        }, 100);
     }
 });
 

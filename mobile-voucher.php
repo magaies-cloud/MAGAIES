@@ -259,12 +259,34 @@ if (!function_exists('fetchAllLiveAccounts')) {
 // ────────────────────────────────────────────────────────────────────────────
 // الدوال المساعدة لفحص وتتبع وتدقيق أرقام التحويلات في قاعدة البيانات MariaDB
 // ────────────────────────────────────────────────────────────────────────────
+if (!function_exists('normalizeTransferRefStrict')) {
+    function normalizeTransferRefStrict($val) {
+        $s = trim((string)$val);
+        if ($s === '') return '';
+        $arabic = ['٠','١','٢','٣','٤','٥','٦','٧','٨','٩','۰','۱','۲','۳','۴','۵','۶','۷','۸','۹'];
+        $latin  = ['0','1','2','3','4','5','6','7','8','9','0','1','2','3','4','5','6','7','8','9'];
+        $s = str_replace($arabic, $latin, $s);
+        if (preg_match('/^(OUT-OFF-|IN-OFF-|OFF-|WA\d|AUTO-|TEMP-|null|none|n\/a)/i', $s)) return '';
+        if (preg_match('/^\d{4}\s+\d{4}(?:\s+\d{4}){1,2}$/', $s)) return '';
+        $digits = preg_replace('/\D/', '', $s);
+        if (strlen($digits) < 6) return '';
+        if (strlen($digits) === 14 && $digits[0] === '0' && preg_match('/000[1-9]$/', $digits)) return '';
+        if (strlen($digits) === 21 && substr($digits, 0, 2) === '02') return '';
+        if (strlen($digits) === 16 && $digits[0] === '0' && preg_match('/(0001|0002|0101|5001)$/', $digits)) return '';
+        return $digits;
+    }
+}
+
 if (!function_exists('extractAllTransfersFromRecord')) {
     function extractAllTransfersFromRecord($d) {
+        if (!is_array($d) || (!empty($d['deleted']) && $d['deleted'] !== 'false' && $d['deleted'] !== '0')) return [];
         $refs = [];
         if (!empty($d['mobileTransferNo']) && is_string($d['mobileTransferNo'])) $refs[] = trim($d['mobileTransferNo']);
+        if (!empty($d['transferNo']) && is_string($d['transferNo'])) $refs[] = trim($d['transferNo']);
         if (!empty($d['transferRef']) && is_string($d['transferRef'])) $refs[] = trim($d['transferRef']);
-        if (!empty($d['refNo']) && is_string($d['refNo'])) $refs[] = trim($d['refNo']);
+        if (!empty($d['refNo']) && is_string($d['refNo']) && !preg_match('/^(OUT-OFF-|IN-OFF-|OFF-)/i', trim($d['refNo']))) {
+            $refs[] = trim($d['refNo']);
+        }
         if (!empty($d['bankTransfers']) && is_array($d['bankTransfers'])) {
             foreach ($d['bankTransfers'] as $bt) {
                 if (!empty($bt['transferNo']) && is_string($bt['transferNo'])) $refs[] = trim($bt['transferNo']);
@@ -290,7 +312,12 @@ if (!function_exists('extractAllTransfersFromRecord')) {
                 }
             }
         }
-        return array_values(array_unique(array_filter($refs)));
+        $valid = [];
+        foreach ($refs as $r) {
+            $norm = normalizeTransferRefStrict($r);
+            if ($norm !== '') $valid[] = $norm;
+        }
+        return array_values(array_unique($valid));
     }
 }
 
@@ -299,10 +326,10 @@ if (!function_exists('fetchAllDbTransfers')) {
         $results = [];
         $seen = [];
         $effTenant = !empty($currentTenantId) ? (int)$currentTenantId : 12;
-        $tables = ['single_payments', 'single_receipts'];
+        $tables = ['single_payments', 'single_receipts', 'payments', 'receipts'];
         foreach ($tables as $tbl) {
             try {
-                $stmt = $pdo->prepare("SELECT id, tenant_id, data FROM `$tbl` WHERE tenant_id = ?");
+                $stmt = $pdo->prepare("SELECT id, tenant_id, data FROM `$tbl` WHERE tenant_id = ? AND (is_deleted = 0 OR is_deleted IS NULL)");
                 $stmt->execute([$effTenant]);
                 while ($r = $stmt->fetch(PDO::FETCH_ASSOC)) {
                     $d = json_decode($r['data'], true);
@@ -310,16 +337,17 @@ if (!function_exists('fetchAllDbTransfers')) {
                     $vNo = trim((string)($d['voucherNo'] ?? ($d['id'] ?? '')));
                     $refs = extractAllTransfersFromRecord($d);
                     foreach ($refs as $ref) {
-                        $clean = preg_replace('/\D/', '', (string)$ref);
-                        $key = $vNo . '_' . $ref;
+                        $clean = normalizeTransferRefStrict($ref);
+                        if ($clean === '') continue;
+                        $key = $vNo . '_' . $clean;
                         if (isset($seen[$key])) continue;
                         $seen[$key] = true;
                         $results[] = [
                             'voucherNo' => $vNo,
                             'table' => $tbl,
                             'tenantId' => $r['tenant_id'],
-                            'ref' => (string)$ref,
-                            'cleanRef' => $clean ?: (string)$ref,
+                            'ref' => $clean,
+                            'cleanRef' => $clean,
                             'date' => $d['date'] ?? '',
                             'amount' => (float)($d['amountLocal'] ?? ($d['amount'] ?? 0)),
                             'bank' => $d['bankName'] ?? ($d['bank'] ?? ''),
@@ -336,17 +364,16 @@ if (!function_exists('fetchAllDbTransfers')) {
 
 if (!function_exists('findTransferDuplicateInDb')) {
     function findTransferDuplicateInDb($pdo, $ref, $currentVNo = '', $currentTenantId = null, $ignoreSoftSimilarity = false) {
-        $ref = trim((string)$ref);
-        if ($ref === '') return null;
-        $cleanRef = preg_replace('/\D/', '', $ref) ?: strtolower($ref);
+        $cleanRef = normalizeTransferRefStrict($ref);
+        if ($cleanRef === '') return null;
         $compLen = strlen($cleanRef);
         $effTenant = !empty($currentTenantId) ? (int)$currentTenantId : 12;
 
         $softCandidate = null;
-        $tables = ['single_payments', 'single_receipts'];
+        $tables = ['single_payments', 'single_receipts', 'payments', 'receipts'];
         foreach ($tables as $tbl) {
             try {
-                $stmt = $pdo->prepare("SELECT id, tenant_id, data FROM `$tbl` WHERE tenant_id = ?");
+                $stmt = $pdo->prepare("SELECT id, tenant_id, data FROM `$tbl` WHERE tenant_id = ? AND (is_deleted = 0 OR is_deleted IS NULL)");
                 $stmt->execute([$effTenant]);
                 while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
                     $d = json_decode($row['data'], true);
@@ -357,8 +384,7 @@ if (!function_exists('findTransferDuplicateInDb')) {
                     }
                     $candidates = extractAllTransfersFromRecord($d);
                     foreach ($candidates as $cr) {
-                        $strCr = trim((string)$cr);
-                        $cleanCr = preg_replace('/\D/', '', $strCr) ?: strtolower($strCr);
+                        $cleanCr = normalizeTransferRefStrict($cr);
                         if ($cleanCr === '') continue;
 
                         $matched = false;
@@ -366,30 +392,24 @@ if (!function_exists('findTransferDuplicateInDb')) {
                         $severity = 'hard';
 
                         // 1. التطابق التام (حظر قاطع Hard Block)
-                        if ($cleanCr === $cleanRef || $strCr === $ref) {
+                        if ($cleanCr === $cleanRef) {
                             $matched = true;
                             $matchType = 'تطابق تام';
                             $severity = 'hard';
                         }
-                        // 2. تطابق آخر 6 أرقام (حظر قاطع Hard Block)
-                        elseif ($compLen >= 6 && strlen($cleanCr) >= 6 && substr($cleanCr, -6) === substr($cleanRef, -6)) {
+                        // 2. تطابق آخر 8 أرقام (أو آخر 6 أرقام لنفس البنك)
+                        elseif ($compLen >= 9 && strlen($cleanCr) >= 9 && (substr($cleanCr, -8) === substr($cleanRef, -8) || (substr($cleanCr, -6) === substr($cleanRef, -6) && substr($cleanCr, 0, 2) === substr($cleanRef, 0, 2)))) {
                             $matched = true;
-                            $matchType = 'تطابق آخر 6 أرقام';
+                            $matchType = 'تطابق رقم العملية البنكية';
                             $severity = 'hard';
                         }
-                        // 3. تطابق اللواحق للأرقام ذات 4 أو 5 أرقام (حظر قاطع Hard Block)
-                        elseif ($compLen >= 4 && strlen($cleanCr) >= $compLen && substr($cleanCr, -$compLen) === $cleanRef) {
+                        elseif ($compLen !== strlen($cleanCr) && min($compLen, strlen($cleanCr)) >= 6 && substr(($compLen > strlen($cleanCr) ? $cleanRef : $cleanCr), -min($compLen, strlen($cleanCr))) === ($compLen < strlen($cleanCr) ? $cleanRef : $cleanCr)) {
                             $matched = true;
-                            $matchType = 'تطابق لاحقة الرقم';
-                            $severity = 'hard';
-                        }
-                        elseif (strlen($cleanCr) >= 4 && $compLen >= strlen($cleanCr) && substr($cleanRef, -strlen($cleanCr)) === $cleanCr) {
-                            $matched = true;
-                            $matchType = 'تطابق لاحقة الرقم';
+                            $matchType = 'تطابق لاحقة رقم العملية';
                             $severity = 'hard';
                         }
                         // 4. تشابه رقمي بفرق خانة واحدة فقط (تنبيه ذكي قابل للتأكيد Soft Warning)
-                        elseif (!$ignoreSoftSimilarity && $compLen >= 4 && abs($compLen - strlen($cleanCr)) <= 1 && levenshtein($cleanRef, $cleanCr) <= 1) {
+                        elseif (!$ignoreSoftSimilarity && $compLen >= 6 && abs($compLen - strlen($cleanCr)) <= 1 && levenshtein($cleanRef, $cleanCr) <= 1) {
                             $matched = true;
                             $matchType = 'تشابه رقمي (فرق رقم واحد)';
                             $severity = 'soft';
@@ -5312,12 +5332,35 @@ $currenciesData = [
           card.classList.remove('hidden');
         }
 
-        // محاولة القراءة الذكية عبر OCR
+        // محاولة القراءة الذكية عبر محرك الذكاء الاصطناعي الخادم أولاً ثم Tesseract كاحتياطي
         let recognizedText = '';
+        try {
+          showToastNotification('🔍 جاري التحليل الضوئي وقراءة أرقام الإشعار...');
+          const resp = await fetch('api/ocr-financial.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ image: dataUrl })
+          });
+          if (resp.ok) {
+            const ocrJson = await resp.json();
+            if (ocrJson && ocrJson.success && ocrJson.data) {
+              const d = ocrJson.data;
+              const srvText = [
+                d.bank_name || '',
+                d.app_name || '',
+                d.transaction_ref ? ('رقم العملية: ' + d.transaction_ref) : '',
+                d.amount ? ('المبلغ: ' + d.amount) : '',
+                d.receiver_name ? ('المستفيد: ' + d.receiver_name) : ''
+              ].join('\n');
+              parseAndApplyBankReceipt(srvText, '', dataUrl);
+              return;
+            }
+          }
+        } catch(srvErr) {}
+
         try {
           const tesseract = await loadTesseractIfNeeded();
           if (tesseract) {
-            showToastNotification('🔍 جاري التحليل الضوئي وقراءة أرقام الإشعار...');
             const result = await tesseract.recognize(dataUrl, 'ara+eng');
             recognizedText = result?.data?.text || '';
           }
@@ -5326,7 +5369,7 @@ $currenciesData = [
         }
 
         // استخراج وتعبئة البيانات الذكية (المبلغ، رقم التحويلة، البنك، المستفيد)
-        parseAndApplyBankReceipt(recognizedText, file.name, dataUrl);
+        parseAndApplyBankReceipt(recognizedText, '', dataUrl);
       };
       reader.readAsDataURL(file);
     }
@@ -5336,11 +5379,13 @@ $currenciesData = [
       ocrText = ocrText || '';
       const textToSearch = (ocrText + ' ' + fileName).toLowerCase();
 
-      // 1. استكشاف البنك (بنكك / بنك الخرطوم، فوري / بنك فيصل، أوكاش / بنك أم درمان)
+      // 1. استكشاف البنك (بنكك / بنك الخرطوم، فوري / بنك فيصل، أوكاش / بنك أم درمان، ساهل / بنك النيل)
       let detectedBank = 'بنك الخرطوم';
-      if (/فوري|فيصل|faisal/i.test(textToSearch)) {
+      if (/ساهل|النيل|sahil/i.test(textToSearch)) {
+        detectedBank = 'بنك النيل';
+      } else if (/فوري|فيصل|faisal|fawry/i.test(textToSearch)) {
         detectedBank = 'بنك فيصل الإسلامي';
-      } else if (/أوكاش|اوكاش|أم درمان|امدرمان|omdurman/i.test(textToSearch)) {
+      } else if (/أوكاش|اوكاش|أم درمان|امدرمان|omdurman|o-cash/i.test(textToSearch)) {
         detectedBank = 'بنك أم درمان الوطني';
       } else if (/النيلين|nilein/i.test(textToSearch)) {
         detectedBank = 'بنك النيلين';
@@ -5350,11 +5395,11 @@ $currenciesData = [
         detectedBank = 'بنك الخليج';
       }
 
-      // 2. استخراج رقم التحويلة / رقم العملية / المرجع (4 إلى 12 رقم)
+      // 2. استخراج رقم التحويلة / رقم العملية / المرجع (6 إلى 19 رقم)
       let extractedRef = '';
       const refPatterns = [
-        /(?:رقم\s*(?:العملية|المعاملة|المرجع|الإشعار)|الرقم\s*المرجعي|tran(?:saction)?\s*id|ref(?:erence)?\s*(?:no)?)\s*[:#\-]?\s*(\d{4,14})/i,
-        /(\b\d{5,12}\b)/
+        /(?:رقم\s*(?:العملية|المعاملة|المرجع|الإشعار|السند)|الرقم\s*المرجعي|رقم\s*مرجعي|مرجع\s*البنك|تسلسل\s*العملية|trx\.?\s*id|tran(?:saction)?\s*id|ref(?:erence)?\s*(?:no)?)\s*[:#\-]?\s*(\d{6,19})/i,
+        /(\b\d{6,19}\b)/
       ];
 
       for (const pattern of refPatterns) {
@@ -5363,11 +5408,6 @@ $currenciesData = [
           extractedRef = match[1].trim();
           break;
         }
-      }
-
-      if (!extractedRef) {
-        const fileNumMatch = fileName.match(/\d{4,12}/);
-        if (fileNumMatch) extractedRef = fileNumMatch[0];
       }
 
       // 3. استخراج المبلغ (الأرقام المقترنة بـ ج.س أو SDG أو المبلغ)
@@ -9980,7 +10020,7 @@ $currenciesData = [
       if (refMatch && refMatch[1]) {
         extractedRef = refMatch[1].trim();
       } else {
-        const longDigits = text.match(/\b\d{8,16}\b/g);
+        const longDigits = text.match(/\b\d{8,18}\b/g);
         if (longDigits && longDigits.length > 0) {
           for (const d of longDigits) {
             if (parseRawNumber(d) !== extractedAmount) {
@@ -9989,9 +10029,6 @@ $currenciesData = [
             }
           }
         }
-      }
-      if (!extractedRef) {
-        extractedRef = 'WA' + Date.now().toString().slice(-8);
       }
 
       // 3. كشف اسم البنك (Bank Detection)

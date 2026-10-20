@@ -1180,10 +1180,53 @@
             this.renderBatchTabs();
         },
 
-        // Reference Number Validation: Minimum 6 digits, and non-duplication of last 6 digits
+        normalizeBankRefDigits(val) {
+            if (!val) return '';
+            let s = String(val).trim()
+                .replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d))
+                .replace(/[۰-۹]/g, d => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d));
+            if (/^(OUT-OFF-|IN-OFF-|OFF-|WA\d|AUTO-|TEMP-|null|none|n\/a|غير)/i.test(s)) return '';
+            if (/^\d{4}\s+\d{4}(?:\s+\d{4}){1,2}$/.test(s)) return '';
+            const digits = s.replace(/\D/g, '');
+            if (digits.length < 6) return '';
+            if (digits.length === 14 && digits[0] === '0' && /000[1-9]$/.test(digits)) return '';
+            if (digits.length === 21 && digits.startsWith('02')) return '';
+            if (digits.length === 16 && digits[0] === '0' && /(0001|0002|0101|5001)$/.test(digits)) return '';
+            return digits;
+        },
+
+        areBankRefsEqual(refA, refB) {
+            const dA = this.normalizeBankRefDigits(refA);
+            const dB = this.normalizeBankRefDigits(refB);
+            if (!dA || !dB) return false;
+            if (dA === dB) return true;
+            const lenA = dA.length, lenB = dB.length, minLen = Math.min(lenA, lenB);
+            if (minLen < 6) return false;
+            if (lenA !== lenB) {
+                const shorter = lenA < lenB ? dA : dB;
+                const longer  = lenA < lenB ? dB : dA;
+                if (shorter.length >= 6 && longer.slice(-shorter.length) === shorter) return true;
+                if (minLen >= 9 && dA.slice(-8) === dB.slice(-8)) return true;
+                return false;
+            }
+            if (lenA <= 8) return false;
+            if (dA.slice(-8) === dB.slice(-8)) return true;
+            if (dA.slice(-6) === dB.slice(-6) && dA.slice(0, 2) === dB.slice(0, 2)) return true;
+            if (lenA === 11 && dA.slice(0, 5) === dB.slice(0, 5) && dA.slice(-3) === dB.slice(-3)) {
+                let same = 0;
+                for (let i = 0; i < 11; i++) { if (dA[i] === dB[i]) same++; }
+                if (same >= 9) return true;
+            }
+            return false;
+        },
+
+        // Reference Number Validation: Minimum 6 digits, and non-duplication across batch & database
         validateReference(ref, currentIndex = -1) {
-            const clean = (ref || '').toString().trim();
-            if (!clean) {
+            const rawClean = (ref || '').toString().trim()
+                .replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d))
+                .replace(/[۰-۹]/g, d => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d));
+            const cleanDigits = rawClean.replace(/\D/g, '');
+            if (!rawClean || cleanDigits.length === 0) {
                 return {
                     valid: false,
                     isShort: true,
@@ -1193,25 +1236,25 @@
                 };
             }
 
-            // Rule 1: Length must not be less than 6 digits
-            if (clean.length < 6) {
+            // Rule 1: Length must not be less than 6 pure digits
+            if (cleanDigits.length < 6) {
                 return {
                     valid: false,
                     isShort: true,
                     isDuplicate: false,
-                    last6: clean,
-                    message: `⚠️ رقم التحويلة (${clean}) يتكون من ${clean.length} أرقام فقط! يجب ألا يقل عن 6 أرقام.`
+                    last6: cleanDigits,
+                    message: `⚠️ رقم العملية (${rawClean}) يتكون من ${cleanDigits.length} أرقام فقط! يجب ألا يقل عن 6 أرقام.`
                 };
             }
 
-            const last6 = clean.slice(-6);
+            const last6 = cleanDigits.slice(-6);
 
-            // Rule 2: Intra-batch duplicate check (last 6 digits must NOT duplicate within the batch)
+            // Rule 2: Intra-batch duplicate check
             if (this.batchItems && this.batchItems.length > 1) {
                 for (let i = 0; i < this.batchItems.length; i++) {
                     if (i === currentIndex) continue;
                     const otherRef = (this.batchItems[i]?.data?.transaction_ref || this.batchItems[i]?.data?.cheque_number || '').toString().trim();
-                    if (otherRef.length >= 6 && otherRef.slice(-6) === last6) {
+                    if (this.areBankRefsEqual(cleanDigits, otherRef)) {
                         return {
                             valid: false,
                             isShort: false,
@@ -1219,16 +1262,76 @@
                             duplicateType: 'batch',
                             otherIndex: i,
                             last6: last6,
-                            message: `⚠️ تحذير: آخر 6 أرقام (${last6}) مكررة مع المستند رقم #${i + 1} في هذه الدفعة!`
+                            message: `⚠️ تحذير: رقم العملية (${cleanDigits}) مكرر مع المستند رقم #${i + 1} في هذه الدفعة!`
                         };
                     }
                 }
             }
 
-            // Rule 3: System-wide duplicate check (against system vouchers & saved invoices)
+            // Rule 3: Server MySQL Database duplicate check (returned directly by api/ocr-financial.php)
+            const targetIdx = (currentIndex >= 0) ? currentIndex : this.currentBatchIndex;
+            const curItemData = (this.batchItems && this.batchItems[targetIdx]) ? this.batchItems[targetIdx].data : this.lastExtractedData;
+            if (curItemData && curItemData.is_duplicate_in_db && curItemData.duplicate_info) {
+                const dupInfo = curItemData.duplicate_info;
+                if (!dupInfo.matched_ref || this.areBankRefsEqual(cleanDigits, dupInfo.matched_ref)) {
+                    return {
+                        valid: false,
+                        isShort: false,
+                        isDuplicate: true,
+                        duplicateType: 'system_db',
+                        last6: last6,
+                        message: `⚠️ تحذير: رقم العملية (${cleanDigits}) مسجل مسبقاً في ${dupInfo.source || 'النظام'} رقم #${dupInfo.voucher_no || ''}${dupInfo.party_name ? ' (' + dupInfo.party_name + ')' : ''}!`
+                    };
+                }
+            }
+
+            // Rule 4: Check window.DB_ALL_TRANSFER_REFS & preloaded server voucher arrays
             try {
+                if (Array.isArray(window.DB_ALL_TRANSFER_REFS)) {
+                    for (const row of window.DB_ALL_TRANSFER_REFS) {
+                        if (!row) continue;
+                        if (this.areBankRefsEqual(cleanDigits, row.ref || row.cleanRef)) {
+                            return {
+                                valid: false,
+                                isShort: false,
+                                isDuplicate: true,
+                                duplicateType: 'system',
+                                last6: last6,
+                                message: `⚠️ تحذير: رقم العملية (${cleanDigits}) مسجل مسبقاً في السند رقم #${row.voucherNo || ''}!`
+                            };
+                        }
+                    }
+                }
+
+                const serverArrays = [window.SERVER_RECEIPTS, window.SERVER_PAYMENTS, window.SERVER_SINGLE_PAYMENTS, window.SERVER_SINGLE_RECEIPTS];
+                for (const srvArr of serverArrays) {
+                    if (!Array.isArray(srvArr)) continue;
+                    for (const v of srvArr) {
+                        if (!v || v.deleted) continue;
+                        const vRefs = [];
+                        if (v.transferNo) vRefs.push(v.transferNo);
+                        if (v.mobileTransferNo) vRefs.push(v.mobileTransferNo);
+                        if (v.transferRef) vRefs.push(v.transferRef);
+                        if (v.refNo && !/^(OUT-OFF-|IN-OFF-|OFF-)/i.test(String(v.refNo).trim())) vRefs.push(v.refNo);
+                        if (Array.isArray(v.bankTransfers)) v.bankTransfers.forEach(bt => { if (bt && bt.transferNo) vRefs.push(bt.transferNo); });
+                        if (Array.isArray(v.transfers)) v.transfers.forEach(bt => { if (bt && (bt.transferNo || bt.reference)) vRefs.push(bt.transferNo || bt.reference); });
+                        for (const vr of vRefs) {
+                            if (this.areBankRefsEqual(cleanDigits, vr)) {
+                                return {
+                                    valid: false,
+                                    isShort: false,
+                                    isDuplicate: true,
+                                    duplicateType: 'system',
+                                    last6: last6,
+                                    message: `⚠️ تحذير: رقم العملية (${cleanDigits}) مسجل مسبقاً في السند رقم #${v.voucherNo || v.id || ''}!`
+                                };
+                            }
+                        }
+                    }
+                }
+
                 if (typeof window.isBankReferenceUnique === 'function') {
-                    const isUnique = window.isBankReferenceUnique(clean, 'bank');
+                    const isUnique = window.isBankReferenceUnique(cleanDigits, 'bank');
                     if (!isUnique) {
                         return {
                             valid: false,
@@ -1236,7 +1339,7 @@
                             isDuplicate: true,
                             duplicateType: 'system',
                             last6: last6,
-                            message: `⚠️ تحذير: رقم التحويلة ينتهي بـ (${last6}) وهو مسجل مسبقاً في سندات النظام!`
+                            message: `⚠️ تحذير: رقم العملية (${cleanDigits}) مسجل مسبقاً في سندات النظام!`
                         };
                     }
                 }
@@ -1247,17 +1350,17 @@
                     const purchases = JSON.parse(purchasesRaw);
                     if (Array.isArray(purchases)) {
                         for (const pur of purchases) {
-                            if (Array.isArray(pur.bankTransfers)) {
+                            if (pur && !pur.deleted && Array.isArray(pur.bankTransfers)) {
                                 for (const bt of pur.bankTransfers) {
                                     const btRef = (bt.reference || bt.transferNo || '').toString().trim();
-                                    if (btRef.length >= 6 && btRef.slice(-6) === last6) {
+                                    if (this.areBankRefsEqual(cleanDigits, btRef)) {
                                         return {
                                             valid: false,
                                             isShort: false,
                                             isDuplicate: true,
                                             duplicateType: 'purchase',
                                             last6: last6,
-                                            message: `⚠️ تحذير: رقم التحويلة ينتهي بـ (${last6}) ومسجل بفاتورة مشتريات #${pur.invoiceNo || ''}!`
+                                            message: `⚠️ تحذير: رقم العملية (${cleanDigits}) مسجل بفاتورة مشتريات #${pur.invoiceNo || ''}!`
                                         };
                                     }
                                 }

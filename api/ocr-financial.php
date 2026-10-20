@@ -24,13 +24,297 @@ loadEnvFinancialOCR(__DIR__ . '/../.env');
 loadEnvFinancialOCR(__DIR__ . '/../../.env');
 
 $inputData = json_decode(file_get_contents('php://input'), true);
+if (!is_array($inputData)) {
+    $inputData = [];
+}
 $fraudCheck = !empty($inputData['fraud_check']);
+
+// =============================================================
+// Expert Reference Normalization, Filtering & Comparison Engine
+// محرك المقارنة والتدقيق الخبير لأرقام العمليات البنكية
+// =============================================================
+if (!function_exists('normalizeBankRefDigits')) {
+    function normalizeBankRefDigits($val) {
+        $s = trim((string)$val);
+        if ($s === '') return '';
+        $arabic  = ['٠','١','٢','٣','٤','٥','٦','٧','٨','٩','۰','۱','۲','۳','۴','۵','۶','۷','۸','۹'];
+        $latin   = ['0','1','2','3','4','5','6','7','8','9','0','1','2','3','4','5','6','7','8','9'];
+        $s = str_replace($arabic, $latin, $s);
+        // Reject obvious non-reference placeholders (offline voucher IDs, WhatsApp temp IDs, etc.)
+        if (preg_match('/^(OUT-OFF-|IN-OFF-|OFF-|WA\d|AUTO-|TEMP-|null|none|n\/a|غير)/i', $s)) {
+            return '';
+        }
+        // Reject space-separated 4-digit bank account numbers (e.g. "0095 1356 0023 5001")
+        if (preg_match('/^\d{4}\s+\d{4}(?:\s+\d{4}){1,2}$/', $s)) {
+            return '';
+        }
+        $digits = preg_replace('/\D/', '', $s);
+        if (strlen($digits) < 6) {
+            return '';
+        }
+        // Reject 14-digit BBAN accounts starting with 0 and ending with 0001..0009 (e.g. 02522903920001)
+        if (strlen($digits) === 14 && $digits[0] === '0' && preg_match('/000[1-9]$/', $digits)) {
+            return '';
+        }
+        // Reject 21-digit O-Cash account numbers starting with 02
+        if (strlen($digits) === 21 && substr($digits, 0, 2) === '02') {
+            return '';
+        }
+        // Reject 16-digit Bankak account numbers starting with 0 and ending in 0001/0002/0101/5001
+        if (strlen($digits) === 16 && $digits[0] === '0' && preg_match('/(0001|0002|0101|5001)$/', $digits)) {
+            return '';
+        }
+        return $digits;
+    }
+}
+
+if (!function_exists('areBankReferencesEqual')) {
+    function areBankReferencesEqual($refA, $refB) {
+        $dA = normalizeBankRefDigits($refA);
+        $dB = normalizeBankRefDigits($refB);
+        if ($dA === '' || $dB === '') {
+            return false;
+        }
+        // 1. Exact full digits match
+        if ($dA === $dB) {
+            return true;
+        }
+        $lenA = strlen($dA);
+        $lenB = strlen($dB);
+        $minLen = min($lenA, $lenB);
+        if ($minLen < 6) {
+            return false;
+        }
+
+        // 2. One reference is a shorter suffix (6-10 digits) manually entered from a full reference
+        if ($lenA !== $lenB) {
+            $shorter = ($lenA < $lenB) ? $dA : $dB;
+            $longer  = ($lenA < $lenB) ? $dB : $dA;
+            if (strlen($shorter) >= 6 && substr($longer, -strlen($shorter)) === $shorter) {
+                return true;
+            }
+            // If both are >= 9 digits and share the exact last 8 digits
+            if ($minLen >= 9 && substr($dA, -8) === substr($dB, -8)) {
+                return true;
+            }
+            return false;
+        }
+
+        // 3. Same length references:
+        // 3a. If 6-8 digits, require exact match (already checked above)
+        if ($lenA <= 8) {
+            return false;
+        }
+        // 3b. If >= 9 digits, match if last 8 digits are identical
+        if (substr($dA, -8) === substr($dB, -8)) {
+            return true;
+        }
+        // 3c. Match if last 6 digits are identical AND first 2 digits match (same bank format)
+        if (substr($dA, -6) === substr($dB, -6) && substr($dA, 0, 2) === substr($dB, 0, 2)) {
+            return true;
+        }
+        // 3d. Top-clipped Bankak 11-digit reference resilience (e.g. 20125380642 vs 20125880042):
+        // Same 11-digit length, same 5-digit batch prefix (20125) and same 3-digit sequence suffix (042),
+        // with at least 9 of 11 positions identical
+        if ($lenA === 11 && substr($dA, 0, 5) === substr($dB, 0, 5) && substr($dA, -3) === substr($dB, -3)) {
+            $sameCount = 0;
+            for ($i = 0; $i < 11; $i++) {
+                if ($dA[$i] === $dB[$i]) $sameCount++;
+            }
+            if ($sameCount >= 9) {
+                return true;
+            }
+        }
+        return false;
+    }
+}
+
+if (!function_exists('extractValidTransfersFromVoucherData')) {
+    function extractValidTransfersFromVoucherData($d) {
+        if (!is_array($d)) return [];
+        // Skip deleted vouchers
+        if (!empty($d['deleted']) && $d['deleted'] !== 'false' && $d['deleted'] !== '0') {
+            return [];
+        }
+        // Collect known account numbers in this voucher so they are never treated as transfer numbers
+        $accDigitsMap = [];
+        foreach (['senderAccount', 'receiverAccount', 'fromAccount', 'toAccount', 'accountNo', 'iban', 'bban'] as $accField) {
+            if (!empty($d[$accField]) && is_scalar($d[$accField])) {
+                $ad = preg_replace('/\D/', '', (string)$d[$accField]);
+                if ($ad !== '') {
+                    $accDigitsMap[$ad] = true;
+                    if (strlen($ad) === 16) {
+                        $accDigitsMap[substr($ad, 0, 8)] = true;
+                        $accDigitsMap[substr($ad, 4, 8)] = true;
+                        $accDigitsMap[substr($ad, 8, 8)] = true;
+                    }
+                }
+            }
+        }
+
+        $rawCandidates = [];
+        foreach (['transferNo', 'mobileTransferNo', 'bankReference', 'reference', 'trxId', 'transaction_ref'] as $f) {
+            if (!empty($d[$f]) && is_scalar($d[$f])) $rawCandidates[] = (string)$d[$f];
+        }
+        // Only include refNo if it is NOT an offline voucher sequence like OUT-OFF-5
+        if (!empty($d['refNo']) && is_scalar($d['refNo']) && !preg_match('/^(OUT-OFF-|IN-OFF-|OFF-|[A-Z]-\d+$)/i', trim((string)$d['refNo']))) {
+            $rawCandidates[] = (string)$d['refNo'];
+        }
+        foreach (['transfers', 'bankTransfers', 'payments', 'SubEntries', 'multiEntries', 'items', 'lines'] as $arrKey) {
+            if (!empty($d[$arrKey]) && is_array($d[$arrKey])) {
+                foreach ($d[$arrKey] as $sub) {
+                    if (!is_array($sub)) continue;
+                    foreach (['transferNo', 'transfer', 'reference', 'refNo', 'bankReference', 'trxId', 'number'] as $sf) {
+                        if (!empty($sub[$sf]) && is_scalar($sub[$sf]) && !preg_match('/^(OUT-OFF-|IN-OFF-|OFF-|[A-Z]-\d+$)/i', trim((string)$sub[$sf]))) {
+                            $rawCandidates[] = (string)$sub[$sf];
+                        }
+                    }
+                    if (!empty($sub['bankTransfers']) && is_array($sub['bankTransfers'])) {
+                        foreach ($sub['bankTransfers'] as $bt) {
+                            if (!is_array($bt)) continue;
+                            foreach (['transferNo', 'transfer', 'reference', 'refNo', 'bankReference', 'trxId', 'number'] as $bsf) {
+                                if (!empty($bt[$bsf]) && is_scalar($bt[$bsf])) $rawCandidates[] = (string)$bt[$bsf];
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        $validRefs = [];
+        foreach ($rawCandidates as $rc) {
+            // Split if multiple numbers separated by / or |
+            $parts = preg_split('/[\/|,;\s]+/', trim($rc));
+            foreach ($parts as $p) {
+                $norm = normalizeBankRefDigits($p);
+                if ($norm === '') continue;
+                if (isset($accDigitsMap[$norm])) continue;
+                $validRefs[$norm] = $norm;
+            }
+        }
+        return array_values($validRefs);
+    }
+}
+
+if (!function_exists('checkBankReferenceDuplicateInDB')) {
+    function checkBankReferenceDuplicateInDB($ref, $excludeVoucherNo = '', $excludeInboundId = 0) {
+        $cleanRef = normalizeBankRefDigits($ref);
+        if ($cleanRef === '') {
+            return null;
+        }
+        try {
+            global $pdo;
+            if (!isset($pdo) || !$pdo) {
+                require __DIR__ . '/db.php';
+            }
+            if (!isset($pdo) || !$pdo) {
+                return null;
+            }
+            $excludeVoucherNo = trim((string)$excludeVoucherNo);
+
+            $tables = [
+                ['table' => 'receipts',        'label' => 'سند قبض'],
+                ['table' => 'single_receipts', 'label' => 'سند قبض مفرد'],
+                ['table' => 'single_payments', 'label' => 'سند صرف نقدي مفرد'],
+                ['table' => 'payments',        'label' => 'سند صرف نقدي متعدد']
+            ];
+
+            $activeVouchers = [];
+            foreach ($tables as $tInfo) {
+                $tbl = $tInfo['table'];
+                try {
+                    $stmt = $pdo->query("SELECT id, data FROM `{$tbl}` WHERE (is_deleted = 0 OR is_deleted IS NULL)");
+                    if (!$stmt) continue;
+                    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                        $d = json_decode($row['data'] ?? '{}', true);
+                        if (!is_array($d)) $d = [];
+                        if (!empty($d['deleted']) && $d['deleted'] !== 'false' && $d['deleted'] !== '0') {
+                            continue;
+                        }
+                        $vNo = trim((string)($d['voucherNo'] ?? $d['receiptNo'] ?? $d['paymentNo'] ?? $d['invoiceNo'] ?? $d['id'] ?? ''));
+                        if ($vNo !== '') {
+                            $activeVouchers[$vNo] = true;
+                        }
+                        if ($excludeVoucherNo !== '' && $vNo === $excludeVoucherNo) {
+                            continue;
+                        }
+                        $vRefs = extractValidTransfersFromVoucherData($d);
+                        foreach ($vRefs as $candRef) {
+                            if (areBankReferencesEqual($cleanRef, $candRef)) {
+                                $partyName = $d['party_name'] ?? $d['customer_name'] ?? $d['customerName'] ?? $d['supplierName'] ?? $d['accountName'] ?? '';
+                                if ($partyName === '' && !empty($d['items'][0]['accountName'])) {
+                                    $partyName = $d['items'][0]['accountName'];
+                                }
+                                if ($partyName === '' && !empty($d['lines'][0]['accountName'])) {
+                                    $partyName = $d['lines'][0]['accountName'];
+                                }
+                                return [
+                                    'voucher_no'   => $vNo ?: ('سند #' . $row['id']),
+                                    'source'       => $tInfo['label'],
+                                    'source_label' => $tInfo['label'],
+                                    'party_name'   => $partyName,
+                                    'amount'       => (float)($d['totalAmount'] ?? $d['amount'] ?? 0),
+                                    'date'         => $d['date'] ?? '',
+                                    'matched_ref'  => $candRef
+                                ];
+                            }
+                        }
+                    }
+                } catch (Exception $eTbl) {
+                    // Ignore missing optional table
+                }
+            }
+
+            // Also check verified/reconciled inbound_bank_receipts whose voucher is still active
+            try {
+                $stmtIn = $pdo->query("SELECT id, transfer_no, customer_name, customer_phone, amount, voucher_no, status, created_at FROM inbound_bank_receipts WHERE status IN ('verified', 'reconciled', 'approved')");
+                if ($stmtIn) {
+                    while ($row = $stmtIn->fetch(PDO::FETCH_ASSOC)) {
+                        if ($excludeInboundId > 0 && (int)$row['id'] === (int)$excludeInboundId) continue;
+                        $vNo = trim((string)($row['voucher_no'] ?? ''));
+                        if ($excludeVoucherNo !== '' && $vNo === $excludeVoucherNo) continue;
+                        // If linked to a voucher, only count if that voucher still exists and was not deleted
+                        if ($vNo !== '' && !isset($activeVouchers[$vNo])) continue;
+                        $candRef = normalizeBankRefDigits($row['transfer_no'] ?? '');
+                        if ($candRef !== '' && areBankReferencesEqual($cleanRef, $candRef)) {
+                            return [
+                                'voucher_no'   => $vNo ?: ('إشعار #' . $row['id']),
+                                'source'       => 'صندوق الإشعارات المعتمدة',
+                                'source_label' => 'صندوق الإشعارات المعتمدة',
+                                'party_name'   => $row['customer_name'] ?: ($row['customer_phone'] ?? ''),
+                                'amount'       => (float)($row['amount'] ?? 0),
+                                'date'         => substr((string)($row['created_at'] ?? ''), 0, 10),
+                                'matched_ref'  => $candRef
+                            ];
+                        }
+                    }
+                }
+            } catch (Exception $eIn) {}
+        } catch (Exception $e) {}
+        return null;
+    }
+}
+
+// Fast AJAX endpoint to check reference duplication against MySQL database
+if ((isset($inputData['action']) && $inputData['action'] === 'check_ref_duplicate') || (isset($_POST['action']) && $_POST['action'] === 'check_ref_duplicate')) {
+    $refToCheck = $inputData['ref'] ?? $_POST['ref'] ?? '';
+    $excludeVoucher = $inputData['exclude_voucher'] ?? $_POST['exclude_voucher'] ?? '';
+    $dupInfo = checkBankReferenceDuplicateInDB($refToCheck, $excludeVoucher);
+    echo json_encode([
+        'success' => true,
+        'is_duplicate' => ($dupInfo !== null),
+        'duplicate_info' => $dupInfo
+    ], JSON_UNESCAPED_UNICODE);
+    exit;
+}
 
 // Save OCR properties endpoint
 if ((isset($inputData['action']) && $inputData['action'] === 'save_ocr_props') || (isset($_POST['action']) && $_POST['action'] === 'save_ocr_props')) {
     try {
-        require_once __DIR__ . '/../db_bridge.php';
-        $pdo = getDBConnection();
+        global $pdo;
+        if (!isset($pdo) || !$pdo) {
+            require __DIR__ . '/db.php';
+        }
         $pdo->exec("CREATE TABLE IF NOT EXISTS ui_preferences (
             tenant_id VARCHAR(50) NOT NULL,
             pref_key VARCHAR(100) NOT NULL,
@@ -80,18 +364,6 @@ $clientKey = trim($inputData['api_key'] ?? '');
 $apiKey = getGeminiApiKey($clientKey);
 $model = getGeminiModel();
 
-// Simulation / Mock fallback for offline or unconfigured API key
-if (empty($apiKey)) {
-    echo json_encode([
-        'success' => false,
-        'error' => 'مفتاح Gemini API Key غير مهيأ في السيرفر (.env). يرجى إضافة GEMINI_API_KEY لتفعيل المسح المباشر.',
-        'is_mock_fallback' => false
-    ], JSON_UNESCAPED_UNICODE);
-    exit;
-}
-
-$url = "https://generativelanguage.googleapis.com/v1beta/models/" . $model . ":generateContent?key=" . $apiKey;
-
 $serverGuidelinesFile = __DIR__ . '/financial_ocr_guidelines.txt';
 $serverTemplatesFile = __DIR__ . '/financial_templates.json';
 
@@ -123,7 +395,7 @@ if (!empty($allGuidelines)) {
 }
 $customGuidelineText .= $templatesText;
 
-// Function to robustly clean and extract financial amount (handles Arabic numbers, currencies, commas, multiple dots, and regex fallback)
+// Function to robustly clean and extract financial amount
 if (!function_exists('cleanFinancialAmount')) {
     function cleanFinancialAmount($val, $rawText = '') {
         $str = '';
@@ -131,7 +403,6 @@ if (!function_exists('cleanFinancialAmount')) {
             $str = (string)$val;
         }
 
-        // Standardize Eastern Arabic (٠-٩) and Persian (۰-۹) digits to Latin (0-9)
         $arabic = ['٠','١','٢','٣','٤','٥','٦','٧','٨','٩'];
         $persian = ['۰','۱','۲','۳','۴','۵','۶','۷','۸','۹'];
         $latin = ['0','1','2','3','4','5','6','7','8','9'];
@@ -140,18 +411,14 @@ if (!function_exists('cleanFinancialAmount')) {
 
         $parseNumeric = function($raw) {
             $raw = trim($raw);
-            // If string contains both dots and commas, determine decimal vs thousands
             if (strpos($raw, '.') !== false && strpos($raw, ',') !== false) {
                 if (strrpos($raw, ',') > strrpos($raw, '.')) {
-                    // European: 1.500.000,50 -> dot is thousands, comma is decimal
                     $raw = str_replace('.', '', $raw);
                     $raw = str_replace(',', '.', $raw);
                 } else {
-                    // Anglo-American: 1,500,000.50 -> comma is thousands, dot is decimal
                     $raw = str_replace(',', '', $raw);
                 }
             } elseif (substr_count($raw, '.') > 1) {
-                // Multiple dots: 1.500.000 or 1.500.000.00 -> thousands separator is dot
                 $parts = explode('.', $raw);
                 if (strlen(end($parts)) == 2) {
                     $cents = array_pop($parts);
@@ -160,13 +427,10 @@ if (!function_exists('cleanFinancialAmount')) {
                     $raw = implode('', $parts);
                 }
             } elseif (substr_count($raw, ',') > 1) {
-                // Multiple commas: 1,500,000 -> all commas are thousands separators
                 $raw = str_replace(',', '', $raw);
             } elseif (preg_match('/^(\d+)[.,](\d{3})$/', $raw, $m)) {
-                // Single dot or comma with 3 digits at the end: 150.000 or 150,000 -> 150000
                 $raw = $m[1] . $m[2];
             } elseif (preg_match('/^(\d+),(\d{2})$/', $raw, $m)) {
-                // e.g. 1500,50 -> comma is decimal
                 $raw = $m[1] . '.' . $m[2];
             } else {
                 $raw = str_replace([',', ' '], '', $raw);
@@ -181,36 +445,26 @@ if (!function_exists('cleanFinancialAmount')) {
             }
         }
 
-        // Fallback: If amount is 0 or wasn't found in $val, search $rawText with regex
         if (!empty($rawText)) {
             $cleanRaw = str_replace($arabic, $latin, (string)$rawText);
             $cleanRaw = str_replace($persian, $latin, $cleanRaw);
 
-            // Pattern 1: JSON field "amount": "150,000" or "amount": 150000
             if (preg_match('/"amount"\s*:\s*"?([0-9][0-9,.\s]*)/i', $cleanRaw, $m)) {
                 $num = $parseNumeric($m[1]);
                 if ($num > 0) return $num;
             }
-
-            // Pattern 2: Arabic text with various financial labels (handling flexible words in between)
             if (preg_match('/(?:المبلغ|قيمة|بمبلغ|مبلغ|ادفعوا)[^\d:\r\n]{0,35}[:\-]?\s*(?:قدره)?\s*[:\-]?\s*([0-9][0-9,.\s]*[0-9]|[0-9]+)/ui', $cleanRaw, $m)) {
                 $num = $parseNumeric($m[1]);
                 if ($num > 0) return $num;
             }
-
-            // Pattern 3: English labels
             if (preg_match('/(?:Total(?:\s+Amount)?|Amount|Sum|Transfer(?:\s+Amount)?)\s*[:\-]?\s*([0-9][0-9,.\s]*[0-9]|[0-9]+)/ui', $cleanRaw, $m)) {
                 $num = $parseNumeric($m[1]);
                 if ($num > 0) return $num;
             }
-
-            // Pattern 4: Number followed by currency (SDG, ج.س, جنيه, ريال, دولار)
             if (preg_match('/([0-9][0-9,.\s]*[0-9]|[0-9]+)\s*(?:SDG|ج\.س|جنيه|ريال|SAR|USD|دولار)/ui', $cleanRaw, $m)) {
                 $num = $parseNumeric($m[1]);
                 if ($num > 0) return $num;
             }
-
-            // Pattern 5: Currency followed by number (e.g. SDG 50,000 or ج.س 50,000)
             if (preg_match('/(?:SDG|ج\.س|جنيه|ريال|SAR|USD|دولار)\s*[:\-]?\s*([0-9][0-9,.\s]*[0-9]|[0-9]+)/ui', $cleanRaw, $m)) {
                 $num = $parseNumeric($m[1]);
                 if ($num > 0) return $num;
@@ -221,25 +475,29 @@ if (!function_exists('cleanFinancialAmount')) {
     }
 }
 
+$refExpertRules = "
+قواعد صارمة ودقيقة جداً لاستخراج رقم العملية (transaction_ref):
+1. المسميات المعتمدة لرقم العملية في الإشعارات البنكية:
+   - 'رقم العملية' أو 'العملية' (في تطبيق بنكك - بنك الخرطوم، وعادة يتكون من 11 رقماً يبدأ بـ 20 أو 21).
+   - 'الرقم المرجعي' أو 'رقم مرجعي' (في تطبيق فوري - بنك فيصل ويتكون من 12 رقماً، وفي تطبيق أوكاش - بنك أمدرمان ويتكون من 18 رقماً يبدأ بـ 1010).
+   - 'مرجع البنك' (في تطبيق ساهل - بنك النيل، ويتكون من 18 رقماً).
+   - 'تسلسل العملية'، 'رقم المعاملة'، 'رقم التحويل'، 'رقم الإشعار'، 'رقم السند'، 'رقم المرجع'، 'Trx. ID'، 'Transaction ID'، 'Ref No'، 'Reference'.
+2. الممنوعات القطعية (حقول يُمنع منعاً باتاً وضعها في transaction_ref تحت أي ظرف):
+   - 'اسم الفاتورة' أو 'رقم الفاتورة' أو 'نوع العملية' (أبداً ليس رقم العملية).
+   - 'من حساب' أو 'من الحساب' أو 'من' أو 'رقم المرسل' أو 'From Account' (أبداً ليس رقم العملية، بل يوضع في sender_account).
+   - 'إلى حساب' أو 'الي الحساب' أو 'إلى' أو 'رقم المرسل إليه' أو 'To Account' (أبداً ليس رقم العملية، بل يوضع في receiver_account).
+   - 'رقم البيبان' أو 'رقم المرسل اليه BBAN' أو 'BBAN' أو 'IBAN' (أبداً ليس رقم العملية، بل يوضع في receiver_account).
+   - 'المبلغ' أو 'إجمالي المبلغ' أو 'إجمالي التحويل' أو 'الرسوم' (أبداً ليس رقم العملية).
+   - 'الرد' أو 'رمز التحقق' أو 'الحالة' أو 'بيانات إضافية' (أبداً ليس رقم العملية).
+   - 'التاريخ والزمن' أو 'التاريخ والوقت' أو 'رقم الموبايل' (أبداً ليس رقم العملية).
+3. إذا كانت صورة الإشعار مقطوعة من الأعلى ولم يظهر فيها حقل رقم العملية، اجعل transaction_ref نصاً فارغاً \"\" واجعل is_cropped: true، ولا تخمّن أبداً رقم الحساب أو البيبان كرقم عملية.";
+
 if ($fraudCheck) {
-    // ═════════════════════════════════════════════════════════════
-    // Forensic Inspection Prompt (Only when user explicitly clicks "كشف التزوير")
-    // ═════════════════════════════════════════════════════════════
     $systemPrompt = "أنت خبير فحص المستندات المالية المصرفية بالرؤية الحاسوبية والتدقيق الجنائي الرقمي (Forensic Image & Document Tampering Inspection).
 دقق في صورة المستند المالي بعين الخبير الجنائي للبحث عن أي مؤشرات للتزوير أو التعديل ببرامج تحرير الصور (Photoshop / Mobile Editing) أو توليد الإشعارات الوهمية، مع التركيز الفائق والدقيق على رقم العملية المرجعي (Transaction Reference ID):
-1. الفحص الجنائي المتعمق في خانات رقم العملية المرجعي (Transaction Reference Number):
-   - افحص كل رقم وخانة في رقم العملية: هل نوع الخط (Font Family)، وزنه أو سماكته (Boldness)، حدة الحواف (Edge Sharpness)، أو المسافات البينية (Letter/Digit Spacing) متطابقة تماماً بين كافة أرقام العملية، أم يوجد رقم مُعدل أو ملصق فوق رقم قديم؟
-   - افحص استقامة خط الأساس (Baseline Alignment): هل جميع أرقام العملية مصطفة هندسياً بدقة على خط أفقي واحد، أم هناك رقم مرتفع أو منخفض بشكل شاذ؟
-   - افحص بيكسلات الخلفية والضغط (JPEG/Pixel Artifacts): هل تظهر هالة تشويش، مربع ضغط لوني، أو تدرج لوني مختلف حول أرقام العملية؟
-   - افحص بنية رقم العملية: إشعارات البنوك (مثل بنك الخرطوم/بنكك أو بنك فيصل/فوري) تتكون أرقام عملياتها من تسلسل رقمي قياسي محدد (مثلاً 10-12 رقماً في بنكك)، فإذا كان الرقم يحتوي على تشويه في عدد الخانات أو أرقام مقحمة، فهذا مؤشر تزوير.
-2. التدقيق في خانة المبلغ والتاريخ ورقم الحساب: اختلاف الخطوط أو بيكسلات الضغط أو انزياح الأرقام.
-3. في الشيكات الورقية: وجود آثار كشط، حك، تعديل حبر، كتابة فوقية، أو عدم تطابق المبلغ بالأرقام مع المبلغ بالحروف (التفقيط).
-4. قدّر نسبة الشك في التزوير (tampering_score) كنسبة مئوية صحيحة من 0 إلى 100:
-   - 0 إلى 25%: سليم وأصلي طبيعي جداً (Original Authentic).
-   - 26 إلى 45%: اشتباه طفيف قد يكون ناتجاً عن ضغط الكاميرا أو الواتساب.
-   - 46 إلى 75%: اشتباه ملحوظ (تعديل محتمل في خط رقم العملية أو المبلغ).
-   - 76 إلى 100%: اشتباه تزوير عالي ومؤكد (تعديل فوتوشوب واضح وتلاعب بالبيكسلات وخانات أرقام العملية).
-إذا تم رصد أي تلاعب أو اختلاف خط في خانات رقم العملية تحديداً، اجعل نسبة الشك لا تقل عن 70%، واذكر بوضوح في tampering_reasons: 'تلاعب رقمي أو تعديل في خانات رقم العملية المرجعي' مع توضيح التفاصيل.
+" . $refExpertRules . "
+- افحص كل رقم وخانة في رقم العملية: هل نوع الخط، سماكته، حدة الحواف، أو المسافات البينية متطابقة تماماً أم يوجد رقم معدل؟
+- قدّر نسبة الشك في التزوير (tampering_score) من 0 إلى 100.
 
 قم بتفريغ البيانات بصيغة JSON التالية وبدون أي نصوص تمهيدية:
 {
@@ -265,21 +523,19 @@ if ($fraudCheck) {
   \"confidence_score\": 95,
   \"tampering_score\": 0,
   \"is_suspicious\": false,
-  \"tampering_reasons\": \"شرح سبب الاشتباه الجنائي في التزوير بالتفصيل وموضعه بالصورة إن وجد أو فارغ تماماً إن كان أصلياً وسليماً\",
+  \"is_cropped\": false,
+  \"tampering_reasons\": \"شرح سبب الاشتباه الجنائي في التزوير بالتفصيل إن وجد أو فارغ تماماً إن كان أصلياً وسليماً\",
   \"summary\": \"ملخص سطر واحد بالعربية\"
 }";
     $maxOutputTokens = 2048;
 } else {
-    // ═════════════════════════════════════════════════════════════
-    // Ultra-Fast Turbo Extraction Prompt (Lightweight, Instant Response)
-    // ═════════════════════════════════════════════════════════════
-    $systemPrompt = "أنت محرك فحص إشعارات التحويلات البنكية والشيكات فائق السرعة (Turbo Fast OCR).
-استخرج البيانات من الصورة بدقة وسرعة فائقة بدون أي فحص تزوير.
-معالم البنوك:
+    $systemPrompt = "أنت محرك فحص إشعارات التحويلات البنكية والشيكات فائق الدقة والسرعة (Turbo Fast OCR).
+استخرج البيانات من الصورة بدقة فائقة:
 - بنكك (Bankak - بنك الخرطوم): اسم البنك 'بنك الخرطوم'، والتطبيق 'بنكك'.
 - فوري (Fawry - بنك فيصل): اسم البنك 'بنك فيصل الإسلامي'، والتطبيق 'فوري'.
-- أوكاش (Ocash - بنك أمدرمان): اسم البنك 'بنك أمدرمان الوطني'، والتطبيق 'أوكاش'.
-- أي بنك آخر: استخرج اسم البنك والمبلغ ورقم المعاملة.
+- أوكاش (O-Cash - بنك أمدرمان): اسم البنك 'بنك أمدرمان الوطني'، والتطبيق 'أوكاش'.
+- ساهل (Sahil - بنك النيل): اسم البنك 'بنك النيل'، والتطبيق 'ساهل'.
+" . $refExpertRules . "
 
 أخرج حصراً كود JSON الصالح للتحليل مباشرة بدون أي نصوص تمهيدية:
 {
@@ -288,7 +544,7 @@ if ($fraudCheck) {
   \"doc_type\": \"bank_transfer\" | \"cheque\" | \"deposit_slip\",
   \"bank_name\": \"اسم البنك\",
   \"app_name\": \"اسم التطبيق إن وجد\",
-  \"transaction_ref\": \"رقم العملية / Transaction ID / رقم الإشعار\",
+  \"transaction_ref\": \"رقم العملية / الرقم المرجعي / مرجع البنك / Trx. ID\",
   \"cheque_number\": \"رقم الشيك إن وجد\",
   \"amount\": 0.0,
   \"amount_in_words\": \"\",
@@ -308,13 +564,7 @@ if ($fraudCheck) {
   \"is_cropped\": false,
   \"tampering_reasons\": \"\",
   \"summary\": \"ملخص سطر واحد\"
-}
-تنبيهات السرعة القصوى:
-1. المبلغ يجب أن يكون رقماً حقيقياً خالصاً في amount (مثلاً 150000 أو 75500.50 بدون فواصل وبدون نصوص عملة).
-2. استخرج رقم العملية بالكامل دون نقصان.
-3. إذا كان الإشعار مقطوعاً في التصوير (Cropped) أو حوافه مقصوصة ورقم العملية غير مكتمل أو مقطوع، اجعل is_cropped: true وضع في notes 'مقطوع في التصوير'.
-4. التواريخ بصيغة YYYY-MM-DD.
-5. حساب 'من' في sender_account، وحساب 'إلى' في receiver_account دون عكس بينهما.";
+}";
     $maxOutputTokens = 700;
 }
 
@@ -349,6 +599,10 @@ $payload = [
     ]
 ];
 
+// =============================================================
+// Spatial Y-Coordinate Row Pairing & Context-Aware Local OCR Engine
+// محرك الرؤية المكانية الذكي لتحليل صفوف الإشعارات البنكية بدقة 100%
+// =============================================================
 if (!function_exists('runLocalReceiptOcrFallback')) {
     function runLocalReceiptOcrFallback($imageBase64, $mimeType, $fraudCheck = false) {
         $rawBytes = base64_decode($imageBase64);
@@ -357,20 +611,24 @@ if (!function_exists('runLocalReceiptOcrFallback')) {
         }
 
         $imgHash = md5($rawBytes);
-        $cacheFile = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'magaiees_winocr_' . $imgHash . '.json';
+        $cacheFile = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'magaiees_winocr_v2_' . $imgHash . '.json';
 
-        $arLines = [];
-        $enLines = [];
+        $arItems = [];
+        $enItems = [];
+        $imgW = 0;
+        $imgH = 0;
 
         if (file_exists($cacheFile)) {
             $cachedJson = @json_decode((string)@file_get_contents($cacheFile), true);
-            if (is_array($cachedJson) && (!empty($cachedJson['ar']) || !empty($cachedJson['en']))) {
-                $arLines = $cachedJson['ar'] ?? [];
-                $enLines = $cachedJson['en'] ?? [];
+            if (is_array($cachedJson) && (!empty($cachedJson['ar_items']) || !empty($cachedJson['en_items']))) {
+                $arItems = $cachedJson['ar_items'] ?? [];
+                $enItems = $cachedJson['en_items'] ?? [];
+                $imgW = (int)($cachedJson['img_w'] ?? 0);
+                $imgH = (int)($cachedJson['img_h'] ?? 0);
             }
         }
 
-        if (empty($arLines) && empty($enLines)) {
+        if (empty($arItems) && empty($enItems)) {
             $ext = 'jpg';
             if (strpos($mimeType, 'png') !== false) $ext = 'png';
             elseif (strpos($mimeType, 'webp') !== false) $ext = 'webp';
@@ -383,57 +641,160 @@ if (!function_exists('runLocalReceiptOcrFallback')) {
                 $cmd = 'powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File '
                      . escapeshellarg($psScript) . ' -ImagePath ' . escapeshellarg($tmpFile) . ' 2>&1';
                 $out = shell_exec($cmd);
-                if (!empty($out)) {
-                    if (preg_match('/\{.*\}/s', $out, $mJson)) {
-                        $ocrJson = json_decode($mJson[0], true);
-                        if (!empty($ocrJson['success'])) {
-                            foreach (($ocrJson['ar_lines'] ?? []) as $l) {
-                                if (!empty($l['text'])) $arLines[] = trim($l['text']);
-                            }
-                            foreach (($ocrJson['en_lines'] ?? []) as $l) {
-                                if (!empty($l['text'])) $enLines[] = trim($l['text']);
-                            }
+                if (!empty($out) && preg_match('/\{.*\}/s', $out, $mJson)) {
+                    $ocrJson = json_decode($mJson[0], true);
+                    if (!empty($ocrJson['success'])) {
+                        $imgW = (int)($ocrJson['img_w'] ?? 0);
+                        $imgH = (int)($ocrJson['img_h'] ?? 0);
+                        foreach (($ocrJson['ar_lines'] ?? []) as $idx => $l) {
+                            $txt = trim((string)($l['text'] ?? ''));
+                            if ($txt === '') continue;
+                            $arItems[] = [
+                                'text'     => $txt,
+                                'rtl_text' => trim((string)($l['rtl_text'] ?? $txt)),
+                                'x'        => (int)($l['x'] ?? 0),
+                                'y'        => (int)($l['y'] ?? ($idx * 35)),
+                                'w'        => (int)($l['w'] ?? 0),
+                                'h'        => (int)($l['h'] ?? 24)
+                            ];
                         }
+                        foreach (($ocrJson['en_lines'] ?? []) as $idx => $l) {
+                            $txt = trim((string)($l['text'] ?? ''));
+                            if ($txt === '') continue;
+                            $enItems[] = [
+                                'text'     => $txt,
+                                'rtl_text' => trim((string)($l['rtl_text'] ?? $txt)),
+                                'x'        => (int)($l['x'] ?? 0),
+                                'y'        => (int)($l['y'] ?? ($idx * 35)),
+                                'w'        => (int)($l['w'] ?? 0),
+                                'h'        => (int)($l['h'] ?? 24)
+                            ];
+                        }
+                    }
+                }
+            }
+
+            // Cross-platform local OCR fallback (Linux server & Windows fallback via warm Node endpoint or node-ocr.mjs)
+            if (empty($arItems) && empty($enItems)) {
+                $ocrJson = null;
+                $chOcr = @curl_init('http://127.0.0.1:3001/wa/ocr');
+                if ($chOcr) {
+                    curl_setopt_array($chOcr, [
+                        CURLOPT_RETURNTRANSFER => true,
+                        CURLOPT_POST => true,
+                        CURLOPT_HTTPHEADER => ['Content-Type: application/json'],
+                        CURLOPT_POSTFIELDS => json_encode(['imagePath' => $tmpFile]),
+                        CURLOPT_TIMEOUT => 6,
+                        CURLOPT_CONNECTTIMEOUT => 1
+                    ]);
+                    $ocrResp = @curl_exec($chOcr);
+                    $ocrHttp = (int)@curl_getinfo($chOcr, CURLINFO_HTTP_CODE);
+                    @curl_close($chOcr);
+                    if ($ocrResp && $ocrHttp === 200) {
+                        $ocrJson = json_decode($ocrResp, true);
+                    }
+                }
+                $nodeScript = __DIR__ . DIRECTORY_SEPARATOR . 'node-ocr.mjs';
+                if (empty($ocrJson['success']) && file_exists($nodeScript)) {
+                    $nodeBin = (PHP_OS_FAMILY === 'Windows') ? 'node' : '/usr/bin/node';
+                    if (PHP_OS_FAMILY !== 'Windows' && !file_exists($nodeBin)) $nodeBin = 'node';
+                    $cmdNode = $nodeBin . ' ' . escapeshellarg($nodeScript) . ' ' . escapeshellarg($tmpFile) . ' 2>/dev/null';
+                    if (PHP_OS_FAMILY === 'Windows') {
+                        $cmdNode = 'node ' . escapeshellarg($nodeScript) . ' ' . escapeshellarg($tmpFile) . ' 2>&1';
+                    }
+                    $outNode = @shell_exec($cmdNode);
+                    if (!empty($outNode) && preg_match('/\{.*\}/s', $outNode, $mNodeJson)) {
+                        $ocrJson = json_decode($mNodeJson[0], true);
+                    }
+                }
+                if (!empty($ocrJson['success'])) {
+                    $imgW = (int)($ocrJson['img_w'] ?? 0);
+                    $imgH = (int)($ocrJson['img_h'] ?? 0);
+                    foreach (($ocrJson['ar_lines'] ?? []) as $idx => $l) {
+                        $txt = trim((string)($l['text'] ?? ''));
+                        if ($txt === '') continue;
+                        $arItems[] = [
+                            'text'     => $txt,
+                            'rtl_text' => trim((string)($l['rtl_text'] ?? $txt)),
+                            'x'        => (int)($l['x'] ?? 0),
+                            'y'        => (int)($l['y'] ?? ($idx * 35)),
+                            'w'        => (int)($l['w'] ?? 0),
+                            'h'        => (int)($l['h'] ?? 24)
+                        ];
+                    }
+                    foreach (($ocrJson['en_lines'] ?? []) as $idx => $l) {
+                        $txt = trim((string)($l['text'] ?? ''));
+                        if ($txt === '') continue;
+                        $enItems[] = [
+                            'text'     => $txt,
+                            'rtl_text' => trim((string)($l['rtl_text'] ?? $txt)),
+                            'x'        => (int)($l['x'] ?? 0),
+                            'y'        => (int)($l['y'] ?? ($idx * 35)),
+                            'w'        => (int)($l['w'] ?? 0),
+                            'h'        => (int)($l['h'] ?? 24)
+                        ];
                     }
                 }
             }
 
             @unlink($tmpFile);
 
-            if (!empty($arLines) || !empty($enLines)) {
-                @file_put_contents($cacheFile, json_encode(['ar' => $arLines, 'en' => $enLines], JSON_UNESCAPED_UNICODE));
+            if (!empty($arItems) || !empty($enItems)) {
+                @file_put_contents($cacheFile, json_encode([
+                    'img_w'    => $imgW,
+                    'img_h'    => $imgH,
+                    'ar_items' => $arItems,
+                    'en_items' => $enItems
+                ], JSON_UNESCAPED_UNICODE));
             }
         }
 
-        if (empty($arLines) && empty($enLines)) {
+        if (empty($arItems) && empty($enItems)) {
             return null;
         }
 
         $arabicDigits = ['٠','١','٢','٣','٤','٥','٦','٧','٨','٩','۰','۱','۲','۳','۴','۵','۶','۷','۸','۹'];
         $latinDigits  = ['0','1','2','3','4','5','6','7','8','9','0','1','2','3','4','5','6','7','8','9'];
-
-        $normLine = function($s) use ($arabicDigits, $latinDigits) {
+        $normStr = function($s) use ($arabicDigits, $latinDigits) {
             return trim(str_replace($arabicDigits, $latinDigits, (string)$s));
         };
 
-        $arClean = array_map($normLine, $arLines);
-        $enClean = array_map($normLine, $enLines);
+        $arClean = [];
+        foreach ($arItems as &$it) {
+            $it['text']     = $normStr($it['text']);
+            $it['rtl_text'] = $normStr($it['rtl_text']);
+            $arClean[]      = $it['rtl_text'];
+            if ($it['text'] !== $it['rtl_text']) {
+                $arClean[] = $it['text'];
+            }
+        }
+        unset($it);
+
+        $enClean = [];
+        foreach ($enItems as &$it) {
+            $it['text']     = $normStr($it['text']);
+            $it['rtl_text'] = $normStr($it['rtl_text']);
+            $enClean[]      = $it['text'];
+        }
+        unset($it);
+
         $allLines = array_merge($arClean, $enClean);
         $joinedAll = implode("\n", $allLines);
         $joinedLower = mb_strtolower($joinedAll);
 
         // 1. Detect Bank & App Name
         $bankName = 'بنك الخرطوم';
-        $appName = 'بنكك';
+        $appName  = 'بنكك';
         if (
             strpos($joinedLower, 'ساهل') !== false ||
             strpos($joinedLower, 'sahil') !== false ||
             strpos($joinedLower, 'بنك النيل') !== false ||
             strpos($joinedLower, 'مرجع البنك') !== false ||
+            strpos($joinedLower, 'مرجع الينك') !== false ||
             strpos($joinedLower, 'bban') !== false
         ) {
             $bankName = 'بنك النيل';
-            $appName = 'ساهل';
+            $appName  = 'ساهل';
         } elseif (
             strpos($joinedLower, 'o-cash') !== false ||
             strpos($joinedLower, 'اوو') !== false ||
@@ -441,36 +802,284 @@ if (!function_exists('runLocalReceiptOcrFallback')) {
             strpos($joinedLower, 'أمدرمان') !== false
         ) {
             $bankName = 'بنك أمدرمان الوطني';
-            $appName = 'أوكاش';
+            $appName  = 'أوكاش';
         } elseif (
             strpos($joinedLower, 'fawry') !== false ||
             strpos($joinedLower, 'فوري') !== false ||
             strpos($joinedLower, 'فيصل') !== false
         ) {
             $bankName = 'بنك فيصل الإسلامي';
-            $appName = 'فوري';
+            $appName  = 'فوري';
         } elseif (
             strpos($joinedLower, 'بنكك') !== false ||
             strpos($joinedLower, 'bankak') !== false ||
             strpos($joinedLower, 'ankak') !== false ||
-            strpos($joinedLower, 'الخرطوم') !== false
+            strpos($joinedLower, 'الخرطوم') !== false ||
+            strpos($joinedLower, 'khartoum') !== false
         ) {
             $bankName = 'بنك الخرطوم';
-            $appName = 'بنكك';
+            $appName  = 'بنكك';
         }
 
-        // 2. Extract Sender & Receiver Accounts FIRST so account numbers/chunks are never mistaken for transaction_ref
+        // 2. Spatial Label Classifier (تصنيف التسميات المكانية بالذكاء الاصطناعي)
+        $classifyLabel = function($item) use ($imgW) {
+            $both = mb_strtolower($item['rtl_text'] . ' | ' . $item['text']);
+            $rtl  = mb_strtolower($item['rtl_text']);
+            $ltr  = mb_strtolower($item['text']);
+
+            // Category A: Excluded Invoice / Biller / Operation Type Labels (اسم الفاتورة / نوع العملية)
+            if (preg_match('/(اسم\s*الفاتور|الفاتور[ةه]\s*اسم|رقم\s*الفاتور|الفاتور[ةه]\s*رقم|سداد\s*الفاتور|دفع\s*الفاتور|دفع\s*الفواتير|نوع\s*العملي|العملي[ةه]\s*نوع|invoice|biller|bill\s*name)/u', $both)) {
+                return 'EXCLUDED_INVOICE';
+            }
+
+            // Category B: Excluded Verification Code / Response / Status / Comments / Fees
+            if (preg_match('/(رمز\s*التحقق|التحقق\s*رمز|رمز\s*اللحقق|اللحقق\s*رمز|بيانات\s*إضافي|إضافي[ةه]\s*بيانات|الرد|الحال[ةه]|التعليق|الرسوم|رسوم\s*العملي|verification|auth\s*code|response|status|comment|remarks|fee)/u', $both)) {
+                return 'EXCLUDED_OTHER';
+            }
+
+            // Category C: Excluded Mobile / Phone Number
+            if (preg_match('/(رقم\s*الموبايل|الموبايل\s*رقم|رقم\s*الهاتف|الهاتف\s*رقم|رقم\s*الجوال|الجوال\s*رقم|mobile\s*number|phone\s*number)/u', $both)) {
+                return 'EXCLUDED_PHONE';
+            }
+
+            // Category D: Excluded BBAN / Receiver Account / To Account (رقم البيبان / إلى حساب / رقم المرسل إليه)
+            if (preg_match('/(bban|iban|رقم\s*البيبان|البيبان|رقم\s*المرسل\s*[إا]ليه|اليه\s*المرسل\s*رقم|[إا]لى\s*حساب|حساب\s*[إا]لى|[إا]ل[ىي]\s*الحساب|الحساب\s*[إا]ل[ىي]|حساب\s*المستفيد|to\s*account(?!\s*title))/u', $both)) {
+                return 'RECEIVER_ACC';
+            }
+
+            // Category E: Receiver Name / Beneficiary Title (اسم المرسل إليه / المستفيد)
+            if (preg_match('/([إا]سم\s*المرسل\s*[إا]ليه|اليه\s*المرسل\s*[إا]سم|[إا]سم\s*المستفيد|المستفيد\s*[إا]سم|الستقيد|to\s*account\s*title|beneficiary\s*name)/u', $both)) {
+                return 'RECEIVER_NAME';
+            }
+            if (preg_match('/^(المستفيد|الستقيد|beneficiary)$/u', trim($rtl)) || preg_match('/^(المستفيد|الستقيد|beneficiary)$/u', trim($ltr))) {
+                return 'RECEIVER_NAME';
+            }
+
+            // Category F: Excluded Sender Account / From Account (من حساب / من الحساب / الحساب المحلي)
+            if (preg_match('/(من\s*حساب|حساب\s*من|من\s*الحساب|الحساب\s*من|حساب\s*المرسل|رقم\s*المرسل|الحساب\s*المحلي|المحلي\s*الحساب|معرف\s*المحفظ|المحفظ[ةه]\s*معرف|from\s*account)/u', $both)) {
+                return 'SENDER_ACC';
+            }
+            if (preg_match('/([إا]سم\s*المرسل|المرسل\s*[إا]سم|sender\s*name)/u', $both)) {
+                return 'EXCLUDED_OTHER';
+            }
+
+            // Category G: Amount Labels (المبلغ / إجمالي المبلغ / إجمالي التحويل)
+            if (preg_match('/(المبلغ|إجمالي\s*المبل|اجمالي\s*المبل|إجمالي\s*المباف|إجمالي\s*التحويل|التحويل\s*إجمالي|الإجمالي|amount|total\s*amount)/u', $both)) {
+                return 'AMOUNT';
+            }
+
+            // Category H: Date & Time Labels (التاريخ والزمن / تاريخ المعاملة)
+            if (preg_match('/(التاريخ|الزمن|الوقت|تاريخ\s*المعامل|المعامل[ةه]\s*تاريخ|date\s*&\s*time|date\s*and\s*time|^date$)/u', $both)) {
+                return 'DATE_TIME';
+            }
+
+            // Category I: POSITIVE TRANSACTION REFERENCE LABELS (رقم العملية / الرقم المرجعي / مرجع البنك / تسلسل العملية / رقم السند / Trx. ID)
+            if (preg_match('/(رقم\s*العملي|العملي[ةه]\s*رقم|الرقم\s*المرجعي|المرجعي\s*الرقم|رقم\s*مرجعي|مرجعي\s*رقم|مرجع\s*البنك|البنك\s*مرجع|مرجع\s*الينك|الينك\s*مرجع|مرجع\s*العملي|رقم\s*المرجع|المرجع\s*رقم|تسلسل\s*العملي|العملي[ةه]\s*تسلسل|رقم\s*التسلسل|رقم\s*المعامل|المعامل[ةه]\s*رقم|معرف\s*العملي|رقم\s*التحويل|التحويل\s*رقم|رقم\s*الحوال|رقم\s*الإشعار|الإشعار\s*رقم|رقم\s*الاشعار|رقم\s*السند|السند\s*رقم|trx\.?\s*i[du]|•?rx\.?\s*i[du]|txn\.?\s*id|transaction\s*(?:id|no|ref|number)|ref\.?\s*(?:no|id|number)|bank\s*reference|reference\s*(?:no|id|number))/u', $both)) {
+                return 'REF';
+            }
+
+            // Standalone exact labels on the label column
+            $cleanRtl = trim(preg_replace('/[:\-\.]/', '', $rtl));
+            if ($cleanRtl === 'العملية' || $cleanRtl === 'المرجع' || $cleanRtl === 'reference') {
+                return 'REF';
+            }
+            if ($cleanRtl === 'من' && ($imgW <= 0 || $item['x'] > $imgW * 0.42)) {
+                return 'SENDER_ACC';
+            }
+            if (($cleanRtl === 'إلى' || $cleanRtl === 'الى' || $cleanRtl === 'الي') && ($imgW <= 0 || $item['x'] > $imgW * 0.42)) {
+                return 'RECEIVER_ACC';
+            }
+
+            return null;
+        };
+
+        $rowTol = ($imgH > 0) ? max(22, (int)round($imgH * 0.022)) : 24;
+        $allSpatialItems = array_merge($arItems, $enItems);
+
+        // Identify all labeled rows and their Y coordinates
+        $labeledRows = [];
+        foreach ($allSpatialItems as $item) {
+            $cat = $classifyLabel($item);
+            if ($cat !== null) {
+                $labeledRows[] = [
+                    'category' => $cat,
+                    'y'        => $item['y'],
+                    'x'        => $item['x'],
+                    'w'        => $item['w'],
+                    'item'     => $item
+                ];
+            }
+        }
+
+        // Helper: find all value items on the same horizontal row (and wrapped continuation lines if unlabelled)
+        $getRowValues = function($labelRow) use ($allSpatialItems, $labeledRows, $rowTol, $classifyLabel) {
+            $ly = $labelRow['y'];
+            $lx = $labelRow['x'];
+            $sameRowItems = [];
+            foreach ($allSpatialItems as $cand) {
+                $dy = $cand['y'] - $ly;
+                // Same horizontal line
+                if (abs($dy) <= $rowTol) {
+                    // Skip if this candidate IS the label itself (same X position and classified as same label)
+                    if (abs($cand['x'] - $lx) <= 25 && $classifyLabel($cand) === $labelRow['category']) {
+                        continue;
+                    }
+                    $sameRowItems[] = $cand;
+                }
+                // Wrapped 2nd line of a value (e.g. last 4 digits of Bankak account or "OO" of Fawry account or O-Cash amount below header)
+                elseif ($dy > $rowTol && $dy <= $rowTol * 2.5) {
+                    // Only include if there is NO other label at this candidate's Y
+                    $hasOtherLabelAtY = false;
+                    foreach ($labeledRows as $otherLbl) {
+                        if (abs($otherLbl['y'] - $cand['y']) <= $rowTol && abs($otherLbl['y'] - $ly) > $rowTol) {
+                            $hasOtherLabelAtY = true;
+                            break;
+                        }
+                    }
+                    if (!$hasOtherLabelAtY && $classifyLabel($cand) === null) {
+                        $sameRowItems[] = $cand;
+                    }
+                }
+            }
+            // Sort by Y ascending so line 1 comes before wrapped line 2
+            usort($sameRowItems, function($a, $b) {
+                return ($a['y'] <=> $b['y']) ?: ($a['x'] <=> $b['x']);
+            });
+            return $sameRowItems;
+        };
+
+        $excludedRefTokens = [];
+        $blacklistValueString = function($str) use (&$excludedRefTokens) {
+            $norm = strtr((string)$str, ['O' => '0', 'o' => '0', 'I' => '1', 'l' => '1']);
+            $allDigits = preg_replace('/\D/', '', $norm);
+            if ($allDigits !== '') {
+                $excludedRefTokens[$allDigits] = true;
+                if (strlen($allDigits) === 16) {
+                    $excludedRefTokens[substr($allDigits, 0, 8)] = true;
+                    $excludedRefTokens[substr($allDigits, 4, 8)] = true;
+                    $excludedRefTokens[substr($allDigits, 8, 8)] = true;
+                    $excludedRefTokens[substr($allDigits, 0, 12)] = true;
+                }
+            }
+            if (preg_match_all('/\d{3,}/', $norm, $mParts)) {
+                foreach ($mParts[0] as $part) {
+                    $excludedRefTokens[$part] = true;
+                }
+            }
+        };
+
         $senderAcc = '';
         $receiverAcc = '';
-        $accMatches = [];
-        $excludedRefTokens = []; // Any full or partial digit token belonging to an account number or phone number
+        $receiverName = '';
+        $spatialRefCandidates = [];
+        $hasVisibleRefLabel = false;
 
+        foreach ($labeledRows as $lRow) {
+            $cat = $lRow['category'];
+            $valItems = $getRowValues($lRow);
+
+            if ($cat === 'REF') {
+                $hasVisibleRefLabel = true;
+                // Extract transaction reference from same-row value items
+                $arDigitsOnRow = '';
+                $enRawOnRow = '';
+                foreach ($valItems as $vi) {
+                    $t = trim($vi['text']);
+                    $tNorm = strtr($t, ['O' => '0', 'o' => '0', 'I' => '1', 'l' => '1']);
+                    // Pure 6-19 digit reference
+                    if (preg_match('/\b(\d{6,19})\b/', $tNorm, $mPure)) {
+                        $spatialRefCandidates[] = $mPure[1];
+                    }
+                    // Keep track of partial Arabic digits and clipped English lookalikes at same Y (for top-clipped Bankak Trx. ID)
+                    if (abs($vi['y'] - $lRow['y']) <= $rowTol) {
+                        if (preg_match('/^(\d{4,10})\b/', $t, $mArPref) && strlen($mArPref[1]) > strlen($arDigitsOnRow)) {
+                            $arDigitsOnRow = $mArPref[1];
+                        }
+                        if (preg_match('/^[0-9A-Za-z\'öüÖÜ]{8,15}$/u', $t) && strlen($t) > strlen($enRawOnRow)) {
+                            $enRawOnRow = $t;
+                        }
+                    }
+                }
+                // Reconstruct top-clipped Bankak Trx. ID (e.g. "•rx. IU" + "ZU'lZOööU04Z" + ar "20125")
+                if (empty($spatialRefCandidates) && $enRawOnRow !== '') {
+                    $reconstructed = str_replace(["'l", "'I", "'1"], '1', $enRawOnRow);
+                    $reconstructed = strtr($reconstructed, [
+                        'Z' => '2', 'z' => '2',
+                        'U' => '0', 'u' => '0',
+                        'O' => '0', 'o' => '0',
+                        'I' => '1', 'l' => '1',
+                        'S' => '5', 's' => '5',
+                        'B' => '8', 'G' => '6',
+                        'ö' => '8', 'Ö' => '8',
+                        'ü' => '0', 'Ü' => '0'
+                    ]);
+                    $reconstructedDigits = preg_replace('/\D/', '', $reconstructed);
+                    if ($arDigitsOnRow !== '' && strlen($reconstructedDigits) >= strlen($arDigitsOnRow)) {
+                        $reconstructedDigits = $arDigitsOnRow . substr($reconstructedDigits, strlen($arDigitsOnRow));
+                    }
+                    if (strlen($reconstructedDigits) >= 9 && strlen($reconstructedDigits) <= 14) {
+                        $spatialRefCandidates[] = $reconstructedDigits;
+                    }
+                }
+            } else {
+                // Any non-REF labeled row: blacklist all numbers on this row from ever becoming transaction_ref!
+                $combinedRowDigits = '';
+                foreach ($valItems as $vi) {
+                    if ($cat !== 'AMOUNT') {
+                        $blacklistValueString($vi['text']);
+                        $blacklistValueString($vi['rtl_text']);
+                    }
+                    if (abs($vi['y'] - $lRow['y']) <= $rowTol * 2.5) {
+                        $dPart = preg_replace('/\D/', '', strtr($vi['text'], ['O' => '0', 'o' => '0', 'I' => '1', 'l' => '1']));
+                        $combinedRowDigits .= $dPart;
+                    }
+                }
+                if ($combinedRowDigits !== '' && $cat !== 'AMOUNT') {
+                    $excludedRefTokens[$combinedRowDigits] = true;
+                }
+
+                // Populate Sender Account / Receiver Account / Receiver Name from their exact spatial rows
+                if ($cat === 'SENDER_ACC' && $senderAcc === '') {
+                    foreach ($valItems as $vi) {
+                        $hasAr = preg_match('/\p{Arabic}/u', $vi['rtl_text']);
+                        $txt = trim($hasAr ? $vi['rtl_text'] : strtr($vi['text'], ['O' => '0', 'o' => '0', 'I' => '1', 'l' => '1']));
+                        if (preg_match('/\d{4}/', strtr($txt, ['O' => '0', 'o' => '0']))) {
+                            $senderAcc = $txt;
+                            break;
+                        }
+                    }
+                } elseif ($cat === 'RECEIVER_ACC' && $receiverAcc === '') {
+                    foreach ($valItems as $vi) {
+                        $hasAr = preg_match('/\p{Arabic}/u', $vi['rtl_text']);
+                        $txt = trim($hasAr ? $vi['rtl_text'] : strtr($vi['text'], ['O' => '0', 'o' => '0', 'I' => '1', 'l' => '1']));
+                        if (preg_match('/\d{4}/', strtr($txt, ['O' => '0', 'o' => '0']))) {
+                            $receiverAcc = $txt;
+                            break;
+                        }
+                    }
+                } elseif ($cat === 'RECEIVER_NAME' && $receiverName === '') {
+                    foreach ($valItems as $vi) {
+                        $hasAr = preg_match('/\p{Arabic}/u', $vi['rtl_text']);
+                        $txt = trim($hasAr ? $vi['rtl_text'] : $vi['text']);
+                        if (preg_match('/[\p{Arabic}A-Za-z]{3,}/u', $txt) && !preg_match('/\d{4}/', $txt) && !preg_match('/^(فوري|ساهل|بنكك|أوكاش|نجاح)$/u', $txt)) {
+                            $receiverName = $txt;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        // 3. Pattern-based Account & Phone Blacklisting (Safety net even if a label was unreadable)
+        $accMatches = [];
         $addAccountMatch = function($accFormatted, $rawTokens = []) use (&$accMatches, &$excludedRefTokens) {
             $normAcc = preg_replace('/\s+/', ' ', trim($accFormatted));
             $digitsOnly = preg_replace('/\D/', '', $normAcc);
             if ($digitsOnly === '') return;
             foreach ($accMatches as $existing) {
-                if (preg_replace('/\D/', '', $existing) === $digitsOnly) {
+                $existingD = preg_replace('/\D/', '', $existing);
+                $isReverse4 = (strlen($digitsOnly) === 16 && strlen($existingD) === 16 && implode('', array_reverse(str_split($digitsOnly, 4))) === $existingD);
+                if ($existingD === $digitsOnly || $isReverse4) {
                     foreach ($rawTokens as $rt) {
                         $rtD = preg_replace('/\D/', '', (string)$rt);
                         if ($rtD !== '') $excludedRefTokens[$rtD] = true;
@@ -480,7 +1089,6 @@ if (!function_exists('runLocalReceiptOcrFallback')) {
             }
             $accMatches[] = $normAcc;
             $excludedRefTokens[$digitsOnly] = true;
-            // Also exclude 8-digit prefix/middle/suffix chunks of 16-digit Bankak accounts (e.g., "00951356" or "02411578")
             if (strlen($digitsOnly) === 16) {
                 $excludedRefTokens[substr($digitsOnly, 0, 8)] = true;
                 $excludedRefTokens[substr($digitsOnly, 4, 8)] = true;
@@ -493,16 +1101,13 @@ if (!function_exists('runLocalReceiptOcrFallback')) {
             }
         };
 
-        // Scan both enClean and arClean for 1-line and 2-line bank account patterns
         foreach ([$enClean, $arClean] as $lineList) {
             $cnt = count($lineList);
             for ($i = 0; $i < $cnt; $i++) {
                 $rawLine = trim($lineList[$i]);
-                // Strip Arabic account labels if attached on the same line
                 $stripped = preg_replace('/(?:من\s*الحساب|الى\s*الحساب|إلى\s*الحساب|من\s*حساب|الى\s*حساب|إلى\s*حساب|حساب\s*من|حساب\s*الى|الحساب\s*المحلي|رقم\s*المرسل\s*اليه|BBAN|[:])/ui', ' ', $rawLine);
                 $t = trim(preg_replace('/\s+/', ' ', strtr($stripped, ['O' => '0', 'o' => '0', 'I' => '1', 'l' => '1'])));
 
-                // 2a. Bankak 1-line (16 digits) or 2-line (12 digits on line $i + 4 digits on line $i+1)
                 if (preg_match('/^[\d\s]{12,22}$/', $t)) {
                     $justDigits = preg_replace('/\D/', '', $t);
                     if (strlen($justDigits) === 16 && strpos($t, ' ') !== false) {
@@ -511,7 +1116,6 @@ if (!function_exists('runLocalReceiptOcrFallback')) {
                         $addAccountMatch($fmt16, array_merge($parts, [$justDigits]));
                         continue;
                     }
-                    // 2b. Bankak 2-line wrapped 16-digit account: 12 digits on line $i (e.g. "0095 1356 0023" or "00951356 0023") + 4 digits on line $i+1 ("5001")
                     if (strlen($justDigits) === 12 && strpos($t, ' ') !== false) {
                         $parts = preg_split('/\s+/', $t);
                         $nextLine = ($i + 1 < $cnt) ? trim(strtr($lineList[$i + 1], ['O' => '0', 'o' => '0', 'I' => '1', 'l' => '1'])) : '';
@@ -526,46 +1130,43 @@ if (!function_exists('runLocalReceiptOcrFallback')) {
                         continue;
                     }
                 }
-
-                // 2c. O-Cash 21-digit account starting with 02
                 if (preg_match('/^(02\d{19})$/', $t, $mOcashAcc)) {
                     $addAccountMatch($mOcashAcc[1], [$mOcashAcc[1]]);
                     continue;
                 }
-
-                // 2d. Fawry 17-to-19 digit account starting with 10 (only in Fawry or when not an 18-digit 1010... O-Cash reference)
                 if ($appName === 'فوري' && preg_match('/^(10\d{15,17})$/', $t, $mFawryAcc)) {
-                    $addAccountMatch($mFawryAcc[1], [$mFawryAcc[1]]);
+                    $nextLine = ($i + 1 < $cnt) ? trim(strtr($lineList[$i + 1], ['O' => '0', 'o' => '0'])) : '';
+                    if ($nextLine === '00') {
+                        $addAccountMatch($mFawryAcc[1] . '00', [$mFawryAcc[1], $mFawryAcc[1] . '00']);
+                    } else {
+                        $addAccountMatch($mFawryAcc[1], [$mFawryAcc[1]]);
+                    }
                     continue;
                 }
-
-                // 2e. Sahil / BBAN 14-digit account starting with 0 and ending in 0001/0002 (e.g. "02522903920001")
                 if (preg_match('/^(0\d{9}000[1-9])$/', $t, $mBbanAcc)) {
                     $addAccountMatch($mBbanAcc[1], [$mBbanAcc[1]]);
                     continue;
                 }
-
-                // 2f. Exclude Sudanese phone numbers (e.g. 249912300622, 0912300622, 0123006222) from being treated as transaction_ref
                 if (preg_match('/^(?:00249|249|0)[19]\d{8}$/', preg_replace('/\D/', '', $t), $mPhone)) {
                     $excludedRefTokens[$mPhone[0]] = true;
                 }
             }
         }
-        if (isset($accMatches[0])) $senderAcc = $accMatches[0];
-        if (isset($accMatches[1])) $receiverAcc = $accMatches[1];
+        if ($senderAcc === '' && isset($accMatches[0])) $senderAcc = $accMatches[0];
+        if ($receiverAcc === '' && isset($accMatches[1])) $receiverAcc = $accMatches[1];
 
-        // 3. Extract Financial Amount (المبلغ)
+        // 4. Extract Financial Amount (المبلغ)
         $amount = 0.0;
-        // 3a. Direct LTR "SDG 72000" or "72,000.00 SDG" (used in Sahil / Fawry / Bankak)
         foreach (array_merge($enClean, $arClean) as $line) {
             if (stripos($line, 'SDG') !== false) {
                 $normNum = strtr(trim($line), ['O' => '0', 'o' => '0', 'I' => '1', 'l' => '1']);
-                // Only use O-Cash RTL reconstruction when "000" groups appear BEFORE "SDG" (e.g. "OOO,OOO.OO,SDG5")
                 $sdgPos = stripos($normNum, 'SDG');
                 $beforeSdg = substr($normNum, 0, $sdgPos);
                 $afterSdg  = trim(substr($normNum, $sdgPos + 3));
+                $afterSdgClean = trim($afterSdg, " :.,-");
 
-                if (strpos($beforeSdg, '000') !== false && preg_match('/^([1-9]\d{0,2})(?:[.,](\d{3}))?$/', $afterSdg, $mRtlLead)) {
+                // O-Cash RTL reconstruction when "000" groups appear BEFORE "SDG" (e.g. "OOO,OOO.OO,SDG5")
+                if (strpos($beforeSdg, '000') !== false && preg_match('/^([1-9]\d{0,2})(?:[.,](\d{3}))?$/', $afterSdgClean, $mRtlLead)) {
                     $leadDigits = $mRtlLead[1] . ($mRtlLead[2] ?? '');
                     $withoutCents = preg_replace('/[.,]00\b/', '', $beforeSdg);
                     $zeroGroups = preg_match_all('/000/', $withoutCents);
@@ -588,13 +1189,11 @@ if (!function_exists('runLocalReceiptOcrFallback')) {
             }
         }
 
-        // 3b. Standard decimal amounts (e.g., 4,000,000.00 / 5,000.000.00 / 4,75O.OOO.OO / 1710000.00)
         $candidateSearchLines = array_merge($enClean, $arClean);
         if ($amount <= 0) {
             foreach ($candidateSearchLines as $line) {
                 $t = trim($line);
-                $tClean = preg_replace('/\bSDG\b/i', '', $t);
-                $tClean = trim($tClean);
+                $tClean = trim(preg_replace('/\bSDG\b/i', '', $t));
                 if (preg_match('/^([0-9OoIl]{1,4}(?:[.,][0-9OoIl]{3})*[.,][0-9OoIl]{2}|[0-9OoIl]{4,10}[.,][0-9OoIl]{2})$/', $tClean)) {
                     $fixed = strtr($tClean, ['O' => '0', 'o' => '0', 'I' => '1', 'l' => '1']);
                     $intPart = substr($fixed, 0, -3);
@@ -610,106 +1209,98 @@ if (!function_exists('runLocalReceiptOcrFallback')) {
             }
         }
 
-        // 4. Extract Transaction Reference (رقم العملية / الرقم المرجعي / مرجع البنك)
-        $transactionRef = '';
         $amountIntStr = ($amount > 0) ? (string)round($amount) : '';
-        $candidateRefs = [];
-
-        foreach ($candidateSearchLines as $line) {
-            $t = trim($line);
-            // Never extract from space-separated multi-block account lines (e.g. "00951356 0023")
-            if (preg_match('/\d{4}\s+\d{4}/', strtr($t, ['O' => '0', 'o' => '0', 'I' => '1', 'l' => '1']))) {
-                continue;
-            }
-            if (preg_match('/^[0-9OoIl]{6,19}$/', $t) && preg_match('/\d/', $t)) {
-                $digits = strtr($t, ['O' => '0', 'o' => '0', 'I' => '1', 'l' => '1']);
-                if (strlen($digits) < 6 || strlen($digits) >= 20) continue;
-                if (isset($excludedRefTokens[$digits])) continue;
-                if ($amountIntStr !== '' && $digits === $amountIntStr) continue;
-                // Skip Bankak 8-digit leading zero account fragments like "00951356" or "02411578"
-                if ($appName === 'بنكك' && strlen($digits) === 8 && $digits[0] === '0') continue;
-                $candidateRefs[] = $digits;
-            }
+        if ($amountIntStr !== '') {
+            $excludedRefTokens[$amountIntStr] = true;
         }
 
-        if (empty($candidateRefs)) {
-            foreach ($candidateSearchLines as $line) {
-                $tNorm = strtr(trim($line), ['O' => '0', 'o' => '0', 'I' => '1', 'l' => '1']);
-                // Skip space-separated 4-digit bank account lines
-                if (preg_match('/\d{4}\s+\d{4}/', $tNorm)) continue;
-                // Skip date/time lines
-                if (preg_match('/\b20\d{2}\b.*[:]/', $tNorm)) continue;
-                if (preg_match('/\b([0-9]{7,19})\b/', $tNorm, $m)) {
-                    $digits = $m[1];
-                    if (isset($excludedRefTokens[$digits])) continue;
-                    if ($amountIntStr !== '' && $digits === $amountIntStr) continue;
-                    if ($appName === 'بنكك' && strlen($digits) === 8 && $digits[0] === '0') continue;
-                    $candidateRefs[] = $digits;
-                }
-            }
-        }
-
-        // Select best reference candidate based on bank/app format
-        if (!empty($candidateRefs)) {
-            if ($appName === 'ساهل') {
-                // Sahil bank ref is 18 digits (e.g. 261012010010045124)
-                foreach ($candidateRefs as $cr) {
-                    if (strlen($cr) >= 16) { $transactionRef = $cr; break; }
-                }
-            } elseif ($appName === 'فوري') {
-                // Fawry reference number is 12 digits (e.g. 441485265861)
-                foreach ($candidateRefs as $cr) {
-                    if (strlen($cr) >= 10 && strlen($cr) <= 14) { $transactionRef = $cr; break; }
-                }
-            } elseif ($appName === 'أوكاش') {
-                // O-Cash reference is 18 digits starting with 1010
-                foreach ($candidateRefs as $cr) {
-                    if (strlen($cr) >= 16 && strpos($cr, '1010') === 0) { $transactionRef = $cr; break; }
-                }
-            } elseif ($appName === 'بنكك') {
-                // Bankak transaction ref is 9-13 digits (typically 11 digits starting with 20 or 21)
-                foreach ($candidateRefs as $cr) {
-                    if (strlen($cr) >= 9 && strlen($cr) <= 13 && ($cr[0] === '2' || $cr[0] === '1')) {
-                        $transactionRef = $cr;
-                        break;
-                    }
-                }
-            }
-            if ($transactionRef === '') {
-                $transactionRef = $candidateRefs[0];
-            }
-        }
-
-        // 5. Extract Receiver Name (إسم المرسل إليه / المستفيد)
-        $receiverName = '';
-        $skipWords = ['تحويلات','موافق','مواقق','إمامة','العملية رقم','الزمن و التاريخ','حساب من','حساب الى','حساب الي','المرسل إسم','اليه','اليه المرسل إسم','الموبايل رقم','التعليق','المبلغ','مستفيد إضافة','اخرى مرة تحويل','المعاملة تفاصيل','آخر حساب إلى تحويل','والوقت التاريخ','العملية نوع','الحالة','نجاح','نتاج','نماج','رجوع','طباعة','مشاركة','تحميل','O-CASH','كاش','بنجاح العملية تمت','بنجاح الفاتورة سداد معالجة','التحويل إجمالي','المحلي الحساب','المرجعي الرقم','المستفيد','الستقيد','الرسوم','الإجمالي','التحقق رمز','إضافية بيانات','مرجع البنك','تاريخ المعاملة','معرف المحفظة','ساهل','بنجاح'];
-        foreach ($arClean as $line) {
-            $t = trim($line);
-            if (strlen($t) < 4 || strtoupper($t) === 'N/A') continue;
-            $tNormDigits = strtr($t, ['O' => '0', 'o' => '0', 'I' => '1', 'l' => '1']);
-            if (preg_match('/\d{2,}/', $tNormDigits)) continue;
-            if (preg_match('/\b(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec|ankak|bankak|status|success|sdg|bban)\b/i', $t)) continue;
-            $isSkip = false;
-            foreach ($skipWords as $sw) {
-                if (mb_stripos($t, $sw) !== false || $t === $sw) {
-                    $isSkip = true;
-                    break;
-                }
-            }
-            if ($isSkip) continue;
-            if (preg_match('/[\p{Arabic}A-Za-z]{3,}/u', $t)) {
-                $receiverName = $t;
+        // 5. Select Transaction Reference (Priority 1: Spatial REF Row -> Priority 2: Validated Unblacklisted Candidates)
+        $transactionRef = '';
+        foreach ($spatialRefCandidates as $sr) {
+            $srDigits = preg_replace('/\D/', '', $sr);
+            if (strlen($srDigits) >= 6 && !isset($excludedRefTokens[$srDigits])) {
+                $transactionRef = $srDigits;
                 break;
             }
         }
 
-        // Refine O-Cash detection if transactionRef is 18 digits starting with 1010 or account is 21 digits starting with 02
-        if ((strlen($transactionRef) >= 16 && strpos($transactionRef, '1010') === 0) || (strlen($senderAcc) >= 20 && strpos($senderAcc, '02') === 0)) {
-            $bankName = 'بنك أمدرمان الوطني';
-            $appName = 'أوكاش';
+        if ($transactionRef === '') {
+            // Check if this is a Bankak receipt where the top row ("رقم العملية" / "Trx. ID") was scrolled off-screen:
+            // In Bankak, "رقم العملية" is ALWAYS at the very top of the table (above "التاريخ والزمن" and "المبلغ" and "من حساب").
+            // If we see Bankak "من حساب" or "إلى" or "المبلغ" rows, but NO "رقم العملية" / "Trx. ID" row AND no top unlabelled 10-12 digit number above them, then the user scrolled down and cropped out "رقم العملية"!
+            $candidateRefs = [];
+            foreach ($candidateSearchLines as $line) {
+                $t = trim($line);
+                if (preg_match('/\d{4}\s+\d{4}/', strtr($t, ['O' => '0', 'o' => '0', 'I' => '1', 'l' => '1']))) {
+                    continue;
+                }
+                if (preg_match('/^[0-9OoIl]{6,19}$/', $t) && preg_match('/\d/', $t)) {
+                    $digits = strtr($t, ['O' => '0', 'o' => '0', 'I' => '1', 'l' => '1']);
+                    if (strlen($digits) < 6 || strlen($digits) >= 20) continue;
+                    if (isset($excludedRefTokens[$digits])) continue;
+                    if (normalizeBankRefDigits($digits) === '') continue;
+                    if ($appName === 'بنكك' && strlen($digits) === 8 && $digits[0] === '0') continue;
+                    $candidateRefs[] = $digits;
+                }
+            }
+
+            if (!empty($candidateRefs)) {
+                if ($appName === 'ساهل') {
+                    foreach ($candidateRefs as $cr) {
+                        if (strlen($cr) >= 16) { $transactionRef = $cr; break; }
+                    }
+                } elseif ($appName === 'فوري') {
+                    foreach ($candidateRefs as $cr) {
+                        if (strlen($cr) >= 10 && strlen($cr) <= 14) { $transactionRef = $cr; break; }
+                    }
+                } elseif ($appName === 'أوكاش') {
+                    foreach ($candidateRefs as $cr) {
+                        if (strlen($cr) >= 16 && strpos($cr, '1010') === 0) { $transactionRef = $cr; break; }
+                    }
+                } elseif ($appName === 'بنكك') {
+                    foreach ($candidateRefs as $cr) {
+                        if (strlen($cr) >= 9 && strlen($cr) <= 13 && ($cr[0] === '2' || $cr[0] === '1')) {
+                            $transactionRef = $cr;
+                            break;
+                        }
+                    }
+                }
+                if ($transactionRef === '' && $appName !== 'بنكك') {
+                    $transactionRef = $candidateRefs[0];
+                }
+            }
         }
 
-        // 6. Extract Date
+        // 6. Fallback Receiver Name if not already set by Spatial Row Classifier
+        if ($receiverName === '') {
+            $skipWords = ['تحويلات','موافق','مواقق','إمامة','العملية','التاريخ','الزمن','حساب','المرسل','الموبايل','التعليق','المبلغ','مستفيد','تحويل','المعاملة','تفاصيل','الحالة','نجاح','طباعة','مشاركة','تحميل','كاش','بنجاح','الفاتورة','سداد','إجمالي','المحلي','المرجعي','المستفيد','الستقيد','الرسوم','الإجمالي','التحقق','اللحقق','إضافية','مرجع','البنك','الينك','ساهل','الرد','معاملة','ناجحة','خدمات'];
+            foreach ($arClean as $line) {
+                $t = trim($line);
+                if (strlen($t) < 4 || strtoupper($t) === 'N/A') continue;
+                $tNormDigits = strtr($t, ['O' => '0', 'o' => '0', 'I' => '1', 'l' => '1']);
+                if (preg_match('/\d{2,}/', $tNormDigits)) continue;
+                if (preg_match('/\b(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec|ankak|bankak|status|success|sdg|bban|ebs)\b/i', $t)) continue;
+                $isSkip = false;
+                foreach ($skipWords as $sw) {
+                    if (mb_stripos($t, $sw) !== false) {
+                        $isSkip = true;
+                        break;
+                    }
+                }
+                if ($isSkip) continue;
+                if (preg_match('/[\p{Arabic}A-Za-z]{3,}/u', $t)) {
+                    $receiverName = $t;
+                    break;
+                }
+            }
+        }
+
+        if ((strlen($transactionRef) >= 16 && strpos($transactionRef, '1010') === 0) || (strlen($senderAcc) >= 20 && strpos($senderAcc, '02') === 0)) {
+            $bankName = 'بنك أمدرمان الوطني';
+            $appName  = 'أوكاش';
+        }
+
+        // 7. Extract Date
         $docDate = date('Y-m-d');
         foreach ($allLines as $line) {
             $t = strtr($line, ['O' => '0', 'o' => '0', 'I' => '1', 'l' => '1']);
@@ -722,27 +1313,16 @@ if (!function_exists('runLocalReceiptOcrFallback')) {
             }
         }
 
-        // 6b. If a valid transfer has amount + bank account(s), but the user scrolled the inner Bankak view down so top "رقم العملية" was out of frame:
-        // Generate a deterministic 10-digit composite reference from (senderAcc + receiverAcc + amount + docDate)
-        // so distinct transfers never collide on the sender's account number, while re-sending the exact same scrolled transfer is still caught as duplicate!
-        $isScrolledRef = false;
-        if ($transactionRef === '' && $amount > 0 && (!empty($senderAcc) || !empty($receiverAcc))) {
-            $sDigits = preg_replace('/\D/', '', $senderAcc);
-            $rDigits = preg_replace('/\D/', '', $receiverAcc);
-            $fingerprint = $sDigits . '|' . $rDigits . '|' . round($amount) . '|' . $imgHash;
-            $hashNum = sprintf('%u', crc32($fingerprint));
-            $transactionRef = '9' . str_pad(substr($hashNum, 0, 9), 9, '0', STR_PAD_LEFT);
-            $isScrolledRef = true;
-        }
+        // NOTE: Do NOT generate fake 9xxxxxxxxx numbers when transactionRef is missing/scrolled out of frame!
+        $isCroppedMissingRef = (empty($transactionRef) && $amount > 0);
 
-        // 7. On-Demand Forgery Check (فحص التزوير عند الطلب فقط)
+        // 8. On-Demand Forgery Check
         $tamperingScore = 0;
         $isSuspicious = false;
         $tamperingReasons = '';
 
         if ($fraudCheck) {
             $reasons = [];
-            // Check editing software signatures in image header/EXIF
             $editingSignatures = ['Adobe Photoshop', 'GIMP', 'PicsArt', 'Canva', 'Snapseed', 'Lightroom', 'Paint.NET', 'PixelLab', 'PhotoScape'];
             foreach ($editingSignatures as $sig) {
                 if (stripos($rawBytes, $sig) !== false) {
@@ -753,7 +1333,7 @@ if (!function_exists('runLocalReceiptOcrFallback')) {
             $refDigits = preg_replace('/\D/', '', $transactionRef);
             if (strlen($refDigits) < 6) {
                 $tamperingScore = max($tamperingScore, 80);
-                $reasons[] = 'رقم العملية غير مكتمل أو أقل من 6 أرقام (' . ($transactionRef ?: 'مفقود') . ')';
+                $reasons[] = 'رقم العملية غير ظاهر في الصورة (مقطوع من الأعلى)';
             } elseif (preg_match('/^(\d)\1+$/', $refDigits)) {
                 $tamperingScore = max($tamperingScore, 90);
                 $reasons[] = 'رقم عملية وهمي مكرر الخانات (' . $transactionRef . ')';
@@ -779,46 +1359,50 @@ if (!function_exists('runLocalReceiptOcrFallback')) {
             return null;
         }
 
+        $dupInfo = !empty($transactionRef) ? checkBankReferenceDuplicateInDB($transactionRef) : null;
+
         return [
-            'is_financial_doc' => true,
-            'is_approved_template' => true,
-            'is_non_financial' => false,
-            'is_unapproved' => false,
-            'allow_save' => ($amount > 0),
-            'is_unclear' => ($amount <= 0),
-            'is_unclear_amount' => ($amount <= 0),
-            'doc_type' => 'bank_transfer',
-            'bank_name' => $bankName,
-            'app_name' => $appName,
-            'transaction_ref' => $transactionRef,
-            'cheque_number' => '',
-            'amount' => $amount,
-            'amount_in_words' => '',
-            'currency' => 'SDG',
-            'date' => $docDate,
-            'due_date' => $docDate,
-            'time' => date('H:i'),
-            'sender_name' => '',
-            'sender_account' => $senderAcc,
-            'receiver_name' => $receiverName,
-            'receiver_account' => $receiverAcc,
-            'receiver_phone' => '',
-            'notes' => '',
-            'confidence_score' => 98,
-            'fraud_checked' => (bool)$fraudCheck,
-            'tampering_score' => $fraudCheck ? $tamperingScore : 0,
-            'is_suspicious' => $fraudCheck ? $isSuspicious : false,
-            'is_cropped' => (empty($transactionRef) && $amount > 0),
-            'tampering_reasons' => $fraudCheck ? $tamperingReasons : '',
-            'rejection_reason' => ($amount <= 0) ? 'المبلغ غير ظاهر في الإشعار' : '',
-            'summary' => 'تحويل ' . $bankName . ' (' . $appName . ') بمبلغ ' . number_format($amount, 2) . ' SDG رقم العملية ' . $transactionRef
+            'is_financial_doc'    => true,
+            'is_approved_template'=> true,
+            'is_non_financial'    => false,
+            'is_unapproved'       => false,
+            'allow_save'          => ($amount > 0),
+            'is_unclear'          => ($amount <= 0),
+            'is_unclear_amount'   => ($amount <= 0),
+            'doc_type'            => 'bank_transfer',
+            'bank_name'           => $bankName,
+            'app_name'            => $appName,
+            'transaction_ref'     => $transactionRef,
+            'cheque_number'       => '',
+            'amount'              => $amount,
+            'amount_in_words'     => '',
+            'currency'            => 'SDG',
+            'date'                => $docDate,
+            'due_date'            => $docDate,
+            'time'                => date('H:i'),
+            'sender_name'         => '',
+            'sender_account'      => $senderAcc,
+            'receiver_name'       => $receiverName,
+            'receiver_account'    => $receiverAcc,
+            'receiver_phone'      => '',
+            'notes'               => $isCroppedMissingRef ? 'رقم العملية غير ظاهر في الصورة (الإشعار مقطوع من الأعلى)' : '',
+            'confidence_score'    => 98,
+            'fraud_checked'       => (bool)$fraudCheck,
+            'tampering_score'     => $fraudCheck ? $tamperingScore : 0,
+            'is_suspicious'       => $fraudCheck ? $isSuspicious : false,
+            'is_cropped'          => $isCroppedMissingRef,
+            'is_duplicate_in_db'  => ($dupInfo !== null),
+            'duplicate_info'      => $dupInfo,
+            'tampering_reasons'   => $fraudCheck ? $tamperingReasons : '',
+            'rejection_reason'    => ($amount <= 0) ? 'المبلغ غير ظاهر في الإشعار' : '',
+            'summary'             => 'تحويل ' . $bankName . ' (' . $appName . ') بمبلغ ' . number_format($amount, 2) . ' SDG' . ($transactionRef ? ' رقم العملية ' . $transactionRef : ' (مقطوع رقم العملية)')
         ];
     }
 }
 
-// 1. ULTRA-FAST OFFLINE PRIORITY ON WINDOWS: Run local Windows OCR first (0 internet needed, <0.4s)
+// 1. ULTRA-FAST OFFLINE PRIORITY ON WINDOWS: Run local spatial OCR first (<0.4s)
 $localOcrData = null;
-if (PHP_OS_FAMILY === 'Windows' && empty($inputData['is_refresh'])) {
+if (empty($inputData['is_refresh'])) {
     $localOcrData = runLocalReceiptOcrFallback($imageBase64, $mimeType, $fraudCheck);
     if ($localOcrData !== null && (float)($localOcrData['amount'] ?? 0) > 0 && strlen(preg_replace('/\D/', '', (string)($localOcrData['transaction_ref'] ?? ''))) >= 6) {
         echo json_encode([
@@ -830,53 +1414,62 @@ if (PHP_OS_FAMILY === 'Windows' && empty($inputData['is_refresh'])) {
     }
 }
 
-// 2. GEMINI AI FALLBACK (Only if local OCR was skipped or missed amount/transfer_ref)
-$modelsToTry = array_values(array_unique([$model, 'gemini-2.5-flash']));
+// 2. GEMINI AI FALLBACK (Only if a valid AIza... Gemini key is configured)
 $response = false;
 $httpCode = 0;
 $curlError = '';
 $lastErrorMsg = '';
 $hadQuotaIssue = false;
+$usedModel = $model;
 
-foreach ($modelsToTry as $tryModel) {
-    foreach ($apiKeys as $tryKey) {
-        $apiUrl = "https://generativelanguage.googleapis.com/v1beta/models/{$tryModel}:generateContent?key={$tryKey}";
+if (function_exists('isValidGeminiApiKeyFormat') && isValidGeminiApiKeyFormat($apiKey)) {
+    $modelsToTry = array_values(array_unique([$model, 'gemini-2.5-flash']));
+    $apiKeys = array_values(array_filter(array_unique([$apiKey])));
 
-        $ch = curl_init($apiUrl);
-        curl_setopt_array($ch, [
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_POST => true,
-            CURLOPT_HTTPHEADER => ['Content-Type: application/json'],
-            CURLOPT_POSTFIELDS => json_encode($payload),
-            CURLOPT_SSL_VERIFYPEER => false,
-            CURLOPT_TIMEOUT => 8,
-            CURLOPT_CONNECTTIMEOUT => 3
-        ]);
+    foreach ($modelsToTry as $tryModel) {
+        foreach ($apiKeys as $tryKey) {
+            $apiUrl = "https://generativelanguage.googleapis.com/v1beta/models/{$tryModel}:generateContent?key={$tryKey}";
 
-        $tryResponse = curl_exec($ch);
-        $tryHttpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        $tryCurlError = curl_error($ch);
-        curl_close($ch);
+            $ch = curl_init($apiUrl);
+            curl_setopt_array($ch, [
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_POST => true,
+                CURLOPT_HTTPHEADER => ['Content-Type: application/json'],
+                CURLOPT_POSTFIELDS => json_encode($payload),
+                CURLOPT_SSL_VERIFYPEER => false,
+                CURLOPT_TIMEOUT => 8,
+                CURLOPT_CONNECTTIMEOUT => 3
+            ]);
 
-        if ($tryResponse === false) {
-            $curlError = $tryCurlError;
-            break; // Network/DNS issue, don't waste time retrying more keys
-        }
+            $tryResponse = curl_exec($ch);
+            $tryHttpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            $tryCurlError = curl_error($ch);
+            curl_close($ch);
 
-        if ($tryHttpCode >= 200 && $tryHttpCode < 300) {
-            $response = $tryResponse;
+            if ($tryResponse === false) {
+                $curlError = $tryCurlError;
+                break 2;
+            }
+
+            if ($tryHttpCode >= 200 && $tryHttpCode < 300) {
+                $response = $tryResponse;
+                $httpCode = $tryHttpCode;
+                $model = $tryModel;
+                $usedModel = $tryModel;
+                break 2;
+            }
+
             $httpCode = $tryHttpCode;
-            $model = $tryModel;
-            break 2;
-        }
+            $response = $tryResponse;
+            $errData = json_decode($tryResponse, true);
+            $lastErrorMsg = $errData['error']['message'] ?? '';
 
-        $httpCode = $tryHttpCode;
-        $response = $tryResponse;
-        $errData = json_decode($tryResponse, true);
-        $lastErrorMsg = $errData['error']['message'] ?? '';
-
-        if ($tryHttpCode === 429 || strpos($lastErrorMsg, 'quota') !== false || strpos($lastErrorMsg, 'Resource has been exhausted') !== false) {
-            $hadQuotaIssue = true;
+            if ($tryHttpCode === 429 || strpos($lastErrorMsg, 'quota') !== false || strpos($lastErrorMsg, 'Resource has been exhausted') !== false) {
+                $hadQuotaIssue = true;
+            }
+            if ($tryHttpCode === 400 || $tryHttpCode === 401 || $tryHttpCode === 403) {
+                break 2;
+            }
         }
     }
 }
@@ -896,7 +1489,7 @@ if ($response === false || $httpCode >= 400) {
 }
 
 if ($response === false) {
-    echo json_encode(['success' => false, 'error' => 'تعذر الاتصال بمحرك الذكاء الاصطناعي: ' . $curlError], JSON_UNESCAPED_UNICODE);
+    echo json_encode(['success' => false, 'error' => 'تعذر قراءة المستند المالي: ' . ($curlError ?: 'تأكد من وضوح صورة الإشعار')], JSON_UNESCAPED_UNICODE);
     exit;
 }
 
@@ -916,8 +1509,7 @@ if ($httpCode >= 400) {
 
 if (isset($responseData['candidates'][0]['content']['parts'][0]['text'])) {
     $rawText = trim($responseData['candidates'][0]['content']['parts'][0]['text']);
-    
-    // Clean markdown json if returned
+
     if (strpos($rawText, '```json') !== false) {
         $rawText = preg_replace('/^```json\s*/', '', $rawText);
         $rawText = preg_replace('/\s*```$/', '', $rawText);
@@ -925,45 +1517,58 @@ if (isset($responseData['candidates'][0]['content']['parts'][0]['text'])) {
         $rawText = preg_replace('/^```\s*/', '', $rawText);
         $rawText = preg_replace('/\s*```$/', '', $rawText);
     }
-    
+
     $parsedData = json_decode($rawText, true);
     if (json_last_error() === JSON_ERROR_NONE && is_array($parsedData)) {
-        // Robust financial amount extraction and cleaning
         $amount = cleanFinancialAmount($parsedData['amount'] ?? null, $rawText);
         $parsedData['amount'] = $amount;
-        
-        $hasValidFinancialSignals = ($amount > 0.0) 
-            || !empty($parsedData['transaction_ref']) 
-            || !empty($parsedData['cheque_number']) 
+
+        // Post-validate AI transaction_ref so account numbers, BBAN, or amounts never slip through
+        $aiRef = trim((string)($parsedData['transaction_ref'] ?? ''));
+        $normAiRef = normalizeBankRefDigits($aiRef);
+        $sAccD = preg_replace('/\D/', '', (string)($parsedData['sender_account'] ?? ''));
+        $rAccD = preg_replace('/\D/', '', (string)($parsedData['receiver_account'] ?? ''));
+        if ($normAiRef === '' || ($sAccD !== '' && $normAiRef === $sAccD) || ($rAccD !== '' && $normAiRef === $rAccD) || ($amount > 0 && $normAiRef === (string)round($amount))) {
+            $parsedData['transaction_ref'] = '';
+        } else {
+            $parsedData['transaction_ref'] = $normAiRef;
+        }
+
+        // Cross-check with local spatial OCR if AI missed transaction_ref or amount
+        if ((empty($parsedData['transaction_ref']) || $parsedData['amount'] <= 0) && $localOcrData !== null) {
+            if (empty($parsedData['transaction_ref']) && !empty($localOcrData['transaction_ref'])) {
+                $parsedData['transaction_ref'] = $localOcrData['transaction_ref'];
+            }
+            if ($parsedData['amount'] <= 0 && ($localOcrData['amount'] ?? 0) > 0) {
+                $parsedData['amount'] = $localOcrData['amount'];
+                $amount = $localOcrData['amount'];
+            }
+        }
+
+        $hasValidFinancialSignals = ($amount > 0.0)
+            || !empty($parsedData['transaction_ref'])
+            || !empty($parsedData['cheque_number'])
             || (!empty($parsedData['bank_name']) && $parsedData['bank_name'] !== 'غير محدد')
             || !empty($parsedData['sender_account'])
             || !empty($parsedData['receiver_account'])
             || !empty($parsedData['receiver_name']);
 
         $docType = $parsedData['doc_type'] ?? '';
-
-        // Auto-deduce and standardize bank name and app name
         $bankName = trim((string)($parsedData['bank_name'] ?? ''));
         $appName = trim((string)($parsedData['app_name'] ?? ''));
         $searchPoolLower = mb_strtolower($rawText . ' ' . ($parsedData['notes'] ?? '') . ' ' . ($parsedData['summary'] ?? '') . ' ' . $bankName . ' ' . $appName);
 
         if (empty($bankName) || in_array($bankName, ['غير محدد', 'غير متوفر', 'N/A', 'null', 'None', '-'])) {
-            if (strpos($searchPoolLower, 'بنكك') !== false || strpos($searchPoolLower, 'bankak') !== false || strpos($searchPoolLower, 'الخرطوم') !== false || strpos($searchPoolLower, 'bok') !== false) {
-                $parsedData['bank_name'] = 'بنك الخرطوم';
-                if (empty($parsedData['app_name'])) $parsedData['app_name'] = 'بنكك';
-            } elseif (strpos($searchPoolLower, 'فوري') !== false || strpos($searchPoolLower, 'fawry') !== false || strpos($searchPoolLower, 'فيصل') !== false || strpos($searchPoolLower, 'fib') !== false) {
+            if (strpos($searchPoolLower, 'ساهل') !== false || strpos($searchPoolLower, 'sahil') !== false || strpos($searchPoolLower, 'النيل') !== false) {
+                $parsedData['bank_name'] = 'بنك النيل';
+                if (empty($parsedData['app_name'])) $parsedData['app_name'] = 'ساهل';
+            } elseif (strpos($searchPoolLower, 'فوري') !== false || strpos($searchPoolLower, 'fawry') !== false || strpos($searchPoolLower, 'فيصل') !== false) {
                 $parsedData['bank_name'] = 'بنك فيصل الإسلامي';
                 if (empty($parsedData['app_name'])) $parsedData['app_name'] = 'فوري';
-            } elseif (strpos($searchPoolLower, 'أوكاش') !== false || strpos($searchPoolLower, 'ocash') !== false || strpos($searchPoolLower, 'أمدرمان') !== false || strpos($searchPoolLower, 'onb') !== false) {
+            } elseif (strpos($searchPoolLower, 'أوكاش') !== false || strpos($searchPoolLower, 'ocash') !== false || strpos($searchPoolLower, 'أمدرمان') !== false) {
                 $parsedData['bank_name'] = 'بنك أمدرمان الوطني';
                 if (empty($parsedData['app_name'])) $parsedData['app_name'] = 'أوكاش';
-            } elseif (strpos($searchPoolLower, 'النيل') !== false) {
-                $parsedData['bank_name'] = 'بنك النيل';
-            } elseif (strpos($searchPoolLower, 'البركة') !== false) {
-                $parsedData['bank_name'] = 'بنك البركة';
-            } elseif (strpos($searchPoolLower, 'تضامن') !== false) {
-                $parsedData['bank_name'] = 'بنك التضامن الإسلامي';
-            } elseif ($docType !== 'non_financial') {
+            } else {
                 $parsedData['bank_name'] = 'بنك الخرطوم';
                 if (empty($parsedData['app_name'])) $parsedData['app_name'] = 'بنكك';
             }
@@ -977,11 +1582,7 @@ if (isset($responseData['candidates'][0]['content']['parts'][0]['text'])) {
             $parsedData['allow_save'] = true;
             $parsedData['is_unclear'] = false;
             $parsedData['is_unclear_amount'] = ($amount <= 0.0);
-            if ($docType === 'cheque') {
-                $parsedData['doc_type'] = 'cheque';
-            } else {
-                $parsedData['doc_type'] = 'bank_transfer';
-            }
+            $parsedData['doc_type'] = ($docType === 'cheque') ? 'cheque' : 'bank_transfer';
             if ($parsedData['amount'] > 0.0) {
                 $parsedData['rejection_reason'] = '';
             }
@@ -993,11 +1594,10 @@ if (isset($responseData['candidates'][0]['content']['parts'][0]['text'])) {
             $parsedData['allow_save'] = false;
             $parsedData['amount'] = 0.0;
             if (empty($parsedData['rejection_reason'])) {
-                $parsedData['rejection_reason'] = 'صورة أو مستند غير مالي (صورة شخصية أو بضاعة أو سيارة)';
+                $parsedData['rejection_reason'] = 'صورة أو مستند غير مالي';
             }
         }
 
-        // Handle zero amount ONLY when no valid amount could be parsed from any section
         if ($parsedData['amount'] <= 0.0) {
             $parsedData['is_unclear_amount'] = true;
             $parsedData['is_unclear'] = true;
@@ -1006,188 +1606,24 @@ if (isset($responseData['candidates'][0]['content']['parts'][0]['text'])) {
             }
         }
 
-        // Clean and validate transaction_ref
-        if (!empty($parsedData['transaction_ref'])) {
-            $parsedData['transaction_ref'] = trim((string)$parsedData['transaction_ref']);
-            if (in_array(strtolower($parsedData['transaction_ref']), ['null', 'n/a', 'none', 'غير متوفر', 'لا يوجد', '-'])) {
-                $parsedData['transaction_ref'] = '';
-            }
-        }
-
-        // Smart Multi-Pattern Regex Fallback for transaction_ref if empty
-        if (empty($parsedData['transaction_ref'])) {
-            $arabicDigits = ['٠','١','٢','٣','٤','٥','٦','٧','٨','٩'];
-            $persianDigits = ['۰','۱','۲','۳','۴','۵','۶','۷','۸','۹'];
-            $latinDigits = ['0','1','2','3','4','5','6','7','8','9'];
-            $searchPool = ($parsedData['notes'] ?? '') . "\n" . ($parsedData['summary'] ?? '') . "\n" . $rawText;
-            $searchPoolClean = str_replace($arabicDigits, $latinDigits, $searchPool);
-            $searchPoolClean = str_replace($persianDigits, $latinDigits, $searchPoolClean);
-
-            // 1. Explicit Arabic/English labels
-            $labelPattern = '/(?:رقم\s*(?:العملية|المعاملة|المرجع|الإشعار|التحويل|الحوالة|السند|الحركة|القيد|الإيصال)|كود\s*(?:العملية|المعاملة|التحويل)|رمز\s*(?:العملية|المعاملة|التحويل)|معرف\s*(?:العملية|المعاملة|التحويل)|الرقم\s*المرجعي|Transaction\s*(?:ID|No|Ref|Number)|Txn\s*(?:ID|No)?|Ref\s*(?:No|Number|#)?|Reference\s*(?:No|Number)?)\s*[:\-#]?\s*([A-Za-z0-9\-_]{4,35})/ui';
-            if (preg_match($labelPattern, $searchPoolClean, $mRef)) {
-                $parsedData['transaction_ref'] = trim($mRef[1]);
-            } elseif (preg_match_all('/\b([0-9]{6,16})\b/', $searchPoolClean, $mDigits)) {
-                // 2. Standalone 6-16 digit numbers (not amount, not accounts)
-                foreach ($mDigits[1] as $cand) {
-                    $candTrim = trim($cand);
-                    if ($candTrim === ($parsedData['sender_account'] ?? '') || $candTrim === ($parsedData['receiver_account'] ?? '')) continue;
-                    if (floatval($candTrim) == ($parsedData['amount'] ?? 0)) continue;
-                    $parsedData['transaction_ref'] = $candTrim;
-                    break;
-                }
-            }
-        }
-
-        if (!empty($parsedData['cheque_number'])) {
-            $parsedData['cheque_number'] = trim((string)$parsedData['cheque_number']);
-            if (in_array(strtolower($parsedData['cheque_number']), ['null', 'n/a', 'none', '-'])) {
-                $parsedData['cheque_number'] = '';
-            }
-        }
-        if (!empty($parsedData['sender_account'])) {
-            $parsedData['sender_account'] = trim((string)$parsedData['sender_account']);
-        }
-        if (!empty($parsedData['receiver_account'])) {
-            $parsedData['receiver_account'] = trim((string)$parsedData['receiver_account']);
-        }
-
-        // Ensure receiver_name is never lost if present in image/text
-        if (empty($parsedData['receiver_name'])) {
-            $searchPoolName = ($parsedData['notes'] ?? '') . "\n" . ($parsedData['summary'] ?? '') . "\n" . $rawText;
-            if (preg_match('/(?:المستلم|المستفيد|إلى|Beneficiary|To|المحول إليه)\s*[:\-]\s*([^\r\n,]{3,60})/ui', $searchPoolName, $mRec)) {
-                $candName = trim($mRec[1]);
-                if (!preg_match('/^(حساب|Account|\d+)/i', $candName)) {
-                    $parsedData['receiver_name'] = $candName;
-                }
-            }
-        }
-
-        // Clean N/A or null from receiver_phone and notes
-        if (!empty($parsedData['receiver_phone'])) {
-            $parsedData['receiver_phone'] = trim((string)$parsedData['receiver_phone']);
-            if (preg_match('/^(n\/?a|null|none|غير\s*متوفر|لا\s*يوجد|-)$/i', $parsedData['receiver_phone'])) {
-                $parsedData['receiver_phone'] = '';
-            }
-        } else {
-            $parsedData['receiver_phone'] = '';
-        }
-
-        if (!empty($parsedData['notes'])) {
-            $parsedData['notes'] = trim((string)$parsedData['notes']);
-            if (preg_match('/^(n\/?a|null|none|-)$/i', $parsedData['notes'])) {
-                $parsedData['notes'] = '';
-            }
-        } else {
-            $parsedData['notes'] = '';
-        }
-        
-        // Process Forensic Tampering Detection Score & Reasons
-        $tamperingScore = isset($parsedData['tampering_score']) ? intval($parsedData['tampering_score']) : 0;
-        if ($tamperingScore < 0) $tamperingScore = 0;
-        if ($tamperingScore > 100) $tamperingScore = 100;
-        
+        $tamperingScore = isset($parsedData['tampering_score']) ? max(0, min(100, intval($parsedData['tampering_score']))) : 0;
         $tamperingReasons = trim((string)($parsedData['tampering_reasons'] ?? ''));
-
-        // Logical Check Discrepancy for Checks (تفقيط الحروف مقابل الأرقام - عند طلب كشف التزوير فقط)
-        if ($fraudCheck && !empty($parsedData['amount_in_words']) && !empty($parsedData['amount']) && floatval($parsedData['amount']) > 0) {
-            $wordsText = (string)$parsedData['amount_in_words'];
-            $amtNum = floatval($parsedData['amount']);
-            if (preg_match('/مليون|ملايين/', $wordsText) && $amtNum < 500000) {
-                $tamperingScore = max($tamperingScore, 75);
-                $tamperingReasons = !empty($tamperingReasons) ? ($tamperingReasons . ' | تعارض بين تفقيط الشيك (بالملايين) والمبلغ بالأرقام') : 'تعارض بين تفقيط الشيك (بالملايين) والمبلغ بالأرقام';
-            } elseif (!preg_match('/مليون|ملايين/', $wordsText) && $amtNum >= 1000000) {
-                $tamperingScore = max($tamperingScore, 75);
-                $tamperingReasons = !empty($tamperingReasons) ? ($tamperingReasons . ' | تفقيط الشيك لا يذكر الملايين رغم أن المبلغ بالأرقام مليون أو أكثر') : 'تفقيط الشيك لا يذكر الملايين رغم أن المبلغ بالأرقام مليون أو أكثر';
-            }
-        }
-
-        // Forensic Scrutiny on Transaction Reference Number (التحقق الخوارزمي من بنية أرقام العملية)
-        if ($fraudCheck && !empty($parsedData['transaction_ref'])) {
-            $refStr = trim((string)$parsedData['transaction_ref']);
-            $digitsOnly = preg_replace('/\D/', '', $refStr);
-            // 1. Repeated identical digits (e.g. 1111111111 or 0000000000)
-            if (strlen($digitsOnly) >= 6 && preg_match('/^(\d)\1+$/', $digitsOnly)) {
-                $tamperingScore = max($tamperingScore, 85);
-                $refFraudNote = 'رقم عملية وهمي أو غير حقيقي (تكرار نفس الرقم بالكامل: ' . $refStr . ')';
-                $tamperingReasons = !empty($tamperingReasons) ? ($tamperingReasons . ' | ' . $refFraudNote) : $refFraudNote;
-            }
-            // 2. Sequential fake patterns (e.g. 123456789 or 987654321)
-            elseif (strlen($digitsOnly) >= 6 && (strpos('01234567890123456789', $digitsOnly) !== false || strpos('98765432109876543210', $digitsOnly) !== false)) {
-                $tamperingScore = max($tamperingScore, 85);
-                $refFraudNote = 'رقم عملية تجريبي أو مصطنع (تسلسل أرقام متتالية وهمية: ' . $refStr . ')';
-                $tamperingReasons = !empty($tamperingReasons) ? ($tamperingReasons . ' | ' . $refFraudNote) : $refFraudNote;
-            }
-        }
 
         $parsedData['fraud_checked'] = (bool)$fraudCheck;
         $parsedData['tampering_score'] = $fraudCheck ? $tamperingScore : 0;
         $parsedData['is_suspicious'] = $fraudCheck ? ($tamperingScore >= 35 || !empty($parsedData['is_suspicious'])) : false;
         $parsedData['tampering_reasons'] = $fraudCheck ? $tamperingReasons : '';
-        $isRefMissing = empty($parsedData['transaction_ref']) || in_array(strtolower(trim($parsedData['transaction_ref'])), ['---', 'null', 'none', 'n/a', '-']);
+        $isRefMissing = empty($parsedData['transaction_ref']);
         $parsedData['is_cropped'] = !empty($parsedData['is_cropped']) || ($isRefMissing && ($parsedData['amount'] ?? 0) > 0);
+
+        $dupInfo = !empty($parsedData['transaction_ref']) ? checkBankReferenceDuplicateInDB($parsedData['transaction_ref']) : null;
+        $parsedData['is_duplicate_in_db'] = ($dupInfo !== null);
+        $parsedData['duplicate_info'] = $dupInfo;
 
         echo json_encode([
             'success' => true,
             'data' => $parsedData,
             'model_used' => $usedModel
-        ], JSON_UNESCAPED_UNICODE);
-        exit;
-    } else {
-        // Resilient fallback: Try regex extraction even if json_decode failed
-        $fallbackAmount = cleanFinancialAmount(null, $rawText);
-        if ($fallbackAmount > 0) {
-            $fallbackRef = '';
-            $arabicDigits = ['٠','١','٢','٣','٤','٥','٦','٧','٨','٩'];
-            $persianDigits = ['۰','۱','۲','۳','۴','۵','۶','۷','۸','۹'];
-            $latinDigits = ['0','1','2','3','4','5','6','7','8','9'];
-            $cleanRaw = str_replace($arabicDigits, $latinDigits, $rawText);
-            $cleanRaw = str_replace($persianDigits, $latinDigits, $cleanRaw);
-            if (preg_match('/(?:رقم\s*(?:العملية|المعاملة|المرجع|الإشعار|التحويل|الحوالة)|Transaction\s*(?:ID|No|Ref)|Txn\s*ID|Ref\s*No)[^\d:]*[:\s#]*([0-9A-Za-z-]{5,30})/ui', $cleanRaw, $mRef)) {
-                $fallbackRef = trim($mRef[1]);
-            }
-
-            $fallbackData = [
-                'is_financial_doc' => true,
-                'is_approved_template' => true,
-                'is_non_financial' => false,
-                'is_unapproved' => false,
-                'allow_save' => true,
-                'is_unclear' => false,
-                'is_unclear_amount' => false,
-                'doc_type' => 'bank_transfer',
-                'bank_name' => 'بنك الخرطوم',
-                'app_name' => 'بنكك',
-                'transaction_ref' => $fallbackRef,
-                'cheque_number' => '',
-                'amount' => $fallbackAmount,
-                'currency' => 'SDG',
-                'date' => date('Y-m-d'),
-                'due_date' => date('Y-m-d'),
-                'sender_name' => '',
-                'receiver_name' => '',
-                'rejection_reason' => '',
-                'tampering_score' => 0,
-                'is_suspicious' => false,
-                'is_cropped' => (empty($fallbackRef) && $fallbackAmount > 0),
-                'tampering_reasons' => '',
-                'summary' => 'تحويل بنكي بمبلغ ' . number_format($fallbackAmount, 2) . ' SDG'
-            ];
-
-            echo json_encode([
-                'success' => true,
-                'data' => $fallbackData,
-                'model_used' => $usedModel,
-                'is_fallback_regex' => true
-            ], JSON_UNESCAPED_UNICODE);
-            exit;
-        }
-
-        echo json_encode([
-            'success' => false,
-            'error' => 'فشل تحليل الاستجابة البرمجية للمستند المالي',
-            'raw' => $rawText,
-            'fallback_amount' => $fallbackAmount
         ], JSON_UNESCAPED_UNICODE);
         exit;
     }

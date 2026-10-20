@@ -92,6 +92,7 @@
                 btn.classList.contains('royal-btn-ledger') ||
                 btn.classList.contains('royal-btn-edit') ||
                 btn.classList.contains('royal-btn-print') ||
+                btn.classList.contains('royal-btn-preview') ||
                 btn.classList.contains('royal-btn-whatsapp') ||
                 btn.classList.contains('royal-btn-share') ||
                 btn.classList.contains('royal-btn-delete') ||
@@ -127,9 +128,13 @@
                 ) {
                     btn.classList.add('royal-btn-back');
                 } else if (
-                    id.includes('print') || id.includes('preview') ||
-                    cls.includes('btn-print') || cls.includes('btn-preview') ||
-                    txt.includes('طباعة') || txt.includes('معاينة')
+                    id.includes('preview') || cls.includes('btn-preview') || cls.includes('btn-print-preview') ||
+                    (txt.includes('معاينة') && !txt.includes('طباعة'))
+                ) {
+                    btn.classList.add('royal-btn-preview');
+                } else if (
+                    id.includes('print') || cls.includes('btn-print') ||
+                    txt.includes('طباعة')
                 ) {
                     btn.classList.add('royal-btn-print');
                 } else if (

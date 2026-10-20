@@ -20,15 +20,68 @@ $pdo = getDBConnection();
 $systemUsdRate = function_exists('getSystemUsdExchangeRate') ? getSystemUsdExchangeRate($pdo) : 5999.0;
 global $GLOBAL_TENANT_ID;
 
+if (!function_exists('normalizeTransferRefStrict')) {
+    function normalizeTransferRefStrict($val) {
+        $s = trim((string)$val);
+        if ($s === '') return '';
+        $arabic = ['٠','١','٢','٣','٤','٥','٦','٧','٨','٩','۰','۱','۲','۳','۴','۵','۶','۷','۸','۹'];
+        $latin  = ['0','1','2','3','4','5','6','7','8','9','0','1','2','3','4','5','6','7','8','9'];
+        $s = str_replace($arabic, $latin, $s);
+        if (preg_match('/^(OUT-OFF-|IN-OFF-|OFF-|WA\d|AUTO-|TEMP-|null|none|n\/a)/i', $s)) return '';
+        if (preg_match('/^\d{4}\s+\d{4}(?:\s+\d{4}){1,2}$/', $s)) return '';
+        $digits = preg_replace('/\D/', '', $s);
+        if (strlen($digits) < 6) return '';
+        if (strlen($digits) === 14 && $digits[0] === '0' && preg_match('/000[1-9]$/', $digits)) return '';
+        if (strlen($digits) === 21 && substr($digits, 0, 2) === '02') return '';
+        if (strlen($digits) === 16 && $digits[0] === '0' && preg_match('/(0001|0002|0101|5001)$/', $digits)) return '';
+        return $digits;
+    }
+}
+
+if (!function_exists('areTransferRefsEqualStrict')) {
+    function areTransferRefsEqualStrict($refA, $refB) {
+        $dA = normalizeTransferRefStrict($refA);
+        $dB = normalizeTransferRefStrict($refB);
+        if ($dA === '' || $dB === '') return false;
+        if ($dA === $dB) return true;
+        $lenA = strlen($dA);
+        $lenB = strlen($dB);
+        $minLen = min($lenA, $lenB);
+        if ($minLen < 6) return false;
+        if ($lenA !== $lenB) {
+            $shorter = ($lenA < $lenB) ? $dA : $dB;
+            $longer  = ($lenA < $lenB) ? $dB : $dA;
+            if (strlen($shorter) >= 6 && substr($longer, -strlen($shorter)) === $shorter) return true;
+            if ($minLen >= 9 && substr($dA, -8) === substr($dB, -8)) return true;
+            return false;
+        }
+        if ($lenA <= 8) return false;
+        if (substr($dA, -8) === substr($dB, -8)) return true;
+        if (substr($dA, -6) === substr($dB, -6) && substr($dA, 0, 2) === substr($dB, 0, 2)) return true;
+        return false;
+    }
+}
+
 if (!function_exists('extractAllTransfersFromRecord')) {
     function extractAllTransfersFromRecord($d) {
+        if (!is_array($d)) return [];
+        if (!empty($d['deleted']) && $d['deleted'] !== 'false' && $d['deleted'] !== '0') return [];
         $refs = [];
         if (!empty($d['mobileTransferNo']) && is_string($d['mobileTransferNo'])) $refs[] = trim($d['mobileTransferNo']);
+        if (!empty($d['transferNo']) && is_string($d['transferNo'])) $refs[] = trim($d['transferNo']);
         if (!empty($d['transferRef']) && is_string($d['transferRef'])) $refs[] = trim($d['transferRef']);
-        if (!empty($d['refNo']) && is_string($d['refNo'])) $refs[] = trim($d['refNo']);
+        if (!empty($d['refNo']) && is_string($d['refNo']) && !preg_match('/^(OUT-OFF-|IN-OFF-|OFF-)/i', trim($d['refNo']))) {
+            $refs[] = trim($d['refNo']);
+        }
         if (!empty($d['bankTransfers']) && is_array($d['bankTransfers'])) {
             foreach ($d['bankTransfers'] as $bt) {
                 if (!empty($bt['transferNo']) && is_string($bt['transferNo'])) $refs[] = trim($bt['transferNo']);
+            }
+        }
+        if (!empty($d['transfers']) && is_array($d['transfers'])) {
+            foreach ($d['transfers'] as $bt) {
+                if (!empty($bt['transferNo']) && is_string($bt['transferNo'])) $refs[] = trim($bt['transferNo']);
+                if (!empty($bt['reference']) && is_string($bt['reference'])) $refs[] = trim($bt['reference']);
             }
         }
         if (!empty($d['details']) && is_array($d['details'])) {
@@ -51,7 +104,12 @@ if (!function_exists('extractAllTransfersFromRecord')) {
                 }
             }
         }
-        return array_values(array_unique(array_filter($refs)));
+        $valid = [];
+        foreach ($refs as $r) {
+            $norm = normalizeTransferRefStrict($r);
+            if ($norm !== '') $valid[] = $norm;
+        }
+        return array_values(array_unique($valid));
     }
 }
 
@@ -59,61 +117,37 @@ if (!function_exists('findTransferDuplicateInDb')) {
     function findTransferDuplicateInDb($pdo, $ref, $currentVNo = '', $currentTenantId = null) {
         global $GLOBAL_TENANT_ID;
         $tId = (int)($currentTenantId ?: (!empty($GLOBAL_TENANT_ID) ? $GLOBAL_TENANT_ID : 12));
-        $ref = trim((string)$ref);
-        if ($ref === '') return null;
-        $cleanRefDigits = preg_replace('/\D/', '', $ref);
-        if (strlen($cleanRefDigits) < 6) return null; // لا يتم فحص التطابق إلا للتحويلات الصالحة (6 خانات فما فوق)
+        $cleanRefDigits = normalizeTransferRefStrict($ref);
+        if ($cleanRefDigits === '') return null;
         $candSuffix = substr($cleanRefDigits, -6);
 
         $tables = ['single_payments', 'single_receipts', 'payments', 'receipts'];
         foreach ($tables as $tbl) {
             try {
-                $stmt = $pdo->prepare("SELECT id, tenant_id, data FROM `$tbl` WHERE tenant_id = ?");
+                $stmt = $pdo->prepare("SELECT id, tenant_id, data FROM `$tbl` WHERE tenant_id = ? AND (is_deleted = 0 OR is_deleted IS NULL)");
                 $stmt->execute([$tId]);
                 while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
                     $d = json_decode($row['data'], true);
                     if (!$d) continue;
-                    $existingVNo = trim((string)($d['voucherNo'] ?? ($d['id'] ?? '')));
+                    if (!empty($d['deleted']) && $d['deleted'] !== 'false' && $d['deleted'] !== '0') continue;
+                    $existingVNo = trim((string)($row['voucher_no'] ?? ($d['voucherNo'] ?? ($d['id'] ?? ''))));
                     if ($existingVNo !== '' && $currentVNo !== '' && $existingVNo === $currentVNo) {
                         continue;
                     }
                     $candidates = extractAllTransfersFromRecord($d);
                     foreach ($candidates as $cr) {
-                        $strCr = trim((string)$cr);
-                        $cleanCrDigits = preg_replace('/\D/', '', $strCr);
-                        if ($cleanCrDigits === '') continue;
-
-                        $matched = false;
-                        $matchedSuffix = '';
-                        $matchType = '';
-
-                        if (strlen($cleanCrDigits) >= 6) {
-                            $existSuffix = substr($cleanCrDigits, -6);
-                            if ($candSuffix === $existSuffix) {
-                                $matched = true;
-                                $matchedSuffix = $candSuffix;
-                                $matchType = 'تطابق آخر 6 أرقام على اليمين';
-                            }
-                        } else {
-                            if ($cleanRefDigits === $cleanCrDigits || substr($cleanRefDigits, -strlen($cleanCrDigits)) === $cleanCrDigits) {
-                                $matched = true;
-                                $matchedSuffix = $cleanCrDigits;
-                                $matchType = 'تطابق مع تحويلة قديمة';
-                            }
-                        }
-
-                        if ($matched) {
+                        if (areTransferRefsEqualStrict($cleanRefDigits, $cr)) {
                             return [
                                 'voucherNo' => $existingVNo ?: 'سابق',
-                                'ref' => $strCr,
+                                'ref' => $cr,
                                 'date' => $d['date'] ?? '',
                                 'amount' => $d['amountLocal'] ?? ($d['amount'] ?? 0),
                                 'bank' => $d['bankName'] ?? ($d['bank'] ?? ($d['fromAccount'] ?? '')),
                                 'from' => $d['fromAccountName'] ?? ($d['fromAccount'] ?? ($d['from'] ?? '')),
                                 'to' => $d['toAccountName'] ?? ($d['toAccount'] ?? ($d['to'] ?? ($d['beneficiaryName'] ?? ''))),
                                 'table' => $tbl,
-                                'matchedSuffix' => $matchedSuffix,
-                                'matchType' => $matchType
+                                'matchedSuffix' => $candSuffix,
+                                'matchType' => 'تطابق رقم العملية البنكية'
                             ];
                         }
                     }
@@ -133,24 +167,26 @@ if (!function_exists('fetchAllDbTransfers')) {
         $tables = ['single_payments', 'single_receipts', 'payments', 'receipts'];
         foreach ($tables as $tbl) {
             try {
-                $stmt = $pdo->prepare("SELECT id, tenant_id, data FROM `$tbl` WHERE tenant_id = ?");
+                $stmt = $pdo->prepare("SELECT id, tenant_id, data FROM `$tbl` WHERE tenant_id = ? AND (is_deleted = 0 OR is_deleted IS NULL)");
                 $stmt->execute([$tId]);
                 while ($r = $stmt->fetch(PDO::FETCH_ASSOC)) {
                     $d = json_decode($r['data'], true);
                     if (!$d) continue;
-                    $vNo = trim((string)($d['voucherNo'] ?? ($d['id'] ?? '')));
+                    if (!empty($d['deleted']) && $d['deleted'] !== 'false' && $d['deleted'] !== '0') continue;
+                    $vNo = trim((string)($r['voucher_no'] ?? ($d['voucherNo'] ?? ($d['id'] ?? ''))));
                     $refs = extractAllTransfersFromRecord($d);
                     foreach ($refs as $ref) {
-                        $clean = preg_replace('/\D/', '', (string)$ref);
-                        $key = $vNo . '_' . $ref;
+                        $clean = normalizeTransferRefStrict($ref);
+                        if ($clean === '') continue;
+                        $key = $vNo . '_' . $clean;
                         if (isset($seen[$key])) continue;
                         $seen[$key] = true;
                         $results[] = [
                             'voucherNo' => $vNo,
                             'table' => $tbl,
                             'tenantId' => $r['tenant_id'],
-                            'ref' => (string)$ref,
-                            'cleanRef' => $clean ?: (string)$ref,
+                            'ref' => $clean,
+                            'cleanRef' => $clean,
                             'date' => $d['date'] ?? '',
                             'amount' => (float)($d['amountLocal'] ?? ($d['amount'] ?? 0)),
                             'bank' => $d['bankName'] ?? ($d['bank'] ?? ($d['fromAccount'] ?? ''))
@@ -166,9 +202,10 @@ if (!function_exists('fetchAllDbTransfers')) {
 // API endpoint لفحص رقم التحويلة فورياً ومطابقة قاعدة بيانات MariaDB
 if ((isset($_GET['api']) && $_GET['api'] === 'check_duplicate') || (isset($_POST['api']) && $_POST['api'] === 'check_duplicate')) {
     header('Content-Type: application/json; charset=UTF-8');
-    $ref = trim($_GET['ref'] ?? ($_POST['ref'] ?? ''));
-    $currentVNo = trim($_GET['voucherNo'] ?? ($_POST['voucherNo'] ?? ''));
-    $tId = !empty($GLOBAL_TENANT_ID) ? (int)$GLOBAL_TENANT_ID : 12;
+    $authCheckUser = function_exists('requireMobileAuth') ? requireMobileAuth($pdo, false) : null;
+    $ref = substr(trim((string)($_GET['ref'] ?? ($_POST['ref'] ?? ''))), 0, 60);
+    $currentVNo = substr(trim((string)($_GET['voucherNo'] ?? ($_POST['voucherNo'] ?? ''))), 0, 40);
+    $tId = !empty($authCheckUser['tenant_id']) ? (int)$authCheckUser['tenant_id'] : (!empty($GLOBAL_TENANT_ID) ? (int)$GLOBAL_TENANT_ID : 12);
 
     if ($ref === '') {
         echo json_encode(['valid' => true, 'duplicate' => false, 'message' => 'رقم فارغ']);
@@ -176,13 +213,14 @@ if ((isset($_GET['api']) && $_GET['api'] === 'check_duplicate') || (isset($_POST
     }
 
     $cleanDigits = preg_replace('/\D/', '', $ref);
+    $safeRef = htmlspecialchars($ref, ENT_QUOTES, 'UTF-8');
     if (strlen($cleanDigits) < 6) {
         echo json_encode([
             'valid' => false,
             'isShort' => true,
             'duplicate' => false,
             'length' => strlen($cleanDigits),
-            'error' => "رقم التحويلة ({$ref}) أقل من 6 أرقام! يشترط النظام 6 أرقام على الأقل، ويمنع الحفظ نهائياً لأي تحويلة أقل من 6 أرقام."
+            'error' => "رقم التحويلة ({$safeRef}) أقل من 6 أرقام! يشترط النظام 6 أرقام على الأقل، ويمنع الحفظ نهائياً لأي تحويلة أقل من 6 أرقام."
         ], JSON_UNESCAPED_UNICODE);
         exit;
     }
@@ -193,7 +231,7 @@ if ((isset($_GET['api']) && $_GET['api'] === 'check_duplicate') || (isset($_POST
             'valid' => false,
             'duplicate' => true,
             'isShort' => false,
-            'error' => "عفواً، رقم التحويلة ({$ref}) مكرر ومسجل مسبقاً في السند رقم ({$dup['voucherNo']}) لتطابق آخر 6 أرقام ({$dup['matchedSuffix']}).",
+            'error' => "عفواً، رقم التحويلة ({$safeRef}) مكرر ومسجل مسبقاً في السند رقم ({$dup['voucherNo']}) لتطابق آخر 6 أرقام ({$dup['matchedSuffix']}).",
             'matchedVoucher' => $dup['voucherNo'],
             'matchedRef' => $dup['ref'],
             'matchedDate' => $dup['date'],
@@ -221,9 +259,27 @@ if ((isset($_GET['api']) && $_GET['api'] === 'save_voucher') || (isset($_POST['a
     $raw = file_get_contents('php://input');
     $payload = json_decode($raw, true) ?: $_POST;
     if ($payload) {
-        $voucherNo = trim($payload['id'] ?? ($payload['voucherNo'] ?? ''));
-        $idempotencyKey = trim($payload['idempotencyKey'] ?? ($payload['client_draft_id'] ?? ''));
+        $voucherNo = trim((string)($payload['id'] ?? ($payload['voucherNo'] ?? '')));
+        $idempotencyKey = trim((string)($payload['idempotencyKey'] ?? ($payload['client_draft_id'] ?? '')));
         $tId = !empty($authUser['tenant_id']) ? (int)$authUser['tenant_id'] : (int)($GLOBAL_TENANT_ID ?: 12);
+
+        // ═══ فحص الضوابط المحاسبية والأمنية على الخادم (Server-Side Accounting Validation) ═══
+        $srvAmtLocal = (float)($payload['amountLocal'] ?? ($payload['amount'] ?? ($payload['sdg'] ?? 0)));
+        $srvFromAcc = trim((string)($payload['fromAccount'] ?? ($payload['from'] ?? '')));
+        $srvToAcc = trim((string)($payload['toAccount'] ?? ($payload['to'] ?? '')));
+
+        if ($srvAmtLocal <= 0) {
+            echo json_encode(['success' => false, 'error' => 'رفض محاسبي: لا يمكن حفظ سند بقيمة صفرية أو سالبة.'], JSON_UNESCAPED_UNICODE);
+            exit;
+        }
+        if ($srvFromAcc === '' || $srvToAcc === '') {
+            echo json_encode(['success' => false, 'error' => 'رفض محاسبي: يجب تحديد كل من حساب الصرف وحساب الاستلام.'], JSON_UNESCAPED_UNICODE);
+            exit;
+        }
+        if (strtolower($srvFromAcc) === strtolower($srvToAcc)) {
+            echo json_encode(['success' => false, 'error' => 'رفض محاسبي: لا يمكن أن يكون حساب الصرف هو نفس حساب الاستلام (قيد ذاتي مغلق).'], JSON_UNESCAPED_UNICODE);
+            exit;
+        }
 
         // شروط التحويل المالي الصارمة لنسخة اللابتوب:
         // 1. يمنع الحفظ نهائياً إذا كانت التحويلة أقل من ستة أرقام.
@@ -232,12 +288,14 @@ if ((isset($_GET['api']) && $_GET['api'] === 'save_voucher') || (isset($_POST['a
         if (!empty($payload['bankTransfers']) && is_array($payload['bankTransfers'])) {
             $bankTransfers = $payload['bankTransfers'];
         } elseif (!empty($payload['mobileTransferNo'])) {
-            $bankTransfers[] = ['transferNo' => $payload['mobileTransferNo']];
+            $bankTransfers[] = ['transferNo' => $payload['mobileTransferNo'], 'amount' => $srvAmtLocal];
         }
 
         $seenSuffixes = [];
+        $srvTransfersSum = 0.0;
         foreach ($bankTransfers as $bt) {
             $trNo = trim((string)($bt['transferNo'] ?? ''));
+            $srvTransfersSum += (float)($bt['amount'] ?? 0);
             if ($trNo === '') continue;
             $cleanDigits = preg_replace('/\D/', '', $trNo);
             if (strlen($cleanDigits) < 6) {
@@ -267,6 +325,32 @@ if ((isset($_GET['api']) && $_GET['api'] === 'save_voucher') || (isset($_POST['a
                 exit;
             }
         }
+
+        $srvChequesSum = 0.0;
+        if (!empty($payload['cheques']) && is_array($payload['cheques'])) {
+            foreach ($payload['cheques'] as $chq) {
+                $srvChequesSum += (float)($chq['amount'] ?? 0);
+            }
+        }
+
+        $srvMethod = trim((string)($payload['paymentMethod'] ?? ($payload['method'] ?? 'cash')));
+        if (in_array($srvMethod, ['mobile', 'bank', 'transfer'], true) && $srvTransfersSum > 0 && abs($srvTransfersSum - $srvAmtLocal) > 1.0) {
+            echo json_encode(['success' => false, 'error' => 'رفض محاسبي: مجموع التحويلات البنكية لا يطابق إجمالي مبلغ السند.'], JSON_UNESCAPED_UNICODE);
+            exit;
+        }
+        if (in_array($srvMethod, ['check', 'cheque'], true) && $srvChequesSum > 0 && abs($srvChequesSum - $srvAmtLocal) > 1.0) {
+            echo json_encode(['success' => false, 'error' => 'رفض محاسبي: مجموع الشيكات لا يطابق إجمالي مبلغ السند.'], JSON_UNESCAPED_UNICODE);
+            exit;
+        }
+        if ($srvMethod === 'hybrid' && ($srvTransfersSum + $srvChequesSum) > 0 && abs(($srvTransfersSum + $srvChequesSum) - $srvAmtLocal) > 1.0) {
+            echo json_encode(['success' => false, 'error' => 'رفض محاسبي: مجموع التحويلات والشيكات لا يطابق إجمالي مبلغ السند.'], JSON_UNESCAPED_UNICODE);
+            exit;
+        }
+
+        // توثيق بيانات الرقابة الجنائية الرقمية (Forensic Audit Trail)
+        $payload['serverSavedAt'] = date('Y-m-d H:i:s');
+        $payload['savedByUserId'] = $authUser['id'] ?? ($authUser['user_id'] ?? null);
+        $payload['clientIp'] = $_SERVER['REMOTE_ADDR'] ?? '';
 
         try {
             if (!empty($idempotencyKey)) {
@@ -1316,19 +1400,22 @@ try {
         .crystal-btn {
             position: relative;
             overflow: hidden;
-            border-radius: 12px;
-            font-weight: 800;
-            font-size: 0.95rem !important;
-            padding: 7px 18px !important;
-            display: flex;
+            border-radius: 14px;
+            font-weight: 900;
+            font-size: 1.15rem !important;
+            height: 52px !important;
+            padding: 0 24px !important;
+            display: inline-flex;
             align-items: center;
-            gap: 8px;
+            justify-content: center;
+            gap: 9px;
             cursor: pointer;
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
             transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
             text-shadow: 0 1px 3px rgba(0,0,0,0.8);
             z-index: 1;
+            box-sizing: border-box;
         }
         .crystal-btn::before {
             content: '';
@@ -1368,64 +1455,78 @@ try {
         }
 
         .btn-exit {
-            background: linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(185, 28, 28, 0.4));
-            border: 1px solid rgba(239, 68, 68, 0.5);
-            color: #fca5a5;
-            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.2), inset 0 2px 5px rgba(255,255,255,0.1);
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 52%, #991b1b 100%) !important;
+            border: 2px solid #fca5a5 !important;
+            color: #ffffff !important;
+            box-shadow: 0 5px 18px rgba(239, 68, 68, 0.4), inset 0 2px 5px rgba(255,255,255,0.2) !important;
         }
         .btn-exit:hover {
-            background: linear-gradient(135deg, rgba(239, 68, 68, 0.4), rgba(185, 28, 28, 0.6));
-            box-shadow: 0 0 15px rgba(239, 68, 68, 0.6), 0 0 30px rgba(239, 68, 68, 0.3), inset 0 0 15px rgba(239, 68, 68, 0.2) !important;
-            border-color: #ef4444 !important;
-            color: #fff;
+            background: linear-gradient(135deg, #f87171 0%, #ef4444 52%, #b91c1c 100%) !important;
+            box-shadow: 0 0 18px rgba(239, 68, 68, 0.75), 0 0 32px rgba(239, 68, 68, 0.4) !important;
+            border-color: #ffffff !important;
+            color: #fff !important;
         }
 
         .btn-new {
-            background: linear-gradient(135deg, rgba(56, 189, 248, 0.2), rgba(3, 105, 161, 0.4));
-            border: 1px solid rgba(56, 189, 248, 0.5);
-            color: #bae6fd;
-            box-shadow: 0 4px 15px rgba(56, 189, 248, 0.2), inset 0 2px 5px rgba(255,255,255,0.1);
+            background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 52%, #0369a1 100%) !important;
+            border: 2px solid #7dd3fc !important;
+            color: #ffffff !important;
+            box-shadow: 0 5px 18px rgba(14, 165, 233, 0.4), inset 0 2px 5px rgba(255,255,255,0.2) !important;
         }
         .btn-new:hover {
-            background: linear-gradient(135deg, rgba(56, 189, 248, 0.4), rgba(3, 105, 161, 0.6));
-            box-shadow: 0 0 15px rgba(56, 189, 248, 0.6), 0 0 30px rgba(56, 189, 248, 0.3), inset 0 0 15px rgba(56, 189, 248, 0.2) !important;
-            border-color: #38bdf8 !important;
-            color: #fff;
+            background: linear-gradient(135deg, #38bdf8 0%, #0ea5e9 52%, #0284c7 100%) !important;
+            box-shadow: 0 0 18px rgba(56, 189, 248, 0.75), 0 0 32px rgba(56, 189, 248, 0.4) !important;
+            border-color: #ffffff !important;
+            color: #fff !important;
         }
 
         .btn-delete {
-            background: linear-gradient(135deg, rgba(249, 115, 22, 0.2), rgba(194, 65, 12, 0.4));
-            border: 1px solid rgba(249, 115, 22, 0.5);
-            color: #fdba74;
-            box-shadow: 0 4px 15px rgba(249, 115, 22, 0.2), inset 0 2px 5px rgba(255,255,255,0.1);
+            background: linear-gradient(135deg, #f43f5e 0%, #e11d48 52%, #be123c 100%) !important;
+            border: 2px solid #fda4af !important;
+            color: #ffffff !important;
+            box-shadow: 0 5px 18px rgba(244, 63, 94, 0.4), inset 0 2px 5px rgba(255,255,255,0.2) !important;
         }
         .btn-delete:hover {
-            background: linear-gradient(135deg, rgba(249, 115, 22, 0.4), rgba(194, 65, 12, 0.6));
-            box-shadow: 0 0 15px rgba(249, 115, 22, 0.6), 0 0 30px rgba(249, 115, 22, 0.3), inset 0 0 15px rgba(249, 115, 22, 0.2) !important;
-            border-color: #f97316 !important;
-            color: #fff;
+            background: linear-gradient(135deg, #fb7185 0%, #f43f5e 52%, #e11d48 100%) !important;
+            box-shadow: 0 0 18px rgba(244, 63, 94, 0.75), 0 0 32px rgba(244, 63, 94, 0.4) !important;
+            border-color: #ffffff !important;
+            color: #fff !important;
+        }
+
+        .btn-print-preview {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 52%, #b45309 100%) !important;
+            border: 2px solid #fde047 !important;
+            color: #ffffff !important;
+            box-shadow: 0 5px 18px rgba(245, 158, 11, 0.45), inset 0 2px 5px rgba(255,255,255,0.25) !important;
+        }
+        .btn-print-preview:hover {
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 52%, #d97706 100%) !important;
+            box-shadow: 0 0 18px rgba(245, 158, 11, 0.8), 0 0 32px rgba(245, 158, 11, 0.45) !important;
+            border-color: #ffffff !important;
+            color: #fff !important;
         }
 
         .btn-print {
-            background: linear-gradient(135deg, rgba(168, 85, 247, 0.2), rgba(107, 33, 168, 0.4));
-            border: 1px solid rgba(168, 85, 247, 0.5);
-            color: #d8b4fe;
-            box-shadow: 0 4px 15px rgba(168, 85, 247, 0.2), inset 0 2px 5px rgba(255,255,255,0.1);
+            background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 52%, #5b21b6 100%) !important;
+            border: 2px solid #d8b4fe !important;
+            color: #ffffff !important;
+            box-shadow: 0 5px 18px rgba(139, 92, 246, 0.45), inset 0 2px 5px rgba(255,255,255,0.2) !important;
         }
         .btn-print:hover {
-            background: linear-gradient(135deg, rgba(168, 85, 247, 0.4), rgba(107, 33, 168, 0.6));
-            box-shadow: 0 0 15px rgba(168, 85, 247, 0.6), 0 0 30px rgba(168, 85, 247, 0.3), inset 0 0 15px rgba(168, 85, 247, 0.2) !important;
-            border-color: #a855f7 !important;
-            color: #fff;
+            background: linear-gradient(135deg, #a855f7 0%, #8b5cf6 52%, #6d28d9 100%) !important;
+            box-shadow: 0 0 18px rgba(168, 85, 247, 0.8), 0 0 32px rgba(168, 85, 247, 0.45) !important;
+            border-color: #ffffff !important;
+            color: #fff !important;
         }
 
         .btn-save-master {
-            background: linear-gradient(135deg, rgba(16, 185, 129, 0.6), rgba(4, 120, 87, 0.8));
-            border: 1px solid rgba(52, 211, 153, 0.8);
-            color: #fff;
-            box-shadow: 0 4px 20px rgba(16, 185, 129, 0.4), inset 0 2px 10px rgba(255,255,255,0.2);
-            font-size: 1.1rem !important;
-            padding: 8px 24px !important;
+            background: linear-gradient(135deg, #10b981 0%, #059669 52%, #047857 100%) !important;
+            border: 2px solid #6ee7b7 !important;
+            color: #fff !important;
+            box-shadow: 0 6px 24px rgba(16, 185, 129, 0.5), inset 0 2px 10px rgba(255,255,255,0.25) !important;
+            font-size: 1.25rem !important;
+            height: 54px !important;
+            padding: 0 30px !important;
             animation: pulseGlow 2s infinite alternate;
         }
         .btn-save-master:hover {
@@ -1765,32 +1866,35 @@ try {
             text-shadow: 0 0 35px rgba(56,189,248,1) !important;
         }
 
-        /* ═══ زر الواتساب كأيقونة فقط في السطر الموحد ═══ */
+        /* ═══ زر الواتساب البارز مع النص الواضح في السطر الموحد ═══ */
         .btn-whatsapp-icon-only {
             --tab-border-color: #25d366;
             --tab-glow-color: rgba(37, 211, 102, 0.85);
-            background: linear-gradient(135deg, rgba(37, 211, 102, 0.28), rgba(18, 140, 126, 0.55)) !important;
-            border: 2.2px solid #25d366 !important;
-            border-radius: 12px !important;
+            background: linear-gradient(135deg, #22c55e 0%, #16a34a 52%, #15803d 100%) !important;
+            border: 2.2px solid #86efac !important;
+            border-radius: 14px !important;
             color: #ffffff !important;
-            width: 44px !important;
-            height: 42px !important;
-            min-width: 44px !important;
-            padding: 0 !important;
+            width: auto !important;
+            height: 52px !important;
+            min-width: 145px !important;
+            padding: 0 24px !important;
+            font-size: 1.2rem !important;
+            font-weight: 900 !important;
+            gap: 10px !important;
             display: inline-flex !important;
             align-items: center !important;
             justify-content: center !important;
             cursor: pointer !important;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5), 0 0 12px rgba(37, 211, 102, 0.35) !important;
+            box-shadow: 0 5px 16px rgba(0, 0, 0, 0.5), 0 0 16px rgba(37, 211, 102, 0.45) !important;
             flex-shrink: 0 !important;
             transition: all 0.25s ease !important;
         }
         .btn-whatsapp-icon-only:hover,
         .crystal-btn.btn-whatsapp-icon-only:hover {
-            background: #000000 !important;
-            color: #25d366 !important;
-            border: 2.2px solid #25d366 !important;
-            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.75), 0 0 16px rgba(37, 211, 102, 0.85) !important;
+            background: linear-gradient(135deg, #25d366 0%, #16a34a 100%) !important;
+            color: #ffffff !important;
+            border: 2.2px solid #ffffff !important;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.75), 0 0 22px rgba(37, 211, 102, 0.9) !important;
             transform: translateY(-3px) scale(1.06) !important;
         }
 
@@ -1804,32 +1908,32 @@ try {
         }
         #btn-toggle-auto-send,
         .footer-actions #btn-toggle-auto-send {
-            height: 42px !important;
-            font-size: 0.88rem !important;
-            padding: 0 14px 0 10px !important;
-            border-radius: 0 12px 12px 0 !important;
+            height: 52px !important;
+            font-size: 1.05rem !important;
+            padding: 0 18px 0 14px !important;
+            border-radius: 0 14px 14px 0 !important;
             border-left: none !important;
-            font-weight: 800 !important;
+            font-weight: 900 !important;
             cursor: pointer !important;
             white-space: nowrap !important;
             transition: all 0.25s ease !important;
             display: inline-flex !important;
             align-items: center !important;
-            gap: 6px !important;
+            gap: 8px !important;
         }
         #btn-auto-send-options,
         .footer-actions #btn-auto-send-options {
-            height: 42px !important;
-            width: 28px !important;
-            min-width: 28px !important;
+            height: 52px !important;
+            width: 36px !important;
+            min-width: 36px !important;
             padding: 0 !important;
-            border-radius: 12px 0 0 12px !important;
-            border-right: 1px solid rgba(255, 255, 255, 0.2) !important;
+            border-radius: 14px 0 0 14px !important;
+            border-right: 1px solid rgba(255, 255, 255, 0.25) !important;
             display: inline-flex !important;
             align-items: center !important;
             justify-content: center !important;
             cursor: pointer !important;
-            font-size: 0.72rem !important;
+            font-size: 0.85rem !important;
             transition: all 0.25s ease !important;
         }
         .btn-auto-send-toggle.active,
@@ -2081,6 +2185,363 @@ try {
             box-shadow: 0 0 10px rgba(251, 191, 36, 0.6);
             transform: translateY(-1px);
         }
+
+        /* ═══════════════════════════════════════════════════════════════════════════════
+           💎 MASTER FINANCIAL SCREEN STYLING & ILLUMINATED ZONES (USER REQUESTED) 💎
+           ═══════════════════════════════════════════════════════════════════════════════ */
+
+        /* 1. إخفاء وحذف اسم المستخدم المكرر في شريط التاريخ والأرصدة ورقم السند */
+        #voucher-user-audit-container {
+            display: none !important;
+            width: 0 !important;
+            height: 0 !important;
+            overflow: hidden !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+
+        /* 2. الرقم التسلسلي (رقم السند): يتكيف حجمه ومساحته أوتوماتيكياً مع المساحة المخصصة له */
+        html body .nav-crystal {
+            height: 54px !important;
+            min-width: 170px !important;
+            max-width: 320px !important;
+            width: auto !important;
+            padding: 4px 10px !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: space-between !important;
+            gap: 6px !important;
+            box-sizing: border-box !important;
+            overflow: hidden !important;
+        }
+        html body .nav-badge {
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: center !important;
+            justify-content: center !important;
+            padding: 0 8px !important;
+            min-width: 90px !important;
+            max-width: 220px !important;
+            flex: 1 1 auto !important;
+            height: 100% !important;
+            box-sizing: border-box !important;
+            overflow: hidden !important;
+        }
+        html body .nav-badge .badge-label {
+            font-size: 0.72rem !important;
+            line-height: 1.05 !important;
+            font-weight: 800 !important;
+            color: #cbd5e1 !important;
+            margin-bottom: 1px !important;
+            white-space: nowrap !important;
+        }
+        html body .nav-badge .badge-val,
+        html body #voucher-number {
+            font-size: clamp(0.95rem, 1.45vw, 1.45rem) !important;
+            line-height: 1.1 !important;
+            font-weight: 900 !important;
+            color: #ef4444 !important;
+            text-shadow: 0 0 12px rgba(239, 68, 68, 0.55) !important;
+            letter-spacing: 1px !important;
+            white-space: nowrap !important;
+            display: block !important;
+            max-width: 100% !important;
+            text-align: center !important;
+            transition: font-size 0.15s ease, letter-spacing 0.15s ease !important;
+        }
+
+        /* 3. سعر الدولار (سعر الصرف #exchange-rate) باللون الذهبي الفاخر */
+        html body #exchange-rate,
+        html.light-theme body #exchange-rate,
+        html[data-theme] body #exchange-rate {
+            background: linear-gradient(135deg, #1c1504 0%, #2e2107 50%, #1c1504 100%) !important;
+            color: #ffd700 !important;
+            border: 2.5px solid #fbbf24 !important;
+            box-shadow: 0 0 18px rgba(251, 191, 36, 0.45), inset 0 0 12px rgba(251, 191, 36, 0.2) !important;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.65) !important;
+            font-weight: 900 !important;
+            font-size: 1.85rem !important;
+            height: 68px !important;
+            border-radius: 12px !important;
+            letter-spacing: 1.5px !important;
+        }
+        html body .scp-rate-label,
+        html.light-theme body .scp-rate-label {
+            color: #f59e0b !important;
+            text-shadow: 0 0 10px rgba(251, 191, 36, 0.4) !important;
+            font-weight: 900 !important;
+        }
+
+        /* 4. المبالغ (قيمة المبلغ المحلي وقيمة المبلغ الأجنبي): مساحة بيضاء ناصعة وحواف بالخط الأحمر العريض المضاعف */
+        html body #amount-local,
+        html body #amount-foreign,
+        html.light-theme body #amount-local,
+        html.light-theme body #amount-foreign,
+        html[data-theme] body #amount-local,
+        html[data-theme] body #amount-foreign {
+            background: #ffffff !important;
+            background-color: #ffffff !important;
+            color: #b91c1c !important;
+            border: 4.5px solid #dc2626 !important; /* مضاعفة سمك الخط الأحمر العريض */
+            border-radius: 14px !important;
+            box-shadow: 0 0 20px rgba(220, 38, 38, 0.4), inset 0 2px 8px rgba(220, 38, 38, 0.1) !important;
+            font-weight: 900 !important;
+            text-shadow: none !important;
+        }
+        html body #amount-local:hover,
+        html body #amount-foreign:hover,
+        html.light-theme body #amount-local:hover,
+        html.light-theme body #amount-foreign:hover {
+            border: 4.5px solid #ef4444 !important;
+            box-shadow: 0 0 28px rgba(239, 68, 68, 0.65), 0 0 12px rgba(220, 38, 38, 0.4), inset 0 0 10px rgba(239, 68, 68, 0.15) !important;
+        }
+
+        /* 5. منطقة "من حساب (صرف)" محمرة أكثر، ومنطقة "إلى حساب (استلام)" مخضرة أكثر */
+        html body .scp-from-card,
+        html.light-theme body .scp-from-card,
+        html[data-theme] body .scp-from-card {
+            background: linear-gradient(135deg, rgba(220, 38, 38, 0.34) 0%, rgba(153, 27, 27, 0.52) 100%) !important;
+            border: 2.5px solid #ef4444 !important;
+            border-radius: 14px !important;
+            padding: 12px 18px !important;
+            box-shadow: 0 0 26px rgba(239, 68, 68, 0.42), inset 0 0 20px rgba(239, 68, 68, 0.22) !important;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        }
+        html body .scp-from-card:hover,
+        html body .scp-from-card:focus-within {
+            background: linear-gradient(135deg, rgba(220, 38, 38, 0.44) 0%, rgba(127, 29, 29, 0.62) 100%) !important;
+            border-color: #ff4d4d !important;
+            box-shadow: 0 0 38px rgba(239, 68, 68, 0.75), 0 0 15px rgba(255, 77, 77, 0.5), inset 0 0 24px rgba(239, 68, 68, 0.3) !important;
+            transform: translateY(-2px) !important;
+        }
+        html body .scp-from-card .label,
+        html.light-theme body .scp-from-card .label {
+            color: #fecaca !important;
+            text-shadow: 0 2px 6px rgba(0, 0, 0, 0.65) !important;
+        }
+        html body #from-account-search,
+        html.light-theme body #from-account-search,
+        html[data-theme] body #from-account-search {
+            background: rgba(69, 10, 10, 0.82) !important;
+            color: #fef08a !important;
+            border: 2px solid #f87171 !important;
+            box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.45), 0 0 12px rgba(239, 68, 68, 0.3) !important;
+        }
+        html body #from-account-search::placeholder {
+            color: rgba(254, 202, 202, 0.75) !important;
+        }
+
+        html body .scp-to-card,
+        html.light-theme body .scp-to-card,
+        html[data-theme] body .scp-to-card {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.34) 0%, rgba(6, 95, 70, 0.52) 100%) !important;
+            border: 2.5px solid #10b981 !important;
+            border-radius: 14px !important;
+            padding: 12px 18px !important;
+            box-shadow: 0 0 26px rgba(16, 185, 129, 0.42), inset 0 0 20px rgba(16, 185, 129, 0.22) !important;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        }
+        html body .scp-to-card:hover,
+        html body .scp-to-card:focus-within {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.44) 0%, rgba(4, 120, 87, 0.62) 100%) !important;
+            border-color: #34d399 !important;
+            box-shadow: 0 0 38px rgba(16, 185, 129, 0.75), 0 0 15px rgba(52, 211, 153, 0.5), inset 0 0 24px rgba(16, 185, 129, 0.3) !important;
+            transform: translateY(-2px) !important;
+        }
+        html body .scp-to-card .label,
+        html.light-theme body .scp-to-card .label {
+            color: #a7f3d0 !important;
+            text-shadow: 0 2px 6px rgba(0, 0, 0, 0.65) !important;
+        }
+        html body #to-account-search,
+        html.light-theme body #to-account-search,
+        html[data-theme] body #to-account-search {
+            background: rgba(6, 78, 59, 0.82) !important;
+            color: #fef08a !important;
+            border: 2px solid #34d399 !important;
+            box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.45), 0 0 12px rgba(16, 185, 129, 0.3) !important;
+        }
+        html body #to-account-search::placeholder {
+            color: rgba(167, 243, 208, 0.75) !important;
+        }
+
+        /* 6. تفصيل وتقسيم الشاشة إلى مناطق أنيقة بحواف منيرة ومميزة لكل منطقة */
+        /* المنطقة الأولى: شريط التاريخ والأرصدة ورقم السند */
+        html body .sub-header-bar {
+            border: 2px solid rgba(56, 189, 248, 0.65) !important;
+            border-radius: 16px !important;
+            padding: 12px 18px !important;
+            box-shadow: 0 0 22px rgba(56, 189, 248, 0.25), inset 0 0 14px rgba(56, 189, 248, 0.08) !important;
+            transition: all 0.3s ease !important;
+        }
+        html body .sub-header-bar:focus-within,
+        html body .sub-header-bar:hover {
+            border-color: #38bdf8 !important;
+            box-shadow: 0 0 32px rgba(56, 189, 248, 0.45), inset 0 0 18px rgba(56, 189, 248, 0.14) !important;
+        }
+
+        /* المنطقة الثانية: منطقة العملة والمبلغ المحلي والصرف والقيمة الأجنبية */
+        html body .scp-top-amount-row {
+            border: 2.5px solid rgba(251, 191, 36, 0.75) !important;
+            border-radius: 16px !important;
+            padding: 18px 20px !important;
+            box-shadow: 0 0 28px rgba(251, 191, 36, 0.32), inset 0 0 18px rgba(251, 191, 36, 0.08) !important;
+            transition: all 0.3s ease !important;
+        }
+        html body .scp-top-amount-row:focus-within,
+        html body .scp-top-amount-row:hover {
+            border-color: #ffd700 !important;
+            box-shadow: 0 0 40px rgba(255, 215, 0, 0.55), 0 0 15px rgba(251, 191, 36, 0.35), inset 0 0 22px rgba(251, 191, 36, 0.12) !important;
+        }
+
+        /* المنطقة الثالثة: منطقة الحسابات (من حساب / إلى حساب) */
+        html body .from-to-row {
+            padding: 16px 18px !important;
+            border-radius: 16px !important;
+            border: 2px solid rgba(244, 63, 94, 0.45) !important;
+            box-shadow: -8px 0 24px rgba(16, 185, 129, 0.22), 8px 0 24px rgba(239, 68, 68, 0.22), inset 0 0 15px rgba(255, 255, 255, 0.04) !important;
+            background: linear-gradient(90deg, rgba(16, 185, 129, 0.07) 0%, rgba(15, 23, 42, 0.15) 50%, rgba(239, 68, 68, 0.07) 100%) !important;
+            transition: all 0.3s ease !important;
+        }
+
+        /* المنطقة الرابعة: منطقة المستفيد ومركز التكلفة */
+        html body .scp-beneficiary-row {
+            border: 2px solid rgba(168, 85, 247, 0.7) !important;
+            border-radius: 16px !important;
+            padding: 14px 18px !important;
+            box-shadow: 0 0 24px rgba(168, 85, 247, 0.28), inset 0 0 14px rgba(168, 85, 247, 0.08) !important;
+            transition: all 0.3s ease !important;
+        }
+        html body .scp-beneficiary-row:focus-within,
+        html body .scp-beneficiary-row:hover {
+            border-color: #c084fc !important;
+            box-shadow: 0 0 36px rgba(168, 85, 247, 0.55), inset 0 0 18px rgba(168, 85, 247, 0.14) !important;
+        }
+
+        /* المنطقة الخامسة: منطقة البيان والتوجيه الذكي */
+        html body .scp-statement-row {
+            border: 2px solid rgba(34, 211, 238, 0.7) !important;
+            border-radius: 16px !important;
+            padding: 14px 18px !important;
+            box-shadow: 0 0 24px rgba(34, 211, 238, 0.28), inset 0 0 14px rgba(34, 211, 238, 0.08) !important;
+            transition: all 0.3s ease !important;
+        }
+        html body .scp-statement-row:focus-within,
+        html body .scp-statement-row:hover {
+            border-color: #22d3ee !important;
+            box-shadow: 0 0 36px rgba(34, 211, 238, 0.55), inset 0 0 18px rgba(34, 211, 238, 0.14) !important;
+        }
+
+        /* المنطقة السادسة: منطقة طريقة وتفاصيل الدفع والتحويلات والشيكات */
+        html body #payment-panel {
+            border: 2px solid rgba(16, 185, 129, 0.7) !important;
+            border-radius: 16px !important;
+            box-shadow: 0 0 28px rgba(16, 185, 129, 0.28), inset 0 0 16px rgba(16, 185, 129, 0.08) !important;
+            transition: all 0.3s ease !important;
+        }
+        html body #payment-panel:focus-within,
+        html body #payment-panel:hover {
+            border-color: #34d399 !important;
+            box-shadow: 0 0 38px rgba(16, 185, 129, 0.5), inset 0 0 20px rgba(16, 185, 129, 0.12) !important;
+        }
+
+        /* 7. إنارة عصرية ساطعة وجميلة جداً للحواف في كل خانات الكتابة عند التركيز أو الكتابة */
+        @keyframes activeFieldNeonGlow {
+            0% {
+                box-shadow: 0 0 14px rgba(0, 242, 254, 0.65), 0 0 28px rgba(56, 189, 248, 0.4), inset 0 0 10px rgba(56, 189, 248, 0.2);
+            }
+            50% {
+                box-shadow: 0 0 22px rgba(0, 242, 254, 0.95), 0 0 42px rgba(56, 189, 248, 0.7), 0 0 60px rgba(251, 191, 36, 0.35), inset 0 0 14px rgba(0, 242, 254, 0.3);
+            }
+            100% {
+                box-shadow: 0 0 14px rgba(0, 242, 254, 0.65), 0 0 28px rgba(56, 189, 248, 0.4), inset 0 0 10px rgba(56, 189, 248, 0.2);
+            }
+        }
+
+        @keyframes activeAmountRedGlow {
+            0% {
+                box-shadow: 0 0 18px rgba(239, 68, 68, 0.75), 0 0 35px rgba(220, 38, 38, 0.5), inset 0 0 10px rgba(239, 68, 68, 0.18);
+            }
+            50% {
+                box-shadow: 0 0 28px rgba(255, 42, 42, 1), 0 0 55px rgba(239, 68, 68, 0.85), inset 0 0 16px rgba(239, 68, 68, 0.28);
+            }
+            100% {
+                box-shadow: 0 0 18px rgba(239, 68, 68, 0.75), 0 0 35px rgba(220, 38, 38, 0.5), inset 0 0 10px rgba(239, 68, 68, 0.18);
+            }
+        }
+
+        @keyframes activeGoldRateGlow {
+            0% {
+                box-shadow: 0 0 18px rgba(255, 215, 0, 0.75), 0 0 35px rgba(251, 191, 36, 0.5), inset 0 0 12px rgba(255, 215, 0, 0.25);
+            }
+            50% {
+                box-shadow: 0 0 30px rgba(255, 215, 0, 1), 0 0 55px rgba(251, 191, 36, 0.85), inset 0 0 18px rgba(255, 215, 0, 0.4);
+            }
+            100% {
+                box-shadow: 0 0 18px rgba(255, 215, 0, 0.75), 0 0 35px rgba(251, 191, 36, 0.5), inset 0 0 12px rgba(255, 215, 0, 0.25);
+            }
+        }
+
+        /* Hover Pre-Illumination on all inputs */
+        html body .single-unified-form input:not([type="hidden"]):not([type="radio"]):not([type="checkbox"]):hover,
+        html body .single-unified-form select:hover,
+        html body .single-unified-form textarea:hover {
+            border-color: #38bdf8 !important;
+            box-shadow: 0 0 16px rgba(56, 189, 248, 0.45), inset 0 0 8px rgba(56, 189, 248, 0.15) !important;
+        }
+
+        /* Universal Focus Illumination for all writing fields */
+        html body .single-unified-form input:not([type="hidden"]):not([type="radio"]):not([type="checkbox"]):focus,
+        html body .single-unified-form select:focus,
+        html body .single-unified-form textarea:focus,
+        html.light-theme body .single-unified-form input:not([type="hidden"]):not([type="radio"]):not([type="checkbox"]):focus,
+        html.light-theme body .single-unified-form select:focus,
+        html.light-theme body .single-unified-form textarea:focus {
+            outline: none !important;
+            border-color: #00f2fe !important;
+            border-width: 2.5px !important;
+            animation: activeFieldNeonGlow 2s infinite ease-in-out !important;
+            transform: translateY(-2px) !important;
+            z-index: 25 !important;
+        }
+
+        /* Specialized Focus Illumination for Amount Local & Foreign (Keep Thick Red Border + Red Neon Glow) */
+        html body .single-unified-form #amount-local:focus,
+        html body .single-unified-form #amount-foreign:focus,
+        html.light-theme body .single-unified-form #amount-local:focus,
+        html.light-theme body .single-unified-form #amount-foreign:focus {
+            background: #ffffff !important;
+            color: #b91c1c !important;
+            border: 5px solid #ff1e1e !important;
+            animation: activeAmountRedGlow 1.8s infinite ease-in-out !important;
+            transform: scale(1.015) !important;
+        }
+
+        /* Specialized Focus Illumination for Gold Dollar Rate (#exchange-rate) */
+        html body .single-unified-form #exchange-rate:hover,
+        html body .single-unified-form #exchange-rate:focus,
+        html.light-theme body .single-unified-form #exchange-rate:hover,
+        html.light-theme body .single-unified-form #exchange-rate:focus {
+            background: linear-gradient(135deg, #291d05 0%, #3d2b08 50%, #291d05 100%) !important;
+            color: #ffe033 !important;
+            border: 3px solid #ffd700 !important;
+            animation: activeGoldRateGlow 1.8s infinite ease-in-out !important;
+            transform: translateY(-2px) scale(1.02) !important;
+        }
+
+        /* Specialized Focus Illumination for From Account (Red Glow) & To Account (Green Glow) */
+        html body .single-unified-form #from-account-search:focus,
+        html.light-theme body .single-unified-form #from-account-search:focus {
+            border: 2.5px solid #ff4d4d !important;
+            box-shadow: 0 0 25px rgba(239, 68, 68, 0.9), 0 0 45px rgba(239, 68, 68, 0.5), inset 0 0 12px rgba(239, 68, 68, 0.3) !important;
+            animation: none !important;
+        }
+        html body .single-unified-form #to-account-search:focus,
+        html.light-theme body .single-unified-form #to-account-search:focus {
+            border: 2.5px solid #34d399 !important;
+            box-shadow: 0 0 25px rgba(16, 185, 129, 0.9), 0 0 45px rgba(16, 185, 129, 0.5), inset 0 0 12px rgba(16, 185, 129, 0.3) !important;
+            animation: none !important;
+        }
     </style>
 </head>
 <body>
@@ -2150,7 +2611,7 @@ try {
                                         <span class="bal-icon">💵</span>
                                         <div class="bal-info">
                                             <span class="bal-label">نقدية</span>
-                                            <strong id="bal-checks" class="bal-val">50</strong>
+                                            <strong id="bal-checks" class="bal-val">0</strong>
                                         </div>
                                     </div>
                                     <div class="bal-divider"></div>
@@ -2158,7 +2619,7 @@ try {
                                         <span class="bal-icon">🧾</span>
                                         <div class="bal-info">
                                             <span class="bal-label">شيكات</span>
-                                            <strong id="bal-debt" class="bal-val">70</strong>
+                                            <strong id="bal-debt" class="bal-val">0</strong>
                                         </div>
                                     </div>
                                     <div class="bal-divider"></div>
@@ -2166,7 +2627,7 @@ try {
                                         <span class="bal-icon">💼</span>
                                         <div class="bal-info">
                                             <span class="bal-label">عهد / وعد</span>
-                                            <strong id="bal-loan" class="bal-val">120</strong>
+                                            <strong id="bal-loan" class="bal-val">0</strong>
                                         </div>
                                     </div>
                                 </div>
@@ -2174,11 +2635,11 @@ try {
 
                             <!-- Next / Prev -->
                             <div class="header-group group-nav">
-                                <div class="crystal-pill nav-crystal hover-scale">
+                                <div class="crystal-pill nav-crystal hover-scale" id="voucher-nav-pill">
                                     <button class="crystal-btn-sm btn-blue-glass crystal-btn-icon-only prev-btn" onclick="loadPreviousVoucher()" title="السند السابق">
                                         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
                                     </button>
-                                    <div class="nav-badge">
+                                    <div class="nav-badge" id="voucher-nav-badge">
                                         <span class="badge-label">رقم السند</span>
                                         <span id="voucher-number" class="badge-val"><?php echo $voucher_no; ?></span>
                                     </div>
@@ -2186,12 +2647,11 @@ try {
                                         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"></polyline></svg>
                                     </button>
                                 </div>
-                                <div id="voucher-user-audit-container" style="display:inline-flex; align-items:center; margin-right:12px;"></div>
                             </div>
                         </div>
 
                         <!-- Row 1: Currency | Amount | Rate | Foreign -->
-                        <div class="scp-top-amount-row" style="display: grid; grid-template-columns: 1.0fr 1.9fr 1.2fr 1.9fr; gap: 15px; margin-bottom: 25px; background: var(--bg-secondary, rgba(0,0,0,0.2)); padding: 15px; border-radius: 12px; border: 1px solid var(--border, rgba(255,255,255,0.05));">
+                        <div class="scp-top-amount-row" style="display: grid; grid-template-columns: 1.0fr 1.9fr 1.2fr 1.9fr; gap: 15px; margin-bottom: 25px; background: var(--bg-secondary, rgba(0,0,0,0.2)); padding: 18px 20px; border-radius: 16px; border: 2.5px solid rgba(251, 191, 36, 0.75);">
                             <div style="display: flex; align-items: center; gap: 10px;">
                                 <label class="label" style="display:flex; align-items:center; gap:5px; color:var(--amber, #fbbf24); font-size:1.15rem; margin-bottom:0; white-space:nowrap; flex-shrink: 0;">💱 العملة</label>
                                 <select class="form-input system-currency-select input-glow-focus hover-glow" id="currency" data-next="exchange-rate" onchange="updateCurrency(); document.getElementById('exchange-rate').focus(); document.getElementById('exchange-rate').select();" style="height: 68px; border-radius: 10px; flex-grow: 1; min-width: 140px; width: 100%; font-size: 1.55rem !important; font-weight: 900; padding-right: 8px; padding-left: 8px;">
@@ -2204,19 +2664,28 @@ try {
                                 <label id="label-box-1" class="label" style="display:flex; align-items:center; gap:5px; color:var(--text-primary, #cbd5e1); font-size:1.1rem; margin-bottom:0; white-space:nowrap; flex-shrink: 0;"><span class="vivid-icon vivid-green" style="width:24px; height:24px; font-size:1.1rem;">💰</span> المبلغ (محلي)</label>
                                 <div style="position: relative; flex-grow: 1; min-width: 0; width: 100%;">
                                     <span id="amount-currency-symbol" style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); background: var(--primary-color, #3b82f6); color: white; padding: 4px 10px; border-radius: 8px; font-weight: 800; font-size: 0.9rem; pointer-events: none; z-index: 5; box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3);">SDG</span>
-                                    <input type="text" class="form-input amount hover-scale input-glow-focus hover-glow" id="amount-local" data-next="from-account" autofocus value="0" inputmode="numeric" onfocus="this.select()" oncontextmenu="showNumberProperties(event, this)" onblur="formatAmount(this); if(typeof calcEquiv === 'function') calcEquiv('local');" onkeydown="if(event.key.length===1 && !/[0-9.]/.test(event.key)) event.preventDefault();" oninput="let val = this.value.replace(/[^0-9.]/g, ''); this.value = val; calcEquiv('local'); if(typeof adjustAmountFontSize === 'function') adjustAmountFontSize(this); if(this.getAttribute('data-thousands') !== 'false') { let parts = val.split('.'); parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ','); this.value = parts.join('.'); }" style="height: 94px !important; box-sizing: border-box !important; font-size: 2.35rem !important; font-weight: 900; text-align: center; font-family: 'Inter', sans-serif; font-variant-numeric: tabular-nums; letter-spacing: 2px; direction: ltr; border-radius: 10px; width: 100%; transition: font-size 0.2s ease, letter-spacing 0.2s ease; padding-left: 60px;">
+                                    <input type="text" class="form-input amount hover-scale input-glow-focus hover-glow" id="amount-local" data-next="from-account" autofocus value="0" inputmode="numeric" onfocus="this.select()" oncontextmenu="showNumberProperties(event, this)" onblur="formatAmount(this); if(typeof calcEquiv === 'function') calcEquiv('local');" onkeydown="if(event.key.length===1 && !/[0-9.]/.test(event.key)) event.preventDefault();" oninput="let val = this.value.replace(/[^0-9.]/g, ''); this.value = val; calcEquiv('local'); if(typeof adjustAmountFontSize === 'function') adjustAmountFontSize(this); if(this.getAttribute('data-thousands') !== 'false') { let parts = val.split('.'); parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ','); this.value = parts.join('.'); }" style="height: 94px !important; box-sizing: border-box !important; font-size: 2.35rem !important; font-weight: 900; text-align: center; background: #ffffff !important; color: #b91c1c !important; border: 4.5px solid #dc2626 !important; font-family: 'Inter', sans-serif; font-variant-numeric: tabular-nums; letter-spacing: 2px; direction: ltr; border-radius: 14px; width: 100%; transition: font-size 0.2s ease, letter-spacing 0.2s ease; padding-left: 60px;">
                                 </div>
                             </div>
                             <div style="display: flex; align-items: center; gap: 10px;">
-                                <label class="label" style="display:flex; align-items:center; gap:5px; color:var(--amber, #fbbf24); font-size:1.15rem; margin-bottom:0; white-space:nowrap; flex-shrink: 0;">⚖️ الصرف</label>
-                                <input type="number" class="form-input" id="exchange-rate" value="<?php echo htmlspecialchars((string)$systemUsdRate); ?>" placeholder="الصرف" readonly style="flex: 2; text-align: center; cursor:pointer; background:rgba(16,185,129,0.12); color:var(--green, #10b981); font-weight:900; height: 55px; border-radius: 10px; font-size: 1.65rem !important; letter-spacing: 1px; min-width: 130px; width: 100%; border: 1.5px solid rgba(16,185,129,0.4); box-shadow: 0 0 12px rgba(16,185,129,0.25);" onclick="if(typeof window.openGlobalExchangeRateModal === 'function') window.openGlobalExchangeRateModal((r)=>{this.value=Math.round(r); this.dataset.userEdited='1'; if(typeof recalcAll === 'function') recalcAll(); else if(typeof recalcTotals==='function') recalcTotals(); else if(typeof calcTotals==='function') calcTotals(); else if(typeof window.updateCurrency==='function') window.updateCurrency();});">
+                                <label class="label scp-rate-label" style="display:flex; align-items:center; gap:5px; color:#fbbf24; font-size:1.15rem; margin-bottom:0; white-space:nowrap; flex-shrink: 0;">⚖️ الصرف</label>
+                                <input type="number" class="form-input input-glow-focus hover-glow" id="exchange-rate" value="<?php echo htmlspecialchars((string)$systemUsdRate); ?>" placeholder="الصرف" readonly style="flex: 2; text-align: center; cursor:pointer; background:linear-gradient(135deg, #1c1504, #2e2107) !important; color:#ffd700 !important; font-weight:900; height: 68px; border-radius: 12px; font-size: 1.85rem !important; letter-spacing: 1.5px; min-width: 130px; width: 100%; border: 2.5px solid #fbbf24 !important; box-shadow: 0 0 18px rgba(251, 191, 36, 0.45), inset 0 0 12px rgba(251, 191, 36, 0.2);" onclick="if(typeof window.openGlobalExchangeRateModal === 'function') window.openGlobalExchangeRateModal((r)=>{this.value=Math.round(r); this.dataset.userEdited='1'; if(typeof recalcAll === 'function') recalcAll(); else if(typeof recalcTotals==='function') recalcTotals(); else if(typeof calcTotals==='function') calcTotals(); else if(typeof window.updateCurrency==='function') window.updateCurrency();});">
                             </div>
                             <div style="display: flex; align-items: center; gap: 10px; position: relative;">
                                 <label id="label-box-2" class="label" style="display:flex; align-items:center; gap:5px; color:var(--text-primary, #cbd5e1); font-size:1.1rem; margin-bottom:0; white-space:nowrap; flex-shrink: 0;">💵 القيمة (أجنبي)</label>
                                 <div style="position: relative; flex-grow: 1; min-width: 0; width: 100%;">
                                     <span id="amount-foreign-currency-symbol" style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); background: #ef4444; color: white; padding: 4px 10px; border-radius: 8px; font-weight: 800; font-size: 0.9rem; pointer-events: none; z-index: 5; box-shadow: 0 4px 10px rgba(239, 68, 68, 0.3);">USD</span>
-                                    <input type="text" class="form-input amount input-glow-focus hover-glow" id="amount-foreign" data-next="from-account" value="0" inputmode="decimal" readonly tabindex="-1" onfocus="this.select()" oncontextmenu="showNumberProperties(event, this)" onblur="formatAmount(this); if(typeof calcEquiv === 'function') calcEquiv('foreign');" onkeydown="if(event.key.length===1 && !/[0-9.]/.test(event.key)) event.preventDefault();" oninput="let val = this.value.replace(/[^0-9.]/g, ''); this.value = val; calcEquiv('foreign'); if(typeof adjustAmountFontSize === 'function') adjustAmountFontSize(this); if(this.getAttribute('data-thousands') !== 'false') { let parts = val.split('.'); parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ','); this.value = parts.join('.'); }" style="height: 94px !important; box-sizing: border-box !important; font-size: 2.35rem !important; text-align: center; background: #fafafa !important; color: #ef4444 !important; font-weight: 900; font-family: 'Inter', sans-serif; font-variant-numeric: tabular-nums; letter-spacing: 2px; direction: ltr; border-radius: 10px; width: 100%; transition: font-size 0.2s ease, letter-spacing 0.2s ease; padding-left: 60px; cursor: not-allowed; border: 1px solid #fca5a5;">
+                                    <input type="text" class="form-input amount input-glow-focus hover-glow" id="amount-foreign" data-next="from-account" value="0" inputmode="decimal" onfocus="this.select()" oncontextmenu="showNumberProperties(event, this)" onblur="formatAmount(this); if(typeof calcEquiv === 'function') calcEquiv('foreign');" onkeydown="if(event.key.length===1 && !/[0-9.]/.test(event.key)) event.preventDefault();" oninput="let val = this.value.replace(/[^0-9.]/g, ''); this.value = val; calcEquiv('foreign'); if(typeof adjustAmountFontSize === 'function') adjustAmountFontSize(this); if(this.getAttribute('data-thousands') !== 'false') { let parts = val.split('.'); parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ','); this.value = parts.join('.'); }" style="height: 94px !important; box-sizing: border-box !important; font-size: 2.35rem !important; text-align: center; background: #ffffff !important; color: #b91c1c !important; font-weight: 900; font-family: 'Inter', sans-serif; font-variant-numeric: tabular-nums; letter-spacing: 2px; direction: ltr; border-radius: 14px; width: 100%; transition: font-size 0.2s ease, letter-spacing 0.2s ease; padding-left: 60px; cursor: text; border: 4.5px solid #dc2626 !important;">
                                 </div>
+                            </div>
+
+                            <!-- ═══ شريط التفقيط الفوري الحي (Live Arabic Tafqeet Bar) ═══ -->
+                            <div id="live-tafqeet-bar" style="grid-column: 1 / -1; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 8px 16px; border-radius: 10px; background: linear-gradient(90deg, rgba(251, 191, 36, 0.14), rgba(16, 185, 129, 0.12)); border: 1.5px solid rgba(251, 191, 36, 0.45); font-size: 1.02rem; font-weight: 800; color: #fef08a; box-shadow: inset 0 0 12px rgba(251, 191, 36, 0.1);">
+                                <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                                    <span style="background: rgba(251, 191, 36, 0.22); border: 1px solid #fbbf24; color: #ffd700; padding: 2px 10px; border-radius: 6px; font-size: 0.88rem; font-weight: 900; white-space: nowrap;">📜 التفقيط الفوري:</span>
+                                    <span id="live-tafqeet-text" style="color: #ffffff; font-weight: 900; letter-spacing: 0.3px;">صفر جنيه سوداني لا غير</span>
+                                </div>
+                                <span id="live-tafqeet-foreign" style="color: #6ee7b7; font-size: 0.92rem; font-weight: 800; white-space: nowrap; direction: rtl;"></span>
                             </div>
                         </div>
 
@@ -2248,40 +2717,46 @@ try {
                                 </svg>
                             </div>
 
-                            <!-- من حساب (Rose Accent) -->
-                            <div class="scp-account-card scp-from-card" style="background: rgba(244, 63, 94, 0.08); padding: 8px 15px; border-radius: 12px; border: 1px solid rgba(244, 63, 94, 0.4); display: flex; align-items: center; gap: 10px;" data-swap="1">
-                                <label class="label" style="display:flex; align-items:center; gap:5px; color:var(--red, #f43f5e); margin-bottom:0; font-weight:800; white-space:nowrap; flex-shrink:0; font-size: 1.5rem !important;">
-                                    <span style="display:flex; align-items:center; justify-content:center; width: 24px; height: 24px; background: rgba(244, 63, 94, 0.15); border-radius: 50%;">
-                                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"></line><polyline points="5 12 12 5 19 12"></polyline></svg>
-                                    </span>
-                                    من حساب <span style="color:var(--text-primary, #ffffff);">(صرف)</span>
-                                </label>
-                                <div class="custom-dropdown-input-wrap" style="flex-grow: 1; width: 100%; min-width: 0; position: relative;">
-                                    <input type="hidden" id="from-account">
-                                    <input type="text" autocomplete="off" class="form-input input-glow-focus hover-glow" id="from-account-search" placeholder="ابحث عن حساب الصرف..." onfocus="showAccountDropdown('from')" onblur="hideAccountDropdownDelayed('from')" oninput="filterAccountDropdown('from')" style="width: 100%; padding: 12px 15px 12px 95px; border-radius: 8px; font-weight: bold; font-size: 1.55rem !important; border: 1px solid rgba(244, 63, 94, 0.5); background: var(--surface, rgba(0,0,0,0.3)); color: var(--amber, #fbbf24);">
-                                    <button type="button" id="from-account-ledger-btn" onclick="openGeneralLedgerForAccount(document.getElementById('from-account').value)" class="crystal-btn-sm btn-blue-glass" style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); z-index: 5; font-size: 0.8rem; padding: 4px 8px; height: 32px; display: none;" title="دفتر الأستاذ العام">📖 دفتر الأستاذ</button>
-                                    <div class="custom-dropdown-list" id="from-account-dropdown-list" style="position: absolute; top: 100%; left: 0; right: 0; z-index: 9999; background: var(--surface, #1e293b); border: 1px solid var(--border, rgba(255,255,255,0.1)); border-radius: 8px; max-height: 250px; overflow-y: auto; text-align: right; box-shadow: 0 10px 25px rgba(0,0,0,0.3); display: none; margin-top: 5px;"></div>
+                            <!-- من حساب (Rich Crimson Red) -->
+                            <div class="scp-account-card scp-from-card" style="background: linear-gradient(135deg, rgba(220, 38, 38, 0.34), rgba(153, 27, 27, 0.52)); padding: 12px 18px; border-radius: 14px; border: 2.5px solid #ef4444; display: flex; flex-direction: column; gap: 8px; box-shadow: 0 0 26px rgba(239, 68, 68, 0.42), inset 0 0 20px rgba(239, 68, 68, 0.22);" data-swap="1">
+                                <div style="display: flex; align-items: center; gap: 10px; width: 100%;">
+                                    <label class="label" style="display:flex; align-items:center; gap:5px; color:#fecaca; margin-bottom:0; font-weight:800; white-space:nowrap; flex-shrink:0; font-size: 1.5rem !important;">
+                                        <span style="display:flex; align-items:center; justify-content:center; width: 28px; height: 28px; background: rgba(239, 68, 68, 0.35); border: 1px solid #f87171; border-radius: 50%; color: #fff;">
+                                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"></line><polyline points="5 12 12 5 19 12"></polyline></svg>
+                                        </span>
+                                        من حساب <span style="color:#ffffff;">(صرف)</span>
+                                    </label>
+                                    <div class="custom-dropdown-input-wrap" style="flex-grow: 1; width: 100%; min-width: 0; position: relative;">
+                                        <input type="hidden" id="from-account">
+                                        <input type="text" autocomplete="off" class="form-input input-glow-focus hover-glow" id="from-account-search" placeholder="ابحث عن حساب الصرف..." onfocus="showAccountDropdown('from')" onblur="hideAccountDropdownDelayed('from')" oninput="filterAccountDropdown('from')" style="width: 100%; padding: 12px 15px 12px 95px; border-radius: 10px; font-weight: bold; font-size: 1.55rem !important; border: 2px solid #f87171; background: rgba(69, 10, 10, 0.82); color: #fef08a;">
+                                        <button type="button" id="from-account-ledger-btn" onclick="openGeneralLedgerForAccount(document.getElementById('from-account').value)" class="crystal-btn-sm btn-blue-glass" style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); z-index: 5; font-size: 0.8rem; padding: 4px 8px; height: 32px; display: none;" title="دفتر الأستاذ العام">📖 دفتر الأستاذ</button>
+                                        <div class="custom-dropdown-list" id="from-account-dropdown-list" style="position: absolute; top: 100%; left: 0; right: 0; z-index: 9999; background: var(--surface, #1e293b); border: 1px solid var(--border, rgba(255,255,255,0.1)); border-radius: 8px; max-height: 250px; overflow-y: auto; text-align: right; box-shadow: 0 10px 25px rgba(0,0,0,0.3); display: none; margin-top: 5px;"></div>
+                                    </div>
                                 </div>
+                                <div id="from-account-live-bal" style="display: none; align-items: center; justify-content: space-between; gap: 8px; padding: 5px 12px; border-radius: 8px; background: rgba(0,0,0,0.35); border: 1px solid rgba(248, 113, 113, 0.45); font-size: 0.88rem; font-weight: 800; color: #fecaca; flex-wrap: wrap;"></div>
                             </div>
-                            <!-- إلى حساب (Green) -->
-                            <div class="scp-account-card scp-to-card" style="background: rgba(16, 185, 129, 0.05); padding: 8px 15px; border-radius: 12px; border: 1px solid rgba(16, 185, 129, 0.3); display: flex; align-items: center; gap: 10px;" data-swap="1">
-                                <label class="label" style="display:flex; align-items:center; gap:5px; color:var(--green, #10b981); margin-bottom:0; font-weight:800; white-space:nowrap; flex-shrink:0; font-size: 1.5rem !important;">
-                                    <span style="display:flex; align-items:center; justify-content:center; width: 24px; height: 24px; background: rgba(16, 185, 129, 0.15); border-radius: 50%;">
-                                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><polyline points="19 12 12 19 5 12"></polyline></svg>
-                                    </span>
-                                    إلى حساب <span style="color:var(--text-primary, #ffffff);">(استلام)</span>
-                                </label>
-                                <div class="custom-dropdown-input-wrap" style="flex-grow: 1; width: 100%; min-width: 0; position: relative;">
-                                    <input type="hidden" id="to-account">
-                                    <input type="text" autocomplete="off" class="form-input input-glow-focus hover-glow" id="to-account-search" placeholder="ابحث عن حساب الاستلام..." onfocus="showAccountDropdown('to')" onblur="hideAccountDropdownDelayed('to')" oninput="filterAccountDropdown('to')" style="width: 100%; padding: 12px 15px 12px 95px; border-radius: 8px; font-weight: bold; font-size: 1.55rem !important; border: 1px solid rgba(16, 185, 129, 0.5); background: var(--surface, rgba(0,0,0,0.3)); color: var(--amber, #fbbf24);">
-                                    <button type="button" id="to-account-ledger-btn" onclick="openGeneralLedgerForAccount(document.getElementById('to-account').value)" class="crystal-btn-sm btn-blue-glass" style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); z-index: 5; font-size: 0.8rem; padding: 4px 8px; height: 32px; display: none;" title="دفتر الأستاذ العام">📖 دفتر الأستاذ</button>
-                                    <div class="custom-dropdown-list" id="to-account-dropdown-list" style="position: absolute; top: 100%; left: 0; right: 0; z-index: 9999; background: var(--surface, #1e293b); border: 1px solid var(--border, rgba(255,255,255,0.1)); border-radius: 8px; max-height: 250px; overflow-y: auto; text-align: right; box-shadow: 0 10px 25px rgba(0,0,0,0.3); display: none; margin-top: 5px;"></div>
+                            <!-- إلى حساب (Rich Emerald Green) -->
+                            <div class="scp-account-card scp-to-card" style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.34), rgba(6, 95, 70, 0.52)); padding: 12px 18px; border-radius: 14px; border: 2.5px solid #10b981; display: flex; flex-direction: column; gap: 8px; box-shadow: 0 0 26px rgba(16, 185, 129, 0.42), inset 0 0 20px rgba(16, 185, 129, 0.22);" data-swap="1">
+                                <div style="display: flex; align-items: center; gap: 10px; width: 100%;">
+                                    <label class="label" style="display:flex; align-items:center; gap:5px; color:#a7f3d0; margin-bottom:0; font-weight:800; white-space:nowrap; flex-shrink:0; font-size: 1.5rem !important;">
+                                        <span style="display:flex; align-items:center; justify-content:center; width: 28px; height: 28px; background: rgba(16, 185, 129, 0.35); border: 1px solid #34d399; border-radius: 50%; color: #fff;">
+                                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><polyline points="19 12 12 19 5 12"></polyline></svg>
+                                        </span>
+                                        إلى حساب <span style="color:#ffffff;">(استلام)</span>
+                                    </label>
+                                    <div class="custom-dropdown-input-wrap" style="flex-grow: 1; width: 100%; min-width: 0; position: relative;">
+                                        <input type="hidden" id="to-account">
+                                        <input type="text" autocomplete="off" class="form-input input-glow-focus hover-glow" id="to-account-search" placeholder="ابحث عن حساب الاستلام..." onfocus="showAccountDropdown('to')" onblur="hideAccountDropdownDelayed('to')" oninput="filterAccountDropdown('to')" style="width: 100%; padding: 12px 15px 12px 95px; border-radius: 10px; font-weight: bold; font-size: 1.55rem !important; border: 2px solid #34d399; background: rgba(6, 78, 59, 0.82); color: #fef08a;">
+                                        <button type="button" id="to-account-ledger-btn" onclick="openGeneralLedgerForAccount(document.getElementById('to-account').value)" class="crystal-btn-sm btn-blue-glass" style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); z-index: 5; font-size: 0.8rem; padding: 4px 8px; height: 32px; display: none;" title="دفتر الأستاذ العام">📖 دفتر الأستاذ</button>
+                                        <div class="custom-dropdown-list" id="to-account-dropdown-list" style="position: absolute; top: 100%; left: 0; right: 0; z-index: 9999; background: var(--surface, #1e293b); border: 1px solid var(--border, rgba(255,255,255,0.1)); border-radius: 8px; max-height: 250px; overflow-y: auto; text-align: right; box-shadow: 0 10px 25px rgba(0,0,0,0.3); display: none; margin-top: 5px;"></div>
+                                    </div>
                                 </div>
+                                <div id="to-account-live-bal" style="display: none; align-items: center; justify-content: space-between; gap: 8px; padding: 5px 12px; border-radius: 8px; background: rgba(0,0,0,0.35); border: 1px solid rgba(52, 211, 153, 0.45); font-size: 0.88rem; font-weight: 800; color: #a7f3d0; flex-wrap: wrap;"></div>
                             </div>
                         </div>
 
                         <!-- Row 3: المستفيد | مركز التكلفة -->
-                        <div style="display: flex; align-items: center; justify-content: space-between; gap: 15px; margin-bottom: 25px; flex-wrap: wrap; background: var(--bg-secondary, rgba(255,255,255,0.02)); padding: 10px 15px; border-radius: 12px; border: 1px solid var(--border, rgba(255,255,255,0.05));">
+                        <div class="scp-beneficiary-row" style="display: flex; align-items: center; justify-content: space-between; gap: 15px; margin-bottom: 25px; flex-wrap: wrap; background: var(--bg-secondary, rgba(255,255,255,0.02)); padding: 14px 18px; border-radius: 16px; border: 2px solid rgba(168, 85, 247, 0.7);">
                             <!-- Beneficiary (Right) -->
                             <div style="display: flex; align-items: center; gap: 10px; flex-grow: 1; min-width: 250px;">
                                 <label class="label" style="color:var(--amber, #fbbf24); font-weight:800; display:flex; align-items:center; gap:5px; margin-bottom:0; white-space:nowrap;">
@@ -2295,14 +2770,14 @@ try {
                                 <label class="label" style="display:flex; align-items:center; gap:5px; margin-bottom:0; white-space:nowrap;">
                                     <span style="font-size:1.1rem; opacity:0.8;">📊</span> مركز التكلفة
                                 </label>
-                                <select class="form-input" id="cost-center" data-next="to-statement" style="height: 48px; border-radius: 10px; flex-grow: 1; min-width: 150px;">
+                                <select class="form-input input-glow-focus hover-glow" id="cost-center" data-next="to-statement" style="height: 48px; border-radius: 10px; flex-grow: 1; min-width: 150px;">
                                     <!-- Populated via JS -->
                                 </select>
                             </div>
                         </div>
 
                         <!-- Row 4: البيان -->
-                        <div style="margin-bottom: 25px; display: flex; align-items: center; gap: 15px; background: rgba(255,255,255,0.02); padding: 10px 15px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05);">
+                        <div class="scp-statement-row" style="margin-bottom: 25px; display: flex; align-items: center; gap: 15px; background: rgba(255,255,255,0.02); padding: 14px 18px; border-radius: 16px; border: 2px solid rgba(34, 211, 238, 0.7);">
                             <div style="display: flex; flex-grow: 1; gap: 10px;">
                                 <input type="text" class="form-input input-glow-focus hover-glow" id="to-statement" data-next="btn-save" placeholder="اكتب مبرر أو تفاصيل الدفع (البيان)..." style="height: 48px; border-radius: 10px; flex-grow: 1;">
                                 <button type="button" onclick="autoCategorize()" id="btn-auto-categorize" style="background: linear-gradient(135deg, #c084fc, #9333ea); color: white; border: none; border-radius: 10px; padding: 0 15px; height: 48px; cursor: pointer; display: flex; align-items: center; gap: 8px; font-weight: bold; white-space: nowrap; box-shadow: 0 4px 15px rgba(147, 51, 234, 0.4); transition: transform 0.2s;" title="توجيه محاسبي ذكي">
@@ -2487,20 +2962,20 @@ try {
         </div>
 
         <!-- STICKY FOOTER -->
-        <div class="sticky-footer" style="background: rgba(15,23,42,0.85); backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px); border-top: 1px solid rgba(56, 189, 248, 0.4); border-left: 1px solid rgba(56, 189, 248, 0.4); border-right: 1px solid rgba(56, 189, 248, 0.4); border-radius: 20px 20px 0 0; padding: 8px 15px; position: sticky; bottom: 0; z-index: 100; box-shadow: 0 -10px 40px rgba(0,0,0,0.6), inset 0 2px 15px rgba(255,255,255,0.05);">
-            <div class="footer-actions unified-footer-bar" style="width: 100%; justify-content: center; gap: 10px; display: flex; flex-wrap: wrap; align-items: center;">
+        <div class="sticky-footer" style="background: rgba(15,23,42,0.92); backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px); border-top: 2px solid rgba(56, 189, 248, 0.45); border-left: 1px solid rgba(56, 189, 248, 0.4); border-right: 1px solid rgba(56, 189, 248, 0.4); border-radius: 20px 20px 0 0; padding: 12px 20px; position: sticky; bottom: 0; z-index: 100; box-shadow: 0 -10px 40px rgba(0,0,0,0.6), inset 0 2px 15px rgba(255,255,255,0.05);">
+            <div class="footer-actions unified-footer-bar" style="width: 100%; justify-content: center; gap: 16px; display: flex; flex-wrap: wrap; align-items: center;">
                 <button type="button" class="btn crystal-btn royal-crystal-btn royal-btn-exit btn-exit" onclick="if(typeof magaieesGoBack === 'function') { magaieesGoBack(); } else if(document.referrer) { window.history.back(); } else { window.location.href='dashboard-pro.php'; }" title="الخروج والرجوع للشاشة السابقة">🚪 خروج</button>
                 <button type="button" class="btn crystal-btn royal-crystal-btn royal-btn-new btn-new" onclick="resetVoucher()" title="تصفير الحقول وبدء سند جديد">✨ جديد</button>
-                <button type="button" class="btn crystal-btn royal-crystal-btn royal-btn-print btn-print-preview" id="btn-preview-invoice" style="display: inline-flex;" onclick="previewVoucher()" title="معاينة السند المالي قبل الطباعة">👁️ معاينة</button>
+                <button type="button" class="btn crystal-btn royal-crystal-btn royal-btn-preview btn-print-preview" id="btn-preview-invoice" style="display: inline-flex;" onclick="previewVoucher()" title="معاينة السند المالي قبل الطباعة">👁️ معاينة</button>
                 <button type="button" class="btn crystal-btn royal-crystal-btn royal-btn-print btn-print" id="btn-print-invoice" style="display: inline-flex;" onclick="printVoucher()" title="طباعة السند المالي">🖨️ طباعة</button>
                 
                 <!-- زر الواتساب - يظهر كشعار واتساب رسمي احترافي -->
-                <button type="button" class="btn crystal-btn royal-crystal-btn royal-btn-whatsapp btn-whatsapp-icon-only" id="btn-whatsapp-master" onclick="openMasterWhatsAppDispatchModal()" title="إرسال كمبيالة وإشعار السند عبر واتساب" style="display: inline-flex; align-items: center; gap: 6px; padding: 0 14px; width: auto;">
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" style="display: block;">
+                <button type="button" class="btn crystal-btn royal-crystal-btn royal-btn-whatsapp btn-whatsapp-icon-only" id="btn-whatsapp-master" onclick="openMasterWhatsAppDispatchModal()" title="إرسال كمبيالة وإشعار السند عبر واتساب" style="display: inline-flex; align-items: center; gap: 10px; padding: 0 24px !important; width: auto !important; min-width: 145px !important;">
+                    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" style="display: block; flex-shrink: 0;">
                         <path fill-rule="evenodd" clip-rule="evenodd" d="M12 0C5.373 0 0 5.373 0 12c0 2.115.552 4.103 1.516 5.832L.057 24l6.34-1.662A11.95 11.95 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0z" fill="#25D366"/>
                         <path fill-rule="evenodd" clip-rule="evenodd" d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" fill="#ffffff"/>
                     </svg>
-                    <span>واتساب</span>
+                    <span style="font-size: 1.2rem; font-weight: 900; color: #ffffff; letter-spacing: 0.3px;">واتساب</span>
                 </button>
                 <button type="button" id="btn-whatsapp-invoice" style="display: none !important;"></button>
 
@@ -3134,10 +3609,12 @@ try {
             }
             
             const amtElGlobal = document.getElementById('amount-local');
+            const amtForGlobal = document.getElementById('amount-foreign');
             
             // Auto-calculate amount-local based on rows if not cash!
             if (method !== 'cash') {
                 if (amtElGlobal) amtElGlobal.readOnly = true; // Lock local amount field
+                if (amtForGlobal) { amtForGlobal.readOnly = true; amtForGlobal.style.cursor = 'not-allowed'; }
                 const totalSum = tSum + cSum;
                 if (Math.abs(amount - totalSum) > 0.001) {
                     amount = totalSum;
@@ -3153,7 +3630,9 @@ try {
                 }
             } else {
                 if (amtElGlobal) amtElGlobal.readOnly = false; // Unlock local amount field in cash mode
+                if (amtForGlobal) { amtForGlobal.readOnly = false; amtForGlobal.style.cursor = 'text'; }
             }
+            if (typeof window.updateLiveTafqeetAndBalances === 'function') window.updateLiveTafqeetAndBalances();
             
             // Update unified total box
             const unifiedBox = document.getElementById('unified-total-box');
@@ -3377,13 +3856,57 @@ try {
     <script>
     let hasWarnedAboutEdit = false;
 
+    // تكييف الرقم التسلسلي (رقم السند) أوتوماتيكياً مع المساحة المخصصة له
+    window.autoFitVoucherSerial = function() {
+        const vEl = document.getElementById('voucher-number');
+        const badgeEl = document.getElementById('voucher-nav-badge');
+        if (!vEl) return;
+        const txt = (vEl.innerText || vEl.textContent || '').trim();
+        const len = txt.length;
+        let fontSize = '1.45rem';
+        let letterSpacing = '1px';
+        let minW = '105px';
+
+        if (len > 16) {
+            fontSize = '0.88rem';
+            letterSpacing = '0px';
+            minW = '165px';
+        } else if (len > 12) {
+            fontSize = '1.05rem';
+            letterSpacing = '0.5px';
+            minW = '145px';
+        } else if (len > 9) {
+            fontSize = '1.25rem';
+            letterSpacing = '0.8px';
+            minW = '125px';
+        } else {
+            fontSize = '1.45rem';
+            letterSpacing = '1.2px';
+            minW = '105px';
+        }
+
+        vEl.style.setProperty('font-size', fontSize, 'important');
+        vEl.style.setProperty('letter-spacing', letterSpacing, 'important');
+        if (badgeEl) {
+            badgeEl.style.setProperty('min-width', minW, 'important');
+        }
+    };
+
     document.addEventListener('DOMContentLoaded', () => {
+        window.autoFitVoucherSerial();
+        const vEl = document.getElementById('voucher-number');
+        if (vEl && typeof MutationObserver !== 'undefined') {
+            const obs = new MutationObserver(() => window.autoFitVoucherSerial());
+            obs.observe(vEl, { childList: true, characterData: true, subtree: true });
+        }
+
         // Intercept save by wrapping the original function unconditionally
         if (typeof window.submitVoucher === 'function') {
             const originalSubmit = window.submitVoucher;
             window.submitVoucher = function(...args) {
-                // Check financial limits for voucher amount
-                const voucherAmt = parseFloat(document.getElementById('amount')?.value) || 0;
+                // Check financial limits for voucher amount (Fixed ID: amount-local)
+                const rawAmtStr = document.getElementById('amount-local')?.value || '0';
+                const voucherAmt = parseFloat(String(rawAmtStr).replace(/,/g, '')) || 0;
                 if (window.MagaieesPermissions && typeof window.MagaieesPermissions.checkFinancialLimits === 'function') {
                     const check = window.MagaieesPermissions.checkFinancialLimits('voucher_amount', voucherAmt);
                     if (!check.allowed) {
@@ -3460,7 +3983,8 @@ try {
     function autoCategorize() {
         const desc = document.getElementById('to-statement').value.trim();
         if (!desc) {
-            alert('الرجاء كتابة البيان أولاً لكي يتوقع الذكاء الاصطناعي الحساب.');
+            if (typeof showToast === 'function') showToast('الرجاء كتابة البيان أولاً لكي يتوقع الذكاء الاصطناعي الحساب.', 'warning');
+            else alert('الرجاء كتابة البيان أولاً لكي يتوقع الذكاء الاصطناعي الحساب.');
             return;
         }
         
@@ -3469,15 +3993,23 @@ try {
         btn.innerHTML = '<span style="font-size: 1.2rem;">⏳</span> <span class="btn-text">جاري التفكير...</span>';
         btn.disabled = true;
 
-        // Gather all accounts to give Gemini context of what choices exist
-        let allAccounts = [];
-        try {
-            allAccounts = allAccounts.concat(JSON.parse(localStorage.getItem('erp_accounts_v1') || '[]'));
-            allAccounts = allAccounts.concat(JSON.parse(localStorage.getItem('erp_suppliers_v1') || '[]'));
-        } catch(e){}
+        // Gather all accounts from live ACCOUNTS list or fallback to localStorage
+        if (typeof window.buildAccountsArray === 'function' && (!ACCOUNTS || ACCOUNTS.length === 0)) {
+            window.buildAccountsArray();
+        }
+        let allAccounts = (typeof ACCOUNTS !== 'undefined' && Array.isArray(ACCOUNTS) && ACCOUNTS.length > 0) ? ACCOUNTS : [];
+        if (allAccounts.length === 0) {
+            try {
+                const getTK = window.getTenantKey || ((k) => k);
+                const exps = JSON.parse(localStorage.getItem(getTK('erp_accounts_v1')) || localStorage.getItem('erp_accounts_v1') || '[]');
+                const sups = JSON.parse(localStorage.getItem(getTK('erp_suppliers_v1')) || localStorage.getItem('erp_suppliers_v1') || '[]');
+                exps.filter(a => !a.deleted).forEach(a => allAccounts.push({ id: `exp-${a.id}`, name: a.name }));
+                sups.filter(s => !s.deleted).forEach(s => allAccounts.push({ id: `supp-${s.id}`, name: s.name }));
+            } catch(e){}
+        }
 
         // Select only relevant fields to save tokens
-        let accountListStr = allAccounts.filter(a => !a.deleted).map(a => a.name).join(' | ');
+        let accountListStr = allAccounts.filter(a => a && a.name && !a.deleted).map(a => a.name).join(' | ');
 
         let promptMsg = `أنت موجه محاسبي آلي. لقد كتب المستخدم البيان التالي لسند صرف نقدية: "${desc}". 
 المطلوب: اختار الحساب الأنسب من ضمن القائمة التالية: [${accountListStr}]. 
@@ -3495,17 +4027,17 @@ try {
             
             if (data.reply) {
                 let suggestedName = data.reply.trim();
-                // Find account ID
-                let match = allAccounts.find(a => a.name === suggestedName);
+                let match = allAccounts.find(a => a.name === suggestedName) || allAccounts.find(a => a.name && (a.name.includes(suggestedName) || suggestedName.includes(a.name)));
                 if (match) {
-                    // Update UI
-                    document.getElementById('to-account').value = match.id;
-                    document.getElementById('to-account-search').value = match.name;
-                    // Flash success
-                    document.getElementById('to-account-search').style.boxShadow = '0 0 15px #10b981';
-                    setTimeout(() => document.getElementById('to-account-search').style.boxShadow = '', 2000);
+                    if (typeof window.selectAccount === 'function') {
+                        window.selectAccount('to', match.id, match.name);
+                    } else {
+                        document.getElementById('to-account').value = match.id;
+                        document.getElementById('to-account-search').value = match.name;
+                    }
+                    if (typeof showToast === 'function') showToast(`🪄 تم اختيار الحساب: ${match.name}`, 'success');
                 } else {
-                    alert('اقترح الذكاء الاصطناعي: ' + suggestedName + ' ولكن لم يتم العثور عليه في القائمة بدقة.');
+                    if (typeof showToast === 'function') showToast('اقترح الذكاء الاصطناعي: ' + suggestedName + ' ولكن لم يتم العثور عليه في القائمة بدقة.', 'warning');
                 }
             }
         })
@@ -3513,7 +4045,7 @@ try {
             console.error(err);
             btn.innerHTML = originalText;
             btn.disabled = false;
-            alert('حدث خطأ في الاتصال بالمساعد الذكي.');
+            if (typeof showToast === 'function') showToast('حدث خطأ في الاتصال بالمساعد الذكي.', 'error');
         });
     }
     </script>

@@ -454,6 +454,12 @@
                 cursor: pointer;
                 user-select: none;
             }
+            .user-audit-badge.new-mode {
+                flex-direction: row;
+                align-items: center;
+                gap: 7px;
+                white-space: nowrap;
+            }
             .user-audit-badge:hover {
                 border-color: #38bdf8;
                 transform: translateY(-2px);

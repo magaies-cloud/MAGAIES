@@ -731,7 +731,7 @@ try {
             min-width: 400px !important;
             margin-left: 5px;
         }
-\n
+
     #purchase-top-container #totals-calc-card.hidden-totals {
         flex: 0 0 0px !important;
         min-width: 0px !important;
@@ -1082,22 +1082,24 @@ try {
             color: #000000 !important;
             border: 1px solid rgba(0, 0, 0, 0.18) !important;
         }
-    
+    </style>
     <style>
         /* CSS for table enhancements */
         .pos-grid th, .pos-grid td {
-            font-size: 0.8rem !important;
-            padding: 8px 10px !important;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-size: 1rem;
+            padding: 7px 8px !important;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            vertical-align: middle !important;
         }
         .pos-grid .g-input, .pos-grid .g-select, .pos-grid .g-readonly {
-            font-size: 0.85rem !important;
-            padding: 8px 10px !important;
-            background: rgba(15, 23, 42, 0.5) !important;
-            color: #f8fafc !important; /* Restore bright text */
-            border: 1px solid rgba(255, 255, 255, 0.08) !important;
+            font-size: inherit;
+            padding: 6px 8px !important;
+            background: rgba(15, 23, 42, 0.55) !important;
+            color: #f8fafc;
+            border: 1px solid rgba(56, 189, 248, 0.14) !important;
             border-radius: 8px !important;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            box-sizing: border-box !important;
         }
         
         /* Modern Glassmorphism Styling */
@@ -1386,7 +1388,7 @@ try {
             min-width: 400px !important;
             margin-left: 5px;
         }
-\n
+
     #purchase-top-container #totals-calc-card.hidden-totals {
         flex: 0 0 0px !important;
         min-width: 0px !important;
@@ -1523,6 +1525,202 @@ try {
         }
         .hub-badge.completed { background: rgba(16,185,129,0.15); color: #34d399; border: 1px solid rgba(16,185,129,0.3); }
         .hub-badge.draft { background: rgba(245,158,11,0.15); color: #fbbf24; border: 1px solid rgba(245,158,11,0.3); }
+
+        /* ══════════════════════════════════════════════════════════════════════════
+           WORLD-CLASS INTERACTIVE BORDER ILLUMINATION & SEMANTIC GLOW SYSTEM (2027)
+           حواف تفاعلية مضيئة ومريحة نفسياً لكل منطقة (البحث، المتاح، الوحدة، الكمية، السعر، المخزن، الجملة)
+           ══════════════════════════════════════════════════════════════════════════ */
+
+        /* 1. Base Visible Borders for All Grid Fields & Header Controls */
+        .pos-grid .g-input,
+        .pos-grid .g-select,
+        .pos-grid .g-readonly {
+            border: 1.5px solid rgba(148, 163, 184, 0.3) !important;
+            border-radius: 9px !important;
+            transition: border-color 0.22s cubic-bezier(0.4, 0, 0.2, 1),
+                        box-shadow 0.22s cubic-bezier(0.4, 0, 0.2, 1),
+                        background-color 0.22s ease,
+                        transform 0.18s ease !important;
+        }
+
+        /* Header & Toolbar Search/Control Borders (المورد، المخزن، العملة، البحث السريع) */
+        .purchase-glass-card .v-input,
+        .items-toolbar #quick-item-search,
+        #hdr-customer-search {
+            border: 1.5px solid rgba(56, 189, 248, 0.35) !important;
+            transition: border-color 0.25s ease, box-shadow 0.25s ease, background-color 0.25s ease, transform 0.2s ease !important;
+        }
+
+        .purchase-glass-card .v-input:hover,
+        .purchase-glass-card .ctrl-group:hover .v-input {
+            border-color: #38bdf8 !important;
+            box-shadow: 0 0 12px rgba(56, 189, 248, 0.4), inset 0 0 6px rgba(56, 189, 248, 0.14) !important;
+        }
+
+        .purchase-glass-card .v-input:focus {
+            border-color: #38bdf8 !important;
+            box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.35), 0 0 18px rgba(56, 189, 248, 0.65), inset 0 0 8px rgba(56, 189, 248, 0.2) !important;
+        }
+
+        /* Supplier Search Special Golden-Cyan Illumination */
+        #hdr-customer-search:hover {
+            border-color: #fbbf24 !important;
+            box-shadow: 0 0 14px rgba(251, 191, 36, 0.45), inset 0 0 8px rgba(251, 191, 36, 0.15) !important;
+        }
+        #hdr-customer-search:focus {
+            border-color: #fbbf24 !important;
+            box-shadow: 0 0 0 2px rgba(251, 191, 36, 0.35), 0 0 22px rgba(251, 191, 36, 0.7), inset 0 0 10px rgba(251, 191, 36, 0.22) !important;
+        }
+
+        /* 2. Quick Search Zone & Item Search Zone (منطقة البحث — إضاءة سماوية نيون صافية) */
+        #quick-item-search:hover,
+        .quick-search:hover #quick-item-search,
+        .pos-grid td[data-col-id="item"]:hover .g-input,
+        .pos-grid td[data-col-id="item"] .g-input:hover {
+            border-color: #38bdf8 !important;
+            background: rgba(15, 23, 42, 0.85) !important;
+            box-shadow: 0 0 14px rgba(56, 189, 248, 0.55), inset 0 0 8px rgba(56, 189, 248, 0.18) !important;
+        }
+        #quick-item-search:focus,
+        .pos-grid td[data-col-id="item"] .g-input:focus {
+            border-color: #38bdf8 !important;
+            background: rgba(15, 23, 42, 0.95) !important;
+            box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.4), 0 0 22px rgba(56, 189, 248, 0.78), inset 0 0 10px rgba(56, 189, 248, 0.22) !important;
+            transform: translateY(-1px);
+        }
+
+        /* 3. Available Stock Zone (منطقة المتاح — إضاءة سيان أكوا هادئة) */
+        .pos-grid td[data-col-id="available"] .avail-val {
+            border: 1.5px solid rgba(45, 212, 191, 0.35) !important;
+            background: rgba(15, 23, 42, 0.6) !important;
+        }
+        .pos-grid td[data-col-id="available"]:hover .avail-val,
+        .pos-grid td[data-col-id="available"] .avail-val:hover {
+            border-color: #2dd4bf !important;
+            box-shadow: 0 0 14px rgba(45, 212, 191, 0.55), inset 0 0 8px rgba(45, 212, 191, 0.2) !important;
+            transform: scale(1.02);
+        }
+
+        /* 4. Unit Zone (منطقة الوحدة — إضاءة بنفسجية ملكية لتمييز القياس عن الأرقام) */
+        .pos-grid td[data-col-id="unit"] .g-select {
+            border-color: rgba(167, 139, 250, 0.35) !important;
+        }
+        .pos-grid td[data-col-id="unit"]:hover .g-select,
+        .pos-grid td[data-col-id="unit"] .g-select:hover {
+            border-color: #a78bfa !important;
+            background: rgba(30, 27, 75, 0.75) !important;
+            box-shadow: 0 0 14px rgba(167, 139, 250, 0.58), inset 0 0 8px rgba(167, 139, 250, 0.22) !important;
+        }
+        .pos-grid td[data-col-id="unit"] .g-select:focus {
+            border-color: #c4b5fd !important;
+            background: rgba(30, 27, 75, 0.92) !important;
+            box-shadow: 0 0 0 2px rgba(167, 139, 250, 0.42), 0 0 22px rgba(167, 139, 250, 0.82), inset 0 0 10px rgba(167, 139, 250, 0.25) !important;
+            transform: scale(1.02);
+        }
+
+        /* 5. Quantity Zone (منطقة الكمية — إضاءة كهرمانية ذهبية دافئة للانتباه العددي) */
+        .pos-grid td[data-col-id="quantity"] .g-input {
+            border-color: rgba(251, 191, 36, 0.38) !important;
+        }
+        .pos-grid td[data-col-id="quantity"]:hover .g-input,
+        .pos-grid td[data-col-id="quantity"] .g-input:hover {
+            border-color: #fbbf24 !important;
+            background: rgba(45, 30, 10, 0.65) !important;
+            box-shadow: 0 0 15px rgba(251, 191, 36, 0.58), inset 0 0 8px rgba(251, 191, 36, 0.2) !important;
+        }
+        .pos-grid td[data-col-id="quantity"] .g-input:focus {
+            border-color: #facc15 !important;
+            background: rgba(45, 30, 10, 0.88) !important;
+            box-shadow: 0 0 0 2px rgba(250, 204, 21, 0.45), 0 0 24px rgba(250, 204, 21, 0.82), inset 0 0 10px rgba(250, 204, 21, 0.25) !important;
+            transform: scale(1.03);
+        }
+
+        /* 6. Price Zone (منطقة السعر — إضاءة زمردية مالية مريحة للعين) */
+        .pos-grid td[data-col-id="price"] .g-input {
+            border-color: rgba(52, 211, 153, 0.38) !important;
+        }
+        .pos-grid td[data-col-id="price"]:hover .g-input,
+        .pos-grid td[data-col-id="price"] .g-input:hover {
+            border-color: #34d399 !important;
+            background: rgba(6, 48, 38, 0.68) !important;
+            box-shadow: 0 0 15px rgba(52, 211, 153, 0.58), inset 0 0 8px rgba(52, 211, 153, 0.2) !important;
+        }
+        .pos-grid td[data-col-id="price"] .g-input:focus {
+            border-color: #10b981 !important;
+            background: rgba(6, 48, 38, 0.9) !important;
+            box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.45), 0 0 24px rgba(52, 211, 153, 0.85), inset 0 0 10px rgba(52, 211, 153, 0.25) !important;
+            transform: scale(1.03);
+        }
+
+        /* 7. Warehouse Zone (منطقة المخزن — إضاءة برتقالية مرجانية) */
+        .pos-grid td[data-col-id="warehouse"] .g-select {
+            border-color: rgba(251, 146, 60, 0.35) !important;
+        }
+        .pos-grid td[data-col-id="warehouse"]:hover .g-select,
+        .pos-grid td[data-col-id="warehouse"] .g-select:hover,
+        .pos-grid td[data-col-id="warehouse"] .g-select:focus {
+            border-color: #fb923c !important;
+            box-shadow: 0 0 15px rgba(251, 146, 60, 0.58), inset 0 0 8px rgba(251, 146, 60, 0.2) !important;
+        }
+
+        /* 8. Total Zone (منطقة الجملة — إطار مضيء ينير عند الاقتراب أو عند العمل في نفس السطر) */
+        .pos-grid td[data-col-id="total"] .total-val {
+            border: 1.5px solid rgba(56, 189, 248, 0.35) !important;
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.72), rgba(16, 185, 129, 0.14)) !important;
+            border-radius: 9px !important;
+            padding: 6px 10px !important;
+            box-shadow: inset 0 0 8px rgba(56, 189, 248, 0.1) !important;
+        }
+        .pos-grid td[data-col-id="total"]:hover .total-val,
+        .pos-grid td[data-col-id="total"] .total-val:hover,
+        .pos-grid tbody tr:focus-within td[data-col-id="total"] .total-val {
+            border-color: #34d399 !important;
+            background: linear-gradient(135deg, rgba(6, 78, 59, 0.75), rgba(14, 165, 233, 0.28)) !important;
+            box-shadow: 0 0 0 1.5px rgba(52, 211, 153, 0.38), 0 0 18px rgba(52, 211, 153, 0.68), inset 0 0 10px rgba(56, 189, 248, 0.25) !important;
+            transform: scale(1.02);
+        }
+
+        /* Active Row Ambient Highlight when typing inside any cell of the row */
+        .pos-grid tbody tr:focus-within td {
+            background-color: rgba(56, 189, 248, 0.09) !important;
+        }
+
+        /* 9. Light Theme Harmonious Border Illumination Overrides */
+        :root.light-theme .pos-grid td[data-col-id="item"]:hover .g-input,
+        :root.light-theme .pos-grid td[data-col-id="item"] .g-input:focus,
+        :root.light-theme #quick-item-search:hover,
+        :root.light-theme #quick-item-search:focus {
+            background: #f0f9ff !important;
+            border-color: #0284c7 !important;
+            box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.25), 0 0 14px rgba(14, 165, 233, 0.45) !important;
+        }
+        :root.light-theme .pos-grid td[data-col-id="unit"]:hover .g-select,
+        :root.light-theme .pos-grid td[data-col-id="unit"] .g-select:focus {
+            background: #f5f3ff !important;
+            border-color: #7c3aed !important;
+            box-shadow: 0 0 0 2px rgba(124, 58, 237, 0.25), 0 0 14px rgba(139, 92, 246, 0.45) !important;
+        }
+        :root.light-theme .pos-grid td[data-col-id="quantity"]:hover .g-input,
+        :root.light-theme .pos-grid td[data-col-id="quantity"] .g-input:focus {
+            background: #fffbeb !important;
+            border-color: #d97706 !important;
+            box-shadow: 0 0 0 2px rgba(217, 119, 6, 0.25), 0 0 14px rgba(245, 158, 11, 0.45) !important;
+        }
+        :root.light-theme .pos-grid td[data-col-id="price"]:hover .g-input,
+        :root.light-theme .pos-grid td[data-col-id="price"] .g-input:focus {
+            background: #ecfdf5 !important;
+            border-color: #059669 !important;
+            box-shadow: 0 0 0 2px rgba(5, 150, 105, 0.25), 0 0 14px rgba(16, 185, 129, 0.45) !important;
+        }
+        :root.light-theme .pos-grid td[data-col-id="total"] .total-val {
+            background: linear-gradient(135deg, #f0fdf4, #e0f2fe) !important;
+            border: 1.5px solid rgba(14, 165, 233, 0.4) !important;
+        }
+        :root.light-theme .pos-grid td[data-col-id="total"]:hover .total-val,
+        :root.light-theme .pos-grid tbody tr:focus-within td[data-col-id="total"] .total-val {
+            border-color: #059669 !important;
+            box-shadow: 0 0 0 2px rgba(5, 150, 105, 0.25), 0 0 15px rgba(16, 185, 129, 0.45) !important;
+        }
 
         /* Proforma Mode Custom Styles (Lemon/Lime Theme) */
         body.proforma-mode .premium-header {
@@ -1779,93 +1977,293 @@ try {
     <!-- Form Fields (Now first in DOM, rendering on the Right in RTL) -->
         
 <!-- WRAPPER FOR TOP SECTION -->
+<style id="purchase-worldclass-ux-styles">
+    /* ═══ WORLD-CLASS PURCHASE HEADER & SLIM TOP BAR HARMONY ═══ */
+    #purchase-top-container #form-fields-card {
+        padding: 12px 16px !important;
+        border-radius: 16px !important;
+        background: linear-gradient(145deg, rgba(15, 23, 42, 0.88), rgba(18, 16, 32, 0.92)) !important;
+        border: 1px solid rgba(56, 189, 248, 0.22) !important;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+    }
+    /* Row 0: Unified Slim 38px Bar for Invoice No, Date, User Badge & Supplier Financial Strip */
+    #purchase-row0-bar {
+        display: flex !important;
+        width: 100% !important;
+        gap: 10px !important;
+        margin-bottom: 4px !important;
+        align-items: center !important;
+        min-height: 42px !important;
+    }
+    #invoice-info-box {
+        flex: 1.25;
+        display: flex !important;
+        gap: 10px !important;
+        width: 100%;
+        min-height: 40px !important;
+        max-height: 42px !important;
+        align-items: center !important;
+        justify-content: flex-start !important;
+        padding: 2px 10px !important;
+        border-radius: 11px !important;
+        background: rgba(15, 23, 42, 0.55) !important;
+        border: 1px solid rgba(255, 255, 255, 0.08) !important;
+        transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        box-sizing: border-box !important;
+    }
+    #invoice-info-box .group-invoice {
+        flex: 1.35 !important;
+        min-width: 225px !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 7px !important;
+        margin: 0 !important;
+        height: 36px !important;
+    }
+    #invoice-info-box #hdr-inv-label,
+    #invoice-info-box #hdr-date-label {
+        margin: 0 !important;
+        font-size: 0.82rem !important;
+        font-weight: 800 !important;
+        color: #cbd5e1 !important;
+        white-space: nowrap !important;
+    }
+    #invoice-info-box .pro-serial-container {
+        flex: 1 !important;
+        min-width: 165px !important;
+        height: 36px !important;
+        min-height: 36px !important;
+        max-height: 36px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        padding: 0 6px !important;
+        border-radius: 9px !important;
+        background: linear-gradient(135deg, rgba(15, 23, 42, 0.9), rgba(30, 41, 59, 0.75)) !important;
+        border: 1.5px solid rgba(56, 189, 248, 0.45) !important;
+        box-shadow: inset 0 0 12px rgba(56, 189, 248, 0.12), 0 2px 8px rgba(0, 0, 0, 0.25) !important;
+        box-sizing: border-box !important;
+    }
+    #invoice-info-box #inv-number {
+        font-size: 1.35rem !important;
+        font-family: 'Outfit', 'JetBrains Mono', sans-serif !important;
+        font-weight: 900 !important;
+        color: #38bdf8 !important;
+        text-shadow: 0 0 10px rgba(56, 189, 248, 0.35) !important;
+        letter-spacing: 0.4px !important;
+        white-space: nowrap !important;
+        text-align: center !important;
+        flex: 1 !important;
+        line-height: 1 !important;
+        padding: 0 4px !important;
+        direction: ltr !important;
+    }
+    #invoice-info-box .group-date {
+        flex: 0.95 !important;
+        min-width: 165px !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 7px !important;
+        margin: 0 !important;
+        height: 36px !important;
+    }
+    #invoice-info-box #hdr-date {
+        flex: 1 !important;
+        height: 36px !important;
+        min-height: 36px !important;
+        max-height: 36px !important;
+        text-align: center !important;
+        padding: 0 8px !important;
+        font-family: 'Outfit', sans-serif !important;
+        font-weight: 800 !important;
+        font-size: 0.95rem !important;
+        border-radius: 9px !important;
+        box-sizing: border-box !important;
+    }
+    /* Slim Single-Line User Badge matching Invoice No & Date height (36px) */
+    #purchase-user-audit-container {
+        display: flex !important;
+        align-items: center !important;
+        height: 36px !important;
+        flex-shrink: 0 !important;
+    }
+    #purchase-user-audit-container .user-audit-badge {
+        display: inline-flex !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 6px !important;
+        height: 36px !important;
+        min-height: 36px !important;
+        max-height: 36px !important;
+        padding: 0 11px !important;
+        border-radius: 9px !important;
+        background: linear-gradient(135deg, rgba(15, 23, 42, 0.85), rgba(30, 41, 59, 0.75)) !important;
+        border: 1px solid rgba(56, 189, 248, 0.32) !important;
+        white-space: nowrap !important;
+        box-sizing: border-box !important;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.2) !important;
+    }
+    #purchase-user-audit-container .user-audit-badge .uab-row {
+        display: inline-flex !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        gap: 5px !important;
+        flex-wrap: nowrap !important;
+    }
+    #purchase-user-audit-container .user-audit-badge .uab-edit-row,
+    #purchase-user-audit-container .user-audit-badge .uab-deliv-row {
+        display: none !important;
+    }
+    #purchase-user-audit-container .user-audit-badge .uab-label {
+        font-size: 0.75rem !important;
+        color: #94a3b8 !important;
+        font-weight: 700 !important;
+    }
+    #purchase-user-audit-container .user-audit-badge .uab-val {
+        font-size: 0.84rem !important;
+        color: #38bdf8 !important;
+        font-weight: 900 !important;
+    }
+    #purchase-user-audit-container .user-audit-badge .uab-tag {
+        padding: 1px 6px !important;
+        font-size: 0.68rem !important;
+        border-radius: 5px !important;
+    }
+    /* Slim Single-Line Financial Strip matching exact 38px height */
+    #customer-financial-card .fin-strip-inner {
+        width: 100% !important;
+        height: 38px !important;
+        min-height: 38px !important;
+        max-height: 38px !important;
+        background: linear-gradient(90deg, rgba(15, 23, 42, 0.85), rgba(30, 58, 138, 0.35)) !important;
+        border: 1px solid rgba(56, 189, 248, 0.5) !important;
+        border-radius: 10px !important;
+        padding: 0 10px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        gap: 6px !important;
+        box-shadow: 0 4px 14px rgba(0,0,0,0.22), inset 0 1px 2px rgba(255,255,255,0.06) !important;
+        box-sizing: border-box !important;
+        white-space: nowrap !important;
+        overflow-x: auto !important;
+        scrollbar-width: none !important;
+    }
+    #customer-financial-card .fin-strip-inner::-webkit-scrollbar {
+        display: none !important;
+    }
+    #customer-financial-card .fin-metric-pill {
+        display: inline-flex !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        gap: 4px !important;
+        white-space: nowrap !important;
+    }
+    /* Row 1: Compact Labels (-1 degree) + Expanded Supplier Input + Bold Exchange Rate */
+    #purchase-row1-bar .h-label {
+        font-size: 0.82rem !important;
+        font-weight: 800 !important;
+        min-width: auto !important;
+        margin: 0 !important;
+        white-space: nowrap !important;
+        letter-spacing: 0 !important;
+    }
+    #purchase-row1-bar .ctrl-input {
+        height: 40px !important;
+        min-height: 40px !important;
+        border-radius: 10px !important;
+        box-sizing: border-box !important;
+    }
+    #hdr-exchange-rate {
+        font-size: 1.38rem !important;
+        font-weight: 900 !important;
+        font-family: 'Outfit', 'JetBrains Mono', sans-serif !important;
+        letter-spacing: 0.5px !important;
+        color: #10b981 !important;
+        background: rgba(16, 185, 129, 0.12) !important;
+        border: 1.5px solid rgba(16, 185, 129, 0.4) !important;
+        text-shadow: 0 0 8px rgba(16, 185, 129, 0.25) !important;
+    }
+</style>
 <div id="purchase-top-container" class="form-expanded" style="display: flex; gap: 15px; align-items: stretch; transition: all 0.5s ease; width: 100%;">
 <div class="neo-card expanded-form purchase-glass-card" id="form-fields-card" style="margin-bottom: 0;">
-            <div style="display: flex; flex-direction: column; gap: 15px;">
+            <div style="display: flex; flex-direction: column; gap: 10px;">
                 
-                
-                <!-- ROW 0 WRAPPER (Dynamic Split) -->
-                <div style="display: flex; width: 100%; gap: 15px; margin-bottom: 12px; transition: all 0.4s ease;">
-                    <!-- LEFT: Invoice & Date -->
-                    <div id="invoice-info-box" style="flex: 1.3; display: flex; gap: 20px; width: 100%; align-items: center; transition: all 0.4s ease; padding: 6px 15px; border-radius: 12px;">
+                <!-- ROW 0 WRAPPER (Unified Slim Level: Invoice No, Date, User, Financial Strip) -->
+                <div id="purchase-row0-bar">
+                    <!-- RIGHT IN RTL: Invoice, Date & Slim User Badge -->
+                    <div id="invoice-info-box">
                         
-                        <div class="h-form-group group-invoice" style="flex: 1.15; min-width: 220px; display:flex; align-items:center; gap:10px; margin:0; flex-direction: row !important;">
-                            <label id="hdr-inv-label" class="h-label" style="margin:0; font-size: 0.9rem; font-weight:bold; white-space:nowrap; transition: all 0.3s ease;">رقم الفاتورة:</label>
-                            <div class="pro-serial-container" style="flex:1; min-width: 135px; display:flex; align-items:center; justify-content:space-between; padding: 3px 6px; border-radius: 8px;">
-                                <button class="pro-serial-btn" type="button" onclick="loadPreviousInvoice()" title="السابقة" style="background: transparent; border: none; color: #fff; font-size: 1.1rem; cursor: pointer; padding: 0 6px; opacity:0.7; transition:0.2s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.7">❮</button>
-                                <span id="inv-number" data-auto-fit-voucher="1" class="pro-serial-number" style="font-size: 0.92rem; font-family: 'Outfit', sans-serif; font-weight: 900; letter-spacing: 0px; white-space: nowrap; text-align: center; flex: 1; transition: all 0.2s ease;">---</span>
+                        <div class="h-form-group group-invoice">
+                            <label id="hdr-inv-label" class="h-label">رقم الفاتورة:</label>
+                            <div class="pro-serial-container">
+                                <button class="pro-serial-btn" type="button" onclick="loadPreviousInvoice()" title="السابقة" style="background: rgba(56,189,248,0.1); border: none; border-radius: 6px; color: #38bdf8; font-size: 0.95rem; cursor: pointer; width: 24px; height: 24px; display:flex; align-items:center; justify-content:center; opacity:0.85; transition:0.2s;" onmouseover="this.style.opacity=1; this.style.background='rgba(56,189,248,0.22)'" onmouseout="this.style.opacity=0.85; this.style.background='rgba(56,189,248,0.1)'">❮</button>
+                                <span id="inv-number" data-auto-fit-voucher="1" class="pro-serial-number">---</span>
                                 <input type="hidden" id="hdr-inv-no">
-                                <button class="pro-serial-btn" type="button" onclick="loadNextInvoice()" title="التالية" style="background: transparent; border: none; color: #fff; font-size: 1.1rem; cursor: pointer; padding: 0 6px; opacity:0.7; transition:0.2s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.7">❯</button>
+                                <button class="pro-serial-btn" type="button" onclick="loadNextInvoice()" title="التالية" style="background: rgba(56,189,248,0.1); border: none; border-radius: 6px; color: #38bdf8; font-size: 0.95rem; cursor: pointer; width: 24px; height: 24px; display:flex; align-items:center; justify-content:center; opacity:0.85; transition:0.2s;" onmouseover="this.style.opacity=1; this.style.background='rgba(56,189,248,0.22)'" onmouseout="this.style.opacity=0.85; this.style.background='rgba(56,189,248,0.1)'">❯</button>
                             </div>
                         </div>
 
-                        <div style="width: 2px; height: 40px; background: rgba(255,255,255,0.1); margin: 0 10px;"></div>
+                        <div style="width: 1px; height: 24px; background: rgba(255,255,255,0.12); margin: 0 2px; flex-shrink: 0;"></div>
 
-                        <div class="h-form-group group-date" style="flex: 1; display:flex; align-items:center; gap:15px; margin:0; flex-direction: row !important;">
-                            <label class="h-label" id="hdr-date-label" style="margin:0; font-size: 0.9rem; font-weight:bold; white-space:nowrap; transition: all 0.3s ease;">التاريخ:</label>
-                            <input type="date" class="v-input ctrl-input" id="hdr-date" style="flex:1; text-align: center; padding:4px 8px; font-family:'Outfit',sans-serif; font-weight:bold; font-size:0.95rem; transition: all 0.3s ease;">
+                        <div class="h-form-group group-date">
+                            <label class="h-label" id="hdr-date-label">التاريخ:</label>
+                            <input type="date" class="v-input ctrl-input" id="hdr-date">
                         </div>
 
-                        <div style="width: 2px; height: 40px; background: rgba(255,255,255,0.1); margin: 0 10px;"></div>
-                        <div id="purchase-user-audit-container" style="display:flex; align-items:center;"></div>
+                        <div style="width: 1px; height: 24px; background: rgba(255,255,255,0.12); margin: 0 2px; flex-shrink: 0;"></div>
+                        <div id="purchase-user-audit-container"></div>
                     </div>
                     
-                    <!-- RIGHT: Financial Strip -->
-                    <div id="customer-financial-card" class="fin-strip-inline" style="flex: 0; width: 0; opacity: 0; overflow: hidden; transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); display: flex;">
-                        <div style="width: 100%; background: linear-gradient(90deg, rgba(15,23,42,0.4), rgba(30,58,138,0.2)); border: 1px solid rgba(56, 189, 248, 0.6); border-radius: 12px; padding: 4px 10px; display: flex; align-items: center; justify-content: space-around; gap: 5px; box-shadow: 0 4px 15px rgba(0,0,0,0.2), inset 0 2px 5px rgba(255,255,255,0.05); min-width: 500px;">
-                            <div style="display: flex; align-items: center; gap: 10px;">
-                                <span style="font-size: 1.2rem;">📊</span>
-                                <div style="display:flex; flex-direction:column;">
-                                    <span style="font-weight: 800; color:#fff; font-size:0.8rem;">الحالة المالية للمورد</span>
-                                    <span id="fin-status-msg" style="color:var(--text-dim); font-size:0.65rem;">لا يوجد</span>
-                                </div>
+                    <!-- LEFT IN RTL: Slim Single-Line Financial Strip -->
+                    <div id="customer-financial-card" class="fin-strip-inline" style="flex: 0; width: 0; opacity: 0; overflow: hidden; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); display: flex; align-items: center;">
+                        <div class="fin-strip-inner">
+                            <div class="fin-metric-pill" style="gap: 6px;">
+                                <span style="font-size: 0.95rem;">📊</span>
+                                <span style="font-weight: 800; color:#e2e8f0; font-size:0.75rem;">الحالة:</span>
+                                <span id="fin-status-msg" style="color:var(--text-dim); font-size:0.72rem; font-weight:700;">لا يوجد</span>
                             </div>
-                            
-                            <div style="display:flex; gap: 15px; align-items: center;">
-                                <div id="fin-wrap-ledger" style="display:flex; flex-direction:column; align-items:center;">
-                                    <span style="font-size:0.6rem; color:#94a3b8; font-weight:700;">الرصيد الدفتري</span>
-                                    <span id="fin-ledger" style="font-weight:800; color:#fff; font-size:0.8rem;">0</span>
-                                </div>
-                                <div style="width:1px; height:15px; background:rgba(255,255,255,0.1);"></div>
-                                
-                                <div id="fin-wrap-debt" style="display:flex; flex-direction:column; align-items:center;">
-                                    <span style="font-size:0.6rem; color:#ef4444; font-weight:700;">المديونية علينا</span>
-                                    <span id="fin-total-debt" style="font-weight:800; color:#ef4444; font-size:0.8rem;">0</span>
-                                </div>
-                                <div style="width:1px; height:15px; background:rgba(255,255,255,0.1);"></div>
-                                
-                                <div id="fin-wrap-checks" style="display:flex; flex-direction:column; align-items:center;">
-                                    <span style="font-size:0.6rem; color:#f59e0b; font-weight:700;">شيكات مدفوعة</span>
-                                    <span id="fin-checks" style="font-weight:800; color:#f59e0b; font-size:0.8rem;">0</span>
-                                </div>
-                                <div style="width:1px; height:15px; background:rgba(255,255,255,0.1);"></div>
-                                
-                                <div id="fin-wrap-limit" style="display:flex; flex-direction:column; align-items:center;">
-                                    <span style="font-size:0.6rem; color:#38bdf8; font-weight:700;">حد المورد</span>
-                                    <span id="fin-credit-limit" style="font-weight:800; color:#38bdf8; font-size:0.8rem;">0</span>
-                                </div>
-                                <div style="width:1px; height:15px; background:rgba(255,255,255,0.1);"></div>
-                                
-                                <div style="display:flex; flex-direction:column; align-items:center; background: rgba(16,185,129,0.1); padding: 3px 10px; border-radius: 6px; border: 1px solid rgba(16,185,129,0.2);">
-                                    <span style="font-size:0.6rem; color:#34d399; font-weight:800;">✨ المتاح</span>
-                                    <span id="fin-remaining" style="font-weight:900; color:#34d399; font-size:0.9rem;">0</span>
-                                </div>
+                            <div style="width:1px; height:18px; background:rgba(255,255,255,0.12); flex-shrink:0;"></div>
+                            <div id="fin-wrap-ledger" class="fin-metric-pill">
+                                <span style="font-size:0.7rem; color:#94a3b8; font-weight:700;">الرصيد:</span>
+                                <span id="fin-ledger" style="font-weight:900; color:#fff; font-size:0.82rem; font-family:'Outfit',sans-serif;">0</span>
+                            </div>
+                            <div style="width:1px; height:18px; background:rgba(255,255,255,0.12); flex-shrink:0;"></div>
+                            <div id="fin-wrap-debt" class="fin-metric-pill">
+                                <span style="font-size:0.7rem; color:#f87171; font-weight:700;">المديونية:</span>
+                                <span id="fin-total-debt" style="font-weight:900; color:#ef4444; font-size:0.82rem; font-family:'Outfit',sans-serif;">0</span>
+                            </div>
+                            <div style="width:1px; height:18px; background:rgba(255,255,255,0.12); flex-shrink:0;"></div>
+                            <div id="fin-wrap-checks" class="fin-metric-pill">
+                                <span style="font-size:0.7rem; color:#fbbf24; font-weight:700;">شيكات:</span>
+                                <span id="fin-checks" style="font-weight:900; color:#f59e0b; font-size:0.82rem; font-family:'Outfit',sans-serif;">0</span>
+                            </div>
+                            <div style="width:1px; height:18px; background:rgba(255,255,255,0.12); flex-shrink:0;"></div>
+                            <div id="fin-wrap-limit" class="fin-metric-pill">
+                                <span style="font-size:0.7rem; color:#38bdf8; font-weight:700;">الحد:</span>
+                                <span id="fin-credit-limit" style="font-weight:900; color:#38bdf8; font-size:0.82rem; font-family:'Outfit',sans-serif;">0</span>
+                            </div>
+                            <div style="width:1px; height:18px; background:rgba(255,255,255,0.12); flex-shrink:0;"></div>
+                            <div class="fin-metric-pill" style="background: rgba(16,185,129,0.14); padding: 2px 8px; border-radius: 6px; border: 1px solid rgba(16,185,129,0.3);">
+                                <span style="font-size:0.7rem; color:#34d399; font-weight:800;">✨ المتاح:</span>
+                                <span id="fin-remaining" style="font-weight:900; color:#34d399; font-size:0.86rem; font-family:'Outfit',sans-serif;">0</span>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Unified Row 1: Supplier, Exchange Rate, Warehouse, Cost Center -->
-                <div style="display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 5px; width: 100%; align-items: center;">
-                    <!-- 1. Supplier -->
-                    <div class="h-form-group group-supplier" style="flex: 3.3; min-width: 390px; display: flex; align-items: center; gap: 10px; flex-direction: row !important;">
-                          <label class="h-label" style="margin: 0; white-space: nowrap; min-width: 60px; color: var(--amber, #f59e0b); font-size: 1.25rem !important; font-weight: 900 !important;">👤 المورد</label>
-                          <div class="h-input-wrapper" style="display: flex; flex-direction: row; align-items: center; gap: 8px; flex: 1;">
-                              <div class="custom-dropdown" style="flex:1;">
+                <!-- Unified Row 1: Supplier (Expanded), Exchange Rate (Larger Number), Warehouse & Cost Center (Auto-fit) -->
+                <div id="purchase-row1-bar" style="display: flex; gap: 10px; flex-wrap: nowrap; margin-bottom: 2px; width: 100%; align-items: center;">
+                    <!-- 1. Supplier (Wider allocation + auto-fit supplier name) -->
+                    <div class="h-form-group group-supplier" style="flex: 4.4; min-width: 380px; display: flex; align-items: center; gap: 7px; flex-direction: row !important; margin: 0;">
+                          <label class="h-label" style="color: var(--amber, #f59e0b);">👤 المورد</label>
+                          <div class="h-input-wrapper" style="display: flex; flex-direction: row; align-items: center; gap: 6px; flex: 1; min-width: 0;">
+                              <div class="custom-dropdown" style="flex:1; min-width: 0;">
                                   <div class="custom-dropdown-input-wrap" style="position: relative;">
-                                      <input type="text" class="ctrl-input v-input" id="hdr-customer-search" placeholder="ابحث عن اسم المورد..." onfocus="showCustomerDropdown()" onblur="hideCustomerDropdownDelayed()" oninput="filterCustomerDropdown()" style="width:100%; padding-left: 60px !important; color: var(--amber, #fbbf24); font-size: 1.25rem !important; font-weight: 900 !important; background-color: rgba(251,191,36,0.05);" autocomplete="one-time-code">
+                                      <input type="text" class="ctrl-input v-input" id="hdr-customer-search" placeholder="ابحث عن اسم المورد..." onfocus="showCustomerDropdown()" onblur="hideCustomerDropdownDelayed()" oninput="filterCustomerDropdown(); if(window.autoFitHeaderFields) window.autoFitHeaderFields();" style="width:100%; padding-left: 56px !important; padding-right: 10px !important; color: var(--amber, #fbbf24); font-size: 1.15rem; font-weight: 900; background-color: rgba(251,191,36,0.06); border: 1px solid rgba(251,191,36,0.35);" autocomplete="one-time-code">
                                       <button type="button" id="hdr-customer-ledger-btn" onclick="openGeneralLedgerForAccount(document.getElementById('hdr-customer').value)" class="ledger-btn-2027" title="دفتر الأستاذ العام">أستاذ</button>
-                                      <input type="hidden" id="hdr-customer" onchange="if(typeof onCustomerChange === 'function') onCustomerChange()">
+                                      <input type="hidden" id="hdr-customer" onchange="if(typeof onCustomerChange === 'function') onCustomerChange(); if(window.autoFitHeaderFields) window.autoFitHeaderFields();">
                                       <div class="custom-dropdown-list" id="customer-dropdown-list">
                                           <!-- Populated via JS -->
                                       </div>
@@ -1874,34 +2272,34 @@ try {
                           </div>
                     </div>
                     
-                    <!-- 2. Currency & Exchange Rate -->
-                    <div class="h-form-group group-currency" style="flex: 2.7; min-width: 330px; display: flex; align-items: center; gap: 10px; flex-direction: row !important;">
-                          <label class="h-label" style="margin: 0; white-space: nowrap; min-width: 80px;">💱 سعر الصرف</label>
-                          <div class="h-input-wrapper" style="display: flex; flex-direction: row; align-items: center; gap: 5px; flex: 1;">
-                            <select class="v-input ctrl-input system-currency-select" id="hdr-currency" onchange="handleCurrencyChange(this.value)" style="flex: 1;">
+                    <!-- 2. Currency & Exchange Rate (Larger bold number) -->
+                    <div class="h-form-group group-currency" style="flex: 2.15; min-width: 235px; display: flex; align-items: center; gap: 6px; flex-direction: row !important; margin: 0;">
+                          <label class="h-label">💱 سعر الصرف</label>
+                          <div class="h-input-wrapper" style="display: flex; flex-direction: row; align-items: center; gap: 5px; flex: 1; min-width: 0;">
+                            <select class="v-input ctrl-input system-currency-select" id="hdr-currency" onchange="handleCurrencyChange(this.value); if(window.autoFitHeaderFields) window.autoFitHeaderFields();" style="flex: 0.95; min-width: 82px; padding: 0 6px; font-size: 0.88rem; font-weight: 800;">
                                 <option value="SDG">🇸🇩 جنيه</option>
                                 <option value="USD">🇺🇸 دولار</option>
                                 <option value="SAR">🇸🇦 ريال</option>
                                 <option value="AED">🇦🇪 درهم</option>
                                 <option value="EGP">🇪🇬 مصري</option>
                             </select>
-                            <input type="number" class="v-input ctrl-input" id="hdr-exchange-rate" value="<?php echo htmlspecialchars((string)$systemUsdRate); ?>" placeholder="الصرف" readonly style="flex: 1.2; text-align: center; cursor:pointer; background:rgba(16,185,129,0.1); color:#10b981; font-weight:bold;" onclick="if(typeof window.openGlobalExchangeRateModal === 'function') window.openGlobalExchangeRateModal((r)=>{this.value=r; this.dataset.userEdited='1'; if(typeof recalcAll === 'function') recalcAll(); else if(typeof recalcTotals==='function') recalcTotals(); else if(typeof calcTotals==='function') calcTotals(); else if(typeof window.updateCurrency==='function') window.updateCurrency();});">
+                            <input type="number" class="v-input ctrl-input" id="hdr-exchange-rate" value="<?php echo htmlspecialchars((string)$systemUsdRate); ?>" placeholder="الصرف" readonly style="flex: 1.25; min-width: 95px; text-align: center; cursor:pointer; padding: 0 4px;" onclick="if(typeof window.openGlobalExchangeRateModal === 'function') window.openGlobalExchangeRateModal((r)=>{this.value=r; this.dataset.userEdited='1'; if(window.autoFitHeaderFields) window.autoFitHeaderFields(); if(typeof recalcAll === 'function') recalcAll(); else if(typeof recalcTotals==='function') recalcTotals(); else if(typeof calcTotals==='function') calcTotals(); else if(typeof window.updateCurrency==='function') window.updateCurrency();});">
                         </div>
                     </div>
 
-                    <!-- 3. Warehouse -->
-                    <div class="h-form-group group-warehouse" style="flex: 2.2; min-width: 270px; display: flex; align-items: center; gap: 10px; flex-direction: row !important;">
-                          <label class="h-label" style="margin: 0; white-space: nowrap; min-width: 60px;">📦 المخزن</label>
-                          <div class="h-input-wrapper" style="display: flex; flex-direction: row !important; display: flex !important; align-items: center !important; flex: 1;">
-                            <select class="v-input ctrl-input" id="hdr-warehouse" onchange="onMainWarehouseChange()" style="width: 100%;"></select>
+                    <!-- 3. Warehouse (Auto-fits to allocated space) -->
+                    <div class="h-form-group group-warehouse" style="flex: 1.75; min-width: 185px; display: flex; align-items: center; gap: 6px; flex-direction: row !important; margin: 0;">
+                          <label class="h-label">📦 المخزن</label>
+                          <div class="h-input-wrapper" style="display: flex; flex-direction: row !important; align-items: center !important; flex: 1; min-width: 0;">
+                            <select class="v-input ctrl-input" id="hdr-warehouse" onchange="onMainWarehouseChange(); if(window.autoFitHeaderFields) window.autoFitHeaderFields();" style="width: 100%; font-weight: 800; padding: 0 8px;"></select>
                           </div>
                     </div>
 
-                    <!-- 4. Cost Center -->
-                    <div class="h-form-group group-cost-center" style="flex: 2.2; min-width: 270px; display: flex; align-items: center; gap: 10px; flex-direction: row !important;">
-                        <label class="h-label" style="margin: 0; white-space: nowrap; min-width: 80px;">🏷️ مركز الكلفة</label>
-                        <div class="h-input-wrapper" style="display: flex; flex-direction: row !important; display: flex !important; align-items: center !important; flex: 1;">
-                            <select class="v-input ctrl-input" id="hdr-cost-center" style="width: 100%;">
+                    <!-- 4. Cost Center (Auto-fits to allocated space) -->
+                    <div class="h-form-group group-cost-center" style="flex: 1.7; min-width: 185px; display: flex; align-items: center; gap: 6px; flex-direction: row !important; margin: 0;">
+                        <label class="h-label">🏷️ مركز الكلفة</label>
+                        <div class="h-input-wrapper" style="display: flex; flex-direction: row !important; align-items: center !important; flex: 1; min-width: 0;">
+                            <select class="v-input ctrl-input" id="hdr-cost-center" onchange="if(window.autoFitHeaderFields) window.autoFitHeaderFields();" style="width: 100%; font-weight: 800; padding: 0 8px;">
                                 <option value="">-- بدون مركز --</option>
                                 <option value="C1">المركز الرئيسي</option>
                                 <option value="C2">الفرع الأول</option>
@@ -1912,11 +2310,11 @@ try {
                 </div>
 
                 <!-- Row 2: Description -->
-                <div style="display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 5px; width: 100%;">
-                    <div class="h-form-group group-description" style="flex: 1; display:flex; align-items:center; gap:10px; flex-direction: row !important;">
-                        <label class="h-label" style="margin: 0; white-space: nowrap; min-width: 60px;">📝 البيان</label>
-                        <div class="h-input-wrapper" style="display: flex; flex-direction: row !important; display: flex !important; align-items: center !important; flex: 1;">
-                            <input type="text" class="v-input ctrl-input" id="hdr-description" placeholder="ملاحظات، أرقام مرجعية..." style="width: 100%;">
+                <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 2px; width: 100%;">
+                    <div class="h-form-group group-description" style="flex: 1; display:flex; align-items:center; gap:8px; flex-direction: row !important; margin: 0;">
+                        <label class="h-label" style="margin: 0; white-space: nowrap; font-size: 0.82rem !important; font-weight: 800 !important;">📝 البيان</label>
+                        <div class="h-input-wrapper" style="display: flex; flex-direction: row !important; align-items: center !important; flex: 1;">
+                            <input type="text" class="v-input ctrl-input" id="hdr-description" placeholder="ملاحظات، أرقام مرجعية..." style="width: 100%; height: 36px !important; min-height: 36px !important; border-radius: 9px !important;">
                         </div>
                     </div>
                 </div>
@@ -1958,30 +2356,33 @@ try {
     </style>
     
     <!-- BOTTOM PANEL (Items Table) -->
-    <div class="purchase-bottom" style="flex: none; display: flex; flex-direction: column; padding: 0 15px 15px 15px; overflow: visible; margin-top: 15px;">
+    <div class="purchase-bottom" style="flex: none; display: flex; flex-direction: column; padding: 0 15px 15px 15px; overflow: visible; margin-top: 12px;">
         
-        <div class="panel-header-row" style="display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px; background: rgba(18, 15, 25, 0.65); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; padding: 10px 16px;">
-            <div style="display: flex; align-items: center; gap: 10px; flex: 1;">
-                <div class="panel-title" style="white-space: nowrap; font-weight: bold; color: #38bdf8; font-size: 1.1rem;">📦 أصناف الفاتورة</div>
-                <div class="quick-add-box" style="flex: 1; max-width: 380px; position: relative; z-index: 99999; display: flex; gap: 6px; align-items: center;">
-                    <input type="text" class="g-input" id="quick-item-search" placeholder="بحث صنف أو باركود..."
-                        style="background: rgba(56,189,248,0.08); border: 1px solid rgba(56,189,248,0.35); border-radius: 8px; color: var(--text-primary); padding: 5px 10px; flex: 1;"
+        <div class="panel-header-row" style="display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 10px; background: linear-gradient(135deg, rgba(15, 23, 42, 0.85), rgba(30, 27, 50, 0.75)); border: 1px solid rgba(56, 189, 248, 0.18); border-radius: 12px; padding: 8px 14px; box-shadow: 0 4px 16px rgba(0,0,0,0.2);">
+            <div style="display: flex; align-items: center; gap: 12px; flex: 1;">
+                <div class="panel-title" style="white-space: nowrap; font-weight: 900; color: #38bdf8; font-size: 1.05rem; display: flex; align-items: center; gap: 6px; text-shadow: 0 0 10px rgba(56,189,248,0.25);">
+                    <span>📦</span>
+                    <span>أصناف الفاتورة</span>
+                </div>
+                <div class="quick-add-box" style="flex: 1; max-width: 410px; position: relative; z-index: 99999; display: flex; gap: 6px; align-items: center;">
+                    <input type="text" class="g-input" id="quick-item-search" placeholder="🔍 بحث سريع عن صنف أو مسح باركود..."
+                        style="background: rgba(15, 23, 42, 0.75); border: 1px solid rgba(56,189,248,0.35); border-radius: 9px; color: var(--text-primary); padding: 0 12px; height: 36px; font-size: 0.92rem; font-weight: 700; flex: 1;"
                         onfocus="this.select(); showQuickItemDropdown()"
                         onblur="hideQuickItemDropdownDelayed()"
                         oninput="filterQuickItemDropdown()" autocomplete="new-password">
-                    <button type="button" onclick="startCameraScanner('quick-item-search')" style="background: rgba(56,189,248,0.15); border: 1px solid rgba(56,189,248,0.35); border-radius: 8px; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #38bdf8; font-size: 1.1rem;" title="مسح باركود بالكاميرا">
-                        📷
+                    <button type="button" onclick="startCameraScanner('quick-item-search')" style="background: linear-gradient(135deg, rgba(56,189,248,0.2), rgba(14,165,233,0.35)); border: 1px solid rgba(56,189,248,0.5); border-radius: 9px; width: 36px; height: 36px; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; color: #38bdf8; transition: all 0.2s; box-shadow: 0 2px 8px rgba(56,189,248,0.2);" title="مسح باركود بالكاميرا">
+                        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
                     </button>
-                    <button type="button" onclick="addRow()" style="background: rgba(16,185,129,0.15); border: 1px solid rgba(16,185,129,0.35); border-radius: 8px; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #10b981; font-size: 1.4rem; font-weight: bold;" title="إضافة سطر">
-                        +
+                    <button type="button" onclick="addRow()" style="background: linear-gradient(135deg, rgba(16,185,129,0.22), rgba(5,150,105,0.38)); border: 1px solid rgba(16,185,129,0.5); border-radius: 9px; width: 36px; height: 36px; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; color: #34d399; transition: all 0.2s; box-shadow: 0 2px 8px rgba(16,185,129,0.2);" title="إضافة سطر جديد">
+                        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
                     </button>
                     <div class="custom-dropdown-list" id="quick-item-dropdown-list" style="text-align:right; top: 100%; left: 0; right: 0; position: absolute;"></div>
                 </div>
             </div>
             <div>
-                <button type="button" onclick="openGridSettingsModal()" style="background: linear-gradient(135deg, rgba(56,189,248,0.2), rgba(14,165,233,0.3)); border: 1.5px solid #38bdf8; color: #38bdf8; border-radius: 8px; padding: 6px 14px; display: flex; align-items: center; gap: 6px; cursor: pointer; font-weight: bold; font-size: 0.95rem; transition: all 0.2s; box-shadow: 0 2px 10px rgba(56,189,248,0.25);" title="تخصيص وترتيب الأعمدة والخطوط والألوان وحفظها نهائياً في قاعدة البيانات">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
-                    <span>⚙️ تخصيص وتنسيق الجدول</span>
+                <button type="button" onclick="openGridSettingsModal()" style="background: linear-gradient(135deg, rgba(56,189,248,0.18), rgba(37,99,235,0.28)); border: 1px solid rgba(56,189,248,0.55); color: #38bdf8; border-radius: 9px; height: 36px; padding: 0 14px; display: inline-flex; align-items: center; gap: 7px; cursor: pointer; font-weight: 800; font-size: 0.9rem; white-space: nowrap; transition: all 0.2s; box-shadow: 0 2px 10px rgba(56,189,248,0.2);" title="تخصيص وترتيب الأعمدة والخطوط والألوان وحفظها نهائياً في قاعدة البيانات">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+                    <span>تخصيص وتنسيق الجدول</span>
                 </button>
             </div>
         </div>
@@ -2369,19 +2770,34 @@ try {
         <!-- Posting Status Bar (visible only in manual posting mode) -->
         <div id="posting-status-bar" style="display: none; align-items: center; justify-content: space-between; padding: 12px 20px; border-radius: 12px; border: 1px solid rgba(251,191,36,0.3); margin-top: 15px; direction: rtl; font-family: 'Tajawal', sans-serif; transition: all 0.3s ease;"></div>
 
-        <div class="items-toolbar" style="display: flex; align-items: center; justify-content: center; padding: 15px; border-radius: 12px; background: rgba(18, 15, 25, 0.8); border: 1px solid rgba(255,255,255,0.05); margin-top: 15px; box-shadow: 0 4px 20px rgba(0,0,0,0.2);">
+        <div class="items-toolbar" style="display: flex; align-items: center; justify-content: center; padding: 12px 14px; border-radius: 14px; background: linear-gradient(145deg, rgba(15, 23, 42, 0.88), rgba(18, 15, 28, 0.92)); border: 1px solid rgba(56, 189, 248, 0.16); margin-top: 14px; box-shadow: 0 8px 28px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.06);">
             
-            <div class="toolbar-actions" style="display: flex; gap: 12px; width: 100%; align-items: center;">
+            <div class="toolbar-actions" style="display: flex; gap: 10px; width: 100%; align-items: center; flex-wrap: nowrap;">
                 
-                <!-- Preview Button: Teal Gradient (distinct from Sales blue) -->
-                <button type="button" class="btn-action royal-crystal-btn royal-btn-exit btn-exit" style="flex: 0.9; min-width: 95px; height: 46px; font-size: 1rem; font-weight: 900; border-radius: 10px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px;" onclick="if(typeof showPurchaseHub === 'function' && document.getElementById('purchase-hub-view')) { showPurchaseHub(); } else if(typeof magaieesGoBack === 'function') { magaieesGoBack(); } else { window.location.href='dashboard-pro.php'; }" title="الخروج والرجوع لبوابة المشتريات أو الرئيسية">🚪 خروج</button> <button type="button" class="btn-action royal-crystal-btn royal-btn-delete btn-delete" style="flex: 1; min-width: 105px; height: 46px; font-size: 1rem; font-weight: 900; border-radius: 10px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px;" onclick="if(typeof confirmDeleteTransaction === 'function') { confirmDeleteTransaction(); } else if(confirm('هل أنت متأكد من حذف / إلغاء فاتورة المشتريات الحالية؟')) { onSuccessNewInvoice(false); }" title="حذف أو إلغاء الفاتورة الحالية">🗑️ حذف / إلغاء</button> <button type="button" class="btn-action royal-crystal-btn royal-btn-print btn-preview" id="btn-preview-invoice" style="flex: 1.3; min-width: 135px; height: 46px; font-size: 1rem; font-weight: 900; border-radius: 10px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px;" onclick="printCurrentInvoice()">🖨️ معاينة وطباعة</button>
+                <!-- Exit Button -->
+                <button type="button" class="btn-action royal-crystal-btn royal-btn-exit btn-exit" style="flex: 0.85; min-width: 90px; height: 46px; font-size: 0.95rem; font-weight: 900; border-radius: 11px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 7px; white-space: nowrap; padding: 0 12px;" onclick="if(typeof showPurchaseHub === 'function' && document.getElementById('purchase-hub-view')) { showPurchaseHub(); } else if(typeof magaieesGoBack === 'function') { magaieesGoBack(); } else { window.location.href='dashboard-pro.php'; }" title="الخروج والرجوع لبوابة المشتريات أو الرئيسية">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                    <span>خروج</span>
+                </button>
+
+                <!-- Delete / Cancel Button (Sleek Single-Line Coordinated Layout) -->
+                <button type="button" class="btn-action royal-crystal-btn royal-btn-delete btn-delete" style="flex: 1.05; min-width: 118px; height: 46px; font-size: 0.95rem; font-weight: 900; border-radius: 11px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 7px; white-space: nowrap; padding: 0 12px; background: linear-gradient(135deg, rgba(225, 29, 72, 0.85), rgba(159, 18, 57, 0.92)) !important; border: 1px solid rgba(251, 113, 133, 0.45) !important; box-shadow: 0 4px 15px rgba(225, 29, 72, 0.28) !important;" onclick="if(typeof confirmDeleteTransaction === 'function') { confirmDeleteTransaction(); } else if(confirm('هل أنت متأكد من حذف / إلغاء فاتورة المشتريات الحالية؟')) { onSuccessNewInvoice(false); }" title="حذف أو إلغاء الفاتورة الحالية">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+                    <span>حذف / إلغاء</span>
+                </button>
+
+                <!-- Preview & Print Button -->
+                <button type="button" class="btn-action royal-crystal-btn royal-btn-print btn-preview" id="btn-preview-invoice" style="flex: 1.25; min-width: 135px; height: 46px; font-size: 0.96rem; font-weight: 900; border-radius: 11px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 7px; white-space: nowrap; padding: 0 14px;" onclick="printCurrentInvoice()">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+                    <span>معاينة وطباعة</span>
+                </button>
                 
                 <!-- Share Button: Professional with dropdown -->
-                <div style="position: relative; flex: 1.2;" id="share-btn-wrapper">
-                    <button type="button" class="btn-action royal-crystal-btn royal-btn-whatsapp btn-share" id="btn-share-invoice" style="width: 100%; height: 46px; font-size: 1rem; font-weight: 900; border-radius: 10px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px;" onclick="toggleShareMenu(event)">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+                <div style="position: relative; flex: 1.05; min-width: 110px;" id="share-btn-wrapper">
+                    <button type="button" class="btn-action royal-crystal-btn royal-btn-whatsapp btn-share" id="btn-share-invoice" style="width: 100%; height: 46px; font-size: 0.96rem; font-weight: 900; border-radius: 11px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 7px; white-space: nowrap; padding: 0 12px;" onclick="toggleShareMenu(event)">
+                        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
                         <span>مشاركة</span>
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="opacity: 0.7;"><polyline points="6 9 12 15 18 9"/></svg>
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="opacity: 0.75;"><polyline points="6 9 12 15 18 9"/></svg>
                     </button>
                     <!-- Share Popup Menu -->
                     <div id="share-popup-menu" style="display: none; position: absolute; bottom: 55px; left: 50%; transform: translateX(-50%) scale(0.9); opacity: 0; min-width: 220px; background: linear-gradient(160deg, rgba(30,27,50,0.98), rgba(15,12,30,0.98)); border: 1px solid rgba(139, 92, 246, 0.35); border-radius: 16px; padding: 8px; box-shadow: 0 15px 40px rgba(0,0,0,0.5), 0 0 30px rgba(139, 92, 246, 0.15); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); z-index: 9999; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);">
@@ -2412,53 +2828,87 @@ try {
                     </div>
                 </div>
                 
-                <!-- New Button: Solid Green Gradient -->
-                <button type="button" class="btn-action royal-crystal-btn royal-btn-new btn-new" style="flex: 1; min-width: 100px; height: 46px; font-size: 1.05rem; font-weight: 900; border-radius: 10px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px;" onclick="onSuccessNewInvoice(false);" title="تصفير الحقول وبدء فاتورة مشتريات جديدة">✨ جديد</button>
-
-                <!-- OCR Scanner Button: Emerald Gradient -->
-                <button type="button" class="btn-action btn-ocr" style="flex: 1.2; height: 45px; box-shadow: 0 2px 10px rgba(5, 150, 105, 0.4); background: linear-gradient(135deg, #059669, #047857); color: #fff; border: 1px solid rgba(52, 211, 153, 0.4); font-size: 1.05rem; font-weight: bold; border-radius: 8px; cursor: pointer; transition: 0.3s; display: flex; align-items: center; justify-content: center; gap: 8px;" onmouseover="this.style.boxShadow='0 6px 20px rgba(16, 185, 129, 0.7)';" onmouseout="this.style.boxShadow='0 2px 10px rgba(5, 150, 105, 0.4)';" onclick="triggerInvoiceOCR()">
-                    <span style="font-size: 1.25rem;">📷</span> مسح فاتورة (OCR)
+                <!-- New Button -->
+                <button type="button" class="btn-action royal-crystal-btn royal-btn-new btn-new" style="flex: 0.95; min-width: 98px; height: 46px; font-size: 0.98rem; font-weight: 900; border-radius: 11px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px; white-space: nowrap; padding: 0 12px;" onclick="onSuccessNewInvoice(false);" title="تصفير الحقول وبدء فاتورة مشتريات جديدة">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    <span>جديد</span>
                 </button>
 
-                <!-- Removed small WhatsApp button per request -->
+                <!-- OCR Scanner Button (Coordinated Royal Crystal Cyan/Indigo Style) -->
+                <button type="button" class="btn-action royal-crystal-btn btn-ocr" style="flex: 1.25; min-width: 140px; height: 46px; background: linear-gradient(135deg, rgba(14, 165, 233, 0.85), rgba(37, 99, 235, 0.92)) !important; color: #fff !important; border: 1px solid rgba(125, 211, 252, 0.5) !important; box-shadow: 0 4px 15px rgba(14, 165, 233, 0.3) !important; font-size: 0.96rem; font-weight: 900; border-radius: 11px; cursor: pointer; transition: all 0.25s ease; display: inline-flex; align-items: center; justify-content: center; gap: 8px; white-space: nowrap; padding: 0 14px;" onmouseover="this.style.boxShadow='0 6px 22px rgba(56, 189, 248, 0.55)'; this.style.transform='translateY(-2px)';" onmouseout="this.style.boxShadow='0 4px 15px rgba(14, 165, 233, 0.3)'; this.style.transform='none';" onclick="triggerInvoiceOCR()" title="قراءة ومسح الفاتورة بالكاميرا أو الصورة بالذكاء الاصطناعي">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                    <span>مسح فاتورة</span>
+                </button>
 
                 <!-- زر التحكم في الإرسال التلقائي مع الحفظ للمشتريات -->
-                <div class="auto-send-control-box" id="auto-send-control-wrapper-purchase">
-                    <button type="button" class="btn crystal-btn btn-auto-send-toggle-unit inactive" id="btn-toggle-auto-send-purchase" onclick="window.togglePurchaseAutoSendMode()" title="التحكم في الإرسال التلقائي: انقر للتبديل بين الحفظ مع الإرسال للمورد، أو الحفظ فقط بدون إرسال">
-                        <span id="auto-send-purchase-icon" style="font-size: 1.1rem;">💾</span>
-                        <span id="auto-send-purchase-label" style="font-weight: 800;">إرسال تلقائي:</span>
-                        <span id="auto-send-purchase-status-pill" style="padding: 2px 8px; border-radius: 7px; font-size: 0.76rem; font-weight: 900;">معطّل (حفظ فقط)</span>
+                <div class="auto-send-control-box" id="auto-send-control-wrapper-purchase" style="height: 46px;">
+                    <button type="button" class="btn crystal-btn btn-auto-send-toggle-unit inactive" id="btn-toggle-auto-send-purchase" style="height: 46px; white-space: nowrap;" onclick="window.togglePurchaseAutoSendMode()" title="التحكم في الإرسال التلقائي: انقر للتبديل بين الحفظ مع الإرسال للمورد، أو الحفظ فقط بدون إرسال">
+                        <span id="auto-send-purchase-icon" style="font-size: 1.05rem;">💾</span>
+                        <span id="auto-send-purchase-label" style="font-weight: 800; font-size: 0.88rem;">إرسال تلقائي:</span>
+                        <span id="auto-send-purchase-status-pill" style="padding: 2px 8px; border-radius: 7px; font-size: 0.74rem; font-weight: 900;">معطّل (حفظ فقط)</span>
                     </button>
-                    <button type="button" class="btn crystal-btn btn-auto-send-options-unit inactive" id="btn-auto-send-options-purchase" onclick="window.togglePurchaseAutoSendDropdown(event)" title="خيارات نوع الإرسال التلقائي للمورد (إذن توريد، فاتورة شراء)">
+                    <button type="button" class="btn crystal-btn btn-auto-send-options-unit inactive" id="btn-auto-send-options-purchase" style="height: 46px;" onclick="window.togglePurchaseAutoSendDropdown(event)" title="خيارات نوع الإرسال التلقائي للمورد (إذن توريد، فاتورة شراء)">
                         ▼
                     </button>
                     
-                    <!-- القائمة المنسدلة للخيارات السريعة -->
-                    <div class="auto-send-menu-dropdown" id="auto-send-purchase-dropdown-menu">
-                        <div style="font-size: 0.78rem; color: #94a3b8; font-weight: 800; padding: 5px 10px; border-bottom: 1px solid rgba(255,255,255,0.1); margin-bottom: 4px; display: flex; justify-content: space-between; align-items: center;">
-                            <span>⚙️ نوع الإرسال التلقائي للمورد:</span>
+                    <!-- القائمة المنسدلة الملكية للخيارات السريعة -->
+                    <div class="auto-send-menu-dropdown" id="auto-send-purchase-dropdown-menu" style="display: none;">
+                        <div class="auto-send-menu-header">
+                            <span style="display: inline-flex; align-items: center; gap: 7px;">
+                                <span style="font-size: 1rem;">⚙️</span>
+                                <span>نوع الإرسال التلقائي للمورد عند الحفظ</span>
+                            </span>
+                            <span style="font-size: 0.68rem; padding: 2px 8px; border-radius: 20px; background: rgba(56, 189, 248, 0.16); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3);">واتساب ذكي</span>
                         </div>
-                        <div class="auto-send-menu-item" onclick="window.selectPurchaseAutoSendOption('disabled')">
-                            <span>💾</span> <span>حفظ فقط (بدون إرسال)</span>
+                        <div class="auto-send-menu-item active-option" data-mode="disabled" onclick="window.selectPurchaseAutoSendOption('disabled')">
+                            <span class="auto-send-item-icon" style="background: linear-gradient(135deg, rgba(100, 116, 139, 0.35), rgba(51, 65, 85, 0.6)) !important; border-color: rgba(148, 163, 184, 0.4) !important;">💾</span>
+                            <div class="auto-send-item-content">
+                                <span class="auto-send-item-title" style="color: #f1f5f9;">حفظ فقط (بدون إرسال)</span>
+                                <span class="auto-send-item-sub">اعتماد وحفظ الفاتورة دون إرسال رسائل</span>
+                            </div>
+                            <span class="auto-send-item-check">✓</span>
                         </div>
-                        <div class="auto-send-menu-item" onclick="window.selectPurchaseAutoSendOption('receipt_order_doc')" style="color: #38bdf8;">
-                            <span>📄</span> <span>إذن توريد رسمي (كميات فقط)</span>
+                        <div class="auto-send-menu-item" data-mode="receipt_order_doc" onclick="window.selectPurchaseAutoSendOption('receipt_order_doc')">
+                            <span class="auto-send-item-icon" style="background: linear-gradient(135deg, rgba(14, 165, 233, 0.3), rgba(2, 132, 199, 0.55)) !important; border-color: rgba(56, 189, 248, 0.45) !important;">📄</span>
+                            <div class="auto-send-item-content">
+                                <span class="auto-send-item-title" style="color: #38bdf8;">إذن توريد واستلام رسمي (كميات فقط)</span>
+                                <span class="auto-send-item-sub">مستند استلام مخزني معتمد بدون أسعار</span>
+                            </div>
+                            <span class="auto-send-item-check">✓</span>
                         </div>
-                        <div class="auto-send-menu-item" onclick="window.selectPurchaseAutoSendOption('receipt_order_text')" style="color: #f59e0b;">
-                            <span>📝</span> <span>إذن توريد نصي كمعلومة</span>
+                        <div class="auto-send-menu-item" data-mode="receipt_order_text" onclick="window.selectPurchaseAutoSendOption('receipt_order_text')">
+                            <span class="auto-send-item-icon" style="background: linear-gradient(135deg, rgba(245, 158, 11, 0.3), rgba(217, 119, 6, 0.55)) !important; border-color: rgba(251, 191, 36, 0.45) !important;">📝</span>
+                            <div class="auto-send-item-content">
+                                <span class="auto-send-item-title" style="color: #fbbf24;">إذن توريد نصي كمعلومة</span>
+                                <span class="auto-send-item-sub">رسالة نصية سريعة بتفاصيل الأصناف المستلمة</span>
+                            </div>
+                            <span class="auto-send-item-check">✓</span>
                         </div>
-                        <div class="auto-send-menu-item" onclick="window.selectPurchaseAutoSendOption('invoice_doc')" style="color: #ca8a04;">
-                            <span>🧾</span> <span>فاتورة شراء مصممة</span>
+                        <div class="auto-send-menu-item" data-mode="invoice_doc" onclick="window.selectPurchaseAutoSendOption('invoice_doc')">
+                            <span class="auto-send-item-icon" style="background: linear-gradient(135deg, rgba(168, 85, 247, 0.3), rgba(126, 34, 206, 0.55)) !important; border-color: rgba(192, 132, 252, 0.45) !important;">🧾</span>
+                            <div class="auto-send-item-content">
+                                <span class="auto-send-item-title" style="color: #c084fc;">فاتورة شراء مصممة (تصميم رسمي)</span>
+                                <span class="auto-send-item-sub">إرسال صورة/مستند الفاتورة الكاملة للمورد</span>
+                            </div>
+                            <span class="auto-send-item-check">✓</span>
                         </div>
-                        <div class="auto-send-menu-item" onclick="window.selectPurchaseAutoSendOption('invoice')" style="color: #10b981;">
-                            <span>💰</span> <span>نص الفاتورة وحساب المورد</span>
+                        <div class="auto-send-menu-item" data-mode="invoice" onclick="window.selectPurchaseAutoSendOption('invoice')">
+                            <span class="auto-send-item-icon" style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.3), rgba(5, 150, 105, 0.55)) !important; border-color: rgba(52, 211, 153, 0.45) !important;">💰</span>
+                            <div class="auto-send-item-content">
+                                <span class="auto-send-item-title" style="color: #34d399;">نص الفاتورة وحساب المورد</span>
+                                <span class="auto-send-item-sub">ملخص مالي للفاتورة مع الرصيد وكشف الحساب</span>
+                            </div>
+                            <span class="auto-send-item-check">✓</span>
                         </div>
                     </div>
                 </div>
 
-                <!-- Submit Button: Solid Blue Gradient -->
+                <!-- Submit Button -->
                 <span style="display:none;" id="footer-grand"></span>
-                <button type="button" class="btn-action royal-crystal-btn royal-btn-save btn-submit" style="flex: 1.5; min-width: 145px; height: 46px; font-size: 1.1rem; font-weight: 900; border-radius: 10px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px;" onclick="submitInvoice()">✅ حفظ واعتماد</button>
+                <button type="button" class="btn-action royal-crystal-btn royal-btn-save btn-submit" style="flex: 1.45; min-width: 145px; height: 46px; font-size: 1.05rem; font-weight: 900; border-radius: 11px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px; white-space: nowrap; padding: 0 16px;" onclick="submitInvoice()">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                    <span>حفظ واعتماد</span>
+                </button>
             </div>
         </div>
 
@@ -2477,7 +2927,6 @@ try {
 
     </div>
 </div>
-    <script defer src="js/grid-customizer.js?v=<?php echo time(); ?>"></script>
     <script defer src="js/localforage.min.js"></script>
     <script defer src="js/html2pdf.bundle.min.js"></script>
     <script defer src="js/whatsapp-integration.js?v=<?php echo time(); ?>"></script>
@@ -2486,7 +2935,6 @@ try {
     <script defer src="js/print-engine.js"></script>
     <script defer src="js/accounting-engine.js?v=<?php echo file_exists('js/accounting-engine.js') ? filemtime('js/accounting-engine.js') : '1.0.0'; ?>"></script>
     <script defer src="js/purchase-pro-v5.js?v=<?php echo time(); ?>"></script>
-</div>
 
     <script>
         // Real-time synchronization of local and foreign adjustments
@@ -3240,7 +3688,17 @@ try {
         document.addEventListener('DBReady', () => {
             migratePurchaseInvoiceIds();
             setTimeout(() => {
-                showPurchaseHub();
+                const urlParams = new URLSearchParams(window.location.search);
+                const actionParam = urlParams.get('action');
+                const idParam = urlParams.get('id');
+                if (idParam || localStorage.getItem('cfo_order_draft')) {
+                    return;
+                }
+                if (actionParam === 'direct' || actionParam === 'proforma') {
+                    openPurchaseEditor(actionParam);
+                } else {
+                    showPurchaseHub();
+                }
             }, 50);
         });
 
@@ -3876,7 +4334,7 @@ function playScanBeep() {
 
     // Dynamically update grand total border when expenses are visible
     window.repositionGrandTotal = function() {
-        const grandRow = document.getElementById('grand-total-row');
+        const grandRow = document.getElementById('row-grand-total') || document.getElementById('grand-total-row');
         if (!grandRow) return;
 
         const visibleRows = document.querySelectorAll('#grid-foot .tot-row');
@@ -3980,10 +4438,12 @@ function playScanBeep() {
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-    // 1. Mouse move first time: focus on Supplier (hdr-customer-search)
+    // 1. Mouse move first time: focus on Supplier (hdr-customer-search) only when inside editor
     const initialFocusHandler = () => {
+        const editorView = document.getElementById('purchase-editor-view');
+        if (!editorView || editorView.style.display === 'none') return;
         const supInput = document.getElementById('hdr-customer-search');
-        if (supInput && document.activeElement !== supInput) {
+        if (supInput && document.activeElement !== supInput && (!document.activeElement || document.activeElement === document.body)) {
             supInput.focus();
             if (typeof showCustomerDropdown === 'function') {
                 showCustomerDropdown();
@@ -4579,10 +5039,145 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
     };
+    // Smart Auto-Fit Engine for Header Inputs (Supplier, Exchange Rate, Warehouse, Cost Center, Invoice No)
+    let _headerMeasureCanvas = null;
+    function measureTextWidthPx(text, fontStr) {
+        try {
+            if (!_headerMeasureCanvas) _headerMeasureCanvas = document.createElement('canvas');
+            const ctx = _headerMeasureCanvas.getContext('2d');
+            ctx.font = fontStr;
+            return ctx.measureText(text || '').width;
+        } catch (e) {
+            return (text ? text.length : 0) * 10;
+        }
+    }
+
+    window.autoFitHeaderFields = function() {
+        try {
+            // 1. Invoice Number (#inv-number) - Large, clear & proportional to its container
+            const invEl = document.getElementById('inv-number');
+            if (invEl) {
+                const invText = (invEl.textContent || '').trim();
+                const parentW = (invEl.parentElement ? invEl.parentElement.clientWidth : 170) - 56;
+                let invPx = 22;
+                if (invText && parentW > 40) {
+                    while (invPx > 15 && measureTextWidthPx(invText, `900 ${invPx}px 'Outfit', sans-serif`) > parentW) {
+                        invPx -= 0.5;
+                    }
+                }
+                invEl.style.setProperty('font-size', invPx + 'px', 'important');
+            }
+
+            // 2. Supplier Input (#hdr-customer-search) - Auto-fit based on supplier name length & box width
+            const supInput = document.getElementById('hdr-customer-search');
+            if (supInput) {
+                const val = (supInput.value || '').trim();
+                const availW = Math.max(120, (supInput.clientWidth || 260) - 72);
+                let px = 19.5;
+                if (val) {
+                    while (px > 12.5 && measureTextWidthPx(val, `900 ${px}px 'Cairo', 'Tajawal', sans-serif`) > availW) {
+                        px -= 0.5;
+                    }
+                }
+                supInput.style.setProperty('font-size', px + 'px', 'important');
+            }
+
+            // 3. Exchange Rate (#hdr-exchange-rate) - Prominent bold number
+            const exInput = document.getElementById('hdr-exchange-rate');
+            if (exInput) {
+                const val = (exInput.value || '').trim();
+                const availW = Math.max(65, (exInput.clientWidth || 105) - 16);
+                let px = 22;
+                if (val) {
+                    while (px > 15 && measureTextWidthPx(val, `900 ${px}px 'Outfit', sans-serif`) > availW) {
+                        px -= 0.5;
+                    }
+                }
+                exInput.style.setProperty('font-size', px + 'px', 'important');
+            }
+
+            // 4. Warehouse (#hdr-warehouse) & Cost Center (#hdr-cost-center) selects
+            ['hdr-warehouse', 'hdr-cost-center'].forEach(selId => {
+                const sel = document.getElementById(selId);
+                if (!sel) return;
+                const optText = (sel.options && sel.selectedIndex >= 0) ? (sel.options[sel.selectedIndex].text || '').trim() : '';
+                const availW = Math.max(80, (sel.clientWidth || 140) - 34);
+                let px = 15.5;
+                if (optText) {
+                    while (px > 11.5 && measureTextWidthPx(optText, `800 ${px}px 'Cairo', 'Tajawal', sans-serif`) > availW) {
+                        px -= 0.5;
+                    }
+                }
+                sel.style.setProperty('font-size', px + 'px', 'important');
+            });
+        } catch (e) {}
+    };
+
+    // Smart Auto-Fit Engine for Grid Cells (Scales with Column Font Size + Auto-Shrinks Long Item/Warehouse Names)
+    window.autoFitGridCells = function() {
+        try {
+            const cfg = window.CurrentGridConfig;
+            const table = document.getElementById('pos-grid');
+            if (!cfg || !cfg.columns || !table) return;
+            const fontFam = cfg.fontFamily || "'Cairo', sans-serif";
+
+            cfg.columns.forEach(col => {
+                if (col.visible === false || col.visible === 'false' || col.visible === 0) return;
+                const basePx = parseFloat(col.fontSize) || parseFloat(cfg.fontSize) || 18;
+                const weight = col.fontWeight || cfg.fontWeight || '800';
+
+                // 1. Fit Column Header (th) to basePx (scale down slightly only if column is too narrow for header word)
+                const th = table.querySelector(`thead th[data-col-id="${col.id}"]`);
+                if (th && col.id !== 'action') {
+                    const thText = (col.name || th.textContent || '').trim();
+                    const thAvailW = Math.max(36, (th.clientWidth || parseInt(col.width) || 100) - 18);
+                    let thPx = basePx;
+                    if (thText && thAvailW > 25) {
+                        while (thPx > 12 && measureTextWidthPx(thText, `800 ${thPx}px ${fontFam}`) > thAvailW) {
+                            thPx -= 0.5;
+                        }
+                    }
+                    th.style.setProperty('font-size', thPx + 'px', 'important');
+                }
+
+                // 2. Fit Cells (td inputs, selects, spans) to basePx & auto-fit long names to column width
+                const tds = table.querySelectorAll(`tbody td[data-col-id="${col.id}"]`);
+                tds.forEach(td => {
+                    const ctrl = td.querySelector('input.g-input, select.g-select, .avail-val, .total-val, .row-num');
+                    if (!ctrl) return;
+                    let textVal = '';
+                    if (ctrl.tagName === 'SELECT') {
+                        textVal = (ctrl.options && ctrl.selectedIndex >= 0) ? (ctrl.options[ctrl.selectedIndex].text || '').trim() : '';
+                    } else if (ctrl.tagName === 'INPUT') {
+                        textVal = (ctrl.value || '').trim();
+                    } else {
+                        textVal = (ctrl.textContent || '').trim();
+                    }
+
+                    const tdW = td.clientWidth || parseInt(col.width) || 120;
+                    const paddingOffset = (col.id === 'item') ? 54 : (ctrl.tagName === 'SELECT' ? 30 : 18);
+                    const availW = Math.max(40, tdW - paddingOffset);
+
+                    let targetPx = basePx;
+                    if (textVal && availW > 35) {
+                        while (targetPx > 12 && measureTextWidthPx(textVal, `${weight} ${targetPx}px ${fontFam}`) > availW) {
+                            targetPx -= 0.5;
+                        }
+                    }
+                    ctrl.style.setProperty('font-size', targetPx + 'px', 'important');
+                });
+            });
+        } catch (e) {}
+    };
+
     window.applyGridSettings = function() {
         let cfg = window.CurrentGridConfig;
         if (!cfg || !cfg.columns) return;
         
+        // Clear server-side pre-rendered style tag so live changes take immediate priority
+        const ssrStyle = document.getElementById('dynamic-pos-grid-style');
+        if (ssrStyle) ssrStyle.innerHTML = '';
+
         let style = document.getElementById('dynamic-grid-style');
         if (!style) {
             style = document.createElement('style');
@@ -4590,40 +5185,85 @@ document.addEventListener('DOMContentLoaded', () => {
             document.head.appendChild(style);
         }
         
+        const globalFont = cfg.fontFamily || "'Cairo', sans-serif";
+        const globalSize = (cfg.fontSize || 16) + 'px';
+        const globalWeight = cfg.fontWeight || 'normal';
+        const globalColorRaw = cfg.fontColor || '#ffffff';
+        const globalColor = (globalColorRaw.toLowerCase() === '#ffffff' || globalColorRaw.toLowerCase() === '#fff') ? 'var(--text-primary, #ffffff)' : globalColorRaw;
+        const globalAlign = cfg.align || 'center';
+
         let css = `
-            #pos-grid {
-                font-size: ${cfg.fontSize || 16}px !important;
-                font-weight: ${cfg.fontWeight || 'normal'} !important;
-                font-family: ${cfg.fontFamily || "'Cairo', sans-serif"} !important;
-                color: ${cfg.fontColor || '#ffffff'} !important;
+            body #pos-grid,
+            body #pos-grid thead th,
+            body #pos-grid tbody td,
+            body #pos-grid tbody td input,
+            body #pos-grid tbody td select,
+            body #pos-grid tbody td span {
+                font-family: ${globalFont} !important;
+            }
+            body #pos-grid {
+                font-size: ${globalSize} !important;
+                font-weight: ${globalWeight} !important;
+                color: ${globalColor} !important;
             }
         `;
         
         cfg.columns.forEach(col => {
             if (col.visible === false || col.visible === "false" || col.visible === 0) {
                 css += `
-                    #pos-grid th[data-col-id="${col.id}"],
-                    #pos-grid td[data-col-id="${col.id}"] {
+                    body #pos-grid th[data-col-id="${col.id}"],
+                    body #pos-grid td[data-col-id="${col.id}"] {
                         display: none !important;
                     }
                 `;
             } else {
-                let width = col.width ? col.width : 'auto';
-                let align = col.align ? col.align : (cfg.align || 'center');
-                let fontSize = col.fontSize ? col.fontSize + 'px' : 'inherit';
-                let color = col.color ? col.color : 'inherit';
-                let fontWeight = col.fontWeight ? col.fontWeight : 'inherit';
+                let rawW = (col.width && col.width !== 'auto') ? String(col.width).trim() : 'auto';
+                if (rawW !== 'auto' && !rawW.endsWith('px') && !rawW.endsWith('%')) rawW += 'px';
+                let widthCss = (rawW !== 'auto')
+                    ? `width: ${rawW} !important; min-width: ${rawW} !important; max-width: ${rawW} !important;`
+                    : `width: auto !important; min-width: 180px !important;`;
+                let align = col.align ? col.align : globalAlign;
+                let fontSize = col.fontSize ? (String(col.fontSize).replace('px','') + 'px') : globalSize;
+                let colColorRaw = col.color ? col.color : globalColorRaw;
+                let color = (colColorRaw.toLowerCase() === '#ffffff' || colColorRaw.toLowerCase() === '#fff') ? 'var(--text-primary, #ffffff)' : colColorRaw;
+                let fontWeight = col.fontWeight ? col.fontWeight : globalWeight;
+                let flexJustify = (align === 'center') ? 'center' : ((align === 'right') ? 'flex-start' : 'flex-end');
                 
                 css += `
-                    #pos-grid th[data-col-id="${col.id}"],
-                    #pos-grid td[data-col-id="${col.id}"] {
-                        width: ${width} !important;
-                        min-width: ${width} !important;
-                        max-width: ${width} !important;
+                    body #pos-grid thead tr th[data-col-id="${col.id}"] {
+                        display: table-cell !important;
+                        ${widthCss}
+                        text-align: ${align} !important;
+                        font-size: ${fontSize} !important;
+                        font-weight: ${fontWeight === 'normal' ? '800' : fontWeight} !important;
+                        color: ${col.color && col.color.toLowerCase() !== '#ffffff' ? color : '#38bdf8'} !important;
+                    }
+                    body #pos-grid tbody tr td[data-col-id="${col.id}"] {
+                        display: table-cell !important;
+                        ${widthCss}
                         text-align: ${align} !important;
                         color: ${color} !important;
                         font-size: ${fontSize} !important;
                         font-weight: ${fontWeight} !important;
+                    }
+                    body #pos-grid tbody tr td[data-col-id="${col.id}"] input,
+                    body #pos-grid tbody tr td[data-col-id="${col.id}"] select,
+                    body #pos-grid tbody tr td[data-col-id="${col.id}"] span:not(.btn-icon):not(.add-row-btn),
+                    body #pos-grid tbody tr td[data-col-id="${col.id}"] .g-input,
+                    body #pos-grid tbody tr td[data-col-id="${col.id}"] .g-select,
+                    body #pos-grid tbody tr td[data-col-id="${col.id}"] .g-readonly,
+                    body #pos-grid tbody tr td[data-col-id="${col.id}"] .avail-val,
+                    body #pos-grid tbody tr td[data-col-id="${col.id}"] .total-val,
+                    body #pos-grid tbody tr td[data-col-id="${col.id}"] .row-num {
+                        text-align: ${align} !important;
+                        color: ${color} !important;
+                        font-size: ${fontSize} !important;
+                        font-weight: ${fontWeight} !important;
+                    }
+                    body #pos-grid tbody tr td[data-col-id="${col.id}"]:not([data-col-id="item"]):not([data-col-id="action"]) > div {
+                        display: flex;
+                        justify-content: ${flexJustify} !important;
+                        align-items: center;
                     }
                 `;
             }
@@ -4631,16 +5271,21 @@ document.addEventListener('DOMContentLoaded', () => {
         
         style.innerHTML = css;
 
-        // DOM Reordering
+        // DOM Reordering & Header Name Synchronization
         const table = document.getElementById('pos-grid');
         if (!table) return;
 
-        // Reorder thead
+        // Reorder thead & sync column header names
         const theadTr = table.querySelector('thead tr');
         if (theadTr) {
             cfg.columns.forEach(col => {
                 const th = theadTr.querySelector(`th[data-col-id="${col.id}"]`);
                 if (th) {
+                    if (col.name && col.id !== 'price' && col.id !== 'total') {
+                        const resizer = th.querySelector('.col-resizer');
+                        th.textContent = col.name;
+                        if (resizer) th.appendChild(resizer);
+                    }
                     theadTr.appendChild(th);
                 }
             });
@@ -4649,9 +5294,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Reorder tbody
         const tbodyRows = table.querySelectorAll('tbody tr');
         tbodyRows.forEach(tr => {
-            // skip rows that span across (e.g. empty state)
             if (tr.children.length === 1 && tr.children[0].colSpan > 1) return;
-            
             cfg.columns.forEach(col => {
                 const td = tr.querySelector(`td[data-col-id="${col.id}"]`);
                 if (td) {
@@ -4670,7 +5313,23 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
         }
+
+        if (typeof makeTableResizable === 'function') makeTableResizable();
+        if (typeof window.autoFitGridCells === 'function') {
+            requestAnimationFrame(() => window.autoFitGridCells());
+        }
     };
+
+    window.addEventListener('resize', () => {
+        if (typeof window.autoFitHeaderFields === 'function') window.autoFitHeaderFields();
+        if (typeof window.autoFitGridCells === 'function') window.autoFitGridCells();
+    });
+    document.addEventListener('DOMContentLoaded', () => {
+        setTimeout(() => {
+            if (typeof window.autoFitHeaderFields === 'function') window.autoFitHeaderFields();
+            if (typeof window.autoFitGridCells === 'function') window.autoFitGridCells();
+        }, 180);
+    });
 
 
 

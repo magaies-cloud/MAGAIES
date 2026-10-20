@@ -49,22 +49,56 @@ try {
             if ($isAr) {
                 $hasAr = $true
                 foreach ($line in $res.Lines) {
-                    $arLines += [PSCustomObject]@{ text = $line.Text }
+                    $minX = 0; $maxX = 0; $minY = 0; $maxY = 0
+                    $rtlText = $line.Text
+                    if ($line.Words -and $line.Words.Count -gt 0) {
+                        $minX = ($line.Words | ForEach-Object { $_.BoundingRect.X } | Measure-Object -Minimum).Minimum
+                        $maxX = ($line.Words | ForEach-Object { $_.BoundingRect.X + $_.BoundingRect.Width } | Measure-Object -Maximum).Maximum
+                        $minY = ($line.Words | ForEach-Object { $_.BoundingRect.Y } | Measure-Object -Minimum).Minimum
+                        $maxY = ($line.Words | ForEach-Object { $_.BoundingRect.Y + $_.BoundingRect.Height } | Measure-Object -Maximum).Maximum
+                        $sortedRtl = $line.Words | Sort-Object { $_.BoundingRect.X } -Descending | ForEach-Object { $_.Text }
+                        $rtlText = ($sortedRtl -join ' ')
+                    }
+                    $arLines += [PSCustomObject]@{
+                        text     = $line.Text
+                        rtl_text = $rtlText
+                        x        = [math]::Round($minX, 1)
+                        y        = [math]::Round($minY, 1)
+                        w        = [math]::Round(($maxX - $minX), 1)
+                        h        = [math]::Round(($maxY - $minY), 1)
+                    }
                 }
             } elseif ($isEn) {
                 $hasEn = $true
                 foreach ($line in $res.Lines) {
-                    $enLines += [PSCustomObject]@{ text = $line.Text }
+                    $minX = 0; $maxX = 0; $minY = 0; $maxY = 0
+                    if ($line.Words -and $line.Words.Count -gt 0) {
+                        $minX = ($line.Words | ForEach-Object { $_.BoundingRect.X } | Measure-Object -Minimum).Minimum
+                        $maxX = ($line.Words | ForEach-Object { $_.BoundingRect.X + $_.BoundingRect.Width } | Measure-Object -Maximum).Maximum
+                        $minY = ($line.Words | ForEach-Object { $_.BoundingRect.Y } | Measure-Object -Minimum).Minimum
+                        $maxY = ($line.Words | ForEach-Object { $_.BoundingRect.Y + $_.BoundingRect.Height } | Measure-Object -Maximum).Maximum
+                    }
+                    $enLines += [PSCustomObject]@{
+                        text = $line.Text
+                        x    = [math]::Round($minX, 1)
+                        y    = [math]::Round($minY, 1)
+                        w    = [math]::Round(($maxX - $minX), 1)
+                        h    = [math]::Round(($maxY - $minY), 1)
+                    }
                 }
             }
             if ($hasAr -and $hasEn) { break }
         }
     }
 
+    $imgW = $bitmap.PixelWidth
+    $imgH = $bitmap.PixelHeight
     $stream.Dispose()
 
     $out = [PSCustomObject]@{
         success  = $true
+        img_w    = $imgW
+        img_h    = $imgH
         ar_lines = $arLines
         en_lines = $enLines
     }

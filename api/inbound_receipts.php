@@ -635,7 +635,7 @@ switch ($action) {
 
     case 'scan_pending_batch':
         try {
-            $pStmt = $pdo->prepare("SELECT id FROM inbound_bank_receipts WHERE tenant_id = ? AND (status = 'pending' AND (issue_reason IS NULL OR issue_reason != 'awaiting_posting_approval')) ORDER BY id ASC LIMIT 50");
+            $pStmt = $pdo->prepare("SELECT id FROM inbound_bank_receipts WHERE tenant_id = ? AND (status = 'pending' AND (issue_reason IS NULL OR issue_reason NOT IN ('awaiting_posting_approval', 'cropped_missing_ref', 'non_financial_image'))) ORDER BY id ASC LIMIT 50");
             $pStmt->execute([$activeTenantId]);
             $pendingIds = $pStmt->fetchAll(PDO::FETCH_COLUMN);
             $results = [];
@@ -1790,11 +1790,44 @@ function recordAdminInboundNotification($pdo, $tenantId, $notifItem) {
 // Helper: Check duplicate transfer number across existing data
 // -------------------------------------------------------------
 function checkTransferConflictInDB($pdo, $tenantId, $transferNo, $excludeReceiptId = 0) {
-    $cleanDigits = preg_replace('/\D/', '', (string)$transferNo);
-    $suffix = strlen($cleanDigits) >= 8 ? substr($cleanDigits, -8) : substr($cleanDigits, -6);
-    if (strlen($suffix) < 6) {
+    $normRef = function($val) {
+        $s = trim(normalizeInboundDigits((string)$val));
+        if ($s === '' || preg_match('/^(OUT-OFF-|IN-OFF-|OFF-|WA\d|AUTO-|TEMP-|null|none|n\/a)/i', $s)) return '';
+        if (preg_match('/^\d{4}\s+\d{4}(?:\s+\d{4}){1,2}$/', $s)) return '';
+        $digits = preg_replace('/\D/', '', $s);
+        if (strlen($digits) < 6) return '';
+        if (strlen($digits) === 14 && $digits[0] === '0' && preg_match('/000[1-9]$/', $digits)) return '';
+        if (strlen($digits) === 21 && substr($digits, 0, 2) === '02') return '';
+        if (strlen($digits) === 16 && $digits[0] === '0' && preg_match('/(0001|0002|0101|5001)$/', $digits)) return '';
+        return $digits;
+    };
+    $areEqual = function($a, $b) use ($normRef) {
+        $dA = $normRef($a);
+        $dB = $normRef($b);
+        if ($dA === '' || $dB === '') return false;
+        if ($dA === $dB) return true;
+        $lenA = strlen($dA);
+        $lenB = strlen($dB);
+        $minLen = min($lenA, $lenB);
+        if ($minLen < 6) return false;
+        if ($lenA !== $lenB) {
+            $shorter = ($lenA < $lenB) ? $dA : $dB;
+            $longer  = ($lenA < $lenB) ? $dB : $dA;
+            if (strlen($shorter) >= 6 && substr($longer, -strlen($shorter)) === $shorter) return true;
+            if ($minLen >= 9 && substr($dA, -8) === substr($dB, -8)) return true;
+            return false;
+        }
+        if ($lenA <= 8) return false;
+        if (substr($dA, -8) === substr($dB, -8)) return true;
+        if (substr($dA, -6) === substr($dB, -6) && substr($dA, 0, 2) === substr($dB, 0, 2)) return true;
+        return false;
+    };
+
+    $cleanDigits = $normRef($transferNo);
+    if (strlen($cleanDigits) < 6) {
         return ['is_duplicate' => false, 'conflicting_voucher' => null];
     }
+    $suffix = substr($cleanDigits, -6);
 
     // Find own voucher_no if excludeReceiptId is provided so we don't conflict with ourselves
     $ownVoucherNo = '';
@@ -1806,22 +1839,33 @@ function checkTransferConflictInDB($pdo, $tenantId, $transferNo, $excludeReceipt
         } catch (Exception $e) {}
     }
     
-    // 1. Check existing inbound receipts (and verify their voucher still exists in `receipts`!)
-    $sql1 = "SELECT id, customer_id, customer_name, voucher_no, amount, created_at, transfer_no 
+    // 1. Check existing inbound receipts (and verify their voucher still exists and is NOT deleted in `receipts`!)
+    $sql1 = "SELECT id, customer_id, customer_name, voucher_no, amount, created_at, transfer_no, status, issue_reason 
              FROM inbound_bank_receipts 
-             WHERE tenant_id = ? AND id != ? AND transfer_no LIKE ? AND (status IN ('verified', 'reconciled') OR (voucher_no IS NOT NULL AND voucher_no != ''))
+             WHERE tenant_id = ? AND id != ? AND transfer_no LIKE ? AND (status IN ('verified', 'reconciled') OR issue_reason = 'awaiting_posting_approval' OR (voucher_no IS NOT NULL AND voucher_no != ''))
              ORDER BY id DESC";
     $stmt1 = $pdo->prepare($sql1);
     $stmt1->execute([$tenantId, $excludeReceiptId, '%' . $suffix]);
     $hits = $stmt1->fetchAll(PDO::FETCH_ASSOC) ?: [];
 
     foreach ($hits as $hit) {
+        if (!$areEqual($cleanDigits, $hit['transfer_no'] ?? '')) {
+            continue;
+        }
         $hitVNo = trim((string)($hit['voucher_no'] ?? ''));
         if ($hitVNo !== '') {
-            // Check that the voucher was not deleted from `receipts`
-            $chkV = $pdo->prepare("SELECT COUNT(*) FROM receipts WHERE tenant_id = ? AND (frontend_id = ? OR receipt_no = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')) = ?) AND (is_deleted = 0 OR is_deleted IS NULL)");
-            $chkV->execute([$tenantId, $hitVNo, $hitVNo, $hitVNo]);
-            if ((int)$chkV->fetchColumn() === 0) {
+            // Check that the voucher was not deleted from `receipts` (checking both is_deleted column and $.deleted in JSON)
+            $chkV = $pdo->prepare("SELECT data FROM receipts WHERE tenant_id = ? AND (frontend_id = ? OR receipt_no = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')) = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.voucherNo')) = ?) AND (is_deleted = 0 OR is_deleted IS NULL)");
+            $chkV->execute([$tenantId, $hitVNo, $hitVNo, $hitVNo, $hitVNo]);
+            $activeFound = false;
+            while ($rRow = $chkV->fetch(PDO::FETCH_ASSOC)) {
+                $rDec = json_decode($rRow['data'] ?? '{}', true);
+                if (is_array($rDec) && (empty($rDec['deleted']) || $rDec['deleted'] === 'false' || $rDec['deleted'] === '0')) {
+                    $activeFound = true;
+                    break;
+                }
+            }
+            if (!$activeFound) {
                 // Voucher was deleted from receipts — clean up orphan inbound_bank_receipts record so it never blocks re-upload!
                 $pdo->prepare("DELETE FROM inbound_bank_receipts WHERE id = ?")->execute([$hit['id']]);
                 continue;
@@ -1842,11 +1886,11 @@ function checkTransferConflictInDB($pdo, $tenantId, $transferNo, $excludeReceipt
     $voucherTables = ['receipts', 'single_receipts'];
     foreach ($voucherTables as $tbl) {
         try {
-            $vStmt = $pdo->prepare("SELECT id, data FROM `$tbl` WHERE tenant_id = ? AND (is_deleted = 0 OR is_deleted IS NULL) AND data LIKE ? LIMIT 10");
+            $vStmt = $pdo->prepare("SELECT id, data FROM `$tbl` WHERE tenant_id = ? AND (is_deleted = 0 OR is_deleted IS NULL) AND data LIKE ? LIMIT 20");
             $vStmt->execute([$tenantId, '%' . $suffix . '%']);
             while ($vHit = $vStmt->fetch(PDO::FETCH_ASSOC)) {
                 $vData = json_decode($vHit['data'], true);
-                if (!is_array($vData) || !empty($vData['deleted'])) continue;
+                if (!is_array($vData) || (!empty($vData['deleted']) && $vData['deleted'] !== 'false' && $vData['deleted'] !== '0')) continue;
 
                 $vNo = $vData['voucherNo'] ?? $vData['receiptNo'] ?? $vData['paymentNo'] ?? $vData['invoiceNo'] ?? $vData['id'] ?? ('سند #' . $vHit['id']);
                 if (!empty($ownVoucherNo) && (string)$vNo === (string)$ownVoucherNo) {
@@ -1856,7 +1900,7 @@ function checkTransferConflictInDB($pdo, $tenantId, $transferNo, $excludeReceipt
                     continue;
                 }
 
-                // Verify the suffix actually belongs to a transfer number field inside the receipt voucher
+                // Verify the reference actually belongs to a transfer number field inside the receipt voucher (not an account number)
                 $matchedTransfer = false;
                 $checkCandidates = [
                     $vData['transferNo'] ?? '',
@@ -1870,7 +1914,7 @@ function checkTransferConflictInDB($pdo, $tenantId, $transferNo, $excludeReceipt
                 }
                 if (!empty($vData['items']) && is_array($vData['items'])) {
                     foreach ($vData['items'] as $it) {
-                        $checkCandidates[] = $it['transferNo'] ?? '';
+                        $checkCandidates[] = $it['transferNo'] ?? ($it['transfer'] ?? '');
                         if (!empty($it['bankTransfers']) && is_array($it['bankTransfers'])) {
                             foreach ($it['bankTransfers'] as $bt) {
                                 $checkCandidates[] = $bt['transferNo'] ?? ($bt['reference'] ?? '');
@@ -1878,10 +1922,13 @@ function checkTransferConflictInDB($pdo, $tenantId, $transferNo, $excludeReceipt
                         }
                     }
                 }
+                if (!empty($vData['lines']) && is_array($vData['lines'])) {
+                    foreach ($vData['lines'] as $ln) {
+                        $checkCandidates[] = $ln['transfer'] ?? ($ln['transferNo'] ?? '');
+                    }
+                }
                 foreach ($checkCandidates as $cand) {
-                    $candDigits = preg_replace('/\D/', '', (string)$cand);
-                    $cmpLen = strlen($suffix);
-                    if (strlen($candDigits) >= $cmpLen && substr($candDigits, -$cmpLen) === $suffix) {
+                    if ($areEqual($cleanDigits, $cand)) {
                         $matchedTransfer = true;
                         break;
                     }
@@ -2627,11 +2674,16 @@ function performBackendReceiptOCR($pdo, $receiptId, $fraudCheck = false, $postOp
 
     // Validate All Receipt Conditions: Financial Document, Transfer Number >= 6 digits, Amount > 0, Not Duplicate
     $cleanRefDigits = preg_replace('/\D/', '', $extractedRef);
+    $isCroppedMissingRef = !empty($d['is_cropped']) && empty($cleanRefDigits) && $extractedAmount > 0;
     $status = 'verified';
     $issueReason = null;
     $existingNotes = trim((string)($receipt['notes'] ?? ''));
     $existingNotes = preg_replace('/\s*\|?\s*⚠️\s*كشف تكرار مالي:[^|]*/u', '', $existingNotes);
+    $existingNotes = preg_replace('/\s*\|?\s*⚠️\s*المبلغ غير واضح[^|]*/u', '', $existingNotes);
+    $existingNotes = preg_replace('/\s*\|?\s*⚠️\s*مرفوض:[^|]*/u', '', $existingNotes);
+    $existingNotes = preg_replace('/\s*\|?\s*⚠️\s*رقم العملية غير ظاهر[^|]*/u', '', $existingNotes);
     $existingNotes = preg_replace('/\s*\|?\s*تم الفحص التلقائي بنجاح[^|]*/u', '', $existingNotes);
+    $existingNotes = preg_replace('/\s*\|?\s*تحويل بنك[^|]*/u', '', $existingNotes);
     $existingNotes = trim($existingNotes, " |\t\n\r");
     $ocrSummaryNote = $summary ?: ('تم الفحص التلقائي بنجاح | رقم العملية: ' . $extractedRef);
     $notes = !empty($existingNotes) ? ($existingNotes . ' | ' . $ocrSummaryNote) : $ocrSummaryNote;
@@ -2640,14 +2692,18 @@ function performBackendReceiptOCR($pdo, $receiptId, $fraudCheck = false, $postOp
         $status = 'pending';
         $issueReason = 'non_financial_image';
         $notes = (!empty($existingNotes) ? $existingNotes . ' | ' : '') . '⚠️ مرفوض: الصورة المرسلة ليست إشعار تحويل بنكي مالي معتمد';
-    } elseif (strlen($cleanRefDigits) < 6) {
-        $status = 'pending';
-        $issueReason = 'invalid_transfer_no_under_6_digits';
-        $notes = (!empty($existingNotes) ? $existingNotes . ' | ' : '') . '⚠️ مرفوض: رقم التحويل يجب ألا يقل عن 6 أرقام (' . ($extractedRef ?: 'غير موجود') . ')';
     } elseif ($extractedAmount <= 0) {
         $status = 'pending';
         $issueReason = 'zero_amount';
         $notes = (!empty($existingNotes) ? $existingNotes . ' | ' : '') . '⚠️ المبلغ غير واضح في الإشعار';
+    } elseif ($isCroppedMissingRef) {
+        $status = 'pending';
+        $issueReason = 'cropped_missing_ref';
+        $notes = (!empty($existingNotes) ? $existingNotes . ' | ' : '') . '⚠️ رقم العملية غير ظاهر في الصورة (الإشعار مقطوع من الأعلى)';
+    } elseif (strlen($cleanRefDigits) < 6) {
+        $status = 'pending';
+        $issueReason = 'invalid_transfer_no_under_6_digits';
+        $notes = (!empty($existingNotes) ? $existingNotes . ' | ' : '') . '⚠️ مرفوض: رقم التحويل يجب ألا يقل عن 6 أرقام (' . ($extractedRef ?: 'غير موجود') . ')';
     }
 
     // Customer resolution via Secret PIN (`statementPin`), Receipt Code, WhatsApp phone / Delegate SubPhone, LID, or name

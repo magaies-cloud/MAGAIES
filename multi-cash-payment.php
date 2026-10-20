@@ -11,15 +11,44 @@ if ($isMobileDevice && !$isDesktopParam && empty($_POST)) {
 
 require_once 'db_bridge.php';
 $systemUsdRate = function_exists('getSystemUsdExchangeRate') ? getSystemUsdExchangeRate($pdo ?? null) : 5999.0;
+if (!function_exists('normalizeTransferRefStrict')) {
+    function normalizeTransferRefStrict($val) {
+        $s = trim((string)$val);
+        if ($s === '') return '';
+        $arabic = ['٠','١','٢','٣','٤','٥','٦','٧','٨','٩','۰','۱','۲','۳','۴','۵','۶','۷','۸','۹'];
+        $latin  = ['0','1','2','3','4','5','6','7','8','9','0','1','2','3','4','5','6','7','8','9'];
+        $s = str_replace($arabic, $latin, $s);
+        if (preg_match('/^(OUT-OFF-|IN-OFF-|OFF-|WA\d|AUTO-|TEMP-|null|none|n\/a)/i', $s)) return '';
+        if (preg_match('/^\d{4}\s+\d{4}(?:\s+\d{4}){1,2}$/', $s)) return '';
+        $digits = preg_replace('/\D/', '', $s);
+        if (strlen($digits) < 6) return '';
+        if (strlen($digits) === 14 && $digits[0] === '0' && preg_match('/000[1-9]$/', $digits)) return '';
+        if (strlen($digits) === 21 && substr($digits, 0, 2) === '02') return '';
+        if (strlen($digits) === 16 && $digits[0] === '0' && preg_match('/(0001|0002|0101|5001)$/', $digits)) return '';
+        return $digits;
+    }
+}
+
 if (!function_exists('extractAllTransfersFromRecord')) {
     function extractAllTransfersFromRecord($d) {
+        if (!is_array($d)) return [];
+        if (!empty($d['deleted']) && $d['deleted'] !== 'false' && $d['deleted'] !== '0') return [];
         $refs = [];
         if (!empty($d['mobileTransferNo']) && is_string($d['mobileTransferNo'])) $refs[] = trim($d['mobileTransferNo']);
+        if (!empty($d['transferNo']) && is_string($d['transferNo'])) $refs[] = trim($d['transferNo']);
         if (!empty($d['transferRef']) && is_string($d['transferRef'])) $refs[] = trim($d['transferRef']);
-        if (!empty($d['refNo']) && is_string($d['refNo'])) $refs[] = trim($d['refNo']);
+        if (!empty($d['refNo']) && is_string($d['refNo']) && !preg_match('/^(OUT-OFF-|IN-OFF-|OFF-)/i', trim($d['refNo']))) {
+            $refs[] = trim($d['refNo']);
+        }
         if (!empty($d['bankTransfers']) && is_array($d['bankTransfers'])) {
             foreach ($d['bankTransfers'] as $bt) {
                 if (!empty($bt['transferNo']) && is_string($bt['transferNo'])) $refs[] = trim($bt['transferNo']);
+            }
+        }
+        if (!empty($d['transfers']) && is_array($d['transfers'])) {
+            foreach ($d['transfers'] as $bt) {
+                if (!empty($bt['transferNo']) && is_string($bt['transferNo'])) $refs[] = trim($bt['transferNo']);
+                if (!empty($bt['reference']) && is_string($bt['reference'])) $refs[] = trim($bt['reference']);
             }
         }
         if (!empty($d['details']) && is_array($d['details'])) {
@@ -42,7 +71,12 @@ if (!function_exists('extractAllTransfersFromRecord')) {
                 }
             }
         }
-        return array_values(array_unique(array_filter($refs)));
+        $valid = [];
+        foreach ($refs as $r) {
+            $norm = normalizeTransferRefStrict($r);
+            if ($norm !== '') $valid[] = $norm;
+        }
+        return array_values(array_unique($valid));
     }
 }
 
@@ -50,26 +84,30 @@ if (!function_exists('fetchAllDbTransfers')) {
     function fetchAllDbTransfers($pdo, $currentTenantId = null) {
         $results = [];
         $seen = [];
+        $tId = !empty($currentTenantId) ? (string)$currentTenantId : '1';
         $tables = ['single_payments', 'single_receipts', 'payments', 'receipts'];
         foreach ($tables as $tbl) {
             try {
-                $stmt = $pdo->query("SELECT id, tenant_id, data FROM `$tbl`");
+                $stmt = $pdo->prepare("SELECT id, tenant_id, data FROM `$tbl` WHERE (is_deleted = 0 OR is_deleted IS NULL) AND (tenant_id = ? OR tenant_id = '1' OR tenant_id IS NULL) ORDER BY id DESC LIMIT 4000");
+                $stmt->execute([$tId]);
                 while ($r = $stmt->fetch(PDO::FETCH_ASSOC)) {
                     $d = json_decode($r['data'], true);
                     if (!$d) continue;
-                    $vNo = trim((string)($d['voucherNo'] ?? ($d['id'] ?? '')));
+                    if (!empty($d['deleted']) && $d['deleted'] !== 'false' && $d['deleted'] !== '0') continue;
+                    $vNo = trim((string)($r['voucher_no'] ?? ($d['voucherNo'] ?? ($d['id'] ?? ''))));
                     $refs = extractAllTransfersFromRecord($d);
                     foreach ($refs as $ref) {
-                        $clean = preg_replace('/\D/', '', (string)$ref);
-                        $key = $vNo . '_' . $ref;
+                        $clean = normalizeTransferRefStrict($ref);
+                        if ($clean === '') continue;
+                        $key = $vNo . '_' . $clean;
                         if (isset($seen[$key])) continue;
                         $seen[$key] = true;
                         $results[] = [
                             'voucherNo' => $vNo,
                             'table' => $tbl,
                             'tenantId' => $r['tenant_id'],
-                            'ref' => (string)$ref,
-                            'cleanRef' => $clean ?: (string)$ref,
+                            'ref' => $clean,
+                            'cleanRef' => $clean,
                             'date' => $d['date'] ?? '',
                             'amount' => (float)($d['amountLocal'] ?? ($d['amount'] ?? 0)),
                             'bank' => $d['bankName'] ?? ($d['bank'] ?? ($d['fromAccount'] ?? ''))
@@ -576,44 +614,76 @@ window.SERVER_COST_CENTERS = <?php echo $SERVER_COST_CENTERS_json; ?>;
             padding-bottom: 6px !important;
         }
 
-        /* Crystal Red Container (المستطيل الرئيسي للصرف - منطقة من حساب) */
-        .glass-red {
+        /* Crystal Red Container (المستطيل الرئيسي للصرف - منطقة من حساب - حمراء صريحة وفاخرة) */
+        .glass-red,
+        html body .glass-container.glass-red,
+        html[data-theme] body .glass-container.glass-red,
+        html.light-theme body .glass-container.glass-red,
+        html body .account-block.glass-red,
+        html[data-theme] body .account-block.glass-red,
+        html.light-theme body .account-block.glass-red {
             position: relative; overflow: hidden;
-            background: linear-gradient(135deg, rgba(110, 30, 45, 0.75), rgba(15, 23, 42, 0.85)) !important;
-            border: 1.5px solid rgba(244, 63, 94, 0.5) !important;
-            border-right: 6px solid #f43f5e !important;
-            box-shadow: 0 14px 40px rgba(0, 0, 0, 0.55), inset 0 1px 2px rgba(244, 63, 94, 0.35), 0 0 25px rgba(244, 63, 94, 0.25) !important;
+            background: linear-gradient(135deg, rgba(185, 28, 28, 0.88) 0%, rgba(127, 29, 29, 0.92) 55%, rgba(69, 10, 10, 0.95) 100%) !important;
+            border: 2.5px solid #ef4444 !important;
+            border-right: 8px solid #ef4444 !important;
+            box-shadow: 0 14px 40px rgba(0, 0, 0, 0.55), inset 0 1px 3px rgba(254, 202, 202, 0.35), 0 0 28px rgba(239, 68, 68, 0.4) !important;
             transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1) !important;
         }
-        /* إنارة الحواف الفاخرة باللون الياقوتي الكريستالي الراقي عند التمرير أو التركيز */
+        /* إنارة الحواف الفاخرة باللون الأحمر الياقوتي المشبع عند التمرير أو التركيز */
         .glass-red:hover,
         .glass-red:focus-within,
-        #primary-inputs-container:hover,
-        #primary-inputs-container:focus-within {
-            background: linear-gradient(135deg, rgba(135, 28, 48, 0.88), rgba(15, 23, 42, 0.94)) !important;
-            border-color: rgba(244, 63, 94, 0.8) !important;
-            border-right-color: #f43f5e !important;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.75), 0 0 35px rgba(244, 63, 94, 0.38), inset 0 0 20px rgba(244, 63, 94, 0.15) !important;
+        html body .glass-container.glass-red:hover,
+        html body .glass-container.glass-red:focus-within,
+        html[data-theme] body .glass-container.glass-red:hover,
+        html[data-theme] body .glass-container.glass-red:focus-within,
+        html.light-theme body .glass-container.glass-red:hover,
+        html.light-theme body .glass-container.glass-red:focus-within,
+        html body .account-block.glass-red:hover,
+        html body .account-block.glass-red:focus-within,
+        html[data-theme] body .account-block.glass-red:hover,
+        html[data-theme] body .account-block.glass-red:focus-within,
+        html.light-theme body .account-block.glass-red:hover,
+        html.light-theme body .account-block.glass-red:focus-within {
+            background: linear-gradient(135deg, rgba(220, 38, 38, 0.92) 0%, rgba(153, 27, 27, 0.95) 55%, rgba(85, 12, 12, 0.98) 100%) !important;
+            border-color: #f87171 !important;
+            border-right-color: #ef4444 !important;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.75), 0 0 38px rgba(239, 68, 68, 0.65), inset 0 0 22px rgba(239, 68, 68, 0.25) !important;
         }
 
-        /* Crystal Green Container (مستطيلات الحسابات المستلمة - إلى حساب) */
-        .glass-green {
+        /* Crystal Green Container (مستطيلات الحسابات المستلمة - إلى حساب - خضراء خضراء صريحة وفاخرة) */
+        .glass-green,
+        html body .glass-container.glass-green,
+        html[data-theme] body .glass-container.glass-green,
+        html.light-theme body .glass-container.glass-green,
+        html body .account-block.glass-green,
+        html[data-theme] body .account-block.glass-green,
+        html.light-theme body .account-block.glass-green {
             position: relative; overflow: hidden;
-            background: linear-gradient(135deg, rgba(16, 60, 40, 0.85), rgba(15, 23, 42, 0.95)) !important;
-            border: 1px solid rgba(39, 174, 96, 0.45) !important;
-            border-right: 5px solid #27ae60 !important;
-            box-shadow: 0 14px 40px rgba(0, 0, 0, 0.55), inset 0 1px 2px rgba(39, 174, 96, 0.35), 0 0 25px rgba(39, 174, 96, 0.2) !important;
+            background: linear-gradient(135deg, rgba(5, 150, 105, 0.88) 0%, rgba(4, 120, 87, 0.92) 55%, rgba(6, 78, 59, 0.96) 100%) !important;
+            border: 2.5px solid #10b981 !important;
+            border-right: 8px solid #10b981 !important;
+            box-shadow: 0 14px 40px rgba(0, 0, 0, 0.55), inset 0 1px 3px rgba(167, 243, 208, 0.35), 0 0 28px rgba(16, 185, 129, 0.42) !important;
             transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1) !important;
         }
-        /* إضاءة الحواف التلقائية بمجرد قدوم المؤشر إلى حساب */
+        /* إضاءة الحواف الخضراء الزمردية التلقائية بمجرد قدوم المؤشر إلى منطقة الاستلام */
         .glass-green:hover,
         .glass-green:focus-within,
-        .account-block:hover,
-        .account-block:focus-within {
-            background: linear-gradient(135deg, rgba(20, 75, 50, 0.9), rgba(15, 23, 42, 0.98)) !important;
+        html body .glass-container.glass-green:hover,
+        html body .glass-container.glass-green:focus-within,
+        html[data-theme] body .glass-container.glass-green:hover,
+        html[data-theme] body .glass-container.glass-green:focus-within,
+        html.light-theme body .glass-container.glass-green:hover,
+        html.light-theme body .glass-container.glass-green:focus-within,
+        html body .account-block.glass-green:hover,
+        html body .account-block.glass-green:focus-within,
+        html[data-theme] body .account-block.glass-green:hover,
+        html[data-theme] body .account-block.glass-green:focus-within,
+        html.light-theme body .account-block.glass-green:hover,
+        html.light-theme body .account-block.glass-green:focus-within {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.92) 0%, rgba(5, 150, 105, 0.95) 55%, rgba(6, 95, 70, 0.98) 100%) !important;
             border-color: #34d399 !important;
             border-right-color: #10b981 !important;
-            box-shadow: 0 20px 55px rgba(0, 0, 0, 0.8), 0 0 35px rgba(16, 185, 129, 0.85), 0 0 70px rgba(5, 150, 105, 0.45), inset 0 0 20px rgba(52, 211, 153, 0.25) !important;
+            box-shadow: 0 20px 55px rgba(0, 0, 0, 0.8), 0 0 38px rgba(16, 185, 129, 0.85), 0 0 70px rgba(5, 150, 105, 0.45), inset 0 0 22px rgba(52, 211, 153, 0.28) !important;
             transform: translateY(-3px) scale(1.005) !important;
         }
 
@@ -1130,10 +1200,10 @@ window.SERVER_COST_CENTERS = <?php echo $SERVER_COST_CENTERS_json; ?>;
         }
 
         .btn-print-preview {
-            --tab-border-color: #22d3ee;
-            --tab-glow-color: rgba(6, 182, 212, 0.85);
-            background: linear-gradient(135deg, rgba(6, 182, 212, 0.3), rgba(14, 116, 144, 0.6)) !important;
-            border: 3.5px solid #22d3ee !important;
+            --tab-border-color: #fde047;
+            --tab-glow-color: rgba(245, 158, 11, 0.85);
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 52%, #b45309 100%) !important;
+            border: 3.5px solid #fde047 !important;
             border-radius: 14px !important;
             color: #ffffff !important;
             text-shadow: none !important;
@@ -1143,8 +1213,8 @@ window.SERVER_COST_CENTERS = <?php echo $SERVER_COST_CENTERS_json; ?>;
             background: #000000 !important;
             background-image: none !important;
             color: #ffffff !important;
-            border: 3.5px solid #22d3ee !important;
-            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.75), 0 0 12px rgba(6, 182, 212, 0.85), 0 0 24px rgba(6, 182, 212, 0.45) !important;
+            border: 3.5px solid #fde047 !important;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.75), 0 0 12px rgba(245, 158, 11, 0.85), 0 0 24px rgba(245, 158, 11, 0.45) !important;
             text-shadow: none !important;
             transform: translateY(-4px) scale(1.06) !important;
         }
@@ -1209,23 +1279,26 @@ window.SERVER_COST_CENTERS = <?php echo $SERVER_COST_CENTERS_json; ?>;
             text-shadow: none !important;
         }
 
-        /* ═══ زر الواتساب كأيقونة فقط في السطر الموحد ═══ */
+        /* ═══ زر الواتساب البارز مع النص الواضح في السطر الموحد ═══ */
         .btn-whatsapp-icon-only {
             --tab-border-color: #25d366;
             --tab-glow-color: rgba(37, 211, 102, 0.85);
-            background: linear-gradient(135deg, rgba(37, 211, 102, 0.28), rgba(18, 140, 126, 0.55)) !important;
-            border: 2.2px solid #25d366 !important;
-            border-radius: 12px !important;
+            background: linear-gradient(135deg, #22c55e 0%, #16a34a 52%, #15803d 100%) !important;
+            border: 2.2px solid #86efac !important;
+            border-radius: 14px !important;
             color: #ffffff !important;
-            width: 44px !important;
-            height: 42px !important;
-            min-width: 44px !important;
-            padding: 0 !important;
+            width: auto !important;
+            height: 52px !important;
+            min-width: 140px !important;
+            padding: 0 22px !important;
+            font-size: 1.18rem !important;
+            font-weight: 900 !important;
+            gap: 10px !important;
             display: inline-flex !important;
             align-items: center !important;
             justify-content: center !important;
             cursor: pointer !important;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5), 0 0 12px rgba(37, 211, 102, 0.35) !important;
+            box-shadow: 0 5px 16px rgba(0, 0, 0, 0.5), 0 0 16px rgba(37, 211, 102, 0.45) !important;
             flex-shrink: 0 !important;
             transition: all 0.25s ease !important;
         }
@@ -1285,22 +1358,18 @@ window.SERVER_COST_CENTERS = <?php echo $SERVER_COST_CENTERS_json; ?>;
         }
 
         .glass-red:hover,
-        .glass-red:focus-within,
-        #primary-inputs-container:hover,
-        #primary-inputs-container:focus-within {
-            --block-glow-color: rgba(244, 63, 94, 0.45);
-            border-color: rgba(244, 63, 94, 0.8) !important;
-            border-right-color: #f43f5e !important;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.75), 0 0 35px rgba(244, 63, 94, 0.38), inset 0 0 20px rgba(244, 63, 94, 0.15) !important;
+        .glass-red:focus-within {
+            --block-glow-color: rgba(239, 68, 68, 0.65);
+            border-color: #f87171 !important;
+            border-right-color: #ef4444 !important;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.75), 0 0 38px rgba(239, 68, 68, 0.65), inset 0 0 22px rgba(239, 68, 68, 0.25) !important;
         }
         .glass-green:hover,
-        .glass-green:focus-within,
-        .account-block:hover,
-        .account-block:focus-within {
+        .glass-green:focus-within {
             --block-glow-color: rgba(16, 185, 129, 0.85);
             border-color: #34d399 !important;
             border-right-color: #10b981 !important;
-            box-shadow: 0 20px 55px rgba(0, 0, 0, 0.8), 0 0 35px rgba(16, 185, 129, 0.85), 0 0 70px rgba(5, 150, 105, 0.45), inset 0 0 20px rgba(52, 211, 153, 0.25) !important;
+            box-shadow: 0 20px 55px rgba(0, 0, 0, 0.8), 0 0 38px rgba(16, 185, 129, 0.85), 0 0 70px rgba(5, 150, 105, 0.45), inset 0 0 22px rgba(52, 211, 153, 0.28) !important;
         }
 
         .block-cash-details:hover {
@@ -2620,6 +2689,19 @@ window.SERVER_COST_CENTERS = <?php echo $SERVER_COST_CENTERS_json; ?>;
                         <span style="white-space: nowrap;">إشعارات بنكك</span>
                         <span id="inbound-receipts-badge-count" style="background: #ef4444; color: #ffffff; padding: 1px 7px; border-radius: 10px; font-size: 0.75rem; font-weight: 900; box-shadow: 0 0 8px rgba(239,68,68,0.8); display: inline-block;">0</span>
                     </button>
+
+                    <!-- أدوات البرامج المحاسبية العالمية (توزيع المبالغ / لصق إكسل / قوالب متكررة) -->
+                    <div style="display: flex; align-items: center; gap: 6px; flex-shrink: 0; margin-right: auto;">
+                        <button type="button" class="btn crystal-btn" onclick="if(typeof window.openEqualSplitModal === 'function') window.openEqualSplitModal()" style="height: 38px; padding: 0 11px; border-radius: 8px; font-weight: 800; font-size: 0.84rem; background: linear-gradient(135deg, rgba(245, 158, 11, 0.25), rgba(180, 83, 9, 0.4)); border: 1.5px solid #fbbf24 !important; color: #fef08a; display: inline-flex; align-items: center; gap: 5px; cursor: pointer;" title="توزيع مبلغ إجمالي بالتساوي أو بالنسب على الحسابات المضافة">
+                            <span>⚖️</span> <span>توزيع مبلغ</span>
+                        </button>
+                        <button type="button" class="btn crystal-btn" onclick="if(typeof window.openExcelPasteModal === 'function') window.openExcelPasteModal()" style="height: 38px; padding: 0 11px; border-radius: 8px; font-weight: 800; font-size: 0.84rem; background: linear-gradient(135deg, rgba(56, 189, 248, 0.25), rgba(3, 105, 161, 0.4)); border: 1.5px solid #38bdf8 !important; color: #e0f2fe; display: inline-flex; align-items: center; gap: 5px; cursor: pointer;" title="استيراد ولصق دفعة حسابات ومبالغ مباشرة من Excel">
+                            <span>📋</span> <span>لصق إكسل</span>
+                        </button>
+                        <button type="button" class="btn crystal-btn" onclick="if(typeof window.openBatchTemplatesModal === 'function') window.openBatchTemplatesModal()" style="height: 38px; padding: 0 11px; border-radius: 8px; font-weight: 800; font-size: 0.84rem; background: linear-gradient(135deg, rgba(168, 85, 247, 0.25), rgba(109, 40, 217, 0.4)); border: 1.5px solid #c084fc !important; color: #f3e8ff; display: inline-flex; align-items: center; gap: 5px; cursor: pointer;" title="حفظ أو استدعاء قوالب الحركات المجمعة المتكررة (رواتب، إيجارات، عهد...)">
+                            <span>⭐</span> <span>القوالب</span>
+                        </button>
+                    </div>
                 </div>
 
                 <!-- Primary Inputs Glass Container -->
@@ -2635,6 +2717,7 @@ window.SERVER_COST_CENTERS = <?php echo $SERVER_COST_CENTERS_json; ?>;
                                 <button type="button" class="btn-statement-glow" onclick="openLedgerForMainAccount()" title="دفتر الأستاذ العام"><i class="fa fa-book" style="margin-left: 4px;"></i> كشف حساب</button>
                                 <div class="custom-dropdown-list" id="main-account-dropdown-list" style="position: absolute; top: 100%; left: 0; right: 0; margin-top: 5px; z-index: 9999;"></div>
                             </div>
+                            <div id="main-account-live-bal" style="display: none; align-items: center; justify-content: space-between; gap: 8px; margin-top: 6px; padding: 5px 12px; border-radius: 8px; background: rgba(15, 23, 42, 0.78); border: 1.5px solid rgba(251, 191, 36, 0.45); font-size: 0.86rem; font-weight: 800; color: #fef08a; flex-wrap: wrap;"></div>
                         </div>
 
                         <div style="flex: 0.8; min-width: 90px;">
@@ -2717,6 +2800,7 @@ window.SERVER_COST_CENTERS = <?php echo $SERVER_COST_CENTERS_json; ?>;
                                     <button type="button" class="btn-statement-glow" onclick="openLedgerForBlockAccount('{ID}')" title="دفتر الأستاذ العام"><i class="fa fa-book" style="margin-left: 4px;"></i> كشف حساب</button>
                                     <div class="custom-dropdown-list" id="account-{ID}-dropdown-list" style="position: absolute; top: 100%; left: 0; right: 0; margin-top: 5px; z-index: 9999;"></div>
                                 </div>
+                                <div id="account-{ID}-live-bal" class="block-account-live-bal" style="display: none; align-items: center; justify-content: space-between; gap: 8px; margin-top: 5px; padding: 4px 10px; border-radius: 8px; background: rgba(15, 23, 42, 0.78); border: 1.5px solid rgba(52, 211, 153, 0.45); font-size: 0.84rem; font-weight: 800; color: #a7f3d0; flex-wrap: wrap;"></div>
                             </div>
                             
                             <!-- Hidden Total Amount (للحفاظ على العمليات الحسابية بدون إظهار خانة المبلغ الملغية) -->
@@ -2736,7 +2820,7 @@ window.SERVER_COST_CENTERS = <?php echo $SERVER_COST_CENTERS_json; ?>;
                                 </div>
                             </div>
                             
-                            <!-- ═══ Unified 5-Icon Base (قاعدة الأيقونات الموحدة) ═══ -->
+                            <!-- ═══ Unified 6-Icon Base (قاعدة الأيقونات الموحدة: نقدي + تحويل + شيك + AI + واتساب + نماذج) ═══ -->
                             <div class="crystal-unified-dock" style="flex: 2.2; min-width: 320px;">
                                 <div style="display: flex; gap: 6px; align-items: center; width: 100%;">
                                     <button type="button" class="btn crystal-btn btn-dock-btn block-btn-ai-scan" onclick="FinancialOCR.openScanner({ target: 'multi', blockId: '{ID}' })" title="مسح وقراءة إشعار التحويل البنكي بالذكاء الاصطناعي">
@@ -2754,6 +2838,9 @@ window.SERVER_COST_CENTERS = <?php echo $SERVER_COST_CENTERS_json; ?>;
                                     </button>
                                 </div>
                                 <div style="display: flex; gap: 6px; align-items: center; width: 100%;">
+                                    <button type="button" id="pm-cash-{ID}" class="btn crystal-btn pay-toggle-btn btn-dock-btn block-btn-cash" data-action="toggle-pm" data-block="{ID}" data-method="cash" title="نقدي / قيد مباشر بدون رقم تحويلة" style="border: 3.5px solid #10b981 !important; background: linear-gradient(135deg, rgba(16, 185, 129, 0.35), rgba(5, 150, 105, 0.65)) !important;">
+                                        <span class="btn-icon">💵</span> <span class="btn-text">نقدي</span>
+                                    </button>
                                     <button type="button" id="pm-bank-{ID}" class="btn crystal-btn pay-toggle-btn btn-dock-btn block-btn-bank" data-action="toggle-pm" data-block="{ID}" data-method="bank" title="تحويل بنكي">
                                         <span class="btn-icon">🏦</span> <span class="btn-text">تحويل</span>
                                     </button>
@@ -2778,6 +2865,19 @@ window.SERVER_COST_CENTERS = <?php echo $SERVER_COST_CENTERS_json; ?>;
                         </div>
 
                         <!-- Dynamic Details Sections -->
+                        <!-- Cash / Direct Details (نقدي / قيد مباشر) -->
+                        <div id="cash-details-{ID}" class="block-cash-details" style="display: none; border-radius: 12px; padding: 10px; margin-bottom: 8px; animation: rowSlideIn 0.3s ease; backdrop-filter: blur(12px); background: linear-gradient(135deg, rgba(6, 78, 59, 0.72), rgba(16, 185, 129, 0.22)); border: 1.5px solid #10b981; box-shadow: 0 8px 25px rgba(0,0,0,0.45);">
+                            <div class="cash-row" style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                                <div style="width: 80px; font-weight: bold; color: #6ee7b7; display: flex; align-items: center; gap: 5px; flex-shrink: 0;">💵 نقدي</div>
+                                <div style="flex: 1.5; min-width: 150px;">
+                                    <input type="text" autocomplete="off" id="cash-amount-{ID}" class="form-input block-cash-amount block-sub-amount" data-block-id="{ID}" placeholder="المبلغ النقدي" style="margin-bottom: 0; font-family: 'Consolas', monospace; font-weight: 900; text-align: center; background: rgba(15, 23, 42, 0.88) !important; border: 3.5px solid #10b981 !important; border-radius: 12px !important; height: 62px !important; font-size: 3.1rem !important; color: #ffffff !important;">
+                                </div>
+                                <div style="flex: 3; min-width: 200px;">
+                                    <input type="text" autocomplete="off" class="form-input block-cash-desc-input" placeholder="بيان الدفع النقدي / الملاحظات (اختياري)..." style="margin-bottom: 0; height: 62px !important; font-size: 1.35rem !important; font-weight: bold;">
+                                </div>
+                            </div>
+                        </div>
+
                         <!-- Bank Details (supports multiple transfers) -->
                         <div id="bank-details-{ID}" class="block-bank-details" style="display: none; border-radius: 12px; padding: 10px; margin-bottom: 8px; animation: rowSlideIn 0.3s ease; backdrop-filter: blur(12px);">
                             <div class="bank-rows-container" id="bank-rows-{ID}">
@@ -2845,27 +2945,32 @@ window.SERVER_COST_CENTERS = <?php echo $SERVER_COST_CENTERS_json; ?>;
 
             <style>
                 .footer-actions.unified-footer-bar .btn {
-                    height: 42px !important;
-                    font-size: 0.92rem !important;
-                    padding: 0 18px !important;
+                    height: 52px !important;
+                    font-size: 1.15rem !important;
+                    padding: 0 22px !important;
                     display: inline-flex !important;
                     align-items: center !important;
                     justify-content: center !important;
-                    gap: 6px !important;
-                    border-radius: 12px !important;
+                    gap: 8px !important;
+                    border-radius: 14px !important;
                     box-sizing: border-box !important;
                     white-space: nowrap !important;
+                    font-weight: 900 !important;
                 }
                 .footer-actions.unified-footer-bar .btn-save-master {
-                    font-size: 0.98rem !important;
-                    padding: 0 24px !important;
+                    height: 54px !important;
+                    font-size: 1.22rem !important;
+                    padding: 0 28px !important;
                     font-weight: 900 !important;
                 }
                 .footer-actions.unified-footer-bar .btn-whatsapp-icon-only {
-                    width: 44px !important;
-                    height: 42px !important;
-                    min-width: 44px !important;
-                    padding: 0 !important;
+                    width: auto !important;
+                    height: 52px !important;
+                    min-width: 140px !important;
+                    padding: 0 22px !important;
+                    gap: 10px !important;
+                    font-size: 1.18rem !important;
+                    font-weight: 900 !important;
                 }
                 
                 /* Auto-Send Control Button & Options in Footer */
@@ -2876,28 +2981,28 @@ window.SERVER_COST_CENTERS = <?php echo $SERVER_COST_CENTERS_json; ?>;
                     direction: rtl !important;
                 }
                 .footer-actions.unified-footer-bar #btn-toggle-auto-send {
-                    height: 42px !important;
-                    font-size: 0.88rem !important;
-                    padding: 0 14px 0 10px !important;
-                    border-radius: 0 12px 12px 0 !important;
+                    height: 52px !important;
+                    font-size: 1.05rem !important;
+                    padding: 0 18px 0 14px !important;
+                    border-radius: 0 14px 14px 0 !important;
                     border-left: none !important;
-                    font-weight: 800 !important;
+                    font-weight: 900 !important;
                     cursor: pointer !important;
                     white-space: nowrap !important;
                     transition: all 0.25s ease !important;
                 }
                 .footer-actions.unified-footer-bar #btn-auto-send-options {
-                    height: 42px !important;
-                    width: 28px !important;
-                    min-width: 28px !important;
+                    height: 52px !important;
+                    width: 36px !important;
+                    min-width: 36px !important;
                     padding: 0 !important;
-                    border-radius: 12px 0 0 12px !important;
-                    border-right: 1px solid rgba(255, 255, 255, 0.2) !important;
+                    border-radius: 14px 0 0 14px !important;
+                    border-right: 1px solid rgba(255, 255, 255, 0.25) !important;
                     display: inline-flex !important;
                     align-items: center !important;
                     justify-content: center !important;
                     cursor: pointer !important;
-                    font-size: 0.72rem !important;
+                    font-size: 0.85rem !important;
                     transition: all 0.25s ease !important;
                 }
                 .btn-auto-send-toggle.active,
@@ -3025,30 +3130,195 @@ window.SERVER_COST_CENTERS = <?php echo $SERVER_COST_CENTERS_json; ?>;
                 :root.light-theme .text-sky-400, :root.light-theme span[style*="color: #38bdf8"], :root.light-theme span[style*="color:#38bdf8"] { color: #0284c7 !important; }
                 :root.light-theme .text-purple-400, :root.light-theme span[style*="color: #c084fc"], :root.light-theme span[style*="color:#c084fc"] { color: #7c3aed !important; }
                 :root.light-theme .text-amber-400, :root.light-theme span[style*="color: #fbbf24"], :root.light-theme span[style*="color:#fbbf24"] { color: #b45309 !important; }
+
+                /* ═══ تثبيت الألوان الصريحة والفاخرة لمنطقة الصرف (حمراء) ومنطقة الاستلام (خضراء خضراء) عبر كافة الثيمات ═══ */
+                html body .glass-container.glass-red,
+                html[data-theme] body .glass-container.glass-red,
+                html.light-theme body .glass-container.glass-red,
+                html body .account-block.glass-red,
+                html[data-theme] body .account-block.glass-red,
+                html.light-theme body .account-block.glass-red {
+                    background: linear-gradient(135deg, rgba(185, 28, 28, 0.90) 0%, rgba(127, 29, 29, 0.94) 55%, rgba(69, 10, 10, 0.97) 100%) !important;
+                    border: 2.5px solid #ef4444 !important;
+                    border-right: 8px solid #ef4444 !important;
+                    box-shadow: 0 14px 40px rgba(0, 0, 0, 0.45), inset 0 1px 3px rgba(254, 202, 202, 0.35), 0 0 28px rgba(239, 68, 68, 0.42) !important;
+                    color: #ffffff !important;
+                }
+                html body .glass-container.glass-red:hover,
+                html body .glass-container.glass-red:focus-within,
+                html[data-theme] body .glass-container.glass-red:hover,
+                html[data-theme] body .glass-container.glass-red:focus-within,
+                html.light-theme body .glass-container.glass-red:hover,
+                html.light-theme body .glass-container.glass-red:focus-within,
+                html body .account-block.glass-red:hover,
+                html body .account-block.glass-red:focus-within,
+                html[data-theme] body .account-block.glass-red:hover,
+                html[data-theme] body .account-block.glass-red:focus-within,
+                html.light-theme body .account-block.glass-red:hover,
+                html.light-theme body .account-block.glass-red:focus-within {
+                    background: linear-gradient(135deg, rgba(220, 38, 38, 0.94) 0%, rgba(153, 27, 27, 0.96) 55%, rgba(85, 12, 12, 0.99) 100%) !important;
+                    border-color: #f87171 !important;
+                    border-right-color: #ef4444 !important;
+                    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.65), 0 0 38px rgba(239, 68, 68, 0.72), inset 0 0 22px rgba(239, 68, 68, 0.28) !important;
+                }
+
+                html body .glass-container.glass-green,
+                html[data-theme] body .glass-container.glass-green,
+                html.light-theme body .glass-container.glass-green,
+                html body .account-block.glass-green,
+                html[data-theme] body .account-block.glass-green,
+                html.light-theme body .account-block.glass-green {
+                    background: linear-gradient(135deg, rgba(5, 150, 105, 0.90) 0%, rgba(4, 120, 87, 0.94) 55%, rgba(6, 78, 59, 0.97) 100%) !important;
+                    border: 2.5px solid #10b981 !important;
+                    border-right: 8px solid #10b981 !important;
+                    box-shadow: 0 14px 40px rgba(0, 0, 0, 0.45), inset 0 1px 3px rgba(167, 243, 208, 0.35), 0 0 28px rgba(16, 185, 129, 0.45) !important;
+                    color: #ffffff !important;
+                }
+                html body .glass-container.glass-green:hover,
+                html body .glass-container.glass-green:focus-within,
+                html[data-theme] body .glass-container.glass-green:hover,
+                html[data-theme] body .glass-container.glass-green:focus-within,
+                html.light-theme body .glass-container.glass-green:hover,
+                html.light-theme body .glass-container.glass-green:focus-within,
+                html body .account-block.glass-green:hover,
+                html body .account-block.glass-green:focus-within,
+                html[data-theme] body .account-block.glass-green:hover,
+                html[data-theme] body .account-block.glass-green:focus-within,
+                html.light-theme body .account-block.glass-green:hover,
+                html.light-theme body .account-block.glass-green:focus-within {
+                    background: linear-gradient(135deg, rgba(16, 185, 129, 0.94) 0%, rgba(5, 150, 105, 0.96) 55%, rgba(6, 95, 70, 0.99) 100%) !important;
+                    border-color: #34d399 !important;
+                    border-right-color: #10b981 !important;
+                    box-shadow: 0 20px 55px rgba(0, 0, 0, 0.7), 0 0 40px rgba(16, 185, 129, 0.85), 0 0 70px rgba(5, 150, 105, 0.45), inset 0 0 22px rgba(52, 211, 153, 0.3) !important;
+                }
+
+                /* وضوح النصوص والعناوين وحقول الإدخال داخل منطقتي الصرف (الحمراء) والاستلام (الخضراء) */
+                html body .glass-red label,
+                html.light-theme body .glass-red label {
+                    color: #fecaca !important;
+                }
+                html body .glass-red #main-account-label,
+                html.light-theme body .glass-red #main-account-label,
+                html body .glass-red .block-label,
+                html.light-theme body .glass-red .block-label {
+                    color: #ffe4e6 !important;
+                }
+                html body .glass-green label,
+                html.light-theme body .glass-green label {
+                    color: #d1fae5 !important;
+                }
+                html body .glass-green #main-account-label,
+                html.light-theme body .glass-green #main-account-label,
+                html body .glass-green .block-label,
+                html.light-theme body .glass-green .block-label {
+                    color: #a7f3d0 !important;
+                }
+                html body .glass-red #main-account-search,
+                html.light-theme body .glass-red #main-account-search,
+                html body .glass-red .block-account-search,
+                html.light-theme body .glass-red .block-account-search {
+                    background: rgba(69, 10, 10, 0.85) !important;
+                    color: #fef08a !important;
+                    -webkit-text-fill-color: #fef08a !important;
+                    border: 2px solid #f87171 !important;
+                }
+                html body .glass-red #main-account-search::placeholder,
+                html body .glass-red .block-account-search::placeholder {
+                    color: rgba(254, 202, 202, 0.78) !important;
+                }
+                html body .glass-green #main-account-search,
+                html.light-theme body .glass-green #main-account-search,
+                html body .glass-green .block-account-search,
+                html.light-theme body .glass-green .block-account-search {
+                    background: rgba(6, 78, 59, 0.88) !important;
+                    color: #fef08a !important;
+                    -webkit-text-fill-color: #fef08a !important;
+                    border: 2px solid #34d399 !important;
+                }
+                html body .glass-green #main-account-search::placeholder,
+                html body .glass-green .block-account-search::placeholder {
+                    color: rgba(167, 243, 208, 0.78) !important;
+                }
+                html body .glass-red #grand-tafqeet-container,
+                html.light-theme body .glass-red #grand-tafqeet-container,
+                html body .glass-red .mcp-voucher-desc-bar,
+                html.light-theme body .glass-red .mcp-voucher-desc-bar,
+                html body .glass-green #grand-tafqeet-container,
+                html.light-theme body .glass-green #grand-tafqeet-container,
+                html body .glass-green .mcp-voucher-desc-bar,
+                html.light-theme body .glass-green .mcp-voucher-desc-bar,
+                html body .account-block .block-tafqeet-row,
+                html.light-theme body .account-block .block-tafqeet-row {
+                    background: rgba(15, 23, 42, 0.65) !important;
+                    border-color: rgba(251, 191, 36, 0.4) !important;
+                    color: #fef08a !important;
+                }
+                html body #grand-tafqeet-text,
+                html.light-theme body #grand-tafqeet-text,
+                html body .block-tafqeet-text,
+                html.light-theme body .block-tafqeet-text {
+                    color: #fef08a !important;
+                }
+                html body .account-block input.block-cash-amount,
+                html.light-theme body .account-block input.block-cash-amount,
+                html body .account-block input.block-bank-amount,
+                html.light-theme body .account-block input.block-bank-amount,
+                html body .account-block input.block-cheque-amount,
+                html.light-theme body .account-block input.block-cheque-amount {
+                    background: rgba(15, 23, 42, 0.88) !important;
+                }
             </style>
 
+            <!-- ═══ World-Class ERP Live Summary & Audit Strip (شريط الرقابة والملخص المالي اللحظي) ═══ -->
+            <div id="mcp-world-summary-bar" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; background: linear-gradient(135deg, rgba(15, 23, 42, 0.92), rgba(30, 41, 59, 0.94)); border: 1.5px solid rgba(56, 189, 248, 0.35); border-radius: 12px; padding: 10px 18px; margin-top: 12px; box-shadow: 0 6px 20px rgba(0,0,0,0.4);">
+                <div style="display: flex; align-items: center; gap: 14px; flex-wrap: wrap;">
+                    <div style="display: inline-flex; align-items: center; gap: 6px; background: rgba(56, 189, 248, 0.12); border: 1px solid rgba(56, 189, 248, 0.35); padding: 4px 12px; border-radius: 8px; color: #e0f2fe; font-size: 0.88rem; font-weight: 800;">
+                        <span>👥 عدد الجهات:</span>
+                        <span id="mcp-sum-parties" style="color: #38bdf8; font-family: monospace; font-size: 1.05rem; font-weight: 900;">1</span>
+                    </div>
+                    <div style="display: inline-flex; align-items: center; gap: 6px; background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.35); padding: 4px 12px; border-radius: 8px; color: #d1fae5; font-size: 0.88rem; font-weight: 800;">
+                        <span>💵 نقدي:</span>
+                        <span id="mcp-sum-cash" style="color: #34d399; font-family: monospace; font-size: 1.05rem; font-weight: 900;">0</span>
+                    </div>
+                    <div style="display: inline-flex; align-items: center; gap: 6px; background: rgba(245, 158, 11, 0.12); border: 1px solid rgba(245, 158, 11, 0.35); padding: 4px 12px; border-radius: 8px; color: #fef3c7; font-size: 0.88rem; font-weight: 800;">
+                        <span>🏦 تحويلات (<b id="mcp-sum-bank-count">0</b>):</span>
+                        <span id="mcp-sum-bank" style="color: #fbbf24; font-family: monospace; font-size: 1.05rem; font-weight: 900;">0</span>
+                    </div>
+                    <div style="display: inline-flex; align-items: center; gap: 6px; background: rgba(168, 85, 247, 0.12); border: 1px solid rgba(168, 85, 247, 0.35); padding: 4px 12px; border-radius: 8px; color: #f3e8ff; font-size: 0.88rem; font-weight: 800;">
+                        <span>✍️ شيكات (<b id="mcp-sum-cheque-count">0</b>):</span>
+                        <span id="mcp-sum-cheque" style="color: #c084fc; font-family: monospace; font-size: 1.05rem; font-weight: 900;">0</span>
+                    </div>
+                </div>
+                <div style="display: inline-flex; align-items: center; gap: 8px; background: rgba(239, 68, 68, 0.15); border: 1.5px solid #ef4444; padding: 5px 16px; border-radius: 10px; color: #ffffff; font-size: 0.95rem; font-weight: 900;">
+                    <span>💰 صافي السند:</span>
+                    <span id="mcp-sum-grand" style="color: #fef08a; font-family: monospace; font-size: 1.2rem; font-weight: 900;">0.00</span>
+                    <span id="mcp-sum-curr" style="color: #fca5a5; font-size: 0.85rem;">SDG</span>
+                </div>
+            </div>
+
             <!-- Action Buttons Section Integrated Into Main Card (Single Unified Row) -->
-            <div style="padding: 12px 0 6px 0; border-top: 1px solid rgba(255,255,255,0.06); display: flex; justify-content: center; align-items: center; margin-top: 8px; width: 100%;">
-                <div class="footer-actions unified-footer-bar" style="display: flex; gap: 10px; flex-wrap: nowrap; justify-content: center; width: auto; max-width: 100%; align-items: center; padding: 4px 6px;">
-                    <button type="button" class="btn crystal-btn btn-new" onclick="resetVoucher()" title="بدء مستند جديد وتصفير الخانات" style="height: 42px; padding: 0 18px; border-radius: 12px; font-weight: 800; font-size: 0.92rem; white-space: nowrap; display: inline-flex; align-items: center; gap: 6px;">
+            <div style="padding: 14px 0 8px 0; border-top: 1px solid rgba(255,255,255,0.08); display: flex; justify-content: center; align-items: center; margin-top: 10px; width: 100%;">
+                <div class="footer-actions unified-footer-bar" style="display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; width: auto; max-width: 100%; align-items: center; padding: 6px 10px;">
+                    <button type="button" class="btn crystal-btn royal-btn-new btn-new" onclick="resetVoucher()" title="بدء مستند جديد وتصفير الخانات">
                         <span>✨</span> <span>مستند جديد</span>
                     </button>
-                    <button type="button" class="btn crystal-btn btn-print" onclick="directPrint()" title="طباعة فورية للسند المالي" style="height: 42px; padding: 0 18px; border-radius: 12px; font-weight: 800; font-size: 0.92rem; white-space: nowrap; display: inline-flex; align-items: center; gap: 6px;">
-                        <span>🖨️</span> <span>طباعة</span>
-                    </button>
-                    <button type="button" class="btn crystal-btn btn-print-preview" onclick="printVoucher()" title="معاينة طباعة السند المالي" style="height: 42px; padding: 0 18px; border-radius: 12px; font-weight: 800; font-size: 0.92rem; white-space: nowrap; display: inline-flex; align-items: center; gap: 6px;">
+                    <button type="button" class="btn crystal-btn royal-btn-preview btn-print-preview" onclick="printVoucher()" title="معاينة طباعة السند المالي">
                         <span>👁️</span> <span>معاينة</span>
                     </button>
+                    <button type="button" class="btn crystal-btn royal-btn-print btn-print" onclick="directPrint()" title="طباعة فورية للسند المالي">
+                        <span>🖨️</span> <span>طباعة</span>
+                    </button>
                     
-                    <!-- زر الواتساب - يظهر كشعار واتساب رسمي احترافي -->
-                    <button type="button" class="btn crystal-btn btn-whatsapp-icon-only" id="btn-whatsapp-master" onclick="openMasterWhatsAppDispatchModal()" title="إرسال كمبيالة وإشعار السند عبر واتساب">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" style="display: block;">
+                    <!-- زر الواتساب - يظهر كشعار واتساب رسمي احترافي مع النص واضحاً -->
+                    <button type="button" class="btn crystal-btn royal-btn-whatsapp btn-whatsapp-icon-only" id="btn-whatsapp-master" onclick="openMasterWhatsAppDispatchModal()" title="إرسال كمبيالة وإشعار السند عبر واتساب">
+                        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" style="display: block; flex-shrink: 0;">
                             <path fill-rule="evenodd" clip-rule="evenodd" d="M12 0C5.373 0 0 5.373 0 12c0 2.115.552 4.103 1.516 5.832L.057 24l6.34-1.662A11.95 11.95 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0z" fill="#25D366"/>
                             <path fill-rule="evenodd" clip-rule="evenodd" d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" fill="#ffffff"/>
                         </svg>
+                        <span style="font-size: 1.18rem; font-weight: 900; color: #ffffff; letter-spacing: 0.3px;">واتساب</span>
                     </button>
 
-                    <button type="button" class="btn crystal-btn btn-delete" onclick="confirmDelete()" title="حذف هذا المستند" style="height: 42px; padding: 0 16px; border-radius: 12px; font-weight: 800; font-size: 0.92rem; white-space: nowrap; display: inline-flex; align-items: center; gap: 6px;">
+                    <button type="button" class="btn crystal-btn royal-btn-delete btn-delete" onclick="confirmDelete()" title="حذف هذا المستند">
                         <span>🗑️</span> <span>حذف المستند</span>
                     </button>
 
@@ -3083,7 +3353,7 @@ window.SERVER_COST_CENTERS = <?php echo $SERVER_COST_CENTERS_json; ?>;
                         </div>
                     </div>
 
-                    <button type="button" class="btn crystal-btn btn-save-master" id="btn-save" onclick="saveVoucher()" title="حفظ واعتماد وترحيل السند المالي" style="height: 42px; padding: 0 22px; border-radius: 12px; font-weight: 900; font-size: 0.98rem; white-space: nowrap; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 4px 18px rgba(16, 185, 129, 0.45);">
+                    <button type="button" class="btn crystal-btn royal-btn-save btn-save-master" id="btn-save" onclick="saveVoucher()" title="حفظ واعتماد وترحيل السند المالي" style="height: 54px; padding: 0 28px; border-radius: 14px; font-weight: 900; font-size: 1.22rem; white-space: nowrap; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 6px 22px rgba(16, 185, 129, 0.5);">
                         <span>✅</span> <span>حفظ واعتماد السند</span>
                     </button>
                 </div>
@@ -4597,8 +4867,23 @@ window.SERVER_COST_CENTERS = <?php echo $SERVER_COST_CENTERS_json; ?>;
         }
     }, true);
     
-    // Periodically apply styles to newly added rows dynamically
-    setInterval(applyNumPropsToAll, 1000);
+    // Apply styles dynamically when DOM blocks/rows are added (Zero-Polling MutationObserver)
+    document.addEventListener('DOMContentLoaded', function() {
+        const blocksContainer = document.getElementById('accounts-blocks-container');
+        if (blocksContainer && typeof MutationObserver !== 'undefined') {
+            let rafPending = false;
+            const obs = new MutationObserver(function() {
+                if (!rafPending) {
+                    rafPending = true;
+                    requestAnimationFrame(function() {
+                        rafPending = false;
+                        applyNumPropsToAll();
+                    });
+                }
+            });
+            obs.observe(blocksContainer, { childList: true, subtree: true });
+        }
+    });
     </script>
     <!-- Inbound Bankak Receipts Drawer Component -->
     <?php include 'includes/inbound-bankak-drawer.php'; ?>

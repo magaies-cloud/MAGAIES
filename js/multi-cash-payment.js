@@ -1007,6 +1007,7 @@ window.toggleBlockPaymentMethod = function(blockId, method) {
     } else {
         btn.classList.add('active');
         details.style.display = 'block';
+        recalcBlockTotal(blockId);
     }
 }
 
@@ -1019,6 +1020,8 @@ window.recalcBlockTotal = function(blockId) {
     // Sum ALL sub-amount inputs within this block
     let newTotal = 0;
     block.querySelectorAll('.block-sub-amount').forEach(inp => {
+        const parentDetails = inp.closest('.block-bank-details, .block-cheque-details, .block-cash-details');
+        if (parentDetails && parentDetails.style.display === 'none') return;
         newTotal += parseFloat(inp.value.replace(/,/g, '')) || 0;
     });
 
@@ -2937,7 +2940,7 @@ window.selectAccount = function(type, id, name) {
             if (firstAccount) {
                 firstAccount.focus();
                 firstAccount.select();
-                const blockId = firstAccount.id.replace('account-search-', '');
+                const blockId = firstAccount.id.replace(/^account-|-search$/g, '');
                 if (typeof showAccountDropdown === 'function') {
                     showAccountDropdown('account-' + blockId);
                 }
@@ -2947,7 +2950,7 @@ window.selectAccount = function(type, id, name) {
 
     if (type.startsWith('account-')) {
         const blockId = type.replace('account-', '');
-        const block = document.getElementById('block-' + blockId);
+        const block = document.querySelector(`.account-block[data-block-id="${blockId}"]`) || document.getElementById('block-' + blockId);
         if (block) {
             const btnBank = block.querySelector('.block-btn-bank');
             if (btnBank && !btnBank.classList.contains('active')) {
@@ -3412,6 +3415,7 @@ function loadVoucherIntoForm(v) {
                     if (pms.includes(pm)) {
                         btn.classList.add('active');
                         details.style.display = 'block';
+        recalcBlockTotal(blockId);
                     } else {
                         btn.classList.remove('active');
                         details.style.display = 'none';
@@ -4328,8 +4332,52 @@ window.openLedgerForBlockAccount = function(blockId) {
 
 // Check for transfer number duplicates
 window.checkTransferDuplicate = async function(tno, currentVoucherId) {
-    if (!tno || String(tno).trim().length < 6) return true;
-    const targetSuffix = String(tno).trim().slice(-6);
+    if (!tno) return true;
+    const normRef = (val) => {
+        if (!val) return '';
+        let s = String(val).trim()
+            .replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d))
+            .replace(/[۰-۹]/g, d => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d));
+        if (/^(OUT-OFF-|IN-OFF-|OFF-|WA\d|AUTO-|TEMP-|null|none|n\/a)/i.test(s)) return '';
+        if (/^\d{4}\s+\d{4}(?:\s+\d{4}){1,2}$/.test(s)) return '';
+        const digits = s.replace(/\D/g, '');
+        if (digits.length < 6) return '';
+        if (digits.length === 14 && digits[0] === '0' && /000[1-9]$/.test(digits)) return '';
+        if (digits.length === 21 && digits.startsWith('02')) return '';
+        if (digits.length === 16 && digits[0] === '0' && /(0001|0002|0101|5001)$/.test(digits)) return '';
+        return digits;
+    };
+    const targetDigits = normRef(tno);
+    if (targetDigits.length < 6) return true;
+
+    const isMatch = (no) => {
+        const dB = normRef(no);
+        if (!dB) return false;
+        if (targetDigits === dB) return true;
+        const lenA = targetDigits.length, lenB = dB.length, minLen = Math.min(lenA, lenB);
+        if (minLen < 6) return false;
+        if (lenA !== lenB) {
+            const shorter = lenA < lenB ? targetDigits : dB;
+            const longer  = lenA < lenB ? dB : targetDigits;
+            if (shorter.length >= 6 && longer.slice(-shorter.length) === shorter) return true;
+            if (minLen >= 9 && targetDigits.slice(-8) === dB.slice(-8)) return true;
+            return false;
+        }
+        if (lenA <= 8) return false;
+        if (targetDigits.slice(-8) === dB.slice(-8)) return true;
+        if (targetDigits.slice(-6) === dB.slice(-6) && targetDigits.slice(0, 2) === dB.slice(0, 2)) return true;
+        return false;
+    };
+
+    // Check live DB transfers array first
+    if (Array.isArray(window.DB_ALL_TRANSFER_REFS)) {
+        for (const item of window.DB_ALL_TRANSFER_REFS) {
+            if (!item) continue;
+            if (currentVoucherId && String(item.voucherNo) === String(currentVoucherId)) continue;
+            if (isMatch(item.ref || item.cleanRef)) return false;
+        }
+    }
+
     const getTenantKey = window.getTenantKey || ((k) => k);
     const keys = [
         getTenantKey('erp_payments_v1'),
@@ -4338,12 +4386,6 @@ window.checkTransferDuplicate = async function(tno, currentVoucherId) {
         getTenantKey('erp_comprehensive_receipts_v1'),
         getTenantKey('erp_journal_v1')
     ];
-    
-    // Helper to check transfer number matches
-    const isMatch = (no) => {
-        let strNo = String(no || '').trim();
-        return (strNo.length >= 6 && strNo.slice(-6) === targetSuffix);
-    };
 
     for (let key of keys) {
         let vouchers = [];
@@ -4560,7 +4602,7 @@ document.addEventListener('keydown', function(e) {
         const block = active.closest('.account-block');
         if (block) {
             e.preventDefault();
-            const blockId = block.id.replace('block-', '');
+            const blockId = block.getAttribute('data-block-id') || block.id.replace('block-', '');
             const btnCheque = block.querySelector('.block-btn-cheque');
             if (btnCheque && !btnCheque.classList.contains('active')) {
                 if (typeof window.toggleBlockPaymentMethod === 'function') {
@@ -4596,7 +4638,7 @@ document.addEventListener('keydown', function(e) {
                     if (firstAccount) {
                         firstAccount.focus();
                         firstAccount.select();
-                        const blockId = firstAccount.id.replace('account-search-', '');
+                        const blockId = firstAccount.id.replace(/^account-|-search$/g, '');
                         if (typeof showAccountDropdown === 'function') {
                             showAccountDropdown('account-' + blockId);
                         }
@@ -4610,7 +4652,7 @@ document.addEventListener('keydown', function(e) {
                 if (firstAccount) {
                     firstAccount.focus();
                     firstAccount.select();
-                    const blockId = firstAccount.id.replace('account-search-', '');
+                    const blockId = firstAccount.id.replace(/^account-|-search$/g, '');
                     if (typeof showAccountDropdown === 'function') {
                         showAccountDropdown('account-' + blockId);
                     }
@@ -4651,7 +4693,7 @@ document.addEventListener('keydown', function(e) {
                 e.preventDefault();
                 const block = active.closest('.account-block');
                 if (block) {
-                    const blockId = block.id.replace('block-', '');
+                    const blockId = block.getAttribute('data-block-id') || block.id.replace('block-', '');
                     const btnBank = block.querySelector('.block-btn-bank');
                     if (btnBank && !btnBank.classList.contains('active')) {
                         if (typeof window.toggleBlockPaymentMethod === 'function') {
@@ -8599,3 +8641,818 @@ window.executeBatchWASend = async function() {
 
 
 
+
+// ══════════════════════════════════════════════════════════════════════════════════════
+// 🌍 WORLD-CLASS ERP SUITE FOR MULTI-CASH-PAYMENT (الرصيد اللحظي، الملخص، القوالب، إكسل، التوزيع، والطباعة المفصلة)
+// ══════════════════════════════════════════════════════════════════════════════════════
+
+// 1. Live General Ledger Balance Before & After for Main Account & Sub-Account Blocks
+window.updateAllLiveBalances = function() {
+    if (typeof window.getPartyAccountBalance !== 'function') return;
+
+    const voucherType = document.getElementById('voucher-type')?.value || 'payment';
+    const isPayment = (voucherType === 'payment');
+    const currency = document.getElementById('currency')?.value || 'SDG';
+
+    // A. Main Account Live Balance
+    const mainAccInput = document.getElementById('main-account');
+    const mainSearch = document.getElementById('main-account-search');
+    const mainBalBox = document.getElementById('main-account-live-bal');
+    const mainId = mainAccInput ? (mainAccInput.getAttribute('data-id') || mainAccInput.value || '') : '';
+    const mainName = mainSearch ? mainSearch.value.trim() : '';
+
+    let grandTotal = 0;
+    document.querySelectorAll('.account-block').forEach(b => {
+        const bid = b.getAttribute('data-block-id');
+        const amtEl = document.getElementById(`amount-${bid}`);
+        if (amtEl) grandTotal += cleanNum(amtEl.value);
+    });
+
+    if (mainBalBox) {
+        if (!mainId && !mainName) {
+            mainBalBox.style.display = 'none';
+            mainBalBox.innerHTML = '';
+        } else {
+            const mainRole = isPayment ? 'creditor' : 'debtor';
+            const balBefore = window.getPartyAccountBalance(mainId, mainName, mainRole, 0, isPayment, currency);
+            const balAfter = window.getPartyAccountBalance(mainId, mainName, mainRole, grandTotal, isPayment, currency);
+
+            const beforeColor = balBefore.status === 'debit' ? '#fca5a5' : (balBefore.status === 'credit' ? '#6ee7b7' : '#cbd5e1');
+            const afterColor = balAfter.status === 'debit' ? '#fca5a5' : (balAfter.status === 'credit' ? '#6ee7b7' : '#fef08a');
+
+            // Check overdraft warning for Safe/Bank when paying out
+            let overdraftHtml = '';
+            if (isPayment && (balAfter.entityType === 'safe' || balAfter.entityType === 'bank') && balAfter.rawBalance < -0.01) {
+                overdraftHtml = `<span style="background:rgba(239,68,68,0.28); border:1px solid #ef4444; color:#fecaca; padding:2px 8px; border-radius:6px; font-size:0.78rem; font-weight:900;">⚠️ تنبيه: الرصيد المتاح لا يكفي (مكشوف بـ ${fmtNum(Math.abs(balAfter.rawBalance))} ${currency})</span>`;
+            }
+
+            mainBalBox.style.display = 'flex';
+            mainBalBox.innerHTML = `
+                <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+                    <span>📊 <b>الرصيد الحالي:</b> <span style="color:${beforeColor}; font-family:monospace;">${fmtNum(balBefore.amount)} ${currency} (${balBefore.shortTag})</span></span>
+                    <span style="opacity:0.5;">|</span>
+                    <span>⚡ <b>بعد السند:</b> <span style="color:${afterColor}; font-family:monospace;">${fmtNum(balAfter.amount)} ${currency} (${balAfter.shortTag})</span></span>
+                </div>
+                ${overdraftHtml}
+            `;
+        }
+    }
+
+    // B. Each Sub-Account Block Live Balance
+    document.querySelectorAll('.account-block').forEach(block => {
+        const bid = block.getAttribute('data-block-id');
+        const balBox = document.getElementById(`account-${bid}-live-bal`);
+        if (!balBox) return;
+
+        const accId = document.getElementById(`account-${bid}-id`)?.value || document.getElementById(`account-${bid}`)?.value || '';
+        const accName = document.getElementById(`account-${bid}-search`)?.value.trim() || '';
+        const blockAmt = cleanNum(document.getElementById(`amount-${bid}`)?.value || 0);
+
+        if (!accId && !accName) {
+            balBox.style.display = 'none';
+            balBox.innerHTML = '';
+            return;
+        }
+
+        const blockRole = isPayment ? 'debtor' : 'creditor';
+        const bBefore = window.getPartyAccountBalance(accId, accName, blockRole, 0, isPayment, currency);
+        const bAfter = window.getPartyAccountBalance(accId, accName, blockRole, blockAmt, isPayment, currency);
+
+        const bCol1 = bBefore.status === 'debit' ? '#fca5a5' : (bBefore.status === 'credit' ? '#6ee7b7' : '#cbd5e1');
+        const bCol2 = bAfter.status === 'debit' ? '#fca5a5' : (bAfter.status === 'credit' ? '#6ee7b7' : '#fef08a');
+
+        balBox.style.display = 'flex';
+        balBox.innerHTML = `
+            <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                <span>📒 <b>قبل الحركة:</b> <span style="color:${bCol1}; font-family:monospace;">${fmtNum(bBefore.amount)} ${currency} (${bBefore.shortTag})</span></span>
+                <span style="opacity:0.45;">➔</span>
+                <span>✨ <b>بعد الحركة:</b> <span style="color:${bCol2}; font-family:monospace;">${fmtNum(bAfter.amount)} ${currency} (${bAfter.shortTag})</span></span>
+            </div>
+        `;
+    });
+};
+
+// 2. Live Summary & Audit Bar Updater
+window.updateMcpWorldSummaryBar = function() {
+    const blocks = document.querySelectorAll('.account-block');
+    let partyCount = blocks.length;
+    let totalCash = 0;
+    let totalBank = 0;
+    let bankCount = 0;
+    let totalCheque = 0;
+    let chequeCount = 0;
+    let grand = 0;
+
+    blocks.forEach(block => {
+        const bid = block.getAttribute('data-block-id');
+        const blockAmt = cleanNum(document.getElementById(`amount-${bid}`)?.value || 0);
+        grand += blockAmt;
+
+        const cashDetails = document.getElementById(`cash-details-${bid}`);
+        if (cashDetails && cashDetails.style.display !== 'none') {
+            block.querySelectorAll('.block-cash-amount').forEach(inp => {
+                totalCash += cleanNum(inp.value);
+            });
+        }
+
+        const bankDetails = document.getElementById(`bank-details-${bid}`);
+        if (bankDetails && bankDetails.style.display !== 'none') {
+            block.querySelectorAll('.block-bank-amount').forEach(inp => {
+                const v = cleanNum(inp.value);
+                if (v > 0) {
+                    totalBank += v;
+                    bankCount++;
+                }
+            });
+        }
+
+        const chequeDetails = document.getElementById(`cheque-details-${bid}`);
+        if (chequeDetails && chequeDetails.style.display !== 'none') {
+            block.querySelectorAll('.block-cheque-amount').forEach(inp => {
+                const v = cleanNum(inp.value);
+                if (v > 0) {
+                    totalCheque += v;
+                    chequeCount++;
+                }
+            });
+        }
+    });
+
+    const curr = document.getElementById('currency')?.value || 'SDG';
+    const setElText = (id, txt) => { const el = document.getElementById(id); if (el) el.textContent = txt; };
+    setElText('mcp-sum-parties', String(partyCount));
+    setElText('mcp-sum-cash', fmtNum(totalCash));
+    setElText('mcp-sum-bank-count', String(bankCount));
+    setElText('mcp-sum-bank', fmtNum(totalBank));
+    setElText('mcp-sum-cheque-count', String(chequeCount));
+    setElText('mcp-sum-cheque', fmtNum(totalCheque));
+    setElText('mcp-sum-grand', fmtNum(grand, 2));
+    setElText('mcp-sum-curr', curr);
+};
+
+// 3. Hook Live Balances & Summary Bar into Core Lifecycle Functions
+(function hookWorldClassLifecycle() {
+    const origCalcTotal = window.calcTotal;
+    if (typeof origCalcTotal === 'function') {
+        window.calcTotal = function() {
+            const res = origCalcTotal.apply(this, arguments);
+            try {
+                window.updateMcpWorldSummaryBar();
+                window.updateAllLiveBalances();
+            } catch(e) {}
+            return res;
+        };
+    }
+
+    const origSelectAccount = window.selectAccount;
+    if (typeof origSelectAccount === 'function') {
+        window.selectAccount = function(type, id, name) {
+            const res = origSelectAccount.apply(this, arguments);
+            setTimeout(() => {
+                try {
+                    window.updateAllLiveBalances();
+                    window.updateMcpWorldSummaryBar();
+                } catch(e) {}
+            }, 60);
+            return res;
+        };
+    }
+
+    const origUpdateLabels = window.updateLabels;
+    if (typeof origUpdateLabels === 'function') {
+        window.updateLabels = function() {
+            const res = origUpdateLabels.apply(this, arguments);
+            try {
+                window.updateAllLiveBalances();
+                window.updateMcpWorldSummaryBar();
+            } catch(e) {}
+            return res;
+        };
+    }
+})();
+
+// 4. Keyboard Navigation Support for Cash Input (نقدي 💵)
+document.addEventListener('keydown', function(e) {
+    const active = document.activeElement;
+    if (!active) return;
+
+    if (e.key === 'Enter' && !e.ctrlKey) {
+        if (active.classList.contains('block-cash-amount')) {
+            e.preventDefault();
+            const row = active.closest('.cash-row');
+            const desc = row ? row.querySelector('.block-cash-desc-input') : null;
+            if (desc) { desc.focus(); desc.select(); }
+            return;
+        }
+        if (active.classList.contains('block-cash-desc-input')) {
+            e.preventDefault();
+            if (typeof window.addAccountBlock === 'function') {
+                window.addAccountBlock();
+                setTimeout(() => {
+                    const blocks = document.querySelectorAll('.account-block');
+                    if (blocks.length > 0) {
+                        const lastBlock = blocks[blocks.length - 1];
+                        const acctSearch = lastBlock.querySelector('.block-account-search');
+                        if (acctSearch) { acctSearch.focus(); acctSearch.select(); }
+                    }
+                }, 80);
+            }
+            return;
+        }
+    }
+}, true);
+
+// 5. Comprehensive Bank-Certified Print Preview Overhaul (شامل لكل التحويلات والشيكات والنقدي والتفقيط)
+window.printVoucher = function() {
+    const voucherTypeSel = document.getElementById('voucher-type');
+    const isPayment = !voucherTypeSel || voucherTypeSel.value === 'payment';
+    const voucherType = isPayment ? 'سند صرف مالي مجمع' : 'سند قبض مالي مجمع';
+    const voucherNo = (document.getElementById('voucher-no-display')?.value || document.getElementById('voucher-no')?.value || '').trim();
+    const voucherDate = document.getElementById('voucher-date')?.value || '';
+    const mainAccount = document.getElementById('main-account-search')?.value || '';
+    const voucherDesc = document.getElementById('voucher-desc')?.value || '';
+    const currencySel = document.getElementById('currency');
+    const currencyCode = currencySel ? currencySel.value : 'SDG';
+    const currencyLabel = currencySel ? (currencySel.options[currencySel.selectedIndex]?.text || currencyCode) : currencyCode;
+    const exchangeRate = document.getElementById('exchange-rate')?.value || '1.0';
+    const amountLocal = document.getElementById('amount-local-hdr')?.value || '0.00';
+    const amountForeign = document.getElementById('amount-foreign')?.value || '0.00';
+
+    let userName = 'مدير النظام';
+    let tenantId = 'default';
+    try {
+        const u = JSON.parse(localStorage.getItem('erp_currentUser') || localStorage.getItem('user') || '{}');
+        userName = u.fullName || u.username || userName;
+        if (u.tenant_id) tenantId = u.tenant_id;
+    } catch(e) {}
+
+    let cfg = {};
+    try { cfg = JSON.parse(localStorage.getItem('tenant_' + tenantId + '_erp_settings_v1') || localStorage.getItem('erp_settings_v1') || '{}'); } catch(e) {}
+    const companyLogo = cfg.logoBase64 || '';
+    const companyName = cfg.companyName || 'مقاييس (MAGAIEES)';
+    const printDateTime = new Date().toLocaleDateString('en-GB') + ' ' + new Date().toLocaleTimeString('en-US', {hour: '2-digit', minute: '2-digit'});
+
+    // Extract detailed items from DOM blocks
+    const blocks = document.querySelectorAll('.account-block');
+    let entryItems = [];
+    let allBankRows = [];
+    let allChequeRows = [];
+    let totalCashSum = 0;
+
+    blocks.forEach((block, bIdx) => {
+        const bId = block.getAttribute('data-block-id');
+        const accName = document.getElementById(`account-${bId}-search`)?.value.trim() || '';
+        const amtVal = cleanNum(document.getElementById(`amount-${bId}`)?.value || 0);
+        const stmtVal = document.getElementById(`statement-${bId}`)?.value.trim() || '';
+        const ccVal = document.getElementById(`cost-center-${bId}`)?.value.trim() || '';
+
+        const isCash = document.getElementById(`pm-cash-${bId}`)?.classList.contains('active');
+        const isBank = document.getElementById(`pm-bank-${bId}`)?.classList.contains('active');
+        const isCheque = document.getElementById(`pm-cheque-${bId}`)?.classList.contains('active');
+
+        let methodsArr = [];
+        let detailsSummary = [];
+
+        if (isCash) {
+            const cAmt = cleanNum(block.querySelector('.block-cash-amount')?.value || 0);
+            const cDesc = block.querySelector('.block-cash-desc-input')?.value.trim() || '';
+            if (cAmt > 0) {
+                methodsArr.push('نقدي');
+                totalCashSum += cAmt;
+                detailsSummary.push(`نقدي: ${fmtNum(cAmt)}${cDesc ? ' (' + cDesc + ')' : ''}`);
+            }
+        }
+        if (isBank) {
+            methodsArr.push('تحويل بنكي');
+            block.querySelectorAll('.bank-row').forEach(r => {
+                const ba = cleanNum(r.querySelector('.block-bank-amount')?.value || 0);
+                const bn = r.querySelector('.block-bank-name-input')?.value.trim() || '-';
+                const bt = r.querySelector('.block-transfer-no-input')?.value.trim() || '-';
+                const bd = r.querySelector('.block-bank-desc-input')?.value.trim() || '';
+                if (ba > 0) {
+                    allBankRows.push({ party: accName || `جهة #${bIdx + 1}`, amount: ba, bankName: bn, transferNo: bt, desc: bd || stmtVal });
+                    detailsSummary.push(`تحويل ${bn} (#${bt}): ${fmtNum(ba)}`);
+                }
+            });
+        }
+        if (isCheque) {
+            methodsArr.push('شيك');
+            block.querySelectorAll('.cheque-row').forEach(r => {
+                const ca = cleanNum(r.querySelector('.block-cheque-amount')?.value || 0);
+                const cb = r.querySelector('.block-cheque-bank-input')?.value.trim() || '-';
+                const cn = r.querySelector('.block-cheque-no-input')?.value.trim() || '-';
+                const cd = r.querySelector('.block-cheque-date-input')?.value || '-';
+                const cdesc = r.querySelector('.block-cheque-desc-input')?.value.trim() || '';
+                if (ca > 0) {
+                    allChequeRows.push({ party: accName || `جهة #${bIdx + 1}`, amount: ca, bankName: cb, chequeNo: cn, dueDate: cd, desc: cdesc || stmtVal });
+                    detailsSummary.push(`شيك ${cb} (#${cn}): ${fmtNum(ca)}`);
+                }
+            });
+        }
+
+        if (accName || amtVal > 0) {
+            entryItems.push({
+                accountName: accName || '-',
+                amount: amtVal,
+                statement: stmtVal || detailsSummary.join(' | ') || '-',
+                costCenter: ccVal || '-',
+                paymentMethod: methodsArr.length > 0 ? methodsArr.join(' + ') : 'قيد مباشر'
+            });
+        }
+    });
+
+    let totalAmt = entryItems.reduce((acc, it) => acc + (parseFloat(it.amount) || 0), 0);
+    const tafqeetWords = typeof window.formatArabicTafqeet === 'function' ? window.formatArabicTafqeet(totalAmt, currencyCode) : '';
+
+    let tableHtml = `
+        <table class="print-table">
+            <thead>
+                <tr>
+                    <th>م</th>
+                    <th>${isPayment ? 'إلى حساب (الجهة المستفيدة)' : 'من حساب (الجهة الدافعة)'}</th>
+                    <th>المبلغ (${currencyCode})</th>
+                    <th>البيان والتفاصيل</th>
+                    <th>مركز التكلفة</th>
+                    <th>طريقة الدفع</th>
+                </tr>
+            </thead>
+            <tbody>
+    `;
+    entryItems.forEach((item, idx) => {
+        tableHtml += `
+            <tr>
+                <td>${idx + 1}</td>
+                <td style="font-weight: 800;">${item.accountName}</td>
+                <td style="font-weight: 900; color: #0f172a; font-family: monospace;">${fmtNum(item.amount, 2)}</td>
+                <td>${item.statement}</td>
+                <td style="color: #0284c7; font-weight: 700;">${item.costCenter}</td>
+                <td style="font-weight: 700;">${item.paymentMethod}</td>
+            </tr>
+        `;
+    });
+    tableHtml += `
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="2" style="text-align: left; font-weight: 900;">الإجمالي الكلي:</td>
+                    <td style="font-weight: 900; color: #059669; font-size: 1.15rem; font-family: monospace;">${fmtNum(totalAmt, 2)} ${currencyCode}</td>
+                    <td colspan="3" style="font-weight: 800; color: #1e293b;">${tafqeetWords}</td>
+                </tr>
+            </tfoot>
+        </table>
+    `;
+
+    let paymentHtml = '';
+    if (allBankRows.length > 0) {
+        paymentHtml += `
+            <h4 style="margin: 15px 0 8px 0; color: #0284c7;">🏦 جدول تفاصيل التحويلات البنكية (${allBankRows.length})</h4>
+            <table class="print-table" style="margin-bottom: 18px;">
+                <thead>
+                    <tr>
+                        <th>م</th>
+                        <th>الجهة</th>
+                        <th>اسم البنك</th>
+                        <th>رقم العملية / التحويلة</th>
+                        <th>المبلغ</th>
+                        <th>البيان</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${allBankRows.map((b, i) => `
+                        <tr>
+                            <td>${i + 1}</td>
+                            <td style="font-weight:700;">${b.party}</td>
+                            <td>${b.bankName}</td>
+                            <td style="font-family:monospace; font-weight:900;">${b.transferNo}</td>
+                            <td style="font-family:monospace; font-weight:900;">${fmtNum(b.amount, 2)}</td>
+                            <td>${b.desc || '-'}</td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+        `;
+    }
+    if (allChequeRows.length > 0) {
+        paymentHtml += `
+            <h4 style="margin: 15px 0 8px 0; color: #7c3aed;">✍️ جدول تفاصيل الشيكات المصرفية (${allChequeRows.length})</h4>
+            <table class="print-table" style="margin-bottom: 18px;">
+                <thead>
+                    <tr>
+                        <th>م</th>
+                        <th>الجهة</th>
+                        <th>اسم البنك</th>
+                        <th>رقم الشيك</th>
+                        <th>تاريخ الاستحقاق</th>
+                        <th>المبلغ</th>
+                        <th>البيان</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${allChequeRows.map((c, i) => `
+                        <tr>
+                            <td>${i + 1}</td>
+                            <td style="font-weight:700;">${c.party}</td>
+                            <td>${c.bankName}</td>
+                            <td style="font-family:monospace; font-weight:900;">${c.chequeNo}</td>
+                            <td dir="ltr">${c.dueDate}</td>
+                            <td style="font-family:monospace; font-weight:900;">${fmtNum(c.amount, 2)}</td>
+                            <td>${c.desc || '-'}</td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+        `;
+    }
+
+    const logoHtml = companyLogo ? `<img src="${companyLogo}" alt="Logo" style="max-height: 75px; max-width: 150px; object-fit: contain;">` : `<div style="padding: 12px 18px; background: #f1f5f9; border-radius: 8px; font-weight: 900; color: #0f172a;">${companyName}</div>`;
+
+    const html = `
+        <style>
+            .print-container { max-width: 840px; margin: 0 auto; background: #fff; padding: 28px; border-radius: 8px; color: #0f172a; font-family: 'Tajawal', sans-serif; }
+            .header-flex { display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid ${isPayment ? '#ef4444' : '#10b981'}; padding-bottom: 14px; margin-bottom: 20px; }
+            .voucher-title { background: ${isPayment ? '#fef2f2' : '#ecfdf5'}; color: ${isPayment ? '#b91c1c' : '#047857'}; border: 2px solid ${isPayment ? '#ef4444' : '#10b981'}; padding: 8px 22px; border-radius: 8px; font-size: 1.35rem; font-weight: 900; }
+            .meta-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px; background: #f8fafc; padding: 14px; border-radius: 8px; border: 1px solid #cbd5e1; }
+            .meta-item { display: flex; flex-direction: column; gap: 3px; }
+            .meta-label { font-size: 0.8rem; color: #64748b; font-weight: 700; }
+            .meta-val { font-size: 0.98rem; font-weight: 800; color: #0f172a; }
+            .print-table { width: 100%; border-collapse: collapse; margin-bottom: 18px; }
+            .print-table th, .print-table td { padding: 9px 10px; border: 1px solid #cbd5e1; text-align: right; font-size: 0.9rem; }
+            .print-table th { background: #f1f5f9; font-weight: 900; color: #0f172a; }
+            .signatures-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 35px; padding-top: 20px; border-top: 1px dashed #cbd5e1; text-align: center; font-weight: 800; }
+        </style>
+        <div class="print-container">
+            <div class="header-flex">
+                <div>
+                    <h2 style="margin:0 0 4px 0; color:#0f172a;">${companyName}</h2>
+                    <div style="font-size:0.85rem; color:#64748b;">تاريخ الطباعة: ${printDateTime} | المستخدم: ${userName}</div>
+                </div>
+                <div class="voucher-title">${voucherType}</div>
+                <div>${logoHtml}</div>
+            </div>
+            <div class="meta-grid">
+                <div class="meta-item"><span class="meta-label">رقم السند:</span><span class="meta-val" style="font-family:monospace; font-size:1.1rem;">${voucherNo}</span></div>
+                <div class="meta-item"><span class="meta-label">تاريخ السند:</span><span class="meta-val">${voucherDate}</span></div>
+                <div class="meta-item"><span class="meta-label">${isPayment ? 'من حساب (الصرف الرئيسي):' : 'إلى حساب (الاستلام الرئيسي):'}</span><span class="meta-val" style="color:${isPayment ? '#b91c1c' : '#047857'};">${mainAccount || '-'}</span></div>
+                <div class="meta-item"><span class="meta-label">العملة وسعر التعادل:</span><span class="meta-val">${currencyLabel} (${exchangeRate})</span></div>
+                <div class="meta-item"><span class="meta-label">الإجمالي بالمحلي (SDG):</span><span class="meta-val" style="font-family:monospace; color:#b91c1c;">${amountLocal}</span></div>
+                <div class="meta-item"><span class="meta-label">المعادل بالأجنبي (USD):</span><span class="meta-val" style="font-family:monospace; color:#047857;">${amountForeign}</span></div>
+                <div class="meta-item" style="grid-column: span 3;"><span class="meta-label">البيان العام للسند:</span><span class="meta-val">${voucherDesc || '-'}</span></div>
+            </div>
+            ${tableHtml}
+            ${paymentHtml}
+            <div class="signatures-grid">
+                <div>إعداد المحاسب<br><br>____________________</div>
+                <div>المراجعة والتدقيق<br><br>____________________</div>
+                <div>اعتماد الإدارة المالية<br><br>____________________</div>
+            </div>
+        </div>
+    `;
+
+    const previewBody = document.getElementById('preview-modal-body');
+    const previewModal = document.getElementById('print-preview-modal');
+    if (previewBody && previewModal) {
+        previewBody.innerHTML = html;
+        previewModal.style.display = 'flex';
+    }
+};
+
+// 6. World-Class Feature 1: Auto-Split / Equal & Proportional Allocation Modal (توزيع المبالغ بالتساوي)
+window.openEqualSplitModal = function() {
+    const existing = document.getElementById('mcp-split-modal');
+    if (existing) existing.remove();
+
+    const blocks = document.querySelectorAll('.account-block');
+    const count = blocks.length;
+    const curr = document.getElementById('currency')?.value || 'SDG';
+
+    const modal = document.createElement('div');
+    modal.id = 'mcp-split-modal';
+    modal.style.cssText = 'position:fixed; inset:0; background:rgba(0,0,0,0.75); backdrop-filter:blur(8px); z-index:999999; display:flex; align-items:center; justify-content:center; direction:rtl;';
+    modal.innerHTML = `
+        <div style="background:linear-gradient(145deg, #0f172a, #1e293b); border:2px solid #fbbf24; border-radius:16px; padding:24px; width:92%; max-width:480px; color:#fff; box-shadow:0 20px 50px rgba(0,0,0,0.8);">
+            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(255,255,255,0.12); padding-bottom:12px; margin-bottom:16px;">
+                <h3 style="margin:0; color:#fbbf24; font-size:1.2rem; display:flex; align-items:center; gap:8px;"><span>⚖️</span> <span>توزيع مبلغ إجمالي على الجهات (${count})</span></h3>
+                <button type="button" onclick="document.getElementById('mcp-split-modal').remove()" style="background:none; border:none; color:#94a3b8; font-size:1.2rem; cursor:pointer;">✕</button>
+            </div>
+            <div style="display:flex; flex-direction:column; gap:14px;">
+                <div>
+                    <label style="display:block; color:#cbd5e1; font-size:0.9rem; font-weight:800; margin-bottom:6px;">💰 المبلغ الإجمالي المراد توزيعه (${curr}):</label>
+                    <input type="text" id="mcp-split-total-input" inputmode="decimal" placeholder="أدخل المبلغ الإجمالي هنا..." style="width:100%; height:48px; border-radius:10px; border:2px solid #fbbf24; background:#090d16; color:#fef08a; font-size:1.5rem; font-weight:900; text-align:center; font-family:monospace; box-sizing:border-box;">
+                </div>
+                <div>
+                    <label style="display:block; color:#cbd5e1; font-size:0.9rem; font-weight:800; margin-bottom:6px;">💳 طريقة الدفع المستهدفة في البطاقات:</label>
+                    <select id="mcp-split-method" style="width:100%; height:42px; border-radius:8px; border:1px solid #475569; background:#090d16; color:#fff; font-weight:800; padding:0 10px;">
+                        <option value="cash">💵 نقدي / مباشر (بدون رقم تحويلة)</option>
+                        <option value="bank">🏦 تحويل بنكي</option>
+                    </select>
+                </div>
+                <div style="display:flex; gap:10px; margin-top:8px;">
+                    <button type="button" onclick="window.executeEqualSplit()" style="flex:1; height:46px; border-radius:10px; border:none; background:linear-gradient(135deg, #f59e0b, #d97706); color:#fff; font-weight:900; font-size:1.05rem; cursor:pointer;">⚡ توزيع بالتساوي الآن</button>
+                    <button type="button" onclick="document.getElementById('mcp-split-modal').remove()" style="height:46px; padding:0 18px; border-radius:10px; border:1px solid #475569; background:transparent; color:#cbd5e1; font-weight:800; cursor:pointer;">إلغاء</button>
+                </div>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(modal);
+    setTimeout(() => document.getElementById('mcp-split-total-input')?.focus(), 50);
+};
+
+window.executeEqualSplit = function() {
+    const rawVal = cleanNum(document.getElementById('mcp-split-total-input')?.value || 0);
+    const method = document.getElementById('mcp-split-method')?.value || 'cash';
+    if (rawVal <= 0) {
+        showToast('يرجى إدخال مبلغ صحيح أكبر من الصفر للتوزيع', 'error');
+        return;
+    }
+    const blocks = document.querySelectorAll('.account-block');
+    if (blocks.length === 0) return;
+
+    const perBlock = Math.floor((rawVal / blocks.length) * 100) / 100;
+    let remainder = Math.round((rawVal - (perBlock * blocks.length)) * 100) / 100;
+
+    blocks.forEach((block, idx) => {
+        const bid = block.getAttribute('data-block-id');
+        const share = idx === 0 ? (perBlock + remainder) : perBlock;
+
+        ['cash', 'bank', 'cheque'].forEach(pm => {
+            const btn = document.getElementById(`pm-${pm}-${bid}`);
+            const det = document.getElementById(`${pm}-details-${bid}`);
+            if (btn && det) {
+                if (pm === method) {
+                    btn.classList.add('active');
+                    det.style.display = 'block';
+                } else {
+                    btn.classList.remove('active');
+                    det.style.display = 'none';
+                }
+            }
+        });
+
+        if (method === 'cash') {
+            const cInp = block.querySelector('.block-cash-amount');
+            if (cInp) cInp.value = fmtNum(share, 2);
+        } else {
+            const bInp = block.querySelector('.block-bank-amount');
+            if (bInp) bInp.value = fmtNum(share, 2);
+        }
+        recalcBlockTotal(bid);
+    });
+
+    document.getElementById('mcp-split-modal')?.remove();
+    showToast(`✅ تم توزيع ${fmtNum(rawVal, 2)} بالتساوي على ${blocks.length} حسابات بنجاح`, 'success');
+};
+
+// 7. World-Class Feature 2: Fast Excel / Clipboard Batch Paste Modal (استيراد ولصق سريع من إكسل)
+window.openExcelPasteModal = function() {
+    const existing = document.getElementById('mcp-excel-modal');
+    if (existing) existing.remove();
+
+    const modal = document.createElement('div');
+    modal.id = 'mcp-excel-modal';
+    modal.style.cssText = 'position:fixed; inset:0; background:rgba(0,0,0,0.78); backdrop-filter:blur(8px); z-index:999999; display:flex; align-items:center; justify-content:center; direction:rtl;';
+    modal.innerHTML = `
+        <div style="background:linear-gradient(145deg, #0f172a, #1e293b); border:2px solid #38bdf8; border-radius:16px; padding:24px; width:94%; max-width:650px; color:#fff; box-shadow:0 20px 50px rgba(0,0,0,0.85);">
+            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(255,255,255,0.12); padding-bottom:12px; margin-bottom:14px;">
+                <h3 style="margin:0; color:#38bdf8; font-size:1.2rem; display:flex; align-items:center; gap:8px;"><span>📋</span> <span>استيراد ولصق دفعة حسابات ومبالغ من Excel</span></h3>
+                <button type="button" onclick="document.getElementById('mcp-excel-modal').remove()" style="background:none; border:none; color:#94a3b8; font-size:1.2rem; cursor:pointer;">✕</button>
+            </div>
+            <p style="margin:0 0 10px 0; font-size:0.86rem; color:#cbd5e1; line-height:1.5;">
+                انسخ الجدول من Excel أو النص والصقه هنا (كل سطر يمثل جهة):<br>
+                <code style="color:#fef08a;">اسم الحساب   |   المبلغ   |   رقم التحويلة (اختياري)   |   البيان (اختياري)</code>
+            </p>
+            <textarea id="mcp-excel-textarea" rows="8" placeholder="مثال:\nشركة أسمنت عطبرة\t250000\t884920\tدفعة تحت الحساب\nأحمد محمد علي\t75000\t\tعهدة نقدية" style="width:100%; border-radius:10px; border:1.5px solid #38bdf8; background:#090d16; color:#f8fafc; padding:12px; font-family:monospace; font-size:0.95rem; box-sizing:border-box; resize:vertical;"></textarea>
+            <div style="display:flex; gap:10px; margin-top:14px;">
+                <button type="button" onclick="window.executeExcelPasteImport()" style="flex:1; height:46px; border-radius:10px; border:none; background:linear-gradient(135deg, #0284c7, #0369a1); color:#fff; font-weight:900; font-size:1.05rem; cursor:pointer;">🚀 تفريغ وإنشاء البطاقات فوراً</button>
+                <button type="button" onclick="document.getElementById('mcp-excel-modal').remove()" style="height:46px; padding:0 18px; border-radius:10px; border:1px solid #475569; background:transparent; color:#cbd5e1; font-weight:800; cursor:pointer;">إلغاء</button>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(modal);
+    setTimeout(() => document.getElementById('mcp-excel-textarea')?.focus(), 50);
+};
+
+window.executeExcelPasteImport = function() {
+    const raw = document.getElementById('mcp-excel-textarea')?.value || '';
+    const lines = raw.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+    if (lines.length === 0) {
+        showToast('يرجى لصق سطر واحد على الأقل', 'error');
+        return;
+    }
+    if (ACCOUNTS.length === 0 && typeof buildAccountsArray === 'function') buildAccountsArray();
+
+    const container = document.getElementById('accounts-blocks-container');
+    if (container) container.innerHTML = '';
+    blockCounter = 0;
+
+    let importedCount = 0;
+    lines.forEach(line => {
+        const cols = line.includes('\t') ? line.split('\t') : line.split(/\s*[|,;]\s*/);
+        const accQuery = (cols[0] || '').trim();
+        const amtVal = cleanNum(cols[1] || 0);
+        const transferNo = (cols[2] || '').trim();
+        const stmt = (cols[3] || '').trim();
+
+        if (!accQuery && amtVal <= 0) return;
+
+        window.addAccountBlock();
+        const blocks = document.querySelectorAll('.account-block');
+        const lastBlock = blocks[blocks.length - 1];
+        if (!lastBlock) return;
+        const bid = lastBlock.getAttribute('data-block-id');
+
+        // Fuzzy match account in ACCOUNTS
+        const normQ = window.normalizeArabic ? window.normalizeArabic(accQuery) : accQuery.toLowerCase();
+        const matched = ACCOUNTS.find(a => {
+            const n = window.normalizeArabic ? window.normalizeArabic(a.name) : a.name.toLowerCase();
+            return n === normQ || n.includes(normQ) || String(a.rawId) === accQuery;
+        });
+
+        const accName = matched ? matched.name : accQuery;
+        const accId = matched ? matched.id : accQuery;
+
+        const searchEl = document.getElementById(`account-${bid}-search`);
+        if (searchEl) searchEl.value = accName;
+        const hiddenId = document.getElementById(`account-${bid}-id`);
+        if (hiddenId) hiddenId.value = accId;
+        const hiddenName = document.getElementById(`account-${bid}`);
+        if (hiddenName) { hiddenName.value = accName; hiddenName.setAttribute('data-id', accId); }
+
+        const stmtEl = document.getElementById(`statement-${bid}`);
+        if (stmtEl && stmt) stmtEl.value = stmt;
+
+        const hasTransfer = transferNo && transferNo.replace(/\D/g, '').length >= 6;
+        if (hasTransfer) {
+            window.toggleBlockPaymentMethod(bid, 'bank');
+            const bAmt = lastBlock.querySelector('.block-bank-amount');
+            const bTr = lastBlock.querySelector('.block-transfer-no-input');
+            const bDesc = lastBlock.querySelector('.block-bank-desc-input');
+            if (bAmt) bAmt.value = fmtNum(amtVal, 2);
+            if (bTr) bTr.value = transferNo;
+            if (bDesc && stmt) bDesc.value = stmt;
+        } else {
+            window.toggleBlockPaymentMethod(bid, 'cash');
+            const cAmt = lastBlock.querySelector('.block-cash-amount');
+            const cDesc = lastBlock.querySelector('.block-cash-desc-input');
+            if (cAmt) cAmt.value = fmtNum(amtVal, 2);
+            if (cDesc && stmt) cDesc.value = stmt;
+        }
+        recalcBlockTotal(bid);
+        importedCount++;
+    });
+
+    document.getElementById('mcp-excel-modal')?.remove();
+    showToast(`✅ تم استيراد وإنشاء ${importedCount} بطاقة حساب بنجاح!`, 'success');
+};
+
+// 8. World-Class Feature 3: Recurring Batch Templates Manager (قوالب الحركات المجمعة المتكررة)
+window.openBatchTemplatesModal = function() {
+    const existing = document.getElementById('mcp-templates-modal');
+    if (existing) existing.remove();
+
+    const getTenantKey = window.getTenantKey || ((k) => k);
+    const tplKey = getTenantKey('erp_multi_voucher_templates_v1');
+    let templates = [];
+    try { templates = JSON.parse(localStorage.getItem(tplKey) || '[]'); } catch(e) { templates = []; }
+
+    const modal = document.createElement('div');
+    modal.id = 'mcp-templates-modal';
+    modal.style.cssText = 'position:fixed; inset:0; background:rgba(0,0,0,0.78); backdrop-filter:blur(8px); z-index:999999; display:flex; align-items:center; justify-content:center; direction:rtl;';
+
+    const renderList = () => {
+        if (templates.length === 0) {
+            return `<div style="padding:20px; text-align:center; color:#94a3b8; background:rgba(0,0,0,0.25); border-radius:10px;">لا توجد قوالب محفوظة حالياً. يمكنك تجهيز الحسابات في الشاشة ثم حفظها كقالب متكرر بالأسفل.</div>`;
+        }
+        return templates.map((t, idx) => `
+            <div style="display:flex; align-items:center; justify-content:space-between; background:rgba(255,255,255,0.05); border:1px solid rgba(192,132,252,0.3); padding:10px 14px; border-radius:10px; margin-bottom:8px;">
+                <div>
+                    <div style="font-weight:900; color:#f3e8ff; font-size:1rem;">⭐ ${t.name}</div>
+                    <div style="font-size:0.8rem; color:#94a3b8;">${t.type === 'payment' ? 'صرف إلى مجموعة' : 'استلام من مجموعة'} | عدد الحسابات: ${t.items?.length || 0}</div>
+                </div>
+                <div style="display:flex; gap:6px;">
+                    <button type="button" onclick="window.loadBatchTemplate(${idx})" style="background:#10b981; border:none; color:#fff; padding:6px 14px; border-radius:8px; font-weight:800; cursor:pointer;">📂 استدعاء</button>
+                    <button type="button" onclick="window.deleteBatchTemplate(${idx})" style="background:rgba(239,68,68,0.2); border:1px solid #ef4444; color:#fca5a5; padding:6px 10px; border-radius:8px; font-weight:800; cursor:pointer;">🗑️</button>
+                </div>
+            </div>
+        `).join('');
+    };
+
+    modal.innerHTML = `
+        <div style="background:linear-gradient(145deg, #0f172a, #1e293b); border:2px solid #c084fc; border-radius:16px; padding:24px; width:94%; max-width:560px; color:#fff; box-shadow:0 20px 50px rgba(0,0,0,0.85);">
+            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(255,255,255,0.12); padding-bottom:12px; margin-bottom:14px;">
+                <h3 style="margin:0; color:#c084fc; font-size:1.2rem; display:flex; align-items:center; gap:8px;"><span>⭐</span> <span>قوالب الحركات المجمعة المتكررة</span></h3>
+                <button type="button" onclick="document.getElementById('mcp-templates-modal').remove()" style="background:none; border:none; color:#94a3b8; font-size:1.2rem; cursor:pointer;">✕</button>
+            </div>
+            <div style="display:flex; gap:8px; margin-bottom:16px;">
+                <input type="text" id="mcp-new-template-name" placeholder="اسم القالب الجديد (مثلاً: رواتب الإدارة، إيجارات الفروع)..." style="flex:1; height:42px; border-radius:8px; border:1.5px solid #c084fc; background:#090d16; color:#fff; padding:0 12px; font-weight:800;">
+                <button type="button" onclick="window.saveCurrentAsBatchTemplate()" style="height:42px; padding:0 16px; border-radius:8px; border:none; background:linear-gradient(135deg, #9333ea, #7e22ce); color:#fff; font-weight:900; cursor:pointer; white-space:nowrap;">💾 حفظ الشاشة كقالب</button>
+            </div>
+            <div id="mcp-templates-list" style="max-height:280px; overflow-y:auto;">
+                ${renderList()}
+            </div>
+        </div>
+    `;
+    document.body.appendChild(modal);
+};
+
+window.saveCurrentAsBatchTemplate = function() {
+    const name = document.getElementById('mcp-new-template-name')?.value.trim() || '';
+    if (!name) {
+        showToast('يرجى كتابة اسم للقالب أولاً', 'error');
+        return;
+    }
+    const type = document.getElementById('voucher-type')?.value || 'payment';
+    const mainAccId = document.getElementById('main-account')?.getAttribute('data-id') || document.getElementById('main-account')?.value || '';
+    const mainAccName = document.getElementById('main-account-search')?.value.trim() || '';
+    const desc = document.getElementById('voucher-desc')?.value.trim() || '';
+
+    const items = [];
+    document.querySelectorAll('.account-block').forEach(block => {
+        const bid = block.getAttribute('data-block-id');
+        const accName = document.getElementById(`account-${bid}-search`)?.value.trim() || '';
+        const accId = document.getElementById(`account-${bid}-id`)?.value || accName;
+        const amt = cleanNum(document.getElementById(`amount-${bid}`)?.value || 0);
+        const stmt = document.getElementById(`statement-${bid}`)?.value.trim() || '';
+        const cc = document.getElementById(`cost-center-${bid}`)?.value.trim() || '';
+        if (accName || amt > 0) {
+            items.push({ accountId: accId, accountName: accName, amount: amt, statement: stmt, costCenter: cc });
+        }
+    });
+
+    if (items.length === 0) {
+        showToast('أضف حساباً واحداً على الأقل في الشاشة قبل حفظ القالب', 'error');
+        return;
+    }
+
+    const getTenantKey = window.getTenantKey || ((k) => k);
+    const tplKey = getTenantKey('erp_multi_voucher_templates_v1');
+    let templates = [];
+    try { templates = JSON.parse(localStorage.getItem(tplKey) || '[]'); } catch(e) { templates = []; }
+
+    templates.unshift({ name, type, mainAccount: mainAccId, mainAccountName: mainAccName, description: desc, items, createdAt: new Date().toISOString() });
+    localStorage.setItem(tplKey, JSON.stringify(templates));
+    showToast(`⭐ تم حفظ القالب "${name}" بنجاح`, 'success');
+    window.openBatchTemplatesModal();
+};
+
+window.loadBatchTemplate = function(idx) {
+    const getTenantKey = window.getTenantKey || ((k) => k);
+    const tplKey = getTenantKey('erp_multi_voucher_templates_v1');
+    let templates = [];
+    try { templates = JSON.parse(localStorage.getItem(tplKey) || '[]'); } catch(e) { templates = []; }
+    const tpl = templates[idx];
+    if (!tpl) return;
+
+    executeSetVoucherType(tpl.type || 'payment');
+    if (tpl.mainAccountName) {
+        const mainInp = document.getElementById('main-account');
+        if (mainInp) { mainInp.value = tpl.mainAccountName; mainInp.setAttribute('data-id', tpl.mainAccount || tpl.mainAccountName); }
+        const mainSearch = document.getElementById('main-account-search');
+        if (mainSearch) mainSearch.value = tpl.mainAccountName;
+    }
+    if (tpl.description) {
+        const descEl = document.getElementById('voucher-desc');
+        if (descEl) descEl.value = tpl.description;
+    }
+
+    const container = document.getElementById('accounts-blocks-container');
+    if (container) container.innerHTML = '';
+    blockCounter = 0;
+
+    (tpl.items || []).forEach(it => {
+        window.addAccountBlock();
+        const blocks = document.querySelectorAll('.account-block');
+        const lastBlock = blocks[blocks.length - 1];
+        if (!lastBlock) return;
+        const bid = lastBlock.getAttribute('data-block-id');
+
+        const sEl = document.getElementById(`account-${bid}-search`);
+        if (sEl) sEl.value = it.accountName || '';
+        const idEl = document.getElementById(`account-${bid}-id`);
+        if (idEl) idEl.value = it.accountId || '';
+        const stEl = document.getElementById(`statement-${bid}`);
+        if (stEl) stEl.value = it.statement || '';
+        const ccEl = document.getElementById(`cost-center-${bid}`);
+        if (ccEl) ccEl.value = it.costCenter || '';
+
+        if (it.amount > 0) {
+            window.toggleBlockPaymentMethod(bid, 'cash');
+            const cAmt = lastBlock.querySelector('.block-cash-amount');
+            if (cAmt) cAmt.value = fmtNum(it.amount, 2);
+            recalcBlockTotal(bid);
+        }
+    });
+
+    document.getElementById('mcp-templates-modal')?.remove();
+    calcTotal();
+    showToast(`📂 تم استدعاء القالب "${tpl.name}" بنجاح`, 'success');
+};
+
+window.deleteBatchTemplate = function(idx) {
+    const getTenantKey = window.getTenantKey || ((k) => k);
+    const tplKey = getTenantKey('erp_multi_voucher_templates_v1');
+    let templates = [];
+    try { templates = JSON.parse(localStorage.getItem(tplKey) || '[]'); } catch(e) { templates = []; }
+    templates.splice(idx, 1);
+    localStorage.setItem(tplKey, JSON.stringify(templates));
+    window.openBatchTemplatesModal();
+};

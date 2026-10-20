@@ -124,6 +124,15 @@ window.showToast = showToast;
 // 2. منع تكرار آخر ستة أرقام على اليمين نهائياً مع أي تحويلة أخرى.
 // ════════════════════════════════════════════════════════════════
 
+window.escapeHtml = window.escapeHtml || function(str) {
+    return String(str ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+};
+
 function showShortTransferBlockingModal(transferNo) {
     const existing = document.getElementById('critical-alert-modal');
     if (existing) existing.remove();
@@ -138,6 +147,7 @@ function showShortTransferBlockingModal(transferNo) {
 
     const cleanDigits = String(transferNo || '').replace(/\D/g, '');
     const count = cleanDigits.length;
+    const safeTransferNo = window.escapeHtml(transferNo || 'فارغ');
 
     const modalHTML = `
         <div id="critical-alert-modal" onclick="if(event.target===this) document.getElementById('critical-alert-modal').remove()" style="position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(10,0,0,0.88); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); z-index:99999; display:flex; justify-content:center; align-items:center; padding:15px; box-sizing:border-box;">
@@ -147,7 +157,7 @@ function showShortTransferBlockingModal(transferNo) {
                 <h2 style="color: #ffcccc; font-family: 'Tajawal', sans-serif; font-size: 1.8rem; margin: 8px 0; text-shadow: 0 0 10px #ff0000;">ممنوع الحفظ: رقم التحويلة أقل من 6 أرقام</h2>
                 <div style="background: rgba(0,0,0,0.4); border: 1px solid rgba(255,100,100,0.4); border-radius: 12px; padding: 12px 18px; margin: 12px 0; width: 100%; box-sizing: border-box;">
                     <div style="color: #cbd5e1; font-size: 0.95rem; margin-bottom: 4px;">رقم التحويلة المدخل:</div>
-                    <div style="color: #fbbf24; font-size: 2rem; font-family: monospace; font-weight: 900; letter-spacing: 2px;">${transferNo || 'فارغ'}</div>
+                    <div style="color: #fbbf24; font-size: 2rem; font-family: monospace; font-weight: 900; letter-spacing: 2px;">${safeTransferNo}</div>
                     <div style="color: #f87171; font-size: 0.9rem; margin-top: 4px; font-weight: bold;">(يحتوي على ${count} خانات فقط - الحد الأدنى 6 أرقام)</div>
                 </div>
                 <p style="color: #f1f5f9; font-size: 1.05rem; line-height: 1.6; margin: 10px 0 22px;">
@@ -176,13 +186,15 @@ function showDuplicateWarningModal(transferNo, dup = null) {
     document.addEventListener('keydown', handleEsc);
 
     const cleanDigits = String(transferNo || '').replace(/\D/g, '');
-    const candSuffix = cleanDigits.length >= 6 ? cleanDigits.slice(-6) : cleanDigits;
-    const vNo = dup?.voucherNo || 'سند سابق';
-    const date = dup?.date ? `بتاريخ: ${dup.date}` : '';
-    const bank = dup?.bank ? `البنك: ${dup.bank}` : '';
-    const amount = dup?.amount ? `المبلغ: ${Number(dup.amount).toLocaleString('en-US')} ج.س` : '';
-    const matchType = dup?.matchType || 'تطابق آخر 6 أرقام';
-    const matchedRef = dup?.ref || '';
+    const candSuffix = window.escapeHtml(cleanDigits.length >= 6 ? cleanDigits.slice(-6) : cleanDigits);
+    const safeTransferNo = window.escapeHtml(transferNo || '');
+    const vNo = window.escapeHtml(dup?.voucherNo || dup?.matchedVoucher || 'سند سابق');
+    const date = dup?.date || dup?.matchedDate ? `بتاريخ: ${window.escapeHtml(dup.date || dup.matchedDate)}` : '';
+    const bank = dup?.bank || dup?.matchedBank ? `البنك: ${window.escapeHtml(dup.bank || dup.matchedBank)}` : '';
+    const rawAmt = dup?.amount ?? dup?.matchedAmount;
+    const amount = rawAmt ? `المبلغ: ${Number(rawAmt).toLocaleString('en-US')} ج.س` : '';
+    const matchType = window.escapeHtml(dup?.matchType || 'تطابق آخر 6 أرقام');
+    const matchedRef = window.escapeHtml(dup?.ref || dup?.matchedRef || '');
 
     const modalHTML = `
         <div id="duplicate-alert-modal" onclick="if(event.target===this) document.getElementById('duplicate-alert-modal').remove()" style="position:fixed; top:0; left:0; width:100vw; height:100vh; background:radial-gradient(circle at center, rgba(30,0,0,0.92) 0%, rgba(0,0,0,1) 100%); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); z-index:99999; display:flex; justify-content:center; align-items:center; padding:15px; box-sizing:border-box;">
@@ -195,7 +207,7 @@ function showDuplicateWarningModal(transferNo, dup = null) {
                 <div style="background: rgba(255,0,68,0.1); border: 1px solid rgba(255,0,68,0.4); border-radius: 12px; padding: 12px 16px; width: 100%; box-sizing: border-box; margin-bottom: 12px; text-align: right;">
                     <div style="color: #cbd5e1; font-size: 0.9rem; margin-bottom: 4px;">رقم التحويلة المطلوب حفظها:</div>
                     <div style="display:flex; justify-content:space-between; align-items:center;">
-                        <span style="color:#fff; font-family:monospace; font-size:1.4rem; font-weight:bold;">${transferNo}</span>
+                        <span style="color:#fff; font-family:monospace; font-size:1.4rem; font-weight:bold;">${safeTransferNo}</span>
                         <span style="background:#ff0044; color:#fff; padding:2px 8px; border-radius:6px; font-size:0.85rem; font-weight:bold;">آخر 6 أرقام: ${candSuffix}</span>
                     </div>
                 </div>
@@ -496,20 +508,106 @@ onDBReady(() => {
     }, 300); // 300ms after DBReady to ensure generateNewId doesn't override us
 });
 
+window.updateLiveTafqeetAndBalances = function() {
+    const amtLocal = parseNum(document.getElementById('amount-local')?.value) || 0;
+    const amtForeign = parseNum(document.getElementById('amount-foreign')?.value) || 0;
+    const currEl = document.getElementById('currency');
+    const selectedCurr = currEl ? currEl.value : 'SDG';
+    const foreignSym = (selectedCurr && selectedCurr !== 'SDG') ? selectedCurr : 'USD';
+
+    // 1. تحديث شريط التفقيط الفوري الحي
+    const tafTextEl = document.getElementById('live-tafqeet-text');
+    const tafForEl = document.getElementById('live-tafqeet-foreign');
+    if (tafTextEl) {
+        if (amtLocal > 0 && typeof window.formatArabicTafqeet === 'function') {
+            tafTextEl.textContent = window.formatArabicTafqeet(amtLocal, 'SDG');
+            tafTextEl.style.color = '#fef08a';
+        } else {
+            tafTextEl.textContent = 'صفر جنيه سوداني لا غير';
+            tafTextEl.style.color = '#cbd5e1';
+        }
+    }
+    if (tafForEl) {
+        if (amtForeign > 0 && typeof window.formatArabicTafqeet === 'function') {
+            tafForEl.textContent = `💵 يعادل: ${window.formatArabicTafqeet(amtForeign, foreignSym)}`;
+        } else {
+            tafForEl.textContent = '';
+        }
+    }
+
+    // 2. تحديث كاشف الرصيد اللحظي في بطاقتي (من حساب) و (إلى حساب)
+    const fromId = document.getElementById('from-account')?.value || '';
+    const fromName = document.getElementById('from-account-search')?.value || '';
+    const fromBalEl = document.getElementById('from-account-live-bal');
+
+    if (fromBalEl) {
+        if (fromId && typeof window.getPartyAccountBalance === 'function') {
+            const beforeInfo = window.getPartyAccountBalance(fromId, fromName, 'creditor', 0, true, 'SDG');
+            const afterInfo = window.getPartyAccountBalance(fromId, fromName, 'creditor', amtLocal, true, 'SDG');
+            const isSafeOrBank = /^(safe|bank)-/i.test(fromId);
+            const isOverdraft = isSafeOrBank && afterInfo.rawBalance < -0.01;
+            const fmtB = (n) => Math.abs(Number(n || 0)).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+
+            fromBalEl.style.display = 'flex';
+            if (isOverdraft) {
+                fromBalEl.style.background = 'rgba(185, 28, 28, 0.55)';
+                fromBalEl.style.borderColor = '#fbbf24';
+                fromBalEl.innerHTML = `
+                    <span>📊 الرصيد المتاح: <b style="color:#fff;">${fmtB(beforeInfo.rawBalance)}</b> SDG (${beforeInfo.shortTag})</span>
+                    <span style="color:#fde047; font-weight:900;">⚠️ تنبيه انكشاف: الرصيد بعد الصرف سيصبح مكشوفاً (${fmtB(afterInfo.rawBalance)} SDG)!</span>
+                `;
+            } else {
+                fromBalEl.style.background = 'rgba(0,0,0,0.35)';
+                fromBalEl.style.borderColor = 'rgba(248, 113, 113, 0.45)';
+                fromBalEl.innerHTML = `
+                    <span>📊 الرصيد الحالي: <b style="color:#fff;">${fmtB(beforeInfo.rawBalance)}</b> SDG (${beforeInfo.shortTag})</span>
+                    ${amtLocal > 0 ? `<span style="color:#fca5a5;">⬅ بعد الصرف: <b style="color:#fef08a;">${fmtB(afterInfo.rawBalance)}</b> SDG (${afterInfo.shortTag})</span>` : ''}
+                `;
+            }
+        } else {
+            fromBalEl.style.display = 'none';
+            fromBalEl.innerHTML = '';
+        }
+    }
+
+    const toId = document.getElementById('to-account')?.value || '';
+    const toName = document.getElementById('to-account-search')?.value || '';
+    const toBalEl = document.getElementById('to-account-live-bal');
+
+    if (toBalEl) {
+        if (toId && typeof window.getPartyAccountBalance === 'function') {
+            const beforeInfo = window.getPartyAccountBalance(toId, toName, 'debtor', 0, true, 'SDG');
+            const afterInfo = window.getPartyAccountBalance(toId, toName, 'debtor', amtLocal, true, 'SDG');
+            const fmtB = (n) => Math.abs(Number(n || 0)).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+
+            toBalEl.style.display = 'flex';
+            toBalEl.innerHTML = `
+                <span>📊 الرصيد الحالي: <b style="color:#fff;">${fmtB(beforeInfo.rawBalance)}</b> SDG (${beforeInfo.shortTag})</span>
+                ${amtLocal > 0 ? `<span style="color:#6ee7b7;">⬅ بعد الاستلام: <b style="color:#fef08a;">${fmtB(afterInfo.rawBalance)}</b> SDG (${afterInfo.shortTag})</span>` : ''}
+            `;
+        } else {
+            toBalEl.style.display = 'none';
+            toBalEl.innerHTML = '';
+        }
+    }
+};
+
 function updateBalances() {
+    if (typeof window.rebuildGLFromAllTables === 'function') {
+        window.rebuildGLFromAllTables(true);
+    }
+    if (typeof window.updateLiveTafqeetAndBalances === 'function') {
+        window.updateLiveTafqeetAndBalances();
+    }
+
     const toAccEl = document.getElementById('to-account');
-    if (!toAccEl) return;
-    const accId = toAccEl.value;
+    const fromAccEl = document.getElementById('from-account');
+    const accId = (toAccEl && toAccEl.value) ? toAccEl.value : (fromAccEl ? fromAccEl.value : '');
     if (!accId) {
         if (document.getElementById('bal-checks')) document.getElementById('bal-checks').innerText = '0';
         if (document.getElementById('bal-debt')) document.getElementById('bal-debt').innerText = '0';
         if (document.getElementById('bal-loan')) document.getElementById('bal-loan').innerText = '0';
         return;
-    }
-
-    // Rebuild GL if available to get freshest numbers
-    if (typeof window.rebuildGLFromAllTables === 'function') {
-        window.rebuildGLFromAllTables(true);
     }
 
     const getTK = window.getTenantKey || ((k) => k);
@@ -520,7 +618,6 @@ function updateBalances() {
 
     // Find opening balance from master records
     let opBal = 0;
-    let opBalFc = 0;
     const cleanId = String(accId).replace(/^(cust|supp|bank|safe|exp)-/, '');
     
     // Check customers, suppliers, safes, banks
@@ -708,26 +805,17 @@ function updateCurrency(preventRateOverwrite = false) {
     let foreignCurr = 'USD'; // Default fallback foreign currency
     let targetForeignCurr = (curr === localCurr || curr === 'SDG') ? foreignCurr : curr;
     
-    // Set labels and symbols
-    if (curr === localCurr || curr === 'SDG') {
-        if (symbolEl1) symbolEl1.innerText = localCurr;
-        if (symbolEl2) symbolEl2.innerText = foreignCurr;
-        if (label1) label1.innerHTML = '<span class="vivid-icon vivid-green" style="width:24px; height:24px; font-size:1.3rem;">💰</span> المبلغ (محلي)';
-        if (label2) label2.innerHTML = '💵 القيمة (أجنبي)';
-    } else {
-        if (symbolEl1) symbolEl1.innerText = curr;
-        if (symbolEl2) symbolEl2.innerText = localCurr;
-        if (label1) label1.innerHTML = '<span class="vivid-icon vivid-green" style="width:24px; height:24px; font-size:1.3rem;">💰</span> المبلغ (أجنبي)';
-        if (label2) label2.innerHTML = '💵 القيمة (محلي)';
-    }
+    // توحيد اتجاه الخانتين محاسبياً: الخانة 1 دائماً للمبلغ المحلي (SDG) والخانة 2 دائماً للقيمة الأجنبية (USD/AED)
+    if (symbolEl1) symbolEl1.innerText = localCurr;
+    if (symbolEl2) symbolEl2.innerText = targetForeignCurr;
+    if (label1) label1.innerHTML = '<span class="vivid-icon vivid-green" style="width:24px; height:24px; font-size:1.1rem;">💰</span> المبلغ (محلي)';
+    if (label2) label2.innerHTML = `💵 القيمة (${targetForeignCurr === 'AED' ? 'درهم' : 'أجنبي'})`;
 
     rateEl.readOnly = false;
     if (typeof window.getExchangeRateForCurrency === 'function' && !preventRateOverwrite) {
         const fetchedRate = window.getExchangeRateForCurrency(targetForeignCurr);
         if (fetchedRate && fetchedRate !== 1) {
             rateEl.value = fetchedRate;
-        } else if(parseNum(rateEl.value) <= 1) {
-            rateEl.value = ''; 
         }
     }
 
@@ -779,16 +867,6 @@ function calcEquiv(source) {
     const amtEl = document.getElementById('amount-local');
     const rateEl = document.getElementById('exchange-rate');
     const eqEl = document.getElementById('amount-foreign');
-    const curr = document.getElementById('currency').value;
-    
-    let localCurr = 'SDG';
-    try {
-        const getTenantKey = window.getTenantKey || ((k) => k);
-        const settings = JSON.parse(localStorage.getItem(getTenantKey('erp_settings_v1')) || localStorage.getItem('erp_settings_v1')) || {};
-        localCurr = settings.currency || 'SDG';
-    } catch (e) {
-        localCurr = 'SDG';
-    }
 
     let val1 = parseNum(amtEl.value);
     let rate = parseNum(rateEl.value) || 1;
@@ -827,28 +905,16 @@ function calcEquiv(source) {
         }
     }
 
-    if (curr === localCurr || curr === 'SDG') {
-        // Box 1 = Local, Box 2 = Foreign
-        if (source === 'local' || source === 'rate') {
-            val2 = actualRateForForeign === 0 ? 0 : val1 / actualRateForForeign;
-            setAnimatedValue(eqEl, val2);
-        } else if (source === 'foreign') {
-            val1 = val2 * actualRateForForeign;
-            setAnimatedValue(amtEl, val1);
-        }
-    } else {
-        // Box 1 = Foreign, Box 2 = Local
-        if (source === 'local' || source === 'rate') {
-            // "local" source is actually Box 1 which is Foreign now
-            val2 = val1 * actualRateForForeign;
-            setAnimatedValue(eqEl, val2);
-        } else if (source === 'foreign') {
-            // "foreign" source is actually Box 2 which is Local now
-            val1 = actualRateForForeign === 0 ? 0 : val2 / actualRateForForeign;
-            setAnimatedValue(amtEl, val1);
-        }
+    // دائماً: Box 1 (#amount-local) = المبلغ المحلي (SDG)، Box 2 (#amount-foreign) = القيمة الأجنبية (USD/AED)
+    if (source === 'local' || source === 'rate') {
+        val2 = actualRateForForeign === 0 ? 0 : val1 / actualRateForForeign;
+        setAnimatedValue(eqEl, val2);
+    } else if (source === 'foreign') {
+        val1 = val2 * actualRateForForeign;
+        setAnimatedValue(amtEl, val1);
     }
 
+    if (typeof window.updateLiveTafqeetAndBalances === 'function') window.updateLiveTafqeetAndBalances();
     if (typeof syncFirstRowAmount === 'function') syncFirstRowAmount();
     if (typeof recalcPaymentSummary === 'function') recalcPaymentSummary();
 }
@@ -1198,10 +1264,50 @@ function extractLast6Digits(str) {
     return '';
 }
 
+function normalizeBankTransferDigitsStrict(val) {
+    if (!val) return '';
+    let s = String(val).trim();
+    if (!s) return '';
+    s = s.replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d))
+         .replace(/[۰-۹]/g, d => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d));
+    if (/^(OUT-OFF-|IN-OFF-|OFF-|WA\d|AUTO-|TEMP-|null|none|n\/a)/i.test(s)) return '';
+    if (/^\d{4}\s+\d{4}(?:\s+\d{4}){1,2}$/.test(s)) return '';
+    const digits = s.replace(/\D/g, '');
+    if (digits.length < 6) return '';
+    if (digits.length === 14 && digits[0] === '0' && /000[1-9]$/.test(digits)) return '';
+    if (digits.length === 21 && digits.startsWith('02')) return '';
+    if (digits.length === 16 && digits[0] === '0' && /(0001|0002|0101|5001)$/.test(digits)) return '';
+    return digits;
+}
+
+function areBankTransferRefsEqualStrict(refA, refB) {
+    const dA = normalizeBankTransferDigitsStrict(refA);
+    const dB = normalizeBankTransferDigitsStrict(refB);
+    if (!dA || !dB) return false;
+    if (dA === dB) return true;
+    const lenA = dA.length;
+    const lenB = dB.length;
+    const minLen = Math.min(lenA, lenB);
+    if (minLen < 6) return false;
+    if (lenA !== lenB) {
+        const shorter = lenA < lenB ? dA : dB;
+        const longer  = lenA < lenB ? dB : dA;
+        if (shorter.length >= 6 && longer.slice(-shorter.length) === shorter) return true;
+        if (minLen >= 9 && dA.slice(-8) === dB.slice(-8)) return true;
+        return false;
+    }
+    if (lenA <= 8) return false;
+    if (dA.slice(-8) === dB.slice(-8)) return true;
+    if (dA.slice(-6) === dB.slice(-6) && dA.slice(0, 2) === dB.slice(0, 2)) return true;
+    return false;
+}
+
 function checkTransferDuplicate(tno, currentVoucherId) {
     if (!tno) return null;
     const rawTarget = String(tno).trim();
-    const cleanDigits = rawTarget.replace(/\D/g, '');
+    const normTarget = rawTarget.replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d))
+                                .replace(/[۰-۹]/g, d => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d));
+    const cleanDigits = normTarget.replace(/\D/g, '');
 
     // الشرط الأول: لا يمكن الحفظ إذا كان أقل من 6 أرقام
     if (cleanDigits.length < 6) {
@@ -1213,7 +1319,6 @@ function checkTransferDuplicate(tno, currentVoucherId) {
         };
     }
 
-    // استخراج آخر ستة أرقام على اليمين للمقارنة
     const candSuffix = cleanDigits.slice(-6);
 
     // 1. فحص التكرار مع أسطر التحويل الأخرى المدخلة حالياً في نفس الشاشة
@@ -1221,8 +1326,7 @@ function checkTransferDuplicate(tno, currentVoucherId) {
     let screenMatches = 0;
     for (const row of transferRows) {
         const otherNo = (row.querySelector('.transfer-no')?.value || '').trim();
-        const otherDigits = otherNo.replace(/\D/g, '');
-        if (otherDigits.length >= 6 && otherDigits.slice(-6) === candSuffix) {
+        if (areBankTransferRefsEqualStrict(cleanDigits, otherNo)) {
             screenMatches++;
             if (screenMatches > 1) {
                 return {
@@ -1231,54 +1335,31 @@ function checkTransferDuplicate(tno, currentVoucherId) {
                     voucherNo: 'نفس السند (سطر آخر على الشاشة)',
                     ref: otherNo,
                     matchedSuffix: candSuffix,
-                    matchType: 'تطابق آخر 6 أرقام مع سطر تحويل آخر مدخل حالياً'
+                    matchType: 'تطابق رقم العملية مع سطر تحويل آخر مدخل حالياً'
                 };
             }
         }
     }
 
-    // Helper to evaluate a reference against candSuffix
+    // Helper to evaluate a reference against cleanDigits
     const evaluateRef = (ref, voucher) => {
         if (!ref) return null;
         const refStr = String(ref).trim();
-        const refDigits = refStr.replace(/\D/g, '');
-        if (!refDigits) return null;
+        if (!areBankTransferRefsEqualStrict(cleanDigits, refStr)) return null;
 
-        let isMatch = false;
-        let matchedSuffix = '';
-        let matchType = '';
-
-        if (refDigits.length >= 6) {
-            const refSuffix = refDigits.slice(-6);
-            if (refSuffix === candSuffix) {
-                isMatch = true;
-                matchedSuffix = candSuffix;
-                matchType = 'تطابق آخر 6 أرقام على اليمين';
-            }
-        } else if (refDigits.length > 0) {
-            if (cleanDigits === refDigits || cleanDigits.slice(-refDigits.length) === refDigits) {
-                isMatch = true;
-                matchedSuffix = refDigits;
-                matchType = 'تطابق مع تحويلة قديمة';
-            }
-        }
-
-        if (isMatch) {
-            return {
-                duplicate: true,
-                isShort: false,
-                voucherNo: voucher.voucherNo || voucher.id || 'سابق',
-                ref: refStr,
-                date: voucher.date || '',
-                amount: voucher.amountLocal || voucher.amount || 0,
-                bank: voucher.bankName || voucher.bank || voucher.note || '',
-                from: voucher.fromAccount || voucher.from || '',
-                to: voucher.toAccount || voucher.to || voucher.beneficiaryName || '',
-                matchedSuffix: matchedSuffix,
-                matchType: matchType
-            };
-        }
-        return null;
+        return {
+            duplicate: true,
+            isShort: false,
+            voucherNo: voucher.voucherNo || voucher.id || 'سابق',
+            ref: refStr,
+            date: voucher.date || '',
+            amount: voucher.amountLocal || voucher.amount || 0,
+            bank: voucher.bankName || voucher.bank || voucher.note || '',
+            from: voucher.fromAccount || voucher.from || '',
+            to: voucher.toAccount || voucher.to || voucher.beneficiaryName || '',
+            matchedSuffix: candSuffix,
+            matchType: 'تطابق رقم العملية البنكية'
+        };
     };
 
     // 2. فحص مصفوفة التحويلات الحية من قاعدة بيانات MariaDB (0ms)
@@ -1300,7 +1381,7 @@ function checkTransferDuplicate(tno, currentVoucherId) {
             const refs = [];
             if (v.mobileTransferNo) refs.push(v.mobileTransferNo);
             if (v.transferRef) refs.push(v.transferRef);
-            if (v.refNo) refs.push(v.refNo);
+            if (v.refNo && !/^(OUT-OFF-|IN-OFF-|OFF-)/i.test(String(v.refNo).trim())) refs.push(v.refNo);
             if (Array.isArray(v.bankTransfers)) {
                 v.bankTransfers.forEach(bt => { if (bt.transferNo) refs.push(bt.transferNo); });
             }
@@ -1434,6 +1515,10 @@ function submitVoucherInner() {
     }
     if (!fromAcc) {
         showToast("يرجى اختيار حساب الدفع (الدافع)", "error");
+        return;
+    }
+    if (String(fromAcc).trim() === String(toAcc).trim()) {
+        showToast("⚠️ خطأ محاسبي: لا يمكن أن يكون حساب الصرف هو نفس حساب الاستلام!", "error");
         return;
     }
 
@@ -1686,7 +1771,7 @@ function submitVoucherInner() {
             voucherData.bankName = cheques[0].checkBranch;
             voucherData.bank = cheques[0].checkBranch;
             voucherData.checkDate = cheques[0].checkDate;
-            voucherData.checkDueDate = '';
+            voucherData.checkDueDate = cheques[0].checkDate || '';
             voucherData.checkRef = '';
             voucherData.checkRefNo = '';
             voucherData.checkSettleLocal = false;
@@ -3019,6 +3104,7 @@ function selectAccount(type, id, name) {
     document.getElementById(type + '-account-search').value = name;
     document.getElementById(type + '-account-dropdown-list').classList.remove('show');
     updateLedgerButtons();
+    if (typeof updateBalances === 'function') updateBalances();
     
     if (type === 'from') {
         setTimeout(() => {
@@ -3613,6 +3699,7 @@ window.addChequeRow = function(branch = '', no = '', date = '', amt = 0, stateme
     const container = document.getElementById('cheques-container');
     if (!container) return;
 
+    const defaultDueDate = date || document.getElementById('hdr-date')?.value || new Date().toISOString().split('T')[0];
     const isFirst = (container.children.length === 0);
     const row = document.createElement('div');
     row.className = 'cheque-row';
@@ -3633,7 +3720,7 @@ window.addChequeRow = function(branch = '', no = '', date = '', amt = 0, stateme
             <input type="text" autocomplete="off" list="master-banks-datalist" class="v-input ctrl-input cheque-branch" value="${branch}" placeholder="اسم البنك * (إجباري)" required style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 62px; font-size:1.55rem; padding: 0 8px; width: 100%; border-radius: 6px; color:#fff; text-align:center;">
         </div>
         <div class="dynamic-focus-container cheque-no-container" style="flex: 1; min-width: 200px; display: flex; align-items: center; gap: 5px; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);"><input type="text" maxlength="14" class="v-input ctrl-input cheque-no dynamic-focus-input dynamic-focus-number" value="${no}" placeholder="رقم الشيك * (إجباري)" required onfocus="this.parentElement.style.flex='15'; this.parentElement.style.minWidth='480px'; this.style.letterSpacing='2px';" onblur="this.parentElement.style.flex='1'; this.parentElement.style.minWidth='200px'; this.style.letterSpacing='normal';" style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 62px; font-size:2.8rem; padding: 0 8px; width: 100%; border-radius: 6px; color:#2dd4bf; text-align: center; font-family: 'Inter', system-ui, sans-serif; font-variant-numeric: tabular-nums; font-weight: 900; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);"></div>
-        <div style="flex: 0.8; min-width: 120px; display: flex; align-items: center; gap: 5px;"><input type="date" class="v-input ctrl-input cheque-date" value="${date}" style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 62px; font-size:1.45rem; padding: 0 4px; width: 100%; border-radius: 6px; color:#fff;"></div>
+        <div style="flex: 0.8; min-width: 120px; display: flex; align-items: center; gap: 5px;" title="تاريخ استحقاق الشيك"><input type="date" class="v-input ctrl-input cheque-date" value="${defaultDueDate}" title="تاريخ استحقاق الشيك" style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 62px; font-size:1.45rem; padding: 0 4px; width: 100%; border-radius: 6px; color:#fff;"></div>
         <div style="flex: 1.2; min-width: 100px; display: flex; align-items: center; gap: 5px;"><input type="text" class="v-input ctrl-input cheque-statement" value="${statement}" placeholder="البيان" style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 62px; font-size:1.55rem; padding: 0 8px; width: 100%; border-radius: 6px; color:#fff; text-align: center;"></div>
         <div style="display: flex; justify-content: flex-end; width: 40px; flex: none;">
             ${buttonHTML}

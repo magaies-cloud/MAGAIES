@@ -1212,7 +1212,15 @@ class WhatsAppClient {
             }
 
             if (invalidReceipts.length > 0) {
-                replyParts.push(`⚠️ عدد (${invalidReceipts.length}) إشعار قيد المراجعة اليدوية (رقم التحويل أقل من 6 أرقام أو غير واضح).`);
+                const hasShortRef = invalidReceipts.some(r => {
+                    const digits = String(r.transfer_no || '').replace(/\D/g, '');
+                    return digits.length > 0 && digits.length < 6;
+                });
+                if (hasShortRef) {
+                    replyParts.push(`⚠️ عدد (${invalidReceipts.length}) إشعار قيد المراجعة اليدوية (رقم التحويل غير مكتمل).`);
+                } else {
+                    replyParts.push(`📥 تم استلام عدد (${invalidReceipts.length}) إشعار بنجاح وهو قيد المراجعة والاعتماد لدى الإدارة المالية.`);
+                }
             }
 
             if (replyParts.length > 0) {
@@ -3359,6 +3367,121 @@ app.post('/wa/healer/toggle', (req, res) => {
     if (healer.enabled && !healer.timer) healer.start();
     log('🤖 HEALER', `Toggled: ${healer.enabled ? 'ENABLED' : 'DISABLED'}`);
     res.json({ success: true, enabled: healer.enabled });
+});
+
+// ── POST /wa/ocr (Warm Cross-Platform Receipt OCR Engine) ──────
+let _ocrWorkerEn = null;
+let _ocrWorkerAr = null;
+let _ocrInitPromise = null;
+let _ocrLock = Promise.resolve();
+
+async function getOcrWorkers() {
+    if (_ocrWorkerEn && _ocrWorkerAr) return { workerEn: _ocrWorkerEn, workerAr: _ocrWorkerAr };
+    if (_ocrInitPromise) return _ocrInitPromise;
+    _ocrInitPromise = (async () => {
+        const { createWorker } = await import('tesseract.js');
+        const cachePath = path.join(__dirname);
+        const [wEn, wAr] = await Promise.all([
+            createWorker('eng', 1, { cachePath, logger: () => {} }),
+            createWorker('ara+eng', 1, { cachePath, logger: () => {} })
+        ]);
+        await wEn.setParameters({ tessedit_pageseg_mode: '6' });
+        await wAr.setParameters({ tessedit_pageseg_mode: '6' });
+        _ocrWorkerEn = wEn;
+        _ocrWorkerAr = wAr;
+        return { workerEn: wEn, workerAr: wAr };
+    })();
+    try {
+        return await _ocrInitPromise;
+    } catch (e) {
+        _ocrInitPromise = null;
+        throw e;
+    }
+}
+
+app.post('/wa/ocr', async (req, res) => {
+    const { imagePath } = req.body || {};
+    if (!imagePath || !fs.existsSync(imagePath)) {
+        return res.status(400).json({ success: false, error: 'Image file not found' });
+    }
+    const runTask = async () => {
+        if (process.platform === 'win32') {
+            const psScript = path.join(__dirname, 'api', 'win-ocr.ps1');
+            if (fs.existsSync(psScript)) {
+                try {
+                    const { execFileSync } = await import('child_process');
+                    const out = execFileSync('powershell', [
+                        '-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass',
+                        '-File', psScript, '-ImagePath', imagePath
+                    ], { encoding: 'utf8', timeout: 8000 });
+                    const m = out.match(/\{[\s\S]*\}/);
+                    if (m) {
+                        const parsed = JSON.parse(m[0]);
+                        if (parsed && parsed.success) return parsed;
+                    }
+                } catch (e) {}
+            }
+        }
+
+        const sharpMod = (await import('sharp')).default;
+        const { workerEn, workerAr } = await getOcrWorkers();
+        const meta = await sharpMod(imagePath).metadata();
+        const origW = meta.width || 600;
+        const origH = meta.height || 1000;
+        const targetW = Math.min(Math.max(origW * 2, 1100), 1700);
+        const scale = targetW / origW;
+
+        const cleanFullBuf = await sharpMod(imagePath)
+            .resize({ width: targetW })
+            .grayscale()
+            .normalize()
+            .png()
+            .toBuffer();
+
+        const resEnFull = await workerEn.recognize(cleanFullBuf);
+        const resArFull = await workerAr.recognize(cleanFullBuf);
+
+        const toStructuredLines = (resObj) => {
+            const lines = resObj?.data?.lines || [];
+            if (lines.length > 0) {
+                return lines.map((ln, idx) => {
+                    const txt = String(ln.text || '').replace(/[|_—–]+/g, ' ').replace(/\s+/g, ' ').trim();
+                    if (!txt) return null;
+                    const bbox = ln.bbox || {};
+                    return {
+                        text: txt,
+                        rtl_text: txt,
+                        x: Math.round((bbox.x0 || 0) / scale),
+                        y: Math.round((bbox.y0 || (idx * 35)) / scale),
+                        w: Math.round(((bbox.x1 || 0) - (bbox.x0 || 0)) / scale),
+                        h: Math.round(((bbox.y1 || 0) - (bbox.y0 || 0)) / scale) || 24
+                    };
+                }).filter(Boolean);
+            }
+            return String(resObj?.data?.text || '')
+                .split(/\r?\n/)
+                .map(l => l.replace(/[|_—–]+/g, ' ').replace(/\s+/g, ' ').trim())
+                .filter(l => l.length > 0)
+                .map((t, idx) => ({ text: t, rtl_text: t, x: 0, y: idx * 35, w: origW, h: 24 }));
+        };
+
+        return {
+            success: true,
+            img_w: origW,
+            img_h: origH,
+            ar_lines: toStructuredLines(resArFull),
+            en_lines: toStructuredLines(resEnFull)
+        };
+    };
+
+    try {
+        const nextLock = _ocrLock.then(runTask, runTask);
+        _ocrLock = nextLock.catch(() => {});
+        const result = await nextLock;
+        res.json(result);
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
 });
 
 // ── 404 AND GLOBAL ERROR HANDLERS ──────────────────────────────

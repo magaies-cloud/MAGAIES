@@ -1350,9 +1350,53 @@ JSON.parse = function(val) {
     // Global helper for checking uniqueness of Check/Transfer Numbers across all vouchers
     window.isBankReferenceUnique = function(num, type, excludeVoucherId = null) {
         if (!num) return true;
-        
-        const inputVal = num.toString().trim();
-        const inputLast6 = inputVal.length >= 6 ? inputVal.slice(-6) : inputVal;
+
+        const normRefDigits = (val) => {
+            if (!val) return '';
+            let s = String(val).trim()
+                .replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d))
+                .replace(/[۰-۹]/g, d => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d));
+            if (/^(OUT-OFF-|IN-OFF-|OFF-|WA\d|AUTO-|TEMP-|null|none|n\/a)/i.test(s)) return '';
+            if (/^\d{4}\s+\d{4}(?:\s+\d{4}){1,2}$/.test(s)) return '';
+            const digits = s.replace(/\D/g, '');
+            if (digits.length < 6) return '';
+            if (digits.length === 14 && digits[0] === '0' && /000[1-9]$/.test(digits)) return '';
+            if (digits.length === 21 && digits.startsWith('02')) return '';
+            if (digits.length === 16 && digits[0] === '0' && /(0001|0002|0101|5001)$/.test(digits)) return '';
+            return digits;
+        };
+
+        const areRefsEqual = (a, b) => {
+            const dA = normRefDigits(a);
+            const dB = normRefDigits(b);
+            if (!dA || !dB) return false;
+            if (dA === dB) return true;
+            const lenA = dA.length, lenB = dB.length, minLen = Math.min(lenA, lenB);
+            if (minLen < 6) return false;
+            if (lenA !== lenB) {
+                const shorter = lenA < lenB ? dA : dB;
+                const longer  = lenA < lenB ? dB : dA;
+                if (shorter.length >= 6 && longer.slice(-shorter.length) === shorter) return true;
+                if (minLen >= 9 && dA.slice(-8) === dB.slice(-8)) return true;
+                return false;
+            }
+            if (lenA <= 8) return false;
+            if (dA.slice(-8) === dB.slice(-8)) return true;
+            if (dA.slice(-6) === dB.slice(-6) && dA.slice(0, 2) === dB.slice(0, 2)) return true;
+            return false;
+        };
+
+        const inputDigits = normRefDigits(num);
+        if (!inputDigits) return true;
+
+        // Check window.DB_ALL_TRANSFER_REFS if present
+        if (type !== 'check' && Array.isArray(window.DB_ALL_TRANSFER_REFS)) {
+            for (const row of window.DB_ALL_TRANSFER_REFS) {
+                if (!row) continue;
+                if (excludeVoucherId && String(row.voucherNo) === String(excludeVoucherId)) continue;
+                if (areRefsEqual(inputDigits, row.ref || row.cleanRef)) return false;
+            }
+        }
 
         // We will check all these stores because they can all contain financial transactions
         const storesToCheck = [
@@ -1365,7 +1409,7 @@ JSON.parse = function(val) {
         // Helper to extract all references of a specific type (check or mobile/bank transfer) from any voucher object
         function getVoucherReferences(item, refType) {
             const refs = [];
-            if (!item) return refs;
+            if (!item || item.deleted) return refs;
 
             if (refType === 'check') {
                 if (item.checkNo) refs.push(item.checkNo.toString().trim());
@@ -1390,11 +1434,18 @@ JSON.parse = function(val) {
                 }
             } else if (refType === 'mobile' || refType === 'bank') {
                 if (item.mobileTransferNo) refs.push(item.mobileTransferNo.toString().trim());
+                if (item.transferNo) refs.push(item.transferNo.toString().trim());
                 if (item.bankRef) refs.push(item.bankRef.toString().trim());
                 if (item.mobileRef) refs.push(item.mobileRef.toString().trim());
                 if (Array.isArray(item.bankTransfers)) {
                     item.bankTransfers.forEach(t => {
                         if (t.transferNo) refs.push(t.transferNo.toString().trim());
+                    });
+                }
+                if (Array.isArray(item.transfers)) {
+                    item.transfers.forEach(t => {
+                        if (t.transferNo) refs.push(t.transferNo.toString().trim());
+                        if (t.reference) refs.push(t.reference.toString().trim());
                     });
                 }
                 if (Array.isArray(item.items)) {
@@ -1421,13 +1472,13 @@ JSON.parse = function(val) {
             } catch(e) { continue; }
             
             for (const item of arr) {
+                if (!item || item.deleted) continue;
                 // If we are editing, we ignore the same voucher ID
                 if (excludeVoucherId && (item.id === excludeVoucherId || item.voucherNo === excludeVoucherId)) continue;
                 
                 const itemRefs = getVoucherReferences(item, type);
                 for (const ref of itemRefs) {
-                    const itemLast6 = ref.length >= 6 ? ref.slice(-6) : ref;
-                    if (itemLast6 === inputLast6) {
+                    if (areRefsEqual(inputDigits, ref)) {
                         return false;
                     }
                 }
@@ -2831,6 +2882,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     injectSidebar();
+    if (!window.__MagaieesPanoramicSidebarLoaded && !document.querySelector('script[src*="sidebar-panoramic-flyout.js"]')) {
+        const pfScript = document.createElement('script');
+        pfScript.src = 'js/sidebar-panoramic-flyout.js?v=20261020_v4';
+        pfScript.defer = true;
+        document.head.appendChild(pfScript);
+    }
 
 
     // --- 3. Fullscreen Control ---
