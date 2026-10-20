@@ -1676,7 +1676,7 @@ class WhatsAppClient {
   .voucher-canvas {
     position: relative;
     width: 1080px;
-    padding: 56px 38px;
+    padding: 28px 30px;
     background:
       radial-gradient(circle at 85% 10%, rgba(250, 204, 21, 0.22) 0%, transparent 42%),
       radial-gradient(circle at 15% 85%, rgba(16, 185, 129, 0.20) 0%, transparent 48%),
@@ -1695,52 +1695,52 @@ class WhatsAppClient {
     z-index: 2;
     width: 100%;
     margin: 0;
-    border: 6px solid #facc15;
-    border-radius: 30px;
-    padding: 11px;
+    border: 5px solid #facc15;
+    border-radius: 26px;
+    padding: 9px;
     background: linear-gradient(160deg, rgba(250,204,21,0.45) 0%, rgba(6,26,22,0.97) 25%, rgba(5,18,28,0.98) 75%, rgba(250,204,21,0.45) 100%);
-    box-shadow: 0 24px 60px rgba(0,0,0,0.88), 0 0 28px rgba(250,204,21,0.28), inset 0 0 30px rgba(250,204,21,0.18);
+    box-shadow: 0 20px 50px rgba(0,0,0,0.88), 0 0 24px rgba(250,204,21,0.28), inset 0 0 26px rgba(250,204,21,0.18);
   }
   .gold-frame-inner {
     position: relative;
     width: 100%;
-    border: 2.5px dashed rgba(253, 230, 138, 0.72);
-    border-radius: 22px;
-    padding: 24px 22px 26px;
+    border: 2px dashed rgba(253, 230, 138, 0.72);
+    border-radius: 20px;
+    padding: 16px 18px 18px;
     background: linear-gradient(180deg, rgba(8, 30, 25, 0.96) 0%, rgba(5, 17, 27, 0.99) 100%);
   }
 
   /* 1. الترويسة العليا: شعار مقاييس الملون M على اليمين واسم المنظومة بالعربي والإنجليزي */
   .header-section {
-    margin-bottom: 14px;
+    margin-bottom: 10px;
   }
   .header-brand-row {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 18px;
+    gap: 16px;
     background: linear-gradient(90deg, rgba(212,175,55,0.20) 0%, rgba(8,33,28,0.95) 50%, rgba(212,175,55,0.20) 100%);
-    border: 2.5px solid rgba(250, 204, 21, 0.72);
-    border-radius: 20px;
-    padding: 15px 22px;
-    box-shadow: 0 10px 28px rgba(0,0,0,0.55);
+    border: 2px solid rgba(250, 204, 21, 0.72);
+    border-radius: 18px;
+    padding: 10px 18px;
+    box-shadow: 0 8px 22px rgba(0,0,0,0.55);
   }
   .magaiees-logo-right {
-    width: 112px;
-    height: 112px;
+    width: 96px;
+    height: 96px;
     flex-shrink: 0;
-    border-radius: 22px;
-    border: 2.5px solid rgba(250, 204, 21, 0.85);
+    border-radius: 18px;
+    border: 2px solid rgba(250, 204, 21, 0.85);
     background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, rgba(6,22,34,0.98) 80%);
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 0 24px rgba(56, 189, 248, 0.32), inset 0 0 14px rgba(250, 204, 21, 0.22);
-    padding: 8px;
+    box-shadow: 0 0 20px rgba(56, 189, 248, 0.32), inset 0 0 12px rgba(250, 204, 21, 0.22);
+    padding: 6px;
   }
   .m-logo-img {
-    width: 94px;
-    height: 94px;
+    width: 82px;
+    height: 82px;
     object-fit: contain;
     filter: drop-shadow(0 6px 12px rgba(0,0,0,0.6));
   }
@@ -1751,70 +1751,75 @@ class WhatsAppClient {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 8px;
+    gap: 4px;
   }
   .org-title {
-    font-size: 50px;
+    font-size: 46px;
     font-weight: 900;
     color: #ffffff;
     text-shadow: 0 3px 14px rgba(250,204,21,0.5);
-    line-height: 1.15;
+    line-height: 1.12;
     white-space: nowrap;
   }
   .org-sub {
-    font-size: 23px;
+    font-size: 20px;
     font-weight: 900;
     color: #38bdf8;
-    letter-spacing: 2.8px;
+    letter-spacing: 2.5px;
     direction: ltr;
   }
 
   /* لوحة سند رصيد وتحتها شريط شعار واسم المنشأة بنفس فخامة ترويسة المنظومة */
   .title-plaque {
-    margin-top: 12px;
+    margin-top: 8px;
     background: linear-gradient(135deg, rgba(212, 175, 55, 0.34) 0%, rgba(9, 42, 34, 0.97) 50%, rgba(212, 175, 55, 0.34) 100%);
-    border: 3px solid #facc15;
-    border-radius: 20px;
-    padding: 10px 18px 14px;
+    border: 2.5px solid #facc15;
+    border-radius: 18px;
+    padding: 6px 14px 10px;
     text-align: center;
-    box-shadow: 0 10px 26px rgba(0,0,0,0.6), inset 0 0 24px rgba(250,204,21,0.22);
+    box-shadow: 0 8px 22px rgba(0,0,0,0.6), inset 0 0 20px rgba(250,204,21,0.22);
   }
   .voucher-main-title {
-    font-size: 50px;
+    display: inline-block;
+    font-size: 32px;
     font-weight: 900;
     color: #ffffff;
-    text-shadow: 0 4px 18px rgba(250,204,21,0.65);
-    line-height: 1.08;
+    background: rgba(5, 22, 18, 0.78);
+    border: 1.5px solid rgba(250, 204, 21, 0.7);
+    border-radius: 999px;
+    padding: 2px 26px 4px;
+    text-shadow: 0 2px 10px rgba(250,204,21,0.55);
+    line-height: 1.1;
     letter-spacing: 0.5px;
   }
   .company-brand-row {
-    margin-top: 10px;
-    padding-top: 10px;
-    border-top: 2px dashed rgba(250, 204, 21, 0.55);
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1.5px dashed rgba(250, 204, 21, 0.5);
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 16px;
+    gap: 14px;
   }
   .company-logo-right {
-    width: 96px;
-    height: 96px;
+    width: 102px;
+    height: 102px;
     flex-shrink: 0;
-    border-radius: 20px;
-    border: 2.5px solid rgba(250, 204, 21, 0.9);
-    background: radial-gradient(circle, rgba(255,255,255,0.18) 0%, rgba(6,22,34,0.96) 82%);
+    border-radius: 16px;
+    border: 2.5px solid #facc15;
+    background: #ffffff;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 0 20px rgba(250, 204, 21, 0.28), inset 0 0 12px rgba(250, 204, 21, 0.2);
-    padding: 6px;
+    box-shadow: 0 0 18px rgba(250, 204, 21, 0.32);
+    padding: 0;
     overflow: hidden;
   }
   .company-logo-img {
-    width: 82px;
-    height: 82px;
-    object-fit: contain;
-    filter: drop-shadow(0 4px 10px rgba(0,0,0,0.55));
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
   }
   .company-name-center {
     flex: 1;
@@ -1842,15 +1847,15 @@ class WhatsAppClient {
   .customer-banner-card {
     background: linear-gradient(135deg, rgba(14, 42, 54, 0.97) 0%, rgba(7, 22, 32, 0.99) 100%);
     border: 2.5px solid rgba(250, 204, 21, 0.8);
-    border-radius: 18px;
-    padding: 16px 20px;
-    margin-bottom: 14px;
+    border-radius: 16px;
+    padding: 12px 18px;
+    margin-bottom: 10px;
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 14px;
     flex-wrap: nowrap;
-    box-shadow: 0 12px 28px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.12);
+    box-shadow: 0 10px 24px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.12);
   }
   .holder-right-group {
     display: flex;
@@ -1862,18 +1867,18 @@ class WhatsAppClient {
     white-space: nowrap;
   }
   .holder-role-label {
-    font-size: 38px;
+    font-size: 36px;
     color: #fde047;
     font-weight: 900;
     white-space: nowrap;
     flex-shrink: 0;
   }
   .holder-name {
-    font-size: 56px;
+    font-size: 52px;
     font-weight: 900;
     color: #ffffff;
     text-shadow: 0 3px 14px rgba(250, 204, 21, 0.4);
-    line-height: 1.15;
+    line-height: 1.12;
     white-space: nowrap;
   }
   .status-badge-vertical {
@@ -1883,9 +1888,9 @@ class WhatsAppClient {
     background: ${statusColors.badgeBg};
     border: 2px solid ${statusColors.badgeBorder};
     color: ${statusColors.badgeText};
-    padding: 7px 15px;
+    padding: 6px 14px;
     border-radius: 12px;
-    font-size: 24px;
+    font-size: 23px;
     font-weight: 900;
     box-shadow: 0 0 16px ${statusColors.accentGlow};
     white-space: nowrap;
@@ -1904,35 +1909,35 @@ class WhatsAppClient {
   .currency-stack {
     display: flex;
     flex-direction: column;
-    gap: 14px;
-    margin-bottom: 14px;
+    gap: 10px;
+    margin-bottom: 10px;
   }
   .banknote-card {
     position: relative;
-    border-radius: 20px;
-    padding: 18px 16px;
+    border-radius: 18px;
+    padding: 14px 14px;
     overflow: hidden;
-    box-shadow: 0 16px 36px rgba(0,0,0,0.65);
+    box-shadow: 0 14px 30px rgba(0,0,0,0.65);
   }
   .banknote-local {
     background: linear-gradient(145deg, #10382e 0%, #061c17 55%, #143527 100%);
-    border: 3px solid #facc15;
-    box-shadow: 0 14px 34px rgba(0,0,0,0.65), inset 0 0 26px rgba(250,204,21,0.16);
+    border: 2.5px solid #facc15;
+    box-shadow: 0 12px 28px rgba(0,0,0,0.65), inset 0 0 22px rgba(250,204,21,0.16);
   }
   .banknote-usd {
     background: linear-gradient(145deg, #0b3144 0%, #051927 55%, #0c3830 100%);
-    border: 3px solid #10b981;
-    box-shadow: 0 14px 34px rgba(0,0,0,0.65), inset 0 0 26px rgba(16,185,129,0.16);
+    border: 2.5px solid #10b981;
+    box-shadow: 0 12px 28px rgba(0,0,0,0.65), inset 0 0 22px rgba(16,185,129,0.16);
   }
   .hero-amount-well {
     position: relative;
     background: rgba(2, 9, 17, 0.88);
     border: 2px solid rgba(250, 204, 21, 0.65);
-    border-radius: 16px;
-    padding: 18px 16px;
-    margin-bottom: 12px;
+    border-radius: 14px;
+    padding: 12px 14px;
+    margin-bottom: 10px;
     text-align: center;
-    box-shadow: inset 0 4px 20px rgba(0,0,0,0.85);
+    box-shadow: inset 0 4px 18px rgba(0,0,0,0.85);
   }
   .banknote-usd .hero-amount-well {
     border-color: rgba(16, 185, 129, 0.65);
@@ -2046,37 +2051,37 @@ class WhatsAppClient {
   /* 5. بطاقة المراجع وبيانات السند في الأسفل (تحت الجنيه السوداني والدولار) */
   .references-card {
     background: linear-gradient(180deg, rgba(12, 34, 45, 0.96) 0%, rgba(7, 20, 30, 0.99) 100%);
-    border: 2.5px solid rgba(229, 193, 88, 0.72);
-    border-radius: 18px;
-    padding: 16px 14px;
-    margin-bottom: 14px;
-    box-shadow: 0 12px 28px rgba(0,0,0,0.55);
+    border: 2px solid rgba(229, 193, 88, 0.72);
+    border-radius: 16px;
+    padding: 12px 12px;
+    margin-bottom: 10px;
+    box-shadow: 0 10px 24px rgba(0,0,0,0.55);
   }
   .meta-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 10px;
+    gap: 8px;
   }
   .meta-item {
     background: rgba(3, 11, 20, 0.92);
     border: 1.5px solid rgba(255, 255, 255, 0.22);
     border-right: 6px solid #facc15;
-    border-radius: 13px;
-    padding: 12px 16px;
+    border-radius: 12px;
+    padding: 9px 14px;
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 3px;
   }
   .meta-item.emerald-border {
     border-right-color: #10b981;
   }
   .meta-label {
-    font-size: 27px;
+    font-size: 25px;
     color: #cbd5e1;
     font-weight: 900;
   }
   .meta-value {
-    font-size: 36px;
+    font-size: 34px;
     font-weight: 900;
     color: #ffffff;
     direction: rtl;
@@ -2089,14 +2094,14 @@ class WhatsAppClient {
     direction: ltr;
     text-align: right;
   }
-  .meta-value.gold { color: #fef08a; font-size: 38px; }
-  .meta-value.emerald { color: #6ee7b7; font-size: 36px; }
-  .meta-value.rose { color: #fda4af; font-size: 34px; letter-spacing: 0.5px; }
+  .meta-value.gold { color: #fef08a; font-size: 36px; }
+  .meta-value.emerald { color: #6ee7b7; font-size: 34px; }
+  .meta-value.rose { color: #fda4af; font-size: 32px; letter-spacing: 0.5px; }
 
   /* 6. منطقة التوقيع والختم المعتمد أسفل السند */
   .voucher-footer {
     border-top: 2px solid rgba(229, 193, 88, 0.45);
-    padding-top: 20px;
+    padding-top: 16px;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -2117,26 +2122,26 @@ class WhatsAppClient {
   }
   .seal-badge.seal-signature-full {
     flex: 1;
-    min-height: 152px;
+    min-height: 142px;
     background: #ffffff;
     border: 3.5px solid #facc15;
-    border-radius: 22px;
-    padding: 14px 24px 10px;
+    border-radius: 20px;
+    padding: 12px 18px 8px;
     position: relative;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 10px 26px rgba(0, 0, 0, 0.55);
+    box-shadow: 0 10px 26px rgba(0, 0, 0, 0.55), inset 0 0 16px rgba(255, 255, 255, 1);
   }
   .seal-floating-label {
     position: absolute;
-    top: -16px;
-    right: 24px;
+    top: -15px;
+    right: 22px;
     background: linear-gradient(135deg, #092c23 0%, #051824 100%);
     border: 2px solid #facc15;
     border-radius: 999px;
-    padding: 2px 16px;
-    font-size: 19px;
+    padding: 2px 15px;
+    font-size: 18px;
     font-weight: 900;
     color: #fde047;
     white-space: nowrap;
@@ -2158,7 +2163,7 @@ class WhatsAppClient {
   }
   .seal-custom-img {
     width: 100%;
-    height: 126px;
+    height: 120px;
     max-width: 100%;
     object-fit: contain;
     background: transparent !important;
@@ -2166,6 +2171,7 @@ class WhatsAppClient {
     border-radius: 0 !important;
     padding: 0 !important;
     box-shadow: none !important;
+    filter: drop-shadow(0 0 2px #ffffff) drop-shadow(0 0 5px #ffffff) drop-shadow(0 0 8px #ffffff);
     display: block;
   }
   .seal-text-main {
@@ -2437,7 +2443,7 @@ class WhatsAppClient {
         if (!globalThis.__voucherImgCache) {
             globalThis.__voucherImgCache = new Map();
         }
-        const cacheKey = `${v.entity_type || ''}_${v.entity_name || ''}_${v.net_balance_local || 0}_${v.net_balance_usd || 0}_${v.movements_count || 0}_${v.status_type || ''}_${companyName}_${companyLogo ? companyLogo.length : 0}_${stampText}_${stampImage ? stampImage.length : 0}_v2`;
+        const cacheKey = `${v.entity_type || ''}_${v.entity_name || ''}_${v.net_balance_local || 0}_${v.net_balance_usd || 0}_${v.movements_count || 0}_${v.status_type || ''}_${companyName}_${companyLogo ? companyLogo.length : 0}_${stampText}_${stampImage ? stampImage.length : 0}_v3`;
         const cachedEntry = globalThis.__voucherImgCache.get(cacheKey);
         if (cachedEntry && (Date.now() - cachedEntry.ts <= 10000) && cachedEntry.buf) {
             return cachedEntry.buf;
@@ -2461,7 +2467,43 @@ class WhatsAppClient {
                     const imgs = Array.from(document.querySelectorAll('img'));
                     await Promise.all(imgs.map(img => img.complete ? Promise.resolve() : new Promise(r => { img.onload = r; img.onerror = r; setTimeout(r, 1500); })));
 
-                    // Process signature image so any white paper background is stripped to transparent and empty margins are trimmed
+                    // 1. Auto-crop any uniform margins around company logo so it fills 100% of its square box
+                    const logoImg = document.querySelector('.company-logo-img');
+                    if (logoImg && logoImg.naturalWidth > 0 && logoImg.naturalHeight > 0) {
+                        try {
+                            const lw = logoImg.naturalWidth, lh = logoImg.naturalHeight;
+                            const lc = document.createElement('canvas');
+                            lc.width = lw; lc.height = lh;
+                            const lctx = lc.getContext('2d');
+                            lctx.drawImage(logoImg, 0, 0, lw, lh);
+                            const ld = lctx.getImageData(0, 0, lw, lh).data;
+                            const cr = ld[0], cg = ld[1], cb = ld[2], ca = ld[3];
+                            let lMinX = lw, lMinY = lh, lMaxX = -1, lMaxY = -1;
+                            for (let y = 0; y < lh; y++) {
+                                for (let x = 0; x < lw; x++) {
+                                    const idx = (y * lw + x) * 4;
+                                    const a = ld[idx + 3];
+                                    const diff = Math.abs(ld[idx] - cr) + Math.abs(ld[idx + 1] - cg) + Math.abs(ld[idx + 2] - cb) + Math.abs(a - ca);
+                                    if (a > 25 && (ca < 25 || diff > 36)) {
+                                        if (x < lMinX) lMinX = x;
+                                        if (x > lMaxX) lMaxX = x;
+                                        if (y < lMinY) lMinY = y;
+                                        if (y > lMaxY) lMaxY = y;
+                                    }
+                                }
+                            }
+                            if (lMaxX > lMinX + 10 && lMaxY > lMinY + 10) {
+                                const cw = lMaxX - lMinX + 1, ch = lMaxY - lMinY + 1;
+                                const outL = document.createElement('canvas');
+                                outL.width = cw; outL.height = ch;
+                                outL.getContext('2d').drawImage(lc, lMinX, lMinY, cw, ch, 0, 0, cw, ch);
+                                logoImg.src = outL.toDataURL('image/png');
+                                if (logoImg.decode) await logoImg.decode().catch(() => {});
+                            }
+                        } catch (_) {}
+                    }
+
+                    // 2. AI Document Ink & Stamp Cleaner: adaptive background removal, despeckle, dark stroke sharpening, and tight auto-crop
                     const sigImg = document.querySelector('.seal-custom-img');
                     if (sigImg && sigImg.naturalWidth > 0 && sigImg.naturalHeight > 0) {
                         try {
@@ -2475,13 +2517,87 @@ class WhatsAppClient {
                             const imgData = ctx.getImageData(0, 0, w, h);
                             const d = imgData.data;
 
+                            // Collect luminance samples to detect paper/background brightness adaptively
+                            const lums = [];
+                            const borderLums = [];
+                            for (let y = 0; y < h; y += 2) {
+                                for (let x = 0; x < w; x += 2) {
+                                    const idx = (y * w + x) * 4;
+                                    if (d[idx + 3] < 30) continue;
+                                    const lum = 0.299 * d[idx] + 0.587 * d[idx + 1] + 0.114 * d[idx + 2];
+                                    lums.push(lum);
+                                    if (x < w * 0.08 || x > w * 0.92 || y < h * 0.08 || y > h * 0.92) {
+                                        borderLums.push(lum);
+                                    }
+                                }
+                            }
+                            lums.sort((a, b) => a - b);
+                            borderLums.sort((a, b) => a - b);
+                            const borderMed = borderLums.length ? borderLums[Math.floor(borderLums.length * 0.5)] : 240;
+                            const invertDarkBg = borderMed < 95 && lums.length > 50;
+
+                            if (invertDarkBg) {
+                                for (let i = 0; i < d.length; i += 4) {
+                                    if (d[i + 3] >= 30) {
+                                        d[i] = 255 - d[i];
+                                        d[i + 1] = 255 - d[i + 1];
+                                        d[i + 2] = 255 - d[i + 2];
+                                    }
+                                }
+                            }
+
+                            const p75 = lums.length ? (invertDarkBg ? (255 - lums[Math.floor(lums.length * 0.25)]) : lums[Math.floor(lums.length * 0.75)]) : 235;
+                            const inkCutoff = Math.min(220, Math.max(135, p75 * 0.85));
+
                             for (let i = 0; i < d.length; i += 4) {
                                 const r = d[i], g = d[i + 1], b = d[i + 2], a = d[i + 3];
-                                if (a > 0 && r > 228 && g > 228 && b > 228) {
+                                if (a < 25) {
                                     d[i + 3] = 0;
-                                } else if (a > 15 && r > 205 && g > 205 && b > 205) {
-                                    const maxCh = Math.max(r, g, b);
-                                    d[i + 3] = Math.round(a * Math.max(0, (240 - maxCh) / 35));
+                                    continue;
+                                }
+                                const lum = 0.299 * r + 0.587 * g + 0.114 * b;
+                                const maxCh = Math.max(r, g, b);
+                                const minCh = Math.min(r, g, b);
+                                const chroma = maxCh - minCh;
+
+                                if (lum >= inkCutoff && chroma < 38) {
+                                    d[i + 3] = 0;
+                                } else {
+                                    const effCutoff = chroma >= 38 ? Math.min(235, inkCutoff + 22) : inkCutoff;
+                                    const rawStrength = Math.max(0, (effCutoff - lum + chroma * 0.45) / Math.max(35, effCutoff * 0.52));
+                                    if (rawStrength < 0.16) {
+                                        d[i + 3] = 0;
+                                    } else {
+                                        const cleanAlpha = Math.min(255, Math.round(Math.pow(Math.min(1, rawStrength), 0.55) * 255 * 1.45));
+                                        d[i + 3] = Math.round((a / 255) * cleanAlpha);
+                                        // Make stamp/signature crisp dark ink (pure deep black/navy, or rich dark blue/red if colored)
+                                        if (chroma < 42) {
+                                            d[i] = 8;
+                                            d[i + 1] = 12;
+                                            d[i + 2] = 22;
+                                        } else {
+                                            d[i] = Math.round(r * 0.38);
+                                            d[i + 1] = Math.round(g * 0.38);
+                                            d[i + 2] = Math.round(b * 0.46);
+                                        }
+                                    }
+                                }
+                            }
+
+                            // Despeckle isolated 1px background noise so only clean strokes remain
+                            const alphaCopy = new Uint8Array(w * h);
+                            for (let p = 0; p < w * h; p++) alphaCopy[p] = d[p * 4 + 3];
+                            for (let y = 1; y < h - 1; y++) {
+                                for (let x = 1; x < w - 1; x++) {
+                                    const p = y * w + x;
+                                    if (alphaCopy[p] === 0) continue;
+                                    let nCount = 0;
+                                    for (let dy = -1; dy <= 1; dy++) {
+                                        for (let dx = -1; dx <= 1; dx++) {
+                                            if ((dx !== 0 || dy !== 0) && alphaCopy[(y + dy) * w + (x + dx)] > 50) nCount++;
+                                        }
+                                    }
+                                    if (nCount < 2) d[p * 4 + 3] = 0;
                                 }
                             }
                             ctx.putImageData(imgData, 0, 0);
@@ -2490,7 +2606,7 @@ class WhatsAppClient {
                             for (let y = 0; y < h; y++) {
                                 for (let x = 0; x < w; x++) {
                                     const alpha = d[(y * w + x) * 4 + 3];
-                                    if (alpha > 20) {
+                                    if (alpha > 45) {
                                         if (x < minX) minX = x;
                                         if (x > maxX) maxX = x;
                                         if (y < minY) minY = y;
@@ -2499,7 +2615,7 @@ class WhatsAppClient {
                                 }
                             }
                             if (maxX >= minX && maxY >= minY) {
-                                const pad = 4;
+                                const pad = 6;
                                 const cx = Math.max(0, minX - pad);
                                 const cy = Math.max(0, minY - pad);
                                 const cw = Math.min(w - cx, (maxX - minX + 1) + pad * 2);
@@ -2507,7 +2623,12 @@ class WhatsAppClient {
                                 const cropC = document.createElement('canvas');
                                 cropC.width = cw;
                                 cropC.height = ch;
-                                cropC.getContext('2d').drawImage(c, cx, cy, cw, ch, 0, 0, cw, ch);
+                                const cropCtx = cropC.getContext('2d');
+                                // Draw twice with a 0.5px offset for bolder, cleaner stroke density
+                                cropCtx.drawImage(c, cx, cy, cw, ch, 0, 0, cw, ch);
+                                cropCtx.globalAlpha = 0.45;
+                                cropCtx.drawImage(c, cx, cy, cw, ch, 0.5, 0, cw, ch);
+                                cropCtx.globalAlpha = 1.0;
                                 sigImg.src = cropC.toDataURL('image/png');
                                 if (sigImg.decode) await sigImg.decode().catch(() => {});
                             }

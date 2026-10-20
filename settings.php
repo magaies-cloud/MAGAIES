@@ -187,6 +187,7 @@ try {
     <script>
         window.SERVER_TENANT = <?php echo json_encode($serverTenant, JSON_UNESCAPED_UNICODE); ?>;
         window.SERVER_SETTINGS = <?php echo json_encode($serverSettings, JSON_UNESCAPED_UNICODE); ?>;
+        window.SERVER_WA_POLICY = <?php $serverWaPolicy = null; try { $stmtWaPol = $pdo->prepare("SELECT setting_value FROM global_settings WHERE setting_key = 'erp_whatsapp_statement_policy_v1' LIMIT 1"); $stmtWaPol->execute(); $rawWaPol = $stmtWaPol->fetchColumn(); if ($rawWaPol) $serverWaPolicy = json_decode($rawWaPol, true); } catch (Exception $e) {} echo json_encode($serverWaPolicy, JSON_UNESCAPED_UNICODE); ?>;
     </script>
     <style>
         :root {
@@ -652,6 +653,35 @@ try {
                     </div>
                 </div>
                 
+                <!-- 🏛️ منطقة اسم المنشأة والشعار والتوقيع / الختم المعتمد للسندات والإشعارات -->
+                <div class="wa-voucher-branding-bar" style="margin-top: 5px; margin-bottom: 18px; padding: 12px 14px; border-radius: 12px; background: rgba(15, 23, 42, 0.72); border: 1px solid rgba(250, 204, 21, 0.35); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+                    <div style="display: flex; align-items: center; gap: 8px; flex: 1; min-width: 240px;">
+                        <span style="color: #fde047; font-weight: 900; font-size: 0.85rem; white-space: nowrap;">🏢 اسم المنشأة (تحت سند رصيد):</span>
+                        <input type="text" class="wa-policy-company-name" placeholder="مثال: منظومة السودان بلد الأحرار" onchange="syncAdminWaPolicyFromUI(this)" style="flex: 1; height: 36px; padding: 0 10px; border-radius: 8px; border: 1px solid rgba(250, 204, 21, 0.45); background: rgba(0, 0, 0, 0.4); color: #ffffff; font-weight: 800; font-size: 0.9rem;">
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+                        <label style="height: 36px; background: rgba(250, 204, 21, 0.18); color: #fde047; border: 1px solid rgba(250, 204, 21, 0.5); padding: 0 10px; border-radius: 8px; font-size: 0.8rem; font-weight: 800; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; margin: 0;">
+                            <span>🖼️ رفع شعار المنشأة</span>
+                            <input type="file" accept="image/*" onchange="handleWaVoucherLogoUpload(this)" style="display: none;">
+                        </label>
+                        <img class="wa-policy-logo-preview" src="" alt="الشعار" style="display: none; height: 36px; width: auto; max-width: 55px; object-fit: contain; border-radius: 6px; border: 1px solid rgba(250, 204, 21, 0.5); background: rgba(255,255,255,0.12); padding: 2px;">
+                        <button type="button" class="wa-policy-logo-clear-btn" onclick="clearWaVoucherLogoImage()" style="display: none; height: 36px; background: rgba(239, 68, 68, 0.18); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.45); padding: 0 8px; border-radius: 8px; font-size: 0.78rem; font-weight: 800; cursor: pointer;" title="حذف شعار المنشأة">🗑️</button>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 8px; flex: 1; min-width: 220px;">
+                        <span style="color: #34d399; font-weight: 900; font-size: 0.85rem; white-space: nowrap;">💮 نص التوقيع/الختم:</span>
+                        <input type="text" class="wa-policy-stamp-text" placeholder="ختم مصادقة مالية إلكترونية" onchange="syncAdminWaPolicyFromUI(this)" style="flex: 1; height: 36px; padding: 0 10px; border-radius: 8px; border: 1px solid rgba(52, 211, 153, 0.45); background: rgba(0, 0, 0, 0.4); color: #ffffff; font-weight: 800; font-size: 0.9rem;">
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+                        <label style="height: 36px; background: rgba(52, 211, 153, 0.18); color: #6ee7b7; border: 1px solid rgba(52, 211, 153, 0.5); padding: 0 10px; border-radius: 8px; font-size: 0.8rem; font-weight: 800; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; margin: 0;">
+                            <span>✍️ رفع التوقيع / الختم</span>
+                            <input type="file" accept="image/*" onchange="handleWaVoucherStampUpload(this)" style="display: none;">
+                        </label>
+                        <img class="wa-policy-stamp-preview" src="" alt="التوقيع" style="display: none; height: 36px; width: auto; max-width: 85px; object-fit: contain; border-radius: 6px; border: 1px solid rgba(250, 204, 21, 0.5); background: #ffffff; padding: 2px;">
+                        <button type="button" class="wa-policy-stamp-clear-btn" onclick="clearWaVoucherStampImage()" style="display: none; height: 36px; background: rgba(239, 68, 68, 0.18); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.45); padding: 0 8px; border-radius: 8px; font-size: 0.78rem; font-weight: 800; cursor: pointer;" title="حذف التوقيع / الختم">🗑️</button>
+                        <button type="button" onclick="syncAdminWaPolicyFromUI(this)" style="height: 36px; background: linear-gradient(135deg, #eab308, #ca8a04); color: #04120e; border: none; padding: 0 14px; border-radius: 8px; font-size: 0.82rem; font-weight: 900; cursor: pointer;">💾 حفظ الهوية والشعار والتوقيع</button>
+                    </div>
+                </div>
+
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 5px;">
                     <!-- Row 1: Logo and Preview -->
                     <div class="form-group" style="grid-column: span 2; display: flex; align-items: center; gap: 20px; margin:0;">
@@ -2382,6 +2412,7 @@ document.addEventListener('DOMContentLoaded', function() {
             safeSet('cfg-whatsapp', finalWhatsapp);
             safeSet('cfg-address', finalAddress);
             safeSet('cfg-location', finalLocation);
+            if (typeof renderWaVoucherBrandingUI === 'function') renderWaVoucherBrandingUI();
 
             if (finalLogo) {
                 const img = document.getElementById('logo-preview');
@@ -2870,6 +2901,9 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
             window.isSettingsDirty = false;
+            if (typeof syncAdminWaPolicyFromUI === 'function') {
+                syncAdminWaPolicyFromUI(null, null, true);
+            }
             const saveBtn = document.getElementById('save-settings-btn');
             if (saveBtn) {
                 saveBtn.classList.remove('pulse-alert');
@@ -2884,6 +2918,348 @@ document.addEventListener('DOMContentLoaded', function() {
             console.error('Error saving settings:', err);
             alert('⚠️ حدث خطأ عند حفظ الإعدادات: ' + err.message);
         }
+    }
+
+    function getAdminWaPolicy() {
+        let fallbackCompany = '';
+        try {
+            const activeTenantId = (window.SERVER_TENANT && window.SERVER_TENANT.id) || (JSON.parse(localStorage.getItem('user')||'{}').tenant_id) || '1';
+            const tk = window.getTenantKey ? window.getTenantKey('erp_settings_v1') : ('tenant_' + activeTenantId + '_erp_settings_v1');
+            const sysCfg = JSON.parse(localStorage.getItem(tk) || localStorage.getItem('erp_settings_v1') || '{}');
+            fallbackCompany = (sysCfg.companyName || sysCfg.company_name || (window.SERVER_SETTINGS && window.SERVER_SETTINGS.companyName) || (window.SERVER_TENANT && window.SERVER_TENANT.company_name) || '').trim();
+        } catch (e) {}
+        const defaults = {
+            masterMode: 'per_account',
+            receiptApprovalMode: 'per_account',
+            defaultReceiptBankId: '',
+            defaultReceiptBankName: '',
+            voucherCompanyName: fallbackCompany,
+            voucherLogoImage: '',
+            voucherStampText: 'ختم مصادقة مالية إلكترونية',
+            voucherStampImage: '',
+            phoneVerification: 'phone_or_pin',
+            statementScope: 'all',
+            includeInvoiceItems: true,
+            notifyAdminOnRequest: false,
+            antiSpamCooldown: true
+        };
+        try {
+            let localSaved = {};
+            try { localSaved = JSON.parse(localStorage.getItem('erp_whatsapp_statement_policy_v1') || '{}') || {}; } catch (e) {}
+            const srvSaved = (window.SERVER_WA_POLICY && typeof window.SERVER_WA_POLICY === 'object') ? window.SERVER_WA_POLICY : {};
+            const merged = Object.assign({}, defaults, localSaved, srvSaved);
+            if ((!srvSaved.voucherStampImage || String(srvSaved.voucherStampImage).length < 150) && localSaved.voucherStampImage && String(localSaved.voucherStampImage).length >= 150) {
+                merged.voucherStampImage = localSaved.voucherStampImage;
+            }
+            if ((!srvSaved.voucherLogoImage || String(srvSaved.voucherLogoImage).length < 100) && localSaved.voucherLogoImage && String(localSaved.voucherLogoImage).length >= 100) {
+                merged.voucherLogoImage = localSaved.voucherLogoImage;
+            }
+            if (!merged.voucherCompanyName && fallbackCompany) {
+                merged.voucherCompanyName = fallbackCompany;
+            }
+            if (!merged.voucherStampText) {
+                merged.voucherStampText = 'ختم مصادقة مالية إلكترونية';
+            }
+            return merged;
+        } catch (e) {}
+        return defaults;
+    }
+
+    function renderWaVoucherBrandingUI() {
+        const policy = getAdminWaPolicy();
+        document.querySelectorAll('.wa-policy-company-name').forEach(el => { el.value = policy.voucherCompanyName || ''; });
+        document.querySelectorAll('.wa-policy-logo-preview').forEach(img => {
+            if (policy.voucherLogoImage && String(policy.voucherLogoImage).length >= 100) {
+                img.src = policy.voucherLogoImage;
+                img.style.display = 'inline-block';
+            } else {
+                img.src = '';
+                img.style.display = 'none';
+            }
+        });
+        document.querySelectorAll('.wa-policy-logo-clear-btn').forEach(btn => {
+            btn.style.display = (policy.voucherLogoImage && String(policy.voucherLogoImage).length >= 100) ? 'inline-block' : 'none';
+        });
+        document.querySelectorAll('.wa-policy-stamp-text').forEach(el => { el.value = policy.voucherStampText || 'ختم مصادقة مالية إلكترونية'; });
+        document.querySelectorAll('.wa-policy-stamp-preview').forEach(img => {
+            if (policy.voucherStampImage && String(policy.voucherStampImage).length >= 150) {
+                img.src = policy.voucherStampImage;
+                img.style.display = 'inline-block';
+            } else {
+                img.src = '';
+                img.style.display = 'none';
+            }
+        });
+        document.querySelectorAll('.wa-policy-stamp-clear-btn').forEach(btn => {
+            btn.style.display = (policy.voucherStampImage && String(policy.voucherStampImage).length >= 150) ? 'inline-block' : 'none';
+        });
+    }
+
+    function syncAdminWaPolicyFromUI(sourceEl, extraPatch = null, silent = false) {
+        const curPolicy = getAdminWaPolicy();
+        const compInput = document.querySelector('.wa-policy-company-name');
+        const stampTextInput = document.querySelector('.wa-policy-stamp-text');
+
+        let domLogoImg = curPolicy.voucherLogoImage || '';
+        if (!domLogoImg || String(domLogoImg).length < 100) {
+            document.querySelectorAll('.wa-policy-logo-preview').forEach(imgEl => {
+                const attrSrc = imgEl.getAttribute('src') || '';
+                if (attrSrc.startsWith('data:image/') && attrSrc.length >= 100) {
+                    domLogoImg = attrSrc;
+                }
+            });
+        }
+
+        let domStampImg = curPolicy.voucherStampImage || '';
+        if (!domStampImg || String(domStampImg).length < 150) {
+            document.querySelectorAll('.wa-policy-stamp-preview').forEach(imgEl => {
+                const attrSrc = imgEl.getAttribute('src') || '';
+                if (attrSrc.startsWith('data:image/') && attrSrc.length >= 150) {
+                    domStampImg = attrSrc;
+                }
+            });
+        }
+
+        const policy = Object.assign({}, curPolicy, {
+            voucherCompanyName: compInput ? compInput.value.trim() : (curPolicy.voucherCompanyName || ''),
+            voucherLogoImage: domLogoImg,
+            voucherStampText: (stampTextInput ? stampTextInput.value.trim() : '') || 'ختم مصادقة مالية إلكترونية',
+            voucherStampImage: domStampImg
+        }, extraPatch || {});
+
+        const syncPayload = Object.assign({}, policy);
+        delete policy._forceClearStamp;
+        delete policy._forceClearLogo;
+        window.SERVER_WA_POLICY = Object.assign({}, policy);
+        try { localStorage.setItem('erp_whatsapp_statement_policy_v1', JSON.stringify(policy)); } catch (e) {}
+        renderWaVoucherBrandingUI();
+
+        fetch('api/save_master_data.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ type: 'whatsapp_statement_policy', data: syncPayload })
+        }).catch(err => console.warn('[Settings] Failed to sync WA voucher branding:', err));
+
+        if (!silent) {
+            const badge = document.getElementById('save-badge');
+            if (badge) {
+                badge.classList.add('show');
+                setTimeout(() => badge.classList.remove('show'), 3000);
+            }
+            if (typeof window.showToast === 'function') {
+                window.showToast('🏛️ تم حفظ اسم المنشأة والشعار والتوقيع وإعدادات السندات بنجاح', 'success');
+            }
+        }
+    }
+
+    function handleWaVoucherLogoUpload(inputEl) {
+        const file = inputEl && inputEl.files && inputEl.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function(evt) {
+            const img = new Image();
+            img.onload = function() {
+                const maxDim = 320;
+                let w = img.width || 200;
+                let h = img.height || 200;
+                if (w > maxDim || h > maxDim) {
+                    if (w > h) {
+                        h = Math.round((h * maxDim) / w);
+                        w = maxDim;
+                    } else {
+                        w = Math.round((w * maxDim) / h);
+                        h = maxDim;
+                    }
+                }
+                const canvas = document.createElement('canvas');
+                canvas.width = w;
+                canvas.height = h;
+                const ctx = canvas.getContext('2d');
+                ctx.clearRect(0, 0, w, h);
+                ctx.drawImage(img, 0, 0, w, h);
+                const dataUrl = canvas.toDataURL('image/png');
+                document.querySelectorAll('.wa-policy-logo-preview').forEach(pImg => {
+                    pImg.src = dataUrl;
+                    pImg.style.display = 'inline-block';
+                });
+                syncAdminWaPolicyFromUI(inputEl, { voucherLogoImage: dataUrl });
+            };
+            img.src = evt.target.result;
+        };
+        reader.readAsDataURL(file);
+        inputEl.value = '';
+    }
+
+    function clearWaVoucherLogoImage() {
+        document.querySelectorAll('.wa-policy-logo-preview').forEach(pImg => {
+            pImg.setAttribute('src', '');
+            pImg.style.display = 'none';
+        });
+        syncAdminWaPolicyFromUI(null, { voucherLogoImage: '', _forceClearLogo: true });
+    }
+
+    function handleWaVoucherStampUpload(inputEl) {
+        const file = inputEl && inputEl.files && inputEl.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function(evt) {
+            const img = new Image();
+            img.onload = function() {
+                const maxDim = 800;
+                let w = img.width || 400;
+                let h = img.height || 250;
+                if (w > maxDim || h > maxDim) {
+                    if (w > h) {
+                        h = Math.round((h * maxDim) / w);
+                        w = maxDim;
+                    } else {
+                        w = Math.round((w * maxDim) / h);
+                        h = maxDim;
+                    }
+                }
+                const canvas = document.createElement('canvas');
+                canvas.width = w;
+                canvas.height = h;
+                const ctx = canvas.getContext('2d');
+                ctx.clearRect(0, 0, w, h);
+                ctx.drawImage(img, 0, 0, w, h);
+
+                let finalCanvas = canvas;
+                try {
+                    const imgData = ctx.getImageData(0, 0, w, h);
+                    const d = imgData.data;
+
+                    const lums = [];
+                    const borderLums = [];
+                    for (let y = 0; y < h; y += 2) {
+                        for (let x = 0; x < w; x += 2) {
+                            const idx = (y * w + x) * 4;
+                            if (d[idx + 3] < 30) continue;
+                            const lum = 0.299 * d[idx] + 0.587 * d[idx + 1] + 0.114 * d[idx + 2];
+                            lums.push(lum);
+                            if (x < w * 0.08 || x > w * 0.92 || y < h * 0.08 || y > h * 0.92) {
+                                borderLums.push(lum);
+                            }
+                        }
+                    }
+                    lums.sort((a, b) => a - b);
+                    borderLums.sort((a, b) => a - b);
+                    const borderMed = borderLums.length ? borderLums[Math.floor(borderLums.length * 0.5)] : 240;
+                    const invertDarkBg = borderMed < 95 && lums.length > 50;
+
+                    if (invertDarkBg) {
+                        for (let i = 0; i < d.length; i += 4) {
+                            if (d[i + 3] >= 30) {
+                                d[i] = 255 - d[i];
+                                d[i + 1] = 255 - d[i + 1];
+                                d[i + 2] = 255 - d[i + 2];
+                            }
+                        }
+                    }
+
+                    const p75 = lums.length ? (invertDarkBg ? (255 - lums[Math.floor(lums.length * 0.25)]) : lums[Math.floor(lums.length * 0.75)]) : 235;
+                    const inkCutoff = Math.min(220, Math.max(135, p75 * 0.85));
+
+                    for (let i = 0; i < d.length; i += 4) {
+                        const r = d[i], g = d[i + 1], b = d[i + 2], a = d[i + 3];
+                        if (a < 25) {
+                            d[i + 3] = 0;
+                            continue;
+                        }
+                        const lum = 0.299 * r + 0.587 * g + 0.114 * b;
+                        const maxCh = Math.max(r, g, b);
+                        const minCh = Math.min(r, g, b);
+                        const chroma = maxCh - minCh;
+
+                        if (lum >= inkCutoff && chroma < 38) {
+                            d[i + 3] = 0;
+                        } else {
+                            const effCutoff = chroma >= 38 ? Math.min(235, inkCutoff + 22) : inkCutoff;
+                            const rawStrength = Math.max(0, (effCutoff - lum + chroma * 0.45) / Math.max(35, effCutoff * 0.52));
+                            if (rawStrength < 0.16) {
+                                d[i + 3] = 0;
+                            } else {
+                                const cleanAlpha = Math.min(255, Math.round(Math.pow(Math.min(1, rawStrength), 0.55) * 255 * 1.45));
+                                d[i + 3] = Math.round((a / 255) * cleanAlpha);
+                                if (chroma < 42) {
+                                    d[i] = 8;
+                                    d[i + 1] = 12;
+                                    d[i + 2] = 22;
+                                } else {
+                                    d[i] = Math.round(r * 0.38);
+                                    d[i + 1] = Math.round(g * 0.38);
+                                    d[i + 2] = Math.round(b * 0.46);
+                                }
+                            }
+                        }
+                    }
+
+                    const alphaCopy = new Uint8Array(w * h);
+                    for (let p = 0; p < w * h; p++) alphaCopy[p] = d[p * 4 + 3];
+                    for (let y = 1; y < h - 1; y++) {
+                        for (let x = 1; x < w - 1; x++) {
+                            const p = y * w + x;
+                            if (alphaCopy[p] === 0) continue;
+                            let nCount = 0;
+                            for (let dy = -1; dy <= 1; dy++) {
+                                for (let dx = -1; dx <= 1; dx++) {
+                                    if ((dx !== 0 || dy !== 0) && alphaCopy[(y + dy) * w + (x + dx)] > 50) nCount++;
+                                }
+                            }
+                            if (nCount < 2) d[p * 4 + 3] = 0;
+                        }
+                    }
+                    ctx.putImageData(imgData, 0, 0);
+
+                    let minX = w, minY = h, maxX = -1, maxY = -1;
+                    for (let y = 0; y < h; y++) {
+                        for (let x = 0; x < w; x++) {
+                            const alpha = d[(y * w + x) * 4 + 3];
+                            if (alpha > 45) {
+                                if (x < minX) minX = x;
+                                if (x > maxX) maxX = x;
+                                if (y < minY) minY = y;
+                                if (y > maxY) maxY = y;
+                            }
+                        }
+                    }
+                    if (maxX >= minX && maxY >= minY) {
+                        const pad = 6;
+                        const cx = Math.max(0, minX - pad);
+                        const cy = Math.max(0, minY - pad);
+                        const cw = Math.min(w - cx, (maxX - minX + 1) + pad * 2);
+                        const ch = Math.min(h - cy, (maxY - minY + 1) + pad * 2);
+                        const cropCanvas = document.createElement('canvas');
+                        cropCanvas.width = cw;
+                        cropCanvas.height = ch;
+                        const cropCtx = cropCanvas.getContext('2d');
+                        cropCtx.drawImage(canvas, cx, cy, cw, ch, 0, 0, cw, ch);
+                        cropCtx.globalAlpha = 0.45;
+                        cropCtx.drawImage(canvas, cx, cy, cw, ch, 0.5, 0, cw, ch);
+                        cropCtx.globalAlpha = 1.0;
+                        finalCanvas = cropCanvas;
+                    }
+                } catch (e) {}
+
+                const dataUrl = finalCanvas.toDataURL('image/png');
+                document.querySelectorAll('.wa-policy-stamp-preview').forEach(pImg => {
+                    pImg.src = dataUrl;
+                    pImg.style.display = 'inline-block';
+                });
+                syncAdminWaPolicyFromUI(inputEl, { voucherStampImage: dataUrl });
+            };
+            img.src = evt.target.result;
+        };
+        reader.readAsDataURL(file);
+        inputEl.value = '';
+    }
+
+    function clearWaVoucherStampImage() {
+        document.querySelectorAll('.wa-policy-stamp-preview').forEach(pImg => {
+            pImg.setAttribute('src', '');
+            pImg.style.display = 'none';
+        });
+        syncAdminWaPolicyFromUI(null, { voucherStampImage: '', _forceClearStamp: true });
     }
 
     function previewFontSize(size) {
