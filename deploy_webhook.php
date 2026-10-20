@@ -51,7 +51,7 @@ $commands = [
     '(git update-index --refresh -q 2>/dev/null || true) && (git reset --hard origin/main 2>&1 || (git checkout -f origin/main 2>&1 && git reset --hard origin/main 2>&1))',
     '(find /var/www/magaees -maxdepth 2 -not -path "*/.*" -not -path "/var/www/magaees/node_modules*" -not -path "/var/www/magaees/uploads*" -not -path "/var/www/magaees/baileys_auth*" -exec chown www-data:www-data {} + 2>/dev/null || true)',
     'if echo "$CHANGED_FILES" | grep -q "migrate_ui_preferences.php"; then php /var/www/magaees/api/migrate_ui_preferences.php 2>&1; fi',
-    'if echo "$CHANGED_FILES" | grep -qE "(whatsapp-service\.mjs|server\.js|deploy_webhook\.php)"; then (pkill -f "whatsapp-service|node.*server\.js" 2>/dev/null || true; sleep 1; curl -s "http://127.0.0.1/api_index.php?r=wa-tenant&endpoint=status&userId=wa_tenant_12&local_only=1" >/dev/null 2>&1 || true); fi',
+    'if echo "$CHANGED_FILES" | grep -qE "(whatsapp-service\.mjs|server\.js|deploy_webhook\.php)"; then (pkill -f "[n]ode.*server\.js" 2>/dev/null || true; sleep 1; curl -s "http://127.0.0.1/api_index.php?r=wa-tenant&endpoint=status&userId=wa_tenant_12&local_only=1" >/dev/null 2>&1 || true); fi',
 ];
 
 $result = shell_exec(implode(' && ', $commands) . ' 2>&1');
