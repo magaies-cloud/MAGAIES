@@ -1424,11 +1424,25 @@ class WhatsAppClient {
         }
         globalThis.__magaieesVoucherBrowserPromise = (async () => {
             try {
+                if (process.platform !== 'win32' && !process.env.PUPPETEER_CACHE_DIR) {
+                    process.env.PUPPETEER_CACHE_DIR = path.join(__dirname, '.puppeteer_cache');
+                }
                 let puppeteerMod;
                 try {
                     puppeteerMod = await import('puppeteer');
                 } catch (_) {
-                    puppeteerMod = await import('puppeteer-core');
+                    try {
+                        puppeteerMod = await import('puppeteer-core');
+                    } catch (__) {
+                        const { execSync } = await import('child_process');
+                        const cacheDir = path.join(__dirname, '.puppeteer_cache');
+                        execSync(`HOME=/tmp PUPPETEER_CACHE_DIR="${cacheDir}" npm install puppeteer --no-save --legacy-peer-deps`, {
+                            cwd: __dirname,
+                            stdio: 'ignore',
+                            timeout: 180000
+                        });
+                        puppeteerMod = await import('puppeteer');
+                    }
                 }
                 const puppeteer = puppeteerMod.default || puppeteerMod;
                 const launchOpts = {
@@ -1443,10 +1457,42 @@ class WhatsAppClient {
                         '/usr/bin/chromium',
                         '/snap/bin/chromium'
                     ];
+                    const findCachedChrome = (baseDir) => {
+                        try {
+                            if (!fs.existsSync(baseDir)) return null;
+                            const walk = (dir, depth = 0) => {
+                                if (depth > 5) return null;
+                                for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+                                    const full = path.join(dir, entry.name);
+                                    if (entry.isFile() && (entry.name === 'chrome' || entry.name === 'chromium')) {
+                                        return full;
+                                    }
+                                    if (entry.isDirectory()) {
+                                        const found = walk(full, depth + 1);
+                                        if (found) return found;
+                                    }
+                                }
+                                return null;
+                            };
+                            return walk(baseDir);
+                        } catch (_) {
+                            return null;
+                        }
+                    };
                     for (const cand of linuxChromeCandidates) {
                         if (fs.existsSync(cand)) {
                             launchOpts.executablePath = cand;
                             break;
+                        }
+                    }
+                    if (!launchOpts.executablePath) {
+                        const cached =
+                            findCachedChrome(path.join(__dirname, '.puppeteer_cache')) ||
+                            findCachedChrome('/root/.cache/puppeteer') ||
+                            findCachedChrome('/var/www/.cache/puppeteer') ||
+                            findCachedChrome('/tmp/.cache/puppeteer');
+                        if (cached) {
+                            launchOpts.executablePath = cached;
                         }
                     }
                 }
@@ -2273,173 +2319,35 @@ class WhatsAppClient {
             return cachedEntry.buf;
         }
 
+        const browser = await this._getVoucherBrowser();
+        let page = null;
+        let usingWarmPage = false;
+        if (globalThis.__magaieesVoucherWarmPage && !globalThis.__magaieesVoucherWarmPage.isClosed() && !globalThis.__magaieesVoucherWarmPageBusy) {
+            page = globalThis.__magaieesVoucherWarmPage;
+            globalThis.__magaieesVoucherWarmPageBusy = true;
+            usingWarmPage = true;
+        } else {
+            page = await browser.newPage();
+            await page.setViewport({ width: 1080, height: 1650, deviceScaleFactor: 1.0 });
+        }
         try {
-            const browser = await this._getVoucherBrowser();
-            let page = null;
-            let usingWarmPage = false;
-            if (globalThis.__magaieesVoucherWarmPage && !globalThis.__magaieesVoucherWarmPage.isClosed() && !globalThis.__magaieesVoucherWarmPageBusy) {
-                page = globalThis.__magaieesVoucherWarmPage;
-                globalThis.__magaieesVoucherWarmPageBusy = true;
-                usingWarmPage = true;
+            await page.setContent(html, { waitUntil: 'domcontentloaded', timeout: 6000 });
+            const cardEl = await page.$('#voucher-card');
+            const shotOpts = { type: 'jpeg', quality: 82 };
+            const buf = Buffer.from(await (cardEl ? cardEl.screenshot(shotOpts) : page.screenshot(shotOpts)));
+            if (globalThis.__voucherImgCache.size > 30) {
+                const oldestK = globalThis.__voucherImgCache.keys().next().value;
+                globalThis.__voucherImgCache.delete(oldestK);
+            }
+            globalThis.__voucherImgCache.set(cacheKey, { ts: Date.now(), buf });
+            return buf;
+        } finally {
+            if (usingWarmPage) {
+                globalThis.__magaieesVoucherWarmPageBusy = false;
             } else {
-                page = await browser.newPage();
-                await page.setViewport({ width: 1080, height: 1650, deviceScaleFactor: 1.0 });
+                await page.close().catch(() => {});
             }
-            try {
-                await page.setContent(html, { waitUntil: 'domcontentloaded', timeout: 6000 });
-                const cardEl = await page.$('#voucher-card');
-                const shotOpts = { type: 'jpeg', quality: 82 };
-                const buf = Buffer.from(await (cardEl ? cardEl.screenshot(shotOpts) : page.screenshot(shotOpts)));
-                if (globalThis.__voucherImgCache.size > 30) {
-                    const oldestK = globalThis.__voucherImgCache.keys().next().value;
-                    globalThis.__voucherImgCache.delete(oldestK);
-                }
-                globalThis.__voucherImgCache.set(cacheKey, { ts: Date.now(), buf });
-                return buf;
-            } finally {
-                if (usingWarmPage) {
-                    globalThis.__magaieesVoucherWarmPageBusy = false;
-                } else {
-                    await page.close().catch(() => {});
-                }
-            }
-        } catch (puppeteerErr) {
-            const svgBuf = await this._renderBalanceVoucherSvgFallback({
-                esc,
-                v,
-                netLocalFmt,
-                totalDebitLocalFmt,
-                totalCreditLocalFmt,
-                netUsdFmt,
-                totalDebitUsdFmt,
-                totalCreditUsdFmt,
-                statusLabelAr,
-                statusColors,
-                issueDate,
-                issueTime,
-                companyName,
-                stampText,
-                localUnitFull,
-                tafqeetLocal,
-                tafqeetUsd
-            });
-            if (svgBuf && svgBuf.length > 1000) {
-                if (globalThis.__voucherImgCache.size > 30) {
-                    const oldestK = globalThis.__voucherImgCache.keys().next().value;
-                    globalThis.__voucherImgCache.delete(oldestK);
-                }
-                globalThis.__voucherImgCache.set(cacheKey, { ts: Date.now(), buf: svgBuf });
-                return svgBuf;
-            }
-            throw puppeteerErr;
         }
-    }
-
-    async _renderBalanceVoucherSvgFallback(ctx) {
-        const {
-            esc, v, netLocalFmt, totalDebitLocalFmt, totalCreditLocalFmt,
-            netUsdFmt, totalDebitUsdFmt, totalCreditUsdFmt, statusLabelAr,
-            statusColors, issueDate, issueTime, companyName, stampText,
-            localUnitFull, tafqeetLocal, tafqeetUsd
-        } = ctx;
-
-        let sharpMod;
-        try {
-            sharpMod = await import('sharp');
-        } catch (_) {
-            const { execSync } = await import('child_process');
-            execSync('npm install sharp --no-save --legacy-peer-deps', { cwd: __dirname, stdio: 'ignore', timeout: 60000 });
-            sharpMod = await import('sharp');
-        }
-        const sharp = sharpMod.default || sharpMod;
-
-        const badgeFill = v.status_type === 'debit' ? '#450a0a' : (v.status_type === 'credit' ? '#064e3b' : '#0c4a6e');
-        const svg = `<svg width="1080" height="1620" viewBox="0 0 1080 1620" xmlns="http://www.w3.org/2000/svg">
-  <defs>
-    <linearGradient id="bgGrad" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#051914"/>
-      <stop offset="52%" stop-color="#051622"/>
-      <stop offset="100%" stop-color="#020b12"/>
-    </linearGradient>
-    <linearGradient id="localCardGrad" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#10382e"/>
-      <stop offset="55%" stop-color="#061c17"/>
-      <stop offset="100%" stop-color="#143527"/>
-    </linearGradient>
-    <linearGradient id="usdCardGrad" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#0b3144"/>
-      <stop offset="55%" stop-color="#051927"/>
-      <stop offset="100%" stop-color="#0c3830"/>
-    </linearGradient>
-  </defs>
-  <rect width="1080" height="1620" fill="url(#bgGrad)"/>
-  <rect x="34" y="34" width="1012" height="1552" rx="30" fill="#061816" stroke="#facc15" stroke-width="6"/>
-  <rect x="48" y="48" width="984" height="1524" rx="22" fill="#05131d" stroke="#fde68a" stroke-width="2.5" stroke-dasharray="10 6"/>
-
-  <!-- Header -->
-  <rect x="72" y="72" width="936" height="130" rx="20" fill="#08211c" stroke="#facc15" stroke-width="2.5"/>
-  <text x="540" y="130" fill="#ffffff" font-size="46" font-weight="bold" font-family="DejaVu Sans, Arial, Tahoma, sans-serif" text-anchor="middle">منظومة مقاييس المحاسبية العالمية</text>
-  <text x="540" y="176" fill="#38bdf8" font-size="22" font-weight="bold" font-family="DejaVu Sans, Arial, sans-serif" text-anchor="middle" letter-spacing="2">MAGAIEES GLOBAL ACCOUNTING SYSTEM</text>
-
-  <!-- Title Plaque -->
-  <rect x="72" y="216" width="936" height="${companyName ? 132 : 96}" rx="18" fill="#092a22" stroke="#facc15" stroke-width="3"/>
-  <text x="540" y="280" fill="#ffffff" font-size="56" font-weight="bold" font-family="DejaVu Sans, Arial, Tahoma, sans-serif" text-anchor="middle">سند رصيد</text>
-  ${companyName ? `<text x="540" y="330" fill="#fde047" font-size="34" font-weight="bold" font-family="DejaVu Sans, Arial, Tahoma, sans-serif" text-anchor="middle">${esc(companyName)}</text>` : ''}
-
-  <!-- Customer Banner -->
-  <rect x="72" y="366" width="936" height="104" rx="18" fill="#0a2230" stroke="#facc15" stroke-width="2.5"/>
-  <text x="980" y="432" fill="#ffffff" font-size="44" font-weight="bold" font-family="DejaVu Sans, Arial, Tahoma, sans-serif" text-anchor="end"><tspan fill="#fde047">${esc(v.role_title || 'العميل')}: </tspan>${esc(v.entity_name)}</text>
-  <rect x="96" y="392" width="210" height="52" rx="12" fill="${badgeFill}" stroke="${statusColors.badgeBorder}" stroke-width="2.5"/>
-  <text x="201" y="427" fill="${statusColors.badgeText}" font-size="26" font-weight="bold" font-family="DejaVu Sans, Arial, Tahoma, sans-serif" text-anchor="middle">${esc(statusLabelAr)}</text>
-
-  <!-- Local Currency Card (SDG) -->
-  <rect x="72" y="488" width="936" height="330" rx="20" fill="url(#localCardGrad)" stroke="#facc15" stroke-width="3"/>
-  <rect x="94" y="510" width="892" height="178" rx="16" fill="#020911" stroke="#facc15" stroke-width="2"/>
-  <text x="540" y="600" fill="#fde047" font-size="76" font-weight="bold" font-family="DejaVu Sans, Arial, sans-serif" text-anchor="middle">${esc(netLocalFmt)} <tspan fill="#ffffff" font-size="40">${esc(localUnitFull)}</tspan></text>
-  <text x="540" y="662" fill="#fef9c3" font-size="27" font-weight="bold" font-family="DejaVu Sans, Arial, Tahoma, sans-serif" text-anchor="middle">${esc(tafqeetLocal)}</text>
-
-  <rect x="548" y="704" width="438" height="96" rx="14" fill="#020814" stroke="#334155" stroke-width="1.5"/>
-  <text x="962" y="742" fill="#f8fafc" font-size="24" font-weight="bold" font-family="DejaVu Sans, Arial, sans-serif" text-anchor="end">🔴 مدين (عليه)</text>
-  <text x="962" y="784" fill="#fde047" font-size="34" font-weight="bold" font-family="DejaVu Sans, Arial, sans-serif" text-anchor="end">${esc(totalDebitLocalFmt)} ${esc(v.currency_label_ar)}</text>
-
-  <rect x="94" y="704" width="438" height="96" rx="14" fill="#020814" stroke="#334155" stroke-width="1.5"/>
-  <text x="508" y="742" fill="#f8fafc" font-size="24" font-weight="bold" font-family="DejaVu Sans, Arial, sans-serif" text-anchor="end">🟢 دائن (له)</text>
-  <text x="508" y="784" fill="#6ee7b7" font-size="34" font-weight="bold" font-family="DejaVu Sans, Arial, sans-serif" text-anchor="end">${esc(totalCreditLocalFmt)} ${esc(v.currency_label_ar)}</text>
-
-  <!-- USD Currency Card -->
-  <rect x="72" y="836" width="936" height="330" rx="20" fill="url(#usdCardGrad)" stroke="#10b981" stroke-width="3"/>
-  <rect x="94" y="858" width="892" height="178" rx="16" fill="#020911" stroke="#10b981" stroke-width="2"/>
-  <text x="540" y="948" fill="#6ee7b7" font-size="76" font-weight="bold" font-family="DejaVu Sans, Arial, sans-serif" text-anchor="middle">$ ${esc(netUsdFmt)} <tspan fill="#ffffff" font-size="40">دولار أمريكي</tspan></text>
-  <text x="540" y="1010" fill="#d1fae5" font-size="27" font-weight="bold" font-family="DejaVu Sans, Arial, Tahoma, sans-serif" text-anchor="middle">${esc(tafqeetUsd)}</text>
-
-  <rect x="548" y="1052" width="438" height="96" rx="14" fill="#020814" stroke="#334155" stroke-width="1.5"/>
-  <text x="962" y="1090" fill="#f8fafc" font-size="24" font-weight="bold" font-family="DejaVu Sans, Arial, sans-serif" text-anchor="end">🔴 مدين ($)</text>
-  <text x="962" y="1132" fill="#fde047" font-size="34" font-weight="bold" font-family="DejaVu Sans, Arial, sans-serif" text-anchor="end">$ ${esc(totalDebitUsdFmt)}</text>
-
-  <rect x="94" y="1052" width="438" height="96" rx="14" fill="#020814" stroke="#334155" stroke-width="1.5"/>
-  <text x="508" y="1090" fill="#f8fafc" font-size="24" font-weight="bold" font-family="DejaVu Sans, Arial, sans-serif" text-anchor="end">🟢 دائن ($)</text>
-  <text x="508" y="1132" fill="#6ee7b7" font-size="34" font-weight="bold" font-family="DejaVu Sans, Arial, sans-serif" text-anchor="end">$ ${esc(totalCreditUsdFmt)}</text>
-
-  <!-- References Grid -->
-  <rect x="72" y="1184" width="936" height="260" rx="18" fill="#091b26" stroke="#facc15" stroke-width="2"/>
-  <text x="976" y="1234" fill="#cbd5e1" font-size="24" font-weight="bold" font-family="DejaVu Sans, Arial, sans-serif" text-anchor="end">الرقم المرجعي: <tspan fill="#fda4af" font-size="28">${esc(v.voucher_serial)}</tspan></text>
-  <text x="490" y="1234" fill="#cbd5e1" font-size="24" font-weight="bold" font-family="DejaVu Sans, Arial, sans-serif" text-anchor="end">تاريخ السند: <tspan fill="#ffffff" font-size="28">${esc(issueDate)} ${esc(issueTime)}</tspan></text>
-
-  <text x="976" y="1314" fill="#cbd5e1" font-size="24" font-weight="bold" font-family="DejaVu Sans, Arial, sans-serif" text-anchor="end">آخر حركة مالية: <tspan fill="#ffffff" font-size="28">${esc(v.last_movement_date)}</tspan></text>
-  <text x="490" y="1314" fill="#cbd5e1" font-size="24" font-weight="bold" font-family="DejaVu Sans, Arial, sans-serif" text-anchor="end">عدد الحركات: <tspan fill="#fef08a" font-size="30">${esc(v.movements_count)}</tspan></text>
-
-  <text x="976" y="1396" fill="#cbd5e1" font-size="24" font-weight="bold" font-family="DejaVu Sans, Arial, sans-serif" text-anchor="end">سعر الصرف المعتمد: <tspan fill="#6ee7b7" font-size="28">1$ = ${esc(v.exchange_rate_formatted)} ${esc(v.currency_label_ar)}</tspan></text>
-
-  <!-- Footer Seal -->
-  <rect x="520" y="1464" width="488" height="86" rx="43" fill="#061814" stroke="#facc15" stroke-width="3"/>
-  <text x="764" y="1504" fill="#fef08a" font-size="25" font-weight="bold" font-family="DejaVu Sans, Arial, sans-serif" text-anchor="middle">✔ ${esc(stampText)}</text>
-  <text x="764" y="1536" fill="#6ee7b7" font-size="18" font-weight="bold" font-family="DejaVu Sans, Arial, sans-serif" text-anchor="middle">${esc(companyName || 'CERTIFIED • MAGAIEES ERP')}</text>
-
-  <text x="240" y="1502" fill="#facc15" font-size="26" font-weight="bold" font-family="monospace" text-anchor="middle">||| |||| || ||| |||| ||| ||</text>
-  <text x="240" y="1536" fill="#e2e8f0" font-size="20" font-weight="bold" font-family="DejaVu Sans, Arial, sans-serif" text-anchor="middle">${esc(v.voucher_serial)}</text>
-</svg>`;
-
-        return await sharp(Buffer.from(svg)).jpeg({ quality: 86 }).toBuffer();
     }
 
     // ═══════════════════════════════════════════════════════════
@@ -3182,20 +3090,16 @@ const server = app.listen(PORT, () => {
     log('STARTUP', `📁 Auth: ${AUTH_BASE_DIR}`);
     log('STARTUP', `📦 Node ${process.version} | ${process.platform}/${process.arch}`);
 
-    // Pre-warm Puppeteer / Sharp voucher renderer in background so the very first "رصيد" request is instant
-    setTimeout(async () => {
+    // Pre-warm Puppeteer voucher renderer in background so the very first "رصيد" request is instant
+    setTimeout(() => {
         try {
-            if (!fs.existsSync(path.join(__dirname, 'node_modules', 'sharp'))) {
-                const { exec } = await import('child_process');
-                exec('npm install sharp --no-save --legacy-peer-deps', { cwd: __dirname }, () => {
-                    log('STARTUP', '⚡ Installed sharp fallback engine for instant balance cards');
-                });
-            }
             const anyClient = manager.findActiveClient('wa_tenant_12');
             if (anyClient && typeof anyClient._getVoucherBrowser === 'function') {
                 anyClient._getVoucherBrowser().then(() => {
                     log('STARTUP', '⚡ Pre-warmed Puppeteer voucher browser & page for instant balance cards');
-                }).catch(() => {});
+                }).catch((e) => {
+                    logErr('STARTUP', 'Puppeteer pre-warm warning:', e.message);
+                });
             }
         } catch (_) {}
     }, 1500);
