@@ -227,6 +227,9 @@ try {
         $polVal = $stmtPol->fetchColumn();
         $parsedPol = $polVal ? json_decode($polVal, true) : null;
         $mergedPol = is_array($parsedPol) ? array_merge($defaultPolicy, $parsedPol) : $defaultPolicy;
+        if (!empty($mergedPol['voucherStampImage']) && strlen((string)$mergedPol['voucherStampImage']) < 150) {
+            $mergedPol['voucherStampImage'] = '';
+        }
         if (empty($mergedPol['voucherCompanyName'])) {
             try {
                 $stmtSet = $pdo->prepare("SELECT data FROM settings WHERE (tenant_id = ? OR tenant_id IS NULL) ORDER BY id DESC LIMIT 1");

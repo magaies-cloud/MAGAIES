@@ -724,6 +724,19 @@ window.InboundBankakManager = {
                     }
                     if (res.policy && typeof res.policy === 'object') {
                         this.policy = res.policy;
+                        try {
+                            const locPol = JSON.parse(localStorage.getItem('erp_whatsapp_statement_policy_v1') || '{}') || {};
+                            if (locPol.voucherStampImage && String(locPol.voucherStampImage).length >= 150 && (!res.policy.voucherStampImage || String(res.policy.voucherStampImage).length < 150)) {
+                                const mergedSyncPol = Object.assign({}, res.policy, locPol, { voucherStampImage: locPol.voucherStampImage });
+                                this.policy = mergedSyncPol;
+                                localStorage.setItem('erp_whatsapp_statement_policy_v1', JSON.stringify(mergedSyncPol));
+                                fetch('api/save_master_data.php?tenant_id=' + encodeURIComponent(tId), {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json', 'X-Tenant-Id': String(tId) },
+                                    body: JSON.stringify({ type: 'whatsapp_statement_policy', data: mergedSyncPol })
+                                }).catch(() => {});
+                            }
+                        } catch (e) {}
                     }
                     this.populateHeaderBankDropdown();
 

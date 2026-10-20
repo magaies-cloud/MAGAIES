@@ -2130,7 +2130,28 @@
                         localStorage.setItem('erp_currency_rates_v1', JSON.stringify(d.currency_rates));
                     }
                     if (d.whatsapp_statement_policy) {
-                        localStorage.setItem('erp_whatsapp_statement_policy_v1', JSON.stringify(d.whatsapp_statement_policy));
+                        const srvPol = d.whatsapp_statement_policy;
+                        if (srvPol.voucherStampImage && String(srvPol.voucherStampImage).length < 150) {
+                            srvPol.voucherStampImage = '';
+                        }
+                        let localPol = {};
+                        try {
+                            localPol = JSON.parse(localStorage.getItem('erp_whatsapp_statement_policy_v1') || '{}') || {};
+                        } catch (e) {}
+                        let needsResync = false;
+                        const mergedPol = Object.assign({}, localPol, srvPol);
+                        if ((!srvPol.voucherStampImage || String(srvPol.voucherStampImage).length < 150) && localPol.voucherStampImage && String(localPol.voucherStampImage).length >= 150) {
+                            mergedPol.voucherStampImage = localPol.voucherStampImage;
+                            needsResync = true;
+                        }
+                        if (!srvPol.voucherCompanyName && localPol.voucherCompanyName) {
+                            mergedPol.voucherCompanyName = localPol.voucherCompanyName;
+                            needsResync = true;
+                        }
+                        localStorage.setItem('erp_whatsapp_statement_policy_v1', JSON.stringify(mergedPol));
+                        if (needsResync && typeof syncToBackend === 'function') {
+                            syncToBackend('whatsapp_statement_policy', mergedPol);
+                        }
                     }
                     renderAllMasterData();
                     if (typeof renderGlobalUnitsList === 'function') renderGlobalUnitsList();
@@ -2715,6 +2736,16 @@
             const compInput = rootPanel.querySelector('.wa-policy-company-name') || document.querySelector('.wa-policy-company-name');
             const stampTextInput = rootPanel.querySelector('.wa-policy-stamp-text') || document.querySelector('.wa-policy-stamp-text');
 
+            let domStampImg = curPolicy.voucherStampImage || '';
+            if (!domStampImg || String(domStampImg).length < 150) {
+                document.querySelectorAll('.wa-policy-stamp-preview').forEach(imgEl => {
+                    const attrSrc = imgEl.getAttribute('src') || '';
+                    if (attrSrc.startsWith('data:image/') && attrSrc.length >= 150) {
+                        domStampImg = attrSrc;
+                    }
+                });
+            }
+
             const policy = Object.assign({}, curPolicy, {
                 masterMode: drawerPanel.querySelector('.wa-policy-master-mode')?.value || curPolicy.masterMode || 'per_account',
                 receiptApprovalMode: drawerPanel.querySelector('.wa-policy-receipt-approval-mode')?.value || curPolicy.receiptApprovalMode || 'per_account',
@@ -2722,6 +2753,7 @@
                 defaultReceiptBankName: foundBank ? foundBank.name : '',
                 voucherCompanyName: compInput ? compInput.value.trim() : (curPolicy.voucherCompanyName || ''),
                 voucherStampText: (stampTextInput ? stampTextInput.value.trim() : '') || 'ختم مصادقة مالية إلكترونية',
+                voucherStampImage: domStampImg,
                 phoneVerification: drawerPanel.querySelector('.wa-policy-phone-verification')?.value || curPolicy.phoneVerification || 'phone_or_pin',
                 statementScope: drawerPanel.querySelector('.wa-policy-statement-scope')?.value || curPolicy.statementScope || 'all',
                 includeInvoiceItems: drawerPanel.querySelector('.wa-policy-include-items') ? Boolean(drawerPanel.querySelector('.wa-policy-include-items').checked) : (curPolicy.includeInvoiceItems !== false),
@@ -2729,10 +2761,12 @@
                 antiSpamCooldown: drawerPanel.querySelector('.wa-policy-antispam') ? Boolean(drawerPanel.querySelector('.wa-policy-antispam').checked) : (curPolicy.antiSpamCooldown !== false)
             }, extraPatch || {});
 
+            const syncPayload = Object.assign({}, policy);
+            delete policy._forceClearStamp;
             localStorage.setItem('erp_whatsapp_statement_policy_v1', JSON.stringify(policy));
             renderAdminWaPolicyUI();
             if (typeof syncToBackend === 'function') {
-                syncToBackend('whatsapp_statement_policy', policy);
+                syncToBackend('whatsapp_statement_policy', syncPayload);
             }
             renderCustomers(document.getElementById('customer-search-input')?.value || '');
             renderSuppliers(document.getElementById('supplier-search-input')?.value || '');
@@ -2749,9 +2783,9 @@
             reader.onload = function(evt) {
                 const img = new Image();
                 img.onload = function() {
-                    const maxDim = 260;
-                    let w = img.width || 200;
-                    let h = img.height || 200;
+                    const maxDim = 360;
+                    let w = img.width || 240;
+                    let h = img.height || 240;
                     if (w > maxDim || h > maxDim) {
                         if (w > h) {
                             h = Math.round((h * maxDim) / w);
@@ -2768,6 +2802,10 @@
                     ctx.clearRect(0, 0, w, h);
                     ctx.drawImage(img, 0, 0, w, h);
                     const dataUrl = canvas.toDataURL('image/png');
+                    document.querySelectorAll('.wa-policy-stamp-preview').forEach(pImg => {
+                        pImg.src = dataUrl;
+                        pImg.style.display = 'inline-block';
+                    });
                     syncAdminWaPolicyFromUI(inputEl, { voucherStampImage: dataUrl });
                 };
                 img.src = evt.target.result;
@@ -2778,7 +2816,11 @@
 
         function clearWaVoucherStampImage() {
             if (!isSystemAdminForStatementControl(true)) return;
-            syncAdminWaPolicyFromUI(null, { voucherStampImage: '' });
+            document.querySelectorAll('.wa-policy-stamp-preview').forEach(pImg => {
+                pImg.setAttribute('src', '');
+                pImg.style.display = 'none';
+            });
+            syncAdminWaPolicyFromUI(null, { voucherStampImage: '', _forceClearStamp: true });
         }
 
         function setFormReceiptApprovalMode(prefix, mode, triggerSaveIfEditing = false) {

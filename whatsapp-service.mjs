@@ -1630,7 +1630,8 @@ class WhatsAppClient {
 
         const companyName = String(v.company_name || '').trim();
         const stampText = String(v.stamp_text || '').trim() || 'ختم مصادقة مالية إلكترونية';
-        const stampImage = String(v.stamp_image || '').trim();
+        const rawStampImage = String(v.stamp_image || '').trim();
+        const stampImage = rawStampImage.length >= 150 ? rawStampImage : '';
         const localUnitFull = String(v.currency_full_ar || '').trim() || 'جنيه سوداني';
         const tafqeetLocal = String(v.tafqeet_ar || '').trim() || `فقط صفر ${localUnitFull}`;
         const tafqeetUsd = String(v.tafqeet_usd_ar || '').trim() || 'فقط صفر دولار أمريكي';
@@ -2070,14 +2071,17 @@ class WhatsAppClient {
     flex-shrink: 0;
   }
   .seal-custom-img {
-    height: 70px;
+    height: 84px;
     width: auto;
-    max-width: 145px;
+    min-width: 84px;
+    max-width: 195px;
     object-fit: contain;
-    border-radius: 10px;
-    background: rgba(255,255,255,0.1);
-    padding: 4px;
-    border: 2px solid rgba(250, 204, 21, 0.65);
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.96);
+    padding: 5px 10px;
+    border: 2.5px solid #facc15;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45);
+    flex-shrink: 0;
   }
   .seal-text-main {
     font-size: 29px;
@@ -2315,7 +2319,7 @@ class WhatsAppClient {
         if (!globalThis.__voucherImgCache) {
             globalThis.__voucherImgCache = new Map();
         }
-        const cacheKey = `${v.entity_type || ''}_${v.entity_name || ''}_${v.net_balance_local || 0}_${v.net_balance_usd || 0}_${v.movements_count || 0}_${v.status_type || ''}`;
+        const cacheKey = `${v.entity_type || ''}_${v.entity_name || ''}_${v.net_balance_local || 0}_${v.net_balance_usd || 0}_${v.movements_count || 0}_${v.status_type || ''}_${companyName}_${stampText}_${stampImage ? stampImage.length : 0}`;
         const cachedEntry = globalThis.__voucherImgCache.get(cacheKey);
         if (cachedEntry && (Date.now() - cachedEntry.ts <= 10000) && cachedEntry.buf) {
             return cachedEntry.buf;
@@ -2334,6 +2338,12 @@ class WhatsAppClient {
         }
         try {
             await page.setContent(html, { waitUntil: 'domcontentloaded', timeout: 6000 });
+            if (stampImage) {
+                await page.evaluate(async () => {
+                    const imgs = Array.from(document.querySelectorAll('img'));
+                    await Promise.all(imgs.map(img => img.complete ? Promise.resolve() : new Promise(r => { img.onload = r; img.onerror = r; setTimeout(r, 1500); })));
+                });
+            }
             const cardEl = await page.$('#voucher-card');
             const shotOpts = { type: 'jpeg', quality: 82 };
             const buf = Buffer.from(await (cardEl ? cardEl.screenshot(shotOpts) : page.screenshot(shotOpts)));

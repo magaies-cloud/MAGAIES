@@ -2864,6 +2864,9 @@ function loadWhatsAppStatementPolicy($pdo, $tenantId) {
             $decoded = json_decode($polVal, true);
             if (is_array($decoded)) {
                 $policy = array_merge($policy, $decoded);
+                if (!empty($policy['voucherStampImage']) && strlen((string)$policy['voucherStampImage']) < 150) {
+                    $policy['voucherStampImage'] = '';
+                }
             }
         }
     } catch (Exception $e) {
@@ -4769,6 +4772,25 @@ function buildDetailedAccountStatementForWhatsApp($pdo, $tenantId, $entityType, 
     }
     $stampText = trim((string)($pol['voucherStampText'] ?? '')) ?: 'ختم مصادقة مالية إلكترونية';
     $stampImage = trim((string)($pol['voucherStampImage'] ?? ''));
+    if ($stampImage !== '' && strlen($stampImage) < 150) {
+        $stampImage = '';
+    }
+    if ($stampImage === '') {
+        try {
+            $stmtSetStamp = $pdo->prepare("SELECT data FROM settings WHERE (tenant_id = ? OR tenant_id IS NULL) ORDER BY id DESC LIMIT 1");
+            $stmtSetStamp->execute([$tenantId]);
+            $rawSetStamp = $stmtSetStamp->fetchColumn();
+            if ($rawSetStamp) {
+                $setDecStamp = json_decode((string)$rawSetStamp, true);
+                if (is_array($setDecStamp)) {
+                    $candStamp = trim((string)($setDecStamp['voucherStampImage'] ?? $setDecStamp['stampImage'] ?? $setDecStamp['signatureImage'] ?? $setDecStamp['stamp'] ?? $setDecStamp['signature'] ?? ''));
+                    if (strlen($candStamp) >= 150) {
+                        $stampImage = $candStamp;
+                    }
+                }
+            }
+        } catch (Exception $e) {}
+    }
 
     $balanceStatusType = 'settled'; // 'debit' | 'credit' | 'settled'
     $balanceStatusAr = 'مسدد بالكامل';

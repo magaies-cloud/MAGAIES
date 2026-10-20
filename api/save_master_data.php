@@ -1,4 +1,46 @@
 <?php
+$rawBodyMaster = file_get_contents('php://input');
+$__earlyInput = json_decode($rawBodyMaster, true);
+$__earlyType = is_array($__earlyInput) ? ($__earlyInput['type'] ?? $__earlyInput['action'] ?? null) : null;
+$__earlyTid = 12;
+if (!empty($_SERVER['HTTP_X_TENANT_ID']) && is_numeric($_SERVER['HTTP_X_TENANT_ID']) && (int)$_SERVER['HTTP_X_TENANT_ID'] > 1) {
+    $__earlyTid = (int)$_SERVER['HTTP_X_TENANT_ID'];
+} elseif (!empty($_GET['tenant_id']) && is_numeric($_GET['tenant_id']) && (int)$_GET['tenant_id'] > 1) {
+    $__earlyTid = (int)$_GET['tenant_id'];
+} elseif (!empty($_COOKIE['currentTenantId']) && is_numeric($_COOKIE['currentTenantId']) && (int)$_COOKIE['currentTenantId'] > 1) {
+    $__earlyTid = (int)$_COOKIE['currentTenantId'];
+}
+$__masterHost = strtolower($_SERVER['HTTP_HOST'] ?? $_SERVER['SERVER_NAME'] ?? '');
+$__isLocalMasterEnv = (strpos($__masterHost, 'elsajana.com') === false) && (strpos($__masterHost, 'localhost') !== false || strpos($__masterHost, '127.0.0.1') !== false || strpos($__masterHost, '192.168.') === 0 || (bool)stristr(PHP_OS, 'WIN'));
+if ($__isLocalMasterEnv && empty($_SERVER['HTTP_X_FORWARDED_FROM_LOCAL']) && $__earlyType && !in_array($__earlyType, ['check_entity_usage', 'check_item_usage'], true)) {
+    register_shutdown_function(function() use ($rawBodyMaster, &$tenant_id, $__earlyTid) {
+        try {
+            if (function_exists('finishClientResponseEarly')) {
+                finishClientResponseEarly();
+            } elseif (function_exists('fastcgi_finish_request')) {
+                @fastcgi_finish_request();
+            }
+            $fwdTid = (!empty($tenant_id) && (int)$tenant_id > 1) ? (int)$tenant_id : (int)$__earlyTid;
+            $ch = curl_init('https://c.elsajana.com/api/save_master_data.php?tenant_id=' . $fwdTid);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_POST, true);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $rawBodyMaster);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, [
+                'Content-Type: application/json',
+                'X-Forwarded-From-Local: 1',
+                'X-Tenant-Id: ' . $fwdTid
+            ]);
+            curl_setopt($ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
+            curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 2);
+            curl_setopt($ch, CURLOPT_TIMEOUT, 6);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+            curl_exec($ch);
+            curl_close($ch);
+        } catch (Throwable $e) {}
+    });
+}
+
 require_once __DIR__ . '/db.php';
 require_once __DIR__ . '/../db_bridge.php';
 require_once __DIR__ . '/check_entity_usage.php';
@@ -44,9 +86,8 @@ try {
     if ($tenant_id <= 1) $tenant_id = 12;
 }
 
-$rawBodyMaster = file_get_contents('php://input');
-$input = json_decode($rawBodyMaster, true);
-$type = $input['type'] ?? $input['action'] ?? null;
+$input = $__earlyInput;
+$type = $__earlyType;
 if (!$input || !$type) {
     http_response_code(400);
     echo json_encode(['success' => false, 'error' => 'Invalid payload'], JSON_UNESCAPED_UNICODE);
@@ -54,36 +95,6 @@ if (!$input || !$type) {
 }
 
 $data = $input['data'] ?? $input['customer'] ?? null;
-
-$__masterHost = strtolower($_SERVER['HTTP_HOST'] ?? $_SERVER['SERVER_NAME'] ?? '');
-$__isLocalMasterEnv = (strpos($__masterHost, 'elsajana.com') === false) && (strpos($__masterHost, 'localhost') !== false || strpos($__masterHost, '127.0.0.1') !== false || strpos($__masterHost, '192.168.') === 0 || (bool)stristr(PHP_OS, 'WIN'));
-if ($__isLocalMasterEnv && empty($_SERVER['HTTP_X_FORWARDED_FROM_LOCAL']) && !in_array($type, ['check_entity_usage', 'check_item_usage'], true)) {
-    register_shutdown_function(function() use ($rawBodyMaster, $tenant_id) {
-        try {
-            if (function_exists('finishClientResponseEarly')) {
-                finishClientResponseEarly();
-            } elseif (function_exists('fastcgi_finish_request')) {
-                @fastcgi_finish_request();
-            }
-            $ch = curl_init('https://c.elsajana.com/api/save_master_data.php?tenant_id=' . (int)$tenant_id);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($ch, CURLOPT_POST, true);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, $rawBodyMaster);
-            curl_setopt($ch, CURLOPT_HTTPHEADER, [
-                'Content-Type: application/json',
-                'X-Forwarded-From-Local: 1',
-                'X-Tenant-Id: ' . (int)$tenant_id
-            ]);
-            curl_setopt($ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
-            curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 2);
-            curl_setopt($ch, CURLOPT_TIMEOUT, 5);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
-            curl_exec($ch);
-            curl_close($ch);
-        } catch (Throwable $e) {}
-    });
-}
 
 function isDuplicateNameDB($pdo, $tenant_id, $table, $name, $currentId) {
     if (empty(trim($name))) return false;
@@ -139,9 +150,32 @@ try {
 
         case 'whatsapp_statement_policy':
             if (is_array($data)) {
-                $polJson = json_encode($data, JSON_UNESCAPED_UNICODE);
+                $existingPol = [];
+                try {
+                    $stmtEx = $pdo->prepare("SELECT setting_value FROM global_settings WHERE setting_key = 'erp_whatsapp_statement_policy_v1' LIMIT 1");
+                    $stmtEx->execute();
+                    $rawEx = $stmtEx->fetchColumn();
+                    if ($rawEx) {
+                        $decEx = json_decode((string)$rawEx, true);
+                        if (is_array($decEx)) $existingPol = $decEx;
+                    }
+                } catch (Exception $e) {}
+
+                $forceClearStamp = !empty($data['_forceClearStamp']);
+                unset($data['_forceClearStamp']);
+
+                $mergedPol = array_merge($existingPol, $data);
+                if (!$forceClearStamp && empty($data['voucherStampImage']) && !empty($existingPol['voucherStampImage']) && strlen((string)$existingPol['voucherStampImage']) > 150) {
+                    $mergedPol['voucherStampImage'] = $existingPol['voucherStampImage'];
+                }
+                if (isset($mergedPol['voucherStampImage']) && strlen((string)$mergedPol['voucherStampImage']) < 150) {
+                    $mergedPol['voucherStampImage'] = '';
+                }
+
+                $polJson = json_encode($mergedPol, JSON_UNESCAPED_UNICODE);
                 $stmt = $pdo->prepare("INSERT INTO global_settings (setting_key, setting_value) VALUES ('erp_whatsapp_statement_policy_v1', ?) ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value), updated_at = NOW()");
                 $stmt->execute([$polJson]);
+                $data = $mergedPol;
             }
             break;
 
