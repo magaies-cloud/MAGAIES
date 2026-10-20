@@ -50,6 +50,7 @@ $commands = [
     'CHANGED_FILES=$(git diff --name-only HEAD origin/main 2>/dev/null || echo "")',
     '(git update-index --refresh -q 2>/dev/null || true) && (git reset --hard origin/main 2>&1 || (git checkout -f origin/main 2>&1 && git reset --hard origin/main 2>&1))',
     '(find /var/www/magaees -maxdepth 2 -not -path "*/.*" -not -path "/var/www/magaees/node_modules*" -not -path "/var/www/magaees/uploads*" -not -path "/var/www/magaees/baileys_auth*" -exec chown www-data:www-data {} + 2>/dev/null || true)',
+    'if [ ! -d "/var/www/magaees/node_modules/sharp" ]; then npm install sharp --no-save --legacy-peer-deps 2>&1 || true; fi',
     'if echo "$CHANGED_FILES" | grep -q "migrate_ui_preferences.php"; then php /var/www/magaees/api/migrate_ui_preferences.php 2>&1; fi',
     'if echo "$CHANGED_FILES" | grep -qE "(whatsapp-service\.mjs|server\.js)"; then (pm2 restart all 2>/dev/null || systemctl restart whatsapp-service 2>/dev/null || pkill -f "whatsapp-service" 2>/dev/null || true); fi',
 ];

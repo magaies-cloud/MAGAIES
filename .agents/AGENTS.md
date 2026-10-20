@@ -3,8 +3,12 @@
 ## 1. Fast Execution & Instant Deployment Rules (قواعد السرعة والتنفيذ المباشر)
 - **Active Repository Path**: Always work directly inside `C:\xampp\htdocs\ELSAJANA2\magaies`.
 - **Use `run_command` Directly**: Shell execution via `run_command` works natively in <1 second. **NEVER** create temporary PHP scripts (`_sync_deploy_tmp*.php`, `_diag_tmp.php`) or use `read_url_content` over `localhost` to execute Git or terminal commands.
-- **Instant 1-Step Deploy ("نرفع من المحل" / "ارفع للموقع الحي")**:
-  When asked to push/deploy local changes to GitHub (`origin/main`) and the live server (`https://c.elsajana.com`), run a **single command** in `C:\xampp\htdocs\ELSAJANA2\magaies`:
+- **Local-Only Changes by Default (`التعديل في المحل فقط — ممنوع الرفع التلقائي`)**:
+  - **CRITICAL**: All code edits, fixes, and new features MUST be applied **locally (`في المحل فقط`)** for instant speed.
+  - **NEVER** push to GitHub (`git push`) or deploy to the live server (`trigger_webhook.php` / `c.elsajana.com`) automatically after editing files.
+  - Do NOT touch GitHub or the live server unless the user **explicitly instructs** you to push/deploy.
+- **Instant 1-Step Deploy — ONLY When Explicitly Requested ("نرفع من المحل" / "ارفع للموقع الحي والجيت هاب")**:
+  **ONLY** when explicitly asked by the user to push/deploy local changes to GitHub (`origin/main`) and the live server (`https://c.elsajana.com`), run a **single command** in `C:\xampp\htdocs\ELSAJANA2\magaies`:
   ```powershell
   git add -u; if ((git status --porcelain)) { git commit -m "Sync updates from local" }; git push origin main; C:\xampp\php\php.exe trigger_webhook.php
   ```

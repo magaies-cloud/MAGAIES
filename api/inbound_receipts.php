@@ -4836,18 +4836,16 @@ function buildDetailedAccountStatementForWhatsApp($pdo, $tenantId, $entityType, 
         $lines = [];
         $lines[] = "🏛️ *مـنـظـومـة مـقـايـيـس الـمـحـاسـبـيـة الـعـالـمـيـة*";
         $lines[] = "══════════";
-        $lines[] = "   📜 *سَـنَـد رَصِـيـد*";
-        $lines[] = $nowFormatted;
-        $lines[] = "الصرف: " . round($systemUsdRate) . "  ج س ";
+        $lines[] = "   📜{$nowFormatted}";
         $lines[] = " *الاسم:* *{$entityName}*";
-        $lines[] = "";
-        $lines[] = "🟡 *الجنيه السوداني:* *" . number_format(abs($runningNetDebit), 0) . " {$currencyLabelAr}*";
-        $lines[] = "💵 *المعادل بالدولار:* 〘 `$" . number_format(abs($runningNetDebitUsd), 1) . " USD` 〙";
+        $lines[] = " *رَصِـيـد*";
+        $lines[] = "🟡 *ج السوداني:* *" . number_format(abs($runningNetDebit), 0) . " {$currencyLabelAr}*";
+        $lines[] = "💵 *بالدولار:* 〘 `$" . number_format(abs($runningNetDebitUsd), 1) . " USD` 〙";
         $lines[] = "{$statusBadgeEmoji} *الرصيد النهائي:* " . $formatBalanceTag($runningNetDebit, $runningNetDebitUsd);
         $lines[] = "──────────────────────────";
         $lines[] = "🔴 *إجمالي المدين:* 🟡 *" . number_format($totalDebit, 0) . " {$currencyLabelAr}* 〘 💵 `$" . number_format($totalDebitUsd, 1) . "` 〙";
         $lines[] = "🟢 *إجمالي الدائن:* 🟡 *" . number_format($totalCredit, 0) . " {$currencyLabelAr}* 〘 💵 `$" . number_format($totalCreditUsd, 1) . "` 〙";
-        $lines[] = "✍️ *التفقيط:* _{$tafqeetLocal}_";
+        $lines[] = "✍️ {$tafqeetLocal}";
         $finalText = implode("\n", $lines);
         return $returnStructured ? ['text' => $finalText, 'voucher_data' => $voucherData] : $finalText;
     }
