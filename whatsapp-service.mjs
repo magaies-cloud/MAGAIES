@@ -1434,12 +1434,14 @@ class WhatsAppClient {
                     try {
                         puppeteerMod = await import('puppeteer-core');
                     } catch (__) {
-                        const { execSync } = await import('child_process');
+                        const { exec } = await import('child_process');
                         const cacheDir = path.join(__dirname, '.puppeteer_cache');
-                        execSync(`HOME=/tmp PUPPETEER_CACHE_DIR="${cacheDir}" npm install puppeteer --no-save --legacy-peer-deps`, {
-                            cwd: __dirname,
-                            stdio: 'ignore',
-                            timeout: 180000
+                        await new Promise((resolve, reject) => {
+                            exec(
+                                `HOME=/tmp PUPPETEER_CACHE_DIR="${cacheDir}" npm install puppeteer --no-save --legacy-peer-deps`,
+                                { cwd: __dirname, timeout: 180000 },
+                                (err) => (err ? reject(err) : resolve())
+                            );
                         });
                         puppeteerMod = await import('puppeteer');
                     }
