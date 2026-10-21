@@ -756,7 +756,8 @@ if (!function_exists('runLocalReceiptOcrFallback')) {
         $arabicDigits = ['٠','١','٢','٣','٤','٥','٦','٧','٨','٩','۰','۱','۲','۳','۴','۵','۶','۷','۸','۹'];
         $latinDigits  = ['0','1','2','3','4','5','6','7','8','9','0','1','2','3','4','5','6','7','8','9'];
         $normStr = function($s) use ($arabicDigits, $latinDigits) {
-            return trim(str_replace($arabicDigits, $latinDigits, (string)$s));
+            $clean = preg_replace('/[\x{200B}-\x{200F}\x{202A}-\x{202E}\x{2066}-\x{2069}]/u', '', (string)$s);
+            return trim(str_replace($arabicDigits, $latinDigits, $clean));
         };
 
         $arClean = [];
@@ -980,23 +981,26 @@ if (!function_exists('runLocalReceiptOcrFallback')) {
 
             if ($cat === 'REF') {
                 $hasVisibleRefLabel = true;
-                // Extract transaction reference from same-row value items
+                // Extract transaction reference from same-row value items AND from the label item itself (when label+value are on one line e.g. "رقم العملية 20322280971")
                 $arDigitsOnRow = '';
                 $enRawOnRow = '';
-                foreach ($valItems as $vi) {
-                    $t = trim($vi['text']);
+                foreach (array_merge([$lRow['item']], $valItems) as $vi) {
+                    $t = trim($vi['text'] . ' ' . ($vi['rtl_text'] ?? ''));
                     $tNorm = strtr($t, ['O' => '0', 'o' => '0', 'I' => '1', 'l' => '1']);
                     // Pure 6-19 digit reference
-                    if (preg_match('/\b(\d{6,19})\b/', $tNorm, $mPure)) {
-                        $spatialRefCandidates[] = $mPure[1];
+                    if (preg_match_all('/\b(\d{6,19})\b/', $tNorm, $mPureAll)) {
+                        foreach ($mPureAll[1] as $candRefDig) {
+                            $spatialRefCandidates[] = $candRefDig;
+                        }
                     }
                     // Keep track of partial Arabic digits and clipped English lookalikes at same Y (for top-clipped Bankak Trx. ID)
                     if (abs($vi['y'] - $lRow['y']) <= $rowTol) {
-                        if (preg_match('/^(\d{4,10})\b/', $t, $mArPref) && strlen($mArPref[1]) > strlen($arDigitsOnRow)) {
+                        $tRaw = trim($vi['text']);
+                        if (preg_match('/^(\d{4,10})\b/', $tRaw, $mArPref) && strlen($mArPref[1]) > strlen($arDigitsOnRow)) {
                             $arDigitsOnRow = $mArPref[1];
                         }
-                        if (preg_match('/^[0-9A-Za-z\'öüÖÜ]{8,15}$/u', $t) && strlen($t) > strlen($enRawOnRow)) {
-                            $enRawOnRow = $t;
+                        if (preg_match('/^[0-9A-Za-z\'öüÖÜ]{8,15}$/u', $tRaw) && strlen($tRaw) > strlen($enRawOnRow)) {
+                            $enRawOnRow = $tRaw;
                         }
                     }
                 }
@@ -1194,15 +1198,17 @@ if (!function_exists('runLocalReceiptOcrFallback')) {
             foreach ($candidateSearchLines as $line) {
                 $t = trim($line);
                 $tClean = trim(preg_replace('/\bSDG\b/i', '', $t));
-                if (preg_match('/^([0-9OoIl]{1,4}(?:[.,][0-9OoIl]{3})*[.,][0-9OoIl]{2}|[0-9OoIl]{4,10}[.,][0-9OoIl]{2})$/', $tClean)) {
-                    $fixed = strtr($tClean, ['O' => '0', 'o' => '0', 'I' => '1', 'l' => '1']);
-                    $intPart = substr($fixed, 0, -3);
-                    $centsPart = substr($fixed, -2);
-                    $digitsOnly = preg_replace('/\D/', '', $intPart);
-                    $candAmt = floatval($digitsOnly . '.' . $centsPart);
-                    if ($candAmt >= 100 && $candAmt < 10000000000 && !isset($excludedRefTokens[(string)$digitsOnly])) {
-                        if ($candAmt > $amount) {
-                            $amount = $candAmt;
+                if (preg_match_all('/(?<!\d)([0-9OoIl]{1,4}(?:,[0-9OoIl]{3})+\.[0-9OoIl]{2}|[0-9OoIl]{3,10}\.[0-9OoIl]{2})(?!\d)/', $tClean, $mDecMatches)) {
+                    foreach ($mDecMatches[1] as $rawDec) {
+                        $fixed = strtr($rawDec, ['O' => '0', 'o' => '0', 'I' => '1', 'l' => '1']);
+                        $intPart = substr($fixed, 0, -3);
+                        $centsPart = substr($fixed, -2);
+                        $digitsOnly = preg_replace('/\D/', '', $intPart);
+                        $candAmt = floatval($digitsOnly . '.' . $centsPart);
+                        if ($candAmt >= 100 && $candAmt < 10000000000 && !isset($excludedRefTokens[(string)$digitsOnly])) {
+                            if ($candAmt > $amount) {
+                                $amount = $candAmt;
+                            }
                         }
                     }
                 }

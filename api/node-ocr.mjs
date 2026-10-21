@@ -40,11 +40,99 @@ if (!imagePath || !fs.existsSync(imagePath)) {
         const meta = await sharp(imagePath).metadata();
         const origW = meta.width || 720;
         const origH = meta.height || 1280;
+        const targetW = Math.min(Math.max(origW * 2, 1150), 1600);
+        const scale = targetW / origW;
 
-        const cleanPng = await sharp(imagePath)
-            .resize({ width: origW * 2, withoutEnlargement: false })
+        const cleanLineStr = (s) => String(s || '')
+            .replace(/[\u200B-\u200F\u202A-\u202E\u2066-\u2069]/g, '')
+            .replace(/[|_—–]+/g, ' ')
+            .replace(/\s+/g, ' ')
+            .trim();
+
+        const extractStructuredLines = (resObj) => {
+            const rawLines = [];
+            if (Array.isArray(resObj?.data?.blocks)) {
+                for (const b of resObj.data.blocks) {
+                    for (const p of (b.paragraphs || [])) {
+                        for (const ln of (p.lines || [])) {
+                            rawLines.push(ln);
+                        }
+                    }
+                }
+            } else if (Array.isArray(resObj?.data?.lines)) {
+                rawLines.push(...resObj.data.lines);
+            }
+
+            if (rawLines.length > 0) {
+                const items = [];
+                rawLines.forEach((ln, idx) => {
+                    const txt = cleanLineStr(ln.text);
+                    if (!txt) return;
+                    const bbox = ln.bbox || {};
+                    const x = Math.round((bbox.x0 || 0) / scale);
+                    const y = Math.round((bbox.y0 || (idx * 35)) / scale);
+                    const w = Math.round(((bbox.x1 || 0) - (bbox.x0 || 0)) / scale);
+                    const h = Math.round(((bbox.y1 || 0) - (bbox.y0 || 0)) / scale) || 24;
+                    items.push({ text: txt, rtl_text: txt, x, y, w, h });
+
+                    if (Array.isArray(ln.words) && ln.words.length > 1) {
+                        const sortedWords = [...ln.words]
+                            .filter(wObj => cleanLineStr(wObj.text).length > 0 && wObj.bbox)
+                            .sort((a, b) => (a.bbox.x0 || 0) - (b.bbox.x0 || 0));
+                        if (sortedWords.length > 1) {
+                            const clusters = [];
+                            let cur = null;
+                            for (const wObj of sortedWords) {
+                                const wTxt = cleanLineStr(wObj.text);
+                                const wx0 = Math.round((wObj.bbox.x0 || 0) / scale);
+                                const wy0 = Math.round((wObj.bbox.y0 || 0) / scale);
+                                const wx1 = Math.round((wObj.bbox.x1 || 0) / scale);
+                                const wy1 = Math.round((wObj.bbox.y1 || 0) / scale);
+                                if (!cur) {
+                                    cur = { words: [wTxt], x0: wx0, y0: wy0, x1: wx1, y1: wy1 };
+                                } else if (wx0 - cur.x1 > 32) {
+                                    clusters.push(cur);
+                                    cur = { words: [wTxt], x0: wx0, y0: wy0, x1: wx1, y1: wy1 };
+                                } else {
+                                    cur.words.push(wTxt);
+                                    cur.x1 = Math.max(cur.x1, wx1);
+                                    cur.y0 = Math.min(cur.y0, wy0);
+                                    cur.y1 = Math.max(cur.y1, wy1);
+                                }
+                            }
+                            if (cur) clusters.push(cur);
+                            if (clusters.length > 1) {
+                                for (const cl of clusters) {
+                                    const clTxt = cl.words.join(' ').trim();
+                                    const clRtl = [...cl.words].reverse().join(' ').trim();
+                                    if (clTxt && clTxt !== txt) {
+                                        items.push({
+                                            text: clTxt,
+                                            rtl_text: clRtl,
+                                            x: cl.x0,
+                                            y,
+                                            w: Math.max(10, cl.x1 - cl.x0),
+                                            h: Math.max(16, cl.y1 - cl.y0)
+                                        });
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+                return items;
+            }
+            return String(resObj?.data?.text || '')
+                .split(/\r?\n/)
+                .map(l => cleanLineStr(l))
+                .filter(Boolean)
+                .map((text, idx) => ({ text, rtl_text: text, x: 0, y: idx * 35, w: origW, h: 24 }));
+        };
+
+        const threshPng = await sharp(imagePath)
+            .resize({ width: targetW, withoutEnlargement: false })
             .grayscale()
-            .normalize()
+            .threshold(145)
             .png()
             .toBuffer();
 
@@ -57,39 +145,39 @@ if (!imagePath || !fs.existsSync(imagePath)) {
         await araWorker.setParameters({ tessedit_pageseg_mode: '6' });
 
         const [engRes, araRes] = await Promise.all([
-            engWorker.recognize(cleanPng),
-            araWorker.recognize(cleanPng)
+            engWorker.recognize(threshPng, {}, { blocks: true }),
+            araWorker.recognize(threshPng, {}, { blocks: true })
         ]);
 
-        await Promise.all([engWorker.terminate(), araWorker.terminate()]);
+        let arLines = extractStructuredLines(araRes);
+        let enLines = extractStructuredLines(engRes);
 
-        const extractStructuredLines = (resObj, isRtl = false) => {
-            const lines = resObj?.data?.lines || [];
-            if (lines.length > 0) {
-                return lines.map((ln, idx) => {
-                    const txt = String(ln.text || '').replace(/[|_—–]+/g, ' ').replace(/\s+/g, ' ').trim();
-                    if (!txt) return null;
-                    const bbox = ln.bbox || {};
-                    const x = Math.round((bbox.x0 || 0) / 2);
-                    const y = Math.round((bbox.y0 || (idx * 35)) / 2);
-                    const w = Math.round(((bbox.x1 || 0) - (bbox.x0 || 0)) / 2);
-                    const h = Math.round(((bbox.y1 || 0) - (bbox.y0 || 0)) / 2) || 24;
-                    return { text: txt, rtl_text: txt, x, y, w, h };
-                }).filter(Boolean);
-            }
-            return String(resObj?.data?.text || '')
-                .split(/\r?\n/)
-                .map(l => l.trim())
-                .filter(Boolean)
-                .map((text, idx) => ({ text, rtl_text: text, x: 0, y: idx * 35, w: origW, h: 24 }));
-        };
+        const joinedCheck = [...arLines, ...enLines].map(l => l.text).join('\n');
+        const hasRefAndAmt = /\b\d{6,19}\b/.test(joinedCheck) && (/\b\d{1,4}(?:,\d{3})*\.\d{2}\b/.test(joinedCheck) || /\b\d{3,10}\.\d{2}\b/.test(joinedCheck) || /SDG/i.test(joinedCheck));
+
+        if (!hasRefAndAmt) {
+            const normPng = await sharp(imagePath)
+                .resize({ width: targetW, withoutEnlargement: false })
+                .grayscale()
+                .normalize()
+                .png()
+                .toBuffer();
+            const [engNorm, araNorm] = await Promise.all([
+                engWorker.recognize(normPng, {}, { blocks: true }),
+                araWorker.recognize(normPng, {}, { blocks: true })
+            ]);
+            arLines = [...arLines, ...extractStructuredLines(araNorm)];
+            enLines = [...enLines, ...extractStructuredLines(engNorm)];
+        }
+
+        await Promise.all([engWorker.terminate(), araWorker.terminate()]);
 
         console.log(JSON.stringify({
             success: true,
             img_w: origW,
             img_h: origH,
-            ar_lines: extractStructuredLines(araRes, true),
-            en_lines: extractStructuredLines(engRes, false)
+            ar_lines: arLines,
+            en_lines: enLines
         }));
     } catch (err) {
         console.log(JSON.stringify({ success: false, error: err.message }));

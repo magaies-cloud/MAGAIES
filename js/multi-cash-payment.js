@@ -2562,7 +2562,13 @@ async function _saveVoucherCore() {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
+                    id: activeReceiptId,
                     receipt_id: activeReceiptId,
+                    amount: finalTotal,
+                    transfer_no: (voucher.mobileTransferNo || (voucher.items && voucher.items[0] && voucher.items[0].transferNo) || ''),
+                    customer_id: (voucher.items && voucher.items[0] && (voucher.items[0].accountId || voucher.items[0].account)) || '',
+                    customer_name: (voucher.items && voucher.items[0] && voucher.items[0].accountName) || '',
+                    bank_id: (voucher.toAccount || ''),
                     voucher_no: vNo
                 })
             }).then(() => {

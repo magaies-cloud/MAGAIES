@@ -251,13 +251,15 @@ $currentActiveTenant = !empty($GLOBAL_TENANT_ID) ? (string)$GLOBAL_TENANT_ID : '
                 <span style="font-size:1.5rem;">🏷️</span>
                 <div>
                     <h3 style="margin:0; font-size:1.12rem; font-weight:900; color:#34d399;">توجيه الإشعار إلى حساب عميل بدقة متناهية</h3>
-                    <span id="assign-modal-subtitle" style="font-size:0.75rem; color:#94a3b8; font-weight:700;">اختر العميل بالاسم أو الباسورد السري وسيتم قيد الإشعار في كشف حسابه فوراً</span>
+                    <span id="assign-cust-receipt-subtitle" style="font-size:0.75rem; color:#94a3b8; font-weight:700;">اختر العميل بالاسم أو الباسورد السري وسيتم قيد الإشعار في كشف حسابه فوراً</span>
                 </div>
             </div>
             <button type="button" onclick="InboundBankakManager.closeAssignCustomerModal()" style="background:none; border:none; color:#94a3b8; font-size:1.3rem; cursor:pointer; font-weight:900;">✕</button>
         </div>
 
-        <input type="hidden" id="assign-modal-receipt-id">
+        <input type="hidden" id="assign-cust-receipt-id">
+        <input type="hidden" id="assign-cust-selected-id">
+        <input type="hidden" id="assign-cust-selected-code">
         <input type="hidden" id="assign-modal-selected-code">
 
         <div style="position:relative;">
@@ -266,7 +268,7 @@ $currentActiveTenant = !empty($GLOBAL_TENANT_ID) ? (string)$GLOBAL_TENANT_ID : '
             </label>
             <input type="text" id="assign-cust-search-input" autocomplete="off" oninput="InboundBankakManager.onAssignCustomerSearch(this.value)" onfocus="InboundBankakManager.onAssignCustomerSearch(this.value)" placeholder="اكتب اسم العميل أو الباسورد السري (مثل 127)..." style="width:100%; box-sizing:border-box; background:rgba(0,0,0,0.5); border:1.5px solid rgba(56,189,248,0.5); border-radius:10px; padding:9px 12px; color:#ffd700; font-size:0.95rem; font-weight:900; font-family:'Tajawal',sans-serif; outline:none;">
             <div id="assign-cust-autocomplete" style="display:none; position:absolute; top:100%; right:0; left:0; background:#0f172a; border:1.5px solid #10b981; border-radius:10px; max-height:210px; overflow-y:auto; z-index:999999; margin-top:4px; box-shadow:0 15px 35px rgba(0,0,0,0.9);"></div>
-            <div id="assign-cust-matched-banner" style="display:none; margin-top:6px; padding:7px 10px; border-radius:8px; background:rgba(16,185,129,0.14); border:1px solid rgba(16,185,129,0.45); color:#6ee7b7; font-size:0.82rem; font-weight:800;"></div>
+            <div id="assign-cust-matched-card" style="display:none; margin-top:6px; padding:7px 10px; border-radius:8px; background:rgba(16,185,129,0.14); border:1px solid rgba(16,185,129,0.45); color:#6ee7b7; font-size:0.82rem; font-weight:800;"><div id="assign-cust-matched-name" style="font-weight:900;"></div><div id="assign-cust-matched-meta" style="font-size:0.74rem; color:#a7f3d0; margin-top:2px;"></div></div>
         </div>
 
         <div>
@@ -277,7 +279,7 @@ $currentActiveTenant = !empty($GLOBAL_TENANT_ID) ? (string)$GLOBAL_TENANT_ID : '
         </div>
 
         <label style="display:flex; align-items:center; gap:8px; font-size:0.80rem; color:#cbd5e1; font-weight:700; cursor:pointer; background:rgba(255,255,255,0.04); padding:8px 10px; border-radius:8px; border:1px solid rgba(255,255,255,0.08);">
-            <input type="checkbox" id="assign-link-sender-phone" checked style="width:16px; height:16px; accent-color:#10b981;">
+            <input type="checkbox" id="assign-cust-link-phone" checked style="width:16px; height:16px; accent-color:#10b981;">
             <span>ربط رقم المرسل بحساب هذا العميل تلقائياً للإشعارات القادمة</span>
         </label>
 
@@ -1068,7 +1070,7 @@ window.InboundBankakManager = {
 
                     <!-- Actions Row -->
                     <div style="display:flex; gap:5px; margin-top:2px; align-items:center; flex-wrap:wrap;">
-                        ${(!isPosted && !isDup && parseFloat(r.amount || 0) > 0) ? `
+                        ${(!isPosted && !isDup) ? `
                         <button type="button" onclick="InboundBankakManager.postToAccountsDirect(${r.id}, this)" style="flex:1.2; height:32px; padding:0 10px; border-radius:7px; background:linear-gradient(135deg, #10b981, #059669); border:1.2px solid #34d399; color:#ffffff; font-size:0.77rem; font-weight:900; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:4px; box-shadow:0 0 12px rgba(16,185,129,0.35);" title="تمرير وترحيل فوري في حساب العميل وحساب البنك المحدد">
                             <span>✔️</span> <span>تمرير وترحيل للحساب</span>
                         </button>
@@ -1182,7 +1184,7 @@ window.InboundBankakManager = {
     approveAllPendingReceipts: async function(btnEl) {
         const candidates = this.receipts.filter(r =>
             r.status !== 'duplicate_rejected' &&
-            parseFloat(r.amount || 0) > 0 &&
+            (parseFloat(r.amount || 0) > 0 || !!r.receipt_image) &&
             (r.issue_reason === 'awaiting_posting_approval' || r.status === 'pending' || !r.voucher_no)
         );
         if (candidates.length === 0) {
@@ -1245,7 +1247,7 @@ window.InboundBankakManager = {
     loadBatchIntoMultiVoucher: function() {
         let candidates = this.receipts.filter(r =>
             r.status !== 'duplicate_rejected' &&
-            parseFloat(r.amount || 0) > 0 &&
+            (parseFloat(r.amount || 0) > 0 || !!r.receipt_image) &&
             (this.activeFilter === 'all' ? (r.issue_reason === 'awaiting_posting_approval' || r.status === 'pending' || r.status === 'verified') : true)
         );
         const awaitingOnly = candidates.filter(r => r.issue_reason === 'awaiting_posting_approval' || r.status === 'pending');
@@ -1914,6 +1916,11 @@ window.InboundBankakManager = {
             if (data.success && data.voucher_no) {
                 const r = this.receipts.find(x => x.id == receiptId) || { id: receiptId, voucher_no: data.voucher_no };
                 r.voucher_no = data.voucher_no;
+                if (data.voucher && data.voucher.totalAmount) r.amount = data.voucher.totalAmount;
+                if (data.voucher && data.voucher.mobileTransferNo) r.transfer_no = data.voucher.mobileTransferNo;
+                if (data.customer_id) r.customer_id = data.customer_id;
+                if (data.customer_name) r.customer_name = data.customer_name;
+                if (data.bank_name) r.bank_name = data.bank_name;
                 r.status = 'verified';
                 r.issue_reason = null;
                 this.syncPostedReceiptToLocalErp(r, data);

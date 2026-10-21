@@ -2071,7 +2071,18 @@ if ($resource === 'sync') {
                                         $closedPeriods = $stmtP->fetchAll(PDO::FETCH_ASSOC);
                                     }
 
-                                    // Load active WhatsApp inbound voucher numbers so stale browser tabs never re-insert deleted/reassigned WhatsApp receipts or GL entries
+                                    // Load active WhatsApp inbound voucher numbers and receipt IDs so stale browser tabs never re-insert deleted/reassigned WhatsApp receipts or GL entries
+                                    $inboundReceiptsByIdMap = [];
+                                    if ($table === 'receipts' || $table === 'gl_entries') {
+                                        try {
+                                            $stmtInbMap = $pdo->prepare("SELECT id, voucher_no, status FROM inbound_bank_receipts WHERE tenant_id = ?");
+                                            $stmtInbMap->execute([(string)$tenant_id]);
+                                            foreach ($stmtInbMap->fetchAll(PDO::FETCH_ASSOC) as $inbRowItem) {
+                                                $inbRowId = (int)($inbRowItem['id'] ?? 0);
+                                                if ($inbRowId > 0) $inboundReceiptsByIdMap[$inbRowId] = $inbRowItem;
+                                            }
+                                        } catch (Exception $eMap) {}
+                                    }
                                     $activeInboundVouchersMap = [];
                                     if ($table === 'receipts' || $table === 'gl_entries') {
                                         try {
@@ -2117,6 +2128,21 @@ if ($resource === 'sync') {
                                         $isForwardedFromLocal = !empty($_SERVER['HTTP_X_FORWARDED_FROM_LOCAL']);
                                         if (!$isForwardedFromLocal && !empty($activeInboundVouchersMap)) {
                                             if ($table === 'receipts' && (($record['source'] ?? '') === 'whatsapp_inbound' || !empty($record['inboundReceiptId']))) {
+                                                $linkedInbId = (int)($record['inboundReceiptId'] ?? 0);
+                                                if (!isset($activeInboundVouchersMap[$strRecordId]) && $linkedInbId > 0 && isset($inboundReceiptsByIdMap[$linkedInbId])) {
+                                                    $inbRowCurrent = $inboundReceiptsByIdMap[$linkedInbId];
+                                                    $curVNo = trim((string)($inbRowCurrent['voucher_no'] ?? ''));
+                                                    if ($curVNo === '' && ($inbRowCurrent['status'] ?? '') !== 'duplicate_rejected' && empty($record['deleted'])) {
+                                                        $vAmtPush = (float)($record['totalAmount'] ?? $record['amountLocal'] ?? 0);
+                                                        $vTrPush = trim((string)($record['mobileTransferNo'] ?? ($record['items'][0]['transferNo'] ?? '')));
+                                                        try {
+                                                            $uLink = $pdo->prepare("UPDATE inbound_bank_receipts SET voucher_no = ?, status = 'verified', issue_reason = NULL, amount = IF(amount <= 0 AND ? > 0, ?, amount), transfer_no = COALESCE(NULLIF(transfer_no, ''), NULLIF(?, '')) WHERE id = ? AND tenant_id = ?");
+                                                            $uLink->execute([$strRecordId, $vAmtPush, $vAmtPush, $vTrPush, $linkedInbId, (string)$tenant_id]);
+                                                            $activeInboundVouchersMap[$strRecordId] = true;
+                                                            $inboundReceiptsByIdMap[$linkedInbId]['voucher_no'] = $strRecordId;
+                                                        } catch (Exception $eLink) {}
+                                                    }
+                                                }
                                                 if (!isset($activeInboundVouchersMap[$strRecordId])) {
                                                     if (isset($existingMap[$strRecordId])) {
                                                         $idsToDelete[] = (int)$existingMap[$strRecordId]['id'];

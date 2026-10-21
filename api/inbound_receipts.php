@@ -158,9 +158,10 @@ function syncInboundReceiptsFromCloud($pdo, $activeTenantId, $uploadDir) {
         $cloudUrl = 'https://c.elsajana.com/api/inbound_receipts.php?action=list&tenant_id=' . (int)$activeTenantId . '&no_cloud_pull=1';
         $ch = curl_init($cloudUrl);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_ENCODING, '');
         curl_setopt($ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
-        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 2);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 3);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 3);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 8);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
         curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
         $resp = curl_exec($ch);
@@ -172,7 +173,7 @@ function syncInboundReceiptsFromCloud($pdo, $activeTenantId, $uploadDir) {
         if (empty($cloudPayload['success']) || empty($cloudPayload['data']) || !is_array($cloudPayload['data'])) return;
 
         // Load existing local receipts for fast deduplication
-        $locStmt = $pdo->prepare("SELECT id, transfer_no, receipt_image, voucher_no, status, issue_reason FROM inbound_bank_receipts WHERE tenant_id = ?");
+        $locStmt = $pdo->prepare("SELECT id, transfer_no, receipt_image, voucher_no, status, issue_reason, amount FROM inbound_bank_receipts WHERE tenant_id = ?");
         $locStmt->execute([$activeTenantId]);
         $localRows = $locStmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -187,6 +188,9 @@ function syncInboundReceiptsFromCloud($pdo, $activeTenantId, $uploadDir) {
             $vNo = trim((string)($lr['voucher_no'] ?? ''));
             if ($vNo !== '') $byVoucher[$vNo] = $lr;
         }
+
+        $pendingOcrIds = [];
+        $pendingPostQueue = [];
 
         // Process oldest first so vouchers are created in chronological order
         $cloudReceipts = array_reverse($cloudPayload['data']);
@@ -217,7 +221,7 @@ function syncInboundReceiptsFromCloud($pdo, $activeTenantId, $uploadDir) {
                         curl_setopt($chImg, CURLOPT_RETURNTRANSFER, true);
                         curl_setopt($chImg, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
                         curl_setopt($chImg, CURLOPT_CONNECTTIMEOUT, 2);
-                        curl_setopt($chImg, CURLOPT_TIMEOUT, 3);
+                        curl_setopt($chImg, CURLOPT_TIMEOUT, 4);
                         curl_setopt($chImg, CURLOPT_SSL_VERIFYPEER, false);
                         curl_setopt($chImg, CURLOPT_SSL_VERIFYHOST, false);
                         $imgBytes = curl_exec($chImg);
@@ -251,19 +255,24 @@ function syncInboundReceiptsFromCloud($pdo, $activeTenantId, $uploadDir) {
                     $cRow['created_at'] ?? date('Y-m-d H:i:s')
                 ]);
                 $newLocalId = (int)$pdo->lastInsertId();
-                if ($newLocalId > 0 && (float)($cRow['amount'] ?? 0) > 0 && strlen($cTransferClean) >= 6 && $cStatus !== 'duplicate_rejected') {
-                    if ($cStatus === 'verified' || $cStatus === 'reconciled' || $cIssue === 'awaiting_posting_approval') {
-                        postInboundReceiptToAccounts($pdo, $newLocalId, [
-                            'force_post' => ($cStatus === 'verified' || $cStatus === 'reconciled'),
-                            'target_bank_id' => (string)($cRow['bank_code'] ?? ''),
-                            'target_bank_name' => (string)($cRow['bank_name'] ?? ''),
-                            'suppress_whatsapp_notify' => true
-                        ]);
+                if ($newLocalId > 0 && $cStatus !== 'duplicate_rejected') {
+                    if (((float)($cRow['amount'] ?? 0) <= 0 || strlen($cTransferClean) < 6) && $cImgRel !== '') {
+                        $pendingOcrIds[] = $newLocalId;
+                    } elseif ((float)($cRow['amount'] ?? 0) > 0 && strlen($cTransferClean) >= 6) {
+                        $pendingPostQueue[] = [
+                            'id' => $newLocalId,
+                            'force_post' => ($cStatus === 'verified' || $cStatus === 'reconciled' || $cStatus === 'pending'),
+                            'bank_code' => (string)($cRow['bank_code'] ?? ''),
+                            'bank_name' => (string)($cRow['bank_name'] ?? '')
+                        ];
                     }
                 }
             } else {
                 // If local row was still pending while cloud row got verified/posted, upgrade local row and post to local accounts
+                $locId = (int)$matchedLocal['id'];
                 $locStatus = (string)($matchedLocal['status'] ?? 'pending');
+                $locAmt = (float)($matchedLocal['amount'] ?? 0);
+                $locTrClean = preg_replace('/\D/', '', (string)($matchedLocal['transfer_no'] ?? ''));
                 if ($locStatus === 'pending' && ($cStatus === 'verified' || $cStatus === 'reconciled')) {
                     $upd = $pdo->prepare("UPDATE inbound_bank_receipts SET customer_id = COALESCE(NULLIF(?, ''), customer_id), customer_name = COALESCE(NULLIF(?, ''), customer_name), bank_name = COALESCE(NULLIF(?, ''), bank_name), bank_code = COALESCE(NULLIF(?, ''), bank_code), transfer_no = COALESCE(NULLIF(?, ''), transfer_no), amount = IF(? > 0, ?, amount), voucher_no = COALESCE(NULLIF(?, ''), voucher_no), status = ?, issue_reason = ?, notes = COALESCE(NULLIF(?, ''), notes) WHERE id = ?");
                     $amtVal = (float)($cRow['amount'] ?? 0);
@@ -279,15 +288,34 @@ function syncInboundReceiptsFromCloud($pdo, $activeTenantId, $uploadDir) {
                         $cStatus,
                         $cIssue,
                         (string)($cRow['notes'] ?? ''),
-                        (int)$matchedLocal['id']
+                        $locId
                     ]);
-                    postInboundReceiptToAccounts($pdo, (int)$matchedLocal['id'], [
+                    $pendingPostQueue[] = [
+                        'id' => $locId,
                         'force_post' => true,
-                        'target_bank_id' => (string)($cRow['bank_code'] ?? ''),
-                        'target_bank_name' => (string)($cRow['bank_name'] ?? ''),
-                        'suppress_whatsapp_notify' => true
-                    ]);
+                        'bank_code' => (string)($cRow['bank_code'] ?? ''),
+                        'bank_name' => (string)($cRow['bank_name'] ?? '')
+                    ];
+                } elseif ($locStatus === 'pending' && ($locAmt <= 0 || strlen($locTrClean) < 6) && !empty($matchedLocal['receipt_image']) && empty($matchedLocal['issue_reason'])) {
+                    $pendingOcrIds[] = $locId;
                 }
+            }
+        }
+
+        foreach ($pendingPostQueue as $pq) {
+            postInboundReceiptToAccounts($pdo, (int)$pq['id'], [
+                'force_post' => (bool)$pq['force_post'],
+                'target_bank_id' => $pq['bank_code'],
+                'target_bank_name' => $pq['bank_name'],
+                'suppress_whatsapp_notify' => true
+            ]);
+        }
+
+        // Scan newest unscanned receipts first (up to 3 per sync cycle so requests remain instantaneous)
+        if (!empty($pendingOcrIds)) {
+            $newestOcrIds = array_slice(array_reverse(array_unique($pendingOcrIds)), 0, 3);
+            foreach ($newestOcrIds as $ocrId) {
+                performBackendReceiptOCR($pdo, (int)$ocrId, false);
             }
         }
     } catch (Throwable $e) {
@@ -300,6 +328,9 @@ switch ($action) {
     case 'list':
     case 'get_inbound_receipts':
         try {
+            if (isLocalInboundLaptopEnv()) {
+                syncInboundReceiptsFromCloud($pdo, $activeTenantId, $uploadDir);
+            }
             $filterStatus = $_GET['status'] ?? '';
             $sql = "SELECT * FROM inbound_bank_receipts WHERE tenant_id = ?";
             $params = [$activeTenantId];
@@ -357,6 +388,9 @@ switch ($action) {
             } catch (Exception $e) {}
 
             $policy = loadWhatsAppStatementPolicy($pdo, $activeTenantId);
+            if (!empty($_GET['no_cloud_pull'])) {
+                unset($policy['companyLogo'], $policy['stampImage']);
+            }
 
             $vNoStmt = $pdo->prepare("SELECT voucher_no FROM inbound_bank_receipts WHERE tenant_id = ? AND voucher_no IS NOT NULL AND voucher_no != ''");
             $vNoStmt->execute([$activeTenantId]);
@@ -480,6 +514,16 @@ switch ($action) {
                 $existingImgRow = $dupImgStmt->fetch(PDO::FETCH_ASSOC);
                 if ($existingImgRow) {
                     $existingId = (int)$existingImgRow['id'];
+                    if (($existingImgRow['status'] ?? '') === 'pending' && ((float)($existingImgRow['amount'] ?? 0) <= 0 || strlen(preg_replace('/\D/', '', (string)($existingImgRow['transfer_no'] ?? ''))) < 6)) {
+                        $retryOcr = performBackendReceiptOCR($pdo, $existingId, false, [
+                            'force_post' => $forcePostUpload,
+                            'target_bank_id' => $targetBankId,
+                            'target_bank_name' => $bankName
+                        ]);
+                        if (!empty($retryOcr['data'])) {
+                            $existingImgRow = array_merge($existingImgRow, $retryOcr['data']);
+                        }
+                    }
                     $existingVoucher = $existingImgRow['voucher_no'] ?? null;
                     $existingMode = ($existingImgRow['issue_reason'] ?? '') === 'awaiting_posting_approval' ? 'review_first' : 'auto_post';
                     echo json_encode([
@@ -635,6 +679,9 @@ switch ($action) {
 
     case 'scan_pending_batch':
         try {
+            if (isLocalInboundLaptopEnv()) {
+                syncInboundReceiptsFromCloud($pdo, $activeTenantId, $uploadDir);
+            }
             $pStmt = $pdo->prepare("SELECT id FROM inbound_bank_receipts WHERE tenant_id = ? AND (status = 'pending' AND (issue_reason IS NULL OR issue_reason NOT IN ('awaiting_posting_approval', 'cropped_missing_ref', 'non_financial_image'))) ORDER BY id ASC LIMIT 50");
             $pStmt->execute([$activeTenantId]);
             $pendingIds = $pStmt->fetchAll(PDO::FETCH_COLUMN);
@@ -675,12 +722,27 @@ switch ($action) {
     case 'post_to_accounts':
     case 'reconcile_receipt':
         try {
-            $id = intval($_GET['id'] ?? $_POST['id'] ?? $jsonData['id'] ?? 0);
+            $id = intval($_GET['id'] ?? $_POST['id'] ?? $jsonData['id'] ?? $_GET['receipt_id'] ?? $_POST['receipt_id'] ?? $jsonData['receipt_id'] ?? 0);
             $targetBankId = trim($_GET['target_bank_id'] ?? $_POST['target_bank_id'] ?? $jsonData['target_bank_id'] ?? $_POST['bank_id'] ?? $jsonData['bank_id'] ?? '');
             $targetBankName = trim($_GET['target_bank_name'] ?? $_POST['target_bank_name'] ?? $jsonData['target_bank_name'] ?? $_POST['bank_name'] ?? $jsonData['bank_name'] ?? '');
+            $passedVoucherNo = trim($_GET['voucher_no'] ?? $_POST['voucher_no'] ?? $jsonData['voucher_no'] ?? '');
+            $passedAmount = isset($_POST['amount']) ? floatval($_POST['amount']) : (isset($jsonData['amount']) ? floatval($jsonData['amount']) : 0.0);
+            $passedTransferNo = trim($_POST['transfer_no'] ?? $jsonData['transfer_no'] ?? '');
+            $passedCustId = trim($_POST['customer_id'] ?? $jsonData['customer_id'] ?? '');
+            $passedCustName = trim($_POST['customer_name'] ?? $jsonData['customer_name'] ?? '');
             if (!$id) {
                 echo json_encode(['success' => false, 'error' => 'معرّف الإشعار مطلوب']);
                 exit;
+            }
+            if ($passedVoucherNo !== '' || $passedAmount > 0 || $passedTransferNo !== '' || $passedCustId !== '' || $passedCustName !== '') {
+                $updBefore = $pdo->prepare("UPDATE inbound_bank_receipts SET 
+                    voucher_no = COALESCE(NULLIF(?, ''), voucher_no),
+                    amount = IF(? > 0, ?, amount),
+                    transfer_no = COALESCE(NULLIF(?, ''), transfer_no),
+                    customer_id = COALESCE(NULLIF(?, ''), customer_id),
+                    customer_name = COALESCE(NULLIF(?, ''), customer_name)
+                    WHERE id = ? AND tenant_id = ?");
+                $updBefore->execute([$passedVoucherNo, $passedAmount, $passedAmount, $passedTransferNo, $passedCustId, $passedCustName, $id, $activeTenantId]);
             }
             // Explicit manual post/pass from UI always forces immediate posting (`force_post => true`)
             $postRes = postInboundReceiptToAccounts($pdo, $id, [
@@ -1203,6 +1265,9 @@ switch ($action) {
 
     case 'whatsapp_statement_request':
         try {
+            if (isLocalInboundLaptopEnv()) {
+                syncInboundReceiptsFromCloud($pdo, $activeTenantId, $uploadDir);
+            }
             $msgText = trim((string)($_GET['message_text'] ?? $_POST['message_text'] ?? $jsonData['message_text'] ?? $_GET['message'] ?? $_POST['message'] ?? $jsonData['message'] ?? $_GET['text'] ?? $_POST['text'] ?? $jsonData['text'] ?? ''));
             $senderPhone = trim((string)($_GET['sender_phone'] ?? $_POST['sender_phone'] ?? $jsonData['sender_phone'] ?? ''));
             $senderName = trim((string)($_GET['sender_name'] ?? $_POST['sender_name'] ?? $jsonData['sender_name'] ?? ''));
@@ -1987,10 +2052,31 @@ function postInboundReceiptToAccounts($pdo, $receiptId, $options = []) {
     if ($receipt['status'] === 'duplicate_rejected') {
         return ['success' => false, 'error' => 'لا يمكن تنزيل إشعار مكرر في الحسابات'];
     }
+
+    $cleanRefDigits = preg_replace('/\D/', '', $transferNo);
+    if (($amount <= 0 || strlen($cleanRefDigits) < 6) && !empty($receipt['receipt_image']) && empty($options['_ocr_retried'])) {
+        $ocrAuto = performBackendReceiptOCR($pdo, $receiptId, false);
+        if (!empty($ocrAuto['success'])) {
+            $rStmt2 = $pdo->prepare("SELECT * FROM inbound_bank_receipts WHERE id = ? LIMIT 1");
+            $rStmt2->execute([$receiptId]);
+            $reloaded = $rStmt2->fetch(PDO::FETCH_ASSOC);
+            if ($reloaded) {
+                $receipt = $reloaded;
+                $amount = (float)($receipt['amount'] ?? 0);
+                $transferNo = trim((string)($receipt['transfer_no'] ?? ''));
+                $cleanRefDigits = preg_replace('/\D/', '', $transferNo);
+                $bankName = trim((string)($receipt['bank_name'] ?? $bankName));
+                $bankCode = trim((string)($receipt['bank_code'] ?? $bankCode));
+                if ($receipt['status'] === 'duplicate_rejected') {
+                    return ['success' => false, 'error' => 'لا يمكن تنزيل إشعار مكرر في الحسابات'];
+                }
+            }
+        }
+    }
+
     if ($amount <= 0) {
         return ['success' => false, 'error' => 'مبلغ الإشعار يجب أن يكون أكبر من الصفر لتنزيله في الحسابات'];
     }
-    $cleanRefDigits = preg_replace('/\D/', '', $transferNo);
     if (strlen($cleanRefDigits) < 6) {
         return ['success' => false, 'error' => 'رقم التحويل يجب ألا يقل عن 6 أرقام لتنزيله في الحسابات'];
     }
@@ -2001,12 +2087,12 @@ function postInboundReceiptToAccounts($pdo, $receiptId, $options = []) {
     $existingVoucherNo = trim((string)($receipt['voucher_no'] ?? ''));
     if (!empty($existingVoucherNo)) {
         try {
-            $chkV = $pdo->prepare("SELECT data FROM receipts WHERE tenant_id = ? AND (frontend_id = ? OR receipt_no = ?) AND (is_deleted = 0 OR is_deleted IS NULL) LIMIT 1");
+            $chkV = $pdo->prepare("SELECT data, is_deleted FROM receipts WHERE tenant_id = ? AND (frontend_id = ? OR receipt_no = ?) LIMIT 1");
             $chkV->execute([$tenantId, $existingVoucherNo, $existingVoucherNo]);
-            $existingVJson = $chkV->fetchColumn();
-            if ($existingVJson) {
-                $existingVObj = json_decode($existingVJson, true);
-                $alreadyPostedFlag = !empty($existingVObj['isPosted']);
+            $existingVRow = $chkV->fetch(PDO::FETCH_ASSOC);
+            if ($existingVRow && empty($existingVRow['is_deleted']) && !empty($existingVRow['data'])) {
+                $existingVObj = json_decode($existingVRow['data'], true);
+                $alreadyPostedFlag = !empty($existingVObj['isPosted']) && empty($existingVObj['deleted']);
                 // If already fully posted (`isPosted === true`) and no bank change requested, return idempotent success
                 if ($alreadyPostedFlag && empty($overrideBankId)) {
                     return [
@@ -2304,6 +2390,7 @@ function postInboundReceiptToAccounts($pdo, $receiptId, $options = []) {
             ]
         ],
         'isPosted' => $shouldPostNow,
+        'deleted' => false,
         'createdAt' => gmdate('Y-m-d\TH:i:s.v\Z'),
         'createdBy' => 9,
         'createdByName' => 'النظام الذكي (فحص الإشعارات)'
@@ -3893,6 +3980,52 @@ function buildDetailedAccountStatementForWhatsApp($pdo, $tenantId, $entityType, 
             ];
         }
     }
+
+    // Self-heal any unscanned or unposted/soft-deleted inbound_bank_receipts for this customer/tenant BEFORE loading receipts
+    try {
+        $healStmt = $pdo->prepare("SELECT id, customer_id, customer_name, amount, transfer_no, status, voucher_no, receipt_image, bank_code, bank_name FROM inbound_bank_receipts WHERE tenant_id = ? AND status != 'duplicate_rejected' ORDER BY id ASC");
+        $healStmt->execute([$tenantId]);
+        $healRows = $healStmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+        if (!empty($healRows)) {
+            $activeVStmt = $pdo->prepare("SELECT frontend_id, receipt_no, is_deleted, data FROM receipts WHERE tenant_id = ?");
+            $activeVStmt->execute([$tenantId]);
+            $activeVoucherMap = [];
+            while ($vr = $activeVStmt->fetch(PDO::FETCH_ASSOC)) {
+                $vd = json_decode($vr['data'] ?? '', true);
+                $isDel = !empty($vr['is_deleted']) || !empty($vd['deleted']);
+                $isPost = !isset($vd['isPosted']) || $vd['isPosted'] !== false;
+                if (!$isDel && $isPost) {
+                    if (!empty($vr['frontend_id'])) $activeVoucherMap[$vr['frontend_id']] = true;
+                    if (!empty($vr['receipt_no'])) $activeVoucherMap[$vr['receipt_no']] = true;
+                    if (!empty($vd['id'])) $activeVoucherMap[(string)$vd['id']] = true;
+                    if (!empty($vd['voucherNo'])) $activeVoucherMap[(string)$vd['voucherNo']] = true;
+                }
+            }
+            foreach ($healRows as $hr) {
+                $hrId = (int)$hr['id'];
+                $hrAmt = (float)($hr['amount'] ?? 0);
+                $hrTr = preg_replace('/\D/', '', (string)($hr['transfer_no'] ?? ''));
+                $hrStatus = (string)($hr['status'] ?? 'pending');
+                $hrVNo = trim((string)($hr['voucher_no'] ?? ''));
+                $hrCustClean = preg_replace('/^(cust|supp?)-/i', '', trim((string)($hr['customer_id'] ?? '')));
+                $isTargetParty = ($hrCustClean !== '' && $hrCustClean === $cleanId) || ($entityName !== '' && trim((string)($hr['customer_name'] ?? '')) === $entityName);
+
+                if ($isTargetParty && $hrStatus === 'pending' && ($hrAmt <= 0 || strlen($hrTr) < 6) && !empty($hr['receipt_image'])) {
+                    performBackendReceiptOCR($pdo, $hrId, false);
+                } elseif ($hrAmt > 0 && strlen($hrTr) >= 6 && ($hrStatus === 'verified' || $hrStatus === 'reconciled' || ($isTargetParty && $hrStatus === 'pending'))) {
+                    if ($hrVNo === '' || !isset($activeVoucherMap[$hrVNo])) {
+                        postInboundReceiptToAccounts($pdo, $hrId, [
+                            'force_post' => true,
+                            'target_bank_id' => (string)($hr['bank_code'] ?? ''),
+                            'target_bank_name' => (string)($hr['bank_name'] ?? ''),
+                            'suppress_whatsapp_notify' => true,
+                            '_ocr_retried' => true
+                        ]);
+                    }
+                }
+            }
+        }
+    } catch (Throwable $healEx) {}
 
     // 2b. Multi-Receipts (`receipts`)
     $multiReceipts = $loadSourceTable('receipts');

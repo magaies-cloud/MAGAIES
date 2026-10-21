@@ -3428,49 +3428,143 @@ app.post('/wa/ocr', async (req, res) => {
         const meta = await sharpMod(imagePath).metadata();
         const origW = meta.width || 600;
         const origH = meta.height || 1000;
-        const targetW = Math.min(Math.max(origW * 2, 1100), 1700);
+        const targetW = Math.min(Math.max(origW * 2, 1150), 1600);
         const scale = targetW / origW;
 
-        const cleanFullBuf = await sharpMod(imagePath)
-            .resize({ width: targetW })
-            .grayscale()
-            .normalize()
-            .png()
-            .toBuffer();
-
-        const resEnFull = await workerEn.recognize(cleanFullBuf);
-        const resArFull = await workerAr.recognize(cleanFullBuf);
+        const cleanLineStr = (s) => String(s || '')
+            .replace(/[\u200B-\u200F\u202A-\u202E\u2066-\u2069]/g, '')
+            .replace(/[|_—–]+/g, ' ')
+            .replace(/\s+/g, ' ')
+            .trim();
 
         const toStructuredLines = (resObj) => {
-            const lines = resObj?.data?.lines || [];
-            if (lines.length > 0) {
-                return lines.map((ln, idx) => {
-                    const txt = String(ln.text || '').replace(/[|_—–]+/g, ' ').replace(/\s+/g, ' ').trim();
-                    if (!txt) return null;
+            const rawLines = [];
+            if (Array.isArray(resObj?.data?.blocks)) {
+                for (const b of resObj.data.blocks) {
+                    for (const p of (b.paragraphs || [])) {
+                        for (const ln of (p.lines || [])) {
+                            rawLines.push(ln);
+                        }
+                    }
+                }
+            } else if (Array.isArray(resObj?.data?.lines)) {
+                rawLines.push(...resObj.data.lines);
+            }
+
+            if (rawLines.length > 0) {
+                const items = [];
+                rawLines.forEach((ln, idx) => {
+                    const txt = cleanLineStr(ln.text);
+                    if (!txt) return;
                     const bbox = ln.bbox || {};
-                    return {
+                    const lineX = Math.round((bbox.x0 || 0) / scale);
+                    const lineY = Math.round((bbox.y0 || (idx * 35)) / scale);
+                    const lineW = Math.round(((bbox.x1 || 0) - (bbox.x0 || 0)) / scale);
+                    const lineH = Math.round(((bbox.y1 || 0) - (bbox.y0 || 0)) / scale) || 24;
+                    items.push({
                         text: txt,
                         rtl_text: txt,
-                        x: Math.round((bbox.x0 || 0) / scale),
-                        y: Math.round((bbox.y0 || (idx * 35)) / scale),
-                        w: Math.round(((bbox.x1 || 0) - (bbox.x0 || 0)) / scale),
-                        h: Math.round(((bbox.y1 || 0) - (bbox.y0 || 0)) / scale) || 24
-                    };
-                }).filter(Boolean);
+                        x: lineX,
+                        y: lineY,
+                        w: lineW,
+                        h: lineH
+                    });
+
+                    // Also split horizontal word clusters separated by > 35px (e.g. Arabic label on right + number on left)
+                    if (Array.isArray(ln.words) && ln.words.length > 1) {
+                        const sortedWords = [...ln.words]
+                            .filter(w => cleanLineStr(w.text).length > 0 && w.bbox)
+                            .sort((a, b) => (a.bbox.x0 || 0) - (b.bbox.x0 || 0));
+                        if (sortedWords.length > 1) {
+                            const clusters = [];
+                            let cur = null;
+                            for (const w of sortedWords) {
+                                const wTxt = cleanLineStr(w.text);
+                                const wx0 = Math.round((w.bbox.x0 || 0) / scale);
+                                const wy0 = Math.round((w.bbox.y0 || 0) / scale);
+                                const wx1 = Math.round((w.bbox.x1 || 0) / scale);
+                                const wy1 = Math.round((w.bbox.y1 || 0) / scale);
+                                if (!cur) {
+                                    cur = { words: [wTxt], x0: wx0, y0: wy0, x1: wx1, y1: wy1 };
+                                } else if (wx0 - cur.x1 > 32) {
+                                    clusters.push(cur);
+                                    cur = { words: [wTxt], x0: wx0, y0: wy0, x1: wx1, y1: wy1 };
+                                } else {
+                                    cur.words.push(wTxt);
+                                    cur.x1 = Math.max(cur.x1, wx1);
+                                    cur.y0 = Math.min(cur.y0, wy0);
+                                    cur.y1 = Math.max(cur.y1, wy1);
+                                }
+                            }
+                            if (cur) clusters.push(cur);
+                            if (clusters.length > 1) {
+                                for (const cl of clusters) {
+                                    const clTxt = cl.words.join(' ').trim();
+                                    const clRtl = [...cl.words].reverse().join(' ').trim();
+                                    if (clTxt && clTxt !== txt) {
+                                        items.push({
+                                            text: clTxt,
+                                            rtl_text: clRtl,
+                                            x: cl.x0,
+                                            y: lineY,
+                                            w: Math.max(10, cl.x1 - cl.x0),
+                                            h: Math.max(16, cl.y1 - cl.y0)
+                                        });
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+                return items;
             }
             return String(resObj?.data?.text || '')
                 .split(/\r?\n/)
-                .map(l => l.replace(/[|_—–]+/g, ' ').replace(/\s+/g, ' ').trim())
+                .map(l => cleanLineStr(l))
                 .filter(l => l.length > 0)
                 .map((t, idx) => ({ text: t, rtl_text: t, x: 0, y: idx * 35, w: origW, h: 24 }));
         };
+
+        // Pass 1: Threshold(145) eliminates light-gray Bankak table borders (#cbd5e1) so PSM 6 reads every boxed row cleanly
+        const threshBuf = await sharpMod(imagePath)
+            .resize({ width: targetW })
+            .grayscale()
+            .threshold(145)
+            .png()
+            .toBuffer();
+
+        const resEnThresh = await workerEn.recognize(threshBuf, {}, { blocks: true });
+        const resArThresh = await workerAr.recognize(threshBuf, {}, { blocks: true });
+        let arLines = toStructuredLines(resArThresh);
+        let enLines = toStructuredLines(resEnThresh);
+
+        const hasRefAndAmt = (linesArr) => {
+            const joined = linesArr.map(l => l.text).join('\n');
+            return /\b\d{6,19}\b/.test(joined) && (/\b\d{1,4}(?:,\d{3})*\.\d{2}\b/.test(joined) || /\b\d{3,10}\.\d{2}\b/.test(joined) || /SDG/i.test(joined));
+        };
+
+        // Fallback Pass 2: Normalize (for dark-mode or colored receipts if threshold missed ref/amount)
+        if (!hasRefAndAmt([...arLines, ...enLines])) {
+            const normBuf = await sharpMod(imagePath)
+                .resize({ width: targetW })
+                .grayscale()
+                .normalize()
+                .png()
+                .toBuffer();
+            const resEnNorm = await workerEn.recognize(normBuf, {}, { blocks: true });
+            const resArNorm = await workerAr.recognize(normBuf, {}, { blocks: true });
+            const arNormLines = toStructuredLines(resArNorm);
+            const enNormLines = toStructuredLines(resEnNorm);
+            arLines = [...arLines, ...arNormLines];
+            enLines = [...enLines, ...enNormLines];
+        }
 
         return {
             success: true,
             img_w: origW,
             img_h: origH,
-            ar_lines: toStructuredLines(resArFull),
-            en_lines: toStructuredLines(resEnFull)
+            ar_lines: arLines,
+            en_lines: enLines
         };
     };
 
