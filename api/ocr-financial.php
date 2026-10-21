@@ -3,7 +3,9 @@
 // MAGAIEES ERP - Financial OCR Scanner API
 // مستخرج بيانات إشعارات التحويلات البنكية والشيكات بالذكاء الاصطناعي
 // =============================================================
-header('Content-Type: application/json; charset=utf-8');
+if (!defined('MAGAIEES_OCR_LIBRARY_ONLY')) {
+    header('Content-Type: application/json; charset=utf-8');
+}
 
 // Load environment variables safely
 if (!function_exists('loadEnvFinancialOCR')) {
@@ -295,6 +297,7 @@ if (!function_exists('checkBankReferenceDuplicateInDB')) {
     }
 }
 
+if (!defined('MAGAIEES_OCR_LIBRARY_ONLY')) {
 // Fast AJAX endpoint to check reference duplication against MySQL database
 if ((isset($inputData['action']) && $inputData['action'] === 'check_ref_duplicate') || (isset($_POST['action']) && $_POST['action'] === 'check_ref_duplicate')) {
     $refToCheck = $inputData['ref'] ?? $_POST['ref'] ?? '';
@@ -394,6 +397,7 @@ if (!empty($allGuidelines)) {
     $customGuidelineText = "\nإرشادات وقواعد تدريبية إضافية مقدمة من المستخدم:\n" . implode("\n", $allGuidelines) . "\n";
 }
 $customGuidelineText .= $templatesText;
+} // end !MAGAIEES_OCR_LIBRARY_ONLY
 
 // Function to robustly clean and extract financial amount
 if (!function_exists('cleanFinancialAmount')) {
@@ -475,6 +479,7 @@ if (!function_exists('cleanFinancialAmount')) {
     }
 }
 
+if (!defined('MAGAIEES_OCR_LIBRARY_ONLY')) {
 $refExpertRules = "
 قواعد صارمة ودقيقة جداً لاستخراج رقم العملية (transaction_ref):
 1. المسميات المعتمدة لرقم العملية في الإشعارات البنكية:
@@ -598,27 +603,71 @@ $payload = [
         "maxOutputTokens" => $maxOutputTokens
     ]
 ];
+} // end !MAGAIEES_OCR_LIBRARY_ONLY
 
 // =============================================================
 // Spatial Y-Coordinate Row Pairing & Context-Aware Local OCR Engine
 // محرك الرؤية المكانية الذكي لتحليل صفوف الإشعارات البنكية بدقة 100%
 // =============================================================
 if (!function_exists('runLocalReceiptOcrFallback')) {
-    function runLocalReceiptOcrFallback($imageBase64, $mimeType, $fraudCheck = false) {
+    function runLocalReceiptOcrFallback($imageBase64, $mimeType, $fraudCheck = false, $precomputedOcr = null) {
         $rawBytes = base64_decode($imageBase64);
         if (empty($rawBytes)) {
             return null;
         }
 
         $imgHash = md5($rawBytes);
-        $cacheFile = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'magaiees_winocr_v2_' . $imgHash . '.json';
+        $sharedOcrDir = dirname(__DIR__) . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . 'ocr_cache';
+        if (!is_dir($sharedOcrDir)) {
+            @mkdir($sharedOcrDir, 0777, true);
+        }
+        $workDir = (is_dir($sharedOcrDir) && is_writable($sharedOcrDir)) ? $sharedOcrDir : sys_get_temp_dir();
+        $cacheFile = $workDir . DIRECTORY_SEPARATOR . 'magaiees_winocr_v2_' . $imgHash . '.json';
 
         $arItems = [];
         $enItems = [];
         $imgW = 0;
         $imgH = 0;
 
-        if (file_exists($cacheFile)) {
+        // 0. If precomputed OCR lines were supplied in-memory by whatsapp-service.mjs, use them immediately (0ms!)
+        if (is_array($precomputedOcr) && (!empty($precomputedOcr['ar_lines']) || !empty($precomputedOcr['en_lines']) || !empty($precomputedOcr['ar_items']) || !empty($precomputedOcr['en_items']))) {
+            $imgW = (int)($precomputedOcr['img_w'] ?? 0);
+            $imgH = (int)($precomputedOcr['img_h'] ?? 0);
+            foreach (($precomputedOcr['ar_lines'] ?? $precomputedOcr['ar_items'] ?? []) as $idx => $l) {
+                $txt = trim((string)($l['text'] ?? ''));
+                if ($txt === '') continue;
+                $arItems[] = [
+                    'text'     => $txt,
+                    'rtl_text' => trim((string)($l['rtl_text'] ?? $txt)),
+                    'x'        => (int)($l['x'] ?? 0),
+                    'y'        => (int)($l['y'] ?? ($idx * 35)),
+                    'w'        => (int)($l['w'] ?? 0),
+                    'h'        => (int)($l['h'] ?? 24)
+                ];
+            }
+            foreach (($precomputedOcr['en_lines'] ?? $precomputedOcr['en_items'] ?? []) as $idx => $l) {
+                $txt = trim((string)($l['text'] ?? ''));
+                if ($txt === '') continue;
+                $enItems[] = [
+                    'text'     => $txt,
+                    'rtl_text' => trim((string)($l['rtl_text'] ?? $txt)),
+                    'x'        => (int)($l['x'] ?? 0),
+                    'y'        => (int)($l['y'] ?? ($idx * 35)),
+                    'w'        => (int)($l['w'] ?? 0),
+                    'h'        => (int)($l['h'] ?? 24)
+                ];
+            }
+            if (!empty($arItems) || !empty($enItems)) {
+                @file_put_contents($cacheFile, json_encode([
+                    'img_w'    => $imgW,
+                    'img_h'    => $imgH,
+                    'ar_items' => $arItems,
+                    'en_items' => $enItems
+                ], JSON_UNESCAPED_UNICODE));
+            }
+        }
+
+        if (empty($arItems) && empty($enItems) && file_exists($cacheFile)) {
             $cachedJson = @json_decode((string)@file_get_contents($cacheFile), true);
             if (is_array($cachedJson) && (!empty($cachedJson['ar_items']) || !empty($cachedJson['en_items']))) {
                 $arItems = $cachedJson['ar_items'] ?? [];
@@ -633,7 +682,7 @@ if (!function_exists('runLocalReceiptOcrFallback')) {
             if (strpos($mimeType, 'png') !== false) $ext = 'png';
             elseif (strpos($mimeType, 'webp') !== false) $ext = 'webp';
 
-            $tmpFile = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'magaiees_ocr_' . uniqid() . '.' . $ext;
+            $tmpFile = $workDir . DIRECTORY_SEPARATOR . 'magaiees_ocr_' . uniqid() . '.' . $ext;
             file_put_contents($tmpFile, $rawBytes);
 
             $psScript = __DIR__ . DIRECTORY_SEPARATOR . 'win-ocr.ps1';
@@ -683,8 +732,8 @@ if (!function_exists('runLocalReceiptOcrFallback')) {
                         CURLOPT_RETURNTRANSFER => true,
                         CURLOPT_POST => true,
                         CURLOPT_HTTPHEADER => ['Content-Type: application/json'],
-                        CURLOPT_POSTFIELDS => json_encode(['imagePath' => $tmpFile]),
-                        CURLOPT_TIMEOUT => 6,
+                        CURLOPT_POSTFIELDS => json_encode(['imagePath' => $tmpFile, 'imageBase64' => $imageBase64]),
+                        CURLOPT_TIMEOUT => 12,
                         CURLOPT_CONNECTTIMEOUT => 1
                     ]);
                     $ocrResp = @curl_exec($chOcr);
@@ -844,12 +893,12 @@ if (!function_exists('runLocalReceiptOcrFallback')) {
             }
 
             // Category D: Excluded BBAN / Receiver Account / To Account (رقم البيبان / إلى حساب / رقم المرسل إليه)
-            if (preg_match('/(bban|iban|رقم\s*البيبان|البيبان|رقم\s*المرسل\s*[إا]ليه|اليه\s*المرسل\s*رقم|[إا]لى\s*حساب|حساب\s*[إا]لى|[إا]ل[ىي]\s*الحساب|الحساب\s*[إا]ل[ىي]|حساب\s*المستفيد|to\s*account(?!\s*title))/u', $both)) {
+            if (preg_match('/(bban|iban|رقم\s*البيبان|البيبان|رقم\s*المرسل\s*[إا]ليه|اليه\s*المرسل\s*رقم|[إا]لى\s*حساب|حساب\s*[إا]لى|[إا]ل[ىي]\s*الحساب|الحساب\s*[إا]ل[ىي]|حساب\s*المستفيد|to\s*account(?!\s*title)|(?:^|\s)[إا]ل[ىي]\s+\d{2,4}|\d{4}\s+[إا]ل[ىي](?:$|\s))/u', $both)) {
                 return 'RECEIVER_ACC';
             }
 
             // Category E: Receiver Name / Beneficiary Title (اسم المرسل إليه / المستفيد)
-            if (preg_match('/([إا]سم\s*المرسل\s*[إا]ليه|اليه\s*المرسل\s*[إا]سم|[إا]سم\s*المستفيد|المستفيد\s*[إا]سم|الستقيد|to\s*account\s*title|beneficiary\s*name)/u', $both)) {
+            if (preg_match('/([إا]سم\s*المرسل\s*[إاز]ليه|[إاز]ليه\s*المرسل\s*[إا]سم|[إا]سم\s*المستفيد|المستفيد\s*[إا]سم|الستقيد|to\s*account\s*title|beneficiary\s*name)/u', $both)) {
                 return 'RECEIVER_NAME';
             }
             if (preg_match('/^(المستفيد|الستقيد|beneficiary)$/u', trim($rtl)) || preg_match('/^(المستفيد|الستقيد|beneficiary)$/u', trim($ltr))) {
@@ -857,7 +906,7 @@ if (!function_exists('runLocalReceiptOcrFallback')) {
             }
 
             // Category F: Excluded Sender Account / From Account (من حساب / من الحساب / الحساب المحلي)
-            if (preg_match('/(من\s*حساب|حساب\s*من|من\s*الحساب|الحساب\s*من|حساب\s*المرسل|رقم\s*المرسل|الحساب\s*المحلي|المحلي\s*الحساب|معرف\s*المحفظ|المحفظ[ةه]\s*معرف|from\s*account)/u', $both)) {
+            if (preg_match('/(من\s*حساب|حساب\s*من|من\s*الحساب|الحساب\s*من|حساب\s*المرسل|رقم\s*المرسل|الحساب\s*المحلي|المحلي\s*الحساب|معرف\s*المحفظ|المحفظ[ةه]\s*معرف|from\s*account|(?:^|\s)من\s+\d{2,4}|\d{4}\s+من(?:$|\s))/u', $both)) {
                 return 'SENDER_ACC';
             }
             if (preg_match('/([إا]سم\s*المرسل|المرسل\s*[إا]سم|sender\s*name)/u', $both)) {
@@ -1044,28 +1093,30 @@ if (!function_exists('runLocalReceiptOcrFallback')) {
 
                 // Populate Sender Account / Receiver Account / Receiver Name from their exact spatial rows
                 if ($cat === 'SENDER_ACC' && $senderAcc === '') {
-                    foreach ($valItems as $vi) {
-                        $hasAr = preg_match('/\p{Arabic}/u', $vi['rtl_text']);
-                        $txt = trim($hasAr ? $vi['rtl_text'] : strtr($vi['text'], ['O' => '0', 'o' => '0', 'I' => '1', 'l' => '1']));
-                        if (preg_match('/\d{4}/', strtr($txt, ['O' => '0', 'o' => '0']))) {
+                    foreach (array_merge($valItems, [$lRow['item']]) as $vi) {
+                        $txt = trim(preg_replace('/(?:من\s*الحساب|من\s*حساب|حساب\s*من|من)/u', ' ', strtr($vi['text'], ['O' => '0', 'o' => '0', 'I' => '1', 'l' => '1'])));
+                        $txt = trim(preg_replace('/\s+/', ' ', $txt));
+                        if (preg_match('/\d{4}/', $txt)) {
                             $senderAcc = $txt;
                             break;
                         }
                     }
                 } elseif ($cat === 'RECEIVER_ACC' && $receiverAcc === '') {
-                    foreach ($valItems as $vi) {
-                        $hasAr = preg_match('/\p{Arabic}/u', $vi['rtl_text']);
-                        $txt = trim($hasAr ? $vi['rtl_text'] : strtr($vi['text'], ['O' => '0', 'o' => '0', 'I' => '1', 'l' => '1']));
-                        if (preg_match('/\d{4}/', strtr($txt, ['O' => '0', 'o' => '0']))) {
+                    foreach (array_merge($valItems, [$lRow['item']]) as $vi) {
+                        $txt = trim(preg_replace('/(?:[إا]ل[ىي]\s*الحساب|[إا]ل[ىي]\s*حساب|حساب\s*[إا]ل[ىي]|[إا]ل[ىي])/u', ' ', strtr($vi['text'], ['O' => '0', 'o' => '0', 'I' => '1', 'l' => '1'])));
+                        $txt = trim(preg_replace('/\s+/', ' ', $txt));
+                        if (preg_match('/\d{4}/', $txt)) {
                             $receiverAcc = $txt;
                             break;
                         }
                     }
                 } elseif ($cat === 'RECEIVER_NAME' && $receiverName === '') {
-                    foreach ($valItems as $vi) {
+                    foreach (array_merge($valItems, [$lRow['item']]) as $vi) {
                         $hasAr = preg_match('/\p{Arabic}/u', $vi['rtl_text']);
                         $txt = trim($hasAr ? $vi['rtl_text'] : $vi['text']);
-                        if (preg_match('/[\p{Arabic}A-Za-z]{3,}/u', $txt) && !preg_match('/\d{4}/', $txt) && !preg_match('/^(فوري|ساهل|بنكك|أوكاش|نجاح)$/u', $txt)) {
+                        $txt = trim(preg_replace('/(?:[إا]سم\s*المرسل\s*[إاز]ليه|[إاز]ليه\s*المرسل\s*[إا]سم|[إا]سم\s*المستفيد|المستفيد\s*[إا]سم|الستقيد|SEELEY|soot|\(So|al\b)/ui', ' ', $txt));
+                        $txt = trim(preg_replace('/\s+/u', ' ', $txt));
+                        if (preg_match('/[\p{Arabic}A-Za-z]{3,}/u', $txt) && !preg_match('/\d{4}/', $txt) && !preg_match('/^(فوري|ساهل|بنكك|أوكاش|نجاح|إلى|الى|من)$/u', $txt)) {
                             $receiverName = $txt;
                             break;
                         }
@@ -1156,8 +1207,8 @@ if (!function_exists('runLocalReceiptOcrFallback')) {
                 }
             }
         }
-        if ($senderAcc === '' && isset($accMatches[0])) $senderAcc = $accMatches[0];
-        if ($receiverAcc === '' && isset($accMatches[1])) $receiverAcc = $accMatches[1];
+        if (($senderAcc === '' || !preg_match('/^\d{4}\s+\d{4}\s+\d{4}\s+\d{4}$/', $senderAcc)) && isset($accMatches[0])) $senderAcc = $accMatches[0];
+        if (($receiverAcc === '' || !preg_match('/^\d{4}\s+\d{4}\s+\d{4}\s+\d{4}$/', $receiverAcc)) && isset($accMatches[1])) $receiverAcc = $accMatches[1];
 
         // 4. Extract Financial Amount (المبلغ)
         $amount = 0.0;
@@ -1279,7 +1330,7 @@ if (!function_exists('runLocalReceiptOcrFallback')) {
 
         // 6. Fallback Receiver Name if not already set by Spatial Row Classifier
         if ($receiverName === '') {
-            $skipWords = ['تحويلات','موافق','مواقق','إمامة','العملية','التاريخ','الزمن','حساب','المرسل','الموبايل','التعليق','المبلغ','مستفيد','تحويل','المعاملة','تفاصيل','الحالة','نجاح','طباعة','مشاركة','تحميل','كاش','بنجاح','الفاتورة','سداد','إجمالي','المحلي','المرجعي','المستفيد','الستقيد','الرسوم','الإجمالي','التحقق','اللحقق','إضافية','مرجع','البنك','الينك','ساهل','الرد','معاملة','ناجحة','خدمات'];
+            $skipWords = ['تحويلات','موافق','مواقق','إمامة','العملية','التاريخ','الزمن','حساب','المرسل','الموبايل','التعليق','المبلغ','مستفيد','تحويل','المعاملة','تفاصيل','الحالة','نجاح','طباعة','مشاركة','تحميل','كاش','بنجاح','الفاتورة','سداد','إجمالي','المحلي','المرجعي','المستفيد','الستقيد','الرسوم','الإجمالي','التحقق','اللحقق','إضافية','مرجع','البنك','الينك','ساهل','الرد','معاملة','ناجحة','خدمات','إلى','الى','من'];
             foreach ($arClean as $line) {
                 $t = trim($line);
                 if (strlen($t) < 4 || strtoupper($t) === 'N/A') continue;
@@ -1406,10 +1457,15 @@ if (!function_exists('runLocalReceiptOcrFallback')) {
     }
 }
 
-// 1. ULTRA-FAST OFFLINE PRIORITY ON WINDOWS: Run local spatial OCR first (<0.4s)
+if (defined('MAGAIEES_OCR_LIBRARY_ONLY') && MAGAIEES_OCR_LIBRARY_ONLY) {
+    return;
+}
+
+// 1. ULTRA-FAST OFFLINE PRIORITY: Run local spatial OCR first (<0.4s)
 $localOcrData = null;
+$precomputedOcrLines = $inputData['ocr_raw_lines'] ?? null;
 if (empty($inputData['is_refresh'])) {
-    $localOcrData = runLocalReceiptOcrFallback($imageBase64, $mimeType, $fraudCheck);
+    $localOcrData = runLocalReceiptOcrFallback($imageBase64, $mimeType, $fraudCheck, $precomputedOcrLines);
     if ($localOcrData !== null && (float)($localOcrData['amount'] ?? 0) > 0 && strlen(preg_replace('/\D/', '', (string)($localOcrData['transaction_ref'] ?? ''))) >= 6) {
         echo json_encode([
             'success' => true,

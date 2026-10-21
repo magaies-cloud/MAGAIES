@@ -963,6 +963,7 @@ class WhatsAppClient {
                 senderPhone,
                 pushName,
                 tenantId,
+                filePath,
                 relativePath,
                 caption: finalItemCaption
             });
@@ -1072,12 +1073,21 @@ class WhatsAppClient {
         for (const item of currentBatch) {
             try {
                 const activeCaption = batchState.followUpPin || item.caption || sharedBatchCaption || '';
+                let precomputedOcr = null;
+                if (item.filePath && fs.existsSync(item.filePath)) {
+                    try {
+                        precomputedOcr = await runFastOcrOnImage({ imagePath: item.filePath });
+                    } catch (ocrPreErr) {
+                        logErr(this.userId, 'In-process pre-OCR warning:', ocrPreErr.message);
+                    }
+                }
                 const payload = {
                     action: 'upload',
                     tenant_id: item.tenantId,
                     customer_name: item.pushName,
                     customer_phone: item.senderPhone,
                     receipt_image: item.relativePath,
+                    ocr_raw_lines: (precomputedOcr && precomputedOcr.success) ? precomputedOcr : null,
                     caption: activeCaption,
                     bank_name: '',
                     source: 'whatsapp',
@@ -1109,6 +1119,36 @@ class WhatsAppClient {
 
                 if (!data) {
                     throw lastErr || new Error('All inbound_receipts endpoints failed');
+                }
+
+                // Immediate self-healing retry if upload returned pending with 0 amount and no terminal rejection reason
+                if (data.id && data.status === 'pending' && (!Number(data.amount) || Number(data.amount) <= 0) && !data.issue_reason) {
+                    for (const ep of candidateEndpoints) {
+                        try {
+                            const scanUrl = ep.replace('action=upload', `action=scan_receipt&id=${data.id}`);
+                            const scanRes = await fetch(scanUrl, {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                    id: data.id,
+                                    tenant_id: item.tenantId,
+                                    ocr_raw_lines: (precomputedOcr && precomputedOcr.success) ? precomputedOcr : null
+                                })
+                            });
+                            if (scanRes.ok) {
+                                const scanParsed = await scanRes.json();
+                                if (scanParsed && scanParsed.success && scanParsed.data) {
+                                    data = {
+                                        ...data,
+                                        ...scanParsed.data,
+                                        voucher_no: scanParsed.data.voucher_no || data.voucher_no,
+                                        approval_mode: scanParsed.data.posting?.approval_mode || data.approval_mode
+                                    };
+                                    break;
+                                }
+                            }
+                        } catch (retryErr) {}
+                    }
                 }
 
                 if (data.customer_name) {
@@ -1212,14 +1252,20 @@ class WhatsAppClient {
             }
 
             if (invalidReceipts.length > 0) {
+                const hasCroppedRef = invalidReceipts.some(r => r.issue_reason === 'cropped_missing_ref');
+                const hasNonFinancial = invalidReceipts.some(r => r.issue_reason === 'non_financial_image');
                 const hasShortRef = invalidReceipts.some(r => {
                     const digits = String(r.transfer_no || '').replace(/\D/g, '');
-                    return digits.length > 0 && digits.length < 6;
+                    return (digits.length > 0 && digits.length < 6) || r.issue_reason === 'invalid_transfer_no_under_6_digits';
                 });
-                if (hasShortRef) {
+                if (hasCroppedRef) {
+                    replyParts.push(`⚠️ تعذر اعتماد (${invalidReceipts.length}) إشعار تلقائياً: رقم العملية غير ظاهر في الصورة (مقطوع من الأعلى). يرجى إرسال صورة الإشعار كاملة ليتم تنزيله فوراً.`);
+                } else if (hasNonFinancial) {
+                    replyParts.push(`⚠️ الصورة المرسلة لا تبدو إشعار تحويل بنكي معتمد — تم تحويلها للمراجعة اليدوية.`);
+                } else if (hasShortRef) {
                     replyParts.push(`⚠️ عدد (${invalidReceipts.length}) إشعار قيد المراجعة اليدوية (رقم التحويل غير مكتمل).`);
                 } else {
-                    replyParts.push(`📥 تم استلام عدد (${invalidReceipts.length}) إشعار بنجاح وهو قيد المراجعة والاعتماد لدى الإدارة المالية.`);
+                    replyParts.push(`📥 تم استلام عدد (${invalidReceipts.length}) إشعار وهو قيد المراجعة والاعتماد اليدوي لدى الإدارة المالية (تأكد من وضوح المبلغ ورقم العملية في الصورة).`);
                 }
             }
 
@@ -3375,15 +3421,42 @@ let _ocrWorkerAr = null;
 let _ocrInitPromise = null;
 let _ocrLock = Promise.resolve();
 
+async function loadTesseractCreateWorker() {
+    try {
+        const mod = await import('tesseract.js');
+        return mod.createWorker || mod.default?.createWorker;
+    } catch (primaryErr) {
+        const { createRequire } = await import('module');
+        const altDir = path.join(__dirname, 'uploads', '.ocr_engine');
+        const altPkg = path.join(altDir, 'node_modules', 'tesseract.js', 'package.json');
+        if (!fs.existsSync(altPkg)) {
+            try {
+                fs.mkdirSync(altDir, { recursive: true });
+                const { execSync } = await import('child_process');
+                execSync(`npm install --prefix "${altDir}" tesseract.js@7.0.0 --no-package-lock --cache /tmp/.npm-cache --no-audit --no-fund`, {
+                    stdio: 'ignore',
+                    timeout: 45000
+                });
+            } catch (installErr) {}
+        }
+        if (fs.existsSync(altPkg)) {
+            const reqAlt = createRequire(altPkg);
+            const modAlt = reqAlt('tesseract.js');
+            return modAlt.createWorker || modAlt.default?.createWorker;
+        }
+        throw primaryErr;
+    }
+}
+
 async function getOcrWorkers() {
     if (_ocrWorkerEn && _ocrWorkerAr) return { workerEn: _ocrWorkerEn, workerAr: _ocrWorkerAr };
     if (_ocrInitPromise) return _ocrInitPromise;
     _ocrInitPromise = (async () => {
-        const { createWorker } = await import('tesseract.js');
+        const createWorker = await loadTesseractCreateWorker();
         const cachePath = path.join(__dirname);
         const [wEn, wAr] = await Promise.all([
             createWorker('eng', 1, { cachePath, logger: () => {} }),
-            createWorker('ara+eng', 1, { cachePath, logger: () => {} })
+            createWorker(['ara', 'eng'], 1, { cachePath, logger: () => {} })
         ]);
         await wEn.setParameters({ tessedit_pageseg_mode: '6' });
         await wAr.setParameters({ tessedit_pageseg_mode: '6' });
@@ -3399,182 +3472,224 @@ async function getOcrWorkers() {
     }
 }
 
-app.post('/wa/ocr', async (req, res) => {
-    const { imagePath } = req.body || {};
-    if (!imagePath || !fs.existsSync(imagePath)) {
-        return res.status(400).json({ success: false, error: 'Image file not found' });
+// Pre-warm OCR workers on Linux startup so the first WhatsApp receipt is processed in <0.4s
+if (process.platform !== 'win32') {
+    setTimeout(() => {
+        getOcrWorkers().catch(() => {});
+    }, 1500);
+}
+
+async function runFastOcrOnImage({ imagePath, imageBase64 } = {}) {
+    let resolvedPath = imagePath;
+    if (resolvedPath && !path.isAbsolute(resolvedPath)) {
+        const candidateRel = path.join(__dirname, resolvedPath);
+        if (fs.existsSync(candidateRel)) resolvedPath = candidateRel;
     }
-    const runTask = async () => {
-        if (process.platform === 'win32') {
-            const psScript = path.join(__dirname, 'api', 'win-ocr.ps1');
-            if (fs.existsSync(psScript)) {
-                try {
-                    const { execFileSync } = await import('child_process');
-                    const out = execFileSync('powershell', [
-                        '-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass',
-                        '-File', psScript, '-ImagePath', imagePath
-                    ], { encoding: 'utf8', timeout: 8000 });
-                    const m = out.match(/\{[\s\S]*\}/);
-                    if (m) {
-                        const parsed = JSON.parse(m[0]);
-                        if (parsed && parsed.success) return parsed;
-                    }
-                } catch (e) {}
-            }
+
+    let tempCreatedPath = null;
+    if ((!resolvedPath || !fs.existsSync(resolvedPath)) && imageBase64) {
+        const cleanB64 = String(imageBase64).replace(/^data:image\/\w+;base64,/, '');
+        const buf = Buffer.from(cleanB64, 'base64');
+        if (buf.length > 0) {
+            const cacheDir = path.join(__dirname, 'uploads', 'ocr_cache');
+            try { fs.mkdirSync(cacheDir, { recursive: true }); } catch (e) {}
+            tempCreatedPath = path.join(cacheDir, `wa_ocr_tmp_${Date.now()}_${Math.floor(Math.random() * 10000)}.jpg`);
+            fs.writeFileSync(tempCreatedPath, buf);
+            resolvedPath = tempCreatedPath;
         }
+    }
 
-        const sharpMod = (await import('sharp')).default;
-        const { workerEn, workerAr } = await getOcrWorkers();
-        const meta = await sharpMod(imagePath).metadata();
-        const origW = meta.width || 600;
-        const origH = meta.height || 1000;
-        const targetW = Math.min(Math.max(origW * 2, 1150), 1600);
-        const scale = targetW / origW;
+    if (!resolvedPath || !fs.existsSync(resolvedPath)) {
+        throw new Error('Image file not found');
+    }
 
-        const cleanLineStr = (s) => String(s || '')
-            .replace(/[\u200B-\u200F\u202A-\u202E\u2066-\u2069]/g, '')
-            .replace(/[|_—–]+/g, ' ')
-            .replace(/\s+/g, ' ')
-            .trim();
+    const executeCore = async () => {
+        try {
+            if (process.platform === 'win32') {
+                const psScript = path.join(__dirname, 'api', 'win-ocr.ps1');
+                if (fs.existsSync(psScript)) {
+                    try {
+                        const { execFileSync } = await import('child_process');
+                        const out = execFileSync('powershell', [
+                            '-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass',
+                            '-File', psScript, '-ImagePath', resolvedPath
+                        ], { encoding: 'utf8', timeout: 8000 });
+                        const m = out.match(/\{[\s\S]*\}/);
+                        if (m) {
+                            const parsed = JSON.parse(m[0]);
+                            if (parsed && parsed.success) return parsed;
+                        }
+                    } catch (e) {}
+                }
+            }
 
-        const toStructuredLines = (resObj) => {
-            const rawLines = [];
-            if (Array.isArray(resObj?.data?.blocks)) {
-                for (const b of resObj.data.blocks) {
-                    for (const p of (b.paragraphs || [])) {
-                        for (const ln of (p.lines || [])) {
-                            rawLines.push(ln);
+            const sharpMod = (await import('sharp')).default;
+            const { workerEn, workerAr } = await getOcrWorkers();
+            const meta = await sharpMod(resolvedPath).metadata();
+            const origW = meta.width || 600;
+            const origH = meta.height || 1000;
+            const targetW = Math.min(Math.max(origW * 2, 1150), 1600);
+            const scale = targetW / origW;
+
+            const cleanLineStr = (s) => String(s || '')
+                .replace(/[\u200B-\u200F\u202A-\u202E\u2066-\u2069]/g, '')
+                .replace(/[|_—–]+/g, ' ')
+                .replace(/\s+/g, ' ')
+                .trim();
+
+            const toStructuredLines = (resObj) => {
+                const rawLines = [];
+                if (Array.isArray(resObj?.data?.blocks)) {
+                    for (const b of resObj.data.blocks) {
+                        for (const p of (b.paragraphs || [])) {
+                            for (const ln of (p.lines || [])) {
+                                rawLines.push(ln);
+                            }
                         }
                     }
+                } else if (Array.isArray(resObj?.data?.lines)) {
+                    rawLines.push(...resObj.data.lines);
                 }
-            } else if (Array.isArray(resObj?.data?.lines)) {
-                rawLines.push(...resObj.data.lines);
-            }
 
-            if (rawLines.length > 0) {
-                const items = [];
-                rawLines.forEach((ln, idx) => {
-                    const txt = cleanLineStr(ln.text);
-                    if (!txt) return;
-                    const bbox = ln.bbox || {};
-                    const lineX = Math.round((bbox.x0 || 0) / scale);
-                    const lineY = Math.round((bbox.y0 || (idx * 35)) / scale);
-                    const lineW = Math.round(((bbox.x1 || 0) - (bbox.x0 || 0)) / scale);
-                    const lineH = Math.round(((bbox.y1 || 0) - (bbox.y0 || 0)) / scale) || 24;
-                    items.push({
-                        text: txt,
-                        rtl_text: txt,
-                        x: lineX,
-                        y: lineY,
-                        w: lineW,
-                        h: lineH
-                    });
+                if (rawLines.length > 0) {
+                    const items = [];
+                    rawLines.forEach((ln, idx) => {
+                        const txt = cleanLineStr(ln.text);
+                        if (!txt) return;
+                        const bbox = ln.bbox || {};
+                        const lineX = Math.round((bbox.x0 || 0) / scale);
+                        const lineY = Math.round((bbox.y0 || (idx * 35)) / scale);
+                        const lineW = Math.round(((bbox.x1 || 0) - (bbox.x0 || 0)) / scale);
+                        const lineH = Math.round(((bbox.y1 || 0) - (bbox.y0 || 0)) / scale) || 24;
+                        items.push({
+                            text: txt,
+                            rtl_text: txt,
+                            x: lineX,
+                            y: lineY,
+                            w: lineW,
+                            h: lineH
+                        });
 
-                    // Also split horizontal word clusters separated by > 35px (e.g. Arabic label on right + number on left)
-                    if (Array.isArray(ln.words) && ln.words.length > 1) {
-                        const sortedWords = [...ln.words]
-                            .filter(w => cleanLineStr(w.text).length > 0 && w.bbox)
-                            .sort((a, b) => (a.bbox.x0 || 0) - (b.bbox.x0 || 0));
-                        if (sortedWords.length > 1) {
-                            const clusters = [];
-                            let cur = null;
-                            for (const w of sortedWords) {
-                                const wTxt = cleanLineStr(w.text);
-                                const wx0 = Math.round((w.bbox.x0 || 0) / scale);
-                                const wy0 = Math.round((w.bbox.y0 || 0) / scale);
-                                const wx1 = Math.round((w.bbox.x1 || 0) / scale);
-                                const wy1 = Math.round((w.bbox.y1 || 0) / scale);
-                                if (!cur) {
-                                    cur = { words: [wTxt], x0: wx0, y0: wy0, x1: wx1, y1: wy1 };
-                                } else if (wx0 - cur.x1 > 32) {
-                                    clusters.push(cur);
-                                    cur = { words: [wTxt], x0: wx0, y0: wy0, x1: wx1, y1: wy1 };
-                                } else {
-                                    cur.words.push(wTxt);
-                                    cur.x1 = Math.max(cur.x1, wx1);
-                                    cur.y0 = Math.min(cur.y0, wy0);
-                                    cur.y1 = Math.max(cur.y1, wy1);
+                        if (Array.isArray(ln.words) && ln.words.length > 1) {
+                            const sortedWords = [...ln.words]
+                                .filter(w => cleanLineStr(w.text).length > 0 && w.bbox)
+                                .sort((a, b) => (a.bbox.x0 || 0) - (b.bbox.x0 || 0));
+                            if (sortedWords.length > 1) {
+                                const clusters = [];
+                                let cur = null;
+                                for (const w of sortedWords) {
+                                    const wTxt = cleanLineStr(w.text);
+                                    const wx0 = Math.round((w.bbox.x0 || 0) / scale);
+                                    const wy0 = Math.round((w.bbox.y0 || 0) / scale);
+                                    const wx1 = Math.round((w.bbox.x1 || 0) / scale);
+                                    const wy1 = Math.round((w.bbox.y1 || 0) / scale);
+                                    if (!cur) {
+                                        cur = { words: [wTxt], x0: wx0, y0: wy0, x1: wx1, y1: wy1 };
+                                    } else if (wx0 - cur.x1 > 32) {
+                                        clusters.push(cur);
+                                        cur = { words: [wTxt], x0: wx0, y0: wy0, x1: wx1, y1: wy1 };
+                                    } else {
+                                        cur.words.push(wTxt);
+                                        cur.x1 = Math.max(cur.x1, wx1);
+                                        cur.y0 = Math.min(cur.y0, wy0);
+                                        cur.y1 = Math.max(cur.y1, wy1);
+                                    }
                                 }
-                            }
-                            if (cur) clusters.push(cur);
-                            if (clusters.length > 1) {
-                                for (const cl of clusters) {
-                                    const clTxt = cl.words.join(' ').trim();
-                                    const clRtl = [...cl.words].reverse().join(' ').trim();
-                                    if (clTxt && clTxt !== txt) {
-                                        items.push({
-                                            text: clTxt,
-                                            rtl_text: clRtl,
-                                            x: cl.x0,
-                                            y: lineY,
-                                            w: Math.max(10, cl.x1 - cl.x0),
-                                            h: Math.max(16, cl.y1 - cl.y0)
-                                        });
+                                if (cur) clusters.push(cur);
+                                if (clusters.length > 1) {
+                                    for (const cl of clusters) {
+                                        const clTxt = cl.words.join(' ').trim();
+                                        const clRtl = [...cl.words].reverse().join(' ').trim();
+                                        if (clTxt && clTxt !== txt) {
+                                            items.push({
+                                                text: clTxt,
+                                                rtl_text: clRtl,
+                                                x: cl.x0,
+                                                y: lineY,
+                                                w: Math.max(10, cl.x1 - cl.x0),
+                                                h: Math.max(16, cl.y1 - cl.y0)
+                                            });
+                                        }
                                     }
                                 }
                             }
                         }
-                    }
-                });
-                return items;
-            }
-            return String(resObj?.data?.text || '')
-                .split(/\r?\n/)
-                .map(l => cleanLineStr(l))
-                .filter(l => l.length > 0)
-                .map((t, idx) => ({ text: t, rtl_text: t, x: 0, y: idx * 35, w: origW, h: 24 }));
-        };
+                    });
+                    return items;
+                }
+                return String(resObj?.data?.text || '')
+                    .split(/\r?\n/)
+                    .map(l => cleanLineStr(l))
+                    .filter(l => l.length > 0)
+                    .map((t, idx) => ({ text: t, rtl_text: t, x: 0, y: idx * 35, w: origW, h: 24 }));
+            };
 
-        // Pass 1: Threshold(145) eliminates light-gray Bankak table borders (#cbd5e1) so PSM 6 reads every boxed row cleanly
-        const threshBuf = await sharpMod(imagePath)
-            .resize({ width: targetW })
-            .grayscale()
-            .threshold(145)
-            .png()
-            .toBuffer();
+            const hasRefAndAmt = (linesArr) => {
+                const joined = linesArr.map(l => l.text).join('\n');
+                return /\b\d{6,19}\b/.test(joined) && (/\b\d{1,4}(?:,\d{3})*\.\d{2}\b/.test(joined) || /\b\d{3,10}\.\d{2}\b/.test(joined) || /SDG/i.test(joined));
+            };
 
-        const resEnThresh = await workerEn.recognize(threshBuf, {}, { blocks: true });
-        const resArThresh = await workerAr.recognize(threshBuf, {}, { blocks: true });
-        let arLines = toStructuredLines(resArThresh);
-        let enLines = toStructuredLines(resEnThresh);
-
-        const hasRefAndAmt = (linesArr) => {
-            const joined = linesArr.map(l => l.text).join('\n');
-            return /\b\d{6,19}\b/.test(joined) && (/\b\d{1,4}(?:,\d{3})*\.\d{2}\b/.test(joined) || /\b\d{3,10}\.\d{2}\b/.test(joined) || /SDG/i.test(joined));
-        };
-
-        // Fallback Pass 2: Normalize (for dark-mode or colored receipts if threshold missed ref/amount)
-        if (!hasRefAndAmt([...arLines, ...enLines])) {
-            const normBuf = await sharpMod(imagePath)
+            // Pass 1a: Ultra-fast bilingual (ara+eng) pass on Threshold(145) (~380ms)
+            const threshBuf = await sharpMod(resolvedPath)
                 .resize({ width: targetW })
                 .grayscale()
-                .normalize()
+                .threshold(145)
                 .png()
                 .toBuffer();
-            const resEnNorm = await workerEn.recognize(normBuf, {}, { blocks: true });
-            const resArNorm = await workerAr.recognize(normBuf, {}, { blocks: true });
-            const arNormLines = toStructuredLines(resArNorm);
-            const enNormLines = toStructuredLines(resEnNorm);
-            arLines = [...arLines, ...arNormLines];
-            enLines = [...enLines, ...enNormLines];
-        }
 
-        return {
-            success: true,
-            img_w: origW,
-            img_h: origH,
-            ar_lines: arLines,
-            en_lines: enLines
-        };
+            const resArThresh = await workerAr.recognize(threshBuf, {}, { blocks: true });
+            let arLines = toStructuredLines(resArThresh);
+            let enLines = [];
+
+            // Only run separate English pass if bilingual pass did not already capture both ref and amount
+            if (!hasRefAndAmt(arLines)) {
+                const resEnThresh = await workerEn.recognize(threshBuf, {}, { blocks: true });
+                enLines = toStructuredLines(resEnThresh);
+            }
+
+            // Fallback Pass 2: Normalize (for dark-mode or colored receipts if threshold missed ref/amount)
+            if (!hasRefAndAmt([...arLines, ...enLines])) {
+                const normBuf = await sharpMod(resolvedPath)
+                    .resize({ width: targetW })
+                    .grayscale()
+                    .normalize()
+                    .png()
+                    .toBuffer();
+                const resArNorm = await workerAr.recognize(normBuf, {}, { blocks: true });
+                arLines = [...arLines, ...toStructuredLines(resArNorm)];
+                if (!hasRefAndAmt([...arLines, ...enLines])) {
+                    const resEnNorm = await workerEn.recognize(normBuf, {}, { blocks: true });
+                    enLines = [...enLines, ...toStructuredLines(resEnNorm)];
+                }
+            }
+
+            return {
+                success: true,
+                img_w: origW,
+                img_h: origH,
+                ar_lines: arLines,
+                en_lines: enLines
+            };
+        } finally {
+            if (tempCreatedPath) {
+                try { fs.unlinkSync(tempCreatedPath); } catch (e) {}
+            }
+        }
     };
 
+    const nextLock = _ocrLock.then(executeCore, executeCore);
+    _ocrLock = nextLock.catch(() => {});
+    return nextLock;
+}
+
+app.post('/wa/ocr', async (req, res) => {
+    const { imagePath, imageBase64 } = req.body || {};
     try {
-        const nextLock = _ocrLock.then(runTask, runTask);
-        _ocrLock = nextLock.catch(() => {});
-        const result = await nextLock;
+        const result = await runFastOcrOnImage({ imagePath, imageBase64 });
         res.json(result);
     } catch (err) {
-        res.status(500).json({ success: false, error: err.message });
+        const status = err.message === 'Image file not found' ? 400 : 500;
+        res.status(status).json({ success: false, error: err.message });
     }
 });
 

@@ -1,12 +1,37 @@
-import Tesseract from 'tesseract.js';
 import sharp from 'sharp';
 import fs from 'fs';
 import path from 'path';
-import { execFileSync } from 'child_process';
+import { execFileSync, execSync } from 'child_process';
 import { fileURLToPath } from 'url';
+import { createRequire } from 'module';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+const rootDir = path.resolve(__dirname, '..');
+
+async function loadTesseract() {
+    try {
+        const mod = await import('tesseract.js');
+        return mod.default || mod;
+    } catch (e) {
+        const altDir = path.join(rootDir, 'uploads', '.ocr_engine');
+        const altPkg = path.join(altDir, 'node_modules', 'tesseract.js', 'package.json');
+        if (!fs.existsSync(altPkg)) {
+            try {
+                fs.mkdirSync(altDir, { recursive: true });
+                execSync(`npm install --prefix "${altDir}" tesseract.js@7.0.0 --no-package-lock --cache /tmp/.npm-cache --no-audit --no-fund`, {
+                    stdio: 'ignore',
+                    timeout: 45000
+                });
+            } catch (ie) {}
+        }
+        if (fs.existsSync(altPkg)) {
+            const reqAlt = createRequire(altPkg);
+            return reqAlt('tesseract.js');
+        }
+        throw e;
+    }
+}
 
 const imagePath = process.argv[2];
 if (!imagePath || !fs.existsSync(imagePath)) {
@@ -129,6 +154,7 @@ if (!imagePath || !fs.existsSync(imagePath)) {
                 .map((text, idx) => ({ text, rtl_text: text, x: 0, y: idx * 35, w: origW, h: 24 }));
         };
 
+        const Tesseract = await loadTesseract();
         const threshPng = await sharp(imagePath)
             .resize({ width: targetW, withoutEnlargement: false })
             .grayscale()
@@ -136,41 +162,47 @@ if (!imagePath || !fs.existsSync(imagePath)) {
             .png()
             .toBuffer();
 
-        const [engWorker, araWorker] = await Promise.all([
-            Tesseract.createWorker('eng'),
-            Tesseract.createWorker(['ara', 'eng'])
-        ]);
-
-        await engWorker.setParameters({ tessedit_pageseg_mode: '6' });
+        const araWorker = await Tesseract.createWorker(['ara', 'eng'], 1, { cachePath: rootDir, logger: () => {} });
         await araWorker.setParameters({ tessedit_pageseg_mode: '6' });
-
-        const [engRes, araRes] = await Promise.all([
-            engWorker.recognize(threshPng, {}, { blocks: true }),
-            araWorker.recognize(threshPng, {}, { blocks: true })
-        ]);
+        const araRes = await araWorker.recognize(threshPng, {}, { blocks: true });
 
         let arLines = extractStructuredLines(araRes);
-        let enLines = extractStructuredLines(engRes);
+        let enLines = [];
+        let engWorker = null;
 
-        const joinedCheck = [...arLines, ...enLines].map(l => l.text).join('\n');
-        const hasRefAndAmt = /\b\d{6,19}\b/.test(joinedCheck) && (/\b\d{1,4}(?:,\d{3})*\.\d{2}\b/.test(joinedCheck) || /\b\d{3,10}\.\d{2}\b/.test(joinedCheck) || /SDG/i.test(joinedCheck));
+        const checkHasRefAndAmt = (lines) => {
+            const joined = lines.map(l => l.text).join('\n');
+            return /\b\d{6,19}\b/.test(joined) && (/\b\d{1,4}(?:,\d{3})*\.\d{2}\b/.test(joined) || /\b\d{3,10}\.\d{2}\b/.test(joined) || /SDG/i.test(joined));
+        };
 
-        if (!hasRefAndAmt) {
+        if (!checkHasRefAndAmt(arLines)) {
+            engWorker = await Tesseract.createWorker('eng', 1, { cachePath: rootDir, logger: () => {} });
+            await engWorker.setParameters({ tessedit_pageseg_mode: '6' });
+            const engRes = await engWorker.recognize(threshPng, {}, { blocks: true });
+            enLines = extractStructuredLines(engRes);
+        }
+
+        if (!checkHasRefAndAmt([...arLines, ...enLines])) {
             const normPng = await sharp(imagePath)
                 .resize({ width: targetW, withoutEnlargement: false })
                 .grayscale()
                 .normalize()
                 .png()
                 .toBuffer();
-            const [engNorm, araNorm] = await Promise.all([
-                engWorker.recognize(normPng, {}, { blocks: true }),
-                araWorker.recognize(normPng, {}, { blocks: true })
-            ]);
+            const araNorm = await araWorker.recognize(normPng, {}, { blocks: true });
             arLines = [...arLines, ...extractStructuredLines(araNorm)];
-            enLines = [...enLines, ...extractStructuredLines(engNorm)];
+            if (!checkHasRefAndAmt([...arLines, ...enLines])) {
+                if (!engWorker) {
+                    engWorker = await Tesseract.createWorker('eng', 1, { cachePath: rootDir, logger: () => {} });
+                    await engWorker.setParameters({ tessedit_pageseg_mode: '6' });
+                }
+                const engNorm = await engWorker.recognize(normPng, {}, { blocks: true });
+                enLines = [...enLines, ...extractStructuredLines(engNorm)];
+            }
         }
 
-        await Promise.all([engWorker.terminate(), araWorker.terminate()]);
+        await araWorker.terminate();
+        if (engWorker) await engWorker.terminate();
 
         console.log(JSON.stringify({
             success: true,

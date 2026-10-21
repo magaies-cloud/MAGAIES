@@ -173,7 +173,7 @@ function syncInboundReceiptsFromCloud($pdo, $activeTenantId, $uploadDir) {
         if (empty($cloudPayload['success']) || empty($cloudPayload['data']) || !is_array($cloudPayload['data'])) return;
 
         // Load existing local receipts for fast deduplication
-        $locStmt = $pdo->prepare("SELECT id, transfer_no, receipt_image, voucher_no, status, issue_reason, amount FROM inbound_bank_receipts WHERE tenant_id = ?");
+        $locStmt = $pdo->prepare("SELECT id, customer_id, customer_name, transfer_no, receipt_image, voucher_no, status, issue_reason, amount FROM inbound_bank_receipts WHERE tenant_id = ?");
         $locStmt->execute([$activeTenantId]);
         $localRows = $locStmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -191,6 +191,8 @@ function syncInboundReceiptsFromCloud($pdo, $activeTenantId, $uploadDir) {
 
         $pendingOcrIds = [];
         $pendingPostQueue = [];
+        $cloudIdByLocalId = [];
+        $pushVerifiedToCloudQueue = [];
 
         // Process oldest first so vouchers are created in chronological order
         $cloudReceipts = array_reverse($cloudPayload['data']);
@@ -255,6 +257,9 @@ function syncInboundReceiptsFromCloud($pdo, $activeTenantId, $uploadDir) {
                     $cRow['created_at'] ?? date('Y-m-d H:i:s')
                 ]);
                 $newLocalId = (int)$pdo->lastInsertId();
+                if ($newLocalId > 0 && !empty($cRow['id'])) {
+                    $cloudIdByLocalId[$newLocalId] = (int)$cRow['id'];
+                }
                 if ($newLocalId > 0 && $cStatus !== 'duplicate_rejected') {
                     if (((float)($cRow['amount'] ?? 0) <= 0 || strlen($cTransferClean) < 6) && $cImgRel !== '') {
                         $pendingOcrIds[] = $newLocalId;
@@ -270,6 +275,9 @@ function syncInboundReceiptsFromCloud($pdo, $activeTenantId, $uploadDir) {
             } else {
                 // If local row was still pending while cloud row got verified/posted, upgrade local row and post to local accounts
                 $locId = (int)$matchedLocal['id'];
+                if (!empty($cRow['id'])) {
+                    $cloudIdByLocalId[$locId] = (int)$cRow['id'];
+                }
                 $locStatus = (string)($matchedLocal['status'] ?? 'pending');
                 $locAmt = (float)($matchedLocal['amount'] ?? 0);
                 $locTrClean = preg_replace('/\D/', '', (string)($matchedLocal['transfer_no'] ?? ''));
@@ -298,6 +306,16 @@ function syncInboundReceiptsFromCloud($pdo, $activeTenantId, $uploadDir) {
                     ];
                 } elseif ($locStatus === 'pending' && ($locAmt <= 0 || strlen($locTrClean) < 6) && !empty($matchedLocal['receipt_image']) && empty($matchedLocal['issue_reason'])) {
                     $pendingOcrIds[] = $locId;
+                } elseif (($locStatus === 'verified' || $locStatus === 'reconciled') && $locAmt > 0 && strlen($locTrClean) >= 6 && $cStatus === 'pending' && (float)($cRow['amount'] ?? 0) <= 0 && !empty($cRow['id'])) {
+                    // Local already verified & posted this receipt while Cloud was still pending: push verification back to Cloud!
+                    $pushVerifiedToCloudQueue[] = [
+                        'cloud_id' => (int)$cRow['id'],
+                        'voucher_no' => (string)($matchedLocal['voucher_no'] ?? ''),
+                        'amount' => $locAmt,
+                        'transfer_no' => (string)($matchedLocal['transfer_no'] ?? $locTrClean),
+                        'customer_id' => (string)($matchedLocal['customer_id'] ?? ''),
+                        'customer_name' => (string)($matchedLocal['customer_name'] ?? '')
+                    ];
                 }
             }
         }
@@ -315,7 +333,49 @@ function syncInboundReceiptsFromCloud($pdo, $activeTenantId, $uploadDir) {
         if (!empty($pendingOcrIds)) {
             $newestOcrIds = array_slice(array_reverse(array_unique($pendingOcrIds)), 0, 3);
             foreach ($newestOcrIds as $ocrId) {
-                performBackendReceiptOCR($pdo, (int)$ocrId, false);
+                $ocrOut = performBackendReceiptOCR($pdo, (int)$ocrId, false);
+                if (!empty($ocrOut['success']) && !empty($ocrOut['data']) && ($ocrOut['data']['status'] ?? '') === 'verified' && (float)($ocrOut['data']['amount'] ?? 0) > 0 && !empty($cloudIdByLocalId[(int)$ocrId])) {
+                    $pushVerifiedToCloudQueue[] = [
+                        'cloud_id' => (int)$cloudIdByLocalId[(int)$ocrId],
+                        'voucher_no' => (string)($ocrOut['data']['voucher_no'] ?? ''),
+                        'amount' => (float)$ocrOut['data']['amount'],
+                        'transfer_no' => (string)($ocrOut['data']['transfer_no'] ?? ''),
+                        'customer_id' => (string)($ocrOut['data']['customer_id'] ?? ''),
+                        'customer_name' => (string)($ocrOut['data']['customer_name'] ?? '')
+                    ];
+                }
+            }
+        }
+
+        // Push any locally verified receipts back to Cloud so Cloud balance & WhatsApp statements stay 100% synchronized
+        if (!empty($pushVerifiedToCloudQueue)) {
+            foreach (array_slice($pushVerifiedToCloudQueue, 0, 4) as $pv) {
+                $chPush = @curl_init('https://c.elsajana.com/api/inbound_receipts.php?action=post_to_accounts&tenant_id=' . (int)$activeTenantId . '&no_cloud_pull=1');
+                if ($chPush) {
+                    curl_setopt_array($chPush, [
+                        CURLOPT_RETURNTRANSFER => true,
+                        CURLOPT_POST => true,
+                        CURLOPT_HTTPHEADER => ['Content-Type: application/json'],
+                        CURLOPT_POSTFIELDS => json_encode([
+                            'action' => 'post_to_accounts',
+                            'tenant_id' => (int)$activeTenantId,
+                            'id' => $pv['cloud_id'],
+                            'voucher_no' => $pv['voucher_no'],
+                            'amount' => $pv['amount'],
+                            'transfer_no' => $pv['transfer_no'],
+                            'customer_id' => $pv['customer_id'],
+                            'customer_name' => $pv['customer_name'],
+                            'suppress_whatsapp_notify' => true
+                        ]),
+                        CURLOPT_IPRESOLVE => CURL_IPRESOLVE_V4,
+                        CURLOPT_CONNECTTIMEOUT => 2,
+                        CURLOPT_TIMEOUT => 5,
+                        CURLOPT_SSL_VERIFYPEER => false,
+                        CURLOPT_SSL_VERIFYHOST => false
+                    ]);
+                    @curl_exec($chPush);
+                    @curl_close($chPush);
+                }
             }
         }
     } catch (Throwable $e) {
@@ -389,7 +449,7 @@ switch ($action) {
 
             $policy = loadWhatsAppStatementPolicy($pdo, $activeTenantId);
             if (!empty($_GET['no_cloud_pull'])) {
-                unset($policy['companyLogo'], $policy['stampImage']);
+                unset($policy['voucherLogoImage'], $policy['voucherStampImage'], $policy['companyLogo'], $policy['stampImage']);
             }
 
             $vNoStmt = $pdo->prepare("SELECT voucher_no FROM inbound_bank_receipts WHERE tenant_id = ? AND voucher_no IS NOT NULL AND voucher_no != ''");
@@ -518,7 +578,8 @@ switch ($action) {
                         $retryOcr = performBackendReceiptOCR($pdo, $existingId, false, [
                             'force_post' => $forcePostUpload,
                             'target_bank_id' => $targetBankId,
-                            'target_bank_name' => $bankName
+                            'target_bank_name' => $bankName,
+                            'ocr_raw_lines' => $jsonData['ocr_raw_lines'] ?? null
                         ]);
                         if (!empty($retryOcr['data'])) {
                             $existingImgRow = array_merge($existingImgRow, $retryOcr['data']);
@@ -581,7 +642,8 @@ switch ($action) {
                 $ocrRes = performBackendReceiptOCR($pdo, $newId, false, [
                     'force_post' => $forcePostUpload,
                     'target_bank_id' => $targetBankId,
-                    'target_bank_name' => $bankName
+                    'target_bank_name' => $bankName,
+                    'ocr_raw_lines' => $jsonData['ocr_raw_lines'] ?? null
                 ]);
                 if (!empty($ocrRes['success']) && !empty($ocrRes['data'])) {
                     $initialStatus = $ocrRes['data']['status'] ?? $initialStatus;
@@ -655,7 +717,9 @@ switch ($action) {
                 echo json_encode(['success' => false, 'error' => 'معرّف الإشعار مطلوب']);
                 exit;
             }
-            $ocrRes = performBackendReceiptOCR($pdo, $id, false);
+            $ocrRes = performBackendReceiptOCR($pdo, $id, false, [
+                'ocr_raw_lines' => $jsonData['ocr_raw_lines'] ?? null
+            ]);
             echo json_encode($ocrRes);
         } catch (Exception $e) {
             echo json_encode(['success' => false, 'error' => $e->getMessage()]);
@@ -745,11 +809,13 @@ switch ($action) {
                 $updBefore->execute([$passedVoucherNo, $passedAmount, $passedAmount, $passedTransferNo, $passedCustId, $passedCustName, $id, $activeTenantId]);
             }
             // Explicit manual post/pass from UI always forces immediate posting (`force_post => true`)
+            $suppressNotify = !empty($_POST['suppress_whatsapp_notify']) || !empty($jsonData['suppress_whatsapp_notify']);
             $postRes = postInboundReceiptToAccounts($pdo, $id, [
                 'force_post' => true,
                 'target_bank_id' => $targetBankId,
                 'target_bank_name' => $targetBankName,
-                'notify_customer_whatsapp' => true
+                'notify_customer_whatsapp' => !$suppressNotify,
+                'suppress_whatsapp_notify' => $suppressNotify
             ]);
             echo json_encode($postRes);
         } catch (Exception $e) {
@@ -2650,6 +2716,9 @@ function performBackendReceiptOCR($pdo, $receiptId, $fraudCheck = false, $postOp
     $imageRel = $receipt['receipt_image'];
     $fullPath = __DIR__ . '/../' . ltrim($imageRel, '/\\');
     if (!file_exists($fullPath)) {
+        try {
+            $pdo->prepare("UPDATE inbound_bank_receipts SET issue_reason = COALESCE(NULLIF(issue_reason, ''), 'missing_image') WHERE id = ?")->execute([$receiptId]);
+        } catch (Exception $e) {}
         return ['success' => false, 'error' => 'ملف صورة الإشعار غير موجود على الخادم: ' . $imageRel];
     }
 
@@ -2662,65 +2731,86 @@ function performBackendReceiptOCR($pdo, $receiptId, $fraudCheck = false, $postOp
     $mime = finfo_buffer($finfo, $imgBytes) ?: 'image/jpeg';
     finfo_close($finfo);
 
-    $base64 = 'data:' . $mime . ';base64,' . base64_encode($imgBytes);
+    $rawB64 = base64_encode($imgBytes);
+    $base64 = 'data:' . $mime . ';base64,' . $rawB64;
 
-    // Call OCR endpoint internally using fast 127.0.0.1 IPv4 priority to avoid Windows localhost IPv6 delay
-    $ocrPayload = json_encode([
-        'image' => $base64,
-        'doc_hint' => 'transfer',
-        'fraud_check' => (bool)$fraudCheck
-    ]);
-
-    $candidateUrls = [
-        'http://127.0.0.1/ELSAJANA2/magaies/api/ocr-financial.php'
-    ];
-    if (!empty($_SERVER['HTTP_HOST']) && !empty($_SERVER['SCRIPT_NAME'])) {
-        $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
-        $host = str_ireplace('localhost', '127.0.0.1', $_SERVER['HTTP_HOST']);
-        $baseDir = rtrim(str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'])), '/');
-        $candidateUrls[] = $scheme . '://' . $host . $baseDir . '/ocr-financial.php';
+    // 1. ULTRA-FAST IN-PROCESS OCR: Execute local spatial OCR directly in PHP memory (0 HTTP hops, <0.4s!)
+    $d = null;
+    if (!function_exists('runLocalReceiptOcrFallback')) {
+        if (!defined('MAGAIEES_OCR_LIBRARY_ONLY')) {
+            define('MAGAIEES_OCR_LIBRARY_ONLY', true);
+        }
+        @require_once __DIR__ . '/ocr-financial.php';
     }
-    $candidateUrls[] = 'http://localhost/ELSAJANA2/magaies/api/ocr-financial.php';
-    $candidateUrls[] = 'http://127.0.0.1/api/ocr-financial.php';
-    $candidateUrls[] = 'https://c.elsajana.com/api/ocr-financial.php';
-    $candidateUrls = array_values(array_unique($candidateUrls));
+    if (function_exists('runLocalReceiptOcrFallback')) {
+        $precomputedLines = $postOptions['ocr_raw_lines'] ?? null;
+        $inProcessOcr = runLocalReceiptOcrFallback($rawB64, $mime, (bool)$fraudCheck, $precomputedLines);
+        if (is_array($inProcessOcr)) {
+            $d = $inProcessOcr;
+        }
+    }
 
-    $ocrRaw = '';
-    $curlErr = '';
-    foreach ($candidateUrls as $ocrUrl) {
-        $ch = curl_init($ocrUrl);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $ocrPayload);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
-        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 2);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 30);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
-        $resp = curl_exec($ch);
-        $httpCode = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        $curlErr = curl_error($ch);
-        curl_close($ch);
+    // 2. Fallback to internal HTTP endpoint only if in-process OCR returned null AND a valid Gemini API key is configured
+    $hasValidGeminiKey = (function_exists('getGeminiApiKey') && function_exists('isValidGeminiApiKeyFormat') && isValidGeminiApiKeyFormat(getGeminiApiKey()));
+    if ($d === null && $hasValidGeminiKey) {
+        $ocrPayload = json_encode([
+            'image' => $base64,
+            'doc_hint' => 'transfer',
+            'fraud_check' => (bool)$fraudCheck,
+            'ocr_raw_lines' => $postOptions['ocr_raw_lines'] ?? null
+        ]);
 
-        if ($httpCode === 200 && !empty($resp)) {
-            $parsedTry = json_decode($resp, true);
-            if (is_array($parsedTry) && isset($parsedTry['success'])) {
-                $ocrRaw = $resp;
-                break;
+        $candidateUrls = [];
+        if (!empty($_SERVER['HTTP_HOST']) && !empty($_SERVER['SCRIPT_NAME'])) {
+            $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+            $host = str_ireplace('localhost', '127.0.0.1', $_SERVER['HTTP_HOST']);
+            $baseDir = rtrim(str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'])), '/');
+            $candidateUrls[] = $scheme . '://' . $host . $baseDir . '/ocr-financial.php';
+        }
+        $candidateUrls[] = 'http://127.0.0.1/ELSAJANA2/magaies/api/ocr-financial.php';
+        $candidateUrls[] = 'http://127.0.0.1/api/ocr-financial.php';
+        $candidateUrls = array_values(array_unique($candidateUrls));
+
+        $ocrRaw = '';
+        $curlErr = '';
+        foreach ($candidateUrls as $ocrUrl) {
+            $ch = curl_init($ocrUrl);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_POST, true);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $ocrPayload);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+            curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 2);
+            curl_setopt($ch, CURLOPT_TIMEOUT, 15);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+            $resp = curl_exec($ch);
+            $httpCode = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            $curlErr = curl_error($ch);
+            curl_close($ch);
+
+            if ($httpCode === 200 && !empty($resp)) {
+                $parsedTry = json_decode($resp, true);
+                if (is_array($parsedTry) && isset($parsedTry['success'])) {
+                    $ocrRaw = $resp;
+                    break;
+                }
+            }
+        }
+
+        if (!empty($ocrRaw)) {
+            $ocrData = json_decode($ocrRaw, true);
+            if ($ocrData && !empty($ocrData['success']) && !empty($ocrData['data'])) {
+                $d = $ocrData['data'];
             }
         }
     }
 
-    if (empty($ocrRaw)) {
-        return ['success' => false, 'error' => 'تعذر الاتصال بمحرك الذكاء الاصطناعي: ' . $curlErr];
+    if (!is_array($d)) {
+        try {
+            $pdo->prepare("UPDATE inbound_bank_receipts SET issue_reason = COALESCE(NULLIF(issue_reason, ''), 'zero_amount') WHERE id = ?")->execute([$receiptId]);
+        } catch (Exception $e) {}
+        return ['success' => false, 'error' => 'تعذر قراءة المستند المالي: تأكد من وضوح صورة الإشعار'];
     }
-
-    $ocrData = json_decode($ocrRaw, true);
-    if (!$ocrData || empty($ocrData['success']) || empty($ocrData['data'])) {
-        return ['success' => false, 'error' => $ocrData['error'] ?? 'فشل فحص المستند بالذكاء الاصطناعي'];
-    }
-
-    $d = $ocrData['data'];
     $isNonFinancial = (isset($d['is_financial_doc']) && $d['is_financial_doc'] === false) || !empty($d['is_non_financial']);
     $extractedAmount = floatval($d['amount'] ?? 0) ?: floatval($receipt['amount'] ?? 0);
     $extractedRef = trim($d['transaction_ref'] ?? '') ?: trim($receipt['transfer_no'] ?? '');
@@ -3983,7 +4073,7 @@ function buildDetailedAccountStatementForWhatsApp($pdo, $tenantId, $entityType, 
 
     // Self-heal any unscanned or unposted/soft-deleted inbound_bank_receipts for this customer/tenant BEFORE loading receipts
     try {
-        $healStmt = $pdo->prepare("SELECT id, customer_id, customer_name, amount, transfer_no, status, voucher_no, receipt_image, bank_code, bank_name FROM inbound_bank_receipts WHERE tenant_id = ? AND status != 'duplicate_rejected' ORDER BY id ASC");
+        $healStmt = $pdo->prepare("SELECT id, customer_id, customer_name, customer_phone, amount, transfer_no, status, issue_reason, voucher_no, receipt_image, bank_code, bank_name FROM inbound_bank_receipts WHERE tenant_id = ? AND status != 'duplicate_rejected' ORDER BY id ASC");
         $healStmt->execute([$tenantId]);
         $healRows = $healStmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
         if (!empty($healRows)) {
@@ -4001,18 +4091,28 @@ function buildDetailedAccountStatementForWhatsApp($pdo, $tenantId, $entityType, 
                     if (!empty($vd['voucherNo'])) $activeVoucherMap[(string)$vd['voucherNo']] = true;
                 }
             }
+            $entityPhoneTail = '';
+            $rawEntPhone = preg_replace('/\D/', '', (string)($entity['whatsapp'] ?? $entity['phone'] ?? ''));
+            if (strlen($rawEntPhone) >= 9) {
+                $entityPhoneTail = substr($rawEntPhone, -9);
+            }
             foreach ($healRows as $hr) {
                 $hrId = (int)$hr['id'];
                 $hrAmt = (float)($hr['amount'] ?? 0);
                 $hrTr = preg_replace('/\D/', '', (string)($hr['transfer_no'] ?? ''));
                 $hrStatus = (string)($hr['status'] ?? 'pending');
+                $hrIssue = trim((string)($hr['issue_reason'] ?? ''));
                 $hrVNo = trim((string)($hr['voucher_no'] ?? ''));
                 $hrCustClean = preg_replace('/^(cust|supp?)-/i', '', trim((string)($hr['customer_id'] ?? '')));
-                $isTargetParty = ($hrCustClean !== '' && $hrCustClean === $cleanId) || ($entityName !== '' && trim((string)($hr['customer_name'] ?? '')) === $entityName);
+                $hrPhoneDigits = preg_replace('/\D/', '', (string)($hr['customer_phone'] ?? ''));
+                $hrPhoneTail = (strlen($hrPhoneDigits) >= 9) ? substr($hrPhoneDigits, -9) : '';
+                $isTargetParty = ($hrCustClean !== '' && $hrCustClean === $cleanId)
+                    || ($entityName !== '' && trim((string)($hr['customer_name'] ?? '')) === $entityName)
+                    || ($entityPhoneTail !== '' && $hrPhoneTail !== '' && $entityPhoneTail === $hrPhoneTail);
 
-                if ($isTargetParty && $hrStatus === 'pending' && ($hrAmt <= 0 || strlen($hrTr) < 6) && !empty($hr['receipt_image'])) {
+                if ($isTargetParty && $hrStatus === 'pending' && ($hrAmt <= 0 || strlen($hrTr) < 6) && !empty($hr['receipt_image']) && $hrIssue === '') {
                     performBackendReceiptOCR($pdo, $hrId, false);
-                } elseif ($hrAmt > 0 && strlen($hrTr) >= 6 && ($hrStatus === 'verified' || $hrStatus === 'reconciled' || ($isTargetParty && $hrStatus === 'pending'))) {
+                } elseif ($hrAmt > 0 && strlen($hrTr) >= 6 && ($hrStatus === 'verified' || $hrStatus === 'reconciled' || ($isTargetParty && $hrStatus === 'pending' && $hrIssue !== 'awaiting_posting_approval'))) {
                     if ($hrVNo === '' || !isset($activeVoucherMap[$hrVNo])) {
                         postInboundReceiptToAccounts($pdo, $hrId, [
                             'force_post' => true,
