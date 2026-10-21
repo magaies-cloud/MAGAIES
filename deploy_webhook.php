@@ -42,6 +42,9 @@ if ($lockFp) {
 $commands = [
     'rm -f /var/www/magaees/.git/index.lock 2>&1',
     'cd /var/www/magaees',
+    'truncate -s 0 /var/www/magaees/*.log 2>/dev/null || true',
+    'rm -rf /var/www/magaees/baileys_auth_*_trash_* /tmp/magaiees_* /tmp/.npm-cache 2>/dev/null || true',
+    'find /var/www/magaees/backups -type f \( -name "*.sql" -o -name "*.zip" \) -mtime +2 -delete 2>/dev/null || true',
     'git config core.autocrlf false 2>/dev/null || true',
     'git config core.fileMode false 2>/dev/null || true',
     'git update-index --no-skip-worktree whatsapp-service.mjs 2>/dev/null || true',

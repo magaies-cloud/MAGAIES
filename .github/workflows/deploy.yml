@@ -26,19 +26,41 @@ jobs:
         command_timeout: 5m
         debug: true
         script: |
+          # 1. Free disk space immediately so git & MySQL never hit Out of diskspace
+          rm -f /var/www/magaees/.git/index.lock 2>/dev/null || true
+          journalctl --vacuum-size=50M 2>/dev/null || true
+          apt-get clean 2>/dev/null || true
+          find /var/log -type f \( -name "*.gz" -o -name "*.1" -o -name "*.2" -o -name "*.old" \) -delete 2>/dev/null || true
+          truncate -s 0 /var/log/syslog /var/log/kern.log /var/log/auth.log /var/log/btmp /var/log/wtmp /var/log/nginx/*.log /var/www/magaees/*.log 2>/dev/null || true
+          rm -rf /var/www/magaees/baileys_auth_*_trash_* /tmp/magaiees_* /tmp/.npm-cache /root/.npm/_cacache 2>/dev/null || true
+          find /var/www/magaees/backups -type f \( -name "*.sql" -o -name "*.zip" \) -mtime +2 -delete 2>/dev/null || true
+          df -h /
+
+          # 2. Fast Git sync to origin/main
           cd /var/www/magaees
           sed -i "/insteadOf/d" /var/www/magaees/.git/config || true
           git remote set-url origin https://github.com/magaies-cloud/MAGAIES.git
+          git config core.autocrlf false || true
+          git config core.fileMode false || true
           git update-index --no-skip-worktree whatsapp-service.mjs || true
           chmod 644 whatsapp-service.mjs || true
-          git fetch origin
+          git fetch origin main --depth=5
+          git checkout -f origin/main
           git reset --hard origin/main
-          git clean -fd
-          git update-index --skip-worktree whatsapp-service.mjs || true
-          chmod 444 whatsapp-service.mjs || true
+
+          # 3. Ensure OCR engine & permissions
+          mkdir -p /var/www/magaees/uploads/.ocr_engine /var/www/magaees/uploads/ocr_cache
+          if [ ! -d "/var/www/magaees/node_modules/tesseract.js" ] && [ ! -d "/var/www/magaees/uploads/.ocr_engine/node_modules/tesseract.js" ]; then
+            npm install --prefix /var/www/magaees/uploads/.ocr_engine tesseract.js@7.0.0 --no-package-lock --cache /tmp/.npm-cache --no-audit --no-fund 2>&1 || true
+          fi
           chown -R www-data:www-data /var/www/magaees
           chmod -R 755 /var/www/magaees
+          chmod -R 777 /var/www/magaees/uploads/.ocr_engine /var/www/magaees/uploads/ocr_cache 2>/dev/null || true
+          php /var/www/magaees/api/migrate_ui_preferences.php 2>/dev/null || true
           pkill -f "node.*whatsapp-service\.(mjs|js)" || true
+          pkill -f "[n]ode.*server\.js" || true
+          sleep 1
+          curl -s "http://127.0.0.1/api_index.php?r=wa-tenant&endpoint=status&userId=wa_tenant_12&local_only=1" >/dev/null 2>&1 || true
 
           # ================================================
           # PERMANENT FIX: SSL + Redirect for ALL www.*.elsajana.com
@@ -109,4 +131,3 @@ jobs:
           rm -f /etc/nginx/sites-available/www-c-elsajana-redirect /etc/nginx/sites-enabled/www-c-elsajana-redirect 2>/dev/null || true
 
           nginx -t && systemctl reload nginx
-
