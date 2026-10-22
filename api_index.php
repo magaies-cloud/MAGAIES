@@ -242,9 +242,8 @@ function migrateLocalBaileysSessionToCloud($sessionUserId = 'wa_tenant_12') {
         curl_setopt($ch, CURLOPT_HTTPHEADER, [
             'Content-Type: application/json'
         ]);
-        curl_setopt($ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
-        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 3);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 15);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 8);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 20);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
         curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
         $resp = curl_exec($ch);
@@ -269,9 +268,8 @@ function proxyWhatsAppRequestToCloud($endpoint, $queryParams, $method, $rawInput
 
     $ch = curl_init($cloudUrl);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
-    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 4);
-    curl_setopt($ch, CURLOPT_TIMEOUT, 12);
+    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 8);
+    curl_setopt($ch, CURLOPT_TIMEOUT, 15);
     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
     curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
 
@@ -315,9 +313,8 @@ function proxyWhatsAppRequestToCloud($endpoint, $queryParams, $method, $rawInput
                 usleep(2500000); // Wait 2.5s for cloud socket to connect after import
                 $chRetry = curl_init($cloudUrl);
                 curl_setopt($chRetry, CURLOPT_RETURNTRANSFER, true);
-                curl_setopt($chRetry, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
-                curl_setopt($chRetry, CURLOPT_CONNECTTIMEOUT, 2);
-                curl_setopt($chRetry, CURLOPT_TIMEOUT, 6);
+                curl_setopt($chRetry, CURLOPT_CONNECTTIMEOUT, 8);
+                curl_setopt($chRetry, CURLOPT_TIMEOUT, 12);
                 curl_setopt($chRetry, CURLOPT_SSL_VERIFYPEER, false);
                 curl_setopt($chRetry, CURLOPT_SSL_VERIFYHOST, false);
                 $retryResp = curl_exec($chRetry);
