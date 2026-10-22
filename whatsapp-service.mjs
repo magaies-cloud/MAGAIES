@@ -1096,7 +1096,7 @@ class WhatsAppClient {
                     try {
                         precomputedOcr = await Promise.race([
                             runFastOcrOnImage({ imagePath: item.filePath }),
-                            new Promise((_, rej) => setTimeout(() => rej(new Error('Pre-OCR timeout')), 7000))
+                            new Promise((_, rej) => setTimeout(() => rej(new Error('Pre-OCR timeout')), 11500))
                         ]);
                     } catch (ocrPreErr) {
                         logErr(this.userId, 'Pre-OCR skipped/timed out:', ocrPreErr.message);
@@ -2972,10 +2972,21 @@ class AutoHealer {
             return;
         }
 
-        // ── Case 2: IDLE or DISCONNECTED — auto-init if auth folder exists (user previously linked) ──
-        if (status === 'IDLE' || (status === 'DISCONNECTED' && process.platform !== 'win32')) {
+        // ── Case 2: IDLE, DISCONNECTED, or QR_READY — auto-init if valid linked auth folder exists (user previously linked) ──
+        if (status === 'IDLE' || (process.platform !== 'win32' && (status === 'DISCONNECTED' || status === 'QR_READY'))) {
             const credsPath = path.join(client.authFolder, 'creds.json');
             if (!fs.existsSync(credsPath)) return; // User never linked — don't force init
+            if (status === 'QR_READY') {
+                // Only auto-recover from QR_READY if creds.json actually has a linked me.id and QR has been waiting > 45s
+                try {
+                    const credsObj = JSON.parse(fs.readFileSync(credsPath, 'utf8'));
+                    if (!credsObj?.me?.id) return;
+                } catch (_) {
+                    return;
+                }
+                const qrAgeMs = Date.now() - (client.stateEnteredAt || client.lastInitTime || Date.now());
+                if (qrAgeMs < 45_000) return;
+            }
             this._log(userId, 'AUTO_INIT', `Status was ${status} with existing auth → initializing`);
             this.stats.fixes++;
             client.lastInitTime = 0;
@@ -3309,8 +3320,10 @@ app.post('/wa/import-session', async (req, res) => {
             fs.mkdirSync(targetDir, { recursive: true });
         }
         if (mode === 'start' || mode === 'single') {
+            client._clearAllTimers();
             await client._destroySocket();
-            client._setState('IDLE');
+            client._isInitializing = true; // Prevent /wa/status polling from starting QR init mid-upload
+            client._setState('INITIALIZING');
             // Clear any stale QR-only files before importing linked credentials
             for (const oldF of fs.readdirSync(targetDir)) {
                 try { fs.unlinkSync(path.join(targetDir, oldF)); } catch (_) {}
@@ -3331,6 +3344,7 @@ app.post('/wa/import-session', async (req, res) => {
             client.reconnectAttempts = 0;
             client.lastInitTime = 0;
             client._isInitializing = false;
+            client._setState('IDLE');
             client.init().catch(e => logErr(sessionUserId, 'import-session init error:', e.message));
         }
         res.json({ success: true, sessionUserId, mode, writtenFiles: writtenCount });
@@ -3497,7 +3511,7 @@ async function runFastOcrOnImage({ imagePath, imageBase64 } = {}) {
 
             const nodeOcrScript = path.join(__dirname, 'api', 'node-ocr.mjs');
             if (fs.existsSync(nodeOcrScript)) {
-                const nodeParsed = await runCmdAsync(process.execPath || 'node', [nodeOcrScript, resolvedPath], 6500);
+                const nodeParsed = await runCmdAsync(process.execPath || 'node', [nodeOcrScript, resolvedPath], 11500);
                 if (nodeParsed) return nodeParsed;
             }
 

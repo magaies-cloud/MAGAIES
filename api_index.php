@@ -180,9 +180,9 @@ function migrateLocalBaileysSessionToCloud($sessionUserId = 'wa_tenant_12') {
         return false;
     }
 
-    // Throttle migration attempts to once every 300 seconds (5 minutes)
+    // Throttle migration attempts to once every 60 seconds (1 minute)
     $stampFile = sys_get_temp_dir() . '/magaies_wa_cloud_mig_' . $safeUid . '.stamp';
-    if (file_exists($stampFile) && (time() - @filemtime($stampFile)) < 300 && empty($_GET['force_migrate'])) {
+    if (file_exists($stampFile) && (time() - @filemtime($stampFile)) < 60 && empty($_GET['force_migrate'])) {
         return false;
     }
     @file_put_contents($stampFile, (string)time());
@@ -309,10 +309,10 @@ function proxyWhatsAppRequestToCloud($endpoint, $queryParams, $method, $rawInput
     // If cloud server is QR_READY / unlinked, check if local laptop has an already-linked Baileys session and migrate it automatically
     if (!$err && $httpCode === 200 && ($endpoint === 'status' || $endpoint === 'qr') && !empty($response)) {
         $dec = @json_decode($response, true);
-        if (is_array($dec) && empty($dec['phoneNumber']) && ($dec['status'] ?? '') !== 'CONNECTED') {
+        if (is_array($dec) && empty($dec['phoneNumber']) && !in_array($dec['status'] ?? '', ['CONNECTED', 'INITIALIZING', 'CONNECTING', 'RECONNECTING'], true)) {
             $targetUid = $queryParams['userId'] ?? 'wa_tenant_12';
             if (migrateLocalBaileysSessionToCloud($targetUid)) {
-                usleep(1000000); // Wait 1s for cloud socket to connect after import
+                usleep(2500000); // Wait 2.5s for cloud socket to connect after import
                 $chRetry = curl_init($cloudUrl);
                 curl_setopt($chRetry, CURLOPT_RETURNTRANSFER, true);
                 curl_setopt($chRetry, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);

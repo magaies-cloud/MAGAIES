@@ -4092,7 +4092,7 @@ function buildDetailedAccountStatementForWhatsApp($pdo, $tenantId, $entityType, 
                 }
             }
             $entityPhoneTail = '';
-            $rawEntPhone = preg_replace('/\D/', '', (string)($entity['whatsapp'] ?? $entity['phone'] ?? ''));
+            $rawEntPhone = preg_replace('/\D/', '', (string)($entityObj['whatsapp'] ?? $entityObj['phone'] ?? ''));
             if (strlen($rawEntPhone) >= 9) {
                 $entityPhoneTail = substr($rawEntPhone, -9);
             }
@@ -4110,7 +4110,7 @@ function buildDetailedAccountStatementForWhatsApp($pdo, $tenantId, $entityType, 
                     || ($entityName !== '' && trim((string)($hr['customer_name'] ?? '')) === $entityName)
                     || ($entityPhoneTail !== '' && $hrPhoneTail !== '' && $entityPhoneTail === $hrPhoneTail);
 
-                if ($isTargetParty && $hrStatus === 'pending' && ($hrAmt <= 0 || strlen($hrTr) < 6) && !empty($hr['receipt_image']) && $hrIssue === '') {
+                if ($isTargetParty && $hrStatus === 'pending' && ($hrAmt <= 0 || strlen($hrTr) < 6) && !empty($hr['receipt_image']) && ($hrIssue === '' || $hrIssue === 'zero_amount')) {
                     performBackendReceiptOCR($pdo, $hrId, false);
                 } elseif ($hrAmt > 0 && strlen($hrTr) >= 6 && ($hrStatus === 'verified' || $hrStatus === 'reconciled' || ($isTargetParty && $hrStatus === 'pending' && $hrIssue !== 'awaiting_posting_approval'))) {
                     if ($hrVNo === '' || !isset($activeVoucherMap[$hrVNo])) {

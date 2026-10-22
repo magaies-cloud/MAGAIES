@@ -9,11 +9,11 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const rootDir = path.resolve(__dirname, '..');
 
-// Hard watchdog so this CLI helper can never hang indefinitely
+// Hard watchdog so this CLI helper can never hang indefinitely (12s allows dual-pass ara+eng on Linux VPS)
 setTimeout(() => {
     console.log(JSON.stringify({ success: false, error: 'OCR CLI timeout' }));
     process.exit(1);
-}, 7000).unref();
+}, 12000).unref();
 
 async function loadTesseract() {
     try {
