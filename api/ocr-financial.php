@@ -733,7 +733,7 @@ if (!function_exists('runLocalReceiptOcrFallback')) {
                         CURLOPT_POST => true,
                         CURLOPT_HTTPHEADER => ['Content-Type: application/json'],
                         CURLOPT_POSTFIELDS => json_encode(['imagePath' => $tmpFile, 'imageBase64' => $imageBase64]),
-                        CURLOPT_TIMEOUT => 12,
+                        CURLOPT_TIMEOUT => 7,
                         CURLOPT_CONNECTTIMEOUT => 1
                     ]);
                     $ocrResp = @curl_exec($chOcr);
@@ -747,7 +747,7 @@ if (!function_exists('runLocalReceiptOcrFallback')) {
                 if (empty($ocrJson['success']) && file_exists($nodeScript)) {
                     $nodeBin = (PHP_OS_FAMILY === 'Windows') ? 'node' : '/usr/bin/node';
                     if (PHP_OS_FAMILY !== 'Windows' && !file_exists($nodeBin)) $nodeBin = 'node';
-                    $cmdNode = $nodeBin . ' ' . escapeshellarg($nodeScript) . ' ' . escapeshellarg($tmpFile) . ' 2>/dev/null';
+                    $cmdNode = 'timeout 7 ' . $nodeBin . ' ' . escapeshellarg($nodeScript) . ' ' . escapeshellarg($tmpFile) . ' 2>/dev/null';
                     if (PHP_OS_FAMILY === 'Windows') {
                         $cmdNode = 'node ' . escapeshellarg($nodeScript) . ' ' . escapeshellarg($tmpFile) . ' 2>&1';
                     }

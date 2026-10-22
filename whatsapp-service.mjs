@@ -487,9 +487,27 @@ class WhatsAppClient {
                                     logErr(this.userId, 'Error handling incoming receipt:', e.message);
                                 });
                             } else if (!isImg && unwrapped && jid && !isGroupOrBroadcast) {
+                                let interactiveBtnText = '';
+                                try {
+                                    if (unwrapped.buttonsResponseMessage) {
+                                        interactiveBtnText = unwrapped.buttonsResponseMessage.selectedDisplayText || unwrapped.buttonsResponseMessage.selectedButtonId || '';
+                                    } else if (unwrapped.templateButtonReplyMessage) {
+                                        interactiveBtnText = unwrapped.templateButtonReplyMessage.selectedDisplayText || unwrapped.templateButtonReplyMessage.selectedId || '';
+                                    } else if (unwrapped.listResponseMessage) {
+                                        interactiveBtnText = unwrapped.listResponseMessage.title || unwrapped.listResponseMessage.singleSelectReply?.selectedRowId || '';
+                                    } else if (unwrapped.interactiveResponseMessage) {
+                                        interactiveBtnText = unwrapped.interactiveResponseMessage.body?.text || '';
+                                        if (!interactiveBtnText && unwrapped.interactiveResponseMessage.nativeFlowResponseMessage?.paramsJson) {
+                                            const pJson = JSON.parse(unwrapped.interactiveResponseMessage.nativeFlowResponseMessage.paramsJson);
+                                            interactiveBtnText = pJson.id || pJson.display_text || '';
+                                        }
+                                    }
+                                } catch (_) {}
+
                                 const textMsg = (
                                     unwrapped.conversation ||
                                     unwrapped.extendedTextMessage?.text ||
+                                    interactiveBtnText ||
                                     ''
                                 ).trim();
 
@@ -507,7 +525,7 @@ class WhatsAppClient {
                                 }).trim();
 
                                 const hasStmtOrBalanceKw = (
-                                    /(?:طلب\s*كشف|كشف\s*حساب|كشف\s*الحساب|كشف|حسابي|رصيدي|الرصيد|رصيد|معرفة\s*الرصيد|كم\s*رصيدي)/i.test(normalizedText) ||
+                                    /(?:طلب\s*كشف|كشف\s*حساب|كشف\s*الحساب|كشف|حسابي|استلام\s*رصيد|استلام\s*الرصيد|طلب\s*رصيد|طلب\s*الرصيد|رصيدي|الرصيد|رصيد|معرفة\s*الرصيد|كم\s*رصيدي)/i.test(normalizedText) ||
                                     /^[\s#:\-_.,/()]*(\d{1,10}[\s#:\-_.,/()]*)?(?:ك|كاف|الكاف|حرف\s*ك|حرف\s*كاف|حرف\s*الكاف|ر|راء|الراء|حرف\s*ر|حرف\s*راء|حرف\s*الراء)([\s#:\-_.,/()]*\d{1,10})?[\s#:\-_.,/()]*$/i.test(normalizedText)
                                 );
                                 const isPinOrCodeFormat = /^(?:#|كود|باسورد|الباسورد|الرمز|حساب|سري|السري|باص|رمزي|pin|code|pass|\s)*\d{1,6}\s*$/i.test(normalizedText);
@@ -1076,9 +1094,12 @@ class WhatsAppClient {
                 let precomputedOcr = null;
                 if (item.filePath && fs.existsSync(item.filePath)) {
                     try {
-                        precomputedOcr = await runFastOcrOnImage({ imagePath: item.filePath });
+                        precomputedOcr = await Promise.race([
+                            runFastOcrOnImage({ imagePath: item.filePath }),
+                            new Promise((_, rej) => setTimeout(() => rej(new Error('Pre-OCR timeout')), 7000))
+                        ]);
                     } catch (ocrPreErr) {
-                        logErr(this.userId, 'In-process pre-OCR warning:', ocrPreErr.message);
+                        logErr(this.userId, 'Pre-OCR skipped/timed out:', ocrPreErr.message);
                     }
                 }
                 const payload = {
@@ -1101,7 +1122,8 @@ class WhatsAppClient {
                         const response = await fetch(ep, {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify(payload)
+                            body: JSON.stringify(payload),
+                            signal: AbortSignal.timeout(20000)
                         });
                         if (response.ok) {
                             const parsed = await response.json();
@@ -1133,7 +1155,8 @@ class WhatsAppClient {
                                     id: data.id,
                                     tenant_id: item.tenantId,
                                     ocr_raw_lines: (precomputedOcr && precomputedOcr.success) ? precomputedOcr : null
-                                })
+                                }),
+                                signal: AbortSignal.timeout(15000)
                             });
                             if (scanRes.ok) {
                                 const scanParsed = await scanRes.json();
@@ -1405,7 +1428,8 @@ class WhatsAppClient {
                     const response = await fetch(ep, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(payload)
+                        body: JSON.stringify(payload),
+                        signal: AbortSignal.timeout(12000)
                     });
                     if (response.ok) {
                         const parsed = await response.json();
@@ -3415,69 +3439,8 @@ app.post('/wa/healer/toggle', (req, res) => {
     res.json({ success: true, enabled: healer.enabled });
 });
 
-// ── POST /wa/ocr (Warm Cross-Platform Receipt OCR Engine) ──────
-let _ocrWorkerEn = null;
-let _ocrWorkerAr = null;
-let _ocrInitPromise = null;
+// ── POST /wa/ocr (Isolated Non-Blocking Child-Process Receipt OCR) ──────
 let _ocrLock = Promise.resolve();
-
-async function loadTesseractCreateWorker() {
-    try {
-        const mod = await import('tesseract.js');
-        return mod.createWorker || mod.default?.createWorker;
-    } catch (primaryErr) {
-        const { createRequire } = await import('module');
-        const altDir = path.join(__dirname, 'uploads', '.ocr_engine');
-        const altPkg = path.join(altDir, 'node_modules', 'tesseract.js', 'package.json');
-        if (!fs.existsSync(altPkg)) {
-            try {
-                fs.mkdirSync(altDir, { recursive: true });
-                const { execSync } = await import('child_process');
-                execSync(`npm install --prefix "${altDir}" tesseract.js@7.0.0 --no-package-lock --cache /tmp/.npm-cache --no-audit --no-fund`, {
-                    stdio: 'ignore',
-                    timeout: 45000
-                });
-            } catch (installErr) {}
-        }
-        if (fs.existsSync(altPkg)) {
-            const reqAlt = createRequire(altPkg);
-            const modAlt = reqAlt('tesseract.js');
-            return modAlt.createWorker || modAlt.default?.createWorker;
-        }
-        throw primaryErr;
-    }
-}
-
-async function getOcrWorkers() {
-    if (_ocrWorkerEn && _ocrWorkerAr) return { workerEn: _ocrWorkerEn, workerAr: _ocrWorkerAr };
-    if (_ocrInitPromise) return _ocrInitPromise;
-    _ocrInitPromise = (async () => {
-        const createWorker = await loadTesseractCreateWorker();
-        const cachePath = path.join(__dirname);
-        const [wEn, wAr] = await Promise.all([
-            createWorker('eng', 1, { cachePath, logger: () => {} }),
-            createWorker(['ara', 'eng'], 1, { cachePath, logger: () => {} })
-        ]);
-        await wEn.setParameters({ tessedit_pageseg_mode: '6' });
-        await wAr.setParameters({ tessedit_pageseg_mode: '6' });
-        _ocrWorkerEn = wEn;
-        _ocrWorkerAr = wAr;
-        return { workerEn: wEn, workerAr: wAr };
-    })();
-    try {
-        return await _ocrInitPromise;
-    } catch (e) {
-        _ocrInitPromise = null;
-        throw e;
-    }
-}
-
-// Pre-warm OCR workers on Linux startup so the first WhatsApp receipt is processed in <0.4s
-if (process.platform !== 'win32') {
-    setTimeout(() => {
-        getOcrWorkers().catch(() => {});
-    }, 1500);
-}
 
 async function runFastOcrOnImage({ imagePath, imageBase64 } = {}) {
     let resolvedPath = imagePath;
@@ -3505,171 +3468,39 @@ async function runFastOcrOnImage({ imagePath, imageBase64 } = {}) {
 
     const executeCore = async () => {
         try {
+            const { execFile } = await import('child_process');
+            const runCmdAsync = (bin, args, timeoutMs) => new Promise((resolve) => {
+                execFile(bin, args, { encoding: 'utf8', timeout: timeoutMs, killSignal: 'SIGKILL', maxBuffer: 4 * 1024 * 1024 }, (err, stdout) => {
+                    if (err && !stdout) return resolve(null);
+                    const m = String(stdout || '').match(/\{[\s\S]*\}/);
+                    if (m) {
+                        try {
+                            const parsed = JSON.parse(m[0]);
+                            if (parsed && parsed.success) return resolve(parsed);
+                        } catch (_) {}
+                    }
+                    resolve(null);
+                });
+            });
+
             if (process.platform === 'win32') {
                 const psScript = path.join(__dirname, 'api', 'win-ocr.ps1');
                 if (fs.existsSync(psScript)) {
-                    try {
-                        const { execFileSync } = await import('child_process');
-                        const out = execFileSync('powershell', [
-                            '-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass',
-                            '-File', psScript, '-ImagePath', resolvedPath
-                        ], { encoding: 'utf8', timeout: 8000 });
-                        const m = out.match(/\{[\s\S]*\}/);
-                        if (m) {
-                            const parsed = JSON.parse(m[0]);
-                            if (parsed && parsed.success) return parsed;
-                        }
-                    } catch (e) {}
+                    const winParsed = await runCmdAsync('powershell', [
+                        '-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass',
+                        '-File', psScript, '-ImagePath', resolvedPath
+                    ], 6500);
+                    if (winParsed) return winParsed;
                 }
             }
 
-            const sharpMod = (await import('sharp')).default;
-            const { workerEn, workerAr } = await getOcrWorkers();
-            const meta = await sharpMod(resolvedPath).metadata();
-            const origW = meta.width || 600;
-            const origH = meta.height || 1000;
-            const targetW = Math.min(Math.max(origW * 2, 1150), 1600);
-            const scale = targetW / origW;
-
-            const cleanLineStr = (s) => String(s || '')
-                .replace(/[\u200B-\u200F\u202A-\u202E\u2066-\u2069]/g, '')
-                .replace(/[|_—–]+/g, ' ')
-                .replace(/\s+/g, ' ')
-                .trim();
-
-            const toStructuredLines = (resObj) => {
-                const rawLines = [];
-                if (Array.isArray(resObj?.data?.blocks)) {
-                    for (const b of resObj.data.blocks) {
-                        for (const p of (b.paragraphs || [])) {
-                            for (const ln of (p.lines || [])) {
-                                rawLines.push(ln);
-                            }
-                        }
-                    }
-                } else if (Array.isArray(resObj?.data?.lines)) {
-                    rawLines.push(...resObj.data.lines);
-                }
-
-                if (rawLines.length > 0) {
-                    const items = [];
-                    rawLines.forEach((ln, idx) => {
-                        const txt = cleanLineStr(ln.text);
-                        if (!txt) return;
-                        const bbox = ln.bbox || {};
-                        const lineX = Math.round((bbox.x0 || 0) / scale);
-                        const lineY = Math.round((bbox.y0 || (idx * 35)) / scale);
-                        const lineW = Math.round(((bbox.x1 || 0) - (bbox.x0 || 0)) / scale);
-                        const lineH = Math.round(((bbox.y1 || 0) - (bbox.y0 || 0)) / scale) || 24;
-                        items.push({
-                            text: txt,
-                            rtl_text: txt,
-                            x: lineX,
-                            y: lineY,
-                            w: lineW,
-                            h: lineH
-                        });
-
-                        if (Array.isArray(ln.words) && ln.words.length > 1) {
-                            const sortedWords = [...ln.words]
-                                .filter(w => cleanLineStr(w.text).length > 0 && w.bbox)
-                                .sort((a, b) => (a.bbox.x0 || 0) - (b.bbox.x0 || 0));
-                            if (sortedWords.length > 1) {
-                                const clusters = [];
-                                let cur = null;
-                                for (const w of sortedWords) {
-                                    const wTxt = cleanLineStr(w.text);
-                                    const wx0 = Math.round((w.bbox.x0 || 0) / scale);
-                                    const wy0 = Math.round((w.bbox.y0 || 0) / scale);
-                                    const wx1 = Math.round((w.bbox.x1 || 0) / scale);
-                                    const wy1 = Math.round((w.bbox.y1 || 0) / scale);
-                                    if (!cur) {
-                                        cur = { words: [wTxt], x0: wx0, y0: wy0, x1: wx1, y1: wy1 };
-                                    } else if (wx0 - cur.x1 > 32) {
-                                        clusters.push(cur);
-                                        cur = { words: [wTxt], x0: wx0, y0: wy0, x1: wx1, y1: wy1 };
-                                    } else {
-                                        cur.words.push(wTxt);
-                                        cur.x1 = Math.max(cur.x1, wx1);
-                                        cur.y0 = Math.min(cur.y0, wy0);
-                                        cur.y1 = Math.max(cur.y1, wy1);
-                                    }
-                                }
-                                if (cur) clusters.push(cur);
-                                if (clusters.length > 1) {
-                                    for (const cl of clusters) {
-                                        const clTxt = cl.words.join(' ').trim();
-                                        const clRtl = [...cl.words].reverse().join(' ').trim();
-                                        if (clTxt && clTxt !== txt) {
-                                            items.push({
-                                                text: clTxt,
-                                                rtl_text: clRtl,
-                                                x: cl.x0,
-                                                y: lineY,
-                                                w: Math.max(10, cl.x1 - cl.x0),
-                                                h: Math.max(16, cl.y1 - cl.y0)
-                                            });
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    });
-                    return items;
-                }
-                return String(resObj?.data?.text || '')
-                    .split(/\r?\n/)
-                    .map(l => cleanLineStr(l))
-                    .filter(l => l.length > 0)
-                    .map((t, idx) => ({ text: t, rtl_text: t, x: 0, y: idx * 35, w: origW, h: 24 }));
-            };
-
-            const hasRefAndAmt = (linesArr) => {
-                const joined = linesArr.map(l => l.text).join('\n');
-                return /\b\d{6,19}\b/.test(joined) && (/\b\d{1,4}(?:,\d{3})*\.\d{2}\b/.test(joined) || /\b\d{3,10}\.\d{2}\b/.test(joined) || /SDG/i.test(joined));
-            };
-
-            // Pass 1a: Ultra-fast bilingual (ara+eng) pass on Threshold(145) (~380ms)
-            const threshBuf = await sharpMod(resolvedPath)
-                .resize({ width: targetW })
-                .grayscale()
-                .threshold(145)
-                .png()
-                .toBuffer();
-
-            const resArThresh = await workerAr.recognize(threshBuf, {}, { blocks: true });
-            let arLines = toStructuredLines(resArThresh);
-            let enLines = [];
-
-            // Only run separate English pass if bilingual pass did not already capture both ref and amount
-            if (!hasRefAndAmt(arLines)) {
-                const resEnThresh = await workerEn.recognize(threshBuf, {}, { blocks: true });
-                enLines = toStructuredLines(resEnThresh);
+            const nodeOcrScript = path.join(__dirname, 'api', 'node-ocr.mjs');
+            if (fs.existsSync(nodeOcrScript)) {
+                const nodeParsed = await runCmdAsync(process.execPath || 'node', [nodeOcrScript, resolvedPath], 6500);
+                if (nodeParsed) return nodeParsed;
             }
 
-            // Fallback Pass 2: Normalize (for dark-mode or colored receipts if threshold missed ref/amount)
-            if (!hasRefAndAmt([...arLines, ...enLines])) {
-                const normBuf = await sharpMod(resolvedPath)
-                    .resize({ width: targetW })
-                    .grayscale()
-                    .normalize()
-                    .png()
-                    .toBuffer();
-                const resArNorm = await workerAr.recognize(normBuf, {}, { blocks: true });
-                arLines = [...arLines, ...toStructuredLines(resArNorm)];
-                if (!hasRefAndAmt([...arLines, ...enLines])) {
-                    const resEnNorm = await workerEn.recognize(normBuf, {}, { blocks: true });
-                    enLines = [...enLines, ...toStructuredLines(resEnNorm)];
-                }
-            }
-
-            return {
-                success: true,
-                img_w: origW,
-                img_h: origH,
-                ar_lines: arLines,
-                en_lines: enLines
-            };
+            return { success: false, error: 'OCR timed out or unavailable' };
         } finally {
             if (tempCreatedPath) {
                 try { fs.unlinkSync(tempCreatedPath); } catch (e) {}

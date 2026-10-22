@@ -9,6 +9,12 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const rootDir = path.resolve(__dirname, '..');
 
+// Hard watchdog so this CLI helper can never hang indefinitely
+setTimeout(() => {
+    console.log(JSON.stringify({ success: false, error: 'OCR CLI timeout' }));
+    process.exit(1);
+}, 7000).unref();
+
 async function loadTesseract() {
     try {
         const mod = await import('tesseract.js');
@@ -16,15 +22,6 @@ async function loadTesseract() {
     } catch (e) {
         const altDir = path.join(rootDir, 'uploads', '.ocr_engine');
         const altPkg = path.join(altDir, 'node_modules', 'tesseract.js', 'package.json');
-        if (!fs.existsSync(altPkg)) {
-            try {
-                fs.mkdirSync(altDir, { recursive: true });
-                execSync(`npm install --prefix "${altDir}" tesseract.js@7.0.0 --no-package-lock --cache /tmp/.npm-cache --no-audit --no-fund`, {
-                    stdio: 'ignore',
-                    timeout: 45000
-                });
-            } catch (ie) {}
-        }
         if (fs.existsSync(altPkg)) {
             const reqAlt = createRequire(altPkg);
             return reqAlt('tesseract.js');
@@ -162,7 +159,9 @@ if (!imagePath || !fs.existsSync(imagePath)) {
             .png()
             .toBuffer();
 
-        const araWorker = await Tesseract.createWorker(['ara', 'eng'], 1, { cachePath: rootDir, logger: () => {} });
+        const hasUncompressedTrainedData = fs.existsSync(path.join(rootDir, 'ara.traineddata'));
+        const workerOpts = { cachePath: rootDir, gzip: !hasUncompressedTrainedData, logger: () => {} };
+        const araWorker = await Tesseract.createWorker(['ara', 'eng'], 1, workerOpts);
         await araWorker.setParameters({ tessedit_pageseg_mode: '6' });
         const araRes = await araWorker.recognize(threshPng, {}, { blocks: true });
 
@@ -176,7 +175,7 @@ if (!imagePath || !fs.existsSync(imagePath)) {
         };
 
         if (!checkHasRefAndAmt(arLines)) {
-            engWorker = await Tesseract.createWorker('eng', 1, { cachePath: rootDir, logger: () => {} });
+            engWorker = await Tesseract.createWorker('eng', 1, workerOpts);
             await engWorker.setParameters({ tessedit_pageseg_mode: '6' });
             const engRes = await engWorker.recognize(threshPng, {}, { blocks: true });
             enLines = extractStructuredLines(engRes);
@@ -193,7 +192,7 @@ if (!imagePath || !fs.existsSync(imagePath)) {
             arLines = [...arLines, ...extractStructuredLines(araNorm)];
             if (!checkHasRefAndAmt([...arLines, ...enLines])) {
                 if (!engWorker) {
-                    engWorker = await Tesseract.createWorker('eng', 1, { cachePath: rootDir, logger: () => {} });
+                    engWorker = await Tesseract.createWorker('eng', 1, workerOpts);
                     await engWorker.setParameters({ tessedit_pageseg_mode: '6' });
                 }
                 const engNorm = await engWorker.recognize(normPng, {}, { blocks: true });

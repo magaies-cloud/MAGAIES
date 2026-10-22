@@ -396,7 +396,7 @@ if ($resource === 'wa-tenant' || $resource === 'wa' || $action === 'wa-proxy') {
     $ch = curl_init($url);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 3);
-    curl_setopt($ch, CURLOPT_TIMEOUT, 15);
+    curl_setopt($ch, CURLOPT_TIMEOUT, 6);
     if ($method === 'POST') {
         curl_setopt($ch, CURLOPT_POST, true);
         if (!empty($_FILES)) {
@@ -426,6 +426,22 @@ if ($resource === 'wa-tenant' || $resource === 'wa' || $action === 'wa-proxy') {
     $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
     $err = curl_error($ch);
     curl_close($ch);
+    
+    if ($err && function_exists('forceRestartWhatsAppService') && forceRestartWhatsAppService()) {
+        $chRetry = curl_init($url);
+        curl_setopt($chRetry, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($chRetry, CURLOPT_CONNECTTIMEOUT, 3);
+        curl_setopt($chRetry, CURLOPT_TIMEOUT, 7);
+        if ($method === 'POST') {
+            curl_setopt($chRetry, CURLOPT_POST, true);
+            curl_setopt($chRetry, CURLOPT_POSTFIELDS, !empty($rawInput) ? $rawInput : json_encode($input ?: []));
+            curl_setopt($chRetry, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+        }
+        $response = curl_exec($chRetry);
+        $httpCode = curl_getinfo($chRetry, CURLINFO_HTTP_CODE);
+        $err = curl_error($chRetry);
+        curl_close($chRetry);
+    }
     
     if ($err) {
         jsonResponse(['success' => false, 'error' => 'فشل الاتصال بخادم الواتساب المحلي: ' . $err], 500);
@@ -801,12 +817,24 @@ function isWhatsAppServiceProcessRunning() {
     return false;
 }
 
-function startWhatsAppServiceIfNeeded() {
+function forceRestartWhatsAppService() {
+    if (function_exists('isLocalLaptopEnvironment') && isLocalLaptopEnvironment() && empty($_GET['force_local_wa'])) {
+        return false;
+    }
+    @unlink(__DIR__ . '/whatsapp_starting.lock');
+    if (!stristr(PHP_OS, 'WIN')) {
+        @shell_exec('pkill -9 -f "[w]hatsapp-service" >/dev/null 2>&1 || true');
+        usleep(400000);
+    }
+    return startWhatsAppServiceIfNeeded(true);
+}
+
+function startWhatsAppServiceIfNeeded($forceSpawn = false) {
     // Never spawn a competing local Baileys process on the shop laptop — 24/7 Cloud Hub (c.elsajana.com) holds the session!
     if (function_exists('isLocalLaptopEnvironment') && isLocalLaptopEnvironment() && empty($_GET['force_local_wa'])) {
         return false;
     }
-    if (isWhatsAppServiceProcessRunning()) {
+    if (!$forceSpawn && isWhatsAppServiceProcessRunning()) {
         return true;
     }
     
@@ -833,7 +861,7 @@ function startWhatsAppServiceIfNeeded() {
     if (stristr(PHP_OS, 'WIN')) {
         pclose(popen("start /B \"\" \"$cmd\" \"" . __DIR__ . "\\" . $serviceFile . "\" >> \"" . __DIR__ . "\\whatsapp-service.log\" 2>&1", "r"));
     } else {
-        shell_exec("\"$cmd\" \"" . __DIR__ . "/" . $serviceFile . "\" >> \"" . __DIR__ . "/whatsapp-service.log\" 2>&1 &");
+        shell_exec("nohup \"$cmd\" \"" . __DIR__ . "/" . $serviceFile . "\" >> \"" . __DIR__ . "/whatsapp-service.log\" 2>&1 < /dev/null &");
     }
     
     // Allow up to 1.5 seconds for node to boot
