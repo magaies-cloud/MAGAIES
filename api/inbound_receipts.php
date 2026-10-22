@@ -173,9 +173,23 @@ function syncInboundReceiptsFromCloud($pdo, $activeTenantId, $uploadDir) {
         if (empty($cloudPayload['success']) || empty($cloudPayload['data']) || !is_array($cloudPayload['data'])) return;
 
         // Load existing local receipts for fast deduplication
-        $locStmt = $pdo->prepare("SELECT id, customer_id, customer_name, transfer_no, receipt_image, voucher_no, status, issue_reason, amount FROM inbound_bank_receipts WHERE tenant_id = ?");
+        $locStmt = $pdo->prepare("SELECT id, customer_id, customer_name, transfer_no, receipt_image, voucher_no, status, issue_reason, amount FROM inbound_bank_receipts WHERE tenant_id = ? ORDER BY id ASC");
         $locStmt->execute([$activeTenantId]);
         $localRows = $locStmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $localActiveVouchers = [];
+        try {
+            $avStmt = $pdo->prepare("SELECT frontend_id, receipt_no, is_deleted, data FROM receipts WHERE tenant_id = ?");
+            $avStmt->execute([$activeTenantId]);
+            while ($avr = $avStmt->fetch(PDO::FETCH_ASSOC)) {
+                $avd = json_decode($avr['data'] ?? '', true);
+                if (!empty($avr['is_deleted']) || !empty($avd['deleted'])) continue;
+                if (!empty($avr['frontend_id'])) $localActiveVouchers[(string)$avr['frontend_id']] = true;
+                if (!empty($avr['receipt_no'])) $localActiveVouchers[(string)$avr['receipt_no']] = true;
+                if (!empty($avd['id'])) $localActiveVouchers[(string)$avd['id']] = true;
+                if (!empty($avd['voucherNo'])) $localActiveVouchers[(string)$avd['voucherNo']] = true;
+            }
+        } catch (Throwable $eAv) {}
 
         $byTransfer = [];
         $byImage = [];
@@ -281,7 +295,9 @@ function syncInboundReceiptsFromCloud($pdo, $activeTenantId, $uploadDir) {
                 $locStatus = (string)($matchedLocal['status'] ?? 'pending');
                 $locAmt = (float)($matchedLocal['amount'] ?? 0);
                 $locTrClean = preg_replace('/\D/', '', (string)($matchedLocal['transfer_no'] ?? ''));
-                if ($locStatus === 'pending' && ($cStatus === 'verified' || $cStatus === 'reconciled')) {
+                $locVoucherNo = trim((string)($matchedLocal['voucher_no'] ?? ''));
+                $needsLocalRepost = ($locVoucherNo === '' || !isset($localActiveVouchers[$locVoucherNo]) || ($cVoucherNo !== '' && $cVoucherNo !== $locVoucherNo && !isset($localActiveVouchers[$cVoucherNo])));
+                if (($locStatus === 'pending' || $needsLocalRepost) && ($cStatus === 'verified' || $cStatus === 'reconciled')) {
                     $upd = $pdo->prepare("UPDATE inbound_bank_receipts SET customer_id = COALESCE(NULLIF(?, ''), customer_id), customer_name = COALESCE(NULLIF(?, ''), customer_name), bank_name = COALESCE(NULLIF(?, ''), bank_name), bank_code = COALESCE(NULLIF(?, ''), bank_code), transfer_no = COALESCE(NULLIF(?, ''), transfer_no), amount = IF(? > 0, ?, amount), voucher_no = COALESCE(NULLIF(?, ''), voucher_no), status = ?, issue_reason = ?, notes = COALESCE(NULLIF(?, ''), notes) WHERE id = ?");
                     $amtVal = (float)($cRow['amount'] ?? 0);
                     $upd->execute([
@@ -4092,64 +4108,84 @@ function buildDetailedAccountStatementForWhatsApp($pdo, $tenantId, $entityType, 
     }
 
     // Self-heal any unscanned (recent) or unposted/soft-deleted inbound_bank_receipts for this customer/tenant BEFORE loading receipts
-    try {
-        $healStmt = $pdo->prepare("SELECT id, customer_id, customer_name, customer_phone, amount, transfer_no, status, issue_reason, voucher_no, receipt_image, bank_code, bank_name, created_at FROM inbound_bank_receipts WHERE tenant_id = ? AND status != 'duplicate_rejected' ORDER BY id DESC");
-        $healStmt->execute([$tenantId]);
-        $healRows = $healStmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
-        if (!empty($healRows)) {
-            $activeVStmt = $pdo->prepare("SELECT frontend_id, receipt_no, is_deleted, data FROM receipts WHERE tenant_id = ?");
-            $activeVStmt->execute([$tenantId]);
-            $activeVoucherMap = [];
-            while ($vr = $activeVStmt->fetch(PDO::FETCH_ASSOC)) {
-                $vd = json_decode($vr['data'] ?? '', true);
-                $isDel = !empty($vr['is_deleted']) || !empty($vd['deleted']);
-                $isPost = !isset($vd['isPosted']) || $vd['isPosted'] !== false;
-                if (!$isDel && $isPost) {
-                    if (!empty($vr['frontend_id'])) $activeVoucherMap[$vr['frontend_id']] = true;
-                    if (!empty($vr['receipt_no'])) $activeVoucherMap[$vr['receipt_no']] = true;
-                    if (!empty($vd['id'])) $activeVoucherMap[(string)$vd['id']] = true;
-                    if (!empty($vd['voucherNo'])) $activeVoucherMap[(string)$vd['voucherNo']] = true;
+    if (empty($options['_inside_statement_build'])) {
+        try {
+            $healStmt = $pdo->prepare("SELECT id, customer_id, customer_name, customer_phone, amount, transfer_no, status, issue_reason, voucher_no, receipt_image, bank_code, bank_name, created_at FROM inbound_bank_receipts WHERE tenant_id = ? AND status != 'duplicate_rejected' ORDER BY id DESC");
+            $healStmt->execute([$tenantId]);
+            $healRows = $healStmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+            if (!empty($healRows)) {
+                $activeVStmt = $pdo->prepare("SELECT frontend_id, receipt_no, is_deleted, data FROM receipts WHERE tenant_id = ?");
+                $activeVStmt->execute([$tenantId]);
+                $activeVoucherMap = [];
+                $activeTransferMap = [];
+                while ($vr = $activeVStmt->fetch(PDO::FETCH_ASSOC)) {
+                    $vd = json_decode($vr['data'] ?? '', true);
+                    $isDel = !empty($vr['is_deleted']) || !empty($vd['deleted']);
+                    $isPost = !isset($vd['isPosted']) || $vd['isPosted'] !== false;
+                    if (!$isDel && $isPost) {
+                        $canonVNo = (string)($vd['voucherNo'] ?? $vd['id'] ?? $vr['receipt_no'] ?? $vr['frontend_id'] ?? '');
+                        if (!empty($vr['frontend_id'])) $activeVoucherMap[$vr['frontend_id']] = true;
+                        if (!empty($vr['receipt_no'])) $activeVoucherMap[$vr['receipt_no']] = true;
+                        if (!empty($vd['id'])) $activeVoucherMap[(string)$vd['id']] = true;
+                        if (!empty($vd['voucherNo'])) $activeVoucherMap[(string)$vd['voucherNo']] = true;
+                        $vTr = preg_replace('/\D/', '', (string)($vd['mobileTransferNo'] ?? ($vd['items'][0]['transferNo'] ?? ($vd['items'][0]['bankTransfers'][0]['transferNo'] ?? ''))));
+                        if (strlen($vTr) >= 6 && $canonVNo !== '') {
+                            $activeTransferMap[$vTr] = $canonVNo;
+                        }
+                    }
                 }
-            }
-            $entityPhoneTail = '';
-            $rawEntPhone = preg_replace('/\D/', '', (string)($entityObj['whatsapp'] ?? $entityObj['phone'] ?? ''));
-            if (strlen($rawEntPhone) >= 9) {
-                $entityPhoneTail = substr($rawEntPhone, -9);
-            }
-            $ocrRetriedCount = 0;
-            $recentCutoffTs = time() - 600; // Only retry OCR on receipts uploaded within the last 10 minutes
-            foreach ($healRows as $hr) {
-                $hrId = (int)$hr['id'];
-                $hrAmt = (float)($hr['amount'] ?? 0);
-                $hrTr = preg_replace('/\D/', '', (string)($hr['transfer_no'] ?? ''));
-                $hrStatus = (string)($hr['status'] ?? 'pending');
-                $hrIssue = trim((string)($hr['issue_reason'] ?? ''));
-                $hrVNo = trim((string)($hr['voucher_no'] ?? ''));
-                $hrCreatedTs = !empty($hr['created_at']) ? (int)strtotime($hr['created_at']) : 0;
-                $hrCustClean = preg_replace('/^(cust|supp?)-/i', '', trim((string)($hr['customer_id'] ?? '')));
-                $hrPhoneDigits = preg_replace('/\D/', '', (string)($hr['customer_phone'] ?? ''));
-                $hrPhoneTail = (strlen($hrPhoneDigits) >= 9) ? substr($hrPhoneDigits, -9) : '';
-                $isTargetParty = ($hrCustClean !== '' && $hrCustClean === $cleanId)
-                    || ($entityName !== '' && trim((string)($hr['customer_name'] ?? '')) === $entityName)
-                    || ($entityPhoneTail !== '' && $hrPhoneTail !== '' && $entityPhoneTail === $hrPhoneTail);
+                $entityPhoneTail = '';
+                $rawEntPhone = preg_replace('/\D/', '', (string)($entityObj['whatsapp'] ?? $entityObj['phone'] ?? ''));
+                if (strlen($rawEntPhone) >= 9) {
+                    $entityPhoneTail = substr($rawEntPhone, -9);
+                }
+                $ocrRetriedCount = 0;
+                $recentCutoffTs = time() - 600; // Only retry OCR on receipts uploaded within the last 10 minutes
+                foreach ($healRows as $hr) {
+                    $hrId = (int)$hr['id'];
+                    $hrAmt = (float)($hr['amount'] ?? 0);
+                    $hrTr = preg_replace('/\D/', '', (string)($hr['transfer_no'] ?? ''));
+                    $hrStatus = (string)($hr['status'] ?? 'pending');
+                    $hrIssue = trim((string)($hr['issue_reason'] ?? ''));
+                    $hrVNo = trim((string)($hr['voucher_no'] ?? ''));
+                    $hrCreatedTs = !empty($hr['created_at']) ? (int)strtotime($hr['created_at']) : 0;
+                    $hrCustClean = preg_replace('/^(cust|supp?)-/i', '', trim((string)($hr['customer_id'] ?? '')));
+                    $hrPhoneDigits = preg_replace('/\D/', '', (string)($hr['customer_phone'] ?? ''));
+                    $hrPhoneTail = (strlen($hrPhoneDigits) >= 9) ? substr($hrPhoneDigits, -9) : '';
+                    $isTargetParty = ($hrCustClean !== '' && $hrCustClean === $cleanId)
+                        || ($entityName !== '' && trim((string)($hr['customer_name'] ?? '')) === $entityName)
+                        || ($entityPhoneTail !== '' && $hrPhoneTail !== '' && $entityPhoneTail === $hrPhoneTail);
 
-                if ($ocrRetriedCount < 1 && $isTargetParty && $hrStatus === 'pending' && ($hrAmt <= 0 || strlen($hrTr) < 6) && !empty($hr['receipt_image']) && ($hrIssue === '' || ($hrIssue === 'zero_amount' && $hrCreatedTs >= $recentCutoffTs))) {
-                    $ocrRetriedCount++;
-                    performBackendReceiptOCR($pdo, $hrId, false);
-                } elseif ($hrAmt > 0 && strlen($hrTr) >= 6 && ($hrStatus === 'verified' || $hrStatus === 'reconciled' || ($isTargetParty && $hrStatus === 'pending' && $hrIssue !== 'awaiting_posting_approval'))) {
-                    if ($hrVNo === '' || !isset($activeVoucherMap[$hrVNo])) {
-                        postInboundReceiptToAccounts($pdo, $hrId, [
-                            'force_post' => true,
-                            'target_bank_id' => (string)($hr['bank_code'] ?? ''),
-                            'target_bank_name' => (string)($hr['bank_name'] ?? ''),
-                            'suppress_whatsapp_notify' => true,
-                            '_ocr_retried' => true
-                        ]);
+                    if ($ocrRetriedCount < 1 && $isTargetParty && $hrStatus === 'pending' && ($hrAmt <= 0 || strlen($hrTr) < 6) && !empty($hr['receipt_image']) && ($hrIssue === '' || ($hrIssue === 'zero_amount' && $hrCreatedTs >= $recentCutoffTs))) {
+                        $ocrRetriedCount++;
+                        performBackendReceiptOCR($pdo, $hrId, false);
+                    } elseif ($hrAmt > 0 && strlen($hrTr) >= 6 && ($hrStatus === 'verified' || $hrStatus === 'reconciled' || ($isTargetParty && $hrStatus === 'pending' && $hrIssue !== 'awaiting_posting_approval'))) {
+                        if ($hrVNo === '' || !isset($activeVoucherMap[$hrVNo])) {
+                            if (isset($activeTransferMap[$hrTr])) {
+                                // Another active voucher already posted this exact transfer_no; mark this stale duplicate row so it doesn't stay orphaned
+                                if ($hrVNo !== '' && $hrVNo !== $activeTransferMap[$hrTr]) {
+                                    $pdo->prepare("UPDATE inbound_bank_receipts SET status = 'duplicate_rejected', issue_reason = 'duplicate_transfer_no', voucher_no = NULL WHERE id = ?")->execute([$hrId]);
+                                }
+                                continue;
+                            }
+                            $postOut = postInboundReceiptToAccounts($pdo, $hrId, [
+                                'force_post' => true,
+                                'target_bank_id' => (string)($hr['bank_code'] ?? ''),
+                                'target_bank_name' => (string)($hr['bank_name'] ?? ''),
+                                'suppress_whatsapp_notify' => true,
+                                '_ocr_retried' => true,
+                                '_inside_statement_build' => true
+                            ]);
+                            if (!empty($postOut['voucher_no'])) {
+                                $activeVoucherMap[(string)$postOut['voucher_no']] = true;
+                                $activeTransferMap[$hrTr] = (string)$postOut['voucher_no'];
+                            }
+                        }
                     }
                 }
             }
-        }
-    } catch (Throwable $healEx) {}
+        } catch (Throwable $healEx) {}
+    }
 
     // 2b. Multi-Receipts (`receipts`)
     $multiReceipts = $loadSourceTable('receipts');
@@ -5040,6 +5076,32 @@ function buildDetailedAccountStatementForWhatsApp($pdo, $tenantId, $entityType, 
         $runningNetDebitUsd = abs($runningNetDebitUsd);
     } else {
         $runningNetDebitUsd = 0.0;
+    }
+
+    // Guarantee the last row's cumulative balance in the statement is 100% identical to the final balance
+    if (!empty($rows)) {
+        $lastIdx = count($rows) - 1;
+        $rows[$lastIdx]['running_net_debit'] = $runningNetDebit;
+        $rows[$lastIdx]['running_net_debit_usd'] = $runningNetDebitUsd;
+    }
+
+    // Keep customer/supplier `currentBalance` in MySQL 100% aligned with the true ledger statement ending balance
+    if ($cleanId !== '' && abs((float)($entityObj['currentBalance'] ?? 0) - $runningNetDebit) > 0.01) {
+        try {
+            $partyTable = $isCustomer ? 'customers' : 'suppliers';
+            $pStmt = $pdo->prepare("SELECT id, data FROM `$partyTable` WHERE (tenant_id = ? OR tenant_id IS NULL) AND (is_deleted = 0 OR is_deleted IS NULL)");
+            $pStmt->execute([$tenantId]);
+            while ($pr = $pStmt->fetch(PDO::FETCH_ASSOC)) {
+                $pd = json_decode($pr['data'] ?? '', true);
+                if (!is_array($pd)) continue;
+                $pidClean = preg_replace('/^(cust|supp?)-/i', '', trim((string)($pd['id'] ?? '')));
+                if ($pidClean === $cleanId || ($entityName !== '' && trim((string)($pd['name'] ?? '')) === $entityName)) {
+                    $pd['currentBalance'] = round($runningNetDebit, 2);
+                    $pdo->prepare("UPDATE `$partyTable` SET data = ? WHERE id = ?")->execute([json_encode($pd, JSON_UNESCAPED_UNICODE), $pr['id']]);
+                    break;
+                }
+            }
+        } catch (Throwable $balSyncEx) {}
     }
 
     $currencyLabelAr = ($currency === 'SDG') ? 'ج.س' : $currency;

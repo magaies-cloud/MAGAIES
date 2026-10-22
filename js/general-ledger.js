@@ -1075,6 +1075,13 @@ async function syncLiveMasterAndReceiptsForGL(forceRefreshUI = true) {
         const tId = (window.SERVER_TENANT && window.SERVER_TENANT.id) || (JSON.parse(localStorage.getItem('user') || '{}').tenant_id) || '12';
         let changed = false;
 
+        // 0. Pull fresh full tables from MySQL (/sync/pull) if available so invoices/vouchers/receipts are 100% in sync
+        if (typeof window.pullFromCloud === 'function') {
+            try {
+                await window.pullFromCloud(true);
+            } catch (e) {}
+        }
+
         // 1. Fetch fresh customers & suppliers from MySQL
         const masterRes = await fetch('api/get_master_data.php?tenant_id=' + encodeURIComponent(tId) + '&_t=' + Date.now());
         const masterData = await masterRes.json();
@@ -1097,22 +1104,148 @@ async function syncLiveMasterAndReceiptsForGL(forceRefreshUI = true) {
             }
         }
 
-        // 2. Fetch fresh verified/posted WhatsApp receipts from MySQL
+        // 2. Fetch fresh verified/posted WhatsApp receipts from MySQL & sync directly into erp_receipts_v1
         const recRes = await fetch('api/inbound_receipts.php?action=list&tenant_id=' + encodeURIComponent(tId) + '&_t=' + Date.now());
         const recData = await recRes.json();
         if (recData && recData.success && Array.isArray(recData.data)) {
-            if (window.InboundBankakManager && typeof window.InboundBankakManager.syncPostedReceiptToLocalErp === 'function') {
-                recData.data.forEach(r => {
-                    if (r.voucher_no && (r.status === 'verified' || r.status === 'reconciled')) {
-                        if (window.InboundBankakManager.syncPostedReceiptToLocalErp(r, null, { skipRebuild: true })) {
-                            changed = true;
-                        }
+            const rKey = getTenantKey('erp_receipts_v1');
+            let storedReceipts = [];
+            try {
+                storedReceipts = JSON.parse(localStorage.getItem(rKey) || localStorage.getItem('erp_receipts_v1') || '[]');
+                if (!Array.isArray(storedReceipts)) storedReceipts = Object.values(storedReceipts || {});
+            } catch (e) { storedReceipts = []; }
+
+            const activeSet = Array.isArray(recData.active_voucher_nos)
+                ? new Set(recData.active_voucher_nos.map(v => String(v).trim()))
+                : null;
+
+            if (activeSet) {
+                const beforeLen = storedReceipts.length;
+                storedReceipts = storedReceipts.filter(v => {
+                    if (!v) return false;
+                    const vid = String(v.id || v.voucherNo || '').trim();
+                    if (v.source === 'whatsapp_inbound' || v.inboundReceiptId) {
+                        return activeSet.has(vid);
                     }
+                    return true;
                 });
+                if (storedReceipts.length !== beforeLen) {
+                    changed = true;
+                }
+            }
+
+            const sysRate = (typeof window.getExchangeRateForCurrency === 'function' ? window.getExchangeRateForCurrency('USD') : 6000) || 6000;
+            // Process oldest first to preserve chronological order
+            const chronologicalInb = recData.data.slice().reverse();
+            chronologicalInb.forEach(r => {
+                if (!r || !r.voucher_no) return;
+                if (r.status !== 'verified' && r.status !== 'reconciled') return;
+                const vNo = String(r.voucher_no).trim();
+                const amt = parseFloat(r.amount || 0) || 0;
+                if (amt <= 0) return;
+
+                let rawCustId = String(r.customer_id || '').replace(/^cust-/, '').trim();
+                const custName = String(r.customer_name || 'عميل بنكك').trim();
+                if (!rawCustId && custName) {
+                    const custsList = JSON.parse(localStorage.getItem(getTenantKey('erp_customers_v1')) || localStorage.getItem('erp_customers_v1') || '[]');
+                    const foundCust = Array.isArray(custsList) ? custsList.find(c => c && c.name && c.name.trim() === custName) : null;
+                    if (foundCust && foundCust.id) rawCustId = String(foundCust.id).replace(/^cust-/, '');
+                }
+                const rawBankId = String(r.bank_code || 'B-1700000000001').replace(/^bank-/, '');
+                const resolvedBankName = String(r.bank_name || 'بنك الخرطوم').trim();
+                const voucherDesc = `سداد إشعار تحويل بنكي (${resolvedBankName}) رقم العملية: ${r.transfer_no || ''} - العميل: ${custName}`;
+
+                const existingIdx = storedReceipts.findIndex(v => v && (String(v.voucherNo || '').trim() === vNo || String(v.id || '').trim() === vNo));
+                if (existingIdx > -1) {
+                    const ex = storedReceipts[existingIdx];
+                    const exItem = ex.items && ex.items[0];
+                    const exCust = exItem ? String(exItem.accountId || exItem.account || '').replace(/^cust-/, '') : '';
+                    const exAmt = parseFloat(ex.totalAmount || 0) || 0;
+                    if (exCust === rawCustId && Math.abs(exAmt - amt) < 0.01 && ex.isPosted !== false) {
+                        return;
+                    }
+                }
+
+                const voucherObj = {
+                    id: vNo,
+                    voucherNo: vNo,
+                    type: 'receipt',
+                    source: 'whatsapp_inbound',
+                    isGrouped: true,
+                    mainAccount: 'bank-' + (rawBankId || 'B-1700000000001'),
+                    toAccount: 'bank-' + (rawBankId || 'B-1700000000001'),
+                    fromAccount: 'حسابات فرعية متعددة',
+                    date: (r.created_at ? String(r.created_at).substring(0, 10) : new Date().toISOString().substring(0, 10)),
+                    time: (r.created_at && String(r.created_at).length >= 16 ? String(r.created_at).substring(11, 16) : '00:00'),
+                    description: voucherDesc,
+                    notes: voucherDesc,
+                    totalAmount: amt,
+                    amountLocal: amt,
+                    foreignAmount: +(amt / sysRate).toFixed(2),
+                    amountForeign: +(amt / sysRate).toFixed(2),
+                    currency: r.currency || 'SDG',
+                    exchangeRate: 1,
+                    systemExchangeRate: sysRate,
+                    paymentMethod: 'hybrid',
+                    inboundReceiptId: Number(r.id),
+                    receiptImage: r.receipt_image || '',
+                    items: [
+                        {
+                            account: rawCustId ? ('cust-' + rawCustId) : custName,
+                            accountId: rawCustId ? ('cust-' + rawCustId) : custName,
+                            accountName: custName,
+                            amount: amt,
+                            statement: `إشعار تحويل ${resolvedBankName} رقم ${r.transfer_no || ''}`,
+                            costCenter: '',
+                            paymentMethods: ['bank'],
+                            paymentMethod: 'bank',
+                            cashAmount: 0,
+                            bankAmount: amt,
+                            bankId: rawBankId,
+                            bankTransfers: [
+                                {
+                                    amount: amt,
+                                    bankId: rawBankId,
+                                    bankName: resolvedBankName,
+                                    transferNo: r.transfer_no || '',
+                                    statement: `إشعار وارد #${r.id} - ${custName}`
+                                }
+                            ],
+                            chequeAmount: 0,
+                            cheques: [],
+                            bankName: resolvedBankName,
+                            transferNo: r.transfer_no || ''
+                        }
+                    ],
+                    isPosted: true,
+                    createdAt: r.created_at || new Date().toISOString()
+                };
+
+                // Remove any older voucher linked to the same inboundReceiptId
+                for (let i = storedReceipts.length - 1; i >= 0; i--) {
+                    const sv = storedReceipts[i];
+                    if (sv && Number(sv.inboundReceiptId) === Number(r.id) && sv.id !== vNo && sv.voucherNo !== vNo) {
+                        storedReceipts.splice(i, 1);
+                    }
+                }
+
+                const vIdx = storedReceipts.findIndex(v => v && (String(v.voucherNo || '').trim() === vNo || String(v.id || '').trim() === vNo));
+                if (vIdx > -1) {
+                    storedReceipts[vIdx] = voucherObj;
+                } else {
+                    storedReceipts.push(voucherObj);
+                }
+                changed = true;
+            });
+
+            if (changed) {
+                const recJson = JSON.stringify(storedReceipts);
+                localStorage.setItem(rKey, recJson);
+                localStorage.setItem('erp_receipts_v1', recJson);
             }
         }
 
-        if (changed) {
+        if (changed || forceRefreshUI) {
             const currentSelectedId = document.getElementById('filter-account')?.value || 'ALL';
             buildAccountsList();
             if (currentSelectedId && currentSelectedId !== 'ALL') {
@@ -1120,8 +1253,11 @@ async function syncLiveMasterAndReceiptsForGL(forceRefreshUI = true) {
                 if (selEl) selEl.value = currentSelectedId;
             }
             ALL_TXNS = collectAllTransactions();
-            if (forceRefreshUI && typeof applyLedgerFilters === 'function') {
-                applyLedgerFilters();
+            if (typeof runReport === 'function') {
+                runReport();
+            }
+            if (typeof window.refreshPreviewLedgerLive === 'function') {
+                window.refreshPreviewLedgerLive();
             }
         }
     } catch (e) {
@@ -1206,13 +1342,19 @@ function initGeneralLedgerApp() {
         applyUrlAccountSelection();
     });
 
-    // Keep General Ledger live when switching tabs or when new receipts arrive
-    window.addEventListener('focus', () => syncLiveMasterAndReceiptsForGL(true));
+    // Keep General Ledger live when switching tabs, periodically every 6s, or when new receipts arrive
+    window.addEventListener('focus', () => syncLiveMasterAndReceiptsForGL(false));
+    setInterval(() => {
+        if (!document.hidden) {
+            syncLiveMasterAndReceiptsForGL(false);
+        }
+    }, 6000);
     window.addEventListener('storage', (ev) => {
         if (!ev.key || ev.key.includes('erp_customers_v1') || ev.key.includes('erp_suppliers_v1') || ev.key.includes('erp_receipts_v1') || ev.key.includes('erp_gl_v1')) {
             buildAccountsList();
             ALL_TXNS = collectAllTransactions();
-            if (typeof applyLedgerFilters === 'function') applyLedgerFilters();
+            if (typeof runReport === 'function') runReport();
+            if (typeof window.refreshPreviewLedgerLive === 'function') window.refreshPreviewLedgerLive();
         }
     });
 }
@@ -1227,6 +1369,8 @@ if (window.APP_READY) {
 window.openPreviewDesign = openPreviewDesign;
 window.openPresetModal = openPresetModal;
 window.prepareLedgerPreviewData = prepareLedgerPreviewData;
+window.runReport = runReport;
+window.applyLedgerFilters = runReport;
 
 
 /* ─── Drill Down & Attachments ─── */
@@ -2851,10 +2995,11 @@ function getAccountName(accVal) {
 }
 
 async function prepareLedgerPreviewData() {
-    if (!currentTxns || currentTxns.length === 0) {
-        if (typeof runReport === 'function') {
-            runReport();
-        }
+    if (typeof syncLiveMasterAndReceiptsForGL === 'function') {
+        try { await syncLiveMasterAndReceiptsForGL(false); } catch (e) {}
+    }
+    if (typeof runReport === 'function') {
+        runReport();
     }
 
     let sourceTxns = currentTxns || [];
@@ -2872,11 +3017,17 @@ async function prepareLedgerPreviewData() {
         return String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
     };
 
-    // Clone and sort chronologically (Oldest first) for Ledger Preview & Print
+    // Clone and sort chronologically (Oldest first, opening balance always first) for Ledger Preview & Print
     let previewTxns = sourceTxns.slice().sort((a, b) => {
-        const da = (a.date || '') + ' ' + parseTimeTo24h(a.time);
-        const db = (b.date || '') + ' ' + parseTimeTo24h(b.time);
-        return da.localeCompare(db);
+        if (a && a.isOpening && !(b && b.isOpening)) return -1;
+        if (!(a && a.isOpening) && b && b.isOpening) return 1;
+        const da = ((a && a.date) || '') + ' ' + parseTimeTo24h(a && a.time);
+        const db = ((b && b.date) || '') + ' ' + parseTimeTo24h(b && b.time);
+        let cmp = da.localeCompare(db);
+        if (cmp === 0) {
+            cmp = String((a && a.ref) || '').localeCompare(String((b && b.ref) || ''), undefined, { numeric: true });
+        }
+        return cmp;
     });
 
     // Calculate Running Cumulative Balance for each transaction

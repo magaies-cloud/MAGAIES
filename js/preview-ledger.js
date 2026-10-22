@@ -588,15 +588,28 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (typeof buildAccountsList === 'function') buildAccountsList();
     });
 
-    // Load Ledger Table Data & Config (Try IndexedDB via localforage first for large datasets)
-    if (typeof localforage !== 'undefined') {
+    // Always recalculate live transactions from current source tables first so preview-ledger is never stuck on a stale snapshot
+    if (typeof calculateLedgerTxns === 'function') {
         try {
-            const lfData = await localforage.getItem('preview_ledger_data');
-            if (Array.isArray(lfData) && lfData.length > 0) {
-                currentData = lfData;
+            const liveCalculated = calculateLedgerTxns();
+            if (Array.isArray(liveCalculated) && liveCalculated.length > 0) {
+                currentData = liveCalculated;
             }
-        } catch(e) {
-            console.error('Error reading from localforage:', e);
+        } catch (e) {
+            console.warn('Live calculateLedgerTxns warning:', e);
+        }
+    }
+
+    if (!currentData || currentData.length === 0) {
+        if (typeof localforage !== 'undefined') {
+            try {
+                const lfData = await localforage.getItem('preview_ledger_data');
+                if (Array.isArray(lfData) && lfData.length > 0) {
+                    currentData = lfData;
+                }
+            } catch(e) {
+                console.error('Error reading from localforage:', e);
+            }
         }
     }
 
@@ -635,6 +648,25 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     filteredData = [...currentData];
     initPresets();
+
+    window.refreshPreviewLedgerLive = function() {
+        try {
+            if (typeof calculateLedgerTxns === 'function') {
+                const fresh = calculateLedgerTxns();
+                if (Array.isArray(fresh)) {
+                    currentData = fresh;
+                    filteredData = [...currentData];
+                    if (typeof renderTable === 'function') renderTable();
+                }
+            }
+        } catch (e) {}
+    };
+
+    if (typeof window.syncLiveMasterAndReceiptsForGL === 'function') {
+        window.syncLiveMasterAndReceiptsForGL(false).then(() => {
+            window.refreshPreviewLedgerLive();
+        }).catch(() => {});
+    }
 
     const urlParams = new URLSearchParams(window.location.search);
     const presetParam = urlParams.get('presetIndex');
