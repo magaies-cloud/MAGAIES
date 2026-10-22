@@ -270,8 +270,8 @@ function proxyWhatsAppRequestToCloud($endpoint, $queryParams, $method, $rawInput
     $ch = curl_init($cloudUrl);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
-    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 2);
-    curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 4);
+    curl_setopt($ch, CURLOPT_TIMEOUT, 12);
     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
     curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
 
