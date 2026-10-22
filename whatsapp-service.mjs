@@ -1235,22 +1235,31 @@ class WhatsAppClient {
             if (postedReceipts.length === 1) {
                 const p = postedReceipts[0];
                 const bName = p.bank_name || resolvedBankName;
+                const balLine = (p.new_balance_label || p.posting?.new_balance_label)
+                    ? `\n• *الرصيد الحالي:* ${p.new_balance_label || p.posting?.new_balance_label}`
+                    : '';
                 replyParts.push(
                     `🏦 تم فحص الإشعار وتنزيله في حسابكم (${resolvedCustomerName}) بنجاح:\n` +
                     `• المبلغ: ${Number(p.amount).toLocaleString()} SDG\n` +
                     `• رقم العملية: ${p.transfer_no || '-'}\n` +
                     `• إلى حساب: ${bName}\n` +
-                    `• رقم سند القبض: ${p.voucher_no}`
+                    `• رقم سند القبض: ${p.voucher_no}` +
+                    balLine
                 );
             } else if (postedReceipts.length > 1) {
                 const totalAmt = postedReceipts.reduce((s, r) => s + (Number(r.amount) || 0), 0);
+                const lastPosted = postedReceipts[postedReceipts.length - 1];
+                const lastBalLine = (lastPosted?.new_balance_label || lastPosted?.posting?.new_balance_label)
+                    ? `\n📊 *الرصيد الحالي:* ${lastPosted.new_balance_label || lastPosted.posting?.new_balance_label}`
+                    : '';
                 const lines = postedReceipts.map((p, idx) =>
                     `${idx + 1}. مبلغ *${Number(p.amount).toLocaleString()} SDG* | عملية *${p.transfer_no}* | سند *${p.voucher_no}*`
                 ).join('\n');
                 replyParts.push(
                     `🏦 تم فحص وإضافة (*${postedReceipts.length}*) إشعارات بنكية وتنزيلها في حسابكم (*${resolvedCustomerName}*) إلى حساب *${resolvedBankName}* بنجاح:\n` +
                     `${lines}\n` +
-                    `💰 *إجمالي المبلغ المضاف:* ${totalAmt.toLocaleString()} SDG`
+                    `💰 *إجمالي المبلغ المضاف:* ${totalAmt.toLocaleString()} SDG` +
+                    lastBalLine
                 );
             }
 
@@ -1377,8 +1386,9 @@ class WhatsAppClient {
                 if (res.ok) {
                     const data = await res.json();
                     if (data && data.success) {
+                        const balPart = data.new_balance_label ? `\n📊 *الرصيد الحالي:* ${data.new_balance_label}` : '';
                         await sock.sendMessage(remoteJid, {
-                            text: `✅ تم اعتماد الباسورد (${pinCode}) وتوجيه عدد (*${data.updated_count || recentBatch.receiptIds.length}*) إشعار بنكي إلى حساب: *${data.customer_name}* (${data.bank_name || 'بنك الخرطوم'}) بنجاح! ✨`
+                            text: `✅ تم اعتماد الباسورد (${pinCode}) وتوجيه عدد (*${data.updated_count || recentBatch.receiptIds.length}*) إشعار بنكي إلى حساب: *${data.customer_name}* (${data.bank_name || 'بنك الخرطوم'}) بنجاح!${balPart} ✨`
                         }, { quoted: msg });
                         log(this.userId, `🔀 Rerouted ${recentBatch.receiptIds.length} receipt(s) to ${data.customer_name} via follow-up PIN ${pinCode}`);
                         return;
@@ -1429,7 +1439,7 @@ class WhatsAppClient {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(payload),
-                        signal: AbortSignal.timeout(12000)
+                        signal: AbortSignal.timeout(18000)
                     });
                     if (response.ok) {
                         const parsed = await response.json();
@@ -1437,8 +1447,12 @@ class WhatsAppClient {
                             data = parsed;
                             break;
                         }
+                    } else {
+                        logErr(this.userId, `Statement endpoint ${ep} returned HTTP ${response.status}`);
                     }
-                } catch (_) {}
+                } catch (fetchErr) {
+                    logErr(this.userId, `Statement endpoint ${ep} fetch error:`, fetchErr.message);
+                }
             }
 
             if (data && data.matched && data.reply_text) {

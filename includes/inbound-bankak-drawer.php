@@ -660,6 +660,13 @@ window.InboundBankakManager = {
             if (typeof window.refreshVoucherNavigationList === 'function') {
                 try { window.refreshVoucherNavigationList(); } catch (e) {}
             }
+            if (typeof window.applyLedgerFilters === 'function') {
+                try {
+                    if (typeof window.buildAccountsList === 'function') window.buildAccountsList();
+                    if (typeof window.extractFilters === 'function') window.extractFilters();
+                    window.applyLedgerFilters();
+                } catch (e) {}
+            }
         }
         return true;
     },
@@ -769,6 +776,13 @@ window.InboundBankakManager = {
                         }
                         if (typeof window.refreshVoucherNavigationList === 'function') {
                             try { window.refreshVoucherNavigationList(); } catch (e) {}
+                        }
+                        if (typeof window.applyLedgerFilters === 'function') {
+                            try {
+                                if (typeof window.buildAccountsList === 'function') window.buildAccountsList();
+                                if (typeof window.extractFilters === 'function') window.extractFilters();
+                                window.applyLedgerFilters();
+                            } catch (e) {}
                         }
                     }
 

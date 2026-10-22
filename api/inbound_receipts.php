@@ -694,6 +694,8 @@ switch ($action) {
                 'bank_id' => $finalBankId,
                 'bank_name' => $finalBankName,
                 'voucher_no' => $finalVoucherNo,
+                'new_balance_value' => $postingResult['new_balance_value'] ?? null,
+                'new_balance_label' => $postingResult['new_balance_label'] ?? '',
                 'receipt_image' => $imagePath,
                 'posting' => $postingResult,
                 'receipt' => $finalRow,
@@ -1235,6 +1237,7 @@ switch ($action) {
             $codeBadge = $resolved['matched_code'] ?? $codeOrName;
             $updatedCount = 0;
             $lastBankName = 'بنك الخرطوم';
+            $lastBalanceLabel = '';
 
             foreach ($receiptIds as $rawId) {
                 $id = (int)$rawId;
@@ -1312,6 +1315,9 @@ switch ($action) {
                     if (!empty($postRes['bank_name'])) {
                         $lastBankName = $postRes['bank_name'];
                     }
+                    if (!empty($postRes['new_balance_label'])) {
+                        $lastBalanceLabel = $postRes['new_balance_label'];
+                    }
                 }
                 $updatedCount++;
             }
@@ -1322,6 +1328,7 @@ switch ($action) {
                 'customer_id' => $targetCustId,
                 'customer_name' => $targetCustName,
                 'bank_name' => $lastBankName,
+                'new_balance_label' => $lastBalanceLabel,
                 'message' => '✅ تم توجيه (' . $updatedCount . ') إشعار بنكي إلى حساب (' . $targetCustName . ') بنجاح!'
             ]);
         } catch (Exception $e) {
@@ -2556,6 +2563,31 @@ function postInboundReceiptToAccounts($pdo, $receiptId, $options = []) {
         'created_at' => date('Y-m-d H:i:s')
     ]);
 
+    // Compute customer's updated balance after posting so both WhatsApp reply and UI can display the exact live balance immediately
+    $newBalanceLabel = '';
+    $newBalanceValue = 0.0;
+    if ($shouldPostNow && empty($options['_inside_statement_build'])) {
+        $curBal = (float)($custObj['currentBalance'] ?? 0);
+        try {
+            if (function_exists('buildDetailedAccountStatementForWhatsApp')) {
+                $balCheck = buildDetailedAccountStatementForWhatsApp($pdo, $tenantId, 'customer', $custObj, [
+                    'mode' => 'balance_only',
+                    'returnStructured' => true,
+                    '_inside_statement_build' => true
+                ]);
+                if (is_array($balCheck) && isset($balCheck['voucher_data']['net_balance_local'])) {
+                    $netAbs = (float)$balCheck['voucher_data']['net_balance_local'];
+                    $stType = $balCheck['voucher_data']['status_type'] ?? 'settled';
+                    $curBal = ($stType === 'debit') ? $netAbs : (($stType === 'credit') ? -$netAbs : 0.0);
+                }
+            }
+        } catch (Throwable $e) {}
+        $newBalanceValue = $curBal;
+        $newBalanceLabel = $curBal > 0.009
+            ? (number_format($curBal, 0) . ' ' . $currency . ' (مدين / عليه)')
+            : ($curBal < -0.009 ? (number_format(abs($curBal), 0) . ' ' . $currency . ' (دائن / له)') : '0 ' . $currency . ' (مسدد / متوازن)');
+    }
+
     // Send WhatsApp notification directly to customer's registered WhatsApp number when manually assigned/approved OR when routed via PIN/Name from a different sender phone
     $whatsappNotified = false;
     $suppressWaNotify = !empty($options['suppress_whatsapp_notify']);
@@ -2565,21 +2597,7 @@ function postInboundReceiptToAccounts($pdo, $receiptId, $options = []) {
         $cleanSenderDigits = substr(preg_replace('/\D/', '', (string)$originalSenderPhone), -9);
         $shouldNotifyCustomerWa = !empty($options['notify_customer_whatsapp']) || (!empty($cleanTargetDigits) && $cleanTargetDigits !== $cleanSenderDigits);
         if ($shouldNotifyCustomerWa) {
-            $curBal = (float)($custObj['currentBalance'] ?? 0);
-            try {
-                if (function_exists('buildDetailedAccountStatementForWhatsApp')) {
-                    $balCheck = buildDetailedAccountStatementForWhatsApp($pdo, $tenantId, 'customer', $custObj, [
-                        'mode' => 'balance_only',
-                        'returnStructured' => true
-                    ]);
-                    if (is_array($balCheck) && isset($balCheck['voucher_data']['net_balance_local'])) {
-                        $netAbs = (float)$balCheck['voucher_data']['net_balance_local'];
-                        $stType = $balCheck['voucher_data']['status_type'] ?? 'settled';
-                        $curBal = ($stType === 'debit') ? $netAbs : (($stType === 'credit') ? -$netAbs : 0.0);
-                    }
-                }
-            } catch (Throwable $e) {}
-            $balLabel = $curBal > 0.009 ? (number_format($curBal, 2) . ' ' . $currency . ' (مدين / عليه)') : ($curBal < -0.009 ? (number_format(abs($curBal), 2) . ' ' . $currency . ' (دائن / له)') : '0.00 (خالص)');
+            $balLabel = $newBalanceLabel !== '' ? $newBalanceLabel : '0.00 (خالص)';
             $custPinBadge = !empty($custObj['statementPin']) ? ("\n🔐 *رمز الحساب (الباسورد):* " . $custObj['statementPin']) : '';
             $waCustomerMsg = "✅ *إشعار قيد مالي معتمد*\n"
                 . "━━━━━━━━━━━━━━\n"
@@ -2607,6 +2625,8 @@ function postInboundReceiptToAccounts($pdo, $receiptId, $options = []) {
         'customer_phone' => $custPhone,
         'bank_id' => $bankFrontendId,
         'bank_name' => $resolvedBankName,
+        'new_balance_value' => $newBalanceValue,
+        'new_balance_label' => $newBalanceLabel,
         'voucher' => $voucherObj,
         'customer' => $custObj,
         'bank' => $bankObj,
@@ -4071,9 +4091,9 @@ function buildDetailedAccountStatementForWhatsApp($pdo, $tenantId, $entityType, 
         }
     }
 
-    // Self-heal any unscanned or unposted/soft-deleted inbound_bank_receipts for this customer/tenant BEFORE loading receipts
+    // Self-heal any unscanned (recent) or unposted/soft-deleted inbound_bank_receipts for this customer/tenant BEFORE loading receipts
     try {
-        $healStmt = $pdo->prepare("SELECT id, customer_id, customer_name, customer_phone, amount, transfer_no, status, issue_reason, voucher_no, receipt_image, bank_code, bank_name FROM inbound_bank_receipts WHERE tenant_id = ? AND status != 'duplicate_rejected' ORDER BY id ASC");
+        $healStmt = $pdo->prepare("SELECT id, customer_id, customer_name, customer_phone, amount, transfer_no, status, issue_reason, voucher_no, receipt_image, bank_code, bank_name, created_at FROM inbound_bank_receipts WHERE tenant_id = ? AND status != 'duplicate_rejected' ORDER BY id DESC");
         $healStmt->execute([$tenantId]);
         $healRows = $healStmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
         if (!empty($healRows)) {
@@ -4096,6 +4116,8 @@ function buildDetailedAccountStatementForWhatsApp($pdo, $tenantId, $entityType, 
             if (strlen($rawEntPhone) >= 9) {
                 $entityPhoneTail = substr($rawEntPhone, -9);
             }
+            $ocrRetriedCount = 0;
+            $recentCutoffTs = time() - 600; // Only retry OCR on receipts uploaded within the last 10 minutes
             foreach ($healRows as $hr) {
                 $hrId = (int)$hr['id'];
                 $hrAmt = (float)($hr['amount'] ?? 0);
@@ -4103,6 +4125,7 @@ function buildDetailedAccountStatementForWhatsApp($pdo, $tenantId, $entityType, 
                 $hrStatus = (string)($hr['status'] ?? 'pending');
                 $hrIssue = trim((string)($hr['issue_reason'] ?? ''));
                 $hrVNo = trim((string)($hr['voucher_no'] ?? ''));
+                $hrCreatedTs = !empty($hr['created_at']) ? (int)strtotime($hr['created_at']) : 0;
                 $hrCustClean = preg_replace('/^(cust|supp?)-/i', '', trim((string)($hr['customer_id'] ?? '')));
                 $hrPhoneDigits = preg_replace('/\D/', '', (string)($hr['customer_phone'] ?? ''));
                 $hrPhoneTail = (strlen($hrPhoneDigits) >= 9) ? substr($hrPhoneDigits, -9) : '';
@@ -4110,7 +4133,8 @@ function buildDetailedAccountStatementForWhatsApp($pdo, $tenantId, $entityType, 
                     || ($entityName !== '' && trim((string)($hr['customer_name'] ?? '')) === $entityName)
                     || ($entityPhoneTail !== '' && $hrPhoneTail !== '' && $entityPhoneTail === $hrPhoneTail);
 
-                if ($isTargetParty && $hrStatus === 'pending' && ($hrAmt <= 0 || strlen($hrTr) < 6) && !empty($hr['receipt_image']) && ($hrIssue === '' || $hrIssue === 'zero_amount')) {
+                if ($ocrRetriedCount < 1 && $isTargetParty && $hrStatus === 'pending' && ($hrAmt <= 0 || strlen($hrTr) < 6) && !empty($hr['receipt_image']) && ($hrIssue === '' || ($hrIssue === 'zero_amount' && $hrCreatedTs >= $recentCutoffTs))) {
+                    $ocrRetriedCount++;
                     performBackendReceiptOCR($pdo, $hrId, false);
                 } elseif ($hrAmt > 0 && strlen($hrTr) >= 6 && ($hrStatus === 'verified' || $hrStatus === 'reconciled' || ($isTargetParty && $hrStatus === 'pending' && $hrIssue !== 'awaiting_posting_approval'))) {
                     if ($hrVNo === '' || !isset($activeVoucherMap[$hrVNo])) {
