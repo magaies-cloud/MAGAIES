@@ -1386,8 +1386,8 @@
                 });
             });
 
-            // 2. Get Sales
-            let sales = getStorageList('erp_sales_invoices_v1').filter(x => !x.deleted && x.status !== 'draft' && x.status !== 'preliminary' && x.status !== 'pending_delivery');
+            // 2. Get Sales (exclude deleted and archived split parent invoices)
+            let sales = getStorageList('erp_sales_invoices_v1').filter(x => !x.deleted && !x.wasSplit && x.status !== 'draft' && x.status !== 'preliminary' && x.status !== 'pending_delivery');
             sales.forEach(inv => {
                 let hdrWh = inv.warehouse;
                 
@@ -1429,7 +1429,7 @@
                         }
 
                         let typeCode = 'out';
-                        let typeName = 'فاتورة مبيعات';
+                        let typeName = inv.isSplit ? `فاتورة مبيعات مقسمة (أصل #${inv.rootInvoice || inv.parentInvoice} • تقسيم #${inv.splitBatchNo || 1})` : 'فاتورة مبيعات';
                         let valIn = 0;
                         let valOut = baseQty;
 

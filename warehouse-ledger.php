@@ -913,9 +913,9 @@
                 });
             });
 
-            // 2. Get Sales
+            // 2. Get Sales (exclude deleted and archived split parent invoices)
             let sales = getStorageList('erp_sales_invoices_v1');
-            sales = sales.filter(x => !x.deleted && x.status !== 'draft' && x.status !== 'preliminary');
+            sales = sales.filter(x => !x.deleted && !x.wasSplit && x.status !== 'draft' && x.status !== 'preliminary');
             sales.forEach(inv => {
                 let hdrWh = inv.warehouse;
                 
@@ -937,7 +937,7 @@
                         let docTarget = `sales-invoice.php?id=${inv.id || inv.invoiceNo}`;
 
                         let typeCode = 'out';
-                        let typeName = 'فاتورة مبيعات';
+                        let typeName = inv.isSplit ? `فاتورة مبيعات مقسمة (أصل #${inv.rootInvoice || inv.parentInvoice} • تقسيم #${inv.splitBatchNo || 1})` : 'فاتورة مبيعات';
                         let valIn = 0;
                         let valOut = baseQty;
 

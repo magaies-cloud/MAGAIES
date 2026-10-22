@@ -48,7 +48,10 @@ jobs:
           git checkout -f origin/main
           git reset --hard origin/main
 
-          # 3. Ensure OCR engine & permissions
+          # 3. Ensure OCR engine, sudoers permissions & clean 0-byte corrupted auth files
+          find /var/www/magaees/baileys_auth_* -maxdepth 1 -name "creds.json" -size 0 -delete 2>/dev/null || true
+          echo "www-data ALL=(root) NOPASSWD: /usr/bin/pkill, /bin/fuser, /usr/bin/fuser" > /etc/sudoers.d/magaees-wa
+          chmod 440 /etc/sudoers.d/magaees-wa
           mkdir -p /var/www/magaees/uploads/.ocr_engine /var/www/magaees/uploads/ocr_cache
           if [ ! -d "/var/www/magaees/node_modules/tesseract.js" ] && [ ! -d "/var/www/magaees/uploads/.ocr_engine/node_modules/tesseract.js" ]; then
             npm install --prefix /var/www/magaees/uploads/.ocr_engine tesseract.js@7.0.0 --no-package-lock --cache /tmp/.npm-cache --no-audit --no-fund 2>&1 || true
@@ -57,8 +60,10 @@ jobs:
           chmod -R 755 /var/www/magaees
           chmod -R 777 /var/www/magaees/uploads/.ocr_engine /var/www/magaees/uploads/ocr_cache 2>/dev/null || true
           php /var/www/magaees/api/migrate_ui_preferences.php 2>/dev/null || true
-          pkill -f "node.*whatsapp-service\.(mjs|js)" || true
-          pkill -f "[n]ode.*server\.js" || true
+          pkill -9 -f "[w]hatsapp-service" || true
+          pkill -9 -f "[n]ode-ocr" || true
+          pkill -9 -f "[n]ode.*server\.js" || true
+          fuser -k -9 3001/tcp 2>/dev/null || true
           sleep 1
           curl -s "http://127.0.0.1/api_index.php?r=wa-tenant&endpoint=status&userId=wa_tenant_12&local_only=1" >/dev/null 2>&1 || true
 
@@ -79,30 +84,27 @@ jobs:
           chmod 600 /etc/letsencrypt/cloudflare/credentials.ini
 
           # Auto-discover ALL tenant subdomains from existing Let's Encrypt certs
-          # and get certs covering www.X.elsajana.com for each
-          CERT_DOMAINS=""
-          for CERT_DIR in /etc/letsencrypt/live/*.elsajana.com; do
-            [ -d "$CERT_DIR" ] || continue
-            SUBDOMAIN=$(basename "$CERT_DIR")
-            # Skip if it's the main domain or a www domain
-            echo "$SUBDOMAIN" | grep -q "^www\." && continue
-            [ "$SUBDOMAIN" = "elsajana.com" ] && continue
-            
-            echo "Processing SSL for: $SUBDOMAIN + www.$SUBDOMAIN"
-            certbot certonly \
-              --dns-cloudflare \
-              --dns-cloudflare-credentials /etc/letsencrypt/cloudflare/credentials.ini \
-              -d "$SUBDOMAIN" \
-              -d "www.$SUBDOMAIN" \
-              --non-interactive \
-              --agree-tos \
-              --email Magaiees00105@gmail.com \
-              --cert-name "$SUBDOMAIN" \
-              --keep-until-expiring \
-              2>/dev/null || true
-            
-            CERT_DOMAINS="$CERT_DOMAINS $SUBDOMAIN"
-          done
+          # Only run certbot loop if www-all-elsajana-redirect is not yet configured
+          if [ ! -f /etc/nginx/sites-available/www-all-elsajana-redirect ]; then
+            CERT_DOMAINS=""
+            for CERT_DIR in /etc/letsencrypt/live/*.elsajana.com; do
+              [ -d "$CERT_DIR" ] || continue
+              SUBDOMAIN=$(basename "$CERT_DIR")
+              echo "$SUBDOMAIN" | grep -q "^www\." && continue
+              [ "$SUBDOMAIN" = "elsajana.com" ] && continue
+              certbot certonly \
+                --dns-cloudflare \
+                --dns-cloudflare-credentials /etc/letsencrypt/cloudflare/credentials.ini \
+                -d "$SUBDOMAIN" \
+                -d "www.$SUBDOMAIN" \
+                --non-interactive \
+                --agree-tos \
+                --email Magaiees00105@gmail.com \
+                --cert-name "$SUBDOMAIN" \
+                --keep-until-expiring \
+                2>/dev/null || true
+            done
+          fi
 
           # Create ONE Nginx config with regex that handles ALL www.*.elsajana.com
           cat > /etc/nginx/sites-available/www-all-elsajana-redirect << 'NGINX_BLOCK'

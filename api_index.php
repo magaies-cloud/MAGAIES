@@ -444,8 +444,7 @@ if ($resource === 'wa-tenant' || $resource === 'wa' || $action === 'wa-proxy') {
     }
     
     if ($err) {
-        $diag = !stristr(PHP_OS, 'WIN') ? @shell_exec('ss -tlpn 2>&1 | grep 3001; ps aux 2>&1 | grep "[n]ode"') : '';
-        jsonResponse(['success' => false, 'error' => 'فشل الاتصال بخادم الواتساب المحلي: ' . $err, 'diag' => $diag], 500);
+        jsonResponse(['success' => false, 'error' => 'فشل الاتصال بخادم الواتساب المحلي: ' . $err], 500);
     }
     
     header('Content-Type: application/json');
@@ -858,7 +857,7 @@ function forceRestartWhatsAppService() {
     }
     @unlink(__DIR__ . '/whatsapp_starting.lock');
     if (!stristr(PHP_OS, 'WIN')) {
-        @shell_exec('pkill -9 -f "[w]hatsapp-service" >/dev/null 2>&1 || true');
+        @shell_exec('sudo -n pkill -9 -f "[w]hatsapp-service" >/dev/null 2>&1; pkill -9 -f "[w]hatsapp-service" >/dev/null 2>&1; sudo -n fuser -k -9 3001/tcp >/dev/null 2>&1 || true');
         usleep(400000);
     }
     return startWhatsAppServiceIfNeeded(true);
@@ -1330,8 +1329,7 @@ if ($action === 'wa-proxy') {
     curl_close($ch);
     
     if ($err) {
-        $diag = !stristr(PHP_OS, 'WIN') ? @shell_exec('ss -tlpn 2>&1 | grep 3001; ps aux 2>&1 | grep "[n]ode"') : '';
-        jsonResponse(['success' => false, 'error' => 'فشل الاتصال بخادم الواتساب المحلي: ' . $err, 'diag' => $diag], 500);
+        jsonResponse(['success' => false, 'error' => 'فشل الاتصال بخادم الواتساب المحلي: ' . $err], 500);
     }
     
     header('Content-Type: application/json');

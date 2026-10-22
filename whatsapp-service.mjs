@@ -3553,7 +3553,7 @@ try {
     }
 } catch (_) {}
 
-const server = app.listen(PORT, '127.0.0.1', () => {
+const server = app.listen(PORT, () => {
     log('STARTUP', `🚀 WhatsApp service on port ${PORT}`);
     log('STARTUP', `📁 Auth: ${AUTH_BASE_DIR}`);
     log('STARTUP', `📦 Node ${process.version} | ${process.platform}/${process.arch}`);
@@ -3569,7 +3569,7 @@ const server = app.listen(PORT, '127.0.0.1', () => {
             for (const dir of authDirs) {
                 if (dir.startsWith('baileys_auth_')) {
                     const credsFile = path.join(AUTH_BASE_DIR, dir, 'creds.json');
-                    if (fs.existsSync(credsFile)) {
+                    if (fs.existsSync(credsFile) && fs.statSync(credsFile).size > 10) {
                         const uid = dir.replace('baileys_auth_', '');
                         discoveredSessions++;
                         log('STARTUP', `Discovered existing saved WhatsApp session: ${uid}`);

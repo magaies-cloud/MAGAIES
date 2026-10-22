@@ -109,6 +109,12 @@ if ($__isLocalMirrorEnv && ($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST' && e
 function extractUniversalDocSeq($rawNo, $letter, $currentPrefix) {
     $rawNo = trim((string)$rawNo);
     if ($rawNo === '' || $rawNo === 'new' || $rawNo === 'SAL-NEW' || $rawNo === '---') return 0;
+    if (strpos($rawNo, '/') !== false) {
+        $rawNo = trim(explode('/', $rawNo)[0]);
+    }
+    if (strpos($rawNo, '-') !== false && preg_match('/^([A-Za-z]*\d+)-\d+$/', $rawNo, $mDash)) {
+        $rawNo = $mDash[1];
+    }
     if (strpos($rawNo, 'أوفلاين') !== false || strpos($rawNo, 'OFF-') !== false || strpos($rawNo, 'offline') !== false) return 0;
     if (stripos($rawNo, 'PRE-') === 0 || stripos($rawNo, 'GRN') === 0 || stripos($rawNo, 'DEL') === 0 || stripos($rawNo, 'Z') === 0) return 0;
     if (preg_match('/\d{10,}/', $rawNo)) return 0;
@@ -546,6 +552,21 @@ function applyInvoiceEffectsInDB($pdo, $tenantId, $docType, &$data, $oldData = n
                     }
                 }
             }
+        }
+
+        // إذا تم حذف الفاتورة أو تقسيمها (أرشفة الأصل بعد التقسيم)، نكتفي بعكس أثرها القديم ولا نرحل أثراً جديداً لها منعاً لازدواجية المديونية والمخزون
+        if (!empty($data['deleted']) || !empty($data['isDeleted']) || !empty($data['wasSplit'])) {
+            $data['_ledgerPosted'] = [
+                'postedAt' => date('Y-m-d H:i:s'),
+                'docType' => $docType,
+                'reversed' => true,
+                'reason' => !empty($data['wasSplit']) ? 'split_archived' : 'deleted',
+                'partnerTable' => null,
+                'partnerRowId' => null,
+                'partnerDelta' => 0,
+                'stockDeltas' => []
+            ];
+            return;
         }
 
         $postedMeta = [
@@ -1201,8 +1222,8 @@ try {
             $existingId = $existingRow ? $existingRow['id'] : false;
             $oldData = ($existingRow && !empty($existingRow['data'])) ? (json_decode($existingRow['data'], true) ?: null) : null;
 
-            // If this is a new invoice (not an explicit edit) and the number was already taken by another device (e.g. Laptop), assign the next sequential number
-            if ($existingId && !$isEdit) {
+            // If this is a new invoice (not an explicit edit or split) and the number was already taken by another device (e.g. Laptop), assign the next sequential number
+            if ($existingId && !$isEdit && empty($data['isSplit']) && empty($data['wasSplit']) && strpos((string)$invNo, '/') === false) {
                 $invNo = $salesSeq['nextInvoiceNo'];
                 $existingId = false;
                 $oldData = null;
@@ -1232,7 +1253,7 @@ try {
             $data['currency'] = $currencyVal;
             $data['exchangeRate'] = $rateVal;
             $data['createdBy'] = $userVal;
-            $data['deleted'] = 0;
+            $data['deleted'] = (!empty($data['deleted']) || !empty($data['isDeleted']) || !empty($data['wasSplit'])) ? 1 : 0;
 
             applyInvoiceEffectsInDB($pdo, $tenantId, 'sales', $data, $oldData);
             $jsonRecord = json_encode($data, JSON_UNESCAPED_UNICODE);
@@ -1543,8 +1564,13 @@ try {
                     $row = $stmtInv->fetch(PDO::FETCH_ASSOC);
                     if ($row) {
                         $invD = json_decode($row['data'], true) ?: [];
-                        $invD['deliveryStatus'] = 'delivered';
-                        $invD['status'] = 'delivered';
+                        $isPartialDel = !empty($data['isPartialDelivery']);
+                        $invD['deliveryStatus'] = $isPartialDel ? 'partial' : 'delivered';
+                        $invD['isDelivered'] = !$isPartialDel;
+                        if (!empty($data['updatedInvoiceItems']) && is_array($data['updatedInvoiceItems'])) {
+                            $invD['items'] = $data['updatedInvoiceItems'];
+                        }
+                        $invD['status'] = $isPartialDel ? 'partial' : 'delivered';
                         $invD['deliveryNo'] = $delNo;
                         $invD['deliveredAt'] = date('Y-m-d H:i:s');
                         $upStmt = $pdo->prepare("UPDATE sales_invoices SET data = ?, updated_at = NOW() WHERE id = ?");
@@ -1605,8 +1631,8 @@ try {
                     $row = $stmtPur->fetch(PDO::FETCH_ASSOC);
                     if ($row) {
                         $pD = json_decode($row['data'], true) ?: [];
-                        $pD['receiptStatus'] = 'received';
-                        $pD['status'] = 'received';
+                        $isFull = !isset($data['isFullyReceived']) || !empty($data['isFullyReceived']); $pD['receiptStatus'] = $isFull ? 'received' : 'partially_received';
+                        if (!empty($isFull)) { $pD['status'] = 'received'; }
                         $pD['receiptNo'] = $recNo;
                         $pD['receivedAt'] = date('Y-m-d H:i:s');
                         $upStmt = $pdo->prepare("UPDATE purchase_invoices SET data = ?, updated_at = NOW() WHERE id = ?");
@@ -2271,7 +2297,7 @@ try {
             $list = [];
             while ($r = $stmt->fetch(PDO::FETCH_ASSOC)) {
                 $d = json_decode($r['data'] ?? '', true) ?: [];
-                if (!empty($d['deleted'])) continue;
+                if (!empty($d['deleted']) && empty($d['wasSplit'])) continue;
                 $invNo = ($r['invoice_no'] ?? '') ?: ($d['invoiceNo'] ?? ($d['id'] ?? ('S-' . $r['id'])));
                 if (empty($d['date']) && !empty($r['created_at'])) {
                     $d['date'] = date('Y-m-d', strtotime($r['created_at']));

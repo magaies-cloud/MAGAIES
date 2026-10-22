@@ -1033,9 +1033,9 @@ function loadData() {
     customersFromPartners.forEach(c => { if (!merged.has(c.id)) merged.set(c.id, c); });
     allCustomers = Array.from(merged.values());
 
-    // Load invoices (sales)
+    // Load invoices (sales) — exclude deleted and archived split parent invoices
     allInvoices = (JSON.parse(localStorage.getItem('erp_sales_invoices_v1') || '[]'))
-        .filter(x => !x.deleted);
+        .filter(x => !x.deleted && !x.wasSplit);
 
     // Load receipts (payments received from customers)
     allReceipts = (JSON.parse(localStorage.getItem('erp_receipts_v1') || '[]'))
@@ -1241,11 +1241,12 @@ function generateReport() {
         // Collect all transactions for the timeline
         let allTxns = [];
         customerSales.forEach(inv => {
+            const splitRef = inv.isSplit ? ` [✂️ أصل #${inv.rootInvoice || inv.parentInvoice} • تقسيم #${inv.splitBatchNo || 1}]` : '';
             allTxns.push({
                 date: inv.date || inv.createdAt || '',
                 amount: parseFloat(inv.netTotal || inv.total || inv.grandTotal || inv.amount) || 0,
                 type: 'sale',
-                description: inv.description || inv.invoiceNumber || 'فاتورة بيع'
+                description: (inv.description || (inv.invoiceNo ? `فاتورة #${inv.invoiceNo}` : inv.invoiceNumber) || 'فاتورة بيع') + splitRef
             });
         });
         allTxns = allTxns.concat(customerReceipts);

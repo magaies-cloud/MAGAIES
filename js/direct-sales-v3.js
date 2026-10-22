@@ -1637,7 +1637,14 @@ function loadInvoiceFromStorage(invNo, opts = {}) {
                 r.name = r.itemName;
                 r.selectedUnit = unitStr || (matchedItem ? matchedItem.unit : 'حبة');
                 r.unit = r.selectedUnit;
-                r.customFactor = i.customFactor !== undefined ? i.customFactor : (i.factor !== undefined ? i.factor : 1);
+                let resolvedRowFactor = parseFloat(i.customFactor ?? i.factor ?? i.unitFactor ?? 0);
+                if ((!resolvedRowFactor || resolvedRowFactor <= 1) && matchedItem && Array.isArray(matchedItem.unitsArray)) {
+                    const matchedU = matchedItem.unitsArray.find(u => String(u.name || u.unitName || '').trim() === String(r.selectedUnit || '').trim());
+                    if (matchedU && parseFloat(matchedU.factor) > 1) {
+                        resolvedRowFactor = parseFloat(matchedU.factor);
+                    }
+                }
+                r.customFactor = resolvedRowFactor > 0 ? resolvedRowFactor : 1;
                 r.quantity = parseFloat(i.quantity !== undefined ? i.quantity : (i.qty !== undefined ? i.qty : 1)) || 0;
                 r.qty = r.quantity;
                 if (i.customBaseQty !== undefined) r.customBaseQty = i.customBaseQty;
@@ -5791,10 +5798,165 @@ async function sendCurrentInvoiceWA() {
 // ════════════════════════════════════════════════════════════
 
 let activeSplitInvoice = null;
-
 let _isFetchingSplitSync = false;
+window.splitSectionsCount = 2;
+window.currentSplitOperationSeq = 1;
+window._splitSectionMeta = {};
+window._splitReturnToView = null;
+
+window.getRootInvoiceNo = function(invOrNo) {
+    if (!invOrNo) return '';
+    if (typeof invOrNo === 'object') {
+        if (invOrNo.rootInvoice) return String(invOrNo.rootInvoice).split('/')[0].trim();
+        if (invOrNo.parentInvoice) return String(invOrNo.parentInvoice).split('/')[0].trim();
+        const raw = String(invOrNo.invoiceNo || invOrNo.serial || invOrNo.id || '').trim();
+        return raw.split('/')[0].replace(/-\d+$/, '').trim();
+    }
+    return String(invOrNo).split('/')[0].replace(/-\d+$/, '').trim();
+};
+
+window.parseSplitInvoiceParts = function(invOrNo) {
+    const invObj = typeof invOrNo === 'object' ? invOrNo : null;
+    const rawNo = String(invObj ? (invObj.invoiceNo || invObj.serial || invObj.id || '') : (invOrNo || '')).trim();
+    const slashMatch = rawNo.match(/^([^\/]+)\/(\d+)\/(\d+)$/);
+    if (slashMatch) {
+        return {
+            isSplit: true,
+            fullNo: rawNo,
+            rootInvoice: invObj?.rootInvoice || slashMatch[1],
+            parentInvoice: invObj?.parentInvoice || slashMatch[1],
+            splitBatchNo: parseInt(slashMatch[2], 10),
+            splitBranchIndex: parseInt(slashMatch[3], 10),
+            splitTotalBranches: invObj?.splitTotalBranches || 2
+        };
+    }
+    if (invObj && (invObj.isSplit || invObj.parentInvoice || invObj.splitBatchNo)) {
+        return {
+            isSplit: true,
+            fullNo: rawNo,
+            rootInvoice: invObj.rootInvoice || window.getRootInvoiceNo(invObj),
+            parentInvoice: invObj.parentInvoice || window.getRootInvoiceNo(invObj),
+            splitBatchNo: invObj.splitBatchNo || 1,
+            splitBranchIndex: invObj.splitBranchIndex || 1,
+            splitTotalBranches: invObj.splitTotalBranches || 2
+        };
+    }
+    return { isSplit: false, fullNo: rawNo };
+};
+
+window.renderSplitGenealogyBadge = function(invOrNo, compact = false) {
+    const info = window.parseSplitInvoiceParts(invOrNo);
+    const invObj = typeof invOrNo === 'object' ? invOrNo : null;
+    if (!info.isSplit && !(invObj && invObj.wasSplit)) return '';
+    const escNo = String(info.fullNo).replace(/'/g, "\\'");
+    if (invObj && invObj.wasSplit) {
+        const children = Array.isArray(invObj.splitTo) ? invObj.splitTo.join(' ، ') : '';
+        return `<span onclick="event.stopPropagation(); window.openSplitGenealogyModal('${escNo}')" class="kinetic-split-genealogy-pill" title="اضغط لعرض شجرة التقسيم الكاملة" style="cursor:pointer; display:inline-flex; align-items:center; gap:5px; background:linear-gradient(135deg, rgba(236,72,153,0.22), rgba(139,92,246,0.22)); border:1px solid rgba(244,114,182,0.55); color:#f9a8d4; padding:2px 9px; border-radius:99px; font-size:0.74rem; font-weight:900; box-shadow:0 0 12px rgba(236,72,153,0.25);">✂️ قُسّم إلى: ${children || 'أقسام فرعية'}</span>`;
+    }
+    if (compact) {
+        return `<span onclick="event.stopPropagation(); window.openSplitGenealogyModal('${escNo}')" class="kinetic-split-genealogy-pill" title="أصل الإذن #${info.rootInvoice} | عملية التقسيم #${info.splitBatchNo} | القسم ${info.splitBranchIndex} — اضغط لعرض شجرة التقسيم" style="cursor:pointer; display:inline-flex; align-items:center; gap:4px; background:linear-gradient(135deg, rgba(236,72,153,0.2), rgba(56,189,248,0.18)); border:1px solid rgba(244,114,182,0.5); color:#fbcfe8; padding:2px 8px; border-radius:99px; font-size:0.72rem; font-weight:900; box-shadow:0 0 10px rgba(236,72,153,0.22);">🔗 أصل #${info.rootInvoice} • تقسيم #${info.splitBatchNo} • قسم ${info.splitBranchIndex}/${info.splitTotalBranches}</span>`;
+    }
+    return `<div onclick="event.stopPropagation(); window.openSplitGenealogyModal('${escNo}')" class="kinetic-split-genealogy-pill" title="اضغط لفتح شجرة عائلة الإذن وتتبع جميع الأقسام" style="cursor:pointer; margin-top:4px; display:inline-flex; align-items:center; gap:5px; background:linear-gradient(135deg, rgba(236,72,153,0.22), rgba(99,102,241,0.22)); border:1px solid rgba(244,114,182,0.55); color:#f9a8d4; padding:3px 10px; border-radius:99px; font-size:0.74rem; font-weight:900; box-shadow:0 0 14px rgba(236,72,153,0.28); transition:all 0.2s;">
+        <span>✂️</span>
+        <span>أصل الإذن: <strong style="color:#38bdf8;">#${info.rootInvoice}</strong></span>
+        <span style="opacity:0.6;">|</span>
+        <span>تقسيم: <strong style="color:#fcd34d;">#${info.splitBatchNo}</strong></span>
+        <span style="opacity:0.6;">|</span>
+        <span>قسم <strong style="color:#6ee7b7;">${info.splitBranchIndex}</strong> من ${info.splitTotalBranches}</span>
+    </div>`;
+};
+
+window.getNextSplitSequenceNo = function() {
+    let maxSeq = parseInt(localStorage.getItem('erp_sales_split_seq_v1') || '0', 10) || 0;
+    try {
+        const allSales = JSON.parse(localStorage.getItem('erp_sales_invoices_v1') || '[]');
+        allSales.forEach(inv => {
+            if (inv.splitBatchNo && parseInt(inv.splitBatchNo, 10) > maxSeq) {
+                maxSeq = parseInt(inv.splitBatchNo, 10);
+            }
+            const rawNo = String(inv.invoiceNo || inv.id || '');
+            const m = rawNo.match(/^[^\/]+\/(\d+)\/\d+$/);
+            if (m && parseInt(m[1], 10) > maxSeq) {
+                maxSeq = parseInt(m[1], 10);
+            }
+        });
+    } catch (e) {}
+    return maxSeq + 1;
+};
+
+window.resolveSplitItemUnitMeta = function(item) {
+    const richMeta = (typeof window.resolveItemMeta === 'function') ? window.resolveItemMeta(item) : null;
+    let masterItem = richMeta ? richMeta.master : null;
+    if (!masterItem) {
+        try {
+            const itemsList = (typeof ITEMS !== 'undefined' && Array.isArray(ITEMS) && ITEMS.length)
+                ? ITEMS
+                : JSON.parse(localStorage.getItem('erp_items_v1') || '[]');
+            masterItem = itemsList.find(i =>
+                String(i.id) === String(item.itemId || item.id) ||
+                String(i.name || '').trim() === String(item.itemName || item.name || '').trim()
+            );
+        } catch (e) {}
+    }
+
+    const name = richMeta ? richMeta.name : (masterItem ? masterItem.name : (item.itemName || item.name || 'صنف غير معروف'));
+    const primaryUnit = richMeta ? richMeta.unit : (item.selectedUnit || item.unit || (masterItem && (masterItem.unit || masterItem.mainUnit)) || 'طن');
+    let baseUnit = richMeta ? richMeta.baseUnit : (item.baseUnit || (masterItem && (masterItem.baseUnit || masterItem.subUnit || masterItem.smallUnit)) || 'وحدة');
+    let factor = richMeta ? parseFloat(richMeta.factor) : parseFloat(item.unitFactor || item.factor || item.conversionFactor || (masterItem && (masterItem.conversionFactor || masterItem.unitFactor || masterItem.piecesPerTon)) || 1);
+    if (isNaN(factor) || factor <= 0) factor = 1;
+    if (baseUnit === primaryUnit && factor === 1) {
+        baseUnit = 'وحدة فرعية';
+    }
+
+    const origQty = parseFloat(item.quantity ?? item.qty ?? 0) || 0;
+    const deliveredQty = parseFloat(item.deliveredQty || 0) || 0;
+    const deliverableQty = Math.max(0, +(origQty - deliveredQty).toFixed(4));
+    const deliverableBaseQty = +(deliverableQty * factor).toFixed(2);
+    const price = parseFloat(item.price ?? (richMeta ? richMeta.price : 0)) || 0;
+    const tonRefHint = (richMeta && richMeta.tonRefHint) ? richMeta.tonRefHint : (factor > 1 ? `1 ${primaryUnit} = ${factor} ${baseUnit}` : `1 ${primaryUnit} = 1 ${baseUnit}`);
+
+    return {
+        name,
+        primaryUnit,
+        baseUnit,
+        factor,
+        tonRefHint,
+        hasMultiUnits: factor > 1 || (primaryUnit !== baseUnit && baseUnit !== 'وحدة فرعية'),
+        origQty,
+        deliveredQty,
+        deliverableQty,
+        deliverableBaseQty,
+        price
+    };
+};
+
+window.splitUnitDisplayMode = window.splitUnitDisplayMode || 'both'; // 'both' | 'primary' | 'base'
+window.setSplitUnitDisplayMode = function(mode) {
+    window.splitUnitDisplayMode = mode || 'both';
+    window.saveCurrentSplitDraftState();
+    renderWorldClassSplitBoard();
+};
+
+window.openSplitForInvoiceFromDelivery = function(invoiceNo, preferredUnitMode = null) {
+    if (!invoiceNo) return;
+    window._splitReturnToView = 'hub';
+    if (preferredUnitMode) window.splitUnitDisplayMode = preferredUnitMode;
+    if (typeof closeDeliveryConfirmationModal === 'function') {
+        closeDeliveryConfirmationModal();
+    } else {
+        const m = document.getElementById('delivery-confirmation-modal');
+        if (m) m.style.display = 'none';
+    }
+    if (typeof openSplitInvoiceView === 'function') {
+        openSplitInvoiceView(true);
+    }
+    setTimeout(() => {
+        startInvoiceSplit(String(invoiceNo), preferredUnitMode);
+    }, 20);
+};
+
 function loadSplitInvoices(skipRemoteFetch = false) {
-    const searchVal = document.getElementById('split-invoice-search')?.value.toLowerCase() || '';
+    const searchVal = (document.getElementById('split-invoice-search')?.value || '').trim().toLowerCase();
     const tbody = document.getElementById('split-invoices-body');
     const emptyState = document.getElementById('split-empty-state');
     if (!tbody) return;
@@ -5812,12 +5974,14 @@ function loadSplitInvoices(skipRemoteFetch = false) {
                     res.sales.forEach(s => {
                         const invNo = s.invoiceNo || s.id;
                         if (!invNo) return;
-                        const idx = localSales.findIndex(x => (x.invoiceNo || x.id) === invNo);
+                        const idx = localSales.findIndex(x => String(x.invoiceNo || x.id) === String(invNo));
                         if (idx === -1) {
-                            localSales.unshift(s);
-                            updated = true;
+                            if (!s.deleted && !s.wasSplit) {
+                                localSales.unshift(s);
+                                updated = true;
+                            }
                         } else if (s.wasSplit && !localSales[idx].wasSplit) {
-                            localSales[idx] = Object.assign({}, localSales[idx], s);
+                            localSales[idx] = Object.assign({}, localSales[idx], s, { deleted: true, wasSplit: true });
                             updated = true;
                         }
                     });
@@ -5835,20 +5999,27 @@ function loadSplitInvoices(skipRemoteFetch = false) {
         invoices = JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || [];
     } catch(e) {}
     
-    const eligible = invoices.filter(inv => 
-        !inv.deleted && 
-        inv.status !== 'draft' &&
-        inv.deliveryStatus !== 'delivered' &&
-        inv.saleType !== 'preliminary' &&
-        (!inv.wasSplit)
-    );
+    const eligible = invoices.filter(inv => {
+        if (inv.deleted || inv.wasSplit) return false;
+        if (inv.status === 'draft' || inv.saleType === 'preliminary' || inv.status === 'preliminary') return false;
+        const isFullyDelivered = inv.isDelivered === true || inv.deliveryStatus === 'delivered' || inv.deliveryStatus === 'Admin_Closed';
+        if (isFullyDelivered) return false;
+        const items = Array.isArray(inv.items) ? inv.items : [];
+        const hasRem = items.some(it => (parseFloat(it.quantity ?? it.qty ?? 0) - parseFloat(it.deliveredQty || 0)) > 0.0001);
+        return hasRem || items.length > 0;
+    });
     
     const filtered = eligible.filter(inv => {
-        const no = (inv.invoiceNo || inv.id || '').toLowerCase();
-        const custName = (inv.customerName || inv.customer || '').toLowerCase();
+        if (!searchVal) return true;
+        const no = String(inv.invoiceNo || inv.id || '').toLowerCase();
+        const rootNo = window.getRootInvoiceNo(inv).toLowerCase();
+        const custName = String(inv.customerName || inv.customer || '').toLowerCase();
         const total = String(inv.grandTotal || inv.total || '').toLowerCase();
-        return no.includes(searchVal) || custName.includes(searchVal) || total.includes(searchVal);
+        const itemsStr = (inv.items || []).map(i => window.resolveSplitItemUnitMeta(i).name).join(' ').toLowerCase();
+        return no.includes(searchVal) || rootNo.includes(searchVal) || custName.includes(searchVal) || total.includes(searchVal) || itemsStr.includes(searchVal);
     });
+
+    filtered.sort((a, b) => new Date(b.timestamp || b.date || 0) - new Date(a.timestamp || a.date || 0));
     
     if (filtered.length === 0) {
         tbody.innerHTML = '';
@@ -5858,20 +6029,63 @@ function loadSplitInvoices(skipRemoteFetch = false) {
     
     if (emptyState) emptyState.style.display = 'none';
     tbody.innerHTML = '';
+    const nextSplitSeq = window.getNextSplitSequenceNo();
     
     filtered.forEach(inv => {
-        const invNo = inv.invoiceNo || inv.id || '';
+        const invNo = String(inv.invoiceNo || inv.id || '');
+        const rootNo = window.getRootInvoiceNo(inv);
+        const escInvNo = invNo.replace(/'/g, "\\'");
         const invTotal = parseFloat(inv.grandTotal ?? inv.total ?? 0) || 0;
+        const items = Array.isArray(inv.items) ? inv.items : [];
+        let remSummary = items.map(it => {
+            const m = window.resolveSplitItemUnitMeta(it);
+            return `
+                <div style="display:inline-flex; align-items:center; gap:5px; background:rgba(15,23,42,0.85); border:1px solid rgba(56,189,248,0.3); padding:3px 8px; border-radius:8px; font-size:0.78rem; font-weight:800;">
+                    <span style="color:#f8fafc;">${m.name}:</span>
+                    <button type="button" onclick="startInvoiceSplit('${escInvNo}', 'primary')" style="background:rgba(16,185,129,0.18); border:1px solid rgba(52,211,153,0.45); color:#6ee7b7; padding:2px 7px; border-radius:6px; font-weight:900; font-size:0.76rem; cursor:pointer;" title="تقسيم بالوحدة الأساسية (${m.primaryUnit})">📦 ${m.deliverableQty} ${m.primaryUnit}</button>
+                    ${m.factor > 1 ? `<button type="button" onclick="startInvoiceSplit('${escInvNo}', 'base')" style="background:rgba(99,102,241,0.2); border:1px solid rgba(129,140,248,0.5); color:#c4b5fd; padding:2px 7px; border-radius:6px; font-weight:900; font-size:0.75rem; cursor:pointer;" title="تقسيم بالوحدة الفرعية (${m.baseUnit})">🔢 ⇄ ${m.deliverableBaseQty.toLocaleString('en-US')} ${m.baseUnit}</button>` : ''}
+                </div>
+            `;
+        }).join(' ');
+
+        const isPartial = inv.deliveryStatus === 'partial';
+        const statusHtml = isPartial
+            ? `<span class="badge" style="background:rgba(245,158,11,0.18); border:1px solid rgba(251,191,36,0.4); color:#fcd34d; padding:5px 10px; border-radius:8px; font-size:0.85rem; font-weight:900;">🌗 متبقي للتسليم</span>`
+            : `<span class="badge draft" style="padding:5px 10px; border-radius:8px; font-size:0.85rem; font-weight:900;">⏳ بانتظار التسليم</span>`;
+
         const tr = document.createElement('tr');
         tr.innerHTML = `
-            <td><strong style="color: #38bdf8; font-size: 1.15rem;">${invNo}</strong></td>
-            <td><span style="font-weight: 800; font-size: 1.05rem; color:#cbd5e1;">${inv.date || ''}</span></td>
-            <td><span style="font-weight: bold; font-size: 1.1rem; color:#fff;">${inv.customerName || 'عميل نقدي'}</span></td>
-            <td><span class="badge" style="background: rgba(99,102,241,0.2); color: #a5b4fc; padding: 6px 12px; border-radius: 8px; font-size: 0.95rem; font-weight: 900; display: inline-flex; align-items: center; gap: 4px;">${inv.paymentMethod === 'credit' ? '✍️ آجل' : '💵 نقدي'}</span></td>
-            <td style="text-align: left; font-family: monospace; font-weight: 900; font-size: 1.3rem; color: #fff;">${invTotal.toLocaleString()} <span style="font-size:0.8rem; color:#94a3b8; font-family:'Tajawal', sans-serif;">SDG</span></td>
-            <td style="text-align: center;"><span class="badge draft" style="padding: 6px 12px; border-radius: 8px; font-size: 0.95rem; font-weight: 900;">بانتظار التسليم</span></td>
-            <td style="text-align: center;">
-                <button class="btn-action" style="width: auto; padding: 6px 16px; font-size: 0.95rem; font-weight: 800; background: rgba(236,72,153,0.2); color: #f472b6; border: 1px solid rgba(236,72,153,0.45); border-radius: 8px; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='rgba(236,72,153,0.35)'" onmouseout="this.style.background='rgba(236,72,153,0.2)'" onclick="startInvoiceSplit('${invNo}')">تقسيم الفاتورة ✂️</button>
+            <td>
+                <div style="display:flex; flex-direction:column; gap:3px;">
+                    <strong style="color:#38bdf8; font-size:1.12rem; font-family:'Outfit',monospace;">#${invNo}</strong>
+                    ${window.renderSplitGenealogyBadge(inv, true)}
+                    <span style="font-size:0.73rem; color:#94a3b8;">سيُقسم إلى: <strong style="color:#f472b6; font-family:monospace;">${rootNo}/${nextSplitSeq}/1</strong> و <strong style="color:#38bdf8; font-family:monospace;">${rootNo}/${nextSplitSeq}/2</strong></span>
+                </div>
+            </td>
+            <td><span style="font-weight:800; font-size:0.98rem; color:#cbd5e1;">${inv.date || ''}</span></td>
+            <td>
+                <div style="font-weight:900; font-size:1.02rem; color:#fff;">👤 ${inv.customerName || 'عميل نقدي'}</div>
+                <div style="margin-top:4px; display:flex; flex-wrap:wrap; gap:5px;">${remSummary}</div>
+            </td>
+            <td style="text-align:center;"><span class="badge" style="background:rgba(99,102,241,0.2); color:#a5b4fc; padding:5px 10px; border-radius:8px; font-size:0.88rem; font-weight:900; display:inline-flex; align-items:center; gap:4px;">${inv.paymentMethod === 'credit' ? '✍️ آجل' : '💵 نقدي'}</span></td>
+            <td style="text-align:left; font-family:monospace; font-weight:900; font-size:1.2rem; color:#10b981;">${invTotal.toLocaleString()} <span style="font-size:0.78rem; color:#94a3b8; font-family:'Tajawal',sans-serif;">${inv.currency || 'SDG'}</span></td>
+            <td style="text-align:center;">${statusHtml}</td>
+            <td style="text-align:center;">
+                <div style="display:flex; gap:6px; justify-content:center; flex-wrap:wrap;">
+                    <button class="btn-action kinetic-glow-arm kinetic-arm-pink" style="width:auto; padding:7px 14px; font-size:0.86rem; font-weight:900; border-radius:10px; cursor:pointer;" onclick="startInvoiceSplit('${escInvNo}')">
+                        ✂️ تقسيم
+                    </button>
+                    <button class="btn-action kinetic-glow-arm kinetic-arm-emerald" style="width:auto; padding:7px 14px; font-size:0.86rem; font-weight:900; border-radius:10px; cursor:pointer;" onclick="if(typeof window.openDeliveryForInvoiceFromHub==='function') window.openDeliveryForInvoiceFromHub('${escInvNo}')" title="الانتقال الفوري لتسليم وصرف هذا الإذن">
+                        📦 تسليم
+                    </button>
+                    ${(inv.isSplit || inv.parentInvoice) ? `
+                    <button class="btn-action kinetic-glow-arm kinetic-arm-cyan" style="width:auto; padding:7px 10px; font-size:0.8rem; font-weight:900; border-radius:10px; cursor:pointer;" onclick="window.printSplitFamilyVouchers('${escInvNo}')" title="طباعة الجزئين / جميع الأذونات المقسمة">
+                        🖨️ الجزئين
+                    </button>
+                    <button class="btn-action kinetic-glow-arm kinetic-arm-cyan" style="width:auto; padding:7px 10px; font-size:0.8rem; font-weight:900; border-radius:10px; cursor:pointer;" onclick="window.openSplitGenealogyModal('${escInvNo}')" title="شجرة التقسيم">
+                        🌳
+                    </button>` : ''}
+                </div>
             </td>
         `;
         tbody.appendChild(tr);
@@ -5882,377 +6096,886 @@ function filterSplitInvoices() {
     loadSplitInvoices(true);
 }
 
-function startInvoiceSplit(invoiceNo) {
+const SPLIT_SECTION_PALETTE = [
+    { name: 'القسم الأول (1)', color: '#38bdf8', bg: 'rgba(56,189,248,0.08)', border: 'rgba(56,189,248,0.55)', glow: 'rgba(56,189,248,0.28)' },
+    { name: 'القسم الثاني (2)', color: '#ec4899', bg: 'rgba(236,72,153,0.08)', border: 'rgba(236,72,153,0.55)', glow: 'rgba(236,72,153,0.28)' },
+    { name: 'القسم الثالث (3)', color: '#10b981', bg: 'rgba(16,185,129,0.08)', border: 'rgba(16,185,129,0.55)', glow: 'rgba(16,185,129,0.28)' },
+    { name: 'القسم الرابع (4)', color: '#f59e0b', bg: 'rgba(245,158,11,0.08)', border: 'rgba(245,158,11,0.55)', glow: 'rgba(245,158,11,0.28)' },
+    { name: 'القسم الخامس (5)', color: '#a855f7', bg: 'rgba(168,85,247,0.08)', border: 'rgba(168,85,247,0.55)', glow: 'rgba(168,85,247,0.28)' },
+    { name: 'القسم السادس (6)', color: '#14b8a6', bg: 'rgba(20,184,166,0.08)', border: 'rgba(20,184,166,0.55)', glow: 'rgba(20,184,166,0.28)' }
+];
+
+function getSplitPalette(secIdx) {
+    const base = SPLIT_SECTION_PALETTE[secIdx % SPLIT_SECTION_PALETTE.length];
+    return {
+        ...base,
+        title: `القسم (${secIdx + 1})`
+    };
+}
+
+function startInvoiceSplit(invoiceNo, preferredUnitMode = null) {
     let invoices = [];
     try {
         invoices = JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || [];
     } catch(e) {}
     
-    const inv = invoices.find(x => x.invoiceNo === invoiceNo);
+    const inv = invoices.find(x => String(x.invoiceNo || x.id) === String(invoiceNo));
     if (!inv) {
-        alert('حدث خطأ: لم يتم العثور على الفاتورة المحددة!');
+        if (typeof showToast === 'function') showToast('❌ لم يتم العثور على الإذن المحدد للتقسيم', 'error');
+        else alert('حدث خطأ: لم يتم العثور على الفاتورة المحددة!');
         return;
     }
     
     activeSplitInvoice = JSON.parse(JSON.stringify(inv));
+    window.activeSplitInvoice = activeSplitInvoice;
+    window.splitSectionsCount = 2;
+    window.currentSplitOperationSeq = window.getNextSplitSequenceNo();
+    window._splitSectionMeta = {};
+    if (preferredUnitMode) {
+        window.splitUnitDisplayMode = preferredUnitMode;
+    } else if (!window.splitUnitDisplayMode) {
+        window.splitUnitDisplayMode = 'both';
+    }
+
+    activeSplitInvoice._splitDraftQtys = {};
+    (activeSplitInvoice.items || []).forEach((item, idx) => {
+        const meta = window.resolveSplitItemUnitMeta(item);
+        const rem = meta.deliverableQty;
+        let q1 = rem > 1 ? Math.ceil(rem / 2) : +(rem / 2).toFixed(3);
+        if (rem === 5) q1 = 3;
+        let q2 = Math.max(0, +(rem - q1).toFixed(4));
+        activeSplitInvoice._splitDraftQtys[idx] = [q1, q2];
+    });
     
     document.getElementById('split-select-step').style.display = 'none';
     document.getElementById('split-board-step').style.display = 'flex';
     
+    renderWorldClassSplitBoard();
+}
+
+window.saveCurrentSplitDraftState = function() {
+    if (!activeSplitInvoice) return;
+    const S = window.splitSectionsCount || 2;
+    (activeSplitInvoice.items || []).forEach((item, idx) => {
+        const arr = [];
+        for (let s = 0; s < S; s++) {
+            const inp = document.getElementById(`split-qty-s${s}-i${idx}`);
+            if (inp) {
+                arr.push(parseFloat(inp.value) || 0);
+            } else {
+                const subInp = document.getElementById(`split-subqty-s${s}-i${idx}`);
+                const meta = window.resolveSplitItemUnitMeta(item);
+                const subVal = subInp ? (parseFloat(subInp.value) || 0) : ((activeSplitInvoice._splitDraftQtys?.[idx]?.[s] || 0) * meta.factor);
+                arr.push(meta.factor > 0 ? +(subVal / meta.factor).toFixed(4) : subVal);
+            }
+        }
+        activeSplitInvoice._splitDraftQtys[idx] = arr;
+    });
+    for (let s = 0; s < S; s++) {
+        const recEl = document.getElementById(`split-sec-receiver-${s}`);
+        const trkEl = document.getElementById(`split-sec-truck-${s}`);
+        window._splitSectionMeta[s] = {
+            receiverName: recEl ? recEl.value : (window._splitSectionMeta[s]?.receiverName || ''),
+            truckPlate: trkEl ? trkEl.value : (window._splitSectionMeta[s]?.truckPlate || '')
+        };
+    }
+};
+
+window.addSplitSection = function() {
+    if (!activeSplitInvoice) return;
+    window.saveCurrentSplitDraftState();
+    window.splitSectionsCount = Math.min(100, (window.splitSectionsCount || 2) + 1);
+    const S = window.splitSectionsCount;
+    (activeSplitInvoice.items || []).forEach((item, idx) => {
+        const arr = activeSplitInvoice._splitDraftQtys[idx] || [];
+        while (arr.length < S) arr.push(0);
+        activeSplitInvoice._splitDraftQtys[idx] = arr;
+    });
+    renderWorldClassSplitBoard();
+    if (typeof showToast === 'function') {
+        const rootNo = window.getRootInvoiceNo(activeSplitInvoice);
+        showToast(`➕ تمت إضافة القسم (${S}) برقم: ${rootNo}/${window.currentSplitOperationSeq}/${S}`, 'info');
+    }
+};
+
+window.removeSplitSection = function(secIdx) {
+    if (!activeSplitInvoice || (window.splitSectionsCount || 2) <= 2) return;
+    window.saveCurrentSplitDraftState();
+    const S = window.splitSectionsCount;
+    (activeSplitInvoice.items || []).forEach((item, idx) => {
+        const meta = window.resolveSplitItemUnitMeta(item);
+        const arr = activeSplitInvoice._splitDraftQtys[idx] || [];
+        const removedVal = arr[secIdx] || 0;
+        arr.splice(secIdx, 1);
+        if (arr.length > 0) {
+            arr[arr.length - 1] = Math.min(meta.deliverableQty, +((arr[arr.length - 1] || 0) + removedVal).toFixed(4));
+        }
+        activeSplitInvoice._splitDraftQtys[idx] = arr;
+    });
+    window.splitSectionsCount = S - 1;
+    renderWorldClassSplitBoard();
+};
+
+window.distributeSplitEqually = function() {
+    if (!activeSplitInvoice) return;
+    const S = window.splitSectionsCount || 2;
+    (activeSplitInvoice.items || []).forEach((item, idx) => {
+        const meta = window.resolveSplitItemUnitMeta(item);
+        const rem = meta.deliverableQty;
+        const baseShare = +(rem / S).toFixed(3);
+        const arr = [];
+        let sumSoFar = 0;
+        for (let s = 0; s < S; s++) {
+            if (s === S - 1) {
+                arr.push(Math.max(0, +(rem - sumSoFar).toFixed(4)));
+            } else {
+                arr.push(baseShare);
+                sumSoFar += baseShare;
+            }
+        }
+        activeSplitInvoice._splitDraftQtys[idx] = arr;
+    });
+    renderWorldClassSplitBoard();
+    if (typeof showToast === 'function') {
+        showToast(`⚖️ تم توزيع الكميات بالتساوي على ${S} أقسام`, 'success');
+    }
+};
+
+window.adjustSplitOperationSeq = function(delta) {
+    const nextVal = Math.max(1, (parseInt(window.currentSplitOperationSeq, 10) || 1) + delta);
+    window.currentSplitOperationSeq = nextVal;
+    const seqInp = document.getElementById('split-operation-seq-input');
+    if (seqInp) seqInp.value = nextVal;
+    window.saveCurrentSplitDraftState();
+    renderWorldClassSplitBoard();
+};
+
+window.onSplitOperationSeqInput = function(val) {
+    const parsed = parseInt(val, 10);
+    if (!isNaN(parsed) && parsed > 0) {
+        window.currentSplitOperationSeq = parsed;
+        window.saveCurrentSplitDraftState();
+        updateSplitCalculations();
+    }
+};
+
+window.renderWorldClassSplitBoard = function() {
+    if (!activeSplitInvoice) return;
+    const inv = activeSplitInvoice;
+    const rootNo = window.getRootInvoiceNo(inv);
+    const parentNo = String(inv.invoiceNo || inv.id || '');
+    const escParentNo = parentNo.replace(/'/g, "\\'");
+    const splitSeq = window.currentSplitOperationSeq || 1;
+    const S = window.splitSectionsCount || 2;
+    const currency = inv.currency || 'SDG';
+    const uMode = window.splitUnitDisplayMode || 'both';
+
     const headerInfo = document.getElementById('split-header-info');
     if (headerInfo) {
+        const previewBadges = Array.from({ length: S }, (_, s) => {
+            const pal = getSplitPalette(s);
+            return `<span style="background:${pal.bg}; border:1px solid ${pal.border}; color:${pal.color}; padding:3px 10px; border-radius:99px; font-family:'Outfit',monospace; font-weight:900; font-size:0.88rem; box-shadow:0 0 12px ${pal.glow};">#${rootNo}/${splitSeq}/${s + 1}</span>`;
+        }).join(' <span style="color:#94a3b8; font-weight:900;">+</span> ');
+
         headerInfo.innerHTML = `
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 8px; width: 100%;">
-                <!-- Card 1: Original Invoice No -->
-                <div style="background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.1); padding: 8px 12px; border-radius: 10px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 4px 15px rgba(0,0,0,0.15);">
-                    <span style="font-size: 0.95rem; color: #cbd5e1; font-weight: bold;">🧾 الفاتورة الأصلية:</span>
-                    <span style="font-size: 1.25rem; font-weight: 900; color: #38bdf8; font-family: monospace; text-shadow: 0 0 10px rgba(56,189,248,0.2);">${inv.invoiceNo}</span>
+            <div style="display:flex; flex-direction:column; gap:10px; width:100%;">
+                <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(215px, 1fr)); gap:8px; width:100%;">
+                    <div style="background:rgba(2,6,23,0.65); border:1.5px solid rgba(56,189,248,0.4); padding:9px 14px; border-radius:12px; display:flex; align-items:center; justify-content:space-between; box-shadow:0 4px 18px rgba(56,189,248,0.12);">
+                        <div>
+                            <span style="font-size:0.78rem; color:#94a3b8; font-weight:800; display:block;">🧾 الإذن المرجعي الأصلي:</span>
+                            <span style="font-size:1.25rem; font-weight:900; color:#38bdf8; font-family:'Outfit',monospace;">#${rootNo}</span>
+                            ${parentNo !== rootNo ? `<span style="font-size:0.74rem; color:#f472b6; display:block; font-weight:800;">الفرع الحالي: #${parentNo}</span>` : ''}
+                        </div>
+                        <button type="button" onclick="if(typeof window.openDeliveryForInvoiceFromHub==='function') window.openDeliveryForInvoiceFromHub('${escParentNo}')" class="kinetic-glow-arm kinetic-arm-emerald" style="padding:6px 12px; border-radius:9px; font-size:0.78rem; font-weight:900; cursor:pointer;" title="تحويل فوري لشاشة التسليم لهذا الإذن">🚚 للتسليم</button>
+                    </div>
+
+                    <div style="background:rgba(2,6,23,0.65); border:1.5px solid rgba(236,72,153,0.45); padding:8px 12px; border-radius:12px; display:flex; align-items:center; justify-content:space-between; box-shadow:0 4px 18px rgba(236,72,153,0.14);">
+                        <div>
+                            <span style="font-size:0.78rem; color:#fbcfe8; font-weight:900; display:block;">🔢 رقم عملية التقسيم التسلسلي:</span>
+                            <span style="font-size:0.72rem; color:#94a3b8;">يُدمج تلقائياً (${rootNo}/<b style="color:#f472b6;">${splitSeq}</b>/1)</span>
+                        </div>
+                        <div style="display:flex; align-items:center; gap:5px; direction:ltr;">
+                            <button type="button" onclick="adjustSplitOperationSeq(-1)" class="kinetic-mini-step-btn" title="إنقاص رقم التقسيم">−</button>
+                            <input type="number" id="split-operation-seq-input" value="${splitSeq}" min="1" step="1" oninput="onSplitOperationSeqInput(this.value)" style="width:68px; height:34px; text-align:center; font-family:'Outfit',monospace; font-size:1.15rem; font-weight:900; color:#f472b6; background:#020617; border:1.5px solid rgba(236,72,153,0.6); border-radius:8px;">
+                            <button type="button" onclick="adjustSplitOperationSeq(1)" class="kinetic-mini-step-btn" title="زيادة رقم التقسيم">+</button>
+                        </div>
+                    </div>
+
+                    <div style="background:rgba(2,6,23,0.65); border:1px solid rgba(148,163,184,0.25); padding:9px 14px; border-radius:12px; display:flex; align-items:center; justify-content:space-between;">
+                        <div>
+                            <span style="font-size:0.78rem; color:#94a3b8; font-weight:800; display:block;">👤 العميل وطريقة الدفع:</span>
+                            <span style="font-size:1.02rem; font-weight:900; color:#f8fafc;">${inv.customerName || 'عميل نقدي'}</span>
+                        </div>
+                        <span style="background:rgba(168,85,247,0.18); border:1px solid rgba(192,132,252,0.4); color:#d8b4fe; padding:4px 10px; border-radius:8px; font-size:0.82rem; font-weight:900;">${inv.paymentMethod === 'credit' ? '✍️ آجل' : '💵 نقدي'}</span>
+                    </div>
+
+                    <div style="background:rgba(16,185,129,0.08); border:1.5px solid rgba(16,185,129,0.35); padding:9px 14px; border-radius:12px; display:flex; align-items:center; justify-content:space-between;">
+                        <div>
+                            <span style="font-size:0.78rem; color:#a7f3d0; font-weight:800; display:block;">💰 إجمالي الإذن المرجعي:</span>
+                            <span style="font-size:1.2rem; font-weight:900; color:#10b981; font-family:'Outfit',monospace;">${(parseFloat(inv.grandTotal || inv.total || 0)).toLocaleString()} ${currency}</span>
+                        </div>
+                        <button type="button" onclick="window.previewCurrentSplitVouchersBeforeSave()" class="kinetic-glow-arm kinetic-arm-cyan" style="padding:6px 12px; border-radius:9px; font-size:0.78rem; font-weight:900; cursor:pointer;" title="طباعة الجزئين / جميع الأقسام معاً">🖨️ طباعة الجزئين</button>
+                    </div>
                 </div>
-                <!-- Card 2: Current Customer -->
-                <div style="background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.1); padding: 8px 12px; border-radius: 10px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 4px 15px rgba(0,0,0,0.15);">
-                    <span style="font-size: 0.95rem; color: #cbd5e1; font-weight: bold;">👤 العميل الحالي:</span>
-                    <span style="font-size: 1.15rem; font-weight: 800; color: #f8fafc;">${inv.customerName || 'عميل نقدي'}</span>
+
+                <!-- World-Class Unit Mode Switcher + Section Actions Bar -->
+                <div style="display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:10px; background:rgba(15,23,42,0.92); border:1.5px solid rgba(99,102,241,0.35); padding:8px 14px; border-radius:12px;">
+                    <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+                        <span style="font-size:0.84rem; font-weight:900; color:#e2e8f0;">🎛️ نظام التقسيم بالوحدات (كما في التسليم):</span>
+                        <button type="button" onclick="window.setSplitUnitDisplayMode('both')" style="padding:5px 12px; border-radius:8px; font-size:0.8rem; font-weight:900; cursor:pointer; border:1.5px solid ${uMode === 'both' ? '#38bdf8' : 'rgba(255,255,255,0.12)'}; background:${uMode === 'both' ? 'linear-gradient(135deg, rgba(56,189,248,0.28), rgba(99,102,241,0.28))' : 'rgba(2,6,23,0.6)'}; color:${uMode === 'both' ? '#fff' : '#94a3b8'};">📦 + 🔢 الوحدتان معاً (الأساسية والفرعية)</button>
+                        <button type="button" onclick="window.setSplitUnitDisplayMode('primary')" style="padding:5px 12px; border-radius:8px; font-size:0.8rem; font-weight:900; cursor:pointer; border:1.5px solid ${uMode === 'primary' ? '#10b981' : 'rgba(255,255,255,0.12)'}; background:${uMode === 'primary' ? 'rgba(16,185,129,0.25)' : 'rgba(2,6,23,0.6)'}; color:${uMode === 'primary' ? '#6ee7b7' : '#94a3b8'};">📦 بالوحدة الأساسية فقط</button>
+                        <button type="button" onclick="window.setSplitUnitDisplayMode('base')" style="padding:5px 12px; border-radius:8px; font-size:0.8rem; font-weight:900; cursor:pointer; border:1.5px solid ${uMode === 'base' ? '#a855f7' : 'rgba(255,255,255,0.12)'}; background:${uMode === 'base' ? 'rgba(168,85,247,0.25)' : 'rgba(2,6,23,0.6)'}; color:${uMode === 'base' ? '#e9d5ff' : '#94a3b8'};">🔢 بالوحدة الفرعية فقط</button>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                        <div id="split-generated-numbers-preview" style="display:flex; align-items:center; gap:5px; flex-wrap:wrap;">
+                            ${previewBadges}
+                        </div>
+                        <button type="button" onclick="distributeSplitEqually()" class="btn-action kinetic-glow-arm kinetic-arm-cyan" style="width:auto; padding:5px 12px; font-size:0.8rem; font-weight:900; border-radius:8px;">
+                            ⚖️ بالتساوي (${S})
+                        </button>
+                        <button type="button" onclick="addSplitSection()" class="btn-action kinetic-glow-arm kinetic-arm-emerald" style="width:auto; padding:5px 12px; font-size:0.8rem; font-weight:900; border-radius:8px;">
+                            ➕ قسم (${S + 1})
+                        </button>
+                    </div>
                 </div>
-                <!-- Card 3: Payment Method -->
-                <div style="background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.1); padding: 8px 12px; border-radius: 10px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 4px 15px rgba(0,0,0,0.15);">
-                    <span style="font-size: 0.95rem; color: #cbd5e1; font-weight: bold;">💳 طريقة الدفع:</span>
-                    <span style="font-size: 1.15rem; font-weight: 800; color: #c084fc; text-shadow: 0 0 10px rgba(168,85,247,0.2);">${inv.paymentMethod === 'credit' ? '✍️ آجل' : '💵 نقدي'}</span>
-                </div>
-                <!-- Card 4: Grand Total -->
-                <div style="background: rgba(16, 185, 129, 0.07); border: 1px solid rgba(16, 185, 129, 0.3); padding: 8px 12px; border-radius: 10px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 4px 15px rgba(16,185,129,0.1);">
-                    <span style="font-size: 0.95rem; color: #a7f3d0; font-weight: bold;">💰 القيمة الإجمالية:</span>
-                    <span style="font-size: 1.25rem; font-weight: 900; color: #10b981; font-family: monospace; text-shadow: 0 0 10px rgba(16,185,129,0.2);">${parseFloat(inv.grandTotal).toLocaleString()} SDG</span>
+
+                <div id="split-live-balance-bar" style="background:rgba(16,185,129,0.1); border:1.5px solid rgba(16,185,129,0.45); padding:8px 14px; border-radius:12px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; transition:all 0.25s;">
                 </div>
             </div>
         `;
     }
-    
+
+    const splitTable = document.querySelector('#split-board-step table.pos-grid');
+    if (splitTable) {
+        const thead = splitTable.querySelector('thead');
+        if (thead) {
+            const secHeadersHtml = Array.from({ length: S }, (_, s) => {
+                const pal = getSplitPalette(s);
+                const secNo = `${rootNo}/${splitSeq}/${s + 1}`;
+                const removeBtn = S > 2
+                    ? `<button type="button" onclick="removeSplitSection(${s})" title="حذف هذا القسم" style="background:rgba(239,68,68,0.2); border:1px solid rgba(239,68,68,0.45); color:#fca5a5; border-radius:6px; padding:1px 6px; font-size:0.7rem; cursor:pointer; margin-right:6px;">✕</button>`
+                    : '';
+                return `<th style="text-align:center; min-width:255px; color:${pal.color} !important; border-bottom:2px solid ${pal.color};">
+                    <div style="display:flex; flex-direction:column; align-items:center; gap:2px;">
+                        <div>✂️ تقسيم ${pal.title} (أساسي / فرعي) ${removeBtn}</div>
+                        <span class="split-col-header-no" data-sec-idx="${s}" style="font-family:'Outfit',monospace; font-size:0.78rem; background:${pal.bg}; border:1px solid ${pal.border}; padding:1px 8px; border-radius:99px; color:#fff;">#${secNo}</span>
+                    </div>
+                </th>`;
+            }).join('');
+
+            thead.innerHTML = `
+                <tr>
+                    <th style="text-align:right; min-width:185px;">📦 الصنف ومعادلة الوحدات</th>
+                    <th style="text-align:center; width:145px;">📊 الكمية القابلة للتقسيم</th>
+                    <th style="text-align:left; width:110px;">💰 السعر</th>
+                    ${secHeadersHtml}
+                    <th style="text-align:center; width:155px;">⚖️ حالة التوازن</th>
+                </tr>
+            `;
+        }
+    }
+
     const tbody = document.getElementById('split-items-body');
     if (tbody) {
         tbody.innerHTML = '';
-        activeSplitInvoice.items.forEach((item, idx) => {
+        (inv.items || []).forEach((item, idx) => {
+            const meta = window.resolveSplitItemUnitMeta(item);
+            const remQty = meta.deliverableQty;
+            const remBaseQty = +(remQty * meta.factor).toFixed(2);
+            const draftArr = (inv._splitDraftQtys && inv._splitDraftQtys[idx]) ? inv._splitDraftQtys[idx] : [remQty, 0];
+            const showPriBox = (uMode === 'both' || uMode === 'primary');
+            const showSubBox = (uMode === 'both' || uMode === 'base');
+
+            const secCellsHtml = Array.from({ length: S }, (_, s) => {
+                const pal = getSplitPalette(s);
+                const val = draftArr[s] !== undefined ? draftArr[s] : 0;
+                const subVal = +(val * meta.factor).toFixed(2);
+                const isLastSec = (s === S - 1);
+                return `
+                    <td style="text-align:center; background:${pal.bg}; padding:8px !important;">
+                        <div style="display:flex; flex-direction:column; align-items:center; gap:6px;">
+                            <!-- Box 1: التقسيم بالوحدة الأساسية -->
+                            <div style="display:${showPriBox ? 'flex' : 'none'}; flex-direction:column; gap:4px; width:100%; background:rgba(2,6,23,0.68); border:1.5px solid ${pal.border}; border-radius:10px; padding:6px 8px; box-shadow:0 0 10px ${pal.glow};">
+                                <div style="display:flex; align-items:center; justify-content:space-between; gap:4px;">
+                                    <span style="font-size:0.74rem; font-weight:900; color:#6ee7b7;">📦 بالـ ${meta.primaryUnit} ${isLastSec ? '<small style="color:#94a3b8;">(متبقي)</small>' : ''}</span>
+                                    <div style="display:flex; gap:3px;">
+                                        <button type="button" onclick="setSplitSectionHalfQty(${idx}, ${s})" style="background:rgba(56,189,248,0.16); border:1px solid rgba(56,189,248,0.4); color:#7dd3fc; border-radius:5px; padding:1px 6px; font-size:0.68rem; font-weight:900; cursor:pointer;" title="نصف الكمية">½</button>
+                                        <button type="button" onclick="setSplitSectionFullQty(${idx}, ${s})" style="background:rgba(16,185,129,0.18); border:1px solid rgba(52,211,153,0.45); color:#6ee7b7; border-radius:5px; padding:1px 6px; font-size:0.68rem; font-weight:900; cursor:pointer;" title="كامل الكمية (${remQty} ${meta.primaryUnit})">⚡ الكل</button>
+                                    </div>
+                                </div>
+                                <div style="display:flex; align-items:center; justify-content:center; gap:5px; direction:ltr;">
+                                    <button type="button" class="kinetic-mini-step-btn" style="border-color:${pal.border}; color:${pal.color};" onclick="adjustSplitQty(${idx}, -1, ${s})">−</button>
+                                    <input type="number" id="split-qty-s${s}-i${idx}" data-item-idx="${idx}" data-sec-idx="${s}" class="v-input" style="width:102px; text-align:center; font-family:'Outfit',monospace; font-size:1.12rem; font-weight:900; border:1.5px solid #10b981; margin:0; padding:4px; color:#ffffff; background:#020617; border-radius:8px;" value="${val}" min="0" max="${remQty}" step="any" oninput="handleSplitQtyInput(${idx}, ${s}, 'primary')" title="قسّم هنا بالوحدة الأساسية (${meta.primaryUnit})">
+                                    <button type="button" class="kinetic-mini-step-btn" style="border-color:${pal.border}; color:${pal.color};" onclick="adjustSplitQty(${idx}, 1, ${s})">+</button>
+                                </div>
+                            </div>
+
+                            <!-- Box 2: التقسيم بالوحدة الفرعية (مثل التسليم تماماً) -->
+                            <div style="display:${showSubBox ? 'flex' : 'none'}; flex-direction:column; gap:4px; width:100%; background:rgba(15,23,42,0.85); border:1.5px solid rgba(168,85,247,0.5); border-radius:10px; padding:6px 8px;">
+                                <div style="display:flex; align-items:center; justify-content:space-between; gap:4px;">
+                                    <span style="font-size:0.74rem; font-weight:900; color:#c4b5fd;">🔢 بالـ ${meta.baseUnit} <small style="color:#94a3b8;">(×${meta.factor})</small></span>
+                                    <div style="display:flex; gap:3px;">
+                                        <button type="button" onclick="setSplitSectionHalfQty(${idx}, ${s})" style="background:rgba(168,85,247,0.18); border:1px solid rgba(192,132,252,0.45); color:#e9d5ff; border-radius:5px; padding:1px 6px; font-size:0.68rem; font-weight:900; cursor:pointer;" title="نصف الوحدات الفرعية">½</button>
+                                        <button type="button" onclick="setSplitSectionFullQty(${idx}, ${s})" style="background:rgba(99,102,241,0.22); border:1px solid rgba(129,140,248,0.5); color:#c4b5fd; border-radius:5px; padding:1px 6px; font-size:0.68rem; font-weight:900; cursor:pointer;" title="كامل الوحدات الفرعية (${remBaseQty} ${meta.baseUnit})">⚡ الكل (${remBaseQty})</button>
+                                    </div>
+                                </div>
+                                <div style="display:flex; align-items:center; justify-content:center; gap:5px; direction:ltr;">
+                                    <button type="button" class="kinetic-mini-step-btn" style="border-color:rgba(168,85,247,0.55); color:#c4b5fd;" onclick="adjustSplitSubQty(${idx}, -1, ${s})">−</button>
+                                    <input type="number" id="split-subqty-s${s}-i${idx}" value="${subVal}" min="0" max="${remBaseQty}" step="any" oninput="handleSplitQtyInput(${idx}, ${s}, 'base')" style="width:102px; text-align:center; font-family:'Outfit',monospace; font-size:1.05rem; font-weight:900; color:#e9d5ff; background:#020617; border:1.5px solid #a855f7; border-radius:8px; padding:4px;" title="قسّم هنا بالوحدة الفرعية (${meta.baseUnit})">
+                                    <button type="button" class="kinetic-mini-step-btn" style="border-color:rgba(168,85,247,0.55); color:#c4b5fd;" onclick="adjustSplitSubQty(${idx}, 1, ${s})">+</button>
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                `;
+            }).join('');
+
             const tr = document.createElement('tr');
-            const originalQty = parseFloat(item.quantity || item.qty || 0);
-            const price = parseFloat(item.price || 0);
-            const totalVal = originalQty * price;
-            
-            // Resolve actual name from global ITEMS array
-            const itemObj = (typeof ITEMS !== 'undefined' ? ITEMS.find(i => String(i.id) === String(item.itemId)) : null);
-            const name = itemObj ? itemObj.name : (item.itemName || item.name || 'صنف غير معروف');
-            
             tr.innerHTML = `
-                <td style="font-weight: 800; font-size: 1.05rem; color: #fff;">${name}</td>
-                <td style="text-align: center; font-weight: 900; font-size: 1.2rem; color: #cbd5e1;">${originalQty}</td>
-                <td style="text-align: left; font-weight: 800; font-size: 1.15rem; color: #f8fafc; font-family: monospace;">${price.toLocaleString()} <span style="font-size:0.8rem; color:#cbd5e1; font-family: 'Tajawal', sans-serif;">SDG</span></td>
-                <td style="text-align: center;">
-                    <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
-                        <button class="btn-action" style="width:34px; height:34px; padding:0; line-height:34px; background: rgba(56,189,248,0.15); color:#38bdf8; border: 1px solid rgba(56,189,248,0.25); font-weight: bold; font-size: 1.2rem; border-radius: 6px; cursor: pointer;" onclick="adjustSplitQty(${idx}, -1)">-</button>
-                        <input type="number" id="split-qty-a-${idx}" class="v-input" style="width: 90px; text-align: center; font-family: monospace; font-size: 1.2rem; font-weight: 900; border-color: rgba(56,189,248,0.4); margin: 0; padding: 6px; color: #38bdf8; background: rgba(0,0,0,0.2);" value="${originalQty}" min="0" max="${originalQty}" step="any" oninput="handleSplitQtyInput(${idx})">
-                        <button class="btn-action" style="width:34px; height:34px; padding:0; line-height:34px; background: rgba(56,189,248,0.15); color:#38bdf8; border: 1px solid rgba(56,189,248,0.25); font-weight: bold; font-size: 1.2rem; border-radius: 6px; cursor: pointer;" onclick="adjustSplitQty(${idx}, 1)">+</button>
+                <td style="text-align:right;">
+                    <div style="font-weight:900; font-size:1.04rem; color:#fff;">${meta.name}</div>
+                    <div style="display:inline-flex; align-items:center; gap:5px; font-size:0.74rem; color:#38bdf8; background:rgba(56,189,248,0.1); border:1px solid rgba(56,189,248,0.28); padding:2px 8px; border-radius:6px; font-weight:800; margin-top:4px;">
+                        ⚖️ ${meta.tonRefHint}
                     </div>
                 </td>
-                <td style="text-align: center;">
-                    <span id="split-qty-b-${idx}" style="font-family: monospace; font-size: 1.35rem; font-weight: 900; color: #ec4899; text-shadow: 0 0 8px rgba(236,72,153,0.3);">0</span>
+                <td style="text-align:center;">
+                    <div style="font-weight:900; font-size:1.15rem; color:#6ee7b7; font-family:'Outfit',monospace;">📦 ${remQty} <span style="font-size:0.8rem;">${meta.primaryUnit}</span></div>
+                    <div style="font-size:0.82rem; color:#c4b5fd; font-weight:900; margin-top:2px;">🔢 ⇄ ${remBaseQty.toLocaleString('en-US')} ${meta.baseUnit}</div>
+                    ${meta.deliveredQty > 0 ? `<div style="font-size:0.72rem; color:#34d399;">(سُلّم سابقاً: ${meta.deliveredQty})</div>` : ''}
                 </td>
-                <td style="text-align: left; font-weight: 900; font-size: 1.45rem; color: #10b981; font-family: monospace;">${totalVal.toLocaleString()} <span style="font-size:0.8rem; color:#34d399; font-family: 'Tajawal', sans-serif;">SDG</span></td>
+                <td style="text-align:left; font-weight:800; font-size:1.02rem; color:#fcd34d; font-family:'Outfit',monospace;">
+                    ${meta.price.toLocaleString()} <span style="font-size:0.75rem; color:#94a3b8;">${currency}</span>
+                </td>
+                ${secCellsHtml}
+                <td id="split-row-status-${idx}" style="text-align:center;"></td>
             `;
             tbody.appendChild(tr);
         });
     }
-    
+
     updateSplitCalculations();
-}
+};
 
-function adjustSplitQty(idx, delta) {
+window.setSplitSectionFullQty = function(itemIdx, targetSecIdx) {
     if (!activeSplitInvoice) return;
-    const item = activeSplitInvoice.items[idx];
-    const originalQty = parseFloat(item.quantity || item.qty || 0);
-    const inputA = document.getElementById(`split-qty-a-${idx}`);
-    if (!inputA) return;
-    let qtyA = parseFloat(inputA.value) || 0;
-    
-    qtyA = Math.max(0, Math.min(originalQty, qtyA + delta));
-    inputA.value = qtyA;
-    
-    handleSplitQtyInput(idx);
-}
-
-function handleSplitQtyInput(idx) {
-    if (!activeSplitInvoice) return;
-    const item = activeSplitInvoice.items[idx];
-    const originalQty = parseFloat(item.quantity || item.qty || 0);
-    const inputA = document.getElementById(`split-qty-a-${idx}`);
-    if (!inputA) return;
-    let qtyA = parseFloat(inputA.value) || 0;
-    
-    if (qtyA < 0) qtyA = 0;
-    if (qtyA > originalQty) qtyA = originalQty;
-    
-    inputA.value = qtyA;
-    
-    const qtyB = originalQty - qtyA;
-    const labelB = document.getElementById(`split-qty-b-${idx}`);
-    if (labelB) {
-        labelB.innerText = qtyB.toFixed(2).replace(/\.00$/, '');
+    const S = window.splitSectionsCount || 2;
+    const meta = window.resolveSplitItemUnitMeta(activeSplitInvoice.items[itemIdx]);
+    for (let s = 0; s < S; s++) {
+        const inp = document.getElementById(`split-qty-s${s}-i${itemIdx}`);
+        const subInp = document.getElementById(`split-subqty-s${s}-i${itemIdx}`);
+        const qVal = (s === targetSecIdx) ? meta.deliverableQty : 0;
+        if (inp) inp.value = qVal;
+        if (subInp) subInp.value = +(qVal * meta.factor).toFixed(2);
     }
-    
+    window.saveCurrentSplitDraftState();
+    updateSplitCalculations();
+};
+
+window.setSplitSectionHalfQty = function(itemIdx, targetSecIdx) {
+    if (!activeSplitInvoice) return;
+    const meta = window.resolveSplitItemUnitMeta(activeSplitInvoice.items[itemIdx]);
+    const halfPri = +(meta.deliverableQty / 2).toFixed(4);
+    const inp = document.getElementById(`split-qty-s${targetSecIdx}-i${itemIdx}`);
+    if (inp) {
+        inp.value = halfPri;
+        handleSplitQtyInput(itemIdx, targetSecIdx, 'primary');
+    }
+};
+
+function adjustSplitQty(itemIdx, delta, secIdx = 0) {
+    if (!activeSplitInvoice) return;
+    const item = activeSplitInvoice.items[itemIdx];
+    const meta = window.resolveSplitItemUnitMeta(item);
+    const maxQty = meta.deliverableQty;
+    const inp = document.getElementById(`split-qty-s${secIdx}-i${itemIdx}`);
+    if (!inp) return;
+    let cur = parseFloat(inp.value) || 0;
+    cur = Math.max(0, Math.min(maxQty, +(cur + delta).toFixed(4)));
+    inp.value = cur;
+    handleSplitQtyInput(itemIdx, secIdx, 'primary');
+}
+
+window.adjustSplitSubQty = function(itemIdx, delta, secIdx = 0) {
+    if (!activeSplitInvoice) return;
+    const item = activeSplitInvoice.items[itemIdx];
+    const meta = window.resolveSplitItemUnitMeta(item);
+    const maxSub = +(meta.deliverableQty * meta.factor).toFixed(4);
+    const subInp = document.getElementById(`split-subqty-s${secIdx}-i${itemIdx}`);
+    if (!subInp) return;
+    let curSub = parseFloat(subInp.value) || 0;
+    curSub = Math.max(0, Math.min(maxSub, +(curSub + delta).toFixed(2)));
+    subInp.value = curSub;
+    handleSplitQtyInput(itemIdx, secIdx, 'base');
+};
+
+function handleSplitQtyInput(itemIdx, changedSecIdx = 0, mode = 'primary') {
+    if (!activeSplitInvoice) return;
+    const S = window.splitSectionsCount || 2;
+    const item = activeSplitInvoice.items[itemIdx];
+    const meta = window.resolveSplitItemUnitMeta(item);
+    const maxQty = meta.deliverableQty;
+
+    const priInp = document.getElementById(`split-qty-s${changedSecIdx}-i${itemIdx}`);
+    const subInp = document.getElementById(`split-subqty-s${changedSecIdx}-i${itemIdx}`);
+    if (!priInp) return;
+
+    let newPriVal = 0;
+    if (mode === 'base' && subInp) {
+        let subVal = parseFloat(subInp.value) || 0;
+        const maxSub = +(maxQty * meta.factor).toFixed(4);
+        if (subVal < 0) subVal = 0;
+        if (subVal > maxSub) subVal = maxSub;
+        subInp.value = subVal;
+        newPriVal = meta.factor > 0 ? +(subVal / meta.factor).toFixed(4) : subVal;
+        priInp.value = newPriVal;
+    } else {
+        newPriVal = parseFloat(priInp.value);
+        if (isNaN(newPriVal) || newPriVal < 0) newPriVal = 0;
+        if (newPriVal > maxQty) {
+            newPriVal = maxQty;
+            priInp.value = newPriVal;
+        }
+        if (subInp) {
+            subInp.value = +(newPriVal * meta.factor).toFixed(2);
+        }
+    }
+
+    if (S === 2) {
+        const otherSec = changedSecIdx === 0 ? 1 : 0;
+        const otherPriInp = document.getElementById(`split-qty-s${otherSec}-i${itemIdx}`);
+        const otherSubInp = document.getElementById(`split-subqty-s${otherSec}-i${itemIdx}`);
+        const rem = Math.max(0, +(maxQty - newPriVal).toFixed(4));
+        if (otherPriInp) otherPriInp.value = rem;
+        if (otherSubInp) otherSubInp.value = +(rem * meta.factor).toFixed(2);
+    } else if (changedSecIdx < S - 1) {
+        let sumOthers = 0;
+        for (let s = 0; s < S - 1; s++) {
+            const el = document.getElementById(`split-qty-s${s}-i${itemIdx}`);
+            sumOthers += el ? (parseFloat(el.value) || 0) : 0;
+        }
+        if (sumOthers > maxQty) {
+            const prevOthers = sumOthers - newPriVal;
+            newPriVal = Math.max(0, +(maxQty - prevOthers).toFixed(4));
+            priInp.value = newPriVal;
+            if (subInp) subInp.value = +(newPriVal * meta.factor).toFixed(2);
+            sumOthers = maxQty;
+        }
+        const lastSec = S - 1;
+        const lastPriInp = document.getElementById(`split-qty-s${lastSec}-i${itemIdx}`);
+        const lastSubInp = document.getElementById(`split-subqty-s${lastSec}-i${itemIdx}`);
+        const remForLast = Math.max(0, +(maxQty - sumOthers).toFixed(4));
+        if (lastPriInp) lastPriInp.value = remForLast;
+        if (lastSubInp) lastSubInp.value = +(remForLast * meta.factor).toFixed(2);
+    }
+
+    window.saveCurrentSplitDraftState();
     updateSplitCalculations();
 }
 
 function updateSplitCalculations() {
     if (!activeSplitInvoice) return;
-    
-    let subtotalA = 0;
-    let subtotalB = 0;
-    
-    activeSplitInvoice.items.forEach((item, idx) => {
-        const price = parseFloat(item.price || 0);
-        const originalQty = parseFloat(item.quantity || item.qty || 0);
-        
-        const inputA = document.getElementById(`split-qty-a-${idx}`);
-        const qtyA = inputA ? parseFloat(inputA.value) || 0 : originalQty;
-        const qtyB = originalQty - qtyA;
-        
-        subtotalA += qtyA * price;
-        subtotalB += qtyB * price;
-        
-        const labelB = document.getElementById(`split-qty-b-${idx}`);
-        if (labelB) {
-            labelB.innerText = qtyB.toFixed(2).replace(/\.00$/, '');
+    const inv = activeSplitInvoice;
+    const S = window.splitSectionsCount || 2;
+    const rootNo = window.getRootInvoiceNo(inv);
+    const splitSeq = window.currentSplitOperationSeq || 1;
+    const currency = inv.currency || 'SDG';
+
+    const previewContainer = document.getElementById('split-generated-numbers-preview');
+    if (previewContainer) {
+        previewContainer.innerHTML = Array.from({ length: S }, (_, s) => {
+            const pal = getSplitPalette(s);
+            return `<span style="background:${pal.bg}; border:1px solid ${pal.border}; color:${pal.color}; padding:3px 10px; border-radius:99px; font-family:'Outfit',monospace; font-weight:900; font-size:0.88rem; box-shadow:0 0 12px ${pal.glow};">#${rootNo}/${splitSeq}/${s + 1}</span>`;
+        }).join(' <span style="color:#94a3b8; font-weight:900;">+</span> ');
+    }
+    document.querySelectorAll('#split-board-step .split-col-header-no').forEach(el => {
+        const s = parseInt(el.dataset.secIdx, 10) || 0;
+        el.textContent = `#${rootNo}/${splitSeq}/${s + 1}`;
+    });
+
+    const secSubtotals = new Array(S).fill(0);
+    const secTotalQtys = new Array(S).fill(0);
+    let totalDeliverableAllItems = 0;
+    let totalAllocatedAllItems = 0;
+    let allRowsBalanced = true;
+
+    (inv.items || []).forEach((item, idx) => {
+        const meta = window.resolveSplitItemUnitMeta(item);
+        const maxQty = meta.deliverableQty;
+        totalDeliverableAllItems += maxQty;
+
+        let rowSum = 0;
+        for (let s = 0; s < S; s++) {
+            const inp = document.getElementById(`split-qty-s${s}-i${idx}`);
+            const q = inp ? (parseFloat(inp.value) || 0) : 0;
+            rowSum += q;
+            secTotalQtys[s] += q;
+            secSubtotals[s] += q * meta.price;
+        }
+        totalAllocatedAllItems += rowSum;
+
+        const diff = +(maxQty - rowSum).toFixed(4);
+        const statusCell = document.getElementById(`split-row-status-${idx}`);
+        if (statusCell) {
+            if (Math.abs(diff) <= 0.0005) {
+                statusCell.innerHTML = `<span style="display:inline-flex; align-items:center; gap:4px; background:rgba(16,185,129,0.16); border:1px solid rgba(52,211,153,0.45); color:#6ee7b7; padding:4px 10px; border-radius:99px; font-size:0.8rem; font-weight:900;">✅ متطابق (${rowSum} ${meta.primaryUnit})</span>`;
+            } else {
+                allRowsBalanced = false;
+                const msg = diff > 0 ? `⚠️ متبقي غير موزع: ${diff}` : `❌ زيادة: ${Math.abs(diff)}`;
+                statusCell.innerHTML = `<span style="display:inline-flex; align-items:center; gap:4px; background:rgba(239,68,68,0.18); border:1px solid rgba(248,113,113,0.5); color:#fca5a5; padding:4px 10px; border-radius:99px; font-size:0.8rem; font-weight:900;">${msg}</span>`;
+            }
         }
     });
-    
-    const originalSubtotal = parseFloat(activeSplitInvoice.subTotal || activeSplitInvoice.grandTotal || activeSplitInvoice.total) || (subtotalA + subtotalB) || 1;
-    const originalDiscount = parseFloat(activeSplitInvoice.discount) || 0;
-    const originalTax = parseFloat(activeSplitInvoice.vatAmount) || 0;
-    
-    let discountA = 0;
-    let discountB = 0;
-    let taxA = 0;
-    let taxB = 0;
-    
-    if (originalSubtotal > 0) {
-        const ratioA = subtotalA / originalSubtotal;
-        const ratioB = subtotalB / originalSubtotal;
-        
-        discountA = originalDiscount * ratioA;
-        discountB = originalDiscount * ratioB;
-        
-        taxA = originalTax * ratioA;
-        taxB = originalTax * ratioB;
+
+    const totalSplitSubtotal = secSubtotals.reduce((a, b) => a + b, 0) || 1;
+    const originalDiscount = parseFloat(inv.discount) || 0;
+    const originalTax = parseFloat(inv.vatAmount) || 0;
+
+    const balanceBar = document.getElementById('split-live-balance-bar');
+    if (balanceBar) {
+        const emptySections = secTotalQtys.filter(q => q <= 0.0001).length;
+        const isPerfect = allRowsBalanced && emptySections === 0;
+        balanceBar.style.background = isPerfect ? 'rgba(16,185,129,0.12)' : 'rgba(245,158,11,0.14)';
+        balanceBar.style.borderColor = isPerfect ? 'rgba(52,211,153,0.55)' : 'rgba(251,191,36,0.55)';
+
+        const breakdownPills = secTotalQtys.map((q, s) => {
+            const pal = getSplitPalette(s);
+            return `<span style="background:rgba(2,6,23,0.7); border:1px solid ${pal.border}; color:${pal.color}; padding:3px 10px; border-radius:8px; font-weight:900; font-size:0.84rem;">#${rootNo}/${splitSeq}/${s + 1}: <strong>${+q.toFixed(3)}</strong></span>`;
+        }).join(' + ');
+
+        balanceBar.innerHTML = `
+            <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+                <span style="font-weight:900; font-size:0.9rem; color:#f8fafc;">⚖️ ميزان التوزيع الذكي:</span>
+                <span style="font-size:0.86rem; color:#cbd5e1;">الأصل القابل للتقسيم: <strong style="color:#38bdf8; font-family:monospace; font-size:1rem;">${+totalDeliverableAllItems.toFixed(3)}</strong></span>
+                <span style="color:#64748b;">|</span>
+                <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">${breakdownPills}</div>
+            </div>
+            <div>
+                ${isPerfect
+                    ? `<span style="background:linear-gradient(135deg, #10b981, #059669); color:#fff; padding:5px 14px; border-radius:99px; font-weight:900; font-size:0.84rem; box-shadow:0 0 15px rgba(16,185,129,0.4);">✅ التوزيع متوازن 100% — جاهز للاعتماد والطباعة</span>`
+                    : (emptySections > 0
+                        ? `<span style="background:rgba(245,158,11,0.25); border:1px solid #fbbf24; color:#fde68a; padding:5px 14px; border-radius:99px; font-weight:900; font-size:0.84rem;">⚠️ يوجد قسم بكمية صفر — وزّع الكميات على جميع الأقسام</span>`
+                        : `<span style="background:rgba(239,68,68,0.25); border:1px solid #f87171; color:#fecaca; padding:5px 14px; border-radius:99px; font-weight:900; font-size:0.84rem;">⚠️ مجموع الأقسام (${+totalAllocatedAllItems.toFixed(3)}) لا يطابق الأصل (${+totalDeliverableAllItems.toFixed(3)})</span>`)
+                }
+            </div>
+        `;
     }
-    
-    const grandA = Math.max(0, subtotalA - discountA + taxA);
-    const grandB = Math.max(0, subtotalB - discountB + taxB);
-    
-    const elSubA = document.getElementById('split-subtotal-a');
-    const elDiscA = document.getElementById('split-discount-a');
-    const elTaxA = document.getElementById('split-tax-a');
-    const elGrandA = document.getElementById('split-grand-a');
-    
-    if (elSubA) elSubA.innerText = subtotalA.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}) + ' SDG';
-    if (elDiscA) elDiscA.innerText = discountA.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}) + ' SDG';
-    if (elTaxA) elTaxA.innerText = taxA.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}) + ' SDG';
-    if (elGrandA) elGrandA.innerText = grandA.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}) + ' SDG';
-    
-    const elSubB = document.getElementById('split-subtotal-b');
-    const elDiscB = document.getElementById('split-discount-b');
-    const elTaxB = document.getElementById('split-tax-b');
-    const elGrandB = document.getElementById('split-grand-b');
-    
-    if (elSubB) elSubB.innerText = subtotalB.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}) + ' SDG';
-    if (elDiscB) elDiscB.innerText = discountB.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}) + ' SDG';
-    if (elTaxB) elTaxB.innerText = taxB.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}) + ' SDG';
-    if (elGrandB) elGrandB.innerText = grandB.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}) + ' SDG';
+
+    const cardsContainer = document.getElementById('split-cards-grid-container') || document.getElementById('split-subtotal-a')?.closest('div[style*="grid-template-columns"]');
+    if (cardsContainer) {
+        cardsContainer.id = 'split-cards-grid-container';
+        cardsContainer.innerHTML = Array.from({ length: S }, (_, s) => {
+            const pal = getSplitPalette(s);
+            const secNo = `${rootNo}/${splitSeq}/${s + 1}`;
+            const sub = secSubtotals[s];
+            const ratio = totalSplitSubtotal > 0 ? (sub / totalSplitSubtotal) : 0;
+            const disc = originalDiscount * ratio;
+            const tax = originalTax * ratio;
+            const grand = Math.max(0, sub - disc + tax);
+            const metaInfo = window._splitSectionMeta[s] || {};
+            const recVal = (metaInfo.receiverName ?? (inv.receiverName || inv.customerName || '')).replace(/"/g, '&quot;');
+            const trkVal = (metaInfo.truckPlate ?? (inv.truckPlate || '')).replace(/"/g, '&quot;');
+
+            return `
+                <div class="neo-card" style="border:1.5px solid ${pal.border}; background:linear-gradient(145deg, rgba(15,23,42,0.9), ${pal.bg}); padding:10px 14px; border-radius:14px; position:relative; overflow:hidden; margin:0; box-shadow:0 8px 24px rgba(0,0,0,0.3), 0 0 18px ${pal.glow};">
+                    <div style="position:absolute; top:0; right:0; width:5px; height:100%; background:${pal.color};"></div>
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; border-bottom:1px solid rgba(255,255,255,0.08); padding-bottom:6px; gap:6px; flex-wrap:wrap;">
+                        <h4 style="color:${pal.color}; margin:0; display:flex; align-items:center; gap:6px; font-size:0.95rem; font-weight:900;">
+                            <span>📄</span> إذن ${pal.title}
+                        </h4>
+                        <div style="display:flex; align-items:center; gap:5px;">
+                            <button type="button" onclick="window.previewCurrentSplitVouchersBeforeSave(${s})" style="background:rgba(56,189,248,0.16); border:1px solid rgba(56,189,248,0.45); color:#7dd3fc; border-radius:7px; padding:2px 8px; font-size:0.74rem; font-weight:900; cursor:pointer;" title="طباعة هذا الجزء بمفرده (#${secNo})">🖨️ طباعة الجزء (${s + 1})</button>
+                            <span style="background:#020617; border:1.5px solid ${pal.border}; color:#ffffff; font-family:'Outfit',monospace; font-weight:900; font-size:0.92rem; padding:2px 10px; border-radius:99px; box-shadow:0 0 10px ${pal.glow};">#${secNo}</span>
+                        </div>
+                    </div>
+                    <div style="display:flex; flex-direction:column; gap:5px; font-size:0.84rem;">
+                        <div style="display:flex; justify-content:space-between; color:#cbd5e1; font-weight:800;">
+                            <span>إجمالي الكميات بالقسم:</span>
+                            <span style="font-family:'Outfit',monospace; font-weight:900; color:${pal.color}; font-size:0.98rem;">${+secTotalQtys[s].toFixed(3)}</span>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; color:#cbd5e1; font-weight:700;">
+                            <span>الإجمالي قبل الخصم:</span>
+                            <span style="font-family:'Outfit',monospace; font-weight:800;">${sub.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})} ${currency}</span>
+                        </div>
+                        ${(originalDiscount > 0 || originalTax > 0) ? `
+                        <div style="display:flex; justify-content:space-between; color:#94a3b8; font-size:0.78rem;">
+                            <span>الخصم / الضريبة النسبية:</span>
+                            <span style="font-family:monospace;">-${disc.toFixed(2)} | +${tax.toFixed(2)}</span>
+                        </div>` : ''}
+                        <div style="display:flex; justify-content:space-between; font-weight:900; color:${pal.color}; font-size:1.12rem; border-top:1px solid rgba(255,255,255,0.08); padding-top:4px;">
+                            <span>الصافي النهائي:</span>
+                            <span style="font-family:'Outfit',monospace;">${grand.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})} ${currency}</span>
+                        </div>
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-top:6px; padding-top:6px; border-top:1px dashed rgba(255,255,255,0.1);">
+                            <input type="text" id="split-sec-receiver-${s}" value="${recVal}" oninput="window._splitSectionMeta[${s}] = Object.assign(window._splitSectionMeta[${s}]||{}, {receiverName: this.value})" placeholder="👤 المستلم لهذا القسم..." style="background:rgba(2,6,23,0.75); border:1px solid rgba(148,163,184,0.3); color:#f8fafc; border-radius:7px; padding:4px 8px; font-size:0.76rem; font-weight:700;">
+                            <input type="text" id="split-sec-truck-${s}" value="${trkVal}" oninput="window._splitSectionMeta[${s}] = Object.assign(window._splitSectionMeta[${s}]||{}, {truckPlate: this.value})" placeholder="🚛 رقم السيارة / ملاحظة..." style="background:rgba(2,6,23,0.75); border:1px solid rgba(148,163,184,0.3); color:#fcd34d; border-radius:7px; padding:4px 8px; font-size:0.76rem; font-weight:700;">
+                        </div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
 }
 
 function cancelCurrentSplit() {
     activeSplitInvoice = null;
-    document.getElementById('split-board-step').style.display = 'none';
-    document.getElementById('split-select-step').style.display = 'flex';
-    loadSplitInvoices();
+    window.activeSplitInvoice = null;
+    const boardStep = document.getElementById('split-board-step');
+    if (boardStep) boardStep.style.display = 'none';
+    window._splitReturnToView = null;
+    if (typeof showSalesHub === 'function') {
+        showSalesHub();
+    }
 }
 
-function submitInvoiceSplit() {
+function submitInvoiceSplit(autoPrintVouchers = false) {
     if (!activeSplitInvoice) return;
-    
-    const itemsA = [];
-    const itemsB = [];
-    
-    let hasQtyA = false;
-    let hasQtyB = false;
-    
-    activeSplitInvoice.items.forEach((item, idx) => {
-        const originalQty = parseFloat(item.quantity || item.qty || 0);
-        const inputA = document.getElementById(`split-qty-a-${idx}`);
-        const qtyA = inputA ? parseFloat(inputA.value) || 0 : originalQty;
-        const qtyB = originalQty - qtyA;
-        
-        let customBaseA = undefined;
-        let customBaseB = undefined;
-        if (item.customBaseQty !== undefined) {
-            const cbq = parseFloat(item.customBaseQty) || 0;
-            customBaseA = originalQty > 0 ? cbq * (qtyA / originalQty) : 0;
-            customBaseB = originalQty > 0 ? cbq * (qtyB / originalQty) : 0;
+    window.saveCurrentSplitDraftState();
+
+    const inv = activeSplitInvoice;
+    const S = window.splitSectionsCount || 2;
+    const rootNo = window.getRootInvoiceNo(inv);
+    const parentNo = String(inv.invoiceNo || inv.id || '');
+    const splitSeq = Math.max(1, parseInt(window.currentSplitOperationSeq, 10) || window.getNextSplitSequenceNo());
+
+    const sectionItems = Array.from({ length: S }, () => []);
+    let mismatchError = null;
+
+    (inv.items || []).forEach((item, idx) => {
+        const meta = window.resolveSplitItemUnitMeta(item);
+        const maxQty = meta.deliverableQty;
+        const origQty = meta.origQty;
+        let rowSum = 0;
+
+        for (let s = 0; s < S; s++) {
+            const inp = document.getElementById(`split-qty-s${s}-i${idx}`);
+            const q = inp ? (parseFloat(inp.value) || 0) : 0;
+            rowSum += q;
+
+            if (q > 0) {
+                let customBaseS = undefined;
+                if (item.customBaseQty !== undefined && origQty > 0) {
+                    customBaseS = (parseFloat(item.customBaseQty) || 0) * (q / origQty);
+                }
+                sectionItems[s].push({
+                    ...item,
+                    qty: q,
+                    quantity: q,
+                    deliveredQty: 0,
+                    total: +(q * meta.price).toFixed(2),
+                    ...(customBaseS !== undefined && { customBaseQty: customBaseS })
+                });
+            }
         }
-        
-        if (qtyA > 0) {
-            hasQtyA = true;
-            itemsA.push({
-                ...item,
-                qty: qtyA,
-                quantity: qtyA,
-                total: qtyA * parseFloat(item.price || 0),
-                ...(customBaseA !== undefined && { customBaseQty: customBaseA })
-            });
-        }
-        
-        if (qtyB > 0) {
-            hasQtyB = true;
-            itemsB.push({
-                ...item,
-                qty: qtyB,
-                quantity: qtyB,
-                total: qtyB * parseFloat(item.price || 0),
-                ...(customBaseB !== undefined && { customBaseQty: customBaseB })
-            });
+
+        if (Math.abs(maxQty - rowSum) > 0.001) {
+            mismatchError = `الصنف "${meta.name}": مجموع الأقسام (${+rowSum.toFixed(3)}) لا يساوي الكمية القابلة للتقسيم (${+maxQty.toFixed(3)} ${meta.primaryUnit}).`;
         }
     });
-    
-    if (!hasQtyA || !hasQtyB) {
-        alert('خطأ: لا يمكن إتمام عملية تقسيم الفاتورة إلا إذا تم وضع صنف واحد على الأقل في كل فاتورة فرعية! (لا يمكن أن تكون إحداهما فارغة).');
+
+    if (mismatchError) {
+        if (typeof showToast === 'function') showToast('⚠️ ' + mismatchError, 'warning');
+        else alert(mismatchError);
         return;
     }
-    
-    if (!confirm('هل أنت متأكد من رغبتك في تقسيم هذه الفاتورة واعتماد الفاتورتين الجديدتين؟\nسيتم أرشفة الفاتورة القديمة تلقائياً.')) {
-        return;
+
+    for (let s = 0; s < S; s++) {
+        if (sectionItems[s].length === 0) {
+            const msg = `خطأ: القسم رقم (${s + 1}) برقم #${rootNo}/${splitSeq}/${s + 1} فارغ تماماً! يرجى توزيع كمية فيه أو حذفه.`;
+            if (typeof showToast === 'function') showToast('⚠️ ' + msg, 'warning');
+            else alert(msg);
+            return;
+        }
     }
-    
-    const invoiceNoA = `${activeSplitInvoice.invoiceNo}-1`;
-    const invoiceNoB = `${activeSplitInvoice.invoiceNo}-2`;
-    
-    const subtotalA = itemsA.reduce((sum, item) => sum + item.total, 0);
-    const subtotalB = itemsB.reduce((sum, item) => sum + item.total, 0);
-    const originalSubtotal = parseFloat(activeSplitInvoice.subTotal || activeSplitInvoice.grandTotal || activeSplitInvoice.total) || (subtotalA + subtotalB) || 1;
-    const originalDiscount = parseFloat(activeSplitInvoice.discount) || 0;
-    const originalTax = parseFloat(activeSplitInvoice.vatAmount) || 0;
-    
-    const ratioA = subtotalA / originalSubtotal;
-    const discountA = originalDiscount * ratioA;
-    const taxA = originalTax * ratioA;
-    const grandA = Math.max(0, subtotalA - discountA + taxA);
-    const cashA = (parseFloat(activeSplitInvoice.cashAmount) || 0) * ratioA;
-    const creditA = (parseFloat(activeSplitInvoice.creditAmount) || 0) * ratioA;
-    const bankTransfersA = (activeSplitInvoice.bankTransfers || []).map(bt => ({...bt, amount: bt.amount * ratioA}));
-    const chequesA = (activeSplitInvoice.cheques || []).map(ch => ({...ch, amount: ch.amount * ratioA}));
-    const laborA = (parseFloat(activeSplitInvoice.laborCost) || 0) * ratioA;
-    const laborFcA = (parseFloat(activeSplitInvoice.laborCostFc) || 0) * ratioA;
-    const transportA = (parseFloat(activeSplitInvoice.transportCost) || 0) * ratioA;
-    const transportFcA = (parseFloat(activeSplitInvoice.transportCostFc) || 0) * ratioA;
-    const additionsA = (parseFloat(activeSplitInvoice.additionsCost) || 0) * ratioA;
-    const additionsFcA = (parseFloat(activeSplitInvoice.additionsCostFc) || 0) * ratioA;
-    
-    const ratioB = subtotalB / originalSubtotal;
-    const discountB = originalDiscount * ratioB;
-    const taxB = originalTax * ratioB;
-    const grandB = Math.max(0, subtotalB - discountB + taxB);
-    const cashB = (parseFloat(activeSplitInvoice.cashAmount) || 0) * ratioB;
-    const creditB = (parseFloat(activeSplitInvoice.creditAmount) || 0) * ratioB;
-    const bankTransfersB = (activeSplitInvoice.bankTransfers || []).map(bt => ({...bt, amount: bt.amount * ratioB}));
-    const chequesB = (activeSplitInvoice.cheques || []).map(ch => ({...ch, amount: ch.amount * ratioB}));
-    const laborB = (parseFloat(activeSplitInvoice.laborCost) || 0) * ratioB;
-    const laborFcB = (parseFloat(activeSplitInvoice.laborCostFc) || 0) * ratioB;
-    const transportB = (parseFloat(activeSplitInvoice.transportCost) || 0) * ratioB;
-    const transportFcB = (parseFloat(activeSplitInvoice.transportCostFc) || 0) * ratioB;
-    const additionsB = (parseFloat(activeSplitInvoice.additionsCost) || 0) * ratioB;
-    const additionsFcB = (parseFloat(activeSplitInvoice.additionsCostFc) || 0) * ratioB;
-    
+
+    const generatedNumbers = Array.from({ length: S }, (_, s) => `${rootNo}/${splitSeq}/${s + 1}`);
     const curUser = (typeof window.getCurrentUserInfo === 'function') ? window.getCurrentUserInfo() : { id: 1, name: 'المسؤول', username: 'admin' };
 
-    const invoiceA = {
-        ...activeSplitInvoice,
-        id: invoiceNoA,
-        invoiceNo: invoiceNoA,
-        items: itemsA,
-        subTotal: subtotalA,
-        discount: discountA,
-        vatAmount: taxA,
-        grandTotal: grandA,
-        total: grandA,
-        cashAmount: cashA,
-        creditAmount: creditA,
-        bankTransfers: bankTransfersA,
-        cheques: chequesA,
-        laborCost: laborA,
-        laborCostFc: laborFcA,
-        transportCost: transportA,
-        transportCostFc: transportFcA,
-        additionsCost: additionsA,
-        additionsCostFc: additionsFcA,
-        timestamp: new Date().toISOString(),
-        parentInvoice: activeSplitInvoice.invoiceNo,
-        isSplit: true,
-        splitBy: curUser.id,
-        splitByName: curUser.fullName || curUser.name,
-        createdBy: curUser.id,
-        createdByName: curUser.fullName || curUser.name
-    };
-    
-    const invoiceB = {
-        ...activeSplitInvoice,
-        id: invoiceNoB,
-        invoiceNo: invoiceNoB,
-        items: itemsB,
-        subTotal: subtotalB,
-        discount: discountB,
-        vatAmount: taxB,
-        grandTotal: grandB,
-        total: grandB,
-        cashAmount: cashB,
-        creditAmount: creditB,
-        bankTransfers: bankTransfersB,
-        cheques: chequesB,
-        laborCost: laborB,
-        laborCostFc: laborFcB,
-        transportCost: transportB,
-        transportCostFc: transportFcB,
-        additionsCost: additionsB,
-        additionsCostFc: additionsFcB,
-        timestamp: new Date().toISOString(),
-        parentInvoice: activeSplitInvoice.invoiceNo,
-        isSplit: true,
-        splitBy: curUser.id,
-        splitByName: curUser.fullName || curUser.name,
-        createdBy: curUser.id,
-        createdByName: curUser.fullName || curUser.name
-    };
-    
+    const secSubtotals = sectionItems.map(itemsList => itemsList.reduce((sum, it) => sum + (parseFloat(it.total) || 0), 0));
+    const totalSplitSubtotal = secSubtotals.reduce((a, b) => a + b, 0) || 1;
+
+    const originalDiscount = parseFloat(inv.discount) || 0;
+    const originalTax = parseFloat(inv.vatAmount) || 0;
+    const origCash = parseFloat(inv.cashAmount) || 0;
+    const origCredit = parseFloat(inv.creditAmount) || 0;
+    const origPaid = parseFloat(inv.paidAmount ?? inv.downPayment ?? 0) || 0;
+    const origLabor = parseFloat(inv.laborCost) || 0;
+    const origLaborFc = parseFloat(inv.laborCostFc) || 0;
+    const origTransport = parseFloat(inv.transportCost) || 0;
+    const origTransportFc = parseFloat(inv.transportCostFc) || 0;
+    const origAdditions = parseFloat(inv.additionsCost) || 0;
+    const origAdditionsFc = parseFloat(inv.additionsCostFc) || 0;
+    const nowIso = new Date().toISOString();
+
+    const createdInvoices = generatedNumbers.map((childNo, s) => {
+        const sub = +secSubtotals[s].toFixed(2);
+        const ratio = totalSplitSubtotal > 0 ? (sub / totalSplitSubtotal) : (1 / S);
+        const disc = +(originalDiscount * ratio).toFixed(2);
+        const tax = +(originalTax * ratio).toFixed(2);
+        const grand = Math.max(0, +(sub - disc + tax).toFixed(2));
+        const cashVal = +(origCash * ratio).toFixed(2);
+        const creditVal = +(origCredit * ratio).toFixed(2);
+        const paidVal = +(origPaid * ratio).toFixed(2);
+        const secMeta = window._splitSectionMeta[s] || {};
+
+        return {
+            ...inv,
+            id: childNo,
+            invoiceNo: childNo,
+            serial: childNo,
+            items: sectionItems[s],
+            subTotal: sub,
+            discount: disc,
+            vatAmount: tax,
+            grandTotal: grand,
+            total: grand,
+            netTotal: grand,
+            cashAmount: cashVal,
+            creditAmount: creditVal,
+            paidAmount: paidVal,
+            remainingBalance: Math.max(0, +(grand - paidVal).toFixed(2)),
+            bankTransfers: (inv.bankTransfers || []).map(bt => ({ ...bt, amount: +(parseFloat(bt.amount || 0) * ratio).toFixed(2) })),
+            cheques: (inv.cheques || []).map(ch => ({ ...ch, amount: +(parseFloat(ch.amount || 0) * ratio).toFixed(2) })),
+            laborCost: +(origLabor * ratio).toFixed(2),
+            laborCostFc: +(origLaborFc * ratio).toFixed(2),
+            transportCost: +(origTransport * ratio).toFixed(2),
+            transportCostFc: +(origTransportFc * ratio).toFixed(2),
+            additionsCost: +(origAdditions * ratio).toFixed(2),
+            additionsCostFc: +(origAdditionsFc * ratio).toFixed(2),
+            receiverName: secMeta.receiverName || inv.receiverName || inv.customerName || '',
+            truckPlate: secMeta.truckPlate || inv.truckPlate || '',
+            timestamp: nowIso,
+            rootInvoice: rootNo,
+            parentInvoice: parentNo,
+            splitBatchNo: splitSeq,
+            splitBranchIndex: s + 1,
+            splitTotalBranches: S,
+            splitSiblings: generatedNumbers,
+            isSplit: true,
+            wasSplit: false,
+            deleted: false,
+            isDelivered: false,
+            deliveryStatus: 'pending',
+            status: 'pending_delivery',
+            deliveryNo: '',
+            splitBy: curUser.id,
+            splitByName: curUser.fullName || curUser.name,
+            createdBy: curUser.id,
+            createdByName: curUser.fullName || curUser.name
+        };
+    });
+
+    const currentStoredSeq = parseInt(localStorage.getItem('erp_sales_split_seq_v1') || '0', 10) || 0;
+    if (splitSeq > currentStoredSeq) {
+        localStorage.setItem('erp_sales_split_seq_v1', String(splitSeq));
+    }
+
+    if (typeof revertSalesInvoiceEffects === 'function') {
+        revertSalesInvoiceEffects(parentNo, false);
+    }
+
     let allSales = [];
     try {
         allSales = JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || [];
     } catch(e) {}
     
-    const origIdx = allSales.findIndex(x => (x.invoiceNo || x.id) === activeSplitInvoice.invoiceNo);
+    const origIdx = allSales.findIndex(x => String(x.invoiceNo || x.id) === parentNo);
     let archivedOrig = null;
     if (origIdx !== -1) {
         allSales[origIdx].deleted = true;
         allSales[origIdx].wasSplit = true;
-        allSales[origIdx].splitTo = [invoiceNoA, invoiceNoB];
+        allSales[origIdx].rootInvoice = rootNo;
+        allSales[origIdx].splitBatchNo = splitSeq;
+        allSales[origIdx].splitTo = generatedNumbers;
+        allSales[origIdx].splitAt = nowIso;
         allSales[origIdx].splitBy = curUser.id;
         allSales[origIdx].splitByName = curUser.fullName || curUser.name;
         archivedOrig = allSales[origIdx];
+        localStorage.setItem('erp_inv_' + parentNo, JSON.stringify(archivedOrig));
     }
     
-    allSales.push(invoiceA);
-    allSales.push(invoiceB);
+    createdInvoices.forEach(cInv => {
+        allSales.unshift(cInv);
+        localStorage.setItem('erp_inv_' + cInv.invoiceNo, JSON.stringify(cInv));
+    });
     localStorage.setItem('erp_sales_invoices_v1', JSON.stringify(allSales));
-    
-    localStorage.setItem('erp_inv_' + invoiceNoA, JSON.stringify(invoiceA));
-    localStorage.setItem('erp_inv_' + invoiceNoB, JSON.stringify(invoiceB));
 
-    // Sync split child invoices & archived original invoice to MariaDB so Mobile sees them immediately
+    const applyEffects = (cInv) => {
+        const grandAmount = parseFloat(cInv.grandTotal) || 0;
+        let creditAddAmount = 0;
+        if (cInv.paymentMethod === 'hybrid' || cInv.paymentMethod === 'multipay') {
+            creditAddAmount = parseFloat(cInv.creditAmount) || 0;
+        } else if (cInv.paymentMethod === 'credit') {
+            creditAddAmount = grandAmount;
+        }
+        if (creditAddAmount > 0 && cInv.customer && cInv.customer !== 'walk-in') {
+            let customers = JSON.parse(localStorage.getItem('erp_customers_v1')) || [];
+            const cIdx = customers.findIndex(c => c.id === cInv.customer || c.id === cInv.customerId);
+            if (cIdx > -1) {
+                customers[cIdx].currentBalance = (parseFloat(customers[cIdx].currentBalance) || 0) + creditAddAmount;
+                localStorage.setItem('erp_customers_v1', JSON.stringify(customers));
+            }
+        }
+
+        let banks = JSON.parse(localStorage.getItem('erp_banks_v1')) || [];
+        let safes = JSON.parse(localStorage.getItem('erp_safes_v1')) || [];
+        let banksMod = false;
+        let safesMod = false;
+
+        if (cInv.paymentMethod === 'hybrid' || cInv.paymentMethod === 'multipay') {
+            if (cInv.cashAmount > 0 && cInv.paymentAccountId) {
+                const bIdx = banks.findIndex(b => b.id === cInv.paymentAccountId);
+                if (bIdx > -1) {
+                    banks[bIdx].currentBalance = (parseFloat(banks[bIdx].currentBalance) || 0) + parseFloat(cInv.cashAmount);
+                    banksMod = true;
+                } else {
+                    const sIdx = safes.findIndex(s => s.id === cInv.paymentAccountId);
+                    if (sIdx > -1) {
+                        safes[sIdx].currentBalance = (parseFloat(safes[sIdx].currentBalance) || 0) + parseFloat(cInv.cashAmount);
+                        safesMod = true;
+                    }
+                }
+            }
+            if (Array.isArray(cInv.bankTransfers)) {
+                cInv.bankTransfers.forEach(bt => {
+                    const bIdx = banks.findIndex(b => b.id === bt.bankAccountId);
+                    if (bIdx > -1) {
+                        banks[bIdx].currentBalance = (parseFloat(banks[bIdx].currentBalance) || 0) + (parseFloat(bt.amount) || 0);
+                        banksMod = true;
+                    } else {
+                        const sIdx = safes.findIndex(s => s.id === bt.bankAccountId);
+                        if (sIdx > -1) {
+                            safes[sIdx].currentBalance = (parseFloat(safes[sIdx].currentBalance) || 0) + (parseFloat(bt.amount) || 0);
+                            safesMod = true;
+                        }
+                    }
+                });
+            }
+        } else if (cInv.paymentMethod !== 'credit' && cInv.paymentAccountId) {
+            const bIdx = banks.findIndex(b => b.id === cInv.paymentAccountId);
+            if (bIdx > -1) {
+                banks[bIdx].currentBalance = (parseFloat(banks[bIdx].currentBalance) || 0) + grandAmount;
+                banksMod = true;
+            } else {
+                const sIdx = safes.findIndex(s => s.id === cInv.paymentAccountId);
+                if (sIdx > -1) {
+                    safes[sIdx].currentBalance = (parseFloat(safes[sIdx].currentBalance) || 0) + grandAmount;
+                    safesMod = true;
+                }
+            }
+        }
+
+        if (banksMod) localStorage.setItem('erp_banks_v1', JSON.stringify(banks));
+        if (safesMod) localStorage.setItem('erp_safes_v1', JSON.stringify(safes));
+    };
+
+    createdInvoices.forEach(applyEffects);
+
     if (navigator.onLine) {
-        [invoiceA, invoiceB, ...(archivedOrig ? [Object.assign({}, archivedOrig, { isEdit: true })] : [])].forEach(doc => {
+        const docsToSync = [
+            ...(archivedOrig ? [Object.assign({}, archivedOrig, { isEdit: true, deleted: 1, wasSplit: true })] : []),
+            ...createdInvoices
+        ];
+        docsToSync.forEach(doc => {
             fetch('api/mirror_sync.php?action=save_sales_invoice', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -6260,73 +6983,338 @@ function submitInvoiceSplit() {
             }).catch(() => {});
         });
     } else if (window.MagaiesOffline && typeof window.MagaiesOffline.enqueue === 'function') {
-        window.MagaiesOffline.enqueue('sales_split', invoiceA, invoiceNoA);
-        window.MagaiesOffline.enqueue('sales_split', invoiceB, invoiceNoB);
+        createdInvoices.forEach(cInv => {
+            window.MagaiesOffline.enqueue('sales_split', cInv, cInv.invoiceNo);
+        });
     }
 
     if (window.logSystemAction) {
-        window.logSystemAction('تقسيم فاتورة مبيعات', 'المبيعات', activeSplitInvoice.invoiceNo, `تم تقسيم الفاتورة رقم ${activeSplitInvoice.invoiceNo} إلى ${invoiceNoA} و ${invoiceNoB}`);
+        window.logSystemAction('تقسيم فاتورة/إذن مبيعات', 'المبيعات والتسليم', parentNo, `تم تقسيم الإذن #${parentNo} (المرجع الأصلي #${rootNo} - عملية تقسيم #${splitSeq}) إلى: ${generatedNumbers.join(' ، ')}`);
     }
-    
-    // ── 1. Revert Old Invoice Effects ──
-    if (typeof revertSalesInvoiceEffects === 'function') {
-        revertSalesInvoiceEffects(activeSplitInvoice.invoiceNo, false);
+
+    if (typeof window.playGdnSuccessBeep === 'function') {
+        window.playGdnSuccessBeep();
     }
-    
-    // ── 2. Apply New Invoices Effects ──
-    const applyEffects = (inv) => {
-        if (inv.creditAmount > 0 && inv.customer && inv.customer !== 'walk-in') {
-            let customers = JSON.parse(localStorage.getItem('erp_customers_v1')) || [];
-            const cIdx = customers.findIndex(c => c.id === inv.customer || c.id === inv.customerId);
-            if (cIdx > -1) {
-                let currentBalance = parseFloat(customers[cIdx].currentBalance);
-                if (isNaN(currentBalance)) currentBalance = 0;
-                customers[cIdx].currentBalance = currentBalance + parseFloat(inv.creditAmount);
-                localStorage.setItem('erp_customers_v1', JSON.stringify(customers));
-            }
-        }
-        
-        let banks = JSON.parse(localStorage.getItem('erp_banks_v1')) || [];
-        let banksModified = false;
-        
-        if (inv.cashAmount > 0 && inv.paymentAccountId) {
-            const bIdx = banks.findIndex(b => b.id === inv.paymentAccountId);
-            if (bIdx > -1) {
-                let currentBalance = parseFloat(banks[bIdx].currentBalance);
-                if (isNaN(currentBalance)) currentBalance = parseFloat(banks[bIdx].openingBalance) || 0;
-                banks[bIdx].currentBalance = currentBalance + parseFloat(inv.cashAmount);
-                banksModified = true;
-            }
-        }
-        
-        if (inv.bankTransfers && inv.bankTransfers.length > 0) {
-            inv.bankTransfers.forEach(bt => {
-                const bIdx = banks.findIndex(b => b.id === bt.bankAccountId);
-                if (bIdx > -1) {
-                    let currentBalance = parseFloat(banks[bIdx].currentBalance);
-                    if (isNaN(currentBalance)) currentBalance = parseFloat(banks[bIdx].openingBalance) || 0;
-                    banks[bIdx].currentBalance = currentBalance + parseFloat(bt.amount);
-                    banksModified = true;
-                }
-            });
-        }
-        
-        if (banksModified) {
-            localStorage.setItem('erp_banks_v1', JSON.stringify(banks));
-        }
-    };
-    
-    applyEffects(invoiceA);
-    applyEffects(invoiceB);
-    
+
     if (typeof showToast === 'function') {
-        showToast('تم تقسيم الفاتورة واعتماد المستندين الجديدين بنجاح! ✂️', 'success');
-    } else {
-        alert('تم تقسيم الفاتورة واعتماد المستندين الجديدين بنجاح! ✂️');
+        showToast(`✅ تم تقسيم الإذن #${parentNo} بنجاح إلى: ${generatedNumbers.join(' و ')} ✂️`, 'success');
     }
-    
-    showSalesHub();
+
+    if (window._hubSalesCache) {
+        window._hubSalesCache.raw = null;
+    }
+
+    if (autoPrintVouchers) {
+        window.printSplitVouchersBatch(createdInvoices, rootNo, splitSeq);
+    }
+
+    activeSplitInvoice = null;
+    window.activeSplitInvoice = null;
+    const boardStep = document.getElementById('split-board-step');
+    if (boardStep) boardStep.style.display = 'none';
+    window._splitReturnToView = null;
+
+    if (typeof showSalesHub === 'function') {
+        showSalesHub();
+    }
+    if (typeof loadHubTransactions === 'function') {
+        loadHubTransactions();
+    }
+
+    window.showPostSplitSuccessModal(createdInvoices, rootNo, splitSeq);
 }
+
+window.showPostSplitSuccessModal = function(createdInvoices, rootNo, splitSeq) {
+    if (!Array.isArray(createdInvoices) || createdInvoices.length === 0) return;
+    window._lastCreatedSplitVouchers = { list: createdInvoices, rootNo, splitSeq };
+
+    let modal = document.getElementById('post-split-success-modal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'post-split-success-modal';
+        modal.style.cssText = 'display:none; position:fixed; inset:0; background:rgba(2,6,23,0.88); backdrop-filter:blur(12px); z-index:9999999; align-items:center; justify-content:center; direction:rtl; font-family:"Tajawal",sans-serif; padding:16px;';
+        document.body.appendChild(modal);
+    }
+
+    const partsCardsHtml = createdInvoices.map((cInv, idx) => {
+        const cNo = String(cInv.invoiceNo || cInv.id || '');
+        const escCNo = cNo.replace(/'/g, "\\'");
+        const pal = getSplitPalette(idx);
+        const itemsSummary = (cInv.items || []).map(it => {
+            const m = window.resolveSplitItemUnitMeta(it);
+            const q = parseFloat(it.qty ?? it.quantity ?? 0) || 0;
+            const subQ = +(q * m.factor).toFixed(2);
+            return `<div style="font-size:0.84rem; color:#f8fafc; font-weight:800;">📦 ${m.name}: <span style="color:${pal.color};">${q} ${m.primaryUnit}</span> ${m.factor > 1 ? `<span style="color:#c4b5fd;">(🔢 ⇄ ${subQ.toLocaleString('en-US')} ${m.baseUnit})</span>` : ''}</div>`;
+        }).join('');
+
+        return `
+            <div style="background:rgba(15,23,42,0.9); border:1.5px solid ${pal.border}; border-radius:14px; padding:14px; display:flex; flex-direction:column; gap:8px; box-shadow:0 0 18px ${pal.glow};">
+                <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(255,255,255,0.08); padding-bottom:6px;">
+                    <strong style="color:${pal.color}; font-size:1rem;">📄 الجزء (${idx + 1}) من (${createdInvoices.length})</strong>
+                    <span style="background:#020617; border:1px solid ${pal.border}; color:#fff; padding:2px 10px; border-radius:99px; font-family:'Outfit',monospace; font-weight:900;">#${cNo}</span>
+                </div>
+                <div style="display:flex; flex-direction:column; gap:4px;">${itemsSummary}</div>
+                <div style="font-size:0.9rem; font-weight:900; color:#10b981; font-family:'Outfit',monospace;">💰 الصافي: ${(parseFloat(cInv.grandTotal || cInv.total || 0)).toLocaleString()} ${cInv.currency || 'SDG'}</div>
+                <div style="display:flex; gap:6px; margin-top:4px; flex-wrap:wrap;">
+                    <button type="button" onclick="window.printSplitVouchersBatch([window._lastCreatedSplitVouchers.list[${idx}]], '${rootNo}', '${splitSeq}')" class="kinetic-glow-arm kinetic-arm-cyan" style="flex:1; padding:7px 10px; border-radius:8px; font-size:0.8rem; font-weight:900; cursor:pointer;">🖨️ طباعة الجزء (${idx + 1}) فقط</button>
+                    <button type="button" onclick="document.getElementById('post-split-success-modal').style.display='none'; if(typeof window.openDeliveryForInvoiceFromHub==='function') window.openDeliveryForInvoiceFromHub('${escCNo}', 0, 'primary');" class="kinetic-glow-arm kinetic-arm-emerald" style="flex:1; padding:7px 10px; border-radius:8px; font-size:0.8rem; font-weight:900; cursor:pointer;">📦 تسليم الجزء (${idx + 1}) الآن</button>
+                </div>
+            </div>
+        `;
+    }).join('');
+
+    modal.innerHTML = `
+        <div style="width:95vw; max-width:860px; max-height:90vh; overflow-y:auto; background:linear-gradient(160deg, #070c18, #0f172a, #170d26); border:2px solid rgba(16,185,129,0.55); border-radius:20px; padding:22px; box-shadow:0 30px 90px rgba(0,0,0,0.92), 0 0 40px rgba(16,185,129,0.22); color:#fff;">
+            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1.5px solid rgba(255,255,255,0.1); padding-bottom:12px; margin-bottom:14px; flex-wrap:wrap; gap:10px;">
+                <div>
+                    <h3 style="margin:0; font-size:1.28rem; font-weight:900; color:#6ee7b7;">✅ تم تقسيم الفاتورة #${rootNo} بنجاح إلى (${createdInvoices.length}) أجزاء جاهزة للطباعة والتسليم</h3>
+                    <p style="margin:4px 0 0; font-size:0.85rem; color:#cbd5e1;">يمكنك طباعة الجزئين معاً في ورقة واحدة، أو طباعة كل جزء بمفرده، أو تسليم أي جزء فوراً:</p>
+                </div>
+                <button type="button" onclick="document.getElementById('post-split-success-modal').style.display='none'" style="background:rgba(239,68,68,0.2); border:1px solid rgba(239,68,68,0.5); color:#fca5a5; border-radius:10px; padding:6px 14px; font-weight:900; cursor:pointer;">✕ إغلاق</button>
+            </div>
+            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:12px; margin-bottom:16px;">
+                ${partsCardsHtml}
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap; border-top:1px solid rgba(255,255,255,0.1); padding-top:14px;">
+                <button type="button" onclick="window.printSplitVouchersBatch(window._lastCreatedSplitVouchers.list, '${rootNo}', '${splitSeq}')" class="kinetic-glow-arm kinetic-arm-pink" style="padding:10px 24px; border-radius:11px; font-size:0.96rem; font-weight:900; cursor:pointer;">
+                    🖨️ طباعة الجزئين / جميع الأذونات المقسمة معاً الآن
+                </button>
+                <button type="button" onclick="document.getElementById('post-split-success-modal').style.display='none'" style="background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.2); color:#fff; padding:10px 20px; border-radius:11px; font-weight:900; cursor:pointer;">
+                    👍 تم — العودة للجدول الموحد
+                </button>
+            </div>
+        </div>
+    `;
+    modal.style.display = 'flex';
+};
+
+window.printSplitVouchersBatch = function(vouchersList, rootNo, splitSeq) {
+    if (!Array.isArray(vouchersList) || vouchersList.length === 0) return;
+    const totalBranches = vouchersList.length;
+
+    const pagesHtml = vouchersList.map((inv, idx) => {
+        const invNo = String(inv.invoiceNo || inv.id || '');
+        const qrTargetUrl = `${window.location.origin}${window.location.pathname}?action=delivery&qr_deliver=${encodeURIComponent(invNo)}&auto_deduct=1`;
+        const qrImgUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&margin=4&data=${encodeURIComponent(qrTargetUrl)}`;
+        const custName = inv.customerName || 'عميل نقدي';
+        const receiver = inv.receiverName || custName;
+        const truck = inv.truckPlate || '—';
+
+        const rowsHtml = (inv.items || []).map((it, i) => {
+            const m = window.resolveSplitItemUnitMeta(it);
+            const q = parseFloat(it.qty ?? it.quantity ?? 0) || 0;
+            const subQ = +(q * m.factor).toFixed(2);
+            return `
+                <tr>
+                    <td style="padding:8px; border:1px solid #0f172a; text-align:center; font-weight:800;">${i + 1}</td>
+                    <td style="padding:8px; border:1px solid #0f172a; font-weight:900;">${m.name}</td>
+                    <td style="padding:8px; border:1px solid #0f172a; text-align:center; font-weight:900; font-size:1.1rem;">${q} ${m.primaryUnit}</td>
+                    <td style="padding:8px; border:1px solid #0f172a; text-align:center; font-weight:800;">${m.hasMultiUnits ? `${subQ.toLocaleString('en-US')} ${m.baseUnit}` : `${q} ${m.baseUnit}`}</td>
+                </tr>
+            `;
+        }).join('');
+
+        return `
+            <div class="voucher-card" style="${idx < totalBranches - 1 ? 'page-break-after:always; margin-bottom:28px; border-bottom:3px dashed #64748b; padding-bottom:24px;' : ''}">
+                <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:3px solid #0f172a; padding-bottom:12px; margin-bottom:14px;">
+                    <div>
+                        <div style="display:inline-block; background:#0f172a; color:#fff; padding:4px 12px; border-radius:6px; font-weight:900; font-size:0.85rem; margin-bottom:6px;">
+                            ✂️ إذن صرف مقسّم — القسم (${idx + 1}) من (${totalBranches})
+                        </div>
+                        <h2 style="margin:0; font-size:1.45rem;">🚚 إذن تسليم وصرف بضاعة رقم: <span style="font-family:monospace; direction:ltr; display:inline-block;">#${invNo}</span></h2>
+                        <p style="margin:6px 0 0; font-weight:900; font-size:0.95rem;">
+                            📌 الإذن المرجعي الأصلي: <span style="font-family:monospace;">#${rootNo}</span> &nbsp;|&nbsp;
+                            🔢 رقم عملية التقسيم: <span style="font-family:monospace;">#${splitSeq}</span> &nbsp;|&nbsp;
+                            🏷️ القسم الفرعي: <span style="font-family:monospace;">${idx + 1}/${totalBranches}</span>
+                        </p>
+                        <p style="margin:4px 0 0; font-weight:800;">👤 العميل: ${custName} &nbsp;|&nbsp; المستلم: ${receiver} &nbsp;|&nbsp; 🚛 المركبة: ${truck}</p>
+                        <p style="margin:4px 0 0; font-weight:800;">📅 التاريخ: ${inv.date || new Date().toISOString().slice(0, 10)}</p>
+                    </div>
+                    <div style="text-align:center;">
+                        <img src="${qrImgUrl}" style="width:115px; height:115px; border:2px solid #000; border-radius:10px;">
+                        <div style="font-size:0.7rem; font-weight:900; margin-top:3px;">امسح للصرف الفوري (#${invNo})</div>
+                    </div>
+                </div>
+                <table style="width:100%; border-collapse:collapse; margin-top:10px;">
+                    <thead>
+                        <tr style="background:#064e3b; color:#fff;">
+                            <th style="padding:9px; border:1px solid #000; width:50px;">#</th>
+                            <th style="padding:9px; border:1px solid #000; text-align:right;">الصنف</th>
+                            <th style="padding:9px; border:1px solid #000;">الكمية المعتمدة بهذا القسم</th>
+                            <th style="padding:9px; border:1px solid #000;">المعادل بالوحدات الفرعية</th>
+                        </tr>
+                    </thead>
+                    <tbody>${rowsHtml}</tbody>
+                </table>
+                <div style="display:flex; justify-content:space-between; margin-top:32px; font-weight:900;">
+                    <div>توقيع أمين المستودع: ________________</div>
+                    <div>توقيع السائق / المستلم: ________________</div>
+                    <div>ختم بوابة الخروج: ________________</div>
+                </div>
+            </div>
+        `;
+    }).join('');
+
+    const w = window.open('', '_blank', 'width=940,height=780');
+    if (!w) return;
+    w.document.write(`
+        <!DOCTYPE html>
+        <html dir="rtl" lang="ar">
+        <head>
+            <meta charset="UTF-8">
+            <title>أذونات الصرف المقسمة - أصل #${rootNo} - تقسيم #${splitSeq}</title>
+            <style>
+                body { font-family: 'Cairo', 'Tajawal', sans-serif; padding: 20px; color: #000; }
+                body.compact-two-per-page .voucher-card { page-break-after: auto !important; margin-bottom: 18px !important; padding-bottom: 14px !important; }
+                @media print { .no-print { display: none !important; } }
+            </style>
+        </head>
+        <body class="compact-two-per-page">
+            <div class="no-print" style="margin-bottom:16px; padding:10px 16px; background:#0f172a; color:#fff; border-radius:10px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+                <strong>🖨️ جاهز للطباعة: ${totalBranches} أذونات صرف مقسمة من الإذن المرجعي #${rootNo} (عملية تقسيم #${splitSeq})</strong>
+                <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                    <button onclick="document.body.classList.toggle('compact-two-per-page')" style="background:#3b82f6; color:#fff; border:none; padding:8px 14px; border-radius:8px; font-weight:900; cursor:pointer;">📄 تبديل: الجزئين في ورقة واحدة / كل جزء في صفحة</button>
+                    <button onclick="window.print()" style="background:#10b981; color:#fff; border:none; padding:8px 20px; border-radius:8px; font-weight:900; cursor:pointer;">🖨️ طباعة الجزئين / الكل الآن</button>
+                </div>
+            </div>
+            ${pagesHtml}
+            <script>window.onload = () => { setTimeout(() => window.print(), 350); };<\/script>
+        </body>
+        </html>
+    `);
+    w.document.close();
+};
+
+window.previewCurrentSplitVouchersBeforeSave = function(onlySecIdx = null) {
+    if (!activeSplitInvoice) return;
+    window.saveCurrentSplitDraftState();
+    const inv = activeSplitInvoice;
+    const S = window.splitSectionsCount || 2;
+    const rootNo = window.getRootInvoiceNo(inv);
+    const splitSeq = Math.max(1, parseInt(window.currentSplitOperationSeq, 10) || window.getNextSplitSequenceNo());
+
+    const draftVouchers = [];
+    for (let s = 0; s < S; s++) {
+        if (onlySecIdx !== null && onlySecIdx !== s) continue;
+        const secItems = [];
+        (inv.items || []).forEach((item, idx) => {
+            const inp = document.getElementById(`split-qty-s${s}-i${idx}`);
+            const q = inp ? (parseFloat(inp.value) || 0) : ((inv._splitDraftQtys?.[idx]?.[s]) || 0);
+            if (q > 0) {
+                secItems.push({ ...item, qty: q, quantity: q });
+            }
+        });
+        const secMeta = window._splitSectionMeta?.[s] || {};
+        draftVouchers.push({
+            ...inv,
+            invoiceNo: `${rootNo}/${splitSeq}/${s + 1}`,
+            id: `${rootNo}/${splitSeq}/${s + 1}`,
+            items: secItems,
+            receiverName: secMeta.receiverName || inv.receiverName || inv.customerName || '',
+            truckPlate: secMeta.truckPlate || inv.truckPlate || ''
+        });
+    }
+    if (draftVouchers.length > 0) {
+        window.printSplitVouchersBatch(draftVouchers, rootNo, splitSeq);
+    }
+};
+
+window.printSplitFamilyVouchers = function(invIdentifier) {
+    const allSales = JSON.parse(localStorage.getItem('erp_sales_invoices_v1') || '[]');
+    const target = allSales.find(x => String(x.invoiceNo || x.id) === String(invIdentifier));
+    const rootNo = target ? window.getRootInvoiceNo(target) : window.getRootInvoiceNo(invIdentifier);
+    if (!rootNo) return;
+    const familyBranches = allSales.filter(x => !x.deleted && !x.wasSplit && window.getRootInvoiceNo(x) === rootNo && String(x.invoiceNo || x.id) !== rootNo);
+    const listToPrint = familyBranches.length > 0 ? familyBranches : (target ? [target] : []);
+    if (listToPrint.length > 0) {
+        const splitSeq = listToPrint[0].splitBatchNo || 1;
+        window.printSplitVouchersBatch(listToPrint, rootNo, splitSeq);
+    }
+};
+
+window.openSplitGenealogyModal = function(invIdentifier) {
+    const allSales = JSON.parse(localStorage.getItem('erp_sales_invoices_v1') || '[]');
+    const target = allSales.find(x => String(x.invoiceNo || x.id) === String(invIdentifier));
+    const rootNo = target ? window.getRootInvoiceNo(target) : window.getRootInvoiceNo(invIdentifier);
+    if (!rootNo) return;
+
+    const family = allSales.filter(x => window.getRootInvoiceNo(x) === rootNo);
+    const rootDoc = family.find(x => String(x.invoiceNo || x.id) === rootNo) || target;
+    const activeBranches = family.filter(x => !x.deleted && !x.wasSplit && String(x.invoiceNo || x.id) !== rootNo);
+    const archivedSplits = family.filter(x => x.wasSplit);
+
+    let modal = document.getElementById('split-genealogy-tree-modal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'split-genealogy-tree-modal';
+        modal.style.cssText = 'display:none; position:fixed; inset:0; background:rgba(2,6,23,0.88); backdrop-filter:blur(12px); z-index:9999999; align-items:center; justify-content:center; direction:rtl; font-family:"Tajawal",sans-serif; padding:16px;';
+        document.body.appendChild(modal);
+    }
+
+    const branchesRows = activeBranches.map((b, i) => {
+        const bNo = String(b.invoiceNo || b.id);
+        const escBNo = bNo.replace(/'/g, "\\'");
+        const info = window.parseSplitInvoiceParts(b);
+        const isDel = b.isDelivered === true || b.deliveryStatus === 'delivered' || b.deliveryStatus === 'Admin_Closed';
+        const isPartial = !isDel && b.deliveryStatus === 'partial';
+        const itemsTxt = (b.items || []).map(it => {
+            const m = window.resolveSplitItemUnitMeta(it);
+            return `${m.name}: <b>${it.qty ?? it.quantity ?? 0} ${m.primaryUnit}</b>`;
+        }).join(' ، ');
+        const statusBadge = isDel
+            ? `<span style="background:rgba(16,185,129,0.2); border:1px solid #10b981; color:#6ee7b7; padding:3px 10px; border-radius:99px; font-size:0.76rem; font-weight:900;">✅ تم الصرف (${b.deliveryNo || 'GDN'})</span>`
+            : (isPartial
+                ? `<span style="background:rgba(245,158,11,0.2); border:1px solid #f59e0b; color:#fcd34d; padding:3px 10px; border-radius:99px; font-size:0.76rem; font-weight:900;">🌗 تسليم جزئي</span>`
+                : `<span style="background:rgba(56,189,248,0.18); border:1px solid #38bdf8; color:#7dd3fc; padding:3px 10px; border-radius:99px; font-size:0.76rem; font-weight:900;">⏳ جاهز للصرف</span>`);
+
+        return `
+            <tr style="border-bottom:1px solid rgba(255,255,255,0.08);">
+                <td style="padding:10px; font-family:'Outfit',monospace; font-weight:900; color:#38bdf8; font-size:1.05rem;">#${bNo}</td>
+                <td style="padding:10px; text-align:center;"><span style="background:rgba(236,72,153,0.18); border:1px solid rgba(244,114,182,0.45); color:#f9a8d4; padding:2px 9px; border-radius:99px; font-weight:900; font-size:0.8rem;">تقسيم #${info.splitBatchNo} • قسم ${info.splitBranchIndex}/${info.splitTotalBranches}</span></td>
+                <td style="padding:10px; color:#f8fafc; font-size:0.88rem;">${itemsTxt}</td>
+                <td style="padding:10px; text-align:center; font-family:monospace; font-weight:900; color:#10b981;">${(parseFloat(b.grandTotal || b.total || 0)).toLocaleString()} ${b.currency || 'SDG'}</td>
+                <td style="padding:10px; text-align:center;">${statusBadge}</td>
+                <td style="padding:10px; text-align:center;">
+                    <div style="display:flex; gap:6px; justify-content:center;">
+                        ${!isDel ? `
+                        <button onclick="document.getElementById('split-genealogy-tree-modal').style.display='none'; if(typeof openWorldClassDeliveryModal==='function'){openDeliveryHub(); setTimeout(()=>openWorldClassDeliveryModal('${escBNo}'),60);}" class="kinetic-glow-arm kinetic-arm-emerald" style="padding:4px 10px; border-radius:7px; font-size:0.76rem; font-weight:900; cursor:pointer;">📦 صرف</button>
+                        <button onclick="document.getElementById('split-genealogy-tree-modal').style.display='none'; window.openSplitForInvoiceFromDelivery('${escBNo}');" class="kinetic-glow-arm kinetic-arm-pink" style="padding:4px 10px; border-radius:7px; font-size:0.76rem; font-weight:900; cursor:pointer;">✂️ تقسيم إضافي</button>
+                        ` : ''}
+                        <button onclick="if(typeof printOfficialGdnGatePass==='function') printOfficialGdnGatePass('${escBNo}');" class="kinetic-glow-arm kinetic-arm-cyan" style="padding:4px 10px; border-radius:7px; font-size:0.76rem; font-weight:900; cursor:pointer;">🖨️ طباعة</button>
+                    </div>
+                </td>
+            </tr>
+        `;
+    }).join('');
+
+    modal.innerHTML = `
+        <div style="width:95vw; max-width:1050px; max-height:90vh; overflow-y:auto; background:linear-gradient(160deg, #070c18, #0f172a, #170d26); border:2px solid rgba(236,72,153,0.55); border-radius:20px; padding:22px; box-shadow:0 30px 90px rgba(0,0,0,0.9), 0 0 40px rgba(236,72,153,0.25); color:#fff;">
+            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1.5px solid rgba(236,72,153,0.3); padding-bottom:12px; margin-bottom:16px;">
+                <div>
+                    <h3 style="margin:0; font-size:1.3rem; font-weight:900; color:#f8fafc;">🌳 شجرة النسب والتتبع للإذن المرجعي الأصلي <span style="color:#38bdf8; font-family:'Outfit',monospace;">#${rootNo}</span></h3>
+                    <p style="margin:4px 0 0; font-size:0.84rem; color:#cbd5e1;">العميل: <b>${rootDoc?.customerName || 'عميل نقدي'}</b> • عدد الأقسام الفرعية النشطة: <b>${activeBranches.length}</b> • عمليات التقسيم المسجلة: <b>${archivedSplits.length}</b></p>
+                </div>
+                <button onclick="document.getElementById('split-genealogy-tree-modal').style.display='none'" style="background:rgba(239,68,68,0.2); border:1px solid rgba(239,68,68,0.5); color:#fca5a5; border-radius:10px; padding:6px 14px; font-weight:900; cursor:pointer;">✕ إغلاق</button>
+            </div>
+            <table style="width:100%; border-collapse:collapse;">
+                <thead>
+                    <tr style="background:rgba(15,23,42,0.9); color:#94a3b8; font-size:0.82rem;">
+                        <th style="padding:10px; text-align:right;">رقم الإذن الفرعي</th>
+                        <th style="padding:10px; text-align:center;">رقم التقسيم والفرع</th>
+                        <th style="padding:10px; text-align:right;">الأصناف والكميات</th>
+                        <th style="padding:10px; text-align:center;">القيمة</th>
+                        <th style="padding:10px; text-align:center;">حالة التسليم</th>
+                        <th style="padding:10px; text-align:center;">إجراءات مباشرة</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${branchesRows || `<tr><td colspan="6" style="padding:24px; text-align:center; color:#94a3b8;">لا توجد فروع نشطة</td></tr>`}
+                </tbody>
+            </table>
+        </div>
+    `;
+    modal.style.display = 'flex';
+};
 
 // Keydown delegation for payment inputs to allow standard digit input without artificial limits
 document.addEventListener('keydown', function(event) {
@@ -6688,6 +7676,10 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => {
             if (typeof loadInvoiceFromStorage === 'function') loadInvoiceFromStorage(invoiceId);
         }, 500);
+    } else if (actionParam === 'delivery' || actionParam === 'gdn') {
+        setTimeout(() => {
+            if (typeof openDeliveryHub === 'function') openDeliveryHub();
+        }, 50);
     } else if (actionParam === 'new' || actionParam === 'direct' || actionParam === 'pending_delivery' || actionParam === 'preliminary' || actionParam === 'proforma') {
         setTimeout(() => {
             if (typeof openInvoiceEditor === 'function') {

@@ -57,7 +57,7 @@ $commands = [
     'chmod 777 /var/www/magaees/uploads/.ocr_engine /var/www/magaees/uploads/ocr_cache 2>/dev/null || true',
     'if [ ! -d "/var/www/magaees/node_modules/tesseract.js" ] && [ ! -d "/var/www/magaees/uploads/.ocr_engine/node_modules/tesseract.js" ]; then npm install --prefix /var/www/magaees/uploads/.ocr_engine tesseract.js@7.0.0 --no-package-lock --cache /tmp/.npm-cache --no-audit --no-fund 2>&1 || true; fi',
     'if echo "$CHANGED_FILES" | grep -q "migrate_ui_preferences.php"; then php /var/www/magaees/api/migrate_ui_preferences.php 2>&1; fi',
-    'if echo "$CHANGED_FILES" | grep -qE "(whatsapp-service\.mjs|api_index\.php|server\.js|deploy_webhook\.php)"; then (pkill -9 -f "[w]hatsapp-service" 2>/dev/null || true; pkill -f "[n]ode.*server\.js" 2>/dev/null || true; rm -f /var/www/magaees/whatsapp_starting.lock 2>/dev/null || true; sleep 1; curl -s -m 8 "http://127.0.0.1/api_index.php?r=wa-tenant&endpoint=status&userId=wa_tenant_12&local_only=1" >/dev/null 2>&1 || true); fi',
+    'if echo "$CHANGED_FILES" | grep -qE "(whatsapp-service\.mjs|api_index\.php|server\.js|deploy_webhook\.php)"; then (sudo -n pkill -9 -f "[w]hatsapp-service" 2>/dev/null || true; pkill -9 -f "[w]hatsapp-service" 2>/dev/null || true; sudo -n fuser -k -9 3001/tcp 2>/dev/null || true; pkill -f "[n]ode.*server\.js" 2>/dev/null || true; rm -f /var/www/magaees/whatsapp_starting.lock 2>/dev/null || true; sleep 1; curl -s -m 8 "http://127.0.0.1/api_index.php?r=wa-tenant&endpoint=status&userId=wa_tenant_12&local_only=1" >/dev/null 2>&1 || true); fi',
 ];
 
 $result = shell_exec(implode(' && ', $commands) . ' 2>&1');

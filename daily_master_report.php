@@ -370,8 +370,8 @@ $header_theme_class = 'header-theme-reports';
 
         function renderMasterDailyReport(targetDate) {
             try {
-                // Fetch ERP Collections from Local Storage & DB Bridge
-                const sales = (JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || []).filter(x => !x.deleted && x.saleType !== 'preliminary' && x.status !== 'preliminary');
+                // Fetch ERP Collections from Local Storage & DB Bridge (exclude archived split parents)
+                const sales = (JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || []).filter(x => !x.deleted && !x.wasSplit && x.saleType !== 'preliminary' && x.status !== 'preliminary');
                 const purchases = (JSON.parse(localStorage.getItem('erp_purchase_invoices_v1')) || []).filter(x => !x.deleted && !x.isGRN && !x.isReturn);
                 const salesReturns = (JSON.parse(localStorage.getItem('erp_sales_returns_v1')) || []).filter(x => !x.deleted);
                 const purchaseReturns = (JSON.parse(localStorage.getItem('erp_purchase_returns_v1')) || []).filter(x => !x.deleted);
@@ -515,10 +515,11 @@ $header_theme_class = 'header-theme-reports';
                 let invHtml = '';
                 todaySales.forEach(x => {
                     let itemsList = (x.items || []).map(item => `${item.name} (${item.quantity || item.qty} وحدات)`).join('، ');
+                    let splitBadge = x.isSplit ? `<div class="text-[11px] text-pink-400 font-bold mt-0.5">✂️ أصل #${x.rootInvoice || x.parentInvoice} • تقسيم #${x.splitBatchNo || 1}</div>` : '';
                     invHtml += `
                         <tr>
-                            <td><span class="bg-emerald-500/20 text-emerald-400 px-2.5 py-1 rounded-md text-xs font-extrabold">فاتورة مبيعات</span></td>
-                            <td>#${x.invoiceNo || '-'}</td>
+                            <td><span class="bg-emerald-500/20 text-emerald-400 px-2.5 py-1 rounded-md text-xs font-extrabold">${x.isSplit ? 'فاتورة مقسمة ✂️' : 'فاتورة مبيعات'}</span></td>
+                            <td>#${x.invoiceNo || '-'}${splitBadge}</td>
                             <td>${resolveClientName(x.customer || x.customerId)}</td>
                             <td>${x.paymentMethod === 'credit' ? 'آجل 💳' : 'نقداً 💵'}</td>
                             <td class="text-xs text-slate-300">${itemsList || '-'}</td>

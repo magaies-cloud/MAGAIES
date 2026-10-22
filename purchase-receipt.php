@@ -888,7 +888,8 @@
             pendingMap = {}; // target: { invId: { supplierId, date, lines: { itemId: { unitId, qty, originalLine } } } }
 
             // Base tracking by invoice
-            allPurchases.filter(inv => !inv.deleted && inv.status !== 'draft' && inv.status !== 'proforma' && inv.receiptStatus !== 'received' && inv.status !== 'received' && inv.id !== editingGRNId).forEach(inv => {
+            const grnInvoiceIds = new Set(allPurchases.filter(x => x && !x.deleted && (x.isGRN || x.isReturn) && x.originalInvoiceId).map(x => String(x.originalInvoiceId)));
+            allPurchases.filter(inv => !inv.deleted && inv.status !== 'draft' && inv.status !== 'proforma' && inv.id !== editingGRNId && (inv.isGRN || inv.isReturn || grnInvoiceIds.has(String(inv.invoiceNo || inv.id)) || (inv.receiptStatus !== 'received' && inv.status !== 'received'))).forEach(inv => {
                 const rootInvId = inv.isReturn || inv.isGRN ? inv.originalInvoiceId : (inv.invoiceNo || inv.id);
                 if (!rootInvId) {
                     return;
@@ -2375,5 +2376,1456 @@
         </div>
     </div>
 
+    <!-- ════════════════════════════════════════════════════════════════════════════
+         WORLD-CLASS GRN ROYAL GLASS WAVE, KINETIC ICONS, CURSOR ENGINE & BUG FIXES
+         ════════════════════════════════════════════════════════════════════════════ -->
+    <style id="grn-world-class-upgrade-styles">
+        @keyframes grnGlassSweep {
+            0%   { left: -120%; opacity: 0; }
+            30%  { opacity: 0.65; }
+            70%  { opacity: 0.65; }
+            100% { left: 160%; opacity: 0; }
+        }
+        @keyframes grnIconFloatGlow {
+            0%, 100% { transform: translateY(0) scale(1); filter: drop-shadow(0 0 6px rgba(56, 189, 248, 0.55)); }
+            50%      { transform: translateY(-2px) scale(1.09); filter: drop-shadow(0 0 14px rgba(16, 185, 129, 0.9)); }
+        }
+        @keyframes grnButtonRippleWave {
+            0%   { box-shadow: 0 0 0 0 rgba(56, 189, 248, 0.45), 0 10px 25px rgba(2, 132, 199, 0.35); }
+            70%  { box-shadow: 0 0 0 12px rgba(56, 189, 248, 0), 0 14px 32px rgba(16, 185, 129, 0.45); }
+            100% { box-shadow: 0 0 0 0 rgba(56, 189, 248, 0), 0 10px 25px rgba(2, 132, 199, 0.35); }
+        }
+
+        /* 1. Borderless & Floating Unit Cell ("الوحدة تضيع حوافها وتكون أجمل") */
+        .grn-col-unit {
+            border: 1px solid transparent !important;
+            background: linear-gradient(135deg, rgba(56, 189, 248, 0.13), rgba(99, 102, 241, 0.10)) !important;
+            box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.16), 0 4px 14px rgba(0, 0, 0, 0.18) !important;
+            border-radius: 12px !important;
+            backdrop-filter: blur(12px);
+            position: relative;
+            overflow: hidden;
+            letter-spacing: 0.4px;
+        }
+
+        /* 2. Soft Borderless Item Cell & Read-Only Cells */
+        .grn-col-item,
+        .grn-col-origQty,
+        .grn-col-qty,
+        .grn-col-pendingBase,
+        .grn-col-baseQty {
+            border: 1px solid rgba(255, 255, 255, 0.04) !important;
+            border-radius: 12px !important;
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+        }
+
+        /* 3. Universal Cursor/Hover Effect: Dissolve Borders + Expand Size + Glass Wave */
+        .grn-col-origQty,
+        .grn-col-item,
+        .grn-col-unit,
+        .grn-col-qty,
+        .grn-col-pendingBase,
+        .grn-col-baseQty,
+        .factor-input,
+        .qty-input,
+        .wh-select,
+        .notes-input,
+        .v-input {
+            transition: transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1),
+                        border-color 0.22s ease,
+                        box-shadow 0.28s ease,
+                        background 0.28s ease !important;
+            will-change: transform, box-shadow;
+        }
+
+        .grn-col-origQty:hover,
+        .grn-col-item:hover,
+        .grn-col-unit:hover,
+        .grn-col-qty:hover,
+        .grn-col-pendingBase:hover,
+        .grn-col-baseQty:hover,
+        .factor-input:hover,
+        .qty-input:hover,
+        .wh-select:hover,
+        .notes-input:hover,
+        .v-input:hover,
+        .factor-input:focus,
+        .qty-input:focus,
+        .wh-select:focus,
+        .notes-input:focus,
+        .v-input:focus {
+            border-color: transparent !important;
+            outline: none !important;
+            transform: scale(1.055) translateY(-2px) !important;
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.95), rgba(15, 23, 42, 0.98)) !important;
+            box-shadow: 0 14px 30px rgba(0, 0, 0, 0.5),
+                        0 0 22px rgba(56, 189, 248, 0.38),
+                        inset 0 1px 2px rgba(255, 255, 255, 0.28) !important;
+            z-index: 15 !important;
+        }
+
+        .write-indicator-box:focus,
+        .write-indicator-box.focused {
+            animation: none !important;
+            border-color: transparent !important;
+            transform: scale(1.065) translateY(-2px) !important;
+            box-shadow: 0 14px 32px rgba(0, 0, 0, 0.55),
+                        0 0 26px rgba(16, 185, 129, 0.65),
+                        inset 0 1px 3px rgba(255, 255, 255, 0.35) !important;
+            background: linear-gradient(135deg, rgba(6, 78, 59, 0.55), rgba(15, 23, 42, 0.98)) !important;
+        }
+
+        /* Luminous Glass Wave Sweep on Hover */
+        .grn-col-item::after,
+        .grn-col-unit::after,
+        .grn-col-origQty::after,
+        .grn-col-qty::after,
+        .grn-col-pendingBase::after,
+        .grn-col-baseQty::after,
+        .btn-action::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: -120%;
+            width: 55%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.26), transparent);
+            transform: skewX(-24deg);
+            pointer-events: none;
+        }
+        .grn-col-item:hover::after,
+        .grn-col-unit:hover::after,
+        .grn-col-origQty:hover::after,
+        .grn-col-qty:hover::after,
+        .grn-col-pendingBase:hover::after,
+        .grn-col-baseQty:hover::after,
+        .btn-action:hover::after {
+            animation: grnGlassSweep 0.75s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        /* 4. Kinetic Optical Icons — Expand Size & Glow on Hover */
+        .grn-icon-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 30px;
+            height: 30px;
+            border-radius: 9px;
+            background: radial-gradient(circle at 30% 30%, rgba(56, 189, 248, 0.32), rgba(14, 165, 233, 0.08));
+            box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.28), 0 4px 12px rgba(56, 189, 248, 0.25);
+            transition: transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1),
+                        box-shadow 0.28s ease,
+                        background 0.28s ease;
+            animation: grnIconFloatGlow 3.2s infinite ease-in-out;
+            flex-shrink: 0;
+            cursor: pointer;
+        }
+        .grn-icon-badge:hover,
+        *:hover > .grn-icon-badge {
+            transform: scale(1.28) rotate(-6deg) !important;
+            background: radial-gradient(circle at 30% 30%, rgba(16, 185, 129, 0.55), rgba(56, 189, 248, 0.28));
+            box-shadow: 0 0 22px rgba(56, 189, 248, 0.85), inset 0 1px 3px rgba(255, 255, 255, 0.5);
+        }
+
+        /* 5. Action Buttons & Quick Mini-Buttons */
+        .btn-action {
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.14) !important;
+            backdrop-filter: blur(12px);
+            transition: transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1),
+                        box-shadow 0.28s ease,
+                        border-color 0.22s ease !important;
+        }
+        .btn-action:hover {
+            transform: translateY(-3px) scale(1.055) !important;
+            border-color: transparent !important;
+            animation: grnButtonRippleWave 1.5s infinite;
+        }
+        .grn-row-mini-btn {
+            width: 30px;
+            height: 30px;
+            border-radius: 8px;
+            border: 1px solid transparent;
+            background: rgba(56, 189, 248, 0.14);
+            color: #38bdf8;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: inset 0 1px 1px rgba(255,255,255,0.2);
+            flex-shrink: 0;
+        }
+        .grn-row-mini-btn:hover {
+            transform: scale(1.26) translateY(-1px);
+            background: linear-gradient(135deg, #38bdf8, #0284c7);
+            color: #fff;
+            box-shadow: 0 0 16px rgba(56, 189, 248, 0.75);
+        }
+        .grn-row-mini-btn.danger {
+            background: rgba(239, 68, 68, 0.15);
+            color: #f87171;
+        }
+        .grn-row-mini-btn.danger:hover {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: #fff;
+            box-shadow: 0 0 16px rgba(239, 68, 68, 0.75);
+        }
+
+        /* 6. Well-Spaced Date & Time Pills ("إبعاد التاريخ والوقت ليكونا أوضح") */
+        .grn-datetime-spaced {
+            display: inline-flex;
+            align-items: center;
+            gap: 14px;
+            direction: ltr;
+            flex-wrap: wrap;
+        }
+        .grn-date-chip,
+        .grn-time-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 12px;
+            border-radius: 10px;
+            font-family: 'Outfit', 'Tajawal', sans-serif;
+            font-weight: 800;
+            font-size: 0.92rem;
+            border: 1px solid transparent;
+            transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s ease;
+        }
+        .grn-date-chip {
+            background: linear-gradient(135deg, rgba(56, 189, 248, 0.16), rgba(2, 132, 199, 0.10));
+            color: #e0f2fe;
+            box-shadow: inset 0 1px 1px rgba(255,255,255,0.15);
+        }
+        .grn-time-chip {
+            background: linear-gradient(135deg, rgba(168, 85, 247, 0.18), rgba(99, 102, 241, 0.12));
+            color: #f3e8ff;
+            box-shadow: inset 0 1px 1px rgba(255,255,255,0.15);
+        }
+        .grn-date-chip:hover,
+        .grn-time-chip:hover {
+            transform: scale(1.1) translateY(-1px);
+            border-color: transparent !important;
+            box-shadow: 0 6px 18px rgba(56, 189, 248, 0.35);
+        }
+        :root.light-theme .grn-date-chip { background: rgba(2, 132, 199, 0.12) !important; color: #0369a1 !important; }
+        :root.light-theme .grn-time-chip { background: rgba(124, 58, 237, 0.12) !important; color: #6d28d9 !important; }
+
+        /* 7. Active Row Highlight & Progress Bar */
+        .pos-grid tbody tr.grn-active-row {
+            background: linear-gradient(90deg, rgba(56, 189, 248, 0.12), rgba(16, 185, 129, 0.10)) !important;
+            box-shadow: 0 10px 28px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(56, 189, 248, 0.28) !important;
+            transform: translateY(-2px);
+        }
+        .grn-meta-bar > div {
+            transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+            border-radius: 12px;
+            padding: 6px 12px;
+        }
+        .grn-meta-bar > div:hover {
+            transform: scale(1.04) translateY(-2px);
+            background: rgba(56, 189, 248, 0.08);
+            border-color: transparent !important;
+        }
+    </style>
+
+    <script>
+    (function() {
+        // 1. Format Date & Time with Clear Visual Spacing
+        window.formatSpacedDateTime = function(rawDate, fallbackTimeStr) {
+            if (!rawDate) return '<span class="grn-date-chip">📅 —</span>';
+            const d = new Date(rawDate);
+            if (isNaN(d.getTime())) {
+                return `<span class="grn-date-chip">📅 ${rawDate}</span>`;
+            }
+            const yyyy = d.getFullYear();
+            const mm = String(d.getMonth() + 1).padStart(2, '0');
+            const dd = String(d.getDate()).padStart(2, '0');
+            const datePart = `${yyyy}-${mm}-${dd}`;
+
+            let hours = d.getHours();
+            let mins = d.getMinutes();
+            // If invoice date is midnight-only (00:00), check if rawDate had time or use readable format
+            const hasTime = (hours !== 0 || mins !== 0 || String(rawDate).includes(':'));
+            const timePart = hasTime
+                ? d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })
+                : (fallbackTimeStr || '12:00 PM');
+
+            return `<span class="grn-datetime-spaced" title="التاريخ والوقت مفصولان بوضوح">
+                <span class="grn-date-chip"><span class="grn-icon-badge" style="width:22px;height:22px;font-size:0.75rem;">📅</span> ${datePart}</span>
+                <span class="grn-time-chip"><span class="grn-icon-badge" style="width:22px;height:22px;font-size:0.75rem;">🕒</span> ${timePart}</span>
+            </span>`;
+        };
+
+        // 2. Inject Quick Action Toolbar Buttons (Fill All, Zero All, Print GRN, Keyboard Hint)
+        function enhanceEditorToolbar() {
+            const titleBar = document.querySelector('#view-editor .editor-table-box .neo-card-title > div:last-child');
+            if (!titleBar || document.getElementById('grn-btn-fill-all')) return;
+
+            const fillBtn = document.createElement('button');
+            fillBtn.id = 'grn-btn-fill-all';
+            fillBtn.className = 'btn-action';
+            fillBtn.style.cssText = 'padding: 9px 14px; font-size: 0.88rem; border-radius: 9px; background: rgba(16, 185, 129, 0.16); color: #34d399; font-weight: 800; display: flex; align-items: center; gap: 6px;';
+            fillBtn.innerHTML = '<span class="grn-icon-badge" style="width:24px;height:24px;">⚡</span> استلام الكل';
+            fillBtn.title = 'تعبئة كامل الكميات المتبقية لجميع الأصناف بضغطة واحدة';
+            fillBtn.onclick = function() {
+                receiptLines.forEach(l => { l.receiveQty = l.maxPending; });
+                renderReceiptLines();
+                showToast('تم تعبئة كامل الكميات المتبقية لجميع الأصناف ⚡', 'success');
+            };
+
+            const zeroBtn = document.createElement('button');
+            zeroBtn.className = 'btn-action';
+            zeroBtn.style.cssText = 'padding: 9px 14px; font-size: 0.88rem; border-radius: 9px; background: rgba(245, 158, 11, 0.15); color: #fbbf24; font-weight: 800; display: flex; align-items: center; gap: 6px;';
+            zeroBtn.innerHTML = '<span class="grn-icon-badge" style="width:24px;height:24px;">🔄</span> تصفير';
+            zeroBtn.title = 'تصفير الكميات المستلمة لإدخال الأصناف المستلمة فعلياً فقط';
+            zeroBtn.onclick = function() {
+                receiptLines.forEach(l => { l.receiveQty = 0; });
+                renderReceiptLines();
+                showToast('تم تصفير الكميات لإدخال الاستلام الجزئي يدوياً', 'info');
+            };
+
+            titleBar.insertBefore(zeroBtn, titleBar.children[1] || null);
+            titleBar.insertBefore(fillBtn, zeroBtn);
+        }
+
+        // 3. Upgrade renderPendingInvoices to show spaced Date & Time and Kinetic Icons
+        const _origRenderPending = window.renderPendingInvoices;
+        window.renderPendingInvoices = function(resetCount = true) {
+            _origRenderPending(resetCount);
+            const rows = document.querySelectorAll('#invoices-tbody tr');
+            rows.forEach(tr => {
+                const dateTd = tr.children[1];
+                const invIdTd = tr.children[0];
+                if (invIdTd && dateTd && pendingMap[invIdTd.textContent.trim()]) {
+                    const invId = invIdTd.textContent.trim();
+                    const origInv = (allPurchases || []).find(p => (p.invoiceNo || p.id) === invId) || {};
+                    const rawDt = origInv.savedAt || origInv.createdAt || pendingMap[invId].date;
+                    dateTd.innerHTML = window.formatSpacedDateTime(rawDt);
+                }
+                const actionBtn = tr.querySelector('button.btn-action');
+                if (actionBtn && !actionBtn.dataset.enhanced) {
+                    actionBtn.dataset.enhanced = '1';
+                    actionBtn.innerHTML = `<span class="grn-icon-badge" style="width:22px;height:22px;margin-left:6px;">📥</span> استلام البضاعة`;
+                }
+            });
+        };
+
+        // 4. Upgrade openReceiptEditor to format Spaced Date & Time and auto-focus first Qty input
+        const _origOpenEditor = window.openReceiptEditor;
+        window.openReceiptEditor = function(invId) {
+            _origOpenEditor(invId);
+            enhanceEditorToolbar();
+            const origInv = (allPurchases || []).find(p => (p.invoiceNo || p.id) === invId) || {};
+            const invData = pendingMap[invId] || {};
+            const rawDt = origInv.savedAt || origInv.createdAt || invData.date;
+            const lblDate = document.getElementById('lbl-date');
+            if (lblDate) {
+                lblDate.innerHTML = window.formatSpacedDateTime(rawDt);
+            }
+            setTimeout(() => {
+                const firstQty = document.querySelector('#items-tbody .qty-input');
+                if (firstQty) {
+                    firstQty.focus();
+                    firstQty.select();
+                }
+            }, 80);
+        };
+
+        // 5. Upgrade renderReceiptLines with:
+        //    - Live Remaining Qty update on typing
+        //    - Borderless Unit pill with unit icon
+        //    - Split-Warehouse button (+) & Remove-Split button (✕) on each row
+        //    - 2D Keyboard & Cursor Navigation (Enter / ArrowUp / ArrowDown / ArrowLeft / ArrowRight / F10)
+        const _origRenderLines = window.renderReceiptLines;
+        window.renderReceiptLines = function() {
+            _origRenderLines();
+            const tbody = document.getElementById('items-tbody');
+            if (!tbody) return;
+
+            const rows = Array.from(tbody.querySelectorAll('tr'));
+            rows.forEach((tr, rowIdx) => {
+                const line = receiptLines[rowIdx];
+                if (!line) return;
+
+                // A. Enhance Item cell with kinetic icon + Split Warehouse button
+                const itemBox = tr.querySelector('.grn-col-item:not([style*="display:none"])');
+                if (itemBox) {
+                    const cleanName = getItemName(line.itemId);
+                    const splitActionBtn = line.isSplit
+                        ? `<button type="button" class="grn-row-mini-btn danger" title="إلغاء تقسيم هذا السطر" onclick="removeSplit(event, '${line.id}')">✕</button>`
+                        : `<button type="button" class="grn-row-mini-btn" title="تقسيم استلام هذا الصنف على أكثر من مخزن" onclick="splitLine(event, '${line.id}')">➕</button>`;
+
+                    itemBox.style.justifyContent = 'space-between';
+                    itemBox.style.gap = '8px';
+                    itemBox.innerHTML = `
+                        <span style="display:inline-flex;align-items:center;gap:8px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">
+                            <span class="grn-icon-badge">📦</span>
+                            <span style="overflow:hidden;text-overflow:ellipsis;">${cleanName}${line.isSplit ? ' <small style="color:#38bdf8;">(مقسّم)</small>' : ''}</span>
+                        </span>
+                        ${splitActionBtn}
+                    `;
+                }
+
+                // B. Enhance Unit cell ("الوحدة تضيع حوافها وتكون أجمل")
+                const unitBox = tr.querySelector('.grn-col-unit');
+                if (unitBox) {
+                    const uTxt = line.unitName || line.unit || 'وحدة';
+                    unitBox.innerHTML = `<span style="display:inline-flex;align-items:center;gap:6px;"><span class="grn-icon-badge" style="width:24px;height:24px;font-size:0.8rem;">🏷️</span> <span>${uTxt}</span></span>`;
+                }
+
+                // C. Live Remaining Qty calculation on typing in qtyInput
+                const remBox = tr.querySelector('.grn-col-qty');
+                const qtyInput = tr.querySelector('.qty-input');
+                const updateLiveRemaining = () => {
+                    if (!remBox) return;
+                    const groupSplits = receiptLines.filter(x => x.lineGroup === line.lineGroup);
+                    const totalAssigned = groupSplits.reduce((acc, x) => acc + (parseFloat(x.receiveQty) || 0), 0);
+                    const rem = Math.max(0, Math.round((line.maxPending - totalAssigned) * 100) / 100);
+                    remBox.textContent = fmtColVal('remQty', rem);
+                    if (rem === 0) {
+                        remBox.style.color = '#34d399';
+                        remBox.title = 'تم استلام كامل الكمية المتبقية بالكامل ✅';
+                    } else {
+                        remBox.style.color = '#fbbf24';
+                        remBox.title = 'الكمية المتبقية بعد هذا الاستلام: ' + rem;
+                    }
+                };
+                updateLiveRemaining();
+                if (qtyInput) {
+                    qtyInput.addEventListener('input', updateLiveRemaining);
+                }
+
+                // D. Highlight Active Row & Enable Smooth 2D Keyboard Cursor Navigation
+                const interactiveInputs = Array.from(tr.querySelectorAll('.factor-input, .qty-input, .wh-select, .notes-input'));
+                interactiveInputs.forEach((inp, colIdx) => {
+                    inp.addEventListener('focus', () => {
+                        rows.forEach(r => r.classList.remove('grn-active-row'));
+                        tr.classList.add('grn-active-row');
+                    });
+                    inp.addEventListener('keydown', (ev) => {
+                        if (ev.key === 'Enter') {
+                            ev.preventDefault();
+                            // From Qty input, pressing Enter jumps directly to next row's Qty input for ultra-fast entry!
+                            if (inp.classList.contains('qty-input')) {
+                                const nextRow = rows[rowIdx + 1];
+                                if (nextRow) {
+                                    const nextQty = nextRow.querySelector('.qty-input');
+                                    if (nextQty) { nextQty.focus(); nextQty.select(); return; }
+                                }
+                            }
+                            const nextInRow = interactiveInputs[colIdx + 1];
+                            if (nextInRow) {
+                                nextInRow.focus();
+                                if (nextInRow.select) nextInRow.select();
+                            } else if (rows[rowIdx + 1]) {
+                                const firstNext = rows[rowIdx + 1].querySelector('.qty-input') || rows[rowIdx + 1].querySelector('.factor-input');
+                                if (firstNext) { firstNext.focus(); if (firstNext.select) firstNext.select(); }
+                            }
+                        } else if (ev.key === 'ArrowDown') {
+                            if (inp.tagName === 'SELECT') return;
+                            ev.preventDefault();
+                            const nextRow = rows[rowIdx + 1];
+                            if (nextRow) {
+                                const target = nextRow.querySelectorAll('.factor-input, .qty-input, .wh-select, .notes-input')[colIdx];
+                                if (target) { target.focus(); if (target.select) target.select(); }
+                            }
+                        } else if (ev.key === 'ArrowUp') {
+                            if (inp.tagName === 'SELECT') return;
+                            ev.preventDefault();
+                            const prevRow = rows[rowIdx - 1];
+                            if (prevRow) {
+                                const target = prevRow.querySelectorAll('.factor-input, .qty-input, .wh-select, .notes-input')[colIdx];
+                                if (target) { target.focus(); if (target.select) target.select(); }
+                            }
+                        }
+                    });
+                });
+            });
+        };
+
+        // 6. Upgrade renderRecentGRNs to format Spaced Date & Time and sync deleteGRN with Cloud/DB
+        const _origRenderRecentGRNs = window.renderRecentGRNs;
+        window.renderRecentGRNs = function(resetCount = true) {
+            _origRenderRecentGRNs(resetCount);
+            const rows = document.querySelectorAll('#recent-grns-container tbody tr');
+            rows.forEach((tr) => {
+                const grnIdCell = tr.children[0];
+                const dateCell = tr.children[3];
+                if (!grnIdCell || !dateCell) return;
+                const grnId = grnIdCell.textContent.trim().split(/\s+/)[0];
+                const grnObj = (allPurchases || []).find(p => p.id === grnId);
+                if (grnObj && grnObj.date) {
+                    dateCell.innerHTML = window.formatSpacedDateTime(grnObj.date);
+                }
+            });
+        };
+
+        // 7. Fix deleteGRN Cloud Sync & Smart Warehouse/Item Matching
+        const _origDeleteGRN = window.deleteGRN;
+        window.deleteGRN = function(grnId) {
+            _origDeleteGRN(grnId);
+            if (typeof window.pushToCloud === 'function') {
+                window.pushToCloud(true);
+            }
+        };
+
+        // Global shortcut: F10 or Ctrl+S saves the Receipt Note when Editor is active
+        document.addEventListener('keydown', function(e) {
+            const editorActive = document.getElementById('view-editor') && document.getElementById('view-editor').classList.contains('active');
+            if (!editorActive) return;
+            if (e.key === 'F10' || ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's')) {
+                e.preventDefault();
+                saveReceiptNote();
+            }
+        });
+    })();
+    </script>
+    <!-- ════════════════════════════════════════════════════════════════════════════
+         WORLD-CLASS 6-PILLAR GRN SUITE & 100% CROSS-SCREEN / REPORT INTEGRATION
+         ════════════════════════════════════════════════════════════════════════════ -->
+    <style id="grn-six-pillars-styles">
+        /* Logistics & Scanner Glass Bars */
+        .grn-logistics-bar,
+        .grn-scanner-bar {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+            gap: 12px;
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.78), rgba(30, 41, 59, 0.55));
+            border: 1px solid rgba(56, 189, 248, 0.16);
+            padding: 12px 18px;
+            border-radius: 16px;
+            backdrop-filter: blur(16px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.28);
+            margin-bottom: 4px;
+            align-items: center;
+        }
+        .grn-scanner-bar {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            gap: 14px;
+            background: linear-gradient(90deg, rgba(6, 78, 59, 0.35), rgba(15, 23, 42, 0.8), rgba(2, 132, 199, 0.25));
+            border-color: rgba(16, 185, 129, 0.28);
+        }
+        .grn-log-field {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            position: relative;
+        }
+        .grn-log-field label {
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: #94a3b8;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .grn-log-input {
+            height: 40px;
+            padding: 0 12px;
+            border-radius: 10px;
+            background: rgba(15, 23, 42, 0.75);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            color: #f8fafc;
+            font-family: 'Tajawal', 'Outfit', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 700;
+            transition: all 0.26s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .grn-log-input:hover,
+        .grn-log-input:focus {
+            border-color: transparent !important;
+            outline: none !important;
+            transform: scale(1.045) translateY(-2px);
+            background: rgba(15, 23, 42, 0.96);
+            box-shadow: 0 10px 24px rgba(0, 0, 0, 0.45), 0 0 18px rgba(56, 189, 248, 0.38);
+        }
+
+        /* Fulfillment Progress Bar */
+        .grn-progress-wrap {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            min-width: 220px;
+            flex: 1;
+        }
+        .grn-progress-track {
+            width: 100%;
+            height: 11px;
+            background: rgba(15, 23, 42, 0.85);
+            border-radius: 20px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.4);
+            position: relative;
+        }
+        .grn-progress-fill {
+            height: 100%;
+            border-radius: 20px;
+            background: linear-gradient(90deg, #0ea5e9, #10b981, #34d399);
+            box-shadow: 0 0 14px rgba(16, 185, 129, 0.65);
+            transition: width 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        /* QC Status Badge inside Row */
+        .grn-qc-pill {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            padding: 4px 9px;
+            border-radius: 9px;
+            font-size: 0.76rem;
+            font-weight: 800;
+            cursor: pointer;
+            user-select: none;
+            border: 1px solid transparent;
+            transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+        .grn-qc-pill.qc-ok {
+            background: rgba(16, 185, 129, 0.16);
+            color: #34d399;
+        }
+        .grn-qc-pill.qc-warn {
+            background: rgba(245, 158, 11, 0.18);
+            color: #fbbf24;
+        }
+        .grn-qc-pill.qc-dmg {
+            background: rgba(239, 68, 68, 0.2);
+            color: #f87171;
+        }
+        .grn-qc-pill:hover {
+            transform: scale(1.14) translateY(-1px);
+            box-shadow: 0 6px 16px rgba(56, 189, 248, 0.35);
+            border-color: transparent !important;
+        }
+
+        /* Variance Pill inside Base Qty cell */
+        .grn-var-tag {
+            display: inline-flex;
+            align-items: center;
+            padding: 2px 7px;
+            border-radius: 6px;
+            font-size: 0.72rem;
+            font-weight: 800;
+            margin-right: 6px;
+            font-family: 'Outfit', 'Tajawal', sans-serif;
+        }
+        .grn-var-tag.exact { background: rgba(16, 185, 129, 0.18); color: #34d399; }
+        .grn-var-tag.short { background: rgba(245, 158, 11, 0.18); color: #fbbf24; }
+        .grn-var-tag.over  { background: rgba(56, 189, 248, 0.22); color: #38bdf8; }
+
+        /* Cross-Screen Quick Navigation Pills */
+        .grn-nav-links-bar {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .grn-nav-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 13px;
+            border-radius: 11px;
+            background: rgba(30, 41, 59, 0.65);
+            border: 1px solid transparent;
+            color: #bae6fd;
+            font-size: 0.82rem;
+            font-weight: 700;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.26s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .grn-nav-pill:hover {
+            transform: scale(1.07) translateY(-2px);
+            background: linear-gradient(135deg, rgba(56, 189, 248, 0.25), rgba(16, 185, 129, 0.2));
+            color: #fff;
+            box-shadow: 0 8px 20px rgba(56, 189, 248, 0.3);
+        }
+
+        :root.light-theme .grn-logistics-bar,
+        :root.light-theme .grn-scanner-bar {
+            background: #ffffff !important;
+            border-color: rgba(0, 0, 0, 0.1) !important;
+        }
+        :root.light-theme .grn-log-input {
+            background: #f8fafc !important;
+            color: #0f172a !important;
+            border-color: rgba(0, 0, 0, 0.15) !important;
+        }
+        :root.light-theme .grn-nav-pill {
+            background: #f1f5f9 !important;
+            color: #0369a1 !important;
+        }
+    </style>
+
+    <script>
+    (function() {
+        // Subtle Web Audio Beep for Barcode Scan Confirmation
+        function playScanBeep(freq = 880, duration = 0.09) {
+            try {
+                const Ctx = window.AudioContext || window.webkitAudioContext;
+                if (!Ctx) return;
+                const ctx = new Ctx();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(freq, ctx.currentTime);
+                gain.gain.setValueAtTime(0.12, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start();
+                osc.stop(ctx.currentTime + duration);
+            } catch (e) {}
+        }
+
+        // 1. Inject Cross-Screen Navigation Pills into Hub Title Bar
+        function injectHubCrossScreenLinks() {
+            const hubTitle = document.querySelector('#view-hub .neo-card-title');
+            if (!hubTitle || document.getElementById('grn-cross-screen-nav')) return;
+
+            const navBar = document.createElement('div');
+            navBar.id = 'grn-cross-screen-nav';
+            navBar.className = 'grn-nav-links-bar';
+            navBar.innerHTML = `
+                <a href="purchase.php" class="grn-nav-pill" title="فتح شاشة فواتير المشتريات"><span class="grn-icon-badge" style="width:22px;height:22px;font-size:0.75rem;">🧾</span> فواتير المشتريات</a>
+                <a href="warehouse-inventory.php" class="grn-nav-pill" title="فتح شاشة جرد وأرصدة المستودعات"><span class="grn-icon-badge" style="width:22px;height:22px;font-size:0.75rem;">🏛️</span> أرصدة وجرد المخازن</a>
+                <a href="item-ledger.php" class="grn-nav-pill" title="فتح كشف حركة الصنف التفصيلي"><span class="grn-icon-badge" style="width:22px;height:22px;font-size:0.75rem;">📈</span> حركة الصنف</a>
+                <a href="warehouse-ledger.php" class="grn-nav-pill" title="فتح دفتر أستاذ المخزن"><span class="grn-icon-badge" style="width:22px;height:22px;font-size:0.75rem;">📒</span> دفتر المخزن</a>
+                <a href="inventory-stocktake.php" class="grn-nav-pill" title="فتح شاشة الجرد الفعلي والتسويات"><span class="grn-icon-badge" style="width:22px;height:22px;font-size:0.75rem;">⚖️</span> الجرد والتسويات</a>
+            `;
+            hubTitle.appendChild(navBar);
+        }
+
+        // 2. Inject Logistics Bar, Barcode Scanner, Warehouse Bulk Selector & Live Progress Bar into Editor View
+        function injectEditorWorldClassBars() {
+            const viewEditor = document.getElementById('view-editor');
+            const editorLayout = viewEditor ? viewEditor.querySelector('.editor-layout') : null;
+            if (!viewEditor || !editorLayout || document.getElementById('grn-logistics-bar')) return;
+
+            // A. Logistics & Field Documentation Bar
+            const logBar = document.createElement('div');
+            logBar.id = 'grn-logistics-bar';
+            logBar.className = 'grn-logistics-bar';
+            logBar.innerHTML = `
+                <div class="grn-log-field">
+                    <label><span class="grn-icon-badge" style="width:20px;height:20px;font-size:0.7rem;">📄</span> رقم بوليصة الشحن / إشعار المورد</label>
+                    <input type="text" id="grn-waybill-no" class="grn-log-input" placeholder="مثال: WB-90421 / إشعار المورد...">
+                </div>
+                <div class="grn-log-field">
+                    <label><span class="grn-icon-badge" style="width:20px;height:20px;font-size:0.7rem;">🚛</span> رقم الشاحنة / اللوحة</label>
+                    <input type="text" id="grn-truck-no" class="grn-log-input" placeholder="مثال: شاحنة خ3 - 45812">
+                </div>
+                <div class="grn-log-field">
+                    <label><span class="grn-icon-badge" style="width:20px;height:20px;font-size:0.7rem;">👨‍✈️</span> اسم السائق / المندوب وهاتفه</label>
+                    <input type="text" id="grn-driver-info" class="grn-log-input" placeholder="اسم السائق أو رقم الجوال...">
+                </div>
+                <div class="grn-log-field">
+                    <label><span class="grn-icon-badge" style="width:20px;height:20px;font-size:0.7rem;">🛡️</span> أمين المستودع / فاحص الجودة</label>
+                    <input type="text" id="grn-inspector-name" class="grn-log-input" placeholder="اسم المستلم الفعلي...">
+                </div>
+            `;
+
+            // B. Smart Barcode Scanner + Bulk Warehouse Selector + Visual Progress Bar
+            const scanBar = document.createElement('div');
+            scanBar.id = 'grn-scanner-bar';
+            scanBar.className = 'grn-scanner-bar';
+            scanBar.innerHTML = `
+                <div style="display:flex;align-items:center;gap:10px;flex:1.4;min-width:260px;">
+                    <span class="grn-icon-badge" style="width:36px;height:36px;font-size:1.1rem;">🔍</span>
+                    <input type="text" id="grn-barcode-input" class="grn-log-input" style="flex:1;height:42px;font-size:0.95rem;" placeholder="امسح الباركود أو اكتب اسم/كود الصنف ثم اضغط Enter لزيادة الاستلام (+1)...">
+                </div>
+                <div style="display:flex;align-items:center;gap:8px;min-width:220px;">
+                    <span class="grn-icon-badge" style="width:32px;height:32px;font-size:0.95rem;" title="توحيد المستودع لجميع الأصناف">🏢</span>
+                    <select id="grn-bulk-wh-select" class="grn-log-input" style="height:42px;min-width:170px;cursor:pointer;" title="تعميم المستودع المختار على جميع سطور الفاتورة">
+                        <option value="">🏢 تعميم المستودع للكل...</option>
+                    </select>
+                </div>
+                <div class="grn-progress-wrap">
+                    <div style="display:flex;justify-content:space-between;align-items:center;font-size:0.82rem;font-weight:800;">
+                        <span style="color:#bae6fd;display:inline-flex;align-items:center;gap:5px;"><span class="grn-icon-badge" style="width:20px;height:20px;font-size:0.7rem;">📊</span> نسبة إنجاز استلام الفاتورة:</span>
+                        <span id="grn-live-progress-pct" style="color:#34d399;font-family:'Outfit';font-size:0.95rem;">100%</span>
+                    </div>
+                    <div class="grn-progress-track">
+                        <div id="grn-live-progress-fill" class="grn-progress-fill" style="width:100%;"></div>
+                    </div>
+                </div>
+                <div style="display:flex;align-items:center;gap:8px;">
+                    <button type="button" class="btn-action" style="padding:9px 14px;font-size:0.86rem;border-radius:10px;background:linear-gradient(135deg,#0284c7,#0369a1);display:inline-flex;align-items:center;gap:6px;" onclick="printCurrentOrSavedGRN()">
+                        <span class="grn-icon-badge" style="width:22px;height:22px;">🖨️</span> طباعة سند GRN
+                    </button>
+                    <button type="button" class="btn-action" style="padding:9px 14px;font-size:0.86rem;border-radius:10px;background:linear-gradient(135deg,#059669,#047857);display:inline-flex;align-items:center;gap:6px;" onclick="shareCurrentOrSavedGRNWhatsApp()">
+                        <span class="grn-icon-badge" style="width:22px;height:22px;">💬</span> واتساب
+                    </button>
+                </div>
+            `;
+
+            viewEditor.insertBefore(logBar, editorLayout);
+            viewEditor.insertBefore(scanBar, editorLayout);
+
+            // Bind Bulk Warehouse change
+            const bulkWh = document.getElementById('grn-bulk-wh-select');
+            if (bulkWh) {
+                bulkWh.addEventListener('change', function() {
+                    if (!this.value) return;
+                    receiptLines.forEach(l => { l.warehouseId = this.value; });
+                    renderReceiptLines();
+                    showToast('تم تعميم المستودع المختار على جميع الأصناف 🏢', 'success');
+                });
+            }
+
+            // Bind Barcode / Quick Item Scanner
+            const barcodeInp = document.getElementById('grn-barcode-input');
+            if (barcodeInp) {
+                barcodeInp.addEventListener('keydown', function(e) {
+                    if (e.key !== 'Enter') return;
+                    e.preventDefault();
+                    const q = this.value.trim().toLowerCase();
+                    if (!q) return;
+
+                    // Support syntax: "code*qty" e.g. "1010*5"
+                    let scanTerm = q;
+                    let addStep = 1;
+                    if (q.includes('*')) {
+                        const parts = q.split('*');
+                        scanTerm = parts[0].trim();
+                        addStep = parseFloat(parts[1]) || 1;
+                    }
+
+                    const matchedIdx = receiptLines.findIndex(line => {
+                        const itemObj = (itemsDb || []).find(i => String(i.id) === String(line.itemId) || i.name === line.itemId) || {};
+                        const iName = (getItemName(line.itemId) || '').toLowerCase();
+                        const iCode = String(itemObj.code || itemObj.itemCode || line.itemId || '').toLowerCase();
+                        const iBar  = String(itemObj.barcode || '').toLowerCase();
+                        return iBar === scanTerm || iCode === scanTerm || iName.includes(scanTerm);
+                    });
+
+                    if (matchedIdx === -1) {
+                        playScanBeep(260, 0.18);
+                        showToast('⚠️ لم يتم العثور على صنف مطابق للباركود/الاسم في هذه الفاتورة: ' + scanTerm, 'error');
+                        this.select();
+                        return;
+                    }
+
+                    const targetLine = receiptLines[matchedIdx];
+                    const nextVal = Math.min(targetLine.maxPending, (parseFloat(targetLine.receiveQty) || 0) + addStep);
+                    targetLine.receiveQty = nextVal;
+                    this.value = '';
+                    playScanBeep(960, 0.08);
+                    renderReceiptLines();
+
+                    // Highlight & scroll to matched row
+                    const rows = document.querySelectorAll('#items-tbody tr');
+                    if (rows[matchedIdx]) {
+                        rows.forEach(r => r.classList.remove('grn-active-row'));
+                        rows[matchedIdx].classList.add('grn-active-row');
+                        rows[matchedIdx].scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                    showToast(`✅ تم مسح (${getItemName(targetLine.itemId)}) — الكمية المستلمة الآن: ${nextVal}`, 'success');
+                });
+            }
+
+            // Inject Variance & Base Weight Pill into Bottom Summary Bar
+            const bottomLeft = document.querySelector('#view-editor .editor-bottom-bar > div:first-child');
+            if (bottomLeft && !document.getElementById('grn-summary-base-box')) {
+                const baseBox = document.createElement('div');
+                baseBox.id = 'grn-summary-base-box';
+                baseBox.style.cssText = 'background: rgba(30, 41, 59, 0.8); border: 1px solid rgba(192, 132, 252, 0.35); padding: 8px 16px; border-radius: 12px; display: flex; align-items: center; gap: 10px;';
+                baseBox.innerHTML = `
+                    <span style="color: #94a3b8; font-size: 0.85rem;">⚖️ إجمالي بالوحدة الأساسية:</span>
+                    <span id="lbl-total-base-qty" style="color: #c084fc; font-weight: 800; font-family: 'Outfit', sans-serif; font-size: 1.2rem;">0</span>
+                `;
+                const remSummaryBox = document.createElement('div');
+                remSummaryBox.id = 'grn-summary-rem-box';
+                remSummaryBox.style.cssText = 'background: rgba(30, 41, 59, 0.8); border: 1px solid rgba(251, 191, 36, 0.35); padding: 8px 16px; border-radius: 12px; display: flex; align-items: center; gap: 10px;';
+                remSummaryBox.innerHTML = `
+                    <span style="color: #94a3b8; font-size: 0.85rem;">⏳ المتبقي بعد الاستلام:</span>
+                    <span id="lbl-total-remaining-qty" style="color: #34d399; font-weight: 800; font-family: 'Outfit', sans-serif; font-size: 1.15rem;">0 (مكتمل ✅)</span>
+                `;
+                bottomLeft.appendChild(baseBox);
+                bottomLeft.appendChild(remSummaryBox);
+            }
+        }
+
+        // 3. Populate Bulk Warehouse Options & Default Inspector Name on openReceiptEditor
+        const _prevOpenReceiptEditor = window.openReceiptEditor;
+        window.openReceiptEditor = function(invId) {
+            injectEditorWorldClassBars();
+            _prevOpenReceiptEditor(invId);
+
+            // Populate bulk warehouse select
+            const bulkWh = document.getElementById('grn-bulk-wh-select');
+            if (bulkWh) {
+                let opts = '<option value="">🏢 تعميم المستودع للكل...</option>';
+                (warehousesDb || []).forEach(wh => {
+                    if (wh.id !== 'PENDING_RECEIPT') {
+                        opts += `<option value="${wh.id}">${wh.name}</option>`;
+                    }
+                });
+                bulkWh.innerHTML = opts;
+            }
+
+            // Pre-fill inspector name from logged-in user if empty
+            const inspInp = document.getElementById('grn-inspector-name');
+            if (inspInp && !inspInp.value) {
+                const curU = (typeof window.getCurrentUserInfo === 'function') ? window.getCurrentUserInfo() : JSON.parse(localStorage.getItem('user') || '{}');
+                inspInp.value = curU.fullName || curU.name || curU.username || 'أمين المستودع';
+            }
+            if (!editingGRNId) {
+                ['grn-waybill-no', 'grn-truck-no', 'grn-driver-info'].forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) el.value = '';
+                });
+            }
+            updateLiveProgressAndVariance();
+        };
+
+        // 4. Live Progress Bar, Weight/Base Qty & Variance Summary Calculation
+        function updateLiveProgressAndVariance() {
+            let totalMaxPending = 0;
+            let totalRcvQty = 0;
+            let totalBaseQty = 0;
+
+            const seenGroups = new Set();
+            (receiptLines || []).forEach(l => {
+                const rQty = parseFloat(l.receiveQty) || 0;
+                const fac = parseFloat(l.factor || l.customFactor) || 1;
+                totalRcvQty += rQty;
+                totalBaseQty += rQty * fac;
+                if (!seenGroups.has(l.lineGroup)) {
+                    seenGroups.add(l.lineGroup);
+                    totalMaxPending += parseFloat(l.maxPending) || 0;
+                }
+            });
+
+            const pct = totalMaxPending > 0 ? Math.min(100, Math.round((totalRcvQty / totalMaxPending) * 100)) : 100;
+            const remTotal = Math.max(0, Math.round((totalMaxPending - totalRcvQty) * 100) / 100);
+
+            const pctEl = document.getElementById('grn-live-progress-pct');
+            const fillEl = document.getElementById('grn-live-progress-fill');
+            if (pctEl) {
+                pctEl.textContent = pct + '%';
+                pctEl.style.color = pct >= 100 ? '#34d399' : (pct > 0 ? '#38bdf8' : '#fbbf24');
+            }
+            if (fillEl) {
+                fillEl.style.width = pct + '%';
+            }
+
+            const baseEl = document.getElementById('lbl-total-base-qty');
+            if (baseEl) baseEl.textContent = fmtNum(totalBaseQty);
+
+            const remEl = document.getElementById('lbl-total-remaining-qty');
+            if (remEl) {
+                if (remTotal <= 0) {
+                    remEl.textContent = '0 (مكتمل 100% ✅)';
+                    remEl.style.color = '#34d399';
+                } else {
+                    remEl.textContent = fmtNum(remTotal) + ' متبقي قيد الاستلام';
+                    remEl.style.color = '#fbbf24';
+                }
+            }
+        }
+
+        // 5. Enhance renderReceiptLines with QC Inspection Badge, Item Ledger Quick Link, and Variance Indicator
+        const _prevRenderReceiptLines = window.renderReceiptLines;
+        window.renderReceiptLines = function() {
+            _prevRenderReceiptLines();
+            const tbody = document.getElementById('items-tbody');
+            if (!tbody) return;
+
+            const rows = Array.from(tbody.querySelectorAll('tr'));
+            rows.forEach((tr, idx) => {
+                const line = receiptLines[idx];
+                if (!line) return;
+                if (!line.qcStatus) line.qcStatus = 'ok'; // 'ok' | 'warn' | 'dmg'
+
+                // A. Add Item Ledger direct link button next to Split button in Item cell
+                const itemBox = tr.querySelector('.grn-col-item:not([style*="display:none"])');
+                if (itemBox && !itemBox.querySelector('.grn-ledger-link')) {
+                    const ledgerBtn = document.createElement('a');
+                    ledgerBtn.href = `item-ledger.php?item=${encodeURIComponent(line.itemId)}`;
+                    ledgerBtn.target = '_blank';
+                    ledgerBtn.className = 'grn-row-mini-btn grn-ledger-link';
+                    ledgerBtn.title = 'فتح كشف حركة هذا الصنف في تبويب جديد 📈';
+                    ledgerBtn.style.textDecoration = 'none';
+                    ledgerBtn.innerHTML = '📈';
+                    itemBox.appendChild(ledgerBtn);
+                }
+
+                // B. Add Variance Indicator inside Base Received Qty cell
+                const baseRcvBox = tr.querySelector('.base-rcv-qty');
+                const qtyInput = tr.querySelector('.qty-input');
+                const factorInput = tr.querySelector('.factor-input');
+                const refreshRowVariance = () => {
+                    if (!baseRcvBox) return;
+                    const f = parseFloat(line.factor || line.customFactor) || 1;
+                    const rcv = parseFloat(line.receiveQty) || 0;
+                    const maxP = parseFloat(line.maxPending) || 0;
+                    const diff = Math.round((rcv - maxP) * 100) / 100;
+                    let varBadge = '';
+                    if (diff === 0 && maxP > 0) {
+                        varBadge = `<span class="grn-var-tag exact" title="مطابق تماماً للكمية المطلوبة">100% ✅</span>`;
+                    } else if (diff < 0) {
+                        const pctRow = maxP > 0 ? Math.round((rcv / maxP) * 100) : 0;
+                        varBadge = `<span class="grn-var-tag short" title="استلام جزئي — متبقي ${Math.abs(diff)}">${pctRow}%</span>`;
+                    } else if (diff > 0) {
+                        varBadge = `<span class="grn-var-tag over" title="زيادة في الوزن/الكمية المستلمة (+${diff})">+${diff} ⚖️</span>`;
+                    }
+                    baseRcvBox.innerHTML = `<span>${fmtColVal('rcvBase', rcv * f)}</span> ${varBadge}`;
+                    updateLiveProgressAndVariance();
+                };
+                refreshRowVariance();
+                if (qtyInput) qtyInput.addEventListener('input', refreshRowVariance);
+                if (factorInput) factorInput.addEventListener('input', refreshRowVariance);
+
+                // C. Inject QC Status Interactive Pill next to Notes Input
+                const notesTd = tr.children[tr.children.length - 1];
+                const notesInput = notesTd ? notesTd.querySelector('.notes-input') : null;
+                if (notesTd && notesInput && !notesTd.querySelector('.grn-qc-pill')) {
+                    const wrap = document.createElement('div');
+                    wrap.style.cssText = 'display:flex;align-items:center;gap:6px;width:100%;';
+                    notesInput.parentNode.insertBefore(wrap, notesInput);
+
+                    const qcBtn = document.createElement('span');
+                    const renderQcBtn = () => {
+                        if (line.qcStatus === 'ok') {
+                            qcBtn.className = 'grn-qc-pill qc-ok';
+                            qcBtn.innerHTML = '✅ سليم';
+                            qcBtn.title = 'فحص الجودة: البضاعة سليمة ومطابقة — انقر للتغيير (سليم / تحفظ / تالف)';
+                        } else if (line.qcStatus === 'warn') {
+                            qcBtn.className = 'grn-qc-pill qc-warn';
+                            qcBtn.innerHTML = '⚠️ بتحفظ';
+                            qcBtn.title = 'فحص الجودة: استلام بتحفظ — انقر للتغيير';
+                        } else {
+                            qcBtn.className = 'grn-qc-pill qc-dmg';
+                            qcBtn.innerHTML = `🚨 تالف (${line.damagedQty || 0})`;
+                            qcBtn.title = 'فحص الجودة: يوجد تالف/مرفوض — انقر للتغيير';
+                        }
+                    };
+                    renderQcBtn();
+
+                    qcBtn.addEventListener('click', () => {
+                        if (line.qcStatus === 'ok') {
+                            line.qcStatus = 'warn';
+                            if (!line.notes) {
+                                line.notes = 'استلام بتحفظ (فحص جودة)';
+                                notesInput.value = line.notes;
+                            }
+                        } else if (line.qcStatus === 'warn') {
+                            line.qcStatus = 'dmg';
+                            const dmgStr = prompt('أدخل الكمية التالفة / المرفوضة من هذا الصنف (سيتم توثيقها وخصمها من الصالح):', line.damagedQty || '1');
+                            const dmgVal = Math.max(0, parseFloat(dmgStr) || 0);
+                            line.damagedQty = dmgVal;
+                            if (dmgVal > 0 && dmgVal <= line.maxPending) {
+                                line.receiveQty = Math.max(0, line.maxPending - dmgVal);
+                                if (qtyInput) qtyInput.value = line.receiveQty;
+                                refreshRowVariance();
+                            }
+                            line.notes = `تالف/مرفوض: ${dmgVal} ${line.unitName || ''}`;
+                            notesInput.value = line.notes;
+                        } else {
+                            line.qcStatus = 'ok';
+                            line.damagedQty = 0;
+                            if (line.notes && (line.notes.startsWith('تالف/مرفوض:') || line.notes === 'استلام بتحفظ (فحص جودة)')) {
+                                line.notes = '';
+                                notesInput.value = '';
+                            }
+                        }
+                        renderQcBtn();
+                    });
+
+                    wrap.appendChild(qcBtn);
+                    wrap.appendChild(notesInput);
+                }
+            });
+            updateLiveProgressAndVariance();
+        };
+
+        // 6. Enhance Pending Invoices Hub with Visual Progress Bar per Invoice
+        const _prevRenderPendingHub = window.renderPendingInvoices;
+        window.renderPendingInvoices = function(resetCount = true) {
+            injectHubCrossScreenLinks();
+            _prevRenderPendingHub(resetCount);
+            const rows = document.querySelectorAll('#invoices-tbody tr');
+            rows.forEach(tr => {
+                const invIdTd = tr.children[0];
+                const pendingCntTd = tr.children[4];
+                if (!invIdTd || !pendingCntTd) return;
+                const invId = invIdTd.textContent.trim();
+                const pData = pendingMap[invId];
+                if (!pData || !pData.lines) return;
+
+                let origSum = 0;
+                let pendSum = 0;
+                Object.values(pData.lines).forEach(l => {
+                    origSum += parseFloat(l.origQty || l.pendingQty) || 0;
+                    pendSum += parseFloat(l.pendingQty) || 0;
+                });
+                const rcvSum = Math.max(0, origSum - pendSum);
+                const pct = origSum > 0 ? Math.min(99, Math.round((rcvSum / origSum) * 100)) : 0;
+                const totalPendingItems = Object.values(pData.lines).length;
+
+                pendingCntTd.innerHTML = `
+                    <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
+                        <span style="font-weight:900;color:${pct > 0 ? '#38bdf8' : '#fbbf24'};">${totalPendingItems} صنف (${pct > 0 ? 'مستلم جزئياً ' + pct + '%' : 'بانتظار الاستلام'})</span>
+                        <div class="grn-progress-track" style="height:7px;width:130px;">
+                            <div class="grn-progress-fill" style="width:${pct}%;"></div>
+                        </div>
+                    </div>
+                `;
+            });
+        };
+
+        // 7. Upgrade saveReceiptNote for 100% Cross-Screen Sync (erp_items_v1 + erp_inventory_v1 + Logistics Metadata + Partial Receipt Accuracy)
+        const _origSaveReceiptNote = window.saveReceiptNote;
+        window.saveReceiptNote = function() {
+            const receivingItems = (receiptLines || []).filter(x => x.receiveQty > 0);
+            if (receivingItems.length === 0) {
+                return showToast('يجب تحديد كمية استلام لصنف واحد على الأقل', 'error');
+            }
+            const hasEmptyWh = receivingItems.some(x => !x.warehouseId);
+            if (hasEmptyWh) return showToast('يرجى تحديد المستودع لجميع الأصناف المستلمة', 'error');
+
+            // Capture Logistics & QC fields before saving
+            const waybillNo = (document.getElementById('grn-waybill-no')?.value || '').trim();
+            const truckNo   = (document.getElementById('grn-truck-no')?.value || '').trim();
+            const driverInfo = (document.getElementById('grn-driver-info')?.value || '').trim();
+            const inspector = (document.getElementById('grn-inspector-name')?.value || '').trim();
+
+            const logParts = [];
+            if (waybillNo) logParts.push(`بوليصة: ${waybillNo}`);
+            if (truckNo)   logParts.push(`شاحنة: ${truckNo}`);
+            if (driverInfo) logParts.push(`سائق: ${driverInfo}`);
+            if (inspector) logParts.push(`فحص: ${inspector}`);
+            const logPrefix = logParts.length > 0 ? `[${logParts.join(' | ')}] ` : '';
+
+            // Attach logistics & QC note onto lines so item-ledger.php & warehouse-ledger.php display them automatically
+            receivingItems.forEach(l => {
+                const qcTag = l.qcStatus === 'dmg' ? `[تالف: ${l.damagedQty || 0}] ` : (l.qcStatus === 'warn' ? '[استلام بتحفظ] ' : '');
+                const cleanNote = String(l.notes || '').replace(/^\[.*?\]\s*/, '');
+                l.notes = (qcTag + logPrefix + cleanNote).trim();
+            });
+
+            // Determine if this receipt completes 100% of all pending items on the invoice
+            const seenGroups = new Set();
+            let totalMaxPending = 0;
+            let totalReceivingNow = 0;
+            (receiptLines || []).forEach(l => {
+                totalReceivingNow += parseFloat(l.receiveQty) || 0;
+                if (!seenGroups.has(l.lineGroup)) {
+                    seenGroups.add(l.lineGroup);
+                    totalMaxPending += parseFloat(l.maxPending) || 0;
+                }
+            });
+            const isFullyReceivedNow = (totalReceivingNow >= totalMaxPending - 0.001);
+            const activeInvId = currentInvoiceId;
+
+            // Call original saveReceiptNote
+            _origSaveReceiptNote();
+
+            // Post-save enrichment: enrich saved GRN record with logistics, QC, and sync erp_items_v1 stock map
+            try {
+                let freshPurchases = JSON.parse(localStorage.getItem('erp_purchase_invoices_v1') || '[]');
+                // Find the most recently created/updated GRN for activeInvId
+                for (let i = freshPurchases.length - 1; i >= 0; i--) {
+                    const p = freshPurchases[i];
+                    if (p && p.isGRN && String(p.originalInvoiceId) === String(activeInvId)) {
+                        p.waybillNo = waybillNo;
+                        p.truckNo = truckNo;
+                        p.driverInfo = driverInfo;
+                        p.inspectorName = inspector;
+                        p.isFullyReceived = isFullyReceivedNow;
+                        break;
+                    }
+                }
+                // Update parent invoice receiptStatus accurately (partially_received vs received)
+                const parentIdx = freshPurchases.findIndex(p => p && !p.isGRN && !p.isReturn && String(p.invoiceNo || p.id) === String(activeInvId));
+                if (parentIdx > -1) {
+                    freshPurchases[parentIdx].receiptStatus = isFullyReceivedNow ? 'received' : 'partially_received';
+                    if (isFullyReceivedNow) {
+                        freshPurchases[parentIdx].status = 'received';
+                    } else if (freshPurchases[parentIdx].status === 'received') {
+                        freshPurchases[parentIdx].status = 'completed';
+                    }
+                }
+                localStorage.setItem('erp_purchase_invoices_v1', JSON.stringify(freshPurchases));
+                allPurchases = freshPurchases;
+
+                // Also update erp_items_v1 per-warehouse stock so Direct Sales, Item Master & Stocktake see the exact stock immediately!
+                let itemsMaster = JSON.parse(localStorage.getItem('erp_items_v1') || '[]');
+                let itemsChanged = false;
+                receivingItems.forEach(line => {
+                    const factor = parseFloat(line.factor || line.customFactor) || 1;
+                    const baseAdded = (parseFloat(line.receiveQty) || 0) * factor;
+                    const itemIdx = itemsMaster.findIndex(it => String(it.id) === String(line.itemId) || it.name === line.itemId || it.name === getItemName(line.itemId));
+                    if (itemIdx > -1) {
+                        const it = itemsMaster[itemIdx];
+                        if (!it.stock || typeof it.stock !== 'object') it.stock = {};
+                        const whId = line.warehouseId || 'w-main';
+                        it.stock[whId] = (parseFloat(it.stock[whId]) || 0) + baseAdded;
+                        if (it.stock['PENDING_RECEIPT'] !== undefined) {
+                            it.stock['PENDING_RECEIPT'] = Math.max(0, (parseFloat(it.stock['PENDING_RECEIPT']) || 0) - baseAdded);
+                        }
+                        itemsChanged = true;
+                    }
+                });
+                if (itemsChanged) {
+                    localStorage.setItem('erp_items_v1', JSON.stringify(itemsMaster));
+                    itemsDb = itemsMaster;
+                }
+            } catch (errSync) {
+                console.warn('GRN cross-screen enrichment notice:', errSync);
+            }
+        };
+
+        // 8. Official GRN Print Voucher & WhatsApp Share (Works for current Editor AND any saved GRN in Hub)
+        window.printGRNVoucherById = function(grnId) {
+            const grn = (allPurchases || []).find(p => p && p.id === grnId);
+            if (!grn) return showToast('لم يتم العثور على بيانات الإذن للطباعة', 'error');
+
+            const supName = getSupplierName(grn.customer || grn.customerId || grn.supplierId);
+            const posItems = (grn.items || []).filter(i => (parseFloat(i.quantity) || 0) > 0);
+            openOfficialGRNPrintWindow({
+                grnNo: grn.id,
+                invNo: grn.originalInvoiceId || '—',
+                supplierName: supName,
+                dateStr: new Date(grn.date || Date.now()).toLocaleString('en-GB'),
+                waybillNo: grn.waybillNo || '—',
+                truckNo: grn.truckNo || '—',
+                driverInfo: grn.driverInfo || '—',
+                inspectorName: grn.inspectorName || grn.createdByName || grn.createdBy || 'أمين المستودع',
+                lines: posItems.map(it => {
+                    const whObj = (warehousesDb || []).find(w => w.id === it.warehouseId);
+                    const fac = parseFloat(it.customFactor || it.factor) || 1;
+                    const q = parseFloat(it.quantity) || 0;
+                    return {
+                        itemName: getItemName(it.itemId),
+                        unitName: it.unitName || 'وحدة',
+                        origQty: q,
+                        receiveQty: q,
+                        factor: fac,
+                        baseQty: it.customBaseQty || (q * fac),
+                        warehouseName: whObj ? whObj.name : (it.warehouseId || 'المخزن الرئيسي'),
+                        qcLabel: (it.notes && it.notes.includes('تالف')) ? 'يوجد تالف' : ((it.notes && it.notes.includes('بتحفظ')) ? 'بتحفظ' : 'مطابق ✅'),
+                        notes: it.notes || '—'
+                    };
+                })
+            });
+        };
+
+        window.printCurrentOrSavedGRN = function() {
+            const invData = pendingMap[currentInvoiceId] || {};
+            const linesToPrint = (receiptLines || []).filter(l => (parseFloat(l.receiveQty) || 0) > 0);
+            if (linesToPrint.length === 0) return showToast('لا توجد كميات مستلمة لطباعتها', 'error');
+
+            openOfficialGRNPrintWindow({
+                grnNo: editingGRNId || generateGRNNumber(),
+                invNo: currentInvoiceId || '—',
+                supplierName: getSupplierName(invData.supplierId),
+                dateStr: new Date().toLocaleString('en-GB'),
+                waybillNo: document.getElementById('grn-waybill-no')?.value || '—',
+                truckNo: document.getElementById('grn-truck-no')?.value || '—',
+                driverInfo: document.getElementById('grn-driver-info')?.value || '—',
+                inspectorName: document.getElementById('grn-inspector-name')?.value || 'أمين المستودع',
+                lines: linesToPrint.map(l => {
+                    const whObj = (warehousesDb || []).find(w => w.id === l.warehouseId);
+                    const fac = parseFloat(l.factor || l.customFactor) || 1;
+                    const q = parseFloat(l.receiveQty) || 0;
+                    return {
+                        itemName: getItemName(l.itemId),
+                        unitName: l.unitName || 'وحدة',
+                        origQty: l.origQty || l.maxPending,
+                        receiveQty: q,
+                        factor: fac,
+                        baseQty: q * fac,
+                        warehouseName: whObj ? whObj.name : 'المخزن الرئيسي',
+                        qcLabel: l.qcStatus === 'dmg' ? `تالف (${l.damagedQty || 0})` : (l.qcStatus === 'warn' ? 'بتحفظ ⚠️' : 'سليم ومطابق ✅'),
+                        notes: l.notes || '—'
+                    };
+                })
+            });
+        };
+
+        function openOfficialGRNPrintWindow(doc) {
+            const rowsHtml = doc.lines.map((r, i) => `
+                <tr>
+                    <td>${i + 1}</td>
+                    <td style="text-align:right;font-weight:800;">${r.itemName}</td>
+                    <td>${r.unitName}</td>
+                    <td>${fmtNum(r.origQty)}</td>
+                    <td style="font-weight:900;color:#0369a1;">${fmtNum(r.receiveQty)}</td>
+                    <td>${fmtNum(r.factor)}</td>
+                    <td style="font-weight:800;color:#059669;">${fmtNum(r.baseQty)}</td>
+                    <td>${r.warehouseName}</td>
+                    <td>${r.qcLabel}</td>
+                    <td style="text-align:right;font-size:12px;">${r.notes}</td>
+                </tr>
+            `).join('');
+
+            const w = window.open('', '_blank', 'width=1050,height=800');
+            if (!w) return showToast('يرجى السماح بالنوافذ المنبثقة لطباعة السند', 'error');
+            w.document.write(`<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<title>سند استلام مخزني (GRN) - ${doc.grnNo}</title>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@500;700;800;900&display=swap" rel="stylesheet">
+<style>
+    body { font-family: 'Tajawal', sans-serif; margin: 24px; color: #0f172a; background: #fff; }
+    .hdr { display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid #0284c7; padding-bottom: 14px; margin-bottom: 18px; }
+    .hdr h1 { margin: 0; font-size: 24px; color: #0369a1; font-weight: 900; }
+    .meta-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 12px; padding: 14px; margin-bottom: 18px; font-size: 13.5px; }
+    .meta-grid div strong { display: block; color: #64748b; font-size: 11.5px; }
+    table { width: 100%; border-collapse: collapse; margin-bottom: 24px; font-size: 13.5px; }
+    th { background: #0f172a; color: #fff; padding: 10px 8px; text-align: center; font-weight: 800; }
+    td { border: 1px solid #cbd5e1; padding: 9px 8px; text-align: center; }
+    tr:nth-child(even) { background: #f8fafc; }
+    .sigs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-top: 35px; text-align: center; font-weight: 800; font-size: 14px; }
+    .sigs div { border-top: 2px dashed #94a3b8; padding-top: 10px; }
+    @media print { .no-print { display: none !important; } body { margin: 10px; } }
+</style>
+</head>
+<body>
+    <div class="no-print" style="margin-bottom:15px;display:flex;gap:10px;">
+        <button onclick="window.print()" style="padding:10px 24px;background:#0284c7;color:#fff;border:none;border-radius:8px;font-family:'Tajawal';font-weight:800;cursor:pointer;font-size:15px;">🖨️ طباعة السند الآن</button>
+        <button onclick="window.close()" style="padding:10px 18px;background:#e2e8f0;color:#0f172a;border:none;border-radius:8px;font-family:'Tajawal';font-weight:700;cursor:pointer;">إغلاق</button>
+    </div>
+    <div class="hdr">
+        <div>
+            <h1>📦 سند استلام بضاعة مخزني (Official GRN)</h1>
+            <div style="color:#475569;font-weight:700;margin-top:4px;">منظومة مقاييس العالمية لإدارة المخازن وسلاسل الإمداد</div>
+        </div>
+        <div style="text-align:left;font-weight:900;font-size:18px;color:#0369a1;">
+            رقم الإذن: ${doc.grnNo}<br>
+            <span style="font-size:13px;color:#64748b;">التاريخ: ${doc.dateStr}</span>
+        </div>
+    </div>
+    <div class="meta-grid">
+        <div><strong>رقم فاتورة الشراء الأصلية</strong>${doc.invNo}</div>
+        <div><strong>المورد</strong>${doc.supplierName}</div>
+        <div><strong>رقم بوليصة الشحن / إشعار المورد</strong>${doc.waybillNo}</div>
+        <div><strong>رقم الشاحنة / اللوحة</strong>${doc.truckNo}</div>
+        <div><strong>اسم السائق / المندوب</strong>${doc.driverInfo}</div>
+        <div><strong>أمين المستودع / الفاحص</strong>${doc.inspectorName}</div>
+        <div><strong>إجمالي الأصناف المستلمة</strong>${doc.lines.length} أصناف</div>
+        <div><strong>حالة الفحص</strong>مفحوص ومعتمد مخزنياً ✅</div>
+    </div>
+    <table>
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>اسم الصنف</th>
+                <th>الوحدة</th>
+                <th>كمية الفاتورة</th>
+                <th>الكمية المستلمة</th>
+                <th>التعادل</th>
+                <th>الكمية بالوحدة الأساسية</th>
+                <th>المستودع المُستلِم</th>
+                <th>فحص الجودة (QC)</th>
+                <th>ملاحظات</th>
+            </tr>
+        </thead>
+        <tbody>${rowsHtml}</tbody>
+    </table>
+    <div class="sigs">
+        <div>توقيع أمين المستودع المستلم<br><small style="color:#64748b;">${doc.inspectorName}</small></div>
+        <div>توقيع السائق / مندوب التوريد<br><small style="color:#64748b;">${doc.driverInfo}</small></div>
+        <div>مسؤول فحص الجودة (QC)</div>
+        <div>اعتماد إدارة المشتريات والمخازن</div>
+    </div>
+</body>
+</html>`);
+            w.document.close();
+        }
+
+        window.shareCurrentOrSavedGRNWhatsApp = function(grnIdOptional) {
+            let text = '';
+            if (grnIdOptional) {
+                const grn = (allPurchases || []).find(p => p && p.id === grnIdOptional);
+                if (!grn) return;
+                const supName = getSupplierName(grn.customer || grn.customerId || grn.supplierId);
+                const posItems = (grn.items || []).filter(i => (parseFloat(i.quantity) || 0) > 0);
+                const itemsLines = posItems.map(i => `• ${getItemName(i.itemId)}: *${fmtNum(i.quantity)} ${i.unitName || 'وحدة'}*`).join('\n');
+                text = `📦 *إشعار استلام بضاعة مخزني (GRN)*\nرقم الإذن: *${grn.id}*\nالفاتورة الأصلية: *${grn.originalInvoiceId}*\nالمورد: *${supName}*\n\n*الأصناف المستلمة:*\n${itemsLines}\n\n✅ تم الاستلام والفحص المخزني بنجاح.`;
+            } else {
+                const invData = pendingMap[currentInvoiceId] || {};
+                const supName = getSupplierName(invData.supplierId);
+                const lines = (receiptLines || []).filter(l => (parseFloat(l.receiveQty) || 0) > 0);
+                const itemsLines = lines.map(l => `• ${getItemName(l.itemId)}: *${fmtNum(l.receiveQty)} ${l.unitName || 'وحدة'}*`).join('\n');
+                text = `📦 *إشعار استلام بضاعة مخزني (GRN)*\nالفاتورة: *${currentInvoiceId}*\nالمورد: *${supName}*\n\n*الأصناف المستلمة:*\n${itemsLines}\n\n✅ تم الاستلام والفحص المخزني بنجاح.`;
+            }
+            window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank');
+        };
+
+        // 9. Add Print & WhatsApp buttons to each row in Recent GRNs table (`#recent-grns-container`)
+        const _prevRenderRecentGRNs2 = window.renderRecentGRNs;
+        window.renderRecentGRNs = function(resetCount = true) {
+            _prevRenderRecentGRNs2(resetCount);
+            const rows = document.querySelectorAll('#recent-grns-container tbody tr');
+            rows.forEach(tr => {
+                const grnIdCell = tr.children[0];
+                const actionsCell = tr.children[tr.children.length - 1];
+                if (!grnIdCell || !actionsCell) return;
+                const grnId = grnIdCell.textContent.trim().split(/\s+/)[0];
+                const btnWrap = actionsCell.querySelector('div');
+                if (btnWrap && !btnWrap.querySelector('.grn-print-btn')) {
+                    const printBtn = document.createElement('button');
+                    printBtn.className = 'btn-action grn-print-btn';
+                    printBtn.style.cssText = 'padding: 4px 8px; font-size: 0.75rem; background: linear-gradient(135deg, #0284c7, #0369a1);';
+                    printBtn.title = 'طباعة سند الاستلام المخزني 🖨️';
+                    printBtn.innerHTML = '🖨️';
+                    printBtn.onclick = () => window.printGRNVoucherById(grnId);
+
+                    const waBtn = document.createElement('button');
+                    waBtn.className = 'btn-action';
+                    waBtn.style.cssText = 'padding: 4px 8px; font-size: 0.75rem; background: linear-gradient(135deg, #10b981, #059669);';
+                    waBtn.title = 'مشاركة إشعار الاستلام عبر واتساب 💬';
+                    waBtn.innerHTML = '💬';
+                    waBtn.onclick = () => window.shareCurrentOrSavedGRNWhatsApp(grnId);
+
+                    btnWrap.insertBefore(waBtn, btnWrap.firstChild);
+                    btnWrap.insertBefore(printBtn, waBtn);
+                }
+            });
+        };
+
+        // 10. Deep-Link Handler: Support ?id=Z26... or ?id=PUR-... or ?invoice=... from item-ledger.php, warehouse-ledger.php, purchase.php
+        function handleIncomingDeepLink() {
+            const params = new URLSearchParams(window.location.search);
+            const targetId = (params.get('id') || params.get('invoice') || params.get('grn') || '').trim();
+            if (!targetId) return;
+
+            if (pendingMap && pendingMap[targetId]) {
+                openReceiptEditor(targetId);
+                return;
+            }
+            const grnMatch = (allPurchases || []).find(p => p && p.isGRN && (String(p.id) === targetId || String(p.originalInvoiceId) === targetId));
+            if (grnMatch) {
+                const toggleInput = document.getElementById('uiverse-toggle');
+                if (toggleInput) toggleInput.checked = true;
+                const searchInp = document.getElementById('search-inv');
+                if (searchInp) searchInp.value = targetId;
+                toggleHubViewBySwitch(true);
+            }
+        }
+
+        setTimeout(() => {
+            injectHubCrossScreenLinks();
+            if (currentHubView === 'pending') renderPendingInvoices(false);
+            handleIncomingDeepLink();
+        }, 250);
+    })();
+    </script>
 </body>
 </html>
