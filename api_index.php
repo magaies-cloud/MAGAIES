@@ -444,7 +444,8 @@ if ($resource === 'wa-tenant' || $resource === 'wa' || $action === 'wa-proxy') {
     }
     
     if ($err) {
-        jsonResponse(['success' => false, 'error' => 'فشل الاتصال بخادم الواتساب المحلي: ' . $err], 500);
+        $diag = !stristr(PHP_OS, 'WIN') ? @shell_exec('ss -tlpn 2>&1 | grep 3001; ps aux 2>&1 | grep "[n]ode"') : '';
+        jsonResponse(['success' => false, 'error' => 'فشل الاتصال بخادم الواتساب المحلي: ' . $err, 'diag' => $diag], 500);
     }
     
     header('Content-Type: application/json');
@@ -1329,7 +1330,8 @@ if ($action === 'wa-proxy') {
     curl_close($ch);
     
     if ($err) {
-        jsonResponse(['success' => false, 'error' => 'فشل الاتصال بخادم الواتساب المحلي: ' . $err], 500);
+        $diag = !stristr(PHP_OS, 'WIN') ? @shell_exec('ss -tlpn 2>&1 | grep 3001; ps aux 2>&1 | grep "[n]ode"') : '';
+        jsonResponse(['success' => false, 'error' => 'فشل الاتصال بخادم الواتساب المحلي: ' . $err, 'diag' => $diag], 500);
     }
     
     header('Content-Type: application/json');
