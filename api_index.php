@@ -817,6 +817,28 @@ function isWhatsAppServiceProcessRunning() {
     return false;
 }
 
+function ensureBaileysNodeCompatibility() {
+    $targets = [
+        __DIR__ . '/node_modules/@whiskeysockets/baileys/lib/Defaults/index.js',
+        __DIR__ . '/node_modules/@whiskeysockets/baileys/lib/Utils/generics.js',
+    ];
+    foreach ($targets as $f) {
+        if (is_file($f)) {
+            $content = @file_get_contents($f);
+            if ($content && preg_match("/import\s+(\w+)\s+from\s+'([^']+)'\s+(?:with|assert)\s*\{\s*type:\s*'json'\s*\};/", $content)) {
+                $patched = preg_replace(
+                    "/import\s+(\w+)\s+from\s+'([^']+)'\s+(?:with|assert)\s*\{\s*type:\s*'json'\s*\};/",
+                    "import { createRequire as __cr_$1 } from 'module'; const $1 = __cr_$1(import.meta.url)('$2');",
+                    $content
+                );
+                if ($patched && $patched !== $content) {
+                    @file_put_contents($f, $patched);
+                }
+            }
+        }
+    }
+}
+
 function forceRestartWhatsAppService() {
     if (function_exists('isLocalLaptopEnvironment') && isLocalLaptopEnvironment() && empty($_GET['force_local_wa'])) {
         return false;
@@ -852,6 +874,7 @@ function startWhatsAppServiceIfNeeded($forceSpawn = false) {
     }
     
     file_put_contents($lockFile, time());
+    ensureBaileysNodeCompatibility();
     
     $cmd = getWhatsAppNodeCommand();
     $serviceFile = file_exists(__DIR__ . '/whatsapp-service.mjs') 
