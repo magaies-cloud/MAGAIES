@@ -837,6 +837,18 @@ function ensureBaileysNodeCompatibility() {
             }
         }
     }
+    $cryptoFile = __DIR__ . '/node_modules/@whiskeysockets/baileys/lib/Utils/crypto.js';
+    if (is_file($cryptoFile)) {
+        $cContent = @file_get_contents($cryptoFile);
+        if ($cContent && strpos($cContent, '__wc') === false && strpos($cContent, 'const { subtle } = globalThis.crypto;') !== false) {
+            $cPatched = str_replace(
+                'const { subtle } = globalThis.crypto;',
+                "import { webcrypto as __wc } from 'crypto'; if (!globalThis.crypto) globalThis.crypto = __wc; const { subtle } = globalThis.crypto;",
+                $cContent
+            );
+            @file_put_contents($cryptoFile, $cPatched);
+        }
+    }
 }
 
 function forceRestartWhatsAppService() {
