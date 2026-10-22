@@ -82,14 +82,14 @@ if (!is_dir($uploadDir)) {
 }
 
 function isLocalInboundLaptopEnv() {
+    if (!stristr(PHP_OS, 'WIN')) {
+        return false;
+    }
     $host = strtolower($_SERVER['HTTP_HOST'] ?? $_SERVER['SERVER_NAME'] ?? '');
     if (strpos($host, 'elsajana.com') !== false) {
         return false;
     }
-    if (strpos($host, 'localhost') !== false || strpos($host, '127.0.0.1') !== false || strpos($host, '192.168.') === 0 || strpos($host, '10.') === 0) {
-        return true;
-    }
-    return (bool)stristr(PHP_OS, 'WIN');
+    return true;
 }
 
 // Mirror mutating inbound receipt actions (approvals, bank changes, policy settings) from Local Laptop to 24/7 Cloud Server

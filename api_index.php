@@ -155,14 +155,14 @@ function generateToken() {
 // Utility: Detect if running on Local Shop Laptop vs Cloud Server (c.elsajana.com)
 // -------------------------------------------------------
 function isLocalLaptopEnvironment() {
+    if (!stristr(PHP_OS, 'WIN')) {
+        return false;
+    }
     $host = strtolower($_SERVER['HTTP_HOST'] ?? $_SERVER['SERVER_NAME'] ?? '');
     if (strpos($host, 'elsajana.com') !== false) {
         return false;
     }
-    if (strpos($host, 'localhost') !== false || strpos($host, '127.0.0.1') !== false || strpos($host, '192.168.') === 0 || strpos($host, '10.') === 0) {
-        return true;
-    }
-    return (bool)stristr(PHP_OS, 'WIN');
+    return true;
 }
 
 // -------------------------------------------------------
@@ -894,9 +894,9 @@ function startWhatsAppServiceIfNeeded($forceSpawn = false) {
         : 'whatsapp-service.js';
     
     if (stristr(PHP_OS, 'WIN')) {
-        pclose(popen("start /B \"\" \"$cmd\" \"" . __DIR__ . "\\" . $serviceFile . "\" >> \"" . __DIR__ . "\\whatsapp-service.log\" 2>&1", "r"));
+        pclose(popen("start /B \"\" \"$cmd\" \"" . __DIR__ . "\\" . $serviceFile . "\" >NUL 2>&1", "r"));
     } else {
-        shell_exec("nohup \"$cmd\" \"" . __DIR__ . "/" . $serviceFile . "\" >> \"" . __DIR__ . "/whatsapp-service.log\" 2>&1 < /dev/null &");
+        exec("nohup \"$cmd\" \"" . __DIR__ . "/" . $serviceFile . "\" >/dev/null 2>&1 < /dev/null &");
     }
     
     // Allow up to 1.5 seconds for node to boot

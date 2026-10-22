@@ -1527,7 +1527,8 @@ class WhatsAppClient {
                 const puppeteer = puppeteerMod.default || puppeteerMod;
                 const launchOpts = {
                     headless: 'new',
-                    args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage', '--disable-gpu']
+                    env: { ...process.env, HOME: '/tmp', XDG_CONFIG_HOME: '/tmp/.config', XDG_CACHE_HOME: '/tmp/.cache' },
+                    args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage', '--disable-gpu', '--disable-crash-reporter', '--user-data-dir=/tmp/magaiees_chrome_profile']
                 };
                 if (process.platform !== 'win32' && !process.env.PUPPETEER_EXECUTABLE_PATH) {
                     const linuxChromeCandidates = [
@@ -3552,24 +3553,10 @@ try {
     }
 } catch (_) {}
 
-const server = app.listen(PORT, () => {
+const server = app.listen(PORT, '127.0.0.1', () => {
     log('STARTUP', `🚀 WhatsApp service on port ${PORT}`);
     log('STARTUP', `📁 Auth: ${AUTH_BASE_DIR}`);
     log('STARTUP', `📦 Node ${process.version} | ${process.platform}/${process.arch}`);
-
-    // Pre-warm Puppeteer voucher renderer in background so the very first "رصيد" request is instant
-    setTimeout(() => {
-        try {
-            const anyClient = manager.findActiveClient('wa_tenant_12');
-            if (anyClient && typeof anyClient._getVoucherBrowser === 'function') {
-                anyClient._getVoucherBrowser().then(() => {
-                    log('STARTUP', '⚡ Pre-warmed Puppeteer voucher browser & page for instant balance cards');
-                }).catch((e) => {
-                    logErr('STARTUP', 'Puppeteer pre-warm warning:', e.message);
-                });
-            }
-        } catch (_) {}
-    }, 1500);
 
     // Auto-discover and connect any saved WhatsApp sessions on disk (Cloud 24/7 Server only, unless FORCE_LOCAL_WA=1 on Windows)
     const allowStartupConnect = (process.platform !== 'win32') || (process.env.FORCE_LOCAL_WA === '1');
