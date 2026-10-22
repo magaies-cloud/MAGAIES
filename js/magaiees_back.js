@@ -420,3 +420,22 @@
         }
     }
 })();
+
+
+// 👑 AUTO-BOOTSTRAP UNIFIED ROYAL QUARTET (الرجوع للخلف • التلفاز • المرشد الذكي • اسألني بالمايك) ACROSS ALL SCREENS
+(function() {
+    const mountScriptIfMissing = function(matchStr, srcPath) {
+        if (!document.querySelector('script[src*="' + matchStr + '"]')) {
+            const s = document.createElement('script');
+            s.src = srcPath;
+            s.defer = true;
+            if (document.head) {
+                document.head.appendChild(s);
+            } else {
+                document.addEventListener('DOMContentLoaded', () => document.head.appendChild(s));
+            }
+        }
+    };
+    mountScriptIfMissing('global_background_media', 'js/global_background_media.js?v=20261022_v23');
+    mountScriptIfMissing('magaies-smart-guide', 'js/magaies-smart-guide.js?v=20261022_v23');
+})();

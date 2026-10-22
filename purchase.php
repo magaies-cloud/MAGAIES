@@ -1849,7 +1849,15 @@ try {
             <button onclick="window.location.href='purchase-receipt.php'" class="hub-action-card card-blue">
                 <div class="icon">🚛</div>
                 <div class="text-content">
-                    <div class="title">استلام بضاعة</div>
+                    <div class="title">استلام بضاعة (كلاسيكي)</div>
+                </div>
+            </button>
+
+            <!-- Unified Smart Logistics Portal -->
+            <button onclick="window.location.href='smart-logistics.php?mode=purchases'" class="hub-action-card card-teal" style="border-color: rgba(56,189,248,0.55); box-shadow: 0 0 22px rgba(14,165,233,0.3);">
+                <div class="icon">🚀</div>
+                <div class="text-content">
+                    <div class="title">بوابة الاستلام الموحدة</div>
                 </div>
             </button>
 

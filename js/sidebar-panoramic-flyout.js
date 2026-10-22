@@ -131,8 +131,8 @@
 
         'direct-sales.php': {
             title: 'منظومة المبيعات والفواتير',
-            subtitle: 'فاتورة مبيعات، فاتورة تقسيم مبيعات، تسليم مبيعات، وفاتورة مبدئية',
-            badge: '8 عمليات مبيعات',
+            subtitle: 'فاتورة مبيعات، بوابة تسليم المبيعات الذكية، فاتورة تقسيم، وفاتورة مبدئية',
+            badge: '9 عمليات مبيعات',
             icon: '🛒',
             accent: '#34d399',
             accentRgb: '52, 211, 153',
@@ -147,6 +147,15 @@
                     href: 'direct-sales.php?action=new',
                     samePageAction: () => { if (typeof window.openInvoiceEditor === 'function') window.openInvoiceEditor('pending_delivery'); },
                     tag: 'فوري ⚡'
+                },
+                {
+                    title: 'بوابة تسليم المبيعات 🚀',
+                    desc: 'البوابة اللوجستية الخضراء لصرف وتقسيم وتسليم فواتير المبيعات (GDN)',
+                    icon: '📤',
+                    color: '#10b981',
+                    rgb: '16, 185, 129',
+                    href: 'smart-logistics.php?mode=sales',
+                    tag: 'بوابة المبيعات 🟢'
                 },
                 {
                     title: 'فاتورة تقسيم مبيعات',
@@ -215,8 +224,8 @@
 
         'purchase.php': {
             title: 'منظومة المشتريات والتوريد',
-            subtitle: 'فاتورة مشتريات، استلام بضاعة، استرداد بضاعة، فاتورة مبدئية، ومسح فاتورة',
-            badge: '6 عمليات مشتريات',
+            subtitle: 'فاتورة مشتريات، بوابة استلام المشتريات الذكية، استلام بضاعة، استرداد، وفاتورة مبدئية',
+            badge: '7 عمليات مشتريات',
             icon: '🛍️',
             accent: '#fb923c',
             accentRgb: '251, 146, 60',
@@ -231,6 +240,15 @@
                     href: 'purchase.php?action=direct',
                     samePageAction: () => { if (typeof window.openPurchaseEditor === 'function') window.openPurchaseEditor('direct'); },
                     tag: 'شراء مباشر'
+                },
+                {
+                    title: 'بوابة استلام المشتريات 🚀',
+                    desc: 'البوابة اللوجستية الزرقاء لاستلام وتقسيم وتوريد فواتير المشتريات (GRN)',
+                    icon: '📥',
+                    color: '#38bdf8',
+                    rgb: '56, 189, 248',
+                    href: 'smart-logistics.php?mode=purchases',
+                    tag: 'بوابة الاستلام 🔵'
                 },
                 {
                     title: 'استلام بضاعة',

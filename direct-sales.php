@@ -7885,7 +7885,8 @@ try {
                             <button type="button" onclick="const d=document.getElementById('gdn-hub-cols-drawer'); if(d) d.style.display=(d.style.display==='none'?'flex':'none');" class="gdn-kinetic-btn" style="background:rgba(168,85,247,0.18); border:1px solid rgba(192,132,252,0.45); color:#e9d5ff;" title="إظهار أو إخفاء شريط ضبط الكولومات (الأعمدة محفوظة تلقائياً)">
                                 ⚙️ ضبط الكولومات (محفوظ ✅)
                             </button>
-                            <a href="sales-delivery.php" class="gdn-kinetic-btn" style="background:rgba(56,189,248,0.14); border:1px solid rgba(56,189,248,0.35); color:#38bdf8; text-decoration:none;">🚛 بوابة الصرف</a>
+                            <a href="sales-delivery.php" class="gdn-kinetic-btn" style="background:rgba(56,189,248,0.14); border:1px solid rgba(56,189,248,0.35); color:#38bdf8; text-decoration:none;">🚛 بوابة الصرف (كلاسيكي)</a>
+                            <a href="smart-logistics.php?mode=sales" class="gdn-kinetic-btn" style="background:linear-gradient(135deg,rgba(16,185,129,0.28),rgba(14,165,233,0.28)); border:1.5px solid #34d399; color:#ffffff; text-decoration:none; box-shadow:0 0 14px rgba(16,185,129,0.35);">🚀 البوابة الموحدة الذكية</a>
                             <button onclick="toggleDeliverySunlightMode()" id="gdn-sunlight-btn" class="gdn-kinetic-btn" style="background:#fef08a; color:#000000; border:none;" title="وضع الشمس للمخزنجي (F4)">☀️</button>
                         </div>
                     </div>

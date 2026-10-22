@@ -22,11 +22,19 @@
     <link rel="stylesheet" href="css/print-invoice.css">
     <style>
         /* ═══ LIGHTWEIGHT, ZERO-JANK SMOOTH SCROLLING & CLEAN DELIVERY DESIGN ═══ */
-        html, body {
-            overflow-y: auto !important;
-            overflow-x: hidden;
+        html {
+            overflow-y: scroll !important;
+            overflow-x: hidden !important;
+            height: auto !important;
             scroll-behavior: auto !important;
-            overscroll-behavior-y: auto;
+            overscroll-behavior-y: auto !important;
+        }
+        body {
+            overflow: visible !important;
+            overflow-x: visible !important;
+            overflow-y: visible !important;
+            height: auto !important;
+            overscroll-behavior-y: auto !important;
         }
         /* Hide ambient orbs that cause GPU repaint overhead while scrolling */
         .ambient-bg {
@@ -267,6 +275,7 @@
                 </button>
                 <a href="dashboard-pro.php" class="gdn-kinetic-btn" style="background: rgba(56,189,248,0.14); border: 1px solid rgba(56,189,248,0.35); color: #38bdf8; text-decoration: none; padding: 8px 14px; font-size: 0.86rem;">🏠 الرئيسية</a>
                 <a href="direct-sales.php?action=delivery" class="gdn-kinetic-btn" style="background: rgba(16,185,129,0.16); border: 1px solid rgba(16,185,129,0.4); color: #34d399; text-decoration: none; padding: 8px 14px; font-size: 0.86rem;">⚡ شاشة تسليم المبيعات السريع</a>
+                <a href="smart-logistics.php?mode=sales" class="gdn-kinetic-btn" style="background: linear-gradient(135deg, rgba(16,185,129,0.28), rgba(14,165,233,0.28)); border: 1.5px solid #38bdf8; color: #ffffff; text-decoration: none; padding: 8px 16px; font-size: 0.88rem; box-shadow: 0 0 18px rgba(56,189,248,0.4);">🚀 البوابة اللوجستية الموحدة (GRN ⇄ GDN)</a>
                 <div style="margin-right: 8px;">
                     <h1 style="margin: 0; font-size: 1.25rem; font-weight: 900; color: #ffffff; display: flex; align-items: center; gap: 8px;">
                         <span>📦</span> منظومة إدارة أذونات الاستلام والتسليم المخزنية (بوابات الصرف الـ 4)

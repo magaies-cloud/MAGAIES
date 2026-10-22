@@ -587,17 +587,7 @@ window._cachedGlobalRate = window.SYSTEM_USD_RATE;
 }
 
 </style>
-<header class="premium-header magical-glass-header <?php echo isset($header_theme_class) ? $header_theme_class : ''; ?>" style="display:flex; justify-content:space-between; align-items:center; gap:15px;">
-    <!-- Left: Logo / Brand -->
-    <div style="display:flex; align-items:center; gap:12px; flex:0 0 auto;">
-        <div style="background:linear-gradient(135deg,#10b981,#34d399); width:40px; height:40px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:1.2rem; box-shadow: 0 4px 15px rgba(0,0,0,0.3);">📦</div>
-        <div>
-            <div style="color:#fff; font-weight:800; font-size:1rem; letter-spacing:0.5px;" id="header-company-name-top" data-i18n="sidebar.brand">مقاييس (MAGAIEES)</div>
-            <div style="color:var(--text-secondary); font-size:0.7rem;" data-i18n="header.systemName">نظام إدارة الأعمال</div>
-        </div>
-    </div>
-
-    <!-- Center: Page Title -->
+<header class="premium-header magical-glass-header <?php echo isset($header_theme_class) ? $header_theme_class : ''; ?>" style="display:flex; justify-content:space-between; align-items:center; gap:10px; padding:8px 14px !important; margin:8px 16px !important; zoom:1 !important;">
     <?php
     $dynamic_icon = '✨'; // default
     if (isset($page_title)) {
@@ -615,54 +605,156 @@ window._cachedGlobalRate = window.SYSTEM_USD_RATE;
         elseif (strpos($page_title, 'Audit') !== false || strpos($page_title, 'الصندوق') !== false) $dynamic_icon = '🔒';
     }
     ?>
-    <div style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; min-width:0; padding:0 12px; overflow:hidden;">
-        <h2 class="header-page-title">
-            <span class="header-page-title-icon"><?php echo $dynamic_icon; ?></span>
-            <?php echo isset($page_title) ? htmlspecialchars($page_title) : 'مقاييس (MAGAIEES)'; ?>
-        </h2>
-        <div id="dashboard-athkar-container" class="islamic-ticker-container" style="display: none;">
-            <div class="islamic-ticker">
-                سُبْحَانَ اللَّهِ وَبِحَمْدِهِ ، سُبْحَانَ اللَّهِ الْعَظِيمِ 🌸 أَسْتَغْفِرُ اللَّهَ وَأَتُوبُ إِلَيْهِ 🌸 اللَّهُمَّ صَلِّ وَسَلِّمْ عَلَى نَبِيِّنَا مُحَمَّدٍ
+    <!-- 1. الركن الأيمن الملكي الفاخر (عنوان البرنامج العالمي + إدارة النظام + الأدمن + متصل + التاريخ والوقت) — بنفس الارتفاع الموحد مع زيادة الارتفاع وتقليل الهوامش -->
+    <div class="header-compact-right-cluster header-flagship-identity-suite" style="display:flex; flex-direction:column; justify-content:space-between; gap:3px; flex:1.35 1 395px; min-width:345px; max-width:none; height:70px !important; min-height:70px !important; max-height:70px !important; box-sizing:border-box !important; background:linear-gradient(135deg, rgba(2, 6, 23, 0.96) 0%, rgba(15, 23, 42, 0.95) 55%, rgba(6, 78, 59, 0.55) 100%); border:1.5px solid rgba(251, 191, 36, 0.85); border-radius:13px; padding:4px 10px; box-shadow:0 7px 21px rgba(0, 0, 0, 0.8), 0 0 16px rgba(251, 191, 36, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.22); position:relative; overflow:hidden;">
+        <!-- الصف الأول العالمي: أيقونة الهوية الملكية + عنوان البرنامج العالمي الكبير + شارة الشاشة النشطة -->
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:8px; white-space:nowrap; height:31px; border-bottom:1px solid rgba(251, 191, 36, 0.22); padding-bottom:2px;">
+            <div style="display:flex; align-items:center; gap:8px; min-width:0; overflow:hidden; flex:1 1 auto;">
+                <div style="background:linear-gradient(135deg, #f59e0b 0%, #10b981 55%, #0284c7 100%); width:27px; height:27px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:14.5px; border:1.5px solid #fef08a; box-shadow:0 0 12px rgba(245, 158, 11, 0.5), inset 0 1px 1px rgba(255,255,255,0.45); flex-shrink:0;">👑</div>
+                <div style="display:flex; flex-direction:column; min-width:0; overflow:hidden; line-height:1.15;">
+                    <div style="display:flex; align-items:center; gap:7px;">
+                        <span style="color:#ffffff; font-weight:900; font-size:15.5px; letter-spacing:0.2px; text-shadow:0 2px 6px rgba(0,0,0,0.95), 0 0 14px rgba(251, 191, 36, 0.45); overflow:hidden; text-overflow:ellipsis;" id="header-company-name-top" data-i18n="sidebar.brand">نظام إدارة الشركات</span>
+                        <span style="background:linear-gradient(135deg, rgba(251, 191, 36, 0.28), rgba(16, 185, 129, 0.28)); border:1px solid rgba(254, 240, 138, 0.75); color:#fef08a; font-size:10px; font-weight:900; padding:2px 8px; border-radius:999px; letter-spacing:0.5px; flex-shrink:0; box-shadow:0 0 10px rgba(251, 191, 36, 0.25);">MAGAIEES ERP</span>
+                    </div>
+                </div>
             </div>
+            <h2 class="header-page-title" style="margin:0 !important; height:26px !important; font-size:12px !important; font-weight:900 !important; background:linear-gradient(135deg, rgba(3, 105, 161, 0.55), rgba(30, 58, 138, 0.75)) !important; border:1.5px solid #38bdf8 !important; color:#fef08a !important; padding:0 10px !important; border-radius:7.5px !important; display:inline-flex; align-items:center; gap:5px; line-height:1; flex-shrink:0; box-shadow:0 0 12px rgba(56, 189, 248, 0.35);">
+                <span class="header-page-title-icon" style="font-size:12.5px;"><?php echo $dynamic_icon; ?></span>
+                <span style="color:#ffffff !important; -webkit-text-fill-color:#ffffff !important; text-shadow:0 1px 3px rgba(0,0,0,0.9);"><?php echo isset($page_title) ? htmlspecialchars($page_title) : 'لوحة التحكم'; ?></span>
+            </h2>
         </div>
-    </div>
 
-    <!-- Right: Enterprise World-Class Controls Bar -->
-    <div class="header-enterprise-controls" style="display:flex; align-items:center; gap:8px; flex:0 0 auto; justify-content:flex-end;">
-
-        <!-- 1. Compact Identity, Online Status, Exchange Rate & Time/Date Pod -->
-        <div class="header-enterprise-meta-pod">
-            <!-- Top Row: User Pill + Online Pill + Exchange Rate Pill -->
-            <div class="meta-pod-row-top">
-                <div class="user-info enterprise-user-pill" onclick="document.getElementById('profile-modal').style.display='flex'" title="الملف الشخصي وصلاحيات الحساب">
-                    <span class="user-pill-avatar">👤</span>
-                    <span id="header-user-name"><script>try{var _u=JSON.parse(localStorage.getItem('user')||'{}');document.write(_u.fullName||_u.username||'مستخدم')}catch(e){document.write('مستخدم')}</script></span>
-                    <span class="user-pill-sep">•</span>
-                    <span id="header-user-role" data-i18n="header.sysAdmin">مدير النظام</span>
+        <!-- الصف الثاني الملكي المنسق عالمياً (بنفس ارتفاع الأزرار 28px وتقليل الهوامش): المدير + المتصل + الصرف + التاريخ والوقت -->
+        <div class="header-enterprise-meta-pod" style="display:flex !important; flex-direction:row !important; align-items:center !important; justify-content:space-between !important; gap:5px !important; padding:0 !important; background:transparent !important; border:none !important; box-shadow:none !important; white-space:nowrap; width:100% !important; height:28px !important;">
+            <div style="display:flex; align-items:center; gap:5px; flex-wrap:nowrap; height:28px;">
+                <div class="user-info enterprise-user-pill" onclick="document.getElementById('profile-modal').style.display='flex'" title="الملف الشخصي وصلاحيات الحساب" style="height:28px !important; padding:0 10px !important; border-radius:8px !important; gap:5px !important; background:linear-gradient(135deg, rgba(30, 41, 59, 0.92), rgba(15, 23, 42, 0.98)) !important; border:1.5px solid rgba(56, 189, 248, 0.65) !important; box-shadow:0 2px 8px rgba(0,0,0,0.4) !important;">
+                    <span class="user-pill-avatar" style="font-size:12px;">👤</span>
+                    <span id="header-user-name" style="font-size:12px !important; font-weight:900 !important; color:#ffffff !important;"><script>try{var _u=JSON.parse(localStorage.getItem('user')||'{}');document.write(_u.fullName||_u.username||'مستخدم')}catch(e){document.write('مستخدم')}</script></span>
+                    <span id="header-user-role" data-i18n="header.sysAdmin" style="font-size:10px !important; font-weight:900 !important; color:#fde047 !important; background:rgba(245, 158, 11, 0.25) !important; border:1px solid rgba(251, 191, 36, 0.55); padding:2px 6px !important; border-radius:5px !important;">مدير النظام</span>
                 </div>
 
-                <div id="online-users-badge" class="enterprise-online-pill" onclick="alert('المستخدمين المتصلين حالياً: \n' + (window.onlineUsersList || []).join('\n'))" title="عرض قائمة المتصلين الآن">
-                    <span class="online-pulse-dot"></span>
-                    <span class="online-label-txt" data-i18n="header.onlineNow">متصل:</span>
-                    <span id="online-users-count">1</span>
+                <div id="online-users-badge" class="enterprise-online-pill" onclick="alert('المستخدمين المتصلين حالياً: \n' + (window.onlineUsersList || []).join('\n'))" title="المتصلون الآن" style="height:28px !important; padding:0 10px !important; border-radius:8px !important; gap:5px !important; background:linear-gradient(135deg, rgba(6, 78, 59, 0.9), rgba(4, 120, 87, 0.72)) !important; border:1.5px solid #34d399 !important; box-shadow:0 0 12px rgba(16, 185, 129, 0.3) !important;">
+                    <span class="online-pulse-dot" style="width:7px; height:7px;"></span>
+                    <span class="online-label-txt" data-i18n="header.onlineNow" style="font-size:11px !important; font-weight:900 !important; color:#a7f3d0 !important;">متصل</span>
+                    <span id="online-users-count" style="font-size:12px !important; font-weight:900 !important; color:#ffffff !important; background:rgba(0,0,0,0.4); padding:1px 6px; border-radius:5px;">1</span>
                 </div>
 
-                <div id="global-exchange-rate-box" class="enterprise-fx-pill" style="display:none;" onclick="toggleExchangeHistory(event)" title="سجل وتفاصيل سعر الصرف">
-                    <span class="fx-pill-inner">
+                <div id="global-exchange-rate-box" class="enterprise-fx-pill" style="display:none; height:28px !important; padding:0 9px !important; border-radius:8px !important; background:linear-gradient(135deg, rgba(120, 53, 15, 0.85), rgba(180, 83, 9, 0.6)) !important; border:1.5px solid #fbbf24 !important;" onclick="toggleExchangeHistory(event)" title="سعر الصرف">
+                    <span class="fx-pill-inner" style="font-size:11px !important; font-weight:900 !important;">
                         <span id="global-exchange-rate-trend" style="margin-left:2px;"></span>
-                        <span data-i18n="header.exchangeRate">سعر الصرف:</span>
-                        <span id="global-exchange-rate-val">-</span>
+                        <span id="global-exchange-rate-val" style="font-size:11.5px !important; font-weight:900 !important;">-</span>
                     </span>
                 </div>
             </div>
 
-            <!-- Bottom Row: Unified Sleek Date & Clock Capsule (Date & Time side-by-side) -->
-            <div class="clock-container enterprise-time-pill">
-                <span id="header-date-mini"><script>document.write(new Date().toLocaleDateString('ar-EG-u-nu-latn',{weekday:'short',day:'numeric',month:'short'}))</script></span>
-                <span class="time-pill-divider">|</span>
-                <span id="header-clock"><script>var _n=new Date();document.write(_n.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false}))</script></span>
+            <div class="clock-container enterprise-time-pill" style="height:28px !important; padding:0 11px !important; border-radius:8px !important; gap:6px !important; width:auto !important; background:linear-gradient(135deg, rgba(15, 23, 42, 0.96), rgba(2, 6, 23, 0.99)) !important; border:1.5px solid rgba(251, 191, 36, 0.65) !important; box-shadow:inset 0 1px 2px rgba(0,0,0,0.6), 0 2px 8px rgba(0,0,0,0.4) !important;">
+                <span style="font-size:11.5px;">📅</span>
+                <span id="header-date-mini" style="font-size:11.5px !important; font-weight:900 !important; color:#fef08a !important;"><script>document.write(new Date().toLocaleDateString('ar-EG-u-nu-latn',{weekday:'short',day:'numeric',month:'short'}))</script></span>
+                <span class="time-pill-divider" style="font-size:11px; color:rgba(251, 191, 36, 0.5);">|</span>
+                <span style="font-size:11.5px;">🕒</span>
+                <span id="header-clock" style="font-size:12.5px !important; font-weight:900 !important; color:#34d399 !important; letter-spacing:0.9px !important;"><script>var _n=new Date();document.write(_n.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false}))</script></span>
             </div>
         </div>
+    </div>
+
+    <!-- 2. الوسط: محراب الآية القرآنية والذكر الحكيم في المنتصف (آية من الجمال والوضوح، حركة هادئة لسهولة القراءة، ومتصلة تبدأ مباشرة بعد ثانية واحدة بدون انقطاع طويل) -->
+    <style>
+        @keyframes quranRoyalContinuousFlow {
+            0%   { transform: translate3d(0%, 0, 0); }
+            100% { transform: translate3d(50%, 0, 0); }
+        }
+        @keyframes quranMihrabBorderGlow {
+            0% {
+                border-color: #fbbf24;
+                box-shadow: 0 7px 22px rgba(0, 0, 0, 0.8), 0 0 18px rgba(251, 191, 36, 0.35), inset 0 0 18px rgba(16, 185, 129, 0.25);
+            }
+            100% {
+                border-color: #fef08a;
+                box-shadow: 0 9px 26px rgba(0, 0, 0, 0.88), 0 0 26px rgba(251, 191, 36, 0.65), 0 0 36px rgba(16, 185, 129, 0.35), inset 0 0 24px rgba(251, 191, 36, 0.22);
+            }
+        }
+        #dashboard-athkar-container:hover .quran-seamless-track {
+            animation-play-state: paused !important;
+        }
+        .quran-seamless-track {
+            display: inline-flex !important;
+            align-items: center !important;
+            white-space: nowrap !important;
+            width: max-content !important;
+            direction: rtl !important;
+            padding: 0 !important;
+            will-change: transform;
+            animation: quranRoyalContinuousFlow 68s linear infinite !important;
+        }
+        .quran-seamless-segment {
+            display: inline-flex !important;
+            align-items: center !important;
+            gap: 14px !important;
+            padding-left: 28px !important; /* مسافة قصيرة جداً تعادل ثانية واحدة فقط قبل بداية الآية من جديد */
+            font-family: 'Amiri', 'Traditional Arabic', 'Cairo', 'Tajawal', serif !important;
+            font-size: 16.5px !important;
+            font-weight: 900 !important;
+            color: #fef08a !important;
+            -webkit-text-fill-color: #fef08a !important;
+            letter-spacing: 0.2px !important;
+            text-shadow: 0 2px 5px rgba(0, 0, 0, 0.98), 0 0 14px rgba(251, 191, 36, 0.6), 0 0 24px rgba(16, 185, 129, 0.4) !important;
+        }
+        .quran-verse-highlight {
+            color: #ffffff !important;
+            -webkit-text-fill-color: #ffffff !important;
+            text-shadow: 0 2px 5px rgba(0, 0, 0, 0.98), 0 0 12px rgba(52, 211, 153, 0.7) !important;
+        }
+        .quran-ornament-star {
+            color: #34d399 !important;
+            -webkit-text-fill-color: #34d399 !important;
+            font-size: 14px !important;
+            filter: drop-shadow(0 0 8px rgba(52, 211, 153, 0.85));
+        }
+    </style>
+    <div id="dashboard-athkar-container" class="islamic-ticker-container" style="display:flex !important; flex:0.65 1 195px !important; min-width:165px !important; max-width:320px !important; height:70px !important; min-height:70px !important; max-height:70px !important; box-sizing:border-box !important; margin:0 !important; padding:0 !important; border-radius:14px !important; background:radial-gradient(circle at 50% 0%, rgba(16, 185, 129, 0.35), transparent 70%), linear-gradient(135deg, #022c22 0%, #064e3b 35%, #020617 70%, #1e1b4b 100%) !important; border:2px solid #fbbf24 !important; align-items:center !important; justify-content:center !important; overflow:hidden !important; position:relative !important; animation: quranMihrabBorderGlow 3.5s ease-in-out infinite alternate !important;" title="آيات قرآنية وأذكار مباركة — مرر الماوس لإيقاف الحركة مؤقتاً للقراءة">
+        <!-- إطار زخرفي ذهبي داخلي فائق الجمال -->
+        <div style="position:absolute; inset:3px; border:1px solid rgba(254, 240, 138, 0.32); border-radius:10px; pointer-events:none; z-index:2; box-shadow:inset 0 0 12px rgba(251, 191, 36, 0.12);"></div>
+        <!-- تدرج جانبي ناعم لبروز النص في المنتصف بوضوح فائق -->
+        <div style="position:absolute; top:0; bottom:0; right:0; width:18px; background:linear-gradient(to left, rgba(2, 44, 34, 0.92), transparent); z-index:3; pointer-events:none;"></div>
+        <div style="position:absolute; top:0; bottom:0; left:0; width:18px; background:linear-gradient(to right, rgba(15, 23, 42, 0.92), transparent); z-index:3; pointer-events:none;"></div>
+
+        <!-- شريط علوي مصغر ثابت في قلب المحراب يبرز جمالية الآية في المنتصف -->
+        <div style="position:absolute; top:3px; left:50%; transform:translateX(-50%); z-index:4; background:linear-gradient(90deg, transparent, rgba(251, 191, 36, 0.22), transparent); padding:0 12px; font-size:9.5px; font-weight:900; color:#6ee7b7; letter-spacing:0.4px; white-space:nowrap; pointer-events:none; text-shadow:0 1px 3px #000;">
+            🕌 ﴿ بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ ﴾ 🕌
+        </div>
+
+        <div style="width:100%; overflow:hidden; position:relative; height:100%; display:flex; align-items:center; padding-top:11px; direction:rtl;">
+            <div class="quran-seamless-track">
+                <div class="quran-seamless-segment">
+                    <span>﴿ إِنَّ اللَّهَ وَمَلَائِكَتَهُ يُصَلُّونَ عَلَى النَّبِيِّ ۚ يَا أَيُّهَا الَّذِينَ آمَنُوا صَلُّوا عَلَيْهِ وَسَلِّمُوا تَسْلِيماً ﴾</span>
+                    <span class="quran-ornament-star">۞</span>
+                    <span class="quran-verse-highlight">﴿ وَقُلْ رَبِّ زِدْنِي عِلْماً ﴾</span>
+                    <span class="quran-ornament-star">۞</span>
+                    <span>﴿ رَبَّنَا آتِنَا فِي الدُّنْيَا حَسَنَةً وَفِي الْآخِرَةِ حَسَنَةً وَقِنَا عَذَابَ النَّارِ ﴾</span>
+                    <span class="quran-ornament-star">۞</span>
+                    <span class="quran-verse-highlight">﴿ وَمَنْ يَتَّقِ اللَّهَ يَجْعَلْ لَهُ مَخْرَجاً • وَيَرْزُقْهُ مِنْ حَيْثُ لَا يَحْتَسِبُ ﴾</span>
+                    <span class="quran-ornament-star">۞</span>
+                    <span>سُبْحَانَ اللَّهِ وَبِحَمْدِهِ ، سُبْحَانَ اللَّهِ الْعَظِيمِ 🌸 اللَّهُمَّ صَلِّ وَسَلِّمْ وَبَارِكْ عَلَى نَبِيِّنَا مُحَمَّدٍ</span>
+                    <span class="quran-ornament-star">۞</span>
+                </div>
+                <div class="quran-seamless-segment" aria-hidden="true">
+                    <span>﴿ إِنَّ اللَّهَ وَمَلَائِكَتَهُ يُصَلُّونَ عَلَى النَّبِيِّ ۚ يَا أَيُّهَا الَّذِينَ آمَنُوا صَلُّوا عَلَيْهِ وَسَلِّمُوا تَسْلِيماً ﴾</span>
+                    <span class="quran-ornament-star">۞</span>
+                    <span class="quran-verse-highlight">﴿ وَقُلْ رَبِّ زِدْنِي عِلْماً ﴾</span>
+                    <span class="quran-ornament-star">۞</span>
+                    <span>﴿ رَبَّنَا آتِنَا فِي الدُّنْيَا حَسَنَةً وَفِي الْآخِرَةِ حَسَنَةً وَقِنَا عَذَابَ النَّارِ ﴾</span>
+                    <span class="quran-ornament-star">۞</span>
+                    <span class="quran-verse-highlight">﴿ وَمَنْ يَتَّقِ اللَّهَ يَجْعَلْ لَهُ مَخْرَجاً • وَيَرْزُقْهُ مِنْ حَيْثُ لَا يَحْتَسِبُ ﴾</span>
+                    <span class="quran-ornament-star">۞</span>
+                    <span>سُبْحَانَ اللَّهِ وَبِحَمْدِهِ ، سُبْحَانَ اللَّهِ الْعَظِيمِ 🌸 اللَّهُمَّ صَلِّ وَسَلِّمْ وَبَارِكْ عَلَى نَبِيِّنَا مُحَمَّدٍ</span>
+                    <span class="quran-ornament-star">۞</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. اليسار: شريط المستطيلات الرباعية الموحدة (ثابت المقاس لا يتأثر بتكبير الأيقونات) -->
+    <div class="header-enterprise-controls" style="display:flex; align-items:center; gap:6px; flex:0 0 auto; justify-content:flex-end;">
 
         <!-- 2. Unified Horizontal Crystal Icon Dock (Shield, Search/Audit, Fullscreen, Theme Toggle, TV) -->
         <?php
@@ -751,6 +843,7 @@ window._cachedGlobalRate = window.SYSTEM_USD_RATE;
             </div>
         </div>
         <?php endif; ?>
+        <div id="magaies-quartet-header-slot" style="display:flex; align-items:center;"></div>
         <script>
         function toggleFullScreen() {
             if (!document.fullscreenElement) {
@@ -892,7 +985,7 @@ window._cachedGlobalRate = window.SYSTEM_USD_RATE;
 <script src="js/auto-charts.js?v=<?php echo time(); ?>"></script>
 <script src="js/quran_reciters_data.js?v=<?php echo file_exists(__DIR__ . '/../js/quran_reciters_data.js') ? filemtime(__DIR__ . '/../js/quran_reciters_data.js') : time(); ?>"></script>
 <script src="js/global_background_media.js?v=<?php echo file_exists(__DIR__ . '/../js/global_background_media.js') ? filemtime(__DIR__ . '/../js/global_background_media.js') : time(); ?>" defer></script>
-<script src="js/magaiees_back.js?v=<?php echo file_exists(__DIR__ . '/../js/magaiees_back.js') ? filemtime(__DIR__ . '/../js/magaiees_back.js') : time(); ?>" defer></script>
+<script src="js/magaiees_back.js?v=<?php echo file_exists(__DIR__ . '/../js/magaiees_back.js') ? filemtime(__DIR__ . '/../js/magaiees_back.js') : time(); ?>" defer></script><script src="js/magaies-smart-guide.js?v=<?php echo file_exists(__DIR__ . '/../js/magaies-smart-guide.js') ? filemtime(__DIR__ . '/../js/magaies-smart-guide.js') : time(); ?>" defer></script>
 <script src="js/magaiees-royal-buttons.js?v=<?php echo file_exists(__DIR__ . '/../js/magaiees-royal-buttons.js') ? filemtime(__DIR__ . '/../js/magaiees-royal-buttons.js') : time(); ?>" defer></script>
 <script src="js/auto-header-scroll.js?v=<?php echo file_exists(__DIR__ . '/../js/auto-header-scroll.js') ? filemtime(__DIR__ . '/../js/auto-header-scroll.js') : time(); ?>" defer></script>
 
@@ -1890,11 +1983,26 @@ html[data-theme] .header-area {
     border-color: var(--border) !important;
     color: var(--text-primary) !important;
 }
-html[data-theme] .magical-glass-header .header-screen-title,
-html[data-theme] #header-clock {
+html[data-theme] .magical-glass-header .header-screen-title {
     color: var(--text-primary) !important;
     -webkit-text-fill-color: var(--text-primary) !important;
     text-shadow: none !important;
+}
+html[data-theme] .header-flagship-identity-suite #header-company-name-top {
+    color: #ffffff !important;
+    -webkit-text-fill-color: #ffffff !important;
+}
+html[data-theme] .header-flagship-identity-suite #header-clock {
+    color: #34d399 !important;
+    -webkit-text-fill-color: #34d399 !important;
+}
+html[data-theme] .header-flagship-identity-suite #header-date-mini {
+    color: #fef08a !important;
+    -webkit-text-fill-color: #fef08a !important;
+}
+html[data-theme] .header-flagship-identity-suite #header-user-name {
+    color: #ffffff !important;
+    -webkit-text-fill-color: #ffffff !important;
 }
 html.light-theme .magical-glass-header .magical-icon-btn {
     background: var(--bg-secondary) !important;

@@ -495,6 +495,7 @@
                 <div class="neo-card-title" style="display: flex; flex-wrap: wrap; gap: 15px; justify-content: space-between; align-items: center; position: relative;">
                     <div style="display: flex; gap: 15px; align-items: center; z-index: 2;">
                         <span id="hub-title-text">⏳ فواتير تحتوي على بضاعة قيد الاستلام</span>
+                        <a href="smart-logistics.php?mode=purchases" class="btn-action" style="padding: 7px 15px; font-size: 0.86rem; border-radius: 10px; background: linear-gradient(135deg, #0ea5e9, #6366f1); border: 1.5px solid #38bdf8; color: #fff; text-decoration: none; font-weight: 800; box-shadow: 0 0 18px rgba(14,165,233,0.45); display: inline-flex; align-items: center; gap: 6px;">🚀 البوابة اللوجستية الموحدة (GRN ⇄ GDN)</a>
                         <div class="uiverse-switch demo3">
                             <input type="checkbox" id="uiverse-toggle" onchange="toggleHubViewBySwitch(this.checked)">
                             <label><i></i></label>
