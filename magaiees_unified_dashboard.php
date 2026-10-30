@@ -26,6 +26,15 @@ $page_title = 'لوحة التحكم';
         document.documentElement.setAttribute('dir','ltr');
         document.documentElement.setAttribute('lang','en');
     }
+    var _earlyTok = localStorage.getItem('authToken') || localStorage.getItem('saas_token');
+    if (!_earlyTok || _earlyTok === 'local-offline-token' || _earlyTok.indexOf('offline_token_') === 0) {
+        localStorage.removeItem('authToken');
+        document.cookie = "session_active=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+        document.cookie = "saas_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+        document.cookie = "mg_device_auth=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+        window.location.replace('login.php' + window.location.search);
+        return;
+    }
     // Check force desktop flag or mobile auto-redirect
     var ua = navigator.userAgent || '';
     var isLaptopOrPC = /Windows NT|Macintosh|X11; Linux x86_64|CrOS/i.test(ua) && !/Android|iPhone|iPad|iPod|Mobile/i.test(ua);

@@ -9,7 +9,7 @@
  * - Zero Cache Staleness for Critical Real-Time APIs
  */
 
-const CACHE_NAME = 'magaiees-pwa-v2026-10-16-royal-v28';
+const CACHE_NAME = 'magaiees-pwa-v2026-10-30-royal-v40';
 
 const PRECACHE_ASSETS = [
     './',
@@ -145,7 +145,7 @@ async function findBestCachedPage(request, url) {
     }
 
     // Only fallback to dashboard shell if the root or dashboard itself was requested
-    if (path.endsWith('/') || path.endsWith('index.php') || path.endsWith('magaiees_unified_dashboard.php') || path.endsWith('mobile-dashboard.php')) {
+    if (path.endsWith('magaiees_unified_dashboard.php') || path.endsWith('mobile-dashboard.php')) {
         const ua = request.headers.get('user-agent') || '';
         const isMobileUA = /Android|iPhone|iPad|iPod|Mobile/i.test(ua) || path.includes('mobile');
         if (isMobileUA) {
