@@ -202,7 +202,8 @@ try {
                 ? date('Y-m-d H:i:s', strtotime($rawDate)) 
                 : date('Y-m-d H:i:s');
 
-            $tenantId = intval($reqData['tenant_id'] ?? 1);
+            $tenantId = intval($reqData['tenant_id'] ?? ($GLOBAL_TENANT_ID ?: 1));
+            $payloadObj['tenant_id'] = $tenantId;
             $entLower = strtolower($entityName);
 
             // 1. Idempotency Check: if this UUID or record was already synced, reuse its official ID
@@ -523,8 +524,9 @@ try {
         $limit = min(100, max(1, intval($_GET['limit'] ?? 50)));
 
         $sql = "SELECT `id`, `entity_name`, `record_id`, `operation`, `payload`, `status`, `retry_count`, `created_at`, `synced_at` 
-                FROM `sync_queue` WHERE 1=1";
-        $params = [];
+                FROM `sync_queue` WHERE (JSON_UNQUOTE(JSON_EXTRACT(`payload`, '$.tenant_id')) = :tid OR `payload` LIKE :tidLike)";
+        $pullTenantId = intval($_GET['tenant_id'] ?? ($GLOBAL_TENANT_ID ?: 1));
+        $params = [':tid' => (string)$pullTenantId, ':tidLike' => '%"tenant_id":' . $pullTenantId . '%'];
 
         if (!empty($statusFilter)) {
             $sql .= " AND `status` = :status";

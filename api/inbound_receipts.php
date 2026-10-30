@@ -92,8 +92,8 @@ function isLocalInboundLaptopEnv() {
     return true;
 }
 
-// Mirror mutating inbound receipt actions (approvals, bank changes, policy settings) from Local Laptop to 24/7 Cloud Server
-if (isLocalInboundLaptopEnv() && ($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST' && empty($_SERVER['HTTP_X_FORWARDED_FROM_LOCAL'])) {
+// Mirror mutating inbound receipt actions (approvals, bank changes, policy settings) from Local Laptop to 24/7 Cloud Server (ONLY for Tenant 12)
+if ((int)$activeTenantId === 12 && isLocalInboundLaptopEnv() && ($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST' && empty($_SERVER['HTTP_X_FORWARDED_FROM_LOCAL'])) {
     $__cloudSyncActions = [
         'upload', 'save_inbound', 'assign_customer_by_code', 'assign_batch_by_code',
         'post_to_accounts', 'reconcile_receipt', 'approve_batch', 'change_target_bank',
@@ -144,7 +144,7 @@ if (isLocalInboundLaptopEnv() && ($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST
  * into the Local Laptop's MySQL database and posts any verified receipts to local accounts.
  */
 function syncInboundReceiptsFromCloud($pdo, $activeTenantId, $uploadDir) {
-    if (!isLocalInboundLaptopEnv() || !empty($_GET['no_cloud_pull'])) {
+    if ((int)$activeTenantId !== 12 || !isLocalInboundLaptopEnv() || !empty($_GET['no_cloud_pull'])) {
         return;
     }
     // Throttle cloud polling to once every 8 seconds so local UI stays ultra-fast
@@ -447,7 +447,7 @@ switch ($action) {
             // Fetch active banks for Target Bank Selector in UI
             $availableBanks = [];
             try {
-                $bStmt = $pdo->prepare("SELECT id, data FROM banks WHERE (tenant_id = ? OR tenant_id IS NULL) AND (is_deleted = 0 OR is_deleted IS NULL) ORDER BY id ASC");
+                $bStmt = $pdo->prepare("SELECT id, data FROM banks WHERE tenant_id = ? AND (is_deleted = 0 OR is_deleted IS NULL) ORDER BY id ASC");
                 $bStmt->execute([$activeTenantId]);
                 while ($bRow = $bStmt->fetch(PDO::FETCH_ASSOC)) {
                     $bObj = json_decode($bRow['data'] ?? '', true) ?: [];
@@ -1387,7 +1387,7 @@ function normalizeInboundDigits($str) {
 // -------------------------------------------------------------
 function fetchAndEnsureCustomerCodes($pdo, $tenantId) {
     try {
-        $stmt = $pdo->prepare("SELECT id, frontend_id, search_name, search_phone, data FROM customers WHERE (tenant_id = ? OR tenant_id IS NULL) AND (is_deleted = 0 OR is_deleted IS NULL) ORDER BY id ASC");
+        $stmt = $pdo->prepare("SELECT id, frontend_id, search_name, search_phone, data FROM customers WHERE tenant_id = ? AND (is_deleted = 0 OR is_deleted IS NULL) ORDER BY id ASC");
         $stmt->execute([$tenantId]);
         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
     } catch (Exception $e) {
@@ -1428,7 +1428,7 @@ function fetchAndEnsureCustomerCodes($pdo, $tenantId) {
 
     // Only collect existing supplier PINs when we actually need to assign new customer codes/PINs
     try {
-        $sStmt = $pdo->prepare("SELECT data FROM suppliers WHERE (tenant_id = ? OR tenant_id IS NULL) AND (is_deleted = 0 OR is_deleted IS NULL)");
+        $sStmt = $pdo->prepare("SELECT data FROM suppliers WHERE tenant_id = ? AND (is_deleted = 0 OR is_deleted IS NULL)");
         $sStmt->execute([$tenantId]);
         while ($sr = $sStmt->fetch(PDO::FETCH_ASSOC)) {
             $sObj = json_decode($sr['data'] ?? '', true) ?: [];
@@ -2321,7 +2321,7 @@ function postInboundReceiptToAccounts($pdo, $receiptId, $options = []) {
     $matchedBankRow = null;
     $fallbackBankRow = null;
     $bokBankRow = null;
-    $bStmt = $pdo->prepare("SELECT id, data FROM banks WHERE (tenant_id = ? OR tenant_id IS NULL) AND (is_deleted = 0 OR is_deleted IS NULL) ORDER BY id ASC");
+    $bStmt = $pdo->prepare("SELECT id, data FROM banks WHERE tenant_id = ? AND (is_deleted = 0 OR is_deleted IS NULL) ORDER BY id ASC");
     $bStmt->execute([$tenantId]);
     $allBankRows = $bStmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -3030,7 +3030,7 @@ function fetchAndEnsureSupplierCodes($pdo, $tenantId, $existingCustRows = null) 
     }
 
     try {
-        $stmt = $pdo->prepare("SELECT id, frontend_id, supplier_id, data FROM suppliers WHERE (tenant_id = ? OR tenant_id IS NULL) AND (is_deleted = 0 OR is_deleted IS NULL) ORDER BY id ASC");
+        $stmt = $pdo->prepare("SELECT id, frontend_id, supplier_id, data FROM suppliers WHERE tenant_id = ? AND (is_deleted = 0 OR is_deleted IS NULL) ORDER BY id ASC");
         $stmt->execute([$tenantId]);
         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
     } catch (Exception $e) {
@@ -3127,8 +3127,9 @@ function loadWhatsAppStatementPolicy($pdo, $tenantId) {
         'antiSpamCooldown' => true
     ];
     try {
-        $stmt = $pdo->prepare("SELECT setting_value FROM global_settings WHERE setting_key = 'erp_whatsapp_statement_policy_v1' LIMIT 1");
-        $stmt->execute();
+        $tPolKey = 'tenant_' . (int)$tenantId . '_erp_whatsapp_statement_policy_v1';
+        $stmt = $pdo->prepare("SELECT setting_value FROM global_settings WHERE setting_key IN (?, 'erp_whatsapp_statement_policy_v1') ORDER BY (setting_key = ?) DESC LIMIT 1");
+        $stmt->execute([$tPolKey, $tPolKey]);
         $polVal = $stmt->fetchColumn();
         if (!empty($polVal)) {
             $decoded = json_decode($polVal, true);
@@ -3721,18 +3722,7 @@ function buildDetailedAccountStatementForWhatsApp($pdo, $tenantId, $entityType, 
         $stmtRate = $pdo->prepare("SELECT setting_key, setting_value FROM global_settings WHERE setting_key IN (?, 'exchange_rate', 'erp_rate_usd', 'erp_currency_rates_v1')");
         $stmtRate->execute([$tenantRateKey]);
         $rateRows = $stmtRate->fetchAll(PDO::FETCH_KEY_PAIR) ?: [];
-        if (!empty($rateRows['exchange_rate'])) {
-            $val = trim((string)$rateRows['exchange_rate']);
-            if (is_numeric($val) && (float)$val > 1) {
-                $systemUsdRate = (float)$val;
-            } else {
-                $dec = json_decode($val, true);
-                if (is_array($dec)) {
-                    $r = (float)($dec['rate'] ?? ($dec['current'] ?? ($dec['rateUSD'] ?? ($dec['USD'] ?? 0))));
-                    if ($r > 1) $systemUsdRate = $r;
-                }
-            }
-        } elseif (!empty($rateRows[$tenantRateKey])) {
+        if (!empty($rateRows[$tenantRateKey])) {
             $val = trim((string)$rateRows[$tenantRateKey]);
             if (is_numeric($val) && (float)$val > 1) {
                 $systemUsdRate = (float)$val;
@@ -3740,6 +3730,17 @@ function buildDetailedAccountStatementForWhatsApp($pdo, $tenantId, $entityType, 
                 $dec = json_decode($val, true);
                 if (is_array($dec)) {
                     $r = (float)($dec['rateUSD'] ?? ($dec['current'] ?? ($dec['rate'] ?? 0)));
+                    if ($r > 1) $systemUsdRate = $r;
+                }
+            }
+        } elseif (!empty($rateRows['exchange_rate'])) {
+            $val = trim((string)$rateRows['exchange_rate']);
+            if (is_numeric($val) && (float)$val > 1) {
+                $systemUsdRate = (float)$val;
+            } else {
+                $dec = json_decode($val, true);
+                if (is_array($dec)) {
+                    $r = (float)($dec['rate'] ?? ($dec['current'] ?? ($dec['rateUSD'] ?? ($dec['USD'] ?? 0))));
                     if ($r > 1) $systemUsdRate = $r;
                 }
             }
@@ -3792,7 +3793,7 @@ function buildDetailedAccountStatementForWhatsApp($pdo, $tenantId, $entityType, 
 
     $loadMaster = function($table) use ($pdo, $tenantId) {
         try {
-            $stmt = $pdo->prepare("SELECT data FROM `$table` WHERE (tenant_id = ? OR tenant_id IS NULL) AND (is_deleted = 0 OR is_deleted IS NULL) ORDER BY id ASC");
+            $stmt = $pdo->prepare("SELECT data FROM `$table` WHERE tenant_id = ? AND (is_deleted = 0 OR is_deleted IS NULL) ORDER BY id ASC");
             $stmt->execute([$tenantId]);
             $res = [];
             while ($r = $stmt->fetch(PDO::FETCH_ASSOC)) {
@@ -3884,7 +3885,7 @@ function buildDetailedAccountStatementForWhatsApp($pdo, $tenantId, $entityType, 
     // Deduplicate source table rows by voucherNo/id exactly like `loadSourceTable` in `js/app.js`
     $loadSourceTable = function($table) use ($pdo, $tenantId, $jsStrOr) {
         try {
-            $stmt = $pdo->prepare("SELECT id, data FROM `$table` WHERE (tenant_id = ? OR tenant_id IS NULL) AND (is_deleted = 0 OR is_deleted IS NULL) ORDER BY id ASC");
+            $stmt = $pdo->prepare("SELECT id, data FROM `$table` WHERE tenant_id = ? AND (is_deleted = 0 OR is_deleted IS NULL) ORDER BY id ASC");
             $stmt->execute([$tenantId]);
             $map = [];
             $seq = 0;
@@ -5089,7 +5090,7 @@ function buildDetailedAccountStatementForWhatsApp($pdo, $tenantId, $entityType, 
     if ($cleanId !== '' && abs((float)($entityObj['currentBalance'] ?? 0) - $runningNetDebit) > 0.01) {
         try {
             $partyTable = $isCustomer ? 'customers' : 'suppliers';
-            $pStmt = $pdo->prepare("SELECT id, data FROM `$partyTable` WHERE (tenant_id = ? OR tenant_id IS NULL) AND (is_deleted = 0 OR is_deleted IS NULL)");
+            $pStmt = $pdo->prepare("SELECT id, data FROM `$partyTable` WHERE tenant_id = ? AND (is_deleted = 0 OR is_deleted IS NULL)");
             $pStmt->execute([$tenantId]);
             while ($pr = $pStmt->fetch(PDO::FETCH_ASSOC)) {
                 $pd = json_decode($pr['data'] ?? '', true);
@@ -5130,7 +5131,7 @@ function buildDetailedAccountStatementForWhatsApp($pdo, $tenantId, $entityType, 
     $companyName = trim((string)($pol['voucherCompanyName'] ?? ''));
     if ($companyName === '') {
         try {
-            $stmtSet = $pdo->prepare("SELECT data FROM settings WHERE (tenant_id = ? OR tenant_id IS NULL) ORDER BY id DESC LIMIT 1");
+            $stmtSet = $pdo->prepare("SELECT data FROM settings WHERE tenant_id = ? ORDER BY id DESC LIMIT 1");
             $stmtSet->execute([$tenantId]);
             $rawSet = $stmtSet->fetchColumn();
             if ($rawSet) {
@@ -5160,7 +5161,7 @@ function buildDetailedAccountStatementForWhatsApp($pdo, $tenantId, $entityType, 
     }
     if ($stampImage === '' || $companyLogo === '') {
         try {
-            $stmtSetStamp = $pdo->prepare("SELECT data FROM settings WHERE (tenant_id = ? OR tenant_id IS NULL) ORDER BY id DESC LIMIT 1");
+            $stmtSetStamp = $pdo->prepare("SELECT data FROM settings WHERE tenant_id = ? ORDER BY id DESC LIMIT 1");
             $stmtSetStamp->execute([$tenantId]);
             $rawSetStamp = $stmtSetStamp->fetchColumn();
             if ($rawSetStamp) {

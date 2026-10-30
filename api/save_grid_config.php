@@ -1,5 +1,5 @@
 <?php
-require 'db.php';
+require __DIR__ . '/db.php';
 header('Content-Type: application/json; charset=UTF-8');
 
 try {
@@ -9,7 +9,8 @@ try {
         exit;
     }
 
-    $key = 'grid_config_' . $input['grid_id'];
+    $tenantId = resolveCurrentTenantId($pdo, $input);
+    $key = 'tenant_' . $tenantId . '_grid_config_' . $input['grid_id'];
     $configJson = json_encode($input['config'], JSON_UNESCAPED_UNICODE);
 
     $stmt = $pdo->prepare("INSERT INTO global_settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value)");

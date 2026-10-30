@@ -136,3 +136,112 @@ try {
 }
 
 
+
+// -------------------------------------------------------
+// دالة مركزية موحدة لتحديد رقم الشركة النشطة (Tenant Isolation)
+// تعطي الأولوية القصوى للتوكن الموثق لمنع أي تداخل بين الشركات
+// -------------------------------------------------------
+if (!function_exists('resolveCurrentTenantId')) {
+    function resolveCurrentTenantId($pdoConn = null, $inputData = null) {
+        global $pdo, $GLOBAL_TENANT_ID;
+        if ($pdoConn === null) {
+            $pdoConn = $pdo;
+        }
+        if (session_status() === PHP_SESSION_NONE && !headers_sent()) {
+            @session_start(['read_and_close' => true]);
+        }
+
+        // 1. استخراج التوكن الموثق (Authorization Header / Cookie / Payload)
+        $authHeader = $_SERVER['HTTP_AUTHORIZATION'] ?? $_SERVER['REDIRECT_HTTP_AUTHORIZATION'] ?? '';
+        if (empty($authHeader) && function_exists('apache_request_headers')) {
+            $reqHeaders = apache_request_headers();
+            $authHeader = $reqHeaders['Authorization'] ?? $reqHeaders['authorization'] ?? '';
+        }
+        $token = '';
+        if (!empty($authHeader) && stripos($authHeader, 'Bearer ') === 0) {
+            $token = trim(substr($authHeader, 7));
+        }
+        if (empty($token) && is_array($inputData) && !empty($inputData['auth_token'])) {
+            $token = trim((string)$inputData['auth_token']);
+        }
+        if (empty($token)) {
+            $token = trim((string)($_COOKIE['saas_token'] ?? $_COOKIE['authToken'] ?? $_COOKIE['mg_device_auth'] ?? ''));
+        }
+
+        if ($token !== '') {
+            if (strpos($token, 'MGD1.') === 0) {
+                $parts = explode('.', $token);
+                if (count($parts) === 3) {
+                    $secret = getenv('MAGAIEES_AUTH_HMAC_KEY') ?: 'ELSAJANA_MAGAIEES_PERSISTENT_MOBILE_SYNC_KEY_2026';
+                    if (hash_equals(hash_hmac('sha256', $parts[1], $secret), $parts[2])) {
+                        $dec = json_decode(base64_decode(strtr($parts[1], '-_', '+/')) ?: '', true);
+                        if (!empty($dec['t']) && (int)$dec['t'] > 0) {
+                            return (int)$dec['t'];
+                        }
+                    }
+                }
+            } elseif ($pdoConn) {
+                try {
+                    $stmt = $pdoConn->prepare("SELECT tenant_id FROM users WHERE token = ? AND (token_expires_at IS NULL OR token_expires_at > NOW()) AND (status = 'active' OR status IS NULL) LIMIT 1");
+                    $stmt->execute([$token]);
+                    $tokTenant = (int)$stmt->fetchColumn();
+                    if ($tokTenant > 0) {
+                        return $tokTenant;
+                    }
+                } catch (\Throwable $e) {}
+            }
+        }
+
+        // 2. فحص الجلسة الموثقة (Session)
+        if (!empty($_SESSION['mg_tenant_id']) && (int)$_SESSION['mg_tenant_id'] > 0) {
+            return (int)$_SESSION['mg_tenant_id'];
+        }
+        if (!empty($_SESSION['user']['tenant_id']) && (int)$_SESSION['user']['tenant_id'] > 0) {
+            return (int)$_SESSION['user']['tenant_id'];
+        }
+        if (!empty($_SESSION['tenant_id']) && (int)$_SESSION['tenant_id'] > 0) {
+            return (int)$_SESSION['tenant_id'];
+        }
+
+        // 3. فحص المعاملات الصريحة أو الكوكيز أو النطاق الفرعي
+        $candidates = [
+            $_SERVER['HTTP_X_TENANT_ID'] ?? null,
+            is_array($inputData) ? ($inputData['tenant_id'] ?? null) : null,
+            $_GET['tenant_id'] ?? null,
+            $_POST['tenant_id'] ?? null,
+            $_COOKIE['currentTenantId'] ?? null,
+            $_COOKIE['mg_tenant_id'] ?? null,
+            $GLOBAL_TENANT_ID ?? null
+        ];
+        foreach ($candidates as $cand) {
+            if ($cand !== null && $cand !== '' && $cand !== 'default' && is_numeric($cand) && (int)$cand > 0) {
+                return (int)$cand;
+            }
+        }
+
+        // 4. فحص النطاق الفرعي (Subdomain) أو باراميتر ?tenant= / ?company=
+        if ($pdoConn) {
+            $subParam = strtolower(trim((string)($_GET['tenant'] ?? $_GET['company'] ?? $_GET['sub'] ?? '')));
+            if ($subParam === '') {
+                $host = strtolower(explode(':', $_SERVER['HTTP_HOST'] ?? ($_SERVER['SERVER_NAME'] ?? ''))[0]);
+                if (preg_match('/^([a-z0-9_-]+)\.elsajana\.com$/i', $host, $m)) {
+                    $subParam = strtolower($m[1]);
+                } elseif (preg_match('/^([a-z0-9_-]+)\.localhost$/i', $host, $m)) {
+                    $subParam = strtolower($m[1]);
+                }
+            }
+            if ($subParam !== '' && !in_array($subParam, ['www', 'app', 'erp', 'localhost'], true)) {
+                try {
+                    $stSub = $pdoConn->prepare("SELECT id FROM tenants WHERE LOWER(TRIM(subdomain)) = ? LIMIT 1");
+                    $stSub->execute([$subParam]);
+                    $subTid = (int)$stSub->fetchColumn();
+                    if ($subTid > 0) {
+                        return $subTid;
+                    }
+                } catch (\Throwable $e) {}
+            }
+        }
+
+        return 1;
+    }
+}

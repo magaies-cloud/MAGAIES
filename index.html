@@ -21,10 +21,29 @@
     var isLaptopOrPC = !isTouch && (/Windows NT|Macintosh|X11; Linux x86_64|CrOS/i.test(ua) || width >= 1024) && !/Android|iPhone|iPad|iPod|Mobile/i.test(ua);
 
     var token = localStorage.getItem('authToken') || localStorage.getItem('saas_token');
-    var sessionActive = sessionStorage.getItem('session_active') === 'true' || document.cookie.includes('session_active=true') || document.cookie.includes('saas_token=') || document.cookie.includes('mg_device_auth=');
-    var isLocalhost = (location.hostname === 'localhost' || location.hostname === '127.0.0.1' || location.hostname === '[::1]');
+    if (token === 'local-offline-token' || (token && token.indexOf('offline_token_') === 0)) {
+      localStorage.removeItem('authToken');
+      token = '';
+    }
+    var sessionActive = Boolean(token) || document.cookie.includes('saas_token=') || document.cookie.includes('mg_device_auth=');
 
-    if (!token && !sessionActive && !isLocalhost) {
+    var reqSub = (params.get('tenant') || params.get('subdomain') || '').toLowerCase().trim();
+    if (!reqSub) {
+      var host = (window.location.hostname || '').toLowerCase();
+      if (host && !/^[0-9.]+$/.test(host) && host !== 'localhost') {
+        var hParts = host.split('.');
+        if (host.endsWith('.localhost') && hParts.length >= 2) reqSub = hParts[0];
+        else if (hParts.length > 2 && hParts[0] !== 'www') reqSub = hParts[0];
+      }
+    }
+    var savedSub = '';
+    try {
+      var uObj = JSON.parse(localStorage.getItem('user') || '{}');
+      savedSub = String(uObj.subdomain || '').toLowerCase().trim();
+    } catch (e) {}
+    var hasTenantSwitch = params.has('tenant') || params.has('subdomain') || (reqSub && savedSub && reqSub !== savedSub);
+
+    if (!sessionActive || hasTenantSwitch) {
       window.location.replace('login.php' + qs);
       return;
     }

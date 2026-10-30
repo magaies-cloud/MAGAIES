@@ -1397,32 +1397,11 @@ function switchToMobileEdition() {
 
         // Check Authentication & Initialize Dashboard App
         function initDashboardApp() {
-            let token = localStorage.getItem('authToken');
-            if (!token) {
-                const isLocalOrLan = /^(localhost|127\.0\.0\.1|::1|192\.168\.|10\.|172\.(1[6-9]|2[0-9]|3[0-1])\.)/i.test(window.location.hostname || '');
-                if (isLocalOrLan) {
-                    token = 'offline_token_' + Date.now();
-                    const defaultLocalUser = {
-                        id: 1,
-                        username: 'admin',
-                        fullName: 'مدير النظام (الباشمهندس مهدي)',
-                        role: 'admin',
-                        roleId: 'admin_fallback',
-                        securityLevel: 10,
-                        subdomain: ''
-                    };
-                    localStorage.setItem('authToken', token);
-                    if (!localStorage.getItem('user')) {
-                        localStorage.setItem('user', JSON.stringify(defaultLocalUser));
-                    }
-                    document.cookie = "session_active=true; path=/; max-age=2592000; SameSite=Lax";
-                    document.cookie = "authToken=" + encodeURIComponent(token) + "; path=/; max-age=2592000; SameSite=Lax";
-                    sessionStorage.setItem('session_active', 'true');
-                    sessionStorage.setItem('dashboard_unlocked', '1');
-                } else {
-                    window.location.href = 'login.php';
-                    return;
-                }
+            let token = localStorage.getItem('authToken') || localStorage.getItem('saas_token');
+            if (!token || token === 'local-offline-token' || token.indexOf('offline_token_') === 0) {
+                localStorage.removeItem('authToken');
+                window.location.href = 'login.php';
+                return;
             }
 
             // تأكيد فتح القفل الموحد

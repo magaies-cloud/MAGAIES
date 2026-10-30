@@ -187,7 +187,7 @@ try {
     <script>
         window.SERVER_TENANT = <?php echo json_encode($serverTenant, JSON_UNESCAPED_UNICODE); ?>;
         window.SERVER_SETTINGS = <?php echo json_encode($serverSettings, JSON_UNESCAPED_UNICODE); ?>;
-        window.SERVER_WA_POLICY = <?php $serverWaPolicy = null; try { $stmtWaPol = $pdo->prepare("SELECT setting_value FROM global_settings WHERE setting_key = 'erp_whatsapp_statement_policy_v1' LIMIT 1"); $stmtWaPol->execute(); $rawWaPol = $stmtWaPol->fetchColumn(); if ($rawWaPol) $serverWaPolicy = json_decode($rawWaPol, true); } catch (Exception $e) {} echo json_encode($serverWaPolicy, JSON_UNESCAPED_UNICODE); ?>;
+        window.SERVER_WA_POLICY = <?php $serverWaPolicy = null; try { $tPolKey = 'tenant_' . (int)($tenantId ?? ($GLOBAL_TENANT_ID ?? 1)) . '_erp_whatsapp_statement_policy_v1'; $stmtWaPol = $pdo->prepare("SELECT setting_value FROM global_settings WHERE setting_key IN (?, 'erp_whatsapp_statement_policy_v1') ORDER BY (setting_key = ?) DESC LIMIT 1"); $stmtWaPol->execute([$tPolKey, $tPolKey]); $rawWaPol = $stmtWaPol->fetchColumn(); if ($rawWaPol) $serverWaPolicy = json_decode($rawWaPol, true); } catch (Exception $e) {} echo json_encode($serverWaPolicy, JSON_UNESCAPED_UNICODE); ?>;
     </script>
     <style>
         :root {

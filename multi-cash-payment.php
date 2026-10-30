@@ -88,7 +88,7 @@ if (!function_exists('fetchAllDbTransfers')) {
         $tables = ['single_payments', 'single_receipts', 'payments', 'receipts'];
         foreach ($tables as $tbl) {
             try {
-                $stmt = $pdo->prepare("SELECT id, tenant_id, data FROM `$tbl` WHERE (is_deleted = 0 OR is_deleted IS NULL) AND (tenant_id = ? OR tenant_id = '1' OR tenant_id IS NULL) ORDER BY id DESC LIMIT 4000");
+                $stmt = $pdo->prepare("SELECT id, tenant_id, data FROM `$tbl` WHERE (is_deleted = 0 OR is_deleted IS NULL) AND tenant_id = ? ORDER BY id DESC LIMIT 4000");
                 $stmt->execute([$tId]);
                 while ($r = $stmt->fetch(PDO::FETCH_ASSOC)) {
                     $d = json_decode($r['data'], true);

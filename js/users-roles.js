@@ -54,11 +54,13 @@ function loadData() {
 
     if (USERS.length === 0) {
         let defaultUsername = 'admin';
+        let defaultFullName = 'مدير النظام';
         try {
             const currentUserStr = localStorage.getItem('user');
             if (currentUserStr) {
                 const cu = JSON.parse(currentUserStr);
                 if (cu.username) defaultUsername = cu.username;
+                if (cu.fullName) defaultFullName = cu.fullName;
             }
         } catch(e) {}
 
@@ -66,7 +68,7 @@ function loadData() {
             id: 'u_admin_default',
             username: defaultUsername,
             password: '', // Should be set by user securely
-            fullName: 'مدير النظام',
+            fullName: defaultFullName,
             roleId: ROLES[0].id,
             warehouse: 'all',
             status: 'active',
@@ -75,7 +77,15 @@ function loadData() {
         changes = true;
     }
 
-    if (!USERS.some(u => u.username === 'joumana')) {
+    let isTenant12 = false;
+    try {
+        const cu = JSON.parse(localStorage.getItem('user') || '{}');
+        if (String(cu.tenant_id || localStorage.getItem('currentTenantId') || '') === '12' || cu.subdomain === 'c') {
+            isTenant12 = true;
+        }
+    } catch(e) {}
+
+    if (isTenant12 && !USERS.some(u => u.username === 'joumana')) {
         USERS.push({
             id: 'u_joumana',
             username: 'joumana',
@@ -597,11 +607,18 @@ async function saveUser() {
     const savedUser = USERS.find(u => u.username === username);
     if (savedUser) {
         try {
+            const token = localStorage.getItem('authToken') || '';
+            const tid = (JSON.parse(localStorage.getItem('user') || '{}').tenant_id) || localStorage.getItem('currentTenantId') || '';
             await fetch('api/save_master_data.php', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': token ? `Bearer ${token}` : '',
+                    'X-Tenant-Id': String(tid)
+                },
                 body: JSON.stringify({
                     type: 'save_user',
+                    tenant_id: tid,
                     data: Object.assign({}, savedUser, password ? { password: password } : {})
                 })
             });
@@ -741,11 +758,18 @@ async function toggleUserActiveState(id) {
 
     // Persist directly to backend database
     try {
+        const token = localStorage.getItem('authToken') || '';
+        const tid = (JSON.parse(localStorage.getItem('user') || '{}').tenant_id) || localStorage.getItem('currentTenantId') || '';
         await fetch('api/save_master_data.php', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': token ? `Bearer ${token}` : '',
+                'X-Tenant-Id': String(tid)
+            },
             body: JSON.stringify({
                 type: 'toggle_user_status',
+                tenant_id: tid,
                 data: { id: user.id, status: user.status }
             })
         });

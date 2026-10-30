@@ -1,5 +1,5 @@
 <?php
-require 'db.php';
+require __DIR__ . '/db.php';
 header('Content-Type: application/json; charset=UTF-8');
 
 try {
@@ -9,15 +9,17 @@ try {
         exit;
     }
 
-    $presetId = 'gl_preset_' . $input['id']; // e.g., gl_preset_1
-    $isModel = strpos($input['id'], 'm') === 0; // m1, m2
+    $tenantId = resolveCurrentTenantId($pdo, $input);
+    $basePresetId = 'gl_preset_' . $input['id'];
+    $isModel = strpos($input['id'], 'm') === 0;
     if ($isModel) {
-        $presetId = 'gl_model_' . substr($input['id'], 1);
+        $basePresetId = 'gl_model_' . substr($input['id'], 1);
     }
+    $presetId = 'tenant_' . $tenantId . '_' . $basePresetId;
     
-    $configJson = json_encode($input['config']);
+    $configJson = json_encode($input['config'], JSON_UNESCAPED_UNICODE);
 
-    // Check if locked
+    // Check if locked for this tenant
     $stmt = $pdo->prepare("SELECT setting_value FROM global_settings WHERE setting_key = ?");
     $stmt->execute([$presetId . '_locked']);
     $isLocked = $stmt->fetchColumn();
@@ -27,7 +29,7 @@ try {
         exit;
     }
 
-    // Save config
+    // Save config for this tenant
     $stmt = $pdo->prepare("INSERT INTO global_settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = ?");
     $stmt->execute([$presetId, $configJson, $configJson]);
 

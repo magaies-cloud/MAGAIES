@@ -259,7 +259,73 @@ function migrateLocalBaileysSessionToCloud($sessionUserId = 'wa_tenant_12') {
     return $allOk;
 }
 
+function purgeLocalBaileysSessions($sessionUserId = 'default-saas-admin') {
+    $safeUid = preg_replace('/[^a-zA-Z0-9_-]/', '', (string)$sessionUserId) ?: 'default-saas-admin';
+    $isGlobalAdmin = in_array($safeUid, ['default-saas-admin', 'default'], true);
+    $dirsToPurge = [__DIR__ . '/baileys_auth_' . $safeUid];
+    if ($isGlobalAdmin) {
+        $dirsToPurge[] = __DIR__ . '/baileys_auth_default-saas-admin';
+        $dirsToPurge[] = __DIR__ . '/baileys_auth_default';
+        $allDirs = @glob(__DIR__ . '/baileys_auth_*', GLOB_ONLYDIR);
+        if (is_array($allDirs)) {
+            $dirsToPurge = array_unique(array_merge($dirsToPurge, $allDirs));
+        }
+    }
+    foreach ($dirsToPurge as $dir) {
+        if (!is_dir($dir)) continue;
+        foreach (@scandir($dir) ?: [] as $f) {
+            if ($f === '.' || $f === '..') continue;
+            $fp = $dir . '/' . $f;
+            if (is_file($fp)) {
+                @unlink($fp);
+            }
+        }
+        @rmdir($dir);
+    }
+    @file_put_contents(sys_get_temp_dir() . '/magaies_wa_manual_logout.stamp', (string)time());
+}
+
 function proxyWhatsAppRequestToCloud($endpoint, $queryParams, $method, $rawInput, $input) {
+    if ($endpoint === 'logout') {
+        $targetUid = $queryParams['userId'] ?? 'default-saas-admin';
+        purgeLocalBaileysSessions($targetUid);
+
+        // Also discover and logout whichever userId is currently active/connected on the cloud hub
+        // so that fallback sessions (e.g., default, default-saas-admin, wa_tenant_*) do not keep returning CONNECTED
+        $loggedOutUids = [];
+        for ($attempt = 0; $attempt < 3; $attempt++) {
+            $stUrl = 'https://c.elsajana.com/api_index.php?r=wa-tenant&endpoint=status&local_only=1&userId=' . urlencode($targetUid);
+            $chSt = curl_init($stUrl);
+            curl_setopt($chSt, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($chSt, CURLOPT_CONNECTTIMEOUT, 5);
+            curl_setopt($chSt, CURLOPT_TIMEOUT, 8);
+            curl_setopt($chSt, CURLOPT_SSL_VERIFYPEER, false);
+            curl_setopt($chSt, CURLOPT_SSL_VERIFYHOST, false);
+            $stRaw = curl_exec($chSt);
+            curl_close($chSt);
+            $stDec = @json_decode($stRaw, true);
+            $activeUid = is_array($stDec) ? ($stDec['userId'] ?? '') : '';
+            $isActiveConnected = is_array($stDec) && (!empty($stDec['isConnected']) || ($stDec['status'] ?? '') === 'CONNECTED' || !empty($stDec['phoneNumber']));
+            if ($activeUid && ($isActiveConnected || $attempt === 0) && !in_array($activeUid, $loggedOutUids, true)) {
+                $loggedOutUids[] = $activeUid;
+                $lgUrl = 'https://c.elsajana.com/api_index.php?r=wa-tenant&endpoint=logout&local_only=1&userId=' . urlencode($activeUid);
+                $chLg = curl_init($lgUrl);
+                curl_setopt($chLg, CURLOPT_RETURNTRANSFER, true);
+                curl_setopt($chLg, CURLOPT_POST, true);
+                curl_setopt($chLg, CURLOPT_POSTFIELDS, json_encode(['userId' => $activeUid]));
+                curl_setopt($chLg, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+                curl_setopt($chLg, CURLOPT_CONNECTTIMEOUT, 6);
+                curl_setopt($chLg, CURLOPT_TIMEOUT, 12);
+                curl_setopt($chLg, CURLOPT_SSL_VERIFYPEER, false);
+                curl_setopt($chLg, CURLOPT_SSL_VERIFYHOST, false);
+                curl_exec($chLg);
+                curl_close($chLg);
+            } else {
+                break;
+            }
+        }
+    }
+
     $cloudQuery = $queryParams;
     $cloudQuery['r'] = 'wa-tenant';
     $cloudQuery['endpoint'] = $endpoint;
@@ -305,7 +371,10 @@ function proxyWhatsAppRequestToCloud($endpoint, $queryParams, $method, $rawInput
     curl_close($ch);
 
     // If cloud server is QR_READY / unlinked, check if local laptop has an already-linked Baileys session and migrate it automatically
-    if (!$err && $httpCode === 200 && ($endpoint === 'status' || $endpoint === 'qr') && !empty($response)) {
+    // (Skip auto-migration if the user recently requested a manual logout)
+    $manualLogoutStamp = sys_get_temp_dir() . '/magaies_wa_manual_logout.stamp';
+    $recentlyLoggedOut = file_exists($manualLogoutStamp) && (time() - (int)@file_get_contents($manualLogoutStamp)) < 3600;
+    if (!$recentlyLoggedOut && !$err && $httpCode === 200 && ($endpoint === 'status' || $endpoint === 'qr') && !empty($response)) {
         $dec = @json_decode($response, true);
         if (is_array($dec) && empty($dec['phoneNumber']) && !in_array($dec['status'] ?? '', ['CONNECTED', 'INITIALIZING', 'CONNECTING', 'RECONNECTING'], true)) {
             $targetUid = $queryParams['userId'] ?? 'wa_tenant_12';
@@ -355,37 +424,48 @@ if ($resource === 'wa-tenant' || $resource === 'wa' || $action === 'wa-proxy') {
             $queryParams['userId'] = $_POST['userId'];
         } elseif (!empty($input['userId'])) {
             $queryParams['userId'] = $input['userId'];
+        } elseif ($action === 'wa-proxy') {
+            $queryParams['userId'] = 'default-saas-admin';
         }
+    }
+
+    if ($endpoint === 'logout') {
+        purgeLocalBaileysSessions($queryParams['userId'] ?? 'default-saas-admin');
     }
 
     // 24/7 Cloud-First WhatsApp Hub: When running on the local laptop, route WhatsApp through https://c.elsajana.com
     // so the session stays permanently alive on the cloud server 24/7 even when the laptop is turned off!
+    // If the cloud hub is unreachable, crashed, or waiting for a new QR scan after logout, seamlessly fall back to local 127.0.0.1:3001
     if (isLocalLaptopEnvironment() && empty($_GET['local_only'])) {
-        $cloudRes = proxyWhatsAppRequestToCloud($endpoint, $queryParams, $method, $rawInput, $input);
-        if ($cloudRes['ok']) {
-            header('Content-Type: application/json; charset=UTF-8');
-            http_response_code($cloudRes['httpCode']);
-            echo $cloudRes['response'];
-            exit;
+        $manualLogoutStamp = sys_get_temp_dir() . '/magaies_wa_manual_logout.stamp';
+        $inPostLogoutQrFlow = file_exists($manualLogoutStamp) && (time() - (int)@file_get_contents($manualLogoutStamp)) < 600;
+
+        if ($endpoint === 'logout' || $endpoint === 'restart') {
+            // Execute on cloud hub first (best effort), then also fall through to local 127.0.0.1:3001 so local QR generation starts immediately
+            @proxyWhatsAppRequestToCloud($endpoint, $queryParams, $method, $rawInput, $input);
+        } elseif (!$inPostLogoutQrFlow) {
+            $cloudRes = proxyWhatsAppRequestToCloud($endpoint, $queryParams, $method, $rawInput, $input);
+            if ($cloudRes['ok']) {
+                $cloudDec = @json_decode($cloudRes['response'], true);
+                $cloudHasError = is_array($cloudDec) && isset($cloudDec['success']) && $cloudDec['success'] === false;
+                $cloudIsConnectedOrHasQr = is_array($cloudDec) && (
+                    ($cloudDec['status'] ?? '') === 'CONNECTED' ||
+                    ($cloudDec['status'] ?? '') === 'AUTHENTICATED' ||
+                    !empty($cloudDec['isConnected']) ||
+                    !empty($cloudDec['qrCode'])
+                );
+                $isStatusOrQr = ($endpoint === 'status' || $endpoint === 'qr');
+                if (!$cloudHasError && (!$isStatusOrQr || $cloudIsConnectedOrHasQr)) {
+                    header('Content-Type: application/json; charset=UTF-8');
+                    http_response_code($cloudRes['httpCode']);
+                    echo $cloudRes['response'];
+                    exit;
+                }
+            }
         }
-        // If laptop is offline (cannot reach c.elsajana.com), do NOT spawn a competing local WhatsApp session.
-        // Instead, signal the frontend to queue outbound messages for automatic dispatch on reconnect.
-        if ($endpoint === 'send') {
-            jsonResponse([
-                'success' => false,
-                'offline_queued' => true,
-                'error' => 'اللابتوب غير متصل بالإنترنت حالياً — تم حفظ الرسالة في طابور الانتظار وسيتم إرسالها تلقائياً فور عودة الإنترنت'
-            ], 200);
-        }
-        jsonResponse([
-            'success' => false,
-            'status' => 'OFFLINE_CLOUD',
-            'cloudHub' => true,
-            'error' => 'اللابتوب غير متصل بالإنترنت حالياً — خادم الواتساب السحابي (c.elsajana.com) مستمر في العمل 24/7 للعملاء'
-        ], 200);
     }
 
-    startWhatsAppServiceIfNeeded();
+    startWhatsAppServiceIfNeeded(false, true);
     
     $queryString = http_build_query($queryParams);
     $url = 'http://127.0.0.1:3001/wa/' . $endpoint . ($queryString ? '?' . $queryString : '');
@@ -424,7 +504,7 @@ if ($resource === 'wa-tenant' || $resource === 'wa' || $action === 'wa-proxy') {
     $err = curl_error($ch);
     curl_close($ch);
     
-    if ($err && function_exists('forceRestartWhatsAppService') && forceRestartWhatsAppService()) {
+    if ($err && function_exists('forceRestartWhatsAppService') && forceRestartWhatsAppService(true)) {
         $chRetry = curl_init($url);
         curl_setopt($chRetry, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($chRetry, CURLOPT_CONNECTTIMEOUT, 3);
@@ -443,6 +523,19 @@ if ($resource === 'wa-tenant' || $resource === 'wa' || $action === 'wa-proxy') {
     if ($err) {
         jsonResponse(['success' => false, 'error' => 'فشل الاتصال بخادم الواتساب المحلي: ' . $err], 500);
     }
+
+    // If local session just connected after QR scan on laptop, clear post-logout stamp and migrate session to 24/7 cloud hub
+    if (isLocalLaptopEnvironment() && ($endpoint === 'status' || $endpoint === 'qr') && !empty($response)) {
+        $localDec = @json_decode($response, true);
+        if (is_array($localDec) && (($localDec['status'] ?? '') === 'CONNECTED' || !empty($localDec['isConnected']))) {
+            $manualLogoutStamp = sys_get_temp_dir() . '/magaies_wa_manual_logout.stamp';
+            if (file_exists($manualLogoutStamp)) {
+                @unlink($manualLogoutStamp);
+            }
+            $migUid = $queryParams['userId'] ?? ($localDec['userId'] ?? 'default-saas-admin');
+            @migrateLocalBaileysSessionToCloud($migUid);
+        }
+    }
     
     header('Content-Type: application/json');
     http_response_code($httpCode ?: 200);
@@ -454,6 +547,17 @@ if ($resource === 'wa-tenant' || $resource === 'wa' || $action === 'wa-proxy') {
 // SMTP SETTINGS
 // ---------------------------------------------------------
 if ($resource === 'smtp_settings' && $method === 'POST') {
+    $reqTid = function_exists('resolveCurrentTenantId') ? resolveCurrentTenantId($pdo, $input) : 0;
+    $authHdrSmtp = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
+    if (empty($authHdrSmtp) && function_exists('getallheaders')) {
+        $hdrsSmtp = getallheaders();
+        $authHdrSmtp = $hdrsSmtp['Authorization'] ?? $hdrsSmtp['authorization'] ?? '';
+    }
+    $saasSecSmtp = defined('SAAS_ADMIN_TOKEN') ? SAAS_ADMIN_TOKEN : (getenv('SAAS_ADMIN_TOKEN') ?: 'SUPER_ADMIN_SECRET_2026');
+    $isAuthorizedSmtp = ($reqTid > 0) || (strpos($authHdrSmtp, $saasSecSmtp) !== false);
+    if (!$isAuthorizedSmtp) {
+        jsonResponse(['error' => 'غير مصرح بتعديل إعدادات البريد'], 401);
+    }
     $payload = $input['payload'] ?? null;
     if ($payload) {
         $stmt = $pdo->prepare("INSERT INTO global_settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = ?");
@@ -498,38 +602,48 @@ if ($resource === 'exchange-rate' && $method === 'GET') {
 // TENANT EXCHANGE RATE
 // ---------------------------------------------------------
 if ($resource === 'tenant-exchange-rate') {
-    $tenant_id = null;
-    $authH = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
-    if (empty($authH) && function_exists('getallheaders')) {
-        $hdrs = getallheaders();
-        $authH = $hdrs['Authorization'] ?? $hdrs['authorization'] ?? '';
+    $tenant_id = function_exists('resolveCurrentTenantId') ? resolveCurrentTenantId($pdo, $input) : 0;
+    if ($tenant_id <= 0) {
+        $tenant_id = (int)($_GET['tenant_id'] ?? 12);
     }
-    $tkn = '';
-    if (preg_match('/Bearer\s+(\S+)/', $authH, $m)) {
-        $tkn = $m[1];
-    } elseif (!empty($_GET['token'])) {
-        $tkn = $_GET['token'];
-    }
-    if (!empty($tkn)) {
-        try {
-            $stmtT = $pdo->prepare("SELECT tenant_id FROM users WHERE token = ? LIMIT 1");
-            $stmtT->execute([$tkn]);
-            $tenant_id = $stmtT->fetchColumn() ?: null;
-        } catch(Exception $e) {}
-    }
-    if (!$tenant_id) {
-        $tenant_id = $_GET['tenant_id'] ?? null;
-    }
-    if (!$tenant_id) {
+    if ($tenant_id <= 0) {
         $tenant_id = 12;
     }
     $tenantKey = 'tenant_rate_' . $tenant_id;
+    $tenantCrKey = 'tenant_' . $tenant_id . '_erp_currency_rates_v1';
     if ($method === 'GET') {
-        $stmt = $pdo->prepare("SELECT setting_key, setting_value FROM global_settings WHERE setting_key IN (?, 'exchange_rate', 'erp_rate_usd')");
-        $stmt->execute([$tenantKey]);
+        $stmt = $pdo->prepare("SELECT setting_key, setting_value FROM global_settings WHERE setting_key IN (?, ?, 'exchange_rate', 'erp_rate_usd')");
+        $stmt->execute([$tenantKey, $tenantCrKey]);
         $rows = $stmt->fetchAll(PDO::FETCH_KEY_PAIR);
         $payload = null;
-        if (!empty($rows['exchange_rate'])) {
+        if (!empty($rows[$tenantKey])) {
+            $val = $rows[$tenantKey];
+            if (is_numeric($val) && (float)$val > 1) {
+                $r = (float)$val;
+                $payload = ['current' => $r, 'rate' => $r, 'rateUSD' => $r, 'visible' => true, 'history' => []];
+            } else {
+                $dec = json_decode($val, true);
+                if (is_array($dec)) {
+                    $r = (float)($dec['rateUSD'] ?? ($dec['current'] ?? ($dec['rate'] ?? 0)));
+                    if ($r > 1) {
+                        $dec['current'] = $r;
+                        $dec['rate'] = $r;
+                        $dec['rateUSD'] = $r;
+                        $payload = $dec;
+                    }
+                }
+            }
+        }
+        if (!$payload && !empty($rows[$tenantCrKey])) {
+            $decCr = json_decode($rows[$tenantCrKey], true);
+            if (is_array($decCr)) {
+                $r = (float)($decCr['USD'] ?? ($decCr['rate'] ?? ($decCr['current'] ?? 0)));
+                if ($r > 1) {
+                    $payload = ['current' => $r, 'rate' => $r, 'rateUSD' => $r, 'visible' => true, 'history' => []];
+                }
+            }
+        }
+        if (!$payload && !empty($rows['exchange_rate'])) {
             $exObj = json_decode($rows['exchange_rate'], true);
             if (is_array($exObj)) {
                 $r = (float)($exObj['rate'] ?? ($exObj['current'] ?? ($exObj['rateUSD'] ?? 0)));
@@ -546,24 +660,6 @@ if ($resource === 'tenant-exchange-rate') {
             } elseif (is_numeric($rows['exchange_rate']) && (float)$rows['exchange_rate'] > 1) {
                 $r = (float)$rows['exchange_rate'];
                 $payload = ['current' => $r, 'rate' => $r, 'rateUSD' => $r, 'visible' => true, 'history' => []];
-            }
-        }
-        if (!$payload && !empty($rows[$tenantKey])) {
-            $val = $rows[$tenantKey];
-            if (is_numeric($val) && (float)$val > 1) {
-                $r = (float)$val;
-                $payload = ['current' => $r, 'rate' => $r, 'rateUSD' => $r, 'visible' => true, 'history' => []];
-            } else {
-                $dec = json_decode($val, true);
-                if (is_array($dec)) {
-                    $r = (float)($dec['rateUSD'] ?? ($dec['current'] ?? ($dec['rate'] ?? 0)));
-                    if ($r > 1) {
-                        $dec['current'] = $r;
-                        $dec['rate'] = $r;
-                        $dec['rateUSD'] = $r;
-                    }
-                    $payload = $dec;
-                }
             }
         }
         if (!$payload && !empty($rows['erp_rate_usd']) && is_numeric($rows['erp_rate_usd'])) {
@@ -587,20 +683,23 @@ if ($resource === 'tenant-exchange-rate') {
             $stmt->execute([$tenantKey, $json, $json]);
 
             if ($newRate > 1) {
-                // Sync global exchange_rate, erp_rate_usd, and erp_currency_rates_v1 so all screens use the exact same DB rate
-                $exPayload = json_encode([
-                    'rate' => $newRate,
-                    'current' => $newRate,
-                    'rateUSD' => $newRate,
-                    'visible' => true,
-                    'trend' => 'up',
-                    'history' => $payload['history'] ?? []
-                ], JSON_UNESCAPED_UNICODE);
-                $stmt->execute(['exchange_rate', $exPayload, $exPayload]);
-                $stmt->execute(['erp_rate_usd', (string)$newRate, (string)$newRate]);
-
                 $crPayload = json_encode(['USD' => $newRate, 'SDG' => 1], JSON_UNESCAPED_UNICODE);
-                $stmt->execute(['erp_currency_rates_v1', $crPayload, $crPayload]);
+                $stmt->execute([$tenantCrKey, $crPayload, $crPayload]);
+
+                // Only update global default keys for Tenant 12 so other tenants do not overwrite each other's exchange rates
+                if ((int)$tenant_id === 12) {
+                    $exPayload = json_encode([
+                        'rate' => $newRate,
+                        'current' => $newRate,
+                        'rateUSD' => $newRate,
+                        'visible' => true,
+                        'trend' => 'up',
+                        'history' => $payload['history'] ?? []
+                    ], JSON_UNESCAPED_UNICODE);
+                    $stmt->execute(['exchange_rate', $exPayload, $exPayload]);
+                    $stmt->execute(['erp_rate_usd', (string)$newRate, (string)$newRate]);
+                    $stmt->execute(['erp_currency_rates_v1', $crPayload, $crPayload]);
+                }
             }
         }
         jsonResponse(['success' => true]);
@@ -848,8 +947,8 @@ function ensureBaileysNodeCompatibility() {
     }
 }
 
-function forceRestartWhatsAppService() {
-    if (function_exists('isLocalLaptopEnvironment') && isLocalLaptopEnvironment() && empty($_GET['force_local_wa'])) {
+function forceRestartWhatsAppService($allowLocalFallback = false) {
+    if (!$allowLocalFallback && function_exists('isLocalLaptopEnvironment') && isLocalLaptopEnvironment() && empty($_GET['force_local_wa'])) {
         return false;
     }
     @unlink(__DIR__ . '/whatsapp_starting.lock');
@@ -857,12 +956,12 @@ function forceRestartWhatsAppService() {
         @shell_exec('sudo -n pkill -9 -f "[w]hatsapp-service" >/dev/null 2>&1; pkill -9 -f "[w]hatsapp-service" >/dev/null 2>&1; sudo -n fuser -k -9 3001/tcp >/dev/null 2>&1 || true');
         usleep(400000);
     }
-    return startWhatsAppServiceIfNeeded(true);
+    return startWhatsAppServiceIfNeeded(true, $allowLocalFallback);
 }
 
-function startWhatsAppServiceIfNeeded($forceSpawn = false) {
-    // Never spawn a competing local Baileys process on the shop laptop — 24/7 Cloud Hub (c.elsajana.com) holds the session!
-    if (function_exists('isLocalLaptopEnvironment') && isLocalLaptopEnvironment() && empty($_GET['force_local_wa'])) {
+function startWhatsAppServiceIfNeeded($forceSpawn = false, $allowLocalFallback = false) {
+    // Only block local spawn when neither $allowLocalFallback nor force_local_wa is set
+    if (!$allowLocalFallback && function_exists('isLocalLaptopEnvironment') && isLocalLaptopEnvironment() && empty($_GET['force_local_wa'])) {
         return false;
     }
     if (!$forceSpawn && isWhatsAppServiceProcessRunning()) {
@@ -896,8 +995,13 @@ function startWhatsAppServiceIfNeeded($forceSpawn = false) {
         exec("nohup \"$cmd\" \"" . __DIR__ . "/" . $serviceFile . "\" >/dev/null 2>&1 < /dev/null &");
     }
     
-    // Allow up to 1.5 seconds for node to boot
-    usleep(1500000);
+    // Poll up to 3.6 seconds (in 300ms steps) for node to bind port 3001
+    for ($w = 0; $w < 12; $w++) {
+        usleep(300000);
+        if (isWhatsAppServiceProcessRunning()) {
+            break;
+        }
+    }
     @unlink($lockFile);
     
     return isWhatsAppServiceProcessRunning();
@@ -952,8 +1056,63 @@ function sendWhatsAppOTP($phone, $otp) {
     return ['success' => false, 'error' => $data['error'] ?? 'فشل إرسال رسالة الواتساب'];
 }
 
+function ensureOtpTableSchema($pdo) {
+    try {
+        $pdo->exec("CREATE TABLE IF NOT EXISTS otp_verifications (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            email VARCHAR(255) NOT NULL,
+            otp VARCHAR(10) NOT NULL,
+            is_used TINYINT(1) DEFAULT 0,
+            expires_at DATETIME NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            INDEX idx_email_otp (email, otp)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+        $chkOtpCol = $pdo->query("SHOW COLUMNS FROM otp_verifications LIKE 'is_used'");
+        if ($chkOtpCol && $chkOtpCol->rowCount() === 0) {
+            $pdo->exec("ALTER TABLE otp_verifications ADD COLUMN is_used TINYINT(1) DEFAULT 0");
+        }
+    } catch (Exception $e) {}
+}
+
+function findUserForPasswordReset($pdo, $identity) {
+    $identity = trim((string)$identity);
+    if ($identity === '') return null;
+    $cleanIdentity = strtolower($identity);
+    $cleanPhone = normalizePhoneNumber($identity);
+    $digitsOnly = preg_replace('/\D+/', '', $cleanPhone ?: $identity);
+    $last9 = (strlen($digitsOnly) >= 9) ? substr($digitsOnly, -9) : '';
+
+    $sql = "SELECT u.id, u.username, u.role, u.data,
+                   COALESCE(NULLIF(TRIM(JSON_UNQUOTE(JSON_EXTRACT(u.data, '$.email'))), ''), t.owner_email) AS email,
+                   COALESCE(NULLIF(TRIM(JSON_UNQUOTE(JSON_EXTRACT(u.data, '$.phone'))), ''), t.owner_phone) AS phone
+            FROM users u
+            JOIN tenants t ON u.tenant_id = t.id
+            WHERE LOWER(TRIM(u.username)) = ?
+               OR LOWER(TRIM(COALESCE(JSON_UNQUOTE(JSON_EXTRACT(u.data, '$.username')), ''))) = ?
+               OR LOWER(TRIM(t.owner_email)) = ?
+               OR LOWER(TRIM(COALESCE(JSON_UNQUOTE(JSON_EXTRACT(u.data, '$.email')), ''))) = ?
+               OR t.owner_phone = ?
+               OR t.owner_phone = ?
+               OR COALESCE(JSON_UNQUOTE(JSON_EXTRACT(u.data, '$.phone')), '') = ?
+               OR COALESCE(JSON_UNQUOTE(JSON_EXTRACT(u.data, '$.phone')), '') = ?";
+    $params = [$cleanIdentity, $cleanIdentity, $cleanIdentity, $cleanIdentity, $identity, $cleanPhone, $identity, $cleanPhone];
+    if ($last9 !== '') {
+        $sql .= " OR RIGHT(REPLACE(REPLACE(REPLACE(t.owner_phone, '+', ''), ' ', ''), '-', ''), 9) = ?
+                  OR RIGHT(REPLACE(REPLACE(REPLACE(COALESCE(JSON_UNQUOTE(JSON_EXTRACT(u.data, '$.phone')), ''), '+', ''), ' ', ''), '-', ''), 9) = ?";
+        $params[] = $last9;
+        $params[] = $last9;
+    }
+    $sql .= " ORDER BY (LOWER(TRIM(u.username)) = ?) DESC, (u.role = 'admin' OR u.role = 'مدير النظام') DESC, u.id ASC LIMIT 1";
+    $params[] = $cleanIdentity;
+
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute($params);
+    return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
+}
+
 // Public: Send OTP
 if ($resource === 'public' && $action === 'send-otp' && $method === 'POST') {
+    ensureOtpTableSchema($pdo);
     $email = trim($input['email'] ?? '');
     $phone = normalizePhoneNumber(trim($input['phone'] ?? ''));
     
@@ -966,7 +1125,7 @@ if ($resource === 'public' && $action === 'send-otp' && $method === 'POST') {
     
     $otp = sprintf("%06d", random_int(1, 999999));
     
-    $stmt = $pdo->prepare("INSERT INTO otp_verifications (email, otp, expires_at) VALUES (?, ?, DATE_ADD(NOW(), INTERVAL 10 MINUTE))");
+    $stmt = $pdo->prepare("INSERT INTO otp_verifications (email, otp, is_used, expires_at) VALUES (?, ?, 0, DATE_ADD(NOW(), INTERVAL 10 MINUTE))");
     $stmt->execute([$email, $otp]);
     
     $channel = trim($input['channel'] ?? 'whatsapp');
@@ -1004,15 +1163,7 @@ if ($resource === 'public' && $action === 'send-otp' && $method === 'POST') {
 // Public: Password Reset - Request OTP
 if ($resource === 'public' && $action === 'request-reset-otp' && $method === 'POST') {
     try {
-        // Auto-create otp_verifications table if it doesn't exist
-        $pdo->exec("CREATE TABLE IF NOT EXISTS otp_verifications (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            email VARCHAR(255) NOT NULL,
-            otp VARCHAR(10) NOT NULL,
-            expires_at DATETIME NOT NULL,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            INDEX idx_email_otp (email, otp)
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+        ensureOtpTableSchema($pdo);
         
         $identity = trim($input['identity'] ?? '');
         $channel  = trim($input['channel'] ?? 'email');
@@ -1021,17 +1172,7 @@ if ($resource === 'public' && $action === 'request-reset-otp' && $method === 'PO
             jsonResponse(['success' => false, 'error' => 'يرجى إدخال اسم المستخدم أو البريد الإلكتروني أو رقم الهاتف'], 400);
         }
         
-        $cleanIdentity = strtolower($identity);
-        $cleanPhone = normalizePhoneNumber($identity);
-        
-        // Users table has username; email/phone are in tenants table (owner_email, owner_phone)
-        $stmt = $pdo->prepare("SELECT u.id, u.username, t.owner_email AS email, t.owner_phone AS phone 
-            FROM users u 
-            JOIN tenants t ON u.tenant_id = t.id 
-            WHERE LOWER(u.username) = ? OR LOWER(t.owner_email) = ? OR t.owner_phone = ? OR t.owner_phone = ? 
-            LIMIT 1");
-        $stmt->execute([$cleanIdentity, $cleanIdentity, $identity, $cleanPhone]);
-        $user = $stmt->fetch();
+        $user = findUserForPasswordReset($pdo, $identity);
         
         if (!$user) {
             jsonResponse(['success' => false, 'error' => 'لم نتمكن من العثور على حساب مرتبط بهذه البيانات'], 404);
@@ -1039,6 +1180,8 @@ if ($resource === 'public' && $action === 'request-reset-otp' && $method === 'PO
         
         $userEmail = trim($user['email'] ?? '');
         $userPhone = normalizePhoneNumber(trim($user['phone'] ?? ''));
+        if ($userEmail === 'null') $userEmail = '';
+        if ($userPhone === 'null') $userPhone = '';
         
         if (empty($userEmail) && empty($userPhone)) {
             jsonResponse(['success' => false, 'error' => 'هذا الحساب لا يمتلك بريداً إلكترونياً أو رقم هاتف مسجلاً لاستعادة كلمة المرور'], 400);
@@ -1047,7 +1190,7 @@ if ($resource === 'public' && $action === 'request-reset-otp' && $method === 'PO
         $otp = sprintf("%06d", random_int(1, 999999));
         
         $identifier = !empty($userEmail) ? $userEmail : $userPhone;
-        $stmt = $pdo->prepare("INSERT INTO otp_verifications (email, otp, expires_at) VALUES (?, ?, DATE_ADD(NOW(), INTERVAL 10 MINUTE))");
+        $stmt = $pdo->prepare("INSERT INTO otp_verifications (email, otp, is_used, expires_at) VALUES (?, ?, 0, DATE_ADD(NOW(), INTERVAL 10 MINUTE))");
         $stmt->execute([$identifier, $otp]);
         
         $waSuccess = false;
@@ -1095,6 +1238,7 @@ if ($resource === 'public' && $action === 'request-reset-otp' && $method === 'PO
 // Public: Password Reset - Verify OTP
 if ($resource === 'public' && $action === 'verify-reset-otp' && $method === 'POST') {
     try {
+        ensureOtpTableSchema($pdo);
         $identity = trim($input['identity'] ?? '');
         $otp      = trim($input['otp'] ?? '');
         
@@ -1102,16 +1246,7 @@ if ($resource === 'public' && $action === 'verify-reset-otp' && $method === 'POS
             jsonResponse(['success' => false, 'error' => 'بيانات التحقق غير مكتملة'], 400);
         }
         
-        $cleanIdentity = strtolower($identity);
-        $cleanPhone = normalizePhoneNumber($identity);
-        
-        $stmt = $pdo->prepare("SELECT u.id, t.owner_email AS email, t.owner_phone AS phone 
-            FROM users u 
-            JOIN tenants t ON u.tenant_id = t.id 
-            WHERE LOWER(u.username) = ? OR LOWER(t.owner_email) = ? OR t.owner_phone = ? OR t.owner_phone = ? 
-            LIMIT 1");
-        $stmt->execute([$cleanIdentity, $cleanIdentity, $identity, $cleanPhone]);
-        $user = $stmt->fetch();
+        $user = findUserForPasswordReset($pdo, $identity);
         
         if (!$user) {
             jsonResponse(['success' => false, 'error' => 'الحساب غير موجود'], 404);
@@ -1120,7 +1255,7 @@ if ($resource === 'public' && $action === 'verify-reset-otp' && $method === 'POS
         $identifier1 = trim($user['email'] ?? '');
         $identifier2 = normalizePhoneNumber(trim($user['phone'] ?? ''));
         
-        $stmt = $pdo->prepare("SELECT id FROM otp_verifications WHERE (email = ? OR email = ?) AND otp = ? AND expires_at > NOW() ORDER BY id DESC LIMIT 1");
+        $stmt = $pdo->prepare("SELECT id FROM otp_verifications WHERE (email = ? OR email = ?) AND otp = ? AND (is_used = 0 OR is_used IS NULL) AND expires_at > NOW() ORDER BY id DESC LIMIT 1");
         $stmt->execute([$identifier1, $identifier2, $otp]);
         $foundOtp = $stmt->fetchColumn();
         
@@ -1138,6 +1273,7 @@ if ($resource === 'public' && $action === 'verify-reset-otp' && $method === 'POS
 // Public: Password Reset - Reset Password
 if ($resource === 'public' && $action === 'reset-password' && $method === 'POST') {
     try {
+        ensureOtpTableSchema($pdo);
         $identity    = trim($input['identity'] ?? '');
         $otp         = trim($input['otp'] ?? '');
         $newPassword = $input['new_password'] ?? '';
@@ -1150,16 +1286,7 @@ if ($resource === 'public' && $action === 'reset-password' && $method === 'POST'
             jsonResponse(['success' => false, 'error' => 'كلمة المرور يجب أن لا تقل عن 6 أحرف'], 400);
         }
         
-        $cleanIdentity = strtolower($identity);
-        $cleanPhone = normalizePhoneNumber($identity);
-        
-        $stmt = $pdo->prepare("SELECT u.id, t.owner_email AS email, t.owner_phone AS phone 
-            FROM users u 
-            JOIN tenants t ON u.tenant_id = t.id 
-            WHERE LOWER(u.username) = ? OR LOWER(t.owner_email) = ? OR t.owner_phone = ? OR t.owner_phone = ? 
-            LIMIT 1");
-        $stmt->execute([$cleanIdentity, $cleanIdentity, $identity, $cleanPhone]);
-        $user = $stmt->fetch();
+        $user = findUserForPasswordReset($pdo, $identity);
         
         if (!$user) {
             jsonResponse(['success' => false, 'error' => 'الحساب غير موجود'], 404);
@@ -1168,7 +1295,7 @@ if ($resource === 'public' && $action === 'reset-password' && $method === 'POST'
         $identifier1 = trim($user['email'] ?? '');
         $identifier2 = normalizePhoneNumber(trim($user['phone'] ?? ''));
         
-        $stmt = $pdo->prepare("SELECT id FROM otp_verifications WHERE (email = ? OR email = ?) AND otp = ? AND expires_at > NOW() ORDER BY id DESC LIMIT 1");
+        $stmt = $pdo->prepare("SELECT id FROM otp_verifications WHERE (email = ? OR email = ?) AND otp = ? AND (is_used = 0 OR is_used IS NULL) AND expires_at > NOW() ORDER BY id DESC LIMIT 1");
         $stmt->execute([$identifier1, $identifier2, $otp]);
         $foundOtpId = $stmt->fetchColumn();
         
@@ -1176,11 +1303,24 @@ if ($resource === 'public' && $action === 'reset-password' && $method === 'POST'
             jsonResponse(['success' => false, 'error' => 'رمز التحقق غير صحيح أو انتهت صلاحيته. يرجى إعادة الطلب'], 400);
         }
         
-        $hashedPassword = password_hash($newPassword, PASSWORD_BCRYPT);
-        $stmt = $pdo->prepare("UPDATE users SET password = ? WHERE id = ?");
-        $stmt->execute([$hashedPassword, $user['id']]);
+        $hashedPassword = password_hash($newPassword, PASSWORD_DEFAULT);
+        if (!empty($user['data'])) {
+            $uDataArr = json_decode($user['data'], true);
+            if (is_array($uDataArr)) {
+                unset($uDataArr['password']);
+                $newDataJson = json_encode($uDataArr, JSON_UNESCAPED_UNICODE);
+                $stmt = $pdo->prepare("UPDATE users SET password = ?, data = ? WHERE id = ?");
+                $stmt->execute([$hashedPassword, $newDataJson, $user['id']]);
+            } else {
+                $stmt = $pdo->prepare("UPDATE users SET password = ? WHERE id = ?");
+                $stmt->execute([$hashedPassword, $user['id']]);
+            }
+        } else {
+            $stmt = $pdo->prepare("UPDATE users SET password = ? WHERE id = ?");
+            $stmt->execute([$hashedPassword, $user['id']]);
+        }
         
-        $pdo->prepare("DELETE FROM otp_verifications WHERE id = ?")->execute([$foundOtpId]);
+        $pdo->prepare("UPDATE otp_verifications SET is_used = 1 WHERE id = ?")->execute([$foundOtpId]);
         
         jsonResponse(['success' => true, 'message' => 'تم تغيير كلمة المرور بنجاح! يمكنك الآن تسجيل الدخول بكلمة المرور الجديدة.']);
     } catch (Exception $e) {
@@ -1227,22 +1367,29 @@ if ($resource === 'report-layout') {
             $layoutTenantId = $foundTid;
         }
     }
+    if ($layoutTenantId === 'default') {
+        $hdrTid = (int)($_SERVER['HTTP_X_TENANT_ID'] ?? ($_GET['tenant_id'] ?? ($_COOKIE['currentTenantId'] ?? 0)));
+        if ($hdrTid > 0) {
+            $layoutTenantId = (string)$hdrTid;
+        }
+    }
 
     if ($method === 'GET') {
         $reportKey = trim($_GET['reportKey'] ?? $input['reportKey'] ?? '');
         if (empty($reportKey)) {
             jsonResponse(['error' => 'مفتاح التقرير مفقود'], 400);
         }
-        // Prioritize the unified global master key so default designs propagate to all companies and users
-        $stmtGlobal = $pdo->prepare("SELECT setting_value FROM global_settings WHERE setting_key = ?");
-        $stmtGlobal->execute([$reportKey]);
-        $val = $stmtGlobal->fetchColumn();
+        // 1. Prioritize tenant-specific layout first for multi-tenant isolation
+        $fullKey = 'report_layout_' . $layoutTenantId . '_' . $reportKey;
+        $stmt = $pdo->prepare("SELECT setting_value FROM global_settings WHERE setting_key = ?");
+        $stmt->execute([$fullKey]);
+        $val = $stmt->fetchColumn();
 
+        // 2. Fallback to default layout if tenant has not customized it yet
         if (!$val) {
-            $fullKey = 'report_layout_' . $layoutTenantId . '_' . $reportKey;
-            $stmt = $pdo->prepare("SELECT setting_value FROM global_settings WHERE setting_key = ?");
-            $stmt->execute([$fullKey]);
-            $val = $stmt->fetchColumn();
+            $stmtGlobal = $pdo->prepare("SELECT setting_value FROM global_settings WHERE setting_key = ?");
+            $stmtGlobal->execute([$reportKey]);
+            $val = $stmtGlobal->fetchColumn();
         }
         if (!$val) {
             $defaultKey = 'report_layout_default_' . $reportKey;
@@ -1263,24 +1410,11 @@ if ($resource === 'report-layout') {
             jsonResponse(['error' => 'بيانات التقرير غير صالحة'], 400);
         }
         $fullKey = 'report_layout_' . $layoutTenantId . '_' . $reportKey;
-        $defaultKey = 'report_layout_default_' . $reportKey;
         $val = json_encode($layoutData, JSON_UNESCAPED_UNICODE);
         
-        // Save for current tenant
+        // Save strictly for current tenant without overwriting other companies' report layouts
         $stmt = $pdo->prepare("INSERT INTO global_settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = ?");
         $stmt->execute([$fullKey, $val, $val]);
-
-        // Save for default tenant
-        $stmtDef = $pdo->prepare("INSERT INTO global_settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = ?");
-        $stmtDef->execute([$defaultKey, $val, $val]);
-        
-        // Save to master global key across all companies and users
-        $stmtLegacy = $pdo->prepare("INSERT INTO global_settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = ?");
-        $stmtLegacy->execute([$reportKey, $val, $val]);
-
-        // Propagate to all existing company/tenant layout records for this report
-        $stmtAllTenants = $pdo->prepare("UPDATE global_settings SET setting_value = ? WHERE setting_key LIKE ?");
-        $stmtAllTenants->execute([$val, 'report_layout_%_' . $reportKey]);
         
         jsonResponse(['success' => true]);
     }
@@ -1355,7 +1489,7 @@ if (preg_match('/Bearer\s(\S+)/', $authHeader, $matches)) {
     $token = $_COOKIE['saas_token'];
 }
 
-if (empty($token)) {
+if (empty($token) && (isLocalLaptopEnvironment() || !empty($_SERVER['HTTP_X_FORWARDED_FROM_LOCAL']))) {
     $token = 'offline_token_fallback';
 }
 
@@ -1405,6 +1539,13 @@ if ($token === $saasSecret) {
             
             if (!$user) jsonResponse(['success' => false, 'error' => 'لا يوجد مستخدمين في هذه الشركة لتسجيل الدخول نيابة عنهم.'], 404);
             
+            // Fetch tenant company_name and subdomain for complete isolation & URL routing
+            $tStmt = $pdo->prepare("SELECT company_name, subdomain FROM tenants WHERE id = ? LIMIT 1");
+            $tStmt->execute([$tenantId]);
+            $tenantRow = $tStmt->fetch(PDO::FETCH_ASSOC) ?: [];
+            $tenantSubdomain = $tenantRow['subdomain'] ?? '';
+            $tenantCompanyName = $tenantRow['company_name'] ?? '';
+            
             // Generate a fresh token and set expiry
             $newToken = bin2hex(random_bytes(16));
             $tokenExpiry = date('Y-m-d H:i:s', strtotime('+1 day'));
@@ -1418,6 +1559,8 @@ if ($token === $saasSecret) {
                 'roleId' => $user['role_id'] ?? null,
                 'permissions' => json_decode($user['permissions'] ?? '{}', true) ?: [],
                 'tenant_id' => $user['tenant_id'],
+                'subdomain' => $tenantSubdomain,
+                'company_name' => $tenantCompanyName,
                 'securityLevel' => isset($user['security_level']) ? (int)$user['security_level'] : 0,
                 'deviceRestricted' => isset($user['device_restricted']) ? (bool)$user['device_restricted'] : false,
                 'deviceUuid' => $user['device_uuid'] ?? null,
@@ -1430,7 +1573,7 @@ if ($token === $saasSecret) {
                 'geoLng' => $user['geo_lng'] ?? null
             ];
             
-            jsonResponse(['success' => true, 'impersonate_token' => $newToken, 'user' => $frontendUser]);
+            jsonResponse(['success' => true, 'impersonate_token' => $newToken, 'user' => $frontendUser, 'subdomain' => $tenantSubdomain]);
         }
 
         if ($action === 'wa-lock' || $action === 'wa-unlock') {
@@ -1619,13 +1762,50 @@ if ($token === $saasSecret) {
     }
 } else {
     // Validate normal user token and get tenant_id
-    $stmt = $pdo->prepare("SELECT tenant_id, id AS user_id, token_expires_at FROM users WHERE token = ?");
-    $stmt->execute([$token]);
-    $session = $stmt->fetch();
+    $session = false;
+    if (!empty($token) && strpos($token, 'offline_token_') !== 0) {
+        $stmt = $pdo->prepare("SELECT tenant_id, id AS user_id, token_expires_at FROM users WHERE token = ? AND (status IS NULL OR status != 'suspended')");
+        $stmt->execute([$token]);
+        $session = $stmt->fetch();
+    }
 
-    if (!$session && !empty($_COOKIE['saas_token']) && $_COOKIE['saas_token'] !== $token) {
+    if (!$session && !empty($_COOKIE['saas_token']) && $_COOKIE['saas_token'] !== $token && strpos($_COOKIE['saas_token'], 'offline_token_') !== 0) {
+        $stmt = $pdo->prepare("SELECT tenant_id, id AS user_id, token_expires_at FROM users WHERE token = ? AND (status IS NULL OR status != 'suspended')");
         $stmt->execute([$_COOKIE['saas_token']]);
         $session = $stmt->fetch();
+    }
+
+    // Verify signed offline HMAC token (MGD1.<payload>.<sig>)
+    if (!$session && !empty($token) && strpos($token, 'MGD1.') === 0 && function_exists('magaiees_offline_token_hmac_secret')) {
+        $parts = explode('.', $token);
+        if (count($parts) === 3) {
+            $expectedSig = hash_hmac('sha256', $parts[1], magaiees_offline_token_hmac_secret());
+            if (hash_equals($expectedSig, $parts[2])) {
+                $payloadJson = base64_decode(strtr($parts[1], '-_', '+/'), true);
+                $payloadData = $payloadJson ? json_decode($payloadJson, true) : null;
+                if (is_array($payloadData) && !empty($payloadData['tid']) && (empty($payloadData['exp']) || $payloadData['exp'] >= time())) {
+                    $session = [
+                        'tenant_id' => (int)$payloadData['tid'],
+                        'user_id' => !empty($payloadData['uid']) ? (int)$payloadData['uid'] : null,
+                        'token_expires_at' => null
+                    ];
+                }
+            }
+        }
+    }
+
+    // Check active PHP session if authenticated via login.php
+    if (!$session) {
+        if (session_status() === PHP_SESSION_NONE && !headers_sent()) {
+            @session_start();
+        }
+        if (!empty($_SESSION['mg_tenant_id']) && (int)$_SESSION['mg_tenant_id'] > 0) {
+            $session = [
+                'tenant_id' => (int)$_SESSION['mg_tenant_id'],
+                'user_id' => !empty($_SESSION['mg_user_id']) ? (int)$_SESSION['mg_user_id'] : null,
+                'token_expires_at' => null
+            ];
+        }
     }
 
     if ($session) {
@@ -1638,16 +1818,30 @@ if ($token === $saasSecret) {
         }
         $tenant_id = $session['tenant_id'];
         $userId = $session['user_id'] ?? null;
-    } elseif (strpos($token, 'offline_token_') === 0 || in_array($resource, ['sync', 'data', 'cloud-backup'], true)) {
-        // Fallback for offline-first cold start or reconnected offline session
-        try {
-            $stTen = $pdo->query("SELECT tenant_id, id AS user_id FROM users WHERE tenant_id IS NOT NULL ORDER BY (tenant_id = 12) DESC, id ASC LIMIT 1");
-            $fallbackUser = $stTen ? $stTen->fetch(PDO::FETCH_ASSOC) : null;
-            $tenant_id = $fallbackUser ? (int)$fallbackUser['tenant_id'] : 12;
-            $userId = $fallbackUser ? (int)$fallbackUser['user_id'] : 1;
-        } catch (Throwable $e) {
-            $tenant_id = 12;
-            $userId = 1;
+    } elseif (strpos($token, 'offline_token_') === 0 && (isLocalLaptopEnvironment() || !empty($_SERVER['HTTP_X_FORWARDED_FROM_LOCAL']))) {
+        // Strictly resolve the explicit tenant for an offline session or local-to-cloud mirror
+        $explicitTid = (int)($_SERVER['HTTP_X_TENANT_ID'] ?? ($_GET['tenant_id'] ?? ($_COOKIE['currentTenantId'] ?? ($_COOKIE['mg_tenant_id'] ?? 0))));
+        if ($explicitTid <= 0 && !empty($_SERVER['HTTP_X_TENANT_SUBDOMAIN'])) {
+            try {
+                $stSub = $pdo->prepare("SELECT id FROM tenants WHERE LOWER(subdomain) = LOWER(?) LIMIT 1");
+                $stSub->execute([trim($_SERVER['HTTP_X_TENANT_SUBDOMAIN'])]);
+                $explicitTid = (int)$stSub->fetchColumn();
+            } catch (Throwable $e) {}
+        }
+        if ($explicitTid <= 0 && !empty($_SERVER['HTTP_X_FORWARDED_FROM_LOCAL'])) {
+            $explicitTid = 12;
+        }
+        if ($explicitTid > 0) {
+            $tenant_id = $explicitTid;
+            try {
+                $stUsr = $pdo->prepare("SELECT id FROM users WHERE tenant_id = ? ORDER BY (role = 'admin') DESC, id ASC LIMIT 1");
+                $stUsr->execute([$tenant_id]);
+                $userId = (int)$stUsr->fetchColumn() ?: null;
+            } catch (Throwable $e) {
+                $userId = null;
+            }
+        } else {
+            jsonResponse(['error' => 'غير مصرح: لم يتم تحديد معرف الشركة للجلسة المحلية'], 401);
         }
     } else {
         jsonResponse(['error' => 'غير مصرح: الرمز غير صالح'], 401);
@@ -1901,7 +2095,18 @@ if ($resource === 'sync') {
             }
             $finalMaxUsers = ($tData['max_users'] !== null) ? (int)$tData['max_users'] : $planLimit;
         }
-        jsonResponse(['success' => true, 'data' => $data_payload, 'max_users' => $finalMaxUsers]);
+        try {
+            $stmtWaPol = $pdo->prepare("SELECT setting_value FROM global_settings WHERE setting_key = ? LIMIT 1");
+            $stmtWaPol->execute(['tenant_' . (int)$tenant_id . '_erp_whatsapp_statement_policy_v1']);
+            $waPolVal = $stmtWaPol->fetchColumn();
+            if ($waPolVal) {
+                $decodedWaPol = json_decode($waPolVal, true);
+                if (is_array($decodedWaPol)) {
+                    $data_payload['erp_whatsapp_statement_policy_v1'] = $decodedWaPol;
+                }
+            }
+        } catch (Exception $eWaPol) {}
+        jsonResponse(['success' => true, 'tenant_id' => (int)$tenant_id, 'data' => $data_payload, 'max_users' => $finalMaxUsers]);
     }
 
     if ($method === 'POST' && $action === 'push') {
@@ -1962,6 +2167,13 @@ if ($resource === 'sync') {
         $pdo->beginTransaction();
         try {
             foreach ($input as $key => $records) {
+                if ($key === 'erp_whatsapp_statement_policy_v1' && is_array($records)) {
+                    $polKey = 'tenant_' . (int)$tenant_id . '_erp_whatsapp_statement_policy_v1';
+                    $polJson = json_encode($records, JSON_UNESCAPED_UNICODE);
+                    $stmtPol = $pdo->prepare("INSERT INTO global_settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value)");
+                    $stmtPol->execute([$polKey, $polJson]);
+                    continue;
+                }
                 $table = null;
                 if (preg_match('/^erp_(.+)_v1$/', $key, $matches)) {
                     $table = $matches[1];
@@ -2020,12 +2232,28 @@ if ($resource === 'sync') {
                                         jsonResponse(['error' => 'لقد تجاوزت الحد الأقصى للمستخدمين المتاح لشركتك وهو (' . $effectiveUserLimit . ') مستخدمين. يرجى ترقية الاشتراك.'], 403);
                                     }
 
-                                    $stmtCheck = $pdo->prepare("SELECT id, username, password FROM `users` WHERE tenant_id = ?");
+                                    $stmtCheck = $pdo->prepare("SELECT id, username, frontend_id, password, data, role FROM `users` WHERE tenant_id = ?");
                                     $stmtCheck->execute([$tenant_id]);
                                     $existingUsers = $stmtCheck->fetchAll(PDO::FETCH_ASSOC);
                                     $userMap = [];
+                                    $userByIdMap = [];
                                     foreach ($existingUsers as $eu) {
-                                        $userMap[strtolower(trim($eu['username']))] = $eu['id'];
+                                        $euId = (int)$eu['id'];
+                                        $userByIdMap[$euId] = $eu;
+                                        $uKey = strtolower(trim($eu['username'] ?? ''));
+                                        if ($uKey !== '') $userMap[$uKey] = $euId;
+                                        if (!empty($eu['frontend_id'])) {
+                                            $userMap['fid:' . strtolower(trim($eu['frontend_id']))] = $euId;
+                                        }
+                                        if (!empty($eu['data'])) {
+                                            $euData = json_decode($eu['data'], true);
+                                            if (!empty($euData['id'])) {
+                                                $userMap['fid:' . strtolower(trim((string)$euData['id']))] = $euId;
+                                            }
+                                            if (!empty($euData['username'])) {
+                                                $userMap[strtolower(trim((string)$euData['username']))] = $euId;
+                                            }
+                                        }
                                     }
                                     
                                     $usersToUpdatePass = [];
@@ -2033,32 +2261,38 @@ if ($resource === 'sync') {
                                     $usersToInsert = [];
                                     
                                     foreach ($records as $record) {
+                                        if (!is_array($record)) continue;
                                         $rawUsername = $record['username'] ?? $record['name'] ?? $record['fullName'] ?? '';
                                         if (empty($rawUsername)) continue;
                                         $username = strtolower(trim($rawUsername));
+                                        $recId = isset($record['id']) ? trim((string)$record['id']) : '';
                                         $password = $record['password'] ?? '';
                                         $status = $record['status'] ?? 'active';
                                         $userRole = !empty($record['role']) ? $record['role'] : (!empty($record['userType']) ? $record['userType'] : 'employee');
                                         
-                                        if ($username === 'admin') continue;
                                         if (!empty($tenantOwnerUsername) && $username === $tenantOwnerUsername) {
                                             $userRole = 'admin';
+                                        }
+                                        
+                                        $matchedUid = $userMap[$username] ?? ($recId !== '' ? ($userMap['fid:' . strtolower($recId)] ?? (ctype_digit($recId) && isset($userByIdMap[(int)$recId]) ? (int)$recId : null)) : null);
+                                        if ($username === 'admin' && !$matchedUid) {
+                                            continue;
                                         }
                                         
                                         $recordData = $record;
                                         // Remove plain password from data JSON for security
                                         unset($recordData['password']);
                                         $jsonData = json_encode($recordData, JSON_UNESCAPED_UNICODE);
-                                        $passToHash = !empty($password) ? $password : '123456';
                                         
-                                        if (isset($userMap[$username])) {
-                                            $uId = $userMap[$username];
+                                        if ($matchedUid) {
+                                            $uId = $matchedUid;
                                             if (!empty($password)) {
-                                                $usersToUpdatePass[$uId] = [password_hash($passToHash, PASSWORD_DEFAULT), $jsonData, $status, $userRole];
+                                                $usersToUpdatePass[$uId] = [password_hash($password, PASSWORD_DEFAULT), $jsonData, $status, $userRole];
                                             } else {
                                                 $usersToUpdateNoPass[$uId] = [$jsonData, $status, $userRole];
                                             }
                                         } else {
+                                            $passToHash = !empty($password) ? $password : '123456';
                                             $usersToInsert[] = [$tenant_id, $username, password_hash($passToHash, PASSWORD_DEFAULT), $userRole, $status, $jsonData];
                                         }
                                     }
@@ -2076,7 +2310,7 @@ if ($resource === 'sync') {
                                             $sqlRole .= "WHEN $uId THEN " . $pdo->quote($vals[3]) . " ";
                                             $ids[] = $uId;
                                         }
-                                        $sql .= "END, " . $sqlData . "END, " . $sqlStatus . "END, " . $sqlRole . "END WHERE id IN (" . implode(',', $ids) . ")";
+                                        $sql .= "END, " . $sqlData . "END, " . $sqlStatus . "END, " . $sqlRole . "END WHERE id IN (" . implode(',', array_map('intval', $ids)) . ") AND tenant_id = " . (int)$tenant_id;
                                         $pdo->exec($sql);
                                     }
                                     
@@ -2091,17 +2325,17 @@ if ($resource === 'sync') {
                                             $sqlRole .= "WHEN $uId THEN " . $pdo->quote($vals[2]) . " ";
                                             $ids[] = $uId;
                                         }
-                                        $sqlData .= "END, " . $sqlStatus . "END, " . $sqlRole . "END WHERE id IN (" . implode(',', $ids) . ")";
+                                        $sqlData .= "END, " . $sqlStatus . "END, " . $sqlRole . "END WHERE id IN (" . implode(',', array_map('intval', $ids)) . ") AND tenant_id = " . (int)$tenant_id;
                                         $pdo->exec($sqlData);
                                     }
                                     
                                     if (!empty($usersToInsert)) {
-                                        $sql = "INSERT INTO `users` (tenant_id, username, password, role, status, data) VALUES ";
-                                        $vals = [];
+                                        $stmtInsUsr = $pdo->prepare("INSERT IGNORE INTO `users` (tenant_id, username, password, role, status, data) VALUES (?, ?, ?, ?, ?, ?)");
                                         foreach ($usersToInsert as $u) {
-                                            $vals[] = "(" . (int)$u[0] . ", " . $pdo->quote($u[1]) . ", " . $pdo->quote($u[2]) . ", " . $pdo->quote($u[3]) . ", " . $pdo->quote($u[4]) . ", " . $pdo->quote($u[5]) . ")";
+                                            try {
+                                                $stmtInsUsr->execute([(int)$tenant_id, $u[1], $u[2], $u[3], $u[4], $u[5]]);
+                                            } catch (PDOException $uInsErr) {}
                                         }
-                                        $pdo->exec($sql . implode(', ', $vals));
                                     }
                                 } else {
                                     $isFin = in_array($table, ['sales_invoices', 'purchase_invoices', 'gl_entries', 'receipts', 'payments', 'journal_vouchers', 'single_receipts', 'single_payments']);
@@ -2281,15 +2515,15 @@ if ($resource === 'sync') {
                                     }
 
                                     if (!empty($idsToDelete)) {
-                                        $pdo->exec("DELETE FROM `$table` WHERE id IN (" . implode(',', array_map('intval', $idsToDelete)) . ")");
+                                        $pdo->exec("DELETE FROM `$table` WHERE id IN (" . implode(',', array_map('intval', $idsToDelete)) . ") AND tenant_id = " . (int)$tenant_id);
                                     }
                                     
                                     if (!empty($idsToUpdate)) {
-                                        $updateSql .= "END WHERE id IN (" . implode(',', $idsToUpdate) . ")";
+                                        $updateSql .= "END WHERE id IN (" . implode(',', array_map('intval', $idsToUpdate)) . ") AND tenant_id = " . (int)$tenant_id;
                                         $pdo->exec($updateSql);
                                     }
                                     if (!empty($insertValues)) {
-                                        $insertSql = "INSERT INTO `$table` (tenant_id, data) VALUES " . implode(", ", $insertValues) . " ON DUPLICATE KEY UPDATE data = VALUES(data)";
+                                        $insertSql = "INSERT INTO `$table` (tenant_id, data) VALUES " . implode(", ", $insertValues) . " ON DUPLICATE KEY UPDATE data = IF(tenant_id = VALUES(tenant_id), VALUES(data), data)";
                                         try {
                                             $pdo->exec($insertSql);
                                         } catch (PDOException $insertErr) {
@@ -2315,9 +2549,9 @@ if ($resource === 'sync') {
             $pdo->commit();
 
             // Mirror local laptop sync/push asynchronously in background to 24/7 Cloud Server (https://c.elsajana.com)
-            // so the browser response returns immediately without waiting on internet roundtrip
+            // ONLY for Tenant 12 (Company C) so local testing of other tenants never leaks to Company C's live server
             $cloudMirrored = false;
-            if (isLocalLaptopEnvironment() && empty($_SERVER['HTTP_X_FORWARDED_FROM_LOCAL']) && !empty($rawInput)) {
+            if ((int)$tenant_id === 12 && isLocalLaptopEnvironment() && empty($_SERVER['HTTP_X_FORWARDED_FROM_LOCAL']) && !empty($rawInput)) {
                 $cloudMirrored = true;
                 register_shutdown_function(function() use ($rawInput, $token) {
                     try {
@@ -2343,6 +2577,7 @@ if ($resource === 'sync') {
                         curl_setopt($chMirror, CURLOPT_HTTPHEADER, [
                             'Content-Type: application/json',
                             'Authorization: Bearer ' . ($token ?: 'offline_token_fallback'),
+                            'X-Tenant-Id: ' . (int)$tenant_id,
                             'X-Forwarded-From-Local: 1'
                         ]);
                         curl_setopt($chMirror, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);

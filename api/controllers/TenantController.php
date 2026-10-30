@@ -885,14 +885,16 @@ class TenantController {
             }
             if ($tenantToDelete) {
                 try {
-                    $this->pdo->prepare("DELETE FROM users WHERE tenant_id = ?")->execute([$tenantToDelete]);
+                    foreach (['sales_invoices', 'purchase_invoices', 'direct_purchases', 'items', 'customers', 'suppliers', 'warehouses', 'banks', 'safes', 'accounts', 'receipts', 'payments', 'single_receipts', 'single_payments', 'journal_vouchers', 'gl_entries', 'delivery_notes', 'reserved_sales', 'inventory', 'checks', 'settings', 'audit_logs', 'inbound_bank_receipts', 'financial_periods', 'users'] as $_delTbl) { try { $this->pdo->prepare("DELETE FROM `$_delTbl` WHERE tenant_id = ?")->execute([$tenantToDelete]); } catch (\Throwable $_e) {} }
+                    try { $this->pdo->prepare("DELETE FROM global_settings WHERE setting_key LIKE ? OR setting_key LIKE ?")->execute(['tenant_' . (int)$tenantToDelete . '_%', 'tenant_rate_' . (int)$tenantToDelete]); } catch (\Throwable $_e2) {}
                     $this->pdo->prepare("DELETE FROM tenants WHERE id = ?")->execute([$tenantToDelete]);
                     $this->logSaaSAction('حذف مشترك', 'حذف المشترك معرّف ' . $tenantToDelete . ' مع جميع مستخدميه وبياناته');
                     jsonResponse(['success' => true]);
                 } catch (PDOException $e) {
                     try {
                         $this->pdo->exec("SET FOREIGN_KEY_CHECKS=0;");
-                        $this->pdo->prepare("DELETE FROM users WHERE tenant_id = ?")->execute([$tenantToDelete]);
+                        foreach (['sales_invoices', 'purchase_invoices', 'direct_purchases', 'items', 'customers', 'suppliers', 'warehouses', 'banks', 'safes', 'accounts', 'receipts', 'payments', 'single_receipts', 'single_payments', 'journal_vouchers', 'gl_entries', 'delivery_notes', 'reserved_sales', 'inventory', 'checks', 'settings', 'audit_logs', 'inbound_bank_receipts', 'financial_periods', 'users'] as $_delTbl) { try { $this->pdo->prepare("DELETE FROM `$_delTbl` WHERE tenant_id = ?")->execute([$tenantToDelete]); } catch (\Throwable $_e) {} }
+                    try { $this->pdo->prepare("DELETE FROM global_settings WHERE setting_key LIKE ? OR setting_key LIKE ?")->execute(['tenant_' . (int)$tenantToDelete . '_%', 'tenant_rate_' . (int)$tenantToDelete]); } catch (\Throwable $_e2) {}
                         $this->pdo->prepare("DELETE FROM tenants WHERE id = ?")->execute([$tenantToDelete]);
                         $this->pdo->exec("SET FOREIGN_KEY_CHECKS=1;");
                         $this->logSaaSAction('حذف مشترك', 'حذف المشترك معرّف ' . $tenantToDelete . ' مع جميع مستخدميه وبياناته (بعد تعطيل فحص المفاتيح الخارجية)');
@@ -911,16 +913,17 @@ class TenantController {
             jsonResponse(['success' => true, 'bans' => $stmt->fetchAll(PDO::FETCH_ASSOC)]);
         }
 
-        if ($action === 'ip-bans' && $method === 'POST') {
-            $ip = $data['ip_address'] ?? '';
-            $reason = $data['reason'] ?? '';
+        $subAction = $requestUri[$base_index + 3] ?? ($requestUri[$base_index + 4] ?? ($requestUri[3] ?? ''));
+        if ($action === 'ip-bans' && $subAction !== 'delete' && $method === 'POST') {
+            $ip = $input['ip_address'] ?? '';
+            $reason = $input['reason'] ?? '';
             if (empty($ip)) jsonResponse(['error' => 'عنوان IP مطلوب'], 400);
             if (!filter_var($ip, FILTER_VALIDATE_IP)) jsonResponse(['error' => 'عنوان IP غير صالح'], 400);
             
             try {
                 $stmt = $this->pdo->prepare("INSERT INTO ip_bans (ip_address, reason) VALUES (?, ?) ON DUPLICATE KEY UPDATE reason = VALUES(reason), is_active = 1, banned_at = NOW()");
                 $stmt->execute([$ip, $reason]);
-                $this->logAuditAction("حظر عنوان IP: $ip", "السبب: $reason");
+                $this->logSaaSAction("حظر عنوان IP: $ip", "السبب: $reason");
                 jsonResponse(['success' => true]);
             } catch (Exception $e) {
                 jsonResponse(['error' => 'خطأ في حظر العنوان: ' . $e->getMessage()], 500);
@@ -928,11 +931,11 @@ class TenantController {
         }
 
         if ($action === 'ip-bans' && $subAction === 'delete' && $method === 'POST') {
-            $id = $data['id'] ?? 0;
+            $id = $input['id'] ?? 0;
             if (!$id) jsonResponse(['error' => 'معرّف الحظر مطلوب'], 400);
             $stmt = $this->pdo->prepare("UPDATE ip_bans SET is_active = 0 WHERE id = ?");
             $stmt->execute([$id]);
-            $this->logAuditAction("إلغاء حظر IP", "معرّف: $id");
+            $this->logSaaSAction("إلغاء حظر IP", "معرّف: $id");
             jsonResponse(['success' => true]);
         }
 

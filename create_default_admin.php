@@ -2,6 +2,13 @@
 header('Content-Type: text/plain; charset=UTF-8');
 require_once __DIR__ . '/api/db.php';
 
+$expectedAdminToken = $_ENV['SAAS_ADMIN_TOKEN'] ?? getenv('SAAS_ADMIN_TOKEN') ?: '';
+$providedToken = $_GET['admin_token'] ?? $_SERVER['HTTP_X_ADMIN_TOKEN'] ?? '';
+if (PHP_SAPI !== 'cli' && ($expectedAdminToken === '' || !hash_equals($expectedAdminToken, (string)$providedToken))) {
+    http_response_code(403);
+    exit("Forbidden: CLI or valid SAAS_ADMIN_TOKEN required.\n");
+}
+
 try {
     // 1. Ensure active tenant exists
     $stmt = $pdo->query("SELECT id FROM tenants WHERE subdomain = 'demo' OR id = 1 LIMIT 1");
@@ -19,8 +26,8 @@ try {
     $hashedPassword = password_hash('admin', PASSWORD_DEFAULT);
 
     // 3. Insert or update user 'admin'
-    $stmtUser = $pdo->prepare("SELECT id FROM users WHERE username = 'admin'");
-    $stmtUser->execute();
+    $stmtUser = $pdo->prepare("SELECT id FROM users WHERE username = 'admin' AND tenant_id = ? LIMIT 1");
+    $stmtUser->execute([$tenantId]);
     $existingUser = $stmtUser->fetch();
 
     if ($existingUser) {
@@ -32,11 +39,6 @@ try {
             ->execute([$tenantId, $hashedPassword]);
         echo "✅ User 'admin' created with password 'admin' (Tenant ID: $tenantId)\n";
     }
-
-    // Also update existing user 'A' with password 'A'
-    $hashA = password_hash('A', PASSWORD_DEFAULT);
-    $pdo->prepare("UPDATE users SET password = ?, status = 'active' WHERE username = 'A'")->execute([$hashA]);
-    echo "✅ User 'A' updated with password 'A'\n";
 
 } catch (Exception $e) {
     echo "❌ Error: " . $e->getMessage() . "\n";

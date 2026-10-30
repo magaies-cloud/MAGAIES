@@ -354,7 +354,7 @@ if ((isset($_GET['api']) && $_GET['api'] === 'save_voucher') || (isset($_POST['a
 
         try {
             if (!empty($idempotencyKey)) {
-                $stmtCheckIdem = $pdo->prepare("SELECT data FROM single_payments WHERE (tenant_id = ? OR tenant_id IS NULL) AND JSON_UNQUOTE(JSON_EXTRACT(data, '$.idempotencyKey')) = ? LIMIT 1");
+                $stmtCheckIdem = $pdo->prepare("SELECT data FROM single_payments WHERE tenant_id = ? AND JSON_UNQUOTE(JSON_EXTRACT(data, '$.idempotencyKey')) = ? LIMIT 1");
                 $stmtCheckIdem->execute([$tId, $idempotencyKey]);
                 $existingIdem = $stmtCheckIdem->fetch(PDO::FETCH_ASSOC);
                 if ($existingIdem) {
@@ -364,7 +364,7 @@ if ((isset($_GET['api']) && $_GET['api'] === 'save_voucher') || (isset($_POST['a
                 }
             }
             $jsonRecord = json_encode($payload, JSON_UNESCAPED_UNICODE);
-            $stmtCheck = $pdo->prepare("SELECT id FROM single_payments WHERE (tenant_id = ? OR tenant_id IS NULL) AND (JSON_UNQUOTE(JSON_EXTRACT(data, '$.voucherNo')) = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')) = ?)");
+            $stmtCheck = $pdo->prepare("SELECT id FROM single_payments WHERE tenant_id = ? AND (JSON_UNQUOTE(JSON_EXTRACT(data, '$.voucherNo')) = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')) = ?)");
             $stmtCheck->execute([$tId, $voucherNo, $voucherNo]);
             $existingDbId = $stmtCheck->fetchColumn();
             if ($existingDbId) {
@@ -393,7 +393,7 @@ $maxSeq = 0;
 try {
     if ($pdo) {
         $effTenant = !empty($GLOBAL_TENANT_ID) ? (int)$GLOBAL_TENANT_ID : 12;
-        $stmt = $pdo->prepare("SELECT data FROM single_payments WHERE (tenant_id = ? OR tenant_id IS NULL)");
+        $stmt = $pdo->prepare("SELECT data FROM single_payments WHERE tenant_id = ?");
         $stmt->execute([$effTenant]);
         while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
             $d = json_decode($row['data'], true);
@@ -414,7 +414,7 @@ $SERVER_ALL_TRANSFERS_json = '[]';
 try {
     if ($pdo) {
         $effTenant = !empty($GLOBAL_TENANT_ID) ? (int)$GLOBAL_TENANT_ID : 12;
-        $stmt = $pdo->prepare("SELECT data FROM single_payments WHERE (tenant_id = ? OR tenant_id IS NULL) ORDER BY id ASC");
+        $stmt = $pdo->prepare("SELECT data FROM single_payments WHERE tenant_id = ? ORDER BY id ASC");
         $stmt->execute([$effTenant]);
         $arr = [];
         while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {

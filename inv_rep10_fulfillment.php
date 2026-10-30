@@ -8,7 +8,7 @@ $pdo = getDBConnection();
 
 $report_data = [];
 try {
-    $stmt = $pdo->query("SELECT * FROM sales_invoices WHERE is_deleted = 0 AND tenant_id = '{\}' ORDER BY id DESC LIMIT 10");
+    $stmt = $pdo->query("SELECT * FROM sales_invoices WHERE (is_deleted = 0 OR is_deleted IS NULL) AND tenant_id = '{$GLOBAL_TENANT_ID}' ORDER BY id DESC LIMIT 10");
     $sales = $stmt->fetchAll(PDO::FETCH_ASSOC);
     foreach ($sales as $s) {
         $data = json_decode($s['data'], true);

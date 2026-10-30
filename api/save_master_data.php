@@ -3,11 +3,13 @@ $rawBodyMaster = file_get_contents('php://input');
 $__earlyInput = json_decode($rawBodyMaster, true);
 $__earlyType = is_array($__earlyInput) ? ($__earlyInput['type'] ?? $__earlyInput['action'] ?? null) : null;
 $__earlyTid = 12;
-if (!empty($_SERVER['HTTP_X_TENANT_ID']) && is_numeric($_SERVER['HTTP_X_TENANT_ID']) && (int)$_SERVER['HTTP_X_TENANT_ID'] > 1) {
+if (!empty($_SERVER['HTTP_X_TENANT_ID']) && is_numeric($_SERVER['HTTP_X_TENANT_ID']) && (int)$_SERVER['HTTP_X_TENANT_ID'] >= 1) {
     $__earlyTid = (int)$_SERVER['HTTP_X_TENANT_ID'];
-} elseif (!empty($_GET['tenant_id']) && is_numeric($_GET['tenant_id']) && (int)$_GET['tenant_id'] > 1) {
+} elseif (is_array($__earlyInput) && !empty($__earlyInput['tenant_id']) && is_numeric($__earlyInput['tenant_id']) && (int)$__earlyInput['tenant_id'] >= 1) {
+    $__earlyTid = (int)$__earlyInput['tenant_id'];
+} elseif (!empty($_GET['tenant_id']) && is_numeric($_GET['tenant_id']) && (int)$_GET['tenant_id'] >= 1) {
     $__earlyTid = (int)$_GET['tenant_id'];
-} elseif (!empty($_COOKIE['currentTenantId']) && is_numeric($_COOKIE['currentTenantId']) && (int)$_COOKIE['currentTenantId'] > 1) {
+} elseif (!empty($_COOKIE['currentTenantId']) && is_numeric($_COOKIE['currentTenantId']) && (int)$_COOKIE['currentTenantId'] >= 1) {
     $__earlyTid = (int)$_COOKIE['currentTenantId'];
 }
 $__masterHost = strtolower($_SERVER['HTTP_HOST'] ?? $_SERVER['SERVER_NAME'] ?? '');
@@ -15,12 +17,14 @@ $__isLocalMasterEnv = (strpos($__masterHost, 'elsajana.com') === false) && (strp
 if ($__isLocalMasterEnv && empty($_SERVER['HTTP_X_FORWARDED_FROM_LOCAL']) && $__earlyType && !in_array($__earlyType, ['check_entity_usage', 'check_item_usage'], true)) {
     register_shutdown_function(function() use ($rawBodyMaster, &$tenant_id, $__earlyTid) {
         try {
+            $fwdTid = (!empty($tenant_id) && (int)$tenant_id >= 1) ? (int)$tenant_id : (int)$__earlyTid;
+            // ONLY mirror to c.elsajana.com when operating on Tenant 12 (Company C)
+            if ($fwdTid !== 12) return;
             if (function_exists('finishClientResponseEarly')) {
                 finishClientResponseEarly();
             } elseif (function_exists('fastcgi_finish_request')) {
                 @fastcgi_finish_request();
             }
-            $fwdTid = (!empty($tenant_id) && (int)$tenant_id > 1) ? (int)$tenant_id : (int)$__earlyTid;
             $ch = curl_init('https://c.elsajana.com/api/save_master_data.php?tenant_id=' . $fwdTid);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
             curl_setopt($ch, CURLOPT_POST, true);
@@ -52,14 +56,17 @@ global $GLOBAL_TENANT_ID;
 $tenant_id = !empty($GLOBAL_TENANT_ID) ? (int)$GLOBAL_TENANT_ID : 12;
 
 $reqHeaderTid = $_SERVER['HTTP_X_TENANT_ID'] ?? '';
+$reqBodyTid = is_array($__earlyInput) ? ($__earlyInput['tenant_id'] ?? '') : '';
 $reqGetTid = $_GET['tenant_id'] ?? '';
 $reqCookieTid = $_COOKIE['currentTenantId'] ?? '';
 
-if (is_numeric($reqHeaderTid) && (int)$reqHeaderTid > 1) {
+if (is_numeric($reqHeaderTid) && (int)$reqHeaderTid >= 1) {
     $tenant_id = (int)$reqHeaderTid;
-} elseif (is_numeric($reqGetTid) && (int)$reqGetTid > 1) {
+} elseif (is_numeric($reqBodyTid) && (int)$reqBodyTid >= 1) {
+    $tenant_id = (int)$reqBodyTid;
+} elseif (is_numeric($reqGetTid) && (int)$reqGetTid >= 1) {
     $tenant_id = (int)$reqGetTid;
-} elseif (is_numeric($reqCookieTid) && (int)$reqCookieTid > 1) {
+} elseif (is_numeric($reqCookieTid) && (int)$reqCookieTid >= 1) {
     $tenant_id = (int)$reqCookieTid;
 }
 
@@ -80,10 +87,10 @@ try {
     $stmtVerifyTenant = $pdo->prepare('SELECT id FROM tenants WHERE id = ? LIMIT 1');
     $stmtVerifyTenant->execute([$tenant_id]);
     if (!$stmtVerifyTenant->fetchColumn()) {
-        $tenant_id = !empty($GLOBAL_TENANT_ID) && (int)$GLOBAL_TENANT_ID > 1 ? (int)$GLOBAL_TENANT_ID : 12;
+        $tenant_id = !empty($GLOBAL_TENANT_ID) && (int)$GLOBAL_TENANT_ID >= 1 ? (int)$GLOBAL_TENANT_ID : 12;
     }
 } catch (Exception $e) {
-    if ($tenant_id <= 1) $tenant_id = 12;
+    if ($tenant_id < 1) $tenant_id = 12;
 }
 
 $input = $__earlyInput;
@@ -113,47 +120,68 @@ function isDuplicateNameDB($pdo, $tenant_id, $table, $name, $currentId) {
 
 try {
     switch ($type) {
-        // --- 1. Global Settings Collections ---
+        // --- 1. Global Settings Collections (Tenant-scoped) ---
         case 'units':
             if (is_array($data)) {
                 $unitsJson = json_encode(array_values(array_unique(array_filter($data))), JSON_UNESCAPED_UNICODE);
-                $stmt = $pdo->prepare("INSERT INTO global_settings (setting_key, setting_value) VALUES ('erp_global_units_v1', ?) ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value), updated_at = NOW()");
-                $stmt->execute([$unitsJson]);
+                $tUnitsKey = 'tenant_' . $tenant_id . '_erp_global_units_v1';
+                $stmt = $pdo->prepare("INSERT INTO global_settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value), updated_at = NOW()");
+                $stmt->execute([$tUnitsKey, $unitsJson]);
+                if ((int)$tenant_id === 12) {
+                    $stmt->execute(['erp_global_units_v1', $unitsJson]);
+                }
             }
             break;
 
         case 'categories':
             if (is_array($data)) {
                 $catsJson = json_encode(array_values(array_unique(array_filter($data))), JSON_UNESCAPED_UNICODE);
-                $stmt = $pdo->prepare("INSERT INTO global_settings (setting_key, setting_value) VALUES ('erp_categories_v1', ?) ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value), updated_at = NOW()");
-                $stmt->execute([$catsJson]);
+                $tCatsKey = 'tenant_' . $tenant_id . '_erp_categories_v1';
+                $stmt = $pdo->prepare("INSERT INTO global_settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value), updated_at = NOW()");
+                $stmt->execute([$tCatsKey, $catsJson]);
+                if ((int)$tenant_id === 12) {
+                    $stmt->execute(['erp_categories_v1', $catsJson]);
+                }
             }
             break;
 
         case 'cost_centers':
             if (is_array($data)) {
                 $ccJson = json_encode($data, JSON_UNESCAPED_UNICODE);
-                $stmt = $pdo->prepare("INSERT INTO global_settings (setting_key, setting_value) VALUES ('erp_cost_centers_v1', ?) ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value), updated_at = NOW()");
-                $stmt->execute([$ccJson]);
-                $stmt2 = $pdo->prepare("INSERT INTO global_settings (setting_key, setting_value) VALUES ('erp_jobs_v1', ?) ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value), updated_at = NOW()");
-                $stmt2->execute([$ccJson]);
+                $tCcKey = 'tenant_' . $tenant_id . '_erp_cost_centers_v1';
+                $stmt = $pdo->prepare("INSERT INTO global_settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value), updated_at = NOW()");
+                $stmt->execute([$tCcKey, $ccJson]);
+                if ((int)$tenant_id === 12) {
+                    $stmt->execute(['erp_cost_centers_v1', $ccJson]);
+                    $stmt->execute(['erp_jobs_v1', $ccJson]);
+                }
             }
             break;
 
         case 'currency_rates':
             if (is_array($data)) {
                 $crJson = json_encode($data, JSON_UNESCAPED_UNICODE);
-                $stmt = $pdo->prepare("INSERT INTO global_settings (setting_key, setting_value) VALUES ('erp_currency_rates_v1', ?) ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value), updated_at = NOW()");
-                $stmt->execute([$crJson]);
+                $tCrKey = 'tenant_' . $tenant_id . '_erp_currency_rates_v1';
+                $stmt = $pdo->prepare("INSERT INTO global_settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value), updated_at = NOW()");
+                $stmt->execute([$tCrKey, $crJson]);
+                if ((int)$tenant_id === 12) {
+                    $stmt->execute(['erp_currency_rates_v1', $crJson]);
+                }
             }
             break;
 
         case 'whatsapp_statement_policy':
             if (is_array($data)) {
+                $tPolKey = 'tenant_' . $tenant_id . '_erp_whatsapp_statement_policy_v1';
                 $existingPol = [];
                 try {
-                    $stmtEx = $pdo->prepare("SELECT setting_value FROM global_settings WHERE setting_key = 'erp_whatsapp_statement_policy_v1' LIMIT 1");
-                    $stmtEx->execute();
+                    if ((int)$tenant_id === 12) {
+                        $stmtEx = $pdo->prepare("SELECT setting_value FROM global_settings WHERE setting_key IN (?, 'erp_whatsapp_statement_policy_v1') ORDER BY (setting_key = ?) DESC LIMIT 1");
+                        $stmtEx->execute([$tPolKey, $tPolKey]);
+                    } else {
+                        $stmtEx = $pdo->prepare("SELECT setting_value FROM global_settings WHERE setting_key = ? LIMIT 1");
+                        $stmtEx->execute([$tPolKey]);
+                    }
                     $rawEx = $stmtEx->fetchColumn();
                     if ($rawEx) {
                         $decEx = json_decode((string)$rawEx, true);
@@ -180,8 +208,11 @@ try {
                 }
 
                 $polJson = json_encode($mergedPol, JSON_UNESCAPED_UNICODE);
-                $stmt = $pdo->prepare("INSERT INTO global_settings (setting_key, setting_value) VALUES ('erp_whatsapp_statement_policy_v1', ?) ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value), updated_at = NOW()");
-                $stmt->execute([$polJson]);
+                $stmt = $pdo->prepare("INSERT INTO global_settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value), updated_at = NOW()");
+                $stmt->execute([$tPolKey, $polJson]);
+                if ((int)$tenant_id === 12) {
+                    $stmt->execute(['erp_whatsapp_statement_policy_v1', $polJson]);
+                }
                 $data = $mergedPol;
             }
             break;
@@ -260,7 +291,7 @@ try {
                 }
 
                 // Hard delete from database
-                $stmtDel = $pdo->prepare("DELETE FROM items WHERE (tenant_id = ? OR tenant_id IS NULL) AND (frontend_id = ? OR id = ? OR search_name = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')) = ?)");
+                $stmtDel = $pdo->prepare("DELETE FROM items WHERE tenant_id = ? AND (frontend_id = ? OR id = ? OR search_name = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')) = ?)");
                 $stmtDel->execute([$tenant_id, $itemId, $itemId, $itemName, $itemId]);
 
                 echo json_encode([
@@ -365,7 +396,7 @@ try {
                 }
 
                 // Hard delete from database
-                $stmtDel = $pdo->prepare("DELETE FROM warehouses WHERE (tenant_id = ? OR tenant_id IS NULL) AND (frontend_id = ? OR id = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')) = ?)");
+                $stmtDel = $pdo->prepare("DELETE FROM warehouses WHERE tenant_id = ? AND (frontend_id = ? OR id = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')) = ?)");
                 $stmtDel->execute([$tenant_id, $whId, $whId, $whId]);
 
                 echo json_encode([
@@ -550,7 +581,7 @@ try {
                 }
 
                 // Hard delete from database
-                $stmtDel = $pdo->prepare("DELETE FROM customers WHERE (tenant_id = ? OR tenant_id IS NULL) AND (frontend_id = ? OR id = ? OR search_name = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')) = ?)");
+                $stmtDel = $pdo->prepare("DELETE FROM customers WHERE tenant_id = ? AND (frontend_id = ? OR id = ? OR search_name = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')) = ?)");
                 $stmtDel->execute([$tenant_id, $cId, $cId, $cName, $cId]);
 
                 echo json_encode([
@@ -671,11 +702,11 @@ try {
                 $stmtCheck->execute([$tenant_id, $sId, $sId, $sId]);
                 $existingId = $stmtCheck->fetchColumn();
                 if ($existingId) {
-                    $stmtUp = $pdo->prepare("UPDATE suppliers SET supplier_id = ?, search_name = ?, search_phone = ?, data = ?, updated_at = NOW() WHERE id = ?");
-                    $stmtUp->execute([$sId, trim((string)$sName), $sPhoneVal, $jsonData, $existingId]);
+                    $stmtUp = $pdo->prepare("UPDATE suppliers SET supplier_id = ?, data = ?, updated_at = NOW() WHERE id = ? AND tenant_id = ?");
+                    $stmtUp->execute([$sId, $jsonData, $existingId, $tenant_id]);
                 } else {
-                    $stmtIns = $pdo->prepare("INSERT INTO suppliers (tenant_id, supplier_id, search_name, search_phone, data) VALUES (?, ?, ?, ?, ?)");
-                    $stmtIns->execute([$tenant_id, $sId, trim((string)$sName), $sPhoneVal, $jsonData]);
+                    $stmtIns = $pdo->prepare("INSERT INTO suppliers (tenant_id, supplier_id, data) VALUES (?, ?, ?)");
+                    $stmtIns->execute([$tenant_id, $sId, $jsonData]);
                 }
             }
             break;
@@ -705,11 +736,11 @@ try {
                     $existingId = $stmtCheck->fetchColumn();
 
                     if ($existingId) {
-                        $stmtUp = $pdo->prepare("UPDATE suppliers SET supplier_id = ?, search_name = ?, search_phone = ?, data = ?, updated_at = NOW() WHERE id = ?");
-                        $stmtUp->execute([$sId, $sNameVal, $sPhoneVal, $jsonData, $existingId]);
+                        $stmtUp = $pdo->prepare("UPDATE suppliers SET supplier_id = ?, data = ?, updated_at = NOW() WHERE id = ? AND tenant_id = ?");
+                        $stmtUp->execute([$sId, $jsonData, $existingId, $tenant_id]);
                     } else {
-                        $stmtIns = $pdo->prepare("INSERT INTO suppliers (tenant_id, supplier_id, search_name, search_phone, data) VALUES (?, ?, ?, ?, ?)");
-                        $stmtIns->execute([$tenant_id, $sId, $sNameVal, $sPhoneVal, $jsonData]);
+                        $stmtIns = $pdo->prepare("INSERT INTO suppliers (tenant_id, supplier_id, data) VALUES (?, ?, ?)");
+                        $stmtIns->execute([$tenant_id, $sId, $jsonData]);
                     }
                 }
             }
@@ -737,7 +768,7 @@ try {
                 }
 
                 // Hard delete from database
-                $stmtDel = $pdo->prepare("DELETE FROM suppliers WHERE (tenant_id = ? OR tenant_id IS NULL) AND (frontend_id = ? OR id = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.name')) = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')) = ?)");
+                $stmtDel = $pdo->prepare("DELETE FROM suppliers WHERE tenant_id = ? AND (frontend_id = ? OR id = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.name')) = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')) = ?)");
                 $stmtDel->execute([$tenant_id, $sId, $sId, $sName, $sId]);
 
                 echo json_encode([
@@ -819,7 +850,7 @@ try {
                 }
 
                 // Hard delete from database
-                $stmtDel = $pdo->prepare("DELETE FROM banks WHERE (tenant_id = ? OR tenant_id IS NULL) AND (frontend_id = ? OR id = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')) = ?)");
+                $stmtDel = $pdo->prepare("DELETE FROM banks WHERE tenant_id = ? AND (frontend_id = ? OR id = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')) = ?)");
                 $stmtDel->execute([$tenant_id, $bId, $bId, $bId]);
 
                 echo json_encode([
@@ -901,7 +932,7 @@ try {
                 }
 
                 // Hard delete from database
-                $stmtDel = $pdo->prepare("DELETE FROM safes WHERE (tenant_id = ? OR tenant_id IS NULL) AND (frontend_id = ? OR id = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')) = ?)");
+                $stmtDel = $pdo->prepare("DELETE FROM safes WHERE tenant_id = ? AND (frontend_id = ? OR id = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')) = ?)");
                 $stmtDel->execute([$tenant_id, $sId, $sId, $sId]);
 
                 echo json_encode([
@@ -933,10 +964,12 @@ try {
                 $rawPass = !empty($data['password']) ? trim($data['password']) : '123456';
                 $hashedPass = password_hash($rawPass, PASSWORD_DEFAULT);
                 $data['deleted'] = 0;
-                $jsonData = json_encode($data, JSON_UNESCAPED_UNICODE);
+                $dataToSave = $data;
+                unset($dataToSave['password']);
+                $jsonData = json_encode($dataToSave, JSON_UNESCAPED_UNICODE);
 
-                $stmtCheck = $pdo->prepare("SELECT id, password FROM users WHERE tenant_id = ? AND (frontend_id = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')) = ?) LIMIT 1");
-                $stmtCheck->execute([$tenant_id, $uId, $uId]);
+                $stmtCheck = $pdo->prepare("SELECT id, password FROM users WHERE tenant_id = ? AND (frontend_id = ? OR id = ? OR LOWER(TRIM(username)) = LOWER(TRIM(?)) OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')) = ?) ORDER BY (LOWER(TRIM(username)) = LOWER(TRIM(?))) DESC, id ASC LIMIT 1");
+                $stmtCheck->execute([$tenant_id, $uId, $uId, $uName, $uId, $uName]);
                 $existingRow = $stmtCheck->fetch(PDO::FETCH_ASSOC);
 
                 if ($existingRow) {
@@ -1037,10 +1070,12 @@ try {
                     $item['deleted'] = !empty($item['deleted']) ? 1 : 0;
                     $rawPass = !empty($item['password']) ? trim($item['password']) : '123456';
                     $hashedPass = password_hash($rawPass, PASSWORD_DEFAULT);
-                    $jsonData = json_encode($item, JSON_UNESCAPED_UNICODE);
+                    $itemToSave = $item;
+                    unset($itemToSave['password']);
+                    $jsonData = json_encode($itemToSave, JSON_UNESCAPED_UNICODE);
 
-                    $stmtCheck = $pdo->prepare("SELECT id, password FROM users WHERE tenant_id = ? AND (frontend_id = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')) = ?) LIMIT 1");
-                    $stmtCheck->execute([$tenant_id, $uId, $uId]);
+                    $stmtCheck = $pdo->prepare("SELECT id, password FROM users WHERE tenant_id = ? AND (frontend_id = ? OR id = ? OR LOWER(TRIM(username)) = LOWER(TRIM(?)) OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')) = ?) ORDER BY (LOWER(TRIM(username)) = LOWER(TRIM(?))) DESC, id ASC LIMIT 1");
+                    $stmtCheck->execute([$tenant_id, $uId, $uId, $uName, $uId, $uName]);
                     $existingRow = $stmtCheck->fetch(PDO::FETCH_ASSOC);
                     if ($existingRow) {
                         if (!empty($item['password'])) {
@@ -1080,15 +1115,20 @@ try {
                     exit;
                 }
 
-                // Remove unit from global settings
-                $stmt = $pdo->prepare("SELECT setting_value FROM global_settings WHERE setting_key = 'erp_global_units_v1'");
-                $stmt->execute();
+                // Remove unit from tenant-scoped settings
+                $tUnitsKey = 'tenant_' . $tenant_id . '_erp_global_units_v1';
+                $stmt = $pdo->prepare("SELECT setting_value FROM global_settings WHERE setting_key IN (?, 'erp_global_units_v1') ORDER BY (setting_key = ?) DESC LIMIT 1");
+                $stmt->execute([$tUnitsKey, $tUnitsKey]);
                 $cur = json_decode($stmt->fetchColumn() ?: '[]', true) ?: [];
                 $newUnits = array_values(array_filter($cur, function($u) use ($unitName) {
                     return trim($u) !== trim($unitName);
                 }));
-                $stmtUp = $pdo->prepare("UPDATE global_settings SET setting_value = ?, updated_at = NOW() WHERE setting_key = 'erp_global_units_v1'");
-                $stmtUp->execute([json_encode($newUnits, JSON_UNESCAPED_UNICODE)]);
+                $newUnitsJson = json_encode($newUnits, JSON_UNESCAPED_UNICODE);
+                $stmtUp = $pdo->prepare("INSERT INTO global_settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value), updated_at = NOW()");
+                $stmtUp->execute([$tUnitsKey, $newUnitsJson]);
+                if ((int)$tenant_id === 12) {
+                    $stmtUp->execute(['erp_global_units_v1', $newUnitsJson]);
+                }
 
                 echo json_encode([
                     'success' => true,
@@ -1123,9 +1163,10 @@ try {
                     exit;
                 }
 
-                // Remove from global settings
-                $stmt = $pdo->prepare("SELECT setting_value FROM global_settings WHERE setting_key = 'erp_cost_centers_v1'");
-                $stmt->execute();
+                // Remove from tenant-scoped settings
+                $tCcKey = 'tenant_' . $tenant_id . '_erp_cost_centers_v1';
+                $stmt = $pdo->prepare("SELECT setting_value FROM global_settings WHERE setting_key IN (?, 'erp_cost_centers_v1') ORDER BY (setting_key = ?) DESC LIMIT 1");
+                $stmt->execute([$tCcKey, $tCcKey]);
                 $cur = json_decode($stmt->fetchColumn() ?: '[]', true) ?: [];
                 $newCC = array_values(array_filter($cur, function($c) use ($ccId, $ccName) {
                     if (is_array($c)) {
@@ -1134,8 +1175,12 @@ try {
                     }
                     return true;
                 }));
-                $stmtUp = $pdo->prepare("UPDATE global_settings SET setting_value = ?, updated_at = NOW() WHERE setting_key = 'erp_cost_centers_v1'");
-                $stmtUp->execute([json_encode($newCC, JSON_UNESCAPED_UNICODE)]);
+                $newCcJson = json_encode($newCC, JSON_UNESCAPED_UNICODE);
+                $stmtUp = $pdo->prepare("INSERT INTO global_settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value), updated_at = NOW()");
+                $stmtUp->execute([$tCcKey, $newCcJson]);
+                if ((int)$tenant_id === 12) {
+                    $stmtUp->execute(['erp_cost_centers_v1', $newCcJson]);
+                }
 
                 echo json_encode([
                     'success' => true,
@@ -1169,15 +1214,20 @@ try {
                     exit;
                 }
 
-                // Remove category from global settings
-                $stmt = $pdo->prepare("SELECT setting_value FROM global_settings WHERE setting_key = 'erp_categories_v1'");
-                $stmt->execute();
+                // Remove category from tenant-scoped settings
+                $tCatsKey = 'tenant_' . $tenant_id . '_erp_categories_v1';
+                $stmt = $pdo->prepare("SELECT setting_value FROM global_settings WHERE setting_key IN (?, 'erp_categories_v1') ORDER BY (setting_key = ?) DESC LIMIT 1");
+                $stmt->execute([$tCatsKey, $tCatsKey]);
                 $cur = json_decode($stmt->fetchColumn() ?: '[]', true) ?: [];
                 $newCats = array_values(array_filter($cur, function($c) use ($catName) {
                     return trim($c) !== trim($catName);
                 }));
-                $stmtUp = $pdo->prepare("UPDATE global_settings SET setting_value = ?, updated_at = NOW() WHERE setting_key = 'erp_categories_v1'");
-                $stmtUp->execute([json_encode($newCats, JSON_UNESCAPED_UNICODE)]);
+                $newCatsJson = json_encode($newCats, JSON_UNESCAPED_UNICODE);
+                $stmtUp = $pdo->prepare("INSERT INTO global_settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value), updated_at = NOW()");
+                $stmtUp->execute([$tCatsKey, $newCatsJson]);
+                if ((int)$tenant_id === 12) {
+                    $stmtUp->execute(['erp_categories_v1', $newCatsJson]);
+                }
 
                 echo json_encode([
                     'success' => true,

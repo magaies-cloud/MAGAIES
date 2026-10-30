@@ -677,14 +677,7 @@ class WhatsAppClient {
 
         // ── QR Code generated ──
         if (qr) {
-            try {
-                this.qrCode = await QRCode.toDataURL(qr, {
-                    width: 300, margin: 2,
-                    color: { dark: '#000000', light: '#ffffff' }
-                });
-            } catch (_) {
-                this.qrCode = 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=' + encodeURIComponent(qr);
-            }
+            this.qrCode = 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=' + encodeURIComponent(qr);
             this._setState('QR_READY');
             this._startQRTimeout();
             return;
@@ -777,7 +770,16 @@ class WhatsAppClient {
     _deleteAuthFolder() {
         try {
             if (fs.existsSync(this.authFolder)) {
-                const trashFolder = this.authFolder + '_trash_' + Date.now();
+                // Immediately invalidate creds.json so session cannot be re-discovered
+                for (const cf of ['creds.json', 'creds.json.bak']) {
+                    const cfPath = path.join(this.authFolder, cf);
+                    if (fs.existsSync(cfPath)) {
+                        try { fs.unlinkSync(cfPath); } catch (_) {
+                            try { fs.writeFileSync(cfPath, ''); } catch (__) {}
+                        }
+                    }
+                }
+                const trashFolder = path.join(path.dirname(this.authFolder), '_trash_baileys_' + this.userId + '_' + Date.now());
                 try {
                     fs.renameSync(this.authFolder, trashFolder);
                     log(this.userId, `Auth folder renamed to trash: ${trashFolder}`);
@@ -2773,9 +2775,10 @@ class WhatsAppClient {
         return result;
     }
 
-    async logout() {
+    async logout(skipAutoInit = false) {
         log(this.userId, 'Logout requested. Clearing session state...');
         this._isDestroying = true;
+        this._isInitializing = false;
         this._clearAllTimers();
         this._setState('DISCONNECTING');
 
@@ -2800,8 +2803,13 @@ class WhatsAppClient {
         this._deleteAuthFolder();
 
         this._isDestroying = false;
+        this._isInitializing = false;
         this.lastInitTime = 0; // Reset cooldown so init can run immediately
         this._setState('IDLE');
+
+        if (skipAutoInit) {
+            return;
+        }
 
         log(this.userId, 'Post-logout: Auto-initializing fresh session for new QR code...');
         return this.init().catch(e => logErr(this.userId, 'post-logout init error:', e.message));
@@ -3206,6 +3214,10 @@ app.get('/wa/status', (req, res) => {
 app.get('/wa/qr', (req, res) => {
     const requestedId = req.query.userId || req.body?.userId;
     const client = manager.findActiveClient(requestedId);
+    if (!client.isConnected && (client.status === 'IDLE' || client.status === 'FAILED' || client.status === 'LOGGED_OUT' || client.status === 'DISCONNECTED')) {
+        client.reconnectAttempts = 0;
+        client.init().catch(e => logErr(client.userId, 'qr auto-init failed:', e.message));
+    }
     res.json({
         userId: client.userId,
         status: client.status,
@@ -3218,12 +3230,8 @@ app.get('/wa/qr', (req, res) => {
 // ── GET /wa/generate-qr ────────────────────────────────────────
 app.get('/wa/generate-qr', async (req, res) => {
     const text = req.query.text || 'VERIFIED';
-    try {
-        const dataUrl = await QRCode.toDataURL(text, { width: 140, margin: 1, color: { dark: '#0f172a', light: '#ffffff' } });
-        res.json({ success: true, dataUrl });
-    } catch (e) {
-        res.json({ success: false, error: e.message });
-    }
+    const dataUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=140x140&data=' + encodeURIComponent(text);
+    res.json({ success: true, dataUrl });
 });
 
 
@@ -3292,11 +3300,25 @@ app.post(['/wa/send', '/wa/send-message', '/send'], upload.any(), async (req, re
 
 // ── POST /wa/logout ────────────────────────────────────────────
 app.post('/wa/logout', async (req, res) => {
-    const userId = req.body?.userId || req.query.userId || 'default';
-    const client = manager.get(userId);
+    const userId = req.body?.userId || req.query.userId || 'default-saas-admin';
+    const isAdminGlobal = (userId === 'default-saas-admin' || userId === 'default');
     try {
-        await client.logout();
-        res.json({ success: true, message: 'Logged out.' });
+        // If logging out the global SaaS admin WhatsApp (or if another client was serving as active fallback),
+        // also disconnect any other connected client so findActiveClient() does not stay CONNECTED on an old session.
+        const activeClient = manager.findActiveClient(userId);
+        if (activeClient && activeClient.userId !== userId) {
+            await activeClient.logout(true).catch(e => logErr(activeClient.userId, 'active fallback logout error:', e.message));
+        }
+        if (isAdminGlobal) {
+            for (const [uid, c] of manager.clients) {
+                if (uid !== userId && (c.isConnected || c.phoneNumber || c.status === 'RECONNECTING' || c.status === 'CONNECTING')) {
+                    await c.logout(true).catch(e => logErr(uid, 'secondary logout error:', e.message));
+                }
+            }
+        }
+        const client = manager.get(userId);
+        await client.logout(false);
+        res.json({ success: true, message: 'Logged out.', userId: client.userId, status: client.status });
     } catch (e) {
         logErr(userId, 'logout error:', e.message);
         res.status(500).json({ success: false, error: e.message });
@@ -3306,8 +3328,8 @@ app.post('/wa/logout', async (req, res) => {
 
 // ── POST /wa/restart ───────────────────────────────────────────
 app.post('/wa/restart', async (req, res) => {
-    const userId = req.body?.userId || req.query.userId || 'default';
-    const client = manager.get(userId);
+    const userId = req.body?.userId || req.query.userId || 'default-saas-admin';
+    const client = manager.findActiveClient(userId);
 
     // Respond immediately — restart happens in background
     res.json({ success: true, message: 'Restarting. Check status in a few seconds.' });
@@ -3586,8 +3608,8 @@ const server = app.listen(PORT, () => {
     log('STARTUP', `📁 Auth: ${AUTH_BASE_DIR}`);
     log('STARTUP', `📦 Node ${process.version} | ${process.platform}/${process.arch}`);
 
-    // Auto-discover and connect any saved WhatsApp sessions on disk (Cloud 24/7 Server only, unless FORCE_LOCAL_WA=1 on Windows)
-    const allowStartupConnect = (process.platform !== 'win32') || (process.env.FORCE_LOCAL_WA === '1');
+    // Auto-discover and connect any saved WhatsApp sessions on disk
+    const allowStartupConnect = true;
     if (!allowStartupConnect) {
         log('STARTUP', '☁️ Running on Windows local laptop — skipping local Baileys auto-connect so 24/7 Cloud Hub (c.elsajana.com) retains exclusive connection.');
     } else {
@@ -3595,7 +3617,7 @@ const server = app.listen(PORT, () => {
         try {
             const authDirs = fs.readdirSync(AUTH_BASE_DIR);
             for (const dir of authDirs) {
-                if (dir.startsWith('baileys_auth_')) {
+                if (dir.startsWith('baileys_auth_') && !dir.includes('_trash_')) {
                     const credsFile = path.join(AUTH_BASE_DIR, dir, 'creds.json');
                     if (fs.existsSync(credsFile) && fs.statSync(credsFile).size > 10) {
                         const uid = dir.replace('baileys_auth_', '');

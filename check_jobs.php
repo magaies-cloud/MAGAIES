@@ -1,5 +1,5 @@
 <?php
-$token = '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';
+$token = getenv('GITHUB_TOKEN') ?: '';
 $runId = 29733154296;
 
 $url = "https://api.github.com/repos/magaies-cloud/MAGAIES/actions/runs/$runId/jobs";

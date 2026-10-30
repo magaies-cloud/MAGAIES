@@ -3,20 +3,12 @@ header('Content-Type: application/json; charset=UTF-8');
 header('Cache-Control: no-cache, no-store, must-revalidate');
 require_once __DIR__ . '/db.php';
 
-$tenant_id = 1;
-$authHeader = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
-$token = str_replace('Bearer ', '', $authHeader);
-if (!empty($token)) {
-    $stmtAuth = $pdo->prepare('SELECT tenant_id FROM users WHERE token = ? LIMIT 1');
-    $stmtAuth->execute([$token]);
-    $t = $stmtAuth->fetchColumn();
-    if ($t) { $tenant_id = (int)$t; }
-}
-
+$tenant_id = resolveCurrentTenantId($pdo);
 $q = isset($_GET['q']) ? trim($_GET['q']) : '';
 
 try {
-    $stmt = $pdo->query('SELECT data FROM items WHERE is_deleted = 0 OR is_deleted IS NULL');
+    $stmt = $pdo->prepare('SELECT data FROM items WHERE tenant_id = ? AND (is_deleted = 0 OR is_deleted IS NULL)');
+    $stmt->execute([$tenant_id]);
     $items = [];
     
     while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {

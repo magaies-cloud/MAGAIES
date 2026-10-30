@@ -28,7 +28,7 @@ try {
         $db_connected = true;
 
         // 1. حساب التمركز الائتماني الفعلي من جدول customers وجلب قائمة العملاء
-        $cust_stmt = $pdo->query("SELECT id, data FROM customers WHERE is_deleted = 0 AND tenant_id = '{\}' OR is_deleted IS NULL");
+        $cust_stmt = $pdo->query("SELECT id, data FROM customers WHERE tenant_id = '{$GLOBAL_TENANT_ID}' AND (is_deleted = 0 OR is_deleted IS NULL)");
         $cust_rows = $cust_stmt->fetchAll(PDO::FETCH_ASSOC);
         
         $grand_total = 0;
@@ -120,7 +120,7 @@ try {
         // 2. بناء دفتر الأستاذ للعميل المختار
         if (!empty($target_customer_id)) {
             // أ. الفواتير (مدين) - جلب جميع الفواتير وتصفيتها بالـ ID المناسب
-            $sales_query = "SELECT date_val, data FROM sales_invoices WHERE is_deleted = 0 AND tenant_id = '{\}'";
+            $sales_query = "SELECT date_val, data FROM sales_invoices WHERE (is_deleted = 0 OR is_deleted IS NULL) AND tenant_id = '{$GLOBAL_TENANT_ID}'";
             $params = [];
             
             if (!empty($date_from)) { 
@@ -153,7 +153,7 @@ try {
             }
             
             // ب. سندات القبض (دائن) - تصفية في PHP لضمان الدقة
-            $receipts_query = "SELECT date_val, data FROM single_receipts WHERE is_deleted = 0 AND tenant_id = '{\}'";
+            $receipts_query = "SELECT date_val, data FROM single_receipts WHERE (is_deleted = 0 OR is_deleted IS NULL) AND tenant_id = '{$GLOBAL_TENANT_ID}'";
             $r_params = [];
             if (!empty($date_from)) { 
                 $receipts_query .= " AND date_val >= :r_date_from"; 

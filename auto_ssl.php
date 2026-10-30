@@ -69,7 +69,7 @@ server {
     listen 443 ssl;
     server_name $domain $wwwDomain;
     root /var/www/magaees;
-    index index.html login.html index.php;
+    index index.php login.php index.html;
 
     ssl_certificate /etc/letsencrypt/live/$domain/fullchain.pem;
     ssl_certificate_key /etc/letsencrypt/live/$domain/privkey.pem;

@@ -23,7 +23,10 @@ if (isset($_GET['logout']) || isset($_GET['login']) || isset($_GET['force_login'
     if (isset($_GET['logout'])) {
         @setcookie('session_active', '', time() - 3600, '/');
         @setcookie('saas_token', '', time() - 3600, '/');
+        @setcookie('authToken', '', time() - 3600, '/');
         @setcookie('mg_device_auth', '', time() - 3600, '/');
+        @setcookie('currentTenantId', '', time() - 3600, '/');
+        @setcookie('currentSubdomain', '', time() - 3600, '/');
     }
     header("Location: login.php{$qs}");
     exit;
@@ -54,29 +57,37 @@ $isLaptopOrPC = !$isMobilePhone && !$isExplicitTablet && (
     (bool)preg_match('/(windows nt|macintosh|x11; linux x86_64|cros)/i', $userAgent)
 );
 
-// 3. فحص حالة المصادقة أو الشبكة المحلية (Localhost / LAN)
-$hasAuthCookie = (!empty($_COOKIE['saas_token']) || !empty($_COOKIE['authToken']) || !empty($_COOKIE['mg_device_auth']) || (!empty($_COOKIE['session_active']) && $_COOKIE['session_active'] === 'true'));
+// 3. فحص حالة المصادقة الفعلية وعنوان الشركة (Subdomain / Tenant)
+$rawTokenCookie = trim((string)($_COOKIE['saas_token'] ?? ($_COOKIE['authToken'] ?? ($_COOKIE['mg_device_auth'] ?? ''))));
+$isRealToken = ($rawTokenCookie !== '' && strpos($rawTokenCookie, 'offline_token_') !== 0 && $rawTokenCookie !== 'local-offline-token');
 
-$isLocalRequest = false;
-$remoteIp = $_SERVER['REMOTE_ADDR'] ?? '';
-$hasProxyHeaders = false;
-foreach (['HTTP_CF_CONNECTING_IP', 'HTTP_X_FORWARDED_FOR', 'HTTP_X_REAL_IP', 'HTTP_FORWARDED', 'HTTP_CF_RAY'] as $h) {
-    if (!empty($_SERVER[$h])) {
-        $hasProxyHeaders = true;
-        break;
+// استخراج عنوان الشركة المطلوب من الرابط أو النطاق الفرعي
+$reqSubdomain = strtolower(trim((string)($_GET['tenant'] ?? $_GET['subdomain'] ?? '')));
+if ($reqSubdomain === '') {
+    $host = strtolower(preg_replace('/:\d+$/', '', $_SERVER['HTTP_HOST'] ?? ''));
+    if ($host !== '' && !preg_match('/^[0-9.]+$/', $host) && $host !== 'localhost') {
+        $parts = explode('.', $host);
+        if (substr($host, -10) === '.localhost' && count($parts) >= 2) {
+            $reqSubdomain = $parts[0];
+        } elseif (count($parts) > 2 && $parts[0] !== 'www') {
+            $reqSubdomain = $parts[0];
+        }
     }
 }
-if (!$hasProxyHeaders && (in_array($remoteIp, ['127.0.0.1', '::1'], true) || preg_match('/^(192\.168\.|10\.|172\.(1[6-9]|2[0-9]|3[0-1])\.)/', $remoteIp))) {
-    $isLocalRequest = true;
-}
 
-$isAuthenticated = $hasAuthCookie || $isLocalRequest;
-if (!$isAuthenticated) {
+$cookieSubdomain = strtolower(trim((string)($_COOKIE['currentSubdomain'] ?? '')));
+$hasTenantSwitch = (!empty($_GET['tenant']) || !empty($_GET['subdomain'])) || ($reqSubdomain !== '' && $cookieSubdomain !== '' && $reqSubdomain !== $cookieSubdomain);
+
+$isAuthenticated = $isRealToken && !$hasTenantSwitch;
+if (!$isAuthenticated && !$hasTenantSwitch) {
     if (session_status() === PHP_SESSION_NONE) {
         @session_start();
     }
     if (!empty($_SESSION['user']['id'])) {
-        $isAuthenticated = true;
+        $sessSub = strtolower(trim((string)($_SESSION['user']['subdomain'] ?? '')));
+        if ($reqSubdomain === '' || $sessSub === '' || $reqSubdomain === $sessSub) {
+            $isAuthenticated = true;
+        }
     }
     if (session_status() === PHP_SESSION_ACTIVE) {
         session_write_close();

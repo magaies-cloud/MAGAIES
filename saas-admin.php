@@ -2096,6 +2096,33 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
             </div>
         </div>
     </div>
+
+    <!-- Centered Professional WhatsApp Unlink Confirmation Modal -->
+    <div id="admin-wa-unlink-confirm-modal" class="modal-overlay" style="z-index: 10050; background: rgba(2, 6, 23, 0.78); backdrop-filter: blur(8px); display: none; align-items: center; justify-content: center; padding: 20px;" onclick="if(event.target===this) closeAdminWaUnlinkConfirm()">
+        <div class="glass-panel modal-content" style="max-width: 420px; width: 100%; text-align: center; padding: 28px 24px; border-radius: 18px; background: linear-gradient(145deg, rgba(30, 41, 59, 0.98), rgba(15, 23, 42, 0.98)); border: 1px solid rgba(239, 68, 68, 0.4); box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.75), 0 0 30px rgba(239, 68, 68, 0.15); animation: modalFadeIn 0.2s ease-out;">
+            <div style="width: 68px; height: 68px; border-radius: 50%; background: rgba(239, 68, 68, 0.14); border: 2px solid rgba(239, 68, 68, 0.4); display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;">
+                <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                    <line x1="12" y1="9" x2="12" y2="13"></line>
+                    <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                </svg>
+            </div>
+            <h3 style="color: #ffffff; font-size: 1.2rem; font-weight: 800; margin: 0 0 10px; line-height: 1.5;">
+                هل ترغب بإلغاء ربط حساب الواتساب الحالي؟
+            </h3>
+            <p style="color: #94a3b8; font-size: 0.92rem; line-height: 1.65; margin: 0 0 24px;">
+                عند الضغط على <strong style="color: #f87171;">موافق</strong> سيتم فصل الرقم الحالي فوراً وإظهار <strong style="color: #25d366;">باركود (QR Code) جديد</strong> لإضافة الرقم الجديد المخصص لإرسال رموز التحقق (<strong>OTP</strong>).
+            </p>
+            <div style="display: flex; gap: 12px; justify-content: center;">
+                <button type="button" id="admin-wa-confirm-yes-btn" onclick="confirmLogoutAdminWhatsApp()" style="flex: 1.2; padding: 12px 18px; background: linear-gradient(135deg, #ef4444, #dc2626); border: none; border-radius: 10px; color: #ffffff; font-weight: 800; font-size: 0.95rem; cursor: pointer; box-shadow: 0 4px 14px rgba(239, 68, 68, 0.35); transition: transform 0.15s, opacity 0.15s;">
+                    نعم، موافق (إلغاء الربط)
+                </button>
+                <button type="button" id="admin-wa-confirm-no-btn" onclick="closeAdminWaUnlinkConfirm()" class="btn-outline" style="flex: 1; padding: 12px 18px; border-radius: 10px; font-weight: 700; font-size: 0.95rem; cursor: pointer;">
+                    إلغاء
+                </button>
+            </div>
+        </div>
+    </div>
     
     <script>
         // Register PWA service worker
@@ -2401,7 +2428,7 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
                         </td>
                         <td style="padding: 12px 15px;">
                             <strong style="font-size: 1.15rem; color:#fff; display:block; margin-bottom: 2px;">${t.company_name || '—'}</strong>
-                            <small style="color:var(--primary-accent); font-weight: 600;">${t.subdomain || '—'}.elsajana.com</small>
+                            <a href="${getCompanyPortalUrl(t.subdomain)}" target="_blank" onclick="event.stopPropagation();" style="color:var(--primary-accent); font-weight: 600; font-size: 0.85rem; text-decoration: none;" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">🌐 ${t.subdomain || '—'}.elsajana.com ↗</a>
                         </td>
                         <td style="padding: 12px 15px;">
                             <span style="font-weight: 600; display:block; margin-bottom: 2px;">${t.owner_name || '-'}</span>
@@ -2707,7 +2734,7 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
                     throw new Error('HTTP error ' + res.status);
                 }
                 
-                if (data.status === 'CONNECTED' || data.status === 'AUTHENTICATED') {
+                if ((data.status === 'CONNECTED' || data.status === 'AUTHENTICATED') && (!window._adminWaForceQrModeUntil || Date.now() > window._adminWaForceQrModeUntil)) {
                     let msg = '✅ متصل بالواتساب بنجاح!';
                     if (data.phoneNumber) {
                         msg += `<br><span style="font-size: 0.95rem; font-weight: normal; color: #94a3b8; display: block; margin-top: 5px;">📞 متصل برقم الواتساب <strong style="color: #38bdf8; font-family: sans-serif;">[${data.phoneNumber}]</strong> بنجاح</span>`;
@@ -2794,17 +2821,18 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
                     throw new Error('HTTP error ' + res.status);
                 }
                 
-                if (data.status === 'CONNECTED' || data.status === 'AUTHENTICATED') {
+                if ((data.status === 'CONNECTED' || data.status === 'AUTHENTICATED') && (!window._adminWaForceQrModeUntil || Date.now() > window._adminWaForceQrModeUntil)) {
                     // Already connected while fetching QR — switch to connected view
                     checkAdminWhatsAppConnection();
                     return;
                 }
                 
                 if (data.qrCode) {
+                    window._adminWaForceQrModeUntil = 0;
                     qrImg.src = data.qrCode;
                     qrImg.style.display = 'block';
                     spinner.style.display = 'none';
-                    statusText.innerText = 'يرجى مسح الرمز أدناه للربط:';
+                    statusText.innerText = '📲 امسح الباركود أدناه لربط الرقم الجديد لإرسال الـ OTP:';
                     statusText.style.color = '#fbbf24';
                     
                     // Check status every 3 seconds for fast response after scanning
@@ -2822,7 +2850,7 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
                             fetchAdminWhatsAppQR();
                         }
                     }, 15000);
-                } else if (data.status === 'RECONNECTING') {
+                } else if (data.status === 'RECONNECTING' && (!window._adminWaForceQrModeUntil || Date.now() > window._adminWaForceQrModeUntil)) {
                     statusText.innerText = '🔄 جاري إعادة الاتصال تلقائياً...';
                     statusText.style.color = '#f59e0b';
                     setTimeout(() => {
@@ -2832,13 +2860,16 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
                         }
                     }, 3000);
                 } else {
-                    statusText.innerText = 'جاري تحضير خادم الواتساب... ⏳';
+                    statusText.innerText = '⏳ جاري توليد باركود الرقم الجديد...';
+                    statusText.style.color = '#fbbf24';
+                    spinner.style.display = 'block';
+                    qrImg.style.display = 'none';
                     setTimeout(() => {
                         const modal = document.getElementById('admin-wa-modal');
                         if (modal && modal.style.display === 'flex') {
                             fetchAdminWhatsAppQR();
                         }
-                    }, 3000);
+                    }, 2000);
                 }
             } catch(e) {
                 statusText.innerText = '❌ فشل جلب رمز الـ QR أو الخدمة غير متوفرة: ' + e.message;
@@ -2849,16 +2880,80 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
             }
         }
 
-        async function logoutAdminWhatsApp() {
-            if (!confirm('هل ترغب بإلغاء ربط حساب الواتساب الحالي؟')) return;
+        function logoutAdminWhatsApp() {
+            const confirmModal = document.getElementById('admin-wa-unlink-confirm-modal');
+            if (confirmModal) {
+                confirmModal.style.display = 'flex';
+            }
+        }
+
+        function closeAdminWaUnlinkConfirm() {
+            const confirmModal = document.getElementById('admin-wa-unlink-confirm-modal');
+            if (confirmModal) {
+                confirmModal.style.display = 'none';
+            }
+        }
+
+        async function confirmLogoutAdminWhatsApp() {
+            closeAdminWaUnlinkConfirm();
+            window._adminWaForceQrModeUntil = Date.now() + 8000;
+
+            const statusText = document.getElementById('admin-wa-status-text');
+            const qrContainer = document.getElementById('admin-wa-qr-container');
+            const qrImg = document.getElementById('admin-wa-qr-image');
+            const spinner = document.getElementById('admin-wa-loading');
+            const successAnim = document.getElementById('admin-wa-success-animation');
+            const instrText = document.getElementById('admin-wa-instruction-text');
+            const logoutBtn = document.getElementById('admin-wa-logout-btn');
+            const refreshBtn = document.getElementById('admin-wa-refresh-btn');
+            const restartBtn = document.getElementById('admin-wa-restart-btn');
+            const closeBtn = document.getElementById('admin-wa-close-btn');
+
+            // Immediately transition UI to QR preparation state
+            if (statusText) {
+                statusText.innerText = '⏳ جاري إلغاء ربط الحساب الحالي وتوليد باركود للرقم الجديد...';
+                statusText.style.color = '#fbbf24';
+            }
+            if (successAnim) successAnim.style.display = 'none';
+            if (qrContainer) qrContainer.style.display = 'inline-block';
+            if (qrImg) {
+                qrImg.style.display = 'none';
+                qrImg.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+            }
+            if (spinner) {
+                spinner.innerText = '⏳ جاري توليد الباركود الجديد...';
+                spinner.style.display = 'block';
+            }
+            if (instrText) instrText.style.display = 'block';
+            if (logoutBtn) logoutBtn.style.display = 'none';
+            if (closeBtn) closeBtn.style.display = 'none';
+            if (refreshBtn) refreshBtn.style.display = 'inline-block';
+            if (restartBtn) restartBtn.style.display = 'inline-block';
+
+            const topWaBtn = document.getElementById('wa-status-btn');
+            if (topWaBtn) {
+                topWaBtn.innerHTML = '⏳ خادم الواتساب: في انتظار ربط رقم جديد (QR)...';
+                topWaBtn.style.color = '#f59e0b';
+                topWaBtn.style.borderColor = '#f59e0b';
+                topWaBtn.style.background = 'rgba(245, 158, 11, 0.1)';
+            }
+
             try {
                 await fetch(apiUrl('saas', 'wa-proxy', 'logout'), { 
                     method: 'POST',
-                    headers: { 'Authorization': 'Bearer ' + SAAS_TOKEN }
+                    headers: { 
+                        'Authorization': 'Bearer ' + SAAS_TOKEN,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ userId: 'default-saas-admin' })
                 });
-                checkAdminWhatsAppConnection();
+                checkWhatsAppStatus();
+                fetchAdminWhatsAppQR();
             } catch(e) {
-                alert('فشل تسجيل الخروج');
+                if (statusText) {
+                    statusText.innerText = '❌ فشل إلغاء الربط: ' + e.message;
+                    statusText.style.color = '#ef4444';
+                }
             }
         }
 
@@ -3401,6 +3496,17 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
             loadTenants(false);
         }
 
+        function getCompanyPortalUrl(subdomain) {
+            const cleanSub = (subdomain || '').trim().toLowerCase();
+            if (!cleanSub) return 'login.php?force_login=1';
+            const host = window.location.hostname;
+            const isLocal = host === 'localhost' || host === '127.0.0.1' || host.startsWith('192.168.') || host.startsWith('10.');
+            if (isLocal) {
+                return `login.php?tenant=${encodeURIComponent(cleanSub)}&force_login=1`;
+            }
+            return `https://${cleanSub}.elsajana.com`;
+        }
+
         function renderTenantsTable() {
             const tbody = document.getElementById('tenants-body');
             tbody.innerHTML = '';
@@ -3458,9 +3564,13 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
                         }
                     }
 
+                    const companyPortalUrl = getCompanyPortalUrl(t.subdomain);
                     tbody.innerHTML += `
                         <tr onclick="openTenantDetails(${t.id})" style="cursor: pointer; transition: background 0.2s; background: ${rowBg};" onmouseover="this.style.background='rgba(255,255,255,0.05)'" onmouseout="this.style.background='${rowBg}'">
-                            <td><strong>${t.company_name || '—'}</strong><br><small style="color:var(--text-secondary)">${t.subdomain || '—'}.elsajana.com</small></td>
+                            <td>
+                                <strong>${t.company_name || '—'}</strong><br>
+                                <a href="${companyPortalUrl}" target="_blank" onclick="event.stopPropagation();" title="فتح صفحة إقلاع وعنوان الشركة" style="color:var(--primary-accent); font-size:0.85rem; text-decoration:none; display:inline-flex; align-items:center; gap:4px; margin-top:2px;" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">🌐 ${t.subdomain || '—'}.elsajana.com ↗</a>
+                            </td>
                             <td><span style="color:var(--primary-accent); font-weight: bold;">${t.admin_username || 'غير متوفر'}</span></td>
                             <td>${t.owner_name || '-'}<br><small>${t.owner_phone || ''}</small>${t.phone2 ? '<br><small>'+t.phone2+'</small>' : ''}</td>
                             <td><span class="badge badge-plan">${plan.name}</span><br><small style="color:var(--text-secondary)">الحد: ${maxUsers} مستخدم</small></td>
@@ -3474,6 +3584,7 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
                                     <div class="dropdown-content">
                                         ${t.status === 'pending' ? `<button onclick="activateTenant(${t.id})" style="color:var(--success-color)">✅ تفعيل الحساب</button>` : ''}
                                         ${t.receipt_path ? `<a href="${t.receipt_path}" target="_blank" style="display:block; padding:8px 12px; color:var(--primary-accent); text-decoration:none;">📄 عرض الإشعار</a>` : ''}
+                                        <a href="${companyPortalUrl}" target="_blank" style="display:block; padding:8px 12px; color:#10b981; text-decoration:none; font-weight:600;">🌐 فتح عنوان الشركة</a>
                                         <button onclick="impersonateTenant(${t.id})" style="color:#0ea5e9">🚀 دخول كمسؤول</button>
                                         <button onclick="openEditModal(${t.id})">⚙️ تعديل الصلاحية والباقة</button>
                                         <button onclick="deleteTenant(${t.id})" style="color:var(--danger-color)">🗑️ حذف</button>
@@ -3506,11 +3617,31 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
                 });
                 const data = await res.json();
                 if (data.success) {
-                    // Set the user object in localStorage so the dashboard knows who is logged in
+                    const targetSub = (data.subdomain || (data.user && data.user.subdomain) || '').trim().toLowerCase();
                     if (data.user) {
                         localStorage.setItem('user', JSON.stringify(data.user));
+                        if (data.user.tenant_id) {
+                            localStorage.setItem('currentTenantId', String(data.user.tenant_id));
+                            document.cookie = 'currentTenantId=' + encodeURIComponent(String(data.user.tenant_id)) + '; path=/; max-age=86400; SameSite=Lax';
+                        }
+                        if (targetSub) {
+                            localStorage.setItem('currentSubdomain', targetSub);
+                            document.cookie = 'currentSubdomain=' + encodeURIComponent(targetSub) + '; path=/; max-age=86400; SameSite=Lax';
+                        }
                     }
-                    newWindow.location.href = 'auto-login.php?token=' + data.impersonate_token;
+                    const host = window.location.hostname;
+                    const isLocal = host === 'localhost' || host === '127.0.0.1' || host.startsWith('192.168.') || host.startsWith('10.');
+                    const qs = new URLSearchParams({
+                        token: data.impersonate_token,
+                        tenant_id: String(tenantId),
+                        subdomain: targetSub,
+                        user: data.user ? JSON.stringify(data.user) : ''
+                    }).toString();
+                    if (!isLocal && targetSub && host.endsWith('elsajana.com')) {
+                        newWindow.location.href = `https://${targetSub}.elsajana.com/auto-login.php?` + qs;
+                    } else {
+                        newWindow.location.href = 'auto-login.php?' + qs;
+                    }
                 } else {
                     newWindow.close();
                     alert(data.error || 'فشل توليد رابط الدخول السريع.');
@@ -3540,12 +3671,14 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
             document.getElementById('users-tenant-select').value = tenantId;
             
             // 1. Populate Header
+            const companyPortalUrl = getCompanyPortalUrl(tenant.subdomain);
             document.getElementById('detail-company-title').innerText = tenant.company_name || 'تفاصيل الشركة';
-            document.getElementById('detail-company-subdomain').innerText = `🌐 ${tenant.subdomain || 'unknown'}.elsajana.com`;
+            document.getElementById('detail-company-subdomain').innerHTML = `<a href="${companyPortalUrl}" target="_blank" style="color:var(--primary-accent); text-decoration:none;" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">🌐 ${tenant.subdomain || 'unknown'}.elsajana.com ↗</a>`;
             
             // Populate Action Bar
             const actionsBar = document.getElementById('detail-actions-bar');
             let actionsHtml = `<button class="btn-primary" onclick="saveInlineTenantDetails(${tenant.id})" style="background: linear-gradient(135deg, #10b981, #059669);">💾 حفظ التعديلات</button>`;
+            actionsHtml += `<a href="${companyPortalUrl}" target="_blank" class="btn-outline" style="border-color:#10b981; color:#10b981; text-decoration:none; display:inline-flex; align-items:center;">🌐 فتح رابط الشركة</a>`;
             
             if (tenant.status === 'pending') {
                 actionsHtml += `<button class="btn-primary" style="background: linear-gradient(135deg, #3b82f6, #2563eb);" onclick="activateTenant(${tenant.id})">✅ تفعيل الحساب</button>`;

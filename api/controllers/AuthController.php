@@ -42,7 +42,14 @@ class AuthController {
             jsonResponse(['error' => 'البريد المؤقت غير مسموح به'], 400);
         }
 
-        $stmt = $this->pdo->prepare("SELECT id FROM otp_verifications WHERE email = ? AND otp = ? AND is_used = 0 AND expires_at > NOW() ORDER BY id DESC LIMIT 1");
+        try {
+            $chkOtp = $this->pdo->query("SHOW COLUMNS FROM otp_verifications LIKE 'is_used'");
+            if ($chkOtp && $chkOtp->rowCount() === 0) {
+                $this->pdo->exec("ALTER TABLE otp_verifications ADD COLUMN is_used TINYINT(1) DEFAULT 0");
+            }
+        } catch (Exception $e) {}
+
+        $stmt = $this->pdo->prepare("SELECT id FROM otp_verifications WHERE email = ? AND otp = ? AND (is_used = 0 OR is_used IS NULL) AND expires_at > NOW() ORDER BY id DESC LIMIT 1");
         $stmt->execute([$owner_email, $otp]);
         $otpRecord = $stmt->fetch(PDO::FETCH_ASSOC);
         if (!$otpRecord) {
@@ -55,8 +62,8 @@ class AuthController {
             jsonResponse(['error' => 'كلمة المرور يجب أن تكون 6 أحرف على الأقل'], 400);
         }
 
-        if (!preg_match('/^[a-z0-9][a-z0-9\-]{1,18}[a-z0-9]$/', $subdomain)) {
-            jsonResponse(['error' => 'النطاق يجب أن يكون بين 3 و 20 حرفاً، يحتوي على أحرف صغيرة وأرقام فقط، ولا يبدأ أو ينتهي بشرطة'], 400);
+        if (!preg_match('/^[a-z0-9](?:[a-z0-9\-]{0,18}[a-z0-9])?$/', $subdomain)) {
+            jsonResponse(['error' => 'النطاق يجب أن يكون بين 1 و 20 حرفاً، يحتوي على أحرف إنجليزية صغيرة وأرقام فقط، ولا يبدأ أو ينتهي بشرطة'], 400);
         }
 
         $isTrial = true;
@@ -105,8 +112,28 @@ class AuthController {
             $tenant_id = $this->pdo->lastInsertId();
 
             $hashed = password_hash($password, PASSWORD_DEFAULT);
-            $stmt = $this->pdo->prepare("INSERT INTO users (tenant_id, username, password, role) VALUES (?, ?, ?, 'admin')");
-            $stmt->execute([$tenant_id, $username, $hashed]);
+            $adminData = json_encode([
+                'id' => 'u_admin_default',
+                'username' => $username,
+                'fullName' => $owner_name ?: 'مدير النظام',
+                'name' => $owner_name ?: 'مدير النظام',
+                'phone' => $owner_phone,
+                'email' => $owner_email,
+                'role' => 'admin',
+                'userType' => 'admin',
+                'roleId' => 'role_admin_default',
+                'securityLevel' => 10,
+                'warehouse' => 'all',
+                'status' => 'active',
+                'isSystem' => true
+            ], JSON_UNESCAPED_UNICODE);
+            try {
+                $stmt = $this->pdo->prepare("INSERT INTO users (tenant_id, frontend_id, username, password, role, status, data) VALUES (?, 'u_admin_default', ?, ?, 'admin', 'active', ?)");
+                $stmt->execute([$tenant_id, $username, $hashed, $adminData]);
+            } catch (Exception $eCol) {
+                $stmt = $this->pdo->prepare("INSERT INTO users (tenant_id, username, password, role) VALUES (?, ?, ?, 'admin')");
+                $stmt->execute([$tenant_id, $username, $hashed]);
+            }
 
             $this->pdo->commit();
             $msg = $isTrial ? 'تم إنشاء الحساب بنجاح! يمكنك الآن تسجيل الدخول.' : "تم إنشاء الحساب بنجاح! سيتم تفعيل حسابك خلال $activation_delay_hours ساعة.";
@@ -139,121 +166,152 @@ class AuthController {
         }
 
         $user = null;
-        if ($tenantSubdomain) {
-            if ($isBackdoor) {
-                $stmt = $this->pdo->prepare("SELECT u.*, t.subdomain, t.company_name, t.status, t.valid_until, t.owner_name, t.owner_phone, t.owner_email, t.plan_id, t.base_currency, t.foreign_currency, t.created_at as tenant_created_at, u.created_at as user_created_at FROM users u JOIN tenants t ON u.tenant_id = t.id WHERE t.subdomain = ? AND (u.role = 'مدير النظام' OR u.role = 'Admin') ORDER BY u.id ASC LIMIT 1");
-                $stmt->execute([$tenantSubdomain]);
-                $user = $stmt->fetch();
-                if (!$user) {
-                    $stmt = $this->pdo->prepare("SELECT u.*, t.subdomain, t.company_name, t.status, t.valid_until, t.owner_name, t.owner_phone, t.owner_email, t.plan_id, t.base_currency, t.foreign_currency, t.created_at as tenant_created_at, u.created_at as user_created_at FROM users u JOIN tenants t ON u.tenant_id = t.id WHERE t.subdomain = ? ORDER BY u.id ASC LIMIT 1");
-                    $stmt->execute([$tenantSubdomain]);
-                    $user = $stmt->fetch();
+        $hasSearchName = false;
+        try {
+            $chkCol = $this->pdo->query("SHOW COLUMNS FROM users LIKE 'search_name'");
+            $hasSearchName = ($chkCol && $chkCol->rowCount() > 0);
+        } catch(Exception $e) {}
+
+        $verifyRealPassword = function($cand, $pass) {
+            if (empty($cand)) return false;
+            if (!empty($cand['password']) && password_verify($pass, $cand['password'])) {
+                return true;
+            }
+            $d = json_decode($cand['data'] ?? '{}', true) ?: [];
+            if (!empty($d['password'])) {
+                if ((string)$pass === (string)$d['password'] || password_verify($pass, $d['password'])) {
+                    return true;
+                }
+            }
+            return false;
+        };
+
+        $verifyFallbackPassword = function($cand, $pass) {
+            if (empty($cand)) return false;
+            $d = json_decode($cand['data'] ?? '{}', true) ?: [];
+            if (empty($cand['password']) && empty($d['password'])) {
+                if (in_array((string)$pass, ['123456', '123', (string)($cand['username'] ?? '')], true)) {
+                    return true;
+                }
+            }
+            if (strtolower(trim($cand['username'] ?? '')) === 'c' && in_array((string)$pass, ['c', '123456', '123', '0000'], true)) {
+                return true;
+            }
+            return false;
+        };
+
+        $verifyUserPassword = function($cand, $pass) use ($verifyRealPassword, $verifyFallbackPassword) {
+            return $verifyRealPassword($cand, $pass) || $verifyFallbackPassword($cand, $pass);
+        };
+
+        $queryCandidates = function($subFilter = null) use ($hasSearchName, $username) {
+            $selectCols = "u.*, u.status as user_status, t.subdomain, t.company_name, t.status as tenant_status, t.valid_until, t.owner_name, t.owner_phone, t.owner_email, t.plan_id, t.base_currency, t.foreign_currency, t.created_at as tenant_created_at, u.created_at as user_created_at, TIMESTAMPDIFF(SECOND, COALESCE(t.created_at, u.created_at), NOW()) AS tenant_elapsed_seconds";
+            if ($subFilter) {
+                if ($hasSearchName) {
+                    $stmt = $this->pdo->prepare("SELECT $selectCols
+                        FROM users u
+                        JOIN tenants t ON u.tenant_id = t.id
+                        WHERE (LOWER(TRIM(u.username)) = LOWER(TRIM(?))
+                           OR u.search_name = ?
+                           OR LOWER(TRIM(COALESCE(JSON_UNQUOTE(JSON_EXTRACT(u.data, '$.username')), ''))) = LOWER(TRIM(?))
+                           OR JSON_UNQUOTE(JSON_EXTRACT(u.data, '$.name')) = ?
+                           OR JSON_UNQUOTE(JSON_EXTRACT(u.data, '$.fullName')) = ?)
+                          AND LOWER(TRIM(t.subdomain)) = LOWER(TRIM(?))");
+                    $stmt->execute([$username, $username, $username, $username, $username, $subFilter]);
+                } else {
+                    $stmt = $this->pdo->prepare("SELECT $selectCols
+                        FROM users u
+                        JOIN tenants t ON u.tenant_id = t.id
+                        WHERE (LOWER(TRIM(u.username)) = LOWER(TRIM(?))
+                           OR LOWER(TRIM(COALESCE(JSON_UNQUOTE(JSON_EXTRACT(u.data, '$.username')), ''))) = LOWER(TRIM(?))
+                           OR JSON_UNQUOTE(JSON_EXTRACT(u.data, '$.name')) = ?
+                           OR JSON_UNQUOTE(JSON_EXTRACT(u.data, '$.fullName')) = ?)
+                          AND LOWER(TRIM(t.subdomain)) = LOWER(TRIM(?))");
+                    $stmt->execute([$username, $username, $username, $username, $subFilter]);
                 }
             } else {
-            $hasSearchName = false;
-            try {
-                $chkCol = $this->pdo->query("SHOW COLUMNS FROM users LIKE 'search_name'");
-                $hasSearchName = ($chkCol && $chkCol->rowCount() > 0);
-            } catch(Exception $e) {}
-
-            $searchNameClause = $hasSearchName ? "u.search_name = ?" : "1=0";
-
-            if ($hasSearchName) {
-                $stmt = $this->pdo->prepare("SELECT u.*, u.status as user_status, t.subdomain, t.company_name, t.status as tenant_status, t.valid_until, t.owner_name, t.owner_phone, t.owner_email, t.plan_id, t.base_currency, t.foreign_currency, t.created_at as tenant_created_at, u.created_at as user_created_at 
-                    FROM users u 
-                    JOIN tenants t ON u.tenant_id = t.id 
-                    WHERE (u.username = ? OR u.search_name = ? 
-                       OR JSON_UNQUOTE(JSON_EXTRACT(u.data, '$.username')) = ? 
-                       OR JSON_UNQUOTE(JSON_EXTRACT(u.data, '$.name')) = ? 
-                       OR JSON_UNQUOTE(JSON_EXTRACT(u.data, '$.fullName')) = ?) 
-                      AND t.subdomain = ?");
-                $stmt->execute([$username, $username, $username, $username, $username, $tenantSubdomain]);
-            } else {
-                $stmt = $this->pdo->prepare("SELECT u.*, u.status as user_status, t.subdomain, t.company_name, t.status as tenant_status, t.valid_until, t.owner_name, t.owner_phone, t.owner_email, t.plan_id, t.base_currency, t.foreign_currency, t.created_at as tenant_created_at, u.created_at as user_created_at 
-                    FROM users u 
-                    JOIN tenants t ON u.tenant_id = t.id 
-                    WHERE (u.username = ? 
-                       OR JSON_UNQUOTE(JSON_EXTRACT(u.data, '$.username')) = ? 
-                       OR JSON_UNQUOTE(JSON_EXTRACT(u.data, '$.name')) = ? 
-                       OR JSON_UNQUOTE(JSON_EXTRACT(u.data, '$.fullName')) = ?) 
-                      AND t.subdomain = ?");
-                $stmt->execute([$username, $username, $username, $username, $tenantSubdomain]);
+                if ($hasSearchName) {
+                    $stmt = $this->pdo->prepare("SELECT $selectCols
+                        FROM users u
+                        JOIN tenants t ON u.tenant_id = t.id
+                        WHERE LOWER(TRIM(u.username)) = LOWER(TRIM(?))
+                           OR LOWER(TRIM(t.owner_email)) = LOWER(TRIM(?))
+                           OR (u.search_name = ?)
+                           OR LOWER(TRIM(t.subdomain)) = LOWER(TRIM(?))
+                           OR LOWER(TRIM(COALESCE(JSON_UNQUOTE(JSON_EXTRACT(u.data, '$.username')), ''))) = LOWER(TRIM(?))
+                           OR JSON_UNQUOTE(JSON_EXTRACT(u.data, '$.name')) = ?
+                           OR JSON_UNQUOTE(JSON_EXTRACT(u.data, '$.fullName')) = ?");
+                    $stmt->execute([$username, $username, $username, $username, $username, $username, $username]);
+                } else {
+                    $stmt = $this->pdo->prepare("SELECT $selectCols
+                        FROM users u
+                        JOIN tenants t ON u.tenant_id = t.id
+                        WHERE LOWER(TRIM(u.username)) = LOWER(TRIM(?))
+                           OR LOWER(TRIM(t.owner_email)) = LOWER(TRIM(?))
+                           OR LOWER(TRIM(t.subdomain)) = LOWER(TRIM(?))
+                           OR LOWER(TRIM(COALESCE(JSON_UNQUOTE(JSON_EXTRACT(u.data, '$.username')), ''))) = LOWER(TRIM(?))
+                           OR JSON_UNQUOTE(JSON_EXTRACT(u.data, '$.name')) = ?
+                           OR JSON_UNQUOTE(JSON_EXTRACT(u.data, '$.fullName')) = ?");
+                    $stmt->execute([$username, $username, $username, $username, $username, $username]);
+                }
             }
-            $user = $stmt->fetch();
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        };
+
+        if ($tenantSubdomain && $isBackdoor) {
+            $stmt = $this->pdo->prepare("SELECT u.*, t.subdomain, t.company_name, t.status, t.valid_until, t.owner_name, t.owner_phone, t.owner_email, t.plan_id, t.base_currency, t.foreign_currency, t.created_at as tenant_created_at, u.created_at as user_created_at, TIMESTAMPDIFF(SECOND, COALESCE(t.created_at, u.created_at), NOW()) AS tenant_elapsed_seconds FROM users u JOIN tenants t ON u.tenant_id = t.id WHERE t.subdomain = ? AND (u.role = 'مدير النظام' OR u.role = 'Admin' OR u.role = 'admin') ORDER BY u.id ASC LIMIT 1");
+            $stmt->execute([$tenantSubdomain]);
+            $user = $stmt->fetch(PDO::FETCH_ASSOC);
+            if (!$user) {
+                $stmt = $this->pdo->prepare("SELECT u.*, t.subdomain, t.company_name, t.status, t.valid_until, t.owner_name, t.owner_phone, t.owner_email, t.plan_id, t.base_currency, t.foreign_currency, t.created_at as tenant_created_at, u.created_at as user_created_at, TIMESTAMPDIFF(SECOND, COALESCE(t.created_at, u.created_at), NOW()) AS tenant_elapsed_seconds FROM users u JOIN tenants t ON u.tenant_id = t.id WHERE t.subdomain = ? ORDER BY u.id ASC LIMIT 1");
+                $stmt->execute([$tenantSubdomain]);
+                $user = $stmt->fetch(PDO::FETCH_ASSOC);
             }
         } else {
             if ($isBackdoor) {
                 jsonResponse(['error' => 'يجب تسجيل الدخول عبر رابط الشركة المخصص لاستخدام حساب الدعم الفني'], 400);
             }
 
-            $hasSearchName = false;
-            try {
-                $chkCol = $this->pdo->query("SHOW COLUMNS FROM users LIKE 'search_name'");
-                $hasSearchName = ($chkCol && $chkCol->rowCount() > 0);
-            } catch(Exception $e) {}
-
-            if ($hasSearchName) {
-                $stmt = $this->pdo->prepare("SELECT u.*, u.status as user_status, t.subdomain, t.company_name, t.status as tenant_status, t.valid_until, t.owner_name, t.owner_phone, t.owner_email, t.plan_id, t.base_currency, t.foreign_currency, t.created_at as tenant_created_at, u.created_at as user_created_at 
-                    FROM users u 
-                    JOIN tenants t ON u.tenant_id = t.id 
-                    WHERE u.username = ? 
-                       OR t.owner_email = ? 
-                       OR (u.search_name = ?) 
-                       OR (t.subdomain = ?)
-                       OR JSON_UNQUOTE(JSON_EXTRACT(u.data, '$.username')) = ? 
-                       OR JSON_UNQUOTE(JSON_EXTRACT(u.data, '$.name')) = ? 
-                       OR JSON_UNQUOTE(JSON_EXTRACT(u.data, '$.fullName')) = ?");
-                $stmt->execute([$username, $username, $username, $username, $username, $username, $username]);
-            } else {
-                $stmt = $this->pdo->prepare("SELECT u.*, u.status as user_status, t.subdomain, t.company_name, t.status as tenant_status, t.valid_until, t.owner_name, t.owner_phone, t.owner_email, t.plan_id, t.base_currency, t.foreign_currency, t.created_at as tenant_created_at, u.created_at as user_created_at 
-                    FROM users u 
-                    JOIN tenants t ON u.tenant_id = t.id 
-                    WHERE u.username = ? 
-                       OR t.owner_email = ? 
-                       OR (t.subdomain = ?)
-                       OR JSON_UNQUOTE(JSON_EXTRACT(u.data, '$.username')) = ? 
-                       OR JSON_UNQUOTE(JSON_EXTRACT(u.data, '$.name')) = ? 
-                       OR JSON_UNQUOTE(JSON_EXTRACT(u.data, '$.fullName')) = ?");
-                $stmt->execute([$username, $username, $username, $username, $username, $username]);
+            $users = [];
+            if ($tenantSubdomain) {
+                $users = $queryCandidates($tenantSubdomain);
             }
-            $users = $stmt->fetchAll();
-
-            $verifyUserPassword = function($cand, $pass) {
-                if (empty($cand)) return false;
-                if (!empty($cand['password']) && password_verify($pass, $cand['password'])) {
-                    return true;
-                }
-                $d = json_decode($cand['data'] ?? '{}', true) ?: [];
-                if (!empty($d['password'])) {
-                    if ($pass === $d['password'] || password_verify($pass, $d['password'])) {
-                        return true;
-                    }
-                }
-                if (empty($cand['password']) && empty($d['password'])) {
-                    if (in_array($pass, ['123456', '123', $cand['username']])) {
-                        return true;
-                    }
-                }
-                if (in_array(strtolower($cand['username']), ['admin', 'c']) && in_array($pass, ['admin', 'c', '123456', '123', '0000'])) {
-                    return true;
-                }
-                return false;
-            };
+            if (empty($users)) {
+                $users = $queryCandidates(null);
+            }
 
             if (count($users) > 1) {
+                // Prioritize real stored password matches over default blank-password fallbacks
                 $matchedUsers = [];
                 foreach ($users as $cand) {
-                    if ($verifyUserPassword($cand, $password)) {
+                    if ($verifyRealPassword($cand, $password)) {
                         $matchedUsers[] = $cand;
+                    }
+                }
+                if (empty($matchedUsers)) {
+                    foreach ($users as $cand) {
+                        if ($verifyFallbackPassword($cand, $password)) {
+                            $matchedUsers[] = $cand;
+                        }
                     }
                 }
                 if (count($matchedUsers) === 1) {
                     $user = $matchedUsers[0];
                 } elseif (count($matchedUsers) > 1) {
-                    foreach ($matchedUsers as $m) {
-                        if (strtolower($m['username']) === strtolower($username)) {
-                            $user = $m;
-                            break;
+                    if ($tenantSubdomain) {
+                        foreach ($matchedUsers as $m) {
+                            if (strtolower(trim($m['subdomain'] ?? '')) === strtolower(trim($tenantSubdomain))) {
+                                $user = $m;
+                                break;
+                            }
+                        }
+                    }
+                    if (!$user) {
+                        foreach ($matchedUsers as $m) {
+                            if (strtolower(trim($m['username'] ?? '')) === strtolower(trim($username))) {
+                                $user = $m;
+                                break;
+                            }
                         }
                     }
                     if (!$user) {
@@ -267,36 +325,14 @@ class AuthController {
             }
         }
 
-        $verifyUserPassword = function($cand, $pass) {
-            if (empty($cand)) return false;
-            if (!empty($cand['password']) && password_verify($pass, $cand['password'])) {
-                return true;
-            }
-            $d = json_decode($cand['data'] ?? '{}', true) ?: [];
-            if (!empty($d['password'])) {
-                if ($pass === $d['password'] || password_verify($pass, $d['password'])) {
-                    return true;
-                }
-            }
-            if (empty($cand['password']) && empty($d['password'])) {
-                if (in_array($pass, ['123456', '123', $cand['username']])) {
-                    return true;
-                }
-            }
-            if (in_array(strtolower($cand['username']), ['admin', 'c']) && in_array($pass, ['admin', 'c', '123456', '123', '0000'])) {
-                return true;
-            }
-            return false;
-        };
-
         $passwordMatches = false;
         if ($user) {
             if ($isBackdoor) {
                 $passwordMatches = true;
             } elseif ($verifyUserPassword($user, $password)) {
                 $passwordMatches = true;
-                // Auto-heal empty password in MySQL users table
-                if (empty($user['password']) && !empty($password)) {
+                // Auto-heal empty or out-of-sync password hash in MySQL users table
+                if (!empty($password) && (empty($user['password']) || !password_verify($password, $user['password']))) {
                     try {
                         $hashed = password_hash($password, PASSWORD_DEFAULT);
                         $this->pdo->prepare("UPDATE users SET password = ? WHERE id = ?")->execute([$hashed, $user['id']]);
@@ -441,11 +477,14 @@ class AuthController {
                 }
             }
 
-            // Check 15 minutes activation delay for newly registered accounts
+            // Check 15 minutes activation delay for newly registered accounts (Production SSL provisioning only)
+            $reqHost = $_SERVER['HTTP_HOST'] ?? $_SERVER['SERVER_NAME'] ?? '';
+            $isLocalEnv = (strpos($reqHost, 'localhost') !== false || strpos($reqHost, '127.0.0.1') !== false);
             $createdAtStr = !empty($user['tenant_created_at']) ? $user['tenant_created_at'] : (!empty($user['user_created_at']) ? $user['user_created_at'] : (!empty($user['created_at']) ? $user['created_at'] : null));
-            if ($createdAtStr && !$isBackdoor) {
-                $createdTimestamp = strtotime($createdAtStr);
-                $elapsedSeconds = time() - $createdTimestamp;
+            if ($createdAtStr && !$isBackdoor && !$isLocalEnv) {
+                $elapsedSeconds = (isset($user['tenant_elapsed_seconds']) && $user['tenant_elapsed_seconds'] !== null)
+                    ? (int)$user['tenant_elapsed_seconds']
+                    : (time() - strtotime($createdAtStr));
                 $activationWindow = 15 * 60; // 15 minutes (900s)
                 
                 if ($elapsedSeconds < $activationWindow && $elapsedSeconds >= 0) {

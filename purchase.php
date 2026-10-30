@@ -8,18 +8,26 @@ try {
     if (file_exists(__DIR__ . '/db_bridge.php')) require_once __DIR__ . '/db_bridge.php';
     $systemUsdRate = function_exists('getSystemUsdExchangeRate') ? getSystemUsdExchangeRate($pdo ?? null) : 5999.0;
     if (isset($pdo)) {
-        $stmt = $pdo->prepare("SELECT setting_value FROM global_settings WHERE setting_key = 'grid_config_purchase_grid'");
+        if (function_exists('getDBConnection')) { $pdo = getDBConnection(); }
+        $activePurchaseTenantId = function_exists('resolveCurrentTenantId') ? resolveCurrentTenantId($pdo ?? null) : (!empty($GLOBAL_TENANT_ID) ? (int)$GLOBAL_TENANT_ID : 1);
+        $tGridKey = 'tenant_' . $activePurchaseTenantId . '_grid_config_purchase_grid';
+        $stmt = $pdo->prepare("SELECT setting_value FROM global_settings WHERE setting_key IN (" . $pdo->quote($tGridKey) . ", 'grid_config_purchase_grid') ORDER BY (setting_key = " . $pdo->quote($tGridKey) . ") DESC LIMIT 1");
         $stmt->execute();
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
         if ($row && !empty($row['setting_value'])) {
             $db_purchase_grid_config = json_decode($row['setting_value'], true);
         }
 
-        $stmtUnits = $pdo->query("SELECT setting_value FROM global_settings WHERE setting_key = 'erp_global_units_v1'");
+        if (function_exists('getDBConnection')) { $pdo = getDBConnection(); }
+        $activePurchaseTenantId = function_exists('resolveCurrentTenantId') ? resolveCurrentTenantId($pdo ?? null) : (!empty($GLOBAL_TENANT_ID) ? (int)$GLOBAL_TENANT_ID : 1);
+        $tUnitsKey = 'tenant_' . $activePurchaseTenantId . '_erp_global_units_v1';
+        $stmtUnits = $pdo->prepare("SELECT setting_value FROM global_settings WHERE setting_key IN (?, 'erp_global_units_v1') ORDER BY (setting_key = ?) DESC LIMIT 1");
+        $stmtUnits->execute([$tUnitsKey, $tUnitsKey]);
         $uVal = $stmtUnits ? $stmtUnits->fetchColumn() : null;
         if ($uVal) $preloadedUnitsJson = $uVal;
 
-        $stmtItems = $pdo->query("SELECT data FROM items WHERE is_deleted = 0 OR is_deleted IS NULL");
+        $stmtItems = $pdo->prepare("SELECT data FROM items WHERE tenant_id = ? AND (is_deleted = 0 OR is_deleted IS NULL)");
+        $stmtItems->execute([$activePurchaseTenantId ?? 1]);
         $pItems = [];
         while ($r = $stmtItems->fetch(PDO::FETCH_ASSOC)) {
             if (!empty($r['data'])) {

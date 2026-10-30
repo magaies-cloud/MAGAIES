@@ -2,7 +2,7 @@
 header('Content-Type: application/json; charset=utf-8');
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type');
+header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Tenant-Id');
 header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
@@ -18,6 +18,13 @@ if (!is_dir($bridgeDir)) {
 $channel = preg_replace('/[^a-zA-Z0-9_-]/', '', $_REQUEST['channel'] ?? 'default_gate');
 if ($channel === '') {
     $channel = 'default_gate';
+}
+// Scope default_gate by tenant so different companies never share the default QR scanner bridge file
+if ($channel === 'default_gate') {
+    $bridgeTid = (int)($_REQUEST['tenant_id'] ?? $_SERVER['HTTP_X_TENANT_ID'] ?? $_COOKIE['currentTenantId'] ?? $_COOKIE['mg_tenant_id'] ?? 0);
+    if ($bridgeTid > 0) {
+        $channel = 'tenant_' . $bridgeTid . '_default_gate';
+    }
 }
 $stateFile = $bridgeDir . '/bridge_' . $channel . '.json';
 

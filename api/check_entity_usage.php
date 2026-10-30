@@ -3,6 +3,8 @@ require_once __DIR__ . '/db.php';
 
 if (!function_exists('checkEntityUsageInDatabase')) {
     function checkEntityUsageInDatabase($pdo, $tenant_id, $entityType, $entityId, $entityName = '', $extraData = []) {
+        $tenant_id = (int)($tenant_id ?: resolveCurrentTenantId($pdo));
+        $tSql = "tenant_id = " . $tenant_id . " AND ";
         $usages = [];
 
         // Prepare matching terms
@@ -16,7 +18,7 @@ if (!function_exists('checkEntityUsageInDatabase')) {
 
         // Entity-specific term gathering from DB tables
         if ($entityType === 'warehouse') {
-            $stmt = $pdo->prepare("SELECT id, frontend_id, data FROM warehouses WHERE (frontend_id = ? OR id = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')) = ?) LIMIT 1");
+            $stmt = $pdo->prepare("SELECT id, frontend_id, data FROM warehouses WHERE $tSql (frontend_id = ? OR id = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')) = ?) LIMIT 1");
             $stmt->execute([$entityId, $entityId, $entityId]);
             if ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
                 if (!empty($row['id'])) $idsToMatch[] = (string)$row['id'];
@@ -28,7 +30,7 @@ if (!function_exists('checkEntityUsageInDatabase')) {
                 }
             }
         } else if ($entityType === 'customer') {
-            $stmt = $pdo->prepare("SELECT id, frontend_id, search_name, search_phone, data FROM customers WHERE (frontend_id = ? OR id = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')) = ?) LIMIT 1");
+            $stmt = $pdo->prepare("SELECT id, frontend_id, search_name, search_phone, data FROM customers WHERE $tSql (frontend_id = ? OR id = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')) = ?) LIMIT 1");
             $stmt->execute([$entityId, $entityId, $entityId]);
             if ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
                 if (!empty($row['id'])) $idsToMatch[] = (string)$row['id'];
@@ -42,7 +44,7 @@ if (!function_exists('checkEntityUsageInDatabase')) {
                 }
             }
         } else if ($entityType === 'supplier') {
-            $stmt = $pdo->prepare("SELECT id, frontend_id, supplier_id, data FROM suppliers WHERE (frontend_id = ? OR id = ? OR supplier_id = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')) = ?) LIMIT 1");
+            $stmt = $pdo->prepare("SELECT id, frontend_id, supplier_id, data FROM suppliers WHERE $tSql (frontend_id = ? OR id = ? OR supplier_id = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')) = ?) LIMIT 1");
             $stmt->execute([$entityId, $entityId, $entityId, $entityId]);
             if ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
                 if (!empty($row['id'])) $idsToMatch[] = (string)$row['id'];
@@ -56,7 +58,7 @@ if (!function_exists('checkEntityUsageInDatabase')) {
                 }
             }
         } else if ($entityType === 'bank') {
-            $stmt = $pdo->prepare("SELECT id, frontend_id, data FROM banks WHERE (frontend_id = ? OR id = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')) = ?) LIMIT 1");
+            $stmt = $pdo->prepare("SELECT id, frontend_id, data FROM banks WHERE $tSql (frontend_id = ? OR id = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')) = ?) LIMIT 1");
             $stmt->execute([$entityId, $entityId, $entityId]);
             if ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
                 if (!empty($row['id'])) $idsToMatch[] = (string)$row['id'];
@@ -70,7 +72,7 @@ if (!function_exists('checkEntityUsageInDatabase')) {
                 }
             }
         } else if ($entityType === 'safe') {
-            $stmt = $pdo->prepare("SELECT id, frontend_id, data FROM safes WHERE (frontend_id = ? OR id = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')) = ?) LIMIT 1");
+            $stmt = $pdo->prepare("SELECT id, frontend_id, data FROM safes WHERE $tSql (frontend_id = ? OR id = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')) = ?) LIMIT 1");
             $stmt->execute([$entityId, $entityId, $entityId]);
             if ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
                 if (!empty($row['id'])) $idsToMatch[] = (string)$row['id'];
@@ -83,7 +85,7 @@ if (!function_exists('checkEntityUsageInDatabase')) {
                 }
             }
         } else if ($entityType === 'employee' || $entityType === 'user') {
-            $stmt = $pdo->prepare("SELECT id, frontend_id, username, data FROM users WHERE (frontend_id = ? OR id = ? OR username = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')) = ?) LIMIT 1");
+            $stmt = $pdo->prepare("SELECT id, frontend_id, username, data FROM users WHERE $tSql (frontend_id = ? OR id = ? OR username = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')) = ?) LIMIT 1");
             $stmt->execute([$entityId, $entityId, $entityId, $entityId]);
             if ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
                 if (!empty($row['id'])) $idsToMatch[] = (string)$row['id'];
@@ -96,7 +98,7 @@ if (!function_exists('checkEntityUsageInDatabase')) {
                 }
             }
         } else if ($entityType === 'item') {
-            $stmt = $pdo->prepare("SELECT id, frontend_id, search_name, search_barcode, data FROM items WHERE (frontend_id = ? OR id = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')) = ?) LIMIT 1");
+            $stmt = $pdo->prepare("SELECT id, frontend_id, search_name, search_barcode, data FROM items WHERE $tSql (frontend_id = ? OR id = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')) = ?) LIMIT 1");
             $stmt->execute([$entityId, $entityId, $entityId]);
             if ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
                 if (!empty($row['id'])) $idsToMatch[] = (string)$row['id'];
@@ -141,7 +143,7 @@ if (!function_exists('checkEntityUsageInDatabase')) {
         };
 
         // 1. Check Sales Invoices (sales_invoices)
-        $sStmt = $pdo->query("SELECT id, invoice_no, date_val, data FROM sales_invoices WHERE data IS NOT NULL AND (is_deleted = 0 OR is_deleted IS NULL)");
+        $sStmt = $pdo->query("SELECT id, invoice_no, date_val, data FROM sales_invoices WHERE $tSql data IS NOT NULL AND (is_deleted = 0 OR is_deleted IS NULL)");
         while ($row = $sStmt->fetch(PDO::FETCH_ASSOC)) {
             $inv = json_decode($row['data'], true);
             if (!$inv) continue;
@@ -208,7 +210,7 @@ if (!function_exists('checkEntityUsageInDatabase')) {
         }
 
         // 2. Check Purchase Invoices (purchase_invoices)
-        $pStmt = $pdo->query("SELECT id, invoice_no, date_val, data FROM purchase_invoices WHERE data IS NOT NULL AND (is_deleted = 0 OR is_deleted IS NULL)");
+        $pStmt = $pdo->query("SELECT id, invoice_no, date_val, data FROM purchase_invoices WHERE $tSql data IS NOT NULL AND (is_deleted = 0 OR is_deleted IS NULL)");
         while ($row = $pStmt->fetch(PDO::FETCH_ASSOC)) {
             $inv = json_decode($row['data'], true);
             if (!$inv) continue;
@@ -271,7 +273,7 @@ if (!function_exists('checkEntityUsageInDatabase')) {
         }
 
         // 3. Check Direct Purchases (direct_purchases)
-        $dpStmt = $pdo->query("SELECT id, invoice_no, date_val, data FROM direct_purchases WHERE data IS NOT NULL");
+        $dpStmt = $pdo->query("SELECT id, invoice_no, date_val, data FROM direct_purchases WHERE $tSql data IS NOT NULL");
         while ($row = $dpStmt->fetch(PDO::FETCH_ASSOC)) {
             $inv = json_decode($row['data'], true);
             if (!$inv) continue;
@@ -298,7 +300,7 @@ if (!function_exists('checkEntityUsageInDatabase')) {
         }
 
         // 4. Check Single Payments & Payments (سندات الصرف والمدفوعات)
-        $spStmt = $pdo->query("SELECT id, date_val, data FROM single_payments WHERE data IS NOT NULL AND (is_deleted = 0 OR is_deleted IS NULL)");
+        $spStmt = $pdo->query("SELECT id, date_val, data FROM single_payments WHERE $tSql data IS NOT NULL AND (is_deleted = 0 OR is_deleted IS NULL)");
         while ($row = $spStmt->fetch(PDO::FETCH_ASSOC)) {
             $pay = json_decode($row['data'], true);
             if (!$pay) continue;
@@ -326,7 +328,7 @@ if (!function_exists('checkEntityUsageInDatabase')) {
             }
         }
 
-        $pPayStmt = $pdo->query("SELECT id, date_val, data FROM payments WHERE data IS NOT NULL AND (is_deleted = 0 OR is_deleted IS NULL)");
+        $pPayStmt = $pdo->query("SELECT id, date_val, data FROM payments WHERE $tSql data IS NOT NULL AND (is_deleted = 0 OR is_deleted IS NULL)");
         while ($row = $pPayStmt->fetch(PDO::FETCH_ASSOC)) {
             $pay = json_decode($row['data'], true);
             if (!$pay) continue;
@@ -355,7 +357,7 @@ if (!function_exists('checkEntityUsageInDatabase')) {
         }
 
         // 5. Check Single Receipts & Receipts (سندات القبض والمقبوضات)
-        $srStmt = $pdo->query("SELECT id, date_val, data FROM single_receipts WHERE data IS NOT NULL AND (is_deleted = 0 OR is_deleted IS NULL)");
+        $srStmt = $pdo->query("SELECT id, date_val, data FROM single_receipts WHERE $tSql data IS NOT NULL AND (is_deleted = 0 OR is_deleted IS NULL)");
         while ($row = $srStmt->fetch(PDO::FETCH_ASSOC)) {
             $rec = json_decode($row['data'], true);
             if (!$rec) continue;
@@ -383,7 +385,7 @@ if (!function_exists('checkEntityUsageInDatabase')) {
             }
         }
 
-        $rRecStmt = $pdo->query("SELECT id, date_val, data FROM receipts WHERE data IS NOT NULL AND (is_deleted = 0 OR is_deleted IS NULL)");
+        $rRecStmt = $pdo->query("SELECT id, date_val, data FROM receipts WHERE $tSql data IS NOT NULL AND (is_deleted = 0 OR is_deleted IS NULL)");
         while ($row = $rRecStmt->fetch(PDO::FETCH_ASSOC)) {
             $rec = json_decode($row['data'], true);
             if (!$rec) continue;
@@ -412,7 +414,7 @@ if (!function_exists('checkEntityUsageInDatabase')) {
         }
 
         // 6. Check Delivery Notes (delivery_notes)
-        $dnStmt = $pdo->query("SELECT id, frontend_id, data FROM delivery_notes WHERE data IS NOT NULL AND (is_deleted = 0 OR is_deleted IS NULL)");
+        $dnStmt = $pdo->query("SELECT id, frontend_id, data FROM delivery_notes WHERE $tSql data IS NOT NULL AND (is_deleted = 0 OR is_deleted IS NULL)");
         while ($row = $dnStmt->fetch(PDO::FETCH_ASSOC)) {
             $dn = json_decode($row['data'], true);
             if (!$dn) continue;
@@ -445,7 +447,7 @@ if (!function_exists('checkEntityUsageInDatabase')) {
         }
 
         // 7. Check Reserved Sales (reserved_sales)
-        $rsStmt = $pdo->query("SELECT id, frontend_id, data FROM reserved_sales WHERE data IS NOT NULL AND (is_deleted = 0 OR is_deleted IS NULL)");
+        $rsStmt = $pdo->query("SELECT id, frontend_id, data FROM reserved_sales WHERE $tSql data IS NOT NULL AND (is_deleted = 0 OR is_deleted IS NULL)");
         while ($row = $rsStmt->fetch(PDO::FETCH_ASSOC)) {
             $rs = json_decode($row['data'], true);
             if (!$rs) continue;
@@ -472,7 +474,7 @@ if (!function_exists('checkEntityUsageInDatabase')) {
         }
 
         // 8. Check Inventory Records (inventory)
-        $inStmt = $pdo->query("SELECT id, frontend_id, data FROM inventory WHERE data IS NOT NULL AND (is_deleted = 0 OR is_deleted IS NULL)");
+        $inStmt = $pdo->query("SELECT id, frontend_id, data FROM inventory WHERE $tSql data IS NOT NULL AND (is_deleted = 0 OR is_deleted IS NULL)");
         while ($row = $inStmt->fetch(PDO::FETCH_ASSOC)) {
             $inv = json_decode($row['data'], true);
             if (!$inv) continue;
@@ -502,7 +504,7 @@ if (!function_exists('checkEntityUsageInDatabase')) {
 
         // 9. Check Items table for Unit & Category usage
         if ($entityType === 'unit') {
-            $stmtItems = $pdo->query("SELECT id, search_name, data FROM items WHERE is_deleted = 0 OR is_deleted IS NULL");
+            $stmtItems = $pdo->query("SELECT id, search_name, data FROM items WHERE $tSql (is_deleted = 0 OR is_deleted IS NULL)");
             while ($row = $stmtItems->fetch(PDO::FETCH_ASSOC)) {
                 $itemData = json_decode($row['data'], true);
                 if (!$itemData) continue;
@@ -531,7 +533,7 @@ if (!function_exists('checkEntityUsageInDatabase')) {
                 }
             }
         } else if ($entityType === 'category') {
-            $stmtItems = $pdo->query("SELECT id, search_name, category_val, data FROM items WHERE is_deleted = 0 OR is_deleted IS NULL");
+            $stmtItems = $pdo->query("SELECT id, search_name, category_val, data FROM items WHERE $tSql (is_deleted = 0 OR is_deleted IS NULL)");
             while ($row = $stmtItems->fetch(PDO::FETCH_ASSOC)) {
                 $itemData = json_decode($row['data'], true);
                 $itName = $row['search_name'] ?: ($itemData['name'] ?? 'صنف');
@@ -548,7 +550,7 @@ if (!function_exists('checkEntityUsageInDatabase')) {
         }
 
         // 10. Check Journal Vouchers & GL Entries
-        $jvStmt = $pdo->query("SELECT id, frontend_id, date_val, data FROM journal_vouchers WHERE data IS NOT NULL AND (is_deleted = 0 OR is_deleted IS NULL)");
+        $jvStmt = $pdo->query("SELECT id, frontend_id, date_val, data FROM journal_vouchers WHERE $tSql data IS NOT NULL AND (is_deleted = 0 OR is_deleted IS NULL)");
         while ($row = $jvStmt->fetch(PDO::FETCH_ASSOC)) {
             $jv = json_decode($row['data'], true);
             if (!$jv) continue;
@@ -622,6 +624,7 @@ if (basename($_SERVER['SCRIPT_FILENAME'] ?? '') === 'check_entity_usage.php') {
     }
 
     $input = json_decode(file_get_contents('php://input'), true) ?: $_GET;
+    $tenant_id = resolveCurrentTenantId($pdo, is_array($input) ? $input : null);
 
     $entityType = $input['entity_type'] ?? $input['type'] ?? 'item';
     $entityId = $input['id'] ?? $input['item_id'] ?? $input['entity_id'] ?? null;

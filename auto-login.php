@@ -25,7 +25,9 @@ header("Pragma: no-cache");
         (function() {
             const params = new URLSearchParams(window.location.search);
             const token = params.get('token');
-            const subdomain = params.get('subdomain') || '';
+            const subdomain = (params.get('subdomain') || '').trim().toLowerCase();
+            const tenantId = params.get('tenant_id') || '';
+            const rawUser = params.get('user');
             
             if (!token) {
                 alert('خطأ: لم يتم توفير رمز الدخول.');
@@ -33,12 +35,51 @@ header("Pragma: no-cache");
                 return;
             }
             
+            // Clear any previous tenant cached data if switching companies
+            const prevTenantId = localStorage.getItem('currentTenantId');
+            if (tenantId && prevTenantId && String(prevTenantId) !== String(tenantId)) {
+                const keysToKeep = ['saas_admin_token', 'device_uuid', 'theme', 'ui_lang'];
+                const saved = {};
+                keysToKeep.forEach(k => {
+                    const v = localStorage.getItem(k);
+                    if (v !== null) saved[k] = v;
+                });
+                localStorage.clear();
+                Object.keys(saved).forEach(k => localStorage.setItem(k, saved[k]));
+            }
+            
             // Set auth token with the correct key name used by the system
             localStorage.setItem('authToken', token);
             
+            if (rawUser) {
+                try {
+                    const parsedUser = JSON.parse(rawUser);
+                    localStorage.setItem('user', JSON.stringify(parsedUser));
+                    if (parsedUser.tenant_id) {
+                        localStorage.setItem('currentTenantId', String(parsedUser.tenant_id));
+                        document.cookie = 'currentTenantId=' + encodeURIComponent(String(parsedUser.tenant_id)) + '; path=/; max-age=86400; SameSite=Lax';
+                    }
+                    if (parsedUser.subdomain) {
+                        localStorage.setItem('currentSubdomain', String(parsedUser.subdomain));
+                        document.cookie = 'currentSubdomain=' + encodeURIComponent(String(parsedUser.subdomain)) + '; path=/; max-age=86400; SameSite=Lax';
+                    }
+                    if (parsedUser.company_name) {
+                        localStorage.setItem('companyName', String(parsedUser.company_name));
+                    }
+                } catch (e) {}
+            }
+            if (tenantId) {
+                localStorage.setItem('currentTenantId', String(tenantId));
+                document.cookie = 'currentTenantId=' + encodeURIComponent(String(tenantId)) + '; path=/; max-age=86400; SameSite=Lax';
+            }
+            if (subdomain) {
+                localStorage.setItem('currentSubdomain', subdomain);
+                document.cookie = 'currentSubdomain=' + encodeURIComponent(subdomain) + '; path=/; max-age=86400; SameSite=Lax';
+            }
+            
             // Set session cookies expected by the system
-            document.cookie = 'session_active=true; path=/; SameSite=Lax';
-            document.cookie = 'saas_token=' + token + '; path=/; SameSite=Lax';
+            document.cookie = 'session_active=true; path=/; max-age=86400; SameSite=Lax';
+            document.cookie = 'saas_token=' + token + '; path=/; max-age=86400; SameSite=Lax';
             sessionStorage.setItem('session_active', 'true');
             
             // Mark as impersonation session for easy identification
@@ -48,7 +89,7 @@ header("Pragma: no-cache");
             // Redirect to dashboard after a brief delay
             setTimeout(function() {
                 window.location.href = 'magaiees_unified_dashboard.php';
-            }, 800);
+            }, 600);
         })();
     </script>
 <script src="js/global_background_media.js?v=2026_seamless_v5" defer></script>

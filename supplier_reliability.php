@@ -25,7 +25,7 @@ try {
         $db_connected = true;
         
         // 1. جلب بيانات الموردين الحقيقية
-        $sup_stmt = $pdo->query("SELECT id, data FROM suppliers WHERE is_deleted = 0 AND tenant_id = '{\}' OR is_deleted IS NULL");
+        $sup_stmt = $pdo->query("SELECT id, data FROM suppliers WHERE tenant_id = '{$GLOBAL_TENANT_ID}' AND (is_deleted = 0 OR is_deleted IS NULL)");
         $sup_rows = $sup_stmt->fetchAll(PDO::FETCH_ASSOC);
         
         $suppliers_map = []; // id => name
@@ -37,7 +37,7 @@ try {
         }
         
         // 2. جلب فواتير الشراء
-        $pinv_query = "SELECT supplier_id_val, date_val, data FROM purchase_invoices WHERE is_deleted = 0 AND tenant_id = '{\}'";
+        $pinv_query = "SELECT supplier_id_val, date_val, data FROM purchase_invoices WHERE (is_deleted = 0 OR is_deleted IS NULL) AND tenant_id = '{$GLOBAL_TENANT_ID}'";
         $conditions = [];
         $params = [];
         if (!empty($date_from)) {

@@ -146,27 +146,6 @@ if (!function_exists('mg_is_loopback_request')) {
             }
         }
 
-        // 1.5. دعم التوكن المحلي المتولد من شاشة الدخول (offline_token_*) لمنع حلقة التحويل المفرغة
-        if ($token !== '' && strpos($token, 'offline_token_') === 0) {
-            $cookieTid = !empty($_COOKIE['currentTenantId']) && is_numeric($_COOKIE['currentTenantId']) ? (int)$_COOKIE['currentTenantId'] : 12;
-            if ($pdo && $cookieTid <= 1) {
-                try {
-                    $stmtC = $pdo->query("SELECT tenant_id FROM users WHERE username IN ('c', 'C', 'admin') AND (status = 'active' OR status IS NULL) ORDER BY id ASC LIMIT 1");
-                    $foundTid = $stmtC ? $stmtC->fetchColumn() : false;
-                    if ($foundTid) $cookieTid = (int)$foundTid;
-                } catch (Exception $e) {}
-            }
-            $user = [
-                'id'        => 1,
-                'tenant_id' => $cookieTid ?: 12,
-                'username'  => 'admin',
-                'role'      => 'admin',
-                'source'    => 'offline-login-token',
-            ];
-            mg_persist_device_cookie($user);
-            return $user;
-        }
-
         // 2. جلسة PHP على السيرفر (موثوقة ومسجلة عند تسجيل الدخول)
         if (session_status() === PHP_SESSION_NONE) {
             @session_start();
@@ -190,37 +169,6 @@ if (!function_exists('mg_is_loopback_request')) {
                 mg_persist_device_cookie($verified);
                 return $verified;
             }
-        }
-
-        // 3. في بيئة التطوير المحلية والشبكة الداخلية (Loopback / Local LAN): السماح بوضع عدم الاتصال المحلي أو الدخول التلقائي
-        if (mg_is_loopback_request()) {
-            if ($pdo) {
-                try {
-                    $stmt = $pdo->prepare("SELECT * FROM users WHERE username IN ('c', 'C', 'admin') AND (status = 'active' OR status IS NULL) ORDER BY id ASC LIMIT 1");
-                    $stmt->execute();
-                    $cUser = $stmt->fetch(PDO::FETCH_ASSOC);
-                    if ($cUser && !empty($cUser['tenant_id'])) {
-                        $user = [
-                            'id'        => (int)$cUser['id'],
-                            'tenant_id' => (int)$cUser['tenant_id'],
-                            'username'  => (string)$cUser['username'],
-                            'role'      => (string)($cUser['role'] ?? 'admin'),
-                            'source'    => 'localhost-auto',
-                        ];
-                        mg_persist_device_cookie($user);
-                        return $user;
-                    }
-                } catch (Exception $e) {}
-            }
-            $fallbackUser = [
-                'id'        => 9,
-                'tenant_id' => !empty($_COOKIE['currentTenantId']) ? (int)$_COOKIE['currentTenantId'] : 12,
-                'username'  => 'c',
-                'role'      => 'admin',
-                'source'    => 'localhost-offline-fallback',
-            ];
-            mg_persist_device_cookie($fallbackUser);
-            return $fallbackUser;
         }
 
         return null;

@@ -78,7 +78,7 @@ try {
 
         // === حساب DSO من فواتير البيع الحقيقية ===
         // بناء استعلام فواتير البيع مع فلترة التاريخ
-        $inv_query = "SELECT date_val, total_val, data FROM sales_invoices WHERE is_deleted = 0 AND tenant_id = '{\}'";
+        $inv_query = "SELECT date_val, total_val, data FROM sales_invoices WHERE (is_deleted = 0 OR is_deleted IS NULL) AND tenant_id = '{$GLOBAL_TENANT_ID}'";
         $inv_params = [];
         if ($date_from) {
             $inv_query .= " AND date_val >= :date_from";

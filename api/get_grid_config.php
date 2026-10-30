@@ -1,5 +1,5 @@
 <?php
-require 'db.php';
+require __DIR__ . '/db.php';
 header('Content-Type: application/json; charset=UTF-8');
 header('Cache-Control: no-cache, no-store, must-revalidate');
 header('Pragma: no-cache');
@@ -12,10 +12,12 @@ try {
         exit;
     }
 
-    $key = 'grid_config_' . $grid_id;
+    $tenantId = resolveCurrentTenantId($pdo);
+    $tenantKey = 'tenant_' . $tenantId . '_grid_config_' . $grid_id;
+    $legacyKey = 'grid_config_' . $grid_id;
 
-    $stmt = $pdo->prepare("SELECT setting_value FROM global_settings WHERE setting_key = ?");
-    $stmt->execute([$key]);
+    $stmt = $pdo->prepare("SELECT setting_value FROM global_settings WHERE setting_key IN (?, ?) ORDER BY (setting_key = ?) DESC LIMIT 1");
+    $stmt->execute([$tenantKey, $legacyKey, $tenantKey]);
     $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if ($row && $row['setting_value']) {

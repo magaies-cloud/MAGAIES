@@ -57,7 +57,7 @@ if ($__isLocalMirrorEnv && ($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST' && e
             break;
         }
     }
-    if ($__shouldForward) {
+    if ($__shouldForward && (int)$tenantId === 12) {
         register_shutdown_function(function() use ($action, $tenantId, $rawBodyString) {
             try {
                 if (function_exists('finishClientResponseEarly')) {
@@ -153,12 +153,12 @@ function getFinanceSequence($pdo, $tenantId, $includeLast = false) {
     $totalCount = 0;
 
     try {
-        $stmtCnt = $pdo->prepare("SELECT COUNT(*) FROM single_payments WHERE (tenant_id = ? OR tenant_id IS NULL) AND (is_deleted = 0 OR is_deleted IS NULL)");
+        $stmtCnt = $pdo->prepare("SELECT COUNT(*) FROM single_payments WHERE tenant_id = ? AND (is_deleted = 0 OR is_deleted IS NULL)");
         $stmtCnt->execute([$tenantId]);
         $totalCount = (int)$stmtCnt->fetchColumn();
     } catch (Exception $e) {}
 
-    $stmt = $pdo->prepare("SELECT id, COALESCE(JSON_UNQUOTE(JSON_EXTRACT(data, '$.voucherNo')), JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')), '') AS v_no, COALESCE(JSON_UNQUOTE(JSON_EXTRACT(data, '$.deleted')), JSON_UNQUOTE(JSON_EXTRACT(data, '$.isDeleted')), '0') AS is_del FROM single_payments WHERE (tenant_id = ? OR tenant_id IS NULL) AND (is_deleted = 0 OR is_deleted IS NULL) ORDER BY id DESC LIMIT 300");
+    $stmt = $pdo->prepare("SELECT id, COALESCE(JSON_UNQUOTE(JSON_EXTRACT(data, '$.voucherNo')), JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')), '') AS v_no, COALESCE(JSON_UNQUOTE(JSON_EXTRACT(data, '$.deleted')), JSON_UNQUOTE(JSON_EXTRACT(data, '$.isDeleted')), '0') AS is_del FROM single_payments WHERE tenant_id = ? AND (is_deleted = 0 OR is_deleted IS NULL) ORDER BY id DESC LIMIT 300");
     $stmt->execute([$tenantId]);
     while ($r = $stmt->fetch(PDO::FETCH_ASSOC)) {
         $isDel = strtolower((string)($r['is_del'] ?? '0'));
@@ -203,12 +203,12 @@ function getSalesSequence($pdo, $tenantId, $includeLast = false) {
     $candidates = [];
 
     try {
-        $stmtCnt = $pdo->prepare("SELECT COUNT(*) FROM sales_invoices WHERE (tenant_id = ? OR tenant_id IS NULL) AND (is_deleted = 0 OR is_deleted IS NULL)");
+        $stmtCnt = $pdo->prepare("SELECT COUNT(*) FROM sales_invoices WHERE tenant_id = ? AND (is_deleted = 0 OR is_deleted IS NULL)");
         $stmtCnt->execute([$tenantId]);
         $totalCount = (int)$stmtCnt->fetchColumn();
     } catch (Exception $e) {}
 
-    $stmt = $pdo->prepare("SELECT id, invoice_no, COALESCE(JSON_UNQUOTE(JSON_EXTRACT(data, '$.invoiceNo')), JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')), '') AS j_no, COALESCE(JSON_UNQUOTE(JSON_EXTRACT(data, '$.isDeleted')), JSON_UNQUOTE(JSON_EXTRACT(data, '$.deleted')), '0') AS is_del FROM sales_invoices WHERE (tenant_id = ? OR tenant_id IS NULL) AND (is_deleted = 0 OR is_deleted IS NULL) ORDER BY id DESC LIMIT 300");
+    $stmt = $pdo->prepare("SELECT id, invoice_no, COALESCE(JSON_UNQUOTE(JSON_EXTRACT(data, '$.invoiceNo')), JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')), '') AS j_no, COALESCE(JSON_UNQUOTE(JSON_EXTRACT(data, '$.isDeleted')), JSON_UNQUOTE(JSON_EXTRACT(data, '$.deleted')), '0') AS is_del FROM sales_invoices WHERE tenant_id = ? AND (is_deleted = 0 OR is_deleted IS NULL) ORDER BY id DESC LIMIT 300");
     $stmt->execute([$tenantId]);
     while ($r = $stmt->fetch(PDO::FETCH_ASSOC)) {
         $isDel = strtolower((string)($r['is_del'] ?? '0'));
@@ -269,12 +269,12 @@ function getPurchaseSequence($pdo, $tenantId, $includeLast = false) {
     $candidates = [];
 
     try {
-        $stmtCnt = $pdo->prepare("SELECT COUNT(*) FROM purchase_invoices WHERE (tenant_id = ? OR tenant_id IS NULL) AND (is_deleted = 0 OR is_deleted IS NULL) AND (invoice_no IS NULL OR (invoice_no NOT LIKE 'GRN%' AND invoice_no NOT LIKE 'Z%'))");
+        $stmtCnt = $pdo->prepare("SELECT COUNT(*) FROM purchase_invoices WHERE tenant_id = ? AND (is_deleted = 0 OR is_deleted IS NULL) AND (invoice_no IS NULL OR (invoice_no NOT LIKE 'GRN%' AND invoice_no NOT LIKE 'Z%'))");
         $stmtCnt->execute([$tenantId]);
         $totalCount = (int)$stmtCnt->fetchColumn();
     } catch (Exception $e) {}
 
-    $stmt = $pdo->prepare("SELECT id, invoice_no, COALESCE(JSON_UNQUOTE(JSON_EXTRACT(data, '$.invoiceNo')), JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')), '') AS j_no, COALESCE(JSON_UNQUOTE(JSON_EXTRACT(data, '$.isDeleted')), JSON_UNQUOTE(JSON_EXTRACT(data, '$.deleted')), '0') AS is_del, COALESCE(JSON_UNQUOTE(JSON_EXTRACT(data, '$.isGRN')), '0') AS is_grn FROM purchase_invoices WHERE (tenant_id = ? OR tenant_id IS NULL) AND (is_deleted = 0 OR is_deleted IS NULL) ORDER BY id DESC LIMIT 300");
+    $stmt = $pdo->prepare("SELECT id, invoice_no, COALESCE(JSON_UNQUOTE(JSON_EXTRACT(data, '$.invoiceNo')), JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')), '') AS j_no, COALESCE(JSON_UNQUOTE(JSON_EXTRACT(data, '$.isDeleted')), JSON_UNQUOTE(JSON_EXTRACT(data, '$.deleted')), '0') AS is_del, COALESCE(JSON_UNQUOTE(JSON_EXTRACT(data, '$.isGRN')), '0') AS is_grn FROM purchase_invoices WHERE tenant_id = ? AND (is_deleted = 0 OR is_deleted IS NULL) ORDER BY id DESC LIMIT 300");
     $stmt->execute([$tenantId]);
     while ($r = $stmt->fetch(PDO::FETCH_ASSOC)) {
         $isDel = strtolower((string)($r['is_del'] ?? '0'));
@@ -334,11 +334,11 @@ function getDeliverySequence($pdo, $tenantId, $includeLast = false) {
     $totalCount = 0;
 
     try {
-        $stmtCnt = $pdo->prepare("SELECT COUNT(*) FROM delivery_notes WHERE (tenant_id = ? OR tenant_id IS NULL) AND (is_deleted = 0 OR is_deleted IS NULL)");
+        $stmtCnt = $pdo->prepare("SELECT COUNT(*) FROM delivery_notes WHERE tenant_id = ? AND (is_deleted = 0 OR is_deleted IS NULL)");
         $stmtCnt->execute([$tenantId]);
         $totalCount = (int)$stmtCnt->fetchColumn();
 
-        $stmt = $pdo->prepare("SELECT id, frontend_id, COALESCE(JSON_UNQUOTE(JSON_EXTRACT(data, '$.deliveryNo')), JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')), '') AS j_no FROM delivery_notes WHERE (tenant_id = ? OR tenant_id IS NULL) AND (is_deleted = 0 OR is_deleted IS NULL) ORDER BY id DESC LIMIT 300");
+        $stmt = $pdo->prepare("SELECT id, frontend_id, COALESCE(JSON_UNQUOTE(JSON_EXTRACT(data, '$.deliveryNo')), JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')), '') AS j_no FROM delivery_notes WHERE tenant_id = ? AND (is_deleted = 0 OR is_deleted IS NULL) ORDER BY id DESC LIMIT 300");
         $stmt->execute([$tenantId]);
         while ($r = $stmt->fetch(PDO::FETCH_ASSOC)) {
             if ($lastRowId === 0) {
@@ -381,11 +381,11 @@ function getReceiptSequence($pdo, $tenantId, $includeLast = false) {
     $totalCount = 0;
 
     try {
-        $stmtCnt = $pdo->prepare("SELECT COUNT(*) FROM purchase_invoices WHERE (tenant_id = ? OR tenant_id IS NULL) AND (JSON_EXTRACT(data, '$.isGRN') = true OR invoice_no LIKE 'Z%' OR invoice_no LIKE 'GRN%')");
+        $stmtCnt = $pdo->prepare("SELECT COUNT(*) FROM purchase_invoices WHERE tenant_id = ? AND (JSON_EXTRACT(data, '$.isGRN') = true OR invoice_no LIKE 'Z%' OR invoice_no LIKE 'GRN%')");
         $stmtCnt->execute([$tenantId]);
         $totalCount = (int)$stmtCnt->fetchColumn();
 
-        $stmt = $pdo->prepare("SELECT id, invoice_no, COALESCE(JSON_UNQUOTE(JSON_EXTRACT(data, '$.invoiceNo')), '') AS j_no FROM purchase_invoices WHERE (tenant_id = ? OR tenant_id IS NULL) AND (JSON_EXTRACT(data, '$.isGRN') = true OR invoice_no LIKE 'Z%' OR invoice_no LIKE 'GRN%') ORDER BY id DESC LIMIT 300");
+        $stmt = $pdo->prepare("SELECT id, invoice_no, COALESCE(JSON_UNQUOTE(JSON_EXTRACT(data, '$.invoiceNo')), '') AS j_no FROM purchase_invoices WHERE tenant_id = ? AND (JSON_EXTRACT(data, '$.isGRN') = true OR invoice_no LIKE 'Z%' OR invoice_no LIKE 'GRN%') ORDER BY id DESC LIMIT 300");
         $stmt->execute([$tenantId]);
         while ($r = $stmt->fetch(PDO::FETCH_ASSOC)) {
             if ($lastRowId === 0) {
@@ -427,12 +427,12 @@ function getJournalSequence($pdo, $tenantId, $includeLast = false) {
     $totalCount = 0;
 
     try {
-        $stmtCnt = $pdo->prepare("SELECT COUNT(*) FROM journal_vouchers WHERE (tenant_id = ? OR tenant_id IS NULL) AND (is_deleted = 0 OR is_deleted IS NULL)");
+        $stmtCnt = $pdo->prepare("SELECT COUNT(*) FROM journal_vouchers WHERE tenant_id = ? AND (is_deleted = 0 OR is_deleted IS NULL)");
         $stmtCnt->execute([$tenantId]);
         $totalCount = (int)$stmtCnt->fetchColumn();
         if ($totalCount > $maxSeq) $maxSeq = $totalCount;
 
-        $stmt = $pdo->prepare("SELECT id, frontend_id, data, created_at FROM journal_vouchers WHERE (tenant_id = ? OR tenant_id IS NULL) AND (is_deleted = 0 OR is_deleted IS NULL) ORDER BY id DESC LIMIT 300");
+        $stmt = $pdo->prepare("SELECT id, frontend_id, data, created_at FROM journal_vouchers WHERE tenant_id = ? AND (is_deleted = 0 OR is_deleted IS NULL) ORDER BY id DESC LIMIT 300");
         $stmt->execute([$tenantId]);
         while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
             $d = json_decode($row['data'], true);
@@ -467,12 +467,12 @@ function getInventorySequence($pdo, $tenantId, $prefixLetter = 'I', $includeLast
     $totalCount = 0;
 
     try {
-        $stmtCnt = $pdo->prepare("SELECT COUNT(*) FROM inventory WHERE (tenant_id = ? OR tenant_id IS NULL) AND (is_deleted = 0 OR is_deleted IS NULL)");
+        $stmtCnt = $pdo->prepare("SELECT COUNT(*) FROM inventory WHERE tenant_id = ? AND (is_deleted = 0 OR is_deleted IS NULL)");
         $stmtCnt->execute([$tenantId]);
         $totalCount = (int)$stmtCnt->fetchColumn();
         if ($totalCount > $maxSeq) $maxSeq = $totalCount;
 
-        $stmt = $pdo->prepare("SELECT id, frontend_id, data, created_at FROM inventory WHERE (tenant_id = ? OR tenant_id IS NULL) AND (is_deleted = 0 OR is_deleted IS NULL) ORDER BY id DESC LIMIT 300");
+        $stmt = $pdo->prepare("SELECT id, frontend_id, data, created_at FROM inventory WHERE tenant_id = ? AND (is_deleted = 0 OR is_deleted IS NULL) ORDER BY id DESC LIMIT 300");
         $stmt->execute([$tenantId]);
         while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
             $d = json_decode($row['data'], true);
@@ -610,7 +610,7 @@ function applyInvoiceEffectsInDB($pdo, $tenantId, $docType, &$data, $oldData = n
                 $partnerWhere = ($partnerTable === 'customers')
                     ? "(frontend_id = ? OR search_name = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.name')) = ?)"
                     : "(frontend_id = ? OR supplier_id = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.name')) = ?)";
-                $stmtP = $pdo->prepare("SELECT id, data FROM `$partnerTable` WHERE (tenant_id = ? OR tenant_id IS NULL) AND (is_deleted = 0 OR is_deleted IS NULL) AND $partnerWhere LIMIT 1");
+                $stmtP = $pdo->prepare("SELECT id, data FROM `$partnerTable` WHERE tenant_id = ? AND (is_deleted = 0 OR is_deleted IS NULL) AND $partnerWhere LIMIT 1");
                 $stmtP->execute([$tenantId, $partnerId ?: $partnerName, $partnerName, $partnerName]);
                 $rowP = $stmtP->fetch(PDO::FETCH_ASSOC);
                 if ($rowP) {
@@ -640,7 +640,7 @@ function applyInvoiceEffectsInDB($pdo, $tenantId, $docType, &$data, $oldData = n
 
                 if ($qty <= 0 || ($itName === '' && $itId === '')) continue;
 
-                $stmtIt = $pdo->prepare("SELECT id, data FROM items WHERE (tenant_id = ? OR tenant_id IS NULL) AND (is_deleted = 0 OR is_deleted IS NULL) AND (frontend_id = ? OR search_name = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.name')) = ?) LIMIT 1");
+                $stmtIt = $pdo->prepare("SELECT id, data FROM items WHERE tenant_id = ? AND (is_deleted = 0 OR is_deleted IS NULL) AND (frontend_id = ? OR search_name = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.name')) = ?) LIMIT 1");
                 $stmtIt->execute([$tenantId, $itId ?: $itName, $itName, $itName]);
                 $rowIt = $stmtIt->fetch(PDO::FETCH_ASSOC);
                 if ($rowIt) {
@@ -714,7 +714,7 @@ function applyInvoiceEffectsInDB($pdo, $tenantId, $docType, &$data, $oldData = n
                             ? "(frontend_id = ? OR supplier_id = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.name')) = ?)"
                             : "(frontend_id = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')) = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.name')) = ?)");
                     try {
-                        $st = $pdo->prepare("SELECT id, data FROM `$tbl` WHERE (tenant_id = ? OR tenant_id IS NULL) AND (is_deleted = 0 OR is_deleted IS NULL) AND $where LIMIT 1");
+                        $st = $pdo->prepare("SELECT id, data FROM `$tbl` WHERE tenant_id = ? AND (is_deleted = 0 OR is_deleted IS NULL) AND $where LIMIT 1");
                         $st->execute([$tenantId, $cleanId, $accIdentifier, $accIdentifier]);
                         $row = $st->fetch(PDO::FETCH_ASSOC);
                         if ($row) {
@@ -774,7 +774,7 @@ function applyInvoiceEffectsInDB($pdo, $tenantId, $docType, &$data, $oldData = n
             $varianceQty = isset($data['varianceDelta']) ? (float)$data['varianceDelta'] : (($actualQty !== null && $bookQty !== null) ? ($actualQty - $bookQty) : 0.0);
 
             if ($itName !== '' || $itId !== '') {
-                $stmtIt = $pdo->prepare("SELECT id, data FROM items WHERE (tenant_id = ? OR tenant_id IS NULL) AND (is_deleted = 0 OR is_deleted IS NULL) AND (frontend_id = ? OR search_name = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.name')) = ?) LIMIT 1");
+                $stmtIt = $pdo->prepare("SELECT id, data FROM items WHERE tenant_id = ? AND (is_deleted = 0 OR is_deleted IS NULL) AND (frontend_id = ? OR search_name = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.name')) = ?) LIMIT 1");
                 $stmtIt->execute([$tenantId, $itId ?: $itName, $itName, $itName]);
                 $rowIt = $stmtIt->fetch(PDO::FETCH_ASSOC);
                 if ($rowIt) {
@@ -812,7 +812,7 @@ function applyInvoiceEffectsInDB($pdo, $tenantId, $docType, &$data, $oldData = n
             $qty = (float)($data['qty'] ?? ($data['quantity'] ?? 0));
 
             if ($qty > 0 && ($itName !== '' || $itId !== '') && $fromWh !== $toWh) {
-                $stmtIt = $pdo->prepare("SELECT id, data FROM items WHERE (tenant_id = ? OR tenant_id IS NULL) AND (is_deleted = 0 OR is_deleted IS NULL) AND (frontend_id = ? OR search_name = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.name')) = ?) LIMIT 1");
+                $stmtIt = $pdo->prepare("SELECT id, data FROM items WHERE tenant_id = ? AND (is_deleted = 0 OR is_deleted IS NULL) AND (frontend_id = ? OR search_name = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.name')) = ?) LIMIT 1");
                 $stmtIt->execute([$tenantId, $itId ?: $itName, $itName, $itName]);
                 $rowIt = $stmtIt->fetch(PDO::FETCH_ASSOC);
                 if ($rowIt) {
@@ -846,7 +846,7 @@ function applyInvoiceEffectsInDB($pdo, $tenantId, $docType, &$data, $oldData = n
                 $cleanName = trim(preg_replace('/\s*\(.*$/u', '', $accName));
                 foreach (['customers', 'suppliers', 'safes', 'banks'] as $tbl) {
                     try {
-                        $st = $pdo->prepare("SELECT id, data FROM `$tbl` WHERE (tenant_id = ? OR tenant_id IS NULL) AND (is_deleted = 0 OR is_deleted IS NULL) AND (frontend_id = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.name')) = ?) LIMIT 1");
+                        $st = $pdo->prepare("SELECT id, data FROM `$tbl` WHERE tenant_id = ? AND (is_deleted = 0 OR is_deleted IS NULL) AND (frontend_id = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.name')) = ?) LIMIT 1");
                         $st->execute([$tenantId, $cleanName, $cleanName]);
                         $r = $st->fetch(PDO::FETCH_ASSOC);
                         if ($r) {
@@ -1144,9 +1144,9 @@ try {
             $jvSeq = getJournalSequence($pdo, $tenantId, true);
             $invSeq = getInventorySequence($pdo, $tenantId, 'I', true);
 
-            $rawItems = $pdo->query("SELECT data FROM items WHERE (is_deleted = 0 OR is_deleted IS NULL) LIMIT 100")->fetchAll(PDO::FETCH_COLUMN);
-            $rawCusts = $pdo->query("SELECT data FROM customers WHERE (is_deleted = 0 OR is_deleted IS NULL) LIMIT 100")->fetchAll(PDO::FETCH_COLUMN);
-            $rawWhs = $pdo->query("SELECT data FROM warehouses WHERE (is_deleted = 0 OR is_deleted IS NULL) LIMIT 50")->fetchAll(PDO::FETCH_COLUMN);
+            $rawItems = $pdo->query("SELECT data FROM items WHERE tenant_id = " . (int)$tenantId . " AND (is_deleted = 0 OR is_deleted IS NULL) LIMIT 100")->fetchAll(PDO::FETCH_COLUMN);
+            $rawCusts = $pdo->query("SELECT data FROM customers WHERE tenant_id = " . (int)$tenantId . " AND (is_deleted = 0 OR is_deleted IS NULL) LIMIT 100")->fetchAll(PDO::FETCH_COLUMN);
+            $rawWhs = $pdo->query("SELECT data FROM warehouses WHERE tenant_id = " . (int)$tenantId . " AND (is_deleted = 0 OR is_deleted IS NULL) LIMIT 50")->fetchAll(PDO::FETCH_COLUMN);
 
             $dbItems = array_values(array_filter(array_map('json_decode', $rawItems)));
             $dbCusts = array_values(array_filter(array_map('json_decode', $rawCusts)));
@@ -1183,7 +1183,7 @@ try {
             $idemKey = trim((string)($data['idempotencyKey'] ?? ($data['idempotency_key'] ?? ($data['client_draft_id'] ?? ''))));
             if ($idemKey !== '') {
                 try {
-                    $stmtIdem = $pdo->prepare("SELECT invoice_no, data FROM sales_invoices WHERE (tenant_id = ? OR tenant_id IS NULL) AND (is_deleted = 0 OR is_deleted IS NULL) AND JSON_UNQUOTE(JSON_EXTRACT(data, '$.idempotencyKey')) = ? LIMIT 1");
+                    $stmtIdem = $pdo->prepare("SELECT invoice_no, data FROM sales_invoices WHERE tenant_id = ? AND (is_deleted = 0 OR is_deleted IS NULL) AND JSON_UNQUOTE(JSON_EXTRACT(data, '$.idempotencyKey')) = ? LIMIT 1");
                     $stmtIdem->execute([$tenantId, $idemKey]);
                     $rowIdem = $stmtIdem->fetch(PDO::FETCH_ASSOC);
                     if ($rowIdem) {
@@ -1216,7 +1216,7 @@ try {
             }
 
             // Check if exists
-            $stmtCheck = $pdo->prepare("SELECT id, data FROM sales_invoices WHERE (tenant_id = ? OR tenant_id IS NULL) AND (invoice_no = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.invoiceNo')) = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')) = ?) LIMIT 1");
+            $stmtCheck = $pdo->prepare("SELECT id, data FROM sales_invoices WHERE tenant_id = ? AND (invoice_no = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.invoiceNo')) = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')) = ?) LIMIT 1");
             $stmtCheck->execute([$tenantId, $invNo, $invNo, $invNo]);
             $existingRow = $stmtCheck->fetch(PDO::FETCH_ASSOC);
             $existingId = $existingRow ? $existingRow['id'] : false;
@@ -1321,7 +1321,7 @@ try {
             $data['grandTotal'] = $totalVal;
             $data['deleted'] = 0;
 
-            $stmtCheck = $pdo->prepare("SELECT id, data FROM sales_invoices WHERE (tenant_id = ? OR tenant_id IS NULL) AND (invoice_no = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.invoiceNo')) = ?) LIMIT 1");
+            $stmtCheck = $pdo->prepare("SELECT id, data FROM sales_invoices WHERE tenant_id = ? AND (invoice_no = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.invoiceNo')) = ?) LIMIT 1");
             $stmtCheck->execute([$tenantId, $invNo, $invNo]);
             $existingRow = $stmtCheck->fetch(PDO::FETCH_ASSOC);
             $existingId = $existingRow ? $existingRow['id'] : false;
@@ -1363,7 +1363,7 @@ try {
             $idemKey = trim((string)($data['idempotencyKey'] ?? ($data['idempotency_key'] ?? ($data['client_draft_id'] ?? ''))));
             if ($idemKey !== '') {
                 try {
-                    $stmtIdem = $pdo->prepare("SELECT invoice_no, data FROM purchase_invoices WHERE (tenant_id = ? OR tenant_id IS NULL) AND (is_deleted = 0 OR is_deleted IS NULL) AND JSON_UNQUOTE(JSON_EXTRACT(data, '$.idempotencyKey')) = ? LIMIT 1");
+                    $stmtIdem = $pdo->prepare("SELECT invoice_no, data FROM purchase_invoices WHERE tenant_id = ? AND (is_deleted = 0 OR is_deleted IS NULL) AND JSON_UNQUOTE(JSON_EXTRACT(data, '$.idempotencyKey')) = ? LIMIT 1");
                     $stmtIdem->execute([$tenantId, $idemKey]);
                     $rowIdem = $stmtIdem->fetch(PDO::FETCH_ASSOC);
                     if ($rowIdem) {
@@ -1396,7 +1396,7 @@ try {
                 $purNo = $purSeq['nextPurchaseNo'];
             }
 
-            $stmtCheck = $pdo->prepare("SELECT id, data FROM purchase_invoices WHERE (tenant_id = ? OR tenant_id IS NULL) AND (invoice_no = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.invoiceNo')) = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')) = ?) LIMIT 1");
+            $stmtCheck = $pdo->prepare("SELECT id, data FROM purchase_invoices WHERE tenant_id = ? AND (invoice_no = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.invoiceNo')) = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')) = ?) LIMIT 1");
             $stmtCheck->execute([$tenantId, $purNo, $purNo, $purNo]);
             $existingRow = $stmtCheck->fetch(PDO::FETCH_ASSOC);
             $existingId = $existingRow ? $existingRow['id'] : false;
@@ -1499,7 +1499,7 @@ try {
             $data['grandTotal'] = $totalVal;
             $data['deleted'] = 0;
 
-            $stmtCheck = $pdo->prepare("SELECT id, data FROM purchase_invoices WHERE (tenant_id = ? OR tenant_id IS NULL) AND (invoice_no = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.invoiceNo')) = ?) LIMIT 1");
+            $stmtCheck = $pdo->prepare("SELECT id, data FROM purchase_invoices WHERE tenant_id = ? AND (invoice_no = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.invoiceNo')) = ?) LIMIT 1");
             $stmtCheck->execute([$tenantId, $purNo, $purNo]);
             $existingRow = $stmtCheck->fetch(PDO::FETCH_ASSOC);
             $existingId = $existingRow ? $existingRow['id'] : false;
@@ -1559,7 +1559,7 @@ try {
             $relatedInvNo = trim($data['invoiceNo'] ?? ($data['relatedInvoice'] ?? ''));
             if (!empty($relatedInvNo)) {
                 try {
-                    $stmtInv = $pdo->prepare("SELECT id, data FROM sales_invoices WHERE (tenant_id = ? OR tenant_id IS NULL) AND (invoice_no = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.invoiceNo')) = ?)");
+                    $stmtInv = $pdo->prepare("SELECT id, data FROM sales_invoices WHERE tenant_id = ? AND (invoice_no = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.invoiceNo')) = ?)");
                     $stmtInv->execute([$tenantId, $relatedInvNo, $relatedInvNo]);
                     $row = $stmtInv->fetch(PDO::FETCH_ASSOC);
                     if ($row) {
@@ -1626,7 +1626,7 @@ try {
             // Update parent purchase invoice if provided
             if (!empty($relatedPurNo)) {
                 try {
-                    $stmtPur = $pdo->prepare("SELECT id, data FROM purchase_invoices WHERE (tenant_id = ? OR tenant_id IS NULL) AND (invoice_no = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.invoiceNo')) = ?)");
+                    $stmtPur = $pdo->prepare("SELECT id, data FROM purchase_invoices WHERE tenant_id = ? AND (invoice_no = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.invoiceNo')) = ?)");
                     $stmtPur->execute([$tenantId, $relatedPurNo, $relatedPurNo]);
                     $row = $stmtPur->fetch(PDO::FETCH_ASSOC);
                     if ($row) {
@@ -1665,7 +1665,7 @@ try {
             $idemKey = trim((string)($data['idempotencyKey'] ?? ($data['idempotency_key'] ?? ($data['client_draft_id'] ?? ''))));
             if ($idemKey !== '') {
                 try {
-                    $stmtIdem = $pdo->prepare("SELECT data FROM single_payments WHERE (tenant_id = ? OR tenant_id IS NULL) AND JSON_UNQUOTE(JSON_EXTRACT(data, '$.idempotencyKey')) = ? LIMIT 1");
+                    $stmtIdem = $pdo->prepare("SELECT data FROM single_payments WHERE tenant_id = ? AND JSON_UNQUOTE(JSON_EXTRACT(data, '$.idempotencyKey')) = ? LIMIT 1");
                     $stmtIdem->execute([$tenantId, $idemKey]);
                     $rowIdem = $stmtIdem->fetch(PDO::FETCH_ASSOC);
                     if ($rowIdem) {
@@ -1700,7 +1700,7 @@ try {
                 $vNo = $finSeq['nextVoucherNo'];
             }
 
-            $stmtCheck = $pdo->prepare("SELECT id, data FROM single_payments WHERE (tenant_id = ? OR tenant_id IS NULL) AND (JSON_UNQUOTE(JSON_EXTRACT(data, '$.voucherNo')) = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')) = ?) LIMIT 1");
+            $stmtCheck = $pdo->prepare("SELECT id, data FROM single_payments WHERE tenant_id = ? AND (JSON_UNQUOTE(JSON_EXTRACT(data, '$.voucherNo')) = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')) = ?) LIMIT 1");
             $stmtCheck->execute([$tenantId, $vNo, $vNo]);
             $existingRow = $stmtCheck->fetch(PDO::FETCH_ASSOC);
             $existingId = $existingRow ? $existingRow['id'] : false;
@@ -2288,10 +2288,10 @@ try {
         // ═════════════════════════════════════════════════════════
         case 'get_recent_sales':
             try {
-                $stmt = $pdo->prepare("SELECT id, invoice_no, data, created_at FROM sales_invoices WHERE (tenant_id = ? OR tenant_id IS NULL) AND (is_deleted = 0 OR is_deleted IS NULL) ORDER BY id DESC LIMIT 60");
+                $stmt = $pdo->prepare("SELECT id, invoice_no, data, created_at FROM sales_invoices WHERE tenant_id = ? AND (is_deleted = 0 OR is_deleted IS NULL) ORDER BY id DESC LIMIT 60");
                 $stmt->execute([$tenantId]);
             } catch (Throwable $e) {
-                $stmt = $pdo->prepare("SELECT id, data, created_at FROM sales_invoices WHERE (tenant_id = ? OR tenant_id IS NULL) ORDER BY id DESC LIMIT 60");
+                $stmt = $pdo->prepare("SELECT id, data, created_at FROM sales_invoices WHERE tenant_id = ? ORDER BY id DESC LIMIT 60");
                 $stmt->execute([$tenantId]);
             }
             $list = [];
@@ -2311,10 +2311,10 @@ try {
 
         case 'get_recent_purchases':
             try {
-                $stmt = $pdo->prepare("SELECT id, invoice_no, data, created_at FROM purchase_invoices WHERE (tenant_id = ? OR tenant_id IS NULL) AND (is_deleted = 0 OR is_deleted IS NULL) ORDER BY id DESC LIMIT 60");
+                $stmt = $pdo->prepare("SELECT id, invoice_no, data, created_at FROM purchase_invoices WHERE tenant_id = ? AND (is_deleted = 0 OR is_deleted IS NULL) ORDER BY id DESC LIMIT 60");
                 $stmt->execute([$tenantId]);
             } catch (Throwable $e) {
-                $stmt = $pdo->prepare("SELECT id, data, created_at FROM purchase_invoices WHERE (tenant_id = ? OR tenant_id IS NULL) ORDER BY id DESC LIMIT 60");
+                $stmt = $pdo->prepare("SELECT id, data, created_at FROM purchase_invoices WHERE tenant_id = ? ORDER BY id DESC LIMIT 60");
                 $stmt->execute([$tenantId]);
             }
             $list = [];
@@ -2341,10 +2341,10 @@ try {
 
         case 'get_recent_vouchers':
             try {
-                $stmt = $pdo->prepare("SELECT id, data, created_at FROM single_payments WHERE (tenant_id = ? OR tenant_id IS NULL) AND (is_deleted = 0 OR is_deleted IS NULL) ORDER BY id DESC LIMIT 60");
+                $stmt = $pdo->prepare("SELECT id, data, created_at FROM single_payments WHERE tenant_id = ? AND (is_deleted = 0 OR is_deleted IS NULL) ORDER BY id DESC LIMIT 60");
                 $stmt->execute([$tenantId]);
             } catch (Throwable $e) {
-                $stmt = $pdo->prepare("SELECT id, data, created_at FROM single_payments WHERE (tenant_id = ? OR tenant_id IS NULL) ORDER BY id DESC LIMIT 60");
+                $stmt = $pdo->prepare("SELECT id, data, created_at FROM single_payments WHERE tenant_id = ? ORDER BY id DESC LIMIT 60");
                 $stmt->execute([$tenantId]);
             }
             $list = [];
@@ -2363,7 +2363,7 @@ try {
             break;
 
         case 'get_recent_deliveries':
-            $stmt = $pdo->prepare("SELECT id, data, frontend_id, created_at FROM delivery_notes WHERE (tenant_id = ? OR tenant_id IS NULL) AND (is_deleted = 0 OR is_deleted IS NULL) ORDER BY id DESC LIMIT 50");
+            $stmt = $pdo->prepare("SELECT id, data, frontend_id, created_at FROM delivery_notes WHERE tenant_id = ? AND (is_deleted = 0 OR is_deleted IS NULL) ORDER BY id DESC LIMIT 50");
             $stmt->execute([$tenantId]);
             $list = [];
             while ($r = $stmt->fetch(PDO::FETCH_ASSOC)) {
@@ -2378,7 +2378,7 @@ try {
             break;
 
         case 'get_recent_journals':
-            $stmt = $pdo->prepare("SELECT id, data, frontend_id, created_at FROM journal_vouchers WHERE (tenant_id = ? OR tenant_id IS NULL) AND (is_deleted = 0 OR is_deleted IS NULL) ORDER BY id DESC LIMIT 50");
+            $stmt = $pdo->prepare("SELECT id, data, frontend_id, created_at FROM journal_vouchers WHERE tenant_id = ? AND (is_deleted = 0 OR is_deleted IS NULL) ORDER BY id DESC LIMIT 50");
             $stmt->execute([$tenantId]);
             $list = [];
             while ($r = $stmt->fetch(PDO::FETCH_ASSOC)) {
@@ -2393,7 +2393,7 @@ try {
             break;
 
         case 'get_recent_inventory_docs':
-            $stmt = $pdo->prepare("SELECT id, data, frontend_id, created_at FROM inventory WHERE (tenant_id = ? OR tenant_id IS NULL) AND (is_deleted = 0 OR is_deleted IS NULL) ORDER BY id DESC LIMIT 50");
+            $stmt = $pdo->prepare("SELECT id, data, frontend_id, created_at FROM inventory WHERE tenant_id = ? AND (is_deleted = 0 OR is_deleted IS NULL) ORDER BY id DESC LIMIT 50");
             $stmt->execute([$tenantId]);
             $list = [];
             while ($r = $stmt->fetch(PDO::FETCH_ASSOC)) {
@@ -2418,30 +2418,31 @@ try {
             $stmt->execute([$tKey]);
             $rows = $stmt->fetchAll(PDO::FETCH_KEY_PAIR);
 
-            if (!empty($rows['exchange_rate'])) {
-                $val = $rows['exchange_rate'];
-                if (is_numeric($val) && (float)$val > 1) {
-                    $rate = (float)$val;
-                } else {
-                    $d = json_decode($val, true);
-                    if (is_array($d)) {
-                        $details = $d;
-                        if (!empty($d['rate']) && (float)$d['rate'] > 1) $rate = (float)$d['rate'];
-                        elseif (!empty($d['current']) && (float)$d['current'] > 1) $rate = (float)$d['current'];
-                        elseif (!empty($d['USD']) && (float)$d['USD'] > 1) $rate = (float)$d['USD'];
-                    }
-                }
-            }
-            if ($rate <= 1 && !empty($rows[$tKey])) {
+            if (!empty($rows[$tKey])) {
                 $val = $rows[$tKey];
                 if (is_numeric($val) && (float)$val > 1) {
                     $rate = (float)$val;
                 } else {
                     $d = json_decode($val, true);
                     if (is_array($d)) {
-                        if (empty($details)) $details = $d;
+                        $details = $d;
                         if (!empty($d['current']) && (float)$d['current'] > 1) $rate = (float)$d['current'];
                         elseif (!empty($d['rate']) && (float)$d['rate'] > 1) $rate = (float)$d['rate'];
+                        elseif (!empty($d['rateUSD']) && (float)$d['rateUSD'] > 1) $rate = (float)$d['rateUSD'];
+                    }
+                }
+            }
+            if ($rate <= 1 && !empty($rows['exchange_rate'])) {
+                $val = $rows['exchange_rate'];
+                if (is_numeric($val) && (float)$val > 1) {
+                    $rate = (float)$val;
+                } else {
+                    $d = json_decode($val, true);
+                    if (is_array($d)) {
+                        if (empty($details)) $details = $d;
+                        if (!empty($d['rate']) && (float)$d['rate'] > 1) $rate = (float)$d['rate'];
+                        elseif (!empty($d['current']) && (float)$d['current'] > 1) $rate = (float)$d['current'];
+                        elseif (!empty($d['USD']) && (float)$d['USD'] > 1) $rate = (float)$d['USD'];
                     }
                 }
             }
@@ -2477,9 +2478,13 @@ try {
                 throw new Exception('القيمة المدخلة لسعر الصرف غير صالحة');
             }
 
-            // 1. Update exchange_rate with history preservation
-            $stmt = $pdo->prepare("SELECT setting_value FROM global_settings WHERE setting_key = 'exchange_rate'");
-            $stmt->execute();
+            $activeTidSync = intval($tenantId ?: 12);
+            $tKeySync = 'tenant_rate_' . $activeTidSync;
+            $tCrKeySync = 'tenant_' . $activeTidSync . '_erp_currency_rates_v1';
+
+            // 1. Load existing tenant history
+            $stmt = $pdo->prepare("SELECT setting_value FROM global_settings WHERE setting_key IN (?, 'exchange_rate') ORDER BY (setting_key = ?) DESC LIMIT 1");
+            $stmt->execute([$tKeySync, $tKeySync]);
             $curVal = $stmt->fetchColumn();
             $d = $curVal ? json_decode($curVal, true) : null;
             $oldRate = 0;
@@ -2499,29 +2504,11 @@ try {
                     'source' => 'system_sync'
                 ];
                 if (count($d['history']) > 50) $d['history'] = array_slice($d['history'], -50);
-                $stmtUp = $pdo->prepare("INSERT INTO global_settings (setting_key, setting_value) VALUES ('exchange_rate', ?) ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value), updated_at = NOW()");
-                $stmtUp->execute([json_encode($d, JSON_UNESCAPED_UNICODE)]);
             } else {
                 $d = ['rate' => $newRate, 'current' => $newRate, 'trend' => 'up', 'history' => [['date' => date('Y-m-d'), 'rate' => $newRate, 'source' => 'system_sync']]];
-                $stmtUp = $pdo->prepare("INSERT INTO global_settings (setting_key, setting_value) VALUES ('exchange_rate', ?) ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value), updated_at = NOW()");
-                $stmtUp->execute([json_encode($d, JSON_UNESCAPED_UNICODE)]);
             }
 
-            // 2. Update erp_currency_rates_v1
-            $stmtCr = $pdo->prepare("SELECT setting_value FROM global_settings WHERE setting_key = 'erp_currency_rates_v1'");
-            $stmtCr->execute();
-            $crVal = $stmtCr->fetchColumn();
-            $rates = $crVal ? json_decode($crVal, true) : [];
-            if (!is_array($rates)) $rates = [];
-            $rates['USD'] = $newRate;
-            $rates['SDG'] = 1;
-            $stmtUpCr = $pdo->prepare("INSERT INTO global_settings (setting_key, setting_value) VALUES ('erp_currency_rates_v1', ?) ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value), updated_at = NOW()");
-            $stmtUpCr->execute([json_encode($rates, JSON_UNESCAPED_UNICODE)]);
-
-            // 3. Update erp_rate_usd & tenant_rate
-            $stmtUpUsd = $pdo->prepare("INSERT INTO global_settings (setting_key, setting_value) VALUES ('erp_rate_usd', ?) ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value), updated_at = NOW()");
-            $stmtUpUsd->execute([(string)$newRate]);
-
+            // 2. Save tenant-isolated rate and currency rates
             $tenantPayload = json_encode([
                 'current' => $newRate,
                 'rate' => $newRate,
@@ -2530,10 +2517,23 @@ try {
                 'history' => $d['history'] ?? [],
                 'updatedAt' => round(microtime(true) * 1000)
             ], JSON_UNESCAPED_UNICODE);
-            $tenantIdsToSync = array_unique(array_filter([intval($tenantId ?: 12), 12, 2]));
-            foreach ($tenantIdsToSync as $tidSync) {
-                $stmtUpTen = $pdo->prepare("INSERT INTO global_settings (setting_key, setting_value) VALUES ('tenant_rate_" . intval($tidSync) . "', ?) ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value), updated_at = NOW()");
-                $stmtUpTen->execute([$tenantPayload]);
+            $stmtUpTen = $pdo->prepare("INSERT INTO global_settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value), updated_at = NOW()");
+            $stmtUpTen->execute([$tKeySync, $tenantPayload]);
+
+            $stmtCr = $pdo->prepare("SELECT setting_value FROM global_settings WHERE setting_key IN (?, 'erp_currency_rates_v1') ORDER BY (setting_key = ?) DESC LIMIT 1");
+            $stmtCr->execute([$tCrKeySync, $tCrKeySync]);
+            $crVal = $stmtCr->fetchColumn();
+            $rates = $crVal ? json_decode($crVal, true) : [];
+            if (!is_array($rates)) $rates = [];
+            $rates['USD'] = $newRate;
+            $rates['SDG'] = 1;
+            $stmtUpTen->execute([$tCrKeySync, json_encode($rates, JSON_UNESCAPED_UNICODE)]);
+
+            // Only update global fallback keys if saving on the primary tenant (12)
+            if ($activeTidSync === 12) {
+                $stmtUpTen->execute(['exchange_rate', json_encode($d, JSON_UNESCAPED_UNICODE)]);
+                $stmtUpTen->execute(['erp_currency_rates_v1', json_encode($rates, JSON_UNESCAPED_UNICODE)]);
+                $stmtUpTen->execute(['erp_rate_usd', (string)$newRate]);
             }
 
             echo json_encode([
@@ -2592,7 +2592,7 @@ try {
             $syncedSummary = [];
             foreach ($tables as $t) {
                 try {
-                    $stmt = $pdo->prepare("SELECT data FROM `$t` WHERE (tenant_id = ? OR tenant_id IS NULL) AND (is_deleted = 0 OR is_deleted IS NULL) ORDER BY id ASC");
+                    $stmt = $pdo->prepare("SELECT data FROM `$t` WHERE tenant_id = ? AND (is_deleted = 0 OR is_deleted IS NULL) ORDER BY id ASC");
                     $stmt->execute([$tenantId]);
                     $rows = [];
                     while ($r = $stmt->fetch(PDO::FETCH_ASSOC)) {
@@ -2620,6 +2620,7 @@ try {
                         curl_setopt($ch, CURLOPT_HTTPHEADER, [
                             'Content-Type: application/json',
                             'Authorization: Bearer offline_token_fallback',
+                            'X-Tenant-Id: ' . (int)$tenantId,
                             'X-Forwarded-From-Local: 1'
                         ]);
                         curl_setopt($ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);

@@ -12,18 +12,15 @@ if (empty($query)) {
 // Clean query string from symbols like #, whitespace
 $cleanQuery = preg_replace('/[#\s]/', '', $query);
 
-$tenantId = null;
-if (isset($_GET['tenant_id']) && is_numeric($_GET['tenant_id'])) {
-    $tenantId = (int)$_GET['tenant_id'];
-} elseif (!empty($_COOKIE['currentTenantId']) && is_numeric($_COOKIE['currentTenantId']) && empty($_GET['global'])) {
-    $tenantId = (int)$_COOKIE['currentTenantId'];
-}
+// Strict tenant resolution: always scope document tracking to the active tenant
+$tenantId = resolveCurrentTenantId($pdo);
 $results = [];
 $timeline = [];
 
 $userMap = [];
 try {
-    $uStmt = $pdo->query("SELECT id, username, data FROM users");
+    $uStmt = $pdo->prepare("SELECT id, username, data FROM users WHERE tenant_id = ?");
+    $uStmt->execute([$tenantId]);
     while ($ur = $uStmt->fetch(PDO::FETCH_ASSOC)) {
         $uData = json_decode($ur['data'] ?? '{}', true) ?: [];
         $uName = $uData['fullName'] ?? $uData['name'] ?? (!empty($ur['username']) ? $ur['username'] : ('مستخدم ' . $ur['id']));
@@ -85,59 +82,58 @@ function parseDocRow($row, $type, $label, $urlPattern) {
 try {
     $qLike = "%$cleanQuery%";
     $numId = is_numeric($cleanQuery) ? (int)$cleanQuery : 0;
-    $tClause = $tenantId !== null ? "tenant_id = $tenantId AND " : "";
 
     // 1. Sales Invoices
-    $stmt = $pdo->prepare("SELECT * FROM sales_invoices WHERE $tClause (invoice_no LIKE ? OR JSON_EXTRACT(data, '$.invoiceNo') LIKE ? OR id = ? OR frontend_id LIKE ?) ORDER BY id DESC LIMIT 5");
-    $stmt->execute([$qLike, $qLike, $numId, $qLike]);
+    $stmt = $pdo->prepare("SELECT * FROM sales_invoices WHERE tenant_id = ? AND (invoice_no LIKE ? OR JSON_EXTRACT(data, '$.invoiceNo') LIKE ? OR id = ? OR frontend_id LIKE ?) ORDER BY id DESC LIMIT 5");
+    $stmt->execute([$tenantId, $qLike, $qLike, $numId, $qLike]);
     while ($r = $stmt->fetch(PDO::FETCH_ASSOC)) {
         $results[] = parseDocRow($r, 'sales', 'فاتورة مبيعات', 'direct-sales.php?id={id}');
     }
 
     // 2. Purchase Invoices
-    $stmt = $pdo->prepare("SELECT * FROM purchase_invoices WHERE $tClause (invoice_no LIKE ? OR JSON_EXTRACT(data, '$.invoiceNo') LIKE ? OR id = ? OR frontend_id LIKE ?) ORDER BY id DESC LIMIT 5");
-    $stmt->execute([$qLike, $qLike, $numId, $qLike]);
+    $stmt = $pdo->prepare("SELECT * FROM purchase_invoices WHERE tenant_id = ? AND (invoice_no LIKE ? OR JSON_EXTRACT(data, '$.invoiceNo') LIKE ? OR id = ? OR frontend_id LIKE ?) ORDER BY id DESC LIMIT 5");
+    $stmt->execute([$tenantId, $qLike, $qLike, $numId, $qLike]);
     while ($r = $stmt->fetch(PDO::FETCH_ASSOC)) {
         $results[] = parseDocRow($r, 'purchase', 'فاتورة مشتريات', 'purchase.php?id={id}');
     }
 
     // 3. Single Payments (صرف نقدي)
-    $stmt = $pdo->prepare("SELECT * FROM single_payments WHERE $tClause (JSON_EXTRACT(data, '$.id') LIKE ? OR JSON_EXTRACT(data, '$.paymentNo') LIKE ? OR JSON_EXTRACT(data, '$.voucherNo') LIKE ? OR id = ? OR frontend_id LIKE ?) ORDER BY id DESC LIMIT 5");
-    $stmt->execute([$qLike, $qLike, $qLike, $numId, $qLike]);
+    $stmt = $pdo->prepare("SELECT * FROM single_payments WHERE tenant_id = ? AND (JSON_EXTRACT(data, '$.id') LIKE ? OR JSON_EXTRACT(data, '$.paymentNo') LIKE ? OR JSON_EXTRACT(data, '$.voucherNo') LIKE ? OR id = ? OR frontend_id LIKE ?) ORDER BY id DESC LIMIT 5");
+    $stmt->execute([$tenantId, $qLike, $qLike, $qLike, $numId, $qLike]);
     while ($r = $stmt->fetch(PDO::FETCH_ASSOC)) {
         $results[] = parseDocRow($r, 'single_payment', 'سند صرف نقدي', 'single-cash-payment.php?id={id}');
     }
 
     // 4. Single Receipts (قبض نقدي)
-    $stmt = $pdo->prepare("SELECT * FROM single_receipts WHERE $tClause (JSON_EXTRACT(data, '$.id') LIKE ? OR JSON_EXTRACT(data, '$.receiptNo') LIKE ? OR JSON_EXTRACT(data, '$.voucherNo') LIKE ? OR id = ? OR frontend_id LIKE ?) ORDER BY id DESC LIMIT 5");
-    $stmt->execute([$qLike, $qLike, $qLike, $numId, $qLike]);
+    $stmt = $pdo->prepare("SELECT * FROM single_receipts WHERE tenant_id = ? AND (JSON_EXTRACT(data, '$.id') LIKE ? OR JSON_EXTRACT(data, '$.receiptNo') LIKE ? OR JSON_EXTRACT(data, '$.voucherNo') LIKE ? OR id = ? OR frontend_id LIKE ?) ORDER BY id DESC LIMIT 5");
+    $stmt->execute([$tenantId, $qLike, $qLike, $qLike, $numId, $qLike]);
     while ($r = $stmt->fetch(PDO::FETCH_ASSOC)) {
         $results[] = parseDocRow($r, 'single_receipt', 'سند قبض نقدي', 'single-cash-payment.php?type=receipt&id={id}');
     }
 
     // 5. Multi Payments / Receipts
-    $stmt = $pdo->prepare("SELECT * FROM payments WHERE $tClause (JSON_EXTRACT(data, '$.voucherNo') LIKE ? OR JSON_EXTRACT(data, '$.id') LIKE ? OR id = ? OR frontend_id LIKE ?) ORDER BY id DESC LIMIT 5");
-    $stmt->execute([$qLike, $qLike, $numId, $qLike]);
+    $stmt = $pdo->prepare("SELECT * FROM payments WHERE tenant_id = ? AND (JSON_EXTRACT(data, '$.voucherNo') LIKE ? OR JSON_EXTRACT(data, '$.id') LIKE ? OR id = ? OR frontend_id LIKE ?) ORDER BY id DESC LIMIT 5");
+    $stmt->execute([$tenantId, $qLike, $qLike, $numId, $qLike]);
     while ($r = $stmt->fetch(PDO::FETCH_ASSOC)) {
         $results[] = parseDocRow($r, 'multi_payment', 'حركة صرف مجمعة', 'multi-cash-payment.php?id={id}');
     }
 
-    $stmt = $pdo->prepare("SELECT * FROM receipts WHERE $tClause (JSON_EXTRACT(data, '$.voucherNo') LIKE ? OR JSON_EXTRACT(data, '$.id') LIKE ? OR id = ? OR frontend_id LIKE ?) ORDER BY id DESC LIMIT 5");
-    $stmt->execute([$qLike, $qLike, $numId, $qLike]);
+    $stmt = $pdo->prepare("SELECT * FROM receipts WHERE tenant_id = ? AND (JSON_EXTRACT(data, '$.voucherNo') LIKE ? OR JSON_EXTRACT(data, '$.id') LIKE ? OR id = ? OR frontend_id LIKE ?) ORDER BY id DESC LIMIT 5");
+    $stmt->execute([$tenantId, $qLike, $qLike, $numId, $qLike]);
     while ($r = $stmt->fetch(PDO::FETCH_ASSOC)) {
         $results[] = parseDocRow($r, 'multi_receipt', 'حركة قبض مجمعة', 'multi-cash-payment.php?type=receipt&id={id}');
     }
 
     // 6. Journal Vouchers
-    $stmt = $pdo->prepare("SELECT * FROM journal_vouchers WHERE $tClause (JSON_EXTRACT(data, '$.id') LIKE ? OR JSON_EXTRACT(data, '$.voucherNo') LIKE ? OR JSON_EXTRACT(data, '$.jvNo') LIKE ? OR id = ? OR frontend_id LIKE ?) ORDER BY id DESC LIMIT 5");
-    $stmt->execute([$qLike, $qLike, $qLike, $numId, $qLike]);
+    $stmt = $pdo->prepare("SELECT * FROM journal_vouchers WHERE tenant_id = ? AND (JSON_EXTRACT(data, '$.id') LIKE ? OR JSON_EXTRACT(data, '$.voucherNo') LIKE ? OR JSON_EXTRACT(data, '$.jvNo') LIKE ? OR id = ? OR frontend_id LIKE ?) ORDER BY id DESC LIMIT 5");
+    $stmt->execute([$tenantId, $qLike, $qLike, $qLike, $numId, $qLike]);
     while ($r = $stmt->fetch(PDO::FETCH_ASSOC)) {
         $results[] = parseDocRow($r, 'journal_voucher', 'قيد يومية', 'journal-voucher.php?id={id}');
     }
 
     // 7. Audit Logs matching this query
-    $stmt = $pdo->prepare("SELECT * FROM audit_logs WHERE $tClause (data LIKE ? OR frontend_id LIKE ?) ORDER BY id DESC LIMIT 20");
-    $stmt->execute([$qLike, $qLike]);
+    $stmt = $pdo->prepare("SELECT * FROM audit_logs WHERE tenant_id = ? AND (data LIKE ? OR frontend_id LIKE ?) ORDER BY id DESC LIMIT 20");
+    $stmt->execute([$tenantId, $qLike, $qLike]);
     while ($r = $stmt->fetch(PDO::FETCH_ASSOC)) {
         $logData = json_decode($r['data'] ?? '{}', true) ?: [];
         $timeline[] = [

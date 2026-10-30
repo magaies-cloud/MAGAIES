@@ -1,9 +1,51 @@
-<?php $page_title = 'مقاييس 2026 - تسجيل الدخول'; ?>
+<?php
+$detectedSubdomain = strtolower(trim((string)($_GET['tenant'] ?? $_GET['subdomain'] ?? '')));
+if ($detectedSubdomain === '') {
+    $rawHost = strtolower(preg_replace('/:\d+$/', '', $_SERVER['HTTP_HOST'] ?? ''));
+    if ($rawHost !== '' && !preg_match('/^[0-9.]+$/', $rawHost) && $rawHost !== 'localhost') {
+        $hostParts = explode('.', $rawHost);
+        if (substr($rawHost, -10) === '.localhost' && count($hostParts) >= 2) {
+            $detectedSubdomain = $hostParts[0];
+        } elseif (count($hostParts) > 2 && $hostParts[0] !== 'www') {
+            $detectedSubdomain = $hostParts[0];
+        }
+    }
+}
+$detectedSubdomain = preg_replace('/[^a-z0-9\-]/', '', $detectedSubdomain);
+$detectedCompanyName = 'مؤسسة المقاييس للتجارة والخدمات';
+$detectedTenantId = null;
+if ($detectedSubdomain !== '') {
+    try {
+        if (!defined('ALLOW_OFFLINE_DB_FALLBACK')) {
+            define('ALLOW_OFFLINE_DB_FALLBACK', true);
+        }
+        if (file_exists(__DIR__ . '/db_bridge.php')) {
+            require_once __DIR__ . '/db_bridge.php';
+        }
+        $loginPdo = function_exists('getDBConnection') ? getDBConnection() : null;
+        if ($loginPdo) {
+            $stTenant = $loginPdo->prepare("SELECT id, company_name, subdomain FROM tenants WHERE LOWER(TRIM(subdomain)) = ? LIMIT 1");
+            $stTenant->execute([$detectedSubdomain]);
+            $tRow = $stTenant->fetch(PDO::FETCH_ASSOC);
+            if ($tRow) {
+                $detectedTenantId = (int)$tRow['id'];
+                if (!empty($tRow['company_name'])) {
+                    $detectedCompanyName = trim((string)$tRow['company_name']);
+                }
+            }
+        }
+    } catch (Throwable $e) {}
+}
+$page_title = 'مقاييس 2026 - ' . $detectedCompanyName . ' - تسجيل الدخول';
+?>
 <!-- c:\mynewapp\frontend-pwa\login.html -->
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <script src="js/lang.js"></script>
 <script>
+window.DETECTED_SUBDOMAIN = <?php echo json_encode($detectedSubdomain, JSON_UNESCAPED_UNICODE); ?>;
+window.DETECTED_COMPANY_NAME = <?php echo json_encode($detectedCompanyName, JSON_UNESCAPED_UNICODE); ?>;
+window.DETECTED_TENANT_ID = <?php echo json_encode($detectedTenantId); ?>;
 (function(){
     var l = localStorage.getItem('erp_lang') || 'ar';
     if(l==='en') {
@@ -357,9 +399,15 @@
         <div class="title" style="background: linear-gradient(135deg, #ffffff 25%, #38bdf8 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 2px; font-weight: 900; font-size: 1.35rem; letter-spacing: 0.5px;">
             مقاييس MAGAIEES ERP
         </div>
-        <p style="color: rgba(255, 255, 255, 0.72); font-size: 0.82rem; margin: 0 0 10px 0; font-weight: 700;">
-            مؤسسة المقاييس للتجارة والخدمات
+        <p id="login-company-subtitle" style="color: rgba(255, 255, 255, 0.88); font-size: 0.86rem; margin: 0 0 <?php echo $detectedSubdomain !== '' ? '4px' : '10px'; ?> 0; font-weight: 700;">
+            <?php echo htmlspecialchars($detectedCompanyName, ENT_QUOTES, 'UTF-8'); ?>
         </p>
+        <?php if ($detectedSubdomain !== ''): ?>
+        <div style="margin: 0 auto 10px auto; display: inline-flex; align-items: center; gap: 6px; padding: 3px 12px; border-radius: 999px; background: rgba(56, 189, 248, 0.12); border: 1px solid rgba(56, 189, 248, 0.3); color: #38bdf8; font-size: 0.75rem; font-weight: 700; direction: ltr;">
+            <span>🌐</span>
+            <span><?php echo htmlspecialchars($detectedSubdomain . '.elsajana.com', ENT_QUOTES, 'UTF-8'); ?></span>
+        </div>
+        <?php endif; ?>
 
         <!-- 👤 اسم المستخدم (تم رفعه لأعلى وإنقاص المسافة لبعده بنسبة 10%) -->
         <div class="input-group" style="text-align: right; margin-bottom: 13.5px;">
@@ -836,8 +884,9 @@
                     console.warn('Local reset OTP failed, trying cloud fallback...', localErr);
                 }
 
-                // 2. Cloud fallback if local failed
-                if (!success) {
+                // 2. Cloud fallback ONLY if on elsajana.com and local network request failed
+                const isElsajanaResetHost = window.location.hostname.endsWith('elsajana.com');
+                if (!success && isElsajanaResetHost && (!data || !data.error)) {
                     try {
                         const cloudUrl = 'https://c.elsajana.com/api_index.php?r=public&a=request-reset-otp';
                         const cloudController = new AbortController();
@@ -944,8 +993,9 @@
                     if (res.ok && data.success) success = true;
                 } catch (e) { console.warn('Local verify OTP failed, trying cloud...', e); }
 
-                // 2. Cloud fallback
-                if (!success) {
+                // 2. Cloud fallback ONLY if on elsajana.com and local network request failed
+                const isElsajanaResetHost = window.location.hostname.endsWith('elsajana.com');
+                if (!success && isElsajanaResetHost && (!data || !data.error)) {
                     try {
                         const cloudUrl = 'https://c.elsajana.com/api_index.php?r=public&a=verify-reset-otp';
                         const ctrl2 = new AbortController();
@@ -1025,8 +1075,9 @@
                     if (res.ok && data.success) success = true;
                 } catch (e) { console.warn('Local reset-password failed, trying cloud...', e); }
 
-                // 2. Cloud fallback
-                if (!success) {
+                // 2. Cloud fallback ONLY if on elsajana.com and local network request failed
+                const isElsajanaResetHost = window.location.hostname.endsWith('elsajana.com');
+                if (!success && isElsajanaResetHost && (!data || !data.error)) {
                     try {
                         const cloudUrl = 'https://c.elsajana.com/api_index.php?r=public&a=reset-password';
                         const ctrl2 = new AbortController();
@@ -1079,12 +1130,27 @@
                 document.cookie = "magaiees_view_preference=desktop; path=/; max-age=31536000; SameSite=Lax";
             }
             if (ssoParams.has('sso_token')) {
-                localStorage.setItem('authToken', ssoParams.get('sso_token'));
+                const ssoTok = ssoParams.get('sso_token');
+                localStorage.setItem('authToken', ssoTok);
                 if (ssoParams.has('sso_user')) {
-                    localStorage.setItem('user', ssoParams.get('sso_user'));
+                    const rawSsoUser = ssoParams.get('sso_user');
+                    localStorage.setItem('user', rawSsoUser);
+                    try {
+                        const parsedSsoUser = JSON.parse(rawSsoUser);
+                        if (parsedSsoUser && parsedSsoUser.tenant_id) {
+                            localStorage.setItem('currentTenantId', String(parsedSsoUser.tenant_id));
+                            document.cookie = "currentTenantId=" + encodeURIComponent(parsedSsoUser.tenant_id) + "; path=/; max-age=2592000; SameSite=Lax";
+                        }
+                        if (parsedSsoUser && parsedSsoUser.subdomain) {
+                            document.cookie = "currentSubdomain=" + encodeURIComponent(parsedSsoUser.subdomain) + "; path=/; max-age=2592000; SameSite=Lax";
+                        }
+                        if (parsedSsoUser && parsedSsoUser.company_name) {
+                            localStorage.setItem('companyName', parsedSsoUser.company_name);
+                        }
+                    } catch (e) {}
                 }
                 document.cookie = "session_active=true; path=/; max-age=2592000; SameSite=Lax";
-                document.cookie = "saas_token=" + encodeURIComponent(ssoParams.get('sso_token')) + "; path=/; max-age=2592000; SameSite=Lax";
+                document.cookie = "saas_token=" + encodeURIComponent(ssoTok) + "; path=/; max-age=2592000; SameSite=Lax";
                 sessionStorage.setItem('session_active', 'true');
                 sessionStorage.setItem('dashboard_unlocked', '1');
                 const dev = typeof currentDevice !== 'undefined' ? currentDevice : getDeviceDetails();
@@ -1119,8 +1185,31 @@
                 return;
             }
 
-            // استئناف الجلسة الذكي إذا كان المستخدم مسجلاً بالفعل في المتصفح ولم يطلب تسجيل خروج
-            const savedAuthToken = localStorage.getItem('authToken') || localStorage.getItem('saas_token');
+            // استئناف الجلسة الذكي إذا كان المستخدم مسجلاً بالفعل في المتصفح ولم يطلب تسجيل خروج أو تبديل شركة
+            let savedAuthToken = localStorage.getItem('authToken') || localStorage.getItem('saas_token');
+            if (savedAuthToken === 'local-offline-token' || (savedAuthToken && savedAuthToken.indexOf('offline_token_') === 0)) {
+                localStorage.removeItem('authToken');
+                savedAuthToken = '';
+            }
+            let savedSubdomain = '';
+            try {
+                const savedU = JSON.parse(localStorage.getItem('user') || '{}');
+                savedSubdomain = String(savedU.subdomain || '').trim().toLowerCase();
+            } catch (e) {}
+            const requestedSub = String(ssoParams.get('tenant') || ssoParams.get('subdomain') || window.DETECTED_SUBDOMAIN || '').trim().toLowerCase();
+            const isSwitchingCompany = (ssoParams.has('tenant') || ssoParams.has('subdomain')) && (!savedSubdomain || requestedSub !== savedSubdomain)
+                || (requestedSub && savedSubdomain && requestedSub !== savedSubdomain);
+
+            if (isSwitchingCompany) {
+                try {
+                    localStorage.removeItem('authToken');
+                    localStorage.removeItem('saas_token');
+                    sessionStorage.removeItem('session_active');
+                    sessionStorage.removeItem('mg_auto_resume_attempted');
+                } catch (e) {}
+                savedAuthToken = '';
+            }
+
             if (savedAuthToken && !ssoParams.has('login') && !ssoParams.has('force_login') && sessionStorage.getItem('mg_auto_resume_attempted') !== '1') {
                 sessionStorage.setItem('mg_auto_resume_attempted', '1');
                 document.cookie = "session_active=true; path=/; max-age=2592000; SameSite=Lax";
@@ -1128,6 +1217,9 @@
                 const savedTid = localStorage.getItem('currentTenantId');
                 if (savedTid) {
                     document.cookie = "currentTenantId=" + encodeURIComponent(savedTid) + "; path=/; max-age=2592000; SameSite=Lax";
+                }
+                if (savedSubdomain) {
+                    document.cookie = "currentSubdomain=" + encodeURIComponent(savedSubdomain) + "; path=/; max-age=2592000; SameSite=Lax";
                 }
                 sessionStorage.setItem('session_active', 'true');
                 sessionStorage.setItem('dashboard_unlocked', '1');
@@ -1295,12 +1387,14 @@
         
         function getSubdomain() {
             const params = new URLSearchParams(window.location.search);
-            if (params.has('tenant')) return params.get('tenant');
-            const host = window.location.hostname;
-            if (/^[0-9.]+$/.test(host)) return null;
+            if (params.has('tenant')) return params.get('tenant').trim().toLowerCase();
+            if (params.has('subdomain')) return params.get('subdomain').trim().toLowerCase();
+            if (window.DETECTED_SUBDOMAIN) return String(window.DETECTED_SUBDOMAIN).trim().toLowerCase();
+            const host = window.location.hostname.toLowerCase();
+            if (/^[0-9.]+$/.test(host) || host === 'localhost') return null;
             const parts = host.split('.');
             if (host.endsWith('.localhost') && parts.length >= 2) return parts[0];
-            if (parts.length > 2) return parts[0];
+            if (parts.length > 2 && parts[0] !== 'www') return parts[0];
             return null;
         }
         
@@ -1344,10 +1438,10 @@
                 deviceType: currentDevice.deviceType
             };
 
-            // 1. Fast Local Server API Attempt
+            // 1. Local Server API Attempt
             try {
                 const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 2500); // 2.5s fast timeout
+                const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s reliable timeout
 
                 const localUrl = getBaseUrl() + 'api_index.php/auth/login';
                 res = await fetch(localUrl, {
@@ -1475,6 +1569,9 @@
                     document.cookie = "currentTenantId=" + encodeURIComponent(data.user.tenant_id) + "; path=/; max-age=2592000; SameSite=Lax";
                     localStorage.setItem('currentTenantId', String(data.user.tenant_id));
                 }
+                if (data.user && data.user.subdomain) {
+                    document.cookie = "currentSubdomain=" + encodeURIComponent(data.user.subdomain) + "; path=/; max-age=2592000; SameSite=Lax";
+                }
                 sessionStorage.setItem('session_active', 'true');
                 sessionStorage.setItem('dashboard_unlocked', '1');
                 sessionStorage.removeItem('mg_auto_resume_attempted');
@@ -1511,13 +1608,20 @@
             }
 
             // 3. Third Attempt: Check Local / Offline Storage for matching user credentials
-            // Runs if API returned 401, network failed, or newly created user is awaiting cloud push.
+            // If the server explicitly responded with 401 (Invalid credentials), ONLY allow a local user whose explicit non-empty password matches (newly created offline user not yet synced).
+            // Never allow blank-password or sovereign fallback when the server is reachable and rejected the password with 401!
+            const serverExplicitlyRejected401 = !!(res && res.status === 401);
+            const serverUnreachable = (!res || res.status >= 500);
             let matchedUser = null;
             let matchedTenantId = null;
 
-            // Collect all potential user storage keys (unprefixed and tenant-prefixed)
-            const candidateKeys = ['erp_users_v1'];
+            // Collect all potential tenant-scoped user storage keys
+            const candidateKeys = [];
             try {
+                const curTid = localStorage.getItem('currentTenantId');
+                if (curTid) {
+                    candidateKeys.push(`tenant_${curTid}_erp_users_v1`);
+                }
                 for (let i = 0; i < localStorage.length; i++) {
                     const k = localStorage.key(i);
                     if (k && k.endsWith('erp_users_v1') && !candidateKeys.includes(k)) {
@@ -1541,15 +1645,9 @@
                             return (uName === target || uFullName === target || uEmail === target || (uPhone && uPhone === username.trim()));
                         });
                         if (cand) {
-                            // Verify password:
-                            // 1. Direct password match
-                            // 2. Default password (123456 / 123) if password was blank in local cache
-                            // 3. Sovereign admin check
-                            const passValid = (cand.password && (cand.password === password || String(cand.password) === String(password))) ||
-                                              (!cand.password && (password === '123456' || password === '123' || password === username)) ||
-                                              (username === 'admin' && (password === '123456' || password === 'admin' || password.length >= 3)) ||
-                                              (username === 'c' && (password === '123456' || password === 'c'));
-                            if (passValid) {
+                            const hasExplicitPasswordMatch = !!(cand.password && (cand.password === password || String(cand.password) === String(password)));
+                            const hasOfflineBlankFallback = (!serverExplicitlyRejected401 && !cand.password && (password === '123456' || password === '123' || password === username));
+                            if (hasExplicitPasswordMatch || hasOfflineBlankFallback) {
                                 matchedUser = cand;
                                 const tMatch = key.match(/^tenant_(\w+)_erp_users_v1$/);
                                 matchedTenantId = cand.tenant_id || (tMatch ? tMatch[1] : (localStorage.getItem('currentTenantId') || 1));
@@ -1677,7 +1775,7 @@
                 }
             }
 
-            const isSovereignAdmin = ((username === 'admin' || username === 'c' || username === 'مدير النظام' || username === 'bk' || username === 'joumana') && (password === '123456' || password === 'admin' || password === 'c' || password === '123' || password.length >= 3));
+            const isSovereignAdmin = (serverUnreachable && ((username === 'c' && (password === '123456' || password === 'c')) || (username === 'admin' && (password === '123456' || password === 'admin'))));
 
             if (matchedUser || isSovereignAdmin) {
                 const fallbackUser = matchedUser ? {
@@ -1705,13 +1803,13 @@
                     dataMasking: matchedUser.dataMasking || {},
                     managerPin: matchedUser.managerPin || ''
                 } : {
-                    id: (username === 'c' ? 2 : 1),
+                    id: (username === 'c' ? 12 : 1),
                     username: username,
                     fullName: (username === 'c' ? 'المدير العام (c)' : 'مدير النظام'),
                     role: 'admin',
                     userType: 'admin',
                     securityLevel: 10,
-                    tenant_id: (username === 'c' ? 2 : 1),
+                    tenant_id: (username === 'c' ? 12 : 1),
                     subdomain: (username === 'c' ? 'c' : ''),
                     valid_until: '2035-12-31 23:59:59',
                     status: 'active',

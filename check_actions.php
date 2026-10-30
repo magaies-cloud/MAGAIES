@@ -1,5 +1,5 @@
 <?php
-$token = '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';
+$token = getenv('GITHUB_TOKEN') ?: '';
 $url = 'https://api.github.com/repos/magaies-cloud/MAGAIES/actions/runs?per_page=5';
 $ch = curl_init($url);
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);

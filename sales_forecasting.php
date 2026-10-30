@@ -40,9 +40,8 @@ try {
 
         // جلب كل الفواتير لحساب المجاميع بشكل صحيح (مع دعم JSON)
         $sql = "SELECT id, date_val, total_val, data
-                FROM sales_invoices WHERE tenant_id = '{\}'
-
-                WHERE $where_sql
+                FROM sales_invoices
+                WHERE tenant_id = '{$GLOBAL_TENANT_ID}' AND $where_sql
                 ORDER BY date_val ASC";
 
         $stmt = $pdo->prepare($sql);

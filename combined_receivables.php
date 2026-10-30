@@ -20,7 +20,8 @@ try {
     if (isset($pdo)) {
         // --- جلب العملاء وأرصدتهم من جدول customers (بنية JSON) ---
         $customers = [];
-        $cust_stmt = $pdo->query("SELECT id, data FROM customers WHERE is_deleted = 0 OR is_deleted IS NULL");
+        $cust_stmt = $pdo->prepare("SELECT id, data FROM customers WHERE tenant_id = ? AND (is_deleted = 0 OR is_deleted IS NULL)");
+        $cust_stmt->execute([$GLOBAL_TENANT_ID]);
         while ($row = $cust_stmt->fetch()) {
             $d = json_decode($row['data'], true);
             if (!$d) continue;
@@ -38,7 +39,8 @@ try {
         // --- جلب الموردين وأرصدتهم من جدول suppliers (بنية JSON) ---
         $suppliers = [];
         try {
-            $sup_stmt = $pdo->query("SELECT id, data FROM suppliers WHERE is_deleted = 0 OR is_deleted IS NULL");
+            $sup_stmt = $pdo->prepare("SELECT id, data FROM suppliers WHERE tenant_id = ? AND (is_deleted = 0 OR is_deleted IS NULL)");
+            $sup_stmt->execute([$GLOBAL_TENANT_ID]);
             while ($row = $sup_stmt->fetch()) {
                 $d = json_decode($row['data'], true);
                 if (!$d) continue;

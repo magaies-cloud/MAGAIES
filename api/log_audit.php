@@ -3,15 +3,12 @@ require_once __DIR__ . '/db.php';
 
 header('Content-Type: application/json; charset=utf-8');
 
-// Multi-tenant resolution
-$tenantId = 1;
-if (!empty($_COOKIE['currentTenantId']) && is_numeric($_COOKIE['currentTenantId'])) {
-    $tenantId = (int)$_COOKIE['currentTenantId'];
-} elseif (!empty($_SESSION['user']['tenant_id'])) {
-    $tenantId = (int)$_SESSION['user']['tenant_id'];
-}
+$input = file_get_contents('php://input');
+$data = $input ? json_decode($input, true) : null;
 
-// Handle GET to list recent audit logs
+$tenantId = resolveCurrentTenantId($pdo, is_array($data) ? $data : null);
+
+// Handle GET to list recent audit logs for this tenant only
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     try {
         $stmt = $pdo->prepare("SELECT id, data, created_at FROM audit_logs WHERE tenant_id = ? ORDER BY id DESC LIMIT 100");
@@ -30,9 +27,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     exit;
 }
 
-$input = file_get_contents('php://input');
-$data = json_decode($input, true);
-
 if (!$data || !is_array($data)) {
     echo json_encode(['status' => 'error', 'message' => 'بيانات غير صالحة']);
     exit;
@@ -46,8 +40,9 @@ if (!isset($data['timestamp'])) {
 
 try {
     $jsonData = json_encode($data, JSON_UNESCAPED_UNICODE);
-    $stmt = $pdo->prepare("INSERT INTO audit_logs (tenant_id, data, frontend_id) VALUES (?, ?, ?)");
-    $stmt->execute([$tenantId, $jsonData, $frontendId]);
+    // Note: frontend_id is a VIRTUAL GENERATED column in audit_logs, so we insert (tenant_id, data)
+    $stmt = $pdo->prepare("INSERT INTO audit_logs (tenant_id, data) VALUES (?, ?)");
+    $stmt->execute([$tenantId, $jsonData]);
 
     echo json_encode([
         'status' => 'success',

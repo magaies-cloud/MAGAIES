@@ -1,5 +1,5 @@
 <?php
-$token = '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';
+$token = getenv('GITHUB_TOKEN') ?: '';
 
 // Get the latest run ID
 $url = 'https://api.github.com/repos/magaies-cloud/MAGAIES/actions/runs?per_page=1';

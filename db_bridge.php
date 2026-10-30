@@ -54,31 +54,63 @@ function getDBConnection() {
             @session_write_close();
         }
         
-        $token = $_COOKIE['saas_token'] ?? $_COOKIE['authToken'] ?? '';
+        $token = $_COOKIE['saas_token'] ?? $_COOKIE['authToken'] ?? $_COOKIE['mg_device_auth'] ?? '';
         if (empty($token) && !empty($_SERVER['HTTP_AUTHORIZATION'])) {
             $token = trim(str_replace('Bearer', '', $_SERVER['HTTP_AUTHORIZATION']));
         }
         
         $tenantId = false;
         if (!empty($token)) {
-            $stmt = $pdo->prepare("SELECT tenant_id FROM users WHERE token = ? AND (token_expires_at IS NULL OR token_expires_at > NOW()) AND status = 'active'");
-            $stmt->execute([$token]);
-            $tenantId = $stmt->fetchColumn();
+            if (strpos($token, 'MGD1.') === 0) {
+                $parts = explode('.', $token);
+                if (count($parts) === 3) {
+                    $secret = getenv('MAGAIEES_AUTH_HMAC_KEY') ?: 'ELSAJANA_MAGAIEES_PERSISTENT_MOBILE_SYNC_KEY_2026';
+                    if (hash_equals(hash_hmac('sha256', $parts[1], $secret), $parts[2])) {
+                        $dec = json_decode(base64_decode(strtr($parts[1], '-_', '+/')) ?: '', true);
+                        if (!empty($dec['t']) && (int)$dec['t'] > 0) {
+                            $tenantId = (int)$dec['t'];
+                        }
+                    }
+                }
+            } else {
+                $stmt = $pdo->prepare("SELECT tenant_id FROM users WHERE token = ? AND (token_expires_at IS NULL OR token_expires_at > NOW()) AND (status = 'active' OR status IS NULL)");
+                $stmt->execute([$token]);
+                $tenantId = $stmt->fetchColumn();
+            }
         }
         
         // Multi-tier session fallbacks
+        if (!$tenantId && !empty($_SESSION['mg_tenant_id']) && (int)$_SESSION['mg_tenant_id'] > 0) {
+            $tenantId = (int)$_SESSION['mg_tenant_id'];
+        }
         if (!$tenantId && !empty($_SESSION['user']['tenant_id'])) {
             $tenantId = (int)$_SESSION['user']['tenant_id'];
         }
-        if (!$tenantId && !empty($_COOKIE['currentTenantId']) && is_numeric($_COOKIE['currentTenantId'])) {
+        if (!$tenantId && !empty($_SERVER['HTTP_X_TENANT_ID']) && is_numeric($_SERVER['HTTP_X_TENANT_ID']) && (int)$_SERVER['HTTP_X_TENANT_ID'] > 0) {
+            $tenantId = (int)$_SERVER['HTTP_X_TENANT_ID'];
+        }
+        if (!$tenantId && !empty($_GET['tenant_id']) && is_numeric($_GET['tenant_id']) && (int)$_GET['tenant_id'] > 0) {
+            $tenantId = (int)$_GET['tenant_id'];
+        }
+        if (!$tenantId && !empty($_COOKIE['currentTenantId']) && is_numeric($_COOKIE['currentTenantId']) && (int)$_COOKIE['currentTenantId'] > 0) {
             $tenantId = (int)$_COOKIE['currentTenantId'];
+        }
+        if (!$tenantId && !empty($_COOKIE['mg_tenant_id']) && is_numeric($_COOKIE['mg_tenant_id']) && (int)$_COOKIE['mg_tenant_id'] > 0) {
+            $tenantId = (int)$_COOKIE['mg_tenant_id'];
         }
         
         if (!$tenantId) {
-            $host = $_SERVER['HTTP_HOST'] ?? ($_SERVER['SERVER_NAME'] ?? '');
-            if (preg_match('/^([a-z0-9_-]+)\.elsajana\.com$/i', $host, $m)) {
-                $sub = strtolower($m[1]);
-                $stmtSub = $pdo->prepare("SELECT id FROM tenants WHERE subdomain = ? LIMIT 1");
+            $sub = strtolower(trim((string)($_GET['tenant'] ?? $_GET['company'] ?? $_GET['sub'] ?? '')));
+            if ($sub === '') {
+                $host = strtolower(explode(':', $_SERVER['HTTP_HOST'] ?? ($_SERVER['SERVER_NAME'] ?? ''))[0]);
+                if (preg_match('/^([a-z0-9_-]+)\.elsajana\.com$/i', $host, $m)) {
+                    $sub = strtolower($m[1]);
+                } elseif (preg_match('/^([a-z0-9_-]+)\.localhost$/i', $host, $m)) {
+                    $sub = strtolower($m[1]);
+                }
+            }
+            if ($sub !== '' && !in_array($sub, ['www', 'app', 'erp', 'localhost'], true)) {
+                $stmtSub = $pdo->prepare("SELECT id FROM tenants WHERE LOWER(TRIM(subdomain)) = ? LIMIT 1");
                 $stmtSub->execute([$sub]);
                 $subTenant = $stmtSub->fetchColumn();
                 if ($subTenant) $tenantId = (int)$subTenant;
@@ -121,8 +153,8 @@ function hasCurrentBalanceColumn($pdo) {
 // دالة موحدة لجلب سعر صرف الدولار المعتمد في النظام من قاعدة البيانات لجميع الشاشات
 function getSystemUsdExchangeRate($pdo = null, $tenantId = null) {
     global $GLOBAL_TENANT_ID;
-    if ($pdo === null) {
-        try { $pdo = getDBConnection(); } catch (Throwable $e) { return 5999.0; }
+    if ($pdo === null || $GLOBAL_TENANT_ID === null) {
+        try { $pdo = getDBConnection(); } catch (Throwable $e) { if (!$pdo) return 5999.0; }
     }
     if (!$pdo) return 5999.0;
     if ($tenantId === null) {
@@ -131,12 +163,33 @@ function getSystemUsdExchangeRate($pdo = null, $tenantId = null) {
     $rate = 0.0;
     try {
         $tKey = 'tenant_rate_' . intval($tenantId);
-        $stmt = $pdo->prepare("SELECT setting_key, setting_value FROM global_settings WHERE setting_key IN (?, 'exchange_rate', 'erp_rate_usd', 'erp_currency_rates_v1')");
-        $stmt->execute([$tKey]);
+        $tCurrKey = 'tenant_' . intval($tenantId) . '_erp_currency_rates_v1';
+        $stmt = $pdo->prepare("SELECT setting_key, setting_value FROM global_settings WHERE setting_key IN (?, ?, 'exchange_rate', 'erp_rate_usd', 'erp_currency_rates_v1')");
+        $stmt->execute([$tKey, $tCurrKey]);
         $rows = $stmt->fetchAll(PDO::FETCH_KEY_PAIR);
 
-        // 1. فحص exchange_rate أولاً باعتباره السعر المركزي المحدث في قاعدة البيانات
-        if (!empty($rows['exchange_rate'])) {
+        // 1. فحص سعر الصرف المخصص للشركة أولاً (tenant_rate_X) لعزل أسعار الصرف بين الشركات
+        if (!empty($rows[$tKey])) {
+            $val = $rows[$tKey];
+            if (is_numeric($val) && (float)$val > 1) {
+                $rate = (float)$val;
+            } else {
+                $d = json_decode($val, true);
+                if (is_array($d)) {
+                    if (!empty($d['current']) && (float)$d['current'] > 1) $rate = (float)$d['current'];
+                    elseif (!empty($d['rate']) && (float)$d['rate'] > 1) $rate = (float)$d['rate'];
+                    elseif (!empty($d['rateUSD']) && (float)$d['rateUSD'] > 1) $rate = (float)$d['rateUSD'];
+                }
+            }
+        }
+        if ($rate <= 1 && !empty($rows[$tCurrKey])) {
+            $ratesObj = json_decode($rows[$tCurrKey], true);
+            if (is_array($ratesObj) && !empty($ratesObj['USD']) && (float)$ratesObj['USD'] > 1) {
+                $rate = (float)$ratesObj['USD'];
+            }
+        }
+        // 2. فحص exchange_rate العام كاحتياطي في حال عدم تعيين سعر خاص للشركة
+        if ($rate <= 1 && !empty($rows['exchange_rate'])) {
             $val = $rows['exchange_rate'];
             if (is_numeric($val) && (float)$val > 1) {
                 $rate = (float)$val;
@@ -146,19 +199,6 @@ function getSystemUsdExchangeRate($pdo = null, $tenantId = null) {
                     if (!empty($d['rate']) && (float)$d['rate'] > 1) $rate = (float)$d['rate'];
                     elseif (!empty($d['current']) && (float)$d['current'] > 1) $rate = (float)$d['current'];
                     elseif (!empty($d['USD']) && (float)$d['USD'] > 1) $rate = (float)$d['USD'];
-                }
-            }
-        }
-        // 2. فحص tenant_rate_X
-        if ($rate <= 1 && !empty($rows[$tKey])) {
-            $val = $rows[$tKey];
-            if (is_numeric($val) && (float)$val > 1) {
-                $rate = (float)$val;
-            } else {
-                $d = json_decode($val, true);
-                if (is_array($d)) {
-                    if (!empty($d['current']) && (float)$d['current'] > 1) $rate = (float)$d['current'];
-                    elseif (!empty($d['rate']) && (float)$d['rate'] > 1) $rate = (float)$d['rate'];
                 }
             }
         }
@@ -409,15 +449,7 @@ function getCheckClearingVelocityData($pdo) {
             ];
         }
 
-        if (empty($result)) {
-            $rate = 600000;
-            $today = date('Y-m-d');
-            $tomorrow = date('Y-m-d', strtotime('+1 day'));
-            $result = [
-                ['due_date' => $today, 'expected_inflow' => $rate * 4.5, 'expected_outflow' => $rate * 2.0, 'net_daily_velocity' => $rate * 2.5],
-                ['due_date' => $tomorrow, 'expected_inflow' => $rate * 2.0, 'expected_outflow' => $rate * 3.5, 'net_daily_velocity' => -$rate * 1.5]
-            ];
-        }
+        // Mock data fallback removed for SaaS environment
 
         // ترتيب تصاعدي حسب التاريخ
         usort($result, function($a, $b) {
@@ -444,7 +476,7 @@ function getSeasonalTrendsData($pdo) {
         
         $itemNames = [];
         try {
-            $stmtItems = $pdo->query("SELECT frontend_id, search_name FROM items WHERE tenant_id = '{$GLOBAL_TENANT_ID}'");
+            $stmtItems = $pdo->query("SELECT frontend_id, search_name FROM items WHERE tenant_id = '{$GLOBAL_TENANT_ID}' AND (is_deleted = 0 OR is_deleted IS NULL)");
             while ($rowItem = $stmtItems->fetch()) {
                 if (!empty($rowItem['frontend_id'])) {
                     $itemNames[$rowItem['frontend_id']] = $rowItem['search_name'];
@@ -453,10 +485,10 @@ function getSeasonalTrendsData($pdo) {
         } catch (Exception $e) { error_log('Items fetch error: ' . $e->getMessage()); }
 
         try {
-            $stmt = $pdo->query("SELECT data FROM sales_invoices WHERE tenant_id = '{$GLOBAL_TENANT_ID}'");
+            $stmt = $pdo->query("SELECT data FROM sales_invoices WHERE tenant_id = '{$GLOBAL_TENANT_ID}' AND (is_deleted = 0 OR is_deleted IS NULL)");
             while ($row = $stmt->fetch()) {
                 $inv = json_decode($row['data'], true);
-                if ($inv) {
+                if ($inv && empty($inv['deleted'])) {
                     $date = $inv['date'] ?? '';
                     $month = $date ? (int)date('m', strtotime($date)) : 0;
                     $items = $inv['items'] ?? [];
@@ -491,12 +523,7 @@ function getSeasonalTrendsData($pdo) {
 
         $result = array_values($trends);
 
-        if (empty($result)) {
-            $result = [
-                ['item_name' => 'حديد تسليح 5 لينيا الأسعد', 'autumn_rainy_season_qty' => 450, 'summer_dry_season_qty' => 850, 'total_annual_qty' => 1300],
-                ['item_name' => 'أسمنت عطبرة مقاوم', 'autumn_rainy_season_qty' => 1200, 'summer_dry_season_qty' => 2200, 'total_annual_qty' => 3400]
-            ];
-        }
+        // Mock data fallback removed for SaaS environment
 
         // ترتيب تنازلي حسب إجمالي الكمية السنوية
         usort($result, function($a, $b) {
@@ -734,13 +761,7 @@ function getSupplierPerformanceData($pdo) {
             ];
         }
 
-        if (empty($result)) {
-            $rate = 600000;
-            $result = [
-                ['supplier_name' => 'مصنع الأسعد للحديد', 'total_orders_placed' => 18, 'total_business_volume' => $rate * 85.0, 'price_volatility_variance' => 12.4],
-                ['supplier_name' => 'شركة أسمنت عطبرة', 'total_orders_placed' => 12, 'total_business_volume' => $rate * 45.0, 'price_volatility_variance' => 4.5]
-            ];
-        }
+        // Mock data fallback removed for SaaS environment
 
         // ترتيب تنازلي حسب الحجم المالي
         usort($result, function($a, $b) {
@@ -878,7 +899,7 @@ function getRealTimeLiquidity($pdo) {
         
         // 1. جلب الخزن الحقيقية
         try {
-            $tCond = (!empty($GLOBAL_TENANT_ID) && $GLOBAL_TENANT_ID > 0) ? "tenant_id = '{$GLOBAL_TENANT_ID}'" : "1=1";
+            $tCond = (!empty($GLOBAL_TENANT_ID) && $GLOBAL_TENANT_ID > 0) ? "tenant_id = '" . (int)$GLOBAL_TENANT_ID . "'" : "1=0";
             $stmt = $pdo->query("SELECT data FROM safes WHERE ($tCond) AND (is_deleted = 0 OR is_deleted IS NULL)");
             while ($row = $stmt->fetch()) {
                 $data = json_decode($row['data'], true);
@@ -894,7 +915,7 @@ function getRealTimeLiquidity($pdo) {
 
         // 2. جلب الحسابات البنكية الحقيقية
         try {
-            $tCond = (!empty($GLOBAL_TENANT_ID) && $GLOBAL_TENANT_ID > 0) ? "tenant_id = '{$GLOBAL_TENANT_ID}'" : "1=1";
+            $tCond = (!empty($GLOBAL_TENANT_ID) && $GLOBAL_TENANT_ID > 0) ? "tenant_id = '" . (int)$GLOBAL_TENANT_ID . "'" : "1=0";
             $stmt = $pdo->query("SELECT data FROM banks WHERE ($tCond) AND (is_deleted = 0 OR is_deleted IS NULL)");
             while ($row = $stmt->fetch()) {
                 $data = json_decode($row['data'], true);
@@ -910,7 +931,7 @@ function getRealTimeLiquidity($pdo) {
 
         // 3. جلب محفظة الشيكات الحقيقية (تحت التحصيل)
         try {
-            $tCond = (!empty($GLOBAL_TENANT_ID) && $GLOBAL_TENANT_ID > 0) ? "tenant_id = '{$GLOBAL_TENANT_ID}'" : "1=1";
+            $tCond = (!empty($GLOBAL_TENANT_ID) && $GLOBAL_TENANT_ID > 0) ? "tenant_id = '" . (int)$GLOBAL_TENANT_ID . "'" : "1=0";
             $stmt = $pdo->query("SELECT data FROM `checks` WHERE ($tCond) AND (is_deleted = 0 OR is_deleted IS NULL)");
             $checksTotal = 0;
             $checksCount = 0;

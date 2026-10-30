@@ -2422,33 +2422,32 @@ window.addEventListener('keydown', function(e) {
 $_hdrSyncCustomers = [];
 $_hdrSyncBanks = [];
 $_hdrSyncReceipts = [];
+$_hdrTid = 0;
 try {
-    if (!isset($pdo) || !$pdo) {
-        if (function_exists('getDBConnection')) {
-            $pdo = getDBConnection();
-        }
+    if (function_exists('getDBConnection') && (!isset($pdo) || !$pdo || empty($GLOBAL_TENANT_ID))) {
+        $pdo = getDBConnection();
     }
-    if (isset($pdo) && $pdo) {
-        $_hdrTid = !empty($GLOBAL_TENANT_ID) ? (string)$GLOBAL_TENANT_ID : '12';
-        $stmtC = $pdo->prepare("SELECT data FROM customers WHERE tenant_id IN (?, '12', '1', 'default')");
+    $_hdrTid = function_exists('resolveCurrentTenantId') ? resolveCurrentTenantId($pdo ?? null) : (!empty($GLOBAL_TENANT_ID) ? (int)$GLOBAL_TENANT_ID : 0);
+    if (isset($pdo) && $pdo && $_hdrTid > 0) {
+        $stmtC = $pdo->prepare("SELECT data FROM customers WHERE tenant_id = ? AND (is_deleted = 0 OR is_deleted IS NULL)");
         $stmtC->execute([$_hdrTid]);
         while ($rc = $stmtC->fetch(PDO::FETCH_ASSOC)) {
             $dc = json_decode($rc['data'] ?? '', true);
-            if ($dc && !empty($dc['id'])) $_hdrSyncCustomers[$dc['id']] = $dc;
+            if ($dc && !empty($dc['id']) && empty($dc['deleted'])) $_hdrSyncCustomers[$dc['id']] = $dc;
         }
 
-        $stmtB = $pdo->prepare("SELECT data FROM banks WHERE tenant_id IN (?, '12', '1', 'default')");
+        $stmtB = $pdo->prepare("SELECT data FROM banks WHERE tenant_id = ? AND (is_deleted = 0 OR is_deleted IS NULL)");
         $stmtB->execute([$_hdrTid]);
         while ($rb = $stmtB->fetch(PDO::FETCH_ASSOC)) {
             $db = json_decode($rb['data'] ?? '', true);
-            if ($db && !empty($db['id'])) $_hdrSyncBanks[$db['id']] = $db;
+            if ($db && !empty($db['id']) && empty($db['deleted'])) $_hdrSyncBanks[$db['id']] = $db;
         }
 
-        $stmtR = $pdo->prepare("SELECT data FROM receipts WHERE tenant_id IN (?, '12', '1', 'default') ORDER BY id ASC");
+        $stmtR = $pdo->prepare("SELECT data FROM receipts WHERE tenant_id = ? AND (is_deleted = 0 OR is_deleted IS NULL) ORDER BY id ASC");
         $stmtR->execute([$_hdrTid]);
         while ($rr = $stmtR->fetch(PDO::FETCH_ASSOC)) {
             $dr = json_decode($rr['data'] ?? '', true);
-            if ($dr && (!empty($dr['voucherNo']) || !empty($dr['id']))) {
+            if ($dr && empty($dr['deleted']) && (!empty($dr['voucherNo']) || !empty($dr['id']))) {
                 $k = $dr['voucherNo'] ?? $dr['id'];
                 $_hdrSyncReceipts[$k] = $dr;
             }
@@ -2458,24 +2457,24 @@ try {
 ?>
 <script id="erp-live-whatsapp-receipts-sync">
 (function() {
+    var srvTenantId  = <?= (int)$_hdrTid ?>;
     var srvCustomers = <?= json_encode(array_values($_hdrSyncCustomers), JSON_UNESCAPED_UNICODE) ?>;
     var srvBanks     = <?= json_encode(array_values($_hdrSyncBanks), JSON_UNESCAPED_UNICODE) ?>;
     var srvReceipts  = <?= json_encode(array_values($_hdrSyncReceipts), JSON_UNESCAPED_UNICODE) ?>;
 
     function mergeArrayIntoLocal(baseKey, serverItems, idField, altIdField) {
         if (!Array.isArray(serverItems) || serverItems.length === 0) return;
-        var keys = [baseKey, 'tenant_12_' + baseKey];
+        var tId = '';
         try {
             var u = JSON.parse(localStorage.getItem('user') || '{}');
-            var tId = u.tenant_id || localStorage.getItem('currentTenantId') || '12';
-            if (keys.indexOf('tenant_' + tId + '_' + baseKey) === -1) {
-                keys.push('tenant_' + tId + '_' + baseKey);
-            }
+            tId = String(u.tenant_id || localStorage.getItem('currentTenantId') || '').trim();
         } catch(e) {}
+        if (!tId || !srvTenantId || tId !== String(srvTenantId)) return;
 
+        var tenantKey = 'tenant_' + tId + '_' + baseKey;
         var localArr = [];
         try {
-            localArr = JSON.parse(localStorage.getItem(baseKey) || '[]');
+            localArr = JSON.parse(localStorage.getItem(tenantKey) || '[]');
             if (!Array.isArray(localArr)) localArr = [];
         } catch(e) { localArr = []; }
 
@@ -2508,9 +2507,7 @@ try {
 
         if (changed) {
             var jsonStr = JSON.stringify(localArr);
-            keys.forEach(function(k) {
-                try { localStorage.setItem(k, jsonStr); } catch(e) {}
-            });
+            try { localStorage.setItem(tenantKey, jsonStr); } catch(e) {}
         }
     }
 

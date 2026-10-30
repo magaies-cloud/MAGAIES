@@ -95,19 +95,7 @@ try {
                 $stmtCr->execute([$tKey]);
                 $rowsCr = $stmtCr->fetchAll(PDO::FETCH_KEY_PAIR);
                 $resolvedRate = 0;
-                if (!empty($rowsCr['exchange_rate'])) {
-                    $val = trim((string)$rowsCr['exchange_rate']);
-                    if (is_numeric($val) && (float)$val > 1) {
-                        $resolvedRate = (float)$val;
-                    } else {
-                        $dec = json_decode($val, true);
-                        if (is_array($dec)) {
-                            $r = (float)($dec['rate'] ?? ($dec['current'] ?? ($dec['rateUSD'] ?? ($dec['USD'] ?? 0))));
-                            if ($r > 1) $resolvedRate = $r;
-                        }
-                    }
-                }
-                if ($resolvedRate <= 1 && !empty($rowsCr[$tKey])) {
+                if (!empty($rowsCr[$tKey])) {
                     $valT = trim((string)$rowsCr[$tKey]);
                     if (is_numeric($valT) && (float)$valT > 1) {
                         $resolvedRate = (float)$valT;
@@ -115,6 +103,18 @@ try {
                         $decT = json_decode($valT, true);
                         if (is_array($decT)) {
                             $r = (float)($decT['current'] ?? ($decT['rate'] ?? ($decT['rateUSD'] ?? 0)));
+                            if ($r > 1) $resolvedRate = $r;
+                        }
+                    }
+                }
+                if ($resolvedRate <= 1 && !empty($rowsCr['exchange_rate'])) {
+                    $val = trim((string)$rowsCr['exchange_rate']);
+                    if (is_numeric($val) && (float)$val > 1) {
+                        $resolvedRate = (float)$val;
+                    } else {
+                        $dec = json_decode($val, true);
+                        if (is_array($dec)) {
+                            $r = (float)($dec['rate'] ?? ($dec['current'] ?? ($dec['rateUSD'] ?? ($dec['USD'] ?? 0))));
                             if ($r > 1) $resolvedRate = $r;
                         }
                     }
@@ -134,8 +134,9 @@ try {
             // 1. Units (وحدات القياس الحقيقية)
             $units = ['طن', 'سيخة', 'كيلو', 'شوال', 'كرتونة', 'حبة', 'قطعة', 'متر', 'لتر', 'شيلة', 'طرد', 'برميل'];
             try {
-                $stmtUnits = $pdo->prepare("SELECT setting_value FROM global_settings WHERE setting_key = 'erp_global_units_v1'");
-                $stmtUnits->execute();
+                $tUnitsKey = 'tenant_' . intval($tenant_id) . '_erp_global_units_v1';
+                $stmtUnits = $pdo->prepare("SELECT setting_value FROM global_settings WHERE setting_key IN (?, 'erp_global_units_v1') ORDER BY (setting_key = ?) DESC LIMIT 1");
+                $stmtUnits->execute([$tUnitsKey, $tUnitsKey]);
                 $uVal = $stmtUnits->fetchColumn();
                 if ($uVal) {
                     $decodedUnits = json_decode($uVal, true);
@@ -148,7 +149,7 @@ try {
             // 2. Real Customers (العملاء الحقيقيون)
             $customers = [];
             $totalReceivables = 0;
-            $stmtCust = $pdo->prepare("SELECT id, frontend_id, search_name, search_phone, data FROM customers WHERE (tenant_id = ? OR tenant_id IS NULL) AND (is_deleted = 0 OR is_deleted IS NULL) ORDER BY id DESC");
+            $stmtCust = $pdo->prepare("SELECT id, frontend_id, search_name, search_phone, data FROM customers WHERE tenant_id = ? AND (is_deleted = 0 OR is_deleted IS NULL) ORDER BY id DESC");
             $stmtCust->execute([$tenant_id]);
             while ($row = $stmtCust->fetch(PDO::FETCH_ASSOC)) {
                 $d = !empty($row['data']) ? json_decode($row['data'], true) : [];
@@ -185,7 +186,7 @@ try {
             // 3. Real Suppliers (الموردون الحقيقيون)
             $suppliers = [];
             $totalPayables = 0;
-            $stmtSupp = $pdo->prepare("SELECT id, frontend_id, search_name, search_phone, data FROM suppliers WHERE (tenant_id = ? OR tenant_id IS NULL) AND (is_deleted = 0 OR is_deleted IS NULL) ORDER BY id DESC");
+            $stmtSupp = $pdo->prepare("SELECT id, frontend_id, search_name, search_phone, data FROM suppliers WHERE tenant_id = ? AND (is_deleted = 0 OR is_deleted IS NULL) ORDER BY id DESC");
             $stmtSupp->execute([$tenant_id]);
             while ($row = $stmtSupp->fetch(PDO::FETCH_ASSOC)) {
                 $d = !empty($row['data']) ? json_decode($row['data'], true) : [];
@@ -220,7 +221,7 @@ try {
             // 4. Real Banks & Visa/Cards (البنوك والفيزا والمصارف)
             $banks = [];
             $totalBankBalance = 0;
-            $stmtBanks = $pdo->prepare("SELECT id, frontend_id, data FROM banks WHERE (tenant_id = ? OR tenant_id IS NULL) AND (is_deleted = 0 OR is_deleted IS NULL) ORDER BY id ASC");
+            $stmtBanks = $pdo->prepare("SELECT id, frontend_id, data FROM banks WHERE tenant_id = ? AND (is_deleted = 0 OR is_deleted IS NULL) ORDER BY id ASC");
             $stmtBanks->execute([$tenant_id]);
             while ($row = $stmtBanks->fetch(PDO::FETCH_ASSOC)) {
                 $d = !empty($row['data']) ? json_decode($row['data'], true) : [];
@@ -251,7 +252,7 @@ try {
             // 5. Real Cash Safes (الخزن النقدية ونقاط البيع)
             $safes = [];
             $totalSafeBalance = 0;
-            $stmtSafes = $pdo->prepare("SELECT id, frontend_id, data FROM safes WHERE (tenant_id = ? OR tenant_id IS NULL) AND (is_deleted = 0 OR is_deleted IS NULL) ORDER BY id ASC");
+            $stmtSafes = $pdo->prepare("SELECT id, frontend_id, data FROM safes WHERE tenant_id = ? AND (is_deleted = 0 OR is_deleted IS NULL) ORDER BY id ASC");
             $stmtSafes->execute([$tenant_id]);
             while ($row = $stmtSafes->fetch(PDO::FETCH_ASSOC)) {
                 $d = !empty($row['data']) ? json_decode($row['data'], true) : [];
@@ -280,7 +281,7 @@ try {
             // 6. Real Items & Products (الأصناف والأسعار والمخزون)
             $items = [];
             $totalInventoryQty = 0;
-            $stmtItems = $pdo->prepare("SELECT id, frontend_id, search_name, search_barcode, category_val, data FROM items WHERE (tenant_id = ? OR tenant_id IS NULL) AND (is_deleted = 0 OR is_deleted IS NULL) ORDER BY id DESC");
+            $stmtItems = $pdo->prepare("SELECT id, frontend_id, search_name, search_barcode, category_val, data FROM items WHERE tenant_id = ? AND (is_deleted = 0 OR is_deleted IS NULL) ORDER BY id DESC");
             $stmtItems->execute([$tenant_id]);
             while ($row = $stmtItems->fetch(PDO::FETCH_ASSOC)) {
                 $d = !empty($row['data']) ? json_decode($row['data'], true) : [];
@@ -326,11 +327,11 @@ try {
             $recentTransactions = [];
 
             try {
-                $stmtSales = $pdo->prepare("SELECT COUNT(*) as cnt FROM sales_invoices WHERE (tenant_id = ? OR tenant_id IS NULL) AND (is_deleted = 0 OR is_deleted IS NULL)");
+                $stmtSales = $pdo->prepare("SELECT COUNT(*) as cnt FROM sales_invoices WHERE tenant_id = ? AND (is_deleted = 0 OR is_deleted IS NULL)");
                 $stmtSales->execute([$tenant_id]);
                 $salesCount = (int)$stmtSales->fetchColumn();
 
-                $stmtRecent = $pdo->prepare("SELECT id, invoice_no, total_val, data, created_at FROM sales_invoices WHERE (tenant_id = ? OR tenant_id IS NULL) AND (is_deleted = 0 OR is_deleted IS NULL) ORDER BY id DESC LIMIT 15");
+                $stmtRecent = $pdo->prepare("SELECT id, invoice_no, total_val, data, created_at FROM sales_invoices WHERE tenant_id = ? AND (is_deleted = 0 OR is_deleted IS NULL) ORDER BY id DESC LIMIT 15");
                 $stmtRecent->execute([$tenant_id]);
                 while ($inv = $stmtRecent->fetch(PDO::FETCH_ASSOC)) {
                     $invData = !empty($inv['data']) ? json_decode($inv['data'], true) : [];
@@ -436,8 +437,8 @@ try {
             ];
 
             $jsonData = json_encode($partnerData, JSON_UNESCAPED_UNICODE);
-            $stmt = $pdo->prepare("INSERT INTO `$table` (tenant_id, frontend_id, search_name, search_phone, data, is_deleted) VALUES (?, ?, ?, ?, ?, 0)");
-            $stmt->execute([$tenant_id, $frontendId, $name, $phone, $jsonData]);
+            $stmt = $pdo->prepare("INSERT INTO `$table` (tenant_id, data) VALUES (?, ?)");
+            $stmt->execute([$tenant_id, $jsonData]);
 
             echo json_encode([
                 'success' => true,
@@ -480,7 +481,7 @@ try {
             $updateEntityBalance = function($id, $delta) use ($pdo, $tenant_id) {
                 $tables = ['banks', 'safes', 'customers', 'suppliers'];
                 foreach ($tables as $tbl) {
-                    $stmt = $pdo->prepare("SELECT id, data FROM `$tbl` WHERE (tenant_id = ? OR tenant_id IS NULL) AND (frontend_id = ? OR id = ?) LIMIT 1");
+                    $stmt = $pdo->prepare("SELECT id, data FROM `$tbl` WHERE tenant_id = ? AND (frontend_id = ? OR id = ?) LIMIT 1");
                     $stmt->execute([$tenant_id, $id, $id]);
                     $row = $stmt->fetch(PDO::FETCH_ASSOC);
                     if ($row) {
@@ -522,7 +523,7 @@ try {
                     'source' => 'mobile_app'
                 ];
                 $jsonRecord = json_encode($transferRecord, JSON_UNESCAPED_UNICODE);
-                $stmtTx = $pdo->prepare("INSERT INTO receipts (tenant_id, data, is_deleted) VALUES (?, ?, 0)");
+                $stmtTx = $pdo->prepare("INSERT INTO receipts (tenant_id, data) VALUES (?, ?)");
                 $stmtTx->execute([$tenant_id, $jsonRecord]);
                 $stmtSp = $pdo->prepare("INSERT INTO single_payments (tenant_id, data, created_at, updated_at) VALUES (?, ?, NOW(), NOW())");
                 $stmtSp->execute([$tenant_id, $jsonRecord]);

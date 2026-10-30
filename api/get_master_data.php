@@ -12,11 +12,11 @@ $reqHeaderTid = $_SERVER['HTTP_X_TENANT_ID'] ?? '';
 $reqGetTid = $_GET['tenant_id'] ?? '';
 $reqCookieTid = $_COOKIE['currentTenantId'] ?? '';
 
-if (is_numeric($reqHeaderTid) && (int)$reqHeaderTid > 1) {
+if (is_numeric($reqHeaderTid) && (int)$reqHeaderTid >= 1) {
     $tenant_id = (int)$reqHeaderTid;
-} elseif (is_numeric($reqGetTid) && (int)$reqGetTid > 1) {
+} elseif (is_numeric($reqGetTid) && (int)$reqGetTid >= 1) {
     $tenant_id = (int)$reqGetTid;
-} elseif (is_numeric($reqCookieTid) && (int)$reqCookieTid > 1) {
+} elseif (is_numeric($reqCookieTid) && (int)$reqCookieTid >= 1) {
     $tenant_id = (int)$reqCookieTid;
 }
 
@@ -36,29 +36,31 @@ try {
     $stmtVerifyTenant = $pdo->prepare('SELECT id FROM tenants WHERE id = ? LIMIT 1');
     $stmtVerifyTenant->execute([$tenant_id]);
     if (!$stmtVerifyTenant->fetchColumn()) {
-        $tenant_id = !empty($GLOBAL_TENANT_ID) && (int)$GLOBAL_TENANT_ID > 1 ? (int)$GLOBAL_TENANT_ID : 12;
+        $tenant_id = !empty($GLOBAL_TENANT_ID) && (int)$GLOBAL_TENANT_ID >= 1 ? (int)$GLOBAL_TENANT_ID : 12;
     }
 } catch (Exception $e) {
-    if ($tenant_id <= 1) $tenant_id = 12;
+    if ($tenant_id < 1) $tenant_id = 12;
 }
 
 try {
     $response = [];
 
-    // 1. Units
-    $stmtUnits = $pdo->prepare("SELECT setting_value FROM global_settings WHERE setting_key = 'erp_global_units_v1'");
-    $stmtUnits->execute();
+    // 1. Units (Tenant-scoped with fallback to default)
+    $stmtUnits = $pdo->prepare("SELECT setting_value FROM global_settings WHERE setting_key IN (?, 'erp_global_units_v1') ORDER BY (setting_key = ?) DESC LIMIT 1");
+    $tUnitsKey = 'tenant_' . $tenant_id . '_erp_global_units_v1';
+    $stmtUnits->execute([$tUnitsKey, $tUnitsKey]);
     $unitsVal = $stmtUnits->fetchColumn();
     $response['units'] = $unitsVal ? json_decode($unitsVal, true) : [];
 
-    // 2. Categories
-    $stmtCats = $pdo->prepare("SELECT setting_value FROM global_settings WHERE setting_key = 'erp_categories_v1'");
-    $stmtCats->execute();
+    // 2. Categories (Tenant-scoped with fallback to default)
+    $stmtCats = $pdo->prepare("SELECT setting_value FROM global_settings WHERE setting_key IN (?, 'erp_categories_v1') ORDER BY (setting_key = ?) DESC LIMIT 1");
+    $tCatsKey = 'tenant_' . $tenant_id . '_erp_categories_v1';
+    $stmtCats->execute([$tCatsKey, $tCatsKey]);
     $catsVal = $stmtCats->fetchColumn();
     $response['categories'] = $catsVal ? json_decode($catsVal, true) : ['مواد بناء', 'أدوات صحية', 'كهرباء'];
 
-    // 3. Items (matches direct-sales preload)
-    $stmtItems = $pdo->prepare("SELECT data FROM items WHERE (tenant_id = ? OR tenant_id IS NULL) AND (is_deleted = 0 OR is_deleted IS NULL)");
+    // 3. Items (Strictly isolated by tenant_id)
+    $stmtItems = $pdo->prepare("SELECT data FROM items WHERE tenant_id = ? AND (is_deleted = 0 OR is_deleted IS NULL)");
     $stmtItems->execute([$tenant_id]);
     $items = [];
     while ($row = $stmtItems->fetch(PDO::FETCH_ASSOC)) {
@@ -70,7 +72,7 @@ try {
     $response['items'] = $items;
 
     // 4. Warehouses
-    $stmtWh = $pdo->prepare("SELECT data FROM warehouses WHERE (tenant_id = ? OR tenant_id IS NULL) AND (is_deleted = 0 OR is_deleted IS NULL)");
+    $stmtWh = $pdo->prepare("SELECT data FROM warehouses WHERE tenant_id = ? AND (is_deleted = 0 OR is_deleted IS NULL)");
     $stmtWh->execute([$tenant_id]);
     $whs = [];
     while ($row = $stmtWh->fetch(PDO::FETCH_ASSOC)) {
@@ -82,7 +84,7 @@ try {
     $response['warehouses'] = $whs;
 
     // 5. Customers (with automatic gap-aware receiptCodeNum 1..infinity assignment & statementPin preservation)
-    $stmtCust = $pdo->prepare("SELECT id, data FROM customers WHERE (tenant_id = ? OR tenant_id IS NULL) AND (is_deleted = 0 OR is_deleted IS NULL) ORDER BY id ASC");
+    $stmtCust = $pdo->prepare("SELECT id, data FROM customers WHERE tenant_id = ? AND (is_deleted = 0 OR is_deleted IS NULL) ORDER BY id ASC");
     $stmtCust->execute([$tenant_id]);
     $custRows = $stmtCust->fetchAll(PDO::FETCH_ASSOC);
     $usedCodeNums = [];
@@ -148,7 +150,7 @@ try {
     $response['customers'] = $custs;
 
     // 6. Suppliers (with gap-aware receiptCodeNum & allowStatementRequest / statementAccessMode / statementPin support)
-    $stmtSupp = $pdo->prepare("SELECT id, data FROM suppliers WHERE (tenant_id = ? OR tenant_id IS NULL) AND (is_deleted = 0 OR is_deleted IS NULL) ORDER BY id ASC");
+    $stmtSupp = $pdo->prepare("SELECT id, data FROM suppliers WHERE tenant_id = ? AND (is_deleted = 0 OR is_deleted IS NULL) ORDER BY id ASC");
     $stmtSupp->execute([$tenant_id]);
     $suppRows = $stmtSupp->fetchAll(PDO::FETCH_ASSOC);
     $supps = [];
@@ -223,8 +225,14 @@ try {
         'notifyAdminOnRequest' => true
     ];
     try {
-        $stmtPol = $pdo->prepare("SELECT setting_value FROM global_settings WHERE setting_key = 'erp_whatsapp_statement_policy_v1' LIMIT 1");
-        $stmtPol->execute();
+        $tPolKey = 'tenant_' . $tenant_id . '_erp_whatsapp_statement_policy_v1';
+        if ((int)$tenant_id === 12) {
+            $stmtPol = $pdo->prepare("SELECT setting_value FROM global_settings WHERE setting_key IN (?, 'erp_whatsapp_statement_policy_v1') ORDER BY (setting_key = ?) DESC LIMIT 1");
+            $stmtPol->execute([$tPolKey, $tPolKey]);
+        } else {
+            $stmtPol = $pdo->prepare("SELECT setting_value FROM global_settings WHERE setting_key = ? LIMIT 1");
+            $stmtPol->execute([$tPolKey]);
+        }
         $polVal = $stmtPol->fetchColumn();
         $parsedPol = $polVal ? json_decode($polVal, true) : null;
         $mergedPol = is_array($parsedPol) ? array_merge($defaultPolicy, $parsedPol) : $defaultPolicy;
@@ -236,7 +244,7 @@ try {
         }
         if (empty($mergedPol['voucherCompanyName'])) {
             try {
-                $stmtSet = $pdo->prepare("SELECT data FROM settings WHERE (tenant_id = ? OR tenant_id IS NULL) ORDER BY id DESC LIMIT 1");
+                $stmtSet = $pdo->prepare("SELECT data FROM settings WHERE tenant_id = ? ORDER BY id DESC LIMIT 1");
                 $stmtSet->execute([$tenant_id]);
                 $rawSet = $stmtSet->fetchColumn();
                 if ($rawSet) {
@@ -253,7 +261,7 @@ try {
     }
 
     // 7. Banks
-    $stmtBanks = $pdo->prepare("SELECT data FROM banks WHERE (tenant_id = ? OR tenant_id IS NULL) AND (is_deleted = 0 OR is_deleted IS NULL)");
+    $stmtBanks = $pdo->prepare("SELECT data FROM banks WHERE tenant_id = ? AND (is_deleted = 0 OR is_deleted IS NULL)");
     $stmtBanks->execute([$tenant_id]);
     $banks = [];
     while ($row = $stmtBanks->fetch(PDO::FETCH_ASSOC)) {
@@ -265,7 +273,7 @@ try {
     $response['banks'] = $banks;
 
     // 8. Safes
-    $stmtSafes = $pdo->prepare("SELECT data FROM safes WHERE (tenant_id = ? OR tenant_id IS NULL) AND (is_deleted = 0 OR is_deleted IS NULL)");
+    $stmtSafes = $pdo->prepare("SELECT data FROM safes WHERE tenant_id = ? AND (is_deleted = 0 OR is_deleted IS NULL)");
     $stmtSafes->execute([$tenant_id]);
     $safes = [];
     while ($row = $stmtSafes->fetch(PDO::FETCH_ASSOC)) {
@@ -276,20 +284,27 @@ try {
     }
     $response['safes'] = $safes;
 
-    // 9. Cost Centers
-    $stmtCc = $pdo->prepare("SELECT setting_value FROM global_settings WHERE setting_key IN ('erp_cost_centers_v1', 'erp_jobs_v1') ORDER BY FIELD(setting_key, 'erp_cost_centers_v1', 'erp_jobs_v1') LIMIT 1");
-    $stmtCc->execute();
+    // 9. Cost Centers (Tenant-scoped)
+    $tCcKey = 'tenant_' . $tenant_id . '_erp_cost_centers_v1';
+    if ((int)$tenant_id === 12) {
+        $stmtCc = $pdo->prepare("SELECT setting_value FROM global_settings WHERE setting_key IN (?, 'erp_cost_centers_v1', 'erp_jobs_v1') ORDER BY FIELD(setting_key, ?, 'erp_cost_centers_v1', 'erp_jobs_v1') LIMIT 1");
+        $stmtCc->execute([$tCcKey, $tCcKey]);
+    } else {
+        $stmtCc = $pdo->prepare("SELECT setting_value FROM global_settings WHERE setting_key = ? LIMIT 1");
+        $stmtCc->execute([$tCcKey]);
+    }
     $ccVal = $stmtCc->fetchColumn();
     $response['cost_centers'] = $ccVal ? json_decode($ccVal, true) : [];
 
-    // 10. Currency Rates
-    $stmtCr = $pdo->prepare("SELECT setting_value FROM global_settings WHERE setting_key = 'erp_currency_rates_v1'");
-    $stmtCr->execute();
+    // 10. Currency Rates (Tenant-scoped with fallback)
+    $tCrKey = 'tenant_' . $tenant_id . '_erp_currency_rates_v1';
+    $stmtCr = $pdo->prepare("SELECT setting_value FROM global_settings WHERE setting_key IN (?, 'erp_currency_rates_v1') ORDER BY (setting_key = ?) DESC LIMIT 1");
+    $stmtCr->execute([$tCrKey, $tCrKey]);
     $crVal = $stmtCr->fetchColumn();
     $response['currency_rates'] = $crVal ? json_decode($crVal, true) : [];
 
     // 11. Employees / Users
-    $stmtUsers = $pdo->prepare("SELECT data, username, search_name, role, status, frontend_id, id FROM users WHERE (tenant_id = ? OR tenant_id IS NULL) AND (is_deleted = 0 OR is_deleted IS NULL)");
+    $stmtUsers = $pdo->prepare("SELECT data, username, search_name, role, status, frontend_id, id FROM users WHERE tenant_id = ? AND (is_deleted = 0 OR is_deleted IS NULL)");
     $stmtUsers->execute([$tenant_id]);
     $users = [];
     while ($row = $stmtUsers->fetch(PDO::FETCH_ASSOC)) {
@@ -315,7 +330,7 @@ try {
 
     // 12. Accounts (General Ledger / Chart of Accounts)
     try {
-        $stmtAccs = $pdo->prepare("SELECT data FROM accounts WHERE (tenant_id = ? OR tenant_id IS NULL) AND (is_deleted = 0 OR is_deleted IS NULL)");
+        $stmtAccs = $pdo->prepare("SELECT data FROM accounts WHERE tenant_id = ? AND (is_deleted = 0 OR is_deleted IS NULL)");
         $stmtAccs->execute([$tenant_id]);
         $accsList = [];
         while ($row = $stmtAccs->fetch(PDO::FETCH_ASSOC)) {

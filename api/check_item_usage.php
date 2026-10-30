@@ -3,11 +3,12 @@ require_once __DIR__ . '/db.php';
 
 if (!function_exists('getItemUsageDetails')) {
     function getItemUsageDetails($pdo, $tenant_id, $itemId, $itemName = '', $itemBarcodes = []) {
+        $tenant_id = (int)($tenant_id ?: resolveCurrentTenantId($pdo));
         $usages = [];
 
-        // Find the item in database to gather all synonyms, IDs, names, and barcodes
-        $stmt = $pdo->prepare("SELECT id, frontend_id, search_name, search_barcode, data FROM items WHERE (frontend_id = ? OR id = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')) = ?) LIMIT 1");
-        $stmt->execute([$itemId, $itemId, $itemId]);
+        // Find the item in database for this tenant to gather all synonyms, IDs, names, and barcodes
+        $stmt = $pdo->prepare("SELECT id, frontend_id, search_name, search_barcode, data FROM items WHERE tenant_id = ? AND (frontend_id = ? OR id = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')) = ?) LIMIT 1");
+        $stmt->execute([$tenant_id, $itemId, $itemId, $itemId]);
         $itemRow = $stmt->fetch(PDO::FETCH_ASSOC);
 
         $idsToMatch = array_filter([(string)$itemId]);
@@ -60,11 +61,12 @@ if (!function_exists('getItemUsageDetails')) {
             return false;
         };
 
-        // 1. Sales Invoices (فواتير وسندات المبيعات)
-        $sStmt = $pdo->query("SELECT id, invoice_no, date_val, total_val, data FROM sales_invoices WHERE data IS NOT NULL AND (is_deleted = 0 OR is_deleted IS NULL)");
+        // 1. Sales Invoices (فواتير وسندات المبيعات) - Scoped by tenant_id
+        $sStmt = $pdo->prepare("SELECT id, invoice_no, date_val, total_val, data FROM sales_invoices WHERE tenant_id = ? AND data IS NOT NULL AND (is_deleted = 0 OR is_deleted IS NULL)");
+        $sStmt->execute([$tenant_id]);
         while ($row = $sStmt->fetch(PDO::FETCH_ASSOC)) {
             $inv = json_decode($row['data'], true);
-            if ($inv && isset($inv['items']) && is_array($inv['items'])) {
+            if ($inv && empty($inv['deleted']) && isset($inv['items']) && is_array($inv['items'])) {
                 foreach ($inv['items'] as $line) {
                     if ($matchesItem($line)) {
                         $invNo = $row['invoice_no'] ?: ($inv['invoiceNo'] ?? $inv['id'] ?? $row['id']);
@@ -81,11 +83,12 @@ if (!function_exists('getItemUsageDetails')) {
             }
         }
 
-        // 2. Purchase Invoices (فواتير وسندات المشتريات)
-        $pStmt = $pdo->query("SELECT id, invoice_no, date_val, total_val, data FROM purchase_invoices WHERE data IS NOT NULL AND (is_deleted = 0 OR is_deleted IS NULL)");
+        // 2. Purchase Invoices (فواتير وسندات المشتريات) - Scoped by tenant_id
+        $pStmt = $pdo->prepare("SELECT id, invoice_no, date_val, total_val, data FROM purchase_invoices WHERE tenant_id = ? AND data IS NOT NULL AND (is_deleted = 0 OR is_deleted IS NULL)");
+        $pStmt->execute([$tenant_id]);
         while ($row = $pStmt->fetch(PDO::FETCH_ASSOC)) {
             $inv = json_decode($row['data'], true);
-            if ($inv && isset($inv['items']) && is_array($inv['items'])) {
+            if ($inv && empty($inv['deleted']) && isset($inv['items']) && is_array($inv['items'])) {
                 foreach ($inv['items'] as $line) {
                     if ($matchesItem($line)) {
                         $invNo = $row['invoice_no'] ?: ($inv['invoiceNo'] ?? $inv['id'] ?? $row['id']);
@@ -102,32 +105,36 @@ if (!function_exists('getItemUsageDetails')) {
             }
         }
 
-        // 3. Direct Purchases (المشتريات المباشرة)
-        $dpStmt = $pdo->query("SELECT id, invoice_no, date_val, total_val, data FROM direct_purchases WHERE data IS NOT NULL");
-        while ($row = $dpStmt->fetch(PDO::FETCH_ASSOC)) {
-            $inv = json_decode($row['data'], true);
-            if ($inv && isset($inv['items']) && is_array($inv['items'])) {
-                foreach ($inv['items'] as $line) {
-                    if ($matchesItem($line)) {
-                        $invNo = $row['invoice_no'] ?: ($inv['invoiceNo'] ?? $row['id']);
-                        $date = $row['date_val'] ?: ($inv['date'] ?? '');
-                        $usages[] = [
-                            'type' => 'سند مشتريات مباشرة',
-                            'doc_no' => (string)$invNo,
-                            'date' => $date,
-                            'label' => "سند مشتريات مباشرة رقم " . $invNo . ($date ? " بتاريخ " . $date : "")
-                        ];
-                        break;
+        // 3. Direct Purchases (المشتريات المباشرة) - Scoped by tenant_id
+        try {
+            $dpStmt = $pdo->prepare("SELECT id, invoice_no, date_val, total_val, data FROM direct_purchases WHERE tenant_id = ? AND data IS NOT NULL");
+            $dpStmt->execute([$tenant_id]);
+            while ($row = $dpStmt->fetch(PDO::FETCH_ASSOC)) {
+                $inv = json_decode($row['data'], true);
+                if ($inv && empty($inv['deleted']) && isset($inv['items']) && is_array($inv['items'])) {
+                    foreach ($inv['items'] as $line) {
+                        if ($matchesItem($line)) {
+                            $invNo = $row['invoice_no'] ?: ($inv['invoiceNo'] ?? $row['id']);
+                            $date = $row['date_val'] ?: ($inv['date'] ?? '');
+                            $usages[] = [
+                                'type' => 'سند مشتريات مباشرة',
+                                'doc_no' => (string)$invNo,
+                                'date' => $date,
+                                'label' => "سند مشتريات مباشرة رقم " . $invNo . ($date ? " بتاريخ " . $date : "")
+                            ];
+                            break;
+                        }
                     }
                 }
             }
-        }
+        } catch (Throwable $e) {}
 
-        // 4. Delivery Notes (سندات وأذونات التسليم والصرف)
-        $dnStmt = $pdo->query("SELECT id, frontend_id, data FROM delivery_notes WHERE data IS NOT NULL AND (is_deleted = 0 OR is_deleted IS NULL)");
+        // 4. Delivery Notes (سندات وأذونات التسليم والصرف) - Scoped by tenant_id
+        $dnStmt = $pdo->prepare("SELECT id, frontend_id, data FROM delivery_notes WHERE tenant_id = ? AND data IS NOT NULL AND (is_deleted = 0 OR is_deleted IS NULL)");
+        $dnStmt->execute([$tenant_id]);
         while ($row = $dnStmt->fetch(PDO::FETCH_ASSOC)) {
             $dn = json_decode($row['data'], true);
-            if ($dn && isset($dn['items']) && is_array($dn['items'])) {
+            if ($dn && empty($dn['deleted']) && isset($dn['items']) && is_array($dn['items'])) {
                 foreach ($dn['items'] as $line) {
                     if ($matchesItem($line)) {
                         $docNo = $dn['noteNo'] ?? $dn['id'] ?? $row['frontend_id'] ?? $row['id'];
@@ -144,11 +151,12 @@ if (!function_exists('getItemUsageDetails')) {
             }
         }
 
-        // 5. Reserved Sales (سندات حجز المبيعات)
-        $rsStmt = $pdo->query("SELECT id, frontend_id, data FROM reserved_sales WHERE data IS NOT NULL AND (is_deleted = 0 OR is_deleted IS NULL)");
+        // 5. Reserved Sales (سندات حجز المبيعات) - Scoped by tenant_id
+        $rsStmt = $pdo->prepare("SELECT id, frontend_id, data FROM reserved_sales WHERE tenant_id = ? AND data IS NOT NULL AND (is_deleted = 0 OR is_deleted IS NULL)");
+        $rsStmt->execute([$tenant_id]);
         while ($row = $rsStmt->fetch(PDO::FETCH_ASSOC)) {
             $rs = json_decode($row['data'], true);
-            if ($rs && isset($rs['items']) && is_array($rs['items'])) {
+            if ($rs && empty($rs['deleted']) && isset($rs['items']) && is_array($rs['items'])) {
                 foreach ($rs['items'] as $line) {
                     if ($matchesItem($line)) {
                         $docNo = $rs['orderNo'] ?? $rs['id'] ?? $row['frontend_id'] ?? $row['id'];
@@ -165,11 +173,12 @@ if (!function_exists('getItemUsageDetails')) {
             }
         }
 
-        // 6. Inventory Records (حركات وجرد وتسويات المخزون)
-        $inStmt = $pdo->query("SELECT id, frontend_id, data FROM inventory WHERE data IS NOT NULL AND (is_deleted = 0 OR is_deleted IS NULL)");
+        // 6. Inventory Records (حركات وجرد وتسويات المخزون) - Scoped by tenant_id
+        $inStmt = $pdo->prepare("SELECT id, frontend_id, data FROM inventory WHERE tenant_id = ? AND data IS NOT NULL AND (is_deleted = 0 OR is_deleted IS NULL)");
+        $inStmt->execute([$tenant_id]);
         while ($row = $inStmt->fetch(PDO::FETCH_ASSOC)) {
             $inv = json_decode($row['data'], true);
-            if ($inv) {
+            if ($inv && empty($inv['deleted'])) {
                 $lines = $inv['items'] ?? $inv['lines'] ?? [];
                 if (is_array($lines)) {
                     foreach ($lines as $line) {
@@ -189,23 +198,6 @@ if (!function_exists('getItemUsageDetails')) {
             }
         }
 
-        // 7. Transactions table (جدول الحركات)
-        if (!empty($idsToMatch)) {
-            $placeholders = implode(',', array_fill(0, count($idsToMatch), '?'));
-            $trStmt = $pdo->prepare("SELECT id, item_id, transaction_date FROM transactions WHERE item_id IN ($placeholders)");
-            try {
-                $trStmt->execute($idsToMatch);
-                while ($row = $trStmt->fetch(PDO::FETCH_ASSOC)) {
-                    $usages[] = [
-                        'type' => 'حركة معاملات',
-                        'doc_no' => (string)$row['id'],
-                        'date' => $row['transaction_date'] ?? '',
-                        'label' => "حركة معاملات رقم " . $row['id'] . (!empty($row['transaction_date']) ? " بتاريخ " . $row['transaction_date'] : "")
-                    ];
-                }
-            } catch(Exception $e) {}
-        }
-
         return [
             'is_used' => count($usages) > 0,
             'can_delete' => count($usages) === 0,
@@ -220,20 +212,12 @@ if (basename($_SERVER['SCRIPT_FILENAME'] ?? '') === 'check_item_usage.php') {
     header('Content-Type: application/json; charset=UTF-8');
     header('Cache-Control: no-cache, no-store, must-revalidate');
 
-    $tenant_id = 1;
-    $authHeader = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
-    $token = str_replace('Bearer ', '', $authHeader);
-    if (!empty($token)) {
-        $stmtAuth = $pdo->prepare('SELECT tenant_id FROM users WHERE token = ? LIMIT 1');
-        $stmtAuth->execute([$token]);
-        $t = $stmtAuth->fetchColumn();
-        if ($t) { $tenant_id = (int)$t; }
-    }
-
     $input = json_decode(file_get_contents('php://input'), true);
     if (!$input) {
         $input = $_GET;
     }
+
+    $tenant_id = resolveCurrentTenantId($pdo, is_array($input) ? $input : null);
 
     $itemId = $input['item_id'] ?? $input['id'] ?? null;
     $itemName = $input['item_name'] ?? $input['name'] ?? null;

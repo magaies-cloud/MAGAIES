@@ -24,22 +24,19 @@
   <script>
     (function enforceAuthGate() {
     var token = localStorage.getItem('authToken') || localStorage.getItem('saas_token');
+    if (token === 'local-offline-token' || (token && token.indexOf('offline_token_') === 0)) {
+      localStorage.removeItem('authToken');
+      token = '';
+    }
     var userStr = localStorage.getItem('user');
-    var sessionCookie = document.cookie.includes('session_active=true') || document.cookie.includes('saas_token=') || document.cookie.includes('mg_device_auth=');
-    var sessionActive = sessionStorage.getItem('session_active') === 'true' || sessionCookie || Boolean(userStr);
-    var isLocalhost = (location.hostname === 'localhost' || location.hostname === '127.0.0.1' || location.hostname === '[::1]' || /^(192\.168\.|10\.|172\.(1[6-9]|2[0-9]|3[0-1])\.)/.test(location.hostname));
+    var sessionCookie = document.cookie.includes('saas_token=') || document.cookie.includes('mg_device_auth=');
+    var sessionActive = Boolean(token) || sessionCookie;
 
-    if (!navigator.onLine || isLocalhost) {
-      if (!token) {
-        try {
-          localStorage.setItem('authToken', 'offline_token_' + Date.now());
-          sessionStorage.setItem('session_active', 'true');
-        } catch (e) {}
-      }
+    if (!navigator.onLine && userStr && token) {
       return;
     }
 
-    if (!token && !sessionActive) {
+    if (!sessionActive) {
       var qs = window.location.search;
       var curFile = window.location.pathname.split('/').pop() || 'mobile-dashboard.php';
       var sep = qs ? '&' : '?';

@@ -163,7 +163,6 @@ JSON.parse = function(val) {
     // -------------------------------------------------------
     let _cachedTenantPrefix = null;
     function getTenantPrefix() {
-        if (_cachedTenantPrefix) return _cachedTenantPrefix;
         try {
             // Read directly from original storage to avoid infinite loops in proxy
             const userStr = localGetItem('user') || '{}';
@@ -172,7 +171,7 @@ JSON.parse = function(val) {
             _cachedTenantPrefix = 'tenant_' + tenantId + '_';
             return _cachedTenantPrefix;
         } catch(e) {
-            return 'tenant_default_';
+            return _cachedTenantPrefix || 'tenant_default_';
         }
     }
     // Allow cache invalidation on login/logout
@@ -180,12 +179,13 @@ JSON.parse = function(val) {
 
     // Convert a base key like "erp_customers_v1" to a tenant-specific key
     window.getTenantKey = function(baseKey) {
+        const strKey = String(baseKey || '');
         // Keys that are NOT tenant-specific (global session settings only)
-        const globalKeys = ['authToken', 'user', 'erp_theme', 'erp_lang', 'currentTenantId', 'session_active', 'deviceUuid', 'elsajana_global_media_state'];
-        if (globalKeys.includes(baseKey)) return baseKey;
+        const globalKeys = ['authToken', 'user', 'tenant_id', 'erp_theme', 'erp_lang', 'currentTenantId', 'session_active', 'deviceUuid', 'elsajana_global_media_state', 'magaies_dirty_keys_v1'];
+        if (globalKeys.includes(strKey) || strKey.startsWith('magaies_') || strKey.startsWith('magaiees_')) return strKey;
         // If already prefixed, return as-is
-        if (baseKey.startsWith('tenant_')) return baseKey;
-        return getTenantPrefix() + baseKey;
+        if (strKey.startsWith('tenant_')) return strKey;
+        return getTenantPrefix() + strKey;
     };
 
     const syncKeys = [
@@ -280,7 +280,12 @@ JSON.parse = function(val) {
         // Wipe legacy un-prefixed leak keys (logo, company name, shared backup cookies).
         // ---------------------------------------------------------------------------------
         try {
-            const legacyLeakKeys = ['company_logo_base64', 'erp_settings_backup', 'erp_rate_usd_backup', 'companyName'];
+            const legacyLeakKeys = [
+                'company_logo_base64', 'erp_settings_backup', 'erp_rate_usd_backup', 'companyName',
+                'erp_suppliers_v1', 'erp_safes_v1', 'erp_banks_v1', 'erp_customers_v1',
+                'erp_users_v1', 'erp_items_v1', 'erp_receipts_v1', 'erp_payments_v1',
+                'erp_sales_invoices_v1', 'erp_purchase_invoices_v1', 'erp_settings_v1'
+            ];
             legacyLeakKeys.forEach(k => {
                 if (originalGetItem.call(localStorage, k) !== null) {
                     originalRemoveItem.call(localStorage, k);
@@ -1008,101 +1013,91 @@ JSON.parse = function(val) {
         }
 
         // ═════════════════════════════════════════════════════════════════════
-        //  ENSURE DEFAULT SUPPLIERS ARE SEEDED IF MISSING
+        //  ENSURE DEFAULT SUPPLIERS/SAFES/BANKS ARE SEEDED ONLY FOR TENANT 12
         // ═════════════════════════════════════════════════════════════════════
-        try {
-            const suppTenantKey = window.getTenantKey('erp_suppliers_v1');
-            let currentSuppsRaw = window.DB_STORE[suppTenantKey] || localGetItem(suppTenantKey) || localGetItem('erp_suppliers_v1');
-            let parsedSupps = [];
-            try { parsedSupps = JSON.parse(currentSuppsRaw || '[]'); } catch(e) { parsedSupps = []; }
-            if (!Array.isArray(parsedSupps)) parsedSupps = [];
-            parsedSupps = parsedSupps.filter(s => s && !s.deleted);
+        if (getTenantPrefix() === 'tenant_12_') {
+            try {
+                const suppTenantKey = window.getTenantKey('erp_suppliers_v1');
+                let currentSuppsRaw = window.DB_STORE[suppTenantKey] || localGetItem(suppTenantKey);
+                let parsedSupps = [];
+                try { parsedSupps = JSON.parse(currentSuppsRaw || '[]'); } catch(e) { parsedSupps = []; }
+                if (!Array.isArray(parsedSupps)) parsedSupps = [];
+                parsedSupps = parsedSupps.filter(s => s && !s.deleted);
 
-            if (parsedSupps.length === 0) {
-                const defaultSuppliers = [
-                    { id: 'SUP-001', code: 'SUP-001', name: 'شركة مصنع الأسعد للحديد والصلب', phone: '0123456789', whatsapp: '0123456789', email: 'alasaad@steel.sd', address: 'المنطقة الصناعية - الخرطوم بحري', currency: 'SDG', currentBalance: 0, creditLimit: 50000000, securityLevel: 1, status: 'active', notes: 'المورد الرئيسي لقضبان التسليح' },
-                    { id: 'SUP-002', code: 'SUP-002', name: 'شركة أوميغا للصناعات والصلب', phone: '0912345678', whatsapp: '0912345678', email: 'omega@steel.sd', address: 'سوبا الصناعية', currency: 'SDG', currentBalance: 0, creditLimit: 30000000, securityLevel: 1, status: 'active', notes: 'توريد زوايا ومواسير وحديد مبوم' },
-                    { id: 'SUP-003', code: 'SUP-003', name: 'شركة أسمنت عطبرة المحدودة', phone: '0112345678', whatsapp: '0112345678', email: 'atbara@cement.sd', address: 'عطبرة - ولاية نهر النيل', currency: 'SDG', currentBalance: 0, creditLimit: 20000000, securityLevel: 1, status: 'active', notes: 'توريد أسمنت بورتلاندي عادي ومقاوم' },
-                    { id: 'SUP-004', code: 'SUP-004', name: 'مجمع جياد الصناعي', phone: '0901234567', whatsapp: '0901234567', email: 'giad@giad.com', address: 'مدينة جياد الصناعية', currency: 'SDG', currentBalance: 0, creditLimit: 100000000, securityLevel: 1, status: 'active', notes: 'توريد الصاج والألواح والمواسير المجلفنة' },
-                    { id: 'SUP-005', code: 'SUP-005', name: 'مؤسسة الهدى للتجارة والتوريدات', phone: '0123987654', whatsapp: '0123987654', email: 'alhuda@supply.sd', address: 'السجانة - السوق المركزي', currency: 'SDG', currentBalance: 0, creditLimit: 15000000, securityLevel: 1, status: 'active', notes: 'مستلزمات البناء والتشييد' },
-                    { id: 'SUP-006', code: 'SUP-006', name: 'شركة أسمنت بربر المحدودة', phone: '0912987654', whatsapp: '0912987654', email: 'berber@cement.sd', address: 'بربر - ولاية نهر النيل', currency: 'SDG', currentBalance: 0, creditLimit: 25000000, securityLevel: 1, status: 'active', notes: 'توريد أسمنت صخر السودان' },
-                    { id: 'SUP-007', code: 'SUP-007', name: 'مصنع الراجحي للحديد والصلب', phone: '0123112233', whatsapp: '0123112233', email: 'alrajhi@steel.sd', address: 'المنطقة الحرة - قري', currency: 'SDG', currentBalance: 0, creditLimit: 40000000, securityLevel: 1, status: 'active', notes: 'حديد تسليح عالي المقاومة' }
-                ];
-                const suppStr = JSON.stringify(defaultSuppliers);
-                window.DB_STORE[suppTenantKey] = suppStr;
-                window.DB_STORE['erp_suppliers_v1'] = suppStr;
-                localSetItem(suppTenantKey, suppStr);
-                localSetItem('erp_suppliers_v1', suppStr);
-                if (typeof localforage !== 'undefined') {
-                    localforage.setItem(suppTenantKey, suppStr).catch(e => {});
-                    localforage.setItem('erp_suppliers_v1', suppStr).catch(e => {});
+                if (parsedSupps.length === 0) {
+                    const defaultSuppliers = [
+                        { id: 'SUP-001', code: 'SUP-001', name: 'شركة مصنع الأسعد للحديد والصلب', phone: '0123456789', whatsapp: '0123456789', email: 'alasaad@steel.sd', address: 'المنطقة الصناعية - الخرطوم بحري', currency: 'SDG', currentBalance: 0, creditLimit: 50000000, securityLevel: 1, status: 'active', notes: 'المورد الرئيسي لقضبان التسليح' },
+                        { id: 'SUP-002', code: 'SUP-002', name: 'شركة أوميغا للصناعات والصلب', phone: '0912345678', whatsapp: '0912345678', email: 'omega@steel.sd', address: 'سوبا الصناعية', currency: 'SDG', currentBalance: 0, creditLimit: 30000000, securityLevel: 1, status: 'active', notes: 'توريد زوايا ومواسير وحديد مبوم' },
+                        { id: 'SUP-003', code: 'SUP-003', name: 'شركة أسمنت عطبرة المحدودة', phone: '0112345678', whatsapp: '0112345678', email: 'atbara@cement.sd', address: 'عطبرة - ولاية نهر النيل', currency: 'SDG', currentBalance: 0, creditLimit: 20000000, securityLevel: 1, status: 'active', notes: 'توريد أسمنت بورتلاندي عادي ومقاوم' },
+                        { id: 'SUP-004', code: 'SUP-004', name: 'مجمع جياد الصناعي', phone: '0901234567', whatsapp: '0901234567', email: 'giad@giad.com', address: 'مدينة جياد الصناعية', currency: 'SDG', currentBalance: 0, creditLimit: 100000000, securityLevel: 1, status: 'active', notes: 'توريد الصاج والألواح والمواسير المجلفنة' },
+                        { id: 'SUP-005', code: 'SUP-005', name: 'مؤسسة الهدى للتجارة والتوريدات', phone: '0123987654', whatsapp: '0123987654', email: 'alhuda@supply.sd', address: 'السجانة - السوق المركزي', currency: 'SDG', currentBalance: 0, creditLimit: 15000000, securityLevel: 1, status: 'active', notes: 'مستلزمات البناء والتشييد' },
+                        { id: 'SUP-006', code: 'SUP-006', name: 'شركة أسمنت بربر المحدودة', phone: '0912987654', whatsapp: '0912987654', email: 'berber@cement.sd', address: 'بربر - ولاية نهر النيل', currency: 'SDG', currentBalance: 0, creditLimit: 25000000, securityLevel: 1, status: 'active', notes: 'توريد أسمنت صخر السودان' },
+                        { id: 'SUP-007', code: 'SUP-007', name: 'مصنع الراجحي للحديد والصلب', phone: '0123112233', whatsapp: '0123112233', email: 'alrajhi@steel.sd', address: 'المنطقة الحرة - قري', currency: 'SDG', currentBalance: 0, creditLimit: 40000000, securityLevel: 1, status: 'active', notes: 'حديد تسليح عالي المقاومة' }
+                    ];
+                    const suppStr = JSON.stringify(defaultSuppliers);
+                    window.DB_STORE[suppTenantKey] = suppStr;
+                    localSetItem(suppTenantKey, suppStr);
+                    if (typeof localforage !== 'undefined') {
+                        localforage.setItem(suppTenantKey, suppStr).catch(e => {});
+                    }
                 }
+            } catch(suppErr) {
+                console.warn('Auto-seed suppliers failed:', suppErr);
             }
-        } catch(suppErr) {
-            console.warn('Auto-seed suppliers failed:', suppErr);
-        }
 
-        // ═════════════════════════════════════════════════════════════════════
-        //  ENSURE DEFAULT SAFES & BANKS ARE SEEDED IF MISSING
-        // ═════════════════════════════════════════════════════════════════════
-        try {
-            const safesTenantKey = window.getTenantKey('erp_safes_v1');
-            let currentSafesRaw = window.DB_STORE[safesTenantKey] || localGetItem(safesTenantKey) || localGetItem('erp_safes_v1');
-            let parsedSafes = [];
-            try { parsedSafes = JSON.parse(currentSafesRaw || '[]'); } catch(e) { parsedSafes = []; }
-            if (!Array.isArray(parsedSafes)) parsedSafes = [];
-            parsedSafes = parsedSafes.filter(s => s && !s.deleted);
+            try {
+                const safesTenantKey = window.getTenantKey('erp_safes_v1');
+                let currentSafesRaw = window.DB_STORE[safesTenantKey] || localGetItem(safesTenantKey);
+                let parsedSafes = [];
+                try { parsedSafes = JSON.parse(currentSafesRaw || '[]'); } catch(e) { parsedSafes = []; }
+                if (!Array.isArray(parsedSafes)) parsedSafes = [];
+                parsedSafes = parsedSafes.filter(s => s && !s.deleted);
 
-            if (parsedSafes.length === 0) {
-                const defaultSafes = [
-                    { id: 'safe-001', code: 'SAFE-01', name: 'الخزينة الرئيسية (نقدية المركز)', type: 'safe', currency: 'SDG', openingBalance: 0, currentBalance: 0, status: 'active' },
-                    { id: 'safe-002', code: 'SAFE-02', name: 'خزينة مبيعات الصالة (كاش)', type: 'safe', currency: 'SDG', openingBalance: 0, currentBalance: 0, status: 'active' },
-                    { id: 'safe-003', code: 'SAFE-03', name: 'صندوق العهد والمصروفات النثرية', type: 'safe', currency: 'SDG', openingBalance: 0, currentBalance: 0, status: 'active' },
-                    { id: 'safe-004', code: 'SAFE-04', name: 'خزينة فرع بحري', type: 'safe', currency: 'SDG', openingBalance: 0, currentBalance: 0, status: 'active' }
-                ];
-                const safesStr = JSON.stringify(defaultSafes);
-                window.DB_STORE[safesTenantKey] = safesStr;
-                window.DB_STORE['erp_safes_v1'] = safesStr;
-                localSetItem(safesTenantKey, safesStr);
-                localSetItem('erp_safes_v1', safesStr);
-                if (typeof localforage !== 'undefined') {
-                    localforage.setItem(safesTenantKey, safesStr).catch(e => {});
-                    localforage.setItem('erp_safes_v1', safesStr).catch(e => {});
+                if (parsedSafes.length === 0) {
+                    const defaultSafes = [
+                        { id: 'safe-001', code: 'SAFE-01', name: 'الخزينة الرئيسية (نقدية المركز)', type: 'safe', currency: 'SDG', openingBalance: 0, currentBalance: 0, status: 'active' },
+                        { id: 'safe-002', code: 'SAFE-02', name: 'خزينة مبيعات الصالة (كاش)', type: 'safe', currency: 'SDG', openingBalance: 0, currentBalance: 0, status: 'active' },
+                        { id: 'safe-003', code: 'SAFE-03', name: 'صندوق العهد والمصروفات النثرية', type: 'safe', currency: 'SDG', openingBalance: 0, currentBalance: 0, status: 'active' },
+                        { id: 'safe-004', code: 'SAFE-04', name: 'خزينة فرع بحري', type: 'safe', currency: 'SDG', openingBalance: 0, currentBalance: 0, status: 'active' }
+                    ];
+                    const safesStr = JSON.stringify(defaultSafes);
+                    window.DB_STORE[safesTenantKey] = safesStr;
+                    localSetItem(safesTenantKey, safesStr);
+                    if (typeof localforage !== 'undefined') {
+                        localforage.setItem(safesTenantKey, safesStr).catch(e => {});
+                    }
                 }
+            } catch(safesErr) {
+                console.warn('Auto-seed safes failed:', safesErr);
             }
-        } catch(safesErr) {
-            console.warn('Auto-seed safes failed:', safesErr);
-        }
 
-        try {
-            const banksTenantKey = window.getTenantKey('erp_banks_v1');
-            let currentBanksRaw = window.DB_STORE[banksTenantKey] || localGetItem(banksTenantKey) || localGetItem('erp_banks_v1');
-            let parsedBanks = [];
-            try { parsedBanks = JSON.parse(currentBanksRaw || '[]'); } catch(e) { parsedBanks = []; }
-            if (!Array.isArray(parsedBanks)) parsedBanks = [];
-            parsedBanks = parsedBanks.filter(b => b && !b.deleted);
+            try {
+                const banksTenantKey = window.getTenantKey('erp_banks_v1');
+                let currentBanksRaw = window.DB_STORE[banksTenantKey] || localGetItem(banksTenantKey);
+                let parsedBanks = [];
+                try { parsedBanks = JSON.parse(currentBanksRaw || '[]'); } catch(e) { parsedBanks = []; }
+                if (!Array.isArray(parsedBanks)) parsedBanks = [];
+                parsedBanks = parsedBanks.filter(b => b && !b.deleted);
 
-            if (parsedBanks.length === 0) {
-                const defaultBanks = [
-                    { id: 'bank-001', code: 'BNK-01', name: 'بنك الخرطوم (بنكك - Bankak)', accountNumber: '1234567', type: 'bank', currency: 'SDG', openingBalance: 0, currentBalance: 0, status: 'active' },
-                    { id: 'bank-002', code: 'BNK-02', name: 'بنك فيصل الإسلامي (فوري - Fawry)', accountNumber: '2345678', type: 'bank', currency: 'SDG', openingBalance: 0, currentBalance: 0, status: 'active' },
-                    { id: 'bank-003', code: 'BNK-03', name: 'بنك أمدرمان الوطني (أوكاش - O-Cash)', accountNumber: '3456789', type: 'bank', currency: 'SDG', openingBalance: 0, currentBalance: 0, status: 'active' },
-                    { id: 'bank-004', code: 'BNK-04', name: 'بنك النيل (سريع)', accountNumber: '4567890', type: 'bank', currency: 'SDG', openingBalance: 0, currentBalance: 0, status: 'active' },
-                    { id: 'bank-005', code: 'BNK-05', name: 'بنك العمال الوطني', accountNumber: '5678901', type: 'bank', currency: 'SDG', openingBalance: 0, currentBalance: 0, status: 'active' },
-                    { id: 'bank-006', code: 'BNK-06', name: 'بنك البركة السوداني', accountNumber: '6789012', type: 'bank', currency: 'SDG', openingBalance: 0, currentBalance: 0, status: 'active' }
-                ];
-                const banksStr = JSON.stringify(defaultBanks);
-                window.DB_STORE[banksTenantKey] = banksStr;
-                window.DB_STORE['erp_banks_v1'] = banksStr;
-                localSetItem(banksTenantKey, banksStr);
-                localSetItem('erp_banks_v1', banksStr);
-                if (typeof localforage !== 'undefined') {
-                    localforage.setItem(banksTenantKey, banksStr).catch(e => {});
-                    localforage.setItem('erp_banks_v1', banksStr).catch(e => {});
+                if (parsedBanks.length === 0) {
+                    const defaultBanks = [
+                        { id: 'bank-001', code: 'BNK-01', name: 'بنك الخرطوم (بنكك - Bankak)', accountNumber: '1234567', type: 'bank', currency: 'SDG', openingBalance: 0, currentBalance: 0, status: 'active' },
+                        { id: 'bank-002', code: 'BNK-02', name: 'بنك فيصل الإسلامي (فوري - Fawry)', accountNumber: '2345678', type: 'bank', currency: 'SDG', openingBalance: 0, currentBalance: 0, status: 'active' },
+                        { id: 'bank-003', code: 'BNK-03', name: 'بنك أمدرمان الوطني (أوكاش - O-Cash)', accountNumber: '3456789', type: 'bank', currency: 'SDG', openingBalance: 0, currentBalance: 0, status: 'active' },
+                        { id: 'bank-004', code: 'BNK-04', name: 'بنك النيل (سريع)', accountNumber: '4567890', type: 'bank', currency: 'SDG', openingBalance: 0, currentBalance: 0, status: 'active' },
+                        { id: 'bank-005', code: 'BNK-05', name: 'بنك العمال الوطني', accountNumber: '5678901', type: 'bank', currency: 'SDG', openingBalance: 0, currentBalance: 0, status: 'active' },
+                        { id: 'bank-006', code: 'BNK-06', name: 'بنك البركة السوداني', accountNumber: '6789012', type: 'bank', currency: 'SDG', openingBalance: 0, currentBalance: 0, status: 'active' }
+                    ];
+                    const banksStr = JSON.stringify(defaultBanks);
+                    window.DB_STORE[banksTenantKey] = banksStr;
+                    localSetItem(banksTenantKey, banksStr);
+                    if (typeof localforage !== 'undefined') {
+                        localforage.setItem(banksTenantKey, banksStr).catch(e => {});
+                    }
                 }
+            } catch(banksErr) {
+                console.warn('Auto-seed banks failed:', banksErr);
             }
-        } catch(banksErr) {
-            console.warn('Auto-seed banks failed:', banksErr);
         }
 
         window.APP_READY = true;
@@ -1150,7 +1145,7 @@ JSON.parse = function(val) {
                         let hasData = false;
                         Array.from(dirtyKeys).forEach(k => {
                             const pk = window.getTenantKey(k);
-                            const d = (window.DB_STORE && window.DB_STORE[pk]) || localGetItem(pk) || localGetItem(k);
+                            const d = (window.DB_STORE && window.DB_STORE[pk]) || localGetItem(pk) || (pk === k ? localGetItem(k) : null);
                             if (d) {
                                 try { payload[k] = JSON.parse(d); hasData = true; } catch (err) {}
                             }
@@ -1341,8 +1336,11 @@ JSON.parse = function(val) {
             const val = originalGetItem.call(localStorage, tenantKey);
             if (val !== null) return val;
 
-            // Fallback to unprefixed key for global/auth/offline keys or shared local records
-            return originalGetItem.call(localStorage, key);
+            // Only fallback to unprefixed key for global/auth/offline keys (when tenantKey === key)
+            if (tenantKey === key) {
+                return originalGetItem.call(localStorage, key);
+            }
+            return null;
         }
         return originalGetItem.call(this, key);
     };
@@ -1645,10 +1643,17 @@ JSON.parse = function(val) {
 
     function getAuthHeaders() {
         const token = localStorage.getItem('authToken');
-        return {
+        let tid = '';
+        try {
+            const u = JSON.parse(localGetItem('user') || '{}');
+            tid = String(u.tenant_id || localGetItem('currentTenantId') || '');
+        } catch(e) {}
+        const headers = {
             "Content-Type": "application/json",
             "Authorization": token ? `Bearer ${token}` : ""
         };
+        if (tid) headers["X-Tenant-Id"] = tid;
+        return headers;
     }
 
     function showSyncOverlay(message, isPull = false) {
@@ -1756,7 +1761,7 @@ JSON.parse = function(val) {
 
             keysToSync.forEach(k => {
                 const pk = window.getTenantKey(k);
-                const data = window.DB_STORE[pk] || localGetItem(pk) || localGetItem(k);
+                const data = window.DB_STORE[pk] || localGetItem(pk) || (pk === k ? localGetItem(k) : null);
                 if (data) {
                     try {
                         payload[k] = JSON.parse(data);
@@ -1988,7 +1993,17 @@ JSON.parse = function(val) {
                 return res.json();
             })
             .then(data => {
+                let currentTid = '';
+                try {
+                    const uObj = JSON.parse(localGetItem('user') || '{}');
+                    currentTid = String(uObj.tenant_id || localGetItem('currentTenantId') || '');
+                } catch(e) {}
+
                 if (data.success && data.data) {
+                    if (data.tenant_id && currentTid && String(data.tenant_id) !== currentTid) {
+                        console.warn("Cloud Sync Pull blocked: Server tenant_id (" + data.tenant_id + ") does not match current tenant (" + currentTid + ")");
+                        return;
+                    }
                     if (data.max_users !== undefined) {
                         let userObj = {};
                         try { userObj = JSON.parse(localStorage.getItem('user') || '{}'); } catch(e){}
@@ -2003,13 +2018,13 @@ JSON.parse = function(val) {
                     console.warn("Cloud Sync Pull: using local offline cache.");
                 }
 
-                // When running on Local Laptop (localhost / 127.0.0.1), also pull & smart-merge from 24/7 Cloud Server (https://c.elsajana.com)
-                // so any receipts/vouchers/customers processed on the live server while the laptop was off are merged into the laptop
-                if (isLocal && navigator.onLine) {
+                // When running on Local Laptop (localhost / 127.0.0.1) for Tenant 12 (Company C), also pull & smart-merge from 24/7 Cloud Server (https://c.elsajana.com)
+                if (isLocal && navigator.onLine && currentTid === '12') {
                     fetch('https://c.elsajana.com/api_index.php/sync/pull', { headers: getAuthHeaders() })
                         .then(rCloud => rCloud.ok ? rCloud.json() : null)
                         .then(cloudData => {
                             if (cloudData && cloudData.success && cloudData.data) {
+                                if (cloudData.tenant_id && String(cloudData.tenant_id) !== '12') return;
                                 const mergedNew = applySmartMergePayload(cloudData.data, true);
                                 if (mergedNew || dirtyKeys.size > 0) {
                                     persistDirtyKeys();

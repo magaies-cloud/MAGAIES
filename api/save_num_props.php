@@ -1,5 +1,5 @@
 <?php
-require 'db.php';
+require __DIR__ . '/db.php';
 header('Content-Type: application/json; charset=UTF-8');
 
 try {
@@ -9,8 +9,9 @@ try {
         exit;
     }
 
-    $key = 'num_prop_' . $input['key'];
-    $configJson = json_encode($input['props']);
+    $tenantId = resolveCurrentTenantId($pdo, $input);
+    $key = 'tenant_' . $tenantId . '_num_prop_' . $input['key'];
+    $configJson = json_encode($input['props'], JSON_UNESCAPED_UNICODE);
 
     $stmt = $pdo->prepare("INSERT INTO global_settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value)");
     $stmt->execute([$key, $configJson]);
