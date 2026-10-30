@@ -546,18 +546,24 @@ function initPurchaseApp() {
     // Keyboard shortcuts & Grid Navigation
     document.addEventListener('keydown', e => {
         // Global Shortcuts
-        if (e.ctrlKey && e.key === 's') { e.preventDefault(); saveDraft(); }
-        if (e.ctrlKey && e.key === 'n') { e.preventDefault(); addRow(); }
+        if ((e.ctrlKey || e.metaKey) && (e.key === 'd' || e.key === 'D')) { e.preventDefault(); saveDraft(); return; }
+        if ((e.ctrlKey || e.metaKey) && (e.key === 'n' || e.key === 'N')) { e.preventDefault(); addRow(); return; }
         if (e.key === 'Escape') { document.querySelectorAll('.modal-overlay.visible').forEach(m => m.classList.remove('visible')); }
         
-        if (e.key === 'F2') {
+        if (e.key === 'F10') {
             e.preventDefault();
             submitInvoice();
+            return;
         }
         if (e.key === 'F8') {
             e.preventDefault();
-            generatePrintArea();
-            window.print();
+            if (typeof printCurrentInvoice === 'function') {
+                printCurrentInvoice();
+            } else {
+                generatePrintArea();
+                window.print();
+            }
+            return;
         }
 
         // Custom Dropdown Keyboard Navigation
@@ -825,11 +831,40 @@ function onCustomerChange() {
 }
 window.onCustomerChange = onCustomerChange;
 
+window.focusRequiredPurchaseField = function(selectorOrEl, message) {
+    if (message && typeof showToast === 'function') {
+        showToast(message, 'warning');
+    }
+    const el = typeof selectorOrEl === 'string'
+        ? (document.querySelector(selectorOrEl) || document.getElementById(selectorOrEl.replace(/^#/, '')))
+        : selectorOrEl;
+    if (!el) return false;
+    try { el.scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch (_e) {}
+    setTimeout(() => {
+        try {
+            el.focus();
+            if (typeof el.select === 'function' && el.tagName === 'INPUT') el.select();
+        } catch (_e2) {}
+    }, 60);
+    const prevTransition = el.style.transition;
+    const prevBorder = el.style.borderColor;
+    const prevShadow = el.style.boxShadow;
+    el.style.transition = 'all 0.25s ease';
+    el.style.borderColor = '#fbbf24';
+    el.style.boxShadow = '0 0 0 3px rgba(251, 191, 36, 0.45), 0 0 18px rgba(245, 158, 11, 0.45)';
+    setTimeout(() => {
+        el.style.borderColor = prevBorder;
+        el.style.boxShadow = prevShadow;
+        el.style.transition = prevTransition;
+    }, 2400);
+    return false;
+};
+
 function addNewCustomer() {
     const name = document.getElementById('new-cust-name').value.trim();
     const phone = document.getElementById('new-cust-phone').value.trim();
     const credit = parseNum(document.getElementById('new-cust-credit').value);
-    if (!name) { showToast('❌ يرجى إدخال اسم المورد', 'error'); return; }
+    if (!name) { window.focusRequiredPurchaseField('#new-cust-name', '⚠️ يرجى إدخال اسم المورد'); return; }
 
     const newId = 'v-' + String(Date.now()).slice(-6);
     const newCust = { id:newId, name, phone, ledger:0, checks:0, creditLimit:credit };
@@ -842,15 +877,28 @@ function addNewCustomer() {
         if (!Array.isArray(supps)) supps = [];
     } catch(e) { supps = []; }
     
-    supps.push({
+    const newSuppRecord = {
         id: newId,
         name: name,
         phone: phone,
         creditLimit: credit,
         currentBalance: 0,
         status: 'active'
-    });
+    };
+    supps.push(newSuppRecord);
     localStorage.setItem('erp_suppliers_v1', JSON.stringify(supps));
+    try {
+        if (typeof BroadcastChannel !== 'undefined') {
+            const bc = new BroadcastChannel('magaiees_sync_channel');
+            bc.postMessage({ type: 'master_data_saved', module: 'master_data', entity: 'suppliers', ts: Date.now() });
+            bc.close();
+        }
+        fetch('api/master_data.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ entity: 'suppliers', data: newSuppRecord })
+        }).catch(() => {});
+    } catch (_eSync) {}
 
     selectCustomer(newId, name);
 
@@ -1474,19 +1522,24 @@ async function renderItemDropdown(rowId, isMobile = false, filter = '') {
     if (!listEl) return;
     
     listEl.innerHTML = '<div class="custom-dropdown-empty">جاري البحث...</div>';
-    const term = filter.toLowerCase().trim();
+    const term = (filter || '').toLowerCase().trim();
+    const normTerm = normalizeArabic(term);
+    const searchWords = normTerm ? normTerm.split(/\s+/).filter(Boolean) : [];
+    const matchItemByFuzzyTerm = (it) => {
+        if (!it) return false;
+        if (!normTerm) return true;
+        const normName = normalizeArabic(it.name || '');
+        const normCode = String(it.id || it.code || '').toLowerCase();
+        const bc = String(it.barcode || '').toLowerCase();
+        const unitBc = Array.isArray(it.units) && it.units.some(u => u && String(u.barcode || '').toLowerCase().includes(term));
+        if (bc.includes(term) || unitBc || normCode.includes(term)) return true;
+        return searchWords.every(w => normName.includes(w));
+    };
     
     try {
         let localMatches = ITEMS;
-        if (term) {
-            localMatches = ITEMS.filter(i => {
-                if (!i) return false;
-                const normName = (i.name || '').toLowerCase();
-                const nameWords = normName.split(' ');
-                const bcMatches = i.barcode && i.barcode.toLowerCase().includes(term);
-                const unitBcMatches = i.units && Array.isArray(i.units) && i.units.some(u => u.barcode && u.barcode.toLowerCase().includes(term));
-                return nameWords.some(w => w.startsWith(term)) || normName.includes(term) || bcMatches || unitBcMatches;
-            });
+        if (normTerm) {
+            localMatches = ITEMS.filter(matchItemByFuzzyTerm);
         }
 
         let dbMatches = [];
@@ -1532,7 +1585,7 @@ async function renderItemDropdown(rowId, isMobile = false, filter = '') {
                     status: item.status || 'active'
                 };
                 ITEMS.push(existing);
-                if (!term || existing.name.toLowerCase().includes(term)) {
+                if (matchItemByFuzzyTerm(existing)) {
                     localMatches.push(existing);
                 }
             } else {
@@ -1703,19 +1756,24 @@ async function renderQuickItemDropdown(filter = '') {
     if (!listEl) return;
     
     listEl.innerHTML = '<div class="custom-dropdown-empty">جاري البحث...</div>';
-    const term = filter.toLowerCase().trim();
+    const term = (filter || '').toLowerCase().trim();
+    const normTerm = normalizeArabic(term);
+    const searchWords = normTerm ? normTerm.split(/\s+/).filter(Boolean) : [];
+    const matchItemByFuzzyTerm = (it) => {
+        if (!it) return false;
+        if (!normTerm) return true;
+        const normName = normalizeArabic(it.name || '');
+        const normCode = String(it.id || it.code || '').toLowerCase();
+        const bc = String(it.barcode || '').toLowerCase();
+        const unitBc = Array.isArray(it.units) && it.units.some(u => u && String(u.barcode || '').toLowerCase().includes(term));
+        if (bc.includes(term) || unitBc || normCode.includes(term)) return true;
+        return searchWords.every(w => normName.includes(w));
+    };
     
     try {
         let localMatches = ITEMS;
-        if (term) {
-            localMatches = ITEMS.filter(i => {
-                if (!i) return false;
-                const normName = (i.name || '').toLowerCase();
-                const nameWords = normName.split(' ');
-                const bcMatches = i.barcode && i.barcode.toLowerCase().includes(term);
-                const unitBcMatches = i.units && Array.isArray(i.units) && i.units.some(u => u.barcode && u.barcode.toLowerCase().includes(term));
-                return nameWords.some(w => w.startsWith(term)) || normName.includes(term) || bcMatches || unitBcMatches;
-            });
+        if (normTerm) {
+            localMatches = ITEMS.filter(matchItemByFuzzyTerm);
         }
 
         let dbMatches = [];
@@ -1757,7 +1815,7 @@ async function renderQuickItemDropdown(filter = '') {
                     status: item.status || 'active'
                 };
                 ITEMS.push(existing);
-                if (!term || existing.name.toLowerCase().includes(term)) {
+                if (matchItemByFuzzyTerm(existing)) {
                     localMatches.push(existing);
                 }
             } else {
@@ -1780,10 +1838,11 @@ async function renderQuickItemDropdown(filter = '') {
             
             const uList = extractItemUnits(existing);
             const uText = uList.map(u => u.name).join(' | ');
+            const dispPrice = (parseFloat(existing.lastPurchaseCost || existing.costPrice || existing.price || 0) || 0).toLocaleString();
 
-            div.innerHTML = `<div style="display:flex; justify-content:space-between; align-items:center; width:100%;">
-                <span><strong>${existing.name}</strong></span>
-                
+            div.innerHTML = `<div style="display:flex; justify-content:space-between; align-items:center; width:100%; gap:8px;">
+                <span><strong>📦 ${existing.name}</strong> ${uText ? `<small style="color:#94a3b8; font-weight:700;">(${uText})</small>` : ''}</span>
+                <span style="font-size:0.76rem; color:#34d399; background:rgba(16,185,129,0.12); border:1px solid rgba(16,185,129,0.3); padding:2px 8px; border-radius:6px; font-family:monospace; font-weight:800;">💰 ${dispPrice}</span>
             </div>`;
             div.onmousedown = () => { selectQuickItem(existing.id); };
             div.onpointerdown = () => { selectQuickItem(existing.id); };
@@ -2046,35 +2105,54 @@ function updateRowCalcs(id) {
         availEl.className = 'g-readonly avail-val';
     }
 
-    // Smart Tactical Price Variance Indicator (مؤشر الرقابة الذكية على سعر الشراء)
+    // Smart Tactical Price Variance Indicator (مؤشر الرقابة الذكية على سعر الشراء + تنبيه +15%)
     const priceHintEl = document.querySelector(`[data-price-hint="${id}"]`);
     if (priceHintEl) {
-        const refPrice = getLastPurchasePriceForItem(row.itemId, row.selectedUnit);
+        let refPrice = getLastPurchasePriceForItem(row.itemId, row.selectedUnit);
+        if ((!refPrice || refPrice <= 0) && row.itemId && typeof ITEMS !== 'undefined' && Array.isArray(ITEMS)) {
+            const itRef = ITEMS.find(i => String(i.id) === String(row.itemId));
+            if (itRef) {
+                const rawCost = parseFloat(itRef.lastPurchaseCost) || parseFloat(itRef.averageCost) || parseFloat(itRef.costPrice) || 0;
+                const uFactor = (row.customFactor !== undefined ? parseFloat(row.customFactor) : 1) || 1;
+                refPrice = isBaseSDG ? (rawCost * uFactor) : ((rawCost * uFactor) / (exRate || 1));
+            }
+        }
         const curPrice = parseNum(row.price);
-        if (row.itemId && refPrice > 0 && curPrice > 0 && getCurrency() === 'SDG') {
+        if (row.itemId && refPrice > 0 && curPrice > 0) {
             const diffPct = ((curPrice - refPrice) / refPrice) * 100;
             priceHintEl.style.display = 'inline-flex';
-            if (diffPct > 1) {
+            if (diffPct >= 15) {
+                priceHintEl.style.setProperty('color', '#fef08a', 'important');
+                priceHintEl.style.setProperty('background', 'linear-gradient(135deg, rgba(225, 29, 72, 0.88), rgba(185, 28, 28, 0.92))', 'important');
+                priceHintEl.style.setProperty('border-color', 'rgba(251, 191, 36, 0.75)', 'important');
+                priceHintEl.textContent = `⚠️ +${Math.round(diffPct)}%`;
+                priceHintEl.title = `🚨 تنبيه رقابي حرج: سعر الشراء الجديد (${fmtNum(curPrice)}) يتجاوز آخر تكلفة مرجعية (${fmtNum(refPrice)}) بنسبة +${diffPct.toFixed(1)}% (أعلى من سقف 15%)!`;
+                if (priceEl) priceEl.style.borderColor = 'rgba(244, 63, 94, 0.75)';
+            } else if (diffPct > 1) {
                 priceHintEl.style.setProperty('color', '#fb7185', 'important');
                 priceHintEl.style.setProperty('background', 'rgba(244, 63, 94, 0.22)', 'important');
                 priceHintEl.style.setProperty('border-color', 'rgba(244, 63, 94, 0.55)', 'important');
                 priceHintEl.textContent = `↑ +${Math.round(diffPct)}%`;
                 priceHintEl.title = `تنبيه رقابي: السعر أعلى من السعر المرجعي (${fmtNum(refPrice)}) بنسبة ${diffPct.toFixed(1)}%`;
+                if (priceEl) priceEl.style.borderColor = '';
             } else if (diffPct < -1) {
                 priceHintEl.style.setProperty('color', '#34d399', 'important');
                 priceHintEl.style.setProperty('background', 'rgba(16, 185, 129, 0.22)', 'important');
                 priceHintEl.style.setProperty('border-color', 'rgba(16, 185, 129, 0.55)', 'important');
                 priceHintEl.textContent = `↓ ${Math.round(diffPct)}%`;
                 priceHintEl.title = `وفرة سعرية: السعر أقل من السعر المرجعي (${fmtNum(refPrice)}) بنسبة ${Math.abs(diffPct).toFixed(1)}%`;
+                if (priceEl) priceEl.style.borderColor = '';
             } else {
                 priceHintEl.style.setProperty('color', '#38bdf8', 'important');
                 priceHintEl.style.setProperty('background', 'rgba(56, 189, 248, 0.16)', 'important');
                 priceHintEl.style.setProperty('border-color', 'rgba(56, 189, 248, 0.4)', 'important');
                 priceHintEl.textContent = `= مرجعي`;
                 priceHintEl.title = `مطابق للسعر المرجعي للصنف (${fmtNum(refPrice)}) — اضغط لعرض سجل الأسعار`;
+                if (priceEl) priceEl.style.borderColor = '';
             }
         } else {
             priceHintEl.style.display = 'none';
+            if (priceEl) priceEl.style.borderColor = '';
         }
     }
 
@@ -2702,7 +2780,8 @@ function saveDraft() {
         taxCost: parseNum(document.getElementById('t-tax-loc')?.value || 0),
         taxCostFc: parseNum(document.getElementById('t-tax-fc')?.value || 0),
         discountCost: parseNum(document.getElementById('t-discount-loc')?.value || 0),
-        discountCostFc: parseNum(document.getElementById('t-discount-fc')?.value || 0)
+        discountCostFc: parseNum(document.getElementById('t-discount-fc')?.value || 0),
+        landedCostMode: document.getElementById('hdr-landed-cost-mode')?.value || 'value'
     };
     localStorage.setItem('erp_draft_' + data.invoiceNo, JSON.stringify(data));
     showToast('📑 تم حفظ المسودة بنجاح', 'success', 2500);
@@ -2746,13 +2825,24 @@ function submitInvoice(ignoreWarnings = false) {
         }
     }
 
-    if (rows.length === 0) { showToast('❌ لا يمكن تأكيد فاتورة فارغة', 'error'); return; }
+    if (rows.length === 0) {
+        window.focusRequiredPurchaseField('#quick-item-search', '⚠️ لا يمكن اعتماد فاتورة فارغة — ابحث عن الصنف أو امسح الباركود أولاً');
+        return;
+    }
 
-    const hasEmptyItems = rows.some(r => !r.itemId);
-    if (hasEmptyItems) { showToast('⚠️ يرجى اختيار الصنف لكل سطر', 'warning'); return; }
+    const emptyRowIdx = rows.findIndex(r => !r.itemId);
+    if (emptyRowIdx !== -1) {
+        const emptyRowInput = document.querySelector(`#pos-grid tbody tr:nth-child(${emptyRowIdx + 1}) input`) || document.getElementById('quick-item-search');
+        window.focusRequiredPurchaseField(emptyRowInput, `⚠️ يرجى اختيار الصنف للسطر رقم (${emptyRowIdx + 1})`);
+        return;
+    }
 
-    const hasZeroQty = rows.some(r => r.quantity <= 0);
-    if (hasZeroQty) { showToast('⚠️ الكمية يجب أن تكون أكبر من صفر', 'warning'); return; }
+    const zeroQtyIdx = rows.findIndex(r => (parseFloat(r.quantity) || 0) <= 0);
+    if (zeroQtyIdx !== -1) {
+        const qtyInput = document.querySelector(`#pos-grid tbody tr:nth-child(${zeroQtyIdx + 1}) [data-qty-input]`) || document.querySelector(`#pos-grid tbody tr:nth-child(${zeroQtyIdx + 1}) td[data-col-id="quantity"] input`) || document.querySelector(`#pos-grid tbody tr:nth-child(${zeroQtyIdx + 1}) td[data-col-id="qty"] input`);
+        window.focusRequiredPurchaseField(qtyInput || '#quick-item-search', `⚠️ الكمية في السطر رقم (${zeroQtyIdx + 1}) يجب أن تكون أكبر من صفر`);
+        return;
+    }
 
     let warnings = [];
 
@@ -2764,7 +2854,19 @@ function submitInvoice(ignoreWarnings = false) {
 
     if (window.isSubmitting) return;
     window.isSubmitting = true;
-    setTimeout(() => { window.isSubmitting = false; }, 2000);
+    const _submitGuardTimer = setTimeout(() => { window.isSubmitting = false; }, 2500);
+
+    // 🛡️ ATOMIC TRANSACTION SNAPSHOT (Rollback state if any step fails)
+    const _atomicKeys = [
+        'erp_banks_v1', 'erp_safes_v1', 'erp_suppliers_v1',
+        'erp_single_payments_v1', 'erp_checks_v1', 'erp_items_v1',
+        'erp_inventory_v1', 'erp_purchase_invoices_v1', 'erp_purchases_v1',
+        'magaies_local_purchase_invoices_v1', 'erp_journal_entries_v1'
+    ];
+    const _atomicSnapshot = {};
+    try {
+        _atomicKeys.forEach(k => { _atomicSnapshot[k] = localStorage.getItem(k); });
+    } catch (_eSnap) {}
 
     try {
 
@@ -3018,7 +3120,8 @@ function submitInvoice(ignoreWarnings = false) {
         taxCost: parseNum(document.getElementById('t-tax-loc')?.value || 0),
         taxCostFc: parseNum(document.getElementById('t-tax-fc')?.value || 0),
         discountCost: parseNum(document.getElementById('t-discount-loc')?.value || 0),
-        discountCostFc: parseNum(document.getElementById('t-discount-fc')?.value || 0)
+        discountCostFc: parseNum(document.getElementById('t-discount-fc')?.value || 0),
+        landedCostMode: document.getElementById('hdr-landed-cost-mode')?.value || 'value'
     };
 
     const postingMode = window.getPostingMode ? window.getPostingMode() : 'auto';
@@ -3234,7 +3337,7 @@ function submitInvoice(ignoreWarnings = false) {
     localStorage.setItem('erp_pur_' + committedNo, JSON.stringify(data));
 
     // Append or Update global purchase invoices array for inventory calculation & mobile mirror
-    ['erp_purchase_invoices_v1', 'magaies_local_purchase_invoices_v1'].forEach(storageKey => {
+    ['erp_purchase_invoices_v1', 'erp_purchases_v1', 'magaies_local_purchase_invoices_v1'].forEach(storageKey => {
         try {
             let listArr = JSON.parse(localStorage.getItem(storageKey)) || [];
             if (!Array.isArray(listArr)) listArr = [];
@@ -3267,13 +3370,15 @@ function submitInvoice(ignoreWarnings = false) {
         let currentInvData = JSON.parse(localStorage.getItem('erp_inventory_v1')) || [];
         const mainWh = document.getElementById('hdr-warehouse') ? document.getElementById('hdr-warehouse').value : '';
         
-        // Landed Cost Calculation
+        // Landed Cost Calculation (Supports Value Ratio 💰 or Quantity Ratio 📦)
         const localAdditions = (data.laborCost||0) + (data.transportCost||0) + (data.additionsCost||0) + (data.taxCost||0) - (data.discountCost||0);
         const fcAdditions = (data.laborCostFc||0) + (data.transportCostFc||0) + (data.additionsCostFc||0) + (data.taxCostFc||0) - (data.discountCostFc||0);
-        let totalItemValueLocal = 0, totalItemValueFc = 0;
+        const landedMode = data.landedCostMode || (document.getElementById('hdr-landed-cost-mode')?.value) || 'value';
+        let totalItemValueLocal = 0, totalItemValueFc = 0, totalItemQtyAll = 0;
         data.items.forEach(r => {
             totalItemValueLocal += (parseFloat(r.price)||0) * (parseFloat(r.quantity)||0);
             totalItemValueFc += (parseFloat(r.fcPrice)||0) * (parseFloat(r.quantity)||0);
+            totalItemQtyAll += (parseFloat(r.quantity)||0);
         });
         const cfg = JSON.parse(localStorage.getItem('erp_settings_v1') || '{}');
         const valuationMethod = cfg.inventoryValuation || 'moving_average';
@@ -3302,9 +3407,14 @@ function submitInvoice(ignoreWarnings = false) {
             // Costing Updates
             let itemTotalLocal = (parseFloat(row.price)||0) * (parseFloat(row.quantity)||0);
             let itemTotalFc = (parseFloat(row.fcPrice)||0) * (parseFloat(row.quantity)||0);
+            let rowQtyVal = parseFloat(row.quantity) || 0;
             
-            let ratioLocal = totalItemValueLocal > 0 ? (itemTotalLocal / totalItemValueLocal) : 0;
-            let ratioFc = totalItemValueFc > 0 ? (itemTotalFc / totalItemValueFc) : 0;
+            let ratioLocal = landedMode === 'qty'
+                ? (totalItemQtyAll > 0 ? (rowQtyVal / totalItemQtyAll) : 0)
+                : (totalItemValueLocal > 0 ? (itemTotalLocal / totalItemValueLocal) : 0);
+            let ratioFc = landedMode === 'qty'
+                ? (totalItemQtyAll > 0 ? (rowQtyVal / totalItemQtyAll) : 0)
+                : (totalItemValueFc > 0 ? (itemTotalFc / totalItemValueFc) : 0);
             
             let newCostBaseLocal = baseQty > 0 ? ((itemTotalLocal + (localAdditions * ratioLocal)) / baseQty) : 0;
             let newCostBaseFc = baseQty > 0 ? ((itemTotalFc + (fcAdditions * ratioFc)) / baseQty) : 0;
@@ -3327,10 +3437,45 @@ function submitInvoice(ignoreWarnings = false) {
                 item.averageCost = newCostBaseLocal; item.averageCostFc = newCostBaseFc;
             }
             item.lastPurchaseCost = newCostBaseLocal; item.lastPurchaseCostFc = newCostBaseFc;
+            item.costPrice = item.averageCost || newCostBaseLocal;
+            item.cost = item.costPrice;
+            item.purchasePrice = item.lastPurchaseCost || item.costPrice;
+            const updatedTotalStock = item.stock && typeof item.stock === 'object'
+                ? Object.values(item.stock).reduce((a, b) => (parseFloat(a) || 0) + (parseFloat(b) || 0), 0)
+                : (parseFloat(item.stock) || 0) + baseQty;
+            item.currentStock = updatedTotalStock;
+            item.quantity = updatedTotalStock;
+            if (Array.isArray(item.units) && item.units[0]) {
+                item.units[0].stock = updatedTotalStock;
+                item.units[0].purchasePrice = item.purchasePrice;
+            }
         }
         localStorage.setItem('erp_items_v1', JSON.stringify(ITEMS));
         localStorage.setItem('erp_inventory_v1', JSON.stringify(currentInvData));
         localStorage.setItem('erp_pur_' + committedNo, JSON.stringify(data));
+        try {
+            let priceHist = JSON.parse(localStorage.getItem('erp_item_price_history_v1') || '[]');
+            if (!Array.isArray(priceHist)) priceHist = [];
+            data.items.forEach(r => {
+                const itm = ITEMS.find(i => String(i.id) === String(r.itemId));
+                if (itm) {
+                    priceHist.unshift({
+                        itemId: itm.id,
+                        itemName: itm.name,
+                        costPrice: itm.costPrice,
+                        lastPurchaseCost: itm.lastPurchaseCost,
+                        sellingPrice: itm.sellingPrice || itm.price || 0,
+                        source: 'فاتورة مشتريات #' + committedNo,
+                        date: new Date().toISOString()
+                    });
+                }
+            });
+            if (priceHist.length > 500) priceHist = priceHist.slice(0, 500);
+            localStorage.setItem('erp_item_price_history_v1', JSON.stringify(priceHist));
+        } catch (_ePh) {}
+        if (typeof window.rebuildGLFromAllTables === 'function') {
+            try { window.rebuildGLFromAllTables(false); } catch (e) {}
+        }
     }
 
     window._cachedPurchaseInvoicesRaw = null;
@@ -3344,31 +3489,66 @@ function submitInvoice(ignoreWarnings = false) {
     // 🪞 REAL-TIME MIRROR SYNC + UNIVERSAL OFFLINE QUEUE: Commit purchase invoice to MariaDB or Offline Queue
     try {
         const queueType = (typeof currentPurchaseType !== 'undefined' && currentPurchaseType === 'split' || data.isSplit || data.purchaseType === 'split') ? 'purchase_split' : 'purchase';
-        if (!navigator.onLine) {
+        const enqueuePurchaseOfflineFallback = (invObj, qType) => {
             if (window.MagaiesOffline && typeof window.MagaiesOffline.enqueue === 'function') {
-                window.MagaiesOffline.enqueue(queueType, data, data.invoiceNo);
+                window.MagaiesOffline.enqueue(qType, invObj, invObj.invoiceNo);
             }
+            try {
+                let pq = JSON.parse(localStorage.getItem('erp_purchase_offline_queue_v1') || '[]');
+                if (!Array.isArray(pq)) pq = [];
+                pq = pq.filter(x => x && x.invoiceNo !== invObj.invoiceNo);
+                pq.push({ type: qType, invoiceNo: invObj.invoiceNo, payload: invObj, queuedAt: Date.now() });
+                localStorage.setItem('erp_purchase_offline_queue_v1', JSON.stringify(pq.slice(-100)));
+            } catch (_eq) {}
+        };
+        if (!navigator.onLine) {
+            enqueuePurchaseOfflineFallback(data, queueType);
         } else {
+            const ctrl = typeof AbortController !== 'undefined' ? new AbortController() : null;
+            const tId = ctrl ? setTimeout(() => ctrl.abort(), 8000) : null;
             fetch('api/mirror_sync.php?action=' + (queueType === 'purchase_split' ? 'save_purchase_split' : 'save_purchase_invoice'), {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data)
-            }).then(r => r.json()).then(res => {
+                body: JSON.stringify(data),
+                signal: ctrl ? ctrl.signal : undefined
+            }).then(r => {
+                if (tId) clearTimeout(tId);
+                return r.json();
+            }).then(res => {
                 if (res && res.success && res.nextPurchaseNo) {
                     window._mirrorNextPurchaseNo = res.nextPurchaseNo;
                 } else if (!res || !res.success) {
-                    if (window.MagaiesOffline && typeof window.MagaiesOffline.enqueue === 'function') {
-                        window.MagaiesOffline.enqueue(queueType, data, data.invoiceNo);
-                    }
+                    enqueuePurchaseOfflineFallback(data, queueType);
                 }
             }).catch(e => {
+                if (tId) clearTimeout(tId);
                 console.warn("Mirror sync purchase failed, enqueuing offline:", e);
-                if (window.MagaiesOffline && typeof window.MagaiesOffline.enqueue === 'function') {
-                    window.MagaiesOffline.enqueue(queueType, data, data.invoiceNo);
-                }
+                enqueuePurchaseOfflineFallback(data, queueType);
             });
         }
     } catch(eMirror) {}
+
+    // 📡 INSTANT CROSS-TAB & MOBILE BROADCAST SYNC (0ms latency across Reports, Logistics, Supplier Statement, GL)
+    try {
+        const syncPayload = {
+            type: 'purchase_invoice_saved',
+            module: 'purchase',
+            invoiceNo: committedNo,
+            supplierId: custId,
+            grandTotal: grandAmount,
+            currency: cur,
+            timestamp: Date.now()
+        };
+        if (typeof BroadcastChannel !== 'undefined') {
+            const bc1 = new BroadcastChannel('magaiees_sync_channel');
+            bc1.postMessage(syncPayload);
+            bc1.close();
+            const bc2 = new BroadcastChannel('erp_live_sync');
+            bc2.postMessage(syncPayload);
+            bc2.close();
+        }
+        window.dispatchEvent(new CustomEvent('erp_data_updated', { detail: syncPayload }));
+    } catch (_eBc) {}
 
     // Show professional success modal
     let finalWarnings = [];
@@ -3406,9 +3586,20 @@ function submitInvoice(ignoreWarnings = false) {
     showSuccessModal(committedNo, grandTotal, cur, finalWarnings);
 
     } catch (err) {
-        console.error("Critical error in submitInvoice:", err);
+        console.error("Critical error in submitInvoice — rolling back atomic state:", err);
+        clearTimeout(_submitGuardTimer);
         window.isSubmitting = false;
-        showToast("❌ حدث خطأ أثناء حفظ الفاتورة: " + (err.message || err), "error", 6000);
+        // 🔄 ATOMIC ROLLBACK: Restore all localStorage tables to exact pre-transaction state
+        try {
+            Object.keys(_atomicSnapshot).forEach(k => {
+                if (_atomicSnapshot[k] === null || _atomicSnapshot[k] === undefined) {
+                    localStorage.removeItem(k);
+                } else {
+                    localStorage.setItem(k, _atomicSnapshot[k]);
+                }
+            });
+        } catch (_eRb) {}
+        showToast("❌ حدث خطأ أثناء حفظ الفاتورة وتم التراجع التلقائي (Rollback) لحماية الأرصدة: " + (err.message || err), "error", 6000);
     }
 }
 
@@ -3486,10 +3677,12 @@ function postInvoice(invoiceNo) {
     if (inv.items && Array.isArray(inv.items)) {
         const localAdditions = (parseFloat(inv.laborCost)||0) + (parseFloat(inv.transportCost)||0) + (parseFloat(inv.additionsCost)||0) + (parseFloat(inv.taxCost)||0) - (parseFloat(inv.discountCost)||0);
         const fcAdditions = (parseFloat(inv.laborCostFc)||0) + (parseFloat(inv.transportCostFc)||0) + (parseFloat(inv.additionsCostFc)||0) + (parseFloat(inv.taxCostFc)||0) - (parseFloat(inv.discountCostFc)||0);
-        let totalItemValueLocal = 0, totalItemValueFc = 0;
+        const landedMode = inv.landedCostMode || (document.getElementById('hdr-landed-cost-mode')?.value) || 'value';
+        let totalItemValueLocal = 0, totalItemValueFc = 0, totalItemQtyAll = 0;
         inv.items.forEach(r => {
             totalItemValueLocal += (parseFloat(r.price)||0) * (parseFloat(r.quantity)||0);
             totalItemValueFc += (parseFloat(r.fcPrice)||0) * (parseFloat(r.quantity)||0);
+            totalItemQtyAll += (parseFloat(r.quantity)||0);
         });
         const cfg = JSON.parse(localStorage.getItem('erp_settings_v1') || '{}');
         const valuationMethod = cfg.inventoryValuation || 'moving_average';
@@ -3515,9 +3708,14 @@ function postInvoice(invoiceNo) {
             // Costing Updates
             let itemTotalLocal = (parseFloat(row.price)||0) * (parseFloat(row.quantity)||0);
             let itemTotalFc = (parseFloat(row.fcPrice)||0) * (parseFloat(row.quantity)||0);
+            let rowQtyVal = parseFloat(row.quantity) || 0;
             
-            let ratioLocal = totalItemValueLocal > 0 ? (itemTotalLocal / totalItemValueLocal) : 0;
-            let ratioFc = totalItemValueFc > 0 ? (itemTotalFc / totalItemValueFc) : 0;
+            let ratioLocal = landedMode === 'qty'
+                ? (totalItemQtyAll > 0 ? (rowQtyVal / totalItemQtyAll) : 0)
+                : (totalItemValueLocal > 0 ? (itemTotalLocal / totalItemValueLocal) : 0);
+            let ratioFc = landedMode === 'qty'
+                ? (totalItemQtyAll > 0 ? (rowQtyVal / totalItemQtyAll) : 0)
+                : (totalItemValueFc > 0 ? (itemTotalFc / totalItemValueFc) : 0);
             
             let newCostBaseLocal = baseQty > 0 ? ((itemTotalLocal + (localAdditions * ratioLocal)) / baseQty) : 0;
             let newCostBaseFc = baseQty > 0 ? ((itemTotalFc + (fcAdditions * ratioFc)) / baseQty) : 0;
@@ -3540,21 +3738,39 @@ function postInvoice(invoiceNo) {
                 item.averageCost = newCostBaseLocal; item.averageCostFc = newCostBaseFc;
             }
             item.lastPurchaseCost = newCostBaseLocal; item.lastPurchaseCostFc = newCostBaseFc;
+            item.costPrice = item.averageCost || newCostBaseLocal;
+            item.cost = item.costPrice;
+            item.purchasePrice = item.lastPurchaseCost || item.costPrice;
+            const updatedTotalStock = item.stock && typeof item.stock === 'object'
+                ? Object.values(item.stock).reduce((a, b) => (parseFloat(a) || 0) + (parseFloat(b) || 0), 0)
+                : (parseFloat(item.stock) || 0) + baseQty;
+            item.currentStock = updatedTotalStock;
+            item.quantity = updatedTotalStock;
+            if (Array.isArray(item.units) && item.units[0]) {
+                item.units[0].stock = updatedTotalStock;
+                item.units[0].purchasePrice = item.purchasePrice;
+            }
         }
         localStorage.setItem('erp_items_v1', JSON.stringify(ITEMS));
     }
     localStorage.setItem('erp_inventory_v1', JSON.stringify(currentInvData));
 
-    // 4. Update invoice status to 'posted'
+    // 4. Update invoice status to 'posted' across all 3 canonical purchase stores
     inv.status = 'posted';
     inv.postedAt = new Date().toISOString();
     inv.postedBy = (JSON.parse(localStorage.getItem('user')) || {}).id || 'unknown';
     localStorage.setItem('erp_pur_' + invoiceNo, JSON.stringify(inv));
 
-    let allPurchases = JSON.parse(localStorage.getItem('erp_purchase_invoices_v1')) || [];
-    const idx = allPurchases.findIndex(i => String(i.invoiceNo) === String(invoiceNo));
-    if (idx !== -1) allPurchases[idx] = inv;
-    localStorage.setItem('erp_purchase_invoices_v1', JSON.stringify(allPurchases));
+    ['erp_purchase_invoices_v1', 'erp_purchases_v1', 'magaies_local_purchase_invoices_v1'].forEach(storageKey => {
+        try {
+            let listArr = JSON.parse(localStorage.getItem(storageKey)) || [];
+            if (!Array.isArray(listArr)) listArr = [];
+            const idx = listArr.findIndex(i => i && (String(i.invoiceNo) === String(invoiceNo) || String(i.id) === String(invoiceNo)));
+            if (idx !== -1) listArr[idx] = inv;
+            else listArr.push(inv);
+            localStorage.setItem(storageKey, JSON.stringify(listArr));
+        } catch (e) {}
+    });
 
     if (window.AccountingEngine && typeof window.AccountingEngine.postPurchaseInvoice === 'function') {
         window.AccountingEngine.postPurchaseInvoice(inv);
@@ -3847,6 +4063,8 @@ function revertOldInvoiceEffects(currentInvNo) {
     }
 
     if (!oldInv) return;
+    // Draft & Proforma invoices never applied financial or inventory effects, so do not revert balances
+    if (oldInv.status === 'draft' || oldInv.saleType === 'proforma') return;
     const grandAmount = parseFloat(oldInv.grandTotal) || 0;
 
     // 1. Revert Supplier Balance (Debt)
@@ -3953,7 +4171,7 @@ function revertOldInvoiceEffects(currentInvNo) {
                 itemInv.qty = (parseFloat(itemInv.qty) || parseFloat(itemInv.quantity) || 0) - baseQty;
             }
             
-            if (item.stock && item.stock[whId] !== undefined) {
+            if (item.stock && typeof item.stock === 'object' && item.stock[whId] !== undefined) {
                 item.stock[whId] -= baseQty;
             }
             if (item.actualStock && item.actualStock[whId] !== undefined) {
@@ -3966,6 +4184,18 @@ function revertOldInvoiceEffects(currentInvNo) {
                 item.averageCostFc = row.costingRevertData.oldAvgFc;
                 item.lastPurchaseCost = row.costingRevertData.oldLastLocal;
                 item.lastPurchaseCostFc = row.costingRevertData.oldLastFc;
+                item.costPrice = item.averageCost || item.lastPurchaseCost || 0;
+                item.cost = item.costPrice;
+                item.purchasePrice = item.lastPurchaseCost || item.costPrice || 0;
+            }
+            const revertedTotalStock = item.stock && typeof item.stock === 'object'
+                ? Object.values(item.stock).reduce((a, b) => (parseFloat(a) || 0) + (parseFloat(b) || 0), 0)
+                : Math.max(0, (parseFloat(item.stock) || 0) - baseQty);
+            item.currentStock = revertedTotalStock;
+            item.quantity = revertedTotalStock;
+            if (Array.isArray(item.units) && item.units[0]) {
+                item.units[0].stock = revertedTotalStock;
+                if (item.purchasePrice) item.units[0].purchasePrice = item.purchasePrice;
             }
         }
         localStorage.setItem('erp_items_v1', JSON.stringify(ITEMS));
@@ -3995,10 +4225,46 @@ function executeDeleteTransaction() {
     if (!currentInvNo) return;
 
     let allPurchases = JSON.parse(localStorage.getItem('erp_purchase_invoices_v1')) || [];
-    const oldInv = allPurchases.find(inv => inv.invoiceNo === currentInvNo);
+    const oldInv = allPurchases.find(inv => inv && (String(inv.invoiceNo) === String(currentInvNo) || String(inv.id) === String(currentInvNo)));
     
     // --- SAFEGUARDS ---
+    if (oldInv && oldInv.date && typeof window.canEditRecord === 'function') {
+        if (!window.canEditRecord(oldInv.date, 'purchase')) {
+            return; // blocked by fiscal period policy
+        }
+    }
+
     if (oldInv && oldInv.status !== 'draft' && oldInv.saleType !== 'proforma') {
+        // 0. Linked Goods Receipt Notes (GRN) / Warehouse Split Deliveries Lock
+        const grnKeys = ['erp_grn_v1', 'erp_purchase_grn_v1', 'erp_split_deliveries_v1', 'erp_warehouse_receipts_v1'];
+        for (const gKey of grnKeys) {
+            try {
+                const gList = JSON.parse(localStorage.getItem(gKey) || '[]');
+                if (Array.isArray(gList)) {
+                    const linkedGrn = gList.find(g => g && !g.deleted && g.status !== 'cancelled' && (
+                        String(g.invoiceNo) === String(currentInvNo) ||
+                        String(g.refInvoice) === String(currentInvNo) ||
+                        String(g.parentInvoiceNo) === String(currentInvNo) ||
+                        String(g.purchaseInvoiceNo) === String(currentInvNo)
+                    ));
+                    if (linkedGrn) {
+                        showToast(`❌ محمية من الحذف: توجد أذونات استلام مخزني مرتبطة بهذه الفاتورة (${linkedGrn.grnNo || linkedGrn.id || currentInvNo}). يجب إلغاء إذن الاستلام أولاً.`, 'error', 6500);
+                        return;
+                    }
+                }
+            } catch (_eg) {}
+        }
+
+        // 0-B. External Manual Payment Voucher Lock
+        try {
+            const pLog = JSON.parse(localStorage.getItem('erp_single_payments_v1') || '[]');
+            const extPayment = Array.isArray(pLog) && pLog.find(p => p && !p.deleted && String(p.refInvoice) === String(currentInvNo) && !String(p.paymentNo || '').startsWith('PMT-PUR-'));
+            if (extPayment) {
+                showToast(`❌ محمية من الحذف: مرتبطة بسند صرف مستقل رقم (${extPayment.paymentNo || extPayment.id}). يرجى فك ارتباط السند أو حذفه أولاً.`, 'error', 6500);
+                return;
+            }
+        } catch (_ep) {}
+
         // 1. Cheque Processing Lock
         let checksLog = JSON.parse(localStorage.getItem('erp_checks_v1')) || [];
         let processedCheque = checksLog.find(ch => ch.refInvoice === currentInvNo && ch.status && ch.status !== 'issued' && ch.status !== 'pending');
@@ -4037,8 +4303,19 @@ function executeDeleteTransaction() {
 
     revertOldInvoiceEffects(currentInvNo);
 
-    allPurchases = allPurchases.filter(inv => inv.invoiceNo !== currentInvNo);
-    localStorage.setItem('erp_purchase_invoices_v1', JSON.stringify(allPurchases));
+    ['erp_purchase_invoices_v1', 'erp_purchases_v1', 'magaies_local_purchase_invoices_v1'].forEach(storageKey => {
+        try {
+            let arr = JSON.parse(localStorage.getItem(storageKey)) || [];
+            if (Array.isArray(arr)) {
+                arr = arr.filter(inv => inv && String(inv.invoiceNo) !== String(currentInvNo) && String(inv.id) !== String(currentInvNo));
+                localStorage.setItem(storageKey, JSON.stringify(arr));
+            }
+        } catch (_ed) {}
+    });
+
+    if (typeof window.rebuildGLFromAllTables === 'function') {
+        try { window.rebuildGLFromAllTables(false); } catch (_egl) {}
+    }
 
     if (window.logSystemAction) {
         window.logSystemAction('حذف فاتورة مشتريات', 'المشتريات', currentInvNo, `تم حذف فاتورة المشتريات رقم ${currentInvNo} وإلغاء جميع تأثيراتها`);
@@ -4046,9 +4323,21 @@ function executeDeleteTransaction() {
 
     localStorage.removeItem('erp_pur_' + currentInvNo);
     localStorage.removeItem('erp_draft_' + currentInvNo);
+    window._cachedPurchaseInvoicesRaw = null;
+    window._cachedPurchaseList = null;
+
+    // Broadcast deletion to open reports & mobile sync
+    try {
+        const delPayload = { type: 'purchase_invoice_deleted', module: 'purchase', invoiceNo: currentInvNo, timestamp: Date.now() };
+        if (typeof BroadcastChannel !== 'undefined') {
+            const bc1 = new BroadcastChannel('magaiees_sync_channel'); bc1.postMessage(delPayload); bc1.close();
+            const bc2 = new BroadcastChannel('erp_live_sync'); bc2.postMessage(delPayload); bc2.close();
+        }
+        window.dispatchEvent(new CustomEvent('erp_data_updated', { detail: delPayload }));
+    } catch (_ebc) {}
 
     onSuccessNewInvoice(); 
-    showToast('🗑️ تم حذف الفاتورة وإلغاء جميع تأثيراتها بنجاح', 'success');
+    showToast('🗑️ تم حذف الفاتورة وإلغاء جميع تأثيراتها المحاسبية والمخزنية بنجاح', 'success');
 }
 
 // ════════════════════════════════════════
@@ -4101,7 +4390,7 @@ function showSuccessModal(invoiceNo, grandTotal, currency, warnings = []) {
                     <span>🔙 العودة لمتابعة التوريد</span>
                 </button>
                 <!-- زر إرسال إذن توريد فاتورة لمورد عبر واتساب -->
-                <button class="btn btn-success success-btn" style="height: 44px; background: linear-gradient(135deg, #25d366, #128c7e); color: #fff; font-weight: 800; font-size: 0.95rem; border: none; border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 12px rgba(37, 211, 102, 0.35); transition: 0.2s;" onmouseover="this.style.transform='translateY(-1px)';" onmouseout="this.style.transform='none';" onclick="if(typeof sendCurrentInvoiceWA==='function'){sendCurrentInvoiceWA();}else{alert('دالة الإرسال غير متوفرة');}">
+                <button class="btn btn-success success-btn" style="height: 44px; background: linear-gradient(135deg, #25d366, #128c7e); color: #fff; font-weight: 800; font-size: 0.95rem; border: none; border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 12px rgba(37, 211, 102, 0.35); transition: 0.2s;" onmouseover="this.style.transform='translateY(-1px)';" onmouseout="this.style.transform='none';" onclick="if(typeof sendCurrentInvoiceWA==='function'){sendCurrentInvoiceWA();}else if(typeof showToast==='function'){showToast('⚠️ دالة الإرسال غير متوفرة حالياً','warning');}">
                     <span>📲 إرسال إذن توريد للمورد (واتساب)</span>
                 </button>
                 <div style="display: flex; gap: 8px; margin-top: 2px;">

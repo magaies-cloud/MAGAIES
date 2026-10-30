@@ -1,4 +1,7 @@
 <?php 
+if (!headers_sent() && extension_loaded('zlib') && !ini_get('zlib.output_compression')) {
+    @ob_start('ob_gzhandler');
+}
 $userAgent = $_SERVER['HTTP_USER_AGENT'] ?? '';
 $secMobile = $_SERVER['HTTP_SEC_CH_UA_MOBILE'] ?? '';
 $isDesktopParam = isset($_GET['force_desktop']) && $_GET['force_desktop'] === '1';
@@ -394,6 +397,29 @@ try {
     }
 } catch (Exception $e) {}
 
+// Universal Voucher Sequence across Single + Multi + Mobile (E / M / BP / BR)
+$UNIVERSAL_MAX_SEQ = 0;
+try {
+    if ($pdo) {
+        $tIdSeq = !empty($GLOBAL_TENANT_ID) ? (string)$GLOBAL_TENANT_ID : '12';
+        foreach (['single_payments', 'single_receipts', 'payments', 'receipts'] as $seqTbl) {
+            try {
+                $stSeq = $pdo->prepare("SELECT data FROM `$seqTbl` WHERE (is_deleted = 0 OR is_deleted IS NULL) AND (tenant_id = ? OR tenant_id = '1' OR tenant_id = '12' OR tenant_id IS NULL) ORDER BY id DESC LIMIT 1500");
+                $stSeq->execute([$tIdSeq]);
+                while ($rSeq = $stSeq->fetch(PDO::FETCH_ASSOC)) {
+                    $dSeq = json_decode($rSeq['data'], true);
+                    if (!$dSeq || !empty($dSeq['deleted'])) continue;
+                    $vIdStr = strtoupper(trim((string)($dSeq['voucherNo'] ?? ($dSeq['id'] ?? ''))));
+                    if (preg_match('/^(?:E|M|BP|BR)\d{3,4}(\d{3,6})$/', $vIdStr, $mSeq)) {
+                        $sVal = (int)$mSeq[1];
+                        if ($sVal > $UNIVERSAL_MAX_SEQ && $sVal < 1000000) $UNIVERSAL_MAX_SEQ = $sVal;
+                    }
+                }
+            } catch (Exception $e) {}
+        }
+    }
+} catch (Exception $e) {}
+
 $page_title = 'حركة مالية مجمعة'; 
 ?>
 <!DOCTYPE html>
@@ -418,6 +444,7 @@ window.SERVER_PAYMENTS = <?php echo $SERVER_PAYMENTS_json; ?>;
 window.DB_ALL_TRANSFER_REFS = <?php echo json_encode($pdo ? fetchAllDbTransfers($pdo, $GLOBAL_TENANT_ID) : [], JSON_UNESCAPED_UNICODE); ?>;
 window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
 window.SERVER_COST_CENTERS = <?php echo $SERVER_COST_CENTERS_json; ?>;
+window.DB_UNIVERSAL_MAX_SEQ = <?php echo (int)$UNIVERSAL_MAX_SEQ; ?>;
 </script>
 <head>
 
@@ -600,8 +627,7 @@ window.SERVER_COST_CENTERS = <?php echo $SERVER_COST_CENTERS_json; ?>;
         }
 
         .glass-container:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 18px 45px rgba(0, 0, 0, 0.6), inset 0 1px 2px rgba(255, 255, 255, 0.35);
+            box-shadow: 0 14px 36px rgba(0, 0, 0, 0.55), inset 0 1px 2px rgba(255, 255, 255, 0.25);
             border-color: rgba(255, 255, 255, 0.3);
         }
 
@@ -614,7 +640,12 @@ window.SERVER_COST_CENTERS = <?php echo $SERVER_COST_CENTERS_json; ?>;
             padding-bottom: 6px !important;
         }
 
-        /* Crystal Red Container (المستطيل الرئيسي للصرف - منطقة من حساب - حمراء صريحة وفاخرة) */
+        /* ══════════════════════════════════════════════════════
+           UNIFIED COLOR PALETTE — نفس درجات حركة مالية (single-cash-payment) بالضبط
+           أحمر الصرف: rgba(127, 29, 29, 0.16) -> rgba(69, 10, 10, 0.32) | أخضر الاستلام: rgba(6, 78, 59, 0.18) -> rgba(2, 44, 34, 0.32)
+           ══════════════════════════════════════════════════════ */
+
+        /* Crystal Red Container (المستطيل الرئيسي للصرف - نفس درجة من حساب في شاشة حركة مالية) */
         .glass-red,
         html body .glass-container.glass-red,
         html[data-theme] body .glass-container.glass-red,
@@ -622,14 +653,15 @@ window.SERVER_COST_CENTERS = <?php echo $SERVER_COST_CENTERS_json; ?>;
         html body .account-block.glass-red,
         html[data-theme] body .account-block.glass-red,
         html.light-theme body .account-block.glass-red {
-            position: relative; overflow: hidden;
-            background: linear-gradient(135deg, rgba(185, 28, 28, 0.88) 0%, rgba(127, 29, 29, 0.92) 55%, rgba(69, 10, 10, 0.95) 100%) !important;
-            border: 2.5px solid #ef4444 !important;
-            border-right: 8px solid #ef4444 !important;
-            box-shadow: 0 14px 40px rgba(0, 0, 0, 0.55), inset 0 1px 3px rgba(254, 202, 202, 0.35), 0 0 28px rgba(239, 68, 68, 0.4) !important;
-            transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1) !important;
+            position: relative; overflow: visible;
+            background: linear-gradient(135deg, rgba(127, 29, 29, 0.16) 0%, rgba(69, 10, 10, 0.32) 100%) !important;
+            border: 2px solid rgba(239, 68, 68, 0.55) !important;
+            border-right: 6px solid #ef4444 !important;
+            border-radius: 14px !important;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35), 0 0 12px rgba(239, 68, 68, 0.18), inset 0 1px 0 rgba(254, 202, 202, 0.1) !important;
+            transition: background 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease !important;
         }
-        /* إنارة الحواف الفاخرة باللون الأحمر الياقوتي المشبع عند التمرير أو التركيز */
+        /* إنارة الحواف الفاخرة باللون الأحمر الياقوتي عند التمرير أو التركيز (نفس حركة مالية بدون قفز للمؤشر) */
         .glass-red:hover,
         .glass-red:focus-within,
         html body .glass-container.glass-red:hover,
@@ -644,13 +676,14 @@ window.SERVER_COST_CENTERS = <?php echo $SERVER_COST_CENTERS_json; ?>;
         html[data-theme] body .account-block.glass-red:focus-within,
         html.light-theme body .account-block.glass-red:hover,
         html.light-theme body .account-block.glass-red:focus-within {
-            background: linear-gradient(135deg, rgba(220, 38, 38, 0.92) 0%, rgba(153, 27, 27, 0.95) 55%, rgba(85, 12, 12, 0.98) 100%) !important;
-            border-color: #f87171 !important;
+            background: linear-gradient(135deg, rgba(127, 29, 29, 0.24) 0%, rgba(69, 10, 10, 0.42) 100%) !important;
+            border-color: rgba(248, 113, 113, 0.85) !important;
             border-right-color: #ef4444 !important;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.75), 0 0 38px rgba(239, 68, 68, 0.65), inset 0 0 22px rgba(239, 68, 68, 0.25) !important;
+            box-shadow: 0 0 18px rgba(239, 68, 68, 0.32), inset 0 0 10px rgba(239, 68, 68, 0.12) !important;
+            transform: none !important;
         }
 
-        /* Crystal Green Container (مستطيلات الحسابات المستلمة - إلى حساب - خضراء خضراء صريحة وفاخرة) */
+        /* Crystal Green Container (مستطيلات الحسابات المستلمة - نفس درجة إلى حساب في شاشة حركة مالية) */
         .glass-green,
         html body .glass-container.glass-green,
         html[data-theme] body .glass-container.glass-green,
@@ -658,14 +691,15 @@ window.SERVER_COST_CENTERS = <?php echo $SERVER_COST_CENTERS_json; ?>;
         html body .account-block.glass-green,
         html[data-theme] body .account-block.glass-green,
         html.light-theme body .account-block.glass-green {
-            position: relative; overflow: hidden;
-            background: linear-gradient(135deg, rgba(5, 150, 105, 0.88) 0%, rgba(4, 120, 87, 0.92) 55%, rgba(6, 78, 59, 0.96) 100%) !important;
-            border: 2.5px solid #10b981 !important;
-            border-right: 8px solid #10b981 !important;
-            box-shadow: 0 14px 40px rgba(0, 0, 0, 0.55), inset 0 1px 3px rgba(167, 243, 208, 0.35), 0 0 28px rgba(16, 185, 129, 0.42) !important;
-            transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1) !important;
+            position: relative; overflow: visible;
+            background: linear-gradient(135deg, rgba(6, 78, 59, 0.18) 0%, rgba(2, 44, 34, 0.32) 100%) !important;
+            border: 2px solid rgba(16, 185, 129, 0.55) !important;
+            border-right: 6px solid #10b981 !important;
+            border-radius: 14px !important;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35), 0 0 12px rgba(16, 185, 129, 0.18), inset 0 1px 0 rgba(167, 243, 208, 0.1) !important;
+            transition: background 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease !important;
         }
-        /* إضاءة الحواف الخضراء الزمردية التلقائية بمجرد قدوم المؤشر إلى منطقة الاستلام */
+        /* إضاءة الحواف الخضراء الزمردية التلقائية (نفس حركة مالية بدون قفز للمؤشر) */
         .glass-green:hover,
         .glass-green:focus-within,
         html body .glass-container.glass-green:hover,
@@ -680,11 +714,11 @@ window.SERVER_COST_CENTERS = <?php echo $SERVER_COST_CENTERS_json; ?>;
         html[data-theme] body .account-block.glass-green:focus-within,
         html.light-theme body .account-block.glass-green:hover,
         html.light-theme body .account-block.glass-green:focus-within {
-            background: linear-gradient(135deg, rgba(16, 185, 129, 0.92) 0%, rgba(5, 150, 105, 0.95) 55%, rgba(6, 95, 70, 0.98) 100%) !important;
-            border-color: #34d399 !important;
+            background: linear-gradient(135deg, rgba(6, 78, 59, 0.26) 0%, rgba(2, 44, 34, 0.42) 100%) !important;
+            border-color: rgba(52, 211, 153, 0.85) !important;
             border-right-color: #10b981 !important;
-            box-shadow: 0 20px 55px rgba(0, 0, 0, 0.8), 0 0 38px rgba(16, 185, 129, 0.85), 0 0 70px rgba(5, 150, 105, 0.45), inset 0 0 22px rgba(52, 211, 153, 0.28) !important;
-            transform: translateY(-3px) scale(1.005) !important;
+            box-shadow: 0 0 18px rgba(16, 185, 129, 0.32), inset 0 0 10px rgba(16, 185, 129, 0.12) !important;
+            transform: none !important;
         }
 
         /* High Contrast Inputs, Placeholders, and Labels */
@@ -1549,28 +1583,27 @@ window.SERVER_COST_CENTERS = <?php echo $SERVER_COST_CENTERS_json; ?>;
            VOUCHER TYPE TOGGLE BUTTONS (صرف إلى مجموعة 📤 / استلام من مجموعة 📥)
            ستايل فاخر، متناسق ومتقن، بألوان مخففة، كتابة متناسقة، وإنارة حواف أخاذة
            ══════════════════════════════════════════════════════════════════════ */
+        /* ✅ +15% height: 44px → 51px + أعرض قليلاً لوضوح فائق */
         .voucher-type-btn {
             position: relative !important;
-            min-width: 140px !important;
-            height: 38px !important;
+            min-width: 174px !important;
+            height: 51px !important;
             display: inline-flex !important;
             align-items: center !important;
             justify-content: center !important;
-            gap: 8px !important;
-            border-radius: 10px !important;
+            gap: 9px !important;
+            border-radius: 12px !important;
             cursor: pointer !important;
             font-family: 'Tajawal', sans-serif !important;
-            font-size: 0.96rem !important;
+            font-size: 1.12rem !important;
             font-weight: 800 !important;
             letter-spacing: 0.2px !important;
             white-space: nowrap !important;
             user-select: none !important;
             -webkit-user-select: none !important;
-            transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1) !important;
-            backdrop-filter: blur(14px) !important;
-            -webkit-backdrop-filter: blur(14px) !important;
+            transition: background 0.22s ease, border-color 0.22s ease, box-shadow 0.22s ease !important;
             box-sizing: border-box !important;
-            padding: 0 16px !important;
+            padding: 0 24px !important;
             text-decoration: none !important;
             overflow: hidden !important;
             z-index: 2 !important;
@@ -1735,40 +1768,11 @@ window.SERVER_COST_CENTERS = <?php echo $SERVER_COST_CENTERS_json; ?>;
            ULTRA-SUBTLE AMBIENT GLASS RIPPLES & SCREEN-WIDE LIGHT WAVES
            تموجات ولمعات زجاجية خفيفة جداً لكامل الشاشة لا تؤثر على البصر
            ══════════════════════════════════════════════════════════════════════ */
-        .glass-ripple-mesh {
-            position: fixed !important;
-            top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important;
-            width: 100vw !important; height: 100vh !important;
-            pointer-events: none !important;
-            z-index: 0 !important;
-        }
-
-        .glass-ripple-1 {
-            background: radial-gradient(ellipse 70% 50% at 25% 25%, rgba(255, 255, 255, 0.035) 0%, rgba(56, 189, 248, 0.02) 40%, transparent 70%) !important;
-            filter: blur(48px) !important;
-            animation: slowGlassWave1 36s ease-in-out infinite alternate !important;
-        }
-
-        .glass-ripple-2 {
-            background: radial-gradient(ellipse 65% 45% at 75% 75%, rgba(255, 255, 255, 0.03) 0%, rgba(168, 85, 247, 0.018) 40%, transparent 70%) !important;
-            filter: blur(56px) !important;
-            animation: slowGlassWave2 46s ease-in-out infinite alternate !important;
-        }
-
-        .glass-ripple-3 {
-            background: radial-gradient(ellipse 80% 55% at 50% 50%, rgba(255, 255, 255, 0.025) 0%, rgba(16, 185, 129, 0.015) 35%, rgba(251, 191, 36, 0.012) 65%, transparent 80%) !important;
-            filter: blur(65px) !important;
-            animation: slowGlassWave3 54s ease-in-out infinite alternate !important;
-        }
-
-        .glass-specular-shimmer {
-            position: fixed !important;
-            top: 0 !important; left: -100% !important;
-            width: 300% !important; height: 100vh !important;
-            background: linear-gradient(115deg, transparent 0%, transparent 42%, rgba(255, 255, 255, 0.02) 50%, transparent 58%, transparent 100%) !important;
-            pointer-events: none !important;
-            animation: specularGlassSweep 42s linear infinite !important;
-            z-index: 0 !important;
+        .glass-ripple-mesh,
+        .glass-specular-shimmer,
+        #main-form-panel::before {
+            display: none !important;
+            animation: none !important;
         }
 
         @keyframes slowGlassWave1 {
@@ -1956,7 +1960,7 @@ window.SERVER_COST_CENTERS = <?php echo $SERVER_COST_CENTERS_json; ?>;
             border-radius: 12px !important;
         }
 
-        /* عند وقوف المؤشر على أي حقل مبلغ (Hover) */
+        /* عند وقوف المؤشر على أي حقل مبلغ (Hover) — ثبات تام للمؤشر بدون إزاحة */
         .block-total-amount:hover,
         input[id^="amount-"]:hover,
         .transfer-amount:hover,
@@ -1966,13 +1970,12 @@ window.SERVER_COST_CENTERS = <?php echo $SERVER_COST_CENTERS_json; ?>;
             border: 3.5px solid #fbbf24 !important;
             box-shadow: 0 4px 15px rgba(0,0,0,0.5), 0 0 12px rgba(251, 191, 36, 0.35) !important;
             background: rgba(251, 191, 36, 0.12) !important;
-            transform: translateY(-2px) scale(1.02) !important;
         }
 
         /* عند الضغط على المبلغ والتركيز (Focus) */
         .transfer-amount:focus, .cheque-amount:focus, .block-sub-amount:focus, .block-total-amount:focus, .multi-input[placeholder*="المبلغ"]:focus {
             border: 3.5px solid #fbbf24 !important;
-            box-shadow: 0 15px 40px rgba(0,0,0,0.95), 0 0 15px rgba(251, 191, 36, 0.4) !important;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.6), 0 0 15px rgba(251, 191, 36, 0.4) !important;
             outline: none !important;
         }
 
@@ -1986,7 +1989,6 @@ window.SERVER_COST_CENTERS = <?php echo $SERVER_COST_CENTERS_json; ?>;
             box-shadow: 0 4px 15px rgba(0,0,0,0.5), 0 0 12px rgba(34, 211, 238, 0.35) !important;
             background: rgba(6, 182, 212, 0.18) !important;
             color: #ffffff !important;
-            transform: translateY(-2px) scale(1.02) !important;
         }
 
         /* حقول مبالغ الشيكات عند الوقوف */
@@ -1999,10 +2001,9 @@ window.SERVER_COST_CENTERS = <?php echo $SERVER_COST_CENTERS_json; ?>;
             box-shadow: 0 4px 15px rgba(0,0,0,0.5), 0 0 12px rgba(192, 132, 252, 0.35) !important;
             background: rgba(147, 51, 234, 0.18) !important;
             color: #ffffff !important;
-            transform: translateY(-2px) scale(1.02) !important;
         }
 
-        /* ─── 2. منطقة الدولار (سعر التعادل): أرقام حادة بدون ظل أو هالة ─── */
+        /* ─── 2. منطقة الدولار (سعر التعادل): نفس ستايل حركة مالية الذهبي الفاخر ─── */
         #exchange-rate {
             font-size: 1.8rem !important;
             font-weight: 900 !important;
@@ -2013,27 +2014,25 @@ window.SERVER_COST_CENTERS = <?php echo $SERVER_COST_CENTERS_json; ?>;
             -moz-osx-font-smoothing: grayscale !important;
             text-rendering: geometricPrecision !important;
             font-family: 'Consolas', 'Courier New', monospace !important;
-            border: 3.5px solid #10b981 !important;
+            border: 2.5px solid #fbbf24 !important;
+            background: linear-gradient(135deg, #1c1504 0%, #2e2107 50%, #1c1504 100%) !important;
+            color: #ffd700 !important;
             border-radius: 12px !important;
-            transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1) !important;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease !important;
         }
         #exchange-rate:hover,
         #exchange-rate:focus,
         #exchange-rate:active {
-            border: 3.5px solid #10b981 !important;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5), 0 0 12px rgba(16, 185, 129, 0.4) !important;
-            background: rgba(16, 185, 129, 0.2) !important;
-            color: #ffffff !important;
-            text-shadow: none !important;
-            -webkit-text-stroke: 0px !important;
-            transform: translateY(-2px) scale(1.04) !important;
+            border: 2.5px solid #fde047 !important;
+            box-shadow: 0 0 18px rgba(251, 191, 36, 0.45), inset 0 0 12px rgba(251, 191, 36, 0.2) !important;
+            color: #ffd700 !important;
             outline: none !important;
         }
         #label-exchange-rate {
-            transition: all 0.25s ease;
+            transition: color 0.2s ease;
         }
         #label-exchange-rate:hover {
-            color: #34d399 !important;
+            color: #fde047 !important;
             text-shadow: none !important;
         }
         #label-exchange-rate:hover span:last-child {
@@ -2041,18 +2040,18 @@ window.SERVER_COST_CENTERS = <?php echo $SERVER_COST_CENTERS_json; ?>;
             filter: drop-shadow(0 0 4px rgba(251,191,36,0.6));
         }
 
-        /* ─── 3. منطقة إجمالي المحلي والمعادل بالأجنبي (حواف حمراء موحدة بقوة 3.5px وخلفية بيضاء) ─── */
+        /* ─── 3. منطقة إجمالي المحلي والمعادل بالأجنبي (نفس درجات الأحمر في حركة مالية: #b91c1c مع إطار #dc2626) ─── */
         #amount-local-hdr, #amount-foreign {
             font-size: 2.6rem !important;
             font-weight: 900 !important;
-            color: #ef4444 !important;
-            -webkit-text-fill-color: #ef4444 !important;
+            color: #b91c1c !important;
+            -webkit-text-fill-color: #b91c1c !important;
             background: #ffffff !important;
             background-color: #ffffff !important;
             text-align: center !important;
-            border: 3.5px solid #ef4444 !important;
-            border-radius: 12px !important;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06) !important;
+            border: 4.5px solid #dc2626 !important;
+            border-radius: 14px !important;
+            box-shadow: 0 0 20px rgba(220, 38, 38, 0.4), inset 0 2px 8px rgba(220, 38, 38, 0.1) !important;
             text-shadow: none !important;
             -webkit-text-stroke: 0px !important;
             filter: none !important;
@@ -2062,62 +2061,55 @@ window.SERVER_COST_CENTERS = <?php echo $SERVER_COST_CENTERS_json; ?>;
             font-family: 'Consolas', 'Courier New', monospace !important;
             width: 100% !important;
             box-sizing: border-box !important;
-            transition: all 0.25s ease !important;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease !important;
         }
         #amount-local-hdr:hover, #amount-local-hdr:focus,
         #amount-foreign:hover, #amount-foreign:focus {
-            border: 3.5px solid #dc2626 !important;
-            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2) !important;
-            color: #ef4444 !important;
-            -webkit-text-fill-color: #ef4444 !important;
+            border: 4.5px solid #ef4444 !important;
+            box-shadow: 0 0 28px rgba(239, 68, 68, 0.65), 0 0 12px rgba(220, 38, 38, 0.4), inset 0 0 10px rgba(239, 68, 68, 0.15) !important;
+            color: #b91c1c !important;
+            -webkit-text-fill-color: #b91c1c !important;
             background: #ffffff !important;
             background-color: #ffffff !important;
-            text-shadow: none !important;
-            -webkit-text-stroke: 0px !important;
-            filter: none !important;
-            transform: scale(1.02) !important;
             outline: none !important;
         }
 
-        /* ─── 4. إنارة الحواف في منطقة «من حساب» باللون الياقوتي الراقي ─── */
+        /* ─── 4. إنارة الحواف في منطقة «من حساب» بنفس درجة حركة مالية بدون قفز ─── */
         #primary-inputs-container .custom-dropdown-input-wrap {
             border-radius: 10px;
-            transition: all 0.3s ease;
+            transition: box-shadow 0.2s ease;
         }
         #primary-inputs-container .custom-dropdown-input-wrap:hover,
         #primary-inputs-container .custom-dropdown-input-wrap:focus-within {
-            box-shadow: 0 0 20px rgba(244, 63, 94, 0.35);
+            box-shadow: 0 0 18px rgba(239, 68, 68, 0.32);
         }
 
         #main-account-search {
-            border: 1.5px solid rgba(244, 63, 94, 0.6) !important;
-            transition: all 0.3s ease !important;
+            border: 1.8px solid rgba(248, 113, 113, 0.55) !important;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease !important;
         }
         #main-account-search:hover,
         #main-account-search:focus {
-            border: 2px solid #f43f5e !important;
-            box-shadow: 0 0 24px rgba(244, 63, 94, 0.45), inset 0 0 8px rgba(244, 63, 94, 0.15) !important;
-            transform: translateY(-2px);
+            border: 2px solid #f87171 !important;
+            box-shadow: 0 0 18px rgba(239, 68, 68, 0.35), inset 0 2px 6px rgba(0, 0, 0, 0.5) !important;
             outline: none !important;
         }
 
-        /* ─── 5. إنارة الحواف في منطقة «إلى حساب» التلقائية ─── */
+        /* ─── 5. إنارة الحواف في منطقة «إلى حساب» التلقائية بدون قفز ─── */
         .block-account-search {
-            transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1) !important;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease !important;
         }
         .block-account-search:hover,
         .block-account-search:focus {
             border: 2px solid #34d399 !important;
-            box-shadow: 0 0 28px rgba(52, 211, 153, 0.95), 0 0 50px rgba(16, 185, 129, 0.5), inset 0 0 10px rgba(52, 211, 153, 0.25) !important;
-            transform: translateY(-2px);
+            box-shadow: 0 0 18px rgba(16, 185, 129, 0.35), inset 0 2px 6px rgba(0, 0, 0, 0.5) !important;
             outline: none !important;
         }
 
-        /* ─── 6. كل شيء عندما نأتي إليه الإضاءة تأتي لوحدها (Universal Controls) ─── */
+        /* ─── 6. كل شيء عندما نأتي إليه الإضاءة تأتي لوحدها (Universal Controls) بدون إزاحة المؤشر ─── */
         #currency:hover, #currency:focus {
             border: 2px solid #fbbf24 !important;
-            box-shadow: 0 0 22px rgba(251, 191, 36, 0.9), 0 0 40px rgba(245, 158, 11, 0.45), inset 0 0 8px rgba(251, 191, 36, 0.25) !important;
-            transform: translateY(-2px);
+            box-shadow: 0 0 18px rgba(251, 191, 36, 0.5), inset 0 0 8px rgba(251, 191, 36, 0.15) !important;
             outline: none !important;
         }
 
@@ -2126,19 +2118,18 @@ window.SERVER_COST_CENTERS = <?php echo $SERVER_COST_CENTERS_json; ?>;
         .block-bank-desc-input:hover, .block-bank-desc-input:focus,
         .block-cheque-desc-input:hover, .block-cheque-desc-input:focus {
             border-color: #fbbf24 !important;
-            box-shadow: 0 0 22px rgba(251, 191, 36, 0.85), inset 0 0 8px rgba(251, 191, 36, 0.25) !important;
+            box-shadow: 0 0 16px rgba(251, 191, 36, 0.45), inset 0 0 6px rgba(251, 191, 36, 0.15) !important;
             outline: none !important;
         }
 
         /* تفاصيل السند العلوية (السند، التاريخ، المرجع) */
         #payment-methods-row > div:last-child > div {
-            transition: all 0.28s ease;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
         }
         #payment-methods-row > div:last-child > div:hover,
         #payment-methods-row > div:last-child > div:focus-within {
             border-color: #38bdf8 !important;
-            box-shadow: 0 0 24px rgba(56, 189, 248, 0.8), inset 0 0 8px rgba(56, 189, 248, 0.25) !important;
-            transform: translateY(-2px);
+            box-shadow: 0 0 18px rgba(56, 189, 248, 0.45), inset 0 0 8px rgba(56, 189, 248, 0.15) !important;
         }
         #voucher-ref:hover, #voucher-ref:focus {
             border-color: #38bdf8 !important;
@@ -2636,55 +2627,55 @@ window.SERVER_COST_CENTERS = <?php echo $SERVER_COST_CENTERS_json; ?>;
                     </div>
                 </div>
 
-                <!-- Unified Top Row (Payment Methods Row - Slim Single Level) -->
-                <div id="payment-methods-row" style="display: flex; align-items: center; justify-content: flex-start; gap: 10px; margin-bottom: 12px; background: linear-gradient(135deg, rgba(30, 41, 59, 0.9), rgba(15, 23, 42, 0.98)); padding: 6px 14px; border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.18); flex-wrap: nowrap; transition: all 0.4s ease; box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45); position: relative; overflow-x: auto; min-height: 48px; box-sizing: border-box; width: 100%;">
+                <!-- Unified Top Row (Payment Methods Row - +15% Height & Wider Clear Controls) -->
+                <div id="payment-methods-row" style="display: flex; align-items: center; justify-content: flex-start; gap: 12px; margin-bottom: 14px; background: linear-gradient(135deg, rgba(30, 41, 59, 0.92), rgba(15, 23, 42, 0.98)); padding: 8px 16px; border-radius: 14px; border: 1px solid rgba(255, 255, 255, 0.18); flex-wrap: nowrap; transition: all 0.25s ease; box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45); position: relative; overflow-x: auto; min-height: 60px; box-sizing: border-box; width: 100%;">
                     
                     <!-- Quick Toggle Header Button (إظهار / إخفاء الترويسة) -->
-                    <button type="button" id="btn-toggle-top-header" class="header-nav-toggle-btn" onclick="AutoHeaderScroll.toggleHeader()" title="الرجوع إلى أعلى الصفحة وإظهار الترويسة">
+                    <button type="button" id="btn-toggle-top-header" class="header-nav-toggle-btn" onclick="AutoHeaderScroll.toggleHeader()" style="height: 51px;" title="الرجوع إلى أعلى الصفحة وإظهار الترويسة">
                         <span class="toggle-icon"><i class="fa-solid fa-angles-up"></i></span>
                         <span class="toggle-text">الترويسة</span>
                     </button>
 
                     <!-- User Icon Only (حذف كلمة بيان الطرف الرئيسي والإبقاء على الأيقونة فقط) -->
-                    <div id="main-party-title" style="display: flex; align-items: center; justify-content: center; font-size: 1.35rem; color: #ffffff; flex-shrink: 0; padding: 0 4px;" title="الطرف الرئيسي">
+                    <div id="main-party-title" style="display: flex; align-items: center; justify-content: center; font-size: 1.4rem; color: #ffffff; flex-shrink: 0; padding: 0 4px;" title="الطرف الرئيسي">
                         <span>👤</span>
                     </div>
 
-                    <!-- Toggles: صرف إلى مجموعة / استلام من مجموعة -->
-                    <div style="display: flex; gap: 6px; flex-shrink: 0;">
-                        <button id="btn-payment" class="voucher-type-btn active-payment" onclick="setVoucherType('payment')" title="الصرف من حساب واحد إلى مجموعة حسابات">
+                    <!-- Toggles: صرف إلى مجموعة / استلام من مجموعة (+15% ارتفاع وأعرض قليلاً للوضوح) -->
+                    <div style="display: flex; gap: 8px; flex-shrink: 0;">
+                        <button id="btn-payment" class="voucher-type-btn active-payment" onclick="setVoucherType('payment')" style="height: 51px !important; min-width: 176px !important; padding: 0 24px !important; font-size: 1.12rem !important;" title="الصرف من حساب واحد إلى مجموعة حسابات">
                             <span class="btn-icon"><i class="fa-solid fa-wallet"></i></span> <span class="btn-text">صرف إلى مجموعة</span>
                         </button>
-                        <button id="btn-receipt" class="voucher-type-btn" onclick="setVoucherType('receipt')" title="استلام في حساب واحد من مجموعة حسابات">
+                        <button id="btn-receipt" class="voucher-type-btn" onclick="setVoucherType('receipt')" style="height: 51px !important; min-width: 176px !important; padding: 0 24px !important; font-size: 1.12rem !important;" title="استلام في حساب واحد من مجموعة حسابات">
                             <span class="btn-icon"><i class="fa-solid fa-sack-dollar"></i></span> <span class="btn-text">استلام من مجموعة</span>
                         </button>
                     </div>
 
-                    <!-- السند مع أزرار التنقل -->
-                    <div style="display: flex; align-items: center; gap: 4px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; height: 38px; padding: 0 8px; flex-shrink: 0;">
-                        <button type="button" onclick="navigateVoucher(-1)" style="background: transparent; border: none; color: #38bdf8; cursor: pointer; font-size: 0.95rem; padding: 0 4px; outline: none; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'" title="السند السابق">◀</button>
-                        <div style="display: flex; align-items: center; gap: 4px;">
-                            <span style="color: #94a3b8; font-size: 0.92rem; font-weight: bold; white-space: nowrap;">📄 السند:</span>
-                            <input type="text" id="voucher-no-display" readonly style="background: transparent !important; border: none !important; color: #fff; font-weight: bold; width: 95px; text-align: center; outline: none !important; font-size: 1.25rem; box-shadow: none !important; padding: 0;" value="">
+                    <!-- السند مع أزرار التنقل (+15% ارتفاع وأعرض قليلاً للوضوح) -->
+                    <div style="display: flex; align-items: center; gap: 6px; background: rgba(0,0,0,0.35); border: 1.5px solid rgba(56,189,248,0.35); border-radius: 12px; height: 51px; padding: 0 16px; min-width: 225px; justify-content: space-between; flex-shrink: 0;">
+                        <button type="button" onclick="navigateVoucher(-1)" style="background: transparent; border: none; color: #38bdf8; cursor: pointer; font-size: 1.15rem; padding: 0 6px; outline: none; transition: color 0.2s;" title="السند السابق">◀</button>
+                        <div style="display: flex; align-items: center; gap: 6px;">
+                            <span style="color: #cbd5e1; font-size: 1.05rem; font-weight: 800; white-space: nowrap;">📄 السند:</span>
+                            <input type="text" id="voucher-no-display" readonly style="background: transparent !important; border: none !important; color: #ef4444; font-weight: 900; width: 124px; text-align: center; outline: none !important; font-size: 1.42rem; letter-spacing: 0.8px; box-shadow: none !important; padding: 0;" value="">
                         </div>
-                        <button type="button" onclick="navigateVoucher(1)" style="background: transparent; border: none; color: #38bdf8; cursor: pointer; font-size: 0.95rem; padding: 0 4px; outline: none; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'" title="السند التالي">▶</button>
+                        <button type="button" onclick="navigateVoucher(1)" style="background: transparent; border: none; color: #38bdf8; cursor: pointer; font-size: 1.15rem; padding: 0 6px; outline: none; transition: color 0.2s;" title="السند التالي">▶</button>
                     </div>
 
                     <div id="multi-voucher-user-audit-container" style="display: flex; align-items: center; flex-shrink: 0;"></div>
 
-                    <!-- التاريخ -->
-                    <div style="display: flex; align-items: center; gap: 6px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; height: 38px; padding: 0 10px; flex-shrink: 0;">
-                        <span style="color: #94a3b8; font-size: 0.92rem; font-weight: bold; white-space: nowrap;">📅 التاريخ:</span>
-                        <input type="date" id="voucher-date" style="background: transparent !important; border: none !important; color: #fff; font-weight: bold; padding: 0; margin: 0; height: 100%; width: 135px; outline: none !important; box-shadow: none !important; font-size: 1.05rem; -webkit-appearance: none; appearance: none; cursor: pointer;">
+                    <!-- التاريخ (+15% ارتفاع وأعرض قليلاً للوضوح) -->
+                    <div style="display: flex; align-items: center; gap: 8px; background: rgba(0,0,0,0.35); border: 1.5px solid rgba(255,255,255,0.2); border-radius: 12px; height: 51px; padding: 0 16px; min-width: 230px; flex-shrink: 0;">
+                        <span style="color: #cbd5e1; font-size: 1.05rem; font-weight: 800; white-space: nowrap;">📅 التاريخ:</span>
+                        <input type="date" id="voucher-date" style="background: transparent !important; border: none !important; color: #fff; font-weight: 900; padding: 0; margin: 0; height: 100%; width: 156px; outline: none !important; box-shadow: none !important; font-size: 1.16rem; -webkit-appearance: none; appearance: none; cursor: pointer;">
                     </div>
 
                     <!-- رقم المرجع -->
                     <div style="display: flex; align-items: center; flex-shrink: 0;">
-                        <input type="text" autocomplete="off" id="voucher-ref" class="form-input" placeholder="رقم المرجع (اختياري)" style="height: 38px; width: 140px; background: rgba(0,0,0,0.3); font-size: 0.88rem; padding: 0 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); color: #fff; margin: 0;">
+                        <input type="text" autocomplete="off" id="voucher-ref" class="form-input" placeholder="رقم المرجع (اختياري)" style="height: 51px; width: 158px; background: rgba(0,0,0,0.35); font-size: 0.96rem; font-weight: 700; padding: 0 12px; border-radius: 12px; border: 1.5px solid rgba(255,255,255,0.18); color: #fff; margin: 0;">
                     </div>
 
                     <!-- زر صندوق إشعارات بنكك والتحصيلات الواردة من العملاء -->
-                    <button type="button" id="btn-inbound-receipts-drawer" class="btn crystal-btn" onclick="toggleInboundReceiptsDrawer()" style="height: 38px; padding: 0 12px; border-radius: 8px; font-weight: 800; font-size: 0.88rem; background: linear-gradient(135deg, rgba(16, 185, 129, 0.25), rgba(5, 150, 105, 0.35)); border: 1.5px solid #10b981; color: #a7f3d0; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; flex-shrink: 0; box-shadow: 0 0 15px rgba(16, 185, 129, 0.3); transition: all 0.2s;" title="صندوق إشعارات تحويلات بنكك الواردة من العملاء ومطابقتها فورياً بالسند">
+                    <button type="button" id="btn-inbound-receipts-drawer" class="btn crystal-btn" onclick="toggleInboundReceiptsDrawer()" style="height: 51px; padding: 0 16px; border-radius: 12px; font-weight: 800; font-size: 0.95rem; background: linear-gradient(135deg, rgba(16, 185, 129, 0.25), rgba(5, 150, 105, 0.35)); border: 1.5px solid #10b981; color: #a7f3d0; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; flex-shrink: 0; box-shadow: 0 0 15px rgba(16, 185, 129, 0.3); transition: all 0.2s;" title="صندوق إشعارات تحويلات بنكك الواردة من العملاء ومطابقتها فورياً بالسند">
                         <span style="font-size: 1.15rem; filter: drop-shadow(0 0 4px #10b981);">📥</span>
                         <span style="white-space: nowrap;">إشعارات بنكك</span>
                         <span id="inbound-receipts-badge-count" style="background: #ef4444; color: #ffffff; padding: 1px 7px; border-radius: 10px; font-size: 0.75rem; font-weight: 900; box-shadow: 0 0 8px rgba(239,68,68,0.8); display: inline-block;">0</span>
@@ -2692,14 +2683,18 @@ window.SERVER_COST_CENTERS = <?php echo $SERVER_COST_CENTERS_json; ?>;
 
                     <!-- أدوات البرامج المحاسبية العالمية (توزيع المبالغ / لصق إكسل / قوالب متكررة) -->
                     <div style="display: flex; align-items: center; gap: 6px; flex-shrink: 0; margin-right: auto;">
-                        <button type="button" class="btn crystal-btn" onclick="if(typeof window.openEqualSplitModal === 'function') window.openEqualSplitModal()" style="height: 38px; padding: 0 11px; border-radius: 8px; font-weight: 800; font-size: 0.84rem; background: linear-gradient(135deg, rgba(245, 158, 11, 0.25), rgba(180, 83, 9, 0.4)); border: 1.5px solid #fbbf24 !important; color: #fef08a; display: inline-flex; align-items: center; gap: 5px; cursor: pointer;" title="توزيع مبلغ إجمالي بالتساوي أو بالنسب على الحسابات المضافة">
+                        <button type="button" class="btn crystal-btn" onclick="if(typeof window.openEqualSplitModal === 'function') window.openEqualSplitModal()" style="height: 51px; padding: 0 14px; border-radius: 12px; font-weight: 800; font-size: 0.92rem; background: linear-gradient(135deg, rgba(245, 158, 11, 0.25), rgba(180, 83, 9, 0.4)); border: 1.5px solid #fbbf24 !important; color: #fef08a; display: inline-flex; align-items: center; gap: 5px; cursor: pointer;" title="توزيع مبلغ إجمالي بالتساوي أو بالنسب على الحسابات المضافة">
                             <span>⚖️</span> <span>توزيع مبلغ</span>
                         </button>
-                        <button type="button" class="btn crystal-btn" onclick="if(typeof window.openExcelPasteModal === 'function') window.openExcelPasteModal()" style="height: 38px; padding: 0 11px; border-radius: 8px; font-weight: 800; font-size: 0.84rem; background: linear-gradient(135deg, rgba(56, 189, 248, 0.25), rgba(3, 105, 161, 0.4)); border: 1.5px solid #38bdf8 !important; color: #e0f2fe; display: inline-flex; align-items: center; gap: 5px; cursor: pointer;" title="استيراد ولصق دفعة حسابات ومبالغ مباشرة من Excel">
+                        <button type="button" class="btn crystal-btn" onclick="if(typeof window.openExcelPasteModal === 'function') window.openExcelPasteModal()" style="height: 51px; padding: 0 14px; border-radius: 12px; font-weight: 800; font-size: 0.92rem; background: linear-gradient(135deg, rgba(56, 189, 248, 0.25), rgba(3, 105, 161, 0.4)); border: 1.5px solid #38bdf8 !important; color: #e0f2fe; display: inline-flex; align-items: center; gap: 5px; cursor: pointer;" title="استيراد ولصق دفعة حسابات ومبالغ مباشرة من Excel">
                             <span>📋</span> <span>لصق إكسل</span>
                         </button>
-                        <button type="button" class="btn crystal-btn" onclick="if(typeof window.openBatchTemplatesModal === 'function') window.openBatchTemplatesModal()" style="height: 38px; padding: 0 11px; border-radius: 8px; font-weight: 800; font-size: 0.84rem; background: linear-gradient(135deg, rgba(168, 85, 247, 0.25), rgba(109, 40, 217, 0.4)); border: 1.5px solid #c084fc !important; color: #f3e8ff; display: inline-flex; align-items: center; gap: 5px; cursor: pointer;" title="حفظ أو استدعاء قوالب الحركات المجمعة المتكررة (رواتب، إيجارات، عهد...)">
+                        <button type="button" class="btn crystal-btn" onclick="if(typeof window.openBatchTemplatesModal === 'function') window.openBatchTemplatesModal()" style="height: 51px; padding: 0 14px; border-radius: 12px; font-weight: 800; font-size: 0.92rem; background: linear-gradient(135deg, rgba(168, 85, 247, 0.25), rgba(109, 40, 217, 0.4)); border: 1.5px solid #c084fc !important; color: #f3e8ff; display: inline-flex; align-items: center; gap: 5px; cursor: pointer;" title="حفظ أو استدعاء قوالب الحركات المجمعة المتكررة (رواتب، إيجارات، عهد...)">
                             <span>⭐</span> <span>القوالب</span>
+                        </button>
+                        <!-- زر المرشد الذكي -->
+                        <button type="button" id="btn-smart-guide" onclick="openSmartGuide()" style="height: 51px; padding: 0 16px; border-radius: 12px; font-weight: 800; font-size: 0.95rem; background: linear-gradient(135deg, rgba(251,191,36,0.22), rgba(120,53,15,0.45)); border: 1.5px solid #fbbf24 !important; color: #fef9c3; display: inline-flex; align-items: center; gap: 6px; cursor: pointer; flex-shrink: 0; box-shadow: 0 0 10px rgba(251,191,36,0.25); transition: all 0.2s;" title="مرشد الشاشة — شرح مبسط لكيفية استخدام حركة مالية مجمعة">
+                            <span style="font-size: 1.2rem;">🧭</span> <span>المرشد</span>
                         </button>
                     </div>
                 </div>
@@ -2737,16 +2732,16 @@ window.SERVER_COST_CENTERS = <?php echo $SERVER_COST_CENTERS_json; ?>;
                             <input type="text" inputmode="decimal" autocomplete="off" id="exchange-rate" class="form-input" value="<?php echo htmlspecialchars((string)$systemUsdRate); ?>" readonly style="font-weight: 900; font-family: monospace; text-align: center; cursor: pointer; background: rgba(16,185,129,0.1); color: var(--green, #10b981); border-radius: 10px;" onclick="if(typeof window.openGlobalExchangeRateModal === 'function') window.openGlobalExchangeRateModal((r)=>{this.dataset.raw=r; this.dataset.userEdited='1'; this.value=r; if(typeof applyNumPropsToAll === 'function') applyNumPropsToAll(); if(typeof calcTotal === 'function') calcTotal(); else if(typeof recalcAll === 'function') recalcAll();});" oninput="if(typeof calcTotal === 'function') calcTotal();" title="كليك يسار لتعديل السعر | كليك يمين لتخصيص (السمك، الحجم، اللون، الخانات، الفاصلة)">
                         </div>
                         
-                        <!-- إجمالي المحلي والمعادل بالأجنبي متساويين مناصفة 50% / 50% (حواف أرقام حادة بدون ظل أو هالة) -->
+                        <!-- إجمالي المحلي والمعادل بالأجنبي متساويين مناصفة 50% / 50% (نفس ألوان حركة مالية: #b91c1c وإطار #dc2626) -->
                         <div id="totals-equal-container" style="display: flex; gap: 15px; flex: 2.8; min-width: 380px; align-items: flex-end;">
                             <div style="flex: 1 1 50%; min-width: 0; width: 50%;">
                                 <label id="label-amount-local" style="color: var(--green, #10b981); font-size: 1.3rem; margin-bottom: 5px; display: block; font-weight: bold; white-space: nowrap;">💵 الإجمالي بالمحلي (SDG)</label>
-                                <input type="text" id="amount-local-hdr" class="form-input" value="0.00" readonly style="font-size: 2.6rem; font-weight: 900; font-family: 'Consolas', 'Courier New', monospace; color: #ef4444 !important; -webkit-text-fill-color: #ef4444 !important; background: #ffffff !important; text-align: center; border: 3.5px solid #ef4444 !important; border-radius: 12px !important; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06) !important; text-shadow: none !important; -webkit-text-stroke: 0px !important; filter: none !important; -webkit-font-smoothing: antialiased; text-rendering: geometricPrecision; width: 100%;">
+                                <input type="text" id="amount-local-hdr" class="form-input" value="0.00" readonly style="font-size: 2.6rem; font-weight: 900; font-family: 'Consolas', 'Courier New', monospace; color: #b91c1c !important; -webkit-text-fill-color: #b91c1c !important; background: #ffffff !important; text-align: center; border: 4.5px solid #dc2626 !important; border-radius: 14px !important; box-shadow: 0 0 20px rgba(220, 38, 38, 0.4), inset 0 2px 8px rgba(220, 38, 38, 0.1) !important; text-shadow: none !important; -webkit-text-stroke: 0px !important; filter: none !important; -webkit-font-smoothing: antialiased; text-rendering: geometricPrecision; width: 100%;">
                             </div>
                             
                             <div style="flex: 1 1 50%; min-width: 0; width: 50%;">
                                 <label id="label-amount-foreign" style="color: var(--red, #ef4444); font-size: 1.3rem; margin-bottom: 5px; display: block; font-weight: bold; white-space: nowrap;">💵 المعادل بالأجنبي (USD)</label>
-                                <input type="text" id="amount-foreign" class="form-input" value="0.00" readonly style="font-size: 2.6rem; font-weight: 900; font-family: 'Consolas', 'Courier New', monospace; color: #ef4444 !important; -webkit-text-fill-color: #ef4444 !important; background: #ffffff !important; text-align: center; border: 3.5px solid #ef4444 !important; border-radius: 12px !important; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06) !important; text-shadow: none !important; -webkit-text-stroke: 0px !important; filter: none !important; -webkit-font-smoothing: antialiased; text-rendering: geometricPrecision; width: 100%;">
+                                <input type="text" id="amount-foreign" class="form-input" value="0.00" readonly style="font-size: 2.6rem; font-weight: 900; font-family: 'Consolas', 'Courier New', monospace; color: #b91c1c !important; -webkit-text-fill-color: #b91c1c !important; background: #ffffff !important; text-align: center; border: 4.5px solid #dc2626 !important; border-radius: 14px !important; box-shadow: 0 0 20px rgba(220, 38, 38, 0.4), inset 0 2px 8px rgba(220, 38, 38, 0.1) !important; text-shadow: none !important; -webkit-text-stroke: 0px !important; filter: none !important; -webkit-font-smoothing: antialiased; text-rendering: geometricPrecision; width: 100%;">
                             </div>
                         </div>
                     </div>
@@ -3131,17 +3126,18 @@ window.SERVER_COST_CENTERS = <?php echo $SERVER_COST_CENTERS_json; ?>;
                 :root.light-theme .text-purple-400, :root.light-theme span[style*="color: #c084fc"], :root.light-theme span[style*="color:#c084fc"] { color: #7c3aed !important; }
                 :root.light-theme .text-amber-400, :root.light-theme span[style*="color: #fbbf24"], :root.light-theme span[style*="color:#fbbf24"] { color: #b45309 !important; }
 
-                /* ═══ تثبيت الألوان الصريحة والفاخرة لمنطقة الصرف (حمراء) ومنطقة الاستلام (خضراء خضراء) عبر كافة الثيمات ═══ */
+                /* ═══ تثبيت الألوان الموحدة لمنطقة الصرف (حمراء) ومنطقة الاستلام (خضراء) بنفس درجات شاشة حركة مالية بالضبط ═══ */
                 html body .glass-container.glass-red,
                 html[data-theme] body .glass-container.glass-red,
                 html.light-theme body .glass-container.glass-red,
                 html body .account-block.glass-red,
                 html[data-theme] body .account-block.glass-red,
                 html.light-theme body .account-block.glass-red {
-                    background: linear-gradient(135deg, rgba(185, 28, 28, 0.90) 0%, rgba(127, 29, 29, 0.94) 55%, rgba(69, 10, 10, 0.97) 100%) !important;
-                    border: 2.5px solid #ef4444 !important;
-                    border-right: 8px solid #ef4444 !important;
-                    box-shadow: 0 14px 40px rgba(0, 0, 0, 0.45), inset 0 1px 3px rgba(254, 202, 202, 0.35), 0 0 28px rgba(239, 68, 68, 0.42) !important;
+                    background: linear-gradient(135deg, rgba(127, 29, 29, 0.16) 0%, rgba(69, 10, 10, 0.32) 100%) !important;
+                    border: 2px solid rgba(239, 68, 68, 0.55) !important;
+                    border-right: 6px solid #ef4444 !important;
+                    border-radius: 14px !important;
+                    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35), 0 0 12px rgba(239, 68, 68, 0.18), inset 0 1px 0 rgba(254, 202, 202, 0.1) !important;
                     color: #ffffff !important;
                 }
                 html body .glass-container.glass-red:hover,
@@ -3156,10 +3152,11 @@ window.SERVER_COST_CENTERS = <?php echo $SERVER_COST_CENTERS_json; ?>;
                 html[data-theme] body .account-block.glass-red:focus-within,
                 html.light-theme body .account-block.glass-red:hover,
                 html.light-theme body .account-block.glass-red:focus-within {
-                    background: linear-gradient(135deg, rgba(220, 38, 38, 0.94) 0%, rgba(153, 27, 27, 0.96) 55%, rgba(85, 12, 12, 0.99) 100%) !important;
-                    border-color: #f87171 !important;
+                    background: linear-gradient(135deg, rgba(127, 29, 29, 0.24) 0%, rgba(69, 10, 10, 0.42) 100%) !important;
+                    border-color: rgba(248, 113, 113, 0.85) !important;
                     border-right-color: #ef4444 !important;
-                    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.65), 0 0 38px rgba(239, 68, 68, 0.72), inset 0 0 22px rgba(239, 68, 68, 0.28) !important;
+                    box-shadow: 0 0 18px rgba(239, 68, 68, 0.32), inset 0 0 10px rgba(239, 68, 68, 0.12) !important;
+                    transform: none !important;
                 }
 
                 html body .glass-container.glass-green,
@@ -3168,10 +3165,11 @@ window.SERVER_COST_CENTERS = <?php echo $SERVER_COST_CENTERS_json; ?>;
                 html body .account-block.glass-green,
                 html[data-theme] body .account-block.glass-green,
                 html.light-theme body .account-block.glass-green {
-                    background: linear-gradient(135deg, rgba(5, 150, 105, 0.90) 0%, rgba(4, 120, 87, 0.94) 55%, rgba(6, 78, 59, 0.97) 100%) !important;
-                    border: 2.5px solid #10b981 !important;
-                    border-right: 8px solid #10b981 !important;
-                    box-shadow: 0 14px 40px rgba(0, 0, 0, 0.45), inset 0 1px 3px rgba(167, 243, 208, 0.35), 0 0 28px rgba(16, 185, 129, 0.45) !important;
+                    background: linear-gradient(135deg, rgba(6, 78, 59, 0.18) 0%, rgba(2, 44, 34, 0.32) 100%) !important;
+                    border: 2px solid rgba(16, 185, 129, 0.55) !important;
+                    border-right: 6px solid #10b981 !important;
+                    border-radius: 14px !important;
+                    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35), 0 0 12px rgba(16, 185, 129, 0.18), inset 0 1px 0 rgba(167, 243, 208, 0.1) !important;
                     color: #ffffff !important;
                 }
                 html body .glass-container.glass-green:hover,
@@ -3186,58 +3184,65 @@ window.SERVER_COST_CENTERS = <?php echo $SERVER_COST_CENTERS_json; ?>;
                 html[data-theme] body .account-block.glass-green:focus-within,
                 html.light-theme body .account-block.glass-green:hover,
                 html.light-theme body .account-block.glass-green:focus-within {
-                    background: linear-gradient(135deg, rgba(16, 185, 129, 0.94) 0%, rgba(5, 150, 105, 0.96) 55%, rgba(6, 95, 70, 0.99) 100%) !important;
-                    border-color: #34d399 !important;
+                    background: linear-gradient(135deg, rgba(6, 78, 59, 0.26) 0%, rgba(2, 44, 34, 0.42) 100%) !important;
+                    border-color: rgba(52, 211, 153, 0.85) !important;
                     border-right-color: #10b981 !important;
-                    box-shadow: 0 20px 55px rgba(0, 0, 0, 0.7), 0 0 40px rgba(16, 185, 129, 0.85), 0 0 70px rgba(5, 150, 105, 0.45), inset 0 0 22px rgba(52, 211, 153, 0.3) !important;
+                    box-shadow: 0 0 18px rgba(16, 185, 129, 0.32), inset 0 0 10px rgba(16, 185, 129, 0.12) !important;
+                    transform: none !important;
                 }
 
-                /* وضوح النصوص والعناوين وحقول الإدخال داخل منطقتي الصرف (الحمراء) والاستلام (الخضراء) */
+                /* وضوح النصوص والعناوين وحقول الإدخال داخل منطقتي الصرف (الحمراء) والاستلام (الخضراء) بنفس درجات حركة مالية */
                 html body .glass-red label,
                 html.light-theme body .glass-red label {
                     color: #fecaca !important;
+                    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8) !important;
                 }
                 html body .glass-red #main-account-label,
                 html.light-theme body .glass-red #main-account-label,
                 html body .glass-red .block-label,
                 html.light-theme body .glass-red .block-label {
-                    color: #ffe4e6 !important;
+                    color: #fecaca !important;
+                    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8) !important;
                 }
                 html body .glass-green label,
                 html.light-theme body .glass-green label {
-                    color: #d1fae5 !important;
+                    color: #a7f3d0 !important;
+                    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8) !important;
                 }
                 html body .glass-green #main-account-label,
                 html.light-theme body .glass-green #main-account-label,
                 html body .glass-green .block-label,
                 html.light-theme body .glass-green .block-label {
                     color: #a7f3d0 !important;
+                    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8) !important;
                 }
                 html body .glass-red #main-account-search,
                 html.light-theme body .glass-red #main-account-search,
                 html body .glass-red .block-account-search,
                 html.light-theme body .glass-red .block-account-search {
-                    background: rgba(69, 10, 10, 0.85) !important;
+                    background: rgba(24, 12, 14, 0.90) !important;
                     color: #fef08a !important;
                     -webkit-text-fill-color: #fef08a !important;
-                    border: 2px solid #f87171 !important;
+                    border: 1.8px solid rgba(248, 113, 113, 0.55) !important;
+                    box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.5), 0 0 8px rgba(239, 68, 68, 0.15) !important;
                 }
                 html body .glass-red #main-account-search::placeholder,
                 html body .glass-red .block-account-search::placeholder {
-                    color: rgba(254, 202, 202, 0.78) !important;
+                    color: rgba(254, 202, 202, 0.75) !important;
                 }
                 html body .glass-green #main-account-search,
                 html.light-theme body .glass-green #main-account-search,
                 html body .glass-green .block-account-search,
                 html.light-theme body .glass-green .block-account-search {
-                    background: rgba(6, 78, 59, 0.88) !important;
+                    background: rgba(6, 26, 20, 0.90) !important;
                     color: #fef08a !important;
                     -webkit-text-fill-color: #fef08a !important;
-                    border: 2px solid #34d399 !important;
+                    border: 1.8px solid rgba(52, 211, 153, 0.55) !important;
+                    box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.5), 0 0 8px rgba(16, 185, 129, 0.15) !important;
                 }
                 html body .glass-green #main-account-search::placeholder,
                 html body .glass-green .block-account-search::placeholder {
-                    color: rgba(167, 243, 208, 0.78) !important;
+                    color: rgba(167, 243, 208, 0.75) !important;
                 }
                 html body .glass-red #grand-tafqeet-container,
                 html.light-theme body .glass-red #grand-tafqeet-container,
@@ -4739,130 +4744,42 @@ window.SERVER_COST_CENTERS = <?php echo $SERVER_COST_CENTERS_json; ?>;
         setTimeout(applyNumPropsToAll, 400);
     });
 
-    // 🔍 محرك التضخيم والتكبير الفوري بمؤثر حركي انسيابي عالي الاحترافية (Dynamic Fluid Focus Magnification Engine)
+    // 🎯 تركيز ثابت وسلس 100% للمؤشر (Zero-Jitter Smooth Cursor Engine) بدون تضخيم يزيح الخانات
     document.addEventListener('focusin', function(e) {
         const el = e.target;
         if (!el || !el.classList) return;
-        
         const isAmount = el.classList.contains('block-bank-amount') || 
                          el.classList.contains('block-cheque-amount') || 
                          el.classList.contains('transfer-amount') || 
                          el.classList.contains('cheque-amount') || 
                          el.classList.contains('block-total-amount') ||
-                         el.classList.contains('block-sub-amount');
-                         
-        const isNumber = el.classList.contains('block-transfer-no-input') || 
-                         el.classList.contains('block-cheque-no-input') || 
-                         el.classList.contains('transfer-no') || 
-                         el.classList.contains('cheque-no');
-                         
-        if (isAmount || isNumber) {
-            el.style.setProperty('font-size', '4.5rem', 'important');
-            el.style.setProperty('height', '98px', 'important');
-            el.style.setProperty('width', '490px', 'important');
-            el.style.setProperty('min-width', '460px', 'important');
-            el.style.setProperty('position', 'relative', 'important');
-            el.style.setProperty('z-index', '99999', 'important');
-            el.style.setProperty('margin-right', '-60px', 'important');
-            el.style.setProperty('font-weight', '900', 'important');
-            el.style.setProperty('background', 'rgba(13, 17, 28, 0.98)', 'important');
-            el.style.setProperty('border-radius', '14px', 'important');
-            el.style.setProperty('transform', 'translateY(-4px) scale(1.015)', 'important');
-            el.style.setProperty('transition', 'all 0.42s cubic-bezier(0.16, 1, 0.3, 1)', 'important');
-            
-            if (isAmount) {
-                el.style.setProperty('color', '#fbbf24', 'important');
-                el.style.setProperty('-webkit-text-fill-color', '#fbbf24', 'important');
-                el.style.setProperty('caret-color', '#fbbf24', 'important');
-                el.style.setProperty('text-shadow', 'none', 'important');
-                el.style.setProperty('-webkit-text-stroke', '0px', 'important');
-                el.style.setProperty('filter', 'none', 'important');
-                el.style.setProperty('-webkit-font-smoothing', 'antialiased', 'important');
-                el.style.setProperty('-moz-osx-font-smoothing', 'grayscale', 'important');
-                el.style.setProperty('text-rendering', 'geometricPrecision', 'important');
-                el.style.setProperty('font-family', "'Consolas', 'Courier New', monospace", 'important');
-                el.style.setProperty('border', '3.5px solid #fbbf24', 'important');
-                el.style.setProperty('box-shadow', '0 20px 45px rgba(0,0,0,0.92), 0 0 25px rgba(251, 191, 36, 0.45), inset 0 1px 1px rgba(255, 255, 255, 0.25)', 'important');
-            } else {
-                el.style.setProperty('color', '#38bdf8', 'important');
-                el.style.setProperty('-webkit-text-fill-color', '#38bdf8', 'important');
-                el.style.setProperty('caret-color', '#38bdf8', 'important');
-                el.style.setProperty('text-shadow', 'none', 'important');
-                el.style.setProperty('-webkit-text-stroke', '0px', 'important');
-                el.style.setProperty('filter', 'none', 'important');
-                el.style.setProperty('-webkit-font-smoothing', 'antialiased', 'important');
-                el.style.setProperty('-moz-osx-font-smoothing', 'grayscale', 'important');
-                el.style.setProperty('text-rendering', 'geometricPrecision', 'important');
-                el.style.setProperty('font-family', "'Consolas', 'Courier New', monospace", 'important');
-                el.style.setProperty('border', '3.5px solid #38bdf8', 'important');
-                el.style.setProperty('box-shadow', '0 20px 45px rgba(0,0,0,0.92), 0 0 25px rgba(56, 189, 248, 0.45), inset 0 1px 1px rgba(255, 255, 255, 0.25)', 'important');
-                el.style.setProperty('letter-spacing', '1.5px', 'important');
-            }
-            
-            if (el.parentElement && el.parentElement.style) {
-                el.parentElement.dataset.origZIndex = el.parentElement.style.zIndex || '';
-                el.parentElement.dataset.origPosition = el.parentElement.style.position || '';
-                el.parentElement.style.zIndex = '99999';
-                el.parentElement.style.position = 'relative';
-            }
+                         el.classList.contains('block-sub-amount') ||
+                         el.classList.contains('block-cash-amount');
+        if (isAmount) {
+            el.style.setProperty('border-color', '#fbbf24', 'important');
+            el.style.setProperty('box-shadow', '0 0 16px rgba(251, 191, 36, 0.45)', 'important');
+            el.style.setProperty('caret-color', '#fbbf24', 'important');
         }
     }, true);
 
     document.addEventListener('focusout', function(e) {
         const el = e.target;
         if (!el || !el.classList) return;
-        
         const isAmount = el.classList.contains('block-bank-amount') || 
                          el.classList.contains('block-cheque-amount') || 
                          el.classList.contains('transfer-amount') || 
                          el.classList.contains('cheque-amount') || 
                          el.classList.contains('block-total-amount') ||
-                         el.classList.contains('block-sub-amount');
-                         
-        const isNumber = el.classList.contains('block-transfer-no-input') || 
-                         el.classList.contains('block-cheque-no-input') || 
-                         el.classList.contains('transfer-no') || 
-                         el.classList.contains('cheque-no');
-                         
-        if (isAmount || isNumber) {
-            el.style.setProperty('transition', 'all 0.38s cubic-bezier(0.16, 1, 0.3, 1)', 'important');
-            el.style.removeProperty('height');
-            el.style.removeProperty('width');
-            el.style.removeProperty('min-width');
-            el.style.removeProperty('position');
-            el.style.removeProperty('z-index');
-            el.style.removeProperty('margin-right');
-            el.style.removeProperty('background');
-            el.style.removeProperty('border');
-            el.style.removeProperty('border-radius');
+                         el.classList.contains('block-sub-amount') ||
+                         el.classList.contains('block-cash-amount');
+        if (isAmount) {
             el.style.removeProperty('box-shadow');
-            el.style.removeProperty('transform');
-            el.style.removeProperty('color');
-            el.style.removeProperty('-webkit-text-fill-color');
             el.style.removeProperty('caret-color');
-            el.style.removeProperty('text-shadow');
-            el.style.removeProperty('letter-spacing');
-            
-            el.style.removeProperty('font-size');
-            
-            if (el.parentElement && el.parentElement.style) {
-                setTimeout(() => {
-                    if (document.activeElement !== el) {
-                        el.parentElement.style.zIndex = el.parentElement.dataset.origZIndex || '';
-                        el.parentElement.style.position = el.parentElement.dataset.origPosition || '';
-                    }
-                }, 400);
-            }
         }
-        
         if (isAmount || 
-            e.target.id === 'amount-local-hdr' || 
-            e.target.id === 'amount-foreign' || 
-            e.target.id === 'exchange-rate' ||
-            e.target.classList.contains('block-bank-amount') || 
-            e.target.classList.contains('block-cheque-amount') ||
-            e.target.classList.contains('block-total-amount') ||
-            e.target.classList.contains('block-sub-amount')) {
+            el.id === 'amount-local-hdr' || 
+            el.id === 'amount-foreign' || 
+            el.id === 'exchange-rate') {
             applyNumPropsToAll();
         }
     }, true);
@@ -4891,6 +4808,162 @@ window.SERVER_COST_CENTERS = <?php echo $SERVER_COST_CENTERS_json; ?>;
     <!-- Financial OCR Modal & Script -->
     <?php include 'includes/financial-ocr-modal.php'; ?>
     <script src="js/financial-ocr.js?v=<?php echo file_exists('js/financial-ocr.js') ? filemtime('js/financial-ocr.js') : 1; ?>"></script>
+
+    <!-- ══════════ المرشد الذكي — Smart Guide Modal ══════════ -->
+    <style>
+    #smart-guide-overlay {
+        display: none; position: fixed; inset: 0; z-index: 999999;
+        background: rgba(0,0,0,0.72); backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        align-items: center; justify-content: center;
+    }
+    #smart-guide-overlay.open { display: flex; }
+    #smart-guide-modal {
+        background: linear-gradient(145deg, #0f172a, #1e293b);
+        border: 1.5px solid rgba(251,191,36,0.4);
+        border-radius: 20px; max-width: 680px; width: 95vw;
+        max-height: 88vh; overflow-y: auto;
+        box-shadow: 0 30px 80px rgba(0,0,0,0.8), 0 0 40px rgba(251,191,36,0.15);
+        padding: 30px 28px; direction: rtl; font-family: 'Tajawal', sans-serif;
+        animation: guideSlideIn 0.35s cubic-bezier(0.16,1,0.3,1) both;
+        scrollbar-width: thin; scrollbar-color: rgba(251,191,36,0.3) transparent;
+    }
+    @keyframes guideSlideIn {
+        from { opacity: 0; transform: scale(0.88) translateY(30px); }
+        to   { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    #smart-guide-modal h2 {
+        font-size: 1.5rem; font-weight: 900; color: #fbbf24;
+        margin: 0 0 6px; display: flex; align-items: center; gap: 10px;
+    }
+    #smart-guide-modal .guide-subtitle {
+        color: #94a3b8; font-size: 0.95rem; margin-bottom: 22px;
+    }
+    .guide-section {
+        background: rgba(255,255,255,0.04); border-radius: 14px;
+        border: 1px solid rgba(255,255,255,0.08); padding: 16px 18px;
+        margin-bottom: 14px;
+    }
+    .guide-section h3 {
+        font-size: 1.1rem; font-weight: 800; margin: 0 0 10px;
+        display: flex; align-items: center; gap: 8px;
+    }
+    .guide-section p, .guide-section li {
+        color: #cbd5e1; font-size: 0.97rem; line-height: 1.75; margin: 5px 0;
+    }
+    .guide-section ul { padding-right: 18px; margin: 0; }
+    .guide-section .highlight {
+        background: rgba(251,191,36,0.12); border-radius: 6px;
+        padding: 2px 8px; color: #fef08a; font-weight: 700;
+    }
+    .guide-tip {
+        background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.3);
+        border-radius: 10px; padding: 12px 16px; color: #a7f3d0;
+        font-size: 0.95rem; margin-top: 14px;
+    }
+    .guide-warning {
+        background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3);
+        border-radius: 10px; padding: 12px 16px; color: #fca5a5;
+        font-size: 0.95rem; margin-top: 10px;
+    }
+    #btn-close-guide {
+        display: block; margin: 22px auto 0;
+        background: linear-gradient(135deg, #fbbf24, #d97706);
+        color: #1c1917; border: none; border-radius: 12px;
+        font-size: 1.05rem; font-weight: 900; padding: 11px 36px;
+        cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;
+        box-shadow: 0 4px 18px rgba(251,191,36,0.4);
+    }
+    #btn-close-guide:hover { transform: scale(1.04); box-shadow: 0 6px 24px rgba(251,191,36,0.6); }
+    </style>
+
+    <div id="smart-guide-overlay" onclick="if(event.target===this) closeSmartGuide()">
+        <div id="smart-guide-modal" style="max-width: 780px;">
+            <h2>🧭 كيف تفهم شاشة «حركة مالية مجمعة» ببساطة تامة؟</h2>
+            <p class="guide-subtitle">شرح سلس ومبسط لأي شخص جديد — كيف ترتبط هذه الشاشة ببقية شاشات البرنامج وأين تذهب كل معلومة تكتبها هنا</p>
+
+            <div class="guide-section">
+                <h3 style="color:#fbbf24;">💡 الفكرة كلها في كلمتين: (واحد مع مجموعة)</h3>
+                <p>بدل أن تفتح 10 سندات منفصلة لتسجيل 10 عمليات لنفس الخزنة أو نفس البنك، هذه الشاشة تختصرها في <strong>سند واحد فقط</strong>:</p>
+                <ul>
+                    <li><strong style="color:#f87171;">في حالة (صرف إلى مجموعة):</strong> الأموال تخرج من <span class="highlight">حساب رئيسي واحد في الأعلى</span> (مثل الخزنة أو بنكك) وتوزع على <span class="highlight">عدة أشخاص أو مصروفات في الأسفل</span> (مثل رواتب موظفين، عهد مناديب، أو دفعات لموردين).</li>
+                    <li><strong style="color:#34d399;">في حالة (استلام من مجموعة):</strong> الأموال تُجمع من <span class="highlight">عدة عملاء أو جهات في الأسفل</span> وتدخل دفعة واحدة في <span class="highlight">حساب رئيسي واحد في الأعلى</span> (مثل تحصيل إيجارات أو سداد عدة عملاء في البنك أو الخزنة).</li>
+                </ul>
+            </div>
+
+            <div class="guide-section">
+                <h3 style="color:#38bdf8;">🔗 من أين تأتي البيانات الموجودة في هذه الخانات؟</h3>
+                <ul>
+                    <li><strong>أسماء الحسابات (في الأعلى والأسفل):</strong> تأتي تلقائياً من <span class="highlight">شاشة البيانات الأساسية وشجرة الحسابات</span> (العملاء، الموردين، الموظفين، الخزائن، البنوك، والمصروفات). وبمجرد اختيار أي حساب يظهر لك رصيده الحي فوراً قبل وبعد العملية!</li>
+                    <li><strong>سعر الصرف (التعادل بالدولار):</strong> يُقرأ تلقائياً من <span class="highlight">إعدادات العملات وسعر الصرف العام للنظام</span>، وعندما تدخل أي مبلغ بالمحلي يحسب لك النظام المعادل بالدولار والعكس في نفس اللحظة.</li>
+                    <li><strong>مركز التكلفة / المشروع:</strong> يأتي من <span class="highlight">شاشة مراكز التكلفة والمشاريع والشاحنات</span>، ويمكنك حتى كتابة اسم مشروع جديد هنا ليُحفظ تلقائياً في النظام.</li>
+                    <li><strong>إشعارات بنكك والذكاء الاصطناعي (AI):</strong> تأتي مباشرة من <span class="highlight">رسائل وإشعارات واتساب الواردة من العملاء</span> أو من صورة إشعار التحويل البنكي؛ يقرأها النظام تلقائياً ويملأ لك المبلغ ورقم التحويلة واسم البنك ويمنع تكرار أي إشعار تم استخدامه سابقاً في أي شاشة أخرى.</li>
+                </ul>
+            </div>
+
+            <div class="guide-section">
+                <h3 style="color:#10b981;">📊 أين تذهب أرقامك وكيف تؤثر في كل الشاشات والتقارير؟</h3>
+                <p>بمجرد ضغطك على حفظ السند، يقوم النظام في نفس اللحظة بترحيل وتسميع العملية في جميع أنحاء البرنامج:</p>
+                <ul>
+                    <li><strong>١. أرصدة الخزائن والبنوك:</strong> إذا كان السند <span class="highlight">صرفاً</span> ينقص رصيد الخزنة أو البنك الرئيسي بمجموع المبالغ كلها، وإذا كان <span class="highlight">استلاماً</span> يزيد رصيد الخزنة أو البنك بنفس الإجمالي.</li>
+                    <li><strong>٢. كشوف حسابات الأطراف (العملاء / الموردين / المصروفات):</strong> كل شخص أو حساب كتبته في السطور بالأسفل ينزل له سطر مستقل باسمه ومبلغه وبيانه الخاص في <span class="highlight">كشف الحساب ودفتر الأستاذ العام</span>، ويمكنك فتح كشف حسابه مباشرة من نفس السطر للتأكد.</li>
+                    <li><strong>٣. تقارير الحركة اليومية وحركة الخزينة والبنوك:</strong> تظهر كل تحويلة بنكية برقمها وكل شيك برقمه وتاريخ استحقاقه وكل مبلغ نقدي في <span class="highlight">تقارير الخزينة وحركة البنوك والشيكات</span>.</li>
+                    <li><strong>٤. تقارير أرباح وخسائر المشاريع ومراكز التكلفة:</strong> أي سطر ربطته بـ (مشروع / فرع / شاحنة) يذهب تلقائياً إلى <span class="highlight">تقرير مركز التكلفة</span> الخاص به ليعرف صاحب العمل كم صرف وكم قبض كل مشروع.</li>
+                    <li><strong>٥. ميزان المراجعة والميزانية العمومية وقائمة الدخل:</strong> يتوازن القيد المحاسبي تلقائياً (الطرف الرئيسي = مجموع الأطراف الفرعية) ويسمّع فوراً في <span class="highlight">التقارير الختامية والميزانية</span>.</li>
+                </ul>
+            </div>
+
+            <div class="guide-tip">
+                ⚡ <strong>سرعة العمل بالمؤشر (Enter):</strong> صُممت الشاشة لتعمل بسلاسة تامة؛ اختر الحساب الرئيسي ثم اضغط <strong>Enter</strong> لينقلك المؤشر تلقائياً من الحساب الفرعي إلى المبلغ ثم البيان ثم يفتح لك السطر التالي دون الحاجة لاستخدام الماوس!
+            </div>
+
+            <button id="btn-close-guide" onclick="closeSmartGuide()">✔ واضحة جداً — ابدأ العمل</button>
+        </div>
+    </div>
+    <script>
+    window.MagaiesSmartGuides = window.MagaiesSmartGuides || {};
+    window.MagaiesSmartGuides['multi-cash-payment'] = {
+        title: 'المرشد الذكي: شاشة الحركة المالية المجمعة (صرف أو استلام متعدد)',
+        subtitle: 'شرح تطبيقي مصوّر ومدبلج بالصوت الرجالي خطوة بخطوة مع فتح القوائم والحسابات الفرعية وشرح التسميع المحاسبي',
+        screenHierarchy: ['شاشة الحركة المالية المجمعة', 'الحساب الرئيسي (خزينة / بنك)', 'جدول الأطراف الفرعية المتعددة', 'الترحيل الفوري لدفتر الأستاذ وميزان المراجعة'],
+        autopilotSteps: [
+            {
+                badge: '1. اختيار نوع الحركة: صرف لمجموعة أو استلام من مجموعة',
+                cursorLabel: 'نوع الحركة المجمعة',
+                screenPath: 'الشاشة الرئيسية ⬅ تحديد اتجاه الحركة (صرف 🔴 / قبض 🟢)',
+                targetSelector: '#voucher-type, .voucher-type-toggle, #main-account-search',
+                speech: () => 'اللَّهُمَّ صَلِّ عَلَى مُحَمَّدٍ وَعَلَى آلِ مُحَمَّدٍ. أهلاً بحضرتك في شاشة الحركة المالية المجمعة. فكرة هذه الشاشة أنها تختصر عشرين سنداً في سند واحد فقط: إما صرف من خزينة أو بنك واحد في الأعلى إلى عدة أشخاص ومصروفات في الأسفل، أو استلام من عدة عملاء في الأسفل وإيداعها دفعة واحدة في حساب رئيسي واحد بالأعلى.'
+            },
+            {
+                badge: '2. الحساب الرئيسي بالأعلى وفتح قائمة الخزائن والبنوك',
+                cursorLabel: 'الحساب الرئيسي وكشف الرصيد',
+                screenPath: 'الحساب الرئيسي ⬅ فتح قائمة الخزائن والبنوك ⬅ عرض الرصيد الحي',
+                targetSelector: '#main-account-search, #from-account-search, input[placeholder*="الحساب"]',
+                action: () => {
+                    const inp = document.querySelector('#main-account-search, #from-account-search');
+                    if (inp) { try { inp.focus(); inp.click(); } catch (e) {} }
+                },
+                speech: () => 'هنا في الأعلى تختار الحساب الرئيسي كالخزينة أو بنكك؛ وبمجرد الضغط عليه تفتح لك قائمة الحسابات ويظهر أمامك رصيده الفعلي اللحظي قبل وبعد العملية، مع زر دفتر الأستاذ لمعاينة كشف حسابه في نافذة فورية.'
+            },
+            {
+                badge: '3. جدول الحسابات الفرعية المتعددة والمبالغ والبيان',
+                cursorLabel: 'سطور المستفيدين أو الدافعين',
+                screenPath: 'جدول السطور المتعددة ⬅ اختيار الحساب الفرعي ⬅ المبلغ والبيان ومركز التكلفة',
+                targetSelector: 'table tbody, #entries-tbody, .multi-grid',
+                speech: () => 'وفي هذا الجدول بالأسفل تضيف كل طرف في سطر مستقل: تختار اسم المورد أو العميل أو الموظف أو المصروف، وتكتب المبلغ والبيان ومركز التكلفة، وتتنقل بزر إنتر ليفتح لك السطر التالي تلقائياً.'
+            },
+            {
+                badge: '4. الحفظ والاعتماد والتسميع في 5 تقارير محاسبية فوراً',
+                cursorLabel: 'حفظ واعتماد السند المجمع',
+                screenPath: 'زر الحفظ والاعتماد ⬅ قيد يومية متوازن ⬅ كشوفات الحسابات وميزان المراجعة',
+                targetSelector: '#btn-save, button[onclick*="save"], #btn-smart-guide',
+                speech: () => 'وعند الضغط على حفظ واعتماد السند، يقوم النظام في جزء من الثانية بخصم أو إضافة الإجمالي للحساب الرئيسي، وتنزيل كل سطر في كشف حساب صاحبه ودفتر الأستاذ وتقرير مركز التكلفة وميزان المراجعة.'
+            }
+        ]
+    };
+    </script>
+    <!-- ══════════ نهاية المرشد الذكي ══════════ -->
+
 </body>
 </html>
 

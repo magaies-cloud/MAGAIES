@@ -3937,9 +3937,20 @@ function submitInvoice(ignoreWarnings = false) {
                 return; // blocked by policy
             }
 
-            if (!confirm(`⚠️ تأكيد حفظ التعديلات:\n\nالفاتورة رقم (${currentViewedInvoiceNo}) مرحّلة ومثبتة في قيود النظام.\n\nسيتم حفظ التعديلات كـ «نسخة معدّلة» وتحديث قيود الحسابات والأرصدة، وإرسال إشعار رسمي للعميل يفيد بتعديل الفاتورة.\n\nهل تريد المتابعة وحفظ التعديلات الآن؟`)) {
-                window.isSubmitting = false;
-                return;
+            if (!window._dsConfirmedEditSave) {
+                if (typeof window.openDsConfirmModal === 'function') {
+                    window.isSubmitting = false;
+                    window.openDsConfirmModal(
+                        '⚠️ تأكيد حفظ تعديلات الفاتورة',
+                        `الفاتورة رقم (${currentViewedInvoiceNo}) محفوظة في النظام. هل تريد حفظ التعديلات وتحديث القيود والأرصدة الآن؟`,
+                        () => {
+                            window._dsConfirmedEditSave = true;
+                            submitInvoice(ignoreWarnings);
+                            setTimeout(() => { window._dsConfirmedEditSave = false; }, 400);
+                        }
+                    );
+                    return;
+                }
             }
         }
 
@@ -4837,8 +4848,17 @@ function onSuccessReturnToInvoice(invoiceNo) {
 }
 
 function onSuccessNewInvoice(closeModalFlag = true) {
-    if (!closeModalFlag && typeof rows !== 'undefined' && rows.length > 0 && rows.some(r => r && (r.itemId || (r.price && Number(r.price) > 0)))) {
-        if (!confirm('هل تريد بالتأكيد إلغاء البيانات الحالية وتفريغ النموذج لبدء فاتورة جديدة؟')) {
+    if (!closeModalFlag && !window._dsForceNewInv && typeof rows !== 'undefined' && rows.length > 0 && rows.some(r => r && (r.itemId || (r.price && Number(r.price) > 0)))) {
+        if (typeof window.openDsConfirmModal === 'function') {
+            window.openDsConfirmModal(
+                '➕ بدء فاتورة جديدة',
+                'هل تريد تفريغ البيانات الحالية وبدء فاتورة مبيعات جديدة؟',
+                () => {
+                    window._dsForceNewInv = true;
+                    onSuccessNewInvoice(closeModalFlag);
+                    setTimeout(() => { window._dsForceNewInv = false; }, 300);
+                }
+            );
             return;
         }
     }
@@ -5430,7 +5450,14 @@ function executeDelivery(invNo) {
 
     const modal = document.getElementById('delivery-confirmation-modal');
     if (!modal) {
-        if (!confirm('هل أنت متأكد من تسليم الفاتورة رقم ' + invNo + ' وخصم البضاعة من المخزون؟')) return;
+        if (typeof window.openDsConfirmModal === 'function') {
+            window.openDsConfirmModal(
+                '🚚 تأكيد تسليم الفاتورة',
+                'هل أنت متأكد من تسليم الفاتورة رقم (' + invNo + ') وخصم البضاعة من المخزون؟',
+                () => { confirmExecuteDeliveryAction(); }
+            );
+            return;
+        }
         confirmExecuteDeliveryAction();
         return;
     }
@@ -5526,7 +5553,18 @@ function confirmExecuteDeliveryAction() {
 }
 
 function convertToOfficial(invNo) {
-    if (!confirm('تحويل الفاتورة المبدئية رقم ' + invNo + ' إلى فاتورة رسمية (تحديث الحسابات)؟')) return;
+    if (!window._dsConfirmedConvertOfficial && typeof window.openDsConfirmModal === 'function') {
+        window.openDsConfirmModal(
+            '📋 تحويل إلى فاتورة رسمية',
+            'هل تريد تحويل الفاتورة المبدئية رقم (' + invNo + ') إلى فاتورة مبيعات رسمية وتحديث الحسابات؟',
+            () => {
+                window._dsConfirmedConvertOfficial = true;
+                convertToOfficial(invNo);
+                setTimeout(() => { window._dsConfirmedConvertOfficial = false; }, 300);
+            }
+        );
+        return;
+    }
 
     let allSales = JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || [];
     let invIndex = allSales.findIndex(i => i.invoiceNo === invNo);
@@ -5955,16 +5993,48 @@ window.openSplitForInvoiceFromDelivery = function(invoiceNo, preferredUnitMode =
     }, 20);
 };
 
+function normalizeSplitArabicText(str) {
+    return String(str || '')
+        .toLowerCase()
+        .replace(/[\u064B-\u065F\u0670\u0640]/g, '')
+        .replace(/[أإآٱ]/g, 'ا')
+        .replace(/ة/g, 'ه')
+        .replace(/[ىئ]/g, 'ي')
+        .replace(/ؤ/g, 'و')
+        .replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d))
+        .trim();
+}
+
+function getMergedSalesInvoicesForSplit() {
+    const map = new Map();
+    ['magaies_sales_invoices_cache', 'magaies_local_sales_invoices_v1', 'erp_sales_v1', 'erp_sales_invoices_v1'].forEach(k => {
+        try {
+            const arr = JSON.parse(localStorage.getItem(k) || '[]');
+            if (Array.isArray(arr)) {
+                arr.forEach(inv => {
+                    if (!inv || typeof inv !== 'object') return;
+                    const no = String(inv.invoiceNo || inv.id || '').trim();
+                    if (no) map.set(no, { ...(map.get(no) || {}), ...inv });
+                });
+            }
+        } catch (_e) {}
+    });
+    return Array.from(map.values());
+}
+
 function loadSplitInvoices(skipRemoteFetch = false) {
-    const searchVal = (document.getElementById('split-invoice-search')?.value || '').trim().toLowerCase();
+    const rawSearch = (document.getElementById('split-invoice-search')?.value || '').trim();
+    const searchVal = normalizeSplitArabicText(rawSearch);
     const tbody = document.getElementById('split-invoices-body');
     const emptyState = document.getElementById('split-empty-state');
     if (!tbody) return;
 
     if (!skipRemoteFetch && !_isFetchingSplitSync && navigator.onLine) {
         _isFetchingSplitSync = true;
-        fetch('api/mirror_sync.php?action=get_recent_sales&_t=' + Date.now())
-            .then(r => r.json())
+        const ctrl = new AbortController();
+        const tId = setTimeout(() => ctrl.abort(), 4000);
+        fetch('api/mirror_sync.php?action=get_recent_sales&_t=' + Date.now(), { signal: ctrl.signal })
+            .then(r => { clearTimeout(tId); return r.json(); })
             .then(res => {
                 _isFetchingSplitSync = false;
                 if (res && res.success && Array.isArray(res.sales)) {
@@ -5991,13 +6061,10 @@ function loadSplitInvoices(skipRemoteFetch = false) {
                     }
                 }
             })
-            .catch(() => { _isFetchingSplitSync = false; });
+            .catch(() => { clearTimeout(tId); _isFetchingSplitSync = false; });
     }
     
-    let invoices = [];
-    try {
-        invoices = JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || [];
-    } catch(e) {}
+    const invoices = getMergedSalesInvoicesForSplit();
     
     const eligible = invoices.filter(inv => {
         if (inv.deleted || inv.wasSplit) return false;
@@ -6009,17 +6076,66 @@ function loadSplitInvoices(skipRemoteFetch = false) {
         return hasRem || items.length > 0;
     });
     
+    const statusFilter = document.getElementById('split-filter-status')?.value || 'all';
+    const payFilter = document.getElementById('split-filter-payment')?.value || 'all';
+    const dateFilter = (document.getElementById('split-filter-date')?.value || '').trim();
+
     const filtered = eligible.filter(inv => {
+        const isBranch = !!(inv.isSplit || inv.parentInvoice || String(inv.invoiceNo || inv.id || '').includes('/'));
+        const isPartial = inv.deliveryStatus === 'partial';
+        if (statusFilter === 'original' && isBranch) return false;
+        if (statusFilter === 'branches' && !isBranch) return false;
+        if (statusFilter === 'partial' && !isPartial) return false;
+
+        if (payFilter === 'credit' && inv.paymentMethod !== 'credit') return false;
+        if (payFilter === 'cash' && inv.paymentMethod === 'credit') return false;
+
+        if (dateFilter && String(inv.date || '').slice(0, 10) !== dateFilter) return false;
+
         if (!searchVal) return true;
-        const no = String(inv.invoiceNo || inv.id || '').toLowerCase();
-        const rootNo = window.getRootInvoiceNo(inv).toLowerCase();
-        const custName = String(inv.customerName || inv.customer || '').toLowerCase();
-        const total = String(inv.grandTotal || inv.total || '').toLowerCase();
-        const itemsStr = (inv.items || []).map(i => window.resolveSplitItemUnitMeta(i).name).join(' ').toLowerCase();
+        const no = normalizeSplitArabicText(inv.invoiceNo || inv.id || '');
+        const rootNo = normalizeSplitArabicText(window.getRootInvoiceNo(inv));
+        const custName = normalizeSplitArabicText(inv.customerName || inv.customer || '');
+        const total = normalizeSplitArabicText(inv.grandTotal || inv.total || '');
+        const itemsStr = normalizeSplitArabicText((inv.items || []).map(i => window.resolveSplitItemUnitMeta(i).name).join(' '));
         return no.includes(searchVal) || rootNo.includes(searchVal) || custName.includes(searchVal) || total.includes(searchVal) || itemsStr.includes(searchVal);
     });
 
     filtered.sort((a, b) => new Date(b.timestamp || b.date || 0) - new Date(a.timestamp || a.date || 0));
+    window._lastFilteredSplitInvoices = filtered;
+
+    const kpiBar = document.getElementById('split-kpi-summary-bar');
+    if (kpiBar) {
+        let totalUnits = 0;
+        let totalNetVal = 0;
+        let branchesCount = 0;
+        filtered.forEach(inv => {
+            if (inv.isSplit || inv.parentInvoice || String(inv.invoiceNo || inv.id || '').includes('/')) branchesCount++;
+            totalNetVal += parseFloat(inv.grandTotal ?? inv.total ?? 0) || 0;
+            (inv.items || []).forEach(it => {
+                const m = window.resolveSplitItemUnitMeta(it);
+                totalUnits += m.deliverableQty;
+            });
+        });
+        kpiBar.innerHTML = `
+            <div class="neo-card" style="margin:0; padding:8px 12px; border-radius:10px; border:1.5px solid rgba(56,189,248,0.45); background:rgba(15,23,42,0.7); display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:0.82rem; font-weight:900; color:#94a3b8;">📄 فواتير جاهزة للتجزئة:</span>
+                <strong style="font-size:1.1rem; font-family:'Outfit',monospace; color:#38bdf8;">${filtered.length}</strong>
+            </div>
+            <div class="neo-card" style="margin:0; padding:8px 12px; border-radius:10px; border:1.5px solid rgba(236,72,153,0.45); background:rgba(15,23,42,0.7); display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:0.82rem; font-weight:900; color:#94a3b8;">🌳 فروع منبثقة نشطة:</span>
+                <strong style="font-size:1.1rem; font-family:'Outfit',monospace; color:#f472b6;">${branchesCount}</strong>
+            </div>
+            <div class="neo-card" style="margin:0; padding:8px 12px; border-radius:10px; border:1.5px solid rgba(168,85,247,0.45); background:rgba(15,23,42,0.7); display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:0.82rem; font-weight:900; color:#94a3b8;">📦 إجمالي الوحدات المتبقية:</span>
+                <strong style="font-size:1.1rem; font-family:'Outfit',monospace; color:#c084fc;">${+totalUnits.toFixed(2)}</strong>
+            </div>
+            <div class="neo-card" style="margin:0; padding:8px 12px; border-radius:10px; border:1.5px solid rgba(16,185,129,0.45); background:rgba(15,23,42,0.7); display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:0.82rem; font-weight:900; color:#94a3b8;">💰 الإجمالي الختامي الموزون:</span>
+                <strong style="font-size:1.1rem; font-family:'Outfit',monospace; color:#10b981;">${totalNetVal.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2})}</strong>
+            </div>
+        `;
+    }
     
     if (filtered.length === 0) {
         tbody.innerHTML = '';
@@ -6030,6 +6146,8 @@ function loadSplitInvoices(skipRemoteFetch = false) {
     if (emptyState) emptyState.style.display = 'none';
     tbody.innerHTML = '';
     const nextSplitSeq = window.getNextSplitSequenceNo();
+    let customersList = [];
+    try { customersList = JSON.parse(localStorage.getItem('erp_customers_v1') || '[]'); } catch (_e) {}
     
     filtered.forEach(inv => {
         const invNo = String(inv.invoiceNo || inv.id || '');
@@ -6037,6 +6155,10 @@ function loadSplitInvoices(skipRemoteFetch = false) {
         const escInvNo = invNo.replace(/'/g, "\\'");
         const invTotal = parseFloat(inv.grandTotal ?? inv.total ?? 0) || 0;
         const items = Array.isArray(inv.items) ? inv.items : [];
+        const custObj = customersList.find(c => String(c.id) === String(inv.customer || inv.customerId) || c.name === inv.customerName);
+        const custBal = custObj ? (parseFloat(custObj.currentBalance || custObj.balance || 0) || 0) : null;
+        const auditUser = inv.splitByName || inv.createdByName || 'المسؤول';
+
         let remSummary = items.map(it => {
             const m = window.resolveSplitItemUnitMeta(it);
             return `
@@ -6057,14 +6179,20 @@ function loadSplitInvoices(skipRemoteFetch = false) {
         tr.innerHTML = `
             <td>
                 <div style="display:flex; flex-direction:column; gap:3px;">
-                    <strong style="color:#38bdf8; font-size:1.12rem; font-family:'Outfit',monospace;">#${invNo}</strong>
+                    <strong onclick="window.openSplitDrillDownDocModal('${escInvNo}')" title="اضغط لاستعراض أصل الفاتورة والبصمة الرقابية (Drill-Down)" style="cursor:pointer; color:#38bdf8; font-size:1.12rem; font-family:'Outfit',monospace; text-decoration:underline dotted;">#${invNo} 🔍</strong>
                     ${window.renderSplitGenealogyBadge(inv, true)}
                     <span style="font-size:0.73rem; color:#94a3b8;">سيُقسم إلى: <strong style="color:#f472b6; font-family:monospace;">${rootNo}/${nextSplitSeq}/1</strong> و <strong style="color:#38bdf8; font-family:monospace;">${rootNo}/${nextSplitSeq}/2</strong></span>
                 </div>
             </td>
-            <td><span style="font-weight:800; font-size:0.98rem; color:#cbd5e1;">${inv.date || ''}</span></td>
             <td>
-                <div style="font-weight:900; font-size:1.02rem; color:#fff;">👤 ${inv.customerName || 'عميل نقدي'}</div>
+                <span style="font-weight:800; font-size:0.95rem; color:#cbd5e1;">${inv.date || ''}</span>
+                <div style="font-size:0.7rem; color:#94a3b8; font-weight:800; margin-top:2px;">🛡️ ${auditUser}</div>
+            </td>
+            <td>
+                <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+                    <span style="font-weight:900; font-size:1.02rem; color:#fff;">👤 ${inv.customerName || 'عميل نقدي'}</span>
+                    ${custBal !== null ? `<span style="font-size:0.72rem; background:rgba(16,185,129,0.15); border:1px solid rgba(52,211,153,0.4); color:#6ee7b7; padding:1px 7px; border-radius:99px; font-weight:900;">رصيد العميل: ${custBal.toLocaleString()}</span>` : ''}
+                </div>
                 <div style="margin-top:4px; display:flex; flex-wrap:wrap; gap:5px;">${remSummary}</div>
             </td>
             <td style="text-align:center;"><span class="badge" style="background:rgba(99,102,241,0.2); color:#a5b4fc; padding:5px 10px; border-radius:8px; font-size:0.88rem; font-weight:900; display:inline-flex; align-items:center; gap:4px;">${inv.paymentMethod === 'credit' ? '✍️ آجل' : '💵 نقدي'}</span></td>
@@ -6074,6 +6202,9 @@ function loadSplitInvoices(skipRemoteFetch = false) {
                 <div style="display:flex; gap:6px; justify-content:center; flex-wrap:wrap;">
                     <button class="btn-action kinetic-glow-arm kinetic-arm-pink" style="width:auto; padding:7px 14px; font-size:0.86rem; font-weight:900; border-radius:10px; cursor:pointer;" onclick="startInvoiceSplit('${escInvNo}')">
                         ✂️ تقسيم
+                    </button>
+                    <button class="btn-action kinetic-glow-arm" style="width:auto; padding:7px 10px; font-size:0.8rem; font-weight:900; border-radius:10px; cursor:pointer; background:rgba(56,189,248,0.16); border:1px solid rgba(56,189,248,0.45); color:#7dd3fc;" onclick="window.openSplitDrillDownDocModal('${escInvNo}')" title="استعراض أصل المستند والبصمة الرقابية">
+                        🔍 أصل
                     </button>
                     <button class="btn-action kinetic-glow-arm kinetic-arm-emerald" style="width:auto; padding:7px 14px; font-size:0.86rem; font-weight:900; border-radius:10px; cursor:pointer;" onclick="if(typeof window.openDeliveryForInvoiceFromHub==='function') window.openDeliveryForInvoiceFromHub('${escInvNo}')" title="الانتقال الفوري لتسليم وصرف هذا الإذن">
                         📦 تسليم
@@ -6114,11 +6245,7 @@ function getSplitPalette(secIdx) {
 }
 
 function startInvoiceSplit(invoiceNo, preferredUnitMode = null) {
-    let invoices = [];
-    try {
-        invoices = JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || [];
-    } catch(e) {}
-    
+    const invoices = getMergedSalesInvoicesForSplit();
     const inv = invoices.find(x => String(x.invoiceNo || x.id) === String(invoiceNo));
     if (!inv) {
         if (typeof showToast === 'function') showToast('❌ لم يتم العثور على الإذن المحدد للتقسيم', 'error');
@@ -6174,9 +6301,13 @@ window.saveCurrentSplitDraftState = function() {
     for (let s = 0; s < S; s++) {
         const recEl = document.getElementById(`split-sec-receiver-${s}`);
         const trkEl = document.getElementById(`split-sec-truck-${s}`);
+        const locEl = document.getElementById(`split-sec-location-${s}`);
+        const phnEl = document.getElementById(`split-sec-phone-${s}`);
         window._splitSectionMeta[s] = {
             receiverName: recEl ? recEl.value : (window._splitSectionMeta[s]?.receiverName || ''),
-            truckPlate: trkEl ? trkEl.value : (window._splitSectionMeta[s]?.truckPlate || '')
+            truckPlate: trkEl ? trkEl.value : (window._splitSectionMeta[s]?.truckPlate || ''),
+            deliveryLocation: locEl ? locEl.value : (window._splitSectionMeta[s]?.deliveryLocation || ''),
+            receiverPhone: phnEl ? phnEl.value : (window._splitSectionMeta[s]?.receiverPhone || '')
         };
     }
 };
@@ -6330,8 +6461,17 @@ window.renderWorldClassSplitBoard = function() {
                         <div id="split-generated-numbers-preview" style="display:flex; align-items:center; gap:5px; flex-wrap:wrap;">
                             ${previewBadges}
                         </div>
-                        <button type="button" onclick="distributeSplitEqually()" class="btn-action kinetic-glow-arm kinetic-arm-cyan" style="width:auto; padding:5px 12px; font-size:0.8rem; font-weight:900; border-radius:8px;">
+                        <button type="button" onclick="distributeSplitEqually()" class="btn-action kinetic-glow-arm kinetic-arm-cyan" style="width:auto; padding:5px 10px; font-size:0.78rem; font-weight:900; border-radius:8px;" title="توزيع الكميات بالتساوي على جميع الأقسام">
                             ⚖️ بالتساوي (${S})
+                        </button>
+                        <button type="button" onclick="window.applySplitRatioPreset(0.7)" class="btn-action kinetic-glow-arm" style="width:auto; padding:5px 10px; font-size:0.78rem; font-weight:900; border-radius:8px; background:rgba(245,158,11,0.16); border:1px solid rgba(251,191,36,0.45); color:#fde68a;" title="توزيع سريع 70% للقسم الأول و30% للمتبقي">
+                            📊 70% / 30%
+                        </button>
+                        <button type="button" onclick="window.separateHeavyItemsSplit()" class="btn-action kinetic-glow-arm" style="width:auto; padding:5px 10px; font-size:0.78rem; font-weight:900; border-radius:8px; background:rgba(168,85,247,0.16); border:1px solid rgba(192,132,252,0.45); color:#e9d5ff;" title="فصل الأصناف الثقيلة (معامل تحويل أو وزن كبير) في القسم الأول وبقية الأصناف في القسم الثاني">
+                            🏋️ فصل الثقيل
+                        </button>
+                        <button type="button" onclick="window.separateSplitItemsIntoSections()" class="btn-action kinetic-glow-arm" style="width:auto; padding:5px 10px; font-size:0.78rem; font-weight:900; border-radius:8px; background:rgba(236,72,153,0.16); border:1px solid rgba(244,114,182,0.45); color:#fbcfe8;" title="وضع كل صنف في فاتورة فرعية مستقلة">
+                            📦 كل صنف بقسم
                         </button>
                         <button type="button" onclick="addSplitSection()" class="btn-action kinetic-glow-arm kinetic-arm-emerald" style="width:auto; padding:5px 12px; font-size:0.8rem; font-weight:900; border-radius:8px;">
                             ➕ قسم (${S + 1})
@@ -6674,15 +6814,29 @@ function updateSplitCalculations() {
             const metaInfo = window._splitSectionMeta[s] || {};
             const recVal = (metaInfo.receiverName ?? (inv.receiverName || inv.customerName || '')).replace(/"/g, '&quot;');
             const trkVal = (metaInfo.truckPlate ?? (inv.truckPlate || '')).replace(/"/g, '&quot;');
+            const locVal = (metaInfo.deliveryLocation ?? (inv.deliveryLocation || inv.customerAddress || '')).replace(/"/g, '&quot;');
+            const phnVal = (metaInfo.receiverPhone ?? (inv.receiverPhone || inv.customerPhone || inv.phone || '')).replace(/"/g, '&quot;');
+            const secWeightKg = (inv.items || []).reduce((wSum, item, idx) => {
+                const m = window.resolveSplitItemUnitMeta(item);
+                const q = parseFloat(document.getElementById(`split-qty-s${s}-i${idx}`)?.value || 0) || 0;
+                const unitKg = parseFloat(item.unitWeightKg || item.weightKg || (m.factor > 1 ? m.factor : 50)) || 50;
+                return wSum + (q * unitKg);
+            }, 0);
+            const secWeightTon = +(secWeightKg / 1000).toFixed(2);
+            const maxCapTon = parseFloat(metaInfo.maxCapacityTon) || 5.0;
+            const isOverweight = secWeightTon > maxCapTon + 0.001;
+            const hasDriverSig = Boolean(metaInfo.driverSignatureDataUrl);
 
             return `
-                <div class="neo-card" style="border:1.5px solid ${pal.border}; background:linear-gradient(145deg, rgba(15,23,42,0.9), ${pal.bg}); padding:10px 14px; border-radius:14px; position:relative; overflow:hidden; margin:0; box-shadow:0 8px 24px rgba(0,0,0,0.3), 0 0 18px ${pal.glow};">
-                    <div style="position:absolute; top:0; right:0; width:5px; height:100%; background:${pal.color};"></div>
+                <div class="neo-card" style="border:1.5px solid ${isOverweight ? '#ef4444' : pal.border}; background:linear-gradient(145deg, rgba(15,23,42,0.9), ${pal.bg}); padding:10px 14px; border-radius:14px; position:relative; overflow:hidden; margin:0; box-shadow:0 8px 24px rgba(0,0,0,0.3), 0 0 18px ${pal.glow};">
+                    <div style="position:absolute; top:0; right:0; width:5px; height:100%; background:${isOverweight ? '#ef4444' : pal.color};"></div>
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; border-bottom:1px solid rgba(255,255,255,0.08); padding-bottom:6px; gap:6px; flex-wrap:wrap;">
                         <h4 style="color:${pal.color}; margin:0; display:flex; align-items:center; gap:6px; font-size:0.95rem; font-weight:900;">
                             <span>📄</span> إذن ${pal.title}
                         </h4>
-                        <div style="display:flex; align-items:center; gap:5px;">
+                        <div style="display:flex; align-items:center; gap:5px; flex-wrap:wrap;">
+                            <button type="button" onclick="window.quickPickDriverForSplitSec(${s})" style="background:rgba(16,185,129,0.16); border:1px solid rgba(52,211,153,0.45); color:#6ee7b7; border-radius:7px; padding:2px 8px; font-size:0.72rem; font-weight:900; cursor:pointer;" title="تعيين سائق وسيارة جاهزة لهذا القسم">🚛 سائق سريع</button>
+                            <button type="button" onclick="window.openSplitDriverSignatureModal(${s})" style="background:${hasDriverSig ? 'rgba(16,185,129,0.25)' : 'rgba(56,189,248,0.16)'}; border:1px solid ${hasDriverSig ? '#10b981' : 'rgba(56,189,248,0.45)'}; color:${hasDriverSig ? '#6ee7b7' : '#bae6fd'}; border-radius:7px; padding:2px 8px; font-size:0.72rem; font-weight:900; cursor:pointer;" title="التوقيع الرقمي لسائق هذا القسم">${hasDriverSig ? '✅ موقّع' : '✍️ توقيع السائق'}</button>
                             <button type="button" onclick="window.previewCurrentSplitVouchersBeforeSave(${s})" style="background:rgba(56,189,248,0.16); border:1px solid rgba(56,189,248,0.45); color:#7dd3fc; border-radius:7px; padding:2px 8px; font-size:0.74rem; font-weight:900; cursor:pointer;" title="طباعة هذا الجزء بمفرده (#${secNo})">🖨️ طباعة الجزء (${s + 1})</button>
                             <span style="background:#020617; border:1.5px solid ${pal.border}; color:#ffffff; font-family:'Outfit',monospace; font-weight:900; font-size:0.92rem; padding:2px 10px; border-radius:99px; box-shadow:0 0 10px ${pal.glow};">#${secNo}</span>
                         </div>
@@ -6691,6 +6845,10 @@ function updateSplitCalculations() {
                         <div style="display:flex; justify-content:space-between; color:#cbd5e1; font-weight:800;">
                             <span>إجمالي الكميات بالقسم:</span>
                             <span style="font-family:'Outfit',monospace; font-weight:900; color:${pal.color}; font-size:0.98rem;">${+secTotalQtys[s].toFixed(3)}</span>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; align-items:center; padding:3px 8px; border-radius:7px; background:${isOverweight ? 'rgba(239,68,68,0.22)' : 'rgba(16,185,129,0.12)'}; border:1px solid ${isOverweight ? '#ef4444' : 'rgba(16,185,129,0.35)'};">
+                            <span style="font-size:0.76rem; font-weight:900; color:${isOverweight ? '#fecaca' : '#a7f3d0'};">${isOverweight ? '🚨 تجاوز الحمولة:' : '🛡️ درع الوزن والحمولة:'}</span>
+                            <span onclick="window.openSplitWeightShieldModal()" style="cursor:pointer; font-family:'Outfit',monospace; font-size:0.8rem; font-weight:900; color:${isOverweight ? '#fca5a5' : '#6ee7b7'};" title="اضغط لضبط سعة الشاحنة وموازنة الأوزان">${secWeightTon} طن (${Math.round(secWeightKg)} كجم) / حد ${maxCapTon} طن ⚙️</span>
                         </div>
                         <div style="display:flex; justify-content:space-between; color:#cbd5e1; font-weight:700;">
                             <span>الإجمالي قبل الخصم:</span>
@@ -6706,8 +6864,10 @@ function updateSplitCalculations() {
                             <span style="font-family:'Outfit',monospace;">${grand.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})} ${currency}</span>
                         </div>
                         <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-top:6px; padding-top:6px; border-top:1px dashed rgba(255,255,255,0.1);">
-                            <input type="text" id="split-sec-receiver-${s}" value="${recVal}" oninput="window._splitSectionMeta[${s}] = Object.assign(window._splitSectionMeta[${s}]||{}, {receiverName: this.value})" placeholder="👤 المستلم لهذا القسم..." style="background:rgba(2,6,23,0.75); border:1px solid rgba(148,163,184,0.3); color:#f8fafc; border-radius:7px; padding:4px 8px; font-size:0.76rem; font-weight:700;">
-                            <input type="text" id="split-sec-truck-${s}" value="${trkVal}" oninput="window._splitSectionMeta[${s}] = Object.assign(window._splitSectionMeta[${s}]||{}, {truckPlate: this.value})" placeholder="🚛 رقم السيارة / ملاحظة..." style="background:rgba(2,6,23,0.75); border:1px solid rgba(148,163,184,0.3); color:#fcd34d; border-radius:7px; padding:4px 8px; font-size:0.76rem; font-weight:700;">
+                            <input type="text" id="split-sec-receiver-${s}" value="${recVal}" oninput="window._splitSectionMeta[${s}] = Object.assign(window._splitSectionMeta[${s}]||{}, {receiverName: this.value})" placeholder="👤 المستلم / السائق..." style="background:rgba(2,6,23,0.75); border:1px solid rgba(148,163,184,0.3); color:#f8fafc; border-radius:7px; padding:4px 8px; font-size:0.76rem; font-weight:700;">
+                            <input type="text" id="split-sec-truck-${s}" value="${trkVal}" oninput="window._splitSectionMeta[${s}] = Object.assign(window._splitSectionMeta[${s}]||{}, {truckPlate: this.value})" placeholder="🚛 رقم السيارة / اللوحة..." style="background:rgba(2,6,23,0.75); border:1px solid rgba(148,163,184,0.3); color:#fcd34d; border-radius:7px; padding:4px 8px; font-size:0.76rem; font-weight:700;">
+                            <input type="text" id="split-sec-location-${s}" value="${locVal}" oninput="window._splitSectionMeta[${s}] = Object.assign(window._splitSectionMeta[${s}]||{}, {deliveryLocation: this.value})" placeholder="📍 موقع التسليم / الوجهة..." style="background:rgba(2,6,23,0.75); border:1px solid rgba(148,163,184,0.3); color:#a7f3d0; border-radius:7px; padding:4px 8px; font-size:0.76rem; font-weight:700;">
+                            <input type="tel" id="split-sec-phone-${s}" value="${phnVal}" oninput="window._splitSectionMeta[${s}] = Object.assign(window._splitSectionMeta[${s}]||{}, {receiverPhone: this.value})" placeholder="📲 واتساب المستلم..." style="background:rgba(2,6,23,0.75); border:1px solid rgba(148,163,184,0.3); color:#93c5fd; border-radius:7px; padding:4px 8px; font-size:0.76rem; font-weight:700;">
                         </div>
                     </div>
                 </div>
@@ -6843,6 +7003,10 @@ function submitInvoiceSplit(autoPrintVouchers = false) {
             additionsCostFc: +(origAdditionsFc * ratio).toFixed(2),
             receiverName: secMeta.receiverName || inv.receiverName || inv.customerName || '',
             truckPlate: secMeta.truckPlate || inv.truckPlate || '',
+            deliveryLocation: secMeta.deliveryLocation || inv.deliveryLocation || inv.customerAddress || '',
+            receiverPhone: secMeta.receiverPhone || inv.receiverPhone || inv.customerPhone || inv.phone || '',
+            driverSignatureDataUrl: secMeta.driverSignatureDataUrl || '',
+            maxCapacityTon: parseFloat(secMeta.maxCapacityTon) || 5.0,
             timestamp: nowIso,
             rootInvoice: rootNo,
             parentInvoice: parentNo,
@@ -6898,6 +7062,17 @@ function submitInvoiceSplit(autoPrintVouchers = false) {
         localStorage.setItem('erp_inv_' + cInv.invoiceNo, JSON.stringify(cInv));
     });
     localStorage.setItem('erp_sales_invoices_v1', JSON.stringify(allSales));
+    localStorage.setItem('erp_sales_v1', JSON.stringify(allSales));
+    ['magaies_local_sales_invoices_v1', 'magaies_sales_invoices_cache'].forEach(cacheKey => {
+        try {
+            let arr = JSON.parse(localStorage.getItem(cacheKey) || '[]');
+            if (!Array.isArray(arr)) arr = [];
+            const pIdx = arr.findIndex(x => x && String(x.invoiceNo || x.id) === parentNo);
+            if (pIdx !== -1 && archivedOrig) arr[pIdx] = archivedOrig;
+            createdInvoices.forEach(cInv => arr.unshift(cInv));
+            localStorage.setItem(cacheKey, JSON.stringify(arr));
+        } catch (_e) {}
+    });
 
     const applyEffects = (cInv) => {
         const grandAmount = parseFloat(cInv.grandTotal) || 0;
@@ -6970,22 +7145,53 @@ function submitInvoiceSplit(autoPrintVouchers = false) {
 
     createdInvoices.forEach(applyEffects);
 
+    const docsToSync = [
+        ...(archivedOrig ? [Object.assign({}, archivedOrig, { isEdit: true, deleted: 1, wasSplit: true })] : []),
+        ...createdInvoices
+    ];
+    const enqueueSplitDocOffline = (doc) => {
+        if (window.MagaiesOffline && typeof window.MagaiesOffline.enqueue === 'function') {
+            window.MagaiesOffline.enqueue('sales_split', doc, doc.invoiceNo || doc.id);
+        } else {
+            try {
+                const q = JSON.parse(localStorage.getItem('ds_offline_sync_queue_v1') || '[]');
+                q.push({ action: 'save_sales_invoice', payload: doc, ts: Date.now() });
+                localStorage.setItem('ds_offline_sync_queue_v1', JSON.stringify(q.slice(-80)));
+            } catch (_e) {}
+        }
+    };
+
     if (navigator.onLine) {
-        const docsToSync = [
-            ...(archivedOrig ? [Object.assign({}, archivedOrig, { isEdit: true, deleted: 1, wasSplit: true })] : []),
-            ...createdInvoices
-        ];
         docsToSync.forEach(doc => {
+            const ctrl = new AbortController();
+            const tId = setTimeout(() => ctrl.abort(), 4500);
             fetch('api/mirror_sync.php?action=save_sales_invoice', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(doc)
-            }).catch(() => {});
+                body: JSON.stringify(doc),
+                signal: ctrl.signal
+            }).then(r => {
+                clearTimeout(tId);
+                if (!r.ok) enqueueSplitDocOffline(doc);
+            }).catch(() => {
+                clearTimeout(tId);
+                enqueueSplitDocOffline(doc);
+            });
         });
-    } else if (window.MagaiesOffline && typeof window.MagaiesOffline.enqueue === 'function') {
-        createdInvoices.forEach(cInv => {
-            window.MagaiesOffline.enqueue('sales_split', cInv, cInv.invoiceNo);
-        });
+    } else {
+        docsToSync.forEach(enqueueSplitDocOffline);
+    }
+
+    ['elsajana_erp_sync', 'magaies_sales_sync_channel', 'magaies_erp_sync_channel'].forEach(chName => {
+        try {
+            const ch = new BroadcastChannel(chName);
+            ch.postMessage({ type: 'SALES_INVOICE_SPLIT', parentNo, generatedNumbers, ts: Date.now() });
+            ch.close();
+        } catch (_e) {}
+    });
+    const syncPill = document.getElementById('split-live-sync-pill');
+    if (syncPill) {
+        syncPill.textContent = `⚡ متزامن (${new Date().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit', second: '2-digit' })})`;
     }
 
     if (window.logSystemAction) {
@@ -7054,10 +7260,18 @@ window.showPostSplitSuccessModal = function(createdInvoices, rootNo, splitSeq) {
                     <span style="background:#020617; border:1px solid ${pal.border}; color:#fff; padding:2px 10px; border-radius:99px; font-family:'Outfit',monospace; font-weight:900;">#${cNo}</span>
                 </div>
                 <div style="display:flex; flex-direction:column; gap:4px;">${itemsSummary}</div>
+                ${(cInv.receiverName || cInv.truckPlate || cInv.deliveryLocation) ? `
+                <div style="font-size:0.78rem; color:#94a3b8; background:rgba(2,6,23,0.55); padding:5px 8px; border-radius:8px; border:1px dashed rgba(148,163,184,0.25);">
+                    👤 المستلم: <strong style="color:#f8fafc;">${cInv.receiverName || '—'}</strong>
+                    ${cInv.truckPlate ? ` | 🚛 <strong style="color:#fcd34d;">${cInv.truckPlate}</strong>` : ''}
+                    ${cInv.deliveryLocation ? ` | 📍 <strong style="color:#6ee7b7;">${cInv.deliveryLocation}</strong>` : ''}
+                </div>` : ''}
                 <div style="font-size:0.9rem; font-weight:900; color:#10b981; font-family:'Outfit',monospace;">💰 الصافي: ${(parseFloat(cInv.grandTotal || cInv.total || 0)).toLocaleString()} ${cInv.currency || 'SDG'}</div>
                 <div style="display:flex; gap:6px; margin-top:4px; flex-wrap:wrap;">
-                    <button type="button" onclick="window.printSplitVouchersBatch([window._lastCreatedSplitVouchers.list[${idx}]], '${rootNo}', '${splitSeq}')" class="kinetic-glow-arm kinetic-arm-cyan" style="flex:1; padding:7px 10px; border-radius:8px; font-size:0.8rem; font-weight:900; cursor:pointer;">🖨️ طباعة الجزء (${idx + 1}) فقط</button>
-                    <button type="button" onclick="document.getElementById('post-split-success-modal').style.display='none'; if(typeof window.openDeliveryForInvoiceFromHub==='function') window.openDeliveryForInvoiceFromHub('${escCNo}', 0, 'primary');" class="kinetic-glow-arm kinetic-arm-emerald" style="flex:1; padding:7px 10px; border-radius:8px; font-size:0.8rem; font-weight:900; cursor:pointer;">📦 تسليم الجزء (${idx + 1}) الآن</button>
+                    <button type="button" onclick="window.printSplitVouchersBatch([window._lastCreatedSplitVouchers.list[${idx}]], '${rootNo}', '${splitSeq}')" class="kinetic-glow-arm kinetic-arm-cyan" style="flex:1; padding:7px 10px; border-radius:8px; font-size:0.78rem; font-weight:900; cursor:pointer;">🖨️ طباعة (${idx + 1})</button>
+                    <button type="button" onclick="window.printSplitDriverAuthPass(window._lastCreatedSplitVouchers.list[${idx}])" class="kinetic-glow-arm" style="flex:1; padding:7px 10px; border-radius:8px; font-size:0.78rem; font-weight:900; cursor:pointer; background:rgba(245,158,11,0.18); border:1.5px solid #fbbf24; color:#fde68a;">📑 تفويض سائق</button>
+                    <button type="button" onclick="window.shareSplitVoucherWhatsApp(${idx})" class="kinetic-glow-arm" style="flex:1; padding:7px 10px; border-radius:8px; font-size:0.78rem; font-weight:900; cursor:pointer; background:rgba(34,197,94,0.2); border:1.5px solid rgba(34,197,94,0.55); color:#86efac;">📲 واتساب (${idx + 1})</button>
+                    <button type="button" onclick="document.getElementById('post-split-success-modal').style.display='none'; if(typeof window.openDeliveryForInvoiceFromHub==='function') window.openDeliveryForInvoiceFromHub('${escCNo}', 0, 'primary');" class="kinetic-glow-arm kinetic-arm-emerald" style="flex:1; padding:7px 10px; border-radius:8px; font-size:0.78rem; font-weight:900; cursor:pointer;">📦 تسليم (${idx + 1})</button>
                 </div>
             </div>
         `;
@@ -7086,6 +7300,130 @@ window.showPostSplitSuccessModal = function(createdInvoices, rootNo, splitSeq) {
         </div>
     `;
     modal.style.display = 'flex';
+};
+
+window.applySplitRatioPreset = function(firstRatio = 0.7) {
+    if (!activeSplitInvoice) return;
+    const S = window.splitSectionsCount || 2;
+    const r0 = Math.max(0.1, Math.min(0.9, parseFloat(firstRatio) || 0.7));
+    (activeSplitInvoice.items || []).forEach((item, idx) => {
+        const meta = window.resolveSplitItemUnitMeta(item);
+        const maxQty = meta.deliverableQty;
+        const firstQty = +(maxQty * r0).toFixed(4);
+        const remQty = Math.max(0, +(maxQty - firstQty).toFixed(4));
+        const otherCount = Math.max(1, S - 1);
+        const perOther = +(remQty / otherCount).toFixed(4);
+        let allocated = firstQty;
+        for (let s = 0; s < S; s++) {
+            const qVal = (s === 0) ? firstQty : (s === S - 1 ? Math.max(0, +(maxQty - allocated).toFixed(4)) : perOther);
+            if (s > 0 && s < S - 1) allocated += qVal;
+            const inp = document.getElementById(`split-qty-s${s}-i${idx}`);
+            const subInp = document.getElementById(`split-subqty-s${s}-i${idx}`);
+            if (inp) inp.value = qVal;
+            if (subInp) subInp.value = +(qVal * meta.factor).toFixed(2);
+        }
+    });
+    window.saveCurrentSplitDraftState();
+    updateSplitCalculations();
+    if (typeof showToast === 'function') showToast(`📊 تم توزيع الكميات بنسبة ${Math.round(r0 * 100)}% للقسم الأول والباقي للأقسام الأخرى`, 'info');
+};
+
+window.separateHeavyItemsSplit = function() {
+    if (!activeSplitInvoice) return;
+    const items = activeSplitInvoice.items || [];
+    if (items.length === 0) return;
+    const S = window.splitSectionsCount || 2;
+    items.forEach((item, idx) => {
+        const meta = window.resolveSplitItemUnitMeta(item);
+        const isHeavy = (meta.factor >= 20) || ((meta.deliverableQty * meta.factor) >= 50);
+        const targetSec = isHeavy ? 0 : Math.min(1, S - 1);
+        for (let s = 0; s < S; s++) {
+            const qVal = (s === targetSec) ? meta.deliverableQty : 0;
+            const inp = document.getElementById(`split-qty-s${s}-i${idx}`);
+            const subInp = document.getElementById(`split-subqty-s${s}-i${idx}`);
+            if (inp) inp.value = qVal;
+            if (subInp) subInp.value = +(qVal * meta.factor).toFixed(2);
+        }
+    });
+    window.saveCurrentSplitDraftState();
+    updateSplitCalculations();
+    if (typeof showToast === 'function') showToast('🏋️ تم فصل الأصناف الثقيلة في القسم (أ) والأصناف الخفيفة في القسم (ب)', 'success');
+};
+
+window.separateSplitItemsIntoSections = function() {
+    if (!activeSplitInvoice) return;
+    const items = activeSplitInvoice.items || [];
+    if (items.length <= 1) {
+        distributeSplitEqually();
+        return;
+    }
+    const targetS = Math.min(6, Math.max(2, items.length));
+    window.splitSectionsCount = targetS;
+    activeSplitInvoice._splitDraftQtys = {};
+    items.forEach((item, idx) => {
+        const meta = window.resolveSplitItemUnitMeta(item);
+        const arr = new Array(targetS).fill(0);
+        arr[idx % targetS] = meta.deliverableQty;
+        activeSplitInvoice._splitDraftQtys[idx] = arr;
+    });
+    renderWorldClassSplitBoard();
+    if (typeof showToast === 'function') showToast(`📦 تم توزيع كل صنف في قسم فرعي مستقل (${targetS} أقسام)`, 'success');
+};
+
+window.quickPickDriverForSplitSec = function(secIdx = 0) {
+    let presets = [];
+    try { presets = JSON.parse(localStorage.getItem('magaies_driver_presets_v1') || '[]'); } catch (_e) {}
+    if (!Array.isArray(presets) || presets.length === 0) {
+        presets = [
+            { driver: 'محمد أحمد (سائق البوابة 1)', plate: 'خ 45812', location: 'المستودع الرئيسي - بوابة 1', phone: '' },
+            { driver: 'عبدالرحمن علي (شاحنة النقل)', plate: 'خ 91204', location: 'موقع العميل المباشر', phone: '' },
+            { driver: 'عمر حسن (توصيل سريع)', plate: 'خ 33190', location: 'فرع التوزيع', phone: '' }
+        ];
+    }
+    const pick = presets[(secIdx + (window._lastDriverPickOffset || 0)) % presets.length];
+    window._lastDriverPickOffset = (window._lastDriverPickOffset || 0) + 1;
+    window._splitSectionMeta[secIdx] = Object.assign(window._splitSectionMeta[secIdx] || {}, {
+        receiverName: pick.driver,
+        truckPlate: pick.plate,
+        deliveryLocation: pick.location || ''
+    });
+    const recEl = document.getElementById(`split-sec-receiver-${secIdx}`);
+    const trkEl = document.getElementById(`split-sec-truck-${secIdx}`);
+    const locEl = document.getElementById(`split-sec-location-${secIdx}`);
+    if (recEl) recEl.value = pick.driver;
+    if (trkEl) trkEl.value = pick.plate;
+    if (locEl && pick.location) locEl.value = pick.location;
+    if (typeof showToast === 'function') showToast(`🚛 تم تعيين "${pick.driver}" (${pick.plate}) للقسم رقم (${secIdx + 1})`, 'info');
+};
+
+window.shareSplitVoucherWhatsApp = function(idx = 0) {
+    const store = window._lastCreatedSplitVouchers;
+    if (!store || !Array.isArray(store.list) || !store.list[idx]) return;
+    const cInv = store.list[idx];
+    const cNo = String(cInv.invoiceNo || cInv.id || '');
+    const lines = [
+        `📄 *إشعار فاتورة / إذن تسليم مجزأ رقم #${cNo}*`,
+        `🔗 المرجع الأصلي: #${store.rootNo} (الجزء ${idx + 1} من ${store.list.length})`,
+        `👤 العميل: ${cInv.customerName || 'عميل نقدي'}`,
+        `🚚 المستلم / السائق: ${cInv.receiverName || cInv.customerName || '—'}`,
+        ...(cInv.truckPlate ? [`🚛 رقم السيارة: ${cInv.truckPlate}`] : []),
+        ...(cInv.deliveryLocation ? [`📍 موقع التسليم: ${cInv.deliveryLocation}`] : []),
+        `──────────────────`,
+        `📦 *الأصناف المعتمدة بهذا الجزء:*`
+    ];
+    (cInv.items || []).forEach((it, i) => {
+        const m = window.resolveSplitItemUnitMeta(it);
+        const q = parseFloat(it.qty ?? it.quantity ?? 0) || 0;
+        const subQ = +(q * m.factor).toFixed(2);
+        lines.push(`${i + 1}. ${m.name}: *${q} ${m.primaryUnit}*${m.factor > 1 ? ` (⇄ ${subQ} ${m.baseUnit})` : ''}`);
+    });
+    lines.push(`──────────────────`);
+    lines.push(`💰 *الصافي النهائي لهذا الجزء:* ${(parseFloat(cInv.grandTotal || cInv.total || 0)).toLocaleString()} ${cInv.currency || 'SDG'}`);
+    const rawPhone = String(cInv.receiverPhone || cInv.customerPhone || cInv.phone || '').replace(/[^\d+]/g, '');
+    const waUrl = rawPhone
+        ? `https://wa.me/${rawPhone.replace(/^\+/, '')}?text=${encodeURIComponent(lines.join('\n'))}`
+        : `https://wa.me/?text=${encodeURIComponent(lines.join('\n'))}`;
+    window.open(waUrl, '_blank', 'noopener,noreferrer');
 };
 
 window.printSplitVouchersBatch = function(vouchersList, rootNo, splitSeq) {
@@ -7146,9 +7484,12 @@ window.printSplitVouchersBatch = function(vouchersList, rootNo, splitSeq) {
                     </thead>
                     <tbody>${rowsHtml}</tbody>
                 </table>
-                <div style="display:flex; justify-content:space-between; margin-top:32px; font-weight:900;">
+                <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-top:32px; font-weight:900;">
                     <div>توقيع أمين المستودع: ________________</div>
-                    <div>توقيع السائق / المستلم: ________________</div>
+                    <div style="text-align:center;">
+                        <div>توقيع السائق / المستلم:</div>
+                        ${inv.driverSignatureDataUrl ? `<img src="${inv.driverSignatureDataUrl}" style="max-height:55px; border-bottom:1.5px solid #000; margin-top:4px;">` : `________________`}
+                    </div>
                     <div>ختم بوابة الخروج: ________________</div>
                 </div>
             </div>
@@ -7166,6 +7507,9 @@ window.printSplitVouchersBatch = function(vouchersList, rootNo, splitSeq) {
             <style>
                 body { font-family: 'Cairo', 'Tajawal', sans-serif; padding: 20px; color: #000; }
                 body.compact-two-per-page .voucher-card { page-break-after: auto !important; margin-bottom: 18px !important; padding-bottom: 14px !important; }
+                body.thermal-80mm { width: 78mm; margin: 0 auto; padding: 4mm; font-size: 11px; }
+                body.thermal-80mm h2 { font-size: 13px !important; }
+                body.thermal-80mm img { width: 80px !important; height: 80px !important; }
                 @media print { .no-print { display: none !important; } }
             </style>
         </head>
@@ -7173,8 +7517,9 @@ window.printSplitVouchersBatch = function(vouchersList, rootNo, splitSeq) {
             <div class="no-print" style="margin-bottom:16px; padding:10px 16px; background:#0f172a; color:#fff; border-radius:10px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
                 <strong>🖨️ جاهز للطباعة: ${totalBranches} أذونات صرف مقسمة من الإذن المرجعي #${rootNo} (عملية تقسيم #${splitSeq})</strong>
                 <div style="display:flex; gap:8px; flex-wrap:wrap;">
-                    <button onclick="document.body.classList.toggle('compact-two-per-page')" style="background:#3b82f6; color:#fff; border:none; padding:8px 14px; border-radius:8px; font-weight:900; cursor:pointer;">📄 تبديل: الجزئين في ورقة واحدة / كل جزء في صفحة</button>
-                    <button onclick="window.print()" style="background:#10b981; color:#fff; border:none; padding:8px 20px; border-radius:8px; font-weight:900; cursor:pointer;">🖨️ طباعة الجزئين / الكل الآن</button>
+                    <button onclick="document.body.classList.remove('thermal-80mm'); document.body.classList.toggle('compact-two-per-page')" style="background:#3b82f6; color:#fff; border:none; padding:8px 14px; border-radius:8px; font-weight:900; cursor:pointer;">📄 A4: الجزئين في ورقة / صفحات مستقلة</button>
+                    <button onclick="document.body.classList.toggle('thermal-80mm')" style="background:#8b5cf6; color:#fff; border:none; padding:8px 14px; border-radius:8px; font-weight:900; cursor:pointer;">🧾 إيصال كاشير حراري 80mm</button>
+                    <button onclick="window.print()" style="background:#10b981; color:#fff; border:none; padding:8px 20px; border-radius:8px; font-weight:900; cursor:pointer;">🖨️ طباعة الآن</button>
                 </div>
             </div>
             ${pagesHtml}
@@ -7232,16 +7577,47 @@ window.printSplitFamilyVouchers = function(invIdentifier) {
     }
 };
 
-window.openSplitGenealogyModal = function(invIdentifier) {
-    const allSales = JSON.parse(localStorage.getItem('erp_sales_invoices_v1') || '[]');
+window.openSplitGenealogyModal = function(invIdentifier, isGuideDemo = false) {
+    const allSales = (typeof window.getMergedSalesInvoicesForSplit === 'function')
+        ? window.getMergedSalesInvoicesForSplit()
+        : JSON.parse(localStorage.getItem('erp_sales_invoices_v1') || '[]');
     const target = allSales.find(x => String(x.invoiceNo || x.id) === String(invIdentifier));
-    const rootNo = target ? window.getRootInvoiceNo(target) : window.getRootInvoiceNo(invIdentifier);
+    const rootNo = target ? window.getRootInvoiceNo(target) : (window.getRootInvoiceNo(invIdentifier) || '100');
     if (!rootNo) return;
 
     const family = allSales.filter(x => window.getRootInvoiceNo(x) === rootNo);
-    const rootDoc = family.find(x => String(x.invoiceNo || x.id) === rootNo) || target;
-    const activeBranches = family.filter(x => !x.deleted && !x.wasSplit && String(x.invoiceNo || x.id) !== rootNo);
+    const rootDoc = family.find(x => String(x.invoiceNo || x.id) === rootNo) || target || window.activeSplitInvoice || { customerName: 'عميل تجريبي لمعاينة شجرة التقسيم', currency: 'SDG' };
+    let activeBranches = family.filter(x => !x.deleted && !x.wasSplit && String(x.invoiceNo || x.id) !== rootNo);
     const archivedSplits = family.filter(x => x.wasSplit);
+
+    if (activeBranches.length === 0 && (isGuideDemo || (window.activeSplitInvoice && window.activeSplitInvoice._isGuideDemo))) {
+        activeBranches = [
+            {
+                invoiceNo: `${rootNo}/1/1`,
+                id: `${rootNo}/1/1`,
+                splitBatchNo: 1,
+                splitBranchIndex: 1,
+                splitTotalBranches: 2,
+                grandTotal: 50000,
+                currency: 'SDG',
+                deliveryStatus: 'pending',
+                items: [{ name: 'سكر أبيض عبوة 50 كجم', qty: 5, primaryUnit: 'جوال', baseUnit: 'كيلو', conversionFactor: 50 }]
+            },
+            {
+                invoiceNo: `${rootNo}/1/2`,
+                id: `${rootNo}/1/2`,
+                splitBatchNo: 1,
+                splitBranchIndex: 2,
+                splitTotalBranches: 2,
+                grandTotal: 50000,
+                currency: 'SDG',
+                deliveryStatus: 'delivered',
+                isDelivered: true,
+                deliveryNo: 'GDN-100-1',
+                items: [{ name: 'سكر أبيض عبوة 50 كجم', qty: 5, primaryUnit: 'جوال', baseUnit: 'كيلو', conversionFactor: 50 }]
+            }
+        ];
+    }
 
     let modal = document.getElementById('split-genealogy-tree-modal');
     if (!modal) {
@@ -7275,11 +7651,12 @@ window.openSplitGenealogyModal = function(invIdentifier) {
                 <td style="padding:10px; text-align:center; font-family:monospace; font-weight:900; color:#10b981;">${(parseFloat(b.grandTotal || b.total || 0)).toLocaleString()} ${b.currency || 'SDG'}</td>
                 <td style="padding:10px; text-align:center;">${statusBadge}</td>
                 <td style="padding:10px; text-align:center;">
-                    <div style="display:flex; gap:6px; justify-content:center;">
+                    <div style="display:flex; gap:6px; justify-content:center; flex-wrap:wrap;">
                         ${!isDel ? `
                         <button onclick="document.getElementById('split-genealogy-tree-modal').style.display='none'; if(typeof openWorldClassDeliveryModal==='function'){openDeliveryHub(); setTimeout(()=>openWorldClassDeliveryModal('${escBNo}'),60);}" class="kinetic-glow-arm kinetic-arm-emerald" style="padding:4px 10px; border-radius:7px; font-size:0.76rem; font-weight:900; cursor:pointer;">📦 صرف</button>
                         <button onclick="document.getElementById('split-genealogy-tree-modal').style.display='none'; window.openSplitForInvoiceFromDelivery('${escBNo}');" class="kinetic-glow-arm kinetic-arm-pink" style="padding:4px 10px; border-radius:7px; font-size:0.76rem; font-weight:900; cursor:pointer;">✂️ تقسيم إضافي</button>
                         ` : ''}
+                        <button onclick="window.printSplitDriverAuthPass('${escBNo}')" style="background:rgba(245,158,11,0.18); border:1px solid #fbbf24; color:#fde68a; padding:4px 10px; border-radius:7px; font-size:0.76rem; font-weight:900; cursor:pointer;">📑 تفويض</button>
                         <button onclick="if(typeof printOfficialGdnGatePass==='function') printOfficialGdnGatePass('${escBNo}');" class="kinetic-glow-arm kinetic-arm-cyan" style="padding:4px 10px; border-radius:7px; font-size:0.76rem; font-weight:900; cursor:pointer;">🖨️ طباعة</button>
                     </div>
                 </td>
@@ -7289,12 +7666,15 @@ window.openSplitGenealogyModal = function(invIdentifier) {
 
     modal.innerHTML = `
         <div style="width:95vw; max-width:1050px; max-height:90vh; overflow-y:auto; background:linear-gradient(160deg, #070c18, #0f172a, #170d26); border:2px solid rgba(236,72,153,0.55); border-radius:20px; padding:22px; box-shadow:0 30px 90px rgba(0,0,0,0.9), 0 0 40px rgba(236,72,153,0.25); color:#fff;">
-            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1.5px solid rgba(236,72,153,0.3); padding-bottom:12px; margin-bottom:16px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1.5px solid rgba(236,72,153,0.3); padding-bottom:12px; margin-bottom:16px; flex-wrap:wrap; gap:8px;">
                 <div>
                     <h3 style="margin:0; font-size:1.3rem; font-weight:900; color:#f8fafc;">🌳 شجرة النسب والتتبع للإذن المرجعي الأصلي <span style="color:#38bdf8; font-family:'Outfit',monospace;">#${rootNo}</span></h3>
                     <p style="margin:4px 0 0; font-size:0.84rem; color:#cbd5e1;">العميل: <b>${rootDoc?.customerName || 'عميل نقدي'}</b> • عدد الأقسام الفرعية النشطة: <b>${activeBranches.length}</b> • عمليات التقسيم المسجلة: <b>${archivedSplits.length}</b></p>
                 </div>
-                <button onclick="document.getElementById('split-genealogy-tree-modal').style.display='none'" style="background:rgba(239,68,68,0.2); border:1px solid rgba(239,68,68,0.5); color:#fca5a5; border-radius:10px; padding:6px 14px; font-weight:900; cursor:pointer;">✕ إغلاق</button>
+                <div style="display:flex; gap:8px; align-items:center;">
+                    <button type="button" onclick="window.safeReverseAndMergeSplitFamily('${rootNo.replace(/'/g, "\\'")}')" style="background:rgba(16,185,129,0.2); border:1.5px solid #34d399; color:#6ee7b7; border-radius:10px; padding:6px 14px; font-weight:900; cursor:pointer;">🔄 دمج / التراجع الآمن عن التجزئة</button>
+                    <button onclick="document.getElementById('split-genealogy-tree-modal').style.display='none'" style="background:rgba(239,68,68,0.2); border:1px solid rgba(239,68,68,0.5); color:#fca5a5; border-radius:10px; padding:6px 14px; font-weight:900; cursor:pointer;">✕ إغلاق</button>
+                </div>
             </div>
             <table style="width:100%; border-collapse:collapse;">
                 <thead>
@@ -7311,6 +7691,1116 @@ window.openSplitGenealogyModal = function(invIdentifier) {
                     ${branchesRows || `<tr><td colspan="6" style="padding:24px; text-align:center; color:#94a3b8;">لا توجد فروع نشطة</td></tr>`}
                 </tbody>
             </table>
+        </div>
+    `;
+    modal.style.display = 'flex';
+};
+
+window.previewGuidePostSplitSuccessModal = function() {
+    if (window._lastCreatedSplitVouchers && Array.isArray(window._lastCreatedSplitVouchers.list) && window._lastCreatedSplitVouchers.list.length > 0) {
+        window.showPostSplitSuccessModal(window._lastCreatedSplitVouchers.list, window._lastCreatedSplitVouchers.rootNo, window._lastCreatedSplitVouchers.splitSeq);
+        return;
+    }
+    const baseInv = window.activeSplitInvoice || { invoiceNo: '100', customerName: 'عميل تجريبي', currency: 'SDG' };
+    const rootNo = window.getRootInvoiceNo ? window.getRootInvoiceNo(baseInv) : '100';
+    const demoChildren = [
+        {
+            invoiceNo: `${rootNo}/1/1`,
+            id: `${rootNo}/1/1`,
+            customerName: baseInv.customerName || 'عميل تجريبي',
+            receiverName: 'محمد أحمد (سائق البوابة 1)',
+            truckPlate: 'خ 45812',
+            deliveryLocation: 'المستودع الرئيسي - بوابة 1',
+            grandTotal: 50000,
+            currency: baseInv.currency || 'SDG',
+            items: [{ name: 'سكر أبيض عبوة 50 كجم', qty: 5, primaryUnit: 'جوال', baseUnit: 'كيلو', conversionFactor: 50 }]
+        },
+        {
+            invoiceNo: `${rootNo}/1/2`,
+            id: `${rootNo}/1/2`,
+            customerName: baseInv.customerName || 'عميل نقدي',
+            receiverName: 'عبدالرحمن علي (شاحنة النقل)',
+            truckPlate: 'خ 91204',
+            deliveryLocation: 'موقع العميل المباشر',
+            grandTotal: 50000,
+            currency: baseInv.currency || 'SDG',
+            items: [{ name: 'سكر أبيض عبوة 50 كجم', qty: 5, primaryUnit: 'جوال', baseUnit: 'كيلو', conversionFactor: 50 }]
+        }
+    ];
+    window.showPostSplitSuccessModal(demoChildren, rootNo, 1);
+};
+
+window.speakSplitMaleVoice = function(text) {
+    if (!text) return;
+    if (typeof window.speakSmartGuideMale === 'function') {
+        window.speakSmartGuideMale(text);
+        return;
+    }
+    try {
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.cancel();
+            window.speechSynthesis.resume();
+            const u = new SpeechSynthesisUtterance(text);
+            u.lang = 'ar-SA';
+            u.pitch = 0.88;
+            u.rate = 0.96;
+            const voices = window.speechSynthesis.getVoices() || [];
+            const arMale = voices.find(v => /ar/i.test(v.lang) && /(hamed|naayf|maged|tarik|male|osama|shakir)/i.test(v.name)) || voices.find(v => /ar/i.test(v.lang));
+            if (arMale) u.voice = arMale;
+            window.speechSynthesis.speak(u);
+        }
+    } catch (_e) {}
+};
+
+window.readSplitSummaryAloud = function() {
+    if (!window.activeSplitInvoice && typeof window.ensureDemoOrFirstSplitBoardLoaded === 'function') {
+        window.ensureDemoOrFirstSplitBoardLoaded();
+    }
+    const inv = window.activeSplitInvoice;
+    if (!inv) return;
+    const S = window.splitSectionsCount || 2;
+    const rootNo = window.getRootInvoiceNo ? window.getRootInvoiceNo(inv) : (inv.invoiceNo || '100');
+    const splitSeq = window.currentSplitOperationSeq || 1;
+    const currency = inv.currency || 'SDG';
+    const parts = [];
+    for (let s = 0; s < S; s++) {
+        let qSum = 0;
+        let subSum = 0;
+        (inv.items || []).forEach((it, idx) => {
+            const m = window.resolveSplitItemUnitMeta(it);
+            const inp = document.getElementById(`split-qty-s${s}-i${idx}`);
+            const q = inp ? (parseFloat(inp.value) || 0) : 0;
+            qSum += q;
+            subSum += q * m.price;
+        });
+        const rec = document.getElementById(`split-sec-receiver-${s}`)?.value || window._splitSectionMeta?.[s]?.receiverName || 'بدون سائق محدد';
+        parts.push(`القسم رقم ${s + 1} برقم فرعي ${rootNo} على ${splitSeq} على ${s + 1}، إجمالي كمياته ${+qSum.toFixed(2)} وحدة، بقيمة ${Math.round(subSum).toLocaleString('en-US')} ${currency}، والمستلم ${rec}`);
+    }
+    const msg = `ملخص تجزئة الفاتورة رقم ${rootNo} إلى ${S} أقسام: ${parts.join('؛ و')}.`;
+    window.speakSplitMaleVoice(msg);
+    if (typeof showToast === 'function') showToast('🔊 جاري قراءة ملخص التجزئة وحصة كل سائق بالصوت الرجالي...', 'info');
+};
+
+window.executeSplitVoiceCommand = function(rawText) {
+    const cmd = window.normalizeSplitArabicText(rawText || '');
+    if (!cmd) return;
+    const statusEl = document.getElementById('split-voice-cmd-status');
+    const setStatus = (txt) => { if (statusEl) statusEl.innerHTML = txt; };
+
+    if (!window.activeSplitInvoice && typeof window.ensureDemoOrFirstSplitBoardLoaded === 'function') {
+        window.ensureDemoOrFirstSplitBoardLoaded();
+    }
+    if (cmd.includes('بالتساوي') || cmd.includes('نصف') || cmd.includes('تساوي')) {
+        distributeSplitEqually();
+        setStatus('✅ تم تنفيذ الأمر: توزيع الكميات بالتساوي على جميع الأقسام');
+        window.speakSplitMaleVoice('تم توزيع الكميات بالتساوي على جميع الأقسام بنجاح.');
+    } else if (cmd.includes('سبعين') || cmd.includes('70')) {
+        window.applySplitRatioPreset(0.7);
+        setStatus('✅ تم تنفيذ الأمر: توزيع 70% للقسم الأول و30% للمتبقي');
+        window.speakSplitMaleVoice('تم توزيع الكميات بنسبة سبعين بالمائة للقسم الأول وثلاثين بالمائة للقسم الثاني.');
+    } else if (cmd.includes('ثقيل')) {
+        window.separateHeavyItemsSplit();
+        setStatus('✅ تم تنفيذ الأمر: فصل الأصناف الثقيلة في القسم (أ)');
+        window.speakSplitMaleVoice('تم فصل الأصناف الثقيلة في القسم الأول والأصناف الخفيفة في القسم الثاني.');
+    } else if (cmd.includes('قسم جديد') || cmd.includes('اضف قسم') || cmd.includes('اضافه قسم')) {
+        addSplitSection();
+        setStatus('✅ تم تنفيذ الأمر: إضافة قسم فرعي جديد');
+        window.speakSplitMaleVoice('تمت إضافة قسم فرعي جديد إلى لوحة التجزئة.');
+    } else if (cmd.includes('سائق') || cmd.includes('سياره')) {
+        window.quickPickDriverForSplitSec(0);
+        window.quickPickDriverForSplitSec(1);
+        setStatus('✅ تم تنفيذ الأمر: تعيين السائقين والسيارات للأقسام');
+        window.speakSplitMaleVoice('تم تعيين السائقين وأرقام اللوحات ومواقع التسليم للأقسام الفرعية.');
+    } else if (cmd.includes('ملخص') || cmd.includes('اقرا') || cmd.includes('قراءه')) {
+        window.readSplitSummaryAloud();
+        setStatus('🔊 جاري قراءة ملخص التجزئة...');
+    } else if (cmd.includes('اعتماد') || cmd.includes('حفظ')) {
+        setStatus('✅ جاري اعتماد التقسيم...');
+        window.speakSplitMaleVoice('جاري التحقق من التوازن واعتماد تقسيم الفاتورة.');
+        submitInvoiceSplit(false);
+    } else if (cmd.includes('اشرح') || cmd.includes('مرشد')) {
+        const m = document.getElementById('split-voice-assistant-modal');
+        if (m) m.style.display = 'none';
+        if (typeof window.openSmartGuide === 'function') window.openSmartGuide('sales-split');
+    } else {
+        setStatus(`💡 تم سماع: "${rawText}" — اختر أحد الأوامر السريعة بالأسفل أو أعد النطق`);
+    }
+};
+
+window.openSplitVoiceAssistantModal = function() {
+    let modal = document.getElementById('split-voice-assistant-modal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'split-voice-assistant-modal';
+        modal.style.cssText = 'display:none; position:fixed; inset:0; background:rgba(2,6,23,0.86); backdrop-filter:blur(10px); z-index:9999999; align-items:center; justify-content:center; direction:rtl; font-family:"Tajawal",sans-serif; padding:16px;';
+        document.body.appendChild(modal);
+    }
+    modal.innerHTML = `
+        <div style="width:94vw; max-width:560px; background:linear-gradient(160deg,#0f172a,#020617); border:2px solid #fbbf24; border-radius:18px; padding:20px; color:#fff; box-shadow:0 24px 70px rgba(0,0,0,0.9);">
+            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1.5px solid rgba(251,191,36,0.3); padding-bottom:10px; margin-bottom:14px;">
+                <h3 style="margin:0; font-size:1.15rem; font-weight:900; color:#fde68a;">🎙️ المساعد الصوتي التفاعلي للتجزئة السريعة</h3>
+                <button type="button" onclick="document.getElementById('split-voice-assistant-modal').style.display='none'" style="background:rgba(239,68,68,0.2); border:1px solid #f87171; color:#fecaca; border-radius:8px; padding:4px 12px; font-weight:900; cursor:pointer;">✕ إغلاق</button>
+            </div>
+            <p style="margin:0 0 12px; font-size:0.86rem; color:#cbd5e1;">انطق أمر التجزئة بالعربية أو اضغط على أي أمر فوري لتنفيذه وسماع التأكيد بالصوت الرجالي:</p>
+            <div style="display:flex; gap:8px; margin-bottom:12px;">
+                <input type="text" id="split-voice-cmd-input" placeholder="مثال: بالتساوي، سبعين ثلاثين، قسم جديد، سائق سريع، ملخص..." style="flex:1; background:#020617; border:1.5px solid #38bdf8; color:#fff; border-radius:10px; padding:9px 12px; font-weight:800;" onkeydown="if(event.key==='Enter') window.executeSplitVoiceCommand(this.value)">
+                <button type="button" onclick="window.startSplitSpeechRecognition()" style="background:linear-gradient(135deg,#f59e0b,#d97706); border:none; color:#fff; border-radius:10px; padding:0 14px; font-weight:900; cursor:pointer;">🎤 تحدث</button>
+                <button type="button" onclick="window.executeSplitVoiceCommand(document.getElementById('split-voice-cmd-input').value)" style="background:linear-gradient(135deg,#10b981,#059669); border:none; color:#fff; border-radius:10px; padding:0 14px; font-weight:900; cursor:pointer;">تنفيذ</button>
+            </div>
+            <div id="split-voice-cmd-status" style="background:rgba(16,185,129,0.12); border:1px solid rgba(52,211,153,0.4); color:#6ee7b7; padding:8px 12px; border-radius:10px; font-size:0.84rem; font-weight:900; margin-bottom:12px;">🎙️ جاهز لاستقبال أمرك الصوتي أو النقرة المباشرة</div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+                <button type="button" onclick="window.executeSplitVoiceCommand('بالتساوي')" style="background:rgba(56,189,248,0.16); border:1px solid #38bdf8; color:#7dd3fc; padding:8px; border-radius:9px; font-weight:900; cursor:pointer;">⚖️ «وزّع بالتساوي»</button>
+                <button type="button" onclick="window.executeSplitVoiceCommand('سبعين ثلاثين')" style="background:rgba(245,158,11,0.16); border:1px solid #fbbf24; color:#fde68a; padding:8px; border-radius:9px; font-weight:900; cursor:pointer;">📊 «سبعين ثلاثين (70/30)»</button>
+                <button type="button" onclick="window.executeSplitVoiceCommand('فصل الثقيل')" style="background:rgba(168,85,247,0.16); border:1px solid #c084fc; color:#e9d5ff; padding:8px; border-radius:9px; font-weight:900; cursor:pointer;">🏋️ «افصل الأصناف الثقيلة»</button>
+                <button type="button" onclick="window.executeSplitVoiceCommand('سائق سريع')" style="background:rgba(16,185,129,0.16); border:1px solid #34d399; color:#6ee7b7; padding:8px; border-radius:9px; font-weight:900; cursor:pointer;">🚛 «عيّن السائقين والسيارات»</button>
+                <button type="button" onclick="window.executeSplitVoiceCommand('قسم جديد')" style="background:rgba(236,72,153,0.16); border:1px solid #f472b6; color:#fbcfe8; padding:8px; border-radius:9px; font-weight:900; cursor:pointer;">➕ «أضف قسماً جديداً»</button>
+                <button type="button" onclick="window.executeSplitVoiceCommand('اقرأ الملخص')" style="background:rgba(34,197,94,0.16); border:1px solid #4ade80; color:#86efac; padding:8px; border-radius:9px; font-weight:900; cursor:pointer;">🔊 «اقرأ ملخص التجزئة»</button>
+            </div>
+        </div>
+    `;
+    modal.style.display = 'flex';
+};
+
+window.startSplitSpeechRecognition = function() {
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const statusEl = document.getElementById('split-voice-cmd-status');
+    if (!SR) {
+        if (statusEl) statusEl.textContent = '⚠️ المتصفح الحالي لا يدعم المايك المباشر — اكتب الأمر أو اضغط أحد الأزرار الفورية بالأسفل.';
+        return;
+    }
+    try {
+        const rec = new SR();
+        rec.lang = 'ar-SA';
+        rec.interimResults = false;
+        if (statusEl) statusEl.textContent = '🎤 تفضل بالتحدث الآن (مثلاً: بالتساوي، سبعين ثلاثين، سائق سريع)...';
+        rec.onresult = (e) => {
+            const txt = e.results?.[0]?.[0]?.transcript || '';
+            const inp = document.getElementById('split-voice-cmd-input');
+            if (inp) inp.value = txt;
+            window.executeSplitVoiceCommand(txt);
+        };
+        rec.onerror = () => {
+            if (statusEl) statusEl.textContent = '💡 لم نتمكن من التقاط الصوت، يمكنك الضغط على أي زر أمر فوري بالأسفل.';
+        };
+        rec.start();
+    } catch (_e) {}
+};
+
+window.openSplitHandsOnSimulatorModal = function(stepNo = 1) {
+    let modal = document.getElementById('split-hands-on-sim-modal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'split-hands-on-sim-modal';
+        modal.style.cssText = 'display:none; position:fixed; inset:0; background:rgba(2,6,23,0.86); backdrop-filter:blur(10px); z-index:9999999; align-items:center; justify-content:center; direction:rtl; font-family:"Tajawal",sans-serif; padding:16px;';
+        document.body.appendChild(modal);
+    }
+    const steps = [
+        {
+            no: 1,
+            title: 'الخطوة 1 من 3: فتح لوحة التجزئة وتوليد الأرقام التسلسلية الهرمية',
+            desc: 'سنقوم الآن بفتح فاتورة تجريبية (#100) وتوليد قسمين فرعيين برقم (#100/1/1 و #100/1/2) تلقائياً أمامك.',
+            btnText: '🚀 نفّذ الخطوة 1 عملياً وانتقل للخطوة 2',
+            run: () => {
+                if (typeof window.ensureDemoOrFirstSplitBoardLoaded === 'function') window.ensureDemoOrFirstSplitBoardLoaded();
+                window.speakSplitMaleVoice('الخطوة الأولى مكتملة: تم فتح لوحة التجزئة وتوليد الأرقام الفرعية المتسلسلة مئة على واحد على واحد ومئة على واحد على اثنين.');
+                window.openSplitHandsOnSimulatorModal(2);
+            }
+        },
+        {
+            no: 2,
+            title: 'الخطوة 2 من 3: التوزيع المتوازن بالوحدة الأساسية والفرعية',
+            desc: 'الآن سنقوم بتوزيع الكمية بالتساوي (50% / 50%) بين القسمين مع موازنة الوحدات الكبرى والفرعية بنسبة 100%.',
+            btnText: '⚖️ نفّذ التوزيع المتوازن وانتقل للخطوة 3',
+            run: () => {
+                if (typeof distributeSplitEqually === 'function') distributeSplitEqually();
+                window.speakSplitMaleVoice('الخطوة الثانية مكتملة: تم توزيع الكميات بالتساوي بالوحدة الأساسية والفرعية وأصبح ميزان التطابق مئة بالمائة.');
+                window.openSplitHandsOnSimulatorModal(3);
+            }
+        },
+        {
+            no: 3,
+            title: 'الخطوة 3 من 3: تعيين السائقين ومعاينة شاشة الأذونات الوليدة',
+            desc: 'الآن سنعيّن سائقاً ورقم سيارة وموقع تسليم مستقل لكل قسم، ونفتح شاشة الأذونات الوليدة الجاهزة للطباعة والواتساب.',
+            btnText: '🏆 إتمام التدريب العملي ومعاينة الأذونات الوليدة',
+            run: () => {
+                window.quickPickDriverForSplitSec(0);
+                window.quickPickDriverForSplitSec(1);
+                modal.style.display = 'none';
+                window.previewGuidePostSplitSuccessModal();
+                window.speakSplitMaleVoice('مبارك لك! لقد أتقنت دورة تجزئة الفواتير وتعيين السائقين وإصدار الأذونات الفرعية بنسبة مئة بالمائة.');
+            }
+        }
+    ];
+    const cur = steps[Math.max(0, Math.min(2, stepNo - 1))];
+    window._runSplitSimCurrentStep = cur.run;
+    modal.innerHTML = `
+        <div style="width:94vw; max-width:560px; background:linear-gradient(160deg,#1e1b4b,#0f172a); border:2px solid #c084fc; border-radius:18px; padding:22px; color:#fff; box-shadow:0 24px 70px rgba(0,0,0,0.92);">
+            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1.5px solid rgba(192,132,252,0.3); padding-bottom:10px; margin-bottom:14px;">
+                <h3 style="margin:0; font-size:1.15rem; font-weight:900; color:#e9d5ff;">🎯 محاكي التدريب العملي لتجزئة الفواتير (3 خطوات)</h3>
+                <button type="button" onclick="document.getElementById('split-hands-on-sim-modal').style.display='none'" style="background:rgba(239,68,68,0.2); border:1px solid #f87171; color:#fecaca; border-radius:8px; padding:4px 12px; font-weight:900; cursor:pointer;">✕ إغلاق</button>
+            </div>
+            <div style="display:flex; gap:8px; margin-bottom:14px;">
+                ${[1, 2, 3].map(n => `<div style="flex:1; text-align:center; padding:6px; border-radius:8px; font-weight:900; font-size:0.82rem; background:${n === cur.no ? '#9333ea' : (n < cur.no ? 'rgba(16,185,129,0.25)' : 'rgba(255,255,255,0.06)')}; border:1px solid ${n === cur.no ? '#e9d5ff' : 'rgba(255,255,255,0.15)'};">${n < cur.no ? '✅' : '🎯'} خطوة ${n}</div>`).join('')}
+            </div>
+            <div style="background:rgba(2,6,23,0.65); border:1.5px solid rgba(192,132,252,0.4); border-radius:12px; padding:14px; margin-bottom:16px;">
+                <div style="font-weight:900; font-size:1rem; color:#fde047; margin-bottom:6px;">${cur.title}</div>
+                <div style="font-size:0.88rem; color:#e2e8f0; line-height:1.6;">${cur.desc}</div>
+            </div>
+            <div style="display:flex; justify-content:space-between; gap:10px;">
+                <button type="button" onclick="if(typeof window._runSplitSimCurrentStep==='function') window._runSplitSimCurrentStep()" style="flex:1; background:linear-gradient(135deg,#10b981,#059669); border:1.5px solid #6ee7b7; color:#fff; padding:11px 16px; border-radius:11px; font-weight:900; font-size:0.94rem; cursor:pointer;">${cur.btnText}</button>
+            </div>
+        </div>
+    `;
+    modal.style.display = 'flex';
+};
+
+window.openSplitDrillDownDocModal = function(invIdentifier) {
+    const allSales = window.getMergedSalesInvoicesForSplit();
+    const inv = allSales.find(x => String(x.invoiceNo || x.id) === String(invIdentifier)) || window.activeSplitInvoice;
+    if (!inv) return;
+    const invNo = String(inv.invoiceNo || inv.id || '');
+    const rootNo = window.getRootInvoiceNo ? window.getRootInvoiceNo(inv) : invNo;
+    let customersList = [];
+    try { customersList = JSON.parse(localStorage.getItem('erp_customers_v1') || '[]'); } catch (_e) {}
+    const custObj = customersList.find(c => String(c.id) === String(inv.customer || inv.customerId) || c.name === inv.customerName);
+    const custBal = custObj ? (parseFloat(custObj.currentBalance || custObj.balance || 0) || 0) : 0;
+
+    let modal = document.getElementById('split-drilldown-doc-modal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'split-drilldown-doc-modal';
+        modal.style.cssText = 'display:none; position:fixed; inset:0; background:rgba(2,6,23,0.88); backdrop-filter:blur(12px); z-index:9999999; align-items:center; justify-content:center; direction:rtl; font-family:"Tajawal",sans-serif; padding:16px;';
+        document.body.appendChild(modal);
+    }
+
+    const itemsRows = (inv.items || []).map((it, i) => {
+        const m = window.resolveSplitItemUnitMeta(it);
+        return `
+            <tr style="border-bottom:1px solid rgba(255,255,255,0.08);">
+                <td style="padding:8px; text-align:center; font-weight:900;">${i + 1}</td>
+                <td style="padding:8px; font-weight:900;">${m.name}</td>
+                <td style="padding:8px; text-align:center; font-weight:900; color:#38bdf8;">${m.origQty} ${m.primaryUnit}</td>
+                <td style="padding:8px; text-align:center; font-weight:900; color:#6ee7b7;">${m.deliverableQty} ${m.primaryUnit} ${m.factor > 1 ? `(${m.deliverableBaseQty} ${m.baseUnit})` : ''}</td>
+                <td style="padding:8px; text-align:left; font-family:monospace; font-weight:900;">${m.price.toLocaleString()}</td>
+                <td style="padding:8px; text-align:left; font-family:monospace; font-weight:900; color:#10b981;">${(m.deliverableQty * m.price).toLocaleString()}</td>
+            </tr>
+        `;
+    }).join('');
+
+    modal.innerHTML = `
+        <div style="width:94vw; max-width:780px; max-height:90vh; overflow-y:auto; background:linear-gradient(160deg,#0f172a,#020617); border:2px solid #38bdf8; border-radius:18px; padding:22px; color:#fff; box-shadow:0 24px 80px rgba(0,0,0,0.92);">
+            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1.5px solid rgba(56,189,248,0.3); padding-bottom:10px; margin-bottom:14px; flex-wrap:wrap; gap:8px;">
+                <div>
+                    <h3 style="margin:0; font-size:1.2rem; font-weight:900; color:#7dd3fc;">🔍 أصل المستند والبصمة الرقابية — فاتورة رقم #${invNo}</h3>
+                    <div style="font-size:0.8rem; color:#94a3b8; font-weight:800; margin-top:4px;">📌 الأصل المرجعي: #${rootNo} | 📅 التاريخ: ${inv.date || '—'} | 🛡️ المستخدم: ${inv.splitByName || inv.createdByName || 'المسؤول'} | 💻 الجهاز: ${navigator.platform || 'Web ERP'}</div>
+                </div>
+                <button type="button" onclick="document.getElementById('split-drilldown-doc-modal').style.display='none'" style="background:rgba(239,68,68,0.2); border:1px solid #f87171; color:#fecaca; border-radius:8px; padding:5px 14px; font-weight:900; cursor:pointer;">✕ إغلاق</button>
+            </div>
+            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(170px, 1fr)); gap:8px; margin-bottom:14px;">
+                <div style="background:rgba(2,6,23,0.65); border:1px solid rgba(56,189,248,0.35); border-radius:10px; padding:8px 12px;">
+                    <div style="font-size:0.75rem; color:#94a3b8;">👤 العميل:</div>
+                    <strong style="font-size:0.95rem; color:#fff;">${inv.customerName || 'عميل نقدي'}</strong>
+                </div>
+                <div style="background:rgba(2,6,23,0.65); border:1px solid rgba(16,185,129,0.35); border-radius:10px; padding:8px 12px;">
+                    <div style="font-size:0.75rem; color:#94a3b8;">📊 رصيد العميل الحي:</div>
+                    <strong style="font-size:0.95rem; color:#6ee7b7; font-family:monospace;">${custBal.toLocaleString()} ${inv.currency || 'SDG'}</strong>
+                </div>
+                <div style="background:rgba(2,6,23,0.65); border:1px solid rgba(236,72,153,0.35); border-radius:10px; padding:8px 12px;">
+                    <div style="font-size:0.75rem; color:#94a3b8;">💳 طريقة الدفع:</div>
+                    <strong style="font-size:0.95rem; color:#f9a8d4;">${inv.paymentMethod === 'credit' ? '✍️ آجل (ذمم)' : '💵 نقدي / بنكي'}</strong>
+                </div>
+                <div style="background:rgba(2,6,23,0.65); border:1px solid rgba(251,191,36,0.35); border-radius:10px; padding:8px 12px;">
+                    <div style="font-size:0.75rem; color:#94a3b8;">💰 صافي الفاتورة:</div>
+                    <strong style="font-size:1.05rem; color:#fde047; font-family:monospace;">${(parseFloat(inv.grandTotal || inv.total || 0)).toLocaleString()} ${inv.currency || 'SDG'}</strong>
+                </div>
+            </div>
+            <table style="width:100%; border-collapse:collapse; margin-bottom:14px;">
+                <thead>
+                    <tr style="background:rgba(15,23,42,0.9); color:#94a3b8; font-size:0.8rem;">
+                        <th style="padding:8px;">#</th>
+                        <th style="padding:8px; text-align:right;">الصنف</th>
+                        <th style="padding:8px;">الكمية الأصلية</th>
+                        <th style="padding:8px;">المتبقي للتجزئة</th>
+                        <th style="padding:8px; text-align:left;">السعر</th>
+                        <th style="padding:8px; text-align:left;">الإجمالي</th>
+                    </tr>
+                </thead>
+                <tbody>${itemsRows}</tbody>
+            </table>
+            <div style="display:flex; justify-content:space-between; gap:8px; flex-wrap:wrap;">
+                <button type="button" onclick="document.getElementById('split-drilldown-doc-modal').style.display='none'; startInvoiceSplit('${invNo.replace(/'/g, "\\'")}');" class="kinetic-glow-arm kinetic-arm-pink" style="padding:9px 18px; border-radius:10px; font-weight:900; cursor:pointer;">✂️ فتح لوحة تجزئة هذه الفاتورة الآن</button>
+                <button type="button" onclick="window.openSplitGenealogyModal('${invNo.replace(/'/g, "\\'")}')" class="kinetic-glow-arm kinetic-arm-cyan" style="padding:9px 18px; border-radius:10px; font-weight:900; cursor:pointer;">🌳 عرض شجرة النسب</button>
+            </div>
+        </div>
+    `;
+    modal.style.display = 'flex';
+};
+
+window.exportSplitInvoicesToExcel = function() {
+    const list = window._lastFilteredSplitInvoices || window.getMergedSalesInvoicesForSplit();
+    if (!Array.isArray(list) || list.length === 0) {
+        if (typeof showToast === 'function') showToast('⚠️ لا توجد فواتير لتصديرها', 'warning');
+        return;
+    }
+    const headers = ['رقم الفاتورة', 'الأصل المرجعي', 'التاريخ', 'العميل', 'طريقة الدفع', 'الأصناف المتبقية', 'الصافي المالي', 'العملة', 'المستخدم'];
+    const rowsCsv = list.map(inv => {
+        const itemsTxt = (inv.items || []).map(it => {
+            const m = window.resolveSplitItemUnitMeta(it);
+            return `${m.name} (${m.deliverableQty} ${m.primaryUnit})`;
+        }).join(' | ');
+        return [
+            inv.invoiceNo || inv.id || '',
+            window.getRootInvoiceNo ? window.getRootInvoiceNo(inv) : '',
+            inv.date || '',
+            inv.customerName || 'عميل نقدي',
+            inv.paymentMethod === 'credit' ? 'آجل' : 'نقدي',
+            itemsTxt,
+            parseFloat(inv.grandTotal ?? inv.total ?? 0) || 0,
+            inv.currency || 'SDG',
+            inv.splitByName || inv.createdByName || 'المسؤول'
+        ].map(v => `"${String(v ?? '').replace(/"/g, '""')}"`).join(',');
+    });
+    const csvContent = '\uFEFF' + [headers.join(','), ...rowsCsv].join('\r\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `split_invoices_${new Date().toISOString().slice(0, 10)}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    if (typeof showToast === 'function') showToast('📥 تم تصدير كشف الفواتير القابلة للتجزئة إلى Excel بنجاح', 'success');
+};
+
+window.printSplitEligibleReportA4 = function() {
+    const list = window._lastFilteredSplitInvoices || window.getMergedSalesInvoicesForSplit();
+    let totalVal = 0;
+    const rowsHtml = (list || []).map((inv, idx) => {
+        const val = parseFloat(inv.grandTotal ?? inv.total ?? 0) || 0;
+        totalVal += val;
+        const itemsTxt = (inv.items || []).map(it => {
+            const m = window.resolveSplitItemUnitMeta(it);
+            return `${m.name}: ${m.deliverableQty} ${m.primaryUnit}`;
+        }).join(' ، ');
+        return `
+            <tr>
+                <td style="padding:7px; border:1px solid #000; text-align:center; font-weight:800;">${idx + 1}</td>
+                <td style="padding:7px; border:1px solid #000; font-family:monospace; font-weight:900;">#${inv.invoiceNo || inv.id}</td>
+                <td style="padding:7px; border:1px solid #000;">${inv.date || ''}</td>
+                <td style="padding:7px; border:1px solid #000; font-weight:800;">${inv.customerName || 'عميل نقدي'}</td>
+                <td style="padding:7px; border:1px solid #000;">${itemsTxt}</td>
+                <td style="padding:7px; border:1px solid #000; text-align:left; font-family:monospace; font-weight:900;">${val.toLocaleString()} ${inv.currency || 'SDG'}</td>
+            </tr>
+        `;
+    }).join('');
+    const w = window.open('', '_blank', 'width=940,height=760');
+    if (!w) return;
+    w.document.write(`
+        <!DOCTYPE html><html dir="rtl" lang="ar"><head><meta charset="UTF-8"><title>كشف الفواتير الجاهزة للتجزئة</title>
+        <style>body{font-family:'Cairo','Tajawal',sans-serif;padding:20px;color:#000;}table{width:100%;border-collapse:collapse;margin-top:12px;}@media print{.no-print{display:none!important;}}</style></head>
+        <body>
+            <div class="no-print" style="margin-bottom:12px;"><button onclick="window.print()" style="background:#10b981;color:#fff;border:none;padding:8px 18px;border-radius:8px;font-weight:900;cursor:pointer;">🖨️ طباعة الكشف A4</button></div>
+            <h2 style="margin:0 0 6px;">✂️ كشف الفواتير وأذونات التسليم الجاهزة للتجزئة (${(list || []).length} مستند)</h2>
+            <div style="font-weight:800; margin-bottom:8px;">📅 تاريخ الاستخراج: ${new Date().toLocaleString('ar-EG')} | 💰 الإجمالي الختامي: ${totalVal.toLocaleString()} SDG</div>
+            <table>
+                <thead><tr style="background:#e2e8f0;"><th style="padding:8px;border:1px solid #000;">#</th><th style="padding:8px;border:1px solid #000;">رقم الفاتورة</th><th style="padding:8px;border:1px solid #000;">التاريخ</th><th style="padding:8px;border:1px solid #000;">العميل</th><th style="padding:8px;border:1px solid #000;">الأصناف المتبقية للتجزئة</th><th style="padding:8px;border:1px solid #000;">الصافي المالي</th></tr></thead>
+                <tbody>${rowsHtml}</tbody>
+            </table>
+            <script>window.onload=()=>{setTimeout(()=>window.print(),300);};<\/script>
+        </body></html>
+    `);
+    w.document.close();
+};
+
+window.flushSplitOfflineQueueNow = function(manualClick = false) {
+    if (!navigator.onLine) {
+        if (manualClick && typeof showToast === 'function') showToast('📡 الجهاز حالياً أوفلاين — ستُرفع التجزئات تلقائياً فور توفر الشبكة ولو لثوانٍ', 'info');
+        return;
+    }
+    try {
+        const q = JSON.parse(localStorage.getItem('ds_offline_sync_queue_v1') || '[]');
+        if (Array.isArray(q) && q.length > 0) {
+            localStorage.setItem('ds_offline_sync_queue_v1', '[]');
+            q.forEach(item => {
+                if (!item || !item.payload) return;
+                const ctrl = new AbortController();
+                const tId = setTimeout(() => ctrl.abort(), 4500);
+                fetch('api/mirror_sync.php?action=save_sales_invoice', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(item.payload),
+                    signal: ctrl.signal
+                }).then(() => clearTimeout(tId)).catch(() => clearTimeout(tId));
+            });
+        }
+    } catch (_e) {}
+    const syncPill = document.getElementById('split-live-sync-pill');
+    if (syncPill) {
+        syncPill.textContent = `⚡ متزامن (${new Date().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit', second: '2-digit' })})`;
+    }
+    if (manualClick) {
+        loadSplitInvoices(false);
+        if (typeof showToast === 'function') showToast('⚡ تمت المزامنة اللحظية مع السيرفر والأجهزة الأخرى بنجاح', 'success');
+    }
+};
+
+(function initSplitSubSecondAutoSync() {
+    if (window._splitSubSecondAutoSyncBound) return;
+    window._splitSubSecondAutoSyncBound = true;
+
+    const refreshSplitIfVisible = () => {
+        const splitView = document.getElementById('split-invoice-view');
+        const selectStep = document.getElementById('split-select-step');
+        if (splitView && splitView.style.display !== 'none' && selectStep && selectStep.style.display !== 'none') {
+            loadSplitInvoices(true);
+        }
+        const syncPill = document.getElementById('split-live-sync-pill');
+        if (syncPill) {
+            syncPill.textContent = `⚡ متزامن (${new Date().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit', second: '2-digit' })})`;
+        }
+    };
+
+    window.addEventListener('online', () => {
+        window.flushSplitOfflineQueueNow(false);
+        refreshSplitIfVisible();
+    });
+
+    window.addEventListener('storage', (e) => {
+        if (!e.key || ['erp_sales_invoices_v1', 'erp_sales_v1', 'magaies_local_sales_invoices_v1', 'magaies_sales_invoices_cache'].includes(e.key)) {
+            refreshSplitIfVisible();
+        }
+    });
+
+    ['elsajana_erp_sync', 'magaies_sales_sync_channel', 'magaies_erp_sync_channel'].forEach(chName => {
+        try {
+            const ch = new BroadcastChannel(chName);
+            ch.onmessage = () => refreshSplitIfVisible();
+        } catch (_e) {}
+    });
+
+    document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible') refreshSplitIfVisible();
+    });
+})();
+
+window.printSplitDriverAuthPass = function(invOrNo) {
+    let inv = invOrNo;
+    if (typeof invOrNo === 'string') {
+        const all = window.getMergedSalesInvoicesForSplit();
+        inv = all.find(x => String(x.invoiceNo || x.id) === String(invOrNo));
+    }
+    if (!inv) return;
+    const invNo = String(inv.invoiceNo || inv.id || '');
+    const rootNo = window.getRootInvoiceNo ? window.getRootInvoiceNo(inv) : invNo;
+    const qrData = `${window.location.origin}${window.location.pathname}?action=delivery&qr_deliver=${encodeURIComponent(invNo)}`;
+    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=140x140&margin=4&data=${encodeURIComponent(qrData)}`;
+    const rowsHtml = (inv.items || []).map((it, i) => {
+        const m = window.resolveSplitItemUnitMeta(it);
+        const q = parseFloat(it.qty ?? it.quantity ?? 0) || 0;
+        const subQ = +(q * m.factor).toFixed(2);
+        return `<tr><td style="padding:8px;border:1px solid #000;text-align:center;">${i + 1}</td><td style="padding:8px;border:1px solid #000;font-weight:900;">${m.name}</td><td style="padding:8px;border:1px solid #000;text-align:center;font-weight:900;">${q} ${m.primaryUnit}</td><td style="padding:8px;border:1px solid #000;text-align:center;">${m.factor > 1 ? `${subQ} ${m.baseUnit}` : `${q} ${m.baseUnit}`}</td></tr>`;
+    }).join('');
+    const w = window.open('', '_blank', 'width=860,height=720');
+    if (!w) return;
+    w.document.write(`
+        <!DOCTYPE html><html dir="rtl" lang="ar"><head><meta charset="UTF-8"><title>سند تفويض استلام جزئي للسائق #${invNo}</title>
+        <style>body{font-family:'Cairo','Tajawal',sans-serif;padding:24px;color:#000;border:3px double #0f172a;margin:12px;}table{width:100%;border-collapse:collapse;margin-top:14px;}@media print{.no-print{display:none!important;}}</style></head>
+        <body>
+            <div class="no-print" style="margin-bottom:14px;"><button onclick="window.print()" style="background:#10b981;color:#fff;border:none;padding:8px 18px;border-radius:8px;font-weight:900;cursor:pointer;">🖨️ طباعة سند التفويض الرسمي</button></div>
+            <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:2.5px solid #000;padding-bottom:12px;">
+                <div>
+                    <h2 style="margin:0;">📑 سند تفويض استلام وخروج شحنة مجزأة رقم: #${invNo}</h2>
+                    <div style="font-weight:800;margin-top:6px;">📌 الفاتورة المرجعية الأم: #${rootNo} | 📅 التاريخ: ${inv.date || new Date().toISOString().slice(0, 10)}</div>
+                    <div style="font-weight:900;margin-top:6px;">👤 العميل: ${inv.customerName || 'عميل نقدي'} | 🚚 السائق المفوّض: ${inv.receiverName || '________________'}</div>
+                    <div style="font-weight:900;margin-top:4px;">🚛 رقم السيارة / اللوحة: ${inv.truckPlate || '________'} | 📍 وجهة التسليم: ${inv.deliveryLocation || '________'}</div>
+                </div>
+                <div style="text-align:center;"><img src="${qrUrl}" style="width:110px;height:110px;border:2px solid #000;border-radius:8px;"><div style="font-size:11px;font-weight:900;">QR تحقق البوابة</div></div>
+            </div>
+            <p style="font-weight:800;background:#f1f5f9;padding:8px 12px;border:1px solid #000;border-radius:6px;">بموجب هذا السند يُفوّض السائق الموضح اسمه ورقم مركبته أعلاه باستلام الأصناف المحددة أدناه فقط كجزء فرعي معتمد من الفاتورة #${rootNo}:</p>
+            <table><thead><tr style="background:#e2e8f0;"><th style="padding:8px;border:1px solid #000;">#</th><th style="padding:8px;border:1px solid #000;text-align:right;">الصنف</th><th style="padding:8px;border:1px solid #000;">الكمية بالوحدة الكبرى</th><th style="padding:8px;border:1px solid #000;">المعادل بالوحدة الفرعية</th></tr></thead><tbody>${rowsHtml}</tbody></table>
+            <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-top:36px;font-weight:900;">
+                <div style="text-align:center;">
+                    <div>توقيع السائق المستلم:</div>
+                    ${inv.driverSignatureDataUrl ? `<img src="${inv.driverSignatureDataUrl}" style="max-height:55px;border-bottom:1.5px solid #000;margin-top:4px;">` : `________________`}
+                </div>
+                <div>اعتماد أمين المستودع: ________________</div>
+                <div>ختم أمن البوابة: ________________</div>
+            </div>
+            <script>window.onload=()=>{setTimeout(()=>window.print(),300);};<\/script>
+        </body></html>
+    `);
+    w.document.close();
+};
+
+window.safeReverseAndMergeSplitFamily = function(rootNo) {
+    if (!rootNo) return;
+    let allSales = [];
+    try { allSales = JSON.parse(localStorage.getItem('erp_sales_invoices_v1') || '[]'); } catch (_e) {}
+    const family = allSales.filter(x => window.getRootInvoiceNo(x) === String(rootNo));
+    const rootDoc = family.find(x => String(x.invoiceNo || x.id) === String(rootNo));
+    const activeBranches = family.filter(x => !x.deleted && !x.wasSplit && String(x.invoiceNo || x.id) !== String(rootNo));
+
+    if (!rootDoc || activeBranches.length === 0) {
+        if (typeof showToast === 'function') showToast('ℹ️ لا توجد فروع مقسمة نشطة قابلة لإعادة الدمج لهذه الفاتورة', 'info');
+        return;
+    }
+
+    const anyDelivered = activeBranches.some(b => {
+        if (b.isDelivered === true || b.deliveryStatus === 'delivered' || b.deliveryStatus === 'partial') return true;
+        return (b.items || []).some(it => (parseFloat(it.deliveredQty || 0) || 0) > 0.0001);
+    });
+    if (anyDelivered) {
+        if (typeof showToast === 'function') showToast('⛔ حماية رقابية: لا يمكن دمج/إلغاء التجزئة لأن أحد الفروع تم صرفه مخزنياً بالفعل!', 'error');
+        return;
+    }
+
+    const branchNos = activeBranches.map(b => String(b.invoiceNo || b.id));
+    allSales = allSales.filter(x => !branchNos.includes(String(x.invoiceNo || x.id)));
+    const rIdx = allSales.findIndex(x => String(x.invoiceNo || x.id) === String(rootNo));
+    if (rIdx !== -1) {
+        allSales[rIdx].deleted = false;
+        allSales[rIdx].wasSplit = false;
+        delete allSales[rIdx].splitTo;
+        localStorage.setItem('erp_inv_' + rootNo, JSON.stringify(allSales[rIdx]));
+    }
+    branchNos.forEach(bNo => localStorage.removeItem('erp_inv_' + bNo));
+    localStorage.setItem('erp_sales_invoices_v1', JSON.stringify(allSales));
+    localStorage.setItem('erp_sales_v1', JSON.stringify(allSales));
+    ['magaies_local_sales_invoices_v1', 'magaies_sales_invoices_cache'].forEach(k => {
+        try { localStorage.setItem(k, JSON.stringify(allSales)); } catch (_e) {}
+    });
+
+    if (window.logSystemAction) {
+        window.logSystemAction('دمج والتراجع عن تجزئة فاتورة', 'المبيعات والتسليم', rootNo, `تم إعادة دمج الفروع (${branchNos.join(' ، ')}) في الفاتورة الأم #${rootNo}`);
+    }
+    const gModal = document.getElementById('split-genealogy-tree-modal');
+    if (gModal) gModal.style.display = 'none';
+    loadSplitInvoices(true);
+    if (typeof showToast === 'function') showToast(`✅ تم دمج الفروع واستعادة الفاتورة الأم #${rootNo} بنجاح`, 'success');
+};
+
+window.openSplitLogisticsAnalyticsModal = function() {
+    const allSales = window.getMergedSalesInvoicesForSplit();
+    const splitRoots = allSales.filter(x => x.wasSplit);
+    const activeBranches = allSales.filter(x => !x.deleted && !x.wasSplit && (x.isSplit || x.parentInvoice || String(x.invoiceNo || x.id || '').includes('/')));
+    const driverMap = {};
+    const itemSplitMap = {};
+
+    activeBranches.forEach(b => {
+        const drv = b.receiverName || b.customerName || 'غير محدد';
+        driverMap[drv] = (driverMap[drv] || 0) + 1;
+        (b.items || []).forEach(it => {
+            const m = window.resolveSplitItemUnitMeta(it);
+            itemSplitMap[m.name] = (itemSplitMap[m.name] || 0) + (parseFloat(it.qty ?? it.quantity ?? 0) || 0);
+        });
+    });
+
+    let modal = document.getElementById('split-analytics-modal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'split-analytics-modal';
+        modal.style.cssText = 'display:none; position:fixed; inset:0; background:rgba(2,6,23,0.88); backdrop-filter:blur(12px); z-index:9999999; align-items:center; justify-content:center; direction:rtl; font-family:"Tajawal",sans-serif; padding:16px;';
+        document.body.appendChild(modal);
+    }
+
+    const topItemsHtml = Object.entries(itemSplitMap).slice(0, 5).map(([name, qty]) =>
+        `<div style="display:flex; justify-content:space-between; padding:6px 10px; border-bottom:1px solid rgba(255,255,255,0.08);"><span>📦 ${name}</span><strong style="color:#38bdf8; font-family:monospace;">${+qty.toFixed(2)}</strong></div>`
+    ).join('') || '<div style="padding:10px; color:#94a3b8;">لا توجد أصناف مجزأة بعد</div>';
+
+    const topDriversHtml = Object.entries(driverMap).slice(0, 5).map(([drv, cnt]) =>
+        `<div style="display:flex; justify-content:space-between; padding:6px 10px; border-bottom:1px solid rgba(255,255,255,0.08);"><span>🚛 ${drv}</span><strong style="color:#6ee7b7; font-family:monospace;">${cnt} شحنة فرعية</strong></div>`
+    ).join('') || '<div style="padding:10px; color:#94a3b8;">لا توجد شحنات سائقين مسجلة بعد</div>';
+
+    modal.innerHTML = `
+        <div style="width:94vw; max-width:720px; background:linear-gradient(160deg,#0f172a,#020617); border:2px solid #f472b6; border-radius:18px; padding:22px; color:#fff; box-shadow:0 24px 80px rgba(0,0,0,0.92);">
+            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1.5px solid rgba(244,114,182,0.35); padding-bottom:10px; margin-bottom:14px;">
+                <h3 style="margin:0; font-size:1.2rem; font-weight:900; color:#fbcfe8;">📊 تقرير تحليل كفاءة تجزئة الشحنات وتوزيع السائقين</h3>
+                <button type="button" onclick="document.getElementById('split-analytics-modal').style.display='none'" style="background:rgba(239,68,68,0.2); border:1px solid #f87171; color:#fecaca; border-radius:8px; padding:5px 14px; font-weight:900; cursor:pointer;">✕ إغلاق</button>
+            </div>
+            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:10px; margin-bottom:16px;">
+                <div style="background:rgba(2,6,23,0.65); border:1.5px solid rgba(236,72,153,0.45); border-radius:12px; padding:12px; text-align:center;">
+                    <div style="font-size:0.8rem; color:#94a3b8;">✂️ إجمالي عمليات التجزئة</div>
+                    <strong style="font-size:1.5rem; color:#f472b6; font-family:monospace;">${splitRoots.length}</strong>
+                </div>
+                <div style="background:rgba(2,6,23,0.65); border:1.5px solid rgba(56,189,248,0.45); border-radius:12px; padding:12px; text-align:center;">
+                    <div style="font-size:0.8rem; color:#94a3b8;">📄 الأذونات الفرعية النشطة</div>
+                    <strong style="font-size:1.5rem; color:#38bdf8; font-family:monospace;">${activeBranches.length}</strong>
+                </div>
+                <div style="background:rgba(2,6,23,0.65); border:1.5px solid rgba(16,185,129,0.45); border-radius:12px; padding:12px; text-align:center;">
+                    <div style="font-size:0.8rem; color:#94a3b8;">🚛 السائقون المعينون</div>
+                    <strong style="font-size:1.5rem; color:#10b981; font-family:monospace;">${Object.keys(driverMap).length}</strong>
+                </div>
+            </div>
+            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:12px;">
+                <div style="background:rgba(15,23,42,0.8); border:1px solid rgba(56,189,248,0.3); border-radius:12px; padding:12px;">
+                    <h4 style="margin:0 0 8px; color:#7dd3fc;">📦 أكثر الأصناف تجزئة</h4>
+                    ${topItemsHtml}
+                </div>
+                <div style="background:rgba(15,23,42,0.8); border:1px solid rgba(16,185,129,0.3); border-radius:12px; padding:12px;">
+                    <h4 style="margin:0 0 8px; color:#6ee7b7;">🚛 توزيع الشحنات الفرعية على السائقين</h4>
+                    ${topDriversHtml}
+                </div>
+            </div>
+        </div>
+    `;
+    modal.style.display = 'flex';
+};
+
+// ═══════════════════════════════════════════════════════════════════════════
+// CONSTITUTION 4 APPROVED PROPOSALS FOR SPLIT INVOICES (?action=split):
+// 1. 🛡️ Truck Capacity & Weight Shield (درع توازن الأوزان والحمولة القصوى للشاحنات)
+// 2. ✍️ Split Driver Digital Signature Pad (التوقيع الرقمي الميداني لسائقي الأقسام)
+// 3. 📦 Saved Split Presets (القوالب الجاهزة للتجزئة المتكررة)
+// ═══════════════════════════════════════════════════════════════════════════
+
+window.computeSplitSectionWeights = function() {
+    if (!activeSplitInvoice && typeof window.ensureDemoOrFirstSplitBoardLoaded === 'function') {
+        window.ensureDemoOrFirstSplitBoardLoaded();
+    }
+    const inv = activeSplitInvoice;
+    if (!inv) return { totalWeightKg: 0, totalWeightTon: 0, sections: [] };
+    const S = window.splitSectionsCount || 2;
+    const rootNo = window.getRootInvoiceNo ? window.getRootInvoiceNo(inv) : String(inv.invoiceNo || inv.id || '100');
+    const splitSeq = Math.max(1, parseInt(window.currentSplitOperationSeq, 10) || 1);
+    let totalWeightKg = 0;
+
+    const sections = Array.from({ length: S }, (_, s) => {
+        const metaInfo = window._splitSectionMeta[s] || {};
+        const maxCapTon = parseFloat(metaInfo.maxCapacityTon) || 5.0;
+        let secKg = 0;
+        (inv.items || []).forEach((item, idx) => {
+            const m = window.resolveSplitItemUnitMeta(item);
+            const q = parseFloat(document.getElementById(`split-qty-s${s}-i${idx}`)?.value || 0) || 0;
+            const unitKg = parseFloat(item.unitWeightKg || item.weightKg || (m.factor > 1 ? m.factor : 50)) || 50;
+            secKg += (q * unitKg);
+        });
+        totalWeightKg += secKg;
+        const secTon = +(secKg / 1000).toFixed(2);
+        const utilizationPct = maxCapTon > 0 ? Math.min(999, Math.round((secTon / maxCapTon) * 100)) : 0;
+        const isOver = secTon > maxCapTon + 0.001;
+        return {
+            secIdx: s,
+            secNo: `${rootNo}/${splitSeq}/${s + 1}`,
+            driver: metaInfo.receiverName || inv.receiverName || `سائق القسم (${s + 1})`,
+            truck: metaInfo.truckPlate || inv.truckPlate || 'غير محدد',
+            weightKg: Math.round(secKg),
+            weightTon: secTon,
+            maxCapTon,
+            utilizationPct,
+            isOver
+        };
+    });
+
+    return {
+        totalWeightKg: Math.round(totalWeightKg),
+        totalWeightTon: +(totalWeightKg / 1000).toFixed(2),
+        sections
+    };
+};
+
+window.updateSplitTruckCap = function(secIdx, val) {
+    const num = Math.max(0.5, parseFloat(val) || 5.0);
+    window._splitSectionMeta = window._splitSectionMeta || {};
+    window._splitSectionMeta[secIdx] = Object.assign(window._splitSectionMeta[secIdx] || {}, { maxCapacityTon: num });
+    if (typeof updateSplitCalculations === 'function') updateSplitCalculations();
+    window.openSplitWeightShieldModal();
+};
+
+window.autoBalanceSplitByWeight = function() {
+    if (!activeSplitInvoice && typeof window.ensureDemoOrFirstSplitBoardLoaded === 'function') {
+        window.ensureDemoOrFirstSplitBoardLoaded();
+    }
+    if (!activeSplitInvoice) return;
+    const S = window.splitSectionsCount || 2;
+    const caps = Array.from({ length: S }, (_, s) => parseFloat(window._splitSectionMeta?.[s]?.maxCapacityTon) || 5.0);
+    const totalCap = caps.reduce((a, b) => a + b, 0) || S;
+
+    (activeSplitInvoice.items || []).forEach((item, idx) => {
+        const meta = window.resolveSplitItemUnitMeta(item);
+        const maxQty = meta.deliverableQty;
+        let allocated = 0;
+        for (let s = 0; s < S; s++) {
+            const ratio = caps[s] / totalCap;
+            const qVal = (s === S - 1)
+                ? Math.max(0, +(maxQty - allocated).toFixed(4))
+                : +(maxQty * ratio).toFixed(4);
+            if (s < S - 1) allocated += qVal;
+            const inp = document.getElementById(`split-qty-s${s}-i${idx}`);
+            const subInp = document.getElementById(`split-subqty-s${s}-i${idx}`);
+            if (inp) inp.value = qVal;
+            if (subInp) subInp.value = +(qVal * meta.factor).toFixed(2);
+        }
+    });
+    if (typeof window.saveCurrentSplitDraftState === 'function') window.saveCurrentSplitDraftState();
+    if (typeof updateSplitCalculations === 'function') updateSplitCalculations();
+    window.openSplitWeightShieldModal();
+    if (typeof showToast === 'function') showToast('⚖️ تم موازنة الكميات والأوزان نسبياً حسب الحمولة القصوى لكل شاحنة بنجاح', 'success');
+};
+
+window.speakSplitWeightShieldReport = function() {
+    const rep = window.computeSplitSectionWeights();
+    const overList = rep.sections.filter(x => x.isOver);
+    const details = rep.sections.map(x => `القسم ${x.secIdx + 1} وزنه ${x.weightTon} طن من أصل ${x.maxCapTon} طن`).join('، ');
+    const msg = overList.length > 0
+        ? `تنبيه من درع الأوزان: إجمالي وزن الشحنة ${rep.totalWeightTon} طن. يوجد تجاوز للحمولة المسموحة في ${overList.length} شاحنة. ${details}. يُنصح بالضغط على زر موازنة الأوزان تلقائياً.`
+        : `تقرير درع الأوزان آمن مئة بالمئة: إجمالي وزن الشحنة ${rep.totalWeightTon} طن موزعة بأمان دون تجاوز سعة أي شاحنة. ${details}.`;
+    if (window.MagaiesGuideEngine && typeof window.MagaiesGuideEngine.speakText === 'function') {
+        window.MagaiesGuideEngine.speakText(msg);
+    } else if (typeof showToast === 'function') {
+        showToast(msg, overList.length > 0 ? 'warning' : 'success');
+    }
+};
+
+window.openSplitWeightShieldModal = function() {
+    const rep = window.computeSplitSectionWeights();
+    let modal = document.getElementById('split-weight-shield-modal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'split-weight-shield-modal';
+        modal.style.cssText = 'display:none; position:fixed; inset:0; background:rgba(2,6,23,0.88); backdrop-filter:blur(12px); z-index:9999999; align-items:center; justify-content:center; direction:rtl; font-family:"Tajawal",sans-serif; padding:16px;';
+        document.body.appendChild(modal);
+    }
+    const overCount = rep.sections.filter(x => x.isOver).length;
+    const cardsHtml = rep.sections.map(sec => `
+        <div style="background:rgba(15,23,42,0.85); border:2px solid ${sec.isOver ? '#ef4444' : '#10b981'}; border-radius:14px; padding:14px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                <strong style="color:${sec.isOver ? '#fca5a5' : '#6ee7b7'}; font-size:0.98rem;">🚛 القسم (${sec.secIdx + 1}) — #${sec.secNo}</strong>
+                <span style="padding:3px 10px; border-radius:99px; font-size:0.78rem; font-weight:900; background:${sec.isOver ? 'rgba(239,68,68,0.25)' : 'rgba(16,185,129,0.2)'}; color:${sec.isOver ? '#fecaca' : '#a7f3d0'};">
+                    ${sec.isOver ? `🚨 تجاوز الحمولة (${sec.utilizationPct}%)` : `✅ حمولة آمنة (${sec.utilizationPct}%)`}
+                </span>
+            </div>
+            <div style="font-size:0.84rem; color:#cbd5e1; margin-bottom:8px;">👤 السائق: <strong>${sec.driver}</strong> | 🚛 اللوحة: <strong>${sec.truck}</strong></div>
+            <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap;">
+                <div>⚖️ الوزن الفعلي: <strong style="font-family:monospace; font-size:1.05rem; color:#38bdf8;">${sec.weightTon} طن (${sec.weightKg.toLocaleString()} كجم)</strong></div>
+                <div style="display:flex; align-items:center; gap:6px;">
+                    <label style="font-size:0.8rem; font-weight:900;">سعة الشاحنة (طن):</label>
+                    <input type="number" step="0.5" min="0.5" value="${sec.maxCapTon}" onchange="window.updateSplitTruckCap(${sec.secIdx}, this.value)" style="width:82px; text-align:center; padding:4px 6px; border-radius:8px; font-weight:900;">
+                </div>
+            </div>
+        </div>
+    `).join('');
+
+    modal.innerHTML = `
+        <div class="ds-c1-modal-card" style="width:94vw; max-width:740px; max-height:90vh; overflow-y:auto; background:#111c33; border:2.4px solid #FFFFFF; border-radius:18px; padding:22px; color:#FFFFFF; box-shadow:0 24px 80px rgba(0,0,0,0.92);">
+            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1.5px solid rgba(255,255,255,0.18); padding-bottom:10px; margin-bottom:14px; flex-wrap:wrap; gap:8px;">
+                <div>
+                    <h3 style="margin:0; font-size:1.22rem; font-weight:900; color:#f87171;">🛡️ درع توازن الأوزان والحمولة القصوى للشاحنات</h3>
+                    <div style="font-size:0.84rem; color:#cbd5e1; margin-top:3px;">إجمالي وزن الشحنة الكلي: <strong style="color:#38bdf8; font-family:monospace;">${rep.totalWeightTon} طن (${rep.totalWeightKg.toLocaleString()} كجم)</strong></div>
+                </div>
+                <button type="button" onclick="document.getElementById('split-weight-shield-modal').style.display='none'" style="background:rgba(239,68,68,0.25); border:1.5px solid #f87171; color:#fecaca; border-radius:8px; padding:5px 14px; font-weight:900; cursor:pointer;">✕ إغلاق</button>
+            </div>
+            ${overCount > 0
+                ? `<div style="background:rgba(239,68,68,0.2); border:1.5px solid #ef4444; border-radius:12px; padding:10px 14px; margin-bottom:12px; font-weight:900; color:#fecaca;">🚨 تنبيه رقابي: يوجد (${overCount}) قسم يتجاوز الحمولة القصوى المسموحة للشاحنة! اضغط "⚖️ موازنة الأوزان تلقائياً" لإعادة التوزيع الآمن فوراً.</div>`
+                : `<div style="background:rgba(16,185,129,0.16); border:1.5px solid #10b981; border-radius:12px; padding:10px 14px; margin-bottom:12px; font-weight:900; color:#a7f3d0;">✅ جميع الأقسام ضمن الحمولة القانونية الآمنة للشاحنات المعينة.</div>`
+            }
+            <div style="display:flex; flex-direction:column; gap:10px; margin-bottom:16px;">
+                ${cardsHtml}
+            </div>
+            <div style="display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap; border-top:1px solid rgba(255,255,255,0.14); padding-top:12px;">
+                <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                    <button type="button" onclick="window.autoBalanceSplitByWeight()" class="kinetic-glow-arm kinetic-arm-emerald" style="padding:9px 18px; border-radius:10px; font-weight:900; cursor:pointer;">⚖️ موازنة الأوزان على الشاحنات تلقائياً</button>
+                    <button type="button" onclick="window.speakSplitWeightShieldReport()" class="kinetic-glow-arm kinetic-arm-cyan" style="padding:9px 16px; border-radius:10px; font-weight:900; cursor:pointer;">🔊 قراءة تقرير الأوزان صوتياً</button>
+                </div>
+                <button type="button" onclick="document.getElementById('split-weight-shield-modal').style.display='none'" style="background:rgba(255,255,255,0.1); border:1.5px solid rgba(255,255,255,0.3); color:#fff; padding:9px 18px; border-radius:10px; font-weight:900; cursor:pointer;">👍 تم</button>
+            </div>
+        </div>
+    `;
+    modal.style.display = 'flex';
+};
+
+// 2. ✍️ Split Driver Digital Signature Pad
+window.openSplitDriverSignatureModal = function(secIdx = 0) {
+    if (!activeSplitInvoice && typeof window.ensureDemoOrFirstSplitBoardLoaded === 'function') {
+        window.ensureDemoOrFirstSplitBoardLoaded();
+    }
+    const S = window.splitSectionsCount || 2;
+    const safeSec = Math.max(0, Math.min(S - 1, parseInt(secIdx, 10) || 0));
+    window._activeSplitSigSectionIdx = safeSec;
+    const metaInfo = (window._splitSectionMeta && window._splitSectionMeta[safeSec]) || {};
+    const driverName = metaInfo.receiverName || activeSplitInvoice?.receiverName || `سائق القسم (${safeSec + 1})`;
+    const truckPlate = metaInfo.truckPlate || activeSplitInvoice?.truckPlate || '';
+
+    let modal = document.getElementById('split-driver-signature-modal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'split-driver-signature-modal';
+        modal.style.cssText = 'display:none; position:fixed; inset:0; background:rgba(2,6,23,0.88); backdrop-filter:blur(12px); z-index:9999999; align-items:center; justify-content:center; direction:rtl; font-family:"Tajawal",sans-serif; padding:16px;';
+        document.body.appendChild(modal);
+    }
+
+    const secTabs = Array.from({ length: S }, (_, s) => `
+        <button type="button" onclick="window.openSplitDriverSignatureModal(${s})" style="padding:6px 14px; border-radius:9px; font-weight:900; cursor:pointer; border:1.5px solid ${s === safeSec ? '#38bdf8' : 'rgba(255,255,255,0.2)'}; background:${s === safeSec ? 'rgba(56,189,248,0.25)' : 'rgba(15,23,42,0.7)'}; color:#fff;">
+            ${window._splitSectionMeta?.[s]?.driverSignatureDataUrl ? '✅ ' : '✍️ '}القسم (${s + 1})
+        </button>
+    `).join('');
+
+    modal.innerHTML = `
+        <div class="ds-c1-modal-card" style="width:94vw; max-width:620px; background:#111c33; border:2.4px solid #FFFFFF; border-radius:18px; padding:20px; color:#FFFFFF; box-shadow:0 24px 80px rgba(0,0,0,0.92);">
+            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1.5px solid rgba(255,255,255,0.16); padding-bottom:10px; margin-bottom:12px;">
+                <h3 style="margin:0; font-size:1.18rem; font-weight:900; color:#38bdf8;">✍️ التوقيع الرقمي الميداني لسائق القسم (${safeSec + 1})</h3>
+                <button type="button" onclick="document.getElementById('split-driver-signature-modal').style.display='none'" style="background:rgba(239,68,68,0.25); border:1.5px solid #f87171; color:#fecaca; border-radius:8px; padding:4px 12px; font-weight:900; cursor:pointer;">✕ إغلاق</button>
+            </div>
+            <div style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:10px;">${secTabs}</div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:10px;">
+                <div>
+                    <label style="display:block; font-size:0.78rem; margin-bottom:3px; font-weight:900;">👤 اسم السائق المستلم:</label>
+                    <input type="text" id="split-sig-driver-name" value="${driverName.replace(/"/g, '&quot;')}" style="width:100%; padding:7px 10px; border-radius:8px; font-weight:800;">
+                </div>
+                <div>
+                    <label style="display:block; font-size:0.78rem; margin-bottom:3px; font-weight:900;">🚛 رقم اللوحة / الشاحنة:</label>
+                    <input type="text" id="split-sig-truck-plate" value="${truckPlate.replace(/"/g, '&quot;')}" style="width:100%; padding:7px 10px; border-radius:8px; font-weight:800;">
+                </div>
+            </div>
+            <div style="background:#FFFFFF; border:2.4px solid #38bdf8; border-radius:12px; padding:6px; text-align:center; margin-bottom:12px;">
+                <canvas id="split-driver-sig-canvas" width="540" height="175" style="width:100%; height:175px; background:#FFFFFF; cursor:crosshair; touch-action:none; border-radius:8px;"></canvas>
+                <div style="font-size:0.76rem; color:#0f172a; font-weight:900; margin-top:2px;">وقّع هنا بالماوس أو الإصبع — سيُدرج التوقيع تلقائياً في سند التفويض وإذن الصرف المطبوع</div>
+            </div>
+            <div style="display:flex; justify-content:space-between; gap:8px; flex-wrap:wrap;">
+                <button type="button" onclick="window.clearSplitDriverSigCanvas()" style="background:rgba(245,158,11,0.22); border:1.5px solid #fbbf24; color:#fde68a; padding:8px 16px; border-radius:10px; font-weight:900; cursor:pointer;">🧹 مسح التوقيع</button>
+                <button type="button" onclick="window.saveSplitDriverSignature()" class="kinetic-glow-arm kinetic-arm-emerald" style="padding:8px 22px; border-radius:10px; font-weight:900; cursor:pointer;">💾 حفظ واعتماد توقيع السائق</button>
+            </div>
+        </div>
+    `;
+    modal.style.display = 'flex';
+
+    setTimeout(() => {
+        const canvas = document.getElementById('split-driver-sig-canvas');
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        ctx.strokeStyle = '#0f172a';
+        ctx.lineWidth = 2.8;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        window._splitDriverSigHasInk = false;
+
+        if (metaInfo.driverSignatureDataUrl) {
+            const img = new Image();
+            img.onload = () => {
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                window._splitDriverSigHasInk = true;
+            };
+            img.src = metaInfo.driverSignatureDataUrl;
+        }
+
+        let drawing = false;
+        const getPos = (e) => {
+            const r = canvas.getBoundingClientRect();
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            return {
+                x: (clientX - r.left) * (canvas.width / r.width),
+                y: (clientY - r.top) * (canvas.height / r.height)
+            };
+        };
+        const start = (e) => { e.preventDefault(); drawing = true; window._splitDriverSigHasInk = true; const p = getPos(e); ctx.beginPath(); ctx.moveTo(p.x, p.y); };
+        const move = (e) => { if (!drawing) return; e.preventDefault(); const p = getPos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); };
+        const stop = () => { drawing = false; };
+        canvas.addEventListener('mousedown', start);
+        canvas.addEventListener('mousemove', move);
+        window.addEventListener('mouseup', stop, { once: false });
+        canvas.addEventListener('touchstart', start, { passive: false });
+        canvas.addEventListener('touchmove', move, { passive: false });
+        canvas.addEventListener('touchend', stop);
+    }, 30);
+};
+
+window.clearSplitDriverSigCanvas = function() {
+    const canvas = document.getElementById('split-driver-sig-canvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    window._splitDriverSigHasInk = false;
+};
+
+window.saveSplitDriverSignature = function() {
+    const secIdx = window._activeSplitSigSectionIdx || 0;
+    const canvas = document.getElementById('split-driver-sig-canvas');
+    if (!canvas) return;
+    const drvName = (document.getElementById('split-sig-driver-name')?.value || '').trim();
+    const trkPlate = (document.getElementById('split-sig-truck-plate')?.value || '').trim();
+    const dataUrl = window._splitDriverSigHasInk ? canvas.toDataURL('image/png') : '';
+
+    window._splitSectionMeta = window._splitSectionMeta || {};
+    window._splitSectionMeta[secIdx] = Object.assign(window._splitSectionMeta[secIdx] || {}, {
+        ...(drvName && { receiverName: drvName }),
+        ...(trkPlate && { truckPlate: trkPlate }),
+        driverSignatureDataUrl: dataUrl
+    });
+
+    const recInp = document.getElementById(`split-sec-receiver-${secIdx}`);
+    const trkInp = document.getElementById(`split-sec-truck-${secIdx}`);
+    if (recInp && drvName) recInp.value = drvName;
+    if (trkInp && trkPlate) trkInp.value = trkPlate;
+
+    if (typeof updateSplitCalculations === 'function') updateSplitCalculations();
+    const modal = document.getElementById('split-driver-signature-modal');
+    if (modal) modal.style.display = 'none';
+    if (typeof showToast === 'function') showToast(`✍️ تم حفظ التوقيع الرقمي لسائق القسم (${secIdx + 1}) وسيُطبع تلقائياً في السند`, 'success');
+};
+
+// 3. 📦 Saved Split Presets (القوالب الجاهزة للتجزئة المتكررة)
+window.getSplitSavedPresetsList = function() {
+    const defaults = [
+        { id: 'preset_50_50', name: '⚖️ مناصفة 50% / 50% (شاحنتان متساويتان)', sectionsCount: 2, ratios: [0.5, 0.5], builtin: true },
+        { id: 'preset_70_30', name: '🏗️ 70% الموقع الرئيسي / 30% المستودع الفرعي', sectionsCount: 2, ratios: [0.7, 0.3], builtin: true },
+        { id: 'preset_3_equal', name: '🚛 توزيع متساوٍ على 3 شاحنات (33.3% لكل شاحنة)', sectionsCount: 3, ratios: [0.3333, 0.3333, 0.3334], builtin: true },
+        { id: 'preset_heavy_light', name: '🏋️ فصل الأصناف الثقيلة في (أ) والخفيفة في (ب)', sectionsCount: 2, mode: 'heavy_light', builtin: true }
+    ];
+    let custom = [];
+    try { custom = JSON.parse(localStorage.getItem('magaies_split_saved_presets_v1') || '[]'); } catch (_e) {}
+    if (!Array.isArray(custom)) custom = [];
+    return [...defaults, ...custom];
+};
+
+window.applySavedSplitPreset = function(presetId) {
+    if (!activeSplitInvoice && typeof window.ensureDemoOrFirstSplitBoardLoaded === 'function') {
+        window.ensureDemoOrFirstSplitBoardLoaded();
+    }
+    if (!activeSplitInvoice) return;
+    const all = window.getSplitSavedPresetsList();
+    const p = all.find(x => String(x.id) === String(presetId));
+    if (!p) return;
+
+    if (p.mode === 'heavy_light' && typeof window.separateHeavyItemsSplit === 'function') {
+        window.separateHeavyItemsSplit();
+        const m = document.getElementById('split-presets-modal');
+        if (m) m.style.display = 'none';
+        return;
+    }
+
+    const S = Math.max(2, Math.min(8, parseInt(p.sectionsCount, 10) || 2));
+    window.splitSectionsCount = S;
+    if (Array.isArray(p.sectionMeta)) {
+        window._splitSectionMeta = {};
+        p.sectionMeta.forEach((mObj, idx) => {
+            if (idx < S && mObj) window._splitSectionMeta[idx] = { ...mObj };
+        });
+    }
+
+    const ratios = Array.isArray(p.ratios) && p.ratios.length === S
+        ? p.ratios
+        : Array.from({ length: S }, () => 1 / S);
+
+    activeSplitInvoice._splitDraftQtys = {};
+    (activeSplitInvoice.items || []).forEach((item, idx) => {
+        const meta = window.resolveSplitItemUnitMeta(item);
+        const maxQty = meta.deliverableQty;
+        let allocated = 0;
+        const rowArr = [];
+        for (let s = 0; s < S; s++) {
+            const qVal = (s === S - 1)
+                ? Math.max(0, +(maxQty - allocated).toFixed(4))
+                : +(maxQty * (parseFloat(ratios[s]) || (1 / S))).toFixed(4);
+            if (s < S - 1) allocated += qVal;
+            rowArr.push(qVal);
+        }
+        activeSplitInvoice._splitDraftQtys[idx] = rowArr;
+    });
+
+    if (typeof renderWorldClassSplitBoard === 'function') renderWorldClassSplitBoard();
+    const modal = document.getElementById('split-presets-modal');
+    if (modal) modal.style.display = 'none';
+    if (typeof showToast === 'function') showToast(`📦 تم تطبيق قالب التجزئة "${p.name}" بنجاح`, 'success');
+};
+
+window.saveCurrentSplitAsPreset = function() {
+    if (!activeSplitInvoice && typeof window.ensureDemoOrFirstSplitBoardLoaded === 'function') {
+        window.ensureDemoOrFirstSplitBoardLoaded();
+    }
+    const nameInp = document.getElementById('split-new-preset-name');
+    const name = (nameInp?.value || '').trim();
+    if (!name) {
+        if (typeof showToast === 'function') showToast('⚠️ يرجى كتابة اسم واضح للقالب قبل الحفظ', 'warning');
+        if (nameInp) nameInp.focus();
+        return;
+    }
+    const S = window.splitSectionsCount || 2;
+    const totalsPerSec = new Array(S).fill(0);
+    let grandQty = 0;
+    (activeSplitInvoice?.items || []).forEach((_, idx) => {
+        for (let s = 0; s < S; s++) {
+            const q = parseFloat(document.getElementById(`split-qty-s${s}-i${idx}`)?.value || 0) || 0;
+            totalsPerSec[s] += q;
+            grandQty += q;
+        }
+    });
+    const ratios = totalsPerSec.map(q => grandQty > 0 ? +(q / grandQty).toFixed(4) : +(1 / S).toFixed(4));
+    const sectionMeta = Array.from({ length: S }, (_, s) => ({
+        receiverName: window._splitSectionMeta?.[s]?.receiverName || '',
+        truckPlate: window._splitSectionMeta?.[s]?.truckPlate || '',
+        deliveryLocation: window._splitSectionMeta?.[s]?.deliveryLocation || '',
+        receiverPhone: window._splitSectionMeta?.[s]?.receiverPhone || '',
+        maxCapacityTon: parseFloat(window._splitSectionMeta?.[s]?.maxCapacityTon) || 5.0
+    }));
+
+    let custom = [];
+    try { custom = JSON.parse(localStorage.getItem('magaies_split_saved_presets_v1') || '[]'); } catch (_e) {}
+    if (!Array.isArray(custom)) custom = [];
+    custom.unshift({
+        id: 'custom_' + Date.now(),
+        name: `⭐ ${name}`,
+        sectionsCount: S,
+        ratios,
+        sectionMeta,
+        createdAt: new Date().toLocaleString('ar-EG')
+    });
+    localStorage.setItem('magaies_split_saved_presets_v1', JSON.stringify(custom));
+    window.openSplitPresetsModal();
+    if (typeof showToast === 'function') showToast(`✅ تم حفظ قالب التجزئة "${name}" للاستخدام السريع في جميع الفواتير القادمة`, 'success');
+};
+
+window.deleteSavedSplitPreset = function(presetId) {
+    let custom = [];
+    try { custom = JSON.parse(localStorage.getItem('magaies_split_saved_presets_v1') || '[]'); } catch (_e) {}
+    custom = (custom || []).filter(x => String(x.id) !== String(presetId));
+    localStorage.setItem('magaies_split_saved_presets_v1', JSON.stringify(custom));
+    window.openSplitPresetsModal();
+    if (typeof showToast === 'function') showToast('🗑️ تم حذف القالب المخصص بنجاح', 'info');
+};
+
+window.openSplitPresetsModal = function() {
+    const presets = window.getSplitSavedPresetsList();
+    let modal = document.getElementById('split-presets-modal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'split-presets-modal';
+        modal.style.cssText = 'display:none; position:fixed; inset:0; background:rgba(2,6,23,0.88); backdrop-filter:blur(12px); z-index:9999999; align-items:center; justify-content:center; direction:rtl; font-family:"Tajawal",sans-serif; padding:16px;';
+        document.body.appendChild(modal);
+    }
+
+    const rowsHtml = presets.map(p => {
+        const ratioTxt = Array.isArray(p.ratios)
+            ? p.ratios.map(r => `${Math.round(r * 100)}%`).join(' : ')
+            : 'فصل ذكي حسب الوزن';
+        return `
+            <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap; background:rgba(15,23,42,0.85); border:1.5px solid rgba(56,189,248,0.4); border-radius:12px; padding:10px 14px;">
+                <div>
+                    <div style="font-weight:900; font-size:0.95rem; color:#bae6fd;">${p.name}</div>
+                    <div style="font-size:0.78rem; color:#94a3b8; margin-top:2px;">عدد الأقسام: <strong>${p.sectionsCount || 2}</strong> | نسب التوزيع: <strong style="color:#38bdf8; font-family:monospace;">${ratioTxt}</strong></div>
+                </div>
+                <div style="display:flex; gap:6px;">
+                    <button type="button" onclick="window.applySavedSplitPreset('${p.id}')" class="kinetic-glow-arm kinetic-arm-cyan" style="padding:6px 14px; border-radius:8px; font-weight:900; cursor:pointer;">⚡ تطبيق فوري</button>
+                    ${!p.builtin ? `<button type="button" onclick="window.deleteSavedSplitPreset('${p.id}')" style="background:rgba(239,68,68,0.2); border:1px solid #f87171; color:#fecaca; padding:6px 10px; border-radius:8px; font-weight:900; cursor:pointer;">🗑️</button>` : ''}
+                </div>
+            </div>
+        `;
+    }).join('');
+
+    modal.innerHTML = `
+        <div class="ds-c1-modal-card" style="width:94vw; max-width:680px; max-height:90vh; overflow-y:auto; background:#111c33; border:2.4px solid #FFFFFF; border-radius:18px; padding:22px; color:#FFFFFF; box-shadow:0 24px 80px rgba(0,0,0,0.92);">
+            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1.5px solid rgba(255,255,255,0.16); padding-bottom:10px; margin-bottom:14px;">
+                <h3 style="margin:0; font-size:1.2rem; font-weight:900; color:#38bdf8;">📦 القوالب الجاهزة للتجزئة المتكررة (Saved Split Presets)</h3>
+                <button type="button" onclick="document.getElementById('split-presets-modal').style.display='none'" style="background:rgba(239,68,68,0.25); border:1.5px solid #f87171; color:#fecaca; border-radius:8px; padding:5px 14px; font-weight:900; cursor:pointer;">✕ إغلاق</button>
+            </div>
+            <div style="background:rgba(15,23,42,0.75); border:1.5px solid rgba(16,185,129,0.4); border-radius:12px; padding:12px; margin-bottom:14px;">
+                <label style="display:block; font-size:0.84rem; font-weight:900; color:#6ee7b7; margin-bottom:6px;">➕ حفظ التوزيعة الحالية والسائقين كقالب جديد متكرر:</label>
+                <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                    <input type="text" id="split-new-preset-name" placeholder="مثال: توزيع مشاريع أم درمان (3 شاحنات)..." style="flex:1; min-width:220px; padding:8px 12px; border-radius:9px; font-weight:800;">
+                    <button type="button" onclick="window.saveCurrentSplitAsPreset()" class="kinetic-glow-arm kinetic-arm-emerald" style="padding:8px 18px; border-radius:9px; font-weight:900; cursor:pointer;">💾 حفظ كقالب</button>
+                </div>
+            </div>
+            <div style="display:flex; flex-direction:column; gap:8px;">
+                ${rowsHtml}
+            </div>
         </div>
     `;
     modal.style.display = 'flex';
@@ -7642,7 +9132,18 @@ function postSalesInvoice(invNo) {
 function unpostSalesInvoice(invNo) {
     if (!invNo) return;
     
-    if (!confirm('هل أنت متأكد من إلغاء ترحيل هذه الفاتورة؟ سيتم عكس التأثيرات المالية.')) return;
+    if (!window._dsConfirmedUnpost && typeof window.openDsConfirmModal === 'function') {
+        window.openDsConfirmModal(
+            '🔓 إلغاء ترحيل الفاتورة',
+            'هل أنت متأكد من إلغاء ترحيل هذه الفاتورة وعكس التأثيرات المالية؟',
+            () => {
+                window._dsConfirmedUnpost = true;
+                unpostSalesInvoice(invNo);
+                setTimeout(() => { window._dsConfirmedUnpost = false; }, 300);
+            }
+        );
+        return;
+    }
     
     revertSalesInvoiceEffects(invNo, false);
     

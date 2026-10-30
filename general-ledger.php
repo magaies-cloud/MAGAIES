@@ -9,7 +9,7 @@ $page_title = 'دفتر الأستاذ (SGL) - Launcher';
 ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
-<script src="js/lang.js?v=<?php echo time(); ?>"></script>
+<script src="js/lang.js?v=20261029_fast"></script>
 <script>
 (function(){
     var l = localStorage.getItem('erp_lang') || 'ar';
@@ -979,9 +979,9 @@ $page_title = 'دفتر الأستاذ (SGL) - Launcher';
 <script src="js/localforage.min.js"></script>
 <script src="js/app.js?v=20261016_v28"></script>
 <script defer src="js/html2pdf.bundle.min.js"></script>
-<script defer src="js/whatsapp-integration.js?v=<?php echo time(); ?>"></script>
-<script defer src="js/erp-whatsapp-suite.js?v=<?php echo time(); ?>"></script>
-<script src="js/general-ledger.js?v=<?php echo time(); ?>"></script>
+<script defer src="js/whatsapp-integration.js?v=20261029_fast"></script>
+<script defer src="js/erp-whatsapp-suite.js?v=20261029_fast"></script>
+<script src="js/general-ledger.js?v=20261029_fast"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     if (typeof window.renderLedgerPresets === 'function') {

@@ -1,3 +1,4 @@
+<?php if (!headers_sent() && extension_loaded('zlib') && !ini_get('zlib.output_compression') && ob_get_level() === 0) { @ob_start('ob_gzhandler'); } ?>
 <?php
 $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
 ?>

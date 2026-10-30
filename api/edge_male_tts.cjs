@@ -252,18 +252,20 @@ function generateSecMsGecV2(unixSeconds = Math.floor(Date.now() / 1000)) {
 
 const SKEW_CACHE_FILE = path.join(__dirname, '..', 'uploads', 'tts_cache', 'clock_skew.json');
 
-function getRealUnixSeconds() {
-    try {
-        if (fs.existsSync(SKEW_CACHE_FILE)) {
-            const data = JSON.parse(fs.readFileSync(SKEW_CACHE_FILE, 'utf8'));
-            if (typeof data.skew === 'number' && Math.abs(Date.now() - data.savedAt) < 3600000) {
-                return Promise.resolve(Math.floor(Date.now() / 1000) + data.skew);
+function getRealUnixSeconds(forceRefresh = false) {
+    if (!forceRefresh) {
+        try {
+            if (fs.existsSync(SKEW_CACHE_FILE)) {
+                const data = JSON.parse(fs.readFileSync(SKEW_CACHE_FILE, 'utf8'));
+                if (typeof data.skew === 'number' && Math.abs(Date.now() - data.savedAt) < 3600000) {
+                    return Promise.resolve(Math.floor(Date.now() / 1000) + data.skew);
+                }
             }
-        }
-    } catch (e) {}
+        } catch (e) {}
+    }
 
     return new Promise((resolve) => {
-        const req = https.request('https://www.bing.com/', { method: 'HEAD', timeout: 2000 }, (res) => {
+        const req = https.request('https://www.bing.com/', { method: 'HEAD', timeout: 2500 }, (res) => {
             if (res.headers && res.headers.date) {
                 const parsed = Date.parse(res.headers.date);
                 if (!isNaN(parsed)) {
@@ -378,16 +380,54 @@ function attemptWsSynthesize(text, outFile, voice, rate, pitch, unixSec) {
 }
 
 async function synthesizeEdgeMale(text, outFile, voice = 'ar-EG-ShakirNeural', rate = '+5%', pitch = '+0Hz') {
-    const realSec = await getRealUnixSeconds();
-    return await attemptWsSynthesize(text, outFile, voice, rate, pitch, realSec);
+    // Strictly Male Voices Only — never allow any non-male voice name
+    const allowedMaleVoices = ['ar-EG-ShakirNeural', 'ar-SA-HamedNeural', 'ar-AE-HamdanNeural'];
+    const primaryVoice = allowedMaleVoices.includes(voice) ? voice : 'ar-EG-ShakirNeural';
+    const fallbackMaleOrder = [
+        primaryVoice,
+        primaryVoice,
+        'ar-EG-ShakirNeural',
+        'ar-SA-HamedNeural'
+    ];
+
+    let lastErr = null;
+    for (let attempt = 0; attempt < fallbackMaleOrder.length; attempt++) {
+        try {
+            const realSec = await getRealUnixSeconds(attempt > 0);
+            const activeMaleVoice = fallbackMaleOrder[attempt];
+            return await attemptWsSynthesize(text, outFile, activeMaleVoice, rate, pitch, realSec);
+        } catch (err) {
+            lastErr = err;
+            await new Promise(r => setTimeout(r, 180 * (attempt + 1)));
+        }
+    }
+    throw lastErr || new Error('Male neural synthesis failed after retries');
 }
 
 if (require.main === module) {
-    const text = process.argv[2] || '';
-    const outFile = process.argv[3] || '';
-    const voice = process.argv[4] || 'ar-EG-ShakirNeural';
-    const rate = process.argv[5] || '+5%';
-    const pitch = process.argv[6] || '+0Hz';
+    const rawArg = process.argv[2] || '';
+    let text = '';
+    let outFile = process.argv[3] || '';
+    let voice = process.argv[4] || 'ar-EG-ShakirNeural';
+    let rate = process.argv[5] || '-8%';
+    let pitch = process.argv[6] || '-1Hz';
+
+    if (rawArg.startsWith('JSONB64:')) {
+        try {
+            const parsed = JSON.parse(Buffer.from(rawArg.slice(8), 'base64').toString('utf8'));
+            text = parsed.text || '';
+            outFile = parsed.outFile || outFile;
+            voice = parsed.voice || voice;
+            rate = parsed.rate || rate;
+            pitch = parsed.pitch || pitch;
+        } catch (e) {}
+    } else {
+        text = rawArg.startsWith('B64:') ? Buffer.from(rawArg.slice(4), 'base64').toString('utf8') : rawArg;
+    }
+    rate = String(rate || '-8%').trim();
+    if (/^[+-]?\d+$/.test(rate)) rate += '%';
+    pitch = String(pitch || '-1Hz').trim();
+    if (/^[+-]?\d+$/.test(pitch)) pitch += 'Hz';
     synthesizeEdgeMale(text, outFile, voice, rate, pitch)
         .then((bytes) => {
             console.log('OK_BYTES:' + bytes);

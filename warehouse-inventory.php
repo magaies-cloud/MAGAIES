@@ -1,3 +1,4 @@
+<?php if (!headers_sent() && extension_loaded('zlib') && !ini_get('zlib.output_compression') && ob_get_level() === 0) { @ob_start('ob_gzhandler'); } ?>
 <?php $page_title = 'المخازن'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
@@ -16,9 +17,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>مقاييس (MAGAIEES) - تقارير وجرد المخازن</title>
-    <link rel="stylesheet" href="css/design-system.css?v=<?php echo time(); ?>">
-    <link rel="stylesheet" href="css/theme.css?v=<?php echo time(); ?>">
-    <link rel="stylesheet" href="css/components.css?v=<?php echo time(); ?>">
+    <link rel="stylesheet" href="css/design-system.css?v=20261029_fast">
+    <link rel="stylesheet" href="css/theme.css?v=20261029_fast">
+    <link rel="stylesheet" href="css/components.css?v=20261029_fast">
     <style>
         :root {
             /* World-Class Executive ERP Theme */

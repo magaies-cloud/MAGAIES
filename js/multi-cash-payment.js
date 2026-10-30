@@ -2150,6 +2150,15 @@ async function confirmDelete() {
             }
             existingData.splice(idx, 1);
             saveStoredVouchers(storageKey, existingData);
+        try {
+            const savedSeq = window.extractUniversalVoucherSeq ? window.extractUniversalVoucherSeq(vNo) : 0;
+            if (savedSeq > 0) {
+                window.DB_UNIVERSAL_MAX_SEQ = Math.max(parseInt(window.DB_UNIVERSAL_MAX_SEQ, 10) || 0, savedSeq);
+                const known = JSON.parse(localStorage.getItem('magaies_last_known_sequences_v1') || '{}');
+                known.finance = Math.max(parseInt(known.finance, 10) || 0, savedSeq);
+                localStorage.setItem('magaies_last_known_sequences_v1', JSON.stringify(known));
+            }
+        } catch(eSeq) {} if (typeof window.pushToCloud === 'function') { try { window.pushToCloud(true); } catch(e){} } if (typeof window.updateAllLiveBalances === 'function') { try { window.updateAllLiveBalances(); } catch(e){} }
             if (window.rebuildGLFromAllTables) {
                 try { window.rebuildGLFromAllTables(false); } catch(e) {}
             }
@@ -2225,7 +2234,15 @@ async function _saveVoucherCore() {
 
     const type = document.getElementById('voucher-type').value;
     const date = document.getElementById('voucher-date').value;
-    const mainAccount = document.getElementById('main-account').getAttribute('data-id') || document.getElementById('main-account').value;
+    const mainAccInput = document.getElementById('main-account');
+    const mainAccSearchEl = document.getElementById('main-account-search');
+    const mainAccount = (mainAccInput && (mainAccInput.getAttribute('data-id') || mainAccInput.value)) || (mainAccSearchEl ? mainAccSearchEl.value.trim() : '');
+    if (!mainAccount) {
+        showToast(type === 'payment' ? 'يرجى اختيار الحساب الرئيسي (من حساب - الصرف) في الأعلى' : 'يرجى اختيار الحساب الرئيسي (إلى حساب - الاستلام) في الأعلى', 'error');
+        if (mainAccSearchEl) { highlightError(mainAccSearchEl); mainAccSearchEl.focus(); }
+        reEnableSave();
+        return;
+    }
     const desc = document.getElementById('voucher-desc').value.trim();
     const ref = document.getElementById('voucher-ref') ? document.getElementById('voucher-ref').value.trim() : '';
     const currency = (document.getElementById('currency') ? document.getElementById('currency').value : 'SDG') || 'SDG';
@@ -2433,7 +2450,7 @@ async function _saveVoucherCore() {
     let vNo = displayVal;
     if (!vNo || vNo.startsWith('MV-') || vNo.startsWith('MV17')) {
         const yymm = (date || '').replace(/-/g, '').substring(2, 6) || '2608';
-        vNo = 'M' + yymm + String(Math.floor(Math.random() * 8999) + 1000);
+        if (typeof loadNextMultiVoucherNumber === 'function') loadNextMultiVoucherNumber(); vNo = (document.getElementById('voucher-no-display') ? document.getElementById('voucher-no-display').value : '').trim() || ((type === 'receipt' ? 'BR' : 'BP') + yymm + '0001');
         if (document.getElementById('voucher-no-display')) {
             document.getElementById('voucher-no-display').value = vNo;
         }
@@ -2534,6 +2551,15 @@ async function _saveVoucherCore() {
 
         // SAVE TO BOTH TENANT KEY AND BASE KEY
         saveStoredVouchers(storageKey, existingData);
+        try {
+            const savedSeq = window.extractUniversalVoucherSeq ? window.extractUniversalVoucherSeq(vNo) : 0;
+            if (savedSeq > 0) {
+                window.DB_UNIVERSAL_MAX_SEQ = Math.max(parseInt(window.DB_UNIVERSAL_MAX_SEQ, 10) || 0, savedSeq);
+                const known = JSON.parse(localStorage.getItem('magaies_last_known_sequences_v1') || '{}');
+                known.finance = Math.max(parseInt(known.finance, 10) || 0, savedSeq);
+                localStorage.setItem('magaies_last_known_sequences_v1', JSON.stringify(known));
+            }
+        } catch(eSeq) {} if (typeof window.pushToCloud === 'function') { try { window.pushToCloud(true); } catch(e){} } if (typeof window.updateAllLiveBalances === 'function') { try { window.updateAllLiveBalances(); } catch(e){} }
 
         // Apply dynamic account balance effects BEFORE pushing to cloud
         if (typeof applyGroupedVoucherEffect === 'function') {
@@ -3225,7 +3251,7 @@ async function loadNextMultiVoucherNumber() {
     const yy = String(validDate.getFullYear()).substring(2, 4);
     const mm = String(validDate.getMonth() + 1).padStart(2, '0');
     const datePrefix = yy + mm;
-    const prefix = 'M';
+    const prefix = (type === 'receipt') ? 'BR' : 'BP';
     
     let max = 0;
     const groupedVouchers = existingData.filter(v => v.isGrouped);
@@ -3699,6 +3725,9 @@ function applyGroupedVoucherEffect(voucher, isRevert = false) {
                 let sourceAcc = mainAccIdFallback;
                 // Cheques usually hit main bank or stay as notes, fallback to main account for local balance
                 applyBalanceChange(sourceAcc, chequeAmt * sourceEffectMultiplier);
+            }
+            if (cashAmt === 0 && bankAmt === 0 && chequeAmt === 0 && itemAmt !== 0 && mainAccIdFallback) {
+                applyBalanceChange(mainAccIdFallback, itemAmt * sourceEffectMultiplier);
             }
         });
     }
@@ -8727,6 +8756,10 @@ window.updateAllLiveBalances = function() {
         const bCol1 = bBefore.status === 'debit' ? '#fca5a5' : (bBefore.status === 'credit' ? '#6ee7b7' : '#cbd5e1');
         const bCol2 = bAfter.status === 'debit' ? '#fca5a5' : (bAfter.status === 'credit' ? '#6ee7b7' : '#fef08a');
 
+        let quickSettleBtn = '';
+        if (bBefore.amount > 0 && Math.abs(blockAmt - bBefore.amount) > 0.01) {
+            quickSettleBtn = `<button type="button" onclick="window.quickSettlePartyBalance('${bid}', ${bBefore.amount})" style="background:linear-gradient(135deg,#059669,#047857); border:1px solid #34d399; color:#ffffff; padding:2px 9px; border-radius:6px; font-size:0.76rem; font-weight:800; cursor:pointer; white-space:nowrap;" title="تعبئة كامل الرصيد المتبقي تلقائياً في هذا السطر">⚡ تصفية الرصيد (${fmtNum(bBefore.amount)})</button>`;
+        }
         balBox.style.display = 'flex';
         balBox.innerHTML = `
             <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
@@ -8734,6 +8767,7 @@ window.updateAllLiveBalances = function() {
                 <span style="opacity:0.45;">➔</span>
                 <span>✨ <b>بعد الحركة:</b> <span style="color:${bCol2}; font-family:monospace;">${fmtNum(bAfter.amount)} ${currency} (${bAfter.shortTag})</span></span>
             </div>
+            ${quickSettleBtn}
         `;
     });
 };
@@ -9461,4 +9495,24 @@ window.deleteBatchTemplate = function(idx) {
     templates.splice(idx, 1);
     localStorage.setItem(tplKey, JSON.stringify(templates));
     window.openBatchTemplatesModal();
+};
+
+window.quickSettlePartyBalance = function(bid, amt) {
+    const block = document.querySelector('.account-block[data-block-id="' + bid + '"]');
+    if (!block) return;
+    const btnCash = document.getElementById('pm-cash-' + bid);
+    const btnBank = document.getElementById('pm-bank-' + bid);
+    const btnCheque = document.getElementById('pm-cheque-' + bid);
+    let targetInp = null;
+    if (btnCash && btnCash.classList.contains('active')) targetInp = block.querySelector('.block-cash-amount');
+    else if (btnBank && btnBank.classList.contains('active')) targetInp = block.querySelector('.block-bank-amount');
+    else if (btnCheque && btnCheque.classList.contains('active')) targetInp = block.querySelector('.block-cheque-amount');
+    else {
+        if (typeof window.toggleBlockPaymentMethod === 'function') window.toggleBlockPaymentMethod(bid, 'cash');
+        targetInp = block.querySelector('.block-cash-amount');
+    }
+    if (targetInp) {
+        targetInp.value = fmtNum(amt, 2);
+        targetInp.dispatchEvent(new Event('input', { bubbles: true }));
+    }
 };

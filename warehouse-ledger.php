@@ -1716,7 +1716,7 @@ try {
                 window.print();
             }, 100);
         }</script>
-<script src="js/universal-report-studio.js?v=<?php echo time(); ?>"></script>
+<script src="js/universal-report-studio.js?v=20261029_fast"></script>
 <script>
 // ── Preset Buttons: Apply preset then open preview page directly ──
 function applyAndOpenPreview(index, btn) {

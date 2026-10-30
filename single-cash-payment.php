@@ -1,3 +1,4 @@
+<?php if (!headers_sent() && extension_loaded('zlib') && !ini_get('zlib.output_compression') && ob_get_level() === 0) { @ob_start('ob_gzhandler'); } ?>
 <?php
 header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
 header("Cache-Control: post-check=0, pre-check=0", false);
@@ -428,7 +429,7 @@ try {
 
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
-<script src="js/lang.js?v=<?php echo time(); ?>"></script>
+<script src="js/lang.js?v=20261029_fast"></script>
 <script>
 (function(){
     var l = localStorage.getItem('erp_lang') || 'ar';
@@ -2300,32 +2301,32 @@ try {
         html body .scp-from-card,
         html.light-theme body .scp-from-card,
         html[data-theme] body .scp-from-card {
-            background: linear-gradient(135deg, rgba(220, 38, 38, 0.34) 0%, rgba(153, 27, 27, 0.52) 100%) !important;
-            border: 2.5px solid #ef4444 !important;
+            background: linear-gradient(135deg, rgba(127, 29, 29, 0.16) 0%, rgba(69, 10, 10, 0.32) 100%) !important;
+            border: 2px solid rgba(239, 68, 68, 0.55) !important;
             border-radius: 14px !important;
             padding: 12px 18px !important;
-            box-shadow: 0 0 26px rgba(239, 68, 68, 0.42), inset 0 0 20px rgba(239, 68, 68, 0.22) !important;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35), 0 0 12px rgba(239, 68, 68, 0.18), inset 0 1px 0 rgba(254, 202, 202, 0.1) !important;
             transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
         }
         html body .scp-from-card:hover,
         html body .scp-from-card:focus-within {
-            background: linear-gradient(135deg, rgba(220, 38, 38, 0.44) 0%, rgba(127, 29, 29, 0.62) 100%) !important;
-            border-color: #ff4d4d !important;
-            box-shadow: 0 0 38px rgba(239, 68, 68, 0.75), 0 0 15px rgba(255, 77, 77, 0.5), inset 0 0 24px rgba(239, 68, 68, 0.3) !important;
+            background: linear-gradient(135deg, rgba(127, 29, 29, 0.24) 0%, rgba(69, 10, 10, 0.42) 100%) !important;
+            border-color: rgba(248, 113, 113, 0.85) !important;
+            box-shadow: 0 0 18px rgba(239, 68, 68, 0.32), inset 0 0 10px rgba(239, 68, 68, 0.12) !important;
             transform: translateY(-2px) !important;
         }
         html body .scp-from-card .label,
         html.light-theme body .scp-from-card .label {
             color: #fecaca !important;
-            text-shadow: 0 2px 6px rgba(0, 0, 0, 0.65) !important;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8) !important;
         }
         html body #from-account-search,
         html.light-theme body #from-account-search,
         html[data-theme] body #from-account-search {
-            background: rgba(69, 10, 10, 0.82) !important;
+            background: rgba(24, 12, 14, 0.90) !important;
             color: #fef08a !important;
-            border: 2px solid #f87171 !important;
-            box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.45), 0 0 12px rgba(239, 68, 68, 0.3) !important;
+            border: 1.8px solid rgba(248, 113, 113, 0.55) !important;
+            box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.5), 0 0 8px rgba(239, 68, 68, 0.15) !important;
         }
         html body #from-account-search::placeholder {
             color: rgba(254, 202, 202, 0.75) !important;
@@ -2334,30 +2335,33 @@ try {
         html body .scp-to-card,
         html.light-theme body .scp-to-card,
         html[data-theme] body .scp-to-card {
-            background: linear-gradient(135deg, rgba(16, 185, 129, 0.34) 0%, rgba(6, 95, 70, 0.52) 100%) !important;
-            border: 2.5px solid #10b981 !important;
+            background: linear-gradient(135deg, rgba(6, 78, 59, 0.18) 0%, rgba(2, 44, 34, 0.32) 100%) !important;
+            border: 2px solid rgba(16, 185, 129, 0.55) !important;
             border-radius: 14px !important;
             padding: 12px 18px !important;
-            box-shadow: 0 0 26px rgba(16, 185, 129, 0.42), inset 0 0 20px rgba(16, 185, 129, 0.22) !important;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35), 0 0 12px rgba(16, 185, 129, 0.18), inset 0 1px 0 rgba(167, 243, 208, 0.1) !important;
             transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
         }
         html body .scp-to-card:hover,
         html body .scp-to-card:focus-within {
-            background: linear-gradient(135deg, rgba(16, 185, 129, 0.44) 0%, rgba(4, 120, 87, 0.62) 100%) !important;
-            border-color: #34d399 !important;
-            box-shadow: 0 0 38px rgba(16, 185, 129, 0.75), 0 0 15px rgba(52, 211, 153, 0.5), inset 0 0 24px rgba(16, 185, 129, 0.3) !important;
+            background: linear-gradient(135deg, rgba(6, 78, 59, 0.26) 0%, rgba(2, 44, 34, 0.42) 100%) !important;
+            border-color: rgba(52, 211, 153, 0.85) !important;
+            box-shadow: 0 0 18px rgba(16, 185, 129, 0.32), inset 0 0 10px rgba(16, 185, 129, 0.12) !important;
             transform: translateY(-2px) !important;
         }
         html body .scp-to-card .label,
         html.light-theme body .scp-to-card .label {
             color: #a7f3d0 !important;
-            text-shadow: 0 2px 6px rgba(0, 0, 0, 0.65) !important;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8) !important;
         }
         html body #to-account-search,
         html.light-theme body #to-account-search,
         html[data-theme] body #to-account-search {
-            background: rgba(6, 78, 59, 0.82) !important;
+            background: rgba(6, 26, 20, 0.90) !important;
             color: #fef08a !important;
+            border: 1.8px solid rgba(52, 211, 153, 0.55) !important;
+            box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.5), 0 0 8px rgba(16, 185, 129, 0.15) !important;
+        }
             border: 2px solid #34d399 !important;
             box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.45), 0 0 12px rgba(16, 185, 129, 0.3) !important;
         }
@@ -2529,17 +2533,17 @@ try {
             transform: translateY(-2px) scale(1.02) !important;
         }
 
-        /* Specialized Focus Illumination for From Account (Red Glow) & To Account (Green Glow) */
+        /* Specialized Focus Illumination for From Account (Refined Red) & To Account (Refined Green) */
         html body .single-unified-form #from-account-search:focus,
         html.light-theme body .single-unified-form #from-account-search:focus {
-            border: 2.5px solid #ff4d4d !important;
-            box-shadow: 0 0 25px rgba(239, 68, 68, 0.9), 0 0 45px rgba(239, 68, 68, 0.5), inset 0 0 12px rgba(239, 68, 68, 0.3) !important;
+            border: 2px solid rgba(248, 113, 113, 0.95) !important;
+            box-shadow: 0 0 14px rgba(239, 68, 68, 0.35), inset 0 0 8px rgba(239, 68, 68, 0.15) !important;
             animation: none !important;
         }
         html body .single-unified-form #to-account-search:focus,
         html.light-theme body .single-unified-form #to-account-search:focus {
-            border: 2.5px solid #34d399 !important;
-            box-shadow: 0 0 25px rgba(16, 185, 129, 0.9), 0 0 45px rgba(16, 185, 129, 0.5), inset 0 0 12px rgba(16, 185, 129, 0.3) !important;
+            border: 2px solid rgba(52, 211, 153, 0.95) !important;
+            box-shadow: 0 0 14px rgba(16, 185, 129, 0.35), inset 0 0 8px rgba(16, 185, 129, 0.15) !important;
             animation: none !important;
         }
     </style>
@@ -2717,37 +2721,37 @@ try {
                                 </svg>
                             </div>
 
-                            <!-- من حساب (Rich Crimson Red) -->
-                            <div class="scp-account-card scp-from-card" style="background: linear-gradient(135deg, rgba(220, 38, 38, 0.34), rgba(153, 27, 27, 0.52)); padding: 12px 18px; border-radius: 14px; border: 2.5px solid #ef4444; display: flex; flex-direction: column; gap: 8px; box-shadow: 0 0 26px rgba(239, 68, 68, 0.42), inset 0 0 20px rgba(239, 68, 68, 0.22);" data-swap="1">
+                            <!-- من حساب (Refined Crimson Burgundy) -->
+                            <div class="scp-account-card scp-from-card" data-swap="1">
                                 <div style="display: flex; align-items: center; gap: 10px; width: 100%;">
                                     <label class="label" style="display:flex; align-items:center; gap:5px; color:#fecaca; margin-bottom:0; font-weight:800; white-space:nowrap; flex-shrink:0; font-size: 1.5rem !important;">
-                                        <span style="display:flex; align-items:center; justify-content:center; width: 28px; height: 28px; background: rgba(239, 68, 68, 0.35); border: 1px solid #f87171; border-radius: 50%; color: #fff;">
+                                        <span style="display:flex; align-items:center; justify-content:center; width: 28px; height: 28px; background: rgba(239, 68, 68, 0.25); border: 1px solid rgba(248, 113, 113, 0.6); border-radius: 50%; color: #fff;">
                                               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"></line><polyline points="5 12 12 5 19 12"></polyline></svg>
                                         </span>
                                         من حساب <span style="color:#ffffff;">(صرف)</span>
                                     </label>
                                     <div class="custom-dropdown-input-wrap" style="flex-grow: 1; width: 100%; min-width: 0; position: relative;">
                                         <input type="hidden" id="from-account">
-                                        <input type="text" autocomplete="off" class="form-input input-glow-focus hover-glow" id="from-account-search" placeholder="ابحث عن حساب الصرف..." onfocus="showAccountDropdown('from')" onblur="hideAccountDropdownDelayed('from')" oninput="filterAccountDropdown('from')" style="width: 100%; padding: 12px 15px 12px 95px; border-radius: 10px; font-weight: bold; font-size: 1.55rem !important; border: 2px solid #f87171; background: rgba(69, 10, 10, 0.82); color: #fef08a;">
-                                        <button type="button" id="from-account-ledger-btn" onclick="openGeneralLedgerForAccount(document.getElementById('from-account').value)" class="crystal-btn-sm btn-blue-glass" style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); z-index: 5; font-size: 0.8rem; padding: 4px 8px; height: 32px; display: none;" title="دفتر الأستاذ العام">📖 دفتر الأستاذ</button>
+                                        <input type="text" autocomplete="off" class="form-input input-glow-focus hover-glow" id="from-account-search" placeholder="ابحث عن حساب الصرف..." onfocus="showAccountDropdown('from')" onblur="hideAccountDropdownDelayed('from')" oninput="filterAccountDropdown('from'); if(typeof adjustAccountNameFontSize==='function') adjustAccountNameFontSize(this);" style="width: 100%; padding: 12px 15px 12px 82px; border-radius: 10px; font-weight: bold; font-size: 1.55rem !important;">
+                                        <button type="button" id="from-account-ledger-btn" onclick="openGeneralLedgerForAccount(document.getElementById('from-account').value)" class="crystal-btn-sm btn-blue-glass" style="position: absolute; left: 8px; top: 50%; transform: translateY(-50%); z-index: 5; font-size: 0.78rem; font-weight: 800; padding: 2px 7px; height: 28px; display: none;" title="عرض كشف حساب الأستاذ العام">📖 الأستاذ</button>
                                         <div class="custom-dropdown-list" id="from-account-dropdown-list" style="position: absolute; top: 100%; left: 0; right: 0; z-index: 9999; background: var(--surface, #1e293b); border: 1px solid var(--border, rgba(255,255,255,0.1)); border-radius: 8px; max-height: 250px; overflow-y: auto; text-align: right; box-shadow: 0 10px 25px rgba(0,0,0,0.3); display: none; margin-top: 5px;"></div>
                                     </div>
                                 </div>
                                 <div id="from-account-live-bal" style="display: none; align-items: center; justify-content: space-between; gap: 8px; padding: 5px 12px; border-radius: 8px; background: rgba(0,0,0,0.35); border: 1px solid rgba(248, 113, 113, 0.45); font-size: 0.88rem; font-weight: 800; color: #fecaca; flex-wrap: wrap;"></div>
                             </div>
-                            <!-- إلى حساب (Rich Emerald Green) -->
-                            <div class="scp-account-card scp-to-card" style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.34), rgba(6, 95, 70, 0.52)); padding: 12px 18px; border-radius: 14px; border: 2.5px solid #10b981; display: flex; flex-direction: column; gap: 8px; box-shadow: 0 0 26px rgba(16, 185, 129, 0.42), inset 0 0 20px rgba(16, 185, 129, 0.22);" data-swap="1">
+                            <!-- إلى حساب (Refined Emerald Green) -->
+                            <div class="scp-account-card scp-to-card" data-swap="1">
                                 <div style="display: flex; align-items: center; gap: 10px; width: 100%;">
                                     <label class="label" style="display:flex; align-items:center; gap:5px; color:#a7f3d0; margin-bottom:0; font-weight:800; white-space:nowrap; flex-shrink:0; font-size: 1.5rem !important;">
-                                        <span style="display:flex; align-items:center; justify-content:center; width: 28px; height: 28px; background: rgba(16, 185, 129, 0.35); border: 1px solid #34d399; border-radius: 50%; color: #fff;">
+                                        <span style="display:flex; align-items:center; justify-content:center; width: 28px; height: 28px; background: rgba(16, 185, 129, 0.25); border: 1px solid rgba(52, 211, 153, 0.6); border-radius: 50%; color: #fff;">
                                               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><polyline points="19 12 12 19 5 12"></polyline></svg>
                                         </span>
                                         إلى حساب <span style="color:#ffffff;">(استلام)</span>
                                     </label>
                                     <div class="custom-dropdown-input-wrap" style="flex-grow: 1; width: 100%; min-width: 0; position: relative;">
                                         <input type="hidden" id="to-account">
-                                        <input type="text" autocomplete="off" class="form-input input-glow-focus hover-glow" id="to-account-search" placeholder="ابحث عن حساب الاستلام..." onfocus="showAccountDropdown('to')" onblur="hideAccountDropdownDelayed('to')" oninput="filterAccountDropdown('to')" style="width: 100%; padding: 12px 15px 12px 95px; border-radius: 10px; font-weight: bold; font-size: 1.55rem !important; border: 2px solid #34d399; background: rgba(6, 78, 59, 0.82); color: #fef08a;">
-                                        <button type="button" id="to-account-ledger-btn" onclick="openGeneralLedgerForAccount(document.getElementById('to-account').value)" class="crystal-btn-sm btn-blue-glass" style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); z-index: 5; font-size: 0.8rem; padding: 4px 8px; height: 32px; display: none;" title="دفتر الأستاذ العام">📖 دفتر الأستاذ</button>
+                                        <input type="text" autocomplete="off" class="form-input input-glow-focus hover-glow" id="to-account-search" placeholder="ابحث عن حساب الاستلام..." onfocus="showAccountDropdown('to')" onblur="hideAccountDropdownDelayed('to')" oninput="filterAccountDropdown('to'); if(typeof adjustAccountNameFontSize==='function') adjustAccountNameFontSize(this);" style="width: 100%; padding: 12px 15px 12px 82px; border-radius: 10px; font-weight: bold; font-size: 1.55rem !important;">
+                                        <button type="button" id="to-account-ledger-btn" onclick="openGeneralLedgerForAccount(document.getElementById('to-account').value)" class="crystal-btn-sm btn-blue-glass" style="position: absolute; left: 8px; top: 50%; transform: translateY(-50%); z-index: 5; font-size: 0.78rem; font-weight: 800; padding: 2px 7px; height: 28px; display: none;" title="عرض كشف حساب الأستاذ العام">📖 الأستاذ</button>
                                         <div class="custom-dropdown-list" id="to-account-dropdown-list" style="position: absolute; top: 100%; left: 0; right: 0; z-index: 9999; background: var(--surface, #1e293b); border: 1px solid var(--border, rgba(255,255,255,0.1)); border-radius: 8px; max-height: 250px; overflow-y: auto; text-align: right; box-shadow: 0 10px 25px rgba(0,0,0,0.3); display: none; margin-top: 5px;"></div>
                                     </div>
                                 </div>
@@ -3399,10 +3403,10 @@ try {
     </div>
 
     <script defer src="js/localforage.min.js"></script>
-    <script defer src="js/promissory-flight-animation.js?v=<?php echo time(); ?>"></script>
+    <script defer src="js/promissory-flight-animation.js?v=20261029_fast"></script>
     <script defer src="js/app.js?v=20261016_v28"></script>
     <script defer src="js/html2pdf.bundle.min.js"></script>
-    <script defer src="js/whatsapp-integration.js?v=<?php echo time(); ?>"></script>
+    <script defer src="js/whatsapp-integration.js?v=20261029_fast"></script>
     
     <script>
       document.addEventListener('DOMContentLoaded', () => {
@@ -3420,11 +3424,20 @@ try {
         window.DB_ALL_TRANSFER_REFS = <?php echo $SERVER_ALL_TRANSFERS_json; ?>;
     </script>
     <script defer src="js/master-banks-helper.js?v=<?php echo file_exists('js/master-banks-helper.js') ? filemtime('js/master-banks-helper.js') : '1'; ?>"></script>
-    <script defer src="js/single-cash-payment.js?v=<?php echo time(); ?>"></script>
+    <script defer src="js/single-cash-payment.js?v=20261029_fast"></script>
     <script>
         let lastEnterTime = 0;
-        // Perfected Exact Path Enter Navigation
+        // Perfected Exact Path Enter Navigation & Ctrl+S Instant Save
         document.addEventListener('keydown', function(e) {
+            // 🌟 اختصار الحفظ السريع الذكي (Ctrl + S / Cmd + S) من أي مكان بالشاشة
+            if ((e.ctrlKey || e.metaKey) && (e.key === 's' || e.key === 'S' || e.key === 'س')) {
+                e.preventDefault();
+                if (typeof submitVoucher === 'function') {
+                    submitVoucher();
+                }
+                return;
+            }
+
             if (e.key === 'Enter') {
                 let now = Date.now();
                 if (now - lastEnterTime < 200) { e.preventDefault(); return; } // prevent rapid double jump
@@ -3451,24 +3464,61 @@ try {
 
                 let nextAction = null;
 
-                if (id === 'from-account-search' || id === 'to-account-search') {
+                if (id === 'amount-local') {
+                    nextAction = () => {
+                        const fromSearch = document.getElementById('from-account-search');
+                        if (fromSearch) { fromSearch.focus(); fromSearch.select(); }
+                    };
+                } else if (id === 'amount-foreign') {
+                    nextAction = () => {
+                        const fromSearch = document.getElementById('from-account-search');
+                        if (fromSearch) { fromSearch.focus(); fromSearch.select(); }
+                    };
+                } else if (id === 'currency') {
+                    nextAction = () => { let n = document.getElementById('exchange-rate'); if (n) { n.focus(); n.select(); } };
+                } else if (id === 'exchange-rate') {
+                    nextAction = () => { let n = document.getElementById('amount-foreign'); if (n) { n.focus(); n.select(); } };
+                } else if (id === 'from-account-search' || id === 'to-account-search') {
                     nextAction = () => {
                         let type = id.split('-')[0];
                         let list = document.getElementById(type + '-account-dropdown-list');
                         if (list && list.classList.contains('show')) {
                             let firstItem = list.querySelector('.custom-dropdown-item');
                             if (firstItem && typeof firstItem.onmousedown === 'function') {
-                                firstItem.onmousedown(); // This calls selectAccount and auto-focuses
-                            }
-                        } else {
-                            if (id === 'from-account-search') {
-                                const toSearch = document.getElementById('to-account-search');
-                                if (toSearch) { toSearch.focus(); toSearch.select(); }
-                            } else {
-                                const amts = document.querySelectorAll('.transfer-amount');
-                                if (amts.length > 0) { amts[0].focus(); amts[0].select(); }
+                                firstItem.onmousedown();
+                                return;
                             }
                         }
+                        if (id === 'from-account-search') {
+                            const toSearch = document.getElementById('to-account-search');
+                            if (toSearch) { toSearch.focus(); toSearch.select(); }
+                        } else {
+                            // انتقل بسلاسة إلى حقل المستفيد أو البيان المحاسبي
+                            const benef = document.getElementById('beneficiary-name');
+                            const stmt = document.getElementById('to-statement');
+                            if (benef && benef.offsetParent !== null) { benef.focus(); benef.select(); }
+                            else if (stmt) { stmt.focus(); stmt.select(); }
+                            else { document.getElementById('btn-save')?.focus(); }
+                        }
+                    };
+                } else if (id === 'beneficiary-name') {
+                    nextAction = () => {
+                        const cc = document.getElementById('cost-center');
+                        const stmt = document.getElementById('to-statement');
+                        if (cc && cc.offsetParent !== null && cc.value === '') { cc.focus(); }
+                        else if (stmt) { stmt.focus(); stmt.select(); }
+                        else { document.getElementById('btn-save')?.focus(); }
+                    };
+                } else if (id === 'cost-center') {
+                    nextAction = () => {
+                        const stmt = document.getElementById('to-statement');
+                        if (stmt) { stmt.focus(); stmt.select(); }
+                        else { document.getElementById('btn-save')?.focus(); }
+                    };
+                } else if (id === 'to-statement' || id === 'from-statement') {
+                    nextAction = () => {
+                        const saveBtn = document.getElementById('btn-save');
+                        if (saveBtn) { saveBtn.focus(); }
                     };
                 } else if (current.classList.contains('transfer-amount')) {
                     nextAction = () => {
@@ -3496,46 +3546,9 @@ try {
                     };
                 } else if (current.classList.contains('transfer-statement')) {
                     nextAction = () => {
-                        if (typeof addTransferRow === 'function') {
-                            addTransferRow('', '', 0);
-                            setTimeout(() => {
-                                const amts = document.querySelectorAll('.transfer-amount');
-                                if (amts.length > 0) {
-                                    const lastAmt = amts[amts.length - 1];
-                                    lastAmt.focus();
-                                    lastAmt.select();
-                                }
-                            }, 100);
-                        }
+                        const saveBtn = document.getElementById('btn-save');
+                        if (saveBtn) { saveBtn.focus(); }
                     };
-                } else if (!id) {
-                    return; // Ignore other inputs without IDs
-                } else if (id === 'amount-local') {
-                    nextAction = () => { 
-                        document.getElementById('to-account-search').focus();
-                    };
-                } else if (id === 'to-statement') {
-                    nextAction = () => { let n = document.getElementById('currency'); n.focus(); };
-                } else if (id === 'currency') {
-                    nextAction = () => { let n = document.getElementById('exchange-rate'); n.focus(); n.select(); };
-                } else if (id === 'exchange-rate') {
-                    nextAction = () => { let n = document.getElementById('beneficiary-name'); n.focus(); n.select(); };
-                } else if (id === 'amount-foreign') {
-                    nextAction = () => { let n = document.getElementById('beneficiary-name'); n.focus(); n.select(); };
-                } else if (id === 'beneficiary-name') {
-                    nextAction = () => {
-                        const btnBank = document.getElementById('toggle-bank');
-                        if (btnBank && !btnBank.classList.contains('active')) { if (typeof togglePaymentSection === 'function') togglePaymentSection('bank'); }
-                        const bankSec = document.getElementById('pay-bank-section');
-                        if (bankSec) bankSec.style.display = 'flex';
-                        const container = document.getElementById('transfers-container');
-                        if (container && container.children.length === 0 && typeof addTransferRow === 'function') { addTransferRow('', '', 0); }
-                        setTimeout(() => { const amtInput = document.querySelector('.transfer-amount'); if (amtInput) { amtInput.focus(); amtInput.select(); } }, 150);
-                    };
-                } else if (id === 'cost-center') {
-                    nextAction = () => { let n = document.getElementById('from-statement'); n.focus(); n.select(); };
-                } else if (id === 'from-statement') {
-                    nextAction = () => { document.getElementById('btn-save').focus(); };
                 }
 
                 if (nextAction) {

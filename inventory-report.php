@@ -20,8 +20,8 @@ $header_theme_class = "header-theme-inventory";
     <title><?php echo $page_title; ?> - نظام مقاييس</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/theme.css?v=<?php echo time(); ?>">
-    <link rel="stylesheet" href="css/components.css?v=<?php echo time(); ?>">
+    <link rel="stylesheet" href="css/theme.css?v=20261029_fast">
+    <link rel="stylesheet" href="css/components.css?v=20261029_fast">
     
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>

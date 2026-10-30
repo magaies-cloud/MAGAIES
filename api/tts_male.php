@@ -12,6 +12,18 @@ header('Access-Control-Allow-Origin: *');
 
 $text = isset($_GET['text']) ? trim($_GET['text']) : (isset($_POST['text']) ? trim($_POST['text']) : '');
 $dialect = isset($_GET['dialect']) ? trim($_GET['dialect']) : (isset($_POST['dialect']) ? trim($_POST['dialect']) : 'egyptian');
+if ($text === '') {
+    $rawBody = @file_get_contents('php://input');
+    if ($rawBody) {
+        $jsonBody = @json_decode($rawBody, true);
+        if (is_array($jsonBody) && !empty($jsonBody['text'])) {
+            $text = trim((string)$jsonBody['text']);
+            if (!empty($jsonBody['dialect'])) {
+                $dialect = trim((string)$jsonBody['dialect']);
+            }
+        }
+    }
+}
 
 if ($text === '') {
     http_response_code(400);
@@ -20,11 +32,11 @@ if ($text === '') {
     exit;
 }
 
-// Map dialect to Genuine Microsoft Neural Male Voice + Slower, Clearer Prosody (-10%)
+// Map dialect to Genuine Microsoft Neural Male Voice + Deep Authoritative Baritone & Clear Prosody
 $voiceMap = [
-    'egyptian' => ['voice' => 'ar-EG-ShakirNeural', 'rate' => '-10%', 'pitch' => '-1Hz'],
-    'sudanese' => ['voice' => 'ar-SA-HamedNeural',  'rate' => '-8%',  'pitch' => '-2Hz'],
-    'gulf'     => ['voice' => 'ar-AE-HamdanNeural', 'rate' => '-8%',  'pitch' => '+0Hz'],
+    'egyptian' => ['voice' => 'ar-EG-ShakirNeural', 'rate' => '-9%', 'pitch' => '-3Hz'],
+    'sudanese' => ['voice' => 'ar-SA-HamedNeural',  'rate' => '-8%', 'pitch' => '-4Hz'],
+    'gulf'     => ['voice' => 'ar-AE-HamdanNeural', 'rate' => '-8%', 'pitch' => '-3Hz'],
 ];
 
 if (!isset($voiceMap[$dialect])) {
@@ -51,7 +63,26 @@ if (file_exists($cacheFile) && filesize($cacheFile) > 500) {
     exit;
 }
 
-// 2. Generate Genuine Microsoft Edge Neural Male MP3 via edge_male_tts.cjs
+// 2. Acquire per-hash lock so concurrent requests never collide on the same MP3 file
+$lockFile = $cacheDir . '/neural_male_v6_' . $hash . '.lock';
+$lockFp = @fopen($lockFile, 'c+');
+if ($lockFp) {
+    @flock($lockFp, LOCK_EX);
+}
+
+clearstatcache(true, $cacheFile);
+if (file_exists($cacheFile) && filesize($cacheFile) > 500) {
+    if ($lockFp) { @flock($lockFp, LOCK_UN); @fclose($lockFp); }
+    header('Content-Type: audio/mpeg');
+    header('Content-Length: ' . filesize($cacheFile));
+    header('Cache-Control: public, max-age=31536000');
+    header('X-Voice-Engine: Edge-Neural-Male');
+    header('X-Voice-Dialect: ' . $dialect);
+    readfile($cacheFile);
+    exit;
+}
+
+// 3. Generate Genuine Microsoft Edge Neural Male MP3 via edge_male_tts.cjs into an atomic temp file
 $scriptPath = __DIR__ . '/edge_male_tts.cjs';
 $nodeCandidates = [
     'C:\\Program Files\\nodejs\\node.exe',
@@ -67,17 +98,46 @@ foreach ($nodeCandidates as $cand) {
     }
 }
 
-$cmd = $nodeBin
+$tmpFile = $cacheFile . '.' . getmypid() . '_' . mt_rand(1000, 9999) . '.tmp';
+$payloadB64 = 'JSONB64:' . base64_encode(json_encode([
+    'text'    => $text,
+    'outFile' => $tmpFile,
+    'voice'   => $cfg['voice'],
+    'rate'    => $cfg['rate'],
+    'pitch'   => $cfg['pitch'],
+], JSON_UNESCAPED_UNICODE));
+
+$innerCmd = $nodeBin
     . ' ' . escapeshellarg($scriptPath)
-    . ' ' . escapeshellarg($text)
-    . ' ' . escapeshellarg($cacheFile)
-    . ' ' . escapeshellarg($cfg['voice'])
-    . ' ' . escapeshellarg($cfg['rate'])
-    . ' ' . escapeshellarg($cfg['pitch'])
+    . ' ' . escapeshellarg($payloadB64)
     . ' 2>&1';
+
+$cmd = (DIRECTORY_SEPARATOR === '\\') ? ('cmd /s /c "' . $innerCmd . '"') : $innerCmd;
 
 $output = @shell_exec($cmd);
 
+// Retry once if transient socket hiccup occurred
+if (!file_exists($tmpFile) || filesize($tmpFile) <= 500) {
+    usleep(180000);
+    $output = @shell_exec($cmd);
+}
+
+if (file_exists($tmpFile) && filesize($tmpFile) > 500) {
+    @rename($tmpFile, $cacheFile);
+    if (!file_exists($cacheFile)) {
+        @copy($tmpFile, $cacheFile);
+        @unlink($tmpFile);
+    }
+} else {
+    @unlink($tmpFile);
+}
+
+if ($lockFp) {
+    @flock($lockFp, LOCK_UN);
+    @fclose($lockFp);
+}
+
+clearstatcache(true, $cacheFile);
 if (file_exists($cacheFile) && filesize($cacheFile) > 500) {
     header('Content-Type: audio/mpeg');
     header('Content-Length: ' . filesize($cacheFile));
@@ -88,46 +148,8 @@ if (file_exists($cacheFile) && filesize($cacheFile) > 500) {
     exit;
 }
 
-// 3. Emergency fallback if offline/firewall blocks WebSocket
-$chunks = [];
-$words = preg_split('/\s+/u', $text);
-$current = '';
-foreach ($words as $w) {
-    if (mb_strlen($current . ' ' . $w, 'UTF-8') > 165) {
-        if ($current !== '') $chunks[] = trim($current);
-        $current = $w;
-    } else {
-        $current .= ($current === '' ? '' : ' ') . $w;
-    }
-}
-if ($current !== '') $chunks[] = trim($current);
-
-$combinedMp3 = '';
-foreach ($chunks as $chunk) {
-    $url = 'https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl=ar&q=' . rawurlencode($chunk);
-    $c = curl_init($url);
-    curl_setopt_array($c, [
-        CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_USERAGENT => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-        CURLOPT_TIMEOUT => 4,
-        CURLOPT_CONNECTTIMEOUT => 2,
-        CURLOPT_SSL_VERIFYPEER => false
-    ]);
-    $part = @curl_exec($c);
-    curl_close($c);
-    if ($part && strlen($part) > 200) {
-        $combinedMp3 .= $part;
-    }
-}
-
-if (strlen($combinedMp3) > 400) {
-    header('Content-Type: audio/mpeg');
-    header('Content-Length: ' . strlen($combinedMp3));
-    header('X-Voice-Engine: Fallback-Male-DSP');
-    echo $combinedMp3;
-    exit;
-}
-
-http_response_code(500);
+// STRICT MALE-ONLY POLICY: Never fallback to Google Translate female TTS under any circumstance.
+http_response_code(503);
 header('Content-Type: application/json; charset=utf-8');
-echo json_encode(['ok' => false, 'error' => 'TTS synthesis error']);
+echo json_encode(['ok' => false, 'error' => 'Male neural voice synthesis temporarily busy, retry']);
+

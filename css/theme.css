@@ -1854,3 +1854,189 @@ html[data-theme="slate_twilight"], html[data-theme="twilight-indigo"], html[data
     --red: #f87171 !important;
     --blue: #38bdf8 !important;
 }
+
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   🎯 UNIFIED FINANCIAL RED & GREEN PALETTE (تعميم درجات الأحمر والأخضر من شاشة حركة مالية لكل النظام)
+   ═══════════════════════════════════════════════════════════════════════════════ */
+:root,
+html,
+body {
+    --scp-red-bg: linear-gradient(135deg, rgba(127, 29, 29, 0.16) 0%, rgba(69, 10, 10, 0.32) 100%);
+    --scp-red-bg-hover: linear-gradient(135deg, rgba(127, 29, 29, 0.24) 0%, rgba(69, 10, 10, 0.42) 100%);
+    --scp-red-border: rgba(239, 68, 68, 0.55);
+    --scp-red-border-hover: rgba(248, 113, 113, 0.85);
+    --scp-red-shadow: 0 4px 14px rgba(0, 0, 0, 0.35), 0 0 12px rgba(239, 68, 68, 0.18), inset 0 1px 0 rgba(254, 202, 202, 0.1);
+    --scp-red-shadow-hover: 0 0 18px rgba(239, 68, 68, 0.32), inset 0 0 10px rgba(239, 68, 68, 0.12);
+    --scp-red-input-bg: rgba(24, 12, 14, 0.90);
+    --scp-red-input-border: rgba(248, 113, 113, 0.55);
+    --scp-red-label: #fecaca;
+    --scp-red-amount-text: #b91c1c;
+    --scp-red-amount-border: #dc2626;
+
+    --scp-green-bg: linear-gradient(135deg, rgba(6, 78, 59, 0.18) 0%, rgba(2, 44, 34, 0.32) 100%);
+    --scp-green-bg-hover: linear-gradient(135deg, rgba(6, 78, 59, 0.26) 0%, rgba(2, 44, 34, 0.42) 100%);
+    --scp-green-border: rgba(16, 185, 129, 0.55);
+    --scp-green-border-hover: rgba(52, 211, 153, 0.85);
+    --scp-green-shadow: 0 4px 14px rgba(0, 0, 0, 0.35), 0 0 12px rgba(16, 185, 129, 0.18), inset 0 1px 0 rgba(167, 243, 208, 0.1);
+    --scp-green-shadow-hover: 0 0 18px rgba(16, 185, 129, 0.32), inset 0 0 10px rgba(16, 185, 129, 0.12);
+    --scp-green-input-bg: rgba(6, 26, 20, 0.90);
+    --scp-green-input-border: rgba(52, 211, 153, 0.55);
+    --scp-green-label: #a7f3d0;
+}
+
+html body .scp-from-card,
+html body .glass-container.glass-red,
+html body .account-block.glass-red,
+html body .erp-unified-red-box {
+    background: var(--scp-red-bg) !important;
+    border: 2px solid var(--scp-red-border) !important;
+    border-radius: 14px !important;
+    box-shadow: var(--scp-red-shadow) !important;
+}
+html body .scp-from-card:hover,
+html body .scp-from-card:focus-within,
+html body .glass-container.glass-red:hover,
+html body .glass-container.glass-red:focus-within,
+html body .account-block.glass-red:hover,
+html body .account-block.glass-red:focus-within,
+html body .erp-unified-red-box:hover,
+html body .erp-unified-red-box:focus-within {
+    background: var(--scp-red-bg-hover) !important;
+    border-color: var(--scp-red-border-hover) !important;
+    box-shadow: var(--scp-red-shadow-hover) !important;
+}
+
+html body .scp-to-card,
+html body .glass-container.glass-green,
+html body .account-block.glass-green,
+html body .erp-unified-green-box {
+    background: var(--scp-green-bg) !important;
+    border: 2px solid var(--scp-green-border) !important;
+    border-radius: 14px !important;
+    box-shadow: var(--scp-green-shadow) !important;
+}
+html body .scp-to-card:hover,
+html body .scp-to-card:focus-within,
+html body .glass-container.glass-green:hover,
+html body .glass-container.glass-green:focus-within,
+html body .account-block.glass-green:hover,
+html body .account-block.glass-green:focus-within,
+html body .erp-unified-green-box:hover,
+html body .erp-unified-green-box:focus-within {
+    background: var(--scp-green-bg-hover) !important;
+    border-color: var(--scp-green-border-hover) !important;
+    box-shadow: var(--scp-green-shadow-hover) !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   👑 ULTRA-CLARITY & +2 GRADE STROKE / BORDER / FONT WEIGHT SYSTEM (تعميم زيادة السمك والوضوح الفائق لكل الشاشات)
+   - زيادة سمك خطوط الحواف (Borders) حول الخانات والبطاقات والجداول درجتين (2px solid)
+   - زيادة سمك خطوط الأيقونات (SVG Stroke-Width = 2.5px) وسمك الخطوط النصية (800/900)
+   - أسود داكن صريح (#000000) في السمات الفاتحة، وأبيض ناصع صريح (#FFFFFF) في السمات الغامقة
+   ═══════════════════════════════════════════════════════════════════════════════ */
+html body svg:not(.no-thick-stroke) path[stroke],
+html body svg:not(.no-thick-stroke) circle[stroke],
+html body svg:not(.no-thick-stroke) rect[stroke],
+html body svg:not(.no-thick-stroke) line[stroke],
+html body svg:not(.no-thick-stroke) polyline[stroke],
+html body svg:not(.no-thick-stroke) polygon[stroke],
+html body .lucide,
+html body .feather {
+    stroke-width: 2.5px !important;
+}
+
+html body input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]),
+html body select,
+html body textarea,
+html body .form-control,
+html body .form-input,
+html body .pro-field-card,
+html body .input-group {
+    font-weight: 800 !important;
+    border-width: 2px !important;
+    border-style: solid !important;
+}
+
+html body label,
+html body .pro-field-label,
+html body .h-label,
+html body th,
+html body td,
+html body button {
+    font-weight: 800 !important;
+}
+
+/* 🌙 DARK THEMES: Black Input Box (#02040a) + Bright White Text (#ffffff) + Stepped Card Tones */
+html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) body input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]),
+html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) body select,
+html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) body textarea,
+html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) body .form-control {
+    background-color: #02040a !important;
+    color: #ffffff !important;
+    border-color: rgba(255, 255, 255, 0.48) !important;
+}
+
+html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) body .pro-field-card,
+html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) body .input-group {
+    background-color: #1c2a44 !important;
+    border-width: 2px !important;
+    border-color: rgba(255, 255, 255, 0.36) !important;
+}
+
+/* ☀️ LIGHT THEMES: White Input Box (#ffffff) + Black Text (#000000) + Stepped Warm Beige Cards & Outer Panels */
+:root.light-theme body,
+html.light-theme body,
+html[data-theme="warm_cream"] body,
+html[data-theme="ultra_white"] body,
+html[data-theme="exec_gray"] body,
+:root.light-theme body td,
+:root.light-theme body th,
+:root.light-theme body label,
+:root.light-theme body .pro-field-label,
+html[data-theme="warm_cream"] body td,
+html[data-theme="warm_cream"] body th,
+html[data-theme="warm_cream"] body label,
+html[data-theme="ultra_white"] body td,
+html[data-theme="ultra_white"] body th,
+html[data-theme="ultra_white"] body label,
+html[data-theme="exec_gray"] body td,
+html[data-theme="exec_gray"] body th,
+html[data-theme="exec_gray"] body label {
+    color: #000000 !important;
+    font-weight: 800 !important;
+}
+
+:root.light-theme body input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]),
+:root.light-theme body select,
+:root.light-theme body textarea,
+:root.light-theme body .form-control,
+html[data-theme="warm_cream"] body input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]),
+html[data-theme="warm_cream"] body select,
+html[data-theme="warm_cream"] body textarea,
+html[data-theme="ultra_white"] body input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]),
+html[data-theme="ultra_white"] body select,
+html[data-theme="ultra_white"] body textarea,
+html[data-theme="exec_gray"] body input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]),
+html[data-theme="exec_gray"] body select,
+html[data-theme="exec_gray"] body textarea {
+    background-color: #ffffff !important;
+    color: #000000 !important;
+    font-weight: 900 !important;
+    border: 2px solid #000000 !important;
+}
+
+:root.light-theme body .pro-field-card,
+:root.light-theme body .input-group,
+html[data-theme="warm_cream"] body .pro-field-card,
+html[data-theme="warm_cream"] body .input-group,
+html[data-theme="ultra_white"] body .pro-field-card,
+html[data-theme="ultra_white"] body .input-group,
+html[data-theme="exec_gray"] body .pro-field-card,
+html[data-theme="exec_gray"] body .input-group {
+    background-color: #f2e8d5 !important;
+    border: 2px solid #473d31 !important;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08) !important;
+}
+
+

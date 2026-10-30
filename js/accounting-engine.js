@@ -191,6 +191,10 @@ window.AccountingEngine = {
                 });
             }
 
+            totalDebitAcc = Math.round(totalDebitAcc * 100) / 100;
+            totalCreditAcc = Math.round(totalCreditAcc * 100) / 100;
+            const balanceDiff = Math.round((totalDebitAcc - totalCreditAcc) * 100) / 100;
+
             const journalVoucher = {
                 id: 'jv-' + Date.now(),
                 voucherNo: 'JV-PUR-' + invoiceData.invoiceNo,
@@ -200,6 +204,8 @@ window.AccountingEngine = {
                 entries: entries,
                 totalDebit: totalDebitAcc,
                 totalCredit: totalCreditAcc,
+                isBalanced: Math.abs(balanceDiff) < 0.01,
+                balanceDiff: balanceDiff,
                 supplierName: supplierName,
                 createdAt: new Date().toISOString()
             };

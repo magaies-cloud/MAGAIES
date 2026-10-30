@@ -13,8 +13,8 @@ $header_theme_class = "header-theme-inventory";
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&display=swap" rel="stylesheet">
     
     <!-- Base CSS -->
-    <link rel="stylesheet" href="css/theme.css?v=<?php echo time(); ?>">
-    <link rel="stylesheet" href="css/components.css?v=<?php echo time(); ?>">
+    <link rel="stylesheet" href="css/theme.css?v=20261029_fast">
+    <link rel="stylesheet" href="css/components.css?v=20261029_fast">
     <link rel="stylesheet" href="css/report-ribbon.css?v=1787182249">
     
     <style>
@@ -672,6 +672,6 @@ $header_theme_class = "header-theme-inventory";
             printReportDirectly(title, activeSection);
         }
     </script>
-<script src="js/universal-report-studio.js?v=<?php echo time(); ?>"></script>
+<script src="js/universal-report-studio.js?v=20261029_fast"></script>
 </body>
 </html>

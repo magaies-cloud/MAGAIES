@@ -1,7 +1,7 @@
 <?php $page_title = 'مرتجع مبيعات'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
-<script src="js/lang.js?v=<?php echo time(); ?>"></script>
+<script src="js/lang.js?v=20261029_fast"></script>
 <script>
 (function(){
     var l = localStorage.getItem('erp_lang') || 'ar';

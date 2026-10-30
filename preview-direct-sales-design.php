@@ -12,7 +12,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Alexandria:wght@400;600;800&family=Almarai:wght@400;700;800&family=Amiri:ital,wght@0,400;0,700;1,400&family=Cairo:wght@400;600;800;900&family=Changa:wght@400;600;800&family=Tajawal:wght@400;500;700;800;900&family=JetBrains+Mono:wght@400;600;800&family=Roboto+Mono:wght@400;600;800&family=Fira+Code:wght@400;600;800&family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Roboto:wght@400;500;700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
     
     <!-- Invoice Base Styles -->
-    <link rel="stylesheet" href="css/print-invoice.css?v=<?php echo time(); ?>">
+    <link rel="stylesheet" href="css/print-invoice.css?v=20261029_fast">
     
     <style id="dynamic-paper-style">
         @page { size: A4 portrait; margin: 10mm; }
@@ -531,8 +531,8 @@
 <?php include 'includes/studio-modals.php'; ?>
 <script src="js/localforage.min.js"></script>
 <script src="js/app.js?v=20261016_v28"></script>
-<script src="js/print-engine.js?v=<?php echo time(); ?>"></script>
-<script src="js/direct-sales-preview-studio.js?v=<?php echo time(); ?>"></script>
+<script src="js/print-engine.js?v=20261029_fast"></script>
+<script src="js/direct-sales-preview-studio.js?v=20261029_fast"></script>
 
 <script src="js/global_background_media.js?v=2026_seamless_v5" defer></script>
 <script src="js/magaiees_back.js?v=2026_back_v2" defer></script>

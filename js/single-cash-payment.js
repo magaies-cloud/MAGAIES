@@ -737,7 +737,7 @@ function setNextVoucherNumber() {
             const n = parseInt(s.substring(datePrefix.length), 10);
             if (!isNaN(n) && n > 0 && n < 1000000) return n;
         }
-        const m = s.match(/^E\d{4}(\d{3,6})$/i);
+        const m = s.match(/^(?:E|M|BP|BR)\d{3,4}(\d{3,6})$/i);
         if (m) {
             const n = parseInt(m[1], 10);
             if (!isNaN(n) && n > 0 && n < 1000000) return n;
@@ -750,6 +750,40 @@ function setNextVoucherNumber() {
         const seq = extractVoucherSeq(v.id || v.voucherNo);
         if (seq > max) max = seq;
     });
+    ['erp_payments_v1', 'erp_receipts_v1'].forEach(k => {
+        try {
+            const getTenantKey = window.getTenantKey || ((x) => x);
+            const arr = JSON.parse(localStorage.getItem(getTenantKey(k)) || localStorage.getItem(k) || '[]');
+            if (Array.isArray(arr)) {
+                arr.forEach(v => {
+                    if (!v || v.deleted) return;
+                    const seq = extractVoucherSeq(v.voucherNo || v.id);
+                    if (seq > max) max = seq;
+                });
+            }
+        } catch(e) {}
+    });
+    try {
+        const known = JSON.parse(localStorage.getItem('magaies_last_known_sequences_v1') || '{}');
+        if (known.finance && parseInt(known.finance, 10) > max) max = parseInt(known.finance, 10);
+    } catch(e) {}
+    ['erp_payments_v1', 'erp_receipts_v1'].forEach(k => {
+        try {
+            const getTenantKey = window.getTenantKey || ((x) => x);
+            const arr = JSON.parse(localStorage.getItem(getTenantKey(k)) || localStorage.getItem(k) || '[]');
+            if (Array.isArray(arr)) {
+                arr.forEach(v => {
+                    if (!v || v.deleted) return;
+                    const seq = extractVoucherSeq(v.voucherNo || v.id);
+                    if (seq > max) max = seq;
+                });
+            }
+        } catch(e) {}
+    });
+    try {
+        const known = JSON.parse(localStorage.getItem('magaies_last_known_sequences_v1') || '{}');
+        if (known.finance && parseInt(known.finance, 10) > max) max = parseInt(known.finance, 10);
+    } catch(e) {}
     if (window.DB_NEXT_VOUCHER_NO) {
         const dbSeq = extractVoucherSeq(window.DB_NEXT_VOUCHER_NO);
         if (dbSeq - 1 > max) max = dbSeq - 1;
@@ -783,6 +817,23 @@ window.adjustAmountFontSize = function(input) {
         input.style.setProperty('letter-spacing', '3px', 'important');
     }
 };
+
+window.adjustAccountNameFontSize = function(input) {
+    if (!input) return;
+    const len = (input.value || '').trim().length;
+    if (len > 34) {
+        input.style.setProperty('font-size', '0.98rem', 'important');
+    } else if (len > 26) {
+        input.style.setProperty('font-size', '1.14rem', 'important');
+    } else if (len > 20) {
+        input.style.setProperty('font-size', '1.28rem', 'important');
+    } else if (len > 15) {
+        input.style.setProperty('font-size', '1.42rem', 'important');
+    } else {
+        input.style.setProperty('font-size', '1.55rem', 'important');
+    }
+};
+
 
 function updateCurrency(preventRateOverwrite = false) {
     const curr = document.getElementById('currency').value;
@@ -1521,6 +1572,23 @@ function submitVoucherInner() {
         showToast("⚠️ خطأ محاسبي: لا يمكن أن يكون حساب الصرف هو نفس حساب الاستلام!", "error");
         return;
     }
+
+    // ⚠️ تنبيه انكشاف وتجاوز رصيد الخزينة المتاح (Overdraft Warning)
+    const fromNameCheck = document.getElementById('from-account-search')?.value || '';
+    if (fromAcc && /^(safe|cash)-/i.test(fromAcc) && typeof window.getPartyAccountBalance === 'function') {
+        const fromInfo = window.getPartyAccountBalance(fromAcc, fromNameCheck, 'creditor', 0, true, 'SDG');
+        if (fromInfo && fromInfo.rawBalance < amtLocal && !window._overrideOverdraftWarning) {
+            const diff = amtLocal - fromInfo.rawBalance;
+            const diffStr = Math.abs(diff).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+            const balStr = Math.abs(fromInfo.rawBalance).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+            showToast(`⚠️ تنبيه محاسبي: المبلغ المطلوب (${amtLocal.toLocaleString()} SDG) يتجاوز رصيد الخزينة المتاح (${balStr} SDG) بعجز قدره (${diffStr} SDG)! اضغط حفظ مجدداً للتأكيد والاعتماد.`, 'warning', 5500);
+            window._overrideOverdraftWarning = true;
+            setTimeout(() => { window._overrideOverdraftWarning = false; }, 8000);
+            return;
+        }
+    }
+    window._overrideOverdraftWarning = false;
+
 
     const _docDateStr = document.getElementById('hdr-date') ? document.getElementById('hdr-date').value : new Date().toISOString().split('T')[0];
     if (!window.canCreateRecord(_docDateStr)) return;
@@ -3102,6 +3170,7 @@ function filterAccountDropdown(type) {
 function selectAccount(type, id, name) {
     document.getElementById(type + '-account').value = id;
     document.getElementById(type + '-account-search').value = name;
+    if (typeof window.adjustAccountNameFontSize === 'function') window.adjustAccountNameFontSize(document.getElementById(type + '-account-search'));
     document.getElementById(type + '-account-dropdown-list').classList.remove('show');
     updateLedgerButtons();
     if (typeof updateBalances === 'function') updateBalances();
@@ -3174,6 +3243,10 @@ function swapAccounts() {
     fromSearchEl.value = toSearch;
     toIdEl.value = fromId;
     toSearchEl.value = fromSearch;
+    if (typeof window.adjustAccountNameFontSize === 'function') {
+        window.adjustAccountNameFontSize(fromSearchEl);
+        window.adjustAccountNameFontSize(toSearchEl);
+    }
 
     // Add a visual rotation feedback to the arrow
     const container = document.querySelector('.epic-arrow-container');

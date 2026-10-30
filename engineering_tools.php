@@ -1,4 +1,7 @@
 <?php
+if (!headers_sent() && extension_loaded('zlib') && !ini_get('zlib.output_compression') && ob_get_level() === 0) {
+    @ob_start('ob_gzhandler');
+}
 // ====================================================================
 // نظام Al-Sajana Smart ERP 2026 - حزمة المساعدات ومفاتيح البنوك والموسوعة الكبرى لفتاوى البيوع V12
 // كوكبة الأئمة الـ 12 + مكتبة أمهات الكتب + القواعد الفقهية الـ 5 + معجم المصطلحات + محرك البحث الذكي
@@ -38,11 +41,11 @@ $pdo = getDBConnection();
     <!-- Font Awesome Local (Ultra-Fast & Offline Robust) + CDN Fallback -->
     <link rel="stylesheet" href="css/fontawesome/all.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
-    <script src="js/hls.light.min.js"></script>
-    <script src="js/inheritance_engine.js?v=2026_v8_evidence_1788629214503"></script>
-    <script src="js/xlsx.full.min.js"></script>
-    <script src="js/modern-alerts.js?v=2026_modern_alerts"></script>
-    <script src="js/accounting_reconciliation.js?v=<?php echo time(); ?>"></script>
+    <script defer src="js/hls.light.min.js"></script>
+    <script defer src="js/inheritance_engine.js?v=2026_v8_evidence_1788629214503"></script>
+    <script defer src="js/xlsx.full.min.js"></script>
+    <script defer src="js/modern-alerts.js?v=2026_modern_alerts"></script>
+    <script defer src="js/accounting_reconciliation.js?v=20261029_fast"></script>
 
     <style>
 
@@ -24329,7 +24332,7 @@ $pdo = getDBConnection();
     <script>
     if (typeof window.QURAN_ALL_RECITERS === 'undefined') {
         const s = document.createElement('script');
-        s.src = "js/quran_reciters_data.js?v=<?php echo time(); ?>";
+        s.src = "js/quran_reciters_data.js?v=20261029_fast";
         document.head.appendChild(s);
     }
     </script>

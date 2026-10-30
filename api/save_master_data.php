@@ -15,7 +15,7 @@ if (!empty($_SERVER['HTTP_X_TENANT_ID']) && is_numeric($_SERVER['HTTP_X_TENANT_I
 $__masterHost = strtolower($_SERVER['HTTP_HOST'] ?? $_SERVER['SERVER_NAME'] ?? '');
 $__isLocalMasterEnv = (strpos($__masterHost, 'elsajana.com') === false) && (strpos($__masterHost, 'localhost') !== false || strpos($__masterHost, '127.0.0.1') !== false || strpos($__masterHost, '192.168.') === 0 || (bool)stristr(PHP_OS, 'WIN'));
 if ($__isLocalMasterEnv && empty($_SERVER['HTTP_X_FORWARDED_FROM_LOCAL']) && $__earlyType && !in_array($__earlyType, ['check_entity_usage', 'check_item_usage'], true)) {
-    register_shutdown_function(function() use ($rawBodyMaster, &$tenant_id, $__earlyTid) {
+    register_shutdown_function(function() use ($rawBodyMaster, &$tenant_id, $__earlyTid, &$pdo) {
         try {
             $fwdTid = (!empty($tenant_id) && (int)$tenant_id >= 1) ? (int)$tenant_id : (int)$__earlyTid;
             // ONLY mirror to c.elsajana.com when operating on Tenant 12 (Company C)
@@ -41,6 +41,19 @@ if ($__isLocalMasterEnv && empty($_SERVER['HTTP_X_FORWARDED_FROM_LOCAL']) && $__
             curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
             curl_exec($ch);
             curl_close($ch);
+        } catch (Throwable $e) {}
+    });
+} else {
+    register_shutdown_function(function() use (&$pdo) {
+        try {
+            if ($pdo instanceof PDO && $pdo->inTransaction()) {
+                $statusCode = http_response_code();
+                if ($statusCode >= 200 && $statusCode < 300) {
+                    $pdo->commit();
+                } else {
+                    $pdo->rollBack();
+                }
+            }
         } catch (Throwable $e) {}
     });
 }
@@ -104,21 +117,25 @@ if (!$input || !$type) {
 $data = $input['data'] ?? $input['customer'] ?? null;
 
 function isDuplicateNameDB($pdo, $tenant_id, $table, $name, $currentId) {
-    if (empty(trim($name))) return false;
-    $name = trim($name);
+    if (empty(trim((string)$name))) return false;
+    $name = trim((string)$name);
+    $currentId = trim((string)$currentId);
     $hasSearchName = in_array($table, ['items', 'customers'], true);
     if ($hasSearchName) {
-        $stmt = $pdo->prepare("SELECT id FROM `$table` WHERE tenant_id = ? AND (is_deleted = 0 OR is_deleted IS NULL) AND LOWER(search_name) = LOWER(?) AND (frontend_id IS NULL OR frontend_id != ?) LIMIT 1");
+        $stmt = $pdo->prepare("SELECT id FROM `$table` WHERE tenant_id = ? AND (is_deleted = 0 OR is_deleted IS NULL) AND LOWER(search_name) = LOWER(?) AND COALESCE(NULLIF(frontend_id, ''), JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')), '') != ? LIMIT 1");
         $stmt->execute([$tenant_id, $name, $currentId]);
         return $stmt->fetchColumn() ? true : false;
     } else {
-        $stmt = $pdo->prepare("SELECT id FROM `$table` WHERE tenant_id = ? AND (is_deleted = 0 OR is_deleted IS NULL) AND LOWER(JSON_UNQUOTE(JSON_EXTRACT(data, '$.name'))) = LOWER(?) AND (frontend_id IS NULL OR frontend_id != ?) LIMIT 1");
+        $stmt = $pdo->prepare("SELECT id FROM `$table` WHERE tenant_id = ? AND (is_deleted = 0 OR is_deleted IS NULL) AND LOWER(JSON_UNQUOTE(JSON_EXTRACT(data, '$.name'))) = LOWER(?) AND COALESCE(NULLIF(frontend_id, ''), JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')), '') != ? LIMIT 1");
         $stmt->execute([$tenant_id, $name, $currentId]);
         return $stmt->fetchColumn() ? true : false;
     }
 }
 
 try {
+    if ($pdo instanceof PDO && !$pdo->inTransaction() && !in_array($type, ['check_entity_usage', 'check_item_usage'], true)) {
+        $pdo->beginTransaction();
+    }
     switch ($type) {
         // --- 1. Global Settings Collections (Tenant-scoped) ---
         case 'units':
@@ -146,6 +163,7 @@ try {
             break;
 
         case 'cost_centers':
+        case 'jobs':
             if (is_array($data)) {
                 $ccJson = json_encode($data, JSON_UNESCAPED_UNICODE);
                 $tCcKey = 'tenant_' . $tenant_id . '_erp_cost_centers_v1';
@@ -155,6 +173,14 @@ try {
                     $stmt->execute(['erp_cost_centers_v1', $ccJson]);
                     $stmt->execute(['erp_jobs_v1', $ccJson]);
                 }
+            }
+            break;
+
+        case 'master_audit_log':
+            if (is_array($data)) {
+                $auditJson = json_encode(array_slice($data, 0, 500), JSON_UNESCAPED_UNICODE);
+                $stmt = $pdo->prepare("INSERT INTO global_settings (setting_key, setting_value) VALUES ('erp_master_audit_log_v1', ?) ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value), updated_at = NOW()");
+                $stmt->execute([$auditJson]);
             }
             break;
 
@@ -293,6 +319,7 @@ try {
                 // Hard delete from database
                 $stmtDel = $pdo->prepare("DELETE FROM items WHERE tenant_id = ? AND (frontend_id = ? OR id = ? OR search_name = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')) = ?)");
                 $stmtDel->execute([$tenant_id, $itemId, $itemId, $itemName, $itemId]);
+                if ($pdo instanceof PDO && $pdo->inTransaction()) { $pdo->commit(); }
 
                 echo json_encode([
                     'success' => true,
@@ -398,6 +425,7 @@ try {
                 // Hard delete from database
                 $stmtDel = $pdo->prepare("DELETE FROM warehouses WHERE tenant_id = ? AND (frontend_id = ? OR id = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')) = ?)");
                 $stmtDel->execute([$tenant_id, $whId, $whId, $whId]);
+                if ($pdo instanceof PDO && $pdo->inTransaction()) { $pdo->commit(); }
 
                 echo json_encode([
                     'success' => true,
@@ -583,6 +611,7 @@ try {
                 // Hard delete from database
                 $stmtDel = $pdo->prepare("DELETE FROM customers WHERE tenant_id = ? AND (frontend_id = ? OR id = ? OR search_name = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')) = ?)");
                 $stmtDel->execute([$tenant_id, $cId, $cId, $cName, $cId]);
+                if ($pdo instanceof PDO && $pdo->inTransaction()) { $pdo->commit(); }
 
                 echo json_encode([
                     'success' => true,
@@ -770,6 +799,7 @@ try {
                 // Hard delete from database
                 $stmtDel = $pdo->prepare("DELETE FROM suppliers WHERE tenant_id = ? AND (frontend_id = ? OR id = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.name')) = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')) = ?)");
                 $stmtDel->execute([$tenant_id, $sId, $sId, $sName, $sId]);
+                if ($pdo instanceof PDO && $pdo->inTransaction()) { $pdo->commit(); }
 
                 echo json_encode([
                     'success' => true,
@@ -852,6 +882,7 @@ try {
                 // Hard delete from database
                 $stmtDel = $pdo->prepare("DELETE FROM banks WHERE tenant_id = ? AND (frontend_id = ? OR id = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')) = ?)");
                 $stmtDel->execute([$tenant_id, $bId, $bId, $bId]);
+                if ($pdo instanceof PDO && $pdo->inTransaction()) { $pdo->commit(); }
 
                 echo json_encode([
                     'success' => true,
@@ -934,6 +965,7 @@ try {
                 // Hard delete from database
                 $stmtDel = $pdo->prepare("DELETE FROM safes WHERE tenant_id = ? AND (frontend_id = ? OR id = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')) = ?)");
                 $stmtDel->execute([$tenant_id, $sId, $sId, $sId]);
+                if ($pdo instanceof PDO && $pdo->inTransaction()) { $pdo->commit(); }
 
                 echo json_encode([
                     'success' => true,
@@ -985,6 +1017,7 @@ try {
                     $stmtIns = $pdo->prepare("INSERT INTO users (tenant_id, data, username, password, role, status) VALUES (?, ?, ?, ?, ?, ?)");
                     $stmtIns->execute([$tenant_id, $jsonData, $uName, $hashedPass, $uRole, $uStatus]);
                 }
+                if ($pdo instanceof PDO && $pdo->inTransaction()) { $pdo->commit(); }
                 echo json_encode(['success' => true, 'id' => $uId], JSON_UNESCAPED_UNICODE);
                 exit;
             }
@@ -1010,7 +1043,7 @@ try {
                 if ($usageResult['is_used']) {
                     echo json_encode([
                         'success' => false,
-                        'type' => 'delete_safe',
+                        'type' => 'delete_user',
                         'can_delete' => false,
                         'is_used' => true,
                         'usage_count' => $usageResult['usage_count'],
@@ -1022,10 +1055,11 @@ try {
 
                 $stmtDel = $pdo->prepare("DELETE FROM users WHERE tenant_id = ? AND (frontend_id = ? OR id = ? OR username = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')) = ?)");
                 $stmtDel->execute([$tenant_id, $uId, $uId, $uName, $uId]);
+                if ($pdo instanceof PDO && $pdo->inTransaction()) { $pdo->commit(); }
 
                 echo json_encode([
                     'success' => true,
-                    'type' => 'delete_safe',
+                    'type' => 'delete_user',
                     'can_delete' => true,
                     'is_used' => false,
                     'message' => 'تم حذف المستخدم نهائياً بنجاح.'
@@ -1049,6 +1083,7 @@ try {
                     $stmtUp = $pdo->prepare("UPDATE users SET status = ?, data = ?, updated_at = NOW() WHERE id = ?");
                     $stmtUp->execute([$newStatus, $updatedJson, $userRow['id']]);
                 }
+                if ($pdo instanceof PDO && $pdo->inTransaction()) { $pdo->commit(); }
                 echo json_encode(['success' => true, 'status' => $newStatus], JSON_UNESCAPED_UNICODE);
                 exit;
             }
@@ -1241,8 +1276,14 @@ try {
             break;
     }
 
-    echo json_encode(['success' => true, 'type' => $type, 'data' => $data, 'tenant_id' => $tenant_id], JSON_UNESCAPED_UNICODE);
-} catch (Exception $e) {
+    if ($pdo instanceof PDO && $pdo->inTransaction()) {
+        $pdo->commit();
+    }
+    echo json_encode(['success' => true, 'type' => $type, 'data' => $data, 'tenant_id' => $tenant_id, 'atomic_committed' => true], JSON_UNESCAPED_UNICODE);
+} catch (Throwable $e) {
+    if ($pdo instanceof PDO && $pdo->inTransaction()) {
+        $pdo->rollBack();
+    }
     http_response_code(500);
-    echo json_encode(['success' => false, 'error' => $e->getMessage()], JSON_UNESCAPED_UNICODE);
+    echo json_encode(['success' => false, 'error' => $e->getMessage(), 'rolled_back' => true], JSON_UNESCAPED_UNICODE);
 }

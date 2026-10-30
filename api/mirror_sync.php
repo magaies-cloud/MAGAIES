@@ -506,8 +506,48 @@ function getInventorySequence($pdo, $tenantId, $prefixLetter = 'I', $includeLast
  * مع حماية كاملة ضد التكرار (Idempotent Delta Reversal عند التعديل)
  * ─────────────────────────────────────────────────────────────
  */
+function recordImmutableAccountingAudit($pdo, $tenantId, $docType, $actionType, $data, $oldData = null) {
+    try {
+        if (!$pdo) return;
+        $docNo = (string)($data['invoiceNo'] ?? ($data['voucherNo'] ?? ($data['docNo'] ?? ($data['deliveryNo'] ?? ($data['id'] ?? 'UNKNOWN')))));
+        $newAmt = (float)($data['grandTotal'] ?? ($data['total'] ?? ($data['amount'] ?? ($data['totalDebit'] ?? 0))));
+        $oldAmt = is_array($oldData) ? (float)($oldData['grandTotal'] ?? ($oldData['total'] ?? ($oldData['amount'] ?? ($oldData['totalDebit'] ?? 0)))) : null;
+        $docDate = (string)($data['date'] ?? date('Y-m-d'));
+        $actor = (string)($data['updatedBy'] ?? ($data['createdBy'] ?? ($data['user'] ?? ($_SESSION['user']['username'] ?? 'system'))));
+        $ip = (string)($_SERVER['REMOTE_ADDR'] ?? '127.0.0.1');
+        $ts = round(microtime(true) * 1000);
+        $fid = 'audit_' . $docType . '_' . preg_replace('/[^A-Za-z0-9_-]/', '', $docNo) . '_' . $ts;
+
+        $auditPayload = [
+            'id' => $fid,
+            'timestamp' => $ts,
+            'isoDate' => date('c'),
+            'immutable' => true,
+            'category' => 'ACCOUNTING_CORE',
+            'actionType' => $actionType,
+            'docType' => $docType,
+            'docNo' => $docNo,
+            'docDate' => $docDate,
+            'oldAmount' => $oldAmt,
+            'newAmount' => $newAmt,
+            'deltaAmount' => ($oldAmt !== null) ? round($newAmt - $oldAmt, 2) : $newAmt,
+            'actor' => $actor,
+            'ip' => $ip,
+            'integrityHash' => hash('sha256', $tenantId . '|' . $docType . '|' . $actionType . '|' . $docNo . '|' . $oldAmt . '|' . $newAmt . '|' . $ts)
+        ];
+
+        $stAudit = $pdo->prepare("INSERT INTO audit_logs (tenant_id, data, frontend_id) VALUES (?, ?, ?)");
+        $stAudit->execute([(int)$tenantId, json_encode($auditPayload, JSON_UNESCAPED_UNICODE), $fid]);
+    } catch (Throwable $eAudit) {}
+}
+
 function applyInvoiceEffectsInDB($pdo, $tenantId, $docType, &$data, $oldData = null) {
     try {
+        // 0. توثيق رقابي محاسبي غير قابل للمسح (Immutable Audit Trail) لكل عملية إنشاء أو تعديل أو حذف مالي
+        $isDeleteOp = !empty($data['deleted']) || !empty($data['isDeleted']);
+        $auditAction = $isDeleteOp ? 'DELETE' : (is_array($oldData) ? 'UPDATE' : 'CREATE');
+        recordImmutableAccountingAudit($pdo, $tenantId, $docType, $auditAction, $data, $oldData);
+
         // 1. إذا كان هذا تعديلاً لفاتورة سابقة سبق ترحيل أثرها، نعكس الأثر القديم أولاً بدقة
         if (is_array($oldData) && !empty($oldData['_ledgerPosted']) && is_array($oldData['_ledgerPosted'])) {
             $prev = $oldData['_ledgerPosted'];
@@ -1619,8 +1659,16 @@ try {
             $relatedPurNo = trim($data['originalInvoiceId'] ?? ($data['invoiceNo'] ?? ''));
 
             try {
-                $stmtIns = $pdo->prepare("INSERT INTO purchase_invoices (tenant_id, invoice_no, data, created_at, updated_at) VALUES (?, ?, ?, NOW(), NOW())");
-                $stmtIns->execute([$tenantId, $recNo, $jsonRecord]);
+                $stmtChkGrn = $pdo->prepare("SELECT id FROM purchase_invoices WHERE (tenant_id = ? OR tenant_id IS NULL) AND invoice_no = ? LIMIT 1");
+                $stmtChkGrn->execute([$tenantId, $recNo]);
+                $existGrnRowId = $stmtChkGrn->fetchColumn();
+                if ($existGrnRowId) {
+                    $stmtUpGrn = $pdo->prepare("UPDATE purchase_invoices SET data = ?, updated_at = NOW() WHERE id = ?");
+                    $stmtUpGrn->execute([$jsonRecord, $existGrnRowId]);
+                } else {
+                    $stmtIns = $pdo->prepare("INSERT INTO purchase_invoices (tenant_id, invoice_no, data, created_at, updated_at) VALUES (?, ?, ?, NOW(), NOW())");
+                    $stmtIns->execute([$tenantId, $recNo, $jsonRecord]);
+                }
             } catch (Throwable $e) {}
 
             // Update parent purchase invoice if provided
@@ -1649,6 +1697,36 @@ try {
                 'nextReceiptNo' => $updatedRecSeq['nextReceiptNo'],
                 'record' => $data
             ], JSON_UNESCAPED_UNICODE);
+            break;
+
+        case 'delete_purchase_receipt':
+            $raw = file_get_contents('php://input');
+            $data = json_decode($raw, true) ?: $_POST;
+            $grnIdToDel = trim((string)($data['id'] ?? ($data['grnNo'] ?? ($data['receiptNo'] ?? ''))));
+            $origInvNo  = trim((string)($data['originalInvoiceId'] ?? ($data['invoiceNo'] ?? '')));
+            if ($grnIdToDel !== '') {
+                try {
+                    $stmtDelG = $pdo->prepare("DELETE FROM purchase_invoices WHERE (tenant_id = ? OR tenant_id IS NULL) AND (invoice_no = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')) = ?)");
+                    $stmtDelG->execute([$tenantId, $grnIdToDel, $grnIdToDel]);
+                } catch (Throwable $e) {}
+            }
+            if ($origInvNo !== '') {
+                try {
+                    $stmtPur = $pdo->prepare("SELECT id, data FROM purchase_invoices WHERE (tenant_id = ? OR tenant_id IS NULL) AND (invoice_no = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.invoiceNo')) = ?)");
+                    $stmtPur->execute([$tenantId, $origInvNo, $origInvNo]);
+                    $row = $stmtPur->fetch(PDO::FETCH_ASSOC);
+                    if ($row) {
+                        $pD = json_decode($row['data'], true) ?: [];
+                        $pD['receiptStatus'] = !empty($data['hasRemainingGrns']) ? 'partially_received' : 'pending';
+                        if (($pD['status'] ?? '') === 'received') {
+                            $pD['status'] = 'completed';
+                        }
+                        $upStmt = $pdo->prepare("UPDATE purchase_invoices SET data = ?, updated_at = NOW() WHERE id = ?");
+                        $upStmt->execute([json_encode($pD, JSON_UNESCAPED_UNICODE), $row['id']]);
+                    }
+                } catch (Throwable $e) {}
+            }
+            echo json_encode(['success' => true, 'deletedId' => $grnIdToDel], JSON_UNESCAPED_UNICODE);
             break;
 
         // ═════════════════════════════════════════════════════════

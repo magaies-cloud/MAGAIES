@@ -1,4 +1,7 @@
 <?php
+if (!headers_sent() && extension_loaded('zlib') && !ini_get('zlib.output_compression') && ob_get_level() === 0) {
+    @ob_start('ob_gzhandler');
+}
 if (!defined('ALLOW_OFFLINE_DB_FALLBACK')) {
     define('ALLOW_OFFLINE_DB_FALLBACK', true);
 }
@@ -605,54 +608,43 @@ window._cachedGlobalRate = window.SYSTEM_USD_RATE;
         elseif (strpos($page_title, 'Audit') !== false || strpos($page_title, 'الصندوق') !== false) $dynamic_icon = '🔒';
     }
     ?>
-    <!-- 1. الركن الأيمن الملكي الفاخر (عنوان البرنامج العالمي + إدارة النظام + الأدمن + متصل + التاريخ والوقت) — بنفس الارتفاع الموحد مع زيادة الارتفاع وتقليل الهوامش -->
-    <div class="header-compact-right-cluster header-flagship-identity-suite" style="display:flex; flex-direction:column; justify-content:space-between; gap:3px; flex:1.35 1 395px; min-width:345px; max-width:none; height:70px !important; min-height:70px !important; max-height:70px !important; box-sizing:border-box !important; background:linear-gradient(135deg, rgba(2, 6, 23, 0.96) 0%, rgba(15, 23, 42, 0.95) 55%, rgba(6, 78, 59, 0.55) 100%); border:1.5px solid rgba(251, 191, 36, 0.85); border-radius:13px; padding:4px 10px; box-shadow:0 7px 21px rgba(0, 0, 0, 0.8), 0 0 16px rgba(251, 191, 36, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.22); position:relative; overflow:hidden;">
-        <!-- الصف الأول العالمي: أيقونة الهوية الملكية + عنوان البرنامج العالمي الكبير + شارة الشاشة النشطة -->
-        <div style="display:flex; align-items:center; justify-content:space-between; gap:8px; white-space:nowrap; height:31px; border-bottom:1px solid rgba(251, 191, 36, 0.22); padding-bottom:2px;">
-            <div style="display:flex; align-items:center; gap:8px; min-width:0; overflow:hidden; flex:1 1 auto;">
-                <div style="background:linear-gradient(135deg, #f59e0b 0%, #10b981 55%, #0284c7 100%); width:27px; height:27px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:14.5px; border:1.5px solid #fef08a; box-shadow:0 0 12px rgba(245, 158, 11, 0.5), inset 0 1px 1px rgba(255,255,255,0.45); flex-shrink:0;">👑</div>
-                <div style="display:flex; flex-direction:column; min-width:0; overflow:hidden; line-height:1.15;">
-                    <div style="display:flex; align-items:center; gap:7px;">
-                        <span style="color:#ffffff; font-weight:900; font-size:15.5px; letter-spacing:0.2px; text-shadow:0 2px 6px rgba(0,0,0,0.95), 0 0 14px rgba(251, 191, 36, 0.45); overflow:hidden; text-overflow:ellipsis;" id="header-company-name-top" data-i18n="sidebar.brand">نظام إدارة الشركات</span>
-                        <span style="background:linear-gradient(135deg, rgba(251, 191, 36, 0.28), rgba(16, 185, 129, 0.28)); border:1px solid rgba(254, 240, 138, 0.75); color:#fef08a; font-size:10px; font-weight:900; padding:2px 8px; border-radius:999px; letter-spacing:0.5px; flex-shrink:0; box-shadow:0 0 10px rgba(251, 191, 36, 0.25);">MAGAIEES ERP</span>
-                    </div>
-                </div>
+    <!-- 1. الركن الأيمن الملكي الفاخر (مهذب بالكامل: نظام إدارة الشركات + سعر صرف الدولار البارز + التاريخ والوقت فقط) -->
+    <div class="header-compact-right-cluster header-flagship-identity-suite" style="display:flex; flex-direction:column; justify-content:space-between; gap:4px; flex:0.88 1 315px !important; min-width:280px !important; max-width:455px !important; height:78px !important; min-height:78px !important; max-height:78px !important; box-sizing:border-box !important; background:linear-gradient(135deg, rgba(2, 6, 23, 0.96) 0%, rgba(15, 23, 42, 0.95) 55%, rgba(6, 78, 59, 0.55) 100%); border:1.5px solid rgba(251, 191, 36, 0.85); border-radius:13px; padding:6px 10px; box-shadow:0 7px 21px rgba(0, 0, 0, 0.8), 0 0 16px rgba(251, 191, 36, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.22); position:relative; overflow:hidden;">
+        <!-- الصف الأول: شعار مقاييس وكلمة مقاييس أولاً + بعد ذلك نظام إدارة الشركات ERP -->
+        <div style="display:flex; align-items:center; justify-content:flex-start; gap:8px; white-space:nowrap; height:34px; border-bottom:1px solid rgba(251, 191, 36, 0.22); padding-bottom:3px; overflow:hidden;">
+            <!-- 1. شعار مقاييس المعتمد الكبير وكلمة مقاييس في الأول -->
+            <a href="index.php" class="header-magaiees-emblem-badge" style="display:inline-flex; align-items:center; gap:6px; text-decoration:none; flex-shrink:0; height:32px; padding:1px 7px; border-radius:8px; background:linear-gradient(135deg, rgba(15, 23, 42, 0.9), rgba(2, 6, 23, 0.98)); border:1.5px solid rgba(251, 191, 36, 0.75); box-shadow:0 2px 10px rgba(0, 0, 0, 0.7), 0 0 12px rgba(251, 191, 36, 0.35); transition:all 0.25s ease;" title="شعار مقاييس المعتمد — MAGAIEES ERP">
+                <img src="assets/logo.png" alt="شعار مقاييس المعتمد" style="height:30px; width:auto; max-height:32px; object-fit:contain; filter:drop-shadow(0 2px 6px rgba(0,0,0,0.9)) drop-shadow(0 0 8px rgba(251, 191, 36, 0.5));">
+                <span style="color:#fef08a; font-weight:900; font-size:14.5px; letter-spacing:0.4px; text-shadow:0 2px 6px rgba(0,0,0,0.95), 0 0 10px rgba(251, 191, 36, 0.4);">مقاييس</span>
+            </a>
+            <!-- 2. بعد ذلك نظام إدارة الشركات ERP -->
+            <div style="display:inline-flex; align-items:center; gap:6px; min-width:0; overflow:hidden; flex-shrink:1;">
+                <span style="color:#ffffff; font-weight:900; font-size:17.5px; letter-spacing:0.2px; text-shadow:0 2px 8px rgba(0,0,0,0.95), 0 0 14px rgba(251, 191, 36, 0.5); overflow:hidden; text-overflow:ellipsis;" id="header-company-name-top" data-i18n="sidebar.brand">نظام إدارة الشركات</span>
+                <span style="background:linear-gradient(135deg, rgba(251, 191, 36, 0.35), rgba(16, 185, 129, 0.35)); border:1.5px solid rgba(254, 240, 138, 0.85); color:#fef08a; font-size:11.5px; font-weight:900; padding:2px 7px; border-radius:999px; letter-spacing:0.4px; flex-shrink:0; box-shadow:0 0 8px rgba(251, 191, 36, 0.3);">ERP</span>
             </div>
-            <h2 class="header-page-title" style="margin:0 !important; height:26px !important; font-size:12px !important; font-weight:900 !important; background:linear-gradient(135deg, rgba(3, 105, 161, 0.55), rgba(30, 58, 138, 0.75)) !important; border:1.5px solid #38bdf8 !important; color:#fef08a !important; padding:0 10px !important; border-radius:7.5px !important; display:inline-flex; align-items:center; gap:5px; line-height:1; flex-shrink:0; box-shadow:0 0 12px rgba(56, 189, 248, 0.35);">
-                <span class="header-page-title-icon" style="font-size:12.5px;"><?php echo $dynamic_icon; ?></span>
-                <span style="color:#ffffff !important; -webkit-text-fill-color:#ffffff !important; text-shadow:0 1px 3px rgba(0,0,0,0.9);"><?php echo isset($page_title) ? htmlspecialchars($page_title) : 'لوحة التحكم'; ?></span>
-            </h2>
+            <span class="header-page-title" style="display:none !important;"><span class="header-page-title-icon"></span></span>
         </div>
 
-        <!-- الصف الثاني الملكي المنسق عالمياً (بنفس ارتفاع الأزرار 28px وتقليل الهوامش): المدير + المتصل + الصرف + التاريخ والوقت -->
-        <div class="header-enterprise-meta-pod" style="display:flex !important; flex-direction:row !important; align-items:center !important; justify-content:space-between !important; gap:5px !important; padding:0 !important; background:transparent !important; border:none !important; box-shadow:none !important; white-space:nowrap; width:100% !important; height:28px !important;">
-            <div style="display:flex; align-items:center; gap:5px; flex-wrap:nowrap; height:28px;">
-                <div class="user-info enterprise-user-pill" onclick="document.getElementById('profile-modal').style.display='flex'" title="الملف الشخصي وصلاحيات الحساب" style="height:28px !important; padding:0 10px !important; border-radius:8px !important; gap:5px !important; background:linear-gradient(135deg, rgba(30, 41, 59, 0.92), rgba(15, 23, 42, 0.98)) !important; border:1.5px solid rgba(56, 189, 248, 0.65) !important; box-shadow:0 2px 8px rgba(0,0,0,0.4) !important;">
-                    <span class="user-pill-avatar" style="font-size:12px;">👤</span>
-                    <span id="header-user-name" style="font-size:12px !important; font-weight:900 !important; color:#ffffff !important;"><script>try{var _u=JSON.parse(localStorage.getItem('user')||'{}');document.write(_u.fullName||_u.username||'مستخدم')}catch(e){document.write('مستخدم')}</script></span>
-                    <span id="header-user-role" data-i18n="header.sysAdmin" style="font-size:10px !important; font-weight:900 !important; color:#fde047 !important; background:rgba(245, 158, 11, 0.25) !important; border:1px solid rgba(251, 191, 36, 0.55); padding:2px 6px !important; border-radius:5px !important;">مدير النظام</span>
-                </div>
-
-                <div id="online-users-badge" class="enterprise-online-pill" onclick="alert('المستخدمين المتصلين حالياً: \n' + (window.onlineUsersList || []).join('\n'))" title="المتصلون الآن" style="height:28px !important; padding:0 10px !important; border-radius:8px !important; gap:5px !important; background:linear-gradient(135deg, rgba(6, 78, 59, 0.9), rgba(4, 120, 87, 0.72)) !important; border:1.5px solid #34d399 !important; box-shadow:0 0 12px rgba(16, 185, 129, 0.3) !important;">
-                    <span class="online-pulse-dot" style="width:7px; height:7px;"></span>
-                    <span class="online-label-txt" data-i18n="header.onlineNow" style="font-size:11px !important; font-weight:900 !important; color:#a7f3d0 !important;">متصل</span>
-                    <span id="online-users-count" style="font-size:12px !important; font-weight:900 !important; color:#ffffff !important; background:rgba(0,0,0,0.4); padding:1px 6px; border-radius:5px;">1</span>
-                </div>
-
-                <div id="global-exchange-rate-box" class="enterprise-fx-pill" style="display:none; height:28px !important; padding:0 9px !important; border-radius:8px !important; background:linear-gradient(135deg, rgba(120, 53, 15, 0.85), rgba(180, 83, 9, 0.6)) !important; border:1.5px solid #fbbf24 !important;" onclick="toggleExchangeHistory(event)" title="سعر الصرف">
-                    <span class="fx-pill-inner" style="font-size:11px !important; font-weight:900 !important;">
-                        <span id="global-exchange-rate-trend" style="margin-left:2px;"></span>
-                        <span id="global-exchange-rate-val" style="font-size:11.5px !important; font-weight:900 !important;">-</span>
-                    </span>
-                </div>
+        <!-- الصف الثاني: بطاقة سعر صرف الدولار البارزة والمطلوبة + كبسولة التاريخ والوقت المدمجة -->
+        <div class="header-enterprise-meta-pod" style="display:flex !important; flex-direction:row !important; align-items:center !important; justify-content:space-between !important; gap:8px !important; padding:0 !important; background:transparent !important; border:none !important; box-shadow:none !important; white-space:nowrap; width:100% !important; height:30px !important;">
+            <!-- بطاقة سعر الدولار الرسمية (بارزة وواضحة وقابلة للنقر) -->
+            <div id="global-exchange-rate-box" class="enterprise-fx-pill" style="display:inline-flex !important; height:29px !important; padding:0 9px !important; border-radius:8px !important; background:linear-gradient(135deg, rgba(120, 53, 15, 0.95), rgba(180, 83, 9, 0.85)) !important; border:1.5px solid #fbbf24 !important; box-shadow:0 0 10px rgba(251, 191, 36, 0.35) !important; cursor:pointer;" onclick="if(typeof openGlobalExchangeRateModal==='function'){openGlobalExchangeRateModal();}else if(typeof toggleExchangeHistory==='function'){toggleExchangeHistory(event);}" title="سعر صرف الدولار الأمريكي الرسمي — اضغط للتعديل أو سجل الأسعار">
+                <span class="fx-pill-inner" style="font-size:11.5px !important; font-weight:900 !important; display:inline-flex; align-items:center; gap:4px;">
+                    <span style="font-size:12px;">💵 $</span>
+                    <span style="color:#fde047;">الدولار:</span>
+                    <span id="global-exchange-rate-trend" style="margin-left:1px;"></span>
+                    <span id="global-exchange-rate-val" style="font-size:12.5px !important; font-weight:900 !important; color:#ffffff !important; letter-spacing:0.4px !important;"><?php echo number_format((float)$systemUsdRate, 2); ?></span>
+                    <span style="font-size:10px; color:#fef08a;">SDG</span>
+                </span>
             </div>
 
-            <div class="clock-container enterprise-time-pill" style="height:28px !important; padding:0 11px !important; border-radius:8px !important; gap:6px !important; width:auto !important; background:linear-gradient(135deg, rgba(15, 23, 42, 0.96), rgba(2, 6, 23, 0.99)) !important; border:1.5px solid rgba(251, 191, 36, 0.65) !important; box-shadow:inset 0 1px 2px rgba(0,0,0,0.6), 0 2px 8px rgba(0,0,0,0.4) !important;">
-                <span style="font-size:11.5px;">📅</span>
-                <span id="header-date-mini" style="font-size:11.5px !important; font-weight:900 !important; color:#fef08a !important;"><script>document.write(new Date().toLocaleDateString('ar-EG-u-nu-latn',{weekday:'short',day:'numeric',month:'short'}))</script></span>
-                <span class="time-pill-divider" style="font-size:11px; color:rgba(251, 191, 36, 0.5);">|</span>
-                <span style="font-size:11.5px;">🕒</span>
-                <span id="header-clock" style="font-size:12.5px !important; font-weight:900 !important; color:#34d399 !important; letter-spacing:0.9px !important;"><script>var _n=new Date();document.write(_n.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false}))</script></span>
+            <!-- كبسولة التاريخ والوقت -->
+            <div class="clock-container enterprise-time-pill" style="height:29px !important; padding:0 8px !important; border-radius:8px !important; gap:4px !important; width:auto !important; background:linear-gradient(135deg, rgba(15, 23, 42, 0.96), rgba(2, 6, 23, 0.99)) !important; border:1.5px solid rgba(251, 191, 36, 0.65) !important; box-shadow:inset 0 1px 2px rgba(0,0,0,0.6), 0 2px 8px rgba(0,0,0,0.4) !important;">
+                <span style="font-size:11px;">📅</span>
+                <span id="header-date-mini" style="font-size:11px !important; font-weight:900 !important; color:#fef08a !important; letter-spacing:0.3px !important;"><script>(function(){var _d=new Date();var _dd=String(_d.getDate()).padStart(2,'0');var _mm=String(_d.getMonth()+1).padStart(2,'0');var _yy=_d.getFullYear();document.write(_dd+'/'+_mm+'/'+_yy);})()</script></span>
+                <span class="time-pill-divider" style="font-size:10.5px; color:rgba(251, 191, 36, 0.5);">|</span>
+                <span style="font-size:11px;">🕒</span>
+                <span id="header-clock" style="font-size:11.5px !important; font-weight:900 !important; color:#34d399 !important; letter-spacing:0.6px !important;"><script>var _n=new Date();document.write(_n.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false}))</script></span>
             </div>
         </div>
     </div>
@@ -692,7 +684,7 @@ window._cachedGlobalRate = window.SYSTEM_USD_RATE;
             gap: 14px !important;
             padding-left: 28px !important; /* مسافة قصيرة جداً تعادل ثانية واحدة فقط قبل بداية الآية من جديد */
             font-family: 'Amiri', 'Traditional Arabic', 'Cairo', 'Tajawal', serif !important;
-            font-size: 16.5px !important;
+            font-size: 17.5px !important; /* زيادة درجة واحدة للآية الكريمة بناء على توجيه المستخدم */
             font-weight: 900 !important;
             color: #fef08a !important;
             -webkit-text-fill-color: #fef08a !important;
@@ -711,7 +703,7 @@ window._cachedGlobalRate = window.SYSTEM_USD_RATE;
             filter: drop-shadow(0 0 8px rgba(52, 211, 153, 0.85));
         }
     </style>
-    <div id="dashboard-athkar-container" class="islamic-ticker-container" style="display:flex !important; flex:0.65 1 195px !important; min-width:165px !important; max-width:320px !important; height:70px !important; min-height:70px !important; max-height:70px !important; box-sizing:border-box !important; margin:0 !important; padding:0 !important; border-radius:14px !important; background:radial-gradient(circle at 50% 0%, rgba(16, 185, 129, 0.35), transparent 70%), linear-gradient(135deg, #022c22 0%, #064e3b 35%, #020617 70%, #1e1b4b 100%) !important; border:2px solid #fbbf24 !important; align-items:center !important; justify-content:center !important; overflow:hidden !important; position:relative !important; animation: quranMihrabBorderGlow 3.5s ease-in-out infinite alternate !important;" title="آيات قرآنية وأذكار مباركة — مرر الماوس لإيقاف الحركة مؤقتاً للقراءة">
+    <div id="dashboard-athkar-container" class="islamic-ticker-container" style="display:flex !important; flex:1.35 1 340px !important; min-width:240px !important; max-width:none !important; height:78px !important; min-height:78px !important; max-height:78px !important; box-sizing:border-box !important; margin:0 !important; padding:0 !important; border-radius:14px !important; background:radial-gradient(circle at 50% 0%, rgba(16, 185, 129, 0.35), transparent 70%), linear-gradient(135deg, #022c22 0%, #064e3b 35%, #020617 70%, #1e1b4b 100%) !important; border:2px solid #fbbf24 !important; align-items:center !important; justify-content:center !important; overflow:hidden !important; position:relative !important; animation: quranMihrabBorderGlow 3.5s ease-in-out infinite alternate !important;" title="آيات قرآنية وأذكار مباركة — مرر الماوس لإيقاف الحركة مؤقتاً للقراءة">
         <!-- إطار زخرفي ذهبي داخلي فائق الجمال -->
         <div style="position:absolute; inset:3px; border:1px solid rgba(254, 240, 138, 0.32); border-radius:10px; pointer-events:none; z-index:2; box-shadow:inset 0 0 12px rgba(251, 191, 36, 0.12);"></div>
         <!-- تدرج جانبي ناعم لبروز النص في المنتصف بوضوح فائق -->
@@ -765,19 +757,34 @@ window._cachedGlobalRate = window.SYSTEM_USD_RATE;
             $header_curr = isset($_COOKIE['currency']) ? $_COOKIE['currency'] : (isset($_GET['currency']) ? $_GET['currency'] : 'SDG');
         endif;
         ?>
-        <div class="header-crystal-icon-dock">
-            <button id="desktop-sync-shield-btn" type="button" class="royal-crystal-btn dock-icon-btn dock-icon-shield" onclick="window.openDesktopSyncAuditModal()" title="🛡️ درع الحماية وسجل المزامنة التلقائية (اضغط مطولاً للفحص والمزامنة الفورية)">
-                🛡️
-                <span id="desktop-sync-shield-badge" style="display:none; position:absolute; top:-4px; right:-4px; background:#ef4444; color:#fff; font-size:9.5px; font-weight:900; min-width:16px; height:16px; border-radius:999px; align-items:center; justify-content:center; padding:0 3px; border:1.5px solid #0f172a;">0</span>
-            </button>
+        <div class="header-crystal-icon-dock" style="position:relative;">
+            <!-- زر موحد لأدوات النظام السريعة (درع المزامنة، المتعقب، ملء الشاشة، تبديل المظهر) لمنع تكدس الأيقونات -->
+            <div style="position:relative; display:flex; align-items:center;">
+                <button type="button" id="header-tools-menu-btn" class="dock-icon-btn" onclick="var m=document.getElementById('header-quick-tools-popover'); if(m){m.style.display=(m.style.display==='flex'?'none':'flex');} event.stopPropagation();" title="أدوات النظام السريعة (درع الحماية، متعقب المستندات، ملء الشاشة)" style="width:auto !important; padding:0 10px !important; gap:5px !important; font-size:11.5px !important; font-weight:800 !important; color:#e2e8f0 !important; position:relative;">
+                    <span>⚡</span>
+                    <span>الأدوات</span>
+                </button>
+                <div id="header-quick-tools-popover" onclick="event.stopPropagation()" style="display:none; position:absolute; top:calc(100% + 8px); left:0; background:rgba(15,23,42,0.98); border:1.5px solid rgba(56,189,248,0.45); border-radius:12px; padding:8px; gap:8px; align-items:center; box-shadow:0 15px 35px rgba(0,0,0,0.85); z-index:999999; backdrop-filter:blur(12px);">
+                    <button id="desktop-sync-shield-btn" type="button" class="royal-crystal-btn dock-icon-btn dock-icon-shield" onclick="window.openDesktopSyncAuditModal()" title="🛡️ درع الحماية وسجل المزامنة التلقائية (اضغط مطولاً للفحص والمزامنة الفورية)">
+                        🛡️
+                        <span id="desktop-sync-shield-badge" style="display:none; position:absolute; top:-4px; right:-4px; background:#ef4444; color:#fff; font-size:9.5px; font-weight:900; min-width:16px; height:16px; border-radius:999px; align-items:center; justify-content:center; padding:0 3px; border:1.5px solid #0f172a;">0</span>
+                    </button>
 
-            <button class="audit-tracker-btn dock-icon-btn dock-icon-search" onclick="window.openAuditTrackerModal()" title="متعقب المستندات وسجل تتبع المستخدمين (من فعل ماذا) - اضغط Alt+T">🔍</button>
+                    <button class="audit-tracker-btn dock-icon-btn dock-icon-search" onclick="window.openAuditTrackerModal()" title="متعقب المستندات وسجل تتبع المستخدمين (من فعل ماذا) - اضغط Alt+T">🔍</button>
 
-            <button class="fullscreen-toggle-btn dock-icon-btn dock-icon-fullscreen" onclick="toggleFullScreen()" data-i18n-title="header.fullscreen" title="توسيع الشاشة">⛶</button>
+                    <button class="fullscreen-toggle-btn dock-icon-btn dock-icon-fullscreen" onclick="toggleFullScreen()" data-i18n-title="header.fullscreen" title="توسيع الشاشة">⛶</button>
 
-            <button class="theme-toggle-btn dock-icon-btn dock-icon-theme" onclick="toggleTheme()" data-i18n-title="header.toggleTheme" title="تبديل المظهر السريع (فاتح / داكن)">🌓</button>
+                    <button class="theme-toggle-btn dock-icon-btn dock-icon-theme" onclick="toggleTheme()" data-i18n-title="header.toggleTheme" title="تبديل المظهر السريع (فاتح / داكن)">🌓</button>
 
-            <a href="mobile-dashboard.php?force_mobile=1" target="_blank" id="header-mobile-quick-btn" class="dock-icon-btn dock-icon-mobile" onclick="try{localStorage.setItem('magaiees_view_preference','mobile');document.cookie='magaiees_view_preference=mobile; path=/; max-age=31536000; SameSite=Lax';}catch(e){}" style="<?php echo $is_dashboard_page ? 'display:none !important;' : ''; ?>" title="📱 فتح نسخة الجوال الذكية (Mobile Edition) في نافذة مستقلة">📱</a>
+                    <a href="mobile-dashboard.php?force_mobile=1" target="_blank" id="header-mobile-quick-btn" class="dock-icon-btn dock-icon-mobile" onclick="try{localStorage.setItem('magaiees_view_preference','mobile');document.cookie='magaiees_view_preference=mobile; path=/; max-age=31536000; SameSite=Lax';}catch(e){}" style="<?php echo $is_dashboard_page ? 'display:none !important;' : ''; ?>" title="📱 فتح نسخة الجوال الذكية (Mobile Edition) في نافذة مستقلة">📱</a>
+                </div>
+            </div>
+            <script>
+            document.addEventListener('click', function() {
+                var m = document.getElementById('header-quick-tools-popover');
+                if (m && m.style.display === 'flex') m.style.display = 'none';
+            });
+            </script>
 
             <!-- 📺 SACRED TV & QURAN MINI CONTROLLER -->
             <div id="header-media-control-wrap" style="position:relative; display:flex; align-items:center;">
@@ -875,6 +882,37 @@ window._cachedGlobalRate = window.SYSTEM_USD_RATE;
         </script>
     </div>
 </header>
+
+<!-- 🌟 الشريط السفلي الموحد لمعلومات النظام والأدمن والمتصلين وبروتوكول الواتساب (مخفف وراقي في أسفل أسفل الشاشة) -->
+<footer id="magaiees-bottom-protocol-bar" class="no-print" style="position:fixed; bottom:0; left:0; right:0; height:24px; background:linear-gradient(90deg, rgba(2, 6, 23, 0.95) 0%, rgba(15, 23, 42, 0.97) 50%, rgba(2, 6, 23, 0.95) 100%); border-top:1px solid rgba(255,255,255,0.08); z-index:99999; display:flex; align-items:center; justify-content:space-between; padding:0 14px; font-family:'Tajawal', sans-serif; font-size:11px; color:#94a3b8; direction:rtl; user-select:none; backdrop-filter:blur(8px); box-sizing:border-box;">
+    <!-- اليمين: معلومات الأدمن والمستخدم -->
+    <div style="display:flex; align-items:center; gap:8px;">
+        <span onclick="var p=document.getElementById('profile-modal'); if(p) p.style.display='flex';" style="cursor:pointer; display:inline-flex; align-items:center; gap:5px; color:#e2e8f0; font-weight:800;" title="الملف الشخصي وصلاحيات الحساب">
+            <span>👤</span>
+            <span id="header-user-name"><script>try{var _u=JSON.parse(localStorage.getItem('user')||'{}');document.write(_u.fullName||_u.username||'مستخدم')}catch(e){document.write('مستخدم')}</script></span>
+            <span id="header-user-role" style="font-size:9.5px; font-weight:900; color:#fde047; background:rgba(245,158,11,0.2); border:1px solid rgba(251,191,36,0.45); padding:1px 5px; border-radius:4px;">مدير النظام</span>
+        </span>
+    </div>
+
+    <!-- الوسط: حالة الاتصال وعدد المتصلين وبروتوكول المزامنة -->
+    <div style="display:flex; align-items:center; gap:10px;">
+        <div id="online-users-badge" onclick="alert('المستخدمين المتصلين حالياً: \n' + (window.onlineUsersList || []).join('\n'))" style="cursor:pointer; display:inline-flex; align-items:center; gap:5px; color:#34d399; font-weight:800;" title="المتصلون الآن">
+            <span class="online-pulse-dot" style="width:6px; height:6px; background:#10b981; border-radius:50%; box-shadow:0 0 6px #10b981; display:inline-block;"></span>
+            <span class="online-label-txt">متصل الآن:</span>
+            <span id="online-users-count" style="color:#ffffff; background:rgba(16,185,129,0.25); border:1px solid #10b981; padding:0 5px; border-radius:4px; font-weight:900;">1</span>
+        </div>
+        <span style="color:rgba(255,255,255,0.18);">|</span>
+        <span style="color:#cbd5e1; font-weight:700;">🌐 بروتوكول مقاييس السحابي الموحد (Cloud Sync 24/7)</span>
+    </div>
+
+    <!-- اليسار: بروتوكول واتساب المالي الذكي -->
+    <div style="display:flex; align-items:center; gap:8px;">
+        <span style="color:#38bdf8; font-weight:800;">💬 بروتوكول واتساب المالي الذكي (WhatsApp Suite v2026)</span>
+    </div>
+</footer>
+<style>
+body { padding-bottom: 26px !important; }
+</style>
 
 <!-- 🌟 زر عائم ذكي لإظهار الترويسة العلوية في أي وقت لجميع الشاشات -->
 <div id="auto-scroll-header-pill" class="auto-scroll-return-pill" onclick="if(window.AutoHeaderScroll) window.AutoHeaderScroll.scrollToHeader()" title="الرجوع إلى أعلى الصفحة وإظهار الترويسة">
@@ -1413,6 +1451,10 @@ window._cachedGlobalRate = window.SYSTEM_USD_RATE;
     direction: rtl !important;
     align-items: stretch !important;
     gap: 5px !important;
+    height: 78px !important;
+    min-height: 78px !important;
+    max-height: 78px !important;
+    box-sizing: border-box !important;
     background: rgba(15, 23, 42, 0.45) !important;
     border: 1px solid rgba(255, 255, 255, 0.09) !important;
     border-radius: 12px !important;
@@ -1422,7 +1464,7 @@ window._cachedGlobalRate = window.SYSTEM_USD_RATE;
 .quad-matrix-col {
     display: flex !important;
     flex-direction: column !important;
-    gap: 4px !important;
+    gap: 5px !important;
     justify-content: center !important;
     min-width: 118px !important;
 }
@@ -1432,9 +1474,9 @@ header #magaiees-dashboard-header-stack #magaiees-master-back-btn.magaiees-back-
     align-items: center !important;
     justify-content: center !important;
     gap: 5px !important;
-    height: 26px !important;
-    min-height: 26px !important;
-    max-height: 26px !important;
+    height: 30px !important;
+    min-height: 30px !important;
+    max-height: 30px !important;
     padding: 0 10px !important;
     margin: 0 !important;
     border-radius: 8px !important;
@@ -2454,6 +2496,7 @@ try {
         }
     }
 } catch (Throwable $_eSync) {}
+$_hdrSyncSig = md5(count($_hdrSyncCustomers) . ':' . count($_hdrSyncBanks) . ':' . count($_hdrSyncReceipts) . ':' . implode(',', array_keys($_hdrSyncReceipts)));
 ?>
 <script id="erp-live-whatsapp-receipts-sync">
 (function() {
@@ -2511,19 +2554,41 @@ try {
         }
     }
 
-    mergeArrayIntoLocal('erp_customers_v1', srvCustomers, 'id', 'name');
-    mergeArrayIntoLocal('erp_banks_v1', srvBanks, 'id', 'name');
-    mergeArrayIntoLocal('erp_receipts_v1', srvReceipts, 'voucherNo', 'id');
+    var lastSig = '';
+    var hasLocalReceipts = false;
+    try {
+        lastSig = sessionStorage.getItem('erp_hdr_sync_sig') || '';
+        hasLocalReceipts = !!localStorage.getItem('erp_receipts_v1');
+    } catch(e) {}
+
+    var needsSync = (lastSig !== srvSyncSig) || !hasLocalReceipts || /account-statement\.php/i.test(window.location.pathname);
+    if (needsSync) {
+        mergeArrayIntoLocal('erp_customers_v1', srvCustomers, 'id', 'name');
+        mergeArrayIntoLocal('erp_banks_v1', srvBanks, 'id', 'name');
+        mergeArrayIntoLocal('erp_receipts_v1', srvReceipts, 'voucherNo', 'id');
+        try { sessionStorage.setItem('erp_hdr_sync_sig', srvSyncSig); } catch(e) {}
+    }
 
     document.addEventListener('DOMContentLoaded', function() {
-        if (typeof window.rebuildGLFromAllTables === 'function') {
-            try { window.rebuildGLFromAllTables(false); } catch(e) {}
-        }
-        if (typeof window.buildAccountsList === 'function') {
-            try { window.buildAccountsList(); } catch(e) {}
-        }
-        if (typeof window.extractFilters === 'function') {
-            try { window.extractFilters(); } catch(e) {}
+        var runRebuild = function() {
+            if (typeof window.rebuildGLFromAllTables === 'function') {
+                try { window.rebuildGLFromAllTables(false); } catch(e) {}
+            }
+            if (typeof window.buildAccountsList === 'function') {
+                try { window.buildAccountsList(); } catch(e) {}
+            }
+            if (typeof window.extractFilters === 'function') {
+                try { window.extractFilters(); } catch(e) {}
+            }
+        };
+        if (/account-statement\.php/i.test(window.location.pathname)) {
+            runRebuild();
+        } else if (needsSync) {
+            if (typeof window.requestIdleCallback === 'function') {
+                window.requestIdleCallback(runRebuild, { timeout: 400 });
+            } else {
+                setTimeout(runRebuild, 80);
+            }
         }
     });
 })();

@@ -1,3 +1,4 @@
+<?php if (!headers_sent() && extension_loaded('zlib') && !ini_get('zlib.output_compression') && ob_get_level() === 0) { @ob_start('ob_gzhandler'); } ?>
 <?php $page_title = 'ترحيل الحسابات'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
@@ -1153,7 +1154,7 @@
 
     <script defer src="js/localforage.min.js"></script>
     <script defer src="js/app.js?v=20261016_v28"></script>
-    <script defer src="js/posting-accounts.js?v=<?php echo time(); ?>"></script>
+    <script defer src="js/posting-accounts.js?v=20261029_fast"></script>
     <script>
         function injectDummyData() {
             const dummySales = [{

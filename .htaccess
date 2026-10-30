@@ -19,10 +19,16 @@ RewriteRule ^(.*)$ https://c.elsajana.com/$1 [R=301,L]
 
 # ============================================
 
-# Protect sensitive files
-<FilesMatch "^\.(env|git)">
+# Protect sensitive files & internal diagnostic/debug scripts from public web access
+<FilesMatch "^\.(env|git)|^(check_db|check_db2|test_balances_api|debug|debug_output|debug-settings|diagnostic|test|test_push_payload|alter_alerts|add_cache_buster|check_actions|check_actions_detail|check_billing|check_checks|check_customers|check_cust_data|check_generator|check_ghost_usage|check_ids|check_ids2|check_jobs|check_json|check_match|check_mock_context|check_mock_context2|check_mock_data|check_mock_lines|check_real_mocks|check_schema|check_single_payments|check_structure|check_syntax_20|check_tables|check_tenant|check_tenant2_customer|check_tenant2_invoice|check_tenants)\.php$">
     Require all denied
 </FilesMatch>
+
+<IfModule mod_headers.c>
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-Frame-Options "SAMEORIGIN"
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>
 
 # Cache static assets (instant revalidation for code files so updates appear immediately)
 <IfModule mod_expires.c>

@@ -2475,7 +2475,7 @@
             }, 200);
         }
     </script>
-<script src="js/universal-report-studio.js?v=<?php echo time(); ?>"></script>
+<script src="js/universal-report-studio.js?v=20261029_fast"></script>
 <script>
 function applyAndOpenPreview(index, btn) {
     document.querySelectorAll('.preset-pill-btn').forEach(function(b) { b.classList.remove('active'); });

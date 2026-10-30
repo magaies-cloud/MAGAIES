@@ -646,9 +646,9 @@
 <?php include 'includes/studio-modals.php'; ?>
 <script src="js/localforage.min.js"></script>
 <script src="js/app.js?v=20261016_v28"></script>
-<script src="js/general-ledger.js?v=<?php echo time(); ?>"></script>
-<script src="js/preview-ledger.js?v=<?php echo time(); ?>"></script>
-<script defer src="js/erp-whatsapp-suite.js?v=<?php echo time(); ?>"></script>
+<script src="js/general-ledger.js?v=20261029_fast"></script>
+<script src="js/preview-ledger.js?v=20261029_fast"></script>
+<script defer src="js/erp-whatsapp-suite.js?v=20261029_fast"></script>
 
 <script src="js/global_background_media.js?v=2026_seamless_v5" defer></script>
 <script src="js/magaiees_back.js?v=2026_back_v2" defer></script>

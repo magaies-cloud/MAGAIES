@@ -22,10 +22,10 @@ $page_title = 'حساب الارصده الاساسية';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>حساب الارصده الاساسية | Al-Sajana ERP</title>
-    <link rel="stylesheet" href="css/design-system.css?v=<?php echo time(); ?>">
-    <link rel="stylesheet" href="css/theme.css?v=<?php echo time(); ?>">
-    <link rel="stylesheet" href="css/components.css?v=<?php echo time(); ?>">
-    <link rel="stylesheet" href="css/sales-invoice.css?v=<?php echo time(); ?>">
+    <link rel="stylesheet" href="css/design-system.css?v=20261029_fast">
+    <link rel="stylesheet" href="css/theme.css?v=20261029_fast">
+    <link rel="stylesheet" href="css/components.css?v=20261029_fast">
+    <link rel="stylesheet" href="css/sales-invoice.css?v=20261029_fast">
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
     <style>
@@ -1898,7 +1898,7 @@ $page_title = 'حساب الارصده الاساسية';
 
 <script defer src="js/localforage.min.js"></script>
 <script defer src="js/app.js?v=20261016_v28"></script>
-<script defer src="js/mainbalances-report.js?v=<?php echo time(); ?>"></script>
+<script defer src="js/mainbalances-report.js?v=20261029_fast"></script>
 <script>
 // Debug wrapper: override runReport to catch and display errors
 document.addEventListener('DOMContentLoaded', function() {

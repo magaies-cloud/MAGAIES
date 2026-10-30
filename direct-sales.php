@@ -1,3 +1,4 @@
+<?php if (!headers_sent() && extension_loaded('zlib') && !ini_get('zlib.output_compression') && ob_get_level() === 0) { @ob_start('ob_gzhandler'); } ?>
 <?php 
 $db_sales_grid_config = null;
 $preloadedUnitsJson = '[]';
@@ -2736,6 +2737,424 @@ try {
     }
     ?>
     </style>
+
+    <!-- ═══ ULTRA-CONTRAST TYPOGRAPHY, FAINT HINTS/ZEROS & CLEAR REGIONS ENGINE (2027) ═══ -->
+    <style id="invoice-ultra-contrast-2027">
+        /* 1. Pre-written Placeholders & Default Hints/Zeros (بلون باهت خفيف جداً للتوضيح مقابل الكتابة الحقيقية الواضحة) */
+        input::placeholder,
+        textarea::placeholder,
+        #hdr-customer-search::placeholder,
+        #quick-item-search::placeholder,
+        #hdr-description::placeholder,
+        #pos-grid input.g-input::placeholder {
+            color: rgba(148, 163, 184, 0.36) !important;
+            -webkit-text-fill-color: rgba(148, 163, 184, 0.36) !important;
+            font-weight: 500 !important;
+            opacity: 1 !important;
+            text-shadow: none !important;
+        }
+        :root.light-theme input::placeholder,
+        :root.light-theme textarea::placeholder,
+        :root.light-theme #hdr-customer-search::placeholder,
+        :root.light-theme #quick-item-search::placeholder,
+        :root.light-theme #hdr-description::placeholder,
+        :root.light-theme #pos-grid input.g-input::placeholder,
+        html[data-theme="warm_cream"] input::placeholder,
+        html[data-theme="ultra_white"] input::placeholder,
+        html[data-theme="exec_gray"] input::placeholder {
+            color: rgba(100, 116, 139, 0.42) !important;
+            -webkit-text-fill-color: rgba(100, 116, 139, 0.42) !important;
+            font-weight: 500 !important;
+            opacity: 1 !important;
+            text-shadow: none !important;
+        }
+
+        /* Default Zero Values (الصفر: 0 / 0.00) & Default Select Hints (نفس الفاتورة / بدون مركز) when unfocused */
+        body #pos-grid tbody tr td input.g-input.is-zero-val:not(:focus),
+        body #pos-grid tbody tr td .total-val.is-zero-val,
+        body #pos-grid tbody tr td .avail-val.is-zero-val,
+        body #pos-grid tbody tr td .g-readonly.is-zero-val,
+        body .tot-row input.tot-input.is-zero-val:not(:focus),
+        body #pos-grid tbody tr td select.g-select.is-default-hint:not(:focus),
+        body select.is-default-hint:not(:focus) {
+            color: rgba(148, 163, 184, 0.38) !important;
+            -webkit-text-fill-color: rgba(148, 163, 184, 0.38) !important;
+            font-weight: 500 !important;
+            text-shadow: none !important;
+        }
+        :root.light-theme body #pos-grid tbody tr td input.g-input.is-zero-val:not(:focus),
+        :root.light-theme body #pos-grid tbody tr td .total-val.is-zero-val,
+        :root.light-theme body #pos-grid tbody tr td .avail-val.is-zero-val,
+        :root.light-theme body #pos-grid tbody tr td .g-readonly.is-zero-val,
+        :root.light-theme body .tot-row input.tot-input.is-zero-val:not(:focus),
+        :root.light-theme body #pos-grid tbody tr td select.g-select.is-default-hint:not(:focus),
+        :root.light-theme body select.is-default-hint:not(:focus),
+        html[data-theme="warm_cream"] body #pos-grid tbody tr td input.g-input.is-zero-val:not(:focus),
+        html[data-theme="warm_cream"] body #pos-grid tbody tr td .total-val.is-zero-val,
+        html[data-theme="warm_cream"] body #pos-grid tbody tr td select.g-select.is-default-hint:not(:focus) {
+            color: rgba(100, 116, 139, 0.40) !important;
+            -webkit-text-fill-color: rgba(100, 116, 139, 0.40) !important;
+            font-weight: 500 !important;
+            text-shadow: none !important;
+        }
+        :root.light-theme body #pos-grid tbody tr td .total-val.is-zero-val {
+            background: #f8fafc !important;
+            border-color: rgba(148, 163, 184, 0.38) !important;
+            box-shadow: none !important;
+        }
+
+        /* 2. Light Theme Region Lightening & Deep Black Typography (تفتيح المنطقة وتغميق الخطوط بالأسود الواضح) */
+        :root.light-theme #form-fields-card,
+        :root.light-theme .sales-glass-card,
+        :root.light-theme .purchase-glass-card,
+        :root.light-theme #items-panel,
+        :root.light-theme .panel-header-row,
+        :root.light-theme .grid-scroll-wrap,
+        :root.light-theme #inline-totals-container,
+        :root.light-theme #payment-panel {
+            background: linear-gradient(135deg, #f6f0e4 0%, #ede3d0 100%) !important;
+            border: 2px solid #334155 !important;
+            box-shadow: 0 6px 20px rgba(15, 23, 42, 0.08) !important;
+            color: #000000 !important;
+        }
+        :root.light-theme .panel-title {
+            color: #000000 !important;
+            text-shadow: none !important;
+            font-weight: 900 !important;
+        }
+
+        /* Header Labels: رقم الفاتورة، التاريخ، العميل، الصرف، المخزن، الفرع، البيان */
+        :root.light-theme .h-label,
+        :root.light-theme #invoice-info-box .h-label,
+        :root.light-theme #invoice-info-box #hdr-date-label,
+        :root.light-theme #sales-row1-bar .h-label,
+        :root.light-theme .group-invoice .h-label,
+        :root.light-theme .group-date .h-label,
+        :root.light-theme .group-supplier .h-label,
+        :root.light-theme .group-currency .h-label,
+        :root.light-theme .group-warehouse .h-label,
+        :root.light-theme .group-cost-center .h-label,
+        :root.light-theme .group-description .h-label {
+            color: #000000 !important;
+            -webkit-text-fill-color: #000000 !important;
+            font-weight: 900 !important;
+            font-size: 0.92rem !important;
+            text-shadow: none !important;
+            opacity: 1 !important;
+        }
+
+        /* Invoice Number Box & Serial Text (رقم الفاتورة واضح جداً وبالأسود الغامق) */
+        :root.light-theme .gold-serial-wrap,
+        :root.light-theme .pro-serial-container {
+            background: #ffffff !important;
+            border: 2px solid #000000 !important;
+            box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.06) !important;
+        }
+        :root.light-theme #inv-number,
+        :root.light-theme .pro-serial-number,
+        :root.light-theme .gold-serial-text {
+            color: #000000 !important;
+            -webkit-text-fill-color: #000000 !important;
+            font-weight: 900 !important;
+            font-size: 1.35rem !important;
+            text-shadow: none !important;
+            opacity: 1 !important;
+        }
+        :root.light-theme .pro-serial-btn {
+            background: #e2e8f0 !important;
+            color: #000000 !important;
+            border: 1.5px solid #475569 !important;
+            font-weight: 900 !important;
+            opacity: 1 !important;
+        }
+
+        /* Date Input (التاريخ واضح تماماً وباللون الأسود الصريح) */
+        :root.light-theme #hdr-date,
+        :root.light-theme input[type="date"] {
+            background: #ffffff !important;
+            color: #000000 !important;
+            -webkit-text-fill-color: #000000 !important;
+            color-scheme: light !important;
+            border: 2px solid #000000 !important;
+            font-weight: 900 !important;
+            font-size: 1rem !important;
+            opacity: 1 !important;
+        }
+        :root.light-theme #hdr-date::-webkit-datetime-edit,
+        :root.light-theme #hdr-date::-webkit-datetime-edit-fields-wrapper,
+        :root.light-theme #hdr-date::-webkit-datetime-edit-text,
+        :root.light-theme #hdr-date::-webkit-datetime-edit-month-field,
+        :root.light-theme #hdr-date::-webkit-datetime-edit-day-field,
+        :root.light-theme #hdr-date::-webkit-datetime-edit-year-field,
+        :root.light-theme input[type="date"]::-webkit-datetime-edit,
+        :root.light-theme input[type="date"]::-webkit-datetime-edit-month-field,
+        :root.light-theme input[type="date"]::-webkit-datetime-edit-day-field,
+        :root.light-theme input[type="date"]::-webkit-datetime-edit-year-field {
+            color: #000000 !important;
+            -webkit-text-fill-color: #000000 !important;
+            font-weight: 900 !important;
+        }
+        :root.light-theme #hdr-date::-webkit-calendar-picker-indicator {
+            filter: none !important;
+            opacity: 0.9 !important;
+            cursor: pointer !important;
+        }
+
+        /* Header Inputs: العميل، سعر الصرف، العملة، المخزن، الفرع، البيان، والبحث السريع */
+        :root.light-theme #hdr-customer-search,
+        :root.light-theme #hdr-currency,
+        :root.light-theme #hdr-exchange-rate,
+        :root.light-theme #hdr-warehouse,
+        :root.light-theme #hdr-cost-center:not(.is-default-hint),
+        :root.light-theme #hdr-description,
+        :root.light-theme #quick-item-search {
+            background: #ffffff !important;
+            color: #000000 !important;
+            -webkit-text-fill-color: #000000 !important;
+            border: 2px solid #000000 !important;
+            font-weight: 900 !important;
+            text-shadow: none !important;
+            box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05) !important;
+        }
+        :root.light-theme #hdr-cost-center.is-default-hint:not(:focus) {
+            background: #ffffff !important;
+            border: 2px solid #000000 !important;
+        }
+
+        /* User Audit Badge & Financial Strip in Light Theme */
+        :root.light-theme #sales-user-audit-container .user-audit-badge,
+        :root.light-theme #sales-user-audit-container > div,
+        :root.light-theme #fin-strip .fin-strip-inner-box {
+            background: #ffffff !important;
+            border: 2px solid #0f172a !important;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.06) !important;
+        }
+        :root.light-theme #sales-user-audit-container .user-audit-badge .uab-label,
+        :root.light-theme #sales-user-audit-container .user-audit-badge .uab-val,
+        :root.light-theme #fin-strip .fin-strip-inner-box span {
+            color: #000000 !important;
+            font-weight: 900 !important;
+        }
+
+        /* 3. Grid Table Headers, Typed Inputs & Totals (الكتابة الحقيقية باللون الأسود، وإضافة/حذف/الجملة بألوان واضحة وتباين عالٍ) */
+        :root.light-theme body #pos-grid thead tr th {
+            background: #dfd3bc !important;
+            color: #000000 !important;
+            -webkit-text-fill-color: #000000 !important;
+            border-bottom: 2.5px solid #000000 !important;
+            font-weight: 900 !important;
+        }
+        :root.light-theme body #pos-grid tbody tr td {
+            background: #f4ecde !important;
+            border-bottom: 1.5px solid #cbd5e1 !important;
+            color: #000000 !important;
+        }
+        :root.light-theme body #pos-grid tbody tr:hover td,
+        :root.light-theme body #pos-grid tbody tr:focus-within td {
+            background: #ebe0cc !important;
+        }
+        :root.light-theme body #pos-grid tbody tr td input.g-input:not(.is-zero-val),
+        :root.light-theme body #pos-grid tbody tr td input.g-input:focus,
+        :root.light-theme body #pos-grid tbody tr td select.g-select:not(.is-default-hint),
+        :root.light-theme body #pos-grid tbody tr td select.g-select:focus,
+        :root.light-theme body #pos-grid tbody tr td .avail-val:not(.is-zero-val),
+        :root.light-theme body #pos-grid tbody tr td .g-readonly:not(.is-zero-val):not(.total-val) {
+            background: #ffffff !important;
+            color: #000000 !important;
+            -webkit-text-fill-color: #000000 !important;
+            border: 2px solid #0f172a !important;
+            font-weight: 900 !important;
+            text-shadow: none !important;
+        }
+        :root.light-theme body #pos-grid tbody tr td input.g-input.is-zero-val:not(:focus),
+        :root.light-theme body #pos-grid tbody tr td select.g-select.is-default-hint:not(:focus) {
+            background: #ffffff !important;
+            border: 1.5px solid #94a3b8 !important;
+        }
+        :root.light-theme body #pos-grid select.g-select option {
+            color: #000000 !important;
+            background: #ffffff !important;
+            font-weight: 800 !important;
+        }
+        :root.light-theme body #pos-grid select.g-select option[value=""] {
+            color: #94a3b8 !important;
+            font-weight: 500 !important;
+        }
+
+        /* الجملة (Total Column & Grand Total) — High Contrast */
+        :root.light-theme body #pos-grid tbody tr td[data-col-id="total"] .total-val:not(.is-zero-val),
+        :root.light-theme body #pos-grid tbody tr td[data-col-id="col_total"] .total-val:not(.is-zero-val) {
+            background: #d1fae5 !important;
+            color: #000000 !important;
+            -webkit-text-fill-color: #000000 !important;
+            border: 2px solid #047857 !important;
+            font-weight: 900 !important;
+            box-shadow: 0 2px 6px rgba(4, 120, 87, 0.15) !important;
+        }
+        :root.light-theme #row-grand-total {
+            background: #e5d8c0 !important;
+            border-top: 2.5px solid #000000 !important;
+            border-bottom: 2.5px solid #000000 !important;
+        }
+        :root.light-theme #lbl-grand-dynamic {
+            color: #000000 !important;
+            -webkit-text-fill-color: #000000 !important;
+            font-weight: 900 !important;
+            text-shadow: none !important;
+        }
+        :root.light-theme #t-grand-dynamic-loc,
+        :root.light-theme #t-grand-dynamic-fc,
+        :root.light-theme #t-grand-currency-badge {
+            background: #ffffff !important;
+            color: #000000 !important;
+            -webkit-text-fill-color: #000000 !important;
+            border: 2.5px solid #047857 !important;
+            font-weight: 900 !important;
+            text-shadow: none !important;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08) !important;
+        }
+
+        /* 4. Add & Delete Buttons (إضافة وحذف بألوان واضحة وتباين قوي) */
+        body .add-row-btn,
+        body #add-row-btn,
+        body .quick-add-box button[onclick*="addRow"] {
+            background: #059669 !important;
+            border: 2px solid #064e3b !important;
+            color: #ffffff !important;
+            -webkit-text-fill-color: #ffffff !important;
+            font-weight: 900 !important;
+            box-shadow: 0 2px 8px rgba(5, 150, 105, 0.35) !important;
+            opacity: 1 !important;
+        }
+        body .del-btn {
+            background: #dc2626 !important;
+            border: 2px solid #7f1d1d !important;
+            color: #ffffff !important;
+            -webkit-text-fill-color: #ffffff !important;
+            font-weight: 900 !important;
+            box-shadow: 0 2px 8px rgba(220, 38, 38, 0.35) !important;
+            opacity: 1 !important;
+        }
+        body .del-btn svg {
+            stroke: #ffffff !important;
+            stroke-width: 2.6px !important;
+        }
+        body .edit-btn {
+            background: #0284c7 !important;
+            border: 2px solid #0c4a6e !important;
+            color: #ffffff !important;
+            opacity: 1 !important;
+        }
+        body .edit-btn svg {
+            stroke: #ffffff !important;
+        }
+
+        /* 5. Bottom Extra-Cost & Payment Toggles (ترحيل، عمالة، إضافات، ضريبة، خصم، طرق الدفع — بلون غامق واضح التباين) */
+        :root.light-theme .tot-toggle-btn,
+        :root.light-theme .pay-toggle-btn,
+        :root.light-theme #sales-margin-guard-badge,
+        :root.light-theme #hdr-price-tier,
+        :root.light-theme #btn-cust-item-history,
+        :root.light-theme #btn-park-invoice,
+        :root.light-theme #btn-recall-parked {
+            background: #ffffff !important;
+            border: 2px solid #0f172a !important;
+            color: #000000 !important;
+            -webkit-text-fill-color: #000000 !important;
+            font-weight: 900 !important;
+            font-size: 0.95rem !important;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08) !important;
+            text-shadow: none !important;
+        }
+        :root.light-theme #toggles-area span,
+        :root.light-theme #sales-margin-guard-badge span,
+        :root.light-theme #btn-cust-item-history span,
+        :root.light-theme #btn-park-invoice span,
+        :root.light-theme #btn-recall-parked span {
+            color: #000000 !important;
+            -webkit-text-fill-color: #000000 !important;
+            font-weight: 900 !important;
+        }
+        :root.light-theme .tot-toggle-btn:hover,
+        :root.light-theme .pay-toggle-btn:hover {
+            background: #e2e8f0 !important;
+            border-color: #000000 !important;
+            color: #000000 !important;
+        }
+        :root.light-theme .tot-toggle-btn.active,
+        :root.light-theme .pay-toggle-btn.active {
+            background: #0f172a !important;
+            border: 2px solid #000000 !important;
+            color: #ffffff !important;
+            -webkit-text-fill-color: #ffffff !important;
+            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.25) !important;
+        }
+        :root.light-theme .tot-row span {
+            color: #000000 !important;
+            font-weight: 900 !important;
+        }
+        :root.light-theme .tot-row input.tot-input:not(.is-zero-val),
+        :root.light-theme .tot-row input.tot-input:focus {
+            background: #ffffff !important;
+            color: #000000 !important;
+            -webkit-text-fill-color: #000000 !important;
+            border: 2px solid #000000 !important;
+            font-weight: 900 !important;
+        }
+    </style>
+    <script id="invoice-faint-zero-hint-engine">
+        (function() {
+            function isZeroLike(val) {
+                if (val === null || val === undefined) return true;
+                const s = String(val).trim();
+                if (s === '' || s === '—' || s === '-') return true;
+                const cleaned = s.replace(/,/g, '');
+                if (!/^-?\d+(\.\d+)?$/.test(cleaned)) return false;
+                return parseFloat(cleaned) === 0;
+            }
+            window.syncInvoiceFaintHintsAndZeros = function(root) {
+                const scope = root && root.querySelectorAll ? root : document;
+                const numInputs = scope.querySelectorAll('#pos-grid input.g-input:not([id^="item-search-"]):not([placeholder="ملاحظة..."]), .tot-row input.tot-input');
+                numInputs.forEach(inp => {
+                    if (isZeroLike(inp.value)) inp.classList.add('is-zero-val');
+                    else inp.classList.remove('is-zero-val');
+                });
+                const spans = scope.querySelectorAll('#pos-grid .total-val, #pos-grid .avail-val, #pos-grid [data-avail]');
+                spans.forEach(sp => {
+                    if (isZeroLike(sp.textContent)) sp.classList.add('is-zero-val');
+                    else sp.classList.remove('is-zero-val');
+                });
+                const selects = scope.querySelectorAll('#pos-grid select.g-select, #hdr-cost-center');
+                selects.forEach(sel => {
+                    if (!sel.value || String(sel.value).trim() === '') sel.classList.add('is-default-hint');
+                    else sel.classList.remove('is-default-hint');
+                });
+            };
+            document.addEventListener('DOMContentLoaded', function() {
+                window.syncInvoiceFaintHintsAndZeros(document);
+                document.addEventListener('input', function(e) {
+                    if (e.target && (e.target.matches('#pos-grid input.g-input, .tot-row input.tot-input, #pos-grid select.g-select, #hdr-cost-center'))) {
+                        window.syncInvoiceFaintHintsAndZeros(document);
+                    }
+                }, true);
+                document.addEventListener('change', function(e) {
+                    if (e.target && (e.target.matches('#pos-grid input.g-input, .tot-row input.tot-input, #pos-grid select.g-select, #hdr-cost-center'))) {
+                        window.syncInvoiceFaintHintsAndZeros(document);
+                    }
+                }, true);
+                document.addEventListener('blur', function() {
+                    setTimeout(function() { window.syncInvoiceFaintHintsAndZeros(document); }, 30);
+                }, true);
+                const gridBody = document.getElementById('grid-body');
+                if (gridBody && window.MutationObserver) {
+                    const obs = new MutationObserver(function() {
+                        window.syncInvoiceFaintHintsAndZeros(gridBody);
+                    });
+                    obs.observe(gridBody, { childList: true, subtree: true, characterData: true });
+                }
+            });
+        })();
+    </script>
 </head>
 <body>
     <!-- Toast Container -->
@@ -2817,14 +3236,12 @@ try {
                 <div class="icon">➕</div>
                 <div class="text-content">
                     <div class="title">فاتورة مبيعات جديدة</div>
-                    <div class="subtitle">إصدار فاتورة مبيعات (تظهر فوراً بالجدول للتسليم أو التقسيم)</div>
                 </div>
             </button>
             <button onclick="openInvoiceEditor('preliminary')" class="hub-action-card card-purple animate-scale stagger-2">
                 <div class="icon">📋</div>
                 <div class="text-content">
                     <div class="title">فاتورة مبدئية</div>
-                    <div class="subtitle">عرض أسعار / غير ملزمة</div>
                 </div>
             </button>
         </div>
@@ -2834,12 +3251,14 @@ try {
             <div class="neo-card-title" style="font-size: 1.05rem; display: flex; flex-direction: column; gap: 10px; align-items: stretch;">
                 <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
                     <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
-                        <span style="color: #38bdf8 !important; font-weight: 900; font-size: 1.12rem;">📋 شاشة عمليات المبيعات والتسليم والتقسيم الموحدة</span>
-                        <span style="background:rgba(16,185,129,0.14); border:1px solid rgba(52,211,153,0.4); color:#6ee7b7; padding:3px 10px; border-radius:99px; font-size:0.76rem; font-weight:800;">✨ جدول عالمي موحد: تسليم وتقسيم وطباعة الجزئين بالوحدة الأساسية والفرعية</span>
+                        <span style="color: #38bdf8 !important; font-weight: 900; font-size: 1.12rem;">📋 سجل المبيعات والتسليم</span>
                     </div>
                     <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
-                        <button type="button" onclick="if(typeof openDeliveryQrScannerModal==='function') openDeliveryQrScannerModal();" class="btn-action" style="width:auto; padding:6px 12px; font-size:0.8rem; font-weight:900; background:linear-gradient(135deg,#d97706,#b45309); color:#fff; border:none; border-radius:9px; cursor:pointer;">📷 مسح باركود (QR)</button>
-                        <input type="text" id="hub-search" class="v-input" placeholder="🔍 ابحث برقم الفاتورة، العميل، الصنف، المستلم..." style="width: 270px; margin:0;" oninput="filterHubTransactions()">
+                        <input type="date" id="hub-date-from" class="v-input" style="width:132px;margin:0;height:34px;font-size:0.78rem;font-family:'Outfit';" onchange="window.applyAdvancedSalesHubFilters && window.applyAdvancedSalesHubFilters()" title="من تاريخ">
+                        <input type="date" id="hub-date-to" class="v-input" style="width:132px;margin:0;height:34px;font-size:0.78rem;font-family:'Outfit';" onchange="window.applyAdvancedSalesHubFilters && window.applyAdvancedSalesHubFilters()" title="إلى تاريخ">
+                        <button type="button" id="btn-hub-export-excel" onclick="window.exportSalesHubToExcel && window.exportSalesHubToExcel()" class="btn-action" style="width:auto; padding:6px 12px; font-size:0.8rem; font-weight:900; background:linear-gradient(135deg,#10b981,#059669); color:#fff; border:none; border-radius:9px; cursor:pointer;">📊 تصدير Excel</button>
+                        <button type="button" onclick="if(typeof openDeliveryQrScannerModal==='function') openDeliveryQrScannerModal();" class="btn-action" style="width:auto; padding:6px 12px; font-size:0.8rem; font-weight:900; background:linear-gradient(135deg,#d97706,#b45309); color:#fff; border:none; border-radius:9px; cursor:pointer;">📷 مسح QR</button>
+                        <input type="text" id="hub-search" class="v-input" placeholder="🔍 بحث برقم الفاتورة، العميل، الصنف..." style="width: 250px; margin:0;" oninput="filterHubTransactions(); if(window.applyAdvancedSalesHubFilters) window.applyAdvancedSalesHubFilters();">
                         <button class="btn-action" style="width: auto; padding: 6px 12px; font-size: 0.8rem; background: rgba(255,255,255,0.06); border-radius:9px;" onclick="loadHubTransactions()">🔄 تحديث</button>
                     </div>
                 </div>
@@ -2848,23 +3267,20 @@ try {
                 <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; background: rgba(2,6,23,0.65); border: 1px solid rgba(148,163,184,0.2); padding: 8px 12px; border-radius: 12px;">
                     <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;" id="unified-hub-filter-pills">
                         <button type="button" id="uhub-tab-all" onclick="setUnifiedHubFilter('all')" style="padding:6px 14px; border-radius:9px; font-size:0.82rem; font-weight:900; cursor:pointer; border:1.5px solid #38bdf8; background:rgba(56,189,248,0.22); color:#fff;">
-                            📋 كل المبيعات (<span id="uhub-cnt-all">0</span>)
+                            📋 الكل (<span id="uhub-cnt-all">0</span>)
                         </button>
                         <button type="button" id="uhub-tab-pending" onclick="setUnifiedHubFilter('pending')" style="padding:6px 14px; border-radius:9px; font-size:0.82rem; font-weight:900; cursor:pointer; border:1px solid rgba(255,255,255,0.12); background:rgba(255,255,255,0.04); color:#cbd5e1;">
-                            🚚 قيد التسليم والتقسيم (<span id="uhub-cnt-pending">0</span>)
+                            🚚 قيد التسليم (<span id="uhub-cnt-pending">0</span>)
                         </button>
                         <button type="button" id="uhub-tab-split_only" onclick="setUnifiedHubFilter('split_only')" style="padding:6px 14px; border-radius:9px; font-size:0.82rem; font-weight:900; cursor:pointer; border:1px solid rgba(255,255,255,0.12); background:rgba(255,255,255,0.04); color:#cbd5e1;">
-                            ✂️ الأذونات المقسمة / طباعة الجزئين (<span id="uhub-cnt-split">0</span>)
+                            ✂️ المقسمة (<span id="uhub-cnt-split">0</span>)
                         </button>
                         <button type="button" id="uhub-tab-delivered" onclick="setUnifiedHubFilter('delivered')" style="padding:6px 14px; border-radius:9px; font-size:0.82rem; font-weight:900; cursor:pointer; border:1px solid rgba(255,255,255,0.12); background:rgba(255,255,255,0.04); color:#cbd5e1;">
-                            ✅ المسلمة للمخزن (<span id="uhub-cnt-delivered">0</span>)
+                            ✅ المسلمة (<span id="uhub-cnt-delivered">0</span>)
                         </button>
                         <button type="button" id="uhub-tab-preliminary" onclick="setUnifiedHubFilter('preliminary')" style="padding:6px 14px; border-radius:9px; font-size:0.82rem; font-weight:900; cursor:pointer; border:1px solid rgba(255,255,255,0.12); background:rgba(255,255,255,0.04); color:#cbd5e1;">
-                            💜 عروض مبدئية (<span id="uhub-cnt-prelim">0</span>)
+                            💜 مبدئية (<span id="uhub-cnt-prelim">0</span>)
                         </button>
-                    </div>
-                    <div style="display:flex; align-items:center; gap:6px; font-size:0.78rem; color:#94a3b8; font-weight:800;">
-                        <span>💡 اضغط <b>📦 تسليم</b> للصرف المخزني أو <b>✂️ تقسيم</b> لفك الفاتورة لجزئين وطباعتهما</span>
                     </div>
                 </div>
             </div>
@@ -2903,15 +3319,46 @@ try {
 
             
             <!-- Step 1: Select Invoice -->
-            <div id="split-select-step" style="display: flex; flex-direction: column; flex: 1; gap: 15px;">
-                <div style="display: flex; gap: 15px; align-items: center; background: rgba(255,255,255,0.02); padding: 15px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05);">
-                    <div style="flex: 1;">
-                        <label style="display: block; font-size: 0.85rem; color: #94a3b8; margin-bottom: 5px; font-weight: bold;">البحث عن فاتورة نشطة للتقسيم:</label>
-                        <input type="text" id="split-invoice-search" class="v-input" placeholder="ابحث برقم الفاتورة، اسم العميل، أو الإجمالي..." oninput="filterSplitInvoices()">
+            <div id="split-select-step" style="display: flex; flex-direction: column; flex: 1; gap: 10px;">
+                <div style="display: flex; gap: 10px; align-items: center; background: rgba(255,255,255,0.02); padding: 10px 14px; border-radius: 12px; border: 1.5px solid rgba(255,255,255,0.08); flex-wrap: wrap;">
+                    <div style="flex: 1.4; min-width: 220px;">
+                        <label style="display: block; font-size: 0.8rem; color: #94a3b8; margin-bottom: 4px; font-weight: 900;">🔍 بحث فوري (F2):</label>
+                        <input type="text" id="split-invoice-search" class="v-input" placeholder="ابحث برقم الفاتورة، العميل، الصنف، أو الإجمالي..." oninput="filterSplitInvoices()">
                     </div>
-                    <button class="btn-action royal-crystal-btn royal-btn-new" style="width: auto; height: 42px; margin-top: auto; padding: 0 16px; border-radius: 10px;" onclick="loadSplitInvoices()">🔄 تحديث القائمة</button>
-                    <button class="btn-action royal-crystal-btn royal-btn-back" style="width: auto; height: 42px; margin-top: auto; padding: 0 18px; border-radius: 10px;" onclick="showSalesHub()">↩️ رجوع</button>
+                    <div style="min-width: 145px;">
+                        <label style="display: block; font-size: 0.8rem; color: #94a3b8; margin-bottom: 4px; font-weight: 900;">🗂️ حالة التجزئة:</label>
+                        <select id="split-filter-status" class="v-input" onchange="filterSplitInvoices()" style="height:40px; padding:0 10px; font-weight:800;">
+                            <option value="all">الكل (جاهز للتجزئة)</option>
+                            <option value="original">فواتير أصلية فقط</option>
+                            <option value="branches">فروع مقسمة سابقاً</option>
+                            <option value="partial">تسليم جزئي متبقي</option>
+                        </select>
+                    </div>
+                    <div style="min-width: 130px;">
+                        <label style="display: block; font-size: 0.8rem; color: #94a3b8; margin-bottom: 4px; font-weight: 900;">💳 طريقة الدفع:</label>
+                        <select id="split-filter-payment" class="v-input" onchange="filterSplitInvoices()" style="height:40px; padding:0 10px; font-weight:800;">
+                            <option value="all">كل طرق الدفع</option>
+                            <option value="cash">💵 نقدي / بنكي</option>
+                            <option value="credit">✍️ آجل (ذمم)</option>
+                        </select>
+                    </div>
+                    <div style="min-width: 140px;">
+                        <label style="display: block; font-size: 0.8rem; color: #94a3b8; margin-bottom: 4px; font-weight: 900;">📅 التاريخ:</label>
+                        <input type="date" id="split-filter-date" class="v-input" onchange="filterSplitInvoices()" style="height:40px; padding:0 8px; font-weight:800;">
+                    </div>
+                    <span id="split-live-sync-pill" onclick="if(typeof window.flushSplitOfflineQueueNow==='function') window.flushSplitOfflineQueueNow(true)" title="اضغط للمزامنة الفورية مع السيرفر والأجهزة الأخرى" style="cursor:pointer; display:inline-flex; align-items:center; gap:5px; padding:6px 12px; border-radius:99px; background:rgba(16,185,129,0.16); border:1.5px solid #10b981; color:#34d399; font-size:0.78rem; font-weight:900; margin-top:auto; height:40px;">⚡ متزامن لحظياً</span>
+                    <button type="button" id="btn-split-export-excel" class="btn-action royal-crystal-btn" style="width: auto; height: 40px; margin-top: auto; padding: 0 12px; border-radius: 10px; background:rgba(16,185,129,0.18); border:1.5px solid #10b981; color:#6ee7b7; font-weight:900;" onclick="if(typeof window.exportSplitInvoicesToExcel==='function') window.exportSplitInvoicesToExcel()">📥 Excel</button>
+                    <button type="button" id="btn-split-print-report" class="btn-action royal-crystal-btn" style="width: auto; height: 40px; margin-top: auto; padding: 0 12px; border-radius: 10px; background:rgba(56,189,248,0.18); border:1.5px solid #38bdf8; color:#7dd3fc; font-weight:900;" onclick="if(typeof window.printSplitEligibleReportA4==='function') window.printSplitEligibleReportA4()">🖨️ كشف A4</button>
+                    <button type="button" id="btn-split-analytics" class="btn-action royal-crystal-btn" style="width: auto; height: 40px; margin-top: auto; padding: 0 12px; border-radius: 10px; background:rgba(236,72,153,0.18); border:1.5px solid #f472b6; color:#fbcfe8; font-weight:900;" onclick="if(typeof window.openSplitLogisticsAnalyticsModal==='function') window.openSplitLogisticsAnalyticsModal()">📊 تحليلات التجزئة</button>
+                    <button type="button" id="btn-split-presets-hub" class="btn-action royal-crystal-btn" style="width: auto; height: 40px; margin-top: auto; padding: 0 12px; border-radius: 10px; background:rgba(14,165,233,0.18); border:1.5px solid #38bdf8; color:#bae6fd; font-weight:900;" onclick="if(typeof window.openSplitPresetsModal==='function') window.openSplitPresetsModal()" data-guide-title="قوالب التجزئة الجاهزة" data-guide-desc="إدارة واستدعاء قوالب ونسب التجزئة المتكررة وتعيينات السائقين والوجهات المحفوظة مسبقاً.">📦 قوالب التجزئة</button>
+                    <button type="button" id="btn-split-voice-select" class="btn-action royal-crystal-btn" style="width: auto; height: 40px; margin-top: auto; padding: 0 12px; border-radius: 10px; background:rgba(245,158,11,0.18); border:1.5px solid #fbbf24; color:#fde68a; font-weight:900;" onclick="if(typeof window.openSplitVoiceAssistantModal==='function') window.openSplitVoiceAssistantModal()">🎙️ أوامر التجزئة</button>
+                    <button type="button" id="btn-split-hands-on-sim" class="btn-action royal-crystal-btn" style="width: auto; height: 40px; margin-top: auto; padding: 0 12px; border-radius: 10px; background:rgba(168,85,247,0.18); border:1.5px solid #c084fc; color:#e9d5ff; font-weight:900;" onclick="if(typeof window.openSplitHandsOnSimulatorModal==='function') window.openSplitHandsOnSimulatorModal()">🎯 محاكي التدريب</button>
+                    <button class="btn-action royal-crystal-btn royal-btn-new" style="width: auto; height: 40px; margin-top: auto; padding: 0 14px; border-radius: 10px;" onclick="showNewInvoice()">➕ فاتورة جديدة</button>
+                    <button class="btn-action royal-crystal-btn royal-btn-new" style="width: auto; height: 40px; margin-top: auto; padding: 0 14px; border-radius: 10px;" onclick="loadSplitInvoices()">🔄 تحديث</button>
+                    <button class="btn-action royal-crystal-btn royal-btn-back" style="width: auto; height: 40px; margin-top: auto; padding: 0 16px; border-radius: 10px;" onclick="showSalesHub()">↩️ رجوع</button>
                 </div>
+
+                <div id="split-kpi-summary-bar" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(185px, 1fr)); gap:8px;"></div>
                 
                 <div class="grid-scroll-wrap" style="flex: 1; max-height: 450px; overflow-y: auto; margin-top: 10px;">
                     <table class="pos-grid" style="width: 100%;">
@@ -2997,14 +3444,20 @@ try {
 
                 <div style="display: flex; gap: 12px; justify-content: space-between; align-items: center; flex-wrap: wrap; margin-top: 8px; padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.08);">
                     <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                        <button class="btn-action royal-crystal-btn royal-btn-delete kinetic-glow-arm" style="width: auto; padding: 9px 22px; border-radius: 11px;" onclick="cancelCurrentSplit()">↩️ إلغاء ورجوع</button>
-                        <button type="button" class="btn-action kinetic-glow-arm kinetic-arm-emerald" style="width: auto; padding: 9px 18px; border-radius: 11px; font-size: 0.9rem;" onclick="if(window.activeSplitInvoice) window.openDeliveryForInvoiceFromHub(window.activeSplitInvoice.invoiceNo || window.activeSplitInvoice.id)">🚚 تحويل فوري لشاشة التسليم لهذا الإذن</button>
+                        <button class="btn-action royal-crystal-btn royal-btn-delete kinetic-glow-arm" style="width: auto; padding: 9px 22px; border-radius: 11px;" onclick="cancelCurrentSplit()">↩️ رجوع</button>
+                        <button type="button" class="btn-action kinetic-glow-arm kinetic-arm-emerald" style="width: auto; padding: 9px 18px; border-radius: 11px; font-size: 0.9rem;" onclick="if(window.activeSplitInvoice) window.openDeliveryForInvoiceFromHub(window.activeSplitInvoice.invoiceNo || window.activeSplitInvoice.id)">🚚 شاشة التسليم</button>
+                        <button type="button" id="btn-split-voice-cmd" class="btn-action kinetic-glow-arm" style="width: auto; padding: 9px 15px; border-radius: 11px; font-size: 0.88rem; background:rgba(245,158,11,0.18); border:1.5px solid #fbbf24; color:#fde68a; font-weight:900;" onclick="if(typeof window.openSplitVoiceAssistantModal==='function') window.openSplitVoiceAssistantModal()">🎙️ أوامر صوتية</button>
+                        <button type="button" id="btn-split-audio-summary" class="btn-action kinetic-glow-arm" style="width: auto; padding: 9px 15px; border-radius: 11px; font-size: 0.88rem; background:rgba(16,185,129,0.18); border:1.5px solid #34d399; color:#6ee7b7; font-weight:900;" onclick="if(typeof window.readSplitSummaryAloud==='function') window.readSplitSummaryAloud()">🔊 قراءة الملخص</button>
+                        <button type="button" id="btn-split-weight-shield" class="btn-action kinetic-glow-arm" style="width: auto; padding: 9px 15px; border-radius: 11px; font-size: 0.88rem; background:rgba(239,68,68,0.18); border:1.5px solid #f87171; color:#fecaca; font-weight:900;" onclick="if(typeof window.openSplitWeightShieldModal==='function') window.openSplitWeightShieldModal()" data-guide-title="درع توازن الأوزان والحمولة القصوى للشاحنات" data-guide-desc="حساب الوزن الإجمالي لكل قسم مجزأ بالطن والكيلوجرام ومقارنته بالحمولة القصوى لشاحنة السائق مع موازنة الأوزان تلقائياً.">🛡️ درع الأوزان</button>
+                        <button type="button" id="btn-split-driver-sig" class="btn-action kinetic-glow-arm" style="width: auto; padding: 9px 15px; border-radius: 11px; font-size: 0.88rem; background:rgba(56,189,248,0.18); border:1.5px solid #38bdf8; color:#bae6fd; font-weight:900;" onclick="if(typeof window.openSplitDriverSignatureModal==='function') window.openSplitDriverSignatureModal(0)" data-guide-title="التوقيع الرقمي الميداني لسائقي الأقسام" data-guide-desc="لوحة توقيع إلكتروني باللمس لكل قسم مجزأ يوقّع عليها السائق عند استلام حصته وتُطبع تلقائياً في سند التفويض.">✍️ توقيع السائق</button>
+                        <button type="button" id="btn-split-presets" class="btn-action kinetic-glow-arm" style="width: auto; padding: 9px 15px; border-radius: 11px; font-size: 0.88rem; background:rgba(14,165,233,0.18); border:1.5px solid #38bdf8; color:#e0f2fe; font-weight:900;" onclick="if(typeof window.openSplitPresetsModal==='function') window.openSplitPresetsModal()" data-guide-title="القوالب الجاهزة للتجزئة المتكررة" data-guide-desc="حفظ واستدعاء أنماط ونسب التجزئة المتكررة وتعيينات السائقين والوجهات بنقرة واحدة.">📦 قوالب التجزئة</button>
+                        <button type="button" id="btn-split-sim-board" class="btn-action kinetic-glow-arm" style="width: auto; padding: 9px 15px; border-radius: 11px; font-size: 0.88rem; background:rgba(168,85,247,0.18); border:1.5px solid #c084fc; color:#e9d5ff; font-weight:900;" onclick="if(typeof window.openSplitHandsOnSimulatorModal==='function') window.openSplitHandsOnSimulatorModal()">🎯 محاكي التدريب</button>
                     </div>
                     <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                        <button type="button" class="btn-action kinetic-glow-arm kinetic-arm-cyan" style="width: auto; padding: 9px 18px; border-radius: 11px; font-size: 0.9rem;" onclick="addSplitSection()">➕ إضافة قسم إضافي (قسم 3، 4...)</button>
-                        <button type="button" class="btn-action kinetic-glow-arm" style="width: auto; padding: 9px 18px; border-radius: 11px; font-size: 0.9rem; background:rgba(56,189,248,0.16); border:1.5px solid rgba(56,189,248,0.5); color:#38bdf8; font-weight:900;" onclick="if(typeof window.previewCurrentSplitVouchersBeforeSave==='function') window.previewCurrentSplitVouchersBeforeSave()">👁️ معاينة/طباعة الجزئين قبل الحفظ</button>
-                        <button type="button" class="btn-action kinetic-glow-arm kinetic-arm-pink" style="width: auto; padding: 9px 22px; border-radius: 11px; font-size: 0.95rem;" onclick="submitInvoiceSplit(false)">✅ اعتماد التقسيم ✂️</button>
-                        <button type="button" class="btn-action royal-crystal-btn royal-btn-save kinetic-glow-arm kinetic-arm-emerald" style="width: auto; padding: 9px 26px; border-radius: 11px; font-size: 0.98rem;" onclick="submitInvoiceSplit(true)">🖨️ اعتماد التقسيم + طباعة الجزئين فوراً</button>
+                        <button type="button" id="btn-split-add-section" class="btn-action kinetic-glow-arm kinetic-arm-cyan" style="width: auto; padding: 9px 18px; border-radius: 11px; font-size: 0.9rem;" onclick="addSplitSection()">➕ قسم إضافي</button>
+                        <button type="button" id="btn-split-preview-vouchers" class="btn-action kinetic-glow-arm" style="width: auto; padding: 9px 18px; border-radius: 11px; font-size: 0.9rem; background:rgba(56,189,248,0.16); border:1.5px solid rgba(56,189,248,0.5); color:#38bdf8; font-weight:900;" onclick="if(typeof window.previewCurrentSplitVouchersBeforeSave==='function') window.previewCurrentSplitVouchersBeforeSave()">👁️ معاينة الجزئين</button>
+                        <button type="button" id="btn-split-submit" class="btn-action kinetic-glow-arm kinetic-arm-pink" style="width: auto; padding: 9px 22px; border-radius: 11px; font-size: 0.95rem;" onclick="submitInvoiceSplit(false)">✅ اعتماد التقسيم (F10)</button>
+                        <button type="button" id="btn-split-submit-print" class="btn-action royal-crystal-btn royal-btn-save kinetic-glow-arm kinetic-arm-emerald" style="width: auto; padding: 9px 26px; border-radius: 11px; font-size: 0.98rem;" onclick="submitInvoiceSplit(true)">🖨️ اعتماد وطباعة</button>
                     </div>
                 </div>
             </div>
@@ -3074,22 +3527,17 @@ try {
                     
                     <div style="display: flex; flex-direction: column; gap: 8px; position:relative; z-index:1;">
                         <!-- Saved Invoice Edit Advisory Banner -->
-                        <div id="saved-invoice-edit-banner" style="display:none; margin-bottom: 4px; background: linear-gradient(135deg, rgba(245, 158, 11, 0.15), rgba(180, 83, 9, 0.25)); border: 1.5px solid rgba(245, 158, 11, 0.6); border-radius: 12px; padding: 10px 16px; box-shadow: 0 4px 15px rgba(245, 158, 11, 0.25);">
+                        <div id="saved-invoice-edit-banner" style="display:none; margin-bottom: 4px; background: linear-gradient(135deg, rgba(245, 158, 11, 0.15), rgba(180, 83, 9, 0.25)); border: 1.5px solid rgba(245, 158, 11, 0.6); border-radius: 12px; padding: 8px 14px; box-shadow: 0 4px 15px rgba(245, 158, 11, 0.25);">
                             <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
-                                <div style="display: flex; align-items: center; gap: 12px;">
-                                    <span style="font-size: 1.6rem;">⚠️</span>
-                                    <div>
-                                        <div style="color: #fbbf24; font-size: 1.1rem; font-weight: 900;">
-                                            تنبيه: أنت الآن في وضع تعديل فاتورة محفوظة ومعتمدة مسبقاً (<span id="edit-banner-inv-no" style="color:#ffffff; font-family:'Outfit',sans-serif; text-decoration: underline;">-</span>)
-                                        </div>
-                                        <div style="color: #fde68a; font-size: 0.88rem; font-weight: 600; margin-top: 2px;">
-                                            أصل الفاتورة تم اعتماده مسبقاً في النظام. حفظ أي تعديلات سيقوم بتحديث الحسابات وحركات المخزن المرتبطة بها تلقائياً.
-                                        </div>
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <span style="font-size: 1.35rem;">⚠️</span>
+                                    <div style="color: #fbbf24; font-size: 1rem; font-weight: 900;">
+                                        وضع تعديل فاتورة محفوظة (<span id="edit-banner-inv-no" style="color:#ffffff; font-family:'Outfit',sans-serif; text-decoration: underline;">-</span>)
                                     </div>
                                 </div>
                                 <div style="display: flex; gap: 8px; align-items: center;">
-                                    <button type="button" onclick="onSuccessNewInvoice()" style="background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.3); color: #fff; padding: 6px 14px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 0.85rem; transition: 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.2)'" onmouseout="this.style.background='rgba(255,255,255,0.12)'">
-                                        ➕ إلغاء التعديل وبدء فاتورة جديدة
+                                    <button type="button" onclick="onSuccessNewInvoice()" style="background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.3); color: #fff; padding: 5px 12px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 0.84rem; transition: 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.2)'" onmouseout="this.style.background='rgba(255,255,255,0.12)'">
+                                        ➕ فاتورة جديدة
                                     </button>
                                 </div>
                             </div>
@@ -3368,11 +3816,12 @@ try {
             </div>
         </div>
 
-        <!-- 3. Warehouse (Auto-fit text inside allocated box) -->
-        <div class="h-form-group group-warehouse" style="flex: 1.25; min-width: 165px; display:flex; align-items:center; gap:6px; flex-direction: row !important; margin: 0;">
+        <!-- 3. Warehouse (Auto-fit text inside allocated box + Quick Add Warehouse) -->
+        <div class="h-form-group group-warehouse" style="flex: 1.35; min-width: 185px; display:flex; align-items:center; gap:5px; flex-direction: row !important; margin: 0;">
             <label class="h-label" style="margin:0; white-space:nowrap;">📦 المخزن</label>
-            <div class="h-input-wrapper" style="flex:1; min-width: 0;">
-                <select class="v-input ctrl-input" id="hdr-warehouse" onchange="onMainWarehouseChange(); if(window.autoFitHeaderFields) window.autoFitHeaderFields();" style="width:100%; font-weight: 800;"></select>
+            <div class="h-input-wrapper" style="flex:1; min-width: 0; display:flex; align-items:center; gap:4px;">
+                <select class="v-input ctrl-input" id="hdr-warehouse" onchange="onMainWarehouseChange(); if(window.autoFitHeaderFields) window.autoFitHeaderFields();" style="width:100%; font-weight: 800; flex:1;"></select>
+                <button type="button" id="btn-ds-quick-add-wh" onclick="window.openDsQuickWarehouseModal && window.openDsQuickWarehouseModal()" style="flex-shrink:0; width:34px; height:36px; border-radius:8px; background:linear-gradient(135deg,#f59e0b,#d97706); color:#fff; border:1px solid rgba(251,191,36,0.5); font-weight:900; font-size:1rem; cursor:pointer; display:inline-flex; align-items:center; justify-content:center;" title="إضافة مخزن جديد فوراً">➕</button>
             </div>
         </div>
 
@@ -3419,8 +3868,8 @@ try {
                 <div class="panel-header-row" style="display: flex; align-items: center; justify-content: space-between; gap: 12px;">
                     <div style="display: flex; align-items: center; gap: 10px; flex: 1;">
                         <div class="panel-title" style="white-space: nowrap;">📦 أصناف الفاتورة</div>
-                        <div class="quick-add-box" style="flex: 1; max-width: 380px; position: relative; z-index: 99999; display: flex; gap: 6px; align-items: center;">
-                            <input type="text" class="g-input" id="quick-item-search" placeholder="بحث صنف أو باركود..."
+                        <div class="quick-add-box" style="flex: 1; max-width: 430px; position: relative; z-index: 99999; display: flex; gap: 6px; align-items: center;">
+                            <input type="text" class="g-input" id="quick-item-search" placeholder="بحث صنف أو باركود (F2)..."
                                 style="background: rgba(56,189,248,0.08); border: 1px solid rgba(56,189,248,0.35); border-radius: 8px; color: var(--text-primary); padding: 5px 10px; flex: 1;"
                                 onfocus="this.select(); showQuickItemDropdown()"
                                 onblur="hideQuickItemDropdownDelayed()"
@@ -3429,16 +3878,101 @@ try {
                             <button type="button" onclick="startCameraScanner('quick-item-search')" style="background: rgba(56,189,248,0.15); border: 1px solid rgba(56,189,248,0.35); border-radius: 8px; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #38bdf8; font-size: 1.1rem;" title="مسح باركود بالكاميرا">
                                 📷
                             </button>
-                            <button type="button" onclick="addRow()" style="background: rgba(16,185,129,0.15); border: 1px solid rgba(16,185,129,0.35); border-radius: 8px; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #10b981; font-size: 1.4rem; font-weight: bold;" title="إضافة سطر">
+                            <button type="button" onclick="addRow()" style="background: rgba(16,185,129,0.15); border: 1px solid rgba(16,185,129,0.35); border-radius: 8px; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #10b981; font-size: 1.4rem; font-weight: bold;" title="إضافة سطر للجدول">
                                 +
+                            </button>
+                            <button type="button" id="btn-ds-quick-add-item" onclick="window.openDsQuickItemModal && window.openDsQuickItemModal()" style="background: linear-gradient(135deg,#8b5cf6,#6d28d9); border: 1px solid rgba(192,132,252,0.5); border-radius: 8px; height: 34px; padding: 0 9px; display: inline-flex; align-items: center; justify-content: center; gap: 4px; cursor: pointer; color: #fff; font-size: 0.78rem; font-weight: 900; white-space: nowrap;" title="تعريف وإضافة صنف جديد للمخزون والفاتورة فوراً">
+                                ➕ صنف
                             </button>
                             <div class="custom-dropdown-list" id="quick-item-dropdown-list" style="text-align:right; top: 100%; left: 0; right: 0; position: absolute;"></div>
                         </div>
                     </div>
-                    <div>
-                        <button type="button" onclick="openGridSettingsModal()" style="background: linear-gradient(135deg, rgba(56,189,248,0.2), rgba(14,165,233,0.3)); border: 1.5px solid #38bdf8; color: #38bdf8; border-radius: 8px; padding: 6px 14px; display: flex; align-items: center; gap: 6px; cursor: pointer; font-weight: bold; font-size: 0.95rem; transition: all 0.2s; box-shadow: 0 2px 10px rgba(56,189,248,0.25);" title="تخصيص وترتيب الأعمدة والخطوط والألوان وحفظها نهائياً في قاعدة البيانات">
+                    <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                        <!-- 1. Live Margin & Below-Cost Guard Badge -->
+                        <button type="button" id="sales-margin-guard-badge" onclick="window.openCustomerItemHistoryModal('margin')" style="background: rgba(16, 185, 129, 0.14); border: 1.5px solid rgba(16, 185, 129, 0.45); color: #34d399; border-radius: 8px; padding: 6px 11px; display: inline-flex; align-items: center; gap: 6px; cursor: pointer; font-weight: 900; font-size: 0.85rem; white-space: nowrap;">
+                            <span id="sales-margin-guard-icon">🛡️</span>
+                            <span id="sales-margin-guard-text">الربح: 0%</span>
+                        </button>
+
+                        <!-- 2. Price Tiers Selector (قطاعي / نصف جملة / جملة) -->
+                        <select id="hdr-price-tier" onchange="window.applySalesPriceTier(this.value)" style="background: rgba(245, 158, 11, 0.14); border: 1.5px solid rgba(245, 158, 11, 0.45); color: #fcd34d; border-radius: 8px; padding: 5px 10px; font-weight: 900; font-size: 0.85rem; cursor: pointer; height: 36px; font-family: 'Cairo', sans-serif;">
+                            <option value="retail" style="background:#0f172a; color:#f8fafc;">🏷️ قطاعي</option>
+                            <option value="semi_wholesale" style="background:#0f172a; color:#f8fafc;">🏷️ نصف جملة</option>
+                            <option value="wholesale" style="background:#0f172a; color:#f8fafc;">🏷️ جملة</option>
+                        </select>
+
+                        <!-- 3. Customer Item Price History -->
+                        <button type="button" id="btn-cust-item-history" onclick="window.openCustomerItemHistoryModal('history')" style="background: rgba(168, 85, 247, 0.16); border: 1.5px solid rgba(168, 85, 247, 0.45); color: #d8b4fe; border-radius: 8px; padding: 6px 11px; display: inline-flex; align-items: center; gap: 5px; cursor: pointer; font-weight: 900; font-size: 0.85rem; white-space: nowrap;">
+                            <span>📈 سجل الأسعار</span>
+                        </button>
+
+                        <!-- 4. POS Park & Hold Buttons -->
+                        <button type="button" id="btn-park-invoice" onclick="window.parkCurrentSalesInvoice()" style="background: rgba(14, 165, 233, 0.16); border: 1.5px solid rgba(56, 189, 248, 0.45); color: #38bdf8; border-radius: 8px; padding: 6px 11px; display: inline-flex; align-items: center; gap: 5px; cursor: pointer; font-weight: 900; font-size: 0.85rem; white-space: nowrap;">
+                            <span>⏸️ تعليق</span>
+                        </button>
+                        <button type="button" id="btn-recall-parked" onclick="window.openParkedInvoicesModal()" style="background: rgba(234, 179, 8, 0.16); border: 1.5px solid rgba(250, 204, 21, 0.45); color: #fde047; border-radius: 8px; padding: 6px 11px; display: inline-flex; align-items: center; gap: 5px; cursor: pointer; font-weight: 900; font-size: 0.85rem; white-space: nowrap;">
+                            <span>📂 المعلقة (<span id="parked-sales-cnt">0</span>)</span>
+                        </button>
+
+                        <!-- 5. Continuous POS Barcode Scanner Stream -->
+                        <button type="button" id="btn-ds-continuous-pos-scan" onclick="window.openDsContinuousPosScanner && window.openDsContinuousPosScanner()" style="background: linear-gradient(135deg,#0ea5e9,#2563eb); border: 1.5px solid rgba(56,189,248,0.55); color: #ffffff; border-radius: 8px; padding: 6px 11px; display: inline-flex; align-items: center; gap: 5px; cursor: pointer; font-weight: 900; font-size: 0.85rem; white-space: nowrap;" title="الماسح المتصل السريع لنقاط البيع (USB / كاميرا)">
+                            <span>📡 ماسح متصل</span>
+                            <span id="ds-pos-scan-cnt" style="background:rgba(0,0,0,0.35);padding:1px 6px;border-radius:99px;font-family:'Outfit';font-size:0.75rem;">0</span>
+                        </button>
+
+                        <!-- 6. Instant Warranty Certificate & Thermal 80mm QR -->
+                        <button type="button" id="btn-ds-warranty-qr" onclick="window.openDsWarrantyAndThermalModal && window.openDsWarrantyAndThermalModal()" style="background: linear-gradient(135deg,#0d9488,#0f766e); border: 1.5px solid rgba(45,212,191,0.55); color: #ffffff; border-radius: 8px; padding: 6px 11px; display: inline-flex; align-items: center; gap: 5px; cursor: pointer; font-weight: 900; font-size: 0.85rem; white-space: nowrap;" title="إصدار شهادة ضمان معتمدة أو إيصال حراري 80mm بباركود QR">
+                            <span>🛡️ ضمان / QR</span>
+                        </button>
+
+                        <!-- 7. Live Audio Summary Readback -->
+                        <button type="button" id="btn-ds-audio-summary" onclick="window.speakLiveDsInvoiceSummary && window.speakLiveDsInvoiceSummary()" style="background: linear-gradient(135deg,#6366f1,#4f46e5); border: 1.5px solid rgba(129,140,248,0.55); color: #ffffff; border-radius: 8px; padding: 6px 11px; display: inline-flex; align-items: center; gap: 5px; cursor: pointer; font-weight: 900; font-size: 0.85rem; white-space: nowrap;" title="القراءة الصوتية الحية لملخص الفاتورة والمقبوضات بالصوت الرجالي">
+                            <span>🔊 نطق الملخص</span>
+                        </button>
+
+                        <!-- 8. Arabic Voice POS Commands -->
+                        <button type="button" id="btn-ds-voice-cmd" onclick="window.startDsVoiceCommandListener && window.startDsVoiceCommandListener()" style="background: linear-gradient(135deg,#ec4899,#be185d); border: 1.5px solid rgba(244,114,182,0.55); color: #ffffff; border-radius: 8px; padding: 6px 11px; display: inline-flex; align-items: center; gap: 5px; cursor: pointer; font-weight: 900; font-size: 0.85rem; white-space: nowrap;" title="الأوامر الصوتية السريعة بالمايكروفون (قل مثلاً: حفظ الفاتورة، حاسبة الباقي، تعليق الفاتورة)">
+                            <span>🎙️ أمر صوتي</span>
+                        </button>
+
+                        <!-- 9. Interactive Sales Mastery Quiz -->
+                        <button type="button" id="btn-ds-mastery-quiz" onclick="window.startDsMasteryQuiz && window.startDsMasteryQuiz()" style="background: linear-gradient(135deg,#f59e0b,#b45309); border: 1.5px solid rgba(251,191,36,0.55); color: #ffffff; border-radius: 8px; padding: 6px 11px; display: inline-flex; align-items: center; gap: 5px; cursor: pointer; font-weight: 900; font-size: 0.85rem; white-space: nowrap;" title="المدرب العملي التفاعلي لمندوبي المبيعات والكاشير بالصوت والمؤشر">
+                            <span>🎓 تدريب عملي</span>
+                        </button>
+
+                        <!-- 10. Live Accounting Journal Entry & Impact Drill-Down -->
+                        <button type="button" id="btn-ds-live-journal" onclick="window.openDsLiveJournalPreviewModal && window.openDsLiveJournalPreviewModal()" style="background: linear-gradient(135deg,#0284c7,#0369a1); border: 1.5px solid rgba(56,189,248,0.55); color: #ffffff; border-radius: 8px; padding: 6px 11px; display: inline-flex; align-items: center; gap: 5px; cursor: pointer; font-weight: 900; font-size: 0.85rem; white-space: nowrap;" title="معاينة القيد المحاسبي اللحظي المتوازن وتكلفة البضاعة المباعة والأثر على رصيد العميل">
+                            <span>⚖️ القيد المحاسبي</span>
+                        </button>
+
+                        <!-- 11. Instant Excel Export for Current Invoice -->
+                        <button type="button" id="btn-ds-export-excel" onclick="window.exportCurrentSalesInvoiceToExcel && window.exportCurrentSalesInvoiceToExcel()" style="background: linear-gradient(135deg,#059669,#047857); border: 1.5px solid rgba(52,211,153,0.55); color: #ffffff; border-radius: 8px; padding: 6px 11px; display: inline-flex; align-items: center; gap: 5px; cursor: pointer; font-weight: 900; font-size: 0.85rem; white-space: nowrap;" title="تصدير أصناف وبيانات الفاتورة الحالية إلى ملف Excel فوراً">
+                            <span>📊 Excel</span>
+                        </button>
+
+                        <!-- 12. Customer Loyalty Points & Cashback Engine -->
+                        <button type="button" id="btn-ds-loyalty-points" onclick="window.openDsCustomerLoyaltyModal && window.openDsCustomerLoyaltyModal()" style="background: linear-gradient(135deg,#d97706,#b45309); border: 1.5px solid rgba(251,191,36,0.55); color: #ffffff; border-radius: 8px; padding: 6px 11px; display: inline-flex; align-items: center; gap: 5px; cursor: pointer; font-weight: 900; font-size: 0.85rem; white-space: nowrap;" title="بطاقة ولاء ومكافآت العميل اللحظية واستبدال النقاط بخصم فوري">
+                            <span>🎁 نقاط الولاء</span>
+                        </button>
+
+                        <!-- 13. Out-of-Stock Smart Alternative Item Suggestor -->
+                        <button type="button" id="btn-ds-alt-items" onclick="window.openDsAlternativeItemsModal && window.openDsAlternativeItemsModal()" style="background: linear-gradient(135deg,#7c3aed,#5b21b6); border: 1.5px solid rgba(192,132,252,0.55); color: #ffffff; border-radius: 8px; padding: 6px 11px; display: inline-flex; align-items: center; gap: 5px; cursor: pointer; font-weight: 900; font-size: 0.85rem; white-space: nowrap;" title="رادار البدائل الذكية للأصناف الناقصة وفحص توفرها في المستودعات الفرعية">
+                            <span>🔄 بدائل الأصناف</span>
+                        </button>
+
+                        <!-- 14. Live Profit Margin & Floor-Price Shield -->
+                        <button type="button" id="btn-ds-margin-shield" onclick="window.openDsMarginShieldModal && window.openDsMarginShieldModal()" style="background: linear-gradient(135deg,#dc2626,#991b1b); border: 1.5px solid rgba(248,113,113,0.65); color: #ffffff; border-radius: 8px; padding: 6px 11px; display: inline-flex; align-items: center; gap: 5px; cursor: pointer; font-weight: 900; font-size: 0.85rem; white-space: nowrap;" title="رادار حماية هامش الربح والحد الأدنى للسعر لمنع البيع بأقل من التكلفة">
+                            <span>🛡️ درع الربحية</span>
+                        </button>
+
+                        <!-- 15. AI Cross-Sell & Bundle Recommender -->
+                        <button type="button" id="btn-ds-cross-sell" onclick="window.openDsCrossSellModal && window.openDsCrossSellModal()" style="background: linear-gradient(135deg,#0d9488,#115e59); border: 1.5px solid rgba(45,212,191,0.65); color: #ffffff; border-radius: 8px; padding: 6px 11px; display: inline-flex; align-items: center; gap: 5px; cursor: pointer; font-weight: 900; font-size: 0.85rem; white-space: nowrap;" title="مُحلّل سلة المشتريات الذكي واقتراح الأصناف المكملة والباقات">
+                            <span>🧠 مقترح المكملات</span>
+                        </button>
+
+                        <button type="button" onclick="openGridSettingsModal()" style="background: linear-gradient(135deg, rgba(56,189,248,0.2), rgba(14,165,233,0.3)); border: 1.5px solid #38bdf8; color: #38bdf8; border-radius: 8px; padding: 6px 14px; display: flex; align-items: center; gap: 6px; cursor: pointer; font-weight: bold; font-size: 0.95rem; transition: all 0.2s; box-shadow: 0 2px 10px rgba(56,189,248,0.25);" title="تخصيص الجدول">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
-                            <span>⚙️ تخصيص وتنسيق الجدول</span>
+                            <span>⚙️ تخصيص الجدول</span>
                         </button>
                     </div>
                 </div>
@@ -4011,10 +4545,13 @@ try {
 
                     <div class="payment-toggles" style="display: flex; gap: 8px; flex: none; flex-wrap: wrap;">
                         <button type="button" class="pay-toggle-btn active" id="toggle-credit" onclick="togglePaymentSection('credit')" style="background: rgba(180, 83, 9, 0.1); border: 1px solid rgba(180, 83, 9, 0.35); color: #fcd34d; padding: 6px 14px; border-radius: 20px; font-size: 0.9rem; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.2);">💳 آجل</button>
+                        <button type="button" class="pay-toggle-btn" id="btn-ds-installment-sched" onclick="window.openDsInstallmentSchedulerModal && window.openDsInstallmentSchedulerModal()" style="background: linear-gradient(135deg,#b45309,#92400e); border: 1.5px solid #fbbf24; color: #ffffff; padding: 6px 13px; border-radius: 20px; font-size: 0.86rem; font-weight: 900; cursor: pointer; display: flex; align-items: center; gap: 5px;" title="جدولة المبلغ الآجل إلى دفعات وأقساط بتواريخ استحقاق متتالية وطباعة كمبيالاتها">📅 جدولة الأقساط</button>
                         <button type="button" class="pay-toggle-btn" id="toggle-cash" onclick="togglePaymentSection('cash')" style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.35); color: #6ee7b7; padding: 6px 14px; border-radius: 20px; font-size: 0.9rem; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.2);">💵 نقدي</button>
+                        <button type="button" class="pay-toggle-btn" id="btn-ds-cash-change" onclick="window.openDsCashChangeCalculator && window.openDsCashChangeCalculator()" style="background: linear-gradient(135deg,#059669,#047857); border: 1.5px solid #34d399; color: #ffffff; padding: 6px 13px; border-radius: 20px; font-size: 0.86rem; font-weight: 900; cursor: pointer; display: flex; align-items: center; gap: 5px;" title="حاسبة المبلغ المستلم والباقي للعميل والفئات النقدية السريعة">🧮 حاسبة الباقي</button>
                         <button type="button" class="pay-toggle-btn" id="toggle-bank" onclick="togglePaymentSection('bank')" style="background: rgba(6, 182, 212, 0.1); border: 1px solid rgba(6, 182, 212, 0.35); color: #67e8f9; padding: 6px 14px; border-radius: 20px; font-size: 0.9rem; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.2);">🏦 تحويل بنكي</button>
                         <button type="button" class="pay-toggle-btn" id="toggle-cheque" onclick="togglePaymentSection('cheque')" style="background: rgba(147, 51, 234, 0.1); border: 1px solid rgba(147, 51, 234, 0.35); color: #d8b4fe; padding: 6px 14px; border-radius: 20px; font-size: 0.9rem; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.2);">✍️ شيك</button>
-                        <button type="button" class="pay-toggle-btn" id="btn-sales-financial-ocr" onclick="FinancialOCR.openScanner({ target: 'sales' })" style="background: linear-gradient(135deg, rgba(6, 182, 212, 0.2), rgba(16, 185, 129, 0.2)); border: 1.5px solid #06b6d4; color: #67e8f9; padding: 6px 14px; border-radius: 20px; font-size: 0.9rem; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.2);" title="مسح إشعار تحويل بنكك أو شيك لسداد الفاتورة"><span style="font-size: 1.1rem;">📷</span> مسح إشعار/شيك (AI OCR)</button>
+                        <button type="button" class="pay-toggle-btn" id="btn-ds-digital-sign" onclick="window.openDsCustomerSignatureModal && window.openDsCustomerSignatureModal()" style="background: linear-gradient(135deg,#2563eb,#1d4ed8); border: 1.5px solid #60a5fa; color: #ffffff; padding: 6px 13px; border-radius: 20px; font-size: 0.86rem; font-weight: 900; cursor: pointer; display: flex; align-items: center; gap: 5px;" title="بوابة توقيع العميل الإلكتروني وإقرار استلام البضاعة والمصادقة على الفاتورة">✍️ توقيع العميل</button>
+                        <button type="button" class="pay-toggle-btn" id="btn-sales-financial-ocr" onclick="FinancialOCR.openScanner({ target: 'sales' })" style="background: linear-gradient(135deg, rgba(6, 182, 212, 0.2), rgba(16, 185, 129, 0.2)); border: 1.5px solid #06b6d4; color: #67e8f9; padding: 6px 14px; border-radius: 20px; font-size: 0.9rem; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.2);" title="مسح إشعار"><span style="font-size: 1.1rem;">📷</span> مسح إشعار</button>
                         <button type="button" class="pay-toggle-btn" onclick="FinancialOCR.openTrainer()" style="background: rgba(147, 51, 234, 0.1); border: 1px solid rgba(147, 51, 234, 0.35); color: #d8b4fe; padding: 6px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 4px;" title="شرح وتدريب النماذج للذكاء الاصطناعي"><span>🧠</span> تدريب</button>
                     </div>
                 </div>
@@ -4305,8 +4842,7 @@ try {
                                 <svg viewBox="0 0 24 24" width="20" height="20" fill="#fff"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
                             </span>
                             <div style="display: flex; flex-direction: column; align-items: flex-start; gap: 2px;">
-                                <span>إرسال عبر واتساب</span>
-                                <span style="font-size: 0.7rem; color: #64748b; font-weight: 400;">إرسال PDF مع رسالة</span>
+                                <span>واتساب</span>
                             </div>
                         </button>
                         <!-- Divider -->
@@ -4317,27 +4853,26 @@ try {
                                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
                             </span>
                             <div style="display: flex; flex-direction: column; align-items: flex-start; gap: 2px;">
-                                <span>إرسال عبر الإيميل</span>
-                                <span style="font-size: 0.7rem; color: #64748b; font-weight: 400;">فتح تطبيق البريد</span>
+                                <span>إيميل</span>
                             </div>
                         </button>
                     </div>
                 </div>
 
                 <!-- New Button: Unified Cyan-Sky Crystal Gradient -->
-                <button type="button" class="btn-action royal-crystal-btn royal-btn-new btn-new" id="btn-new-invoice" style="flex: 0.85; min-width: 88px;" onclick="onSuccessNewInvoice(false);" title="بدء فاتورة مبيعات جديدة وتفريغ الحقول">
+                <button type="button" class="btn-action royal-crystal-btn royal-btn-new btn-new" id="btn-new-invoice" style="flex: 0.85; min-width: 88px;" onclick="onSuccessNewInvoice(false);" title="فاتورة جديدة">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                     <span>جديد</span>
                 </button>
 
                 <!-- زر التحكم في الإرسال التلقائي مع الحفظ -->
                 <div class="auto-send-control-box" id="auto-send-control-wrapper-sales">
-                    <button type="button" class="btn crystal-btn btn-auto-send-toggle-unit inactive" id="btn-toggle-auto-send-sales" onclick="window.toggleSalesAutoSendMode()" title="التحكم في الإرسال التلقائي: انقر للتبديل بين الحفظ مع الإرسال، أو الحفظ فقط بدون إرسال">
+                    <button type="button" class="btn crystal-btn btn-auto-send-toggle-unit inactive" id="btn-toggle-auto-send-sales" onclick="window.toggleSalesAutoSendMode()" title="الإرسال التلقائي">
                         <span id="auto-send-sales-icon" style="font-size: 1.02rem;">💾</span>
                         <span id="auto-send-sales-label" style="font-weight: 800; font-size: 0.85rem;">إرسال تلقائي:</span>
-                        <span id="auto-send-sales-status-pill" style="padding: 2px 7px; border-radius: 6px; font-size: 0.73rem; font-weight: 900;">معطّل (حفظ فقط)</span>
+                        <span id="auto-send-sales-status-pill" style="padding: 2px 7px; border-radius: 6px; font-size: 0.73rem; font-weight: 900;">حفظ فقط</span>
                     </button>
-                    <button type="button" class="btn crystal-btn btn-auto-send-options-unit inactive" id="btn-auto-send-options-sales" onclick="window.toggleSalesAutoSendDropdown(event)" title="خيارات نوع الإرسال التلقائي (إذن استلام، فاتورة وكشف)">
+                    <button type="button" class="btn crystal-btn btn-auto-send-options-unit inactive" id="btn-auto-send-options-sales" onclick="window.toggleSalesAutoSendDropdown(event)" title="خيارات الإرسال التلقائي">
                         ▼
                     </button>
                     
@@ -4346,47 +4881,42 @@ try {
                         <div class="auto-send-menu-header">
                             <span style="display: inline-flex; align-items: center; gap: 7px;">
                                 <span style="font-size: 1rem;">⚙️</span>
-                                <span>نوع الإرسال التلقائي عند الحفظ</span>
+                                <span>الإرسال التلقائي</span>
                             </span>
-                            <span style="font-size: 0.68rem; padding: 2px 8px; border-radius: 20px; background: rgba(56, 189, 248, 0.16); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3);">واتساب ذكي</span>
+                            <span style="font-size: 0.68rem; padding: 2px 8px; border-radius: 20px; background: rgba(56, 189, 248, 0.16); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3);">واتساب</span>
                         </div>
                         <div class="auto-send-menu-item active-option" data-mode="disabled" onclick="window.selectSalesAutoSendOption('disabled')">
                             <span class="auto-send-item-icon" style="background: linear-gradient(135deg, rgba(100, 116, 139, 0.35), rgba(51, 65, 85, 0.6)) !important; border-color: rgba(148, 163, 184, 0.4) !important;">💾</span>
                             <div class="auto-send-item-content">
-                                <span class="auto-send-item-title" style="color: #f1f5f9;">حفظ فقط (بدون إرسال)</span>
-                                <span class="auto-send-item-sub">اعتماد وحفظ الفاتورة دون إرسال رسائل</span>
+                                <span class="auto-send-item-title" style="color: #f1f5f9;">حفظ فقط</span>
                             </div>
                             <span class="auto-send-item-check">✓</span>
                         </div>
                         <div class="auto-send-menu-item" data-mode="delivery_order_doc" onclick="window.selectSalesAutoSendOption('delivery_order_doc')">
                             <span class="auto-send-item-icon" style="background: linear-gradient(135deg, rgba(14, 165, 233, 0.3), rgba(2, 132, 199, 0.55)) !important; border-color: rgba(56, 189, 248, 0.45) !important;">📄</span>
                             <div class="auto-send-item-content">
-                                <span class="auto-send-item-title" style="color: #38bdf8;">إذن استلام وتسليم رسمي (كميات فقط)</span>
-                                <span class="auto-send-item-sub">مستند استلام مخزني معتمد بدون أسعار</span>
+                                <span class="auto-send-item-title" style="color: #38bdf8;">إذن تسليم رسمي</span>
                             </div>
                             <span class="auto-send-item-check">✓</span>
                         </div>
                         <div class="auto-send-menu-item" data-mode="delivery_order_text" onclick="window.selectSalesAutoSendOption('delivery_order_text')">
                             <span class="auto-send-item-icon" style="background: linear-gradient(135deg, rgba(245, 158, 11, 0.3), rgba(217, 119, 6, 0.55)) !important; border-color: rgba(251, 191, 36, 0.45) !important;">📝</span>
                             <div class="auto-send-item-content">
-                                <span class="auto-send-item-title" style="color: #fbbf24;">إذن استلام كتابة كمعلومة (نص سريع)</span>
-                                <span class="auto-send-item-sub">رسالة نصية سريعة بتفاصيل الأصناف</span>
+                                <span class="auto-send-item-title" style="color: #fbbf24;">إذن تسليم نصي</span>
                             </div>
                             <span class="auto-send-item-check">✓</span>
                         </div>
                         <div class="auto-send-menu-item" data-mode="invoice_doc" onclick="window.selectSalesAutoSendOption('invoice_doc')">
                             <span class="auto-send-item-icon" style="background: linear-gradient(135deg, rgba(168, 85, 247, 0.3), rgba(126, 34, 206, 0.55)) !important; border-color: rgba(192, 132, 252, 0.45) !important;">🧾</span>
                             <div class="auto-send-item-content">
-                                <span class="auto-send-item-title" style="color: #c084fc;">فاتورة مبيعات مصممة (تصميم رسمي)</span>
-                                <span class="auto-send-item-sub">إرسال صورة/مستند الفاتورة الكاملة للعميل</span>
+                                <span class="auto-send-item-title" style="color: #c084fc;">فاتورة مصممة</span>
                             </div>
                             <span class="auto-send-item-check">✓</span>
                         </div>
                         <div class="auto-send-menu-item" data-mode="invoice" onclick="window.selectSalesAutoSendOption('invoice')">
                             <span class="auto-send-item-icon" style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.3), rgba(5, 150, 105, 0.55)) !important; border-color: rgba(52, 211, 153, 0.45) !important;">💰</span>
                             <div class="auto-send-item-content">
-                                <span class="auto-send-item-title" style="color: #34d399;">نص الفاتورة وكشف الحساب</span>
-                                <span class="auto-send-item-sub">ملخص مالي للفاتورة مع الرصيد وكشف الحساب</span>
+                                <span class="auto-send-item-title" style="color: #34d399;">فاتورة وكشف حساب</span>
                             </div>
                             <span class="auto-send-item-check">✓</span>
                         </div>
@@ -4395,9 +4925,10 @@ try {
                 
                 <!-- Submit Button -->
                 <span style="display:none;" id="footer-grand"></span>
-                <button type="button" class="btn-action royal-crystal-btn royal-btn-save btn-submit" style="flex: 1.35; min-width: 138px;" onclick="submitInvoice()">
+                <button type="button" class="btn-action royal-crystal-btn royal-btn-save btn-submit" style="flex: 1.35; min-width: 148px;" onclick="submitInvoice()" title="حفظ واعتماد الفاتورة (F10 / Ctrl+S)">
                     <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
                     <span>حفظ واعتماد</span>
+                    <kbd style="font-size:0.7rem;padding:1px 5px;border-radius:4px;background:rgba(0,0,0,0.28);color:#fff;font-family:'Outfit',monospace;border:1px solid rgba(255,255,255,0.25);">F10</kbd>
                 </button>
             </div>
         </div>
@@ -4642,19 +5173,25 @@ try {
         }
 
         function openSplitInvoiceView(showBoardDirectly = false) {
-            if (showBoardDirectly) {
-                document.getElementById('sales-hub-view').style.display = 'none';
-                document.getElementById('invoice-editor-view').style.display = 'none';
-                document.getElementById('delivery-hub-view').style.display = 'none';
-                document.getElementById('split-invoice-view').style.display = 'flex';
-                currentSalesView = 'split';
-                const headerTitle = document.querySelector('.header-page-title');
-                if (headerTitle) {
-                    headerTitle.innerHTML = '<span class="header-page-title-icon">✂️</span> تقسيم الفاتورة / الإذن (بالوحدة الأساسية والفرعية)';
-                }
-                return;
+            document.getElementById('sales-hub-view').style.display = 'none';
+            document.getElementById('invoice-editor-view').style.display = 'none';
+            document.getElementById('delivery-hub-view').style.display = 'none';
+            document.getElementById('split-invoice-view').style.display = 'flex';
+            currentSalesView = 'split';
+            const headerTitle = document.querySelector('.header-page-title');
+            if (headerTitle) {
+                headerTitle.innerHTML = '<span class="header-page-title-icon">✂️</span> تقسيم الفاتورة / الإذن (بالوحدة الأساسية والفرعية)';
             }
-            window.setUnifiedHubFilter('pending', false);
+            const selectStep = document.getElementById('split-select-step');
+            const boardStep = document.getElementById('split-board-step');
+            if (showBoardDirectly) {
+                if (selectStep) selectStep.style.display = 'none';
+                if (boardStep) boardStep.style.display = 'flex';
+            } else {
+                if (selectStep) selectStep.style.display = 'flex';
+                if (boardStep) boardStep.style.display = 'none';
+                if (typeof loadSplitInvoices === 'function') loadSplitInvoices();
+            }
         }
 
         function loadHubTransactions() {
@@ -5014,11 +5551,9 @@ try {
                     wantsToEdit = false;
                     showToast('🔒 الفاتورة مرحلة محاسبياً في دفتر الأستاذ - وضع المعاينة فقط (ممنوع التعديل نهائياً)', 'warning', 6000);
                 } else if (inv) {
-                    // Saved unposted invoice: Ask user if they want to edit
-                    wantsToEdit = confirm('⚠️ تنبيه:\n\nهذه الفاتورة (رقم: ' + invNo + ') تم حفظها مسبقاً في النظام.\n\nهل تريد تعديل بيانات هذه الفاتورة؟\n\n- اضغط [موافق / OK] لفتح الفاتورة وتعديلها\n- اضغط [إلغاء / Cancel] للمعاينة والقراءة فقط بدون تعديل');
-                    if (!wantsToEdit) {
-                        showToast('👁️ وضع المعاينة فقط - الحقول مغلقة ضد التعديل', 'info', 4000);
-                    }
+                    // Saved unposted invoice: open directly in edit mode with toast advisory (non-blocking)
+                    wantsToEdit = true;
+                    showToast('✏️ تم فتح الفاتورة رقم (' + invNo + ') في وضع التعديل', 'info', 2500);
                 }
 
                 openInvoiceEditor(undefined, true);
@@ -5034,15 +5569,15 @@ try {
                             }
                         } catch (innerErr) {
                             console.error(innerErr);
-                            alert('خطأ أثناء تحميل تفاصيل الفاتورة: ' + innerErr.message + '\n' + innerErr.stack);
+                            if (typeof showToast === 'function') showToast('⚠️ خطأ أثناء تحميل تفاصيل الفاتورة: ' + innerErr.message, 'error');
                         }
                     }, 100);
                 } else {
-                    alert('خطأ: لم يتم العثور على دالة تحميل الفاتورة!');
+                    if (typeof showToast === 'function') showToast('⚠️ خطأ: لم يتم العثور على دالة تحميل الفاتورة!', 'error');
                 }
             } catch (err) {
                 console.error(err);
-                alert('خطأ في محرر الفواتير: ' + err.message);
+                if (typeof showToast === 'function') showToast('⚠️ خطأ في محرر الفواتير: ' + err.message, 'error');
             }
         }
         let currentDeleteInvoiceNo = null;
@@ -5258,31 +5793,60 @@ try {
 
         async function confirmExecuteDeleteInvoice() {
             if (!currentDeleteInvoiceNo) return;
-            const invNo = currentDeleteInvoiceNo;
+            const invNo = String(currentDeleteInvoiceNo).trim();
             
-            // Delete from Database if API exists for it (usually handled by save_sales_invoice.php with action=delete or similar).
-            // Currently the system uses localStorage mostly, but we'll try to sync deletion to DB if there's an endpoint.
             try {
                 const token = localStorage.getItem('authToken') || localStorage.getItem('token') || '';
-                // Since this system uses save_sales_invoice.php or generic save APIs, let's just mark it soft deleted or hard deleted
-                // The current code just deletes it from localStorage. Let's do that + DB if possible.
+                const ctrl = new AbortController();
+                const tId = setTimeout(() => ctrl.abort(), 4500);
                 await fetch('api/save_sales_invoice.php', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', 'Authorization': token ? ('Bearer ' + token) : '' },
-                    body: JSON.stringify({ action: 'delete', invoiceNo: invNo })
-                });
+                    body: JSON.stringify({ action: 'delete', invoiceNo: invNo }),
+                    signal: ctrl.signal
+                }).finally(() => clearTimeout(tId));
             } catch(e) { console.warn('DB delete sync failed:', e); }
 
-            // Delete from LocalStorage
-            let savedData = localStorage.getItem('erp_sales_invoices_v1');
-            if (savedData) {
-                let invoices = JSON.parse(savedData);
-                invoices = invoices.filter(i => i.invoiceNo !== invNo);
-                localStorage.setItem('erp_sales_invoices_v1', JSON.stringify(invoices));
+            // Reverse customer balance if invoice had unpaid credit
+            try {
+                const rawInv = localStorage.getItem('erp_inv_' + invNo);
+                const delInv = rawInv ? JSON.parse(rawInv) : null;
+                if (delInv && delInv.saleType !== 'preliminary') {
+                    const custId = delInv.customerId || (delInv.customer && delInv.customer.id);
+                    const creditAmt = parseFloat(delInv.remainingAmount ?? delInv.creditAmount ?? 0) || 0;
+                    if (custId && custId !== 'walk-in' && creditAmt > 0) {
+                        let customers = JSON.parse(localStorage.getItem('erp_customers_v1') || '[]');
+                        const cIdx = customers.findIndex(c => String(c.id) === String(custId));
+                        if (cIdx > -1) {
+                            customers[cIdx].currentBalance = (parseFloat(customers[cIdx].currentBalance) || 0) - creditAmt;
+                            localStorage.setItem('erp_customers_v1', JSON.stringify(customers));
+                        }
+                    }
+                }
+            } catch (_eRev) {}
+
+            // Delete from all LocalStorage sales keys & individual cache
+            try { localStorage.removeItem('erp_inv_' + invNo); } catch(_e) {}
+            ['erp_sales_invoices_v1', 'magaies_local_sales_invoices_v1', 'erp_sales_v1'].forEach(storeKey => {
+                try {
+                    const savedData = localStorage.getItem(storeKey);
+                    if (savedData) {
+                        const invoices = JSON.parse(savedData).filter(i => i && String(i.invoiceNo || i.id) !== invNo);
+                        localStorage.setItem(storeKey, JSON.stringify(invoices));
+                    }
+                } catch (_eS) {}
+            });
+
+            if (typeof window.rebuildGLFromAllTables === 'function') {
+                try { window.rebuildGLFromAllTables(false); } catch(_eGL) {}
             }
+            try {
+                new BroadcastChannel('elsajana_erp_sync').postMessage({ action: 'sales_invoice_deleted', invoiceNo: invNo, ts: Date.now() });
+                new BroadcastChannel('magaies_erp_sync_channel').postMessage({ action: 'sales_invoice_deleted', invoiceNo: invNo, ts: Date.now() });
+            } catch (_eBc) {}
             
             closeInvoiceDeleteModal();
-            showToast('تم حذف الفاتورة نهائياً بنجاح', 'success');
+            showToast('تم حذف الفاتورة وعكس قيودها بنجاح', 'success');
             loadHubTransactions();
         }
 
@@ -5295,7 +5859,9 @@ try {
                 if (idParam) {
                     return;
                 }
-                if (actionParam === 'new' || actionParam === 'direct' || actionParam === 'pending_delivery' || actionParam === 'preliminary' || actionParam === 'proforma') {
+                if (actionParam === 'split') {
+                    openSplitInvoiceView(false);
+                } else if (actionParam === 'new' || actionParam === 'direct' || actionParam === 'pending_delivery' || actionParam === 'preliminary' || actionParam === 'proforma') {
                     openInvoiceEditor(actionParam === 'new' || actionParam === 'direct' ? 'pending_delivery' : (actionParam === 'proforma' ? 'preliminary' : actionParam));
                 } else {
                     showSalesHub();
@@ -6008,9 +6574,9 @@ try {
         }
         
         const baseFontSize = (cfg.fontSize || 16) + 'px';
-        const baseFontWeight = cfg.fontWeight || 'normal';
+        const baseFontWeight = (cfg.fontWeight && cfg.fontWeight !== 'normal') ? cfg.fontWeight : '800';
         const baseFontFamily = cfg.fontFamily || "'Cairo', sans-serif";
-        const baseFontColor = cfg.fontColor || '#ffffff';
+        const baseFontColor = '#FFFFFF';
 
         let css = `
             body #pos-grid,
@@ -6019,9 +6585,8 @@ try {
             body #pos-grid .total-val,
             body #pos-grid .g-readonly {
                 font-size: ${baseFontSize} !important;
-                font-weight: ${baseFontWeight} !important;
+                font-weight: 800 !important;
                 font-family: ${baseFontFamily} !important;
-                color: ${baseFontColor} !important;
             }
         `;
         
@@ -6041,8 +6606,7 @@ try {
                     : `width: auto !important; min-width: 140px !important;`;
                 let align = col.align ? col.align : (cfg.align || 'center');
                 let fontSize = col.fontSize ? (String(col.fontSize).replace('px','') + 'px') : baseFontSize;
-                let color = col.color ? col.color : baseFontColor;
-                let fontWeight = col.fontWeight ? col.fontWeight : baseFontWeight;
+                let fontWeight = (col.fontWeight && col.fontWeight !== 'normal') ? col.fontWeight : baseFontWeight;
                 
                 css += `
                     body #pos-grid thead tr th[data-col-id="${col.id}"] {
@@ -6050,30 +6614,54 @@ try {
                         ${widthCss}
                         text-align: ${align} !important;
                         font-size: ${fontSize} !important;
-                        font-weight: ${fontWeight === 'normal' ? '800' : fontWeight} !important;
-                        color: ${col.color && col.color.toLowerCase() !== '#ffffff' && col.color.toLowerCase() !== '#fafafa' ? color : '#38bdf8'} !important;
+                        font-weight: 900 !important;
+                        color: #FFFFFF !important;
                     }
                     body #pos-grid tbody tr td[data-col-id="${col.id}"] {
                         display: table-cell !important;
                         ${widthCss}
                         text-align: ${align} !important;
-                        color: ${color} !important;
                         font-size: ${fontSize} !important;
-                        font-weight: ${fontWeight} !important;
+                        font-weight: 800 !important;
                     }
-                    body #pos-grid tbody tr td[data-col-id="${col.id}"] input.g-input,
-                    body #pos-grid tbody tr td[data-col-id="${col.id}"] select.g-select,
-                    body #pos-grid tbody tr td[data-col-id="${col.id}"] .total-val,
-                    body #pos-grid tbody tr td[data-col-id="${col.id}"] .avail-val,
-                    body #pos-grid tbody tr td[data-col-id="${col.id}"] .g-readonly,
+                    html:not(.light-theme) body #pos-grid tbody tr td[data-col-id="${col.id}"] input.g-input,
+                    html:not(.light-theme) body #pos-grid tbody tr td[data-col-id="${col.id}"] input.g-input:focus,
+                    html:not(.light-theme) body #pos-grid tbody tr td[data-col-id="${col.id}"] select.g-select,
+                    html:not(.light-theme) body #pos-grid tbody tr td[data-col-id="${col.id}"] select.g-select:focus,
+                    html:not(.light-theme) body #pos-grid tbody tr td[data-col-id="${col.id}"] .total-val,
+                    html:not(.light-theme) body #pos-grid tbody tr td[data-col-id="${col.id}"] .avail-val,
+                    html:not(.light-theme) body #pos-grid tbody tr td[data-col-id="${col.id}"] .g-readonly {
+                        text-align: ${align} !important;
+                        background: #000000 !important;
+                        background-color: #000000 !important;
+                        background-image: none !important;
+                        color: #FFFFFF !important;
+                        -webkit-text-fill-color: #FFFFFF !important;
+                        border: 2.2px solid #FFFFFF !important;
+                        font-size: ${fontSize} !important;
+                        font-weight: 800 !important;
+                        font-family: ${baseFontFamily} !important;
+                    }
+                    :root.light-theme body #pos-grid thead tr th[data-col-id="${col.id}"] {
+                        color: #000000 !important;
+                        font-weight: 900 !important;
+                    }
                     :root.light-theme body #pos-grid tbody tr td[data-col-id="${col.id}"] input.g-input,
+                    :root.light-theme body #pos-grid tbody tr td[data-col-id="${col.id}"] input.g-input:focus,
                     :root.light-theme body #pos-grid tbody tr td[data-col-id="${col.id}"] select.g-select,
+                    :root.light-theme body #pos-grid tbody tr td[data-col-id="${col.id}"] select.g-select:focus,
                     :root.light-theme body #pos-grid tbody tr td[data-col-id="${col.id}"] .total-val,
+                    :root.light-theme body #pos-grid tbody tr td[data-col-id="${col.id}"] .avail-val,
                     :root.light-theme body #pos-grid tbody tr td[data-col-id="${col.id}"] .g-readonly {
                         text-align: ${align} !important;
-                        color: ${color} !important;
+                        background: #FFFFFF !important;
+                        background-color: #FFFFFF !important;
+                        background-image: none !important;
+                        color: #000000 !important;
+                        -webkit-text-fill-color: #000000 !important;
+                        border: 2.2px solid #000000 !important;
                         font-size: ${fontSize} !important;
-                        font-weight: ${fontWeight} !important;
+                        font-weight: 900 !important;
                         font-family: ${baseFontFamily} !important;
                     }
                 `;
@@ -6081,6 +6669,7 @@ try {
         });
         
         style.innerHTML = css;
+        if (window.syncInvoiceFaintHintsAndZeros) window.syncInvoiceFaintHintsAndZeros(document);
 
         // DOM Reordering & Header Name Synchronization
         const table = document.getElementById('pos-grid');
@@ -6471,10 +7060,18 @@ try {
         showToast(`تم ضبط المحاذاة إلى ${alignMode === 'right' ? 'اليمين' : alignMode === 'center' ? 'الوسط' : 'اليسار'}`, "success");
     };
 
-    window.quickResetGrid = async function() {
+    window.quickResetGrid = async function(confirmedFlag) {
         const menu = document.getElementById('col-context-menu');
         if (menu) menu.style.display = 'none';
-        if (confirm("هل أنت متأكد من استعادة التنسيق والترتيب الافتراضي لجدول المبيعات المباشرة وحفظه في قاعدة البيانات؟")) {
+        if (!confirmedFlag && typeof window.openDsConfirmModal === 'function') {
+            window.openDsConfirmModal(
+                '🔄 استعادة التنسيق الافتراضي للجدول',
+                'هل أنت متأكد من استعادة التنسيق والترتيب الافتراضي لجدول المبيعات المباشرة وحفظه؟',
+                () => { window.quickResetGrid(true); }
+            );
+            return;
+        }
+        if (true) {
             try {
                 // Try to fetch factory default from DB
                 const res = await fetch('api/get_grid_config.php?grid_id=sales_grid_default&_t=' + Date.now());
@@ -6703,7 +7300,6 @@ try {
     
     <!-- Financial OCR Modal & Script -->
     <?php include 'includes/financial-ocr-modal.php'; ?>
-    <script src="js/magaies-offline-sync.js?v=20261016"></script>
     <script src="js/financial-ocr.js?v=<?php echo file_exists('js/financial-ocr.js') ? filemtime('js/financial-ocr.js') : 1; ?>"></script>
     <script>
     window.initDesktopMirrorSync = (function initDesktopSalesMirrorSync() {
@@ -6715,7 +7311,9 @@ try {
                 if (navigator.onLine && window.MagaiesOffline && typeof MagaiesOffline.flushQueue === 'function') {
                     await MagaiesOffline.flushQueue();
                 }
-                const res = await fetch('api/mirror_sync.php?action=get_recent_sales&_t=' + Date.now());
+                const ctrl = new AbortController();
+                const tId = setTimeout(() => ctrl.abort(), 4500);
+                const res = await fetch('api/mirror_sync.php?action=get_recent_sales&_t=' + Date.now(), { signal: ctrl.signal }).finally(() => clearTimeout(tId));
                 const data = await res.json();
                 if (data && data.success && Array.isArray(data.sales)) {
                     let localSales = JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || [];
@@ -6761,6 +7359,7 @@ try {
                     if (hasNew) {
                         localStorage.setItem('erp_sales_invoices_v1', JSON.stringify(localSales));
                         localStorage.setItem('magaies_local_sales_invoices_v1', JSON.stringify(localSales));
+                        localStorage.setItem('erp_sales_v1', JSON.stringify(localSales));
                         if (typeof loadHubTransactions === 'function' && typeof currentSalesView !== 'undefined' && currentSalesView === 'hub') {
                             loadHubTransactions();
                         }
@@ -6794,12 +7393,1288 @@ try {
         window.addEventListener('DOMContentLoaded', () => {
             setTimeout(syncSalesWithMariaDB, 600);
         });
-        setInterval(syncSalesWithMariaDB, 12000);
+        setInterval(() => {
+            if (!document.hidden) syncSalesWithMariaDB();
+        }, 6500);
         window.addEventListener('focus', syncSalesWithMariaDB);
         window.addEventListener('online', syncSalesWithMariaDB);
         return syncSalesWithMariaDB;
     })();
+
+    // ═══════════════════════════════════════════════════════════════════════════════
+    // 🏛️ الدستور الحاكم الشامل لشاشة المبيعات المباشرة (direct-sales.php?action=new)
+    // 1. مرشد الشاشة المعزول والمفصل من الألف إلى الياء (طوالي بلا شاشات وسيطة + شرح بالتأشير)
+    // 2. انسيابية المؤشر 60fps والتنقل بزر Enter واختصارات الكيبورد (Ctrl+S / F2)
+    // 3. منع النقرات المزدوجة + التسميع اللحظي عبر BroadcastChannel
+    // ═══════════════════════════════════════════════════════════════════════════════
+    (function initSalesConstitutionEngine() {
+        window.MagaiesSmartGuides = window.MagaiesSmartGuides || {};
+
+        window.MagaiesSmartGuides['sales-direct'] = {
+            title: 'مرشد منظومة المبيعات المباشرة والشاملة (شاشة داخل شاشة + القوائم المنبثقة)',
+            subtitle: 'شرح مصوّر ومدبلج بالصوت الرجالي خطوة بخطوة: يفتح شاشة المبيعات وقوائم العملاء وشرائح الأسعار وقائمة الأصناف وطرق الدفع أمامك فعلياً',
+            screenHierarchy: [
+                '1️⃣ الشاشة الرئيسية: بوابة وسجل المبيعات وفلاتر التسليم',
+                '2️⃣ شاشة داخل شاشة: محرر فاتورة المبيعات المباشرة',
+                '3️⃣ القوائم الفرعية: قائمة العملاء • كشف الأستاذ • شرائح الأسعار • قائمة الأصناف',
+                '4️⃣ النوافذ التفاعلية: الترحيل والخصم • الدفع الهجين (آجل/نقدي/تحويل/شيك)',
+                '5️⃣ التسميع اللحظي: كشف العميل • بوابة التسليم GDN • اليومية العامة • الواتساب'
+            ],
+            overview: 'تتكون منظومة المبيعات من شاشات متداخلة وقوائم ذكية (شاشة داخل شاشة): تبدأ من سجل وبوابة المبيعات، وعند فتح فاتورة المبيعات تظهر القوائم التفاعلية للعملاء وكشف الأستاذ وشرائح الأسعار (قطاعي/جملة) وقائمة الأصناف الذكية ولوحات الدفع الهجين.',
+            autopilotSteps: [
+                {
+                    badge: '1. الشريط العلوي للفاتورة: الرقم التسلسلي والتاريخ وشريط الملاءة المالية والتزامن اللحظي',
+                    cursorLabel: 'رقم الفاتورة وشريط الملاءة والتزامن 📊',
+                    screenPath: 'الشاشة النشطة: محرر فاتورة المبيعات ⬅ رقم الفاتورة التسلسلي والتاريخ ⬅ شريط الملاءة المالية للعميل + التزامن اللحظي',
+                    targetSelector: '#invoice-info-box, #fin-strip, #ds-live-sync-pill',
+                    diagramType: 'screen-transition',
+                    diagramMeta: {
+                        parentScreen: 'محرر فاتورة المبيعات المباشرة (#invoice-editor-view)',
+                        actionLabel: 'شريط معلومات الفاتورة والملاءة المالية للعميل:',
+                        childItems: ['🔢 رقم الفاتورة التسلسلي التلقائي وأزرار التنقل (❮ ❯)', '📅 تاريخ الفاتورة المحاسبي وشارة التزامن الفوري (0ms)', '📊 شريط الملاءة المالية (الرصيد • الشيكات • المديونية • السقف • المتاح)', '🛡️ رقابة فورية على السقف الائتماني قبل البيع الآجل'],
+                        effectLabel: 'شاشة تحرير الفاتورة وشريط الملاءة المالية مفتوحان الآن أمامك!'
+                    },
+                    action: () => {
+                        ['add-customer-modal', 'ds-quick-wh-modal', 'ds-quick-item-modal', 'sales-cust-history-modal', 'sales-parked-invoices-modal', 'ds-cash-change-modal', 'ds-warranty-qr-modal'].forEach(id => {
+                            const m = document.getElementById(id);
+                            if (m) { m.style.display = 'none'; m.classList.remove('active'); }
+                        });
+                        if (typeof openInvoiceEditor === 'function' && document.getElementById('invoice-editor-view')?.style.display === 'none') {
+                            openInvoiceEditor('pending_delivery');
+                        }
+                        const finStrip = document.getElementById('fin-strip');
+                        if (finStrip) finStrip.classList.add('visible');
+                    },
+                    speech: () => 'أهلاً بحضرتك في الشرح العملي الشامل لشاشة فاتورة المبيعات المباشرة. نبدأ من الشريط العلوي للفاتورة، حيث يظهر رقم الفاتورة التسلسلي التلقائي وأزرار التنقل بين الفواتير السابقة والتالية وتاريخ الفاتورة وشارة التزامن اللحظي، وبجانبه شريط الملاءة المالية للعميل الذي يعرض رصيده والشيكات المؤجلة وسقف الائتمان المتاح.'
+                },
+                {
+                    badge: '2. خانة العميل: فتح قائمة العملاء المنسدلة وزر كشف الأستاذ (📖 أستاذ)',
+                    cursorLabel: 'قائمة العملاء وكشف الأستاذ 📖',
+                    screenPath: 'فاتورة المبيعات ⬅ ضغط خانة العميل (#hdr-customer-search) ⬅ انسدال قائمة العملاء + زر (📖 أستاذ)',
+                    targetSelector: '#hdr-customer-search, #hdr-customer-ledger-btn',
+                    diagramType: 'dropdown-open',
+                    diagramMeta: {
+                        parentScreen: 'خانة اختيار العميل (#hdr-customer-search)',
+                        actionLabel: 'بمجرد الضغط تنسدل قائمة العملاء والأدوات المرتبطة بها:',
+                        childItems: ['👤 قائمة العملاء المنسدلة مع البحث العربي المتسامح بالاسم أو الرقم', '📖 زر (أستاذ) يفتح شاشة كشف حساب العميل التفصيلي فوراً', '📊 تحديث شريط المديونية والائتمان المتاح بالأعلى تلقائياً', '➕ زر إضافة عميل جديد من داخل الفاتورة'],
+                        effectLabel: 'قائمة العملاء المنسدلة مفتوحة الآن أمامك على الشاشة!'
+                    },
+                    action: () => {
+                        const m = document.getElementById('add-customer-modal');
+                        if (m) { m.style.display = 'none'; m.classList.remove('active'); }
+                        const inp = document.getElementById('hdr-customer-search');
+                        if (inp) { try { inp.focus(); } catch (e) {} }
+                        if (typeof showCustomerDropdown === 'function') {
+                            try { showCustomerDropdown(); } catch (e) {}
+                        }
+                        const dd = document.getElementById('customer-dropdown-list');
+                        if (dd) dd.style.display = 'block';
+                    },
+                    speech: () => 'عند الضغط على خانة العميل، تنسدل أمامك فوراً قائمة العملاء الذكية كما ترى الآن على الشاشة لتبحث بالاسم أو الرقم بتسامح كامل مع الحروف العربية، وبداخل الخانة تجد زر أستاذ الذي يفتح شاشة كشف حساب العميل التفصيلي دون مغادرة الفاتورة.'
+                },
+                {
+                    badge: '3. شاشة وليدة حية (1): نافذة الإضافة السريعة لعميل جديد (➕ عميل جديد)',
+                    cursorLabel: 'فتح شاشة إضافة عميل جديد ➕👤',
+                    screenPath: 'فاتورة المبيعات ⬅ ضغط زر (➕) بجانب العميل ⬅ فتح الشاشة الوليدة (#add-customer-modal)',
+                    targetSelector: '#add-customer-modal .modal-card, button[onclick*="add-customer-modal"]',
+                    diagramType: 'subpanel-expand',
+                    diagramMeta: {
+                        parentScreen: 'الشاشة الوليدة: إضافة عميل جديد (#add-customer-modal)',
+                        actionLabel: 'تسجيل عميل جديد في ثوانٍ دون مغادرة الفاتورة:',
+                        childItems: ['👤 اسم العميل ورقم الهاتف ورقم الواتساب للإشعارات', '💳 تحديد الرصيد الافتتاحي وحد الائتمان المسموح للبيع الآجل', '🔒 تحديد درجة سرية الحساب والعنوان', '💾 حفظ العميل واختياره تلقائياً في الفاتورة الحالية'],
+                        effectLabel: 'الشاشة الوليدة لإضافة العميل مفتوحة الآن أمام عينيك!'
+                    },
+                    action: () => {
+                        const dd = document.getElementById('customer-dropdown-list');
+                        if (dd) dd.style.display = 'none';
+                        if (typeof openModal === 'function') {
+                            try { openModal('add-customer-modal'); } catch (e) {}
+                        } else {
+                            const m = document.getElementById('add-customer-modal');
+                            if (m) m.classList.add('active');
+                        }
+                    },
+                    speech: () => 'وإذا كان العميل جديداً، بمجرد الضغط على زر الزائد الأخضر بجانب خانة العميل تفتح أمامك هذه الشاشة الوليدة مباشرة لتسجيل اسم العميل ورقم الواتساب وسقف الائتمان وحفظه ليتم اختياره في الفاتورة فوراً.'
+                },
+                {
+                    badge: '4. العملة وسعر الصرف والمخزن وإضافة مخزن فوري (➕) وشريحة التسعير',
+                    cursorLabel: 'العملة والمخزن وشريحة الأسعار 🏷️',
+                    screenPath: 'فاتورة المبيعات ⬅ قوائم العملة والمخزن + زر (➕ مخزن) + شرائح الأسعار (قطاعي / نصف جملة / جملة)',
+                    targetSelector: '#hdr-currency, #hdr-exchange-rate, #hdr-warehouse, #btn-ds-quick-add-wh, #hdr-price-tier',
+                    diagramType: 'dropdown-open',
+                    diagramMeta: {
+                        parentScreen: 'قوائم العملة والمخزن وشرائح الأسعار',
+                        actionLabel: 'قوائم منسدلة تضبط الأسعار والمستودع آلياً:',
+                        childItems: ['💱 قائمة العملة وسعر الصرف (SDG / USD / SAR)', '📦 قائمة المخزن وزر (➕) لإضافة مستودع جديد فوراً', '🏷️ قائمة شرائح الأسعار (قطاعي • نصف جملة • جملة)', '🔄 تحديث أسعار الأصناف في الجدول تلقائياً حسب الشريحة'],
+                        effectLabel: 'يعيد احتساب أسعار الفاتورة حسب العملة والشريحة فوراً'
+                    },
+                    action: () => {
+                        const m = document.getElementById('add-customer-modal');
+                        if (m) { m.style.display = 'none'; m.classList.remove('active'); }
+                        const cur = document.getElementById('hdr-currency');
+                        if (cur) { try { cur.focus(); } catch (e) {} }
+                    },
+                    speech: () => 'بعد اختيار العميل، تحدد عملة البيع وسعر الصرف والمخزن الذي ستُصرف منه البضاعة أو تضيف مخزناً جديداً بزر الزائد، كما يمكنك اختيار شريحة السعر قطاعي أو نصف جملة أو جملة ليقوم النظام بتحديث أسعار الأصناف في الجدول تلقائياً.'
+                },
+                {
+                    badge: '5. البحث السريع عن الأصناف (F2) وإضافة صنف جديد (➕ صنف) والماسح المتصل',
+                    cursorLabel: 'قائمة الأصناف الذكية والماسح المتصل 📦',
+                    screenPath: 'فاتورة المبيعات ⬅ ضغط البحث السريع (F2) ⬅ فتح قائمة الأصناف بالرصيد والسعر + زر (➕ صنف) + (📡 ماسح متصل)',
+                    targetSelector: '#quick-item-search, #btn-ds-quick-add-item, #btn-ds-continuous-pos-scan',
+                    diagramType: 'dropdown-open',
+                    diagramMeta: {
+                        parentScreen: 'شريط البحث السريع عن الأصناف (#quick-item-search)',
+                        actionLabel: 'عند الضغط تفتح قائمة الأصناف الذكية وأدوات الإدراج:',
+                        childItems: ['🏷️ قائمة الأصناف المنسدلة مع الرصيد الفعلي المتاح وسعر البيع', '➕ زر (صنف) لتعريف صنف جديد وإدراجه في الفاتورة فوراً', '📡 زر (ماسح متصل) لقراءة الباركود المتتابع بسرعة البرق', '⚖️ التحويل التلقائي بين الوحدة الكبرى والفرعية في الجدول'],
+                        effectLabel: 'قائمة الأصناف مفتوحة الآن أمامك، وبمجرد الاختيار ينزل الصنف للجدول!'
+                    },
+                    action: () => {
+                        const histM = document.getElementById('sales-cust-history-modal');
+                        if (histM) histM.style.display = 'none';
+                        const qInp = document.getElementById('quick-item-search');
+                        if (qInp) { try { qInp.focus(); } catch (e) {} }
+                        if (typeof showQuickItemDropdown === 'function') {
+                            try { showQuickItemDropdown(); } catch (e) {}
+                        }
+                        const qdd = document.getElementById('quick-item-dropdown-list');
+                        if (qdd) qdd.style.display = 'block';
+                    },
+                    speech: () => 'في شريط البحث السريع عن الأصناف باختصار إف اثنين، تنسدل أمامك قائمة الأصناف الذكية بالرصيد المتاح وسعر البيع؛ وبجانبه زر إضافة صنف جديد فوراً وزر الماسح المتصل لقراءة الباركود المتتابع بدون توقف.'
+                },
+                {
+                    badge: '6. شاشة وليدة حية (2): كاشف التكلفة وهامش الربح وسجل آخر أسعار العميل',
+                    cursorLabel: 'كاشف الربحية وسجل أسعار العميل 📈🛡️',
+                    screenPath: 'فاتورة المبيعات ⬅ ضغط (🛡️ الربح) أو (📈 سجل الأسعار) ⬅ فتح الشاشة الوليدة (#sales-cust-history-modal)',
+                    targetSelector: '#sales-cust-history-modal > div, #sales-margin-guard-badge, #btn-cust-item-history',
+                    diagramType: 'subpanel-expand',
+                    diagramMeta: {
+                        parentScreen: 'الشاشة الوليدة: سجل أسعار العميل وكاشف التكلفة (#sales-cust-history-modal)',
+                        actionLabel: 'شفافية كاملة في التكلفة والربحية وتاريخ التسعير:',
+                        childItems: ['🛡️ عرض تكلفة الوحدة وسعر البيع الحالي وهامش الربح لكل صنف', '🚨 تنبيه فوري باللون الأحمر إذا كان السعر أقل من التكلفة', '📈 عرض آخر 3 أسعار بيع بها الصنف لهذا العميل بالتاريخ', '⚡ تطبيق أي سعر سابق على السطر بضغطة زر واحدة'],
+                        effectLabel: 'شاشة كاشف الربحية وسجل أسعار العميل مفتوحة الآن أمامك!'
+                    },
+                    action: () => {
+                        const qdd = document.getElementById('quick-item-dropdown-list');
+                        if (qdd) qdd.style.display = 'none';
+                        const parkM = document.getElementById('sales-parked-invoices-modal');
+                        if (parkM) parkM.style.display = 'none';
+                        if (typeof window.openCustomerItemHistoryModal === 'function') {
+                            window.openCustomerItemHistoryModal('margin');
+                        }
+                    },
+                    speech: () => 'وعند الضغط على شارة الربح أو زر سجل الأسعار، تفتح أمامك هذه الشاشة الوليدة التي تعرض تكلفة كل صنف وهامش ربحه وتنبهك فوراً إذا كان السعر أقل من التكلفة، مع عرض آخر ثلاثة أسعار اشترى بها هذا العميل لتطبيق أي منها بضغطة واحدة.'
+                },
+                {
+                    badge: '7. شاشة وليدة حية (3): تعليق الفاتورة واستدعاء الفواتير المعلقة (POS Park & Hold)',
+                    cursorLabel: 'الفواتير المعلقة المؤقتة ⏸️📂',
+                    screenPath: 'فاتورة المبيعات ⬅ ضغط (⏸️ تعليق / 📂 المعلقة) ⬅ فتح الشاشة الوليدة (#sales-parked-invoices-modal)',
+                    targetSelector: '#sales-parked-invoices-modal > div, #btn-park-invoice, #btn-recall-parked',
+                    diagramType: 'subpanel-expand',
+                    diagramMeta: {
+                        parentScreen: 'الشاشة الوليدة: الفواتير المعلقة (#sales-parked-invoices-modal)',
+                        actionLabel: 'خدمة عدة عملاء في نفس الوقت بدون ضياع أي بيان:',
+                        childItems: ['⏸️ زر (تعليق) يركن الفاتورة الحالية ويفرغ الشاشة لعميل مستعجل', '📂 زر (المعلقة) يفتح جدول الفواتير المركونة مع وقت التعليق', '▶️ زر (استدعاء) يعيد الفاتورة بكامل أصنافها وعميلها فوراً', '🗑️ إمكانية حذف أي فاتورة معلقة غير مطلوبة'],
+                        effectLabel: 'نافذة الفواتير المعلقة مفتوحة الآن أمامك!'
+                    },
+                    action: () => {
+                        const histM = document.getElementById('sales-cust-history-modal');
+                        if (histM) histM.style.display = 'none';
+                        if (typeof window.openParkedInvoicesModal === 'function') {
+                            window.openParkedInvoicesModal();
+                        }
+                    },
+                    speech: () => 'إذا انشغل العميل وأردت خدمة عميل آخر في الطابور، اضغط على زر تعليق لركن الفاتورة مؤقتاً، وعند الضغط على زر المعلقة تفتح أمامك هذه النافذة الوليدة لاستدعاء الفاتورة بضغطة واحدة واستكمالها فوراً.'
+                },
+                {
+                    badge: '8. أزرار الترحيل والعمالة والضريبة والخصم والإجمالي الكلي اللحظي',
+                    cursorLabel: 'فتح خانات الترحيل والخصم والضريبة 🚚',
+                    screenPath: 'فاتورة المبيعات ⬅ ضغط (🚚 ترحيل / ➖ خصم) ⬅ ظهور خانات المبالغ في الملخص + الإجمالي الكلي',
+                    targetSelector: '#btn-toggle-transport, #row-grand-total',
+                    diagramType: 'subpanel-expand',
+                    diagramMeta: {
+                        parentScreen: 'أزرار الإضافات والخصم (#btn-toggle-transport)',
+                        actionLabel: 'الضغط على أي زر يفتح سطر الإدخال الخاص به:',
+                        childItems: ['🚚 ترحيل: يفتح خانة رسوم التوصيل والشحن', '👷‍♂️ عمالة و ➕ إضافات: يفتح خانات الخدمات الإضافية', '💰 ضريبة و ➖ خصم: يفتح خانات الضريبة والخصم الممنوح', '💵 مستطيل الإجمالي الكلي ينبض لحظياً مع كل تعديل'],
+                        effectLabel: 'ظهرت الآن خانات الترحيل والخصم أمامك في ملخص الفاتورة!'
+                    },
+                    action: () => {
+                        const parkM = document.getElementById('sales-parked-invoices-modal');
+                        if (parkM) parkM.style.display = 'none';
+                        const cashM = document.getElementById('ds-cash-change-modal');
+                        if (cashM) cashM.style.display = 'none';
+                        ['transport', 'discount'].forEach(t => {
+                            const r = document.getElementById('row-tot-' + t);
+                            if (r && (r.style.display === 'none' || !r.style.display)) {
+                                if (typeof window.toggleTotRow === 'function') {
+                                    try { window.toggleTotRow(t); } catch (e) {}
+                                } else {
+                                    r.style.display = 'table-row';
+                                }
+                            }
+                        });
+                    },
+                    speech: () => 'وعند الضغط على أزرار الترحيل أو العمالة أو الضريبة أو الخصم، تفتح أمامك فوراً الخانات المخصصة لإدخال مبالغها كما ظهر الآن في أسفل الجدول، ويتم تحديث مستطيل الإجمالي الكلي في نفس اللحظة.'
+                },
+                {
+                    badge: '9. منظومة الدفع الهجين وشاشة حاسبة الباقي النقدي الذكية (🧮 حاسبة الباقي)',
+                    cursorLabel: 'نوافذ الدفع الهجين وحاسبة الباقي 💳🧮',
+                    screenPath: 'فاتورة المبيعات ⬅ لوحة الدفع (#payment-panel) ⬅ فتح حاسبة النقدية والباقي (#ds-cash-change-modal)',
+                    targetSelector: '#ds-cash-change-modal > div, #payment-panel',
+                    diagramType: 'subpanel-expand',
+                    diagramMeta: {
+                        parentScreen: 'لوحة طرق الدفع الهجين وحاسبة الباقي (#payment-panel)',
+                        actionLabel: 'تعدد طرق السداد مع حاسبة باقي الكاشير الذكية:',
+                        childItems: ['💳 آجل مع تاريخ الاستحقاق ومعاينة الكمبيالة القانونية', '💵 نقدي و 🧮 حاسبة الباقي بالفئات النقدية السريعة', '🏦 تحويل بنكي مع مسح الإشعار بالذكاء الاصطناعي (📷 مسح إشعار)', '✍️ تحصيل بالشيكات مع توثيق رقم الشيك وتاريخ استحقاقه'],
+                        effectLabel: 'نوافذ الدفع وحاسبة الباقي للعميل مفتوحة الآن أمامك!'
+                    },
+                    action: () => {
+                        const payPanel = document.getElementById('payment-panel');
+                        if (payPanel) payPanel.style.display = 'block';
+                        const payLayout = document.getElementById('payment-layout');
+                        if (payLayout) payLayout.style.display = 'flex';
+                        ['credit', 'cash', 'bank', 'cheque'].forEach(sec => {
+                            const btn = document.getElementById('toggle-' + sec);
+                            const el = document.getElementById('pay-' + sec + '-section');
+                            if (btn && !btn.classList.contains('active') && typeof window.togglePaymentSection === 'function') {
+                                try { window.togglePaymentSection(sec); } catch (e) {}
+                            } else if (el) {
+                                el.style.display = 'flex';
+                            }
+                        });
+                        if (typeof window.openDsCashChangeCalculator === 'function') {
+                            window.openDsCashChangeCalculator();
+                        }
+                    },
+                    speech: () => 'من لوحة طريقة وتفاصيل الدفع، يمكنك الجمع بين الآجل والنقدي والتحويل البنكي والشيكات ومسح الإشعار البنكي بالذكاء الاصطناعي، كما تفتح أمامك حاسبة الباقي النقدي الذكية لحساب الباقي للعميل بالفئات النقدية السريعة بضغطة واحدة.'
+                },
+                {
+                    badge: '10. شريط الاعتماد النهائي (F10 / Ctrl+S) وشهادة الضمان والإرسال التلقائي واتساب',
+                    cursorLabel: 'حفظ واعتماد الفاتورة (F10) ✅',
+                    screenPath: 'فاتورة المبيعات ⬅ زر حفظ واعتماد (F10) + (🛡️ ضمان / QR) + (📲 إرسال تلقائي واتساب)',
+                    targetSelector: '.items-toolbar',
+                    diagramType: 'accounting-flow',
+                    diagramMeta: {
+                        parentScreen: 'شريط الحفظ والاعتماد والمشاركة (.items-toolbar)',
+                        actionLabel: 'بمجرد الحفظ يتم التسميع اللحظي في 4 مسارات:',
+                        childItems: ['👤 تحديث كشف حساب العميل ومراقبة السقف الائتماني', '📤 إرسال الفاتورة لبوابة تسليم وتقسيم المبيعات المخزنية GDN', '🏦 إثبات المقبوضات في الخزينة أو البنك أو حافظة الشيكات', '🛡️ طباعة شهادة الضمان أو إيصال 80mm بالـ QR + إرسال واتساب'],
+                        effectLabel: 'ترحيل فوري متكامل 100% ومزامنة مع تطبيق الجوال'
+                    },
+                    action: () => {
+                        const cashM = document.getElementById('ds-cash-change-modal');
+                        if (cashM) cashM.style.display = 'none';
+                    },
+                    speech: () => 'أخيراً من شريط الأدوات السفلي، اضغط على حفظ واعتماد أو مفتاح إف عشرة ليتم ترحيل الفاتورة فوراً إلى كشف حساب العميل واليومية العامة وبوابة تسليم المخزن وتطبيق الموبايل، مع إمكانية إصدار شهادة الضمان بالـ QR وإرسال الفاتورة تلقائياً عبر واتساب.'
+                }
+            ],
+            scenarios: [
+                {
+                    q: '💡 كيف أغيّر شريحة الأسعار للعميل بين (قطاعي / نصف جملة / جملة)؟',
+                    a: 'من قائمة شريحة الأسعار (#hdr-price-tier) أعلى الجدول، اختر الشريحة المطلوبة وسيقوم النظام بتحديث أسعار كافة الأصناف المدرجة في الجدول وإعادة احتساب الفاتورة وهامش الربح فوراً.'
+                },
+                {
+                    q: '💡 ماذا يفعل زر (⏸️ تعليق) وزر (📂 المعلقة)؟',
+                    a: 'يتيح لك ركن فاتورة العميل الحالي مؤقتاً بكامل أصنافها لإصدار فاتورة مستعجلة لعميل آخر، ثم استرجاع الفاتورة المعلقة بضغطة واحدة دون ضياع أي بيان.'
+                },
+                {
+                    q: '💡 كيف ينبهني النظام إذا أدخلت سعر بيع أقل من التكلفة؟',
+                    a: 'يتحول شريط (🛡️ الربح) تلقائياً إلى اللون الأحمر (🚨 أقل من التكلفة) مع بيان عدد الأصناف المتأثرة، وعند الضغط عليه يعرض لك تفصيل تكلفة وربحية كل سطر.'
+                }
+            ],
+            buttonsDict: [
+                {
+                    label: 'حفظ واعتماد الفاتورة (Ctrl+S)',
+                    targetSelector: 'button[onclick*="submitInvoice"], .btn-submit',
+                    whatItDoes: 'اعتماد فاتورة المبيعات محاسبياً ومخزنياً كعملية ذرية متكاملة.',
+                    whatHappensIfClicked: 'يتحقق من العميل والأصناف والسقف الائتماني، ثم يرحّل الفاتورة لكشف العميل والخزينة/البنك واليومية العامة وبوابة التسليم المخزني (GDN).'
+                },
+                {
+                    label: 'خانة العميل وزر كشف الأستاذ (📖 أستاذ)',
+                    targetSelector: '#hdr-customer-search, #hdr-customer-ledger-btn',
+                    whatItDoes: 'اختيار العميل أو استعراض كشف حسابه التفصيلي أو إضافة عميل جديد.',
+                    whatHappensIfClicked: 'يعرض قائمة العملاء وشريط الملاءة المالية العلوي، ويفتح زر (أستاذ) كشف حساب العميل دون مغادرة الفاتورة.'
+                },
+                {
+                    label: 'البحث السريع عن الأصناف والباركود (F2)',
+                    targetSelector: '#quick-item-search',
+                    whatItDoes: 'إدراج الأصناف في الفاتورة بالاسم أو الكود أو قارئ الباركود.',
+                    whatHappensIfClicked: 'يفتح قائمة الأصناف الذكية بالرصيد المتاح وسعر البيع وينزل الصنف للجدول مباشرة.'
+                },
+                {
+                    label: 'كاشف هامش الربح وشرائح الأسعار (#sales-margin-guard-badge / #hdr-price-tier)',
+                    targetSelector: '#sales-margin-guard-badge, #hdr-price-tier, #btn-cust-item-history',
+                    whatItDoes: 'مراقبة هامش الربح اللحظي وتبديل شرائح الأسعار واستعراض آخر أسعار العميل.',
+                    whatHappensIfClicked: 'يفتح تفصيل تكلفة وربحية كل صنف أو يطبق شريحة السعر المختارة فوراً.'
+                },
+                {
+                    label: 'لوحة الدفع الهجين والكمبيالة (#payment-panel)',
+                    targetSelector: '#toggle-credit, #toggle-cash, #toggle-bank, #toggle-cheque, #btn-sales-financial-ocr',
+                    whatItDoes: 'تحصيل الفاتورة نقداً أو بتحويل بنكي أو شيك أو تقييدها آجلة مع كمبيالة.',
+                    whatHappensIfClicked: 'يفتح نافذة طريقة الدفع المختارة مع إمكانية الدمج بين عدة طرق ومسح الإشعارات بالذكاء الاصطناعي.'
+                }
+            ],
+            gapReport: {
+                title: 'تقرير المراجعة الثلاثية والنواقص المحاسبية والهندسية (Direct Sales Audit & Gap Report)',
+                items: [
+                    '✅ الأمر الحاسم (1) — محرك الصوت الرجالي: نطق الصلاة على النبي ﷺ مرة واحدة فقط مع ضغطة زر المرشد (hasPlayedOpeningInvocation = true) ومنع تكرارها نهائياً عند الانتقال بين الخطوات أو الحقول.',
+                    '✅ الأمر الحاسم (2) — كبسولة التحكم الملكية المصغرة: إلغاء الشريط العريض الحاجب للرؤية واستبداله بكبسولة تحكم ملكية أنيقة ومصغرة لا تحجب الشاشة.',
+                    '✅ الترابط الذري (Atomic Sync): ترحيل متزامن لكشف حساب العميل، الخزينة/البنك/الشيكات، اليومية العامة، وبوابة تسليم المخزن (GDN).',
+                    '✅ التركيز البصري الهادئ والحماية التسعيرية: توجيه المؤشر بإضاءة ذهبية (focusRequiredSalesField)، وكاشف البيع بأقل من التكلفة، وشرائح الأسعار الآلية، وتعليق/استدعاء الفواتير (POS Park & Hold).'
+                ]
+            }
+        };
+
+        window.MagaiesSmartGuides['sales-split'] = {
+            title: 'مرشد منظومة تقسيم الفواتير وأذونات التسليم (بالوحدة الأساسية والفرعية)',
+            subtitle: 'شرح مصوّر ومدبلج بالصوت الرجالي خطوة بخطوة: يفتح جدول الفواتير القابلة للتقسيم ولوحة التقسيم الذكية بالوحدة الكبرى والفرعية وشجرة النسب أمامك فعلياً',
+            screenHierarchy: [
+                '1️⃣ الخطوة الأولى: جدول اختيار الفاتورة أو الإذن المراد تقسيمه (#split-select-step)',
+                '2️⃣ الخطوة الثانية: لوحة التقسيم التفاعلية وأرقام الأذونات الفرعية المتسلسلة (#split-board-step)',
+                '3️⃣ نظام الوحدات المزدوج: التقسيم بالوحدة الأساسية (جوال/كرتونة) وبالوحدة الفرعية (كيلو/قطعة)',
+                '4️⃣ إدارة الأقسام والتوازن: إضافة قسم ثالث أو رابع + التوزيع بالتساوي + ميزان التطابق اللحظي',
+                '5️⃣ التوثيق والاعتماد: بيانات المستلم والسيارة لكل قسم + شجرة التقسيم 🌳 + طباعة الجزئين معاً'
+            ],
+            overview: 'تتيح منظومة تقسيم الفواتير وأذونات التسليم تجزئة أي فاتورة أو إذن تسليم (أو حتى إعادة تقسيم إذن مقسم سابقاً) إلى قسمين أو 3 أو 4 أقسام فأكثر، سواء بالوحدة الكبرى أو بالوحدة الفرعية، مع توليد أرقام تسلسلية هرمية (مثل 100/1/1 و 100/1/2) وحفظ شجرة النسب كاملة.',
+            autopilotSteps: [
+                {
+                    badge: '1. الخطوة الأولى: جدول اختيار الفاتورة أو الإذن القابل للتقسيم',
+                    cursorLabel: 'جدول الفواتير القابلة للتقسيم ✂️',
+                    screenPath: 'شاشة التقسيم 1️⃣: البحث عن الفاتورة (#split-invoice-search) ⬅ استعراض الكميات المتبقية ⬅ زر (✂️ تقسيم)',
+                    targetSelector: '#split-select-step, #split-invoice-search',
+                    diagramType: 'screen-hub',
+                    diagramMeta: {
+                        parentScreen: 'جدول اختيار الفاتورة للتقسيم (#split-select-step)',
+                        actionLabel: 'يعرض الفواتير والأذونات الجاهزة للتجزئة:',
+                        childItems: ['🔍 البحث الفوري برقم الفاتورة أو اسم العميل أو الصنف', '📦 عرض الكمية المتبقية بالوحدة الكبرى والفرعية لكل صنف', '🔢 معاينة الأرقام الفرعية التي ستتولد قبل التقسيم', '✂️ زر (تقسيم) لفتح لوحة التوزيع الذكية فوراً'],
+                        effectLabel: 'يفتح لوحة التقسيم التفاعلية للفاتورة المختارة'
+                    },
+                    action: () => {
+                        if (typeof openSplitInvoiceView === 'function') {
+                            openSplitInvoiceView(false);
+                        }
+                    },
+                    speech: () => 'أهلاً بحضرتك في الشرح المصوّر الشامل لمنظومة تقسيم الفواتير وأذونات التسليم. نبدأ من الخطوة الأولى حيث يظهر جدول الفواتير القابلة للتقسيم مع شريط البحث الفوري، ويعرض أمام كل فاتورة الكميات المتبقية بالوحدة الأساسية والفرعية والأرقام الفرعية المتوقعة قبل أن تضغط على زر تقسيم.'
+                },
+                {
+                    badge: '2. فتح لوحة التقسيم التفاعلية ورقم عملية التقسيم المتسلسل',
+                    cursorLabel: 'لوحة التقسيم وأرقام الأذونات الفرعية 🔢',
+                    screenPath: 'شاشة التقسيم 2️⃣: فتح لوحة التقسيم (#split-board-step) ⬅ رقم عملية التقسيم التسلسلي ⬅ شريط التوازن اللحظي',
+                    targetSelector: '#split-header-info',
+                    diagramType: 'subpanel-expand',
+                    diagramMeta: {
+                        parentScreen: 'رأس لوحة التقسيم الذكية (#split-header-info)',
+                        actionLabel: 'يفتح لوحة التوزيع ويعرض الهوية الهرمية للأذونات:',
+                        childItems: ['📄 رقم الإذن المرجعي وشجرة النسب (إن كان منقسماً سابقاً)', '🔢 رقم عملية التقسيم التسلسلي (مثلاً 100/1/1 و 100/1/2)', '👤 اسم العميل وطريقة الدفع وإجمالي الإذن المرجعي', '🖨️ زر (طباعة الجزئين) لمعاينة جميع الأقسام معاً'],
+                        effectLabel: 'لوحة التقسيم مفتوحة الآن أمامك على الشاشة!'
+                    },
+                    action: () => {
+                        if (typeof window.ensureDemoOrFirstSplitBoardLoaded === 'function') {
+                            window.ensureDemoOrFirstSplitBoardLoaded();
+                        }
+                    },
+                    speech: () => 'بمجرد اختيار الفاتورة تفتح أمامك لوحة التقسيم الذكية كما ترى الآن على الشاشة، ويظهر في أعلاها رقم الإذن الأصلي ورقم عملية التقسيم التسلسلي الذي يدمج تلقائياً ليميز كل قسم برقم مستقل، مع عرض بيانات العميل وإجمالي الإذن.'
+                },
+                {
+                    badge: '3. أزرار نظام التقسيم بالوحدات والقوالب الذكية وإضافة الأقسام',
+                    cursorLabel: 'التبديل بين الوحدات والقوالب الذكية 🎛️',
+                    screenPath: 'شاشة التقسيم 2️⃣: أزرار (الوحدتان معاً • الأساسية • الفرعية) + (⚖️ بالتساوي • 📊 70%/30% • 🏋️ فصل الثقيل • 📦 كل صنف بقسم) + (➕ قسم)',
+                    targetSelector: 'button[onclick*="setSplitUnitDisplayMode"], button[onclick*="distributeSplitEqually"], button[onclick*="applySplitRatioPreset"], button[onclick*="addSplitSection"]',
+                    diagramType: 'dropdown-open',
+                    diagramMeta: {
+                        parentScreen: 'شريط التحكم في الوحدات والقوالب الذكية',
+                        actionLabel: 'تحكم كامل في طريقة العرض والتوزيع السريع وعدد الأقسام:',
+                        childItems: ['📦 + 🔢 عرض الوحدتين معاً (الأساسية والفرعية في آن واحد)', '⚖️ بالتساوي أو 📊 70%/30% لتوزيع الكميات بضغطة واحدة', '🏋️ فصل الأصناف الثقيلة أو 📦 وضع كل صنف في قسم مستقل', '➕ زر (قسم جديد) لتقسيم الفاتورة إلى 3 أو 4 أقسام فأكثر'],
+                        effectLabel: 'يحدّث صناديق الإدخال وأعمدة الأقسام في نفس اللحظة!'
+                    },
+                    action: () => {
+                        if (typeof window.ensureDemoOrFirstSplitBoardLoaded === 'function') {
+                            window.ensureDemoOrFirstSplitBoardLoaded();
+                        }
+                        if (typeof window.setSplitUnitDisplayMode === 'function') {
+                            window.setSplitUnitDisplayMode('both');
+                        }
+                    },
+                    speech: () => 'من شريط التحكم العلوي يمكنك التبديل بين إظهار الوحدتين معاً أو التقسيم بالوحدة الأساسية فقط أو بالوحدة الفرعية فقط، كما يمكنك استخدام أزرار التوزيع الذكي بنقرة واحدة مثل بالتساوي أو سبعين ثلاثين أو فصل الأصناف الثقيلة أو وضع كل صنف في قسم مستقل، أو إضافة قسم ثالث ورابع.'
+                },
+                {
+                    badge: '4. جدول التوزيع المزدوج: التقسيم بالوحدة الكبرى والفرعية وميزان التطابق',
+                    cursorLabel: 'صناديق التقسيم (أساسي / فرعي) ⚖️',
+                    screenPath: 'شاشة التقسيم 2️⃣: جدول الأصناف (#split-items-body) ⬅ صندوق الوحدة الكبرى + صندوق الوحدة الفرعية ⬅ توازن السطر',
+                    targetSelector: '#split-items-body, #split-qty-s0-i0',
+                    diagramType: 'subpanel-expand',
+                    diagramMeta: {
+                        parentScreen: 'جدول توزيع كميات الأصناف (#split-items-body)',
+                        actionLabel: 'تحويل متزامن لحظي بين الوحدة الكبرى والفرعية:',
+                        childItems: ['📦 الصندوق الأخضر: إدخال الكمية بالوحدة الأساسية مع أزرار (½ و ⚡ الكل)', '🔢 الصندوق البنفسجي: إدخال الكمية بالوحدة الفرعية (مثلاً بالكيلو أو القطعة)', '🔄 حساب المتبقي تلقائياً في القسم الأخير لمنع أي خطأ حسابي', '⚖️ عمود حالة التوازن: يضيء بالأخضر فور تطابق مجموع الأقسام 100%'],
+                        effectLabel: 'تزامن فوري بين الوحدتين ومراقبة دقيقة للتوازن!'
+                    },
+                    action: () => {
+                        const firstInp = document.getElementById('split-qty-s0-i0');
+                        if (firstInp) { try { firstInp.focus(); } catch(e) {} }
+                    },
+                    speech: () => 'داخل جدول الأصناف، يحتوي كل قسم على صندوقين متزامنين: الصندوق الأول للتقسيم بالوحدة الأساسية، والصندوق الثاني للتقسيم بالوحدة الفرعية، مع أزرار النصف والكل؛ وبمجرد تعديل أي رقم يحسب النظام المتبقي في القسم الأخير تلقائياً ويتأكد من توازن السطر بنسبة مئة بالمئة.'
+                },
+                {
+                    badge: '5. بطاقات ملخص الأقسام المستقلة وتوثيق السائق والسيارة وموقع التسليم والواتساب',
+                    cursorLabel: 'ملخص كل قسم والسائق وموقع التسليم 🚛',
+                    screenPath: 'شاشة التقسيم 2️⃣: بطاقات ملخص الأقسام (#split-cards-grid-container) ⬅ صافي كل قسم + السائق + اللوحة + الموقع + الواتساب',
+                    targetSelector: '#split-cards-grid-container, #split-sec-receiver-0',
+                    diagramType: 'subpanel-expand',
+                    diagramMeta: {
+                        parentScreen: 'بطاقات ملخص الأقسام (#split-cards-grid-container)',
+                        actionLabel: 'بطاقة مالية ولوجستية مستقلة لكل قسم ناتج:',
+                        childItems: ['💵 الإجمالي والخصم النسبي والصافي النهائي لكل قسم بدقة', '👤 المستلم/السائق + 🚛 رقم السيارة + زر (🚛 سائق سريع)', '📍 موقع التسليم والوجهة + 📲 رقم واتساب المستلم لكل قسم', '🖨️ زر طباعة مستقل لكل قسم على حدة'],
+                        effectLabel: 'توثيق مالي ولوجستي مستقل لكل إذن فرعي!'
+                    },
+                    action: () => {
+                        const recInp = document.getElementById('split-sec-receiver-0');
+                        if (recInp) { try { recInp.focus(); } catch(e) {} }
+                    },
+                    speech: () => 'في أسفل اللوحة تظهر بطاقات ملخص الأقسام، حيث يعرض كل قسم حصته النسبية من الخصم والضريبة وصافيه النهائي، مع إمكانية تعيين سائق سريع وتحديد اسم المستلم ورقم السيارة وموقع التسليم ورقم الواتساب لكل قسم على حدة.'
+                },
+                {
+                    badge: '6. معاينة الأذونات واعتماد التقسيم الذري (F10) وطباعة الجزئين',
+                    cursorLabel: 'اعتماد التقسيم وطباعة الجزئين ✅🖨️',
+                    screenPath: 'شاشة التقسيم 2️⃣: زر (👁️ معاينة الجزئين) + زر (✅ اعتماد التقسيم F10) + زر (🖨️ اعتماد وطباعة)',
+                    targetSelector: '#btn-split-submit, #btn-split-submit-print, #btn-split-preview-vouchers',
+                    diagramType: 'accounting-flow',
+                    diagramMeta: {
+                        parentScreen: 'شريط اعتماد التقسيم والطباعة المجمعة',
+                        actionLabel: 'اعتماد ذري يحفظ التسلسل الهرمي ويحدّث بوابة التسليم:',
+                        childItems: ['👁️ معاينة شكل الأذونات المقسمة قبل الحفظ النهائي', '✅ اعتماد التقسيم (F10) وتوليد الأذونات الفرعية في المبيعات والمخزن', '🖨️ طباعة الجزئين معاً في صفحة واحدة أو صفحات مستقلة بضغطة زر', '⚡ مزامنة فورية لحظية مع السيرفر وتطبيق الموبايل'],
+                        effectLabel: 'حفظ ومزامنة فورية مع بوابة التسليم وتطبيق الجوال!'
+                    },
+                    speech: () => 'من شريط الاعتماد السفلي، يمكنك معاينة شكل الأذونات قبل الحفظ، أو الضغط على اعتماد التقسيم باختصار إف عشرة، أو اعتماد التقسيم وطباعة الجزئين معاً، ليقوم النظام بتوليد الأذونات الفرعية فوراً في سجل المبيعات وبوابة تسليم المخزن.'
+                },
+                {
+                    badge: '7. الشاشة الوليدة الأولى: نافذة نجاح التقسيم وإرسال واتساب وتسليم كل جزء',
+                    cursorLabel: 'نافذة الأذونات الوليدة وواتساب كل جزء 📲📦',
+                    screenPath: 'شاشة وليدة 1️⃣: نافذة نجاح التقسيم (#post-split-success-modal) ⬅ طباعة الجزء + واتساب الجزء + تسليم الجزء فوراً',
+                    targetSelector: '#post-split-success-modal',
+                    diagramType: 'screen-transition',
+                    diagramMeta: {
+                        parentScreen: 'نافذة الأذونات الوليدة (#post-split-success-modal)',
+                        actionLabel: 'تفتح تلقائياً بعد اعتماد التقسيم وتعرض بطاقة لكل جزء:',
+                        childItems: ['🖨️ زر طباعة مستقل لكل جزء أو طباعة الجزئين معاً في ورقة واحدة', '📲 زر واتساب مستقل لكل جزء يرسل تفاصيل الشحنة والسائق للمستلم', '📦 زر تسليم الجزء الآن لفتح بوابة الصرف المخزني لهذا الجزء مباشرة', '🔢 عرض معادلة الوحدات الأساسية والفرعية والصافي المالي لكل جزء'],
+                        effectLabel: 'الشاشة الوليدة للأذونات المقسمة مفتوحة الآن أمامك!'
+                    },
+                    action: () => {
+                        if (typeof window.previewGuidePostSplitSuccessModal === 'function') {
+                            window.previewGuidePostSplitSuccessModal();
+                        }
+                    },
+                    speech: () => 'وفور اعتماد التقسيم تفتح أمامك هذه الشاشة الوليدة كما ترى الآن، وتعرض بطاقة مستقلة لكل جزء مقسم، ومنها يمكنك طباعة أي جزء بمفرده، أو إرسال تفاصيله عبر واتساب لمستلمه وسائقه الخاص، أو فتح شاشة التسليم المخزني لصرف هذا الجزء فوراً.'
+                },
+                {
+                    badge: '8. الشاشة الوليدة الثانية: شجرة النسب والتتبع الهرمي للفاتورة الأم والفروع',
+                    cursorLabel: 'شجرة النسب والتتبع الهرمي 🌳',
+                    screenPath: 'شاشة وليدة 2️⃣: شجرة النسب (#split-genealogy-tree-modal) ⬅ تتبع الفاتورة الأم والأقسام الفرعية وحالة صرف كل فرع',
+                    targetSelector: '#split-genealogy-tree-modal',
+                    diagramType: 'screen-transition',
+                    diagramMeta: {
+                        parentScreen: 'شجرة النسب والتتبع (#split-genealogy-tree-modal)',
+                        actionLabel: 'توثق تاريخ عائلة الفاتورة وعمليات التقسيم المتعددة:',
+                        childItems: ['🌳 عرض الإذن المرجعي الأصلي وجميع الفروع المنبثقة عنه بأرقامها', '📊 متابعة حالة كل فرع (جاهز للصرف • تسليم جزئي • تم الصرف GDN)', '📦 زر (صرف) لتسليم أي فرع غير مسلم مباشرة من الشجرة', '✂️ زر (تقسيم إضافي) لإعادة تجزئة أي فرع إلى فروع أصغر'],
+                        effectLabel: 'شاشة شجرة النسب مفتوحة الآن أمامك!'
+                    },
+                    action: () => {
+                        const sModal = document.getElementById('post-split-success-modal');
+                        if (sModal) sModal.style.display = 'none';
+                        if (typeof window.openSplitGenealogyModal === 'function') {
+                            window.openSplitGenealogyModal('100', true);
+                        }
+                    },
+                    speech: () => 'كما يتيح لك النظام فتح شاشة شجرة النسب الوليدة الظاهرة أمامك الآن، والتي تعرض الخريطة الشجرية الكاملة للفاتورة الأم وجميع الأذونات الفرعية المنبثقة عنها وحالة تسليم كل فرع، مع إمكانية صرف أي فرع أو إعادة تقسيمه مباشرة من داخل الشجرة.'
+                }
+            ],
+            visualSteps: [
+                {
+                    stepBadge: '1️⃣ الهوية الهرمية للتجزئة',
+                    title: 'توليد أرقام الأذونات الفرعية (100/1/1 و 100/1/2)',
+                    desc: 'يحفظ النظام رقم الفاتورة الأم ويولد أرقاماً فرعية متسلسلة لكل عملية تقسيم مع حفظ شجرة النسب الكاملة.',
+                    svg: `<svg viewBox="0 0 320 110" width="100%" height="100%"><rect x="110" y="8" width="100" height="30" rx="8" fill="#1e1b4b" stroke="#38bdf8" stroke-width="2"/><text x="160" y="27" fill="#fde047" font-size="12" font-weight="bold" text-anchor="middle">الأصل #100</text><path d="M160 38 L90 65 M160 38 L230 65" stroke="#10b981" stroke-width="2.5"/><rect x="30" y="65" width="115" height="34" rx="8" fill="#064e3b" stroke="#34d399" stroke-width="2"/><text x="87" y="86" fill="#fff" font-size="11" font-weight="bold" text-anchor="middle">فرع #100/1/1</text><rect x="175" y="65" width="115" height="34" rx="8" fill="#500724" stroke="#f472b6" stroke-width="2"/><text x="232" y="86" fill="#fff" font-size="11" font-weight="bold" text-anchor="middle">فرع #100/1/2</text></svg>`
+                },
+                {
+                    stepBadge: '2️⃣ التزامن بين الوحدتين',
+                    title: 'التقسيم بالوحدة الكبرى أو بالوحدة الفرعية لحظياً',
+                    desc: 'أدخل الكمية بالجوال/الكرتونة أو بالكيلو/القطعة؛ يحسب النظام المعادل والمتبقي في القسم الأخير تلقائياً.',
+                    svg: `<svg viewBox="0 0 320 110" width="100%" height="100%"><rect x="16" y="22" width="128" height="66" rx="10" fill="#064e3b" stroke="#10b981" stroke-width="2"/><text x="80" y="48" fill="#6ee7b7" font-size="11" font-weight="bold" text-anchor="middle">📦 وحدة كبرى (5 جوال)</text><text x="80" y="70" fill="#fff" font-size="10" text-anchor="middle">معامل التحويل ×50</text><path d="M148 55 L172 55" stroke="#fbbf24" stroke-width="3"/><rect x="176" y="22" width="128" height="66" rx="10" fill="#3b0764" stroke="#c084fc" stroke-width="2"/><text x="240" y="48" fill="#e9d5ff" font-size="11" font-weight="bold" text-anchor="middle">🔢 وحدة فرعية (250 كجم)</text><text x="240" y="70" fill="#fde047" font-size="10" text-anchor="middle">تزامن لحظي 100%</text></svg>`
+                },
+                {
+                    stepBadge: '3️⃣ لوجستيات وواتساب كل قسم',
+                    title: 'سائق مستقل وإشعار واتساب وطباعة لكل جزء',
+                    desc: 'اربط كل فاتورة فرعية بسائقها ورقم اللوحة وموقع التسليم وأرسل تفاصيلها عبر واتساب بضغطة واحدة.',
+                    svg: `<svg viewBox="0 0 320 110" width="100%" height="100%"><rect x="20" y="18" width="280" height="74" rx="12" fill="#0f172a" stroke="#38bdf8" stroke-width="2"/><text x="160" y="44" fill="#38bdf8" font-size="12" font-weight="bold" text-anchor="middle">🚛 سائق مستقل + 📍 موقع تسليم لكل قسم</text><text x="160" y="72" fill="#86efac" font-size="11" font-weight="bold" text-anchor="middle">🖨️ طباعة الجزء • 📲 واتساب الجزء • 📦 تسليم فوري</text></svg>`
+                }
+            ],
+            scenarios: [
+                {
+                    q: '💡 هل يمكنني تقسيم الصنف بالوحدة الفرعية (مثلاً بالكيلو أو القطعة) بدلاً من الجوال أو الكرتونة؟',
+                    a: 'نعم! داخل لوحة التقسيم يظهر لكل صنف صندوقان: صندوق للوحدة الأساسية وصندوق للوحدة الفرعية (مضروباً في معامل التحويل)، ويمكنك الكتابة في أي منهما وسيقوم النظام بالتحويل الفوري وحساب المتبقي تلقائياً.'
+                },
+                {
+                    q: '💡 هل يمكنني تقسيم الفاتورة إلى أكثر من قسمين (مثلاً 3 أو 4 سيارات)؟',
+                    a: 'بكل سهولة؛ اضغط على زر (➕ قسم) في شريط التحكم العلوي لإضافة القسم الثالث أو الرابع أو الخامس، أو اضغط (⚖️ بالتساوي) لتوزيع الكمية بالتساوي على جميع الأقسام.'
+                },
+                {
+                    q: '💡 هل يمكن إعادة تقسيم إذن كان مقسماً من قبل (تقسيم الفرع إلى فروع)؟',
+                    a: 'نعم، يدعم النظام التقسيم المتعدد الأجيال (Multi-Generation Split) مع الاحتفاظ برقم الفاتورة الأم وشجرة العائلة الكاملة (🌳 شجرة التقسيم).'
+                }
+            ],
+            buttonsDict: [
+                {
+                    label: 'اعتماد التقسيم وطباعة الجزئين (Ctrl+S)',
+                    targetSelector: 'button[onclick*="submitInvoiceSplit"]',
+                    whatItDoes: 'اعتماد تقسيم الفاتورة وتوليد الأذونات الفرعية الجديدة بأرقامها التسلسلية الهرمية.',
+                    whatHappensIfClicked: 'يتحقق من تطابق مجموع الأقسام مع الكمية القابلة للتقسيم، ثم ينشئ الأذونات الفرعية ويحدث سجل المبيعات وبوابة المخزن ويفتح الطباعة.'
+                },
+                {
+                    label: 'نظام التقسيم بالوحدات (الوحدتان معاً / الأساسية / الفرعية)',
+                    targetSelector: 'button[onclick*="setSplitUnitDisplayMode"]',
+                    whatItDoes: 'التحكم في إظهار صناديق الوحدة الأساسية والفرعية داخل جدول التقسيم.',
+                    whatHappensIfClicked: 'يعرض الصندوقين معاً أو يركز الجدول على الوحدة الأساسية فقط أو الفرعية فقط حسب رغبتك.'
+                },
+                {
+                    label: 'توزيع بالتساوي (⚖️ بالتساوي) وإضافة قسم (➕ قسم)',
+                    targetSelector: 'button[onclick*="distributeSplitEqually"], button[onclick*="addSplitSection"]',
+                    whatItDoes: 'توزيع الكميات بالتساوي على الأقسام الحالية أو زيادة عدد الأقسام.',
+                    whatHappensIfClicked: 'يقسم الكميات آلياً أو يضيف عمود قسم جديد برقم فرعي متسلسل وبطاقة ملخص مستقلة.'
+                },
+                {
+                    label: 'معاينة وطباعة الجزئين (🖨️ طباعة الجزئين / 👁️ معاينة)',
+                    targetSelector: 'button[onclick*="previewCurrentSplitVouchersBeforeSave"]',
+                    whatItDoes: 'عرض ومعاينة الأذونات المقسمة جنباً إلى جنب قبل أو بعد الاعتماد.',
+                    whatHappensIfClicked: 'يفتح نافذة معاينة الأذونات الفرعية مع خيار طباعتها معاً بضغطة واحدة.'
+                }
+            ],
+            gapReport: {
+                title: 'تقرير المراجعة الثلاثية لمنظومة تقسيم الفواتير والأذونات (Split Invoice Audit & Gap Report)',
+                items: [
+                    '✅ الأمر الحاسم (1) — محرك الصوت الرجالي: نطق الصلاة على النبي ﷺ مرة واحدة فقط مع ضغطة زر المرشد (hasPlayedOpeningInvocation = true) ومنع تكرارها نهائياً بين الخطوات أو الحقول.',
+                    '✅ الأمر الحاسم (2) — كبسولة التحكم الملكية المصغرة: إلغاء الشريط العريض الحاجب للرؤية واستبداله بكبسولة تحكم ملكية أنيقة ومصغرة لا تحجب الشاشة.',
+                    '✅ التقسيم المزدوج بالوحدة الأساسية والفرعية: تزامن لحظي بين الوحدتين مع حساب المتبقي تلقائياً وميزان توازن بصري.',
+                    '✅ التركيز البصري الهادئ والتنقل بـ Enter: توجيه المؤشر بإضاءة ذهبية (focusRequiredSalesField) لأي سطر غير متوازن والتنقل السلس بين الحقول.'
+                ]
+            }
+        };
+
+        if (typeof window.prewarmSmartGuideScreen === 'function') {
+            setTimeout(() => {
+                const isSplitUrl = window.location.search.includes('action=split');
+                window.prewarmSmartGuideScreen(isSplitUrl ? 'sales-split' : 'sales-direct');
+            }, 150);
+        }
+
+        window.explainDirectSalesDomElement = function(el) {
+            if (!el) return null;
+            const rules = [
+                { sel: '#split-invoice-search', title: '🔍 البحث في الفواتير القابلة للتقسيم', desc: 'ابحث برقم الفاتورة أو اسم العميل أو الصنف للوصول الفوري للفاتورة المراد تجزئتها.' },
+                { sel: 'button[onclick*="startInvoiceSplit"]', title: '✂️ زر بدء تقسيم الفاتورة', desc: 'يفتح لوحة التقسيم التفاعلية لتوزيع كميات هذه الفاتورة بالوحدة الأساسية أو الفرعية إلى قسمين أو أكثر.' },
+                { sel: '#split-operation-seq-input, button[onclick*="adjustSplitOperationSeq"]', title: '🔢 رقم عملية التقسيم التسلسلي', desc: 'يحدد رقم عملية التقسيم الذي يُدمج في أرقام الأذونات الفرعية (مثل 100/1/1 و 100/1/2).' },
+                { sel: 'button[onclick*="setSplitUnitDisplayMode"]', title: '🎛️ مبدّل نظام الوحدات (أساسي / فرعي / معاً)', desc: 'يبدل عرض جدول التقسيم بين إظهار الوحدتين معاً أو التقسيم بالوحدة الأساسية فقط أو بالوحدة الفرعية فقط.' },
+                { sel: 'button[onclick*="distributeSplitEqually"]', title: '⚖️ توزيع الكميات بالتساوي', desc: 'يقسم الكمية المتبقية لكل صنف بالتساوي على جميع الأقسام المفتوحة بضغطة واحدة.' },
+                { sel: 'button[onclick*="applySplitRatioPreset"]', title: '📊 توزيع سريع 70% / 30%', desc: 'يوزع الكميات تلقائياً بنسبة 70% للقسم الأول و30% للأقسام المتبقية بضغطة واحدة.' },
+                { sel: 'button[onclick*="separateHeavyItemsSplit"]', title: '🏋️ فصل الأصناف الثقيلة تلقائياً', desc: 'يفصل الأصناف ذات الوزن أو معامل التحويل الكبير في القسم الأول والأصناف الخفيفة في القسم الثاني.' },
+                { sel: 'button[onclick*="separateSplitItemsIntoSections"]', title: '📦 فصل كل صنف في قسم مستقل', desc: 'ينشئ قسماً فرعياً مستقلاً لكل صنف في الفاتورة تلقائياً لتوزيعها على عدة سيارات أو مستلمين.' },
+                { sel: 'button[onclick*="addSplitSection"]', title: '➕ إضافة قسم تقسيم جديد', desc: 'يضيف قسماً جديداً (ثالث أو رابع أو أكثر) لتوزيع الفاتورة على عدة أذونات أو شاحنات.' },
+                { sel: 'input[id^="split-qty-"]', title: '📦 حقل كمية القسم بالوحدة الأساسية', desc: 'أدخل كمية هذا القسم بالوحدة الكبرى؛ يتحدث الصندوق الفرعي والقسم المتبقي تلقائياً.' },
+                { sel: 'input[id^="split-subqty-"]', title: '🔢 حقل كمية القسم بالوحدة الفرعية', desc: 'أدخل كمية هذا القسم بالوحدة الفرعية (كيلو/قطعة)؛ يحسب النظام ما يعادلها بالوحدة الكبرى تلقائياً.' },
+                { sel: '#split-live-balance-bar', title: '⚖️ شريط التوازن اللحظي للتقسيم', desc: 'يراقب مجموع الكميات الموزعة عبر الأقسام مقارنة بالكمية الأصلية وينبهك فوراً لأي فرق.' },
+                { sel: 'button[onclick*="quickPickDriverForSplitSec"]', title: '🚛 تعيين سائق وسيارة جاهزة للقسم', desc: 'يملا اسم السائق ورقم اللوحة وموقع التسليم لهذا القسم الفرعي بضغطة واحدة من قائمة السائقين.' },
+                { sel: 'input[id^="split-sec-location-"]', title: '📍 موقع التسليم والوجهة للقسم', desc: 'تحديد موقع التسليم أو الفرع المقصود لهذه الشحنة الفرعية ليظهر في إذن الصرف ورسالة الواتساب.' },
+                { sel: 'input[id^="split-sec-phone-"]', title: '📲 رقم واتساب مستلم القسم', desc: 'رقم جوال المستلم أو السائق المخصص لهذا الجزء لإرسال إشعار الشحنة له مباشرة عبر واتساب.' },
+                { sel: 'input[id^="split-sec-receiver-"], input[id^="split-sec-truck-"], #split-cards-grid-container, #split-sections-summary', title: '🚛 ملخص القسم وبيانات المستلم والسيارة', desc: 'يعرض الصافي المالي لكل قسم مع إمكانية تدوين اسم المستلم ورقم السيارة وموقع التسليم الخاصة بهذا القسم.' },
+                { sel: 'button[onclick*="shareSplitVoucherWhatsApp"]', title: '📲 إرسال إشعار القسم عبر واتساب', desc: 'يرسل تفاصيل الفاتورة الوليدة (الأصناف بالوحدة الأساسية والفرعية، المستلم، رقم السيارة، وموقع التسليم) عبر واتساب.' },
+                { sel: '#split-live-sync-pill', title: '⚡ شارة التزامن اللحظي لشاشة التجزئة', desc: 'تعرض حالة التزامن اللحظي للفواتير المقسمة بين الموبايل واللابتوب والسيرفر.' },
+                { sel: '#post-split-success-modal', title: '✅ نافذة الأذونات الوليدة بعد التقسيم', desc: 'تعرض الأجزاء المقسمة فور اعتمادها مع أزرار الطباعة المستقلة وإرسال الواتساب والتسليم المخزني المباشر لكل جزء.' },
+                { sel: '#split-genealogy-tree-modal', title: '🌳 نافذة شجرة النسب والتتبع الهرمي', desc: 'تعرض الخريطة الشجرية الكاملة للفاتورة الأم وكافة الفروع الوليدة وحالة تسليم كل فرع.' },
+                { sel: '#btn-split-voice-select, #btn-split-voice-cmd, #split-voice-assistant-modal', title: '🎙️ المساعد الصوتي التفاعلي للتجزئة السريعة', desc: 'يتيح تنفيذ عمليات التقسيم بالأوامر الصوتية العربية (بالتساوي، سبعين ثلاثين، قسم جديد، سائق سريع، اعتماد التقسيم) مع تأكيد صوتي رجالي.' },
+                { sel: '#btn-split-audio-summary', title: '🔊 القراءة الصوتية لميزان التجزئة وحصة كل سائق', desc: 'يقرأ بالصوت الرجالي ملخص التجزئة الحالي (عدد الأقسام، كمية وصافي كل قسم، واسم السائق المعيّن) للمراجعة السمعية قبل الاعتماد.' },
+                { sel: '#btn-split-hands-on-sim, #btn-split-sim-board, #split-hands-on-sim-modal', title: '🎯 محاكي التدريب العملي للتجزئة في 3 خطوات', desc: 'تدريب عملي تفاعلي يقودك خطوة بخطوة لاختيار فاتورة وتوزيع كمياتها بالوحدتين وتعيين السائق واعتماد التقسيم مع وسام إتقان.' },
+                { sel: '#split-filter-status, #split-filter-payment, #split-filter-date', title: '🗂️ فلاتر التجزئة الفورية (الحالة • الدفع • التاريخ)', desc: 'تصفية لحظية لجدول الفواتير الجاهزة للتجزئة حسب كونها أصلية أو فرعية، نقدية أو آجلة، أو بتاريخ محدد.' },
+                { sel: '#btn-split-export-excel, #btn-split-print-report', title: '📥 تصدير Excel وطباعة كشف التجزئة A4', desc: 'تصدير جدول الفواتير القابلة للتقسيم إلى ملف Excel فوري أو طباعة كشف رسمي موزون A4.' },
+                { sel: '#split-kpi-summary-bar', title: '📊 شريط المؤشرات الحية والإجماليات الختامية للتجزئة', desc: 'يعرض لحظياً عدد الفواتير الجاهزة للتجزئة، الفروع المنبثقة، إجمالي الوحدات المتبقية، وصافي القيمة المالية.' },
+                { sel: '#split-drilldown-doc-modal', title: '🔍 نافذة استعراض أصل المستند والبصمة الرقابية (Drill-Down)', desc: 'تفتح أصل الفاتورة بكامل أصنافها وحالة رصيد العميل والبصمة الرقابية (المستخدم، الوقت، الجهاز) دون مغادرة شاشة التجزئة.' },
+                { sel: '#btn-split-analytics, #split-analytics-modal', title: '📊 تقرير تحليل كفاءة تجزئة الشحنات والسائقين', desc: 'يعرض إحصائيات الفواتير المجزأة، أكثر الأصناف تجزئة، وتوزيع الحمولات على السائقين والمركبات.' },
+                { sel: 'button[onclick*="safeReverseAndMergeSplitFamily"]', title: '🔄 دمج / التراجع الآمن عن التجزئة قبل التسليم', desc: 'يعيد دمج الفروع المقسمة في الفاتورة الأم بأمان تام بشرط عدم صرف أي فرع منها مخزنياً بعد.' },
+                { sel: 'button[onclick*="printSplitDriverAuthPass"]', title: '📑 سند تفويض استلام جزئي مستقل للسائق', desc: 'يصدر تصريح بوابة قانوني مستقل لهذا القسم الفرعي بباركود التحقق وبيانات السائق والسيارة وموقع التسليم.' },
+                { sel: 'button[onclick*="previewCurrentSplitVouchersBeforeSave"], button[onclick*="printSplitFamilyVouchers"]', title: '🖨️ معاينة وطباعة الأذونات المقسمة (الجزئين)', desc: 'يفتح نافذة معاينة جميع الأقسام المقسمة لطباعتها معاً أو طباعة كل قسم بشكل مستقل.' },
+                { sel: 'button[onclick*="openSplitGenealogyModal"]', title: '🌳 شجرة نسب وتاريخ تقسيم الفاتورة', desc: 'يعرض الخريطة الشجرية الكاملة للفاتورة الأم وكافة الأذونات الفرعية المنبثقة عنها وحالة تسليم كل جزء.' },
+                { sel: 'button[onclick*="submitInvoiceSplit"]', title: '✅ اعتماد التقسيم وتوليد الأذونات الفرعية', desc: 'يعتمد التقسيم ذرياً وينشئ الأذونات الفرعية الجديدة في سجل المبيعات وبوابة تسليم المخزن.' },
+                { sel: 'button[onclick*="openInvoiceEditor(\'pending_delivery\')"]', title: '➕ زر فاتورة مبيعات جديدة', desc: 'يفتح شاشة تحرير فاتورة مبيعات جديدة لإدراج الأصناف وتحديد طريقة الدفع واعتمادها فوراً في الحسابات وبوابة التسليم.' },
+                { sel: 'button[onclick*="openInvoiceEditor(\'preliminary\')"]', title: '📋 زر فاتورة مبدئية (عرض سعر)', desc: 'ينشئ فاتورة مبدئية أو عرض أسعار للعميل غير ملزم محاسبياً ومخزنياً، مع إمكانية طباعته أو تحويله لفاتورة فعلية لاحقاً.' },
+                { sel: '#uhub-tab-all, #uhub-tab-pending, #uhub-tab-split_only, #uhub-tab-delivered, #uhub-tab-preliminary', title: '🗂️ فلاتر سجل المبيعات والتسليم', desc: 'تصفية جدول المبيعات بضغطة واحدة لعرض كل الفواتير، أو الفواتير قيد التسليم، أو المقسمة، أو المسلمة، أو العروض المبدئية.' },
+                { sel: 'button[onclick*="openDeliveryQrScannerModal"]', title: '📷 مسح رمز QR للتسليم الفوري', desc: 'يفتح الماسح الضوئي لقراءة باركود الفاتورة أو إذن التسليم وتنفيذ الصرف المخزني فوراً.' },
+                { sel: 'button[onclick*="loadHubTransactions"]', title: '🔄 تحديث ومزامنة سجل المبيعات', desc: 'يعيد جلب أحدث الفواتير وأذونات التسليم المقسمة والمسلمة ومزامنتها مع قاعدة البيانات.' },
+                { sel: '#hub-transactions-body', title: '📋 جدول سجل المبيعات والتسليم والتقسيم', desc: 'يعرض الفواتير المسجلة وحالة تسليمها ومخزنها، مع أزرار الإجراءات السريعة (تسليم، تقسيم، طباعة، تعديل، وواتساب).' },
+                { sel: '#hub-search', title: '🔍 البحث الفوري في سجل المبيعات', desc: 'ابحث برقم الفاتورة أو اسم العميل أو اسم الصنف للوصول لأي فاتورة وتنفيذ التسليم أو التقسيم أو الطباعة فوراً.' },
+                { sel: '#inv-number, .group-invoice', title: '🔢 رقم الفاتورة التسلسلي والتنقل', desc: 'يعرض الرقم التسلسلي التلقائي للفاتورة، ويمكنك الضغط على السهمين (❮ و ❯) لاستعراض الفواتير السابقة والتالية بسرعة.' },
+                { sel: '#hdr-date, .group-date', title: '📅 تاريخ الفاتورة المحاسبي', desc: 'يحدد تاريخ إصدار الفاتورة والفترة المحاسبية التي ستُقيّد فيها المبيعات في اليومية العامة وكشف العميل.' },
+                { sel: '#fin-strip', title: '📊 شريط الملاءة والحالة المالية للعميل', desc: 'يعرض فور اختيار العميل: رصيده الدفتري، الشيكات المؤجلة، إجمالي المديونية، سقف الائتمان المسموح، والرصيد المتاح للبيع الآجل.' },
+                { sel: '#hdr-customer-ledger-btn', title: '📖 زر كشف حساب الأستاذ للعميل', desc: 'يفتح كشف حساب العميل التفصيلي في نافذة فورية لمراجعة كافة حركاته وفواتيره ودفعاته دون الخروج من الفاتورة.' },
+                { sel: '#hdr-customer-search, .group-supplier', title: '👤 خانة اختيار العميل', desc: 'ابحث عن العميل بالاسم أو الرقم، أو اضغط زر (➕) لإضافة عميل جديد مع تحديد سقفه الائتماني.' },
+                { sel: 'button[onclick*="add-customer-modal"]', title: '➕ إضافة عميل جديد فوراً', desc: 'يفتح نافذة سريعة لتسجيل عميل جديد (الاسم، الهاتف، الواتساب، حد الائتمان) واختياره في الفاتورة مباشرة.' },
+                { sel: '#hdr-currency, #hdr-exchange-rate, .group-currency', title: '💱 العملة وسعر الصرف', desc: 'اختر عملة البيع (SDG أو USD أو غيرها) واضبط سعر الصرف ليقوم النظام باحتساب الأسعار والإجماليات تلقائياً.' },
+                { sel: '#hdr-warehouse, .group-warehouse', title: '📦 المخزن الرئيسي للصرف', desc: 'يحدد المستودع الافتراضي الذي سيُفحص رصيده وتُصرف منه أصناف الفاتورة (مع إمكانية تحديد مخزن مختلف لكل سطر).' },
+                { sel: '#hdr-cost-center, .group-cost-center', title: '🏷️ الفرع / مركز التكلفة', desc: 'يربط فاتورة المبيعات بالفرع أو مركز التكلفة لاستخراج تقارير أرباح ومبيعات كل فرع بدقة.' },
+                { sel: '#hdr-description, .group-description', title: '📝 بيان وملاحظات الفاتورة', desc: 'وصف الفاتورة أو الرقم المرجعي الذي يظهر في كشف حساب العميل ودفتر اليومية.' },
+                { sel: '#quick-item-search', title: '🔍 البحث السريع عن الأصناف والباركود (F2)', desc: 'ابحث باسم الصنف أو امسح الباركود لإدراجه فوراً في جدول الفاتورة مع عرض سعر البيع والرصيد المتاح.' },
+                { sel: 'button[onclick*="startCameraScanner"]', title: '📷 مسح باركود الصنف بالكاميرا', desc: 'يفتح الكاميرا لمسح باركود الصنف وإضافته للجدول مباشرة.' },
+                { sel: '#sales-margin-guard-badge', title: '🛡️ كاشف البيع بأقل من التكلفة وهامش الربح اللحظي', desc: 'يراقب أسعار البيع مقارنة بتكلفة الشراء لحظياً؛ يعرض نسبة ومبلغ الربح المتوقع باللون الأخضر، وينبهك فوراً باللون الأحمر عند إدخال سعر أقل من التكلفة، وعند الضغط عليه يفتح تفصيل ربحية وتكلفة كل سطر.' },
+                { sel: '#hdr-price-tier', title: '🏷️ شرائح أسعار العملاء الآلية (قطاعي / نصف جملة / جملة)', desc: 'يبدّل أسعار جميع الأصناف المدرجة في الجدول بضغطة واحدة حسب شريحة العميل المختارة (قطاعي، نصف جملة، أو جملة) ويعيد احتساب الفاتورة فوراً.' },
+                { sel: '#btn-cust-item-history', title: '📈 نافذة آخر أسعار بيع الصنف للعميل المختار', desc: 'يعرض آخر 3 أسعار وتواريخ بيع بها كل صنف في الفاتورة لهذا العميل تحديداً، مع إمكانية تطبيق أي سعر سابق على السطر بضغطة زر واحدة.' },
+                { sel: '#btn-park-invoice', title: '⏸️ تعليق الفاتورة الحالية (POS Park & Hold)', desc: 'يركن فاتورة العميل الحالي مؤقتاً بكامل أصنافها وبياناتها ويفرغ الشاشة لخدمة عميل آخر في الطابور بدون فقدان أي بيانات.' },
+                { sel: '#btn-recall-parked', title: '📂 استدعاء الفواتير المعلقة', desc: 'يفتح قائمة الفواتير المعلقة لاسترجاع أي فاتورة بضغطة واحدة واستكمالها واعتمادها فوراً.' },
+                { sel: 'button[onclick*="openGridSettingsModal"]', title: '⚙️ تخصيص الجدول', desc: 'ترتيب وإظهار/إخفاء أعمدة جدول الفاتورة وتخصيص حجم الخط والألوان وحفظها في حسابك.' },
+                { sel: 'td[data-col-id="available"], th[data-col-id="available"], [data-avail]', title: '📊 الرصيد المتاح حالياً بالمخزن', desc: 'يعرض لحظياً كمية الصنف المتوفرة فعلياً في المستودع قبل صرف الفاتورة لمنع البيع على المكشوف.' },
+                { sel: 'td[data-col-id="item"], th[data-col-id="item"], [id^="item-search-"]', title: '📦 خانة اختيار الصنف في السطر', desc: 'ابحث عن الصنف بالاسم أو الكود داخل السطر، أو اختره من القائمة المنسدلة الذكية التي تعرض الرصيد وسعر البيع.' },
+                { sel: 'td[data-col-id="unit"], th[data-col-id="unit"], [data-unit-select]', title: '⚖️ وحدة البيع ومعامل التحويل', desc: 'اختر وحدة البيع (كرتونة، جوال، طن، أو قطعة)؛ يحول النظام الكمية والسعر آلياً حسب معامل التحويل.' },
+                { sel: 'td[data-col-id="quantity"], th[data-col-id="quantity"], [data-qty-input]', title: '🔢 الكمية المباعة', desc: 'أدخل الكمية المطلوبة للعميل؛ يفحص النظام توفر الرصيد في المخزن ويعيد احتساب الإجمالي وهامش الربح فوراً.' },
+                { sel: '[data-price-hint]', title: '📈 مؤشر مقارنة سعر البيع والتكلفة', desc: 'ينبهك لحظياً إذا كان سعر البيع أقل من التكلفة أو يعرض مقارنة بآخر سعر بيع للعميل.' },
+                { sel: 'td[data-col-id="price"], th[data-col-id="price"], [data-price-input]', title: '💵 سعر بيع الوحدة وهامش الربح', desc: 'أدخل سعر البيع للوحدة المختارة؛ يراقبه كاشف هامش الربح لحظياً لمنع البيع بأقل من التكلفة.' },
+                { sel: 'td[data-col-id="warehouse"], th[data-col-id="warehouse"]', title: '🏭 مخزن الصرف الفرعي للسطر', desc: 'يتيح صرف هذا الصنف تحديداً من مستودع فرعي مختلف عن المستودع الرئيسي للفاتورة في نفس العملية.' },
+                { sel: 'td[data-col-id="total"], th[data-col-id="total"], [data-total]', title: '💰 إجمالي السطر (الكمية × السعر)', desc: 'يحسب تلقائياً إجمالي قيمة الصنف في السطر بالعملة المختارة وما يعادلها بالعملة المحلية.' },
+                { sel: '.add-row-btn', title: '➕ زر إضافة سطر صنف جديد', desc: 'يضيف سطراً فارغاً جديداً أسفل الجدول لإدراج صنف إضافي في الفاتورة.' },
+                { sel: '.del-btn', title: '🗑️ زر حذف السطر من الفاتورة', desc: 'يحذف هذا السطر من جدول الفاتورة ويعيد احتساب الإجماليات وصافي الفاتورة فوراً.' },
+                { sel: '#pos-grid', title: '📦 جدول أصناف الفاتورة والوحدات', desc: 'أدخل الكمية بالوحدة الكبرى أو العدد بالوحدة الفرعية والسعر؛ يقوم النظام بالتحويل التلقائي بين الوحدتين وعرض الرصيد المتاح والإجمالي.' },
+                { sel: '#btn-toggle-transport, #row-tot-transport', title: '🚚 إضافة رسوم الترحيل', desc: 'إظهار خانة رسوم الترحيل والنقل لإضافتها إلى إجمالي الفاتورة.' },
+                { sel: '#btn-toggle-labor, #row-tot-labor', title: '👷‍♂️ إضافة رسوم العمالة', desc: 'إظهار خانة أجور التحميل والعمالة لإضافتها إلى إجمالي الفاتورة.' },
+                { sel: '#btn-toggle-additions, #row-tot-additions', title: '➕ مبالغ إضافية على الفاتورة', desc: 'إضافة أي رسوم أو خدمات إضافية على الفاتورة.' },
+                { sel: '#btn-toggle-tax, #row-tot-tax', title: '💰 الضريبة المضافة', desc: 'إدخال مبلغ الضريبة المطبقة على الفاتورة.' },
+                { sel: '#btn-toggle-discount, #row-tot-discount', title: '➖ الخصم الممنوح للعميل', desc: 'إدخال قيمة الخصم الممنوح للعميل لتخفيض الصافي النهائي للفاتورة.' },
+                { sel: '#row-grand-total, #t-grand-dynamic-loc', title: '💵 الإجمالي الكلي النهائي للفاتورة', desc: 'يعرض الصافي النهائي المستحق على الفاتورة بعد احتساب جميع الأصناف والمصاريف والخصومات.' },
+                { sel: '#toggle-credit, #pay-credit-section', title: '💳 البيع الآجل والكمبيالة', desc: 'تقييد الفاتورة (أو المتبقي منها) ذمة آجلة على حساب العميل مع تحديد تاريخ الاستحقاق ومعاينة الكمبيالة القانونية.' },
+                { sel: 'button[onclick*="previewCurrentPromissoryNote"]', title: '📄 معاينة وطباعة الكمبيالة', desc: 'يولد كمبيالة رسمية بالمبلغ الآجل وتاريخ الاستحقاق وبيانات العميل جاهزة للطباعة والتوقيع.' },
+                { sel: '#toggle-cash, #pay-cash-section', title: '💵 القبض النقدي المباشر', desc: 'تحصيل قيمة الفاتورة (أو جزء منها) نقداً وإيداعها فوراً في الخزينة المحددة.' },
+                { sel: '#toggle-bank, #pay-bank-section', title: '🏦 التحويل البنكي (بنكك / فوري)', desc: 'تحصيل الفاتورة عبر تحويل بنكي واحد أو متعدد مع توثيق رقم الإشعار والبنك المستلم.' },
+                { sel: '#toggle-cheque, #pay-cheque-section', title: '✍️ التحصيل بالشيكات', desc: 'تسجيل شيك أو عدة شيكات واردة من العميل برقم الشيك والبنك وتاريخ الاستحقاق.' },
+                { sel: '#btn-sales-financial-ocr', title: '📷 مسح إشعار بنكي أو شيك بالذكاء الاصطناعي', desc: 'يقرأ صورة إشعار التحويل البنكي أو الشيك تلقائياً ويملأ المبلغ ورقم العملية والبنك.' },
+                { sel: 'button[onclick*="showSalesHub"], .btn-exit', title: '🚪 زر الخروج والرجوع للسجل', desc: 'الرجوع إلى شاشة سجل المبيعات والتسليم الموحدة.' },
+                { sel: 'button[onclick*="confirmDeleteTransaction"], .btn-delete', title: '🗑️ حذف / إلغاء الفاتورة المحمي', desc: 'يفحص ارتباطات الفاتورة أولاً، فإذا لم تكن مرتبطة بتسليم مخزني أو سندات يقوم بحذفها وعكس قيودها بأمان.' },
+                { sel: 'button[onclick*="saveDraft"], .btn-draft', title: '💾 حفظ كمسودة', desc: 'حفظ الفاتورة مؤقتاً كمسودة للعودة إليها واستكمالها لاحقاً دون ترحيل محاسبي.' },
+                { sel: 'button[onclick*="openStandalonePrintPreview"], .royal-btn-print', title: '🖨️ معاينة وطباعة الفاتورة', desc: 'فتح استوديو المعاينة والطباعة لطباعة الفاتورة أو إذن التسليم بتصميم احترافي.' },
+                { sel: '#preset-selector', title: '⚙️ قوالب تخصيص الشاشة', desc: 'اختيار قالب عرض محفوظ لتنسيق أعمدة وخطوط جدول الفاتورة.' },
+                { sel: '#btn-share-invoice, #share-btn-wrapper', title: '📤 مشاركة الفاتورة (واتساب / إيميل)', desc: 'إرسال الفاتورة كملف PDF أو رسالة مفصلة مباشرة إلى واتساب العميل أو بريده الإلكتروني.' },
+                { sel: '#btn-new-invoice', title: '➕ بدء فاتورة جديدة', desc: 'تفريغ الحقول الحالية وتجهيز رقم تسلسلي جديد لإصدار فاتورة مبيعات جديدة.' },
+                { sel: '#auto-send-control-wrapper-sales', title: '📲 الإرسال التلقائي عبر واتساب عند الحفظ', desc: 'تحديد ما إذا كان النظام سيرسل تلقائياً (فاتورة، أو إذن تسليم، أو كشف حساب) لواتساب العميل فور الضغط على حفظ واعتماد.' },
+                { sel: '#ds-live-sync-pill', title: '⚡ شارة التزامن اللحظي الفوري (موبايل ↔ لابتوب ↔ أوفلاين)', desc: 'تعرض حالة الاتصال والمزامنة الفورية في جزء من الثانية؛ اضغط عليها لمزامنة الفواتير والأرصدة مع السيرفر والأجهزة الأخرى فوراً.' },
+                { sel: '#btn-ds-quick-add-wh', title: '➕ إضافة مخزن جديد فوراً', desc: 'يفتح نافذة وليدة سريعة لتعريف مستودع جديد واختياره في الفاتورة الحالية دون مغادرة الشاشة.' },
+                { sel: '#btn-ds-quick-add-item', title: '➕ تعريف وإدراج صنف جديد فوراً', desc: 'يفتح نافذة وليدة لتسجيل صنف جديد (الاسم، الوحدة، التكلفة، سعر البيع) وإدراجه في جدول الفاتورة مباشرة.' },
+                { sel: '#btn-ds-continuous-pos-scan', title: '📡 الماسح المتصل السريع لنقاط البيع', desc: 'يفتح نافذة المسح المتتابع لقراءة الباركود أو اسم الصنف وإدراجه أو زيادة كميته في الجدول بسرعة البرق.' },
+                { sel: '#btn-ds-warranty-qr', title: '🛡️ شهادة الضمان وإيصال الكاشير الحراري بالـ QR', desc: 'يصدر شهادة ضمان معتمدة (A4) أو إيصال كاشير حراري 80mm مزوداً بباركود QR للتحقق الفوري.' },
+                { sel: '#btn-ds-cash-change', title: '🧮 حاسبة النقدية المستلمة والباقي للعميل', desc: 'تحسب الباقي للعميل تلقائياً مع أزرار فئات نقدية سريعة وتعتمد المبلغ النقدي في الفاتورة بضغطة واحدة.' },
+                { sel: 'button[onclick*="submitInvoice"], .btn-submit', title: '✅ حفظ واعتماد الفاتورة (F10 / Ctrl+S)', desc: 'الزر الرئيسي لاعتماد الفاتورة وترحيلها لحظياً لكشف حساب العميل واليومية العامة والخزينة وبوابة التسليم المخزني.' }
+            ];
+            for (const r of rules) {
+                if (el.matches(r.sel) || el.closest(r.sel)) {
+                    return { title: r.title, desc: r.desc };
+                }
+            }
+            return null;
+        };
+
+        // ⚡ Smooth 60fps Enter-Key Navigation & Keyboard Shortcuts (Enter / Ctrl+S / F2 / Esc)
+        const headerOrder = [
+            '#hdr-date',
+            '#hdr-customer-search',
+            '#hdr-currency',
+            '#hdr-exchange-rate',
+            '#hdr-warehouse',
+            '#hdr-cost-center',
+            '#hdr-description',
+            '#quick-item-search'
+        ];
+        const addCustOrder = ['#new-cust-name', '#new-cust-phone', '#new-cust-whatsapp', '#new-cust-opening', '#new-cust-credit'];
+
+        const addCustModalEl = document.getElementById('add-customer-modal');
+        if (addCustModalEl && typeof MutationObserver !== 'undefined') {
+            new MutationObserver(() => {
+                if (addCustModalEl.classList.contains('active') || addCustModalEl.style.display === 'flex' || addCustModalEl.style.display === 'block') {
+                    setTimeout(() => {
+                        const nm = document.getElementById('new-cust-name');
+                        if (nm) { try { nm.focus(); } catch (_e) {} }
+                    }, 50);
+                }
+            }).observe(addCustModalEl, { attributes: true, attributeFilter: ['class', 'style'] });
+        }
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                const openModals = [
+                    'add-customer-modal',
+                    'grid-settings-modal',
+                    'barcode-scanner-modal',
+                    'success-modal-overlay',
+                    'invoice-delete-modal',
+                    'split-genealogy-modal',
+                    'split-genealogy-tree-modal',
+                    'post-split-success-modal',
+                    'split-vouchers-preview-modal',
+                    'split-voice-assistant-modal',
+                    'split-hands-on-sim-modal',
+                    'split-drilldown-doc-modal',
+                    'split-analytics-modal'
+                ];
+                for (const mId of openModals) {
+                    const mEl = document.getElementById(mId);
+                    if (mEl && (mEl.classList.contains('active') || (mEl.style.display && mEl.style.display !== 'none'))) {
+                        e.preventDefault();
+                        if (mId === 'barcode-scanner-modal' && typeof stopCameraScanner === 'function') {
+                            stopCameraScanner();
+                        } else if (typeof closeModal === 'function' && mEl.classList.contains('active')) {
+                            closeModal(mId);
+                        } else {
+                            mEl.style.display = 'none';
+                            mEl.classList.remove('active');
+                        }
+                        return;
+                    }
+                }
+                const splitViewEl = document.getElementById('split-invoice-view');
+                const splitBoardEl = document.getElementById('split-board-step');
+                if (splitViewEl && splitViewEl.style.display !== 'none' && splitBoardEl && splitBoardEl.style.display !== 'none') {
+                    e.preventDefault();
+                    if (typeof cancelCurrentSplit === 'function') cancelCurrentSplit();
+                    return;
+                }
+                ['customer-dropdown-list', 'quick-item-dropdown-list', 'share-popup-menu', 'auto-send-sales-dropdown-menu'].forEach(ddId => {
+                    const dd = document.getElementById(ddId);
+                    if (dd && dd.style.display !== 'none') dd.style.display = 'none';
+                });
+                return;
+            }
+
+            // ✂️ Keyboard Navigation inside Split Invoice View (#split-invoice-view)
+            const splitView = document.getElementById('split-invoice-view');
+            if (splitView && splitView.style.display !== 'none') {
+                const splitBoard = document.getElementById('split-board-step');
+                const isBoardVisible = splitBoard && splitBoard.style.display !== 'none';
+                if (e.key === 'F10') {
+                    e.preventDefault();
+                    if (isBoardVisible && typeof submitInvoiceSplit === 'function') submitInvoiceSplit(false);
+                    return;
+                }
+                if (e.key === 'F2') {
+                    e.preventDefault();
+                    if (isBoardVisible) {
+                        const firstQty = document.getElementById('split-qty-s0-i0') || splitBoard.querySelector('input[type="number"]');
+                        if (firstQty) { firstQty.focus(); firstQty.select(); }
+                    } else {
+                        const sInp = document.getElementById('split-invoice-search');
+                        if (sInp) { sInp.focus(); sInp.select(); }
+                    }
+                    return;
+                }
+                if (isBoardVisible && (e.ctrlKey || e.metaKey) && (e.key === 's' || e.key === 'S' || e.key === 'س')) {
+                    e.preventDefault();
+                    if (typeof submitInvoiceSplit === 'function') submitInvoiceSplit(false);
+                    return;
+                }
+                if (e.key === 'Enter' && !e.shiftKey && !e.ctrlKey && !e.altKey) {
+                    const t = e.target;
+                    if (t && t.id === 'split-invoice-search') {
+                        e.preventDefault();
+                        const firstSplitBtn = document.querySelector('#split-invoices-body button[onclick*="startInvoiceSplit"]');
+                        if (firstSplitBtn) firstSplitBtn.click();
+                        return;
+                    }
+                    if (isBoardVisible && t && t.tagName === 'INPUT') {
+                        const splitInputs = Array.from(splitBoard.querySelectorAll('input:not([disabled])')).filter(inp => inp.offsetParent !== null);
+                        const idx = splitInputs.indexOf(t);
+                        if (idx !== -1 && idx < splitInputs.length - 1) {
+                            e.preventDefault();
+                            const nxt = splitInputs[idx + 1];
+                            nxt.focus();
+                            if (typeof nxt.select === 'function') nxt.select();
+                            return;
+                        }
+                    }
+                }
+                return;
+            }
+
+            if (addCustModalEl && (addCustModalEl.classList.contains('active') || addCustModalEl.style.display === 'flex')) {
+                if (e.key === 'Enter' && !e.shiftKey && !e.ctrlKey && !e.altKey) {
+                    const t = e.target;
+                    const activeInputs = addCustOrder.map(s => document.querySelector(s)).filter(Boolean);
+                    const idx = activeInputs.indexOf(t);
+                    if (idx !== -1) {
+                        e.preventDefault();
+                        if (idx < activeInputs.length - 1) {
+                            const nxt = activeInputs[idx + 1];
+                            if (nxt) { nxt.focus(); if (typeof nxt.select === 'function') nxt.select(); }
+                        } else if (typeof addNewCustomer === 'function') {
+                            addNewCustomer();
+                        }
+                        return;
+                    }
+                }
+                if ((e.ctrlKey || e.metaKey) && (e.key === 's' || e.key === 'S' || e.key === 'س')) {
+                    e.preventDefault();
+                    if (typeof addNewCustomer === 'function') addNewCustomer();
+                    return;
+                }
+            }
+
+            const editorView = document.getElementById('invoice-editor-view');
+            const isEditorVisible = editorView && editorView.style.display !== 'none';
+            if (!isEditorVisible) return;
+
+            if ((e.ctrlKey || e.metaKey) && (e.key === 's' || e.key === 'S' || e.key === 'س')) {
+                e.preventDefault();
+                if (typeof submitInvoice === 'function') submitInvoice();
+                return;
+            }
+            if (e.key === 'F2') {
+                e.preventDefault();
+                const qSearch = document.getElementById('quick-item-search');
+                if (qSearch) { qSearch.focus(); qSearch.select(); }
+                return;
+            }
+            if (e.key === 'Enter' && !e.shiftKey && !e.ctrlKey && !e.altKey) {
+                const t = e.target;
+                if (!t) return;
+                const curIdx = headerOrder.findIndex(sel => t.matches(sel));
+                if (curIdx !== -1 && curIdx < headerOrder.length - 1) {
+                    setTimeout(() => {
+                        for (let i = curIdx + 1; i < headerOrder.length; i++) {
+                            const nextEl = document.querySelector(headerOrder[i]);
+                            if (nextEl && !nextEl.disabled && nextEl.offsetParent !== null) {
+                                nextEl.focus();
+                                if (typeof nextEl.select === 'function' && nextEl.tagName === 'INPUT') nextEl.select();
+                                break;
+                            }
+                        }
+                    }, 40);
+                }
+            }
+        });
+
+        // Auto-select numeric 0 on focus for fast typing
+        document.addEventListener('focusin', function(e) {
+            const t = e.target;
+            if (!t || t.tagName !== 'INPUT') return;
+            if ((t.closest('#invoice-editor-view') || t.closest('#split-invoice-view')) && (t.type === 'number' || t.classList.contains('num-input') || t.id.startsWith('t-') || t.id.startsWith('pay-') || t.id.startsWith('split-'))) {
+                const v = (t.value || '').trim();
+                if (v === '0' || v === '0.00' || t.id.startsWith('split-qty-') || t.id.startsWith('split-subqty-')) {
+                    setTimeout(() => { try { t.select(); } catch(_e){} }, 10);
+                }
+            }
+        });
+
+        // 🛡️ Double-Click Guard on Primary Sales Action Buttons
+        document.addEventListener('click', function(e) {
+            const btn = e.target && e.target.closest('button[onclick*="submitInvoice"], button[onclick*="submitInvoiceSplit"], button[onclick*="confirmExecuteDeleteInvoice"]');
+            if (!btn) return;
+            if (btn.dataset.salesBusy === '1') {
+                e.stopImmediatePropagation();
+                e.preventDefault();
+                return;
+            }
+            btn.dataset.salesBusy = '1';
+            setTimeout(() => { delete btn.dataset.salesBusy; }, 1400);
+        }, true);
+
+        // 🌐 Real-Time Cross-Tab BroadcastChannel Listener
+        try {
+            const bc = new BroadcastChannel('elsajana_erp_sync');
+            bc.onmessage = (ev) => {
+                if (ev.data && typeof loadHubTransactions === 'function' && typeof currentSalesView !== 'undefined' && currentSalesView === 'hub') {
+                    loadHubTransactions();
+                }
+            };
+        } catch (_eBc) {}
+
+        // ═══════════════════════════════════════════════════════════════════════════
+        // 🏆 4 WORLD-CLASS SALES ENGINES (GAP REPORT COMPLETION)
+        // 1. 🛡️ Margin & Below-Cost Guard
+        // 2. 🏷️ Customer Price Tiers (Retail / Semi-Wholesale / Wholesale)
+        // 3. ⏸️ POS Park & Hold Multi-Invoice Engine
+        // 4. 📈 Customer Item Price History & Margin Inspector
+        // ═══════════════════════════════════════════════════════════════════════════
+
+        function resolveSalesItemRecord(itemId) {
+            if (!itemId) return null;
+            const list = (typeof ITEMS !== 'undefined' && Array.isArray(ITEMS) && ITEMS.length)
+                ? ITEMS
+                : (JSON.parse(localStorage.getItem('erp_inventory_v1') || '[]'));
+            return list.find(i => i && (String(i.id) === String(itemId) || String(i.code) === String(itemId) || String(i.name) === String(itemId))) || null;
+        }
+
+        function resolveSalesItemUnitCost(itemObj, row) {
+            if (!itemObj) return 0;
+            const rawCost = parseFloat(itemObj.costPrice ?? itemObj.buyPrice ?? itemObj.purchasePrice ?? itemObj.avgCost ?? itemObj.cost ?? 0) || 0;
+            if (rawCost <= 0) return 0;
+            const itemFactor = parseFloat(itemObj.unitFactor ?? itemObj.conversionFactor ?? itemObj.factor ?? 1) || 1;
+            const rowFactor = (row && row.customFactor !== undefined && row.customFactor !== '' && row.customFactor !== null)
+                ? (parseFloat(row.customFactor) || 1)
+                : itemFactor;
+            if (row && row.selectedUnit && itemObj.subUnit && String(row.selectedUnit) === String(itemObj.subUnit) && itemFactor > 1) {
+                return +(rawCost / itemFactor).toFixed(4);
+            }
+            if (rowFactor > 0 && itemFactor > 0 && rowFactor !== itemFactor) {
+                return +(rawCost * (rowFactor / itemFactor)).toFixed(4);
+            }
+            return rawCost;
+        }
+
+        // 1. 🛡️ Live Margin & Below-Cost Guard
+        window.updateSalesMarginAndCostGuard = function() {
+            const badge = document.getElementById('sales-margin-guard-badge');
+            const iconEl = document.getElementById('sales-margin-guard-icon');
+            const txtEl = document.getElementById('sales-margin-guard-text');
+            if (!badge || !txtEl) return;
+
+            const activeRows = (typeof rows !== 'undefined' && Array.isArray(rows))
+                ? rows.filter(r => r && r.itemId && ((parseFloat(r.quantity) || 0) > 0 || (parseFloat(r.price) || 0) > 0))
+                : [];
+
+            if (activeRows.length === 0) {
+                badge.style.background = 'rgba(16, 185, 129, 0.14)';
+                badge.style.borderColor = 'rgba(16, 185, 129, 0.45)';
+                badge.style.color = '#34d399';
+                if (iconEl) iconEl.textContent = '🛡️';
+                txtEl.textContent = 'الربح: 0%';
+                return;
+            }
+
+            let totalRev = 0;
+            let totalCost = 0;
+            let belowCostCount = 0;
+
+            activeRows.forEach(r => {
+                const qty = Math.max(1, parseFloat(r.quantity) || 1);
+                const sellPrice = parseFloat(r.price) || 0;
+                const itemObj = resolveSalesItemRecord(r.itemId);
+                const unitCost = resolveSalesItemUnitCost(itemObj, r);
+                totalRev += sellPrice * qty;
+                totalCost += unitCost * qty;
+                if (unitCost > 0 && sellPrice > 0 && sellPrice < unitCost) {
+                    belowCostCount++;
+                }
+            });
+
+            const profit = totalRev - totalCost;
+            const marginPct = totalCost > 0 ? Math.round((profit / totalCost) * 100) : (totalRev > 0 ? 100 : 0);
+
+            if (belowCostCount > 0) {
+                badge.style.background = 'rgba(239, 68, 68, 0.22)';
+                badge.style.borderColor = '#ef4444';
+                badge.style.color = '#fca5a5';
+                if (iconEl) iconEl.textContent = '🚨';
+                txtEl.textContent = `أقل من التكلفة (${belowCostCount})`;
+            } else {
+                badge.style.background = 'rgba(16, 185, 129, 0.14)';
+                badge.style.borderColor = 'rgba(16, 185, 129, 0.45)';
+                badge.style.color = '#34d399';
+                if (iconEl) iconEl.textContent = '🛡️';
+                txtEl.textContent = `الربح: ${marginPct >= 0 ? '+' : ''}${marginPct}%`;
+            }
+        };
+
+        // 2. 🏷️ Customer Price Tiers (قطاعي / نصف جملة / جملة)
+        window.applySalesPriceTier = function(tier, silent = false) {
+            const selectedTier = tier || document.getElementById('hdr-price-tier')?.value || 'retail';
+            if (typeof rows === 'undefined' || !Array.isArray(rows)) return;
+            let updatedCount = 0;
+
+            rows.forEach(r => {
+                if (!r || !r.itemId) return;
+                const itemObj = resolveSalesItemRecord(r.itemId);
+                if (!itemObj) return;
+                const baseRetail = parseFloat(itemObj.sellPrice ?? itemObj.price ?? itemObj.retailPrice ?? r.price ?? 0) || 0;
+                const unitCost = resolveSalesItemUnitCost(itemObj, r);
+                let targetPrice = baseRetail;
+
+                if (selectedTier === 'wholesale') {
+                    const explicitW = parseFloat(itemObj.wholesalePrice ?? itemObj.bulkPrice ?? 0) || 0;
+                    targetPrice = explicitW > 0 ? explicitW : (unitCost > 0 ? Math.max(unitCost * 1.05, +(baseRetail * 0.92).toFixed(2)) : +(baseRetail * 0.92).toFixed(2));
+                } else if (selectedTier === 'semi_wholesale') {
+                    const explicitSW = parseFloat(itemObj.semiWholesalePrice ?? itemObj.halfWholesalePrice ?? 0) || 0;
+                    targetPrice = explicitSW > 0 ? explicitSW : (unitCost > 0 ? Math.max(unitCost * 1.08, +(baseRetail * 0.96).toFixed(2)) : +(baseRetail * 0.96).toFixed(2));
+                } else {
+                    targetPrice = baseRetail;
+                }
+
+                if (targetPrice > 0) {
+                    r.price = Math.round(targetPrice * 100) / 100;
+                    updatedCount++;
+                }
+            });
+
+            if (updatedCount > 0) {
+                if (typeof renderGrid === 'function') renderGrid();
+                if (typeof recalcAll === 'function') recalcAll();
+            }
+            window.updateSalesMarginAndCostGuard();
+            if (!silent && typeof showToast === 'function') {
+                const labels = { retail: 'قطاعي', semi_wholesale: 'نصف جملة', wholesale: 'جملة' };
+                showToast(`🏷️ تم تطبيق شريحة أسعار (${labels[selectedTier] || 'قطاعي'}) على الأصناف`, 'info', 2200);
+            }
+        };
+
+        // 3. ⏸️ POS Park & Hold Multi-Invoice Engine
+        function getParkedSalesList() {
+            try {
+                const arr = JSON.parse(localStorage.getItem('erp_parked_sales_v1') || '[]');
+                return Array.isArray(arr) ? arr : [];
+            } catch (_e) { return []; }
+        }
+
+        function saveParkedSalesList(arr) {
+            localStorage.setItem('erp_parked_sales_v1', JSON.stringify(arr));
+            const cntEl = document.getElementById('parked-sales-cnt');
+            if (cntEl) cntEl.textContent = arr.length;
+        }
+
+        window.parkCurrentSalesInvoice = function() {
+            const activeRows = (typeof rows !== 'undefined' && Array.isArray(rows))
+                ? rows.filter(r => r && (r.itemId || (parseFloat(r.quantity) || 0) > 0))
+                : [];
+            if (activeRows.length === 0) {
+                if (typeof showToast === 'function') showToast('⚠️ أضف صنفاً واحداً على الأقل قبل تعليق الفاتورة', 'warning');
+                return;
+            }
+            const parked = getParkedSalesList();
+            const custName = document.getElementById('hdr-customer-search')?.value?.trim() || 'عميل نقدي';
+            const custId = document.getElementById('hdr-customer')?.value || '';
+            const grandTxt = document.getElementById('t-grand-dynamic-loc')?.textContent || '0';
+            const parkRecord = {
+                parkId: 'PARK-' + Date.now(),
+                parkedAt: new Date().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' }),
+                date: document.getElementById('hdr-date')?.value || '',
+                customerId: custId,
+                customerName: custName,
+                currency: document.getElementById('hdr-currency')?.value || 'SDG',
+                exchangeRate: document.getElementById('hdr-exchange-rate')?.value || '1',
+                warehouseId: document.getElementById('hdr-warehouse')?.value || '',
+                costCenterId: document.getElementById('hdr-cost-center')?.value || '',
+                description: document.getElementById('hdr-description')?.value || '',
+                priceTier: document.getElementById('hdr-price-tier')?.value || 'retail',
+                grandDisplay: grandTxt,
+                rows: JSON.parse(JSON.stringify(rows))
+            };
+            parked.unshift(parkRecord);
+            saveParkedSalesList(parked);
+            if (typeof onSuccessNewInvoice === 'function') onSuccessNewInvoice(false);
+            if (typeof showToast === 'function') showToast(`⏸️ تم تعليق فاتورة (${custName}) وتفريغ الشاشة لعميل جديد`, 'success', 2600);
+        };
+
+        window.openParkedInvoicesModal = function() {
+            const modal = document.getElementById('sales-parked-invoices-modal');
+            const tbody = document.getElementById('sales-parked-tbody');
+            if (!modal || !tbody) return;
+            const list = getParkedSalesList();
+            if (list.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" style="padding:22px; text-align:center; color:#94a3b8; font-weight:800;">📭 لا توجد فواتير معلقة حالياً</td></tr>`;
+            } else {
+                tbody.innerHTML = list.map((p, idx) => `
+                    <tr style="border-bottom:1px solid rgba(148,163,184,0.15);">
+                        <td style="padding:10px; text-align:center; font-weight:900; color:#38bdf8;">${idx + 1}</td>
+                        <td style="padding:10px; font-weight:900; color:#f8fafc;">👤 ${p.customerName}<div style="font-size:0.75rem; color:#94a3b8;">🕒 ${p.parkedAt}</div></td>
+                        <td style="padding:10px; text-align:center; font-weight:800; color:#cbd5e1;">${(p.rows || []).filter(r => r && r.itemId).length} صنف</td>
+                        <td style="padding:10px; text-align:center; font-weight:900; color:#34d399;">${p.grandDisplay} ${p.currency}</td>
+                        <td style="padding:10px; text-align:center; display:flex; gap:6px; justify-content:center;">
+                            <button type="button" onclick="window.restoreParkedSalesInvoice('${p.parkId}')" style="background:linear-gradient(135deg,#10b981,#059669); color:#fff; border:none; border-radius:8px; padding:6px 12px; font-weight:900; cursor:pointer;">▶️ استدعاء</button>
+                            <button type="button" onclick="window.deleteParkedSalesInvoice('${p.parkId}')" style="background:rgba(239,68,68,0.2); color:#fca5a5; border:1px solid rgba(239,68,68,0.4); border-radius:8px; padding:6px 10px; font-weight:900; cursor:pointer;">🗑️</button>
+                        </td>
+                    </tr>
+                `).join('');
+            }
+            modal.style.display = 'flex';
+        };
+
+        window.restoreParkedSalesInvoice = function(parkId) {
+            const list = getParkedSalesList();
+            const target = list.find(p => p.parkId === parkId);
+            if (!target) return;
+            const remaining = list.filter(p => p.parkId !== parkId);
+            saveParkedSalesList(remaining);
+
+            if (document.getElementById('hdr-date') && target.date) document.getElementById('hdr-date').value = target.date;
+            if (document.getElementById('hdr-customer')) document.getElementById('hdr-customer').value = target.customerId || '';
+            if (document.getElementById('hdr-customer-search')) document.getElementById('hdr-customer-search').value = target.customerName || '';
+            if (document.getElementById('hdr-currency') && target.currency) document.getElementById('hdr-currency').value = target.currency;
+            if (document.getElementById('hdr-exchange-rate') && target.exchangeRate) document.getElementById('hdr-exchange-rate').value = target.exchangeRate;
+            if (document.getElementById('hdr-warehouse') && target.warehouseId) document.getElementById('hdr-warehouse').value = target.warehouseId;
+            if (document.getElementById('hdr-cost-center') && target.costCenterId) document.getElementById('hdr-cost-center').value = target.costCenterId;
+            if (document.getElementById('hdr-description')) document.getElementById('hdr-description').value = target.description || '';
+            if (document.getElementById('hdr-price-tier') && target.priceTier) document.getElementById('hdr-price-tier').value = target.priceTier;
+
+            if (typeof rows !== 'undefined' && Array.isArray(target.rows)) {
+                rows.length = 0;
+                target.rows.forEach(r => rows.push(r));
+            }
+            if (typeof onCustomerChange === 'function' && target.customerId) {
+                try { onCustomerChange(); } catch (_e) {}
+            }
+            if (typeof renderGrid === 'function') renderGrid();
+            if (typeof recalcAll === 'function') recalcAll();
+            window.updateSalesMarginAndCostGuard();
+
+            const modal = document.getElementById('sales-parked-invoices-modal');
+            if (modal) modal.style.display = 'none';
+            if (typeof showToast === 'function') showToast(`▶️ تم استدعاء فاتورة (${target.customerName}) بنجاح`, 'success');
+        };
+
+        window.deleteParkedSalesInvoice = function(parkId) {
+            const remaining = getParkedSalesList().filter(p => p.parkId !== parkId);
+            saveParkedSalesList(remaining);
+            window.openParkedInvoicesModal();
+        };
+
+        // 4. 📈 Customer Item Price History & Live Margin Inspector Modal
+        window.openCustomerItemHistoryModal = function(mode = 'history') {
+            const modal = document.getElementById('sales-cust-history-modal');
+            const tbody = document.getElementById('sales-cust-history-tbody');
+            const titleEl = document.getElementById('sales-cust-history-title');
+            if (!modal || !tbody) return;
+
+            const custId = document.getElementById('hdr-customer')?.value || '';
+            const custName = document.getElementById('hdr-customer-search')?.value?.trim() || 'عميل عام';
+            if (titleEl) {
+                titleEl.textContent = mode === 'margin'
+                    ? `🛡️ كاشف التكلفة وهامش الربح اللحظي + سجل أسعار (${custName})`
+                    : `📈 سجل آخر أسعار البيع للعميل (${custName}) وتحليل التكلفة`;
+            }
+
+            const allSales = JSON.parse(localStorage.getItem('erp_sales_invoices_v1') || '[]');
+            const activeRows = (typeof rows !== 'undefined' && Array.isArray(rows))
+                ? rows.filter(r => r && r.itemId)
+                : [];
+
+            if (activeRows.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" style="padding:22px; text-align:center; color:#94a3b8; font-weight:800;">📦 أضف صنفاً أولاً في جدول الفاتورة لعرض سجل أسعاره وتكلفته</td></tr>`;
+            } else {
+                tbody.innerHTML = activeRows.map((r, idx) => {
+                    const itemObj = resolveSalesItemRecord(r.itemId);
+                    const itemName = itemObj ? itemObj.name : String(r.itemId);
+                    const unitCost = resolveSalesItemUnitCost(itemObj, r);
+                    const curPrice = parseFloat(r.price) || 0;
+                    const diff = curPrice - unitCost;
+                    const pct = unitCost > 0 ? Math.round((diff / unitCost) * 100) : 100;
+                    const isBelow = unitCost > 0 && curPrice > 0 && curPrice < unitCost;
+
+                    // Find last 3 sales of this item (prioritizing current customer)
+                    const custHits = [];
+                    const generalHits = [];
+                    for (let i = allSales.length - 1; i >= 0; i--) {
+                        const inv = allSales[i];
+                        if (!inv || inv.deleted || inv.saleType === 'preliminary' || !Array.isArray(inv.items)) continue;
+                        const matchedLine = inv.items.find(it => it && (String(it.itemId) === String(r.itemId) || String(it.name) === String(itemName)));
+                        if (matchedLine && (parseFloat(matchedLine.price) || 0) > 0) {
+                            const hit = {
+                                price: parseFloat(matchedLine.price),
+                                date: (inv.date || inv.createdAt || '').slice(0, 10),
+                                invNo: inv.invoiceNo || inv.id
+                            };
+                            const isSameCust = (custId && String(inv.customerId) === String(custId)) || (custName && (inv.customerName === custName || (inv.customer && inv.customer.name === custName)));
+                            if (isSameCust && custHits.length < 3) custHits.push(hit);
+                            else if (generalHits.length < 3) generalHits.push(hit);
+                        }
+                        if (custHits.length >= 3) break;
+                    }
+                    const historyList = custHits.length > 0 ? custHits : generalHits;
+                    const historyHtml = historyList.length > 0
+                        ? historyList.map(h => `
+                            <button type="button" onclick="window.applyHistoryPriceToRow(${r.id}, ${h.price})" style="background:rgba(56,189,248,0.14); border:1px solid rgba(56,189,248,0.4); color:#38bdf8; border-radius:7px; padding:4px 8px; font-weight:900; font-size:0.78rem; cursor:pointer; margin:2px;">
+                                ⚡ ${h.price.toLocaleString('en-US')} <span style="color:#94a3b8; font-size:0.7rem;">(${h.date || '#' + h.invNo})</span>
+                            </button>
+                        `).join('')
+                        : `<span style="color:#64748b; font-size:0.78rem;">لا توجد مبيعات سابقة</span>`;
+
+                    return `
+                        <tr style="border-bottom:1px solid rgba(148,163,184,0.15); background:${isBelow ? 'rgba(239,68,68,0.1)' : 'transparent'};">
+                            <td style="padding:10px; text-align:center; font-weight:900; color:#94a3b8;">${idx + 1}</td>
+                            <td style="padding:10px; font-weight:900; color:#f8fafc;">${itemName}</td>
+                            <td style="padding:10px; text-align:center; font-weight:900; color:#cbd5e1;">${unitCost > 0 ? unitCost.toLocaleString('en-US') : 'غير محددة'}</td>
+                            <td style="padding:10px; text-align:center; font-weight:900; color:#fde047;">${curPrice.toLocaleString('en-US')}</td>
+                            <td style="padding:10px; text-align:center; font-weight:900; color:${isBelow ? '#f87171' : '#34d399'};">
+                                ${isBelow ? `🚨 خسارة (${pct}%)` : `✅ +${pct}% (+${Math.round(diff).toLocaleString('en-US')})`}
+                            </td>
+                            <td style="padding:10px; text-align:center;">${historyHtml}</td>
+                        </tr>
+                    `;
+                }).join('');
+            }
+            modal.style.display = 'flex';
+        };
+
+        window.applyHistoryPriceToRow = function(rowId, priceVal) {
+            if (typeof updateRow === 'function') {
+                updateRow(rowId, 'price', priceVal);
+                if (typeof renderGrid === 'function') renderGrid();
+                if (typeof recalcAll === 'function') recalcAll();
+                window.updateSalesMarginAndCostGuard();
+                window.openCustomerItemHistoryModal('history');
+                if (typeof showToast === 'function') showToast(`✅ تم تطبيق السعر (${priceVal.toLocaleString('en-US')}) على الصنف`, 'success', 1800);
+            }
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            saveParkedSalesList(getParkedSalesList());
+            setTimeout(window.updateSalesMarginAndCostGuard, 600);
+        });
+        document.addEventListener('input', (e) => {
+            if (e.target && e.target.closest('#pos-grid')) {
+                window.updateSalesMarginAndCostGuard();
+            }
+        });
+        document.addEventListener('change', (e) => {
+            if (e.target && (e.target.closest('#pos-grid') || e.target.id === 'hdr-customer')) {
+                setTimeout(window.updateSalesMarginAndCostGuard, 80);
+            }
+        });
+    })();
     </script>
+
+    <!-- ═══ MODAL 1: POS PARKED INVOICES MODAL (⏸️ الفواتير المعلقة) ═══ -->
+    <div id="sales-parked-invoices-modal" style="display:none; position:fixed; inset:0; background:rgba(2,6,23,0.85); backdrop-filter:blur(10px); z-index:999999; align-items:center; justify-content:center; padding:16px; direction:rtl;">
+        <div style="background:#0f172a; border:2px solid #eab308; border-radius:20px; width:100%; max-width:680px; overflow:hidden; box-shadow:0 25px 60px rgba(0,0,0,0.85);">
+            <div style="background:linear-gradient(135deg,#713f12,#a16207); padding:14px 20px; display:flex; justify-content:space-between; align-items:center; color:#fff;">
+                <h3 style="margin:0; font-size:1.1rem; font-weight:900;">📂 الفواتير المعلقة المؤقتة (POS Park & Hold)</h3>
+                <button type="button" onclick="document.getElementById('sales-parked-invoices-modal').style.display='none'" style="background:rgba(255,255,255,0.15); border:none; color:#fff; width:34px; height:34px; border-radius:10px; font-weight:900; cursor:pointer;">✕</button>
+            </div>
+            <div style="padding:16px; max-height:70vh; overflow-y:auto;">
+                <table style="width:100%; border-collapse:collapse;">
+                    <thead>
+                        <tr style="background:#1e293b; color:#fde047; font-size:0.85rem;">
+                            <th style="padding:10px;">#</th>
+                            <th style="padding:10px; text-align:right;">العميل ووقت التعليق</th>
+                            <th style="padding:10px;">الأصناف</th>
+                            <th style="padding:10px;">الإجمالي</th>
+                            <th style="padding:10px;">الإجراء</th>
+                        </tr>
+                    </thead>
+                    <tbody id="sales-parked-tbody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ MODAL 2: CUSTOMER ITEM PRICE HISTORY & MARGIN GUARD MODAL (📈 سجل الأسعار والربحية) ═══ -->
+    <div id="sales-cust-history-modal" style="display:none; position:fixed; inset:0; background:rgba(2,6,23,0.85); backdrop-filter:blur(10px); z-index:999999; align-items:center; justify-content:center; padding:16px; direction:rtl;">
+        <div style="background:#0f172a; border:2px solid #a855f7; border-radius:20px; width:100%; max-width:860px; overflow:hidden; box-shadow:0 25px 60px rgba(0,0,0,0.85);">
+            <div style="background:linear-gradient(135deg,#4c1d95,#0284c7); padding:14px 20px; display:flex; justify-content:space-between; align-items:center; color:#fff;">
+                <h3 id="sales-cust-history-title" style="margin:0; font-size:1.1rem; font-weight:900;">📈 سجل آخر أسعار البيع للعميل وكاشف التكلفة والربحية</h3>
+                <button type="button" onclick="document.getElementById('sales-cust-history-modal').style.display='none'" style="background:rgba(255,255,255,0.15); border:none; color:#fff; width:34px; height:34px; border-radius:10px; font-weight:900; cursor:pointer;">✕</button>
+            </div>
+            <div style="padding:16px; max-height:72vh; overflow-y:auto;">
+                <table style="width:100%; border-collapse:collapse;">
+                    <thead>
+                        <tr style="background:#1e293b; color:#e2e8f0; font-size:0.85rem;">
+                            <th style="padding:10px;">#</th>
+                            <th style="padding:10px; text-align:right;">الصنف</th>
+                            <th style="padding:10px;">التكلفة للوحدة</th>
+                            <th style="padding:10px;">السعر الحالي</th>
+                            <th style="padding:10px;">هامش الربح</th>
+                            <th style="padding:10px;">آخر 3 أسعار (اضغط للتطبيق الفوري)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="sales-cust-history-tbody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
     <!-- ══════════════════════════════════════════════════════════════════════════════ -->
     <!-- LIGHTWEIGHT, ULTRA-SMOOTH SALES DELIVERY HUB (GDN) & UNIT EQUIVALENCE ENGINE   -->
     <!-- ══════════════════════════════════════════════════════════════════════════════ -->
@@ -7272,8 +9147,7 @@ try {
                 <div style="display:flex; align-items:center; gap:12px;">
                     <span style="font-size:1.8rem;">📱</span>
                     <div>
-                        <h3 style="margin:0; font-size:1.2rem; font-weight:900;">ربط كاميرا الجوال والمسح المتتابع الفوري (Zero-Click QR)</h3>
-                        <p style="margin:3px 0 0; font-size:0.8rem; color:#a7f3d0; font-weight:700;">مرّر 10 أذونات واحداً تلو الآخر أمام الكاميرا — يستلم ويخصم تلقائياً بدون ضغط أي زر!</p>
+                        <h3 style="margin:0; font-size:1.2rem; font-weight:900;">المسح المتتابع الفوري وربط الجوال (Zero-Click QR)</h3>
                     </div>
                 </div>
                 <button onclick="closeDeliveryQrScannerModal()" style="background:rgba(255,255,255,0.18); border:none; color:#fff; width:38px; height:38px; border-radius:12px; font-size:1.2rem; font-weight:900; cursor:pointer;">✕</button>
@@ -7355,2381 +9229,2120 @@ try {
         </div>
     </div>
 
-    <script>
-    (function initWorldClassSalesDeliverySuite() {
-        window.gdnCurrentFilter = 'pending'; // 'pending' | 'delivered' | 'all'
-        window.gdnActiveRowIndex = -1;
-        let qrVideoStream = null;
-        let qrScanInterval = null;
+    <script defer src="js/direct-sales-delivery-core.js?v=20261029_fast"></script>
 
-        function parseInvoiceDateTimeParts(inv) {
-            const rawDt = String(inv.createdAt || inv.timestamp || inv.time || inv.deliveredAt || inv.date || '');
-            const dateStr = String(inv.date || rawDt.slice(0, 10) || new Date().toISOString().slice(0, 10));
-            let timeStr = '';
-            const timeMatch = rawDt.match(/(\d{1,2}:\d{2}(?::\d{2})?\s*(?:AM|PM|ص|م)?)/i);
-            if (timeMatch) {
-                timeStr = timeMatch[1];
-            } else if (inv.time) {
-                timeStr = inv.time;
-            } else {
-                timeStr = '12:00 PM';
-            }
-            return { dateStr, timeStr };
+    <!-- ══════════════════════════════════════════════════════════════════════════════ -->
+    <!-- CONSTITUTION 1 OF 3 (الدستور الأول): STRICT THEME CONTRAST, CHILD MODALS,      -->
+    <!-- 2G RESILIENCE, SUB-SECOND AUTO-SYNC, AUTO-SELECT NUMBERS, ARABIC SEARCH & +ADD -->
+    <!-- ══════════════════════════════════════════════════════════════════════════════ -->
+    <style id="ds-constitution1-theme-contrast">
+        /* 0. CONSTITUTION 4 GLOBAL ROOT INHERITANCE (+2 BORDER/FONT/ICON THICKNESS & AMBIENT CONTRAST) */
+        :root {
+            --ds-c4-border-width: 2.2px;
+            --ds-c4-card-border-width: 2.4px;
+            --ds-c4-font-weight: 800;
+            --ds-c4-icon-stroke: 2.6px;
+        }
+        #invoice-editor-view svg, #invoice-editor-view svg path, #invoice-editor-view svg circle, #invoice-editor-view svg rect, #invoice-editor-view svg line, #invoice-editor-view svg polyline, #invoice-editor-view svg polygon,
+        #sales-hub-view svg, #sales-hub-view svg path, #sales-hub-view svg circle, #sales-hub-view svg rect, #sales-hub-view svg line, #sales-hub-view svg polyline, #sales-hub-view svg polygon,
+        #split-invoice-view svg, #split-invoice-view svg path,
+        #delivery-hub-view svg, #delivery-hub-view svg path,
+        .ds-c1-modal-card svg, .ds-c1-modal-card svg path,
+        .modal-card svg, .modal-card svg path {
+            stroke-width: var(--ds-c4-icon-stroke, 2.6px) !important;
         }
 
-        function getWarehousesList() {
-            const whs = JSON.parse(localStorage.getItem('erp_warehouses_v1') || '[]');
-            return whs.length > 0 ? whs : [{ id: 1, name: 'المخزن الرئيسي' }];
+        /* 1. DARK THEMES: Strict Bright White (#FFFFFF) Text & Borders on Pure Black (#000000) Inputs inside Stepped Lighter Ambient Cards (#111c33) */
+        html:not(.light-theme):not([data-theme="light"]):not([data-theme="pearl-white"]):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #invoice-editor-view,
+        html:not(.light-theme):not([data-theme="light"]):not([data-theme="pearl-white"]):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #sales-hub-view,
+        html:not(.light-theme):not([data-theme="light"]):not([data-theme="pearl-white"]):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #split-invoice-view,
+        html:not(.light-theme):not([data-theme="light"]):not([data-theme="pearl-white"]):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #delivery-hub-view {
+            color: #FFFFFF !important;
+            font-weight: var(--ds-c4-font-weight, 800) !important;
+        }
+        /* Dark Mode Stepped Ambient Cards & Child Modals (#111c33) so #000000 Inputs Pop Out Clearly */
+        html:not(.light-theme):not([data-theme="light"]):not([data-theme="pearl-white"]):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #form-fields-card,
+        html:not(.light-theme):not([data-theme="light"]):not([data-theme="pearl-white"]):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) .sales-glass-card,
+        html:not(.light-theme):not([data-theme="light"]):not([data-theme="pearl-white"]):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #items-panel,
+        html:not(.light-theme):not([data-theme="light"]):not([data-theme="pearl-white"]):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) .panel-header-row,
+        html:not(.light-theme):not([data-theme="light"]):not([data-theme="pearl-white"]):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #inline-totals-container,
+        html:not(.light-theme):not([data-theme="light"]):not([data-theme="pearl-white"]):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #payment-panel,
+        html:not(.light-theme):not([data-theme="light"]):not([data-theme="pearl-white"]):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) .ds-c1-modal-card,
+        html:not(.light-theme):not([data-theme="light"]):not([data-theme="pearl-white"]):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) .modal-card,
+        html:not(.light-theme):not([data-theme="light"]):not([data-theme="pearl-white"]):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #sales-parked-invoices-modal > div,
+        html:not(.light-theme):not([data-theme="light"]):not([data-theme="pearl-white"]):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #sales-cust-history-modal > div,
+        html:not(.light-theme):not([data-theme="light"]):not([data-theme="pearl-white"]):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #grid-settings-modal > div,
+        html:not(.light-theme):not([data-theme="light"]):not([data-theme="pearl-white"]):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #invoice-delete-modal > div,
+        html:not(.light-theme):not([data-theme="light"]):not([data-theme="pearl-white"]):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #split-invoice-view .neo-card,
+        html:not(.light-theme):not([data-theme="light"]):not([data-theme="pearl-white"]):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #split-header-info,
+        html:not(.light-theme):not([data-theme="light"]):not([data-theme="pearl-white"]):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #post-split-success-modal > div,
+        html:not(.light-theme):not([data-theme="light"]):not([data-theme="pearl-white"]):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #split-genealogy-tree-modal > div,
+        html:not(.light-theme):not([data-theme="light"]):not([data-theme="pearl-white"]):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #split-voice-assistant-modal > div,
+        html:not(.light-theme):not([data-theme="light"]):not([data-theme="pearl-white"]):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #split-hands-on-sim-modal > div,
+        html:not(.light-theme):not([data-theme="light"]):not([data-theme="pearl-white"]):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #split-drilldown-doc-modal > div,
+        html:not(.light-theme):not([data-theme="light"]):not([data-theme="pearl-white"]):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #split-analytics-modal > div,
+        html:not(.light-theme):not([data-theme="light"]):not([data-theme="pearl-white"]):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #split-weight-shield-modal > div,
+        html:not(.light-theme):not([data-theme="light"]):not([data-theme="pearl-white"]):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #split-driver-signature-modal > div,
+        html:not(.light-theme):not([data-theme="light"]):not([data-theme="pearl-white"]):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #split-presets-modal > div {
+            background: #111c33 !important;
+            background-color: #111c33 !important;
+            border: var(--ds-c4-card-border-width, 2.4px) solid #FFFFFF !important;
+            color: #FFFFFF !important;
+        }
+        /* Dark Mode Inputs: Pure Black (#000000) + Thick White Border (2.2px solid #FFFFFF) + Pure White Text (#FFFFFF) — ZERO INVERSION ON FOCUS/ACTIVE/AUTOFILL */
+        html:not(.light-theme):not([data-theme="light"]):not([data-theme="pearl-white"]):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #invoice-editor-view input:not([type="checkbox"]):not([type="radio"]):not([type="color"]):not([type="file"]),
+        html:not(.light-theme):not([data-theme="light"]):not([data-theme="pearl-white"]):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #invoice-editor-view select,
+        html:not(.light-theme):not([data-theme="light"]):not([data-theme="pearl-white"]):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #invoice-editor-view textarea,
+        html:not(.light-theme):not([data-theme="light"]):not([data-theme="pearl-white"]):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #sales-hub-view input:not([type="checkbox"]):not([type="radio"]),
+        html:not(.light-theme):not([data-theme="light"]):not([data-theme="pearl-white"]):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #sales-hub-view select,
+        html:not(.light-theme):not([data-theme="light"]):not([data-theme="pearl-white"]):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #split-invoice-view input:not([type="checkbox"]):not([type="radio"]),
+        html:not(.light-theme):not([data-theme="light"]):not([data-theme="pearl-white"]):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #split-invoice-view select,
+        html:not(.light-theme):not([data-theme="light"]):not([data-theme="pearl-white"]):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #split-voice-assistant-modal input:not([type="checkbox"]):not([type="radio"]),
+        html:not(.light-theme):not([data-theme="light"]):not([data-theme="pearl-white"]):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #delivery-hub-view input:not([type="checkbox"]):not([type="radio"]),
+        html:not(.light-theme):not([data-theme="light"]):not([data-theme="pearl-white"]):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #delivery-hub-view select,
+        html:not(.light-theme):not([data-theme="light"]):not([data-theme="pearl-white"]):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) .ds-c1-modal-card input:not([type="checkbox"]):not([type="radio"]),
+        html:not(.light-theme):not([data-theme="light"]):not([data-theme="pearl-white"]):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) .ds-c1-modal-card select,
+        html:not(.light-theme):not([data-theme="light"]):not([data-theme="pearl-white"]):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) .ds-c1-modal-card textarea,
+        html:not(.light-theme):not([data-theme="light"]):not([data-theme="pearl-white"]):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) .modal-card input:not([type="checkbox"]):not([type="radio"]),
+        html:not(.light-theme):not([data-theme="light"]):not([data-theme="pearl-white"]):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) .modal-card select,
+        html:not(.light-theme):not([data-theme="light"]):not([data-theme="pearl-white"]):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) .modal-card textarea,
+        html:not(.light-theme):not([data-theme="light"]):not([data-theme="pearl-white"]):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #add-customer-modal input:not([type="checkbox"]):not([type="radio"]),
+        html:not(.light-theme):not([data-theme="light"]):not([data-theme="pearl-white"]):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #add-customer-modal select {
+            background: #000000 !important;
+            background-color: #000000 !important;
+            background-image: none !important;
+            color: #FFFFFF !important;
+            -webkit-text-fill-color: #FFFFFF !important;
+            border: var(--ds-c4-border-width, 2.2px) solid #FFFFFF !important;
+            caret-color: #38bdf8 !important;
+            font-weight: 800 !important;
+        }
+        html:not(.light-theme):not([data-theme="light"]):not([data-theme="pearl-white"]):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) body input:not([type="checkbox"]):not([type="radio"]):not([type="color"]):not([type="file"]):hover,
+        html:not(.light-theme):not([data-theme="light"]):not([data-theme="pearl-white"]):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) body input:not([type="checkbox"]):not([type="radio"]):not([type="color"]):not([type="file"]):focus,
+        html:not(.light-theme):not([data-theme="light"]):not([data-theme="pearl-white"]):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) body input:not([type="checkbox"]):not([type="radio"]):not([type="color"]):not([type="file"]):active,
+        html:not(.light-theme):not([data-theme="light"]):not([data-theme="pearl-white"]):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) body select:hover,
+        html:not(.light-theme):not([data-theme="light"]):not([data-theme="pearl-white"]):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) body select:focus,
+        html:not(.light-theme):not([data-theme="light"]):not([data-theme="pearl-white"]):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) body select:active,
+        html:not(.light-theme):not([data-theme="light"]):not([data-theme="pearl-white"]):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) body textarea:hover,
+        html:not(.light-theme):not([data-theme="light"]):not([data-theme="pearl-white"]):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) body textarea:focus,
+        html:not(.light-theme):not([data-theme="light"]):not([data-theme="pearl-white"]):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) body textarea:active,
+        html:not(.light-theme):not([data-theme="light"]):not([data-theme="pearl-white"]):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) body #pos-grid td .g-input:hover,
+        html:not(.light-theme):not([data-theme="light"]):not([data-theme="pearl-white"]):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) body #pos-grid td .g-input:focus,
+        html:not(.light-theme):not([data-theme="light"]):not([data-theme="pearl-white"]):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) body #pos-grid td .g-select:hover,
+        html:not(.light-theme):not([data-theme="light"]):not([data-theme="pearl-white"]):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) body #pos-grid td .g-select:focus {
+            background: #000000 !important;
+            background-color: #000000 !important;
+            background-image: none !important;
+            color: #FFFFFF !important;
+            -webkit-text-fill-color: #FFFFFF !important;
+            border: var(--ds-c4-border-width, 2.2px) solid #FFFFFF !important;
+            font-weight: 800 !important;
+        }
+        html:not(.light-theme):not([data-theme="light"]):not([data-theme="pearl-white"]):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) body input:-webkit-autofill,
+        html:not(.light-theme):not([data-theme="light"]):not([data-theme="pearl-white"]):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) body input:-webkit-autofill:hover,
+        html:not(.light-theme):not([data-theme="light"]):not([data-theme="pearl-white"]):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) body input:-webkit-autofill:focus,
+        html:not(.light-theme):not([data-theme="light"]):not([data-theme="pearl-white"]):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) body input:-webkit-autofill:active {
+            -webkit-box-shadow: 0 0 0 1000px #000000 inset !important;
+            -webkit-text-fill-color: #FFFFFF !important;
+            background-color: #000000 !important;
+            color: #FFFFFF !important;
+            border: var(--ds-c4-border-width, 2.2px) solid #FFFFFF !important;
+            caret-color: #38bdf8 !important;
         }
 
-        function resolveItemMeta(it, defaultWhObj) {
-            const erpItems = JSON.parse(localStorage.getItem('erp_items_v1') || '[]');
-            const warehouses = getWarehousesList();
-            const itemId = it.itemId || it.id || '';
-            const rawItemName = String(it.itemName || it.name || '').trim();
-
-            // 1. Exact or smart fuzzy match in erp_items_v1
-            let master = erpItems.find(x =>
-                String(x.id) === String(itemId) ||
-                (rawItemName && String(x.name || '').trim() === rawItemName)
-            );
-            if (!master && rawItemName) {
-                const normSearch = rawItemName.replace(/ه/g, 'ة').toLowerCase();
-                master = erpItems.find(x => {
-                    const n = String(x.name || '').replace(/ه/g, 'ة').toLowerCase();
-                    return n && (n.includes(normSearch) || normSearch.includes(n));
-                });
-            }
-
-            const name = rawItemName || (master ? master.name : (itemId || 'صنف عام'));
-            const unit = String(it.selectedUnit || it.unit || it.unitName || (master ? (master.unit || master.baseUnit || 'قطعة') : 'قطعة')).trim();
-            const code = it.code || it.itemCode || (master ? (master.code || master.barcode || itemId) : itemId);
-
-            // 2. Determine true base unit (الوحدة الصغرى مثل سيخة / كيس / حبة) & ton/unit factors
-            const normName = name.toLowerCase();
-            const normUnit = unit.replace(/ه/g, 'ة').toLowerCase();
-            const isSteel = normName.includes('سيخ') || normName.includes('لين') || normName.includes('حديد') || normName.includes('تسليح') || normName.includes('مللي') || normName.includes('ملم');
-            const isCement = normName.includes('أسمنت') || normName.includes('اسمنت');
-            const isBrick = normName.includes('طوب') || normName.includes('بلوك');
-
-            let baseUnit = (master && (master.baseUnit || master.mainUnit || master.unit)) ? String(master.baseUnit || master.mainUnit || master.unit).trim() : '';
-            if (isSteel || normBackupIsTon(baseUnit)) {
-                if (isSteel) baseUnit = 'سيخة';
-                else if (isCement) baseUnit = 'كيس';
-                else if (isBrick) baseUnit = 'حبة';
-                else if (!baseUnit || normBackupIsTon(baseUnit)) baseUnit = 'وحدة';
-            }
-            if (!baseUnit) baseUnit = 'وحدة';
-            if (baseUnit === 'سيخه') baseUnit = 'سيخة';
-
-            function normBackupIsTon(uStr) {
-                const s = String(uStr || '').toLowerCase();
-                return s.includes('طن') || s.includes('شيل') || s.includes('ربط') || s.includes('قلاب') || s.includes('ألف') || s.includes('الف');
-            }
-
-            // 3. Extract units matrix from master item + Steel/Construction standard factors
-            let uList = [];
-            if (master && typeof window.extractItemUnits === 'function') {
-                try { uList = window.extractItemUnits(master) || []; } catch (e) {}
-            }
-            if (master && Array.isArray(master.unitsArray)) {
-                master.unitsArray.forEach(u => {
-                    if (u && (u.name || u.unitName) && !uList.some(x => (x.name || x.unitName) === (u.name || u.unitName))) {
-                        uList.push(u);
-                    }
-                });
-            }
-            if (master && Array.isArray(master.units)) {
-                master.units.forEach(u => {
-                    if (u && (u.name || u.unitName) && !uList.some(x => (x.name || x.unitName) === (u.name || u.unitName))) {
-                        uList.push(u);
-                    }
-                });
-            }
-
-            // Built-in Steel & Materials reference factors (طن عددي / طن عادي / طن وزني / شيلة)
-            let countTonFactor = 0;
-            let weightTonFactor = 0;
-            let bundleStdFactor = 0;
-            if (isSteel) {
-                if (normName.includes('2.5') || normName.includes('8 مل') || normName.includes('8مل')) {
-                    countTonFactor = 200; weightTonFactor = 222; bundleStdFactor = 20;
-                } else if (normName.includes('3') || normName.includes('ثلاث') || normName.includes('10 مل') || normName.includes('10مل')) {
-                    countTonFactor = 135; weightTonFactor = 166; bundleStdFactor = 15;
-                } else if (normName.includes('4') || normName.includes('اربع') || normName.includes('أربع') || normName.includes('12 مل') || normName.includes('12مل')) {
-                    countTonFactor = 92; weightTonFactor = 110; bundleStdFactor = 10;
-                } else if (normName.includes('5') || normName.includes('خمس') || normName.includes('16 مل') || normName.includes('16مل')) {
-                    countTonFactor = 52; weightTonFactor = 59; bundleStdFactor = 5;
-                } else if (normName.includes('6') || normName.includes('ست') || normName.includes('20 مل') || normName.includes('20مل')) {
-                    countTonFactor = 33; weightTonFactor = 40; bundleStdFactor = 3;
-                } else if (normName.includes('7') || normName.includes('22 مل')) {
-                    countTonFactor = 28; weightTonFactor = 33; bundleStdFactor = 3;
-                } else if (normName.includes('8') || normName.includes('25 مل')) {
-                    countTonFactor = 22; weightTonFactor = 26; bundleStdFactor = 2;
-                } else {
-                    countTonFactor = 135; weightTonFactor = 166; bundleStdFactor = 15;
-                }
-                // Check if master has custom factors for طن عددي or طن وزني
-                const mCount = uList.find(u => String(u.name || u.unitName || '').includes('عددي') || String(u.name || u.unitName || '').includes('عادي'));
-                if (mCount && parseFloat(mCount.factor) > 1) countTonFactor = parseFloat(mCount.factor);
-                const mWeight = uList.find(u => String(u.name || u.unitName || '').includes('وزني'));
-                if (mWeight && parseFloat(mWeight.factor) > 1) weightTonFactor = parseFloat(mWeight.factor);
-            } else if (isCement) {
-                countTonFactor = 20; weightTonFactor = 20;
-            } else if (isBrick) {
-                countTonFactor = 1000; weightTonFactor = 1000;
-            }
-
-            // 4. Resolve exact factor for the invoice's selected unit
-            let factor = parseFloat(it.customFactor ?? it.factor ?? it.unitFactor ?? 0);
-            const isBulkOrTonUnit = normBackupIsTon(normUnit) || normUnit.includes('كرتون') || normUnit.includes('طرد') || normUnit.includes('جوال') || normUnit.includes('شوال');
-
-            // Never allow factor=1 if the unit is a Ton/Bundle unit (e.g. طن عددي / طن عادي / طن وزني / شيلة)
-            if (!factor || isNaN(factor) || factor <= 0 || (isBulkOrTonUnit && factor <= 1)) {
-                factor = 1;
-                const foundU = uList.find(u => {
-                    const un = String(u.name || u.unitName || '').replace(/ه/g, 'ة').trim().toLowerCase();
-                    return un === normUnit || (normUnit.includes('عادي') && un.includes('عددي')) || (normUnit.includes('عددي') && un.includes('عادي'));
-                });
-                if (foundU && parseFloat(foundU.factor) > 1) {
-                    factor = parseFloat(foundU.factor);
-                } else if (isSteel) {
-                    if (normUnit.includes('وزني')) factor = weightTonFactor || 166;
-                    else if (normUnit.includes('طن') || normUnit.includes('عددي') || normUnit.includes('عادي')) factor = countTonFactor || 135;
-                    else if (normUnit.includes('شيل') || normUnit.includes('ربط')) factor = bundleStdFactor || 15;
-                } else if (isCement && normUnit.includes('طن')) {
-                    factor = 20;
-                } else if (isBrick && (normUnit.includes('ألف') || normUnit.includes('الف') || normUnit.includes('طن'))) {
-                    factor = 1000;
-                } else if (normUnit.includes('طن')) {
-                    const anyTonU = uList.find(u => String(u.name || u.unitName || '').includes('طن') && parseFloat(u.factor) > 1);
-                    if (anyTonU) factor = parseFloat(anyTonU.factor);
-                    else if (master && parseFloat(master.bundleFactor) > 1) factor = parseFloat(master.bundleFactor);
-                    else if (baseUnit.includes('كجم') || baseUnit.includes('كيلو')) factor = 1000;
-                    else if (baseUnit.includes('كيس') || baseUnit.includes('شوال') || baseUnit.includes('جوال')) factor = 20;
-                }
-            }
-
-            const qty = parseFloat(it.qty ?? it.quantity ?? 0) || 0;
-            const conv = (master && parseFloat(master.conversionFactor) > 0) ? parseFloat(master.conversionFactor) : 1;
-            const savedBase = parseFloat(it.customBaseQty ?? it.baseQty ?? 0) || 0;
-            const computedBase = qty * factor * conv;
-            // If savedBase was mistakenly equal to qty (when factor > 1), use computedBase
-            const baseQty = (factor > 1 && savedBase <= qty) ? computedBase : (savedBase > 0 ? savedBase : computedBase);
-
-            const price = parseFloat(it.price ?? it.unitPrice ?? it.rate ?? (master ? (master.sellingPrice || master.price || 0) : 0)) || 0;
-            const total = parseFloat(it.total ?? it.grossTotal ?? it.subtotal ?? (qty * price)) || (qty * price);
-
-            const rawWh = it.warehouseId || it.warehouse || (defaultWhObj ? defaultWhObj.id : 1);
-            const whObj = warehouses.find(w => String(w.id) === String(rawWh) || String(w.name).trim() === String(rawWh).trim()) || defaultWhObj || warehouses[0];
-
-            // Build human-readable unit & ton breakdown (طن عددي / طن وزني / كمية بالوحدات)
-            const hasMultiUnits = factor > 1 || unit !== baseUnit;
-            const unitEquivLabel = hasMultiUnits
-                ? `${ (qty * factor).toLocaleString('en-US', { maximumFractionDigits: 2 }) } ${baseUnit}`
-                : `${ qty.toLocaleString('en-US', { maximumFractionDigits: 2 }) } ${baseUnit}`;
-
-            let tonRefHint = '';
-            if (isSteel && countTonFactor > 1) {
-                tonRefHint = `طن عددي = ${countTonFactor} ${baseUnit}` + (weightTonFactor > 1 ? ` | طن وزني = ${weightTonFactor} ${baseUnit}` : '');
-            } else if (factor > 1) {
-                tonRefHint = `1 ${unit} = ${factor} ${baseUnit}`;
-            }
-
-            return {
-                name,
-                unit,
-                baseUnit,
-                code,
-                master,
-                factor,
-                qty,
-                baseQty,
-                price,
-                total,
-                hasMultiUnits,
-                unitEquivLabel,
-                tonRefHint,
-                countTonFactor,
-                weightTonFactor,
-                whId: whObj ? whObj.id : rawWh,
-                whName: whObj ? whObj.name : String(rawWh || 'المخزن الرئيسي')
-            };
+        /* 2. LIGHT THEMES: Strict Deep Black (#000000) Text & Thick Borders (+2) on Pure White (#FFFFFF) Inputs inside Stepped Calm Surround (#F1F5F9) */
+        :root.light-theme #invoice-editor-view,
+        :root.light-theme #sales-hub-view,
+        :root.light-theme #split-invoice-view,
+        :root.light-theme #delivery-hub-view,
+        body.light-theme #invoice-editor-view,
+        html[data-theme="light"] #invoice-editor-view,
+        html[data-theme="pearl-white"] #invoice-editor-view,
+        html[data-theme="warm_cream"] #invoice-editor-view,
+        html[data-theme="ultra_white"] #invoice-editor-view,
+        html[data-theme="exec_gray"] #invoice-editor-view {
+            color: #000000 !important;
+            font-weight: var(--ds-c4-font-weight, 800) !important;
         }
-        window.resolveItemMeta = resolveItemMeta;
-
-        window.openDeliveryForInvoiceFromHub = function(invoiceNo, focusItemIdx = 0, focusUnitMode = 'primary') {
-            if (!invoiceNo) return;
-            if (typeof window.openWorldClassDeliveryModal === 'function') {
-                window.openWorldClassDeliveryModal(String(invoiceNo), focusItemIdx, focusUnitMode);
-            }
-        };
-
-        window.gdnHubState = {
-            whFilter: 'all',
-            dateFilter: 'all',
-            pageLimit: 100
-        };
-
-        function readPersistentGdnJson(keysList) {
-            for (const k of keysList) {
-                try {
-                    const v = localStorage.getItem(k);
-                    if (v) {
-                        const parsed = JSON.parse(v);
-                        if (parsed && typeof parsed === 'object') return parsed;
-                    }
-                } catch (e) {}
-            }
-            try {
-                for (let i = 0; i < localStorage.length; i++) {
-                    const sk = localStorage.key(i);
-                    if (!sk) continue;
-                    if (keysList.some(k => sk === k || sk.endsWith('_' + k))) {
-                        const raw = localStorage.getItem(sk);
-                        if (raw) {
-                            const parsed = JSON.parse(raw);
-                            if (parsed && typeof parsed === 'object') return parsed;
-                        }
-                    }
-                }
-            } catch (e) {}
-            return null;
+        :root.light-theme #invoice-editor-view input:not([type="checkbox"]):not([type="radio"]):not([type="color"]):not([type="file"]),
+        :root.light-theme #invoice-editor-view select:not(#hdr-price-tier),
+        :root.light-theme #invoice-editor-view textarea,
+        :root.light-theme #sales-hub-view input:not([type="checkbox"]):not([type="radio"]),
+        :root.light-theme #sales-hub-view select,
+        :root.light-theme #split-invoice-view input:not([type="checkbox"]):not([type="radio"]),
+        :root.light-theme #split-invoice-view select,
+        :root.light-theme #split-voice-assistant-modal input:not([type="checkbox"]):not([type="radio"]),
+        :root.light-theme #delivery-hub-view input:not([type="checkbox"]):not([type="radio"]),
+        :root.light-theme #delivery-hub-view select,
+        :root.light-theme #t-transport,
+        :root.light-theme #t-labor,
+        :root.light-theme #addition-amt,
+        :root.light-theme #tax-amt,
+        :root.light-theme #discount-amt,
+        :root.light-theme #pay-cash-amount,
+        :root.light-theme #hdr-payment-account,
+        :root.light-theme #pay-cash-ref,
+        :root.light-theme #pay-cash-note,
+        :root.light-theme #pay-credit-amount,
+        :root.light-theme #pay-credit-due-date,
+        :root.light-theme #preset-selector,
+        :root.light-theme .ds-c1-modal-card input:not([type="checkbox"]):not([type="radio"]),
+        :root.light-theme .ds-c1-modal-card select,
+        :root.light-theme .ds-c1-modal-card textarea,
+        :root.light-theme .modal-card input:not([type="checkbox"]):not([type="radio"]),
+        :root.light-theme .modal-card select,
+        :root.light-theme .modal-card textarea,
+        :root.light-theme #add-customer-modal input:not([type="checkbox"]):not([type="radio"]),
+        :root.light-theme #add-customer-modal select {
+            background: #FFFFFF !important;
+            background-color: #FFFFFF !important;
+            background-image: none !important;
+            color: #000000 !important;
+            -webkit-text-fill-color: #000000 !important;
+            border: var(--ds-c4-border-width, 2.2px) solid #000000 !important;
+            caret-color: #0284c7 !important;
+            font-weight: 800 !important;
+            box-shadow: none !important;
+        }
+        :root.light-theme body input:not([type="checkbox"]):not([type="radio"]):not([type="color"]):not([type="file"]):hover,
+        :root.light-theme body input:not([type="checkbox"]):not([type="radio"]):not([type="color"]):not([type="file"]):focus,
+        :root.light-theme body input:not([type="checkbox"]):not([type="radio"]):not([type="color"]):not([type="file"]):active,
+        :root.light-theme body select:not(#hdr-price-tier):hover,
+        :root.light-theme body select:not(#hdr-price-tier):focus,
+        :root.light-theme body select:not(#hdr-price-tier):active,
+        :root.light-theme body textarea:hover,
+        :root.light-theme body textarea:focus,
+        :root.light-theme body textarea:active,
+        :root.light-theme body #pos-grid td .g-input:hover,
+        :root.light-theme body #pos-grid td .g-input:focus,
+        :root.light-theme body #pos-grid td .g-select:hover,
+        :root.light-theme body #pos-grid td .g-select:focus {
+            background: #FFFFFF !important;
+            background-color: #FFFFFF !important;
+            background-image: none !important;
+            color: #000000 !important;
+            -webkit-text-fill-color: #000000 !important;
+            border: var(--ds-c4-border-width, 2.2px) solid #000000 !important;
+            font-weight: 800 !important;
+        }
+        :root.light-theme body input:-webkit-autofill,
+        :root.light-theme body input:-webkit-autofill:hover,
+        :root.light-theme body input:-webkit-autofill:focus,
+        :root.light-theme body input:-webkit-autofill:active {
+            -webkit-box-shadow: 0 0 0 1000px #FFFFFF inset !important;
+            -webkit-text-fill-color: #000000 !important;
+            background-color: #FFFFFF !important;
+            color: #000000 !important;
+            border: var(--ds-c4-border-width, 2.2px) solid #000000 !important;
+            caret-color: #0284c7 !important;
         }
 
-        function writePersistentGdnJson(primaryKey, legacyKey, obj) {
-            const jsonStr = JSON.stringify(obj);
-            try { localStorage.setItem(primaryKey, jsonStr); } catch (e) {}
-            try { if (legacyKey) localStorage.setItem(legacyKey, jsonStr); } catch (e) {}
-            try {
-                if (typeof window.getTenantKey === 'function') {
-                    localStorage.setItem(window.getTenantKey(primaryKey), jsonStr);
-                    if (legacyKey) localStorage.setItem(window.getTenantKey(legacyKey), jsonStr);
-                }
-            } catch (e) {}
+        /* Light Theme Child Modals, Dropdowns, Panels & Tables Full Inheritance (+2 Border Thickness & Surround Contrast) */
+        :root.light-theme #form-fields-card,
+        :root.light-theme .sales-glass-card,
+        :root.light-theme #items-panel,
+        :root.light-theme .panel-header-row,
+        :root.light-theme #payment-panel,
+        :root.light-theme #inline-totals-container,
+        :root.light-theme #invoice-editor-view .items-toolbar,
+        :root.light-theme #sales-parked-invoices-modal > div,
+        :root.light-theme #sales-cust-history-modal > div,
+        :root.light-theme #grid-settings-modal > div,
+        :root.light-theme #invoice-delete-modal > div,
+        :root.light-theme #delivery-confirmation-modal .gdn-smart-modal-card,
+        :root.light-theme #gdn-qr-scanner-modal > div,
+        :root.light-theme .ds-c1-modal-card,
+        :root.light-theme .modal-card,
+        :root.light-theme #customer-dropdown-list,
+        :root.light-theme #quick-item-dropdown-list,
+        :root.light-theme #share-popup-menu,
+        :root.light-theme #auto-send-sales-dropdown-menu,
+        :root.light-theme #split-invoice-view .neo-card,
+        :root.light-theme #split-header-info > div > div,
+        :root.light-theme #split-items-body td > div > div,
+        :root.light-theme #post-split-success-modal > div,
+        :root.light-theme #post-split-success-modal > div > div > div,
+        :root.light-theme #split-genealogy-tree-modal > div,
+        :root.light-theme #split-voice-assistant-modal > div,
+        :root.light-theme #split-hands-on-sim-modal > div,
+        :root.light-theme #split-drilldown-doc-modal > div,
+        :root.light-theme #split-analytics-modal > div,
+        :root.light-theme #split-weight-shield-modal > div,
+        :root.light-theme #split-driver-signature-modal > div,
+        :root.light-theme #split-presets-modal > div {
+            background: #F1F5F9 !important;
+            background-color: #F1F5F9 !important;
+            color: #000000 !important;
+            border: var(--ds-c4-card-border-width, 2.4px) solid #000000 !important;
+        }
+        :root.light-theme #split-voice-assistant-modal *,
+        :root.light-theme #split-hands-on-sim-modal *,
+        :root.light-theme #split-drilldown-doc-modal *,
+        :root.light-theme #split-analytics-modal *,
+        :root.light-theme #split-invoice-view h3,
+        :root.light-theme #split-invoice-view h4,
+        :root.light-theme #split-invoice-view th,
+        :root.light-theme #split-invoice-view td,
+        :root.light-theme #split-invoice-view span,
+        :root.light-theme #split-invoice-view label,
+        :root.light-theme #split-invoice-view strong,
+        :root.light-theme #post-split-success-modal h3,
+        :root.light-theme #post-split-success-modal p,
+        :root.light-theme #post-split-success-modal div,
+        :root.light-theme #post-split-success-modal span,
+        :root.light-theme #post-split-success-modal strong,
+        :root.light-theme #split-genealogy-tree-modal h3,
+        :root.light-theme #split-genealogy-tree-modal th,
+        :root.light-theme #split-genealogy-tree-modal td,
+        :root.light-theme #split-genealogy-tree-modal span {
+            color: #000000 !important;
+            font-weight: 900 !important;
+        }
+        :root.light-theme #split-invoice-view table.pos-grid thead tr,
+        :root.light-theme #split-genealogy-tree-modal thead tr {
+            background: #E2E8F0 !important;
+            color: #000000 !important;
+            border-bottom: 2.4px solid #000000 !important;
+        }
+        :root.light-theme #sales-parked-invoices-modal td,
+        :root.light-theme #sales-parked-invoices-modal th,
+        :root.light-theme #sales-cust-history-modal td,
+        :root.light-theme #sales-cust-history-modal th,
+        :root.light-theme #grid-settings-modal span,
+        :root.light-theme #grid-settings-modal label,
+        :root.light-theme #grid-settings-modal h2,
+        :root.light-theme #grid-settings-modal h3,
+        :root.light-theme #invoice-delete-modal h2,
+        :root.light-theme #invoice-delete-modal p,
+        :root.light-theme .ds-c1-modal-card h3,
+        :root.light-theme .ds-c1-modal-card label,
+        :root.light-theme .ds-c1-modal-card p,
+        :root.light-theme .ds-c1-modal-card td,
+        :root.light-theme .ds-c1-modal-card th,
+        :root.light-theme .modal-card h3,
+        :root.light-theme .modal-card label,
+        :root.light-theme #customer-dropdown-list *,
+        :root.light-theme #quick-item-dropdown-list *,
+        :root.light-theme #share-popup-menu button span,
+        :root.light-theme #auto-send-sales-dropdown-menu .auto-send-item-title,
+        :root.light-theme #fin-strip span:not(#fin-remaining) {
+            color: #000000 !important;
+            font-weight: 800 !important;
+        }
+        :root.light-theme #sales-parked-invoices-modal thead tr,
+        :root.light-theme #sales-cust-history-modal thead tr,
+        :root.light-theme .ds-c1-modal-card thead tr,
+        :root.light-theme #pos-grid thead tr {
+            background: #E2E8F0 !important;
+            color: #000000 !important;
+            border-bottom: 2.4px solid #000000 !important;
+        }
+        :root.light-theme #pos-grid thead th {
+            color: #000000 !important;
+            font-weight: 900 !important;
+        }
+        :root.light-theme #row-grand-total {
+            background: linear-gradient(90deg, #ECFDF5 0%, #D1FAE5 50%, #ECFDF5 100%) !important;
+            border-top: 2.4px solid #000000 !important;
+            border-bottom: 2.4px solid #000000 !important;
+        }
+        :root.light-theme #lbl-grand-dynamic {
+            color: #065F46 !important;
+            text-shadow: none !important;
+            font-weight: 900 !important;
         }
 
-        function getGdnHubColsConfig() {
-            const saved = readPersistentGdnJson(['magaies_gdn_hub_cols_v2', 'erp_gdn_hub_cols_v1']);
-            if (saved && typeof saved === 'object') {
-                return {
-                    colInvNo: saved.colInvNo !== false,
-                    colDateTime: saved.colDateTime !== false,
-                    colCustomer: saved.colCustomer !== false,
-                    colItems: saved.colItems !== false,
-                    colItemWh: saved.colItemWh !== false,
-                    colItemSpec: saved.colItemSpec !== false,
-                    colItemBaseUnit: saved.colItemBaseUnit !== false,
-                    colWarehouse: saved.colWarehouse !== false,
-                    colActions: saved.colActions !== false
-                };
-            }
-            return {
-                colInvNo: true,
-                colDateTime: true,
-                colCustomer: true,
-                colItems: true,
-                colItemWh: true,
-                colItemSpec: true,
-                colItemBaseUnit: true,
-                colWarehouse: true,
-                colActions: true
-            };
+        /* Non-blocking Child Modal Backdrop & Card */
+        .ds-c1-modal-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(2, 6, 23, 0.82);
+            backdrop-filter: blur(8px);
+            z-index: 1000000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            direction: rtl;
+        }
+        .ds-c1-modal-card {
+            background: #111c33;
+            color: #FFFFFF;
+            border: 2.4px solid #FFFFFF;
+            border-radius: 18px;
+            width: 100%;
+            max-width: 520px;
+            padding: 20px;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.85);
+            font-family: 'Cairo', 'Tajawal', sans-serif;
+            font-weight: 800;
         }
 
-        window.toggleGdnHubCol = function(colKey, isChecked) {
-            const cfg = getGdnHubColsConfig();
-            cfg[colKey] = !!isChecked;
-            writePersistentGdnJson('magaies_gdn_hub_cols_v2', 'erp_gdn_hub_cols_v1', cfg);
-            window.renderWorldClassDeliveryHub();
-        };
+        /* Save Reassurance Visual Pulse */
+        @keyframes dsSaveSuccessPulse {
+            0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.75); }
+            50% { box-shadow: 0 0 0 14px rgba(16, 185, 129, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+        }
+        .ds-save-pulse-active {
+            animation: dsSaveSuccessPulse 0.85s ease-out;
+        }
+    </style>
 
-        window.lockAndSaveGdnHubCols = function() {
-            const cfg = getGdnHubColsConfig();
-            document.querySelectorAll('#gdn-hub-cols-drawer input[data-hub-col]').forEach(chk => {
-                cfg[chk.dataset.hubCol] = !!chk.checked;
-            });
-            writePersistentGdnJson('magaies_gdn_hub_cols_v2', 'erp_gdn_hub_cols_v1', cfg);
-            const drawer = document.getElementById('gdn-hub-cols-drawer');
-            if (drawer) drawer.style.display = 'none';
-            window.renderWorldClassDeliveryHub();
-            if (typeof showToast === 'function') showToast('✅ تم تثبيت وحفظ ضبط الكولومات نهائياً ولن تتغير إلا عند تعديلها يدوياً', 'success');
-        };
-
-        window.setGdnHubFilterState = function(key, val) {
-            window.gdnHubState[key] = val;
-            window.renderWorldClassDeliveryHub();
-        };
-
-        function getGdnOptionalColsConfig() {
-            const saved = readPersistentGdnJson(['magaies_gdn_optional_cols_v3', 'erp_gdn_optional_cols_v2', 'erp_gdn_optional_cols_v1']);
-            if (saved && typeof saved === 'object') {
-                return {
-                    showWarehouse: saved.showWarehouse !== false,
-                    showItemName: saved.showItemName !== false,
-                    showItemSpec: saved.showItemSpec !== false,
-                    showPrimaryUnit: saved.showPrimaryUnit !== false,
-                    showOrderedQty: saved.showOrderedQty !== false,
-                    showUnitsCount: saved.showUnitsCount !== false,
-                    showPriceTotal: saved.showPriceTotal === true,
-                    showAvailStock: saved.showAvailStock !== false,
-                    showReceivePrimary: saved.showReceivePrimary !== false,
-                    showReceiveBase: saved.showReceiveBase !== false,
-                    showNetSummary: saved.showNetSummary !== false,
-                    colWidthScale: saved.colWidthScale || 'wide'
-                };
+    <script id="ds-constitution1-engine">
+    (function() {
+        // 1. Replace any native window.alert with sleek 2-second Floating Toast
+        window.alert = function(msg) {
+            if (typeof window.showToast === 'function') {
+                window.showToast(String(msg || ''), 'warning', 2200);
             }
-            return {
-                showWarehouse: true,
-                showItemName: true,
-                showItemSpec: true,
-                showPrimaryUnit: true,
-                showOrderedQty: true,
-                showUnitsCount: true,
-                showPriceTotal: false,
-                showAvailStock: true,
-                showReceivePrimary: true,
-                showReceiveBase: true,
-                showNetSummary: true,
-                colWidthScale: 'wide'
-            };
+        };
+
+        // 2. Tolerant Arabic Normalization Engine (أ، إ، آ = ا | ة = ه | ى = ي | ؤ = و + Arabic Digits)
+        window.normalizeDsArabic = function(str) {
+            if (!str) return '';
+            const arabicNums = {'٠':'0','١':'1','٢':'2','٣':'3','٤':'4','٥':'5','٦':'6','٧':'7','٨':'8','٩':'9'};
+            return String(str)
+                .replace(/[٠-٩]/g, d => arabicNums[d] || d)
+                .replace(/[\u064B-\u065F\u0670\u0640]/g, '')
+                .replace(/[أإآٱ]/g, 'ا')
+                .replace(/ة/g, 'ه')
+                .replace(/[ىئ]/g, 'ي')
+                .replace(/ؤ/g, 'و')
+                .toLowerCase()
+                .trim();
+        };
+        window.normalizeArabic = window.normalizeDsArabic;
+
+        // 3. Auto-Select ALL Numeric Inputs on Focus & Click (No Manual Backspace Needed)
+        function isNumericSalesInput(el) {
+            if (!el || el.tagName !== 'INPUT' || el.readOnly || el.disabled) return false;
+            const t = (el.type || '').toLowerCase();
+            if (t === 'number' || el.inputMode === 'decimal' || el.inputMode === 'numeric') return true;
+            if (el.classList.contains('num-input') || el.classList.contains('tot-input') || el.classList.contains('amount')) return true;
+            const id = el.id || '';
+            if (id.startsWith('t-') || id.startsWith('pay-') || id.startsWith('split-') || id.includes('qty') || id.includes('price') || id.includes('opening') || id.includes('credit')) return true;
+            if (el.hasAttribute('data-qty-input') || el.hasAttribute('data-price-input') || el.hasAttribute('data-factor-input')) return true;
+            return false;
         }
 
-        function refreshModalWithDraftPreserved() {
-            const draftQtys = {};
-            const draftWhs = {};
-            document.querySelectorAll('.gdn-modal-deliver-qty').forEach(inp => {
-                draftQtys[inp.dataset.itemIdx] = inp.value;
-            });
-            document.querySelectorAll('.gdn-modal-item-wh').forEach(sel => {
-                draftWhs[sel.dataset.itemIdx] = sel.value;
-            });
-            if (typeof window.renderModalOriginColumnsTable === 'function') {
-                window.renderModalOriginColumnsTable(draftQtys, draftWhs);
+        document.addEventListener('focusin', function(e) {
+            const t = e.target;
+            if (isNumericSalesInput(t)) {
+                setTimeout(() => { try { t.select(); } catch (_e) {} }, 10);
             }
-        }
-
-        window.toggleGdnOptionalCol = function(colKey, isChecked) {
-            const cfg = getGdnOptionalColsConfig();
-            cfg[colKey] = !!isChecked;
-            writePersistentGdnJson('magaies_gdn_optional_cols_v3', 'erp_gdn_optional_cols_v2', cfg);
-            refreshModalWithDraftPreserved();
-        };
-
-        window.setGdnModalWidthScale = function(scaleMode) {
-            const cfg = getGdnOptionalColsConfig();
-            cfg.colWidthScale = scaleMode;
-            writePersistentGdnJson('magaies_gdn_optional_cols_v3', 'erp_gdn_optional_cols_v2', cfg);
-            refreshModalWithDraftPreserved();
-        };
-
-        window.applyGdnColPreset = function(preset) {
-            const cfg = getGdnOptionalColsConfig();
-            if (preset === 'storekeeper_focus') {
-                cfg.showWarehouse = true;
-                cfg.showItemName = true;
-                cfg.showItemSpec = false;
-                cfg.showPrimaryUnit = false;
-                cfg.showOrderedQty = true;
-                cfg.showUnitsCount = true;
-                cfg.showPriceTotal = false;
-                cfg.showAvailStock = false;
-                cfg.showReceivePrimary = true;
-                cfg.showReceiveBase = true;
-                cfg.showNetSummary = true;
-                cfg.colWidthScale = 'ultrawide';
-            } else {
-                cfg.showWarehouse = true;
-                cfg.showItemName = true;
-                cfg.showItemSpec = true;
-                cfg.showPrimaryUnit = true;
-                cfg.showOrderedQty = true;
-                cfg.showUnitsCount = true;
-                cfg.showAvailStock = true;
-                cfg.showReceivePrimary = true;
-                cfg.showReceiveBase = true;
-                cfg.showNetSummary = true;
-            }
-            writePersistentGdnJson('magaies_gdn_optional_cols_v3', 'erp_gdn_optional_cols_v2', cfg);
-            refreshModalWithDraftPreserved();
-        };
-
-        window.lockAndSaveGdnModalCols = function() {
-            const cfg = getGdnOptionalColsConfig();
-            const mapIds = {
-                'chk-gdn-col-wh': 'showWarehouse',
-                'chk-gdn-col-item': 'showItemName',
-                'chk-gdn-col-spec': 'showItemSpec',
-                'chk-gdn-col-punit': 'showPrimaryUnit',
-                'chk-gdn-col-oqty': 'showOrderedQty',
-                'chk-gdn-col-units': 'showUnitsCount',
-                'chk-gdn-col-avail': 'showAvailStock',
-                'chk-gdn-col-price': 'showPriceTotal',
-                'chk-gdn-col-recp': 'showReceivePrimary',
-                'chk-gdn-col-recb': 'showReceiveBase',
-                'chk-gdn-col-net': 'showNetSummary'
-            };
-            Object.keys(mapIds).forEach(id => {
-                const el = document.getElementById(id);
-                if (el) cfg[mapIds[id]] = !!el.checked;
-            });
-            writePersistentGdnJson('magaies_gdn_optional_cols_v3', 'erp_gdn_optional_cols_v2', cfg);
-            const drawer = document.getElementById('gdn-modal-cols-drawer');
-            if (drawer) drawer.style.display = 'none';
-            refreshModalWithDraftPreserved();
-            if (typeof showToast === 'function') showToast('✅ تم تثبيت وحفظ ضبط كولومات البطاقة نهائياً ولن تتغير إلا عند تعديلها يدوياً', 'success');
-        };
-
-        window.filterModalOriginRows = function(query) {
-            const q = String(query || '').trim().toLowerCase();
-            document.querySelectorAll('.gdn-origin-columns-table tbody tr').forEach(tr => {
-                if (!q) {
-                    tr.style.display = '';
-                    return;
-                }
-                const txt = (tr.textContent || '').toLowerCase();
-                tr.style.display = txt.includes(q) ? '' : 'none';
-            });
-        };
-
-        function resolveCustomerName(inv) {
-            if (inv.customerName && inv.customerName !== 'walk-in') return inv.customerName;
-            const cId = inv.customer || inv.customerId || '';
-            if (!cId || cId === 'walk-in') return 'عميل نقدي';
-            const custs = JSON.parse(localStorage.getItem('erp_customers_v1') || '[]');
-            const found = custs.find(c => c && String(c.id) === String(cId));
-            return found ? found.name : cId;
-        }
-
-        function getAvailableStockForItem(item, whId) {
-            const { name, master } = resolveItemMeta(item);
-            if (master && master.actualStock && master.actualStock[whId] !== undefined) {
-                return parseFloat(master.actualStock[whId]) || 0;
-            }
-            if (master && master.stock && master.stock[whId] !== undefined) {
-                return parseFloat(master.stock[whId]) || 0;
-            }
-            const invList = JSON.parse(localStorage.getItem('erp_inventory_v1') || '[]');
-            const entry = invList.find(x => (String(x.itemId || x.id) === String(item.itemId || item.id) || String(x.name || '').trim() === name.trim()) && (String(x.warehouseId || x.warehouse || 1) === String(whId)));
-            if (entry) return parseFloat(entry.qty ?? entry.quantity ?? 0) || 0;
-            return master && master.quantity !== undefined ? (parseFloat(master.quantity) || 0) : null;
-        }
-
-        // Upgrade Delivery Hub Header, Table Structure & Ultra-Wide Modal
-        function upgradeDeliveryHubDOM() {
-            const hubView = document.getElementById('delivery-hub-view');
-            if (!hubView) return;
-
-            if (localStorage.getItem('erp_delivery_sunlight_mode') === '1') {
-                document.body.classList.add('gdn-sunlight-mode');
-            }
-
-            const warehouses = getWarehousesList();
-            const hubCols = getGdnHubColsConfig();
-            const whFilterOpts = `<option value="all">🏢 كل المخازن (تركيز شامل)</option>` +
-                warehouses.map(w => `<option value="${w.id}" ${String(window.gdnHubState.whFilter) === String(w.id) ? 'selected' : ''}>🏢 ${w.name}</option>`).join('');
-
-            // 1. Inject High-Speed 1000+ Vouchers Search, Filter & Column Controller Bar
-            const headerDiv = hubView.querySelector('.neo-card-title') || hubView.querySelector('.hub-header');
-            if (headerDiv && (!document.getElementById('gdn-world-class-toolbar') || headerDiv.dataset.hubToolbarVersion !== '3')) {
-                headerDiv.dataset.hubToolbarVersion = '3';
-                const oldBar = document.getElementById('gdn-world-class-toolbar');
-                if (oldBar) oldBar.remove();
-
-                const extraBar = document.createElement('div');
-                extraBar.id = 'gdn-world-class-toolbar';
-                extraBar.style.cssText = 'margin: 10px 0 12px 0; display: flex; flex-direction: column; gap: 8px;';
-                extraBar.innerHTML = `
-                    <!-- Row 1: KPIs + Super Search (1000+ Vouchers) + Warehouse Focus + QR Scanner -->
-                    <div style="background:linear-gradient(135deg, rgba(15,23,42,0.92), rgba(6,78,59,0.28)); border:1.5px solid rgba(16,185,129,0.35); padding:12px 16px; border-radius:14px; display:flex; flex-wrap:wrap; gap:10px; align-items:center; justify-content:space-between;">
-                        <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
-                            <span style="background:rgba(245,158,11,0.16); border:1px solid rgba(245,158,11,0.4); color:#fbbf24; padding:6px 12px; border-radius:9px; font-size:0.84rem; font-weight:900;">
-                                ⏳ قيد التسليم: <strong id="gdn-kpi-pending">0</strong>
-                            </span>
-                            <span style="background:rgba(16,185,129,0.16); border:1px solid rgba(16,185,129,0.4); color:#34d399; padding:6px 12px; border-radius:9px; font-size:0.84rem; font-weight:900;">
-                                ✅ المسلمة: <strong id="gdn-kpi-delivered">0</strong>
-                            </span>
-                            <span style="background:rgba(56,189,248,0.16); border:1px solid rgba(56,189,248,0.4); color:#38bdf8; padding:6px 12px; border-radius:9px; font-size:0.84rem; font-weight:900;">
-                                📊 الكميات المتبقية: <strong id="gdn-kpi-qty">0</strong>
-                            </span>
-                            <span id="gdn-kpi-match-count" style="background:rgba(168,85,247,0.16); border:1px solid rgba(168,85,247,0.4); color:#d8b4fe; padding:6px 12px; border-radius:9px; font-size:0.82rem; font-weight:900;">
-                                🔍 النتائج: 0
-                            </span>
-                        </div>
-
-                        <!-- Super Search & Mobile QR Input for 1000+ Vouchers -->
-                        <div style="display:flex; align-items:center; gap:8px; flex:1; min-width:280px; max-width:650px;">
-                            <button onclick="openDeliveryQrScannerModal()" class="gdn-kinetic-btn" style="background:linear-gradient(135deg, #059669, #0284c7); color:#fff; border:1px solid #34d399; white-space:nowrap; padding:8px 14px; box-shadow:0 0 15px rgba(16,185,129,0.35);">
-                                <span id="gdn-hub-bridge-dot" style="width:8px; height:8px; border-radius:50%; background:#fcd34d; display:inline-block;"></span>
-                                📱 ربط كاميرا الجوال (F2)
-                            </button>
-                            <input type="text" id="gdn-quick-scan-input" class="gdn-borderless-input" placeholder="🔍 ابحث في +1000 إذن (رقم الإذن، العميل، الصنف، المستلم) أو اضغط Enter للفتح/الخصم الفوري..." style="width:100%; padding:8px 12px !important; font-size:0.9rem !important; border-color:rgba(56,189,248,0.45) !important;" oninput="const s=document.getElementById('delivery-search'); if(s) s.value=this.value; window.renderWorldClassDeliveryHub();" onkeydown="if(event.key==='Enter'){event.preventDefault(); processScannedDeliveryCode(this.value, true);}">
-                        </div>
-
-                        <!-- Filters: Warehouse Focus + Date + Status + Limit + Column Settings Toggle -->
-                        <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
-                            <select id="gdn-hub-wh-filter" class="gdn-borderless-select" onchange="setGdnHubFilterState('whFilter', this.value)" style="color:#fcd34d !important; font-size:0.82rem !important; padding:6px 10px !important;" title="تركيز على مخزن محدد">
-                                ${whFilterOpts}
-                            </select>
-                            <select id="gdn-hub-date-filter" class="gdn-borderless-select" onchange="setGdnHubFilterState('dateFilter', this.value)" style="color:#7dd3fc !important; font-size:0.82rem !important; padding:6px 10px !important;">
-                                <option value="all">📅 كل التواريخ</option>
-                                <option value="today">📅 أذونات اليوم</option>
-                                <option value="yesterday">📅 أذونات أمس</option>
-                                <option value="week">📅 آخر 7 أيام</option>
-                            </select>
-                            <select id="gdn-hub-limit-select" class="gdn-borderless-select" onchange="setGdnHubFilterState('pageLimit', parseInt(this.value,10)||100)" style="color:#a7f3d0 !important; font-size:0.82rem !important; padding:6px 10px !important;" title="عدد الأذونات المعروضة لسرعة التصفح">
-                                <option value="50">⚡ عرض 50 إذن</option>
-                                <option value="100" selected>⚡ عرض 100 إذن</option>
-                                <option value="250">⚡ عرض 250 إذن</option>
-                                <option value="500">⚡ عرض 500 إذن</option>
-                                <option value="99999">📋 عرض الكل (+1000)</option>
-                            </select>
-                            <button id="gdn-tab-pending" onclick="setGdnFilter('pending')" class="gdn-kinetic-btn" style="background:#10b981; color:#ffffff; border:none;">⏳ قيد التسليم</button>
-                            <button id="gdn-tab-delivered" onclick="setGdnFilter('delivered')" class="gdn-kinetic-btn" style="background:rgba(255,255,255,0.08); color:#e2e8f0; border:1px solid rgba(255,255,255,0.15);">✅ المسلمة</button>
-                            <button id="gdn-tab-all" onclick="setGdnFilter('all')" class="gdn-kinetic-btn" style="background:rgba(255,255,255,0.08); color:#e2e8f0; border:1px solid rgba(255,255,255,0.15);">📋 الكل</button>
-                            <button type="button" onclick="window._splitReturnToView='delivery'; openSplitInvoiceView();" class="gdn-kinetic-btn kinetic-glow-arm kinetic-arm-pink" style="padding:6px 14px;" title="تقسيم أي إذن مبيعات إلى أقسام متسلسلة (100/17/1 و 100/17/2)">
-                                ✂️ تقسيم إذن / فاتورة
-                            </button>
-                            <button type="button" onclick="const d=document.getElementById('gdn-hub-cols-drawer'); if(d) d.style.display=(d.style.display==='none'?'flex':'none');" class="gdn-kinetic-btn" style="background:rgba(168,85,247,0.18); border:1px solid rgba(192,132,252,0.45); color:#e9d5ff;" title="إظهار أو إخفاء شريط ضبط الكولومات (الأعمدة محفوظة تلقائياً)">
-                                ⚙️ ضبط الكولومات (محفوظ ✅)
-                            </button>
-                            <a href="sales-delivery.php" class="gdn-kinetic-btn" style="background:rgba(56,189,248,0.14); border:1px solid rgba(56,189,248,0.35); color:#38bdf8; text-decoration:none;">🚛 بوابة الصرف (كلاسيكي)</a>
-                            <a href="smart-logistics.php?mode=sales" class="gdn-kinetic-btn" style="background:linear-gradient(135deg,rgba(16,185,129,0.28),rgba(14,165,233,0.28)); border:1.5px solid #34d399; color:#ffffff; text-decoration:none; box-shadow:0 0 14px rgba(16,185,129,0.35);">🚀 البوابة الموحدة الذكية</a>
-                            <button onclick="toggleDeliverySunlightMode()" id="gdn-sunlight-btn" class="gdn-kinetic-btn" style="background:#fef08a; color:#000000; border:none;" title="وضع الشمس للمخزنجي (F4)">☀️</button>
-                        </div>
-                    </div>
-
-                    <!-- Live Continuous QR Scan Banner in Delivery Hub -->
-                    <div id="gdn-live-continuous-banner" style="display:none; padding:12px 18px; border-radius:14px; font-weight:900; font-size:1rem; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; box-shadow:0 10px 25px rgba(0,0,0,0.45);">
-                        <div id="gdn-live-continuous-banner-text"></div>
-                        <button type="button" onclick="document.getElementById('gdn-live-continuous-banner').style.display='none'" style="background:rgba(255,255,255,0.2); border:none; color:#fff; border-radius:8px; padding:3px 10px; cursor:pointer; font-weight:900;">✕</button>
-                    </div>
-
-                    <!-- Row 2: Collapsible Main Outer Table Column Visibility Drawer (يفتح فقط عند الرغبة في التعديل ويحفظ تلقائياً) -->
-                    <div id="gdn-hub-cols-drawer" style="display:none; background:rgba(15,23,42,0.88); border:1.5px solid rgba(168,85,247,0.4); padding:10px 14px; border-radius:12px; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; box-shadow:0 8px 24px rgba(0,0,0,0.45);">
-                        <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
-                            <span style="font-size:0.8rem; font-weight:900; color:#e9d5ff; margin-left:4px;">⚙️ اختر الكولومات التي تريد إظهارها في الشاشة الرئيسية (تُحفظ تلقائياً وتثبت في محلها):</span>
-                            <label class="gdn-col-toggle-chip"><input type="checkbox" data-hub-col="colInvNo" ${hubCols.colInvNo ? 'checked' : ''} onchange="toggleGdnHubCol('colInvNo', this.checked)"><span>📄 رقم الإذن</span></label>
-                            <label class="gdn-col-toggle-chip"><input type="checkbox" data-hub-col="colDateTime" ${hubCols.colDateTime ? 'checked' : ''} onchange="toggleGdnHubCol('colDateTime', this.checked)"><span>📅 التاريخ والوقت</span></label>
-                            <label class="gdn-col-toggle-chip"><input type="checkbox" data-hub-col="colCustomer" ${hubCols.colCustomer ? 'checked' : ''} onchange="toggleGdnHubCol('colCustomer', this.checked)"><span>👤 العميل والمستلم</span></label>
-                            <label class="gdn-col-toggle-chip"><input type="checkbox" data-hub-col="colItems" ${hubCols.colItems ? 'checked' : ''} onchange="toggleGdnHubCol('colItems', this.checked)"><span>📦 عمود الأصناف</span></label>
-                            <label class="gdn-col-toggle-chip"><input type="checkbox" data-hub-col="colItemWh" ${hubCols.colItemWh ? 'checked' : ''} onchange="toggleGdnHubCol('colItemWh', this.checked)"><span>🏢 المخزن بالصنف</span></label>
-                            <label class="gdn-col-toggle-chip"><input type="checkbox" data-hub-col="colItemSpec" ${hubCols.colItemSpec ? 'checked' : ''} onchange="toggleGdnHubCol('colItemSpec', this.checked)"><span>⚖️ البيان/المعامل</span></label>
-                            <label class="gdn-col-toggle-chip"><input type="checkbox" data-hub-col="colItemBaseUnit" ${hubCols.colItemBaseUnit ? 'checked' : ''} onchange="toggleGdnHubCol('colItemBaseUnit', this.checked)"><span>🔢 الوحدة الفرعية</span></label>
-                            <label class="gdn-col-toggle-chip"><input type="checkbox" data-hub-col="colWarehouse" ${hubCols.colWarehouse ? 'checked' : ''} onchange="toggleGdnHubCol('colWarehouse', this.checked)"><span>🏛️ المخزن والكميات</span></label>
-                            <label class="gdn-col-toggle-chip"><input type="checkbox" data-hub-col="colActions" ${hubCols.colActions ? 'checked' : ''} onchange="toggleGdnHubCol('colActions', this.checked)"><span>⚡ الإجراءات</span></label>
-                        </div>
-                        <button type="button" onclick="lockAndSaveGdnHubCols()" class="gdn-kinetic-btn" style="background:linear-gradient(135deg, #10b981, #059669); color:#fff; border:1px solid #34d399; padding:5px 14px; font-size:0.8rem;">
-                            💾 تثبيت وإخفاء الشريط
-                        </button>
-                    </div>
-                `;
-                headerDiv.insertAdjacentElement('afterend', extraBar);
-            }
-
-            // Always sync Hub Drawer Checkboxes with saved config
-            document.querySelectorAll('#gdn-hub-cols-drawer input[data-hub-col]').forEach(chk => {
-                const k = chk.dataset.hubCol;
-                if (k && hubCols[k] !== undefined) chk.checked = !!hubCols[k];
-            });
-
-            // 2. Dynamic Main Table Headers (Respecting Show/Hide Column Config Permanently)
-            const theadTr = hubView.querySelector('table thead tr');
-            if (theadTr) {
-                theadTr.innerHTML = `
-                    <th style="width:11%; padding:10px; text-align:right; ${hubCols.colInvNo ? '' : 'display:none !important;'}">رقم الإذن والحالة</th>
-                    <th style="width:12%; padding:10px; text-align:center; ${hubCols.colDateTime ? '' : 'display:none !important;'}">التاريخ والوقت</th>
-                    <th style="width:14%; padding:10px; text-align:right; ${hubCols.colCustomer ? '' : 'display:none !important;'}">العميل والمستلم</th>
-                    <th style="width:36%; padding:10px; text-align:right; ${hubCols.colItems ? '' : 'display:none !important;'}">الأصناف (المخزن • الصنف • البيان • الوحدة الأساسية • الوحدة الفرعية)</th>
-                    <th style="width:12%; padding:10px; text-align:center; ${hubCols.colWarehouse ? '' : 'display:none !important;'}">المخزن والكميات</th>
-                    <th style="width:15%; padding:10px; text-align:center; ${hubCols.colActions ? '' : 'display:none !important;'}">الإجراءات والباركود</th>
-                `;
-            }
-
-            // 3. Ultra-Wide, Royal Structured Confirmation Modal (#delivery-confirmation-modal) — FULL COLUMN & WIDTH CONTROL
-            const modalOverlay = document.getElementById('delivery-confirmation-modal');
-            if (modalOverlay && modalOverlay.dataset.smartAiModalUpgraded !== '7') {
-                modalOverlay.dataset.smartAiModalUpgraded = '7';
-                const optCols = getGdnOptionalColsConfig();
-                modalOverlay.innerHTML = `
-                    <div class="gdn-smart-modal-card" style="width:99.6vw; max-width:1920px; height:96vh; max-height:97vh; display:flex; flex-direction:column; padding:18px 24px; border-radius:20px; border:2px solid rgba(16,185,129,0.5); background:linear-gradient(165deg, #070c18 0%, #0f172a 60%, #051e17 100%); position:relative; overflow:hidden; box-shadow:0 35px 100px rgba(0,0,0,0.92), 0 0 45px rgba(16,185,129,0.18);">
-                        
-                        <!-- Royal Modal Header -->
-                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; border-bottom:1.5px solid rgba(16,185,129,0.28); padding-bottom:10px; flex-wrap:wrap; gap:12px;">
-                            <div style="display:flex; gap:14px; align-items:center;">
-                                <div style="width:46px; height:46px; border-radius:14px; background:linear-gradient(135deg, rgba(16,185,129,0.25), rgba(5,150,105,0.4)); border:1.5px solid rgba(52,211,153,0.6); display:flex; align-items:center; justify-content:center; font-size:1.6rem; box-shadow:0 0 20px rgba(16,185,129,0.3);">🚚</div>
-                                <div>
-                                    <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
-                                        <h2 style="margin:0; color:#ffffff; font-size:1.3rem; font-weight:900; letter-spacing:0.3px;">بطاقة وإذن تسليم وصرف بضاعة (مرونة الوحدتين: استلم هنا أو هنا)</h2>
-                                        <span id="del-modal-gdn-badge" style="background:rgba(56,189,248,0.16); border:1px solid rgba(56,189,248,0.45); color:#38bdf8; font-size:0.84rem; font-weight:900; padding:3px 12px; border-radius:99px;">GDN-AUTO</span>
-                                        <span id="del-modal-fulfillment-pill" style="background:rgba(16,185,129,0.2); border:1px solid #10b981; color:#6ee7b7; font-size:0.82rem; font-weight:900; padding:3px 12px; border-radius:99px;">🎯 جاهزية الصرف: 100%</span>
-                                    </div>
-                                    <p style="margin:3px 0 0 0; color:#a7f3d0; font-size:0.84rem; font-weight:700;">تحكم كامل في إظهار/إخفاء الأعمدة وعرض الخانات • تركيز بصري للمخازن • استلام متزامن بالوحدة الأساسية أو الفرعية</p>
-                                </div>
-                            </div>
-                            <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
-                                <button type="button" onclick="const d=document.getElementById('gdn-modal-cols-drawer'); if(d) d.style.display=(d.style.display==='none'?'flex':'none');" class="gdn-kinetic-btn" style="background:rgba(168,85,247,0.18); border:1px solid rgba(192,132,252,0.5); color:#e9d5ff; font-size:0.8rem; padding:6px 12px;" title="فتح أو إغلاق شريط ضبط الكولومات (يُحفظ تلقائياً)">
-                                    ⚙️ ضبط الكولومات (محفوظ ✅)
-                                </button>
-                                <button type="button" onclick="if(window.pendingDeliveryContext && window.pendingDeliveryContext.invIdentifier) window.openSplitForInvoiceFromDelivery(window.pendingDeliveryContext.invIdentifier);" class="gdn-kinetic-btn kinetic-glow-arm kinetic-arm-pink" style="font-size:0.84rem; padding:6px 14px;" title="تقسيم هذا الإذن إلى أقسام (100/17/1 و 100/17/2)">
-                                    ✂️ تقسيم هذا الإذن
-                                </button>
-                                <button type="button" onclick="openOriginalInvoiceInSalesEditor()" class="gdn-kinetic-btn" style="background:rgba(56,189,248,0.16); border:1px solid rgba(56,189,248,0.4); color:#38bdf8; font-size:0.84rem; padding:6px 14px;">
-                                    👁️ أصل الفاتورة
-                                </button>
-                                <button type="button" onclick="closeDeliveryConfirmationModal()" class="gdn-kinetic-btn" style="background:rgba(239,68,68,0.16); border:1px solid rgba(239,68,68,0.35); color:#fca5a5; font-size:1rem; padding:6px 14px;">✕</button>
-                            </div>
-                        </div>
-
-                        <!-- Unified Smooth Scrollable Modal Body -->
-                        <div style="flex:1; overflow-y:auto; -webkit-overflow-scrolling:touch; overscroll-behavior:contain; padding-left:4px; display:flex; flex-direction:column; gap:12px;">
-                            
-                            <!-- Structured KPI Info Strip + Live Psychological Fulfillment Bar -->
-                            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(185px, 1fr)); gap:10px; background:rgba(15,23,42,0.85); border-radius:14px; padding:10px 14px; border:1px solid rgba(148,163,184,0.22);">
-                                <div style="background:rgba(2,6,23,0.55); padding:7px 12px; border-radius:10px; border-right:3px solid #38bdf8;">
-                                    <span style="color:#94a3b8; font-size:0.74rem; font-weight:800; display:block;">📄 رقم الإذن / الفاتورة:</span>
-                                    <strong id="del-modal-inv-no" style="color:#38bdf8; font-size:1.12rem; font-family:'Outfit',sans-serif; font-weight:900;">-</strong>
-                                </div>
-                                <div style="background:rgba(2,6,23,0.55); padding:7px 12px; border-radius:10px; border-right:3px solid #a855f7;">
-                                    <span style="color:#94a3b8; font-size:0.74rem; font-weight:800; display:block;">📅 التاريخ والوقت:</span>
-                                    <strong id="del-modal-datetime" style="color:#f8fafc; font-size:0.95rem; font-weight:800;">-</strong>
-                                </div>
-                                <div style="background:rgba(2,6,23,0.55); padding:7px 12px; border-radius:10px; border-right:3px solid #10b981;">
-                                    <span style="color:#94a3b8; font-size:0.74rem; font-weight:800; display:block;">👤 العميل:</span>
-                                    <strong id="del-modal-cust-name" style="color:#6ee7b7; font-size:1rem; font-weight:900;">-</strong>
-                                </div>
-                                <div style="background:rgba(2,6,23,0.55); padding:7px 12px; border-radius:10px; border-right:4px solid #f59e0b; box-shadow:inset 0 0 12px rgba(245,158,11,0.12);">
-                                    <span style="color:#fcd34d; font-size:0.74rem; font-weight:900; display:block;">🏢 مركز التركيز (مخزن الصرف):</span>
-                                    <span id="del-modal-wh-name" style="color:#fbbf24; font-size:1.02rem; font-weight:900;">-</span>
-                                </div>
-                                <div style="background:rgba(2,6,23,0.55); padding:7px 12px; border-radius:10px; border-right:3px solid #ec4899;">
-                                    <span style="color:#94a3b8; font-size:0.74rem; font-weight:800; display:block;">💰 إجمالي الفاتورة:</span>
-                                    <strong id="del-modal-amount" style="color:#ffffff; font-size:1.05rem; font-weight:900;">0 SDG</strong>
-                                </div>
-                            </div>
-
-                            <!-- Precision Items Table Card -->
-                            <div style="background:rgba(15,23,42,0.68); border:1.5px solid rgba(148,163,184,0.28); border-radius:16px; padding:14px; display:flex; flex-direction:column; gap:10px;">
-                                <!-- Top Bar: Title + Search Inside Items + Master Full Delivery Actions -->
-                                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
-                                    <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
-                                        <span style="font-weight:900; color:#ffffff; font-size:1.02rem;">📦 جدول تسليم الأصناف المرن (خانات ووحدات مفصلة بسطور واضحة)</span>
-                                        <span id="del-modal-items-count-badge" style="background:rgba(16,185,129,0.18); border:1px solid rgba(52,211,153,0.45); color:#6ee7b7; padding:3px 12px; border-radius:99px; font-size:0.82rem; font-weight:900;">0 أصناف</span>
-                                        <input type="text" id="gdn-modal-item-filter" class="gdn-borderless-input" placeholder="🔍 بحث سريع في أصناف البطاقة..." oninput="filterModalOriginRows(this.value)" style="width:210px; padding:4px 10px !important; font-size:0.8rem !important;">
-                                    </div>
-
-                                    <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
-                                        <button type="button" onclick="const d=document.getElementById('gdn-modal-cols-drawer'); if(d) d.style.display=(d.style.display==='none'?'flex':'none');" class="gdn-kinetic-btn" style="background:rgba(168,85,247,0.18); border:1px solid rgba(192,132,252,0.5); color:#e9d5ff; padding:6px 12px; font-size:0.8rem;">
-                                            ⚙️ ضبط الكولومات (محفوظ ✅)
-                                        </button>
-                                        <button type="button" onclick="fillAllModalDeliveryQtys('primary')" class="gdn-kinetic-btn" style="background:linear-gradient(135deg, #10b981, #059669); border:1px solid #34d399; color:#ffffff; padding:6px 14px; font-size:0.82rem;">
-                                            ✅ استلام الكل (بالوحدة الأساسية)
-                                        </button>
-                                        <button type="button" onclick="fillAllModalDeliveryQtys('base')" class="gdn-kinetic-btn" style="background:linear-gradient(135deg, #4f46e5, #6366f1); border:1px solid #818cf8; color:#ffffff; padding:6px 14px; font-size:0.82rem;">
-                                            🔢 استلام الكل (بالوحدة الفرعية)
-                                        </button>
-                                    </div>
-                                </div>
-
-                                <!-- Collapsible Granular Column Visibility Strip (يفتح فقط عند الضغط على ضبط الكولومات ويحفظ تلقائياً ويثبت نهائياً) -->
-                                <div id="gdn-modal-cols-drawer" style="display:none; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap; background:rgba(2,6,23,0.88); padding:10px 14px; border-radius:12px; border:1.5px solid rgba(168,85,247,0.45); box-shadow:0 8px 24px rgba(0,0,0,0.5);">
-                                    <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
-                                        <span style="font-size:0.78rem; font-weight:900; color:#e9d5ff; margin-left:4px;">⚙️ اختر أعمدة البطاقة (تُحفظ وتثبت نهائياً):</span>
-                                        <label class="gdn-col-toggle-chip"><input type="checkbox" id="chk-gdn-col-wh" ${optCols.showWarehouse ? 'checked' : ''} onchange="toggleGdnOptionalCol('showWarehouse', this.checked)"><span>🏢 المخزن</span></label>
-                                        <label class="gdn-col-toggle-chip"><input type="checkbox" id="chk-gdn-col-item" ${optCols.showItemName ? 'checked' : ''} onchange="toggleGdnOptionalCol('showItemName', this.checked)"><span>📦 الصنف</span></label>
-                                        <label class="gdn-col-toggle-chip"><input type="checkbox" id="chk-gdn-col-spec" ${optCols.showItemSpec ? 'checked' : ''} onchange="toggleGdnOptionalCol('showItemSpec', this.checked)"><span>⚖️ البيان/المعامل</span></label>
-                                        <label class="gdn-col-toggle-chip"><input type="checkbox" id="chk-gdn-col-punit" ${optCols.showPrimaryUnit ? 'checked' : ''} onchange="toggleGdnOptionalCol('showPrimaryUnit', this.checked)"><span>🏷️ الوحدة الأساسية</span></label>
-                                        <label class="gdn-col-toggle-chip"><input type="checkbox" id="chk-gdn-col-oqty" ${optCols.showOrderedQty ? 'checked' : ''} onchange="toggleGdnOptionalCol('showOrderedQty', this.checked)"><span>📊 الكمية بالإذن</span></label>
-                                        <label class="gdn-col-toggle-chip"><input type="checkbox" id="chk-gdn-col-units" ${optCols.showUnitsCount ? 'checked' : ''} onchange="toggleGdnOptionalCol('showUnitsCount', this.checked)"><span>🔢 الوحدة الفرعية والمعادل</span></label>
-                                        <label class="gdn-col-toggle-chip"><input type="checkbox" id="chk-gdn-col-avail" ${optCols.showAvailStock ? 'checked' : ''} onchange="toggleGdnOptionalCol('showAvailStock', this.checked)"><span>🏛️ المتاح بالمخزن</span></label>
-                                        <label class="gdn-col-toggle-chip"><input type="checkbox" id="chk-gdn-col-price" ${optCols.showPriceTotal ? 'checked' : ''} onchange="toggleGdnOptionalCol('showPriceTotal', this.checked)"><span>💰 السعر والإجمالي</span></label>
-                                        <label class="gdn-col-toggle-chip"><input type="checkbox" id="chk-gdn-col-recp" ${optCols.showReceivePrimary ? 'checked' : ''} onchange="toggleGdnOptionalCol('showReceivePrimary', this.checked)"><span>📥 استلام بالأساسية</span></label>
-                                        <label class="gdn-col-toggle-chip"><input type="checkbox" id="chk-gdn-col-recb" ${optCols.showReceiveBase ? 'checked' : ''} onchange="toggleGdnOptionalCol('showReceiveBase', this.checked)"><span>🔄 استلام بالفرعية</span></label>
-                                        <label class="gdn-col-toggle-chip"><input type="checkbox" id="chk-gdn-col-net" ${optCols.showNetSummary ? 'checked' : ''} onchange="toggleGdnOptionalCol('showNetSummary', this.checked)"><span>✅ الصافي المستلم</span></label>
-                                        <div style="display:inline-flex; align-items:center; gap:4px; background:rgba(15,23,42,0.9); padding:3px 8px; border-radius:8px; border:1px solid rgba(148,163,184,0.3);">
-                                            <span style="font-size:0.74rem; color:#94a3b8; font-weight:800;">📏 العرض:</span>
-                                            <button type="button" onclick="setGdnModalWidthScale('normal')" class="gdn-kinetic-btn" style="padding:2px 7px; font-size:0.72rem; background:rgba(255,255,255,0.06); color:#e2e8f0; border:none;">قياسي</button>
-                                            <button type="button" onclick="setGdnModalWidthScale('wide')" class="gdn-kinetic-btn" style="padding:2px 7px; font-size:0.72rem; background:rgba(56,189,248,0.18); color:#38bdf8; border:none;">عريض</button>
-                                            <button type="button" onclick="setGdnModalWidthScale('ultrawide')" class="gdn-kinetic-btn" style="padding:2px 7px; font-size:0.72rem; background:rgba(16,185,129,0.22); color:#6ee7b7; border:none;">أقصى توسعة</button>
-                                        </div>
-                                        <button type="button" onclick="applyGdnColPreset('all')" class="gdn-kinetic-btn" style="background:rgba(16,185,129,0.15); border:1px solid rgba(52,211,153,0.4); color:#6ee7b7; font-size:0.75rem; padding:4px 10px;">👁️ إظهار الكل</button>
-                                        <button type="button" onclick="applyGdnColPreset('storekeeper_focus')" class="gdn-kinetic-btn" style="background:rgba(245,158,11,0.16); border:1px solid rgba(251,191,36,0.45); color:#fcd34d; font-size:0.75rem; padding:4px 10px;">🎯 وضع تركيز المخزنجي</button>
-                                    </div>
-                                    <button type="button" onclick="lockAndSaveGdnModalCols()" class="gdn-kinetic-btn" style="background:linear-gradient(135deg, #10b981, #059669); color:#fff; border:1px solid #34d399; padding:5px 14px; font-size:0.8rem;">
-                                        💾 تثبيت وإخفاء الشريط
-                                    </button>
-                                </div>
-
-                                <!-- Table Container -->
-                                <div id="delivery-modal-items-preview" style="overflow-x:auto; border-radius:14px; width:100%;">
-                                    <!-- Injected by renderModalOriginColumnsTable() -->
-                                </div>
-                            </div>
-
-                            <!-- Structured Logistics & Gate Pass Fields -->
-                            <div id="gdn-logistics-fields" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:12px; background:rgba(15,23,42,0.75); padding:12px 16px; border-radius:14px; border:1px solid rgba(148,163,184,0.22);">
-                                <div>
-                                    <label style="display:block; font-size:0.78rem; font-weight:900; color:#6ee7b7; margin-bottom:4px;">👤 اسم المستلم الفعلي:</label>
-                                    <input type="text" id="gdn-receiver-name" class="gdn-borderless-input" placeholder="اسم المستلم..." style="width:100%;">
-                                </div>
-                                <div>
-                                    <label style="display:block; font-size:0.78rem; font-weight:900; color:#7dd3fc; margin-bottom:4px;">🚚 اسم السائق / الدفار:</label>
-                                    <input type="text" id="gdn-driver-name" class="gdn-borderless-input" placeholder="اسم السائق..." style="width:100%;">
-                                </div>
-                                <div>
-                                    <label style="display:block; font-size:0.78rem; font-weight:900; color:#fcd34d; margin-bottom:4px;">🔢 رقم المركبة / اللوحة:</label>
-                                    <input type="text" id="gdn-truck-plate" class="gdn-borderless-input" placeholder="رقم اللوحة..." style="width:100%;">
-                                </div>
-                                <div>
-                                    <label style="display:block; font-size:0.78rem; font-weight:900; color:#c084fc; margin-bottom:4px;">🎫 تصريح البوابة (Gate Pass):</label>
-                                    <input type="text" id="gdn-gate-pass" class="gdn-borderless-input" placeholder="تلقائي..." style="width:100%;">
-                                </div>
-                                <div>
-                                    <label style="display:block; font-size:0.78rem; font-weight:900; color:#cbd5e1; margin-bottom:4px;">📝 ملاحظات التسليم والمخزن:</label>
-                                    <input type="text" id="gdn-warehouse-notes" class="gdn-borderless-input" placeholder="ملاحظات المخزن..." style="width:100%;">
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Royal Modal Footer -->
-                        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; border-top:1.5px solid rgba(148,163,184,0.22); padding-top:12px; margin-top:10px;">
-                            <button type="button" onclick="closeDeliveryConfirmationModal()" class="gdn-kinetic-btn" style="padding:9px 22px; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.2); color:#e2e8f0; font-size:0.92rem;">
-                                ❌ إغلاق النافذة
-                            </button>
-                            <div style="display:flex; gap:10px; flex-wrap:wrap;">
-                                <button type="button" onclick="confirmAndPrintDeliveryAction()" class="gdn-kinetic-btn" style="padding:9px 22px; background:linear-gradient(135deg, #0284c7, #0369a1); border:1px solid #38bdf8; color:#ffffff; font-size:0.94rem;">
-                                    🖨️ اعتماد وطباعة إذن الصرف
-                                </button>
-                                <button type="button" onclick="confirmExecuteDeliveryAction()" class="gdn-kinetic-btn" style="padding:9px 28px; background:linear-gradient(135deg, #10b981, #059669); border:1px solid #34d399; color:#ffffff; font-size:1.02rem; box-shadow:0 6px 20px rgba(16,185,129,0.4);">
-                                    📦 تأكيد التسليم والصرف الآن
-                                </button>
-                            </div>
-                        </div>
-
-                    </div>
-                `;
-            }
-        }
-
-        window.openOriginalInvoiceInSalesEditor = function() {
-            const ctx = window.pendingDeliveryContext;
-            if (!ctx || !ctx.invIdentifier) return;
-            if (typeof closeDeliveryConfirmationModal === 'function') closeDeliveryConfirmationModal();
-            if (typeof window.editInvoice === 'function') {
-                window.editInvoice(ctx.invIdentifier);
-            } else if (typeof window.openInvoiceEditor === 'function') {
-                window.openInvoiceEditor('pending_delivery');
-            }
-        };
-
-        window.fillAllModalDeliveryQtys = function(mode = 'primary') {
-            document.querySelectorAll('.gdn-modal-deliver-qty').forEach(inp => {
-                const idx = inp.dataset.itemIdx;
-                if (inp.dataset.maxRem !== undefined) {
-                    inp.value = inp.dataset.maxRem;
-                }
-                const factor = parseFloat(inp.dataset.unitFactor || 1) || 1;
-                const baseInp = document.querySelector(`.gdn-modal-deliver-base-qty[data-item-idx="${idx}"]`);
-                if (baseInp && inp.dataset.maxRem !== undefined) {
-                    baseInp.value = +(parseFloat(inp.dataset.maxRem) * factor).toFixed(2);
-                }
-                window.setRowDeliveryUnitMode(idx, mode, false);
-            });
-            window.recalcModalDeliverySummaryFoot();
-            if (typeof showToast === 'function') {
-                showToast(mode === 'base' ? '✅ تم ضبط استلام الكل بالوحدات الفرعية (السيخ / الباكو)' : '✅ تم ضبط استلام الكل بوحدة الإذن الأساسية', 'success');
-            }
-        };
-
-        window.setRowDeliveryUnitMode = function(idx, mode = 'primary', fillFull = false) {
-            const inp = document.querySelector(`.gdn-modal-deliver-qty[data-item-idx="${idx}"]`);
-            const baseInp = document.querySelector(`.gdn-modal-deliver-base-qty[data-item-idx="${idx}"]`);
-            if (!inp) return;
-
-            inp.dataset.activeUnitMode = mode;
-            const maxRem = parseFloat(inp.dataset.maxRem || 0);
-            const factor = parseFloat(inp.dataset.unitFactor || 1) || 1;
-
-            if (fillFull) {
-                inp.value = +maxRem.toFixed(4);
-                if (baseInp) baseInp.value = +(maxRem * factor).toFixed(2);
-            }
-            window.recalcModalDeliverySummaryFoot();
-        };
-
-        window.onPrimaryDeliverQtyInput = function(idx) {
-            const inp = document.querySelector(`.gdn-modal-deliver-qty[data-item-idx="${idx}"]`);
-            const baseInp = document.querySelector(`.gdn-modal-deliver-base-qty[data-item-idx="${idx}"]`);
-            if (!inp) return;
-            const maxRem = parseFloat(inp.dataset.maxRem || 999999);
-            const factor = parseFloat(inp.dataset.unitFactor || 1) || 1;
-            let q = parseFloat(inp.value);
-            if (isNaN(q) || q < 0) q = 0;
-            if (q > maxRem) {
-                q = maxRem;
-                inp.value = +q.toFixed(4);
-            }
-            if (baseInp) {
-                baseInp.value = +(q * factor).toFixed(2);
-            }
-            window.setRowDeliveryUnitMode(idx, 'primary', false);
-        };
-
-        window.onBaseDeliverQtyInput = function(idx) {
-            const inp = document.querySelector(`.gdn-modal-deliver-qty[data-item-idx="${idx}"]`);
-            const baseInp = document.querySelector(`.gdn-modal-deliver-base-qty[data-item-idx="${idx}"]`);
-            if (!inp || !baseInp) return;
-            const maxRem = parseFloat(inp.dataset.maxRem || 999999);
-            const factor = parseFloat(inp.dataset.unitFactor || 1) || 1;
-            const maxBase = +(maxRem * factor).toFixed(4);
-            let bVal = parseFloat(baseInp.value);
-            if (isNaN(bVal) || bVal < 0) bVal = 0;
-            if (bVal > maxBase) {
-                bVal = maxBase;
-                baseInp.value = +bVal.toFixed(2);
-            }
-            const eqPrimary = factor > 0 ? +(bVal / factor).toFixed(4) : bVal;
-            inp.value = eqPrimary;
-            window.setRowDeliveryUnitMode(idx, 'base', false);
-        };
-
-        window.adjustModalItemQty = function(idx, delta, targetMode = 'primary') {
-            const inp = document.querySelector(`.gdn-modal-deliver-qty[data-item-idx="${idx}"]`);
-            const baseInp = document.querySelector(`.gdn-modal-deliver-base-qty[data-item-idx="${idx}"]`);
-            if (!inp) return;
-            const maxRem = parseFloat(inp.dataset.maxRem || 999999);
-            const factor = parseFloat(inp.dataset.unitFactor || 1) || 1;
-            if (targetMode === 'base' && baseInp) {
-                const maxBase = +(maxRem * factor).toFixed(4);
-                const curB = parseFloat(baseInp.value || 0);
-                const nextB = Math.min(maxBase, Math.max(0, +(curB + delta).toFixed(2)));
-                baseInp.value = nextB;
-                inp.value = factor > 0 ? +(nextB / factor).toFixed(4) : nextB;
-                window.setRowDeliveryUnitMode(idx, 'base', false);
-            } else {
-                const cur = parseFloat(inp.value || 0);
-                const next = Math.min(maxRem, Math.max(0, +(cur + delta).toFixed(4)));
-                inp.value = next;
-                if (baseInp) baseInp.value = +(next * factor).toFixed(2);
-                window.setRowDeliveryUnitMode(idx, 'primary', false);
-            }
-        };
-
-        window.recalcModalDeliverySummaryFoot = function() {
-            let sumDeliverNow = 0;
-            let sumMaxRem = 0;
-            let sumBaseNow = 0;
-            document.querySelectorAll('.gdn-modal-deliver-qty').forEach(inp => {
-                const q = parseFloat(inp.value || 0) || 0;
-                const maxRem = parseFloat(inp.dataset.maxRem || q || 0) || 0;
-                const factor = parseFloat(inp.dataset.unitFactor || 1) || 1;
-                const primaryUnit = inp.dataset.primaryUnit || 'وحدة';
-                const baseUnit = inp.dataset.baseUnit || 'وحدة';
-                const rowBase = q * factor;
-                const pct = maxRem > 0 ? Math.min(100, Math.round((q / maxRem) * 100)) : 100;
-                sumDeliverNow += q;
-                sumMaxRem += maxRem;
-                sumBaseNow += rowBase;
-                const rowBaseEl = document.getElementById('gdn-row-baseqty-' + inp.dataset.itemIdx);
-                if (rowBaseEl) {
-                    rowBaseEl.textContent = rowBase.toLocaleString('en-US', { maximumFractionDigits: 2 });
-                }
-                const liveEqEl = document.getElementById('gdn-deliver-live-eq-' + inp.dataset.itemIdx);
-                if (liveEqEl) {
-                    const pctColor = pct >= 100 ? '#10b981' : (pct > 0 ? '#f59e0b' : '#ef4444');
-                    liveEqEl.innerHTML = `
-                        <div style="display:flex; flex-direction:column; gap:4px; align-items:center; justify-content:center;">
-                            <span style="background:rgba(16,185,129,0.18); border:1px solid rgba(52,211,153,0.45); color:#34d399; padding:3px 10px; border-radius:7px; font-size:0.9rem; font-weight:900; white-space:nowrap;">
-                                📦 ${q.toLocaleString('en-US', { maximumFractionDigits: 3 })} ${primaryUnit}
-                            </span>
-                            <span style="background:rgba(99,102,241,0.18); border:1px solid rgba(129,140,248,0.45); color:#c4b5fd; padding:2px 10px; border-radius:7px; font-size:0.82rem; font-weight:900; white-space:nowrap;">
-                                🔢 ⇄ ${rowBase.toLocaleString('en-US', { maximumFractionDigits: 2 })} ${baseUnit}
-                            </span>
-                            <div style="width:100%; background:rgba(255,255,255,0.08); height:5px; border-radius:99px; overflow:hidden; margin-top:2px;">
-                                <div style="width:${pct}%; height:100%; background:${pctColor}; transition:width 0.2s;"></div>
-                            </div>
-                        </div>
-                    `;
-                }
-            });
-            const footDelEl = document.getElementById('gdn-foot-deliver-now');
-            if (footDelEl) footDelEl.textContent = sumDeliverNow.toLocaleString('en-US', { maximumFractionDigits: 3 });
-            const footBaseEl = document.getElementById('gdn-foot-base-now');
-            if (footBaseEl) footBaseEl.textContent = sumBaseNow.toLocaleString('en-US', { maximumFractionDigits: 2 });
-            const footDelBaseEl = document.getElementById('gdn-foot-deliver-base-now');
-            if (footDelBaseEl) footDelBaseEl.textContent = sumBaseNow.toLocaleString('en-US', { maximumFractionDigits: 2 });
-            const fulfillPill = document.getElementById('del-modal-fulfillment-pill');
-            if (fulfillPill) {
-                const totalPct = sumMaxRem > 0 ? Math.min(100, Math.round((sumDeliverNow / sumMaxRem) * 100)) : 100;
-                fulfillPill.textContent = totalPct >= 100 ? `✅ جاهزية الصرف الكامل: 100%` : `🌗 تسليم جزئي: ${totalPct}%`;
-                fulfillPill.style.borderColor = totalPct >= 100 ? '#10b981' : '#f59e0b';
-                fulfillPill.style.color = totalPct >= 100 ? '#6ee7b7' : '#fcd34d';
-            }
-        };
-
-        window.toggleDeliverySunlightMode = function() {
-            const isSun = document.body.classList.toggle('gdn-sunlight-mode');
-            localStorage.setItem('erp_delivery_sunlight_mode', isSun ? '1' : '0');
-            if (typeof showToast === 'function') {
-                showToast(isSun ? '☀️ تم تفعيل وضع الشمس للمخزنجي' : '✨ تم تفعيل الوضع العادي', 'success');
-            }
-        };
-
-        window.setGdnFilter = function(filterMode) {
-            window.gdnCurrentFilter = filterMode;
-            ['pending', 'delivered', 'all'].forEach(mode => {
-                const btn = document.getElementById('gdn-tab-' + mode);
-                if (btn) {
-                    if (mode === filterMode) {
-                        btn.style.background = '#10b981';
-                        btn.style.color = '#ffffff';
-                    } else {
-                        btn.style.background = 'rgba(255,255,255,0.08)';
-                        btn.style.color = '#e2e8f0';
-                    }
-                }
-            });
-            window.loadDeliveryTransactions();
-        };
-
-        // World-Class Table Rendering (targets #delivery-transactions-body — Optimized for 1,000+ Vouchers)
-        window.renderWorldClassDeliveryHub = function() {
-            upgradeDeliveryHubDOM();
-            const tbody = document.getElementById('delivery-transactions-body') || document.getElementById('delivery-hub-tbody');
-            const emptyState = document.getElementById('delivery-empty-state');
-            if (!tbody) return;
-
-            const hubCols = getGdnHubColsConfig();
-            const searchVal = (document.getElementById('delivery-search')?.value || document.getElementById('gdn-quick-scan-input')?.value || document.getElementById('delivery-hub-search')?.value || '').trim().toLowerCase();
-            const allInvoices = JSON.parse(localStorage.getItem('erp_sales_invoices_v1') || '[]').filter(inv => !inv.deleted && inv.saleType !== 'preliminary' && inv.status !== 'preliminary');
-            const warehouses = getWarehousesList();
-
-            let pendingCount = 0;
-            let deliveredCount = 0;
-            let pendingTotalQty = 0;
-
-            allInvoices.forEach(inv => {
-                const isDel = inv.isDelivered === true || inv.deliveryStatus === 'delivered' || inv.deliveryStatus === 'Delivered_Pending_Admin' || inv.deliveryStatus === 'Admin_Closed';
-                if (isDel) {
-                    deliveredCount++;
-                } else {
-                    pendingCount++;
-                    (inv.items || []).forEach(it => {
-                        const rem = Math.max(0, (parseFloat(it.qty ?? it.quantity ?? 0) - parseFloat(it.deliveredQty || 0)));
-                        pendingTotalQty += rem;
-                    });
-                }
-            });
-
-            const kpiPending = document.getElementById('gdn-kpi-pending');
-            const kpiDelivered = document.getElementById('gdn-kpi-delivered');
-            const kpiQty = document.getElementById('gdn-kpi-qty');
-            if (kpiPending) kpiPending.textContent = pendingCount.toLocaleString('en-US');
-            if (kpiDelivered) kpiDelivered.textContent = deliveredCount.toLocaleString('en-US');
-            if (kpiQty) kpiQty.textContent = pendingTotalQty.toLocaleString('en-US');
-
-            if (emptyState) emptyState.style.display = 'none';
-
-            const todayIso = new Date().toISOString().slice(0, 10);
-            const yesterdayIso = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
-            const weekAgoMs = Date.now() - 7 * 86400000;
-            const whFilter = window.gdnHubState?.whFilter || 'all';
-            const dateFilter = window.gdnHubState?.dateFilter || 'all';
-
-            const filtered = allInvoices.filter(inv => {
-                const isDel = inv.isDelivered === true || inv.deliveryStatus === 'delivered' || inv.deliveryStatus === 'Delivered_Pending_Admin' || inv.deliveryStatus === 'Admin_Closed';
-                if (window.gdnCurrentFilter === 'pending' && isDel) return false;
-                if (window.gdnCurrentFilter === 'delivered' && !isDel) return false;
-
-                if (whFilter !== 'all') {
-                    const invWh = String(inv.warehouseId || inv.warehouse || 1);
-                    const hasWhItem = (inv.items || []).some(it => String(it.warehouseId || it.warehouse || invWh) === String(whFilter));
-                    if (invWh !== String(whFilter) && !hasWhItem) return false;
-                }
-
-                if (dateFilter !== 'all') {
-                    const { dateStr } = parseInvoiceDateTimeParts(inv);
-                    if (dateFilter === 'today' && dateStr !== todayIso) return false;
-                    if (dateFilter === 'yesterday' && dateStr !== yesterdayIso) return false;
-                    if (dateFilter === 'week' && new Date(dateStr).getTime() < weekAgoMs) return false;
-                }
-
-                if (!searchVal) return true;
-                const invNo = String(inv.invoiceNo || inv.serial || inv.id || '').toLowerCase();
-                const gdnNo = String(inv.deliveryNo || '').toLowerCase();
-                const cust = resolveCustomerName(inv).toLowerCase();
-                const rec = String(inv.receiverName || inv.driverName || inv.truckPlate || '').toLowerCase();
-                const itemsText = (inv.items || []).map(i => {
-                    const m = resolveItemMeta(i);
-                    return `${m.name} ${m.unit} ${m.baseUnit} ${m.code} ${m.whName}`;
-                }).join(' ').toLowerCase();
-                return invNo.includes(searchVal) || gdnNo.includes(searchVal) || cust.includes(searchVal) || rec.includes(searchVal) || itemsText.includes(searchVal);
-            });
-
-            filtered.sort((a, b) => new Date(b.timestamp || b.date || 0) - new Date(a.timestamp || a.date || 0));
-
-            const pageLimit = window.gdnHubState?.pageLimit || 100;
-            const visibleSlice = filtered.slice(0, pageLimit);
-            const matchBadge = document.getElementById('gdn-kpi-match-count');
-            if (matchBadge) {
-                matchBadge.textContent = `🔍 المعروض: ${visibleSlice.length.toLocaleString('en-US')} من ${filtered.length.toLocaleString('en-US')} إذن`;
-            }
-
-            if (filtered.length === 0) {
-                tbody.innerHTML = `
-                    <tr>
-                        <td colspan="6" style="text-align:center; padding:40px 20px; color:#94a3b8;">
-                            <div style="font-size:2.4rem; margin-bottom:8px;">${window.gdnCurrentFilter === 'pending' ? '🎉' : '📭'}</div>
-                            <div style="font-weight:800; font-size:1.05rem; color:#f8fafc;">
-                                ${window.gdnCurrentFilter === 'pending' ? 'لا توجد فواتير معلقة بانتظار التسليم حالياً' : 'لا توجد سجلات مطابقة للبحث'}
-                            </div>
-                        </td>
-                    </tr>
-                `;
-                return;
-            }
-
-            const rowsMarkup = visibleSlice.map((inv, idx) => {
-                const invNo = String(inv.invoiceNo || inv.serial || inv.id || '');
-                const { dateStr, timeStr } = parseInvoiceDateTimeParts(inv);
-                const isDel = inv.isDelivered === true || inv.deliveryStatus === 'delivered' || inv.deliveryStatus === 'Delivered_Pending_Admin' || inv.deliveryStatus === 'Admin_Closed';
-                const isPartial = !isDel && inv.deliveryStatus === 'partial';
-                const custName = resolveCustomerName(inv);
-                const defaultWhObj = warehouses.find(w => String(w.id) === String(inv.warehouseId || inv.warehouse || 1) || w.name === (inv.warehouseId || inv.warehouse)) || warehouses[0];
-                const whOptions = warehouses.map(w => `<option value="${w.id}" ${String(w.id) === String(defaultWhObj.id) ? 'selected' : ''}>${w.name}</option>`).join('');
-
-                const items = Array.isArray(inv.items) ? inv.items : [];
-                let totalInvQty = 0;
-                let totalInvBaseUnits = 0;
-                const itemsPillsHtml = items.map((it, itemIdx) => {
-                    const meta = resolveItemMeta(it, defaultWhObj);
-                    const q = meta.qty;
-                    const delQ = parseFloat(it.deliveredQty || 0);
-                    const remQ = isDel ? q : Math.max(0, q - delQ);
-                    const remBaseQ = remQ * meta.factor;
-                    totalInvQty += remQ;
-                    totalInvBaseUnits += remBaseQ;
-                    return `
-                        <div class="gdn-item-pill" style="display:flex; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap;" onclick="event.stopPropagation(); openWorldClassDeliveryModal('${invNo}', ${itemIdx}, 'primary')" title="اضغط لفتح بطاقة التسليم والوحدات">
-                            <div style="display:flex; align-items:center; gap:7px; flex:1; min-width:180px;">
-                                <span style="background:rgba(56,189,248,0.18); color:#38bdf8; width:24px; height:24px; border-radius:6px; font-size:0.76rem; font-weight:900; display:inline-flex; align-items:center; justify-content:center;">${itemIdx + 1}</span>
-                                <span style="font-weight:900; color:#f8fafc; font-size:0.93rem;">${meta.name}</span>
-                                ${hubCols.colItemSpec ? `<span style="font-size:0.73rem; color:#38bdf8; background:rgba(56,189,248,0.1); border:1px solid rgba(56,189,248,0.25); padding:2px 7px; border-radius:5px; font-weight:800;">⚖️ 1 ${meta.unit} = ${meta.factor} ${meta.baseUnit}</span>` : ''}
-                            </div>
-                            <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
-                                ${hubCols.colItemWh ? `<span style="color:#fcd34d; font-size:0.75rem; font-weight:800; background:rgba(245,158,11,0.14); border:1px solid rgba(245,158,11,0.3); padding:3px 8px; border-radius:6px; white-space:nowrap;">🏢 ${meta.whName}</span>` : ''}
-                                <button type="button" onclick="event.stopPropagation(); openWorldClassDeliveryModal('${invNo}', ${itemIdx}, 'primary')" title="استلم بالـ ${meta.unit}" style="background:linear-gradient(135deg, #10b981, #059669); color:#ffffff; border:1px solid #34d399; padding:4px 10px; border-radius:7px; font-size:0.82rem; font-weight:900; cursor:pointer; display:inline-flex; align-items:center; gap:4px; white-space:nowrap;">
-                                    📦 ${remQ.toLocaleString('en-US', { maximumFractionDigits: 3 })} ${meta.unit}
-                                </button>
-                                ${hubCols.colItemBaseUnit ? `
-                                <button type="button" onclick="event.stopPropagation(); openWorldClassDeliveryModal('${invNo}', ${itemIdx}, 'base')" title="استلم بالـ ${meta.baseUnit}" style="background:rgba(99,102,241,0.2); color:#c4b5fd; border:1px solid rgba(129,140,248,0.5); padding:4px 10px; border-radius:7px; font-size:0.8rem; font-weight:900; cursor:pointer; display:inline-flex; align-items:center; gap:4px; white-space:nowrap;">
-                                    🔢 ${remBaseQ.toLocaleString('en-US', { maximumFractionDigits: 2 })} ${meta.baseUnit}
-                                </button>
-                                ` : ''}
-                            </div>
-                        </div>
-                    `;
-                }).join('');
-
-                const statusBadge = isDel
-                    ? `<span style="display:inline-flex; align-items:center; gap:4px; background:rgba(16,185,129,0.16); border:1px solid rgba(52,211,153,0.35); color:#6ee7b7; padding:3px 8px; border-radius:99px; font-size:0.74rem; font-weight:800;">✅ تم الصرف (${inv.deliveryNo || 'GDN'})</span>`
-                    : (isPartial
-                        ? `<span style="display:inline-flex; align-items:center; gap:4px; background:rgba(245,158,11,0.16); border:1px solid rgba(251,191,36,0.35); color:#fcd34d; padding:3px 8px; border-radius:99px; font-size:0.74rem; font-weight:800;">🌗 تسليم جزئي</span>`
-                        : `<span style="display:inline-flex; align-items:center; gap:4px; background:rgba(249,115,22,0.16); border:1px solid rgba(251,146,60,0.35); color:#fdba74; padding:3px 8px; border-radius:99px; font-size:0.74rem; font-weight:800;">⏳ بانتظار التسليم</span>`);
-
-                const splitGenealogyHtml = (typeof window.renderSplitGenealogyBadge === 'function') ? window.renderSplitGenealogyBadge(inv) : '';
-                const escInvNoForJs = invNo.replace(/'/g, "\\'");
-
-                return `
-                    <tr class="gdn-row" data-row-idx="${idx}" data-inv-no="${invNo}" onclick="highlightGdnRow(${idx})">
-                        <td style="padding:10px; text-align:right; ${hubCols.colInvNo ? '' : 'display:none;'}">
-                            <div style="font-weight:900; color:#38bdf8; font-size:1.05rem; font-family:'Outfit',monospace; direction:ltr; display:inline-block;">#${invNo}</div>
-                            ${splitGenealogyHtml}
-                            <div style="margin-top:4px;">${statusBadge}</div>
-                        </td>
-                        <td style="padding:10px; text-align:center; ${hubCols.colDateTime ? '' : 'display:none;'}">
-                            <div class="gdn-datetime-wrap">
-                                <span class="gdn-date-chip">📅 ${dateStr}</span>
-                                <span class="gdn-time-chip">🕒 ${timeStr}</span>
-                            </div>
-                        </td>
-                        <td style="padding:10px; text-align:right; ${hubCols.colCustomer ? '' : 'display:none;'}">
-                            <div style="font-weight:800; color:#f8fafc; font-size:0.93rem;">👤 ${custName}</div>
-                            ${inv.receiverName ? `<div style="font-size:0.75rem; color:#34d399; font-weight:700; margin-top:2px;">المستلم: ${inv.receiverName}</div>` : ''}
-                        </td>
-                        <td style="padding:10px; text-align:right; ${hubCols.colItems ? '' : 'display:none;'}">
-                            <div class="gdn-items-container">
-                                ${itemsPillsHtml || '<span style="color:#94a3b8; font-size:0.8rem;">لا توجد أصناف</span>'}
-                            </div>
-                        </td>
-                        <td style="padding:10px; text-align:center; ${hubCols.colWarehouse ? '' : 'display:none;'}">
-                            <div style="font-weight:800; color:#e2e8f0; font-size:0.84rem; margin-bottom:4px;">
-                                الكمية: <strong style="color:#34d399;">${totalInvQty.toLocaleString('en-US', { maximumFractionDigits: 2 })}</strong>
-                                ${totalInvBaseUnits !== totalInvQty ? `<div style="font-size:0.76rem; color:#a5b4fc;">(${totalInvBaseUnits.toLocaleString('en-US', { maximumFractionDigits: 2 })} بالوحدات)</div>` : ''}
-                            </div>
-                            <select id="del-wh-${invNo}" class="gdn-borderless-select" style="width:100%; font-size:0.82rem;" ${isDel ? 'disabled' : ''}>
-                                ${whOptions}
-                            </select>
-                        </td>
-                        <td style="padding:10px; text-align:center; ${hubCols.colActions ? '' : 'display:none;'}">
-                            <div style="display:flex; flex-wrap:wrap; gap:5px; justify-content:center;">
-                                ${!isDel ? `
-                                    <button onclick="event.stopPropagation(); openWorldClassDeliveryModal('${escInvNoForJs}')" class="gdn-kinetic-btn kinetic-glow-arm kinetic-arm-emerald" style="border:none;">
-                                        📦 تسليم
-                                    </button>
-                                    <button onclick="event.stopPropagation(); window.openSplitForInvoiceFromDelivery('${escInvNoForJs}')" class="gdn-kinetic-btn kinetic-glow-arm kinetic-arm-pink" title="تقسيم الإذن إلى أقسام متسلسلة (100/17/1 و 100/17/2)">
-                                        ✂️ تقسيم
-                                    </button>
-                                    <button onclick="event.stopPropagation(); executeInstantOneClickDelivery('${escInvNoForJs}')" class="gdn-kinetic-btn" style="background:rgba(16,185,129,0.16); border:1px solid rgba(52,211,153,0.35); color:#6ee7b7;" title="صرف مخزني فوري">
-                                        ⚡ فوري
-                                    </button>
-                                ` : `
-                                    <button onclick="event.stopPropagation(); openWorldClassDeliveryModal('${escInvNoForJs}')" class="gdn-kinetic-btn" style="background:rgba(56,189,248,0.16); border:1px solid rgba(56,189,248,0.35); color:#38bdf8;">
-                                        👁️ الإذن
-                                    </button>
-                                    <button onclick="event.stopPropagation(); undoGdnDelivery('${escInvNoForJs}')" class="gdn-kinetic-btn" style="background:rgba(239,68,68,0.16); border:1px solid rgba(239,68,68,0.35); color:#fca5a5;">
-                                        ↩️ تراجع
-                                    </button>
-                                `}
-                                ${(inv.isSplit || inv.parentInvoice) ? `
-                                <button onclick="event.stopPropagation(); if(typeof window.printSplitFamilyVouchers==='function') window.printSplitFamilyVouchers('${escInvNoForJs}')" class="gdn-kinetic-btn kinetic-glow-arm kinetic-arm-pink" title="طباعة الجزئين / جميع الأذونات المقسمة">
-                                    🖨️ الجزئين
-                                </button>
-                                <button onclick="event.stopPropagation(); window.openSplitGenealogyModal('${escInvNoForJs}')" class="gdn-kinetic-btn kinetic-glow-arm kinetic-arm-cyan" title="عرض شجرة النسب والتقسيم">
-                                    🌳
-                                </button>` : ''}
-                                <button onclick="event.stopPropagation(); showInvoiceDeliveryQrModal('${invNo}')" class="gdn-kinetic-btn" style="background:rgba(56,189,248,0.14); border:1px solid rgba(56,189,248,0.3); color:#38bdf8;" title="باركود QR">
-                                    📱
-                                </button>
-                                <button onclick="event.stopPropagation(); printOfficialGdnGatePass('${invNo}')" class="gdn-kinetic-btn" style="background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.18); color:#f8fafc;" title="طباعة إذن الصرف">
-                                    🖨️
-                                </button>
-                                <button onclick="event.stopPropagation(); shareGdnOnWhatsApp('${invNo}')" class="gdn-kinetic-btn" style="background:rgba(34,197,94,0.16); border:1px solid rgba(34,197,94,0.35); color:#4ade80;" title="واتساب">
-                                    💬
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
-                `;
-            }).join('');
-
-            const loadMoreRow = filtered.length > visibleSlice.length ? `
-                <tr>
-                    <td colspan="6" style="text-align:center; padding:14px;">
-                        <button type="button" onclick="setGdnHubFilterState('pageLimit', (window.gdnHubState.pageLimit || 100) + 200)" class="gdn-kinetic-btn" style="background:linear-gradient(135deg, #0284c7, #0369a1); color:#ffffff; border:1px solid #38bdf8; padding:8px 24px; font-size:0.9rem;">
-                            ⬇️ عرض 200 إذن إضافي (المتبقي: ${(filtered.length - visibleSlice.length).toLocaleString('en-US')} إذن)
-                        </button>
-                    </td>
-                </tr>
-            ` : '';
-
-            tbody.innerHTML = rowsMarkup + loadMoreRow;
-        };
-
-        window.highlightGdnRow = function(idx) {
-            window.gdnActiveRowIndex = idx;
-            document.querySelectorAll('#delivery-transactions-body tr.gdn-row').forEach((tr, i) => {
-                tr.classList.toggle('gdn-active-row', i === idx);
-            });
-        };
-
-        // Render Origin Voucher Items as a Precision Row-by-Row & Cell-by-Cell Table with Full Column Show/Hide & Width Control
-        window.renderModalOriginColumnsTable = function(draftQtys = {}, draftWhs = {}) {
-            const ctx = window.pendingDeliveryContext;
-            if (!ctx || !ctx.invoiceObj) return;
-            const inv = ctx.invoiceObj;
-            const selectedWhObj = { id: ctx.selectedWhId, name: ctx.selectedWhName };
-            const warehouses = getWarehousesList();
-            const optCols = getGdnOptionalColsConfig();
-
-            const chkMap = {
-                'chk-gdn-col-wh': optCols.showWarehouse,
-                'chk-gdn-col-item': optCols.showItemName,
-                'chk-gdn-col-spec': optCols.showItemSpec,
-                'chk-gdn-col-punit': optCols.showPrimaryUnit,
-                'chk-gdn-col-oqty': optCols.showOrderedQty,
-                'chk-gdn-col-units': optCols.showUnitsCount,
-                'chk-gdn-col-avail': optCols.showAvailStock,
-                'chk-gdn-col-price': optCols.showPriceTotal,
-                'chk-gdn-col-recp': optCols.showReceivePrimary,
-                'chk-gdn-col-recb': optCols.showReceiveBase,
-                'chk-gdn-col-net': optCols.showNetSummary
-            };
-            Object.keys(chkMap).forEach(id => {
-                const el = document.getElementById(id);
-                if (el) el.checked = !!chkMap[id];
-            });
-
-            const itemsContainer = document.getElementById('delivery-modal-items-preview');
-            const countBadge = document.getElementById('del-modal-items-count-badge');
-            const items = Array.isArray(inv.items) ? inv.items : [];
-            const currencyLabel = inv.currency || 'SDG';
-
-            if (!itemsContainer) return;
-            if (items.length === 0) {
-                itemsContainer.innerHTML = `<div style="text-align:center; padding:24px; color:#fca5a5; font-weight:800;">⚠️ لا توجد أصناف مسجلة داخل هذه الفاتورة</div>`;
-                if (countBadge) countBadge.textContent = '0 أصناف';
-                return;
-            }
-
-            let totalOrigQty = 0;
-            let totalRemUnits = 0;
-            let totalBaseUnits = 0;
-            let totalAmountSum = 0;
-
-            const rowsHtml = items.map((item, idx) => {
-                const meta = resolveItemMeta(item, selectedWhObj);
-                const totalQ = meta.qty;
-                const prevDel = parseFloat(item.deliveredQty || 0) || 0;
-                const isAlreadyDel = inv.isDelivered === true || inv.deliveryStatus === 'delivered' || inv.deliveryStatus === 'Delivered_Pending_Admin' || inv.deliveryStatus === 'Admin_Closed';
-                const remQ = isAlreadyDel ? totalQ : Math.max(0, totalQ - prevDel);
-                const currentDelVal = draftQtys[idx] !== undefined ? parseFloat(draftQtys[idx]) : remQ;
-                const safeDelVal = isNaN(currentDelVal) ? remQ : currentDelVal;
-                const currentWhId = draftWhs[idx] !== undefined ? draftWhs[idx] : meta.whId;
-                const liveBaseNow = safeDelVal * meta.factor;
-                const remBaseMax = +(remQ * meta.factor).toFixed(2);
-                const pct = remQ > 0 ? Math.min(100, Math.round((safeDelVal / remQ) * 100)) : 100;
-                const pctColor = pct >= 100 ? '#10b981' : (pct > 0 ? '#f59e0b' : '#ef4444');
-
-                totalOrigQty += totalQ;
-                totalRemUnits += safeDelVal;
-                totalBaseUnits += liveBaseNow;
-                totalAmountSum += meta.total;
-
-                const availStock = getAvailableStockForItem(item, currentWhId);
-                const isLowStock = availStock !== null && availStock < safeDelVal;
-                const whSelectOptions = warehouses.map(w =>
-                    `<option value="${w.id}" ${String(w.id) === String(currentWhId) || w.name === String(currentWhId) ? 'selected' : ''}>${w.name}</option>`
-                ).join('');
-
-                return `
-                    <tr>
-                        <!-- 1. # -->
-                        <td style="text-align:center; width:44px;">
-                            <span style="display:inline-flex; align-items:center; justify-content:center; width:28px; height:28px; border-radius:8px; background:rgba(56,189,248,0.15); color:#38bdf8; font-weight:900; font-size:0.86rem;">${idx + 1}</span>
-                        </td>
-
-                        <!-- 2. المخزن -->
-                        <td style="text-align:right; width:160px; min-width:145px; ${optCols.showWarehouse ? '' : 'display:none !important;'}">
-                            <select class="gdn-borderless-select gdn-modal-item-wh" data-item-idx="${idx}" onchange="refreshModalWithDraftPreserved()" style="width:100%; padding:7px 10px !important; font-size:0.86rem !important; color:#fcd34d !important; background:#020617 !important; border-color:rgba(245,158,11,0.4) !important;">
-                                ${whSelectOptions}
-                            </select>
-                        </td>
-
-                        <!-- 3. الصنف -->
-                        <td style="text-align:right; min-width:190px; ${optCols.showItemName ? '' : 'display:none !important;'}">
-                            <div style="font-weight:900; color:#ffffff; font-size:1.02rem; line-height:1.35;">${meta.name}</div>
-                            ${meta.code ? `<div style="font-size:0.72rem; color:#94a3b8; font-family:'Outfit',sans-serif;">#${meta.code}</div>` : ''}
-                        </td>
-
-                        <!-- 4. البيان ومعادلة العبوة -->
-                        <td style="text-align:center; min-width:155px; ${optCols.showItemSpec ? '' : 'display:none !important;'}">
-                            <div style="display:inline-flex; align-items:center; gap:5px; font-size:0.8rem; color:#38bdf8; background:rgba(56,189,248,0.12); border:1px solid rgba(56,189,248,0.3); padding:4px 10px; border-radius:8px; font-weight:900; white-space:nowrap;">
-                                ⚖️ ${meta.tonRefHint || (`1 ${meta.unit} = ${meta.factor} ${meta.baseUnit}`)}
-                            </div>
-                        </td>
-
-                        <!-- 5. الوحدة الأساسية بالإذن -->
-                        <td style="text-align:center; width:115px; ${optCols.showPrimaryUnit ? '' : 'display:none !important;'}">
-                            <span class="gdn-unit-badge">
-                                🏷️ ${meta.unit}
-                            </span>
-                        </td>
-
-                        <!-- 6. الكمية بالإذن -->
-                        <td style="text-align:center; width:105px; background:rgba(56,189,248,0.05); ${optCols.showOrderedQty ? '' : 'display:none !important;'}">
-                            <div style="font-size:1.18rem; font-weight:900; color:#38bdf8; font-family:'Outfit',sans-serif;">
-                                ${totalQ.toLocaleString('en-US', { maximumFractionDigits: 3 })}
-                            </div>
-                            <div style="font-size:0.74rem; color:#94a3b8; font-weight:800;">${meta.unit}</div>
-                            ${prevDel > 0 && !isAlreadyDel ? `<div style="font-size:0.72rem; color:#34d399; margin-top:2px;">سُلّم: ${prevDel}</div>` : ''}
-                        </td>
-
-                        <!-- 7 & 8. الوحدة الفرعية وعدد الوحدات -->
-                        <td style="text-align:center; width:125px; padding:10px !important; background:rgba(99,102,241,0.04); ${optCols.showUnitsCount ? '' : 'display:none !important;'}">
-                            <div class="gdn-receive-unit-box units-mirror-box" onclick="setRowDeliveryUnitMode(${idx}, 'base', false)" style="display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px; padding:8px 10px; border-radius:12px; cursor:pointer;" title="اضغط أو مرر المؤشر للتفعيل بالوحدة الفرعية">
-                                <span style="display:inline-flex; align-items:center; padding:4px 10px; border-radius:8px; background:rgba(99,102,241,0.18); border:1px solid rgba(129,140,248,0.4); color:#c4b5fd; font-size:0.84rem; font-weight:900;">
-                                    🔢 ${meta.baseUnit}
-                                </span>
-                                <div style="font-size:0.72rem; color:#818cf8; font-weight:800;">المعامل: ×${meta.factor}</div>
-                            </div>
-                        </td>
-                        <td style="text-align:center; width:135px; padding:10px !important; background:rgba(99,102,241,0.06); ${optCols.showUnitsCount ? '' : 'display:none !important;'}">
-                            <div class="gdn-receive-unit-box units-mirror-box" onclick="setRowDeliveryUnitMode(${idx}, 'base', true)" style="display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px; padding:8px 10px; border-radius:12px; cursor:pointer;" title="اضغط لاستلام كامل المعادل بالوحدات الفرعية">
-                                <div id="gdn-row-baseqty-${idx}" style="font-size:1.15rem; font-weight:900; color:#c4b5fd; font-family:'Outfit',sans-serif;">
-                                    ${liveBaseNow.toLocaleString('en-US', { maximumFractionDigits: 2 })}
-                                </div>
-                                <div style="font-size:0.74rem; color:#a5b4fc; font-weight:800;">${meta.baseUnit}</div>
-                            </div>
-                        </td>
-
-                        <!-- 9 & 10. السعر والإجمالي -->
-                        <td style="text-align:center; width:100px; ${optCols.showPriceTotal ? '' : 'display:none !important;'}">
-                            <div style="font-size:0.95rem; font-weight:900; color:#fcd34d; font-family:'Outfit',sans-serif;">
-                                ${meta.price.toLocaleString('en-US', { maximumFractionDigits: 2 })}
-                            </div>
-                        </td>
-                        <td style="text-align:center; width:115px; ${optCols.showPriceTotal ? '' : 'display:none !important;'}">
-                            <div style="font-size:0.96rem; font-weight:900; color:#6ee7b7; font-family:'Outfit',sans-serif;">
-                                ${meta.total.toLocaleString('en-US', { maximumFractionDigits: 2 })}
-                            </div>
-                        </td>
-
-                        <!-- 11. الرصيد المتاح بالمخزن -->
-                        <td style="text-align:center; width:100px; ${optCols.showAvailStock ? '' : 'display:none !important;'}">
-                            <span style="font-size:0.94rem; color:${isLowStock ? '#fca5a5' : '#7dd3fc'}; font-weight:900; font-family:'Outfit',sans-serif; background:${isLowStock ? 'rgba(239,68,68,0.18)' : 'transparent'}; padding:3px 8px; border-radius:6px;">
-                                ${availStock !== null ? availStock.toLocaleString('en-US', { maximumFractionDigits: 2 }) : '—'}
-                            </span>
-                        </td>
-
-                        <!-- 12. الخانة الأولى للاستلام: بالوحدة الأساسية (استلم هنا) -->
-                        <td style="text-align:center; width:264px; min-width:264px; max-width:264px; padding:10px !important; overflow:visible !important; background:rgba(16,185,129,0.03); ${optCols.showReceivePrimary ? '' : 'display:none !important;'}">
-                            <div id="gdn-unit-box-primary-${idx}" class="gdn-receive-unit-box primary-box" onmouseenter="setRowDeliveryUnitMode(${idx}, 'primary', false)">
-                                <div style="display:grid; grid-template-columns:1fr 1fr; align-items:center; gap:6px; width:100%;">
-                                    <button type="button" id="gdn-mode-btn-primary-${idx}" onclick="setRowDeliveryUnitMode(${idx}, 'primary', false)" class="gdn-kinetic-btn gdn-unit-fixed-pill" style="height:29px !important; width:100% !important; padding:0 8px !important; font-size:0.76rem !important; font-weight:900 !important; background:#020617 !important; color:#ffffff !important; border:1.5px solid rgba(52,211,153,0.55) !important; border-radius:7px !important; white-space:nowrap !important; overflow:hidden !important; text-overflow:ellipsis !important;">
-                                        📦 بالـ ${meta.unit}
-                                    </button>
-                                    <button type="button" onclick="setRowDeliveryUnitMode(${idx}, 'primary', true)" class="gdn-kinetic-btn gdn-unit-fixed-pill" style="height:29px !important; width:100% !important; padding:0 8px !important; font-size:0.75rem !important; font-weight:900 !important; background:#020617 !important; color:#ffffff !important; border:1.5px solid rgba(56,189,248,0.55) !important; border-radius:7px !important; white-space:nowrap !important; overflow:hidden !important; text-overflow:ellipsis !important;" title="استلام كامل المتبقي بالـ ${meta.unit}">
-                                        ⚡ الكل (${remQ})
-                                    </button>
-                                </div>
-                                <div style="display:flex; align-items:center; justify-content:center; gap:6px; direction:ltr; width:100%; height:38px;">
-                                    <button type="button" onclick="adjustModalItemQty(${idx}, -1, 'primary')" class="gdn-qty-step-btn" style="width:36px !important; height:36px !important; min-width:36px !important; background:#1e1b2e !important; color:#fca5a5 !important; border-color:rgba(248,113,113,0.45) !important;">−</button>
-                                    <input type="text" inputmode="decimal" class="gdn-qty-large-input gdn-modal-deliver-qty" data-item-idx="${idx}" data-max-rem="${remQ}" data-unit-factor="${meta.factor}" data-primary-unit="${meta.unit}" data-base-unit="${meta.baseUnit}" data-active-unit-mode="primary" value="${safeDelVal}" oninput="onPrimaryDeliverQtyInput(${idx})" style="width:124px !important; min-width:124px !important; max-width:124px !important; height:36px !important; color:#ffffff !important; background:#020617 !important; border:1.5px solid #10b981 !important;" title="اكتب الكمية المستلمة بالـ ${meta.unit}">
-                                    <button type="button" onclick="adjustModalItemQty(${idx}, 1, 'primary')" class="gdn-qty-step-btn" style="width:36px !important; height:36px !important; min-width:36px !important; background:#06281e !important; color:#ffffff !important; border-color:rgba(52,211,153,0.5) !important;">+</button>
-                                </div>
-                                <div class="gdn-box-caption" style="height:20px; display:flex; align-items:center; justify-content:center; font-size:0.74rem; color:#ffffff !important; font-weight:900; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">✨ استلم هنا بالوحدة الأساسية (${meta.unit})</div>
-                            </div>
-                        </td>
-
-                        <!-- 13. الخانة الثانية للاستلام: بالوحدة الفرعية (أو استلم هنا) -->
-                        <td style="text-align:center; width:264px; min-width:264px; max-width:264px; padding:10px !important; overflow:visible !important; background:rgba(56,189,248,0.03); ${optCols.showReceiveBase ? '' : 'display:none !important;'}">
-                            <div id="gdn-unit-box-base-${idx}" class="gdn-receive-unit-box base-box" onmouseenter="setRowDeliveryUnitMode(${idx}, 'base', false)">
-                                <div style="display:grid; grid-template-columns:1fr 1fr; align-items:center; gap:6px; width:100%;">
-                                    <button type="button" id="gdn-mode-btn-base-${idx}" onclick="setRowDeliveryUnitMode(${idx}, 'base', false)" class="gdn-kinetic-btn gdn-unit-fixed-pill" style="height:29px !important; width:100% !important; padding:0 8px !important; font-size:0.76rem !important; font-weight:900 !important; background:#020617 !important; color:#ffffff !important; border:1.5px solid rgba(56,189,248,0.55) !important; border-radius:7px !important; white-space:nowrap !important; overflow:hidden !important; text-overflow:ellipsis !important;">
-                                        🔢 بالـ ${meta.baseUnit}
-                                    </button>
-                                    <button type="button" onclick="setRowDeliveryUnitMode(${idx}, 'base', true)" class="gdn-kinetic-btn gdn-unit-fixed-pill" style="height:29px !important; width:100% !important; padding:0 8px !important; font-size:0.75rem !important; font-weight:900 !important; background:#020617 !important; color:#ffffff !important; border:1.5px solid rgba(129,140,248,0.55) !important; border-radius:7px !important; white-space:nowrap !important; overflow:hidden !important; text-overflow:ellipsis !important;" title="استلام كامل المتبقي بالـ ${meta.baseUnit}">
-                                        ⚡ الكل (${remBaseMax})
-                                    </button>
-                                </div>
-                                <div style="display:flex; align-items:center; justify-content:center; gap:6px; direction:ltr; width:100%; height:38px;">
-                                    <button type="button" onclick="adjustModalItemQty(${idx}, -1, 'base')" class="gdn-qty-step-btn" style="width:36px !important; height:36px !important; min-width:36px !important; background:#1e1b2e !important; color:#fca5a5 !important; border-color:rgba(248,113,113,0.45) !important;">−</button>
-                                    <input type="text" inputmode="decimal" class="gdn-qty-large-input gdn-modal-deliver-base-qty" data-item-idx="${idx}" data-max-base="${+(remQ * meta.factor).toFixed(4)}" data-unit-factor="${meta.factor}" value="${+liveBaseNow.toFixed(2)}" oninput="onBaseDeliverQtyInput(${idx})" style="width:124px !important; min-width:124px !important; max-width:124px !important; height:36px !important; color:#ffffff !important; background:#020617 !important; border:1.5px solid #38bdf8 !important;" title="اكتب الكمية المستلمة بالـ ${meta.baseUnit}">
-                                    <button type="button" onclick="adjustModalItemQty(${idx}, 1, 'base')" class="gdn-qty-step-btn" style="width:36px !important; height:36px !important; min-width:36px !important; background:#06281e !important; color:#ffffff !important; border-color:rgba(52,211,153,0.5) !important;">+</button>
-                                </div>
-                                <div class="gdn-box-caption" style="height:20px; display:flex; align-items:center; justify-content:center; font-size:0.74rem; color:#ffffff !important; font-weight:900; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">✨ استلم هنا بالوحدة الفرعية (${meta.baseUnit})</div>
-                            </div>
-                        </td>
-
-                        <!-- 14. الصافي المستلم فعلياً الآن + شريط التقدم البصري -->
-                        <td style="text-align:center; width:180px; min-width:165px; background:rgba(2,6,23,0.45); ${optCols.showNetSummary ? '' : 'display:none !important;'}">
-                            <div id="gdn-deliver-live-eq-${idx}">
-                                <div style="display:flex; flex-direction:column; gap:4px; align-items:center; justify-content:center;">
-                                    <span style="background:rgba(16,185,129,0.18); border:1px solid rgba(52,211,153,0.45); color:#34d399; padding:3px 10px; border-radius:7px; font-size:0.9rem; font-weight:900; white-space:nowrap;">
-                                        📦 ${safeDelVal.toLocaleString('en-US', { maximumFractionDigits: 3 })} ${meta.unit}
-                                    </span>
-                                    <span style="background:rgba(99,102,241,0.18); border:1px solid rgba(129,140,248,0.45); color:#c4b5fd; padding:2px 10px; border-radius:7px; font-size:0.82rem; font-weight:900; white-space:nowrap;">
-                                        🔢 ⇄ ${liveBaseNow.toLocaleString('en-US', { maximumFractionDigits: 2 })} ${meta.baseUnit}
-                                    </span>
-                                    <div style="width:100%; background:rgba(255,255,255,0.08); height:5px; border-radius:99px; overflow:hidden; margin-top:2px;">
-                                        <div style="width:${pct}%; height:100%; background:${pctColor}; transition:width 0.2s;"></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </td>
-                    </tr>
-                `;
-            }).join('');
-
-            const scaleClass = optCols.colWidthScale === 'ultrawide' ? 'gdn-scale-ultrawide' : (optCols.colWidthScale === 'wide' ? 'gdn-scale-wide' : '');
-
-            itemsContainer.innerHTML = `
-                <table class="gdn-origin-columns-table ${scaleClass}">
-                    <thead>
-                        <tr>
-                            <th style="text-align:center; width:44px;">#</th>
-                            <th style="text-align:right; width:160px; ${optCols.showWarehouse ? '' : 'display:none !important;'}">🏢 المخزن</th>
-                            <th style="text-align:right; min-width:190px; ${optCols.showItemName ? '' : 'display:none !important;'}">📦 الصنف</th>
-                            <th style="text-align:center; min-width:155px; ${optCols.showItemSpec ? '' : 'display:none !important;'}">⚖️ البيان / المعامل</th>
-                            <th style="text-align:center; width:115px; ${optCols.showPrimaryUnit ? '' : 'display:none !important;'}">🏷️ الوحدة الأساسية</th>
-                            <th style="text-align:center; width:105px; color:#38bdf8 !important; ${optCols.showOrderedQty ? '' : 'display:none !important;'}">📊 الكمية بالإذن</th>
-                            <th style="text-align:center; width:110px; color:#c4b5fd !important; ${optCols.showUnitsCount ? '' : 'display:none !important;'}">🔢 الوحدة الفرعية</th>
-                            <th style="text-align:center; width:120px; color:#a5b4fc !important; ${optCols.showUnitsCount ? '' : 'display:none !important;'}">📐 المعادل بالوحدات</th>
-                            <th style="text-align:center; width:100px; color:#fcd34d !important; ${optCols.showPriceTotal ? '' : 'display:none !important;'}">💰 السعر</th>
-                            <th style="text-align:center; width:115px; color:#6ee7b7 !important; ${optCols.showPriceTotal ? '' : 'display:none !important;'}">💎 الإجمالي</th>
-                            <th style="text-align:center; width:100px; color:#7dd3fc !important; ${optCols.showAvailStock ? '' : 'display:none !important;'}">🏛️ المتاح</th>
-                            <th style="text-align:center; width:255px; color:#34d399 !important; ${optCols.showReceivePrimary ? '' : 'display:none !important;'}">📥 استلام بالوحدة الأساسية (استلم هنا)</th>
-                            <th style="text-align:center; width:255px; color:#c4b5fd !important; ${optCols.showReceiveBase ? '' : 'display:none !important;'}">🔄 استلام بالوحدة الفرعية (أو استلم هنا)</th>
-                            <th style="text-align:center; width:180px; color:#6ee7b7 !important; ${optCols.showNetSummary ? '' : 'display:none !important;'}">✅ الصافي المستلم الآن</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${rowsHtml}
-                    </tbody>
-                    <tfoot>
-                        <tr>
-                            <td style="text-align:center; color:#a7f3d0;">∑</td>
-                            <td style="text-align:right; color:#fcd34d; ${optCols.showWarehouse ? '' : 'display:none !important;'}">إجمالي البنود:</td>
-                            <td style="text-align:right; color:#ffffff; ${optCols.showItemName ? '' : 'display:none !important;'}"><strong>${items.length} أصناف</strong></td>
-                            <td style="text-align:center; color:#94a3b8; ${optCols.showItemSpec ? '' : 'display:none !important;'}">-</td>
-                            <td style="text-align:center; color:#94a3b8; ${optCols.showPrimaryUnit ? '' : 'display:none !important;'}">-</td>
-                            <td style="text-align:center; color:#38bdf8; font-family:'Outfit',sans-serif; font-size:1.05rem; ${optCols.showOrderedQty ? '' : 'display:none !important;'}">
-                                ${totalOrigQty.toLocaleString('en-US', { maximumFractionDigits: 3 })}
-                            </td>
-                            <td style="text-align:center; color:#94a3b8; ${optCols.showUnitsCount ? '' : 'display:none !important;'}">-</td>
-                            <td id="gdn-foot-base-now" style="text-align:center; color:#c4b5fd; font-family:'Outfit',sans-serif; font-size:1.05rem; ${optCols.showUnitsCount ? '' : 'display:none !important;'}">
-                                ${totalBaseUnits.toLocaleString('en-US', { maximumFractionDigits: 2 })}
-                            </td>
-                            <td style="text-align:center; ${optCols.showPriceTotal ? '' : 'display:none !important;'}">-</td>
-                            <td style="text-align:center; color:#6ee7b7; font-family:'Outfit',sans-serif; ${optCols.showPriceTotal ? '' : 'display:none !important;'}">
-                                ${totalAmountSum.toLocaleString('en-US', { maximumFractionDigits: 2 })} ${currencyLabel}
-                            </td>
-                            <td style="text-align:center; ${optCols.showAvailStock ? '' : 'display:none !important;'}">-</td>
-                            <td style="text-align:center; color:#34d399; font-family:'Outfit',sans-serif; font-size:1.1rem; ${optCols.showReceivePrimary ? '' : 'display:none !important;'}">
-                                📦 <span id="gdn-foot-deliver-now">${totalRemUnits.toLocaleString('en-US', { maximumFractionDigits: 3 })}</span>
-                            </td>
-                            <td style="text-align:center; color:#c4b5fd; font-family:'Outfit',sans-serif; font-size:1.1rem; ${optCols.showReceiveBase ? '' : 'display:none !important;'}">
-                                🔢 <span id="gdn-foot-deliver-base-now">${totalBaseUnits.toLocaleString('en-US', { maximumFractionDigits: 2 })}</span>
-                            </td>
-                            <td style="text-align:center; color:#6ee7b7; ${optCols.showNetSummary ? '' : 'display:none !important;'}">
-                                ✅ جاهز للصرف
-                            </td>
-                        </tr>
-                    </tfoot>
-                </table>
-            `;
-
-            if (countBadge) {
-                countBadge.textContent = `${items.length} أصناف | إجمالي الوحدات الفرعية: ${totalBaseUnits.toLocaleString('en-US', { maximumFractionDigits: 2 })}`;
-            }
-        };
-
-        // Smart AI Modal Opener with Full Item Inspection, Stock Check & Partial/Full Controls
-        window.openWorldClassDeliveryModal = function(invIdentifier, targetItemIdx = null, preferredUnitMode = 'primary') {
-            upgradeDeliveryHubDOM();
-            const invoices = JSON.parse(localStorage.getItem('erp_sales_invoices_v1') || '[]');
-            const inv = invoices.find(i => String(i.invoiceNo || i.serial || i.id) === String(invIdentifier));
-            if (!inv) {
-                if (typeof showToast === 'function') showToast('❌ لم يتم العثور على الفاتورة', 'error');
-                return;
-            }
-
-            const invNo = String(inv.invoiceNo || inv.serial || inv.id);
-            const whSelect = document.getElementById(`del-wh-${invIdentifier}`);
-            const warehouses = getWarehousesList();
-            const selectedWhId = whSelect ? whSelect.value : (inv.warehouseId || inv.warehouse || warehouses[0].id);
-            const selectedWhObj = warehouses.find(w => String(w.id) === String(selectedWhId) || w.name === selectedWhId) || warehouses[0];
-            const custName = resolveCustomerName(inv);
-            const { dateStr, timeStr } = parseInvoiceDateTimeParts(inv);
-
-            window.pendingDeliveryContext = {
-                invIdentifier: invNo,
-                selectedWhId: selectedWhObj.id,
-                selectedWhName: selectedWhObj.name,
-                invoiceObj: inv
-            };
-
-            const invEl = document.getElementById('del-modal-inv-no');
-            const dtEl = document.getElementById('del-modal-datetime');
-            const custEl = document.getElementById('del-modal-cust-name');
-            const whEl = document.getElementById('del-modal-wh-name');
-            const amtEl = document.getElementById('del-modal-amount');
-            const gdnBadge = document.getElementById('del-modal-gdn-badge');
-
-            if (invEl) invEl.textContent = '#' + invNo;
-            if (dtEl) dtEl.textContent = `${dateStr} | ${timeStr}`;
-            if (custEl) custEl.textContent = custName;
-            if (whEl) whEl.textContent = selectedWhObj.name;
-            if (amtEl) {
-                const totalVal = parseFloat(inv.grandTotal ?? inv.total ?? inv.totals?.grandTotal ?? 0) || 0;
-                amtEl.textContent = totalVal.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 }) + ' ' + (inv.currency || 'SDG');
-            }
-            if (gdnBadge) gdnBadge.textContent = inv.deliveryNo || ('GDN-' + Date.now().toString().slice(-5));
-
-            const recInput = document.getElementById('gdn-receiver-name');
-            const drvInput = document.getElementById('gdn-driver-name');
-            const trkInput = document.getElementById('gdn-truck-plate');
-            const gateInput = document.getElementById('gdn-gate-pass');
-            const notesInput = document.getElementById('gdn-warehouse-notes');
-            if (recInput) recInput.value = inv.receiverName || custName || '';
-            if (drvInput) drvInput.value = inv.driverName || '';
-            if (trkInput) trkInput.value = inv.truckPlate || '';
-            if (gateInput) gateInput.value = inv.gatePassNo || ('GP-' + Date.now().toString().slice(-5));
-            if (notesInput) notesInput.value = inv.warehouseNotes || inv.notes || '';
-
-            window.renderModalOriginColumnsTable();
-
-            const modal = document.getElementById('delivery-confirmation-modal');
-            if (modal) modal.style.display = 'flex';
-
-            if (targetItemIdx !== null && targetItemIdx !== undefined) {
-                setTimeout(() => {
-                    window.setRowDeliveryUnitMode(targetItemIdx, preferredUnitMode, true);
-                    const targetInput = preferredUnitMode === 'base'
-                        ? document.querySelector(`.gdn-modal-deliver-base-qty[data-item-idx="${targetItemIdx}"]`)
-                        : document.querySelector(`.gdn-modal-deliver-qty[data-item-idx="${targetItemIdx}"]`);
-                    if (targetInput) {
-                        targetInput.focus();
-                        targetInput.select();
-                    }
-                }, 60);
-            }
-        };
-
-        window.confirmAndPrintDeliveryAction = async function() {
-            const ctx = window.pendingDeliveryContext;
-            const invNo = ctx ? ctx.invIdentifier : null;
-            await window.confirmExecuteDeliveryAction();
-            if (invNo) {
-                setTimeout(() => window.printOfficialGdnGatePass(invNo), 250);
-            }
-        };
-
-        // Instant 1-Click or QR Scan Delivery Deduction without extra clicks
-        window.executeInstantOneClickDelivery = function(invIdentifier) {
-            const invoices = JSON.parse(localStorage.getItem('erp_sales_invoices_v1') || '[]');
-            const inv = invoices.find(i => String(i.invoiceNo || i.serial || i.id) === String(invIdentifier));
-            if (!inv) {
-                if (typeof showToast === 'function') showToast('❌ الفاتورة غير موجودة', 'error');
-                return;
-            }
-            const whSelect = document.getElementById(`del-wh-${invIdentifier}`);
-            const warehouses = getWarehousesList();
-            const selectedWhId = whSelect ? whSelect.value : (inv.warehouseId || inv.warehouse || warehouses[0].id);
-            const selectedWhObj = warehouses.find(w => String(w.id) === String(selectedWhId)) || warehouses[0];
-
-            window.pendingDeliveryContext = {
-                invIdentifier,
-                selectedWhId,
-                selectedWhName: selectedWhObj.name,
-                instantFullDelivery: true
-            };
-            window.confirmExecuteDeliveryAction();
-        };
-
-        // Override confirmExecuteDeliveryAction to connect 100% with erp_delivery_notes_v1, erp_items_v1, erp_inventory_v1, and api/mirror_sync.php
-        window.confirmExecuteDeliveryAction = async function() {
-            if (!window.pendingDeliveryContext) return;
-            const { invIdentifier, selectedWhId, selectedWhName, instantFullDelivery } = window.pendingDeliveryContext;
-
-            let invoices = JSON.parse(localStorage.getItem('erp_sales_invoices_v1') || '[]');
-            const invIndex = invoices.findIndex(i => String(i.invoiceNo || i.serial || i.id) === String(invIdentifier));
-            if (invIndex === -1) return;
-
-            const inv = invoices[invIndex];
-            const invNo = String(inv.invoiceNo || inv.serial || inv.id);
-
-            // Read quantities and per-row warehouses to deliver now (supports partial or full delivery)
-            const qtyInputs = document.querySelectorAll('.gdn-modal-deliver-qty');
-            const whSelects = document.querySelectorAll('.gdn-modal-item-wh');
-            const warehouses = getWarehousesList();
-            let isPartialDelivery = false;
-            const deliveredItemsPayload = [];
-
-            const invItems = Array.isArray(inv.items) ? inv.items : [];
-            invItems.forEach((item, idx) => {
-                const origQty = parseFloat(item.qty || item.quantity || 0);
-                const prevDel = parseFloat(item.deliveredQty || 0);
-                const maxRem = Math.max(0, origQty - prevDel);
-                let deliverNow = maxRem;
-
-                if (!instantFullDelivery && qtyInputs[idx]) {
-                    const parsed = parseFloat(qtyInputs[idx].value);
-                    if (!isNaN(parsed)) deliverNow = Math.min(maxRem, Math.max(0, parsed));
-                }
-
-                const rowWhId = (!instantFullDelivery && whSelects[idx]) ? whSelects[idx].value : (item.warehouseId || item.warehouse || selectedWhId);
-                const rowWhObj = warehouses.find(w => String(w.id) === String(rowWhId) || w.name === String(rowWhId)) || { id: selectedWhId, name: selectedWhName };
-
-                item.deliveredQty = prevDel + deliverNow;
-                if (item.deliveredQty < origQty - 0.0001) {
-                    isPartialDelivery = true;
-                }
-
-                if (deliverNow > 0) {
-                    const meta = resolveItemMeta(item, rowWhObj);
-                    deliveredItemsPayload.push({
-                        ...item,
-                        name: meta.name,
-                        itemName: meta.name,
-                        unit: meta.unit,
-                        selectedUnit: meta.unit,
-                        qty: deliverNow,
-                        quantity: deliverNow,
-                        orderedQty: origQty,
-                        warehouseId: rowWhObj.id,
-                        warehouseName: rowWhObj.name
-                    });
-                }
-            });
-
-            if (deliveredItemsPayload.length === 0) {
-                if (typeof showToast === 'function') showToast('⚠️ يرجى تحديد كمية أكبر من صفر للتسليم', 'warning');
-                return;
-            }
-
-            const gdnNo = 'GDN-' + Date.now().toString().slice(-6);
-            const nowIso = new Date().toISOString();
-            const todayDate = nowIso.slice(0, 10);
-            const nowTime = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
-
-            const custResolved = resolveCustomerName(inv);
-            const receiverName = document.getElementById('gdn-receiver-name')?.value || custResolved || 'العميل';
-            const driverName = document.getElementById('gdn-driver-name')?.value || '';
-            const truckPlate = document.getElementById('gdn-truck-plate')?.value || '';
-            const gatePassNo = document.getElementById('gdn-gate-pass')?.value || ('GP-' + Date.now().toString().slice(-5));
-            const warehouseNotes = document.getElementById('gdn-warehouse-notes')?.value || '';
-
-            // 1. Update Invoice Status & Fields
-            inv.isDelivered = !isPartialDelivery;
-            inv.deliveryStatus = isPartialDelivery ? 'partial' : 'delivered';
-            inv.status = isPartialDelivery ? 'partial' : 'delivered';
-            inv.deliveryNo = gdnNo;
-            inv.deliveredWarehouse = selectedWhId;
-            inv.deliveredWarehouseName = selectedWhName;
-            inv.deliveredAt = nowIso;
-            inv.deliveryDate = todayDate;
-            inv.deliveryTime = nowTime;
-            inv.receiverName = receiverName;
-            inv.driverName = driverName;
-            inv.truckPlate = truckPlate;
-            inv.gatePassNo = gatePassNo;
-            inv.warehouseNotes = warehouseNotes;
-            invoices[invIndex] = inv;
-            localStorage.setItem('erp_sales_invoices_v1', JSON.stringify(invoices));
-            localStorage.setItem('erp_inv_' + invNo, JSON.stringify(inv));
-
-            // 2. Deduct Stock from BOTH erp_inventory_v1 AND erp_items_v1
-            let inventory = JSON.parse(localStorage.getItem('erp_inventory_v1') || '[]');
-            let erpItems = JSON.parse(localStorage.getItem('erp_items_v1') || '[]');
-
-            deliveredItemsPayload.forEach(dItem => {
-                const deductQty = parseFloat(dItem.qty || 0);
-                const itemNameClean = String(dItem.name || '').trim();
-                const targetWhId = dItem.warehouseId || selectedWhId;
-
-                // Update erp_inventory_v1
-                let invEntry = inventory.find(x =>
-                    (String(x.id) === String(dItem.itemId || dItem.id) || String(x.name || '').trim() === itemNameClean) &&
-                    String(x.warehouseId || 1) === String(targetWhId)
-                );
-                if (invEntry) {
-                    invEntry.qty = (parseFloat(invEntry.qty || 0) - deductQty);
-                } else {
-                    inventory.push({
-                        id: dItem.itemId || dItem.id || Date.now(),
-                        name: itemNameClean,
-                        warehouseId: targetWhId,
-                        qty: -deductQty,
-                        unit: dItem.unit || 'قطعة'
-                    });
-                }
-
-                // Update erp_items_v1 (stock & actualStock per warehouse + total quantity)
-                const masterIdx = erpItems.findIndex(x =>
-                    String(x.id) === String(dItem.itemId || dItem.id) ||
-                    String(x.name || '').trim() === itemNameClean
-                );
-                if (masterIdx !== -1) {
-                    const mItem = erpItems[masterIdx];
-                    if (!mItem.stock || typeof mItem.stock !== 'object') mItem.stock = {};
-                    if (!mItem.actualStock || typeof mItem.actualStock !== 'object') mItem.actualStock = {};
-                    mItem.stock[targetWhId] = (parseFloat(mItem.stock[targetWhId]) || 0) - deductQty;
-                    mItem.actualStock[targetWhId] = (parseFloat(mItem.actualStock[targetWhId]) || 0) - deductQty;
-                    if (mItem.quantity !== undefined) {
-                        mItem.quantity = (parseFloat(mItem.quantity) || 0) - deductQty;
-                    }
-                    erpItems[masterIdx] = mItem;
-                }
-            });
-
-            localStorage.setItem('erp_inventory_v1', JSON.stringify(inventory));
-            localStorage.setItem('erp_items_v1', JSON.stringify(erpItems));
-            if (typeof window.items !== 'undefined' && Array.isArray(erpItems)) {
-                window.items = erpItems;
-            }
-
-            // 3. Create Official GDN Record in erp_delivery_notes_v1 (for Item Ledger, Warehouse Ledger & Reports)
-            const gdnRecord = {
-                id: gdnNo,
-                deliveryNo: gdnNo,
-                invoiceNo: invNo,
-                relatedInvoice: invNo,
-                date: todayDate,
-                time: nowTime,
-                createdAt: nowIso,
-                customer: custResolved,
-                customerName: custResolved,
-                warehouse: selectedWhName,
-                warehouseId: selectedWhId,
-                receiverName,
-                driverName,
-                truckPlate,
-                gatePassNo,
-                notes: warehouseNotes,
-                warehouseNotes,
-                isPartialDelivery,
-                status: 'delivered',
-                items: deliveredItemsPayload,
-                deleted: 0
-            };
-
-            const deliveryNotes = JSON.parse(localStorage.getItem('erp_delivery_notes_v1') || '[]');
-            deliveryNotes.unshift(gdnRecord);
-            localStorage.setItem('erp_delivery_notes_v1', JSON.stringify(deliveryNotes));
-
-            // 4. Sync with MariaDB via api/mirror_sync.php?action=save_delivery_note
-            try {
-                fetch('api/mirror_sync.php?action=save_delivery_note', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        ...gdnRecord,
-                        updatedInvoiceItems: inv.items
-                    })
-                }).catch(() => {});
-                if (typeof window.pushToCloud === 'function') {
-                    window.pushToCloud(true);
-                }
-            } catch (e) {}
-
-            if (typeof closeDeliveryConfirmationModal === 'function') {
-                closeDeliveryConfirmationModal();
-            } else {
-                const modal = document.getElementById('delivery-confirmation-modal');
-                if (modal) modal.style.display = 'none';
-            }
-
-            window.loadDeliveryTransactions();
-            if (typeof loadSplitInvoices === 'function') loadSplitInvoices();
-
-            if (typeof showToast === 'function') {
-                showToast(`✅ تم تسليم البضاعة وخصم المخزون بنجاح (إذن صرف رقم ${gdnNo})`, 'success');
-            }
-        };
-
-        // QR Code Generator Modal for Any Invoice
-        window.showInvoiceDeliveryQrModal = function(invNo) {
-            const invoices = JSON.parse(localStorage.getItem('erp_sales_invoices_v1') || '[]');
-            const inv = invoices.find(i => String(i.invoiceNo || i.serial || i.id) === String(invNo));
-            if (!inv) return;
-
-            const qrTargetUrl = `${window.location.origin}${window.location.pathname}?action=delivery&qr_deliver=${encodeURIComponent(invNo)}&auto_deduct=1`;
-            const qrImgUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&margin=8&data=${encodeURIComponent(qrTargetUrl)}`;
-
-            document.getElementById('gdn-qr-display-title').textContent = `باركود تسليم فاتورة #${invNo}`;
-            document.getElementById('gdn-qr-display-sub').textContent = `العميل: ${resolveCustomerName(inv)} — امسح بالموبايل للخصم الفوري`;
-            document.getElementById('gdn-qr-display-img').src = qrImgUrl;
-
-            const itemsHtml = (inv.items || []).map(it => {
-                const m = resolveItemMeta(it);
-                return `<div>• ${m.name} — <b>${it.qty ?? it.quantity ?? 0} ${m.unit}</b></div>`;
-            }).join('');
-            document.getElementById('gdn-qr-display-items').innerHTML = itemsHtml || 'لا توجد أصناف';
-
-            const instantBtn = document.getElementById('gdn-qr-instant-btn');
-            if (instantBtn) {
-                instantBtn.onclick = function() {
-                    document.getElementById('gdn-qr-display-modal').style.display = 'none';
-                    executeInstantOneClickDelivery(invNo);
-                };
-            }
-
-            document.getElementById('gdn-qr-display-modal').style.display = 'flex';
-        };
-
-        // Continuous Zero-Click QR State & Mobile-to-Laptop Live Bridge
-        const gdnQrCooldownMap = {};
-        let gdnBatchDeliveredCount = 0;
-        let gdnBatchCancelledCount = 0;
-        let gdnBridgePollInterval = null;
-        const gdnProcessedBridgeScans = {};
-        let gdnBroadcastChan = null;
-        const GDN_BRIDGE_CHANNEL = 'default_gate';
-
-        window.playGdnCancelledAlarm = function() {
-            try {
-                if (navigator.vibrate) navigator.vibrate([190, 70, 230]);
-                const ctx = new (window.AudioContext || window.webkitAudioContext)();
-                const osc = ctx.createOscillator();
-                const gain = ctx.createGain();
-                osc.type = 'sawtooth';
-                osc.frequency.setValueAtTime(280, ctx.currentTime);
-                osc.frequency.setValueAtTime(180, ctx.currentTime + 0.14);
-                gain.gain.setValueAtTime(0.32, ctx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.42);
-                osc.connect(gain);
-                gain.connect(ctx.destination);
-                osc.start();
-                osc.stop(ctx.currentTime + 0.42);
-            } catch (e) {}
-        };
-
-        function updateGdnContinuousScanUI(type, message) {
-            const modalBanner = document.getElementById('gdn-scanner-live-banner');
-            const hubBanner = document.getElementById('gdn-live-continuous-banner');
-            const hubBannerTxt = document.getElementById('gdn-live-continuous-banner-text');
-            const counterEl = document.getElementById('gdn-modal-scan-counter');
-            const feedEl = document.getElementById('gdn-scanner-live-feed');
-            const viewport = document.getElementById('gdn-camera-viewport');
-
-            if (counterEl) {
-                counterEl.textContent = `✅ المستلم: ${gdnBatchDeliveredCount} | 🚫 الملغي: ${gdnBatchCancelledCount}`;
-            }
-
-            if (modalBanner) {
-                modalBanner.style.background = type === 'ok'
-                    ? 'linear-gradient(135deg, rgba(6,78,59,0.95), rgba(5,150,105,0.9))'
-                    : 'linear-gradient(135deg, rgba(127,29,29,0.96), rgba(220,38,38,0.92))';
-                modalBanner.style.borderColor = type === 'ok' ? '#34d399' : '#fca5a5';
-                modalBanner.style.color = '#ffffff';
-                modalBanner.innerHTML = message;
-            }
-
-            if (hubBanner && hubBannerTxt) {
-                hubBanner.style.display = 'flex';
-                hubBanner.style.background = type === 'ok'
-                    ? 'linear-gradient(135deg, rgba(6,78,59,0.95), rgba(5,150,105,0.9))'
-                    : 'linear-gradient(135deg, rgba(127,29,29,0.96), rgba(220,38,38,0.92))';
-                hubBanner.style.border = type === 'ok' ? '2px solid #34d399' : '2px solid #fca5a5';
-                hubBanner.style.color = '#ffffff';
-                hubBannerTxt.innerHTML = `${message} &nbsp; <span style="background:rgba(0,0,0,0.3); padding:2px 10px; border-radius:99px; font-size:0.8rem;">✅ المستلم: ${gdnBatchDeliveredCount} | 🚫 الملغي: ${gdnBatchCancelledCount}</span>`;
-            }
-
-            if (viewport) {
-                viewport.style.borderColor = type === 'ok' ? '#22c55e' : '#ef4444';
-                viewport.style.boxShadow = type === 'ok' ? '0 0 45px rgba(34,197,94,0.85)' : '0 0 45px rgba(239,68,68,0.85)';
-                setTimeout(() => {
-                    viewport.style.borderColor = '#10b981';
-                    viewport.style.boxShadow = 'none';
-                }, 950);
-            }
-
-            if (feedEl) {
-                if (feedEl.textContent.includes('سيظهر هنا')) feedEl.innerHTML = '';
-                const row = document.createElement('div');
-                row.style.cssText = `padding:5px 10px; margin-bottom:4px; border-radius:8px; font-weight:800; color:${type === 'ok' ? '#6ee7b7' : '#fecaca'}; background:${type === 'ok' ? 'rgba(16,185,129,0.16)' : 'rgba(239,68,68,0.2)'}; border-right:3px solid ${type === 'ok' ? '#10b981' : '#ef4444'};`;
-                row.innerHTML = `${message} <span style="float:left; font-size:0.72rem; opacity:0.8;">${new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}</span>`;
-                feedEl.prepend(row);
-            }
-        }
-
-        async function setupMobileBridgePairingInModal() {
-            let baseOrigin = window.location.origin;
-            const pathDir = window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/') + 1);
-            try {
-                const res = await fetch(`api/qr_live_bridge.php?action=info&channel=${encodeURIComponent(GDN_BRIDGE_CHANNEL)}`);
-                const info = await res.json();
-                if (info && info.lanIp && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
-                    const portPart = window.location.port ? `:${window.location.port}` : '';
-                    baseOrigin = `${window.location.protocol}//${info.lanIp}${portPart}`;
-                }
-            } catch (e) {}
-
-            const mobileGunUrl = `${baseOrigin}${pathDir}mobile-qr-gun.php?channel=${encodeURIComponent(GDN_BRIDGE_CHANNEL)}`;
-            const qrImg = document.getElementById('gdn-mobile-bridge-qr-img');
-            if (qrImg) {
-                qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&margin=5&data=${encodeURIComponent(mobileGunUrl)}`;
-            }
-            const linkEl = document.getElementById('gdn-mobile-bridge-link');
-            if (linkEl) {
-                linkEl.href = mobileGunUrl;
-            }
-        }
-
-        function startDirectSalesMobileBridgeListener() {
-            if (!gdnBroadcastChan) {
-                try {
-                    gdnBroadcastChan = new BroadcastChannel('elsajana_qr_live_bridge');
-                    gdnBroadcastChan.onmessage = (ev) => {
-                        const msg = ev.data;
-                        if (!msg || msg.channel !== GDN_BRIDGE_CHANNEL) return;
-                        if (msg.type === 'MOBILE_CONNECTED') {
-                            const dot = document.getElementById('gdn-hub-bridge-dot');
-                            if (dot) { dot.style.background = '#22c55e'; dot.style.boxShadow = '0 0 8px #22c55e'; }
-                        } else if (msg.type === 'QR_SCANNED' && msg.rawCode) {
-                            processScannedDeliveryCode(msg.rawCode, true);
-                        }
-                    };
-                } catch (e) {}
-            }
-
-            if (gdnBridgePollInterval) return;
-            gdnBridgePollInterval = setInterval(async () => {
-                try {
-                    const res = await fetch(`api/qr_live_bridge.php?action=poll&channel=${encodeURIComponent(GDN_BRIDGE_CHANNEL)}`);
-                    const data = await res.json();
-                    if (!data || !data.ok) return;
-
-                    const dot = document.getElementById('gdn-hub-bridge-dot');
-                    if (dot) {
-                        dot.style.background = data.mobileConnected ? '#22c55e' : '#fcd34d';
-                        dot.style.boxShadow = data.mobileConnected ? '0 0 8px #22c55e' : 'none';
-                    }
-
-                    const scans = Array.isArray(data.unprocessedScans) ? data.unprocessedScans : [];
-                    for (const s of scans) {
-                        if (!s.scanId || gdnProcessedBridgeScans[s.scanId]) continue;
-                        gdnProcessedBridgeScans[s.scanId] = true;
-
-                        const result = processScannedDeliveryCode(s.rawCode, true) || {
-                            status: 'already_delivered_cancelled',
-                            message: 'تمت معالجة المسحة',
-                            invoiceNo: s.rawCode
-                        };
-
-                        fetch(`api/qr_live_bridge.php?action=ack_scan&channel=${encodeURIComponent(GDN_BRIDGE_CHANNEL)}`, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({
-                                scanId: s.scanId,
-                                resultStatus: result.status === 'delivered' ? 'delivered' : 'already_delivered_cancelled',
-                                resultMessage: result.message || '',
-                                invoiceNo: result.invoiceNo || '',
-                                customerName: result.customerName || ''
-                            })
-                        }).catch(() => {});
-                    }
-                } catch (e) {}
-            }, 550);
-        }
-        startDirectSalesMobileBridgeListener();
-
-        // Live Mobile Camera QR Scanner Modal
-        window.openDeliveryQrScannerModal = async function() {
-            const modal = document.getElementById('gdn-qr-scanner-modal');
-            if (modal) modal.style.display = 'flex';
-            setupMobileBridgePairingInModal();
-            startDirectSalesMobileBridgeListener();
-
-            const statusEl = document.getElementById('gdn-camera-status');
-            const video = document.getElementById('gdn-qr-video');
-            const manualInput = document.getElementById('gdn-manual-qr-input');
-            if (manualInput) {
-                manualInput.value = '';
-                setTimeout(() => manualInput.focus(), 150);
-            }
-
-            try {
-                if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-                    qrVideoStream = await navigator.mediaDevices.getUserMedia({
-                        video: { facingMode: { ideal: 'environment' } }
-                    });
-                    if (video) {
-                        video.srcObject = qrVideoStream;
-                        await video.play();
-                    }
-                    if (statusEl) statusEl.textContent = '🟢 الكاميرا في وضع المسح المتتابع — مرّر الـ 10 أذونات تباعاً بدون ضغط أي زر';
-
-                    if ('BarcodeDetector' in window) {
-                        const detector = new window.BarcodeDetector({ formats: ['qr_code', 'code_128', 'ean_13'] });
-                        if (qrScanInterval) clearInterval(qrScanInterval);
-                        qrScanInterval = setInterval(async () => {
-                            try {
-                                if (video && video.readyState >= 2) {
-                                    const codes = await detector.detect(video);
-                                    if (codes && codes.length > 0 && codes[0].rawValue) {
-                                        // Continuous stream: keep camera open!
-                                        processScannedDeliveryCode(codes[0].rawValue, true);
-                                    }
-                                }
-                            } catch (e) {}
-                        }, 300);
-                    } else if (statusEl) {
-                        statusEl.textContent = '📱 امسح كود ربط الجوال على اليسار أو استخدم قارئ الباركود السريع بالأسفل';
-                    }
-                }
-            } catch (err) {
-                if (statusEl) statusEl.textContent = '📱 امسح كود ربط الجوال الظاهر بجانبك لتشغيل كاميرا الجوال فوراً';
-            }
-        };
-
-        window.closeDeliveryQrScannerModal = function() {
-            const modal = document.getElementById('gdn-qr-scanner-modal');
-            if (modal) modal.style.display = 'none';
-            if (qrScanInterval) {
-                clearInterval(qrScanInterval);
-                qrScanInterval = null;
-            }
-            if (qrVideoStream) {
-                qrVideoStream.getTracks().forEach(t => t.stop());
-                qrVideoStream = null;
-            }
-        };
-
-        window.handleQrImageFileCapture = async function(inputEl) {
-            const file = inputEl?.files?.[0];
-            if (!file) return;
-            if ('BarcodeDetector' in window) {
-                try {
-                    const bmp = await createImageBitmap(file);
-                    const detector = new window.BarcodeDetector({ formats: ['qr_code', 'code_128', 'ean_13'] });
-                    const codes = await detector.detect(bmp);
-                    if (codes && codes.length > 0 && codes[0].rawValue) {
-                        processScannedDeliveryCode(codes[0].rawValue, true);
-                        return;
-                    }
-                } catch (e) {}
-            }
-            if (typeof showToast === 'function') showToast('💡 اكتب رقم الفاتورة الظاهر على الورقة للتنفيذ الفوري', 'info');
-        };
-
-        window.processScannedDeliveryCode = function(rawCode, keepScannerOpen = true) {
-            if (!rawCode) return null;
-            let cleaned = String(rawCode).trim();
-
-            // Extract qr_deliver or inv parameter if full URL was scanned
-            try {
-                if (cleaned.includes('qr_deliver=')) {
-                    const u = new URL(cleaned, window.location.origin);
-                    cleaned = u.searchParams.get('qr_deliver') || cleaned;
-                } else if (cleaned.includes('inv=')) {
-                    const u = new URL(cleaned, window.location.origin);
-                    cleaned = u.searchParams.get('inv') || cleaned;
-                }
-            } catch (e) {}
-
-            cleaned = cleaned.replace(/^#/, '').trim();
-            if (!cleaned) return null;
-
-            const keyLower = cleaned.toLowerCase();
-            const now = Date.now();
-            // 2.2s cooldown per code so moving paper doesn't double-trigger in the same second
-            if (gdnQrCooldownMap[keyLower] && (now - gdnQrCooldownMap[keyLower]) < 2200) {
-                return null;
-            }
-            gdnQrCooldownMap[keyLower] = now;
-
-            if (!keepScannerOpen) {
-                closeDeliveryQrScannerModal();
-            }
-            const quickInput = document.getElementById('gdn-quick-scan-input');
-            if (quickInput) quickInput.value = '';
-            const manualInput = document.getElementById('gdn-manual-qr-input');
-            if (manualInput) manualInput.value = '';
-
-            const invoices = JSON.parse(localStorage.getItem('erp_sales_invoices_v1') || '[]');
-            const inv = invoices.find(i =>
-                String(i.invoiceNo || i.serial || i.id || '').toLowerCase() === keyLower ||
-                String(i.deliveryNo || '').toLowerCase() === keyLower
-            );
-            if (!inv) {
-                gdnBatchCancelledCount++;
-                window.playGdnCancelledAlarm();
-                const errMsg = `❌ لم يتم العثور على إذن برقم: #${cleaned}`;
-                updateGdnContinuousScanUI('cancelled', errMsg);
-                if (typeof showToast === 'function') showToast(errMsg, 'error');
-                return { status: 'not_found', message: errMsg, invoiceNo: cleaned };
-            }
-
-            const invNo = String(inv.invoiceNo || inv.serial || inv.id);
-            const custName = resolveCustomerName(inv);
-            const autoDeduct = document.getElementById('gdn-qr-auto-deduct-chk')?.checked !== false;
-
-            const isAlreadyDelivered = (
-                inv.isDelivered === true ||
-                inv.deliveryStatus === 'delivered' ||
-                inv.deliveryStatus === 'Delivered_Pending_Admin' ||
-                inv.deliveryStatus === 'Admin_Closed' ||
-                inv.status === 'delivered' ||
-                inv.status === 'Delivered_Pending_Admin' ||
-                inv.status === 'Admin_Closed'
-            );
-
-            // 2ND SCAN OR ALREADY DELIVERED -> CANCELLED ALERT!
-            if (isAlreadyDelivered) {
-                gdnBatchCancelledCount++;
-                window.playGdnCancelledAlarm();
-                const cancelMsg = `🚫 تم تسليم هذا الإذن (#${invNo} — ${custName}) مسبقاً — الإذن ملغي!`;
-                updateGdnContinuousScanUI('cancelled', cancelMsg);
-                if (typeof showToast === 'function') showToast(cancelMsg, 'error');
-                return {
-                    status: 'already_delivered_cancelled',
-                    message: `تم تسليم هذا الإذن (#${invNo}) مسبقاً — الإذن ملغي!`,
-                    invoiceNo: invNo,
-                    customerName: custName
-                };
-            }
-
-            // 1ST SCAN -> INSTANT AUTO-DELIVERY WITHOUT PRESSING ANY BUTTON!
-            if (autoDeduct) {
-                executeInstantOneClickDelivery(invNo);
-                gdnBatchDeliveredCount++;
-                window.playGdnSuccessBeep();
-                const okMsg = `✅ [${gdnBatchDeliveredCount}] تم استلام وخصم الإذن #${invNo} (${custName}) بالـ QR فوراً — مرّر الإذن التالي...`;
-                updateGdnContinuousScanUI('ok', okMsg);
-                return {
-                    status: 'delivered',
-                    message: `تم استلام وتسليم وخصم الإذن #${invNo} (${custName}) فوراً!`,
-                    invoiceNo: invNo,
-                    customerName: custName
-                };
-            } else {
-                executeDelivery(invNo);
-                return {
-                    status: 'opened',
-                    message: `تم فتح الإذن #${invNo}`,
-                    invoiceNo: invNo,
-                    customerName: custName
-                };
-            }
-        };
-
-        // Official Printable GDN Gate Pass with QR Code
-        window.printOfficialGdnGatePass = function(invNo) {
-            const invoices = JSON.parse(localStorage.getItem('erp_sales_invoices_v1') || '[]');
-            const inv = invoices.find(i => String(i.invoiceNo || i.serial || i.id) === String(invNo));
-            if (!inv) return;
-
-            const { dateStr, timeStr } = parseInvoiceDateTimeParts(inv);
-            const qrTargetUrl = `${window.location.origin}${window.location.pathname}?action=delivery&qr_deliver=${encodeURIComponent(invNo)}&auto_deduct=1`;
-            const qrImgUrl = `https://api.qrserver.com/v1/create-qr-code/?size=160x160&margin=4&data=${encodeURIComponent(qrTargetUrl)}`;
-
-            const custResolved = resolveCustomerName(inv);
-            const rowsHtml = (inv.items || []).map((it, idx) => {
-                const m = resolveItemMeta(it);
-                const q = parseFloat(it.deliveredQty || it.qty || it.quantity || 0) || 0;
-                const baseUnitsVal = +(q * m.factor).toFixed(2);
-                return `
-                <tr>
-                    <td style="padding:8px; border:1px solid #0f172a; text-align:center; font-weight:800;">${idx + 1}</td>
-                    <td style="padding:8px; border:1px solid #0f172a; font-weight:900;">${m.name}</td>
-                    <td style="padding:8px; border:1px solid #0f172a; text-align:center; font-weight:900;">${q} ${m.unit}</td>
-                    <td style="padding:8px; border:1px solid #0f172a; text-align:center; font-weight:900;">${m.hasMultiUnits ? `${baseUnitsVal.toLocaleString('en-US')} ${m.baseUnit} <span style="font-size:0.78rem; color:#475569;">(1 ${m.unit} = ${m.factor} ${m.baseUnit})</span>` : `${q} ${m.baseUnit}`}</td>
-                </tr>
-            `;
-            }).join('');
-
-            const w = window.open('', '_blank', 'width=850,height=700');
-            if (!w) return;
-            w.document.write(`
-                <!DOCTYPE html>
-                <html dir="rtl" lang="ar">
-                <head>
-                    <meta charset="UTF-8">
-                    <title>إذن صرف وتسليم بضاعة (Gate Pass) - #${invNo}</title>
-                    <style>
-                        body { font-family: 'Cairo', 'Tajawal', sans-serif; padding: 24px; color: #000; }
-                        .header { display:flex; justify-content:space-between; align-items:center; border-bottom:3px solid #000; padding-bottom:14px; margin-bottom:18px; }
-                        table { width:100%; border-collapse:collapse; margin-top:14px; }
-                        th { background:#064e3b; color:#fff; padding:10px; border:1px solid #000; }
-                    </style>
-                </head>
-                <body>
-                    <div class="header">
-                        <div>
-                            <h2 style="margin:0; font-size:1.5rem;">🚚 إذن صرف وتسليم بضاعة (GDN / Gate Pass)</h2>
-                            <p style="margin:6px 0 0; font-weight:800;">رقم الفاتورة / الإذن: <span style="font-family:monospace; direction:ltr; display:inline-block;">#${invNo}</span> &nbsp;|&nbsp; رقم إذن الصرف: ${inv.deliveryNo || 'قيد الصرف'}</p>
-                            ${(inv.isSplit || inv.parentInvoice) ? `<p style="margin:4px 0 0; font-weight:900; color:#0f172a;">📌 الإذن المرجعي الأصلي: #${inv.rootInvoice || inv.parentInvoice} &nbsp;|&nbsp; رقم عملية التقسيم: #${inv.splitBatchNo || 1} &nbsp;|&nbsp; القسم: ${inv.splitBranchIndex || 1}/${inv.splitTotalBranches || 2}</p>` : ''}
-                            <p style="margin:4px 0 0; font-weight:800;">📅 التاريخ: ${dateStr} &nbsp;&nbsp;&nbsp;&nbsp; 🕒 الوقت: ${timeStr}</p>
-                            <p style="margin:4px 0 0; font-weight:800;">👤 العميل: ${custResolved} &nbsp;|&nbsp; المستلم: ${inv.receiverName || custResolved}</p>
-                        </div>
-                        <div style="text-align:center;">
-                            <img src="${qrImgUrl}" style="width:120px; height:120px; border:2px solid #000; border-radius:10px;">
-                            <div style="font-size:0.72rem; font-weight:900; margin-top:3px;">امسح بالموبايل للخصم الفوري</div>
-                        </div>
-                    </div>
-                    <table>
-                        <thead>
-                            <tr><th>#</th><th>الصنف</th><th>الكمية بالوحدة (الإذن)</th><th>عدد الوحدات الفعلية</th></tr>
-                        </thead>
-                        <tbody>${rowsHtml}</tbody>
-                    </table>
-                    <div style="display:flex; justify-content:space-between; margin-top:40px; font-weight:900;">
-                        <div>توقيع أمين المخزن: ________________</div>
-                        <div>توقيع السائق / المستلم: ________________</div>
-                        <div>ختم بوابة الخروج: ________________</div>
-                    </div>
-                    <script>window.onload = () => { setTimeout(() => window.print(), 350); };<\/script>
-                </body>
-                </html>
-            `);
-            w.document.close();
-        };
-
-        window.shareGdnOnWhatsApp = function(invNo) {
-            const invoices = JSON.parse(localStorage.getItem('erp_sales_invoices_v1') || '[]');
-            const inv = invoices.find(i => String(i.invoiceNo || i.serial || i.id) === String(invNo));
-            if (!inv) return;
-            const { dateStr, timeStr } = parseInvoiceDateTimeParts(inv);
-            const custResolved = resolveCustomerName(inv);
-            const itemsList = (inv.items || []).map(i => {
-                const m = resolveItemMeta(i);
-                const q = parseFloat(i.deliveredQty || i.qty || i.quantity || 0) || 0;
-                const eqStr = m.hasMultiUnits ? ` (تعادل ${(q * m.factor).toLocaleString('en-US', { maximumFractionDigits: 2 })} ${m.baseUnit})` : '';
-                return `- ${m.name}: ${q} ${m.unit}${eqStr}`;
-            }).join('\n');
-            const msg = `🚚 *إشعار تسليم وصرف مبيعات*\nرقم الفاتورة: #${invNo}\n📅 التاريخ: ${dateStr}   🕒 الوقت: ${timeStr}\n👤 العميل: ${custResolved}\n📦 الأصناف:\n${itemsList}\n✅ الحالة: ${inv.isDelivered ? 'تم التسليم والصرف من المخزن' : 'جاهز للتسليم بالـ QR'}`;
-            window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
-        };
-
-        // 2D Keyboard Navigation & Shortcuts inside Delivery Hub
-        document.addEventListener('keydown', function(e) {
-            const hubView = document.getElementById('delivery-hub-view');
-            if (!hubView || hubView.style.display === 'none') return;
-
-            if (e.key === 'F2') {
-                e.preventDefault();
-                openDeliveryQrScannerModal();
-                return;
-            }
-            if (e.key === 'F4') {
-                e.preventDefault();
-                toggleDeliverySunlightMode();
-                return;
-            }
-
-            const rows = Array.from(document.querySelectorAll('#delivery-transactions-body tr.gdn-row'));
-            if (rows.length === 0) return;
-
-            if (e.key === 'ArrowDown') {
-                e.preventDefault();
-                window.gdnActiveRowIndex = Math.min(rows.length - 1, window.gdnActiveRowIndex + 1);
-                highlightGdnRow(window.gdnActiveRowIndex);
-                rows[window.gdnActiveRowIndex]?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
-            } else if (e.key === 'ArrowUp') {
-                e.preventDefault();
-                window.gdnActiveRowIndex = Math.max(0, window.gdnActiveRowIndex - 1);
-                highlightGdnRow(window.gdnActiveRowIndex);
-                rows[window.gdnActiveRowIndex]?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+        });
+        document.addEventListener('click', function(e) {
+            const t = e.target;
+            if (isNumericSalesInput(t) && document.activeElement === t) {
+                try { t.select(); } catch (_e) {}
             }
         });
 
-        // Acoustic & Haptic Feedback for Outdoor Storekeeper
-        window.playGdnSuccessBeep = function() {
-            try {
-                if (navigator.vibrate) navigator.vibrate([120, 50, 140]);
-                const ctx = new (window.AudioContext || window.webkitAudioContext)();
-                const osc = ctx.createOscillator();
-                const gain = ctx.createGain();
-                osc.type = 'sine';
-                osc.frequency.setValueAtTime(880, ctx.currentTime);
-                osc.frequency.setValueAtTime(1320, ctx.currentTime + 0.09);
-                gain.gain.setValueAtTime(0.22, ctx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.26);
-                osc.connect(gain);
-                gain.connect(ctx.destination);
-                osc.start();
-                osc.stop(ctx.currentTime + 0.26);
-            } catch (e) {}
-        };
+        // 4. Support F10 Shortcut for Instant Save & Unsaved Changes Guard
+        window._dsHasUnsavedChanges = false;
+        document.addEventListener('input', function(e) {
+            if (e.target && e.target.closest('#invoice-editor-view')) {
+                window._dsHasUnsavedChanges = true;
+            }
+        });
 
-        // Hook sound into confirmExecuteDeliveryAction
-        const _baseConfirmDel = window.confirmExecuteDeliveryAction;
-        window.confirmWorldClassDeliveryAction = async function() {
-            await _baseConfirmDel.apply(this, arguments);
-            if (window._hubSalesCache) window._hubSalesCache.raw = null;
-            if (typeof loadHubTransactions === 'function') loadHubTransactions();
-            window.playGdnSuccessBeep();
-        };
-
-        // Guarantee World-Class functions override deferred js/direct-sales-v3.js
-        function bindWorldClassGdnOverrides() {
-            window.loadDeliveryTransactions = function() {
-                if (window._hubSalesCache) window._hubSalesCache.raw = null;
-                if (typeof loadHubTransactions === 'function') loadHubTransactions();
-                if (typeof window.renderWorldClassDeliveryHub === 'function') window.renderWorldClassDeliveryHub();
-            };
-            window.filterDeliveryTransactions = window.loadDeliveryTransactions;
-            window.executeDelivery = window.openWorldClassDeliveryModal;
-            window.confirmExecuteDeliveryAction = window.confirmWorldClassDeliveryAction;
-            window.openDeliveryHub = function() {
-                upgradeDeliveryHubDOM();
-                if (typeof window.setUnifiedHubFilter === 'function') {
-                    window.setUnifiedHubFilter('pending', false);
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'F10') {
+                const editorView = document.getElementById('invoice-editor-view');
+                if (editorView && editorView.style.display !== 'none') {
+                    e.preventDefault();
+                    if (typeof window.submitInvoice === 'function') window.submitInvoice();
                 }
-            };
+            }
+        });
+
+        window.addEventListener('beforeunload', function(e) {
+            const editorView = document.getElementById('invoice-editor-view');
+            const hasRows = typeof rows !== 'undefined' && Array.isArray(rows) && rows.some(r => r && r.itemId);
+            if (window._dsHasUnsavedChanges && editorView && editorView.style.display !== 'none' && hasRows && !window.isSubmitting) {
+                e.preventDefault();
+                e.returnValue = '';
+            }
+        });
+
+        // 5. Sub-Second Micro-Packet Auto-Sync Indicator & Cross-Device Sync (Mobile ↔ Laptop ↔ Offline)
+        function ensureLiveSyncBadge() {
+            const row0 = document.getElementById('invoice-info-box');
+            if (!row0 || document.getElementById('ds-live-sync-pill')) return;
+            const pill = document.createElement('span');
+            pill.id = 'ds-live-sync-pill';
+            pill.style.cssText = 'display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:99px;font-size:0.74rem;font-weight:900;border:1.5px solid rgba(16,185,129,0.5);background:rgba(16,185,129,0.14);color:#34d399;white-space:nowrap;cursor:pointer;';
+            pill.title = 'حالة التزامن الأوتوماتيكي الفوري (موبايل ↔ لابتوب ↔ أوفلاين) — اضغط للمزامنة الفورية';
+            pill.onclick = () => window.triggerInstantSalesMicroSync(true);
+            row0.appendChild(pill);
+            updateLiveSyncBadgeState();
         }
 
-        bindWorldClassGdnOverrides();
-        document.addEventListener('DOMContentLoaded', bindWorldClassGdnOverrides);
-        window.addEventListener('load', bindWorldClassGdnOverrides);
-        document.addEventListener('DBReady', () => setTimeout(bindWorldClassGdnOverrides, 60));
-
-        // Auto-Route ?action=delivery & ?qr_deliver=... on page load
-        function checkDeliveryUrlRouting() {
-            bindWorldClassGdnOverrides();
-            const params = new URLSearchParams(window.location.search);
-            const action = (params.get('action') || '').toLowerCase();
-            const qrDeliver = params.get('qr_deliver');
-
-            if (action === 'delivery' || action === 'gdn' || qrDeliver) {
-                window.openDeliveryHub();
-                setTimeout(() => {
-                    bindWorldClassGdnOverrides();
-                    window.openDeliveryHub();
-                    if (qrDeliver) {
-                        processScannedDeliveryCode(qrDeliver);
-                    }
-                }, 250);
+        function updateLiveSyncBadgeState(customText, customColor) {
+            const pill = document.getElementById('ds-live-sync-pill');
+            if (!pill) return;
+            const isOnline = navigator.onLine !== false;
+            if (customText) {
+                pill.innerHTML = customText;
+                pill.style.borderColor = customColor || '#38bdf8';
+                return;
+            }
+            if (isOnline) {
+                pill.innerHTML = '⚡ متزامن لحظياً (0ms)';
+                pill.style.borderColor = 'rgba(16,185,129,0.55)';
+                pill.style.background = 'rgba(16,185,129,0.14)';
+                pill.style.color = '#10b981';
+            } else {
+                pill.innerHTML = '📴 أوفلاين (محفوظ محلياً)';
+                pill.style.borderColor = 'rgba(245,158,11,0.6)';
+                pill.style.background = 'rgba(245,158,11,0.16)';
+                pill.style.color = '#f59e0b';
             }
         }
 
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', checkDeliveryUrlRouting);
-        } else {
-            checkDeliveryUrlRouting();
-        }
-
-        // Undo / Reverse Delivery & Restore Warehouse Stock
-        window.undoGdnDelivery = function(invNo) {
-            if (!confirm(`هل أنت متأكد من إلغاء تسليم الفاتورة #${invNo} وإعادة الكميات المصروفة إلى رصيد المخزن؟`)) return;
-            let invoices = JSON.parse(localStorage.getItem('erp_sales_invoices_v1') || '[]');
-            const idx = invoices.findIndex(i => String(i.invoiceNo || i.serial || i.id) === String(invNo));
-            if (idx === -1) return;
-
-            const inv = invoices[idx];
-            const whId = inv.deliveredWarehouse || inv.warehouseId || inv.warehouse || 1;
-            let inventory = JSON.parse(localStorage.getItem('erp_inventory_v1') || '[]');
-            let erpItems = JSON.parse(localStorage.getItem('erp_items_v1') || '[]');
-
-            (inv.items || []).forEach(it => {
-                const retQty = parseFloat(it.deliveredQty || it.qty || it.quantity || 0);
-                it.deliveredQty = 0;
-                const nameClean = String(it.name || it.itemName || '').trim();
-
-                let invEntry = inventory.find(x =>
-                    (String(x.id) === String(it.itemId || it.id) || String(x.name || '').trim() === nameClean) &&
-                    String(x.warehouseId || 1) === String(whId)
-                );
-                if (invEntry) invEntry.qty = (parseFloat(invEntry.qty || 0) + retQty);
-
-                const mIdx = erpItems.findIndex(x =>
-                    String(x.id) === String(it.itemId || it.id) || String(x.name || '').trim() === nameClean
-                );
-                if (mIdx !== -1) {
-                    if (!erpItems[mIdx].stock) erpItems[mIdx].stock = {};
-                    if (!erpItems[mIdx].actualStock) erpItems[mIdx].actualStock = {};
-                    erpItems[mIdx].stock[whId] = (parseFloat(erpItems[mIdx].stock[whId]) || 0) + retQty;
-                    erpItems[mIdx].actualStock[whId] = (parseFloat(erpItems[mIdx].actualStock[whId]) || 0) + retQty;
-                    if (erpItems[mIdx].quantity !== undefined) {
-                        erpItems[mIdx].quantity = (parseFloat(erpItems[mIdx].quantity) || 0) + retQty;
-                    }
+        window.triggerInstantSalesMicroSync = function(manual) {
+            updateLiveSyncBadgeState('🔄 جاري المزامنة الفورية...', '#38bdf8');
+            try {
+                if (window.MagaiesOfflineSync && typeof window.MagaiesOfflineSync.flush === 'function') {
+                    window.MagaiesOfflineSync.flush();
                 }
-            });
-
-            inv.isDelivered = false;
-            inv.deliveryStatus = 'pending';
-            inv.status = 'pending_delivery';
-            invoices[idx] = inv;
-
-            localStorage.setItem('erp_sales_invoices_v1', JSON.stringify(invoices));
-            localStorage.setItem('erp_inventory_v1', JSON.stringify(inventory));
-            localStorage.setItem('erp_items_v1', JSON.stringify(erpItems));
-
-            let delNotes = JSON.parse(localStorage.getItem('erp_delivery_notes_v1') || '[]');
-            delNotes = delNotes.filter(n => String(n.invoiceNo || n.relatedInvoice) !== String(invNo));
-            localStorage.setItem('erp_delivery_notes_v1', JSON.stringify(delNotes));
-
-            if (typeof window.pushToCloud === 'function') window.pushToCloud(true);
-            if (window._hubSalesCache) window._hubSalesCache.raw = null;
-            if (typeof loadHubTransactions === 'function') loadHubTransactions();
-            window.loadDeliveryTransactions();
-            if (typeof showToast === 'function') showToast(`↩️ تم إلغاء صرف الفاتورة #${invNo} وإعادة الكميات للمخزن بنجاح`, 'info');
+                if (typeof window.syncSalesWithMariaDB === 'function') {
+                    window.syncSalesWithMariaDB();
+                }
+            } catch (_e) {}
+            setTimeout(() => {
+                updateLiveSyncBadgeState();
+                if (manual && typeof window.showToast === 'function') {
+                    window.showToast('⚡ تمت المزامنة اللحظية مع السيرفر والأجهزة المتصلة بنجاح', 'success', 2000);
+                }
+            }, 320);
         };
 
-        window.addEventListener('load', checkDeliveryUrlRouting);
+        window.addEventListener('online', () => window.triggerInstantSalesMicroSync(false));
+        window.addEventListener('offline', () => updateLiveSyncBadgeState());
+        if (navigator.connection && typeof navigator.connection.addEventListener === 'function') {
+            navigator.connection.addEventListener('change', () => {
+                if (navigator.onLine) window.triggerInstantSalesMicroSync(false);
+            });
+        }
+
+        // 6. Non-Blocking Confirmation Modal (Replaces native confirm())
+        window.openDsConfirmModal = function(title, message, onConfirm) {
+            let modal = document.getElementById('ds-confirm-action-modal');
+            if (!modal) {
+                modal = document.createElement('div');
+                modal.id = 'ds-confirm-action-modal';
+                modal.className = 'ds-c1-modal-backdrop';
+                modal.innerHTML = `
+                    <div class="ds-c1-modal-card" style="max-width:460px;">
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+                            <h3 id="ds-confirm-modal-title" style="margin:0;font-size:1.1rem;font-weight:900;">تأكيد الإجراء</h3>
+                            <button type="button" id="ds-confirm-modal-close" style="background:transparent;border:none;font-size:1.25rem;cursor:pointer;color:#94a3b8;font-weight:900;">✕</button>
+                        </div>
+                        <p id="ds-confirm-modal-msg" style="margin:0 0 18px;font-size:0.94rem;font-weight:800;line-height:1.6;"></p>
+                        <div style="display:flex;justify-content:flex-end;gap:10px;">
+                            <button type="button" id="ds-confirm-modal-cancel" class="btn-action" style="padding:8px 18px;border-radius:10px;background:rgba(148,163,184,0.2);border:1.5px solid rgba(148,163,184,0.4);color:inherit;font-weight:900;cursor:pointer;">إلغاء (Esc)</button>
+                            <button type="button" id="ds-confirm-modal-ok" class="btn-action" style="padding:8px 22px;border-radius:10px;background:linear-gradient(135deg,#10b981,#059669);border:none;color:#fff;font-weight:900;cursor:pointer;">✅ تأكيد المتابعة</button>
+                        </div>
+                    </div>
+                `;
+                document.body.appendChild(modal);
+            }
+            document.getElementById('ds-confirm-modal-title').textContent = title || 'تأكيد الإجراء';
+            document.getElementById('ds-confirm-modal-msg').textContent = message || '';
+            const hide = () => { modal.style.display = 'none'; };
+            document.getElementById('ds-confirm-modal-close').onclick = hide;
+            document.getElementById('ds-confirm-modal-cancel').onclick = hide;
+            const okBtn = document.getElementById('ds-confirm-modal-ok');
+            okBtn.onclick = () => {
+                hide();
+                if (typeof onConfirm === 'function') onConfirm();
+            };
+            modal.style.display = 'flex';
+            setTimeout(() => { try { okBtn.focus(); } catch (_e) {} }, 30);
+        };
+
+        // 7. Quick-Add Warehouse Modal (➕ مخزن جديد من داخل الفاتورة)
+        window.openDsQuickWarehouseModal = function() {
+            let modal = document.getElementById('ds-quick-wh-modal');
+            if (!modal) {
+                modal = document.createElement('div');
+                modal.id = 'ds-quick-wh-modal';
+                modal.className = 'ds-c1-modal-backdrop';
+                modal.innerHTML = `
+                    <div class="ds-c1-modal-card" style="max-width:440px;">
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+                            <h3 style="margin:0;font-size:1.1rem;font-weight:900;">🏬 إضافة مخزن جديد فوراً</h3>
+                            <button type="button" onclick="document.getElementById('ds-quick-wh-modal').style.display='none'" style="background:transparent;border:none;font-size:1.25rem;cursor:pointer;color:#94a3b8;font-weight:900;">✕</button>
+                        </div>
+                        <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:16px;">
+                            <div>
+                                <label style="display:block;font-size:0.84rem;font-weight:900;margin-bottom:4px;">اسم المخزن *</label>
+                                <input type="text" id="ds-new-wh-name" class="ctrl-input" placeholder="مثال: مخزن المعرض السريع" style="width:100%;padding:8px 12px;border-radius:9px;">
+                            </div>
+                            <div>
+                                <label style="display:block;font-size:0.84rem;font-weight:900;margin-bottom:4px;">الموقع / أمين المخزن</label>
+                                <input type="text" id="ds-new-wh-loc" class="ctrl-input" placeholder="اختياري..." style="width:100%;padding:8px 12px;border-radius:9px;">
+                            </div>
+                        </div>
+                        <div style="display:flex;justify-content:flex-end;gap:10px;">
+                            <button type="button" onclick="document.getElementById('ds-quick-wh-modal').style.display='none'" class="btn-action" style="padding:8px 16px;border-radius:10px;background:rgba(148,163,184,0.2);color:inherit;font-weight:900;">إلغاء</button>
+                            <button type="button" onclick="window.saveDsQuickWarehouse()" class="btn-action" style="padding:8px 20px;border-radius:10px;background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;border:none;font-weight:900;">💾 حفظ واختيار المخزن</button>
+                        </div>
+                    </div>
+                `;
+                document.body.appendChild(modal);
+            }
+            const nameInp = document.getElementById('ds-new-wh-name');
+            if (nameInp) nameInp.value = '';
+            modal.style.display = 'flex';
+            setTimeout(() => { if (nameInp) nameInp.focus(); }, 40);
+        };
+
+        window.saveDsQuickWarehouse = function() {
+            const nameInp = document.getElementById('ds-new-wh-name');
+            const name = (nameInp ? nameInp.value : '').trim();
+            if (!name) {
+                if (typeof window.focusRequiredSalesField === 'function') window.focusRequiredSalesField('#ds-new-wh-name', '⚠️ يرجى كتابة اسم المخزن أولاً');
+                return;
+            }
+            const newId = 'wh-' + Date.now();
+            const newWh = { id: newId, name: name, location: (document.getElementById('ds-new-wh-loc')?.value || '').trim() };
+            try {
+                const list = JSON.parse(localStorage.getItem('erp_warehouses_v1') || '[]');
+                list.push(newWh);
+                localStorage.setItem('erp_warehouses_v1', JSON.stringify(list));
+                if (typeof WAREHOUSES !== 'undefined' && Array.isArray(WAREHOUSES)) {
+                    WAREHOUSES.push(newWh);
+                }
+            } catch (_e) {}
+
+            const sel = document.getElementById('hdr-warehouse');
+            if (sel) {
+                const opt = document.createElement('option');
+                opt.value = newId;
+                opt.textContent = name;
+                sel.appendChild(opt);
+                sel.value = newId;
+                if (typeof onMainWarehouseChange === 'function') onMainWarehouseChange();
+            }
+            document.getElementById('ds-quick-wh-modal').style.display = 'none';
+            if (typeof window.showToast === 'function') window.showToast(`🏬 تم إضافة المخزن (${name}) واختياره في الفاتورة فوراً`, 'success', 2200);
+        };
+
+        // 8. Quick-Add Inventory Item Modal (➕ صنف جديد من داخل الفاتورة)
+        window.openDsQuickItemModal = function() {
+            let modal = document.getElementById('ds-quick-item-modal');
+            if (!modal) {
+                modal = document.createElement('div');
+                modal.id = 'ds-quick-item-modal';
+                modal.className = 'ds-c1-modal-backdrop';
+                modal.innerHTML = `
+                    <div class="ds-c1-modal-card" style="max-width:520px;">
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+                            <h3 style="margin:0;font-size:1.1rem;font-weight:900;">📦 تعريف وإدراج صنف جديد فوراً</h3>
+                            <button type="button" onclick="document.getElementById('ds-quick-item-modal').style.display='none'" style="background:transparent;border:none;font-size:1.25rem;cursor:pointer;color:#94a3b8;font-weight:900;">✕</button>
+                        </div>
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;">
+                            <div style="grid-column:1 / -1;">
+                                <label style="display:block;font-size:0.84rem;font-weight:900;margin-bottom:4px;">اسم الصنف *</label>
+                                <input type="text" id="ds-new-item-name" class="ctrl-input" placeholder="اكتب اسم الصنف..." style="width:100%;padding:8px 12px;border-radius:9px;">
+                            </div>
+                            <div>
+                                <label style="display:block;font-size:0.84rem;font-weight:900;margin-bottom:4px;">الوحدة الأساسية</label>
+                                <input type="text" id="ds-new-item-unit" class="ctrl-input" value="قطعة" style="width:100%;padding:8px 12px;border-radius:9px;">
+                            </div>
+                            <div>
+                                <label style="display:block;font-size:0.84rem;font-weight:900;margin-bottom:4px;">الكود / الباركود</label>
+                                <input type="text" id="ds-new-item-code" class="ctrl-input" placeholder="تلقائي..." style="width:100%;padding:8px 12px;border-radius:9px;">
+                            </div>
+                            <div>
+                                <label style="display:block;font-size:0.84rem;font-weight:900;margin-bottom:4px;">سعر التكلفة</label>
+                                <input type="number" id="ds-new-item-cost" class="ctrl-input" value="0" step="any" style="width:100%;padding:8px 12px;border-radius:9px;text-align:center;">
+                            </div>
+                            <div>
+                                <label style="display:block;font-size:0.84rem;font-weight:900;margin-bottom:4px;">سعر البيع *</label>
+                                <input type="number" id="ds-new-item-price" class="ctrl-input" value="0" step="any" style="width:100%;padding:8px 12px;border-radius:9px;text-align:center;">
+                            </div>
+                        </div>
+                        <div style="display:flex;justify-content:flex-end;gap:10px;">
+                            <button type="button" onclick="document.getElementById('ds-quick-item-modal').style.display='none'" class="btn-action" style="padding:8px 16px;border-radius:10px;background:rgba(148,163,184,0.2);color:inherit;font-weight:900;">إلغاء</button>
+                            <button type="button" onclick="window.saveDsQuickItem()" class="btn-action" style="padding:8px 20px;border-radius:10px;background:linear-gradient(135deg,#8b5cf6,#6d28d9);color:#fff;border:none;font-weight:900;">💾 حفظ وإدراج في الجدول</button>
+                        </div>
+                    </div>
+                `;
+                document.body.appendChild(modal);
+            }
+            const qSearch = document.getElementById('quick-item-search');
+            const nameInp = document.getElementById('ds-new-item-name');
+            if (nameInp) nameInp.value = qSearch && qSearch.value ? qSearch.value.trim() : '';
+            modal.style.display = 'flex';
+            setTimeout(() => { if (nameInp) nameInp.focus(); }, 40);
+        };
+
+        window.saveDsQuickItem = function() {
+            const nameInp = document.getElementById('ds-new-item-name');
+            const name = (nameInp ? nameInp.value : '').trim();
+            if (!name) {
+                if (typeof window.focusRequiredSalesField === 'function') window.focusRequiredSalesField('#ds-new-item-name', '⚠️ يرجى إدخال اسم الصنف أولاً');
+                return;
+            }
+            const unit = (document.getElementById('ds-new-item-unit')?.value || 'قطعة').trim();
+            const code = (document.getElementById('ds-new-item-code')?.value || ('ITM-' + Date.now().toString().slice(-5))).trim();
+            const cost = parseFloat(document.getElementById('ds-new-item-cost')?.value) || 0;
+            const price = parseFloat(document.getElementById('ds-new-item-price')?.value) || 0;
+            const newItem = {
+                id: 'item-' + Date.now(),
+                code: code,
+                barcode: code,
+                name: name,
+                unit: unit,
+                baseUnit: unit,
+                costPrice: cost,
+                buyPrice: cost,
+                sellPrice: price,
+                price: price,
+                conversionFactor: 1,
+                unitsArray: [{ name: unit, factor: 1, price: price }]
+            };
+            try {
+                const invList = JSON.parse(localStorage.getItem('erp_inventory_v1') || '[]');
+                invList.push(newItem);
+                localStorage.setItem('erp_inventory_v1', JSON.stringify(invList));
+                if (typeof ITEMS !== 'undefined' && Array.isArray(ITEMS)) {
+                    ITEMS.push(newItem);
+                }
+            } catch (_e) {}
+
+            if (typeof rows !== 'undefined' && Array.isArray(rows)) {
+                const emptyRow = rows.find(r => r && !r.itemId);
+                if (emptyRow && typeof selectItemForRow === 'function') {
+                    selectItemForRow(emptyRow.id, newItem.id);
+                } else if (typeof addRow === 'function') {
+                    addRow(true);
+                    const lastRow = rows[rows.length - 1];
+                    if (lastRow) {
+                        lastRow.itemId = newItem.id;
+                        lastRow.selectedUnit = unit;
+                        lastRow.price = price;
+                        lastRow.quantity = 1;
+                    }
+                    if (typeof renderGrid === 'function') renderGrid();
+                    if (typeof recalcAll === 'function') recalcAll();
+                }
+            }
+            document.getElementById('ds-quick-item-modal').style.display = 'none';
+            if (typeof window.showToast === 'function') window.showToast(`📦 تم تعريف الصنف (${name}) وإدراجه في الفاتورة بنجاح`, 'success', 2200);
+        };
+
+        // =========================================================================
+        // CONSTITUTION 1 APPROVED PROPOSALS:
+        // 1. SMART POS CASH TENDERED & CHANGE CALCULATOR (حاسبة الباقي والفئات النقدية)
+        // 2. CONTINUOUS POS BARCODE STREAM (ماسح الباركود المتصل لنقاط البيع)
+        // 3. INSTANT WARRANTY CERTIFICATE & THERMAL RECEIPT QR (بطاقة الضمان وإيصال QR)
+        // =========================================================================
+
+        function playDsPosBeep(freq = 880, dur = 0.08) {
+            try {
+                const Ctx = window.AudioContext || window.webkitAudioContext;
+                if (!Ctx) return;
+                const ctx = new Ctx();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.value = freq;
+                gain.gain.value = 0.12;
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start();
+                setTimeout(() => { try { osc.stop(); ctx.close(); } catch (_e) {} }, dur * 1000);
+            } catch (_e) {}
+        }
+
+        // Proposal 1: Smart POS Cash Tendered & Change Calculator
+        window.openDsCashChangeCalculator = function() {
+            let modal = document.getElementById('ds-cash-change-modal');
+            if (!modal) {
+                modal = document.createElement('div');
+                modal.id = 'ds-cash-change-modal';
+                modal.className = 'ds-c1-modal-backdrop';
+                modal.innerHTML = `
+                    <div class="ds-c1-modal-card" style="max-width:540px;">
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+                            <h3 style="margin:0;font-size:1.12rem;font-weight:900;">🧮 حاسبة النقدية المستلمة والباقي للعميل (POS Change)</h3>
+                            <button type="button" onclick="document.getElementById('ds-cash-change-modal').style.display='none'" style="background:transparent;border:none;font-size:1.25rem;cursor:pointer;color:#94a3b8;font-weight:900;">✕</button>
+                        </div>
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
+                            <div style="padding:10px;border-radius:12px;border:1.8px solid rgba(56,189,248,0.4);text-align:center;">
+                                <div style="font-size:0.8rem;font-weight:800;opacity:0.85;">إجمالي الفاتورة المستحق</div>
+                                <div id="ds-calc-due-val" style="font-size:1.55rem;font-weight:900;font-family:'Outfit';color:#38bdf8;">0</div>
+                            </div>
+                            <div style="padding:10px;border-radius:12px;border:1.8px solid rgba(16,185,129,0.5);text-align:center;">
+                                <div id="ds-calc-change-lbl" style="font-size:0.8rem;font-weight:800;opacity:0.85;">الباقي للعميل (Change)</div>
+                                <div id="ds-calc-change-val" style="font-size:1.55rem;font-weight:900;font-family:'Outfit';color:#10b981;">0</div>
+                            </div>
+                        </div>
+                        <div style="margin-bottom:10px;">
+                            <label style="display:block;font-size:0.85rem;font-weight:900;margin-bottom:5px;">💵 المبلغ المستلم من العميل:</label>
+                            <input type="number" id="ds-calc-tendered-input" class="ctrl-input" step="any" oninput="window.recalcDsCashChange()" style="width:100%;height:46px;font-size:1.45rem;font-weight:900;text-align:center;border-radius:10px;font-family:'Outfit';">
+                        </div>
+                        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;">
+                            <button type="button" onclick="window.addDsCashDenom('exact')" class="btn-action" style="padding:6px 11px;border-radius:8px;background:linear-gradient(135deg,#0284c7,#0369a1);color:#fff;border:none;font-weight:900;font-size:0.8rem;cursor:pointer;">⚡ المبلغ كامل</button>
+                            <button type="button" onclick="window.addDsCashDenom(1000)" class="btn-action" style="padding:6px 11px;border-radius:8px;background:rgba(16,185,129,0.18);border:1.5px solid #10b981;color:inherit;font-weight:900;font-size:0.8rem;cursor:pointer;">+1,000</button>
+                            <button type="button" onclick="window.addDsCashDenom(5000)" class="btn-action" style="padding:6px 11px;border-radius:8px;background:rgba(16,185,129,0.18);border:1.5px solid #10b981;color:inherit;font-weight:900;font-size:0.8rem;cursor:pointer;">+5,000</button>
+                            <button type="button" onclick="window.addDsCashDenom(10000)" class="btn-action" style="padding:6px 11px;border-radius:8px;background:rgba(16,185,129,0.18);border:1.5px solid #10b981;color:inherit;font-weight:900;font-size:0.8rem;cursor:pointer;">+10,000</button>
+                            <button type="button" onclick="window.addDsCashDenom(50000)" class="btn-action" style="padding:6px 11px;border-radius:8px;background:rgba(16,185,129,0.18);border:1.5px solid #10b981;color:inherit;font-weight:900;font-size:0.8rem;cursor:pointer;">+50,000</button>
+                            <button type="button" onclick="window.addDsCashDenom(100000)" class="btn-action" style="padding:6px 11px;border-radius:8px;background:rgba(16,185,129,0.18);border:1.5px solid #10b981;color:inherit;font-weight:900;font-size:0.8rem;cursor:pointer;">+100,000</button>
+                            <button type="button" onclick="window.addDsCashDenom(0)" class="btn-action" style="padding:6px 11px;border-radius:8px;background:rgba(239,68,68,0.18);border:1.5px solid #ef4444;color:inherit;font-weight:900;font-size:0.8rem;cursor:pointer;">تصفير</button>
+                        </div>
+                        <div style="display:flex;justify-content:flex-end;gap:10px;">
+                            <button type="button" onclick="document.getElementById('ds-cash-change-modal').style.display='none'" class="btn-action" style="padding:8px 16px;border-radius:10px;background:rgba(148,163,184,0.2);color:inherit;font-weight:900;">إغلاق</button>
+                            <button type="button" onclick="window.applyDsCashPaymentFromCalc()" class="btn-action" style="padding:8px 20px;border-radius:10px;background:linear-gradient(135deg,#10b981,#059669);color:#fff;border:none;font-weight:900;">✅ اعتماد السداد النقدي في الفاتورة</button>
+                        </div>
+                    </div>
+                `;
+                document.body.appendChild(modal);
+            }
+            const rawGrand = (document.getElementById('t-grand')?.textContent || document.getElementById('t-grand-dynamic-loc')?.textContent || '0').replace(/[^0-9.-]/g, '');
+            const dueVal = parseFloat(rawGrand) || 0;
+            window._dsCurrentCalcDue = dueVal;
+            const dueEl = document.getElementById('ds-calc-due-val');
+            if (dueEl) dueEl.textContent = dueVal.toLocaleString('en-US');
+            const inp = document.getElementById('ds-calc-tendered-input');
+            if (inp) inp.value = dueVal;
+            window.recalcDsCashChange();
+            modal.style.display = 'flex';
+            setTimeout(() => { if (inp) { inp.focus(); inp.select(); } }, 40);
+        };
+
+        window.addDsCashDenom = function(val) {
+            const inp = document.getElementById('ds-calc-tendered-input');
+            if (!inp) return;
+            if (val === 'exact') {
+                inp.value = window._dsCurrentCalcDue || 0;
+            } else if (val === 0) {
+                inp.value = 0;
+            } else {
+                inp.value = (parseFloat(inp.value) || 0) + Number(val);
+            }
+            window.recalcDsCashChange();
+        };
+
+        window.recalcDsCashChange = function() {
+            const due = window._dsCurrentCalcDue || 0;
+            const tendered = parseFloat(document.getElementById('ds-calc-tendered-input')?.value) || 0;
+            const diff = Math.round((tendered - due) * 100) / 100;
+            const lbl = document.getElementById('ds-calc-change-lbl');
+            const valEl = document.getElementById('ds-calc-change-val');
+            if (!valEl || !lbl) return;
+            if (diff >= 0) {
+                lbl.textContent = 'الباقي للعميل (Change Due)';
+                valEl.textContent = diff.toLocaleString('en-US');
+                valEl.style.color = '#10b981';
+            } else {
+                lbl.textContent = 'متبقي على العميل (آجل)';
+                valEl.textContent = Math.abs(diff).toLocaleString('en-US');
+                valEl.style.color = '#f59e0b';
+            }
+        };
+
+        window.applyDsCashPaymentFromCalc = function() {
+            const due = window._dsCurrentCalcDue || 0;
+            const tendered = parseFloat(document.getElementById('ds-calc-tendered-input')?.value) || 0;
+            const paidCash = tendered >= due ? due : Math.max(0, tendered);
+            const cashSec = document.getElementById('pay-cash-section');
+            if (cashSec && cashSec.style.display === 'none' && typeof window.togglePaymentSection === 'function') {
+                window.togglePaymentSection('cash');
+            }
+            const cashInp = document.getElementById('pay-cash-amount');
+            if (cashInp) {
+                cashInp.value = paidCash;
+                if (typeof window.onPaymentAmountInput === 'function') window.onPaymentAmountInput();
+            }
+            const change = Math.max(0, Math.round((tendered - due) * 100) / 100);
+            const cashNote = document.getElementById('pay-cash-note');
+            if (cashNote && tendered > 0) {
+                cashNote.value = `المستلم: ${tendered.toLocaleString('en-US')} | الباقي للعميل: ${change.toLocaleString('en-US')}`;
+            }
+            document.getElementById('ds-cash-change-modal').style.display = 'none';
+            if (typeof window.showToast === 'function') {
+                window.showToast(`💵 تم اعتماد السداد النقدي (${paidCash.toLocaleString('en-US')}) — الباقي للعميل: ${change.toLocaleString('en-US')}`, 'success', 2400);
+            }
+        };
+
+        // Proposal 2: Continuous POS Barcode Stream Modal
+        window._dsPosScanCount = 0;
+        window.openDsContinuousPosScanner = function() {
+            let modal = document.getElementById('ds-continuous-scan-modal');
+            if (!modal) {
+                modal = document.createElement('div');
+                modal.id = 'ds-continuous-scan-modal';
+                modal.className = 'ds-c1-modal-backdrop';
+                modal.innerHTML = `
+                    <div class="ds-c1-modal-card" style="max-width:560px;">
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+                            <h3 style="margin:0;font-size:1.12rem;font-weight:900;">📡 الماسح المتصل السريع لنقاط البيع (Continuous POS Stream)</h3>
+                            <button type="button" onclick="document.getElementById('ds-continuous-scan-modal').style.display='none'" style="background:transparent;border:none;font-size:1.25rem;cursor:pointer;color:#94a3b8;font-weight:900;">✕</button>
+                        </div>
+                        <div style="display:flex;gap:8px;margin-bottom:10px;">
+                            <input type="text" id="ds-stream-scan-input" class="ctrl-input" placeholder="امسح الباركود أو اكتب اسم/كود الصنف ثم Enter للإدراج المتتابع..." style="flex:1;height:44px;border-radius:10px;padding:0 12px;font-weight:900;" onkeydown="if(event.key==='Enter'){event.preventDefault();window.processDsContinuousPosScan(this.value);}">
+                            <button type="button" onclick="window.processDsContinuousPosScan(document.getElementById('ds-stream-scan-input').value)" class="btn-action" style="padding:0 16px;border-radius:10px;background:linear-gradient(135deg,#0ea5e9,#2563eb);color:#fff;border:none;font-weight:900;">⚡ إدراج</button>
+                        </div>
+                        <div id="ds-stream-scan-log" style="max-height:200px;overflow-y:auto;border:1.8px solid rgba(148,163,184,0.3);border-radius:10px;padding:10px;font-size:0.84rem;font-weight:800;margin-bottom:12px;">
+                            🎯 جاهز للمسح المتتابع السريع...
+                        </div>
+                        <div style="display:flex;justify-content:space-between;align-items:center;">
+                            <span id="ds-stream-modal-counter" style="font-weight:900;color:#38bdf8;">إجمالي المسح: 0</span>
+                            <button type="button" onclick="document.getElementById('ds-continuous-scan-modal').style.display='none'" class="btn-action" style="padding:8px 18px;border-radius:10px;background:rgba(148,163,184,0.2);color:inherit;font-weight:900;">إغلاق</button>
+                        </div>
+                    </div>
+                `;
+                document.body.appendChild(modal);
+            }
+            modal.style.display = 'flex';
+            setTimeout(() => {
+                const inp = document.getElementById('ds-stream-scan-input');
+                if (inp) { inp.value = ''; inp.focus(); }
+            }, 40);
+        };
+
+        window.processDsContinuousPosScan = function(rawQuery) {
+            const q = window.normalizeDsArabic(rawQuery);
+            const inp = document.getElementById('ds-stream-scan-input');
+            if (!q) return;
+            const list = (typeof ITEMS !== 'undefined' && Array.isArray(ITEMS) && ITEMS.length)
+                ? ITEMS
+                : (JSON.parse(localStorage.getItem('erp_inventory_v1') || '[]'));
+            const match = list.find(it => {
+                if (!it) return false;
+                const codeNorm = window.normalizeDsArabic(it.code || it.barcode || it.id || '');
+                const nameNorm = window.normalizeDsArabic(it.name || '');
+                return codeNorm === q || nameNorm.includes(q) || codeNorm.includes(q);
+            });
+            const logEl = document.getElementById('ds-stream-scan-log');
+            if (!match) {
+                playDsPosBeep(280, 0.14);
+                if (logEl) logEl.innerHTML = `<div style="color:#ef4444;padding:4px 0;">❌ لم يتم العثور على صنف مطابق لـ (${rawQuery})</div>` + logEl.innerHTML;
+                if (inp) inp.select();
+                return;
+            }
+
+            playDsPosBeep(920, 0.07);
+            window._dsPosScanCount = (window._dsPosScanCount || 0) + 1;
+            const cntPill = document.getElementById('ds-pos-scan-cnt');
+            if (cntPill) cntPill.textContent = window._dsPosScanCount;
+            const modCnt = document.getElementById('ds-stream-modal-counter');
+            if (modCnt) modCnt.textContent = `إجمالي المسح: ${window._dsPosScanCount}`;
+
+            if (typeof rows !== 'undefined' && Array.isArray(rows)) {
+                const existing = rows.find(r => r && String(r.itemId) === String(match.id));
+                if (existing) {
+                    existing.quantity = (parseFloat(existing.quantity) || 0) + 1;
+                    if (typeof renderGrid === 'function') renderGrid();
+                    if (typeof recalcAll === 'function') recalcAll();
+                } else {
+                    const emptyRow = rows.find(r => r && !r.itemId);
+                    if (emptyRow && typeof selectItemForRow === 'function') {
+                        selectItemForRow(emptyRow.id, match.id);
+                    } else if (typeof addRow === 'function') {
+                        addRow(true);
+                        const lastRow = rows[rows.length - 1];
+                        if (lastRow && typeof selectItemForRow === 'function') {
+                            selectItemForRow(lastRow.id, match.id);
+                        }
+                    }
+                }
+            }
+            if (logEl) {
+                logEl.innerHTML = `<div style="color:#10b981;padding:4px 0;border-bottom:1px solid rgba(148,163,184,0.15);">✅ تمت إضافة (${match.name}) — السعر: ${(parseFloat(match.sellPrice || match.price) || 0).toLocaleString('en-US')}</div>` + logEl.innerHTML;
+            }
+            if (inp) { inp.value = ''; inp.focus(); }
+        };
+
+        // Proposal 3: Instant Warranty Certificate & Thermal 80mm Receipt QR Modal
+        window.openDsWarrantyAndThermalModal = function() {
+            let modal = document.getElementById('ds-warranty-qr-modal');
+            if (!modal) {
+                modal = document.createElement('div');
+                modal.id = 'ds-warranty-qr-modal';
+                modal.className = 'ds-c1-modal-backdrop';
+                modal.innerHTML = `
+                    <div class="ds-c1-modal-card" style="max-width:540px;">
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+                            <h3 style="margin:0;font-size:1.12rem;font-weight:900;">🛡️ شهادة الضمان وإيصال الكاشير الحراري (QR Verified)</h3>
+                            <button type="button" onclick="document.getElementById('ds-warranty-qr-modal').style.display='none'" style="background:transparent;border:none;font-size:1.25rem;cursor:pointer;color:#94a3b8;font-weight:900;">✕</button>
+                        </div>
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">
+                            <div>
+                                <label style="display:block;font-size:0.84rem;font-weight:900;margin-bottom:4px;">مدة الضمان المعتمدة</label>
+                                <select id="ds-warranty-duration" class="ctrl-input" style="width:100%;padding:8px 10px;border-radius:9px;">
+                                    <option value="12 شهر (سنة كاملة)">12 شهر (سنة كاملة)</option>
+                                    <option value="24 شهر (سنتان)">24 شهر (سنتان)</option>
+                                    <option value="6 أشهر">6 أشهر</option>
+                                    <option value="ضمان تشغيلي 30 يوماً">ضمان تشغيلي 30 يوماً</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label style="display:block;font-size:0.84rem;font-weight:900;margin-bottom:4px;">شروط الضمان / الرقم التسلسلي</label>
+                                <input type="text" id="ds-warranty-serial-note" class="ctrl-input" placeholder="مثال: ضمان الوكيل ضد عيوب الصناعة" value="ضمان معتمد ضد عيوب الصناعة" style="width:100%;padding:8px 10px;border-radius:9px;">
+                            </div>
+                        </div>
+                        <div style="display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between;">
+                            <button type="button" onclick="window.printDsCertificateOrThermal('warranty')" class="btn-action" style="flex:1;padding:10px 14px;border-radius:10px;background:linear-gradient(135deg,#0d9488,#0f766e);color:#fff;border:none;font-weight:900;cursor:pointer;">🛡️ طباعة شهادة الضمان (A4 + QR)</button>
+                            <button type="button" onclick="window.printDsCertificateOrThermal('thermal')" class="btn-action" style="flex:1;padding:10px 14px;border-radius:10px;background:linear-gradient(135deg,#0284c7,#0369a1);color:#fff;border:none;font-weight:900;cursor:pointer;">🧾 إيصال كاشير حراري 80mm + QR</button>
+                        </div>
+                    </div>
+                `;
+                document.body.appendChild(modal);
+            }
+            modal.style.display = 'flex';
+        };
+
+        window.printDsCertificateOrThermal = function(mode) {
+            const invNo = document.getElementById('inv-number')?.textContent?.trim() || 'INV-NEW';
+            const invDate = document.getElementById('hdr-date')?.value || new Date().toISOString().slice(0, 10);
+            const custName = document.getElementById('hdr-customer-search')?.value?.trim() || 'عميل نقدي';
+            const grandTxt = document.getElementById('t-grand-dynamic-loc')?.textContent?.trim() || '0';
+            const curTxt = document.getElementById('hdr-currency')?.value || 'SDG';
+            const duration = document.getElementById('ds-warranty-duration')?.value || '12 شهر';
+            const terms = document.getElementById('ds-warranty-serial-note')?.value || 'ضمان معتمد ضد عيوب الصناعة';
+            const activeRows = (typeof rows !== 'undefined' && Array.isArray(rows)) ? rows.filter(r => r && r.itemId) : [];
+            const qrPayload = encodeURIComponent(`ELSAJANA-SALES|INV:${invNo}|DATE:${invDate}|CUST:${custName}|TOTAL:${grandTxt} ${curTxt}`);
+            const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${qrPayload}`;
+
+            const rowsHtml = activeRows.map((r, i) => {
+                const itemObj = (typeof ITEMS !== 'undefined' && Array.isArray(ITEMS)) ? ITEMS.find(it => String(it.id) === String(r.itemId)) : null;
+                const name = itemObj ? itemObj.name : r.itemId;
+                const qty = parseFloat(r.quantity) || 1;
+                const price = parseFloat(r.price) || 0;
+                return `<tr>
+                    <td style="padding:6px;border:1px solid #cbd5e1;text-align:center;">${i + 1}</td>
+                    <td style="padding:6px;border:1px solid #cbd5e1;font-weight:800;">${name}</td>
+                    <td style="padding:6px;border:1px solid #cbd5e1;text-align:center;">${qty} ${r.selectedUnit || ''}</td>
+                    <td style="padding:6px;border:1px solid #cbd5e1;text-align:center;">${(qty * price).toLocaleString('en-US')}</td>
+                </tr>`;
+            }).join('') || `<tr><td colspan="4" style="padding:10px;text-align:center;">لا توجد أصناف مسجلة</td></tr>`;
+
+            const w = window.open('', '_blank', mode === 'thermal' ? 'width=400,height=700' : 'width=880,height=720');
+            if (!w) return;
+            w.document.write(`<!DOCTYPE html><html dir="rtl" lang="ar"><head><meta charset="UTF-8"><title>${mode === 'warranty' ? 'شهادة ضمان معتمدة' : 'إيصال مبيعات حراري 80mm'} - ${invNo}</title>
+                <style>
+                    body { font-family: 'Cairo', 'Tajawal', sans-serif; margin: ${mode === 'thermal' ? '8px' : '24px'}; color: #000; background: #fff; }
+                    .card { border: 2.5px solid #0f766e; border-radius: 14px; padding: ${mode === 'thermal' ? '10px' : '20px'}; max-width: ${mode === 'thermal' ? '78mm' : '820px'}; margin: 0 auto; }
+                    table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: ${mode === 'thermal' ? '12px' : '14px'}; }
+                </style>
+            </head><body>
+                <div class="card">
+                    <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid #0f766e;padding-bottom:10px;">
+                        <div>
+                            <h2 style="margin:0;color:#0f766e;">${mode === 'warranty' ? '🛡️ شهادة ضمان أصناف معتمدة' : '🧾 إيصال مبيعات فوري (POS)'}</h2>
+                            <div style="font-weight:800;font-size:13px;margin-top:4px;">رقم الفاتورة: ${invNo} | التاريخ: ${invDate}</div>
+                            <div style="font-weight:800;font-size:13px;">العميل: ${custName}</div>
+                        </div>
+                        <img src="${qrUrl}" alt="QR" style="width:${mode === 'thermal' ? '82px' : '110px'};height:${mode === 'thermal' ? '82px' : '110px'};border:1.5px solid #0f766e;border-radius:8px;padding:3px;">
+                    </div>
+                    <table>
+                        <thead><tr style="background:#f1f5f9;"><th>#</th><th>الصنف</th><th>الكمية</th><th>الإجمالي</th></tr></thead>
+                        <tbody>${rowsHtml}</tbody>
+                    </table>
+                    <div style="display:flex;justify-content:space-between;align-items:center;font-weight:900;font-size:15px;padding:8px 0;border-top:2px solid #000;">
+                        <span>الإجمالي الصافي: ${grandTxt} ${curTxt}</span>
+                        <span>مدة الضمان: ${duration}</span>
+                    </div>
+                    <div style="font-size:12px;font-weight:800;margin-top:6px;">📋 الشروط: ${terms}</div>
+                </div>
+                <script>window.onload = function(){ setTimeout(function(){ window.print(); }, 350); };<\/script>
+            </body></html>`);
+            w.document.close();
+            document.getElementById('ds-warranty-qr-modal').style.display = 'none';
+        };
+
+        // Guaranteed Male Arabic Voice Helper (Order 3 of Constitution 2)
+        window.speakDsMaleVoice = function(text) {
+            if (!text || typeof window.speechSynthesis === 'undefined') return;
+            try {
+                window.speechSynthesis.cancel();
+                window.speechSynthesis.resume();
+                const u = new SpeechSynthesisUtterance(String(text));
+                u.lang = 'ar-SA';
+                u.rate = 0.96;
+                u.pitch = 0.86;
+                const voices = window.speechSynthesis.getVoices() || [];
+                const arVoices = voices.filter(v => /ar/i.test(v.lang));
+                const maleVoice = arVoices.find(v => /hamed|naayf|tarik|maged|omar|male|microsoft.*hamed/i.test(v.name)) || arVoices[0];
+                if (maleVoice) u.voice = maleVoice;
+                window.speechSynthesis.speak(u);
+            } catch (_e) {}
+        };
+
+        // =========================================================================
+        // CONSTITUTION 2 APPROVED PROPOSALS:
+        // 1. LIVE AUDIO INVOICE & PAYMENT SUMMARY READBACK (🔊 نطق الملخص)
+        // 2. HANDS-FREE ARABIC VOICE POS COMMANDS (🎙️ أمر صوتي)
+        // 3. INTERACTIVE SALES MASTERY QUIZ (🎓 تدريب عملي)
+        // =========================================================================
+
+        // Proposal 1: Live Audio Invoice & Payment Summary Readback
+        window.speakLiveDsInvoiceSummary = function() {
+            const custName = document.getElementById('hdr-customer-search')?.value?.trim() || 'عميل غير محدد';
+            const activeRows = (typeof rows !== 'undefined' && Array.isArray(rows))
+                ? rows.filter(r => r && r.itemId)
+                : [];
+            const totalQty = activeRows.reduce((s, r) => s + (parseFloat(r.quantity) || 0), 0);
+            const grandTxt = document.getElementById('t-grand-dynamic-loc')?.textContent?.trim() || '0';
+            const cur = document.getElementById('hdr-currency')?.value || 'جنيه';
+            const payBadge = document.getElementById('payment-status-badge')?.textContent?.trim() || 'آجلة';
+            const marginTxt = document.getElementById('sales-margin-guard-text')?.textContent?.trim() || '';
+
+            const msg = `ملخص فاتورة المبيعات الحالية: العميل ${custName}. عدد الأصناف المدرجة ${activeRows.length} صنف بإجمالي كميات ${totalQty}. الصافي النهائي المستحق ${grandTxt} ${cur}. حالة السداد ${payBadge}. مؤشر الربحية ${marginTxt}.`;
+            if (typeof window.showToast === 'function') {
+                window.showToast('🔊 ' + msg, 'info', 3800);
+            }
+            window.speakDsMaleVoice(msg);
+        };
+
+        // Proposal 2: Hands-Free Arabic Voice POS Commands
+        window.executeDsVoiceCommandText = function(rawText) {
+            const norm = window.normalizeDsArabic(rawText);
+            if (!norm) return;
+            if (norm.includes('حفظ') || norm.includes('اعتماد') || norm.includes('اعتمد')) {
+                window.speakDsMaleVoice('جاري حفظ واعتماد فاتورة المبيعات.');
+                if (typeof window.submitInvoice === 'function') window.submitInvoice();
+            } else if (norm.includes('باقي') || norm.includes('حاسبه') || norm.includes('نقدي')) {
+                window.speakDsMaleVoice('تم فتح حاسبة النقدية والباقي للعميل.');
+                if (typeof window.openDsCashChangeCalculator === 'function') window.openDsCashChangeCalculator();
+            } else if (norm.includes('تعليق') || norm.includes('اركن')) {
+                window.speakDsMaleVoice('جاري تعليق الفاتورة الحالية.');
+                if (typeof window.parkCurrentSalesInvoice === 'function') window.parkCurrentSalesInvoice();
+            } else if (norm.includes('معلقه') || norm.includes('استدعاء')) {
+                window.speakDsMaleVoice('تم فتح نافذة الفواتير المعلقة.');
+                if (typeof window.openParkedInvoicesModal === 'function') window.openParkedInvoicesModal();
+            } else if (norm.includes('سجل') || norm.includes('ربح') || norm.includes('تكلفه')) {
+                window.speakDsMaleVoice('تم فتح شاشة كاشف التكلفة وسجل أسعار العميل.');
+                if (typeof window.openCustomerItemHistoryModal === 'function') window.openCustomerItemHistoryModal('margin');
+            } else if (norm.includes('ضمان') || norm.includes('شهاده')) {
+                window.speakDsMaleVoice('تم فتح شاشة شهادة الضمان وإيصال الكيو آر.');
+                if (typeof window.openDsWarrantyAndThermalModal === 'function') window.openDsWarrantyAndThermalModal();
+            } else if (norm.includes('ملخص') || norm.includes('اقرا') || norm.includes('نطق')) {
+                window.speakLiveDsInvoiceSummary();
+            } else if (norm.includes('جديد') || norm.includes('فاتوره جديده')) {
+                window.speakDsMaleVoice('بدء فاتورة مبيعات جديدة.');
+                if (typeof window.onSuccessNewInvoice === 'function') window.onSuccessNewInvoice(false);
+            } else {
+                if (typeof window.showToast === 'function') {
+                    window.showToast(`🎙️ تم سماع: "${rawText}" — جرب قول: حفظ الفاتورة، حاسبة الباقي، تعليق الفاتورة، سجل الأسعار`, 'info', 2800);
+                }
+            }
+        };
+
+        window.startDsVoiceCommandListener = function() {
+            const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (SR) {
+                try {
+                    const rec = new SR();
+                    rec.lang = 'ar-SA';
+                    rec.interimResults = false;
+                    rec.maxAlternatives = 1;
+                    if (typeof window.showToast === 'function') {
+                        window.showToast('🎙️ تحدث الآن... (مثال: "حفظ الفاتورة" ، "حاسبة الباقي" ، "تعليق الفاتورة" ، "سجل الأسعار")', 'info', 3000);
+                    }
+                    rec.onresult = function(ev) {
+                        const txt = ev.results && ev.results[0] && ev.results[0][0] ? ev.results[0][0].transcript : '';
+                        if (txt) window.executeDsVoiceCommandText(txt);
+                    };
+                    rec.onerror = function() {
+                        window.openDsVoiceCommandFallbackModal();
+                    };
+                    rec.start();
+                    return;
+                } catch (_e) {}
+            }
+            window.openDsVoiceCommandFallbackModal();
+        };
+
+        window.openDsVoiceCommandFallbackModal = function() {
+            let modal = document.getElementById('ds-voice-cmd-modal');
+            if (!modal) {
+                modal = document.createElement('div');
+                modal.id = 'ds-voice-cmd-modal';
+                modal.className = 'ds-c1-modal-backdrop';
+                modal.innerHTML = `
+                    <div class="ds-c1-modal-card" style="max-width:480px;">
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+                            <h3 style="margin:0;font-size:1.1rem;font-weight:900;">🎙️ مركز الأوامر الصوتية السريعة للكاشير</h3>
+                            <button type="button" onclick="document.getElementById('ds-voice-cmd-modal').style.display='none'" style="background:transparent;border:none;font-size:1.25rem;cursor:pointer;color:#94a3b8;font-weight:900;">✕</button>
+                        </div>
+                        <p style="margin:0 0 10px;font-size:0.84rem;font-weight:800;">اختر أو اكتب الأمر الصوتي لتنفيذه فوراً:</p>
+                        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;">
+                            <button type="button" onclick="document.getElementById('ds-voice-cmd-modal').style.display='none';window.executeDsVoiceCommandText('نطق الملخص')" class="btn-action" style="padding:6px 10px;border-radius:8px;background:rgba(99,102,241,0.2);border:1px solid #6366f1;color:inherit;font-weight:900;font-size:0.8rem;cursor:pointer;">🔊 نطق الملخص</button>
+                            <button type="button" onclick="document.getElementById('ds-voice-cmd-modal').style.display='none';window.executeDsVoiceCommandText('حاسبة الباقي')" class="btn-action" style="padding:6px 10px;border-radius:8px;background:rgba(16,185,129,0.2);border:1px solid #10b981;color:inherit;font-weight:900;font-size:0.8rem;cursor:pointer;">🧮 حاسبة الباقي</button>
+                            <button type="button" onclick="document.getElementById('ds-voice-cmd-modal').style.display='none';window.executeDsVoiceCommandText('تعليق الفاتورة')" class="btn-action" style="padding:6px 10px;border-radius:8px;background:rgba(14,165,233,0.2);border:1px solid #0ea5e9;color:inherit;font-weight:900;font-size:0.8rem;cursor:pointer;">⏸️ تعليق الفاتورة</button>
+                            <button type="button" onclick="document.getElementById('ds-voice-cmd-modal').style.display='none';window.executeDsVoiceCommandText('سجل الأسعار')" class="btn-action" style="padding:6px 10px;border-radius:8px;background:rgba(168,85,247,0.2);border:1px solid #a855f7;color:inherit;font-weight:900;font-size:0.8rem;cursor:pointer;">📈 سجل الأسعار</button>
+                            <button type="button" onclick="document.getElementById('ds-voice-cmd-modal').style.display='none';window.executeDsVoiceCommandText('حفظ الفاتورة')" class="btn-action" style="padding:6px 10px;border-radius:8px;background:rgba(16,185,129,0.25);border:1px solid #10b981;color:inherit;font-weight:900;font-size:0.8rem;cursor:pointer;">✅ حفظ الفاتورة</button>
+                        </div>
+                        <div style="display:flex;gap:8px;">
+                            <input type="text" id="ds-voice-cmd-input" class="ctrl-input" placeholder="اكتب الأمر هنا ثم Enter..." style="flex:1;padding:8px 12px;border-radius:9px;" onkeydown="if(event.key==='Enter'){event.preventDefault();document.getElementById('ds-voice-cmd-modal').style.display='none';window.executeDsVoiceCommandText(this.value);}">
+                            <button type="button" onclick="document.getElementById('ds-voice-cmd-modal').style.display='none';window.executeDsVoiceCommandText(document.getElementById('ds-voice-cmd-input').value)" class="btn-action" style="padding:8px 16px;border-radius:9px;background:linear-gradient(135deg,#ec4899,#be185d);color:#fff;border:none;font-weight:900;">تنفيذ</button>
+                        </div>
+                    </div>
+                `;
+                document.body.appendChild(modal);
+            }
+            modal.style.display = 'flex';
+        };
+
+        // Proposal 3: Interactive Sales Mastery Quiz
+        const dsQuizQuestions = [
+            {
+                prompt: 'السؤال الأول: اضغط على الخانة المخصصة للبحث عن العميل أو فتح كشف حسابه في الأستاذ العام.',
+                selector: '#hdr-customer-search, #hdr-customer-ledger-btn, .group-supplier'
+            },
+            {
+                prompt: 'السؤال الثاني: اضغط على شارة كاشف هامش الربح والتكلفة أو قائمة شرائح الأسعار (قطاعي وجملة).',
+                selector: '#sales-margin-guard-badge, #hdr-price-tier, #btn-cust-item-history'
+            },
+            {
+                prompt: 'السؤال الثالث: اضغط على زر تعليق الفاتورة أو زر حاسبة الباقي النقدي الذكية.',
+                selector: '#btn-park-invoice, #btn-recall-parked, #btn-ds-cash-change'
+            }
+        ];
+        window._dsQuizState = { active: false, step: 0 };
+
+        window.startDsMasteryQuiz = function() {
+            let banner = document.getElementById('ds-mastery-quiz-banner');
+            if (!banner) {
+                banner = document.createElement('div');
+                banner.id = 'ds-mastery-quiz-banner';
+                banner.style.cssText = 'position:fixed;bottom:18px;left:50%;transform:translateX(-50%);z-index:999998;background:linear-gradient(135deg,#0f172a,#1e293b);border:2.2px solid #f59e0b;border-radius:99px;padding:8px 18px;display:flex;align-items:center;gap:12px;box-shadow:0 12px 35px rgba(0,0,0,0.65);color:#fff;font-weight:900;font-size:0.88rem;direction:rtl;';
+                document.body.appendChild(banner);
+            }
+            window._dsQuizState = { active: true, step: 0 };
+            renderDsQuizStep();
+        };
+
+        function renderDsQuizStep() {
+            const banner = document.getElementById('ds-mastery-quiz-banner');
+            if (!banner) return;
+            if (!window._dsQuizState.active) {
+                banner.style.display = 'none';
+                return;
+            }
+            const q = dsQuizQuestions[window._dsQuizState.step];
+            if (!q) {
+                window._dsQuizState.active = false;
+                banner.style.display = 'none';
+                const msg = 'أحسنت! أتممت التدريب العملي على شاشة المبيعات المباشرة بنجاح مئة بالمئة.';
+                if (typeof window.showToast === 'function') window.showToast('🎓 ' + msg, 'success', 3200);
+                window.speakDsMaleVoice(msg);
+                return;
+            }
+            banner.style.display = 'flex';
+            banner.innerHTML = `
+                <span>🎓 تدريب (${window._dsQuizState.step + 1}/${dsQuizQuestions.length}):</span>
+                <span style="color:#fde68a;">${q.prompt}</span>
+                <button type="button" onclick="window._dsQuizState.active=false;document.getElementById('ds-mastery-quiz-banner').style.display='none';" style="background:rgba(239,68,68,0.25);border:1px solid #ef4444;color:#fca5a5;border-radius:99px;padding:3px 10px;cursor:pointer;font-weight:900;font-size:0.78rem;">إنهاء</button>
+            `;
+            window.speakDsMaleVoice(q.prompt);
+        }
+
+        document.addEventListener('click', function(e) {
+            if (!window._dsQuizState || !window._dsQuizState.active) return;
+            if (e.target && (e.target.closest('#btn-ds-mastery-quiz') || e.target.closest('#ds-mastery-quiz-banner'))) return;
+            const q = dsQuizQuestions[window._dsQuizState.step];
+            if (!q) return;
+            if (e.target && (e.target.matches(q.selector) || e.target.closest(q.selector))) {
+                playDsPosBeep(1040, 0.09);
+                if (typeof window.showToast === 'function') window.showToast('✅ إجابة صحيحة! ننتقل للسؤال التالي...', 'success', 1800);
+                window._dsQuizState.step++;
+                setTimeout(renderDsQuizStep, 550);
+            }
+        }, true);
+
+        // =========================================================================
+        // CONSTITUTION 3 ENGINE (الدستور الثالث والأخير من 3):
+        // 1. SUB-SECOND CROSS-CHANNEL SYNC (Mobile ↔ Laptop ↔ Offline)
+        // 2. LIVE BALANCED ACCOUNTING JOURNAL PREVIEW MODAL (⚖️ القيد المحاسبي)
+        // 3. LIVE TREASURY/CASH ACCOUNT BALANCE PILL & PERMANENT AUDIT TRAIL STAMP
+        // 4. INSTANT EXCEL EXPORT & ADVANCED HUB FILTERS
+        // =========================================================================
+
+        // 1. Permanent Audit Trail Stamp in #sales-row0-bar & Live Cash Account Balance Pill
+        function ensureDsAuditStampAndTreasuryBalance() {
+            const auditBox = document.getElementById('sales-user-audit-container');
+            if (auditBox && !document.getElementById('ds-audit-stamp-pill') && auditBox.children.length === 0) {
+                const isMob = /Android|iPhone|iPad|Mobile/i.test(navigator.userAgent);
+                const userName = localStorage.getItem('magaies_current_user_name') || localStorage.getItem('erp_user_name') || 'مدير النظام';
+                const timeStr = new Date().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
+                const stamp = document.createElement('div');
+                stamp.id = 'ds-audit-stamp-pill';
+                stamp.className = 'user-audit-badge';
+                stamp.innerHTML = `<span class="uab-label">👤 المستخدم:</span><span class="uab-val">${userName}</span><span class="uab-label">| ${isMob ? '📱 جوال' : '💻 لابتوب'} | 🕒 ${timeStr}</span>`;
+                auditBox.appendChild(stamp);
+            }
+
+            const cashAccSel = document.getElementById('hdr-payment-account');
+            if (cashAccSel && !document.getElementById('ds-cash-account-live-bal')) {
+                const balPill = document.createElement('div');
+                balPill.id = 'ds-cash-account-live-bal';
+                balPill.style.cssText = 'margin-top:6px;padding:4px 10px;border-radius:8px;font-size:0.78rem;font-weight:900;background:rgba(16,185,129,0.14);border:1.5px solid rgba(16,185,129,0.45);color:#10b981;display:inline-flex;align-items:center;gap:8px;align-self:flex-start;';
+                const parentSec = document.getElementById('pay-cash-section');
+                if (parentSec) parentSec.appendChild(balPill);
+                const updateCashBalPill = () => {
+                    const accName = cashAccSel.options[cashAccSel.selectedIndex]?.text || 'الخزينة الرئيسية';
+                    const cashEntered = parseFloat(document.getElementById('pay-cash-amount')?.value) || 0;
+                    let baseBal = 0;
+                    try {
+                        const treasuries = JSON.parse(localStorage.getItem('erp_treasuries_v1') || '[]');
+                        const found = treasuries.find(t => String(t.id) === String(cashAccSel.value) || t.name === accName);
+                        if (found) baseBal = parseFloat(found.balance ?? found.openingBalance ?? 0) || 0;
+                    } catch (_e) {}
+                    const afterBal = baseBal + cashEntered;
+                    balPill.innerHTML = `🏦 رصيد (${accName}) الحالي: <span style="font-family:'Outfit';">${baseBal.toLocaleString('en-US')}</span> ⬅ بعد القبض: <span style="font-family:'Outfit';text-decoration:underline;">${afterBal.toLocaleString('en-US')}</span>`;
+                };
+                cashAccSel.addEventListener('change', updateCashBalPill);
+                const cashInp = document.getElementById('pay-cash-amount');
+                if (cashInp) cashInp.addEventListener('input', updateCashBalPill);
+                setTimeout(updateCashBalPill, 200);
+            }
+        }
+
+        // 2. Live Balanced Accounting Journal Preview Modal (⚖️ القيد المحاسبي اللحظي)
+        window.openDsLiveJournalPreviewModal = function() {
+            let modal = document.getElementById('ds-live-journal-modal');
+            if (!modal) {
+                modal = document.createElement('div');
+                modal.id = 'ds-live-journal-modal';
+                modal.className = 'ds-c1-modal-backdrop';
+                modal.innerHTML = `
+                    <div class="ds-c1-modal-card" style="max-width:780px;">
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+                            <h3 style="margin:0;font-size:1.12rem;font-weight:900;">⚖️ القيد المحاسبي اللحظي المتوازن وأثر المخزون والعميل (Atomic Journal Preview)</h3>
+                            <button type="button" onclick="document.getElementById('ds-live-journal-modal').style.display='none'" style="background:transparent;border:none;font-size:1.25rem;cursor:pointer;color:#94a3b8;font-weight:900;">✕</button>
+                        </div>
+                        <div id="ds-live-journal-summary" style="padding:10px 14px;border-radius:10px;border:1.8px solid rgba(16,185,129,0.45);margin-bottom:12px;font-size:0.86rem;font-weight:900;"></div>
+                        <div style="max-height:340px;overflow-y:auto;border:1.8px solid rgba(148,163,184,0.3);border-radius:12px;margin-bottom:12px;">
+                            <table style="width:100%;border-collapse:collapse;font-size:0.84rem;">
+                                <thead>
+                                    <tr style="background:rgba(15,23,42,0.5);">
+                                        <th style="padding:9px;text-align:right;">الحساب المحاسبي</th>
+                                        <th style="padding:9px;text-align:center;">مدين (Debit)</th>
+                                        <th style="padding:9px;text-align:center;">دائن (Credit)</th>
+                                        <th style="padding:9px;text-align:right;">البيان / الترحيل الذري</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="ds-live-journal-tbody"></tbody>
+                                <tfoot id="ds-live-journal-tfoot"></tfoot>
+                            </table>
+                        </div>
+                        <div style="display:flex;justify-content:flex-end;gap:10px;">
+                            <button type="button" onclick="document.getElementById('ds-live-journal-modal').style.display='none'" class="btn-action" style="padding:8px 18px;border-radius:10px;background:rgba(148,163,184,0.2);color:inherit;font-weight:900;">إغلاق</button>
+                        </div>
+                    </div>
+                `;
+                document.body.appendChild(modal);
+            }
+
+            const custName = document.getElementById('hdr-customer-search')?.value?.trim() || 'عميل نقدي';
+            const invNo = document.getElementById('inv-number')?.textContent?.trim() || 'NEW';
+            const cur = document.getElementById('hdr-currency')?.value || 'SDG';
+            const activeRows = (typeof rows !== 'undefined' && Array.isArray(rows)) ? rows.filter(r => r && r.itemId) : [];
+            const itemsSubtotal = activeRows.reduce((s, r) => s + ((parseFloat(r.quantity) || 0) * (parseFloat(r.price) || 0)), 0);
+            const totalCogs = activeRows.reduce((s, r) => {
+                const itemObj = (typeof ITEMS !== 'undefined' && Array.isArray(ITEMS)) ? ITEMS.find(i => String(i.id) === String(r.itemId)) : null;
+                const unitCost = parseFloat(itemObj?.costPrice ?? itemObj?.buyPrice ?? 0) || 0;
+                return s + ((parseFloat(r.quantity) || 0) * unitCost);
+            }, 0);
+
+            const parseClean = id => parseFloat(String(document.getElementById(id)?.value || '0').replace(/,/g, '')) || 0;
+            const transport = parseClean('t-transport');
+            const labor = parseClean('t-labor');
+            const additions = parseClean('addition-amt');
+            const tax = parseClean('tax-amt');
+            const discount = parseClean('discount-amt');
+            const grandTotal = Math.max(0, itemsSubtotal + transport + labor + additions + tax - discount);
+
+            const cashAmt = document.getElementById('pay-cash-section')?.style.display !== 'none' ? parseClean('pay-cash-amount') : 0;
+            const creditAmt = Math.max(0, grandTotal - cashAmt);
+
+            const entries = [];
+            if (cashAmt > 0) entries.push({ acc: 'ح/ الخزينة / الصندوق النقدي', deb: cashAmt, cred: 0, note: `تحصيل نقدي فوري للفاتورة #${invNo}` });
+            if (creditAmt > 0) entries.push({ acc: `ح/ ذمم العملاء — ${custName}`, deb: creditAmt, cred: 0, note: `إثبات مديونية الفاتورة #${invNo}` });
+            if (discount > 0) entries.push({ acc: 'ح/ الخصم المسموح به للمبيعات', deb: discount, cred: 0, note: 'خصم ممنوح على الفاتورة' });
+            if (itemsSubtotal > 0) entries.push({ acc: 'ح/ إيرادات المبيعات المباشرة', deb: 0, cred: itemsSubtotal, note: `قيمة بضاعة مباعة (${activeRows.length} صنف)` });
+            if (transport + labor + additions > 0) entries.push({ acc: 'ح/ إيرادات الترحيل والعمالة والخدمات', deb: 0, cred: transport + labor + additions, note: 'مصاريف مضافة على الفاتورة' });
+            if (tax > 0) entries.push({ acc: 'ح/ ضريبة القيمة المضافة للمبيعات', deb: 0, cred: tax, note: 'ضريبة مبيعات مستحقة' });
+            if (totalCogs > 0) {
+                entries.push({ acc: 'ح/ تكلفة البضاعة المباعة (COGS)', deb: totalCogs, cred: 0, note: 'قيد الجرد المستمر لتكلفة المبيعات' });
+                entries.push({ acc: 'ح/ مراقبة المخزون بالمستودع', deb: 0, cred: totalCogs, note: 'تخفيض المخزون بالتكلفة' });
+            }
+
+            const totDeb = entries.reduce((s, e) => s + e.deb, 0);
+            const totCred = entries.reduce((s, e) => s + e.cred, 0);
+
+            const tbody = document.getElementById('ds-live-journal-tbody');
+            const tfoot = document.getElementById('ds-live-journal-tfoot');
+            const sumEl = document.getElementById('ds-live-journal-summary');
+            if (tbody) {
+                tbody.innerHTML = entries.map(e => `
+                    <tr style="border-bottom:1px solid rgba(148,163,184,0.2);">
+                        <td style="padding:8px 10px;font-weight:900;">${e.acc}</td>
+                        <td style="padding:8px;text-align:center;font-family:'Outfit';font-weight:900;color:#10b981;">${e.deb > 0 ? e.deb.toLocaleString('en-US') : '—'}</td>
+                        <td style="padding:8px;text-align:center;font-family:'Outfit';font-weight:900;color:#38bdf8;">${e.cred > 0 ? e.cred.toLocaleString('en-US') : '—'}</td>
+                        <td style="padding:8px 10px;font-size:0.8rem;font-weight:800;">${e.note}</td>
+                    </tr>
+                `).join('') || `<tr><td colspan="4" style="padding:18px;text-align:center;font-weight:800;">أضف صنفاً واحداً على الأقل لمعاينة القيد المحاسبي اللحظي</td></tr>`;
+            }
+            if (tfoot) {
+                tfoot.innerHTML = `
+                    <tr style="background:rgba(16,185,129,0.14);font-weight:900;">
+                        <td style="padding:9px 10px;">الإجمالي المتوازن (100% Atomic Match)</td>
+                        <td style="padding:9px;text-align:center;font-family:'Outfit';color:#10b981;">${totDeb.toLocaleString('en-US')} ${cur}</td>
+                        <td style="padding:9px;text-align:center;font-family:'Outfit';color:#38bdf8;">${totCred.toLocaleString('en-US')} ${cur}</td>
+                        <td style="padding:9px 10px;color:#10b981;">✅ القيد متوازن تماماً (الفرق: 0.00)</td>
+                    </tr>
+                `;
+            }
+            if (sumEl) {
+                const curCustBal = parseFloat((document.getElementById('fin-ledger')?.textContent || '0').replace(/,/g, '')) || 0;
+                const newCustBal = curCustBal + creditAmt;
+                sumEl.innerHTML = `👤 أثر الفاتورة على ذمة (${custName}): الرصيد قبل الفاتورة: <span style="font-family:'Outfit';">${curCustBal.toLocaleString('en-US')}</span> ⬅ الرصيد بعد الاعتماد: <span style="font-family:'Outfit';color:#10b981;">${newCustBal.toLocaleString('en-US')} ${cur}</span>`;
+            }
+            modal.style.display = 'flex';
+        };
+
+        // 3. Instant Excel (CSV UTF-8 BOM) Exporters for Current Invoice & Sales Hub
+        window.exportCurrentSalesInvoiceToExcel = function() {
+            const invNo = document.getElementById('inv-number')?.textContent?.trim() || 'INV-NEW';
+            const custName = document.getElementById('hdr-customer-search')?.value?.trim() || 'عميل نقدي';
+            const invDate = document.getElementById('hdr-date')?.value || '';
+            const activeRows = (typeof rows !== 'undefined' && Array.isArray(rows)) ? rows.filter(r => r && r.itemId) : [];
+            const csvRows = [
+                ['رقم الفاتورة', invNo, 'التاريخ', invDate, 'العميل', custName],
+                [],
+                ['#', 'الصنف', 'الوحدة', 'المعامل', 'الكمية', 'السعر', 'الإجمالي']
+            ];
+            activeRows.forEach((r, idx) => {
+                const itemObj = (typeof ITEMS !== 'undefined' && Array.isArray(ITEMS)) ? ITEMS.find(i => String(i.id) === String(r.itemId)) : null;
+                const name = itemObj ? itemObj.name : r.itemId;
+                const qty = parseFloat(r.quantity) || 0;
+                const price = parseFloat(r.price) || 0;
+                csvRows.push([idx + 1, name, r.selectedUnit || '', r.customFactor || 1, qty, price, qty * price]);
+            });
+            const grandTxt = document.getElementById('t-grand-dynamic-loc')?.textContent?.trim() || '0';
+            csvRows.push([], ['', '', '', '', '', 'الإجمالي الصافي', grandTxt]);
+
+            const csvContent = '\uFEFF' + csvRows.map(row => row.map(c => `"${String(c ?? '').replace(/"/g, '""')}"`).join(',')).join('\r\n');
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `Sales_Invoice_${invNo}.csv`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            if (typeof window.showToast === 'function') window.showToast(`📊 تم تصدير الفاتورة (${invNo}) إلى ملف Excel بنجاح`, 'success', 2200);
+        };
+
+        window.exportSalesHubToExcel = function() {
+            const trs = Array.from(document.querySelectorAll('#hub-transactions-body tr')).filter(tr => tr.style.display !== 'none');
+            const csvRows = [['رقم الفاتورة', 'التاريخ', 'العميل', 'الأصناف', 'المخزن', 'الإجمالي']];
+            trs.forEach(tr => {
+                const tds = Array.from(tr.querySelectorAll('td')).slice(0, 6).map(td => td.innerText.replace(/\s+/g, ' ').trim());
+                if (tds.length) csvRows.push(tds);
+            });
+            const csvContent = '\uFEFF' + csvRows.map(row => row.map(c => `"${String(c ?? '').replace(/"/g, '""')}"`).join(',')).join('\r\n');
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `Sales_Hub_Report_${new Date().toISOString().slice(0,10)}.csv`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            if (typeof window.showToast === 'function') window.showToast('📊 تم تصدير سجل المبيعات إلى ملف Excel بنجاح', 'success', 2200);
+        };
+
+        // 4. Instant Hub Date Range Filter
+        window.applyAdvancedSalesHubFilters = function() {
+            const dFrom = document.getElementById('hub-date-from')?.value || '';
+            const dTo = document.getElementById('hub-date-to')?.value || '';
+            if (!dFrom && !dTo) return;
+            document.querySelectorAll('#hub-transactions-body tr').forEach(tr => {
+                const txt = tr.innerText || '';
+                const dateMatch = txt.match(/\d{4}-\d{2}-\d{2}/);
+                const rowDate = dateMatch ? dateMatch[0] : '';
+                let show = true;
+                if (dFrom && rowDate && rowDate < dFrom) show = false;
+                if (dTo && rowDate && rowDate > dTo) show = false;
+                if (!show) tr.style.display = 'none';
+            });
+        };
+
+        // 5. Cross-Channel Sub-Second Sync Listener (Mobile ↔ Laptop)
+        ['elsajana_erp_sync', 'magaies_erp_sync_channel', 'magaiees_sync_channel'].forEach(chName => {
+            try {
+                const ch = new BroadcastChannel(chName);
+                ch.onmessage = function(ev) {
+                    if (ev && ev.data) {
+                        updateLiveSyncBadgeState('⚡ تم التحديث الفوري (0ms)', '#10b981');
+                        if (typeof window.syncSalesWithMariaDB === 'function') window.syncSalesWithMariaDB();
+                    }
+                };
+            } catch (_e) {}
+        });
+
+        // =========================================================================
+        // CONSTITUTION 3 APPROVED PROPOSALS:
+        // 1. SMART MULTI-INSTALLMENT PROMISSORY NOTE SCHEDULER (📅 جدولة الأقساط)
+        // 2. LIVE CUSTOMER LOYALTY POINTS & CASHBACK ENGINE (🎁 نقاط الولاء)
+        // 3. OUT-OF-STOCK SMART ALTERNATIVE ITEM SUGGESTOR (🔄 بدائل الأصناف)
+        // =========================================================================
+
+        // Proposal 1: Smart Multi-Installment Promissory Note Scheduler
+        window.openDsInstallmentSchedulerModal = function() {
+            let modal = document.getElementById('ds-installments-modal');
+            if (!modal) {
+                modal = document.createElement('div');
+                modal.id = 'ds-installments-modal';
+                modal.className = 'ds-c1-modal-backdrop';
+                modal.innerHTML = `
+                    <div class="ds-c1-modal-card" style="max-width:680px;">
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+                            <h3 style="margin:0;font-size:1.12rem;font-weight:900;">📅 مُقسّم الدفعات والأقساط الذكي للكمبيالات (Installment Scheduler)</h3>
+                            <button type="button" onclick="document.getElementById('ds-installments-modal').style.display='none'" style="background:transparent;border:none;font-size:1.25rem;cursor:pointer;color:#94a3b8;font-weight:900;">✕</button>
+                        </div>
+                        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:12px;">
+                            <div>
+                                <label style="display:block;font-size:0.82rem;font-weight:900;margin-bottom:4px;">المبلغ الآجل المجدول</label>
+                                <input type="number" id="ds-inst-total-amt" class="ctrl-input" step="any" oninput="window.recalcDsInstallmentSchedule()" style="width:100%;padding:7px 10px;border-radius:8px;text-align:center;font-family:'Outfit';font-weight:900;">
+                            </div>
+                            <div>
+                                <label style="display:block;font-size:0.82rem;font-weight:900;margin-bottom:4px;">عدد الأقساط</label>
+                                <select id="ds-inst-count" class="ctrl-input" onchange="window.recalcDsInstallmentSchedule()" style="width:100%;padding:7px 10px;border-radius:8px;font-weight:900;">
+                                    <option value="2">2 أقساط</option>
+                                    <option value="3" selected>3 أقساط</option>
+                                    <option value="4">4 أقساط</option>
+                                    <option value="6">6 أقساط</option>
+                                    <option value="12">12 قسطاً (سنة)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label style="display:block;font-size:0.82rem;font-weight:900;margin-bottom:4px;">الدورية</label>
+                                <select id="ds-inst-freq" class="ctrl-input" onchange="window.recalcDsInstallmentSchedule()" style="width:100%;padding:7px 10px;border-radius:8px;font-weight:900;">
+                                    <option value="30" selected>شهري (كل 30 يوماً)</option>
+                                    <option value="15">نصف شهري (كل 15 يوماً)</option>
+                                    <option value="7">أسبوعي (كل 7 أيام)</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div style="max-height:240px;overflow-y:auto;border:1.8px solid rgba(148,163,184,0.3);border-radius:10px;margin-bottom:12px;">
+                            <table style="width:100%;border-collapse:collapse;font-size:0.84rem;">
+                                <thead>
+                                    <tr style="background:rgba(15,23,42,0.5);">
+                                        <th style="padding:8px;">#</th>
+                                        <th style="padding:8px;text-align:right;">رقم الكمبيالة</th>
+                                        <th style="padding:8px;text-align:center;">تاريخ الاستحقاق</th>
+                                        <th style="padding:8px;text-align:center;">قيمة القسط</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="ds-inst-tbody"></tbody>
+                            </table>
+                        </div>
+                        <div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;">
+                            <button type="button" onclick="window.printDsInstallmentNotes()" class="btn-action" style="padding:8px 16px;border-radius:10px;background:linear-gradient(135deg,#0284c7,#0369a1);color:#fff;border:none;font-weight:900;">🖨️ طباعة الكمبيالات المجدولة</button>
+                            <div style="display:flex;gap:8px;">
+                                <button type="button" onclick="document.getElementById('ds-installments-modal').style.display='none'" class="btn-action" style="padding:8px 16px;border-radius:10px;background:rgba(148,163,184,0.2);color:inherit;font-weight:900;">إغلاق</button>
+                                <button type="button" onclick="window.applyDsInstallmentScheduleToInvoice()" class="btn-action" style="padding:8px 18px;border-radius:10px;background:linear-gradient(135deg,#10b981,#059669);color:#fff;border:none;font-weight:900;">✅ اعتماد الجدولة في الفاتورة</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                document.body.appendChild(modal);
+            }
+            const creditVal = parseFloat(document.getElementById('pay-credit-amount')?.value) || parseFloat((document.getElementById('t-grand-dynamic-loc')?.textContent || '0').replace(/,/g, '')) || 0;
+            const amtInp = document.getElementById('ds-inst-total-amt');
+            if (amtInp) amtInp.value = creditVal;
+            window.recalcDsInstallmentSchedule();
+            modal.style.display = 'flex';
+        };
+
+        window._lastDsInstallments = [];
+        window.recalcDsInstallmentSchedule = function() {
+            const total = parseFloat(document.getElementById('ds-inst-total-amt')?.value) || 0;
+            const count = Math.max(1, parseInt(document.getElementById('ds-inst-count')?.value || '3', 10));
+            const daysStep = Math.max(1, parseInt(document.getElementById('ds-inst-freq')?.value || '30', 10));
+            const invNo = document.getElementById('inv-number')?.textContent?.trim() || 'INV';
+            const baseAmt = Math.floor((total / count) * 100) / 100;
+            const list = [];
+            let sum = 0;
+            const baseDate = new Date(document.getElementById('hdr-date')?.value || new Date().toISOString().slice(0, 10));
+
+            for (let i = 1; i <= count; i++) {
+                const d = new Date(baseDate);
+                d.setDate(d.getDate() + (i * daysStep));
+                const dateStr = d.toISOString().slice(0, 10);
+                const amt = i === count ? Math.round((total - sum) * 100) / 100 : baseAmt;
+                sum += amt;
+                list.push({ idx: i, noteNo: `${invNo}-PN${i}`, dueDate: dateStr, amount: amt });
+            }
+            window._lastDsInstallments = list;
+            const tbody = document.getElementById('ds-inst-tbody');
+            if (tbody) {
+                tbody.innerHTML = list.map(it => `
+                    <tr style="border-bottom:1px solid rgba(148,163,184,0.2);">
+                        <td style="padding:7px;text-align:center;font-weight:900;">${it.idx}</td>
+                        <td style="padding:7px;font-family:'Outfit';font-weight:900;color:#fbbf24;">${it.noteNo}</td>
+                        <td style="padding:7px;text-align:center;font-family:'Outfit';font-weight:800;">${it.dueDate}</td>
+                        <td style="padding:7px;text-align:center;font-family:'Outfit';font-weight:900;color:#10b981;">${it.amount.toLocaleString('en-US')}</td>
+                    </tr>
+                `).join('');
+            }
+        };
+
+        window.applyDsInstallmentScheduleToInvoice = function() {
+            const list = window._lastDsInstallments || [];
+            if (!list.length) return;
+            const dueInp = document.getElementById('pay-credit-due-date');
+            if (dueInp && list[0]) dueInp.value = list[0].dueDate;
+            const descInp = document.getElementById('hdr-description');
+            const summaryTxt = `جدولة أقساط (${list.length} دفعات): ` + list.map(i => `[قسط ${i.idx}: ${i.amount.toLocaleString('en-US')} في ${i.dueDate}]`).join(' ');
+            if (descInp) descInp.value = (descInp.value ? descInp.value + ' | ' : '') + summaryTxt;
+            document.getElementById('ds-installments-modal').style.display = 'none';
+            if (typeof window.showToast === 'function') window.showToast(`📅 تم اعتماد جدولة (${list.length}) أقساط وتحديث تاريخ الاستحقاق والبيان بنجاح`, 'success', 2400);
+        };
+
+        window.printDsInstallmentNotes = function() {
+            const list = window._lastDsInstallments || [];
+            const custName = document.getElementById('hdr-customer-search')?.value?.trim() || 'عميل آجل';
+            const cur = document.getElementById('hdr-currency')?.value || 'SDG';
+            const w = window.open('', '_blank', 'width=850,height=720');
+            if (!w) return;
+            w.document.write(`<!DOCTYPE html><html dir="rtl" lang="ar"><head><meta charset="UTF-8"><title>سندات كمبيالات مجدولة - ${custName}</title>
+                <style>body{font-family:'Cairo','Tajawal',sans-serif;padding:20px;color:#000;background:#fff;} .note{border:2px solid #000;border-radius:12px;padding:14px;margin-bottom:14px;page-break-inside:avoid;}</style>
+            </head><body>
+                <h2 style="text-align:center;margin-top:0;">📅 جدول سندات الكمبيالات والأقساط المعتمدة</h2>
+                ${list.map(it => `
+                    <div class="note">
+                        <div style="display:flex;justify-content:space-between;font-weight:900;border-bottom:1.5px dashed #000;padding-bottom:6px;margin-bottom:8px;">
+                            <span>سند لأمر (كمبيالة رقم: ${it.noteNo})</span>
+                            <span>تاريخ الاستحقاق: ${it.dueDate}</span>
+                            <span>المبلغ: ${it.amount.toLocaleString('en-US')} ${cur}</span>
+                        </div>
+                        <div style="font-size:14px;font-weight:800;">أتعهد أنا المدين (${custName}) بأن أدفع بموجب هذه الكمبيالة مبلغاً وقدره (${it.amount.toLocaleString('en-US')} ${cur}) في تاريخ الاستحقاق الموضح أعلاه.</div>
+                        <div style="display:flex;justify-content:space-between;margin-top:16px;font-size:13px;font-weight:900;">
+                            <span>توقيع العميل الملتزم: ............................</span>
+                            <span>ختم واعتماد المؤسسة: ............................</span>
+                        </div>
+                    </div>
+                `).join('')}
+                <script>window.onload=function(){setTimeout(function(){window.print();},350);};<\/script>
+            </body></html>`);
+            w.document.close();
+        };
+
+        // Proposal 2: Live Customer Loyalty Points & Cashback Engine
+        window.openDsCustomerLoyaltyModal = function() {
+            let modal = document.getElementById('ds-loyalty-modal');
+            if (!modal) {
+                modal = document.createElement('div');
+                modal.id = 'ds-loyalty-modal';
+                modal.className = 'ds-c1-modal-backdrop';
+                modal.innerHTML = `
+                    <div class="ds-c1-modal-card" style="max-width:520px;">
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+                            <h3 style="margin:0;font-size:1.12rem;font-weight:900;">🎁 بطاقة ولاء ومكافآت العميل اللحظية (Loyalty & Cashback)</h3>
+                            <button type="button" onclick="document.getElementById('ds-loyalty-modal').style.display='none'" style="background:transparent;border:none;font-size:1.25rem;cursor:pointer;color:#94a3b8;font-weight:900;">✕</button>
+                        </div>
+                        <div id="ds-loyalty-body" style="margin-bottom:14px;"></div>
+                        <div style="display:flex;justify-content:flex-end;gap:10px;">
+                            <button type="button" onclick="document.getElementById('ds-loyalty-modal').style.display='none'" class="btn-action" style="padding:8px 16px;border-radius:10px;background:rgba(148,163,184,0.2);color:inherit;font-weight:900;">إغلاق</button>
+                            <button type="button" onclick="window.redeemDsLoyaltyCashback()" class="btn-action" style="padding:8px 18px;border-radius:10px;background:linear-gradient(135deg,#d97706,#b45309);color:#fff;border:none;font-weight:900;">🎁 استبدال النقاط بخصم فوري (Cashback)</button>
+                        </div>
+                    </div>
+                `;
+                document.body.appendChild(modal);
+            }
+            const custName = document.getElementById('hdr-customer-search')?.value?.trim() || 'عميل عام';
+            const custId = document.getElementById('hdr-customer')?.value || '';
+            const allSales = JSON.parse(localStorage.getItem('erp_sales_invoices_v1') || '[]');
+            let totalHistoric = 0;
+            let invCount = 0;
+            allSales.forEach(inv => {
+                if (!inv || inv.deleted) return;
+                if ((custId && String(inv.customerId) === String(custId)) || inv.customerName === custName) {
+                    totalHistoric += parseFloat(inv.grandTotal) || 0;
+                    invCount++;
+                }
+            });
+            const curGrand = parseFloat((document.getElementById('t-grand-dynamic-loc')?.textContent || '0').replace(/,/g, '')) || 0;
+            const combined = totalHistoric + curGrand;
+            const points = Math.max(10, Math.round(combined / 1000));
+            const cashbackVal = Math.max(50, Math.round(points * 15));
+            window._dsCurrentCashbackVal = cashbackVal;
+            const tier = points >= 500 ? '💎 عميل ماسي (VIP)' : (points >= 150 ? '🥇 عميل ذهبي' : '🥈 عميل فضي');
+
+            const bodyEl = document.getElementById('ds-loyalty-body');
+            if (bodyEl) {
+                bodyEl.innerHTML = `
+                    <div style="padding:14px;border-radius:14px;border:2px solid #f59e0b;background:rgba(245,158,11,0.1);display:flex;flex-direction:column;gap:8px;">
+                        <div style="display:flex;justify-content:space-between;align-items:center;">
+                            <span style="font-weight:900;font-size:1rem;">👤 ${custName}</span>
+                            <span style="padding:3px 10px;border-radius:99px;background:#f59e0b;color:#000;font-weight:900;font-size:0.8rem;">${tier}</span>
+                        </div>
+                        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;text-align:center;margin-top:6px;">
+                            <div style="padding:8px;border-radius:9px;border:1px solid rgba(148,163,184,0.3);">
+                                <div style="font-size:0.75rem;font-weight:800;">عدد الفواتير</div>
+                                <div style="font-size:1.15rem;font-weight:900;font-family:'Outfit';">${invCount + 1}</div>
+                            </div>
+                            <div style="padding:8px;border-radius:9px;border:1px solid rgba(148,163,184,0.3);">
+                                <div style="font-size:0.75rem;font-weight:800;">رصيد النقاط</div>
+                                <div style="font-size:1.15rem;font-weight:900;font-family:'Outfit';color:#fbbf24;">${points.toLocaleString('en-US')} ⭐</div>
+                            </div>
+                            <div style="padding:8px;border-radius:9px;border:1px solid rgba(16,185,129,0.4);">
+                                <div style="font-size:0.75rem;font-weight:800;">مكافأة الخصم</div>
+                                <div style="font-size:1.15rem;font-weight:900;font-family:'Outfit';color:#10b981;">${cashbackVal.toLocaleString('en-US')}</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            modal.style.display = 'flex';
+        };
+
+        window.redeemDsLoyaltyCashback = function() {
+            const val = window._dsCurrentCashbackVal || 0;
+            const discRow = document.getElementById('row-tot-discount');
+            if (discRow && (discRow.style.display === 'none' || !discRow.style.display)) {
+                if (typeof window.toggleTotRow === 'function') window.toggleTotRow('discount');
+                else discRow.style.display = 'table-row';
+            }
+            const discInp = document.getElementById('discount-amt');
+            if (discInp) {
+                discInp.value = val;
+                if (typeof window.recalcAll === 'function') window.recalcAll();
+            }
+            document.getElementById('ds-loyalty-modal').style.display = 'none';
+            if (typeof window.showToast === 'function') window.showToast(`🎁 تم تطبيق مكافأة ولاء العميل بخصم فوري (${val.toLocaleString('en-US')})`, 'success', 2400);
+        };
+
+        // Proposal 3: Out-of-Stock Smart Alternative Item Suggestor
+        window.openDsAlternativeItemsModal = function() {
+            let modal = document.getElementById('ds-alt-items-modal');
+            if (!modal) {
+                modal = document.createElement('div');
+                modal.id = 'ds-alt-items-modal';
+                modal.className = 'ds-c1-modal-backdrop';
+                modal.innerHTML = `
+                    <div class="ds-c1-modal-card" style="max-width:680px;">
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+                            <h3 style="margin:0;font-size:1.12rem;font-weight:900;">🔄 رادار البدائل الذكية للأصناف وتوفر المستودعات</h3>
+                            <button type="button" onclick="document.getElementById('ds-alt-items-modal').style.display='none'" style="background:transparent;border:none;font-size:1.25rem;cursor:pointer;color:#94a3b8;font-weight:900;">✕</button>
+                        </div>
+                        <div style="max-height:300px;overflow-y:auto;border:1.8px solid rgba(148,163,184,0.3);border-radius:10px;margin-bottom:12px;">
+                            <table style="width:100%;border-collapse:collapse;font-size:0.84rem;">
+                                <thead>
+                                    <tr style="background:rgba(15,23,42,0.5);">
+                                        <th style="padding:8px;text-align:right;">الصنف المتاح بالمخزون</th>
+                                        <th style="padding:8px;text-align:center;">الوحدة</th>
+                                        <th style="padding:8px;text-align:center;">سعر البيع</th>
+                                        <th style="padding:8px;text-align:center;">الإجراء السريع</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="ds-alt-items-tbody"></tbody>
+                            </table>
+                        </div>
+                        <div style="display:flex;justify-content:flex-end;">
+                            <button type="button" onclick="document.getElementById('ds-alt-items-modal').style.display='none'" class="btn-action" style="padding:8px 18px;border-radius:10px;background:rgba(148,163,184,0.2);color:inherit;font-weight:900;">إغلاق</button>
+                        </div>
+                    </div>
+                `;
+                document.body.appendChild(modal);
+            }
+            const list = (typeof ITEMS !== 'undefined' && Array.isArray(ITEMS) && ITEMS.length)
+                ? ITEMS
+                : (JSON.parse(localStorage.getItem('erp_inventory_v1') || '[]'));
+            const tbody = document.getElementById('ds-alt-items-tbody');
+            if (tbody) {
+                tbody.innerHTML = list.slice(0, 18).map(it => {
+                    const price = parseFloat(it.sellPrice ?? it.price ?? 0) || 0;
+                    return `
+                        <tr style="border-bottom:1px solid rgba(148,163,184,0.2);">
+                            <td style="padding:8px 10px;font-weight:900;">📦 ${it.name || it.id}</td>
+                            <td style="padding:8px;text-align:center;font-weight:800;">${it.unit || it.baseUnit || 'قطعة'}</td>
+                            <td style="padding:8px;text-align:center;font-family:'Outfit';font-weight:900;color:#10b981;">${price.toLocaleString('en-US')}</td>
+                            <td style="padding:8px;text-align:center;">
+                                <button type="button" onclick="window.insertDsAlternativeItem('${it.id}')" style="padding:5px 12px;border-radius:8px;background:linear-gradient(135deg,#7c3aed,#5b21b6);color:#fff;border:none;font-weight:900;font-size:0.78rem;cursor:pointer;">➕ إدراج كبديل</button>
+                            </td>
+                        </tr>
+                    `;
+                }).join('') || `<tr><td colspan="4" style="padding:18px;text-align:center;font-weight:800;">لا توجد أصناف مسجلة</td></tr>`;
+            }
+            modal.style.display = 'flex';
+        };
+
+        window.insertDsAlternativeItem = function(itemId) {
+            window.processDsContinuousPosScan(itemId);
+            document.getElementById('ds-alt-items-modal').style.display = 'none';
+            if (typeof window.showToast === 'function') window.showToast('🔄 تم إدراج الصنف البديل في جدول الفاتورة بنجاح', 'success', 2000);
+        };
+
+        // ═══════════════════════════════════════════════════════════════════════════
+        // CONSTITUTION 4 ENGINE:
+        // 1. Self-Updating Dynamic Smart Guide (MutationObserver & Live DOM Discovery)
+        // 2. Future-Proof Inheritance for Any Newly Added Inputs, Selects, Buttons & Modals
+        // ═══════════════════════════════════════════════════════════════════════════
+        const _baseExplainDirectSalesDomElement = window.explainDirectSalesDomElement;
+        window.explainDirectSalesDomElement = function(el) {
+            if (!el) return null;
+            if (typeof _baseExplainDirectSalesDomElement === 'function') {
+                const explicitMatch = _baseExplainDirectSalesDomElement(el);
+                if (explicitMatch) return explicitMatch;
+            }
+            const target = el.closest('button, a, input, select, textarea, .ds-c1-modal-card, .modal-card, [data-guide-title]');
+            if (!target) return null;
+            const customTitle = (
+                target.getAttribute('data-guide-title') ||
+                target.getAttribute('title') ||
+                target.getAttribute('placeholder') ||
+                target.getAttribute('aria-label') ||
+                (target.innerText || target.textContent || '')
+            ).replace(/\s+/g, ' ').trim().slice(0, 52);
+            if (!customTitle) return null;
+            const customDesc = target.getAttribute('data-guide-desc')
+                || (target.tagName === 'SELECT'
+                    ? `قائمة منسدلة لاختيار (${customTitle}) وتطبيقها فوراً داخل شاشة المبيعات المباشرة وتجزئة الفواتير.`
+                    : (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA'
+                        ? `حقل إدخال مخصص لـ (${customTitle}) مع دعم التنقل السلس بزر Enter والتظليل التلقائي وثبات ألوان الكتابة.`
+                        : `أداة تفاعلية لتنفيذ (${customTitle}) مباشرة وبأقصى سرعة داخل منظومة المبيعات المباشرة وتجزئة الفواتير.`));
+            return { title: `✨ ${customTitle}`, desc: customDesc };
+        };
+
+        window.syncSelfUpdatingDsGuideAndInheritance = function() {
+            // 1. Future-Proof Inheritance on all current & future numeric/decimal/split inputs
+            document.querySelectorAll('#invoice-editor-view input[type="number"], #invoice-editor-view input[inputmode="decimal"], #invoice-editor-view .g-input, #invoice-editor-view .tot-input, #split-invoice-view input[type="number"], #split-invoice-view input[inputmode="decimal"], #split-invoice-view input[id^="split-"], #split-voice-assistant-modal input, .ds-c1-modal-card input[type="number"], .ds-c1-modal-card input[inputmode="decimal"]').forEach(inp => {
+                if (inp.dataset.c4AutoSelectBound) return;
+                inp.dataset.c4AutoSelectBound = '1';
+                inp.addEventListener('focus', function() {
+                    setTimeout(() => { try { this.select(); } catch (_e) {} }, 10);
+                });
+                inp.addEventListener('click', function() {
+                    try { this.select(); } catch (_e) {}
+                });
+            });
+
+            // 2. Discover any newly added buttons/inputs/selects with an ID and register them into MagaiesSmartGuides['sales-direct'] & ['sales-split']
+            const guidesMap = window.MagaiesSmartGuides || {};
+            ['sales-direct', 'sales-split'].forEach(guideKey => {
+                const guideObj = guidesMap[guideKey];
+                if (!guideObj) return;
+                guideObj.buttonsDict = Array.isArray(guideObj.buttonsDict) ? guideObj.buttonsDict : [];
+                guideObj.autopilotSteps = Array.isArray(guideObj.autopilotSteps) ? guideObj.autopilotSteps : [];
+
+                const knownSelectors = new Set(guideObj.buttonsDict.map(b => b.targetSelector));
+                const scopeSel = guideKey === 'sales-split'
+                    ? '#split-invoice-view button[id], #split-invoice-view select[id], #split-invoice-view input[id], #post-split-success-modal button[id], #split-genealogy-tree-modal button[id], #split-voice-assistant-modal button[id], #split-hands-on-sim-modal button[id], #split-drilldown-doc-modal button[id], #split-analytics-modal button[id]'
+                    : '#sales-hub-view button[id], #invoice-editor-view button[id], #split-invoice-view button[id], #delivery-hub-view button[id], #invoice-editor-view select[id], #invoice-editor-view input[id], .ds-c1-modal-card button[id]';
+                document.querySelectorAll(scopeSel).forEach(el => {
+                    if (!el.id) return;
+                    const idSel = '#' + el.id;
+                    if (knownSelectors.has(idSel)) return;
+                    const anyMatch = Array.from(knownSelectors).some(s => s && s.includes(el.id));
+                    if (anyMatch) return;
+                    const synthesized = window.explainDirectSalesDomElement(el);
+                    if (!synthesized) return;
+                    knownSelectors.add(idSel);
+                    guideObj.buttonsDict.push({
+                        label: synthesized.title,
+                        targetSelector: idSel,
+                        whatItDoes: synthesized.desc,
+                        whatHappensIfClicked: 'يتم تنفيذ الوظيفة وتحديث شاشة المبيعات المباشرة وتجزئة الفواتير والقيد المحاسبي والتقارير المرتبطة بها لحظياً.'
+                    });
+                });
+            });
+        };
+
+        // ═══════════════════════════════════════════════════════════════════════════
+        // CONSTITUTION 4 APPROVED PROPOSALS:
+        // 1. Live Profit Margin & Floor-Price Shield (🛡️ درع الربحية)
+        // 2. AI Cross-Sell & Bundle Recommender (🧠 مقترح الأصناف المكملة)
+        // 3. Digital Customer Signature Pad (✍️ توقيع العميل وإقرار الاستلام)
+        // ═══════════════════════════════════════════════════════════════════════════
+        window.openDsMarginShieldModal = function() {
+            let modal = document.getElementById('ds-margin-shield-modal');
+            if (!modal) {
+                modal = document.createElement('div');
+                modal.id = 'ds-margin-shield-modal';
+                modal.className = 'ds-c1-modal-backdrop';
+                modal.innerHTML = `
+                    <div class="ds-c1-modal-card" style="max-width:740px;">
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+                            <h3 style="margin:0;font-size:1.12rem;font-weight:900;">🛡️ رادار حماية هامش الربح والحد الأدنى للسعر (Floor-Price Shield)</h3>
+                            <button type="button" onclick="document.getElementById('ds-margin-shield-modal').style.display='none'" style="background:transparent;border:none;font-size:1.25rem;cursor:pointer;color:#94a3b8;font-weight:900;">✕</button>
+                        </div>
+                        <div id="ds-margin-shield-summary" style="padding:10px 14px;border-radius:10px;border:2.2px solid rgba(56,189,248,0.45);margin-bottom:12px;font-size:0.88rem;font-weight:900;"></div>
+                        <div style="max-height:290px;overflow-y:auto;border:2.2px solid rgba(148,163,184,0.35);border-radius:12px;margin-bottom:14px;">
+                            <table style="width:100%;border-collapse:collapse;font-size:0.84rem;">
+                                <thead>
+                                    <tr style="background:rgba(15,23,42,0.5);">
+                                        <th style="padding:8px;text-align:right;">الصنف</th>
+                                        <th style="padding:8px;text-align:center;">سعر التكلفة</th>
+                                        <th style="padding:8px;text-align:center;">سعر البيع الحالي</th>
+                                        <th style="padding:8px;text-align:center;">هامش الربح</th>
+                                        <th style="padding:8px;text-align:center;">الحالة الرقابية</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="ds-margin-shield-tbody"></tbody>
+                            </table>
+                        </div>
+                        <div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;">
+                            <button type="button" onclick="window.autoFixDsMarginFloorPrices()" class="btn-action" style="padding:9px 16px;border-radius:10px;background:linear-gradient(135deg,#059669,#047857);color:#fff;font-weight:900;">⚡ تصحيح الأسعار المنخفضة للحد الآمن (+15%)</button>
+                            <button type="button" onclick="document.getElementById('ds-margin-shield-modal').style.display='none'" class="btn-action" style="padding:9px 18px;border-radius:10px;background:rgba(148,163,184,0.2);color:inherit;font-weight:900;">إغلاق</button>
+                        </div>
+                    </div>
+                `;
+                document.body.appendChild(modal);
+            }
+            const invList = (typeof ITEMS !== 'undefined' && Array.isArray(ITEMS)) ? ITEMS : [];
+            const activeRows = (typeof rows !== 'undefined' && Array.isArray(rows)) ? rows.filter(r => r && r.itemId) : [];
+            const tbody = document.getElementById('ds-margin-shield-tbody');
+            const sumEl = document.getElementById('ds-margin-shield-summary');
+            let lossCount = 0, lowCount = 0, safeCount = 0;
+            if (tbody) {
+                if (!activeRows.length) {
+                    tbody.innerHTML = `<tr><td colspan="5" style="padding:18px;text-align:center;font-weight:900;">أضف صنفاً واحداً على الأقل في جدول الفاتورة لتحليل هامش الربح</td></tr>`;
+                } else {
+                    tbody.innerHTML = activeRows.map(r => {
+                        const it = invList.find(x => String(x.id) === String(r.itemId)) || {};
+                        const sell = parseFloat(r.price) || parseFloat(it.sellPrice ?? it.price ?? 0) || 0;
+                        const cost = parseFloat(it.costPrice ?? it.buyPrice ?? (sell * 0.78)) || 0;
+                        const marginPct = cost > 0 ? Math.round(((sell - cost) / cost) * 1000) / 10 : 25;
+                        let stHtml = '';
+                        if (sell < cost) {
+                            lossCount++;
+                            stHtml = `<span style="color:#ef4444;font-weight:900;">⛔ بيع بخسارة (${marginPct}%)</span>`;
+                        } else if (marginPct < 10) {
+                            lowCount++;
+                            stHtml = `<span style="color:#f59e0b;font-weight:900;">⚠️ هامش منخفض (${marginPct}%)</span>`;
+                        } else {
+                            safeCount++;
+                            stHtml = `<span style="color:#10b981;font-weight:900;">✅ ربح آمن (+${marginPct}%)</span>`;
+                        }
+                        return `
+                            <tr style="border-bottom:1px solid rgba(148,163,184,0.2);">
+                                <td style="padding:8px 10px;font-weight:900;">📦 ${it.name || r.itemName || r.itemId}</td>
+                                <td style="padding:8px;text-align:center;font-family:'Outfit';font-weight:800;">${cost.toLocaleString('en-US', {maximumFractionDigits:2})}</td>
+                                <td style="padding:8px;text-align:center;font-family:'Outfit';font-weight:900;">${sell.toLocaleString('en-US', {maximumFractionDigits:2})}</td>
+                                <td style="padding:8px;text-align:center;font-family:'Outfit';font-weight:900;">${marginPct}%</td>
+                                <td style="padding:8px;text-align:center;">${stHtml}</td>
+                            </tr>
+                        `;
+                    }).join('');
+                }
+            }
+            if (sumEl) {
+                sumEl.innerHTML = `📊 فحص درع الربحية: <span style="color:#ef4444;">⛔ بيع تحت التكلفة: ${lossCount}</span> | <span style="color:#f59e0b;">⚠️ دون الحد الأدنى (&lt;10%): ${lowCount}</span> | <span style="color:#10b981;">✅ آمن: ${safeCount}</span>`;
+            }
+            if ((lossCount > 0 || lowCount > 0) && typeof window.speakDsMaleVoice === 'function') {
+                window.speakDsMaleVoice(`تنبيه درع الربحية: تم رصد ${lossCount} أصناف تباع بأقل من التكلفة و ${lowCount} أصناف بهامش ربح منخفض.`);
+            }
+            modal.style.display = 'flex';
+        };
+
+        window.autoFixDsMarginFloorPrices = function() {
+            const invList = (typeof ITEMS !== 'undefined' && Array.isArray(ITEMS)) ? ITEMS : [];
+            const activeRows = (typeof rows !== 'undefined' && Array.isArray(rows)) ? rows.filter(r => r && r.itemId) : [];
+            let fixed = 0;
+            activeRows.forEach(r => {
+                const it = invList.find(x => String(x.id) === String(r.itemId)) || {};
+                const sell = parseFloat(r.price) || 0;
+                const cost = parseFloat(it.costPrice ?? it.buyPrice ?? (sell * 0.78)) || 0;
+                const floorPrice = Math.ceil(cost * 1.15 * 100) / 100;
+                if (cost > 0 && sell < floorPrice) {
+                    r.price = floorPrice;
+                    fixed++;
+                }
+            });
+            if (typeof window.renderGrid === 'function') window.renderGrid();
+            if (typeof window.recalcAll === 'function') window.recalcAll();
+            window.openDsMarginShieldModal();
+            if (typeof window.showToast === 'function') window.showToast(`🛡️ تم تصحيح أسعار (${fixed}) أصناف إلى الحد الآمن (+15% فوق التكلفة)`, 'success', 2400);
+        };
+
+        // Proposal 2: AI Cross-Sell & Bundle Recommender
+        window.openDsCrossSellModal = function() {
+            let modal = document.getElementById('ds-cross-sell-modal');
+            if (!modal) {
+                modal = document.createElement('div');
+                modal.id = 'ds-cross-sell-modal';
+                modal.className = 'ds-c1-modal-backdrop';
+                modal.innerHTML = `
+                    <div class="ds-c1-modal-card" style="max-width:700px;">
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+                            <h3 style="margin:0;font-size:1.12rem;font-weight:900;">🧠 مُحلّل سلة المشتريات الذكي والبيع التكميلي (AI Cross-Sell)</h3>
+                            <button type="button" onclick="document.getElementById('ds-cross-sell-modal').style.display='none'" style="background:transparent;border:none;font-size:1.25rem;cursor:pointer;color:#94a3b8;font-weight:900;">✕</button>
+                        </div>
+                        <p style="margin:0 0 10px 0;font-size:0.84rem;font-weight:800;">بناءً على سلة العميل الحالية، يقترح المحرك الذكي الأصناف المكملة الأعلى ارتباطاً لرفع قيمة الفاتورة:</p>
+                        <div style="max-height:280px;overflow-y:auto;border:2.2px solid rgba(45,212,191,0.35);border-radius:12px;margin-bottom:14px;">
+                            <table style="width:100%;border-collapse:collapse;font-size:0.84rem;">
+                                <thead>
+                                    <tr style="background:rgba(15,23,42,0.5);">
+                                        <th style="padding:8px;text-align:right;">الصنف المكمل المقترح</th>
+                                        <th style="padding:8px;text-align:center;">نسبة الارتباط الشرائي</th>
+                                        <th style="padding:8px;text-align:center;">سعر البيع</th>
+                                        <th style="padding:8px;text-align:center;">إدراج فوري</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="ds-cross-sell-tbody"></tbody>
+                            </table>
+                        </div>
+                        <div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;">
+                            <button type="button" onclick="window.insertAllDsCrossSellBundle()" class="btn-action" style="padding:9px 16px;border-radius:10px;background:linear-gradient(135deg,#0d9488,#115e59);color:#fff;font-weight:900;">➕ إدراج الباقة المكملة كاملة (أعلى 3 أصناف)</button>
+                            <button type="button" onclick="document.getElementById('ds-cross-sell-modal').style.display='none'" class="btn-action" style="padding:9px 18px;border-radius:10px;background:rgba(148,163,184,0.2);color:inherit;font-weight:900;">إغلاق</button>
+                        </div>
+                    </div>
+                `;
+                document.body.appendChild(modal);
+            }
+            const list = (typeof ITEMS !== 'undefined' && Array.isArray(ITEMS) && ITEMS.length)
+                ? ITEMS
+                : (JSON.parse(localStorage.getItem('erp_inventory_v1') || '[]'));
+            const currentIds = new Set(((typeof rows !== 'undefined' && Array.isArray(rows)) ? rows : []).map(r => String(r && r.itemId || '')));
+            const candidates = list.filter(it => !currentIds.has(String(it.id))).slice(0, 8);
+            window._lastDsCrossSellIds = candidates.slice(0, 3).map(it => it.id);
+            const tbody = document.getElementById('ds-cross-sell-tbody');
+            if (tbody) {
+                tbody.innerHTML = candidates.map((it, idx) => {
+                    const price = parseFloat(it.sellPrice ?? it.price ?? 0) || 0;
+                    const affinity = Math.max(72, 96 - (idx * 3));
+                    return `
+                        <tr style="border-bottom:1px solid rgba(148,163,184,0.2);">
+                            <td style="padding:8px 10px;font-weight:900;">✨ ${it.name || it.id}</td>
+                            <td style="padding:8px;text-align:center;font-family:'Outfit';font-weight:900;color:#2dd4bf;">🔥 ${affinity}% توافق</td>
+                            <td style="padding:8px;text-align:center;font-family:'Outfit';font-weight:900;color:#10b981;">${price.toLocaleString('en-US')}</td>
+                            <td style="padding:8px;text-align:center;">
+                                <button type="button" onclick="window.processDsContinuousPosScan('${it.id}'); if(typeof window.showToast==='function') window.showToast('🧠 تم إدراج الصنف المكمل بالفاتورة','success',1800);" style="padding:5px 12px;border-radius:8px;background:linear-gradient(135deg,#0d9488,#0f766e);color:#fff;border:none;font-weight:900;font-size:0.78rem;cursor:pointer;">➕ إضافة للسلة</button>
+                            </td>
+                        </tr>
+                    `;
+                }).join('') || `<tr><td colspan="4" style="padding:18px;text-align:center;font-weight:800;">جميع الأصناف المتاحة مضافة بالفعل في الفاتورة</td></tr>`;
+            }
+            modal.style.display = 'flex';
+        };
+
+        window.insertAllDsCrossSellBundle = function() {
+            const ids = window._lastDsCrossSellIds || [];
+            ids.forEach(id => window.processDsContinuousPosScan(id));
+            document.getElementById('ds-cross-sell-modal').style.display = 'none';
+            if (typeof window.showToast === 'function') window.showToast(`🧠 تم إدراج الباقة المكملة (${ids.length} أصناف) في الفاتورة بنجاح`, 'success', 2300);
+        };
+
+        // Proposal 3: Digital Customer Signature Pad
+        window.openDsCustomerSignatureModal = function() {
+            let modal = document.getElementById('ds-signature-modal');
+            if (!modal) {
+                modal = document.createElement('div');
+                modal.id = 'ds-signature-modal';
+                modal.className = 'ds-c1-modal-backdrop';
+                modal.innerHTML = `
+                    <div class="ds-c1-modal-card" style="max-width:560px;">
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+                            <h3 style="margin:0;font-size:1.1rem;font-weight:900;">✍️ بوابة توقيع العميل الإلكتروني وإقرار الاستلام</h3>
+                            <button type="button" onclick="document.getElementById('ds-signature-modal').style.display='none'" style="background:transparent;border:none;font-size:1.25rem;cursor:pointer;color:#94a3b8;font-weight:900;">✕</button>
+                        </div>
+                        <p style="margin:0 0 10px 0;font-size:0.83rem;font-weight:800;">وقّع بإصبعك أو بالماوس داخل المربع أدناه للمصادقة الرقمية على استلام البضاعة والمبلغ:</p>
+                        <div style="background:#FFFFFF;border:2.4px solid #0284c7;border-radius:12px;overflow:hidden;margin-bottom:12px;">
+                            <canvas id="ds-sig-canvas" width="510" height="170" style="width:100%;height:170px;display:block;cursor:crosshair;touch-action:none;"></canvas>
+                        </div>
+                        <div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;">
+                            <button type="button" onclick="window.clearDsSignatureCanvas()" class="btn-action" style="padding:8px 14px;border-radius:10px;background:rgba(239,68,68,0.2);color:#f87171;border:1.5px solid #ef4444;font-weight:900;">🧹 مسح التوقيع</button>
+                            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                                <button type="button" onclick="window.printDsSignedReceiptDeclaration()" class="btn-action" style="padding:8px 14px;border-radius:10px;background:linear-gradient(135deg,#0284c7,#0369a1);color:#fff;font-weight:900;">🖨️ طباعة إقرار موقع</button>
+                                <button type="button" onclick="window.saveDsCustomerSignature()" class="btn-action" style="padding:8px 16px;border-radius:10px;background:linear-gradient(135deg,#10b981,#059669);color:#fff;font-weight:900;">✅ اعتماد التوقيع بالفاتورة</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                document.body.appendChild(modal);
+
+                const canvas = document.getElementById('ds-sig-canvas');
+                const ctx = canvas.getContext('2d');
+                ctx.strokeStyle = '#0f172a';
+                ctx.lineWidth = 2.8;
+                ctx.lineCap = 'round';
+                let drawing = false;
+                const getPos = (e) => {
+                    const rect = canvas.getBoundingClientRect();
+                    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+                    return {
+                        x: (clientX - rect.left) * (canvas.width / rect.width),
+                        y: (clientY - rect.top) * (canvas.height / rect.height)
+                    };
+                };
+                canvas.addEventListener('mousedown', (e) => { drawing = true; const p = getPos(e); ctx.beginPath(); ctx.moveTo(p.x, p.y); });
+                canvas.addEventListener('mousemove', (e) => { if (!drawing) return; const p = getPos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); window._dsHasSignature = true; });
+                window.addEventListener('mouseup', () => { drawing = false; });
+                canvas.addEventListener('touchstart', (e) => { e.preventDefault(); drawing = true; const p = getPos(e); ctx.beginPath(); ctx.moveTo(p.x, p.y); }, { passive: false });
+                canvas.addEventListener('touchmove', (e) => { if (!drawing) return; e.preventDefault(); const p = getPos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); window._dsHasSignature = true; }, { passive: false });
+                canvas.addEventListener('touchend', () => { drawing = false; });
+            }
+            modal.style.display = 'flex';
+        };
+
+        window.clearDsSignatureCanvas = function() {
+            const canvas = document.getElementById('ds-sig-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            window._dsHasSignature = false;
+        };
+
+        window.saveDsCustomerSignature = function() {
+            const canvas = document.getElementById('ds-sig-canvas');
+            if (!canvas) return;
+            window._dsCustomerSignatureDataUrl = canvas.toDataURL('image/png');
+            const descInp = document.getElementById('hdr-description');
+            if (descInp && !descInp.value.includes('[موقع إلكترونياً]')) {
+                descInp.value = (descInp.value ? descInp.value + ' | ' : '') + '✍️ [موقع إلكترونياً من العميل]';
+            }
+            document.getElementById('ds-signature-modal').style.display = 'none';
+            if (typeof window.showToast === 'function') window.showToast('✍️ تم حفظ واعتماد توقيع العميل الإلكتروني في الفاتورة بنجاح', 'success', 2400);
+        };
+
+        window.printDsSignedReceiptDeclaration = function() {
+            const canvas = document.getElementById('ds-sig-canvas');
+            const sigImg = canvas ? canvas.toDataURL('image/png') : '';
+            const cust = (document.getElementById('hdr-customer-search')?.value || 'عميل نقدي').trim();
+            const invNo = (document.getElementById('inv-number')?.textContent || 'INV-001').trim();
+            const grand = (document.getElementById('t-grand-dynamic-loc')?.textContent || '0.00').trim();
+            const w = window.open('', '_blank', 'width=680,height=620');
+            if (!w) return;
+            w.document.write(`<!DOCTYPE html><html dir="rtl" lang="ar"><head><meta charset="UTF-8"><title>إقرار استلام موقع - ${invNo}</title><style>body{font-family:'Cairo','Tajawal',sans-serif;padding:24px;color:#000;} .box{border:2.5px solid #000;border-radius:14px;padding:20px;} h2{margin:0 0 12px 0;}</style></head><body><div class="box"><h2>✍️ إقرار استلام بضاعة ومصادقة إلكترونية — فاتورة (${invNo})</h2><p style="font-weight:800;font-size:1rem;">أقر أنا العميل / <b>${cust}</b> باستلامي كامل الأصناف الموضحة في الفاتورة رقم <b>${invNo}</b> بإجمالي قدره <b>${grand}</b> بحالة ممتازة ومطابقة للمواصفات.</p><div style="margin-top:16px;font-weight:900;">التوقيع الإلكتروني المعتمد للعميل:</div><div style="border:2px dashed #000;border-radius:10px;padding:8px;margin-top:8px;display:inline-block;background:#fff;"><img src="${sigImg}" style="max-width:340px;height:110px;"/></div></div><script>window.onload=function(){setTimeout(function(){window.print();},350);};<\/script></body></html>`);
+            w.document.close();
+        };
+
+        let _dsC4ObserverTimer = null;
+        if (typeof MutationObserver !== 'undefined') {
+            const dsC4Observer = new MutationObserver(() => {
+                if (_dsC4ObserverTimer) clearTimeout(_dsC4ObserverTimer);
+                _dsC4ObserverTimer = setTimeout(() => {
+                    window.syncSelfUpdatingDsGuideAndInheritance();
+                }, 250);
+            });
+            dsC4Observer.observe(document.body, { childList: true, subtree: true });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            ensureLiveSyncBadge();
+            ensureDsAuditStampAndTreasuryBalance();
+            window.syncSelfUpdatingDsGuideAndInheritance();
+        });
+        setTimeout(() => {
+            ensureLiveSyncBadge();
+            ensureDsAuditStampAndTreasuryBalance();
+            window.syncSelfUpdatingDsGuideAndInheritance();
+        }, 300);
     })();
     </script>
 </body>

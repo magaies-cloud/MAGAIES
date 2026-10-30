@@ -317,39 +317,140 @@
             50% { border-color: #38bdf8; box-shadow: 0 0 38px rgba(56, 189, 248, 0.95); }
         }
 
-        /* ── SLEEK COMPACT NON-BLOCKING FLOATING COACH CAPSULE ── */
+        /* ── ROYAL COMPACT NON-BLOCKING GUIDE CONTROL POD (أمر حاسم 2: كبسولة Micro-HUD لا تحجب أي شيء وتتبع السمات السبع 100%) ── */
         .msg-live-coach-bar {
             position: fixed;
             bottom: 12px;
-            left: 14px;
+            left: 12px;
             z-index: 100060;
             width: auto;
-            max-width: min(760px, 95vw);
-            background: linear-gradient(145deg, rgba(2, 6, 23, 0.94), rgba(15, 23, 42, 0.96));
-            border: 2px solid rgba(251, 191, 36, 0.85);
-            border-radius: 20px;
-            padding: 8px 14px;
-            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.88), 0 0 24px rgba(251, 191, 36, 0.35);
+            max-width: min(510px, 95vw);
+            background: linear-gradient(160deg, rgba(2, 6, 23, 0.96) 0%, rgba(15, 23, 42, 0.98) 55%, rgba(23, 15, 48, 0.96) 100%);
+            color: #ffffff !important;
+            border: 1.5px solid rgba(251, 191, 36, 0.85);
+            border-radius: 999px;
+            padding: 5px 12px;
+            box-shadow: 0 10px 28px rgba(0, 0, 0, 0.85), 0 0 18px rgba(251, 191, 36, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.22);
             display: none;
-            flex-direction: column;
+            flex-direction: row;
+            align-items: center;
             gap: 6px;
             direction: rtl;
             font-family: 'Cairo', 'Tajawal', sans-serif !important;
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
-            transition: top 0.32s cubic-bezier(0.22, 1, 0.36, 1), bottom 0.32s cubic-bezier(0.22, 1, 0.36, 1), transform 0.25s ease;
+            transition: top 0.28s cubic-bezier(0.22, 1, 0.36, 1), bottom 0.28s cubic-bezier(0.22, 1, 0.36, 1), transform 0.22s ease;
         }
         .msg-live-coach-bar.docked-top {
             bottom: auto !important;
-            top: 128px !important;
-            left: 14px !important;
+            top: 86px !important;
+            left: 12px !important;
         }
-        .msg-live-coach-bar.is-minimized .msg-coach-full-body {
+        /* Strict Light Theme Contrast (#000000 text on light surface) for Micro-HUD, Hover Tooltip & Live Dropdown Mirror */
+        html.light-theme .msg-live-coach-bar,
+        html[data-magaies-theme-mode="light"] .msg-live-coach-bar,
+        body.theme-light .msg-live-coach-bar,
+        body.light-theme .msg-live-coach-bar,
+        body[data-msg-theme="royal-dawn"] .msg-live-coach-bar,
+        html[data-theme="warm_cream"] .msg-live-coach-bar,
+        html[data-theme="ultra_white"] .msg-live-coach-bar,
+        html[data-theme="exec_gray"] .msg-live-coach-bar {
+            background: rgba(255, 255, 255, 0.98) !important;
+            color: #000000 !important;
+            border: 2px solid #0284c7 !important;
+            box-shadow: 0 10px 28px rgba(15, 23, 42, 0.22), 0 0 0 1px rgba(2, 132, 199, 0.2) !important;
+        }
+        html.light-theme .msg-live-coach-bar *,
+        html[data-magaies-theme-mode="light"] .msg-live-coach-bar *,
+        body.theme-light .msg-live-coach-bar *,
+        body.light-theme .msg-live-coach-bar *,
+        body[data-msg-theme="royal-dawn"] .msg-live-coach-bar *,
+        html[data-theme="warm_cream"] .msg-live-coach-bar *,
+        html[data-theme="ultra_white"] .msg-live-coach-bar *,
+        html[data-theme="exec_gray"] .msg-live-coach-bar * {
+            color: #000000 !important;
+        }
+        html.light-theme #msg-coach-step-badge,
+        html[data-magaies-theme-mode="light"] #msg-coach-step-badge,
+        body.theme-light #msg-coach-step-badge,
+        body.light-theme #msg-coach-step-badge,
+        body[data-msg-theme="royal-dawn"] #msg-coach-step-badge,
+        html[data-theme="warm_cream"] #msg-coach-step-badge,
+        html[data-theme="ultra_white"] #msg-coach-step-badge,
+        html[data-theme="exec_gray"] #msg-coach-step-badge {
+            background: rgba(2, 132, 199, 0.12) !important;
+            border-color: #0284c7 !important;
+            color: #000000 !important;
+        }
+        html.light-theme .msg-smart-hover-tooltip,
+        html[data-magaies-theme-mode="light"] .msg-smart-hover-tooltip,
+        body.theme-light .msg-smart-hover-tooltip,
+        body.light-theme .msg-smart-hover-tooltip,
+        body[data-msg-theme="royal-dawn"] .msg-smart-hover-tooltip,
+        html[data-theme="warm_cream"] .msg-smart-hover-tooltip,
+        html[data-theme="ultra_white"] .msg-smart-hover-tooltip,
+        html[data-theme="exec_gray"] .msg-smart-hover-tooltip,
+        html.light-theme #msg-live-select-mirror,
+        html[data-magaies-theme-mode="light"] #msg-live-select-mirror,
+        body.theme-light #msg-live-select-mirror,
+        body.light-theme #msg-live-select-mirror,
+        body[data-msg-theme="royal-dawn"] #msg-live-select-mirror,
+        html[data-theme="warm_cream"] #msg-live-select-mirror,
+        html[data-theme="ultra_white"] #msg-live-select-mirror,
+        html[data-theme="exec_gray"] #msg-live-select-mirror {
+            background: #ffffff !important;
+            color: #000000 !important;
+            border: 2px solid #0284c7 !important;
+            box-shadow: 0 12px 30px rgba(15, 23, 42, 0.22) !important;
+        }
+        html.light-theme .msg-smart-hover-tooltip *,
+        html[data-magaies-theme-mode="light"] .msg-smart-hover-tooltip *,
+        body.theme-light .msg-smart-hover-tooltip *,
+        body.light-theme .msg-smart-hover-tooltip *,
+        body[data-msg-theme="royal-dawn"] .msg-smart-hover-tooltip *,
+        html[data-theme="warm_cream"] .msg-smart-hover-tooltip *,
+        html[data-theme="ultra_white"] .msg-smart-hover-tooltip *,
+        html[data-theme="exec_gray"] .msg-smart-hover-tooltip *,
+        html.light-theme #msg-live-select-mirror *,
+        html[data-magaies-theme-mode="light"] #msg-live-select-mirror *,
+        body.theme-light #msg-live-select-mirror *,
+        body.light-theme #msg-live-select-mirror *,
+        body[data-msg-theme="royal-dawn"] #msg-live-select-mirror *,
+        html[data-theme="warm_cream"] #msg-live-select-mirror *,
+        html[data-theme="ultra_white"] #msg-live-select-mirror *,
+        html[data-theme="exec_gray"] #msg-live-select-mirror * {
+            color: #000000 !important;
+        }
+        #msg-live-select-mirror {
+            position: fixed;
+            z-index: 100055;
+            display: none;
+            flex-direction: column;
+            gap: 3px;
+            min-width: 190px;
+            max-width: 290px;
+            max-height: 210px;
+            overflow-y: auto;
+            padding: 8px 10px;
+            border-radius: 12px;
+            background: rgba(15, 23, 42, 0.97);
+            color: #ffffff;
+            border: 1.5px solid #38bdf8;
+            box-shadow: 0 14px 34px rgba(0, 0, 0, 0.82), 0 0 18px rgba(56, 189, 248, 0.35);
+            direction: rtl;
+            font-family: 'Tajawal', sans-serif !important;
+            pointer-events: none;
+            animation: msgModalPop 0.2s ease-out;
+        }
+        .msg-spotlight-active-el {
+            position: relative !important;
+            z-index: 45 !important;
+            box-shadow: 0 0 0 3px #fbbf24, 0 0 28px rgba(251, 191, 36, 0.65) !important;
+            transition: box-shadow 0.25s ease !important;
+        }
+        #msg-coach-visual-stage,
+        #msg-coach-speech-text {
             display: none !important;
-        }
-        .msg-live-coach-bar.is-minimized {
-            padding: 6px 12px !important;
-            border-radius: 999px !important;
         }
 
         .msg-pinned-audio-dock {
@@ -474,9 +575,9 @@
                 "appinst  themes";
         }
         .msg-fixed-command-pod.pod-utility-quad {
-            width: 196px !important;
-            min-width: 196px !important;
-            max-width: 196px !important;
+            width: 223px !important;
+            min-width: 223px !important;
+            max-width: 223px !important;
             grid-template-areas:
                 "shield fullscr"
                 "search qtheme";
@@ -564,11 +665,11 @@
             min-width: 0 !important;
             text-align: center !important;
             font-family: 'Cairo', 'Tajawal', sans-serif !important;
-            font-size: 11.6px !important;
+            font-size: 13.5px !important;
             font-weight: 900 !important;
             color: #ffffff !important;
             line-height: 1 !important;
-            letter-spacing: 0px !important;
+            letter-spacing: 0.2px !important;
             text-shadow: 0 1px 4px rgba(0, 0, 0, 0.98), 0 0 8px rgba(0, 0, 0, 0.85) !important;
             z-index: 2 !important;
             white-space: nowrap !important;
@@ -890,6 +991,27 @@
         body.msg-pick-inspector-active * {
             cursor: help !important;
         }
+
+        /* Smart Hover Micro-Tooltip Capsule */
+        .msg-smart-hover-tooltip {
+            position: fixed;
+            z-index: 100090;
+            max-width: 340px;
+            background: linear-gradient(155deg, rgba(2, 6, 23, 0.97), rgba(15, 23, 42, 0.98));
+            border: 1.5px solid #38bdf8;
+            border-radius: 14px;
+            padding: 9px 13px;
+            box-shadow: 0 14px 34px rgba(0, 0, 0, 0.88), 0 0 22px rgba(56, 189, 248, 0.35);
+            color: #f8fafc;
+            font-family: 'Cairo', 'Tajawal', sans-serif !important;
+            direction: rtl;
+            display: none;
+            flex-direction: column;
+            gap: 6px;
+            pointer-events: auto;
+            backdrop-filter: blur(14px);
+            animation: msgModalPop 0.2s ease-out;
+        }
     `;
     document.head.appendChild(styleEl);
 
@@ -913,10 +1035,16 @@
     if (!['sudanese', 'egyptian', 'gulf'].includes(selectedMaleProfile)) {
         selectedMaleProfile = 'egyptian';
     }
-    let selectedSpeechRate = parseFloat(localStorage.getItem('msg_male_speed_v6') || '0.92');
-    if (isNaN(selectedSpeechRate) || selectedSpeechRate < 0.75 || selectedSpeechRate > 1.15) {
-        selectedSpeechRate = 0.92;
-    }
+    let selectedSpeechRate = 1.30;
+    try {
+        const savedRate = parseFloat(localStorage.getItem('msg_male_speed_v6'));
+        if (!isNaN(savedRate) && savedRate >= 0.75 && savedRate <= 1.60 && savedRate !== 0.92) {
+            selectedSpeechRate = savedRate;
+        } else {
+            selectedSpeechRate = 1.30;
+            localStorage.setItem('msg_male_speed_v6', '1.30');
+        }
+    } catch(e) { selectedSpeechRate = 1.30; }
     const decodedBufferCache = new Map();
     const rawArrayBufferCache = new Map();
     const isGenuineNeuralCache = new Map();
@@ -965,7 +1093,8 @@
         const pauseBtnIcon = isAudioPaused ? '▶️' : '⏸️';
         const btnMain = document.getElementById('msg-btn-pause-resume');
         if (btnMain) {
-            btnMain.innerHTML = pauseBtnText;
+            btnMain.innerHTML = pauseBtnIcon;
+            btnMain.title = pauseBtnText;
             btnMain.style.background = isAudioPaused ? 'linear-gradient(135deg,#10b981,#059669)' : 'linear-gradient(135deg,#f59e0b,#d97706)';
         }
         const btnDock = document.getElementById('msg-dock-btn-pause');
@@ -987,7 +1116,11 @@
         }
     }
 
+    let currentSpeechRequestId = 0;
+    const inFlightBufferPromises = new Map();
+
     function stopCurrentSpeech() {
+        currentSpeechRequestId++;
         if (nextStepTimeoutId) {
             clearTimeout(nextStepTimeoutId);
             nextStepTimeoutId = null;
@@ -1065,14 +1198,46 @@
         return txt;
     }
 
-    function resolveStepSpeech(step, dialect = selectedMaleProfile) {
+    // ── أمر حاسم (1): قفل صارم لنطق الصلاة على النبي ﷺ مرة واحدة فقط مع ضغطة المرشد وفتحة الشاشة ومنع تكرارها بين الخانات والنقاط نهائياً ──
+    let hasPlayedOpeningInvocation = false;
+    window.hasPlayedOpeningInvocation = false;
+
+    function stripAllSalawatPrefixes(rawText) {
+        let txt = String(rawText || '').trim();
+        if (!txt) return '';
+        txt = txt
+            .replace(/^اللَّهُمَّ\s+صَلِّ\s+عَلَى\s+مُحَمَّدٍ\s+وَعَلَى\s+آلِ\s+مُحَمَّدٍ[.،\s]*/g, '')
+            .replace(/^اللهم\s+صل\s+وسلم\s+على\s+نبينا\s+محمد[.،\s]*/g, '')
+            .replace(/^اللهم\s+صل\s+على\s+محمد\s+وعلى\s+آل\s+محمد[.،\s]*/g, '')
+            .replace(/^اللهم\s+صل\s+على\s+سيدنا\s+محمد[.،\s]*/g, '')
+            .trim();
+        return txt;
+    }
+
+    function ensureLeadingSalawat(rawText, allowOpeningOnce = false) {
+        const cleanBody = stripAllSalawatPrefixes(rawText);
+        if (!allowOpeningOnce) {
+            return cleanBody;
+        }
+        if (!cleanBody) return SHORT_SAHIHAYN_SALAWAT;
+        return `${SHORT_SAHIHAYN_SALAWAT} ${cleanBody}`;
+    }
+
+    function resolveStepSpeech(step, dialect = selectedMaleProfile, isFirstStepOfSession = false) {
         if (!step) return '';
+        let out = '';
         if (step.speechByDialect && step.speechByDialect[dialect]) {
             const val = step.speechByDialect[dialect];
-            return (typeof val === 'function') ? val() : val;
+            out = (typeof val === 'function') ? val() : val;
+        } else {
+            const base = (typeof step.speech === 'function') ? step.speech() : (step.speech || '');
+            out = adaptTextToDialect(base, dialect);
         }
-        const base = (typeof step.speech === 'function') ? step.speech() : (step.speech || '');
-        return adaptTextToDialect(base, dialect);
+        out = stripAllSalawatPrefixes(out);
+        if (isFirstStepOfSession) {
+            out = `${SHORT_SAHIHAYN_SALAWAT} ${out}`.trim();
+        }
+        return out;
     }
 
     async function fetchAndDecodeMaleBuffer(text, dialect = selectedMaleProfile) {
@@ -1084,43 +1249,79 @@
                 isGenuineNeural: isGenuineNeuralCache.get(cacheKey) !== false
             };
         }
-        let arrayBuf = rawArrayBufferCache.get(cacheKey);
-        let isGenuine = isGenuineNeuralCache.get(cacheKey);
-        if (!arrayBuf) {
-            const url = `api/tts_male.php?dialect=${encodeURIComponent(dialect)}&text=${encodeURIComponent(cleanTxt)}`;
-            const res = await fetch(url);
-            if (!res.ok) throw new Error('TTS HTTP Error');
-            const engineHdr = res.headers.get('X-Voice-Engine') || 'Edge-Neural-Male';
-            isGenuine = (engineHdr === 'Edge-Neural-Male');
-            arrayBuf = await res.arrayBuffer();
-            rawArrayBufferCache.set(cacheKey, arrayBuf.slice(0));
-            isGenuineNeuralCache.set(cacheKey, isGenuine);
+        if (inFlightBufferPromises.has(cacheKey)) {
+            return await inFlightBufferPromises.get(cacheKey);
         }
-        const ctx = getAudioCtx();
-        const decoded = await ctx.decodeAudioData(arrayBuf.slice(0));
-        decodedBufferCache.set(cacheKey, decoded);
-        return { buffer: decoded, isGenuineNeural: isGenuine !== false };
+
+        const taskPromise = (async () => {
+            let arrayBuf = rawArrayBufferCache.get(cacheKey);
+            let isGenuine = isGenuineNeuralCache.get(cacheKey);
+            if (!arrayBuf) {
+                const url = `api/tts_male.php?dialect=${encodeURIComponent(dialect)}&text=${encodeURIComponent(cleanTxt)}`;
+                const ctrl = typeof AbortController !== 'undefined' ? new AbortController() : null;
+                const tid = ctrl ? setTimeout(() => ctrl.abort(), 1400) : null;
+                try {
+                    const res = await fetch(url, { signal: ctrl ? ctrl.signal : undefined });
+                    if (tid) clearTimeout(tid);
+                    if (!res.ok) throw new Error('TTS HTTP Error ' + res.status);
+                    const engineHdr = res.headers.get('X-Voice-Engine') || 'Edge-Neural-Male';
+                    isGenuine = (engineHdr === 'Edge-Neural-Male');
+                    arrayBuf = await res.arrayBuffer();
+                    if (arrayBuf && arrayBuf.byteLength > 300) {
+                        rawArrayBufferCache.set(cacheKey, arrayBuf.slice(0));
+                        isGenuineNeuralCache.set(cacheKey, isGenuine);
+                    } else {
+                        throw new Error('Empty TTS buffer');
+                    }
+                } catch (err) {
+                    if (tid) clearTimeout(tid);
+                    throw err;
+                }
+            }
+            const ctx = getAudioCtx();
+            const decoded = await ctx.decodeAudioData(arrayBuf.slice(0));
+            decodedBufferCache.set(cacheKey, decoded);
+            return { buffer: decoded, isGenuineNeural: isGenuine !== false };
+        })();
+
+        inFlightBufferPromises.set(cacheKey, taskPromise);
+        try {
+            return await taskPromise;
+        } finally {
+            inFlightBufferPromises.delete(cacheKey);
+        }
     }
 
-    // Pre-warm all guide steps in the background so playback is 100% instant and seamless!
+    let isPrewarmingNow = false;
+    // Pre-warm all guide steps sequentially in the background so 100% genuine male voice is cached without socket collisions!
     async function prewarmGuideAudio(guideKey = 'smart-logistics', dialect = selectedMaleProfile) {
+        if (isPrewarmingNow) return;
         const data = window.MagaiesSmartGuides && window.MagaiesSmartGuides[guideKey];
         if (!data || !Array.isArray(data.autopilotSteps)) return;
-        const allSteps = [...data.autopilotSteps, ...(typeof SALES_ONLY_STEPS !== 'undefined' ? SALES_ONLY_STEPS : [])];
-        for (const st of allSteps) {
-            const txt = resolveStepSpeech(st, dialect);
-            const cacheKey = `${dialect}|${txt.trim()}`;
-            if (txt && !rawArrayBufferCache.has(cacheKey)) {
-                try {
-                    const res = await fetch(`api/tts_male.php?dialect=${encodeURIComponent(dialect)}&text=${encodeURIComponent(txt.trim())}`);
-                    if (res.ok) {
-                        const engineHdr = res.headers.get('X-Voice-Engine') || 'Edge-Neural-Male';
-                        const buf = await res.arrayBuffer();
-                        rawArrayBufferCache.set(cacheKey, buf);
-                        isGenuineNeuralCache.set(cacheKey, engineHdr === 'Edge-Neural-Male');
-                    }
-                } catch (e) {}
+        isPrewarmingNow = true;
+        try {
+            const allSteps = [...data.autopilotSteps, ...(typeof SALES_ONLY_STEPS !== 'undefined' && guideKey === 'smart-logistics' ? SALES_ONLY_STEPS : [])];
+            for (let idx = 0; idx < allSteps.length; idx++) {
+                const st = allSteps[idx];
+                const txt = resolveStepSpeech(st, dialect, idx === 0);
+                const cacheKey = `${dialect}|${txt.trim()}`;
+                if (txt && !rawArrayBufferCache.has(cacheKey)) {
+                    try {
+                        const res = await fetch(`api/tts_male.php?dialect=${encodeURIComponent(dialect)}&text=${encodeURIComponent(txt.trim())}`);
+                        if (res.ok) {
+                            const engineHdr = res.headers.get('X-Voice-Engine') || 'Edge-Neural-Male';
+                            const buf = await res.arrayBuffer();
+                            if (buf && buf.byteLength > 300) {
+                                rawArrayBufferCache.set(cacheKey, buf);
+                                isGenuineNeuralCache.set(cacheKey, engineHdr === 'Edge-Neural-Male');
+                            }
+                        }
+                        await new Promise(r => setTimeout(r, 90));
+                    } catch (e) {}
+                }
             }
+        } finally {
+            isPrewarmingNow = false;
         }
     }
 
@@ -1145,19 +1346,54 @@
         source.buffer = activeAudioBuffer;
 
         if (activeAudioIsGenuine) {
-            // Pitch-compensate so speeding up or slowing down keeps the deep natural male voice!
-            const pitchCompCents = Math.round(-1200 * Math.log2(selectedSpeechRate / 0.92));
-            source.detune.value = Math.max(-450, Math.min(450, pitchCompCents));
+            // 🎙️ 4-STAGE STUDIO BARITONE BROADCAST DSP CHAIN (صوت رجالي إذاعي فخيم وقمة في الوضوح)
+            const pitchCompCents = Math.round(-1200 * Math.log2(selectedSpeechRate / 0.92)) - 45;
+            source.detune.value = Math.max(-480, Math.min(450, pitchCompCents));
             source.playbackRate.value = selectedSpeechRate;
 
+            // 1. Deep Baritone Chest Resonance (فخامة وعمق الصوت الرجالي)
+            const warmLow = ctx.createBiquadFilter();
+            warmLow.type = 'lowshelf';
+            warmLow.frequency.value = 165;
+            warmLow.gain.value = 3.8;
+
+            // 2. Anti-Muffle Boxiness Cut (إزالة أي كتمة صوتية)
+            const deMud = ctx.createBiquadFilter();
+            deMud.type = 'peaking';
+            deMud.frequency.value = 340;
+            deMud.Q.value = 1.4;
+            deMud.gain.value = -2.2;
+
+            // 3. Crystal Arabic Diction & Articulation Presence (قمة وضوح مخارج الحروف)
             const clarity = ctx.createBiquadFilter();
             clarity.type = 'peaking';
-            clarity.frequency.value = 2850;
-            clarity.Q.value = 1.0;
-            clarity.gain.value = 2.6;
+            clarity.frequency.value = 3100;
+            clarity.Q.value = 0.95;
+            clarity.gain.value = 4.2;
 
-            source.connect(clarity);
-            clarity.connect(ctx.destination);
+            const crispAir = ctx.createBiquadFilter();
+            crispAir.type = 'highshelf';
+            crispAir.frequency.value = 5800;
+            crispAir.gain.value = 2.5;
+
+            // 4. Broadcast Studio Compressor & Clean Makeup Gain
+            const comp = ctx.createDynamicsCompressor();
+            comp.threshold.value = -20;
+            comp.knee.value = 12;
+            comp.ratio.value = 3.2;
+            comp.attack.value = 0.005;
+            comp.release.value = 0.14;
+
+            const outGain = ctx.createGain();
+            outGain.gain.value = 1.26;
+
+            source.connect(warmLow);
+            warmLow.connect(deMud);
+            deMud.connect(clarity);
+            clarity.connect(crispAir);
+            crispAir.connect(comp);
+            comp.connect(outGain);
+            outGain.connect(ctx.destination);
         } else {
             source.detune.value = -280;
             source.playbackRate.value = selectedSpeechRate;
@@ -1182,6 +1418,24 @@
     }
 
     window.togglePauseResumeAudio = async function () {
+        // Support pausing/resuming both Web Speech API (speechSynthesis) and AudioContext buffer!
+        if ('speechSynthesis' in window && (window.speechSynthesis.speaking || window.speechSynthesis.paused) && !currentAudioSource) {
+            if (isAudioPaused || window.speechSynthesis.paused) {
+                window.speechSynthesis.resume();
+                isAudioPaused = false;
+                isAudioPlaying = true;
+            } else {
+                window.speechSynthesis.pause();
+                isAudioPaused = true;
+                isAudioPlaying = false;
+                if (nextStepTimeoutId) {
+                    clearTimeout(nextStepTimeoutId);
+                    nextStepTimeoutId = null;
+                }
+            }
+            updateAudioPlayerUI();
+            return;
+        }
         if (!activeAudioBuffer) {
             window.startLiveAutopilotSimulation('all');
             return;
@@ -1191,7 +1445,6 @@
             await ctx.resume();
         }
         if (isAudioPlaying && !isAudioPaused) {
-            // Pause at exact current second
             activeAudioOffset = getCurrentAudioOffset();
             isAudioPaused = true;
             isAudioPlaying = false;
@@ -1209,7 +1462,6 @@
             stopProgressLoop();
             updateAudioPlayerUI();
         } else {
-            // Resume from exact paused second (or restart if at end)
             if (activeAudioOffset >= activeAudioBuffer.duration - 0.15) {
                 activeAudioOffset = 0;
             }
@@ -1256,185 +1508,611 @@
         window.seekAudioTo(target);
     };
 
-    async function speakArabicMaleText(text, onEndCallback, dialect = selectedMaleProfile) {
+    function unlockBrowserAudioEnginesSync() {
+        try {
+            const ctx = getAudioCtx();
+            if (ctx && ctx.state === 'suspended') {
+                ctx.resume().catch(() => {});
+            }
+            if (ctx) {
+                const silentBuf = ctx.createBuffer(1, 1, 22050);
+                const silentSrc = ctx.createBufferSource();
+                silentSrc.buffer = silentBuf;
+                silentSrc.connect(ctx.destination);
+                silentSrc.start(0);
+            }
+        } catch (e) {}
+        try {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                window.speechSynthesis.resume();
+                window.speechSynthesis.getVoices();
+            }
+        } catch (e) {}
+    }
+
+    function selectBestBrowserArabicMaleVoice(dialect = selectedMaleProfile) {
+        if (!('speechSynthesis' in window)) return null;
+        const voices = window.speechSynthesis.getVoices() || [];
+        if (!voices.length) return null;
+
+        const femaleBlacklist = /oda|hoda|salma|zariyah|fatima|amany|laila|mariam|noura|female|أنثى|سلمى|هدى|فاطمة|زارية|أماني/i;
+        const malePreferred = /shakir|hamed|hamdan|maged|tarik|naayf|omar|ali|male|شاكر|حامد|حمدان|ماجد|طارق|نايف/i;
+
+        const arVoices = voices.filter(v => /^ar/i.test(v.lang || '') || /arabic|عربي/i.test(v.name || ''));
+        const nonFemaleAr = arVoices.filter(v => !femaleBlacklist.test(v.name || ''));
+
+        if (dialect === 'egyptian') {
+            const egMale = nonFemaleAr.find(v => /shakir|eg/i.test(v.name + ' ' + v.lang) && malePreferred.test(v.name));
+            if (egMale) return egMale;
+        }
+        const explicitMale = nonFemaleAr.find(v => malePreferred.test(v.name || ''));
+        if (explicitMale) return explicitMale;
+        if (nonFemaleAr.length > 0) return nonFemaleAr[0];
+        return arVoices[0] || null;
+    }
+
+    function speakWithBrowserMaleFallback(text, onEndCallback, dialect = selectedMaleProfile, allowOpeningOnce = false) {
+        if (!('speechSynthesis' in window)) {
+            if (onEndCallback) setTimeout(onEndCallback, 2500);
+            return;
+        }
+        try {
+            window.speechSynthesis.cancel();
+            window.speechSynthesis.resume();
+            const cleanText = ensureLeadingSalawat(text, allowOpeningOnce);
+            const utter = new SpeechSynthesisUtterance(cleanText);
+            window.__activeGuideUtterance = utter;
+            utter.lang = dialect === 'egyptian' ? 'ar-EG' : 'ar-SA';
+            const chosenVoice = selectBestBrowserArabicMaleVoice(dialect);
+            if (chosenVoice) {
+                utter.voice = chosenVoice;
+                const isExplicitMale = /shakir|hamed|hamdan|maged|tarik|naayf|male|شاكر|حامد|حمدان|ماجد|طارق|نايف/i.test(chosenVoice.name || '');
+                utter.pitch = isExplicitMale ? 0.92 : 0.72;
+            } else {
+                utter.pitch = 0.74;
+            }
+            utter.rate = Math.max(0.82, Math.min(1.25, selectedSpeechRate || 0.92));
+            utter.volume = 1.0;
+
+            isAudioPlaying = true;
+            isAudioPaused = false;
+            updateAudioPlayerUI();
+
+            let finished = false;
+            const finishOnce = () => {
+                if (finished) return;
+                finished = true;
+                isAudioPlaying = false;
+                updateAudioPlayerUI();
+                if (onEndCallback) onEndCallback();
+            };
+            utter.onend = finishOnce;
+            utter.onerror = finishOnce;
+            window.speechSynthesis.speak(utter);
+            setTimeout(() => {
+                try {
+                    if (window.speechSynthesis.paused) window.speechSynthesis.resume();
+                } catch (e) {}
+            }, 60);
+        } catch (e) {
+            if (onEndCallback) setTimeout(onEndCallback, 2500);
+        }
+    }
+
+    async function speakArabicMaleText(text, onEndCallback, dialect = selectedMaleProfile, allowOpeningOnce = false) {
         stopCurrentSpeech();
+        const reqId = currentSpeechRequestId;
         ensureGuideDomElements();
 
-        // Always show the fixed audio controller bar and pinned top-left dock as soon as any recording starts!
+        const finalSpokenText = ensureLeadingSalawat(text, allowOpeningOnce);
+
         const coachBar = document.getElementById('msg-live-coach-bar');
         if (coachBar) coachBar.style.display = 'flex';
         const pinnedDock = document.getElementById('msg-pinned-audio-dock');
         if (pinnedDock) pinnedDock.style.display = 'inline-flex';
         const speechBox = document.getElementById('msg-coach-speech-text');
-        if (speechBox && text) speechBox.textContent = text;
+        if (speechBox && finalSpokenText) speechBox.textContent = finalSpokenText;
 
         try {
             const ctx = getAudioCtx();
             if (ctx.state === 'suspended') {
                 await ctx.resume();
             }
-            const { buffer: audioBuffer, isGenuineNeural } = await fetchAndDecodeMaleBuffer(text, dialect);
+            const { buffer: audioBuffer, isGenuineNeural } = await fetchAndDecodeMaleBuffer(finalSpokenText, dialect);
+            if (reqId !== currentSpeechRequestId) return;
             activeAudioBuffer = audioBuffer;
             activeAudioIsGenuine = isGenuineNeural;
             activeAudioOnEnd = onEndCallback || null;
             startBufferAtOffset(0);
         } catch (err) {
-            if (onEndCallback) setTimeout(onEndCallback, 1500);
+            if (reqId !== currentSpeechRequestId) return;
+            speakWithBrowserMaleFallback(finalSpokenText, onEndCallback, dialect, allowOpeningOnce);
         }
     }
 
     // ── SCREEN GUIDES REGISTRY ───────────────────────────────────────────────
     window.MagaiesSmartGuides = window.MagaiesSmartGuides || {};
 
-    window.MagaiesSmartGuides['smart-logistics'] = {
-        title: 'المرشد الذكي الشامل: بوابة الاستلام والتسليم الموحدة (GRN ⇄ GDN)',
-        subtitle: 'شرح تطبيقي حي بصوت رجالي واضح بـ 3 لهجات (🇸🇩 سودانية | 🇪🇬 مصرية | 🇸🇦 خليجية) والماوس المتحرك',
-
-        // LIVE AUTOPILOT SCENARIO STEPS (بـ 3 لهجات رجالية واضحة: سودانية، مصرية، وخليجية)
-        autopilotSteps: [
-            {
-                badge: 'الخطوة 1️⃣ — اختيار قسم المشتريات أو المبيعات',
-                cursorLabel: 'نضغط هنا لقسم المشتريات 📥',
-                targetSelector: '#sl-tab-purchases',
-                speechByDialect: {
-                    egyptian: () => `${SHORT_SAHIHAYN_SALAWAT} يا أهلاً بحضرتك يا فندم. علشان نستلم بضاعة جديدة وندخّلها المخزن، بنروح الأول على زرار منظومة المشتريات الأزرق اللي فوق ده، ونضغط عليه، فالشاشة بتفتح معانا على طول، قسم استلام البضاعة.`,
-                    sudanese: () => `${SHORT_SAHIHAYN_SALAWAT} حبابك عشرة. عشان تستلم بضاعة جديدة وتدخلها المخزن، أول حاجة تضغط فوق على زر منظومة المشتريات الأزرق ده، وطوالي الشاشة بتفتح ليك، وضع استلام البضاعة.`,
-                    gulf:     () => `${SHORT_SAHIHAYN_SALAWAT} يا هلا والله. عشان تستلم بضاعة جديدة وتدخلها المستودع، نتوجه أول شيء لزر منظومة المشتريات الأزرق في أعلى الشاشة، ونضغط عليه، وتتحول الشاشة مباشرة، لوضع إدخال البضاعة.`
-                },
-                speech: () => `${SHORT_SAHIHAYN_SALAWAT} لاستلام بضاعة جديدة، نتجه أولاً إلى زر منظومة المشتريات الأزرق في أعلى الشاشة ونضغط عليه، فتتحول الشاشة إلى وضع إدخال البضاعة للمخزن.`,
-                action: () => {
-                    if (typeof window.switchLogisticsMode === 'function') {
-                        window.switchLogisticsMode('purchases', true);
-                    }
-                }
+    // ============================================================================
+    // 📥 1. FULL A-TO-Z MASTERCLASS: PURCHASES RECEIPT & SPLIT GATEWAY (GRN)
+    // (10 خطوات تعليمية تشرح من الألف إلى الياء ببساطة تامة بدون مجرد قراءة لعناوين الأزرار)
+    // ============================================================================
+    const PURCHASES_MASTER_STEPS = [
+        {
+            badge: 'الخطوة 1️⃣ — ما هي بوابة استلام المشتريات (GRN) وكيف تحميك؟',
+            cursorLabel: 'بوابة استلام المشتريات (إضافة للمخزن +) 📥',
+            targetSelector: '#sl-tab-purchases',
+            speechByDialect: {
+                egyptian: () => `يا أهلاً بحضرتك في الشرح الكامل من الألف للياء لبوابة استلام المشتريات وتقسيمها. الفكرة ببساطة إن المشتريات لما بتشتري فاتورة من المورد، البضاعة مش بتدخل المخزن لوحدها، لازم تعدي على البوابة الزرقاء دي الأول علشان أمين المخزن يفحصها ويعدّها بنفسه، سواء وصلت كاملة على عربية واحدة أو وصلت متقسمة على كذا دفعة.`,
+                sudanese: () => `حبابك عشرة في الشرح الشامل من الألف للياء لبوابة استلام المشتريات وتقسيمها. الفكرة ببساطة إنو لما نشتري فاتورة من المورد، البضاعة ما بتنزل في المخزن طوالي، لازم تمر على البوابة الزرقاء دي أول حاجة عشان أمين المخزن يفحصها ويعدّها براهو، سواء وصلت كلها في دفعة واحدة أو وصلت مقسمة على دفعات.`,
+                gulf:     () => `يا هلا والله في الشرح الكامل من الألف للياء لبوابة استلام المشتريات وتقسيمها. الفكرة ببساطة إنه لما نشتري فاتورة من المورد، البضاعة ما تدخل المستودع تلقائياً، لازم تمر على هذي البوابة الزرقاء أول شيء عشان أمين المستودع يفحصها ويعدّها فعلياً، سواء وصلت كاملة بدفعة واحدة أو مقسمة على عدة دفعات.`
             },
-            {
-                badge: 'الخطوة 2️⃣ — عرض الأذونات غير المستلمة',
-                cursorLabel: 'الأذونات غير المستلمة ⏳',
-                targetSelector: '#sl-kpi-card-pending',
-                speechByDialect: {
-                    egyptian: () => `وبعد كده على طول، بنضغط على كارت الأذونات اللي لسه ما استلمناهاش، علشان تفتح قدامنا كل الفواتير، اللي مستنية الاستلام.`,
-                    sudanese: () => `وبعد داك، تضغط طوالي على بطاقة الأذونات الما مستلمة، عشان تظهر قدامك كل الفواتير، الراجية الاستلام.`,
-                    gulf:     () => `ومباشرة، ننتقل إلى بطاقة الأذونات غير المستلمة ونضغط عليها، عشان تطلع قدامنا الفواتير، اللي تنتظر الاستلام.`
-                },
-                speech: () => `ومباشرةً ننتقل إلى بطاقة الأذونات غير المستلمة ونضغط عليها، لتظهر أمامنا الفواتير التي تنتظر الاستلام.`,
-                action: () => {
-                    if (typeof window.setSlRegistryFilter === 'function') {
-                        window.setSlRegistryFilter('pending');
-                    }
-                    window.ensureLiveDemoInvoiceForGuide();
+            speech: () => `أهلاً بك في الشرح الشامل من الألف للياء لبوابة استلام المشتريات وتقسيمها. الفكرة ببساطة أن فاتورة المشتريات لا تدخل المخزن تلقائياً، بل تمر عبر هذه البوابة الزرقاء ليفحصها أمين المخزن ويستلمها دفعة واحدة أو يقسمها على عدة دفعات.`,
+            action: () => {
+                if (typeof window.switchLogisticsMode === 'function') {
+                    window.switchLogisticsMode('purchases', true);
                 }
-            },
-            {
-                badge: 'الخطوة 3️⃣ — اختيار الإذن وفتحه',
-                cursorLabel: 'نضغط على الإذن لفتحه 📄',
-                targetSelector: '#sl-registry-tbody tr:first-child',
-                speechByDialect: {
-                    egyptian: () => `ودلوقتي يا فندم، بنضغط بالماوس على الإذن اللي إحنا عايزينه من الجدول، فبيفتح معانا تحت على طول، بكل الأصناف اللي موجودة جواه.`,
-                    sudanese: () => `وهسي، تضغط على الإذن الدايرو من الجدول، وبيفتح معاك طوالي في الكرت التحت، بكامل الأصناف الفيها.`,
-                    gulf:     () => `والحين، نضغط على الإذن المطلوب من الجدول، ويفتح معنا فوراً في البطاقة السفلية، بكامل أصنافه.`
-                },
-                speech: () => `نضغط الآن على الإذن المطلوب من الجدول، فينفتح فوراً في البطاقة السفلية بكامل أصنافه.`,
-                action: () => {
-                    const firstRow = document.querySelector('#sl-registry-tbody tr:first-child');
-                    if (firstRow) firstRow.click();
-                }
-            },
-            {
-                badge: 'الخطوة 4️⃣ — إدخال الكمية المستلمة من الباقي',
-                cursorLabel: 'الباقي 7 ⬅️ نكتب المستلم الآن (5) ✍️',
-                targetSelector: '.sl-qty-primary-input',
-                speechByDialect: {
-                    egyptian: () => `حضرتك شايف هنا، الإذن ده باقي فيه سبعة، فلو استلمنا النهارده خمسة بس، بنكتب رقم خمسة في مربع الكمية ده، والبرنامج بيحسب لوحده، إن فاضل اتنين للدفعة الجاية.`,
-                    sudanese: () => `شوف هنا، الإذن ده باقي فيهو سبعة، لو استلمنا الليلة خمسة بس، بنكتب رقم خمسة في مربع الكمية، والبرنامج براهو بيحسب ليك، إنو الباقي اتنين للدفعة الجاية.`,
-                    gulf:     () => `هذا الإذن باقي فيه سبعة، فإذا استلمنا اليوم خمسة بس، نكتب رقم خمسة في مربع الكمية، والبرنامج يحسب تلقائياً، إنه باقي اثنين للدفعة الجاية.`
-                },
-                speech: () => `هذا الإذن باقي فيه سبعة، فإذا استلمنا خمسة فقط، نكتب رقم خمسة في مربع الكمية، ويحسب البرنامج تلقائياً أنه تبقى اثنان للدفعة القادمة.`,
-                action: () => {
-                    const inp = document.querySelector('.sl-qty-primary-input');
-                    if (inp) {
-                        inp.focus();
-                        inp.value = '5';
-                        if (typeof window.onSlPrimaryQtyInput === 'function') {
-                            window.onSlPrimaryQtyInput(inp, true);
-                        }
-                    }
-                }
-            },
-            {
-                badge: 'الخطوة 5️⃣ — الاعتماد النهائي وحفظ الحركة',
-                cursorLabel: 'زر الاعتماد 🚀 وبجانبه زر التراجع ↩️',
-                targetSelector: '#sl-btn-execute',
-                speechByDialect: {
-                    egyptian: () => `وفي الآخر خالص، بنضغط على زرار تأكيد واعتماد، علشان الكمية تدخل المخزن، وجنبه دايماً زرار إلغاء وعكس الحركة، لو حبيت ترجع في أي وقت.`,
-                    sudanese: () => `وفي النهاية، تضغط على زر تأكيد واعتماد، عشان الكمية تنزل في المخزن طوالي، وجنبو دايماً زر إلغاء وعكس الحركة، لو داير تتراجع في أي وقت.`,
-                    gulf:     () => `وبالأخير، نضغط على زر تأكيد واعتماد، لإدخال الكمية إلى المستودع فوراً، وبجانبه دائماً زر إلغاء وعكس الحركة، للتراجع في أي وقت.`
-                },
-                speech: () => `وأخيراً نضغط على زر تأكيد واعتماد لإدخال الكمية إلى المخزن، وبجانبه دائماً زر إلغاء وعكس الحركة للتراجع في أي وقت.`,
-                action: () => {}
             }
-        ],
+        },
+        {
+            badge: 'الخطوة 2️⃣ — شريط القيادة العلوي: ربط كاميرا الجوال وحارس الـ QR',
+            cursorLabel: 'حارس الأمان 🛡️ + ربط كاميرا الجوال 📱',
+            targetSelector: 'button[onclick="openSlMobileBridgeModal()"]',
+            diagramType: 'screen-transition',
+            speechByDialect: {
+                egyptian: () => `في الشريط اللي فوق ده عندك أداتين مهمين جداً: الأولى زرار ربط كاميرا الجوال اللي فتح قدامك دلوقتي، وده بيخليك تمسك موبايلك وتمسح باركود عشر فواتير مشتريات ورا بعض فتستلمهم في ثواني من غير ما تلمس الكيبورد. والتانية هي قائمة حارس الكيو آر، لو خليتها على وضع قفل القسم، هتحميك لو العامل مسح بالغلط أي ورقة خارجية لا تخص استلام المشتريات، فبيرفضها وينبهك فوراً.`,
+                sudanese: () => `في الشريط الفوق ده عندك حاجتين مهمات شديد: الأولى زر ربط كاميرا الجوال الفتح قدامك هسي، وده بخليك تمسك تلفونك وتمسح باركود عشرة أذونات مشتريات ورا بعض فتستلمهم في ثواني بدون ما تلمس الكيبورد. والتانية هي قائمة حارس الكيو آر، لو قفلتها على القسم الحالي، بتحميك لو العامل مسح بالغلط أي ورقة ما بتخص المشتريات، فبيرفضها وينبهك طوالي.`,
+                gulf:     () => `في الشريط العلوي عندك أداتين في غاية الأهمية: الأولى نافذة ربط كاميرا الجوال اللي انفتحت قدامك الحين، وتخليك تمسح بجوالك عشر فواتير مشتريات ورا بعض وتستلمها بثواني بدون لمس الكيبورد. والثانية قائمة حارس الكيو آر، لو حطيتها على قفل القسم، تحميك لو العامل مسح بالغلط أي ورقة لا تخص استلام المشتريات، فيرفضها وينبهك فوراً.`
+            },
+            speech: () => `في الشريط العلوي تفتح نافذة ربط كاميرا الجوال لمسح عشرات الأذونات متتالية، وبجانبها قائمة حارس الكيو آر لمنع مسح أي ورقة بالخطأ.`,
+            action: () => {
+                const qrSel = document.getElementById('sl-qr-guard-mode');
+                if (qrSel) showLiveSelectOptionsMirror(qrSel, null, '🛡️ خيارات حارس الـ QR الذكي');
+                const t1 = setTimeout(() => {
+                    if (typeof window.openSlMobileBridgeModal === 'function') window.openSlMobileBridgeModal();
+                }, 1400);
+                dubbedVisualTimers.push(t1);
+            }
+        },
+        {
+            badge: 'الخطوة 3️⃣ — العدادات الأربعة الذكية: أين تقف كل فاتورة الآن؟',
+            cursorLabel: 'العدادات الأربعة (انتظار • مقسمة • مكتملة • أذونات) 📊',
+            targetSelector: '#sl-kpi-card-pending',
+            speechByDialect: {
+                egyptian: () => `تحت الشريط العلوي هتلاقي أربع كروت ملونة بتلخص لك حال المخزن كله: الكارت الأصفر الأول بيعرض الفواتير الجديدة اللي لسه واصلة ومستنية الاستلام. والكارت الأزرق التاني بيعرض الفواتير اللي استلمنا جزء منها ولسه باقي ليها دفعات تانية عند المورد. والكارت الأخضر التالت للفواتير اللي خلصت بالكامل. والبنفسجي الرابع فيه أرشيف كل أذونات الاستلام الرسمية اللي طبعناها.`,
+                sudanese: () => `تحت الشريط الفوق بتلقى أربعة كروت ملونة بتلخص ليك حركة المخزن كلها: الكرت الأصفر الأول بيعرض الفواتير الجديدة الراجية الاستلام. والكرت الأزرق التاني بيعرض الفواتير القسّمناها واستلمنا جزء منها ولسه باقي ليها دفعات عند المورد. والكرت الأخضر التالت للفواتير الاكتملت خلاص. والبنفسجي الرابع فيهو سجل كل أذونات الاستلام الرسمية.`,
+                gulf:     () => `تحت الشريط العلوي بتلقى أربع بطاقات ملونة تلخص حالة المستودع بالكامل: البطاقة الصفراء الأولى تعرض الفواتير الجديدة اللي تنتظر الاستلام. والبطاقة الزرقاء الثانية تعرض الفواتير المقسمة اللي استلمنا جزء منها وباقي لها دفعات ثانية. والخضراء الثالثة للفواتير المكتملة، والبنفسجية الرابعة لسجل أذونات الاستلام الرسمية.`
+            },
+            speech: () => `هذه البطاقات الأربع تصنف الفواتير بوضوح: الصفراء للفواتير الجديدة قيد الاستلام، الزرقاء للفواتير المقسمة على دفعات، الخضراء للمكتملة، والبنفسجية لسجل الأذونات الرسمية.`,
+            action: () => {
+                if (typeof window.setSlRegistryFilter === 'function') {
+                    window.setSlRegistryFilter('pending');
+                }
+                window.ensureLiveDemoInvoiceForGuide();
+            }
+        },
+        {
+            badge: 'الخطوة 4️⃣ — السجل الذكي الفوري: البحث والفرق بين الاعتماد السريع والتقسيم',
+            cursorLabel: 'السجل الذكي: (⚡ اعتماد كامل) أو (✂️ تقسيم وفحص) 📋',
+            targetSelector: '#sl-registry-tbody tr:first-child',
+            speechByDialect: {
+                egyptian: () => `هنا في جدول السجل الذكي، تقدر تبحث في أكتر من ألف فاتورة برقم الفاتورة أو اسم المورد أو حتى اسم الصنف. وقدام كل فاتورة فيه زرارين مهمين: لو العربية جابت البضاعة كاملة زي الفاتورة بالظبط، تضغط على زرار اعتماد كامل الأخضر فتدخل المخزن في ثانية واحدة. أما لو البضاعة جاية ناقصة أو عايز تقسمها على دفعات أو توزعها على كذا مخزن، بنضغط على الفاتورة أو زرار تقسيم وفحص فبتنزل معانا تحت.`,
+                sudanese: () => `هنا في جدول السجل الذكي، تقدر تفتش في أكتر من ألف فاتورة برقم الفاتورة أو اسم المورد أو اسم الصنف ذاتو. وقدام كل فاتورة في زرين: لو العربية جابت البضاعة كاملة زي الفاتورة بالضبط، تضغط زر اعتماد كامل الأخضر فبتدخل المخزن في ثانية. أما لو البضاعة ناقصة أو داير تقسمها على دفعات أو توزعها على مخازن مختلفة، تضغط على الفاتورة أو زر تقسيم وفحص عشان تفتح معاك تحت.`,
+                gulf:     () => `هنا في جدول السجل الذكي، تقدر تبحث في أكثر من ألف فاتورة برقم الفاتورة أو اسم المورد أو اسم الصنف. وقدام كل فاتورة زرين: إذا وصلت البضاعة كاملة نفس الفاتورة بالضبط، تضغط زر اعتماد كامل الأخضر وتدخل المستودع بثانية. أما إذا وصلت على دفعات أو تبغى تقسمها على أكثر من مستودع، تضغط على الفاتورة أو زر تقسيم وفحص وتفتح معك بالأسفل.`
+            },
+            speech: () => `في هذا السجل يمكنك البحث الفوري في آلاف الفواتير. إذا وصلت البضاعة كاملة اضغط اعتماد كامل، وإذا أردت تقسيمها على دفعات أو مخازن اضغط على الفاتورة لتفتح في بطاقة الفحص بالأسفل.`,
+            action: () => {
+                const firstRow = document.querySelector('#sl-registry-tbody tr:first-child');
+                if (firstRow) firstRow.click();
+            }
+        },
+        {
+            badge: 'الخطوة 5️⃣ — بطاقة الفحص والبيانات اللوجستية: توثيق السائق واللوحة والمستودع',
+            cursorLabel: 'قائمة المستودعات 🏢 + إضافة سريعة (+) + ختم وقت البوابة ⏱️',
+            targetSelector: '#sl-master-warehouse',
+            diagramType: 'dropdown-open',
+            speechByDialect: {
+                egyptian: () => `أول ما الفاتورة بتفتح معانا في بطاقة الفحص دي، بنختار المستودع الافتراضي من القائمة المنسدلة اللي فتحت قدامك دلوقتي، أو نضغط علامة الزائد اللي جنبها علشان نضيف مخزن جديد في ثانية! وجنبها بنسجل اسم المستلم الفعلي، واسم سائق الشاحنة، ورقم لوحة العربية، وختم وقت دخول وخروج الشاحنة من البوابة علشان كل ده يتطبع في إذن الاستلام الرسمي.`,
+                sudanese: () => `أول ما الفاتورة تفتح معاك في بطاقة الفحص دي، بنختار المخزن الأساسي من القائمة المنسدلة الفتحت قدامك هسي، أو نضغط علامة الزائد الجنبها عشان نضيف مخزن جديد طوالي! وجنبها بنكتب اسم المستلم الفعلي، واسم سواق الشاحنة، ورقم اللوحة، وختم زمن دخول وخروج الشاحنة من البوابة عشان تطبع كلها في إذن الاستلام الرسمي.`,
+                gulf:     () => `أول ما تفتح الفاتورة في بطاقة الفحص هذي، نختار المستودع الافتراضي من القائمة المنسدلة اللي انفتحت قدامك الحين، أو نضغط زر الزائد بجانبها لإضافة مستودع جديد فوراً! وبجانبها نسجل اسم المستلم الفعلي، واسم سائق الشاحنة، ورقم اللوحة، وختم وقت دخول وخروج الشاحنة من البوابة عشان تنطبع رسمياً في مذكرة الاستلام.`
+            },
+            speech: () => `في بطاقة الفحص نختار المستودع الافتراضي من القائمة المنسدلة أو نضيف مستودعاً جديداً بزر الزائد، ونسجل اسم المستلم والسائق ورقم اللوحة وختم وقت البوابة.`,
+            action: () => {
+                const whSel = document.getElementById('sl-master-warehouse');
+                if (whSel) showLiveSelectOptionsMirror(whSel, null, '🏢 قائمة المستودعات المتاحة');
+            }
+        },
+        {
+            badge: 'الخطوة 6️⃣ — صندوق الكاميرا والتوثيق المصوّر للبضاعة عند البوابة',
+            cursorLabel: 'الاعتماد التلقائي بالباركود ⚡ + إرفاق صورة البضاعة 📎',
+            targetSelector: '#sl-camera-placeholder',
+            speechByDialect: {
+                egyptian: () => `وعلى الشمال هنا صندوق الكاميرا والتوثيق: فيه علامة صح اسمها اعتماد فوري متتابع عند المسح، ودي معناها إنك أول ما تمرر الباركود قدام الكاميرا بيعتمد الفاتورة أوتوماتيك من غير ما تضغط ولا زرار. وكمان تحتها زرار إرفاق صورة البضاعة، لو عايز تصور البضاعة وهي على العربية أو تصور ورقة المورد الموقعة وترفقها كدليل مع الإذن.`,
+                sudanese: () => `وعلى الشمال هنا صندوق الكاميرا والتوثيق: فيهو خيار اسمو اعتماد فوري متتابع عند المسح، وده معناه أول ما تمرر الباركود قدام الكاميرا بيعتمد الفاتورة طوالي بدون ما تضغط أي زر. وتحتو زر إرفاق صورة البضاعة، لو داير تصور البضاعة في العربية أو تصور ورقة المورد وترفقها كإثبات مع الإذن.`,
+                gulf:     () => `وعلى اليسار هنا صندوق الكاميرا والتوثيق: فيه خيار اعتماد فوري متتابع عند المسح، يعني بمجرد تمرير الباركود أمام الكاميرا يعتمد الفاتورة تلقائياً بدون ضغط أي زر. وتحته زر إرفاق صورة البضاعة، لتصوير الحمولة أو مستند المورد وإرفاقه كإثبات رسمي.`
+            },
+            speech: () => `في هذا الصندوق يمكنك تفعيل الاعتماد الفوري بمجرد مسح الباركود، كما يمكنك إرفاق صورة حية للبضاعة أو المستند الورقي كإثبات رسمي.`,
+            action: () => {}
+        },
+        {
+            badge: 'الخطوة 7️⃣ — قارئ الميزان، التقسيم السريع، موقع الرف والتشغيلة، وتوزيع المخازن',
+            cursorLabel: '⚖️ نافذة الميزان الإلكتروني + توزيع ذكي للمخازن 🏭 + الرف والتشغيلة 📍',
+            targetSelector: '#sl-items-grid',
+            diagramType: 'screen-transition',
+            speechByDialect: {
+                egyptian: () => `ننزل بقى لجدول الفحص والتقسيم الذكي، وده قلب الشاشة! فوق الجدول فيه زرار قارئ الميزان الإلكتروني اللي فتح قدامك دلوقتي علشان تكتب الوزن القائم والوزن الفارغ فيحسب الوزن الصافي للعربية أوتوماتيك، وجنبه زرار التوزيع الذكي للمخازن وأزرار تعبئة الكمية مية في المية أو تقسيمها للنص خمسين في المية بضغطة واحدة. وجوه الجدول تقدر تحدد لكل صنف مخزن مستقل من قائمته المنسدلة، وتكتب رقم الرف ورقم التشغيلة!`,
+                sudanese: () => `ننزل هسي لجدول الفحص والتقسيم الذكي، وده قلب الشاشة! فوق الجدول عندك زر قارئ الميزان الإلكتروني الفتح قدامك هسي عشان يحسب الوزن الصافي للشاحنة أوتوماتيك، وجنبو زر التوزيع الذكي للمخازن وأزرار تملأ ليك الباقي مية في المية أو تقسمو للنص خمسين في المية بضغطة واحدة. وجوه الجدول تقدر تختار لكل صنف مخزن براهو من القائمة، وتسجل رقم الرف ورقم التشغيلة!`,
+                gulf:     () => `ننزل الحين لجدول الفحص والتقسيم الذكي، وهذا قلب الشاشة! فوق الجدول نافذة قارئ الميزان الإلكتروني اللي انفتحت قدامك الحين لحساب الوزن الصافي للشاحنة تلقائياً، وبجانبها زر التوزيع الذكي للمخازن وأزرار تعبئة الكمية مية بالمية أو تقسيمها للنصف خمسين بالمية. وداخل الجدول تقدر تختار لكل صنف مستودع مستقل من قائمته وتحدد موقع الرف ورقم التشغيلة!`
+            },
+            speech: () => `في جدول الفحص تفتح نافذة الميزان الإلكتروني لحساب الوزن الصافي تلقائياً، وبجانبها التوزيع الذكي للمخازن وأزرار التعبئة السريعة وتحديد مخزن ورف مستقل لكل صنف.`,
+            action: () => {
+                if (typeof window.openSlWeighbridgeModal === 'function') {
+                    window.openSlWeighbridgeModal();
+                    const gInp = document.getElementById('sl-wb-gross');
+                    const tInp = document.getElementById('sl-wb-tare');
+                    if (gInp && tInp) {
+                        gInp.value = '25';
+                        tInp.value = '10';
+                        if (typeof window.calcSlWeighbridgeNet === 'function') window.calcSlWeighbridgeNet();
+                    }
+                }
+                const tCloseWb = setTimeout(() => {
+                    const wbM = document.getElementById('sl-weighbridge-modal');
+                    if (wbM) wbM.style.display = 'none';
+                    const rowWhSel = document.querySelector('.sl-row-wh-select');
+                    if (rowWhSel) showLiveSelectOptionsMirror(rowWhSel, null, '🏢 مستودع السطر المستقل');
+                }, 4200);
+                dubbedVisualTimers.push(tCloseWb);
+            }
+        },
+        {
+            badge: 'الخطوة 8️⃣ — سر الصندوقين المتزامنين: الاستلام بالوحدة الأساسية ⇄ أو بالفرعية!',
+            cursorLabel: 'اكتب 5 طن ⬅️ تتحول فوراً إلى 500 سيخة والباقي 2 طن! ⚖️',
+            targetSelector: '.sl-qty-primary-input',
+            speechByDialect: {
+                egyptian: () => `تعالى نشوف أهم ميزة في الجدول: الصندوقين اللي جنب بعض قدام كل صنف. تخيل إن الفاتورة مكتوبة بالطن، وكان باقي فيها سبعة طن، والنهارده وصلت خمسة طن بس، أو العامل عدّ البضاعة بالسيخة فلقاهم خمسمية سيخة! إنت مش محتاج آلة حاسبة خالص؛ لو كتبت خمسة في صندوق الطن، صندوق السيخة هيكتب لوحده خمسمية، ولو كتبت في السيخة هيحولها لطن أوتوماتيك، والبرنامج هيحفظ إن باقي لنا اتنين طن للدفعة الجاية!`,
+                sudanese: () => `تعال نشوف أهم ميزة في الجدول: الصندوقين الجنب بعض قدام كل صنف. تخيل الفاتورة مكتوبة بالطن، وباقي فيها سبعة طن، والليلة وصلت خمسة طن بس، أو العامل عدّ الحديد بالسيخة لقاهو خمسمية سيخة! ما بتحتاج آلة حاسبة نهائي؛ لو كتبت خمسة في صندوق الطن، صندوق السيخة بيكتب براهو خمسمية، ولو كتبت بالسيخة بحولها لطن أوتوماتيك، والبرنامج بحفظ إنو باقي لينا اتنين طن للدفعة الجاية!`,
+                gulf:     () => `خلنا نشوف أهم ميزة بالجدول: الصندوقين المتجاورين قدام كل صنف. تخيل الفاتورة مكتوبة بالطن وباقي فيها سبعة طن، واليوم وصل خمسة طن بس، أو العامل عدّ الحديد بالحبة أو السيخة وطلع خمسمية سيخة! ما تحتاج آلة حاسبة أبداً؛ إذا كتبت خمسة بصندوق الطن يتحول صندوق السيخة تلقائياً إلى خمسمية، والعكس صحيح، ويحفظ البرنامج إنه باقي اثنين طن للدفعة القادمة!`
+            },
+            speech: () => `أمام كل صنف صندوقان متزامنان: يمكنك كتابة الكمية بالوحدة الأساسية كالطن أو بالوحدة الفرعية كالسيخة والحبة، وسيقوم البرنامج بالتحويل الآلي وحساب المتبقي للدفعة القادمة فوراً.`,
+            action: () => {
+                const inp = document.querySelector('.sl-qty-primary-input');
+                if (inp) {
+                    inp.focus();
+                    inp.value = '5';
+                    if (typeof window.onSlPrimaryQtyInput === 'function') {
+                        window.onSlPrimaryQtyInput(inp, true);
+                    }
+                }
+            }
+        },
+        {
+            badge: 'الخطوة 9️⃣ — شريط الملخص العائم بالأسفل: مراجعة الأرقام ونسبة الإنجاز قبل الاعتماد',
+            cursorLabel: 'إجمالي الفاتورة: 10 | المنفذ سابقاً: 3 | الآن: 5 | المتبقي: 2 | الإنجاز: 80% 📊',
+            targetSelector: '.sl-floating-summary',
+            speechByDialect: {
+                egyptian: () => `بص تحت خالص على الشريط العائم ده، ده الميزان اللي بيطمنك قبل ما تعتمد: بيقولك الفاتورة كلها كانت عشرة، استلمنا قبل كده تلاتة، وبنستلم في الدفعة دي خمسة، وهيتبقى اتنين في ذمة المورد للدفعة الجاية، مع مؤشر حي لنسبة الإنجاز المئوية. يعني كل رقم واضح قدام عينك قبل ما تضغط اعتماد.`,
+                sudanese: () => `عاين تحت خالص في الشريط العائم ده، ده الميزان البوريك كل حاجة بوضوح قبل الاعتماد: بيقول ليك إجمالي الفاتورة عشرة، استلمنا قبل كدا تلاتة، وهسي بنستلم في الدفعة دي خمسة، وحيفضل باقي اتنين للدفعة الجاية، مع شريط نسبة الإنجاز المئوية.`,
+                gulf:     () => `شوف بالأسفل الشريط العائم هذا، يعطيك ملخص كامل وواضح قبل الاعتماد: إجمالي الفاتورة عشرة، المنفذ سابقاً ثلاثة، والمنفذ في هذي الدفعة خمسة، والمتبقي بعد الدفعة اثنين، مع مؤشر نسبة الإنجاز المئوية.`
+            },
+            speech: () => `يعرض الشريط العائم بالأسفل معادلة الفاتورة كاملة ونسبة الإنجاز المئوية لحظياً: إجمالي الفاتورة، والمنفذ سابقاً، والدفعة الحالية، والمتبقي.`,
+            action: () => {}
+        },
+        {
+            badge: 'الخطوة 🔟 — التوقيع الإلكتروني، إشعار خصم الفروقات، الاعتماد، والطباعة بالـ QR',
+            cursorLabel: 'اعتماد 🚀 | التوقيع ✍️ | إشعار فرق ⚠️ | طباعة QR 🖨️ | واتساب 💬 | عكس ↩️',
+            targetSelector: '#sl-btn-execute',
+            diagramType: 'screen-transition',
+            speechByDialect: {
+                egyptian: () => `وفي الخطوة الأخيرة، بنضغط على زرار اعتماد الآن، فالبضاعة بتدخل المخزن فوراً وبيطلع لها رقم إذن استلام رسمي. وجنبه نافذة التوقيع الإلكتروني باللمس لأمين المخزن والسائق، ونافذة إشعار خصم الفروقات والتوالف اللي بتفتح قدامك دلوقتي علشان تخصم أي عجز من حساب المورد أوتوماتيك، مع طباعة الإذن الرسمي بالباركود، والمشاركة على الواتساب، وزرار عكس الحركة المخزنية للتراجع الكامل في أي وقت!`,
+                sudanese: () => `وفي الخطوة الأخيرة، تضغط على زر اعتماد الآن، فالبضاعة بتنزل في المخزن طوالي وبيطلع ليها رقم إذن استلام رسمي. وجنبو نافذة التوقيع الإلكتروني باللمس، ونافذة إشعار خصم الفروقات والتوالف الفتحت قدامك هسي لو في أي نقص أو تلف عشان يتخصم من حساب المورد طوالي، وطباعة الإذن الرسمي بالباركود، والإرسال بالواتساب، وزر عكس الحركة المخزنية للتراجع الكامل في أي وقت!`,
+                gulf:     () => `وفي الخطوة الأخيرة، نضغط على زر اعتماد الآن، فتدخل الكمية للمستودع فوراً ويصدر لها رقم مذكرة استلام رسمية. وبجانبه نافذة التوقيع الإلكتروني باللمس، ونافذة إشعار خصم الفروقات والتوالف اللي انفتحت قدامك الحين لترحيل أي عجز على حساب المورد تلقائياً، وطباعة الإذن الرسمي مع رمز الكيو آر، والمشاركة عبر الواتساب، وعكس الحركة المخزنية للتراجع في أي وقت!`
+            },
+            speech: () => `وأخيراً نضغط على زر اعتماد الآن لإدخال البضاعة للمخزن فوراً، وبجانبه نافذة التوقيع الإلكتروني باللمس، ونافذة إشعار خصم الفروقات للمورد، وطباعة الإذن الرسمي بالباركود، والمشاركة عبر الواتساب، وعكس الحركة.`,
+            action: () => {
+                if (typeof window.openSlSignatureModal === 'function') {
+                    window.openSlSignatureModal();
+                }
+                const tSwitchToDebit = setTimeout(() => {
+                    const sigM = document.getElementById('sl-signature-modal');
+                    if (sigM) sigM.style.display = 'none';
+                    if (typeof window.openSlShortageDebitNoteModal === 'function') {
+                        window.openSlShortageDebitNoteModal();
+                    }
+                }, 3200);
+                const tCloseDebit = setTimeout(() => {
+                    const dnM = document.getElementById('sl-debit-note-modal');
+                    if (dnM) dnM.style.display = 'none';
+                }, 6800);
+                dubbedVisualTimers.push(tSwitchToDebit, tCloseDebit);
+            }
+        }
+    ];
+
+    // ============================================================================
+    // 📤 2. FULL A-TO-Z MASTERCLASS: SALES DELIVERY & SPLIT GATEWAY (GDN)
+    // (9 خطوات تعليمية تشرح بوابة تسليم المبيعات وتقسيمها وتصريح البوابة من الألف للياء)
+    // ============================================================================
+    const SALES_ONLY_STEPS = [
+        {
+            badge: 'مبيعات 1️⃣ — ما هي بوابة تسليم المبيعات (GDN) وكيف تضبط خروج البضاعة؟',
+            cursorLabel: 'بوابة تسليم المبيعات (خصم مخزني - Out) 📤',
+            targetSelector: '#sl-tab-sales',
+            speechByDialect: {
+                egyptian: () => `يا أهلاً بحضرتك في الشرح الكامل من الألف للياء لبوابة تسليم المبيعات وتقسيمها، واللي بنسميها البوابة الخضراء. الفكرة هنا إن العميل لما بيشتري فاتورة من المبيعات، البضاعة مش بتتخصم ولا تخرج من المخزن إلا لما ييجي يستلمها فعلياً هنا، وساعتها نقدر نسلمه الفاتورة كلها مرة واحدة، أو نقسمها له على دفعات وعربيات مختلفة، ونطلع له تصريح خروج رسمي للبوابة.`,
+                sudanese: () => `حبابك عشرة في الشرح الشامل من الألف للياء لبوابة تسليم المبيعات وتقسيمها، البوابة الخضراء. الفكرة هنا إنو العميل لما يقطع فاتورة مبيعات، البضاعة ما بتمرق من المخزن إلا لما يجي يستلمها فعلياً هنا، ووقتها بنقدر نسلمو الفاتورة كلها مرة واحدة، أو نقسمها ليهو على دفعات، ونطلع ليهو إذن خروج رسمي للبوابة.`,
+                gulf:     () => `يا هلا والله في الشرح الكامل من الألف للياء لبوابة تسليم المبيعات وتقسيمها، البوابة الخضراء. الفكرة هنا إن العميل لما يصدر فاتورة مبيعات، البضاعة ما تنخصم ولا تطلع من المستودع إلا عند تسليمها الفعلي هنا، وتقدر تسلمه كامل الفاتورة دفعة واحدة أو تقسمها له على دفعات وتصدر له تصريح خروج رسمي للبوابة.`
+            },
+            speech: () => `أهلاً بك في الشرح الشامل من الألف للياء لبوابة تسليم المبيعات وتقسيمها. هنا يتم صرف فواتير العملاء فعلياً من المخزن سواء دفعة واحدة أو مقسمة على دفعات مع إصدار تصريح خروج البوابة.`,
+            action: () => {
+                if (typeof window.switchLogisticsMode === 'function') {
+                    window.switchLogisticsMode('sales', true);
+                }
+            }
+        },
+        {
+            badge: 'مبيعات 2️⃣ — حارس الـ QR وربط كاميرا الجوال عند بوابة الصرف',
+            cursorLabel: 'حارس البوابة 🛡️ + مسح أذونات الصرف بالجوال 📱',
+            targetSelector: 'button[onclick="openSlMobileBridgeModal()"]',
+            diagramType: 'screen-transition',
+            speechByDialect: {
+                egyptian: () => `في الشريط العلوي عندك ربط كاميرا الجوال اللي فتح قدامك دلوقتي علشان حارس البوابة أو أمين المخزن يمسح أذونات الصرف ورا بعض بكاميرا الموبايل وتتنفذ في ثانية. وجنبها قائمة حارس الكيو آر اللي بتمنع أي لخبطة لو حد مسح ورقة خارجية بالغلط وإحنا واقفين في بوابة تسليم المبيعات.`,
+                sudanese: () => `في الشريط الفوق عندك ربط كاميرا الجوال الفتح قدامك هسي عشان أمين المخزن أو البوابة يمسح أذونات الصرف ورا بعض بكاميرا التلفون وتتنفذ طوالي. وجنبها قائمة حارس الكيو آر البمنع أي لخبطة لو زول مسح ورقة خارجية بالغلط وإحنا في بوابة المبيعات.`,
+                gulf:     () => `في الشريط العلوي عندك نافذة ربط كاميرا الجوال اللي انفتحت قدامك الحين عشان أمين المستودع يمسح أذونات الصرف متتالية بكاميرا الجوال. وبجانبها قائمة حارس الكيو آر اللي تمنع مسح أي ورقة خارجية بالخطأ أثناء وجودك في بوابة المبيعات.`
+            },
+            speech: () => `يوفر الشريط العلوي نافذة ربط كاميرا الجوال لمسح أذونات الصرف بسرعة فائقة، مع قائمة حارس الكيو آر لمنع مسح أي مستند غير مطابق لبوابة المبيعات.`,
+            action: () => {
+                const qrSel = document.getElementById('sl-qr-guard-mode');
+                if (qrSel) showLiveSelectOptionsMirror(qrSel, null, '🛡️ خيارات حارس الـ QR الذكي');
+                const t1 = setTimeout(() => {
+                    if (typeof window.openSlMobileBridgeModal === 'function') window.openSlMobileBridgeModal();
+                }, 1300);
+                dubbedVisualTimers.push(t1);
+            }
+        },
+        {
+            badge: 'مبيعات 3️⃣ — العدادات الأربعة لفواتير المبيعات ومراحل التسليم',
+            cursorLabel: 'قيد التسليم ⏳ | مقسمة ✂️ | مكتملة ✅ | سجل أذونات GDN 🏷️',
+            targetSelector: '#sl-kpi-card-pending',
+            speechByDialect: {
+                egyptian: () => `الأربع كروت الملونة هنا بتفرز لك فواتير العملاء: الكارت الأصفر الأول فيه الفواتير الجاهزة للصرف اللي العميل لسه ما استلمهاش. والكارت الأزرق التاني فيه الفواتير اللي العميل استلم جزء منها ولسه باقي له بضاعة عندنا، أو واقفة مستنية ختم البوابة النهائي. والأخضر التالت للفواتير اللي اتسلمت بالكامل، والبنفسجي الرابع لسجل أذونات الصرف الرسمية.`,
+                sudanese: () => `الأربعة كروت الملونة هنا بتفرز ليك فواتير الزبائن: الكرت الأصفر الأول للفواتير الجاهزة للصرف. والكرت الأزرق التاني للفواتير المقسمة اللي العميل شال جزء منها ولسه باقي ليهو بضاعة في المخزن. والأخضر التالت للفواتير الاتسلمت خلاص، والبنفسجي الرابع لسجل أذونات الصرف الرسمية.`,
+                gulf:     () => `البطاقات الأربع هنا تفرز فواتير العملاء: الصفراء للفواتير الجاهزة للصرف، والزرقاء للفواتير المقسمة اللي استلم العميل جزء منها وباقي له دفعات ثانية، والخضراء للمكتملة، والبنفسجية لسجل أذونات الفسح والصرف الرسمية.`
+            },
+            speech: () => `تفرز هذه البطاقات فواتير العملاء إلى: جاهزة للصرف، ومقسمة على دفعات، ومكتملة التسليم، وسجل أذونات الصرف الرسمية.`,
+            action: () => {
+                if (typeof window.setSlRegistryFilter === 'function') {
+                    window.setSlRegistryFilter('pending');
+                }
+                window.ensureLiveDemoInvoiceForGuide();
+            }
+        },
+        {
+            badge: 'مبيعات 4️⃣ — السجل الذكي للمبيعات: الصرف الكامل بضغطة أو فتح الفاتورة للتقسيم',
+            cursorLabel: 'اضغط على فاتورة العميل لفتحها وتقسيمها 📄',
+            targetSelector: '#sl-registry-tbody tr:first-child',
+            speechByDialect: {
+                egyptian: () => `من جدول السجل الذكي، تقدر تبحث باسم العميل أو رقم الفاتورة. لو العميل هيشيل الفاتورة كلها دلوقتي، تضغط على زرار اعتماد كامل الأخضر. أما لو العربية بتاعته صغيرة وهيشيل جزء بس النهارده والباقي بكرة، بنضغط على الفاتورة علشان تفتح معانا في بطاقة الفحص والتقسيم تحت.`,
+                sudanese: () => `من جدول السجل الذكي، تقدر تبحث باسم العميل أو رقم الفاتورة. لو العميل شايل الفاتورة كلها هسي، تضغط زر اعتماد كامل الأخضر. أما لو عربيتو صغيرة وحيشيل جزء الليلة والباقي بكرة، تضغط على الفاتورة عشان تفتح معاك في بطاقة الفحص والتقسيم تحت.`,
+                gulf:     () => `من جدول السجل الذكي، تقدر تبحث باسم العميل أو رقم الفاتورة. إذا العميل بيستلم الفاتورة كاملة الحين، تضغط زر اعتماد كامل الأخضر. أما إذا سيارته بتشيل جزء اليوم والباقي بعدين، تضغط على الفاتورة عشان تفتح معك في بطاقة الفحص والتقسيم بالأسفل.`
+            },
+            speech: () => `من السجل الذكي يمكنك صرف الفاتورة بالكامل بضغطة واحدة، أو الضغط عليها لفتحها في بطاقة الفحص وتقسيمها على دفعات.`,
+            action: () => {
+                const firstRow = document.querySelector('#sl-registry-tbody tr:first-child');
+                if (firstRow) firstRow.click();
+            }
+        },
+        {
+            badge: 'مبيعات 5️⃣ — المستودع الصارف، كشف الفاتورة المالية، ومسار التوصيل وتصريح البوابة',
+            cursorLabel: 'قائمة المستودع 🏢 • الفاتورة المالية 🔍 • مسار التوصيل 🚚 • تصريح البوابة 🎫',
+            targetSelector: '#sl-master-warehouse',
+            diagramType: 'dropdown-open',
+            speechByDialect: {
+                egyptian: () => `هنا في بطاقة بيانات التسليم، بنختار المستودع اللي هنصرف منه من القائمة المنسدلة اللي فتحت قدامك، وتقدر تفتح نافذة الفاتورة المالية الأصلية أو نافذة مسار التوصيل وجدولة الأسطول علشان تسجل اسم السائق ورقم اللوحة ورقم تصريح خروج البوابة وموعد الوصول المتوقع للعميل.`,
+                sudanese: () => `هنا في بطاقة بيانات التسليم، بنختار المخزن الحنصرف منو من القائمة المنسدلة الفتحت قدامك هسي، وتقدر تفتح نافذة الفاتورة المالية الأصلية أو نافذة مسار التوصيل وجدولة الأسطول عشان تسجل اسم السواق ورقم اللوحة ورقم تصريح البوابة وزمن التوصيل.`,
+                gulf:     () => `هنا في بطاقة بيانات التسليم، نختار المستودع الصارف من القائمة المنسدلة اللي انفتحت قدامك الحين، وتقدر تفتح نافذة الفاتورة المالية الأصلية أو نافذة مسار التوصيل وجدولة الأسطول لتوثيق السائق ورقم اللوحة وتصريح البوابة.`
+            },
+            speech: () => `في هذه البطاقة نختار المستودع الصارف من القائمة المنسدلة، ونستعرض نافذة الفاتورة المالية الأصلية ونافذة مسار التوصيل وتصريح البوابة لضمان الرقابة الكاملة عند خروج البضاعة.`,
+            action: () => {
+                const whSel = document.getElementById('sl-master-warehouse');
+                if (whSel) showLiveSelectOptionsMirror(whSel, null, '🏢 المستودع الصارف للبضاعة');
+                const tDrill = setTimeout(() => {
+                    if (typeof window.openSlOriginalInvoiceDrilldownModal === 'function') window.openSlOriginalInvoiceDrilldownModal();
+                }, 1500);
+                const tFleet = setTimeout(() => {
+                    const dm = document.getElementById('sl-drilldown-invoice-modal');
+                    if (dm) dm.style.display = 'none';
+                    if (typeof window.openSlFleetDispatchModal === 'function') window.openSlFleetDispatchModal();
+                }, 3800);
+                const tCloseFleet = setTimeout(() => {
+                    const fm = document.getElementById('sl-fleet-dispatch-modal');
+                    if (fm) fm.style.display = 'none';
+                }, 6200);
+                dubbedVisualTimers.push(tDrill, tFleet, tCloseFleet);
+            }
+        },
+        {
+            badge: 'مبيعات 6️⃣ — فحص الرصيد المتاح، مطابقة التحميل، وحاسبة الحمولة والطبليات',
+            cursorLabel: 'فحص رصيد المستودع 🏢 + فحص التحميل 🎯 + حاسبة الحمولة 📦',
+            targetSelector: '#sl-items-grid',
+            diagramType: 'screen-transition',
+            speechByDialect: {
+                egyptian: () => `في جدول الفحص تحت، البرنامج بيعرض لك قدام كل صنف الرصيد الفعلي الموجود جوه كل مخزن علشان ما تصرفش كمية مش موجودة! وفوق الجدول تقدر تفتح نافذة فحص التحميل بالباركود، ونافذة حاسبة الحمولة والطبليات اللي فتحت قدامك علشان تحسب إجمالي وزن الشحنة وعدد الطبليات المطلوبة ونوع العربية المناسبة قبل التحميل.`,
+                sudanese: () => `في جدول الفحص تحت، البرنامج بيعرض ليك قدام كل صنف الرصيد الفعلي الموجود جوه كل مخزن عشان تكون عارف البضاعة المتوفرة! وفوق الجدول تقدر تفتح نافذة فحص التحميل، ونافذة حاسبة الحمولة والطبليات الفتحت قدامك هسي عشان تحسب وزن الشحنة وعدد الطبليات والعربية المناسبة.`,
+                gulf:     () => `في جدول الفحص بالأسفل، يعرض لك البرنامج قدام كل صنف الرصيد الفعلي المتوفر داخل كل مستودع! وفوق الجدول تقدر تفتح نافذة فحص التحميل، ونافذة حاسبة الحمولة والطبليات اللي انفتحت قدامك الحين لحساب وزن الشحنة وعدد الطبليات وحجم المركبة المناسبة.`
+            },
+            speech: () => `يعرض الجدول الرصيد الفعلي المتاح في كل مخزن أمام كل صنف، مع نافذة فحص ومطابقة التحميل ونافذة حاسبة الحمولة والطبليات لاختيار الشاحنة المناسبة.`,
+            action: () => {
+                if (typeof window.openSlLoadingVerifierModal === 'function') window.openSlLoadingVerifierModal();
+                const tCargo = setTimeout(() => {
+                    const lv = document.getElementById('sl-load-verifier-modal');
+                    if (lv) lv.style.display = 'none';
+                    if (typeof window.openSlCargoEstimatorModal === 'function') window.openSlCargoEstimatorModal();
+                }, 2600);
+                const tRowWh = setTimeout(() => {
+                    const ce = document.getElementById('sl-cargo-estimator-modal');
+                    if (ce) ce.style.display = 'none';
+                    const rowWhSel = document.querySelector('.sl-row-wh-select');
+                    if (rowWhSel) showLiveSelectOptionsMirror(rowWhSel, null, '🏢 مستودع صرف السطر والرصيد');
+                }, 5200);
+                dubbedVisualTimers.push(tCargo, tRowWh);
+            }
+        },
+        {
+            badge: 'مبيعات 7️⃣ — التسليم بالوحدة الأساسية ⇄ أو بالوحدة الفرعية وحساب المتبقي للعميل',
+            cursorLabel: 'المتبقي للعميل 7 ⬅️ نسلّمه الآن 5 ويتبقى له 2! ⚖️',
+            targetSelector: '.sl-qty-primary-input',
+            speechByDialect: {
+                egyptian: () => `وهنا ميزة التقسيم بالوحدتين في المبيعات: الفاتورة دي باقي فيها للعميل سبعة طن، لو العربية بتاعته هتشيل النهارده خمسة طن بس، بنكتب خمسة في صندوق الطن، أو نكتب خمسمية في صندوق السيخة، فالبرنامج بيحولها لوحده وبيحفظ أوتوماتيك إن العميل لسه فاضل له اتنين طن ييجي يستلمهم في الدفعة الجاية!`,
+                sudanese: () => `وهنا ميزة التقسيم بالوحدتين في المبيعات: الفاتورة دي باقي فيها للعميل سبعة طن، لو عربيتو بتشيل الليلة خمسة طن بس، نكتب خمسة في صندوق الطن، أو نكتب خمسمية في صندوق السيخة، والبرنامج براهو بيحولها وبيحفظ أوتوماتيك إنو العميل لسه باقي ليهو اتنين طن يستلمهم في الدفعة الجاية!`,
+                gulf:     () => `وهنا ميزة التقسيم بالوحدتين في المبيعات: الفاتورة باقي فيها للعميل سبعة طن، إذا سيارته بتشيل اليوم خمسة طن بس، نكتب خمسة بصندوق الطن أو خمسمية بصندوق السيخة، والبرنامج يحولها تلقائياً ويحفظ إن العميل باقي له اثنين طن للدفعة الجاية!`
+            },
+            speech: () => `نكتب الكمية المسلمة للعميل في هذه الدفعة سواء بالوحدة الأساسية أو الفرعية، فيقوم البرنامج بتحويلها وحفظ الكمية المتبقية للعميل للدفعة القادمة تلقائياً.`,
+            action: () => {
+                const inp = document.querySelector('.sl-qty-primary-input');
+                if (inp) {
+                    inp.focus();
+                    inp.value = '5';
+                    if (typeof window.onSlPrimaryQtyInput === 'function') {
+                        window.onSlPrimaryQtyInput(inp, true);
+                    }
+                }
+            }
+        },
+        {
+            badge: 'مبيعات 8️⃣ — شريط الملخص العائم: مطابقة المسلم الآن والمتبقي للعميل',
+            cursorLabel: 'مراجعة المسلم في هذه الدفعة (5) والمتبقي للعميل (2) 📊',
+            targetSelector: '.sl-floating-summary',
+            speechByDialect: {
+                egyptian: () => `وقبل ما تضغط اعتماد، الشريط العائم اللي تحت ده بيأكد لك الحسبة كلها: الفاتورة عشرة، العميل استلم قبل كده تلاتة، وبيستلم دلوقتي خمسة، وهيتبقى له اتنين في ذمة المخزن.`,
+                sudanese: () => `وقبل ما تضغط اعتماد، الشريط العائم التحت ده بيأكد ليك الحساب كلو: الفاتورة عشرة، العميل استلم قبل كدا تلاتة، وهسي بيستلم خمسة، وحيفضل باقي ليهو اتنين.`,
+                gulf:     () => `وقبل الاعتماد، الشريط العائم بالأسفل يوضح لك الحسبة كاملة: إجمالي الفاتورة عشرة، المستلم سابقاً ثلاثة، والمستلم بهذه الدفعة خمسة، والمتبقي للعميل اثنين.`
+            },
+            speech: () => `يوضح الشريط العائم بالأسفل ملخص عملية الصرف بدقة: إجمالي الفاتورة، والمسلم سابقاً، والمسلم في هذه الدفعة، والمتبقي للعميل.`,
+            action: () => {}
+        },
+        {
+            badge: 'مبيعات 9️⃣ — التوقيع الإلكتروني، اعتماد الصرف، طباعة تصريح البوابة (QR)، أو عكس الحركة',
+            cursorLabel: 'اعتماد الصرف 🚀 | التوقيع ✍️ | طباعة تصريح البوابة 🖨️ | تراجع وعكس ↩️',
+            targetSelector: '#sl-btn-execute',
+            diagramType: 'screen-transition',
+            speechByDialect: {
+                egyptian: () => `وفي النهاية بنفتح نافذة التوقيع الإلكتروني باللمس علشان السائق أو العميل يوقع بالاستلام، ونضغط على زرار تأكيد واعتماد التسليم والصرف، فالكمية بتتخصم من المخزن فوراً، وتقدر تطبع تصريح الخروج الرسمي وعليه باركود الكيو آر علشان العميل يسلمه على البوابة، أو تبعته له واتساب، ولو حصل أي تراجع تقدر تضغط زرار إلغاء وعكس الحركة المخزنية فيرجع الرصيد للمخزن فوراً!`,
+                sudanese: () => `وفي النهاية بنفتح نافذة التوقيع الإلكتروني باللمس عشان السواق أو العميل يوقع بالاستلام، وتضغط على زر تأكيد واعتماد التسليم والصرف، فالكمية بتتخصم من المخزن طوالي، وتقدر تطبع تصريح الخروج الرسمي بالباركود عشان العميل يسلمو في البوابة، أو ترسلو ليهو واتساب، ولو داير تتراجع في أي وقت تضغط زر إلغاء وعكس الحركة المخزنية فيرجع الرصيد للمخزن طوالي!`,
+                gulf:     () => `وفي النهاية نفتح نافذة التوقيع الإلكتروني باللمس لتوقيع السائق أو العميل، ونضغط على زر تأكيد واعتماد التسليم والصرف، فتنخصم الكمية من المستودع فوراً، وتقدر تطبع إذن الفسح الرسمي بالباركود للبوابة أو ترسله واتساب، وبجانبه زر إلغاء وعكس الحركة المخزنية لإرجاع الرصيد في أي وقت!`
+            },
+            speech: () => `نوثق توقيع المستلم والسائق في نافذة التوقيع الإلكتروني، ثم نضغط على زر تأكيد واعتماد التسليم لخصم الكمية من المخزن وإصدار تصريح البوابة الرسمي بالباركود، مع إمكانية التراجع وعكس الحركة في أي وقت.`,
+            action: () => {
+                if (typeof window.openSlSignatureModal === 'function') {
+                    window.openSlSignatureModal();
+                }
+                const tCloseSig = setTimeout(() => {
+                    const sigM = document.getElementById('sl-signature-modal');
+                    if (sigM) sigM.style.display = 'none';
+                }, 3800);
+                dubbedVisualTimers.push(tCloseSig);
+            }
+        }
+    ];
+
+    window.MagaiesSmartGuides['smart-logistics'] = {
+        title: 'المرشد الذكي الشامل (من الألف إلى الياء): بوابة المشتريات (GRN) وبوابة المبيعات (GDN)',
+        subtitle: 'أكاديمية شرح تفاعلية حية بالصوت الرجالي الواضح بـ 3 لهجات (🇸🇩 سودانية | 🇪🇬 مصرية | 🇸🇦 خليجية) والماوس المتحرك',
+
+        // LIVE AUTOPILOT SCENARIO STEPS
+        autopilotSteps: PURCHASES_MASTER_STEPS,
 
         visualSteps: [
             {
-                stepBadge: 'الخطوة 1️⃣ — اختر نوع العملية أولاً',
-                title: 'حدد هل البضاعة «خارجة للمبيعات 📤» أم «داخلة للمشتريات 📥»؟',
-                desc: '• اضغط (📤 المبيعات - أخضر) لتسليم بضاعة لعميل وخصمها من المخزن.\n• اضغط (📥 المشتريات - أزرق) لاستلام بضاعة من مورد وإدخالها للمخزن.',
+                stepBadge: 'القسم 1️⃣ — الفرق الجوهري بين البوابتين (GRN ⇄ GDN)',
+                title: 'كيف تعمل بوابة استلام المشتريات 📥 وبوابة تسليم المبيعات 📤؟',
+                desc: '• 📥 بوابة المشتريات (الزرقاء - GRN): مخصصة للبضاعة الواردة من الموردين؛ فحص العد الفعلي، تقسيم الفاتورة على دفعات أو عدة مخازن، و(إضافة الكمية للمخزن +).\n• 📤 بوابة المبيعات (الخضراء - GDN): مخصصة للبضاعة الصادرة للعملاء؛ فحص الرصيد المتاح، تسليم الفاتورة كاملة أو على دفعات، إصدار تصريح خروج البوابة (Gate Pass)، و(خصم الكمية من المخزن -).',
                 svg: `<svg viewBox="0 0 320 110" width="100%" height="100%">
-                    <rect x="10" y="18" width="142" height="74" rx="12" fill="#064e3b" stroke="#34d399" stroke-width="2.5"/>
-                    <text x="81" y="48" fill="#ffffff" font-size="13" font-weight="bold" text-anchor="middle">📤 تسليم المبيعات</text>
-                    <text x="81" y="70" fill="#6ee7b7" font-size="11" text-anchor="middle">خصم من المخزن (- Out)</text>
-                    <rect x="168" y="18" width="142" height="74" rx="12" fill="#0c4a6e" stroke="#38bdf8" stroke-width="2.5"/>
-                    <text x="239" y="48" fill="#ffffff" font-size="13" font-weight="bold" text-anchor="middle">📥 استلام المشتريات</text>
-                    <text x="239" y="70" fill="#7dd3fc" font-size="11" text-anchor="middle">إضافة للمخزن (+ In)</text>
+                    <rect x="10" y="14" width="144" height="82" rx="12" fill="#064e3b" stroke="#34d399" stroke-width="2.5"/>
+                    <text x="82" y="42" fill="#ffffff" font-size="12.5" font-weight="bold" text-anchor="middle">📤 بوابة المبيعات (GDN)</text>
+                    <text x="82" y="62" fill="#6ee7b7" font-size="10.5" text-anchor="middle">خصم مخزني (- Out)</text>
+                    <text x="82" y="80" fill="#a7f3d0" font-size="9.5" text-anchor="middle">تصريح خروج بوابة للعميل</text>
+                    <rect x="166" y="14" width="144" height="82" rx="12" fill="#0c4a6e" stroke="#38bdf8" stroke-width="2.5"/>
+                    <text x="238" y="42" fill="#ffffff" font-size="12.5" font-weight="bold" text-anchor="middle">📥 بوابة المشتريات (GRN)</text>
+                    <text x="238" y="62" fill="#7dd3fc" font-size="10.5" text-anchor="middle">إضافة مخزنية (+ In)</text>
+                    <text x="238" y="80" fill="#bae6fd" font-size="9.5" text-anchor="middle">مذكرة استلام من المورد</text>
                 </svg>`,
                 targetSelector: '.sl-mode-switcher'
             },
             {
-                stepBadge: 'الخطوة 2️⃣ — اختر الفاتورة أو امسح الباركود',
-                title: 'اذهب للأذونات غير المستلمة واضغط على الإذن المطلوب',
-                desc: 'اضغط على بطاقة (⏳ قيد الاستلام/التسليم) ثم اضغط بالماوس على الإذن من الجدول، أو مرر كاميرا الجوال على ورقة الإذن ليقرأ الباركود ويفتحه لك فوراً.',
+                stepBadge: 'القسم 2️⃣ — الشريط العلوي: ربط كاميرا الجوال وحارس الـ QR',
+                title: 'امسح 10 أذونات متتالية بالجوال مع حماية كاملة من الخطأ',
+                desc: '• 📱 ربط كاميرا الجوال: يحول جوالك إلى قارئ باركود لاسلكي يمسح الأذونات تباعاً ويعتمدها بدون لمس الكيبورد.\n• 🛡️ حارس الـ QR: يمنع العامل من مسح إذن مبيعات بالخطأ وهو داخل شاشة المشتريات (أو العكس) وينبهه صوتياً.',
+                svg: `<svg viewBox="0 0 320 110" width="100%" height="100%">
+                    <rect x="12" y="18" width="142" height="74" rx="12" fill="#0f172a" stroke="#38bdf8" stroke-width="2"/>
+                    <text x="83" y="46" fill="#38bdf8" font-size="12" font-weight="bold" text-anchor="middle">🛡️ حارس الـ QR الذكي</text>
+                    <text x="83" y="68" fill="#cbd5e1" font-size="10" text-anchor="middle">يمنع خلط المبيعات بالمشتريات</text>
+                    <rect x="166" y="18" width="142" height="74" rx="12" fill="#064e3b" stroke="#34d399" stroke-width="2"/>
+                    <text x="237" y="46" fill="#ffffff" font-size="12" font-weight="bold" text-anchor="middle">📱 ربط كاميرا الجوال</text>
+                    <text x="237" y="68" fill="#a7f3d0" font-size="10" text-anchor="middle">مسح متتابع فوري بدون توقف</text>
+                </svg>`,
+                targetSelector: '#sl-top-cockpit-bar'
+            },
+            {
+                stepBadge: 'القسم 3️⃣ — العدادات الأربعة والسجل الفوري (+1000 فاتورة)',
+                title: 'كيف تعرف حالة كل فاتورة وتختار بين الاعتماد السريع أو التقسيم؟',
+                desc: '• ⏳ قيد الإجراء: فواتير جديدة لم تُستلم أو تُسلم بعد.\n• 🌗 الجزئي / المقسمة: فواتير تم تنفيذ دفعة منها وبقي لها دفعات قادمة.\n• ⚡ اعتماد كامل: ينفذ الفاتورة كلها بضغطة واحدة.\n• ✂️ تقسيم وفحص: يفتح الفاتورة بالأسفل لتقسيم كمياتها أو توزيع مخازنها.',
                 svg: `<svg viewBox="0 0 320 110" width="100%" height="100%">
                     <rect x="12" y="14" width="200" height="82" rx="10" fill="#0f172a" stroke="#64748b" stroke-width="1.5"/>
                     <rect x="22" y="26" width="180" height="22" rx="5" fill="#1e293b"/>
-                    <text x="112" y="41" fill="#38bdf8" font-size="11" font-weight="bold" text-anchor="middle">#1045 — باقي فيه 7 وحدات</text>
+                    <text x="112" y="41" fill="#38bdf8" font-size="11" font-weight="bold" text-anchor="middle">#1045 — الإجمالي 10 | المتبقي 7</text>
                     <rect x="22" y="56" width="82" height="26" rx="6" fill="#10b981"/>
                     <text x="63" y="73" fill="#fff" font-size="10" font-weight="bold" text-anchor="middle">⚡ اعتماد كامل</text>
                     <rect x="114" y="56" width="88" height="26" rx="6" fill="#0284c7"/>
                     <text x="158" y="73" fill="#fff" font-size="10" font-weight="bold" text-anchor="middle">✂️ تقسيم وفحص</text>
-                    <rect x="226" y="14" width="82" height="82" rx="12" fill="#064e3b" stroke="#34d399" stroke-width="2"/>
-                    <text x="267" y="52" fill="#fff" font-size="22" text-anchor="middle">📱</text>
-                    <text x="267" y="76" fill="#a7f3d0" font-size="10" font-weight="bold" text-anchor="middle">مسح QR فوري</text>
+                    <rect x="226" y="14" width="82" height="82" rx="12" fill="#1e1b4b" stroke="#c084fc" stroke-width="2"/>
+                    <text x="267" y="48" fill="#e9d5ff" font-size="18" font-weight="bold" text-anchor="middle">4</text>
+                    <text x="267" y="70" fill="#cbd5e1" font-size="9.5" font-weight="bold" text-anchor="middle">فلاتر ذكية فورية</text>
                 </svg>`,
                 targetSelector: '#sl-registry-tbody'
             },
             {
-                stepBadge: 'الخطوة 3️⃣ — اكتب الكمية المستلمة بالوحدة الأساسية أو الفرعية',
-                title: 'الإذن باقي فيه 7؟ اكتب 5 أو 7 في المربع وسيحسب الباقي تلقائياً!',
-                desc: 'أمام كل صنف مربعان متجاوران:\n• المربع الأيمن للوحدة الأساسية (طن / كرتون).\n• المربع الأيسر للوحدة الفرعية (سيخة / حبة).\nاكتب الكمية التي وصلت الآن، وسيحسب البرنامج المتبقي للدفعة القادمة أوتوماتيكياً.',
+                stepBadge: 'القسم 4️⃣ — بطاقة الفحص والتوثيق اللوجستي وصورة البضاعة',
+                title: 'توثيق المستودع والسائق ورقم اللوحة وإرفاق صورة الحمولة',
+                desc: 'عند فتح أي فاتورة، يمكنك تحديد (🏢 المستودع الافتراضي)، وتسجيل (🤝 اسم المستلم الفعلي)، و(🚚 اسم السائق)، و(🔢 رقم اللوحة)، و(🎫 رقم تصريح البوابة)، مع إمكانية (📎 إرفاق صورة حية للبضاعة أو المستند الموقع).',
+                svg: `<svg viewBox="0 0 320 110" width="100%" height="100%">
+                    <rect x="10" y="16" width="195" height="78" rx="10" fill="#0f172a" stroke="#38bdf8" stroke-width="1.8"/>
+                    <text x="107" y="40" fill="#ffffff" font-size="11" font-weight="bold" text-anchor="middle">📄 بيانات الشاحنة والسائق والمستودع</text>
+                    <text x="107" y="62" fill="#7dd3fc" font-size="9.5" text-anchor="middle">تُطبع رسمياً في إذن GRN / GDN</text>
+                    <rect x="215" y="16" width="95" height="78" rx="10" fill="#1e293b" stroke="#fbbf24" stroke-width="1.8"/>
+                    <text x="262" y="48" fill="#fcd34d" font-size="18" text-anchor="middle">📎📷</text>
+                    <text x="262" y="72" fill="#fde047" font-size="9.5" font-weight="bold" text-anchor="middle">إرفاق صورة إثبات</text>
+                </svg>`,
+                targetSelector: '#sl-inspection-cockpit'
+            },
+            {
+                stepBadge: 'القسم 5️⃣ — التقسيم بالوحدتين (أساسية ⇄ فرعية) وتوزيع المخازن',
+                title: 'استلم أو سلّم بالطن أو بالسيخة/الحبة، ووزّع الأصناف على عدة مخازن!',
+                desc: '• أمام كل صنف صندوقان متزامنان: اكتب في صندوق الوحدة الأساسية (طن/كرتون) أو الفرعية (سيخة/حبة) وسيحول البرنامج بينهما تلقائياً بدون آلة حاسبة.\n• إذا كان المتبقي 7 وكتبت 5، يحفظ البرنامج تلقائياً أن المتبقي 2 للدفعة القادمة.\n• يمكنك اختيار مخزن مستقل لكل سطر داخل نفس الفاتورة.',
                 svg: `<svg viewBox="0 0 320 110" width="100%" height="100%">
                     <rect x="10" y="18" width="132" height="74" rx="10" fill="#06281f" stroke="#10b981" stroke-width="2"/>
-                    <text x="76" y="42" fill="#6ee7b7" font-size="10" font-weight="bold" text-anchor="middle">📦 المتبقي 7 (نستلم 5)</text>
+                    <text x="76" y="42" fill="#6ee7b7" font-size="10" font-weight="bold" text-anchor="middle">📦 بالأساسية (المتبقي 7)</text>
                     <rect x="36" y="52" width="80" height="28" rx="6" fill="#020617" stroke="#34d399"/>
-                    <text x="76" y="71" fill="#fff" font-size="14" font-weight="bold" text-anchor="middle">5</text>
+                    <text x="76" y="71" fill="#fff" font-size="14" font-weight="bold" text-anchor="middle">5 طن</text>
                     <text x="160" y="60" fill="#fbbf24" font-size="18" font-weight="bold" text-anchor="middle">⇄</text>
                     <rect x="178" y="18" width="132" height="74" rx="10" fill="#1e1b4b" stroke="#818cf8" stroke-width="2"/>
                     <text x="244" y="42" fill="#a5b4fc" font-size="10" font-weight="bold" text-anchor="middle">🔢 المعادل بالفرعية</text>
                     <rect x="204" y="52" width="80" height="28" rx="6" fill="#020617" stroke="#818cf8"/>
-                    <text x="244" y="71" fill="#fff" font-size="14" font-weight="bold" text-anchor="middle">500</text>
+                    <text x="244" y="71" fill="#fff" font-size="14" font-weight="bold" text-anchor="middle">500 سيخة</text>
                 </svg>`,
                 targetSelector: '#sl-items-grid'
             },
             {
-                stepBadge: 'الخطوة 4️⃣ — اضغط اعتماد أو تراجع في أي وقت',
-                title: 'اعتمد العملية بضغطة زر واحدة',
-                desc: 'اضغط زر (🚀 تأكيد واعتماد الآن) ليتم تحديث المخزن فوراً.\nوإذا أردت التراجع، اضغط زر (↩️ إلغاء وعكس الحركة) بجانبه ليُرجع كل شيء كما كان.',
+                stepBadge: 'القسم 6️⃣ — شريط الملخص العائم، الطباعة بالـ QR، وعكس الحركة',
+                title: 'راجع المعادلة الكاملة، اعتمد بضغطة، اطبع الإذن، أو تراجع في أي وقت',
+                desc: '• يعرض الشريط السفلي: (إجمالي الفاتورة | المنفذ سابقاً | المنفذ الآن | المتبقي بعد الدفعة).\n• زر (🚀 تأكيد واعتماد): يحدث المخزن فوراً ويصدر الإذن الرسمي.\n• زر (🖨️ طباعة الإذن الرسمي QR) وزر (💬 واتساب).\n• زر (↩️ إلغاء وعكس الحركة): يلغي العملية ويعيد رصيد المخزن كما كان.',
                 svg: `<svg viewBox="0 0 320 110" width="100%" height="100%">
-                    <rect x="8" y="25" width="304" height="60" rx="14" fill="#0f172a" stroke="#34d399" stroke-width="2"/>
-                    <text x="235" y="52" fill="#cbd5e1" font-size="10" font-weight="bold" text-anchor="middle">المنفذ الآن: 5 | المتبقي: 2</text>
-                    <text x="235" y="70" fill="#fbbf24" font-size="9" text-anchor="middle">تحديث لحظي</text>
-                    <rect x="18" y="37" width="135" height="36" rx="10" fill="#10b981"/>
-                    <text x="85" y="60" fill="#ffffff" font-size="11" font-weight="bold" text-anchor="middle">🚀 تأكيد واعتماد الآن</text>
+                    <rect x="8" y="22" width="304" height="66" rx="14" fill="#0f172a" stroke="#34d399" stroke-width="2"/>
+                    <text x="232" y="48" fill="#cbd5e1" font-size="10" font-weight="bold" text-anchor="middle">الإجمالي: 10 | الآن: 5 | الباقي: 2</text>
+                    <text x="232" y="68" fill="#fbbf24" font-size="9.5" text-anchor="middle">🖨️ طباعة QR • 💬 واتساب • ↩️ عكس</text>
+                    <rect x="16" y="36" width="132" height="38" rx="10" fill="#10b981"/>
+                    <text x="82" y="59" fill="#ffffff" font-size="11" font-weight="bold" text-anchor="middle">🚀 تأكيد واعتماد الآن</text>
                 </svg>`,
                 targetSelector: '.sl-floating-summary'
             }
@@ -1442,63 +2120,133 @@
 
         buttonsDict: [
             {
-                label: '📤 منظومة المبيعات وتقسيمها وتسليمها (GDN)',
+                label: '📤 منظومة المبيعات وتقسيمها وتسليمها (صادر — GDN)',
                 style: 'background:linear-gradient(135deg,#064e3b,#047857); color:#fff; border:1.5px solid #34d399;',
-                whatItDoes: 'يحول الشاشة إلى قسم تسليم بضائع المبيعات للعملاء (باللون الأخضر الزمردي).',
-                whatHappensIfClicked: 'يعرض فواتير المبيعات فقط، وعند الاعتماد يقوم بـ (خصم الكميات من المخزن) وإصدار إذن صرف بوابة (GDN).',
+                whatItDoes: 'يحول الشاشة بالكامل إلى بوابة تسليم بضائع المبيعات للعملاء (باللون الأخضر الزمردي).',
+                whatHappensIfClicked: 'يعرض فواتير المبيعات الجاهزة للصرف أو المقسمة، ويكشف لك الرصيد الفعلي المتاح في كل مخزن قبل الصرف، وعند الاعتماد يقوم بـ (خصم الكميات المسلمة من المخزن) وإصدار إذن صرف وتصريح خروج بوابة (GDN / Gate Pass).',
                 targetSelector: '#sl-tab-sales'
             },
             {
-                label: '📥 منظومة المشتريات وتقسيمها واستلامها (GRN)',
+                label: '📥 منظومة المشتريات وتقسيمها واستلامها (وارد — GRN)',
                 style: 'background:linear-gradient(135deg,#0c4a6e,#4338ca); color:#fff; border:1.5px solid #38bdf8;',
-                whatItDoes: 'يحول الشاشة إلى قسم استلام بضائع المشتريات من الموردين (باللون الأزرق الملكي).',
-                whatHappensIfClicked: 'يعرض فواتير المشتريات فقط، وعند الاعتماد يقوم بـ (إضافة الكميات إلى المخزن) وإصدار مذكرة استلام (GRN).',
+                whatItDoes: 'يحول الشاشة بالكامل إلى بوابة استلام بضائع المشتريات من الموردين (باللون الأزرق الملكي).',
+                whatHappensIfClicked: 'يعرض فواتير المشتريات التي تنتظر الاستلام أو المقسمة على دفعات، ويتيح لك فحص الكميات الواردة وتوزيعها على عدة مخازن، وعند الاعتماد يقوم بـ (إضافة الكميات المستلمة إلى المخزن) وإصدار مذكرة استلام فحص (GRN).',
                 targetSelector: '#sl-tab-purchases'
             },
             {
-                label: '🛡️ حارس الـ QR (ذكي تلقائي / قفل صارم)',
+                label: '🛡️ حارس الـ QR (🤖 ذكي تلقائي / 🔒 قفل القسم الحالي)',
                 style: 'background:#0f172a; color:#38bdf8; border:1.5px solid #38bdf8;',
-                whatItDoes: 'يحمي العامل من الخلط بين أوراق المبيعات وأوراق المشتريات أثناء المسح بالكاميرا.',
-                whatHappensIfClicked: '• (🤖 ذكي تلقائي): يتعرف على نوع الباركود ويفتح قسمه أوتوماتيكياً.\n• (🔒 قفل صارم): يرفض مسح أي ورقة لا تخص القسم المفتوح حالياً وينبهك بصوت تحذير.',
+                whatItDoes: 'صمام أمان ذكي يحمي العامل من الخلط بين أوراق المبيعات وأوراق المشتريات أثناء المسح السريع بالكاميرا.',
+                whatHappensIfClicked: '• إذا اخترت (🤖 ذكي تلقائي): يتعرف البرنامج بنفسه على نوع الباركود الممسوح (مبيعات أو مشتريات) ويفتح بوابته أوتوماتيكياً.\n• إذا اخترت (🔒 قفل القسم الحالي): يمنع مسح أي ورقة لا تخص البوابة المفتوحة أمامك الآن وينبهك بصوت تحذيري فوري.',
                 targetSelector: '#sl-qr-guard-mode'
             },
             {
-                label: '📱 ربط كاميرا الجوال (المسح المتتابع لـ 10+ أذونات)',
+                label: '📱 ربط كاميرا الجوال (المسح المتتابع الذكي بدون لمس)',
                 style: 'background:linear-gradient(135deg,#059669,#0284c7); color:#fff; border:1.5px solid #34d399;',
-                whatItDoes: 'يربط كاميرا جوالك بالكمبيوتر بمسحة واحدة لتعمل كقارئ باركود ليزري سريع.',
-                whatHappensIfClicked: 'تمرر 10 أذونات وراء بعضها أمام كاميرا الجوال فيتم استلامها أو تسليمها فوراً بدون ضغط أي زر.',
+                whatItDoes: 'يربط كاميرا هاتفك المحمول بشاشة اللابتوب أو الكمبيوتر بمسحة باركود واحدة ليعمل الجوال كقارئ ليزر لاسلكي.',
+                whatHappensIfClicked: 'يفتح نافذة الربط الفوري؛ بمجرد مسح كود الربط بجوالك، يمكنك تمرير 10 أذونات أو أكثر وراء بعضها أمام كاميرا الجوال ليتم اعتمادها وتحديث المخزون تلقائياً مع منع تكرار أي إذن معتمد مسبقاً.',
                 targetSelector: 'button[onclick="openSlMobileBridgeModal()"]'
             },
             {
-                label: '🌗 تقسيم نصف الكمية (50%) / ⚡ تعبئة الكل (100%) / 🧹 تصفير',
-                style: 'background:rgba(56,189,248,0.2); color:#7dd3fc; border:1px solid #38bdf8;',
-                whatItDoes: 'أزرار تحكم سريع في كميات جميع أصناف الفاتورة المفتوحة بضغطة واحدة.',
-                whatHappensIfClicked: '• (100%): يملأ كل الخانات بكامل المتبقي.\n• (50%): يقسم الكميات إلى النصف.\n• (تصفير): يصفر جميع الخانات.',
-                targetSelector: 'button[onclick="fillAllSlQuantities(0.5)"]'
+                label: '🎨 حجم ولون الخط + ⚙️ ضبط الأعمدة والعرض',
+                style: 'background:rgba(168,85,247,0.22); color:#e9d5ff; border:1.5px solid #c084fc;',
+                whatItDoes: 'أدوات تخصيص مظهر الجداول لتناسب راحة عين المستخدم وحجم الشاشة.',
+                whatHappensIfClicked: '• (🎨 حجم ولون الخط): يكبّر أو يصغّر خط الجداول والأرقام ويغير لونها (أبيض، زمردي، سماوي، ذهبي) مع الحفظ التلقائي.\n• (⚙️ ضبط الأعمدة): يتيح إظهار أو إخفاء أعمدة (المستودع والرصيد، المعامل، المنفذ سابقاً، السعر والإجمالي).',
+                targetSelector: 'button[onclick="openSlFontModal()"]'
             },
             {
-                label: '↩️ إلغاء وعكس الحركة المخزنية',
-                style: 'background:rgba(239,68,68,0.2); color:#fca5a5; border:1px solid #f87171;',
-                whatItDoes: 'يلغي العملية التي اعتمدتها ويعيد المخزن والفاتورة إلى حالتهما السابقة تماماً.',
-                whatHappensIfClicked: 'بضغطة واحدة على هذا الزر يتم التراجع عن الصرف أو الاستلام وإرجاع الرصيد فوراً.',
-                targetSelector: '#sl-btn-undo'
+                label: '⏳ قيد الإجراء | 🌗 المقسمة | ✅ المكتملة | 🏷️ سجل الأذونات',
+                style: 'background:rgba(245,158,11,0.18); color:#fcd34d; border:1.5px solid #f59e0b;',
+                whatItDoes: 'البطاقات الأربع وأزرار الفلترة السريعة أعلى جدول السجل الذكي.',
+                whatHappensIfClicked: '• (⏳ قيد الإجراء): يعرض الفواتير الجديدة التي لم يبدأ تنفيذها.\n• (🌗 المقسمة / البوابة): يعرض الفواتير التي نُفذ جزء منها وبقي لها دفعات أخرى.\n• (✅ المكتملة): يعرض الفواتير المنتهية بالكامل.\n• (🏷️ سجل الأذونات): يعرض جميع أذونات (GRN / GDN) الرسمية لإعادة طباعتها أو مراجعتها.',
+                targetSelector: '#sl-kpi-card-pending'
+            },
+            {
+                label: '🔍 شريط البحث اللحظي + 🏢 فلتر المخازن + ⚡ عدد الفواتير',
+                style: 'background:#0f172a; color:#bae6fd; border:1.5px solid #38bdf8;',
+                whatItDoes: 'محرك بحث وفلترة فوري يفرز أكثر من 1000 فاتورة وإذن في أجزاء من الثانية.',
+                whatHappensIfClicked: 'بمجرد كتابة رقم الفاتورة أو اسم العميل/المورد أو اسم الصنف أو اختيار مخزن معين، يفرز الجدول النتائج فوراً، وإذا ضغطت Enter يفتح أول فاتورة مطابقة مباشرة في بطاقة الفحص.',
+                targetSelector: '#sl-reg-search'
+            },
+            {
+                label: '⚡ اعتماد كامل (في السجل) ⇄ ✂️ تقسيم وفحص (في السجل)',
+                style: 'background:linear-gradient(135deg,#059669,#0284c7); color:#fff; border:1px solid #6ee7b7;',
+                whatItDoes: 'أزرار الإجراء السريع الموجودة أمام كل فاتورة داخل جدول السجل العلوي.',
+                whatHappensIfClicked: '• (⚡ اعتماد كامل): يستلم أو يسلم كامل المتبقي في الفاتورة فوراً بضغطة واحدة بدون الحاجة للنزول لجدول التفصيل.\n• (✂️ تقسيم وفحص): يحمّل الفاتورة في بطاقة الفحص السفلية لتقسيم كمياتها على دفعات أو توزيع أصنافها على عدة مخازن.',
+                targetSelector: '#sl-registry-tbody'
+            },
+            {
+                label: '🏢 المستودع الافتراضي (للكل) ⇄ مخزن السطر المستقل',
+                style: 'background:rgba(245,158,11,0.16); color:#fde047; border:1px solid #fbbf24;',
+                whatItDoes: 'يتحكم في تحديد المخزن الذي تدخل إليه البضاعة (في المشتريات) أو تخرج منه البضاعة (في المبيعات).',
+                whatHappensIfClicked: '• عند تغيير (المستودع الافتراضي للكل): يتم تعميم هذا المخزن على جميع أصناف الفاتورة المفتوحة دفعة واحدة.\n• وعند تغيير (مخزن السطر) أمام صنف معين في الجدول: يتم استلام أو صرف هذا الصنف وحده من المخزن المختار مع عرض رصيده الفعلي اللحظي.',
+                targetSelector: '#sl-master-warehouse'
+            },
+            {
+                label: '🚚 بيانات السائق والمركبة وتصريح البوابة + 📎 إرفاق صورة',
+                style: 'background:rgba(56,189,248,0.16); color:#7dd3fc; border:1px solid #38bdf8;',
+                whatItDoes: 'خانات التوثيق اللوجستي والأمني لحركة الشاحنات والبضائع عبر البوابة.',
+                whatHappensIfClicked: 'تُسجل اسم المستلم/المسلم الفعلي، واسم السائق، ورقم اللوحة، ورقم تصريح البوابة، وملاحظات الفحص، مع إمكانية إرفاق صورة حية للبضاعة أو المستند الورقي، وتظهر هذه البيانات مطبوعة في الإذن الرسمي.',
+                targetSelector: '#sl-driver-name'
+            },
+            {
+                label: '⚡ تعبئة الكل (100%) | 🌗 نصف الكمية (50%) | 🧹 تصفير (0)',
+                style: 'background:rgba(16,185,129,0.2); color:#6ee7b7; border:1px solid #34d399;',
+                whatItDoes: 'أزرار تحكم جماعي سريع في كميات جميع أصناف الفاتورة المفتوحة بضغطة واحدة.',
+                whatHappensIfClicked: '• (100%): يملأ جميع الخانات بكامل الكمية المتبقية في الفاتورة.\n• (50%): يقسم الكمية المتبقية لكل صنف إلى النصف بالضبط.\n• (تصفير 0): يصفر جميع الخانات لتبدأ بكتابة أصناف محددة فقط.',
+                targetSelector: 'button[onclick="fillAllSlQuantities(1)"]'
+            },
+            {
+                label: '📦 الصندوق الأساسي (طن/كرتون) ⇄ 🔢 الصندوق الفرعي (سيخة/حبة)',
+                style: 'background:linear-gradient(135deg,#06281f,#1e1b4b); color:#a5b4fc; border:1.5px solid #818cf8;',
+                whatItDoes: 'محرك التحويل والتقسيم الذكي المزدوج أمام كل صنف في جدول الفحص.',
+                whatHappensIfClicked: 'يتيح لك إدخال الكمية المنفذة الآن إما بالوحدة الكبرى (مثل الطن أو الكرتون) أو بالوحدة الصغرى (مثل السيخة أو الحبة أو القطعة)، فيقوم البرنامج فوراً بحساب المعادل بالوحدة الأخرى وحساب المتبقي للدفعة القادمة بدون آلة حاسبة.',
+                targetSelector: '.sl-qty-primary-input'
+            },
+            {
+                label: '🚀 تأكيد واعتماد الآن | 🖨️ طباعة QR | 💬 واتساب | ↩️ عكس الحركة',
+                style: 'background:linear-gradient(135deg,#10b981,#059669); color:#fff; border:1.5px solid #6ee7b7;',
+                whatItDoes: 'شريط القرار النهائي العائم في أسفل الشاشة لاعتماد الحركة أو طباعتها أو التراجع عنها.',
+                whatHappensIfClicked: '• (🚀 تأكيد واعتماد): يعتمد الدفعة الحالية ويحدث أرصدة المخازن وحالة الفاتورة فوراً.\n• (🖨️ طباعة الإذن الرسمي QR): يطبع مذكرة استلام (GRN) أو إذن صرف بوابة (GDN) مزوداً بباركود أمني.\n• (💬 واتساب): يرسل ملخص الإذن والكميات عبر واتساب.\n• (↩️ إلغاء وعكس الحركة): يلغي العملية المعتمدة ويعيد رصيد المخزن والفاتورة إلى حالتهما السابقة تماماً.',
+                targetSelector: '#sl-btn-execute'
             }
         ],
 
         scenarios: [
             {
-                q: '💡 الفاتورة فيها 10 وحدات، استلمنا سابقاً 3 وبقي فيها 7، واليوم وصلت 5 فقط، كيف أتصرف؟',
-                a: '1. اضغط على الفاتورة من جدول (⏳ قيد الإجراء).\n2. ستجد مكتوباً أمامك: (منفذ سابقاً: 3 | المتبقي: 7).\n3. اكتب في مربع الكمية رقم (5) ثم اضغط (🚀 تأكيد واعتماد).\n4. سيضيف البرنامج 5 للمخزن، ويحفظ أن المتبقي الآن (2) للمرة القادمة.'
+                q: '💡 1. الفاتورة فيها 10 وحدات، استلمنا سابقاً 3 وبقي فيها 7، واليوم وصلت 5 فقط، كيف أقسمها؟',
+                a: '1. اضغط على الفاتورة من جدول (⏳ قيد الإجراء) أو (🌗 الجزئي) لتفتح بالأسفل.\n2. ستجد البرنامج يوضح لك تلقائياً: (منفذ سابقاً: 3 | المتبقي: 7).\n3. اكتب في مربع الكمية رقم (5) فقط ثم اضغط (🚀 تأكيد واعتماد).\n4. سيقوم البرنامج بإدخال 5 للمخزن، وإصدار إذن استلام بهذه الدفعة، وحفظ أن المتبقي الآن هو (2) للدفعة القادمة!'
             },
             {
-                q: '💡 الفاتورة مكتوبة بالطن، لكن العامل عدّ البضاعة بالسيخة (أو الحبة)، كيف يدخلها بدون آلة حاسبة؟',
-                a: 'بجانب مربع الطن يوجد مربع ثانٍ مكتوب عليه (🔢 بالـ سيخة / الحبة). اكتب عدد الأسياخ أو الحبات فيه مباشرة، وسيقوم البرنامج بتحويلها إلى الطن تلقائياً.'
+                q: '💡 2. الفاتورة مكتوبة بالطن (أو الكرتون)، لكن العامل عدّ البضاعة بالسيخة (أو الحبة)، كيف يدخلها بدون آلة حاسبة؟',
+                a: 'أمام كل صنف في الجدول السفلي يوجد صندوقان متجاوران:\n• الصندوق الأيمن للوحدة الأساسية (طن / كرتون).\n• الصندوق الأيسر للوحدة الفرعية (سيخة / حبة / قطعة).\nاترك صندوق الطن واكتب مباشرة عدد الأسياخ أو الحبات في الصندوق الأيسر (مثلاً 500 سيخة)، وسيقوم البرنامج أوتوماتيكياً بتحويلها إلى (5 طن) وحساب المتبقي بدقة متناهية!'
             },
             {
-                q: '💡 الفاتورة فيها صنفان، أريد وضع الصنف الأول في «المخزن الرئيسي» والصنف الثاني في «مخزن الفرع»؟',
-                a: 'في الجدول السفلي، أمام كل سطر توجد قائمة (🏢 المستودع) خاصة بذلك السطر وحده. اختر للسطر الأول (المخزن الرئيسي) وللسطر الثاني (مخزن الفرع) ثم اضغط اعتماد.'
+                q: '💡 3. الفاتورة فيها عدة أصناف، أريد تنزيل الصنف الأول في «المخزن الرئيسي» والصنف الثاني في «مخزن الفرع»؟',
+                a: 'لا تحتاج لتقسيم الفاتورة إلى فاتورتين! في الجدول السفلي، أمام كل سطر صنف توجد قائمة (🏢 المستودع والرصيد الفعلي) خاصة بذلك السطر وحده:\n• اختر للسطر الأول (المخزن الرئيسي).\n• واختر للسطر الثاني (مخزن الفرع).\n• ثم اضغط (🚀 تأكيد واعتماد) ليتم توزيع كل صنف في مخزنه المحدد في نفس اللحظة.'
+            },
+            {
+                q: '💡 4. في بوابة المبيعات (GDN)، كيف أعرف هل الرصيد يكفي في المخزن قبل تسليم العميل؟',
+                a: 'بمجرد فتح فاتورة المبيعات في الجدول السفلي، يعرض لك عمود (🏢 المستودع والرصيد الفعلي) الكمية المتوفرة حالياً داخل كل مخزن أمام كل صنف. إذا كان الرصيد في المخزن الحالي أقل من المطلوب، يمكنك فوراً اختيار مخزن آخر من القائمة أمام نفس السطر أو تسليم الكمية المتاحة الآن وتأجيل الباقي للدفعة القادمة.'
+            },
+            {
+                q: '💡 5. عندي 15 إذن ورقي مطبوع عليها باركود QR، كيف أستلمها أو أسلمها دفعة واحدة بدون ضغط أزرار؟',
+                a: '1. تأكد أن خيار (⚡ اعتماد فوري متتابع عند المسح بدون ضغط أي زر) مفعّل في صندوق الكاميرا.\n2. اضغط على زر (📱 ربط كاميرا الجوال) في أعلى الشاشة وامسح كود الربط بهاتفك.\n3. مرّر الأوراق الـ 15 الواحدة تلو الأخرى أمام كاميرا الجوال؛ سيقوم النظام بقراءة كل باركود واعتماده وتحديث المخزن فوراً مع إصدار نغمة نجاح، وإذا مرت ورقة مكررة سيرفضها وينبهك فوراً!'
+            },
+            {
+                q: '💡 6. اعتمدت استلام أو تسليم فاتورة بالخطأ، كيف ألغي العملية وأُرجع رصيد المخزن كما كان؟',
+                a: 'الأمر بسيط وآمن تماماً:\n1. اختر الفاتورة أو الإذن من السجل العلوي (قسم ✅ المكتمل أو 🏷️ سجل الأذونات).\n2. اضغط على الزر الأحمر في الشريط السفلي (↩️ إلغاء وعكس الحركة المخزنية).\n3. سيقوم النظام فوراً بعكس حركة المخزون (إرجاع الكمية المخصومة أو سحب الكمية المضافة) وإعادة الفاتورة إلى قائمة الانتظار كما كانت.'
             }
-        ]
+        ],
+        gapReport: {
+            title: 'تقرير المراجعة الثلاثية والامتثال الكامل للدستور (Smart Logistics GRN/GDN Audit)',
+            items: [
+                '✅ الأمر الحاسم (1) — نطق الصلاة على النبي ﷺ مرة واحدة فقط مع ضغطة زر المرشد (hasPlayedOpeningInvocation = true) ومنع تكرارها نهائياً عند الانتقال بين الخطوات العشر أو تمرير الماوس على الحقول.',
+                '✅ الأمر الحاسم (2) — إلغاء الشريط العريض الحاجب للرؤية واستبداله بكبسولة التحكم الملكية المصغرة غير الحاجبة (Royal Mini-Control Pod).',
+                '✅ التقسيم المزدوج (أساسية ⇄ فرعية) وتوزيع المخازن المستقل لكل سطر + قارئ الميزان الإلكتروني (Weighbridge) + التوقيع الإلكتروني باللمس + إشعار خصم فروقات المورد (Debit Note).',
+                '✅ الترابط الذري (Atomic Sync & Rollback Snapshot) والتركيز البصري الهادئ (focusRequiredSlElement) دون أي نافذة تنبيه مزعجة.'
+            ]
+        }
     };
 
     // ── CREATE TEMPORARY DEMO INVOICE IF DB IS EMPTY DURING LIVE SIMULATION ──
@@ -1594,103 +2342,620 @@
     let isPickElementModeActive = false;
     let speechRecognitionInstance = null;
 
-    // Dedicated Sales Steps (شرح منظومة المبيعات وتقسيمها فقط - GDN)
-    const SALES_ONLY_STEPS = [
+    // ════════════════════════════════════════════════════════════════════════
+    // 💵 DEDICATED SMART GUIDE FOR SINGLE CASH PAYMENT & RECEIPT VOUCHER
+    // ════════════════════════════════════════════════════════════════════════
+    const SINGLE_CASH_PAYMENT_STEPS = [
         {
-            badge: 'مبيعات 1️⃣ — فتح قسم تسليم المبيعات (GDN)',
-            cursorLabel: 'نضغط هنا لقسم المبيعات 📤',
-            targetSelector: '#sl-tab-sales',
-            speechByDialect: {
-                egyptian: () => `${SHORT_SAHIHAYN_SALAWAT} يا أهلاً بحضرتك يا فندم في شرح قسم المبيعات وتقسيمها. علشان نسلّم بضاعة لعميل ونخصمها من المخزن، بنضغط الأول على زرار منظومة المبيعات الأخضر اللي فوق ده.`,
-                sudanese: () => `${SHORT_SAHIHAYN_SALAWAT} حبابك عشرة في شرح قسم المبيعات وتقسيمها. عشان تسلم بضاعة لعميل وتخصمها من المخزن، تضغط أول حاجة على زر منظومة المبيعات الأخضر الفوق ده.`,
-                gulf:     () => `${SHORT_SAHIHAYN_SALAWAT} يا هلا والله في شرح قسم المبيعات وتقسيمها. عشان نسلم بضاعة لعميل ونخصمها من المستودع، نضغط أول شيء على زر منظومة المبيعات الأخضر في أعلى الشاشة.`
-            },
-            speech: () => `${SHORT_SAHIHAYN_SALAWAT} لتسليم بضاعة المبيعات للعميل، نضغط أولاً على زر منظومة المبيعات الأخضر في أعلى الشاشة.`,
-            action: () => {
-                if (typeof window.switchLogisticsMode === 'function') {
-                    window.switchLogisticsMode('sales', true);
-                }
-            }
+            badge: 'الخطوة 1️⃣ — شريط أرصدة الخزينة اللحظية (نقدية وشيكات وعهد)',
+            cursorLabel: 'رصيد النقدية الحالي في الخزينة',
+            targetSelector: '.group-balances',
+            speech: () => `${SHORT_SAHIHAYN_SALAWAT} أهلاً بحضرتك في شاشة سند الصرف والقبض المفرد. نبدأ هنا بشريط الأرصدة اللحظية بالأعلى: خانة النقدية توضح لك رصيد الصندوق الفعلي المتوفر حالياً في الخزينة، لتعرف فوراً هل السيولة تكفي للصرف قبل البدء بدون فتح تقارير أخرى. وخانة الشيكات والعهد تعرض الشيكات والعهد المعلقة.`
         },
         {
-            badge: 'مبيعات 2️⃣ — عرض فواتير المبيعات قيد التسليم',
-            cursorLabel: 'الأذونات غير المسلمة ⏳',
-            targetSelector: '#sl-kpi-card-pending',
-            speechByDialect: {
-                egyptian: () => `وبعد كده على طول، بنضغط على كارت الأذونات اللي لسه ما اتسلمتش، علشان تفتح قدامنا كل فواتير العملاء اللي مستنية التسليم.`,
-                sudanese: () => `وبعد داك، تضغط طوالي على بطاقة الأذونات الما مستلمة، عشان تظهر قدامك فواتير العملاء الراجية التسليم.`,
-                gulf:     () => `ومباشرة، نضغط على بطاقة الأذونات قيد التسليم، عشان تطلع قدامنا فواتير العملاء الجاهزة للصرف.`
-            },
-            speech: () => `نضغط على بطاقة الأذونات قيد التسليم لتظهر فواتير المبيعات الجاهزة للصرف.`,
-            action: () => {
-                if (typeof window.setSlRegistryFilter === 'function') {
-                    window.setSlRegistryFilter('pending');
-                }
-                window.ensureLiveDemoInvoiceForGuide();
-            }
+            badge: 'الخطوة 2️⃣ — تاريخ السند الفعلي',
+            cursorLabel: 'تاريخ السند المالي',
+            targetSelector: '#hdr-date',
+            speech: () => `هنا تاريخ السند؛ يحدد اليوم الفعلي لحركة الصرف أو القبض، وهو التاريخ المعتمد في قيود اليومية ودفتر الأستاذ وكشوفات الحساب.`
         },
         {
-            badge: 'مبيعات 3️⃣ — فتح فاتورة العميل وتقسيم الكمية المسلمة',
-            cursorLabel: 'نفتح الفاتورة ونكتب المسلم الآن (5) ✍️',
-            targetSelector: '.sl-qty-primary-input',
-            speechByDialect: {
-                egyptian: () => `بنضغط على فاتورة العميل من الجدول فتفتح معانا تحت، ولو الفاتورة باقي فيها سبعة والعميل هيستلم النهارده خمسة بس، بنكتب خمسة في مربع الكمية، والبرنامج بيحسب لوحده إن فاضل اتنين للدفعة الجاية.`,
-                sudanese: () => `تضغط على فاتورة العميل من الجدول وبتفتح معاك تحت، ولو باقي فيها سبعة والعميل داير يستلم خمسة بس، بنكتب خمسة في مربع الكمية، والبرنامج براهو بيحسب إنو الباقي اتنين.`,
-                gulf:     () => `نضغط على فاتورة العميل من الجدول فتفتح بالأسفل، وإذا باقي فيها سبعة والعميل بيستلم اليوم خمسة بس، نكتب خمسة في مربع الكمية، والبرنامج يحسب تلقائياً أنه باقي اثنين.`
-            },
-            speech: () => `نفتح فاتورة العميل ونكتب الكمية المسلمة الآن في مربع الكمية، فيحسب البرنامج المتبقي تلقائياً.`,
-            action: () => {
-                const firstRow = document.querySelector('#sl-registry-tbody tr:first-child');
-                if (firstRow) firstRow.click();
-                setTimeout(() => {
-                    const inp = document.querySelector('.sl-qty-primary-input');
-                    if (inp) {
-                        inp.value = '5';
-                        if (typeof window.onSlPrimaryQtyInput === 'function') window.onSlPrimaryQtyInput(inp, true);
-                    }
-                }, 150);
-            }
+            badge: 'الخطوة 3️⃣ — خانة المبلغ والعملة وسعر الصرف',
+            cursorLabel: 'المبلغ والعملة وسعر الصرف',
+            targetSelector: '#amount-local',
+            speech: () => `هنا خانة المبلغ الرئيسية؛ تكتب فيها القيمة النقدية المراد صرفها أو قبضها. وإذا كنت تتعامل بعملة أجنبية كالدولار أو الريال، يمكنك تغيير العملة وتحديد سعر الصرف ليقوم النظام بحساب المعادل المحلي تلقائياً بدقة.`
         },
         {
-            badge: 'مبيعات 4️⃣ — اعتماد إذن الصرف (GDN) أو التراجع',
-            cursorLabel: 'اعتماد الصرف 🚀 أو التراجع ↩️',
-            targetSelector: '#sl-btn-execute',
-            speechByDialect: {
-                egyptian: () => `وفي الآخر خالص، بنضغط على زرار تأكيد واعتماد، علشان الكمية تتخصم من المخزن ويطلع إذن تسليم بوابة للعميل، وجنبه دايماً زرار إلغاء وعكس الحركة لو حبيت ترجع.`,
-                sudanese: () => `وفي النهاية، تضغط على زر تأكيد واعتماد، عشان الكمية تتخصم من المخزن ويطلع إذن تسليم للعميل، وجنبو دايماً زر إلغاء وعكس الحركة لو داير تتراجع.`,
-                gulf:     () => `وبالأخير، نضغط على زر تأكيد واعتماد، لخصم الكمية من المستودع وإصدار إذن فسح بوابة للعميل، وبجانبه زر إلغاء وعكس الحركة للتراجع.`
-            },
-            speech: () => `وأخيراً نضغط على زر تأكيد واعتماد لخصم الكمية من المخزن وإصدار إذن التسليم.`,
-            action: () => {}
+            badge: 'الخطوة 4️⃣ — من حساب (حساب الصرف - الطرف الدائن)',
+            cursorLabel: 'حساب الصرف (من حساب)',
+            targetSelector: '#from-account-search',
+            speech: () => `خانة (من حساب) المميزة باللون الأحمر: هذا هو الحساب الذي تخرج منه الفلوس؛ مثل الخزينة الرئيسية، أو البنك، وهو يمثل الطرف الدائن في القيد المحاسبي.`
+        },
+        {
+            badge: 'الخطوة 5️⃣ — إلى حساب (الحساب المستلم - الطرف المدين)',
+            cursorLabel: 'الحساب المستلم (إلى حساب)',
+            targetSelector: '#to-account-search',
+            speech: () => `خانة (إلى حساب) المميزة باللون الأخضر: هذا هو الحساب أو الجهة المستفيدة التي ستستلم الفلوس؛ مثل حساب مورد، أو سلفة موظف، أو حساب مصروفات كالكهرباء والإيجار، وهو الطرف المدين.`
+        },
+        {
+            badge: 'الخطوة 6️⃣ — زر عكس الحسابات الذكي (⇄)',
+            cursorLabel: 'عكس الحسابات (صرف ⇄ قبض)',
+            targetSelector: '.epic-arrow-container',
+            speech: () => `زر عكس الحسابات: يتيح لك بضغطة واحدة تبديل طرفي الحركة فوراً؛ لتحويل السند من سند صرف إلى سند قبض بدون الحاجة لإعادة كتابة الحسابات من جديد.`
+        },
+        {
+            badge: 'الخطوة 7️⃣ — اسم المستفيد ومركز التكلفة',
+            cursorLabel: 'المستفيد ومركز التكلفة',
+            targetSelector: '#beneficiary-name',
+            speech: () => `هنا يمكنك كتابة اسم الشخص المستلم الفعلي أو تحديد مركز التكلفة والمشروع المرتبط بالحركة لتوزيع المصروفات بدقة.`
+        },
+        {
+            badge: 'الخطوة 8️⃣ — البيان المحاسبي والتوجيه الذكي',
+            cursorLabel: 'البيان وشرح الحركة المالية',
+            targetSelector: '#to-statement',
+            speech: () => `خانة البيان: تكتب فيها شرح وسبب الصرف أو القبض؛ مثل دفعة تحت الحساب أو سداد فاتورة. هذا البيان سيظهر في كشف حساب الطرفين، كما يمكنك الضغط على زر التوجيه الذكي بجواره ليقترح عليك الحساب المناسب تلقائياً.`
+        },
+        {
+            badge: 'الخطوة 9️⃣ — طرق الدفع (نقداً / شيك / بنكك)',
+            cursorLabel: 'طريقة الدفع (كاش / شيك / بنك)',
+            targetSelector: '.pay-options-wrapper, #radio-cash',
+            speech: () => `هنا تختار طريقة الدفع: نقداً من الخزينة، أو عبر شيك ورقي بتحديد رقم الشيك وتاريخ استحقاقه، أو تحويل بنكي مثل تطبيق بنكك مع حفظ رقم الإشعار البنكي للتوثيق.`
+        },
+        {
+            badge: 'الخطوة 🔟 — الحفظ والترحيل اللحظي والواتساب',
+            cursorLabel: 'حفظ واعتماد وترحيل السند',
+            targetSelector: '#btn-save',
+            speech: () => `أخيراً زر حفظ واعتماد السند: عند الضغط عليه، يتم ترحيل المبلغ فوراً وتسميعه في دفتر الأستاذ العام وميزان المراجعة، مع إمكانية طباعة إيصال رسمي أو إرسال كمبيالة معتمدة كملف بي دي إف مباشرة للواتساب.`
         }
     ];
 
-    function buildUniversalScreenGuideIfNeeded() {
-        if (document.getElementById('sl-tab-purchases') || document.getElementById('sl-tab-sales')) {
-            return 'smart-logistics';
+    window.MagaiesSmartGuides['single-cash-payment'] = {
+        title: 'المرشد الذكي: سند الصرف والقبض المالي المفرد',
+        subtitle: 'شرح محاسبي مبسط وتطبيقي لكل خانة وزر في الشاشة بالصوت والماوس التلقائي',
+        autopilotSteps: SINGLE_CASH_PAYMENT_STEPS,
+        visualSteps: [
+            {
+                stepBadge: 'القسم 1️⃣ — شريط الأرصدة اللحظية (قبل الصرف)',
+                title: 'كيف تعرف رصيد درج الخزينة الفعلي قبل تنفيذ الحركة؟',
+                desc: '• 💵 نقدية: يظهر لك الرصيد الفعلي الموجود حالياً داخل درج الخزينة قبل تسجيل هذه الحركة، لتتأكد هل السيولة تسمح بالصرف أم لا.\n• 🧾 شيكات: إجمالي قيمة الشيكات الآجلة أو تحت التحصيل.\n• 💼 عهد / وعد: إجمالي المبالغ المصروفة كعهد معلقة للموظفين أو المندوبين.',
+                svg: `<svg viewBox="0 0 320 110" width="100%" height="100%">
+                    <rect x="12" y="14" width="94" height="82" rx="10" fill="#064e3b" stroke="#34d399" stroke-width="2"/>
+                    <text x="59" y="42" fill="#ffffff" font-size="11" font-weight="bold" text-anchor="middle">💵 نقدية</text>
+                    <text x="59" y="65" fill="#a7f3d0" font-size="10" font-weight="bold" text-anchor="middle">رصيد الخزينة</text>
+                    <rect x="113" y="14" width="94" height="82" rx="10" fill="#0f172a" stroke="#38bdf8" stroke-width="2"/>
+                    <text x="160" y="42" fill="#ffffff" font-size="11" font-weight="bold" text-anchor="middle">🧾 شيكات</text>
+                    <text x="160" y="65" fill="#7dd3fc" font-size="10" font-weight="bold" text-anchor="middle">تحت التحصيل</text>
+                    <rect x="214" y="14" width="94" height="82" rx="10" fill="#1e1b4b" stroke="#c084fc" stroke-width="2"/>
+                    <text x="261" y="42" fill="#ffffff" font-size="11" font-weight="bold" text-anchor="middle">💼 عهد</text>
+                    <text x="261" y="65" fill="#e9d5ff" font-size="10" font-weight="bold" text-anchor="middle">عهد معلقة</text>
+                </svg>`,
+                targetSelector: '.group-balances'
+            },
+            {
+                stepBadge: 'القسم 2️⃣ — الفرق الجوهري: (من حساب 🔴) و (إلى حساب 🟢)',
+                title: 'قاعدة المحاسبة الذهبية: أين تذهب الأموال ومن يدفعها؟',
+                desc: '• 🔴 من حساب (صرف): هو الطرف الدائن ومصدر المال (الخزينة أو البنك)، وينقص رصيده بهذه القيمة.\n• 🟢 إلى حساب (استلام): هو الطرف المدين المستفيد من المال (مورد أو موظف أو مصروف كهرباء)، ويزيد رصيده أو ينقص دينه.\n• ⇄ زر العكس: يقلب طرفي الحركة فوراً للتحويل بين سند صرف وسند قبض بضغطة زر واحدة.',
+                svg: `<svg viewBox="0 0 320 110" width="100%" height="100%">
+                    <rect x="10" y="14" width="135" height="82" rx="12" fill="#450a0a" stroke="#f87171" stroke-width="2.5"/>
+                    <text x="77" y="42" fill="#ffffff" font-size="12" font-weight="bold" text-anchor="middle">🔴 من حساب (صرف)</text>
+                    <text x="77" y="63" fill="#fecaca" font-size="10" text-anchor="middle">مصدر الأموال (دائن)</text>
+                    <text x="77" y="80" fill="#fef08a" font-size="9" text-anchor="middle">الخزينة أو البنك</text>
+                    <rect x="175" y="14" width="135" height="82" rx="12" fill="#064e3b" stroke="#34d399" stroke-width="2.5"/>
+                    <text x="242" y="42" fill="#ffffff" font-size="12" font-weight="bold" text-anchor="middle">🟢 إلى حساب (استلام)</text>
+                    <text x="242" y="63" fill="#a7f3d0" font-size="10" text-anchor="middle">المستفيد (مدين)</text>
+                    <text x="242" y="80" fill="#fef08a" font-size="9" text-anchor="middle">المورد / الموظف</text>
+                    <circle cx="155" cy="55" r="14" fill="#1e293b" stroke="#fbbf24" stroke-width="2"/>
+                    <text x="155" y="59" fill="#fde047" font-size="12" font-weight="bold" text-anchor="middle">⇄</text>
+                </svg>`,
+                targetSelector: '.scp-account-card'
+            },
+            {
+                stepBadge: 'القسم 3️⃣ — التنقل السريع بالكيبورد (Enter Flow)',
+                title: 'إدخال كامل للسند في 3 ثوان بدون لمس الماوس',
+                desc: '• ابدأ بكتابة المبلغ ثم اضغط Enter، ينتقل المؤشر تلقائياً إلى حساب الصرف (من حساب).\n• اختر الحساب واضغط Enter، ينتقل مباشرة إلى حساب الاستلام (إلى حساب).\n• اكتب البيان واضغط Enter، يذهب المؤشر فوراً لزر الحفظ والترحيل لاعتماد السند.',
+                svg: `<svg viewBox="0 0 320 110" width="100%" height="100%">
+                    <rect x="15" y="20" width="290" height="70" rx="12" fill="#0f172a" stroke="#38bdf8" stroke-width="2"/>
+                    <text x="160" y="48" fill="#fef08a" font-size="12.5" font-weight="bold" text-anchor="middle">المبلغ ⏎ ⬅ من حساب ⏎ ⬅ إلى حساب ⏎</text>
+                    <text x="160" y="70" fill="#38bdf8" font-size="11" font-weight="bold" text-anchor="middle">⬅ البيان ⏎ ⬅ حفظ واعتماد السند ✅</text>
+                </svg>`,
+                targetSelector: '#amount-local'
+            },
+            {
+                stepBadge: 'القسم 4️⃣ — التسميع المحاسبي والواتساب والكمبيالة',
+                title: 'تسميع فوري في كشوفات الحساب مع إرسال توثيقي بالواتساب',
+                desc: '• بمجرد الحفظ يتم الترحيل الفوري في دفتر الأستاذ العام وميزان المراجعة وتقرير حركة الصندوق في جزء من الثانية.\n• يمكنك بضغطة زر توليد كمبيالة PDF معتمدة وموثقة برقم السند والباركود والختم الرسمي وإرسالها مباشرة لرقم واتساب العميل أو المورد.',
+                svg: `<svg viewBox="0 0 320 110" width="100%" height="100%">
+                    <rect x="12" y="16" width="140" height="78" rx="10" fill="#064e3b" stroke="#10b981" stroke-width="2"/>
+                    <text x="82" y="45" fill="#fff" font-size="11.5" font-weight="bold" text-anchor="middle">📲 إرسال واتساب فوري</text>
+                    <text x="82" y="68" fill="#a7f3d0" font-size="9.5" text-anchor="middle">كمبيالة PDF معتمدة</text>
+                    <rect x="168" y="16" width="140" height="78" rx="10" fill="#1e1b4b" stroke="#c084fc" stroke-width="2"/>
+                    <text x="238" y="45" fill="#fff" font-size="11.5" font-weight="bold" text-anchor="middle">📊 تسميع دفتر الأستاذ</text>
+                    <text x="238" y="68" fill="#e9d5ff" font-size="9.5" text-anchor="middle">تحديث لحظي للميزان</text>
+                </svg>`,
+                targetSelector: '#btn-save'
+            }
+        ],
+        buttonsDict: [
+            {
+                label: 'حفظ واعتماد السند',
+                style: 'background:#059669; color:#ffffff; border:1px solid #34d399;',
+                whatItDoes: 'يحفظ السند ويرحله فوراً إلى دفتر الأستاذ العام وميزان المراجعة وقاعدة البيانات.',
+                whatHappensIfClicked: 'يقوم باعتماد السند وإنشاء القيد المحاسبي وتحديث رصيد الصندوق فوراً.',
+                targetSelector: '#btn-save'
+            },
+            {
+                label: 'عكس الحسابات (⇄)',
+                style: 'background:#1e293b; color:#fbbf24; border:1px solid #fbbf24;',
+                whatItDoes: 'يبدل فوراً بين حساب الصرف (من) وحساب الاستلام (إلى).',
+                whatHappensIfClicked: 'يحول السند من سند صرف إلى سند قبض والعكس بضغطة زر واحدة دون إعادة كتابة الحسابات.',
+                targetSelector: '.epic-arrow-container'
+            },
+            {
+                label: 'السند السابق والسند التالي',
+                style: 'background:#0369a1; color:#ffffff; border:1px solid #38bdf8;',
+                whatItDoes: 'يتنقل بين السندات المالية المسجلة مسبقاً لاستعراضها أو تعديلها أو طباعتها.',
+                whatHappensIfClicked: 'يعرض بيانات السند السابق أو اللاحق فوراً على الشاشة بكامل تفاصيله.',
+                targetSelector: '#voucher-nav-pill'
+            },
+            {
+                label: 'دفتر الأستاذ (📖)',
+                style: 'background:#1e1b4b; color:#c084fc; border:1px solid #c084fc;',
+                whatItDoes: 'يفتح كشف حساب تفصيلي فوري لأي حساب تختاره.',
+                whatHappensIfClicked: 'يعرض كشف الحساب ورصيده السابق والحركات المدينة والدائنة في نافذة منبثقة سريعة.',
+                targetSelector: '#from-account-ledger-btn'
+            },
+            {
+                label: 'توقع الحساب والتوجيه الذكي',
+                style: 'background:#9333ea; color:#ffffff; border:1px solid #c084fc;',
+                whatItDoes: 'يحلل نص البيان المكتوب ويقترح الحساب المحاسبي المناسب تلقائياً بالذكاء الاصطناعي.',
+                whatHappensIfClicked: 'يقوم باختيار الحساب المستهدف بناءً على الكلمات المفتاحية في البيان.',
+                targetSelector: '#btn-auto-categorize'
+            }
+        ],
+        scenarios: [
+            {
+                q: '💡 ما الفرق بين "من حساب" و "إلى حساب"؟',
+                a: '• "من حساب" باللون الأحمر هو مصدر المال (الخزينة أو البنك)، وينقص رصيده بهذه القيمة.\n• "إلى حساب" باللون الأخضر هو المستفيد الذي استلم المال (المورد أو الموظف أو حساب مصروف)، ويزيد رصيده أو ينقص دينه.'
+            },
+            {
+                q: '💡 ماذا تعني خانة النقدية في شريط الأرصدة بالأعلى؟',
+                a: 'خانة "نقدية" توضح الرصيد الفعلي الحقيقي الموجود حالياً في درج الخزينة قبل تسجيل الحركة، لتتأكد هل تتوفر سيولة كافية للصرف أم لا دون الحاجة للرجوع إلى تقرير كشف الصندوق.'
+            },
+            {
+                q: '💡 كيف أحول السند من صرف إلى قبض دون مسح الحسابات؟',
+                a: 'ببساطة اضغط على زر الأسهم الدائرية (⇄) الموجود بين الحسابين، وسيتم عكس الطرفين فوراً ليصبح السند سند قبض.'
+            },
+            {
+                q: '💡 هل يتم ترحيل السند وتسميعه في التقارير فوراً؟',
+                a: 'نعم، بمجرد الضغط على (حفظ واعتماد السند) يتم الترحيل في نفس اللحظة إلى دفتر الأستاذ العام وميزان المراجعة وتقرير حركة الصندوق بدون أي تأخير.'
+            }
+        ]
+    };
+
+    // ============================================================================
+    // 🗂️ 4. MASTER DATA MULTI-SCREEN GUIDE (شاشة داخل شاشة: المخازن • العملاء • الموردين • البنوك • الخزن • الأصناف • الموظفين • مراكز التكلفة)
+    // ============================================================================
+    window.MagaiesSmartGuides['master-data'] = {
+        title: 'المرشد الذكي: منظومة البيانات الأساسية (8 شاشات متداخلة)',
+        subtitle: 'شرح مصوّر ومدبلج بالصوت الرجالي يفتح أمامك كل تبويب وشاشة فرعية بالترتيب ويشرح حقولها وأثرها المحاسبي',
+        screenHierarchy: [
+            'الشاشة الرئيسية: البيانات الأساسية',
+            '1️⃣ المخازن ⬅ 2️⃣ العملاء ⬅ 3️⃣ الموردين ⬅ 4️⃣ البنوك',
+            '5️⃣ الخزن ⬅ 6️⃣ الأصناف والوحدات ⬅ 7️⃣ الموظفين ⬅ 8️⃣ مراكز التكلفة'
+        ],
+        autopilotSteps: [
+            {
+                badge: '1. الشاشة الفرعية الأولى: تأسيس وإدارة المخازن',
+                cursorLabel: 'تبويب وشاشة المخازن 🏭',
+                screenPath: 'البيانات الأساسية ⬅ ضغط زر (المخازن) ⬅ فتح شاشة إضافة وجدول المخازن',
+                targetSelector: '#warehouse-name, .md-tab-btn.tab-warehouses',
+                diagramType: 'screen-transition',
+                diagramMeta: {
+                    parentScreen: 'قائمة البيانات الأساسية الجانبية',
+                    actionLabel: 'ضغط تبويب (المخازن) يفتح شاشة المستودعات:',
+                    childItems: ['🏭 اسم المخزن ونوعه وأمين المستودع', '📦 يظهر فوراً في قوائم المشتريات والمبيعات والجرد', '🔄 تحديد المخزن الافتراضي للفرع', '📊 ربط تلقائي بتقارير أرصدة المخازن'],
+                    effectLabel: 'شاشة المخازن مفتوحة الآن أمامك!'
+                },
+                action: () => {
+                    const btn = document.querySelector('.md-tab-btn.tab-warehouses');
+                    if (btn) { try { btn.click(); } catch (e) {} }
+                    if (typeof window.openWarehouseForm === 'function') { try { window.openWarehouseForm(); } catch (e) {} }
+                },
+                speech: () => `${SHORT_SAHIHAYN_SALAWAT} أهلاً بحضرتك في الشرح الشامل لشاشات البيانات الأساسية الثمانية. نبدأ بالضغط على زر المخازن لتفتح أمامنا شاشة تأسيس المستودعات؛ وأي مخزن تضيفه هنا يظهر فوراً في قوائم فواتير المشتريات والمبيعات وبوابة الاستلام والجرد.`
+            },
+            {
+                badge: '2. الشاشة الفرعية الثانية: فتح شاشة العملاء والسقف الائتماني',
+                cursorLabel: 'فتح شاشة العملاء 👤',
+                screenPath: 'البيانات الأساسية ⬅ ضغط زر (العملاء) ⬅ فتح شاشة بيانات وسقوف العملاء',
+                targetSelector: '#cust-name, .md-tab-btn.tab-customers',
+                diagramType: 'screen-transition',
+                diagramMeta: {
+                    parentScreen: 'قائمة البيانات الأساسية الجانبية',
+                    actionLabel: 'ضغط تبويب (العملاء) يفتح شاشة العملاء:',
+                    childItems: ['👤 اسم العميل ورقم الهاتف والواتساب والرقم السري PIN', '🛡️ تحديد السقف الائتماني المسموح للبيع الآجل', '💰 الرصيد الافتتاحي (مدين / دائن) والعملة', '📖 فتح حساب آلي في شجرة الحسابات ودفتر الأستاذ'],
+                    effectLabel: 'تم فتح شاشة العملاء الجديدة أمامك الآن!'
+                },
+                action: () => {
+                    const btn = document.querySelector('.md-tab-btn.tab-customers');
+                    if (btn) { try { btn.click(); } catch (e) {} }
+                },
+                speech: () => 'الآن نضغط على زر العملاء لتفتح أمامك شاشة العملاء الجديدة! هنا تسجل اسم العميل ورقم واتسابه وسقفه الائتماني ورصيده الافتتاحي، ويقوم النظام بفتح حساب مالي له تلقائياً في شجرة الحسابات وفواتير المبيعات.'
+            },
+            {
+                badge: '3. الشاشة الفرعية الثالثة: فتح شاشة الموردين',
+                cursorLabel: 'فتح شاشة الموردين 🏢',
+                screenPath: 'البيانات الأساسية ⬅ ضغط زر (الموردين) ⬅ فتح شاشة سجل وأرصدة الموردين',
+                targetSelector: '#sup-name, .md-tab-btn.tab-suppliers',
+                diagramType: 'screen-transition',
+                diagramMeta: {
+                    parentScreen: 'قائمة البيانات الأساسية الجانبية',
+                    actionLabel: 'ضغط تبويب (الموردين) يفتح شاشة الموردين:',
+                    childItems: ['🏢 اسم المورد أو الشركة الموردة والهاتف', '💵 الرصيد الافتتاحي والعملة المعتمدة', '📲 رقم الواتساب لإرسال الفواتير وكشوف الحساب', '📥 يظهر فوراً في قائمة الموردين بشاشة المشتريات'],
+                    effectLabel: 'تم فتح شاشة الموردين الجديدة أمامك الآن!'
+                },
+                action: () => {
+                    const btn = document.querySelector('.md-tab-btn.tab-suppliers');
+                    if (btn) { try { btn.click(); } catch (e) {} }
+                },
+                speech: () => 'وعند الضغط على زر الموردين تفتح أمامك شاشة الموردين؛ لتسجيل الشركات والموردين وأرصدتهم الافتتاحية وأرقام الواتساب، ليظهروا مباشرة في قائمة الموردين داخل فاتورة المشتريات.'
+            },
+            {
+                badge: '4. الشاشة الفرعية الرابعة: فتح شاشة البنوك والتطبيقات البنكية',
+                cursorLabel: 'فتح شاشة البنوك 🏦',
+                screenPath: 'البيانات الأساسية ⬅ ضغط زر (البنوك) ⬅ فتح حسابات البنوك والتطبيقات البنكية',
+                targetSelector: '#bank-name, .md-tab-btn.tab-banks',
+                diagramType: 'screen-transition',
+                diagramMeta: {
+                    parentScreen: 'تبويب البنوك (.tab-banks)',
+                    actionLabel: 'يفتح شاشة الحسابات البنكية والتطبيقات:',
+                    childItems: ['🏦 تسجيل الحسابات البنكية (بنكك • فوري • أوكاش) ورقم الحساب', '💱 تحديد عملة الحساب البنكي والرصيد الافتتاحي', '📊 ربط مباشر بلوحة الدفع الهجين وسندات الصرف والقبض', '🔍 مطابقة آلية مع إشعارات التحويل البنكي بالذكاء الاصطناعي'],
+                    effectLabel: 'شاشة البنوك مفتوحة الآن أمامك!'
+                },
+                action: () => {
+                    const btn = document.querySelector('.md-tab-btn.tab-banks');
+                    if (btn) { try { btn.click(); } catch (e) {} }
+                    if (typeof window.openBankForm === 'function') { try { window.openBankForm(); } catch (e) {} }
+                },
+                speech: () => 'ثم نضغط على زر البنوك لتفتح شاشة تأسيس الحسابات البنكية والتطبيقات مثل بنكك وفوري وأوكاش برقم الحساب والرصيد الافتتاحي، لتظهر في سندات الصرف والقبض والتحويلات البنكية.'
+            },
+            {
+                badge: '5. الشاشة الفرعية الخامسة: فتح شاشة الخزائن النقدية',
+                cursorLabel: 'فتح شاشة الخزائن 💵',
+                screenPath: 'البيانات الأساسية ⬅ ضغط زر (الخزن) ⬅ فتح شاشة الخزائن النقدية',
+                targetSelector: '#safe-name, .md-tab-btn.tab-safes',
+                diagramType: 'screen-transition',
+                diagramMeta: {
+                    parentScreen: 'تبويب الخزائن (.tab-safes)',
+                    actionLabel: 'يفتح شاشة الخزائن النقدية الرئيسية والفرعية:',
+                    childItems: ['💵 اسم الخزينة النقدية وأمين الصندوق المسؤول', '💰 الرصيد الافتتاحي والعملة المعتمدة للخزينة', '🔒 سقف الصرف اليومي وتنبيهات الحد الأدنى للسيولة', '🧾 ربط مباشر بالمقبوضات والمدفوعات النقدية اليومية'],
+                    effectLabel: 'شاشة الخزائن النقدية مفتوحة الآن أمامك!'
+                },
+                action: () => {
+                    const sBtn = document.querySelector('.md-tab-btn.tab-safes');
+                    if (sBtn) { try { sBtn.click(); } catch (e) {} }
+                    if (typeof window.openSafeForm === 'function') { try { window.openSafeForm(); } catch (e) {} }
+                },
+                speech: () => 'ويليه زر الخزن لتأسيس الخزائن النقدية الرئيسية والفرعية وتحديد عملة كل خزينة ورصيدها الافتتاحي وأمين الصندوق المسؤول عنها.'
+            },
+            {
+                badge: '6. الشاشة الفرعية السادسة: فتح شاشة الأصناف والوحدات والتسعير',
+                cursorLabel: 'فتح شاشة الأصناف والوحدات 📦',
+                screenPath: 'البيانات الأساسية ⬅ ضغط زر (الأصناف) ⬅ فتح بطاقة الصنف والوحدات الكبرى والفرعية',
+                targetSelector: '#item-name-input, .md-tab-btn.tab-items',
+                diagramType: 'screen-transition',
+                diagramMeta: {
+                    parentScreen: 'تبويب الأصناف (.tab-items)',
+                    actionLabel: 'ضغط تبويب (الأصناف) يفتح بطاقة الصنف الشاملة:',
+                    childItems: ['🏷️ اسم الصنف والكود والباركود والتصنيف', '⚖️ الوحدة الكبرى (طن/كرتون) والفرعية (سيخة/حبة) ومعامل التحويل', '💰 سعر الشراء وشرائح أسعار البيع (قطاعي • نصف جملة • جملة)', '🚨 حد الطلب الأدنى للتنبيه الذكي قبل نفاد المخزون'],
+                    effectLabel: 'شاشة الأصناف والوحدات مفتوحة الآن أمامك!'
+                },
+                action: () => {
+                    const btn = document.querySelector('.md-tab-btn.tab-items');
+                    if (btn) { try { btn.click(); } catch (e) {} }
+                    if (typeof window.openItemForm === 'function') { try { window.openItemForm(); } catch (e) {} }
+                },
+                speech: () => 'والآن نضغط على زر الأصناف لتفتح أهم شاشة مخزنية؛ وفيها تعرف اسم الصنف والباركود، وتحدد الوحدة الكبرى كالطن أو الكرتون والوحدة الفرعية كالسيخة أو القطعة ومعامل التحويل بينهما، مع أسعار الشراء والبيع وحد الطلب.'
+            },
+            {
+                badge: '7. الشاشة الفرعية السابعة: فتح شاشة الموظفين والرواتب والصلاحيات',
+                cursorLabel: 'فتح شاشة الموظفين 👨‍💼',
+                screenPath: 'البيانات الأساسية ⬅ ضغط زر (الموظفين) ⬅ فتح بطاقة الموظف والرواتب والعهد',
+                targetSelector: '#emp-name, .md-tab-btn.tab-employees',
+                diagramType: 'screen-transition',
+                diagramMeta: {
+                    parentScreen: 'تبويب الموظفين (.tab-employees)',
+                    actionLabel: 'يفتح شاشة شؤون الموظفين والرواتب والعهد:',
+                    childItems: ['👨‍💼 اسم الموظف والوظيفة والدور الرقابي في النظام', '💵 الراتب الأساسي والبدلات وحساب السلف والعهد', '🏢 ربط الموظف بالفرع أو المستودع المسؤول عنه', '📊 ترحيل آلي لكشوف الرواتب وميزان المراجعة'],
+                    effectLabel: 'شاشة الموظفين مفتوحة الآن أمامك!'
+                },
+                action: () => {
+                    const empBtn = document.querySelector('.md-tab-btn.tab-employees');
+                    if (empBtn) { try { empBtn.click(); } catch (e) {} }
+                    if (typeof window.openNewEmployeeForm === 'function') { try { window.openNewEmployeeForm(); } catch (e) {} }
+                },
+                speech: () => 'ثم نضغط على زر الموظفين لتسجيل العاملين وتحديد أدوارهم الوظيفية ورواتبهم الأساسية وبدلاتهم وحسابات السلف والعهد الخاصة بهم.'
+            },
+            {
+                badge: '8. الشاشة الفرعية الثامنة: فتح شاشة مراكز التكلفة والمشاريع',
+                cursorLabel: 'فتح شاشة مراكز التكلفة 🎯',
+                screenPath: 'البيانات الأساسية ⬅ ضغط زر (مركز التكلفة) ⬅ فتح شاشة المشاريع والفروع',
+                targetSelector: '#costcenter-name, .md-tab-btn.tab-costcenters',
+                diagramType: 'screen-transition',
+                diagramMeta: {
+                    parentScreen: 'تبويب مراكز التكلفة (.tab-costcenters)',
+                    actionLabel: 'يفتح شاشة تأسيس مراكز التكلفة والمشاريع:',
+                    childItems: ['🎯 تأسيس مراكز التكلفة (مشاريع • شاحنات • خطوط إنتاج • فروع)', '💰 تحديد الموازنة التقديرية للمشروع ومراقبة الصرف', '📈 ربط الفواتير والسندات بكل مشروع لمعرفة صافي ربحه', '✅ حفظ ذري فوري وتزامن مع كافة شاشات وتقارير النظام'],
+                    effectLabel: 'تم استعراض جميع الشاشات الثمانية المتداخلة بنجاح!'
+                },
+                action: () => {
+                    const ccBtn = document.querySelector('.md-tab-btn.tab-costcenters');
+                    if (ccBtn) { try { ccBtn.click(); } catch (e) {} }
+                    if (typeof window.openCostCenterForm === 'function') { try { window.openCostCenterForm(); } catch (e) {} }
+                },
+                speech: () => 'وأخيراً نضغط على زر مركز التكلفة لتأسيس المشاريع والفروع والشاحنات وربطها بالفواتير والسندات لمعرفة أرباح وتكاليف كل مشروع بدقة.'
+            }
+        ],
+        scenarios: [
+            {
+                q: '💡 كيف أربط الصنف بوحدتين (مثلاً طن وسيخة أو كرتونة وحبة)؟',
+                a: 'من تبويب (الأصناف) اختر الوحدة الأساسية (مثل حبة أو سيخة)، ثم اضغط (+ إضافة وحدة) في جدول الوحدات واكتب المعادل (مثلاً 12 أو 100) وسعر البيع النقدي والآجل لكل وحدة.'
+            },
+            {
+                q: '💡 كيف يعمل الرقم السري (PIN) لكشف حساب العميل أو المورد عبر الواتساب؟',
+                a: 'في بطاقة العميل أو المورد يوجد حقل (🔐 الرقم السري) مع زر (🎲 توليد)؛ عندما يرسل العميل هذا الرقم للبوت على واتساب يصله كشف حسابه المعتمد فوراً حسب الصلاحية المحددة له.'
+            }
+        ],
+        buttonsDict: [
+            { label: 'تبويب المخازن (.tab-warehouses)', targetSelector: '.md-tab-btn.tab-warehouses', whatItDoes: 'إدارة المستودعات والمعارض ونقاط البيع.', whatHappensIfClicked: 'يفتح جدول ونموذج تعريف المخازن وتحديد أمين كل مخزن.' },
+            { label: 'تبويب العملاء (.tab-customers)', targetSelector: '.md-tab-btn.tab-customers', whatItDoes: 'إدارة بيانات العملاء والسقف الائتماني وأرقام الواتساب.', whatHappensIfClicked: 'يفتح بطاقة العميل وجدول العملاء وسياسات كشف الحساب الآلي.' },
+            { label: 'تبويب الموردين (.tab-suppliers)', targetSelector: '.md-tab-btn.tab-suppliers', whatItDoes: 'إدارة الموردين وأرصدتهم الافتتاحية.', whatHappensIfClicked: 'يفتح بطاقة المورد وجدول الموردين المربوط بالمشتريات.' },
+            { label: 'تبويب البنوك والخزن (.tab-banks / .tab-safes)', targetSelector: '.md-tab-btn.tab-banks, .md-tab-btn.tab-safes', whatItDoes: 'إدارة الحسابات البنكية والخزائن النقدية.', whatHappensIfClicked: 'يفتح شاشة تعريف البنوك والخزائن وأرصدتها الافتتاحية.' },
+            { label: 'تبويب الأصناف والوحدات (.tab-items)', targetSelector: '.md-tab-btn.tab-items', whatItDoes: 'تعريف الأصناف والباركود ومصفوفة الوحدات والتسعير.', whatHappensIfClicked: 'يفتح بطاقة الصنف الشاملة وجدول الفئات والوحدات.' }
+        ],
+        gapReport: {
+            title: 'تقرير المراجعة الثلاثية لمنظومة البيانات الأساسية (Master Data Audit & Gap Report)',
+            items: [
+                '✅ الأمر الحاسم (1): نطق الصلاة على النبي ﷺ مرة واحدة فقط مع ضغطة المرشد ومنع تكرارها نهائياً عند التنقل بين الخانات والتبويبات.',
+                '✅ الأمر الحاسم (2): إلغاء القائمة الطويلة الحاجبة للرؤية واستبدالها بكبسولة تحكم ملكية مصغرة لا تحجب الشاشة.',
+                '✅ الشرح التفاعلي لكل حقل وتبويب: تغطية شاملة لجميع خانات المخازن والعملاء والموردين والبنوك والخزن والأصناف والموظفين ومراكز التكلفة.'
+            ]
         }
-        const pageTitle = (document.querySelector('h1, h2, .page-title')?.textContent || document.title || 'الشاشة الحالية').trim();
-        const visibleBtns = Array.from(document.querySelectorAll('button, a.btn, .sl-btn')).filter(b => {
+    };
+
+    window.explainMasterDataDomElement = function (el) {
+        if (!el) return null;
+        if (el.closest('.tab-warehouses')) return { title: '🏭 تبويب وشاشة المخازن', desc: 'يفتح شاشة تأسيس وإدارة المستودعات وتحديد أمين كل مخزن ليظهر في فواتير الشراء والبيع والجرد.' };
+        if (el.closest('.tab-customers')) return { title: '👤 تبويب وشاشة العملاء', desc: 'يفتح شاشة تسجيل العملاء وأرقام الواتساب والسقف الائتماني والرصيد الافتتاحي.' };
+        if (el.closest('.tab-suppliers')) return { title: '🏢 تبويب وشاشة الموردين', desc: 'يفتح شاشة تسجيل الموردين وأرصدتهم الافتتاحية وربطهم بشجرة الحسابات وفواتير المشتريات.' };
+        if (el.closest('.tab-banks')) return { title: '🏦 تبويب وشاشة البنوك', desc: 'يفتح شاشة تأسيس الحسابات البنكية والتطبيقات البنكية وأرصدتها.' };
+        if (el.closest('.tab-safes')) return { title: '💵 تبويب وشاشة الخزائن', desc: 'يفتح شاشة تأسيس الخزائن النقدية الرئيسية والفرعية.' };
+        if (el.closest('.tab-items')) return { title: '📦 تبويب وشاشة الأصناف والوحدات', desc: 'يفتح شاشة تعريف الأصناف والباركود والوحدة الكبرى والفرعية ومعامل التحويل وأسعار البيع والشراء.' };
+        if (el.closest('.tab-employees')) return { title: '👨‍💼 تبويب وشاشة الموظفين', desc: 'يفتح شاشة تسجيل الموظفين والرواتب والبدلات وحسابات السلف والعهد.' };
+        if (el.closest('.tab-costcenters')) return { title: '🎯 تبويب وشاشة مراكز التكلفة', desc: 'يفتح شاشة تأسيس المشاريع والفروع والشاحنات لربط المصروفات والإيرادات بكل مركز تكلفة.' };
+
+        const fieldRules = [
+            { sel: '#warehouse-name', title: '🏢 خانة اسم المخزن', desc: 'اكتب هنا اسم المستودع أو المعرض ليظهر في قوائم فواتير المشتريات والمبيعات والجرد.' },
+            { sel: '#warehouse-type', title: '🏷️ نوع المخزن', desc: 'حدد ما إذا كان مستودعاً رئيسياً أو معرض بيع أو مخزناً فرعياً أو مخزن بضاعة تالفة.' },
+            { sel: '#warehouse-keeper', title: '👨‍💼 أمين المخزن المسؤول', desc: 'حدد الموظف المسؤول عن استلام وتسليم البضاعة في هذا المستودع.' },
+            { sel: '#cust-name', title: '👤 خانة اسم العميل', desc: 'اكتب اسم العميل أو الشركة؛ يقوم النظام تلقائياً بفتح حساب مالي له في شجرة الحسابات وكشف الأستاذ.' },
+            { sel: '#cust-statement-pin, #sup-statement-pin', title: '🔐 الرقم السري لكشف الحساب الآلي (PIN)', desc: 'كود سري خاص بالعميل أو المورد لطلب كشف حسابه آلياً عبر بوت الواتساب بأمان تام.' },
+            { sel: '#cust-whatsapp, #sup-whatsapp', title: '💬 رقم الواتساب المعتمد', desc: 'رقم الواتساب لإرسال الفواتير والإشعارات وكشوف الحساب الآلية واستقبال الإشعارات المالية.' },
+            { sel: '#cust-opening-balance, #sup-opening-balance', title: '💰 الرصيد الافتتاحي', desc: 'الرصيد السابق للعميل أو المورد عند بداية العمل على النظام ليُدرج في كشف الحساب وميزان المراجعة.' },
+            { sel: '#cust-limit, #sup-limit', title: '🛑 السقف الائتماني المسموح', desc: 'الحد الأقصى للمديونية الآجلة المسموح بها؛ ينبهك النظام تلقائياً عند تجاوزه في الفواتير.' },
+            { sel: '#cust-currency, #sup-currency, #bank-currency, #safe-currency', title: '💱 عملة الحساب', desc: 'تحديد العملة المعتمدة للحساب (جنيه سوداني أو دولار أو غيرها) لتقييم الحركات والأرصدة بدقة.' },
+            { sel: '#cust-price-tier', title: '🏷️ شريحة التسعير الافتراضية للعميل', desc: 'تحدد السعر الذي يظهر تلقائياً لهذا العميل في فاتورة المبيعات (نقدي أو آجل أو أقل سعر).' },
+            { sel: '#sup-name', title: '🏭 خانة اسم المورد', desc: 'اكتب اسم المورد أو الشركة الموردة ليظهر فوراً في قائمة الموردين بشاشة المشتريات.' },
+            { sel: '#bank-name', title: '🏦 خانة اسم البنك أو التطبيق البنكي', desc: 'اكتب اسم البنك (مثل بنك الخرطوم - بنكك أو فوري) ليظهر في سندات الصرف والقبض والتحويلات.' },
+            { sel: '#bank-gl-account, #bank-code', title: '🔢 رقم الحساب البنكي', desc: 'رقم الحساب البنكي المعتمد للمطابقة الآلية مع إشعارات التحويل الممسوحة بالذكاء الاصطناعي.' },
+            { sel: '#bank-opening-balance, #safe-opening-balance', title: '💵 الرصيد الافتتاحي للسيولة', desc: 'الرصيد الفعلي المتوفر في البنك أو الخزينة عند تأسيس الحساب.' },
+            { sel: '#safe-name', title: '💵 خانة اسم الخزينة النقدية', desc: 'اكتب اسم الخزينة (مثل الخزينة الرئيسية أو خزينة المعرض) لربطها بالمقبوضات والمدفوعات النقدية.' },
+            { sel: '#item-name-input', title: '📦 خانة اسم الصنف', desc: 'اكتب الاسم التجاري للصنف ليظهر في البحث السريع بفواتير المشتريات والمبيعات وتقارير المخازن.' },
+            { sel: '#item-code, #item-barcode', title: '🏷️ كود وباركود الصنف', desc: 'رقم الكود التلقائي أو الباركود المطبوع على العبوة للبيع والجرد السريع بقارئ الباركود.' },
+            { sel: '#item-selling-price', title: '💰 سعر البيع الافتراضي للصنف', desc: 'سعر بيع الوحدة الأساسية الذي ينزل تلقائياً في فاتورة المبيعات مع إمكانية تعديله.' },
+            { sel: '#item-opening-qty, #item-opening-value', title: '📊 الكمية والتكلفة الافتتاحية للصنف', desc: 'رصيد أول المدة للصنف وتكلفة الوحدة لاحتساب متوسط التكلفة المرجح بدقة.' },
+            { sel: '#item-max-limit, #item-min-limit, #item-reorder-level', title: '🚨 حدود المخزون وحد الطلب الذكي', desc: 'ينبهك النظام تلقائياً في مؤشر النواقص عندما ينخفض رصيد الصنف عن حد الطلب أو الحد الأدنى.' },
+            { sel: '#item-base-unit, #units-matrix-body', title: '📐 مصفوفة الوحدات الكبرى والفرعية ومعامل التحويل', desc: 'حدد الوحدة الأساسية وأضف الوحدات الكبرى (مثل طن أو كرتونة) ومعامل التحويل وأسعار النقدي والآجل لكل وحدة.' },
+            { sel: '#emp-name, #emp-role', title: '👨‍💼 بيانات الموظف والدور الوظيفي', desc: 'تسجيل اسم الموظف وتحديد صلاحياته (مدير، محاسب، كاشير، مبيعات، أو أمين مخزن).' },
+            { sel: '#costcenter-name', title: '🎯 خانة اسم مركز التكلفة / المشروع', desc: 'تأسيس مشروع أو فرع أو شاحنة لربط المصروفات والإيرادات بها واستخراج تقرير ربحية كل مركز تكلفة.' }
+        ];
+        for (const r of fieldRules) {
+            if (el.matches(r.sel) || el.closest(r.sel)) {
+                return { title: r.title, desc: r.desc };
+            }
+        }
+        const card = el.closest('.pro-field-card, .input-group');
+        if (card) {
+            const lbl = card.querySelector('label, .pro-field-label')?.innerText?.replace(/\s+/g, ' ').trim();
+            if (lbl) {
+                return { title: `خانة ${lbl}`, desc: `تُستخدم لإدخال وضبط (${lbl}) ضمن بطاقة البيانات الأساسية وحفظها فوراً في قاعدة البيانات.` };
+            }
+        }
+        return window.autoSynthesizeElementExplanation ? window.autoSynthesizeElementExplanation(el) : null;
+    };
+
+    // ══════════════════════════════════════════════════════════════════════════
+    // 🧠 SELF-UPDATING DYNAMIC DOM INTROSPECTION & AUTO-SYNC ENGINE (تحديث المرشد لنفسه تلقائياً لأي زر أو خانة تُضاف مستقبلاً في أي شاشة)
+    // ══════════════════════════════════════════════════════════════════════════
+    window.autoSynthesizeElementExplanation = function (el) {
+        if (!el || el === document.body || el.closest('#msg-live-coach-bar, #msg-smart-hover-tooltip, #msg-universal-fixed-launcher, #msg-universal-modal')) return null;
+        const btn = el.closest('button, a.btn, .btn-action, .md-tab-btn, .sl-btn, [onclick]');
+        if (btn) {
+            const rawTxt = (btn.innerText || btn.getAttribute('title') || btn.getAttribute('aria-label') || '').replace(/\s+/g, ' ').replace(/F\d+/g, '').trim();
+            if (!rawTxt || rawTxt.length < 2) return null;
+            const titleHint = btn.getAttribute('title') || '';
+            return {
+                title: `زر (${rawTxt.slice(0, 42)})`,
+                desc: titleHint && titleHint !== rawTxt
+                    ? `${titleHint} — عند الضغط على (${rawTxt}) ينفذ النظام العملية المرتبطة به ويحدّث البيانات فوراً.`
+                    : `أمر تفاعلي لتنفيذ (${rawTxt}) مباشرة داخل الشاشة وتحديث الحسابات والسجلات المرتبطة به لحظياً.`
+            };
+        }
+        const fldWrap = el.closest('.pro-field-card, .input-group, .h-form-group');
+        const ctrl = (el.tagName === 'INPUT' || el.tagName === 'SELECT' || el.tagName === 'TEXTAREA') ? el : (fldWrap ? fldWrap.querySelector('input, select, textarea') : null);
+        if (ctrl || fldWrap) {
+            const lbl = (fldWrap?.querySelector('label, .pro-field-label, .h-label')?.innerText || ctrl?.getAttribute('placeholder') || ctrl?.getAttribute('title') || '').replace(/\s+/g, ' ').trim();
+            if (!lbl) return null;
+            if (ctrl && ctrl.tagName === 'SELECT') {
+                const opts = Array.from(ctrl.options || []).map(o => (o.textContent || '').trim()).filter(Boolean).slice(0, 4).join('، ');
+                return {
+                    title: `قائمة (${lbl.slice(0, 40)})`,
+                    desc: `قائمة منسدلة لاختيار (${lbl})${opts ? ` ومن خياراتها: (${opts})` : ''}، وتسمّع تلقائياً في السجل الحالي.`
+                };
+            }
+            return {
+                title: `خانة (${lbl.slice(0, 40)})`,
+                desc: `تُستخدم لإدخال أو تعديل (${lbl}) مع التسميع اللحظي والحفظ المباشر في قاعدة البيانات.`
+            };
+        }
+        if (el.tagName === 'TH') {
+            const thTxt = (el.innerText || '').replace(/\s+/g, ' ').trim();
+            if (thTxt) return { title: `عمود (${thTxt})`, desc: `يعرض بيانات (${thTxt}) لكل سجل في الجدول مع إمكانية البحث والفرز الفوري.` };
+        }
+        return null;
+    };
+
+    window.syncDynamicDomElementsIntoSmartGuide = function (guideKey) {
+        const isSlScreen = window.location.pathname.includes('smart-logistics') || !!document.getElementById('sl-top-cockpit-bar');
+        const key = guideKey || (isSlScreen ? 'smart-logistics' : (currentGuideKey || 'master-data'));
+        const data = window.MagaiesSmartGuides && window.MagaiesSmartGuides[key];
+        if (!data) return;
+        data.buttonsDict = Array.isArray(data.buttonsDict) ? data.buttonsDict : [];
+        data.autopilotSteps = Array.isArray(data.autopilotSteps) ? data.autopilotSteps : [];
+
+        const salesStepsRef = (key === 'smart-logistics' && typeof SALES_ONLY_STEPS !== 'undefined' && Array.isArray(SALES_ONLY_STEPS)) ? SALES_ONLY_STEPS : [];
+
+        const existingLabels = new Set([
+            ...data.buttonsDict.map(b => (b.label || '').replace(/\s+/g, ' ').trim()),
+            ...data.autopilotSteps.map(s => (s.cursorLabel || s.badge || '').replace(/\s+/g, ' ').trim()),
+            ...salesStepsRef.map(s => (s.cursorLabel || s.badge || '').replace(/\s+/g, ' ').trim())
+        ]);
+        const coveredSelectors = [
+            ...data.buttonsDict.map(b => b.targetSelector).filter(Boolean),
+            ...data.autopilotSteps.map(s => s.targetSelector).filter(Boolean),
+            ...salesStepsRef.map(s => s.targetSelector).filter(Boolean)
+        ];
+
+        const liveElements = Array.from(document.querySelectorAll(
+            '.md-action-bar button, .tab-content.active button, .md-tabs-sidebar button, main button, .cockpit-header button, ' +
+            '#purchase-editor-view .panel-header-row button, #purchase-editor-view .items-toolbar button, #purchase-editor-view .h-form-group button, ' +
+            '#purchase-hub-view .hub-action-card, #purchase-hub-view .smart-filter-bar button, ' +
+            '#invoice-editor-view .panel-header-row button, #invoice-editor-view .items-toolbar button, ' +
+            '#sl-top-cockpit-bar .sl-btn, .sl-glass-card:not([id$="-modal"] .sl-glass-card) button.sl-btn, .sl-floating-summary button.sl-btn'
+        )).filter(b => {
+            if (b.closest('#msg-live-coach-bar, #msg-universal-fixed-launcher, #msg-universal-modal, #master-7-themes-modal, [id^="sl-"][id$="-modal"]')) return false;
             const r = b.getBoundingClientRect();
-            return r.width > 40 && r.height > 20 && r.top >= 0 && !b.closest('#msg-universal-fixed-launcher') && !b.closest('#msg-universal-modal');
-        }).slice(0, 6);
+            return r.width > 28 && r.height > 18;
+        });
+
+        liveElements.forEach((btn, idx) => {
+            const isAlreadyCoveredBySel = coveredSelectors.some(sel => {
+                try { return btn.matches(sel) || !!btn.closest(sel); } catch (_e) { return false; }
+            });
+            if (isAlreadyCoveredBySel) return;
+
+            const cleanLbl = (btn.innerText || btn.getAttribute('title') || '').replace(/\s+/g, ' ').replace(/F\d+/g, '').trim();
+            if (!cleanLbl || cleanLbl.length < 2 || cleanLbl.length > 48) return;
+            if ([...existingLabels].some(ex => ex && (ex.includes(cleanLbl) || cleanLbl.includes(ex)))) return;
+            existingLabels.add(cleanLbl);
+            if (!btn.id) btn.id = `msg-dyn-btn-${Date.now().toString(36)}-${idx}`;
+            const sel = `#${btn.id}`;
+            coveredSelectors.push(sel);
+            const slCustomInfo = (isSlScreen && typeof window.explainSmartLogisticsDomElement === 'function')
+                ? window.explainSmartLogisticsDomElement(btn)
+                : null;
+            const info = slCustomInfo || window.autoSynthesizeElementExplanation(btn) || { title: cleanLbl, desc: `ينفذ وظيفة (${cleanLbl}) داخل الشاشة فوراً.` };
+            data.buttonsDict.push({
+                label: cleanLbl,
+                style: 'background:#0f172a; color:#38bdf8; border:1px solid #38bdf8;',
+                whatItDoes: info.desc,
+                whatHappensIfClicked: `يقوم بتشغيل (${cleanLbl}) وتحديث البيانات المرتبطة به لحظياً.`,
+                targetSelector: sel
+            });
+            const dynStep = {
+                badge: `✨ أداة مضافة — ${cleanLbl}`,
+                cursorLabel: cleanLbl,
+                screenPath: `${data.title || 'الشاشة الحالية'} ⬅ ${cleanLbl}`,
+                targetSelector: sel,
+                diagramType: 'screen-hub',
+                diagramMeta: {
+                    parentScreen: data.title || 'الشاشة الحالية',
+                    actionLabel: `وظيفة (${cleanLbl}):`,
+                    childItems: [`🎯 ${cleanLbl}`, info.desc.slice(0, 65), '⚡ مكتشف ومحدّث تلقائياً بالمرشد الذكي'],
+                    effectLabel: 'تحديث ذاتي فوري للمرشد الذكي'
+                },
+                speech: () => `${info.title}. ${info.desc}`
+            };
+            data.autopilotSteps.push(dynStep);
+            if (salesStepsRef.length > 0) {
+                salesStepsRef.push(dynStep);
+            }
+        });
+    };
+
+    function buildUniversalScreenGuideIfNeeded() {
+        let matchedKey = null;
+        if ((window.location.pathname.includes('master-data') || document.querySelector('.md-tabs-sidebar')) && window.MagaiesSmartGuides['master-data']) {
+            matchedKey = 'master-data';
+        } else if ((window.location.pathname.includes('purchase-receipt.php') || document.getElementById('recent-grns-container')) && window.MagaiesSmartGuides['purchase-receipt']) {
+            matchedKey = 'purchase-receipt';
+        } else if ((window.location.pathname.includes('purchase.php') || document.getElementById('purchase-editor-view') || document.getElementById('purchase-hub-view')) && window.MagaiesSmartGuides['purchase-direct']) {
+            matchedKey = 'purchase-direct';
+        } else {
+            const splitViewEl = document.getElementById('split-invoice-view');
+            if ((window.location.search.includes('action=split') || (splitViewEl && splitViewEl.style.display !== 'none')) && window.MagaiesSmartGuides['sales-split']) {
+                matchedKey = 'sales-split';
+            } else if ((window.location.pathname.includes('direct-sales.php') || document.getElementById('invoice-editor-view') || document.getElementById('sales-hub-view')) && window.MagaiesSmartGuides['sales-direct']) {
+                matchedKey = 'sales-direct';
+            } else if (document.getElementById('sl-tab-purchases') || document.getElementById('sl-tab-sales')) {
+                matchedKey = 'smart-logistics';
+            } else if (document.getElementById('from-account-search') || window.location.pathname.includes('single-cash-payment')) {
+                matchedKey = 'single-cash-payment';
+            } else if (window.location.pathname.includes('multi-cash-payment') && window.MagaiesSmartGuides['multi-cash-payment']) {
+                matchedKey = 'multi-cash-payment';
+            }
+        }
+        if (matchedKey) {
+            try { window.syncDynamicDomElementsIntoSmartGuide(matchedKey); } catch (e) {}
+            return matchedKey;
+        }
+        const pageTitle = (document.querySelector('main h1, main h2, main h3, .md-card-title, h1:not(.m7-modal-title), h2:not(.m7-modal-title), .page-title')?.textContent || document.title || 'الشاشة الحالية').trim();
+        const visibleEls = Array.from(document.querySelectorAll('button, select, a.btn, .sl-btn, .tab-btn, [role="tab"]')).filter(b => {
+            const r = b.getBoundingClientRect();
+            return r.width > 40 && r.height > 20 && r.top >= 0 && !b.closest('#msg-universal-fixed-launcher') && !b.closest('#msg-universal-modal') && !b.closest('#master-7-themes-modal') && !b.closest('#magaiees-dashboard-header-stack') && !b.closest('#msg-live-coach-bar');
+        }).slice(0, 8);
 
         window.MagaiesSmartGuides['universal-screen'] = {
             title: `المرشد الذكي: ${pageTitle}`,
-            subtitle: 'شرح تفاعلي مباشر للشاشة الحالية وأزرارها بالصوت الرجالي الواضح',
-            autopilotSteps: visibleBtns.length ? visibleBtns.map((btn, i) => {
-                const lbl = (btn.innerText || btn.getAttribute('title') || `العنصر ${i + 1}`).replace(/\s+/g, ' ').trim().slice(0, 45);
-                if (!btn.id) btn.id = `msg-auto-el-${i}`;
+            subtitle: 'شرح مصوّر ومدبلج بالصوت الرجالي للأزرار والقوائم والشاشات الفرعية داخل هذه الشاشة',
+            autopilotSteps: visibleEls.length ? visibleEls.map((el, i) => {
+                const isSelect = el.tagName === 'SELECT';
+                const lbl = isSelect
+                    ? (el.getAttribute('title') || el.options?.[0]?.text || `القائمة المنسدلة ${i + 1}`).replace(/\s+/g, ' ').trim().slice(0, 45)
+                    : (el.innerText || el.getAttribute('title') || `العنصر ${i + 1}`).replace(/\s+/g, ' ').trim().slice(0, 45);
+                if (!el.id) el.id = `msg-auto-el-${i}`;
+                const selectOpts = isSelect ? Array.from(el.options || []).slice(0, 5).map(o => o.text.trim()).filter(Boolean) : [];
                 return {
                     badge: `الخطوة ${i + 1} — ${lbl}`,
                     cursorLabel: lbl,
-                    targetSelector: `#${btn.id}`,
-                    speech: () => `${ i === 0 ? SHORT_SAHIHAYN_SALAWAT + ' ' : '' }هذا الزر مخصص لـ ${lbl}، يمكنك الضغط عليه لتنفيذ العملية مباشرة على الشاشة.`
+                    screenPath: `${pageTitle} ⬅ ${isSelect ? 'فتح قائمة' : 'ضغط زر'} (${lbl})`,
+                    targetSelector: `#${el.id}`,
+                    diagramType: isSelect ? 'dropdown-open' : 'screen-hub',
+                    diagramMeta: {
+                        parentScreen: pageTitle,
+                        actionLabel: isSelect ? `عند الضغط على قائمة (${lbl}) تظهر الخيارات:` : `وظيفة زر (${lbl}) وأثره في الشاشة:`,
+                        childItems: selectOpts.length ? selectOpts : [
+                            `🎯 العنصر: ${lbl}`,
+                            '👆 عند الضغط عليه ينفذ العملية أو يفتح النافذة المرتبطة به',
+                            '📊 يحدث البيانات والتقارير المرتبطة في نفس اللحظة'
+                        ],
+                        effectLabel: isSelect ? 'قائمة الخيارات مفتوحة الآن أمامك على الشاشة!' : 'تنفيذ فوري ومباشر داخل النظام'
+                    },
+                    speech: () => `${ i === 0 ? SHORT_SAHIHAYN_SALAWAT + ' أهلاً بحضرتك في شاشة ' + pageTitle + '. ' : '' }${isSelect ? `هنا قائمة (${lbl})، وعند الضغط عليها تفتح أمامك قائمة الخيارات كما يظهر الآن على الشاشة لاختيار المطلوب.` : `هذا الزر مخصص لـ (${lbl})، ويمكنك الضغط عليه لتنفيذ العملية أو فتح النافذة المرتبطة به مباشرة.`}`
                 };
             }) : [
                 {
                     badge: 'الخطوة 1 — نظرة عامة على الشاشة',
                     cursorLabel: pageTitle,
+                    screenPath: `${pageTitle} ⬅ جولة شاملة`,
                     targetSelector: 'body',
                     speech: () => `${SHORT_SAHIHAYN_SALAWAT} أهلاً بحضرتك في شاشة ${pageTitle}. يمكنك استخدام وضع المؤشر الحر للضغط على أي زر في الشاشة ليقوم المرشد الذكي بشرحه لك فوراً.`
                 }
@@ -1709,7 +2974,7 @@
                     svg: `<svg viewBox="0 0 320 110" width="100%" height="100%"><rect x="20" y="20" width="280" height="70" rx="14" fill="#064e3b" stroke="#34d399" stroke-width="2"/><text x="160" y="60" fill="#ffffff" font-size="14" font-weight="bold" text-anchor="middle">👆 المؤشر الحر لشرح أي جزء</text></svg>`
                 }
             ],
-            buttonsDict: visibleBtns.map(b => {
+            buttonsDict: visibleEls.map(b => {
                 const lbl = (b.innerText || b.getAttribute('title') || 'زر بالنظام').replace(/\s+/g, ' ').trim();
                 return {
                     label: lbl,
@@ -2294,34 +3559,41 @@
                     </div>
                 </div>
 
-                <!-- 4 CLEAR EXPLANATION MODES: FULL SCREEN vs PURCHASES vs SALES vs SPECIFIC ELEMENT -->
-                <div class="msg-mode-selector-bar" style="flex-shrink:0;">
+                <!-- 5 CLEAR EXPLANATION MODES: FULL SCREEN vs PURCHASES vs SALES vs SPECIFIC ELEMENT vs HANDS-ON TRAINING -->
+                <div class="msg-mode-selector-bar" style="flex-shrink:0; grid-template-columns: repeat(auto-fit, minmax(175px, 1fr));">
                     <button type="button" class="msg-mode-card-btn" onclick="window.startLiveAutopilotSimulation('all')" style="border-color:#10b981; background:linear-gradient(135deg,rgba(6,78,59,0.75),rgba(15,23,42,0.92));">
-                        <span style="font-size:1.4rem;">🌐</span>
+                        <span style="font-size:1.35rem;">🌐</span>
                         <div>
-                            <div style="font-weight:900; font-size:0.84rem; color:#6ee7b7;">1. اشرح الشاشة كلها بالكامل</div>
-                            <div style="font-size:0.71rem; color:#cbd5e1;">جولة كاملة بدون تغطية الشاشة</div>
+                            <div style="font-weight:900; font-size:0.81rem; color:#6ee7b7;">1. اشرح الشاشة كلها (A-Z)</div>
+                            <div style="font-size:0.69rem; color:#cbd5e1;">جولة شاملة للمشتريات والمبيعات</div>
                         </div>
                     </button>
                     <button type="button" class="msg-mode-card-btn" onclick="window.startLiveAutopilotSimulation('purchases')" style="border-color:#38bdf8; background:linear-gradient(135deg,rgba(12,74,110,0.75),rgba(15,23,42,0.92));">
-                        <span style="font-size:1.4rem;">📥</span>
+                        <span style="font-size:1.35rem;">📥</span>
                         <div>
-                            <div style="font-weight:900; font-size:0.84rem; color:#7dd3fc;">2. اشرح منظومة المشتريات وتقسيمها</div>
-                            <div style="font-size:0.71rem; color:#cbd5e1;">استلام البضاعة وتقسيم الدفعات (GRN)</div>
+                            <div style="font-weight:900; font-size:0.81rem; color:#7dd3fc;">2. اشرح بوابة المشتريات</div>
+                            <div style="font-size:0.69rem; color:#cbd5e1;">10 خطوات لاستلام وتقسيم GRN</div>
                         </div>
                     </button>
                     <button type="button" class="msg-mode-card-btn" onclick="window.startLiveAutopilotSimulation('sales')" style="border-color:#34d399; background:linear-gradient(135deg,rgba(4,120,87,0.65),rgba(15,23,42,0.92));">
-                        <span style="font-size:1.4rem;">📤</span>
+                        <span style="font-size:1.35rem;">📤</span>
                         <div>
-                            <div style="font-weight:900; font-size:0.84rem; color:#a7f3d0;">3. اشرح منظومة المبيعات وتقسيمها</div>
-                            <div style="font-size:0.71rem; color:#cbd5e1;">تسليم بضاعة العميل وتقسيمها (GDN)</div>
+                            <div style="font-weight:900; font-size:0.81rem; color:#a7f3d0;">3. اشرح بوابة المبيعات</div>
+                            <div style="font-size:0.69rem; color:#cbd5e1;">9 خطوات لتسليم وتقسيم GDN</div>
                         </div>
                     </button>
                     <button type="button" class="msg-mode-card-btn" onclick="window.startSmartPickElementMode()" style="border-color:#fbbf24; background:linear-gradient(135deg,rgba(120,53,15,0.65),rgba(15,23,42,0.92));">
-                        <span style="font-size:1.4rem;">👆</span>
+                        <span style="font-size:1.35rem;">👆</span>
                         <div>
-                            <div style="font-weight:900; font-size:0.84rem; color:#fde047;">4. اشرح جزءاً معيناً أضغط عليه</div>
-                            <div style="font-size:0.71rem; color:#cbd5e1;">اضغط على أي زر في الشاشة ليشرحه وحده</div>
+                            <div style="font-weight:900; font-size:0.81rem; color:#fde047;">4. اشرح زراً أضغط عليه</div>
+                            <div style="font-size:0.69rem; color:#cbd5e1;">اضغط على أي جزء ليشرحه وحده</div>
+                        </div>
+                    </button>
+                    <button type="button" class="msg-mode-card-btn" onclick="window.startInteractiveHandsOnTraining()" style="border-color:#f472b6; background:linear-gradient(135deg,rgba(131,24,67,0.72),rgba(15,23,42,0.92));">
+                        <span style="font-size:1.35rem;">🎯</span>
+                        <div>
+                            <div style="font-weight:900; font-size:0.81rem; color:#fbcfe8;">5. درّبني عملياً بيدي</div>
+                            <div style="font-size:0.69rem; color:#cbd5e1;">تدريب تفاعلي خطوة بخطوة</div>
                         </div>
                     </button>
                 </div>
@@ -2418,70 +3690,52 @@
         pinnedDock.className = 'msg-pinned-audio-dock';
         document.body.appendChild(pinnedDock);
 
-        // ── SLEEK COMPACT NON-BLOCKING FLOATING STUDIO CAPSULE ──
+        // ── ROYAL SLEEK NON-BLOCKING GUIDE CONTROL POD (أمر حاسم 2: إلغاء القائمة الطويلة الحاجبة للرؤية وتصميم شاشة تحكمات المرشد بأعلى الجماليات العالمية) ──
         const coachBar = document.createElement('div');
         coachBar.id = 'msg-live-coach-bar';
         coachBar.className = 'msg-live-coach-bar';
         coachBar.innerHTML = `
-            <!-- TOP SLIM HEADER ROW (ALWAYS VISIBLE EVEN WHEN MINIMIZED) -->
-            <div style="display:flex; align-items:center; justify-content:space-between; gap:6px; flex-wrap:wrap;">
-                <div style="display:flex; align-items:center; gap:5px; flex-wrap:wrap;">
-                    <button type="button" id="msg-btn-pause-resume" onclick="window.togglePauseResumeAudio()" class="sl-btn" style="padding:4px 10px; font-size:0.76rem; background:linear-gradient(135deg,#f59e0b,#d97706); color:#020617; border:none; font-weight:900; border-radius:99px;">
-                        ⏸️ إيقاف مؤقت
-                    </button>
-                    <button type="button" onclick="window.seekAudioBy(-3)" class="sl-btn" style="padding:3px 7px; font-size:0.72rem; color:#bae6fd; border-color:#38bdf8; border-radius:99px;" title="تأخير 3 ثوانٍ">⏪ 3ث</button>
-                    <div style="display:inline-flex; align-items:center; gap:5px; background:rgba(15,23,42,0.9); padding:3px 8px; border-radius:99px; border:1px solid rgba(56,189,248,0.35);" dir="ltr">
-                        <input type="range" id="msg-audio-seek-slider" min="0" max="100" step="0.1" value="0" oninput="window.seekAudioTo(this.value)" style="width:74px; height:5px; accent-color:#fbbf24; cursor:pointer;" title="تقديم أو تأخير التسجيل">
-                        <span id="msg-audio-time-lbl" style="font-size:0.7rem; font-weight:900; color:#fef08a; font-family:monospace; white-space:nowrap;">00:00</span>
-                    </div>
-                    <button type="button" onclick="window.seekAudioBy(3)" class="sl-btn" style="padding:3px 7px; font-size:0.72rem; color:#bae6fd; border-color:#38bdf8; border-radius:99px;" title="تقديم 3 ثوانٍ">3ث ⏩</button>
-                    <button type="button" onclick="window.stopLiveAutopilotSimulation()" class="sl-btn" style="padding:4px 10px; font-size:0.75rem; background:linear-gradient(135deg,#ef4444,#dc2626); color:#ffffff; border:1px solid #fca5a5; font-weight:900; border-radius:99px;" title="إيقاف الشرح نهائياً">
-                        ⏹️ إنهاء
-                    </button>
+            <div style="display:flex; align-items:center; justify-content:space-between; gap:5px; width:100%;">
+                <div style="display:flex; align-items:center; gap:5px; min-width:0;">
+                    <span id="msg-coach-mini-svg" style="display:inline-flex; align-items:center; justify-content:center; width:22px; height:22px; flex-shrink:0;" title="مخطط بصري خفيف Pure-SVG">
+                        <svg viewBox="0 0 24 24" width="20" height="20"><circle cx="12" cy="12" r="10" fill="rgba(56,189,248,0.18)" stroke="#fbbf24" stroke-width="2"/><path d="M8 12h8M13 8l4 4-4 4" stroke="#38bdf8" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </span>
+                    <span id="msg-coach-step-badge" style="background:linear-gradient(135deg,rgba(251,191,36,0.22),rgba(56,189,248,0.18)); border:1px solid #fbbf24; padding:2px 8px; border-radius:99px; font-size:0.72rem; font-weight:900; max-width:165px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">🎓 المرشد الذكي</span>
                 </div>
-
-                <!-- COMPACT WINDOW CONTROLS: TEXT TOGGLE + TOP/BOTTOM + MINIMIZE -->
-                <div style="display:flex; align-items:center; gap:4px;">
-                    <button type="button" onclick="window.toggleCoachSubtitleBox()" class="sl-btn" style="padding:3px 8px; font-size:0.71rem; color:#6ee7b7; border-color:rgba(52,211,153,0.4); border-radius:99px;" title="إظهار أو إخفاء النص المكتوب">💬 النص</button>
-                    <button type="button" id="msg-coach-pos-btn" onclick="window.toggleCoachCapsulePosition()" class="sl-btn" style="padding:3px 8px; font-size:0.71rem; color:#bae6fd; border-color:rgba(56,189,248,0.4); border-radius:99px;" title="نقل الكبسولة لأعلى أو أسفل الشاشة">⬆️ للأعلى</button>
-                    <button type="button" id="msg-coach-min-btn" onclick="window.toggleCoachCapsuleMinimize()" class="sl-btn" style="padding:3px 8px; font-size:0.71rem; color:#fef08a; border-color:rgba(251,191,36,0.45); border-radius:99px;" title="تصغير الكبسولة لعدم تغطية أي جزء من الشاشة">🗕 تصغير</button>
+                <div style="display:flex; align-items:center; gap:3px; flex-shrink:0;">
+                    <select id="msg-coach-voice-select" class="sl-input" onchange="window.onMsgVoiceChange(this.value)" style="padding:1px 4px !important; font-size:0.68rem !important; font-weight:900 !important; height:23px; border-radius:7px !important;" title="اللهجة الرجالية">
+                        <option value="egyptian">🇪🇬 مصري</option>
+                        <option value="sudanese">🇸🇩 سوداني</option>
+                        <option value="gulf">🇸🇦 خليجي</option>
+                    </select>
+                    <button type="button" onclick="window.adjustSpeechSpeedBy(-0.08, false)" class="sl-btn" style="padding:1px 5px; font-size:0.68rem; border-radius:6px; font-weight:900;" title="إبطاء سرعة الصوت">🐢-</button>
+                    <span id="msg-coach-speed-lbl" style="font-size:0.66rem; font-weight:900; min-width:30px; text-align:center;">${formatSpeedPctLabel(selectedSpeechRate)}</span>
+                    <button type="button" onclick="window.adjustSpeechSpeedBy(0.08, false)" class="sl-btn" style="padding:1px 5px; font-size:0.68rem; border-radius:6px; font-weight:900;" title="تسريع الصوت">+⚡</button>
+                    <button type="button" onclick="window.startQuickMasterDataQuiz()" class="sl-btn" style="padding:2px 5px; font-size:0.68rem; border-radius:6px; font-weight:900;" title="اختبار تفاعلي سريع (Quiz)">🎯</button>
+                    <button type="button" id="msg-coach-voice-cmd-btn" onclick="window.startMasterDataVoiceCommand()" class="sl-btn" style="padding:2px 5px; font-size:0.68rem; border-radius:6px; font-weight:900;" title="بحث وتنقل صوتي فوري (Voice-to-Filter)">🎙️</button>
+                    <button type="button" onclick="window.stepLiveAutopilot(-1)" class="sl-btn" style="padding:2px 5px; font-size:0.68rem; border-radius:6px;" title="الخطوة السابقة">⏮️</button>
+                    <button type="button" id="msg-btn-pause-resume" onclick="window.togglePauseResumeAudio()" class="sl-btn" style="padding:2px 7px; font-size:0.7rem; background:linear-gradient(135deg,#f59e0b,#d97706); color:#020617 !important; border:none; font-weight:900; border-radius:6px;" title="إيقاف مؤقت / استئناف">⏸️</button>
+                    <button type="button" onclick="window.stepLiveAutopilot(1)" class="sl-btn" style="padding:2px 5px; font-size:0.68rem; background:#38bdf8; color:#020617 !important; border:none; font-weight:900; border-radius:6px;" title="الخطوة التالية">⏭️</button>
+                    <button type="button" onclick="window.stopLiveAutopilotSimulation()" class="sl-btn" style="padding:2px 6px; font-size:0.7rem; background:linear-gradient(135deg,#ef4444,#dc2626); color:#ffffff !important; border:1px solid #fca5a5; font-weight:900; border-radius:6px;" title="إغلاق المرشد">✕</button>
                 </div>
             </div>
-
-            <!-- COLLAPSIBLE COMPACT SETTINGS & SUBTITLE BODY -->
-            <div class="msg-coach-full-body" style="display:flex; flex-direction:column; gap:5px;">
-                <div style="display:flex; align-items:center; justify-content:space-between; gap:5px; flex-wrap:wrap; border-top:1px solid rgba(148,163,184,0.18); padding-top:5px;">
-                    <div style="display:flex; align-items:center; gap:5px; flex-wrap:wrap;">
-                        <span id="msg-coach-step-badge" style="background:rgba(251,191,36,0.18); border:1px solid #fbbf24; color:#fef08a; padding:2px 9px; border-radius:99px; font-size:0.72rem; font-weight:900; max-width:210px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">الشرح الحي</span>
-                        <select id="msg-coach-mode-select" class="sl-input" onchange="window.onCoachModeSelectChange(this.value)" style="padding:2px 7px !important; font-size:0.72rem !important; font-weight:900 !important; height:auto; border-radius:99px !important;" title="نوع التسجيل والشرح">
-                            <option value="all">🌐 شرح الكل</option>
-                            <option value="purchases">📥 المشتريات</option>
-                            <option value="sales">📤 المبيعات</option>
-                            <option value="pick">👆 جزء معين</option>
-                        </select>
-                        <select id="msg-coach-voice-select" class="sl-input" onchange="window.onMsgVoiceChange(this.value)" style="padding:2px 7px !important; font-size:0.72rem !important; font-weight:900 !important; height:auto; border-radius:99px !important;" title="تغيير اللهجة فوراً">
-                            <option value="egyptian">🇪🇬 مصري</option>
-                            <option value="sudanese">🇸🇩 سوداني</option>
-                            <option value="gulf">🇸🇦 خليجي</option>
-                        </select>
-                        <div class="msg-speed-arrows-group" style="border-radius:99px; padding:1px 5px;">
-                            <button type="button" class="msg-speed-arrow-btn" onclick="window.adjustSpeechSpeedBy(-0.08, false)" style="padding:1px 6px; font-size:0.7rem;" title="إبطاء الصوت">-</button>
-                            <span id="msg-coach-speed-lbl" style="font-size:0.7rem; font-weight:900; color:#fef08a; min-width:48px; text-align:center;">${formatSpeedPctLabel(selectedSpeechRate)}</span>
-                            <button type="button" class="msg-speed-arrow-btn" onclick="window.adjustSpeechSpeedBy(0.08, false)" style="padding:1px 6px; font-size:0.7rem;" title="تسريع الصوت">+</button>
-                        </div>
-                    </div>
-
-                    <div style="display:flex; align-items:center; gap:3px;">
-                        <button type="button" onclick="window.stepLiveAutopilot(-1)" class="sl-btn" style="padding:2px 7px; font-size:0.7rem; border-radius:8px;" title="الخطوة السابقة">⏮️</button>
-                        <div id="msg-step-pills-wrap" style="display:inline-flex; gap:3px;"></div>
-                        <button type="button" onclick="window.stepLiveAutopilot(1)" class="sl-btn" style="padding:2px 7px; font-size:0.7rem; background:#38bdf8; color:#020617; border:none; font-weight:900; border-radius:8px;" title="الخطوة التالية">⏭️</button>
-                    </div>
-                </div>
-
-                <div id="msg-coach-speech-text" style="font-size:0.82rem; font-weight:800; color:#f8fafc; line-height:1.5; background:rgba(15,23,42,0.82); padding:5px 11px; border-radius:10px; border-right:3px solid #34d399; max-height:46px; overflow-y:auto;"></div>
+            <!-- Hidden internal anchors preserved so zero legacy calls ever fail -->
+            <div style="display:none !important;">
+                <input type="range" id="msg-audio-seek-slider" min="0" max="100" step="0.1" value="0">
+                <span id="msg-audio-time-lbl">00:00</span>
+                <select id="msg-coach-mode-select"><option value="all">all</option></select>
+                <div id="msg-step-pills-wrap"></div>
+                <div id="msg-coach-visual-stage"></div>
+                <div id="msg-coach-speech-text"></div>
             </div>
         `;
         document.body.appendChild(coachBar);
+
+        if (!document.getElementById('msg-live-select-mirror')) {
+            const mirror = document.createElement('div');
+            mirror.id = 'msg-live-select-mirror';
+            document.body.appendChild(mirror);
+        }
 
         const sel = document.getElementById('msg-voice-select');
         if (sel) sel.value = selectedMaleProfile;
@@ -2510,7 +3764,7 @@
     }
 
     window.adjustSpeechSpeedBy = function (delta, playPreviewIfIdle = false) {
-        const nextRate = Math.max(0.70, Math.min(1.30, parseFloat((selectedSpeechRate + (parseFloat(delta) || 0)).toFixed(2))));
+        const nextRate = Math.max(0.70, Math.min(1.60, parseFloat((selectedSpeechRate + (parseFloat(delta) || 0)).toFixed(2))));
         window.onMsgSpeedChange(nextRate, playPreviewIfIdle);
     };
 
@@ -2525,7 +3779,7 @@
             activeAudioStartTime = getAudioCtx().currentTime;
         }
 
-        selectedSpeechRate = Math.max(0.70, Math.min(1.30, parsed));
+        selectedSpeechRate = Math.max(0.70, Math.min(1.60, parsed));
         localStorage.setItem('msg_male_speed_v6', selectedSpeechRate.toFixed(2));
         syncSpeedLabelsUI();
 
@@ -2543,9 +3797,9 @@
         } else if (playPreviewIfIdle) {
             const pct = Math.round(selectedSpeechRate * 100);
             const speedMsg = selectedSpeechRate < 0.90
-                ? `${SHORT_SAHIHAYN_SALAWAT} تم إبطاء سرعة الصوت إلى ${pct} بالمائة ليكون الشرح هادئاً ومتأنياً.`
-                : `${SHORT_SAHIHAYN_SALAWAT} تم ضبط سرعة الصوت على ${pct} بالمائة.`;
-            speakArabicMaleText(speedMsg, null, selectedMaleProfile);
+                ? `تم إبطاء سرعة الصوت إلى ${pct} بالمائة ليكون الشرح هادئاً ومتأنياً.`
+                : `تم ضبط سرعة الصوت على ${pct} بالمائة.`;
+            speakArabicMaleText(speedMsg, null, selectedMaleProfile, false);
         }
     };
 
@@ -2565,17 +3819,97 @@
         }
 
         const greetings = {
-            egyptian: `${SHORT_SAHIHAYN_SALAWAT} يا أهلاً بحضرتك يا فندم، تم تفعيل الصوت الرجالي الهادئ والواضح، باللهجة المصرية.`,
-            sudanese: `${SHORT_SAHIHAYN_SALAWAT} حبابك عشرة، تم تفعيل الصوت الرجالي الهادئ والواضح، باللهجة السودانية.`,
-            gulf:     `${SHORT_SAHIHAYN_SALAWAT} يا هلا والله، تم تفعيل الصوت الرجالي الهادئ والواضح، باللهجة الخليجية.`
+            egyptian: `يا أهلاً بحضرتك يا فندم، تم تفعيل الصوت الرجالي الهادئ والواضح، باللهجة المصرية.`,
+            sudanese: `حبابك عشرة، تم تفعيل الصوت الرجالي الهادئ والواضح، باللهجة السودانية.`,
+            gulf:     `يا هلا والله، تم تفعيل الصوت الرجالي الهادئ والواضح، باللهجة الخليجية.`
         };
-        speakArabicMaleText(greetings[profileId] || greetings.egyptian, null, profileId);
+        speakArabicMaleText(greetings[profileId] || greetings.egyptian, null, profileId, false);
     };
 
     window.openSmartGuide = function (guideKey) {
+        unlockBrowserAudioEnginesSync();
         ensureGuideDomElements();
-        window.stopLiveAutopilotSimulation();
         const resolvedKey = guideKey || buildUniversalScreenGuideIfNeeded();
+        currentGuideKey = resolvedKey;
+
+        // 👑 Direct Instant Start ("طوالي بلا شاشات وسيطة") + Interactive Hover Inspection for master-data.php, purchase.php, direct-sales.php, purchase-receipt.php & smart-logistics.php
+        if (
+            resolvedKey === 'master-data' ||
+            resolvedKey === 'purchase-direct' ||
+            resolvedKey === 'sales-direct' ||
+            resolvedKey === 'sales-split' ||
+            resolvedKey === 'purchase-receipt' ||
+            resolvedKey === 'smart-logistics' ||
+            window.location.pathname.includes('master-data') ||
+            window.location.pathname.includes('purchase.php') ||
+            window.location.pathname.includes('direct-sales.php') ||
+            window.location.pathname.includes('purchase-receipt') ||
+            window.location.pathname.includes('smart-logistics') ||
+            document.querySelector('.md-tabs-sidebar') ||
+            document.getElementById('purchase-editor-view') ||
+            document.getElementById('invoice-editor-view') ||
+            document.getElementById('view-editor') ||
+            document.getElementById('sl-top-cockpit-bar')
+        ) {
+            const topGuideBtn = document.querySelector('.msg-quartet-guide');
+            if (window.__mdInteractiveGuideActive || isAutopilotRunning) {
+                window.__mdInteractiveGuideActive = false;
+                if (topGuideBtn) topGuideBtn.style.boxShadow = '';
+                window.stopLiveAutopilotSimulation();
+                const tip = document.getElementById('msg-smart-hover-tooltip');
+                if (tip) tip.style.display = 'none';
+                return;
+            }
+            window.__mdInteractiveGuideActive = true;
+            hasPlayedOpeningInvocation = false;
+            window.hasPlayedOpeningInvocation = false;
+            if (topGuideBtn) {
+                topGuideBtn.style.boxShadow = '0 0 18px #fde047, inset 0 0 10px rgba(253,224,71,0.6)';
+            }
+            const isSmartLogistics = (resolvedKey === 'smart-logistics' || window.location.pathname.includes('smart-logistics') || !!document.getElementById('sl-top-cockpit-bar'));
+            const activeSlMode = document.body.getAttribute('data-logistics-mode') || (window.location.search.includes('mode=purchases') ? 'purchases' : 'sales');
+            const initialMode = isSmartLogistics ? (activeSlMode === 'purchases' ? 'purchases' : 'sales') : 'all';
+
+            const modeSel = document.getElementById('msg-coach-mode-select');
+            if (modeSel) {
+                if (isSmartLogistics) {
+                    if (activeSlMode === 'purchases') {
+                        modeSel.innerHTML = `
+                            <option value="purchases">📥 شرح بوابة استلام المشتريات (GRN)</option>
+                            <option value="hands-on">🎯 تدريب عملي تفاعلي (3 خطوات)</option>
+                            <option value="pick">👆 الشرح بالتأشير على أي زر أو حقل</option>
+                        `;
+                    } else {
+                        modeSel.innerHTML = `
+                            <option value="sales">📤 شرح بوابة تسليم المبيعات (GDN)</option>
+                            <option value="hands-on">🎯 تدريب عملي تفاعلي (3 خطوات)</option>
+                            <option value="pick">👆 الشرح بالتأشير على أي زر أو حقل</option>
+                        `;
+                    }
+                } else if (resolvedKey === 'sales-split') {
+                    modeSel.innerHTML = `
+                        <option value="all">✂️ شرح شاشة تجزئة الفواتير والشاشات الوليدة</option>
+                        <option value="pick">👆 الشرح بالتأشير على أي زر أو حقل</option>
+                    `;
+                } else {
+                    modeSel.innerHTML = `
+                        <option value="all">🌐 شرح الشاشة من الألف للياء</option>
+                        <option value="pick">👆 الشرح بالتأشير على أي زر أو حقل</option>
+                    `;
+                }
+                modeSel.value = initialMode;
+            }
+            window.startLiveAutopilotSimulation(initialMode);
+            return;
+        }
+
+        window.stopLiveAutopilotSimulation();
+        window.openSmartGuideEncyclopediaModal(resolvedKey);
+    };
+
+    window.openSmartGuideEncyclopediaModal = function (guideKey) {
+        ensureGuideDomElements();
+        const resolvedKey = guideKey || currentGuideKey || buildUniversalScreenGuideIfNeeded();
         currentGuideKey = resolvedKey;
         const data = window.MagaiesSmartGuides[resolvedKey] || window.MagaiesSmartGuides['smart-logistics'];
         if (!data) return;
@@ -2585,11 +3919,22 @@
         document.getElementById('msg-hdr-title').textContent = data.title;
         document.getElementById('msg-hdr-sub').textContent = data.subtitle;
 
+        // Auto-build visualSteps from autopilotSteps if visualSteps is not explicitly provided
+        const visualList = (data.visualSteps && data.visualSteps.length)
+            ? data.visualSteps
+            : (data.autopilotSteps || []).map((st, idx) => ({
+                stepBadge: st.badge || `الخطوة ${idx + 1}`,
+                title: st.cursorLabel || st.badge || `الخطوة ${idx + 1}`,
+                desc: resolveStepSpeech(st, selectedMaleProfile, false),
+                svg: buildStepFlowchartSvgMarkup(st, idx, (data.autopilotSteps || []).length),
+                targetSelector: st.targetSelector
+            }));
+
         // Tab 1
         const storyPane = document.getElementById('msg-pane-story');
         storyPane.innerHTML = `
             <div class="msg-story-grid">
-                ${(data.visualSteps || []).map(st => `
+                ${visualList.map(st => `
                     <div class="msg-story-card">
                         <div style="display:flex; justify-content:space-between; align-items:center;">
                             <span class="msg-step-num">${st.stepBadge}</span>
@@ -2610,11 +3955,11 @@
                 ${(data.buttonsDict || []).map(b => `
                     <div class="msg-dict-item">
                         <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap;">
-                            <span class="msg-replica-badge" style="${b.style || ''}">${b.label}</span>
+                            <span class="msg-replica-badge" style="${b.style || 'background:#0f172a; color:#38bdf8; border:1px solid #38bdf8;'}">${b.label}</span>
                             ${b.targetSelector ? `<button type="button" onclick="window.pointGhostCursorAt('${b.targetSelector.replace(/'/g, "\\'")}', '${b.label.replace(/'/g, "\\'")}', \`${(b.whatItDoes + ' ' + b.whatHappensIfClicked).replace(/`/g, '')}\`)" class="sl-btn" style="padding:3px 10px; font-size:0.74rem; color:#38bdf8;">🔊 اشرح هذا الزر وحده على الشاشة</button>` : ''}
                         </div>
                         <div style="font-size:0.84rem; font-weight:800; color:#ffffff;">🔹 <b>وظيفته:</b> ${b.whatItDoes}</div>
-                        <div class="msg-whatif-box">⚡ <b>لو ضغطت عليه ماذا يحدث؟</b><br>${b.whatHappensIfClicked.replace(/\n/g, '<br>')}</div>
+                        <div class="msg-whatif-box">⚡ <b>لو ضغطت عليه ماذا يحدث؟</b><br>${(b.whatHappensIfClicked || '').replace(/\n/g, '<br>')}</div>
                     </div>
                 `).join('')}
             </div>
@@ -2656,8 +4001,8 @@
     };
 
     window.speakScenarioAloud = function (txt) {
-        const dialectTxt = adaptTextToDialect(txt, selectedMaleProfile);
-        speakArabicMaleText(`${SHORT_SAHIHAYN_SALAWAT} ${dialectTxt}`, null, selectedMaleProfile);
+        const dialectTxt = stripAllSalawatPrefixes(adaptTextToDialect(txt, selectedMaleProfile));
+        speakArabicMaleText(dialectTxt, null, selectedMaleProfile);
     };
 
     // ── SILKY-SMOOTH ZERO-JITTER GHOST-CURSOR ENGINE ─────────────────────────
@@ -2703,9 +4048,23 @@
         }
     }
 
+    let activeSpotlightEl = null;
+    function applyGuideSpotlight(el) {
+        if (activeSpotlightEl && activeSpotlightEl !== el) {
+            try { activeSpotlightEl.classList.remove('msg-spotlight-active-el'); } catch (e) {}
+        }
+        if (el && el !== document.body && el !== document.documentElement) {
+            try { el.classList.add('msg-spotlight-active-el'); } catch (e) {}
+            activeSpotlightEl = el;
+        } else {
+            activeSpotlightEl = null;
+        }
+    }
+
     function moveGhostCursorToElement(el, labelText, triggerClickEffect = true) {
         if (!el) return;
         currentTargetDomEl = el;
+        applyGuideSpotlight(el);
         const rect = el.getBoundingClientRect();
         const viewH = window.innerHeight || document.documentElement.clientHeight;
 
@@ -2734,19 +4093,22 @@
         const badge = document.getElementById('msg-coach-step-badge');
 
         if (coachBar) coachBar.style.display = 'flex';
-        const adaptedBody = adaptTextToDialect(`${title}. ${spokenText}`, selectedMaleProfile);
-        const fullSpeech = `${SHORT_SAHIHAYN_SALAWAT} ${adaptedBody}`;
-        if (badge) badge.textContent = `📍 شرح جزء محدد: ${title}`;
-        if (speechBox) speechBox.textContent = fullSpeech;
+        const adaptedBody = stripAllSalawatPrefixes(adaptTextToDialect(`${title}. ${spokenText}`, selectedMaleProfile));
+        if (badge) badge.textContent = `📍 ${title}`;
+        if (speechBox) speechBox.textContent = adaptedBody;
 
         if (el) moveGhostCursorToElement(el, title, true);
-        speakArabicMaleText(fullSpeech, null, selectedMaleProfile);
+        speakArabicMaleText(adaptedBody, null, selectedMaleProfile);
     };
 
     // ── 4 EXPLANATION MODES: 'all' | 'purchases' | 'sales' | 'pick' ──────────
     window.startLiveAutopilotSimulation = async function (mode = 'all') {
         ensureGuideDomElements();
         window.stopSmartPickElementMode();
+        if (mode === 'hands-on' && typeof window.startSlHandsOnTrainingCoach === 'function') {
+            window.startSlHandsOnTrainingCoach();
+            return;
+        }
         const resolvedKey = buildUniversalScreenGuideIfNeeded();
         currentGuideKey = resolvedKey;
         const data = window.MagaiesSmartGuides[resolvedKey] || window.MagaiesSmartGuides['smart-logistics'];
@@ -2756,13 +4118,18 @@
             if (mode === 'sales') {
                 activeAutopilotStepsList = SALES_ONLY_STEPS;
             } else if (mode === 'purchases') {
-                activeAutopilotStepsList = data.autopilotSteps;
+                activeAutopilotStepsList = PURCHASES_MASTER_STEPS;
             } else {
-                // 'all' = Full Purchases & Split tour + Sales overview step at the end
-                activeAutopilotStepsList = [...data.autopilotSteps, SALES_ONLY_STEPS[0]];
+                // 'all' = Full A-to-Z Purchases & Split Masterclass (10 steps) + Full A-to-Z Sales Delivery & Split Masterclass (9 steps)
+                activeAutopilotStepsList = [...PURCHASES_MASTER_STEPS, ...SALES_ONLY_STEPS];
             }
         } else {
             activeAutopilotStepsList = data.autopilotSteps || [];
+        }
+
+        const modeSel = document.getElementById('msg-coach-mode-select');
+        if (modeSel && ['all', 'purchases', 'sales'].includes(mode)) {
+            modeSel.value = mode;
         }
 
         isAutopilotRunning = true;
@@ -2773,8 +4140,10 @@
         if (coachBar) coachBar.style.display = 'flex';
 
         renderStepPillsForActiveList();
-        prewarmGuideAudio(currentGuideKey, selectedMaleProfile);
         runCurrentAutopilotStep();
+        setTimeout(() => {
+            if (isAutopilotRunning) prewarmGuideAudio(currentGuideKey, selectedMaleProfile);
+        }, 1800);
     };
 
     window.jumpToAutopilotStep = function (idx) {
@@ -2815,8 +4184,187 @@
         runCurrentAutopilotStep();
     };
 
+    let dubbedVisualTimers = [];
+    let isCoachVisualStageHidden = false;
+
+    window.toggleCoachVisualStage = function () {
+        const stg = document.getElementById('msg-coach-visual-stage');
+        const btn = document.getElementById('msg-coach-diagram-btn');
+        if (!stg) return;
+        isCoachVisualStageHidden = !isCoachVisualStageHidden;
+        stg.style.display = isCoachVisualStageHidden ? 'none' : 'flex';
+        if (btn) {
+            btn.style.opacity = isCoachVisualStageHidden ? '0.65' : '1';
+        }
+    };
+
+    function cleanupGuideTempPopups() {
+        dubbedVisualTimers.forEach(t => clearTimeout(t));
+        dubbedVisualTimers = [];
+        const mirror = document.getElementById('msg-live-select-mirror');
+        if (mirror) mirror.style.display = 'none';
+        const cdd = document.getElementById('customer-dropdown-list');
+        if (cdd) cdd.style.display = 'none';
+        const qdd = document.getElementById('quick-item-dropdown-list');
+        if (qdd) qdd.style.display = 'none';
+        const gm = document.getElementById('grid-settings-modal');
+        if (gm) gm.style.display = 'none';
+        [
+            'sl-mobile-bridge-modal',
+            'sl-font-modal',
+            'sl-weighbridge-modal',
+            'sl-signature-modal',
+            'sl-debit-note-modal',
+            'sl-quick-warehouse-modal',
+            'sl-confirm-undo-modal',
+            'sl-drilldown-invoice-modal',
+            'sl-fleet-dispatch-modal',
+            'sl-load-verifier-modal',
+            'sl-cargo-estimator-modal',
+            'sl-voice-commander-modal',
+            'sl-gdn-quiz-modal',
+            'sl-pending-aging-modal',
+            'sl-gate-credit-modal',
+            'sl-contrast-inspector-modal',
+            'sl-dispatch-presets-modal',
+            'sl-batch-ocr-modal',
+            'sl-bin-heatmap-modal',
+            'sl-cols-drawer',
+            'grn-confirm-action-modal',
+            'grn-batch-bin-modal',
+            'grn-quick-wh-modal',
+            'grn-continuous-scan-modal',
+            'grn-weighbridge-modal',
+            'post-split-success-modal',
+            'split-genealogy-tree-modal',
+            'split-voice-assistant-modal',
+            'split-hands-on-sim-modal',
+            'split-drilldown-doc-modal',
+            'split-analytics-modal'
+        ].forEach(id => {
+            const m = document.getElementById(id);
+            if (m) m.style.display = 'none';
+        });
+    }
+
+    function showLiveSelectOptionsMirror(targetEl, customItems, titleLabel) {
+        // أمر حاسم (6): فتح وعرض القوائم المنسدلة حياً أمام المستخدم بالتزامن مع الصوت بدون حجب الشاشة
+        let mirror = document.getElementById('msg-live-select-mirror');
+        if (!mirror) {
+            mirror = document.createElement('div');
+            mirror.id = 'msg-live-select-mirror';
+            document.body.appendChild(mirror);
+        }
+        const selEl = (targetEl && targetEl.tagName === 'SELECT')
+            ? targetEl
+            : (targetEl && typeof targetEl.querySelector === 'function' ? targetEl.querySelector('select') : null);
+        const anchorEl = selEl || targetEl;
+        if (!anchorEl || anchorEl === document.body) {
+            mirror.style.display = 'none';
+            return;
+        }
+        let items = [];
+        if (selEl && selEl.options && selEl.options.length > 0) {
+            items = Array.from(selEl.options)
+                .map(o => (o.textContent || o.innerText || '').trim())
+                .filter(Boolean)
+                .slice(0, 6);
+        } else if (Array.isArray(customItems) && customItems.length) {
+            items = customItems.slice(0, 5);
+        }
+        if (!items.length) {
+            mirror.style.display = 'none';
+            return;
+        }
+        const rect = anchorEl.getBoundingClientRect();
+        const hdr = escapeSvgText((titleLabel || 'عناصر القائمة المنسدلة').slice(0, 42));
+        mirror.innerHTML = `
+            <div style="font-size:0.74rem; font-weight:900; padding:3px 8px; border-bottom:1px solid rgba(56,189,248,0.35); margin-bottom:3px; display:flex; align-items:center; justify-content:space-between;">
+                <span>📂 ${hdr}</span>
+                <span style="font-size:0.66rem; opacity:0.85;">(${items.length} خيارات)</span>
+            </div>
+            ${items.map((it, idx) => `
+                <div class="msg-mirror-opt" style="${idx === 0 ? 'background:rgba(56,189,248,0.18); border:1px solid rgba(56,189,248,0.45);' : ''}">
+                    <span>🔹 ${escapeSvgText(String(it).slice(0, 48))}</span>
+                    ${idx === 0 ? '<span style="font-size:0.65rem; font-weight:900;">✓ نشط</span>' : ''}
+                </div>
+            `).join('')}
+        `;
+        mirror.style.display = 'flex';
+        const topPos = (rect.bottom + 6 + 170 < window.innerHeight) ? (rect.bottom + 6) : Math.max(8, rect.top - 165);
+        const leftPos = Math.max(10, Math.min(window.innerWidth - 280, rect.left));
+        mirror.style.top = `${topPos}px`;
+        mirror.style.left = `${leftPos}px`;
+    }
+
+    function escapeSvgText(str) {
+        return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    function buildStepFlowchartSvgMarkup(step, stepIdx = 0, totalSteps = 1) {
+        const meta = step.diagramMeta || {};
+        const parentTitle = escapeSvgText((meta.parentScreen || step.badge || `الخطوة ${stepIdx + 1}`).slice(0, 34));
+        const triggerTitle = escapeSvgText((step.cursorLabel || step.badge || 'الزر الحالي').slice(0, 30));
+        const childList = (Array.isArray(meta.childItems) && meta.childItems.length)
+            ? meta.childItems.slice(0, 4)
+            : [
+                `1️⃣ العنصر: ${(step.cursorLabel || step.badge || '').slice(0, 28)}`,
+                '2️⃣ يفتح القائمة أو ينفذ العملية فوراً',
+                '3️⃣ يحدث الحسابات والمخزون آلياً'
+            ];
+        const typeBadge = step.diagramType === 'screen-transition'
+            ? '🖥️ شاشة داخل شاشة'
+            : (step.diagramType === 'dropdown-open'
+                ? '📂 فتح قائمة منسدلة'
+                : (step.diagramType === 'subpanel-expand' ? '🎛️ إظهار نافذة فرعية' : '📊 مخطط الخطوة والتسميع'));
+
+        return `<svg viewBox="0 0 440 112" width="100%" height="100%" style="display:block;">
+            <defs>
+                <linearGradient id="msgParentGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#1e1b4b"/>
+                    <stop offset="100%" stop-color="#0f172a"/>
+                </linearGradient>
+                <linearGradient id="msgChildGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#064e3b"/>
+                    <stop offset="100%" stop-color="#0f172a"/>
+                </linearGradient>
+            </defs>
+            <!-- Right Box: Current Screen & Trigger Button -->
+            <rect x="275" y="8" width="157" height="96" rx="11" fill="url(#msgParentGrad)" stroke="#fbbf24" stroke-width="2"/>
+            <text x="353" y="26" fill="#fde047" font-size="9.5" font-weight="bold" text-anchor="middle">${parentTitle}</text>
+            <rect x="285" y="35" width="137" height="30" rx="7" fill="#78350f" stroke="#fde047" stroke-width="1.5"/>
+            <text x="353" y="54" fill="#ffffff" font-size="9.5" font-weight="bold" text-anchor="middle">👆 ${triggerTitle}</text>
+            <text x="353" y="86" fill="#bae6fd" font-size="8.5" font-weight="bold" text-anchor="middle">${typeBadge}</text>
+
+            <!-- Center Animated Flow Arrow (Right to Left in RTL) -->
+            <path d="M270 56 L228 56" stroke="#38bdf8" stroke-width="3" stroke-dasharray="5 3"/>
+            <polygon points="230,49 216,56 230,63" fill="#38bdf8"/>
+            <circle cx="249" cy="56" r="10" fill="#020617" stroke="#fbbf24" stroke-width="1.5"/>
+            <text x="249" y="60" fill="#fde047" font-size="9" font-weight="bold" text-anchor="middle">${stepIdx + 1}</text>
+
+            <!-- Left Box: Opened Nested Screen / Dropdown List / Sub-Panel -->
+            <rect x="8" y="6" width="204" height="100" rx="11" fill="url(#msgChildGrad)" stroke="#34d399" stroke-width="2"/>
+            ${childList.map((item, i) => {
+                const y = 25 + i * 21;
+                return `
+                    <rect x="15" y="${y - 12}" width="190" height="18" rx="5" fill="${i === 0 ? 'rgba(251,191,36,0.22)' : 'rgba(15,23,42,0.75)'}" stroke="${i === 0 ? '#fbbf24' : 'rgba(52,211,153,0.3)'}" stroke-width="1"/>
+                    <text x="198" y="${y}" fill="${i === 0 ? '#fef08a' : '#f8fafc'}" font-size="8.7" font-weight="bold" text-anchor="end">${escapeSvgText(String(item).slice(0, 38))}</text>
+                `;
+            }).join('')}
+        </svg>`;
+    }
+
+    function renderLiveDubbedVisualStage() {
+        // أمر حاسم (2): إلغاء لوحة المخطط الطويلة الحاجبة للرؤية نهائياً
+    }
+
+    let lastAutopilotStepStartTs = 0;
+
     function runCurrentAutopilotStep() {
         if (!isAutopilotRunning || !activeAutopilotStepsList.length) return;
+        lastAutopilotStepStartTs = Date.now();
+
+        cleanupGuideTempPopups();
 
         const step = activeAutopilotStepsList[autopilotStepIdx];
         if (!step) return;
@@ -2826,18 +4374,26 @@
         // Pre-decode the NEXT step in advance while the current step is playing!
         const nextStep = activeAutopilotStepsList[autopilotStepIdx + 1];
         if (nextStep) {
-            const nextTxt = resolveStepSpeech(nextStep, selectedMaleProfile);
+            const nextTxt = resolveStepSpeech(nextStep, selectedMaleProfile, false);
             fetchAndDecodeMaleBuffer(nextTxt, selectedMaleProfile).catch(() => {});
         }
 
         const badge = document.getElementById('msg-coach-step-badge');
         const speechBox = document.getElementById('msg-coach-speech-text');
-        const spoken = resolveStepSpeech(step, selectedMaleProfile);
+        const playOpeningOnceNow = (autopilotStepIdx === 0 && !hasPlayedOpeningInvocation);
+        if (playOpeningOnceNow) {
+            hasPlayedOpeningInvocation = true;
+            window.hasPlayedOpeningInvocation = true;
+        }
+        const spoken = resolveStepSpeech(step, selectedMaleProfile, playOpeningOnceNow);
 
-        if (badge) badge.textContent = `${step.badge} (${autopilotStepIdx + 1} من ${activeAutopilotStepsList.length})`;
+        if (badge) badge.textContent = `${step.badge} (${autopilotStepIdx + 1}/${activeAutopilotStepsList.length})`;
         if (speechBox) speechBox.textContent = spoken;
 
-        // Execute step DOM action first if needed, then move cursor smoothly without jitter!
+        // Render the synchronized Dubbed Visual Diagram & Flowchart Stage!
+        renderLiveDubbedVisualStage(step, autopilotStepIdx, activeAutopilotStepsList.length);
+
+        // Execute step DOM action first if needed (opens nested screen, dropdown, or sub-panel), then move cursor smoothly!
         if (typeof step.action === 'function') {
             try { step.action(); } catch (e) {}
         }
@@ -2846,14 +4402,21 @@
             if (!isAutopilotRunning) return;
             const el = document.querySelector(step.targetSelector) || document.body;
             moveGhostCursorToElement(el, step.cursorLabel, true);
-        }, 60);
+
+            // If this step targets a <select> or dropdown-open diagramType (and isn't already showing custom dropdown), display the live options list on screen!
+            const cddOpen = document.getElementById('customer-dropdown-list')?.style.display === 'block';
+            const qddOpen = document.getElementById('quick-item-dropdown-list')?.style.display === 'block';
+            if (!cddOpen && !qddOpen && (el.tagName === 'SELECT' || el.querySelector?.('select') || step.diagramType === 'dropdown-open')) {
+                showLiveSelectOptionsMirror(el, step.diagramMeta?.childItems, step.cursorLabel || step.badge);
+            }
+        }, 70);
 
         speakArabicMaleText(spoken, () => {
             if (!isAutopilotRunning || isAudioPaused) return;
             nextStepTimeoutId = setTimeout(() => {
                 if (isAutopilotRunning && !isAudioPaused) window.stepLiveAutopilot(1);
             }, 220);
-        }, selectedMaleProfile);
+        }, selectedMaleProfile, playOpeningOnceNow);
     }
 
     // ── INTERACTIVE "PICK ANY ELEMENT TO EXPLAIN" MODE (المؤشر الحر لشرح أي جزء) ─
@@ -2889,11 +4452,48 @@
 
     function explainPickedDomElement(el) {
         if (!el) return;
-        const data = window.MagaiesSmartGuides['smart-logistics'];
+        const activeGuideKey = buildUniversalScreenGuideIfNeeded();
+        const data = window.MagaiesSmartGuides[activeGuideKey] || window.MagaiesSmartGuides['smart-logistics'];
         let matchedTitle = '';
         let matchedDesc = '';
 
-        if (data && Array.isArray(data.buttonsDict)) {
+        if (activeGuideKey === 'master-data' && typeof window.explainMasterDataDomElement === 'function') {
+            const mdInfo = window.explainMasterDataDomElement(el);
+            if (mdInfo && mdInfo.title) {
+                matchedTitle = mdInfo.title;
+                matchedDesc = mdInfo.desc;
+            }
+        }
+        if (!matchedTitle && activeGuideKey === 'purchase-direct' && typeof window.explainPurchaseDomElement === 'function') {
+            const purInfo = window.explainPurchaseDomElement(el);
+            if (purInfo && purInfo.title) {
+                matchedTitle = purInfo.title;
+                matchedDesc = purInfo.desc;
+            }
+        }
+        if (!matchedTitle && (activeGuideKey === 'sales-direct' || activeGuideKey === 'sales-split') && typeof window.explainDirectSalesDomElement === 'function') {
+            const salesInfo = window.explainDirectSalesDomElement(el);
+            if (salesInfo && salesInfo.title) {
+                matchedTitle = salesInfo.title;
+                matchedDesc = salesInfo.desc;
+            }
+        }
+        if (!matchedTitle && activeGuideKey === 'purchase-receipt' && typeof window.explainPurchaseReceiptDomElement === 'function') {
+            const grnInfo = window.explainPurchaseReceiptDomElement(el);
+            if (grnInfo && grnInfo.title) {
+                matchedTitle = grnInfo.title;
+                matchedDesc = grnInfo.desc;
+            }
+        }
+        if (!matchedTitle && activeGuideKey === 'smart-logistics' && typeof window.explainSmartLogisticsDomElement === 'function') {
+            const slInfo = window.explainSmartLogisticsDomElement(el);
+            if (slInfo && slInfo.title) {
+                matchedTitle = slInfo.title;
+                matchedDesc = slInfo.desc;
+            }
+        }
+
+        if (!matchedTitle && data && Array.isArray(data.buttonsDict)) {
             for (const item of data.buttonsDict) {
                 if (item.targetSelector && (el.matches(item.targetSelector) || el.closest(item.targetSelector))) {
                     matchedTitle = item.label;
@@ -2906,16 +4506,31 @@
         if (!matchedTitle) {
             matchedTitle = (el.getAttribute('title') || el.innerText || el.placeholder || el.value || 'هذا الجزء من الشاشة').replace(/\s+/g, ' ').trim().slice(0, 60);
             if (el.id === 'sl-tab-purchases' || el.closest('#sl-tab-purchases')) {
-                matchedTitle = 'قسم استلام المشتريات وتقسيمها (GRN)';
-                matchedDesc = 'يفتح منظومة استلام البضاعة من الموردين، ويمكنك استلام الفاتورة كاملة أو تقسيمها على دفعات وإضافتها للمخزن.';
+                matchedTitle = 'بوابة استلام المشتريات وتقسيمها (GRN)';
+                matchedDesc = 'هذه البوابة الزرقاء مخصصة لاستلام البضاعة الواردة من الموردين؛ تفحص الكميات وتستلمها دفعة واحدة أو تقسمها على عدة دفعات وعدة مخازن، وتقوم بإضافة الرصيد للمخزن وإصدار مذكرة استلام رسمية.';
             } else if (el.id === 'sl-tab-sales' || el.closest('#sl-tab-sales')) {
-                matchedTitle = 'قسم تسليم المبيعات وتقسيمها (GDN)';
-                matchedDesc = 'يفتح منظومة تسليم البضاعة للعملاء، ويمكنك صرف الفاتورة كاملة أو تقسيمها على دفعات وخصمها من المخزن.';
-            } else if (el.classList.contains('sl-qty-primary-input') || el.classList.contains('sl-qty-base-input')) {
-                matchedTitle = 'مربع إدخال وتقسيم الكمية المستلمة أو المسلمة';
-                matchedDesc = 'تكتب هنا الكمية التي استلمتها أو سلمتها الآن فقط، وسيحسب البرنامج الباقي للدفعة القادمة أوتوماتيكياً.';
+                matchedTitle = 'بوابة تسليم المبيعات وتقسيمها (GDN)';
+                matchedDesc = 'هذه البوابة الخضراء مخصصة لصرف وتسليم بضاعة المبيعات للعملاء؛ تكشف الرصيد المتاح في المخزن، وتتيح تسليم الفاتورة كاملة أو تقسيمها على دفعات، وتقوم بخصم الرصيد وإصدار تصريح خروج البوابة.';
+            } else if (el.classList.contains('sl-qty-primary-input')) {
+                matchedTitle = 'صندوق الكمية بالوحدة الأساسية (طن / كرتون)';
+                matchedDesc = 'تكتب هنا الكمية المستلمة أو المسلمة في هذه الدفعة بالوحدة الكبرى كالطن أو الكرتون، وسيقوم البرنامج تلقائياً بتحويلها إلى الوحدة الفرعية في الصندوق المجاور وحساب المتبقي للدفعة القادمة.';
+            } else if (el.classList.contains('sl-qty-base-input')) {
+                matchedTitle = 'صندوق الكمية بالوحدة الفرعية (سيخة / حبة / قطعة)';
+                matchedDesc = 'إذا عدّ العامل البضاعة بالحبة أو السيخة، اكتب العدد هنا مباشرة بدون آلة حاسبة، وسيقوم البرنامج بتحويله فوراً إلى الوحدة الأساسية وحساب المتبقي بدقة.';
+            } else if (el.classList.contains('sl-row-wh-select') || el.closest('.sl-col-wh')) {
+                matchedTitle = 'اختيار مخزن السطر وفحص الرصيد الفعلي';
+                matchedDesc = 'يتيح لك هذا الاختيار تحديد مستودع مستقل لهذا الصنف وحده داخل الفاتورة، كما يعرض لك الرصيد الفعلي المتوفر حالياً داخل كل مخزن قبل التنفيذ.';
+            } else if (el.id === 'sl-auto-execute-qr' || el.closest('label')?.querySelector('#sl-auto-execute-qr')) {
+                matchedTitle = 'خيار الاعتماد الفوري المتتابع عند المسح';
+                matchedDesc = 'عند تفعيل هذا الخيار، بمجرد تمرير باركود الفاتورة أو الإذن أمام الكاميرا يتم اعتمادها وتحديث المخزون تلقائياً في ثانية واحدة بدون الحاجة لضغط أي زر.';
+            } else if (el.id === 'sl-photo-input' || (el.getAttribute('onclick') || '').includes('sl-photo-input')) {
+                matchedTitle = 'زر إرفاق صورة البضاعة أو المستند الموقع';
+                matchedDesc = 'يتيح لك تصوير البضاعة على الشاحنة أو تصوير مستند الاستلام الورقي وإرفاقه كدليل بصري موثق مع الإذن الرسمي.';
+            } else if (el.closest('.sl-floating-summary')) {
+                matchedTitle = 'شريط الملخص والاعتماد العائم';
+                matchedDesc = 'يعرض لك هذا الشريط ميزان الفاتورة بالكامل قبل الاعتماد: إجمالي الفاتورة، والمنفذ سابقاً، والمنفذ في هذه الدفعة، والمتبقي بعد الدفعة، وبجانبه أزرار الاعتماد والطباعة والواتساب وعكس الحركة.';
             } else {
-                matchedDesc = `عند الضغط على (${matchedTitle})، يقوم النظام بتنفيذ هذه الوظيفة مباشرة داخل الشاشة.`;
+                matchedDesc = `هذه الأداة (${matchedTitle}) تساعدك في إدارة وفحص حركة البضاعة داخل البوابة بدقة وسرعة، وعند استخدامها يقوم النظام بتحديث البيانات المرتبطة بها فوراً.`;
             }
         }
 
@@ -2925,13 +4540,12 @@
         const badge = document.getElementById('msg-coach-step-badge');
         if (coachBar) coachBar.style.display = 'flex';
 
-        const adapted = adaptTextToDialect(`${matchedTitle}. ${matchedDesc}`, selectedMaleProfile);
-        const fullTxt = `${SHORT_SAHIHAYN_SALAWAT} ${adapted}`;
-        if (badge) badge.textContent = `👆 شرح الجزء المختار: ${matchedTitle}`;
-        if (speechBox) speechBox.textContent = fullTxt;
+        const adapted = stripAllSalawatPrefixes(adaptTextToDialect(`${matchedTitle}. ${matchedDesc}`, selectedMaleProfile));
+        if (badge) badge.textContent = `👆 ${matchedTitle}`;
+        if (speechBox) speechBox.textContent = adapted;
 
         moveGhostCursorToElement(el, matchedTitle, true);
-        speakArabicMaleText(fullTxt, null, selectedMaleProfile);
+        speakArabicMaleText(adapted, null, selectedMaleProfile);
     }
 
     // ── SMART MICROPHONE & ON-SCREEN ANSWER ENGINE (مايك المرشد الذكي) ───────
@@ -3036,8 +4650,7 @@
             answerText = 'هذه الشاشة مقسّمة إلى قسمين رئيسيين في الأعلى: الأخضر لتسليم المبيعات وتقسيمها، والأزرق لاستلام المشتريات وتقسيمها. يمكنك الضغط على (اشرح الشاشة كلها) أو (اشرح جزءاً معيناً) ليرشدك الماوس خطوة بخطوة.';
         }
 
-        const adaptedAns = adaptTextToDialect(answerText, selectedMaleProfile);
-        const spokenAns = `${SHORT_SAHIHAYN_SALAWAT} ${adaptedAns}`;
+        const adaptedAns = stripAllSalawatPrefixes(adaptTextToDialect(answerText, selectedMaleProfile));
 
         if (ansBox) {
             ansBox.style.display = 'block';
@@ -3046,12 +4659,20 @@
 
         const el = document.querySelector(targetSel) || document.body;
         moveGhostCursorToElement(el, cursorTitle, true);
-        speakArabicMaleText(spokenAns, null, selectedMaleProfile);
+        speakArabicMaleText(adaptedAns, null, selectedMaleProfile);
     };
 
     window.stopLiveAutopilotSimulation = function () {
         isAutopilotRunning = false;
+        window.__mdInteractiveGuideActive = false;
         stopCurrentSpeech();
+        cleanupGuideTempPopups();
+        applyGuideSpotlight(null);
+
+        const topGuideBtn = document.querySelector('.msg-quartet-guide');
+        if (topGuideBtn) topGuideBtn.style.boxShadow = '';
+        const tip = document.getElementById('msg-smart-hover-tooltip');
+        if (tip) tip.style.display = 'none';
 
         const cursor = document.getElementById('msg-ghost-cursor');
         const ring = document.getElementById('msg-live-target-ring');
@@ -3067,17 +4688,616 @@
             window.renderSlRegistry();
             if (typeof window.clearSlDocumentCard === 'function') window.clearSlDocumentCard();
         }
+        isHandsOnTrainingActive = false;
     };
 
-    // Inject the fixed square launcher immediately on DOM ready and pre-warm audio!
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', ensureFixedSquareLauncher);
-    } else {
+    // ══════════════════════════════════════════════════════════════════════════
+    // 🎯 1. INTERACTIVE HANDS-ON QUIZ / TRAINING ENGINE («درّبني عملياً بيدي»)
+    // (يوجه المستخدم بالصوت خطوة بخطوة وينتظر منه أن يضغط أو يكتب بيده لينتقل للخطوة التالية!)
+    // ══════════════════════════════════════════════════════════════════════════
+    let isHandsOnTrainingActive = false;
+    let handsOnStepIdx = 0;
+
+    window.startInteractiveHandsOnTraining = function () {
+        ensureGuideDomElements();
+        window.closeSmartGuide();
+        window.stopLiveAutopilotSimulation();
+
+        isHandsOnTrainingActive = true;
+        isAutopilotRunning = true;
+        handsOnStepIdx = 0;
+
+        if (typeof window.setSlRegistryFilter === 'function') {
+            window.setSlRegistryFilter('pending');
+        }
+        window.ensureLiveDemoInvoiceForGuide();
+
+        const coachBar = document.getElementById('msg-live-coach-bar');
+        if (coachBar) coachBar.style.display = 'flex';
+
+        runHandsOnTrainingStep(0);
+    };
+
+    function runHandsOnTrainingStep(idx) {
+        if (!isHandsOnTrainingActive) return;
+        handsOnStepIdx = idx;
+
+        const isSales = document.body.getAttribute('data-logistics-mode') === 'sales';
+        const badge = document.getElementById('msg-coach-step-badge');
+        const speechBox = document.getElementById('msg-coach-speech-text');
+
+        if (idx === 0) {
+            const promptTxt = adaptTextToDialect(
+                `${SHORT_SAHIHAYN_SALAWAT} أهلاً بك في التدريب العملي التفاعلي! دورك الآن أن تطبق بيدك: اضغط بالماوس على الفاتورة الأولى في جدول السجل الذكي الذي يشير إليه المؤشر الذهبي لتفتحها.`,
+                selectedMaleProfile
+            );
+            if (badge) badge.textContent = '🎯 تدريب عملي (1/3): اضغط بيدك على الفاتورة';
+            if (speechBox) speechBox.textContent = promptTxt;
+            const row = document.querySelector('#sl-registry-tbody tr:first-child') || document.getElementById('sl-registry-tbody');
+            if (row) moveGhostCursorToElement(row, '👈 اضغط هنا بيدك لفتح الفاتورة', true);
+            speakArabicMaleText(promptTxt, null, selectedMaleProfile);
+        } else if (idx === 1) {
+            const promptTxt = adaptTextToDialect(
+                `أحسنت يا بطل! فتحت الفاتورة بنجاح. الآن الفاتورة متبقي فيها سبعة؛ اذهب بالماوس واكتب بيدك رقم خمسة في صندوق الكمية الذي يشير إليه المؤشر الذهبي لتجرب تقسيم الدفعة.`,
+                selectedMaleProfile
+            );
+            if (badge) badge.textContent = '🎯 تدريب عملي (2/3): اكتب رقم (5) في صندوق الكمية';
+            if (speechBox) speechBox.textContent = promptTxt;
+            setTimeout(() => {
+                const inp = document.querySelector('.sl-qty-primary-input');
+                if (inp) {
+                    moveGhostCursorToElement(inp, '✍️ اكتب هنا رقم (5) بيدك', true);
+                }
+            }, 150);
+            speakArabicMaleText(promptTxt, null, selectedMaleProfile);
+        } else if (idx === 2) {
+            const promptTxt = adaptTextToDialect(
+                `ممتاز جداً! لاحظ كيف حسب البرنامج تلقائياً أن المعادل خمسمية بالوحدة الفرعية وأن المتبقي اثنان للدفعة القادمة! الآن الخطوة الأخيرة: اضغط على زر (${isSales ? 'تأكيد واعتماد التسليم' : 'تأكيد واعتماد الاستلام'}) في الشريط السفلي لإتمام التدريب!`,
+                selectedMaleProfile
+            );
+            if (badge) badge.textContent = '🎯 تدريب عملي (3/3): اضغط زر الاعتماد بالأسفل';
+            if (speechBox) speechBox.textContent = promptTxt;
+            const btn = document.getElementById('sl-btn-execute');
+            if (btn) moveGhostCursorToElement(btn, '🚀 اضغط هنا لإتمام التدريب', true);
+            speakArabicMaleText(promptTxt, null, selectedMaleProfile);
+        } else if (idx === 3) {
+            const congratsTxt = adaptTextToDialect(
+                `ما شاء الله! أكملت التدريب العملي بنجاح وأصبحت جاهزاً تماماً لإدارة البوابة وتقسيم الفواتير باحترافية عالية!`,
+                selectedMaleProfile
+            );
+            if (badge) badge.textContent = '🏆 اكتمل التدريب العملي بنجاح 100%!';
+            if (speechBox) speechBox.textContent = congratsTxt;
+            if (typeof window.showSlToast === 'function') {
+                window.showSlToast('🏆 أحسنت! أتقنت دورة الاستلام والتقسيم والاعتماد بنجاح 100%!', 'success', 4500);
+            }
+            speakArabicMaleText(congratsTxt, () => {
+                setTimeout(() => window.stopLiveAutopilotSimulation(), 1200);
+            }, selectedMaleProfile);
+        }
+    }
+
+    // Listen to user interactions during Hands-On Training Mode
+    document.addEventListener('click', function (e) {
+        if (!isHandsOnTrainingActive) return;
+        if (handsOnStepIdx === 0) {
+            const clickedRow = e.target.closest('#sl-registry-tbody tr');
+            if (clickedRow) {
+                setTimeout(() => runHandsOnTrainingStep(1), 350);
+            }
+        } else if (handsOnStepIdx === 2) {
+            const clickedExec = e.target.closest('#sl-btn-execute');
+            if (clickedExec) {
+                if (tempDemoCreated) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+                runHandsOnTrainingStep(3);
+            }
+        }
+    }, true);
+
+    document.addEventListener('input', function (e) {
+        if (!isHandsOnTrainingActive || handsOnStepIdx !== 1) return;
+        if (e.target && (e.target.classList.contains('sl-qty-primary-input') || e.target.classList.contains('sl-qty-base-input'))) {
+            const val = parseFloat(e.target.value || 0);
+            if (val > 0 && val !== 7 && val !== 700) {
+                setTimeout(() => {
+                    if (isHandsOnTrainingActive && handsOnStepIdx === 1) {
+                        runHandsOnTrainingStep(2);
+                    }
+                }, 650);
+            }
+        }
+    }, true);
+
+    // ══════════════════════════════════════════════════════════════════════════
+    // 🏆 1B. QUICK INTERACTIVE QUIZ + VOICE-TO-FILTER NAVIGATION (المقترحات الـ 3 المعتمدة)
+    // ══════════════════════════════════════════════════════════════════════════
+    let isMdQuickQuizActive = false;
+    let mdQuickQuizStep = 0;
+    const MD_QUIZ_STEPS = [
+        {
+            tabSel: '.tab-customers',
+            openFn: null,
+            targetSel: '#cust-limit',
+            badge: '🎯 اختبار (1/3): أشر على خانة (حد الائتمان للعميل)',
+            prompt: 'أهلاً بك في الاختبار التطبيقي السريع! السؤال الأول: حرّك الماوس أو اضغط على خانة حد الائتمان وسقف المديونية في بطاقة العميل.'
+        },
+        {
+            tabSel: '.tab-items',
+            openFn: () => { if (typeof window.openItemForm === 'function') window.openItemForm(); },
+            targetSel: '#item-base-unit',
+            badge: '🎯 اختبار (2/3): أشر على قائمة (الوحدة الأساسية للصنف)',
+            prompt: 'أحسنت إجابة صحيحة! السؤال الثاني: حرّك الماوس أو اضغط على القائمة المنسدلة للوحدة الأساسية للصنف داخل بطاقة الأصناف.'
+        },
+        {
+            tabSel: '.tab-costcenters',
+            openFn: null,
+            targetSel: 'button[onclick*="openOpeningEquilibriumModal"]',
+            badge: '🎯 اختبار (3/3): أشر على زر (القيد الافتتاحي 3109)',
+            prompt: 'ممتاز جداً! السؤال الثالث والأخير: حرّك الماوس أو اضغط على زر القيد الافتتاحي المتوازن في الشريط العلوي.'
+        }
+    ];
+
+    const PURCHASE_QUIZ_STEPS = [
+        {
+            tabSel: null,
+            openFn: () => { if (typeof window.openPurchaseEditor === 'function') window.openPurchaseEditor('direct'); },
+            targetSel: '#hdr-customer-search, .group-supplier',
+            badge: '🎯 اختبار (1/3): أشر على خانة (المورد وزر الأستاذ)',
+            prompt: 'أهلاً بك في الاختبار التطبيقي لشاشة المشتريات! السؤال الأول: حرّك الماوس أو اضغط على خانة البحث عن المورد في أعلى الفاتورة.'
+        },
+        {
+            tabSel: null,
+            openFn: null,
+            targetSel: '#quick-item-search',
+            badge: '🎯 اختبار (2/3): أشر على (البحث السريع عن الأصناف F2)',
+            prompt: 'أحسنت إجابة صحيحة! السؤال الثاني: حرّك الماوس أو اضغط على شريط البحث السريع عن الأصناف والباركود.'
+        },
+        {
+            tabSel: null,
+            openFn: null,
+            targetSel: '#btn-toggle-transport, #payment-panel, #btn-submit-purchase-invoice',
+            badge: '🎯 اختبار (3/3): أشر على (الترحيل أو الدفع أو حفظ الفاتورة)',
+            prompt: 'ممتاز جداً! السؤال الثالث والأخير: حرّك الماوس أو اضغط على زر الترحيل أو لوحة الدفع الهجين أو زر حفظ واعتماد الفاتورة.'
+        }
+    ];
+
+    function getActiveQuizStepsList() {
+        const isPur = (currentGuideKey === 'purchase-direct' || window.location.pathname.includes('purchase.php') || !!document.getElementById('purchase-editor-view'));
+        return isPur ? PURCHASE_QUIZ_STEPS : MD_QUIZ_STEPS;
+    }
+
+    window.startQuickMasterDataQuiz = function () {
+        ensureGuideDomElements();
+        stopCurrentSpeech();
+        isAutopilotRunning = false;
+        window.__mdInteractiveGuideActive = true;
+        isMdQuickQuizActive = true;
+        mdQuickQuizStep = 0;
+        const coachBar = document.getElementById('msg-live-coach-bar');
+        if (coachBar) coachBar.style.display = 'flex';
+        runMdQuickQuizStep(0);
+    };
+
+    function runMdQuickQuizStep(stepIdx) {
+        if (!isMdQuickQuizActive) return;
+        mdQuickQuizStep = stepIdx;
+        const badge = document.getElementById('msg-coach-step-badge');
+        const activeList = getActiveQuizStepsList();
+        if (stepIdx >= activeList.length) {
+            isMdQuickQuizActive = false;
+            const winMsg = adaptTextToDialect('ما شاء الله! اجتزت الاختبار التطبيقي للشاشة بنجاح مئة بالمئة!', selectedMaleProfile);
+            if (badge) badge.textContent = '🏆 اجتزت الاختبار 100%!';
+            if (typeof window.showToast === 'function') window.showToast('🏆 أحسنت! اجتزت الاختبار التطبيقي بنجاح 100%!', 'success');
+            speakArabicMaleText(winMsg, null, selectedMaleProfile, false);
+            return;
+        }
+        const st = activeList[stepIdx];
+        if (st.tabSel) {
+            const tabBtn = document.querySelector(st.tabSel);
+            if (tabBtn) { try { tabBtn.click(); } catch (e) {} }
+        }
+        if (typeof st.openFn === 'function') { try { st.openFn(); } catch (e) {} }
+        if (badge) badge.textContent = st.badge;
+        setTimeout(() => {
+            const targetEl = document.querySelector(st.targetSel);
+            if (targetEl) applyGuideSpotlight(targetEl);
+        }, 80);
+        const msg = adaptTextToDialect(st.prompt, selectedMaleProfile);
+        speakArabicMaleText(msg, null, selectedMaleProfile, false);
+    }
+
+    function checkMdQuickQuizHit(el) {
+        if (!isMdQuickQuizActive || !el) return false;
+        const activeList = getActiveQuizStepsList();
+        const st = activeList[mdQuickQuizStep];
+        if (!st) return false;
+        if (el.matches?.(st.targetSel) || el.closest?.(st.targetSel) || el.querySelector?.(st.targetSel)) {
+            runMdQuickQuizStep(mdQuickQuizStep + 1);
+            return true;
+        }
+        return false;
+    }
+
+    function extractLiveElementValueReadback(el) {
+        if (!el) return '';
+        const ctrl = (el.tagName === 'INPUT' || el.tagName === 'SELECT' || el.tagName === 'TEXTAREA')
+            ? el
+            : (typeof el.querySelector === 'function' ? el.querySelector('input, select, textarea') : null);
+        if (!ctrl) return '';
+        if (ctrl.tagName === 'SELECT') {
+            const opt = ctrl.options && ctrl.options[ctrl.selectedIndex];
+            const txt = opt ? (opt.textContent || opt.innerText || '').trim() : '';
+            if (txt && !txt.includes('اختر') && !txt.includes('--')) return txt;
+            return '';
+        }
+        const type = (ctrl.getAttribute('type') || 'text').toLowerCase();
+        if (type === 'password' || type === 'hidden' || type === 'file') return '';
+        const val = String(ctrl.value || '').trim();
+        return val.length > 0 && val.length <= 50 ? val : '';
+    }
+
+    window.executeMasterDataVoiceQuery = function (rawQuery) {
+        const q = String(rawQuery || '').trim();
+        if (!q) return;
+        ensureGuideDomElements();
+        const coachBar = document.getElementById('msg-live-coach-bar');
+        const badge = document.getElementById('msg-coach-step-badge');
+        if (coachBar) coachBar.style.display = 'flex';
+
+        const isPurchaseScreen = (currentGuideKey === 'purchase-direct' || window.location.pathname.includes('purchase.php') || !!document.getElementById('purchase-editor-view'));
+        if (isPurchaseScreen) {
+            if (q.includes('سجل') || q.includes('بوابة') || q.includes('كل الفواتير')) {
+                if (typeof window.showPurchaseHub === 'function') window.showPurchaseHub();
+                if (badge) badge.textContent = '🎙️ سجل وبوابة المشتريات';
+                speakArabicMaleText('تم الانتقال إلى بوابة وسجل فواتير المشتريات.', null, selectedMaleProfile, false);
+                return;
+            }
+            if (q.includes('فاتورة جديدة') || q.includes('فاتوره جديده') || q.includes('تحرير') || q.includes('مشتريات مباشرة')) {
+                if (typeof window.openPurchaseEditor === 'function') window.openPurchaseEditor('direct');
+                if (badge) badge.textContent = '🎙️ فاتورة مشتريات مباشرة';
+                speakArabicMaleText('تم فتح شاشة تحرير فاتورة المشتريات المباشرة.', null, selectedMaleProfile, false);
+                return;
+            }
+            if (q.includes('مورد جديد') || q.includes('اضافة مورد') || q.includes('إضافة مورد')) {
+                if (typeof window.openPurchaseEditor === 'function') window.openPurchaseEditor('direct');
+                if (typeof window.openModal === 'function') window.openModal('add-customer-modal');
+                if (badge) badge.textContent = '🎙️ إضافة مورد جديد';
+                speakArabicMaleText('تم فتح نافذة التأسيس السريع لمورد جديد.', null, selectedMaleProfile, false);
+                return;
+            }
+            if (q.includes('اخر فاتورة') || q.includes('آخر فاتورة') || q.includes('نسخ')) {
+                if (typeof window.openPurchaseEditor === 'function') window.openPurchaseEditor('direct');
+                if (typeof window.cloneLastSupplierPurchaseInvoice === 'function') window.cloneLastSupplierPurchaseInvoice();
+                if (badge) badge.textContent = '🎙️ نسخ آخر فاتورة للمورد';
+                speakArabicMaleText('تم تشغيل نسخ أصناف آخر فاتورة للمورد.', null, selectedMaleProfile, false);
+                return;
+            }
+            if (q.includes('تخصيص') || q.includes('اعمدة') || q.includes('أعمدة')) {
+                if (typeof window.openPurchaseEditor === 'function') window.openPurchaseEditor('direct');
+                if (typeof window.openGridSettingsModal === 'function') window.openGridSettingsModal();
+                if (badge) badge.textContent = '🎙️ نافذة تخصيص الجدول';
+                speakArabicMaleText('تم فتح نافذة تخصيص أعمدة وخطوط الجدول.', null, selectedMaleProfile, false);
+                return;
+            }
+            const cleanPurTerm = q.replace(/^(ابحث عن|بحث عن|ابحث|بحث|فلتر|اعرض|هات)\s+/i, '').trim();
+            const editorVis = document.getElementById('purchase-editor-view')?.style.display !== 'none';
+            const purInp = editorVis
+                ? (document.getElementById('quick-item-search') || document.getElementById('hdr-customer-search'))
+                : document.getElementById('hub-filter-value');
+            if (purInp && cleanPurTerm) {
+                purInp.value = cleanPurTerm;
+                purInp.dispatchEvent(new Event('input', { bubbles: true }));
+                moveGhostCursorToElement(purInp, `🔍 بحث صوتي: ${cleanPurTerm}`, true);
+                if (badge) badge.textContent = `🔍 بحث: ${cleanPurTerm}`;
+                speakArabicMaleText(`تم البحث فوراً عن: ${cleanPurTerm}.`, null, selectedMaleProfile, false);
+                return;
+            }
+        }
+
+        const navMap = [
+            { keys: ['مخزن', 'مخازن', 'مستودع'], sel: '.tab-warehouses', name: 'قسم المخازن', openFn: () => typeof openWarehouseForm === 'function' && openWarehouseForm() },
+            { keys: ['عميل', 'عملاء', 'زبون'], sel: '.tab-customers', name: 'قسم العملاء', openFn: null },
+            { keys: ['مورد', 'موردين', 'شركه', 'شركة'], sel: '.tab-suppliers', name: 'قسم الموردين', openFn: null },
+            { keys: ['بنك', 'بنوك', 'مصرف', 'بنكك'], sel: '.tab-banks', name: 'قسم البنوك', openFn: () => typeof openBankForm === 'function' && openBankForm() },
+            { keys: ['خزنه', 'خزنة', 'خزن', 'صندوق'], sel: '.tab-safes', name: 'قسم الخزن النقدية', openFn: () => typeof openSafeForm === 'function' && openSafeForm() },
+            { keys: ['صنف', 'اصناف', 'أصناف', 'بضاعه', 'وحدات'], sel: '.tab-items', name: 'قسم الأصناف والوحدات', openFn: () => typeof openItemForm === 'function' && openItemForm() },
+            { keys: ['موظف', 'موظفين', 'صلاحيات'], sel: '.tab-employees', name: 'قسم الموظفين', openFn: () => typeof openNewEmployeeForm === 'function' && openNewEmployeeForm() },
+            { keys: ['مركز', 'مراكز', 'تكلفه', 'تكلفة', 'مشروع'], sel: '.tab-costcenters', name: 'قسم مراكز التكلفة', openFn: () => typeof openCostCenterForm === 'function' && openCostCenterForm() }
+        ];
+
+        if (q.includes('قيد افتتاحي') || q.includes('القيد الافتتاحي') || q.includes('3109') || q.includes('توازن')) {
+            if (typeof window.openOpeningEquilibriumModal === 'function') window.openOpeningEquilibriumModal();
+            if (badge) badge.textContent = '🎙️ فتح القيد الافتتاحي (3109)';
+            speakArabicMaleText('تم فتح شاشة القيد الافتتاحي المتوازن.', null, selectedMaleProfile, false);
+            return;
+        }
+        if (q.includes('تحديث الاسعار') || q.includes('تحديث الأسعار') || q.includes('اسعار جماعي')) {
+            if (typeof window.openBulkPriceUpdaterModal === 'function') window.openBulkPriceUpdaterModal();
+            if (badge) badge.textContent = '🎙️ محرك تحديث الأسعار';
+            speakArabicMaleText('تم فتح محرك تحديث الأسعار الجماعي.', null, selectedMaleProfile, false);
+            return;
+        }
+
+        const isSearchIntent = q.includes('ابحث') || q.includes('بحث') || q.includes('فلتر') || q.includes('هات');
+        for (const item of navMap) {
+            if (!isSearchIntent && item.keys.some(k => q.includes(k))) {
+                const btn = document.querySelector(item.sel);
+                if (btn) { try { btn.click(); } catch (e) {} }
+                if (q.includes('اضافه') || q.includes('إضافة') || q.includes('بطاقه') || q.includes('بطاقة') || q.includes('افتح')) {
+                    if (item.openFn) { try { item.openFn(); } catch (e) {} }
+                }
+                if (badge) badge.textContent = `🎙️ ${item.name}`;
+                speakArabicMaleText(`تم الانتقال فوراً إلى ${item.name}.`, null, selectedMaleProfile, false);
+                return;
+            }
+        }
+
+        // Clean search term and filter the active tab's search input immediately
+        const cleanTerm = q.replace(/^(ابحث عن|بحث عن|ابحث|بحث|فلتر|اعرض|هات)\s+/i, '').trim();
+        const activeTabPane = document.querySelector('.tab-content.active') || document;
+        const searchInp = activeTabPane.querySelector('input[type="search"], input[placeholder*="بحث"], input[id*="search"]')
+            || document.querySelector('#cust-search, #sup-search, #item-search-input, input[placeholder*="بحث"]');
+        if (searchInp && cleanTerm) {
+            searchInp.value = cleanTerm;
+            searchInp.dispatchEvent(new Event('input', { bubbles: true }));
+            searchInp.dispatchEvent(new Event('keyup', { bubbles: true }));
+            moveGhostCursorToElement(searchInp, `🔍 بحث صوتي: ${cleanTerm}`, true);
+            if (badge) badge.textContent = `🔍 بحث: ${cleanTerm}`;
+            speakArabicMaleText(`تمت فلترة الجدول فوراً بالبحث عن: ${cleanTerm}.`, null, selectedMaleProfile, false);
+        } else {
+            window.answerUserScreenQuestion(q);
+        }
+    };
+
+    window.startMasterDataVoiceCommand = function () {
+        const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+        const btn = document.getElementById('msg-coach-voice-cmd-btn');
+        if (!SpeechRec) {
+            const manual = window.prompt('🎙️ اكتب أمر التنقل أو البحث الفوري (مثال: "افتح الأصناف" أو "ابحث عن محمد"):', '');
+            if (manual) window.executeMasterDataVoiceQuery(manual);
+            return;
+        }
+        try {
+            if (speechRecognitionInstance) { try { speechRecognitionInstance.stop(); } catch (e) {} }
+            const rec = new SpeechRec();
+            speechRecognitionInstance = rec;
+            rec.lang = selectedMaleProfile === 'egyptian' ? 'ar-EG' : 'ar-SA';
+            rec.interimResults = false;
+            rec.maxAlternatives = 1;
+            if (btn) btn.style.background = '#ef4444';
+            const badge = document.getElementById('msg-coach-step-badge');
+            if (badge) badge.textContent = '🎙️ تكلم الآن (قسم أو بحث)...';
+            rec.onresult = (ev) => {
+                const txt = ev.results[0][0].transcript || '';
+                if (btn) btn.style.background = '';
+                window.executeMasterDataVoiceQuery(txt);
+            };
+            rec.onerror = () => { if (btn) btn.style.background = ''; };
+            rec.onend = () => { if (btn) btn.style.background = ''; };
+            rec.start();
+        } catch (e) {
+            if (btn) btn.style.background = '';
+        }
+    };
+
+    // ══════════════════════════════════════════════════════════════════════════
+    // 💡 2. SMART HOVER MICRO-TOOLTIPS WITH 1-CLICK AUDIO (التلميحات الذكية الناطقة)
+    // ══════════════════════════════════════════════════════════════════════════
+    let hoverTooltipTimer = null;
+    let hoverHideTimer = null;
+
+    function getOrCreateHoverTooltipEl() {
+        let el = document.getElementById('msg-smart-hover-tooltip');
+        if (!el) {
+            el = document.createElement('div');
+            el.id = 'msg-smart-hover-tooltip';
+            el.className = 'msg-smart-hover-tooltip';
+            el.onmouseenter = () => { if (hoverHideTimer) clearTimeout(hoverHideTimer); };
+            el.onmouseleave = () => { el.style.display = 'none'; };
+            document.body.appendChild(el);
+        }
+        return el;
+    }
+
+    let lastHoverInspectedEl = null;
+    document.addEventListener('mouseover', function (e) {
+        // 👑 Interactive Hover Inspection ("الشرح التفاعلي عند التأشير بالمؤشر") when Guide is active on master-data.php, purchase.php, direct-sales.php, purchase-receipt.php & smart-logistics.php
+        if (window.__mdInteractiveGuideActive && (typeof window.explainMasterDataDomElement === 'function' || typeof window.explainPurchaseDomElement === 'function' || typeof window.explainDirectSalesDomElement === 'function' || typeof window.explainPurchaseReceiptDomElement === 'function' || typeof window.explainSmartLogisticsDomElement === 'function')) {
+            if (isAutopilotRunning && !isPickElementModeActive && (Date.now() - lastAutopilotStepStartTs < 1600)) return;
+            if (e.target.closest('#msg-live-coach-bar, #msg-smart-hover-tooltip, #msg-universal-fixed-launcher')) return;
+            const inspectTarget = e.target.closest('button, a, input, select, textarea, .md-tab-btn, .pro-field-card, .input-group, .h-form-group, .hub-action-card, .fin-metric-pill, .tot-toggle-btn, .pay-toggle-btn, #customer-financial-card, #fin-strip, #purchase-3way-match-badge, .uiverse-switch, .grn-qc-pill, .grn-nav-pill, .grn-col-origQty, .grn-col-item, .grn-col-unit, .grn-col-qty, .grn-col-pendingBase, .grn-col-baseQty, .grn-progress-wrap, .grn-meta-bar > div, .sl-mode-tab, .sl-kpi-card, .sl-unit-box, th');
+            if (!inspectTarget || inspectTarget === lastHoverInspectedEl) return;
+            if (isMdQuickQuizActive && checkMdQuickQuizHit(inspectTarget)) return;
+            const mdInfo = (typeof window.explainSmartLogisticsDomElement === 'function' && window.explainSmartLogisticsDomElement(inspectTarget))
+                || (typeof window.explainPurchaseReceiptDomElement === 'function' && window.explainPurchaseReceiptDomElement(inspectTarget))
+                || (typeof window.explainDirectSalesDomElement === 'function' && window.explainDirectSalesDomElement(inspectTarget))
+                || (typeof window.explainPurchaseDomElement === 'function' && window.explainPurchaseDomElement(inspectTarget))
+                || (typeof window.explainMasterDataDomElement === 'function' && window.explainMasterDataDomElement(inspectTarget))
+                || (typeof window.autoSynthesizeElementExplanation === 'function' && window.autoSynthesizeElementExplanation(inspectTarget));
+            if (!mdInfo) return;
+            if (hoverTooltipTimer) clearTimeout(hoverTooltipTimer);
+            const hoverDelayMs = (isAutopilotRunning && !isPickElementModeActive) ? 550 : 220;
+            hoverTooltipTimer = setTimeout(() => {
+                if (!window.__mdInteractiveGuideActive) return;
+                if (isAutopilotRunning && !isPickElementModeActive && (Date.now() - lastAutopilotStepStartTs < 1600)) return;
+                lastHoverInspectedEl = inspectTarget;
+                const liveVal = extractLiveElementValueReadback(inspectTarget);
+                const liveValHtml = liveVal
+                    ? `<div style="margin-top:4px; padding:3px 8px; border-radius:6px; background:rgba(16,185,129,0.16); border:1px solid rgba(16,185,129,0.45); font-size:0.74rem; font-weight:900;">📌 القيمة المسجلة حالياً: <span>${escapeSvgText(liveVal)}</span></div>`
+                    : '';
+                const tip = getOrCreateHoverTooltipEl();
+                const rect = inspectTarget.getBoundingClientRect();
+                tip.innerHTML = `
+                    <div style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
+                        <span style="font-size:0.82rem; font-weight:900;">🎓 ${mdInfo.title}</span>
+                        <svg viewBox="0 0 92 22" width="84" height="20" style="flex-shrink:0;">
+                            <rect x="1" y="2" width="26" height="18" rx="4" fill="rgba(56,189,248,0.2)" stroke="#38bdf8" stroke-width="1.2"/>
+                            <text x="14" y="14" fill="currentColor" font-size="7.5" font-weight="bold" text-anchor="middle">إدخال</text>
+                            <path d="M29 11 L41 11" stroke="#fbbf24" stroke-width="1.5"/>
+                            <rect x="43" y="2" width="47" height="18" rx="4" fill="rgba(16,185,129,0.22)" stroke="#10b981" stroke-width="1.2"/>
+                            <text x="66" y="14" fill="currentColor" font-size="7.5" font-weight="bold" text-anchor="middle">⚡ تسميع فوري</text>
+                        </svg>
+                    </div>
+                    <div style="font-size:0.78rem; line-height:1.6;">${mdInfo.desc}</div>
+                    ${liveValHtml}
+                `;
+                tip.style.display = 'flex';
+                const topPos = rect.bottom + 10 + 110 < window.innerHeight ? rect.bottom + 10 : Math.max(8, rect.top - 110);
+                const leftPos = Math.max(10, Math.min(window.innerWidth - 360, rect.left));
+                tip.style.top = `${topPos}px`;
+                tip.style.left = `${leftPos}px`;
+
+                // Update live coach bar & speak immediately on hover inspection WITHOUT repeating the Salawat!
+                cleanupGuideTempPopups();
+                const coachBar = document.getElementById('msg-live-coach-bar');
+                const speechBox = document.getElementById('msg-coach-speech-text');
+                const badge = document.getElementById('msg-coach-step-badge');
+                if (coachBar) coachBar.style.display = 'flex';
+                const spokenWithVal = liveVal
+                    ? `${mdInfo.title}. ${mdInfo.desc} والقيمة المسجلة حالياً في هذه الخانة هي: ${liveVal}.`
+                    : `${mdInfo.title}. ${mdInfo.desc}`;
+                const adaptedBody = stripAllSalawatPrefixes(adaptTextToDialect(spokenWithVal, selectedMaleProfile));
+                if (badge) badge.textContent = `👆 ${mdInfo.title}`;
+                if (speechBox) speechBox.textContent = adaptedBody;
+                renderLiveDubbedVisualStage({
+                    badge: mdInfo.title,
+                    cursorLabel: mdInfo.title,
+                    screenPath: `الشرح التفاعلي الحي ⬅ ${mdInfo.title}`,
+                    diagramType: (inspectTarget.tagName === 'SELECT' || inspectTarget.querySelector?.('select')) ? 'dropdown-open' : 'screen-hub',
+                    diagramMeta: {
+                        parentScreen: 'الشرح بالتأشير المباشر',
+                        actionLabel: `تفصيل وظيفة (${mdInfo.title}):`,
+                        childItems: [
+                            `🎯 العنصر: ${mdInfo.title}`,
+                            mdInfo.desc.slice(0, 75),
+                            '⚡ متزامن بالصوت الرجالي والمخطط البصري'
+                        ],
+                        effectLabel: 'دبلجة فورية بالصوت والصورة'
+                    }
+                }, 0, 1);
+                if (inspectTarget.tagName === 'SELECT' || inspectTarget.querySelector?.('select')) {
+                    showLiveSelectOptionsMirror(inspectTarget, null, mdInfo.title);
+                }
+                moveGhostCursorToElement(inspectTarget, mdInfo.title, false);
+                speakArabicMaleText(adaptedBody, () => {
+                    if (isAutopilotRunning && !isAudioPaused && !isPickElementModeActive) {
+                        nextStepTimeoutId = setTimeout(() => {
+                            if (isAutopilotRunning && !isAudioPaused) window.stepLiveAutopilot(1);
+                        }, 450);
+                    }
+                }, selectedMaleProfile);
+            }, hoverDelayMs);
+            return;
+        }
+
+        if (isAutopilotRunning || isPickElementModeActive) return;
+        const activeHoverKey = buildUniversalScreenGuideIfNeeded() || 'smart-logistics';
+        const data = window.MagaiesSmartGuides && (window.MagaiesSmartGuides[activeHoverKey] || window.MagaiesSmartGuides['smart-logistics']);
+        if (!data || !Array.isArray(data.buttonsDict)) return;
+
+        let matchedItem = null;
+        let matchedDom = null;
+        for (const item of data.buttonsDict) {
+            if (item.targetSelector) {
+                const candidate = e.target.closest(item.targetSelector);
+                if (candidate) {
+                    matchedItem = item;
+                    matchedDom = candidate;
+                    break;
+                }
+            }
+        }
+        if (!matchedItem || !matchedDom) return;
+
+        if (hoverTooltipTimer) clearTimeout(hoverTooltipTimer);
+        hoverTooltipTimer = setTimeout(() => {
+            if (isAutopilotRunning || isPickElementModeActive) return;
+            const tip = getOrCreateHoverTooltipEl();
+            const rect = matchedDom.getBoundingClientRect();
+            const safeTitle = matchedItem.label.replace(/'/g, "\\'");
+            const safeSpeech = (matchedItem.whatItDoes + ' ' + matchedItem.whatHappensIfClicked).replace(/`/g, '').replace(/'/g, "\\'");
+
+            tip.innerHTML = `
+                <div style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
+                    <span style="font-size:0.78rem; font-weight:900; color:#fde047;">💡 ${matchedItem.label}</span>
+                    <button type="button" onclick="document.getElementById('msg-smart-hover-tooltip').style.display='none'; window.pointGhostCursorAt('${matchedItem.targetSelector.replace(/'/g, "\\'")}', '${safeTitle}', '${safeSpeech}')" style="background:linear-gradient(135deg,#0284c7,#2563eb); color:#fff; border:1px solid #38bdf8; border-radius:99px; padding:2px 9px; font-size:0.71rem; font-weight:900; cursor:pointer; white-space:nowrap;">
+                        🔊 اسمع الشرح
+                    </button>
+                </div>
+                <div style="font-size:0.75rem; color:#e2e8f0; line-height:1.5;">${matchedItem.whatItDoes}</div>
+            `;
+            tip.style.display = 'flex';
+            const topPos = rect.bottom + 8 + 95 < window.innerHeight ? rect.bottom + 8 : Math.max(8, rect.top - 95);
+            const leftPos = Math.max(10, Math.min(window.innerWidth - 350, rect.left));
+            tip.style.top = `${topPos}px`;
+            tip.style.left = `${leftPos}px`;
+        }, 1250);
+    }, { passive: true });
+
+    document.addEventListener('mouseout', function (e) {
+        if (hoverTooltipTimer) {
+            clearTimeout(hoverTooltipTimer);
+            hoverTooltipTimer = null;
+        }
+        const tip = document.getElementById('msg-smart-hover-tooltip');
+        if (tip && tip.style.display === 'flex') {
+            if (hoverHideTimer) clearTimeout(hoverHideTimer);
+            hoverHideTimer = setTimeout(() => {
+                tip.style.display = 'none';
+            }, 350);
+        }
+    }, { passive: true });
+
+    window.prewarmSmartGuideScreen = function (guideKey) {
+        const key = guideKey || buildUniversalScreenGuideIfNeeded() || 'smart-logistics';
+        prewarmGuideAudio(key, selectedMaleProfile);
+    };
+
+    // Inject the fixed square launcher immediately on DOM ready and pre-warm audio for the current screen!
+    function prewarmActiveScreenOnReady() {
         ensureFixedSquareLauncher();
+        setTimeout(() => {
+            const activeKey = buildUniversalScreenGuideIfNeeded() || 'smart-logistics';
+            prewarmGuideAudio(activeKey, selectedMaleProfile);
+        }, 450);
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', prewarmActiveScreenOnReady);
+    } else {
+        prewarmActiveScreenOnReady();
     }
 
     window.addEventListener('load', () => {
         ensureFixedSquareLauncher();
-        setTimeout(() => prewarmGuideAudio('smart-logistics', selectedMaleProfile), 800);
+        setTimeout(() => {
+            const activeKey = buildUniversalScreenGuideIfNeeded() || 'smart-logistics';
+            prewarmGuideAudio(activeKey, selectedMaleProfile);
+        }, 600);
     });
+
+    // 🔄 Universal Live DOM Watcher: auto-updates the Smart Guide on ANY screen when new buttons/fields are added
+    if (typeof MutationObserver !== 'undefined') {
+        let guideSyncTimer = null;
+        const guideDomObserver = new MutationObserver((mutations) => {
+            let added = false;
+            for (const m of mutations) {
+                if (m.addedNodes && m.addedNodes.length > 0) { added = true; break; }
+            }
+            if (!added) return;
+            if (guideSyncTimer) clearTimeout(guideSyncTimer);
+            guideSyncTimer = setTimeout(() => {
+                if (typeof window.syncDynamicDomElementsIntoSmartGuide === 'function') {
+                    window.syncDynamicDomElementsIntoSmartGuide();
+                }
+            }, 250);
+        });
+        const attachGuideObserver = () => {
+            if (document.body) guideDomObserver.observe(document.body, { childList: true, subtree: true });
+        };
+        if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', attachGuideObserver);
+        else attachGuideObserver();
+    }
 })();
