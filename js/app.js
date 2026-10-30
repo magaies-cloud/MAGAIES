@@ -147,9 +147,6 @@ JSON.parse = function(val) {
 (function() {
     const getBaseUrl = () => {
         const origin = window.location.origin;
-        if (origin === 'https://elsajana.com' || origin === 'https://www.elsajana.com') {
-            return 'https://c.elsajana.com/';
-        }
         const path = window.location.pathname;
         let dir = path.substring(0, path.lastIndexOf('/'));
         if (dir.endsWith('/')) dir = dir.slice(0, -1);

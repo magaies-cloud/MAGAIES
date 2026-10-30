@@ -33,7 +33,7 @@ if (!empty($origin)) {
     }
 }
 header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
-header("Access-Control-Allow-Headers: Content-Type, Authorization, X-Tenant-Subdomain, Accept, X-Requested-With");
+header("Access-Control-Allow-Headers: Content-Type, Authorization, X-Tenant-Subdomain, X-Tenant-Id, X-Device-UUID, X-Forwarded-From-Local, Accept, X-Requested-With");
 header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
 header("Cache-Control: post-check=0, pre-check=0", false);
 header("Pragma: no-cache");

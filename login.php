@@ -854,9 +854,6 @@ window.DETECTED_TENANT_ID = <?php echo json_encode($detectedTenantId); ?>;
             try {
                 const getResetApiUrl = () => {
                     const origin = window.location.origin;
-                    if (origin === 'https://elsajana.com' || origin === 'https://www.elsajana.com') {
-                        return 'https://c.elsajana.com/';
-                    }
                     const path = window.location.pathname;
                     let dir = path.substring(0, path.lastIndexOf('/'));
                     if (dir.endsWith('/')) dir = dir.slice(0, -1);
@@ -969,9 +966,6 @@ window.DETECTED_TENANT_ID = <?php echo json_encode($detectedTenantId); ?>;
             try {
                 const getResetApiUrl = () => {
                     const origin = window.location.origin;
-                    if (origin === 'https://elsajana.com' || origin === 'https://www.elsajana.com') {
-                        return 'https://c.elsajana.com/';
-                    }
                     const path = window.location.pathname;
                     let dir = path.substring(0, path.lastIndexOf('/'));
                     if (dir.endsWith('/')) dir = dir.slice(0, -1);
@@ -1051,9 +1045,6 @@ window.DETECTED_TENANT_ID = <?php echo json_encode($detectedTenantId); ?>;
             try {
                 const getResetApiUrl = () => {
                     const origin = window.location.origin;
-                    if (origin === 'https://elsajana.com' || origin === 'https://www.elsajana.com') {
-                        return 'https://c.elsajana.com/';
-                    }
                     const path = window.location.pathname;
                     let dir = path.substring(0, path.lastIndexOf('/'));
                     if (dir.endsWith('/')) dir = dir.slice(0, -1);
@@ -1418,9 +1409,6 @@ window.DETECTED_TENANT_ID = <?php echo json_encode($detectedTenantId); ?>;
 
             const getBaseUrl = () => {
                 const origin = window.location.origin;
-                if (origin === 'https://elsajana.com' || origin === 'https://www.elsajana.com') {
-                    return 'https://c.elsajana.com/';
-                }
                 const path = window.location.pathname;
                 let dir = path.substring(0, path.lastIndexOf('/'));
                 if (dir.endsWith('/')) dir = dir.slice(0, -1);
