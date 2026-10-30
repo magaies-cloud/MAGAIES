@@ -1891,14 +1891,18 @@ window.DETECTED_TENANT_ID = <?php echo json_encode($detectedTenantId); ?>;
                 document.cookie = "magaiees_view_preference=mobile; path=/; max-age=31536000; SameSite=Lax";
             }
 
-            // Only redirect to elsajana.com subdomain if currently hosted strictly on elsajana.com
+            // Only redirect to elsajana.com subdomain if currently hosted strictly on elsajana.com and SSL cert is active
             const isElsajanaCloud = window.location.hostname.endsWith('elsajana.com');
+            const fallbackSameOriginUrl = userSubdomain
+                ? (targetUrl + (targetUrl.includes('?') ? '&' : '?') + 'tenant=' + encodeURIComponent(userSubdomain))
+                : targetUrl;
+            let subdomainTargetUrl = null;
             if (isElsajanaCloud && userSubdomain && window.location.hostname !== userSubdomain + '.elsajana.com') {
                 const subdomainUrl = `https://${userSubdomain}.elsajana.com`;
                 if (token) {
-                    targetUrl = `${subdomainUrl}/login.php?sso_token=${encodeURIComponent(token)}&sso_user=${encodeURIComponent(userStr || '')}&redirect=${encodeURIComponent(targetUrl)}`;
+                    subdomainTargetUrl = `${subdomainUrl}/login.php?sso_token=${encodeURIComponent(token)}&sso_user=${encodeURIComponent(userStr || '')}&redirect=${encodeURIComponent(targetUrl)}`;
                 } else {
-                    targetUrl = `${subdomainUrl}/${targetUrl}`;
+                    subdomainTargetUrl = `${subdomainUrl}/${targetUrl}`;
                 }
             }
             // --- END SSO & DEVICE REDIRECT ---
@@ -1932,10 +1936,25 @@ window.DETECTED_TENANT_ID = <?php echo json_encode($detectedTenantId); ?>;
                 } catch(e) {}
             }
 
-            // Lightning-fast instant transition (250ms)
-            setTimeout(() => {
-                window.location.href = targetUrl;
-            }, 250);
+            // Lightning-fast instant transition (verify subdomain SSL before cross-subdomain redirect)
+            if (subdomainTargetUrl) {
+                const sslCtrl = new AbortController();
+                const sslTimer = setTimeout(() => sslCtrl.abort(), 900);
+                fetch(`https://${userSubdomain}.elsajana.com/manifest.json`, { mode: 'no-cors', cache: 'no-store', signal: sslCtrl.signal })
+                    .then(() => {
+                        clearTimeout(sslTimer);
+                        window.location.href = subdomainTargetUrl;
+                    })
+                    .catch(() => {
+                        clearTimeout(sslTimer);
+                        try { fetch('auto_ssl.php?key=magaees_ssl_auto_2026_secret', { keepalive: true }).catch(() => {}); } catch (e) {}
+                        window.location.href = fallbackSameOriginUrl;
+                    });
+            } else {
+                setTimeout(() => {
+                    window.location.href = fallbackSameOriginUrl;
+                }, 250);
+            }
         }
 
         // Add Enter key support
