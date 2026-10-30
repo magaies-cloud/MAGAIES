@@ -26,6 +26,41 @@ $page_title = 'لوحة التحكم';
         document.documentElement.setAttribute('dir','ltr');
         document.documentElement.setAttribute('lang','en');
     }
+    try {
+        var _ssoP = new URLSearchParams(window.location.search);
+        if (_ssoP.has('sso_token')) {
+            var _sTok = _ssoP.get('sso_token');
+            localStorage.setItem('authToken', _sTok);
+            localStorage.setItem('saas_token', _sTok);
+            if (_ssoP.has('sso_user')) {
+                var _rawU = _ssoP.get('sso_user');
+                localStorage.setItem('user', _rawU);
+                try {
+                    var _pU = JSON.parse(_rawU);
+                    if (_pU && _pU.tenant_id) {
+                        localStorage.setItem('currentTenantId', String(_pU.tenant_id));
+                        document.cookie = "currentTenantId=" + encodeURIComponent(_pU.tenant_id) + "; path=/; max-age=2592000; SameSite=Lax";
+                    }
+                    if (_pU && _pU.subdomain) {
+                        document.cookie = "currentSubdomain=" + encodeURIComponent(_pU.subdomain) + "; path=/; max-age=2592000; SameSite=Lax";
+                    }
+                    if (_pU && _pU.company_name) {
+                        localStorage.setItem('companyName', _pU.company_name);
+                    }
+                } catch (e) {}
+            }
+            document.cookie = "session_active=true; path=/; max-age=2592000; SameSite=Lax";
+            document.cookie = "saas_token=" + encodeURIComponent(_sTok) + "; path=/; max-age=2592000; SameSite=Lax";
+            sessionStorage.setItem('session_active', 'true');
+            sessionStorage.setItem('dashboard_unlocked', '1');
+            _ssoP.delete('sso_token');
+            _ssoP.delete('sso_user');
+            var _cleanQ = _ssoP.toString();
+            if (window.history && window.history.replaceState) {
+                window.history.replaceState({}, document.title, window.location.pathname + (_cleanQ ? '?' + _cleanQ : ''));
+            }
+        }
+    } catch (e) {}
     var _earlyTok = localStorage.getItem('authToken') || localStorage.getItem('saas_token');
     if (!_earlyTok || _earlyTok === 'local-offline-token' || _earlyTok.indexOf('offline_token_') === 0) {
         localStorage.removeItem('authToken');

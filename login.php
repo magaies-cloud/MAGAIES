@@ -52,6 +52,39 @@ window.DETECTED_TENANT_ID = <?php echo json_encode($detectedTenantId); ?>;
         document.documentElement.setAttribute('dir','ltr');
         document.documentElement.setAttribute('lang','en');
     }
+    try {
+        var ssoParams = new URLSearchParams(window.location.search);
+        if (ssoParams.has('sso_token')) {
+            var ssoTok = ssoParams.get('sso_token');
+            localStorage.setItem('authToken', ssoTok);
+            localStorage.setItem('saas_token', ssoTok);
+            if (ssoParams.has('sso_user')) {
+                var rawSsoUser = ssoParams.get('sso_user');
+                localStorage.setItem('user', rawSsoUser);
+                try {
+                    var parsedSsoUser = JSON.parse(rawSsoUser);
+                    if (parsedSsoUser && parsedSsoUser.tenant_id) {
+                        localStorage.setItem('currentTenantId', String(parsedSsoUser.tenant_id));
+                        document.cookie = "currentTenantId=" + encodeURIComponent(parsedSsoUser.tenant_id) + "; path=/; max-age=2592000; SameSite=Lax";
+                    }
+                    if (parsedSsoUser && parsedSsoUser.subdomain) {
+                        document.cookie = "currentSubdomain=" + encodeURIComponent(parsedSsoUser.subdomain) + "; path=/; max-age=2592000; SameSite=Lax";
+                    }
+                    if (parsedSsoUser && parsedSsoUser.company_name) {
+                        localStorage.setItem('companyName', parsedSsoUser.company_name);
+                    }
+                } catch (e) {}
+            }
+            document.cookie = "session_active=true; path=/; max-age=2592000; SameSite=Lax";
+            document.cookie = "saas_token=" + encodeURIComponent(ssoTok) + "; path=/; max-age=2592000; SameSite=Lax";
+            sessionStorage.setItem('session_active', 'true');
+            sessionStorage.setItem('dashboard_unlocked', '1');
+            var ua = navigator.userAgent || '';
+            var isLaptop = /Windows NT|Macintosh|X11; Linux x86_64|CrOS/i.test(ua) && !/Android|iPhone|iPad|iPod|Mobile/i.test(ua);
+            var defaultTarget = isLaptop ? 'magaiees_unified_dashboard.php?force_desktop=1' : 'mobile-dashboard.php';
+            window.location.replace(ssoParams.get('redirect') || defaultTarget);
+        }
+    } catch (e) {}
 })();
 </script>
 <head>
@@ -1144,7 +1177,7 @@ window.DETECTED_TENANT_ID = <?php echo json_encode($detectedTenantId); ?>;
                 document.cookie = "saas_token=" + encodeURIComponent(ssoTok) + "; path=/; max-age=2592000; SameSite=Lax";
                 sessionStorage.setItem('session_active', 'true');
                 sessionStorage.setItem('dashboard_unlocked', '1');
-                const dev = typeof currentDevice !== 'undefined' ? currentDevice : getDeviceDetails();
+                const dev = getDeviceDetails();
                 const ssoForceDesktop = ssoParams.get('force_desktop') === '1';
                 const ssoForceMobile = ssoParams.get('force_mobile') === '1';
 
@@ -1373,8 +1406,8 @@ window.DETECTED_TENANT_ID = <?php echo json_encode($detectedTenantId); ?>;
         }
 
 
-        const currentDevice = getDeviceDetails();
-        let deviceUuid = currentDevice.deviceUuid;
+        var currentDevice = getDeviceDetails();
+        var deviceUuid = currentDevice.deviceUuid;
         
         function getSubdomain() {
             const params = new URLSearchParams(window.location.search);
