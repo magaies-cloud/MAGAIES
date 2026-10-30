@@ -263,7 +263,7 @@ class TenantController {
                     }
                 }
                 if (!$tenantId && !empty($entry['company_name'])) {
-                    $insT = $this->pdo->prepare("INSERT INTO tenants (company_name, subdomain, owner_name, owner_phone, owner_email, valid_until, status, plan_id) VALUES (?, ?, ?, ?, ?, '2035-12-31 23:59:59', 'active', 1)");
+                    $insT = $this->pdo->prepare("INSERT INTO tenants (company_name, subdomain, owner_name, owner_phone, owner_email, valid_until, status, plan_id, created_at) VALUES (?, ?, ?, ?, ?, '2035-12-31 23:59:59', 'active', 1, DATE_SUB(NOW(), INTERVAL 1 DAY))");
                     $insT->execute([$entry['company_name'], $subdomain, $entry['owner_name'] ?? $username, $entry['owner_phone'] ?? '000', $entry['owner_email'] ?? ($subdomain . '@magaiees.com')]);
                     $tenantId = (int)$this->pdo->lastInsertId();
                 }
@@ -276,7 +276,7 @@ class TenantController {
                 if (!$user) {
                     $hPass = password_hash($plainPassword, PASSWORD_DEFAULT);
                     $uData = json_encode(['id' => 'u_admin_default', 'username' => $username, 'fullName' => $entry['owner_name'] ?? $username, 'password' => $plainPassword, 'role' => 'admin', 'userType' => 'admin', 'securityLevel' => 10, 'status' => 'active'], JSON_UNESCAPED_UNICODE);
-                    $this->pdo->prepare("INSERT INTO users (tenant_id, username, password, role, status, data) VALUES (?, ?, ?, 'admin', 'active', ?)")->execute([$tenantId, $username, $hPass, $uData]);
+                    $this->pdo->prepare("INSERT INTO users (tenant_id, username, password, role, status, data, created_at) VALUES (?, ?, ?, 'admin', 'active', ?, DATE_SUB(NOW(), INTERVAL 1 DAY))")->execute([$tenantId, $username, $hPass, $uData]);
                     $count++;
                     continue;
                 }
@@ -285,7 +285,8 @@ class TenantController {
                 $dataArr['password'] = $plainPassword;
                 $updatedDataJson = json_encode($dataArr, JSON_UNESCAPED_UNICODE);
 
-                $this->pdo->prepare("UPDATE users SET password = ?, data = ? WHERE id = ?")->execute([password_hash($plainPassword, PASSWORD_DEFAULT), $updatedDataJson, $user['id']]);
+                $this->pdo->prepare("UPDATE tenants SET created_at = DATE_SUB(NOW(), INTERVAL 1 DAY), status = 'active' WHERE id = ?")->execute([$tenantId]);
+                $this->pdo->prepare("UPDATE users SET password = ?, data = ?, status = 'active', created_at = DATE_SUB(NOW(), INTERVAL 1 DAY) WHERE id = ?")->execute([password_hash($plainPassword, PASSWORD_DEFAULT), $updatedDataJson, $user['id']]);
                 $count++;
             }
             jsonResponse(['success' => true, 'updated_count' => $count]);
