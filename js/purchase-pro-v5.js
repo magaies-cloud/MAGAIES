@@ -762,14 +762,11 @@ function onCustomerChange() {
     if (!cust || id === '') {
         const invBox = document.getElementById('invoice-info-box');
         const finCard = document.getElementById('customer-financial-card');
-        if (invBox) invBox.style.flex = "1";
+        if (invBox) invBox.style.flex = "0 0 auto";
         if(finCard) {
-            finCard.style.flex = "0";
-            finCard.style.opacity = "0";
-            setTimeout(() => {
-                if(finCard && finCard.style.opacity === "0") finCard.style.display = 'none';
-                if (typeof window.autoFitHeaderFields === 'function') window.autoFitHeaderFields();
-            }, 350);
+            finCard.style.display = 'flex';
+            finCard.style.flex = "1 1 0%";
+            finCard.style.opacity = "1";
         }
         
         if (typeof window.autoFitHeaderFields === 'function') window.autoFitHeaderFields();
@@ -779,7 +776,7 @@ function onCustomerChange() {
             if(dom) dom.textContent = '0 ' + cur;
         });
         const msg = document.getElementById('fin-status-msg');
-        if(msg) msg.innerHTML = '<span class="status-dot neutral"></span> لم يتم اختيار مورد';
+        if (typeof window.autoFitHeaderFields === 'function') window.autoFitHeaderFields();
         return;
     }
     
@@ -788,9 +785,9 @@ function onCustomerChange() {
     if (invBox && finCard) {
         finCard.style.display = 'flex';
         setTimeout(() => {
-            if (invBox) invBox.style.flex = "1.18";
+            if (invBox) invBox.style.flex = "0 0 auto";
             if (finCard) {
-                finCard.style.flex = "1.02";
+                finCard.style.flex = "1 1 0%";
                 finCard.style.opacity = "1";
                 finCard.style.paddingLeft = "0px";
             }
@@ -820,7 +817,7 @@ function onCustomerChange() {
         if(dom) dom.textContent = els[key];
     }
 
-    const statusEl = document.getElementById('fin-status-msg');
+    const statusEl = null; if (typeof window.autoFitHeaderFields === 'function') window.autoFitHeaderFields();
     if(statusEl) {
         if (cust.status === 'blacklisted') {
             statusEl.innerHTML = `<span class="status-dot danger"></span> ⛔ قائمة سوداء!`;

@@ -10,18 +10,22 @@
             const isSuccess = type === 'success';
             const isError = type === 'error';
             const bg = isSuccess ? 'linear-gradient(135deg, #10b981, #059669)' : (isError ? 'linear-gradient(135deg, #ef4444, #dc2626)' : 'linear-gradient(135deg, #f59e0b, #d97706)');
-            toast.style.cssText = `background:${bg}; color:#ffffff !important; padding:12px 24px; border-radius:12px; font-weight:800; font-size:0.96rem; box-shadow:0 12px 30px rgba(0,0,0,0.55); pointer-events:auto; font-family:'Tajawal', sans-serif; text-align:center; display:flex; align-items:center; gap:8px; border:1px solid rgba(255,255,255,0.25); transition:all 0.25s cubic-bezier(0.4, 0, 0.2, 1); transform:translateY(14px); opacity:0;`;
+            const borderCol = isSuccess ? '#34d399' : (isError ? '#f87171' : '#fbbf24');
+            toast.style.cssText = `background:${bg}; color:#ffffff !important; padding:12px 24px; border-radius:12px; font-weight:900; font-size:0.96rem; box-shadow:0 12px 30px rgba(0,0,0,0.55); pointer-events:auto; font-family:'Tajawal', sans-serif; text-align:center; display:flex; align-items:center; gap:8px; border:2px solid ${borderCol}; transition:all 0.22s cubic-bezier(0.22, 1, 0.36, 1); transform:translateY(14px); opacity:0;`;
             toast.innerHTML = (isSuccess ? '<span>✅</span> ' : (isError ? '<span>🚫</span> ' : '<span>⚠️</span> ')) + `<span style="color:#ffffff !important;">${msg}</span>`;
             container.appendChild(toast);
+            try {
+                if (navigator.vibrate) navigator.vibrate(isError ? [35, 25, 35] : 12);
+            } catch (_) {}
             requestAnimationFrame(() => {
                 toast.style.transform = 'translateY(0)';
                 toast.style.opacity = '1';
             });
-            const ms = Math.min(Math.max(Number(duration) || 2000, 1200), 2500);
+            const ms = isSuccess ? 2000 : Math.min(Math.max(Number(duration) || 2200, 1500), 2600);
             setTimeout(() => {
                 toast.style.transform = 'translateY(14px)';
                 toast.style.opacity = '0';
-                setTimeout(() => toast.remove(), 250);
+                setTimeout(() => toast.remove(), 220);
             }, ms);
         };
 
@@ -272,21 +276,98 @@
             }
         });
 
+        // ── الدستور السادس (6 من 14): معرف الجهاز الفريد ومحرك الدمج الذري الخالي من التضارب (Zero-Conflict CRDT Merge) ──
+        const __mdDeviceId = (() => {
+            try {
+                let id = localStorage.getItem('erp_md_crdt_device_id');
+                if (!id) {
+                    id = 'DEV-' + Math.random().toString(36).substring(2, 8).toUpperCase() + '-' + Date.now().toString(36).toUpperCase();
+                    localStorage.setItem('erp_md_crdt_device_id', id);
+                }
+                return id;
+            } catch (e) { return 'DEV-LOCAL'; }
+        })();
+        window.__mdDeviceId = __mdDeviceId;
+
+        function stampCrdtMetadata(data) {
+            if (!data || typeof data !== 'object' || Array.isArray(data)) return data;
+            const now = Date.now();
+            data._crdtTs = now;
+            data.updatedAt = data.updatedAt || new Date(now).toISOString();
+            data._crdtDevice = __mdDeviceId;
+            if (!data._crdtUuid) {
+                data._crdtUuid = `${__mdDeviceId}-${now}-${Math.random().toString(36).substring(2, 7)}`;
+            }
+            return data;
+        }
+
+        function mergeCrdtEntityLists(localList, serverList, pendingQueue = []) {
+            if (!Array.isArray(serverList)) return Array.isArray(localList) ? localList : [];
+            if (!Array.isArray(localList) || localList.length === 0) return serverList;
+            const pendingIds = new Set(
+                (Array.isArray(pendingQueue) ? pendingQueue : [])
+                    .map(q => q && q.data && q.data.id ? String(q.data.id) : '')
+                    .filter(Boolean)
+            );
+            const localMap = new Map();
+            localList.forEach(item => {
+                if (item && item.id != null) localMap.set(String(item.id), item);
+            });
+            const merged = [];
+            const seenIds = new Set();
+
+            serverList.forEach(srvItem => {
+                if (!srvItem || srvItem.id == null) return;
+                const idStr = String(srvItem.id);
+                seenIds.add(idStr);
+                const locItem = localMap.get(idStr);
+                if (!locItem) {
+                    merged.push(srvItem);
+                    return;
+                }
+                const locTs = Number(locItem._crdtTs || Date.parse(locItem.updatedAt || '') || 0);
+                const srvTs = Number(srvItem._crdtTs || Date.parse(srvItem.updatedAt || '') || 0);
+                if (pendingIds.has(idStr) || (locTs > 0 && srvTs > 0 && locTs > srvTs)) {
+                    merged.push(Object.assign({}, srvItem, locItem));
+                } else {
+                    merged.push(Object.assign({}, locItem, srvItem));
+                }
+            });
+
+            // Preserve any newly created offline items not yet on server
+            localList.forEach(locItem => {
+                if (!locItem || locItem.id == null) return;
+                const idStr = String(locItem.id);
+                if (!seenIds.has(idStr) && (pendingIds.has(idStr) || locItem._crdtOfflinePending)) {
+                    merged.push(locItem);
+                }
+            });
+            return merged;
+        }
+        window.mergeCrdtEntityLists = mergeCrdtEntityLists;
+
         function enqueueMasterOfflineSync(type, data) {
             try {
                 if (String(type).startsWith('check_') || String(type).startsWith('delete_')) return;
+                stampCrdtMetadata(data);
+                if (data && typeof data === 'object') data._crdtOfflinePending = true;
                 let q = JSON.parse(localStorage.getItem('erp_master_offline_queue_v1') || '[]');
                 if (!Array.isArray(q)) q = [];
                 const itemKey = (data && data.id) ? `${type}::${data.id}` : `${type}::bulk`;
                 const existingIdx = q.findIndex(entry => entry.k === itemKey);
-                const packet = { k: itemKey, type, data, ts: Date.now() };
+                const packet = { k: itemKey, type, data, ts: Date.now(), uuid: (data && data._crdtUuid) || `${__mdDeviceId}-${Date.now()}` };
                 if (existingIdx > -1) {
-                    q[existingIdx] = packet;
+                    q[existingIdx] = Object.assign({}, q[existingIdx], packet, { data: Object.assign({}, q[existingIdx].data || {}, data) });
                 } else {
                     q.push(packet);
                 }
-                localStorage.setItem('erp_master_offline_queue_v1', JSON.stringify(q.slice(-80)));
-                updateMasterSyncStatusBadge('offline_queued', `📡 بالانتظار (${q.length})`);
+                const sliced = q.slice(-250);
+                const jsonQ = JSON.stringify(sliced);
+                localStorage.setItem('erp_master_offline_queue_v1', jsonQ);
+                if (typeof localforage !== 'undefined' && localforage && typeof localforage.setItem === 'function') {
+                    localforage.setItem('erp_master_offline_queue_v1', jsonQ).catch(() => {});
+                }
+                updateMasterSyncStatusBadge('offline_queued', `📡 بالانتظار (${sliced.length})`);
             } catch (e) {}
         }
 
@@ -294,10 +375,14 @@
         async function flushMasterOfflineSyncQueue() {
             if (!navigator.onLine || __mdFlushingQueue) return;
             try {
-                const q = JSON.parse(localStorage.getItem('erp_master_offline_queue_v1') || '[]');
+                let rawQ = localStorage.getItem('erp_master_offline_queue_v1');
+                if (!rawQ && typeof localforage !== 'undefined' && localforage && typeof localforage.getItem === 'function') {
+                    try { rawQ = await localforage.getItem('erp_master_offline_queue_v1'); } catch (_) {}
+                }
+                const q = JSON.parse(rawQ || '[]');
                 if (!Array.isArray(q) || q.length === 0) return;
                 __mdFlushingQueue = true;
-                // Sub-Second Parallel Burst Upload for brief 2G connectivity windows
+                // Sub-Second Parallel Nano-Packet Burst Upload for brief 2G connectivity sparks
                 const results = await Promise.allSettled(
                     q.map(item => syncToBackend(item.type, item.data, { isRetry: true }))
                 );
@@ -309,39 +394,71 @@
                     }
                 });
                 if (remaining.length > 0) {
-                    localStorage.setItem('erp_master_offline_queue_v1', JSON.stringify(remaining));
+                    const remStr = JSON.stringify(remaining);
+                    localStorage.setItem('erp_master_offline_queue_v1', remStr);
+                    if (typeof localforage !== 'undefined' && localforage && typeof localforage.setItem === 'function') {
+                        localforage.setItem('erp_master_offline_queue_v1', remStr).catch(() => {});
+                    }
                     updateMasterSyncStatusBadge('offline_queued', `📡 بالانتظار (${remaining.length})`);
                 } else {
                     localStorage.removeItem('erp_master_offline_queue_v1');
+                    if (typeof localforage !== 'undefined' && localforage && typeof localforage.removeItem === 'function') {
+                        localforage.removeItem('erp_master_offline_queue_v1').catch(() => {});
+                    }
                     updateMasterSyncStatusBadge('ok');
-                    loadMasterDataFromBackend();
+                    await loadMasterDataFromBackend();
                 }
             } catch (e) {} finally {
                 __mdFlushingQueue = false;
             }
         }
-        window.addEventListener('online', () => { flushMasterOfflineSyncQueue(); loadMasterDataFromBackend(); });
+        window.flushMasterOfflineSyncQueue = flushMasterOfflineSyncQueue;
+
+        let __mdLoadingFromBackend = false;
+        // البند 1 من الدستور السادس: اقتناص شرارة الإنترنت فور قدومها (Split-Second Flash Sync)
+        window.addEventListener('online', async () => {
+            await flushMasterOfflineSyncQueue();
+            await loadMasterDataFromBackend();
+        });
+        const __mdNetConn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+        if (__mdNetConn && typeof __mdNetConn.addEventListener === 'function') {
+            __mdNetConn.addEventListener('change', () => {
+                if (navigator.onLine) flushMasterOfflineSyncQueue();
+            });
+        }
         window.addEventListener('focus', () => {
-            if (navigator.onLine && !window.__mdFormDirty) {
+            if (navigator.onLine && !window.__mdFormDirty && !document.querySelector('input:focus, select:focus, textarea:focus')) {
                 flushMasterOfflineSyncQueue();
-                loadMasterDataFromBackend();
             }
         });
         document.addEventListener('visibilitychange', () => {
-            if (document.visibilityState === 'visible' && navigator.onLine) {
+            if (document.visibilityState === 'visible' && navigator.onLine && !window.__mdFormDirty) {
                 flushMasterOfflineSyncQueue();
-                loadMasterDataFromBackend();
             }
         });
+        // حارس شرارة الإنترنت السريع (يفحص الطابور المحلي في 0ms كل 3 ثوانٍ ولا يرسل للشبكة إلا عند وجود حركات معلقة)
+        setInterval(() => {
+            if (!navigator.onLine || __mdFlushingQueue) return;
+            const hasPending = localStorage.getItem('erp_master_offline_queue_v1');
+            if (hasPending && hasPending !== '[]') {
+                flushMasterOfflineSyncQueue();
+            }
+        }, 3000);
         setInterval(() => {
             if (!navigator.onLine) return;
             flushMasterOfflineSyncQueue();
-            if (document.visibilityState === 'visible' && !window.__mdFormDirty && !document.querySelector('input:focus, select:focus, textarea:focus')) {
+            const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+            const isSlow2G = Boolean(conn && (conn.saveData || /2g/i.test(conn.effectiveType || '')));
+            if (!isSlow2G && document.visibilityState === 'visible' && !window.__mdFormDirty && !document.querySelector('input:focus, select:focus, textarea:focus')) {
                 loadMasterDataFromBackend();
             }
-        }, 4000);
+        }, 25000);
 
         async function syncToBackend(type, data, opts = {}) {
+            stampCrdtMetadata(data);
+            if (!String(type).startsWith('check_') && !String(type).startsWith('delete_') && typeof window.recordMdC8SameDayTransaction === 'function') {
+                window.recordMdC8SameDayTransaction(type, data);
+            }
             const controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
             const timeoutId = controller ? setTimeout(() => controller.abort(), 5000) : null;
             try {
@@ -362,15 +479,18 @@
                 if (token) headers['Authorization'] = 'Bearer ' + token;
                 if (tenantId) headers['X-Tenant-Id'] = String(tenantId);
 
+                const bodyPayload = JSON.stringify({ type, data, crdtDevice: __mdDeviceId, crdtTs: Date.now() });
                 const res = await fetch('api/save_master_data.php', {
                     method: 'POST',
                     headers: headers,
-                    body: JSON.stringify({ type, data }),
+                    body: bodyPayload,
+                    keepalive: bodyPayload.length < 60000,
                     signal: controller ? controller.signal : undefined
                 });
                 if (timeoutId) clearTimeout(timeoutId);
                 const result = await res.json();
                 if (result && result.success) {
+                    if (data && typeof data === 'object') delete data._crdtOfflinePending;
                     if (!String(type).startsWith('check_')) {
                         updateMasterSyncStatusBadge('ok');
                         broadcastMasterDataInstantSync(type, data);
@@ -393,8 +513,18 @@
                 return { success: false, networkOffline: true, error: err ? err.message : 'Network error' };
             }
         }
+        window.syncMasterDataToBackend = syncToBackend;
 
         async function loadMasterDataFromBackend() {
+            if (__mdLoadingFromBackend) return;
+            // Ensure any pending offline sparks are flushed first before pulling server state
+            if (navigator.onLine && !__mdFlushingQueue) {
+                const pendingRaw = localStorage.getItem('erp_master_offline_queue_v1');
+                if (pendingRaw && pendingRaw !== '[]') {
+                    await flushMasterOfflineSyncQueue();
+                }
+            }
+            __mdLoadingFromBackend = true;
             const controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
             const timeoutId = controller ? setTimeout(() => controller.abort(), 7000) : null;
             try {
@@ -418,6 +548,9 @@
                 const json = await res.json();
                 if (json && json.success && json.data) {
                     const d = json.data;
+                    let pendingQ = [];
+                    try { pendingQ = JSON.parse(localStorage.getItem('erp_master_offline_queue_v1') || '[]') || []; } catch (_) {}
+
                     if (Array.isArray(d.units) && d.units.length > 0) {
                         setMasterLocalData('erp_global_units_v1', d.units);
                     }
@@ -425,30 +558,40 @@
                         setMasterLocalData('erp_categories_v1', d.categories);
                     }
                     if (Array.isArray(d.items)) {
-                        setMasterLocalData('erp_items_v1', d.items);
+                        const locItems = JSON.parse(localStorage.getItem('erp_items_v1') || '[]');
+                        setMasterLocalData('erp_items_v1', mergeCrdtEntityLists(locItems, d.items, pendingQ));
                     }
                     if (Array.isArray(d.warehouses)) {
-                        setMasterLocalData('erp_warehouses_v1', d.warehouses);
+                        const locWh = JSON.parse(localStorage.getItem('erp_warehouses_v1') || '[]');
+                        setMasterLocalData('erp_warehouses_v1', mergeCrdtEntityLists(locWh, d.warehouses, pendingQ));
                     }
                     if (Array.isArray(d.customers)) {
-                        setMasterLocalData('erp_customers_v1', d.customers);
+                        const locCust = JSON.parse(localStorage.getItem('erp_customers_v1') || '[]');
+                        setMasterLocalData('erp_customers_v1', mergeCrdtEntityLists(locCust, d.customers, pendingQ));
                     }
                     if (Array.isArray(d.suppliers)) {
-                        setMasterLocalData('erp_suppliers_v1', d.suppliers);
+                        const locSup = JSON.parse(localStorage.getItem('erp_suppliers_v1') || '[]');
+                        setMasterLocalData('erp_suppliers_v1', mergeCrdtEntityLists(locSup, d.suppliers, pendingQ));
                     }
                     if (Array.isArray(d.banks)) {
-                        setMasterLocalData('erp_banks_v1', d.banks);
+                        const locBanks = JSON.parse(localStorage.getItem('erp_banks_v1') || '[]');
+                        setMasterLocalData('erp_banks_v1', mergeCrdtEntityLists(locBanks, d.banks, pendingQ));
                     }
                     if (Array.isArray(d.safes)) {
-                        setMasterLocalData('erp_safes_v1', d.safes);
+                        const locSafes = JSON.parse(localStorage.getItem('erp_safes_v1') || '[]');
+                        setMasterLocalData('erp_safes_v1', mergeCrdtEntityLists(locSafes, d.safes, pendingQ));
                     }
                     if (Array.isArray(d.cost_centers)) {
-                        setMasterLocalData('erp_cost_centers_v1', d.cost_centers);
-                        setMasterLocalData('erp_jobs_v1', d.cost_centers);
+                        const locCc = JSON.parse(localStorage.getItem('erp_cost_centers_v1') || '[]');
+                        const mergedCc = mergeCrdtEntityLists(locCc, d.cost_centers, pendingQ);
+                        setMasterLocalData('erp_cost_centers_v1', mergedCc);
+                        setMasterLocalData('erp_jobs_v1', mergedCc);
                     }
                     if (Array.isArray(d.employees) && d.employees.length > 0) {
-                        setMasterLocalData('erp_users_v1', d.employees);
-                        setMasterLocalData('erp_employees_v1', d.employees);
+                        const locEmp = JSON.parse(localStorage.getItem('erp_users_v1') || '[]');
+                        const mergedEmp = mergeCrdtEntityLists(locEmp, d.employees, pendingQ);
+                        setMasterLocalData('erp_users_v1', mergedEmp);
+                        setMasterLocalData('erp_employees_v1', mergedEmp);
                     }
                     if (d.currency_rates) {
                         setMasterLocalData('erp_currency_rates_v1', d.currency_rates);
@@ -498,6 +641,8 @@
             } catch(err) {
                 if (timeoutId) clearTimeout(timeoutId);
                 console.warn('[Master Data] Failed to load from backend (2G/Offline cache active):', err);
+            } finally {
+                __mdLoadingFromBackend = false;
             }
         }
         function renderAllMasterData() {
@@ -566,16 +711,26 @@
         function openTab(evt, tabId) {
             document.querySelectorAll('.md-tab-content').forEach(c => c.classList.remove('active'));
             document.querySelectorAll('.md-tab-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById(tabId).classList.add('active');
-            evt.currentTarget.classList.add('active');
+            const panel = document.getElementById(tabId);
+            if (panel) panel.classList.add('active');
+            const btn = (evt && evt.currentTarget) ? evt.currentTarget : document.querySelector(`.md-tab-btn[onclick*="${tabId}"]`);
+            if (btn) btn.classList.add('active');
+            requestAnimationFrame(() => {
+                if (!panel) return;
+                const firstFocus = panel.querySelector('#cust-name, #sup-name, input[id*="search"], input:not([type="hidden"]):not([disabled])');
+                if (firstFocus && firstFocus.offsetParent !== null) {
+                    try { firstFocus.focus({ preventScroll: true }); } catch (e) {}
+                }
+            });
         }
 
         function openInnerTab(evt, tabId) {
-            const container = evt.currentTarget.closest('.md-card');
+            const container = (evt && evt.currentTarget && evt.currentTarget.closest('.md-card')) || document.getElementById('tab-items')?.querySelector('.md-card') || document;
             container.querySelectorAll('.inner-tab-content').forEach(c => c.classList.remove('active'));
             container.querySelectorAll('.inner-tab-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById(tabId).classList.add('active');
-            evt.currentTarget.classList.add('active');
+            const innerEl = document.getElementById(tabId);
+            if (innerEl) innerEl.classList.add('active');
+            if (evt && evt.currentTarget) evt.currentTarget.classList.add('active');
         }
 
         function setMasterLocalData(key, data, triggerGLRebuild = false) {
@@ -662,6 +817,9 @@
                 const trimmed = logs.slice(0, 500);
                 setMasterLocalData('erp_master_audit_log_v1', trimmed);
                 updateAuditBadgeCount();
+                if (typeof window.appendMdC13BlackBoxEntry === 'function') {
+                    window.appendMdC13BlackBoxEntry(actionType, entityLabel + ': ' + entityName, '-', detailsStr, userStr, deviceStr);
+                }
                 if (typeof syncToBackend === 'function') {
                     syncToBackend('master_audit_log', trimmed);
                 }
@@ -977,15 +1135,22 @@
                 const wrap = el.closest('.pro-field-card, .input-group') || el;
                 const prevBorder = wrap.style.borderColor;
                 const prevShadow = wrap.style.boxShadow;
-                wrap.style.borderColor = '#fbbf24';
-                wrap.style.boxShadow = '0 0 0 3px rgba(251, 191, 36, 0.35), 0 0 18px rgba(251, 191, 36, 0.25)';
+                wrap.classList.remove('md-c3-error-shake');
+                el.classList.remove('md-c3-error-shake');
+                void wrap.offsetWidth;
+                wrap.classList.add('md-c3-error-shake');
+                el.classList.add('md-c3-error-shake');
+                wrap.style.borderColor = '#ef4444';
+                wrap.style.boxShadow = '0 0 0 3px rgba(239, 68, 68, 0.42), 0 0 18px rgba(239, 68, 68, 0.3)';
                 setTimeout(() => {
+                    wrap.classList.remove('md-c3-error-shake');
+                    el.classList.remove('md-c3-error-shake');
                     wrap.style.borderColor = prevBorder;
                     wrap.style.boxShadow = prevShadow;
                 }, 2000);
             }
             if (typeof showToast === 'function' && message) {
-                showToast(message, 'warning', 2000);
+                showToast(message, 'error', 2200);
             }
             return false;
         }
@@ -1064,13 +1229,13 @@
 
             const statusBadgeMap = {
                 'active': '<span style="background:rgba(52,211,153,0.15); color:#34d399; padding:3px 8px; border-radius:8px; font-size:0.78rem; font-weight:800;">🟢 نشط</span>',
-                'inventory_lock': '<span style="background:rgba(245,158,11,0.18); color:#fbbf24; padding:3px 8px; border-radius:8px; font-size:0.78rem; font-weight:800;">🟠 مغلق للجرد</span>',
+                'inventory_lock': '<span style="background:rgba(245,158,11,0.18); color:#fbbf24; padding:3px 8px; border-radius:8px; font-size:0.78rem; font-weight:800;">🟠 جرد</span>',
                 'inactive': '<span style="background:rgba(239,68,68,0.15); color:#f87171; padding:3px 8px; border-radius:8px; font-size:0.78rem; font-weight:800;">🔴 موقوف</span>'
             };
 
-            warehouses.forEach(w => {
+            tbody.innerHTML = warehouses.map(w => {
                 const stBadge = statusBadgeMap[w.status || 'active'] || statusBadgeMap['active'];
-                tbody.insertAdjacentHTML('beforeend', `<tr>
+                return `<tr>
                     <td><strong>${w.name}</strong></td>
                     <td><span style="background:rgba(255,255,255,0.05); padding:3px 8px; border-radius:6px; font-size:0.85rem;">${w.type}</span></td>
                     <td>${w.keeper || '-'}</td>
@@ -1082,8 +1247,8 @@
                         <button class="btn-text" style="color:#38bdf8; font-weight:bold;" onclick="editWarehouse('${w.id}')">✏️ تعديل</button>
                         <button class="btn-text" style="color:var(--danger-color); font-weight:bold; margin-right:10px;" onclick="deleteWarehouse('${w.id}')">🗑️ حذف</button>
                     </td>
-                </tr>`);
-            });
+                </tr>`;
+            }).join('');
         }
 
         function editWarehouse(id) {
@@ -1125,6 +1290,11 @@
             if (document.getElementById('warehouse-status')) document.getElementById('warehouse-status').value = 'active';
             document.getElementById('warehouse-security').value = '1';
         }
+        window.closeWarehouseForm = cancelEditWarehouse;
+        window.closeEmployeeForm = function() {
+            const ef = document.getElementById('employee-form');
+            if (ef) ef.style.display = 'none';
+        };
 
         function openWarehouseForm() {
             cancelEditWarehouse();
@@ -1140,10 +1310,11 @@
             if (!name) return false;
             try {
                 const items = JSON.parse(localStorage.getItem(storageKey) || '[]');
-                const nameLower = name.trim().toLowerCase();
+                const normFn = typeof window.normalizeArabicFuzzyText === 'function' ? window.normalizeArabicFuzzyText : (s => String(s || '').trim().toLowerCase());
+                const nameNorm = normFn(name);
                 for (let i = 0; i < items.length; i++) {
                     if (items[i].deleted) continue;
-                    if (items[i].id !== currentId && (items[i].name || '').trim().toLowerCase() === nameLower) {
+                    if (items[i].id !== currentId && normFn(items[i].name || '') === nameNorm) {
                         return true;
                     }
                 }
@@ -2504,8 +2675,8 @@
 
             customers.sort((a, b) => (parseInt(a.receiptCodeNum, 10) || 999999) - (parseInt(b.receiptCodeNum, 10) || 999999));
 
-            const maxShow = window.__mdCustRenderLimit || 80;
-            const visibleCustomers = query ? customers : customers.slice(0, maxShow);
+            const maxShow = window.__mdCustRenderLimit || 100;
+            const visibleCustomers = customers.slice(0, maxShow);
             const rowsHtml = [];
             visibleCustomers.forEach(c => {
                 const statusMap = {'vip': '<span style="background:rgba(168,85,247,0.15); color:#a855f7; padding:2px 8px; border-radius:10px; font-size:0.8rem; font-weight:700;">🌟 VIP</span>', 'blacklisted': '<span style="background:rgba(239,68,68,0.15); color:#ef4444; padding:2px 8px; border-radius:10px; font-size:0.8rem; font-weight:700;">🔴 محظور</span>'};
@@ -2914,8 +3085,8 @@
 
             suppliers.sort((a, b) => (parseInt(a.receiptCodeNum, 10) || 999999) - (parseInt(b.receiptCodeNum, 10) || 999999));
 
-            const maxShowSup = window.__mdSupRenderLimit || 80;
-            const visibleSuppliers = query ? suppliers : suppliers.slice(0, maxShowSup);
+            const maxShowSup = window.__mdSupRenderLimit || 100;
+            const visibleSuppliers = suppliers.slice(0, maxShowSup);
             const rowsHtmlSup = [];
             visibleSuppliers.forEach(s => {
                 const statusMap = {'vip': '<span style="background:rgba(168,85,247,0.15); color:#a855f7; padding:2px 8px; border-radius:10px; font-size:0.8rem; font-weight:700;">🌟 VIP</span>', 'blacklisted': '<span style="background:rgba(239,68,68,0.15); color:#ef4444; padding:2px 8px; border-radius:10px; font-size:0.8rem; font-weight:700;">🔴 محظور</span>'};
@@ -3090,8 +3261,7 @@
                 );
             }
 
-            employees.forEach(emp => {
-                tbody.insertAdjacentHTML('beforeend', `<tr>
+            tbody.innerHTML = employees.map(emp => `<tr>
                     <td>${emp.name}</td>
                     <td>${emp.role}</td>
                     <td>${emp.phone||'-'}</td>
@@ -3101,8 +3271,7 @@
                         <button class="btn-text" style="color:#a855f7; font-weight:bold; margin-left:8px;" onclick="editEmployee('${emp.id}')">✏️ تعديل</button>
                         <button class="btn-text" style="color:var(--danger-color); font-weight:bold;" onclick="deleteEmployee('${emp.id}')">🗑️ حذف</button>
                     </td>
-                </tr>`);
-            });
+                </tr>`).join('');
         }
         
         function deleteEmployee(id) {
@@ -3338,22 +3507,29 @@
                     norm(b.iban).includes(q)
                 );
             }
-            tbody.innerHTML = '';
-            banks.forEach(b => {
+            let chequesList = [];
+            try { chequesList = JSON.parse(localStorage.getItem('elsajana_md_c11_cheques') || '[]') || []; } catch (_) {}
+            tbody.innerHTML = banks.map(b => {
                 const typeLabel = '🏦 حساب بنكي';
-                const balFormatted = (parseFloat(b.openingBalance) || 0).toLocaleString('en-US', { minimumFractionDigits: 2 });
-                tbody.insertAdjacentHTML('beforeend', `<tr>
+                const liveBal = parseFloat(b.currentBalance ?? b.balance ?? b.openingBalance) || 0;
+                const balFormatted = liveBal.toLocaleString('en-US', { minimumFractionDigits: 2 });
+                const pendingChq = chequesList.filter(c => c && (c.bankId === b.id || c.bankName === b.name) && (c.status === 'portfolio' || c.status === 'under_collection'));
+                const pendingBadge = pendingChq.length > 0
+                    ? ` <span style="background:rgba(245,158,11,0.18);color:#fde047;border:1px solid rgba(245,158,11,0.45);padding:1px 6px;border-radius:6px;font-size:0.72rem;font-weight:900;" title="شيكات بالحافظة/تحت التحصيل لا تؤثر على الرصيد الفعلي إلا بعد التحصيل">📝 حافظة: ${pendingChq.length}</span>`
+                    : '';
+                return `<tr>
                     <td style="color:#38bdf8; font-weight:bold;">${b.id}</td>
                     <td style="font-weight:bold;">${b.name} <br><small style="color:#94a3b8;">${b.branch || ''}</small></td>
-                    <td>${typeLabel}</td>
+                    <td>${typeLabel}${pendingBadge}</td>
                     <td><span class="badge" style="background:rgba(56,189,248,0.2); color:#38bdf8; padding:3px 8px; border-radius:4px;">${b.currency || 'SDG'}</span></td>
-                    <td style="font-weight:bold;">${balFormatted}</td>
+                    <td style="font-weight:bold; color:#34d399;">${balFormatted}</td>
                     <td>
+                        <button class="btn-text" style="color:#fbbf24; margin-left:6px;" onclick="if(typeof window.openMdChequePortfolioModal==='function')window.openMdChequePortfolioModal('${b.id}')" title="حافظة ودورة الشيكات لهذا البنك">📝 شيكات</button>
                         <button class="btn-text" style="color:#38bdf8;" onclick="editBank('${b.id}')">✏️ تعديل</button>
                         <button class="btn-text" style="color:var(--danger-color); margin-right:10px;" onclick="deleteBank('${b.id}')">🗑️ حذف</button>
                     </td>
-                </tr>`);
-            });
+                </tr>`;
+            }).join('');
         }
 
         function editBank(id) {
@@ -3533,22 +3709,26 @@
                     norm(b.glAccount).includes(q)
                 );
             }
-            tbody.innerHTML = '';
-            safes.forEach(b => {
+            tbody.innerHTML = safes.map(b => {
                 const typeLabel = '💰 خزينة';
-                const balFormatted = (parseFloat(b.openingBalance) || 0).toLocaleString('en-US', { minimumFractionDigits: 2 });
-                tbody.insertAdjacentHTML('beforeend', `<tr>
+                const actualBalNum = parseFloat(b.currentBalance ?? b.balance ?? b.openingBalance) || 0;
+                const isBlindRole = (window.__mdActiveRole === 'cashier' || window.__mdActiveRole === 'sales' || window.__mdC12BlindMaskActive === true);
+                const balFormatted = isBlindRole
+                    ? '<span style="color:#fbbf24;font-weight:900;" title="مخفي طبقاً لنظام الجرد الأعمى (الدستور 12)">🙈 مخفي للجرد الأعمى</span>'
+                    : actualBalNum.toLocaleString('en-US', { minimumFractionDigits: 2 });
+                return `<tr>
                     <td style="color:#4ade80; font-weight:bold;">${b.id}</td>
                     <td style="font-weight:bold;">${b.name}</td>
                     <td>${typeLabel}</td>
                     <td><span class="badge" style="background:rgba(74,222,128,0.2); color:#4ade80; padding:3px 8px; border-radius:4px;">${b.currency || 'SDG'}</span></td>
-                    <td style="font-weight:bold;">${balFormatted}</td>
+                    <td style="font-weight:bold; font-family:monospace;">${balFormatted}</td>
                     <td>
+                        <button class="btn-text" style="color:#fde047; margin-left:8px; font-weight:900;" onclick="if(typeof window.openMdBlindCashClosingModal==='function') window.openMdBlindCashClosingModal('${b.id}')">🙈 جرد أعمى</button>
                         <button class="btn-text" style="color:#38bdf8;" onclick="editSafe('${b.id}')">✏️ تعديل</button>
                         <button class="btn-text" style="color:var(--danger-color); margin-right:10px;" onclick="deleteSafe('${b.id}')">🗑️ حذف</button>
                     </td>
-                </tr>`);
-            });
+                </tr>`;
+            }).join('');
         }
 
         function editSafe(id) {
@@ -3950,8 +4130,9 @@
             
             let lowStock = 0;
             items.forEach(i => {
-                let stock = i.units && i.units[0] ? (i.units[0].stock || 0) : 0;
-                if(stock <= (i.minLimit || 5)) lowStock++;
+                let stock = parseFloat(i.stock ?? i.openingQty ?? (i.units && i.units[0] ? i.units[0].stock : 0)) || 0;
+                let reorder = parseFloat(i.reorderLevel || i.minLimit || 5) || 5;
+                if (stock <= reorder) lowStock++;
             });
             const lowEl = document.getElementById('kpi-low-stock');
             if(lowEl) lowEl.innerText = lowStock + ' صنف';
@@ -3973,13 +4154,23 @@
             const rowsHtmlItems = [];
             paginatedItems.forEach(i => {
                 let bu = i.baseUnit || (i.units && i.units[0] ? i.units[0].unitName : '-');
+                let unitsCount = Array.isArray(i.units) && i.units.length > 1 ? ` <span style="background:rgba(168,85,247,0.18);color:#d8b4fe;border:1px solid rgba(168,85,247,0.4);padding:1px 6px;border-radius:6px;font-size:0.72rem;font-weight:800;" title="متعدد الوحدات (${i.units.length} وحدات)">📐×${i.units.length}</span>` : '';
+                let stockVal = parseFloat(i.stock ?? i.openingQty ?? (i.units && i.units[0] ? i.units[0].stock : 0)) || 0;
+                let reservedVal = parseFloat(i.reservedQty || 0) || 0;
+                let netAvail = Math.max(0, stockVal - reservedVal);
+                let reorderLvl = parseFloat(i.reorderLevel || i.minLimit || 5) || 5;
+                let stockPill = netAvail <= 0
+                    ? ` <span style="background:rgba(239,68,68,0.18);color:#fca5a5;border:1px solid rgba(239,68,68,0.45);padding:1px 6px;border-radius:6px;font-size:0.72rem;font-weight:800;">🔴 رصيد: 0</span>`
+                    : (netAvail <= reorderLvl
+                        ? ` <span style="background:rgba(245,158,11,0.2);color:#fde047;border:1px solid rgba(245,158,11,0.5);padding:1px 6px;border-radius:6px;font-size:0.72rem;font-weight:800;" title="وصل لحد الطلب (${reorderLvl})">🟠 متاح: ${netAvail}</span>`
+                        : ` <span style="background:rgba(16,185,129,0.16);color:#34d399;border:1px solid rgba(16,185,129,0.4);padding:1px 6px;border-radius:6px;font-size:0.72rem;font-weight:800;">🟢 متاح: ${netAvail}</span>`);
                 let price = parseFloat(i.sellingPrice || (i.units && i.units[0] ? i.units[0].cashPrice : 0)) || 0;
-                let cost = parseFloat(i.costPrice || i.cost || (i.units && i.units[0] ? i.units[0].purchasePrice : 0)) || 0;
+                let cost = parseFloat(i.costPrice || i.cost || i.openingValue || (i.units && i.units[0] ? i.units[0].purchasePrice : 0)) || 0;
                 const isMarginWarn = (price <= 0 || (cost > 0 && price <= cost));
                 const marginBadge = isMarginWarn ? ` <span style="background:rgba(245,158,11,0.2); color:#fbbf24; border:1px solid rgba(245,158,11,0.45); padding:1px 6px; border-radius:6px; font-size:0.72rem; font-weight:800;" title="تنبيه تسعير: سعر البيع صفر أو أقل/يساوي التكلفة (${cost.toLocaleString()})">⚠️ راجع السعر</span>` : '';
                 const badge = i.status === 'inactive' ? '<span style="color:var(--danger-color); font-size:0.8rem; font-weight:bold; background:rgba(239,68,68,0.1); padding:3px 8px; border-radius:6px;">🔴 موقوف</span>' : '<span style="color:var(--success-color); font-size:0.8rem; font-weight:bold; background:rgba(52,211,153,0.1); padding:3px 8px; border-radius:6px;">🟢 نشط</span>';
                 const subCat = i.subCategory ? ' <small style="color:var(--text-secondary);">(' + i.subCategory + ')</small>' : '';
-                rowsHtmlItems.push(`<tr class="item-row"><td class="item-id-cell" style="font-weight:bold; color:#38bdf8;">${i.id}</td><td class="item-name-cell" style="font-weight:bold;">${i.name}${subCat}</td><td><span style="background:rgba(255,255,255,0.05); padding:3px 8px; border-radius:6px; font-size:0.85rem;">${i.category || '-'}</span></td><td>${bu}</td><td style="font-weight:bold; color:var(--success-color); cursor:pointer;" ondblclick="startInlineMasterEdit(this, 'item_price', '${i.id}', ${price})" title="انقر مرتين للتعديل المباشر لسعر البيع مثل Excel ثم اضغط Enter">${price.toLocaleString()} SDG <small style="opacity:0.45;">✏️</small>${marginBadge}</td><td>${badge}</td><td><button class="btn-text" style="color:#38bdf8; font-size:1.05rem; margin-left:6px;" onclick="openItemPriceHistoryModal('${i.id}')" title="سجل تاريخ الأسعار">📜</button><button class="btn-text" style="color:#a855f7; font-size:1.1rem; margin-left:8px;" onclick="editItem('${i.id}')" title="تعديل">✏️</button><button class="btn-text" style="color:var(--danger-color); font-size:1.1rem;" onclick="deleteItem('${i.id}')" title="حذف">🗑️</button></td></tr>`);
+                rowsHtmlItems.push(`<tr class="item-row"><td class="item-id-cell" style="font-weight:bold; color:#38bdf8;">${i.id}</td><td class="item-name-cell" style="font-weight:bold;">${i.name}${subCat}</td><td><span style="background:rgba(255,255,255,0.05); padding:3px 8px; border-radius:6px; font-size:0.85rem;">${i.category || '-'}</span></td><td>${bu}${unitsCount}${stockPill}</td><td style="font-weight:bold; color:var(--success-color); cursor:pointer;" ondblclick="startInlineMasterEdit(this, 'item_price', '${i.id}', ${price})" title="انقر مرتين للتعديل المباشر لسعر البيع مثل Excel ثم اضغط Enter">${price.toLocaleString()} SDG <small style="opacity:0.45;">✏️</small>${marginBadge}</td><td>${badge}</td><td><button class="btn-text" style="color:#34d399; font-size:1rem; margin-left:5px;" onclick="if(typeof window.openMdInspectionAndPartialReceiptModal==='function')window.openMdInspectionAndPartialReceiptModal('${i.id}')" title="فحص واستلام بضاعة (سليم / تالف / مرفوض)">🔬</button><button class="btn-text" style="color:#38bdf8; font-size:1.05rem; margin-left:6px;" onclick="openItemPriceHistoryModal('${i.id}')" title="سجل تاريخ الأسعار">📜</button><button class="btn-text" style="color:#a855f7; font-size:1.1rem; margin-left:8px;" onclick="editItem('${i.id}')" title="تعديل">✏️</button><button class="btn-text" style="color:var(--danger-color); font-size:1.1rem;" onclick="deleteItem('${i.id}')" title="حذف">🗑️</button></td></tr>`);
             });
             tbody.innerHTML = rowsHtmlItems.join('');
             
@@ -4043,7 +4234,7 @@
         function buildUnitRow(num, u, isBase) {
             const dis = isBase ? 'disabled' : '';
             const bg = isBase ? 'style="background:rgba(52,211,153,0.08); border-right:3px solid var(--success-color);"' : '';
-            const act = isBase ? '<span style="font-size:0.75rem; color:var(--success-color); font-weight:bold; background:rgba(52,211,153,0.2); padding:3px 8px; border-radius:4px;">أساسية</span>' : "<button class=\"btn-text\" style=\"color:var(--danger-color);\" onclick=\"this.closest('tr').remove()\">✖</button>";
+            const act = isBase ? '<span style="font-size:0.75rem; color:var(--success-color); font-weight:bold; background:rgba(52,211,153,0.2); padding:3px 8px; border-radius:4px;">أساسية</span>' : "<button type=\"button\" class=\"btn-text\" style=\"color:var(--danger-color);\" onclick=\"if(typeof window.removeMdUnitMatrixRowWithUndo==='function'){window.removeMdUnitMatrixRowWithUndo(this);}else{this.closest('tr').remove();}\">✖</button>";
             const idAttr = isBase ? ' id="base-unit-name-display"' : ' class="unit-name-input"';
             
             let units = [];
@@ -4830,7 +5021,19 @@
                     enqueueMasterOfflineSync(cfg.backendType, delPayload);
                 }
 
-                // 2. Remove permanently from localStorage (Hard delete from array)
+                // 2. Push snapshot to Undo Vault (Ctrl+Z — Constitution 7) before permanent removal
+                if (typeof window.pushMdUndoSnapshot === 'function') {
+                    window.pushMdUndoSnapshot({
+                        kind: 'entity_delete',
+                        entityType: entityType,
+                        localKey: cfg.localKey,
+                        label: cfg.label,
+                        entity: JSON.parse(JSON.stringify(entity)),
+                        deletedAt: Date.now()
+                    });
+                }
+
+                // 3. Remove permanently from localStorage (Hard delete from array)
                 try {
                     let list = JSON.parse(localStorage.getItem(cfg.localKey)) || [];
                     if (Array.isArray(list)) {
@@ -5635,19 +5838,33 @@ document.addEventListener('DOMContentLoaded', () => {
 (function initMasterDataCursorAndKeyboardEngine() {
     window.__mdFormDirty = false;
 
-    // 1. Auto-select ANY existing numeric value on focus for instant overwrite without Backspace
-    document.addEventListener('focusin', function (e) {
-        const el = e.target;
-        if (!el || el.tagName !== 'INPUT') return;
-        const isNumField = (
+    function isMasterNumericInput(el) {
+        if (!el || el.tagName !== 'INPUT') return false;
+        return (
             el.type === 'number' ||
             el.inputMode === 'decimal' ||
             el.inputMode === 'numeric' ||
             el.classList.contains('pro-num-input') ||
-            /price|balance|limit|qty|value|rate|factor|discount|weight|days|pin/i.test(el.id || '')
+            /price|balance|limit|qty|value|rate|factor|discount|weight|days|pin|phone|whatsapp/i.test(el.id || '')
         );
-        if (isNumField && (el.value || '').trim() !== '') {
+    }
+
+    // 1. Auto-select ANY existing numeric value on focus or mouse click for instant overwrite without Backspace
+    document.addEventListener('focusin', function (e) {
+        const el = e.target;
+        if (isMasterNumericInput(el) && (el.value || '').trim() !== '') {
+            el.dataset.mdJustFocused = '1';
             setTimeout(() => { try { el.select(); } catch (err) {} }, 10);
+        }
+    });
+    document.addEventListener('mouseup', function (e) {
+        const el = e.target;
+        if (isMasterNumericInput(el) && el.dataset.mdJustFocused === '1') {
+            delete el.dataset.mdJustFocused;
+            if ((el.value || '').trim() !== '') {
+                e.preventDefault();
+                try { el.select(); } catch (err) {}
+            }
         }
     });
 
@@ -5690,14 +5907,32 @@ document.addEventListener('DOMContentLoaded', () => {
         const btn = e.target && e.target.closest ? e.target.closest('button') : null;
         if (!btn) return;
         const oc = btn.getAttribute('onclick') || '';
-        if (/save|close|clear/i.test(oc)) {
+        if (/save|close|clear|cancel/i.test(oc)) {
             window.__mdFormDirty = false;
         }
     }, true);
 
-    // 3. Keyboard Shortcuts: F10 (Save), F2 (New/Add), Escape (Close), Enter / Arrows (Smooth Cursor)
+    // 3. Keyboard Shortcuts: F10 (Save), F2 (New/Add), Ctrl+K (Search Palette), Alt+N (Quick Add), Escape (Close), Enter / Arrows (Smooth Cursor)
     document.addEventListener('keydown', function (e) {
+        if ((e.ctrlKey || e.metaKey) && (e.key === 'k' || e.key === 'K')) {
+            if (typeof window.openMdQuickJumpPaletteModal === 'function') {
+                e.preventDefault();
+                window.openMdQuickJumpPaletteModal();
+                return;
+            }
+        }
+        if (e.altKey && (e.key === 'n' || e.key === 'N' || e.key === 'ى')) {
+            if (typeof window.openUniversalQuickEntityModal === 'function') {
+                e.preventDefault();
+                window.openUniversalQuickEntityModal();
+                return;
+            }
+        }
         if (e.key === 'Escape') {
+            for (const dynId of ['md-universal-quick-add-modal', 'md-quick-jump-palette-modal', 'md-c1-health-scanner-modal', 'md-c1-vault-modal', 'md-c1-officer-modal']) {
+                const dynEl = document.getElementById(dynId);
+                if (dynEl) { dynEl.remove(); return; }
+            }
             const quickModal = document.getElementById('md-quick-prompt-modal');
             if (quickModal && quickModal.style.display !== 'none') {
                 quickModal.style.display = 'none';
@@ -5708,33 +5943,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (typeof closeEntityDeleteModal === 'function') closeEntityDeleteModal();
                 return;
             }
-            const auditModal = document.getElementById('md-audit-trail-modal');
-            if (auditModal && auditModal.style.display !== 'none') {
-                auditModal.style.display = 'none';
-                return;
-            }
-            const eqModal = document.getElementById('md-opening-eq-modal');
-            if (eqModal && eqModal.style.display !== 'none') {
-                eqModal.style.display = 'none';
-                return;
-            }
-            const histModal = document.getElementById('md-item-price-history-modal');
-            if (histModal && histModal.style.display !== 'none') {
-                histModal.style.display = 'none';
-                return;
+            for (const mId of ['md-origin-voucher-modal', 'md-entity-drilldown-modal', 'md-print-share-hub-modal', 'md-excel-preimport-modal', 'md-audit-trail-modal', 'md-opening-eq-modal', 'md-item-price-history-modal', 'md-bulk-price-modal', 'md-entity-qr-card-modal', 'md-clipboard-paste-modal']) {
+                const mEl = document.getElementById(mId);
+                if (mEl && mEl.style.display !== 'none') {
+                    mEl.style.display = 'none';
+                    return;
+                }
             }
             const camModal = document.getElementById('md-webrtc-barcode-modal');
             if (camModal && camModal.style.display !== 'none') {
                 if (typeof window.closeWebRtcBarcodeScanner === 'function') window.closeWebRtcBarcodeScanner();
                 else camModal.style.display = 'none';
                 return;
-            }
-            for (const mId of ['md-bulk-price-modal', 'md-entity-qr-card-modal', 'md-clipboard-paste-modal']) {
-                const mEl = document.getElementById(mId);
-                if (mEl && mEl.style.display !== 'none') {
-                    mEl.style.display = 'none';
-                    return;
-                }
             }
             // Close active open child form if any
             const openFormCloseMap = [
@@ -5759,10 +5979,10 @@ document.addEventListener('DOMContentLoaded', () => {
         // F10 or Ctrl+S / Ctrl+Enter saves the active open form
         if (e.key === 'F10' || ((e.ctrlKey || e.metaKey) && (e.key === 's' || e.key === 'S' || e.key === 'Enter'))) {
             const target = e.target;
-            const activeTab = document.querySelector('.md-content-area .tab-section.active');
-            const container = (target && target.closest ? target.closest('#warehouse-form, #customer-form, #supplier-form, #bank-form, #safe-form, #item-form, #employee-form, #costcenter-form, #inner-categories, #inner-units') : null) || activeTab;
+            const activeTab = document.querySelector('.md-content-area .md-tab-content.active, .md-content-area .tab-section.active');
+            const container = (target && target.closest ? target.closest('.md-child-modal-card, .md-c1-modal-card, #warehouse-form, #customer-form, #supplier-form, #bank-form, #safe-form, #item-form, #employee-form, #costcenter-form, #inner-categories, #inner-units') : null) || activeTab;
             if (container) {
-                const saveBtns = Array.from(container.querySelectorAll('button[onclick*="save"]')).filter(b => b.offsetParent !== null);
+                const saveBtns = Array.from(container.querySelectorAll('button[onclick*="save"], #md-uqa-save-btn, #md-quick-prompt-ok')).filter(b => b.offsetParent !== null);
                 if (saveBtns.length > 0) {
                     e.preventDefault();
                     window.__mdFormDirty = false;
@@ -5774,7 +5994,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // F2 opens/resets the Add Form in the active tab
         if (e.key === 'F2') {
-            const activeTab = document.querySelector('.md-content-area .tab-section.active');
+            const activeTab = document.querySelector('.md-content-area .md-tab-content.active, .md-content-area .tab-section.active');
             if (activeTab) {
                 e.preventDefault();
                 const tabId = activeTab.id;
@@ -5791,13 +6011,14 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         const target = e.target;
-        if (!target || !target.closest('.md-content-area')) return;
+        if (!target || (!target.closest('.md-content-area') && !target.closest('.md-child-modal') && !target.closest('.md-c1-modal-card'))) return;
 
-        // Smooth Enter / ArrowDown / ArrowUp cursor flow from field to field inside forms
-        const isNavKey = (e.key === 'Enter' || (e.altKey && (e.key === 'ArrowDown' || e.key === 'ArrowUp')));
+        // Smooth Enter / ArrowDown / ArrowUp cursor flow from field to field inside forms & child modals
+        const isArrowMove = (e.key === 'ArrowDown' || e.key === 'ArrowUp') && (e.altKey || (target.tagName === 'INPUT' && target.type !== 'number'));
+        const isNavKey = (e.key === 'Enter' || isArrowMove);
         if (isNavKey && (target.tagName === 'INPUT' || target.tagName === 'SELECT') && target.type !== 'file' && target.type !== 'button' && target.type !== 'submit') {
             if (target.id && target.id.includes('search')) return;
-            const formBox = target.closest('#warehouse-form, #customer-form, #supplier-form, #bank-form, #safe-form, #item-form, #employee-form, #costcenter-form, #inner-categories, #inner-units');
+            const formBox = target.closest('.md-child-modal-card, .md-c1-modal-card, #warehouse-form, #customer-form, #supplier-form, #bank-form, #safe-form, #item-form, #employee-form, #costcenter-form, #inner-categories, #inner-units');
             if (!formBox) return;
 
             e.preventDefault();
@@ -5815,7 +6036,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     try { nextEl.select(); } catch (err) {}
                 }
             } else if (idx === focusables.length - 1 && step === 1) {
-                const saveBtn = formBox.querySelector('button[onclick*="save"]');
+                const saveBtn = formBox.querySelector('button[onclick*="save"], #md-uqa-save-btn, #md-quick-prompt-ok');
                 if (saveBtn) saveBtn.focus();
             }
         }
@@ -5854,24 +6075,52 @@ document.addEventListener('DOMContentLoaded', () => {
 (function registerIsolatedMasterDataGuide() {
     window.MagaiesSmartGuides = window.MagaiesSmartGuides || {};
 
-    const SALAWAT = 'اللَّهُمَّ صَلِّ وَسَلِّمْ عَلَى نَبِيِّنَا مُحَمَّدٍ.';
+    const SALAWAT = 'اللهم صل وسلم على نبينا محمد.';
 
     function closeAnyGuideChildModals() {
-        ['md-opening-eq-modal', 'md-bulk-price-modal', 'md-clipboard-paste-modal', 'md-entity-qr-modal', 'md-audit-log-modal'].forEach(id => {
+        [
+            'md-opening-eq-modal', 'md-bulk-price-modal', 'md-clipboard-paste-modal',
+            'md-entity-qr-modal', 'md-audit-log-modal', 'md-c2-quick-add-modal',
+            'md-c2-omni-search-modal', 'md-c1-scanner-modal', 'md-c1-vault-modal',
+            'md-c3-whatsapp-modal', 'md-c4-impact-map-modal', 'md-c1-officer-modal',
+            'md-c5-role-sim-modal', 'md-c5-golden-catalog-modal'
+        ].forEach(id => {
             const m = document.getElementById(id);
             if (m) m.style.display = 'none';
         });
     }
 
     window.MagaiesSmartGuides['master-data'] = {
-        title: 'المرشد الذكي الشامل (من الألف إلى الياء): شاشة البيانات الأساسية (8 شاشات متداخلة)',
-        subtitle: 'شرح مصوّر ومدبلج بالصوت الرجالي يفتح أمامك كل تبويب وبطاقة وشاشة وليدة وقائمة منسدلة بالترتيب ويشرح حقولها وأثرها المحاسبي',
+        title: 'المرشد الذكي الشامل: شاشة البيانات الأساسية (8 شاشات متداخلة)',
+        subtitle: 'شرح مصوّر ومدبلج بالصوت الرجالي الفخيم يوضح الملخص العام والمدخلات والمخرجات والقاعدة الذهبية ثم يفتح كل قسم وشاشة وليدة بالترتيب',
         screenHierarchy: [
             'الشاشة الرئيسية: البيانات الأساسية (8 أقسام مترابطة)',
-            '1️⃣ المخازن ⬅ 2️⃣ العملاء وسياسة الواتساب ⬅ 3️⃣ الموردين ⬅ 4️⃣ البنوك',
-            '5️⃣ الخزن النقدية ⬅ 6️⃣ الأصناف والوحدات ⬅ 7️⃣ الموظفين ⬅ 8️⃣ مراكز التكلفة والقيد الافتتاحي'
+            '0️⃣ الملخص العام (المدخلات والمخرجات والقاعدة الذهبية) ⬅ 1️⃣ المخازن ⬅ 2️⃣ العملاء',
+            '3️⃣ الموردين ⬅ 4️⃣ البنوك ⬅ 5️⃣ الخزن ⬅ 6️⃣ الأصناف والوحدات ⬅ 7️⃣ الموظفين ⬅ 8️⃣ مراكز التكلفة'
         ],
         autopilotSteps: [
+            {
+                badge: '0. الملخص العام الشامل: وظيفة شاشة البيانات الأساسية، مصادر مدخلاتها، أين تُسمّع وتؤثر، والقاعدة الذهبية',
+                cursorLabel: 'الملخص العام وخريطة الترابط والقاعدة الذهبية 🏛️📊',
+                screenPath: 'الملخص العام ⬅ من أين تأتي المعلومة (المدخلات) ⬅ عمل الشاشة والقاعدة الذهبية ⬅ أين تُسمّع وتؤثر في التقارير والشاشات',
+                targetSelector: '#md-c1-command-bar, .md-tabs-sidebar',
+                diagramType: 'c5-impact-map',
+                c5ImpactMeta: {
+                    screenTitle: 'شاشة البيانات الأساسية الموحدة (المخازن • العملاء • الموردين • البنوك • الخزن • الأصناف • الموظفين • مراكز التكلفة)',
+                    inputs: ['📥 دفاتر الجرد وأرصدة أول المدة التأسيسية', '📋 استيراد ولصق ذكي من Excel والواتساب', '📷 كاميرا الباركود والإضافة السريعة الفورية'],
+                    funcSummary: 'تأسيس البطاقات التعريفية الثمانية وشرائح الأسعار والوحدات وضبط توازن القيد الافتتاحي عبر حساب التسوية 3109',
+                    goldenRule: 'أسِّس بطاقاتك ووحدات أصنافك وأرصدتك الافتتاحية بدقة مرة واحدة، وتأكد من توازن القيد الافتتاحي (حساب 3109)، ينضبط لك النظام المحاسبي والمخزني بالكامل تلقائياً.',
+                    reassurance: 'اطمئن تماماً يا أخي المحاسب ولا تخشَ الخطأ؛ فالشاشة محمية بدرع الأمان الذكي الذي يمنع حذف أي حساب مرتبط بحركات سابقة، ويحفظ مسوداتك تلقائياً، ويتيح لك التراجع الفوري بضغطة زر.',
+                    reports: ['📊 ميزان المراجعة ودفتر الأستاذ العام (3109)', '📖 كشوفات حسابات العملاء والموردين وأعمار الديون', '📦 تقارير جرد وتقييم المخزون وحركة الصندوق والبنوك'],
+                    screens: ['🧾 فواتير المبيعات المباشرة وتجزئة الفواتير', '🛒 فواتير المشتريات وبوابة اللوجستيات (GRN/GDN)', '🏦 سندات القبض والصرف وتطبيق الموبايل والواتساب']
+                },
+                action: () => {
+                    closeAnyGuideChildModals();
+                    const b = document.querySelector('.tab-warehouses');
+                    if (b) { try { b.click(); } catch (e) {} }
+                },
+                speech: () => `${SALAWAT} هذه شاشة البيانات الأساسية الموحدة؛ وهي حجر الأساس للمنظومة المحاسبية والمخزنية، وظيفتها وفائدتها تأسيس البطاقات التعريفية للأقسام الثمانية: المخازن، العملاء، الموردين، البنوك، الخزن، الأصناف ووحداتها، الموظفين، ومراكز التكلفة لمرة واحدة فقط لتعمل بها كل الفواتير والسندات تلقائياً. وتأتي المعلومات إلى هذه الصفحة من دفاتر الجرد التأسيسي وأرصدة أول المدة، أو عبر الاستيراد واللصق الذكي من ملفات إكسل والواتساب، أو مسح الباركود بالكاميرا. وبمجرد الحفظ، تُسمّع هذه الشاشة فوراً في ميزان المراجعة، ودفتر الأستاذ العام، وحساب تسوية الأرصدة الافتتاحية ثلاثة آلاف ومئة وتسعة، وكشوفات حسابات العملاء والموردين، وتقارير الجرد وتقييم المخزون، وحركة الصندوق والبنوك؛ حيث تزيد أرصدة الأصول والمخزون والمدينين أو تزيد أرصدة الدائنين بدقة متوازنة، كما تؤثر لحظياً في شاشات المبيعات وتجزئة الفواتير والمشتريات وبوابة اللوجستيات وسندات القبض والصرف وتطبيق الموبايل. والقاعدة الذهبية لهذه الشاشة هي: أسِّس بطاقاتك ووحدات أصنافك وأرصدتك الافتتاحية بدقة مرة واحدة، وتأكد من توازن القيد الافتتاحي عبر حساب ثلاثة آلاف ومئة وتسعة، ينضبط لك النظام المحاسبي والمخزني بالكامل تلقائياً. واطمئن تماماً يا أخي المحاسب ولا تخشَ الخطأ؛ فالشاشة محمية بدرع الأمان الذكي الذي يمنع الحذف العشوائي لأي حساب مرتبط بحركات، ويحفظ مسوداتك تلقائياً، ويتيح لك التراجع الفوري بضغطة زر.`
+            },
             {
                 badge: 'الخطوة 1 — شاشة المخازن وفتح بطاقة المستودع والقوائم المنسدلة',
                 cursorLabel: 'بطاقة المخازن وقائمة النوع 🏭',
@@ -5894,7 +6143,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     const sel = document.getElementById('warehouse-type');
                     if (sel) { try { sel.focus(); } catch (e) {} }
                 },
-                speech: () => `${SALAWAT} أهلاً بحضرتك في الشرح المصوّر الشامل لشاشات البيانات الأساسية الثمانية. نبدأ بالقسم الأول وهو المخازن؛ وكما يظهر أمامك الآن عند فتح بطاقة المخزن تسجل اسم المستودع، وتختار نوعه من القائمة المنسدلة المفتوحة أمامك مستودعاً رئيسياً أو معرضاً، وتحدد أمين المخزن وحالة المستودع ودرجة السرية، ليظهر فوراً في جميع الفواتير وتقارير الجرد.`
+                speech: () => `نبدأ بالقسم الأول وهو المخازن؛ وكما يظهر أمامك الآن عند فتح بطاقة المخزن تسجل اسم المستودع، وتختار نوعه من القائمة المنسدلة المفتوحة أمامك مستودعاً رئيسياً أو معرضاً، وتحدد أمين المخزن وحالة المستودع ودرجة السرية، ليظهر فوراً في جميع الفواتير وتقارير الجرد. والقاعدة الذهبية للمخازن هي: افصل دائماً بين المستودع الرئيسي ومعرض البيع ومخزن التوالف، وحوّل حالة المخزن إلى جرد أثناء الجرد الفعلي لمنع أي تداخل في الأرصدة.`
             },
             {
                 badge: 'الخطوة 2 — شاشة العملاء وسياسة الواتساب والسقف الائتماني',
@@ -5905,7 +6154,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 diagramMeta: {
                     parentScreen: 'شاشة العملاء (#tab-customers)',
                     actionLabel: 'فتح بطاقة العميل ولوحة سياسة الواتساب:',
-                    childItems: ['👤 اسم العميل والرقم السري (3 أرقام) ورقم الواتساب', '💰 الرصيد الافتتاحي (موجب عليه • سالب له) وحد الائتمان', '🏷️ قائمة شريحة التسعير (نقدي • آجل • أقل سعر) والعملة', '⚙️ لوحة السياسة لاعتماد إشعارات بنكك وكشف الحساب الآلي'],
+                    childItems: ['👤 اسم العميل والرقم السري (3 أرقام) ورقم الواتساب', '💰 الرصيد الافتتاحي (موجب عليه • سالب له) وحد الائتمان', '🏷️ قائمة شريحة التسعير (نقدي • آجل • أقل سعر) والعملة', '👑 القاعدة الذهبية: حدد سقف الائتمان والرقم السري لكل عميل آجل'],
                     effectLabel: 'شاشة العملاء وسياسة الواتساب مفتوحة الآن أمامك!'
                 },
                 action: () => {
@@ -5917,7 +6166,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     const tierSel = document.getElementById('cust-price-tier');
                     if (tierSel) { try { tierSel.focus(); } catch (e) {} }
                 },
-                speech: () => `القسم الثاني هو العملاء: وكما ترى أمامك على الشاشة تفتح لوحة سياسة الواتساب وبطاقة العميل لتسجيل اسم العميل ورقمه السري المكون من ثلاثة أرقام ورقم الواتساب، مع تحديد الرصيد الافتتاحي والسقف الائتماني واختيار شريحة التسعير من القائمة المنسدلة، ليُسمّع في نفس اللحظة في المبيعات وكشف الحساب وتطبيق الموبايل.`
+                speech: () => `القسم الثاني هو العملاء: وكما ترى أمامك على الشاشة تفتح لوحة سياسة الواتساب وبطاقة العميل لتسجيل اسم العميل ورقمه السري المكون من ثلاثة أرقام ورقم الواتساب، مع تحديد الرصيد الافتتاحي والسقف الائتماني واختيار شريحة التسعير من القائمة المنسدلة، ليُسمّع في نفس اللحظة في المبيعات وكشف الحساب وتطبيق الموبايل. والقاعدة الذهبية لبطاقة العميل هي: اكتب الرصيد الافتتاحي بالموجب إذا كان على العميل دين وبالسالب إذا كان له رصيد، وحدد له سقف ائتمان واضحاً ليحميك النظام تلقائياً من تجاوز المديونية.`
             },
             {
                 badge: 'الخطوة 3 — شاشة الموردين وأرصدة وحسابات المشتريات',
@@ -5928,7 +6177,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 diagramMeta: {
                     parentScreen: 'شاشة الموردين (#tab-suppliers)',
                     actionLabel: 'بطاقة المورد والقوائم المرتبطة بها:',
-                    childItems: ['🏭 اسم المورد أو الشركة والرقم السري والواتساب', '💵 الرصيد الافتتاحي وسقف الائتمان وفترة السداد بالأيام', '💱 قائمة العملة وسعر الصرف ودرجة السرية', '📥 يظهر فوراً في قائمة الموردين بشاشة المشتريات وسندات الصرف'],
+                    childItems: ['🏭 اسم المورد أو الشركة والرقم السري والواتساب', '💵 الرصيد الافتتاحي وسقف الائتمان وفترة السداد بالأيام', '💱 قائمة العملة وسعر الصرف ودرجة السرية', '👑 القاعدة الذهبية: اربط كل مورد بعملة التعامل وفترة السداد الدقيقة'],
                     effectLabel: 'شاشة الموردين وقائمة العملة مفتوحة الآن أمامك!'
                 },
                 action: () => {
@@ -5938,7 +6187,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     const supCur = document.getElementById('sup-currency');
                     if (supCur) { try { supCur.focus(); } catch (e) {} }
                 },
-                speech: () => `القسم الثالث هو الموردين: وتظهر أمامك بطاقة المورد لتسجيل الشركات والمصانع التي تشتري منها البضاعة، وتحديد الرصيد الافتتاحي واختيار عملة التعامل من القائمة المنسدلة وفترة السداد وأرقام المناديب، ليرتبط المورد تلقائياً بفواتير المشتريات وسندات الصرف وكشف الحساب.`
+                speech: () => `القسم الثالث هو الموردين: وتظهر أمامك بطاقة المورد لتسجيل الشركات والمصانع التي تشتري منها البضاعة، وتحديد الرصيد الافتتاحي واختيار عملة التعامل من القائمة المنسدلة وفترة السداد وأرقام المناديب، ليرتبط المورد تلقائياً بفواتير المشتريات وسندات الصرف وكشف الحساب. والقاعدة الذهبية للموردين هي: ثبّت عملة حساب المورد وفترة السداد بالأيام بدقة، لينبهك النظام بمواعيد استحقاق الفواتير وفروق العملة قبل السداد.`
             },
             {
                 badge: 'الخطوة 4 — شاشة البنوك وفتح بطاقة الحساب المصرفي',
@@ -5949,7 +6198,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 diagramMeta: {
                     parentScreen: 'شاشة البنوك (#tab-banks)',
                     actionLabel: 'فتح بطاقة الحساب البنكي (#bank-form):',
-                    childItems: ['🏦 اسم البنك (بنكك • فوري • أوكاش) والفرع ورقم الحساب', '💰 الرصيد الافتتاحي وتاريخ الرصيد والعملة وسعر الصرف', '💳 طرق الدفع المتاحة (كاش • شبكة • تحويل • شيكات)', '🔍 ربط مباشر بدرج مطابقة إشعارات التحويل البنكي وسندات القبض'],
+                    childItems: ['🏦 اسم البنك (بنكك • فوري • أوكاش) والفرع ورقم الحساب', '💰 الرصيد الافتتاحي وتاريخ الرصيد والعملة وسعر الصرف', '💳 طرق الدفع المتاحة (كاش • شبكة • تحويل • شيكات)', '👑 القاعدة الذهبية: سجّل رقم الحساب البنكي بدقة لمطابقة إشعارات الواتساب آلياً'],
                     effectLabel: 'بطاقة البنك وقائمة العملة مفتوحة الآن أمامك!'
                 },
                 action: () => {
@@ -5962,7 +6211,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     const bankCur = document.getElementById('bank-currency');
                     if (bankCur) { try { bankCur.focus(); } catch (e) {} }
                 },
-                speech: () => `القسم الرابع هو البنوك: وقد فتحنا أمامك الآن بطاقة إضافة حساب بنكي؛ وفيها تسجل اسم البنك مثل بنك الخرطوم بنكك أو فوري، ورقم الحساب والآيبان والرصيد الافتتاحي وتختار العملة من القائمة المنسدلة وطرق الدفع، ليظهر الحساب مباشرة في الفواتير والسندات ودرج إشعارات بنكك.`
+                speech: () => `القسم الرابع هو البنوك: وقد فتحنا أمامك الآن بطاقة إضافة حساب بنكي؛ وفيها تسجل اسم البنك مثل بنك الخرطوم بنكك أو فوري، ورقم الحساب والآيبان والرصيد الافتتاحي وتختار العملة من القائمة المنسدلة وطرق الدفع، ليظهر الحساب مباشرة في الفواتير والسندات ودرج إشعارات بنكك. والقاعدة الذهبية للبنوك هي: أدخل رقم الحساب المصرفي المطابق لإشعارات التحويل البنكي، ليقوم محرك الذكاء الاصطناعي بفرز ومطابقة إشعارات الواتساب الواردة على هذا البنك تلقائياً.`
             },
             {
                 badge: 'الخطوة 5 — شاشة الخزن النقدية وفتح بطاقة الخزينة',
@@ -5973,7 +6222,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 diagramMeta: {
                     parentScreen: 'شاشة الخزن النقدية (#tab-safes)',
                     actionLabel: 'فتح بطاقة الخزينة النقدية (#safe-form):',
-                    childItems: ['🗄️ اسم الخزينة (الخزينة الرئيسية • خزينة الكاشير • خزينة الدولار)', '💵 الرصيد الافتتاحي وتاريخ الرصيد ورقم حساب الأستاذ', '👨‍💼 قائمة الموظف المسؤول عن الخزينة والحد الأعلى والأدنى', '⚡ تسميع فوري في سندات الصرف والقبض وحركة الصندوق اليومية'],
+                    childItems: ['🗄️ اسم الخزينة (الخزينة الرئيسية • خزينة الكاشير • خزينة الدولار)', '💵 الرصيد الافتتاحي وتاريخ الرصيد ورقم حساب الأستاذ', '👨‍💼 قائمة الموظف المسؤول عن الخزينة والحد الأعلى والأدنى', '👑 القاعدة الذهبية: اربط كل خزينة بالموظف المسؤول وحد السيولة الآمن'],
                     effectLabel: 'بطاقة الخزينة النقدية وقائمة المسؤول مفتوحة الآن أمامك!'
                 },
                 action: () => {
@@ -5986,7 +6235,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     const safeResp = document.getElementById('safe-responsible');
                     if (safeResp) { try { safeResp.focus(); } catch (e) {} }
                 },
-                speech: () => `القسم الخامس هو الخزن النقدية: وتظهر أمامك الآن بطاقة الخزينة لتسجيل الخزينة الرئيسية أو الفرعية، وتحديد رصيدها الافتتاحي واختيار الموظف المسؤول عنها من القائمة المنسدلة والحد الأعلى والأدنى للسيولة وعملة الخزينة.`
+                speech: () => `القسم الخامس هو الخزن النقدية: وتظهر أمامك الآن بطاقة الخزينة لتسجيل الخزينة الرئيسية أو الفرعية، وتحديد رصيدها الافتتاحي واختيار الموظف المسؤول عنها من القائمة المنسدلة والحد الأعلى والأدنى للسيولة وعملة الخزينة. والقاعدة الذهبية للخزن هي: خصص لكل كاشير أو عملة خزينة مستقلة واربطها بالموظف المسؤول عنها، لضمان دقة الجرد اليومي للصندوق ومنع اختلاط العهد النقدية.`
             },
             {
                 badge: 'الخطوة 6 — شاشة الأصناف وفتح بطاقة الصنف الشاملة ومصفوفة الوحدات',
@@ -5997,7 +6246,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 diagramMeta: {
                     parentScreen: 'شاشة الأصناف والوحدات (#tab-items)',
                     actionLabel: 'فتح بطاقة الصنف الشاملة (#item-form):',
-                    childItems: ['📋 اسم الصنف والكود والباركود بالماسح الضوئي للكاميرا والفئة', '💰 سعر البيع وأقصى خصم والضريبة وطريقة حساب التكلفة', '🏭 الكمية الافتتاحية وتكلفة الوحدة وحدود المخزون (الأعلى • الأدنى • حد الطلب)', '📐 مصفوفة الوحدات (الوحدة الأساسية والفرعية والمعادل وأسعار النقدي والآجل)'],
+                    childItems: ['📋 اسم الصنف والكود والباركود بالماسح الضوئي للكاميرا والفئة', '💰 سعر البيع وأقصى خصم والضريبة وطريقة حساب التكلفة', '🏭 الكمية الافتتاحية وتكلفة الوحدة وحدود المخزون (الأعلى • الأدنى • حد الطلب)', '👑 القاعدة الذهبية: اضبط الوحدة الأساسية ومعامل التحويل وأقل سعر بيع بدقة'],
                     effectLabel: 'بطاقة الصنف ومصفوفة الوحدات مفتوحة الآن أمامك!'
                 },
                 action: () => {
@@ -6010,7 +6259,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     const unitSel = document.getElementById('item-base-unit');
                     if (unitSel) { try { unitSel.focus(); } catch (e) {} }
                 },
-                speech: () => `القسم السادس هو الأصناف: وقد فتحت أمامك الآن بطاقة الصنف الشاملة؛ وفيها تعرف اسم الصنف والباركود بالماسح الضوئي للكاميرا، وتختار الفئة والوحدة الأساسية من القائمة المنسدلة، وتحدد سعر البيع والكمية الافتتاحية وتكلفة الوحدة، وفي الأسفل تضبط مصفوفة الوحدات كالطن والسيخة أو الكرتون والحبة ومعامل التحويل بينهما.`
+                speech: () => `القسم السادس هو الأصناف: وقد فتحت أمامك الآن بطاقة الصنف الشاملة؛ وفيها تعرف اسم الصنف والباركود بالماسح الضوئي للكاميرا، وتختار الفئة والوحدة الأساسية من القائمة المنسدلة، وتحدد سعر البيع والكمية الافتتاحية وتكلفة الوحدة، وفي الأسفل تضبط مصفوفة الوحدات كالطن والسيخة أو الكرتون والحبة ومعامل التحويل بينهما. والقاعدة الذهبية للأصناف هي: اجعل الوحدة الصغرى أو القياسية هي الوحدة الأساسية واضبط معامل التحويل للوحدات الكبرى وحدد أقل سعر بيع، ليحسب النظام الكميات والأرباح ويمنع البيع بالخسارة تلقائياً.`
             },
             {
                 badge: 'الخطوة 7 — شاشة الموظفين والصلاحيات ودرجات السرية',
@@ -6021,7 +6270,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 diagramMeta: {
                     parentScreen: 'شاشة الموظفين (#tab-employees)',
                     actionLabel: 'فتح بطاقة الموظف وقوائم الصلاحيات:',
-                    childItems: ['👤 اسم الموظف ورقم الهاتف وكلمة المرور', '🛡️ قائمة الدور الوظيفي (مدير • محاسب • كاشير • مبيعات • أمين مخزن)', '🔐 قائمة درجة السرية من 1 إلى 10 لحجب الحسابات الحساسة', '🟢 حالة حساب الموظف (نشط • موقوف)'],
+                    childItems: ['👤 اسم الموظف ورقم الهاتف وكلمة المرور', '🛡️ قائمة الدور الوظيفي (مدير • محاسب • كاشير • مبيعات • أمين مخزن)', '🔐 قائمة درجة السرية من 1 إلى 10 لحجب الحسابات الحساسة', '👑 القاعدة الذهبية: امنح كل موظف الدور ودرجة السرية بقدر مهامه الفعلية فقط'],
                     effectLabel: 'بطاقة الموظف وقوائم الصلاحيات مفتوحة الآن أمامك!'
                 },
                 action: () => {
@@ -6034,18 +6283,18 @@ document.addEventListener('DOMContentLoaded', () => {
                     const roleSel = document.getElementById('emp-role');
                     if (roleSel) { try { roleSel.focus(); } catch (e) {} }
                 },
-                speech: () => `القسم السابع هو الموظفين: وتظهر أمامك بطاقة الموظف لتسجيل اسمه وكلمة المرور، واختيار دوره الوظيفي من القائمة المنسدلة المفتوحة أمامك مديراً أو محاسباً أو كاشيراً أو أمين مخزن، وتحديد درجة السرية المسموحة له من واحد إلى عشرة.`
+                speech: () => `القسم السابع هو الموظفين: وتظهر أمامك بطاقة الموظف لتسجيل اسمه وكلمة المرور، واختيار دوره الوظيفي من القائمة المنسدلة المفتوحة أمامك مديراً أو محاسباً أو كاشيراً أو أمين مخزن، وتحديد درجة السرية المسموحة له من واحد إلى عشرة. والقاعدة الذهبية لصلاحيات الموظفين هي: امنح كل مستخدم الدور الوظيفي ودرجة السرية على قدر مسؤوليته فقط، ليخفي النظام عنه تلقائياً الحسابات وتكاليف الشراء والأزرار غير المصرح له بها.`
             },
             {
                 badge: 'الخطوة 8 — شاشة مراكز التكلفة وفتح الشاشة الوليدة للقيد الافتتاحي المتوازن (3109)',
                 cursorLabel: 'مراكز التكلفة والشاشة الوليدة للقيد الافتتاحي ⚖️',
-                screenPath: 'البيانات الأساسية ⬅ ضغط تبويب (مركز التكلفة) ⬅ فتح الشاشة الوليدة للقيد الافتتاحي (حساب 3109) والأدوات الذكية',
+                screenPath: 'البيانات الأساسية ⬅ ضغط تبويب (مركز التكلفة) ⬅ فتح الشاشة الوليدة للقيد الافتتاحي (حساب 3109)',
                 targetSelector: '#md-opening-eq-modal > div, #costcenter-form, .tab-costcenters',
                 diagramType: 'screen-transition',
                 diagramMeta: {
                     parentScreen: 'شاشة مراكز التكلفة والشاشات الوليدة المنبثقة',
                     actionLabel: 'فتح الشاشة الوليدة لتوازن القيد الافتتاحي (حساب 3109):',
-                    childItems: ['📊 إضافة مركز تكلفة (مشروع • فرع • شاحنة) لقياس صافي ربحه', '⚖️ الشاشة الوليدة (القيد الافتتاحي): توازن الأرصدة آلياً عبر حساب 3109', '📈 محرك تحديث الأسعار الجماعي واللصق السريع من Excel والحافظة', '🛡️ بطاقة الهوية الذكية QR وسجل الرقابة الزمني الشامل'],
+                    childItems: ['📊 إضافة مركز تكلفة (مشروع • فرع • شاحنة) لقياس صافي ربحه', '⚖️ الشاشة الوليدة (القيد الافتتاحي): توازن الأرصدة آلياً عبر حساب 3109', '📈 مطابقة فورية لإجمالي الأصول والخصوم وحقوق الملكية', '👑 القاعدة الذهبية: اعتمد القيد الافتتاحي بعد إتمام إدخال كافة أرصدة أول المدة'],
                     effectLabel: 'الشاشة الوليدة للقيد الافتتاحي مفتوحة الآن أمامك!'
                 },
                 action: () => {
@@ -6059,13 +6308,33 @@ document.addEventListener('DOMContentLoaded', () => {
                         try { window.openOpeningEquilibriumModal(); } catch (e) {}
                     }
                 },
-                speech: () => `وأخيراً القسم الثامن هو مراكز التكلفة لتأسيس المشاريع والفروع؛ وكما فتحنا أمامك الآن الشاشة الوليدة للقيد الافتتاحي المتوازن، يجمع النظام تلقائياً الأرصدة الافتتاحية للعملاء والموردين والبنوك والخزن والمخزون ويوازنها آلياً عبر حساب تسوية الأرصدة الافتتاحية ثلاثة آلاف ومئة وتسعة، مع محرك تحديث الأسعار الجماعي واللصق السريع من إكسل وسجل الرقابة الشامل.`
+                speech: () => `القسم الثامن هو مراكز التكلفة لتأسيس المشاريع والفروع؛ وكما فتحنا أمامك الآن الشاشة الوليدة للقيد الافتتاحي المتوازن، يجمع النظام تلقائياً الأرصدة الافتتاحية للعملاء والموردين والبنوك والخزن والمخزون ويوازنها آلياً عبر حساب تسوية الأرصدة الافتتاحية ثلاثة آلاف ومئة وتسعة. والقاعدة الذهبية للقيد الافتتاحي هي: راجع هذه الشاشة الوليدة فور انتهائك من إدخال أرصدة أول المدة للتأكد من تطابق المدين والدائن بنسبة مئة بالمئة في ميزان المراجعة.`
+            },
+            {
+                badge: 'الخطوة 9 — المحاكاة الحية للشاشات الوليدة: الإضافة السريعة (+) وتحديث الأسعار الجماعي وفاحص التكرارات',
+                cursorLabel: 'الشاشة الوليدة للإضافة السريعة وتحديث الأسعار ⚡',
+                screenPath: 'شريط الإجراءات الموحد ⬅ فتح الشاشة الوليدة للإضافة السريعة الشاملة (+) وتحديث الأسعار الجماعي',
+                targetSelector: '#md-c2-quick-add-modal .md-child-modal-card, #btn-md-c2-quick-add',
+                diagramType: 'screen-transition',
+                diagramMeta: {
+                    parentScreen: 'الشاشات الوليدة الذكية بشريط الإجراءات',
+                    actionLabel: 'فتح الشاشة الوليدة للإضافة السريعة الشاملة (+):',
+                    childItems: ['➕ شاشة الإضافة السريعة (Alt+N): إضافة عميل أو مورد أو صنف أو مخزن أو بنك فوراً', '📈 شاشة تحديث الأسعار الجماعي: تعديل أسعار فئة كاملة بنسبة أو مبلغ ثابت', '📋 شاشة اللصق الذكي من Excel والواتساب وفاحص التكرارات والنواقص', '👑 القاعدة الذهبية: استخدم الإضافة السريعة واللصق الجماعي لتوفير 90% من وقت الإدخال'],
+                    effectLabel: 'الشاشة الوليدة للإضافة السريعة مفتوحة الآن أمامك!'
+                },
+                action: () => {
+                    closeAnyGuideChildModals();
+                    if (typeof window.openUniversalQuickEntityModal === 'function') {
+                        try { window.openUniversalQuickEntityModal('customer'); } catch (e) {}
+                    }
+                },
+                speech: () => `وفي الخطوة التاسعة نفتح أمامك حياً الشاشة الوليدة للإضافة السريعة الشاملة؛ والتي تتيح لك بضغطة واحدة أو باختصار ألت مع إن إضافة عميل أو مورد أو صنف أو مخزن أو بنك في ثوانٍ دون ضياع أي بيانات مكتوبة في البطاقة الحالية، وبجانبها شاشات تحديث الأسعار الجماعي واللصق الذكي من إكسل وفاحص التكرارات. والقاعدة الذهبية للشاشات الوليدة هي: استخدم الإضافة السريعة أثناء العمل اليومي لتغذية القوائم المنسدلة فوراً دون مغادرة شاشتك، وافحص التكرارات دورياً لضمان نقاء قاعدة البيانات.`
             }
         ],
         visualSteps: [
             {
                 stepBadge: '1️⃣ ما هي شاشة البيانات الأساسية؟ وكيف تعمل؟',
-                title: 'حجر الأساس المحاسبي والمخزني (من الألف إلى الياء)',
+                title: 'حجر الأساس المحاسبي والمخزني والقاعدة الذهبية',
                 desc: 'هذه الشاشة هي نقطة البداية لأي محاسب أو مستخدم جديد: تسجل فيها البطاقات التعريفية (المخازن، العملاء، الموردين، البنوك، الخزن، الأصناف، الموظفين، مراكز التكلفة) لمرة واحدة فقط، وبعدها تصبح متاحة تلقائياً في كل الفواتير والسندات والتقارير والموبايل دون إعادة كتابتها.',
                 svg: `<svg viewBox="0 0 360 115" width="100%" height="100%"><rect x="10" y="12" width="340" height="90" rx="14" fill="#0f172a" stroke="#38bdf8" stroke-width="2"/><text x="180" y="45" fill="#fef08a" font-size="14" font-weight="900" text-anchor="middle">🌐 8 أقسام تأسيسية مترابطة 100%</text><text x="180" y="75" fill="#34d399" font-size="12" font-weight="bold" text-anchor="middle">المخازن • العملاء • الموردين • البنوك • الخزن • الأصناف</text></svg>`
             },
@@ -6195,9 +6464,44 @@ document.addEventListener('DOMContentLoaded', () => {
         ]
     };
 
-    // Detailed Field-by-Field & Button-by-Button Inspector for Hover & Click
+    // Detailed Field-by-Field & Button-by-Button Inspector for Hover & Click (الدستور 5: مع القاعدة الذهبية لكل عنصر)
+    function attachGoldenRuleToMasterExplanation(el, info) {
+        if (!info || !info.desc) return info;
+        if (info.desc.includes('القاعدة الذهبية')) return info;
+        const customRule = el && el.getAttribute ? el.getAttribute('data-golden-rule') : '';
+        if (customRule) {
+            return { title: info.title, desc: `${info.desc} 👑 القاعدة الذهبية: ${customRule}` };
+        }
+        const t = String(info.title || '');
+        let rule = 'تأكد من دقة البيانات المدخلة في هذا العنصر قبل ضغط حفظ F10 ليسمّع في التقارير والفواتير بلا أخطاء.';
+        if (t.includes('الرصيد الافتتاحي') || t.includes('القيد الافتتاحي')) {
+            rule = 'أدخل رصيد أول المدة واقعياً من واقع الجرد الفعلي، وتأكد من مطابقته في شاشة القيد الافتتاحي المتوازن (حساب 3109).';
+        } else if (t.includes('الائتمان') || t.includes('السداد')) {
+            rule = 'حدد سقف ائتمان وفترة سداد تتناسب مع الملاءة المالية للطرف؛ ليمنع النظام تجاوز المديونية آلياً.';
+        } else if (t.includes('الوحدة') || t.includes('الصنف') || t.includes('سعر')) {
+            rule = 'اضبط الوحدة الأساسية ومعامل التحويل وأقل سعر بيع بدقة؛ ليحسب النظام الكميات ويمنع البيع بأقل من التكلفة.';
+        } else if (t.includes('السرية') || t.includes('الدور') || t.includes('الموظف')) {
+            rule = 'امنح كل مستخدم الدور ودرجة السرية على قدر مسؤوليته فقط لحماية البيانات المالية الحساسة.';
+        } else if (t.includes('حذف')) {
+            rule = 'لا تحذف حساباً له حركات سابقة؛ بل حوّل حالته إلى (موقوف) للحفاظ على سلامة كشوفات الحساب وميزان المراجعة.';
+        } else if (t.includes('واتساب') || t.includes('الرقم السري')) {
+            rule = 'أدخل رقم الواتساب بصيغته الصحيحة وولّد رقماً سرياً فريداً ليعمل الاستعلام الآلي وإشعارات الفواتير بكفاءة.';
+        } else if (t.includes('حفظ')) {
+            rule = 'راجع الحقول الإلزامية المميزة بنجمة (*) واضغط F10 للحفظ الذري الفوري دون مضاعفة السجلات.';
+        }
+        return { title: info.title, desc: `${info.desc} 👑 القاعدة الذهبية لهذا العنصر: ${rule}` };
+    }
+
     window.explainMasterDataDomElement = function (el) {
         if (!el) return null;
+        if (typeof window.isElementAllowedForCurrentUserRole === 'function' && !window.isElementAllowedForCurrentUserRole(el)) {
+            return null;
+        }
+        const guideTitle = el.getAttribute && el.getAttribute('data-guide-title');
+        const guideDesc = el.getAttribute && el.getAttribute('data-guide-desc');
+        if (guideTitle && guideDesc) {
+            return attachGoldenRuleToMasterExplanation(el, { title: guideTitle, desc: guideDesc });
+        }
         const id = el.id || el.querySelector('input, select, textarea')?.id || '';
         const onclick = el.getAttribute('onclick') || '';
 
@@ -6253,132 +6557,132 @@ document.addEventListener('DOMContentLoaded', () => {
             'costcenter-name': { title: 'خانة اسم مركز التكلفة أو المشروع', desc: 'اسم المشروع أو الفرع أو الآلية لربط المصروفات والإيرادات به واستخراج كشف أرباح وخسائر مستقل لكل مشروع.' }
         };
 
-        if (id && fieldMap[id]) return fieldMap[id];
+        if (id && fieldMap[id]) return attachGoldenRuleToMasterExplanation(el, fieldMap[id]);
 
         const group = el.closest('.input-group, .pro-field-card');
         if (group) {
             const lblEl = group.querySelector('label, .pro-field-label');
             const inpEl = group.querySelector('input, select, textarea');
-            if (inpEl && inpEl.id && fieldMap[inpEl.id]) return fieldMap[inpEl.id];
+            if (inpEl && inpEl.id && fieldMap[inpEl.id]) return attachGoldenRuleToMasterExplanation(el, fieldMap[inpEl.id]);
             if (lblEl) {
                 const lblTxt = lblEl.innerText.replace(/\s+/g, ' ').trim();
-                return {
+                return attachGoldenRuleToMasterExplanation(el, {
                     title: `خانة: ${lblTxt}`,
                     desc: `تُستخدم هذه الخانة لإدخال (${lblTxt}) ضمن البطاقة الحالية، ويمكنك الضغط على مفتاح Enter للانتقال السلس للخانة التالية، وعند الحفظ تُسمّع فوراً في جميع التقارير والشاشات المرتبطة.`
-                };
+                });
             }
         }
 
         if (onclick.includes('openTab')) {
             const tabTxt = (el.innerText || '').trim();
-            return {
+            return attachGoldenRuleToMasterExplanation(el, {
                 title: `قسم ${tabTxt}`,
                 desc: `ينقلك فوراً إلى قسم (${tabTxt}) لإضافة أو تعديل البطاقات التأسيسية الخاصة به، مع تسميع لحظي مباشر في الفواتير والسندات والتقارير.`
-            };
+            });
         }
         if (onclick.includes('openOpeningEquilibriumModal')) {
-            return {
+            return attachGoldenRuleToMasterExplanation(el, {
                 title: '⚖️ زر القيد الافتتاحي المتوازن (حساب 3109)',
                 desc: 'يفتح كشف توازن الأرصدة الافتتاحية للعملاء والموردين والبنوك والخزن والمخزون، ويعرض كيف يوازنها النظام تلقائياً عبر حساب تسوية الأرصدة الافتتاحية 3109.'
-            };
+            });
         }
         if (onclick.includes('openWarehouseForm') || onclick.includes('openBankForm') || onclick.includes('openSafeForm') || onclick.includes('openItemForm') || onclick.includes('openNewEmployeeForm') || onclick.includes('openCostCenterForm')) {
-            return {
+            return attachGoldenRuleToMasterExplanation(el, {
                 title: `➕ زر ${(el.innerText || 'إضافة بطاقة جديدة').trim()}`,
                 desc: 'يفتح نموذج الإضافة الفوري لهذا القسم ويضع المؤشر تلقائياً في الخانة الأولى للبدء السريع في الكتابة.'
-            };
+            });
         }
         if (onclick.includes('bulkSetEntityStatementMode')) {
-            return {
+            return attachGoldenRuleToMasterExplanation(el, {
                 title: `📊 زر ${(el.innerText || 'تعميم صلاحية الكشف').trim()}`,
                 desc: 'يُطبق صلاحية كشف الحساب عبر الواتساب (كشف مفصل أو رصيد فقط أو إيقاف) على جميع الحسابات في هذا القسم بضغطة واحدة.'
-            };
+            });
         }
         if (onclick.includes('bulkGenerateEntityPins') || onclick.includes('generateRandomFormPin')) {
-            return {
+            return attachGoldenRuleToMasterExplanation(el, {
                 title: '🔐 زر توليد الأرقام السرية (PIN)',
                 desc: 'يُولّد أرقاماً سرية فريدة من 3 أرقام للحسابات لتمكين الاستعلام الآلي الآمن عن الرصيد أو كشف الحساب عبر الواتساب.'
-            };
+            });
         }
         if (onclick.includes('toggleAdminWaPolicyDrawer')) {
-            return {
+            return attachGoldenRuleToMasterExplanation(el, {
                 title: '⚙️ زر سياسة الواتساب والاعتماد الآلي',
                 desc: 'يفتح إعدادات صلاحية الكشف، واعتماد إشعارات الدفع، والبنك الافتراضي، والتحقق الأمني، ونطاق الكشف.'
-            };
+            });
         }
         if (onclick.includes('save')) {
-            return {
+            return attachGoldenRuleToMasterExplanation(el, {
                 title: '💾 زر الحفظ الذري والتسميع الفوري',
                 desc: 'يفحص صحة البيانات ويمنع التكرار، ثم يحفظ البطاقة فوراً في قاعدة البيانات ويُسمّع التعديل في نفس اللحظة في التقارير والفواتير وميزان المراجعة.'
-            };
+            });
         }
         if (onclick.includes('delete')) {
-            return {
+            return attachGoldenRuleToMasterExplanation(el, {
                 title: '🗑️ زر الفحص والحذف المحمي',
                 desc: 'يفحص أولاً جميع الفواتير والسندات؛ فإذا كان العنصر مرتبطاً بحركات مالية سابقة يعرضها لك ويمنع الحذف لحماية توازن الميزانية.'
-            };
+            });
         }
         if (onclick.includes('edit')) {
-            return {
+            return attachGoldenRuleToMasterExplanation(el, {
                 title: '✏️ زر تعديل البطاقة',
                 desc: 'يفتح بيانات هذا السجل داخل النموذج العلوي لتعديل أي خانة فيه ثم حفظ التغييرات وتسميعها في كافة الشاشات.'
-            };
+            });
         }
         if (onclick.includes('exportActiveTabToExcel') || onclick.includes('exportMasterEntityCsv')) {
-            return {
+            return attachGoldenRuleToMasterExplanation(el, {
                 title: '📥 زر التصدير الجماعي الذكي (Excel / CSV)',
                 desc: 'يستخرج كافة سجلات هذا القسم (الأصناف أو العملاء أو الموردين) بضغطة واحدة إلى ملف Excel / CSV جاهز للطباعة أو التعديل الجماعي.'
-            };
+            });
         }
         if (onclick.includes('triggerActiveTabExcelImport') || onclick.includes('triggerMasterEntityCsvImport')) {
-            return {
+            return attachGoldenRuleToMasterExplanation(el, {
                 title: '📤 زر الاستيراد الجماعي الذكي (Excel / CSV)',
                 desc: 'يتيح رفع ملف Excel / CSV لإدخال أو تحديث مئات الأصناف أو العملاء أو الموردين دفعة واحدة مع التسميع الفوري في قاعدة البيانات.'
-            };
+            });
         }
         if (onclick.includes('openMasterAuditLogModal')) {
-            return {
+            return attachGoldenRuleToMasterExplanation(el, {
                 title: '🛡️ زر سجل الرقابة والتعديلات',
                 desc: 'يعرض السجل الأمني الكامل لكل عملية إضافة أو تعديل أو حذف تمت في شاشة البيانات الأساسية بالتاريخ والوقت.'
-            };
+            });
         }
         if (onclick.includes('openBulkPriceUpdaterModal')) {
-            return {
+            return attachGoldenRuleToMasterExplanation(el, {
                 title: '📈 زر محرك تحديث الأسعار الجماعي الذكي',
                 desc: 'يفتح نافذة تعديل أسعار البيع والشراء والآجل والنقدي وأقل سعر بنسبة مئوية أو بمبلغ ثابت لفئة محددة أو لجميع الأصناف بضغطة واحدة.'
-            };
+            });
         }
         if (onclick.includes('openSmartClipboardPasteModal')) {
-            return {
+            return attachGoldenRuleToMasterExplanation(el, {
                 title: '📋 زر اللصق الجماعي الذكي من الحافظة (Excel / WhatsApp)',
                 desc: 'يتيح لصق قوائم الأصناف أو العملاء أو الموردين مباشرة من إكسل أو واتساب مع معاينة فورية للجدول قبل الحفظ الذري.'
-            };
+            });
         }
         if (onclick.includes('openWebRtcBarcodeScanner')) {
-            return {
+            return attachGoldenRuleToMasterExplanation(el, {
                 title: '📷 زر قارئ الباركود الحي بالكاميرا (WebRTC)',
                 desc: 'يفتح كاميرا الموبايل أو اللابتوب لقراءة باركود الصنف ضوئياً وتعبئة خانة الباركود في جزء من الثانية.'
-            };
+            });
         }
         if (onclick.includes('openEntityQrCardModal')) {
-            return {
+            return attachGoldenRuleToMasterExplanation(el, {
                 title: '🪪 زر بطاقة الهوية الذكية والـ QR للعميل أو المورد',
                 desc: 'يصدر بطاقة تعريف رقمية تتضمن رمز QR والرقم السري المكون من 3 أرقام لإرسالها عبر الواتساب بضغطة واحدة.'
-            };
+            });
         }
         if (onclick.includes('quickAddKeeperModal') || onclick.includes('quickAddBankModal') || onclick.includes('quickAddEmployeeModal') || onclick.includes('quickAddCategory') || onclick.includes('quickAddUnit')) {
-            return {
+            return attachGoldenRuleToMasterExplanation(el, {
                 title: '⚡ زر الإضافة الفورية السريعة (+)',
                 desc: 'يفتح شاشة وليدة مصغرة لإضافة عنصر جديد (فئة، وحدة، موظف، أو بنك) وتحديث القائمة المنسدلة فوراً دون مغادرة البطاقة الحالية.'
-            };
+            });
         }
         if (el.tagName === 'TH') {
             const thTxt = (el.innerText || '').trim();
             if (thTxt) {
-                return {
+                return attachGoldenRuleToMasterExplanation(el, {
                     title: `عمود الجدول: ${thTxt}`,
                     desc: `يعرض هذا العمود (${thTxt}) لكل سجل في الجدول بدقة ومقاس موحد لسهولة المراجعة والمقارنة السريعة.`
-                };
+                });
             }
         }
 
@@ -7663,21 +7967,21 @@ window.executeSmartClipboardImport = function () {
         if (!modal) {
             document.body.insertAdjacentHTML('beforeend', `
                 <div id="md-entity-drilldown-modal" class="md-child-modal" style="display:none; position:fixed; inset:0; z-index:999999; background:rgba(2,6,23,0.85); backdrop-filter:blur(9px); align-items:center; justify-content:center; padding:14px; direction:rtl; font-family:'Tajawal',sans-serif;">
-                    <div class="md-child-modal-card" style="width:100%; max-width:960px; max-height:90vh; background:#0f172a; border:1.5px solid rgba(56,189,248,0.45); border-radius:18px; box-shadow:0 25px 65px rgba(0,0,0,0.85); display:flex; flex-direction:column; overflow:hidden;">
-                        <div style="padding:13px 18px; background:rgba(56,189,248,0.14); border-bottom:1px solid rgba(56,189,248,0.3); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+                    <div class="md-child-modal-card" style="width:100%; max-width:960px; max-height:90vh; border:2.5px solid #38bdf8; border-radius:18px; box-shadow:0 25px 65px rgba(0,0,0,0.85); display:flex; flex-direction:column; overflow:hidden;">
+                        <div class="md-modal-drag-handle" style="padding:13px 18px; background:rgba(56,189,248,0.14); border-bottom:2px solid rgba(56,189,248,0.35); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
                             <h3 id="md-dd-title" style="margin:0; font-size:1.05rem; font-weight:900; color:#38bdf8;">📊 كشف الحساب التفصيلي والحركات (Drill-Down)</h3>
                             <div style="display:flex; gap:6px; flex-wrap:wrap;">
-                                <button type="button" onclick="window.printCurrentEntityDrillDown('a4')" style="padding:5px 11px; border-radius:8px; background:rgba(56,189,248,0.2); color:#38bdf8; border:1px solid rgba(56,189,248,0.45); font-weight:800; font-size:0.78rem; cursor:pointer;">🖨️ طباعة A4</button>
-                                <button type="button" onclick="window.printCurrentEntityDrillDown('thermal')" style="padding:5px 11px; border-radius:8px; background:rgba(245,158,11,0.18); color:#fbbf24; border:1px solid rgba(245,158,11,0.45); font-weight:800; font-size:0.78rem; cursor:pointer;">🧾 كاشير 80mm</button>
-                                <button type="button" onclick="window.exportCurrentEntityDrillDownExcel()" style="padding:5px 11px; border-radius:8px; background:rgba(16,185,129,0.2); color:#34d399; border:1px solid rgba(16,185,129,0.45); font-weight:800; font-size:0.78rem; cursor:pointer;">📤 Excel</button>
-                                <button type="button" onclick="window.shareCurrentEntityDrillDownWhatsApp()" style="padding:5px 11px; border-radius:8px; background:linear-gradient(135deg,#10b981,#059669); color:#fff !important; border:none; font-weight:900; font-size:0.78rem; cursor:pointer;">💬 واتساب</button>
-                                <button type="button" onclick="document.getElementById('md-entity-drilldown-modal').style.display='none'" style="padding:5px 12px; border-radius:8px; background:rgba(239,68,68,0.2); color:#fca5a5; border:1px solid rgba(239,68,68,0.45); font-weight:800; font-size:0.78rem; cursor:pointer;">✖ <span class="kbd-hint">Esc</span></button>
+                                <button type="button" onclick="window.printCurrentEntityDrillDown('a4')" style="padding:5px 11px; border-radius:8px; background:rgba(56,189,248,0.2); color:#38bdf8; border:2px solid rgba(56,189,248,0.55); font-weight:800; font-size:0.78rem; cursor:pointer;">🖨️ طباعة A4 / PDF</button>
+                                <button type="button" onclick="window.printCurrentEntityDrillDown('thermal')" style="padding:5px 11px; border-radius:8px; background:rgba(245,158,11,0.18); color:#fbbf24; border:2px solid rgba(245,158,11,0.55); font-weight:800; font-size:0.78rem; cursor:pointer;">🧾 كاشير 80mm</button>
+                                <button type="button" onclick="window.exportCurrentEntityDrillDownExcel()" style="padding:5px 11px; border-radius:8px; background:rgba(16,185,129,0.2); color:#34d399; border:2px solid rgba(16,185,129,0.55); font-weight:800; font-size:0.78rem; cursor:pointer;">📤 Excel</button>
+                                <button type="button" onclick="window.shareCurrentEntityDrillDownWhatsApp()" style="padding:5px 11px; border-radius:8px; background:linear-gradient(135deg,#10b981,#059669); color:#fff !important; border:none; font-weight:900; font-size:0.78rem; cursor:pointer;">💬 واتساب مفهرس</button>
+                                <button type="button" onclick="document.getElementById('md-entity-drilldown-modal').style.display='none'" style="padding:5px 12px; border-radius:8px; background:rgba(239,68,68,0.2); color:#fca5a5; border:2px solid rgba(239,68,68,0.55); font-weight:800; font-size:0.78rem; cursor:pointer;">✖ <span class="kbd-hint">Esc</span></button>
                             </div>
                         </div>
-                        <div style="padding:10px 18px; border-bottom:1px solid rgba(148,163,184,0.18); display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+                        <div style="padding:10px 18px; border-bottom:1.5px solid rgba(148,163,184,0.22); display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
                             <input type="date" id="md-dd-from" onchange="window.renderEntityDrillDownTable()" style="height:34px; border-radius:8px; padding:0 8px; font-weight:800; font-size:0.8rem;">
                             <input type="date" id="md-dd-to" onchange="window.renderEntityDrillDownTable()" style="height:34px; border-radius:8px; padding:0 8px; font-weight:800; font-size:0.8rem;">
-                            <input type="text" id="md-dd-search" oninput="window.renderEntityDrillDownTable()" placeholder="🔍 فلتر لحظي برقم المستند أو البيان..." style="flex:1; min-width:180px; height:34px; border-radius:8px; padding:0 10px; font-weight:800; font-size:0.82rem;">
+                            <input type="text" id="md-dd-search" oninput="window.renderEntityDrillDownTable()" placeholder="🔍 فلتر لحظي برقم المستند أو البيان أو المستخدم..." style="flex:1; min-width:180px; height:34px; border-radius:8px; padding:0 10px; font-weight:800; font-size:0.82rem;">
                         </div>
                         <div id="md-dd-body" style="padding:14px 18px; overflow-y:auto; flex:1;"></div>
                     </div>
@@ -7704,25 +8008,39 @@ window.executeSmartClipboardImport = function () {
         const toDt = document.getElementById('md-dd-to')?.value || '';
         const q = (document.getElementById('md-dd-search')?.value || '').trim().toLowerCase();
 
-        let running = data.openingNet;
-        let totDebit = data.openingDebit;
-        let totCredit = data.openingCredit;
+        // البند 1 من الدستور 14: ضبط دقة رصيد أول المدة المرحّل لما قبل تاريخ البداية والرصيد التراكمي المتحرك والإجماليات بنسبة 100%
+        let effOpeningDebit = data.openingDebit;
+        let effOpeningCredit = data.openingCredit;
+        let effOpeningNet = data.openingNet;
+
+        data.rows.forEach((r) => {
+            if (fromDt && r.date < fromDt) {
+                effOpeningDebit = round2(effOpeningDebit + r.debit);
+                effOpeningCredit = round2(effOpeningCredit + r.credit);
+                if (isSup) effOpeningNet = round2(effOpeningNet + (r.credit - r.debit));
+                else effOpeningNet = round2(effOpeningNet + (r.debit - r.credit));
+            }
+        });
+
+        let running = effOpeningNet;
+        let totDebit = effOpeningDebit;
+        let totCredit = effOpeningCredit;
         const renderedRows = [];
 
         data.rows.forEach((r, idx) => {
+            if (fromDt && r.date < fromDt) return;
+            if (toDt && r.date > toDt) return;
+            if (q && !(`${r.docNo} ${r.type} ${r.note}`).toLowerCase().includes(q)) return;
+
             if (isSup) running = round2(running + (r.credit - r.debit));
             else running = round2(running + (r.debit - r.credit));
             totDebit = round2(totDebit + r.debit);
             totCredit = round2(totCredit + r.credit);
 
-            if (fromDt && r.date < fromDt) return;
-            if (toDt && r.date > toDt) return;
-            if (q && !(`${r.docNo} ${r.type} ${r.note}`).toLowerCase().includes(q)) return;
-
             renderedRows.push({ ...r, runningBalance: running, idx });
         });
 
-        ctx.lastComputed = { openingDebit: data.openingDebit, openingCredit: data.openingCredit, openingNet: data.openingNet, totDebit, totCredit, finalBalance: running, renderedRows };
+        ctx.lastComputed = { openingDebit: effOpeningDebit, openingCredit: effOpeningCredit, openingNet: effOpeningNet, totDebit, totCredit, finalBalance: running, renderedRows };
 
         const body = document.getElementById('md-dd-body');
         if (!body) return;
@@ -7741,16 +8059,16 @@ window.executeSmartClipboardImport = function () {
                 </thead>
                 <tbody>
                     <tr style="background:rgba(251,191,36,0.12); font-weight:900;">
-                        <td style="text-align:center;">—</td>
+                        <td style="text-align:center;">${fromDt || '—'}</td>
                         <td style="text-align:center;">OPEN-BAL</td>
-                        <td>🏁 رصيد أول المدة الافتتاحي</td>
-                        <td style="text-align:center; font-family:monospace;">${data.openingDebit.toLocaleString()}</td>
-                        <td style="text-align:center; font-family:monospace;">${data.openingCredit.toLocaleString()}</td>
-                        <td style="text-align:center; font-family:monospace; font-weight:900;">${data.openingNet.toLocaleString()}</td>
+                        <td>🏁 رصيد أول المدة ${fromDt ? '(مرحّل لما قبل ' + fromDt + ')' : 'الافتتاحي'}</td>
+                        <td style="text-align:center; font-family:monospace;">${effOpeningDebit.toLocaleString()}</td>
+                        <td style="text-align:center; font-family:monospace;">${effOpeningCredit.toLocaleString()}</td>
+                        <td style="text-align:center; font-family:monospace; font-weight:900;">${effOpeningNet.toLocaleString()}</td>
                         <td>الرصيد التأسيسي المسجل بالبطاقة</td>
                     </tr>
                     ${renderedRows.map(r => `
-                        <tr onclick="window.openOriginDocumentDrillDownModal(${r.idx})" style="cursor:pointer;" title="اضغط لفتح أصل المستند كشاشة وليدة">
+                        <tr onclick="window.openOriginDocumentDrillDownModal(${r.idx})" style="cursor:pointer;" title="اضغط لفتح أصل المستند كشاشة وليدة بنفس السمة وسُمك الحواف (+2)">
                             <td style="text-align:center; font-family:monospace;">${r.date}</td>
                             <td style="text-align:center; font-family:monospace; font-weight:900; color:#38bdf8; text-decoration:underline;">🔍 ${r.docNo}</td>
                             <td style="font-weight:800;">${r.type}</td>
@@ -7763,7 +8081,7 @@ window.executeSmartClipboardImport = function () {
                 </tbody>
                 <tfoot>
                     <tr style="background:rgba(16,185,129,0.18); font-weight:900; font-size:0.9rem;">
-                        <td colspan="3">✅ الإجمالي الختامي والرصيد النهائي</td>
+                        <td colspan="3">✅ الإجمالي الختامي والرصيد النهائي المطابق 100%</td>
                         <td style="text-align:center; font-family:monospace;">${totDebit.toLocaleString()}</td>
                         <td style="text-align:center; font-family:monospace;">${totCredit.toLocaleString()}</td>
                         <td colspan="2" style="text-align:center; font-family:monospace; color:#34d399;">الصافي: ${running.toLocaleString()} ${entity.currency || 'SDG'}</td>
@@ -7783,10 +8101,10 @@ window.executeSmartClipboardImport = function () {
         if (!modal) {
             document.body.insertAdjacentHTML('beforeend', `
                 <div id="md-origin-voucher-modal" class="md-child-modal" style="display:none; position:fixed; inset:0; z-index:1000005; background:rgba(2,6,23,0.86); backdrop-filter:blur(8px); align-items:center; justify-content:center; padding:16px; direction:rtl; font-family:'Tajawal',sans-serif;">
-                    <div class="md-child-modal-card" style="width:100%; max-width:520px; background:#0f172a; border:1.5px solid rgba(251,191,36,0.5); border-radius:16px; padding:18px; box-shadow:0 25px 60px rgba(0,0,0,0.9);">
-                        <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(148,163,184,0.25); padding-bottom:10px; margin-bottom:12px;">
+                    <div class="md-child-modal-card" style="width:100%; max-width:540px; border:2.5px solid #fbbf24; border-radius:16px; padding:18px; box-shadow:0 25px 60px rgba(0,0,0,0.9);">
+                        <div class="md-modal-drag-handle" style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid rgba(251,191,36,0.35); padding-bottom:10px; margin-bottom:12px;">
                             <h4 id="md-origin-doc-title" style="margin:0; font-size:1rem; font-weight:900; color:#fbbf24;">📄 أصل المستند</h4>
-                            <button type="button" onclick="document.getElementById('md-origin-voucher-modal').style.display='none'" style="background:rgba(239,68,68,0.2); color:#fca5a5; border:1px solid rgba(239,68,68,0.4); border-radius:8px; padding:4px 10px; font-weight:800; cursor:pointer;">✖</button>
+                            <button type="button" onclick="document.getElementById('md-origin-voucher-modal').style.display='none'" style="background:rgba(239,68,68,0.2); color:#fca5a5; border:2px solid rgba(239,68,68,0.5); border-radius:8px; padding:4px 10px; font-weight:800; cursor:pointer;">✖</button>
                         </div>
                         <div id="md-origin-doc-body" style="font-size:0.88rem; line-height:1.7;"></div>
                     </div>
@@ -7796,23 +8114,116 @@ window.executeSmartClipboardImport = function () {
         }
         document.getElementById('md-origin-doc-title').textContent = `📄 أصل المستند: ${row.type} (${row.docNo})`;
         document.getElementById('md-origin-doc-body').innerHTML = `
-            <div><b>الحساب:</b> ${ctx.entity.name}</div>
-            <div><b>التاريخ:</b> <span style="font-family:monospace;">${row.date}</span></div>
-            <div><b>رقم المستند:</b> <span style="font-family:monospace;">${row.docNo}</span></div>
-            <div><b>مدين:</b> <span style="font-family:monospace; font-weight:900;">${row.debit.toLocaleString()}</span> | <b>دائن:</b> <span style="font-family:monospace; font-weight:900;">${row.credit.toLocaleString()}</span></div>
-            <div><b>البيان:</b> ${row.note || '-'}</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:10px;border-radius:10px;border:2px solid rgba(148,163,184,0.3);margin-bottom:10px;">
+                <div><b>الحساب:</b> ${ctx.entity.name}</div>
+                <div><b>التاريخ:</b> <span style="font-family:monospace;font-weight:900;">${row.date}</span></div>
+                <div><b>رقم المستند:</b> <span style="font-family:monospace;font-weight:900;color:#38bdf8;">${row.docNo}</span></div>
+                <div><b>نوع الحركة:</b> <span style="font-weight:900;">${row.type}</span></div>
+                <div><b>مدين (Debit):</b> <span style="font-family:monospace;font-weight:900;color:#34d399;">${row.debit.toLocaleString()}</span></div>
+                <div><b>دائن (Credit):</b> <span style="font-family:monospace;font-weight:900;color:#f87171;">${row.credit.toLocaleString()}</span></div>
+            </div>
+            <div style="padding:8px 10px;border-radius:8px;border:1.5px solid rgba(148,163,184,0.25);"><b>البيان التفصيلي:</b> ${row.note || '-'}</div>
+            <div style="margin-top:12px;display:flex;justify-content:space-between;gap:8px;">
+                <button type="button" class="btn-add" onclick="window.printMasterHtmlReport('أصل المستند ' + '${row.docNo}', document.getElementById('md-origin-doc-body').innerHTML, 'thermal', '${row.docNo}')">🧾 طباعة إيصال 80mm</button>
+                <button type="button" class="btn-cancel-std" onclick="document.getElementById('md-origin-voucher-modal').style.display='none'">✖ إغلاق</button>
+            </div>
         `;
         modal.style.display = 'flex';
     };
 
-    window.printMasterHtmlReport = function (title, htmlContent, format = 'a4') {
+    window.printMasterHtmlReport = function (title, htmlContent, format = 'a4', docKeyOverride = '') {
+        // البند 1 من الدستور 12: منع طباعة أي فاتورة أو سند أو بطاقة قبل الحفظ والترحيل الفعلي في قاعدة البيانات
+        const openUnsavedForm = document.querySelector('#wh-form[style*="block"], #product-form[style*="block"], #cust-form[style*="block"], #sup-form[style*="block"], #emp-form[style*="block"], #bank-form[style*="block"], #safe-form[style*="block"]');
+        if (openUnsavedForm && !window.__mdAllowPrintBypassUnsaved) {
+            if (typeof showToast === 'function') {
+                showToast('🚫 قفل الطباعة الأمني (الدستور 12): يُمنع طباعة أي مستند أو بطاقة قبل حفظها وترحيلها فعلياً في قاعدة البيانات!', 'error', 4200);
+            } else {
+                alert('🚫 قفل الطباعة الأمني (الدستور 12): يُمنع طباعة أي مستند أو بطاقة قبل حفظها وترحيلها فعلياً في قاعدة البيانات!');
+            }
+            return;
+        }
+
+        const PRINT_LOCK_KEY = 'magaies_md_c12_print_lock_v1';
+        let printReg = {};
+        try { printReg = JSON.parse(localStorage.getItem(PRINT_LOCK_KEY) || '{}') || {}; } catch (_) { printReg = {}; }
+
+        const docKey = String(docKeyOverride || title || 'DOC-GENERAL').trim();
+        const prevEntry = printReg[docKey] || { count: 0, history: [] };
+        const nextPrintNo = (parseInt(prevEntry.count, 10) || 0) + 1;
+        const nowStr = new Date().toLocaleString('ar-EG', { hour12: false });
+        const empName = window.__mdActiveUserName || (window.__mdActiveRole === 'admin' ? 'المدير العام' : ('موظف (' + (window.__mdActiveRole || 'محاسب') + ')'));
+        let reprintReason = 'الطبعة الأصلية الأولى';
+
+        // إذا كانت طبعة ثانية أو أكثر: قفل الطباعة أمام الموظف وإلزام الرقم السري للمدير + تسجيل السبب
+        if (nextPrintNo > 1) {
+            const cfgPin = (function () {
+                try {
+                    const c = JSON.parse(localStorage.getItem('magaies_md_c12_sec_cfg_v1') || '{}');
+                    return String(c.managerPin || '1234');
+                } catch (_) { return '1234'; }
+            })();
+            const enteredPin = window.prompt(`🔒 قفل منع إعادة الطباعة للغش (الدستور 12)\nتمت طباعة (${docKey}) مسبقاً (${prevEntry.count} مرة).\nأدخل الرقم السري للمدير للسماح بطباعة نسخة بدل فاقد رقم (${nextPrintNo}):`, '');
+            if (enteredPin === null || String(enteredPin).trim() !== cfgPin) {
+                if (typeof window.logMdC12TamperAttempt === 'function') {
+                    window.logMdC12TamperAttempt('محاولة إعادة طباعة بدون صلاحية المدير', docKey, `محاولة طباعة رقم (${nextPrintNo}) برقم سري خاطئ`);
+                }
+                if (typeof showToast === 'function') showToast('🚫 تم رفض إعادة الطباعة: الرقم السري للمدير غير صحيح وتم توثيق المحاولة في سجل الرقابة الجنائية!', 'error', 4500);
+                return;
+            }
+            const reasonInput = window.prompt(`📝 سبب إعادة الطباعة لنسخة بدل فاقد رقم (${nextPrintNo}) (إلزامي للتوثيق الجنائي):`, 'تلف الورقة الأصلية أثناء الطباعة');
+            if (!reasonInput || !reasonInput.trim()) {
+                if (typeof showToast === 'function') showToast('⚠️ يُمنع إخراج نسخة بدل فاقد بدون كتابة سبب إعادة الطباعة!', 'error', 3500);
+                return;
+            }
+            reprintReason = reasonInput.trim();
+        }
+
+        // توليد باركود الصرف ذي الاستعمال الواحد في الطبعة الأولى (البند 3 من الدستور 12)
+        let dispatchQrCode = prevEntry.dispatchQrCode || ('DSP-' + Date.now().toString(36).toUpperCase() + '-' + Math.floor(1000 + Math.random() * 9000));
+        if (nextPrintNo === 1 && typeof window.registerMdC12SingleUseDispatchQr === 'function') {
+            window.registerMdC12SingleUseDispatchQr(dispatchQrCode, docKey);
+        }
+
+        prevEntry.count = nextPrintNo;
+        prevEntry.dispatchQrCode = dispatchQrCode;
+        prevEntry.lastPrintedAt = nowStr;
+        prevEntry.lastPrintedBy = empName;
+        prevEntry.history = Array.isArray(prevEntry.history) ? prevEntry.history : [];
+        prevEntry.history.unshift({ printNo: nextPrintNo, by: empName, at: nowStr, reason: reprintReason });
+        printReg[docKey] = prevEntry;
+        try { localStorage.setItem(PRINT_LOCK_KEY, JSON.stringify(printReg)); } catch (_) {}
+
+        // قفل السجل بعد الطباعة لمنع التعديل أو الحذف (البند 2 من الدستور 12)
+        if (typeof window.markMdEntityImmutableAfterPrint === 'function') {
+            window.markMdEntityImmutableAfterPrint(docKey);
+        }
+
         const isThermal = (format === 'thermal');
         const w = window.open('', '_blank', isThermal ? 'width=360,height=640' : 'width=960,height=720');
         if (!w) return;
+
+        const copyBannerHtml = (nextPrintNo === 1)
+            ? `<div style="border:2px solid #059669; background:#ecfdf5; color:#065f46; padding:6px 10px; border-radius:8px; font-weight:900; font-size:12px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap;">
+                <span>✅ نسخة أصلية — طبعة رقم (1)</span>
+                <span style="font-family:monospace;">باركود الصرف وحيد الاستعمال: [${dispatchQrCode}]</span>
+                <span>بواسطة: ${empName} | ${nowStr}</span>
+               </div>`
+            : `<div style="border:2.5px solid #dc2626; background:#fef2f2; color:#991b1b; padding:7px 10px; border-radius:8px; font-weight:900; font-size:12px; margin-bottom:8px;">
+                <div>⚠️ نسخة مكررة رقم (${nextPrintNo}) — بدل فاقد — لا يُصرف ولا يُسلّم بها بضاعة</div>
+                <div style="font-size:11px; margin-top:3px;">طُبعت بواسطة: ${empName} | التاريخ والوقت بالثانية: ${nowStr} | السبب: ${reprintReason}</div>
+               </div>`;
+
+        const diagonalWatermarkHtml = (nextPrintNo > 1)
+            ? `<div style="position:fixed; top:48%; left:50%; transform:translate(-50%, -50%) rotate(-32deg); width:115%; text-align:center; font-size:${isThermal ? '16px' : '30px'}; font-weight:900; color:rgba(220,38,38,0.22); border:4px dashed rgba(220,38,38,0.28); padding:14px 10px; pointer-events:none; z-index:99999; line-height:1.4;">
+                نسخة مكررة رقم (${nextPrintNo}) — بدل فاقد — لا يُصرف ولا يُسلّم بها بضاعة<br>
+                <span style="font-size:0.55em;">الموظف: ${empName} | ${nowStr} | السبب: ${reprintReason}</span>
+               </div>`
+            : '';
+
         const pageCss = isThermal
-            ? `@page { size: 80mm auto; margin: 3mm; } body { width: 74mm; margin: 0 auto; font-family: 'Tajawal', sans-serif; font-size: 11px; color: #000; background: #fff; } table { width: 100%; border-collapse: collapse; font-size: 10px; } th, td { border-bottom: 1px dashed #000; padding: 3px 2px; text-align: right; color: #000 !important; }`
-            : `@page { size: A4 portrait; margin: 10mm; } body { font-family: 'Tajawal', sans-serif; font-size: 12px; color: #000; background: #fff; margin: 0; } table { width: 100%; border-collapse: collapse; font-size: 11.5px; } th, td { border: 1px solid #334155; padding: 6px 8px; text-align: right; color: #000 !important; } th { background: #f1f5f9 !important; font-weight: 900; }`;
-        w.document.write(`<html dir="rtl"><head><title>${title}</title><style>${pageCss}</style></head><body onload="setTimeout(()=>{window.print();},180)"><h3 style="text-align:center; margin:0 0 8px 0; border-bottom:2px solid #000; padding-bottom:6px;">${title}</h3>${htmlContent}</body></html>`);
+            ? `@page { size: 80mm auto; margin: 2.5mm; } * { box-sizing: border-box; } body { position:relative; width: 74mm; max-width: 74mm; margin: 0 auto; font-family: 'Tajawal', sans-serif; font-size: 11px; color: #000; background: #fff; } table { width: 100%; border-collapse: collapse; font-size: 9.8px; table-layout: auto; word-wrap: break-word; overflow-wrap: break-word; } tr { page-break-inside: avoid; } th, td { border-bottom: 1px dashed #000; padding: 3px 2px; text-align: right; color: #000 !important; font-variant-numeric: tabular-nums; } button, .no-print { display: none !important; }`
+            : `@page { size: A4 portrait; margin: 8mm; } * { box-sizing: border-box; } body { position:relative; font-family: 'Tajawal', sans-serif; font-size: 12px; color: #000; background: #fff; margin: 0; } table { width: 100%; border-collapse: collapse; font-size: 11.2px; table-layout: auto; word-wrap: break-word; overflow-wrap: break-word; } thead { display: table-header-group; } tfoot { display: table-footer-group; } tr { page-break-inside: avoid; } th, td { border: 1.5px solid #1e293b; padding: 5px 7px; text-align: right; color: #000 !important; font-variant-numeric: tabular-nums; } th { background: #f1f5f9 !important; font-weight: 900; } button, .no-print { display: none !important; }`;
+        w.document.write(`<html dir="rtl"><head><title>${title}</title><style>${pageCss}</style></head><body onload="setTimeout(()=>{window.print();},180)">${diagonalWatermarkHtml}${copyBannerHtml}<h3 style="text-align:center; margin:0 0 8px 0; border-bottom:2px solid #000; padding-bottom:6px;">${title}</h3>${htmlContent}</body></html>`);
         w.document.close();
     };
 
@@ -7823,6 +8234,9 @@ window.executeSmartClipboardImport = function () {
     };
 
     window.exportCurrentEntityDrillDownExcel = function () {
+        if (typeof window.verifyMdC13EncryptedExportAuth === 'function' && !window.verifyMdC13EncryptedExportAuth('تصدير كشف حساب Excel')) {
+            return;
+        }
         const ctx = window.__mdActiveDrillDown;
         if (!ctx || !ctx.lastComputed) return;
         const { entity } = ctx;

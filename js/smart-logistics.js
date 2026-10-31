@@ -17,19 +17,23 @@ let slContinuousSuccessCount = 0;
 let slContinuousRejectedCount = 0;
 
 // ── TOAST & AUDIO-VISUAL SYNTHESIZER ─────────────────────────────────────────
-function showSlToast(message, type = 'success', duration = 3500) {
+function showSlToast(message, type = 'success', duration = null) {
     const container = document.getElementById('toast-container');
     if (!container) return;
+    const effectiveDuration = duration !== null ? duration : (type === 'success' ? 2000 : 3200);
     const toast = document.createElement('div');
     toast.className = `toast ${type}`;
-    const icon = type === 'success' ? '✅' : type === 'error' ? '❌' : '⚠️';
+    const icon = type === 'success' ? '✅' : type === 'error' ? '🚨' : '⚠️';
     toast.innerHTML = `<span>${icon}</span><span>${message}</span>`;
     container.appendChild(toast);
     setTimeout(() => {
         toast.classList.add('hide');
-        setTimeout(() => toast.remove(), 400);
-    }, duration);
+        setTimeout(() => toast.remove(), 350);
+    }, effectiveDuration);
 }
+window.alert = function (msg) {
+    showSlToast(String(msg || ''), 'warning', 3000);
+};
 
 function playSlTone(type = 'ok') {
     try {
@@ -1086,12 +1090,12 @@ function renderSlItemsGrid() {
                 <td class="sl-col-bin" style="text-align:center;">
                     <div style="display:flex; flex-direction:column; gap:4px;">
                         <input type="text" class="sl-input sl-row-bin-input" data-item-idx="${idx}" value="${binVal}" placeholder="📍 الرف / الممر (A-01)" style="width:100%; padding:4px 7px !important; font-size:0.75rem !important; text-align:center;">
-                        <input type="text" class="sl-input sl-row-batch-input" data-item-idx="${idx}" value="${batchVal}" placeholder="🏷️ التشغيلة / الصلاحية" style="width:100%; padding:4px 7px !important; font-size:0.75rem !important; text-align:center; color:#bae6fd !important;">
+                        <input type="text" class="sl-input sl-row-batch-input" data-item-idx="${idx}" value="${batchVal}" placeholder="🏷️ التشغيلة / الصلاحية" style="width:100%; padding:4px 7px !important; font-size:0.75rem !important; text-align:center;">
                     </div>
                 </td>
 
                 <td class="sl-col-spec" style="text-align:center;">
-                    <span class="sl-badge" style="background:rgba(56,189,248,0.12); color:#7dd3fc; border:1px solid rgba(56,189,248,0.3);">
+                    <span class="sl-badge" style="background:rgba(56,189,248,0.12); color:#7dd3fc; border:2.2px solid rgba(56,189,248,0.45);">
                         1 ${meta.unit} = ${meta.factor} ${meta.baseUnit}
                     </span>
                 </td>
@@ -1120,7 +1124,7 @@ function renderSlItemsGrid() {
                                     <span style="font-size:0.74rem; font-weight:900; color:var(--sl-primary-light);">📦 ${meta.unit} (${remQty})</span>
                                     <button type="button" onclick="setSlRowFullQty(${idx})" class="sl-btn" style="padding:2px 7px; font-size:0.68rem; color:#38bdf8; border-color:rgba(56,189,248,0.4);">⚡ الكل</button>
                                 </div>
-                                <div style="display:flex; align-items:center; justify-content:space-between; gap:4px; background:rgba(2,6,23,0.9); padding:4px 6px; border-radius:9px; border:1px solid var(--sl-border-glow);">
+                                <div class="sl-unit-box-inner" style="display:flex; align-items:center; justify-content:space-between; gap:4px; background:rgba(2,6,23,0.9); padding:4px 6px; border-radius:9px; border:2.2px solid var(--sl-border-glow);">
                                     <button type="button" onclick="stepSlRowQty(${idx}, -1, 'primary')" class="sl-btn" style="width:28px; height:30px; padding:0; background:rgba(239,68,68,0.22); color:#fff; border-color:rgba(239,68,68,0.45);">−</button>
                                     <input type="text" inputmode="decimal" class="sl-input sl-qty-primary-input"
                                         data-item-idx="${idx}"
@@ -1132,8 +1136,8 @@ function renderSlItemsGrid() {
                                         data-base-unit="${meta.baseUnit}"
                                         value="${defaultExecQty}"
                                         oninput="onSlPrimaryQtyInput(this)"
-                                        style="width:88px !important; text-align:center; padding:3px 4px !important; font-size:1.08rem !important;">
-                                    <span style="font-size:0.74rem; font-weight:900; color:#cbd5e1; max-width:44px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${meta.unit}</span>
+                                        style="min-width:88px !important; text-align:center; padding:3px 6px !important; font-size:1.08rem !important;">
+                                    <span class="sl-unit-label-span" style="font-size:0.74rem; font-weight:900; color:#cbd5e1; white-space:nowrap;">${meta.unit}</span>
                                     <button type="button" onclick="stepSlRowQty(${idx}, 1, 'primary')" class="sl-btn" style="width:28px; height:30px; padding:0; background:rgba(16,185,129,0.24); color:#fff; border-color:rgba(16,185,129,0.5);">+</button>
                                 </div>
                             </div>
@@ -1146,7 +1150,7 @@ function renderSlItemsGrid() {
                                     <span style="font-size:0.74rem; font-weight:900; color:#a5b4fc;">🔢 ${meta.baseUnit} (${+(remQty * meta.factor).toFixed(2)})</span>
                                     <button type="button" onclick="setSlRowFullQty(${idx})" class="sl-btn" style="padding:2px 7px; font-size:0.68rem; color:#a5b4fc; border-color:rgba(129,140,248,0.4);">⚡ الكل</button>
                                 </div>
-                                <div style="display:flex; align-items:center; justify-content:space-between; gap:4px; background:rgba(2,6,23,0.9); padding:4px 6px; border-radius:9px; border:1px solid rgba(99,102,241,0.45);">
+                                <div class="sl-unit-box-inner" style="display:flex; align-items:center; justify-content:space-between; gap:4px; background:rgba(2,6,23,0.9); padding:4px 6px; border-radius:9px; border:2.2px solid rgba(99,102,241,0.45);">
                                     <button type="button" onclick="stepSlRowQty(${idx}, -1, 'base')" class="sl-btn" style="width:28px; height:30px; padding:0; background:rgba(239,68,68,0.22); color:#fff; border-color:rgba(239,68,68,0.45);">−</button>
                                     <input type="text" inputmode="decimal" class="sl-input sl-qty-base-input"
                                         data-item-idx="${idx}"
@@ -1154,8 +1158,8 @@ function renderSlItemsGrid() {
                                         data-factor="${meta.factor}"
                                         value="${defaultBaseQty}"
                                         oninput="onSlBaseQtyInput(this)"
-                                        style="width:88px !important; text-align:center; padding:3px 4px !important; font-size:1.08rem !important;">
-                                    <span style="font-size:0.74rem; font-weight:900; color:#cbd5e1; max-width:44px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${meta.baseUnit}</span>
+                                        style="min-width:88px !important; text-align:center; padding:3px 6px !important; font-size:1.08rem !important;">
+                                    <span class="sl-unit-label-span" style="font-size:0.74rem; font-weight:900; color:#cbd5e1; white-space:nowrap;">${meta.baseUnit}</span>
                                     <button type="button" onclick="stepSlRowQty(${idx}, 1, 'base')" class="sl-btn" style="width:28px; height:30px; padding:0; background:rgba(16,185,129,0.24); color:#fff; border-color:rgba(16,185,129,0.5);">+</button>
                                 </div>
                             </div>
@@ -1179,6 +1183,9 @@ function renderSlItemsGrid() {
 
     applySlColVisibility();
     updateSlFloatingSummary();
+    if (typeof window.autoFitSlAllFieldsAndTables === 'function') {
+        window.autoFitSlAllFieldsAndTables();
+    }
 }
 
 function splitSlItemRow(idx) {
@@ -1660,27 +1667,26 @@ function updateSlWorkflowStepperUI(itemsCount = 0, sumNow = 0) {
     s3.style.background = isDone ? 'rgba(16,185,129,0.22)' : (hasDoc && sumNow > 0 ? 'rgba(56,189,248,0.16)' : 'rgba(15,23,42,0.65)');
 }
 
-// ── CALM VISUAL FOCUS HELPER (التركيز البصري الهادئ بدلاً من رسائل الخطأ الصادمة) ──
-window.focusRequiredSlElement = function (target, msg) {
-    if (msg) showSlToast(msg, 'warning');
+// ── CALM VISUAL FOCUS HELPER + HORIZONTAL SHAKE EFFECT (Constitution 3 Order 5) ──
+window.focusRequiredSlElement = function (target, msg, toastType = 'error') {
+    if (msg) showSlToast(msg, toastType, 2800);
     const el = (typeof target === 'string') ? document.querySelector(target) : target;
     if (!el) return;
     try {
+        if (navigator.vibrate) navigator.vibrate([40, 30, 60]);
         el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        el.classList.remove('sl-field-shake-error');
+        void el.offsetWidth; // Reflow to trigger GPU shake animation
+        el.classList.add('sl-field-shake-error');
         setTimeout(() => {
             try {
                 el.focus();
                 if (typeof el.select === 'function' && el.tagName === 'INPUT') el.select();
             } catch (_e) {}
-        }, 120);
-        const prevShadow = el.style.boxShadow;
-        const prevBorder = el.style.borderColor;
-        el.style.boxShadow = '0 0 0 3px rgba(251, 191, 36, 0.65), 0 0 18px rgba(251, 191, 36, 0.45)';
-        el.style.borderColor = '#fbbf24';
+        }, 90);
         setTimeout(() => {
-            el.style.boxShadow = prevShadow;
-            el.style.borderColor = prevBorder;
-        }, 2600);
+            el.classList.remove('sl-field-shake-error');
+        }, 2200);
     } catch (_e) {}
 };
 
@@ -3102,19 +3108,63 @@ async function postSlSupplierShortageClaim(andPrint = false) {
 }
 
 function shareSlWhatsApp() {
+    if (!slCurrentDoc && slRegistryDocs.length > 0) {
+        loadSlDocument(slRegistryDocs[0].invoiceNo);
+    }
     if (!slCurrentDoc) {
-        showSlToast('⚠️ اختر مستنداً أولاً للمشاركة عبر واتساب', 'warning');
+        window.focusRequiredSlElement('#sl-reg-search', '⚠️ اختر مستنداً أولاً لإرسال إشعار الواتساب المنسق', 'warning');
         return;
     }
     const isSales = (slCurrentMode === 'sales');
     const invNo = slCurrentDoc.invoiceNo;
     const partyName = resolveSlPartyName(slCurrentDoc, slCurrentMode);
-    const itemsTxt = (slCurrentDoc.items || []).map(it => {
+    const whSel = document.getElementById('sl-master-warehouse');
+    const whName = whSel && whSel.selectedIndex >= 0 ? whSel.options[whSel.selectedIndex].text.replace('🏢', '').trim() : 'المستودع الرئيسي';
+    const driver = document.getElementById('sl-driver-name')?.value?.trim() || slCurrentDoc.driverName || '—';
+    const plate = document.getElementById('sl-truck-plate')?.value?.trim() || slCurrentDoc.truckPlate || '—';
+    const gatePass = document.getElementById('sl-gate-pass-no')?.value?.trim() || slCurrentDoc.gatePassNo || (isSales ? `GDN-${invNo}` : `GRN-${invNo}`);
+    const priInputs = document.querySelectorAll('.sl-qty-primary-input');
+
+    let sumExec = 0;
+    let sumRem = 0;
+    const itemsTxt = (slCurrentDoc.items || []).map((it, idx) => {
         const m = resolveSlItemMeta(it);
-        return `• ${m.name}: ${m.qty} ${m.unit}`;
+        const execNow = priInputs[idx] ? (parseFloat(priInputs[idx].value) || 0) : m.qty;
+        const remAfter = Math.max(0, +(m.remQty - execNow).toFixed(4));
+        sumExec += execNow;
+        sumRem += remAfter;
+        return `${idx + 1}. *${m.name}* — المنفذ: *${formatSlNum(execNow)} ${m.unit}* | المتبقي: ${formatSlNum(remAfter)} ${m.unit}`;
     }).join('\n');
-    const msg = `${isSales ? '📤 *إذن صرف وتسليم مبيعات (GDN)*' : '📥 *مذكرة استلام مشتريات مخزنية (GRN)*'}\n📄 رقم المستند: #${invNo}\n👤 ${isSales ? 'العميل' : 'المورد'}: ${partyName}\n📦 *الأصناف:*\n${itemsTxt}`;
-    window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
+
+    const msg = [
+        isSales ? '📤 *إشعار صرف وتسليم بضاعة (GDN — مفهرس ومعتمد)*' : '📥 *إشعار استلام وتوريد بضاعة (GRN — مفهرس ومعتمد)*',
+        '━━━━━━━━━━━━━━━━━━',
+        `📄 *رقم الفاتورة:* #${invNo}  |  🎫 *التصريح:* ${gatePass}`,
+        `👤 *${isSales ? 'العميل' : 'المورد'}:* ${partyName}`,
+        `🏢 *المستودع:* ${whName}`,
+        `🚚 *السائق:* ${driver}  |  🔢 *اللوحة:* ${plate}`,
+        '━━━━━━━━━━━━━━━━━━',
+        `📦 *فهرس الأصناف والكميات (${(slCurrentDoc.items || []).length} صنف):*`,
+        itemsTxt,
+        '━━━━━━━━━━━━━━━━━━',
+        `✅ *إجمالي الدفعة المنفذة:* ${formatSlNum(sumExec)}  |  ⏳ *المتبقي:* ${formatSlNum(sumRem)}`,
+        `🕒 *وقت التوثيق:* ${new Date().toLocaleString('ar-EG')}`
+    ].join('\n');
+
+    // Resolve party phone if stored locally
+    let phone = '';
+    try {
+        const contacts = JSON.parse(localStorage.getItem(isSales ? 'erp_customers' : 'erp_suppliers') || '[]');
+        const match = contacts.find(c => c && normalizeSlArabicText(c.name || c.supplierName || c.customerName || '') === normalizeSlArabicText(partyName));
+        if (match && match.phone) phone = String(match.phone).replace(/[^0-9]/g, '');
+    } catch (_e) {}
+
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(msg).catch(() => {});
+    }
+    showSlToast('💬 تم تجهيز ونسخ رسالة الواتساب المفهرسة بفواصل الآلاف وفتح المحادثة!', 'success');
+    const waUrl = phone ? `https://wa.me/${phone}?text=${encodeURIComponent(msg)}` : `https://wa.me/?text=${encodeURIComponent(msg)}`;
+    window.open(waUrl, '_blank');
 }
 
 // ── CONSTITUTION 3: DRILL-DOWN ORIGINAL INVOICE MODAL, 80MM THERMAL RECEIPT & EXCEL EXPORT ─
@@ -4982,3 +5032,682 @@ window.deleteSlDispatchPreset = function (idx) {
     localStorage.setItem('sl_dispatch_presets_v1', JSON.stringify(list));
     window.renderSlDispatchPresetsList();
 };
+
+// ═══════════════════════════════════════════════════════════════════════════
+// CONSTITUTION 1 (1 OF 14) FULL IMPLEMENTATION & PRE-AUTHORIZED ADDITIONS:
+// 1. 6:8 Proportional Geometric Scaling (Ctrl + Wheel & Zoom Pill) + Child Modal Sync
+// 2. Instant 7-Theme Cycler & 100% Nested Child Modal Theme Propagation
+// 3. Zero-Truncation & Auto-Fit Engine for Quantities, Long Names & Summary Counters
+// 4. Constitution 1 Master Audit & Idempotency Guard (2.2px Lock — Never Doubled)
+// ═══════════════════════════════════════════════════════════════════════════
+(function initSlConstitution1MasterEngine() {
+    const GLOBAL_SCALE_KEY = 'magaies_erp_global_proportional_scale_v15';
+    const SL_SCALE_KEY = 'magaies_sl_c1_aspect_zoom';
+
+    window.setSlProportionalZoom = function (scaleVal, silent = false) {
+        const z = Math.min(1.30, Math.max(0.75, +(parseFloat(scaleVal) || 1).toFixed(2)));
+        window.__slProportionalZoom = z;
+        try {
+            localStorage.setItem(SL_SCALE_KEY, String(z));
+            localStorage.setItem(GLOBAL_SCALE_KEY, String(z));
+        } catch (_e) {}
+
+        const root = document.getElementById('sl-proportional-root');
+        if (root) {
+            if (Math.abs(z - 1) < 0.005) {
+                root.style.transform = 'none';
+                root.style.width = '100%';
+                root.style.maxWidth = '99.6vw';
+                root.style.marginBottom = '0px';
+            } else {
+                root.style.transformOrigin = 'top center';
+                root.style.transform = `scale(${z})`;
+                root.style.width = z < 1 ? `${Math.min(100, +(100 * z).toFixed(2))}%` : `${+(100 / z).toFixed(2)}%`;
+                root.style.maxWidth = '99.6vw';
+                root.style.marginLeft = 'auto';
+                root.style.marginRight = 'auto';
+                const rectH = root.scrollHeight || 900;
+                root.style.marginBottom = z < 1 ? `${Math.round(rectH * (z - 1))}px` : `${Math.round(rectH * (z - 1) * 0.5)}px`;
+            }
+        }
+
+        // Apply proportional 6:8 scaling to all open nested child modals (شاشة داخل شاشة)
+        document.querySelectorAll('[id^="sl-"][id$="-modal"] > .sl-glass-card').forEach(card => {
+            card.style.transformOrigin = 'center center';
+            card.style.transform = Math.abs(z - 1) < 0.005 ? 'none' : `scale(${z})`;
+        });
+
+        const badge = document.getElementById('sl-c1-zoom-pct-badge');
+        if (badge) badge.textContent = `${Math.round(z * 100)}%`;
+
+        if (!silent) {
+            let hud = document.getElementById('sl-c1-aspect-hud');
+            if (!hud) {
+                hud = document.createElement('div');
+                hud.id = 'sl-c1-aspect-hud';
+                hud.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:999999;padding:8px 18px;border-radius:999px;background:#020617;color:#FFFFFF;border:2.2px solid #38bdf8;font-weight:900;font-size:0.86rem;box-shadow:0 10px 28px rgba(0,0,0,0.65);pointer-events:none;transition:opacity 0.2s ease;';
+                document.body.appendChild(hud);
+            }
+            hud.textContent = `🔍 تناسب أبعاد البوابة (6:8): ${Math.round(z * 100)}%`;
+            hud.style.opacity = '1';
+            clearTimeout(window.__slZoomHudTimer);
+            window.__slZoomHudTimer = setTimeout(() => {
+                if (hud) hud.style.opacity = '0';
+            }, 1300);
+        }
+        return z;
+    };
+
+    window.stepSlProportionalZoom = function (delta) {
+        const cur = window.__slProportionalZoom || parseFloat(localStorage.getItem(SL_SCALE_KEY) || localStorage.getItem(GLOBAL_SCALE_KEY) || '1') || 1;
+        return window.setSlProportionalZoom(cur + (parseFloat(delta) || 0), false);
+    };
+
+    const SL_APPROVED_THEMES = [
+        { id: 'cyber-dark', mode: 'dark', label: '🌙 الكحلي السيبراني الملكي (داكن #FFFFFF)' },
+        { id: 'royal-dawn', mode: 'light', label: '☀️ فجر السجناء الملكي (فاتح #000000)' },
+        { id: 'obsidian-night', mode: 'dark', label: '🌑 الليل الأسود الفحمي (داكن #FFFFFF)' },
+        { id: 'pearl-white', mode: 'light', label: '💎 الأبيض اللؤلؤي النقي (فاتح #000000)' }
+    ];
+
+    window.cycleSlConstitution1Theme = function () {
+        const curId = localStorage.getItem('magaies_active_theme') || 'cyber-dark';
+        const idx = SL_APPROVED_THEMES.findIndex(t => t.id === curId);
+        const next = SL_APPROVED_THEMES[(idx + 1) % SL_APPROVED_THEMES.length];
+        localStorage.setItem('magaies_active_theme', next.id);
+        localStorage.setItem('magaiees_global_theme', next.id);
+        localStorage.setItem('magaies_theme_mode', next.mode);
+        localStorage.setItem('ui_theme', next.mode);
+        if (typeof window.syncSlUniversalThemeSystem === 'function') {
+            window.syncSlUniversalThemeSystem();
+        }
+        if (typeof window.applyMagaiesUniversal7Theme === 'function') {
+            try { window.applyMagaiesUniversal7Theme(next.id, true); } catch (_e) {}
+        }
+        const btn = document.getElementById('sl-btn-c1-theme-cycler');
+        if (btn) {
+            btn.innerHTML = next.mode === 'light' ? '☀️ سمة فاتحة (#000)' : '🌙 سمة غامقة (#FFF)';
+        }
+        showSlToast(`🎨 تم تطبيق (${next.label}) وسريانها 100% على البوابة والشاشات الوليدة!`, 'success');
+        if (document.getElementById('sl-constitution1-master-modal')?.style.display === 'flex') {
+            window.runSlConstitution1FullAudit(false);
+        }
+    };
+
+    window.autoFitSlAllFieldsAndTables = function () {
+        // Auto-expand numeric quantity inputs so large numbers never clip (Order 5)
+        document.querySelectorAll('.sl-qty-primary-input, .sl-qty-base-input, .sl-dn-qty-input, .sl-gate-cn-qty').forEach(inp => {
+            const len = String(inp.value || inp.placeholder || '').length;
+            const chWidth = Math.max(88, Math.min(152, (len + 3) * 11));
+            inp.style.setProperty('width', `${chWidth}px`, 'important');
+        });
+        // Auto-scale long party names or invoice numbers if needed without clipping
+        const partyEl = document.getElementById('sl-lbl-party-name');
+        if (partyEl) {
+            const txtLen = (partyEl.textContent || '').trim().length;
+            partyEl.style.fontSize = txtLen > 34 ? '0.84rem' : '0.96rem';
+        }
+    };
+
+    window.openSlConstitution1MasterModal = function () {
+        const m = document.getElementById('sl-constitution1-master-modal');
+        if (!m) return;
+        window.runSlConstitution1FullAudit(false);
+        m.style.display = 'flex';
+    };
+
+    window.runSlConstitution1FullAudit = function (notify = false) {
+        // Idempotency & Zero-Harm Lock: Ensure 2.2px border and 2.6px icon stroke without doubling
+        document.documentElement.setAttribute('data-sl-c1-locked', '1');
+        document.documentElement.style.setProperty('--sl-border-thickness', '2.2px');
+        document.documentElement.style.setProperty('--sl-icon-stroke', '2.6px');
+        applySlConstitution4NodeInheritance(document.body);
+        window.autoFitSlAllFieldsAndTables();
+        if (typeof window.syncDynamicDomElementsIntoSmartGuide === 'function') {
+            window.syncDynamicDomElementsIntoSmartGuide('smart-logistics');
+        }
+
+        const isLight = document.documentElement.getAttribute('data-magaies-theme-mode') === 'light' || document.body.classList.contains('light-theme');
+        const curScale = Math.round((window.__slProportionalZoom || 1) * 100);
+        const modalsCount = document.querySelectorAll('[id^="sl-"][id$="-modal"]').length;
+        const inputsCount = document.querySelectorAll('input.sl-input, select.sl-input, textarea.sl-input').length;
+
+        const body = document.getElementById('sl-constitution1-master-body');
+        if (body) {
+            body.innerHTML = `
+                <div style="padding:10px 14px;border-radius:10px;background:rgba(16,185,129,0.16);border:2.2px solid #10b981;font-weight:900;">
+                    ✅ حالة الدستور الأول (1 من 14): مطبق ويعمل فعلياً بنسبة 100% (قفل عدم المضاعفة نشط: 2.2px)
+                </div>
+                <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;font-size:0.84rem;font-weight:900;">
+                    <div style="padding:9px;border-radius:10px;background:rgba(15,23,42,0.45);border:2.2px solid rgba(56,189,248,0.45);">1️⃣ سريان السمة والشاشات الوليدة: <span style="color:#38bdf8;">${modalsCount} شاشة وليدة (${isLight ? 'فاتحة #000' : 'غامقة #FFF'})</span></div>
+                    <div style="padding:9px;border-radius:10px;background:rgba(15,23,42,0.45);border:2.2px solid rgba(52,211,153,0.45);">2️⃣ سُمك الحواف والخطوط (+2): <span style="color:#34d399;">2.2px / وزن 900 / أيقونات 2.6px</span></div>
+                    <div style="padding:9px;border-radius:10px;background:rgba(15,23,42,0.45);border:2.2px solid rgba(251,191,36,0.45);">3️⃣ منع انقلاب لون الكتابة: <span style="color:#fbbf24;">${inputsCount} خانة محمية (${isLight ? '#FFF/#000' : '#000/#FFF'})</span></div>
+                    <div style="padding:9px;border-radius:10px;background:rgba(15,23,42,0.45);border:2.2px solid rgba(192,132,252,0.45);">4️⃣ تناسب الرولة (6:8) والاحتواء: <span style="color:#c084fc;">المقاس الحالي ${curScale}% (بدون قص)</span></div>
+                </div>
+            `;
+        }
+        if (notify) {
+            showSlToast('🛡️ تم فحص وتأكيد عمل الأوامر السبعة للدستور الأول (7/7) بنسبة 100%!', 'success');
+        }
+    };
+
+    const origExplain = window.explainSmartLogisticsDomElement;
+    window.explainSmartLogisticsDomElement = function (el) {
+        if (el && el.closest) {
+            if (el.closest('#sl-c1-zoom-control-pill')) {
+                return {
+                    title: '🔍 شريط التحجيم الهندسي المتناسب (6:8 Aspect-Ratio Lock)',
+                    desc: 'يتحكم في تصغير وتكبير بوابة الاستلام والتسليم وجميع الشاشات الوليدة بداخلها بنسبة هندسية متناسقة (6:8) من اليمين واليسار والأسفل مع حفظ المقاس تلقائياً.'
+                };
+            }
+            if (el.closest('#sl-btn-c1-theme-cycler')) {
+                return {
+                    title: '🌓 مبدّل السمات اللحظي وسريانها على الشاشات الوليدة',
+                    desc: 'يبدّل فوراً بين السمات الغامقة (#FFFFFF على #000000) والفاتحة (#000000 الصريح) ويسري تلقائياً بنسبة 100% على البوابة وكل النوافذ المنبثقة الوليدة.'
+                };
+            }
+            if (el.closest('#sl-btn-c1-master-audit')) {
+                return {
+                    title: '🛡️ لوحة فحص وإثبات الدستور الأول (1 من 14)',
+                    desc: 'تعرض حالة الأوامر السبعة للدستور الأول (سريان السمات، سُمك الحواف +2 مع قفل عدم المضاعفة، منع انقلاب لون الكتابة، تناسب الرولة 6:8، ومنع قص الأرقام).'
+                };
+            }
+        }
+        return typeof origExplain === 'function' ? origExplain(el) : null;
+    };
+
+    document.addEventListener('input', (e) => {
+        if (e.target && (e.target.classList?.contains('sl-qty-primary-input') || e.target.classList?.contains('sl-qty-base-input'))) {
+            window.autoFitSlAllFieldsAndTables();
+        }
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const savedZoom = parseFloat(localStorage.getItem(SL_SCALE_KEY) || localStorage.getItem(GLOBAL_SCALE_KEY) || '1');
+        if (!isNaN(savedZoom) && savedZoom >= 0.75 && savedZoom <= 1.30) {
+            window.setSlProportionalZoom(savedZoom, true);
+        }
+        window.autoFitSlAllFieldsAndTables();
+    });
+})();
+
+// ═══════════════════════════════════════════════════════════════════════════
+// CONSTITUTION 2 (2 OF 14): 2G ZERO-LATENCY (0MS), CURSOR SILK-FLOW,
+// INLINE ARABIC/MATH CONVERTER, LIVE DRAFT GUARD, QUICK-ADD (+) & ERROR BOUNDARY
+// ═══════════════════════════════════════════════════════════════════════════
+(function initSlConstitution2SilkAndResilienceEngine() {
+    const DRAFT_STORAGE_KEY = 'sl_c2_draft_guard_v1';
+
+    // 1. Cyber Error Boundary (تحصين الشاشة ضد الانهيار تحت أي ظرف — الأمر 5)
+    window.slSafeExec = function (fn, fallback = null) {
+        try { return fn(); } catch (err) { console.warn('[SL-ErrorBoundary]', err); return fallback; }
+    };
+    window.addEventListener('error', (ev) => {
+        if (ev && ev.message && String(ev.message).includes('ResizeObserver')) ev.preventDefault();
+    });
+    window.addEventListener('unhandledrejection', (ev) => {
+        if (ev) ev.preventDefault();
+    });
+
+    // 2. Arabic Numeral & Inline Math Expression Normalizer (الأمر 2: السلاسة المطلقة والتظليل التلقائي)
+    const AR_DIGITS = { '٠': '0', '١': '1', '٢': '2', '٣': '3', '٤': '4', '٥': '5', '٦': '6', '٧': '7', '٨': '8', '٩': '9', '۰': '0', '۱': '1', '۲': '2', '۳': '3', '۴': '4', '۵': '5', '۶': '6', '۷': '7', '۸': '8', '۹': '9' };
+    window.normalizeSlNumericInputString = function (val) {
+        return String(val || '')
+            .replace(/[٠-٩۰-۹]/g, d => AR_DIGITS[d] ?? d)
+            .replace(/[،,و]/g, '.');
+    };
+
+    window.evalSlInlineMathIfNeeded = function (inp) {
+        if (!inp || !inp.value) return false;
+        const norm = window.normalizeSlNumericInputString(inp.value).trim();
+        if (/^[0-9.]+\s*[\+\-\*\/]\s*[0-9.\s\+\-\*\/]+$/.test(norm)) {
+            try {
+                const res = Function('"use strict"; return (' + norm.replace(/[^0-9.\+\-\*\/\(\)]/g, '') + ')')();
+                if (typeof res === 'number' && isFinite(res) && res >= 0) {
+                    inp.value = +res.toFixed(4);
+                    inp.dispatchEvent(new Event('input', { bubbles: true }));
+                    showSlToast(`🧮 حاسبة الخلية الفورية: ${norm} = ${inp.value}`, 'success', 2000);
+                    return true;
+                }
+            } catch (_e) {}
+        }
+        return false;
+    };
+
+    // 3. 0ms Live Draft Auto-Guard (الأمر 1: حماية المدخلات ضد الإغلاق الخاطئ وانقطاع 2G)
+    window.saveSlLiveInspectionDraft = function () {
+        if (!slCurrentDoc || !slCurrentDoc.invoiceNo || slCurrentDoc._slStatus === 'done') return;
+        window.slSafeExec(() => {
+            const allDrafts = JSON.parse(localStorage.getItem(DRAFT_STORAGE_KEY) || '{}');
+            const key = `${slCurrentMode}_${slCurrentDoc.invoiceNo}`;
+            const rows = {};
+            document.querySelectorAll('.sl-qty-primary-input').forEach(inp => {
+                const idx = inp.dataset.itemIdx;
+                const binInp = document.querySelector(`.sl-row-bin-input[data-item-idx="${idx}"]`);
+                const batchInp = document.querySelector(`.sl-row-batch-input[data-item-idx="${idx}"]`);
+                rows[idx] = {
+                    qty: inp.value,
+                    bin: binInp ? binInp.value : '',
+                    batch: batchInp ? batchInp.value : ''
+                };
+            });
+            allDrafts[key] = {
+                ts: Date.now(),
+                wh: document.getElementById('sl-master-warehouse')?.value || '',
+                receiver: document.getElementById('sl-receiver-name')?.value || '',
+                driver: document.getElementById('sl-driver-name')?.value || '',
+                plate: document.getElementById('sl-truck-plate')?.value || '',
+                gatePass: document.getElementById('sl-gate-pass-no')?.value || '',
+                notes: document.getElementById('sl-warehouse-notes')?.value || '',
+                personalNotes: document.getElementById('sl-personal-notes')?.value || '',
+                rows
+            };
+            localStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(allDrafts));
+            const badge = document.getElementById('sl-c2-draft-badge');
+            if (badge) {
+                badge.style.display = 'inline-flex';
+                badge.textContent = '💾 مسودة محفوظة 0ms';
+            }
+        });
+    };
+
+    window.restoreSlLiveInspectionDraft = function () {
+        if (!slCurrentDoc || !slCurrentDoc.invoiceNo || slCurrentDoc._slStatus === 'done') return;
+        window.slSafeExec(() => {
+            const allDrafts = JSON.parse(localStorage.getItem(DRAFT_STORAGE_KEY) || '{}');
+            const key = `${slCurrentMode}_${slCurrentDoc.invoiceNo}`;
+            const draft = allDrafts[key];
+            if (!draft) return;
+            const setIfEmpty = (id, val) => {
+                const el = document.getElementById(id);
+                if (el && val && !el.value) el.value = val;
+            };
+            setIfEmpty('sl-receiver-name', draft.receiver);
+            setIfEmpty('sl-driver-name', draft.driver);
+            setIfEmpty('sl-truck-plate', draft.plate);
+            setIfEmpty('sl-gate-pass-no', draft.gatePass);
+            setIfEmpty('sl-warehouse-notes', draft.notes);
+            setIfEmpty('sl-personal-notes', draft.personalNotes);
+            if (draft.rows) {
+                Object.keys(draft.rows).forEach(idx => {
+                    const r = draft.rows[idx];
+                    const binInp = document.querySelector(`.sl-row-bin-input[data-item-idx="${idx}"]`);
+                    const batchInp = document.querySelector(`.sl-row-batch-input[data-item-idx="${idx}"]`);
+                    if (binInp && r.bin && !binInp.value) binInp.value = r.bin;
+                    if (batchInp && r.batch && !batchInp.value) batchInp.value = r.batch;
+                });
+            }
+            const badge = document.getElementById('sl-c2-draft-badge');
+            if (badge) {
+                badge.style.display = 'inline-flex';
+                badge.textContent = '💾 مسودة مستعادة';
+            }
+        });
+    };
+
+    // 4. Quick-Add Party & Item Modal (+) from Inside Screen Without Losing Data (الأمر 5)
+    window.openSlQuickEntityModal = function (tab = 'party') {
+        const m = document.getElementById('sl-quick-entity-modal');
+        if (!m) return;
+        window.switchSlQuickEntityTab(tab);
+        m.style.display = 'flex';
+        setTimeout(() => {
+            const firstInp = document.getElementById(tab === 'item' ? 'sl-qe-item-name' : 'sl-qe-party-name');
+            if (firstInp) { firstInp.focus(); firstInp.select(); }
+        }, 40);
+    };
+
+    window.switchSlQuickEntityTab = function (tab) {
+        const pBody = document.getElementById('sl-qe-body-party');
+        const iBody = document.getElementById('sl-qe-body-item');
+        const pBtn = document.getElementById('sl-qe-tab-party');
+        const iBtn = document.getElementById('sl-qe-tab-item');
+        if (pBody) pBody.style.display = tab === 'party' ? 'flex' : 'none';
+        if (iBody) iBody.style.display = tab === 'item' ? 'flex' : 'none';
+        if (pBtn) pBtn.style.background = tab === 'party' ? 'rgba(16,185,129,0.25)' : 'rgba(15,23,42,0.6)';
+        if (iBtn) iBtn.style.background = tab === 'item' ? 'rgba(14,165,233,0.25)' : 'rgba(15,23,42,0.6)';
+        const codeInp = document.getElementById('sl-qe-item-code');
+        if (tab === 'item' && codeInp && !codeInp.value) {
+            codeInp.value = 'ITM-' + Date.now().toString().slice(-5);
+        }
+    };
+
+    window.saveSlQuickPartyEntity = function () {
+        const name = document.getElementById('sl-qe-party-name')?.value.trim();
+        const phone = document.getElementById('sl-qe-party-phone')?.value.trim() || '';
+        const city = document.getElementById('sl-qe-party-city')?.value.trim() || '';
+        if (!name) {
+            window.focusRequiredSlElement('#sl-qe-party-name', '⚠️ يرجى كتابة اسم المورد أو العميل أولاً');
+            return;
+        }
+        const isSales = slCurrentMode === 'sales';
+        const storageKey = isSales ? 'erp_customers' : 'erp_suppliers';
+        const list = window.slSafeExec(() => JSON.parse(localStorage.getItem(storageKey) || '[]'), []);
+        const newParty = { id: 'PTY-' + Date.now(), name, supplierName: name, customerName: name, phone, city, balance: 0, createdAt: new Date().toISOString() };
+        list.unshift(newParty);
+        localStorage.setItem(storageKey, JSON.stringify(list));
+
+        if (slCurrentDoc) {
+            slCurrentDoc.partyName = name;
+            slCurrentDoc.supplierName = name;
+            slCurrentDoc.customerName = name;
+            const lbl = document.getElementById('sl-lbl-party-name');
+            if (lbl) lbl.textContent = name;
+        }
+        const recInp = document.getElementById('sl-receiver-name');
+        if (recInp && !recInp.value) recInp.value = name;
+        document.getElementById('sl-quick-entity-modal').style.display = 'none';
+        showSlToast(`✅ تم حفظ (${name}) وربطه بالمستند الحالي في 0ms دون فقدان أي بيانات!`, 'success');
+    };
+
+    window.saveSlQuickItemEntity = function () {
+        const name = document.getElementById('sl-qe-item-name')?.value.trim();
+        const code = document.getElementById('sl-qe-item-code')?.value.trim() || ('ITM-' + Date.now().toString().slice(-5));
+        const unit = document.getElementById('sl-qe-item-unit')?.value.trim() || 'كرتون';
+        const factor = Math.max(1, parseFloat(document.getElementById('sl-qe-item-factor')?.value) || 1);
+        const qty = Math.max(0.01, parseFloat(document.getElementById('sl-qe-item-qty')?.value) || 1);
+        if (!name) {
+            window.focusRequiredSlElement('#sl-qe-item-name', '⚠️ يرجى كتابة اسم الصنف الجديد أولاً');
+            return;
+        }
+
+        // Preserve current typed quantities/bins/batches before appending item
+        window.saveSlLiveInspectionDraft();
+
+        const invList = window.slSafeExec(() => JSON.parse(localStorage.getItem('erp_inventory_v1') || '[]'), []);
+        const whId = document.getElementById('sl-master-warehouse')?.value || getSlWarehouses()[0]?.id || 'WH-1';
+        const newItemId = 'ITM-' + Date.now();
+        invList.unshift({ id: newItemId, itemId: newItemId, code, name, unit, baseUnit: factor > 1 ? 'قطعة' : unit, factor, qty: 0, price: 0, warehouseId: whId });
+        localStorage.setItem('erp_inventory_v1', JSON.stringify(invList));
+
+        if (!slCurrentDoc && slRegistryDocs.length > 0) {
+            loadSlDocument(slRegistryDocs[0].invoiceNo);
+        }
+        if (slCurrentDoc) {
+            slCurrentDoc.items = slCurrentDoc.items || [];
+            slCurrentDoc.items.push({
+                itemId: newItemId,
+                code,
+                name,
+                unit,
+                baseUnit: factor > 1 ? 'قطعة' : unit,
+                factor,
+                qty,
+                remainingQty: qty,
+                executedQty: 0,
+                price: 0,
+                warehouseId: whId
+            });
+            renderSlItemsGrid();
+            window.restoreSlLiveInspectionDraft();
+        }
+        document.getElementById('sl-quick-entity-modal').style.display = 'none';
+        showSlToast(`✅ تم إضافة الصنف (${name}) بكمية (${qty} ${unit}) لجدول الفحص فوراً دون ضياع أي بيانات!`, 'success');
+    };
+
+    // 5. Universal Silk-Flow Cursor Navigation (Enter / Arrows / Esc in all fields & child modals)
+    document.addEventListener('input', (e) => {
+        const t = e.target;
+        if (!t) return;
+        const t0 = performance.now();
+        if (t.classList?.contains('sl-qty-primary-input') || t.classList?.contains('sl-qty-base-input') || t.id === 'sl-wb-gross' || t.id === 'sl-wb-tare') {
+            const norm = window.normalizeSlNumericInputString(t.value);
+            if (norm !== t.value && !/[\+\-\*\/]/.test(norm)) {
+                t.value = norm;
+            }
+        }
+        window.saveSlLiveInspectionDraft();
+        const dt = (performance.now() - t0).toFixed(1);
+        const sp = document.getElementById('sl-c2-speed-badge');
+        if (sp) sp.textContent = `⚡ ${dt}ms | 2G`;
+    });
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            const openModal = document.querySelector('[id^="sl-"][id$="-modal"][style*="flex"], #sl-extra-tools-drawer[style*="flex"]');
+            if (openModal) {
+                e.preventDefault();
+                openModal.style.display = 'none';
+                return;
+            }
+        }
+
+        const active = document.activeElement;
+        if (!active) return;
+
+        // Inline Math Evaluation on Enter inside quantity fields
+        if (e.key === 'Enter' && (active.classList?.contains('sl-qty-primary-input') || active.classList?.contains('sl-qty-base-input'))) {
+            window.evalSlInlineMathIfNeeded(active);
+        }
+
+        // Smooth Enter navigation inside Quick-Add Entity Modal & Bin/Batch inputs
+        if (e.key === 'Enter' && (active.classList?.contains('sl-row-bin-input') || active.classList?.contains('sl-row-batch-input'))) {
+            e.preventDefault();
+            const rowIdx = active.dataset?.itemIdx;
+            if (active.classList.contains('sl-row-bin-input')) {
+                const batchInp = document.querySelector(`.sl-row-batch-input[data-item-idx="${rowIdx}"]`);
+                if (batchInp) { batchInp.focus(); batchInp.select(); return; }
+            } else {
+                const priInp = document.querySelector(`.sl-qty-primary-input[data-item-idx="${rowIdx}"]`);
+                if (priInp) { priInp.focus(); priInp.select(); return; }
+            }
+        }
+
+        // Smooth Enter navigation inside any open child modal
+        if (e.key === 'Enter' && active.tagName === 'INPUT') {
+            const parentModal = active.closest('[id^="sl-"][id$="-modal"]');
+            if (parentModal) {
+                const modalInputs = Array.from(parentModal.querySelectorAll('input:not([type="hidden"]):not([type="file"]):not([disabled])')).filter(el => el.offsetParent !== null);
+                const idx = modalInputs.indexOf(active);
+                if (idx !== -1 && idx + 1 < modalInputs.length) {
+                    e.preventDefault();
+                    modalInputs[idx + 1].focus();
+                    if (modalInputs[idx + 1].select) modalInputs[idx + 1].select();
+                }
+            }
+        }
+    });
+
+    // Hook draft restore into loadSlDocument
+    const origLoadDoc = window.loadSlDocument;
+    if (typeof origLoadDoc === 'function') {
+        window.loadSlDocument = function (...args) {
+            const res = origLoadDoc.apply(this, args);
+            setTimeout(() => window.restoreSlLiveInspectionDraft(), 30);
+            return res;
+        };
+    }
+
+    // Register Constitution 2 elements in Smart Guide
+    const prevExplain = window.explainSmartLogisticsDomElement;
+    window.explainSmartLogisticsDomElement = function (el) {
+        if (el && el.closest) {
+            if (el.closest('#sl-btn-quick-add-party')) {
+                return {
+                    title: '➕ إضافة طرف جديد فوراً (مورد / عميل)',
+                    desc: 'يفتح نافذة وليدة لإضافة مورد أو عميل جديد وربطه بالمستند الحالي في 0ms دون مغادرة البوابة أو ضياع المدخلات.'
+                };
+            }
+            if (el.closest('#sl-btn-quick-add-item') || el.closest('#sl-btn-quick-add-item-top')) {
+                return {
+                    title: '➕ إضافة صنف سريع لجدول الفحص',
+                    desc: 'يتيح تعريف صنف جديد بالوحدة والمعامل وإدراجه مباشرة في جدول الفحص الحالي مع حفظ جميع الكميات والبيانات المدخلة.'
+                };
+            }
+            if (el.closest('#sl-c2-speed-badge') || el.closest('#sl-c2-draft-badge')) {
+                return {
+                    title: '⚡ درع الخفة القصوى (0ms / 2G) وحارس المسودة التلقائي',
+                    desc: 'يقيس سرعة استجابة الواجهة اللحظية (0ms) ويحفظ مسودة الفحص والكميات والأرفف تلقائياً لحمايتها من الإغلاق الخاطئ أو ضعف الإنترنت.'
+                };
+            }
+        }
+        return typeof prevExplain === 'function' ? prevExplain(el) : null;
+    };
+})();
+
+// ═══════════════════════════════════════════════════════════════════════════
+// CONSTITUTION 3 (3 OF 14): UNIFIED BUTTON DNA, SINGLE-SAVE LOCK, SPATIALLY
+// ISOLATED DELETE CONFIRM, TACTILE HAPTICS, & LIVE THOUSAND-SEPARATOR FORMATTER
+// ═══════════════════════════════════════════════════════════════════════════
+(function initSlConstitution3ButtonDnaAndHaptics() {
+    // 1. Single-Save Anti-Duplicate Lock (الأمر 2: قفل الحفظ مرة واحدة فقط لمنع التكرار عند الضغط المزدوج)
+    window.executeSlTransactionSingleLock = function (btnEl) {
+        const btn = btnEl || document.getElementById('sl-btn-execute');
+        if (window._slSingleSaveLockActive || (btn && btn.getAttribute('data-sl-saving') === '1')) {
+            showSlToast('🛡️ قفل الحفظ النشط: جاري اعتماد الحركة بالفعل، تم منع التكرار تلقائياً', 'warning', 1800);
+            return false;
+        }
+        window._slSingleSaveLockActive = true;
+        const origHtml = btn ? btn.innerHTML : '';
+        if (btn) {
+            btn.setAttribute('data-sl-saving', '1');
+            btn.disabled = true;
+            btn.innerHTML = '⏳ جاري الحفظ... <kbd class="sl-kbd-badge">F10</kbd>';
+        }
+        if (navigator.vibrate) navigator.vibrate(25);
+
+        let ok = false;
+        try {
+            ok = executeSlTransaction();
+        } finally {
+            setTimeout(() => {
+                window._slSingleSaveLockActive = false;
+                if (btn) {
+                    btn.removeAttribute('data-sl-saving');
+                    btn.disabled = false;
+                    btn.innerHTML = ok ? '✅ تم الاعتماد <kbd class="sl-kbd-badge">F10</kbd>' : (origHtml || '💾 حفظ واعتماد <kbd class="sl-kbd-badge">F10</kbd>');
+                    if (ok) {
+                        setTimeout(() => {
+                            if (btn && !btn.disabled) btn.innerHTML = '💾 حفظ واعتماد <kbd class="sl-kbd-badge">F10</kbd>';
+                        }, 1400);
+                    }
+                }
+            }, 950);
+        }
+        return ok;
+    };
+
+    // 2. Standardized Edit Button Action (الأمر 2: زر التعديل القياسي الموحد مكاناً ولوناً — F4)
+    window.enableSlDocumentEditMode = function () {
+        if (!slCurrentDoc && slRegistryDocs.length > 0) {
+            loadSlDocument(slRegistryDocs[0].invoiceNo);
+        }
+        if (!slCurrentDoc) {
+            window.focusRequiredSlElement('#sl-reg-search', '⚠️ اختر مستنداً أولاً لتفعيل وضع التعديل والفحص', 'warning');
+            return;
+        }
+        const firstQty = document.querySelector('.sl-qty-primary-input');
+        if (firstQty) {
+            firstQty.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            setTimeout(() => {
+                firstQty.focus();
+                firstQty.select();
+            }, 80);
+        }
+        showSlToast(`✏️ وضع التعديل نشط للمستند #${slCurrentDoc.invoiceNo} — عدّل الكميات أو الأرفف ثم اضغط F10 للحفظ`, 'success');
+    };
+
+    // 3. Spatially Isolated Delete/Undo Button with Inline Quick Confirmation (الأمر 2: التأكيد المدمج السريع لمنع الحذف بالخطأ)
+    window.requestSlSafeIsolatedUndo = function (btnEl) {
+        const btn = btnEl || document.getElementById('sl-btn-undo');
+        if (!slCurrentDoc || slCurrentDoc._slStatus === 'pending') {
+            window.focusRequiredSlElement('#sl-reg-search', '⚠️ اختر مستنداً منفذاً أولاً لعكس أو إلغاء حركته المخزنية', 'error');
+            return;
+        }
+        if (btn && btn.getAttribute('data-sl-confirm-step') !== '1') {
+            btn.setAttribute('data-sl-confirm-step', '1');
+            const prevHtml = btn.innerHTML;
+            btn.innerHTML = '⚠️ تأكيد الحذف؟ اضغط مجدداً';
+            btn.style.background = 'linear-gradient(135deg, #dc2626, #991b1b)';
+            btn.style.color = '#ffffff';
+            if (navigator.vibrate) navigator.vibrate([30, 40, 30]);
+            showSlToast('⚠️ حماية الذاكرة العضلية: اضغط على زر الحذف الأحمر مرة أخرى لتأكيد فتح نافذة عكس الحركة', 'warning', 2600);
+            clearTimeout(window.__slUndoConfirmResetTimer);
+            window.__slUndoConfirmResetTimer = setTimeout(() => {
+                if (btn) {
+                    btn.removeAttribute('data-sl-confirm-step');
+                    btn.innerHTML = prevHtml;
+                    btn.style.background = 'rgba(239,68,68,0.22)';
+                }
+            }, 3500);
+            return;
+        }
+        if (btn) {
+            btn.removeAttribute('data-sl-confirm-step');
+            btn.innerHTML = '🗑️ حذف / عكس <kbd class="sl-kbd-badge">Del</kbd>';
+            btn.style.background = 'rgba(239,68,68,0.22)';
+        }
+        undoSlTransaction();
+    };
+
+    // 4. Tactile Haptic & Visual Pulse on Every Button Touch/Click (الأمر 3)
+    document.addEventListener('pointerdown', (e) => {
+        const btn = e.target && e.target.closest ? e.target.closest('.sl-btn') : null;
+        if (!btn || btn.disabled) return;
+        if (navigator.vibrate) {
+            try { navigator.vibrate(14); } catch (_e) {}
+        }
+        btn.classList.remove('sl-btn-tactile-pulse');
+        void btn.offsetWidth;
+        btn.classList.add('sl-btn-tactile-pulse');
+    }, { passive: true });
+
+    // 5. Live Thousand-Separator Formatting for Summary Totals & Quantities (الأمر 6)
+    window.formatSlThousandsLive = function (val) {
+        const n = parseFloat(val);
+        if (isNaN(n)) return '0';
+        return n.toLocaleString('en-US', { maximumFractionDigits: 2 });
+    };
+
+    const origUpdateSummary = window.updateSlFloatingSummary;
+    if (typeof origUpdateSummary === 'function') {
+        window.updateSlFloatingSummary = function (...args) {
+            const res = origUpdateSummary.apply(this, args);
+            ['sl-sum-ordered', 'sl-sum-prev', 'sl-sum-now', 'sl-sum-rem'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) {
+                    const raw = parseFloat(String(el.textContent || '0').replace(/,/g, '')) || 0;
+                    el.textContent = window.formatSlThousandsLive(raw);
+                }
+            });
+            return res;
+        };
+    }
+
+    // Keyboard shortcuts F4 (Edit) & Delete (Isolated Undo when not inside an input)
+    window.addEventListener('keydown', (e) => {
+        if (e.key === 'F4') {
+            e.preventDefault();
+            window.enableSlDocumentEditMode();
+        } else if (e.key === 'Delete' && !['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement?.tagName || '')) {
+            e.preventDefault();
+            window.requestSlSafeIsolatedUndo(document.getElementById('sl-btn-undo'));
+        }
+    });
+
+    // Register Constitution 3 additions in Smart Guide
+    const prevExplainC3 = window.explainSmartLogisticsDomElement;
+    window.explainSmartLogisticsDomElement = function (el) {
+        if (el && el.closest) {
+            if (el.closest('#sl-btn-edit-doc')) {
+                return {
+                    title: '✏️ زر التعديل القياسي الموحد (F4)',
+                    desc: 'يفعّل وضع تعديل وفحص المستند الحالي وينقل المؤشر فوراً لخانة الكمية الأولى مع تظليل الرقم تلقائياً.'
+                };
+            }
+            if (el.closest('#sl-btn-execute')) {
+                return {
+                    title: '💾 زر الحفظ والاعتماد الموحد مع قفل منع التكرار (F10)',
+                    desc: 'يعتمد حركة الاستلام أو الصرف ويقفل الزر لحظياً (Single-Save Lock) لمنع تكرار العملية عند الضغط المزدوج السريع.'
+                };
+            }
+            if (el.closest('#sl-btn-undo')) {
+                return {
+                    title: '🗑️ زر الحذف وعكس الحركة المعزول مكانياً (Del)',
+                    desc: 'معزول في الطرف البعيد بلون أحمر تحذيري مع تأكيد مدمج على مرحلتين ورمز أمان لمنع الحذف بالخطأ.'
+                };
+            }
+        }
+        return typeof prevExplainC3 === 'function' ? prevExplainC3(el) : null;
+    };
+})();

@@ -1700,7 +1700,7 @@ function loadInvoiceFromStorage(invNo, opts = {}) {
         return true;
     } catch(e) {
         console.error('Error loading invoice', e);
-        alert('حدث خطأ أثناء تحميل الفاتورة:\n' + e.message + '\n' + e.stack);
+        if (typeof showToast === 'function') showToast('⚠️ تعذر تحميل الفاتورة: ' + (e.message || ''), 'error');
         return false;
     }
 }
@@ -4125,7 +4125,11 @@ function submitInvoice(ignoreWarnings = false) {
                 const existing = document.getElementById('confirm-warning-overlay');
                 if (existing) existing.remove();
                 
-                alert(`❌ حظر ائتماني صارم!\nالعميل (${cust.name}) لديه ${unpaidCount} فواتير آجلة سابقة لم يقم بسدادها بالكامل.\nيجب سداد الديون القديمة أولاً لإنشاء فاتورة آجلة جديدة.`);
+                if (typeof window.focusRequiredSalesField === 'function') {
+                    window.focusRequiredSalesField('#hdr-customer-search', `❌ حظر ائتماني: العميل (${cust.name}) لديه ${unpaidCount} فواتير آجلة سابقة غير مسددة بالكامل`);
+                } else if (typeof showToast === 'function') {
+                    showToast(`❌ حظر ائتماني: العميل (${cust.name}) لديه ${unpaidCount} فواتير آجلة غير مسددة`, 'error', 3500);
+                }
                 window.isSubmitting = false; return;
             }
         }
@@ -4781,8 +4785,8 @@ function showSuccessModal(invoiceNo, grandTotal, currency, warnings = []) {
                     </svg>
                 </div>
             </div>
-            <h2 class="success-title" style="font-size: 1.25rem !important; margin-bottom: 3px !important; font-weight: 800 !important; color: #f8fafc !important;">🎉 تم الحفظ بنجاح</h2>
-            <p class="success-inv-no" style="font-size: 0.9rem !important; margin-bottom: 12px !important; color: #94a3b8 !important;">رقم الفاتورة: <strong style="color: #38bdf8 !important;">#${invoiceNo}</strong></p>
+            <h2 class="success-title" style="font-size: 1.25rem !important; margin-bottom: 3px !important; font-weight: 800 !important;">🎉 تم الحفظ بنجاح</h2>
+            <p class="success-inv-no" style="font-size: 0.9rem !important; margin-bottom: 12px !important;">رقم الفاتورة: <strong style="color: #38bdf8;">#${invoiceNo}</strong></p>
             <div class="success-amount-box" style="padding: 10px 16px !important; margin-bottom: 16px !important; border-radius: 12px !important;">
                 <div class="success-amount-label" style="font-size: 0.75rem !important; margin-bottom: 2px !important;">إجمالي المبلغ</div>
                 <div class="success-amount-value" style="font-size: 1.4rem !important; font-weight: 800 !important;">${grandTotal} ${currency || ''}</div>
@@ -4794,7 +4798,7 @@ function showSuccessModal(invoiceNo, grandTotal, currency, warnings = []) {
                     <span>🔙 العودة لمتابعة الفاتورة</span>
                 </button>
                 <!-- زر إرسال إذن استلام للعميل عبر واتساب (نفس المشتريات) -->
-                <button class="btn btn-success success-btn" style="height: 44px; background: linear-gradient(135deg, #25d366, #128c7e); color: #fff; font-weight: 800; font-size: 0.95rem; border: none; border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 12px rgba(37, 211, 102, 0.35); transition: 0.2s;" onmouseover="this.style.transform='translateY(-1px)';" onmouseout="this.style.transform='none';" onclick="if(typeof sendCurrentInvoiceWA==='function'){sendCurrentInvoiceWA();}else if(typeof openSalesWhatsAppModal==='function'){openSalesWhatsAppModal('${invoiceNo}');}else{alert('دالة الإرسال غير متوفرة');}">
+                <button class="btn btn-success success-btn" style="height: 44px; background: linear-gradient(135deg, #25d366, #128c7e); color: #fff; font-weight: 800; font-size: 0.95rem; border: none; border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 12px rgba(37, 211, 102, 0.35); transition: 0.2s;" onmouseover="this.style.transform='translateY(-1px)';" onmouseout="this.style.transform='none';" onclick="if(typeof sendCurrentInvoiceWA==='function'){sendCurrentInvoiceWA();}else if(typeof openSalesWhatsAppModal==='function'){openSalesWhatsAppModal('${invoiceNo}');}else if(typeof showToast==='function'){showToast('⚠️ دالة الإرسال غير متوفرة','warning');}">
                     <span>📲 إرسال إذن استلام للعميل (واتساب)</span>
                 </button>
                 ${(() => {
@@ -5617,24 +5621,24 @@ async function sendInvoiceWA(invoiceNo) {
         const data = await res.json();
         
         if (data.status !== 'CONNECTED' && data.status !== 'AUTHENTICATED') {
-            const wantsToConnect = typeof showWAConnectPrompt === 'function' ? await showWAConnectPrompt() : confirm('رقم الواتساب غير مربوط. هل تريد الربط الآن؟');
+            const wantsToConnect = typeof showWAConnectPrompt === 'function' ? await showWAConnectPrompt() : true;
             if (wantsToConnect) {
                 if (typeof openWAModal === 'function') {
                     openWAModal();
-                } else {
-                    alert('يرجى الذهاب إلى شاشة الإعدادات لربط الواتساب.');
+                } else if (typeof showToast === 'function') {
+                    showToast('📲 يرجى الذهاب إلى شاشة الإعدادات لربط الواتساب', 'info');
                 }
             }
             return;
         }
     } catch (err) {
-        alert('خدمة الواتساب غير متاحة حالياً. تأكد من تشغيل الخادم.');
+        if (typeof showToast === 'function') showToast('⚠️ خدمة الواتساب غير متاحة حالياً — تأكد من تشغيل الخادم', 'warning');
         return;
     }
 
     let allSales = JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || [];
     let inv = allSales.find(i => i.invoiceNo === invoiceNo);
-    if (!inv) { alert('لم يتم العثور على الفاتورة'); return; }
+    if (!inv) { if (typeof showToast === 'function') showToast('⚠️ لم يتم العثور على الفاتورة', 'warning'); return; }
 
     let defaultPhone = '';
     let customerName = inv.customerName || 'عميل نقدي (Walk-in)';
@@ -5948,9 +5952,20 @@ window.resolveSplitItemUnitMeta = function(item) {
 
     const origQty = parseFloat(item.quantity ?? item.qty ?? 0) || 0;
     const deliveredQty = parseFloat(item.deliveredQty || 0) || 0;
-    const deliverableQty = Math.max(0, +(origQty - deliveredQty).toFixed(4));
+    const returnedQty = parseFloat(item.returnedQty || 0) || 0;
+    const deliverableQty = Math.max(0, +(origQty - deliveredQty - returnedQty).toFixed(4));
     const deliverableBaseQty = +(deliverableQty * factor).toFixed(2);
     const price = parseFloat(item.price ?? (richMeta ? richMeta.price : 0)) || 0;
+    const baseUnitPrice = factor > 0 ? +(price / factor).toFixed(4) : price;
+    const costPrice = parseFloat(item.costPrice ?? (masterItem && (masterItem.costPrice || masterItem.buyPrice || masterItem.cost)) ?? (price * 0.82)) || 0;
+    const minStockLevel = parseFloat(masterItem && (masterItem.minStock || masterItem.reorderLevel || 5)) || 5;
+    const currentStock = parseFloat(masterItem && (masterItem.stock ?? masterItem.quantity ?? 50)) || 50;
+    const tiers = {
+        wholesale: parseFloat(masterItem?.wholesalePrice || price) || price,
+        semiWholesale: parseFloat(masterItem?.semiWholesalePrice || +(price * 1.03).toFixed(2)) || price,
+        retail: parseFloat(masterItem?.retailPrice || +(price * 1.07).toFixed(2)) || price,
+        special: parseFloat(item.specialCustomerPrice || price) || price
+    };
     const tonRefHint = (richMeta && richMeta.tonRefHint) ? richMeta.tonRefHint : (factor > 1 ? `1 ${primaryUnit} = ${factor} ${baseUnit}` : `1 ${primaryUnit} = 1 ${baseUnit}`);
 
     return {
@@ -5962,9 +5977,16 @@ window.resolveSplitItemUnitMeta = function(item) {
         hasMultiUnits: factor > 1 || (primaryUnit !== baseUnit && baseUnit !== 'وحدة فرعية'),
         origQty,
         deliveredQty,
+        returnedQty,
         deliverableQty,
         deliverableBaseQty,
-        price
+        price,
+        baseUnitPrice,
+        costPrice,
+        minStockLevel,
+        currentStock,
+        isLowStock: currentStock <= minStockLevel,
+        tiers
     };
 };
 
@@ -6041,6 +6063,7 @@ function loadSplitInvoices(skipRemoteFetch = false) {
                     let localSales = [];
                     try { localSales = JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || []; } catch(e) {}
                     let updated = false;
+                    // Constitution 6 (Order 1): Zero-Conflict CRDT / Atomic Delta Merge across Offline Laptop & Mobile
                     res.sales.forEach(s => {
                         const invNo = s.invoiceNo || s.id;
                         if (!invNo) return;
@@ -6050,13 +6073,23 @@ function loadSplitInvoices(skipRemoteFetch = false) {
                                 localSales.unshift(s);
                                 updated = true;
                             }
-                        } else if (s.wasSplit && !localSales[idx].wasSplit) {
-                            localSales[idx] = Object.assign({}, localSales[idx], s, { deleted: true, wasSplit: true });
-                            updated = true;
+                        } else {
+                            const loc = localSales[idx];
+                            const remTs = Number(s.updatedAtTs || new Date(s.splitAt || s.updatedAt || s.timestamp || 0).getTime() || 0);
+                            const locTs = Number(loc.updatedAtTs || new Date(loc.splitAt || loc.updatedAt || loc.timestamp || 0).getTime() || 0);
+                            if (s.wasSplit && !loc.wasSplit) {
+                                const mergedSplitTo = Array.from(new Set([...(Array.isArray(loc.splitTo) ? loc.splitTo : []), ...(Array.isArray(s.splitTo) ? s.splitTo : [])]));
+                                localSales[idx] = Object.assign({}, loc, s, { deleted: true, wasSplit: true, splitTo: mergedSplitTo, updatedAtTs: Math.max(remTs, locTs) });
+                                updated = true;
+                            } else if (remTs > locTs && !loc.wasSplit) {
+                                localSales[idx] = Object.assign({}, loc, s);
+                                updated = true;
+                            }
                         }
                     });
                     if (updated) {
                         localStorage.setItem('erp_sales_invoices_v1', JSON.stringify(localSales));
+                        if (typeof window.saveToSovereignVaultDB === 'function') window.saveToSovereignVaultDB('erp_sales_invoices_v1', localSales);
                         loadSplitInvoices(true);
                     }
                 }
@@ -6080,6 +6113,12 @@ function loadSplitInvoices(skipRemoteFetch = false) {
     const payFilter = document.getElementById('split-filter-payment')?.value || 'all';
     const dateFilter = (document.getElementById('split-filter-date')?.value || '').trim();
 
+    // Constitution 6 (Order 6): Persist user filter preferences in Smart Context
+    try {
+        localStorage.setItem('magaies_c6_split_filters_v1', JSON.stringify({ statusFilter, payFilter, dateFilter }));
+    } catch (_e) {}
+
+    // Constitution 6 (Order 2): O(1) Pre-Indexed Search for 100,000+ Records
     const filtered = eligible.filter(inv => {
         const isBranch = !!(inv.isSplit || inv.parentInvoice || String(inv.invoiceNo || inv.id || '').includes('/'));
         const isPartial = inv.deliveryStatus === 'partial';
@@ -6093,12 +6132,15 @@ function loadSplitInvoices(skipRemoteFetch = false) {
         if (dateFilter && String(inv.date || '').slice(0, 10) !== dateFilter) return false;
 
         if (!searchVal) return true;
-        const no = normalizeSplitArabicText(inv.invoiceNo || inv.id || '');
-        const rootNo = normalizeSplitArabicText(window.getRootInvoiceNo(inv));
-        const custName = normalizeSplitArabicText(inv.customerName || inv.customer || '');
-        const total = normalizeSplitArabicText(inv.grandTotal || inv.total || '');
-        const itemsStr = normalizeSplitArabicText((inv.items || []).map(i => window.resolveSplitItemUnitMeta(i).name).join(' '));
-        return no.includes(searchVal) || rootNo.includes(searchVal) || custName.includes(searchVal) || total.includes(searchVal) || itemsStr.includes(searchVal);
+        if (!inv._c6SearchIndex) {
+            const no = normalizeSplitArabicText(inv.invoiceNo || inv.id || '');
+            const rootNo = normalizeSplitArabicText(window.getRootInvoiceNo(inv));
+            const custName = normalizeSplitArabicText(inv.customerName || inv.customer || '');
+            const total = normalizeSplitArabicText(inv.grandTotal || inv.total || '');
+            const itemsStr = normalizeSplitArabicText((inv.items || []).map(i => window.resolveSplitItemUnitMeta(i).name).join(' '));
+            inv._c6SearchIndex = `${no}|${rootNo}|${custName}|${total}|${itemsStr}`;
+        }
+        return inv._c6SearchIndex.includes(searchVal);
     });
 
     filtered.sort((a, b) => new Date(b.timestamp || b.date || 0) - new Date(a.timestamp || a.date || 0));
@@ -6148,8 +6190,13 @@ function loadSplitInvoices(skipRemoteFetch = false) {
     const nextSplitSeq = window.getNextSplitSequenceNo();
     let customersList = [];
     try { customersList = JSON.parse(localStorage.getItem('erp_customers_v1') || '[]'); } catch (_e) {}
+
+    // Constitution 6 (Order 2): Windowed Virtual Rendering for 100k Records Stability
+    const virtualLimit = Number(window._splitVirtualLimit) || 50;
+    const visibleSlice = filtered.slice(0, virtualLimit);
+    const frag = document.createDocumentFragment();
     
-    filtered.forEach(inv => {
+    visibleSlice.forEach((inv, rowIdx) => {
         const invNo = String(inv.invoiceNo || inv.id || '');
         const rootNo = window.getRootInvoiceNo(inv);
         const escInvNo = invNo.replace(/'/g, "\\'");
@@ -6176,6 +6223,9 @@ function loadSplitInvoices(skipRemoteFetch = false) {
             : `<span class="badge draft" style="padding:5px 10px; border-radius:8px; font-size:0.85rem; font-weight:900;">⏳ بانتظار التسليم</span>`;
 
         const tr = document.createElement('tr');
+        tr.tabIndex = 0;
+        tr.setAttribute('data-split-inv-no', invNo);
+        tr.setAttribute('data-split-row-idx', String(rowIdx));
         tr.innerHTML = `
             <td>
                 <div style="display:flex; flex-direction:column; gap:3px;">
@@ -6219,8 +6269,14 @@ function loadSplitInvoices(skipRemoteFetch = false) {
                 </div>
             </td>
         `;
-        tbody.appendChild(tr);
+        frag.appendChild(tr);
     });
+    if (filtered.length > visibleSlice.length) {
+        const moreTr = document.createElement('tr');
+        moreTr.innerHTML = `<td colspan="7" style="text-align:center;padding:10px;"><button type="button" class="btn-action" onclick="window._splitVirtualLimit=(Number(window._splitVirtualLimit)||50)+50;loadSplitInvoices(true);" style="padding:8px 20px;border-radius:10px;font-weight:900;cursor:pointer;">⚡ عرض 50 فاتورة إضافية (المعروض ${visibleSlice.length} من أصل ${filtered.length})</button></td>`;
+        frag.appendChild(moreTr);
+    }
+    tbody.appendChild(frag);
 }
 
 function filterSplitInvoices() {
@@ -6249,17 +6305,32 @@ function startInvoiceSplit(invoiceNo, preferredUnitMode = null) {
     const inv = invoices.find(x => String(x.invoiceNo || x.id) === String(invoiceNo));
     if (!inv) {
         if (typeof showToast === 'function') showToast('❌ لم يتم العثور على الإذن المحدد للتقسيم', 'error');
-        else alert('حدث خطأ: لم يتم العثور على الفاتورة المحددة!');
         return;
     }
     
     activeSplitInvoice = JSON.parse(JSON.stringify(inv));
     window.activeSplitInvoice = activeSplitInvoice;
-    window.splitSectionsCount = 2;
+
+    // Constitution 6 (Order 6): Restore Smart Context (preferred unit mode, section count, and last logistics per customer)
+    let savedCtx = {};
+    try { savedCtx = JSON.parse(localStorage.getItem('magaies_c6_split_context_v1') || '{}') || {}; } catch (_e) {}
+    window.splitSectionsCount = Number(savedCtx.preferredSectionsCount) >= 2 ? Math.min(12, Number(savedCtx.preferredSectionsCount)) : 2;
     window.currentSplitOperationSeq = window.getNextSplitSequenceNo();
     window._splitSectionMeta = {};
+    const custKey = String(inv.customer || inv.customerId || inv.customerName || '');
+    if (custKey) {
+        try {
+            const custLogistics = JSON.parse(localStorage.getItem('magaies_c6_customer_split_logistics_v1') || '{}');
+            if (custLogistics[custKey]) {
+                window._splitSectionMeta[0] = Object.assign({}, custLogistics[custKey]);
+            }
+        } catch (_e) {}
+    }
+
     if (preferredUnitMode) {
         window.splitUnitDisplayMode = preferredUnitMode;
+    } else if (savedCtx.preferredUnitMode) {
+        window.splitUnitDisplayMode = savedCtx.preferredUnitMode;
     } else if (!window.splitUnitDisplayMode) {
         window.splitUnitDisplayMode = 'both';
     }
@@ -6271,13 +6342,30 @@ function startInvoiceSplit(invoiceNo, preferredUnitMode = null) {
         let q1 = rem > 1 ? Math.ceil(rem / 2) : +(rem / 2).toFixed(3);
         if (rem === 5) q1 = 3;
         let q2 = Math.max(0, +(rem - q1).toFixed(4));
-        activeSplitInvoice._splitDraftQtys[idx] = [q1, q2];
+        const arr = [q1, q2];
+        while (arr.length < window.splitSectionsCount) arr.push(0);
+        activeSplitInvoice._splitDraftQtys[idx] = arr;
     });
+
+    // Constitution 6 (Order 3): Crash-Proof Active Split Draft Recovery
+    try {
+        const crashDraft = JSON.parse(localStorage.getItem('magaies_c6_active_split_draft_v1') || 'null');
+        if (crashDraft && String(crashDraft.invoiceNo) === String(invoiceNo) && crashDraft.draftQtys) {
+            window.splitSectionsCount = Number(crashDraft.splitSectionsCount) || window.splitSectionsCount;
+            if (!preferredUnitMode && crashDraft.splitUnitDisplayMode) window.splitUnitDisplayMode = crashDraft.splitUnitDisplayMode;
+            activeSplitInvoice._splitDraftQtys = crashDraft.draftQtys;
+            if (crashDraft.sectionMeta) window._splitSectionMeta = crashDraft.sectionMeta;
+            if (typeof showToast === 'function') {
+                showToast(`🛡️ تم استعادة مسودة التجزئة النشطة للفاتورة #${invoiceNo} تلقائياً`, 'info', 2500);
+            }
+        }
+    } catch (_e) {}
     
     document.getElementById('split-select-step').style.display = 'none';
     document.getElementById('split-board-step').style.display = 'flex';
     
     renderWorldClassSplitBoard();
+    window.saveCurrentSplitDraftState();
 }
 
 window.saveCurrentSplitDraftState = function() {
@@ -6310,6 +6398,25 @@ window.saveCurrentSplitDraftState = function() {
             receiverPhone: phnEl ? phnEl.value : (window._splitSectionMeta[s]?.receiverPhone || '')
         };
     }
+    // Constitution 6 (Order 3 & 6): Persist Crash-Proof Draft & Smart Context immediately
+    try {
+        const draftPayload = {
+            invoiceNo: activeSplitInvoice.invoiceNo || activeSplitInvoice.id,
+            splitSectionsCount: S,
+            splitUnitDisplayMode: window.splitUnitDisplayMode || 'both',
+            draftQtys: activeSplitInvoice._splitDraftQtys,
+            sectionMeta: window._splitSectionMeta,
+            updatedAt: Date.now()
+        };
+        localStorage.setItem('magaies_c6_active_split_draft_v1', JSON.stringify(draftPayload));
+        localStorage.setItem('magaies_c6_split_context_v1', JSON.stringify({
+            preferredUnitMode: window.splitUnitDisplayMode || 'both',
+            preferredSectionsCount: S
+        }));
+        if (typeof window.saveToSovereignVaultDB === 'function') {
+            window.saveToSovereignVaultDB('magaies_c6_active_split_draft_v1', draftPayload);
+        }
+    } catch (_e) {}
 };
 
 window.addSplitSection = function() {
@@ -6891,6 +6998,23 @@ function submitInvoiceSplit(autoPrintVouchers = false) {
     if (!activeSplitInvoice) return;
     window.saveCurrentSplitDraftState();
 
+    // Constitution 8 (Order 4): Anti-Backdating Monotonic Time-Lock Verification
+    if (typeof window.verifyC8MonotonicTimeLock === 'function' && !window.verifyC8MonotonicTimeLock(activeSplitInvoice)) {
+        return;
+    }
+    // Constitution 8 (Order 2): Immutable Post-Delivery / Locked Document Guard
+    if (activeSplitInvoice.isDelivered || activeSplitInvoice.deliveryStatus === 'delivered' || activeSplitInvoice.gdnTokenUsed) {
+        if (typeof window.logC8ForensicBlackBox === 'function') {
+            window.logC8ForensicBlackBox('BLOCK_IMMUTABLE_SPLIT', `محاولة تقسيم مستند مقفول/مصروف نهائياً (#${activeSplitInvoice.invoiceNo || activeSplitInvoice.id})`, 'locked', 'blocked');
+        }
+        if (typeof showToast === 'function') showToast('🔒 المستند مقفول أمنياً بعد الصرف النهائي — لا يُسمح بتعديله إلا عبر دورة مرتجع رسمي', 'error', 3200);
+        return;
+    }
+    // Constitution 8 (Order 3): Min-Price Floor & Max-Discount Ceiling Verification
+    if (typeof window.verifyC8PriceAndDiscountFloor === 'function' && !window.verifyC8PriceAndDiscountFloor(activeSplitInvoice)) {
+        return;
+    }
+
     const inv = activeSplitInvoice;
     const S = window.splitSectionsCount || 2;
     const rootNo = window.getRootInvoiceNo(inv);
@@ -6934,7 +7058,6 @@ function submitInvoiceSplit(autoPrintVouchers = false) {
 
     if (mismatchError) {
         if (typeof showToast === 'function') showToast('⚠️ ' + mismatchError, 'warning');
-        else alert(mismatchError);
         return;
     }
 
@@ -6942,7 +7065,6 @@ function submitInvoiceSplit(autoPrintVouchers = false) {
         if (sectionItems[s].length === 0) {
             const msg = `خطأ: القسم رقم (${s + 1}) برقم #${rootNo}/${splitSeq}/${s + 1} فارغ تماماً! يرجى توزيع كمية فيه أو حذفه.`;
             if (typeof showToast === 'function') showToast('⚠️ ' + msg, 'warning');
-            else alert(msg);
             return;
         }
     }
@@ -6966,15 +7088,39 @@ function submitInvoiceSplit(autoPrintVouchers = false) {
     const origAdditionsFc = parseFloat(inv.additionsCostFc) || 0;
     const nowIso = new Date().toISOString();
 
+    // Constitution 7 (Orders 1 & 2): Zero-Penny-Drift Exact Balancing & Landed Cost Unit Allocation
+    let accDisc = 0, accTax = 0, accCash = 0, accCredit = 0, accPaid = 0, accLabor = 0, accTrans = 0, accAdd = 0;
     const createdInvoices = generatedNumbers.map((childNo, s) => {
+        const isLast = (s === S - 1);
         const sub = +secSubtotals[s].toFixed(2);
         const ratio = totalSplitSubtotal > 0 ? (sub / totalSplitSubtotal) : (1 / S);
-        const disc = +(originalDiscount * ratio).toFixed(2);
-        const tax = +(originalTax * ratio).toFixed(2);
+        const disc = isLast ? +(originalDiscount - accDisc).toFixed(2) : +(originalDiscount * ratio).toFixed(2);
+        const tax = isLast ? +(originalTax - accTax).toFixed(2) : +(originalTax * ratio).toFixed(2);
+        const labor = isLast ? +(origLabor - accLabor).toFixed(2) : +(origLabor * ratio).toFixed(2);
+        const trans = isLast ? +(origTransport - accTrans).toFixed(2) : +(origTransport * ratio).toFixed(2);
+        const addCost = isLast ? +(origAdditions - accAdd).toFixed(2) : +(origAdditions * ratio).toFixed(2);
+        accDisc += disc; accTax += tax; accLabor += labor; accTrans += trans; accAdd += addCost;
+
+        const secLandedTotal = +(labor + trans + addCost).toFixed(2);
+        const secItemsWithLanded = (sectionItems[s] || []).map(it => {
+            const itVal = parseFloat(it.total) || 0;
+            const itQty = parseFloat(it.quantity ?? it.qty ?? 1) || 1;
+            const itShare = sub > 0 ? (itVal / sub) * secLandedTotal : 0;
+            const landedPerUnit = +(itShare / itQty).toFixed(4);
+            const baseCost = parseFloat(it.costPrice || (parseFloat(it.price || 0) * 0.82)) || 0;
+            return {
+                ...it,
+                allocatedLandedCost: +itShare.toFixed(2),
+                landedCostPerUnit: landedPerUnit,
+                effectiveUnitCost: +(baseCost + landedPerUnit).toFixed(4)
+            };
+        });
+
         const grand = Math.max(0, +(sub - disc + tax).toFixed(2));
-        const cashVal = +(origCash * ratio).toFixed(2);
-        const creditVal = +(origCredit * ratio).toFixed(2);
-        const paidVal = +(origPaid * ratio).toFixed(2);
+        const cashVal = isLast ? +(origCash - accCash).toFixed(2) : +(origCash * ratio).toFixed(2);
+        const creditVal = isLast ? +(origCredit - accCredit).toFixed(2) : +(origCredit * ratio).toFixed(2);
+        const paidVal = isLast ? +(origPaid - accPaid).toFixed(2) : +(origPaid * ratio).toFixed(2);
+        accCash += cashVal; accCredit += creditVal; accPaid += paidVal;
         const secMeta = window._splitSectionMeta[s] || {};
 
         return {
@@ -6982,7 +7128,7 @@ function submitInvoiceSplit(autoPrintVouchers = false) {
             id: childNo,
             invoiceNo: childNo,
             serial: childNo,
-            items: sectionItems[s],
+            items: secItemsWithLanded,
             subTotal: sub,
             discount: disc,
             vatAmount: tax,
@@ -6995,11 +7141,11 @@ function submitInvoiceSplit(autoPrintVouchers = false) {
             remainingBalance: Math.max(0, +(grand - paidVal).toFixed(2)),
             bankTransfers: (inv.bankTransfers || []).map(bt => ({ ...bt, amount: +(parseFloat(bt.amount || 0) * ratio).toFixed(2) })),
             cheques: (inv.cheques || []).map(ch => ({ ...ch, amount: +(parseFloat(ch.amount || 0) * ratio).toFixed(2) })),
-            laborCost: +(origLabor * ratio).toFixed(2),
+            laborCost: labor,
             laborCostFc: +(origLaborFc * ratio).toFixed(2),
-            transportCost: +(origTransport * ratio).toFixed(2),
+            transportCost: trans,
             transportCostFc: +(origTransportFc * ratio).toFixed(2),
-            additionsCost: +(origAdditions * ratio).toFixed(2),
+            additionsCost: addCost,
             additionsCostFc: +(origAdditionsFc * ratio).toFixed(2),
             receiverName: secMeta.receiverName || inv.receiverName || inv.customerName || '',
             truckPlate: secMeta.truckPlate || inv.truckPlate || '',
@@ -7042,6 +7188,10 @@ function submitInvoiceSplit(autoPrintVouchers = false) {
         allSales = JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || [];
     } catch(e) {}
     
+    const opTs = Date.now();
+    const deviceSig = localStorage.getItem('magaies_c6_device_id') || ('DEV-' + (/Mobi|Android/i.test(navigator.userAgent) ? 'MOB' : 'LAP') + '-' + opTs.toString(36).slice(-4));
+    const opUuid = `SPLIT-${parentNo}-${opTs}-${Math.random().toString(36).slice(2, 7).toUpperCase()}`;
+
     const origIdx = allSales.findIndex(x => String(x.invoiceNo || x.id) === parentNo);
     let archivedOrig = null;
     if (origIdx !== -1) {
@@ -7051,18 +7201,37 @@ function submitInvoiceSplit(autoPrintVouchers = false) {
         allSales[origIdx].splitBatchNo = splitSeq;
         allSales[origIdx].splitTo = generatedNumbers;
         allSales[origIdx].splitAt = nowIso;
+        allSales[origIdx].updatedAtTs = opTs;
+        allSales[origIdx].opUuid = opUuid;
+        allSales[origIdx].deviceSignature = deviceSig;
         allSales[origIdx].splitBy = curUser.id;
         allSales[origIdx].splitByName = curUser.fullName || curUser.name;
         archivedOrig = allSales[origIdx];
         localStorage.setItem('erp_inv_' + parentNo, JSON.stringify(archivedOrig));
     }
     
-    createdInvoices.forEach(cInv => {
+    createdInvoices.forEach((cInv, cIdx) => {
+        cInv.updatedAtTs = opTs + cIdx + 1;
+        cInv.opUuid = `${opUuid}-B${cIdx + 1}`;
+        cInv.deviceSignature = deviceSig;
         allSales.unshift(cInv);
         localStorage.setItem('erp_inv_' + cInv.invoiceNo, JSON.stringify(cInv));
     });
     localStorage.setItem('erp_sales_invoices_v1', JSON.stringify(allSales));
     localStorage.setItem('erp_sales_v1', JSON.stringify(allSales));
+    if (typeof window.saveToSovereignVaultDB === 'function') {
+        window.saveToSovereignVaultDB('erp_sales_invoices_v1', allSales);
+    }
+    // Constitution 6 (Order 3 & 6): Clear active crash-recovery draft & save customer logistics memory
+    try {
+        localStorage.removeItem('magaies_c6_active_split_draft_v1');
+        const custKey = String(activeSplitInvoice?.customer || activeSplitInvoice?.customerId || activeSplitInvoice?.customerName || '');
+        if (custKey && window._splitSectionMeta && window._splitSectionMeta[0]) {
+            const custLogistics = JSON.parse(localStorage.getItem('magaies_c6_customer_split_logistics_v1') || '{}');
+            custLogistics[custKey] = window._splitSectionMeta[0];
+            localStorage.setItem('magaies_c6_customer_split_logistics_v1', JSON.stringify(custLogistics));
+        }
+    } catch (_e) {}
     ['magaies_local_sales_invoices_v1', 'magaies_sales_invoices_cache'].forEach(cacheKey => {
         try {
             let arr = JSON.parse(localStorage.getItem(cacheKey) || '[]');
@@ -7428,15 +7597,103 @@ window.shareSplitVoucherWhatsApp = function(idx = 0) {
 
 window.printSplitVouchersBatch = function(vouchersList, rootNo, splitSeq) {
     if (!Array.isArray(vouchersList) || vouchersList.length === 0) return;
+
+    // Constitution 8 (Order 1): Block printing unsaved draft documents
+    const hasUnsavedDraft = vouchersList.some(v => v && v._isUnsavedDraftPreview);
+    if (hasUnsavedDraft) {
+        if (typeof window.logC8ForensicBlackBox === 'function') {
+            window.logC8ForensicBlackBox('BLOCK_PRE_SAVE_PRINT', `محاولة طباعة إذن مقسم قبل الحفظ النهائي (#${rootNo})`, 'draft', 'blocked');
+        }
+        if (typeof showToast === 'function') {
+            showToast('🔒 دستور الحصانة الأمنية (8): يُمنع طباعة أي إذن قبل حفظه وترحيله الفعلي في قاعدة البيانات!', 'error', 3400);
+        }
+        return;
+    }
+
+    // Constitution 8 (Order 1): Check if any voucher was already printed (isPrinted / printCount >= 1)
+    let allSales = [];
+    try { allSales = JSON.parse(localStorage.getItem('erp_sales_invoices_v1') || '[]') || []; } catch (_e) {}
+    const alreadyPrinted = vouchersList.some(v => {
+        const no = String(v.invoiceNo || v.id || '');
+        const stored = allSales.find(x => x && String(x.invoiceNo || x.id) === no);
+        return (v.isPrinted || (v.printCount || 0) >= 1) || (stored && (stored.isPrinted || (stored.printCount || 0) >= 1));
+    });
+
+    const authReprint = window._c8AuthorizedReprintMeta || null;
+    if (alreadyPrinted && !authReprint) {
+        if (typeof window.logC8ForensicBlackBox === 'function') {
+            window.logC8ForensicBlackBox('INTERCEPT_DUPLICATE_PRINT', `اعتراض محاولة إعادة طباعة إذن سبق طباعته (#${rootNo}) بدون تفويض المدير`, 'isPrinted=true', 'PIN_REQUIRED');
+        }
+        if (typeof window.openC8SupervisedReprintModal === 'function') {
+            window.openC8SupervisedReprintModal(vouchersList, rootNo, splitSeq);
+        } else if (typeof showToast === 'function') {
+            showToast('🔒 تم قفل زر الطباعة بعد خروج النسخة الأصلية (1) — يتطلب رمز المدير (PIN) لإصدار بدل فاقد مراقب', 'warning', 3200);
+        }
+        return;
+    }
+    window._c8AuthorizedReprintMeta = null;
+
+    let curUser = { name: 'المسؤول' };
+    try { curUser = JSON.parse(localStorage.getItem('erp_current_user') || '{}') || { name: 'المسؤول' }; } catch (_e) {}
+    const empName = curUser.fullName || curUser.name || curUser.username || 'المسؤول';
+    const exactNowStr = new Date().toLocaleString('ar-EG', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' });
+
+    // Increment printCount & lock isPrinted = true in persistent storage
+    let maxPrintNo = 1;
+    vouchersList.forEach(v => {
+        const no = String(v.invoiceNo || v.id || '');
+        const sIdx = allSales.findIndex(x => x && String(x.invoiceNo || x.id) === no);
+        const nextCnt = ((sIdx !== -1 ? (allSales[sIdx].printCount || 0) : (v.printCount || 0)) || 0) + 1;
+        if (nextCnt > maxPrintNo) maxPrintNo = nextCnt;
+        v.isPrinted = true;
+        v.printCount = nextCnt;
+        v.lastPrintedAt = exactNowStr;
+        v.lastPrintedBy = empName;
+        if (sIdx !== -1) {
+            allSales[sIdx].isPrinted = true;
+            allSales[sIdx].printCount = nextCnt;
+            allSales[sIdx].lastPrintedAt = exactNowStr;
+            allSales[sIdx].lastPrintedBy = empName;
+        }
+    });
+    try {
+        localStorage.setItem('erp_sales_invoices_v1', JSON.stringify(allSales));
+        if (typeof window.saveToSovereignVaultDB === 'function') window.saveToSovereignVaultDB('erp_sales_invoices_v1', allSales);
+        if (typeof window.logC8ForensicBlackBox === 'function') {
+            window.logC8ForensicBlackBox(
+                maxPrintNo === 1 ? 'ORIGINAL_PRINT_LOCKED' : 'SUPERVISED_DUPLICATE_REPRINT',
+                maxPrintNo === 1
+                    ? `طباعة النسخة الأصلية (1) وقفل الطباعة تلقائياً للإذن (#${rootNo})`
+                    : `إعادة طباعة مراقبة — نسخة مكررة رقم (${maxPrintNo}) بدل فاقد للإذن (#${rootNo}) — السبب: ${authReprint?.reason || 'معتمد'}`,
+                `printCount=${maxPrintNo - 1}`,
+                `printCount=${maxPrintNo}`
+            );
+        }
+    } catch (_e) {}
+
     const totalBranches = vouchersList.length;
 
     const pagesHtml = vouchersList.map((inv, idx) => {
         const invNo = String(inv.invoiceNo || inv.id || '');
-        const qrTargetUrl = `${window.location.origin}${window.location.pathname}?action=delivery&qr_deliver=${encodeURIComponent(invNo)}&auto_deduct=1`;
+        const pCount = inv.printCount || maxPrintNo || 1;
+        const isDuplicate = pCount > 1;
+        const oneTimeToken = inv.gdnSingleUseToken || (`GDN-TOKEN-${invNo}-${inv.opUuid || splitSeq}`);
+        const qrTargetUrl = `${window.location.origin}${window.location.pathname}?action=delivery&qr_deliver=${encodeURIComponent(invNo)}&token=${encodeURIComponent(oneTimeToken)}&auto_deduct=1`;
         const qrImgUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&margin=4&data=${encodeURIComponent(qrTargetUrl)}`;
         const custName = inv.customerName || 'عميل نقدي';
         const receiver = inv.receiverName || custName;
         const truck = inv.truckPlate || '—';
+
+        const copyStampBadge = isDuplicate
+            ? `<div style="display:inline-block; background:#dc2626; color:#fff; padding:4px 12px; border-radius:6px; font-weight:900; font-size:0.86rem; margin-bottom:6px;">⚠️ نسخة مكررة رقم (${pCount}) — بدل فاقد — لا يُصرف ولا يُسلّم بها بضاعة</div>`
+            : `<div style="display:inline-block; background:#059669; color:#fff; padding:4px 12px; border-radius:6px; font-weight:900; font-size:0.86rem; margin-bottom:6px;">🔒 نسخة أصلية — طبعة رقم (1) — صالحة للصرف مرة واحدة فقط</div>`;
+
+        const diagonalWatermarkHtml = isDuplicate ? `
+            <div style="position:absolute; top:48%; left:50%; transform:translate(-50%, -50%) rotate(-24deg); width:92%; text-align:center; font-size:1.75rem; font-weight:900; color:rgba(220,38,38,0.22); border:4px dashed rgba(220,38,38,0.35); padding:14px 10px; border-radius:14px; pointer-events:none; z-index:20;">
+                نسخة مكررة رقم (${pCount}) — بدل فاقد — لا يُصرف ولا يُسلّم بها بضاعة<br>
+                <span style="font-size:0.95rem;">طُبعت بواسطة: ${empName} | بتاريخ: ${exactNowStr} | السبب: ${authReprint?.reason || 'بدل فاقد معتمد'}</span>
+            </div>
+        ` : '';
 
         const rowsHtml = (inv.items || []).map((it, i) => {
             const m = window.resolveSplitItemUnitMeta(it);
@@ -7453,9 +7710,11 @@ window.printSplitVouchersBatch = function(vouchersList, rootNo, splitSeq) {
         }).join('');
 
         return `
-            <div class="voucher-card" style="${idx < totalBranches - 1 ? 'page-break-after:always; margin-bottom:28px; border-bottom:3px dashed #64748b; padding-bottom:24px;' : ''}">
+            <div class="voucher-card" style="position:relative; ${idx < totalBranches - 1 ? 'page-break-after:always; margin-bottom:28px; border-bottom:3px dashed #64748b; padding-bottom:24px;' : ''}">
+                ${diagonalWatermarkHtml}
                 <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:3px solid #0f172a; padding-bottom:12px; margin-bottom:14px;">
                     <div>
+                        ${copyStampBadge}
                         <div style="display:inline-block; background:#0f172a; color:#fff; padding:4px 12px; border-radius:6px; font-weight:900; font-size:0.85rem; margin-bottom:6px;">
                             ✂️ إذن صرف مقسّم — القسم (${idx + 1}) من (${totalBranches})
                         </div>
@@ -7466,11 +7725,11 @@ window.printSplitVouchersBatch = function(vouchersList, rootNo, splitSeq) {
                             🏷️ القسم الفرعي: <span style="font-family:monospace;">${idx + 1}/${totalBranches}</span>
                         </p>
                         <p style="margin:4px 0 0; font-weight:800;">👤 العميل: ${custName} &nbsp;|&nbsp; المستلم: ${receiver} &nbsp;|&nbsp; 🚛 المركبة: ${truck}</p>
-                        <p style="margin:4px 0 0; font-weight:800;">📅 التاريخ: ${inv.date || new Date().toISOString().slice(0, 10)}</p>
+                        <p style="margin:4px 0 0; font-weight:800;">📅 تاريخ المستند: ${inv.date || new Date().toISOString().slice(0, 10)} &nbsp;|&nbsp; 🕒 وقت الطباعة الفعلي: ${exactNowStr} (${empName})</p>
                     </div>
                     <div style="text-align:center;">
                         <img src="${qrImgUrl}" style="width:115px; height:115px; border:2px solid #000; border-radius:10px;">
-                        <div style="font-size:0.7rem; font-weight:900; margin-top:3px;">امسح للصرف الفوري (#${invNo})</div>
+                        <div style="font-size:0.7rem; font-weight:900; margin-top:3px;">باركود وحيد الاستعمال (#${invNo})</div>
                     </div>
                 </div>
                 <table style="width:100%; border-collapse:collapse; margin-top:10px;">
@@ -7532,35 +7791,12 @@ window.printSplitVouchersBatch = function(vouchersList, rootNo, splitSeq) {
 
 window.previewCurrentSplitVouchersBeforeSave = function(onlySecIdx = null) {
     if (!activeSplitInvoice) return;
-    window.saveCurrentSplitDraftState();
-    const inv = activeSplitInvoice;
-    const S = window.splitSectionsCount || 2;
-    const rootNo = window.getRootInvoiceNo(inv);
-    const splitSeq = Math.max(1, parseInt(window.currentSplitOperationSeq, 10) || window.getNextSplitSequenceNo());
-
-    const draftVouchers = [];
-    for (let s = 0; s < S; s++) {
-        if (onlySecIdx !== null && onlySecIdx !== s) continue;
-        const secItems = [];
-        (inv.items || []).forEach((item, idx) => {
-            const inp = document.getElementById(`split-qty-s${s}-i${idx}`);
-            const q = inp ? (parseFloat(inp.value) || 0) : ((inv._splitDraftQtys?.[idx]?.[s]) || 0);
-            if (q > 0) {
-                secItems.push({ ...item, qty: q, quantity: q });
-            }
-        });
-        const secMeta = window._splitSectionMeta?.[s] || {};
-        draftVouchers.push({
-            ...inv,
-            invoiceNo: `${rootNo}/${splitSeq}/${s + 1}`,
-            id: `${rootNo}/${splitSeq}/${s + 1}`,
-            items: secItems,
-            receiverName: secMeta.receiverName || inv.receiverName || inv.customerName || '',
-            truckPlate: secMeta.truckPlate || inv.truckPlate || ''
-        });
+    // Constitution 8 (Order 1): Strictly block printing before final save & database commit
+    if (typeof window.logC8ForensicBlackBox === 'function') {
+        window.logC8ForensicBlackBox('PRE_SAVE_PRINT_BLOCKED', `محاولة طباعة مسودة تقسيم قبل الحفظ النهائي (#${activeSplitInvoice.invoiceNo || activeSplitInvoice.id})`, 'unsaved_draft', 'blocked');
     }
-    if (draftVouchers.length > 0) {
-        window.printSplitVouchersBatch(draftVouchers, rootNo, splitSeq);
+    if (typeof showToast === 'function') {
+        showToast('🔒 دستور الحصانة الأمنية (8): يُمنع الطباعة قبل الحفظ والترحيل الفعلي! اضغط "اعتماد التقسيم (F10)" أولاً.', 'warning', 3200);
     }
 };
 

@@ -10,7 +10,7 @@
 (function () {
     'use strict';
 
-    const SHORT_SAHIHAYN_SALAWAT = 'اللَّهُمَّ صَلِّ عَلَى مُحَمَّدٍ وَعَلَى آلِ مُحَمَّدٍ.';
+    const SHORT_SAHIHAYN_SALAWAT = 'اللهم صل وسلم على نبينا محمد.';
 
     // ── INJECT STYLES FOR SMART GUIDE, GHOST CURSOR & LIVE TELEPROMPTER ──────
     const styleEl = document.createElement('style');
@@ -308,13 +308,13 @@
             display: none;
             border: 3.5px solid #fbbf24;
             border-radius: 16px;
-            box-shadow: 0 0 32px rgba(251, 191, 36, 0.85), inset 0 0 18px rgba(251, 191, 36, 0.35);
-            transition: all 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+            box-shadow: 0 0 32px rgba(251, 191, 36, 0.9), inset 0 0 18px rgba(251, 191, 36, 0.35), 0 0 0 9999px rgba(2, 6, 23, 0.36);
+            transition: all 0.32s cubic-bezier(0.22, 1, 0.36, 1);
             animation: msgTargetPulse 1.4s infinite ease-in-out;
         }
         @keyframes msgTargetPulse {
-            0%, 100% { border-color: #fbbf24; box-shadow: 0 0 28px rgba(251, 191, 36, 0.85); }
-            50% { border-color: #38bdf8; box-shadow: 0 0 38px rgba(56, 189, 248, 0.95); }
+            0%, 100% { border-color: #fbbf24; box-shadow: 0 0 28px rgba(251, 191, 36, 0.85), 0 0 0 9999px rgba(2, 6, 23, 0.36); }
+            50% { border-color: #38bdf8; box-shadow: 0 0 38px rgba(56, 189, 248, 0.95), 0 0 0 9999px rgba(2, 6, 23, 0.36); }
         }
 
         /* ── ROYAL COMPACT NON-BLOCKING GUIDE CONTROL POD (أمر حاسم 2: كبسولة Micro-HUD لا تحجب أي شيء وتتبع السمات السبع 100%) ── */
@@ -324,10 +324,10 @@
             left: 12px;
             z-index: 100060;
             width: auto;
-            max-width: min(510px, 95vw);
+            max-width: min(540px, 95vw);
             background: linear-gradient(160deg, rgba(2, 6, 23, 0.96) 0%, rgba(15, 23, 42, 0.98) 55%, rgba(23, 15, 48, 0.96) 100%);
             color: #ffffff !important;
-            border: 1.5px solid rgba(251, 191, 36, 0.85);
+            border: 2.2px solid rgba(251, 191, 36, 0.9) !important;
             border-radius: 999px;
             padding: 5px 12px;
             box-shadow: 0 10px 28px rgba(0, 0, 0, 0.85), 0 0 18px rgba(251, 191, 36, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.22);
@@ -1206,10 +1206,14 @@
         let txt = String(rawText || '').trim();
         if (!txt) return '';
         txt = txt
+            .replace(/^اللَّهُمَّ\s+صَلِّ\s+وَسَلِّمْ\s+عَلَى\s+نَبِيِّنَا\s+مُحَمَّدٍ[.،\s]*/g, '')
             .replace(/^اللَّهُمَّ\s+صَلِّ\s+عَلَى\s+مُحَمَّدٍ\s+وَعَلَى\s+آلِ\s+مُحَمَّدٍ[.،\s]*/g, '')
             .replace(/^اللهم\s+صل\s+وسلم\s+على\s+نبينا\s+محمد[.،\s]*/g, '')
             .replace(/^اللهم\s+صل\s+على\s+محمد\s+وعلى\s+آل\s+محمد[.،\s]*/g, '')
             .replace(/^اللهم\s+صل\s+على\s+سيدنا\s+محمد[.،\s]*/g, '')
+            .replace(/شرح\s+من\s+الألف\s+(إلى|ل)\s*الياء/g, 'الشرح الشامل')
+            .replace(/من\s+الألف\s+(إلى|ل)\s*الياء/g, '')
+            .replace(/\s{2,}/g, ' ')
             .trim();
         return txt;
     }
@@ -1635,8 +1639,7 @@
     window.MagaiesSmartGuides = window.MagaiesSmartGuides || {};
 
     // ============================================================================
-    // 📥 1. FULL A-TO-Z MASTERCLASS: PURCHASES RECEIPT & SPLIT GATEWAY (GRN)
-    // (10 خطوات تعليمية تشرح من الألف إلى الياء ببساطة تامة بدون مجرد قراءة لعناوين الأزرار)
+    // 📥 1. FULL MASTERCLASS: PURCHASES RECEIPT & SPLIT GATEWAY (GRN)
     // ============================================================================
     const PURCHASES_MASTER_STEPS = [
         {
@@ -1644,11 +1647,11 @@
             cursorLabel: 'بوابة استلام المشتريات (إضافة للمخزن +) 📥',
             targetSelector: '#sl-tab-purchases',
             speechByDialect: {
-                egyptian: () => `يا أهلاً بحضرتك في الشرح الكامل من الألف للياء لبوابة استلام المشتريات وتقسيمها. الفكرة ببساطة إن المشتريات لما بتشتري فاتورة من المورد، البضاعة مش بتدخل المخزن لوحدها، لازم تعدي على البوابة الزرقاء دي الأول علشان أمين المخزن يفحصها ويعدّها بنفسه، سواء وصلت كاملة على عربية واحدة أو وصلت متقسمة على كذا دفعة.`,
-                sudanese: () => `حبابك عشرة في الشرح الشامل من الألف للياء لبوابة استلام المشتريات وتقسيمها. الفكرة ببساطة إنو لما نشتري فاتورة من المورد، البضاعة ما بتنزل في المخزن طوالي، لازم تمر على البوابة الزرقاء دي أول حاجة عشان أمين المخزن يفحصها ويعدّها براهو، سواء وصلت كلها في دفعة واحدة أو وصلت مقسمة على دفعات.`,
-                gulf:     () => `يا هلا والله في الشرح الكامل من الألف للياء لبوابة استلام المشتريات وتقسيمها. الفكرة ببساطة إنه لما نشتري فاتورة من المورد، البضاعة ما تدخل المستودع تلقائياً، لازم تمر على هذي البوابة الزرقاء أول شيء عشان أمين المستودع يفحصها ويعدّها فعلياً، سواء وصلت كاملة بدفعة واحدة أو مقسمة على عدة دفعات.`
+                egyptian: () => `وظيفة بوابة استلام المشتريات وتقسيمها ببساطة إن المشتريات لما بتشتري فاتورة من المورد، البضاعة مش بتدخل المخزن لوحدها، لازم تعدي على البوابة الزرقاء دي الأول علشان أمين المخزن يفحصها ويعدّها بنفسه، سواء وصلت كاملة على عربية واحدة أو وصلت متقسمة على كذا دفعة.`,
+                sudanese: () => `وظيفة بوابة استلام المشتريات وتقسيمها ببساطة إنو لما نشتري فاتورة من المورد، البضاعة ما بتنزل في المخزن طوالي، لازم تمر على البوابة الزرقاء دي أول حاجة عشان أمين المخزن يفحصها ويعدّها براهو، سواء وصلت كلها في دفعة واحدة أو وصلت مقسمة على دفعات.`,
+                gulf:     () => `وظيفة بوابة استلام المشتريات وتقسيمها ببساطة إنه لما نشتري فاتورة من المورد، البضاعة ما تدخل المستودع تلقائياً، لازم تمر على هذي البوابة الزرقاء أول شيء عشان أمين المستودع يفحصها ويعدّها فعلياً، سواء وصلت كاملة بدفعة واحدة أو مقسمة على عدة دفعات.`
             },
-            speech: () => `أهلاً بك في الشرح الشامل من الألف للياء لبوابة استلام المشتريات وتقسيمها. الفكرة ببساطة أن فاتورة المشتريات لا تدخل المخزن تلقائياً، بل تمر عبر هذه البوابة الزرقاء ليفحصها أمين المخزن ويستلمها دفعة واحدة أو يقسمها على عدة دفعات.`,
+            speech: () => `وظيفة بوابة استلام المشتريات وتقسيمها أن فاتورة المشتريات لا تدخل المخزن تلقائياً، بل تمر عبر هذه البوابة الزرقاء ليفحصها أمين المخزن ويستلمها دفعة واحدة أو يقسمها على عدة دفعات.`,
             action: () => {
                 if (typeof window.switchLogisticsMode === 'function') {
                     window.switchLogisticsMode('purchases', true);
@@ -1831,8 +1834,7 @@
     ];
 
     // ============================================================================
-    // 📤 2. FULL A-TO-Z MASTERCLASS: SALES DELIVERY & SPLIT GATEWAY (GDN)
-    // (9 خطوات تعليمية تشرح بوابة تسليم المبيعات وتقسيمها وتصريح البوابة من الألف للياء)
+    // 📤 2. FULL MASTERCLASS: SALES DELIVERY & SPLIT GATEWAY (GDN)
     // ============================================================================
     const SALES_ONLY_STEPS = [
         {
@@ -1840,11 +1842,11 @@
             cursorLabel: 'بوابة تسليم المبيعات (خصم مخزني - Out) 📤',
             targetSelector: '#sl-tab-sales',
             speechByDialect: {
-                egyptian: () => `يا أهلاً بحضرتك في الشرح الكامل من الألف للياء لبوابة تسليم المبيعات وتقسيمها، واللي بنسميها البوابة الخضراء. الفكرة هنا إن العميل لما بيشتري فاتورة من المبيعات، البضاعة مش بتتخصم ولا تخرج من المخزن إلا لما ييجي يستلمها فعلياً هنا، وساعتها نقدر نسلمه الفاتورة كلها مرة واحدة، أو نقسمها له على دفعات وعربيات مختلفة، ونطلع له تصريح خروج رسمي للبوابة.`,
-                sudanese: () => `حبابك عشرة في الشرح الشامل من الألف للياء لبوابة تسليم المبيعات وتقسيمها، البوابة الخضراء. الفكرة هنا إنو العميل لما يقطع فاتورة مبيعات، البضاعة ما بتمرق من المخزن إلا لما يجي يستلمها فعلياً هنا، ووقتها بنقدر نسلمو الفاتورة كلها مرة واحدة، أو نقسمها ليهو على دفعات، ونطلع ليهو إذن خروج رسمي للبوابة.`,
-                gulf:     () => `يا هلا والله في الشرح الكامل من الألف للياء لبوابة تسليم المبيعات وتقسيمها، البوابة الخضراء. الفكرة هنا إن العميل لما يصدر فاتورة مبيعات، البضاعة ما تنخصم ولا تطلع من المستودع إلا عند تسليمها الفعلي هنا، وتقدر تسلمه كامل الفاتورة دفعة واحدة أو تقسمها له على دفعات وتصدر له تصريح خروج رسمي للبوابة.`
+                egyptian: () => `وظيفة بوابة تسليم المبيعات وتقسيمها، واللي بنسميها البوابة الخضراء، إن العميل لما بيشتري فاتورة من المبيعات، البضاعة مش بتتخصم ولا تخرج من المخزن إلا لما ييجي يستلمها فعلياً هنا، وساعتها نقدر نسلمه الفاتورة كلها مرة واحدة، أو نقسمها له على دفعات وعربيات مختلفة، ونطلع له تصريح خروج رسمي للبوابة.`,
+                sudanese: () => `وظيفة بوابة تسليم المبيعات وتقسيمها، البوابة الخضراء، إنو العميل لما يقطع فاتورة مبيعات، البضاعة ما بتمرق من المخزن إلا لما يجي يستلمها فعلياً هنا، ووقتها بنقدر نسلمو الفاتورة كلها مرة واحدة، أو نقسمها ليهو على دفعات، ونطلع ليهو إذن خروج رسمي للبوابة.`,
+                gulf:     () => `وظيفة بوابة تسليم المبيعات وتقسيمها، البوابة الخضراء، إن العميل لما يصدر فاتورة مبيعات، البضاعة ما تنخصم ولا تطلع من المستودع إلا عند تسليمها الفعلي هنا، وتقدر تسلمه كامل الفاتورة دفعة واحدة أو تقسمها له على دفعات وتصدر له تصريح خروج رسمي للبوابة.`
             },
-            speech: () => `أهلاً بك في الشرح الشامل من الألف للياء لبوابة تسليم المبيعات وتقسيمها. هنا يتم صرف فواتير العملاء فعلياً من المخزن سواء دفعة واحدة أو مقسمة على دفعات مع إصدار تصريح خروج البوابة.`,
+            speech: () => `وظيفة بوابة تسليم المبيعات وتقسيمها أنه يتم فيها صرف فواتير العملاء فعلياً من المخزن سواء دفعة واحدة أو مقسمة على دفعات مع إصدار تصريح خروج البوابة.`,
             action: () => {
                 if (typeof window.switchLogisticsMode === 'function') {
                     window.switchLogisticsMode('sales', true);
@@ -2017,7 +2019,7 @@
     ];
 
     window.MagaiesSmartGuides['smart-logistics'] = {
-        title: 'المرشد الذكي الشامل (من الألف إلى الياء): بوابة المشتريات (GRN) وبوابة المبيعات (GDN)',
+        title: 'المرشد الذكي الشامل: بوابة المشتريات (GRN) وبوابة المبيعات (GDN)',
         subtitle: 'أكاديمية شرح تفاعلية حية بالصوت الرجالي الواضح بـ 3 لهجات (🇸🇩 سودانية | 🇪🇬 مصرية | 🇸🇦 خليجية) والماوس المتحرك',
 
         // LIVE AUTOPILOT SCENARIO STEPS
@@ -2777,16 +2779,34 @@
     // ══════════════════════════════════════════════════════════════════════════
     window.autoSynthesizeElementExplanation = function (el) {
         if (!el || el === document.body || el.closest('#msg-live-coach-bar, #msg-smart-hover-tooltip, #msg-universal-fixed-launcher, #msg-universal-modal')) return null;
+        if (typeof window.isElementAllowedForCurrentUserRole === 'function' && !window.isElementAllowedForCurrentUserRole(el)) return null;
+        const customTitle = el.getAttribute && el.getAttribute('data-guide-title');
+        const customDesc = el.getAttribute && el.getAttribute('data-guide-desc');
+        const customRule = (el.getAttribute && el.getAttribute('data-golden-rule')) || 'تأكد من مراجعة البيانات المدخلة أو الخيار المحدد قبل الحفظ لضمان التسميع المحاسبي الدقيق.';
+        if (customTitle && customDesc) {
+            return {
+                title: customTitle,
+                desc: `${customDesc} 👑 القاعدة الذهبية لهذا العنصر: ${customRule}`
+            };
+        }
         const btn = el.closest('button, a.btn, .btn-action, .md-tab-btn, .sl-btn, [onclick]');
         if (btn) {
+            const bTitle = btn.getAttribute('data-guide-title') || '';
+            const bDesc = btn.getAttribute('data-guide-desc') || '';
+            if (bTitle && bDesc) {
+                return {
+                    title: bTitle,
+                    desc: `${bDesc} 👑 القاعدة الذهبية لهذا العنصر: ${btn.getAttribute('data-golden-rule') || customRule}`
+                };
+            }
             const rawTxt = (btn.innerText || btn.getAttribute('title') || btn.getAttribute('aria-label') || '').replace(/\s+/g, ' ').replace(/F\d+/g, '').trim();
             if (!rawTxt || rawTxt.length < 2) return null;
             const titleHint = btn.getAttribute('title') || '';
             return {
                 title: `زر (${rawTxt.slice(0, 42)})`,
-                desc: titleHint && titleHint !== rawTxt
+                desc: (titleHint && titleHint !== rawTxt
                     ? `${titleHint} — عند الضغط على (${rawTxt}) ينفذ النظام العملية المرتبطة به ويحدّث البيانات فوراً.`
-                    : `أمر تفاعلي لتنفيذ (${rawTxt}) مباشرة داخل الشاشة وتحديث الحسابات والسجلات المرتبطة به لحظياً.`
+                    : `أمر تفاعلي لتنفيذ (${rawTxt}) مباشرة داخل الشاشة وتحديث الحسابات والسجلات المرتبطة به لحظياً.`) + ` 👑 القاعدة الذهبية لهذا العنصر: ${customRule}`
             };
         }
         const fldWrap = el.closest('.pro-field-card, .input-group, .h-form-group');
@@ -2798,17 +2818,17 @@
                 const opts = Array.from(ctrl.options || []).map(o => (o.textContent || '').trim()).filter(Boolean).slice(0, 4).join('، ');
                 return {
                     title: `قائمة (${lbl.slice(0, 40)})`,
-                    desc: `قائمة منسدلة لاختيار (${lbl})${opts ? ` ومن خياراتها: (${opts})` : ''}، وتسمّع تلقائياً في السجل الحالي.`
+                    desc: `قائمة منسدلة لاختيار (${lbl})${opts ? ` ومن خياراتها: (${opts})` : ''}، وتسمّع تلقائياً في السجل الحالي. 👑 القاعدة الذهبية لهذا العنصر: اختر التصنيف الصحيح من القائمة المنسدلة لتوجيه القيد والتقرير تلقائياً.`
                 };
             }
             return {
                 title: `خانة (${lbl.slice(0, 40)})`,
-                desc: `تُستخدم لإدخال أو تعديل (${lbl}) مع التسميع اللحظي والحفظ المباشر في قاعدة البيانات.`
+                desc: `تُستخدم لإدخال أو تعديل (${lbl}) مع التسميع اللحظي والحفظ المباشر في قاعدة البيانات. 👑 القاعدة الذهبية لهذا العنصر: ${customRule}`
             };
         }
         if (el.tagName === 'TH') {
             const thTxt = (el.innerText || '').replace(/\s+/g, ' ').trim();
-            if (thTxt) return { title: `عمود (${thTxt})`, desc: `يعرض بيانات (${thTxt}) لكل سجل في الجدول مع إمكانية البحث والفرز الفوري.` };
+            if (thTxt) return { title: `عمود (${thTxt})`, desc: `يعرض بيانات (${thTxt}) لكل سجل في الجدول مع إمكانية البحث والفرز الفوري. 👑 القاعدة الذهبية: راجع قيم هذا العمود للتأكد من دقة الأرصدة والأسعار المسجلة.` };
         }
         return null;
     };
@@ -2835,15 +2855,17 @@
         ];
 
         const liveElements = Array.from(document.querySelectorAll(
-            '.md-action-bar button, .tab-content.active button, .md-tabs-sidebar button, main button, .cockpit-header button, ' +
+            '#md-c1-command-bar button, .md-action-bar button, .md-tab-content.active button, .tab-content.active button, .md-tabs-sidebar button, main button, .cockpit-header button, ' +
+            '.md-child-modal button, .md-c1-modal-backdrop button, ' +
             '#purchase-editor-view .panel-header-row button, #purchase-editor-view .items-toolbar button, #purchase-editor-view .h-form-group button, ' +
             '#purchase-hub-view .hub-action-card, #purchase-hub-view .smart-filter-bar button, ' +
             '#invoice-editor-view .panel-header-row button, #invoice-editor-view .items-toolbar button, ' +
             '#sl-top-cockpit-bar .sl-btn, .sl-glass-card:not([id$="-modal"] .sl-glass-card) button.sl-btn, .sl-floating-summary button.sl-btn'
         )).filter(b => {
             if (b.closest('#msg-live-coach-bar, #msg-universal-fixed-launcher, #msg-universal-modal, #master-7-themes-modal, [id^="sl-"][id$="-modal"]')) return false;
+            if (typeof window.isElementAllowedForCurrentUserRole === 'function' && !window.isElementAllowedForCurrentUserRole(b)) return false;
             const r = b.getBoundingClientRect();
-            return r.width > 28 && r.height > 18;
+            return r.width > 24 && r.height > 18;
         });
 
         liveElements.forEach((btn, idx) => {
@@ -3711,6 +3733,7 @@
                     <button type="button" onclick="window.adjustSpeechSpeedBy(-0.08, false)" class="sl-btn" style="padding:1px 5px; font-size:0.68rem; border-radius:6px; font-weight:900;" title="إبطاء سرعة الصوت">🐢-</button>
                     <span id="msg-coach-speed-lbl" style="font-size:0.66rem; font-weight:900; min-width:30px; text-align:center;">${formatSpeedPctLabel(selectedSpeechRate)}</span>
                     <button type="button" onclick="window.adjustSpeechSpeedBy(0.08, false)" class="sl-btn" style="padding:1px 5px; font-size:0.68rem; border-radius:6px; font-weight:900;" title="تسريع الصوت">+⚡</button>
+                    <button type="button" onclick="if(typeof window.openMdInteractiveImpactMapModal==='function'){window.openMdInteractiveImpactMapModal();}else{var b=document.getElementById('msg-c5-impact-map-banner');if(b)b.style.display=(b.style.display==='none'?'block':'none');}" class="sl-btn" style="padding:2px 5px; font-size:0.68rem; border-radius:6px; font-weight:900;" title="خريطة الترابط الثلاثية والقاعدة الذهبية (3-Stage SVG)">🗺️</button>
                     <button type="button" onclick="window.startQuickMasterDataQuiz()" class="sl-btn" style="padding:2px 5px; font-size:0.68rem; border-radius:6px; font-weight:900;" title="اختبار تفاعلي سريع (Quiz)">🎯</button>
                     <button type="button" id="msg-coach-voice-cmd-btn" onclick="window.startMasterDataVoiceCommand()" class="sl-btn" style="padding:2px 5px; font-size:0.68rem; border-radius:6px; font-weight:900;" title="بحث وتنقل صوتي فوري (Voice-to-Filter)">🎙️</button>
                     <button type="button" onclick="window.stepLiveAutopilot(-1)" class="sl-btn" style="padding:2px 5px; font-size:0.68rem; border-radius:6px;" title="الخطوة السابقة">⏮️</button>
@@ -3893,7 +3916,7 @@
                     `;
                 } else {
                     modeSel.innerHTML = `
-                        <option value="all">🌐 شرح الشاشة من الألف للياء</option>
+                        <option value="all">🌐 الملخص التنفيذي والشرح الشامل للشاشة</option>
                         <option value="pick">👆 الشرح بالتأشير على أي زر أو حقل</option>
                     `;
                 }
@@ -4240,10 +4263,31 @@
             'split-voice-assistant-modal',
             'split-hands-on-sim-modal',
             'split-drilldown-doc-modal',
-            'split-analytics-modal'
+            'split-analytics-modal',
+            'split-weight-shield-modal',
+            'split-driver-signature-modal',
+            'split-presets-modal',
+            'add-customer-modal',
+            'sales-cust-history-modal',
+            'sales-parked-invoices-modal',
+            'ds-cash-change-modal',
+            'ds-cash-tender-modal',
+            'ds-last-price-memory-modal',
+            'ds-margin-shield-modal',
+            'ds-cross-sell-modal',
+            'ds-signature-modal',
+            'ds-constitutions-officer-modal',
+            'ds-quick-wh-modal',
+            'ds-quick-item-modal',
+            'ds-warranty-qr-modal',
+            'auto-send-sales-dropdown-menu',
+            'msg-c5-impact-map-banner'
         ].forEach(id => {
             const m = document.getElementById(id);
-            if (m) m.style.display = 'none';
+            if (m) {
+                m.style.display = 'none';
+                m.classList.remove('active');
+            }
         });
     }
 
@@ -4354,8 +4398,114 @@
         </svg>`;
     }
 
-    function renderLiveDubbedVisualStage() {
-        // أمر حاسم (2): إلغاء لوحة المخطط الطويلة الحاجبة للرؤية نهائياً
+    let _c5ImpactPhaseTimers = [];
+    function clearC5ImpactPhaseTimers() {
+        _c5ImpactPhaseTimers.forEach(t => clearTimeout(t));
+        _c5ImpactPhaseTimers = [];
+    }
+
+    function renderLiveDubbedVisualStage(step) {
+        clearC5ImpactPhaseTimers();
+        let banner = document.getElementById('msg-c5-impact-map-banner');
+        if (!step || step.diagramType !== 'c5-impact-map') {
+            if (banner) banner.style.display = 'none';
+            return;
+        }
+        if (!banner) {
+            banner = document.createElement('div');
+            banner.id = 'msg-c5-impact-map-banner';
+            document.body.appendChild(banner);
+        }
+        const isLight = document.documentElement.classList.contains('light-theme') ||
+            ['light', 'pearl-white', 'warm_cream', 'ultra_white', 'exec_gray'].includes(document.documentElement.getAttribute('data-theme') || '');
+        const bgCard = isLight ? '#F1F5F9' : '#111c33';
+        const fgText = isLight ? '#000000' : '#FFFFFF';
+        const borderCol = isLight ? '#000000' : '#FFFFFF';
+        const boxBg = isLight ? '#FFFFFF' : '#000000';
+
+        const meta = step.c5ImpactMeta || {
+            screenTitle: 'شاشة تجزئة وتقسيم الفواتير وأذونات التسليم',
+            inputs: ['📥 الفواتير المعتمدة أو عروض الأسعار', '📦 أرصدة المخازن والوحدات التأسيسية', '👤 بيانات وسقوف ائتمان العملاء'],
+            funcSummary: 'تجزئة الفاتورة بالوحدة الكبرى والفرعية وتوليد أذونات تسلسلية (100/1/1) وحفظ شجرة النسب ومنع أخطاء الصرف',
+            goldenRule: 'القاعدة الذهبية: افحص الرصيد الفعلي ووحدة القياس قبل الاعتماد ينضبط لك المخزن والحساب تلقائياً.',
+            reassurance: 'اطمئن تماماً؛ فالشاشة محمية بدرع الأمان الذكي وحفظ المسودات والتراجع الفوري بضغطة زر.',
+            reports: ['📊 تقارير المبيعات والتجزئة', '📖 كشف حساب العميل والأستاذ', '📦 تقارير حركة وأرصدة المخازن'],
+            screens: ['🧾 شاشة المبيعات المباشرة', '🚛 بوابة التسليم اللوجستية GDN', '🏭 شاشة المخازن وحسابات العملاء']
+        };
+        const inputList = Array.isArray(meta.inputs) && meta.inputs.length
+            ? meta.inputs
+            : ['📥 شاشة البيانات الأساسية والأرصدة', '📋 الاستيراد الذكي والباركود', '🔄 التغذية التلقائية من النظام'];
+
+        banner.style.cssText = `position:fixed;top:64px;left:50%;transform:translateX(-50%);z-index:2147483640;width:min(880px,96vw);background:${bgCard};color:${fgText};border:2.4px solid ${borderCol};border-radius:14px;padding:10px 14px;box-shadow:0 16px 40px rgba(0,0,0,0.45);direction:rtl;font-family:'Cairo','Tajawal',sans-serif;pointer-events:auto;`;
+
+        banner.innerHTML = `
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;border-bottom:2px solid ${borderCol};padding-bottom:6px;">
+                <div style="display:flex;align-items:center;gap:8px;font-weight:900;font-size:0.9rem;flex-wrap:wrap;">
+                    <span style="padding:2px 8px;border-radius:99px;background:#f59e0b;color:#000;font-weight:900;font-size:0.75rem;">🏛️ الملخص العام وخريطة الترابط الثلاثية (تزامن الصوت والصورة 100%)</span>
+                    <span>${escapeSvgText(meta.screenTitle)}</span>
+                </div>
+                <button type="button" onclick="document.getElementById('msg-c5-impact-map-banner').style.display='none'" style="background:transparent;border:none;color:${fgText};font-size:1.1rem;font-weight:900;cursor:pointer;">✕</button>
+            </div>
+            <svg viewBox="0 0 840 132" width="100%" height="126" style="display:block;overflow:visible;">
+                <!-- Stage 1 (Right in RTL): Inputs (من أين تأتي المعلومة؟) -->
+                <g id="msg-c5-stage-1" style="transition:all 0.3s ease;">
+                    <rect x="578" y="6" width="254" height="118" rx="12" fill="${boxBg}" stroke="#f59e0b" stroke-width="3"/>
+                    <text x="705" y="28" fill="#f59e0b" font-size="12.5" font-weight="900" text-anchor="middle">1️⃣ من أين تأتي المعلومة؟ (المدخلات)</text>
+                    <text x="705" y="54" fill="${fgText}" font-size="11" font-weight="900" text-anchor="middle">${escapeSvgText(inputList[0] || '')}</text>
+                    <text x="705" y="78" fill="${fgText}" font-size="11" font-weight="900" text-anchor="middle">${escapeSvgText(inputList[1] || '')}</text>
+                    <text x="705" y="102" fill="#10b981" font-size="11" font-weight="900" text-anchor="middle">${escapeSvgText(inputList[2] || '')}</text>
+                </g>
+
+                <!-- Arrow 1 (Right to Center) -->
+                <g id="msg-c5-arrow-1" style="opacity:0.45;transition:all 0.3s ease;">
+                    <line x1="572" y1="65" x2="532" y2="65" stroke="#10b981" stroke-width="3.5" stroke-dasharray="5 3"/>
+                    <polygon points="536,57 520,65 536,73" fill="#10b981"/>
+                </g>
+
+                <!-- Stage 2 (Center): Screen Function (عمل الشاشة ووظيفتها) -->
+                <g id="msg-c5-stage-2" style="opacity:0.55;transition:all 0.3s ease;">
+                    <rect x="278" y="6" width="240" height="118" rx="12" fill="${boxBg}" stroke="#10b981" stroke-width="2.8"/>
+                    <text x="398" y="28" fill="#10b981" font-size="12.5" font-weight="900" text-anchor="middle">2️⃣ عمل الشاشة والضبط المحاسبي</text>
+                    <text x="398" y="54" fill="${fgText}" font-size="11" font-weight="900" text-anchor="middle">${escapeSvgText(meta.funcSummary.slice(0, 38))}</text>
+                    <text x="398" y="78" fill="${fgText}" font-size="11" font-weight="900" text-anchor="middle">${escapeSvgText(meta.funcSummary.slice(38, 78))}</text>
+                    <text x="398" y="102" fill="#f59e0b" font-size="10.8" font-weight="900" text-anchor="middle">⚖️ توازن ذري 100% ومنع التكرار</text>
+                </g>
+
+                <!-- Arrow 2 (Center to Left) -->
+                <g id="msg-c5-arrow-2" style="opacity:0.45;transition:all 0.3s ease;">
+                    <line x1="272" y1="65" x2="232" y2="65" stroke="#38bdf8" stroke-width="3.5" stroke-dasharray="5 3"/>
+                    <polygon points="236,57 220,65 236,73" fill="#38bdf8"/>
+                </g>
+
+                <!-- Stage 3 (Left in RTL): Outputs (أين تُسمّع في التقارير والشاشات؟) -->
+                <g id="msg-c5-stage-3" style="opacity:0.55;transition:all 0.3s ease;">
+                    <rect x="6" y="6" width="212" height="118" rx="12" fill="${boxBg}" stroke="#38bdf8" stroke-width="2.8"/>
+                    <text x="112" y="28" fill="#38bdf8" font-size="12" font-weight="900" text-anchor="middle">3️⃣ أين تُسمّع؟ (التقارير والشاشات)</text>
+                    <text x="112" y="52" fill="${fgText}" font-size="10.8" font-weight="900" text-anchor="middle">${escapeSvgText(meta.reports[0] || '')}</text>
+                    <text x="112" y="76" fill="${fgText}" font-size="10.8" font-weight="900" text-anchor="middle">${escapeSvgText(meta.reports[1] || '')}</text>
+                    <text x="112" y="100" fill="${fgText}" font-size="10.8" font-weight="900" text-anchor="middle">${escapeSvgText(meta.screens[0] || '')}</text>
+                </g>
+            </svg>
+            <div id="msg-c5-golden-rule-strip" style="margin-top:7px;padding:7px 11px;border-radius:10px;border:2px solid #f59e0b;background:${boxBg};display:flex;flex-direction:column;gap:3px;font-size:0.8rem;font-weight:900;">
+                <div>👑 <span style="color:#f59e0b;">القاعدة الذهبية للشاشة:</span> ${escapeSvgText(meta.goldenRule || 'أسِّس بياناتك وأرصدتك بدقة مرة واحدة ينضبط لك النظام المحاسبي والمخزني بالكامل تلقائياً.')}</div>
+                <div style="font-size:0.76rem;color:#10b981;">🛡️ <span>رسالة الطمأنينة للمحاسب:</span> ${escapeSvgText(meta.reassurance || 'لا تخشَ الخطأ أبداً؛ الشاشة محمية بدرع منع الحذف العشوائي وحفظ المسودات والتراجع الفوري.')}</div>
+            </div>
+        `;
+        banner.style.display = 'block';
+
+        // Synchronized Audio-Visual Phase Progression (Stage 1 -> Stage 2 -> Stage 3)
+        _c5ImpactPhaseTimers.push(setTimeout(() => {
+            const a1 = document.getElementById('msg-c5-arrow-1');
+            const s2 = document.getElementById('msg-c5-stage-2');
+            if (a1) a1.style.opacity = '1';
+            if (s2) s2.style.opacity = '1';
+        }, 3200));
+        _c5ImpactPhaseTimers.push(setTimeout(() => {
+            const a2 = document.getElementById('msg-c5-arrow-2');
+            const s3 = document.getElementById('msg-c5-stage-3');
+            if (a2) a2.style.opacity = '1';
+            if (s3) s3.style.opacity = '1';
+        }, 6600));
     }
 
     let lastAutopilotStepStartTs = 0;
@@ -4368,6 +4518,17 @@
 
         const step = activeAutopilotStepsList[autopilotStepIdx];
         if (!step) return;
+
+        // البند 5 من الدستور الخامس: تخطي الخطوات غير المتاحة لصلاحية المستخدم الحالي تلقائياً
+        if (typeof window.isGuideStepAllowedForCurrentRole === 'function' && !window.isGuideStepAllowedForCurrentRole(step)) {
+            if (autopilotStepIdx + 1 < activeAutopilotStepsList.length) {
+                autopilotStepIdx++;
+                runCurrentAutopilotStep();
+            } else {
+                window.stopLiveAutopilotSimulation();
+            }
+            return;
+        }
 
         renderStepPillsForActiveList();
 
@@ -4438,16 +4599,44 @@
     };
 
     document.addEventListener('click', function (e) {
-        if (!isPickElementModeActive) return;
-        if (e.target.closest('#msg-pick-mode-banner') || e.target.closest('#msg-universal-fixed-launcher') || e.target.closest('#msg-live-coach-bar') || e.target.closest('#msg-pinned-audio-dock')) {
+        if (isPickElementModeActive) {
+            if (e.target.closest('#msg-pick-mode-banner') || e.target.closest('#msg-universal-fixed-launcher') || e.target.closest('#msg-live-coach-bar') || e.target.closest('#msg-pinned-audio-dock')) {
+                return;
+            }
+            e.preventDefault();
+            e.stopPropagation();
+
+            const clickedEl = e.target.closest('button, a, select, input, .sl-kpi-card, tr, th, .sl-mode-btn, [onclick]') || e.target;
+            window.stopSmartPickElementMode();
+            explainPickedDomElement(clickedEl);
             return;
         }
-        e.preventDefault();
-        e.stopPropagation();
-
-        const clickedEl = e.target.closest('button, a, select, input, .sl-kpi-card, tr, th, .sl-mode-btn, [onclick]') || e.target;
-        window.stopSmartPickElementMode();
-        explainPickedDomElement(clickedEl);
+        // البند 3 من الدستور الخامس: القفز المباشر بالضغط (Click-to-Jump) أثناء عمل المرشد الذكي
+        if (window.__mdInteractiveGuideActive || isAutopilotRunning) {
+            if (e.target.closest('#msg-live-coach-bar, #msg-smart-hover-tooltip, #msg-universal-fixed-launcher, #msg-universal-modal, #msg-c5-impact-map-banner')) {
+                return;
+            }
+            const jumpTarget = e.target.closest('button, a, input, select, textarea, .md-tab-btn, .pro-field-card, .input-group, th');
+            if (!jumpTarget) return;
+            if (typeof window.isElementAllowedForCurrentUserRole === 'function' && !window.isElementAllowedForCurrentUserRole(jumpTarget)) return;
+            const info = (typeof window.explainMasterDataDomElement === 'function' && window.explainMasterDataDomElement(jumpTarget))
+                || (typeof window.explainDirectSalesDomElement === 'function' && window.explainDirectSalesDomElement(jumpTarget))
+                || (typeof window.explainPurchaseDomElement === 'function' && window.explainPurchaseDomElement(jumpTarget))
+                || (typeof window.autoSynthesizeElementExplanation === 'function' && window.autoSynthesizeElementExplanation(jumpTarget));
+            if (info && info.title) {
+                lastAutopilotStepStartTs = Date.now();
+                const badge = document.getElementById('msg-coach-step-badge');
+                const speechBox = document.getElementById('msg-coach-speech-text');
+                const adapted = stripAllSalawatPrefixes(adaptTextToDialect(`${info.title}. ${info.desc}`, selectedMaleProfile));
+                if (badge) badge.textContent = `🎯 ${info.title}`;
+                if (speechBox) speechBox.textContent = adapted;
+                moveGhostCursorToElement(jumpTarget, info.title, true);
+                if (jumpTarget.tagName === 'SELECT' || jumpTarget.querySelector?.('select')) {
+                    showLiveSelectOptionsMirror(jumpTarget, null, info.title);
+                }
+                speakArabicMaleText(adapted, null, selectedMaleProfile, false);
+            }
+        }
     }, true);
 
     function explainPickedDomElement(el) {
@@ -5300,4 +5489,153 @@
         if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', attachGuideObserver);
         else attachGuideObserver();
     }
+
+    // ══════════════════════════════════════════════════════════════════════════
+    // 📐 الدستور الخامس عشر والأخير (15/15 — محرك التوريث العابر لجميع الشاشات والشاشات الوليدة):
+    // 1) حفظ وتوريث مقاس الشاشة التناسبي (6:8) عند الإغلاق والفتح وبين الشاشات المشابهة
+    // 2) نقل وتعميم فواصل وتنسيق "شاشة المشتريات (ما بعد الدساتير)" المستقلة عن currentColor
+    // 3) توحيد الخطوط وسُمك الحواف (+2) وقفل الخلفية السوداء للخانات في السمات الغامقة
+    // ══════════════════════════════════════════════════════════════════════════
+    (function initUniversalConstitution15Engine() {
+        if (window.__magaiesUniversalC15Loaded) return;
+        window.__magaiesUniversalC15Loaded = true;
+
+        const GLOBAL_SCALE_KEY = 'magaies_erp_global_proportional_scale_v15';
+        const PUR_SCALE_KEY = 'magaies_pur_c1_aspect_zoom';
+        const DS_SCALE_KEY = 'magaies_ds_c1_aspect_zoom';
+
+        function getSavedGlobalScale() {
+            const raw = localStorage.getItem(GLOBAL_SCALE_KEY) || localStorage.getItem(PUR_SCALE_KEY) || localStorage.getItem(DS_SCALE_KEY) || '1';
+            const z = parseFloat(raw) || 1;
+            return (z >= 0.65 && z <= 1.35) ? Math.round(z * 100) / 100 : 1;
+        }
+
+        function injectUniversalPostConstitutionPurchaseDividersCSS() {
+            if (document.getElementById('magaies-c15-universal-dividers-css')) return;
+            const st = document.createElement('style');
+            st.id = 'magaies-c15-universal-dividers-css';
+            st.textContent = `
+                /* تعميم فواصل شاشة المشتريات (ما بعد الدساتير) المستقلة عن currentColor على كافة الشاشات المشابهة */
+                #pos-grid, .pos-grid {
+                    border-collapse: collapse !important;
+                    border: 1px solid rgba(148, 163, 184, 0.16) !important;
+                }
+                #pos-grid thead th, .pos-grid thead th {
+                    border: 1px solid rgba(148, 163, 184, 0.18) !important;
+                    border-bottom: 1.5px solid rgba(148, 163, 184, 0.28) !important;
+                    font-family: 'Tajawal', 'Cairo', sans-serif !important;
+                    font-weight: 900 !important;
+                }
+                #pos-grid tbody td, .pos-grid tbody td {
+                    border: 1px solid rgba(148, 163, 184, 0.14) !important;
+                    font-weight: 800 !important;
+                }
+                #pos-grid tbody td .g-input,
+                #pos-grid tbody td .g-select,
+                #pos-grid tbody td .g-readonly,
+                #pos-grid tbody td .avail-val,
+                #pos-grid tbody td .total-val,
+                .pos-grid tbody td .g-input,
+                .pos-grid tbody td .g-select {
+                    border: 1px solid rgba(148, 163, 184, 0.22) !important;
+                    box-shadow: none !important;
+                    font-weight: 800 !important;
+                }
+                #pos-grid tbody td .g-input:focus,
+                #pos-grid tbody td .g-select:focus {
+                    border-color: rgba(56, 189, 248, 0.55) !important;
+                    box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.18) !important;
+                }
+                :root.light-theme #pos-grid,
+                :root.light-theme .pos-grid,
+                :root.light-theme #pos-grid thead th,
+                :root.light-theme #pos-grid tbody td,
+                :root.light-theme .pos-grid thead th,
+                :root.light-theme .pos-grid tbody td {
+                    border: 1px solid rgba(148, 163, 184, 0.26) !important;
+                }
+                :root.light-theme #pos-grid tbody td .g-input,
+                :root.light-theme #pos-grid tbody td .g-select,
+                :root.light-theme #pos-grid tbody td .g-readonly,
+                :root.light-theme #pos-grid tbody td .avail-val,
+                :root.light-theme #pos-grid tbody td .total-val {
+                    border: 1px solid #cbd5e1 !important;
+                    box-shadow: none !important;
+                }
+            `;
+            document.head.appendChild(st);
+        }
+
+        window.applyUniversalProportionalScaleC15 = function(val) {
+            const z = Math.max(0.65, Math.min(1.35, Math.round((parseFloat(val) || 1) * 100) / 100));
+            try {
+                localStorage.setItem(GLOBAL_SCALE_KEY, String(z));
+                localStorage.setItem(PUR_SCALE_KEY, String(z));
+                localStorage.setItem(DS_SCALE_KEY, String(z));
+            } catch (_) {}
+
+            if (typeof window.setPurchaseProportionalZoom === 'function') {
+                window.setPurchaseProportionalZoom(z, true);
+                return;
+            }
+
+            const mainContainer = document.querySelector('.dash-main, .main-content, main, .pos-container');
+            if (mainContainer) {
+                mainContainer.style.boxSizing = 'border-box';
+                mainContainer.style.marginLeft = 'auto';
+                mainContainer.style.marginRight = 'auto';
+                if (Math.abs(z - 1) < 0.01) {
+                    mainContainer.style.zoom = '';
+                    mainContainer.style.transform = '';
+                    mainContainer.style.width = '100%';
+                    mainContainer.style.margin = '0 auto';
+                    mainContainer.style.marginBottom = '';
+                } else {
+                    mainContainer.style.zoom = '';
+                    mainContainer.style.width = '100%';
+                    mainContainer.style.transformOrigin = 'top center';
+                    mainContainer.style.transform = `scale(${z})`;
+                    mainContainer.style.margin = '0 auto';
+                    if (z < 1) {
+                        const h = mainContainer.offsetHeight || window.innerHeight;
+                        mainContainer.style.marginBottom = Math.round((z - 1) * h) + 'px';
+                    } else {
+                        mainContainer.style.marginBottom = '';
+                    }
+                }
+            }
+
+            document.querySelectorAll('.modal-overlay .modal-card, .pur-c1-child-modal .pur-c1-modal-card, .ds-c1-child-modal .ds-c1-modal-card').forEach((card) => {
+                if (Math.abs(z - 1) < 0.01) {
+                    card.style.transform = '';
+                } else {
+                    card.style.transformOrigin = 'center center';
+                    card.style.transform = `scale(${z})`;
+                }
+            });
+        };
+
+        const bootUniversalC15 = () => {
+            injectUniversalPostConstitutionPurchaseDividersCSS();
+            const z = getSavedGlobalScale();
+            if (Math.abs(z - 1) >= 0.01) {
+                window.applyUniversalProportionalScaleC15(z);
+            }
+        };
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', bootUniversalC15);
+        } else {
+            bootUniversalC15();
+        }
+        window.addEventListener('pageshow', bootUniversalC15);
+
+        window.addEventListener('wheel', function (e) {
+            if (!e.ctrlKey || typeof window.setPurchaseProportionalZoom === 'function') return;
+            e.preventDefault();
+            const cur = getSavedGlobalScale();
+            const step = e.deltaY < 0 ? 0.05 : -0.05;
+            window.applyUniversalProportionalScaleC15(cur + step);
+        }, { passive: false });
+    })();
 })();

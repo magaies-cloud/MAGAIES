@@ -9,20 +9,38 @@
         document.documentElement.setAttribute('dir','ltr');
         document.documentElement.setAttribute('lang','en');
     }
-    // Sync 7-Theme System & Universal Light/Dark Mode Before First Paint (Constitution 1 Order 1)
-    var rawTheme = localStorage.getItem('magaies_active_theme') ||
-                   localStorage.getItem('magaiees_global_theme') ||
-                   localStorage.getItem('magaies_theme_mode') ||
-                   localStorage.getItem('ui_theme') || '';
-    var lightThemes = ['warm_cream', 'ultra_white', 'exec_gray', 'light', 'royal-dawn', 'pearl-white', 'warm-alabaster', 'pure-platinum'];
-    var isLightMode = lightThemes.includes(rawTheme) || localStorage.getItem('magaies_theme_mode') === 'light';
-    if (isLightMode) {
-        document.documentElement.classList.add('light-theme');
-        document.documentElement.setAttribute('data-magaies-theme-mode', 'light');
-    }
+    // Sync 7-Theme System & Universal Light/Dark Mode Before First Paint & Dynamically (Constitution 1 Order 1)
+    window.syncSlUniversalThemeSystem = function() {
+        var rawTheme = localStorage.getItem('magaies_active_theme') ||
+                       localStorage.getItem('magaiees_global_theme') ||
+                       localStorage.getItem('magaies_theme_mode') ||
+                       localStorage.getItem('ui_theme') || '';
+        var lightThemes = ['warm_cream', 'ultra_white', 'exec_gray', 'light', 'royal-dawn', 'pearl-white', 'warm-alabaster', 'pure-platinum'];
+        var isLightMode = lightThemes.includes(rawTheme) || localStorage.getItem('magaies_theme_mode') === 'light';
+        if (isLightMode) {
+            document.documentElement.classList.add('light-theme');
+            document.documentElement.setAttribute('data-magaies-theme-mode', 'light');
+            if (document.body) {
+                document.body.classList.add('light-theme', 'theme-light');
+                document.body.setAttribute('data-theme', 'light');
+            }
+        } else {
+            document.documentElement.classList.remove('light-theme');
+            document.documentElement.setAttribute('data-magaies-theme-mode', 'dark');
+            if (document.body) {
+                document.body.classList.remove('light-theme', 'theme-light');
+                document.body.setAttribute('data-theme', 'dark');
+            }
+        }
+        return isLightMode;
+    };
+    window.syncSlUniversalThemeSystem();
     document.addEventListener('DOMContentLoaded', function() {
-        if (isLightMode && document.body) {
-            document.body.classList.add('light-theme', 'theme-light');
+        window.syncSlUniversalThemeSystem();
+    });
+    window.addEventListener('storage', function(e) {
+        if (!e || !e.key || /theme/i.test(e.key)) {
+            window.syncSlUniversalThemeSystem();
         }
     });
 })();
@@ -857,6 +875,244 @@
         body.sl-dock-bigscreen-mode .sl-kpi-val {
             font-size: 1.7rem !important;
         }
+
+        /* ═══════════════════════════════════════════════════════════════════════════
+           CONSTITUTION 1 (1 OF 14): IDEMPOTENT +2 BORDERS (2.2PX), STRICT DARK (#FFFFFF) /
+           LIGHT (#000000) CONTRAST LOCK, ZERO INPUT COLOR INVERSION, 6:8 GEOMETRIC ZOOM,
+           AND ZERO-TRUNCATION AUTO-FIT ACROSS MAIN SCREEN & ALL 16+ NESTED CHILD MODALS
+           ═══════════════════════════════════════════════════════════════════════════ */
+        #sl-proportional-root {
+            transform-origin: top center !important;
+            margin-left: auto !important;
+            margin-right: auto !important;
+            transition: transform 0.14s cubic-bezier(0.22, 1, 0.36, 1), width 0.14s ease;
+        }
+
+        /* Enforce +2 Border Thickness (2.2px Idempotent Lock) on all tables, boxes, and child modal containers */
+        #sl-registry-scroll-wrap,
+        #sl-workflow-stepper,
+        #sl-wf-step-1, #sl-wf-step-2, #sl-wf-step-3,
+        #sl-camera-placeholder,
+        #sl-cols-drawer,
+        .sl-unit-box,
+        .sl-unit-box-inner,
+        .sl-kpi-card,
+        .sl-table thead th,
+        .sl-table tbody td,
+        [id^="sl-"][id$="-modal"] .sl-glass-card {
+            border-width: 2.2px !important;
+            border-style: solid !important;
+        }
+        #sl-camera-placeholder {
+            border-style: dashed !important;
+        }
+
+        /* Zero-Truncation & Auto-Fit (Order 5): Ensure long names & large numbers never clip */
+        .sl-table tbody td,
+        #sl-lbl-party-name,
+        #sl-lbl-inv-no,
+        #sl-lbl-hash,
+        #sl-sum-ordered,
+        #sl-sum-prev,
+        #sl-sum-now,
+        #sl-sum-rem {
+            overflow: visible !important;
+            text-overflow: clip !important;
+            word-break: break-word;
+        }
+        .sl-qty-primary-input,
+        .sl-qty-base-input {
+            min-width: 88px !important;
+            width: auto !important;
+            max-width: 155px !important;
+            overflow: visible !important;
+        }
+        .sl-unit-box {
+            width: auto !important;
+            min-width: 242px !important;
+        }
+        .sl-unit-label-span {
+            max-width: none !important;
+            overflow: visible !important;
+            text-overflow: clip !important;
+            white-space: nowrap !important;
+        }
+
+        /* 🌙 DARK THEME STRICT CONTRAST LAW: #FFFFFF Text/Borders + #000000 Input Box + Stepped Surrounding Surface */
+        html:not([data-magaies-theme-mode="light"]):not(.light-theme) body:not(.light-theme):not(.theme-light):not([data-theme="light"]):not([data-msg-theme="royal-dawn"]) h1,
+        html:not([data-magaies-theme-mode="light"]):not(.light-theme) body:not(.light-theme):not(.theme-light):not([data-theme="light"]):not([data-msg-theme="royal-dawn"]) h2,
+        html:not([data-magaies-theme-mode="light"]):not(.light-theme) body:not(.light-theme):not(.theme-light):not([data-theme="light"]):not([data-msg-theme="royal-dawn"]) h3,
+        html:not([data-magaies-theme-mode="light"]):not(.light-theme) body:not(.light-theme):not(.theme-light):not([data-theme="light"]):not([data-msg-theme="royal-dawn"]) h4,
+        html:not([data-magaies-theme-mode="light"]):not(.light-theme) body:not(.light-theme):not(.theme-light):not([data-theme="light"]):not([data-msg-theme="royal-dawn"]) label,
+        html:not([data-magaies-theme-mode="light"]):not(.light-theme) body:not(.light-theme):not(.theme-light):not([data-theme="light"]):not([data-msg-theme="royal-dawn"]) .sl-table thead th,
+        html:not([data-magaies-theme-mode="light"]):not(.light-theme) body:not(.light-theme):not(.theme-light):not([data-theme="light"]):not([data-msg-theme="royal-dawn"]) .sl-table tbody td,
+        html:not([data-magaies-theme-mode="light"]):not(.light-theme) body:not(.light-theme):not(.theme-light):not([data-theme="light"]):not([data-msg-theme="royal-dawn"]) [id^="sl-"][id$="-modal"] h3,
+        html:not([data-magaies-theme-mode="light"]):not(.light-theme) body:not(.light-theme):not(.theme-light):not([data-theme="light"]):not([data-msg-theme="royal-dawn"]) [id^="sl-"][id$="-modal"] label,
+        html:not([data-magaies-theme-mode="light"]):not(.light-theme) body:not(.light-theme):not(.theme-light):not([data-theme="light"]):not([data-msg-theme="royal-dawn"]) [id^="sl-"][id$="-modal"] td,
+        html:not([data-magaies-theme-mode="light"]):not(.light-theme) body:not(.light-theme):not(.theme-light):not([data-theme="light"]):not([data-msg-theme="royal-dawn"]) [id^="sl-"][id$="-modal"] th {
+            color: #FFFFFF !important;
+            font-weight: 900 !important;
+        }
+        html:not([data-magaies-theme-mode="light"]):not(.light-theme) body:not(.light-theme):not(.theme-light):not([data-theme="light"]):not([data-msg-theme="royal-dawn"]) svg,
+        html:not([data-magaies-theme-mode="light"]):not(.light-theme) body:not(.light-theme):not(.theme-light):not([data-theme="light"]):not([data-msg-theme="royal-dawn"]) svg * {
+            stroke: #FFFFFF !important;
+        }
+
+        /* ☀️ LIGHT THEME STRICT CONTRAST LAW: Pitch-Black #000000 Text, Borders & Icons Everywhere */
+        html[data-magaies-theme-mode="light"] .sl-unit-box-inner,
+        body.theme-light .sl-unit-box-inner,
+        body.light-theme .sl-unit-box-inner,
+        body[data-theme="light"] .sl-unit-box-inner,
+        body[data-msg-theme="royal-dawn"] .sl-unit-box-inner,
+        html[data-magaies-theme-mode="light"] #sl-workflow-stepper,
+        body.theme-light #sl-workflow-stepper,
+        body.light-theme #sl-workflow-stepper,
+        html[data-magaies-theme-mode="light"] #sl-camera-placeholder,
+        body.theme-light #sl-camera-placeholder,
+        body.light-theme #sl-camera-placeholder {
+            background: #F1F5F9 !important;
+            color: #000000 !important;
+            border: 2.2px solid #000000 !important;
+        }
+        html[data-magaies-theme-mode="light"] .sl-glass-card *,
+        body.theme-light .sl-glass-card *,
+        body.light-theme .sl-glass-card *,
+        body[data-theme="light"] .sl-glass-card *,
+        body[data-msg-theme="royal-dawn"] .sl-glass-card *,
+        html[data-magaies-theme-mode="light"] [id^="sl-"][id$="-modal"] *,
+        body.theme-light [id^="sl-"][id$="-modal"] *,
+        body.light-theme [id^="sl-"][id$="-modal"] * {
+            color: #000000 !important;
+            text-shadow: none !important;
+        }
+
+        /* ═══════════════════════════════════════════════════════════════════════════
+           CONSTITUTION 3 (3 OF 14): UNIFIED BUTTON DNA, MICRO-SCALE (1.03) & BOTTOM
+           UNDER-GLOW, 0MS GPU GLASSMORPHISM SHEEN, STANDARDIZED TOASTS & SHAKE EFFECT
+           ═══════════════════════════════════════════════════════════════════════════ */
+        :root {
+            --sl-c3-font: 'Tajawal', 'Cairo', sans-serif;
+            --sl-c3-btn-min-h: 35px;
+            --sl-c3-input-min-h: 35px;
+        }
+        body, button, input, select, textarea, .sl-btn, .sl-input {
+            font-family: var(--sl-c3-font) !important;
+        }
+        .sl-btn {
+            min-height: var(--sl-c3-btn-min-h);
+            border-radius: 11px !important;
+            transform-origin: center center !important;
+            will-change: transform, box-shadow;
+        }
+        /* Bottom Under-Glow Bar on every button (Order 3) */
+        .sl-btn::before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 12%;
+            right: 12%;
+            height: 2.5px;
+            border-radius: 99px;
+            background: linear-gradient(90deg, transparent, var(--sl-primary-light), var(--sl-accent), transparent);
+            opacity: 0;
+            transform: scaleX(0.4);
+            transition: opacity 0.2s ease, transform 0.22s ease;
+            pointer-events: none;
+        }
+        .sl-btn:hover:not(:disabled) {
+            transform: scale(1.03) !important;
+            box-shadow: 0 8px 20px -4px var(--sl-primary-glow), 0 0 14px var(--sl-border-glow), inset 0 1px 0 rgba(255, 255, 255, 0.28) !important;
+        }
+        .sl-btn:hover:not(:disabled)::before {
+            opacity: 1;
+            transform: scaleX(1);
+        }
+        @keyframes slTactilePulseAnim {
+            0% { transform: scale(1.03); }
+            40% { transform: scale(0.96); }
+            100% { transform: scale(1); }
+        }
+        .sl-btn.sl-btn-tactile-pulse {
+            animation: slTactilePulseAnim 0.22s cubic-bezier(0.22, 1, 0.36, 1) !important;
+        }
+
+        /* 0ms Pure GPU-Accelerated Glassmorphism Sheen on Cards & Section Headers (Order 4) */
+        @keyframes slGpuGlassSheen {
+            0%, 72% { transform: translate3d(-140%, 0, 0) skewX(-22deg); opacity: 0; }
+            78% { opacity: 0.55; }
+            100% { transform: translate3d(240%, 0, 0) skewX(-22deg); opacity: 0; }
+        }
+        .sl-glass-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 38%;
+            height: 100%;
+            background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.09) 50%, rgba(255,255,255,0) 100%);
+            transform: translate3d(-140%, 0, 0) skewX(-22deg);
+            will-change: transform, opacity;
+            pointer-events: none;
+            animation: slGpuGlassSheen 9.5s infinite ease-in-out;
+            border-radius: inherit;
+        }
+
+        /* Mini Keyboard Shortcut Badge on Main Buttons (Order 2) */
+        .sl-kbd-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1px 5px;
+            font-size: 0.68rem;
+            font-weight: 900;
+            font-family: 'Inter', monospace !important;
+            border-radius: 5px;
+            background: rgba(2, 6, 23, 0.48);
+            border: 1px solid rgba(255, 255, 255, 0.35);
+            color: #ffffff;
+            line-height: 1.1;
+        }
+
+        /* Standardized Floating Toasts & Horizontal Field Shake Effect (Order 5) */
+        #toast-container .toast {
+            border-radius: 13px !important;
+            padding: 10px 16px !important;
+            font-weight: 900 !important;
+            font-size: 0.88rem !important;
+            display: flex !important;
+            align-items: center !important;
+            gap: 9px !important;
+            backdrop-filter: blur(14px) !important;
+            box-shadow: 0 14px 32px rgba(0, 0, 0, 0.65) !important;
+        }
+        #toast-container .toast.success {
+            background: linear-gradient(135deg, rgba(6, 78, 59, 0.96), rgba(4, 120, 87, 0.94)) !important;
+            border: 2.2px solid #34d399 !important;
+            color: #FFFFFF !important;
+            box-shadow: 0 10px 26px rgba(16, 185, 129, 0.45) !important;
+        }
+        #toast-container .toast.warning {
+            background: linear-gradient(135deg, rgba(120, 53, 15, 0.96), rgba(180, 83, 9, 0.94)) !important;
+            border: 2.2px solid #fbbf24 !important;
+            color: #FFFFFF !important;
+            box-shadow: 0 10px 26px rgba(245, 158, 11, 0.45) !important;
+        }
+        #toast-container .toast.error {
+            background: linear-gradient(135deg, rgba(127, 29, 29, 0.96), rgba(185, 28, 28, 0.94)) !important;
+            border: 2.2px solid #f87171 !important;
+            color: #FFFFFF !important;
+            box-shadow: 0 10px 26px rgba(239, 68, 68, 0.5) !important;
+        }
+        @keyframes slFieldShakeAnim {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-7px); }
+            40%, 80% { transform: translateX(7px); }
+        }
+        .sl-field-shake-error {
+            animation: slFieldShakeAnim 0.42s cubic-bezier(0.36, 0.07, 0.19, 0.97) both !important;
+            border-color: #ef4444 !important;
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.55), 0 0 18px rgba(239, 68, 68, 0.45) !important;
+        }
     </style>
 </head>
 <body data-logistics-mode="<?php echo (isset($_GET['mode']) && $_GET['mode'] === 'purchases') ? 'purchases' : 'sales'; ?>">
@@ -864,7 +1120,7 @@
     <div class="toast-container" id="toast-container"></div>
     <script defer src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
 
-    <div style="padding: 6px 12px 55px 12px; max-width: 99.6vw; width: 100%; margin: 0 auto; display: flex; flex-direction: column; gap: 8px;">
+    <div id="sl-proportional-root" style="padding: 6px 12px 55px 12px; max-width: 99.6vw; width: 100%; margin: 0 auto; display: flex; flex-direction: column; gap: 8px;">
 
         <!-- ═══════════════════════════════════════════════════════════════════
              1. TOP COCKPIT BAR: NAVIGATION + CLASSIC SYSTEM LINKS + MOBILE QR + ROYAL QUARTET INSIDE
@@ -886,7 +1142,24 @@
 
             <!-- MOBILE QR LASER BRIDGE + SMART LOCK GUARD + ROYAL QUARTET DOCKED HARMONIOUSLY INSIDE -->
             <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-                <div style="display:flex; align-items:center; gap:5px; background:rgba(2,6,23,0.75); padding:4px 9px; border-radius:10px; border:1px solid rgba(148,163,184,0.3);">
+                <!-- 🔍 إضافة 1 (الدستور 1): شريط التحجيم الهندسي المتناسب (6:8 Aspect-Ratio Zoom Bar) -->
+                <div id="sl-c1-zoom-control-pill" style="display:inline-flex; align-items:center; gap:4px; background:rgba(2,6,23,0.78); padding:3px 7px; border-radius:10px; border:2.2px solid rgba(56,189,248,0.55);" title="تحجيم هندسي متناسب للأبعاد (6:8) للشاشة والشاشات الوليدة (Ctrl + رولة الماوس)">
+                    <button type="button" onclick="window.stepSlProportionalZoom && window.stepSlProportionalZoom(-0.05)" class="sl-btn" style="padding:2px 7px; font-size:0.78rem; min-width:26px;" title="تصغير متناسب (6:8)">−</button>
+                    <span id="sl-c1-zoom-pct-badge" onclick="window.setSlProportionalZoom && window.setSlProportionalZoom(1)" style="font-size:0.75rem; font-weight:900; color:#38bdf8; cursor:pointer; padding:0 4px; font-family:'Inter',monospace;" title="اضغط لإعادة الضبط 100%">100%</span>
+                    <button type="button" onclick="window.stepSlProportionalZoom && window.stepSlProportionalZoom(0.05)" class="sl-btn" style="padding:2px 7px; font-size:0.78rem; min-width:26px;" title="تكبير متناسب (6:8)">+</button>
+                </div>
+
+                <!-- 🌓 إضافة 2 (الدستور 1): مبدل السمات اللحظي وسريانها على الشاشات الوليدة -->
+                <button type="button" id="sl-btn-c1-theme-cycler" onclick="window.cycleSlConstitution1Theme && window.cycleSlConstitution1Theme()" class="sl-btn" style="background:rgba(14,165,233,0.2); border-color:#38bdf8; color:#7dd3fc; padding:6px 10px; font-size:0.78rem;" title="تبديل فوري بين السمات الغامقة والفاتحة مع سريان 100% على كل الشاشات الوليدة">
+                    🌓 تبديل السمة
+                </button>
+
+                <!-- 🛡️ إضافة 3 (الدستور 1): لوحة فحص وإثبات الدستور الأول (1 من 14) -->
+                <button type="button" id="sl-btn-c1-master-audit" onclick="window.openSlConstitution1MasterModal && window.openSlConstitution1MasterModal()" class="sl-btn" style="background:rgba(16,185,129,0.22); border-color:#34d399; color:#6ee7b7; padding:6px 10px; font-size:0.78rem;" title="لوحة فحص وإثبات الدستور الأول (السمات، الشاشات الوليدة، سُمك +2، منع انقلاب اللون، وتناسب 6:8)">
+                    🛡️ الدستور 1 (100%)
+                </button>
+
+                <div style="display:flex; align-items:center; gap:5px; background:rgba(2,6,23,0.75); padding:4px 9px; border-radius:10px; border:2.2px solid rgba(148,163,184,0.3);">
                     <span style="font-size:0.74rem; font-weight:900; color:#cbd5e1;">🛡️ QR:</span>
                     <select id="sl-qr-guard-mode" class="sl-input" style="padding:3px 8px !important; font-size:0.74rem !important; height:auto;">
                         <option value="auto">🤖 تلقائي</option>
@@ -1014,7 +1287,7 @@
                     <input type="date" id="sl-reg-date-from" class="sl-input" onchange="renderSlRegistry()" title="من تاريخ" style="font-size: 0.76rem; padding: 5px 8px !important; width: 132px;">
                     <input type="date" id="sl-reg-date-to" class="sl-input" onchange="renderSlRegistry()" title="إلى تاريخ" style="font-size: 0.76rem; padding: 5px 8px !important; width: 132px;">
 
-                    <select id="sl-reg-wh-filter" class="sl-input" onchange="renderSlRegistry()" style="font-size: 0.78rem; padding: 6px 10px !important; color: #fcd34d !important;">
+                    <select id="sl-reg-wh-filter" class="sl-input" onchange="renderSlRegistry()" style="font-size: 0.78rem; padding: 6px 10px !important;">
                         <option value="all">🏢 كل المخازن</option>
                     </select>
 
@@ -1080,13 +1353,21 @@
                 </div>
 
                 <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; padding-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.08);">
-                    <div style="display: flex; align-items: center; gap: 8px;">
+                    <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
                         <span style="font-size: 1.25rem;">📄</span>
                         <h3 id="sl-doc-card-title" style="margin: 0; font-size: 0.98rem; font-weight: 900; color: #ffffff;">
                             بيانات المستند والتوريد
                         </h3>
+                        <span id="sl-c2-speed-badge" class="sl-badge sl-badge-done" style="font-size:0.7rem; padding:2px 8px;" title="زمن استجابة الواجهة اللحظي 0ms — يعمل بأقصى خفة على أضعف إنترنت 2G وأوفلاين">⚡ 0ms | 2G</span>
+                        <span id="sl-c2-draft-badge" class="sl-badge sl-badge-partial" style="display:none; font-size:0.7rem; padding:2px 8px;" title="حارس المسودة التلقائي ضد الإغلاق الخاطئ">💾 مسودة محفوظة</span>
                     </div>
                     <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+                        <button type="button" id="sl-btn-quick-add-party" onclick="window.openSlQuickEntityModal && window.openSlQuickEntityModal('party')" class="sl-btn" style="padding: 4px 10px; font-size: 0.76rem; background: rgba(16,185,129,0.22); border-color: #34d399; color: #6ee7b7;" title="إضافة مورد أو عميل جديد فوراً دون مغادرة الشاشة">
+                            ➕ طرف جديد
+                        </button>
+                        <button type="button" id="sl-btn-quick-add-item-top" onclick="window.openSlQuickEntityModal && window.openSlQuickEntityModal('item')" class="sl-btn" style="padding: 4px 10px; font-size: 0.76rem; background: rgba(168,85,247,0.22); border-color: #c084fc; color: #e9d5ff;" title="إضافة صنف جديد فوراً للمستند والمخزون دون ضياع البيانات">
+                            ➕ صنف سريع
+                        </button>
                         <button type="button" id="sl-btn-drilldown-inv" onclick="openSlOriginalInvoiceDrilldownModal()" class="sl-btn" style="padding: 4px 11px; font-size: 0.76rem; background: rgba(56,189,248,0.18); border-color: #38bdf8; color: #7dd3fc;">
                             🔍 أصل الفاتورة
                         </button>
@@ -1221,71 +1502,53 @@
                     </h3>
                 </div>
 
-                <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-                    <button type="button" id="sl-btn-voice-dictate" onclick="startSlVoiceDictation()" class="sl-btn" style="background: rgba(236,72,153,0.2); border-color: #f472b6; color: #fbcfe8;">
-                        🎙️ إملاء صوتي
+                <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+                    <button type="button" id="sl-btn-quick-add-item" onclick="window.openSlQuickEntityModal && window.openSlQuickEntityModal('item')" class="sl-btn" style="background: rgba(16,185,129,0.24); border-color: #34d399; color: #6ee7b7; padding: 6px 11px; font-size: 0.78rem;" title="إضافة صنف جديد مباشرة لجدول الفحص والمخزون دون ضياع البيانات">
+                        ➕ صنف
                     </button>
-                    <button type="button" id="sl-btn-voice-commander" onclick="window.openSlVoiceGateCommanderModal && window.openSlVoiceGateCommanderModal()" class="sl-btn" style="background: rgba(14,165,233,0.22); border-color: #38bdf8; color: #7dd3fc;" title="المساعد الصوتي التفاعلي لبوابة الصرف لتنفيذ الأوامر بالصوت">
-                        🎤 أوامر البوابة
+                    <button type="button" onclick="fillAllSlQuantities(1)" class="sl-btn" style="background: rgba(16,185,129,0.2); border-color: #34d399; color: #6ee7b7; padding: 6px 11px; font-size: 0.78rem;">
+                        ⚡ الكل (100%)
                     </button>
-                    <button type="button" id="sl-btn-pa-announcer" onclick="window.announceSlDriverLoadingPA && window.announceSlDriverLoadingPA()" class="sl-btn" style="background: rgba(245,158,11,0.22); border-color: #fbbf24; color: #fde047;" title="النداء الصوتي الآلي للسائق ورقم اللوحة ورصيف التحميل">
-                        📢 نداء السائق
+                    <button type="button" onclick="fillAllSlQuantities(0.5)" class="sl-btn" style="background: rgba(56,189,248,0.18); border-color: #38bdf8; color: #7dd3fc; padding: 6px 11px; font-size: 0.78rem;">
+                        🌗 النصف (50%)
                     </button>
-                    <button type="button" id="sl-btn-gdn-quiz" onclick="window.openSlGdnMasteryQuizModal && window.openSlGdnMasteryQuizModal()" class="sl-btn" style="background: rgba(168,85,247,0.22); border-color: #c084fc; color: #e9d5ff;" title="اختبار الإتقان السريع لأمين صرف المبيعات (60 ثانية)">
-                        🎓 اختبار الصرف
+                    <button type="button" onclick="fillAllSlQuantities(0)" class="sl-btn" style="background: rgba(239,68,68,0.16); border-color: #f87171; color: #fca5a5; padding: 6px 11px; font-size: 0.78rem;">
+                        🧹 تصفير
                     </button>
-                    <button type="button" id="sl-btn-batch-ocr" onclick="openSlBatchOcrScannerModal()" class="sl-btn" style="background: rgba(16,185,129,0.2); border-color: #34d399; color: #6ee7b7;">
-                        📷 مسح التشغيلة/الصلاحية
+                    <button type="button" id="sl-btn-auto-allocate" onclick="autoAllocateSlAcrossWarehouses()" class="sl-btn" style="background: rgba(14,165,233,0.22); border-color: #38bdf8; color: #7dd3fc; padding: 6px 11px; font-size: 0.78rem;">
+                        🏭 توزيع المخازن
                     </button>
-                    <button type="button" id="sl-btn-bin-heatmap" onclick="openSlBinHeatmapModal()" class="sl-btn" style="background: rgba(99,102,241,0.22); border-color: #818cf8; color: #c7d2fe;">
-                        🗺️ خريطة الأرفف
-                    </button>
-                    <button type="button" id="sl-btn-fleet-dispatch" onclick="window.openSlFleetDispatchModal && window.openSlFleetDispatchModal()" class="sl-btn" style="background: rgba(16,185,129,0.22); border-color: #34d399; color: #6ee7b7;" title="مُخطّط مسار التوصيل وتتبع أسطول المناديب وإرسال الموقع للسائق والعميل">
-                        🚚 مسار التوصيل
-                    </button>
-                    <button type="button" id="sl-btn-load-verifier" onclick="window.openSlLoadingVerifierModal && window.openSlLoadingVerifierModal()" class="sl-btn" style="background: rgba(56,189,248,0.22); border-color: #38bdf8; color: #7dd3fc;" title="فاحص مطابقة التحميل بالباركود المتصل لمنع تحميل صنف خاطئ">
-                        🎯 فحص التحميل
-                    </button>
-                    <button type="button" id="sl-btn-cargo-estimator" onclick="window.openSlCargoEstimatorModal && window.openSlCargoEstimatorModal()" class="sl-btn" style="background: rgba(245,158,11,0.22); border-color: #fbbf24; color: #fde047;" title="حاسبة حجم ووزن الشحنة وعدد الطبليات واقتراح المركبة المناسبة">
-                        📦 حاسبة الحمولة
-                    </button>
-                    <button type="button" id="sl-btn-pending-aging" onclick="window.openSlPendingDeliveryAgingModal && window.openSlPendingDeliveryAgingModal()" class="sl-btn" style="background: rgba(14,165,233,0.22); border-color: #38bdf8; color: #7dd3fc;" title="تقرير كشف التسليمات المتبقية وأعمار ذمم البضاعة للعملاء">
-                        📊 ذمم تسليم العملاء
-                    </button>
-                    <button type="button" id="sl-btn-gate-credit-note" onclick="window.openSlGateCreditNoteModal && window.openSlGateCreditNoteModal()" class="sl-btn" style="background: rgba(236,72,153,0.22); border-color: #f472b6; color: #fbcfe8;" title="تسوية المرتجعات الجزئية للعميل عند البوابة وإصدار إشعار دائن فوري">
-                        ↩️ إشعار دائن بوابة
-                    </button>
-                    <button type="button" id="sl-btn-gate-certificate" onclick="window.printSlGateClearanceCertificate && window.printSlGateClearanceCertificate()" class="sl-btn" style="background: rgba(16,185,129,0.22); border-color: #34d399; color: #6ee7b7;" title="طباعة شهادة إخلاء طرف وخروج بوابة رقمية موثقة">
-                        🛡️ شهادة إخلاء بوابة
-                    </button>
-                    <button type="button" id="sl-btn-dock-zoom" onclick="window.toggleSlDockBigScreenMode && window.toggleSlDockBigScreenMode()" class="sl-btn" style="background: rgba(245,158,11,0.22); border-color: #fbbf24; color: #fde047;" title="وضع القراءة المكبّرة الفائقة عن بُعد لساحات وأرصفة التحميل">
-                        🔍 شاشة الرصيف
-                    </button>
-                    <button type="button" id="sl-btn-contrast-inspector" onclick="window.openSlContrastInspectorModal && window.openSlContrastInspectorModal()" class="sl-btn" style="background: rgba(56,189,248,0.22); border-color: #38bdf8; color: #7dd3fc;" title="فاحص سلامة التباين والسمات وسُمك الحواف (+2) والتوريث الآلي">
-                        🛡️ فحص التباين
-                    </button>
-                    <button type="button" id="sl-btn-dispatch-presets" onclick="window.openSlDispatchPresetsModal && window.openSlDispatchPresetsModal()" class="sl-btn" style="background: rgba(168,85,247,0.22); border-color: #c084fc; color: #e9d5ff;" title="الحافظة الذكية لقوالب السائقين والمركبات والمستودعات المتكررة بضغطة واحدة">
-                        ⚡ قوالب السائقين
-                    </button>
-                    <button type="button" id="sl-btn-auto-allocate" onclick="autoAllocateSlAcrossWarehouses()" class="sl-btn" style="background: rgba(14,165,233,0.22); border-color: #38bdf8; color: #7dd3fc;">
-                        🏭 توزيع ذكي للمخازن
-                    </button>
-                    <button type="button" onclick="openSlWeighbridgeModal()" class="sl-btn" style="background: rgba(245,158,11,0.2); border-color: #fbbf24; color: #fde047;">
+                    <button type="button" onclick="openSlWeighbridgeModal()" class="sl-btn" style="background: rgba(245,158,11,0.2); border-color: #fbbf24; color: #fde047; padding: 6px 11px; font-size: 0.78rem;">
                         ⚖️ الميزان
                     </button>
-                    <button type="button" onclick="fillAllSlQuantities(1)" class="sl-btn" style="background: rgba(16,185,129,0.2); border-color: #34d399; color: #6ee7b7;">
-                        ⚡ تعبئة الكل (100%)
+                    <button type="button" id="sl-btn-dispatch-presets" onclick="window.openSlDispatchPresetsModal && window.openSlDispatchPresetsModal()" class="sl-btn" style="background: rgba(168,85,247,0.22); border-color: #c084fc; color: #e9d5ff; padding: 6px 11px; font-size: 0.78rem;" title="الحافظة الذكية لقوالب السائقين والمركبات والمستودعات المتكررة بضغطة واحدة">
+                        ⚡ قوالب السائقين
                     </button>
-                    <button type="button" onclick="fillAllSlQuantities(0.5)" class="sl-btn" style="background: rgba(56,189,248,0.18); border-color: #38bdf8; color: #7dd3fc;">
-                        🌗 نصف الكمية (50%)
+                    <button type="button" onclick="const t=document.getElementById('sl-extra-tools-drawer'); t.style.display=(t.style.display==='none'?'flex':'none');" class="sl-btn" style="background: rgba(56,189,248,0.18); border-color: #38bdf8; color: #7dd3fc; padding: 6px 11px; font-size: 0.78rem;" title="إظهار أو إخفاء الأدوات المتقدمة للبوابة في نظرة واحدة">
+                        🧰 أدوات البوابة
                     </button>
-                    <button type="button" onclick="fillAllSlQuantities(0)" class="sl-btn" style="background: rgba(239,68,68,0.16); border-color: #f87171; color: #fca5a5;">
-                        🧹 تصفير (0)
-                    </button>
-                    <button type="button" onclick="const d=document.getElementById('sl-cols-drawer'); d.style.display=(d.style.display==='none'?'flex':'none');" class="sl-btn" style="background: rgba(168,85,247,0.18); border-color: #c084fc; color: #e9d5ff;">
+                    <button type="button" onclick="const d=document.getElementById('sl-cols-drawer'); d.style.display=(d.style.display==='none'?'flex':'none');" class="sl-btn" style="background: rgba(168,85,247,0.18); border-color: #c084fc; color: #e9d5ff; padding: 6px 11px; font-size: 0.78rem;">
                         ⚙️ الأعمدة
                     </button>
                 </div>
+            </div>
+
+            <!-- COLLAPSIBLE ADVANCED GATE TOOLS DRAWER (نظرة واحدة صافية بدون حشو — Zero-Scroll) -->
+            <div id="sl-extra-tools-drawer" style="display:none; align-items:center; gap:6px; flex-wrap:wrap; background:rgba(2,6,23,0.82); padding:8px 12px; border-radius:12px; border:2.2px solid rgba(56,189,248,0.4); margin-bottom:10px;">
+                <button type="button" id="sl-btn-voice-dictate" onclick="startSlVoiceDictation()" class="sl-btn" style="background: rgba(236,72,153,0.2); border-color: #f472b6; color: #fbcfe8; padding:5px 10px; font-size:0.76rem;">🎙️ إملاء</button>
+                <button type="button" id="sl-btn-voice-commander" onclick="window.openSlVoiceGateCommanderModal && window.openSlVoiceGateCommanderModal()" class="sl-btn" style="background: rgba(14,165,233,0.22); border-color: #38bdf8; color: #7dd3fc; padding:5px 10px; font-size:0.76rem;">🎤 أوامر صوتية</button>
+                <button type="button" id="sl-btn-pa-announcer" onclick="window.announceSlDriverLoadingPA && window.announceSlDriverLoadingPA()" class="sl-btn" style="background: rgba(245,158,11,0.22); border-color: #fbbf24; color: #fde047; padding:5px 10px; font-size:0.76rem;">📢 نداء السائق</button>
+                <button type="button" id="sl-btn-batch-ocr" onclick="openSlBatchOcrScannerModal()" class="sl-btn" style="background: rgba(16,185,129,0.2); border-color: #34d399; color: #6ee7b7; padding:5px 10px; font-size:0.76rem;">📷 التشغيلة</button>
+                <button type="button" id="sl-btn-bin-heatmap" onclick="openSlBinHeatmapModal()" class="sl-btn" style="background: rgba(99,102,241,0.22); border-color: #818cf8; color: #c7d2fe; padding:5px 10px; font-size:0.76rem;">🗺️ الأرفف</button>
+                <button type="button" id="sl-btn-fleet-dispatch" onclick="window.openSlFleetDispatchModal && window.openSlFleetDispatchModal()" class="sl-btn" style="background: rgba(16,185,129,0.22); border-color: #34d399; color: #6ee7b7; padding:5px 10px; font-size:0.76rem;">🚚 المسار</button>
+                <button type="button" id="sl-btn-load-verifier" onclick="window.openSlLoadingVerifierModal && window.openSlLoadingVerifierModal()" class="sl-btn" style="background: rgba(56,189,248,0.22); border-color: #38bdf8; color: #7dd3fc; padding:5px 10px; font-size:0.76rem;">🎯 مطابقة التحميل</button>
+                <button type="button" id="sl-btn-cargo-estimator" onclick="window.openSlCargoEstimatorModal && window.openSlCargoEstimatorModal()" class="sl-btn" style="background: rgba(245,158,11,0.22); border-color: #fbbf24; color: #fde047; padding:5px 10px; font-size:0.76rem;">📦 الحمولة</button>
+                <button type="button" id="sl-btn-pending-aging" onclick="window.openSlPendingDeliveryAgingModal && window.openSlPendingDeliveryAgingModal()" class="sl-btn" style="background: rgba(14,165,233,0.22); border-color: #38bdf8; color: #7dd3fc; padding:5px 10px; font-size:0.76rem;">📊 المتبقيات</button>
+                <button type="button" id="sl-btn-gate-credit-note" onclick="window.openSlGateCreditNoteModal && window.openSlGateCreditNoteModal()" class="sl-btn" style="background: rgba(236,72,153,0.22); border-color: #f472b6; color: #fbcfe8; padding:5px 10px; font-size:0.76rem;">↩️ إشعار دائن</button>
+                <button type="button" id="sl-btn-gate-certificate" onclick="window.printSlGateClearanceCertificate && window.printSlGateClearanceCertificate()" class="sl-btn" style="background: rgba(16,185,129,0.22); border-color: #34d399; color: #6ee7b7; padding:5px 10px; font-size:0.76rem;">🛡️ شهادة إخلاء</button>
+                <button type="button" id="sl-btn-dock-zoom" onclick="window.toggleSlDockBigScreenMode && window.toggleSlDockBigScreenMode()" class="sl-btn" style="background: rgba(245,158,11,0.22); border-color: #fbbf24; color: #fde047; padding:5px 10px; font-size:0.76rem;">🔍 شاشة الرصيف</button>
+                <button type="button" id="sl-btn-contrast-inspector" onclick="window.openSlContrastInspectorModal && window.openSlContrastInspectorModal()" class="sl-btn" style="background: rgba(56,189,248,0.22); border-color: #38bdf8; color: #7dd3fc; padding:5px 10px; font-size:0.76rem;">🛡️ فحص التباين</button>
+                <button type="button" id="sl-btn-gdn-quiz" onclick="window.openSlGdnMasteryQuizModal && window.openSlGdnMasteryQuizModal()" class="sl-btn" style="background: rgba(168,85,247,0.22); border-color: #c084fc; color: #e9d5ff; padding:5px 10px; font-size:0.76rem;">🎓 اختبار</button>
             </div>
 
             <!-- COLUMN VISIBILITY DRAWER -->
@@ -1365,8 +1628,14 @@
             </div>
 
             <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                <!-- 🔴 زر الحذف/الإلغاء معزول مكانياً في الطرف البعيد وبلون أحمر تحذيري موحد مع تأكيد مدمج سريع (Order 2) -->
+                <button type="button" id="sl-btn-undo" onclick="window.requestSlSafeIsolatedUndo ? window.requestSlSafeIsolatedUndo(this) : undoSlTransaction()" class="sl-btn" style="background: rgba(239,68,68,0.22); border-color: #ef4444; color: #fca5a5; margin-inline-end: 8px;" title="إلغاء وعكس الحركة المخزنية (معزول مكانياً لمنع الضغط بالخطأ)">
+                    🗑️ حذف / عكس <kbd class="sl-kbd-badge">Del</kbd>
+                </button>
+                <div style="height:24px; width:2px; background:rgba(239,68,68,0.35); margin-inline-end: 4px;"></div>
+
                 <button type="button" id="sl-btn-voice-summary" onclick="speakSlReceiptSummaryBeforeSave()" class="sl-btn" style="background: rgba(14,165,233,0.2); border-color: rgba(56,189,248,0.5); color: #7dd3fc;">
-                    🔊 نطق الملخص
+                    🔊 الملخص
                 </button>
                 <button type="button" onclick="openSlSignatureModal()" class="sl-btn" style="background: rgba(168,85,247,0.18); border-color: rgba(192,132,252,0.45); color: #e9d5ff;">
                     ✍️ التوقيع
@@ -1374,23 +1643,27 @@
                 <button type="button" id="sl-btn-debit-note" onclick="openSlShortageDebitNoteModal()" class="sl-btn" style="background: rgba(245,158,11,0.18); border-color: rgba(251,191,36,0.45); color: #fde047;">
                     ⚠️ إشعار فرق
                 </button>
-                <button type="button" onclick="shareSlWhatsApp()" class="sl-btn" style="background: rgba(34,197,94,0.18); border-color: rgba(34,197,94,0.45); color: #4ade80;">
+                <button type="button" id="sl-btn-whatsapp-dispatch" onclick="shareSlWhatsApp()" class="sl-btn" style="background: rgba(34,197,94,0.22); border-color: #22c55e; color: #4ade80;" title="تجهيز وإرسال إشعار واتساب مفهرس ومنسق بفواصل الآلاف بضغطة واحدة">
                     💬 واتساب
                 </button>
                 <button type="button" onclick="printSlOfficialNote()" class="sl-btn" style="background: rgba(56,189,248,0.18); border-color: rgba(56,189,248,0.45); color: #38bdf8;">
                     🖨️ طباعة A4
                 </button>
                 <button type="button" id="sl-btn-print-80mm" onclick="printSlThermalReceipt80mm()" class="sl-btn" style="background: rgba(14,165,233,0.18); border-color: rgba(14,165,233,0.45); color: #7dd3fc;">
-                    🧾 إيصال 80mm
+                    🧾 80mm
                 </button>
                 <button type="button" id="sl-btn-print-labels" onclick="printSlBinBatchLabels()" class="sl-btn" style="background: rgba(168,85,247,0.2); border-color: rgba(192,132,252,0.5); color: #e9d5ff;">
-                    🏷️ ملصقات الأرفف
+                    🏷️ الملصقات
                 </button>
-                <button type="button" id="sl-btn-undo" onclick="undoSlTransaction()" class="sl-btn" style="background: rgba(239,68,68,0.16); border-color: rgba(239,68,68,0.45); color: #fca5a5;">
-                    ↩️ عكس الحركة
+
+                <!-- ✏️ زر التعديل القياسي الموحد مكاناً ولوناً (Order 2) -->
+                <button type="button" id="sl-btn-edit-doc" onclick="window.enableSlDocumentEditMode && window.enableSlDocumentEditMode()" class="sl-btn" style="background: linear-gradient(135deg, #f59e0b, #d97706); border-color: #fbbf24; color: #ffffff;" title="تعديل وفحص كميات وأرفف المستند الحالي (F4)">
+                    ✏️ تعديل <kbd class="sl-kbd-badge">F4</kbd>
                 </button>
-                <button type="button" id="sl-btn-execute" onclick="executeSlTransaction()" class="sl-btn" style="padding: 11px 26px; font-size: 0.98rem; background: linear-gradient(135deg, var(--sl-primary), var(--sl-primary-dark)); border-color: var(--sl-primary-light); color: #ffffff; box-shadow: 0 8px 25px var(--sl-primary-glow);">
-                    🚀 اعتماد الآن
+
+                <!-- 💾 زر الحفظ والاعتماد القياسي الموحد مكاناً ولوناً مع قفل الحفظ مرة واحدة فقط (Single-Save Lock — Order 2) -->
+                <button type="button" id="sl-btn-execute" onclick="window.executeSlTransactionSingleLock ? window.executeSlTransactionSingleLock(this) : executeSlTransaction()" class="sl-btn" style="padding: 10px 22px; font-size: 0.96rem; background: linear-gradient(135deg, var(--sl-primary), var(--sl-primary-dark)); border-color: var(--sl-primary-light); color: #ffffff; box-shadow: 0 8px 25px var(--sl-primary-glow);">
+                    💾 حفظ واعتماد <kbd class="sl-kbd-badge">F10</kbd>
                 </button>
             </div>
         </div>
@@ -2140,8 +2413,92 @@
         </div>
     </div>
 
+    <!-- ═══════════════════════════════════════════════════════════════════
+         CONSTITUTION 1 (1 OF 14) MASTER AUDIT & CONTROL CHILD MODAL:
+         لوحة فحص وإثبات الدستور الأول (السمات، الشاشات الوليدة، سُمك +2، منع انقلاب اللون، وتناسب 6:8)
+         ═══════════════════════════════════════════════════════════════════ -->
+    <div id="sl-constitution1-master-modal" style="display:none; position:fixed; inset:0; background:rgba(2,6,23,0.88); backdrop-filter:blur(12px); z-index:99999; align-items:center; justify-content:center; padding:16px;">
+        <div class="sl-glass-card" style="width:100%; max-width:640px; padding:20px; border:2.5px solid #10b981;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; border-bottom:2.2px solid rgba(16,185,129,0.35); padding-bottom:10px;">
+                <h3 style="margin:0; font-size:1.06rem; font-weight:900; color:#34d399;">🛡️ لوحة فحص وإثبات الدستور الأول (1 من 14) — يعمل 100%</h3>
+                <button type="button" onclick="document.getElementById('sl-constitution1-master-modal').style.display='none'" class="sl-btn" style="padding:4px 10px;">✕</button>
+            </div>
+            <div id="sl-constitution1-master-body" style="display:flex; flex-direction:column; gap:10px;"></div>
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-top:14px; padding-top:10px; border-top:2.2px solid rgba(148,163,184,0.25);">
+                <div style="display:flex; gap:6px; flex-wrap:wrap;">
+                    <button type="button" onclick="window.setSlProportionalZoom && window.setSlProportionalZoom(0.9)" class="sl-btn" style="padding:5px 10px; font-size:0.78rem;">🔍 90% (6:8)</button>
+                    <button type="button" onclick="window.setSlProportionalZoom && window.setSlProportionalZoom(1.0)" class="sl-btn" style="padding:5px 10px; font-size:0.78rem;">🎯 100% قياسي</button>
+                    <button type="button" onclick="window.setSlProportionalZoom && window.setSlProportionalZoom(1.1)" class="sl-btn" style="padding:5px 10px; font-size:0.78rem;">🔍 110% (6:8)</button>
+                    <button type="button" onclick="window.cycleSlConstitution1Theme && window.cycleSlConstitution1Theme()" class="sl-btn" style="padding:5px 10px; font-size:0.78rem; background:rgba(56,189,248,0.2); border-color:#38bdf8;">🌓 تبديل السمة حياً</button>
+                </div>
+                <button type="button" onclick="window.runSlConstitution1FullAudit && window.runSlConstitution1FullAudit(true)" class="sl-btn" style="background:linear-gradient(135deg,#10b981,#059669); color:#fff; border:none;">⚡ فحص وتأكيد الأوامر السبعة (7/7 — 100%)</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════════
+         CONSTITUTION 2 (2 OF 14) QUICK-ADD PARTY & ITEM CHILD MODAL (+):
+         إضافة سريعة لمورد أو عميل أو صنف جديد من داخل الشاشة دون ضياع البيانات
+         ═══════════════════════════════════════════════════════════════════ -->
+    <div id="sl-quick-entity-modal" style="display:none; position:fixed; inset:0; background:rgba(2,6,23,0.88); backdrop-filter:blur(12px); z-index:99999; align-items:center; justify-content:center; padding:16px;">
+        <div class="sl-glass-card" style="width:100%; max-width:520px; padding:20px; border:2.5px solid #34d399;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; border-bottom:2.2px solid rgba(52,211,153,0.35); padding-bottom:10px;">
+                <h3 id="sl-quick-entity-title" style="margin:0; font-size:1.05rem; font-weight:900; color:#34d399;">➕ إضافة سريعة فورية (دون مغادرة البوابة)</h3>
+                <button type="button" onclick="document.getElementById('sl-quick-entity-modal').style.display='none'" class="sl-btn" style="padding:4px 10px;">✕</button>
+            </div>
+            <div style="display:flex; gap:8px; margin-bottom:12px;">
+                <button type="button" id="sl-qe-tab-party" onclick="window.switchSlQuickEntityTab('party')" class="sl-btn" style="flex:1; background:rgba(16,185,129,0.22); border-color:#34d399;">👤 مورد / عميل جديد</button>
+                <button type="button" id="sl-qe-tab-item" onclick="window.switchSlQuickEntityTab('item')" class="sl-btn" style="flex:1;">📦 صنف جديد للمستند</button>
+            </div>
+            <div id="sl-qe-body-party" style="display:flex; flex-direction:column; gap:10px;">
+                <div>
+                    <label style="font-size:0.8rem; font-weight:900; display:block; margin-bottom:4px;">👤 اسم المورد / العميل:</label>
+                    <input type="text" id="sl-qe-party-name" class="sl-input" placeholder="اكتب الاسم الكامل..." style="width:100%;">
+                </div>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+                    <div>
+                        <label style="font-size:0.8rem; font-weight:900; display:block; margin-bottom:4px;">📱 رقم الهاتف / واتساب:</label>
+                        <input type="text" id="sl-qe-party-phone" class="sl-input" placeholder="09... / 249..." style="width:100%;">
+                    </div>
+                    <div>
+                        <label style="font-size:0.8rem; font-weight:900; display:block; margin-bottom:4px;">📍 المدينة / العنوان:</label>
+                        <input type="text" id="sl-qe-party-city" class="sl-input" placeholder="المدينة..." style="width:100%;">
+                    </div>
+                </div>
+                <button type="button" onclick="window.saveSlQuickPartyEntity()" class="sl-btn" style="background:linear-gradient(135deg,#10b981,#059669); color:#fff; border:none; padding:10px;">💾 حفظ وربط بالمستند فوراً</button>
+            </div>
+            <div id="sl-qe-body-item" style="display:none; flex-direction:column; gap:10px;">
+                <div style="display:grid; grid-template-columns:2fr 1fr; gap:8px;">
+                    <div>
+                        <label style="font-size:0.8rem; font-weight:900; display:block; margin-bottom:4px;">📦 اسم الصنف الجديد:</label>
+                        <input type="text" id="sl-qe-item-name" class="sl-input" placeholder="اسم الصنف..." style="width:100%;">
+                    </div>
+                    <div>
+                        <label style="font-size:0.8rem; font-weight:900; display:block; margin-bottom:4px;">🔢 الكود / الباركود:</label>
+                        <input type="text" id="sl-qe-item-code" class="sl-input" placeholder="تلقائي..." style="width:100%;">
+                    </div>
+                </div>
+                <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px;">
+                    <div>
+                        <label style="font-size:0.8rem; font-weight:900; display:block; margin-bottom:4px;">📦 الوحدة الكبرى:</label>
+                        <input type="text" id="sl-qe-item-unit" class="sl-input" value="كرتون" style="width:100%; text-align:center;">
+                    </div>
+                    <div>
+                        <label style="font-size:0.8rem; font-weight:900; display:block; margin-bottom:4px;">⚖️ المعامل (العبوة):</label>
+                        <input type="number" id="sl-qe-item-factor" class="sl-input" value="1" min="1" step="any" style="width:100%; text-align:center;">
+                    </div>
+                    <div>
+                        <label style="font-size:0.8rem; font-weight:900; display:block; margin-bottom:4px;">⚡ الكمية الواردة/الصادرة:</label>
+                        <input type="number" id="sl-qe-item-qty" class="sl-input" value="10" min="0.01" step="any" style="width:100%; text-align:center;">
+                    </div>
+                </div>
+                <button type="button" onclick="window.saveSlQuickItemEntity()" class="sl-btn" style="background:linear-gradient(135deg,#0284c7,#2563eb); color:#fff; border:none; padding:10px;">💾 حفظ الصنف وإدراجه في جدول الفحص فوراً</button>
+            </div>
+        </div>
+    </div>
+
     <script>
-    // 🎡 ضمان تحريك الشاشة بالكامل بالرولر (Mouse Wheel Freedom Engine) صعوداً وهبوطاً بحرية تامة
+    // 🎡 ضمان تحريك الشاشة بالكامل بالرولر + محرك التناسب الهندسي الثابت للأبعاد (6:8 Aspect-Ratio Lock — Ctrl + Wheel)
     (function () {
         function unlockScreenScroll() {
             document.documentElement.style.setProperty('overflow-y', 'scroll', 'important');
@@ -2159,10 +2516,18 @@
         document.addEventListener('DOMContentLoaded', unlockScreenScroll);
         window.addEventListener('load', unlockScreenScroll);
 
-        // Ensure wheel events anywhere on the main screen always scroll the page freely
+        // Ensure wheel events anywhere on the main screen always scroll the page freely, while Ctrl+Wheel triggers 6:8 proportional scaling
         window.addEventListener('wheel', function (e) {
-            if (!e.deltaY || e.ctrlKey) return;
-            const openModal = e.target.closest && e.target.closest('#msg-universal-modal.open, #sl-mobile-bridge-modal[style*="flex"], #sl-font-modal[style*="flex"], #sl-weighbridge-modal[style*="flex"], #sl-signature-modal[style*="flex"], #sl-debit-note-modal[style*="flex"], #sl-quick-warehouse-modal[style*="flex"], #sl-confirm-undo-modal[style*="flex"], #sl-drilldown-invoice-modal[style*="flex"], #msg-pwa-app-install-modal[style*="flex"], #msg-full-offline-install-modal[style*="flex"], #msg-universal-7themes-modal[style*="flex"]');
+            if (e.ctrlKey || e.metaKey) {
+                e.preventDefault();
+                var delta = e.deltaY < 0 ? 0.05 : -0.05;
+                if (typeof window.stepSlProportionalZoom === 'function') {
+                    window.stepSlProportionalZoom(delta);
+                }
+                return;
+            }
+            if (!e.deltaY) return;
+            const openModal = e.target.closest && e.target.closest('#msg-universal-modal.open, [id^="sl-"][id$="-modal"][style*="flex"], #msg-pwa-app-install-modal[style*="flex"], #msg-full-offline-install-modal[style*="flex"], #msg-universal-7themes-modal[style*="flex"]');
             if (openModal) return;
 
             const beforeY = window.scrollY || document.documentElement.scrollTop || 0;
@@ -2175,7 +2540,7 @@
                     }
                 }
             });
-        }, { passive: true });
+        }, { passive: false });
     })();
     </script>
     <script src="js/magaies-offline-sync.js?v=20261014"></script>
