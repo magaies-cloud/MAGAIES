@@ -773,7 +773,7 @@ function onCustomerChange() {
         
         ['fin-ledger','fin-checks','fin-total-debt','fin-credit-limit','fin-remaining'].forEach(el => {
             const dom = document.getElementById(el);
-            if(dom) dom.textContent = '0 ' + cur;
+            if(dom) dom.textContent = '0';
         });
         const msg = document.getElementById('fin-status-msg');
         if (typeof window.autoFitHeaderFields === 'function') window.autoFitHeaderFields();
@@ -805,11 +805,11 @@ function onCustomerChange() {
     const remaining = cCreditLimit - totalDebt;
 
     const els = {
-        'fin-ledger': fmtNum(cLedger) + ' ' + cur,
-        'fin-checks': fmtNum(cChecks) + ' ' + cur,
-        'fin-total-debt': fmtNum(totalDebt) + ' ' + cur,
-        'fin-credit-limit': fmtNum(cCreditLimit) + ' ' + cur,
-        'fin-remaining': fmtNum(remaining) + ' ' + cur
+        'fin-ledger': fmtNum((typeof window.convFinStripVal === 'function') ? window.convFinStripVal(cLedger) : cLedger),
+        'fin-checks': fmtNum((typeof window.convFinStripVal === 'function') ? window.convFinStripVal(cChecks) : cChecks),
+        'fin-total-debt': fmtNum((typeof window.convFinStripVal === 'function') ? window.convFinStripVal(totalDebt) : totalDebt),
+        'fin-credit-limit': fmtNum((typeof window.convFinStripVal === 'function') ? window.convFinStripVal(cCreditLimit) : cCreditLimit),
+        'fin-remaining': fmtNum((typeof window.convFinStripVal === 'function') ? window.convFinStripVal(remaining) : remaining)
     };
 
     for(let key in els) {
@@ -2225,7 +2225,7 @@ function renderGridHead() {
         <tr>
             <th data-col-id="col_index" style="width: 45px; text-align: center; font-weight: 800;">${getColName('col_index', '#')}</th>
             <th data-col-id="available" style="width: 110px; text-align: center; font-weight: 800;" title="الكمية المتوفرة بالمخزن تلقائياً">${getColName('available', 'المتاح')}</th>
-            <th data-col-id="item" style="width: auto; min-width: 250px; text-align: right; font-weight: 800;">${getColName('item', 'الصنف')}</th>
+            <th data-col-id="item" style="width: auto; min-width: 250px; text-align: center; font-weight: 800;">${getColName('item', 'الصنف')}</th>
             <th data-col-id="unit" style="width: 100px; text-align: center; font-weight: 800;">${getColName('unit', 'الوحدة')}</th>
             <th data-col-id="quantity" style="width: 100px; text-align: center; font-weight: 800;">${getColName('quantity', 'الكمية')}</th>
             <th data-col-id="price" style="width: 130px; text-align: center; font-weight: 800;">${priceHeader}</th>
@@ -2417,7 +2417,7 @@ function renderGrid() {
             <td data-col-id="quantity" style="text-align: center;">
                 <input type="text" inputmode="decimal" class="g-input" data-qty-input="${row.id}" value="${row.quantity || ''}" placeholder="0"
                     onfocus="this.select()" oninput="updateRow(${row.id},'quantity',this.value)"
-                    onblur="this.value=parseNum(this.value)||''" style="text-align: center; width: 95%; margin: 0 auto; display: block;">
+                    onblur="this.value=parseNum(this.value)||''" style="text-align: center; width: 100%; margin: 0 auto; display: block;">
             </td>
             <td data-col-id="price" style="text-align: center; position: relative;">
                 <input type="text" inputmode="decimal" class="g-input" data-price-input="${row.id}" value="${fmtNum(row.price, 'price')}"

@@ -9,27 +9,42 @@
         document.documentElement.setAttribute('dir','ltr');
         document.documentElement.setAttribute('lang','en');
     }
-    // Sync 7-Theme System & Universal Light/Dark Mode Before First Paint & Dynamically (Constitution 1 Order 1)
+    // Sync 7-Theme System & Universal Light Beige / Dark Mode Before First Paint & Dynamically (Matching purchase.php 100%)
     window.syncSlUniversalThemeSystem = function() {
-        var rawTheme = localStorage.getItem('magaies_active_theme') ||
-                       localStorage.getItem('magaiees_global_theme') ||
-                       localStorage.getItem('magaies_theme_mode') ||
-                       localStorage.getItem('ui_theme') || '';
-        var lightThemes = ['warm_cream', 'ultra_white', 'exec_gray', 'light', 'royal-dawn', 'pearl-white', 'warm-alabaster', 'pure-platinum'];
-        var isLightMode = lightThemes.includes(rawTheme) || localStorage.getItem('magaies_theme_mode') === 'light';
+        var raw = localStorage.getItem('magaies_active_theme') ||
+                  localStorage.getItem('magaiees_global_theme') ||
+                  localStorage.getItem('magaiees_mobile_theme') ||
+                  localStorage.getItem('magaies_theme_mode') ||
+                  localStorage.getItem('ui_theme') ||
+                  'warm_cream';
+        var aliasMap = {
+            'warm-alabaster': 'warm_cream', 'beige': 'warm_cream', 'ivory': 'warm_cream', 'light-linen': 'warm_cream',
+            'pure-platinum': 'ultra_white', 'offwhite': 'ultra_white', 'white': 'ultra_white', 'light': 'ultra_white', 'royal-dawn': 'warm_cream', 'pearl-white': 'ultra_white',
+            'pearl-platinum': 'exec_gray', 'nordic-paper': 'warm_cream', 'solar_contrast': 'warm_cream',
+            'midnight-executive': 'midnight_obsidian', 'navy-kohl': 'midnight_obsidian', 'royal-blue': 'midnight_obsidian', 'ocean-navy': 'midnight_obsidian', 'navy': 'midnight_obsidian',
+            'sepia-brown': 'mocha_brown', 'desert-mocha': 'mocha_brown', 'brown': 'mocha_brown',
+            'obsidian-charcoal': 'pure_oled', 'midnight': 'pure_oled', 'black': 'pure_oled', 'dark': 'midnight_obsidian',
+            'twilight-indigo': 'slate_twilight', 'emerald-forest': 'slate_twilight', 'forest': 'slate_twilight'
+        };
+        var activeKey = aliasMap[raw] || raw;
+        var valid7 = ['warm_cream', 'ultra_white', 'exec_gray', 'midnight_obsidian', 'mocha_brown', 'pure_oled', 'slate_twilight'];
+        if (!valid7.includes(activeKey)) activeKey = 'warm_cream';
+        var isLightMode = ['warm_cream', 'ultra_white', 'exec_gray'].includes(activeKey) || localStorage.getItem('magaies_theme_mode') === 'light';
+
+        document.documentElement.setAttribute('data-theme', activeKey);
         if (isLightMode) {
             document.documentElement.classList.add('light-theme');
             document.documentElement.setAttribute('data-magaies-theme-mode', 'light');
             if (document.body) {
                 document.body.classList.add('light-theme', 'theme-light');
-                document.body.setAttribute('data-theme', 'light');
+                document.body.setAttribute('data-theme', activeKey);
             }
         } else {
             document.documentElement.classList.remove('light-theme');
             document.documentElement.setAttribute('data-magaies-theme-mode', 'dark');
             if (document.body) {
                 document.body.classList.remove('light-theme', 'theme-light');
-                document.body.setAttribute('data-theme', 'dark');
+                document.body.setAttribute('data-theme', activeKey);
             }
         }
         return isLightMode;
@@ -48,15 +63,16 @@
 <head>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&family=Cairo:wght@400;600;700;800;900&family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Cairo:wght@400;600;700;800;900&family=Outfit:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>بوابة الاستلام والتسليم الذكية الموحدة (GRN ⇄ GDN) — ELSAJANA ERP</title>
-    <link rel="stylesheet" href="css/design-system.css">
-    <link rel="stylesheet" href="css/theme.css">
+    <link rel="stylesheet" href="css/design-system.css?v=20261029_fast">
+    <link rel="stylesheet" href="css/theme.css?v=20261101_crystal">
     <link rel="stylesheet" href="css/components.css?v=20260723_v14">
-    <link rel="stylesheet" href="css/sales-invoice.css">
+    <link rel="stylesheet" href="css/sales-invoice.css?v=20261101_crystal">
     <link rel="stylesheet" href="css/print-invoice.css">
+    <link rel="stylesheet" href="css/purchase-module-v2.css?v=20261029_fast">
     <style>
         /* ═══════════════════════════════════════════════════════════════════════════
            ICONIC CYBER-GLASS & KINETIC NEON ENGINE (بوابة الاستلام والتسليم الموحدة)
@@ -1113,6 +1129,413 @@
             border-color: #ef4444 !important;
             box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.55), 0 0 18px rgba(239, 68, 68, 0.45) !important;
         }
+
+        /* ═══════════════════════════════════════════════════════════════════════════════════════════
+           👑 EXACT PURCHASES SCREEN (purchase.php) UNIFIED THEME, TYPOGRAPHY, COLORS & SCROLL ENGINE
+           - Non-Sticky Bottom Summary Bar (scrolls naturally up/down with the mouse wheel)
+           - Dark Mode: Royal Navy (#040811 bg, #213766 -> #172749 cards, #0c162c inputs, #38bdf8 borders)
+           - Light Beige Mode (warm_cream / .light-theme): Warm Cream (#f3ece0 bg, #faf6ee -> #f5ede0 cards,
+             #9a5822 2px warm-bronze borders, #ffffff inputs, 3D tactile dropdowns, #140c06 crisp text)
+           ═══════════════════════════════════════════════════════════════════════════════════════════ */
+
+        /* 1. Natural Full-Page Mouse-Wheel Scrolling (No Sticky/Fixed Bottom Overlap) */
+        body {
+            padding-bottom: 28px !important;
+        }
+        #sl-proportional-root {
+            padding-bottom: 24px !important;
+        }
+        .sl-floating-summary {
+            position: relative !important;
+            bottom: auto !important;
+            z-index: 10 !important;
+        }
+        .sl-table thead th {
+            position: relative !important;
+            top: auto !important;
+            border-left: none !important;
+            border-right: none !important;
+        }
+        .sl-table tbody td {
+            border-left: none !important;
+            border-right: none !important;
+        }
+
+        /* Zero text-shadow / zero halo across all labels & text just like purchase.php */
+        html body *,
+        html body *::before,
+        html body *::after {
+            text-shadow: none !important;
+        }
+
+        /* Smooth Spring Transitions matching purchase.php */
+        .sl-glass-card,
+        .sl-floating-summary,
+        .sl-unit-box,
+        .sl-input,
+        .sl-btn,
+        .sl-table thead th,
+        #sl-workflow-stepper,
+        #sl-camera-placeholder {
+            transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1),
+                        border-color 0.22s ease,
+                        border-width 0.18s ease,
+                        box-shadow 0.25s ease,
+                        background 0.22s ease,
+                        background-color 0.22s ease,
+                        filter 0.22s ease !important;
+        }
+
+        /* ── 2. DARK THEME: Exact Royal Navy & Luminous Cyan Palette from purchase.php ── */
+        html:not([data-magaies-theme-mode="light"]):not(.light-theme) body:not(.light-theme):not(.theme-light):not([data-theme="light"]) {
+            background: #040811 !important;
+            color: #ffffff !important;
+        }
+        html:not([data-magaies-theme-mode="light"]):not(.light-theme) body:not(.light-theme):not(.theme-light):not([data-theme="light"]) .sl-glass-card,
+        html:not([data-magaies-theme-mode="light"]):not(.light-theme) body:not(.light-theme):not(.theme-light):not([data-theme="light"]) #sl-top-cockpit-bar,
+        html:not([data-magaies-theme-mode="light"]):not(.light-theme) body:not(.light-theme):not(.theme-light):not([data-theme="light"]) .sl-floating-summary {
+            background: linear-gradient(145deg, #213766 0%, #172749 100%) !important;
+            border: 2px solid rgba(56, 189, 248, 0.68) !important;
+            border-radius: 14px !important;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6), 0 0 16px rgba(56, 189, 248, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+            color: #ffffff !important;
+        }
+        html:not([data-magaies-theme-mode="light"]):not(.light-theme) body:not(.light-theme):not(.theme-light):not([data-theme="light"]) .sl-glass-card:hover,
+        html:not([data-magaies-theme-mode="light"]):not(.light-theme) body:not(.light-theme):not(.theme-light):not([data-theme="light"]) .sl-glass-card:focus-within,
+        html:not([data-magaies-theme-mode="light"]):not(.light-theme) body:not(.light-theme):not(.theme-light):not([data-theme="light"]) .sl-floating-summary:hover {
+            transform: translateY(-2.5px) !important;
+            border: 2.5px solid #38bdf8 !important;
+            box-shadow: 0 0 0 2.5px rgba(56, 189, 248, 0.38), 0 18px 40px rgba(0, 0, 0, 0.72), 0 0 30px rgba(56, 189, 248, 0.52), inset 0 1px 0 rgba(255, 255, 255, 0.28) !important;
+        }
+        html:not([data-magaies-theme-mode="light"]):not(.light-theme) body:not(.light-theme):not(.theme-light):not([data-theme="light"]) .sl-info-subbox,
+        html:not([data-magaies-theme-mode="light"]):not(.light-theme) body:not(.light-theme):not(.theme-light):not([data-theme="light"]) #sl-workflow-stepper,
+        html:not([data-magaies-theme-mode="light"]):not(.light-theme) body:not(.light-theme):not(.theme-light):not([data-theme="light"]) #sl-camera-placeholder,
+        html:not([data-magaies-theme-mode="light"]):not(.light-theme) body:not(.light-theme):not(.theme-light):not([data-theme="light"]) .sl-unit-box {
+            background: linear-gradient(135deg, #132347 0%, #0f1c3a 100%) !important;
+            border: 2px solid rgba(56, 189, 248, 0.68) !important;
+            border-radius: 11px !important;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45), 0 0 12px rgba(56, 189, 248, 0.2) !important;
+        }
+        html:not([data-magaies-theme-mode="light"]):not(.light-theme) body:not(.light-theme):not(.theme-light):not([data-theme="light"]) input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):not([type="hidden"]),
+        html:not([data-magaies-theme-mode="light"]):not(.light-theme) body:not(.light-theme):not(.theme-light):not([data-theme="light"]) textarea {
+            background: #0c162c !important;
+            background-color: #0c162c !important;
+            border: 2px solid rgba(56, 189, 248, 0.65) !important;
+            border-radius: 9px !important;
+            color: #ffffff !important;
+            -webkit-text-fill-color: #ffffff !important;
+            -webkit-box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35), 0 0 0 1000px #0c162c inset !important;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35), 0 0 0 1000px #0c162c inset !important;
+        }
+        html:not([data-magaies-theme-mode="light"]):not(.light-theme) body:not(.light-theme):not(.theme-light):not([data-theme="light"]) select {
+            -webkit-appearance: none !important;
+            appearance: none !important;
+            background-color: #132347 !important;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2338bdf8' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E"), linear-gradient(180deg, #1d3566 0%, #102042 100%) !important;
+            background-repeat: no-repeat, no-repeat !important;
+            background-position: left 9px center, 0 0 !important;
+            background-size: 13px 13px, 100% 100% !important;
+            padding-left: 26px !important;
+            border: 2px solid rgba(56, 189, 248, 0.75) !important;
+            border-bottom: 3px solid #0284c7 !important;
+            border-radius: 9px !important;
+            color: #ffffff !important;
+            -webkit-text-fill-color: #ffffff !important;
+            cursor: pointer !important;
+            -webkit-box-shadow: 0 4px 10px rgba(0, 0, 0, 0.45), inset 0 1.5px 0 rgba(255, 255, 255, 0.22) !important;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.45), inset 0 1.5px 0 rgba(255, 255, 255, 0.22) !important;
+        }
+        html:not([data-magaies-theme-mode="light"]):not(.light-theme) body:not(.light-theme):not(.theme-light):not([data-theme="light"]) input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]):hover,
+        html:not([data-magaies-theme-mode="light"]):not(.light-theme) body:not(.light-theme):not(.theme-light):not([data-theme="light"]) input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]):focus,
+        html:not([data-magaies-theme-mode="light"]):not(.light-theme) body:not(.light-theme):not(.theme-light):not([data-theme="light"]) select:hover,
+        html:not([data-magaies-theme-mode="light"]):not(.light-theme) body:not(.light-theme):not(.theme-light):not([data-theme="light"]) select:focus {
+            border-color: #7dd3fc !important;
+            -webkit-box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.42), 0 0 22px rgba(56, 189, 248, 0.78), 0 0 0 1000px #102042 inset !important;
+            box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.42), 0 0 22px rgba(56, 189, 248, 0.78), 0 0 0 1000px #102042 inset !important;
+            transform: translateY(-2px) scale(1.012) !important;
+        }
+        html:not([data-magaies-theme-mode="light"]):not(.light-theme) body:not(.light-theme):not(.theme-light):not([data-theme="light"]) .sl-table thead th {
+            background: linear-gradient(180deg, #263c6e 0%, #1d2f57 100%) !important;
+            border-top: 2px solid rgba(56, 189, 248, 0.55) !important;
+            border-bottom: 2px solid #38bdf8 !important;
+            color: #ffffff !important;
+        }
+        html:not([data-magaies-theme-mode="light"]):not(.light-theme) body:not(.light-theme):not(.theme-light):not([data-theme="light"]) .sl-table thead th:hover {
+            background: linear-gradient(180deg, #2f4b87 0%, #233a6b 100%) !important;
+            box-shadow: inset 0 0 12px rgba(56, 189, 248, 0.45), 0 4px 12px rgba(56, 189, 248, 0.35) !important;
+            transform: translateY(-2px) !important;
+        }
+
+        /* ── 3. LIGHT BEIGE THEME (warm_cream / .light-theme): Exact Palette, Borders & 3D Controls from purchase.php ── */
+        html[data-magaies-theme-mode="light"] body,
+        html.light-theme body,
+        body.theme-light,
+        body.light-theme,
+        body[data-theme="warm_cream"],
+        body[data-theme="light"] {
+            background: #f3ece0 !important;
+            color: #140c06 !important;
+            --sl-grid-font-color: #140c06;
+        }
+        html[data-magaies-theme-mode="light"] .sl-glass-card,
+        html[data-magaies-theme-mode="light"] #sl-top-cockpit-bar,
+        html[data-magaies-theme-mode="light"] .sl-floating-summary,
+        body.light-theme .sl-glass-card,
+        body.light-theme #sl-top-cockpit-bar,
+        body.light-theme .sl-floating-summary,
+        body.theme-light .sl-glass-card,
+        body.theme-light #sl-top-cockpit-bar,
+        body.theme-light .sl-floating-summary {
+            background: linear-gradient(145deg, #faf6ee 0%, #f5ede0 100%) !important;
+            background-image: linear-gradient(125deg, rgba(255, 255, 255, 0.72) 0%, rgba(255, 255, 255, 0.18) 38%, rgba(250, 246, 238, 0.92) 65%, #f3e9d7 100%) !important;
+            border: 2px solid #9a5822 !important;
+            border-radius: 14px !important;
+            box-shadow: 0 10px 26px rgba(120, 53, 15, 0.12), inset 0 2px 0 #ffffff, inset 0 -1.5px 0 rgba(180, 83, 9, 0.18) !important;
+            color: #140c06 !important;
+        }
+        html[data-magaies-theme-mode="light"] .sl-glass-card:hover,
+        html[data-magaies-theme-mode="light"] .sl-glass-card:focus-within,
+        html[data-magaies-theme-mode="light"] .sl-floating-summary:hover,
+        body.light-theme .sl-glass-card:hover,
+        body.light-theme .sl-glass-card:focus-within,
+        body.light-theme .sl-floating-summary:hover {
+            transform: translateY(-2.5px) !important;
+            border: 2.5px solid #b45309 !important;
+            box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.28), 0 0 22px rgba(245, 158, 11, 0.32), 0 14px 30px rgba(120, 53, 15, 0.16), inset 0 1.5px 0 #ffffff !important;
+        }
+        html[data-magaies-theme-mode="light"] .sl-info-subbox,
+        html[data-magaies-theme-mode="light"] #sl-workflow-stepper,
+        html[data-magaies-theme-mode="light"] #sl-camera-placeholder,
+        html[data-magaies-theme-mode="light"] .sl-unit-box,
+        html[data-magaies-theme-mode="light"] .sl-unit-box-inner,
+        body.light-theme .sl-info-subbox,
+        body.light-theme #sl-workflow-stepper,
+        body.light-theme #sl-camera-placeholder,
+        body.light-theme .sl-unit-box,
+        body.light-theme .sl-unit-box-inner {
+            background: linear-gradient(135deg, #fdfbf7 0%, #f7efe2 100%) !important;
+            border: 2px solid #9a5822 !important;
+            border-radius: 11px !important;
+            box-shadow: 0 3px 10px rgba(120, 53, 15, 0.09), inset 0 1px 0 #ffffff !important;
+            color: #140c06 !important;
+        }
+        html[data-magaies-theme-mode="light"] #sl-registry-scroll-wrap,
+        html[data-magaies-theme-mode="light"] #sl-items-grid,
+        body.light-theme #sl-registry-scroll-wrap,
+        body.light-theme #sl-items-grid {
+            border: 2px solid #9a5822 !important;
+            background: #faf6ee !important;
+        }
+        html[data-magaies-theme-mode="light"] .sl-table thead th,
+        body.light-theme .sl-table thead th {
+            background: linear-gradient(180deg, #f3e9d6 0%, #eadbc2 100%) !important;
+            color: #140c06 !important;
+            -webkit-text-fill-color: #140c06 !important;
+            border-top: 2px solid #9a5822 !important;
+            border-bottom: 2px solid #9a5822 !important;
+            font-weight: 900 !important;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.75) !important;
+        }
+        html[data-magaies-theme-mode="light"] .sl-table thead th:hover,
+        body.light-theme .sl-table thead th:hover {
+            background: linear-gradient(180deg, #fffdf9 0%, #f5e6cc 100%) !important;
+            border-top-color: #b45309 !important;
+            border-bottom: 2.5px solid #d97706 !important;
+            box-shadow: 0 4px 12px rgba(180, 83, 9, 0.18), inset 0 0 10px rgba(245, 158, 11, 0.22) !important;
+            transform: translateY(-2px) !important;
+        }
+        html[data-magaies-theme-mode="light"] .sl-table tbody tr,
+        html[data-magaies-theme-mode="light"] .sl-table tbody tr td,
+        body.light-theme .sl-table tbody tr,
+        body.light-theme .sl-table tbody tr td {
+            background: #faf6ee !important;
+            border-top: 1.5px solid rgba(154, 88, 34, 0.35) !important;
+            border-bottom: 1.5px solid rgba(154, 88, 34, 0.35) !important;
+            color: #140c06 !important;
+        }
+        html[data-magaies-theme-mode="light"] .sl-table tbody tr:hover td,
+        body.light-theme .sl-table tbody tr:hover td {
+            background: #f4ecde !important;
+        }
+
+        /* Light Beige Writing Inputs (#ffffff canvas + 2px #9a5822 border + #140c06 text) */
+        html[data-magaies-theme-mode="light"] input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):not([type="hidden"]),
+        html[data-magaies-theme-mode="light"] textarea,
+        body.light-theme input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):not([type="hidden"]),
+        body.light-theme textarea {
+            background: #ffffff !important;
+            background-color: #ffffff !important;
+            border: 2px solid #9a5822 !important;
+            border-radius: 9px !important;
+            color: #140c06 !important;
+            -webkit-text-fill-color: #140c06 !important;
+            caret-color: #140c06 !important;
+            font-weight: 900 !important;
+            -webkit-box-shadow: inset 0 2px 4px rgba(15, 23, 42, 0.06), 0 2px 5px rgba(120, 53, 15, 0.08), 0 0 0 1000px #ffffff inset !important;
+            box-shadow: inset 0 2px 4px rgba(15, 23, 42, 0.06), 0 2px 5px rgba(120, 53, 15, 0.08), 0 0 0 1000px #ffffff inset !important;
+        }
+        html[data-magaies-theme-mode="light"] input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]):hover,
+        html[data-magaies-theme-mode="light"] input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]):focus,
+        body.light-theme input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]):hover,
+        body.light-theme input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]):focus {
+            border: 2.5px solid #d97706 !important;
+            -webkit-box-shadow: 0 0 0 3.5px rgba(245, 158, 11, 0.36), 0 0 20px rgba(245, 158, 11, 0.52), 0 6px 16px rgba(120, 53, 15, 0.18), 0 0 0 1000px #ffffff inset !important;
+            box-shadow: 0 0 0 3.5px rgba(245, 158, 11, 0.36), 0 0 20px rgba(245, 158, 11, 0.52), 0 6px 16px rgba(120, 53, 15, 0.18), 0 0 0 1000px #ffffff inset !important;
+            transform: translateY(-2px) scale(1.012) !important;
+        }
+
+        /* Light Beige 3D Tactile Dropdown Selectors (with Warm-Bronze Chevron Arrow ▾) */
+        html[data-magaies-theme-mode="light"] select,
+        body.light-theme select {
+            -webkit-appearance: none !important;
+            appearance: none !important;
+            background-color: #fdf8ee !important;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%239a5822' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E"), linear-gradient(180deg, #ffffff 0%, #fdf8ee 58%, #f3e5c8 100%) !important;
+            background-repeat: no-repeat, no-repeat !important;
+            background-position: left 9px center, 0 0 !important;
+            background-size: 13px 13px, 100% 100% !important;
+            padding-left: 26px !important;
+            border: 2px solid #9a5822 !important;
+            border-bottom: 3px solid #78350f !important;
+            border-radius: 9px !important;
+            color: #140c06 !important;
+            -webkit-text-fill-color: #140c06 !important;
+            font-weight: 900 !important;
+            cursor: pointer !important;
+            -webkit-box-shadow: 0 3px 8px rgba(120, 53, 15, 0.14), inset 0 1.5px 0 #ffffff !important;
+            box-shadow: 0 3px 8px rgba(120, 53, 15, 0.14), inset 0 1.5px 0 #ffffff !important;
+        }
+        html[data-magaies-theme-mode="light"] select:hover,
+        html[data-magaies-theme-mode="light"] select:focus,
+        body.light-theme select:hover,
+        body.light-theme select:focus {
+            border-color: #d97706 !important;
+            border-bottom: 3.5px solid #92400e !important;
+            -webkit-box-shadow: 0 0 0 3.5px rgba(245, 158, 11, 0.38), 0 0 22px rgba(245, 158, 11, 0.55), 0 6px 16px rgba(120, 53, 15, 0.22), inset 0 1.5px 0 #ffffff !important;
+            box-shadow: 0 0 0 3.5px rgba(245, 158, 11, 0.38), 0 0 22px rgba(245, 158, 11, 0.55), 0 6px 16px rgba(120, 53, 15, 0.22), inset 0 1.5px 0 #ffffff !important;
+            transform: translateY(-2px) scale(1.012) !important;
+        }
+
+        /* Light Beige 3D Tactile Buttons (.sl-btn) matching purchase.php */
+        html[data-magaies-theme-mode="light"] .sl-btn,
+        body.light-theme .sl-btn {
+            background: linear-gradient(180deg, #ffffff 0%, #fdf8ee 58%, #f3e5c8 100%) !important;
+            border: 2px solid #9a5822 !important;
+            border-bottom: 3px solid #78350f !important;
+            border-radius: 10px !important;
+            color: #140c06 !important;
+            -webkit-text-fill-color: #140c06 !important;
+            font-weight: 900 !important;
+            box-shadow: 0 4px 10px rgba(120, 53, 15, 0.14), inset 0 1.5px 0 #ffffff !important;
+        }
+        html[data-magaies-theme-mode="light"] .sl-btn:hover:not(:disabled),
+        body.light-theme .sl-btn:hover:not(:disabled) {
+            transform: translateY(-3px) scale(1.04) !important;
+            border-color: #d97706 !important;
+            box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.35), 0 8px 18px rgba(120, 53, 15, 0.22), inset 0 1.5px 0 #ffffff !important;
+        }
+        /* Keep primary action button (#sl-btn-execute) & edit button (#sl-btn-edit-doc) rich 3D Crystal Emerald / Amber like purchase.php */
+        html body #sl-btn-execute,
+        html[data-magaies-theme-mode="light"] #sl-btn-execute,
+        body.light-theme #sl-btn-execute {
+            background: linear-gradient(180deg, #10b981 0%, #059669 52%, #047857 100%) !important;
+            border: 2px solid #064e3b !important;
+            border-bottom: 3.5px solid #022c22 !important;
+            color: #ffffff !important;
+            -webkit-text-fill-color: #ffffff !important;
+            box-shadow: 0 6px 18px rgba(5, 150, 105, 0.38), inset 0 1.5px 0 rgba(255, 255, 255, 0.45) !important;
+        }
+        html body #sl-btn-execute *,
+        body.light-theme #sl-btn-execute * {
+            color: #ffffff !important;
+            -webkit-text-fill-color: #ffffff !important;
+        }
+        html body #sl-btn-edit-doc,
+        html[data-magaies-theme-mode="light"] #sl-btn-edit-doc,
+        body.light-theme #sl-btn-edit-doc {
+            background: linear-gradient(180deg, #f59e0b 0%, #d97706 55%, #b45309 100%) !important;
+            border: 2px solid #78350f !important;
+            border-bottom: 3.5px solid #451a03 !important;
+            color: #ffffff !important;
+            -webkit-text-fill-color: #ffffff !important;
+            box-shadow: 0 5px 14px rgba(180, 83, 9, 0.35), inset 0 1.5px 0 rgba(255, 255, 255, 0.55) !important;
+        }
+        html body #sl-btn-edit-doc *,
+        body.light-theme #sl-btn-edit-doc * {
+            color: #ffffff !important;
+            -webkit-text-fill-color: #ffffff !important;
+        }
+        html[data-magaies-theme-mode="light"] #sl-btn-undo,
+        body.light-theme #sl-btn-undo {
+            background: linear-gradient(180deg, #ffffff 0%, #ffe4e6 100%) !important;
+            border: 2px solid #e11d48 !important;
+            border-bottom: 3px solid #9f1239 !important;
+            color: #881337 !important;
+            -webkit-text-fill-color: #881337 !important;
+        }
+        /* 👑 World-Class Symmetrical Cockpit Grid (6×2 Matrix & Zero-Wrap Labels) */
+        #sl-inspection-cockpit .sl-cockpit-6grid > div > label {
+            font-size: 0.75rem !important;
+            line-height: 1.25 !important;
+            white-space: nowrap !important;
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
+        }
+        #sl-inspection-cockpit .sl-cockpit-6grid .sl-input,
+        #sl-inspection-cockpit .sl-cockpit-6grid select,
+        #sl-inspection-cockpit .sl-cockpit-6grid input[type="text"] {
+            height: 34px !important;
+            min-height: 34px !important;
+            max-height: 34px !important;
+            font-size: 0.8rem !important;
+            padding: 4px 8px !important;
+            box-sizing: border-box !important;
+        }
+        /* 👑 خطوط واضحة ومفصلة بين جميع الأعمدة والصفوف وداخل الخلايا (Crisp Grid & Cell Divider Lines) */
+        html body .sl-table {
+            border-collapse: collapse !important;
+            width: 100% !important;
+        }
+        html:not([data-magaies-theme-mode="light"]):not(.light-theme) body:not(.light-theme):not(.theme-light):not([data-theme="light"]) .sl-table thead th,
+        html:not([data-magaies-theme-mode="light"]):not(.light-theme) body:not(.light-theme):not(.theme-light):not([data-theme="light"]) .sl-table tbody td {
+            border: 1.5px solid rgba(56, 189, 248, 0.38) !important;
+            padding: 7px 9px !important;
+        }
+        html[data-magaies-theme-mode="light"] .sl-table thead th,
+        html[data-magaies-theme-mode="light"] .sl-table tbody td,
+        body.light-theme .sl-table thead th,
+        body.light-theme .sl-table tbody td {
+            border: 1.5px solid rgba(154, 88, 34, 0.45) !important;
+            padding: 7px 9px !important;
+        }
+        .sl-cell-subline {
+            border-top: 1px dashed rgba(148, 163, 184, 0.42) !important;
+            margin-top: 4px !important;
+            padding-top: 3px !important;
+        }
+        html[data-magaies-theme-mode="light"] .sl-cell-subline,
+        body.light-theme .sl-cell-subline {
+            border-top: 1px dashed rgba(154, 88, 34, 0.45) !important;
+        }
+        @media (max-width: 1120px) {
+            #sl-inspection-cockpit {
+                grid-template-columns: 1fr !important;
+            }
+            #sl-inspection-cockpit .sl-cockpit-6grid {
+                grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+            }
+            #sl-inspection-cockpit .sl-cockpit-4info {
+                grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+            }
+        }
+        @media (max-width: 680px) {
+            #sl-inspection-cockpit .sl-cockpit-6grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+            }
+            #sl-inspection-cockpit .sl-cockpit-4info {
+                grid-template-columns: 1fr !important;
+            }
+        }
     </style>
 </head>
 <body data-logistics-mode="<?php echo (isset($_GET['mode']) && $_GET['mode'] === 'purchases') ? 'purchases' : 'sales'; ?>">
@@ -1120,19 +1543,19 @@
     <div class="toast-container" id="toast-container"></div>
     <script defer src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
 
-    <div id="sl-proportional-root" style="padding: 6px 12px 55px 12px; max-width: 99.6vw; width: 100%; margin: 0 auto; display: flex; flex-direction: column; gap: 8px;">
+    <div id="sl-proportional-root" style="padding: 6px 14px 24px 14px; max-width: 1580px; width: 100%; margin: 0 auto; box-sizing: border-box; transform-origin: top center; display: flex; flex-direction: column; gap: 8px;">
 
         <!-- ═══════════════════════════════════════════════════════════════════
-             1. TOP COCKPIT BAR: NAVIGATION + CLASSIC SYSTEM LINKS + MOBILE QR + ROYAL QUARTET INSIDE
+             1. TOP COCKPIT BAR: CLEAN NAVIGATION + ROYAL QUARTET INSIDE
              ═══════════════════════════════════════════════════════════════════ -->
         <div id="sl-top-cockpit-bar" class="sl-glass-card" style="background: var(--sl-header-grad); padding: 6px 14px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
             <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
                 <a href="dashboard-pro.php" class="sl-btn" style="text-decoration:none; color:#38bdf8; border-color:rgba(56,189,248,0.4); padding:6px 11px; font-size:0.8rem;">🏠 الرئيسية</a>
                 <a id="sl-classic-sales-btn" href="sales-delivery.php" class="sl-btn" style="text-decoration:none; color:#6ee7b7; border-color:rgba(16,185,129,0.4); padding:6px 11px; font-size:0.8rem;" title="النظام الكلاسيكي لتسليم المبيعات">📤 تسليم المبيعات</a>
-                <a id="sl-classic-purchases-btn" href="purchase-receipt.php" class="sl-btn" style="text-decoration:none; color:#7dd3fc; border-color:rgba(14,165,233,0.4); padding:6px 11px; font-size:0.8rem;" title="النظام الكلاسيكي لاستلام المشتريات">📥 استلام المشتريات</a>
+                <a id="sl-classic-purchases-btn" href="purchase.php" class="sl-btn" style="text-decoration:none; color:#7dd3fc; border-color:rgba(14,165,233,0.4); padding:6px 11px; font-size:0.8rem;" title="العودة لشاشة المشتريات">📥 شاشة المشتريات</a>
 
                 <div style="margin-right: 4px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-                    <h1 style="margin: 0; font-size: 1.05rem; font-weight: 900; color: #ffffff; display: flex; align-items: center; gap: 6px; text-shadow: 0 2px 10px rgba(0,0,0,0.5);">
+                    <h1 style="margin: 0; font-size: 1.05rem; font-weight: 900; color: #ffffff; display: flex; align-items: center; gap: 6px;">
                         <span id="sl-main-title-icon"><?php echo (isset($_GET['mode']) && $_GET['mode'] === 'purchases') ? '📥' : '📤'; ?></span>
                         <span id="sl-main-title-text"><?php echo (isset($_GET['mode']) && $_GET['mode'] === 'purchases') ? 'بوابة استلام المشتريات (GRN)' : 'بوابة تسليم المبيعات (GDN)'; ?></span>
                     </h1>
@@ -1140,85 +1563,9 @@
                 </div>
             </div>
 
-            <!-- MOBILE QR LASER BRIDGE + SMART LOCK GUARD + ROYAL QUARTET DOCKED HARMONIOUSLY INSIDE -->
             <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-                <!-- 🔍 إضافة 1 (الدستور 1): شريط التحجيم الهندسي المتناسب (6:8 Aspect-Ratio Zoom Bar) -->
-                <div id="sl-c1-zoom-control-pill" style="display:inline-flex; align-items:center; gap:4px; background:rgba(2,6,23,0.78); padding:3px 7px; border-radius:10px; border:2.2px solid rgba(56,189,248,0.55);" title="تحجيم هندسي متناسب للأبعاد (6:8) للشاشة والشاشات الوليدة (Ctrl + رولة الماوس)">
-                    <button type="button" onclick="window.stepSlProportionalZoom && window.stepSlProportionalZoom(-0.05)" class="sl-btn" style="padding:2px 7px; font-size:0.78rem; min-width:26px;" title="تصغير متناسب (6:8)">−</button>
-                    <span id="sl-c1-zoom-pct-badge" onclick="window.setSlProportionalZoom && window.setSlProportionalZoom(1)" style="font-size:0.75rem; font-weight:900; color:#38bdf8; cursor:pointer; padding:0 4px; font-family:'Inter',monospace;" title="اضغط لإعادة الضبط 100%">100%</span>
-                    <button type="button" onclick="window.stepSlProportionalZoom && window.stepSlProportionalZoom(0.05)" class="sl-btn" style="padding:2px 7px; font-size:0.78rem; min-width:26px;" title="تكبير متناسب (6:8)">+</button>
-                </div>
-
-                <!-- 🌓 إضافة 2 (الدستور 1): مبدل السمات اللحظي وسريانها على الشاشات الوليدة -->
-                <button type="button" id="sl-btn-c1-theme-cycler" onclick="window.cycleSlConstitution1Theme && window.cycleSlConstitution1Theme()" class="sl-btn" style="background:rgba(14,165,233,0.2); border-color:#38bdf8; color:#7dd3fc; padding:6px 10px; font-size:0.78rem;" title="تبديل فوري بين السمات الغامقة والفاتحة مع سريان 100% على كل الشاشات الوليدة">
-                    🌓 تبديل السمة
-                </button>
-
-                <!-- 🛡️ إضافة 3 (الدستور 1): لوحة فحص وإثبات الدستور الأول (1 من 14) -->
-                <button type="button" id="sl-btn-c1-master-audit" onclick="window.openSlConstitution1MasterModal && window.openSlConstitution1MasterModal()" class="sl-btn" style="background:rgba(16,185,129,0.22); border-color:#34d399; color:#6ee7b7; padding:6px 10px; font-size:0.78rem;" title="لوحة فحص وإثبات الدستور الأول (السمات، الشاشات الوليدة، سُمك +2، منع انقلاب اللون، وتناسب 6:8)">
-                    🛡️ الدستور 1 (100%)
-                </button>
-
-                <div style="display:flex; align-items:center; gap:5px; background:rgba(2,6,23,0.75); padding:4px 9px; border-radius:10px; border:2.2px solid rgba(148,163,184,0.3);">
-                    <span style="font-size:0.74rem; font-weight:900; color:#cbd5e1;">🛡️ QR:</span>
-                    <select id="sl-qr-guard-mode" class="sl-input" style="padding:3px 8px !important; font-size:0.74rem !important; height:auto;">
-                        <option value="auto">🤖 تلقائي</option>
-                        <option value="lock">🔒 قفل القسم</option>
-                    </select>
-                </div>
-
-                <button type="button" onclick="openSlMobileBridgeModal()" class="sl-btn" style="background: linear-gradient(135deg, #059669, #0284c7); border-color: #34d399; color: #ffffff; padding: 6px 12px; font-size: 0.8rem; box-shadow: 0 0 18px rgba(16,185,129,0.35);">
-                    <span id="sl-bridge-live-dot" class="sl-pulse-dot" style="background:#fcd34d;"></span>
-                    📱 كاميرا الجوال
-                </button>
-
-                <button type="button" id="sl-btn-sunlight-mode" onclick="toggleSlSunlightMode()" class="sl-btn" style="background: rgba(245,158,11,0.22); border-color: #fbbf24; color: #fde047; padding: 6px 11px; font-size: 0.8rem;" title="تفعيل وضع السطوع والحدود العريضة 3px للساحات الخارجية تحت أشعة الشمس">
-                    ☀️ وضع الشمس
-                </button>
-
-                <button type="button" onclick="openSlFontModal()" class="sl-btn" style="background: rgba(168,85,247,0.18); border-color: rgba(192,132,252,0.5); color: #e9d5ff; padding: 6px 11px; font-size: 0.8rem;">
-                    🎨 الخط والألوان
-                </button>
-
-                <!-- 👑 المخطوطة الرباعية الموحدة داخل الشريط العلوي بتناسق تام -->
+                <input type="hidden" id="sl-qr-guard-mode" value="auto">
                 <div id="magaies-quartet-header-slot" style="display:flex; align-items:center;"></div>
-            </div>
-        </div>
-
-        <!-- ═══════════════════════════════════════════════════════════════════
-             2. GIANT CHAMELEON MODE SWITCHER (المبيعات 📤 ⇄ المشتريات 📥) — COMPACT
-             ═══════════════════════════════════════════════════════════════════ -->
-        <div class="sl-mode-switcher">
-            <!-- TAB 1: SALES DELIVERY (GDN - OUTGOING) -->
-            <div id="sl-tab-sales" class="sl-mode-tab mode-sales <?php echo (isset($_GET['mode']) && $_GET['mode'] === 'purchases') ? '' : 'active'; ?>" onclick="switchLogisticsMode('sales')">
-                <div style="display:flex; align-items:center; gap:10px;">
-                    <div style="width:36px; height:36px; border-radius:10px; background:rgba(16,185,129,0.22); border:1.5px solid #34d399; display:flex; align-items:center; justify-content:center; font-size:1.25rem; box-shadow:0 0 14px rgba(16,185,129,0.35);">
-                        📤
-                    </div>
-                    <div style="font-size:0.96rem; font-weight:900; color:#ffffff; display:flex; align-items:center; gap:6px;">
-                        بوابة تسليم المبيعات (GDN)
-                        <span class="sl-badge sl-badge-done" style="font-size:0.68rem; padding:2px 8px;">صادر</span>
-                    </div>
-                </div>
-                <div style="text-align:left;">
-                    <div id="sl-tab-sales-badge" style="font-size:1.2rem; font-weight:900; color:#34d399; font-family:'Inter',sans-serif; line-height:1.1;">0</div>
-                </div>
-            </div>
-
-            <!-- TAB 2: PURCHASE RECEIPT (GRN - INCOMING) -->
-            <div id="sl-tab-purchases" class="sl-mode-tab mode-purchases <?php echo (isset($_GET['mode']) && $_GET['mode'] === 'purchases') ? 'active' : ''; ?>" onclick="switchLogisticsMode('purchases')">
-                <div style="display:flex; align-items:center; gap:10px;">
-                    <div style="width:36px; height:36px; border-radius:10px; background:rgba(14,165,233,0.22); border:1.5px solid #38bdf8; display:flex; align-items:center; justify-content:center; font-size:1.25rem; box-shadow:0 0 14px rgba(14,165,233,0.35);">
-                        📥
-                    </div>
-                    <div style="font-size:0.96rem; font-weight:900; color:#ffffff; display:flex; align-items:center; gap:6px;">
-                        بوابة استلام المشتريات (GRN)
-                        <span class="sl-badge sl-badge-partial" style="font-size:0.68rem; padding:2px 8px;">وارد</span>
-                    </div>
-                </div>
-                <div style="text-align:left;">
-                    <div id="sl-tab-purchases-badge" style="font-size:1.2rem; font-weight:900; color:#38bdf8; font-family:'Inter',sans-serif; line-height:1.1;">0</div>
-                </div>
             </div>
         </div>
 
@@ -1232,47 +1579,10 @@
         </div>
 
         <!-- ═══════════════════════════════════════════════════════════════════
-             3. LIVE KPI SUMMARY BAR (4 INTERACTIVE CARDS — COMPACT & LIFTED)
-             ═══════════════════════════════════════════════════════════════════ -->
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 8px;">
-            <div id="sl-kpi-card-pending" class="sl-glass-card sl-kpi-card active-filter" onclick="setSlRegistryFilter('pending')" style="border-right: 4px solid #f59e0b;">
-                <div>
-                    <div id="sl-kpi-lbl-pending" style="font-size: 0.78rem; font-weight: 800; color: #fcd34d;">⏳ قيد التنفيذ</div>
-                    <div id="sl-kpi-val-pending" style="font-size: 1.38rem; font-weight: 900; color: #fbbf24; margin-top: 1px; line-height: 1.1; font-family:'Inter',sans-serif;">0</div>
-                </div>
-                <span style="font-size: 1.6rem;">📦</span>
-            </div>
-
-            <div id="sl-kpi-card-partial" class="sl-glass-card sl-kpi-card" onclick="setSlRegistryFilter('partial')" style="border-right: 4px solid #38bdf8;">
-                <div>
-                    <div id="sl-kpi-lbl-partial" style="font-size: 0.78rem; font-weight: 800; color: #7dd3fc;">🌗 منفذة جزئياً</div>
-                    <div id="sl-kpi-val-partial" style="font-size: 1.38rem; font-weight: 900; color: #38bdf8; margin-top: 1px; line-height: 1.1; font-family:'Inter',sans-serif;">0</div>
-                </div>
-                <span style="font-size: 1.6rem;">✂️</span>
-            </div>
-
-            <div id="sl-kpi-card-done" class="sl-glass-card sl-kpi-card" onclick="setSlRegistryFilter('done')" style="border-right: 4px solid #10b981;">
-                <div>
-                    <div id="sl-kpi-lbl-done" style="font-size: 0.78rem; font-weight: 800; color: #6ee7b7;">✅ مكتملة</div>
-                    <div id="sl-kpi-val-done" style="font-size: 1.38rem; font-weight: 900; color: #34d399; margin-top: 1px; line-height: 1.1; font-family:'Inter',sans-serif;">0</div>
-                </div>
-                <span style="font-size: 1.6rem;">📜</span>
-            </div>
-
-            <div id="sl-kpi-card-notes" class="sl-glass-card sl-kpi-card" onclick="setSlRegistryFilter('notes')" style="border-right: 4px solid #c084fc;">
-                <div>
-                    <div id="sl-kpi-lbl-notes" style="font-size: 0.78rem; font-weight: 800; color: #e9d5ff;">📊 سجل الأذونات</div>
-                    <div id="sl-kpi-val-notes" style="font-size: 1.38rem; font-weight: 900; color: #c084fc; margin-top: 1px; line-height: 1.1; font-family:'Inter',sans-serif;">0</div>
-                </div>
-                <span style="font-size: 1.6rem;">🏷️</span>
-            </div>
-        </div>
-
-        <!-- ═══════════════════════════════════════════════════════════════════
              4. SMART INTERACTIVE REGISTRY (+1000 INVOICES & INSTANT ACTIONS — SPACIOUS & LIFTED)
              ═══════════════════════════════════════════════════════════════════ -->
         <div class="sl-glass-card" style="padding: 10px 16px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.08);">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px solid rgba(148,163,184,0.2);">
                 <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
                     <span style="font-size: 1.2rem;">📋</span>
                     <h3 id="sl-registry-title" style="margin: 0; font-size: 0.98rem; font-weight: 900; color: #ffffff;">
@@ -1330,232 +1640,50 @@
         </div>
 
         <!-- ═══════════════════════════════════════════════════════════════════
-             5. WORKSTATION COCKPIT: DOCUMENT CARD + QR CAMERA & PHOTO PROOF (COMPACT & VISIBLE)
+             5. UNIFIED DUAL-UNIT & MULTI-WAREHOUSE SPLIT INSPECTION GRID (LIFTED DIRECTLY BELOW MAIN REGISTRY)
              ═══════════════════════════════════════════════════════════════════ -->
-        <div id="sl-inspection-cockpit" style="display: grid; grid-template-columns: 1fr 340px; gap: 12px;">
-
-            <!-- 👑 المخطوطة الثلاثية للخطوات الحية (Visual Workflow Stepper) + بطاقة الفحص والتقسيم -->
-            <div class="sl-glass-card" style="padding: 12px 16px; display: flex; flex-direction: column; gap: 10px;">
-                <!-- LIVE 3-STAGE WORKFLOW STEPPER -->
-                <div id="sl-workflow-stepper" style="display:grid; grid-template-columns:repeat(3, 1fr); gap:8px; background:rgba(2,6,23,0.78); padding:7px 10px; border-radius:12px; border:1px solid rgba(56,189,248,0.28);">
-                    <div id="sl-wf-step-1" onclick="document.getElementById('sl-reg-search')?.focus()" style="display:flex; align-items:center; gap:8px; padding:5px 10px; border-radius:9px; background:rgba(56,189,248,0.16); border:1.5px solid #38bdf8; cursor:pointer; transition:all 0.25s ease;">
-                        <span style="width:24px; height:24px; border-radius:50%; background:#38bdf8; color:#020617; font-weight:900; font-size:0.8rem; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0;">1</span>
-                        <div style="font-size:0.78rem; font-weight:900; color:#ffffff;">اختيار المستند</div>
-                    </div>
-                    <div id="sl-wf-step-2" onclick="const inp=document.querySelector('.sl-qty-primary-input'); if(inp){inp.scrollIntoView({behavior:'smooth',block:'center'}); inp.focus();}" style="display:flex; align-items:center; gap:8px; padding:5px 10px; border-radius:9px; background:rgba(15,23,42,0.65); border:1.5px solid rgba(148,163,184,0.22); opacity:0.65; cursor:pointer; transition:all 0.25s ease;">
-                        <span style="width:24px; height:24px; border-radius:50%; background:rgba(148,163,184,0.25); color:#e2e8f0; font-weight:900; font-size:0.8rem; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0;">2</span>
-                        <div style="font-size:0.78rem; font-weight:900; color:#ffffff;">فحص وتقسيم الكميات</div>
-                    </div>
-                    <div id="sl-wf-step-3" onclick="document.getElementById('sl-btn-execute')?.scrollIntoView({behavior:'smooth',block:'center'})" style="display:flex; align-items:center; gap:8px; padding:5px 10px; border-radius:9px; background:rgba(15,23,42,0.65); border:1.5px solid rgba(148,163,184,0.22); opacity:0.65; cursor:pointer; transition:all 0.25s ease;">
-                        <span style="width:24px; height:24px; border-radius:50%; background:rgba(148,163,184,0.25); color:#e2e8f0; font-weight:900; font-size:0.8rem; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0;">3</span>
-                        <div style="font-size:0.78rem; font-weight:900; color:#ffffff;">الاعتماد والطباعة</div>
-                    </div>
-                </div>
-
-                <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; padding-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.08);">
-                    <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-                        <span style="font-size: 1.25rem;">📄</span>
-                        <h3 id="sl-doc-card-title" style="margin: 0; font-size: 0.98rem; font-weight: 900; color: #ffffff;">
-                            بيانات المستند والتوريد
-                        </h3>
-                        <span id="sl-c2-speed-badge" class="sl-badge sl-badge-done" style="font-size:0.7rem; padding:2px 8px;" title="زمن استجابة الواجهة اللحظي 0ms — يعمل بأقصى خفة على أضعف إنترنت 2G وأوفلاين">⚡ 0ms | 2G</span>
-                        <span id="sl-c2-draft-badge" class="sl-badge sl-badge-partial" style="display:none; font-size:0.7rem; padding:2px 8px;" title="حارس المسودة التلقائي ضد الإغلاق الخاطئ">💾 مسودة محفوظة</span>
-                    </div>
-                    <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
-                        <button type="button" id="sl-btn-quick-add-party" onclick="window.openSlQuickEntityModal && window.openSlQuickEntityModal('party')" class="sl-btn" style="padding: 4px 10px; font-size: 0.76rem; background: rgba(16,185,129,0.22); border-color: #34d399; color: #6ee7b7;" title="إضافة مورد أو عميل جديد فوراً دون مغادرة الشاشة">
-                            ➕ طرف جديد
-                        </button>
-                        <button type="button" id="sl-btn-quick-add-item-top" onclick="window.openSlQuickEntityModal && window.openSlQuickEntityModal('item')" class="sl-btn" style="padding: 4px 10px; font-size: 0.76rem; background: rgba(168,85,247,0.22); border-color: #c084fc; color: #e9d5ff;" title="إضافة صنف جديد فوراً للمستند والمخزون دون ضياع البيانات">
-                            ➕ صنف سريع
-                        </button>
-                        <button type="button" id="sl-btn-drilldown-inv" onclick="openSlOriginalInvoiceDrilldownModal()" class="sl-btn" style="padding: 4px 11px; font-size: 0.76rem; background: rgba(56,189,248,0.18); border-color: #38bdf8; color: #7dd3fc;">
-                            🔍 أصل الفاتورة
-                        </button>
-                        <div id="sl-doc-status-pill" class="sl-badge sl-badge-pending">جاهز</div>
-                    </div>
-                </div>
-
-                <!-- 4 INFO BOXES -->
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px;">
-                    <div style="background: rgba(2,6,23,0.65); padding: 7px 12px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.07);">
-                        <label style="font-size: 0.72rem; color: #94a3b8; font-weight: 800; display: block;">📄 رقم المستند / الإذن</label>
-                        <div id="sl-lbl-inv-no" style="font-size: 1.05rem; font-weight: 900; color: var(--sl-primary-light); font-family: 'Inter', monospace; margin-top: 1px;">---</div>
-                    </div>
-                    <div style="background: rgba(2,6,23,0.65); padding: 7px 12px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.07);">
-                        <label id="sl-lbl-party-title" style="font-size: 0.72rem; color: #94a3b8; font-weight: 800; display: block;">👤 العميل / المورد صاحب الفاتورة</label>
-                        <div id="sl-lbl-party-name" style="font-size: 0.96rem; font-weight: 900; color: #ffffff; margin-top: 1px;">---</div>
-                        <div id="sl-lbl-party-balance" style="font-size: 0.73rem; font-weight: 800; color: #6ee7b7; margin-top: 2px;">الرصيد المالي: ---</div>
-                        <div id="sl-lbl-party-sla" style="font-size: 0.7rem; font-weight: 800; color: #38bdf8; margin-top: 2px;">⭐ كفاءة التوريد والبوابة: ---</div>
-                    </div>
-                    <div style="background: rgba(2,6,23,0.65); padding: 7px 12px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.07);">
-                        <label style="font-size: 0.72rem; color: #94a3b8; font-weight: 800; display: block;">📅 تاريخ المستند</label>
-                        <div id="sl-lbl-date" style="font-size: 0.9rem; font-weight: 800; color: #e2e8f0; margin-top: 1px;">---</div>
-                    </div>
-                    <div style="background: rgba(2,6,23,0.65); padding: 7px 12px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.07);">
-                        <label style="font-size: 0.72rem; color: #94a3b8; font-weight: 800; display: block;">🔐 البصمة الأمنية والرقابية</label>
-                        <div id="sl-lbl-hash" style="font-size: 0.8rem; font-weight: 800; color: #38bdf8; font-family: 'Inter', monospace; margin-top: 2px;">---</div>
-                        <div id="sl-lbl-audit-stamp" style="font-size: 0.7rem; font-weight: 800; color: #fcd34d; margin-top: 2px;">👤 المستخدم: المسؤول | 💻 محلي</div>
-                    </div>
-                </div>
-
-                <!-- LOGISTICS INPUTS (WAREHOUSE, RECEIVER, DRIVER, PLATE, GATE PASS) -->
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(155px, 1fr)); gap: 8px;">
-                    <div>
-                        <label id="sl-lbl-wh-select" style="font-size: 0.74rem; font-weight: 800; color: #fcd34d; display: block; margin-bottom: 3px;">🏢 المستودع الافتراضي (للكل):</label>
-                        <div style="display:flex; gap:5px; align-items:center;">
-                            <select id="sl-master-warehouse" class="sl-input" style="flex:1; padding: 6px 10px !important; font-size: 0.82rem !important;" onchange="onSlMasterWarehouseChange(this.value)"></select>
-                            <button type="button" id="sl-btn-quick-add-wh" onclick="openSlQuickWarehouseModal()" class="sl-btn" style="padding: 6px 10px; font-size: 0.82rem; background: rgba(16,185,129,0.22); border-color: #34d399; color: #6ee7b7;" title="إضافة مستودع جديد فوراً">+</button>
-                        </div>
-                    </div>
-                    <div>
-                        <label id="sl-lbl-receiver" style="font-size: 0.74rem; font-weight: 800; color: #6ee7b7; display: block; margin-bottom: 3px;">🤝 المستلم / المسلم الفعلي:</label>
-                        <input type="text" id="sl-receiver-name" class="sl-input" placeholder="الاسم..." style="width: 100%; padding: 6px 10px !important; font-size: 0.82rem !important;">
-                    </div>
-                    <div>
-                        <label style="font-size: 0.74rem; font-weight: 800; color: #7dd3fc; display: block; margin-bottom: 3px;">🚚 اسم السائق / المندوب:</label>
-                        <input type="text" id="sl-driver-name" class="sl-input" placeholder="اسم السائق..." style="width: 100%; padding: 6px 10px !important; font-size: 0.82rem !important;">
-                    </div>
-                    <div>
-                        <label style="font-size: 0.74rem; font-weight: 800; color: #c084fc; display: block; margin-bottom: 3px;">🔢 رقم المركبة / اللوحة:</label>
-                        <input type="text" id="sl-truck-plate" class="sl-input" placeholder="رقم اللوحة..." style="width: 100%; padding: 6px 10px !important; font-size: 0.82rem !important;">
-                    </div>
-                    <div>
-                        <label style="font-size: 0.74rem; font-weight: 800; color: #38bdf8; display: block; margin-bottom: 3px;">🎫 رقم التصريح / المرجع:</label>
-                        <input type="text" id="sl-gate-pass-no" class="sl-input" placeholder="تلقائي..." style="width: 100%; padding: 6px 10px !important; font-size: 0.82rem !important;">
-                    </div>
-                    <div>
-                        <label style="font-size: 0.74rem; font-weight: 800; color: #34d399; display: flex; align-items:center; justify-content:space-between; margin-bottom: 3px;">
-                            <span>⏱️ ختم وقت البوابة:</span>
-                            <span id="sl-gate-duration-badge" style="font-size:0.68rem; color:#fde047;">0 د</span>
-                        </label>
-                        <div style="display:flex; gap:4px; align-items:center;">
-                            <input type="text" id="sl-gate-time-in" class="sl-input" placeholder="دخول..." title="وقت دخول الشاحنة للبوابة" style="flex:1; padding: 6px 6px !important; font-size: 0.76rem !important; text-align:center;">
-                            <input type="text" id="sl-gate-time-out" class="sl-input" placeholder="خروج..." title="وقت خروج الشاحنة من البوابة" style="flex:1; padding: 6px 6px !important; font-size: 0.76rem !important; text-align:center;">
-                            <button type="button" id="sl-btn-gate-stamp" onclick="stampSlGateTimeNow()" class="sl-btn" style="padding: 6px 8px; font-size: 0.78rem; background: rgba(56,189,248,0.2); border-color: #38bdf8; color: #7dd3fc;" title="ختم وقت الدخول/الخروج اللحظي">⏱️</button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- NOTES ROW -->
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-                    <div>
-                        <label style="font-size: 0.74rem; font-weight: 800; color: #fbbf24; display: block; margin-bottom: 3px;">📝 ملاحظات أمين المخزن وفحص البضاعة:</label>
-                        <input type="text" id="sl-warehouse-notes" class="sl-input" placeholder="سجل حالة البضاعة أو تفاصيل الدفعة..." style="width: 100%; padding: 6px 10px !important; font-size: 0.82rem !important;">
-                    </div>
-                    <div>
-                        <label style="font-size: 0.74rem; font-weight: 800; color: #94a3b8; display: block; margin-bottom: 3px;">📌 ملاحظات إضافية / البوابة:</label>
-                        <input type="text" id="sl-personal-notes" class="sl-input" placeholder="ملاحظات اختيارية..." style="width: 100%; padding: 6px 10px !important; font-size: 0.82rem !important;">
-                    </div>
-                </div>
-            </div>
-
-            <!-- LEFT: LASER QR CAMERA & VISUAL PROOF -->
-            <div class="sl-glass-card" style="padding: 12px 14px; display: flex; flex-direction: column; justify-content: space-between; gap: 8px;">
-                <div style="display: flex; align-items: center; justify-content: space-between; padding-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.08);">
-                    <h3 style="margin: 0; font-size: 0.96rem; font-weight: 900; color: #ffffff;">📷 المسح الضوئي (QR)</h3>
-                    <span id="sl-verify-badge" class="sl-badge sl-badge-done">👑 جاهز</span>
-                </div>
-
-                <label style="display:flex; align-items:center; gap:8px; background:var(--sl-primary-soft); border:1px solid var(--sl-border-glow); padding:8px 12px; border-radius:10px; font-size:0.78rem; font-weight:900; color:#fff; cursor:pointer;">
-                    <input type="checkbox" id="sl-auto-execute-qr" checked style="width:16px; height:16px; accent-color:var(--sl-primary);">
-                    <span>⚡ اعتماد فوري عند المسح</span>
-                </label>
-
-                <div id="sl-qr-reader-wrap" style="display:none; flex-direction:column; gap:8px;">
-                    <div id="sl-qr-reader" style="width:100%; border-radius:12px; overflow:hidden; border:2px solid var(--sl-primary-light); aspect-ratio:4/3; background:#000;"></div>
-                    <button type="button" onclick="stopSlLocalCamera()" class="sl-btn" style="background:rgba(239,68,68,0.2); border-color:#ef4444; color:#fca5a5;">⏹️ إيقاف الكاميرا</button>
-                </div>
-
-                <div id="sl-camera-placeholder" style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; background:rgba(2,6,23,0.55); border:1.5px dashed rgba(56,189,248,0.35); border-radius:14px; padding:14px; text-align:center;">
-                    <div style="font-size:2.1rem; margin-bottom:8px;">📱⚡</div>
-                    <div style="display:flex; gap:8px; width:100%; flex-wrap:wrap;">
-                        <button type="button" onclick="openSlMobileBridgeModal()" class="sl-btn" style="flex:1; background:linear-gradient(135deg,#059669,#0284c7); border-color:#34d399; color:#fff; font-size:0.8rem;">
-                            📱 كاميرا الجوال
-                        </button>
-                        <button type="button" onclick="startSlLocalCamera()" class="sl-btn" style="flex:1; background:rgba(56,189,248,0.18); border-color:#38bdf8; color:#38bdf8; font-size:0.8rem;">
-                            📷 كاميرا الجهاز
-                        </button>
-                    </div>
-                </div>
-
-                <div>
-                    <input type="file" id="sl-photo-input" accept="image/*" style="display:none;" onchange="handleSlPhotoUpload(event)">
-                    <button type="button" onclick="document.getElementById('sl-photo-input').click()" class="sl-btn" style="width:100%; background:rgba(245,158,11,0.14); border-color:rgba(245,158,11,0.4); color:#fcd34d; font-size:0.8rem;">
-                        📎 إرفاق صورة
-                    </button>
-                    <div id="sl-photo-preview-wrap" style="display:none; margin-top:6px; text-align:center;">
-                        <img id="sl-photo-preview-img" src="" style="max-height:60px; border-radius:8px; border:1px solid var(--sl-primary-light);">
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- ═══════════════════════════════════════════════════════════════════
-             6. UNIFIED DUAL-UNIT & MULTI-WAREHOUSE SPLIT INSPECTION GRID
-             ═══════════════════════════════════════════════════════════════════ -->
-        <div class="sl-glass-card" style="padding: 18px 22px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 14px;">
+        <div class="sl-glass-card" style="padding: 12px 16px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 8px;">
                 <div style="display: flex; align-items: center; gap: 10px;">
-                    <span style="font-size: 1.5rem;">⚖️</span>
-                    <h3 id="sl-grid-title" style="margin: 0; font-size: 1.05rem; font-weight: 900; color: #ffffff;">
+                    <span style="font-size: 1.35rem;">⚖️</span>
+                    <h3 id="sl-grid-title" style="margin: 0; font-size: 1.02rem; font-weight: 900; color: #ffffff;">
                         جدول الفحص والتقسيم بالوحدتين والمخازن
                     </h3>
                 </div>
 
                 <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
-                    <button type="button" id="sl-btn-quick-add-item" onclick="window.openSlQuickEntityModal && window.openSlQuickEntityModal('item')" class="sl-btn" style="background: rgba(16,185,129,0.24); border-color: #34d399; color: #6ee7b7; padding: 6px 11px; font-size: 0.78rem;" title="إضافة صنف جديد مباشرة لجدول الفحص والمخزون دون ضياع البيانات">
+                    <button type="button" id="sl-btn-quick-add-item" onclick="window.openSlQuickEntityModal && window.openSlQuickEntityModal('item')" class="sl-btn" style="background: rgba(16,185,129,0.24); border-color: #34d399; color: #6ee7b7; padding: 5px 10px; font-size: 0.78rem;" title="إضافة صنف جديد مباشرة لجدول الفحص والمخزون">
                         ➕ صنف
                     </button>
-                    <button type="button" onclick="fillAllSlQuantities(1)" class="sl-btn" style="background: rgba(16,185,129,0.2); border-color: #34d399; color: #6ee7b7; padding: 6px 11px; font-size: 0.78rem;">
+                    <button type="button" onclick="fillAllSlQuantities(1)" class="sl-btn" style="background: rgba(16,185,129,0.2); border-color: #34d399; color: #6ee7b7; padding: 5px 10px; font-size: 0.78rem;">
                         ⚡ الكل (100%)
                     </button>
-                    <button type="button" onclick="fillAllSlQuantities(0.5)" class="sl-btn" style="background: rgba(56,189,248,0.18); border-color: #38bdf8; color: #7dd3fc; padding: 6px 11px; font-size: 0.78rem;">
+                    <button type="button" onclick="fillAllSlQuantities(0.5)" class="sl-btn" style="background: rgba(56,189,248,0.18); border-color: #38bdf8; color: #7dd3fc; padding: 5px 10px; font-size: 0.78rem;">
                         🌗 النصف (50%)
                     </button>
-                    <button type="button" onclick="fillAllSlQuantities(0)" class="sl-btn" style="background: rgba(239,68,68,0.16); border-color: #f87171; color: #fca5a5; padding: 6px 11px; font-size: 0.78rem;">
+                    <button type="button" onclick="fillAllSlQuantities(0)" class="sl-btn" style="background: rgba(239,68,68,0.16); border-color: #f87171; color: #fca5a5; padding: 5px 10px; font-size: 0.78rem;">
                         🧹 تصفير
                     </button>
-                    <button type="button" id="sl-btn-auto-allocate" onclick="autoAllocateSlAcrossWarehouses()" class="sl-btn" style="background: rgba(14,165,233,0.22); border-color: #38bdf8; color: #7dd3fc; padding: 6px 11px; font-size: 0.78rem;">
+                    <button type="button" id="sl-btn-auto-allocate" onclick="autoAllocateSlAcrossWarehouses()" class="sl-btn" style="background: rgba(14,165,233,0.22); border-color: #38bdf8; color: #7dd3fc; padding: 5px 10px; font-size: 0.78rem;">
                         🏭 توزيع المخازن
                     </button>
-                    <button type="button" onclick="openSlWeighbridgeModal()" class="sl-btn" style="background: rgba(245,158,11,0.2); border-color: #fbbf24; color: #fde047; padding: 6px 11px; font-size: 0.78rem;">
+                    <button type="button" onclick="openSlWeighbridgeModal()" class="sl-btn" style="background: rgba(245,158,11,0.2); border-color: #fbbf24; color: #fde047; padding: 5px 10px; font-size: 0.78rem;">
                         ⚖️ الميزان
                     </button>
-                    <button type="button" id="sl-btn-dispatch-presets" onclick="window.openSlDispatchPresetsModal && window.openSlDispatchPresetsModal()" class="sl-btn" style="background: rgba(168,85,247,0.22); border-color: #c084fc; color: #e9d5ff; padding: 6px 11px; font-size: 0.78rem;" title="الحافظة الذكية لقوالب السائقين والمركبات والمستودعات المتكررة بضغطة واحدة">
-                        ⚡ قوالب السائقين
-                    </button>
-                    <button type="button" onclick="const t=document.getElementById('sl-extra-tools-drawer'); t.style.display=(t.style.display==='none'?'flex':'none');" class="sl-btn" style="background: rgba(56,189,248,0.18); border-color: #38bdf8; color: #7dd3fc; padding: 6px 11px; font-size: 0.78rem;" title="إظهار أو إخفاء الأدوات المتقدمة للبوابة في نظرة واحدة">
-                        🧰 أدوات البوابة
-                    </button>
-                    <button type="button" onclick="const d=document.getElementById('sl-cols-drawer'); d.style.display=(d.style.display==='none'?'flex':'none');" class="sl-btn" style="background: rgba(168,85,247,0.18); border-color: #c084fc; color: #e9d5ff; padding: 6px 11px; font-size: 0.78rem;">
+                    <button type="button" onclick="const d=document.getElementById('sl-cols-drawer'); d.style.display=(d.style.display==='none'?'flex':'none');" class="sl-btn" style="background: rgba(168,85,247,0.18); border-color: #c084fc; color: #e9d5ff; padding: 5px 10px; font-size: 0.78rem;">
                         ⚙️ الأعمدة
                     </button>
                 </div>
             </div>
 
-            <!-- COLLAPSIBLE ADVANCED GATE TOOLS DRAWER (نظرة واحدة صافية بدون حشو — Zero-Scroll) -->
-            <div id="sl-extra-tools-drawer" style="display:none; align-items:center; gap:6px; flex-wrap:wrap; background:rgba(2,6,23,0.82); padding:8px 12px; border-radius:12px; border:2.2px solid rgba(56,189,248,0.4); margin-bottom:10px;">
-                <button type="button" id="sl-btn-voice-dictate" onclick="startSlVoiceDictation()" class="sl-btn" style="background: rgba(236,72,153,0.2); border-color: #f472b6; color: #fbcfe8; padding:5px 10px; font-size:0.76rem;">🎙️ إملاء</button>
-                <button type="button" id="sl-btn-voice-commander" onclick="window.openSlVoiceGateCommanderModal && window.openSlVoiceGateCommanderModal()" class="sl-btn" style="background: rgba(14,165,233,0.22); border-color: #38bdf8; color: #7dd3fc; padding:5px 10px; font-size:0.76rem;">🎤 أوامر صوتية</button>
-                <button type="button" id="sl-btn-pa-announcer" onclick="window.announceSlDriverLoadingPA && window.announceSlDriverLoadingPA()" class="sl-btn" style="background: rgba(245,158,11,0.22); border-color: #fbbf24; color: #fde047; padding:5px 10px; font-size:0.76rem;">📢 نداء السائق</button>
-                <button type="button" id="sl-btn-batch-ocr" onclick="openSlBatchOcrScannerModal()" class="sl-btn" style="background: rgba(16,185,129,0.2); border-color: #34d399; color: #6ee7b7; padding:5px 10px; font-size:0.76rem;">📷 التشغيلة</button>
-                <button type="button" id="sl-btn-bin-heatmap" onclick="openSlBinHeatmapModal()" class="sl-btn" style="background: rgba(99,102,241,0.22); border-color: #818cf8; color: #c7d2fe; padding:5px 10px; font-size:0.76rem;">🗺️ الأرفف</button>
-                <button type="button" id="sl-btn-fleet-dispatch" onclick="window.openSlFleetDispatchModal && window.openSlFleetDispatchModal()" class="sl-btn" style="background: rgba(16,185,129,0.22); border-color: #34d399; color: #6ee7b7; padding:5px 10px; font-size:0.76rem;">🚚 المسار</button>
-                <button type="button" id="sl-btn-load-verifier" onclick="window.openSlLoadingVerifierModal && window.openSlLoadingVerifierModal()" class="sl-btn" style="background: rgba(56,189,248,0.22); border-color: #38bdf8; color: #7dd3fc; padding:5px 10px; font-size:0.76rem;">🎯 مطابقة التحميل</button>
-                <button type="button" id="sl-btn-cargo-estimator" onclick="window.openSlCargoEstimatorModal && window.openSlCargoEstimatorModal()" class="sl-btn" style="background: rgba(245,158,11,0.22); border-color: #fbbf24; color: #fde047; padding:5px 10px; font-size:0.76rem;">📦 الحمولة</button>
-                <button type="button" id="sl-btn-pending-aging" onclick="window.openSlPendingDeliveryAgingModal && window.openSlPendingDeliveryAgingModal()" class="sl-btn" style="background: rgba(14,165,233,0.22); border-color: #38bdf8; color: #7dd3fc; padding:5px 10px; font-size:0.76rem;">📊 المتبقيات</button>
-                <button type="button" id="sl-btn-gate-credit-note" onclick="window.openSlGateCreditNoteModal && window.openSlGateCreditNoteModal()" class="sl-btn" style="background: rgba(236,72,153,0.22); border-color: #f472b6; color: #fbcfe8; padding:5px 10px; font-size:0.76rem;">↩️ إشعار دائن</button>
-                <button type="button" id="sl-btn-gate-certificate" onclick="window.printSlGateClearanceCertificate && window.printSlGateClearanceCertificate()" class="sl-btn" style="background: rgba(16,185,129,0.22); border-color: #34d399; color: #6ee7b7; padding:5px 10px; font-size:0.76rem;">🛡️ شهادة إخلاء</button>
-                <button type="button" id="sl-btn-dock-zoom" onclick="window.toggleSlDockBigScreenMode && window.toggleSlDockBigScreenMode()" class="sl-btn" style="background: rgba(245,158,11,0.22); border-color: #fbbf24; color: #fde047; padding:5px 10px; font-size:0.76rem;">🔍 شاشة الرصيف</button>
-                <button type="button" id="sl-btn-contrast-inspector" onclick="window.openSlContrastInspectorModal && window.openSlContrastInspectorModal()" class="sl-btn" style="background: rgba(56,189,248,0.22); border-color: #38bdf8; color: #7dd3fc; padding:5px 10px; font-size:0.76rem;">🛡️ فحص التباين</button>
-                <button type="button" id="sl-btn-gdn-quiz" onclick="window.openSlGdnMasteryQuizModal && window.openSlGdnMasteryQuizModal()" class="sl-btn" style="background: rgba(168,85,247,0.22); border-color: #c084fc; color: #e9d5ff; padding:5px 10px; font-size:0.76rem;">🎓 اختبار</button>
-            </div>
+            <div id="sl-c8-parked-docs-bar" style="display:none; align-items:center; gap:8px; flex-wrap:wrap; background:rgba(15,23,42,0.92); padding:7px 12px; border-radius:12px; border:2.2px solid #38bdf8; margin-bottom:8px;"></div>
+            <div id="sl-c8-anti-duplicate-banner" style="display:none; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; background:rgba(245,158,11,0.16); padding:8px 14px; border-radius:12px; border:2.2px solid #fbbf24; color:#fde047; font-size:0.82rem; font-weight:900; margin-bottom:8px;"></div>
 
             <!-- COLUMN VISIBILITY DRAWER -->
-            <div id="sl-cols-drawer" style="display:none; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; background:rgba(2,6,23,0.85); padding:10px 16px; border-radius:12px; border:1.5px solid rgba(168,85,247,0.45); margin-bottom:12px;">
+            <div id="sl-cols-drawer" style="display:none; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; background:rgba(2,6,23,0.85); padding:10px 16px; border-radius:12px; border:1.5px solid rgba(168,85,247,0.45); margin-bottom:10px;">
                 <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap; font-size:0.8rem; font-weight:800;">
                     <span style="color:#e9d5ff;">👁️ الأعمدة:</span>
-                    <label style="cursor:pointer;"><input type="checkbox" id="sl-col-chk-wh" checked onchange="applySlColVisibility()"> 🏢 المستودع والرصيد</label>
+                    <label style="cursor:pointer;"><input type="checkbox" id="sl-col-chk-wh" checked onchange="applySlColVisibility()"> 🏢 المخزن والرصيد</label>
                     <label style="cursor:pointer;"><input type="checkbox" id="sl-col-chk-bin" checked onchange="applySlColVisibility()"> 📍 الرف والتشغيلة</label>
                     <label style="cursor:pointer;"><input type="checkbox" id="sl-col-chk-spec" checked onchange="applySlColVisibility()"> ⚖️ المعامل</label>
                     <label style="cursor:pointer;"><input type="checkbox" id="sl-col-chk-prev" checked onchange="applySlColVisibility()"> 📊 المنفذ والمتبقي</label>
@@ -1564,32 +1692,248 @@
                 <button type="button" onclick="document.getElementById('sl-cols-drawer').style.display='none'" class="sl-btn" style="padding:4px 12px; font-size:0.78rem; background:#10b981; color:#fff;">💾 إغلاق</button>
             </div>
 
-            <div style="overflow-x: auto; border-radius: 14px; border: 1.5px solid rgba(148,163,184,0.22);">
-                <table class="sl-table" id="sl-items-grid" style="min-width: 1360px;">
+            <div style="overflow-x: auto; border-radius: 12px; border: 1.5px solid rgba(56,189,248,0.35);">
+                <table class="sl-table" id="sl-items-grid" style="width: 100%; table-layout: auto;">
                     <thead>
                         <tr>
-                            <th style="width: 44px; text-align: center;">#</th>
-                            <th class="sl-col-wh" style="width: 190px; text-align: right;">🏢 المستودع والرصيد</th>
-                            <th style="min-width: 200px; text-align: right;">📦 الصنف والكود</th>
-                            <th class="sl-col-bin" style="width: 155px; text-align: center;">📍 الرف / التشغيلة</th>
-                            <th class="sl-col-spec" style="width: 155px; text-align: center;">⚖️ المعامل</th>
-                            <th style="width: 115px; text-align: center;">📊 كمية الفاتورة</th>
-                            <th class="sl-col-prev" style="width: 145px; text-align: center;">🔄 المنفذ / المتبقي</th>
-                            <th class="sl-col-price" style="width: 105px; text-align: center; display:none;">💰 السعر</th>
-                            <th id="sl-th-dual-action" style="min-width: 495px; text-align: center; color: var(--sl-primary-light);">
+                            <th style="width: 36px; text-align: center;">#</th>
+                            <th style="min-width: 165px; text-align: right;">📦 الصنف والكود</th>
+                            <th class="sl-col-wh" style="width: 150px; text-align: right;">🏢 المخزن والرصيد</th>
+                            <th class="sl-col-bin" style="width: 120px; text-align: center;">📍 الرف / التشغيلة</th>
+                            <th class="sl-col-spec" style="width: 105px; text-align: center;">⚖️ المعامل</th>
+                            <th style="width: 92px; text-align: center;">📊 الفاتورة</th>
+                            <th class="sl-col-prev" style="width: 112px; text-align: center;">🔄 المنفذ / المتبقي</th>
+                            <th class="sl-col-price" style="width: 88px; text-align: center; display:none;">💰 السعر</th>
+                            <th id="sl-th-dual-action" style="min-width: 340px; text-align: center; color: var(--sl-primary-light);">
                                 ⚡ الكمية المنفذة الآن (أساسية ⇄ فرعية)
                             </th>
-                            <th style="width: 110px; text-align: center;">🚦 الحالة</th>
+                            <th style="width: 85px; text-align: center;">🚦 الحالة</th>
                         </tr>
                     </thead>
                     <tbody id="sl-items-tbody">
                         <tr>
-                            <td colspan="10" style="padding: 40px; text-align: center; color: #94a3b8; font-weight: 800; font-size: 1rem;">
+                            <td colspan="10" style="padding: 32px; text-align: center; color: #94a3b8; font-weight: 800; font-size: 0.95rem;">
                                 👆 اختر مستنداً من السجل أو امسح رمز QR
                             </td>
                         </tr>
                     </tbody>
                 </table>
+            </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════════════════════════════
+             6. WORKSTATION COCKPIT: DOCUMENT CARD + QR CAMERA & PHOTO PROOF (BELOW INSPECTION GRID)
+             ═══════════════════════════════════════════════════════════════════ -->
+        <div id="sl-inspection-cockpit" style="display: grid; grid-template-columns: minmax(0, 1fr) 230px; gap: 10px; align-items: stretch;">
+
+            <!-- 👑 بطاقة بيانات المستند والتوريد الموحدة (تنسيق عالمي مبسط ومتناغم 6×2) -->
+            <div class="sl-glass-card" style="padding: 10px 14px; display: flex; flex-direction: column; gap: 8px; justify-content: space-between;">
+                <!-- UNIFIED HEADER + COMPACT 3-STEP WORKFLOW + QUICK ACTIONS -->
+                <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; padding-bottom: 7px; border-bottom: 1px solid rgba(148,163,184,0.2);">
+                    <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+                        <span style="font-size: 1.15rem;">📄</span>
+                        <h3 id="sl-doc-card-title" style="margin: 0; font-size: 0.96rem !important; font-weight: 900; color: #ffffff;">
+                            بيانات المستند والتوريد
+                        </h3>
+                        <div id="sl-doc-status-pill" class="sl-badge sl-badge-pending" style="font-size: 0.72rem; padding: 2px 8px;">جاهز</div>
+                        <span id="sl-c2-speed-badge" class="sl-badge sl-badge-done" style="font-size:0.68rem; padding:2px 7px;" title="زمن استجابة الواجهة اللحظي 0ms">⚡ 0ms</span>
+                        <span id="sl-c2-draft-badge" class="sl-badge sl-badge-partial" style="display:none; font-size:0.68rem; padding:2px 7px;">💾 مسودة</span>
+                    </div>
+
+                    <!-- COMPACT INLINE 3-STAGE WORKFLOW STEPPER -->
+                    <div id="sl-workflow-stepper" style="display:flex; align-items:center; gap:6px; background:rgba(2,6,23,0.65); padding:3px 8px; border-radius:99px; border:1px solid rgba(56,189,248,0.25);">
+                        <div id="sl-wf-step-1" onclick="document.getElementById('sl-reg-search')?.focus()" style="display:flex; align-items:center; gap:5px; padding:2px 8px; border-radius:99px; background:rgba(56,189,248,0.16); border:1px solid #38bdf8; cursor:pointer;">
+                            <span style="width:18px; height:18px; border-radius:50%; background:#38bdf8; color:#020617; font-weight:900; font-size:0.7rem; display:inline-flex; align-items:center; justify-content:center;">1</span>
+                            <span style="font-size:0.72rem; font-weight:900; color:#ffffff;">المستند</span>
+                        </div>
+                        <span style="color:#64748b; font-size:0.7rem;">◀</span>
+                        <div id="sl-wf-step-2" onclick="const inp=document.querySelector('.sl-qty-primary-input'); if(inp){inp.scrollIntoView({behavior:'smooth',block:'center'}); inp.focus();}" style="display:flex; align-items:center; gap:5px; padding:2px 8px; border-radius:99px; background:rgba(15,23,42,0.55); border:1px solid rgba(148,163,184,0.2); opacity:0.8; cursor:pointer;">
+                            <span style="width:18px; height:18px; border-radius:50%; background:rgba(148,163,184,0.25); color:#e2e8f0; font-weight:900; font-size:0.7rem; display:inline-flex; align-items:center; justify-content:center;">2</span>
+                            <span style="font-size:0.72rem; font-weight:900; color:#ffffff;">الفحص</span>
+                        </div>
+                        <span style="color:#64748b; font-size:0.7rem;">◀</span>
+                        <div id="sl-wf-step-3" onclick="document.getElementById('sl-btn-execute')?.scrollIntoView({behavior:'smooth',block:'center'})" style="display:flex; align-items:center; gap:5px; padding:2px 8px; border-radius:99px; background:rgba(15,23,42,0.55); border:1px solid rgba(148,163,184,0.2); opacity:0.8; cursor:pointer;">
+                            <span style="width:18px; height:18px; border-radius:50%; background:rgba(148,163,184,0.25); color:#e2e8f0; font-weight:900; font-size:0.7rem; display:inline-flex; align-items:center; justify-content:center;">3</span>
+                            <span style="font-size:0.72rem; font-weight:900; color:#ffffff;">الاعتماد</span>
+                        </div>
+                    </div>
+
+                    <div style="display:flex; align-items:center; gap:5px; flex-wrap:wrap;">
+                        <button type="button" id="sl-btn-quick-add-party" onclick="window.openSlQuickEntityModal && window.openSlQuickEntityModal('party')" class="sl-btn" style="padding: 3px 9px !important; font-size: 0.74rem !important; background: rgba(16,185,129,0.22); border-color: #34d399; color: #6ee7b7;" title="إضافة مورد أو عميل جديد فوراً">
+                            ➕ طرف
+                        </button>
+                        <button type="button" id="sl-btn-quick-add-item-top" onclick="window.openSlQuickEntityModal && window.openSlQuickEntityModal('item')" class="sl-btn" style="padding: 3px 9px !important; font-size: 0.74rem !important; background: rgba(168,85,247,0.22); border-color: #c084fc; color: #e9d5ff;" title="إضافة صنف جديد فوراً">
+                            ➕ صنف
+                        </button>
+                        <button type="button" id="sl-btn-drilldown-inv" onclick="openSlOriginalInvoiceDrilldownModal()" class="sl-btn" style="padding: 3px 9px !important; font-size: 0.74rem !important; background: rgba(56,189,248,0.18); border-color: #38bdf8; color: #7dd3fc;">
+                            🔍 الفاتورة
+                        </button>
+                        <button type="button" id="sl-btn-toggle-extra-row" onclick="const r=document.getElementById('sl-extra-optional-row'); if(r){r.style.display=(r.style.display==='none'?'grid':'none');}" class="sl-btn" style="padding: 3px 9px !important; font-size: 0.74rem !important; background: rgba(245,158,11,0.16); border-color: #fbbf24; color: #fde047;" title="إظهار أو إخفاء رقم القفل والملاحظات الإضافية">
+                            🎛️ إضافي
+                        </button>
+                    </div>
+                </div>
+
+                <!-- BAND 1: 4 EQUAL SINGLE-LINE SUMMARY STRIPS -->
+                <div class="sl-cockpit-4info" style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px;">
+                    <div class="sl-info-subbox" style="background: rgba(2,6,23,0.65); padding: 6px 10px; border-radius: 9px; border: 1px solid rgba(255,255,255,0.08); display:flex; align-items:center; justify-content:space-between; gap:6px; min-height: 40px;">
+                        <span style="font-size: 0.74rem !important; color: #94a3b8; font-weight: 800; white-space:nowrap;">📄 المستند:</span>
+                        <div id="sl-lbl-inv-no" style="font-size: 0.92rem !important; font-weight: 900; color: var(--sl-primary-light); font-family: 'Inter', monospace; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">---</div>
+                    </div>
+                    <div class="sl-info-subbox" style="background: rgba(2,6,23,0.65); padding: 6px 10px; border-radius: 9px; border: 1px solid rgba(255,255,255,0.08); display:flex; align-items:center; justify-content:space-between; gap:6px; min-height: 40px; overflow:hidden;">
+                        <div style="display:flex; align-items:center; gap:5px; min-width:0; flex:1;">
+                            <span id="sl-lbl-party-title" style="font-size: 0.74rem !important; color: #94a3b8; font-weight: 800; white-space:nowrap;">🏢 المورد:</span>
+                            <div id="sl-lbl-party-name" style="font-size: 0.86rem !important; font-weight: 900; color: #ffffff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">---</div>
+                        </div>
+                        <div id="sl-lbl-party-balance" style="font-size: 0.7rem !important; font-weight: 800; color: #6ee7b7; white-space:nowrap; flex-shrink:0;">---</div>
+                        <div id="sl-lbl-party-sla" style="display:none;">---</div>
+                    </div>
+                    <div class="sl-info-subbox" style="background: rgba(2,6,23,0.65); padding: 6px 10px; border-radius: 9px; border: 1px solid rgba(255,255,255,0.08); display:flex; align-items:center; justify-content:space-between; gap:6px; min-height: 40px;">
+                        <span style="font-size: 0.74rem !important; color: #94a3b8; font-weight: 800; white-space:nowrap;">📅 التاريخ:</span>
+                        <div id="sl-lbl-date" style="font-size: 0.86rem !important; font-weight: 800; color: #e2e8f0; white-space:nowrap;">---</div>
+                    </div>
+                    <div class="sl-info-subbox" style="background: rgba(2,6,23,0.65); padding: 6px 10px; border-radius: 9px; border: 1px solid rgba(255,255,255,0.08); display:flex; align-items:center; justify-content:space-between; gap:6px; min-height: 40px; overflow:hidden;">
+                        <span style="font-size: 0.74rem !important; color: #94a3b8; font-weight: 800; white-space:nowrap;">🔐 البصمة:</span>
+                        <div id="sl-lbl-hash" style="font-size: 0.78rem !important; font-weight: 800; color: #38bdf8; font-family: 'Inter', monospace; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">---</div>
+                        <div id="sl-lbl-audit-stamp" style="display:none;">👤 المسؤول</div>
+                    </div>
+                </div>
+
+                <!-- BAND 2: ROW 1 — PRIMARY LOGISTICS (STRICT 6-COLUMN SYMMETRICAL MATRIX) -->
+                <div class="sl-cockpit-6grid" style="display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 8px; align-items: end;">
+                    <div style="min-width:0;">
+                        <label id="sl-lbl-wh-select" style="font-size: 0.75rem !important; font-weight: 800; color: #fcd34d; display: block; margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">🏢 المخزن الافتراضي</label>
+                        <div style="display:flex; gap:4px; align-items:center;">
+                            <select id="sl-master-warehouse" class="sl-input" style="flex:1; min-width:0; height:34px !important; padding: 4px 8px !important; font-size: 0.8rem !important;" onchange="onSlMasterWarehouseChange(this.value)"></select>
+                            <button type="button" id="sl-btn-quick-add-wh" onclick="openSlQuickWarehouseModal()" class="sl-btn" style="height:34px !important; padding: 0 9px !important; font-size: 0.82rem !important; background: rgba(16,185,129,0.22); border-color: #34d399; color: #6ee7b7; flex-shrink:0;" title="إضافة مخزن جديد">+</button>
+                        </div>
+                    </div>
+                    <div style="min-width:0;">
+                        <label id="sl-lbl-receiver" style="font-size: 0.75rem !important; font-weight: 800; color: #6ee7b7; display: block; margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">👤 أمين المخزن</label>
+                        <input type="text" id="sl-receiver-name" class="sl-input" placeholder="الاسم..." style="width: 100%; height:34px !important; padding: 4px 8px !important; font-size: 0.8rem !important;">
+                    </div>
+                    <div style="min-width:0;">
+                        <label style="font-size: 0.75rem !important; font-weight: 800; color: #7dd3fc; display: block; margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">🚚 السائق</label>
+                        <input type="text" id="sl-driver-name" class="sl-input" placeholder="اسم السائق..." style="width: 100%; height:34px !important; padding: 4px 8px !important; font-size: 0.8rem !important;">
+                    </div>
+                    <div style="min-width:0;">
+                        <label style="font-size: 0.75rem !important; font-weight: 800; color: #c084fc; display: block; margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">🚛 المركبة</label>
+                        <input type="text" id="sl-truck-plate" class="sl-input" placeholder="رقم اللوحة..." style="width: 100%; height:34px !important; padding: 4px 8px !important; font-size: 0.8rem !important;">
+                    </div>
+                    <div style="min-width:0;">
+                        <label style="font-size: 0.75rem !important; font-weight: 800; color: #38bdf8; display: block; margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">🎫 رقم الإذن</label>
+                        <input type="text" id="sl-gate-pass-no" class="sl-input" placeholder="تلقائي..." style="width: 100%; height:34px !important; padding: 4px 8px !important; font-size: 0.8rem !important;">
+                    </div>
+                    <div style="min-width:0;">
+                        <label style="font-size: 0.75rem !important; font-weight: 800; color: #34d399; display: flex; align-items:center; justify-content:space-between; margin-bottom: 3px; white-space: nowrap;">
+                            <span>⏱️ وقت البوابة</span>
+                            <span id="sl-gate-duration-badge" style="font-size:0.68rem !important; color:#fde047;">0 د</span>
+                        </label>
+                        <div style="display:flex; gap:3px; align-items:center;">
+                            <input type="text" id="sl-gate-time-in" class="sl-input" placeholder="دخول" title="وقت الدخول" style="flex:1; min-width:0; height:34px !important; padding: 4px 4px !important; font-size: 0.75rem !important; text-align:center;">
+                            <input type="text" id="sl-gate-time-out" class="sl-input" placeholder="خروج" title="وقت الخروج" style="flex:1; min-width:0; height:34px !important; padding: 4px 4px !important; font-size: 0.75rem !important; text-align:center;">
+                            <button type="button" id="sl-btn-gate-stamp" onclick="stampSlGateTimeNow()" class="sl-btn" style="height:34px !important; padding: 0 7px !important; font-size: 0.76rem !important; background: rgba(56,189,248,0.2); border-color: #38bdf8; color: #7dd3fc; flex-shrink:0;" title="ختم الوقت اللحظي">⏱️</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- BAND 3: ROW 2 — CONCISE ENTERPRISE & NOTES (STRICT 6-COLUMN SYMMETRICAL MATRIX) -->
+                <div id="sl-c16-enterprise-fields-row" class="sl-cockpit-6grid" style="display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 8px; padding-top: 7px; border-top: 1px solid rgba(148,163,184,0.18); align-items: end;">
+                    <div style="min-width:0;">
+                        <label for="sl-c16-supplier-waybill-no" style="font-size: 0.75rem !important; font-weight: 800; color: #fde047; display: block; margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">📑 بوليصة الشحن</label>
+                        <input type="text" id="sl-c16-supplier-waybill-no" class="sl-input" placeholder="رقم البوليصة..." style="width:100%; height:34px !important; padding:4px 8px !important; font-size:0.8rem !important;" title="رقم بوليصة الشحن أو إشعار المورد">
+                    </div>
+                    <div style="min-width:0;">
+                        <label for="sl-c16-cost-center-select" style="font-size: 0.75rem !important; font-weight: 800; color: #38bdf8; display: block; margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">🏢 مركز التكلفة</label>
+                        <select id="sl-c16-cost-center-select" class="sl-input" style="width:100%; height:34px !important; padding:4px 8px !important; font-size:0.8rem !important;" onchange="window.onSlC16EnterpriseFieldChange && window.onSlC16EnterpriseFieldChange()" title="مركز التكلفة / الفرع المحاسبي">
+                            <option value="CC-MAIN-KRT">المركز الرئيسي</option>
+                            <option value="CC-BAHRI-IND">فرع بحري</option>
+                            <option value="CC-OMD-COM">فرع أم درمان</option>
+                            <option value="CC-PORTSUDAN">فرع بورتسودان</option>
+                        </select>
+                    </div>
+                    <div style="min-width:0;">
+                        <label for="sl-c16-payment-settlement-mode" style="font-size: 0.75rem !important; font-weight: 800; color: #6ee7b7; display: block; margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">💳 طريقة التسوية</label>
+                        <select id="sl-c16-payment-settlement-mode" class="sl-input" style="width:100%; height:34px !important; padding:4px 8px !important; font-size:0.8rem !important;" onchange="window.onSlC16EnterpriseFieldChange && window.onSlC16EnterpriseFieldChange()" title="طريقة التسوية المالية المرتبطة">
+                            <option value="CREDIT_ACCOUNT">آجل بالحساب</option>
+                            <option value="BANKAK_TRANSFER">تحويل بنكي (بنكك)</option>
+                            <option value="CHEQUE_PORTFOLIO">شيك مصرفي</option>
+                            <option value="CASH_TREASURY">نقداً بالخزينة</option>
+                            <option value="ADVANCE_PAYMENT">دفعة مقدمة</option>
+                        </select>
+                    </div>
+                    <div style="min-width:0;">
+                        <label for="sl-c16-inspection-condition-select" style="font-size: 0.75rem !important; font-weight: 800; color: #34d399; display: block; margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">🔬 حالة الفحص</label>
+                        <select id="sl-c16-inspection-condition-select" class="sl-input" style="width:100%; height:34px !important; padding:4px 8px !important; font-size:0.8rem !important;" onchange="window.onSlC16EnterpriseFieldChange && window.onSlC16EnterpriseFieldChange()" title="حالة الفحص والفرز الميداني">
+                            <option value="FULL_MATCH_100">✅ سليمة 100%</option>
+                            <option value="PARTIAL_SHORTAGE">⚠️ فرق / عجز</option>
+                            <option value="QUARANTINE_QC">🔬 قيد الفحص</option>
+                            <option value="DAMAGED_SEGREGATED">🚨 يوجد توالف</option>
+                        </select>
+                    </div>
+                    <div style="min-width:0;">
+                        <label for="sl-c16-weighbridge-net-kg" style="font-size: 0.75rem !important; font-weight: 800; color: #c084fc; display: flex; justify-content: space-between; align-items: center; margin-bottom: 3px; white-space: nowrap;">
+                            <span>⚖️ وزن البسكول</span>
+                            <span id="sl-c16-weight-diff-badge" style="font-size:0.68rem !important; color:#4ade80;">مطابق ✓</span>
+                        </label>
+                        <input type="text" inputmode="decimal" id="sl-c16-weighbridge-net-kg" class="sl-input" data-c8-calc="1" placeholder="الوزن (كجم)..." oninput="window.updateSlC16WeighbridgeVariance && window.updateSlC16WeighbridgeVariance()" style="width:100%; height:34px !important; padding:4px 8px !important; font-size:0.8rem !important;" title="وزن البسكول الصافي بالكيلوجرام">
+                    </div>
+                    <div style="min-width:0;">
+                        <label for="sl-warehouse-notes" style="font-size: 0.75rem !important; font-weight: 800; color: #fbbf24; display: block; margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">📝 ملاحظات الفحص</label>
+                        <input type="text" id="sl-warehouse-notes" class="sl-input" placeholder="ملاحظات المخزن..." style="width: 100%; height:34px !important; padding: 4px 8px !important; font-size: 0.8rem !important;">
+                    </div>
+                </div>
+
+                <!-- OPTIONAL COLLAPSIBLE DRAWER (SEAL NUMBER & EXTRA NOTES — HIDDEN BY DEFAULT FOR MAXIMUM SIMPLICITY) -->
+                <div id="sl-extra-optional-row" style="display: none; grid-template-columns: 1fr 2fr; gap: 8px; padding-top: 6px; border-top: 1px dashed rgba(148,163,184,0.2);">
+                    <div>
+                        <label for="sl-c16-seal-lock-number" style="font-size: 0.74rem !important; font-weight: 800; color: #fca5a5; display: block; margin-bottom: 3px;">🔒 رقم القفل الأمني</label>
+                        <input type="text" id="sl-c16-seal-lock-number" class="sl-input" placeholder="SEAL-2026-..." style="width:100%; height:32px !important; padding:4px 8px !important; font-size:0.78rem !important;">
+                    </div>
+                    <div>
+                        <label for="sl-personal-notes" style="font-size: 0.74rem !important; font-weight: 800; color: #94a3b8; display: block; margin-bottom: 3px;">📌 ملاحظات إضافية للبوابة</label>
+                        <input type="text" id="sl-personal-notes" class="sl-input" placeholder="ملاحظات اختيارية..." style="width: 100%; height:32px !important; padding: 4px 8px !important; font-size: 0.78rem !important;">
+                    </div>
+                </div>
+            </div>
+
+            <!-- LEFT: COMPACT LASER QR CAMERA & VISUAL PROOF -->
+            <div class="sl-glass-card" style="padding: 10px 12px; display: flex; flex-direction: column; justify-content: space-between; gap: 6px;">
+                <div style="display: flex; align-items: center; justify-content: space-between; padding-bottom: 6px; border-bottom: 1px solid rgba(148,163,184,0.2);">
+                    <h3 style="margin: 0; font-size: 0.88rem !important; font-weight: 900; color: #ffffff;">📷 مسح QR والمرفقات</h3>
+                    <span id="sl-verify-badge" class="sl-badge sl-badge-done" style="font-size:0.68rem; padding:2px 6px;">👑 جاهز</span>
+                </div>
+
+                <label style="display:flex; align-items:center; gap:6px; background:var(--sl-primary-soft); border:1px solid var(--sl-border-glow); padding:5px 8px; border-radius:8px; font-size:0.73rem !important; font-weight:900; color:#fff; cursor:pointer;">
+                    <input type="checkbox" id="sl-auto-execute-qr" checked style="width:14px; height:14px; accent-color:var(--sl-primary);">
+                    <span>⚡ اعتماد فوري بالمسح</span>
+                </label>
+
+                <div id="sl-qr-reader-wrap" style="display:none; flex-direction:column; gap:6px;">
+                    <div id="sl-qr-reader" style="width:100%; border-radius:10px; overflow:hidden; border:2px solid var(--sl-primary-light); aspect-ratio:4/3; background:#000;"></div>
+                    <button type="button" onclick="stopSlLocalCamera()" class="sl-btn" style="padding:4px 8px !important; font-size:0.74rem !important; background:rgba(239,68,68,0.2); border-color:#ef4444; color:#fca5a5;">⏹️ إيقاف الكاميرا</button>
+                </div>
+
+                <div id="sl-camera-placeholder" style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; background:rgba(2,6,23,0.45); border:1.5px dashed rgba(56,189,248,0.3); border-radius:10px; padding:8px; text-align:center; gap:6px;">
+                    <div style="display:flex; gap:6px; width:100%;">
+                        <button type="button" onclick="openSlMobileBridgeModal()" class="sl-btn" style="flex:1; padding:6px 6px !important; background:linear-gradient(135deg,#059669,#0284c7); border-color:#34d399; color:#fff; font-size:0.74rem !important;">
+                            📱 الجوال
+                        </button>
+                        <button type="button" onclick="startSlLocalCamera()" class="sl-btn" style="flex:1; padding:6px 6px !important; background:rgba(56,189,248,0.18); border-color:#38bdf8; color:#38bdf8; font-size:0.74rem !important;">
+                            📷 الكاميرا
+                        </button>
+                    </div>
+                </div>
+
+                <div>
+                    <input type="file" id="sl-photo-input" accept="image/*" style="display:none;" onchange="handleSlPhotoUpload(event)">
+                    <button type="button" onclick="document.getElementById('sl-photo-input').click()" class="sl-btn" style="width:100%; padding:5px 8px !important; background:rgba(245,158,11,0.14); border-color:rgba(245,158,11,0.4); color:#fcd34d; font-size:0.74rem !important;">
+                        📎 إرفاق صورة مستند
+                    </button>
+                    <div id="sl-photo-preview-wrap" style="display:none; margin-top:4px; text-align:center;">
+                        <img id="sl-photo-preview-img" src="" style="max-height:44px; border-radius:6px; border:1px solid var(--sl-primary-light);">
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -1623,7 +1967,7 @@
                     <div style="flex:1; height:8px; background:rgba(148,163,184,0.25); border-radius:99px; overflow:hidden; min-width:48px;">
                         <div id="sl-sum-progress-bar" style="width:0%; height:100%; background:linear-gradient(90deg,#0ea5e9,#10b981); border-radius:99px; transition:width 0.3s ease;"></div>
                     </div>
-                    <strong id="sl-sum-pct-badge" style="font-size:0.82rem; font-weight:900; color:#34d399; font-family:'Inter',sans-serif;">0%</strong>
+                    <strong id="sl-sum-pct-badge" style="font-size:0.82rem; font-weight:900; color:#34d399; font-family:'Inter',sans-serif;">0%</strong> <span id="sl-c8-self-balance-badge" style="font-size:0.74rem; font-weight:900; color:#4ade80; background:rgba(16,185,129,0.18); border:1.5px solid #34d399; border-radius:8px; padding:2px 7px; margin-inline-start:6px; white-space:nowrap;" title="الفحص الصامت لتوازن طرفي القيد وتطابق السطور مع الإجمالي">⚖️ متوازن 100%</span> <span id="sl-c8-live-tafqeet-bar" style="font-size:0.78rem; font-weight:900; color:#fde047; background:rgba(245,158,11,0.14); border:1.8px solid rgba(251,191,36,0.55); border-radius:9px; padding:3px 10px; margin-inline-start:6px;" title="التفقيط العربي اللحظي للمبالغ والكميات بالحروف لمنع خداع الأصفار">🪙 فقط صفر جنيه سوداني لا غير</span>
                 </div>
             </div>
 

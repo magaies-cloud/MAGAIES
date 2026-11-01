@@ -2020,6 +2020,16 @@ html[data-theme="ultra_white"] body textarea,
 html[data-theme="exec_gray"] body input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]),
 html[data-theme="exec_gray"] body select,
 html[data-theme="exec_gray"] body textarea {
+    background-color: #fffdf9 !important;
+    color: #140c06 !important;
+    font-weight: 900 !important;
+    border: 2px solid #9a5822 !important;
+    text-shadow: none !important;
+}
+html body *, html body *::before, html body *::after { text-shadow: none !important; }
+html body label, html body .h-label, html body .v-label, html body .panel-title, html body th { text-shadow: none !important; filter: none !important; }
+html.light-theme body .pro-field-card, html.light-theme body .input-group { background-color: #faf6ee !important; border: 2px solid #9a5822 !important; }
+.unused-legacy-light-input-rule {
     background-color: #ffffff !important;
     color: #000000 !important;
     font-weight: 900 !important;

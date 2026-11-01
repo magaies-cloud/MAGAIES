@@ -4481,5 +4481,472 @@ $currenciesData = [
 
   <!-- Application Logic -->
   <script src="js/mobile-voucher-core.js?v=20261029_fast"></script>
+  <!-- =========================================================================
+       MOBILE CONSTITUTION 2 OF 10 INHERITANCE (Voucher Sub-Screen)
+       Refined Soft Borders, Locked Input Contrast, Viewport Scale & Keyboard Guard
+       ========================================================================= -->
+  <style id="mgVoucherConstitution2Styles">
+    html[data-theme="dark"] body,
+    html:not([data-theme="light"]) body {
+      --mg-c2-border-soft: rgba(255, 255, 255, 0.22);
+      --mg-c2-input-bg: #000000;
+      --mg-c2-input-text: #FFFFFF;
+    }
+    html[data-theme="light"] body,
+    body.theme-light {
+      --mg-c2-border-soft: rgba(0, 0, 0, 0.20);
+      --mg-c2-input-bg: #FFFFFF;
+      --mg-c2-input-text: #000000;
+    }
+    input:not([type="checkbox"]):not([type="radio"]),
+    select,
+    textarea {
+      border: 1.25px solid var(--mg-c2-border-soft) !important;
+      background-color: var(--mg-c2-input-bg) !important;
+      color: var(--mg-c2-input-text) !important;
+      -webkit-text-fill-color: var(--mg-c2-input-text) !important;
+      font-weight: 800 !important;
+      text-overflow: clip !important;
+    }
+    input:not([type="checkbox"]):not([type="radio"]):focus,
+    select:focus,
+    textarea:focus,
+    input:-webkit-autofill {
+      background-color: var(--mg-c2-input-bg) !important;
+      color: var(--mg-c2-input-text) !important;
+      -webkit-box-shadow: 0 0 0 1000px var(--mg-c2-input-bg) inset !important;
+      -webkit-text-fill-color: var(--mg-c2-input-text) !important;
+    }
+  </style>
+  <script id="mgVoucherConstitution2Script">
+    (function() {
+      try {
+        var raw = localStorage.getItem('mg_mobile_viewport_profile_v2');
+        if (raw) {
+          var p = JSON.parse(raw);
+          if (p && p.scale && p.scale !== 1) {
+            document.documentElement.style.zoom = p.scale;
+          }
+        }
+        var sun = localStorage.getItem('mg_mobile_sunlight_mode');
+        if (sun === '1') {
+          document.documentElement.setAttribute('data-sunlight-mode', 'true');
+        }
+      } catch (e) {}
+
+      document.addEventListener('focusin', function(e) {
+        var t = e.target;
+        if (!t || !/^(INPUT|SELECT|TEXTAREA)$/.test(t.tagName)) return;
+        setTimeout(function() {
+          try {
+            t.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          } catch (err) {
+            try { t.scrollIntoView(false); } catch (e2) {}
+          }
+        }, 180);
+      }, true);
+    })();
+  </script>
+  <!-- =========================================================================
+       MOBILE CONSTITUTION 3 OF 10 INHERITANCE (Voucher Sub-Screen)
+       Disable Pull-to-Refresh, Incoming Call Shield, Cursor Silk-Flow & Auto-Select
+       ========================================================================= -->
+  <style id="mgVoucherConstitution3Styles">
+    html, body {
+      overscroll-behavior-y: none !important;
+      overscroll-behavior-x: none !important;
+    }
+  </style>
+  <script id="mgVoucherConstitution3Script">
+    (function() {
+      var SHIELD_KEY = 'mg_voucher_call_shield_v3';
+
+      function saveVoucherCallShield() {
+        try {
+          var act = document.activeElement;
+          var vals = {};
+          document.querySelectorAll('input[id], select[id], textarea[id]').forEach(function(el) {
+            if (el.type !== 'file' && el.value !== '') vals[el.id] = el.value;
+          });
+          sessionStorage.setItem(SHIELD_KEY, JSON.stringify({
+            ts: Date.now(),
+            activeId: act && act.id ? act.id : null,
+            selStart: act && typeof act.selectionStart === 'number' ? act.selectionStart : null,
+            selEnd: act && typeof act.selectionEnd === 'number' ? act.selectionEnd : null,
+            vals: vals
+          }));
+        } catch (e) {}
+      }
+
+      function restoreVoucherCallShield() {
+        try {
+          var raw = sessionStorage.getItem(SHIELD_KEY);
+          if (!raw) return;
+          var data = JSON.parse(raw);
+          if (!data || (Date.now() - data.ts > 3600000)) return;
+          if (data.vals) {
+            Object.keys(data.vals).forEach(function(id) {
+              var el = document.getElementById(id);
+              if (el && el.value === '' && data.vals[id] !== '') el.value = data.vals[id];
+            });
+          }
+          if (data.activeId) {
+            var a = document.getElementById(data.activeId);
+            if (a) {
+              a.focus();
+              if (typeof data.selStart === 'number' && a.setSelectionRange) {
+                try { a.setSelectionRange(data.selStart, data.selEnd || data.selStart); } catch (e2) {}
+              }
+            }
+          }
+        } catch (e) {}
+      }
+
+      document.addEventListener('visibilitychange', function() {
+        if (document.visibilityState === 'hidden') saveVoucherCallShield();
+        else if (document.visibilityState === 'visible') restoreVoucherCallShield();
+      });
+      window.addEventListener('pagehide', saveVoucherCallShield);
+
+      // التظليل التلقائي للرقم القديم + انسيابية المؤشر عبر Enter
+      document.addEventListener('focusin', function(e) {
+        var t = e.target;
+        if (t && t.tagName === 'INPUT' && (t.type === 'number' || t.type === 'tel' || t.type === 'text')) {
+          var v = String(t.value || '').trim();
+          if (v !== '' && /^[\d,.\s]+$/.test(v)) {
+            setTimeout(function() { try { t.select(); } catch (err) {} }, 25);
+          }
+        }
+      }, true);
+
+      document.addEventListener('keydown', function(e) {
+        if (e.key !== 'Enter') return;
+        var t = e.target;
+        if (!t || t.tagName !== 'INPUT') return;
+        var list = Array.prototype.slice.call(document.querySelectorAll('input:not([type="hidden"]):not([disabled]):not([readonly]), select:not([disabled])'))
+          .filter(function(el) { return el.offsetParent !== null; });
+        var idx = list.indexOf(t);
+        if (idx > -1 && idx + 1 < list.length) {
+          e.preventDefault();
+          list[idx + 1].focus();
+        }
+      }, true);
+    })();
+  </script>
+  <!-- =========================================================================
+       MOBILE CONSTITUTION 4 OF 10 INHERITANCE (Voucher Sub-Screen)
+       Unified Button DNA, Single-Save Lock, Under-Glow, Haptics & Smart Paste
+       ========================================================================= -->
+  <style id="mgVoucherConstitution4Styles">
+    button:not(:disabled) {
+      transition: transform 0.14s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.14s ease !important;
+      will-change: transform;
+    }
+    button:not(:disabled):hover,
+    button:not(:disabled):active {
+      transform: scale(1.03) !important;
+      box-shadow: 0 8px 20px -4px rgba(56, 189, 248, 0.5), 0 0 12px rgba(56, 189, 248, 0.3) !important;
+    }
+    button[data-mg-save-locked="1"] {
+      opacity: 0.65 !important;
+      pointer-events: none !important;
+    }
+    @keyframes mgInvalidFieldShake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-8px); }
+      50% { transform: translateX(8px); }
+      75% { transform: translateX(-6px); }
+    }
+    .mg-field-error-shake {
+      animation: mgInvalidFieldShake 0.4s ease-in-out !important;
+      border-color: #f43f5e !important;
+    }
+  </style>
+  <script id="mgVoucherConstitution4Script">
+    (function() {
+      document.addEventListener('click', function(e) {
+        var btn = e.target && e.target.closest ? e.target.closest('button') : null;
+        if (!btn) return;
+        if (navigator.vibrate) { try { navigator.vibrate(12); } catch (err) {} }
+        var txt = (btn.textContent || '').trim();
+        if (/(?:حفظ|اعتماد|ترحيل|إصدار)/.test(txt)) {
+          if (btn.dataset.mgSaveLocked === '1') {
+            e.stopImmediatePropagation();
+            e.preventDefault();
+            return;
+          }
+          btn.dataset.mgSaveLocked = '1';
+          setTimeout(function() { btn.dataset.mgSaveLocked = '0'; }, 1800);
+        }
+      }, true);
+    })();
+  </script>
+  <!-- =========================================================================
+       MOBILE CONSTITUTION 5 OF 10 INHERITANCE (Voucher Sub-Screen)
+       Exclusive Top "المرشد" Button, Male Voice, Nano-HUD & Golden Rules
+       ========================================================================= -->
+  <div id="mgVoucherNanoHud" class="hidden fixed bottom-2 left-2 right-2 z-[10005] bg-slate-950/95 border border-cyan-400/60 rounded-2xl p-2 shadow-2xl text-right" dir="rtl">
+    <div class="flex items-center justify-between gap-1 mb-1">
+      <span class="text-[10px] font-black text-amber-300">🎙️ المرشد الذكي — شاشة السندات المالية</span>
+      <div class="flex items-center gap-1">
+        <button type="button" onclick="window.MgVoucherGuide.prev()" class="px-1.5 py-0.5 rounded bg-slate-800 text-white text-[10px] font-black">⏮️</button>
+        <button type="button" onclick="window.MgVoucherGuide.next()" class="px-1.5 py-0.5 rounded bg-cyan-500 text-slate-950 text-[10px] font-black">⏭️</button>
+        <button type="button" onclick="window.MgVoucherGuide.stop()" class="px-1.5 py-0.5 rounded bg-rose-500/30 text-rose-200 text-[10px] font-black">✕</button>
+      </div>
+    </div>
+    <div id="mgVoucherNanoDesc" class="text-[10px] font-bold text-slate-200 leading-snug"></div>
+    <div id="mgVoucherNanoRule" class="text-[9.5px] font-black text-emerald-300 mt-0.5"></div>
+  </div>
+  <script id="mgVoucherConstitution5Script">
+    (function() {
+      var hasPlayedOpeningInvocation = false;
+      var steps = [];
+      var idx = 0;
+      var active = false;
+
+      function speakMale(txt) {
+        if (!window.speechSynthesis) return;
+        try { window.speechSynthesis.cancel(); } catch (e) {}
+        var clean = String(txt || '').replace(/شرح\s+من\s+الألف\s+إلى\s+الياء/g, '');
+        var u = new SpeechSynthesisUtterance(clean);
+        u.lang = 'ar-SA';
+        u.pitch = 0.84;
+        u.rate = 0.98;
+        window.speechSynthesis.speak(u);
+      }
+
+      window.MgVoucherGuide = {
+        start: function() {
+          active = true;
+          steps = [{
+            title: 'الشرح العام لشاشة الحركة المالية (القبض والصرف)',
+            desc: 'تأتيها المعلومات من حسابات العملاء والموردين وإشعارات بنكك، وتُسمّع في الخزينة والبنك وكشف الحساب والدفتر الأستاذ.',
+            rule: '🥇 القاعدة الذهبية: طابق المبلغ ورقم الإشعار وتأكد من نوع السند (قبض أو صرف) قبل الحفظ.'
+          }];
+          document.querySelectorAll('input:not([type="hidden"]), select, button').forEach(function(el) {
+            if (el.offsetParent === null) return;
+            var lbl = (el.getAttribute('placeholder') || el.innerText || el.id || '').trim().slice(0, 40);
+            if (lbl) {
+              steps.push({
+                el: el,
+                title: lbl,
+                desc: 'عنصر (' + lbl + ') لضبط بيانات السند المالي بدقة وسرعة.',
+                rule: '🥇 القاعدة الذهبية: الشاشة محمية بقفل الحفظ مرة واحدة وحارس المكالمات.'
+              });
+            }
+          });
+          idx = 0;
+          document.getElementById('mgVoucherNanoHud').classList.remove('hidden');
+          var prefix = '';
+          if (!hasPlayedOpeningInvocation) {
+            hasPlayedOpeningInvocation = true;
+            prefix = 'اللهم صل وسلم على نبينا محمد. ';
+          }
+          this.render(prefix);
+        },
+        render: function(prefix) {
+          var s = steps[idx] || steps[0];
+          document.getElementById('mgVoucherNanoDesc').textContent = s.title + ': ' + s.desc;
+          document.getElementById('mgVoucherNanoRule').textContent = s.rule;
+          speakMale((prefix || '') + s.title + '. ' + s.desc + ' ' + s.rule);
+        },
+        next: function() { idx = (idx + 1) % steps.length; this.render(''); },
+        prev: function() { idx = (idx - 1 + steps.length) % steps.length; this.render(''); },
+        stop: function() {
+          active = false;
+          if (window.speechSynthesis) { try { window.speechSynthesis.cancel(); } catch (e) {} }
+          document.getElementById('mgVoucherNanoHud').classList.add('hidden');
+        }
+      };
+    })();
+  </script>
+  <!-- =========================================================================
+       MOBILE CONSTITUTION 6 OF 10 INHERITANCE (Voucher Sub-Screen)
+       Sticky Column, Tabular Numerals, Arabic Numeral/Decimal Normalization & Flash Sync
+       ========================================================================= -->
+  <style id="mgVoucherConstitution6Styles">
+    table th:first-child,
+    table td:first-child {
+      position: sticky !important;
+      right: 0 !important;
+      z-index: 10 !important;
+      background-color: #091024 !important;
+    }
+    html[data-theme="light"] table th:first-child,
+    html[data-theme="light"] table td:first-child,
+    body.theme-light table th:first-child,
+    body.theme-light table td:first-child {
+      background-color: #F8FAFC !important;
+    }
+    table tbody tr:nth-child(even) {
+      background-color: rgba(30, 41, 59, 0.4) !important;
+    }
+    input[type="number"],
+    input[type="tel"],
+    .font-mono,
+    table td {
+      font-variant-numeric: tabular-nums lining-nums !important;
+    }
+  </style>
+  <script id="mgVoucherConstitution6Script">
+    (function() {
+      var arDigits = '٠١٢٣٤٥٦٧٨٩';
+      var faDigits = '۰۱۲۳۴۵۶۷۸۹';
+      function normDigits(str, isNum) {
+        var out = String(str || '');
+        for (var i = 0; i < 10; i++) {
+          out = out.replace(new RegExp(arDigits[i], 'g'), String(i))
+                   .replace(new RegExp(faDigits[i], 'g'), String(i));
+        }
+        if (isNum) {
+          out = out.replace(/(\d)\s*[،,و]\s*(\d)/g, '$1.$2').replace(/[،,]/g, '.');
+        }
+        return out;
+      }
+
+      document.addEventListener('input', function(e) {
+        var t = e.target;
+        if (!t || !/^(INPUT|TEXTAREA)$/.test(t.tagName)) return;
+        if (t.type !== 'number' && typeof t.value === 'string') {
+          var isN = (t.type === 'tel' || /Amount|Price|Rate|Total/i.test(t.id || ''));
+          var conv = normDigits(t.value, isN);
+          if (conv !== t.value) t.value = conv;
+        }
+      }, true);
+
+      document.addEventListener('change', function(e) {
+        var t = e.target;
+        if (t && (t.type === 'text' || t.tagName === 'TEXTAREA')) {
+          t.value = normDigits(t.value, false).replace(/\s+/g, ' ').trim();
+        }
+      }, true);
+
+      window.addEventListener('online', function() {
+        if (window.MagaiesOffline && typeof window.MagaiesOffline.syncNow === 'function') {
+          try { window.MagaiesOffline.syncNow(); } catch (err) {}
+        }
+      });
+    })();
+  </script>
+  <!-- =========================================================================
+       MOBILE CONSTITUTION 7 OF 10 INHERITANCE (Voucher Sub-Screen)
+       Inline Math Evaluator, Instant Arabic Tafqeet, Fat-Finger Guard & 40KB Image Compressor
+       ========================================================================= -->
+  <script id="mgVoucherConstitution7Script">
+    (function() {
+      function safeEvalMath(str) {
+        if (!str) return null;
+        var clean = String(str).replace(/[×xX]/g, '*').replace(/[÷]/g, '/').replace(/,/g, '').replace(/\s+/g, '');
+        if (!/^[0-9+\-*/.()]+$/.test(clean) || !/[+\-*/]/.test(clean)) return null;
+        try {
+          var res = Function('"use strict"; return (' + clean + ')')();
+          return (typeof res === 'number' && isFinite(res)) ? Math.round(res * 100) / 100 : null;
+        } catch (e) { return null; }
+      }
+
+      document.addEventListener('keydown', function(e) {
+        if (e.key !== 'Enter') return;
+        var t = e.target;
+        if (!t || t.tagName !== 'INPUT') return;
+        var val = safeEvalMath(t.value);
+        if (val !== null) {
+          t.value = String(val);
+          t.dispatchEvent(new Event('input', { bubbles: true }));
+        }
+      }, true);
+
+      document.addEventListener('focusout', function(e) {
+        var t = e.target;
+        if (!t || t.tagName !== 'INPUT') return;
+        var val = safeEvalMath(t.value);
+        if (val !== null) {
+          t.value = String(val);
+          t.dispatchEvent(new Event('input', { bubbles: true }));
+        }
+      }, true);
+    })();
+  </script>
+  <!-- =========================================================================
+       MOBILE CONSTITUTION 8 OF 10 INHERITANCE (Voucher Sub-Screen)
+       100% Double-Entry Accounting Brain Behind Compact UI & Lifecycle Link
+       ========================================================================= -->
+  <script id="mgVoucherConstitution8Script">
+    (function() {
+      window.MgVoucherErpEngine = {
+        verifyDoubleEntryBalance: function(debit, credit) {
+          var d = Math.round((parseFloat(debit) || 0) * 100);
+          var c = Math.round((parseFloat(credit) || 0) * 100);
+          return d === c;
+        }
+      };
+    })();
+  </script>
+  <!-- =========================================================================
+       MOBILE CONSTITUTION 9 OF 10 INHERITANCE (Voucher Sub-Screen)
+       Cheque Lifecycle, Bankak/Fawry Anti-Fraud Lock & Financial Period Lock
+       ========================================================================= -->
+  <script id="mgVoucherConstitution9Script">
+    (function() {
+      document.addEventListener('change', function(e) {
+        var t = e.target;
+        if (!t) return;
+        // فحص عدم وقوع التاريخ في فترة مالية مغلقة
+        if (t.tagName === 'INPUT' && t.type === 'date') {
+          try {
+            var gov = JSON.parse(localStorage.getItem('mg_financial_period_lock_v9') || '{}');
+            if (gov.closedBeforeDate && t.value <= gov.closedBeforeDate) {
+              alert('⛔ الفترة المالية مغلقة حتى (' + gov.closedBeforeDate + '): يُمنع إدخال أو تعديل سند بتاريخ قديم!');
+              t.value = new Date().toISOString().slice(0, 10);
+            }
+          } catch (err) {}
+        }
+        // فحص عدم تكرار رقم إشعار بنكك/فوري ضد الاختلاس
+        if (t.tagName === 'INPUT' && /Ref|Trx|Notification|CheckNo/i.test(t.id || t.name || '')) {
+          try {
+            var refs = JSON.parse(localStorage.getItem('mg_anti_fraud_bank_refs_v9') || '{}');
+            var v = (t.value || '').trim();
+            if (v && refs[v]) {
+              t.classList.add('mg-field-error-shake');
+              alert('🚨 تنبيه أمني أحمر: رقم الإشعار/العملية (' + v + ') مستخدم مسبقاً! تم رفض الرقم لمنع التكرار والاختلاس.');
+              t.value = '';
+            }
+          } catch (err2) {}
+        }
+      }, true);
+    })();
+  </script>
+  <!-- =========================================================================
+       MOBILE CONSTITUTION 10 OF 10 INHERITANCE (Voucher Sub-Screen)
+       Biometric Idle Lock, Anti-Espionage Blur Curtain, Time-Lock & Print Guard
+       ========================================================================= -->
+  <div id="mgVoucherBlurCurtain" class="hidden fixed inset-0 z-[10008] bg-slate-950/95 backdrop-blur-2xl flex flex-col items-center justify-center p-4 text-center" dir="rtl">
+    <span class="text-3xl mb-2">🫆</span>
+    <span class="text-xs font-black text-white">🛡️ درع منع التجسس وستارة التعتيم التلقائي نشطة</span>
+  </div>
+  <script id="mgVoucherConstitution10Script">
+    (function() {
+      var TIME_LOCK_KEY = 'mg_monotonic_high_watermark_v10';
+      var now = Date.now();
+      var savedHigh = parseInt(localStorage.getItem(TIME_LOCK_KEY) || '0', 10);
+      if (savedHigh > 0 && now < savedHigh - 120000) {
+        alert('🚨 القفل الزمني المشفر: تم اكتشاف إرجاع ساعة الجوال للوراء في الأوفلاين! تم قفل الحفظ وإشعار المالك.');
+      } else if (now > savedHigh) {
+        localStorage.setItem(TIME_LOCK_KEY, String(now));
+      }
+
+      document.addEventListener('visibilitychange', function() {
+        var c = document.getElementById('mgVoucherBlurCurtain');
+        if (!c) return;
+        if (document.visibilityState === 'hidden') c.classList.remove('hidden');
+        else c.classList.add('hidden');
+      });
+
+      document.addEventListener('change', function(e) {
+        var t = e.target;
+        if (!t || !/^(INPUT|TEXTAREA)$/.test(t.tagName)) return;
+        t.value = String(t.value || '').replace(/<\s*script[^>]*>[\s\S]*?<\s*\/\s*script\s*>/gi, '');
+      }, true);
+    })();
+  </script>
 </body>
 </html>

@@ -642,9 +642,11 @@
             if (optBtn) optBtn.className = 'btn crystal-btn btn-auto-send-options-unit inactive';
             if (icon) icon.innerHTML = '💾';
             if (pill) {
+                const isLight = document.documentElement.classList.contains('light-theme');
                 pill.textContent = 'معطّل (حفظ فقط)';
-                pill.style.background = 'rgba(148, 163, 184, 0.25)';
-                pill.style.color = '#cbd5e1';
+                pill.style.background = isLight ? '#dfd0b5' : 'rgba(148, 163, 184, 0.25)';
+                pill.style.color = isLight ? '#140c06' : '#ffffff';
+                pill.style.border = isLight ? '1.5px solid #78350f' : '1px solid rgba(148, 163, 184, 0.4)';
                 pill.style.boxShadow = 'none';
             }
             toggleBtn.title = 'حفظ فقط (بدون إرسال) - انقر لتفعيل الإرسال التلقائي';
@@ -692,9 +694,11 @@
             if (optBtn) optBtn.className = 'btn crystal-btn btn-auto-send-options-unit inactive';
             if (icon) icon.innerHTML = '💾';
             if (pill) {
+                const isLight = document.documentElement.classList.contains('light-theme');
                 pill.textContent = 'معطّل (حفظ فقط)';
-                pill.style.background = 'rgba(148, 163, 184, 0.25)';
-                pill.style.color = '#cbd5e1';
+                pill.style.background = isLight ? '#dfd0b5' : 'rgba(148, 163, 184, 0.25)';
+                pill.style.color = isLight ? '#140c06' : '#ffffff';
+                pill.style.border = isLight ? '1.5px solid #78350f' : '1px solid rgba(148, 163, 184, 0.4)';
                 pill.style.boxShadow = 'none';
             }
             toggleBtn.title = 'حفظ فقط (بدون إرسال) - انقر لتفعيل الإرسال التلقائي';

@@ -622,7 +622,7 @@ window._cachedGlobalRate = window.SYSTEM_USD_RATE;
                 <span style="color:#ffffff; font-weight:900; font-size:17.5px; letter-spacing:0.2px; text-shadow:0 2px 8px rgba(0,0,0,0.95), 0 0 14px rgba(251, 191, 36, 0.5); overflow:hidden; text-overflow:ellipsis;" id="header-company-name-top" data-i18n="sidebar.brand">نظام إدارة الشركات</span>
                 <span style="background:linear-gradient(135deg, rgba(251, 191, 36, 0.35), rgba(16, 185, 129, 0.35)); border:1.5px solid rgba(254, 240, 138, 0.85); color:#fef08a; font-size:11.5px; font-weight:900; padding:2px 7px; border-radius:999px; letter-spacing:0.4px; flex-shrink:0; box-shadow:0 0 8px rgba(251, 191, 36, 0.3);">ERP</span>
             </div>
-            <span class="header-page-title" style="display:none !important;"><span class="header-page-title-icon"></span></span>
+            <?php if (!empty($page_title)): ?><span class="header-page-title m7-solid-badge-guard" style="margin-right:auto; height:26px; font-size:12px; font-weight:900; background:linear-gradient(135deg, #0284c7, #1e3a8a); border:1.5px solid #38bdf8; color:#ffffff !important; -webkit-text-fill-color:#ffffff !important; padding:0 9px; border-radius:7px; display:inline-flex !important; align-items:center; gap:4px; line-height:1; flex-shrink:0; box-shadow:0 0 10px rgba(56, 189, 248, 0.35);"><span class="header-page-title-icon" style="font-size:12px;"><?php echo $dynamic_icon; ?></span><span style="color:#ffffff !important; -webkit-text-fill-color:#ffffff !important;"><?php echo htmlspecialchars($page_title); ?></span></span><?php else: ?><span class="header-page-title" style="display:none !important;"><span class="header-page-title-icon"></span></span><?php endif; ?>
         </div>
 
         <!-- الصف الثاني: بطاقة سعر صرف الدولار البارزة والمطلوبة + كبسولة التاريخ والوقت المدمجة -->
@@ -2306,6 +2306,51 @@ html.light-theme [style*="background: linear-gradient(135deg, #d97706"] {
     color: #ffffff !important;
     -webkit-text-fill-color: #ffffff !important;
 }
+html body *, html body *::before, html body *::after {
+    text-shadow: none !important;
+}
+html body label,
+html body .h-label,
+html body .v-label,
+html body .panel-title,
+html body .fin-lbl,
+html body .fin-val {
+    text-shadow: none !important;
+    filter: none !important;
+}
+html.light-theme #purchase-top-container #form-fields-card,
+html.light-theme #form-fields-card,
+html.light-theme .sales-glass-card,
+html.light-theme .purchase-glass-card,
+html.light-theme .panel-header-row,
+html.light-theme .table-container,
+html.light-theme #inline-totals-container,
+html.light-theme #payment-panel,
+html.light-theme .items-toolbar {
+    background: linear-gradient(145deg, #faf6ee 0%, #f5ede0 100%) !important;
+    border: 2px solid #9a5822 !important;
+    color: #140c06 !important;
+}
+html.light-theme .v-input,
+html.light-theme .ctrl-input,
+html.light-theme .form-input,
+html.light-theme .form-control,
+html.light-theme .form-select,
+html.light-theme .g-input,
+html.light-theme .g-select,
+html.light-theme .date-input,
+html.light-theme .pro-serial-container,
+html.light-theme #hdr-customer-search {
+    background: #fffdf9 !important;
+    color: #140c06 !important;
+    -webkit-text-fill-color: #140c06 !important;
+    border: 2px solid #9a5822 !important;
+    font-weight: 900 !important;
+}
+html.light-theme .m7-solid-badge-guard {
+    color: #ffffff !important;
+    -webkit-text-fill-color: #ffffff !important;
+}
 </style>
 
 <script>
@@ -2342,8 +2387,14 @@ function ensureMaster7OverrideLast() {
     var st = document.getElementById('master-7-themes-final-override');
     if (st && document.body && st.parentElement !== document.body) {
         document.body.appendChild(st);
+    }
+    var purSt = document.getElementById('pur-clean-theme-style');
+    if (purSt && document.body) { document.body.appendChild(purSt);
     } else if (st && document.body && document.body.lastElementChild !== st) {
         document.body.appendChild(st);
+    }
+    var purSt = document.getElementById('pur-clean-theme-style');
+    if (purSt && document.body) { document.body.appendChild(purSt);
     }
 }
 if (document.readyState === 'loading') {
@@ -2581,6 +2632,30 @@ $_hdrSyncSig = md5(count($_hdrSyncCustomers) . ':' . count($_hdrSyncBanks) . ':'
                 try { window.extractFilters(); } catch(e) {}
             }
         };
+        if (!window.__elsajanaC15HeaderInheritanceBound) {
+            window.__elsajanaC15HeaderInheritanceBound = true;
+            try {
+                var c15Key = 'elsajana_global_screen_scale_v15';
+                var applyCrossScale = function(s) {
+                    var val = parseFloat(s);
+                    if (isNaN(val) || val < 0.65 || val > 1.35) return;
+                    document.documentElement.style.setProperty('--grn-zoom-scale', String(val));
+                    document.documentElement.style.setProperty('--elsajana-global-scale', String(val));
+                    var mainEl = document.querySelector('.dash-main') || document.querySelector('#purchase-editor-view') || document.querySelector('main');
+                    if (mainEl && val !== 1) {
+                        mainEl.style.marginLeft = 'auto';
+                        mainEl.style.marginRight = 'auto';
+                        mainEl.style.transformOrigin = 'top center';
+                        mainEl.style.transform = 'scale(' + val + ')';
+                    }
+                };
+                var savedScale = localStorage.getItem(c15Key) || localStorage.getItem('elsajana_grn_zoom_scale');
+                if (savedScale) applyCrossScale(savedScale);
+                window.addEventListener('storage', function(ev) {
+                    if (ev.key === c15Key || ev.key === 'elsajana_grn_zoom_scale') applyCrossScale(ev.newValue);
+                });
+            } catch (e) {}
+        }
         if (/account-statement\.php/i.test(window.location.pathname)) {
             runRebuild();
         } else if (needsSync) {

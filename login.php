@@ -481,6 +481,150 @@ window.DETECTED_TENANT_ID = <?php echo json_encode($detectedTenantId); ?>;
             }
         </script>
         
+        <!-- ⚡ الدستور الأول للجوال (1 من 10): البوابة المزدوجة من الخارج في شاشة الباسورد (3 مفاتيح ذكية بوزن مجهري 0ms) -->
+        <div id="mg-external-dual-gateway" dir="rtl" style="margin: 6px 0 11px 0; padding: 9px 10px; border-radius: 14px; background: rgba(15, 23, 42, 0.72); border: 1px solid rgba(56, 189, 248, 0.28); box-shadow: inset 0 1px 0 rgba(255,255,255,0.08); text-align: right;">
+            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;">
+                <span style="font-size:0.74rem; font-weight:800; color:#38bdf8; display:inline-flex; align-items:center; gap:5px;">
+                    <span>⚡ بوابة التشكيل المزدوجة (0ms)</span>
+                </span>
+                <span id="mg-ext-jail-badge" style="display:none; font-size:0.68rem; font-weight:800; color:#fbbf24; background:rgba(245,158,11,0.16); border:1px solid rgba(245,158,11,0.4); padding:1px 7px; border-radius:999px;">🔒 مقفل باختصار الموظف</span>
+            </div>
+
+            <!-- 1. مفتاح طراز الواجهة -->
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:5px; margin-bottom:6px; background:rgba(2,6,23,0.65); padding:3px; border-radius:10px; border:1px solid rgba(148,163,184,0.16);">
+                <button type="button" id="mgExtUiModernBtn" onclick="window.setMgExternalGatewayUI('modern')" style="padding:5px 6px; border-radius:8px; font-size:0.73rem; font-weight:800; border:none; cursor:pointer; transition:none; background:linear-gradient(135deg,#0284c7,#2563eb); color:#fff;">✨ الواجهة العصرية العالمية</button>
+                <button type="button" id="mgExtUiClassicBtn" onclick="window.setMgExternalGatewayUI('classic')" style="padding:5px 6px; border-radius:8px; font-size:0.73rem; font-weight:800; border:none; cursor:pointer; transition:none; background:transparent; color:#94a3b8;">🏛️ الواجهة الكلاسيكية المعتادة</button>
+            </div>
+
+            <!-- 2. مفتاح الدخول السريع عبر أزرار الاختصارات + 3. مفتاح السمة اللونية -->
+            <div style="display:grid; grid-template-columns: 1.35fr 1fr; gap:6px;">
+                <div>
+                    <label style="display:block; font-size:0.67rem; color:#cbd5e1; font-weight:700; margin-bottom:2px;">🚀 وجهة الدخول السريع (عزل RAM):</label>
+                    <select id="mgExtShortcutSelect" onchange="window.setMgExternalGatewayShortcut(this.value)" style="width:100%; padding:5px 7px; border-radius:9px; background:rgba(15,23,42,0.95); color:#f8fafc; border:1px solid rgba(56,189,248,0.35); font-size:0.74rem; font-weight:800; font-family:inherit; outline:none; cursor:pointer;">
+                        <option value="full">⊞ البرنامج الكامل</option>
+                        <option value="sc1">⚡ اختصار (1)</option>
+                        <option value="sc2">⚡ اختصار (2)</option>
+                        <option value="sc3">⚡ اختصار (3)</option>
+                        <option value="sc4">⚡ اختصار (4)</option>
+                    </select>
+                </div>
+                <div>
+                    <label style="display:block; font-size:0.67rem; color:#cbd5e1; font-weight:700; margin-bottom:2px;">🎨 السمة اللونية الفورية:</label>
+                    <select id="mgExtThemeSelect" onchange="window.setMgExternalGatewayTheme(this.value)" style="width:100%; padding:5px 7px; border-radius:9px; background:rgba(15,23,42,0.95); color:#fbbf24; border:1px solid rgba(245,158,11,0.35); font-size:0.74rem; font-weight:800; font-family:inherit; outline:none; cursor:pointer;">
+                        <option value="midnight-executive">🌌 كحلي ملكي (غامق)</option>
+                        <option value="warm-alabaster">📜 بيج كريمي (فاتح)</option>
+                        <option value="pure-platinum">☀️ أبيض ناصع (فاتح)</option>
+                        <option value="pearl-platinum">🏛️ بلاتيني (فاتح)</option>
+                        <option value="sepia-brown">☕ بني موكا (غامق)</option>
+                        <option value="obsidian-charcoal">🌑 أسود OLED (غامق)</option>
+                        <option value="twilight-indigo">🛡️ رمادي داكن (غامق)</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <script>
+            (function() {
+                const THEME_BG_MAP = {
+                    'midnight-executive': { bg: '#04091A', card: 'rgba(15, 23, 42, 0.86)', text: '#F8FAFC', border: 'rgba(56, 189, 248, 0.3)' },
+                    'warm-alabaster':     { bg: '#FBF8F1', card: 'rgba(24, 19, 10, 0.88)', text: '#F8FAFC', border: 'rgba(217, 119, 6, 0.45)' },
+                    'pure-platinum':      { bg: '#F1F5F9', card: 'rgba(15, 23, 42, 0.90)', text: '#FFFFFF', border: 'rgba(14, 165, 233, 0.45)' },
+                    'pearl-platinum':     { bg: '#E2E8F0', card: 'rgba(15, 23, 42, 0.88)', text: '#F8FAFC', border: 'rgba(99, 102, 241, 0.4)' },
+                    'sepia-brown':        { bg: '#1A110B', card: 'rgba(28, 19, 13, 0.90)', text: '#FDF8F5', border: 'rgba(245, 158, 11, 0.4)' },
+                    'obsidian-charcoal':  { bg: '#000000', card: 'rgba(12, 12, 14, 0.92)', text: '#FFFFFF', border: 'rgba(161, 161, 170, 0.35)' },
+                    'twilight-indigo':    { bg: '#1E293B', card: 'rgba(15, 23, 42, 0.88)', text: '#F8FAFC', border: 'rgba(148, 163, 184, 0.35)' }
+                };
+
+                function syncExternalGatewayState() {
+                    try {
+                        const uiMode = localStorage.getItem('mg_mobile_ui_mode') || 'modern';
+                        const activeSc = localStorage.getItem('mg_mobile_active_shortcut') || 'full';
+                        const activeTheme = localStorage.getItem('magaies_active_theme') || 'midnight-executive';
+                        const jailLocked = localStorage.getItem('mg_mobile_jail_locked') === '1';
+                        const jailedSc = localStorage.getItem('mg_mobile_jail_shortcut') || 'sc1';
+
+                        // Update custom shortcut names in dropdown if customized by Owner
+                        const rawMatrix = localStorage.getItem('mg_mobile_shortcuts_matrix_v1');
+                        const scSel = document.getElementById('mgExtShortcutSelect');
+                        if (rawMatrix && scSel) {
+                            const matrix = JSON.parse(rawMatrix);
+                            ['sc1','sc2','sc3','sc4'].forEach((k, idx) => {
+                                if (matrix[k] && matrix[k].name) {
+                                    const opt = scSel.querySelector('option[value="' + k + '"]');
+                                    if (opt) opt.textContent = '⚡ اختصار (' + (idx + 1) + '): ' + matrix[k].name;
+                                }
+                            });
+                        }
+
+                        const bMod = document.getElementById('mgExtUiModernBtn');
+                        const bCls = document.getElementById('mgExtUiClassicBtn');
+                        if (bMod && bCls) {
+                            if (uiMode === 'classic') {
+                                bCls.style.background = 'linear-gradient(135deg,#d97706,#b45309)';
+                                bCls.style.color = '#fff';
+                                bMod.style.background = 'transparent';
+                                bMod.style.color = '#94a3b8';
+                            } else {
+                                bMod.style.background = 'linear-gradient(135deg,#0284c7,#2563eb)';
+                                bMod.style.color = '#fff';
+                                bCls.style.background = 'transparent';
+                                bCls.style.color = '#94a3b8';
+                            }
+                        }
+
+                        if (scSel) {
+                            scSel.value = jailLocked ? jailedSc : activeSc;
+                        }
+                        const jailBadge = document.getElementById('mg-ext-jail-badge');
+                        if (jailBadge) jailBadge.style.display = jailLocked ? 'inline-block' : 'none';
+
+                        const thSel = document.getElementById('mgExtThemeSelect');
+                        if (thSel && THEME_BG_MAP[activeTheme]) thSel.value = activeTheme;
+
+                        const tCfg = THEME_BG_MAP[activeTheme] || THEME_BG_MAP['midnight-executive'];
+                        document.body.style.backgroundColor = tCfg.bg;
+                        const loginContainer = document.querySelector('.login-container');
+                        if (loginContainer) {
+                            loginContainer.style.background = tCfg.card;
+                            loginContainer.style.borderColor = tCfg.border;
+                        }
+                    } catch (e) {}
+                }
+
+                window.setMgExternalGatewayUI = function(mode) {
+                    localStorage.setItem('mg_mobile_ui_mode', mode);
+                    syncExternalGatewayState();
+                };
+
+                window.setMgExternalGatewayShortcut = function(scKey) {
+                    const jailLocked = localStorage.getItem('mg_mobile_jail_locked') === '1';
+                    const jailedSc = localStorage.getItem('mg_mobile_jail_shortcut') || 'sc1';
+                    if (jailLocked && scKey !== jailedSc) {
+                        const pin = prompt('🔒 هذا الجهاز مقفل أمنياً على اختصار محدد للموظف.\nأدخل الرقم السري للمالك/المدير لفك الحبس وتغيير الوجهة:');
+                        const savedPin = localStorage.getItem('mg_mobile_jail_pin') || '0000';
+                        if (pin !== savedPin) {
+                            alert('⛔ الرقم السري للمالك غير صحيح. سيبقى الدخول محصوراً في الاختصار المحدد.');
+                            syncExternalGatewayState();
+                            return;
+                        }
+                        localStorage.setItem('mg_mobile_jail_locked', '0');
+                    }
+                    localStorage.setItem('mg_mobile_active_shortcut', scKey);
+                    syncExternalGatewayState();
+                };
+
+                window.setMgExternalGatewayTheme = function(themeKey) {
+                    localStorage.setItem('magaies_active_theme', themeKey);
+                    syncExternalGatewayState();
+                };
+
+                if (document.readyState === 'loading') {
+                    document.addEventListener('DOMContentLoaded', syncExternalGatewayState);
+                } else {
+                    syncExternalGatewayState();
+                }
+            })();
+        </script>
+
         <!-- 🛡️ زر دخول آمن (بارز وظاهر في كامل الشاشة بدون حاجة لرفع الشاشة) -->
         <button class="btn-login" onclick="handleLogin()" style="width: 100%; padding: 13px; border-radius: 14px; background: linear-gradient(135deg, #0284c7, #2563eb 50%, #4f46e5); box-shadow: 0 6px 20px rgba(2, 132, 199, 0.45); color: white; font-size: 1.05rem; font-weight: 800; border: 1px solid rgba(255,255,255,0.2); cursor: pointer; transition: all 0.25s; display: flex; align-items: center; justify-content: center; gap: 8px;">
             <i class="fa-solid fa-shield-halved" style="font-size: 1.05rem; color: #7dd3fc;"></i>

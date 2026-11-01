@@ -1496,7 +1496,7 @@ body.has-sidebar.sidebar-open .sticky-footer {
     color: #e8cf8c !important;
     font-weight: 800 !important;
     font-size: 0.92rem !important;
-    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9) !important;
+    text-shadow: none !important;
     letter-spacing: 0.3px !important;
 }
 
