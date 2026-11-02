@@ -56,6 +56,10 @@ if (file_exists($suiteFile)) {
     $etag = '"' . md5($mtime . '-' . filesize($suiteFile)) . '"';
 
     header('Content-Type: text/html; charset=UTF-8');
+    header('X-Content-Type-Options: nosniff');
+    header('X-Frame-Options: SAMEORIGIN');
+    header('Referrer-Policy: strict-origin-when-cross-origin');
+    header('Permissions-Policy: camera=(self), microphone=(self), geolocation=(self)');
     header('ETag: ' . $etag);
     header('Cache-Control: private, max-age=0, must-revalidate');
 

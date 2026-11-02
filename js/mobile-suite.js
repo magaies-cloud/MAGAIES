@@ -1302,7 +1302,7 @@
     // ========================================================
     // COMPREHENSIVE 18 QUICK OPERATIONS & SMART COMPACT ENGINE
     // ========================================================
-    window._opsCurrentFilter = 'all';
+    window._opsCurrentFilter = 'core';
     window.filterOperationsCategory = function(cat, btn) {
       if (window.triggerHapticPulse) triggerHapticPulse(15);
       window._opsCurrentFilter = cat;
@@ -1743,7 +1743,9 @@
         setTimeout(() => { if (typeof window.autoFitVoucherNumbers === 'function') window.autoFitVoucherNumbers(); }, 50);
       } else if (formType === 'journalEntry' || formType === 'journalSettlement') {
         modalId = 'modalOpJournal';
-      } else if (formType === 'accountStatement') {
+      } else if (formType === 'finance') {
+        modalId = 'modalOpFinance';
+      } else if (formType === 'accountStatement' || formType === 'statement') {
         modalId = 'modalOpStatement';
       } else if (formType === 'balanceInquiry') {
         modalId = 'modalOpBalanceInquiry';
@@ -10996,6 +10998,19 @@ async function commitOpSales(andPay = false) {
 
 
     function openModal(modalId) {
+      if (modalId === 'modalTodayChecks') {
+        modalId = 'modalChecks';
+        if (typeof showFloatingToast === 'function') {
+          setTimeout(() => showFloatingToast('🧾 شيك مستحق اليوم: شيك #10892 بقيمة $3,500 (شركة النيلين)'), 120);
+        }
+      } else if (modalId === 'modalThemePaletteDrawer') {
+        const drawer = document.getElementById('suiteQuickThemeDrawer');
+        if (drawer) {
+          drawer.classList.remove('hidden');
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        return;
+      }
       const m = document.getElementById(modalId);
       if (m) {
         m.classList.remove('hidden');

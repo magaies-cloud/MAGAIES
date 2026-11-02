@@ -268,16 +268,16 @@
           <span id="mainRefreshPendingBadge" class="hidden absolute -top-1 -right-0.5 bg-amber-500 text-slate-950 text-[7px] font-mono font-black px-1 rounded-full shadow">0</span>
         </button>
 
-        <!-- 2. قارئ الإشعارات البنكية الذكي بالكاميرا (OCR - أيقونة كاميرا مكبّرة وواضحة) -->
-        <button id="bankOcrQuickBtn" onclick="openBankReceiptOcrModal(); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="row2-glass-tile r2-mint flex items-center justify-center text-emerald-300 transition relative group active:scale-95 cursor-pointer" title="قارئ الإشعارات البنكية الذكي بالكاميرا (OCR)">
+        <!-- 2. الكاميرا والقارئ الذكي الموحد (إشعارات بنكية OCR + باركود وQR + ضغط 40KB في نافذة واحدة بلا تكرار) -->
+        <button id="bankOcrQuickBtn" onclick="openUnifiedSmartCameraModal('ocr'); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="row2-glass-tile r2-mint flex items-center justify-center text-emerald-300 transition relative group active:scale-95 cursor-pointer" title="الكاميرا الذكية الموحدة: قارئ الإشعارات البنكية (OCR) + قارئ الباركود والـ QR + ضغط الصور 40KB">
           <svg class="row2-inner-icon text-emerald-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.3" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.3" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-          <span class="row2-mini-tag bg-emerald-500 text-slate-950">OCR</span>
+          <span class="row2-mini-tag bg-emerald-500 text-slate-950">📷 ذكي</span>
         </button>
 
-        <!-- 3. زر مسح الباركود ورمز الـ QR بالكاميرا (أيقونة QR مكبّرة وواضحة) -->
-        <button id="quickQrBarcodeBtn" onclick="openBarcodeScannerModal(); if(window.triggerHapticPulse)triggerHapticPulse(20);" class="row2-glass-tile r2-indigo flex items-center justify-center text-indigo-300 relative cursor-pointer active:scale-95 transition" title="مسح باركود / QR بالكاميرا">
-          <svg class="row2-inner-icon text-indigo-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.35" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/></svg>
-          <span class="row2-mini-tag bg-indigo-500 text-slate-950">QR</span>
+        <!-- 3. وضع الجيب فائق البساطة (السرير / السائق / المواصلات / الفجعة بيد واحدة) -->
+        <button id="quickZenBedModeBtn" onclick="toggleZenPocketBedMode(); if(window.triggerHapticPulse)triggerHapticPulse(20);" class="row2-glass-tile r2-indigo flex items-center justify-center text-indigo-300 relative cursor-pointer active:scale-95 transition" title="وضع البساطة القصوى (السرير / السائق / الطوارئ بيد واحدة بدون أي تعقيد)">
+          <span class="text-sm leading-none">🛏️</span>
+          <span class="row2-mini-tag bg-indigo-500 text-slate-950">مبسط</span>
         </button>
 
         <!-- 4. زر الآلة الحاسبة الذكية (أيقونة آلة حاسبة مكبّرة وواضحة) -->
@@ -325,17 +325,65 @@
       <!-- ======================================================== -->
       <div id="pageDashboard" class="space-y-3">
 
+        <!-- 🛏️ وضع البساطة القصوى (السرير / السائق / المواصلات / الفجعة بيد واحدة - 1-Thumb Zen Pocket Mode) -->
+        <div id="zenPocketBedModeCard" class="hidden glass-base p-4 rounded-3xl border-2 border-indigo-400/60 bg-gradient-to-b from-slate-900 via-slate-950 to-slate-950 shadow-[0_0_40px_rgba(99,102,241,0.3)] space-y-3.5">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-2.5">
+            <div class="flex items-center gap-2">
+              <span class="w-9 h-9 rounded-2xl bg-indigo-500/20 border border-indigo-400/40 flex items-center justify-center text-lg">🛏️</span>
+              <div>
+                <h3 class="text-sm font-black text-white">وضع البساطة القصوى (بيد واحدة)</h3>
+                <p class="text-[11px] text-indigo-300 font-bold">مصمم للسرير • القيادة • المواصلات • الفجعة</p>
+              </div>
+            </div>
+            <button type="button" onclick="toggleZenPocketBedMode()" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-cyan-300 text-xs font-black border border-cyan-500/40 cursor-pointer">↩️ الوضع العادي</button>
+          </div>
+
+          <!-- ملخص السيولة والربح بخط عملاق مريح للعين في الظلام -->
+          <div class="grid grid-cols-2 gap-2.5 text-center">
+            <div onclick="openModal('modalSafes')" class="p-3.5 rounded-2xl bg-slate-900/95 border border-amber-500/40 cursor-pointer active:scale-95 transition">
+              <span class="text-xs font-bold text-slate-300 block mb-1">💰 السيولة الجاهزة الآن</span>
+              <span class="text-2xl font-black text-amber-400 font-mono block privacy-mask" data-original="$86,150" data-star="••••••">$86,150</span>
+              <span class="text-[10px] text-slate-400 block mt-0.5">خزن + بنوك جاهزة</span>
+            </div>
+            <div onclick="speakExecutiveSummaryNow()" class="p-3.5 rounded-2xl bg-slate-900/95 border border-emerald-500/40 cursor-pointer active:scale-95 transition">
+              <span class="text-xs font-bold text-slate-300 block mb-1">📈 صافي ربح اليوم</span>
+              <span class="text-2xl font-black text-emerald-400 font-mono block privacy-mask" data-original="+$3,120" data-star="••••••">+$3,120</span>
+              <span class="text-[10px] text-emerald-300 font-bold block mt-0.5">🔊 المس للاستماع صوتياً</span>
+            </div>
+          </div>
+
+          <!-- 4 أزرار عملاقة بحجم الإبهام بدون أي تشويش بصري -->
+          <div class="grid grid-cols-2 gap-2.5">
+            <button type="button" onclick="openOperationalForm('sales')" class="py-4 px-3 rounded-2xl bg-gradient-to-r from-sky-600 to-blue-600 text-white font-black text-sm shadow-lg flex flex-col items-center justify-center gap-1.5 active:scale-95 transition cursor-pointer">
+              <span class="text-xl">🛒</span>
+              <span>فاتورة مبيعات</span>
+            </button>
+            <button type="button" onclick="window.location.href='mobile-voucher.php'" class="py-4 px-3 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-black text-sm shadow-lg flex flex-col items-center justify-center gap-1.5 active:scale-95 transition cursor-pointer">
+              <span class="text-xl">💸</span>
+              <span>سند قبض / صرف</span>
+            </button>
+            <button type="button" onclick="openUnifiedSmartCameraModal('ocr')" class="py-4 px-3 rounded-2xl bg-slate-800 hover:bg-slate-700 border border-emerald-500/40 text-emerald-300 font-black text-sm flex flex-col items-center justify-center gap-1.5 active:scale-95 transition cursor-pointer">
+              <span class="text-xl">📷</span>
+              <span>تصوير إشعار / باركود</span>
+            </button>
+            <button type="button" onclick="speakExecutiveSummaryNow()" class="py-4 px-3 rounded-2xl bg-slate-800 hover:bg-slate-700 border border-amber-500/40 text-amber-300 font-black text-sm flex flex-col items-center justify-center gap-1.5 active:scale-95 transition cursor-pointer">
+              <span class="text-xl">🔊</span>
+              <span>قراءة الملخص صوتياً</span>
+            </button>
+          </div>
+        </div>
+
         <!-- ======================================================== -->
-        <!-- منطقة العمليات المباشرة الشاملة (نظام العرض النفسي الذكي: 6 أساسية أو 18 شاملة) -->
+        <!-- منطقة العمليات المباشرة الشاملة (نظام العرض النفسي الذكي: 6 أساسية افتراضياً لراحة العين أو 18 شاملة) -->
         <!-- ======================================================== -->
         <section id="sectionOperations" class="pt-0 space-y-2">
           <!-- تبويبات التصفية السريعة للعمليات + مفتاح الاختصار الفني النفسي (6 ⇄ 18) -->
           <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5 text-[11px] font-bold" id="opCategoryTabs">
-            <button type="button" id="opTabCoreBtn" onclick="filterOperationsCategory('core', this)" class="op-cat-btn bg-slate-900/80 hover:bg-slate-800 text-amber-300 px-3 py-1.5 rounded-xl border border-amber-500/40 shrink-0 transition cursor-pointer flex items-center gap-1.5" title="الوضع النفسي المختصر المريح للعين: أهم 6 عمليات يومية فقط">
+            <button type="button" id="opTabCoreBtn" onclick="filterOperationsCategory('core', this)" class="op-cat-btn active bg-amber-500 text-slate-950 px-3 py-1.5 rounded-xl shrink-0 transition shadow-[0_0_12px_rgba(245,158,11,0.45)] cursor-pointer flex items-center gap-1.5 font-black" title="الوضع النفسي المختصر المريح للعين: أهم 6 عمليات يومية فقط">
               <span>⚡ المختصر</span>
               <span class="luminous-number-badge badge-amber-glow !min-w-[19px] !h-[19px] !text-[11px]">6</span>
             </button>
-            <button type="button" id="opTabAllBtn" onclick="filterOperationsCategory('all', this)" class="op-cat-btn active bg-cyan-600 text-white px-3 py-1.5 rounded-xl shrink-0 transition shadow-[0_0_10px_rgba(6,182,212,0.4)] cursor-pointer flex items-center gap-1.5" title="عرض كافة الـ 18 عملية محاسبية ومخزنية">
+            <button type="button" id="opTabAllBtn" onclick="filterOperationsCategory('all', this)" class="op-cat-btn bg-slate-900/80 hover:bg-slate-800 text-slate-300 px-3 py-1.5 rounded-xl border border-slate-700/60 shrink-0 transition cursor-pointer flex items-center gap-1.5" title="عرض كافة الـ 18 عملية محاسبية ومخزنية">
               <span>⊞ الكل</span>
               <span class="luminous-number-badge badge-cyan-glow !min-w-[19px] !h-[19px] !text-[11px]">18</span>
             </button>
@@ -376,7 +424,7 @@
             </button>
 
             <!-- 2. تقسيم مبيعات -->
-            <button data-category="sales" onclick="openOperationalForm('salesSplit'); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="op-btn p-2 rounded-2xl flex flex-col items-center justify-center text-center group active:scale-95 transition cursor-pointer min-h-[74px]" title="تقسيم مبيعات">
+            <button data-category="sales" style="display:none" onclick="openOperationalForm('salesSplit'); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="op-btn p-2 rounded-2xl flex flex-col items-center justify-center text-center group active:scale-95 transition cursor-pointer min-h-[74px]" title="تقسيم مبيعات">
               <div class="w-9 h-9 rounded-xl bg-pink-500/20 text-pink-400 flex items-center justify-center mb-1.5 shadow-[0_0_12px_rgba(244,114,182,0.35)] group-hover:scale-110 transition">
                 <i class="fa-solid fa-scissors text-base"></i>
               </div>
@@ -384,7 +432,7 @@
             </button>
 
             <!-- 3. استلام مبيعات -->
-            <button data-category="sales" onclick="openOperationalForm('salesDelivery'); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="op-btn p-2 rounded-2xl flex flex-col items-center justify-center text-center group active:scale-95 transition cursor-pointer min-h-[74px]" title="استلام مبيعات">
+            <button data-category="sales" style="display:none" onclick="openOperationalForm('salesDelivery'); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="op-btn p-2 rounded-2xl flex flex-col items-center justify-center text-center group active:scale-95 transition cursor-pointer min-h-[74px]" title="استلام مبيعات">
               <div class="w-9 h-9 rounded-xl bg-indigo-500/20 text-indigo-400 flex items-center justify-center mb-1.5 shadow-[0_0_12px_rgba(129,140,248,0.35)] group-hover:scale-110 transition">
                 <i class="fa-solid fa-truck-ramp-box text-base"></i>
               </div>
@@ -401,7 +449,7 @@
             </button>
 
             <!-- 5. تقسيم مشتريات -->
-            <button data-category="purchases" onclick="openOperationalForm('purchaseSplit'); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="op-btn p-2 rounded-2xl flex flex-col items-center justify-center text-center group active:scale-95 transition cursor-pointer min-h-[74px]" title="تقسيم مشتريات">
+            <button data-category="purchases" style="display:none" onclick="openOperationalForm('purchaseSplit'); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="op-btn p-2 rounded-2xl flex flex-col items-center justify-center text-center group active:scale-95 transition cursor-pointer min-h-[74px]" title="تقسيم مشتريات">
               <div class="w-9 h-9 rounded-xl bg-orange-500/20 text-orange-400 flex items-center justify-center mb-1.5 shadow-[0_0_12px_rgba(249,115,22,0.35)] group-hover:scale-110 transition">
                 <i class="fa-solid fa-layer-group text-base"></i>
               </div>
@@ -409,7 +457,7 @@
             </button>
 
             <!-- 6. استلام مشتريات -->
-            <button data-category="purchases" onclick="openOperationalForm('purchaseReceive'); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="op-btn p-2 rounded-2xl flex flex-col items-center justify-center text-center group active:scale-95 transition cursor-pointer min-h-[74px]" title="استلام مشتريات">
+            <button data-category="purchases" style="display:none" onclick="openOperationalForm('purchaseReceive'); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="op-btn p-2 rounded-2xl flex flex-col items-center justify-center text-center group active:scale-95 transition cursor-pointer min-h-[74px]" title="استلام مشتريات">
               <div class="w-9 h-9 rounded-xl bg-teal-500/20 text-teal-400 flex items-center justify-center mb-1.5 shadow-[0_0_12px_rgba(20,184,166,0.35)] group-hover:scale-110 transition">
                 <i class="fa-solid fa-boxes-packing text-base"></i>
               </div>
@@ -426,7 +474,7 @@
             </button>
 
             <!-- 8. إضافة شريك (عميل / مورد) -->
-            <button data-category="master" onclick="switchTab('addPartner'); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="op-btn p-2 rounded-2xl flex flex-col items-center justify-center text-center group active:scale-95 transition cursor-pointer min-h-[74px]" title="إضافة عميل أو مورد جديد">
+            <button data-category="master" style="display:none" onclick="switchTab('addPartner'); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="op-btn p-2 rounded-2xl flex flex-col items-center justify-center text-center group active:scale-95 transition cursor-pointer min-h-[74px]" title="إضافة عميل أو مورد جديد">
               <div class="w-9 h-9 rounded-xl bg-emerald-500/20 text-emerald-300 flex items-center justify-center mb-1.5 shadow-[0_0_12px_rgba(16,185,129,0.35)] group-hover:scale-110 transition">
                 <i class="fa-solid fa-user-plus text-base"></i>
               </div>
@@ -451,7 +499,7 @@
             </button>
 
             <!-- 11. تسوية قيود -->
-            <button data-category="finance" onclick="openOperationalForm('journalSettlement'); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="op-btn p-2 rounded-2xl flex flex-col items-center justify-center text-center group active:scale-95 transition cursor-pointer min-h-[74px]" title="تسوية قيود">
+            <button data-category="finance" style="display:none" onclick="openOperationalForm('journalSettlement'); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="op-btn p-2 rounded-2xl flex flex-col items-center justify-center text-center group active:scale-95 transition cursor-pointer min-h-[74px]" title="تسوية قيود">
               <div class="w-9 h-9 rounded-xl bg-purple-500/20 text-purple-400 flex items-center justify-center mb-1.5 shadow-[0_0_12px_rgba(168,85,247,0.35)] group-hover:scale-110 transition">
                 <i class="fa-solid fa-scale-balanced text-base"></i>
               </div>
@@ -459,7 +507,7 @@
             </button>
 
             <!-- 12. تقفيل الوردية ومطابقة الصندوق (Z-Report) بدلاً من تكرار قارئ الإشعارات الموجود في الصف الثاني -->
-            <button data-category="finance" onclick="openOperationalForm('shiftZReport'); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="op-btn p-2 rounded-2xl flex flex-col items-center justify-center text-center group active:scale-95 transition cursor-pointer min-h-[74px] border border-amber-500/25" title="تقفيل الوردية ومطابقة النقدية الفعلية بالخزينة (Z-Report)">
+            <button data-category="finance" style="display:none" onclick="openOperationalForm('shiftZReport'); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="op-btn p-2 rounded-2xl flex flex-col items-center justify-center text-center group active:scale-95 transition cursor-pointer min-h-[74px] border border-amber-500/25" title="تقفيل الوردية ومطابقة النقدية الفعلية بالخزينة (Z-Report)">
               <div class="w-9 h-9 rounded-xl bg-amber-500/20 text-amber-300 flex items-center justify-center mb-1.5 shadow-[0_0_12px_rgba(245,158,11,0.35)] group-hover:scale-110 transition">
                 <i class="fa-solid fa-vault text-base"></i>
               </div>
@@ -468,7 +516,7 @@
 
             <!-- ═══ الصف الخامس: المخازن والجرد (3 أزرار) ═══ -->
             <!-- 13. فحص المخزن -->
-            <button data-category="inventory" onclick="openOperationalForm('stockLocationCheck'); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="op-btn p-2 rounded-2xl flex flex-col items-center justify-center text-center group active:scale-95 transition cursor-pointer min-h-[74px]" title="فحص المخزن">
+            <button data-category="inventory" style="display:none" onclick="openOperationalForm('stockLocationCheck'); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="op-btn p-2 rounded-2xl flex flex-col items-center justify-center text-center group active:scale-95 transition cursor-pointer min-h-[74px]" title="فحص المخزن">
               <div class="w-9 h-9 rounded-xl bg-cyan-500/20 text-cyan-400 flex items-center justify-center mb-1.5 shadow-[0_0_12px_rgba(6,182,212,0.35)] group-hover:scale-110 transition">
                 <i class="fa-solid fa-warehouse text-base"></i>
               </div>
@@ -476,7 +524,7 @@
             </button>
 
             <!-- 14. تحويل مخازن -->
-            <button data-category="inventory" onclick="openOperationalForm('warehouseTransfer'); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="op-btn p-2 rounded-2xl flex flex-col items-center justify-center text-center group active:scale-95 transition cursor-pointer min-h-[74px]" title="تحويل مخازن">
+            <button data-category="inventory" style="display:none" onclick="openOperationalForm('warehouseTransfer'); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="op-btn p-2 rounded-2xl flex flex-col items-center justify-center text-center group active:scale-95 transition cursor-pointer min-h-[74px]" title="تحويل مخازن">
               <div class="w-9 h-9 rounded-xl bg-orange-500/20 text-orange-400 flex items-center justify-center mb-1.5 shadow-[0_0_12px_rgba(249,115,22,0.35)] group-hover:scale-110 transition">
                 <i class="fa-solid fa-dolly text-base"></i>
               </div>
@@ -484,7 +532,7 @@
             </button>
 
             <!-- 15. تسوية جرد تالف -->
-            <button data-category="inventory" onclick="openOperationalForm('stockAdjustment'); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="op-btn p-2 rounded-2xl flex flex-col items-center justify-center text-center group active:scale-95 transition cursor-pointer min-h-[74px]" title="تسوية جرد تالف">
+            <button data-category="inventory" style="display:none" onclick="openOperationalForm('stockAdjustment'); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="op-btn p-2 rounded-2xl flex flex-col items-center justify-center text-center group active:scale-95 transition cursor-pointer min-h-[74px]" title="تسوية جرد تالف">
               <div class="w-9 h-9 rounded-xl bg-rose-500/20 text-rose-400 flex items-center justify-center mb-1.5 shadow-[0_0_12px_rgba(244,63,94,0.35)] group-hover:scale-110 transition">
                 <i class="fa-solid fa-triangle-exclamation text-base"></i>
               </div>
@@ -493,7 +541,7 @@
 
             <!-- ═══ الصف السادس: الكشوفات والأرصدة والأذونات (3 أزرار) ═══ -->
             <!-- 16. أذونات استلام، صرف -->
-            <button data-category="reports" onclick="openOperationalForm('inventoryVouchers'); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="op-btn p-2 rounded-2xl flex flex-col items-center justify-center text-center group active:scale-95 transition cursor-pointer min-h-[74px]" title="أذونات استلام، صرف">
+            <button data-category="reports" style="display:none" onclick="openOperationalForm('inventoryVouchers'); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="op-btn p-2 rounded-2xl flex flex-col items-center justify-center text-center group active:scale-95 transition cursor-pointer min-h-[74px]" title="أذونات استلام، صرف">
               <div class="w-9 h-9 rounded-xl bg-emerald-500/20 text-emerald-300 flex items-center justify-center mb-1.5 shadow-[0_0_12px_rgba(52,211,153,0.35)] group-hover:scale-110 transition">
                 <i class="fa-solid fa-clipboard-check text-base"></i>
               </div>
@@ -509,7 +557,7 @@
             </button>
 
             <!-- 18. استلام رصيد (ميزان الأرصدة) -->
-            <button data-category="reports" onclick="openOperationalForm('balanceInquiry'); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="op-btn p-2 rounded-2xl flex flex-col items-center justify-center text-center group active:scale-95 transition cursor-pointer min-h-[74px]" title="استلام رصيد">
+            <button data-category="reports" style="display:none" onclick="openOperationalForm('balanceInquiry'); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="op-btn p-2 rounded-2xl flex flex-col items-center justify-center text-center group active:scale-95 transition cursor-pointer min-h-[74px]" title="استلام رصيد">
               <div class="w-9 h-9 rounded-xl bg-yellow-500/20 text-yellow-400 flex items-center justify-center mb-1.5 shadow-[0_0_12px_rgba(234,179,8,0.35)] group-hover:scale-110 transition">
                 <i class="fa-solid fa-coins text-base"></i>
               </div>
@@ -519,7 +567,7 @@
 
           <!-- شريط الاختصار والتوسيع الفني النفسي (Smart Psychological Disclosure Bar) -->
           <button type="button" id="btnToggleOpsExpand" onclick="toggleOperationsCompactMode()" class="w-full py-1.5 px-3 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-cyan-500/30 text-[11px] font-black text-cyan-300 flex items-center justify-center gap-1.5 transition active:scale-95 cursor-pointer shadow-sm">
-            <span id="opsExpandBtnLabel">✨ اختصار الشبكة لراحة العين (عرض الـ 6 عمليات الأساسية فقط) ▴</span>
+            <span id="opsExpandBtnLabel">➕ عرض جميع العمليات المتقدمة (18 عملية شاملة)</span>
           </button>
 
           <!-- 🛡️ المرحلة 1: مركز اعتمادات المدير بضغطة واحدة (Executive 1-Tap Approval Inbox - Collapsible) -->
@@ -1241,7 +1289,7 @@
               </div>
               <div class="text-left">
                 <span class="text-xs font-black text-emerald-400 block">+<span class="privacy-mask" data-original="$640" data-star="••••••">$640</span></span>
-                <span class="text-[9px] text-slate-500 font-mono">1.79M ج.س</span>
+                <span class="text-[9px] text-slate-500 font-mono" data-usd-millions="640">3.84M ج.س</span>
               </div>
             </div>
 
@@ -1284,7 +1332,7 @@
               </div>
               <div class="text-left">
                 <span class="text-xs font-black text-cyan-300 block">+<span class="privacy-mask" data-original="$2,100" data-star="••••••">$2,100</span></span>
-                <span class="text-[9px] text-slate-500 font-mono">5.88M ج.س</span>
+                <span class="text-[9px] text-slate-500 font-mono" data-usd-millions="2100">12.60M ج.س</span>
               </div>
             </div>
 
@@ -1336,12 +1384,9 @@
         <div class="flex justify-between items-center px-1">
           <div>
             <h3 class="text-sm font-black text-slate-100">منظومة كشوفات الحسابات والديون والأستاذ</h3>
-            <p class="text-[11px] text-slate-400">كافة أدوات الأستاذ، التقادم، شيكات الضمان، ومؤشرات الائتمان دون حذف</p>
+            <p class="text-[11px] text-slate-400">كافة أدوات الأستاذ، التقادم، شيكات الضمان، ومؤشرات الائتمان</p>
           </div>
           <div class="flex items-center gap-1.5">
-            <button onclick="openAiVoiceConsole()" class="bg-purple-600/30 hover:bg-purple-600/50 text-purple-200 border border-purple-500/40 text-xs font-bold px-2.5 py-1.5 rounded-xl shadow flex items-center gap-1">
-              <span>🎙️ بحث صوتي</span>
-            </button>
             <button onclick="switchTab('addPartner')" class="royal-btn royal-btn-new text-white text-xs font-bold px-3 py-1.5 rounded-xl shadow flex items-center gap-1">
               <span>+ إضافة حساب</span>
             </button>
@@ -1353,11 +1398,11 @@
         <div class="glass-base p-3 rounded-2xl border border-cyan-500/30 grid grid-cols-4 gap-2 text-center">
           <div class="bg-slate-900/90 p-2 rounded-xl border border-slate-800">
             <span class="text-[10px] text-slate-400 block">مديونية العملاء</span>
-            <span class="text-xs font-black text-rose-400 font-mono">$42,650</span>
+            <span class="text-xs font-black text-rose-400 font-mono">$45,800</span>
           </div>
           <div class="bg-slate-900/90 p-2 rounded-xl border border-slate-800">
             <span class="text-[10px] text-slate-400 block">التزامات الموردين</span>
-            <span class="text-xs font-black text-amber-400 font-mono">$31,100</span>
+            <span class="text-xs font-black text-amber-400 font-mono">$32,150</span>
           </div>
           <div class="bg-slate-900/90 p-2 rounded-xl border border-slate-800">
             <span class="text-[10px] text-slate-400 block">فترة التحصيل DSO</span>
@@ -1369,16 +1414,13 @@
           </div>
         </div>
 
-        <!-- QUICK TOOLS BAR FOR LEDGERS -->
+        <!-- QUICK TOOLS BAR FOR LEDGERS (بدون أزرار بحث مكررة) -->
         <div class="flex gap-1.5 overflow-x-auto no-scrollbar text-xs font-bold">
           <button onclick="exportPageLedgerPDF()" class="royal-btn royal-btn-print px-3 py-1.5 rounded-xl shrink-0 flex items-center gap-1">
             <span>🖨️ طباعة / PDF مجمع</span>
           </button>
           <button onclick="sharePageLedgerWhatsApp()" class="royal-btn royal-btn-whatsapp px-3 py-1.5 rounded-xl shrink-0 flex items-center gap-1">
             <span>📲 تذكيرات واتساب فورية</span>
-          </button>
-          <button onclick="openOperationalForm('statement')" class="royal-btn royal-btn-statement px-3 py-1.5 rounded-xl shrink-0 flex items-center gap-1">
-            <span>🔍 كشف حساب بالبحث</span>
           </button>
         </div>
 
@@ -1543,7 +1585,7 @@
           </div>
           <div class="bg-slate-900/90 p-2 rounded-xl border border-slate-800">
             <span class="text-[10px] text-slate-400 block">رادار النواقص</span>
-            <span class="text-xs font-black text-rose-400 font-mono">4 حرجة</span>
+            <span class="text-xs font-black text-rose-400 font-mono">6 حرجة</span>
           </div>
           <div class="bg-slate-900/90 p-2 rounded-xl border border-slate-800">
             <span class="text-[10px] text-slate-400 block">دقة الجرد</span>
@@ -1551,13 +1593,10 @@
           </div>
         </div>
 
-        <!-- QUICK INVENTORY TOOLS BAR -->
+        <!-- QUICK INVENTORY TOOLS BAR (بدون زر باركود مكرر) -->
         <div class="flex gap-1.5 overflow-x-auto no-scrollbar text-xs font-bold">
           <button onclick="openOperationalForm('addItemMaster')" class="bg-gradient-to-r from-indigo-600 to-cyan-600 hover:from-indigo-500 hover:to-cyan-500 text-white px-3.5 py-1.5 rounded-xl border border-indigo-400/50 shadow-[0_0_15px_rgba(99,102,241,0.35)] shrink-0 flex items-center gap-1.5 font-black">
             <span>➕ إضافة صنف جديد (كامل)</span>
-          </button>
-          <button onclick="openQrBarcodeModal('barcode')" class="bg-slate-800 hover:bg-slate-700 text-cyan-300 px-3 py-1.5 rounded-xl border border-slate-700 shrink-0 flex items-center gap-1">
-            <span>📱 مسح باركود بالهاتف</span>
           </button>
           <button onclick="openOperationalForm('warehouseTransfer')" class="bg-slate-800 hover:bg-slate-700 text-indigo-300 px-3 py-1.5 rounded-xl border border-slate-700 shrink-0 flex items-center gap-1">
             <span>🔄 مناقلة بين المستودعات</span>
@@ -1719,7 +1758,7 @@
               </div>
               <div class="flex justify-between items-center">
                 <span class="text-slate-400">قيمة الفاتورة المطلوبة:</span>
-                <span class="font-mono font-black text-white">$6,200 (17.36M ج.س)</span>
+                <span class="font-mono font-black text-white">$6,200 (<span data-usd-millions="6200">37.19M ج.س</span>)</span>
               </div>
               <div class="flex justify-between items-center">
                 <span class="text-slate-400">سقف الائتمان المسموح:</span>
@@ -1766,7 +1805,7 @@
               </div>
               <div class="flex justify-between items-center">
                 <span class="text-slate-400">المبلغ المطلوب صرفه:</span>
-                <span class="font-mono font-black text-amber-300">70,000 جنيه سوداني (ما يعادل $250)</span>
+                <span class="font-mono font-black text-amber-300"><span data-usd-val="250">1,499,750</span> جنيه سوداني (ما يعادل $250)</span>
               </div>
               <div class="flex justify-between items-center">
                 <span class="text-slate-400">الحساب المالي:</span>
@@ -1779,7 +1818,7 @@
             </div>
 
             <div class="grid grid-cols-2 gap-2 pt-1">
-              <button onclick="approveRequest('reqCard2', 'سند صرف نقدية 70,000 ج.س للطرف همس #678')" class="py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 text-white font-bold text-xs shadow-[0_0_15px_rgba(16,185,129,0.3)] active:scale-95 transition">
+              <button onclick="approveRequest('reqCard2', 'سند صرف نقدية $250 للطرف همس #678')" class="py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 text-white font-bold text-xs shadow-[0_0_15px_rgba(16,185,129,0.3)] active:scale-95 transition">
                 ✅ موافقة وصرف فوري
               </button>
               <button onclick="rejectRequest('reqCard2', 'سند صرف همس #678')" class="py-2.5 rounded-xl bg-rose-950/60 hover:bg-rose-900/80 text-rose-300 font-bold text-xs border border-rose-500/30 active:scale-95 transition">
@@ -2119,7 +2158,7 @@
                 <button onclick="requestIncidentJustification('أحمد عثمان', 'فاتورة #1049')" class="flex-1 py-1.5 px-2 bg-gradient-to-r from-rose-600 to-pink-600 text-white rounded-xl text-[10px] font-bold shadow flex items-center justify-center gap-1 active:scale-95 transition">
                   <span>⚠️ طلب تبرير أمني رسمي</span>
                 </button>
-                <button onclick="alert('🔍 فتح سجل التدقيق الجنائي لمراجعة IP والتاريخ والتوقيت الدقيق للحذف والتعديل')" class="py-1.5 px-2.5 bg-slate-800 hover:bg-slate-700 text-rose-300 rounded-xl text-[10px] font-bold border border-rose-500/40 transition">
+                <button onclick="openForensicAuditLog('#1049', 'أحمد عثمان')" class="py-1.5 px-2.5 bg-slate-800 hover:bg-slate-700 text-rose-300 rounded-xl text-[10px] font-bold border border-rose-500/40 transition">
                   <span>🔍 السجل الجنائي</span>
                 </button>
                 <button onclick="dismissAlert(this)" class="py-1.5 px-2 bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white rounded-xl text-[10px] font-bold border border-slate-700 transition">
@@ -2269,7 +2308,7 @@
                 دفعة بضاعة بقيمة 3,800 دولار مهددة بالتلف التام بعد 22 يوماً. توصي وحدة إدارة المخاطر بإطلاق خصم تصفية 25% فوراً.
               </p>
               <div class="flex gap-1.5 pt-1">
-                <button onclick="alert('🏷️ تم تفعيل حملة خصم تصفية 25% على دفعة الإيبوكسي لتفادي خسارة البضاعة')" class="flex-1 py-1.5 px-2 bg-gradient-to-r from-yellow-600 to-amber-600 text-slate-950 font-black rounded-xl text-[10px] shadow flex items-center justify-center gap-1 active:scale-95 transition">
+                <button onclick="applyClearanceDiscountAction(this, 'دهانات إيبوكسي', 25)" class="flex-1 py-1.5 px-2 bg-gradient-to-r from-yellow-600 to-amber-600 text-slate-950 font-black rounded-xl text-[10px] shadow flex items-center justify-center gap-1 active:scale-95 transition">
                   <span>🏷️ اعتماد خصم تصفية 25% فوراً</span>
                 </button>
                 <button onclick="dismissAlert(this)" class="py-1.5 px-3 bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white rounded-xl text-[10px] font-bold border border-slate-700 transition">
@@ -2329,7 +2368,7 @@
                 تم إصدار فاتورة لصنف (سيخ حديد 4 لينة) بسعر 46,000 ج.س بينما السعر المقيد بالنظام 56,500 ج.س. تجاوز الانحراف سقف الـ 15% المسموح.
               </p>
               <div class="flex gap-1.5 pt-1">
-                <button onclick="alert('🔍 فتح تدقيق الفاتورة ومراجعة هامش ربح الكاشير')" class="flex-1 py-1.5 px-2 bg-slate-800 hover:bg-slate-700 text-amber-300 rounded-xl text-[10px] font-bold border border-amber-500/40 flex items-center justify-center gap-1 active:scale-95 transition">
+                <button onclick="txAction('ضبط', '#1048')" class="flex-1 py-1.5 px-2 bg-slate-800 hover:bg-slate-700 text-amber-300 rounded-xl text-[10px] font-bold border border-amber-500/40 flex items-center justify-center gap-1 active:scale-95 transition">
                   <span>🔍 مراجعة الفاتورة</span>
                 </button>
                 <button onclick="dismissAlert(this)" class="py-1.5 px-3 bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white rounded-xl text-[10px] font-bold border border-slate-700 transition">
@@ -2742,17 +2781,25 @@
   <div id="modalBarcodeScanner" class="hidden fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md flex items-end sm:items-center justify-center p-0 sm:p-4">
     <div class="glass-base w-full sm:max-w-md rounded-t-3xl sm:rounded-3xl border border-indigo-500/40 overflow-hidden flex flex-col max-h-[92vh] shadow-2xl bg-gradient-to-b from-slate-900 via-slate-900 to-slate-950">
       <!-- Header -->
-      <div class="p-4 border-b border-slate-800 flex items-center justify-between bg-slate-900/90">
-        <div class="flex items-center gap-2.5">
-          <div class="w-10 h-10 rounded-2xl bg-indigo-500/20 border border-indigo-500/40 flex items-center justify-center text-indigo-400 shadow">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/></svg>
+      <div class="p-3.5 border-b border-slate-800 bg-slate-900/90 space-y-2.5">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2.5">
+            <div class="w-9 h-9 rounded-2xl bg-indigo-500/20 border border-indigo-500/40 flex items-center justify-center text-indigo-400 shadow">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/></svg>
+            </div>
+            <div>
+              <h3 class="font-bold text-slate-100 text-sm">الكاميرا الذكية الموحدة (باركود & QR)</h3>
+              <p class="text-[10px] text-slate-400">تبديل فوري بين قارئ الإشعارات، الباركود، وضغط الصور</p>
+            </div>
           </div>
-          <div>
-            <h3 class="font-bold text-slate-100 text-sm">قارئ الباركود ورمز الـ QR</h3>
-            <p class="text-[11px] text-slate-400">وجّه الكاميرا نحو الكود للتعرف الفوري</p>
-          </div>
+          <button onclick="closeBarcodeScannerModal()" class="w-8 h-8 rounded-full bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center text-sm font-bold active:scale-95 transition">✕</button>
         </div>
-        <button onclick="closeBarcodeScannerModal()" class="w-8 h-8 rounded-full bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center text-sm font-bold active:scale-95 transition">✕</button>
+        <!-- شريط التبديل الفوري الموحد بين أوضاع الكاميرا الـ 3 بدون تكرار أزرار خارجية -->
+        <div class="grid grid-cols-3 gap-1.5 bg-slate-950 p-1 rounded-xl border border-slate-800 text-[10.5px] font-black">
+          <button type="button" onclick="openUnifiedSmartCameraModal('ocr')" class="py-1.5 rounded-lg bg-slate-900 text-emerald-300 hover:bg-slate-800 transition cursor-pointer">🏦 إشعار بنكي OCR</button>
+          <button type="button" class="py-1.5 rounded-lg bg-indigo-600 text-white shadow cursor-pointer">🏷️ باركود / QR</button>
+          <button type="button" onclick="openUnifiedSmartCameraModal('40kb')" class="py-1.5 rounded-lg bg-slate-900 text-amber-300 hover:bg-slate-800 transition cursor-pointer">🗜️ ضغط 40KB</button>
+        </div>
       </div>
 
       <!-- Camera / Scanner Area -->
@@ -2812,44 +2859,7 @@
     </div>
   </div>
 
-  <!-- ======================================================== -->
-  <!-- MODAL: السمات المحاسبية السبع المعتمدة (7 Master Themes - WCAG AAA) -->
-  <!-- ======================================================== -->
-  <div id="modalThemePaletteDrawer" class="hidden fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4" onclick="if(event.target===this)closeModal('modalThemePaletteDrawer')">
-    <div id="themeCardsContainer" class="w-72 rounded-2xl bg-slate-900 border-2 border-amber-500/60 p-3 shadow-2xl space-y-2 text-right" dir="rtl" style="background:#0f172a !important; border-color:rgba(245,158,11,0.65) !important;">
-      <div class="flex items-center justify-between border-b border-slate-800 pb-2 mb-1" style="border-color:#1e293b !important;">
-        <span class="text-xs font-black text-amber-400" style="color:#fbbf24 !important;">🎨 السمات المحاسبية الـ 7 (AAA)</span>
-        <button type="button" onclick="closeModal('modalThemePaletteDrawer')" class="text-slate-400 hover:text-white text-xs font-bold px-1.5" style="color:#94a3b8 !important;">✕</button>
-      </div>
-      <div class="text-[10px] font-bold text-slate-400" style="color:#94a3b8 !important;">☀️ سمات نهارية فاتحة (خط داكن حاد):</div>
-      <div class="grid grid-cols-3 gap-1.5">
-        <button type="button" data-vtheme="warm-alabaster" onclick="applyTheme('warm-alabaster')" class="theme-card tc-light p-2 rounded-xl border border-amber-400/60 flex flex-col items-center gap-0.5 text-[10px] font-black transition active:scale-95" style="background:#FBF8F1 !important; color:#18130A !important;">
-          <span style="color:#18130A !important;">📜 بيج كريمي</span>
-        </button>
-        <button type="button" data-vtheme="pure-platinum" onclick="applyTheme('pure-platinum')" class="theme-card tc-light p-2 rounded-xl border border-slate-300 flex flex-col items-center gap-0.5 text-[10px] font-black transition active:scale-95" style="background:#FFFFFF !important; color:#000000 !important;">
-          <span style="color:#000000 !important;">☀️ أبيض ناصع</span>
-        </button>
-        <button type="button" data-vtheme="pearl-platinum" onclick="applyTheme('pearl-platinum')" class="theme-card tc-light p-2 rounded-xl border border-slate-400 flex flex-col items-center gap-0.5 text-[10px] font-black transition active:scale-95" style="background:#EEF2F6 !important; color:#0F172A !important;">
-          <span style="color:#0F172A !important;">🏛️ بلاتيني</span>
-        </button>
-      </div>
-      <div class="text-[10px] font-bold text-slate-400 pt-1" style="color:#94a3b8 !important;">🌙 سمات ليلية داكنة (خط فاتح ناصع):</div>
-      <div class="grid grid-cols-2 gap-1.5">
-        <button type="button" data-vtheme="midnight-executive" onclick="applyTheme('midnight-executive')" class="theme-card tc-dark p-2 rounded-xl border border-indigo-500/50 flex items-center justify-center gap-1 text-[10px] font-black transition active:scale-95" style="background:#04091A !important; color:#F8FAFC !important;">
-          <span style="color:#F8FAFC !important;">🌌 كحلي ملكي</span>
-        </button>
-        <button type="button" data-vtheme="sepia-brown" onclick="applyTheme('sepia-brown')" class="theme-card tc-dark p-2 rounded-xl border border-amber-600/50 flex items-center justify-center gap-1 text-[10px] font-black transition active:scale-95" style="background:#1A110B !important; color:#FDF8F5 !important;">
-          <span style="color:#FDF8F5 !important;">☕ بني موكا</span>
-        </button>
-        <button type="button" data-vtheme="obsidian-charcoal" onclick="applyTheme('obsidian-charcoal')" class="theme-card tc-dark p-2 rounded-xl border border-zinc-600 flex items-center justify-center gap-1 text-[10px] font-black transition active:scale-95" style="background:#000000 !important; color:#FFFFFF !important;">
-          <span style="color:#FFFFFF !important;">🌑 أسود OLED</span>
-        </button>
-        <button type="button" data-vtheme="twilight-indigo" onclick="applyTheme('twilight-indigo')" class="theme-card tc-dark p-2 rounded-xl border border-slate-500 flex items-center justify-center gap-1 text-[10px] font-black transition active:scale-95" style="background:#1E293B !important; color:#F8FAFC !important;">
-          <span style="color:#F8FAFC !important;">🛡️ رمادي داكن</span>
-        </button>
-      </div>
-    </div>
-  </div>
+  <!-- تم دمج modalThemePaletteDrawer في القائمة الموحدة suiteQuickThemeDrawer أعلى الهيدر لمنع التكرار -->
 
   <!-- ======================================================== -->
   <!-- MODAL: تايمر الوردية والمطابقة والتركيز (30 دقيقة)        -->
@@ -2974,7 +2984,7 @@
       <button onclick="switchTab('alerts')" id="navTabAlerts" class="bottom-dock-tab tab-alerts" title="تنبيهات">
         <div class="dock-tab-emblem relative">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
-          <span id="badgeAlertsCount" class="luminous-number-badge badge-amber-glow absolute -top-1.5 -right-2 animate-pulse">6</span>
+          <span id="badgeAlertsCount" class="luminous-number-badge badge-amber-glow absolute -top-1.5 -right-2 animate-pulse">8</span>
         </div>
         <span class="dock-tab-label">تنبيهات</span>
         <span class="dock-active-pill"></span>
@@ -6585,13 +6595,26 @@
             </div>
             <div>
               <h3 class="text-sm font-black text-white flex items-center gap-1.5">
-                <span>قارئ الإشعارات البنكية الذكي (OCR)</span>
+                <span>الكاميرا والماسح الذكي الموحد (3 في 1)</span>
                 <span class="bg-emerald-950 text-emerald-300 border border-emerald-500/40 text-[9px] px-1.5 rounded-full font-bold">AI Vision</span>
               </h3>
-              <p class="text-[11px] text-slate-400">قراءة لقطات شاشة بنكك، فوري، بنك الخرطوم والإيصالات الورقية</p>
+              <p class="text-[11px] text-slate-400">إشعار بنكك OCR • باركود أصناف و QR • ضغط إيصالات 40KB</p>
             </div>
           </div>
           <button onclick="closeModal('modalBankReceiptOcr')" class="w-7 h-7 rounded-full bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center">✕</button>
+        </div>
+
+        <!-- Unified 3-in-1 Camera Mode Switcher -->
+        <div class="grid grid-cols-3 gap-1.5 bg-slate-950/90 p-1 rounded-2xl border border-slate-800 text-[10.5px] font-black">
+          <button type="button" class="py-1.5 px-2 rounded-xl bg-emerald-600 text-white shadow flex items-center justify-center gap-1 cursor-pointer">
+            <span>🏦 إشعار بنكي OCR</span>
+          </button>
+          <button type="button" onclick="openUnifiedSmartCameraModal('barcode')" class="py-1.5 px-2 rounded-xl bg-slate-900 text-indigo-300 hover:bg-indigo-950/60 border border-indigo-500/30 flex items-center justify-center gap-1 transition cursor-pointer">
+            <span>🏷️ باركود / QR</span>
+          </button>
+          <button type="button" onclick="openUnifiedSmartCameraModal('compress40kb')" class="py-1.5 px-2 rounded-xl bg-slate-900 text-amber-300 hover:bg-amber-950/60 border border-amber-500/30 flex items-center justify-center gap-1 transition cursor-pointer">
+            <span>🗜️ ضغط 40KB</span>
+          </button>
         </div>
 
         <!-- Camera Upload / Drag & Drop Target Area -->
@@ -7319,7 +7342,7 @@
   </div>
 
   <!-- JAVASCRIPT APP LOGIC & INTERACTIONS -->
-  <script src="js/mobile-suite.js?v=2026_10_17_v23"></script>
+  <script src="js/mobile-suite.js?v=2026_11_02_v24"></script>
   <script>
     // =========================================================================
     // 💎 UNIFIED ROYAL BUTTONS ACTION CONTROLLERS (ربط كافة الأزرار التفاعلية 100%)
@@ -7440,11 +7463,131 @@
     window.sharePageLedgerWhatsApp = function() {
       var msg = '📊 *ملخص أرصدة الأستاذ والمديونيات - نظام مقاييس ERP*\n' +
                 '━━━━━━━━━━━━━━\n' +
-                '🔹 مديونية العملاء: $42,650\n' +
-                '🔸 التزامات الموردين: $31,100\n' +
+                '🔹 مديونية العملاء: $45,800 (274.75M ج.س)\n' +
+                '🔸 التزامات الموردين: $32,150 (192.87M ج.س)\n' +
                 '⏱️ فترة التحصيل DSO: 18 يوم\n' +
                 '🛡️ الأمان الائتماني: 92% ممتاز';
       window.open('https://wa.me/?text=' + encodeURIComponent(msg), '_blank');
+    };
+
+    // =========================================================================
+    // 📷 UNIFIED 3-IN-1 SMART CAMERA CONTROLLER (OCR + BARCODE/QR + 40KB)
+    // =========================================================================
+    window.openUnifiedSmartCameraModal = function(mode) {
+      if (window.triggerHapticPulse) triggerHapticPulse(20);
+      var targetMode = mode || 'ocr';
+      if (targetMode === 'ocr') {
+        if (typeof closeModal === 'function') closeModal('modalBarcodeScanner');
+        var m40 = document.getElementById('mgModalLaserScanner');
+        if (m40) m40.remove();
+        if (typeof openModal === 'function') openModal('modalBankReceiptOcr');
+      } else if (targetMode === 'barcode' || targetMode === 'qr') {
+        if (typeof closeModal === 'function') closeModal('modalBankReceiptOcr');
+        var m40b = document.getElementById('mgModalLaserScanner');
+        if (m40b) m40b.remove();
+        if (typeof openModal === 'function') openModal('modalBarcodeScanner');
+      } else if (targetMode === 'compress40kb') {
+        if (typeof closeModal === 'function') {
+          closeModal('modalBankReceiptOcr');
+          closeModal('modalBarcodeScanner');
+        }
+        if (window.MgConstitution7 && typeof window.MgConstitution7.openLaserScanner === 'function') {
+          window.MgConstitution7.openLaserScanner();
+        }
+      }
+    };
+
+    window.openQrBarcodeModal = function(mode) {
+      window.openUnifiedSmartCameraModal(mode || 'barcode');
+    };
+
+    // =========================================================================
+    // 🛏️ ULTRA-SIMPLE BED / DRIVER / TRANSIT 1-THUMB MODE (وضع البساطة القصوى)
+    // =========================================================================
+    window.toggleZenPocketBedMode = function() {
+      if (window.triggerHapticPulse) triggerHapticPulse(30);
+      if (typeof switchTab === 'function') switchTab('dashboard');
+      var zenCard = document.getElementById('zenPocketBedModeCard');
+      var btn = document.getElementById('quickZenBedModeBtn');
+      if (!zenCard) return;
+      var isActivating = zenCard.classList.contains('hidden');
+      var pageDash = document.getElementById('pageDashboard');
+      if (pageDash) {
+        Array.from(pageDash.children).forEach(function(child) {
+          if (child.id === 'zenPocketBedModeCard') return;
+          child.style.display = isActivating ? 'none' : '';
+        });
+      }
+      if (isActivating) {
+        zenCard.classList.remove('hidden');
+        if (btn) {
+          btn.classList.add('ring-2', 'ring-amber-400', 'bg-amber-950/90');
+        }
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        if (typeof showFloatingToast === 'function') {
+          showFloatingToast('🛏️ تم تفعيل وضع البساطة القصوى بيد واحدة (مريح للسرير والقيادة)');
+        }
+      } else {
+        zenCard.classList.add('hidden');
+        if (btn) {
+          btn.classList.remove('ring-2', 'ring-amber-400', 'bg-amber-950/90');
+        }
+        if (typeof showFloatingToast === 'function') {
+          showFloatingToast('✨ تم العودة للواجهة القياسية');
+        }
+      }
+    };
+
+    window.speakExecutiveSummaryNow = function() {
+      if (window.triggerHapticPulse) triggerHapticPulse(25);
+      var text = 'ملخص مقاييس الصوتي: إجمالي السيولة المتاحة سبعمائة وثمانية وستون مليون وخمسمائة ألف جنيه سوداني، وصافي الربح اليومي سبعة آلاف وسبعمائة وسبعون دولار، وتوجد ثلاث موافقات معلقة.';
+      if ('speechSynthesis' in window) {
+        try {
+          window.speechSynthesis.cancel();
+          var utter = new SpeechSynthesisUtterance(text);
+          utter.lang = 'ar-SA';
+          utter.rate = 0.95;
+          window.speechSynthesis.speak(utter);
+        } catch (e) {}
+      }
+      if (typeof showFloatingToast === 'function') {
+        showFloatingToast('🔊 جاري قراءة الملخص المالي صوتياً...');
+      }
+    };
+
+    // =========================================================================
+    // 🛡️ REAL FORENSIC AUDIT & CLEARANCE HANDLERS (بديل التنبيهات الوهمية)
+    // =========================================================================
+    window.openForensicAuditLog = function(invNo, userName) {
+      if (window.triggerHapticPulse) triggerHapticPulse(25);
+      var titleEl = document.getElementById('thermalReceiptTitle');
+      var bodyEl = document.getElementById('thermalReceiptBodyLines');
+      if (titleEl && bodyEl && typeof openModal === 'function') {
+        titleEl.textContent = '🛡️ سجل البصمة الجنائية الرقمية (Audit Trail)';
+        bodyEl.innerHTML =
+          '<div class="space-y-1.5 text-slate-900 text-[11px] p-1">' +
+            '<div class="font-black text-rose-700 border-b border-slate-300 pb-1">مستند الفاتورة: ' + (invNo || '#1049') + '</div>' +
+            '<div>👤 الكاشير المعدّل: <b>' + (userName || 'أحمد عثمان') + '</b></div>' +
+            '<div>⏰ توقيت التعديل: <b>11:42:18 ص</b> (بعد الطباعة بـ 4 دقائق)</div>' +
+            '<div>📉 القيمة قبل التعديل: <b>$1,450.00</b></div>' +
+            '<div>📈 القيمة بعد التعديل: <b>$1,232.50 (خصم 15%)</b></div>' +
+            '<div>🌐 عنوان الجهاز: <b>POS-Terminal-02 (IP: 192.168.1.24)</b></div>' +
+            '<div class="bg-amber-100 text-amber-900 p-1.5 rounded font-bold mt-1">🔒 البصمة المشفرة SHA-256 محفوظة في سجل الرقابة الدائم</div>' +
+          '</div>';
+        openModal('modalThermalReceiptPreview');
+      }
+    };
+
+    window.applyClearanceDiscountAction = function(btnEl, itemName, discountPct) {
+      if (window.triggerHapticPulse) triggerHapticPulse(25);
+      if (btnEl) {
+        btnEl.textContent = '✓ تم تفعيل خصم ' + discountPct + '%';
+        btnEl.className = 'text-[11px] bg-emerald-600 text-white px-2.5 py-1 rounded-lg font-black shadow';
+        btnEl.disabled = true;
+      }
+      if (typeof showFloatingToast === 'function') {
+        showFloatingToast('🏷️ تم اعتماد خصم تصفيـة ' + discountPct + '% على (' + itemName + ') وتحديث التسعير');
+      }
     };
 
     window.exportPageLedgerPDF = function() {
@@ -8055,7 +8198,7 @@
         });
       },
 
-      // بناء الشريط الداخلي للبوابة المزدوجة + بطاقات النبض العلوية + شريط قيادة الإبهام السفلي
+      // بناء الشريط الداخلي للبوابة المزدوجة (نظيف وبدون تكرار بطاقات النبض أو شريط الإبهام السفلي)
       mountDomComponents() {
         const header = document.querySelector('header.app-main-header');
         if (header && !document.getElementById('mgDualGatewayInnerBar')) {
@@ -8063,6 +8206,10 @@
           bar.id = 'mgDualGatewayInnerBar';
           bar.className = 'mt-1.5 pt-1.5 border-t border-slate-800/80 flex flex-col gap-1';
           bar.innerHTML = `
+            <style>
+              /* إخفاء الأزرار المكررة من الدرج المتقدم لأنها مدمجة في الهيدر والكاميرا الذكية الموحدة */
+              #mgBtnSunlightQuick, #mgBtnTopLaserScanner, #mgBtnTopCrdtSync, #mgBtnTopCyberSecurity { display: none !important; }
+            </style>
             <div class="flex items-center justify-between gap-1 overflow-x-auto no-scrollbar">
               <!-- مفتاح طراز الواجهة (العصرية ↔ الكلاسيكية) -->
               <div class="flex items-center bg-slate-950/90 p-0.5 rounded-xl border border-cyan-500/30 shrink-0">
@@ -8079,8 +8226,15 @@
                 <button type="button" data-sc="sc4" onclick="window.MgConstitution1.selectShortcut('sc4')" class="mg-inner-sc-pill px-2 py-1 rounded-xl text-[10px] font-black shrink-0 border transition cursor-pointer">اختصار 4</button>
               </div>
 
-              <!-- أزرار التشكيل + قفل الحبس + بوابة الباسورد + عداد الرام -->
-              <div class="flex items-center gap-1 shrink-0">
+              <!-- زر موحد لفتح درج الأدوات الهندسية المتقدمة لمنع تكدس 15 زر صغير -->
+              <button type="button" onclick="var d=document.getElementById('mgAdvancedConstToolsDrawer');if(d)d.classList.toggle('hidden');" class="px-2 py-1 rounded-xl bg-slate-900 hover:bg-slate-800 border border-amber-500/40 text-amber-300 text-[10px] font-black shrink-0 cursor-pointer flex items-center gap-1" title="الأدوات الهندسية والسيادية المتقدمة">
+                <span>🛠️ أدوات</span>
+              </button>
+            </div>
+
+            <!-- درج الأدوات المتقدمة القابل للطي (يحتوي على الأدوات غير المكررة فقط) -->
+            <div id="mgAdvancedConstToolsDrawer" class="hidden pt-1 border-t border-slate-800/60 overflow-x-auto no-scrollbar">
+              <div class="flex items-center gap-1 shrink-0 pb-0.5">
                 <button type="button" id="mgBtnOpenMatrix" onclick="window.MgConstitution1.openShortcutEditor()" class="px-1.5 py-1 rounded-lg bg-amber-500/20 border border-amber-500/40 text-amber-300 text-[10px] font-black cursor-pointer" title="لوحة تشكيل وتخصيص الاختصارات للمالك">⚙️ تشكيل</button>
                 <button type="button" id="mgBtnJailStatus" onclick="window.MgConstitution1.openJailLockModal()" class="px-1.5 py-1 rounded-lg bg-slate-800 border border-slate-700 text-slate-300 text-[10px] font-black cursor-pointer" title="قفل حبس الاختصار أمنياً للموظفين">🔓</button>
                 <button type="button" onclick="window.MgConstitution1.openPasswordGate()" class="px-1.5 py-1 rounded-lg bg-cyan-500/20 border border-cyan-500/40 text-cyan-300 text-[10px] font-black cursor-pointer" title="فتح بوابة الباسورد والسمة من الخارج">🔑</button>
@@ -8089,67 +8243,6 @@
             </div>
           `;
           header.appendChild(bar);
-        }
-
-        // الطبقة 1 في الواجهة العصرية: بطاقات النبض المالي العلوية (Glance Cards)
-        const pageDash = document.getElementById('pageDashboard');
-        if (pageDash && !document.getElementById('mgModernGlanceCards')) {
-          const glance = document.createElement('div');
-          glance.id = 'mgModernGlanceCards';
-          glance.innerHTML = `
-            <div onclick="openOperationalForm('sales')" class="mg-glance-card border-emerald-500/40">
-              <div class="flex items-center justify-between mb-1">
-                <span class="text-[9.5px] font-black text-emerald-300">نبض المبيعات</span>
-                <span class="w-4 h-4 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-[9px] font-black">↗</span>
-              </div>
-              <div class="text-xs font-black text-white font-mono privacy-mask" data-original="$12,480" data-star="••••">$12,480</div>
-              <div class="text-[9px] text-slate-400 font-bold truncate">48 فاتورة • تحصيل فوري</div>
-            </div>
-
-            <div onclick="openOperationalForm('purchaseInvoice')" class="mg-glance-card border-amber-500/40">
-              <div class="flex items-center justify-between mb-1">
-                <span class="text-[9.5px] font-black text-amber-300">نبض المشتريات</span>
-                <span class="w-4 h-4 rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center text-[9px] font-black">📦</span>
-              </div>
-              <div class="text-xs font-black text-white font-mono privacy-mask" data-original="$4,650" data-star="••••">$4,650</div>
-              <div class="text-[9px] text-slate-400 font-bold truncate">توريد مستودعي متطابق</div>
-            </div>
-
-            <div onclick="openOperationalForm('balanceInquiry')" class="mg-glance-card border-cyan-500/40">
-              <div class="flex items-center justify-between mb-1">
-                <span class="text-[9.5px] font-black text-cyan-300">صافي السيولة</span>
-                <span class="w-4 h-4 rounded-full bg-cyan-500/20 text-cyan-400 flex items-center justify-center text-[9px] font-black">94%</span>
-              </div>
-              <div class="text-xs font-black text-emerald-300 font-mono privacy-mask" data-original="+$7,830" data-star="••••">+$7,830</div>
-              <div class="text-[9px] text-slate-400 font-bold truncate">فائض خزينة وبنوك</div>
-            </div>
-          `;
-          pageDash.insertBefore(glance, pageDash.firstChild);
-        }
-
-        // الطبقة 3 في الواجهة العصرية: شريط قيادة الإبهام السفلي (Thumb Command Dock)
-        if (!document.getElementById('mgThumbCommandDock')) {
-          const dock = document.createElement('div');
-          dock.id = 'mgThumbCommandDock';
-          dock.dir = 'rtl';
-          dock.innerHTML = `
-            <button type="button" onclick="openOperationalForm('sales')" class="flex-1 py-1.5 px-2 rounded-xl bg-gradient-to-r from-sky-600 to-blue-600 text-white text-[10.5px] font-black flex items-center justify-center gap-1 shadow cursor-pointer active:scale-95 transition">
-              <span>⚡ مبيعات</span>
-            </button>
-            <button type="button" onclick="window.location.href='mobile-voucher.php'" class="flex-1 py-1.5 px-2 rounded-xl bg-emerald-600/25 border border-emerald-500/40 text-emerald-300 text-[10.5px] font-black flex items-center justify-center gap-1 cursor-pointer active:scale-95 transition">
-              <span>💸 سند فوري</span>
-            </button>
-            <button type="button" onclick="openOperationalForm('accountStatement')" class="flex-1 py-1.5 px-2 rounded-xl bg-amber-500/20 border border-amber-500/40 text-amber-300 text-[10.5px] font-black flex items-center justify-center gap-1 cursor-pointer active:scale-95 transition">
-              <span>📄 كشف</span>
-            </button>
-            <button type="button" onclick="window.MgConstitution1.toggleOneHandMode()" class="py-1.5 px-2 rounded-xl bg-cyan-500/20 border border-cyan-500/40 text-cyan-300 text-[10.5px] font-black cursor-pointer active:scale-95 transition" title="وضع الوصول بيد واحدة للإبهام">
-              <span>👍 إبهام</span>
-            </button>
-            <button type="button" onclick="window.MgConstitution1.shareExecutivePulseWhatsApp()" class="py-1.5 px-2 rounded-xl bg-green-600/25 border border-green-500/40 text-green-300 text-[10.5px] font-black cursor-pointer active:scale-95 transition" title="مشاركة ملخص النبض المالي الفوري عبر واتساب للمالك">
-              <span>📲 نبض</span>
-            </button>
-          `;
-          document.body.appendChild(dock);
         }
       },
 
