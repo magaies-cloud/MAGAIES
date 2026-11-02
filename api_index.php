@@ -235,7 +235,7 @@ function migrateLocalBaileysSessionToCloud($sessionUserId = 'wa_tenant_12') {
             'files' => $chunkFiles
         ]);
 
-        $ch = curl_init('https://c.elsajana.com/api_index.php?r=wa-tenant&endpoint=import-session&local_only=1');
+        $ch = curl_init('https://c.elsajana.com/api_index.php?r=wa-tenant&endpoint=import-session&local_only=1&userId=' . urlencode($safeUid));
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_POST, true);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $body);
@@ -266,12 +266,8 @@ function purgeLocalBaileysSessions($sessionUserId = 'default-saas-admin') {
     if ($isGlobalAdmin) {
         $dirsToPurge[] = __DIR__ . '/baileys_auth_default-saas-admin';
         $dirsToPurge[] = __DIR__ . '/baileys_auth_default';
-        $allDirs = @glob(__DIR__ . '/baileys_auth_*', GLOB_ONLYDIR);
-        if (is_array($allDirs)) {
-            $dirsToPurge = array_unique(array_merge($dirsToPurge, $allDirs));
-        }
     }
-    foreach ($dirsToPurge as $dir) {
+    foreach (array_unique($dirsToPurge) as $dir) {
         if (!is_dir($dir)) continue;
         foreach (@scandir($dir) ?: [] as $f) {
             if ($f === '.' || $f === '..') continue;
@@ -282,6 +278,7 @@ function purgeLocalBaileysSessions($sessionUserId = 'default-saas-admin') {
         }
         @rmdir($dir);
     }
+    @file_put_contents(sys_get_temp_dir() . '/magaies_wa_manual_logout_' . $safeUid . '.stamp', (string)time());
     @file_put_contents(sys_get_temp_dir() . '/magaies_wa_manual_logout.stamp', (string)time());
 }
 
@@ -289,41 +286,6 @@ function proxyWhatsAppRequestToCloud($endpoint, $queryParams, $method, $rawInput
     if ($endpoint === 'logout') {
         $targetUid = $queryParams['userId'] ?? 'default-saas-admin';
         purgeLocalBaileysSessions($targetUid);
-
-        // Also discover and logout whichever userId is currently active/connected on the cloud hub
-        // so that fallback sessions (e.g., default, default-saas-admin, wa_tenant_*) do not keep returning CONNECTED
-        $loggedOutUids = [];
-        for ($attempt = 0; $attempt < 3; $attempt++) {
-            $stUrl = 'https://c.elsajana.com/api_index.php?r=wa-tenant&endpoint=status&local_only=1&userId=' . urlencode($targetUid);
-            $chSt = curl_init($stUrl);
-            curl_setopt($chSt, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($chSt, CURLOPT_CONNECTTIMEOUT, 5);
-            curl_setopt($chSt, CURLOPT_TIMEOUT, 8);
-            curl_setopt($chSt, CURLOPT_SSL_VERIFYPEER, false);
-            curl_setopt($chSt, CURLOPT_SSL_VERIFYHOST, false);
-            $stRaw = curl_exec($chSt);
-            curl_close($chSt);
-            $stDec = @json_decode($stRaw, true);
-            $activeUid = is_array($stDec) ? ($stDec['userId'] ?? '') : '';
-            $isActiveConnected = is_array($stDec) && (!empty($stDec['isConnected']) || ($stDec['status'] ?? '') === 'CONNECTED' || !empty($stDec['phoneNumber']));
-            if ($activeUid && ($isActiveConnected || $attempt === 0) && !in_array($activeUid, $loggedOutUids, true)) {
-                $loggedOutUids[] = $activeUid;
-                $lgUrl = 'https://c.elsajana.com/api_index.php?r=wa-tenant&endpoint=logout&local_only=1&userId=' . urlencode($activeUid);
-                $chLg = curl_init($lgUrl);
-                curl_setopt($chLg, CURLOPT_RETURNTRANSFER, true);
-                curl_setopt($chLg, CURLOPT_POST, true);
-                curl_setopt($chLg, CURLOPT_POSTFIELDS, json_encode(['userId' => $activeUid]));
-                curl_setopt($chLg, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
-                curl_setopt($chLg, CURLOPT_CONNECTTIMEOUT, 6);
-                curl_setopt($chLg, CURLOPT_TIMEOUT, 12);
-                curl_setopt($chLg, CURLOPT_SSL_VERIFYPEER, false);
-                curl_setopt($chLg, CURLOPT_SSL_VERIFYHOST, false);
-                curl_exec($chLg);
-                curl_close($chLg);
-            } else {
-                break;
-            }
-        }
     }
 
     $cloudQuery = $queryParams;
@@ -372,12 +334,12 @@ function proxyWhatsAppRequestToCloud($endpoint, $queryParams, $method, $rawInput
 
     // If cloud server is QR_READY / unlinked, check if local laptop has an already-linked Baileys session and migrate it automatically
     // (Skip auto-migration if the user recently requested a manual logout)
-    $manualLogoutStamp = sys_get_temp_dir() . '/magaies_wa_manual_logout.stamp';
+    $targetUid = preg_replace('/[^a-zA-Z0-9_-]/', '', (string)($queryParams['userId'] ?? 'default-saas-admin')) ?: 'default-saas-admin';
+    $manualLogoutStamp = sys_get_temp_dir() . '/magaies_wa_manual_logout_' . $targetUid . '.stamp';
     $recentlyLoggedOut = file_exists($manualLogoutStamp) && (time() - (int)@file_get_contents($manualLogoutStamp)) < 3600;
     if (!$recentlyLoggedOut && !$err && $httpCode === 200 && ($endpoint === 'status' || $endpoint === 'qr') && !empty($response)) {
         $dec = @json_decode($response, true);
         if (is_array($dec) && empty($dec['phoneNumber']) && !in_array($dec['status'] ?? '', ['CONNECTED', 'INITIALIZING', 'CONNECTING', 'RECONNECTING'], true)) {
-            $targetUid = $queryParams['userId'] ?? 'wa_tenant_12';
             if (migrateLocalBaileysSessionToCloud($targetUid)) {
                 usleep(2500000); // Wait 2.5s for cloud socket to connect after import
                 $chRetry = curl_init($cloudUrl);
@@ -437,7 +399,8 @@ if ($resource === 'wa-tenant' || $resource === 'wa' || $action === 'wa-proxy') {
     // so the session stays permanently alive on the cloud server 24/7 even when the laptop is turned off!
     // If the cloud hub is unreachable, crashed, or waiting for a new QR scan after logout, seamlessly fall back to local 127.0.0.1:3001
     if (isLocalLaptopEnvironment() && empty($_GET['local_only'])) {
-        $manualLogoutStamp = sys_get_temp_dir() . '/magaies_wa_manual_logout.stamp';
+        $curUidStamp = preg_replace('/[^a-zA-Z0-9_-]/', '', (string)($queryParams['userId'] ?? 'default-saas-admin')) ?: 'default-saas-admin';
+        $manualLogoutStamp = sys_get_temp_dir() . '/magaies_wa_manual_logout_' . $curUidStamp . '.stamp';
         $inPostLogoutQrFlow = file_exists($manualLogoutStamp) && (time() - (int)@file_get_contents($manualLogoutStamp)) < 600;
 
         if ($endpoint === 'logout' || $endpoint === 'restart') {
@@ -528,11 +491,11 @@ if ($resource === 'wa-tenant' || $resource === 'wa' || $action === 'wa-proxy') {
     if (isLocalLaptopEnvironment() && ($endpoint === 'status' || $endpoint === 'qr') && !empty($response)) {
         $localDec = @json_decode($response, true);
         if (is_array($localDec) && (($localDec['status'] ?? '') === 'CONNECTED' || !empty($localDec['isConnected']))) {
-            $manualLogoutStamp = sys_get_temp_dir() . '/magaies_wa_manual_logout.stamp';
+            $migUid = preg_replace('/[^a-zA-Z0-9_-]/', '', (string)($queryParams['userId'] ?? ($localDec['userId'] ?? 'default-saas-admin'))) ?: 'default-saas-admin';
+            $manualLogoutStamp = sys_get_temp_dir() . '/magaies_wa_manual_logout_' . $migUid . '.stamp';
             if (file_exists($manualLogoutStamp)) {
                 @unlink($manualLogoutStamp);
             }
-            $migUid = $queryParams['userId'] ?? ($localDec['userId'] ?? 'default-saas-admin');
             @migrateLocalBaileysSessionToCloud($migUid);
         }
     }

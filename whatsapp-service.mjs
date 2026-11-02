@@ -168,6 +168,15 @@ class WhatsAppClient {
         return this.status === 'CONNECTED' && this.socket !== null;
     }
 
+    get isTenantSession() {
+        return /^wa_tenant_\d+$/i.test(String(this.userId || '').trim());
+    }
+
+    get tenantId() {
+        const m = String(this.userId || '').trim().match(/^wa_tenant_(\d+)$/i);
+        return m ? m[1] : null;
+    }
+
     // ─── Safe state setter with logging ────────────────────────
     _setState(newStatus) {
         if (this.status !== newStatus) {
@@ -458,6 +467,11 @@ class WhatsAppClient {
                             if (this.messageCache.size > 500) {
                                 const oldestKey = this.messageCache.keys().next().value;
                                 this.messageCache.delete(oldestKey);
+                            }
+
+                            // SaaS Admin WhatsApp (default-saas-admin) is strictly for outbound OTPs & SaaS broadcasts — never run company receipt/statement bots on it
+                            if (!this.isTenantSession || !this.tenantId) {
+                                continue;
                             }
 
                             // Auto-ingest customer receipt image if incoming from client (or sent by owner in self-chat)
@@ -868,9 +882,10 @@ class WhatsAppClient {
                 }
             }
 
+            if (!this.isTenantSession || !this.tenantId) return;
             const senderPhone = this._resolveSenderPhone(msg, sock);
             const pushName = msg.pushName || ('عميل واتساب ' + senderPhone);
-            const tenantId = this.userId.replace(/\D/g, '') || '12';
+            const tenantId = this.tenantId;
 
             log(this.userId, `📥 Incoming WhatsApp receipt image from ${pushName} (${senderPhone}), downloading...`);
 
@@ -1360,7 +1375,8 @@ class WhatsAppClient {
             return;
         }
         recentBatch.routedPin = String(pinCode).trim();
-        const tenantId = recentBatch.tenantId || this.userId.replace(/\D/g, '') || '12';
+        const tenantId = recentBatch.tenantId || this.tenantId;
+        if (!tenantId) return;
         const isWin = process.platform === 'win32';
         const candidateEndpoints = isWin
             ? [
@@ -1407,10 +1423,10 @@ class WhatsAppClient {
                 return;
             }
 
+            if (!this.isTenantSession || !this.tenantId) return;
             const senderPhone = this._resolveSenderPhone(msg, sock);
             const pushName = msg.pushName || (senderPhone ? `عميل واتساب (${senderPhone})` : 'عميل واتساب');
-            const tenantMatch = String(this.userId).match(/\d+/);
-            const tenantId = tenantMatch ? tenantMatch[0] : '12';
+            const tenantId = this.tenantId;
 
             const isWin = process.platform === 'win32';
             const candidateEndpoints = isWin
@@ -2873,15 +2889,9 @@ class ClientManager {
     }
 
     findActiveClient(preferredId) {
-        if (preferredId && this.clients.has(preferredId)) {
-            const client = this.clients.get(preferredId);
-            if (client.isConnected) return client;
-        }
-        const connected = this.getConnectedClient();
-        if (connected) return connected;
-
-        if (preferredId) return this.get(preferredId);
-        return this.get('default');
+        const targetId = String(preferredId || '').trim() || 'default-saas-admin';
+        const normalizedId = targetId === 'default' ? 'default-saas-admin' : targetId;
+        return this.get(normalizedId);
     }
 
     async initClient(userId) {
@@ -3300,21 +3310,11 @@ app.post(['/wa/send', '/wa/send-message', '/send'], upload.any(), async (req, re
 
 // ── POST /wa/logout ────────────────────────────────────────────
 app.post('/wa/logout', async (req, res) => {
-    const userId = req.body?.userId || req.query.userId || 'default-saas-admin';
-    const isAdminGlobal = (userId === 'default-saas-admin' || userId === 'default');
+    const rawUserId = String(req.body?.userId || req.query.userId || 'default-saas-admin').trim() || 'default-saas-admin';
+    const userId = rawUserId === 'default' ? 'default-saas-admin' : rawUserId;
     try {
-        // If logging out the global SaaS admin WhatsApp (or if another client was serving as active fallback),
-        // also disconnect any other connected client so findActiveClient() does not stay CONNECTED on an old session.
-        const activeClient = manager.findActiveClient(userId);
-        if (activeClient && activeClient.userId !== userId) {
-            await activeClient.logout(true).catch(e => logErr(activeClient.userId, 'active fallback logout error:', e.message));
-        }
-        if (isAdminGlobal) {
-            for (const [uid, c] of manager.clients) {
-                if (uid !== userId && (c.isConnected || c.phoneNumber || c.status === 'RECONNECTING' || c.status === 'CONNECTING')) {
-                    await c.logout(true).catch(e => logErr(uid, 'secondary logout error:', e.message));
-                }
-            }
+        if (userId === 'default-saas-admin' && manager.clients.has('default')) {
+            await manager.clients.get('default').logout(true).catch(() => {});
         }
         const client = manager.get(userId);
         await client.logout(false);
