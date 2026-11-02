@@ -2707,7 +2707,7 @@
                     <td style="text-align:center;">${stmtToggleBtn}</td>
                     <td style="text-align:center;">${statusBadge}</td>
                     <td style="text-align:center;">${balDisplay}</td>
-                    <td style="text-align:center; cursor:pointer;" ondblclick="startInlineMasterEdit(this, 'customer_limit', '${c.id}', ${parseFloat(c.creditLimit) || 0})">${(c.creditLimit || 0).toLocaleString()} SDG <small style="opacity:0.45;">✏️</small></td>
+                    <td style="text-align:center; cursor:pointer;" ondblclick="startInlineMasterEdit(this, 'customer_limit', '${c.id}', ${parseFloat(c.creditLimit) || 0})" title="انقر مرتين لتعديل حد الائتمان مباشرة">${(c.creditLimit || 0).toLocaleString()} ${c.currency || 'SDG'} <small style="opacity:0.45;">✏️</small></td>
                     <td style="font-size:0.85rem; text-align:center;">${c.contactPerson || '-'}</td>
                     <td style="text-align:center;">${c.securityLevel || 1}</td>
                     <td style="text-align:center; white-space:nowrap;"><button class="btn-text" style="color:#fbbf24; font-weight:800; margin-left:5px;" onclick="openEntityDrillDownStatementModal('customer', '${c.id}')" title="كشف الحساب التفصيلي والحركات (Drill-Down)">📊</button><button class="btn-text" style="color:#34d399; font-weight:800; margin-left:6px;" onclick="openEntityQrCardModal('customer', '${c.id}')" title="بطاقة QR">🪪</button><button class="btn-text" style="color:#38bdf8; font-weight:800;" onclick="editCustomer('${c.id}')">✏️ تعديل</button><button class="btn-text" style="color:var(--danger-color); font-weight:800; margin-right:8px;" onclick="deleteCustomer('${c.id}')">🗑️ حذف</button></td>
@@ -2803,7 +2803,11 @@
                 bankContainer.innerHTML = '';
             }
             if (typeof updateCustExchangeRate === 'function') updateCustExchangeRate();
+            window.__mdFormDirty = false;
         }
+        window.closeCustomerForm = function() {
+            clearCustomerForm();
+        };
 
         function editCustomer(id) {
             populateWaReceiptBankDropdowns();
@@ -3166,7 +3170,11 @@
                 subPhonesContainer.innerHTML = '';
             }
             if (typeof updateSupExchangeRate === 'function') updateSupExchangeRate();
+            window.__mdFormDirty = false;
         }
+        window.closeSupplierForm = function() {
+            clearSupplierForm();
+        };
         
         function editSupplier(id) {
             populateWaReceiptBankDropdowns();
@@ -5713,10 +5721,10 @@
                 exInput.value = 1;
                 if (groupId === 'cust-ex-rate-group') {
                     const notesCard = document.getElementById('cust-notes-card');
-                    if (notesCard) notesCard.style.gridColumn = 'span 3';
+                    if (notesCard) notesCard.style.gridColumn = '1 / -1';
                 } else if (groupId === 'sup-ex-rate-group') {
                     const notesCard = document.getElementById('sup-notes-card');
-                    if (notesCard) notesCard.style.gridColumn = 'span 2';
+                    if (notesCard) notesCard.style.gridColumn = '1 / -1';
                 }
             }
         }
@@ -5959,6 +5967,8 @@ document.addEventListener('DOMContentLoaded', () => {
             // Close active open child form if any
             const openFormCloseMap = [
                 ['warehouse-form', 'closeWarehouseForm'],
+                ['customer-form', 'closeCustomerForm'],
+                ['supplier-form', 'closeSupplierForm'],
                 ['bank-form', 'closeBankForm'],
                 ['safe-form', 'closeSafeForm'],
                 ['item-form', 'closeItemForm'],
@@ -7867,16 +7877,23 @@ window.executeSmartClipboardImport = function () {
         const entId = String(entity.id || '');
         const entName = String(entity.name || '').trim().toLowerCase();
         const rows = [];
+        const seenDocKeys = new Set();
+
+        const isValMatch = (val) => {
+            if (!val) return false;
+            const s = String(val).trim();
+            if (entId && (s === entId || s === 'cust-' + entId || s === 'supp-' + entId)) return true;
+            if (entName && s.toLowerCase() === entName) return true;
+            return false;
+        };
 
         const matchesEntity = (doc, idFields, nameFields) => {
             if (!doc || doc.deleted || doc.isDeleted) return false;
             for (const f of idFields) {
-                if (doc[f] && String(doc[f]) === entId) return true;
+                if (isValMatch(doc[f])) return true;
             }
-            if (entName) {
-                for (const nf of nameFields) {
-                    if (doc[nf] && String(doc[nf]).trim().toLowerCase() === entName) return true;
-                }
+            for (const nf of nameFields) {
+                if (isValMatch(doc[nf])) return true;
             }
             return false;
         };
@@ -7885,11 +7902,11 @@ window.executeSmartClipboardImport = function () {
             if (!isSup) {
                 const sales = JSON.parse(localStorage.getItem('erp_sales_invoices_v1') || localStorage.getItem('erp_invoices_v1') || '[]') || [];
                 sales.forEach(inv => {
-                    if (!matchesEntity(inv, ['customerId', 'clientId', 'entityId'], ['customerName', 'clientName', 'customer'])) return;
+                    if (!matchesEntity(inv, ['customerId', 'clientId', 'entityId', 'customer', 'client'], ['customerName', 'clientName', 'customer', 'client'])) return;
                     const total = round2(inv.netTotal ?? inv.grandTotal ?? inv.total ?? inv.amount ?? 0);
-                    const paid = round2(inv.paidAmount ?? inv.paid ?? (inv.paymentType === 'cash' ? total : 0));
+                    const paid = round2(inv.paidAmount ?? inv.paid ?? ((inv.paymentType === 'cash' || inv.paymentMethod === 'cash') ? total : 0));
                     const dt = (inv.date || inv.createdAt || '').toString().slice(0, 10) || new Date().toISOString().slice(0, 10);
-                    const docNo = inv.invoiceNumber || inv.number || inv.id || 'INV';
+                    const docNo = inv.invoiceNo || inv.invoiceNumber || inv.number || inv.id || 'INV';
                     if (total > 0) {
                         rows.push({ date: dt, docNo, type: 'فاتورة مبيعات', debit: total, credit: 0, note: inv.notes || 'مبيعات بضاعة', raw: inv });
                     }
@@ -7898,13 +7915,13 @@ window.executeSmartClipboardImport = function () {
                     }
                 });
             } else {
-                const purchases = JSON.parse(localStorage.getItem('erp_purchases_v1') || localStorage.getItem('erp_purchase_invoices_v1') || '[]') || [];
+                const purchases = JSON.parse(localStorage.getItem('erp_purchase_invoices_v1') || localStorage.getItem('erp_purchases_v1') || '[]') || [];
                 purchases.forEach(pur => {
-                    if (!matchesEntity(pur, ['supplierId', 'vendorId', 'entityId'], ['supplierName', 'vendorName', 'supplier'])) return;
+                    if (!matchesEntity(pur, ['supplierId', 'vendorId', 'entityId', 'supplier', 'customer'], ['supplierName', 'vendorName', 'supplier', 'customer'])) return;
                     const total = round2(pur.netTotal ?? pur.grandTotal ?? pur.total ?? pur.amount ?? 0);
-                    const paid = round2(pur.paidAmount ?? pur.paid ?? (pur.paymentType === 'cash' ? total : 0));
+                    const paid = round2(pur.paidAmount ?? pur.paid ?? ((pur.paymentType === 'cash' || pur.paymentMethod === 'cash') ? total : 0));
                     const dt = (pur.date || pur.createdAt || '').toString().slice(0, 10) || new Date().toISOString().slice(0, 10);
-                    const docNo = pur.invoiceNumber || pur.number || pur.id || 'PUR';
+                    const docNo = pur.invoiceNo || pur.invoiceNumber || pur.number || pur.id || 'PUR';
                     if (total > 0) {
                         rows.push({ date: dt, docNo, type: 'فاتورة مشتريات', debit: 0, credit: total, note: pur.notes || 'توريد مشتريات', raw: pur });
                     }
@@ -7914,14 +7931,63 @@ window.executeSmartClipboardImport = function () {
                 });
             }
 
+            // Collect Single & Multi Receipts
+            const recKeys = ['erp_single_receipts_v1', 'erp_receipts_v1'];
+            recKeys.forEach(rk => {
+                const recs = JSON.parse(localStorage.getItem(rk) || '[]') || [];
+                if (!Array.isArray(recs)) return;
+                recs.forEach(r => {
+                    if (!matchesEntity(r, ['fromAccount', 'accountId', 'partyId', 'customerId', 'supplierId', 'entityId'], ['fromAccountName', 'partyName', 'customerName', 'supplierName', 'entityName'])) return;
+                    const amt = round2(r.amount ?? r.total ?? 0);
+                    if (amt <= 0) return;
+                    const docNo = r.voucherNo || r.voucherNumber || r.number || r.id || 'REC';
+                    const dedupKey = `REC_${docNo}_${amt}`;
+                    if (seenDocKeys.has(dedupKey)) return;
+                    seenDocKeys.add(dedupKey);
+                    const dt = (r.date || r.createdAt || '').toString().slice(0, 10) || new Date().toISOString().slice(0, 10);
+                    rows.push({
+                        date: dt, docNo, type: 'سند قبض',
+                        debit: 0, credit: amt,
+                        note: r.description || r.notes || r.note || 'تحصيل نقدي / بنكي',
+                        raw: r
+                    });
+                });
+            });
+
+            // Collect Single & Multi Payments
+            const payKeys = ['erp_single_payments_v1', 'erp_payments_v1'];
+            payKeys.forEach(pk => {
+                const pays = JSON.parse(localStorage.getItem(pk) || '[]') || [];
+                if (!Array.isArray(pays)) return;
+                pays.forEach(p => {
+                    if (!matchesEntity(p, ['toAccount', 'accountId', 'partyId', 'customerId', 'supplierId', 'entityId'], ['toAccountName', 'partyName', 'customerName', 'supplierName', 'entityName'])) return;
+                    const amt = round2(p.amount ?? p.total ?? 0);
+                    if (amt <= 0) return;
+                    const docNo = p.voucherNo || p.voucherNumber || p.number || p.id || 'PAY';
+                    const dedupKey = `PAY_${docNo}_${amt}`;
+                    if (seenDocKeys.has(dedupKey)) return;
+                    seenDocKeys.add(dedupKey);
+                    const dt = (p.date || p.createdAt || '').toString().slice(0, 10) || new Date().toISOString().slice(0, 10);
+                    rows.push({
+                        date: dt, docNo, type: 'سند صرف',
+                        debit: amt, credit: 0,
+                        note: p.description || p.notes || p.note || 'صرف نقدي / بنكي',
+                        raw: p
+                    });
+                });
+            });
+
             const vouchers = JSON.parse(localStorage.getItem('erp_vouchers_v1') || '[]') || [];
             vouchers.forEach(v => {
-                if (!matchesEntity(v, ['entityId', 'customerId', 'supplierId', 'accountId'], ['entityName', 'customerName', 'supplierName', 'partyName'])) return;
+                if (!matchesEntity(v, ['entityId', 'customerId', 'supplierId', 'accountId', 'partyId', 'fromAccount', 'toAccount'], ['entityName', 'customerName', 'supplierName', 'partyName'])) return;
                 const amt = round2(v.amount ?? v.total ?? 0);
                 if (amt <= 0) return;
                 const isReceipt = (v.type === 'receipt' || v.voucherType === 'receipt' || String(v.type || '').includes('قبض'));
+                const docNo = v.voucherNo || v.voucherNumber || v.number || v.id || 'VCH';
+                const dedupKey = `${isReceipt ? 'REC' : 'PAY'}_${docNo}_${amt}`;
+                if (seenDocKeys.has(dedupKey)) return;
+                seenDocKeys.add(dedupKey);
                 const dt = (v.date || v.createdAt || '').toString().slice(0, 10) || new Date().toISOString().slice(0, 10);
-                const docNo = v.voucherNumber || v.number || v.id || 'VCH';
                 rows.push({
                     date: dt,
                     docNo,

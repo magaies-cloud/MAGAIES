@@ -9594,6 +9594,250 @@ document.addEventListener('DOMContentLoaded', () => {
             border-color: #34d399 !important;
             box-shadow: 0 0 0 3.5px rgba(16, 185, 129, 0.40), 0 12px 28px rgba(5, 150, 105, 0.55), inset 0 1.5px 0 rgba(255, 255, 255, 0.65) !important;
         }
+                /* â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
+           6. STEPPED LIGHT-THEME CONTRAST & DARKER TYPOGRAPHY + SALES/PURCHASE 100% BUTTON PARITY
+           (ط§ظ„ط®ظ„ظپظٹط§طھ ط£ظپطھط­ ط¯ط±ط¬ط§طھ ط¯ط±ط¬ط§طھ + ط§ظ„ط®ط·ظˆط· ط£ط؛ظ…ظ‚ ظˆط£ظƒط«ط± ط­ط¯ط© ظˆطھط¨ط§ظٹظ†ط§ظ‹ + طھط·ط§ط¨ظ‚ طھط§ظ… ظ„ظ„ط£ط²ط±ط§ط± ظˆط§ظ„ط­ظˆط§ظپ)
+           â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ */
+
+        /* 6-A: Stepped Lighter Backgrounds in Light Mode (ط¯ط±ط¬ط§طھ ط§ظ„ط®ظ„ظپظٹط§طھ ط§ظ„ظپط§طھط­ط© ط§ظ„ظ…طھط¯ط±ط¬ط© ظ„طھط¨ط§ظٹظ† ظپط§ط¦ظ‚) */
+        /* Degree 1: Main Screen Canvas â€” Bright Warm Porcelain-Cream (#f9f6f0) */
+        :root.light-theme body,
+        :root.light-theme .dash-main,
+        :root.light-theme #invoice-editor-view,
+        :root.light-theme #sales-hub-view,
+        :root.light-theme #purchase-editor-view,
+        :root.light-theme #purchase-hub-view {
+            background: #f9f6f0 !important;
+            background-color: #f9f6f0 !important;
+        }
+
+        /* Degree 2: Primary Regions & Panels â€” Crisp Warm Alabaster-Ivory (#ffffff -> #fcf8f0) + Sharp 2px Bronze Border */
+        :root.light-theme body #sales-top-container #form-fields-card,
+        :root.light-theme body #purchase-top-container #form-fields-card,
+        :root.light-theme #form-fields-card.sales-glass-card,
+        :root.light-theme #form-fields-card.purchase-glass-card,
+        :root.light-theme #invoice-editor-view #items-panel,
+        :root.light-theme #invoice-editor-view .panel-header-row,
+        :root.light-theme #purchase-editor-view .panel-header-row,
+        :root.light-theme #invoice-editor-view .table-container,
+        :root.light-theme #purchase-editor-view .table-container,
+        :root.light-theme #invoice-editor-view .grid-scroll-wrap,
+        :root.light-theme #purchase-editor-view .grid-scroll-wrap,
+        :root.light-theme #inline-totals-container,
+        :root.light-theme #payment-panel,
+        :root.light-theme #invoice-editor-view .items-toolbar,
+        :root.light-theme #purchase-editor-view .items-toolbar {
+            background: linear-gradient(145deg, #ffffff 0%, #fcf8f0 100%) !important;
+            border: 2px solid #8a4b19 !important;
+            box-shadow: 0 8px 22px rgba(92, 40, 8, 0.09), inset 0 1.5px 0 #ffffff !important;
+            color: #040200 !important;
+        }
+
+        /* Degree 3: Sub-Containers (Invoice Info Box, Financial Strip, Grand Total Card, Table Header) */
+        :root.light-theme #invoice-info-box,
+        :root.light-theme #customer-financial-card .fin-strip-inner,
+        :root.light-theme #grid-foot .pur-compact-tot-card {
+            background: linear-gradient(135deg, #ffffff 0%, #fdfaf3 100%) !important;
+            border: 2px solid #8a4b19 !important;
+            box-shadow: 0 3px 10px rgba(92, 40, 8, 0.08), inset 0 1px 0 #ffffff !important;
+            color: #040200 !important;
+        }
+        :root.light-theme #invoice-editor-view #pos-grid thead tr th,
+        :root.light-theme #purchase-editor-view #pos-grid thead tr th {
+            background: linear-gradient(180deg, #f8f2e4 0%, #efe3cc 100%) !important;
+            color: #040200 !important;
+            -webkit-text-fill-color: #040200 !important;
+            border-top: 2px solid #8a4b19 !important;
+            border-bottom: 2px solid #8a4b19 !important;
+            font-weight: 900 !important;
+        }
+        :root.light-theme #invoice-editor-view #pos-grid tbody tr,
+        :root.light-theme #invoice-editor-view #pos-grid tbody tr td,
+        :root.light-theme #purchase-editor-view #pos-grid tbody tr,
+        :root.light-theme #purchase-editor-view #pos-grid tbody tr td {
+            background: #ffffff !important;
+            border-top: 1.5px solid rgba(138, 75, 25, 0.32) !important;
+            border-bottom: 1.5px solid rgba(138, 75, 25, 0.32) !important;
+            color: #040200 !important;
+        }
+        :root.light-theme #invoice-editor-view #pos-grid tbody tr:nth-child(even) td,
+        :root.light-theme #purchase-editor-view #pos-grid tbody tr:nth-child(even) td {
+            background: #fdfbf6 !important;
+        }
+        :root.light-theme #invoice-editor-view #pos-grid tbody tr:hover td,
+        :root.light-theme #purchase-editor-view #pos-grid tbody tr:hover td {
+            background: #f6efe0 !important;
+        }
+
+        /* 6-B: Darker, Deeper Typography in Light Mode (ط£ظ„ظˆط§ظ† ط§ظ„ط®ط·ظˆط· ط£ط؛ظ…ظ‚ ظˆط£ظƒط«ط± ظ‚ظˆط© ظˆظˆط¶ظˆط­ط§ظ‹) */
+        :root.light-theme #form-fields-card .h-label,
+        :root.light-theme #sales-row0-bar .h-label,
+        :root.light-theme #sales-row1-bar .h-label,
+        :root.light-theme #sales-row2-bar .h-label,
+        :root.light-theme #purchase-row0-bar .h-label,
+        :root.light-theme #purchase-row1-bar .h-label,
+        :root.light-theme #purchase-row2-bar .h-label,
+        :root.light-theme #invoice-info-box #hdr-inv-label,
+        :root.light-theme #invoice-info-box #hdr-date-label,
+        :root.light-theme .panel-title,
+        :root.light-theme .panel-title span,
+        :root.light-theme #grid-foot #lbl-grand-dynamic,
+        :root.light-theme #pos-grid tbody tr td .row-num,
+        :root.light-theme #pos-grid tbody tr td input.g-input:not(.is-zero-val),
+        :root.light-theme #pos-grid tbody tr td select.g-select,
+        :root.light-theme #pos-grid tbody tr td .avail-val:not(.is-zero-val),
+        :root.light-theme #pos-grid tbody tr td .total-val:not(.is-zero-val),
+        :root.light-theme #pos-grid tbody tr td .g-readonly:not(.is-zero-val),
+        :root.light-theme #form-fields-card input.v-input:not([type="hidden"]):not(#hdr-exchange-rate),
+        :root.light-theme #form-fields-card select.v-input:not(#hdr-currency) {
+            color: #040200 !important;
+            -webkit-text-fill-color: #040200 !important;
+            font-weight: 900 !important;
+        }
+        :root.light-theme #invoice-info-box #inv-number {
+            color: #06395a !important;
+            -webkit-text-fill-color: #06395a !important;
+            font-weight: 900 !important;
+        }
+        :root.light-theme #form-fields-card #hdr-exchange-rate {
+            background: #ecfdf5 !important;
+            color: #022c22 !important;
+            -webkit-text-fill-color: #022c22 !important;
+            border: 2px solid #047857 !important;
+            font-weight: 900 !important;
+        }
+        :root.light-theme #customer-financial-card #fin-wrap-ledger .fin-lbl {
+            color: #0f172a !important;
+            -webkit-text-fill-color: #0f172a !important;
+            font-weight: 900 !important;
+        }
+        :root.light-theme #customer-financial-card #fin-ledger {
+            color: #040200 !important;
+            -webkit-text-fill-color: #040200 !important;
+            font-weight: 900 !important;
+        }
+        :root.light-theme #customer-financial-card #fin-wrap-debt .fin-lbl {
+            color: #7f1d1d !important;
+            -webkit-text-fill-color: #7f1d1d !important;
+            font-weight: 900 !important;
+        }
+        :root.light-theme #customer-financial-card #fin-total-debt {
+            color: #881337 !important;
+            -webkit-text-fill-color: #881337 !important;
+            font-weight: 900 !important;
+        }
+        :root.light-theme #customer-financial-card #fin-wrap-checks .fin-lbl {
+            color: #78350f !important;
+            -webkit-text-fill-color: #78350f !important;
+            font-weight: 900 !important;
+        }
+        :root.light-theme #customer-financial-card #fin-checks {
+            color: #451a03 !important;
+            -webkit-text-fill-color: #451a03 !important;
+            font-weight: 900 !important;
+        }
+        :root.light-theme #customer-financial-card #fin-wrap-limit .fin-lbl {
+            color: #0c4a6e !important;
+            -webkit-text-fill-color: #0c4a6e !important;
+            font-weight: 900 !important;
+        }
+        :root.light-theme #customer-financial-card #fin-credit-limit {
+            color: #082f49 !important;
+            -webkit-text-fill-color: #082f49 !important;
+            font-weight: 900 !important;
+        }
+        :root.light-theme #customer-financial-card #fin-wrap-remaining {
+            background: #d1fae5 !important;
+            border: 1.5px solid #047857 !important;
+        }
+        :root.light-theme #customer-financial-card #fin-wrap-remaining .fin-lbl,
+        :root.light-theme #customer-financial-card #fin-remaining {
+            color: #022c22 !important;
+            -webkit-text-fill-color: #022c22 !important;
+            font-weight: 900 !important;
+        }
+        :root.light-theme #grid-foot #t-grand-dynamic-loc {
+            background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%) !important;
+            color: #022c22 !important;
+            -webkit-text-fill-color: #022c22 !important;
+            border: 2px solid #047857 !important;
+        }
+        :root.light-theme #grid-foot #t-grand-dynamic-fc {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%) !important;
+            color: #082f49 !important;
+            -webkit-text-fill-color: #082f49 !important;
+            border: 2px solid #0369a1 !important;
+        }
+
+        /* 6-C: Sales Customer Action Buttons & Bottom Toolbar Crystal Buttons (100% Match with Purchase Screen) */
+        html body #invoice-editor-view #items-panel > .panel-header-row .quick-add-box {
+            display: none !important;
+        }
+        html body #invoice-editor-view #btn-quick-add-customer {
+            background: linear-gradient(180deg, #10b981 0%, #059669 52%, #047857 100%) !important;
+            border: 2px solid #065f46 !important;
+            border-bottom: 3.5px solid #022c22 !important;
+            color: #ffffff !important;
+            -webkit-text-fill-color: #ffffff !important;
+            box-shadow: 0 5px 14px rgba(5, 150, 105, 0.35), inset 0 1.5px 0 rgba(255, 255, 255, 0.55) !important;
+        }
+        html body #invoice-editor-view #btn-clone-last-customer-inv {
+            background: linear-gradient(180deg, #0284c7 0%, #0369a1 52%, #075985 100%) !important;
+            border: 2px solid #0c4a6e !important;
+            border-bottom: 3.5px solid #082f49 !important;
+            color: #ffffff !important;
+            -webkit-text-fill-color: #ffffff !important;
+            box-shadow: 0 5px 14px rgba(2, 132, 199, 0.35), inset 0 1.5px 0 rgba(255, 255, 255, 0.55) !important;
+        }
+        html body #invoice-editor-view #btn-clone-last-customer-inv span {
+            color: #ffffff !important;
+            -webkit-text-fill-color: #ffffff !important;
+        }
+        html body #invoice-editor-view #btn-quick-add-customer:hover,
+        html body #invoice-editor-view #btn-clone-last-customer-inv:hover,
+        html body #invoice-editor-view #hdr-customer-ledger-btn:hover {
+            transform: translateY(-3px) scale(1.06) !important;
+            box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.4), 0 8px 20px rgba(15, 23, 42, 0.32), inset 0 1.5px 0 rgba(255, 255, 255, 0.75) !important;
+            filter: brightness(1.08) !important;
+        }
+        html body #invoice-editor-view .items-toolbar .btn-delete,
+        :root.light-theme body #invoice-editor-view .items-toolbar .btn-delete {
+            background: linear-gradient(180deg, #f43f5e 0%, #e11d48 48%, #be123c 100%) !important;
+            border: 2px solid #881337 !important;
+            color: #ffffff !important;
+            -webkit-text-fill-color: #ffffff !important;
+            font-weight: 900 !important;
+            box-shadow: 0 5px 12px rgba(15, 23, 42, 0.24), inset 0 1.5px 0 rgba(255, 255, 255, 0.42) !important;
+        }
+        html body #invoice-editor-view .items-toolbar .btn-delete span,
+        html body #invoice-editor-view .items-toolbar .btn-delete svg,
+        html body #invoice-editor-view .items-toolbar .btn-delete svg * {
+            color: #ffffff !important;
+            -webkit-text-fill-color: #ffffff !important;
+            stroke: #ffffff !important;
+        }
+        :root.light-theme body #invoice-editor-view #btn-toggle-auto-send-sales.inactive,
+        :root.light-theme body #invoice-editor-view #btn-toggle-auto-send-sales:not(.active),
+        :root.light-theme body #invoice-editor-view #btn-auto-send-options-sales.inactive,
+        :root.light-theme body #invoice-editor-view #btn-auto-send-options-sales:not(.active) {
+            background: linear-gradient(180deg, #ffffff 0%, #fffbf2 55%, #f5e6cc 100%) !important;
+            border: 2px solid #8a4b19 !important;
+            color: #040200 !important;
+            -webkit-text-fill-color: #040200 !important;
+            font-weight: 900 !important;
+            box-shadow: 0 5px 12px rgba(120, 53, 15, 0.18), inset 0 1.5px 0 #ffffff !important;
+        }
+        :root.light-theme body #invoice-editor-view #btn-toggle-auto-send-sales:not(.active) span:not(#auto-send-sales-status-pill) {
+            color: #040200 !important;
+            -webkit-text-fill-color: #040200 !important;
+        }
+        :root.light-theme body #invoice-editor-view #btn-toggle-auto-send-sales:not(.active) #auto-send-sales-status-pill {
+            background: #f3e5c8 !important;
+            border: 1.5px solid #8a4b19 !important;
+            color: #040200 !important;
+            -webkit-text-fill-color: #040200 !important;
+            font-weight: 900 !important;
+        }
         </style>
         <script id="pur-fin-strip-and-tfoot-organizer">
         (function() {

@@ -65,6 +65,7 @@ $page_title = 'لوحة التحكم';
     var _earlyTok = localStorage.getItem('authToken') || localStorage.getItem('saas_token');
     if (!_earlyTok || _earlyTok === 'local-offline-token' || _earlyTok.indexOf('offline_token_') === 0) {
         localStorage.removeItem('authToken');
+        localStorage.removeItem('saas_token');
         document.cookie = "session_active=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
         document.cookie = "saas_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
         document.cookie = "mg_device_auth=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";

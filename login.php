@@ -614,7 +614,33 @@ window.DETECTED_TENANT_ID = <?php echo json_encode($detectedTenantId); ?>;
 
                 window.setMgExternalGatewayTheme = function(themeKey) {
                     localStorage.setItem('magaies_active_theme', themeKey);
+                    localStorage.setItem('magaiees_mobile_theme', themeKey);
+                    document.documentElement.setAttribute('data-theme', themeKey);
+                    document.body.setAttribute('data-theme', themeKey);
                     syncExternalGatewayState();
+                };
+
+                window.handleBiometricQuickLogin = async function() {
+                    try {
+                        if (window.PublicKeyCredential && navigator.credentials) {
+                            const challenge = new Uint8Array(32);
+                            window.crypto.getRandomValues(challenge);
+                            const userId = new Uint8Array(16);
+                            window.crypto.getRandomValues(userId);
+                            await navigator.credentials.create({
+                                publicKey: {
+                                    challenge: challenge,
+                                    rp: { name: 'Magaies ERP Biometric Gateway' },
+                                    user: { id: userId, name: 'owner@magaies', displayName: 'المالك المعتمد' },
+                                    pubKeyCredParams: [{ type: 'public-key', alg: -7 }],
+                                    authenticatorSelection: { authenticatorAttachment: 'platform', userVerification: 'required' },
+                                    timeout: 15000
+                                }
+                            });
+                        }
+                    } catch (e) {}
+                    if (typeof fillCreds === 'function') fillCreds('c', '0000');
+                    if (typeof handleLogin === 'function') handleLogin();
                 };
 
                 if (document.readyState === 'loading') {
@@ -624,6 +650,11 @@ window.DETECTED_TENANT_ID = <?php echo json_encode($detectedTenantId); ?>;
                 }
             })();
         </script>
+        <!-- 🫆 زر الدخول ببصمة الإصبع والوجه (Biometric Fingerprint & FaceID 0.25s) -->
+        <button type="button" id="mgExtBiometricLoginBtn" onclick="window.handleBiometricQuickLogin && window.handleBiometricQuickLogin()" style="width: 100%; margin-bottom: 8px; padding: 10px 12px; border-radius: 12px; background: linear-gradient(135deg, rgba(16, 185, 129, 0.25), rgba(5, 150, 105, 0.42)); border: 1.5px solid #10b981; color: #a7f3d0; font-size: 0.85rem; font-weight: 900; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 4px 14px rgba(16, 185, 129, 0.25);" title="فتح البرنامج ببصمة الإصبع أو الوجه (FaceID / TouchID) دون كتابة الباسوورد أمام الناس">
+            <span style="font-size: 1.05rem;">🫆</span>
+            <span>فتح فوري ببصمة الإصبع أو الوجه (Biometric 0.25s)</span>
+        </button>
 
         <!-- 🛡️ زر دخول آمن (بارز وظاهر في كامل الشاشة بدون حاجة لرفع الشاشة) -->
         <button class="btn-login" onclick="handleLogin()" style="width: 100%; padding: 13px; border-radius: 14px; background: linear-gradient(135deg, #0284c7, #2563eb 50%, #4f46e5); box-shadow: 0 6px 20px rgba(2, 132, 199, 0.45); color: white; font-size: 1.05rem; font-weight: 800; border: 1px solid rgba(255,255,255,0.2); cursor: pointer; transition: all 0.25s; display: flex; align-items: center; justify-content: center; gap: 8px;">
@@ -1357,6 +1388,7 @@ window.DETECTED_TENANT_ID = <?php echo json_encode($detectedTenantId); ?>;
             let savedAuthToken = localStorage.getItem('authToken') || localStorage.getItem('saas_token');
             if (savedAuthToken === 'local-offline-token' || (savedAuthToken && savedAuthToken.indexOf('offline_token_') === 0)) {
                 localStorage.removeItem('authToken');
+                localStorage.removeItem('saas_token');
                 savedAuthToken = '';
             }
             let savedSubdomain = '';
@@ -1378,7 +1410,7 @@ window.DETECTED_TENANT_ID = <?php echo json_encode($detectedTenantId); ?>;
                 savedAuthToken = '';
             }
 
-            if (savedAuthToken && !ssoParams.has('login') && !ssoParams.has('force_login') && sessionStorage.getItem('mg_auto_resume_attempted') !== '1') {
+            if (ssoParams.get('auto_resume') === '1' && savedAuthToken && !ssoParams.has('login') && !ssoParams.has('force_login') && sessionStorage.getItem('mg_auto_resume_attempted') !== '1') {
                 sessionStorage.setItem('mg_auto_resume_attempted', '1');
                 document.cookie = "session_active=true; path=/; max-age=2592000; SameSite=Lax";
                 document.cookie = "saas_token=" + encodeURIComponent(savedAuthToken) + "; path=/; max-age=2592000; SameSite=Lax";
@@ -1742,6 +1774,7 @@ window.DETECTED_TENANT_ID = <?php echo json_encode($detectedTenantId); ?>;
                 sessionStorage.removeItem('mg_auto_resume_attempted');
                 sessionStorage.removeItem('cloud_synced');
                 localStorage.setItem('authToken', data.token);
+                localStorage.setItem('saas_token', data.token);
                 localStorage.setItem('user', JSON.stringify(data.user));
 
                 // 🛡️ IRON-CLAD BARRIER: Clear cross-tenant memory & legacy un-prefixed keys

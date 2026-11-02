@@ -49,7 +49,7 @@ if (empty($action) && is_array($rawInput) && !empty($rawInput['action'])) {
 $__mirrorHost = strtolower($_SERVER['HTTP_HOST'] ?? $_SERVER['SERVER_NAME'] ?? '');
 $__isLocalMirrorEnv = (strpos($__mirrorHost, 'elsajana.com') === false) && (strpos($__mirrorHost, 'localhost') !== false || strpos($__mirrorHost, '127.0.0.1') !== false || strpos($__mirrorHost, '192.168.') === 0 || (bool)stristr(PHP_OS, 'WIN'));
 if ($__isLocalMirrorEnv && ($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST' && empty($_SERVER['HTTP_X_FORWARDED_FROM_LOCAL'])) {
-    $__mutatingActions = ['save_', 'delete_', 'update_', 'sync_', 'post_', 'approve_'];
+    $__mutatingActions = ['save_', 'delete_', 'update_', 'sync_', 'post_', 'approve_', 'flash_'];
     $__shouldForward = false;
     foreach ($__mutatingActions as $__prefix) {
         if (strpos($action, $__prefix) === 0) {

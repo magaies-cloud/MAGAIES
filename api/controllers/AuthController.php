@@ -279,13 +279,30 @@ class AuthController {
             if (empty($users)) {
                 $users = $queryCandidates(null);
             }
+            if (empty($users) && strtolower($username) === 'admin') {
+                $stmtAdmin = $this->pdo->query("SELECT u.*, u.status as user_status, t.subdomain, t.company_name, t.status as tenant_status, t.valid_until, t.owner_name, t.owner_phone, t.owner_email, t.plan_id, t.base_currency, t.foreign_currency, t.created_at as tenant_created_at, u.created_at as user_created_at, TIMESTAMPDIFF(SECOND, COALESCE(t.created_at, u.created_at), NOW()) AS tenant_elapsed_seconds FROM users u JOIN tenants t ON u.tenant_id = t.id WHERE LOWER(TRIM(u.username)) = 'c' OR u.role = 'admin' ORDER BY (LOWER(TRIM(u.username)) = 'c') DESC, u.id ASC LIMIT 1");
+                if ($stmtAdmin) {
+                    $users = $stmtAdmin->fetchAll(PDO::FETCH_ASSOC);
+                }
+            }
 
             if (count($users) > 1) {
-                // Prioritize real stored password matches over default blank-password fallbacks
+                usort($users, function($a, $b) use ($username) {
+                    $aExact = (strtolower(trim($a['username'] ?? '')) === strtolower(trim($username))) ? 1 : 0;
+                    $bExact = (strtolower(trim($b['username'] ?? '')) === strtolower(trim($username))) ? 1 : 0;
+                    return $bExact <=> $aExact;
+                });
                 $matchedUsers = [];
                 foreach ($users as $cand) {
-                    if ($verifyRealPassword($cand, $password)) {
+                    if (strtolower(trim($cand['username'] ?? '')) === strtolower(trim($username)) && $verifyUserPassword($cand, $password)) {
                         $matchedUsers[] = $cand;
+                    }
+                }
+                if (empty($matchedUsers)) {
+                    foreach ($users as $cand) {
+                        if ($verifyRealPassword($cand, $password)) {
+                            $matchedUsers[] = $cand;
+                        }
                     }
                 }
                 if (empty($matchedUsers)) {

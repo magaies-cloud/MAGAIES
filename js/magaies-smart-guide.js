@@ -254,10 +254,10 @@
             position: fixed;
             top: 50%;
             left: 50%;
-            z-index: 100020;
+            z-index: 2147483520;
             pointer-events: none;
             display: none;
-            transition: top 0.65s cubic-bezier(0.22, 1, 0.36, 1), left 0.65s cubic-bezier(0.22, 1, 0.36, 1), transform 0.18s ease;
+            transition: top 0.52s cubic-bezier(0.22, 1, 0.36, 1), left 0.52s cubic-bezier(0.22, 1, 0.36, 1), transform 0.18s ease;
             filter: drop-shadow(0 0 16px #fbbf24) drop-shadow(0 6px 14px rgba(0,0,0,0.85));
         }
         .msg-ghost-cursor-hand {
@@ -268,7 +268,7 @@
         }
         .msg-ghost-cursor-label {
             background: linear-gradient(135deg, #fbbf24, #f59e0b);
-            color: #020617;
+            color: #000000 !important;
             font-family: 'Cairo', 'Tajawal', sans-serif !important;
             font-weight: 900;
             font-size: 0.8rem;
@@ -303,18 +303,18 @@
 
         .msg-live-target-ring {
             position: fixed;
-            z-index: 100010;
+            z-index: 2147483510;
             pointer-events: none;
             display: none;
             border: 3.5px solid #fbbf24;
             border-radius: 16px;
-            box-shadow: 0 0 32px rgba(251, 191, 36, 0.9), inset 0 0 18px rgba(251, 191, 36, 0.35), 0 0 0 9999px rgba(2, 6, 23, 0.36);
-            transition: all 0.32s cubic-bezier(0.22, 1, 0.36, 1);
+            box-shadow: 0 0 32px rgba(251, 191, 36, 0.9), inset 0 0 18px rgba(251, 191, 36, 0.35), 0 0 0 9999px rgba(2, 6, 23, 0.32);
+            transition: all 0.28s cubic-bezier(0.22, 1, 0.36, 1);
             animation: msgTargetPulse 1.4s infinite ease-in-out;
         }
         @keyframes msgTargetPulse {
-            0%, 100% { border-color: #fbbf24; box-shadow: 0 0 28px rgba(251, 191, 36, 0.85), 0 0 0 9999px rgba(2, 6, 23, 0.36); }
-            50% { border-color: #38bdf8; box-shadow: 0 0 38px rgba(56, 189, 248, 0.95), 0 0 0 9999px rgba(2, 6, 23, 0.36); }
+            0%, 100% { border-color: #fbbf24; box-shadow: 0 0 28px rgba(251, 191, 36, 0.85), 0 0 0 9999px rgba(2, 6, 23, 0.32); }
+            50% { border-color: #38bdf8; box-shadow: 0 0 38px rgba(56, 189, 248, 0.95), 0 0 0 9999px rgba(2, 6, 23, 0.32); }
         }
 
         /* ── ROYAL COMPACT NON-BLOCKING GUIDE CONTROL POD (أمر حاسم 2: كبسولة Micro-HUD لا تحجب أي شيء وتتبع السمات السبع 100%) ── */
@@ -322,9 +322,9 @@
             position: fixed;
             bottom: 12px;
             left: 12px;
-            z-index: 100060;
+            z-index: 2147483540;
             width: auto;
-            max-width: min(540px, 95vw);
+            max-width: min(590px, 96vw);
             background: linear-gradient(160deg, rgba(2, 6, 23, 0.96) 0%, rgba(15, 23, 42, 0.98) 55%, rgba(23, 15, 48, 0.96) 100%);
             color: #ffffff !important;
             border: 2.2px solid rgba(251, 191, 36, 0.9) !important;
@@ -345,6 +345,38 @@
             bottom: auto !important;
             top: 86px !important;
             left: 12px !important;
+        }
+        #msg-coach-svg-popover {
+            position: fixed;
+            bottom: 54px;
+            left: 12px;
+            z-index: 2147483535;
+            width: 315px;
+            height: 92px;
+            background: rgba(15, 23, 42, 0.96);
+            border: 2px solid #38bdf8;
+            border-radius: 14px;
+            padding: 4px 6px;
+            box-shadow: 0 12px 28px rgba(0,0,0,0.75);
+            pointer-events: none;
+            display: none;
+            overflow: hidden;
+            direction: rtl;
+        }
+        .msg-live-coach-bar.docked-top ~ #msg-coach-svg-popover,
+        #msg-coach-svg-popover.docked-top {
+            bottom: auto !important;
+            top: 128px !important;
+            left: 12px !important;
+        }
+        html.light-theme #msg-coach-svg-popover,
+        body.light-theme #msg-coach-svg-popover,
+        html[data-theme="warm_cream"] #msg-coach-svg-popover,
+        html[data-theme="ultra_white"] #msg-coach-svg-popover,
+        html[data-theme="exec_gray"] #msg-coach-svg-popover {
+            background: rgba(255, 255, 255, 0.98) !important;
+            border: 2px solid #000000 !important;
+            color: #000000 !important;
         }
         /* Strict Light Theme Contrast (#000000 text on light surface) for Micro-HUD, Hover Tooltip & Live Dropdown Mirror */
         html.light-theme .msg-live-coach-bar,
@@ -423,7 +455,7 @@
         }
         #msg-live-select-mirror {
             position: fixed;
-            z-index: 100055;
+            z-index: 2147483530;
             display: none;
             flex-direction: column;
             gap: 3px;
@@ -693,27 +725,22 @@
             box-shadow: 0 0 24px rgba(56, 189, 248, 0.95), 0 6px 16px rgba(0, 0, 0, 0.6);
         }
 
-        .msg-quartet-mic {
+        .msg-quartet-mic,
+        .msg-quartet-cinema4k {
             grid-area: mic;
-            background: linear-gradient(135deg, #03261d 0%, #047857 55%, #059669 100%) !important;
-            border: 1.5px solid #34d399 !important;
-            box-shadow: 0 0 14px rgba(52, 211, 153, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+            background: linear-gradient(135deg, #450a0a 0%, #dc2626 55%, #9333ea 100%) !important;
+            border: 1.8px solid #fbbf24 !important;
+            box-shadow: 0 0 16px rgba(220, 38, 38, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.3);
         }
-        .msg-quartet-mic .msg-quartet-icon-box {
-            background: linear-gradient(135deg, #10b981, #059669);
-            border: 1px solid #a7f3d0;
+        .msg-quartet-mic .msg-quartet-icon-box,
+        .msg-quartet-cinema4k .msg-quartet-icon-box {
+            background: linear-gradient(135deg, #ef4444, #b91c1c);
+            border: 1px solid #fde047;
         }
-        .msg-quartet-mic.listening {
-            background: linear-gradient(135deg, #7f1d1d 0%, #dc2626 100%) !important;
-            border-color: #fef08a !important;
-            animation: msgMicListeningPulse 1s infinite ease-in-out;
-        }
-        @keyframes msgMicListeningPulse {
-            0%, 100% { transform: scale(1); box-shadow: 0 0 16px rgba(239, 68, 68, 0.8); }
-            50% { transform: scale(1.04); box-shadow: 0 0 28px rgba(254, 240, 138, 0.95); }
-        }
-        .msg-quartet-mic:hover {
-            box-shadow: 0 0 24px rgba(52, 211, 153, 0.95), 0 6px 16px rgba(0, 0, 0, 0.6);
+        .msg-quartet-mic:hover,
+        .msg-quartet-cinema4k:hover {
+            box-shadow: 0 0 26px rgba(250, 204, 21, 0.95), 0 6px 16px rgba(0, 0, 0, 0.65);
+            transform: translateY(-1px) scale(1.03);
         }
 
         #header-media-control-wrap.msg-quartet-tv-cell {
@@ -995,14 +1022,14 @@
         /* Smart Hover Micro-Tooltip Capsule */
         .msg-smart-hover-tooltip {
             position: fixed;
-            z-index: 100090;
+            z-index: 2147483550;
             max-width: 340px;
             background: linear-gradient(155deg, rgba(2, 6, 23, 0.97), rgba(15, 23, 42, 0.98));
             border: 1.5px solid #38bdf8;
             border-radius: 14px;
             padding: 9px 13px;
             box-shadow: 0 14px 34px rgba(0, 0, 0, 0.88), 0 0 22px rgba(56, 189, 248, 0.35);
-            color: #f8fafc;
+            color: #ffffff;
             font-family: 'Cairo', 'Tajawal', sans-serif !important;
             direction: rtl;
             display: none;
@@ -1200,6 +1227,7 @@
 
     // ── أمر حاسم (1): قفل صارم لنطق الصلاة على النبي ﷺ مرة واحدة فقط مع ضغطة المرشد وفتحة الشاشة ومنع تكرارها بين الخانات والنقاط نهائياً ──
     let hasPlayedOpeningInvocation = false;
+    let hasSpokenSalawatInCurrentGuideSession = false;
     window.hasPlayedOpeningInvocation = false;
 
     function stripAllSalawatPrefixes(rawText) {
@@ -1211,8 +1239,9 @@
             .replace(/^اللهم\s+صل\s+وسلم\s+على\s+نبينا\s+محمد[.،\s]*/g, '')
             .replace(/^اللهم\s+صل\s+على\s+محمد\s+وعلى\s+آل\s+محمد[.،\s]*/g, '')
             .replace(/^اللهم\s+صل\s+على\s+سيدنا\s+محمد[.،\s]*/g, '')
-            .replace(/شرح\s+من\s+الألف\s+(إلى|ل)\s*الياء/g, 'الشرح الشامل')
-            .replace(/من\s+الألف\s+(إلى|ل)\s*الياء/g, '')
+            .replace(/شرح\s+من\s+الألف\s+(إلى|الى|ل)\s*الياء/g, '')
+            .replace(/من\s+الألف\s+(إلى|الى|ل)\s*الياء/g, '')
+            .replace(/من\s+الالف\s+(إلى|الى|ل)\s*الياء/g, '')
             .replace(/\s{2,}/g, ' ')
             .trim();
         return txt;
@@ -1220,9 +1249,10 @@
 
     function ensureLeadingSalawat(rawText, allowOpeningOnce = false) {
         const cleanBody = stripAllSalawatPrefixes(rawText);
-        if (!allowOpeningOnce) {
+        if (!allowOpeningOnce || hasSpokenSalawatInCurrentGuideSession) {
             return cleanBody;
         }
+        hasSpokenSalawatInCurrentGuideSession = true;
         if (!cleanBody) return SHORT_SAHIHAYN_SALAWAT;
         return `${SHORT_SAHIHAYN_SALAWAT} ${cleanBody}`;
     }
@@ -1234,11 +1264,11 @@
             const val = step.speechByDialect[dialect];
             out = (typeof val === 'function') ? val() : val;
         } else {
-            const base = (typeof step.speech === 'function') ? step.speech() : (step.speech || '');
+            const base = (typeof step.speech === 'function') ? step.speech() : (step.speech || step.narration || '');
             out = adaptTextToDialect(base, dialect);
         }
         out = stripAllSalawatPrefixes(out);
-        if (isFirstStepOfSession) {
+        if (isFirstStepOfSession && !hasSpokenSalawatInCurrentGuideSession) {
             out = `${SHORT_SAHIHAYN_SALAWAT} ${out}`.trim();
         }
         return out;
@@ -1266,7 +1296,7 @@
                 }
                 const url = `api/tts_male.php?dialect=${encodeURIComponent(dialect)}&text=${encodeURIComponent(cleanTxt)}`;
                 const ctrl = typeof AbortController !== 'undefined' ? new AbortController() : null;
-                const tid = ctrl ? setTimeout(() => ctrl.abort(), 950) : null;
+                const tid = ctrl ? setTimeout(() => ctrl.abort(), 6500) : null;
                 try {
                     const res = await fetch(url, { signal: ctrl ? ctrl.signal : undefined });
                     if (tid) clearTimeout(tid);
@@ -1353,50 +1383,58 @@
         source.buffer = activeAudioBuffer;
 
         if (activeAudioIsGenuine) {
-            // 🎙️ 4-STAGE STUDIO BARITONE BROADCAST DSP CHAIN (صوت رجالي إذاعي فخيم وقمة في الوضوح)
-            const pitchCompCents = Math.round(-1200 * Math.log2(selectedSpeechRate / 0.92)) - 45;
+            // 🎙️ 5-STAGE WORLD-CLASS DUBBING STUDIO BARITONE HD DSP CHAIN (صوت استوديوهات الدبلجة العالمية الفخيم والعميق)
+            const calmRate = Math.max(0.86, Math.min(1.08, selectedSpeechRate || 0.94));
+            const pitchCompCents = Math.round(-1200 * Math.log2(calmRate / 0.94)) - 55;
             source.detune.value = Math.max(-480, Math.min(450, pitchCompCents));
-            source.playbackRate.value = selectedSpeechRate;
+            source.playbackRate.value = calmRate;
 
-            // 1. Deep Baritone Chest Resonance (فخامة وعمق الصوت الرجالي)
+            // 1. Deep Dubbing Studio Sub-Warmth (عمق وفخامة الرنين الصدري الرجالي)
             const warmLow = ctx.createBiquadFilter();
             warmLow.type = 'lowshelf';
-            warmLow.frequency.value = 165;
-            warmLow.gain.value = 3.8;
+            warmLow.frequency.value = 148;
+            warmLow.gain.value = 4.4;
 
-            // 2. Anti-Muffle Boxiness Cut (إزالة أي كتمة صوتية)
+            // 2. Anti-Muffle Studio Boxiness Cut (نقاء استوديو خالٍ من أي كتمة)
             const deMud = ctx.createBiquadFilter();
             deMud.type = 'peaking';
-            deMud.frequency.value = 340;
-            deMud.Q.value = 1.4;
-            deMud.gain.value = -2.2;
+            deMud.frequency.value = 325;
+            deMud.Q.value = 1.35;
+            deMud.gain.value = -2.6;
 
-            // 3. Crystal Arabic Diction & Articulation Presence (قمة وضوح مخارج الحروف)
+            // 3. Rich Vocal Body & Presence (دفء ووضوح مخارج الحروف العربية)
+            const vocalBody = ctx.createBiquadFilter();
+            vocalBody.type = 'peaking';
+            vocalBody.frequency.value = 1250;
+            vocalBody.Q.value = 1.1;
+            vocalBody.gain.value = 1.4;
+
             const clarity = ctx.createBiquadFilter();
             clarity.type = 'peaking';
-            clarity.frequency.value = 3100;
+            clarity.frequency.value = 3050;
             clarity.Q.value = 0.95;
-            clarity.gain.value = 4.2;
+            clarity.gain.value = 3.8;
 
             const crispAir = ctx.createBiquadFilter();
             crispAir.type = 'highshelf';
             crispAir.frequency.value = 5800;
-            crispAir.gain.value = 2.5;
+            crispAir.gain.value = 2.0;
 
-            // 4. Broadcast Studio Compressor & Clean Makeup Gain
+            // 4. Broadcast HD Studio Compressor & Calm Master Output
             const comp = ctx.createDynamicsCompressor();
-            comp.threshold.value = -20;
-            comp.knee.value = 12;
-            comp.ratio.value = 3.2;
-            comp.attack.value = 0.005;
-            comp.release.value = 0.14;
+            comp.threshold.value = -21;
+            comp.knee.value = 16;
+            comp.ratio.value = 3.5;
+            comp.attack.value = 0.004;
+            comp.release.value = 0.18;
 
             const outGain = ctx.createGain();
-            outGain.gain.value = 1.26;
+            outGain.gain.value = 1.08;
 
             source.connect(warmLow);
             warmLow.connect(deMud);
-            deMud.connect(clarity);
+            deMud.connect(vocalBody);
+            vocalBody.connect(clarity);
             clarity.connect(crispAir);
             crispAir.connect(comp);
             comp.connect(outGain);
@@ -1559,12 +1597,17 @@
         return arVoices[0] || null;
     }
 
+    let _browserSpeechKeepAliveTimer = null;
     function speakWithBrowserMaleFallback(text, onEndCallback, dialect = selectedMaleProfile, allowOpeningOnce = false) {
         if (!('speechSynthesis' in window)) {
             if (onEndCallback) setTimeout(onEndCallback, 2500);
             return;
         }
         try {
+            if (_browserSpeechKeepAliveTimer) {
+                clearInterval(_browserSpeechKeepAliveTimer);
+                _browserSpeechKeepAliveTimer = null;
+            }
             window.speechSynthesis.cancel();
             window.speechSynthesis.resume();
             const cleanText = ensureLeadingSalawat(text, allowOpeningOnce);
@@ -1590,6 +1633,10 @@
             const finishOnce = () => {
                 if (finished) return;
                 finished = true;
+                if (_browserSpeechKeepAliveTimer) {
+                    clearInterval(_browserSpeechKeepAliveTimer);
+                    _browserSpeechKeepAliveTimer = null;
+                }
                 isAudioPlaying = false;
                 updateAudioPlayerUI();
                 if (onEndCallback) onEndCallback();
@@ -1597,18 +1644,35 @@
             utter.onend = finishOnce;
             utter.onerror = finishOnce;
             window.speechSynthesis.speak(utter);
+            // Keep-alive loop prevents Chrome on Windows from auto-pausing long Arabic utterances
+            _browserSpeechKeepAliveTimer = setInterval(() => {
+                try {
+                    if (!isAudioPlaying || isAudioPaused) return;
+                    if (window.speechSynthesis.paused) window.speechSynthesis.resume();
+                } catch (_e) {}
+            }, 250);
             setTimeout(() => {
                 try {
                     if (window.speechSynthesis.paused) window.speechSynthesis.resume();
                 } catch (e) {}
-            }, 60);
+            }, 50);
         } catch (e) {
             if (onEndCallback) setTimeout(onEndCallback, 2500);
         }
     }
 
+    // 🔊 COMPLETE SEPARATION: Live Smart Guide Audio is active in normal mode, and strictly isolated when 4K Cinema Studio runs
+    window.__MUTE_LEGACY_GUIDE_AUDIO__ = false;
+
     async function speakArabicMaleText(text, onEndCallback, dialect = selectedMaleProfile, allowOpeningOnce = false) {
         stopCurrentSpeech();
+        // Strictly block Live Guide audio ONLY while the independent 4K Cinema Studio is actively running!
+        if (window.__CINEMA_4K_ACTIVE__ || window.__MUTE_LEGACY_GUIDE_AUDIO__) {
+            if (typeof onEndCallback === 'function') {
+                nextStepTimeoutId = setTimeout(onEndCallback, 2800);
+            }
+            return;
+        }
         const reqId = currentSpeechRequestId;
         ensureGuideDomElements();
 
@@ -1634,7 +1698,7 @@
             startBufferAtOffset(0);
         } catch (err) {
             if (reqId !== currentSpeechRequestId) return;
-            speakWithBrowserMaleFallback(finalSpokenText, onEndCallback, dialect, allowOpeningOnce);
+            speakWithBrowserMaleFallback(finalSpokenText, onEndCallback, dialect, false);
         }
     }
 
@@ -1648,7 +1712,7 @@
         {
             badge: 'الخطوة 1️⃣ — الملخص العام: المدخلات والمخرجات والقاعدة الذهبية لبوابة استلام المشتريات (GRN)',
             cursorLabel: 'بوابة استلام المشتريات (إضافة للمخزن +) 📥',
-            targetSelector: '#sl-tab-purchases',
+            targetSelector: '#sl-top-cockpit-bar, #sl-main-title-text',
             diagramType: 'c5-impact-map',
             c5ImpactMeta: {
                 screenTitle: 'بوابة استلام المشتريات وتقسيمها على دفعات (GRN)',
@@ -1706,7 +1770,7 @@
         {
             badge: 'الخطوة 3️⃣ — العدادات الأربعة الذكية: أين تقف كل فاتورة الآن؟',
             cursorLabel: 'العدادات الأربعة (انتظار • مقسمة • مكتملة • أذونات) 📊',
-            targetSelector: '#sl-kpi-card-pending',
+            targetSelector: '#sl-filter-btn-pending, #sl-kpi-card-pending',
             speechByDialect: {
                 egyptian: () => `تحت الشريط العلوي هتلاقي أربع كروت ملونة بتلخص لك حال المخزن كله: الكارت الأصفر الأول بيعرض الفواتير الجديدة اللي لسه واصلة ومستنية الاستلام. والكارت الأزرق التاني بيعرض الفواتير اللي استلمنا جزء منها ولسه باقي ليها دفعات تانية عند المورد. والكارت الأخضر التالت للفواتير اللي خلصت بالكامل. والبنفسجي الرابع فيه أرشيف كل أذونات الاستلام الرسمية اللي طبعناها. والقاعدة الذهبية لهذا العنصر: راجع كارت الفواتير المقسمة الزرقاء يومياً لمتابعة الدفعات المتأخرة عند الموردين أولاً بأول.`,
                 sudanese: () => `تحت الشريط الفوق بتلقى أربعة كروت ملونة بتلخص ليك حركة المخزن كلها: الكرت الأصفر الأول بيعرض الفواتير الجديدة الراجية الاستلام. والكرت الأزرق التاني بيعرض الفواتير القسّمناها واستلمنا جزء منها ولسه باقي ليها دفعات عند المورد. والكرت الأخضر التالت للفواتير الاكتملت خلاص. والبنفسجي الرابع فيهو سجل كل أذونات الاستلام الرسمية. والقاعدة الذهبية لهذا العنصر: تابع كرت الفواتير المقسمة الزرقاء يومياً عشان تضمن وصول باقي الدفعات من الموردين في مواعيدها.`,
@@ -1873,7 +1937,7 @@
         {
             badge: 'مبيعات 1️⃣ — الملخص العام: المدخلات والمخرجات والقاعدة الذهبية لبوابة تسليم المبيعات (GDN)',
             cursorLabel: 'بوابة تسليم المبيعات (خصم مخزني - Out) 📤',
-            targetSelector: '#sl-tab-sales',
+            targetSelector: '#sl-top-cockpit-bar, #sl-main-title-text',
             diagramType: 'c5-impact-map',
             c5ImpactMeta: {
                 screenTitle: 'بوابة تسليم المبيعات وتقسيمها على دفعات (GDN)',
@@ -1931,7 +1995,7 @@
         {
             badge: 'مبيعات 3️⃣ — العدادات الأربعة لفواتير المبيعات ومراحل التسليم',
             cursorLabel: 'قيد التسليم ⏳ | مقسمة ✂️ | مكتملة ✅ | سجل أذونات GDN 🏷️',
-            targetSelector: '#sl-kpi-card-pending',
+            targetSelector: '#sl-filter-btn-pending, #sl-kpi-card-pending',
             speechByDialect: {
                 egyptian: () => `الأربع كروت الملونة هنا بتفرز لك فواتير العملاء: الكارت الأصفر الأول فيه الفواتير الجاهزة للصرف اللي العميل لسه ما استلمهاش. والكارت الأزرق التاني فيه الفواتير اللي العميل استلم جزء منها ولسه باقي له بضاعة عندنا، أو واقفة مستنية ختم البوابة النهائي. والأخضر التالت للفواتير اللي اتسلمت بالكامل، والبنفسجي الرابع لسجل أذونات الصرف الرسمية. والقاعدة الذهبية لهذا العنصر: راجع كارت الفواتير المقسمة الزرقاء يومياً لضبط البضائع المحجوزة للعملاء في المستودع.`,
                 sudanese: () => `الأربعة كروت الملونة هنا بتفرز ليك فواتير الزبائن: الكرت الأصفر الأول للفواتير الجاهزة للصرف. والكرت الأزرق التاني للفواتير المقسمة اللي العميل شال جزء منها ولسه باقي ليهو بضاعة في المخزن. والأخضر التالت للفواتير الاتسلمت خلاص، والبنفسجي الرابع لسجل أذونات الصرف الرسمية. والقاعدة الذهبية لهذا العنصر: راجع كرت الفواتير المقسمة الزرقاء يومياً لمعرفة البضائع المتبقية للزبائن في المخزن.`,
@@ -2620,40 +2684,51 @@
                 speech: () => `${SHORT_SAHIHAYN_SALAWAT} أهلاً بحضرتك في الشرح الشامل لشاشات البيانات الأساسية الثمانية. نبدأ بالضغط على زر المخازن لتفتح أمامنا شاشة تأسيس المستودعات؛ وأي مخزن تضيفه هنا يظهر فوراً في قوائم فواتير المشتريات والمبيعات وبوابة الاستلام والجرد.`
             },
             {
-                badge: '2. الشاشة الفرعية الثانية: فتح شاشة العملاء والسقف الائتماني',
-                cursorLabel: 'فتح شاشة العملاء 👤',
-                screenPath: 'البيانات الأساسية ⬅ ضغط زر (العملاء) ⬅ فتح شاشة بيانات وسقوف العملاء',
-                targetSelector: '#cust-name, .md-tab-btn.tab-customers',
+                badge: '2. الشاشة الفرعية الثانية: 👥 منظومة العملاء الشاملة من الألف إلى الياء',
+                cursorLabel: 'شاشة العملاء الشاملة (من الألف إلى الياء) 👥🛡️',
+                screenPath: 'البيانات الأساسية ⬅ شاشة العملاء ⬅ السياسة والأوامر الجماعية ⬅ الموقف والبطاقة الافتراضية QR ⬅ الرصيد الافتتاحي وحد الائتمان والعملة والرقم السري ⬅ التعديل والحذف المحمي',
+                targetSelector: '#cust-name, #cust-limit, .md-tab-btn.tab-customers',
+                goldenRule: '«اضبط الرصيد الافتتاحي وحد الائتمان وعملة الحساب والرقم السري بدقة؛ فالتجارة الناجحة تُبنى على الحزم المالي والتوثيق الكامل لا على العواطف.»',
                 diagramType: 'screen-transition',
                 diagramMeta: {
-                    parentScreen: 'قائمة البيانات الأساسية الجانبية',
-                    actionLabel: 'ضغط تبويب (العملاء) يفتح شاشة العملاء:',
-                    childItems: ['👤 اسم العميل ورقم الهاتف والواتساب والرقم السري PIN', '🛡️ تحديد السقف الائتماني المسموح للبيع الآجل', '💰 الرصيد الافتتاحي (مدين / دائن) والعملة', '📖 فتح حساب آلي في شجرة الحسابات ودفتر الأستاذ'],
-                    effectLabel: 'تم فتح شاشة العملاء الجديدة أمامك الآن!'
+                    parentScreen: 'شاشة بيانات العملاء الشاملة (من الألف إلى الياء)',
+                    actionLabel: 'منظومة إدارة العملاء المتكاملة:',
+                    childItems: [
+                        '⚙️ شريط الأوامر العليا: كشف للكل • رصيد للكل • إيقاف الكل • توليد باسورد • السياسة العامة',
+                        '🪪 شريط البطاقة: الموقف (موقوف/الرصيد/كشف) • اعتماد الإشعارات • البنك الافتراضي • بطاقة QR • نسخ البطاقة',
+                        '💰 الحقول المالية: الاسم • الرقم السري للواتساب • رقم الواتساب • الرصيد الافتتاحي المغذي للحساب • حد الائتمان • العملة • الحالة • شريحة التسعير',
+                        '✏️ التعديل والحذف: تعديل فوري بزر (✏️ تعديل) • منع صارم للحذف (🗑️ حذف) إذا كان للعميل حركات أو رصيد'
+                    ],
+                    effectLabel: 'شرح وتوثيق شاشة العملاء كاملة من الألف إلى الياء!'
                 },
                 action: () => {
                     const btn = document.querySelector('.md-tab-btn.tab-customers');
                     if (btn) { try { btn.click(); } catch (e) {} }
                 },
-                speech: () => 'الآن نضغط على زر العملاء لتفتح أمامك شاشة العملاء الجديدة! هنا تسجل اسم العميل ورقم واتسابه وسقفه الائتماني ورصيده الافتتاحي، ويقوم النظام بفتح حساب مالي له تلقائياً في شجرة الحسابات وفواتير المبيعات.'
+                speech: () => 'وعند الضغط على تبويب العملاء تفتح أمامك منظومة العملاء الشاملة من الألف إلى الياء؛ وتبدأ بشريط التحكم الجماعي في الأعلى (كشف للكل، رصيد للكل، إيقاف الكل، توليد باسورد، ودرج السياسة العامة)، يليه شريط موقف العميل الفردي (موقوف، الرصيد، كشف، اعتماد فوري أو مراجعة للإشعارات، البنك الافتراضي، البطاقة الافتراضية كيو آر، ونسخ البطاقة)، ثم حقول البطاقة: اسم العميل، الرقم السري الذي نحتاجه في الواتساب مع زر التوليد، رقم الواتساب، الرصيد الافتتاحي الذي يغذي كشف الحساب وميزان المراجعة، الحد الائتماني الذي يحافظ على رأس مالك، العملة، الحالة النشطة أو في آي بي أو محظور، شريحة التسعير وفترة السداد وأرقام المناديب والحسابات البنكية، وصولاً إلى جدول العملاء حيث يمكنك الضغط على تعديل لتحديث أي بيان، أو حذف مع وجود حماية محاسبية تمنع حذف أي عميل عليه حركات أو أرصدة.'
             },
             {
-                badge: '3. الشاشة الفرعية الثالثة: فتح شاشة الموردين',
-                cursorLabel: 'فتح شاشة الموردين 🏢',
-                screenPath: 'البيانات الأساسية ⬅ ضغط زر (الموردين) ⬅ فتح شاشة سجل وأرصدة الموردين',
-                targetSelector: '#sup-name, .md-tab-btn.tab-suppliers',
+                badge: '3. الشاشة الفرعية الثالثة: 🏢 منظومة الموردين الشاملة من الألف إلى الياء',
+                cursorLabel: 'شاشة الموردين الشاملة (من الألف إلى الياء) 🏢🛡️',
+                screenPath: 'البيانات الأساسية ⬅ شاشة الموردين ⬅ السياسة والأوامر الجماعية ⬅ الموقف وبطاقة QR ⬅ الرصيد الافتتاحي وحد الائتمان والعملة والرقم السري ⬅ التعديل والحذف المحمي',
+                targetSelector: '#sup-name, #sup-limit, .md-tab-btn.tab-suppliers',
                 diagramType: 'screen-transition',
                 diagramMeta: {
-                    parentScreen: 'قائمة البيانات الأساسية الجانبية',
-                    actionLabel: 'ضغط تبويب (الموردين) يفتح شاشة الموردين:',
-                    childItems: ['🏢 اسم المورد أو الشركة الموردة والهاتف', '💵 الرصيد الافتتاحي والعملة المعتمدة', '📲 رقم الواتساب لإرسال الفواتير وكشوف الحساب', '📥 يظهر فوراً في قائمة الموردين بشاشة المشتريات'],
-                    effectLabel: 'تم فتح شاشة الموردين الجديدة أمامك الآن!'
+                    parentScreen: 'شاشة بيانات الموردين الشاملة (من الألف إلى الياء)',
+                    actionLabel: 'منظومة إدارة الموردين المتكاملة:',
+                    childItems: [
+                        '⚙️ شريط الأوامر العليا للموردين: كشف للكل • رصيد للكل • إيقاف الكل • توليد باسورد • السياسة',
+                        '🪪 شريط بطاقة المورد: الموقف (موقوف/الرصيد/كشف) • اعتماد الإشعارات • البنك الافتراضي • بطاقة QR • نسخ البطاقة',
+                        '💵 الحقول المالية: اسم المورد • الرقم السري للواتساب • رقم الواتساب • الرصيد الافتتاحي الدائن • سقف الائتمان • العملة • الحالة',
+                        '✏️ التعديل والحذف: تعديل فوري بزر (✏️ تعديل) • منع الحذف نهائياً عند وجود فواتير مشتريات أو سندات أو رصيد'
+                    ],
+                    effectLabel: 'شرح وتوثيق شاشة الموردين كاملة من الألف إلى الياء!'
                 },
                 action: () => {
                     const btn = document.querySelector('.md-tab-btn.tab-suppliers');
                     if (btn) { try { btn.click(); } catch (e) {} }
                 },
-                speech: () => 'وعند الضغط على زر الموردين تفتح أمامك شاشة الموردين؛ لتسجيل الشركات والموردين وأرصدتهم الافتتاحية وأرقام الواتساب، ليظهروا مباشرة في قائمة الموردين داخل فاتورة المشتريات.'
+                speech: () => 'وعند الضغط على زر الموردين تفتح شاشة الموردين المتكاملة من الألف إلى الياء؛ وتشمل أوامر الواتساب الجماعية (كشف للكل، رصيد للكل، إيقاف الكل، توليد باسورد، والسياسة)، وموقف المورد الفردي (موقوف، الرصيد، كشف)، والبطاقة الافتراضية كيو آر ونسخ البطاقة، وخانات اسم المورد، الرقم السري للواتساب، رقم الواتساب، الرصيد الافتتاحي الذي يغذي حساب المورد، وسقف التعامل والعملة والحالة النشطة وأرقام المناديب والحسابات البنكية، مع إمكانية التعديل الفوري ومنع الحذف في حالة وجود حركات مالية أو فواتير مشتريات.'
             },
             {
                 badge: '4. الشاشة الفرعية الرابعة: فتح شاشة البنوك والتطبيقات البنكية',
@@ -2793,14 +2868,31 @@
             { sel: '#warehouse-name', title: '🏢 خانة اسم المخزن', desc: 'اكتب هنا اسم المستودع أو المعرض ليظهر في قوائم فواتير المشتريات والمبيعات والجرد.' },
             { sel: '#warehouse-type', title: '🏷️ نوع المخزن', desc: 'حدد ما إذا كان مستودعاً رئيسياً أو معرض بيع أو مخزناً فرعياً أو مخزن بضاعة تالفة.' },
             { sel: '#warehouse-keeper', title: '👨‍💼 أمين المخزن المسؤول', desc: 'حدد الموظف المسؤول عن استلام وتسليم البضاعة في هذا المستودع.' },
-            { sel: '#cust-name', title: '👤 خانة اسم العميل', desc: 'اكتب اسم العميل أو الشركة؛ يقوم النظام تلقائياً بفتح حساب مالي له في شجرة الحسابات وكشف الأستاذ.' },
-            { sel: '#cust-statement-pin, #sup-statement-pin', title: '🔐 الرقم السري لكشف الحساب الآلي (PIN)', desc: 'كود سري خاص بالعميل أو المورد لطلب كشف حسابه آلياً عبر بوت الواتساب بأمان تام.' },
-            { sel: '#cust-whatsapp, #sup-whatsapp', title: '💬 رقم الواتساب المعتمد', desc: 'رقم الواتساب لإرسال الفواتير والإشعارات وكشوف الحساب الآلية واستقبال الإشعارات المالية.' },
-            { sel: '#cust-opening-balance, #sup-opening-balance', title: '💰 الرصيد الافتتاحي', desc: 'الرصيد السابق للعميل أو المورد عند بداية العمل على النظام ليُدرج في كشف الحساب وميزان المراجعة.' },
-            { sel: '#cust-limit, #sup-limit', title: '🛑 السقف الائتماني المسموح', desc: 'الحد الأقصى للمديونية الآجلة المسموح بها؛ ينبهك النظام تلقائياً عند تجاوزه في الفواتير.' },
-            { sel: '#cust-currency, #sup-currency, #bank-currency, #safe-currency', title: '💱 عملة الحساب', desc: 'تحديد العملة المعتمدة للحساب (جنيه سوداني أو دولار أو غيرها) لتقييم الحركات والأرصدة بدقة.' },
-            { sel: '#cust-price-tier', title: '🏷️ شريحة التسعير الافتراضية للعميل', desc: 'تحدد السعر الذي يظهر تلقائياً لهذا العميل في فاتورة المبيعات (نقدي أو آجل أو أقل سعر).' },
-            { sel: '#sup-name', title: '🏭 خانة اسم المورد', desc: 'اكتب اسم المورد أو الشركة الموردة ليظهر فوراً في قائمة الموردين بشاشة المشتريات.' },
+            { sel: '#cust-name', title: '👤 خانة اسم العميل', desc: 'اكتب اسم العميل أو الشركة؛ يقوم النظام تلقائياً بفتح حساب مالي له في شجرة الحسابات وكشف الأستاذ وفواتير المبيعات.' },
+            { sel: '#cust-statement-pin, #sup-statement-pin, button[onclick*="generateRandomFormPin"]', title: '🔐 الرقم السري لكشف الحساب الآلي (PIN) وتوليده', desc: 'كود سري نحتاجه في الواتساب؛ عندما يرسله العميل أو المورد للبوت يتحقق النظام من هويته ويرسل له كشف حسابه أو رصيده فوراً، وزر (🎲 توليد) ينشئ رقماً سرياً جديداً بضغطة واحدة.' },
+            { sel: '#cust-whatsapp, #sup-whatsapp', title: '💬 رقم الواتساب المعتمد', desc: 'رقم الواتساب لإرسال الفواتير وسندات القبض والصرف وكشوف الحساب الآلية واستقبال إشعارات التحويل البنكي.' },
+            { sel: '#cust-opening-balance, #sup-opening-balance', title: '💰 الرصيد الافتتاحي (مغذي الحساب)', desc: 'رصيد أول المدة السابق قبل العمل بالنظام؛ وهو الذي يغذي كشف الحساب وميزان المراجعة الافتتاحي ويُحتسب تلقائياً ضمن إجمالي مديونية العميل أو رصيد المورد.' },
+            { sel: '#cust-limit, #sup-limit', title: '🛑 السقف الائتماني المسموح (حماية رأس المال)', desc: 'الحد الأقصى للمديونية الآجلة المسموح بها؛ يراقبه النظام مع الرصيد الافتتاحي والفواتير الجديدة وينبهك فوراً عند تجاوزه لحماية رأس مالك.' },
+            { sel: '#cust-currency, #sup-currency, #bank-currency, #safe-currency', title: '💱 عملة الحساب', desc: 'تحديد العملة المعتمدة للحساب (جنيه سوداني أو دولار أو ريال) لتقييم الحركات والأرصدة وكشوف الحسابات بعملة العميل أو المورد.' },
+            { sel: '#cust-status, #sup-status', title: '🟢 الحالة (نشط • VIP • محظور)', desc: 'تحديد حالة الحساب: (🟢 نشط) للتعامل الطبيعي، (🌟 VIP) لكبار العملاء والموردين، أو (🔴 محظور) لإيقاف التعامل الآجل معه.' },
+            { sel: '#cust-price-tier', title: '🏷️ شريحة التسعير الافتراضية للعميل', desc: 'تحدد السعر الذي ينزل تلقائياً لهذا العميل في فاتورة المبيعات (قطاعي/نقدي، نصف جملة، جملة، آجل، سعر خاص، آخر سعر بيع، أو أقل سعر مسموح).' },
+            { sel: '#cust-payment-terms, #sup-payment-terms', title: '⏳ فترة السداد المسموحة بالأيام', desc: 'عدد أيام الأجل المسموح بها قبل إطلاق تنبيهات استحقاق وأعمار الديون.' },
+            { sel: '#cust-security, #sup-security', title: '🛡️ درجة السرية (1 إلى 10)', desc: 'تحديد مستوى سرية الحساب لحمايته من الاطلاع غير المصرح به حسب صلاحيات المستخدمين.' },
+            { sel: 'button[onclick*="bulkSetEntityStatementMode"][onclick*="detailed"]', title: '📊 زر (كشف للكل)', desc: 'أمر جماعي يمنح جميع العملاء أو الموردين في الشاشة صلاحية استلام كشف حساب تفصيلي كامل عبر الواتساب بضغطة واحدة.' },
+            { sel: 'button[onclick*="bulkSetEntityStatementMode"][onclick*="balance_only"]', title: '💰 زر (رصيد للكل)', desc: 'أمر جماعي يضبط جميع العملاء أو الموردين لاستلام الرصيد النهائي فقط عبر الواتساب دون تفاصيل الفواتير.' },
+            { sel: 'button[onclick*="bulkSetEntityStatementMode"][onclick*="disabled"]', title: '🔒 زر (إيقاف الكل)', desc: 'أمر جماعي يوقف الرد الآلي لكشوف الحسابات عبر الواتساب لجميع الحسابات دفعة واحدة.' },
+            { sel: 'button[onclick*="bulkGenerateEntityPins"]', title: '🔐 زر (توليد باسورد للكل)', desc: 'يقوم بتوليد أرقام سرية (PIN) عشوائية وفريدة لجميع العملاء أو الموردين دفعة واحدة لاستخدامها في بوت الواتساب.' },
+            { sel: 'button[onclick*="toggleAdminWaPolicyDrawer"], .admin-wa-policy-drawer', title: '⚙️ زر ودرج (السياسة العامة للواتساب)', desc: 'يفتح إعدادات السياسة العامة لضبط: صلاحية الكشف، اعتماد الإشعارات (فوري أو مراجعة)، البنك الافتراضي، التحقق الأمني، نطاق الكشف، إظهار الأصناف، إشعار المدير، ومنع التكرار.' },
+            { sel: '#cust-mode-btn-disabled, #sup-mode-btn-disabled, #cust-mode-btn-balance_only, #sup-mode-btn-balance_only, #cust-mode-btn-detailed, #sup-mode-btn-detailed', title: '📊 موقف الحساب الفردي (موقوف • الرصيد • كشف)', desc: 'يحدد موقف هذا العميل أو المورد تحديداً في الواتساب: (🔒 موقوف) لمنع الكشف، (💰 الرصيد) لإرسال صافي الرصيد فقط، أو (📊 كشف) لإرسال كشف تفصيلي بالحركات.' },
+            { sel: '#cust-rcpt-btn-auto_post, #sup-rcpt-btn-auto_post, #cust-rcpt-btn-review_first, #sup-rcpt-btn-review_first', title: '⚡ سياسة اعتماد إشعارات التحويل (اعتماد فوري • مراجعة)', desc: 'يحدد هل إشعارات التحويل البنكي المرسلة من هذا الحساب على الواتساب تُرحّل فوراً أم تدخل للمراجعة أولاً.' },
+            { sel: '#cust-default-bank-id, #sup-default-bank-id', title: '🏦 البنك الافتراضي للحساب', desc: 'تحديد البنك الافتراضي الذي يحول عليه هذا العميل أو المورد لتوجيه الإشعارات البنكية إليه تلقائياً.' },
+            { sel: 'button[onclick*="openEntityQrCardModal"]', title: '🪪 البطاقة الافتراضية الذكية (بطاقة QR)', desc: 'يفتح البطاقة الرقمية الافتراضية للعميل أو المورد شاملة الاسم والرقم السري ورمز الاستجابة السريعة (QR Code) لحفظها أو مشاركتها.' },
+            { sel: 'button[onclick*="copyCurrentFormWhatsAppCard"], span[onclick*="copyEntityWhatsAppCard"]', title: '📋 نسخ البطاقة التعريفية للواتساب', desc: 'ينسخ بطاقة بيانات العميل أو المورد مع رقمه السري وتعليمات طلب الكشف لإرسالها مباشرة في محادثة الواتساب.' },
+            { sel: 'button[onclick*="addCustomerSubPhone"], button[onclick*="addSupplierSubPhone"], #cust-sub-phones-container, #sup-sub-phones-container', title: '📱 أرقام المناديب والتابعين', desc: 'إضافة أرقام هواتف مناديب العميل أو المورد وفروعه ليتعرف عليهم بوت الواتساب تلقائياً عند إرسال الإشعارات أو طلب الكشف.' },
+            { sel: 'button[onclick*="addCustomerBankAccount"], button[onclick*="addSupplierBankAccount"], #cust-bank-accounts-container, #sup-bank-accounts-container', title: '🏦 الحسابات البنكية المرتبطة', desc: 'تسجيل أرقام حسابات العميل أو المورد البنكية وفروعها للمطابقة الذكية مع إشعارات التحويل.' },
+            { sel: 'button[onclick*="editCustomer"], button[onclick*="editSupplier"]', title: '✏️ زر التعديل (استدعاء البطاقة للتعديل)', desc: 'عندما نريد تعديل بيانات العميل أو المورد نضغط هنا؛ فتنتقل جميع بياناته فوراً إلى النموذج العلوي لتعديلها ثم حفظها بزر (💾 حفظ F10).' },
+            { sel: 'button[onclick*="deleteCustomer"], button[onclick*="deleteSupplier"]', title: '🗑️ زر الحذف (مع درع الحماية المحاسبية)', desc: 'يحذف السجل فقط إذا كان جديداً بلا أي حركات؛ أما في حالة وجود أي فواتير أو سندات أو رصيد فيُمنع الحذف نهائياً حفاظاً على سلامة الحسابات وميزان المراجعة.' },
+            { sel: '#sup-name', title: '🏭 خانة اسم المورد', desc: 'اكتب اسم المورد أو الشركة الموردة ليظهر فوراً في قائمة الموردين بشاشة المشتريات وشجرة الحسابات.' },
             { sel: '#bank-name', title: '🏦 خانة اسم البنك أو التطبيق البنكي', desc: 'اكتب اسم البنك (مثل بنك الخرطوم - بنكك أو فوري) ليظهر في سندات الصرف والقبض والتحويلات.' },
             { sel: '#bank-gl-account, #bank-code', title: '🔢 رقم الحساب البنكي', desc: 'رقم الحساب البنكي المعتمد للمطابقة الآلية مع إشعارات التحويل الممسوحة بالذكاء الاصطناعي.' },
             { sel: '#bank-opening-balance, #safe-opening-balance', title: '💵 الرصيد الافتتاحي للسيولة', desc: 'الرصيد الفعلي المتوفر في البنك أو الخزينة عند تأسيس الحساب.' },
@@ -2947,23 +3039,34 @@
                 whatHappensIfClicked: `يقوم بتشغيل (${cleanLbl}) وتحديث البيانات المرتبطة به لحظياً.`,
                 targetSelector: sel
             });
-            const dynStep = {
-                badge: `✨ أداة مضافة — ${cleanLbl}`,
-                cursorLabel: cleanLbl,
-                screenPath: `${data.title || 'الشاشة الحالية'} ⬅ ${cleanLbl}`,
-                targetSelector: sel,
-                diagramType: 'screen-hub',
-                diagramMeta: {
-                    parentScreen: data.title || 'الشاشة الحالية',
-                    actionLabel: `وظيفة (${cleanLbl}):`,
-                    childItems: [`🎯 ${cleanLbl}`, info.desc.slice(0, 65), '⚡ مكتشف ومحدّث تلقائياً بالمرشد الذكي'],
-                    effectLabel: 'تحديث ذاتي فوري للمرشد الذكي'
-                },
-                speech: () => `${info.title}. ${info.desc}`
-            };
-            data.autopilotSteps.push(dynStep);
-            if (salesStepsRef.length > 0) {
-                salesStepsRef.push(dynStep);
+            // Only append auto-discovered buttons to autopilotSteps when the screen doesn't already have a curated deep functional walkthrough OR when explicitly marked as a dynamic button
+            const isExplicitDynamicBtn = btn.getAttribute && btn.getAttribute('data-c5-dynamic-btn') === '1';
+            const hasCuratedDeepWalkthrough = ['sales-direct', 'sales-split', 'purchase-direct', 'purchase-receipt', 'master-data', 'smart-logistics'].includes(key);
+            if (!hasCuratedDeepWalkthrough || isExplicitDynamicBtn) {
+                const dynStep = {
+                    badge: `✨ أداة مضافة — ${cleanLbl}`,
+                    cursorLabel: cleanLbl,
+                    screenPath: `${data.title || 'الشاشة الحالية'} ⬅ ${cleanLbl}`,
+                    targetSelector: sel,
+                    diagramType: 'screen-hub',
+                    diagramMeta: {
+                        parentScreen: data.title || 'الشاشة الحالية',
+                        actionLabel: `وظيفة (${cleanLbl}):`,
+                        childItems: [`🎯 ${cleanLbl}`, info.desc.slice(0, 65), '⚡ مكتشف ومحدّث تلقائياً بالمرشد الذكي'],
+                        effectLabel: 'تحديث ذاتي فوري للمرشد الذكي'
+                    },
+                    speech: () => `${info.title}. ${info.desc}`
+                };
+                data.autopilotSteps.push(dynStep);
+                if (salesStepsRef.length > 0) {
+                    salesStepsRef.push(dynStep);
+                }
+                if (typeof activeAutopilotStepsList !== 'undefined' && Array.isArray(activeAutopilotStepsList) && activeAutopilotStepsList !== data.autopilotSteps && activeAutopilotStepsList !== salesStepsRef) {
+                    activeAutopilotStepsList.push(dynStep);
+                }
+                if (typeof renderStepPillsForActiveList === 'function') {
+                    try { renderStepPillsForActiveList(); } catch (_e) {}
+                }
             }
         });
     };
@@ -2982,7 +3085,7 @@
                 matchedKey = 'sales-split';
             } else if ((window.location.pathname.includes('direct-sales.php') || document.getElementById('invoice-editor-view') || document.getElementById('sales-hub-view')) && window.MagaiesSmartGuides['sales-direct']) {
                 matchedKey = 'sales-direct';
-            } else if (document.getElementById('sl-tab-purchases') || document.getElementById('sl-tab-sales')) {
+            } else if (window.location.pathname.includes('smart-logistics') || document.getElementById('sl-top-cockpit-bar') || document.getElementById('sl-tab-purchases') || document.getElementById('sl-tab-sales')) {
                 matchedKey = 'smart-logistics';
             } else if (document.getElementById('from-account-search') || window.location.pathname.includes('single-cash-payment')) {
                 matchedKey = 'single-cash-payment';
@@ -3448,16 +3551,15 @@
                         <span class="msg-quartet-label">المرشد</span>
                     </button>
 
-                    <!-- 2. أسفل اليمين (تحت المرشد مباشرة): اسألني بالمايك -->
-                    <button type="button" id="msg-fixed-mic-btn" class="msg-quartet-btn msg-quartet-mic" onclick="window.toggleSmartVoiceQA()" title="اسألني بالمايك — تحدث بصوتك أو اختر سؤالك لتظهر الإجابة على الشاشة فوراً">
+                    <!-- 2. أسفل اليمين (تحت المرشد مباشرة): زر "تسجيل" المستقل تماماً للتصوير السينمائي 4K والصوت الإذاعي الفخيم -->
+                    <button type="button" id="msg-fixed-cinema-4k-btn" class="msg-quartet-btn msg-quartet-cinema4k" onclick="if(typeof window.launchIndependent4KCinemaNow==='function'){window.launchIndependent4KCinemaNow();}" title="🔴 تسجيل — تشغيل التصوير السينمائي 4K بالصوت الإذاعي الفخيم وحفظ الفيديو تلقائياً">
                         <span class="msg-quartet-icon-box">
                             <svg viewBox="0 0 24 24" fill="none">
-                                <rect x="9" y="2.5" width="6" height="11" rx="3" fill="rgba(167,243,208,0.3)" stroke="#ffffff" stroke-width="2.2"/>
-                                <path d="M5.5 10.5C5.5 14.09 8.41 17 12 17C15.59 17 18.5 14.09 18.5 10.5" stroke="#fde047" stroke-width="2.2" stroke-linecap="round"/>
-                                <path d="M12 17V21M8.5 21H15.5" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round"/>
+                                <circle cx="12" cy="12" r="8.5" fill="rgba(220,38,38,0.32)" stroke="#fde047" stroke-width="2.2"/>
+                                <circle id="msg-fixed-cinema-rec-dot" cx="12" cy="12" r="4.2" fill="#ef4444"/>
                             </svg>
                         </span>
-                        <span class="msg-quartet-label">المايك</span>
+                        <span class="msg-quartet-label" id="msg-fixed-cinema-4k-label">تسجيل</span>
                     </button>
 
                     <!-- 3. أعلى اليسار: التلفاز والقرآن الكريم -->
@@ -3627,9 +3729,6 @@
                             <button type="button" class="msg-speed-arrow-btn" onclick="window.adjustSpeechSpeedBy(0.08, true)" title="تسريع سرعة الصوت">+ ⏫</button>
                         </div>
 
-                        <button type="button" onclick="window.toggleSmartVoiceQA()" class="sl-btn" style="background:linear-gradient(135deg,#059669,#0284c7); border:1.5px solid #34d399; color:#ffffff; font-weight:900; font-size:0.8rem; padding:6px 12px;">
-                            🎙️ اسأل بالمايك
-                        </button>
                         <button type="button" onclick="window.closeSmartGuide()" class="sl-btn" style="background:rgba(239,68,68,0.22); border-color:#f87171; color:#fca5a5; padding:6px 12px;">
                             ✕ إغلاق
                         </button>
@@ -3774,10 +3873,10 @@
         coachBar.innerHTML = `
             <div style="display:flex; align-items:center; justify-content:space-between; gap:5px; width:100%;">
                 <div style="display:flex; align-items:center; gap:5px; min-width:0;">
-                    <span id="msg-coach-mini-svg" style="display:inline-flex; align-items:center; justify-content:center; width:22px; height:22px; flex-shrink:0;" title="مخطط بصري خفيف Pure-SVG">
+                    <span id="msg-coach-mini-svg" onclick="window.toggleCoachMiniSvgPopover && window.toggleCoachMiniSvgPopover()" style="display:inline-flex; align-items:center; justify-content:center; width:22px; height:22px; flex-shrink:0; cursor:pointer;" title="إظهار/إخفاء المخطط البصري الخفيف Pure-SVG">
                         <svg viewBox="0 0 24 24" width="20" height="20"><circle cx="12" cy="12" r="10" fill="rgba(56,189,248,0.18)" stroke="#fbbf24" stroke-width="2"/><path d="M8 12h8M13 8l4 4-4 4" stroke="#38bdf8" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
                     </span>
-                    <span id="msg-coach-step-badge" style="background:linear-gradient(135deg,rgba(251,191,36,0.22),rgba(56,189,248,0.18)); border:1px solid #fbbf24; padding:2px 8px; border-radius:99px; font-size:0.72rem; font-weight:900; max-width:165px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">🎓 المرشد الذكي</span>
+                    <span id="msg-coach-step-badge" style="background:linear-gradient(135deg,rgba(251,191,36,0.22),rgba(56,189,248,0.18)); border:1px solid #fbbf24; padding:2px 8px; border-radius:99px; font-size:0.72rem; font-weight:900; max-width:175px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">🎓 المرشد الذكي</span>
                 </div>
                 <div style="display:flex; align-items:center; gap:3px; flex-shrink:0;">
                     <select id="msg-coach-voice-select" class="sl-input" onchange="window.onMsgVoiceChange(this.value)" style="padding:1px 4px !important; font-size:0.68rem !important; font-weight:900 !important; height:23px; border-radius:7px !important;" title="اللهجة الرجالية">
@@ -3788,9 +3887,10 @@
                     <button type="button" onclick="window.adjustSpeechSpeedBy(-0.08, false)" class="sl-btn" style="padding:1px 5px; font-size:0.68rem; border-radius:6px; font-weight:900;" title="إبطاء سرعة الصوت">🐢-</button>
                     <span id="msg-coach-speed-lbl" style="font-size:0.66rem; font-weight:900; min-width:30px; text-align:center;">${formatSpeedPctLabel(selectedSpeechRate)}</span>
                     <button type="button" onclick="window.adjustSpeechSpeedBy(0.08, false)" class="sl-btn" style="padding:1px 5px; font-size:0.68rem; border-radius:6px; font-weight:900;" title="تسريع الصوت">+⚡</button>
-                    <button type="button" onclick="window.toggleSmartGuideImpactMapBanner()" class="sl-btn" style="padding:2px 5px; font-size:0.68rem; border-radius:6px; font-weight:900;" title="خريطة الترابط الثلاثية والقاعدة الذهبية (3-Stage SVG)">🗺️</button>
-                    <button type="button" onclick="window.startQuickMasterDataQuiz()" class="sl-btn" style="padding:2px 5px; font-size:0.68rem; border-radius:6px; font-weight:900;" title="اختبار تفاعلي سريع (Quiz)">🎯</button>
-                    <button type="button" id="msg-coach-voice-cmd-btn" onclick="window.startMasterDataVoiceCommand()" class="sl-btn" style="padding:2px 5px; font-size:0.68rem; border-radius:6px; font-weight:900;" title="بحث وتنقل صوتي فوري (Voice-to-Filter)">🎙️</button>
+                    <button type="button" onclick="window.seekAudioBy(-3)" class="sl-btn" style="padding:1px 4px; font-size:0.65rem; border-radius:6px; font-weight:900;" title="تأخير 3 ثوانٍ">⏪3</button>
+                    <button type="button" onclick="window.seekAudioBy(3)" class="sl-btn" style="padding:1px 4px; font-size:0.65rem; border-radius:6px; font-weight:900;" title="تقديم 3 ثوانٍ">3⏩</button>
+                    <button type="button" onclick="window.toggleCoachMiniSvgPopover && window.toggleCoachMiniSvgPopover()" class="sl-btn" style="padding:2px 5px; font-size:0.68rem; border-radius:6px; font-weight:900;" title="المخطط التوضيحي الخفيف للخطوة (Pure-SVG)">📊</button>
+                    <button type="button" onclick="if(typeof window.startDsMasteryQuiz==='function'){window.startDsMasteryQuiz();}else if(typeof window.startQuickMasterDataQuiz==='function'){window.startQuickMasterDataQuiz();}" class="sl-btn" style="padding:2px 5px; font-size:0.68rem; border-radius:6px; font-weight:900;" title="اختبار تفاعلي سريع (Quiz)">🎯</button>
                     <button type="button" onclick="window.stepLiveAutopilot(-1)" class="sl-btn" style="padding:2px 5px; font-size:0.68rem; border-radius:6px;" title="الخطوة السابقة">⏮️</button>
                     <button type="button" id="msg-btn-pause-resume" onclick="window.togglePauseResumeAudio()" class="sl-btn" style="padding:2px 7px; font-size:0.7rem; background:linear-gradient(135deg,#f59e0b,#d97706); color:#020617 !important; border:none; font-weight:900; border-radius:6px;" title="إيقاف مؤقت / استئناف">⏸️</button>
                     <button type="button" onclick="window.stepLiveAutopilot(1)" class="sl-btn" style="padding:2px 5px; font-size:0.68rem; background:#38bdf8; color:#020617 !important; border:none; font-weight:900; border-radius:6px;" title="الخطوة التالية">⏭️</button>
@@ -3808,6 +3908,12 @@
             </div>
         `;
         document.body.appendChild(coachBar);
+
+        if (!document.getElementById('msg-coach-svg-popover')) {
+            const svgPop = document.createElement('div');
+            svgPop.id = 'msg-coach-svg-popover';
+            document.body.appendChild(svgPop);
+        }
 
         if (!document.getElementById('msg-live-select-mirror')) {
             const mirror = document.createElement('div');
@@ -3905,83 +4011,17 @@
     };
 
     window.openSmartGuide = function (guideKey) {
-        unlockBrowserAudioEnginesSync();
+        if (window.__CINEMA_4K_ACTIVE__ && typeof window.stopMagaies4KCinemaMode === 'function') {
+            window.stopMagaies4KCinemaMode();
+        }
+        window.__MUTE_LEGACY_GUIDE_AUDIO__ = false;
+        stopCurrentSpeech();
         ensureGuideDomElements();
         const resolvedKey = guideKey || buildUniversalScreenGuideIfNeeded();
         currentGuideKey = resolvedKey;
-
-        // 👑 Direct Instant Start ("طوالي بلا شاشات وسيطة") + Interactive Hover Inspection for master-data.php, purchase.php, direct-sales.php, purchase-receipt.php & smart-logistics.php
-        if (
-            resolvedKey === 'master-data' ||
-            resolvedKey === 'purchase-direct' ||
-            resolvedKey === 'sales-direct' ||
-            resolvedKey === 'sales-split' ||
-            resolvedKey === 'purchase-receipt' ||
-            resolvedKey === 'smart-logistics' ||
-            window.location.pathname.includes('master-data') ||
-            window.location.pathname.includes('purchase.php') ||
-            window.location.pathname.includes('direct-sales.php') ||
-            window.location.pathname.includes('purchase-receipt') ||
-            window.location.pathname.includes('smart-logistics') ||
-            document.querySelector('.md-tabs-sidebar') ||
-            document.getElementById('purchase-editor-view') ||
-            document.getElementById('invoice-editor-view') ||
-            document.getElementById('view-editor') ||
-            document.getElementById('sl-top-cockpit-bar')
-        ) {
-            const topGuideBtn = document.querySelector('.msg-quartet-guide');
-            if (window.__mdInteractiveGuideActive || isAutopilotRunning) {
-                window.__mdInteractiveGuideActive = false;
-                if (topGuideBtn) topGuideBtn.style.boxShadow = '';
-                window.stopLiveAutopilotSimulation();
-                const tip = document.getElementById('msg-smart-hover-tooltip');
-                if (tip) tip.style.display = 'none';
-                return;
-            }
-            window.__mdInteractiveGuideActive = true;
-            hasPlayedOpeningInvocation = false;
-            window.hasPlayedOpeningInvocation = false;
-            if (topGuideBtn) {
-                topGuideBtn.style.boxShadow = '0 0 18px #fde047, inset 0 0 10px rgba(253,224,71,0.6)';
-            }
-            const isSmartLogistics = (resolvedKey === 'smart-logistics' || window.location.pathname.includes('smart-logistics') || !!document.getElementById('sl-top-cockpit-bar'));
-            const activeSlMode = document.body.getAttribute('data-logistics-mode') || (window.location.search.includes('mode=purchases') ? 'purchases' : 'sales');
-            const initialMode = isSmartLogistics ? (activeSlMode === 'purchases' ? 'purchases' : 'sales') : 'all';
-
-            const modeSel = document.getElementById('msg-coach-mode-select');
-            if (modeSel) {
-                if (isSmartLogistics) {
-                    if (activeSlMode === 'purchases') {
-                        modeSel.innerHTML = `
-                            <option value="purchases">📥 شرح بوابة استلام المشتريات (GRN)</option>
-                            <option value="hands-on">🎯 تدريب عملي تفاعلي (3 خطوات)</option>
-                            <option value="pick">👆 الشرح بالتأشير على أي زر أو حقل</option>
-                        `;
-                    } else {
-                        modeSel.innerHTML = `
-                            <option value="sales">📤 شرح بوابة تسليم المبيعات (GDN)</option>
-                            <option value="hands-on">🎯 تدريب عملي تفاعلي (3 خطوات)</option>
-                            <option value="pick">👆 الشرح بالتأشير على أي زر أو حقل</option>
-                        `;
-                    }
-                } else if (resolvedKey === 'sales-split') {
-                    modeSel.innerHTML = `
-                        <option value="all">✂️ شرح شاشة تجزئة الفواتير والشاشات الوليدة</option>
-                        <option value="pick">👆 الشرح بالتأشير على أي زر أو حقل</option>
-                    `;
-                } else {
-                    modeSel.innerHTML = `
-                        <option value="all">🌐 الملخص التنفيذي والشرح الشامل للشاشة</option>
-                        <option value="pick">👆 الشرح بالتأشير على أي زر أو حقل</option>
-                    `;
-                }
-                modeSel.value = initialMode;
-            }
-            window.startLiveAutopilotSimulation(initialMode);
-            return;
-        }
-
+        window.__mdInteractiveGuideActive = true;
         window.stopLiveAutopilotSimulation();
+        window.__mdInteractiveGuideActive = true;
         window.openSmartGuideEncyclopediaModal(resolvedKey);
     };
 
@@ -4161,9 +4201,14 @@
     }
 
     window.pointGhostCursorAt = function (selector, title, spokenText) {
+        if (window.__CINEMA_4K_ACTIVE__ && typeof window.stopMagaies4KCinemaMode === 'function') {
+            window.stopMagaies4KCinemaMode();
+        }
+        window.__MUTE_LEGACY_GUIDE_AUDIO__ = false;
         ensureGuideDomElements();
         window.closeSmartGuide();
         isAutopilotRunning = true;
+        window.__mdInteractiveGuideActive = true;
 
         const el = document.querySelector(selector);
         const coachBar = document.getElementById('msg-live-coach-bar');
@@ -4181,6 +4226,11 @@
 
     // ── 4 EXPLANATION MODES: 'all' | 'purchases' | 'sales' | 'pick' ──────────
     window.startLiveAutopilotSimulation = async function (mode = 'all') {
+        if (window.__CINEMA_4K_ACTIVE__ && typeof window.stopMagaies4KCinemaMode === 'function') {
+            window.stopMagaies4KCinemaMode();
+        }
+        window.__MUTE_LEGACY_GUIDE_AUDIO__ = false;
+        window.__mdInteractiveGuideActive = true;
         ensureGuideDomElements();
         window.stopSmartPickElementMode();
         if (mode === 'hands-on' && typeof window.startSlHandsOnTrainingCoach === 'function') {
@@ -4356,10 +4406,44 @@
             'openSlSignatureModal',
             'openSlShortageDebitNoteModal',
             'openSlQuickWarehouseModal',
+            'openSlQuickEntityModal',
             'openSlOriginalInvoiceDrilldownModal',
             'openSlFleetDispatchModal',
             'openSlLoadingVerifierModal',
             'openSlCargoEstimatorModal',
+            'openSlC3WhatsAppComposerModal',
+            'openSlC1LogisticsWeightRadarModal',
+            'openSlConstitution1MasterModal',
+            'openSlConstitution2MasterModal',
+            'openSlConstitution3MasterModal',
+            'openSlConstitution4MasterModal',
+            'openSlConstitution5MasterModal',
+            'openSlC6SyncRadarModal',
+            'openSlC7OphthalmicLabModal',
+            'openSlC8CognitiveCenterModal',
+            'openSlC9WarehouseCommandModal',
+            'openSlC9QcInspectionModal',
+            'openSlC9WarehouseTransferModal',
+            'openSlC10CommercialCommandModal',
+            'openSlC10LandedCostModal',
+            'openSlC10DocumentLifecycleModal',
+            'openSlC10ReturnsModal',
+            'openSlC11BankingCommandModal',
+            'openSlC11ChequePortfolioModal',
+            'openSlC11BankTransferAntiFraudModal',
+            'openSlC11PeriodAndCostCenterModal',
+            'openSlC12ForensicSecurityCommandModal',
+            'openSlC12BlindShiftClosingModal',
+            'openSlC12ManagerReprintModal',
+            'openSlC13CyberCommandModal',
+            'openSlC13BlackBoxModal',
+            'openSlC13OwnerSilentRadarModal',
+            'openSlC14WorldReportsModal',
+            'openSlC14DrillDownDocModal',
+            'openSlC14BalancedPrintHubModal',
+            'openSlC14TripleSealCertificateModal',
+            'openSlC15FinalMasteryModal',
+            'openSlC16ZeroErrorMasterAuditModal',
             'openSlFontModal'
         ];
         for (const fnName of previewFns) {
@@ -4425,6 +4509,53 @@
     }
 
     function buildStepFlowchartSvgMarkup(step, stepIdx = 0, totalSteps = 1) {
+        if (step && (step.diagramType === 'c5-impact-map' || step.c5ImpactMeta)) {
+            const c5 = step.c5ImpactMeta || {};
+            const sTitle = escapeSvgText((c5.screenTitle || 'شاشة المبيعات المباشرة').slice(0, 28));
+            const fSum1 = escapeSvgText((c5.funcSummary || 'إصدار واعتماد الفواتير وضبط التسعير').slice(0, 27));
+            const fSum2 = escapeSvgText((c5.funcSummary || '').slice(27, 55) || 'ومنع الأخطاء وتوفير الوقت');
+            const reps = Array.isArray(c5.reports) && c5.reports.length ? c5.reports : ['📊 تقارير المبيعات والأرباح', '📖 كشف العميل والأستاذ', '📦 حركة المخازن والخزينة'];
+            const scrs = Array.isArray(c5.screens) && c5.screens.length ? c5.screens : ['🚛 التسليمات وتجزئة الفواتير', '🏦 الخزينة والبنوك', '🏭 المخازن والعملاء'];
+
+            return `<svg viewBox="0 0 460 118" width="100%" height="100%" style="display:block;">
+                <!-- Stage 1 (Right in RTL): Screen Function & Benefits -->
+                <g id="msg-pop-c5-stage-1" style="opacity:1;transition:all 0.3s ease;">
+                    <rect x="312" y="6" width="142" height="106" rx="10" fill="#0f172a" stroke="#f59e0b" stroke-width="2.4"/>
+                    <text x="383" y="23" fill="#fde047" font-size="9" font-weight="900" text-anchor="middle">1️⃣ الوظيفة والفوائد</text>
+                    <text x="383" y="44" fill="#ffffff" font-size="8.2" font-weight="900" text-anchor="middle">${sTitle}</text>
+                    <text x="383" y="65" fill="#bae6fd" font-size="7.8" font-weight="800" text-anchor="middle">${fSum1}</text>
+                    <text x="383" y="83" fill="#bae6fd" font-size="7.8" font-weight="800" text-anchor="middle">${fSum2}</text>
+                    <text x="383" y="102" fill="#34d399" font-size="7.8" font-weight="900" text-anchor="middle">🛡️ ضبط رقابي ومنع الأخطاء</text>
+                </g>
+                <!-- Arrow 1 -->
+                <g id="msg-pop-c5-arrow-1" style="opacity:0.35;transition:all 0.3s ease;">
+                    <path d="M310 59 L294 59" stroke="#10b981" stroke-width="2.6" stroke-dasharray="3 2"/>
+                    <polygon points="296,54 287,59 296,64" fill="#10b981"/>
+                </g>
+                <!-- Stage 2 (Center): Reports Affected -->
+                <g id="msg-pop-c5-stage-2" style="opacity:0.45;transition:all 0.3s ease;">
+                    <rect x="156" y="6" width="130" height="106" rx="10" fill="#0f172a" stroke="#10b981" stroke-width="2.4"/>
+                    <text x="221" y="23" fill="#6ee7b7" font-size="9" font-weight="900" text-anchor="middle">2️⃣ التقارير المتأثرة</text>
+                    <text x="221" y="47" fill="#ffffff" font-size="8" font-weight="900" text-anchor="middle">${escapeSvgText(String(reps[0] || '').slice(0, 26))}</text>
+                    <text x="221" y="71" fill="#ffffff" font-size="8" font-weight="900" text-anchor="middle">${escapeSvgText(String(reps[1] || '').slice(0, 26))}</text>
+                    <text x="221" y="95" fill="#ffffff" font-size="8" font-weight="900" text-anchor="middle">${escapeSvgText(String(reps[2] || '').slice(0, 26))}</text>
+                </g>
+                <!-- Arrow 2 -->
+                <g id="msg-pop-c5-arrow-2" style="opacity:0.35;transition:all 0.3s ease;">
+                    <path d="M154 59 L138 59" stroke="#38bdf8" stroke-width="2.6" stroke-dasharray="3 2"/>
+                    <polygon points="140,54 131,59 140,64" fill="#38bdf8"/>
+                </g>
+                <!-- Stage 3 (Left in RTL): Integrated Screens Affected -->
+                <g id="msg-pop-c5-stage-3" style="opacity:0.45;transition:all 0.3s ease;">
+                    <rect x="6" y="6" width="124" height="106" rx="10" fill="#0f172a" stroke="#38bdf8" stroke-width="2.4"/>
+                    <text x="68" y="23" fill="#7dd3fc" font-size="9" font-weight="900" text-anchor="middle">3️⃣ الشاشات المتكاملة</text>
+                    <text x="68" y="47" fill="#ffffff" font-size="8" font-weight="900" text-anchor="middle">${escapeSvgText(String(scrs[0] || '').slice(0, 25))}</text>
+                    <text x="68" y="71" fill="#ffffff" font-size="8" font-weight="900" text-anchor="middle">${escapeSvgText(String(scrs[1] || '').slice(0, 25))}</text>
+                    <text x="68" y="95" fill="#ffffff" font-size="8" font-weight="900" text-anchor="middle">${escapeSvgText(String(scrs[2] || '').slice(0, 25))}</text>
+                </g>
+            </svg>`;
+        }
+
         const meta = step.diagramMeta || {};
         const parentTitle = escapeSvgText((meta.parentScreen || step.badge || `الخطوة ${stepIdx + 1}`).slice(0, 34));
         const triggerTitle = escapeSvgText((step.cursorLabel || step.badge || 'الزر الحالي').slice(0, 30));
@@ -4483,13 +4614,51 @@
         _c5ImpactPhaseTimers = [];
     }
 
-    function renderLiveDubbedVisualStage(step) {
-        clearC5ImpactPhaseTimers();
-        let banner = document.getElementById('msg-c5-impact-map-banner');
-        if (!step || step.diagramType !== 'c5-impact-map') {
-            if (banner) banner.style.display = 'none';
-            return;
+    window._showCoachMiniSvgPopover = true;
+    window.toggleCoachMiniSvgPopover = function () {
+        window._showCoachMiniSvgPopover = !window._showCoachMiniSvgPopover;
+        const pop = document.getElementById('msg-coach-svg-popover');
+        if (pop) {
+            pop.style.display = (window._showCoachMiniSvgPopover && isAutopilotRunning) ? 'block' : 'none';
         }
+    };
+
+    function renderLiveDubbedVisualStage(step, stepIdx = 0, totalSteps = 1) {
+        clearC5ImpactPhaseTimers();
+        const banner = document.getElementById('msg-c5-impact-map-banner');
+        if (banner) banner.style.display = 'none';
+
+        const svgPop = document.getElementById('msg-coach-svg-popover');
+        if (svgPop && step) {
+            svgPop.innerHTML = buildStepFlowchartSvgMarkup(step, stepIdx, totalSteps);
+            const coachBar = document.getElementById('msg-live-coach-bar');
+            if (coachBar) {
+                svgPop.classList.toggle('docked-top', coachBar.classList.contains('docked-top'));
+            }
+            svgPop.style.display = window._showCoachMiniSvgPopover ? 'block' : 'none';
+
+            // Real-time Audio-Visual Phase Synchronization for Constitution 5 Impact Map (Stage 1 -> Stage 2 -> Stage 3)
+            if (step.diagramType === 'c5-impact-map' || step.c5ImpactMeta) {
+                _c5ImpactPhaseTimers.push(setTimeout(() => {
+                    const a1 = document.getElementById('msg-pop-c5-arrow-1');
+                    const s2 = document.getElementById('msg-pop-c5-stage-2');
+                    if (a1) a1.style.opacity = '1';
+                    if (s2) s2.style.opacity = '1';
+                }, 4200));
+                _c5ImpactPhaseTimers.push(setTimeout(() => {
+                    const a2 = document.getElementById('msg-pop-c5-arrow-2');
+                    const s3 = document.getElementById('msg-pop-c5-stage-3');
+                    if (a2) a2.style.opacity = '1';
+                    if (s3) s3.style.opacity = '1';
+                }, 8500));
+            }
+        }
+    }
+
+    function openManualImpactMapBanner(step) {
+        clearC5ImpactPhaseTimers();
+        if (!step) return;
+        let banner = document.getElementById('msg-c5-impact-map-banner');
         if (!banner) {
             banner = document.createElement('div');
             banner.id = 'msg-c5-impact-map-banner';
@@ -4503,7 +4672,7 @@
         const boxBg = isLight ? '#FFFFFF' : '#000000';
 
         const meta = step.c5ImpactMeta || {
-            screenTitle: 'شاشة تجزئة وتقسيم الفواتير وأذونات التسليم',
+            screenTitle: '✂️🚚 فاتورة تقسيم وتسليم المبيعات',
             inputs: ['📥 الفواتير المعتمدة أو عروض الأسعار', '📦 أرصدة المخازن والوحدات التأسيسية', '👤 بيانات وسقوف ائتمان العملاء'],
             funcSummary: 'تجزئة الفاتورة بالوحدة الكبرى والفرعية وتوليد أذونات تسلسلية (100/1/1) وحفظ شجرة النسب ومنع أخطاء الصرف',
             goldenRule: 'القاعدة الذهبية: افحص الرصيد الفعلي ووحدة القياس قبل الاعتماد ينضبط لك المخزن والحساب تلقائياً.',
@@ -4701,9 +4870,14 @@
 
     // ── INTERACTIVE "PICK ANY ELEMENT TO EXPLAIN" MODE (المؤشر الحر لشرح أي جزء) ─
     window.startSmartPickElementMode = function () {
+        if (window.__CINEMA_4K_ACTIVE__ && typeof window.stopMagaies4KCinemaMode === 'function') {
+            window.stopMagaies4KCinemaMode();
+        }
+        window.__MUTE_LEGACY_GUIDE_AUDIO__ = false;
         ensureGuideDomElements();
         window.closeSmartGuide();
         window.stopLiveAutopilotSimulation();
+        window.__mdInteractiveGuideActive = true;
         isPickElementModeActive = true;
         document.body.classList.add('msg-pick-inspector-active');
         const banner = document.getElementById('msg-pick-mode-banner');
@@ -4730,8 +4904,8 @@
             explainPickedDomElement(clickedEl);
             return;
         }
-        // البند 3 من الدستور الخامس: القفز المباشر بالضغط (Click-to-Jump) أثناء عمل المرشد الذكي
-        if (window.__mdInteractiveGuideActive || isAutopilotRunning) {
+        // البند 3 من الدستور الخامس: القفز المباشر بالضغط (معطل نهائياً عند كتم المرشد القديم أو تشغيل الاستوديو السينمائي 4K لمنع التداخل)
+        if (!window.__MUTE_LEGACY_GUIDE_AUDIO__ && !window.__CINEMA_4K_ACTIVE__ && (window.__mdInteractiveGuideActive || isAutopilotRunning)) {
             if (e.target.closest('#msg-live-coach-bar, #msg-smart-hover-tooltip, #msg-universal-fixed-launcher, #msg-universal-modal, #msg-c5-impact-map-banner')) {
                 return;
             }
@@ -4990,10 +5164,12 @@
         const ring = document.getElementById('msg-live-target-ring');
         const coachBar = document.getElementById('msg-live-coach-bar');
         const pinnedDock = document.getElementById('msg-pinned-audio-dock');
+        const svgPop = document.getElementById('msg-coach-svg-popover');
         if (cursor) cursor.style.display = 'none';
         if (ring) ring.style.display = 'none';
         if (coachBar) coachBar.style.display = 'none';
         if (pinnedDock) pinnedDock.style.display = 'none';
+        if (svgPop) svgPop.style.display = 'none';
 
         if (tempDemoCreated && typeof window.renderSlRegistry === 'function') {
             tempDemoCreated = false;
@@ -5484,6 +5660,7 @@
 
     let lastHoverInspectedEl = null;
     document.addEventListener('mouseover', function (e) {
+        if (window.__MUTE_LEGACY_GUIDE_AUDIO__ || window.__CINEMA_4K_ACTIVE__) return;
         // 👑 Interactive Hover Inspection ("الشرح التفاعلي عند التأشير بالمؤشر") when Guide is active on master-data.php, purchase.php, direct-sales.php, purchase-receipt.php & smart-logistics.php
         if (window.__mdInteractiveGuideActive && (typeof window.explainMasterDataDomElement === 'function' || typeof window.explainPurchaseDomElement === 'function' || typeof window.explainDirectSalesDomElement === 'function' || typeof window.explainPurchaseReceiptDomElement === 'function' || typeof window.explainSmartLogisticsDomElement === 'function')) {
             if (isAutopilotRunning && !isPickElementModeActive && (Date.now() - lastAutopilotStepStartTs < 1600)) return;
@@ -5709,36 +5886,42 @@
             const st = document.createElement('style');
             st.id = 'magaies-c15-universal-dividers-css';
             st.textContent = `
-                /* تعميم فواصل شاشة المشتريات (ما بعد الدساتير) المستقلة عن currentColor على كافة الشاشات المشابهة */
+                /* الدستور الرابع (+2 درجتان سُمك الحواف والخطوط والأيقونات + منع انقلاب اللون عند الكتابة في الغامق والفاتح) */
                 #pos-grid, .pos-grid {
                     border-collapse: collapse !important;
-                    border: 1px solid rgba(148, 163, 184, 0.16) !important;
+                    border: 2.2px solid rgba(255, 255, 255, 0.85) !important;
                 }
                 #pos-grid thead th, .pos-grid thead th {
-                    border: 1px solid rgba(148, 163, 184, 0.18) !important;
-                    border-bottom: 1.5px solid rgba(148, 163, 184, 0.28) !important;
+                    border: 2px solid rgba(255, 255, 255, 0.55) !important;
+                    border-bottom: 2.4px solid #FFFFFF !important;
                     font-family: 'Tajawal', 'Cairo', sans-serif !important;
                     font-weight: 900 !important;
                 }
                 #pos-grid tbody td, .pos-grid tbody td {
-                    border: 1px solid rgba(148, 163, 184, 0.14) !important;
-                    font-weight: 800 !important;
+                    border: 1.8px solid rgba(255, 255, 255, 0.35) !important;
+                    font-weight: 900 !important;
                 }
-                #pos-grid tbody td .g-input,
-                #pos-grid tbody td .g-select,
-                #pos-grid tbody td .g-readonly,
-                #pos-grid tbody td .avail-val,
-                #pos-grid tbody td .total-val,
-                .pos-grid tbody td .g-input,
-                .pos-grid tbody td .g-select {
-                    border: 1px solid rgba(148, 163, 184, 0.22) !important;
+                :root:not(.light-theme) #pos-grid tbody td .g-input,
+                :root:not(.light-theme) #pos-grid tbody td .g-select,
+                :root:not(.light-theme) .pos-grid tbody td .g-input,
+                :root:not(.light-theme) .pos-grid tbody td .g-select {
+                    background-color: #000000 !important;
+                    color: #FFFFFF !important;
+                    -webkit-text-fill-color: #FFFFFF !important;
+                    caret-color: #FFFFFF !important;
+                    border: 2.2px solid #FFFFFF !important;
                     box-shadow: none !important;
-                    font-weight: 800 !important;
+                    font-weight: 900 !important;
                 }
-                #pos-grid tbody td .g-input:focus,
-                #pos-grid tbody td .g-select:focus {
-                    border-color: rgba(56, 189, 248, 0.55) !important;
-                    box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.18) !important;
+                :root:not(.light-theme) #pos-grid tbody td .g-input:focus,
+                :root:not(.light-theme) #pos-grid tbody td .g-select:focus,
+                :root:not(.light-theme) #pos-grid tbody td .g-input:active,
+                :root:not(.light-theme) .pos-grid tbody td .g-input:focus {
+                    background-color: #000000 !important;
+                    color: #FFFFFF !important;
+                    -webkit-text-fill-color: #FFFFFF !important;
+                    border: 2.4px solid #FFFFFF !important;
+                    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.28) !important;
                 }
                 :root.light-theme #pos-grid,
                 :root.light-theme .pos-grid,
@@ -5746,15 +5929,28 @@
                 :root.light-theme #pos-grid tbody td,
                 :root.light-theme .pos-grid thead th,
                 :root.light-theme .pos-grid tbody td {
-                    border: 1px solid rgba(148, 163, 184, 0.26) !important;
+                    border: 2px solid #000000 !important;
                 }
                 :root.light-theme #pos-grid tbody td .g-input,
                 :root.light-theme #pos-grid tbody td .g-select,
                 :root.light-theme #pos-grid tbody td .g-readonly,
                 :root.light-theme #pos-grid tbody td .avail-val,
                 :root.light-theme #pos-grid tbody td .total-val {
-                    border: 1px solid #cbd5e1 !important;
+                    background-color: #FFFFFF !important;
+                    color: #000000 !important;
+                    -webkit-text-fill-color: #000000 !important;
+                    caret-color: #000000 !important;
+                    border: 2.2px solid #000000 !important;
                     box-shadow: none !important;
+                    font-weight: 900 !important;
+                }
+                :root.light-theme #pos-grid tbody td .g-input:focus,
+                :root.light-theme #pos-grid tbody td .g-select:focus {
+                    background-color: #FFFFFF !important;
+                    color: #000000 !important;
+                    -webkit-text-fill-color: #000000 !important;
+                    border: 2.4px solid #000000 !important;
+                    box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.18) !important;
                 }
             `;
             document.head.appendChild(st);
@@ -5835,5 +6031,1676 @@
             const step = e.deltaY < 0 ? 0.05 : -0.05;
             window.applyUniversalProportionalScaleC15(cur + step);
         }, { passive: false });
+    })();
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    // 🎬 4K AUTO-CINEMA STUDIO ENGINE (استوديو التصوير السينمائي العالمي 4K داخل المرشد الذكي)
+    //    1. 🎬 وضع التصوير السينمائي (YouTube 16:9 / Reels 9:16) + 4K Vector Crispness + إخفاء الأزرار الجانبية
+    //    2. 🎥 الكاميرا السينمائية الذكية (Smooth Auto-Zoom & Pan — Scale 1.6x + Spotlight Cutout)
+    //    3. 🤖 الممثل الآلي والكتابة الحية (Laser Ghost-Actor + Character-by-Character Auto-Typing + Child Screens & 3-Stage SVG Map)
+    //    4. 📺 الشريط السينمائي الزجاجي السفلي (Cinematic Lower-Thirds & Live Subtitles + Golden Rule Highlight)
+    //    5. 🎙️ مزامنة الصوت الرجالي الفخيم + رفع ملف صوتي خارجي (MP3 من ElevenLabs) + 🔴 تسجيل وتنزيل الفيديو (MP4/WebM)
+    // ═══════════════════════════════════════════════════════════════════════════
+    (function initMagaies4KAutoCinemaStudio() {
+        if (window.__magaies4KAutoCinemaStudioLoaded) return;
+        window.__magaies4KAutoCinemaStudioLoaded = true;
+
+        let isCinemaModeActive = false;
+        let cinemaAspectRatio = '16:9'; // '16:9' (YouTube Landscape) | '9:16' (Reels/Shorts Vertical)
+        let cinemaZoomScale = 1.6;
+        let cinemaAutoZoomTimer = null;
+        let cinemaTypingTimer = null;
+        let cinemaSubtitleTimer = null;
+        let cinemaExternalAudio = null;
+        let cinemaExternalAudioName = '';
+        let cinemaExternalStepTimer = null;
+        let cinemaMediaRecorder = null;
+        let cinemaRecordedChunks = [];
+        let isCinemaRecording = false;
+        const cinemaRestorableInputs = [];
+
+        function injectCinema4KStyles() {
+            if (document.getElementById('msg-cinema-4k-studio-styles')) return;
+            const st = document.createElement('style');
+            st.id = 'msg-cinema-4k-studio-styles';
+            st.textContent = `
+                /* 1. 4K Vector Crispness & Clean Broadcast Frame when Cinema Mode is Active */
+                body.msg-cinema-4k-active,
+                body.msg-cinema-4k-active * {
+                    -webkit-font-smoothing: antialiased !important;
+                    -moz-osx-font-smoothing: grayscale !important;
+                    text-rendering: geometricPrecision !important;
+                    shape-rendering: geometricPrecision !important;
+                }
+                /* Hide side/floating auxiliary buttons during 4K Cinema Broadcast */
+                body.msg-cinema-4k-active #msg-universal-fixed-launcher,
+                body.msg-cinema-4k-active #msg-fixed-mic-btn,
+                body.msg-cinema-4k-active .back-to-hub-floating,
+                body.msg-cinema-4k-active #magaies-floating-back-btn,
+                body.msg-cinema-4k-active #ds-c4-micro-hud {
+                    opacity: 0 !important;
+                    pointer-events: none !important;
+                    transition: opacity 0.35s ease !important;
+                }
+                /* Keep top-right mini director badge subtly accessible */
+                body.msg-cinema-4k-active #msg-live-coach-bar {
+                    top: 10px !important;
+                    bottom: auto !important;
+                    left: 12px !important;
+                    right: auto !important;
+                    opacity: 0.88 !important;
+                    transform: scale(0.92);
+                }
+                /* Reels 9:16 Vertical Studio Frame */
+                body.msg-cinema-4k-active.msg-cinema-aspect-9-16 {
+                    background: #020617 !important;
+                }
+                body.msg-cinema-4k-active.msg-cinema-aspect-9-16 #sl-proportional-root,
+                body.msg-cinema-4k-active.msg-cinema-aspect-9-16 #invoice-editor-view,
+                body.msg-cinema-4k-active.msg-cinema-aspect-9-16 #split-invoice-view,
+                body.msg-cinema-4k-active.msg-cinema-aspect-9-16 .dash-main,
+                body.msg-cinema-4k-active.msg-cinema-aspect-9-16 main {
+                    max-width: 540px !important;
+                    width: 540px !important;
+                    min-height: 94vh !important;
+                    margin: 1vh auto !important;
+                    border: 2.5px solid rgba(56, 189, 248, 0.55) !important;
+                    border-radius: 24px !important;
+                    box-shadow: 0 0 0 9999px rgba(2, 6, 23, 0.86), 0 25px 80px rgba(0, 0, 0, 0.95) !important;
+                    overflow-x: hidden !important;
+                }
+
+                /* 2. Smooth Cinematic Camera Pan & Zoom Transition */
+                .msg-cinema-camera-stage {
+                    transition: transform 0.68s cubic-bezier(0.22, 1, 0.36, 1) !important;
+                    will-change: transform;
+                }
+
+                /* 3. Cinematic Spotlight Overlay (Dimmed Surround + Bright Illuminated Target Halo) */
+                #msg-cinema-spotlight-overlay {
+                    position: fixed;
+                    inset: 0;
+                    z-index: 999980;
+                    pointer-events: none;
+                    display: none;
+                    transition: all 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+                }
+                .msg-cinema-target-illuminated {
+                    position: relative !important;
+                    z-index: 999985 !important;
+                    box-shadow: 0 0 0 4px #fde047, 0 0 38px rgba(250, 204, 21, 0.85), 0 0 80px rgba(56, 189, 248, 0.65) !important;
+                    transition: box-shadow 0.35s ease !important;
+                }
+
+                /* 4. Laser Ghost-Actor Cursor Upgrade */
+                #msg-ghost-cursor.msg-cinema-laser-actor {
+                    filter: drop-shadow(0 0 16px #f43f5e) drop-shadow(0 0 32px #38bdf8) !important;
+                    transition: top 0.52s cubic-bezier(0.22, 1, 0.36, 1), left 0.52s cubic-bezier(0.22, 1, 0.36, 1) !important;
+                }
+                #msg-ghost-cursor.msg-cinema-laser-actor .msg-ghost-cursor-label {
+                    background: linear-gradient(135deg, #0f172a, #1e1b4b) !important;
+                    border: 2px solid #fde047 !important;
+                    color: #ffffff !important;
+                    font-weight: 900 !important;
+                    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.85) !important;
+                }
+
+                /* 5. Cinematic Glassmorphic Lower-Thirds & Subtitles Bar */
+                #msg-cinema-lower-thirds {
+                    position: fixed;
+                    bottom: 18px;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    width: min(1060px, 94vw);
+                    z-index: 1000015;
+                    background: linear-gradient(135deg, rgba(2, 6, 23, 0.92), rgba(15, 23, 42, 0.88), rgba(30, 27, 75, 0.90));
+                    backdrop-filter: blur(18px);
+                    -webkit-backdrop-filter: blur(18px);
+                    border: 2.2px solid rgba(250, 204, 21, 0.68);
+                    border-bottom: 4px solid #fde047;
+                    border-radius: 20px;
+                    padding: 12px 20px;
+                    color: #ffffff;
+                    font-family: 'Cairo', 'Tajawal', sans-serif;
+                    direction: rtl;
+                    box-shadow: 0 22px 65px rgba(0, 0, 0, 0.92), 0 0 35px rgba(56, 189, 248, 0.28);
+                    display: none;
+                    flex-direction: column;
+                    gap: 6px;
+                    pointer-events: auto;
+                }
+                #msg-cinema-subtitle-text {
+                    font-size: 1.04rem;
+                    font-weight: 900;
+                    color: #f8fafc;
+                    line-height: 1.55;
+                    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.95);
+                }
+                #msg-cinema-golden-rule-line {
+                    font-size: 0.92rem;
+                    font-weight: 900;
+                    color: #fde047;
+                    background: linear-gradient(90deg, rgba(245, 158, 11, 0.24), rgba(16, 185, 129, 0.16));
+                    border: 1.8px solid #fbbf24;
+                    border-radius: 11px;
+                    padding: 6px 12px;
+                    text-shadow: 0 0 14px rgba(250, 204, 21, 0.55);
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                }
+                @keyframes msgCinemaSpotlightHaloPulse {
+                    0%, 100% {
+                        box-shadow: 0 0 0 4px rgba(250, 204, 21, 0.92), 0 0 28px rgba(250, 204, 21, 0.85), 0 0 58px rgba(16, 185, 129, 0.65) !important;
+                        border-color: #fde047 !important;
+                    }
+                    50% {
+                        box-shadow: 0 0 0 8px rgba(56, 189, 248, 0.95), 0 0 42px rgba(250, 204, 21, 0.98), 0 0 80px rgba(56, 189, 248, 0.8) !important;
+                        border-color: #38bdf8 !important;
+                    }
+                }
+                .msg-cinema-credit-spotlight-halo {
+                    animation: msgCinemaSpotlightHaloPulse 1.35s infinite ease-in-out !important;
+                    position: relative !important;
+                    z-index: 999990 !important;
+                }
+            `;
+            document.head.appendChild(st);
+        }
+
+        function ensureCinemaDomOverlays() {
+            injectCinema4KStyles();
+            if (!document.getElementById('msg-cinema-spotlight-overlay')) {
+                const spot = document.createElement('div');
+                spot.id = 'msg-cinema-spotlight-overlay';
+                document.body.appendChild(spot);
+            }
+            if (!document.getElementById('msg-cinema-lower-thirds')) {
+                const lt = document.createElement('div');
+                lt.id = 'msg-cinema-lower-thirds';
+                lt.innerHTML = `
+                    <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; border-bottom:1px solid rgba(255,255,255,0.16); padding-bottom:5px;">
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <span id="msg-cinema-rec-dot" style="display:inline-block; width:11px; height:11px; border-radius:50%; background:#ef4444; box-shadow:0 0 12px #ef4444;"></span>
+                            <span id="msg-cinema-scene-badge" style="font-size:0.78rem; font-weight:900; color:#38bdf8; background:rgba(56,189,248,0.16); border:1.5px solid #38bdf8; padding:2px 10px; border-radius:99px;">🎬 المشهد الأول: شاشة العملاء وسقف الائتمان</span>
+                            <span id="msg-cinema-aspect-badge" style="font-size:0.74rem; font-weight:900; color:#fde047; background:rgba(245,158,11,0.18); border:1px solid #fbbf24; padding:2px 8px; border-radius:99px;">🔴 جاري التسجيل السينمائي 4K</span>
+                        </div>
+                        <div style="display:flex; align-items:center; gap:6px;">
+                            <button type="button" onclick="window.stopMagaies4KCinemaMode()" style="background:rgba(239,68,68,0.24); border:1.5px solid #f87171; color:#fecaca; border-radius:8px; padding:2px 10px; font-size:0.74rem; font-weight:900; cursor:pointer;">⏹️ إيقاف وحفظ الفيديو</button>
+                        </div>
+                    </div>
+                    <div id="msg-cinema-subtitle-text">🎬 جاهز للتصوير السينمائي التلقائي بدقة 4K...</div>
+                    <div id="msg-cinema-golden-rule-line">
+                        <span>💡 القاعدة الذهبية:</span>
+                        <span id="msg-cinema-golden-rule-text">«لا تمنح بضاعة بالآجل دون سقف ائتماني محدد، فالتجارة الناجحة تُبنى على الحزم المالي لا على العواطف.»</span>
+                    </div>
+                `;
+                document.body.appendChild(lt);
+            }
+        }
+
+        function getPrimaryScreenStageContainer() {
+            const s1 = document.getElementById('msg-cinema-scene1-stage');
+            if (s1 && s1.style.display !== 'none') return s1;
+            return document.getElementById('sl-proportional-root')
+                || (document.getElementById('split-invoice-view') && document.getElementById('split-invoice-view').style.display !== 'none' ? document.getElementById('split-invoice-view') : null)
+                || (document.getElementById('invoice-editor-view') && document.getElementById('invoice-editor-view').style.display !== 'none' ? document.getElementById('invoice-editor-view') : null)
+                || document.querySelector('.md-panel.active, .md-content-area, .dash-main, .main-content, main, .pos-container')
+                || document.body;
+        }
+
+        // ── 2. SMART CINEMATIC CAMERA (Smooth Auto-Zoom 1.6x & Pan + Spotlight Cutout) ──
+        let lastIlluminatedEl = null;
+        window.resetCinema4KCameraAndSpotlight = function () {
+            if (cinemaAutoZoomTimer) {
+                clearTimeout(cinemaAutoZoomTimer);
+                cinemaAutoZoomTimer = null;
+            }
+            const stg = getPrimaryScreenStageContainer();
+            if (stg && stg !== document.body) {
+                stg.classList.add('msg-cinema-camera-stage');
+                stg.style.transform = '';
+                stg.style.transformOrigin = 'top center';
+            }
+            if (lastIlluminatedEl) {
+                try { lastIlluminatedEl.classList.remove('msg-cinema-target-illuminated'); } catch (_) {}
+                lastIlluminatedEl = null;
+            }
+            const spot = document.getElementById('msg-cinema-spotlight-overlay');
+            if (spot) spot.style.display = 'none';
+        };
+
+        window.applyCinema4KCameraZoomAndSpotlight = function (el, step) {
+            if (!isCinemaModeActive) return;
+            ensureCinemaDomOverlays();
+
+            if (lastIlluminatedEl && lastIlluminatedEl !== el) {
+                try { lastIlluminatedEl.classList.remove('msg-cinema-target-illuminated'); } catch (_) {}
+            }
+
+            // If this is the full-screen overview or 3-Stage SVG Map step, keep camera at 1.0x wide shot!
+            if (!el || el === document.body || (step && step.diagramType === 'c5-impact-map')) {
+                window.resetCinema4KCameraAndSpotlight();
+                return;
+            }
+
+            const rect = el.getBoundingClientRect();
+            const vw = window.innerWidth || document.documentElement.clientWidth;
+            const vh = window.innerHeight || document.documentElement.clientHeight;
+
+            // Highlight target element with golden/cyan halo
+            try {
+                el.classList.add('msg-cinema-target-illuminated');
+                lastIlluminatedEl = el;
+            } catch (_) {}
+
+            // Position radial spotlight cutout centered on the active element
+            const cx = Math.round(rect.left + rect.width / 2);
+            const cy = Math.round(rect.top + rect.height / 2);
+            const radius = Math.max(150, Math.min(390, Math.round(Math.max(rect.width, rect.height) * 0.9)));
+            const spot = document.getElementById('msg-cinema-spotlight-overlay');
+            if (spot) {
+                spot.style.display = 'block';
+                spot.style.background = `radial-gradient(circle ${radius}px at ${cx}px ${cy}px, rgba(255,255,255,0.03) 0%, rgba(15,23,42,0.22) 55%, rgba(2,6,23,0.68) 100%)`;
+            }
+
+            // Smoothly zoom (1.6x) toward the target element
+            const stg = getPrimaryScreenStageContainer();
+            if (stg && stg !== document.body) {
+                stg.classList.add('msg-cinema-camera-stage');
+                const stgRect = stg.getBoundingClientRect();
+                const originX = Math.max(15, Math.min(85, Math.round(((cx - stgRect.left) / Math.max(1, stgRect.width)) * 100)));
+                const originY = Math.max(10, Math.min(82, Math.round(((cy - stgRect.top) / Math.max(1, stgRect.height)) * 100)));
+                stg.style.transformOrigin = `${originX}% ${originY}%`;
+                stg.style.transform = `scale(${cinemaZoomScale || 1.6})`;
+
+                if (cinemaAutoZoomTimer) {
+                    clearTimeout(cinemaAutoZoomTimer);
+                    cinemaAutoZoomTimer = null;
+                }
+                if (!(step && step.keepZoomed)) {
+                    cinemaAutoZoomTimer = setTimeout(() => {
+                        if (stg) stg.style.transform = 'scale(1)';
+                    }, 9500);
+                }
+            }
+        };
+
+        // ── 3. GHOST-ACTOR & CHARACTER-BY-CHARACTER AUTO-TYPING ──
+        function resolveSampleRealisticTextForInput(inp) {
+            if (!inp) return '';
+            const id = (inp.id || '').toLowerCase();
+            const ph = (inp.placeholder || '').toLowerCase();
+            if (inp.type === 'date') return new Date().toISOString().slice(0, 10);
+            if (inp.type === 'number' || inp.getAttribute('inputmode') === 'decimal' || id.includes('qty') || id.includes('weight') || id.includes('price')) {
+                if (id.includes('weighbridge')) return '24500';
+                if (id.includes('qty') || id.includes('subqty')) return '12';
+                return '1500';
+            }
+            if (id.includes('waybill')) return 'WB-2026-9940';
+            if (id.includes('seal')) return 'SEAL-2026-771';
+            if (id.includes('truck') || ph.includes('لوحة') || ph.includes('سيارة')) return 'خ 4 - 8821';
+            if (id.includes('driver') || id.includes('receiver') || ph.includes('سائق') || ph.includes('مستلم')) return 'أحمد محمد الأمين';
+            if (id.includes('search') || ph.includes('بحث')) return 'فاتورة 10';
+            if (id.includes('note') || ph.includes('ملاحظ')) return 'مطابق للفحص الميداني 100%';
+            return 'بيان معتمد 2026';
+        }
+
+        window.runCinema4KGhostActorAutoType = function (targetEl) {
+            if (!isCinemaModeActive || !targetEl) return;
+            if (cinemaTypingTimer) {
+                clearInterval(cinemaTypingTimer);
+                cinemaTypingTimer = null;
+            }
+            const inp = (targetEl.tagName === 'INPUT' || targetEl.tagName === 'TEXTAREA')
+                ? targetEl
+                : (typeof targetEl.querySelector === 'function' ? targetEl.querySelector('input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]):not([type="file"]), textarea') : null);
+            if (!inp || inp.readOnly || inp.disabled) return;
+
+            const currentVal = String(inp.value || '');
+            // Only auto-type if the field is empty or we want to demonstrate live typing and restore if needed
+            const sample = resolveSampleRealisticTextForInput(inp);
+            if (!sample) return;
+
+            cinemaRestorableInputs.push({ el: inp, orig: currentVal });
+            let charIdx = 0;
+            inp.value = '';
+            try { inp.focus(); } catch (_) {}
+
+            cinemaTypingTimer = setInterval(() => {
+                if (!isCinemaModeActive || charIdx >= sample.length) {
+                    clearInterval(cinemaTypingTimer);
+                    cinemaTypingTimer = null;
+                    // Restore original value if it had meaningful user data before the demo
+                    if (currentVal && currentVal !== sample) {
+                        setTimeout(() => {
+                            inp.value = currentVal;
+                            try { inp.dispatchEvent(new Event('input', { bubbles: true })); } catch (_) {}
+                        }, 1800);
+                    }
+                    return;
+                }
+                inp.value = sample.slice(0, charIdx + 1);
+                charIdx++;
+                try { inp.dispatchEvent(new Event('input', { bubbles: true })); } catch (_) {}
+            }, 95);
+        };
+
+        // ── 4. CINEMATIC LOWER-THIRDS & SUBTITLES + GOLDEN RULE EXTRACTOR ──
+        function updateCinema4KLowerThirds(step, spokenText, stepIdx, totalSteps) {
+            ensureCinemaDomOverlays();
+            const lt = document.getElementById('msg-cinema-lower-thirds');
+            if (!lt) return;
+            lt.style.display = isCinemaModeActive ? 'flex' : 'none';
+            if (!isCinemaModeActive) return;
+
+            const sceneBadge = document.getElementById('msg-cinema-scene-badge');
+            const subEl = document.getElementById('msg-cinema-subtitle-text');
+            const goldenEl = document.getElementById('msg-cinema-golden-rule-text');
+
+            if (sceneBadge) {
+                sceneBadge.textContent = `🎬 المشهد ${stepIdx + 1} من ${totalSteps}: ${(step && (step.badge || step.cursorLabel)) || 'شرح تفصيلي'}`;
+            }
+
+            // Extract Golden Rule if present in spoken text or step metadata
+            const raw = String(spokenText || '');
+            let mainSub = raw;
+            let goldenRule = (step && step.c5ImpactMeta && step.c5ImpactMeta.goldenRule) || '';
+            if (raw.includes('القاعدة الذهبية')) {
+                const parts = raw.split(/👑?\s*القاعدة الذهبية[^:]*:/);
+                if (parts.length > 1) {
+                    mainSub = parts[0].trim();
+                    goldenRule = parts.slice(1).join(' ').trim();
+                }
+            }
+            if (!goldenRule) {
+                goldenRule = 'افحص البيانات والكميات والوحدة بدقة قبل الاعتماد (F10)، ينضبط القيد المحاسبي والمخزن وكشف الحساب تلقائياً بفرق صفر (0.00).';
+            }
+            if (goldenEl) goldenEl.textContent = goldenRule;
+
+            // Display the FULL broadcast text continuously without truncating after the first words
+            if (cinemaSubtitleTimer) {
+                clearInterval(cinemaSubtitleTimer);
+                cinemaSubtitleTimer = null;
+            }
+            if (subEl) {
+                subEl.textContent = `🗣️ « ${mainSub || raw} »`;
+            }
+        }
+
+        // Hook called by runCurrentAutopilotStep() on every step
+        window.onCinema4KStepActivated = function (el, step, spokenText, stepIdx, totalSteps) {
+            if (!isCinemaModeActive) return;
+            const cursor = document.getElementById('msg-ghost-cursor');
+            if (cursor) cursor.classList.add('msg-cinema-laser-actor');
+
+            updateCinema4KLowerThirds(step, spokenText, stepIdx, totalSteps);
+            window.applyCinema4KCameraZoomAndSpotlight(el, step);
+            window.runCinema4KGhostActorAutoType(el);
+            triggerLiveChildScreenPreviewForElement(el);
+        };
+
+        window.onCinema4KTourStopped = function () {
+            window.resetCinema4KCameraAndSpotlight();
+            if (cinemaExternalAudio) {
+                try { cinemaExternalAudio.pause(); cinemaExternalAudio.currentTime = 0; } catch (_) {}
+            }
+            if (cinemaExternalStepTimer) {
+                clearInterval(cinemaExternalStepTimer);
+                cinemaExternalStepTimer = null;
+            }
+            if (isCinemaRecording) {
+                window.startOrStopCinema4KVideoRecording(true);
+            }
+        };
+
+        // ── 5. EXTERNAL ELEVENLABS MP3 UPLOAD & EXACT-SECOND STEP SYNC ──
+        window.isCinemaExternalMp3DrivingSteps = function () {
+            return Boolean(isCinemaModeActive && cinemaExternalAudio && !cinemaExternalAudio.paused);
+        };
+
+        window.handleCinema4KExternalMp3Upload = function (event) {
+            const file = event && event.target && event.target.files ? event.target.files[0] : null;
+            if (!file) return;
+            cinemaExternalAudioName = file.name;
+            const url = URL.createObjectURL(file);
+            if (cinemaExternalAudio) {
+                try { cinemaExternalAudio.pause(); } catch (_) {}
+            }
+            cinemaExternalAudio = new Audio(url);
+            cinemaExternalAudio.preload = 'auto';
+            cinemaExternalAudio.onloadedmetadata = () => {
+                const dur = Math.max(1, Math.round(cinemaExternalAudio.duration || 0));
+                const lbl = document.getElementById('msg-cinema-mp3-status-lbl');
+                if (lbl) {
+                    lbl.innerHTML = `✅ تم ربط ملف ElevenLabs الصوتي: <strong>${escapeSvgText(file.name)}</strong> (${dur} ثانية) — جاهز للمزامنة الآلية بالثانية!`;
+                }
+                if (typeof showSlToast === 'function') {
+                    showSlToast(`🎵 تم تحميل ملف الصوت الخارجي (${file.name} — ${dur} ثانية) لمزامنة التمثيل الآلي!`, 'success', 3000);
+                }
+            };
+        };
+
+        window.clearCinema4KExternalMp3 = function () {
+            if (cinemaExternalAudio) {
+                try { cinemaExternalAudio.pause(); } catch (_) {}
+                cinemaExternalAudio = null;
+            }
+            cinemaExternalAudioName = '';
+            const lbl = document.getElementById('msg-cinema-mp3-status-lbl');
+            if (lbl) {
+                lbl.innerHTML = '🎙️ الصوت النشط حالياً: <strong>الصوت الرجالي الفخيم المدمج (يبدأ بالصلاة على النبي ﷺ مرة واحدة فقط)</strong>';
+            }
+        };
+
+        // ── 6. 4K VIDEO RECORDER (MediaRecorder MP4/WebM Downloader) ──
+        window.startOrStopCinema4KVideoRecording = async function (forceStop = false) {
+            const recBtn = document.getElementById('msg-cinema-lt-rec-btn');
+            const modalRecBtn = document.getElementById('msg-cinema-modal-rec-btn');
+
+            if (isCinemaRecording || forceStop) {
+                if (cinemaMediaRecorder && cinemaMediaRecorder.state !== 'inactive') {
+                    try { cinemaMediaRecorder.stop(); } catch (_) {}
+                }
+                isCinemaRecording = false;
+                const fixedLbl = document.getElementById('msg-fixed-cinema-4k-label');
+                if (fixedLbl) fixedLbl.textContent = 'تسجيل';
+                if (recBtn) recBtn.textContent = '🔴 تسجيل';
+                if (modalRecBtn) modalRecBtn.textContent = '🔴 بدء تسجيل وتنزيل الفيديو (Download MP4/WebM)';
+                return;
+            }
+
+            window.startAutomaticCinema4KMediaRecorder();
+            window.playCinemaScene1CustomersCreditLimit(cinemaAspectRatio || '16:9');
+        };
+
+        // ── 6B. BROADCAST-GRADE MALE NEWS-ANCHOR AUDIO ENGINE + REAL MEDIARECORDER COMPOSITOR ──
+        let cinemaBroadcastAudioCtx = null;
+        let cinemaBroadcastAudioDest = null;
+        let cinemaBroadcastBufferSource = null;
+        let cinemaStudioCanvasTimer = null;
+        let isCinemaVoiceMuted = false;
+
+        function ensureCinemaBroadcastAudioGraph() {
+            const AudioCtx = window.AudioContext || window.webkitAudioContext;
+            if (!AudioCtx) return null;
+            if (!cinemaBroadcastAudioCtx || cinemaBroadcastAudioCtx.state === 'closed') {
+                cinemaBroadcastAudioCtx = new AudioCtx();
+                cinemaBroadcastAudioDest = cinemaBroadcastAudioCtx.createMediaStreamDestination();
+            }
+            if (cinemaBroadcastAudioCtx.state === 'suspended') {
+                try { cinemaBroadcastAudioCtx.resume(); } catch (_) {}
+            }
+            return cinemaBroadcastAudioCtx;
+        }
+
+        function createBroadcastBaritoneDspChain(ctx) {
+            // 1. Deep Warmth Chest Resonance (Low-Shelf 155Hz +4.2dB)
+            const lowShelf = ctx.createBiquadFilter();
+            lowShelf.type = 'lowshelf';
+            lowShelf.frequency.value = 155;
+            lowShelf.gain.value = 4.2;
+
+            // 2. Anti-Boxiness Cut (Peaking 330Hz -2.5dB)
+            const mudCut = ctx.createBiquadFilter();
+            mudCut.type = 'peaking';
+            mudCut.frequency.value = 330;
+            mudCut.Q.value = 1.25;
+            mudCut.gain.value = -2.5;
+
+            // 3. Crisp Broadcast Articulation Presence (Peaking 3000Hz +3.4dB)
+            const presence = ctx.createBiquadFilter();
+            presence.type = 'peaking';
+            presence.frequency.value = 3000;
+            presence.Q.value = 1.0;
+            presence.gain.value = 3.4;
+
+            // 4. Studio Broadcast Compressor & Calm Master Gain (Zero clipping / zero harshness)
+            const compressor = ctx.createDynamicsCompressor();
+            compressor.threshold.value = -20;
+            compressor.knee.value = 18;
+            compressor.ratio.value = 3.8;
+            compressor.attack.value = 0.004;
+            compressor.release.value = 0.22;
+
+            const masterGain = ctx.createGain();
+            masterGain.gain.value = 0.92;
+
+            lowShelf.connect(mudCut);
+            mudCut.connect(presence);
+            presence.connect(compressor);
+            compressor.connect(masterGain);
+            masterGain.connect(ctx.destination);
+            if (cinemaBroadcastAudioDest) {
+                masterGain.connect(cinemaBroadcastAudioDest);
+            }
+            return lowShelf;
+        }
+
+        let _activeCinemaScenarioState = {
+            mode: 'customer',
+            screenTitle: '👥 منظومة بيانات العملاء الشاملة من الألف إلى الياء',
+            screenSubtitle: 'توثيق وشرح بروفيسوري كامل: السياسة • الموقف • بطاقة QR • الرصيد الافتتاحي • حد الائتمان • العملة • الرقم السري • التعديل والحذف',
+            sceneIndex: 0,
+            totalScenes: 10,
+            sceneBadge: '',
+            spokenText: '',
+            goldenRule: '',
+            cards: []
+        };
+
+        function wrapCanvasTextLines(ctx, text, maxWidth) {
+            const words = String(text || '').split(/\s+/).filter(Boolean);
+            const lines = [];
+            let current = '';
+            for (let i = 0; i < words.length; i++) {
+                const testLine = current ? (current + ' ' + words[i]) : words[i];
+                if (ctx.measureText(testLine).width > maxWidth && current) {
+                    lines.push(current);
+                    current = words[i];
+                } else {
+                    current = testLine;
+                }
+            }
+            if (current) lines.push(current);
+            return lines;
+        }
+
+        window.detectActiveMasterDataTabMode = function () {
+            const splitView = document.getElementById('split-invoice-view');
+            if ((window.location.search.includes('action=split') || (splitView && splitView.style.display !== 'none')) && window.location.pathname.includes('direct-sales.php')) {
+                return 'sales-split';
+            }
+            if (window.location.pathname.includes('direct-sales.php')) {
+                return 'sales-direct';
+            }
+            if (window.location.pathname.includes('purchase-receipt.php')) {
+                return 'purchase-receipt';
+            }
+            if (window.location.pathname.includes('smart-logistics.php')) {
+                return 'smart-logistics';
+            }
+            const tabMap = [
+                { mode: 'supplier', sel: '#tab-suppliers.active, .md-tab-btn.tab-suppliers.active' },
+                { mode: 'customer', sel: '#tab-customers.active, .md-tab-btn.tab-customers.active' },
+                { mode: 'warehouse', sel: '#tab-warehouses.active, .md-tab-btn.tab-warehouses.active' },
+                { mode: 'bank', sel: '#tab-banks.active, .md-tab-btn.tab-banks.active' },
+                { mode: 'safe', sel: '#tab-safes.active, .md-tab-btn.tab-safes.active' },
+                { mode: 'item', sel: '#tab-items.active, .md-tab-btn.tab-items.active' },
+                { mode: 'employee', sel: '#tab-employees.active, .md-tab-btn.tab-employees.active' },
+                { mode: 'costcenter', sel: '#tab-costcenters.active, .md-tab-btn.tab-costcenters.active' }
+            ];
+            for (const t of tabMap) {
+                const el = document.querySelector(t.sel);
+                if (el) return t.mode;
+            }
+            const supTab = document.getElementById('tab-suppliers');
+            if (supTab && supTab.offsetParent !== null) return 'supplier';
+            const custTab = document.getElementById('tab-customers');
+            if (custTab && custTab.offsetParent !== null) return 'customer';
+            return 'customer';
+        };
+
+        window.startAutomaticCinema4KMediaRecorder = function (forceMode) {
+            if (isCinemaRecording && cinemaMediaRecorder && cinemaMediaRecorder.state !== 'inactive') {
+                return;
+            }
+            try {
+                const activeMode = forceMode || window.detectActiveMasterDataTabMode() || 'customer';
+                ensureCinemaBroadcastAudioGraph();
+                const canvas = document.createElement('canvas');
+                canvas.width = 1920;
+                canvas.height = 1080;
+                const cctx = canvas.getContext('2d');
+
+                if (cinemaStudioCanvasTimer) clearInterval(cinemaStudioCanvasTimer);
+                const startTs = performance.now();
+
+                const renderStudioFrame = () => {
+                    if (!cctx) return;
+                    const elapsed = (performance.now() - startTs) / 1000;
+                    const st = _activeCinemaScenarioState || {};
+                    const isSup = st.mode === 'supplier';
+                    const pfx = isSup ? 'sup' : 'cust';
+
+                    cctx.save();
+                    cctx.fillStyle = '#020617';
+                    cctx.fillRect(0, 0, 1920, 1080);
+
+                    // Stage Card Background
+                    const grad = cctx.createLinearGradient(0, 0, 1920, 900);
+                    grad.addColorStop(0, '#020617');
+                    grad.addColorStop(0.5, '#0f172a');
+                    grad.addColorStop(1, isSup ? '#2e1065' : '#1e1b4b');
+                    cctx.fillStyle = grad;
+                    cctx.strokeStyle = isSup ? '#c084fc' : '#38bdf8';
+                    cctx.lineWidth = 4;
+                    cctx.fillRect(50, 32, 1820, 745);
+                    cctx.strokeRect(50, 32, 1820, 745);
+
+                    // Stage Header
+                    cctx.direction = 'rtl';
+                    cctx.textAlign = 'right';
+                    cctx.fillStyle = '#f8fafc';
+                    cctx.font = '900 30px Cairo, Tajawal, sans-serif';
+                    cctx.fillText(st.screenTitle || '👥 منظومة بيانات العملاء الشاملة من الألف إلى الياء (4K Studio)', 1835, 86);
+                    cctx.fillStyle = '#94a3b8';
+                    cctx.font = '700 19px Cairo, Tajawal, sans-serif';
+                    cctx.fillText(st.screenSubtitle || 'شرح بروفيسوري شامل لكل زر وحقل وسياسة من الألف إلى الياء', 1835, 120);
+
+                    // Scene Counter Pill
+                    cctx.fillStyle = 'rgba(245,158,11,0.22)';
+                    cctx.strokeStyle = '#fde047';
+                    cctx.lineWidth = 2.5;
+                    cctx.fillRect(80, 52, 470, 58);
+                    cctx.strokeRect(80, 52, 470, 58);
+                    cctx.fillStyle = '#fef08a';
+                    cctx.textAlign = 'center';
+                    cctx.font = '900 21px Cairo, Tajawal, sans-serif';
+                    const scenePillTxt = st.sceneBadge || `🎬 المشهد ${(st.sceneIndex || 0) + 1} من ${st.totalScenes || 10}`;
+                    cctx.fillText(scenePillTxt.slice(0, 46), 315, 89);
+
+                    // Top Bulk WhatsApp Policy Bar representation
+                    const topBtns = [
+                        { lbl: '📊 كشف للكل', col: '#34d399' },
+                        { lbl: '💰 رصيد للكل', col: '#fbbf24' },
+                        { lbl: '🔒 إيقاف الكل', col: '#f87171' },
+                        { lbl: '🔐 توليد باسورد', col: '#38bdf8' },
+                        { lbl: '⚙️ السياسة العامة', col: '#d8b4fe' },
+                        { lbl: '🪪 بطاقة QR', col: '#34d399' },
+                        { lbl: '📋 نسخ البطاقة', col: '#e9d5ff' }
+                    ];
+                    topBtns.forEach((b, idx) => {
+                        const bx = 1835 - (idx + 1) * 248;
+                        const isHighlighted = (st.sceneIndex === 0 && idx < 4) || (st.sceneIndex === 1 && idx === 4) || (st.sceneIndex === 3 && idx >= 5);
+                        cctx.fillStyle = isHighlighted ? 'rgba(250,204,21,0.25)' : 'rgba(15,23,42,0.9)';
+                        cctx.strokeStyle = isHighlighted ? '#fde047' : b.col;
+                        cctx.lineWidth = isHighlighted ? 3.5 : 2;
+                        cctx.fillRect(bx, 140, 234, 48);
+                        cctx.strokeRect(bx, 140, 234, 48);
+                        cctx.fillStyle = isHighlighted ? '#fef08a' : '#ffffff';
+                        cctx.textAlign = 'center';
+                        cctx.font = '900 19px Cairo, Tajawal, sans-serif';
+                        cctx.fillText(b.lbl, bx + 117, 171);
+                    });
+
+                    // Live Form Inputs Summary Row
+                    const nameInp = document.getElementById(`${pfx}-name`) || document.getElementById('cinema-s1-cust-name');
+                    const pinInp = document.getElementById(`${pfx}-statement-pin`);
+                    const waInp = document.getElementById(`${pfx}-whatsapp`) || document.getElementById('cinema-s1-cust-phone');
+                    const opBalInp = document.getElementById(`${pfx}-opening-balance`);
+                    const limInp = document.getElementById(`${pfx}-limit`) || document.getElementById('cinema-s1-cust-limit');
+                    const curInp = document.getElementById(`${pfx}-currency`);
+
+                    const fieldBoxes = [
+                        { title: isSup ? '🏭 اسم المورد *' : '👤 اسم العميل *', val: (nameInp && nameInp.value) || (isSup ? 'شركة النخبة للتوريدات العالمية' : 'شركة البنيان المتطورة'), col: '#38bdf8', active: st.sceneIndex === 4 },
+                        { title: '🔐 الرقم السري (PIN للواتساب)', val: (pinInp && pinInp.value) || '4829', col: '#d8b4fe', active: st.sceneIndex === 4 },
+                        { title: '💬 رقم الواتساب المعتمد', val: (waInp && waInp.value) || '00249912345678', col: '#4ade80', active: st.sceneIndex === 4 },
+                        { title: '💰 الرصيد الافتتاحي (مغذي الحساب)', val: (opBalInp && opBalInp.value) || '15,000', col: '#fbbf24', active: st.sceneIndex === 5 },
+                        { title: '🛑 الحد الائتماني (حماية المال)', val: (limInp && limInp.value) || '50,000', col: '#f43f5e', active: st.sceneIndex === 5 },
+                        { title: '💱 العملة • 🟢 الحالة • 🏷️ التسعير', val: `${(curInp && curInp.value) || 'SDG'} • نشط • جملة`, col: '#34d399', active: st.sceneIndex === 6 }
+                    ];
+                    fieldBoxes.forEach((f, idx) => {
+                        const colIdx = idx % 3;
+                        const rowIdx = Math.floor(idx / 3);
+                        const fw = 568;
+                        const fh = 104;
+                        const fx = 1835 - (colIdx + 1) * fw - colIdx * 22;
+                        const fy = 208 + rowIdx * 118;
+                        cctx.fillStyle = f.active ? 'rgba(30,27,75,0.96)' : 'rgba(15,23,42,0.92)';
+                        cctx.strokeStyle = f.active ? '#fde047' : f.col;
+                        cctx.lineWidth = f.active ? 4 : 2.2;
+                        cctx.fillRect(fx, fy, fw, fh);
+                        cctx.strokeRect(fx, fy, fw, fh);
+                        cctx.textAlign = 'right';
+                        cctx.fillStyle = f.active ? '#fde047' : f.col;
+                        cctx.font = '900 19px Cairo, Tajawal, sans-serif';
+                        cctx.fillText(f.title, fx + fw - 18, fy + 34);
+                        cctx.fillStyle = '#020617';
+                        cctx.fillRect(fx + 16, fy + 46, fw - 32, 44);
+                        cctx.fillStyle = '#ffffff';
+                        cctx.textAlign = 'center';
+                        cctx.font = '900 22px Cairo, Tajawal, monospace';
+                        cctx.fillText(String(f.val).slice(0, 34), fx + fw / 2, fy + 76);
+                    });
+
+                    // Current Scene 4 Spotlight Cards (Detailed Professor Breakdown)
+                    cctx.fillStyle = 'rgba(2,6,23,0.92)';
+                    cctx.strokeStyle = 'rgba(56,189,248,0.45)';
+                    cctx.lineWidth = 2.5;
+                    cctx.fillRect(80, 455, 1755, 298);
+                    cctx.strokeRect(80, 455, 1755, 298);
+
+                    cctx.textAlign = 'right';
+                    cctx.fillStyle = '#fde047';
+                    cctx.font = '900 23px Cairo, Tajawal, sans-serif';
+                    cctx.fillText(`🎓 تفصيل المشهد الحالي (${(st.sceneIndex || 0) + 1}/${st.totalScenes || 10}): ${st.sceneBadge || ''}`, 1810, 495);
+
+                    const cards = Array.isArray(st.cards) && st.cards.length ? st.cards : [
+                        '📊 كشف للكل • 💰 رصيد للكل • 🔒 إيقاف الكل • 🔐 توليد باسورد • ⚙️ السياسة العامة',
+                        '🪪 البطاقة الافتراضية QR • 📋 نسخ البطاقة • موقف الحساب (موقوف / الرصيد / كشف)',
+                        '💰 الرصيد الافتتاحي يغذي كشف الحساب • 🛑 حد الائتمان يحمي رأس المال • 💱 العملة والرقم السري',
+                        '✏️ التعديل الفوري بالضغط على (تعديل) • 🗑️ منع الحذف نهائياً عند وجود حركات أو رصيد'
+                    ];
+                    cards.slice(0, 4).forEach((cardTxt, idx) => {
+                        const cy = 538 + idx * 52;
+                        const pulse = Math.floor(elapsed * 2) % 4 === idx;
+                        cctx.fillStyle = pulse ? 'rgba(16,185,129,0.22)' : 'rgba(15,23,42,0.85)';
+                        cctx.strokeStyle = pulse ? '#34d399' : 'rgba(148,163,184,0.35)';
+                        cctx.lineWidth = pulse ? 2.5 : 1.5;
+                        cctx.fillRect(105, cy - 32, 1705, 44);
+                        cctx.strokeRect(105, cy - 32, 1705, 44);
+                        cctx.fillStyle = '#ffffff';
+                        cctx.textAlign = 'right';
+                        cctx.font = '800 21px Cairo, Tajawal, sans-serif';
+                        cctx.fillText(cardTxt, 1790, cy - 3);
+                    });
+
+                    cctx.restore();
+
+                    // Glassmorphic Lower-Thirds Bar at Bottom of 1080p Frame
+                    cctx.fillStyle = 'rgba(15,23,42,0.95)';
+                    cctx.strokeStyle = '#38bdf8';
+                    cctx.lineWidth = 3;
+                    cctx.fillRect(50, 792, 1820, 260);
+                    cctx.strokeRect(50, 792, 1820, 260);
+
+                    cctx.direction = 'rtl';
+                    cctx.textAlign = 'center';
+                    cctx.fillStyle = '#ffffff';
+                    cctx.font = '800 22px Cairo, Tajawal, sans-serif';
+                    const spokenLines = wrapCanvasTextLines(cctx, st.spokenText || '', 1720).slice(0, 4);
+                    spokenLines.forEach((ln, lIdx) => {
+                        cctx.fillText(ln, 960, 835 + lIdx * 34);
+                    });
+
+                    // Golden Rule Highlight Bar
+                    cctx.fillStyle = 'rgba(245,158,11,0.18)';
+                    cctx.strokeStyle = '#fbbf24';
+                    cctx.lineWidth = 2;
+                    cctx.fillRect(90, 976, 1740, 58);
+                    cctx.strokeRect(90, 976, 1740, 58);
+                    cctx.fillStyle = '#fef08a';
+                    cctx.font = '900 21px Cairo, Tajawal, sans-serif';
+                    const grText = st.goldenRule || '«اضبط الرصيد الافتتاحي وحد الائتمان والرقم السري بدقة؛ فالتجارة الناجحة تُبنى على الحزم المالي والتوثيق الكامل.»';
+                    cctx.fillText(`💡 القاعدة الذهبية: ${grText}`.slice(0, 115), 960, 1013);
+                };
+
+                renderStudioFrame();
+                cinemaStudioCanvasTimer = setInterval(renderStudioFrame, 33);
+
+                const canvasStream = canvas.captureStream(30);
+                const combinedTracks = [...canvasStream.getVideoTracks()];
+                if (cinemaBroadcastAudioDest && cinemaBroadcastAudioDest.stream) {
+                    combinedTracks.push(...cinemaBroadcastAudioDest.stream.getAudioTracks());
+                }
+                const combinedStream = new MediaStream(combinedTracks);
+
+                const mimeCandidates = [
+                    'video/webm;codecs=vp9,opus',
+                    'video/webm;codecs=vp8,opus',
+                    'video/webm',
+                    'video/mp4'
+                ];
+                const chosenMime = mimeCandidates.find(m => typeof MediaRecorder !== 'undefined' && MediaRecorder.isTypeSupported && MediaRecorder.isTypeSupported(m)) || '';
+                cinemaRecordedChunks = [];
+                cinemaMediaRecorder = chosenMime
+                    ? new MediaRecorder(combinedStream, { mimeType: chosenMime, videoBitsPerSecond: 12000000 })
+                    : new MediaRecorder(combinedStream);
+
+                cinemaMediaRecorder.ondataavailable = (ev) => {
+                    if (ev.data && ev.data.size > 0) cinemaRecordedChunks.push(ev.data);
+                };
+
+                cinemaMediaRecorder.onstop = () => {
+                    if (cinemaStudioCanvasTimer) {
+                        clearInterval(cinemaStudioCanvasTimer);
+                        cinemaStudioCanvasTimer = null;
+                    }
+                    try { canvasStream.getTracks().forEach(t => t.stop()); } catch (_) {}
+                    isCinemaRecording = false;
+                    const fixedLbl = document.getElementById('msg-fixed-cinema-4k-label');
+                    if (fixedLbl) fixedLbl.textContent = 'تسجيل';
+                    if (!cinemaRecordedChunks.length) return;
+
+                    const ext = chosenMime.includes('mp4') ? 'mp4' : 'webm';
+                    const blob = new Blob(cinemaRecordedChunks, { type: chosenMime || 'video/webm' });
+                    const dlUrl = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = dlUrl;
+                    const fileSlug = (_activeCinemaScenarioState && _activeCinemaScenarioState.mode) || activeMode || 'customers';
+                    a.download = `magaies-${fileSlug}-full-guide-4k-${Date.now()}.${ext}`;
+                    document.body.appendChild(a);
+                    a.click();
+                    setTimeout(() => {
+                        URL.revokeObjectURL(dlUrl);
+                        a.remove();
+                    }, 2500);
+                    if (typeof showSlToast === 'function') {
+                        showSlToast(`🎬 تم حفظ وتنزيل الفيديو التعليمي الشامل من الألف إلى الياء بنجاح (${a.download})!`, 'success', 4500);
+                    }
+                };
+
+                cinemaMediaRecorder.start(200);
+                isCinemaRecording = true;
+                const fixedLbl = document.getElementById('msg-fixed-cinema-4k-label');
+                if (fixedLbl) fixedLbl.textContent = '🔴 جاري التسجيل';
+            } catch (_err) {
+                isCinemaRecording = false;
+            }
+        };
+
+        window.stopAndSaveCinema4KMediaRecorder = function () {
+            if (cinemaStudioCanvasTimer) {
+                clearInterval(cinemaStudioCanvasTimer);
+                cinemaStudioCanvasTimer = null;
+            }
+            if (cinemaMediaRecorder && cinemaMediaRecorder.state !== 'inactive') {
+                try { cinemaMediaRecorder.stop(); } catch (_) {}
+            }
+            isCinemaRecording = false;
+            const fixedLbl = document.getElementById('msg-fixed-cinema-4k-label');
+            if (fixedLbl) fixedLbl.textContent = 'تسجيل';
+        };
+
+        let cinemaBroadcastAudioEl = null;
+
+        window.silenceAllLegacyGuideAudioAndUI = function (stopCinemaVoiceToo = false) {
+            window.__MUTE_LEGACY_GUIDE_AUDIO__ = true;
+            isAutopilotRunning = false;
+            window.__mdInteractiveGuideActive = false;
+            isPickElementModeActive = false;
+            isHandsOnTrainingActive = false;
+            stopCurrentSpeech();
+            if ('speechSynthesis' in window) {
+                try { window.speechSynthesis.cancel(); } catch (_) {}
+            }
+            if (stopCinemaVoiceToo) {
+                if (cinemaBroadcastBufferSource) {
+                    try { cinemaBroadcastBufferSource.stop(); } catch (_) {}
+                    cinemaBroadcastBufferSource = null;
+                }
+                if (cinemaBroadcastAudioEl) {
+                    try {
+                        cinemaBroadcastAudioEl.onended = null;
+                        cinemaBroadcastAudioEl.pause();
+                        cinemaBroadcastAudioEl.currentTime = 0;
+                    } catch (_) {}
+                    cinemaBroadcastAudioEl = null;
+                }
+            }
+            [
+                'msg-live-coach-bar',
+                'msg-coach-svg-popover',
+                'msg-smart-hover-tooltip',
+                'msg-voice-qa-panel',
+                'msg-universal-modal',
+                'msg-pinned-audio-dock',
+                'msg-c5-impact-map-banner'
+            ].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.style.display = 'none';
+            });
+        };
+
+        // Exclusive Broadcast-Grade Male News-Anchor Voice Engine (Dynamic Per-Scene Neural Male TTS Streaming)
+        window.speakCinema4KExclusiveVoice = function (text, onEndCallback) {
+            stopCurrentSpeech();
+            if ('speechSynthesis' in window) {
+                try { window.speechSynthesis.cancel(); } catch (_) {}
+            }
+            if (cinemaBroadcastBufferSource) {
+                try { cinemaBroadcastBufferSource.stop(); } catch (_) {}
+                cinemaBroadcastBufferSource = null;
+            }
+            if (cinemaBroadcastAudioEl) {
+                try {
+                    cinemaBroadcastAudioEl.onended = null;
+                    cinemaBroadcastAudioEl.pause();
+                    cinemaBroadcastAudioEl.currentTime = 0;
+                } catch (_) {}
+                cinemaBroadcastAudioEl = null;
+            }
+            if (cinemaExternalAudio) {
+                try {
+                    cinemaExternalAudio.currentTime = 0;
+                    cinemaExternalAudio.onended = () => {
+                        if (typeof onEndCallback === 'function') onEndCallback();
+                    };
+                    cinemaExternalAudio.play().catch(() => {});
+                } catch (_) {}
+                return;
+            }
+            const cleanText = String(text || '').trim();
+            const estDurationMs = Math.max(8000, Math.min(45000, cleanText.length * 78));
+            if (isCinemaVoiceMuted || !cleanText) {
+                if (typeof onEndCallback === 'function') setTimeout(onEndCallback, estDurationMs);
+                return;
+            }
+
+            const ctx = ensureCinemaBroadcastAudioGraph();
+            const primaryApiUrl = 'api/tts_male.php?dialect=sudanese&text=' + encodeURIComponent(cleanText);
+            const fallbackApiUrl = 'api/tts_male.php?dialect=egyptian&text=' + encodeURIComponent(cleanText);
+
+            const playContinuousBroadcastAudioUrl = (audioUrl, isFallback = false) => {
+                try {
+                    const audio = new Audio();
+                    audio.preload = 'auto';
+                    audio.crossOrigin = 'anonymous';
+                    audio.src = audioUrl;
+                    audio.playbackRate = 1.0;
+                    cinemaBroadcastAudioEl = audio;
+
+                    if (ctx) {
+                        try {
+                            if (ctx.state === 'suspended') ctx.resume();
+                            const mediaNode = ctx.createMediaElementSource(audio);
+                            const dspInput = createBroadcastBaritoneDspChain(ctx);
+                            mediaNode.connect(dspInput);
+                        } catch (_) {}
+                    }
+
+                    let finished = false;
+                    const finishOnce = () => {
+                        if (finished) return;
+                        finished = true;
+                        if (cinemaBroadcastAudioEl === audio) cinemaBroadcastAudioEl = null;
+                        if (typeof onEndCallback === 'function') onEndCallback();
+                    };
+
+                    audio.onended = finishOnce;
+                    audio.onerror = () => {
+                        if (!isFallback) {
+                            playContinuousBroadcastAudioUrl(fallbackApiUrl, true);
+                        } else {
+                            setTimeout(finishOnce, estDurationMs);
+                        }
+                    };
+
+                    const playPromise = audio.play();
+                    if (playPromise && typeof playPromise.catch === 'function') {
+                        playPromise.catch(() => {
+                            if (!isFallback) {
+                                playContinuousBroadcastAudioUrl(fallbackApiUrl, true);
+                            } else {
+                                setTimeout(finishOnce, estDurationMs);
+                            }
+                        });
+                    }
+                } catch (_) {
+                    if (typeof onEndCallback === 'function') setTimeout(onEndCallback, estDurationMs);
+                }
+            };
+
+            playContinuousBroadcastAudioUrl(primaryApiUrl, false);
+        };
+
+        // ── 7. START / STOP / TOGGLE INDEPENDENT 4K CINEMA MODE (16:9 YouTube vs 9:16 Reels) ──
+        window.toggleCinema4KAspectRatio = function (forceRatio) {
+            cinemaAspectRatio = forceRatio || (cinemaAspectRatio === '16:9' ? '9:16' : '16:9');
+            document.body.classList.toggle('msg-cinema-aspect-9-16', isCinemaModeActive && cinemaAspectRatio === '9:16');
+            const badge = document.getElementById('msg-cinema-aspect-badge');
+            if (badge) {
+                badge.textContent = '🔴 جاري التسجيل السينمائي 4K';
+            }
+        };
+
+        let _cinemaIndependentTourTimers = [];
+        window._cinemaScene1Timers = window._cinemaScene1Timers || [];
+        function clearCinemaIndependentTourTimers() {
+            _cinemaIndependentTourTimers.forEach(t => clearTimeout(t));
+            _cinemaIndependentTourTimers = [];
+            if (Array.isArray(window._cinemaScene1Timers)) {
+                window._cinemaScene1Timers.forEach(t => clearTimeout(t));
+            }
+            window._cinemaScene1Timers = [];
+        }
+
+        function triggerCinemaClickRipple(el) {
+            const cursor = document.getElementById('msg-ghost-cursor');
+            if (cursor) {
+                cursor.classList.add('clicking');
+                setTimeout(() => cursor.classList.remove('clicking'), 450);
+            }
+            if (el) {
+                const origTransition = el.style.transition;
+                const origTransform = el.style.transform;
+                el.style.transition = 'transform 0.22s ease, box-shadow 0.22s ease';
+                el.style.transform = 'scale(0.95)';
+                setTimeout(() => {
+                    el.style.transform = origTransform || '';
+                    el.style.transition = origTransition || '';
+                }, 240);
+            }
+        }
+
+        // Independent 4K Cinema + Real Video Recorder Launcher bound directly to the "تسجيل" button under "المرشد"
+        // Automatically detects the active tab (Customers vs Suppliers vs other Master Data tabs)
+        window.launchIndependent4KCinemaNow = function (ratio = '16:9', forcedEntityMode = null) {
+            if (isCinemaModeActive || isCinemaRecording) {
+                window.stopMagaies4KCinemaMode();
+                return;
+            }
+            const detectedMode = forcedEntityMode || window.detectActiveMasterDataTabMode() || 'customer';
+            window.silenceAllLegacyGuideAudioAndUI(true);
+            window.startAutomaticCinema4KMediaRecorder(detectedMode);
+            window.playCinemaMasterDataEntityFullScenario(detectedMode, ratio || cinemaAspectRatio || '16:9');
+        };
+
+        window.startMagaies4KCinemaMode = function (ratio = '16:9', tourMode = 'all') {
+            const detectedMode = (tourMode && tourMode !== 'all') ? tourMode : (window.detectActiveMasterDataTabMode() || 'customer');
+            window.silenceAllLegacyGuideAudioAndUI(true);
+            ensureCinemaDomOverlays();
+            clearCinemaIndependentTourTimers();
+            window.startAutomaticCinema4KMediaRecorder(detectedMode);
+            window.playCinemaMasterDataEntityFullScenario(detectedMode, ratio || '16:9');
+        };
+
+        window.stopMagaies4KCinemaMode = function () {
+            window.__CINEMA_4K_ACTIVE__ = false;
+            isCinemaModeActive = false;
+            clearCinemaIndependentTourTimers();
+            window.silenceAllLegacyGuideAudioAndUI(true);
+            window.__MUTE_LEGACY_GUIDE_AUDIO__ = false;
+            window.stopAndSaveCinema4KMediaRecorder();
+            document.body.classList.remove('msg-cinema-4k-active', 'msg-cinema-aspect-9-16');
+            window.resetCinema4KCameraAndSpotlight();
+            const lt = document.getElementById('msg-cinema-lower-thirds');
+            if (lt) lt.style.display = 'none';
+            const cursor = document.getElementById('msg-ghost-cursor');
+            if (cursor) {
+                cursor.classList.remove('msg-cinema-laser-actor');
+                cursor.style.display = 'none';
+            }
+            const ring = document.getElementById('msg-live-target-ring');
+            if (ring) ring.style.display = 'none';
+            if (cinemaSubtitleTimer) {
+                clearInterval(cinemaSubtitleTimer);
+                cinemaSubtitleTimer = null;
+            }
+            if (cinemaTypingTimer) {
+                clearInterval(cinemaTypingTimer);
+                cinemaTypingTimer = null;
+            }
+            if (cinemaExternalAudio) {
+                try { cinemaExternalAudio.pause(); cinemaExternalAudio.currentTime = 0; } catch (_) {}
+            }
+            document.querySelectorAll('.msg-cinema-credit-spotlight-halo').forEach(el => el.classList.remove('msg-cinema-credit-spotlight-halo'));
+            const stage1 = document.getElementById('msg-cinema-scene1-stage');
+            if (stage1) stage1.style.display = 'none';
+        };
+
+        // ── 7B. SOFT HARMONIC CHIME SYNTHESIZER (رنين تنبيهي ناعم Chime مدمج في مسار الفيديو المسجل) ──
+        window.playCinemaSoftChime = function () {
+            try {
+                const ctx = ensureCinemaBroadcastAudioGraph();
+                if (!ctx) return;
+                const now = ctx.currentTime;
+                const notes = [880, 1174.66, 1318.51]; // A5 -> D6 -> E6 warm crystal chime
+                notes.forEach((freq, idx) => {
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(freq, now + idx * 0.09);
+                    gain.gain.setValueAtTime(0.001, now + idx * 0.09);
+                    gain.gain.exponentialRampToValueAtTime(0.14, now + idx * 0.09 + 0.03);
+                    gain.gain.exponentialRampToValueAtTime(0.0001, now + idx * 0.09 + 1.15);
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+                    if (cinemaBroadcastAudioDest) {
+                        gain.connect(cinemaBroadcastAudioDest);
+                    }
+                    osc.start(now + idx * 0.09);
+                    osc.stop(now + idx * 0.09 + 1.2);
+                });
+            } catch (_) {}
+        };
+
+        function moveLaserCursorToElement(el, badgeText) {
+            if (!el) return;
+            ensureGuideDomElements();
+            const cursor = document.getElementById('msg-ghost-cursor');
+            if (!cursor) return;
+            cursor.classList.add('msg-cinema-laser-actor');
+            cursor.style.display = 'block';
+            cursor.style.zIndex = '2147483640';
+            const syncPos = () => {
+                if (!el || !isCinemaModeActive) return;
+                try { el.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' }); } catch (_) {}
+                const rect = el.getBoundingClientRect();
+                const cx = Math.max(24, Math.min(window.innerWidth - 40, rect.left + rect.width * 0.5));
+                const cy = Math.max(24, Math.min(window.innerHeight - 40, rect.top + rect.height * 0.5));
+                cursor.style.left = cx + 'px';
+                cursor.style.top = cy + 'px';
+            };
+            syncPos();
+            setTimeout(syncPos, 360);
+            const badge = document.getElementById('msg-ghost-cursor-label');
+            if (badge && badgeText) badge.textContent = badgeText;
+        }
+
+        function typeTextIntoInputLive(inputEl, textToType, charDelayMs, onDone) {
+            if (!inputEl) {
+                if (typeof onDone === 'function') onDone();
+                return;
+            }
+            if (cinemaTypingTimer) {
+                clearInterval(cinemaTypingTimer);
+                cinemaTypingTimer = null;
+            }
+            if (inputEl.type === 'number' && String(textToType).includes(',')) {
+                inputEl.dataset.origType = 'number';
+                try { inputEl.type = 'text'; } catch (_) {}
+            }
+            inputEl.value = '';
+            try { inputEl.focus({ preventScroll: true }); } catch (_) {}
+            const chars = Array.from(String(textToType));
+            let i = 0;
+            cinemaTypingTimer = setInterval(() => {
+                if (!isCinemaModeActive || i >= chars.length) {
+                    clearInterval(cinemaTypingTimer);
+                    cinemaTypingTimer = null;
+                    try {
+                        inputEl.dispatchEvent(new Event('input', { bubbles: true }));
+                        inputEl.dispatchEvent(new Event('change', { bubbles: true }));
+                    } catch (_) {}
+                    if (typeof onDone === 'function') onDone();
+                    return;
+                }
+                inputEl.value += chars[i];
+                i++;
+                try {
+                    inputEl.dispatchEvent(new Event('input', { bubbles: true }));
+                } catch (_) {}
+            }, charDelayMs || 65);
+        }
+
+        // ── 7C. PROFESSOR-LEVEL A-TO-Z SCENARIO BUILDER FOR CUSTOMERS, SUPPLIERS & MASTER DATA TABS ──
+        function buildProfessorialMasterDataScenes(mode) {
+            const isSup = mode === 'supplier';
+            const pfx = isSup ? 'sup' : 'cust';
+            const entitySingular = isSup ? 'المورد' : 'العميل';
+            const entityPlural = isSup ? 'الموردين' : 'العملاء';
+            const entityKey = isSup ? 'supplier' : 'customer';
+            const panelId = isSup ? '#admin-wa-policy-panel-sup' : '#admin-wa-policy-panel-cust';
+            const formId = isSup ? '#supplier-form' : '#customer-form';
+            const searchId = isSup ? '#supplier-search-input' : '#customer-search-input';
+            const tbodyId = isSup ? '#suppliers-tbody' : '#customers-tbody';
+            const tabSel = isSup ? '.md-tab-btn.tab-suppliers' : '.md-tab-btn.tab-customers';
+            const sampleName = isSup ? 'شركة النخبة للتوريدات العالمية' : 'شركة البنيان المتطورة';
+            const invoiceScreenName = isSup ? 'فواتير المشتريات وسندات الصرف' : 'فواتير المبيعات وسندات القبض';
+
+            if (mode === 'sales-split') {
+                return [
+                    {
+                        badge: 'المشهد 1 / 10 — نظرة عامة على فاتورة تقسيم وتسليم المبيعات ✂️🚚',
+                        targetSelector: '#split-invoice-view, #split-invoice-select',
+                        goldenRule: '«قسّم تسليم الفاتورة بدقة بالوحدتين الكبرى والصغرى؛ فكل دفعة تسليم موثقة تحمي مخزونك وحقوق عميلك.»',
+                        cards: ['✂️🚚 شاشة موحدة للتقسيم والتسليم الفعلي', '📊 متابعة فورية للمسلم والمتبقي', '🏭 صرف متعدد المخازن في نفس الدفعة', '🎫 إصدار إذن صرف وتصريح بوابة QR'],
+                        speech: 'اللهم صل وسلم على نبينا محمد.. أهلاً بحضرتك في الاستوديو السينمائي لشاشة فاتورة تقسيم وتسليم المبيعات؛ البوابة الهندسية الموحدة التي تتيح لك تقسيم أي فاتورة مبيعات على دفعات متعددة وتسليمها فعلياً للعميل مع الرقابة المخزنية الكاملة.'
+                    },
+                    {
+                        badge: 'المشهد 2 / 10 — البحث الذكي بالباركود أو رقم الفاتورة أو العميل 🔍',
+                        targetSelector: '#split-invoice-search, #split-invoice-select',
+                        goldenRule: '«امسح باركود الفاتورة أو اكتب اسم العميل للوصول اللحظي في أجزاء من الثانية.»',
+                        cards: ['🔎 بحث فوري برقم الفاتورة أو العميل', '📷 دعم قارئ الباركود السريع', '⚡ فلترة الفواتير المتبقية تلقائياً', '📋 عرض رصيد الفاتورة الإجمالي'],
+                        speech: 'من شريط البحث الذكي في أعلى الشاشة، يمكنك مسح باركود الفاتورة أو كتابة اسم العميل أو رقم الفاتورة، ليقوم النظام بفلترة وعرض الفاتورة المطلوبة فوراً بدون أي تأخير.'
+                    },
+                    {
+                        badge: 'المشهد 3 / 10 — اختيار الفاتورة واستعراض شريط الإنجاز البانورامي 📊',
+                        targetSelector: '#split-invoice-select, #split-summary-banner',
+                        goldenRule: '«راقب شريط الإنجاز المئوي قبل الصرف لتعرف بدقة ما تم تسليمه وما تبقى للعميل.»',
+                        cards: ['📈 نسبة الإنجاز المئوية للتسليم', '🟢 إجمالي الكميات المسلمة سابقاً', '🟠 إجمالي الكميات المتبقية للتسليم', '👤 بيانات العميل وحالة الفاتورة'],
+                        speech: 'بمجرد اختيار الفاتورة، يظهر أمامك شريط الإنجاز البانورامي الذي يوضح اسم العميل، وإجمالي الفاتورة، والكميات المسلمة سابقاً، والكميات المتبقية الجاهزة للتقسيم والتسليم الآن.'
+                    },
+                    {
+                        badge: 'المشهد 4 / 10 — جدول الأصناف والتقسيم بالوحدتين الكبرى والصغرى ⚖️',
+                        targetSelector: '#split-items-tbody, #split-items-table',
+                        goldenRule: '«أدخل الكمية المراد تسليمها بالوحدة الكبرى أو الصغرى؛ والنظام يحسب المتبقي آلياً بكسور عشرية دقيقة.»',
+                        cards: ['📦 إدخال الكمية بالوحدة الكبرى (مثل طن/كرتونة)', '🔢 إدخال الكمية بالوحدة الصغرى (مثل كيلو/قطعة)', '🛡️ منع تجاوز الكمية المتبقية في الفاتورة', '🔄 تحويل تلقائي بين الوحدتين'],
+                        speech: 'في جدول الأصناف، يمكنك كتابة الكمية المراد تسليمها الآن سواء بالوحدة الكبرى أو بالوحدة الصغرى؛ ويقوم المحرك الذكي بتحويل الكسور آلياً ومنع صرف أي كمية تتجاوز الرصيد المتبقي في الفاتورة.'
+                    },
+                    {
+                        badge: 'المشهد 5 / 10 — تحديد مخزن الصرف المستقل لكل سطر 🏭',
+                        targetSelector: '#split-items-tbody select, #split-items-table',
+                        goldenRule: '«اختر مخزن الصرف الفعلي أمام كل صنف ليتم خصم البضاعة من رصيد المخزن الصحيح فوراً.»',
+                        cards: ['🏭 اختيار مخزن مستقل لكل صنف بالدفعة', '📊 عرض الرصيد الفعلي المتاح بالمخزن', '🔄 التوزيع التلقائي على المخازن (FIFO)', '🛡️ حماية من الرصيد السالب'],
+                        speech: 'أمام كل صنف يمكنك تحديد المخزن الذي ستخرج منه البضاعة فعلياً، أو الضغط على زر التوزيع التلقائي ليقوم النظام بتوزيع الكميات على المخازن المتاحة بأعلى دقة.'
+                    },
+                    {
+                        badge: 'المشهد 6 / 10 — أزرار التسريع الذكي (تسليم الكل • 50% • تصفير) ⚡',
+                        targetSelector: '#split-quick-actions-bar, #split-invoice-view',
+                        goldenRule: '«استخدم أزرار التسريع لإنجاز الدفعات القياسية في ضغطة زر واحدة.»',
+                        cards: ['⚡ تسليم كامل الكمية المتبقية بضغطة', '🌗 تقسيم 50% نصف الكمية فوراً', '🧹 تصفير الحقول لإعادة التوزيع', '💾 قوالب التوزيع السريع'],
+                        speech: 'لتوفير وقت المحاسب وأمين المخزن في أوقات الزحام، وفرنا شريط أزرار التسريع الذكي؛ بضغطة واحدة يمكنك تعبئة كامل المتبقي، أو تقسيم نصف الكمية خمسين بالمائة، أو التوزيع التلقائي.'
+                    },
+                    {
+                        badge: 'المشهد 7 / 10 — بيانات السائق والسيارة وميزان البسكول 🚛⚖️',
+                        targetSelector: '#split-driver-name, #split-vehicle-plate, #split-notes',
+                        goldenRule: '«وثّق اسم السائق ورقم اللوحة والوزن الفعلي لتأمين مسؤولية النقل حتى باب العميل.»',
+                        cards: ['👨‍✈️ تسجيل اسم السائق ورقم هاتفه', '🚚 رقم لوحة السيارة أو الشاحنة', '⚖️ مطابقة الوزن القياسي وميزان البسكول', '✍️ التوقيع الإلكتروني للاستلام'],
+                        speech: 'قبل اعتماد الدفعة، يمكنك تدوين اسم السائق، ورقم لوحة السيارة، وملاحظات التسليم، مع إمكانية مطابقة الوزن الإجمالي للشحنة مع ميزان البسكول وأخذ التوقيع الإلكتروني.'
+                    },
+                    {
+                        badge: 'المشهد 8 / 10 — الحفظ الذري والاعتماد الفوري (F10) 💾',
+                        targetSelector: '#confirm-split-btn, button[onclick*="submitSplitInvoice"]',
+                        goldenRule: '«اضغط حفظ واعتماد الدفعة (F10) ليتم خصم المخزون وتحديث الفاتورة في معاملة ذرية محمية.»',
+                        cards: ['💾 حفظ ذري آمن (ACID Transaction)', '🔒 منع النقر المزدوج وتكرار الصرف', '📉 خصم فوري من المخزن المحدد', '📒 تحديث حالة الفاتورة إلى مسلم جزئياً أو كلياً'],
+                        speech: 'عند الضغط على زر اعتماد وحفظ الدفعة أو اختصار إف عشرة، ينفذ النظام معاملة ذرية محمية تخصم الكميات من المخزن وتحدث حالة الفاتورة الأصلية فوراً مع حماية كاملة ضد التكرار.'
+                    },
+                    {
+                        badge: 'المشهد 9 / 10 — طباعة إذن الصرف وتصريح البوابة الأمنية (Gate Pass) 🖨️🎫',
+                        targetSelector: '#split-history-section, #split-invoice-view',
+                        goldenRule: '«اطبع إذن الصرف وتصريح الخروج المزود بباركود QR ليتم فحصه عند بوابة الأمن.»',
+                        cards: ['🖨️ طباعة إذن تسليم موزون حراري أو A4', '🎫 تصريح خروج بوابة (Gate Pass QR)', '🔒 قفل إعادة الطباعة بعلامة (نسخة طبق الأصل)', '📄 تصدير PDF فوري'],
+                        speech: 'عقب الحفظ مباشرة، يمكنك طباعة إذن التسليم الرسمي وتصريح الخروج الأمني المزود برمز كيو آر، مع تطبيق دستور الحصانة الأمنية الذي يميز أي نسخة معاد طباعتها بختم نسخة طبق الأصل.'
+                    },
+                    {
+                        badge: 'المشهد 10 / 10 — سجل الدفعات وشجرة النسب وإشعار الواتساب 🌳📲',
+                        targetSelector: '#split-history-tbody, #split-history-section',
+                        goldenRule: '«أرسل إشعار التسليم للعميل عبر الواتساب وتابع شجرة نسب الدفعات من الألف إلى الياء.»',
+                        cards: ['📲 إرسال رسالة واتساب تفصيلية للعميل', '🌳 شجرة نسب الفاتورة (Genealogy Tree)', '📊 سجل تاريخي لكل دفعة ومخزنها وسائقها', '🔍 استعراض وتدقيق كل إذن صرف سابق'],
+                        speech: 'وفي أسفل الشاشة يظهر سجل الدفعات التاريخي وشجرة النسب التفاعلية؛ حيث يمكنك استعراض كل دفعة سابقة وإرسال إشعار واتساب فوري للعميل بالكميات المسلمة والمتبقية. شكراً لمتابعتكم.'
+                    }
+                ];
+            }
+            if (mode === ' customer' || mode === 'customer' || mode === 'supplier') {
+                return [
+                    {
+                        badge: `1. الأوامر الجماعية العليا لواتساب ${entityPlural}: (كشف للكل • رصيد للكل • إيقاف الكل • توليد باسورد)`,
+                        targetSelector: `${panelId} button[onclick*="detailed"], ${panelId}, ${tabSel}`,
+                        goldenRule: `«تحكم في صلاحيات كشوف حسابات ${entityPlural} وأرقامهم السرية جماعياً بضغطة زر واحدة قبل بدء التشغيل اليومي.»`,
+                        cards: [
+                            `📊 كشف للكل: تفعيل إرسال كشف الحساب التفصيلي بالحركات والفواتير لجميع ${entityPlural} على الواتساب`,
+                            `💰 رصيد للكل: قصر الرد الآلي في الواتساب على إرسال صافي الرصيد النهائي فقط دون تفاصيل الفواتير`,
+                            `🔒 إيقاف الكل: إيقاف الرد الآلي لكشوف الحسابات لجميع ${entityPlural} دفعة واحدة عند الجرد أو المراجعة`,
+                            `🔐 توليد باسورد: توليد أرقام سرية (PIN) عشوائية وفريدة آلياً لكل ${entityPlural} لحماية الخصوصية المالية`
+                        ],
+                        onEnter: () => {
+                            const tabBtn = document.querySelector(tabSel);
+                            if (tabBtn && !tabBtn.classList.contains('active')) {
+                                try { tabBtn.click(); } catch (_) {}
+                            }
+                        },
+                        speech: `اللهم صل وسلم على نبينا محمد.. أهلاً بحضرتك في الشرح والتوثيق البروفيسوري الشامل من الألف إلى الياء لشاشة بيانات ${entityPlural}. نبدأ أولاً بشريط الأوامر الجماعية لواتساب ${entityPlural} في أعلى الشاشة؛ حيث يتيح لك زر (كشف للكل) منح جميع ${entityPlural} صلاحية طلب كشف الحساب التفصيلي عبر الواتساب بضغطة واحدة، بينما يخصص زر (رصيد للكل) الرد الآلي لإرسال صافي الرصيد النهائي فقط دون تفاصيل الفواتير، ويقوم زر (إيقاف الكل) بتعطيل إرسال الكشوفات للجميع فوراً، أما زر (توليد باسورد) فيقوم آلياً بتوليد أرقام سرية فريدة وآمنة لجميع ${entityPlural} الذين ليس لديهم رقم سري.`
+                    },
+                    {
+                        badge: `2. درج السياسة العامة للواتساب والاعتماد الأمني (⚙️ السياسة)`,
+                        targetSelector: `${panelId} .admin-wa-policy-drawer, ${panelId} button[onclick*="toggleAdminWaPolicyDrawer"]`,
+                        goldenRule: `«اضبط سياسة التحقق الأمني ونطاق الكشف واعتماد الإشعارات لتعمل منظومة الواتساب المالي بأعلى درجات الأمان.»`,
+                        cards: [
+                            `⚙️ صلاحية الكشف واعتماد الإشعارات: حسب كل حساب أو فرض الكشف أو المراجعة/الاعتماد الفوري للجميع`,
+                            `🏦 البنك الافتراضي والتحقق الأمني: ربط البنك الافتراضي واشتراط الرقم المعتمد أو الباسوورد السري`,
+                            `📅 نطاق الكشف المرسل: كامل الحركات، آخر 30 يوماً، آخر 20 أو 50 حركة، أو حركات الشهر الحالي فقط`,
+                            `🛡️ خيارات التحكم الدقيق: إظهار الأصناف داخل الكشف، إشعار المدير الفوري، ومنع التكرار المزعج`
+                        ],
+                        onEnter: () => {
+                            const drawer = document.querySelector(`${panelId} .admin-wa-policy-drawer`);
+                            if (drawer && drawer.style.display === 'none' && typeof window.toggleAdminWaPolicyDrawer === 'function') {
+                                try { window.toggleAdminWaPolicyDrawer(); } catch (_) {}
+                            }
+                        },
+                        speech: `ثانياً: عند الضغط على زر (السياسة) يفتح أمامنا درج السياسة العامة للواتساب؛ ومنه نضبط ست ركائز أساسية: أولاً صلاحية الكشف العامة هل تتبع إعداد كل حساب أم تفرض كشفاً مفصلاً أو رصيداً فقط للجميع، ثانياً سياسة اعتماد إشعارات التحويل هل تُرحّل فوراً أم تخضع للمراجعة أولاً، ثالثاً تحديد البنك الافتراضي، رابعاً مستوى التحقق الأمني باشتراط الرقم المسجل أو الباسوورد السري دائماً، خامساً نطاق الكشف لتحديد كامل الحركات أو آخر ثلاثين يوماً أو الشهر الحالي، وسادساً خيارات إظهار تفاصيل الأصناف وإشعار المدير ومنع تكرار الطلبات.`
+                    },
+                    {
+                        badge: `3. موقف ${entitySingular} الفردي (🔒 موقوف • 💰 الرصيد • 📊 كشف) واعتماد الإشعارات والبنك الافتراضي`,
+                        targetSelector: `#${pfx}-mode-btn-detailed, #${pfx}-rcpt-btn-auto_post, #${pfx}-default-bank-id`,
+                        goldenRule: `«يمكنك تخصيص موقف كل ${entitySingular} على حدة في الكشف واعتماد الإشعارات والبنك الافتراضي حسب درجة الثقة والتعامل.»`,
+                        cards: [
+                            `📊 موقف الكشف الفردي: تحديد موقف هذا ${entitySingular} بين (🔒 موقوف) أو (💰 الرصيد فقط) أو (📊 كشف تفصيلي)`,
+                            `⚡ اعتماد الإشعارات الفردي: الاختيار بين (⚡ اعتماد فوري) لترحيل إشعاراته آلياً أو (👁️ مراجعة) قبل الترحيل`,
+                            `🏦 البنك الافتراضي للحساب: تحديد الحساب البنكي الذي يحول عليه هذا ${entitySingular} دائماً مع زر (➕) للإضافة السريعة`,
+                            `🔄 تكامل ذكي مع بوت الواتساب وقارئ الإشعارات بالذكاء الاصطناعي (OCR)`
+                        ],
+                        onEnter: () => {
+                            const drawer = document.querySelector(`${panelId} .admin-wa-policy-drawer`);
+                            if (drawer && drawer.style.display !== 'none' && typeof window.toggleAdminWaPolicyDrawer === 'function') {
+                                try { window.toggleAdminWaPolicyDrawer(); } catch (_) {}
+                            }
+                        },
+                        speech: `ثالثاً: ننتقل إلى شريط أدوات بطاقة ${entitySingular} الفردية؛ فهنا تحدد الموقف الخاص بهذا ${entitySingular} تحديداً عبر ثلاثة أزرار: (موقوف) لحجب الكشف عنه، أو (الرصيد) ليصله صافي حسابه فقط، أو (كشف) ليصله كشف الحساب التفصيلي بالحركات. وبجانبه تحدد آلية التعامل مع إشعارات التحويل البنكي التي يرسلها على الواتساب بين (اعتماد فوري) لترحيلها آلياً فور قراءتها بالذكاء الاصطناعي أو (مراجعة) لوضعها في طابور التدقيق، مع اختيار البنك الافتراضي لهذا ${entitySingular} أو إضافة بنك جديد فوراً بزر الإضافة.`
+                    },
+                    {
+                        badge: `4. البطاقة الافتراضية الذكية (🪪 بطاقة QR) • (📋 نسخ البطاقة) • زر (🔄 جديد F2)`,
+                        targetSelector: `${formId} button[onclick*="openEntityQrCardModal"], ${formId} button[onclick*="copyCurrentFormWhatsAppCard"]`,
+                        goldenRule: `«أرسل البطاقة الافتراضية QR أو انسخ بطاقة الواتساب لـ${entitySingular} فور تأسيس حسابه ليحتفظ برقمه السري وتعليمات الخدمة الذاتية.»`,
+                        cards: [
+                            `🪪 بطاقة QR الافتراضية: توليد بطاقة رقمية أنيقة تحمل اسم ${entitySingular} ورقمه السري ورمز الاستجابة السريعة QR`,
+                            `📋 نسخ البطاقة: نسخ رسالة ترحيبية متكاملة بالبيانات والرقم السري لإرسالها مباشرة في محادثة الواتساب`,
+                            `🔄 زر جديد (F2): تفريغ الحقول وتهيئة البطاقة لإدخال ${entitySingular} جديد مع توليد رقم سري فريد تلقائياً`,
+                            `📲 تمكين الخدمة الذاتية لـ${entitySingular} للاستعلام عن حسابه على مدار الساعة`
+                        ],
+                        onEnter: () => {
+                            if (isSup && typeof window.clearSupplierForm === 'function') {
+                                try { window.clearSupplierForm(); } catch (_) {}
+                            } else if (!isSup && typeof window.clearCustomerForm === 'function') {
+                                try { window.clearCustomerForm(); } catch (_) {}
+                            }
+                        },
+                        speech: `رابعاً: بجانب إعدادات الموقف نجد زر (بطاقة كيو آر)، وهو يصدر البطاقة الافتراضية الذكية لـ${entitySingular} شاملة اسمه ورقمه السري ورمز الاستجابة السريعة كيو آر لحفظها كصورة أو مشاركتها معه. وبجانبه زر (نسخ البطاقة) الذي ينسخ نص البطاقة التعريفية والرقم السري وتعليمات البوت بضغطة واحدة لإرسالها له عبر الواتساب، ثم زر (جديد إف اثنين) لتفريغ الحقول وتهيئة البطاقة لتسجيل ${entitySingular} جديد.`
+                    },
+                    {
+                        badge: `5. تسجيل الاسم التجاري • الرقم السري للواتساب (🔐 PIN + 🎲 توليد) • رقم الواتساب (💬)`,
+                        targetSelector: `#${pfx}-name, #${pfx}-statement-pin, #${pfx}-whatsapp`,
+                        goldenRule: `«الرقم السري (PIN) ورقم الواتساب هما مفتاح الربط الآمن بين ${entitySingular} وبوت الواتساب المالي الآلي.»`,
+                        cards: [
+                            `👤 اسم ${entitySingular} *: تسجيل الاسم التجاري يفتح له حساباً مالياً مستقلاً في شجرة الحسابات و${invoiceScreenName}`,
+                            `🔐 الرقم السري (PIN) + زر (🎲 توليد): الباسوورد الذي نحتاجه في الواتساب ليطلب ${entitySingular} كشف حسابه بأمان`,
+                            `💬 رقم الواتساب المعتمد: الرقم الذي يستقبل الفواتير والسندات وكشوف الحسابات ويرسل إشعارات التحويل`,
+                            `🔒 حماية تامة تمنع أي شخص غير مصرح له من الاطلاع على كشف الحساب`
+                        ],
+                        onEnter: () => {
+                            const nameEl = document.getElementById(`${pfx}-name`);
+                            const waEl = document.getElementById(`${pfx}-whatsapp`);
+                            if (nameEl) typeTextIntoInputLive(nameEl, sampleName, 65);
+                            setTimeout(() => {
+                                if (waEl && isCinemaModeActive) typeTextIntoInputLive(waEl, '00249912345678', 55);
+                            }, 1800);
+                        },
+                        speech: `خامساً: نبدأ بتعبئة الخانات الأساسية في البطاقة؛ أولها خانة (اسم ${entitySingular}) وبمجرد كتابته وحفظه يفتح له النظام حساباً مالياً في شجرة الحسابات ويظهر فوراً في ${invoiceScreenName}. وتليها خانة (الرقم السري) مع زر (توليد)؛ وهذا الرقم السري نحتاجه في الواتساب لأنه الباسوورد الخاص بـ${entitySingular} الذي يرسله للبوت ليحصل على كشف حسابه أو رصيده بأمان تام. ثم خانة (رقم الواتساب) المعتمد لإرسال الفواتير والإشعارات واستقبال التحويلات البنكية.`
+                    },
+                    {
+                        badge: `6. الرصيد الافتتاحي (💰 مغذي الحساب) • الحد الائتماني (🛑 حماية المال) • العملة (💱)`,
+                        targetSelector: `#${pfx}-opening-balance, #${pfx}-limit, #${pfx}-currency`,
+                        goldenRule: `«الرصيد الافتتاحي يغذي كشف الحساب وميزان المراجعة، والحد الائتماني هو الدرع الصارم الذي يحافظ على رأس مالك من التعثر.»`,
+                        cards: [
+                            `💰 الرصيد الافتتاحي: رصيد أول المدة السابق قبل النظام؛ يغذي كشف الحساب وميزان المراجعة ويُجمع مع الحركات الجديدة`,
+                            `🛑 حد الائتمان: السقف الأقصى للمديونية المسموحة؛ يمنع تجاوز الآجل وينبهك فوراً لحماية السيولة ورأس المال`,
+                            `💱 العملة وسعر الصرف: تحديد عملة حساب ${entitySingular} (جنيه سوداني، دولار، ريال...) لتقييم الحركات والأرصدة بدقة`,
+                            `⚖️ تكامل محاسبي لحظي بين الرصيد الافتتاحي والفواتير الجديدة وسقف الائتمان`
+                        ],
+                        onEnter: () => {
+                            const opEl = document.getElementById(`${pfx}-opening-balance`);
+                            const limEl = document.getElementById(`${pfx}-limit`);
+                            if (opEl) typeTextIntoInputLive(opEl, '15000', 85);
+                            setTimeout(() => {
+                                if (limEl && isCinemaModeActive) {
+                                    const card = limEl.closest('.pro-field-card') || limEl;
+                                    card.classList.add('msg-cinema-credit-spotlight-halo');
+                                    typeTextIntoInputLive(limEl, '50000', 85, () => {
+                                        window.playCinemaSoftChime();
+                                    });
+                                }
+                            }, 1400);
+                        },
+                        speech: `سادساً: نصل إلى القلب المالي للبطاقة؛ أولاً خانة (الرصيد الافتتاحي) وهي رصيد أول المدة السابق على ${entitySingular} قبل العمل بالنظام، وهذا الرصيد هو الذي يغذي كشف حساب ${entitySingular} وميزان المراجعة الافتتاحي، ويتفاعل مباشرة مع الفواتير والسندات اللاحقة. ثانياً خانة (حد الائتمان) وهي السقف الائتماني الأقصى للمديونية الآجلة؛ حيث يجمع النظام الرصيد الافتتاحي مع الفواتير الجديدة ويقارنها بهذا الحد ليمنع تجاوز السقف ويحافظ على رأس مالك من الديون المتعثرة. ثالثاً خانة (العملة) لتحديد العملة التي يريد ${entitySingular} التعامل بها كالجنيه السوداني أو الدولار أو الريال مع ضبط سعر الصرف.`
+                    },
+                    {
+                        badge: `7. الحالة النشطة (🟢 نشط • 🌟 VIP • 🔴 محظور) • شريحة التسعير • فترة السداد • السرية • الرقم الضريبي`,
+                        targetSelector: `#${pfx}-status, #cust-price-tier, #${pfx}-payment-terms, #${pfx}-security`,
+                        goldenRule: `«ربط ${entitySingular} بالحالة النشطة وشريحة التسعير وفترة السداد الصحيحة يمنحك فواتير دقيقة وتنبيهات مبكرة لأعمار الديون.»`,
+                        cards: [
+                            `🟢 الحالة: (نشط) للتعامل الطبيعي، (🌟 VIP) لكبار المتعاملين، أو (🔴 محظور) لإيقاف التعامل الآجل معه فوراً`,
+                            `🏷️ شريحة التسعير وفترة السداد: تحديد السعر التلقائي (قطاعي/نصف جملة/جملة/آجل/سعر خاص) وعدد أيام السماح للسداد`,
+                            `👔 المسؤول • 📍 العنوان • 🧾 الرقم الضريبي • ✉️ البريد الإلكتروني • 📝 الملاحظات التوثيقية`,
+                            `🛡️ درجة السرية (من 1 إلى 10): لحجب الحساب الحساس عن المستخدمين غير المخولين`
+                        ],
+                        speech: `سابعاً: نستكمل بقية ضوابط البطاقة؛ ففي خانة (الحالة) نحدد هل ${entitySingular} (نشط) للتعامل اليومي المعتاد، أم من كبار العملاء المميزين (في آي بي)، أم (محظور) لإيقاف البيع الآجل له فوراً. كما نحدد (شريحة التسعير) لينزل له سعر القطاعي أو الجملة أو السعر الخاص تلقائياً في الفاتورة، ونحدد (فترة السداد بالأيام) لمراقبة أعمار الديون، و(درجة السرية) من واحد إلى عشرة، بالإضافة إلى اسم المسؤول، العنوان، الرقم الضريبي، البريد الإلكتروني، والملاحظات.`
+                    },
+                    {
+                        badge: `8. أرقام المناديب والتابعين (📱 + إضافة رقم) • الحسابات البنكية (🏦 + إضافة حساب) • الحفظ (💾 F10)`,
+                        targetSelector: `#${pfx}-sub-phones-container, #${pfx}-bank-accounts-container, ${formId} .btn-c3-save`,
+                        goldenRule: `«إضافة أرقام هواتف مناديب ${entitySingular} وحساباته البنكية تمكّن البوت والذكاء الاصطناعي من التعرف على تحويلاته ومراسلاته تلقائياً.»`,
+                        cards: [
+                            `📱 أرقام المناديب والتابعين (+ إضافة رقم): ربط أرقام هواتف المناديب والفروع بحساب ${entitySingular} في الواتساب`,
+                            `🏦 الحسابات البنكية (+ إضافة حساب): تسجيل اسم البنك والفرع ورقم الحساب للمطابقة الآلية مع إشعارات التحويل`,
+                            `💾 زر حفظ (F10): حفظ ذري فوري لبطاقة ${entitySingular} في قاعدة البيانات المحلية والسحابية`,
+                            `✖ زر إلغاء (Esc): التراجع وإغلاق النموذج دون حفظ التعديلات`
+                        ],
+                        speech: `ثامناً: في أسفل البطاقة نجد قسمين في غاية الأهمية؛ القسم الأول (أرقام المناديب والتابعين) ومنه نضغط على (إضافة رقم) لتسجيل أرقام هواتف مناديب ${entitySingular} أو فروعه ليتعرف عليهم بوت الواتساب تلقائياً وينسب إشعاراتهم لحساب ${entitySingular}. والقسم الثاني (الحسابات البنكية) لتسجيل أرقام حسابات ${entitySingular} البنكية وفروعها للمطابقة الآلية مع إشعارات التحويل، وبعد مراجعة كافة البيانات نضغط على زر (حفظ إف عشرة) لاعتماد البطاقة فوراً.`
+                    },
+                    {
+                        badge: `9. البحث الفوري (🔍) • تصدير واستيراد Excel • جدول ${entityPlural} وكشف الحساب والرصيد التفاعلي`,
+                        targetSelector: `${searchId}, ${tbodyId}`,
+                        goldenRule: `«من جدول ${entityPlural} يمكنك نسخ البطاقة بالضغط على الرقم السري، وتغيير موقف الكشف، وفتح كشف الحساب التفصيلي بالضغط على الرصيد.»`,
+                        cards: [
+                            `🔍 البحث الفوري + 📤 تصدير Excel + 📥 استيراد Excel: بحث لحظي بالاسم أو الرقم السري أو الهاتف وتبادل ملفات الإكسل`,
+                            `🔐 عمود الرقم السري: بالضغط عليه في الجدول يتم فوراً نسخ بطاقة الواتساب التعريفية لإرسالها لـ${entitySingular}`,
+                            `📊 عمود كشف الحساب: أزرار تفاعلية لتغيير موقف ${entitySingular} (كشف / رصيد / موقوف) مباشرة من داخل الجدول`,
+                            `💰 عمود الرصيد والائتمان: يوضح المبلغ (عليه/له) وتنبيه السقف، والضغط على الرصيد يفتح كشف الحساب التفصيلي بالحركات`
+                        ],
+                        speech: `تاسعاً: ننتقل إلى شريط البحث وجدول ${entityPlural}؛ حيث يمكنك البحث اللحظي بالاسم أو الرقم السري أو رقم الهاتف، مع إمكانية تصدير القائمة كاملة إلى ملف إكسل أو استيرادها بضغطة زر. وفي داخل الجدول التفاعلي تظهر لك كل التفاصيل: فالضغط على الرقم السري ينسخ بطاقة الواتساب فوراً، وعمود كشف الحساب يتيح لك تبديل الموقف بين كشف أو رصيد أو موقوف مباشرة من الجدول، وعمود الرصيد يوضح المبلغ هل هو عليه أو له مع شارة تنبيه تجاوز السقف، وعند الضغط على رقم الرصيد أو أيقونة الرسم البياني يفتح لك فوراً كشف الحساب التفصيلي بجميع الحركات والفواتير.`
+                    },
+                    {
+                        badge: `10. سيناريو التعديل (✏️ تعديل) • سيناريو الحذف وقانون المنع المحاسبي الصارم (🗑️ حذف)`,
+                        targetSelector: `${tbodyId} button[onclick*="edit"], ${tbodyId} button[onclick*="delete"], ${tbodyId}`,
+                        goldenRule: `«للتعديل اضغط (✏️ تعديل) وحفظ، أما الحذف (🗑️ حذف) فيُمنع نهائياً إذا كان لـ${entitySingular} أي فاتورة أو سند أو حركة أو رصيد حفاظاً على سلامة الحسابات.»`,
+                        cards: [
+                            `✏️ في حالة التعديل: نضغط زر (✏️ تعديل) أمام اسم ${entitySingular} فتنتقل بياناته للنموذج العلوي، نعدل ما نريد ثم نضغط (💾 حفظ F10)`,
+                            `🗑️ في حالة الحذف لحساب جديد فارغ: إذا لم يكن عليه أي حركة أو رصيد يسمح النظام بحذفه بعد التأكيد`,
+                            `🚫 متى لا يمكن الحذف نهائياً؟ إذا كان لـ${entitySingular} أي فاتورة أو سند قبض/صرف أو حركة مالية أو رصيد افتتاحي فيرفض النظام الحذف تماماً`,
+                            `🛡️ البديل الآمن عند منع الحذف: تحويل حالة ${entitySingular} إلى (🔴 محظور) أو موقفه إلى (🔒 موقوف) مع بقاء سجله التاريخي محفوظاً`
+                        ],
+                        speech: `عاشراً وأخيراً: كيف نتعامل في حالة التعديل وفي حالة الحذف؟ في حالة أردنا أن نعدل بيانات أي ${entitySingular} نضغط على زر (تعديل) الموجود في عمود الإجراء أمام اسمه في الجدول، فتصعد جميع بياناته وأرقامه وحساباته فوراً إلى البطاقة العلوية، نُجري التعديل المطلوب ثم نضغط (حفظ). أما في حالة الحذف عند الضغط على زر (حذف)، فهنا يعمل درع الحماية المحاسبية الصارم؛ فإذا كان ${entitySingular} مسجلاً بالخطأ وليس عليه أي حركة أو فاتورة أو سند يُحذف بأمان، أما في حالة وجود أي فاتورة أو سند أو حركة مالية أو رصيد مرتبط به فلا يمكن حذفه نهائياً ويمنع النظام الحذف مع عرض المستندات المرتبطة به حفاظاً على توازن ميزان المراجعة، ويمكنك حينها الاكتفاء بتحويل حالته إلى محظور أو إيقاف خدمته. وبذلك نكون قد أتممنا شرح وتوثيق شاشة ${entityPlural} من الألف إلى الياء.`
+                    }
+                ];
+            }
+
+            // Fallback multi-scene scenario for other Master Data tabs (Warehouses, Banks, Safes, Items, Employees, Cost Centers)
+            const tabTitles = {
+                warehouse: { title: '🏭 شاشة المخازن والمستودعات من الألف إلى الياء', sel: '.md-tab-btn.tab-warehouses', inp: '#warehouse-name' },
+                bank: { title: '🏦 شاشة البنوك والتطبيقات البنكية من الألف إلى الياء', sel: '.md-tab-btn.tab-banks', inp: '#bank-name' },
+                safe: { title: '💵 شاشة الخزائن النقدية من الألف إلى الياء', sel: '.md-tab-btn.tab-safes', inp: '#safe-name' },
+                item: { title: '📦 شاشة الأصناف والوحدات والتسعير من الألف إلى الياء', sel: '.md-tab-btn.tab-items', inp: '#item-name-input' },
+                employee: { title: '👨‍💼 شاشة الموظفين والرواتب والعهد من الألف إلى الياء', sel: '.md-tab-btn.tab-employees', inp: '#emp-name' },
+                costcenter: { title: '🎯 شاشة مراكز التكلفة والمشاريع من الألف إلى الياء', sel: '.md-tab-btn.tab-costcenters', inp: '#costcenter-name' }
+            };
+            const tInfo = tabTitles[mode] || tabTitles.warehouse;
+            return [
+                {
+                    badge: `1. تأسيس وضبط ${tInfo.title}`,
+                    targetSelector: `${tInfo.inp}, ${tInfo.sel}`,
+                    goldenRule: '«اضبط البيانات الأساسية والأرصدة الافتتاحية بدقة قبل الحفظ لضمان التسميع المحاسبي الفوري.»',
+                    cards: [
+                        `📌 فتح وتجهيز ${tInfo.title}`,
+                        '✍️ إدخال الاسم والتصنيف والرصيد الافتتاحي والعملة والمسؤول',
+                        '💾 الحفظ الذري الفوري (F10) والظهور المباشر في الفواتير والسندات والتقارير',
+                        '✏️ التعديل الفوري من الجدول ومنع الحذف في حالة وجود حركات مرتبطة بالسجل'
+                    ],
+                    onEnter: () => {
+                        const b = document.querySelector(tInfo.sel);
+                        if (b && !b.classList.contains('active')) { try { b.click(); } catch (_) {} }
+                    },
+                    speech: `اللهم صل وسلم على نبينا محمد.. أهلاً بحضرتك في الشرح الشامل لـ ${tInfo.title}؛ حيث يمكنك إدخال كافة البيانات الأساسية والأرصدة الافتتاحية وحفظها بزر حفظ إف عشرة، وعند الرغبة في التعديل تضغط على زر تعديل أمام السجل في الجدول، وفي حالة الحذف يمنع النظام حذف أي سجل مرتبط بحركات مالية أو مخزنية حفاظاً على سلامة الحسابات.`
+                }
+            ];
+        }
+
+        window.playCinemaMasterDataEntityFullScenario = function (entityMode = null, ratio = '16:9') {
+            const mode = entityMode || window.detectActiveMasterDataTabMode() || 'customer';
+            window.silenceAllLegacyGuideAudioAndUI(false);
+            ensureCinemaDomOverlays();
+            clearCinemaIndependentTourTimers();
+            window._cinemaScene1Timers = [];
+
+            window.__CINEMA_4K_ACTIVE__ = true;
+            isCinemaModeActive = true;
+            cinemaAspectRatio = ratio || '16:9';
+            document.body.classList.add('msg-cinema-4k-active');
+            document.body.classList.toggle('msg-cinema-aspect-9-16', cinemaAspectRatio === '9:16');
+            window.toggleCinema4KAspectRatio(cinemaAspectRatio);
+
+            const studioModal = document.getElementById('msg-cinema-4k-studio-modal');
+            if (studioModal) studioModal.style.display = 'none';
+
+            document.querySelectorAll('.msg-cinema-credit-spotlight-halo').forEach(el => el.classList.remove('msg-cinema-credit-spotlight-halo'));
+
+            const scenes = buildProfessorialMasterDataScenes(mode);
+            const isSup = mode === 'supplier';
+            _activeCinemaScenarioState.mode = mode;
+            _activeCinemaScenarioState.screenTitle = mode === 'sales-split'
+                ? '✂️🚚 فاتورة تقسيم وتسليم المبيعات — الشرح السينمائي الشامل (4K Studio)'
+                : (isSup
+                    ? '🏭 منظومة بيانات الموردين الشاملة من الألف إلى الياء (4K Studio)'
+                    : (mode === 'customer' ? '👥 منظومة بيانات العملاء الشاملة من الألف إلى الياء (4K Studio)' : '🗂️ منظومة البيانات الأساسية الشاملة (4K Studio)'));
+            _activeCinemaScenarioState.screenSubtitle = isSup
+                ? 'شرح بروفيسوري شامل: أوامر الواتساب • السياسة • الموقف • بطاقة QR • الرصيد الافتتاحي • سقف الائتمان • العملة • الرقم السري • التعديل والحذف'
+                : 'شرح بروفيسوري شامل: أوامر الواتساب • السياسة • الموقف • بطاقة QR • الرصيد الافتتاحي • حد الائتمان • العملة • الرقم السري • التعديل والحذف';
+            _activeCinemaScenarioState.totalScenes = scenes.length;
+
+            const lt = document.getElementById('msg-cinema-lower-thirds');
+            if (lt) {
+                lt.style.display = 'flex';
+                lt.style.zIndex = '2147483635';
+            }
+
+            const runSceneAtIndex = (idx) => {
+                if (!isCinemaModeActive) return;
+                if (idx >= scenes.length) {
+                    window.resetCinema4KCameraAndSpotlight();
+                    window._cinemaScene1Timers.push(setTimeout(() => {
+                        window.stopMagaies4KCinemaMode();
+                    }, 1200));
+                    return;
+                }
+
+                const sc = scenes[idx];
+                _activeCinemaScenarioState.sceneIndex = idx;
+                _activeCinemaScenarioState.sceneBadge = sc.badge;
+                _activeCinemaScenarioState.spokenText = sc.speech;
+                _activeCinemaScenarioState.goldenRule = sc.goldenRule;
+                _activeCinemaScenarioState.cards = sc.cards || [];
+
+                if (typeof sc.onEnter === 'function') {
+                    try { sc.onEnter(); } catch (_) {}
+                }
+
+                const targetEl = document.querySelector(sc.targetSelector) || document.body;
+                updateCinema4KLowerThirds(
+                    {
+                        badge: sc.badge,
+                        goldenRule: sc.goldenRule
+                    },
+                    sc.speech,
+                    idx,
+                    scenes.length
+                );
+                const goldenEl = document.getElementById('msg-cinema-golden-rule-line');
+                if (goldenEl && sc.goldenRule) {
+                    goldenEl.innerHTML = `<span style="font-size:1.18rem;">💡</span> <span><strong>القاعدة الذهبية:</strong> ${escapeSvgText(sc.goldenRule)}</span>`;
+                }
+
+                if (targetEl && targetEl !== document.body) {
+                    moveLaserCursorToElement(targetEl, sc.badge);
+                    window.applyCinema4KCameraZoomAndSpotlight(targetEl, { cursorLabel: sc.badge, keepZoomed: true });
+                    triggerCinemaClickRipple(targetEl);
+                } else {
+                    window.resetCinema4KCameraAndSpotlight();
+                }
+
+                window.speakCinema4KExclusiveVoice(sc.speech, () => {
+                    if (!isCinemaModeActive) return;
+                    window._cinemaScene1Timers.push(setTimeout(() => {
+                        runSceneAtIndex(idx + 1);
+                    }, 450));
+                });
+            };
+
+            runSceneAtIndex(0);
+        };
+
+        // Keep backward-compatible alias pointing to the full Professorial Scenario
+        window.playCinemaScene1CustomersCreditLimit = function (ratio = '16:9', forcedMode = null) {
+            const activeMode = forcedMode || window.detectActiveMasterDataTabMode() || 'customer';
+            window.playCinemaMasterDataEntityFullScenario(activeMode, ratio || '16:9');
+        };
+
+        // Auto-launch if URL contains ?cinema_scene=1
+        if (window.location.search.includes('cinema_scene=1')) {
+            setTimeout(() => {
+                window.playCinemaMasterDataEntityFullScenario(window.detectActiveMasterDataTabMode(), '16:9');
+            }, 900);
+        }
+
+        // ── 8. 4K AUTO-CINEMA STUDIO DIRECTOR MODAL (لوحة تحكم استوديو التصوير السينمائي 4K) ──
+        window.openMagaies4KCinemaStudioModal = function () {
+            window.silenceAllLegacyGuideAudioAndUI();
+            ensureCinemaDomOverlays();
+            let modal = document.getElementById('msg-cinema-4k-studio-modal');
+            if (!modal) {
+                modal = document.createElement('div');
+                modal.id = 'msg-cinema-4k-studio-modal';
+                modal.style.cssText = 'position:fixed;inset:0;z-index:1000040;background:rgba(2,6,23,0.90);backdrop-filter:blur(14px);display:none;align-items:center;justify-content:center;padding:14px;direction:rtl;font-family:Cairo,Tajawal,sans-serif;';
+                document.body.appendChild(modal);
+            }
+
+            const mp3Lbl = cinemaExternalAudioName
+                ? `✅ ملف ElevenLabs المربوط: <strong>${escapeSvgText(cinemaExternalAudioName)}</strong>`
+                : '🎙️ الصوت الإذاعي البروفيسوري المستقل نشط (يشرح الشاشة المفتوحة من الألف إلى الياء)';
+
+            modal.innerHTML = `
+                <div style="width:min(920px,96vw);max-height:92vh;overflow-y:auto;background:linear-gradient(145deg,#0f172a,#1e1b4b);border:2.5px solid #f472b6;border-radius:20px;padding:20px;color:#ffffff;box-shadow:0 28px 90px rgba(0,0,0,0.95);">
+                    <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;border-bottom:2px solid rgba(244,114,182,0.35);padding-bottom:12px;margin-bottom:14px;flex-wrap:wrap;">
+                        <div style="display:flex;align-items:center;gap:10px;">
+                            <span style="font-size:1.75rem;">🎬</span>
+                            <div>
+                                <h3 style="margin:0;font-size:1.12rem;font-weight:900;color:#fce7f3;">استوديو التصوير والتوثيق البروفيسوري الشامل من الألف إلى الياء (4K Auto-Cinema Studio)</h3>
+                                <div style="font-size:0.78rem;color:#cbd5e1;margin-top:2px;">يتعرف تلقائياً على الشاشة المفتوحة (العملاء أو الموردين) ويسجل شرحها الكامل (10 مشاهد متكاملة من الألف إلى الياء)</div>
+                            </div>
+                        </div>
+                        <button type="button" onclick="document.getElementById('msg-cinema-4k-studio-modal').style.display='none'" style="background:rgba(239,68,68,0.22);border:2px solid #f87171;color:#fecaca;border-radius:10px;padding:5px 12px;font-weight:900;cursor:pointer;">✕ إغلاق</button>
+                    </div>
+
+                    <!-- سيناريو شاشة العملاء الشامل من الألف إلى الياء -->
+                    <div style="background:linear-gradient(135deg,rgba(14,165,233,0.18),rgba(15,23,42,0.95));border:2.2px solid #38bdf8;border-radius:16px;padding:14px;margin-bottom:12px;">
+                        <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px;">
+                            <div>
+                                <div style="font-size:0.98rem;font-weight:900;color:#7dd3fc;">🎬 السيناريو البروفيسوري الأول: 👥 "شاشة العملاء من الألف إلى الياء" (10 مشاهد شاملة)</div>
+                                <div style="font-size:0.76rem;color:#e2e8f0;margin-top:2px;">كشف للكل • رصيد للكل • إيقاف الكل • توليد باسورد • السياسة • الموقف (موقوف/الرصيد/كشف) • بطاقة QR • نسخ البطاقة • الاسم • الرقم السري للواتساب • رقم الواتساب • الرصيد الافتتاحي المغذي للحساب • حد الائتمان • العملة • الحالة • شريحة التسعير • المناديب والبنوك • التعديل (✏️) • الحذف وشروط منعه (🗑️)</div>
+                            </div>
+                            <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                                <button type="button" onclick="window.launchIndependent4KCinemaNow('16:9', 'customer')" style="background:linear-gradient(135deg,#0284c7,#1d4ed8);border:2px solid #7dd3fc;color:#ffffff;border-radius:10px;padding:8px 14px;font-size:0.82rem;font-weight:900;cursor:pointer;">
+                                    🔴 تسجيل وشرح شاشة العملاء كاملة (16:9)
+                                </button>
+                                <button type="button" onclick="window.launchIndependent4KCinemaNow('9:16', 'customer')" style="background:linear-gradient(135deg,#db2777,#9d174d);border:2px solid #fbcfe8;color:#ffffff;border-radius:10px;padding:8px 12px;font-size:0.8rem;font-weight:900;cursor:pointer;">
+                                    📱 تسجيل العملاء (Reels 9:16)
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- سيناريو شاشة الموردين الشامل من الألف إلى الياء -->
+                    <div style="background:linear-gradient(135deg,rgba(168,85,247,0.18),rgba(15,23,42,0.95));border:2.2px solid #c084fc;border-radius:16px;padding:14px;margin-bottom:14px;">
+                        <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px;">
+                            <div>
+                                <div style="font-size:0.98rem;font-weight:900;color:#e9d5ff;">🎬 السيناريو البروفيسوري الثاني: 🏭 "شاشة الموردين من الألف إلى الياء" (10 مشاهد شاملة)</div>
+                                <div style="font-size:0.76rem;color:#e2e8f0;margin-top:2px;">أوامر واتساب الموردين الجماعية • السياسة • الموقف • بطاقة QR • نسخ البطاقة • اسم المورد • الرقم السري • الواتساب • الرصيد الافتتاحي • سقف الائتمان • العملة • الحالة • المناديب والحسابات البنكية • التعديل (✏️) • الحذف وشروط منعه (🗑️)</div>
+                            </div>
+                            <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                                <button type="button" onclick="window.launchIndependent4KCinemaNow('16:9', 'supplier')" style="background:linear-gradient(135deg,#9333ea,#6b21a8);border:2px solid #e9d5ff;color:#ffffff;border-radius:10px;padding:8px 14px;font-size:0.82rem;font-weight:900;cursor:pointer;">
+                                    🔴 تسجيل وشرح شاشة الموردين كاملة (16:9)
+                                </button>
+                                <button type="button" onclick="window.launchIndependent4KCinemaNow('9:16', 'supplier')" style="background:linear-gradient(135deg,#db2777,#9d174d);border:2px solid #fbcfe8;color:#ffffff;border-radius:10px;padding:8px 12px;font-size:0.8rem;font-weight:900;cursor:pointer;">
+                                    📱 تسجيل الموردين (Reels 9:16)
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Audio Sync & External ElevenLabs MP3 Upload -->
+                    <div style="background:rgba(2,6,23,0.75);border:2px solid rgba(56,189,248,0.4);border-radius:14px;padding:12px;margin-bottom:14px;">
+                        <div style="font-weight:900;color:#fde047;margin-bottom:6px;font-size:0.86rem;">🎙️ هندسة ومزامنة الصوت الإذاعي الفخيم (المدمج أو ملف خارجي MP3 من ElevenLabs):</div>
+                        <div id="msg-cinema-mp3-status-lbl" style="font-size:0.8rem;color:#e2e8f0;margin-bottom:8px;">${mp3Lbl}</div>
+                        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+                            <input type="file" id="msg-cinema-mp3-input" accept="audio/mp3,audio/mpeg,audio/wav,audio/*" style="display:none;" onchange="window.handleCinema4KExternalMp3Upload(event)">
+                            <button type="button" onclick="document.getElementById('msg-cinema-mp3-input').click()" style="background:linear-gradient(135deg,#0284c7,#2563eb);border:1.8px solid #7dd3fc;color:#ffffff;border-radius:10px;padding:7px 14px;font-size:0.8rem;font-weight:900;cursor:pointer;">
+                                🎵 رفع ملف صوتي خارجي (MP3 من ElevenLabs)
+                            </button>
+                            <button type="button" onclick="window.clearCinema4KExternalMp3()" style="background:rgba(148,163,184,0.16);border:1.5px solid #94a3b8;color:#e2e8f0;border-radius:10px;padding:7px 12px;font-size:0.78rem;font-weight:900;cursor:pointer;">
+                                ↺ استخدام الصوت الإذاعي البروفيسوري المدمج
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- One-Click 4K Video Recorder & Downloader for Current Open Tab -->
+                    <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:space-between;align-items:center;">
+                        <button type="button" id="msg-cinema-modal-rec-btn" onclick="window.launchIndependent4KCinemaNow(cinemaAspectRatio)" style="flex:1;padding:12px 18px;border-radius:12px;background:linear-gradient(135deg,#dc2626,#991b1b);border:2px solid #fca5a5;color:#ffffff;font-size:0.92rem;font-weight:900;cursor:pointer;box-shadow:0 10px 28px rgba(220,38,38,0.45);">
+                            ${isCinemaRecording ? '⏹️ إيقاف التسجيل وتنزيل الفيديو الآن' : '🔴 بدء تسجيل الشاشة المفتوحة حالياً من الألف إلى الياء (Download MP4/WebM)'}
+                        </button>
+                    </div>
+                </div>
+            `;
+            modal.style.display = 'flex';
+        };
     })();
 })();

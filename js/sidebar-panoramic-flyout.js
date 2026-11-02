@@ -158,24 +158,14 @@
                     tag: 'بوابة المبيعات 🟢'
                 },
                 {
-                    title: 'فاتورة تقسيم مبيعات',
-                    desc: 'تجزئة وتقسيم فاتورة المبيعات إلى فاتورتين مستقلتين',
-                    icon: '✂️',
-                    color: '#f472b6',
-                    rgb: '244, 114, 182',
-                    href: 'direct-sales.php?action=split',
-                    samePageAction: () => { if (typeof window.openSplitInvoiceView === 'function') window.openSplitInvoiceView(); },
-                    tag: 'تقسيم'
-                },
-                {
-                    title: 'تسليم مبيعات',
-                    desc: 'اعتماد تسليم فواتير المبيعات والخصم من المخزون',
-                    icon: '🚚',
+                    title: 'فاتورة تقسيم وتسليم المبيعات',
+                    desc: 'تجزئة وتقسيم فواتير المبيعات واعتماد تسليمها وخصمها من المخزون في شاشة موحدة',
+                    icon: '✂️🚚',
                     color: '#34d399',
                     rgb: '52, 211, 153',
-                    href: 'direct-sales.php?action=delivery',
+                    href: 'direct-sales.php?action=split',
                     samePageAction: () => { if (typeof window.openDeliveryHub === 'function') window.openDeliveryHub(); },
-                    tag: 'تسليم'
+                    tag: 'تقسيم وتسليم'
                 },
                 {
                     title: 'فاتورة مبدئية',
