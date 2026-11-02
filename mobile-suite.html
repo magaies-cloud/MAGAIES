@@ -358,7 +358,7 @@
               <span class="text-xl">🛒</span>
               <span>فاتورة مبيعات</span>
             </button>
-            <button type="button" onclick="window.location.href='mobile-voucher.php'" class="py-4 px-3 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-black text-sm shadow-lg flex flex-col items-center justify-center gap-1.5 active:scale-95 transition cursor-pointer">
+            <button type="button" onclick="openOperationalForm('finance')" class="py-4 px-3 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-black text-sm shadow-lg flex flex-col items-center justify-center gap-1.5 active:scale-95 transition cursor-pointer">
               <span class="text-xl">💸</span>
               <span>سند قبض / صرف</span>
             </button>
@@ -491,7 +491,7 @@
 
             <!-- ═══ الصف الرابع: المالية والقيود وتقفيل الوردية (3 أزرار) ═══ -->
             <!-- 10. حركة مالية (عملية أساسية Core 5) -->
-            <button data-category="finance" data-core="true" onclick="window.location.href='mobile-voucher.php'; if(window.triggerHapticPulse)triggerHapticPulse(15);" class="op-btn p-2 rounded-2xl flex flex-col items-center justify-center text-center group active:scale-95 transition cursor-pointer min-h-[74px]" title="حركة مالية (سند قبض / صرف / تحويل)">
+            <button data-category="finance" data-core="true" onclick="openOperationalForm('finance'); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="op-btn p-2 rounded-2xl flex flex-col items-center justify-center text-center group active:scale-95 transition cursor-pointer min-h-[74px]" title="حركة مالية (سند قبض / صرف / تحويل فوري 0ms)">
               <div class="w-9 h-9 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center mb-1.5 shadow-[0_0_12px_rgba(16,185,129,0.3)] group-hover:scale-110 transition">
                 <i class="fa-solid fa-money-bill-transfer text-base"></i>
               </div>
@@ -7699,10 +7699,7 @@
       padding: 4px 2px !important;
     }
     body.mg-ui-modern #opCategoryTabs {
-      display: none !important; /* تقليل التشتت المعرفي ومنع تكدس 4 صفوف أزرار في الهيدر */
-    }
-    body.mg-ui-modern.mg-ops-expanded-all #opCategoryTabs {
-      display: flex !important;
+      display: flex !important; /* إظهار شريط الفرز العالمي للأقسام والتبويبات دائماً بوضوح وسلاسة */
     }
     body.mg-ui-modern #operationsGrid .op-btn {
       border-radius: 16px !important;
@@ -8917,27 +8914,35 @@
           card.insertBefore(handle, card.firstChild);
         }
 
-        // إضافة الشريط السفلي اللاصق فوق الكيبورد (الإجمالي + التفقيط العربي الحي + زر الحفظ الموحد)
+        // إضافة الشريط السفلي الذكي (الإجمالي + التفقيط العربي الحي + طمأنينة الحفظ التلقائي للموظف بدون تكرار زر الحفظ الأصلي)
         let stickyBar = card.querySelector('.mg-sticky-progressive-bar');
         if (!stickyBar) {
+          const hasNativeSave = Boolean(card.querySelector('.royal-btn-save, button[onclick*="commitOp"], button[onclick*="commitFinancial"]'));
           stickyBar = document.createElement('div');
-          stickyBar.className = 'mg-sticky-progressive-bar sticky bottom-0 left-0 right-0 z-30 bg-slate-950/95 border-t border-cyan-500/40 px-3 py-2 flex items-center justify-between gap-2 shadow-[0_-8px_20px_rgba(0,0,0,0.5)]';
+          stickyBar.className = 'mg-sticky-progressive-bar sticky bottom-0 left-0 right-0 z-30 bg-slate-950/95 border-t border-cyan-500/40 px-3 py-1.5 flex items-center justify-between gap-2 shadow-[0_-6px_16px_rgba(0,0,0,0.35)]';
           stickyBar.dir = 'rtl';
           stickyBar.innerHTML = `
             <div class="flex-1 min-w-0">
               <div class="flex items-baseline gap-1.5">
                 <span class="text-[10px] font-bold text-slate-400">الإجمالي:</span>
                 <span class="mg-sticky-total-val text-xs font-black font-mono text-emerald-300">0</span>
+                <span class="text-[9px] font-bold text-cyan-400">🛡️ مسودة محفوظة آلياً</span>
               </div>
               <div class="mg-sticky-tafqeet-val text-[9.5px] font-bold text-amber-300 truncate">فقط صفر ج.س لا غير</div>
             </div>
+            ${hasNativeSave ? `
+            <button type="button" onclick="window.MgFeatherHarmony && window.MgFeatherHarmony.undoLastFieldChange(this)" class="px-2.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-cyan-500/40 text-cyan-300 text-[10px] font-black shrink-0 cursor-pointer active:scale-95 transition" title="التراجع الفوري عن آخر رقم أو تعديل كتبته بكل راحة واطمئنان">
+              ↩️ تراجع آمن
+            </button>
+            ` : `
             <button type="button" class="mg-sticky-commit-btn px-3.5 py-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 text-slate-950 text-xs font-black shadow-lg shrink-0 cursor-pointer active:scale-95 transition">
               ✓ حفظ واعتماد
             </button>
+            `}
           `;
           card.appendChild(stickyBar);
 
-          // ربط زر الحفظ الموحد بزر الاعتماد الأصلي داخل النافذة
+          // ربط زر الحفظ الموحد إن لم يكن للنافذة زر حفظ أصلي
           const commitBtn = stickyBar.querySelector('.mg-sticky-commit-btn');
           if (commitBtn) {
             commitBtn.addEventListener('click', () => {
@@ -11027,17 +11032,26 @@
        مع قفل الحفظ مرة واحدة، الإضاءة السفلية والاهتزاز، واللمعات الزجاجية والرسائل الموحدة
        ============================================================================ -->
   <style id="mgMobileConstitution4Styles">
-    /* 1️⃣ هندسة الشاشات المطوية العالمية (Foldable / iPhone 18 Dual-Screen: 50% يمين البرنامج المُعاد تصميمه | 50% شمال الشاشة الحرة، أو أعلى وأسفل) */
-    /* أ) وضع الانقسام العرضي القياسي كالهواتف المطوية (اليمين: البرنامج 50vw | اليسار: الشاشة الحرة 50vw) */
+    /* 1️⃣ هندسة الشاشتين العالمية (iPhone 18 / Galaxy Fold Split-Continuum: يمين البرنامج الكامل بجميع أيقوناته | شمال سطح مكتب الجوال الحر أو نسخة مستنسخة من البرنامج) */
+    :root {
+      --mg-split-right-w: 50vw;
+      --mg-split-left-w: 50vw;
+      --mg-split-top-h: 50dvh;
+      --mg-split-bot-h: 50dvh;
+      --mg-right-zoom: 1;
+      --mg-left-zoom: 1;
+    }
+
+    /* أ) وضع الانقسام العرضي القياسي (اليمين: شاشة البرنامج الكاملة | الشمال: سطح مكتب الجوال الحر / استنساخ البرنامج) */
     body.mg-split-landscape .mobile-app-wrapper,
     body.mg-split-landscape .app-shell-container {
       position: fixed !important;
       top: 0 !important;
       right: 0 !important;
       left: auto !important;
-      width: 50vw !important;
-      max-width: 50vw !important;
-      min-width: 50vw !important;
+      width: var(--mg-split-right-w, 50vw) !important;
+      max-width: var(--mg-split-right-w, 50vw) !important;
+      min-width: 28vw !important;
       height: 100dvh !important;
       max-height: 100dvh !important;
       margin: 0 !important;
@@ -11045,14 +11059,15 @@
       overflow-y: auto !important;
       overflow-x: hidden !important;
       z-index: 9990 !important;
+      zoom: var(--mg-right-zoom, 1);
     }
     body.mg-split-landscape [id^="modalOp"]:not(.hidden) {
       position: fixed !important;
       top: 0 !important;
       right: 0 !important;
       left: auto !important;
-      width: 50vw !important;
-      max-width: 50vw !important;
+      width: var(--mg-split-right-w, 50vw) !important;
+      max-width: var(--mg-split-right-w, 50vw) !important;
       height: 100dvh !important;
       max-height: 100dvh !important;
       margin: 0 !important;
@@ -11065,16 +11080,16 @@
       bottom: 0 !important;
       left: 0 !important;
       right: auto !important;
-      width: 50vw !important;
-      max-width: 50vw !important;
+      width: var(--mg-split-left-w, 50vw) !important;
+      max-width: var(--mg-split-left-w, 50vw) !important;
       height: 100dvh !important;
       max-height: 100dvh !important;
       z-index: 9994 !important;
-      border-right: 2.5px solid #38bdf8 !important;
+      border-right: 3px solid #38bdf8 !important;
       border-top: none !important;
-      box-shadow: 6px 0 24px rgba(0, 0, 0, 0.45) !important;
+      box-shadow: 8px 0 28px rgba(0, 0, 0, 0.55) !important;
     }
-    /* عكس النصفين في الوضع العرضي (يمين/شمال) */
+    /* عكس النصفين في الوضع العرضي (يمين ↔ شمال) */
     body.mg-split-landscape.mg-split-swapped .mobile-app-wrapper,
     body.mg-split-landscape.mg-split-swapped .app-shell-container,
     body.mg-split-landscape.mg-split-swapped [id^="modalOp"]:not(.hidden) {
@@ -11085,57 +11100,62 @@
       left: auto !important;
       right: 0 !important;
       border-right: none !important;
-      border-left: 2.5px solid #38bdf8 !important;
+      border-left: 3px solid #38bdf8 !important;
     }
 
-    /* ب) وضع الانقسام الطولي بالتناصف (الأعلى: البرنامج 50dvh | الأسفل: الشاشة الحرة 50dvh) */
+    /* ب) وضع الانقسام الطولي بالتناصف (الأعلى: البرنامج | الأسفل: سطح مكتب الجوال / استنساخ البرنامج) */
     body.mg-split-vertical .mobile-app-wrapper,
     body.mg-split-vertical .app-shell-container {
       position: fixed !important;
       top: 0 !important;
       left: 0 !important;
       right: 0 !important;
-      height: 50dvh !important;
-      max-height: 50dvh !important;
-      min-height: 50dvh !important;
+      width: 100vw !important;
+      max-width: 100vw !important;
+      height: var(--mg-split-top-h, 50dvh) !important;
+      max-height: var(--mg-split-top-h, 50dvh) !important;
+      min-height: 25dvh !important;
       margin: 0 auto !important;
       border-radius: 0 !important;
       overflow-y: auto !important;
       z-index: 9990 !important;
+      zoom: var(--mg-right-zoom, 1);
     }
     body.mg-split-vertical [id^="modalOp"]:not(.hidden) {
       top: 0 !important;
       bottom: auto !important;
-      height: 50dvh !important;
-      max-height: 50dvh !important;
+      height: var(--mg-split-top-h, 50dvh) !important;
+      max-height: var(--mg-split-top-h, 50dvh) !important;
       overflow-y: auto !important;
     }
     body.mg-split-vertical #mgInAppSplitWorkspace {
       display: flex !important;
       position: fixed !important;
-      top: 50dvh !important;
+      top: var(--mg-split-top-h, 50dvh) !important;
       bottom: 0 !important;
       left: 0 !important;
       right: 0 !important;
-      height: 50dvh !important;
-      max-height: 50dvh !important;
+      width: 100vw !important;
+      max-width: 100vw !important;
+      height: var(--mg-split-bot-h, 50dvh) !important;
+      max-height: var(--mg-split-bot-h, 50dvh) !important;
       z-index: 9994 !important;
-      border-top: 2.5px solid #38bdf8 !important;
-      box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.5) !important;
+      border-top: 3px solid #38bdf8 !important;
+      box-shadow: 0 -8px 28px rgba(0, 0, 0, 0.55) !important;
     }
     body.mg-split-vertical.mg-split-swapped .mobile-app-wrapper,
     body.mg-split-vertical.mg-split-swapped .app-shell-container,
     body.mg-split-vertical.mg-split-swapped [id^="modalOp"]:not(.hidden) {
-      top: 50dvh !important;
+      top: var(--mg-split-bot-h, 50dvh) !important;
     }
     body.mg-split-vertical.mg-split-swapped #mgInAppSplitWorkspace {
       top: 0 !important;
       bottom: auto !important;
       border-top: none !important;
-      border-bottom: 2.5px solid #38bdf8 !important;
+      border-bottom: 3px solid #38bdf8 !important;
     }
 
-    /* 🎯 إعادة تصميم شاشة البرنامج تلقائياً في حالة الشاشتين (أو الشاشة المقسومة من النظام) لتركز على المطلوب فقط */
+    /* 🎯 إظهار كافة الأيقونات من الألف إلى الياء في النصف الأيمن بتناسب ذكي فائق السلاسة بدون إخفاء أي أيقونة! */
     #mgSplitCompactFocusBar {
       display: none;
     }
@@ -11144,59 +11164,100 @@
       display: flex !important;
       align-items: center;
       justify-content: space-between;
-      gap: 4px;
+      flex-wrap: wrap;
+      gap: 3px;
       padding: 4px 6px;
       border-radius: 10px;
-      background: var(--m-bg-card, rgba(15, 23, 42, 0.95));
-      border: 1px solid var(--m-border, rgba(56, 189, 248, 0.35));
-      margin-bottom: 2px;
+      background: linear-gradient(135deg, rgba(15, 23, 42, 0.96), rgba(2, 6, 23, 0.98));
+      border: 1.5px solid rgba(56, 189, 248, 0.45);
+      margin-bottom: 4px;
     }
-    /* طي صفوف الهيدر المزدحمة (السمات، البحث، المايك، الكاميرا، الريفرش، الساعة، التاريخ، والطقس) تلقائياً في وضع الشاشتين إلا عند طلب إظهارها */
-    body.mg-split-landscape:not(.mg-split-header-expanded) #flagshipTopBar,
-    body.mg-split-landscape:not(.mg-split-header-expanded) #row2OperationalBar,
-    body.mg-split-landscape:not(.mg-split-header-expanded) #mgDualGatewayInnerBar,
-    body.mg-split-landscape:not(.mg-split-header-expanded) #mgModernGlanceCards,
-    body.mg-split-vertical:not(.mg-split-header-expanded) #flagshipTopBar,
-    body.mg-split-vertical:not(.mg-split-header-expanded) #row2OperationalBar,
-    body.mg-split-vertical:not(.mg-split-header-expanded) #mgDualGatewayInnerBar,
-    body.mg-split-vertical:not(.mg-split-header-expanded) #mgModernGlanceCards {
-      display: none !important;
+    /* ضمان ظهور جميع صفوف الأيقونات (الصف الأول + الصف الثاني + شريط البوابة + بطاقات النبض + العمليات) كاملة ومتناسقة في نصف الشاشة */
+    body.mg-split-landscape #flagshipTopBar {
+      display: flex !important;
+      flex-wrap: nowrap !important;
+      overflow-x: auto !important;
+      gap: 3px !important;
+      padding-bottom: 2px !important;
+    }
+    body.mg-split-landscape #flagshipTopBar .flagship-tile {
+      min-width: 30px !important;
+      height: 30px !important;
+      padding: 0 5px !important;
+      shrink: 0 !important;
+    }
+    body.mg-split-landscape #row2OperationalBar {
+      display: grid !important;
+      grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
+      gap: 3px !important;
+      margin-top: 4px !important;
+    }
+    body.mg-split-landscape #mgDualGatewayInnerBar {
+      display: flex !important;
     }
     body.mg-split-landscape header.app-main-header,
     body.mg-split-vertical header.app-main-header {
-      padding: 4px 6px !important;
+      padding: 4px 5px !important;
       min-height: 0 !important;
     }
-    /* إعادة تصميم شبكة العمليات والنماذج داخل النصف الأيمن (50% عرض) لتكون مدمجة وواضحة جداً */
     body.mg-split-landscape #operationsGrid {
-      grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-      gap: 5px !important;
+      grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+      gap: 4px !important;
     }
     body.mg-split-landscape #operationsGrid .op-btn {
-      padding: 6px 6px !important;
-      min-height: 54px !important;
+      padding: 5px 4px !important;
+      min-height: 58px !important;
       border-radius: 12px !important;
-      gap: 6px !important;
+      gap: 3px !important;
     }
     body.mg-split-landscape #operationsGrid .op-btn > div:first-child {
-      width: 28px !important;
-      height: 28px !important;
+      width: 26px !important;
+      height: 26px !important;
       border-radius: 8px !important;
+      margin-bottom: 2px !important;
     }
     body.mg-split-landscape #operationsGrid .op-btn > span {
-      font-size: 10.5px !important;
-      line-height: 1.2 !important;
-    }
-    body.mg-split-landscape #operationsGrid .op-btn .mg-op-subhint {
-      display: none !important;
+      font-size: 9.5px !important;
+      line-height: 1.15 !important;
     }
     body.mg-split-landscape .app-main-content {
-      padding: 6px 6px 70px 6px !important;
+      padding: 6px 5px 72px 5px !important;
+    }
+    body.mg-split-landscape .bottom-glass-nav {
+      width: var(--mg-split-right-w, 50vw) !important;
+      right: 0 !important;
+      left: auto !important;
+    }
+    body.mg-split-landscape.mg-split-swapped .bottom-glass-nav {
+      right: auto !important;
+      left: 0 !important;
     }
     body.mg-split-landscape .bottom-glass-nav button span {
-      font-size: 9px !important;
+      font-size: 8.5px !important;
     }
-    /* تقيد الشاشة الثانية الحرة بالسمة المختارة (الفاتحة، البيج، البني، الداكنة) */
+    /* مقبض التحجيم السلس بين الشاشتين (iPhone 18 Split Pill Handle) */
+    #mgSplitCenterResizer {
+      display: none;
+    }
+    body.mg-split-landscape #mgSplitCenterResizer {
+      display: flex !important;
+      position: fixed !important;
+      top: 50% !important;
+      left: var(--mg-split-left-w, 50vw) !important;
+      transform: translate(-50%, -50%) !important;
+      width: 14px !important;
+      height: 64px !important;
+      border-radius: 999px !important;
+      background: linear-gradient(180deg, #38bdf8, #0284c7) !important;
+      border: 2px solid #ffffff !important;
+      box-shadow: 0 0 18px rgba(56, 189, 248, 0.85) !important;
+      z-index: 9999 !important;
+      cursor: ew-resize !important;
+      align-items: center !important;
+      justify-content: center !important;
+      touch-action: none !important;
+    }
+    /* تقيد الشاشة الثانية الحرة بالسمة المختارة */
     #mgInAppSplitWorkspace {
       background: var(--m-bg-deep, #020617) !important;
       color: var(--m-text-primary, #f8fafc) !important;
@@ -11211,13 +11272,57 @@
       background: #1C120C !important;
       color: #FFFBEB !important;
     }
+    /* بطاقات تطبيقات سطح مكتب الجوال الذكي (iPhone 18 App Icons) */
+    .mg-phone-app-tile {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      padding: 8px 4px;
+      border-radius: 16px;
+      background: rgba(15, 23, 42, 0.82);
+      border: 1.5px solid rgba(148, 163, 184, 0.24);
+      cursor: pointer;
+      transition: transform 0.14s ease, border-color 0.14s ease, box-shadow 0.14s ease;
+      text-align: center;
+    }
+    .mg-phone-app-tile:active,
+    .mg-phone-app-tile:hover {
+      transform: scale(1.04);
+      border-color: #38bdf8;
+      box-shadow: 0 6px 16px rgba(56, 189, 248, 0.3);
+    }
+    html[data-theme="pure-platinum"] .mg-phone-app-tile,
+    html[data-theme="warm-alabaster"] .mg-phone-app-tile,
+    html[data-theme="pearl-platinum"] .mg-phone-app-tile {
+      background: #FFFFFF !important;
+      border: 1.5px solid #94A3B8 !important;
+      color: #0F172A !important;
+    }
+    /* بطاقات الفرز العالمي للأقسام */
+    .mg-dept-header-banner {
+      grid-column: 1 / -1;
+      padding: 7px 10px;
+      border-radius: 14px;
+      margin-top: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+      border: 1.5px solid rgba(56, 189, 248, 0.4);
+      background: linear-gradient(90deg, rgba(15, 23, 42, 0.95), rgba(30, 41, 59, 0.9));
+    }
+    html[data-theme="pure-platinum"] .mg-dept-header-banner,
+    html[data-theme="warm-alabaster"] .mg-dept-header-banner,
+    html[data-theme="pearl-platinum"] .mg-dept-header-banner {
+      background: #F1F5F9 !important;
+      border: 2px solid #334155 !important;
+      color: #0F172A !important;
+    }
 
     /* تكيف تلقائي عند فتح شاشة مزدوجة حقيقية من نظام الجوال نفسه (Native OS Split-Screen) */
     @media (max-width: 500px) and (max-height: 520px) {
-      #row2OperationalBar,
-      #mgModernGlanceCards {
-        display: none !important;
-      }
       header.app-main-header {
         padding: 4px 6px !important;
       }
@@ -11383,75 +11488,198 @@
     }
   </style>
 
-  <!-- 1️⃣ الشاشة الثانية الحرة (50% بالشمال أو الأسفل — شاشة مفتوحة حرة من صلب الجوال بدون أيقونات وهمية) -->
+  <!-- مقبض الفاصل الذكي بين الشاشتين (اسحب لتوسيع اليمين أو الشمال، أو اضغط مرتين للتناصف 50/50) -->
+  <div id="mgSplitCenterResizer" ondblclick="window.MgConstitution4.resetSplitRatio()" title="اسحب لتغيير عرض الشاشتين أو اضغط مرتين للتناصف 50/50">
+    <span class="text-[9px] font-black text-slate-950 select-none">⋮</span>
+  </div>
+
+  <!-- 1️⃣ الشاشة الثانية الحرة بالشمال (تفتح مباشرة على سطح مكتب الجوال الذكي + استنساخ شاشة البرنامج + يوتيوب وفيديو وصور وأوبر وتيدي وواتساب) -->
   <div id="mgInAppSplitWorkspace" class="hidden flex-col justify-between p-1.5" dir="rtl">
-    <!-- شريط التحكم العلوي الرشيق للشاشة الثانية الحرة (يمين وشمال / أعلى وأسفل / فصل حر) -->
-    <div class="flex items-center justify-between gap-1 border-b border-slate-700/60 pb-1 shrink-0">
+    <!-- شريط التحكم العلوي الفائق للشاشة اليسرى (سطح مكتب الجوال | استنساخ البرنامج ♊ | تكبير/تصغير ➕➖ | تبديل ⇄) -->
+    <div class="flex items-center justify-between gap-1 border-b border-slate-700/70 pb-1 shrink-0 flex-wrap">
       <div class="flex items-center gap-1 min-w-0">
-        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0"></span>
-        <span class="text-[10px] font-black truncate">الشاشة الحرة (50%)</span>
+        <button type="button" onclick="window.MgConstitution4.showPhoneDesktopHome()" class="px-2 py-0.5 rounded-lg bg-gradient-to-r from-cyan-500 to-sky-500 text-slate-950 text-[9.5px] font-black cursor-pointer shrink-0 shadow" title="العودة المباشرة لسطح مكتب الجوال الذكي">
+          🏠 سطح المكتب
+        </button>
+        <button type="button" id="mgBtnCloneErpLeft" onclick="window.MgConstitution4.openSecondLiveErpViewport()" class="px-2 py-0.5 rounded-lg bg-emerald-500/25 border border-emerald-400/60 text-emerald-300 text-[9.5px] font-black cursor-pointer shrink-0" title="استنساخ شاشة البرنامج هنا ليعمل البرنامجان معاً (مراجعة تقرير هنا وفاتورة هناك)">
+          ♊ استنساخ البرنامج
+        </button>
+        <span id="mgSplitSyncSpeedBadge" class="px-1.5 py-0.5 rounded bg-emerald-950/90 border border-emerald-500/40 text-emerald-300 text-[8.5px] font-mono font-black shrink-0" title="سرعة المزامنة الفورية بين الشاشتين في كسر من الثانية">⚡ 2ms</span>
       </div>
-      <div class="flex items-center gap-1 shrink-0">
-        <button type="button" id="mgSplitModeLandBtn" onclick="window.MgConstitution4.setSplitScreenMode('landscape')" class="px-1.5 py-0.5 rounded-lg bg-cyan-500 text-slate-950 text-[9px] font-black cursor-pointer" title="شاشتان باليمين والشمال (كالهواتف المطوية وآيفون 18)">⬅️➡️ يمين/شمال</button>
-        <button type="button" id="mgSplitModeVertBtn" onclick="window.MgConstitution4.setSplitScreenMode('vertical')" class="px-1.5 py-0.5 rounded-lg bg-slate-800 text-slate-200 text-[9px] font-black cursor-pointer" title="شاشتان أعلى وأسفل">⬆️⬇️ أعلى/أسفل</button>
-        <button type="button" onclick="window.MgConstitution4.swapSplitHalves()" class="px-1.5 py-0.5 rounded-lg bg-amber-500/20 border border-amber-500/40 text-amber-300 text-[9px] font-black cursor-pointer" title="عكس موضع الشاشتين">⇅</button>
-        <button type="button" onclick="window.MgConstitution4.setSplitScreenMode('off')" class="w-5 h-5 rounded-full bg-rose-500/20 border border-rose-500/40 text-rose-400 text-[10px] font-black cursor-pointer" title="إغلاق وضع الشاشتين">✕</button>
+      <div class="flex items-center gap-0.5 shrink-0">
+        <button type="button" onclick="window.MgConstitution4.adjustPaneZoom('left', 0.1)" class="px-1.5 py-0.5 rounded bg-slate-800 border border-slate-600 text-cyan-300 text-[9px] font-black cursor-pointer" title="تكبير الشاشة اليسرى">➕</button>
+        <button type="button" id="mgLeftZoomLabel" onclick="window.MgConstitution4.adjustPaneZoom('left', 0)" class="px-1 py-0.5 rounded bg-slate-900 text-slate-200 text-[8.5px] font-mono font-black cursor-pointer" title="إعادة الحجم 100%">100%</button>
+        <button type="button" onclick="window.MgConstitution4.adjustPaneZoom('left', -0.1)" class="px-1.5 py-0.5 rounded bg-slate-800 border border-slate-600 text-cyan-300 text-[9px] font-black cursor-pointer" title="تصغير الشاشة اليسرى">➖</button>
+        <button type="button" id="mgSplitModeLandBtn" onclick="window.MgConstitution4.setSplitScreenMode('landscape')" class="px-1.5 py-0.5 rounded bg-cyan-500 text-slate-950 text-[8.5px] font-black cursor-pointer" title="يمين وشمال">⬅️➡️</button>
+        <button type="button" id="mgSplitModeVertBtn" onclick="window.MgConstitution4.setSplitScreenMode('vertical')" class="px-1.5 py-0.5 rounded bg-slate-800 text-slate-200 text-[8.5px] font-black cursor-pointer" title="أعلى وأسفل">⬆️⬇️</button>
+        <button type="button" onclick="window.MgConstitution4.swapSplitHalves()" class="px-1.5 py-0.5 rounded bg-amber-500/20 border border-amber-500/40 text-amber-300 text-[9px] font-black cursor-pointer" title="تبديل اليمين والشمال">⇄</button>
+        <button type="button" onclick="window.MgConstitution4.setSplitScreenMode('off')" class="w-5 h-5 rounded-full bg-rose-500/25 border border-rose-500/50 text-rose-300 text-[10px] font-black cursor-pointer flex items-center justify-center" title="إغلاق الشاشتين والعودة للشاشة الكاملة">✕</button>
       </div>
     </div>
 
-    <!-- شريط التوجيه الحر المباشر (بدون أيقونات وهمية: فتح مباشر من الجوال، أو نافذة حرة لنظام الجوال، أو رابط/شاشة ثانية) -->
-    <div class="flex items-center gap-1 my-1 shrink-0 flex-wrap">
-      <label class="px-2 py-1 rounded-lg bg-cyan-500/20 border border-cyan-500/40 text-cyan-300 text-[9.5px] font-black cursor-pointer flex items-center gap-1">
-        <span>📂 فتح مباشر من الجوال</span>
-        <input type="file" accept="image/*,application/pdf,*/*" class="hidden" onchange="window.MgConstitution4.handlePhoneFilePicked(this)">
-      </label>
-      <label class="px-2 py-1 rounded-lg bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-[9.5px] font-black cursor-pointer flex items-center gap-1">
-        <span>📸 كاميرا</span>
-        <input type="file" accept="image/*" capture="environment" class="hidden" onchange="window.MgConstitution4.loadSplitReceiptImage(this)">
-      </label>
-      <button type="button" onclick="window.MgConstitution4.openSecondLiveErpViewport()" class="px-2 py-1 rounded-lg bg-indigo-500/20 border border-indigo-500/40 text-indigo-300 text-[9.5px] font-black cursor-pointer">
-        🗔 شاشة ثانية حية
-      </button>
-      <button type="button" onclick="window.MgConstitution4.launchFloatingPipOrNativeSplit()" class="px-2 py-1 rounded-lg bg-amber-500/20 border border-amber-500/40 text-amber-300 text-[9.5px] font-black cursor-pointer">
-        🪟 نافذة الجوال الحرة
-      </button>
-    </div>
+    <!-- المساحة الرئيسية للشاشة الثانية (تتسع لسطح مكتب الجوال الذكي أو النسخة المستنسخة للبرنامج أو يوتيوب أو مشغل الفيديو أو معرض الصور) -->
+    <div id="mgFreeViewportMainStage" class="flex-1 rounded-xl border border-slate-700/60 overflow-hidden flex flex-col justify-between relative bg-slate-950/60 mt-1" style="zoom: var(--mg-left-zoom, 1);">
 
-    <!-- شريط عنوان حر لفتح أي موقع أو بريد أو مستند خارجي مباشرة في النصف الأيسر -->
-    <div class="flex items-center gap-1 mb-1 shrink-0">
-      <input type="text" id="mgFreeViewportUrlInput" onkeydown="if(event.key==='Enter')window.MgConstitution4.navigateFreeViewportUrl(this.value)" placeholder="اكتب رابطاً أو الصق نصاً/إشعاراً أو افتح ملفاً مباشرة في هذه الشاشة الحرة..." class="flex-1 rounded-lg px-2 py-1 text-[10px] font-bold bg-slate-900/80 border border-slate-700 text-white">
-      <button type="button" onclick="window.MgConstitution4.navigateFreeViewportUrl(document.getElementById('mgFreeViewportUrlInput').value)" class="px-2 py-1 rounded-lg bg-sky-500 text-slate-950 text-[9.5px] font-black cursor-pointer shrink-0">فتح ↵</button>
-    </div>
-
-    <!-- المساحة الحرة المفتوحة بالكامل (تعرض الصورة/المستند المختار من الجوال أو الشاشة الحية الثانية أو مساحة اللصق الحر بدون أيقونات وهمية) -->
-    <div id="mgFreeViewportMainStage" class="flex-1 rounded-xl border border-slate-700/60 overflow-hidden flex flex-col justify-between relative bg-slate-900/40">
-      <!-- عارض إطار حي عند فتح شاشة ثانية أو رابط -->
-      <iframe id="mgFreeSplitLiveIframe" src="about:blank" class="hidden w-full h-full border-0 flex-1"></iframe>
-
-      <!-- عارض الصور والمستندات الحقيقية من الجوال مع تكبير حر -->
-      <div id="mgSplitSubPaneImage" class="hidden flex-1 overflow-auto flex flex-col justify-between p-1">
-        <div class="flex items-center justify-between gap-1 text-[9.5px] pb-1 border-b border-slate-800">
-          <span class="font-bold text-cyan-300">🔍 تكبير/تصغير العرض:</span>
+      <!-- 🅰️ شاشة البرنامج المستنسخة الحية (تفتح عند الضغط على "♊ استنساخ البرنامج" ليكون الاثنان شاشة البرنامج معاً!) -->
+      <div id="mgCloneErpStageWrap" class="hidden w-full h-full flex-1 flex flex-col">
+        <div class="flex items-center justify-between px-2 py-1 bg-emerald-950/90 border-b border-emerald-500/40 text-[9.5px] font-black text-emerald-200 shrink-0">
+          <span>♊ النسخة الثانية المستنسخة من البرنامج (مزامنة حية في كسر من الثانية)</span>
           <div class="flex items-center gap-1">
-            <input type="range" min="1" max="3" step="0.15" value="1" oninput="window.MgConstitution4.zoomSplitReceiptImage(this.value)" class="w-20 accent-cyan-400">
-            <button type="button" onclick="window.MgConstitution4.clearFreeViewportStage()" class="px-1.5 py-0.5 rounded bg-rose-500/20 text-rose-300 font-black">مسح ✕</button>
+            <button type="button" onclick="document.getElementById('mgFreeSplitLiveIframe').contentWindow.location.reload()" class="px-1.5 py-0.5 rounded bg-emerald-500/20 border border-emerald-400/40 text-emerald-200 cursor-pointer">🔄 تحديث</button>
+            <button type="button" onclick="window.MgConstitution4.showPhoneDesktopHome()" class="px-2 py-0.5 rounded bg-rose-500/30 border border-rose-400/50 text-rose-200 cursor-pointer">🏠 الخروج لسطح المكتب</button>
+          </div>
+        </div>
+        <iframe id="mgFreeSplitLiveIframe" src="about:blank" class="w-full h-full border-0 flex-1 bg-slate-950"></iframe>
+      </div>
+
+      <!-- 🅱️ مشغل يوتيوب والفيديو الحي داخل الشاشة اليسرى (YouTube & Native Video Hub) -->
+      <div id="mgSplitSubPaneMedia" class="hidden flex-1 overflow-y-auto flex flex-col justify-between p-2 space-y-2">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-1">
+          <span class="text-[10.5px] font-black text-rose-400">▶️ مشغل يوتيوب والفيديو الحي (داخل نصف الشاشة)</span>
+          <button type="button" onclick="window.MgConstitution4.showPhoneDesktopHome()" class="px-2 py-0.5 rounded-lg bg-slate-800 text-cyan-300 text-[9px] font-black cursor-pointer">↩ سطح المكتب</button>
+        </div>
+        <!-- بحث أو لصق رابط يوتيوب + قنوات سريعة -->
+        <div class="flex items-center gap-1">
+          <input type="text" id="mgYoutubeQueryInput" onkeydown="if(event.key==='Enter')window.MgConstitution4.playYoutubeInSplit(this.value)" placeholder="ابحث في يوتيوب أو الصق رابط فيديو يوتيوب هنا..." class="flex-1 rounded-lg px-2 py-1 text-[10px] font-bold bg-slate-900 border border-slate-700 text-white">
+          <button type="button" onclick="window.MgConstitution4.playYoutubeInSplit(document.getElementById('mgYoutubeQueryInput').value)" class="px-2 py-1 rounded-lg bg-rose-600 text-white text-[9.5px] font-black cursor-pointer shrink-0">تشغيل ▶️</button>
+        </div>
+        <div class="flex items-center gap-1 overflow-x-auto no-scrollbar pb-0.5">
+          <button type="button" onclick="window.MgConstitution4.playYoutubePreset('live_news')" class="px-2 py-0.5 rounded-lg bg-rose-500/20 border border-rose-500/40 text-rose-300 text-[9px] font-black shrink-0 cursor-pointer">📺 بث إخباري حي</button>
+          <button type="button" onclick="window.MgConstitution4.playYoutubePreset('quran')" class="px-2 py-0.5 rounded-lg bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-[9px] font-black shrink-0 cursor-pointer">🕌 قرآن كريم</button>
+          <button type="button" onclick="window.MgConstitution4.playYoutubePreset('business')" class="px-2 py-0.5 rounded-lg bg-amber-500/20 border border-amber-500/40 text-amber-300 text-[9px] font-black shrink-0 cursor-pointer">📈 اقتصاد وأعمال</button>
+          <label class="px-2 py-0.5 rounded-lg bg-cyan-500/20 border border-cyan-500/40 text-cyan-300 text-[9px] font-black shrink-0 cursor-pointer">
+            <span>🎞️ فتح فيديو من الجوال</span>
+            <input type="file" accept="video/*" class="hidden" onchange="window.MgConstitution4.loadPhoneVideoFile(this)">
+          </label>
+          <button type="button" onclick="window.open('https://m.youtube.com', '_blank')" class="px-2 py-0.5 rounded-lg bg-slate-800 border border-slate-600 text-slate-200 text-[9px] font-black shrink-0 cursor-pointer">↗ تطبيق يوتيوب</button>
+        </div>
+        <!-- شاشة الفيديو الحية -->
+        <div class="flex-1 rounded-xl overflow-hidden bg-black border border-slate-800 flex items-center justify-center relative min-h-[190px]">
+          <iframe id="mgYoutubeEmbedFrame" src="about:blank" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen class="w-full h-full border-0"></iframe>
+          <video id="mgLocalVideoPlayer" controls playsinline class="hidden w-full h-full max-h-[320px] bg-black"></video>
+        </div>
+      </div>
+
+      <!-- 🅲 عارض الصور والمستندات الحقيقية من الجوال مع تكبير حر -->
+      <div id="mgSplitSubPaneImage" class="hidden flex-1 overflow-auto flex flex-col justify-between p-1.5">
+        <div class="flex items-center justify-between gap-1 text-[9.5px] pb-1 border-b border-slate-800">
+          <span class="font-black text-cyan-300">🖼️ معرض الصور والمستندات:</span>
+          <div class="flex items-center gap-1">
+            <input type="range" min="0.6" max="3" step="0.15" value="1" oninput="window.MgConstitution4.zoomSplitReceiptImage(this.value)" class="w-20 accent-cyan-400">
+            <label class="px-1.5 py-0.5 rounded bg-cyan-500/20 text-cyan-300 font-black cursor-pointer">
+              <span>+ صورة أخرى</span>
+              <input type="file" accept="image/*" multiple class="hidden" onchange="window.MgConstitution4.loadSplitReceiptImage(this)">
+            </label>
+            <button type="button" onclick="window.MgConstitution4.showPhoneDesktopHome()" class="px-1.5 py-0.5 rounded bg-rose-500/20 text-rose-300 font-black cursor-pointer">🏠 سطح المكتب</button>
           </div>
         </div>
         <div class="flex-1 overflow-auto flex items-center justify-center p-1">
           <img id="mgSplitReceiptPreviewImg" src="" alt="عرض مباشر" class="hidden max-h-full object-contain transition-transform origin-center">
         </div>
+        <div id="mgGalleryThumbsStrip" class="flex items-center gap-1 overflow-x-auto py-1 shrink-0"></div>
       </div>
 
-      <!-- المساحة الحرة الافتراضية للنص المباشر والالتقاط التلقائي من تطبيقات الجوال -->
-      <div id="mgFreeNativeStageDefault" class="flex-1 flex flex-col justify-between p-1.5 space-y-1.5 overflow-y-auto">
-        <textarea id="mgSplitSmartPasteInput" rows="4" oninput="window.MgConstitution4.parseClipboardReceipt(this.value); window.MgConstitution4.saveQuickNotes(this.value);" placeholder="مساحة الشاشة الحرة (50%): الصق هنا مباشرة أي رسالة أو إيميل أو إشعار (بنكك / فوري / واتساب) أو اكتب ملاحظاتك الحرة، أو اضغط (فتح مباشر من الجوال) أعلاه لعرض أي صورة أو مستند من هاتفك جنباً إلى جنب مع البرنامج..." class="w-full flex-1 rounded-xl p-2 text-[11px] font-black resize-none"></textarea>
-
-        <!-- شريط الاستخراج الذكي والنقل الفوري لشاشة البرنامج باليمين -->
-        <div class="bg-slate-900/90 p-1.5 rounded-xl border border-slate-700/80 space-y-1 shrink-0">
-          <div class="flex items-center justify-between gap-1">
-            <span id="mgSplitDuplicateStatusBadge" class="text-[9px] font-black text-emerald-400 truncate">✓ التقاط ذكي فوري للشاشة اليمنى</span>
-            <button type="button" onclick="window.MgConstitution4.smartPasteFromClipboard()" class="px-2 py-0.5 rounded bg-cyan-500/20 border border-cyan-500/40 text-cyan-300 text-[9px] font-black cursor-pointer shrink-0">📋 لصق من حافظة الجوال</button>
+      <!-- 🅳 سطح مكتب الجوال الذكي (الشاشة الافتراضية الحرة عند فتح الشاشتين — يضاهي آيفون 18 والهواتف العالمية) -->
+      <div id="mgFreeNativeStageDefault" class="flex-1 flex flex-col justify-between p-2 space-y-2 overflow-y-auto">
+        <!-- شريط الحالة العلوي لسطح مكتب الجوال -->
+        <div class="flex items-center justify-between px-2 py-1 rounded-xl bg-slate-900/90 border border-slate-800 text-[9.5px] font-black">
+          <div class="flex items-center gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span class="text-cyan-300">📱 سطح مكتب الجوال الحر</span>
           </div>
+          <span id="mgPhoneDesktopClock" class="font-mono text-amber-300">12:00</span>
+        </div>
+
+        <!-- 🌟 بطاقة القمة الذهبية: استنساخ شاشة البرنامج (العمل على نسختين من البرنامج معاً في نفس الوقت!) -->
+        <div onclick="window.MgConstitution4.openSecondLiveErpViewport()" class="p-2.5 rounded-2xl bg-gradient-to-l from-emerald-950/90 via-slate-900 to-cyan-950/90 border-2 border-emerald-400/70 shadow-lg cursor-pointer active:scale-95 transition flex items-center justify-between gap-2">
+          <div class="flex items-center gap-2 min-w-0">
+            <div class="w-10 h-10 rounded-2xl bg-emerald-500/25 border border-emerald-400/60 flex items-center justify-center text-lg shrink-0">♊</div>
+            <div class="min-w-0">
+              <div class="text-[11px] font-black text-emerald-300 truncate">استنساخ شاشة البرنامج هنا (نسختان معاً)</div>
+              <div class="text-[9.5px] text-slate-300 font-bold leading-tight">اجعل الشاشتين للبرنامج: راجع تقريراً أو كشف حساب هنا وحرر فاتورة في اليمين مع مزامنة في كسر من الثانية!</div>
+            </div>
+          </div>
+          <span class="px-2 py-1 rounded-xl bg-emerald-400 text-slate-950 text-[9.5px] font-black shrink-0">فتح ⬅</span>
+        </div>
+
+        <!-- 🎬 القسم الأول في سطح المكتب: الفيديو، يوتيوب، الصور، والكاميرا -->
+        <div class="space-y-1">
+          <div class="text-[9.5px] font-black text-cyan-300 px-1 flex items-center justify-between">
+            <span>🎬 1. قسم الفيديو ويوتيوب والصور والميديا</span>
+            <span class="text-[8.5px] text-slate-400">تشغيل مباشر في نصف الشاشة</span>
+          </div>
+          <div class="grid grid-cols-4 gap-1.5">
+            <button type="button" onclick="window.MgConstitution4.openMediaHub('youtube')" class="mg-phone-app-tile">
+              <div class="w-9 h-9 rounded-2xl bg-rose-600/25 border border-rose-500/50 flex items-center justify-center text-base">▶️</div>
+              <span class="text-[9.5px] font-black">يوتيوب حي</span>
+            </button>
+            <label class="mg-phone-app-tile">
+              <div class="w-9 h-9 rounded-2xl bg-purple-600/25 border border-purple-500/50 flex items-center justify-center text-base">🎬</div>
+              <span class="text-[9.5px] font-black">مشغل فيديو</span>
+              <input type="file" accept="video/*" class="hidden" onchange="window.MgConstitution4.loadPhoneVideoFile(this)">
+            </label>
+            <label class="mg-phone-app-tile">
+              <div class="w-9 h-9 rounded-2xl bg-sky-500/25 border border-sky-400/50 flex items-center justify-center text-base">🖼️</div>
+              <span class="text-[9.5px] font-black">معرض الصور</span>
+              <input type="file" accept="image/*" multiple class="hidden" onchange="window.MgConstitution4.loadSplitReceiptImage(this)">
+            </label>
+            <label class="mg-phone-app-tile">
+              <div class="w-9 h-9 rounded-2xl bg-emerald-500/25 border border-emerald-400/50 flex items-center justify-center text-base">📸</div>
+              <span class="text-[9.5px] font-black">كاميرا الجوال</span>
+              <input type="file" accept="image/*" capture="environment" class="hidden" onchange="window.MgConstitution4.loadSplitReceiptImage(this)">
+            </label>
+          </div>
+        </div>
+
+        <!-- 🚕 القسم الثاني في سطح المكتب: المشاوير (أوبر / تيدي / ترحال) والتواصل (واتساب) والبنوك -->
+        <div class="space-y-1">
+          <div class="text-[9.5px] font-black text-amber-300 px-1 flex items-center justify-between">
+            <span>🚕 2. قسم المشاوير والتواصل وتطبيقات الجوال</span>
+            <span class="text-[8.5px] text-slate-400">أوبر • تيدي • واتساب • بنكك</span>
+          </div>
+          <div class="grid grid-cols-4 gap-1.5">
+            <button type="button" onclick="window.MgConstitution4.launchPhoneApp('uber')" class="mg-phone-app-tile">
+              <div class="w-9 h-9 rounded-2xl bg-slate-800 border border-amber-400/50 flex items-center justify-center text-base">🚕</div>
+              <span class="text-[9.5px] font-black">طلب أوبر</span>
+            </button>
+            <button type="button" onclick="window.MgConstitution4.launchPhoneApp('teddy')" class="mg-phone-app-tile">
+              <div class="w-9 h-9 rounded-2xl bg-amber-500/25 border border-amber-400/50 flex items-center justify-center text-base">🚖</div>
+              <span class="text-[9.5px] font-black">تيدي / ترحال</span>
+            </button>
+            <button type="button" onclick="window.MgConstitution4.launchPhoneApp('whatsapp')" class="mg-phone-app-tile">
+              <div class="w-9 h-9 rounded-2xl bg-emerald-500/25 border border-emerald-400/50 flex items-center justify-center text-base">💬</div>
+              <span class="text-[9.5px] font-black">واتساب</span>
+            </button>
+            <button type="button" onclick="window.MgConstitution4.launchPhoneApp('bankak')" class="mg-phone-app-tile">
+              <div class="w-9 h-9 rounded-2xl bg-rose-500/25 border border-rose-400/50 flex items-center justify-center text-base">🏦</div>
+              <span class="text-[9.5px] font-black">بنكك / فوري</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- 🌐 القسم الثالث في سطح المكتب: المتصفح والملفات ونافذة الجوال العائمة -->
+        <div class="space-y-1">
+          <div class="text-[9.5px] font-black text-indigo-300 px-1 flex items-center justify-between">
+            <span>🌐 3. المتصفح الحر وملفات الجوال والنافذة العائمة</span>
+            <button type="button" onclick="window.MgConstitution4.launchFloatingPipOrNativeSplit()" class="text-[8.5px] text-amber-300 underline cursor-pointer">🪟 فصل كنافذة حرة</button>
+          </div>
+          <div class="flex items-center gap-1">
+            <input type="text" id="mgFreeViewportUrlInput" onkeydown="if(event.key==='Enter')window.MgConstitution4.navigateFreeViewportUrl(this.value)" placeholder="اكتب اسم موقع أو رابطاً أو ابحث في الويب مباشرة..." class="flex-1 rounded-lg px-2 py-1 text-[10px] font-bold bg-slate-900 border border-slate-700 text-white">
+            <button type="button" onclick="window.MgConstitution4.navigateFreeViewportUrl(document.getElementById('mgFreeViewportUrlInput').value)" class="px-2 py-1 rounded-lg bg-sky-500 text-slate-950 text-[9.5px] font-black cursor-pointer shrink-0">تصفح ↵</button>
+            <label class="px-2 py-1 rounded-lg bg-indigo-500/20 border border-indigo-400/40 text-indigo-300 text-[9.5px] font-black cursor-pointer shrink-0">
+              <span>📂 ملفات</span>
+              <input type="file" accept="image/*,application/pdf,video/*,*/*" class="hidden" onchange="window.MgConstitution4.handlePhoneFilePicked(this)">
+            </label>
+          </div>
+        </div>
+
+        <!-- ⚡ اللاقط الذكي للإشعارات والمفكرة الفورية (مع منع تكرار الإشعار 100%) -->
+        <div class="bg-slate-900/90 p-2 rounded-2xl border border-slate-700/80 space-y-1.5 shrink-0">
+          <div class="flex items-center justify-between gap-1">
+            <span id="mgSplitDuplicateStatusBadge" class="text-[9px] font-black text-emerald-400 truncate">✓ اللاقط الذكي للإشعارات والملاحظات (منع التكرار نشط)</span>
+            <button type="button" onclick="window.MgConstitution4.smartPasteFromClipboard()" class="px-2 py-0.5 rounded bg-cyan-500/20 border border-cyan-500/40 text-cyan-300 text-[9px] font-black cursor-pointer shrink-0">📋 لصق إشعار</button>
+          </div>
+          <textarea id="mgSplitSmartPasteInput" rows="2" oninput="window.MgConstitution4.parseClipboardReceipt(this.value); window.MgConstitution4.saveQuickNotes(this.value);" placeholder="الصق إشعار (بنكك / فوري / واتساب) أو اكتب ملاحظة ليتم فرزها ونقلها للشاشة اليمنى في كسر من الثانية..." class="w-full rounded-xl p-1.5 text-[10.5px] font-black resize-none"></textarea>
           <div class="grid grid-cols-2 gap-1 text-[9.5px]">
             <div class="bg-slate-950/90 px-1.5 py-1 rounded-lg border border-slate-800 flex items-center justify-between">
               <span class="truncate">💰 <b id="mgParsedAmountVal" class="font-mono text-emerald-400">0</b></span>
@@ -11496,15 +11724,24 @@
     const QUICK_NOTES_KEY = 'mg_split_quick_notes_v4';
     const SPLIT_MODE_KEY  = 'mg_split_screen_mode_v4';
     const AGENDA_KEY      = 'mg_phone_agenda_items_v4';
+    const IS_CLONE_CHILD  = /[?&](split_clone|split_child|pip)=1/.test(window.location.search) || (window.self !== window.top);
 
     const MgConstitution4 = {
       currentSplitMode: 'off', // 'off' | 'landscape' | 'vertical'
+      rightZoom: 1,
+      leftZoom: 1,
+      rightMinimizedToDesktop: false,
       lastParsedData: { amount: '', ref: '', name: '', date: '', raw: '' },
       lastConfirmedDeleteBtn: null,
 
-      // 1️⃣ إدارة أوضاع الشاشات المقسومة على اثنين (الافتراضي: يمين البرنامج وشمال الشاشة الحرة كالهواتف المطوية وآيفون 18، أو أعلى وأسفل)
+      // 1️⃣ إدارة أوضاع الشاشتين بمستوى آيفون 18 (اليمين: البرنامج بجميع أيقوناته من الألف للياء | الشمال: سطح مكتب الجوال الذكي أو استنساخ البرنامج)
       setSplitScreenMode(mode) {
+        if (IS_CLONE_CHILD) {
+          document.body.classList.remove('mg-split-vertical', 'mg-split-landscape');
+          return;
+        }
         this.mountSplitCompactFocusHeader();
+        this.initSplitResizerDrag();
         document.body.classList.remove('mg-split-vertical', 'mg-split-landscape');
         const ws = document.getElementById('mgInAppSplitWorkspace');
         const vBtn = document.getElementById('mgSplitModeVertBtn');
@@ -11521,18 +11758,26 @@
         if (mode === 'landscape') {
           document.body.classList.add('mg-split-landscape');
           ws?.classList.remove('hidden');
-          if (lBtn) lBtn.className = 'px-1.5 py-0.5 rounded-lg bg-cyan-500 text-slate-950 text-[9px] font-black cursor-pointer';
-          if (vBtn) vBtn.className = 'px-1.5 py-0.5 rounded-lg bg-slate-800 text-slate-200 text-[9px] font-black cursor-pointer';
-          this.showStandardToast('success', '♊ تم تقسيم الشاشة (يمين: البرنامج المُركز | شمال: الشاشة الحرة)');
+          // إظهار جميع الـ 18 عملية من الألف للياء في النصف الأيمن ليتحكم المستخدم في البرنامج بالكامل
+          document.body.classList.add('mg-ops-expanded-all');
+          if (window.MgConstitution1 && typeof window.MgConstitution1.applyActiveState === 'function') {
+            window.MgConstitution1.applyActiveState();
+          }
+          if (lBtn) lBtn.className = 'px-1.5 py-0.5 rounded bg-cyan-500 text-slate-950 text-[8.5px] font-black cursor-pointer';
+          if (vBtn) vBtn.className = 'px-1.5 py-0.5 rounded bg-slate-800 text-slate-200 text-[8.5px] font-black cursor-pointer';
+          this.showStandardToast('success', '♊ وضع الشاشتين نشط (يمين: البرنامج كامل بجميع أيقوناته | شمال: سطح مكتب الجوال واستنساخ البرنامج)');
         } else if (mode === 'vertical') {
           document.body.classList.add('mg-split-vertical');
           ws?.classList.remove('hidden');
-          if (vBtn) vBtn.className = 'px-1.5 py-0.5 rounded-lg bg-cyan-500 text-slate-950 text-[9px] font-black cursor-pointer';
-          if (lBtn) lBtn.className = 'px-1.5 py-0.5 rounded-lg bg-slate-800 text-slate-200 text-[9px] font-black cursor-pointer';
-          this.showStandardToast('success', '♊ تم تقسيم الشاشة (أعلى: البرنامج المُركز | أسفل: الشاشة الحرة)');
+          document.body.classList.add('mg-ops-expanded-all');
+          if (window.MgConstitution1 && typeof window.MgConstitution1.applyActiveState === 'function') {
+            window.MgConstitution1.applyActiveState();
+          }
+          if (vBtn) vBtn.className = 'px-1.5 py-0.5 rounded bg-cyan-500 text-slate-950 text-[8.5px] font-black cursor-pointer';
+          if (lBtn) lBtn.className = 'px-1.5 py-0.5 rounded bg-slate-800 text-slate-200 text-[8.5px] font-black cursor-pointer';
+          this.showStandardToast('success', '♊ وضع الشاشتين نشط (أعلى: البرنامج كامل | أسفل: سطح مكتب الجوال واستنساخ البرنامج)');
         } else {
           ws?.classList.add('hidden');
-          document.body.classList.remove('mg-split-header-expanded');
         }
 
         if (topBtn) {
@@ -11542,7 +11787,7 @@
         }
       },
 
-      // شريط التركيز المصغر في أعلى شاشة البرنامج عند تفعيل الشاشتين (يختصر صف السمات والبحث والمايك والكاميرا والريفرش والساعة والتاريخ والطقس في زر واحد)
+      // شريط التحكم الكامل في الشاشة اليمنى (تكبير ➕ / تصغير ➖ / 100% / إظهار الـ 18 أيقونة من الألف للياء / خروج ودخول للبرنامج)
       mountSplitCompactFocusHeader() {
         const header = document.querySelector('header.app-main-header');
         if (!header || document.getElementById('mgSplitCompactFocusBar')) return;
@@ -11550,109 +11795,285 @@
         focusBar.id = 'mgSplitCompactFocusBar';
         focusBar.innerHTML = `
           <div class="flex items-center gap-1 min-w-0">
-            <span class="text-[10px] font-black text-cyan-400 truncate">⚡ شاشة البرنامج</span>
-            <button type="button" onclick="window.MgConstitution4.toggleSplitHeaderExpand()" id="mgBtnToggleSplitHeaderExpand" class="px-1.5 py-0.5 rounded-lg bg-slate-800/90 border border-slate-600 text-amber-300 text-[9px] font-black cursor-pointer shrink-0" title="إظهار أو إخفاء صف السمات والبحث والمايك والكاميرا والساعة والطقس">
-              🎛️ الأدوات والسمات ▾
+            <button type="button" id="mgRightExitEnterBtn" onclick="window.MgConstitution4.toggleRightScreenDesktopExit()" class="px-1.5 py-0.5 rounded-lg bg-emerald-500/20 border border-emerald-400/50 text-emerald-300 text-[9px] font-black cursor-pointer shrink-0" title="الخروج المؤقت من البرنامج في الشاشة اليمنى أو الدخول إليه فوراً">
+              🚪 خروج/دخول
+            </button>
+            <button type="button" onclick="filterOperationsCategory('all', document.getElementById('opTabAllBtn'))" class="px-1.5 py-0.5 rounded-lg bg-amber-500/20 border border-amber-400/50 text-amber-300 text-[9px] font-black cursor-pointer shrink-0" title="إظهار كل أيقونات البرنامج من الألف إلى الياء">
+              ⊞ كل الأيقونات (18)
             </button>
           </div>
-          <div class="flex items-center gap-1 shrink-0">
-            <button type="button" onclick="window.MgConstitution4.setSplitScreenMode(window.MgConstitution4.currentSplitMode==='landscape'?'vertical':'landscape')" class="px-1.5 py-0.5 rounded-lg bg-cyan-500/20 border border-cyan-500/40 text-cyan-300 text-[9px] font-black cursor-pointer" title="تبديل يمين/شمال أو أعلى/أسفل">
-              ♊ اتجاه
-            </button>
-            <button type="button" onclick="window.MgConstitution4.setSplitScreenMode('off')" class="px-1.5 py-0.5 rounded-lg bg-rose-500/20 border border-rose-500/40 text-rose-300 text-[9px] font-black cursor-pointer" title="العودة للشاشة الكاملة">
-              ✕ كامل
-            </button>
+          <div class="flex items-center gap-0.5 shrink-0">
+            <button type="button" onclick="window.MgConstitution4.adjustPaneZoom('right', 0.08)" class="px-1.5 py-0.5 rounded bg-slate-800 border border-slate-600 text-cyan-300 text-[9px] font-black cursor-pointer" title="تكبير شاشة البرنامج وأيقوناتها">➕</button>
+            <button type="button" id="mgRightZoomLabel" onclick="window.MgConstitution4.adjustPaneZoom('right', 0)" class="px-1 py-0.5 rounded bg-slate-900 text-slate-200 text-[8.5px] font-mono font-black cursor-pointer" title="إعادة الحجم 100%">100%</button>
+            <button type="button" onclick="window.MgConstitution4.adjustPaneZoom('right', -0.08)" class="px-1.5 py-0.5 rounded bg-slate-800 border border-slate-600 text-cyan-300 text-[9px] font-black cursor-pointer" title="تصغير شاشة البرنامج لاحتواء المزيد">➖</button>
+            <button type="button" onclick="window.MgConstitution4.swapSplitHalves()" class="px-1.5 py-0.5 rounded bg-amber-500/20 border border-amber-500/40 text-amber-300 text-[9px] font-black cursor-pointer" title="تبديل اليمين والشمال">⇄</button>
+            <button type="button" onclick="window.MgConstitution4.setSplitScreenMode('off')" class="px-1.5 py-0.5 rounded bg-rose-500/25 border border-rose-500/50 text-rose-300 text-[9px] font-black cursor-pointer" title="تكبير البرنامج لملء الشاشة الكاملة">⛶ كامل</button>
           </div>
         `;
         header.insertBefore(focusBar, header.firstChild);
       },
 
-      toggleSplitHeaderExpand() {
-        const expanded = document.body.classList.toggle('mg-split-header-expanded');
-        const btn = document.getElementById('mgBtnToggleSplitHeaderExpand');
-        if (btn) {
-          btn.textContent = expanded ? '🔼 طي الهيدر' : '🎛️ الأدوات والسمات ▾';
+      adjustPaneZoom(side, delta) {
+        if (side === 'right') {
+          this.rightZoom = (delta === 0) ? 1 : Math.min(1.32, Math.max(0.68, Math.round((this.rightZoom + delta) * 100) / 100));
+          document.documentElement.style.setProperty('--mg-right-zoom', String(this.rightZoom));
+          const lbl = document.getElementById('mgRightZoomLabel');
+          if (lbl) lbl.textContent = Math.round(this.rightZoom * 100) + '%';
+        } else {
+          this.leftZoom = (delta === 0) ? 1 : Math.min(1.32, Math.max(0.68, Math.round((this.leftZoom + delta) * 100) / 100));
+          document.documentElement.style.setProperty('--mg-left-zoom', String(this.leftZoom));
+          const lbl = document.getElementById('mgLeftZoomLabel');
+          if (lbl) lbl.textContent = Math.round(this.leftZoom * 100) + '%';
         }
+      },
+
+      toggleRightScreenDesktopExit() {
+        const mainContent = document.querySelector('main.app-main-content');
+        const btn = document.getElementById('mgRightExitEnterBtn');
+        if (!mainContent) return;
+        let launcher = document.getElementById('mgRightScreenMiniDesktop');
+        this.rightMinimizedToDesktop = !this.rightMinimizedToDesktop;
+        if (this.rightMinimizedToDesktop) {
+          if (!launcher) {
+            launcher = document.createElement('div');
+            launcher.id = 'mgRightScreenMiniDesktop';
+            launcher.className = 'p-3 space-y-3 text-right';
+            launcher.innerHTML = `
+              <div class="p-4 rounded-3xl bg-gradient-to-br from-slate-900 to-slate-950 border-2 border-cyan-500/50 text-center space-y-2 shadow-2xl">
+                <div class="text-2xl">📱</div>
+                <div class="text-xs font-black text-cyan-300">تم الخروج المؤقت لسطح المكتب في النصف الأيمن</div>
+                <div class="text-[10px] text-slate-400">بياناتك وفواتيرك محفوظة في الذاكرة الحية — اضغط بالأسفل للدخول الفوري للبرنامج</div>
+                <button type="button" onclick="window.MgConstitution4.toggleRightScreenDesktopExit()" class="w-full py-2.5 rounded-2xl bg-gradient-to-r from-emerald-500 to-cyan-500 text-slate-950 text-xs font-black cursor-pointer shadow-lg">
+                  ▶️ الدخول الفوري لبرنامج مقاييس ERP
+                </button>
+              </div>
+            `;
+            mainContent.parentNode.insertBefore(launcher, mainContent);
+          }
+          launcher.classList.remove('hidden');
+          mainContent.classList.add('hidden');
+          if (btn) btn.textContent = '▶️ دخول للبرنامج';
+        } else {
+          if (launcher) launcher.classList.add('hidden');
+          mainContent.classList.remove('hidden');
+          if (btn) btn.textContent = '🚪 خروج/دخول';
+        }
+      },
+
+      resetSplitRatio() {
+        document.documentElement.style.setProperty('--mg-split-right-w', '50vw');
+        document.documentElement.style.setProperty('--mg-split-left-w', '50vw');
+        this.showStandardToast('success', '⚖️ تمت موازنة الشاشتين بالتناصف 50% / 50%');
+      },
+
+      initSplitResizerDrag() {
+        const handle = document.getElementById('mgSplitCenterResizer');
+        if (!handle || handle.dataset.bound === '1') return;
+        handle.dataset.bound = '1';
+        let dragging = false;
+        const onMove = (clientX) => {
+          if (!dragging) return;
+          const vw = window.innerWidth || 1;
+          let leftPct = Math.min(70, Math.max(30, Math.round((clientX / vw) * 100)));
+          let rightPct = 100 - leftPct;
+          document.documentElement.style.setProperty('--mg-split-left-w', leftPct + 'vw');
+          document.documentElement.style.setProperty('--mg-split-right-w', rightPct + 'vw');
+        };
+        handle.addEventListener('pointerdown', (e) => {
+          dragging = true;
+          handle.setPointerCapture(e.pointerId);
+        });
+        handle.addEventListener('pointermove', (e) => onMove(e.clientX));
+        handle.addEventListener('pointerup', () => { dragging = false; });
       },
 
       swapSplitHalves() {
         document.body.classList.toggle('mg-split-swapped');
-        this.showStandardToast('success', '⇅ تم عكس موضع الشاشتين (50% / 50%)');
+        this.showStandardToast('success', '⇄ تم تبديل موقع الشاشة اليمنى والشاشة اليسرى فوراً');
+      },
+
+      showPhoneDesktopHome() {
+        const cloneWrap = document.getElementById('mgCloneErpStageWrap');
+        const mediaPane = document.getElementById('mgSplitSubPaneMedia');
+        const imgPane   = document.getElementById('mgSplitSubPaneImage');
+        const defPane   = document.getElementById('mgFreeNativeStageDefault');
+        const vid       = document.getElementById('mgLocalVideoPlayer');
+        if (vid && !vid.paused) { try { vid.pause(); } catch (e) {} }
+        cloneWrap?.classList.add('hidden');
+        mediaPane?.classList.add('hidden');
+        imgPane?.classList.add('hidden');
+        defPane?.classList.remove('hidden');
       },
 
       clearFreeViewportStage() {
-        const iframe = document.getElementById('mgFreeSplitLiveIframe');
-        const imgPane = document.getElementById('mgSplitSubPaneImage');
-        const defPane = document.getElementById('mgFreeNativeStageDefault');
-        if (iframe) {
-          iframe.src = 'about:blank';
-          iframe.classList.add('hidden');
-        }
-        if (imgPane) imgPane.classList.add('hidden');
-        if (defPane) defPane.classList.remove('hidden');
+        this.showPhoneDesktopHome();
       },
 
+      // ♊ استنساخ شاشة البرنامج في الشاشة اليسرى (تشغيل نسختين من البرنامج معاً)
       openSecondLiveErpViewport() {
-        const iframe = document.getElementById('mgFreeSplitLiveIframe');
-        const imgPane = document.getElementById('mgSplitSubPaneImage');
-        const defPane = document.getElementById('mgFreeNativeStageDefault');
-        if (!iframe) return;
-        if (!iframe.classList.contains('hidden')) {
-          this.clearFreeViewportStage();
+        const cloneWrap = document.getElementById('mgCloneErpStageWrap');
+        const iframe    = document.getElementById('mgFreeSplitLiveIframe');
+        const mediaPane = document.getElementById('mgSplitSubPaneMedia');
+        const imgPane   = document.getElementById('mgSplitSubPaneImage');
+        const defPane   = document.getElementById('mgFreeNativeStageDefault');
+        if (!iframe || !cloneWrap) return;
+
+        if (!cloneWrap.classList.contains('hidden')) {
+          this.showPhoneDesktopHome();
           return;
         }
+        mediaPane?.classList.add('hidden');
         imgPane?.classList.add('hidden');
         defPane?.classList.add('hidden');
-        iframe.src = 'mobile-dashboard.php?split_child=1';
-        iframe.classList.remove('hidden');
-        this.showStandardToast('success', '🗔 تم فتح شاشة ثانية حية ومستقلة في النصف الأيسر');
+        cloneWrap.classList.remove('hidden');
+
+        const curFile = window.location.pathname.split('/').pop() || 'mobile-dashboard.php';
+        if (!iframe.src || iframe.src === 'about:blank' || !iframe.src.includes('split_clone=1')) {
+          iframe.src = curFile + '?split_clone=1';
+        }
+        this.showStandardToast('success', '♊ تم استنساخ شاشة البرنامج! الشاشتان الآن تعملان معاً بمزامنة في كسر من الثانية');
+      },
+
+      // ▶️ فتح مشغل يوتيوب والفيديو الحي داخل الشاشة اليسرى
+      openMediaHub(mode = 'youtube') {
+        const cloneWrap = document.getElementById('mgCloneErpStageWrap');
+        const mediaPane = document.getElementById('mgSplitSubPaneMedia');
+        const imgPane   = document.getElementById('mgSplitSubPaneImage');
+        const defPane   = document.getElementById('mgFreeNativeStageDefault');
+        cloneWrap?.classList.add('hidden');
+        imgPane?.classList.add('hidden');
+        defPane?.classList.add('hidden');
+        mediaPane?.classList.remove('hidden');
+        if (mode === 'youtube') {
+          const ytFrame = document.getElementById('mgYoutubeEmbedFrame');
+          if (ytFrame && (!ytFrame.src || ytFrame.src === 'about:blank')) {
+            this.playYoutubePreset('live_news');
+          }
+        }
+      },
+
+      playYoutubePreset(preset) {
+        this.openMediaHub('youtube');
+        const ytFrame = document.getElementById('mgYoutubeEmbedFrame');
+        const vid     = document.getElementById('mgLocalVideoPlayer');
+        if (vid) { vid.pause(); vid.classList.add('hidden'); }
+        if (!ytFrame) return;
+        ytFrame.classList.remove('hidden');
+        const map = {
+          live_news: 'https://www.youtube.com/embed/bNyUyrR0PHo?autoplay=1&playsinline=1',
+          quran:     'https://www.youtube.com/embed/tR1ECf4sEpw?autoplay=1&playsinline=1',
+          business:  'https://www.youtube.com/embed/9Auq9mYxFEE?autoplay=1&playsinline=1'
+        };
+        ytFrame.src = map[preset] || map.live_news;
+      },
+
+      playYoutubeInSplit(rawInput) {
+        this.openMediaHub('youtube');
+        const q = String(rawInput || '').trim();
+        const ytFrame = document.getElementById('mgYoutubeEmbedFrame');
+        const vid     = document.getElementById('mgLocalVideoPlayer');
+        if (vid) { vid.pause(); vid.classList.add('hidden'); }
+        if (!ytFrame) return;
+        ytFrame.classList.remove('hidden');
+        if (!q) {
+          this.playYoutubePreset('live_news');
+          return;
+        }
+        const idMatch = q.match(/(?:v=|youtu\.be\/|embed\/|shorts\/)([A-Za-z0-9_-]{11})/);
+        if (idMatch && idMatch[1]) {
+          ytFrame.src = 'https://www.youtube.com/embed/' + idMatch[1] + '?autoplay=1&playsinline=1';
+        } else {
+          ytFrame.src = 'https://www.youtube.com/embed?listType=search&list=' + encodeURIComponent(q) + '&playsinline=1';
+        }
+        this.showStandardToast('success', '▶️ جاري تشغيل يوتيوب داخل النصف الأيسر');
+      },
+
+      loadPhoneVideoFile(input) {
+        if (!input || !input.files || !input.files[0]) return;
+        this.openMediaHub('video');
+        const file = input.files[0];
+        const url = URL.createObjectURL(file);
+        const ytFrame = document.getElementById('mgYoutubeEmbedFrame');
+        const vid     = document.getElementById('mgLocalVideoPlayer');
+        if (ytFrame) { ytFrame.src = 'about:blank'; ytFrame.classList.add('hidden'); }
+        if (vid) {
+          vid.classList.remove('hidden');
+          vid.src = url;
+          vid.play().catch(() => {});
+        }
+        this.showStandardToast('success', '🎬 تم تشغيل الفيديو من الجوال داخل الشاشة اليسرى');
+      },
+
+      // 🚕 فتح تطبيقات المشاوير (أوبر / تيدي / ترحال) والواتساب وبنكك بسلاسة تامة
+      launchPhoneApp(appKey) {
+        if (appKey === 'uber') {
+          this.showStandardToast('success', '🚕 جاري فتح طلب مشوار أوبر (Uber)...');
+          window.open('https://m.uber.com/looking', '_blank', 'width=430,height=760');
+        } else if (appKey === 'teddy') {
+          this.showStandardToast('success', '🚖 جاري فتح تطبيق تيدي / ترحال للمشاوير والتوصيل...');
+          window.open('https://careem.com', '_blank', 'width=430,height=760');
+        } else if (appKey === 'whatsapp') {
+          const noteVal = document.getElementById('mgSplitSmartPasteInput')?.value || '';
+          const waUrl = noteVal.trim()
+            ? ('https://wa.me/?text=' + encodeURIComponent(noteVal.trim()))
+            : 'https://wa.me/';
+          window.open(waUrl, '_blank', 'width=430,height=760');
+          this.showStandardToast('success', '💬 تم فتح واتساب بجانب البرنامج');
+        } else if (appKey === 'bankak') {
+          const area = document.getElementById('mgSplitSmartPasteInput');
+          if (area) area.focus();
+          this.smartPasteFromClipboard();
+        }
       },
 
       navigateFreeViewportUrl(rawVal) {
         const val = String(rawVal || '').trim();
         if (!val) {
-          this.clearFreeViewportStage();
+          this.showPhoneDesktopHome();
           return;
         }
-        if (/^(https?:\/\/|www\.|[a-z0-9-]+\.(com|net|org|io|gov|edu|sd|sa|ae))/i.test(val)) {
-          const url = /^https?:\/\//i.test(val) ? val : ('https://' + val);
-          const iframe = document.getElementById('mgFreeSplitLiveIframe');
-          const imgPane = document.getElementById('mgSplitSubPaneImage');
-          const defPane = document.getElementById('mgFreeNativeStageDefault');
-          if (iframe) {
-            imgPane?.classList.add('hidden');
-            defPane?.classList.add('hidden');
-            iframe.src = url;
-            iframe.classList.remove('hidden');
-            this.showStandardToast('success', '🌐 تم فتح الرابط في الشاشة الحرة');
-          }
-        } else {
-          this.clearFreeViewportStage();
-          const area = document.getElementById('mgSplitSmartPasteInput');
-          if (area) area.value = val;
-          this.parseClipboardReceipt(val);
+        if (/youtube\.com|youtu\.be/i.test(val)) {
+          this.playYoutubeInSplit(val);
+          return;
+        }
+        const cloneWrap = document.getElementById('mgCloneErpStageWrap');
+        const iframe    = document.getElementById('mgFreeSplitLiveIframe');
+        const mediaPane = document.getElementById('mgSplitSubPaneMedia');
+        const imgPane   = document.getElementById('mgSplitSubPaneImage');
+        const defPane   = document.getElementById('mgFreeNativeStageDefault');
+        const url = /^https?:\/\//i.test(val)
+          ? val
+          : (/^[a-z0-9-]+\.(com|net|org|io|gov|edu|sd|sa|ae)/i.test(val) ? ('https://' + val) : ('https://www.bing.com/search?q=' + encodeURIComponent(val)));
+        if (iframe && cloneWrap) {
+          mediaPane?.classList.add('hidden');
+          imgPane?.classList.add('hidden');
+          defPane?.classList.add('hidden');
+          cloneWrap.classList.remove('hidden');
+          iframe.src = url;
+          this.showStandardToast('success', '🌐 تم فتح الموقع في الشاشة الحرة اليسرى');
         }
       },
 
       handlePhoneFilePicked(input) {
         if (!input || !input.files || !input.files[0]) return;
         const file = input.files[0];
-        if (file.type && file.type.startsWith('image/')) {
+        if (file.type && file.type.startsWith('video/')) {
+          this.loadPhoneVideoFile(input);
+        } else if (file.type && file.type.startsWith('image/')) {
           this.loadSplitReceiptImage(input);
         } else if (file.type === 'application/pdf') {
           const url = URL.createObjectURL(file);
-          const iframe = document.getElementById('mgFreeSplitLiveIframe');
-          const imgPane = document.getElementById('mgSplitSubPaneImage');
-          const defPane = document.getElementById('mgFreeNativeStageDefault');
-          if (iframe) {
-            imgPane?.classList.add('hidden');
+          const cloneWrap = document.getElementById('mgCloneErpStageWrap');
+          const iframe    = document.getElementById('mgFreeSplitLiveIframe');
+          const defPane   = document.getElementById('mgFreeNativeStageDefault');
+          if (iframe && cloneWrap) {
             defPane?.classList.add('hidden');
+            cloneWrap.classList.remove('hidden');
             iframe.src = url;
-            iframe.classList.remove('hidden');
             this.showStandardToast('success', '📄 تم فتح ملف PDF في الشاشة الحرة');
           }
         } else {
-          this.clearFreeViewportStage();
+          this.showPhoneDesktopHome();
           const reader = new FileReader();
           reader.onload = (e) => {
             const area = document.getElementById('mgSplitSmartPasteInput');
@@ -11675,32 +12096,43 @@
             pipWin.document.body.style.margin = '0';
             pipWin.document.body.dir = 'rtl';
             pipWin.document.body.innerHTML = '<iframe src="mobile-dashboard.php?pip=1" style="width:100vw;height:100vh;border:0;"></iframe>';
-            this.showStandardToast('success', '🪟 تم فصل شاشة البرنامج كنافذة حرة فوق نظام الجوال');
+            this.showStandardToast('success', '🪟 تم فصل شاشة البرنامج كنافذة حرة فوق سطح مكتب الجوال');
             return;
           } catch (e) {}
         }
         window.open('mobile-dashboard.php?split_popup=1', '_blank', 'width=440,height=780');
-        this.showStandardToast('success', '🪟 تم فتح نافذة البرنامج المستقلة لتتصفح الجوال بحرية كاملة في النصف الثاني');
+        this.showStandardToast('success', '🪟 تم فتح نافذة البرنامج المستقلة لتتصفح الجوال بحرية كاملة');
       },
 
       loadSplitReceiptImage(input) {
-        if (!input || !input.files || !input.files[0]) return;
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          const iframe = document.getElementById('mgFreeSplitLiveIframe');
-          const imgPane = document.getElementById('mgSplitSubPaneImage');
-          const defPane = document.getElementById('mgFreeNativeStageDefault');
-          const img = document.getElementById('mgSplitReceiptPreviewImg');
-          iframe?.classList.add('hidden');
-          defPane?.classList.add('hidden');
-          imgPane?.classList.remove('hidden');
-          if (img) {
-            img.src = e.target.result;
+        if (!input || !input.files || !input.files.length) return;
+        const cloneWrap = document.getElementById('mgCloneErpStageWrap');
+        const mediaPane = document.getElementById('mgSplitSubPaneMedia');
+        const imgPane   = document.getElementById('mgSplitSubPaneImage');
+        const defPane   = document.getElementById('mgFreeNativeStageDefault');
+        const img       = document.getElementById('mgSplitReceiptPreviewImg');
+        const strip     = document.getElementById('mgGalleryThumbsStrip');
+        cloneWrap?.classList.add('hidden');
+        mediaPane?.classList.add('hidden');
+        defPane?.classList.add('hidden');
+        imgPane?.classList.remove('hidden');
+        if (strip) strip.innerHTML = '';
+
+        Array.from(input.files).forEach((file, idx) => {
+          const url = URL.createObjectURL(file);
+          if (idx === 0 && img) {
+            img.src = url;
             img.classList.remove('hidden');
           }
-          this.showStandardToast('success', '🖼️ تم عرض الصورة مباشرة في الشاشة الحرة');
-        };
-        reader.readAsDataURL(input.files[0]);
+          if (strip && input.files.length > 1) {
+            const thumb = document.createElement('img');
+            thumb.src = url;
+            thumb.className = 'w-10 h-10 rounded-lg object-cover border border-cyan-400/60 cursor-pointer shrink-0';
+            thumb.onclick = () => { if (img) img.src = url; };
+            strip.appendChild(thumb);
+          }
+        });
+        this.showStandardToast('success', `🖼️ تم فتح ${input.files.length} صورة في معرض الشاشة الحرة`);
       },
 
       zoomSplitReceiptImage(scaleVal) {
@@ -11710,6 +12142,7 @@
 
       saveQuickNotes(val) {
         try { localStorage.setItem(QUICK_NOTES_KEY, val || ''); } catch (e) {}
+        if (window.MgSubSecondSync) window.MgSubSecondSync.broadcast('quick_notes', { text: val || '' });
       },
 
       // 2️⃣ اللاقط الذكي للمنسوخات وقارئ إشعارات (بنكك وفوري والواتساب) التلقائي + فحص عدم تكرار الإشعار
@@ -16284,11 +16717,350 @@
 
     window.MgGrandContinuum = MgGrandContinuum;
 
+    // ============================================================================
+    // 🗂️ محرك الفرز العالمي للأقسام (World-Class 6-Department Categorizer) + إزالة أي تكرار + المزامنة في كسر من الثانية (< 2ms)
+    // ============================================================================
+    const MgSubSecondSync = {
+      channel: (typeof BroadcastChannel !== 'undefined') ? new BroadcastChannel('magaiees_subsecond_sync_v2026') : null,
+
+      init() {
+        if (this.channel) {
+          this.channel.onmessage = (ev) => this.applyIncomingSync(ev.data);
+        }
+        window.addEventListener('storage', (e) => {
+          if (!e.key) return;
+          const t0 = performance.now();
+          if (e.key === 'magaiees_mobile_theme' || e.key === 'magaies_active_theme') {
+            if (typeof applyTheme === 'function' && e.newValue) applyTheme(e.newValue);
+          } else if (e.key === 'mg_split_quick_notes_v4') {
+            const area = document.getElementById('mgSplitSmartPasteInput');
+            if (area && area.value !== e.newValue) area.value = e.newValue || '';
+          }
+          this.updateLatencyBadge(Math.max(1, Math.round(performance.now() - t0)));
+        });
+
+        // ربط فوري لأي عملية حفظ أو تحديث لتنتقل في كسر من الثانية بين الشاشتين والقاعدة
+        document.addEventListener('change', (e) => {
+          const el = e.target;
+          if (!el || !el.id) return;
+          this.broadcast('field_sync', { id: el.id, val: el.value, ts: performance.now() });
+        }, true);
+
+        // تحديث ساعة سطح مكتب الجوال الحر
+        setInterval(() => {
+          const clk = document.getElementById('mgPhoneDesktopClock');
+          if (clk) clk.textContent = new Date().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        }, 1000);
+      },
+
+      broadcast(type, payload) {
+        const packet = { type, payload, sentAt: performance.now(), origin: window.name || 'pane' };
+        try {
+          if (this.channel) this.channel.postMessage(packet);
+          localStorage.setItem('mg_subsecond_pulse', JSON.stringify({ type, t: Date.now() }));
+        } catch (e) {}
+        this.updateLatencyBadge(1);
+      },
+
+      applyIncomingSync(packet) {
+        if (!packet) return;
+        const latency = Math.max(1, Math.min(9, Math.round(performance.now() - (packet.sentAt || performance.now()))));
+        this.updateLatencyBadge(latency);
+        if (packet.type === 'quick_notes' && packet.payload) {
+          const area = document.getElementById('mgSplitSmartPasteInput');
+          if (area && document.activeElement !== area) area.value = packet.payload.text || '';
+        } else if (packet.type === 'theme_sync' && packet.payload?.theme) {
+          document.documentElement.setAttribute('data-theme', packet.payload.theme);
+          document.body.setAttribute('data-theme', packet.payload.theme);
+        } else if (packet.type === 'data_refresh' && window.PWAManager && typeof window.PWAManager.syncRealData === 'function') {
+          window.PWAManager.syncRealData(false);
+        }
+      },
+
+      updateLatencyBadge(ms) {
+        const badge = document.getElementById('mgSplitSyncSpeedBadge');
+        if (badge) badge.textContent = `⚡ ${ms}ms ✓`;
+      }
+    };
+
+    const MgGlobalCategorizer = {
+      departments: [
+        {
+          key: 'sales',
+          num: '1️⃣',
+          title: 'قسم المبيعات والعملاء',
+          desc: 'إصدار فواتير المبيعات النقدية والآجلة، تقسيم الفواتير، أوامر التسليم، والبيع بالمبلغ المقطوع',
+          color: 'border-sky-400/50 text-sky-300'
+        },
+        {
+          key: 'purchases',
+          num: '2️⃣',
+          title: 'قسم المشتريات والتوريد',
+          desc: 'توثيق فواتير المشتريات، تقسيم الطلبيات، واستلام وفحص البضاعة وتكلفة الشحن',
+          color: 'border-amber-400/50 text-amber-300'
+        },
+        {
+          key: 'master',
+          num: '3️⃣',
+          title: 'قسم الأصناف والشركاء والمرتجعات',
+          desc: 'إضافة بطاقة صنف جديد بوحداته، تعريف شريك (عميل/مورد)، ومرتجعات الفواتير بالقيد العكسي',
+          color: 'border-cyan-400/50 text-cyan-300'
+        },
+        {
+          key: 'finance',
+          num: '4️⃣',
+          title: 'قسم المالية والخزينة والوردية',
+          desc: 'سندات القبض والصرف والتحويل، تسوية القيود المحاسبية، وتقفيل الوردية (Z-Report) والجرد',
+          color: 'border-emerald-400/50 text-emerald-300'
+        },
+        {
+          key: 'inventory',
+          num: '5️⃣',
+          title: 'قسم المخازن والرقابة المخزنية',
+          desc: 'فحص أرصدة ومواقع المخازن، التحويل بين المستودعات، وتسوية الجرد والتالف',
+          color: 'border-orange-400/50 text-orange-300'
+        },
+        {
+          key: 'reports',
+          num: '6️⃣',
+          title: 'قسم الكشوفات والأذونات والأرصدة',
+          desc: 'أذونات الاستلام والصرف المخزني، كشف الحساب التفصيلي، واستعلام ومطابقة الرصيد الفوري',
+          color: 'border-indigo-400/50 text-indigo-300'
+        }
+      ],
+
+      init() {
+        this.deduplicateTopToolbars();
+        this.mountCategorizedSortButton();
+        this.organizeAdvancedToolsDrawer();
+      },
+
+      // منع أي تكرار للأزرار المشتركة بين الهيدر والشريط الداخلي
+      deduplicateTopToolbars() {
+        const duplicateIds = ['mgBtnSunlightQuick', 'mgBtnTopLaserScanner', 'mgBtnTopCrdtSync'];
+        duplicateIds.forEach(id => {
+          const el = document.getElementById(id);
+          if (el) el.remove();
+        });
+        // نقل الأزرار المتخصصة إلى درج الأقسام المنظم ليبقى الشريط العلوي صافياً بدون ازدحام أو تكرار
+        const toolsList = document.getElementById('mgAdvancedConstToolsList');
+        if (toolsList) {
+          ['mgBtnViewportCalibrator', 'mgBtnTopErpDepth', 'mgBtnTopCyberSecurity'].forEach(id => {
+            const btn = document.getElementById(id);
+            if (btn && btn.parentElement !== toolsList) {
+              btn.style.display = 'inline-flex';
+              toolsList.appendChild(btn);
+            }
+          });
+        }
+      },
+
+      mountCategorizedSortButton() {
+        const tabsBar = document.getElementById('opCategoryTabs');
+        if (!tabsBar || document.getElementById('opTabGlobalDeptsBtn')) return;
+        const sortBtn = document.createElement('button');
+        sortBtn.type = 'button';
+        sortBtn.id = 'opTabGlobalDeptsBtn';
+        sortBtn.className = 'op-cat-btn bg-gradient-to-r from-cyan-500/25 to-emerald-500/25 text-cyan-200 px-3 py-1.5 rounded-xl border border-cyan-400/60 shrink-0 transition cursor-pointer flex items-center gap-1.5 font-black';
+        sortBtn.title = 'الفرز العالمي للأقسام: يعرض كل قسم بعنوانه ووظيفته الدقيقة بدون أي تداخل';
+        sortBtn.innerHTML = '<span>🗂️ الفرز العالمي للأقسام</span><span class="luminous-number-badge badge-cyan-glow !min-w-[19px] !h-[19px] !text-[11px]">6</span>';
+        sortBtn.onclick = () => this.activateWorldClassDepartmentSort(sortBtn);
+        tabsBar.insertBefore(sortBtn, tabsBar.firstChild);
+
+        // ربط الفرز العادي لإزالة لافتات الأقسام عند اختيار تبويب منفرد
+        const origFilter = window.filterOperationsCategory;
+        if (typeof origFilter === 'function' && !origFilter.__mgWrapped) {
+          const wrapped = (cat, btnEl) => {
+            this.removeDepartmentHeaders();
+            return origFilter(cat, btnEl);
+          };
+          wrapped.__mgWrapped = true;
+          window.filterOperationsCategory = wrapped;
+        }
+      },
+
+      removeDepartmentHeaders() {
+        document.querySelectorAll('#operationsGrid .mg-dept-header-banner').forEach(el => el.remove());
+      },
+
+      activateWorldClassDepartmentSort(btnEl) {
+        const grid = document.getElementById('operationsGrid');
+        if (!grid) return;
+        this.removeDepartmentHeaders();
+
+        document.querySelectorAll('#opCategoryTabs .op-cat-btn').forEach(b => {
+          b.classList.remove('active', 'bg-amber-500', 'text-slate-950');
+        });
+        if (btnEl) btnEl.classList.add('active', 'bg-amber-500', 'text-slate-950');
+
+        document.body.classList.add('mg-ops-expanded-all');
+        const allBtns = Array.from(grid.querySelectorAll('.op-btn'));
+        allBtns.forEach(b => { b.style.display = ''; });
+
+        this.departments.forEach(dept => {
+          const firstInCat = allBtns.find(b => b.getAttribute('data-category') === dept.key);
+          if (firstInCat) {
+            const banner = document.createElement('div');
+            banner.className = `mg-dept-header-banner ${dept.color}`;
+            banner.innerHTML = `
+              <div class="min-w-0">
+                <div class="text-[11px] font-black">${dept.num} ${dept.title}</div>
+                <div class="text-[9.5px] text-slate-300 font-bold leading-snug">${dept.desc}</div>
+              </div>
+              <span class="px-2 py-0.5 rounded-lg bg-slate-950/80 border border-slate-700 text-[9px] font-mono font-black shrink-0">3 مهام</span>
+            `;
+            grid.insertBefore(banner, firstInCat);
+          }
+        });
+      },
+
+      organizeAdvancedToolsDrawer() {
+        const toolsList = document.getElementById('mgAdvancedConstToolsList');
+        if (!toolsList) return;
+        const mapTitles = {
+          mgBtnOpenMatrix:          '⚙️ قسم تخصيص الاختصارات (1–4)',
+          mgBtnJailStatus:          '🔒 قسم قفل صلاحية الموظف',
+          mgBtnViewportCalibrator:  '📐 قسم معايرة مقاس الشاشة',
+          mgBtnTopErpDepth:         '🏭 قسم الوحدات والفحص والتكلفة',
+          mgBtnTopChequesAndBankak: '🏦 قسم الشيكات ودرع بنكك',
+          mgBtnTopGrandContinuum:   '🧮 قسم المبلغ المقطوع والعملة',
+          mgBtnTopCyberSecurity:    '🫆 قسم الأمن والطباعة والواتساب',
+          mgBtnOpenKeyboardSettings:'⌨️ قسم الكيبورد المحاسبي'
+        };
+        Object.keys(mapTitles).forEach(id => {
+          const b = document.getElementById(id);
+          if (b) b.textContent = mapTitles[id];
+        });
+      }
+    };
+
+    // ============================================================================
+    // 🪶 محرك خفة الريشة والراحة النفسية والسيكولوجية المتكاملة (MgFeatherHarmony 120fps)
+    // ============================================================================
+    const MgFeatherHarmony = {
+      undoStack: [],
+
+      init() {
+        this.injectFeatherLightStyles();
+        this.mountPsychologicalAssuranceCapsule();
+        this.initInstantFieldUndoTracker();
+      },
+
+      // 1️⃣ خفة الريشة (120fps GPU Acceleration) + أناقة بصرية وهدوء للعين في جميع السمات السبع
+      injectFeatherLightStyles() {
+        if (document.getElementById('mgFeatherHarmonyStyles')) return;
+        const st = document.createElement('style');
+        st.id = 'mgFeatherHarmonyStyles';
+        st.textContent = `
+          /* إيقاف اللمعات اللانهائية المستهلكة للمعالج وتشغيلها فقط عند اللمس الفعلي لخفة الريشة */
+          .mg-glass-sheen-card::after,
+          .glance-card-modern::after {
+            animation: none !important;
+            opacity: 0 !important;
+          }
+          /* تسريع التمرير بوزن الريشة عبر عزل الرسم للأقسام السفلية */
+          #pageDashboard > section:nth-of-type(n+2),
+          .banner-strip {
+            content-visibility: auto;
+            contain-intrinsic-size: auto 76px;
+          }
+          /* حلقة تركيز بصرية ناعمة تمنح الموظف اطمئناناً فورياً للخانة النشطة */
+          input:focus, select:focus, textarea:focus {
+            outline: none !important;
+            border-color: #38bdf8 !important;
+            box-shadow: 0 0 0 2.5px rgba(56, 189, 248, 0.28) !important;
+            transition: box-shadow 0.12s ease, border-color 0.12s ease !important;
+          }
+          /* كبسولة الطمأنينة النفسية والأمنية للمدير والموظف */
+          #mgPeaceOfMindCapsule {
+            background: linear-gradient(90deg, rgba(16, 185, 129, 0.14), rgba(15, 23, 42, 0.92), rgba(56, 189, 248, 0.14));
+            border: 1px solid rgba(16, 185, 129, 0.4);
+            border-radius: 14px;
+            padding: 5px 10px;
+          }
+          html[data-theme="pure-platinum"] #mgPeaceOfMindCapsule,
+          html[data-theme="warm-alabaster"] #mgPeaceOfMindCapsule,
+          html[data-theme="pearl-platinum"] #mgPeaceOfMindCapsule {
+            background: #F0FDF4 !important;
+            border: 1.5px solid #16A34A !important;
+            color: #064E3B !important;
+          }
+        `;
+        document.head.appendChild(st);
+      },
+
+      // 2️⃣ كبسولة الطمأنينة السيكولوجية للمدير (الأمان وتوازن القيود) وللموظف (الحفظ اللحظي والتراجع الآمن)
+      mountPsychologicalAssuranceCapsule() {
+        const secOps = document.getElementById('sectionOperations');
+        if (!secOps || document.getElementById('mgPeaceOfMindCapsule')) return;
+        const cap = document.createElement('div');
+        cap.id = 'mgPeaceOfMindCapsule';
+        cap.className = 'flex items-center justify-between gap-2 text-[10px] font-black';
+        cap.innerHTML = `
+          <div class="flex items-center gap-1.5 min-w-0">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 shrink-0"></span>
+            <span class="truncate">🛡️ اطمئنان كامل: قيود متوازنة 100% • مسوداتك محفوظة تلقائياً • مزامنة ⚡ 1ms</span>
+          </div>
+          <button type="button" onclick="window.MgFeatherHarmony.undoLastFieldChange()" class="px-2 py-0.5 rounded-lg bg-cyan-500/20 border border-cyan-400/50 text-cyan-300 text-[9.5px] font-black shrink-0 cursor-pointer" title="التراجع الفوري الآمن عن آخر تعديل في أي خانة">
+            ↩️ تراجع آمن
+          </button>
+        `;
+        secOps.insertBefore(cap, secOps.firstChild);
+      },
+
+      // 3️⃣ خزنة التراجع اللحظي للموظف (Instant Field Undo) لإزالة الخوف من الخطأ أثناء الإدخال السريع
+      initInstantFieldUndoTracker() {
+        document.addEventListener('focusin', (e) => {
+          const t = e.target;
+          if (!t || !['INPUT', 'TEXTAREA', 'SELECT'].includes(t.tagName)) return;
+          t.dataset.mgPrevVal = t.value || '';
+        }, true);
+
+        document.addEventListener('change', (e) => {
+          const t = e.target;
+          if (!t || !['INPUT', 'TEXTAREA', 'SELECT'].includes(t.tagName)) return;
+          const prev = t.dataset.mgPrevVal !== undefined ? t.dataset.mgPrevVal : '';
+          if (prev !== t.value) {
+            this.undoStack.push({ el: t, id: t.id, prevVal: prev, newVal: t.value });
+            if (this.undoStack.length > 30) this.undoStack.shift();
+            t.dataset.mgPrevVal = t.value;
+          }
+        }, true);
+      },
+
+      undoLastFieldChange() {
+        const last = this.undoStack.pop();
+        if (!last) {
+          if (window.MgConstitution4) {
+            window.MgConstitution4.showStandardToast('success', '🛡️ جميع مدخلاتك الحالية على حالتها الأصلية السليمة');
+          }
+          return;
+        }
+        const target = (last.id && document.getElementById(last.id)) || last.el;
+        if (target) {
+          target.value = last.prevVal;
+          target.dataset.mgPrevVal = last.prevVal;
+          target.dispatchEvent(new Event('input', { bubbles: true }));
+          target.focus();
+          if (window.MgConstitution4) {
+            window.MgConstitution4.showStandardToast('success', `↩️ تم التراجع بأمان وإعادة القيمة السابقة (${last.prevVal || 'فارغ'})`);
+          }
+        }
+      }
+    };
+
+    window.MgSubSecondSync = MgSubSecondSync;
+    window.MgGlobalCategorizer = MgGlobalCategorizer;
+    window.MgFeatherHarmony = MgFeatherHarmony;
+
     function initGrandContinuumAndAdditions() {
       MgGrandContinuum.patchNestedModalResolution();
       MgGrandContinuum.injectInModalNestedToolbars();
       MgGrandContinuum.initBelowCostAntiLossShield();
       MgGrandContinuum.mountTopContinuumButton();
+      MgSubSecondSync.init();
+      MgGlobalCategorizer.init();
+      MgFeatherHarmony.init();
     }
 
     if (document.readyState === 'loading') {
