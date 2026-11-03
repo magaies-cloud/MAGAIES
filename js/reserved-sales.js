@@ -1584,13 +1584,26 @@ function submitReservedInvoice(ignoreWarnings = false) {
         }
         
         // Update live ITEMS array
-        if (item.reservedStock && item.reservedStock[whId] !== undefined) {
-            item.reservedStock[whId] += calcs.baseQty;
-        } else if (item.reservedStock) {
-            item.reservedStock[whId] = calcs.baseQty;
-        }
+        if (!item.reservedStock || typeof item.reservedStock !== 'object') item.reservedStock = {};
+        item.reservedStock[whId] = (parseFloat(item.reservedStock[whId]) || 0) + calcs.baseQty;
     }
     localStorage.setItem('erp_inventory_v1', JSON.stringify(currentInvData));
+    try {
+        let erpItems = JSON.parse(localStorage.getItem('erp_items_v1') || '[]');
+        for (const row of rows) {
+            const mIdx = erpItems.findIndex(x => String(x.id) === String(row.itemId));
+            if (mIdx !== -1) {
+                const calcs = getRowCalcs(row);
+                const whId = row.warehouseId || mainWh;
+                if (!erpItems[mIdx].reservedStock || typeof erpItems[mIdx].reservedStock !== 'object') erpItems[mIdx].reservedStock = {};
+                erpItems[mIdx].reservedStock[whId] = (parseFloat(erpItems[mIdx].reservedStock[whId]) || 0) + calcs.baseQty;
+            }
+        }
+        localStorage.setItem('erp_items_v1', JSON.stringify(erpItems));
+    } catch (e) {}
+    if (typeof window.logSystemAction === 'function') {
+        window.logSystemAction('إنشاء حجز مبيعات', 'المبيعات / الحجوزات', committedNo, `تم حجز بضاعة برقم ${committedNo} بقيمة ${fmtNum(grandTotal)} ${cur}`);
+    }
 
     // RECORD AUDIT TRAIL
     if (typeof window.app === 'object' && typeof window.app.logAudit === 'function') {
@@ -2220,18 +2233,181 @@ function generateHash(str) {
     return Math.abs(hash).toString(16).toUpperCase() + Date.now().toString(16).toUpperCase();
 }
 
-function submitReservedInvoice(ignoreWarnings = false) {
-    // Wrapper to act as the primary submit function for the reserved button
-    submitInvoice(ignoreWarnings);
+function editReservation() {
+    saveDraft();
+}
+
+function previewReservation() {
+    if (rows.length === 0) { showToast('أضف أصنافاً للحجز أولاً قبل المعاينة', 'warning'); return; }
+    generatePrintArea('sales');
+    window.print();
 }
 
 function printReservation() {
     if (rows.length === 0) { showToast('لا يوجد شيء لطباعته', 'error'); return; }
+    generatePrintArea('sales');
     showToast('جاري تحضير إشعار الحجز...', 'success');
     setTimeout(() => {
         window.print();
-    }, 500);
+    }, 300);
 }
+
+function shareReservationWhatsApp() {
+    if (rows.length === 0) {
+        showToast('⚠️ أضف أصنافاً للحجز أولاً لمشاركتها عبر واتساب', 'warning');
+        return;
+    }
+    const invNo = document.getElementById('hdr-inv-no')?.value || document.getElementById('inv-number')?.textContent || '';
+    const custName = document.getElementById('hdr-customer-search')?.value || 'عميلنا الكريم';
+    const dueDate = document.getElementById('hdr-due-date')?.value || 'غير محدد';
+    const grand = document.getElementById('t-grand')?.textContent || document.getElementById('footer-grand')?.textContent || '0';
+    const cur = getCurrency();
+    const itemsTxt = rows.map((r, idx) => {
+        const it = ITEMS.find(i => String(i.id) === String(r.itemId));
+        return `${idx + 1}. ${it ? it.name : 'صنف'} — الكمية المحجوزة: ${r.quantity} ${r.selectedUnit || ''}`;
+    }).join('\n');
+    const msg = `🔖 *إشعار حجز بضاعة مبيعات*\nرقم الحجز: *#${invNo}*\nالعميل: *${custName}*\nصلاحية الحجز حتى: *${dueDate}*\n\n📦 *الأصناف المحجوزة:*\n${itemsTxt}\n\n💰 *إجمالي الحجز:* ${grand} ${cur}`;
+    const custId = document.getElementById('hdr-customer')?.value;
+    const custObj = CUSTOMERS.find(c => String(c.id) === String(custId));
+    const phone = custObj && custObj.phone ? String(custObj.phone).replace(/[^0-9]/g, '') : '';
+    window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, '_blank');
+}
+
+function toggleReservationsHubDrawer() {
+    const d = document.getElementById('reservations-hub-drawer');
+    if (!d) return;
+    const isHidden = d.style.display === 'none' || !d.style.display;
+    d.style.display = isHidden ? 'block' : 'none';
+    if (isHidden) renderReservationsHubTable();
+}
+
+function renderReservationsHubTable() {
+    const tbody = document.getElementById('res-hub-tbody');
+    const countEl = document.getElementById('res-active-count');
+    const summaryEl = document.getElementById('res-kpi-summary');
+    let allSales = [];
+    try { allSales = JSON.parse(localStorage.getItem('erp_sales_invoices_v1') || '[]'); } catch (e) {}
+    const reservations = allSales.filter(s => s && !s.deleted && (s.saleType === 'reserved' || s.status === 'reserved' || s.isReserved));
+    if (countEl) countEl.textContent = reservations.length;
+    const totalVal = reservations.reduce((acc, s) => acc + (parseFloat(s.grandTotal || s.total || 0) || 0), 0);
+    if (summaryEl) summaryEl.innerHTML = `إجمالي الحجوزات النشطة: <strong style="color:#fbbf24;">${reservations.length}</strong> | القيمة المحجوزة: <strong style="color:#34d399;">${fmtNum(totalVal)} SDG</strong>`;
+    if (!tbody) return;
+
+    const q = (document.getElementById('res-hub-search')?.value || '').toLowerCase().trim();
+    const filtered = reservations.filter(r => {
+        if (!q) return true;
+        const cObj = CUSTOMERS.find(c => String(c.id) === String(r.customer || r.customerId));
+        const cName = (r.customerName || (cObj ? cObj.name : '') || '').toLowerCase();
+        return String(r.invoiceNo || r.id || '').toLowerCase().includes(q) || cName.includes(q);
+    }).sort((a, b) => new Date(b.timestamp || b.date || 0) - new Date(a.timestamp || a.date || 0));
+
+    if (filtered.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" style="padding:24px;text-align:center;color:#94a3b8;font-weight:700;">لا توجد حجوزات مبيعات نشطة مطابقة للبحث.</td></tr>';
+        return;
+    }
+
+    const todayStr = new Date().toISOString().split('T')[0];
+    tbody.innerHTML = filtered.map(r => {
+        const invNo = r.invoiceNo || r.id;
+        const cObj = CUSTOMERS.find(c => String(c.id) === String(r.customer || r.customerId));
+        const cName = r.customerName || (cObj ? cObj.name : 'عميل نقدي');
+        const isExpired = r.dueDate && r.dueDate < todayStr;
+        const badge = isExpired
+            ? '<span style="background:rgba(239,68,68,0.2);color:#fca5a5;border:1px solid rgba(239,68,68,0.45);padding:2px 8px;border-radius:8px;font-size:0.74rem;font-weight:800;">⚠️ انتهت مهلة الحجز</span>'
+            : '<span style="background:rgba(245,158,11,0.18);color:#fde68a;border:1px solid rgba(245,158,11,0.4);padding:2px 8px;border-radius:8px;font-size:0.74rem;font-weight:800;">🔖 محجوز نشط</span>';
+        const itemsSummary = (r.items || []).map(it => `${it.name || it.itemName || 'صنف'} (${it.quantity || it.qty || 0})`).join('، ');
+        return `<tr style="border-bottom:1px solid rgba(255,255,255,0.06);">
+            <td style="padding:9px 12px;font-weight:900;color:#fbbf24;">#${invNo}</td>
+            <td style="padding:9px 12px;color:#cbd5e1;">${(r.date || '').split('T')[0]}${r.dueDate ? `<div style="font-size:0.72rem;color:${isExpired ? '#f87171' : '#38bdf8'};">مهلة: ${r.dueDate}</div>` : ''}</td>
+            <td style="padding:9px 12px;font-weight:700;">${cName}</td>
+            <td style="padding:9px 12px;color:#94a3b8;font-size:0.8rem;">${itemsSummary || '—'}</td>
+            <td style="padding:9px 12px;text-align:center;font-weight:900;color:#34d399;">${fmtNum(r.grandTotal || r.total || 0)} ${r.currency || 'SDG'}</td>
+            <td style="padding:9px 12px;text-align:center;">${badge}</td>
+            <td style="padding:9px 12px;text-align:center;white-space:nowrap;">
+                <button type="button" onclick="loadInvoiceFromStorage('${invNo}'); toggleReservationsHubDrawer();" style="background:rgba(56,189,248,0.15);border:1px solid rgba(56,189,248,0.4);color:#38bdf8;padding:4px 9px;border-radius:6px;cursor:pointer;font-weight:800;font-size:0.75rem;margin-left:3px;">👁️ فتح</button>
+                <button type="button" onclick="convertReservationToFinalSale('${invNo}')" style="background:rgba(16,185,129,0.2);border:1px solid rgba(16,185,129,0.5);color:#34d399;padding:4px 9px;border-radius:6px;cursor:pointer;font-weight:800;font-size:0.75rem;margin-left:3px;" title="تحويل الحجز لفاتورة مبيعات معتمدة وجاهزة للتسليم">🔄 تحويل لفاتورة مبيعات</button>
+                <button type="button" onclick="releaseReservationStock('${invNo}')" style="background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.4);color:#fca5a5;padding:4px 9px;border-radius:6px;cursor:pointer;font-weight:800;font-size:0.75rem;" title="إلغاء الحجز وإعادة الكميات للرصيد المتاح">🔓 فك الحجز</button>
+            </td>
+        </tr>`;
+    }).join('');
+}
+
+function convertReservationToFinalSale(invNo) {
+    let allSales = JSON.parse(localStorage.getItem('erp_sales_invoices_v1') || '[]');
+    const idx = allSales.findIndex(s => s && String(s.invoiceNo || s.id) === String(invNo));
+    if (idx === -1) return;
+    const inv = allSales[idx];
+
+    // Release reservedQuantity and convert invoice to pending_delivery sales invoice
+    let currentInvData = JSON.parse(localStorage.getItem('erp_inventory_v1') || '[]');
+    let erpItems = JSON.parse(localStorage.getItem('erp_items_v1') || '[]');
+    (inv.items || []).forEach(line => {
+        const whId = line.warehouseId || inv.warehouse || 'w-main';
+        const whName = WAREHOUSES.find(w => w.id === whId)?.name || 'المخزن الرئيسي';
+        const baseQty = parseFloat(line.baseQty || line.customBaseQty || ((parseFloat(line.quantity || line.qty) || 0) * (parseFloat(line.factor || line.customFactor) || 1))) || 0;
+        const itemInv = currentInvData.find(x => String(x.itemId) === String(line.itemId) && x.warehouse === whName);
+        if (itemInv) {
+            itemInv.reservedQuantity = Math.max(0, (parseFloat(itemInv.reservedQuantity) || 0) - baseQty);
+        }
+        const mIdx = erpItems.findIndex(x => String(x.id) === String(line.itemId));
+        if (mIdx !== -1 && erpItems[mIdx].reservedStock) {
+            erpItems[mIdx].reservedStock[whId] = Math.max(0, (parseFloat(erpItems[mIdx].reservedStock[whId]) || 0) - baseQty);
+        }
+    });
+    localStorage.setItem('erp_inventory_v1', JSON.stringify(currentInvData));
+    localStorage.setItem('erp_items_v1', JSON.stringify(erpItems));
+
+    allSales[idx].saleType = 'pending_delivery';
+    allSales[idx].status = 'confirmed';
+    allSales[idx].deliveryStatus = 'pending';
+    allSales[idx].isReserved = false;
+    allSales[idx].convertedFromReservationAt = new Date().toISOString();
+    localStorage.setItem('erp_sales_invoices_v1', JSON.stringify(allSales));
+    if (typeof window.logSystemAction === 'function') {
+        window.logSystemAction('تحويل حجز إلى فاتورة مبيعات', 'المبيعات / الحجوزات', invNo, `تم تحويل الحجز #${invNo} إلى فاتورة مبيعات معتمدة قيد التسليم`);
+    }
+    showToast(`✅ تم تحويل الحجز #${invNo} إلى فاتورة مبيعات معتمدة بنجاح!`, 'success');
+    renderReservationsHubTable();
+}
+
+function releaseReservationStock(invNo) {
+    if (!confirm(`هل أنت متأكد من فك وإلغاء الحجز #${invNo} وإعادة الكميات المحجوزة للرصيد المتاح؟`)) return;
+    let allSales = JSON.parse(localStorage.getItem('erp_sales_invoices_v1') || '[]');
+    const idx = allSales.findIndex(s => s && String(s.invoiceNo || s.id) === String(invNo));
+    if (idx === -1) return;
+    const inv = allSales[idx];
+
+    let currentInvData = JSON.parse(localStorage.getItem('erp_inventory_v1') || '[]');
+    let erpItems = JSON.parse(localStorage.getItem('erp_items_v1') || '[]');
+    (inv.items || []).forEach(line => {
+        const whId = line.warehouseId || inv.warehouse || 'w-main';
+        const whName = WAREHOUSES.find(w => w.id === whId)?.name || 'المخزن الرئيسي';
+        const baseQty = parseFloat(line.baseQty || line.customBaseQty || ((parseFloat(line.quantity || line.qty) || 0) * (parseFloat(line.factor || line.customFactor) || 1))) || 0;
+        const itemInv = currentInvData.find(x => String(x.itemId) === String(line.itemId) && x.warehouse === whName);
+        if (itemInv) {
+            itemInv.reservedQuantity = Math.max(0, (parseFloat(itemInv.reservedQuantity) || 0) - baseQty);
+        }
+        const mIdx = erpItems.findIndex(x => String(x.id) === String(line.itemId));
+        if (mIdx !== -1 && erpItems[mIdx].reservedStock) {
+            erpItems[mIdx].reservedStock[whId] = Math.max(0, (parseFloat(erpItems[mIdx].reservedStock[whId]) || 0) - baseQty);
+        }
+    });
+    localStorage.setItem('erp_inventory_v1', JSON.stringify(currentInvData));
+    localStorage.setItem('erp_items_v1', JSON.stringify(erpItems));
+
+    allSales[idx].deleted = true;
+    allSales[idx].releasedAt = new Date().toISOString();
+    localStorage.setItem('erp_sales_invoices_v1', JSON.stringify(allSales));
+    if (typeof window.logSystemAction === 'function') {
+        window.logSystemAction('فك وإلغاء حجز مبيعات', 'المبيعات / الحجوزات', invNo, `تم فك الحجز #${invNo} وإعادة الأصناف للرصيد المتاح`);
+    }
+    showToast(`🔓 تم فك الحجز #${invNo} وإعادة الكميات للرصيد المتاح بنجاح`, 'success');
+    renderReservationsHubTable();
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(renderReservationsHubTable, 300);
+});
 
 // ════════════════════════════════════════
 //  GPS TOGGLE

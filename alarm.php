@@ -425,7 +425,7 @@ function ensureAlertTablesExist($pdo, $tenant_id) {
                 'rule_key' => 'sales_below_cost',
                 'rule_name' => 'البيع بأقل من سعر التكلفة المرجحة أو سعر الشراء (WAC)',
                 'screen_name' => 'شاشة المبيعات المباشرة وفواتير البيع',
-                'screen_file' => 'direct-sales.php / sales.php',
+                'screen_file' => 'direct-sales.php / sales-invoice.php',
                 'category' => 'SALES',
                 'alert_preview' => '⚠️ تنبيه رقابي في شاشة المبيعات: سعر بيع الصنف أقل من سعر التكلفة/الشراء المعتمد!',
                 'description' => 'يراقب سعر البيع المدخل في الفاتورة لحظياً، وإذا كان أقل من متوسط تكلفة الصنف يظهر تنبيه فوري لمنع الخسائر.',
@@ -440,7 +440,7 @@ function ensureAlertTablesExist($pdo, $tenant_id) {
                 'rule_key' => 'sales_price_override',
                 'rule_name' => 'تعديل وتغيير سعر البيع المسجل للصنف يدوياً بالفاتورة',
                 'screen_name' => 'شاشات المبيعات والكاشير ونقاط البيع',
-                'screen_file' => 'direct-sales.php / pos-invoice-print.php',
+                'screen_file' => 'direct-sales.php / sales-invoice.php',
                 'category' => 'SALES',
                 'alert_preview' => '⚠️ تنبيه تسعير: تم تعديل السعر الافتراضي المعتمد للصنف يدوياً أثناء إصدار الفاتورة!',
                 'description' => 'يراقب أي تغيير يدوي يقوم به البائع أو الكاشير على السعر الرسمي للصنف المحدد في قائمة الأسعار.',
@@ -455,7 +455,7 @@ function ensureAlertTablesExist($pdo, $tenant_id) {
                 'rule_key' => 'sales_below_wholesale',
                 'rule_name' => 'البيع بأقل من سعر الجملة المعتمد للكميات الكبيرة',
                 'screen_name' => 'المبيعات المباشرة وفواتير الجملة',
-                'screen_file' => 'sales.php / pro-invoice.php',
+                'screen_file' => 'sales-invoice.php / reserved-sales.php',
                 'category' => 'SALES',
                 'alert_preview' => '⚠️ تنبيه جملة: السعر المدخل يقل عن الحد الأدنى لسعر بيع الجملة المعتمد للكمية المطلوبة!',
                 'description' => 'ينبه عند بيع كميات تجارية كبيرة بسعر يقل عن تسعيرة الجملة الرسمية لحماية هوامش الأرباح.',
@@ -470,7 +470,7 @@ function ensureAlertTablesExist($pdo, $tenant_id) {
                 'rule_key' => 'sales_qty_exceeds_stock',
                 'rule_name' => 'البيع بكمية تتجاوز الرصيد المتوفر بالمستودع',
                 'screen_name' => 'شاشة المبيعات المباشرة ونقاط البيع POS',
-                'screen_file' => 'direct-sales.php / sales.php',
+                'screen_file' => 'direct-sales.php / sales-invoice.php',
                 'category' => 'SALES',
                 'alert_preview' => '⚠️ تنبيه مخزني في شاشة المبيعات: الكمية المدخلة تتجاوز الرصيد المتوفر فعلياً بالمستودع!',
                 'description' => 'يقارن الكمية المطلوبة بالرصيد الفعلي المتوفر على الرفوف والعنابر وينبه البائع فوراً قبل حفظ الفاتورة لمنع العجز.',
@@ -485,7 +485,7 @@ function ensureAlertTablesExist($pdo, $tenant_id) {
                 'rule_key' => 'sales_negative_stock',
                 'rule_name' => 'إصدار فاتورة بيع برصيد مخزني سالب',
                 'screen_name' => 'شاشات المبيعات وفواتير الكاشير',
-                'screen_file' => 'direct-sales.php / pro-invoice.php',
+                'screen_file' => 'direct-sales.php / reserved-sales.php',
                 'category' => 'SALES',
                 'alert_preview' => '🚨 خطر مخزني حرج: رصيد الصنف صفر أو سالب بالمستودع ويُمنع البيع منعاً لتشويه التكلفة!',
                 'description' => 'يمنع بيع أي صنف رصيده صفر أو أقل من الصفر لمنع حدوث أرصدة سالبة وتشويه حساب تكلفة المبيعات في القوائم المالية.',
@@ -500,7 +500,7 @@ function ensureAlertTablesExist($pdo, $tenant_id) {
                 'rule_key' => 'sales_credit_limit_exceeded',
                 'rule_name' => 'تجاوز الحد والسقف الائتماني للعميل الآجل',
                 'screen_name' => 'المبيعات الآجلة والعقود والفوترة',
-                'screen_file' => 'direct-sales.php / sales.php',
+                'screen_file' => 'direct-sales.php / sales-invoice.php',
                 'category' => 'SALES',
                 'alert_preview' => '🚨 تنبيه ائتماني في شاشة المبيعات: العميل تجاوز السقف الائتماني المسموح به للمديونية!',
                 'description' => 'يحسب إجمالي مديونية العميل مضافاً إليها مبلغ الفاتورة الحالية، وينبه إذا تجاوز سقف الائتمان المعتمد بحسابه.',
@@ -530,7 +530,7 @@ function ensureAlertTablesExist($pdo, $tenant_id) {
                 'rule_key' => 'sales_discount_limit_breach',
                 'rule_name' => 'تجاوز نسبة الخصم التجاري المسموحة للبائع',
                 'screen_name' => 'شاشات المبيعات وفواتير الكاشير',
-                'screen_file' => 'direct-sales.php / pos-invoice-print.php',
+                'screen_file' => 'direct-sales.php / sales-invoice.php',
                 'category' => 'SALES',
                 'alert_preview' => '⚠️ تنبيه الصلاحيات: نسبة الخصم الممنوحة تتجاوز الحد الأقصى المسموح لموظف المبيعات!',
                 'description' => 'يراقب نسبة الخصم المدخلة على الفاتورة، وينبه عند تجاوزها الصلاحية المحددة للبائع دون إذن الإدارة.',
@@ -545,7 +545,7 @@ function ensureAlertTablesExist($pdo, $tenant_id) {
                 'rule_key' => 'sales_missing_rep',
                 'rule_name' => 'إصدار فاتورة بيع دون تحديد مندوب المبيعات أو البائع',
                 'screen_name' => 'شاشات المبيعات وإصدار الفواتير',
-                'screen_file' => 'direct-sales.php / sales.php',
+                'screen_file' => 'direct-sales.php / sales-invoice.php',
                 'category' => 'SALES',
                 'alert_preview' => '⚠️ تنبيه إداري: لم يتم تحديد مندوب المبيعات أو البائع المسؤول عن الفاتورة لاحتساب العمولات!',
                 'description' => 'ينبه بضرورة ربط كل عملية بيع بمندوب أو بائع لضمان صحة تقارير الأداء وحساب العمولات بدقة.',
@@ -560,7 +560,7 @@ function ensureAlertTablesExist($pdo, $tenant_id) {
                 'rule_key' => 'sales_margin_danger',
                 'rule_name' => 'تدني هامش الربح الإجمالي للفاتورة عن الحد الآمن',
                 'screen_name' => 'المبيعات والفوترة المتقدمة',
-                'screen_file' => 'pro-invoice.php / sales.php',
+                'screen_file' => 'reserved-sales.php / sales-invoice.php',
                 'category' => 'SALES',
                 'alert_preview' => '⚠️ تنبيه الربحية: هامش ربح الفاتورة الإجمالي متدنٍ جداً ويقترب من نقطة التعادل/الخسارة!',
                 'description' => 'يحسب نسبة الربح الصافي للفاتورة ككل وينبه إذا كانت أقل من النسبة الآمنة للنشاط التجاري.',
@@ -575,7 +575,7 @@ function ensureAlertTablesExist($pdo, $tenant_id) {
                 'rule_key' => 'sales_no_sale_drawer_open',
                 'rule_name' => 'فتح درج الكاشير يدوياً بدون تسجيل عملية بيع (No-Sale Drawer Kick)',
                 'screen_name' => 'نقاط البيع والكاشير والدرج',
-                'screen_file' => 'pos-invoice-print.php / direct-sales.php',
+                'screen_file' => 'sales-invoice.php / direct-sales.php',
                 'category' => 'SALES',
                 'alert_preview' => '🚨 إنذار كاشير: تم فتح درج النقدية يدوياً بدون تسجيل فاتورة بيع ويستوجب المراقبة!',
                 'description' => 'يرصد عدد مرات فتح درج النقدية بدون حفظ فاتورة لكشف ثغرات اختلاس النقد في نقاط البيع.',
@@ -590,7 +590,7 @@ function ensureAlertTablesExist($pdo, $tenant_id) {
                 'rule_key' => 'sales_high_line_void_ratio',
                 'rule_name' => 'تكرار إلغاء وحذف أسطر من الفاتورة قبل حفظها (Line Voids)',
                 'screen_name' => 'شاشات الكاشير وإدخال الفواتير',
-                'screen_file' => 'direct-sales.php / pos-invoice-print.php',
+                'screen_file' => 'direct-sales.php / sales-invoice.php',
                 'category' => 'SALES',
                 'alert_preview' => '⚠️ تنبيه تدقيق: تكرار حذف أصناف من الفاتورة بعد مسحها بالباركود يستوجب مراجعة الكاشير!',
                 'description' => 'يكشف مسح السلع واستلام النقد من العميل ثم حذف السلعة قبل الضغط على حفظ.',
@@ -605,7 +605,7 @@ function ensureAlertTablesExist($pdo, $tenant_id) {
                 'rule_key' => 'sales_excessive_cash_refunds',
                 'rule_name' => 'ارتفاع غير طبيعي في المرتجعات النقدية لنفس الكاشير في يوم واحد',
                 'screen_name' => 'مرتجعات المبيعات والكاشير',
-                'screen_file' => 'sales.php / direct-sales.php',
+                'screen_file' => 'sales-invoice.php / direct-sales.php',
                 'category' => 'SALES',
                 'alert_preview' => '🚨 تنبيه احتيال: كاشير سجل مبالغ مرتجعات نقدية مرتفعة جداً بشكل استثنائي خلال اليوم!',
                 'description' => 'رصد المرتجعات النقدية الوهمية التي يجريها الكاشير لسحب المبالغ نقداً من الصندوق.',
@@ -620,7 +620,7 @@ function ensureAlertTablesExist($pdo, $tenant_id) {
                 'rule_key' => 'sales_aml_large_cash_limit',
                 'rule_name' => 'مبيعات نقدية مباشرة بمبالغ ضخمة تتجاوز سقف الامتثال المالي (AML)',
                 'screen_name' => 'المبيعات النقدية والفوترة الكبرى',
-                'screen_file' => 'sales.php / single-cash-receipt.php',
+                'screen_file' => 'sales-invoice.php / single-cash-receipt.php',
                 'category' => 'SALES',
                 'alert_preview' => '⚠️ تنبيه امتثال مالي: فاتورة بيع نقدي بمبلغ ضخم جداً يستوجب التحصيل عبر تحويل أو شيك بنكي!',
                 'description' => 'يراقب الالتزام بسقف التحصيل النقدي والامتثال للوائح غسيل الأموال وضبط السيولة.',
@@ -635,7 +635,7 @@ function ensureAlertTablesExist($pdo, $tenant_id) {
                 'rule_key' => 'sales_rapid_duplicate_invoice',
                 'rule_name' => 'تكرار إصدار فواتير متطابقة لنفس العميل خلال دقائق معدودة',
                 'screen_name' => 'شاشات الفوترة والمبيعات السريعة',
-                'screen_file' => 'direct-sales.php / sales.php',
+                'screen_file' => 'direct-sales.php / sales-invoice.php',
                 'category' => 'SALES',
                 'alert_preview' => '⚠️ تنبيه تكرار: تم إصدار فاتورتين بنفس القيمة والأصناف لنفس العميل في وقت متقارب جداً!',
                 'description' => 'يكشف تكرار إصدار الفاتورة مرتين بالخطأ أو التكرار المريب لنفس المعاملة.',
@@ -650,7 +650,7 @@ function ensureAlertTablesExist($pdo, $tenant_id) {
                 'rule_key' => 'pur_price_hike_alert',
                 'rule_name' => 'ارتفاع سعر الشراء عن آخر توريد مسجل من المورد أو المصنع',
                 'screen_name' => 'شاشة المشتريات وفواتير التوريد والمصانع',
-                'screen_file' => 'purchase.php / purchase-order.php',
+                'screen_file' => 'purchase.php / purchase-receipt.php',
                 'category' => 'PURCHASE',
                 'alert_preview' => '⚠️ تنبيه تكلفة: سعر شراء الصنف في هذه الفاتورة أعلى من آخر سعر شراء سابق مسجل بالنظام!',
                 'description' => 'يقارن سعر الشراء المدخل بآخر سعر شراء مسجل لنفس الصنف وينبه الإدارة بنسبة الزيادة السعرية.',
@@ -665,7 +665,7 @@ function ensureAlertTablesExist($pdo, $tenant_id) {
                 'rule_key' => 'pur_order_qty_mismatch',
                 'rule_name' => 'فروقات الكميات المستلمة بين أمر الشراء وفاتورة التوريد',
                 'screen_name' => 'استلام البضائع وأوامر الشراء',
-                'screen_file' => 'purchase-order.php / purchase.php',
+                'screen_file' => 'purchase-receipt.php / purchase.php',
                 'category' => 'PURCHASE',
                 'alert_preview' => '⚠️ تنبيه استلام: الكمية المستلمة في فاتورة الشراء تختلف عن الكمية المتفق عليها بأمر الشراء!',
                 'description' => 'يكشف أي تباين بالزيادة أو النقصان بين الكميات المعتمدة بأمر الشراء والكمية الفعلية الموردة.',
@@ -680,7 +680,7 @@ function ensureAlertTablesExist($pdo, $tenant_id) {
                 'rule_key' => 'supply_supplier_delay',
                 'rule_name' => 'تأخر استلام طلبيات الشراء من الموردين والمصانع عن موعدها',
                 'screen_name' => 'المشتريات ومتابعة أوامر التوريد',
-                'screen_file' => 'purchase.php / purchase-order.php',
+                'screen_file' => 'purchase.php / purchase-receipt.php',
                 'category' => 'PURCHASE',
                 'alert_preview' => '⚠️ تنبيه توريد: أمر الشراء تجاوز فترة التوريد المتوقعة دون وصول البضاعة من المصنع!',
                 'description' => 'مراقبة أوامر الشراء المعلقة التي تجاوزت موعد التسليم المحدد ($Lead Time$) دون توريد.',
@@ -740,7 +740,7 @@ function ensureAlertTablesExist($pdo, $tenant_id) {
                 'rule_key' => 'pur_three_way_matching_mismatch',
                 'rule_name' => 'عدم مطابقة الفاتورة الثلاثية 3-Way Matching (أمر الشراء vs الاستلام vs الفاتورة)',
                 'screen_name' => 'المطابقة الثلاثية ومراجعة المشتريات',
-                'screen_file' => 'purchase.php / purchase-order.php',
+                'screen_file' => 'purchase.php / purchase-receipt.php',
                 'category' => 'PURCHASE',
                 'alert_preview' => '🚨 تنبيه تدقيق: تباين بين أمر الشراء المعتمد وإذن استلام المخزن الفعلي وفاتورة المورد!',
                 'description' => 'أقوى قاعدة رقابية عالمية تفحص السعر والكمية بين مستندات الشراء الثلاثة قبل صرف المستحقات.',
@@ -950,7 +950,7 @@ function ensureAlertTablesExist($pdo, $tenant_id) {
                 'rule_key' => 'fin_unreconciled_bank_items',
                 'rule_name' => 'فروقات وعناصر معلقة في مذكرة تسوية البنك لأكثر من فترة السماح',
                 'screen_name' => 'التسويات البنكية ومطابقة كشوف الحساب',
-                'screen_file' => 'cashflow_modern.php / general_ledger_v2.php',
+                'screen_file' => 'cashflow_modern.php / general-ledger.php',
                 'category' => 'FINANCE',
                 'alert_preview' => '⚠️ تنبيه تسوية بنكية: توجد عمليات معلقة بكشف حساب البنك لم تطابق الدفاتر لأكثر من 15 يوماً!',
                 'description' => 'يراقب الفروقات بين الرصيد الدفتري ورصيد كشف الحساب البنكي الفعلي لسرعة تسويتها.',
@@ -1040,7 +1040,7 @@ function ensureAlertTablesExist($pdo, $tenant_id) {
                 'rule_key' => 'customer_high_returns',
                 'rule_name' => 'ارتفاع غير طبيعي في نسبة مرتجعات العميل',
                 'screen_name' => 'مرتجعات المبيعات وتحليل جودة العملاء',
-                'screen_file' => 'sales.php / direct-sales.php',
+                'screen_file' => 'sales-invoice.php / direct-sales.php',
                 'category' => 'CREDIT',
                 'alert_preview' => '⚠️ تنبيه مرتجعات: نسبة مرتجعات هذا العميل مرتفعة جداً وتتطلب مراجعة الجودة والتسعير!',
                 'description' => 'تنبيه عند تجاوز نسبة مرتجعات مبيعات عميل معين للحد المقبول لمراجعة جودة التوريد والأسعار.',
@@ -1070,7 +1070,7 @@ function ensureAlertTablesExist($pdo, $tenant_id) {
                 'rule_key' => 'sales_blocked_customer',
                 'rule_name' => 'محاولة إصدار فاتورة أو سند لعميل محظور أو موقوف إدارياً',
                 'screen_name' => 'شاشات المبيعات والائتمان وإصدار الفواتير',
-                'screen_file' => 'direct-sales.php / sales.php',
+                'screen_file' => 'direct-sales.php / sales-invoice.php',
                 'category' => 'CREDIT',
                 'alert_preview' => '🚫 حظر مبيعات: هذا العميل موقوف ومحظور التعامل معه بموجب قرار الإدارة المالية!',
                 'description' => 'يحظر إصدار أي فاتورة أو سند بيع لعميل تم وضع علامة إيقاف أو تجميد في بطاقة حسابه.',
@@ -1130,7 +1130,7 @@ function ensureAlertTablesExist($pdo, $tenant_id) {
                 'rule_key' => 'audit_void_after_print',
                 'rule_name' => 'إلغاء أو حذف فاتورة مبيعات بعد طباعتها للعميل (Post-Print Void)',
                 'screen_name' => 'سجل الرقابة ونقاط البيع POS',
-                'screen_file' => 'direct-sales.php / sales.php',
+                'screen_file' => 'direct-sales.php / sales-invoice.php',
                 'category' => 'SECURITY',
                 'alert_preview' => '🚨 إنذار احتيال حرج: تم إلغاء فاتورة مبيعات بعد طباعة الإيصال للعميل ويستوجب التحقيق!',
                 'description' => 'يرصد أي محاولة لحذف أو إلغاء فاتورة بعد طباعتها لمنع التلاعب بالنقدية المستلمة من العملاء.',
@@ -1145,7 +1145,7 @@ function ensureAlertTablesExist($pdo, $tenant_id) {
                 'rule_key' => 'audit_linked_delivered_doc_block',
                 'rule_name' => 'منع وحظر حذف الفواتير المرتبطة بتسليم/استلام مخزني فعلي',
                 'screen_name' => 'شاشات الفواتير والمخازن وسندات الصرف',
-                'screen_file' => 'sales.php / purchase.php / inventory-report.php',
+                'screen_file' => 'sales-invoice.php / purchase.php / inventory-report.php',
                 'category' => 'SECURITY',
                 'alert_preview' => '🚫 حظر أمني صارم: يُمنع منعاً باتاً حذف هذه الفاتورة لأن بضاعتها سُلمت/استُلمت مخزنياً! يجب عمل مرتجع رسمي.',
                 'description' => 'يمنع حذف أي فاتورة بيع أو شراء تم تسليم بضاعتها بالمستودع ويلزم بعمل مردودات رسمية للحفاظ على دقة الأرصدة والقيود.',
@@ -1160,7 +1160,7 @@ function ensureAlertTablesExist($pdo, $tenant_id) {
                 'rule_key' => 'audit_reprint_invoice_repetition',
                 'rule_name' => 'تكرار إعادة طباعة إيصال الفاتورة أكثر من مرة (Duplicate Reprint)',
                 'screen_name' => 'طباعة الكاشير ونقاط البيع',
-                'screen_file' => 'pos-invoice-print.php / direct-sales.php',
+                'screen_file' => 'sales-invoice.php / direct-sales.php',
                 'category' => 'SECURITY',
                 'alert_preview' => '⚠️ تنبيه تدقيق: تم تكرار إعادة طباعة إيصال هذه الفاتورة لعدة مرات لمنع استخدام الإيصال لعميل آخر!',
                 'description' => 'يراقب عدد مرات طباعة نفس الإيصال لمنع إعطاء وصل مطبوع مسبقاً لعميل جديد وسرقة المبلغ.',
@@ -1175,7 +1175,7 @@ function ensureAlertTablesExist($pdo, $tenant_id) {
                 'rule_key' => 'audit_manual_jv_on_cash',
                 'rule_name' => 'إجراء قيد محاسبي يدوي مباشر على حسابات الخزينة أو البنك',
                 'screen_name' => 'دفتر القيود اليومية والأستاذ العام',
-                'screen_file' => 'general_ledger_v2.php / vouchers-hub.php',
+                'screen_file' => 'general-ledger.php / vouchers-hub.php',
                 'category' => 'SECURITY',
                 'alert_preview' => '🚨 تنبيه تدقيق: محاولة إجراء قيد يومية يدوي مباشر على حساب نقدي دون استخدام سند صرف/قبض رسمي!',
                 'description' => 'يلزم المحاسبين بإجراء حركات النقدية عبر سندات رسمية ويمنع تجاوز الدورة المحاسبية عبر قيود التسوية.',
@@ -1205,7 +1205,7 @@ function ensureAlertTablesExist($pdo, $tenant_id) {
                 'rule_key' => 'sec_unposted_draft_vouchers',
                 'rule_name' => 'السندات والفواتير المعلقة أو المسودة غير المرحلة (> 24 ساعة)',
                 'screen_name' => 'السندات المعلقة والفواتير غير المرحلة',
-                'screen_file' => 'vouchers-hub.php / sales.php',
+                'screen_file' => 'vouchers-hub.php / sales-invoice.php',
                 'category' => 'SECURITY',
                 'alert_preview' => '⚠️ تنبيه ترحيل: مستندات مالية وفواتير ظلت بحالة مسودة لأكثر من 24 ساعة دون ترحيل!',
                 'description' => 'مراقبة المستندات المالية التي ظلت بحالة مسودة لأكثر من 24 ساعة دون ترحيل للقوائم المالية.',
@@ -1235,7 +1235,7 @@ function ensureAlertTablesExist($pdo, $tenant_id) {
                 'rule_key' => 'sec_unbalanced_entries',
                 'rule_name' => 'عدم اتزان القيود المحاسبية (المدين لا يساوي الدائن)',
                 'screen_name' => 'دفتر الأستاذ العام وميزان المراجعة المحاسبي',
-                'screen_file' => 'general_ledger_v2.php / analytics.php',
+                'screen_file' => 'general-ledger.php / analytics.php',
                 'category' => 'SECURITY',
                 'alert_preview' => '🚨 إنذار محاسبي حرج: وجود قيود غير متزنة (المدين لا يساوي الدائن) في القوائم!',
                 'description' => 'فحص فوري لأي قيد محاسبي أو سند غير متوازن في ميزان المراجعة ودفتر الأستاذ العام.',
@@ -1370,7 +1370,7 @@ function ensureAlertTablesExist($pdo, $tenant_id) {
                 'rule_key' => 'tax_vat_return_discrepancy',
                 'rule_name' => 'فروقات في احتساب ضريبة القيمة المضافة بين المبيعات والمشتريات',
                 'screen_name' => 'الإقرارات الضريبية وضريبة القيمة المضافة',
-                'screen_file' => 'analytics.php / general_ledger_v2.php',
+                'screen_file' => 'analytics.php / general-ledger.php',
                 'category' => 'FIXEDASSETS',
                 'alert_preview' => '🚨 تنبيه ضريبي: وجود تباين في ضريبة القيمة المضافة المحتسبة يستوجب التدقيق قبل رفع الإقرار!',
                 'description' => 'مطابقة فورية آلية بين ضرائب المخرجات والمدخلات لضمان عدم التعرض لغرامات ضريبية.',
@@ -1385,7 +1385,7 @@ function ensureAlertTablesExist($pdo, $tenant_id) {
                 'rule_key' => 'audit_sensitive_report_print',
                 'rule_name' => 'طباعة تقارير مالية سرية (قائمة الدخل، الأرباح، الميزانية) خارج الدوام',
                 'screen_name' => 'سجل طباعة القوائم المالية والتحليلات',
-                'screen_file' => 'analytics.php / income_statement_v2.php',
+                'screen_file' => 'analytics.php / financial-reports.php',
                 'category' => 'FIXEDASSETS',
                 'alert_preview' => '🚨 إنذار تدقيق مالي: تم رصد طباعة تقرير مالي حساس/قائمة أرباح في غير أوقات الدوام الرسمي!',
                 'description' => 'يسجل كل عملية طباعة للقوائم المالية الحساسة ويرسل إشعاراً أمنياً للإدارة لمنع تسريب الأرقام.',
@@ -1803,7 +1803,7 @@ $sections = [
         'id' => 'sec-sales',
         'category' => 'SALES',
         'title' => '🛒 شاشات المبيعات وفواتير البيع ونقاط البيع POS والكاشير',
-        'screens' => 'المبيعات المباشرة direct-sales.php / فواتير المبيعات sales.php / الفاتورة الاحترافية pro-invoice.php / طباعة الكاشير pos-invoice-print.php',
+        'screens' => 'المبيعات المباشرة direct-sales.php / فواتير المبيعات sales-invoice.php / الفاتورة الاحترافية reserved-sales.php / طباعة الكاشير sales-invoice.php',
         'icon' => 'fa-cash-register',
         'color' => '#22d3ee',
         'border' => 'rgba(34, 211, 238, 0.4)',
@@ -1813,7 +1813,7 @@ $sections = [
         'id' => 'sec-purchase',
         'category' => 'PURCHASE',
         'title' => '📦 شاشات المشتريات وأوامر التوريد وسلاسل الإمداد والمصانع',
-        'screens' => 'المشتريات purchase.php / أوامر الشراء purchase-order.php / المطابقة الثلاثية 3-Way',
+        'screens' => 'المشتريات purchase.php / أوامر الشراء purchase-receipt.php / المطابقة الثلاثية 3-Way',
         'icon' => 'fa-truck-ramp-box',
         'color' => '#fb923c',
         'border' => 'rgba(251, 146, 60, 0.4)',
@@ -1843,7 +1843,7 @@ $sections = [
         'id' => 'sec-security',
         'category' => 'SECURITY',
         'title' => '🛡️ شاشات الأمان والرقابة ومنع التلاعب وحماية البيانات DLP وفصل المهام SoD',
-        'screens' => 'لوحة التحكم magaiees_unified_dashboard.php / الإعدادات والنسخ الاحتياطي settings.php / دفتر الأستاذ general_ledger_v2.php / سجل التدقيق المحاسبي',
+        'screens' => 'لوحة التحكم magaiees_unified_dashboard.php / الإعدادات والنسخ الاحتياطي settings.php / دفتر الأستاذ general-ledger.php / سجل التدقيق المحاسبي',
         'icon' => 'fa-shield-halved',
         'color' => '#f87171',
         'border' => 'rgba(248, 113, 113, 0.4)',
@@ -1863,7 +1863,7 @@ $sections = [
         'id' => 'sec-fixedassets',
         'category' => 'FIXEDASSETS',
         'title' => '🏢 شاشات الأصول الثابتة والإهلاك والضرائب والتقارير السرية',
-        'screens' => 'سجل الأصول master-data.php / التقارير المالية analytics.php / قائمة الدخل income_statement_v2.php',
+        'screens' => 'سجل الأصول master-data.php / التقارير المالية analytics.php / قائمة الدخل financial-reports.php',
         'icon' => 'fa-building-columns',
         'color' => '#f472b6',
         'border' => 'rgba(244, 114, 182, 0.4)',
@@ -1871,7 +1871,19 @@ $sections = [
     ]
 ];
 
+$screenFixMap = [
+    'pos-invoice-print.php' => 'sales-invoice.php',
+    'pro-invoice.php' => 'reserved-sales.php',
+    'sales.php' => 'sales-invoice.php',
+    'purchase-order.php' => 'purchase-receipt.php',
+    'general_ledger_v2.php' => 'general-ledger.php',
+    'income_statement_v2.php' => 'financial-reports.php',
+    'treasury_dashboard.php' => 'vouchers-hub.php'
+];
 foreach ($rules as $r) {
+    if (!empty($r['screen_file'])) {
+        $r['screen_file'] = str_replace(array_keys($screenFixMap), array_values($screenFixMap), $r['screen_file']);
+    }
     $cat = $r['category'];
     if ($cat === 'SUPPLY') $cat = 'PURCHASE';
     if (isset($sections[$cat])) {
@@ -2451,6 +2463,64 @@ foreach ($rules as $r) {
             color: #0f172a !important;
             border-color: #cbd5e1 !important;
         }
+        html[data-magaies-theme="warm_cream"],
+        body[data-magaies-theme="warm_cream"] {
+            --bg-color: #f5efe6 !important;
+            --surface: #fbf7f0 !important;
+            --border-glass: rgba(120, 90, 60, 0.28) !important;
+            --text-main: #2c221e !important;
+            --text-muted: #5c4938 !important;
+        }
+        html[data-magaies-theme="ultra_white"],
+        body[data-magaies-theme="ultra_white"] {
+            --bg-color: #f8fafc !important;
+            --surface: #ffffff !important;
+            --border-glass: rgba(15, 23, 42, 0.2) !important;
+            --text-main: #0f172a !important;
+            --text-muted: #334155 !important;
+        }
+        html[data-magaies-theme="exec_gray"],
+        body[data-magaies-theme="exec_gray"] {
+            --bg-color: #e2e8f0 !important;
+            --surface: #f8fafc !important;
+            --border-glass: rgba(15, 23, 42, 0.22) !important;
+            --text-main: #0f172a !important;
+            --text-muted: #334155 !important;
+        }
+        html[data-magaies-theme="warm_cream"] .ambient-bg,
+        html[data-magaies-theme="ultra_white"] .ambient-bg,
+        html[data-magaies-theme="exec_gray"] .ambient-bg,
+        :root.light-theme .ambient-bg {
+            display: none !important;
+        }
+        html[data-magaies-theme="warm_cream"] .alarm-command-bar,
+        html[data-magaies-theme="ultra_white"] .alarm-command-bar,
+        html[data-magaies-theme="exec_gray"] .alarm-command-bar,
+        html[data-magaies-theme="warm_cream"] .section-block,
+        html[data-magaies-theme="ultra_white"] .section-block,
+        html[data-magaies-theme="exec_gray"] .section-block,
+        html[data-magaies-theme="warm_cream"] .alert-detail-card,
+        html[data-magaies-theme="ultra_white"] .alert-detail-card,
+        html[data-magaies-theme="exec_gray"] .alert-detail-card,
+        html[data-magaies-theme="warm_cream"] .pillar-card,
+        html[data-magaies-theme="ultra_white"] .pillar-card,
+        html[data-magaies-theme="exec_gray"] .pillar-card {
+            background: var(--surface) !important;
+            color: var(--text-main) !important;
+            box-shadow: 0 6px 20px rgba(15, 23, 42, 0.07) !important;
+        }
+        html[data-magaies-theme="warm_cream"] .alarm-cmd-title,
+        html[data-magaies-theme="ultra_white"] .alarm-cmd-title,
+        html[data-magaies-theme="exec_gray"] .alarm-cmd-title,
+        html[data-magaies-theme="warm_cream"] .pillar-title,
+        html[data-magaies-theme="ultra_white"] .pillar-title,
+        html[data-magaies-theme="exec_gray"] .pillar-title,
+        html[data-magaies-theme="warm_cream"] h3,
+        html[data-magaies-theme="ultra_white"] h3,
+        html[data-magaies-theme="exec_gray"] h3 {
+            color: var(--text-main) !important;
+            text-shadow: none !important;
+        }
     </style>
 </head>
 
@@ -2488,6 +2558,18 @@ foreach ($rules as $r) {
 
             <!-- مجموعة الأزرار التنفيذية الفاخرة المنسقة -->
             <div class="alarm-cmd-actions">
+                <button type="button" onclick="window.openAlarmAIPredictiveCenter()" class="alarm-btn" style="background:linear-gradient(135deg,#8b5cf6,#6d28d9); color:#fff; border:1px solid rgba(192,132,252,0.6); box-shadow:0 6px 20px rgba(139,92,246,0.35);" title="فتح مركز التنبؤ بالمخاطر والذكاء الاصطناعي الشامل (40 مؤشراً رقابياً واستباقياً)">
+                    <i class="fa-solid fa-robot"></i>
+                    <span>🤖 الحارس الذكي والتنبؤ بالمخاطر AI (40 فحصاً)</span>
+                </button>
+                <button type="button" onclick="window.exportAlarmMatrixAndViolationsExcel()" class="alarm-btn alarm-btn-preview" title="تصدير مصفوفة التنبيهات والإنذارات الحية إلى ملف Excel">
+                    <i class="fa-solid fa-file-excel"></i>
+                    <span>📤 تصدير Excel</span>
+                </button>
+                <button type="button" onclick="window.shareFullAlarmSummaryWhatsApp()" class="alarm-btn alarm-btn-success" title="إرسال التقرير التنفيذي للإنذارات عبر واتساب للإدارة">
+                    <i class="fa-brands fa-whatsapp"></i>
+                    <span>📲 تقرير واتساب</span>
+                </button>
                 <button type="button" onclick="bulkToggle('ALL', 1)" class="alarm-btn alarm-btn-success" title="تفعيل جميع قواعد الرقابة الـ 88 فورياً">
                     <i class="fa-solid fa-check-double"></i>
                     <span>تفعيل الكل (88 قاعدة)</span>
@@ -2509,6 +2591,24 @@ foreach ($rules as $r) {
                     <i class="fa-solid fa-arrows-rotate"></i>
                     <span>فحص حي الآن</span>
                 </button>
+            </div>
+        </div>
+
+        <!-- 🔗 شريط الربط الشامل مع جميع شاشات وتقارير النظام 360° 🔗 -->
+        <div class="no-print" style="display:flex; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap; padding:10px 14px; border-radius:16px; background:rgba(15,23,42,0.85); border:1.5px solid rgba(244,63,94,0.35);">
+            <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+                <span style="font-size:0.78rem; font-weight:900; color:#fda4af;">🛡️ الانتقال السريع للشاشات والتقارير الخاضعة للحراسة:</span>
+                <a href="magaiees_unified_dashboard.php" class="px-2.5 py-1 rounded-lg text-xs font-black bg-slate-900 text-sky-300 border border-sky-500/30 hover:bg-slate-800">🏠 لوحة التحكم</a>
+                <a href="master-data.php" class="px-2.5 py-1 rounded-lg text-xs font-black bg-slate-900 text-cyan-300 border border-cyan-500/30 hover:bg-slate-800">🏛️ البيانات الأساسية</a>
+                <a href="sales-invoice.php" class="px-2.5 py-1 rounded-lg text-xs font-black bg-slate-900 text-emerald-300 border border-emerald-500/30 hover:bg-slate-800">🛒 المبيعات</a>
+                <a href="purchase.php" class="px-2.5 py-1 rounded-lg text-xs font-black bg-slate-900 text-orange-300 border border-orange-500/30 hover:bg-slate-800">🚛 المشتريات</a>
+                <a href="inventory-report.php" class="px-2.5 py-1 rounded-lg text-xs font-black bg-slate-900 text-purple-300 border border-purple-500/30 hover:bg-slate-800">📦 مركز المخازن</a>
+                <a href="vouchers-hub.php" class="px-2.5 py-1 rounded-lg text-xs font-black bg-slate-900 text-teal-300 border border-teal-500/30 hover:bg-slate-800">💰 مركز السندات</a>
+                <a href="checks-cycle.php" class="px-2.5 py-1 rounded-lg text-xs font-black bg-slate-900 text-amber-300 border border-amber-500/30 hover:bg-slate-800">📝 دورة الشيكات</a>
+                <a href="balances_modern_hub.php" class="px-2.5 py-1 rounded-lg text-xs font-black bg-slate-900 text-lime-300 border border-lime-500/30 hover:bg-slate-800">⚖️ الأرصدة والمقاصة</a>
+                <a href="credit_limits_dashboard.php" class="px-2.5 py-1 rounded-lg text-xs font-black bg-slate-900 text-rose-300 border border-rose-500/30 hover:bg-slate-800">🚨 مراقبة الائتمان</a>
+                <a href="audit-log.php" class="px-2.5 py-1 rounded-lg text-xs font-black bg-slate-900 text-pink-300 border border-pink-500/30 hover:bg-slate-800">🕵️ سجل الرقابة الجنائي</a>
+                <a href="ai_executive_advisor.php" class="px-2.5 py-1 rounded-lg text-xs font-black bg-purple-950/80 text-purple-200 border border-purple-400/40 hover:bg-purple-900">🧠 المستشار التنفيذي AI</a>
             </div>
         </div>
 
@@ -2623,10 +2723,42 @@ foreach ($rules as $r) {
             </div>
         </div>
 
-        <!-- Search Bar -->
-        <div class="relative w-full">
-            <input type="text" id="matrix-search" oninput="searchMatrix(this.value)" placeholder="🔍 ابحث عن أي تنبيه أو شاشة أو كلمة (مثلاً: سعر التكلفة، المخزون، الشيكات، المديونيات، إغلاق الوردية، منع الحذف، فتح الدرج، DLP)..." class="w-full bg-slate-900 border-2 border-slate-700 rounded-2xl px-5 py-3 text-sm font-bold text-slate-100 outline-none focus:border-rose-500 pr-12 shadow-lg">
-            <i class="fa-solid fa-search absolute right-4 top-4 text-slate-400 text-base"></i>
+        <!-- 🚨 LIVE VIOLATIONS RADAR AT TOP OF SCREEN (رادار الإنذارات والمخالفات الحية المباشر) 🚨 -->
+        <div class="section-block" id="live-violations-section" style="--border-color: rgba(244, 63, 94, 0.55);">
+            <div class="flex items-center justify-between mb-3 border-b border-slate-800 pb-3 flex-wrap gap-3">
+                <div class="flex items-center gap-3 flex-wrap">
+                    <h3 class="text-lg font-black text-slate-100 flex items-center gap-2">
+                        <span class="alarm-pulse-dot" style="background:#f43f5e;"></span>
+                        <i class="fa-solid fa-satellite-dish text-rose-400"></i>
+                        رادار الإنذارات والمخالفات الحية المرصودة الآن (فحص مزدوج: السيرفر + حركات المتصفح الحية)
+                    </h3>
+                    <span class="text-xs font-bold text-rose-400 bg-rose-500/15 px-3 py-1 rounded-lg border border-rose-500/30" id="live-violations-badge">
+                        <?php echo count($logs); ?> إنذار نشط
+                    </span>
+                </div>
+                <div class="flex items-center gap-2 flex-wrap">
+                    <button type="button" onclick="filterLiveRadar('ALL')" id="radar-flt-all" class="px-3 py-1 rounded-xl text-xs font-black bg-rose-600 text-white border border-rose-400">الكل</button>
+                    <button type="button" onclick="filterLiveRadar('RED')" id="radar-flt-red" class="px-3 py-1 rounded-xl text-xs font-black bg-slate-900 text-rose-300 border border-rose-500/40">🚨 الحرج فقط</button>
+                    <button type="button" onclick="filterLiveRadar('YELLOW')" id="radar-flt-yellow" class="px-3 py-1 rounded-xl text-xs font-black bg-slate-900 text-amber-300 border border-amber-500/40">⚠️ التحذيرات</button>
+                    <button type="button" onclick="clearSnoozedAlerts()" class="px-3 py-1 rounded-xl text-xs font-black bg-slate-800 text-sky-300 border border-sky-500/30" title="إظهار التنبيهات التي تم كتمها مؤقتاً">👁️ إظهار المكتومة</button>
+                    <button type="button" onclick="runHybridLiveScanner(true)" class="px-3 py-1 rounded-xl text-xs font-black bg-emerald-600/25 text-emerald-300 border border-emerald-500/40">🔄 تحديث الرادار</button>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3" id="live-violations-grid"></div>
+        </div>
+
+        <!-- Search & Quick Status Filter Bar -->
+        <div class="flex flex-wrap items-center gap-3 w-full">
+            <div class="relative flex-1 min-w-[260px]">
+                <input type="text" id="matrix-search" oninput="searchMatrix(this.value)" placeholder="🔍 ابحث في الـ 88 قاعدة رقابية (مثلاً: سعر التكلفة، المخزون السالب، الشيكات، المديونيات، تسليم المبيعات، استلام المشتريات، DLP)..." class="w-full bg-slate-900 border-2 border-slate-700 rounded-2xl px-5 py-3 text-sm font-bold text-slate-100 outline-none focus:border-rose-500 pr-12 shadow-lg">
+                <i class="fa-solid fa-search absolute right-4 top-4 text-slate-400 text-base"></i>
+            </div>
+            <div class="flex items-center gap-2 flex-wrap">
+                <button type="button" onclick="filterRuleCardsByState('ALL')" class="px-3.5 py-2.5 rounded-xl text-xs font-black bg-slate-800 text-white border border-slate-600">📋 كل القواعد (88)</button>
+                <button type="button" onclick="filterRuleCardsByState('ENABLED')" class="px-3.5 py-2.5 rounded-xl text-xs font-black bg-emerald-950/80 text-emerald-300 border border-emerald-500/40">🟢 المفعّلة فقط</button>
+                <button type="button" onclick="filterRuleCardsByState('DISABLED')" class="px-3.5 py-2.5 rounded-xl text-xs font-black bg-slate-900 text-slate-400 border border-slate-700">⚫ المعطّلة فقط</button>
+            </div>
         </div>
 
         <!-- 📋 DETAIL SECTIONS WITH CARDS ONE BY ONE 📋 -->
@@ -2692,9 +2824,17 @@ foreach ($rules as $r) {
                                             🏢 <?php echo htmlspecialchars($rule['screen_name']); ?>
                                         </span>
                                     </div>
-                                    <a href="<?php echo explode(' ', $rule['screen_file'])[0]; ?>" class="inline-block text-xs font-mono font-bold text-sky-400 hover:underline mt-1 mr-9">
-                                        📄 الملف البرمجي: <?php echo htmlspecialchars($rule['screen_file']); ?> ↗
-                                    </a>
+                                    <div class="flex items-center gap-2 flex-wrap mt-1.5 mr-9">
+                                        <?php
+                                        $screenParts = array_filter(array_map('trim', explode('/', $rule['screen_file'])));
+                                        foreach ($screenParts as $sp):
+                                            $spHref = explode(' ', $sp)[0];
+                                        ?>
+                                            <a href="<?php echo htmlspecialchars($spHref); ?>" class="inline-flex items-center gap-1 text-xs font-mono font-bold text-sky-300 bg-sky-950/60 border border-sky-500/30 px-2.5 py-0.5 rounded-lg hover:bg-sky-900/70 transition">
+                                                📄 <?php echo htmlspecialchars($sp); ?> ↗
+                                            </a>
+                                        <?php endforeach; ?>
+                                    </div>
                                 </div>
 
                                 <!-- Big Clear On/Off Switch Button -->
@@ -2778,43 +2918,7 @@ foreach ($rules as $r) {
             </div>
         <?php endforeach; ?>
 
-        <!-- 🚨 LIVE VIOLATIONS PANEL 🚨 -->
-        <div class="section-block" style="--border-color: rgba(244, 63, 94, 0.4);">
-            <div class="flex items-center justify-between mb-4 border-b border-slate-800 pb-3 flex-wrap gap-2">
-                <h3 class="text-lg font-black text-slate-100 flex items-center gap-2">
-                    <i class="fa-solid fa-triangle-exclamation text-rose-400"></i>
-                    سجل الإنذارات الحية المكتشفة في قاعدة البيانات (Live Violations)
-                </h3>
-                <span class="text-xs font-bold text-rose-400 bg-rose-500/10 px-3 py-1 rounded-lg border border-rose-500/20" id="live-violations-badge">
-                    <?php echo count($logs); ?> إنذار نشط
-                </span>
-            </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-3" id="live-violations-grid">
-                <?php if (empty($logs)): ?>
-                    <div class="col-span-2 text-center p-8 text-slate-400 text-xs border border-dashed border-slate-800 rounded-2xl">
-                        <i class="fa-solid fa-circle-check text-emerald-400 text-3xl mb-2 block"></i>
-                        جميع العمليات والشاشات آمنة ومطابقة 100% للشروط الرقابية الحالية.
-                    </div>
-                <?php else: ?>
-                    <?php foreach ($logs as $log): 
-                        $isRed = ($log['severity'] ?? '') === 'RED';
-                        $bgCls = $isRed ? 'bg-rose-950/40 border-rose-500/40 text-rose-200' : 'bg-amber-950/40 border-amber-500/40 text-amber-200';
-                    ?>
-                        <div class="p-3.5 rounded-2xl border text-xs font-bold leading-relaxed <?php echo $bgCls; ?> flex justify-between items-center gap-3">
-                            <div class="flex-1">
-                                <?php echo nl2br(htmlspecialchars($log['message'])); ?>
-                            </div>
-                            <?php if (!empty($log['screen_file'])): ?>
-                                <a href="<?php echo htmlspecialchars($log['screen_file']); ?>" class="px-3 py-1.5 bg-slate-900/80 hover:bg-slate-800 text-white rounded-xl text-[11px] font-black transition border border-white/10 whitespace-nowrap flex items-center gap-1">
-                                    معالجة ↗
-                                </a>
-                            <?php endif; ?>
-                        </div>
-                    <?php endforeach; ?>
-                <?php endif; ?>
-            </div>
-        </div>
 
         <div class="text-center text-xs text-slate-500 font-bold mt-2 no-print">
             نظام Al-Sajana Smart ERP 2026 · مصفوفة الرقابة والتنبيهات الموحدة العالمية (Titanium Tier-1)
@@ -2910,6 +3014,32 @@ foreach ($rules as $r) {
         }
     }
 
+        window.filterAlarmPillarByCode = function(cat) {
+        if (cat === 'AI' && typeof window.openAlarmAIPredictiveCenter === 'function') {
+            window.openAlarmAIPredictiveCenter();
+            return true;
+        }
+        if (cat === 'LIVE') {
+            const liveSec = document.getElementById('live-violations-section');
+            if (liveSec) {
+                liveSec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                return true;
+            }
+            return false;
+        }
+        const card = document.querySelector('#pillars-container .pillar-card[onclick*="\'' + cat + '\'"]');
+        if (card) {
+            filterPillar(cat, card);
+            return true;
+        }
+        return false;
+    };
+    document.addEventListener('DOMContentLoaded', function() {
+        try {
+            const p = new URLSearchParams(window.location.search).get('pillar');
+            if (p) setTimeout(() => window.filterAlarmPillarByCode(p.toUpperCase()), 80);
+        } catch(e) {}
+    });
     function searchMatrix(q) {
         const query = q.trim().toLowerCase();
         const cards = document.querySelectorAll('.alert-detail-card');
@@ -2952,24 +3082,416 @@ foreach ($rules as $r) {
         if (liveBadge) liveBadge.textContent = (res.red_count + res.yellow_count) + ' إنذار نشط';
     }
 
+    window._serverAlertsSeed = <?php echo json_encode($logs, JSON_UNESCAPED_UNICODE); ?> || [];
+    window._allHybridAlerts = [];
+    window._liveRadarFilter = 'ALL';
+
+    function resolveItemStockInAlarm(it) {
+        if (!it) return 0;
+        if (typeof it.stock === 'object' && it.stock !== null) {
+            const s = Object.values(it.stock).reduce((acc, v) => acc + (parseFloat(v) || 0), 0);
+            if (!isNaN(s)) return s;
+        } else if (it.stock !== undefined && it.stock !== null && it.stock !== '') {
+            const n = parseFloat(it.stock);
+            if (!isNaN(n)) return n;
+        }
+        return parseFloat(it.quantity ?? it.stockQuantity ?? it.qty ?? it.openingQty ?? (it.units && it.units[0] ? it.units[0].stock : 0)) || 0;
+    }
+
+    function scanLocalStorageViolations() {
+        const localLogs = [];
+        try {
+            // 1. فحص المخازن والأصناف والتسعير والتنبؤ بنفاد المخزون
+            const items = JSON.parse(localStorage.getItem('erp_items_v1') || '[]');
+            const salesAll = JSON.parse(localStorage.getItem('erp_sales_invoices_v1') || localStorage.getItem('erp_invoices_v1') || '[]').filter(i => i && !i.deleted && i.status !== 'draft' && i.status !== 'proforma');
+            const salesVelMap = {};
+            salesAll.forEach(inv => {
+                (inv.items || []).forEach(ln => {
+                    const k = String(ln.itemId || ln.name || '').trim().toLowerCase();
+                    if (k) salesVelMap[k] = (salesVelMap[k] || 0) + (parseFloat(ln.qty || ln.quantity) || 0);
+                });
+            });
+
+            let negStockCount = 0;
+            let zeroStockCount = 0;
+            let lowReorderCount = 0;
+            let predictedStockoutCount = 0;
+            items.forEach(it => {
+                if (!it || it.deleted) return;
+                const name = it.name || 'صنف';
+                const qty = resolveItemStockInAlarm(it);
+                const cost = parseFloat(it.costPrice ?? it.avgCost ?? it.purchasePrice ?? it.cost ?? (it.units && it.units[0] ? it.units[0].purchasePrice : 0)) || 0;
+                const price = parseFloat(it.sellingPrice ?? it.price ?? (it.units && it.units[0] ? it.units[0].cashPrice : 0)) || 0;
+                const reorder = parseFloat(it.reorderLevel || it.minLimit || 5) || 5;
+
+                if (qty < 0) {
+                    negStockCount++;
+                    if (negStockCount <= 6) {
+                        localLogs.push({ id: 'neg_' + (it.id || name), severity: 'RED', category: 'INVENTORY', message: `🚨 رصيد مخزني سالب! الصنف [${name}] رصيده الفعلي (${qty}) في المستودع — يتطلب تسوية جردية فورية.`, screen_file: 'inventory-stocktake.php' });
+                    }
+                } else if (qty === 0) {
+                    zeroStockCount++;
+                } else if (qty <= reorder) {
+                    lowReorderCount++;
+                }
+
+                const sold30 = salesVelMap[String(it.id || '').toLowerCase()] || salesVelMap[String(name).trim().toLowerCase()] || 0;
+                if (sold30 > 0 && qty > 0 && (qty / (sold30 / 30)) <= 7) {
+                    predictedStockoutCount++;
+                }
+
+                if (cost > 0 && price > 0 && price <= cost) {
+                    localLogs.push({ id: 'below_cost_' + (it.id || name), severity: 'RED', category: 'SALES', message: `🚨 تسعير أقل أو يساوي التكلفة! الصنف [${name}] سعر بيعه (${price.toLocaleString()}) مقابل تكلفته (${cost.toLocaleString()}).`, screen_file: 'master-data.php?tab=items' });
+                }
+            });
+            if (zeroStockCount > 0) {
+                localLogs.push({ id: 'zero_stock_summary', severity: 'YELLOW', category: 'INVENTORY', message: `⚠️ تنبيه نفاد مخزني: يوجد (${zeroStockCount}) صنف رصيدها الحالي صفر (0) في المخازن وتحتاج لإعادة طلب.`, screen_file: 'inventory-report.php' });
+            }
+            if (lowReorderCount > 0) {
+                localLogs.push({ id: 'low_reorder_summary', severity: 'YELLOW', category: 'INVENTORY', message: `📦 حد إعادة الطلب: يوجد (${lowReorderCount}) صنف وصلت للحد الأدنى للطلب وتحتاج لتعزيز المخزون.`, screen_file: 'smart_inventory_report.php' });
+            }
+            if (predictedStockoutCount > 0) {
+                localLogs.push({ id: 'pred_stockout_ai', severity: 'RED', category: 'INVENTORY', message: `🤖 تنبؤ الذكاء الاصطناعي: يوجد (${predictedStockoutCount}) صنف سريع الدوران متوقع نفادها خلال أقل من 7 أيام بناءً على سرعة السحب!`, screen_file: 'ai_goods_advisor.php' });
+            }
+
+            // 2. فحص فواتير المبيعات والتسليم المخزني (فواتير معلقة أو بانتظار اعتماد L4)
+            const pendingDel = salesAll.filter(i => !i.isDelivered && i.deliveryStatus !== 'delivered' && i.deliveryStatus !== 'Admin_Closed');
+            const pendingL4 = salesAll.filter(i => i.deliveryStatus === 'Delivered_Pending_Admin');
+            if (pendingDel.length > 0) {
+                localLogs.push({ id: 'sales_pend_del', severity: 'YELLOW', category: 'SALES', message: `📦 بوابة تسليم المبيعات: يوجد (${pendingDel.length}) فاتورة مبيعات معتمدة لم يتم صرفها وتسليمها من المخزن بعد.`, screen_file: 'smart-logistics.php?mode=sales' });
+            }
+            if (pendingL4.length > 0) {
+                localLogs.push({ id: 'sales_pend_l4', severity: 'YELLOW', category: 'SALES', message: `👑 بانتظار اعتماد المدير (L4): يوجد (${pendingL4.length}) إذن صرف مبيعات خرج من البوابة وينتظر الإغلاق الإداري النهائي.`, screen_file: 'sales-delivery.php' });
+            }
+
+            // 3. فحص فواتير المشتريات غير المستلمة مخزنياً (GRN)
+            const p1 = JSON.parse(localStorage.getItem('erp_purchases_v1') || '[]');
+            const p2 = JSON.parse(localStorage.getItem('erp_purchase_invoices_v1') || '[]');
+            const seenPurIds = new Set();
+            const purchases = [...p1, ...p2].filter(p => {
+                if (!p || p.deleted || p.isGRN || p.isReturn || p.status === 'draft' || p.status === 'proforma') return false;
+                const k = p.id || p.invoiceNo || p.number;
+                if (k && seenPurIds.has(k)) return false;
+                if (k) seenPurIds.add(k);
+                return true;
+            });
+            const unreceivedPur = purchases.filter(p => p.status === 'PENDING_RECEIPT' || (p.receiptStatus !== 'received' && p.status !== 'received' && p.status !== 'COMPLETED'));
+            if (unreceivedPur.length > 0) {
+                localLogs.push({ id: 'pur_pend_grn', severity: 'YELLOW', category: 'PURCHASE', message: `🚛 بوابة استلام المشتريات (GRN): يوجد (${unreceivedPur.length}) فاتورة مشتريات بانتظار الاستلام والفحص المخزني.`, screen_file: 'smart-logistics.php?mode=purchases' });
+            }
+
+            // 4. فحص الخزائن والبنوك ودورة الشيكات والسندات غير المرحلة
+            const safes = JSON.parse(localStorage.getItem('erp_safes_v1') || '[]');
+            safes.forEach(s => {
+                if (!s || s.deleted) return;
+                const b = parseFloat(s.currentBalance ?? s.balance ?? s.openingBalance ?? 0);
+                if (b < 0) {
+                    localLogs.push({ id: 'safe_neg_' + (s.id || s.name), severity: 'RED', category: 'FINANCE', message: `🚨 رصيد خزينة مكشوف (سالب)! الخزينة [${s.name || 'خزينة'}] رصيدها الحالي (${b.toLocaleString()}).`, screen_file: 'vouchers-hub.php' });
+                }
+            });
+
+            const banks = JSON.parse(localStorage.getItem('erp_banks_v1') || '[]');
+            banks.forEach(bk => {
+                if (!bk || bk.deleted) return;
+                const b = parseFloat(bk.currentBalance ?? bk.balance ?? bk.openingBalance ?? 0);
+                if (b < 0) {
+                    localLogs.push({ id: 'bank_neg_' + (bk.id || bk.name), severity: 'RED', category: 'FINANCE', message: `🚨 حساب بنكي مكشوف (سالب)! البنك [${bk.name || 'بنك'}] رصيده الحالي (${b.toLocaleString()}).`, screen_file: 'master-data.php?tab=banks' });
+                }
+            });
+
+            const c1 = JSON.parse(localStorage.getItem('erp_checks_v1') || '[]');
+            const c2 = JSON.parse(localStorage.getItem('elsajana_md_c11_cheques') || '[]');
+            const todayStr = new Date().toISOString().slice(0, 10);
+            const in3DaysStr = new Date(Date.now() + 3 * 86400000).toISOString().slice(0, 10);
+            let bouncedCnt = 0, overdueCnt = 0, dueSoonCnt = 0;
+            [...c1, ...c2].forEach(ch => {
+                if (!ch || ch.deleted) return;
+                const st = String(ch.status || '').toLowerCase();
+                const due = String(ch.dueDate || ch.maturityDate || '').slice(0, 10);
+                if (st.includes('مرتد') || st.includes('bounced') || st.includes('rejected')) bouncedCnt++;
+                else if ((st.includes('خزينة') || st.includes('تحصيل') || st === 'portfolio' || st === 'pending') && due) {
+                    if (due < todayStr) overdueCnt++;
+                    else if (due <= in3DaysStr) dueSoonCnt++;
+                }
+            });
+            if (bouncedCnt > 0) {
+                localLogs.push({ id: 'chk_bounced_live', severity: 'RED', category: 'FINANCE', message: `🚨 شيكات مرتدة بدون رصيد: يوجد (${bouncedCnt}) شيك مرتد في دورة الشيكات يتطلب ملاحقة قانونية ومالية فورية!`, screen_file: 'checks-cycle.php' });
+            }
+            if (overdueCnt > 0) {
+                localLogs.push({ id: 'chk_overdue_live', severity: 'RED', category: 'FINANCE', message: `⏰ شيكات تجاوزت تاريخ الاستحقاق: يوجد (${overdueCnt}) شيك متأخر لم يتم تحصيله بعد!`, screen_file: 'checks-cycle.php' });
+            }
+            if (dueSoonCnt > 0) {
+                localLogs.push({ id: 'chk_duesoon_ai', severity: 'YELLOW', category: 'FINANCE', message: `🤖 تنبؤ استحقاق شيكات: يوجد (${dueSoonCnt}) شيك يستحق التحصيل أو السداد خلال الـ 72 ساعة القادمة.`, screen_file: 'checks-cycle.php' });
+            }
+
+            // 5. فحص العملاء والموردين والمقاصة الذكية
+            const customers = JSON.parse(localStorage.getItem('erp_customers_v1') || '[]').filter(c => c && !c.deleted);
+            const suppliers = JSON.parse(localStorage.getItem('erp_suppliers_v1') || '[]').filter(s => s && !s.deleted);
+            const supNamesSet = new Set(suppliers.map(s => String(s.name || '').trim().toLowerCase()));
+            let dualPartnersCnt = 0;
+            customers.forEach(c => {
+                const bal = parseFloat(c.currentBalance ?? c.balance ?? ((parseFloat(c.openingDebit) || 0) - (parseFloat(c.openingCredit) || 0)));
+                const lim = parseFloat(c.creditLimit ?? 0);
+                if (lim > 0 && bal > lim) {
+                    localLogs.push({ id: 'cust_lim_' + (c.id || c.name), severity: 'RED', category: 'CREDIT', message: `🚨 تجاوز سقف الائتمان! العميل [${c.name}] مديونيته (${bal.toLocaleString()}) تجاوزت الحد المسموح (${lim.toLocaleString()}).`, screen_file: 'credit_limits_dashboard.php' });
+                }
+                if (c.name && supNamesSet.has(String(c.name).trim().toLowerCase())) dualPartnersCnt++;
+            });
+            if (dualPartnersCnt > 0) {
+                localLogs.push({ id: 'dual_netting_ai', severity: 'YELLOW', category: 'CREDIT', message: `⚖️ فرصة مقاصة ذكية: يوجد (${dualPartnersCnt}) شريك مسجل كعميل ومورد معاً — يمكنك تسوية أرصدتهم بضغطة زر في شاشة الأرصدة والمقاصة.`, screen_file: 'balances_modern_hub.php' });
+            }
+
+            // 6. فحص قيود اليومية غير المتوازنة أو السندات غير المرحلة
+            const jvs = JSON.parse(localStorage.getItem('erp_journal_vouchers_v1') || '[]').filter(j => j && !j.deleted);
+            let unbalJvCnt = 0;
+            jvs.forEach(j => {
+                const d = parseFloat(j.totalDebit ?? j.debit ?? 0);
+                const c = parseFloat(j.totalCredit ?? j.credit ?? 0);
+                if (Math.abs(d - c) > 0.05) unbalJvCnt++;
+            });
+            if (unbalJvCnt > 0) {
+                localLogs.push({ id: 'jv_unbalanced_live', severity: 'RED', category: 'SECURITY', message: `🚨 خلل توازن محاسبي! يوجد (${unbalJvCnt}) قيد يومية غير متوازن بين المدين والدائن — يتطلب مراجعة فورية!`, screen_file: 'journal.php' });
+            }
+        } catch (e) {}
+        return localLogs;
+    }
+
+    window.autoFixDetectedViolationsAI = function () {
+        let fixedItems = 0;
+        try {
+            const items = JSON.parse(localStorage.getItem('erp_items_v1') || '[]');
+            items.forEach(it => {
+                if (!it || it.deleted) return;
+                const cost = parseFloat(it.costPrice ?? it.avgCost ?? it.purchasePrice ?? it.cost ?? 0);
+                const price = parseFloat(it.sellingPrice ?? it.price ?? 0);
+                if (cost > 0 && price <= cost) {
+                    it.sellingPrice = Math.ceil(cost * 1.15);
+                    if (Array.isArray(it.units) && it.units[0]) it.units[0].cashPrice = it.sellingPrice;
+                    fixedItems++;
+                }
+            });
+            if (fixedItems > 0) {
+                localStorage.setItem('erp_items_v1', JSON.stringify(items));
+            }
+        } catch (e) {}
+        runHybridLiveScanner(false);
+        if (document.getElementById('alarm-ai-predictive-modal')?.style.display === 'flex') {
+            window.openAlarmAIPredictiveCenter();
+        }
+        alert(fixedItems > 0
+            ? `✅ تم بواسطة الذكاء الاصطناعي تصحيح تسعير (${fixedItems}) صنف كانت تباع بأقل أو مساوي للتكلفة (تم ضبط هامش ربح آمن +15%) وتحديث الرادار الحي فوراً!`
+            : `✅ كافة أسعار البيع الحالية تتجاوز التكلفة بأمان — لا توجد مخالفات تسعير سالبة.`);
+    };
+
+    window.exportAlarmMatrixAndViolationsExcel = function () {
+        const alerts = window._allHybridAlerts || [];
+        const rows = [['الخطورة', 'القسم', 'رسالة التنبيه / المخالفة المرصودة', 'الشاشة المرتبطة']];
+        alerts.forEach(a => {
+            rows.push([a.severity === 'RED' ? 'حرج (RED)' : 'تحذيري (YELLOW)', a.category || 'GENERAL', a.message || '', a.screen_file || 'alarm.php']);
+        });
+        document.querySelectorAll('.alert-detail-card').forEach(c => {
+            const title = c.querySelector('h3')?.textContent?.trim() || '';
+            const status = c.querySelector('input[type="checkbox"]')?.checked ? 'مفعّل' : 'معطّل';
+            const link = c.querySelector('a')?.getAttribute('href') || '';
+            rows.push(['قاعدة رقابية', status, title, link]);
+        });
+        const csv = '\uFEFF' + rows.map(r => r.map(v => `"${String(v || '').replace(/"/g, '""')}"`).join(',')).join('\n');
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = `Magaiees_Guardian_Alerts_${new Date().toISOString().slice(0, 10)}.csv`;
+        a.click();
+    };
+
+    window.shareFullAlarmSummaryWhatsApp = function () {
+        const alerts = window._allHybridAlerts || [];
+        const red = alerts.filter(a => a.severity === 'RED').length;
+        const yel = alerts.filter(a => a.severity !== 'RED').length;
+        const topMsgs = alerts.slice(0, 6).map((a, i) => `${i + 1}. ${a.message}`).join('\n');
+        const text = `🛡️ *تقرير الحارس الأمين والإنذارات الحية — نظام مقاييس ERP*\n📅 التاريخ: ${new Date().toISOString().slice(0, 10)}\n🚨 إنذارات حرجة: ${red}\n⚠️ تحذيرات متوسطة: ${yel}\n\n📌 *أبرز الملاحظات المرصودة:*\n${topMsgs || '✅ جميع العمليات آمنة ومطابقة 100%.'}\n\n🔗 رابط الرادار: ${window.location.href}`;
+        window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank');
+    };
+
+    window.openAlarmAIPredictiveCenter = function () {
+        runHybridLiveScanner(false);
+        const alerts = window._allHybridAlerts || [];
+        const redCnt = alerts.filter(a => a.severity === 'RED').length;
+        const yelCnt = alerts.filter(a => a.severity !== 'RED').length;
+        const totalRules = document.querySelectorAll('.alert-detail-card').length || 88;
+        const enabledRules = Array.from(document.querySelectorAll('.alert-detail-card input[type="checkbox"]')).filter(c => c.checked).length;
+        const healthScore = Math.max(15, Math.min(100, Math.round(100 - (redCnt * 8) - (yelCnt * 2) - ((totalRules - enabledRules) * 0.5))));
+
+        let modal = document.getElementById('alarm-ai-predictive-modal');
+        if (!modal) {
+            document.body.insertAdjacentHTML('beforeend', `
+                <div id="alarm-ai-predictive-modal" style="display:none; position:fixed; inset:0; z-index:999999; background:rgba(2,6,23,0.88); backdrop-filter:blur(10px); align-items:center; justify-content:center; padding:16px; direction:rtl; font-family:'Cairo','Tajawal',sans-serif;">
+                    <div style="width:100%; max-width:920px; max-height:90vh; background:#0f172a; border:2px solid #f43f5e; border-radius:20px; overflow:hidden; box-shadow:0 25px 70px rgba(0,0,0,0.85); display:flex; flex-direction:column;">
+                        <div style="padding:14px 20px; background:linear-gradient(135deg,rgba(244,63,94,0.25),rgba(139,92,246,0.2)); border-bottom:1.5px solid rgba(244,63,94,0.4); display:flex; justify-content:space-between; align-items:center;">
+                            <h3 style="margin:0; font-size:1.08rem; font-weight:900; color:#fda4af;">🛡️ الحارس الأمين ومركز الذكاء الاصطناعي للتنبؤ بالمخاطر الشامل (40 مؤشراً استباقياً)</h3>
+                            <button type="button" onclick="document.getElementById('alarm-ai-predictive-modal').style.display='none'" style="background:rgba(239,68,68,0.2); color:#fca5a5; border:1px solid rgba(239,68,68,0.45); border-radius:8px; padding:4px 12px; font-weight:800; cursor:pointer;">✖ إغلاق</button>
+                        </div>
+                        <div id="alarm-ai-predictive-body" style="padding:18px 20px; overflow-y:auto; display:flex; flex-direction:column; gap:14px; color:#f8fafc;"></div>
+                    </div>
+                </div>
+            `);
+            modal = document.getElementById('alarm-ai-predictive-modal');
+        }
+
+        const scoreColor = healthScore >= 85 ? '#34d399' : (healthScore >= 65 ? '#fbbf24' : '#f87171');
+        document.getElementById('alarm-ai-predictive-body').innerHTML = `
+            <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:10px;">
+                <div style="padding:12px; border-radius:14px; background:rgba(16,185,129,0.1); border:1px solid rgba(16,185,129,0.35); text-align:center;">
+                    <div style="font-size:0.78rem; color:#6ee7b7; font-weight:800;">🛡️ مؤشر الحصانة والأمان العام</div>
+                    <div style="font-size:1.6rem; font-weight:900; color:${scoreColor}; margin-top:4px;">${healthScore}%</div>
+                    <div style="font-size:0.73rem; color:#cbd5e1;">القواعد النشطة: ${enabledRules} / ${totalRules}</div>
+                </div>
+                <div style="padding:12px; border-radius:14px; background:rgba(244,63,94,0.12); border:1px solid rgba(244,63,94,0.4); text-align:center;">
+                    <div style="font-size:0.78rem; color:#fda4af; font-weight:800;">🚨 مخاطر حرجة تتطلب تدخلاً</div>
+                    <div style="font-size:1.6rem; font-weight:900; color:#f87171; margin-top:4px;">${redCnt}</div>
+                    <div style="font-size:0.73rem; color:#fecdd3;">مراقبة لحظية عبر 9 قطاعات</div>
+                </div>
+                <div style="padding:12px; border-radius:14px; background:rgba(245,158,11,0.12); border:1px solid rgba(245,158,11,0.4); text-align:center;">
+                    <div style="font-size:0.78rem; color:#fde047; font-weight:800;">⚠️ تنبؤات وتحذيرات مبكرة</div>
+                    <div style="font-size:1.6rem; font-weight:900; color:#fbbf24; margin-top:4px;">${yelCnt}</div>
+                    <div style="font-size:0.73rem; color:#fef08a;">إنذار استباقي قبل وقوع الخطر</div>
+                </div>
+                <div style="padding:12px; border-radius:14px; background:rgba(56,189,248,0.12); border:1px solid rgba(56,189,248,0.4); text-align:center;">
+                    <div style="font-size:0.78rem; color:#7dd3fc; font-weight:800;">📡 تغطية الحارس الأمين</div>
+                    <div style="font-size:1.3rem; font-weight:900; color:#38bdf8; margin-top:6px;">100% شامل</div>
+                    <div style="font-size:0.73rem; color:#bae6fd;">جميع الشاشات والتقارير والأزرار</div>
+                </div>
+            </div>
+
+            <div style="padding:14px; border-radius:14px; background:rgba(15,23,42,0.85); border:1px solid rgba(139,92,246,0.4);">
+                <h4 style="margin:0 0 8px 0; color:#c084fc; font-size:0.95rem; font-weight:900;">🧠 محاور الحراسة الذكية الـ 40 المربوطة بجميع الشاشات والتقارير:</h4>
+                <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:8px; font-size:0.8rem; color:#e2e8f0;">
+                    <div style="padding:8px 10px; background:rgba(255,255,255,0.03); border-radius:8px;">🛒 <b>المبيعات والكاشير:</b> منع البيع دون التكلفة، كشف تجاوز الخصم، منع حذف الفاتورة بعد الطباعة أو التسليم، ورصد فتح الدرج بدون بيع.</div>
+                    <div style="padding:8px 10px; background:rgba(255,255,255,0.03); border-radius:8px;">📦 <b>المخازن والـ GRN:</b> التنبؤ بنفاد الأصناف حسب سرعة السحب، كشف الرصيد السالب، ومراقبة فواتير المشتريات غير المستلمة.</div>
+                    <div style="padding:8px 10px; background:rgba(255,255,255,0.03); border-radius:8px;">💰 <b>الخزينة والشيكات:</b> حراسة كشف الخزائن بالسالب، منع تكرار أرقام الإشعارات والشيكات، والتنبؤ باستحقاق الشيكات قبل 72 ساعة.</div>
+                    <div style="padding:8px 10px; background:rgba(255,255,255,0.03); border-radius:8px;">👥 <b>الائتمان والقيود:</b> حظر البيع الآجل للمتجاوزين لسقف الائتمان، كشف فرص المقاصة الذكية، وفحص توازن قيود اليومية 100%.</div>
+                </div>
+            </div>
+
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; padding-top:8px; border-top:1px solid rgba(148,163,184,0.2);">
+                <div style="display:flex; gap:6px; flex-wrap:wrap;">
+                    <button type="button" onclick="window.autoFixDetectedViolationsAI()" style="padding:8px 14px; border-radius:10px; background:linear-gradient(135deg,#10b981,#059669); color:#fff; border:none; font-weight:900; font-size:0.82rem; cursor:pointer;">⚡ تصحيح آلي لهوامش التسعير السالبة (+15%)</button>
+                    <button type="button" onclick="bulkToggle('ALL', 1)" style="padding:8px 14px; border-radius:10px; background:rgba(56,189,248,0.18); color:#38bdf8; border:1px solid rgba(56,189,248,0.45); font-weight:800; font-size:0.82rem; cursor:pointer;">🛡️ تفعيل جميع الـ 88 قاعدة</button>
+                    <button type="button" onclick="window.exportAlarmMatrixAndViolationsExcel()" style="padding:8px 14px; border-radius:10px; background:rgba(245,158,11,0.18); color:#fbbf24; border:1px solid rgba(245,158,11,0.45); font-weight:800; font-size:0.82rem; cursor:pointer;">📤 تصدير التقرير الرقابي Excel</button>
+                </div>
+                <div style="display:flex; gap:6px; flex-wrap:wrap;">
+                    <a href="ai_executive_advisor.php" style="padding:8px 12px; border-radius:10px; background:rgba(168,85,247,0.2); color:#e9d5ff; border:1px solid rgba(168,85,247,0.45); text-decoration:none; font-weight:800; font-size:0.8rem;">🧠 المستشار التنفيذي</a>
+                    <a href="ai_money_advisor.php" style="padding:8px 12px; border-radius:10px; background:rgba(16,185,129,0.2); color:#6ee7b7; border:1px solid rgba(16,185,129,0.45); text-decoration:none; font-weight:800; font-size:0.8rem;">💵 مستشار الأموال</a>
+                    <a href="ai_goods_advisor.php" style="padding:8px 12px; border-radius:10px; background:rgba(59,130,246,0.2); color:#93c5fd; border:1px solid rgba(59,130,246,0.45); text-decoration:none; font-weight:800; font-size:0.8rem;">📦 مستشار البضائع</a>
+                </div>
+            </div>
+        `;
+        modal.style.display = 'flex';
+    };
+
+    function runHybridLiveScanner(fromServer = false) {
+        if (fromServer) {
+            refreshLiveEngine();
+            return;
+        }
+        const snoozed = JSON.parse(localStorage.getItem('erp_snoozed_alerts_v1') || '{}');
+        const localLogs = scanLocalStorageViolations();
+        const combined = [...(window._serverAlertsSeed || []), ...localLogs];
+
+        // Deduplicate by message
+        const seen = new Set();
+        window._allHybridAlerts = combined.filter(item => {
+            if (!item || !item.message) return false;
+            const key = item.id || item.message;
+            if (snoozed[key]) return false;
+            if (seen.has(item.message)) return false;
+            seen.add(item.message);
+            return true;
+        });
+
+        const redCnt = window._allHybridAlerts.filter(a => a.severity === 'RED').length;
+        const yelCnt = window._allHybridAlerts.filter(a => a.severity !== 'RED').length;
+
+        const kpiRed = document.getElementById('kpi-red-count');
+        if (kpiRed) kpiRed.textContent = redCnt;
+        const kpiYel = document.getElementById('kpi-yellow-count');
+        if (kpiYel) kpiYel.textContent = yelCnt;
+        const badge = document.getElementById('live-violations-badge');
+        if (badge) badge.textContent = (redCnt + yelCnt) + ' إنذار نشط الآن';
+
+        renderLiveViolations(window._allHybridAlerts);
+    }
+
+    function filterLiveRadar(flt) {
+        window._liveRadarFilter = flt;
+        renderLiveViolations(window._allHybridAlerts);
+    }
+
+    function snoozeLiveAlert(key) {
+        const snoozed = JSON.parse(localStorage.getItem('erp_snoozed_alerts_v1') || '{}');
+        snoozed[key] = Date.now();
+        localStorage.setItem('erp_snoozed_alerts_v1', JSON.stringify(snoozed));
+        runHybridLiveScanner(false);
+    }
+
+    function clearSnoozedAlerts() {
+        localStorage.removeItem('erp_snoozed_alerts_v1');
+        runHybridLiveScanner(false);
+    }
+
+    function shareAlertViaWhatsApp(msg, screenFile) {
+        const text = `🚨 *تنبيه رقابي عاجل — نظام مقاييس ERP*\n\n${msg}\n\n🔗 الشاشة المختصة: ${window.location.origin}/ELSAJANA2/magaies/${screenFile || 'alarm.php'}`;
+        window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank');
+    }
+
+    function filterRuleCardsByState(state) {
+        document.querySelectorAll('.alert-detail-card').forEach(card => {
+            const chk = card.querySelector('input[type="checkbox"]');
+            const isEn = chk ? chk.checked : true;
+            if (state === 'ALL') card.style.display = 'block';
+            else if (state === 'ENABLED') card.style.display = isEn ? 'block' : 'none';
+            else if (state === 'DISABLED') card.style.display = !isEn ? 'block' : 'none';
+        });
+    }
+
     function renderLiveViolations(logs) {
         const container = document.getElementById('live-violations-grid');
         if (!container) return;
 
-        if (!logs || logs.length === 0) {
-            container.innerHTML = '<div class="col-span-2 text-center p-8 text-slate-400 text-xs border border-dashed border-slate-800 rounded-2xl"><i class="fa-solid fa-circle-check text-emerald-400 text-3xl mb-2 block"></i>جميع العمليات والشاشات آمنة ومطابقة 100% للشروط الرقابية الحالية.</div>';
+        if (Array.isArray(logs) && logs !== window._allHybridAlerts) {
+            window._serverAlertsSeed = logs;
+            runHybridLiveScanner(false);
+            return;
+        }
+
+        const list = (logs || []).filter(l => {
+            if (window._liveRadarFilter === 'RED') return l.severity === 'RED';
+            if (window._liveRadarFilter === 'YELLOW') return l.severity !== 'RED';
+            return true;
+        });
+
+        if (list.length === 0) {
+            container.innerHTML = '<div class="col-span-2 text-center p-6 text-slate-400 text-xs border border-dashed border-slate-800 rounded-2xl"><i class="fa-solid fa-circle-check text-emerald-400 text-3xl mb-2 block"></i>جميع العمليات والشاشات آمنة ومطابقة 100% للشروط الرقابية الحالية.</div>';
             return;
         }
 
         let html = '';
-        logs.forEach(l => {
+        list.forEach((l, idx) => {
             const isRed = l.severity === 'RED';
             const bgCls = isRed ? 'bg-rose-950/40 border-rose-500/40 text-rose-200' : 'bg-amber-950/40 border-amber-500/40 text-amber-200';
-            const linkBtn = l.screen_file ? '<a href="' + l.screen_file + '" class="px-3 py-1.5 bg-slate-900/80 hover:bg-slate-800 text-white rounded-xl text-[11px] font-black transition border border-white/10 whitespace-nowrap flex items-center gap-1">معالجة ↗</a>' : '';
-            html += '<div class="p-3.5 rounded-2xl border text-xs font-bold leading-relaxed ' + bgCls + ' flex justify-between items-center gap-3"><div class="flex-1">' + l.message + '</div>' + linkBtn + '</div>';
+            const key = (l.id || ('alert_' + idx)).replace(/'/g, '');
+            const safeMsg = String(l.message || '').replace(/'/g, "\\'");
+            const safeScreen = String(l.screen_file || '').replace(/'/g, "\\'");
+            const linkBtn = l.screen_file ? `<a href="${l.screen_file}" class="px-2.5 py-1.5 bg-slate-900/90 hover:bg-slate-800 text-sky-300 rounded-xl text-[11px] font-black transition border border-sky-500/30 whitespace-nowrap flex items-center gap-1">معالجة ↗</a>` : '';
+            const waBtn = `<button type="button" onclick="shareAlertViaWhatsApp('${safeMsg}', '${safeScreen}')" class="px-2.5 py-1.5 bg-emerald-950/80 hover:bg-emerald-900 text-emerald-300 rounded-xl text-[11px] font-black transition border border-emerald-500/30 whitespace-nowrap" title="إرسال تحذير فوري عبر واتساب">📲 واتساب</button>`;
+            const ackBtn = `<button type="button" onclick="snoozeLiveAlert('${key}')" class="px-2 py-1.5 bg-slate-900/70 hover:bg-slate-800 text-slate-400 rounded-xl text-[11px] font-black transition border border-white/10" title="تم الاطلاع / كتم مؤقت">✓</button>`;
+            html += `<div class="p-3.5 rounded-2xl border text-xs font-bold leading-relaxed ${bgCls} flex justify-between items-center gap-2 flex-wrap"><div class="flex-1 min-w-[200px]">${l.message}</div><div class="flex items-center gap-1.5">${waBtn}${linkBtn}${ackBtn}</div></div>`;
         });
         container.innerHTML = html;
     }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        runHybridLiveScanner(false);
+    });
     </script>
     <script defer src="js/app.js?v=20261016_v28"></script>
 </body>

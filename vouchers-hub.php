@@ -517,6 +517,47 @@
     <?php $header_theme_class = 'header-theme-sales'; ?>
     <?php include 'includes/header.php'; ?>
 
+    <!-- Live Treasury, Liquidity & Cross-Integration Strip -->
+    <div style="display:flex; flex-direction:column; gap:10px; margin-bottom:14px;">
+        <div style="display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:8px; background:var(--surface, rgba(18,15,25,0.82)); border:1px solid var(--border, rgba(255,255,255,0.1)); border-radius:14px; padding:10px 14px;">
+            <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                <span style="font-weight:900; font-size:0.9rem; color:var(--primary-accent, #a855f7);">🔗 التكامل المالي والمحاسبي المباشر 360°:</span>
+                <a href="general-ledger.php" style="text-decoration:none; padding:5px 11px; border-radius:8px; background:rgba(56,189,248,0.14); border:1px solid rgba(56,189,248,0.35); color:#38bdf8; font-size:0.78rem; font-weight:800;">📖 دفتر الأستاذ العام</a>
+                <a href="journal.php" style="text-decoration:none; padding:5px 11px; border-radius:8px; background:rgba(168,85,247,0.14); border:1px solid rgba(168,85,247,0.35); color:#c084fc; font-size:0.78rem; font-weight:800;">📒 سجل القيود اليومية</a>
+                <a href="aging-report.php" style="text-decoration:none; padding:5px 11px; border-radius:8px; background:rgba(244,63,94,0.14); border:1px solid rgba(244,63,94,0.35); color:#fb7185; font-size:0.78rem; font-weight:800;">⏳ أعمار الديون والائتمان</a>
+                <a href="balances_modern_hub.php" style="text-decoration:none; padding:5px 11px; border-radius:8px; background:rgba(16,185,129,0.14); border:1px solid rgba(16,185,129,0.35); color:#34d399; font-size:0.78rem; font-weight:800;">⚖️ مركز الأرصدة والخزائن</a>
+                <a href="payroll.php" style="text-decoration:none; padding:5px 11px; border-radius:8px; background:rgba(245,158,11,0.14); border:1px solid rgba(245,158,11,0.35); color:#fbbf24; font-size:0.78rem; font-weight:800;">💼 مسير الرواتب والأجور</a>
+                <a href="audit-log.php" style="text-decoration:none; padding:5px 11px; border-radius:8px; background:rgba(148,163,184,0.14); border:1px solid rgba(148,163,184,0.35); color:#cbd5e1; font-size:0.78rem; font-weight:800;">🛡️ الرقابة وسجل التدقيق</a>
+            </div>
+            <div style="display:flex; align-items:center; gap:8px;">
+                <span id="hub-fx-badge" style="padding:5px 12px; border-radius:8px; background:rgba(245,158,11,0.15); border:1px solid rgba(245,158,11,0.4); color:#fbbf24; font-size:0.8rem; font-weight:900;">💱 1 USD = 600 SDG</span>
+                <button type="button" onclick="window.location.href='ai_money_advisor.php'" style="padding:6px 13px; border-radius:8px; background:linear-gradient(135deg,#059669,#10b981); border:none; color:#fff; font-family:'Tajawal',sans-serif; font-size:0.8rem; font-weight:900; cursor:pointer; box-shadow:0 4px 12px rgba(16,185,129,0.25);">🤖 تشخيص السيولة والمخاطر AI</button>
+            </div>
+        </div>
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(210px, 1fr)); gap:10px;">
+            <div style="background:var(--surface, rgba(18,15,25,0.82)); border:1px solid rgba(16,185,129,0.3); border-right:4px solid #10b981; border-radius:12px; padding:10px 14px;">
+                <div style="font-size:0.76rem; color:var(--text-secondary, #94a3b8); font-weight:700;">📥 إجمالي المقبوضات المسجلة</div>
+                <div id="hub-kpi-receipts" style="font-size:1.22rem; font-weight:900; color:#10b981; margin-top:2px;">0 SDG</div>
+                <div id="hub-kpi-receipts-sub" style="font-size:0.72rem; color:var(--text-muted, #64748b); font-weight:700;">0 سند قبض</div>
+            </div>
+            <div style="background:var(--surface, rgba(18,15,25,0.82)); border:1px solid rgba(244,63,94,0.3); border-right:4px solid #f43f5e; border-radius:12px; padding:10px 14px;">
+                <div style="font-size:0.76rem; color:var(--text-secondary, #94a3b8); font-weight:700;">📤 إجمالي المدفوعات المسجلة</div>
+                <div id="hub-kpi-payments" style="font-size:1.22rem; font-weight:900; color:#f43f5e; margin-top:2px;">0 SDG</div>
+                <div id="hub-kpi-payments-sub" style="font-size:0.72rem; color:var(--text-muted, #64748b); font-weight:700;">0 سند صرف</div>
+            </div>
+            <div style="background:var(--surface, rgba(18,15,25,0.82)); border:1px solid rgba(56,189,248,0.3); border-right:4px solid #38bdf8; border-radius:12px; padding:10px 14px;">
+                <div style="font-size:0.76rem; color:var(--text-secondary, #94a3b8); font-weight:700;">🏦 صافي التدفق النقدي والخزائن</div>
+                <div id="hub-kpi-netflow" style="font-size:1.22rem; font-weight:900; color:#38bdf8; margin-top:2px;">0 SDG</div>
+                <div id="hub-kpi-netflow-sub" style="font-size:0.72rem; color:var(--text-muted, #64748b); font-weight:700;">مؤشر السيولة الفوري</div>
+            </div>
+            <div style="background:var(--surface, rgba(18,15,25,0.82)); border:1px solid rgba(245,158,11,0.3); border-right:4px solid #f59e0b; border-radius:12px; padding:10px 14px; cursor:pointer;" onclick="window.location.href='checks-cycle.php'">
+                <div style="font-size:0.76rem; color:var(--text-secondary, #94a3b8); font-weight:700;">💳 الشيكات والقيود اليومية</div>
+                <div id="hub-kpi-checks" style="font-size:1.22rem; font-weight:900; color:#f59e0b; margin-top:2px;">0 شيك / 0 قيد</div>
+                <div id="hub-kpi-checks-sub" style="font-size:0.72rem; color:var(--text-muted, #64748b); font-weight:700;">انقر لفتح دورة الشيكات ←</div>
+            </div>
+        </div>
+    </div>
+
     <!-- Vouchers Grid - Full Width -->
     <div class="vouchers-grid">
 
@@ -547,7 +588,7 @@
                 <div class="icon-wrapper">
                     <span class="v-icon">🧾</span>
                 </div>
-                <h3 class="v-title">صرف متعددة الجهات</h3>
+                <h3 class="v-title">صرف وقبض مجمع</h3>
                 <div class="v-footer">
                     <span class="v-arrow" style="background: #f97316; color: #fff;">←</span>
                 </div>
@@ -615,7 +656,7 @@
                 <div class="icon-wrapper">
                     <span class="v-icon">🤖</span>
                 </div>
-                <h3 class="v-title">تحليل مالي بالذكاء الاصطناعي</h3>
+                <h3 class="v-title">مستشار AI للأموال والسيولة</h3>
                 <div class="v-footer">
                     <span class="v-arrow" style="background: #10b981; color: #fff;">←</span>
                 </div>
@@ -626,7 +667,21 @@
 
     <!-- Recent Transactions -->
     <div class="premium-card recent-transactions-card" style="flex: 1; min-height: 250px; display: flex; flex-direction: column; margin-top: 15px; background: var(--surface, rgba(18, 15, 25, 0.85)); border: 1px solid var(--border, rgba(255,255,255,0.1)); cursor: default; transform: none; box-shadow: 0 10px 30px rgba(0,0,0,0.15); padding: 20px;">
-        <h3 style="color: var(--text-primary, #fff); margin-top: 0; border-bottom: 1px solid var(--border, rgba(255,255,255,0.1)); padding-bottom: 10px;">🕒 أحدث العمليات (آخر 10 سندات)</h3>
+        <div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;border-bottom:1px solid var(--border, rgba(255,255,255,0.1));padding-bottom:10px;margin-bottom:10px;">
+            <h3 style="color: var(--text-primary, #fff); margin: 0;">🕒 أحدث العمليات المالية والسندات</h3>
+            <div style="display:flex;flex-wrap:wrap;gap:6px;align-items:center;">
+                <select id="hub-type-filter" onchange="filterHubVouchers()" style="background:rgba(15,23,42,0.75);border:1px solid rgba(168,85,247,0.35);color:#fff;padding:6px 10px;border-radius:8px;font-family:'Tajawal',sans-serif;font-size:0.82rem;font-weight:700;">
+                    <option value="all">📂 كل السندات والقيود</option>
+                    <option value="قبض">📥 سندات القبض</option>
+                    <option value="صرف">📤 سندات الصرف</option>
+                    <option value="قيد يومية">📝 قيود اليومية</option>
+                </select>
+                <input type="text" id="hub-voucher-search" oninput="filterHubVouchers(this.value)" placeholder="🔍 بحث برقم السند أو الحساب أو البيان..." style="background:rgba(15,23,42,0.75);border:1px solid rgba(56,189,248,0.35);color:#fff;padding:6px 12px;border-radius:8px;font-family:'Tajawal',sans-serif;font-size:0.85rem;min-width:210px;">
+                <button type="button" onclick="if(window.openVoucherBarcodeScannerModal) window.openVoucherBarcodeScannerModal()" style="background:rgba(168,85,247,0.2);border:1px solid rgba(192,132,252,0.5);color:#e9d5ff;padding:6px 12px;border-radius:8px;font-family:'Tajawal',sans-serif;font-weight:800;cursor:pointer;font-size:0.82rem;">📷 مسح باركود / QR سند (Alt+B)</button>
+                <button type="button" onclick="exportHubVouchersCSV()" style="background:rgba(16,185,129,0.18);border:1px solid rgba(16,185,129,0.45);color:#34d399;padding:6px 12px;border-radius:8px;font-family:'Tajawal',sans-serif;font-weight:800;cursor:pointer;font-size:0.82rem;">📥 تصدير Excel</button>
+                <button type="button" onclick="window.print()" style="background:rgba(56,189,248,0.16);border:1px solid rgba(56,189,248,0.4);color:#38bdf8;padding:6px 12px;border-radius:8px;font-family:'Tajawal',sans-serif;font-weight:800;cursor:pointer;font-size:0.82rem;">🖨️ طباعة</button>
+            </div>
+        </div>
         <div style="overflow-y: auto; flex: 1; padding-right: 5px;" class="custom-scrollbar">
             <table class="pro-table" style="width: 100%; border-collapse: collapse; text-align: right; color: var(--text-primary, #fff);">
                 <thead>
@@ -652,6 +707,7 @@
 
 <script defer src="js/localforage.min.js"></script>
     <script defer src="js/app.js?v=20261016_v28"></script>
+    <script defer src="js/voucher-qr-barcode-suite.js?v=20261103"></script>
     <script>
     document.addEventListener('DBReady', async () => {
         try {
@@ -731,6 +787,67 @@
             bp.forEach(x => { if(x && !x.deleted) all.push({...x, _type: 'سند صرف متعدد', _color: '#f59e0b', _date: new Date(x.date || x.createdAt || 0), _storeKey: tkBP, _source: 'bp'})});
             cr.forEach(x => { if(x && !x.deleted) all.push({...x, _type: 'سند قبض مجمع', _color: '#0ea5e9', _date: new Date(x.date || x.createdAt || 0), _storeKey: tkCR, _source: 'cr'})});
             cp.forEach(x => { if(x && !x.deleted) all.push({...x, _type: 'سند صرف مجمع', _color: '#eab308', _date: new Date(x.date || x.createdAt || 0), _storeKey: tkCP, _source: 'cp'})});
+
+            const tkJV = window.getTenantKey ? window.getTenantKey('erp_journal_vouchers_v1') : 'erp_journal_vouchers_v1';
+            let jvList = [];
+            try {
+                if (typeof localforage !== 'undefined') jvList = (await localforage.getItem(tkJV)) || [];
+                if (!Array.isArray(jvList) || jvList.length === 0) jvList = JSON.parse(localStorage.getItem(tkJV) || localStorage.getItem('erp_journal_vouchers_v1') || '[]');
+                if (!Array.isArray(jvList)) jvList = Object.values(jvList || {});
+            } catch(e) { jvList = []; }
+            jvList.forEach(x => {
+                if (x && !x.deleted) {
+                    const lines = Array.isArray(x.lines || x.entries) ? (x.lines || x.entries) : [];
+                    const totDebit = Number(x.totalDebit || x.amount || lines.reduce((s, l) => s + Number(l.debit || 0), 0) || 0);
+                    all.push({
+                        ...x,
+                        amount: totDebit,
+                        fromAccount: lines.find(l => Number(l.credit || 0) > 0)?.accountName || 'حسابات دائنة',
+                        toAccount: lines.find(l => Number(l.debit || 0) > 0)?.accountName || 'حسابات مدينة',
+                        _type: 'قيد يومية',
+                        _color: '#a855f7',
+                        _date: new Date(x.date || x.createdAt || 0),
+                        _storeKey: tkJV,
+                        _source: 'jv'
+                    });
+                }
+            });
+
+            // Update Live Financial KPIs
+            try {
+                const fxRate = Number(localStorage.getItem('erp_exchange_rate_usd') || localStorage.getItem('usd_exchange_rate') || 600) || 600;
+                const fxEl = document.getElementById('hub-fx-badge');
+                if (fxEl) fxEl.textContent = `💱 1 USD = ${fxRate.toLocaleString()} SDG`;
+
+                let recSum = 0, recCnt = 0, paySum = 0, payCnt = 0;
+                all.forEach(v => {
+                    const val = Number(v.amount || v.totalAmount || v.amountLocal || 0) || 0;
+                    if (String(v._type || '').includes('قبض')) { recSum += val; recCnt++; }
+                    else if (String(v._type || '').includes('صرف')) { paySum += val; payCnt++; }
+                });
+                const netFlow = recSum - paySum;
+                const checksRaw = JSON.parse(localStorage.getItem('erp_checks_v1') || '[]');
+                const checksCnt = Array.isArray(checksRaw) ? checksRaw.filter(c => c && !c.deleted).length : 0;
+                const jvCnt = jvList.filter(j => j && !j.deleted).length;
+
+                const elRec = document.getElementById('hub-kpi-receipts');
+                const elRecSub = document.getElementById('hub-kpi-receipts-sub');
+                const elPay = document.getElementById('hub-kpi-payments');
+                const elPaySub = document.getElementById('hub-kpi-payments-sub');
+                const elNet = document.getElementById('hub-kpi-netflow');
+                const elNetSub = document.getElementById('hub-kpi-netflow-sub');
+                const elChk = document.getElementById('hub-kpi-checks');
+                if (elRec) elRec.textContent = `${recSum.toLocaleString()} SDG`;
+                if (elRecSub) elRecSub.textContent = `${recCnt} سند قبض (≈ $${Math.round(recSum / fxRate).toLocaleString()})`;
+                if (elPay) elPay.textContent = `${paySum.toLocaleString()} SDG`;
+                if (elPaySub) elPaySub.textContent = `${payCnt} سند صرف (≈ $${Math.round(paySum / fxRate).toLocaleString()})`;
+                if (elNet) {
+                    elNet.textContent = `${netFlow.toLocaleString()} SDG`;
+                    elNet.style.color = netFlow >= 0 ? '#10b981' : '#f43f5e';
+                }
+                if (elNetSub) elNetSub.textContent = `صافي التدفق (≈ $${Math.round(netFlow / fxRate).toLocaleString()})`;
+                if (elChk) elChk.textContent = `${checksCnt} شيك / ${jvCnt} قيد يومية`;
+            } catch(eKpi) {}
             
             function sanitizeList(list, storeKey) {
                 if (!Array.isArray(list)) return;
@@ -776,7 +893,7 @@
                 const dateB = isNaN(b._date.getTime()) ? 0 : b._date.getTime();
                 return dateB - dateA;
             });
-            let top = all.slice(0, 10);
+            let top = all.slice(0, 50);
             
             let tbody = document.getElementById('recent-transactions-body');
             if(top.length === 0) {
@@ -831,7 +948,9 @@
                     <td style="padding: 12px 10px; font-weight: 800; color: var(--text-primary, #fff);">${(x.amount || x.totalAmount || x.amountLocal || 0).toLocaleString()}</td>
                     <td style="padding: 12px 10px; color: var(--text-secondary, #cbd5e1); font-size: 0.85rem;"><span style="background: rgba(167,139,250,0.15); color: var(--primary-accent, #7c3aed); padding: 2px 8px; border-radius: 6px; font-weight: 700;">👤 ${userName}</span></td>
                     <td style="padding: 12px 10px; white-space: nowrap;">
-                        <button onclick="editHubVoucher('${vid}', '${x._source}', ${rowIdx})" style="background: rgba(56,189,248,0.12); color: var(--blue, #0284c7); border: 1px solid rgba(56,189,248,0.35); border-radius: 4px; padding: 4px 8px; cursor: pointer; margin-left: 5px; font-family: 'Tajawal', sans-serif; font-weight: 700;">تعديل</button>
+                        <button onclick="showHubVoucherQR(${rowIdx})" title="عرض الباركود ورمز QR للسند" style="background: rgba(168,85,247,0.14); color: #c084fc; border: 1px solid rgba(168,85,247,0.35); border-radius: 4px; padding: 4px 7px; cursor: pointer; margin-left: 4px; font-family: 'Tajawal', sans-serif; font-weight: 700;">🔳 QR</button>
+                        <button onclick="sendHubVoucherWA(${rowIdx})" title="إرسال إشعار السند عبر واتساب" style="background: rgba(16,185,129,0.14); color: #34d399; border: 1px solid rgba(16,185,129,0.35); border-radius: 4px; padding: 4px 7px; cursor: pointer; margin-left: 4px; font-family: 'Tajawal', sans-serif; font-weight: 700;">💬 واتساب</button>
+                        <button onclick="editHubVoucher('${vid}', '${x._source}', ${rowIdx})" style="background: rgba(56,189,248,0.12); color: var(--blue, #0284c7); border: 1px solid rgba(56,189,248,0.35); border-radius: 4px; padding: 4px 8px; cursor: pointer; margin-left: 4px; font-family: 'Tajawal', sans-serif; font-weight: 700;">تعديل</button>
                         <button onclick="deleteHubVoucher('${vid}', '${x._storeKey}')" style="background: rgba(244,63,94,0.12); color: var(--red, #e11d48); border: 1px solid rgba(244,63,94,0.35); border-radius: 4px; padding: 4px 8px; cursor: pointer; font-family: 'Tajawal', sans-serif; font-weight: 700;">حذف</button>
                     </td>
                 </tr>
@@ -842,6 +961,92 @@
         }
     });
 
+    window.filterHubVouchers = function(q) {
+        const searchInput = document.getElementById('hub-voucher-search');
+        const typeSelect = document.getElementById('hub-type-filter');
+        const term = String((q !== undefined ? q : (searchInput ? searchInput.value : '')) || '').trim().toLowerCase();
+        const typeFilter = typeSelect ? typeSelect.value : 'all';
+        const rows = document.querySelectorAll('#recent-transactions-body tr');
+        rows.forEach(r => {
+            const txt = (r.textContent || '').toLowerCase();
+            const typeCell = r.children[1] ? r.children[1].textContent : '';
+            const matchSearch = !term || txt.includes(term);
+            const matchType = typeFilter === 'all' || typeCell.includes(typeFilter);
+            r.style.display = (matchSearch && matchType) ? '' : 'none';
+        });
+    };
+    window.exportHubVouchersCSV = function() {
+        const rows = [['رقم السند','النوع','التاريخ','البيان','من حساب','إلى حساب','المبلغ','المستخدم']];
+        document.querySelectorAll('#recent-transactions-body tr').forEach(tr => {
+            if (tr.style.display === 'none') return;
+            const tds = tr.querySelectorAll('td');
+            if (tds.length >= 8) {
+                rows.push([
+                    tds[0].innerText.trim(),
+                    tds[1].innerText.trim(),
+                    tds[2].innerText.trim(),
+                    tds[3].innerText.trim(),
+                    tds[4].innerText.trim(),
+                    tds[5].innerText.trim(),
+                    tds[6].innerText.trim(),
+                    tds[7].innerText.trim()
+                ]);
+            }
+        });
+        const csv = '\uFEFF' + rows.map(r => r.map(v => '"' + String(v ?? '').replace(/"/g, '""') + '"').join(',')).join('\r\n');
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'Financial_Vouchers_' + new Date().toISOString().slice(0,10) + '.csv';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+    };
+    window.showHubVoucherQR = function(rowIdx) {
+        try {
+            const raw = sessionStorage.getItem('_hub_voucher_' + rowIdx);
+            if (!raw) return;
+            const x = JSON.parse(raw);
+            const vid = x.voucherNo || x.id || 'M260000';
+            const amt = Number(x.amount || x.totalAmount || x.amountLocal || 0).toLocaleString();
+            if (window.openVoucherQRBarcodeModal) {
+                window.openVoucherQRBarcodeModal({
+                    id: vid,
+                    typeLabel: x._type || 'سند مالي معتمد',
+                    date: (x.date || x.createdAt || '').slice(0, 10),
+                    fromAccount: x.fromAccount || x.withdrawalAccount || 'متعدد',
+                    toAccount: x.toAccount || x.depositAccount || 'متعدد',
+                    amount: amt,
+                    currency: x.currency || 'SDG',
+                    statement: x.description || x.notes || x.statement || '—'
+                });
+            }
+        } catch(e) { console.error(e); }
+    };
+    window.sendHubVoucherWA = function(rowIdx) {
+        try {
+            const raw = sessionStorage.getItem('_hub_voucher_' + rowIdx);
+            if (!raw) return;
+            const x = JSON.parse(raw);
+            const vid = x.voucherNo || x.id || 'M260000';
+            const amt = Number(x.amount || x.totalAmount || x.amountLocal || 0).toLocaleString();
+            const vObj = {
+                id: vid,
+                typeLabel: x._type || 'سند مالي معتمد',
+                date: (x.date || x.createdAt || '').slice(0, 10),
+                fromAccount: x.fromAccount || x.withdrawalAccount || 'متعدد',
+                toAccount: x.toAccount || x.depositAccount || 'متعدد',
+                amount: amt,
+                currency: x.currency || 'SDG',
+                statement: x.description || x.notes || x.statement || '—'
+            };
+            const baseOrigin = window.location.origin + window.location.pathname.replace(/\/[^\/]*$/, '');
+            const verifyUrl = baseOrigin + '/verify-voucher.php?id=' + encodeURIComponent(vid) + '&amt=' + encodeURIComponent(amt) + '&date=' + encodeURIComponent(vObj.date) + '&type=' + encodeURIComponent(vObj.typeLabel);
+            if (window.sendVoucherQRWhatsApp) {
+                window.sendVoucherQRWhatsApp(vObj, verifyUrl);
+            }
+        } catch(e) { console.error(e); }
+    };
     window.editHubVoucher = function(id, source, rowIdx) {
         // Store the full voucher data so the target page can load it reliably
         try {
@@ -856,8 +1061,9 @@
         else if (source === 'br') route = 'multi-cash-payment.php?type=receipt&id=' + id;
         else if (source === 'sp') route = 'single-cash-payment.php?id=' + id;
         else if (source === 'bp') route = 'multi-cash-payment.php?id=' + id;
-        else if (source === 'cr') route = 'comprehensive-receipt.php?id=' + id;
-        else if (source === 'cp') route = 'comprehensive-payment.php?id=' + id;
+        else if (source === 'cr') route = 'multi-cash-payment.php?type=receipt&id=' + id;
+        else if (source === 'cp') route = 'multi-cash-payment.php?id=' + id;
+        else if (source === 'jv') route = 'journal-voucher.php?id=' + encodeURIComponent(id);
         
         if (route) window.location.href = route;
     };

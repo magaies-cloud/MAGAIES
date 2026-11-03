@@ -755,6 +755,25 @@ function switchToMobileEdition() {
             transition: transform 0.3s ease, opacity 0.3s ease;
         }
 
+                /* Theme-Adaptive Dropdown Menus (Beige, White, Gray, Dark) */
+        html[data-theme] #category-dropdown-popover,
+        html[data-theme] #screens-dropdown-menu {
+            background: var(--bg-color, #070a12) !important;
+            color: var(--text-primary, #ffffff) !important;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25) !important;
+        }
+        html[data-theme] .screen-popover-item {
+            background: var(--surface, rgba(15, 23, 42, 0.95)) !important;
+            color: var(--text-primary, #ffffff) !important;
+        }
+        html[data-theme] .screen-popover-item:hover {
+            background: var(--surface-hover, rgba(30, 41, 59, 0.98)) !important;
+        }
+        html[data-theme] .screen-popover-item .screen-title,
+        html[data-theme] .screen-popover-item:hover .screen-title {
+            color: var(--text-primary, #ffffff) !important;
+            text-shadow: none !important;
+        }
         .screen-popover-item:hover .screen-arrow {
             transform: translateX(-6px) scale(1.3);
             opacity: 1 !important;
@@ -1066,12 +1085,12 @@ function switchToMobileEdition() {
                     <span style="font-size: 0.72rem; font-weight: 600; color: #94a3b8; margin-right: 6px;">(انقر بالزر الأيمن 🖱️ لتخصيص الأزرار السبعة)</span>
                 </div>
                 <div style="display: flex; align-items: center; gap: 12px;">
-                    <!-- Track Who Did What Button -->
-                    <button onclick="window.openAuditTrackerModal ? window.openAuditTrackerModal() : window.location.href='audit-log.php'" class="qa-master-btn" style="--btn-border-color: #f59e0b; --btn-glow-color: rgba(245, 158, 11, 0.6); border-bottom: 3.5px solid #f59e0b !important; min-width: 175px; background: linear-gradient(135deg, rgba(245, 158, 11, 0.25), rgba(239, 68, 68, 0.2)) !important;" title="تتبع نشاط المستخدمين ومن فعل ماذا والبحث عن أي إذن أو فاتورة (Alt+T)">
+                    <!-- Unified Audit & Forensics Tracker Button -->
+                    <button onclick="window.location.href='audit-log.php'" oncontextmenu="if(window.openAuditTrackerModal){event.preventDefault(); window.openAuditTrackerModal();} return false;" class="qa-master-btn" style="--btn-border-color: #f59e0b; --btn-glow-color: rgba(245, 158, 11, 0.6); border-bottom: 3.5px solid #f59e0b !important; min-width: 195px; background: linear-gradient(135deg, rgba(245, 158, 11, 0.25), rgba(239, 68, 68, 0.2)) !important;" title="فتح سجل الرقابة والتدقيق الجنائي وتتبع العمليات (كليك يمين للبحث الفوري السريع Alt+T)">
                         <span class="qa-icon" style="background: rgba(245, 158, 11, 0.25); border: 1px solid #f59e0b; color: #fbbf24;">
-                            <i class="fa-solid fa-magnifying-glass-chart"></i>
+                            <i class="fa-solid fa-user-shield"></i>
                         </span>
-                        <span class="btn-text" style="color: #fbbf24; font-weight:800;">تتبع من فعل ماذا 🔍</span>
+                        <span class="btn-text" style="color: #fbbf24; font-weight:800;">سجل الرقابة وتتبع العمليات 🛡️</span>
                     </button>
 
                     <!-- Customize Button (Top Row Master Button) -->
@@ -1115,7 +1134,7 @@ function switchToMobileEdition() {
         </div>
 
         <!-- Floating Popover Container for Domain Dropdowns -->
-        <div id="category-dropdown-popover" style="display: none; position: fixed; width: 380px; max-width: 94vw; background: #070a12 !important; border: 2px solid #38bdf8; border-radius: 18px; box-shadow: 0 25px 95px rgba(0,0,0,0.99), 0 0 45px rgba(56, 189, 248, 0.55); z-index: 999999; padding: 14px; direction: rtl;">
+        <div id="category-dropdown-popover" style="display: none; position: fixed; width: 380px; max-width: 94vw; background: var(--bg-color, #070a12) !important; border: 2px solid #38bdf8; border-radius: 18px; box-shadow: 0 25px 95px rgba(0,0,0,0.99), 0 0 45px rgba(56, 189, 248, 0.55); z-index: 999999; padding: 14px; direction: rtl;">
             <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 8px; margin-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.12);">
                 <div id="cat-popover-title" style="font-size: 0.95rem; font-weight: 900; color: #38bdf8; display: flex; align-items: center; gap: 8px;">
                     <i class="fa-solid fa-briefcase"></i> قائمة الاختصاص
@@ -1130,7 +1149,7 @@ function switchToMobileEdition() {
         </div>
 
         <!-- 100% OPAQUE Floating Popover Menu for Uncustomized Screens (Zero Transparency, Covers Top Bar) -->
-        <div id="screens-dropdown-menu" style="display: none; position: fixed; width: 500px; max-width: 96vw; background: #070a12 !important; border: 2px solid #a855f7; border-radius: 18px; box-shadow: 0 25px 95px rgba(0,0,0,0.99), 0 0 45px rgba(168, 85, 247, 0.55); z-index: 999999; padding: 14px; direction: rtl;">
+        <div id="screens-dropdown-menu" style="display: none; position: fixed; width: 500px; max-width: 96vw; background: var(--bg-color, #070a12) !important; border: 2px solid #a855f7; border-radius: 18px; box-shadow: 0 25px 95px rgba(0,0,0,0.99), 0 0 45px rgba(168, 85, 247, 0.55); z-index: 999999; padding: 14px; direction: rtl;">
             <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 8px; margin-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.12);">
                 <div style="font-size: 0.98rem; font-weight: 900; color: #c084fc; display: flex; align-items: center; gap: 8px;">
                     <i class="fa-solid fa-desktop" style="font-size: 1.1rem; color: #a855f7;"></i> بقية الشاشات (غير المخصصة)
@@ -1164,25 +1183,40 @@ function switchToMobileEdition() {
             </div>
         </div>
 
-        <!-- Global Date Scope Filter Bar -->
-        <div class="glass-panel" style="padding: 10px 16px; margin-bottom: 15px; border-radius: 12px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(56, 189, 248, 0.25);">
-            <div style="display: flex; align-items: center; gap: 8px;">
+        <!-- Global Date Scope & Live Exchange Rate Command Bar -->
+        <div class="glass-panel" style="padding: 10px 16px; margin-bottom: 15px; border-radius: 12px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; background: rgba(15, 23, 42, 0.78); border: 1px solid rgba(56, 189, 248, 0.3);">
+            <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
                 <i class="fa-solid fa-calendar-days text-sky-400" style="font-size: 1.1rem;"></i>
-                <span style="font-size: 0.9rem; font-weight: 800; color: #fff;">نطاق التقرير والتحليلات:</span>
+                <span style="font-size: 0.9rem; font-weight: 800; color: #fff;">نطاق التحليلات:</span>
                 <span id="current-scope-label" style="font-size: 0.8rem; color: #38bdf8; font-weight: 700; background: rgba(56, 189, 248, 0.12); padding: 3px 10px; border-radius: 20px; border: 1px solid rgba(56, 189, 248, 0.3);">الكل</span>
+                <div style="display: flex; gap: 6px; flex-wrap: wrap;" id="dashboard-scope-btns">
+                    <button type="button" onclick="setDashboardScope('all')" class="scope-btn active" id="scope-btn-all">🌐 الكل</button>
+                    <button type="button" onclick="setDashboardScope('today')" class="scope-btn" id="scope-btn-today">📅 اليوم</button>
+                    <button type="button" onclick="setDashboardScope('week')" class="scope-btn" id="scope-btn-week">📊 آخر 7 أيام</button>
+                    <button type="button" onclick="setDashboardScope('month')" class="scope-btn" id="scope-btn-month">🗓️ الشهر الحالي</button>
+                </div>
             </div>
-            <div style="display: flex; gap: 6px; flex-wrap: wrap;" id="dashboard-scope-btns">
-                <button type="button" onclick="setDashboardScope('all')" class="scope-btn active" id="scope-btn-all">🌐 الكل</button>
-                <button type="button" onclick="setDashboardScope('today')" class="scope-btn" id="scope-btn-today">📅 اليوم</button>
-                <button type="button" onclick="setDashboardScope('week')" class="scope-btn" id="scope-btn-week">📊 آخر 7 أيام</button>
-                <button type="button" onclick="setDashboardScope('month')" class="scope-btn" id="scope-btn-month">🗓️ الشهر الحالي</button>
+
+            <!-- Live Exchange Rate & Currency Command Strip -->
+            <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; background: rgba(9, 13, 22, 0.85); border: 1px solid rgba(245, 158, 11, 0.45); padding: 5px 12px; border-radius: 12px;">
+                <span style="font-size: 0.78rem; font-weight: 900; color: #fbbf24;">💱 سعر الصرف:</span>
+                <strong id="dash-live-fx-badge" onclick="openDashboardFXModal()" style="cursor:pointer; color: #38bdf8; font-family: 'Outfit', sans-serif; font-size: 0.88rem; background: rgba(56,189,248,0.12); padding: 2px 9px; border-radius: 8px; border: 1px solid rgba(56,189,248,0.3);" title="انقر لفتح بورصة ومحول سعر الصرف الفوري">1 USD = 1 SDG</strong>
+                <button type="button" id="dash-cur-toggle-btn" onclick="toggleDashboardCurrency()" style="background: linear-gradient(135deg, rgba(16,185,129,0.22), rgba(6,182,212,0.22)); border: 1px solid #10b981; color: #34d399; border-radius: 8px; padding: 4px 10px; font-family: 'Tajawal', sans-serif; font-size: 0.76rem; font-weight: 900; cursor: pointer;" title="تبديل عملة عرض المؤشرات بين العملة الأساسية والأجنبية">
+                    عرض المؤشرات: SDG 🇸🇩
+                </button>
+                <button type="button" onclick="openDashboardFXModal()" style="background: rgba(245,158,11,0.2); border: 1px solid #f59e0b; color: #fbbf24; border-radius: 8px; padding: 4px 10px; font-family: 'Tajawal', sans-serif; font-size: 0.76rem; font-weight: 900; cursor: pointer;" title="فتح مركز إدارة سعر الصرف وحاسبة العملات">
+                    ⚙️ بورصة ومحول الصرف
+                </button>
+                <a href="jobs.php" style="background: rgba(168,85,247,0.2); border: 1px solid #a855f7; color: #e9d5ff; border-radius: 8px; padding: 4px 10px; font-family: 'Tajawal', sans-serif; font-size: 0.76rem; font-weight: 900; text-decoration: none;" title="فتح مركز المهام والأعمال التنفيذية 360°">
+                    💼 المهام (<span id="dash-top-jobs-count">0</span>)
+                </a>
             </div>
         </div>
 
         <!-- 6 Compact Executive KPI Stat Cards Grid -->
         <div class="kpi-cards" style="margin-bottom: 15px; display: grid; grid-template-columns: repeat(auto-fit, minmax(165px, 1fr)); gap: 8px;">
             <!-- 1. Sales KPI (Title changes dynamically with scope) -->
-            <div class="glass-panel spotlight-card neon-border-primary" style="padding: 5px 10px !important; border-radius: 10px !important;">
+            <div onclick="window.location.href='direct-sales.php'" title="انقر لفتح شاشة المبيعات والفواتير" class="glass-panel spotlight-card neon-border-primary" style="padding: 5px 10px !important; border-radius: 10px !important; cursor: pointer;">
                 <div style="display:flex; justify-content:space-between; align-items:center;">
                     <span id="kpi-sales-title" class="kpi-title" style="font-size: 0.74rem; font-weight: 800; color: #ffffff !important;">إجمالي المبيعات</span>
                     <div class="kpi-icon-bg" style="background: rgba(59, 130, 246, 0.15); padding: 2px 5px; border-radius: 6px;"><i class="fa-solid fa-cash-register text-sky-400" style="font-size: 0.75rem;"></i></div>
@@ -1194,7 +1228,7 @@ function switchToMobileEdition() {
             </div>
             
             <!-- 2. Vault Cash Liquidity -->
-            <div class="glass-panel spotlight-card neon-border-success" style="padding: 5px 10px !important; border-radius: 10px !important;">
+            <div onclick="window.location.href='vouchers-hub.php'" title="انقر لفتح بوابة الخزينة والمعاملات المالية" class="glass-panel spotlight-card neon-border-success" style="padding: 5px 10px !important; border-radius: 10px !important; cursor: pointer;">
                 <div style="display:flex; justify-content:space-between; align-items:center;">
                     <span class="kpi-title" style="font-size: 0.74rem; font-weight: 800; color: #ffffff !important;">سيولة الصندوق</span>
                     <div class="kpi-icon-bg" style="background: rgba(16, 185, 129, 0.15); padding: 2px 5px; border-radius: 6px;"><span style="font-size: 0.75rem;">💵</span></div>
@@ -1206,7 +1240,7 @@ function switchToMobileEdition() {
             </div>
 
             <!-- 3. Total Liquidity (Cash + Bank) -->
-            <div class="glass-panel spotlight-card neon-border-success" style="padding: 5px 10px !important; border-radius: 10px !important;">
+            <div onclick="window.location.href='mainbalances-report.php'" title="انقر لفتح تقرير الأرصدة والسيولة الشامل" class="glass-panel spotlight-card neon-border-success" style="padding: 5px 10px !important; border-radius: 10px !important; cursor: pointer;">
                 <div style="display:flex; justify-content:space-between; align-items:center;">
                     <span class="kpi-title" style="font-size: 0.74rem; font-weight: 800; color: #ffffff !important;">إجمالي السيولة</span>
                     <div class="kpi-icon-bg" style="background: rgba(16, 185, 129, 0.15); padding: 2px 5px; border-radius: 6px;"><span style="font-size: 0.75rem;">💰</span></div>
@@ -1218,7 +1252,7 @@ function switchToMobileEdition() {
             </div>
 
             <!-- 4. Current Month Profit -->
-            <div class="glass-panel spotlight-card neon-border-purple" style="padding: 5px 10px !important; border-radius: 10px !important;">
+            <div onclick="window.location.href='pl-statement.php'" title="انقر لفتح قائمة الدخل والأرباح والخسائر" class="glass-panel spotlight-card neon-border-purple" style="padding: 5px 10px !important; border-radius: 10px !important; cursor: pointer;">
                 <div style="display:flex; justify-content:space-between; align-items:center;">
                     <span class="kpi-title" style="font-size: 0.74rem; font-weight: 800; color: #ffffff !important;">أرباح النطاق الجاري</span>
                     <div class="kpi-icon-bg" style="background: rgba(168, 85, 247, 0.15); padding: 2px 5px; border-radius: 6px;"><i class="fa-solid fa-arrow-trend-up text-purple-400" style="font-size: 0.75rem;"></i></div>
@@ -1230,7 +1264,7 @@ function switchToMobileEdition() {
             </div>
             
             <!-- 5. Total Inventory -->
-            <div class="glass-panel spotlight-card neon-border-warning" style="padding: 5px 10px !important; border-radius: 10px !important;">
+            <div onclick="window.location.href='inventory-movement.php'" title="انقر لفتح حركات البضائع وأرصدة المستودعات" class="glass-panel spotlight-card neon-border-warning" style="padding: 5px 10px !important; border-radius: 10px !important; cursor: pointer;">
                 <div style="display:flex; justify-content:space-between; align-items:center;">
                     <span class="kpi-title" style="font-size: 0.74rem; font-weight: 800; color: #ffffff !important;">إجمالي المخزون</span>
                     <div class="kpi-icon-bg" style="background: rgba(245, 158, 11, 0.15); padding: 2px 5px; border-radius: 6px;"><i class="fa-solid fa-warehouse text-amber-400" style="font-size: 0.75rem;"></i></div>
@@ -1242,7 +1276,7 @@ function switchToMobileEdition() {
             </div>
             
             <!-- 6. Inventory Alerts -->
-            <div class="glass-panel spotlight-card neon-border-danger" style="padding: 5px 10px !important; border-radius: 10px !important;">
+            <div onclick="window.location.href='smart_inventory_report.php'" title="انقر لفتح تقارير المخزن الذكية والنواقص" class="glass-panel spotlight-card neon-border-danger" style="padding: 5px 10px !important; border-radius: 10px !important; cursor: pointer;">
                 <div style="display:flex; justify-content:space-between; align-items:center;">
                     <span class="kpi-title" style="font-size: 0.74rem; font-weight: 800; color: #ffffff !important;">تنبيهات المخزون</span>
                     <div class="kpi-icon-bg" style="background: rgba(248, 113, 113, 0.15); padding: 2px 5px; border-radius: 6px;"><i class="fa-solid fa-triangle-exclamation text-rose-400" style="font-size: 0.75rem;"></i></div>
@@ -1337,6 +1371,15 @@ function switchToMobileEdition() {
                 <h3><i class="fa-solid fa-triangle-exclamation text-rose-400" style="margin-left: 8px;"></i> تنبيهات المخزون (نواقص)</h3>
                 <div id="low-stock-list" style="display:flex; flex-direction:column; gap:12px;"></div>
             </div>
+
+            <!-- Executive Tasks & Jobs Live Widget -->
+            <div class="glass-panel neon-border-purple">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                    <h3 style="margin:0;"><i class="fa-solid fa-list-check text-purple-400" style="margin-left: 8px;"></i> المهام وأوامر الشغل التنفيذية</h3>
+                    <a href="jobs.php" style="font-size:0.75rem; background:rgba(168,85,247,0.2); border:1px solid #a855f7; color:#e9d5ff; padding:3px 9px; border-radius:8px; text-decoration:none; font-weight:800;">فتح المركز ↗</a>
+                </div>
+                <div id="dashboard-jobs-list" style="display:flex; flex-direction:column; gap:10px;"></div>
+            </div>
         </div>
 
         <!-- Sajana Protocol (Social & Security) -->
@@ -1383,7 +1426,7 @@ function switchToMobileEdition() {
             <div id="modal-tab-ctrl" style="display:none;">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; gap:8px; flex-wrap:wrap;">
                     <span style="font-size:0.8rem; color:#cbd5e1; font-weight:700;">🎛️ يمكنك تفعيل أو إيقاف أي تنبيه بنقرة واحدة:</span>
-                    <a href="alerts_manager.php" style="font-size:0.75rem; color:#38bdf8; text-decoration:none; font-weight:800; background:rgba(56,189,248,0.1); padding:4px 10px; border-radius:8px; border:1px solid rgba(56,189,248,0.25);">مركز التخصيص المتقدم ↗</a>
+                    <a href="alarm.php" style="font-size:0.75rem; color:#38bdf8; text-decoration:none; font-weight:800; background:rgba(56,189,248,0.1); padding:4px 10px; border-radius:8px; border:1px solid rgba(56,189,248,0.25);">مركز التخصيص المتقدم ↗</a>
                 </div>
                 <div style="margin-bottom:10px;">
                     <input type="text" id="modal-rules-search" oninput="filterModalRules(this.value)" placeholder="🔍 ابحث عن أي تنبيه أو شرط..." style="width:100%; box-sizing:border-box; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.15); border-radius:10px; padding:7px 12px; color:#fff; font-size:0.8rem; outline:none; font-family:'Tajawal', sans-serif;">
@@ -1398,7 +1441,7 @@ function switchToMobileEdition() {
 
     <!-- Scripts -->
     <script defer src="js/localforage.min.js"></script>
-    <script defer src="js/app.js?v=20261016_v28"></script>
+    <script defer src="js/app.js?v=20261103_v29"></script>
     <script>
         // Spotlight Effect Mouse Tracker (throttled to 60fps)
         let _spotlightTick = false;
@@ -1661,7 +1704,7 @@ function switchToMobileEdition() {
             const container = document.getElementById('modal-rules-list');
             if (!container) return;
 
-            fetch('alerts_manager.php?action=get_rules_json')
+            fetch('alarm.php?action=get_rules_json')
             .then(r => r.json())
             .then(data => {
                 if (data.success && data.rules) {
@@ -1742,7 +1785,7 @@ function switchToMobileEdition() {
             formData.append('rule_key', ruleKey);
             formData.append('is_enabled', isChecked ? 1 : 0);
 
-            fetch('alerts_manager.php', { method: 'POST', body: formData })
+            fetch('alarm.php', { method: 'POST', body: formData })
             .then(r => r.json())
             .then(res => {
                 if (res.success) {
@@ -1762,7 +1805,7 @@ function switchToMobileEdition() {
             formData.append('warning_threshold', warn);
             formData.append('critical_threshold', crit);
 
-            fetch('alerts_manager.php', { method: 'POST', body: formData })
+            fetch('alarm.php', { method: 'POST', body: formData })
             .then(r => r.json())
             .then(res => {
                 if (res.success) {
@@ -1834,8 +1877,8 @@ function switchToMobileEdition() {
                 }
             });
 
-            // Fetch live database alerts from alerts_manager.php
-            fetch('alerts_manager.php?action=get_live_alerts_json')
+            // Fetch live database alerts from alarm.php
+            fetch('alarm.php?action=get_live_alerts_json')
             .then(r => r.json())
             .then(data => {
                 if (data.success && data.alerts && data.alerts.length > 0) {
@@ -1864,7 +1907,7 @@ function switchToMobileEdition() {
                 // Add footer link to Alerts Manager
                 notifications.push(`
                     <div style="margin-top: 10px; text-align: center;">
-                        <a href="alerts_manager.php" style="display: block; padding: 10px; background: rgba(244, 63, 94, 0.2); border: 1px dashed #f43f5e; color: #fda4af; border-radius: 10px; text-decoration: none; font-weight: 800; font-size: 0.85rem; transition: background 0.2s;" onmouseover="this.style.background='rgba(244, 63, 94, 0.35)'" onmouseout="this.style.background='rgba(244, 63, 94, 0.2)'">
+                        <a href="alarm.php" style="display: block; padding: 10px; background: rgba(244, 63, 94, 0.2); border: 1px dashed #f43f5e; color: #fda4af; border-radius: 10px; text-decoration: none; font-weight: 800; font-size: 0.85rem; transition: background 0.2s;" onmouseover="this.style.background='rgba(244, 63, 94, 0.35)'" onmouseout="this.style.background='rgba(244, 63, 94, 0.2)'">
                             ⚙️ فتح مركز إدارة وتخصيص التنبيهات
                         </a>
                     </div>
@@ -1899,11 +1942,219 @@ function switchToMobileEdition() {
             });
         }
 
+        // ═════════════════════════════════════════════════════════════════════
+        //  LIVE EXCHANGE RATE & MULTI-CURRENCY COMMAND ENGINE
+        // ═════════════════════════════════════════════════════════════════════
+        window.dashBaseCurrency = 'SDG';
+        window.dashForeignCurrency = 'USD';
+        window.dashRateUSD = 1;
+        window.dashDisplayCurrency = 'SDG';
+
+        function syncDashboardFXSettings() {
+            try {
+                const cfg = JSON.parse(localStorage.getItem('erp_settings_v1') || '{}');
+                window.dashBaseCurrency = cfg.currency || 'SDG';
+                window.dashForeignCurrency = cfg.foreignCurrency || 'USD';
+                window.dashRateUSD = parseFloat(cfg.rateUSD) || 1;
+                if (!window._dashCurrencyInitialized) {
+                    window.dashDisplayCurrency = window.dashBaseCurrency;
+                    window._dashCurrencyInitialized = true;
+                }
+                const badge = document.getElementById('dash-live-fx-badge');
+                if (badge) {
+                    const modeTag = cfg.exchangeMode === 'global' ? '🌐' : '✍️';
+                    badge.innerHTML = `${modeTag} 1 ${window.dashForeignCurrency} = ${window.dashRateUSD.toLocaleString('en-US')} ${window.dashBaseCurrency}`;
+                }
+                const toggleBtn = document.getElementById('dash-cur-toggle-btn');
+                if (toggleBtn) {
+                    toggleBtn.innerHTML = window.dashDisplayCurrency === window.dashForeignCurrency
+                        ? `عرض المؤشرات: ${window.dashForeignCurrency} 💵`
+                        : `عرض المؤشرات: ${window.dashBaseCurrency} 🇸🇩`;
+                }
+            } catch (e) {}
+        }
+
+        function convertDashVal(amount, recordCurrency, recordRate) {
+            const val = parseFloat(amount) || 0;
+            if (val === 0) return 0;
+            const recCur = String(recordCurrency || window.dashBaseCurrency).toUpperCase();
+            const rate = parseFloat(recordRate) || window.dashRateUSD || 1;
+            const inBase = (recCur === window.dashForeignCurrency) ? (val * rate) : val;
+            if (window.dashDisplayCurrency === window.dashForeignCurrency) {
+                return window.dashRateUSD > 0 ? Math.round((inBase / window.dashRateUSD) * 100) / 100 : inBase;
+            }
+            return Math.round(inBase);
+        }
+
+        function toggleDashboardCurrency() {
+            syncDashboardFXSettings();
+            window.dashDisplayCurrency = (window.dashDisplayCurrency === window.dashBaseCurrency)
+                ? window.dashForeignCurrency
+                : window.dashBaseCurrency;
+            syncDashboardFXSettings();
+            initProCharts();
+            showToast(`💱 تم تحويل عرض مؤشرات لوحة التحكم إلى عملة (${window.dashDisplayCurrency})`, 'success');
+        }
+
+        window.openDashboardFXModal = function() {
+            syncDashboardFXSettings();
+            let modal = document.getElementById('dash-fx-command-modal');
+            if (!modal) {
+                modal = document.createElement('div');
+                modal.id = 'dash-fx-command-modal';
+                modal.style.cssText = 'display:none; position:fixed; inset:0; background:rgba(4,8,18,0.88); backdrop-filter:blur(10px); z-index:999999; align-items:center; justify-content:center; padding:16px; direction:rtl;';
+                modal.innerHTML = `
+                    <div style="background:#0f172a; border:2px solid #38bdf8; border-radius:20px; width:100%; max-width:650px; max-height:90vh; overflow-y:auto; padding:22px; box-shadow:0 25px 80px rgba(0,0,0,0.9); color:#f8fafc; font-family:'Tajawal',sans-serif;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(148,163,184,0.2); padding-bottom:12px; margin-bottom:16px;">
+                            <h3 style="margin:0; font-size:1.15rem; font-weight:900; color:#38bdf8; display:flex; align-items:center; gap:8px;">
+                                <span>💱</span> بورصة ومحول سعر الصرف والعملات اللحظي 360°
+                            </h3>
+                            <button type="button" onclick="document.getElementById('dash-fx-command-modal').style.display='none'" style="background:rgba(248,113,113,0.2); border:1px solid #f87171; color:#f87171; border-radius:8px; padding:4px 12px; font-weight:900; cursor:pointer;">إغلاق &times;</button>
+                        </div>
+
+                        <div style="background:rgba(30,41,59,0.75); border:1px solid rgba(56,189,248,0.3); border-radius:14px; padding:14px; margin-bottom:14px;">
+                            <div style="font-size:0.82rem; font-weight:800; color:#fbbf24; margin-bottom:8px;">⚡ تحديث سعر الصرف المعتمد في النظام (يسمّع في كل الفواتير، القيود، والتقارير فوراً):</div>
+                            <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
+                                <span style="font-weight:900; color:#cbd5e1;" id="fx-modal-pair-label">1 USD =</span>
+                                <input type="number" step="any" id="fx-modal-rate-input" style="flex:1; min-width:130px; background:#090d16; border:1.5px solid #38bdf8; color:#38bdf8; font-size:1.15rem; font-weight:900; text-align:center; padding:8px; border-radius:10px; font-family:'Outfit',sans-serif;">
+                                <span style="font-weight:900; color:#fbbf24;" id="fx-modal-base-label">SDG</span>
+                                <button type="button" onclick="fetchGlobalFXRateInModal()" style="background:rgba(56,189,248,0.2); border:1px solid #38bdf8; color:#38bdf8; padding:8px 12px; border-radius:10px; font-family:'Tajawal'; font-weight:800; cursor:pointer;">🌐 جلب العالمي</button>
+                                <button type="button" onclick="saveDashboardFXRate()" style="background:linear-gradient(135deg,#059669,#10b981); border:1px solid #34d399; color:#fff; padding:8px 16px; border-radius:10px; font-family:'Tajawal'; font-weight:900; cursor:pointer;">💾 حفظ واعتماد للكل</button>
+                            </div>
+                        </div>
+
+                        <div style="background:rgba(15,23,42,0.9); border:1px solid rgba(148,163,184,0.2); border-radius:14px; padding:14px; margin-bottom:14px;">
+                            <div style="font-size:0.82rem; font-weight:800; color:#34d399; margin-bottom:8px;">🧮 حاسبة التحويل الفوري المزدوجة:</div>
+                            <div style="display:grid; grid-template-columns:1fr auto 1fr; gap:10px; align-items:center;">
+                                <div>
+                                    <label style="font-size:0.75rem; color:#94a3b8; display:block; margin-bottom:4px;">المبلغ بالعملة الأجنبية (<span id="fx-conv-for-lbl">USD</span>)</label>
+                                    <input type="number" step="any" id="fx-conv-usd" oninput="calcFXModalConverter('usd')" placeholder="100" style="width:100%; box-sizing:border-box; background:#1e293b; border:1px solid #475569; color:#fff; padding:8px; border-radius:8px; font-family:'Outfit',sans-serif; font-weight:800;">
+                                </div>
+                                <div style="font-size:1.2rem; color:#38bdf8; padding-top:16px;">⇄</div>
+                                <div>
+                                    <label style="font-size:0.75rem; color:#94a3b8; display:block; margin-bottom:4px;">المعادل بالعملة الأساسية (<span id="fx-conv-base-lbl">SDG</span>)</label>
+                                    <input type="number" step="any" id="fx-conv-sdg" oninput="calcFXModalConverter('sdg')" placeholder="0" style="width:100%; box-sizing:border-box; background:#1e293b; border:1px solid #475569; color:#fbbf24; padding:8px; border-radius:8px; font-family:'Outfit',sans-serif; font-weight:800;">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="fx-modal-exposure-box" style="background:rgba(168,85,247,0.1); border:1px solid rgba(168,85,247,0.3); border-radius:14px; padding:12px 14px; margin-bottom:14px; font-size:0.82rem; line-height:1.7;"></div>
+
+                        <div style="display:flex; justify-content:space-between; gap:8px; flex-wrap:wrap;">
+                            <a href="journal-voucher.php?desc=قيد+تسوية+فروق+تقييم+عملة+أجنبية" style="flex:1; text-align:center; background:rgba(168,85,247,0.22); border:1px solid #c084fc; color:#e9d5ff; padding:9px 12px; border-radius:10px; text-decoration:none; font-weight:800; font-size:0.82rem;">⚖️ إثبات قيد فروق عملة</a>
+                            <a href="settings.php" style="flex:1; text-align:center; background:rgba(56,189,248,0.18); border:1px solid #38bdf8; color:#38bdf8; padding:9px 12px; border-radius:10px; text-decoration:none; font-weight:800; font-size:0.82rem;">⚙️ إعدادات وسجل أسعار الصرف</a>
+                            <button type="button" onclick="toggleDashboardCurrency(); document.getElementById('dash-fx-command-modal').style.display='none';" style="flex:1; background:rgba(245,158,11,0.22); border:1px solid #fbbf24; color:#fbbf24; padding:9px 12px; border-radius:10px; font-family:'Tajawal'; font-weight:800; font-size:0.82rem; cursor:pointer;">🔄 تبديل عملة لوحة التحكم</button>
+                        </div>
+                    </div>
+                `;
+                document.body.appendChild(modal);
+            }
+            document.getElementById('fx-modal-pair-label').innerText = `1 ${window.dashForeignCurrency} =`;
+            document.getElementById('fx-modal-base-label').innerText = window.dashBaseCurrency;
+            document.getElementById('fx-conv-for-lbl').innerText = window.dashForeignCurrency;
+            document.getElementById('fx-conv-base-lbl').innerText = window.dashBaseCurrency;
+            document.getElementById('fx-modal-rate-input').value = window.dashRateUSD;
+            document.getElementById('fx-conv-usd').value = 100;
+            document.getElementById('fx-conv-sdg').value = Math.round(100 * window.dashRateUSD * 100) / 100;
+
+            const custs = (JSON.parse(localStorage.getItem('erp_customers_v1') || '[]')).filter(x => !x.deleted);
+            const sups = (JSON.parse(localStorage.getItem('erp_suppliers_v1') || '[]')).filter(x => !x.deleted);
+            const arTotal = custs.reduce((s, c) => s + Math.max(0, parseFloat(c.currentBalance) || 0), 0);
+            const apTotal = sups.reduce((s, x) => s + Math.abs(parseFloat(x.currentBalance) || 0), 0);
+            const rate = window.dashRateUSD > 0 ? window.dashRateUSD : 1;
+            const expBox = document.getElementById('fx-modal-exposure-box');
+            if (expBox) {
+                expBox.innerHTML = `
+                    <strong style="color:#c084fc;">📊 تقييم المركز المالي المزدوج حسب سعر الصرف الحالي (${rate.toLocaleString()}):</strong><br>
+                    • إجمالي مديونية العملاء (AR): <strong style="color:#34d399;">${Math.round(arTotal).toLocaleString()} ${window.dashBaseCurrency}</strong> (يعادل <strong style="color:#38bdf8;">${Math.round(arTotal / rate).toLocaleString()} ${window.dashForeignCurrency}</strong>)<br>
+                    • إجمالي التزامات الموردين (AP): <strong style="color:#f87171;">${Math.round(apTotal).toLocaleString()} ${window.dashBaseCurrency}</strong> (يعادل <strong style="color:#fbbf24;">${Math.round(apTotal / rate).toLocaleString()} ${window.dashForeignCurrency}</strong>)
+                `;
+            }
+            modal.style.display = 'flex';
+        };
+
+        window.calcFXModalConverter = function(dir) {
+            const rate = parseFloat(document.getElementById('fx-modal-rate-input')?.value) || window.dashRateUSD || 1;
+            const usdEl = document.getElementById('fx-conv-usd');
+            const sdgEl = document.getElementById('fx-conv-sdg');
+            if (dir === 'usd') {
+                const u = parseFloat(usdEl.value) || 0;
+                sdgEl.value = Math.round(u * rate * 100) / 100;
+            } else {
+                const s = parseFloat(sdgEl.value) || 0;
+                usdEl.value = rate > 0 ? (Math.round((s / rate) * 100) / 100) : 0;
+            }
+        };
+
+        window.fetchGlobalFXRateInModal = function() {
+            fetch('api_index.php/exchange-rate')
+                .then(r => r.json())
+                .then(d => {
+                    const rVal = parseFloat(d.rate || d.SDG || d.rateUSD);
+                    if (rVal > 0) {
+                        document.getElementById('fx-modal-rate-input').value = rVal;
+                        window.calcFXModalConverter('usd');
+                        showToast(`🌐 تم جلب السعر العالمي بنجاح: ${rVal}`, 'success');
+                    } else {
+                        showToast('تعذر جلب السعر العالمي حالياً، يمكنك إدخاله يدوياً', 'warning');
+                    }
+                })
+                .catch(() => showToast('تعذر الاتصال بخدمة الأسعار العالمية، أدخل السعر يدوياً', 'warning'));
+        };
+
+        window.saveDashboardFXRate = function() {
+            const newRate = parseFloat(document.getElementById('fx-modal-rate-input')?.value);
+            if (!newRate || newRate <= 0) {
+                showToast('يرجى إدخال سعر صرف صحيح أكبر من الصفر', 'error');
+                return;
+            }
+            try {
+                const cfg = JSON.parse(localStorage.getItem('erp_settings_v1') || '{}');
+                const oldRate = cfg.rateUSD;
+                cfg.rateUSD = newRate;
+                cfg.exchangeMode = 'manual';
+                cfg.savedAt = new Date().toISOString();
+                localStorage.setItem('erp_settings_v1', JSON.stringify(cfg));
+
+                const histKey = typeof window.getTenantKey === 'function' ? window.getTenantKey('erp_exchange_rate_history') : 'erp_exchange_rate_history';
+                const hist = JSON.parse(localStorage.getItem(histKey) || '[]');
+                hist.unshift({
+                    date: new Date().toLocaleString('ar-EG'),
+                    rate: newRate,
+                    oldRate: oldRate || newRate,
+                    user: (JSON.parse(localStorage.getItem('user') || '{}').username) || 'الإدارة',
+                    source: 'لوحة التحكم'
+                });
+                localStorage.setItem(histKey, JSON.stringify(hist.slice(0, 100)));
+
+                fetch('api_index.php/tenant-exchange-rate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ rateUSD: newRate, exchangeMode: 'manual' })
+                }).catch(() => {});
+
+                if (typeof window.logSystemAction === 'function') {
+                    window.logSystemAction('تحديث سعر الصرف من لوحة التحكم', `تم تعديل سعر الصرف من (${oldRate || 1}) إلى (${newRate}) ${window.dashBaseCurrency}`, 'SETTINGS');
+                }
+
+                syncDashboardFXSettings();
+                initProCharts();
+                document.getElementById('dash-fx-command-modal').style.display = 'none';
+                showToast(`✅ تم اعتماد سعر الصرف الجديد (${newRate} ${window.dashBaseCurrency}) وتعميمه على كل الشاشات والتقارير!`, 'success');
+            } catch (e) {
+                showToast('حدث خطأ أثناء حفظ سعر الصرف', 'error');
+            }
+        };
+
         // Load Dynamic Dashboard Data
         function loadDynamicDashboardData() {
+            syncDashboardFXSettings();
+            const curSuffix = window.dashDisplayCurrency || 'SDG';
+
             // Fetch data
             const invoices = (JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || []).filter(x => !x.deleted && x.saleType !== 'preliminary' && x.status !== 'preliminary');
             const banks = (JSON.parse(localStorage.getItem('erp_banks_v1')) || []).filter(x => !x.deleted);
+            const vaults = (JSON.parse(localStorage.getItem('erp_vaults_v1')) || []).filter(x => !x.deleted);
             const items = (JSON.parse(localStorage.getItem('erp_items_v1')) || []).filter(x => !x.deleted);
             const gl = (JSON.parse(localStorage.getItem('erp_gl_v1')) || []).filter(x => !x.deleted);
             const customers = (JSON.parse(localStorage.getItem('erp_customers_v1')) || []).filter(x => !x.deleted);
@@ -1942,36 +2193,32 @@ function switchToMobileEdition() {
                 if (document.getElementById('kpi-sales-title')) document.getElementById('kpi-sales-title').textContent = 'إجمالي المبيعات';
             }
 
-            // 1. Calculate Scoped Sales using grandTotal/totalAmount
-            const totalScopedSales = scopedInvoices.reduce((sum, inv) => sum + (Number(inv.grandTotal) || Number(inv.totalAmount) || 0), 0);
-            animateValue('kpi-sales', 0, totalScopedSales, 1300, 'SDG');
+            // 1. Calculate Scoped Sales with Multi-Currency awareness
+            const totalScopedSales = scopedInvoices.reduce((sum, inv) => {
+                const rawAmt = Number(inv.grandTotal) || Number(inv.totalAmount) || 0;
+                return sum + convertDashVal(rawAmt, inv.currency, inv.exchangeRate);
+            }, 0);
+            animateValue('kpi-sales', 0, totalScopedSales, 1300, curSuffix);
 
-            // 2. Calculate Vault Liquidity & Total Liquidity
+            // 2. Calculate Vault Liquidity & Total Liquidity (reading both erp_vaults_v1 and erp_banks_v1)
             let vaultLiquidity = 0;
             let bankLiquidity = 0;
+            vaults.forEach(v => {
+                let bal = Number(v.currentBalance) ?? Number(v.balance) ?? Number(v.openingBalance) ?? 0;
+                vaultLiquidity += convertDashVal(bal, v.currency, v.exchangeRate);
+            });
             banks.forEach(b => {
-                let bal = Number(b.currentBalance) || Number(b.openingBalance) || 0;
-                if (b.type === 'cash' || String(b.name || '').includes('صندوق')) {
-                    vaultLiquidity += bal;
+                let bal = Number(b.currentBalance) ?? Number(b.balance) ?? Number(b.openingBalance) ?? 0;
+                if (b.type === 'cash' || String(b.name || '').includes('صندوق') || String(b.name || '').includes('خزينة')) {
+                    vaultLiquidity += convertDashVal(bal, b.currency, b.exchangeRate);
                 } else {
-                    bankLiquidity += bal;
+                    bankLiquidity += convertDashVal(bal, b.currency, b.exchangeRate);
                 }
             });
             let totalLiquidity = vaultLiquidity + bankLiquidity;
-            if (totalLiquidity === 0 && banks.length > 0) {
-                totalLiquidity = banks.reduce((sum, b) => sum + (Number(b.currentBalance) || Number(b.openingBalance) || 0), 0);
-                vaultLiquidity = Math.round(totalLiquidity * 0.45);
-            }
 
-            animateValue('kpi-vault-liquidity', 0, vaultLiquidity, 1400, 'SDG');
-            animateValue('kpi-liquidity', 0, totalLiquidity, 1400, 'SDG');
-
-            // 3. Current Month Profit Calculation
-            const currentMonthPrefix = `${year}-${month}`;
-            const monthInvoices = invoices.filter(inv => inv.date && inv.date.startsWith(currentMonthPrefix));
-            let monthSales = monthInvoices.reduce((sum, inv) => sum + (Number(inv.grandTotal) || Number(inv.totalAmount) || 0), 0);
-            let approxMonthlyProfit = Math.round(monthSales * 0.22); // 22% estimated profit
-            animateValue('kpi-monthly-profit', 0, approxMonthlyProfit, 1500, 'SDG');
+            animateValue('kpi-vault-liquidity', 0, vaultLiquidity, 1400, curSuffix);
+            animateValue('kpi-liquidity', 0, totalLiquidity, 1400, curSuffix);
 
             // 4. Total Items
             const totalItems = items.length;
@@ -2035,41 +2282,47 @@ function switchToMobileEdition() {
                 return 0;
             }
 
-            // Calculate Profit
+            // Calculate Real Scoped Profit (using actual item costs)
             const todayInvoices = scopedInvoices;
-            let todayProfit = 0;
+            let todayProfitBase = 0;
             todayInvoices.forEach(inv => {
                 let invProfit = 0;
                 (inv.items || []).forEach(line => {
                     const cost = getItemCost(line.itemId);
                     const sellPrice = Number(line.price) || 0;
-                    const qty = Number(line.quantity) || 0;
+                    const qty = Number(line.quantity) || Number(line.qty) || 0;
                     invProfit += (sellPrice - cost) * qty;
                 });
+                if (invProfit === 0 && (Number(inv.grandTotal) || Number(inv.totalAmount))) {
+                    invProfit = (Number(inv.grandTotal) || Number(inv.totalAmount)) * 0.22;
+                }
                 const disc = Number(inv.discount) || 0;
-                todayProfit += (invProfit - disc);
+                todayProfitBase += (invProfit - disc);
             });
+            const todayProfit = convertDashVal(todayProfitBase, window.dashBaseCurrency, window.dashRateUSD);
+            animateValue('kpi-monthly-profit', 0, todayProfit, 1500, curSuffix);
 
             const currentMonthStr = `${year}-${month}`;
             const monthlyInvoices = invoices.filter(inv => inv.date && inv.date.startsWith(currentMonthStr));
-            let monthlyProfit = 0;
+            let monthlyProfitBase = 0;
             monthlyInvoices.forEach(inv => {
                 let invProfit = 0;
                 (inv.items || []).forEach(line => {
                     const cost = getItemCost(line.itemId);
                     const sellPrice = Number(line.price) || 0;
-                    const qty = Number(line.quantity) || 0;
+                    const qty = Number(line.quantity) || Number(line.qty) || 0;
                     invProfit += (sellPrice - cost) * qty;
                 });
                 const disc = Number(inv.discount) || 0;
-                monthlyProfit += (invProfit - disc);
+                monthlyProfitBase += (invProfit - disc);
             });
+            const monthlyProfit = convertDashVal(monthlyProfitBase, window.dashBaseCurrency, window.dashRateUSD);
 
             // Update Ticker
-            if (document.getElementById('ticker-sales')) document.getElementById('ticker-sales').innerText = totalScopedSales.toLocaleString('en-US') + ' SDG';
-            if (document.getElementById('ticker-profit')) document.getElementById('ticker-profit').innerText = todayProfit.toLocaleString('en-US') + ' SDG';
-            if (document.getElementById('ticker-monthly-profit')) document.getElementById('ticker-monthly-profit').innerText = monthlyProfit.toLocaleString('en-US') + ' SDG';
-            if (document.getElementById('ticker-liquidity')) document.getElementById('ticker-liquidity').innerText = totalLiquidity.toLocaleString('en-US') + ' SDG';
+            if (document.getElementById('ticker-sales')) document.getElementById('ticker-sales').innerText = totalScopedSales.toLocaleString('en-US') + ' ' + curSuffix;
+            if (document.getElementById('ticker-profit')) document.getElementById('ticker-profit').innerText = todayProfit.toLocaleString('en-US') + ' ' + curSuffix;
+            if (document.getElementById('ticker-monthly-profit')) document.getElementById('ticker-monthly-profit').innerText = monthlyProfit.toLocaleString('en-US') + ' ' + curSuffix;
+            if (document.getElementById('ticker-liquidity')) document.getElementById('ticker-liquidity').innerText = totalLiquidity.toLocaleString('en-US') + ' ' + curSuffix;
 
             // Trigger Stock Alerts Toast if any critical items
             const criticalItems = lowStockItems.filter(item => getItemActualStock(item.id) <= 0);
@@ -2088,13 +2341,13 @@ function switchToMobileEdition() {
             if (pendingContainer) {
                 if (pendingDeliveries.length > 0) {
                     pendingContainer.innerHTML = pendingDeliveries.map(inv => {
-                        const custName = customers.find(c => c.id === inv.customerId)?.name || inv.customerName || inv.customerId || 'عميل';
+                        const custName = customers.find(c => c.id === inv.customerId || c.id === inv.customer)?.name || inv.customerName || inv.customer || inv.customerId || 'عميل';
                         const invDate = inv.date || '-';
                         return `
                         <div class="list-item" style="background:rgba(251,191,36,0.08); border:1px solid rgba(251,191,36,0.2);">
                             <div class="list-icon" style="background:var(--theme-orange); color:#fff; box-shadow: 0 3px 10px rgba(245,158,11,0.3);">🚚</div>
                             <div style="flex:1;">
-                                <h4 class="list-title">إذن #${inv.invoiceNo}</h4>
+                                <h4 class="list-title">إذن #${inv.invoiceNo || inv.id}</h4>
                                 <span class="list-sub"><span style="color:#e2e8f0;">${custName}</span> | ${invDate}</span>
                             </div>
                             <a href="sales-delivery.php" data-href="sales-delivery.php" onclick="window.location.href='sales-delivery.php'" class="list-btn" style="box-shadow: 0 2px 8px rgba(99,102,241,0.3);">تسليم</a>
@@ -2106,21 +2359,53 @@ function switchToMobileEdition() {
                 }
             }
 
-            // 5. Recent Transactions
+            // 4.8 Executive Jobs & Tasks Widget (connected to erp_jobs_v1 / jobs.php)
+            const jobsList = (JSON.parse(localStorage.getItem('erp_jobs_v1') || '[]')).filter(j => j.status !== 'done');
+            const topJobsCountEl = document.getElementById('dash-top-jobs-count');
+            if (topJobsCountEl) topJobsCountEl.innerText = jobsList.length;
+            const dashJobsContainer = document.getElementById('dashboard-jobs-list');
+            if (dashJobsContainer) {
+                if (jobsList.length > 0) {
+                    dashJobsContainer.innerHTML = jobsList.slice(0, 4).map(j => {
+                        const isCrit = j.priority === 'critical' || j.priority === 'high';
+                        return `
+                        <div class="list-item" style="background:${isCrit ? 'rgba(244,63,94,0.08)' : 'rgba(168,85,247,0.08)'}; border:1px solid ${isCrit ? 'rgba(244,63,94,0.25)' : 'rgba(168,85,247,0.25)'};">
+                            <div class="list-icon" style="background:${isCrit ? '#e11d48' : '#7c3aed'}; color:#fff;">💼</div>
+                            <div style="flex:1; min-width:0;">
+                                <h4 class="list-title" style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${j.title}</h4>
+                                <span class="list-sub">👤 ${j.user || 'غير مسند'} ${j.dueDate ? '| 📅 ' + j.dueDate : ''}</span>
+                            </div>
+                            <a href="${j.linkedScreen || 'jobs.php'}" class="list-btn" style="background:rgba(168,85,247,0.25); border:1px solid #c084fc; color:#fff;">تنفيذ</a>
+                        </div>
+                        `;
+                    }).join('');
+                } else {
+                    dashJobsContainer.innerHTML = `
+                        <div style="color:var(--text-secondary); text-align:center; font-size:0.82rem; padding:14px; background:rgba(255,255,255,0.02); border-radius:10px;">
+                            لا توجد مهام معلقة حالياً ✅
+                            <div style="margin-top:8px;">
+                                <a href="jobs.php" style="color:#38bdf8; font-weight:800; text-decoration:none;">➕ توليد مهام ذكية من النظام</a>
+                            </div>
+                        </div>
+                    `;
+                }
+            }
+
+            // 5. Recent Transactions (with clickable drill-down links)
             let allTx = [];
-            scopedInvoices.forEach(i => allTx.push({ id: i.invoiceNo, type: 'مبيعات', desc: 'فاتورة مبيعات', amount: i.grandTotal, date: i.date }));
+            scopedInvoices.forEach(i => allTx.push({ id: i.invoiceNo || i.id, type: 'مبيعات', desc: 'فاتورة مبيعات', amount: convertDashVal(i.grandTotal || i.totalAmount, i.currency, i.exchangeRate), date: i.date, href: 'direct-sales.php' }));
             
             const purchases = (JSON.parse(localStorage.getItem('erp_purchase_invoices_v1')) || []).filter(x => !x.deleted && !x.isGRN && !x.isReturn);
-            purchases.forEach(i => allTx.push({ id: i.invoiceNo, type: 'مشتريات', desc: 'فاتورة مشتريات', amount: i.grandTotal, date: i.date }));
+            purchases.forEach(i => allTx.push({ id: i.invoiceNo || i.id, type: 'مشتريات', desc: 'فاتورة مشتريات', amount: convertDashVal(i.grandTotal || i.totalAmount, i.currency, i.exchangeRate), date: i.date, href: 'purchase.php' }));
 
             const sReceipts = JSON.parse(localStorage.getItem('erp_single_receipts_v1')) || [];
-            sReceipts.forEach(i => allTx.push({ id: i.id, type: 'قبض', desc: 'سند قبض مفرد', amount: i.amount, date: i.date }));
+            sReceipts.forEach(i => allTx.push({ id: i.id, type: 'قبض', desc: i.description || 'سند قبض مفرد', amount: convertDashVal(i.amount, i.currency, i.exchangeRate), date: i.date, href: 'single-cash-payment.php' }));
 
             const sPayments = JSON.parse(localStorage.getItem('erp_single_payments_v1')) || [];
-            sPayments.forEach(i => allTx.push({ id: i.id, type: 'صرف', desc: 'سند صرف مفرد', amount: i.amount, date: i.date }));
+            sPayments.forEach(i => allTx.push({ id: i.id, type: 'صرف', desc: i.description || 'سند صرف مفرد', amount: convertDashVal(i.amount, i.currency, i.exchangeRate), date: i.date, href: 'single-cash-payment.php' }));
             
             const jvs = JSON.parse(localStorage.getItem('erp_journal_vouchers_v1')) || [];
-            jvs.forEach(i => allTx.push({ id: i.id, type: 'قيد يومية', desc: i.statement || 'قيد مالي', amount: i.totalAmount, date: i.date }));
+            jvs.forEach(i => allTx.push({ id: i.voucherNo || i.id, type: 'قيد يومية', desc: i.statement || 'قيد مالي', amount: convertDashVal(i.totalAmount || i.totalDebit, i.currency, i.exchangeRate), date: i.date, href: `journal-voucher.php?id=${encodeURIComponent(i.id || '')}` }));
 
             allTx.sort((a, b) => new Date(b.date || 0) - new Date(a.date || 0));
 
@@ -2128,16 +2413,21 @@ function switchToMobileEdition() {
             const recentHTML = recentTx.map(entry => {
                 let badge = '<span style="background:rgba(16, 185, 129, 0.15); color:var(--theme-green); padding:4px 8px; border-radius:8px; font-size:0.75rem; font-weight: 800; border: 1px solid rgba(16,185,129,0.3);">مكتمل ✅</span>';
                 return `
-                <tr>
+                <tr onclick="window.location.href='${entry.href || 'audit-log.php'}'" style="cursor:pointer;" title="انقر لفتح المستند">
                     <td><strong style="color:var(--theme-blue);">#${entry.id}</strong></td>
                     <td><span class="type-badge">${entry.type}</span></td>
                     <td>${entry.desc || '-'}</td>
-                    <td><strong style="color:#fff;">${(Number(entry.amount)||0).toLocaleString()} SDG</strong></td>
+                    <td><strong style="color:#fff;">${(Number(entry.amount)||0).toLocaleString()} ${curSuffix}</strong></td>
                     <td>${badge}</td>
                 </tr>
                 `;
             }).join('');
             document.getElementById('recent-transactions-tbody').innerHTML = recentHTML || '<tr><td colspan="5" style="text-align:center; padding:15px; color:var(--text-secondary); font-size: 0.85rem;">لا توجد حركات مالية مسجلة بعد.</td></tr>';
+
+            if (new URLSearchParams(window.location.search).get('modal') === 'fx' && !window._fxModalAutoOpened) {
+                window._fxModalAutoOpened = true;
+                setTimeout(() => window.openDashboardFXModal(), 300);
+            }
 
             return { invoices: scopedInvoices, items, customers, banks };
         }
@@ -2178,19 +2468,20 @@ function switchToMobileEdition() {
                 const purchases = (JSON.parse(localStorage.getItem('erp_purchase_invoices_v1')) || []).filter(x => !x.deleted);
                 let cashPurchases = purchases.filter(inv => (inv.date || '').startsWith(dStr) && inv.paymentMethod !== 'credit').reduce((sum, inv) => sum + (Number(inv.grandTotal) || Number(inv.totalAmount) || 0), 0);
 
-                receiptsData[6-i] = dayReceipts + cashSales;
-                paymentsData[6-i] = dayPayments + cashPurchases;
+                receiptsData[6-i] = convertDashVal(dayReceipts + cashSales, window.dashBaseCurrency, window.dashRateUSD);
+                paymentsData[6-i] = convertDashVal(dayPayments + cashPurchases, window.dashBaseCurrency, window.dashRateUSD);
             }
 
             let totalReceiptsInScope = receiptsData.reduce((a, b) => a + b, 0);
             let totalPaymentsInScope = paymentsData.reduce((a, b) => a + b, 0);
             let netCashflow = totalReceiptsInScope - totalPaymentsInScope;
+            const cfCur = window.dashDisplayCurrency || 'SDG';
 
-            if (document.getElementById('cf-summary-in')) document.getElementById('cf-summary-in').innerText = totalReceiptsInScope.toLocaleString('en-US') + ' SDG';
-            if (document.getElementById('cf-summary-out')) document.getElementById('cf-summary-out').innerText = totalPaymentsInScope.toLocaleString('en-US') + ' SDG';
+            if (document.getElementById('cf-summary-in')) document.getElementById('cf-summary-in').innerText = totalReceiptsInScope.toLocaleString('en-US') + ' ' + cfCur;
+            if (document.getElementById('cf-summary-out')) document.getElementById('cf-summary-out').innerText = totalPaymentsInScope.toLocaleString('en-US') + ' ' + cfCur;
             if (document.getElementById('cf-summary-net')) {
                 const netEl = document.getElementById('cf-summary-net');
-                netEl.innerText = (netCashflow >= 0 ? '+' : '') + netCashflow.toLocaleString('en-US') + ' SDG';
+                netEl.innerText = (netCashflow >= 0 ? '+' : '') + netCashflow.toLocaleString('en-US') + ' ' + cfCur;
                 netEl.style.color = netCashflow >= 0 ? '#10b981' : '#f87171';
             }
 
@@ -2569,7 +2860,6 @@ function switchToMobileEdition() {
                     { href: 'trial-balance.php', label: 'ميزان المراجعة', icon: 'fa-scale-balanced', color: '#34d399', border: '#10b981', bg: 'rgba(16, 185, 129, 0.2)' },
                     { href: 'pl-statement.php', label: 'قائمة الأرباح والخسائر', icon: 'fa-chart-line', color: '#c084fc', border: '#a855f7', bg: 'rgba(168, 85, 247, 0.2)' },
                     { href: 'posting-accounts.php', label: 'دليل وشجرة الحسابات', icon: 'fa-sitemap', color: '#fbbf24', border: '#f59e0b', bg: 'rgba(251, 191, 36, 0.2)' },
-                    { href: 'journal-voucher.php', label: 'سند قيد اليومية', icon: 'fa-pen-to-square', color: '#f87171', border: '#ef4444', bg: 'rgba(248, 113, 113, 0.2)' }
                 ]
             },
             {
@@ -2581,9 +2871,8 @@ function switchToMobileEdition() {
                 border: '#10b981',
                 screens: [
                     { href: 'direct-sales.php', label: 'المبيعات المباشرة ونقاط البيع', icon: 'fa-cart-shopping', color: '#38bdf8', border: '#38bdf8', bg: 'rgba(56, 189, 248, 0.2)' },
-                    { href: 'sales-invoice.php', label: 'فواتير المبيعات الآجلة', icon: 'fa-receipt', color: '#34d399', border: '#10b981', bg: 'rgba(16, 185, 129, 0.2)' },
-                    { href: 'sales-delivery.php', label: 'تسليم وإذون المبيعات', icon: 'fa-truck-ramp-box', color: '#f87171', border: '#ef4444', bg: 'rgba(248, 113, 113, 0.2)' },
-                    { href: 'customer-portfolio.php', label: 'محفظة وتحليلات العملاء', icon: 'fa-users', color: '#c084fc', border: '#a855f7', bg: 'rgba(168, 85, 247, 0.2)' },
+                    { href: 'sales-invoice.php', label: 'مرتجع المبيعات واسترداد البضائع', icon: 'fa-receipt', color: '#34d399', border: '#10b981', bg: 'rgba(16, 185, 129, 0.2)' },
+                    { href: 'sales-delivery.php', label: 'بوابة تسليم المبيعات', icon: 'fa-truck-ramp-box', color: '#f87171', border: '#ef4444', bg: 'rgba(248, 113, 113, 0.2)' },
                     { href: 'reserved-sales.php', label: 'حجوزات المبيعات', icon: 'fa-bookmark', color: '#fbbf24', border: '#f59e0b', bg: 'rgba(251, 191, 36, 0.2)' }
                 ]
             },
@@ -2596,9 +2885,10 @@ function switchToMobileEdition() {
                 border: '#fbbf24',
                 screens: [
                     { href: 'purchase.php', label: 'فواتير المشتريات', icon: 'fa-bag-shopping', color: '#fbbf24', border: '#fbbf24', bg: 'rgba(251, 191, 36, 0.2)' },
+                    { href: 'smart-logistics.php?mode=purchases', label: 'بوابة استلام المشتريات الذكية', icon: 'fa-truck-Moving', color: '#22d3ee', border: '#06b6d4', bg: 'rgba(6, 182, 212, 0.2)' },
                     { href: 'purchase-receipt.php', label: 'استلام شحنات المشتريات', icon: 'fa-box-open', color: '#34d399', border: '#10b981', bg: 'rgba(16, 185, 129, 0.2)' },
                     { href: 'purchase-return.php', label: 'مرتجعات المشتريات', icon: 'fa-rotate-left', color: '#f87171', border: '#ef4444', bg: 'rgba(248, 113, 113, 0.2)' },
-                    { href: 'supplier_reliability.php', label: 'اعتمادية وموثوقية الموردين', icon: 'fa-award', color: '#38bdf8', border: '#38bdf8', bg: 'rgba(56, 189, 248, 0.2)' }
+                    { href: 'supplier_reliability.php', label: 'اعتمادية وموثوقية الموردين 360°', icon: 'fa-handshake-angle', color: '#c084fc', border: '#a855f7', bg: 'rgba(168, 85, 247, 0.2)' },
                 ]
             },
             {
@@ -2610,9 +2900,9 @@ function switchToMobileEdition() {
                 border: '#a78bfa',
                 screens: [
                     { href: 'inventory-summary.php', label: 'ملخص حركة المخزون', icon: 'fa-boxes-stacked', color: '#a78bfa', border: '#a78bfa', bg: 'rgba(167, 139, 250, 0.2)' },
-                    { href: 'inventory-movement.php', label: 'حركة الأصناف التفصيلية', icon: 'fa-dolly', color: '#38bdf8', border: '#38bdf8', bg: 'rgba(56, 189, 248, 0.2)' },
-                    { href: 'warehouse-inventory.php', label: 'مخزون المستودعات', icon: 'fa-warehouse', color: '#fbbf24', border: '#f59e0b', bg: 'rgba(251, 191, 36, 0.2)' },
-                    { href: 'warehouse-transfer.php', label: 'التحويل بين المستودعات', icon: 'fa-arrows-left-right', color: '#34d399', border: '#10b981', bg: 'rgba(16, 185, 129, 0.2)' },
+                    { href: 'warehouse-ledger.php', label: 'حركة المخازن والمستودعات', icon: 'fa-dolly', color: '#38bdf8', border: '#38bdf8', bg: 'rgba(56, 189, 248, 0.2)' },
+                    { href: 'inventory-movement.php', label: 'حركات البضائع وأرصدة المستودعات', icon: 'fa-warehouse', color: '#fbbf24', border: '#f59e0b', bg: 'rgba(251, 191, 36, 0.2)' },
+                    { href: 'inventory-adjustment.php?tab=transfer', label: 'التحويل والمناقلة بين المستودعات', icon: 'fa-arrows-left-right', color: '#34d399', border: '#10b981', bg: 'rgba(16, 185, 129, 0.2)' },
                     { href: 'item-ledger.php', label: 'دفتر حركة الصنف', icon: 'fa-barcode', color: '#f87171', border: '#ef4444', bg: 'rgba(248, 113, 113, 0.2)' }
                 ]
             },
@@ -2624,12 +2914,11 @@ function switchToMobileEdition() {
                 bg: 'rgba(244, 114, 182, 0.2)',
                 border: '#f472b6',
                 screens: [
-                    { href: 'mainbalances-report.php', label: 'تقرير الأرصدة الأساسية', icon: 'fa-scale-balanced', color: '#00f3ff', border: '#00f3ff', bg: 'rgba(0, 243, 255, 0.2)' },
-                    { href: 'balances_modern_hub.php', label: 'أرصدة تجميعية متساوية', icon: 'fa-layer-group', color: '#34d399', border: '#10b981', bg: 'rgba(16, 185, 129, 0.2)' },
-                    { href: 'balances_modern_hub.php', label: 'مركز الأرصدة الموحد', icon: 'fa-chart-pie', color: '#fbbf24', border: '#f59e0b', bg: 'rgba(251, 191, 36, 0.2)' },
-                    { href: 'daily_master_report.php', label: 'التقرير اليومي الشامل', icon: 'fa-calendar-day', color: '#c084fc', border: '#a855f7', bg: 'rgba(168, 85, 247, 0.2)' },
-                    { href: 'aging-report.php', label: 'تقرير أعمار الديون', icon: 'fa-clock-rotate-left', color: '#f87171', border: '#ef4444', bg: 'rgba(248, 113, 113, 0.2)' },
-                    { href: 'combined_receivables.php', label: 'تجميعية المستحقات والديون', icon: 'fa-hand-holding-dollar', color: '#38bdf8', border: '#38bdf8', bg: 'rgba(56, 189, 248, 0.2)' }
+                    { href: 'mainbalances-report.php', label: 'حساب الأرصدة الأساسية', icon: 'fa-scale-balanced', color: '#10b981', border: '#10b981', bg: 'rgba(16, 185, 129, 0.2)' },
+                    { href: 'balances_modern_hub.php', label: 'مركز الأرصدة ومقاصة الحسابات', icon: 'fa-chart-pie', color: '#fbbf24', border: '#f59e0b', bg: 'rgba(251, 191, 36, 0.2)' },
+                    { href: 'combined_receivables.php', label: 'حساب مديونية الأرصدة الشامل', icon: 'fa-hand-holding-dollar', color: '#38bdf8', border: '#38bdf8', bg: 'rgba(56, 189, 248, 0.2)' },
+                    { href: 'aging-report.php', label: 'أعمار الديون والحقوق وسقوف الائتمان', icon: 'fa-clock-rotate-left', color: '#f87171', border: '#ef4444', bg: 'rgba(248, 113, 113, 0.2)' },
+                    { href: 'daily_master_report.php', label: 'التقرير اليومي الشامل', icon: 'fa-calendar-day', color: '#c084fc', border: '#a855f7', bg: 'rgba(168, 85, 247, 0.2)' }
                 ]
             },
             {
@@ -2640,12 +2929,10 @@ function switchToMobileEdition() {
                 bg: 'rgba(52, 211, 153, 0.2)',
                 border: '#34d399',
                 screens: [
-                    { href: 'cash-bank-statement.php', label: 'كشف حركة الخزن والبنوك', icon: 'fa-building-columns', color: '#34d399', border: '#10b981', bg: 'rgba(16, 185, 129, 0.2)' },
-                    { href: 'multi-cash-payment.php', label: 'سند دفع وصرف متعدد', icon: 'fa-money-bill-wave', color: '#fbbf24', border: '#f59e0b', bg: 'rgba(251, 191, 36, 0.2)' },
-                    { href: 'single-cash-payment.php', label: 'سند صرف نقدية', icon: 'fa-file-invoice', color: '#f87171', border: '#ef4444', bg: 'rgba(248, 113, 113, 0.2)' },
-                    { href: 'single-cash-receipt.php', label: 'سند قبض نقدية', icon: 'fa-receipt', color: '#38bdf8', border: '#38bdf8', bg: 'rgba(56, 189, 248, 0.2)' },
-                    { href: 'safe-transfer.php', label: 'تحويل نقدية بين الخزن', icon: 'fa-arrow-right-arrow-left', color: '#c084fc', border: '#a855f7', bg: 'rgba(168, 85, 247, 0.2)' },
-                    { href: 'checks-cycle.php', label: 'دورة إدارة الشيكات', icon: 'fa-money-check-dollar', color: '#fbbf24', border: '#fbbf24', bg: 'rgba(251, 191, 36, 0.2)' }
+                    { href: 'single-cash-payment.php', label: 'حركة مالية (صرف وقبض مفرد)', icon: 'fa-money-bill-transfer', color: '#f87171', border: '#ef4444', bg: 'rgba(248, 113, 113, 0.2)' },
+                    { href: 'multi-cash-payment.php', label: 'صرف وقبض مجمع (متعدد الجهات)', icon: 'fa-money-bill-wave', color: '#fbbf24', border: '#f59e0b', bg: 'rgba(251, 191, 36, 0.2)' },
+                    { href: 'checks-cycle.php', label: 'دورة إدارة الشيكات', icon: 'fa-money-check-dollar', color: '#38bdf8', border: '#38bdf8', bg: 'rgba(56, 189, 248, 0.2)' },
+                    { href: 'vouchers-hub.php', label: 'بوابة المعاملات المالية الشاملة', icon: 'fa-vault', color: '#34d399', border: '#10b981', bg: 'rgba(16, 185, 129, 0.2)' }
                 ]
             },
             {
@@ -2656,14 +2943,17 @@ function switchToMobileEdition() {
                 bg: 'rgba(192, 132, 252, 0.2)',
                 border: '#c084fc',
                 screens: [
-                    { href: 'ai_goods_advisor.php', label: 'مستشار AI للبضائع', icon: 'fa-robot', color: '#34d399', border: '#10b981', bg: 'rgba(16, 185, 129, 0.2)' },
-                    { href: 'ai_money_advisor.php', label: 'مستشار AI للأموال', icon: 'fa-lightbulb', color: '#c084fc', border: '#a855f7', bg: 'rgba(168, 85, 247, 0.2)' },
+                    { href: 'ai_advisor.php', label: 'الحارس والمستشار الذكي الشامل 360°', icon: 'fa-shield-halved', color: '#22d3ee', border: '#06b6d4', bg: 'rgba(6, 182, 212, 0.2)' },
+                    { href: 'ai_goods_advisor.php', label: 'مستشار AI للبضائع والمخازن', icon: 'fa-robot', color: '#34d399', border: '#10b981', bg: 'rgba(16, 185, 129, 0.2)' },
+                    { href: 'ai_money_advisor.php', label: 'مستشار AI للأموال والسيولة', icon: 'fa-lightbulb', color: '#c084fc', border: '#a855f7', bg: 'rgba(168, 85, 247, 0.2)' },
+                    { href: 'sales_forecasting.php', label: 'التنبؤ المالي الذكي (AI Forecasting)', icon: 'fa-chart-line', color: '#fbbf24', border: '#f59e0b', bg: 'rgba(245, 158, 11, 0.2)' },
                     { href: 'smart_inventory_report.php', label: 'تقارير الذكاء الاصطناعي', icon: 'fa-brain', color: '#38bdf8', border: '#38bdf8', bg: 'rgba(56, 189, 248, 0.2)' },
                     { href: 'master-data.php', label: 'إدارة البيانات الأساسية', icon: 'fa-database', color: '#60a5fa', border: '#3b82f6', bg: 'rgba(59, 130, 246, 0.2)' },
                     { href: 'users-roles.php', label: 'المستخدمون والصلاحيات', icon: 'fa-user-gear', color: '#fbbf24', border: '#f59e0b', bg: 'rgba(251, 191, 36, 0.2)' },
                     { href: 'settings.php', label: 'إعدادات النظام والقواعد', icon: 'fa-gear', color: '#94a3b8', border: '#64748b', bg: 'rgba(100, 116, 139, 0.2)' },
+                    { href: 'settings.php?tab=fonts', label: 'الخطوط وحجم العرض', icon: 'fa-font', color: '#38bdf8', border: '#0284c7', bg: 'rgba(56, 189, 248, 0.2)' },
                     { href: 'backup.php', label: 'النسخ الاحتياطي', icon: 'fa-hard-drive', color: '#a78bfa', border: '#a78bfa', bg: 'rgba(167, 139, 250, 0.2)' },
-                    { href: 'audit-log.php', label: 'سجل العمليات والرقابة', icon: 'fa-user-shield', color: '#f87171', border: '#ef4444', bg: 'rgba(248, 113, 113, 0.2)' }
+                    { href: 'audit-log.php', label: 'سجل الرقابة والتدقيق وتتبع العمليات', icon: 'fa-user-shield', color: '#f87171', border: '#ef4444', bg: 'rgba(248, 113, 113, 0.2)' }
                 ]
             }
         ];
@@ -2727,12 +3017,12 @@ function switchToMobileEdition() {
                     popoverList.innerHTML = '<div style="padding:20px; text-align:center; color:#94a3b8; font-size:0.9rem;">🚫 لا تملك صلاحية للوصول إلى أي شاشة في هذا القسم.</div>';
                 } else {
                     popoverList.innerHTML = visibleScreens.map(scr => `
-                        <a href="${scr.href}" onclick="window.location.href='${scr.href}'" class="screen-popover-item" style="--item-border-color: ${scr.border}; --item-glow-color: ${scr.bg}; border-bottom: 2.5px solid ${scr.border} !important; background: rgba(15, 23, 42, 0.95) !important;">
+                        <a href="${scr.href}" onclick="window.location.href='${scr.href}'" class="screen-popover-item" style="--item-border-color: ${scr.border}; --item-glow-color: ${scr.bg}; border-bottom: 2.5px solid ${scr.border} !important; background: var(--surface, rgba(15, 23, 42, 0.95)) !important;">
                             <div style="display: flex; align-items: center; gap: 12px; min-width: 0; flex: 1;">
                                 <span class="qa-icon" style="width: 32px; height: 32px; min-width: 32px; font-size: 0.88rem; border-radius: 8px; background: ${scr.bg}; border: 1px solid ${scr.border}; color: ${scr.color}; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
                                     <i class="fa-solid ${scr.icon}"></i>
                                 </span>
-                                <span class="screen-title" style="font-size: 0.92rem; font-weight: 800; color: #ffffff;">${scr.label}</span>
+                                <span class="screen-title" style="font-size: 0.86rem; font-weight: 800; color: var(--text-primary, #ffffff);">${scr.label}</span>
                             </div>
                             <i class="fa-solid fa-arrow-left screen-arrow" style="font-size: 0.8rem; color: ${scr.color}; opacity: 0.9;"></i>
                         </a>
@@ -2784,10 +3074,10 @@ function switchToMobileEdition() {
         //  SINGLE-ROW 7-ITEM QUICK ACTIONS ENGINE WITH RIGHT-CLICK CUSTOMIZER
         // ═════════════════════════════════════════════════════════════════════
         const ALL_QUICK_ACTIONS = [
+            { id: 'ai_guardian', href: 'ai_advisor.php', label: 'الحارس الذكي الشامل 360°', category: 'الذكاء الاصطناعي', icon: 'fa-shield-halved', color: '#22d3ee', bg: 'rgba(6, 182, 212, 0.2)', border: '#06b6d4' },
             { id: 'ai_goods', href: 'ai_goods_advisor.php', label: 'مستشار AI للبضائع', category: 'الذكاء الاصطناعي', icon: 'fa-robot', color: '#34d399', bg: 'rgba(16, 185, 129, 0.2)', border: '#10b981' },
-            { id: 'smart_inv_alerts', href: 'smart_inventory_report.php', label: 'تنبيهات المخازن', category: 'المخزون والمستودعات', icon: 'fa-boxes-stacked', color: '#22d3ee', bg: 'rgba(6, 182, 212, 0.2)', border: '#06b6d4' },
             { id: 'ai_money', href: 'ai_money_advisor.php', label: 'مستشار AI للأموال', category: 'الذكاء الاصطناعي', icon: 'fa-lightbulb', color: '#c084fc', bg: 'rgba(168, 85, 247, 0.2)', border: '#a855f7' },
-            { id: 'alerts_mgr', href: 'alerts_manager.php', label: 'تنبيهات التقارير', category: 'التقارير والتنبيهات', icon: 'fa-triangle-exclamation', color: '#fb7185', bg: 'rgba(244, 63, 94, 0.2)', border: '#f43f5e' },
+            { id: 'alerts_mgr', href: 'alarm.php', label: 'منظومة التنبيهات', category: 'التقارير والتنبيهات', icon: 'fa-triangle-exclamation', color: '#fb7185', bg: 'rgba(244, 63, 94, 0.2)', border: '#f43f5e' },
             { id: 'settings', href: 'settings.php', label: 'الإعدادات والقواعد', category: 'الإدارة والصلاحيات', icon: 'fa-gear', color: '#94a3b8', bg: 'rgba(100, 116, 139, 0.2)', border: '#64748b' },
             { id: 'tools', href: 'engineering_tools.php', label: 'أدوات مساعدة', category: 'أدوات مساعدة', icon: 'fa-toolbox', color: '#f472b6', bg: 'rgba(236, 72, 153, 0.2)', border: '#ec4899' },
             { id: 'inheritance', href: 'engineering_tools.php?tab=inheritance', label: 'الميراث الشرعي', category: 'أدوات مساعدة', icon: 'fa-scale-balanced', color: '#d97706', bg: 'rgba(217, 119, 6, 0.2)', border: '#d97706' },
@@ -2802,15 +3092,15 @@ function switchToMobileEdition() {
             { id: 'jobs', href: 'jobs.php', label: 'المهام', category: 'الإدارة والصلاحيات', icon: 'fa-list-check', color: '#34d399', bg: 'rgba(16, 185, 129, 0.2)', border: '#10b981' },
             { id: 'account_stmt', href: 'account-statement.php', label: 'كشف حساب', category: 'المالية والحسابات', icon: 'fa-file-invoice-dollar', color: '#38bdf8', bg: 'rgba(56, 189, 248, 0.2)', border: '#38bdf8' },
             { id: 'ledger', href: 'general-ledger.php', label: 'دفتر الأستاذ العام', category: 'المالية والحسابات', icon: 'fa-book-bookmark', color: '#60a5fa', bg: 'rgba(59, 130, 246, 0.2)', border: '#3b82f6' },
-            { id: 'customer_portfolio', href: 'customer-portfolio.php', label: 'محفظة العملاء', category: 'المبيعات والمشتريات', icon: 'fa-users', color: '#34d399', bg: 'rgba(16, 185, 129, 0.2)', border: '#10b981' },
+            { id: 'customer_portfolio', href: 'customer-portfolio.php', label: 'محفظة العملاء والموردين 360°', category: 'المبيعات والمشتريات', icon: 'fa-users', color: '#34d399', bg: 'rgba(16, 185, 129, 0.2)', border: '#10b981' },
             { id: 'inv_report', href: 'inventory-report.php', label: 'تقرير المخزون الشامل', category: 'المخزون والمستودعات', icon: 'fa-warehouse', color: '#fbbf24', bg: 'rgba(251, 191, 36, 0.2)', border: '#fbbf24' },
-            { id: 'sales_delivery', href: 'sales-delivery.php', label: 'تسليم المبيعات', category: 'المبيعات والمشتريات', icon: 'fa-truck-ramp-box', color: '#f87171', bg: 'rgba(248, 113, 113, 0.2)', border: '#ef4444' },
+            { id: 'sales_delivery', href: 'sales-delivery.php', label: 'بوابة تسليم المبيعات', category: 'المبيعات والمشتريات', icon: 'fa-truck-ramp-box', color: '#f87171', bg: 'rgba(248, 113, 113, 0.2)', border: '#ef4444' },
             { id: 'users_roles', href: 'users-roles.php', label: 'المستخدمون والصلاحيات', category: 'الإدارة والصلاحيات', icon: 'fa-user-gear', color: '#c084fc', bg: 'rgba(192, 132, 252, 0.2)', border: '#c084fc' },
             { id: 'partners', href: 'partners_reports_hub.php', label: 'الشركاء والتقارير', category: 'التقارير والتنبيهات', icon: 'fa-handshake', color: '#22d3ee', bg: 'rgba(6, 182, 212, 0.2)', border: '#06b6d4' },
             { id: 'backup', href: 'backup.php', label: 'النسخ الاحتياطي', category: 'الإدارة والصلاحيات', icon: 'fa-hard-drive', color: '#94a3b8', bg: 'rgba(100, 116, 139, 0.2)', border: '#64748b' }
         ];
 
-        const DEFAULT_7_IDS = ['ai_goods', 'smart_inv_alerts', 'ai_money', 'alerts_mgr', 'settings', 'tools', 'smart_inv_rep'];
+        const DEFAULT_7_IDS = ['ai_guardian', 'ai_goods', 'ai_money', 'alerts_mgr', 'jobs', 'settings', 'smart_inv_rep'];
         let currentScreenSortMode = 'default';
 
         function sortScreensDropdown(mode) {
@@ -2904,7 +3194,7 @@ function switchToMobileEdition() {
                         <span class="qa-icon" style="width: 28px; height: 28px; min-width: 28px; font-size: 0.8rem; border-radius: 8px; background: ${item.bg}; border: 1px solid ${item.border}; color: ${item.color}; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
                             <i class="fa-solid ${item.icon}"></i>
                         </span>
-                        <span class="screen-title" style="font-size: 0.88rem; font-weight: 800; color: #ffffff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${item.label}</span>
+                        <span class="screen-title" style="font-size: 0.86rem; font-weight: 800; color: var(--text-primary, #ffffff); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${item.label}</span>
                     </div>
                     <i class="fa-solid fa-arrow-left screen-arrow" style="font-size: 0.75rem; color: ${item.color}; opacity: 0.85;"></i>
                 </a>

@@ -4123,3 +4123,231 @@
     }
 
 
+
+    /* ═══════════════════════════════════════════════════════════════════════════
+       🔒 درع الثبات الهيكلي الفوري (0ms Structural Layout Lock - Laptop & Mobile)
+       ═══════════════════════════════════════════════════════════════════════════ */
+    .mobile-app-wrapper {
+      width: 100% !important;
+      max-width: 28rem !important;
+      margin-left: auto !important;
+      margin-right: auto !important;
+      display: flex !important;
+      flex-direction: column !important;
+      position: relative !important;
+      overflow: hidden !important;
+    }
+    html #headerBrandLogoBadge.flagship-brand-badge img {
+      width: 20px !important;
+      height: 20px !important;
+      max-width: 20px !important;
+      max-height: 20px !important;
+      object-fit: contain !important;
+      flex-shrink: 0 !important;
+      display: inline-block !important;
+    }
+    html #flagshipTopBar .flagship-tile svg {
+      width: 20px !important;
+      height: 20px !important;
+      max-width: 20px !important;
+      max-height: 20px !important;
+      flex-shrink: 0 !important;
+    }
+    html #row2OperationalBar {
+      display: grid !important;
+      grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
+      gap: 6px !important;
+      align-items: center !important;
+      justify-items: center !important;
+      width: 100% !important;
+      margin-top: 6px !important;
+    }
+    #operationsGrid {
+      display: grid !important;
+      grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+      gap: 8px !important;
+    }
+    .grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .grid-cols-5 { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+    .grid-cols-6 { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+    .w-4 { width: 1rem; } .h-4 { height: 1rem; }
+    .w-5 { width: 1.25rem; } .h-5 { height: 1.25rem; }
+    .w-6 { width: 1.5rem; } .h-6 { height: 1.5rem; }
+    .w-7 { width: 1.75rem; } .h-7 { height: 1.75rem; }
+    .w-8 { width: 2rem; } .h-8 { height: 2rem; }
+    .w-9 { width: 2.25rem; } .h-9 { height: 2.25rem; }
+    .shrink-0 { flex-shrink: 0; }
+
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   🔤 MAGAIEES MOBILE OPHTHALMIC TYPOGRAPHY, SCALING & CONTRAST ENGINE (2026)
+   - Option 1: default (الخط الافتراضي الحالي - بدون أي تعديل)
+   - Option 2: ibm_plex ("IBM Plex Sans Arabic" - 300, 400, 500, 600, 700)
+   - Option 3: readex_pro ("Readex Pro" - 300, 400, 500, 600, 700)
+   - Scaling: 90% (مدمج), 100% (قياسي), 110% (مريح للنظر), 125% (كبير لضعاف النظر)
+   ═══════════════════════════════════════════════════════════════════════════ */
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=Readex+Pro:wght@300;400;500;600;700&display=swap');
+
+:root {
+  --mobile-font-scale: 1;
+}
+
+/* ── 1. Font Family Selection (IBM Plex Sans Arabic & Readex Pro) ── */
+html[data-mobile-font="ibm_plex"] {
+  --mobile-active-font: 'IBM Plex Sans Arabic', 'Inter', sans-serif;
+}
+html[data-mobile-font="readex_pro"] {
+  --mobile-active-font: 'Readex Pro', 'Inter', sans-serif;
+}
+
+html[data-mobile-font="ibm_plex"] body,
+html[data-mobile-font="readex_pro"] body,
+html[data-mobile-font="ibm_plex"] body :not(.fa):not(.fas):not(.far):not(.fab):not(.fa-solid):not(.fa-regular):not(.fa-brands):not([class*="fa-"]):not(.material-icons):not(i),
+html[data-mobile-font="readex_pro"] body :not(.fa):not(.fas):not(.far):not(.fab):not(.fa-solid):not(.fa-regular):not(.fa-brands):not([class*="fa-"]):not(.material-icons):not(i) {
+  font-family: var(--mobile-active-font) !important;
+  -webkit-font-smoothing: antialiased !important;
+  -moz-osx-font-smoothing: grayscale !important;
+  text-rendering: optimizeLegibility !important;
+  letter-spacing: 0.1px;
+}
+
+/* ── 2. Dynamic Mobile Font Scaling (90%, 100%, 110%, 125%) ── */
+html[data-mobile-scale-pct] {
+  font-size: calc(16px * var(--mobile-font-scale, 1)) !important;
+}
+html[data-mobile-scale-pct="90"] { font-size: 14.4px !important; }
+html[data-mobile-scale-pct="100"] { font-size: 16px !important; }
+html[data-mobile-scale-pct="110"] { font-size: 17.6px !important; }
+html[data-mobile-scale-pct="125"] { font-size: 20px !important; }
+
+/* ── 3. STRICT ANTI-WRAP FOR FINANCIAL NUMBERS (منع انكسار الأرقام المالية نهائياً إلى سطرين) ── */
+.font-mono,
+.num,
+[data-num],
+input[type="number"],
+input[inputmode="decimal"],
+#salesSplitTotalInput,
+#salesSplitPaidInput,
+#salesSplitRemainingText,
+#purchaseSplitTotalInput,
+#purchaseSplitPaidInput,
+#purchaseSplitRemainingText,
+#opSalesSplitInvoiceNoPill,
+[id*="Total"],
+[id*="Paid"],
+[id*="Remaining"],
+[id*="Balance"],
+[id*="Amount"],
+.luminous-number-badge {
+  white-space: nowrap !important;
+  font-variant-numeric: tabular-nums !important;
+  font-feature-settings: "tnum" 1 !important;
+}
+
+#salesSplitRemainingText,
+#purchaseSplitRemainingText {
+  font-size: clamp(0.78rem, 3.6vw, 0.98rem) !important;
+  white-space: nowrap !important;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ── 4. FIX HEADER STACKING & LETTER DOT CLIPPING (معالجة تكدس العناوين واقتطاع نقاط الحروف السفلية) ── */
+.modal-backdrop h3,
+.modal-backdrop h4,
+#modalOpSalesSplit h4,
+#modalOpPurchaseSplit h4 {
+  line-height: 1.5 !important;
+  padding-bottom: 2px !important;
+  overflow: visible !important;
+}
+
+#operationsGrid .op-btn > span {
+  line-height: 1.42 !important;
+  padding-bottom: 3px !important;
+  padding-top: 1px !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  white-space: normal !important;
+  word-break: keep-all !important;
+  font-size: clamp(10.5px, 2.9vw, 12.5px) !important;
+}
+
+nav.app-bottom-nav .dock-tab-label {
+  line-height: 1.38 !important;
+  padding-bottom: 2px !important;
+  overflow: visible !important;
+  white-space: nowrap !important;
+  font-size: clamp(9.5px, 2.6vw, 11.5px) !important;
+}
+
+/* ── 5. LOW-RES SCREENS & NO-GLASSES WEIGHT DISTRIBUTION (منع الأوزان الثقيلة 800/900 في التسميات والفرعيات) ── */
+html[data-mobile-font="ibm_plex"] body label,
+html[data-mobile-font="readex_pro"] body label,
+html[data-mobile-font="ibm_plex"] body .text-slate-300,
+html[data-mobile-font="readex_pro"] body .text-slate-300,
+html[data-mobile-font="ibm_plex"] body .text-slate-400,
+html[data-mobile-font="readex_pro"] body .text-slate-400 {
+  font-weight: 500 !important;
+  line-height: 1.55 !important;
+  letter-spacing: 0.12px !important;
+}
+
+html[data-mobile-font="ibm_plex"] body h1,
+html[data-mobile-font="ibm_plex"] body h2,
+html[data-mobile-font="ibm_plex"] body h3,
+html[data-mobile-font="ibm_plex"] body h4,
+html[data-mobile-font="readex_pro"] body h1,
+html[data-mobile-font="readex_pro"] body h2,
+html[data-mobile-font="readex_pro"] body h3,
+html[data-mobile-font="readex_pro"] body h4,
+html[data-mobile-font="ibm_plex"] body #operationsGrid .op-btn > span,
+html[data-mobile-font="readex_pro"] body #operationsGrid .op-btn > span,
+html[data-mobile-font="ibm_plex"] body nav.app-bottom-nav .dock-tab-label,
+html[data-mobile-font="readex_pro"] body nav.app-bottom-nav .dock-tab-label {
+  font-weight: 600 !important;
+}
+
+/* ── 6. NIGHT MODE RETINA COMFORT (#F1F5F9 Primary & #CBD5E1 Secondary) & GREEN SAVE BUTTON CLARITY ── */
+:is(html:not([data-theme="warm-alabaster"]):not([data-theme="pure-platinum"]):not([data-theme="pearl-platinum"]):not([data-theme="beige"]):not([data-theme="ivory"]))[data-mobile-font] body,
+:is(html:not([data-theme="warm-alabaster"]):not([data-theme="pure-platinum"]):not([data-theme="pearl-platinum"]):not([data-theme="beige"]):not([data-theme="ivory"]))[data-mobile-font] .text-white,
+:is(html:not([data-theme="warm-alabaster"]):not([data-theme="pure-platinum"]):not([data-theme="pearl-platinum"]):not([data-theme="beige"]):not([data-theme="ivory"]))[data-mobile-font] .text-slate-100,
+:is(html:not([data-theme="warm-alabaster"]):not([data-theme="pure-platinum"]):not([data-theme="pearl-platinum"]):not([data-theme="beige"]):not([data-theme="ivory"]))[data-mobile-font] .text-slate-200 {
+  color: #F1F5F9 !important;
+}
+
+:is(html:not([data-theme="warm-alabaster"]):not([data-theme="pure-platinum"]):not([data-theme="pearl-platinum"]):not([data-theme="beige"]):not([data-theme="ivory"]))[data-mobile-font] label,
+:is(html:not([data-theme="warm-alabaster"]):not([data-theme="pure-platinum"]):not([data-theme="pearl-platinum"]):not([data-theme="beige"]):not([data-theme="ivory"]))[data-mobile-font] .text-slate-300,
+:is(html:not([data-theme="warm-alabaster"]):not([data-theme="pure-platinum"]):not([data-theme="pearl-platinum"]):not([data-theme="beige"]):not([data-theme="ivory"]))[data-mobile-font] .text-slate-400 {
+  color: #CBD5E1 !important;
+}
+
+/* Green Save Button ("إصدار الفاتورة وجدولة الأقساط وحفظها فوراً") High-Contrast Day & Night */
+.royal-btn.royal-btn-save,
+#modalOpSalesSplit .royal-btn-save,
+#modalOpPurchaseSplit .royal-btn-save {
+  background: linear-gradient(135deg, #059669 0%, #047857 100%) !important;
+  color: #FFFFFF !important;
+  border: 1.5px solid #34d399 !important;
+  font-weight: 700 !important;
+  line-height: 1.45 !important;
+  letter-spacing: 0.15px !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5) !important;
+  white-space: normal !important;
+  height: auto !important;
+  min-height: 44px !important;
+  padding: 10px 14px !important;
+}
+
+/* ── 7. DAYLIGHT / SUNLIGHT MODE (#0F172A Ultra-Sharp Dark Text & Slight Weight Boost) ── */
+:is(html[data-theme="warm-alabaster"], html[data-theme="pure-platinum"], html[data-theme="pearl-platinum"], html[data-theme="beige"], html[data-theme="ivory"]) body,
+:is(html[data-theme="warm-alabaster"], html[data-theme="pure-platinum"], html[data-theme="pearl-platinum"], html[data-theme="beige"], html[data-theme="ivory"]) body label,
+:is(html[data-theme="warm-alabaster"], html[data-theme="pure-platinum"], html[data-theme="pearl-platinum"], html[data-theme="beige"], html[data-theme="ivory"]) body h1,
+:is(html[data-theme="warm-alabaster"], html[data-theme="pure-platinum"], html[data-theme="pearl-platinum"], html[data-theme="beige"], html[data-theme="ivory"]) body h2,
+:is(html[data-theme="warm-alabaster"], html[data-theme="pure-platinum"], html[data-theme="pearl-platinum"], html[data-theme="beige"], html[data-theme="ivory"]) body h3,
+:is(html[data-theme="warm-alabaster"], html[data-theme="pure-platinum"], html[data-theme="pearl-platinum"], html[data-theme="beige"], html[data-theme="ivory"]) body h4,
+:is(html[data-theme="warm-alabaster"], html[data-theme="pure-platinum"], html[data-theme="pearl-platinum"], html[data-theme="beige"], html[data-theme="ivory"]) body #operationsGrid .op-btn > span {
+  color: #0F172A !important;
+  font-weight: 600 !important;
+}

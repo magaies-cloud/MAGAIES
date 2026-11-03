@@ -1,9 +1,9 @@
 <?php
-$page_title = 'محلل الأرصدة الشامل';
+$page_title = 'مركز الأرصدة ومقاصة الحسابات';
 $header_theme_class = 'header-theme-reports';
 
 // ====================================================================
-// نظام Al-Sajana Smart ERP 2026 - محلل الأرصدة الشامل
+// نظام Al-Sajana Smart ERP 2026 - مركز الأرصدة ومقاصة الحسابات
 // ====================================================================
 $selected_currency = isset($_COOKIE['currency']) ? $_COOKIE['currency'] : (isset($_GET['currency']) ? $_GET['currency'] : 'SDG');
 $rate = ($selected_currency === 'SDG') ? 600000 : 1000;
@@ -146,7 +146,7 @@ if (!function_exists('convertReportAmount')) {
     <link rel="stylesheet" href="css/components.css?v=20260723_v14">
 
     <meta charset="UTF-8">
-    <title>محلل الأرصدة الشامل | Al-Sajana ERP</title>
+    <title>مركز الأرصدة ومقاصة الحسابات | Al-Sajana ERP</title>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;700;900&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
@@ -277,7 +277,7 @@ if (!function_exists('convertReportAmount')) {
 
     <script>
         const ctx = document.getElementById('balanceDonutChart').getContext('2d');
-        new Chart(ctx, {
+        window._balDonutChart = new Chart(ctx, {
             type: 'doughnut',
             data: {
                 labels: ['نقدية (كاش الصندوق)', 'أرصدة بنوك'],
@@ -297,5 +297,114 @@ if (!function_exists('convertReportAmount')) {
     </script>
     </div>
     <script defer src="js/app.js?v=20261016_v28"></script>
+    <style>
+        html[data-theme="warm_cream"] body, html[data-theme="ultra_white"] body, html[data-theme="exec_gray"] body {
+            background: var(--bg-primary, #f8fafc) !important;
+            color: #0f172a !important;
+        }
+        html[data-theme="warm_cream"] .glass-panel, html[data-theme="ultra_white"] .glass-panel, html[data-theme="exec_gray"] .glass-panel {
+            background: #ffffff !important;
+            color: #0f172a !important;
+            border-color: #cbd5e1 !important;
+        }
+        html[data-theme="warm_cream"] td, html[data-theme="ultra_white"] td, html[data-theme="exec_gray"] td,
+        html[data-theme="warm_cream"] th, html[data-theme="ultra_white"] th, html[data-theme="exec_gray"] th {
+            color: #0f172a !important;
+            border-bottom-color: #e2e8f0 !important;
+        }
+    </style>
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        try {
+            const safes = (JSON.parse(localStorage.getItem('erp_safes_v1') || '[]')).filter(s => !s.deleted);
+            const banks = (JSON.parse(localStorage.getItem('erp_banks_v1') || '[]')).filter(b => !b.deleted);
+            const unified = (JSON.parse(localStorage.getItem('erp_banks_safes_v1') || '[]')).filter(x => !x.deleted);
+            const tables = document.querySelectorAll('.glass-panel table tbody');
+            if (tables.length >= 1 && (safes.length > 0 || banks.length > 0 || unified.length > 0)) {
+                const map = new Map();
+                [...unified, ...safes.map(s => ({...s, type: 'نقدية'})), ...banks.map(b => ({...b, type: 'بنك'}))].forEach(acc => {
+                    if (!acc || !acc.id) return;
+                    const t = (acc.type === 'bank' || acc.type === 'بنك') ? 'بنك' : 'نقدية';
+                    const bal = parseFloat(acc.currentBalance ?? acc.balance ?? acc.openingBalance ?? 0) || 0;
+                    map.set(String(acc.id), { name: acc.name || acc.safeName || acc.bankName || 'حساب', type: t, balance: bal });
+                });
+                const list = Array.from(map.values());
+                if (list.length > 0) {
+                    let cashSum = 0, bankSum = 0;
+                    list.forEach(cb => { if (cb.type === 'نقدية') cashSum += Math.max(0, cb.balance); else bankSum += Math.max(0, cb.balance); });
+                    if (window._balDonutChart && (cashSum > 0 || bankSum > 0)) {
+                        window._balDonutChart.data.datasets[0].data = [cashSum, bankSum];
+                        window._balDonutChart.update();
+                    }
+                    tables[0].innerHTML = list.map(cb => `
+                        <tr>
+                            <td><strong>${cb.name}</strong></td>
+                            <td><span class="${cb.type === 'نقدية' ? 'badge-cash' : 'badge-bank'}">${cb.type}</span></td>
+                            <td style="font-weight:bold;">${cb.balance.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2})} <span style="font-size:11px;">SDG</span></td>
+                        </tr>
+                    `).join('');
+                }
+            }
+
+            // Live Cross-Account Netting Engine (مقاصة الحسابات المشتركة)
+            const customers = (JSON.parse(localStorage.getItem('erp_customers_v1') || '[]')).filter(c => c && !c.deleted);
+            const suppliers = (JSON.parse(localStorage.getItem('erp_suppliers_v1') || '[]')).filter(s => s && !s.deleted);
+            if (tables.length >= 2 && customers.length > 0 && suppliers.length > 0) {
+                const matchedNetting = [];
+                customers.forEach(c => {
+                    const cName = String(c.name || '').trim();
+                    if (!cName) return;
+                    const s = suppliers.find(sup => String(sup.name || '').trim() === cName || (c.phone && sup.phone && c.phone === sup.phone));
+                    if (s) {
+                        const ourMoney = Math.abs(parseFloat(c.balance || c.currentBalance || c.openingBalance || 0) || 0);
+                        const theirMoney = Math.abs(parseFloat(s.balance || s.currentBalance || s.openingBalance || 0) || 0);
+                        if (ourMoney > 0 || theirMoney > 0) {
+                            matchedNetting.push({ name: cName, our_money: ourMoney, their_money: theirMoney, net: ourMoney - theirMoney });
+                        }
+                    }
+                });
+                if (matchedNetting.length > 0) {
+                    tables[1].innerHTML = matchedNetting.map(net => {
+                        const settleAmt = Math.min(net.our_money, net.their_money);
+                        return `<tr>
+                            <td style="padding:12px;"><strong>${net.name}</strong></td>
+                            <td style="padding:12px;color:#00ff7f;">${net.our_money.toLocaleString('en-US',{minimumFractionDigits:2})}</td>
+                            <td style="padding:12px;color:#ff0055;">${net.their_money.toLocaleString('en-US',{minimumFractionDigits:2})}</td>
+                            <td style="padding:12px;font-weight:bold;color:${net.net>=0?'#00ffff':'#ff0055'};">${net.net.toLocaleString('en-US',{minimumFractionDigits:2})} SDG</td>
+                            <td style="padding:12px;">
+                                <button type="button" onclick="executePartnerNettingEntry('${net.name.replace(/'/g,"\\'")}', ${settleAmt})" style="padding:5px 12px;border-radius:10px;border:1px solid #00ff7f;background:rgba(0,255,127,0.15);color:#00ff7f;font-family:'Cairo',sans-serif;font-weight:800;font-size:11.5px;cursor:pointer;">⚡ تنفيذ قيد مقاصة (${settleAmt.toLocaleString()} SDG)</button>
+                            </td>
+                        </tr>`;
+                    }).join('');
+                }
+            }
+        } catch(e) {}
+    });
+
+    window.executePartnerNettingEntry = function(partnerName, amount) {
+        const settleVal = parseFloat(amount) || 0;
+        if (settleVal <= 0) return alert('لا يوجد مبلغ مشترك قابل للمقاصة.');
+        if (!confirm(`هل تريد توليد واعتماد قيد مقاصة محاسبي للجهة (${partnerName}) بمبلغ ${settleVal.toLocaleString()} SDG بين حساب المورد وحساب العميل؟`)) return;
+        const jvs = JSON.parse(localStorage.getItem('erp_journal_vouchers_v1') || '[]');
+        const jvNo = 'JV-NET-' + Date.now().toString().slice(-6);
+        jvs.unshift({
+            id: jvNo,
+            voucherNo: jvNo,
+            date: new Date().toISOString().slice(0, 10),
+            description: `قيد مقاصة وتسوية حساب مشترك للجهة (${partnerName})`,
+            totalDebit: settleVal,
+            totalCredit: settleVal,
+            isPosted: true,
+            source: 'balances_netting',
+            lines: [
+                { accountName: `ذمم الموردين - ${partnerName}`, debit: settleVal, credit: 0, note: `مقاصة مع حساب العميل` },
+                { accountName: `ذمم العملاء - ${partnerName}`, debit: 0, credit: settleVal, note: `مقاصة مع حساب المورد` }
+            ],
+            createdAt: new Date().toISOString()
+        });
+        localStorage.setItem('erp_journal_vouchers_v1', JSON.stringify(jvs));
+        alert(`✅ تم إصدار وترحيل قيد المقاصة رقم [${jvNo}] بنجاح في سجل القيود اليومية ودفتر الأستاذ!`);
+    };
+    </script>
 </body>
 </html>

@@ -191,9 +191,30 @@ $header_theme_class = "header-theme-inventory";
             </a>
             <a href="smart_inventory_report.php" class="hub-btn" style="--btn-color: #22d3ee;">
                 <div class="icon">🤖</div>
-                <div class="title">تقارير المخزن الذكية والـ AI</div>
-                <div class="desc">الـ 20 تقرير ومستشعر AI</div>
+                <div class="title">تقارير المخزن الذكية</div>
+                <div class="desc">الـ 20 تقرير استراتيجي</div>
             </a>
+            <a href="ai_goods_advisor.php" class="hub-btn" style="--btn-color: #10b981;">
+                <div class="icon">🧠</div>
+                <div class="title">مستشار AI للبضائع والمخازن</div>
+                <div class="desc">توقعات النواقص والركود</div>
+            </a>
+        </div>
+
+        <!-- شريط الربط المحاسبي واللوجستي الشامل 360° -->
+        <div style="display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:8px; background:rgba(15,23,42,0.78); border:1px solid rgba(167,139,250,0.28); border-radius:14px; padding:9px 14px;">
+            <div style="display:flex; align-items:center; gap:7px; flex-wrap:wrap;">
+                <span style="font-weight:900; font-size:0.84rem; color:#c084fc;">🔗 التكامل المحاسبي والمخزني المباشر:</span>
+                <a href="smart-logistics.php?mode=purchases" style="text-decoration:none; padding:4px 10px; border-radius:8px; background:rgba(52,211,153,0.14); border:1px solid rgba(52,211,153,0.35); color:#34d399; font-size:0.76rem; font-weight:800;">🚚 بوابة استلام المشتريات</a>
+                <a href="purchase-receipt.php" style="text-decoration:none; padding:4px 10px; border-radius:8px; background:rgba(56,189,248,0.14); border:1px solid rgba(56,189,248,0.35); color:#38bdf8; font-size:0.76rem; font-weight:800;">📥 سند استلام بضاعة GRN</a>
+                <a href="sales-delivery.php" style="text-decoration:none; padding:4px 10px; border-radius:8px; background:rgba(251,191,36,0.14); border:1px solid rgba(251,191,36,0.35); color:#fbbf24; font-size:0.76rem; font-weight:800;">📤 بوابة تسليم المبيعات</a>
+                <a href="journal.php" style="text-decoration:none; padding:4px 10px; border-radius:8px; background:rgba(168,85,247,0.14); border:1px solid rgba(168,85,247,0.35); color:#c084fc; font-size:0.76rem; font-weight:800;">📒 قيود المخازن والتسويات</a>
+                <a href="general-ledger.php" style="text-decoration:none; padding:4px 10px; border-radius:8px; background:rgba(244,114,182,0.14); border:1px solid rgba(244,114,182,0.35); color:#f472b6; font-size:0.76rem; font-weight:800;">📖 دفتر الأستاذ العام</a>
+            </div>
+            <div style="display:flex; align-items:center; gap:6px;">
+                <a href="inventory-adjustment.php?tab=transfer" style="text-decoration:none; padding:5px 12px; border-radius:8px; background:linear-gradient(135deg,#f97316,#ea580c); color:#fff; font-size:0.78rem; font-weight:900;">🔄 مناقلة بضاعة بين المستودعات</a>
+                <a href="ai_goods_advisor.php" style="text-decoration:none; padding:5px 12px; border-radius:8px; background:linear-gradient(135deg,#059669,#10b981); color:#fff; font-size:0.78rem; font-weight:900;">🤖 فحص المخزون بالذكاء الاصطناعي</a>
+            </div>
         </div>
 
         <!-- ── Massive Comprehensive Visual Analytical Chart Hub ── -->
@@ -327,188 +348,203 @@ $header_theme_class = "header-theme-inventory";
             const select = document.getElementById('chart-warehouse-filter');
             if (!select) return;
             const warehouses = getStorageData('erp_warehouses_v1') || [];
+            const currentVal = select.value || 'ALL';
+            select.innerHTML = '<option value="ALL">🏢 جميع المخازن</option>';
+            const seen = new Set();
             warehouses.forEach(w => {
-                const opt = document.createElement('option');
-                opt.value = w.id || w.name;
-                opt.textContent = '🏢 ' + (w.name || w.id);
-                select.appendChild(opt);
+                if (!w || w.deleted) return;
+                const wName = w.name || w.id;
+                if (wName && !seen.has(wName)) {
+                    seen.add(wName);
+                    const opt = document.createElement('option');
+                    opt.value = wName;
+                    opt.textContent = '🏢 ' + wName;
+                    select.appendChild(opt);
+                }
             });
+            if (seen.has(currentVal)) select.value = currentVal;
         }
 
         function renderUnifiedChart() {
-            const ctx = document.getElementById('unifiedInventoryChart');
-            if (!ctx) return;
-
-            const period = document.getElementById('chart-period')?.value || '30';
-            const selectedWh = document.getElementById('chart-warehouse-filter')?.value || 'ALL';
-            const now = new Date();
-            let startDate = new Date(1970, 0, 1);
-            if (period !== 'all') {
-                startDate = new Date();
-                startDate.setDate(now.getDate() - parseInt(period));
-            }
-
-            const items = getStorageData('erp_items_v1') || [];
-            const purchases = (getStorageData('erp_purchase_invoices_v1') || []).filter(x => !x.deleted);
-            const sales = (getStorageData('erp_sales_invoices_v1') || []).filter(x => !x.deleted && x.status !== 'draft');
-            const transfers = (getStorageData('erp_warehouse_transfers_v1') || []).filter(x => !x.deleted && x.status !== 'cancelled');
-
-            // 1. Daily Movements Calculation
-            const dailyData = {};
-            let totalIn = 0;
-            let totalOut = 0;
-            let totalValIn = 0;
-            let totalValOut = 0;
-
-            function addData(dateStr, type, qty, value) {
-                if (!dailyData[dateStr]) {
-                    dailyData[dateStr] = { inQty: 0, outQty: 0, inVal: 0, outVal: 0, trfQty: 0 };
-                }
-                if (type === 'in') { dailyData[dateStr].inQty += qty; dailyData[dateStr].inVal += value; totalIn += qty; totalValIn += value; }
-                if (type === 'out') { dailyData[dateStr].outQty += qty; dailyData[dateStr].outVal += value; totalOut += qty; totalValOut += value; }
-                if (type === 'trf') { dailyData[dateStr].trfQty += qty; }
-            }
-
-            purchases.forEach(inv => {
-                if (selectedWh !== 'ALL' && inv.warehouseId && inv.warehouseId !== selectedWh && inv.warehouse !== selectedWh) return;
-                const d = new Date(inv.date || inv.receiveDate || inv.createdAt || Date.now());
-                if (d >= startDate) {
-                    const dStr = d.toISOString().split('T')[0];
-                    let totalQty = 0;
-                    (inv.items || inv.lines || []).forEach(l => totalQty += (parseFloat(l.quantity) || 0));
-                    const val = parseFloat(inv.total) || parseFloat(inv.netTotal) || 0;
-                    if (inv.isReturn) addData(dStr, 'out', totalQty, val);
-                    else addData(dStr, 'in', totalQty, val);
-                }
-            });
-
-            sales.forEach(inv => {
-                if (selectedWh !== 'ALL' && inv.warehouseId && inv.warehouseId !== selectedWh && inv.warehouse !== selectedWh) return;
-                const d = new Date(inv.date || inv.createdAt || Date.now());
-                if (d >= startDate) {
-                    const dStr = d.toISOString().split('T')[0];
-                    let totalQty = 0;
-                    (inv.items || []).forEach(l => totalQty += (parseFloat(l.quantity) || 0));
-                    const val = parseFloat(inv.total) || parseFloat(inv.netTotal) || 0;
-                    if (inv.isReturn) addData(dStr, 'in', totalQty, val);
-                    else addData(dStr, 'out', totalQty, val);
-                }
-            });
-
-            transfers.forEach(tr => {
-                if (selectedWh !== 'ALL' && tr.fromWarehouse !== selectedWh && tr.toWarehouse !== selectedWh) return;
-                const d = new Date(tr.date || tr.createdAt || Date.now());
-                if (d >= startDate) {
-                    const dStr = d.toISOString().split('T')[0];
-                    let totalQty = 0;
-                    (tr.items || []).forEach(l => totalQty += (parseFloat(l.quantity) || 0));
-                    addData(dStr, 'trf', totalQty, 0);
-                }
-            });
-
-            // ?? Calculate Accurate Real-time Stock per Warehouse
-            let actualStockMap = {};
-            let actualValMap = {};
-            
-            // Initial opening balances
-            items.forEach(it => {
-                let openQty = parseFloat(it.openingBalance || it.opening_balance || 0);
-                let wh = (it.openingBalanceWarehouseId || it.warehouseId || it.warehouse || 'ALL');
-                let cost = parseFloat(it.cost || it.avgCost || it.costPrice || it.price || 0);
-                
-                if (!actualStockMap[wh]) { actualStockMap[wh] = 0; actualValMap[wh] = 0; }
-                actualStockMap[wh] += openQty;
-                actualValMap[wh] += (openQty * cost);
-            });
-            
-            // Apply Purchases
-            purchases.forEach(inv => {
-                let hdrWh = inv.warehouseId || inv.warehouse || 'ALL';
-                (inv.items || inv.lines || []).forEach(line => {
-                    let wh = line.warehouseId || hdrWh;
-                    let qty = parseFloat(line.quantity || 0) * (parseFloat(line.factor || line.conversionFactor || 1));
-                    let val = qty * parseFloat(line.cost || line.price || 0);
-                    if (!actualStockMap[wh]) { actualStockMap[wh] = 0; actualValMap[wh] = 0; }
-                    
-                    if (inv.isReturn) { actualStockMap[wh] -= qty; actualValMap[wh] -= val; }
-                    else { actualStockMap[wh] += qty; actualValMap[wh] += val; }
-                });
-            });
-            
-            // Apply Sales
-            sales.forEach(inv => {
-                let hdrWh = inv.warehouseId || inv.warehouse || 'ALL';
-                (inv.items || []).forEach(line => {
-                    let wh = line.warehouseId || hdrWh;
-                    let qty = parseFloat(line.quantity || 0) * (parseFloat(line.factor || line.conversionFactor || 1));
-                    let val = qty * parseFloat(line.cost || line.price || 0);
-                    if (!actualStockMap[wh]) { actualStockMap[wh] = 0; actualValMap[wh] = 0; }
-                    
-                    if (inv.isReturn) { actualStockMap[wh] += qty; actualValMap[wh] += val; }
-                    else { actualStockMap[wh] -= qty; actualValMap[wh] -= val; }
-                });
-            });
-            
-            // Apply Transfers
-            transfers.forEach(tr => {
-                let fromWh = tr.fromWarehouse;
-                let toWh = tr.toWarehouse;
-                if (!actualStockMap[fromWh]) { actualStockMap[fromWh] = 0; actualValMap[fromWh] = 0; }
-                if (!actualStockMap[toWh]) { actualStockMap[toWh] = 0; actualValMap[toWh] = 0; }
-                
-                (tr.items || []).forEach(line => {
-                    let qty = parseFloat(line.quantity || 0);
-                    let val = qty * parseFloat(line.cost || line.price || 0);
-                    actualStockMap[fromWh] -= qty; actualValMap[fromWh] -= val;
-                    actualStockMap[toWh] += qty; actualValMap[toWh] += val;
-                });
-            });
-            
-            let baseStock = 0;
-            let baseValue = 0;
-            for (let w in actualStockMap) {
-                if (selectedWh === 'ALL' || w === selectedWh || selectedWh === w.name) {
-                    baseStock += actualStockMap[w];
-                    baseValue += actualValMap[w];
-                }
-            }
-
-            // Update KPI Strip
-            const netStock = baseStock;
-            const netValue = baseValue;
-            document.getElementById('kpi-chart-stock').innerHTML = `${Number(netStock).toLocaleString()} <small style="font-size:0.75rem;">وحدة</small>`;
-            document.getElementById('kpi-chart-in').innerHTML = `${Number(totalIn).toLocaleString()} <small style="font-size:0.75rem;">وحدة</small>`;
-            document.getElementById('kpi-chart-out').innerHTML = `${Number(totalOut).toLocaleString()} <small style="font-size:0.75rem;">وحدة</small>`;
-            document.getElementById('kpi-chart-val').innerHTML = `${Number(netValue).toLocaleString()} <small style="font-size:0.75rem;">SDG</small>`;
-            document.getElementById('kpi-chart-counts').innerHTML = `${items.length} <small style="font-size:0.75rem;">صنف</small>`;
-
+            const canvas = document.getElementById('unifiedInventoryChart');
+            if (!canvas || typeof Chart === 'undefined') return;
+            const ctx = canvas.getContext('2d');
             if (unifiedChart) {
                 unifiedChart.destroy();
+                unifiedChart = null;
             }
 
-            Chart.defaults.color = '#94a3b8';
-            Chart.defaults.font.family = "'Tajawal', sans-serif";
+            const selectedWh = document.getElementById('chart-warehouse-filter')?.value || 'ALL';
+            const periodVal = document.getElementById('chart-period')?.value || '30';
+            const cutoffDate = periodVal === 'all' ? new Date(0) : new Date(Date.now() - parseInt(periodVal, 10) * 86400000);
 
-            // ── Render Chart Based on Selected View Mode ──
+            const items = (getStorageData('erp_items_v1') || []).filter(i => i && !i.deleted);
+            const warehouses = (getStorageData('erp_warehouses_v1') || []).filter(w => w && !w.deleted);
+            const purchases = (getStorageData('erp_purchase_invoices_v1') || []).filter(p => p && !p.deleted);
+            const sales = (getStorageData('erp_sales_invoices_v1') || []).filter(s => s && !s.deleted && !s.wasSplit && s.status !== 'draft' && s.status !== 'preliminary');
+            const transfers = (getStorageData('erp_warehouse_transfers_v1') || []).filter(t => t && !t.deleted && t.status !== 'cancelled');
+
+            const whIdToName = {};
+            warehouses.forEach(w => { whIdToName[String(w.id)] = w.name || String(w.id); whIdToName[String(w.name)] = w.name; });
+            const resolveWhName = (w) => {
+                if (!w || w === 'PENDING_RECEIPT') return 'PENDING_RECEIPT';
+                return whIdToName[String(w)] || String(w);
+            };
+
+            const itemMap = {};
+            items.forEach(i => { itemMap[String(i.id)] = i; if (i.code) itemMap[String(i.code)] = i; });
+
+            const actualStockMap = {};
+            const actualValMap = {};
+            const itemStockMap = {};
+            const itemValMap = {};
+            const dailyData = {};
+            let totalIn = 0, totalOut = 0, totalValIn = 0, totalValOut = 0;
+
+            const ensureDay = (dStr) => {
+                if (!dailyData[dStr]) dailyData[dStr] = { inQty: 0, outQty: 0, trfQty: 0, inVal: 0, outVal: 0 };
+                return dailyData[dStr];
+            };
+
+            // Seed opening balances from items
+            items.forEach(it => {
+                const cost = parseFloat(it.costPrice || it.buyPrice || it.price || 0) || 0;
+                const openQty = parseFloat(it.openingStock || it.openingBalance || 0) || 0;
+                const defWh = resolveWhName(it.warehouse || it.defaultWarehouse || (warehouses[0]?.name || 'المخزن الرئيسي'));
+                if (openQty > 0 && (selectedWh === 'ALL' || defWh === selectedWh)) {
+                    actualStockMap[defWh] = (actualStockMap[defWh] || 0) + openQty;
+                    actualValMap[defWh] = (actualValMap[defWh] || 0) + (openQty * cost);
+                    itemStockMap[it.id] = (itemStockMap[it.id] || 0) + openQty;
+                    itemValMap[it.id] = (itemValMap[it.id] || 0) + (openQty * cost);
+                }
+            });
+
+            // Process Purchases & Adjustments
+            purchases.forEach(inv => {
+                const invDate = new Date(inv.date || inv.receiveDate || inv.createdAt || Date.now());
+                const dStr = !isNaN(invDate.getTime()) ? invDate.toISOString().slice(0, 10) : new Date().toISOString().slice(0, 10);
+                (inv.items || inv.lines || []).forEach(line => {
+                    const whName = resolveWhName(line.warehouseId || inv.warehouseId || inv.warehouse || 'المخزن الرئيسي');
+                    if (whName === 'PENDING_RECEIPT') return;
+                    if (selectedWh !== 'ALL' && whName !== selectedWh) return;
+
+                    const it = itemMap[String(line.itemId || line.productId || line.id)] || {};
+                    const cost = parseFloat(line.price || it.costPrice || it.buyPrice || 0) || 0;
+                    const qty = parseFloat(line.customBaseQty !== undefined ? line.customBaseQty : line.quantity) || 0;
+                    const isOut = inv.isReturn === true || (inv.isAdjustment === true && qty < 0);
+                    const absQty = Math.abs(qty);
+                    const signedQty = isOut ? -absQty : absQty;
+
+                    actualStockMap[whName] = (actualStockMap[whName] || 0) + signedQty;
+                    actualValMap[whName] = (actualValMap[whName] || 0) + (signedQty * cost);
+                    if (it.id) {
+                        itemStockMap[it.id] = (itemStockMap[it.id] || 0) + signedQty;
+                        itemValMap[it.id] = (itemValMap[it.id] || 0) + (signedQty * cost);
+                    }
+
+                    if (invDate >= cutoffDate) {
+                        const day = ensureDay(dStr);
+                        if (isOut) {
+                            day.outQty += absQty;
+                            day.outVal += absQty * cost;
+                            totalOut += absQty;
+                            totalValOut += absQty * cost;
+                        } else {
+                            day.inQty += absQty;
+                            day.inVal += absQty * cost;
+                            totalIn += absQty;
+                            totalValIn += absQty * cost;
+                        }
+                    }
+                });
+            });
+
+            // Process Sales
+            sales.forEach(inv => {
+                if (inv.saleType === 'reserved' && inv.deliveryStatus !== 'delivered') return;
+                const invDate = new Date(inv.date || inv.createdAt || Date.now());
+                const dStr = !isNaN(invDate.getTime()) ? invDate.toISOString().slice(0, 10) : new Date().toISOString().slice(0, 10);
+                (inv.items || []).forEach(line => {
+                    const whName = resolveWhName(inv.deliveryWarehouse || line.warehouseId || inv.warehouse || 'المخزن الرئيسي');
+                    if (whName === 'PENDING_RECEIPT') return;
+                    if (selectedWh !== 'ALL' && whName !== selectedWh) return;
+
+                    const it = itemMap[String(line.itemId || line.id)] || {};
+                    const cost = parseFloat(it.costPrice || it.buyPrice || line.price || 0) || 0;
+                    const qty = Math.abs(parseFloat(line.customBaseQty !== undefined ? line.customBaseQty : line.quantity) || 0);
+                    const isRet = inv.isReturn === true;
+                    const signedQty = isRet ? qty : -qty;
+
+                    actualStockMap[whName] = (actualStockMap[whName] || 0) + signedQty;
+                    actualValMap[whName] = (actualValMap[whName] || 0) + (signedQty * cost);
+                    if (it.id) {
+                        itemStockMap[it.id] = (itemStockMap[it.id] || 0) + signedQty;
+                        itemValMap[it.id] = (itemValMap[it.id] || 0) + (signedQty * cost);
+                    }
+
+                    if (invDate >= cutoffDate) {
+                        const day = ensureDay(dStr);
+                        if (isRet) {
+                            day.inQty += qty;
+                            day.inVal += qty * cost;
+                            totalIn += qty;
+                            totalValIn += qty * cost;
+                        } else {
+                            day.outQty += qty;
+                            day.outVal += qty * cost;
+                            totalOut += qty;
+                            totalValOut += qty * cost;
+                        }
+                    }
+                });
+            });
+
+            // Process Warehouse Transfers
+            transfers.forEach(tr => {
+                const trDate = new Date(tr.date || tr.createdAt || Date.now());
+                const dStr = !isNaN(trDate.getTime()) ? trDate.toISOString().slice(0, 10) : new Date().toISOString().slice(0, 10);
+                const fromWh = resolveWhName(tr.fromWarehouse);
+                const toWh = resolveWhName(tr.toWarehouse);
+                (tr.items || []).forEach(line => {
+                    const it = itemMap[String(line.itemId || line.id)] || {};
+                    const cost = parseFloat(line.costPrice || it.costPrice || 0) || 0;
+                    const qty = Math.abs(parseFloat(line.quantity) || 0);
+                    if (selectedWh === 'ALL' || fromWh === selectedWh) {
+                        actualStockMap[fromWh] = (actualStockMap[fromWh] || 0) - qty;
+                        actualValMap[fromWh] = (actualValMap[fromWh] || 0) - (qty * cost);
+                    }
+                    if (selectedWh === 'ALL' || toWh === selectedWh) {
+                        actualStockMap[toWh] = (actualStockMap[toWh] || 0) + qty;
+                        actualValMap[toWh] = (actualValMap[toWh] || 0) + (qty * cost);
+                    }
+                    if (trDate >= cutoffDate) {
+                        const day = ensureDay(dStr);
+                        day.trfQty += qty;
+                    }
+                });
+            });
+
+            const baseStock = Object.values(actualStockMap).reduce((s, v) => s + v, 0);
+            const baseValue = Object.values(actualValMap).reduce((s, v) => s + v, 0);
+            const netStock = baseStock;
+            const netValue = baseValue;
+
+            // Update KPI Cards
+            const setKpi = (id, html) => { const el = document.getElementById(id); if (el) el.innerHTML = html; };
+            setKpi('kpi-chart-stock', `${Math.round(netStock).toLocaleString()} <small style="font-size:0.75rem;">وحدة</small>`);
+            setKpi('kpi-chart-in', `${Math.round(totalIn).toLocaleString()} <small style="font-size:0.75rem;">وحدة</small>`);
+            setKpi('kpi-chart-out', `${Math.round(totalOut).toLocaleString()} <small style="font-size:0.75rem;">وحدة</small>`);
+            setKpi('kpi-chart-val', `${Math.round(netValue).toLocaleString()} <small style="font-size:0.75rem;">SDG</small>`);
+            setKpi('kpi-chart-counts', `${items.length} <small style="font-size:0.75rem;">صنف / ${Object.keys(actualStockMap).length || warehouses.length} مخزن</small>`);
+
             if (currentViewMode === 'warehouses') {
-                // View Mode 2: Warehouse Balances Comparison
-                const warehouses = getStorageData('erp_warehouses_v1') || [{ id: 'main', name: 'المخزن الرئيسي' }];
                 const whLabels = [];
                 const whStock = [];
                 const whValues = [];
-
-                warehouses.forEach(w => {
-                    whLabels.push(w.name || w.id);
-                    let wQty = 0;
-                    let wVal = 0;
-                    items.forEach(it => {
-                        const q = parseFloat(it.stock || it.quantity || 0) / (warehouses.length || 1);
-                        const c = parseFloat(it.cost || it.avgCost || 0);
-                        wQty += q;
-                        wVal += (q * c);
-                    });
-                    whStock.push(Math.round(wQty));
-                    whValues.push(Math.round(wVal));
+                Object.keys(actualStockMap).forEach(wName => {
+                    whLabels.push(wName);
+                    whStock.push(Math.round(actualStockMap[wName] || 0));
+                    whValues.push(Math.round(actualValMap[wName] || 0));
                 });
 
                 unifiedChart = new Chart(ctx, {
@@ -541,10 +577,10 @@ $header_theme_class = "header-theme-inventory";
 
             } else if (currentViewMode === 'top_items') {
                 // View Mode 3: Top Items
-                const sortedItems = [...items].sort((a,b) => (parseFloat(b.stock||0) - parseFloat(a.stock||0))).slice(0, 10);
+                const sortedItems = [...items].sort((a,b) => ((itemStockMap[b.id] || 0) - (itemStockMap[a.id] || 0))).slice(0, 10);
                 const itemLabels = sortedItems.map(i => (i.name || i.code || 'صنف'));
-                const itemQty = sortedItems.map(i => parseFloat(i.stock || 0));
-                const itemVal = sortedItems.map(i => parseFloat(i.stock || 0) * parseFloat(i.cost || i.avgCost || 0));
+                const itemQty = sortedItems.map(i => Math.round(itemStockMap[i.id] || 0));
+                const itemVal = sortedItems.map(i => Math.round(itemValMap[i.id] || 0));
 
                 unifiedChart = new Chart(ctx, {
                     type: 'bar',

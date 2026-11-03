@@ -1,257 +1,517 @@
 <?php
-// =============================================================
-// نظام MAGAIEES ERP 2026 - مستشار الاستراتيجي للبضائع (AI)
-// =============================================================
-require_once 'db_bridge.php';
+// =========================================================================
+// نظام السجانة ومقاييس ERP 2026
+// مستشار الذكاء الاصطناعي للبضائع والمخازن وسلاسل الإمداد (AI Goods & Inventory Advisor)
+// مخصص ومفصول 100% للمخازن والأصناف والطلبيات والرواكد (10 محركات ذكية)
+// =========================================================================
+$page_title = 'مستشار AI للبضائع والمخازن والطلبيات (10 محركات ذكية)';
+$header_theme_class = 'header-theme-inventory';
+
+require_once __DIR__ . '/db_bridge.php';
 $pdo = getDBConnection();
 
-function loadEnvForAdvisor($path) {
-    if (!file_exists($path)) return;
-    $lines = file($path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-    foreach ($lines as $line) {
-        if (strpos(trim($line), '#') === 0) continue;
-        if (strpos($line, '=') === false) continue;
-        [$key, $value] = explode('=', $line, 2);
-        $_ENV[trim($key)] = trim($value);
-        putenv(trim($key) . '=' . trim($value));
-    }
-}
-loadEnvForAdvisor(__DIR__ . '/.env');
+$selected_currency = isset($_COOKIE['currency']) ? $_COOKIE['currency'] : (isset($_GET['currency']) ? $_GET['currency'] : 'SDG');
+$invData = getInventoryReportData($pdo);
+$sqlItems = $invData['items'] ?? [];
+$sqlTotalVal = (float)($invData['total_value'] ?? 0);
 
-try {
-    $raw_stock = getInventoryReportData($pdo);
-    $stock_summary = [];
-    foreach ($raw_stock as $row) {
-        $stock_summary[] = [
-            'name' => $row['item_name'],
-            'stock' => $row['stock_qty'],
-            'min_limit' => $row['min_limit'],
-            'sold_qty' => $row['sold_qty']
-        ];
-    }
-    $stock_summary = array_slice($stock_summary, 0, 8);
-} catch (Exception $e) {
-    $stock_summary = [["name" => "حديد 4 لينيا أباذر", "stock" => 340, "min_limit" => 50, "sold_qty" => 120]];
-}
-
-$data_for_ai = "بيانات حركة ومخازن البضائع الحالية:\n";
-$data_for_ai .= json_encode($stock_summary, JSON_UNESCAPED_UNICODE) . "\n";
-
-$ai_analysis_result = "";
-
-if (isset($_POST['consult_ai'])) {
-    require_once __DIR__ . '/api/ai-config.php';
-    $gemini_key = getGeminiApiKey();
-    $openai_key = $_ENV['OPENAI_API_KEY'] ?? getenv('OPENAI_API_KEY') ?: '';
-    
-    $prompt = "أنت خبير إداري ولوجستي في سوق السجانة لحديد التسليح ومواد البناء بالسودان. حلل بيانات المخزون وأعطني تقريراً استراتيجياً مركزاً ومختصراً جداً عن النواقص والبضاعة الراكدة ونصائح الشراء. اكتب التقرير باللغة العربية في نقاط واضحة ومباشرة بدون مقدمات لتسريع الاستجابة:\n" . $data_for_ai;
-
-    $success = false;
-    
-    if (!empty($gemini_key)) {
-        $url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=" . $gemini_key;
-        $payload = ["contents" => [["parts" => [["text" => $prompt]]]]];
-        
-        $ch = curl_init($url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload));
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        
-        $response = curl_exec($ch);
-        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close($ch);
-        
-        if ($httpCode === 200) {
-            $res_data = json_decode($response, true);
-            if (isset($res_data['candidates'][0]['content']['parts'][0]['text'])) {
-                $ai_analysis_result = trim($res_data['candidates'][0]['content']['parts'][0]['text']);
-                $success = true;
-            }
-        }
-    }
-    
-    if (!$success && !empty($openai_key)) {
-        $ch = curl_init('https://api.openai.com/v1/chat/completions');
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        $payload = [
-            'model' => 'gpt-4o-mini',
-            'messages' => [['role' => 'user', 'content' => $prompt]],
-            'temperature' => 0.7
-        ];
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload));
-        curl_setopt($ch, CURLOPT_HTTPHEADER, [
-            'Content-Type: application/json',
-            'Authorization: Bearer ' . $openai_key
-        ]);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        
-        $response = curl_exec($ch);
-        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close($ch);
-        
-        if ($httpCode === 200) {
-            $res_data = json_decode($response, true);
-            if (isset($res_data['choices'][0]['message']['content'])) {
-                $ai_analysis_result = trim($res_data['choices'][0]['message']['content']);
-                $success = true;
-            }
-        }
-    }
-    
-    if (!$success) {
-        $lowest_item = 'لا توجد أصناف';
-        $lowest_stock = 99999999;
-        $lowest_min = 0;
-        foreach ($raw_stock as $s) {
-            if ($s['stock_qty'] < $lowest_stock) {
-                $lowest_stock = $s['stock_qty'];
-                $lowest_item = $s['item_name'];
-                $lowest_min = $s['min_limit'];
-            }
-        }
-        
-        $best_item = 'لا توجد أصناف مباعة';
-        $max_sales = 0;
-        foreach ($raw_stock as $s) {
-            if ($s['sold_qty'] > $max_sales) {
-                $max_sales = $s['sold_qty'];
-                $best_item = $s['item_name'];
-            }
-        }
-
-        $formatted_stock = number_format($lowest_stock);
-        
-        $ai_analysis_result = "📦 **التقرير المولد بمحرك التحليل الذكي لمخازن البضائع وعنابر السجانة:**\n\n" .
-            "1. **الرقابة الذكية على النواقص وحركة العنابر:**\n" .
-            "   * الصنف الأكثر حرجاً حالياً من حيث كميات المخازن هو **[$lowest_item]** برصيد فعلي يبلغ **[$formatted_stock طن]** وهو تحت حد الأمان المطلوب ($lowest_min طن).\n" .
-            "   * **التوصية اللوجستية:** يجب إصدار أمر شراء وتوريد عاجل من المصنع لتأمين هذا الصنف وتفادي التوقف البيعي.\n\n" .
-            "2. **نمو المبيعات وتحليل الطلب الفعلي:**\n" .
-            "   * الصنف الأكثر طلباً وسحباً في الآونة الأخيرة هو **[$best_item]** بإجمالي مبيعات بلغت **[" . number_format($max_sales) . " طن]**.\n" .
-            "   * **التوصية التجارية:** استغلال سرعة الدوران العالية لهذا الصنف لتقديم خصومات ولاء للزبائن VIP لضمان استمرار السحب.\n\n" .
-            "3. **إدارة البضاعة الراكدة وتفادي تجميد الأصول:**\n" .
-            "   * يوصي محرك التحليل بفرز الدفعات التي مضى عليها أكثر من 180 يوماً وتقديم عروض تصريف فورية لتوفير مساحات تخزينية للعنابر.";
-    }
-}
+$serverPayload = json_encode([
+    'items'      => $sqlItems,
+    'totalValue' => $sqlTotalVal,
+    'currency'   => $selected_currency
+], JSON_UNESCAPED_UNICODE);
 ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <script src="js/lang.js"></script>
-    <script>
-    (function(){
-        var l = localStorage.getItem('erp_lang') || 'ar';
-        if(l==='en') {
-            document.documentElement.setAttribute('dir','ltr');
-            document.documentElement.setAttribute('lang','en');
-        }
-    })();
-    </script>
     <meta charset="UTF-8">
-    <title>مستشار الـ AI الاستراتيجي للبضائع - MAGAIEES ERP</title>
-    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><?php echo htmlspecialchars($page_title); ?> | السجانة ERP</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="css/design-system.css">
     <link rel="stylesheet" href="css/theme.css">
-    <link rel="stylesheet" href="css/components.css">
-    
-    <link rel="stylesheet" href="css/tailwind.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script defer src="js/localforage.min.js"></script>
-    <script defer src="js/app.js?v=20261016_v28"></script>
+    <link rel="stylesheet" href="css/sidebar-panoramic-flyout.css">
+    <script src="js/theme.js"></script>
+    <style>
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: var(--bg-primary, #070b14);
+            color: var(--text-primary, #f8fafc);
+            margin: 0;
+            min-height: 100vh;
+        }
+        .goods-ai-shell {
+            max-width: 1560px;
+            margin: 0 auto;
+            padding: 18px 20px 60px;
+        }
+        .goods-hero {
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.96), rgba(6, 78, 59, 0.85));
+            border: 1.5px solid rgba(52, 211, 153, 0.4);
+            border-radius: 22px;
+            padding: 22px 26px;
+            margin-bottom: 18px;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            box-shadow: 0 18px 45px rgba(0,0,0,0.45), 0 0 35px rgba(16, 185, 129, 0.14);
+            position: relative;
+            overflow: hidden;
+        }
+        .goods-hero::before {
+            content: '';
+            position: absolute;
+            top: 0; right: 0; left: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #10b981, #22d3ee, #fbbf24, #a855f7);
+        }
+        .hero-left { display: flex; align-items: center; gap: 16px; }
+        .hero-icon {
+            width: 60px; height: 60px; border-radius: 18px;
+            background: rgba(16, 185, 129, 0.22);
+            border: 1.5px solid rgba(52, 211, 153, 0.55);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.85rem;
+        }
+        .hero-left h1 {
+            margin: 0; font-size: 1.48rem; font-weight: 900;
+            background: linear-gradient(90deg, #ffffff, #a7f3d0, #67e8f9);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        .hero-left p { margin: 4px 0 0; font-size: 0.85rem; color: #cbd5e1; font-weight: 600; }
+        .btn-bar { display: flex; flex-wrap: wrap; gap: 8px; }
+        .g-btn {
+            display: inline-flex; align-items: center; gap: 7px;
+            padding: 9px 15px; border-radius: 12px;
+            font-family: 'Cairo', sans-serif; font-size: 0.81rem; font-weight: 800;
+            text-decoration: none; cursor: pointer;
+            border: 1px solid rgba(255,255,255,0.16);
+            background: rgba(30, 41, 59, 0.88); color: #fff; transition: all 0.2s;
+        }
+        .g-btn:hover { transform: translateY(-2px); border-color: #34d399; }
+        .g-btn.emerald { background: linear-gradient(135deg, #059669, #0d9488); border-color: #34d399; }
+        .g-btn.cyan { background: linear-gradient(135deg, #0284c7, #0891b2); border-color: #22d3ee; }
+        .g-btn.amber { background: linear-gradient(135deg, #d97706, #ea580c); border-color: #fbbf24; }
+
+        .kpi-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(215px, 1fr));
+            gap: 14px; margin-bottom: 20px;
+        }
+        .kpi-box {
+            background: rgba(15, 23, 42, 0.88);
+            border: 1px solid rgba(52, 211, 153, 0.2);
+            border-bottom: 3px solid var(--k-color, #34d399);
+            border-radius: 16px; padding: 15px 18px;
+        }
+        .kpi-box .lbl { font-size: 0.78rem; color: #94a3b8; font-weight: 700; }
+        .kpi-box .val { font-size: 1.42rem; font-weight: 900; color: #fff; margin: 5px 0; }
+        .kpi-box .sub { font-size: 0.73rem; color: #cbd5e1; display: flex; justify-content: space-between; }
+
+        .engines-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(295px, 1fr));
+            gap: 14px; margin-bottom: 22px;
+        }
+        .engine-card {
+            background: rgba(15, 23, 42, 0.9);
+            border: 1px solid rgba(148, 163, 184, 0.18);
+            border-right: 4px solid var(--e-color, #34d399);
+            border-radius: 16px; padding: 15px 16px;
+            display: flex; flex-direction: column; justify-content: space-between; gap: 10px;
+            transition: all 0.22s;
+        }
+        .engine-card:hover {
+            transform: translateY(-3px);
+            border-color: var(--e-color, #34d399);
+            box-shadow: 0 12px 28px rgba(0,0,0,0.38);
+        }
+        .engine-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
+        .engine-title { font-size: 0.89rem; font-weight: 900; color: #fff; }
+        .engine-badge { font-size: 0.7rem; font-weight: 800; padding: 2px 9px; border-radius: 99px; white-space: nowrap; }
+        .engine-body { font-size: 0.79rem; color: #cbd5e1; line-height: 1.55; margin: 0; }
+        .engine-foot {
+            display: flex; justify-content: space-between; align-items: center;
+            padding-top: 8px; border-top: 1px dashed rgba(148, 163, 184, 0.15);
+        }
+        .engine-foot a { color: #34d399; font-size: 0.76rem; font-weight: 800; text-decoration: none; }
+        .engine-foot button {
+            background: rgba(16, 185, 129, 0.18);
+            border: 1px solid rgba(52, 211, 153, 0.4);
+            color: #a7f3d0; border-radius: 8px; padding: 4px 10px;
+            font-family: 'Cairo', sans-serif; font-size: 0.73rem; font-weight: 800; cursor: pointer;
+        }
+
+        .ai-chat-panel {
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.96), rgba(6, 78, 59, 0.78));
+            border: 1.5px solid rgba(52, 211, 153, 0.4);
+            border-radius: 20px; padding: 18px 22px; margin-bottom: 22px;
+        }
+        .chip-row { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0; }
+        .chip-btn {
+            background: rgba(30, 41, 59, 0.9);
+            border: 1px solid rgba(52, 211, 153, 0.35);
+            color: #d1fae5; padding: 6px 13px; border-radius: 99px;
+            font-family: 'Cairo', sans-serif; font-size: 0.77rem; font-weight: 700; cursor: pointer;
+        }
+        .chip-btn:hover { background: rgba(16, 185, 129, 0.28); }
+        .chat-out {
+            margin-top: 12px; background: rgba(7, 11, 20, 0.85);
+            border: 1px solid rgba(52, 211, 153, 0.35);
+            border-right: 4px solid #34d399; border-radius: 14px;
+            padding: 16px 18px; font-size: 0.88rem; line-height: 1.75; display: none;
+        }
+        .chat-out.visible { display: block; }
+
+        .split-tables {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(460px, 1fr));
+            gap: 18px;
+        }
+        @media (max-width: 768px) { .split-tables { grid-template-columns: 1fr; } }
+        .table-card {
+            background: rgba(15, 23, 42, 0.88);
+            border: 1px solid rgba(148, 163, 184, 0.18);
+            border-radius: 18px; padding: 18px;
+        }
+        .table-card h3 { margin: 0 0 12px; font-size: 1rem; font-weight: 900; display: flex; justify-content: space-between; align-items: center; }
+        .g-table { width: 100%; border-collapse: collapse; font-size: 0.81rem; }
+        .g-table th { background: rgba(30, 41, 59, 0.95); color: #94a3b8; padding: 9px 10px; text-align: right; position: sticky; top: 0; }
+        .g-table td { padding: 9px 10px; border-bottom: 1px solid rgba(148, 163, 184, 0.1); }
+        .act-pill {
+            display: inline-flex; align-items: center; gap: 4px;
+            padding: 3px 8px; border-radius: 7px; font-size: 0.72rem; font-weight: 800;
+            text-decoration: none; border: 1px solid rgba(255,255,255,0.18);
+        }
+    </style>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen font-sans" style="background-color: #05080f;">
-    <div class="p-6">
-        <?php $header_theme_class = 'header-theme-reports'; ?>
-        <?php include 'includes/header.php'; ?>
-        <br>
-        <div class="mb-8 border-b border-slate-800 pb-4 flex justify-between items-center">
-        <div>
-            <h1 class="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-teal-400">
-                <i class="fa-solid fa-boxes-stacked"></i> مستشار الـ AI الاستراتيجي للبضائع (AI Goods Advisor)
-            </h1>
-            <p class="text-slate-400 text-sm mt-1">توليد قرارات لوجستية واستباقية لتأمين مخازن السجانة ودوران البضاعة</p>
+<body>
+<div class="page-container">
+    <?php include 'includes/header.php'; ?>
+    <div class="goods-ai-shell">
+        <div class="goods-hero">
+            <div class="hero-left">
+                <div class="hero-icon">📦</div>
+                <div>
+                    <h1>مستشار الذكاء الاصطناعي للبضائع والمخازن وسلاسل الإمداد (AI Goods Advisor)</h1>
+                    <p>مخصص ومفصول 100% للمخازن والبضائع • 10 محركات ذكية للطلبيات والرواكد والتسعير ودوران المخزون • مرتبط بكل التقارير</p>
+                </div>
+            </div>
+            <div class="btn-bar">
+                <a href="inventory-movement.php" class="g-btn cyan">📦 حركات البضائع</a>
+                <a href="smart_inventory_report.php" class="g-btn emerald">🤖 تقارير المخزن الذكية الـ 20</a>
+                <a href="purchase.php" class="g-btn amber">🛒 فاتورة مشتريات</a>
+                <button type="button" class="g-btn emerald" onclick="exportGoodsAdvisorCSV()">📥 تصدير Excel</button>
+                <button type="button" class="g-btn" onclick="window.print()">🖨️ طباعة</button>
+            </div>
         </div>
-        <a href="dashboard-pro.php" class="px-5 py-2.5 bg-slate-900 hover:bg-slate-800 border border-slate-800 rounded-xl text-xs font-bold transition-all">
-            لوحة التحكم الرئيسية
-        </a>
-    </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div class="lg:col-span-1 bg-slate-900/50 p-6 rounded-2xl border border-slate-800 flex flex-col justify-between h-[300px]">
-            <div>
-                <h3 class="font-bold text-slate-200 mb-2 flex items-center gap-2">
-                    <i class="fa-solid fa-microchip text-cyan-400"></i> محرك ذكاء البضائع والمستودعات
+        <!-- مؤشرات المخازن والبضائع الحية -->
+        <div class="kpi-row">
+            <div class="kpi-box" style="--k-color:#34d399;">
+                <div class="lbl">إجمالي القيمة المالية للمخزون</div>
+                <div class="val" id="g-kpi-val">0</div>
+                <div class="sub"><span id="g-kpi-items-count">0 صنف مسجل</span><a href="inv_rep15_valuation.php" style="color:#34d399;text-decoration:none;font-weight:800;">التقييم ⬅</a></div>
+            </div>
+            <div class="kpi-box" style="--k-color:#f43f5e;">
+                <div class="lbl">أصناف ناقصة / تحت حد الطلب</div>
+                <div class="val" id="g-kpi-short">0</div>
+                <div class="sub"><span id="g-kpi-neg">0 رصيد سالب</span><a href="inv_rep1_limits.php" style="color:#fb7185;text-decoration:none;font-weight:800;">حدود الأمان ⬅</a></div>
+            </div>
+            <div class="kpi-box" style="--k-color:#a855f7;">
+                <div class="lbl">قيمة البضائع الراكدة والمجمدة</div>
+                <div class="val" id="g-kpi-dead">0</div>
+                <div class="sub"><span id="g-kpi-dead-count">0 صنف راكد</span><a href="inv_rep3_deadstock.php" style="color:#c084fc;text-decoration:none;font-weight:800;">الرواكد ⬅</a></div>
+            </div>
+            <div class="kpi-box" style="--k-color:#22d3ee;">
+                <div class="lbl">الأصناف النجمية سريعة الدوران (فئة A)</div>
+                <div class="val" id="g-kpi-stars">0</div>
+                <div class="sub"><span>الأعلى مساهمة بالربح</span><a href="inv_rep19_abc.php" style="color:#22d3ee;text-decoration:none;font-weight:800;">تحليل ABC ⬅</a></div>
+            </div>
+            <div class="kpi-box" style="--k-color:#fbbf24;">
+                <div class="lbl">توصيات أوامر الشراء الفورية (EOQ)</div>
+                <div class="val" id="g-kpi-po">0</div>
+                <div class="sub"><span>جاهزة للتحويل لمشتريات</span><a href="purchase.php" style="color:#fbbf24;text-decoration:none;font-weight:800;">طلب شراء ⬅</a></div>
+            </div>
+        </div>
+
+        <!-- المستشار التفاعلي للبضائع -->
+        <div class="ai-chat-panel">
+            <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
+                <strong style="font-size:1rem;color:#a7f3d0;"><i class="fa-solid fa-wand-magic-sparkles"></i> استشارة الذكاء الاصطناعي السلعي والمخزني (10 محركات تخصصية للبضائع)</strong>
+                <span style="font-size:0.75rem;color:#cbd5e1;">متصل بحركات البضائع والجرد والمشتريات والتقارير الـ 20</span>
+            </div>
+            <div class="chip-row">
+                <button type="button" class="chip-btn" onclick="askGoodsAI('eoq')">1. 🛒 خطة الشراء الذكي والكميات الاقتصادية (EOQ)</button>
+                <button type="button" class="chip-btn" onclick="askGoodsAI('deadstock')">2. 🧊 خطة تسييل البضائع الراكدة وتحرير السيولة</button>
+                <button type="button" class="chip-btn" onclick="askGoodsAI('abc')">3. ⭐ تحليل الأصناف النجمية (ABC) وتعظيم الربح</button>
+                <button type="button" class="chip-btn" onclick="askGoodsAI('bundling')">4. 🎁 ابتكار عروض ترويجية مدمجة (صنف راكد + نجمي)</button>
+                <button type="button" class="chip-btn" onclick="askGoodsAI('shrinkage')">5. 🔍 ضبط العجز والرصيد السالب وفروقات الجرد</button>
+                <button type="button" class="chip-btn" onclick="askGoodsAI('pricing')">6. 🏷️ التسعير الديناميكي وحماية هامش الصنف</button>
+            </div>
+            <div style="display:flex;gap:10px;margin-top:8px;">
+                <input type="text" id="goods-ai-input" placeholder="اسأل مستشار البضائع AI... مثال: ما هي الأصناف التي يجب شراؤها اليوم؟ وكيف نصرف البضاعة الراكدة؟" style="flex:1;background:#070b14;border:1.5px solid rgba(52,211,153,0.4);border-radius:12px;padding:10px 14px;color:#fff;font-family:'Cairo',sans-serif;" onkeydown="if(event.key==='Enter') askGoodsAI('custom')">
+                <button type="button" class="g-btn emerald" onclick="askGoodsAI('custom')">🤖 توليد الخطة المخزنية</button>
+            </div>
+            <div id="goods-ai-output" class="chat-out"></div>
+        </div>
+
+        <!-- المحركات الـ 10 لمستشار البضائع AI -->
+        <h2 style="font-size:1.12rem;font-weight:900;margin:0 0 12px;color:#a7f3d0;">📦 المحركات والمقترحات الـ 10 لمستشار البضائع والمخازن (AI Goods Engines)</h2>
+        <div class="engines-grid" id="goods-10-engines"></div>
+
+        <!-- الجداول التنفيذية للطلبيات والرواكد -->
+        <div class="split-tables">
+            <div class="table-card">
+                <h3>
+                    <span>🛒 قائمة الطلبيات الذكية العاجلة (أصناف تحت حد الطلب أو سالبة)</span>
+                    <a href="inv_rep1_limits.php" class="act-pill" style="color:#38bdf8;">تقرير الحدود ⬅</a>
                 </h3>
-                <p class="text-xs text-slate-400 leading-relaxed">بضغطة زر واحدة، سيقوم الذكاء الاصطناعي بمسح حركة مخازنك بالكامل وتوقع النواقص وإعطائك أفضل القرارات اللوجستية.</p>
+                <div style="max-height:340px;overflow:auto;">
+                    <table class="g-table">
+                        <thead>
+                            <tr>
+                                <th>الصنف</th>
+                                <th>الرصيد الحالي</th>
+                                <th>حد الأمان</th>
+                                <th>الكمية المقترح شراؤها</th>
+                                <th>إجراء فوري</th>
+                            </tr>
+                        </thead>
+                        <tbody id="goods-reorder-tbody"></tbody>
+                    </table>
+                </div>
             </div>
-            
-            <form method="POST" onsubmit="document.getElementById('ai-btn-text').innerText = 'جاري التحليل...'; document.getElementById('ai-btn-icon').classList.add('fa-spin');">
-                <input type="hidden" name="consult_ai" value="1">
-                <button type="submit" class="w-full py-3.5 bg-gradient-to-r from-cyan-600 to-teal-600 hover:from-cyan-500 hover:to-teal-500 rounded-xl font-bold text-sm shadow-lg shadow-teal-950/50 transition-all flex items-center justify-center gap-2">
-                    <i id="ai-btn-icon" class="fa-solid fa-wand-magic-sparkles"></i> <span id="ai-btn-text">تشغيل مستشار البضائع الآن</span>
-                </button>
-            </form>
-        </div>
 
-        <div class="lg:col-span-2 bg-slate-900/30 p-6 rounded-2xl border border-slate-800 min-h-[300px]">
-            <h3 class="font-bold text-slate-200 mb-4 flex items-center gap-2 border-b border-slate-800 pb-3">
-                <i class="fa-solid fa-file-contract text-teal-400"></i> التقرير الاستراتيجي لمخزون العنابر وحركة المواد
-            </h3>
-            
-            <div class="text-base md:text-lg leading-relaxed text-slate-200 space-y-3 whitespace-pre-wrap font-medium">
-                <?php if (empty($ai_analysis_result)): ?>
-                    <div class="text-center p-12 text-slate-500">
-                        <i class="fa-solid fa-robot text-3xl mb-3 block text-slate-700"></i>
-                        اضغط على الزر الأيمن لتشغيل محرك الترقية وجلب استشارات الذكاء الاصطناعي الحية لمخزونك ودوران بضاعتك فوراً.
-                    </div>
-                <?php else: ?>
-                    <?php echo nl2br(htmlspecialchars($ai_analysis_result)); ?>
-                <?php endif; ?>
+            <div class="table-card">
+                <h3>
+                    <span>🧊 البضائع الراكدة مقابل الأصناف النجمية (توصيات التسعير والتسييل)</span>
+                    <a href="inv_rep3_deadstock.php" class="act-pill" style="color:#c084fc;">مصفوفة الرواكد ⬅</a>
+                </h3>
+                <div style="max-height:340px;overflow:auto;">
+                    <table class="g-table">
+                        <thead>
+                            <tr>
+                                <th>الصنف</th>
+                                <th>الرصيد</th>
+                                <th>القيمة المالية</th>
+                                <th>التصنيف الذكي</th>
+                                <th>القرار المقترح</th>
+                            </tr>
+                        </thead>
+                        <tbody id="goods-matrix-tbody"></tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
-    </div>
-    
-    <!-- عرض البيانات الحالية المستجلبة من قاعدة البيانات -->
-    <div class="mt-8 bg-slate-900/40 p-6 rounded-2xl border border-slate-800">
-        <h3 class="font-bold text-slate-200 mb-4 flex items-center gap-2 border-b border-slate-800 pb-3">
-            <i class="fa-solid fa-database text-cyan-400"></i> البيانات الحالية (يتم تحليلها بواسطة الذكاء الاصطناعي)
-        </h3>
-        <div class="overflow-x-auto">
-            <table class="w-full text-right text-sm text-slate-300">
-                <thead class="text-xs uppercase bg-slate-800/50 text-slate-400">
-                    <tr>
-                        <th class="px-4 py-3 rounded-tr-lg">اسم الصنف</th>
-                        <th class="px-4 py-3 text-center">الرصيد الفعلي</th>
-                        <th class="px-4 py-3 text-center">حد الأمان</th>
-                        <th class="px-4 py-3 text-center rounded-tl-lg">الكمية المباعة</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php if (empty($stock_summary)): ?>
-                    <tr>
-                        <td colspan="4" class="px-4 py-6 text-center text-slate-500">لا توجد بيانات متاحة في قاعدة البيانات للتحليل.</td>
-                    </tr>
-                    <?php else: ?>
-                        <?php foreach ($stock_summary as $item): ?>
-                        <tr class="border-b border-slate-800/50 hover:bg-slate-800/20 transition-colors">
-                            <td class="px-4 py-3 font-semibold text-slate-200"><?php echo htmlspecialchars($item['name']); ?></td>
-                            <td class="px-4 py-3 text-center">
-                                <span class="px-2.5 py-1 rounded-md <?php echo $item['stock'] < $item['min_limit'] ? 'bg-red-500/10 text-red-400' : 'bg-emerald-500/10 text-emerald-400'; ?>">
-                                    <?php echo number_format($item['stock'], 2); ?>
-                                </span>
-                            </td>
-                            <td class="px-4 py-3 text-center text-slate-400"><?php echo number_format($item['min_limit'], 2); ?></td>
-                            <td class="px-4 py-3 text-center text-cyan-400"><?php echo number_format($item['sold_qty'], 2); ?></td>
-                        </tr>
-                        <?php endforeach; ?>
-                    <?php endif; ?>
-                </tbody>
-            </table>
+</div>
+
+<script>
+const GOODS_SERVER = <?php echo $serverPayload; ?>;
+let G_STATE = {
+    currency: GOODS_SERVER.currency || 'SDG',
+    items: [],
+    totalValue: 0,
+    shortages: [],
+    negatives: [],
+    deadItems: [],
+    deadValue: 0,
+    starItems: [],
+    engines: []
+};
+
+function readLSG(k) {
+    try {
+        const r = JSON.parse(localStorage.getItem(k) || '[]');
+        return Array.isArray(r) ? r : Object.values(r || {});
+    } catch (e) { return []; }
+}
+function fmtG(n) { return Number(n || 0).toLocaleString('en-US', { maximumFractionDigits: 0 }); }
+
+function initGoodsAdvisor() {
+    const lsItems = readLSG('erp_items_v1');
+    const lsSales = readLSG('erp_sales_invoices_v1').filter(x => !x.isDeleted && !x.wasSplit);
+    let invMap = {};
+    try { invMap = JSON.parse(localStorage.getItem('erp_inventory_v1') || '{}') || {}; } catch (e) {}
+
+    const soldMap = {};
+    lsSales.forEach(inv => {
+        (inv.items || []).forEach(it => {
+            const nm = (it.itemName || it.name || '').trim();
+            const q = parseFloat(it.qty ?? it.quantity ?? 0) || 0;
+            if (nm) soldMap[nm] = (soldMap[nm] || 0) + q;
+        });
+    });
+
+    const iMap = new Map();
+    (GOODS_SERVER.items || []).forEach(it => {
+        const nm = (it.name || '').trim();
+        if (!nm) return;
+        iMap.set(nm, {
+            id: it.id || nm,
+            name: nm,
+            qty: parseFloat(it.stock_qty ?? it.qty ?? 0) || 0,
+            cost: parseFloat(it.cost_price ?? it.buy_price ?? it.price ?? 0) || 0,
+            min: parseFloat(it.min_limit ?? 10) || 10,
+            sold: parseFloat(it.sold_qty ?? soldMap[nm] ?? 0) || 0
+        });
+    });
+    lsItems.forEach(it => {
+        const nm = (it.name || it.itemName || '').trim();
+        if (!nm) return;
+        let q = parseFloat(it.qty ?? it.stock ?? it.openingStock ?? 0) || 0;
+        if (invMap[it.id] !== undefined) {
+            const mv = invMap[it.id];
+            q = typeof mv === 'object' ? (parseFloat(mv.qty ?? 0) || 0) : (parseFloat(mv) || 0);
+        }
+        const c = parseFloat(it.buyPrice ?? it.costPrice ?? it.price ?? 0) || 0;
+        const m = parseFloat(it.minStock ?? it.reorderLevel ?? 10) || 10;
+        iMap.set(nm, {
+            id: it.id || nm,
+            name: nm,
+            qty: q,
+            cost: c,
+            min: m,
+            sold: soldMap[nm] || 0
+        });
+    });
+
+    const all = Array.from(iMap.values());
+    G_STATE.items = all;
+    G_STATE.totalValue = all.reduce((s, x) => s + (Math.max(0, x.qty) * x.cost), 0) || GOODS_SERVER.totalValue || 0;
+    G_STATE.shortages = all.filter(x => x.qty <= x.min).sort((a, b) => a.qty - b.qty);
+    G_STATE.negatives = all.filter(x => x.qty < 0);
+    G_STATE.deadItems = all.filter(x => x.qty > x.min && x.sold === 0 && (x.qty * x.cost) > 0).sort((a, b) => (b.qty * b.cost) - (a.qty * a.cost));
+    G_STATE.deadValue = G_STATE.deadItems.reduce((s, x) => s + (x.qty * x.cost), 0);
+    G_STATE.starItems = all.filter(x => x.sold > 0).sort((a, b) => b.sold - a.sold);
+
+    const cur = G_STATE.currency;
+    document.getElementById('g-kpi-val').textContent = fmtG(G_STATE.totalValue) + ' ' + cur;
+    document.getElementById('g-kpi-items-count').textContent = all.length + ' صنف نشط';
+    document.getElementById('g-kpi-short').textContent = G_STATE.shortages.length + ' صنف';
+    document.getElementById('g-kpi-neg').textContent = G_STATE.negatives.length + ' رصيد سالب';
+    document.getElementById('g-kpi-dead').textContent = fmtG(G_STATE.deadValue) + ' ' + cur;
+    document.getElementById('g-kpi-dead-count').textContent = G_STATE.deadItems.length + ' صنف راكد';
+    document.getElementById('g-kpi-stars').textContent = G_STATE.starItems.length + ' صنف نجمي';
+    document.getElementById('g-kpi-po').textContent = G_STATE.shortages.length + ' طلبية ذكية';
+
+    const engines = [
+        { n: 1, title: 'محرك الكمية الاقتصادية للطلب (AI Smart EOQ)', color: '#10b981', badge: G_STATE.shortages.length + ' أمر شراء', desc: `يحسب الكمية المثلى لإعادة الشراء (${G_STATE.shortages.length} صنف تحت الحد الأدنى) لمنع انقطاع البضاعة وتقليل تكلفة التخزين.`, link: 'inv_rep1_limits.php', linkTxt: 'تقرير حدود الأمان الـ 4', q: 'eoq' },
+        { n: 2, title: 'كاشف الأرصدة السالبة والعجز المخزني الفوري', color: '#f43f5e', badge: G_STATE.negatives.length + ' صنف سالب', desc: `يرصد الأصناف التي بيعت قبل تسجيل فاتورة مشترياتها (${G_STATE.negatives.length} صنف) لضبط التسوية الجردية فوراً.`, link: 'inventory-adjustment.php', linkTxt: 'شاشة التسوية الجردية', q: 'shrinkage' },
+        { n: 3, title: 'محرك تسييل البضائع الراكدة والأموال المجمدة', color: '#a855f7', badge: fmtG(G_STATE.deadValue) + ' ' + cur, desc: `رصد ${G_STATE.deadItems.length} صنف راكد. تخفيض هامشها بـ 8% يحولها إلى سيولة نقدية لتمويل الأصناف السريعة.`, link: 'inv_rep3_deadstock.php', linkTxt: 'مصفوفة البضاعة الراكدة', q: 'deadstock' },
+        { n: 4, title: 'محرك باريتو والتصنيف الثلاثي (ABC Analysis)', color: '#22d3ee', badge: G_STATE.starItems.length + ' صنف فئة A', desc: `يصنف الأصناف حسب مساهمتها في الإيرادات (A/B/C) لضمان توفر الأصناف الاستراتيجية بنسبة 100%.`, link: 'inv_rep19_abc.php', linkTxt: 'تحليل تركيز ABC', q: 'abc' },
+        { n: 5, title: 'محرك العائد الاستثماري على المخزون (GMROII)', color: '#fbbf24', badge: 'تعظيم العائد', desc: `يقيس كم جنيهاً من الربح يحققه كل جنيه مستثمر في بضاعة العنابر، ويكتشف الأصناف ضعيفة العائد.`, link: 'inv_rep14_gmroii.php', linkTxt: 'تقرير العائد GMROII', q: 'pricing' },
+        { n: 6, title: 'متنبئ أيام التغطية ونفاد المخزون (Days of Supply)', color: '#38bdf8', badge: 'حماية التوريد', desc: `يحسب كم يوماً يكفي الرصيد الحالي لكل صنف بناءً على معدل السحب اليومي الفعلي.`, link: 'inv_rep2_coverage.php', linkTxt: 'تقرير أيام التغطية', q: 'eoq' },
+        { n: 7, title: 'رادار انحراف تكلفة الشراء وزمن توريد المصانع', color: '#fb923c', badge: 'رقابة الموردين', desc: `يقارن أسعار الشراء الأخيرة بالمتوسط المرجح ويكتشف أي ارتفاع مفاجئ في تكلفة التوريد.`, link: 'inv_rep12_cost_variance.php', linkTxt: 'انحراف التكلفة المرجحة', q: 'pricing' },
+        { n: 8, title: 'محرك توازن العنابر والمناقلات الذكية', color: '#34d399', badge: 'توزيع مثالي', desc: `يقترح مناقلة الأصناف من المستودعات المكدسة إلى الفروع الأكثر سحباً بدلاً من الشراء المكرر.`, link: 'inventory-adjustment.php?tab=transfer', linkTxt: 'المناقلة بين المخازن', q: 'shrinkage' },
+        { n: 9, title: 'مبتكر حزم العروض الترويجية (AI Smart Bundling)', color: '#ec4899', badge: 'تسريع المبيعات', desc: `يدمج صنفاً راكداً مع صنف نجمي سريع الدوران في عرض بيعي واحد لتصريف الرواكد بدون خسارة.`, link: 'direct-sales.php', linkTxt: 'إصدار عرض في المبيعات', q: 'bundling' },
+        { n: 10, title: 'محاكي سيناريوهات الطلب الموسمي والطاقة الاستيعابية', color: '#818cf8', badge: 'تخطيط استباقي', desc: `يحاكي أثر المواسم وتقلبات السوق على سعة العنابر والاحتياج الشرائي المستقبلي.`, link: 'inv_rep20_simulator.php', linkTxt: 'محاكي سيناريوهات النواقص', q: 'eoq' }
+    ];
+    G_STATE.engines = engines;
+
+    document.getElementById('goods-10-engines').innerHTML = engines.map(e => `
+        <div class="engine-card" style="--e-color:${e.color};">
+            <div>
+                <div class="engine-head">
+                    <span class="engine-title">${e.n}. ${e.title}</span>
+                    <span class="engine-badge" style="background:${e.color}22;color:${e.color};border:1px solid ${e.color}55;">${e.badge}</span>
+                </div>
+                <p class="engine-body" style="margin-top:8px;">${e.desc}</p>
+            </div>
+            <div class="engine-foot">
+                <a href="${e.link}">${e.linkTxt} <i class="fa-solid fa-arrow-left"></i></a>
+                <button type="button" onclick="askGoodsAI('${e.q}')">🤖 توصية AI</button>
+            </div>
         </div>
-    </div>
-    </div>
+    `).join('');
+
+    const rBody = document.getElementById('goods-reorder-tbody');
+    const topS = G_STATE.shortages.slice(0, 12);
+    if (topS.length === 0) {
+        rBody.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:20px;color:#34d399;font-weight:800;">✅ جميع الأصناف فوق حد الأمان المخزني!</td></tr>`;
+    } else {
+        rBody.innerHTML = topS.map(it => {
+            const orderQty = Math.max(25, (it.min * 2) - it.qty);
+            return `
+                <tr>
+                    <td style="font-weight:800;color:#fff;">${it.name}</td>
+                    <td style="font-weight:900;color:${it.qty < 0 ? '#fb7185' : '#fbbf24'};">${fmtG(it.qty)} ${it.qty < 0 ? '(سالب!)' : ''}</td>
+                    <td>${fmtG(it.min)}</td>
+                    <td style="font-weight:900;color:#34d399;">+${fmtG(orderQty)} وحدة</td>
+                    <td style="display:flex;gap:5px;">
+                        <a href="purchase.php?item=${encodeURIComponent(it.name)}&qty=${orderQty}" class="act-pill" style="color:#fbbf24;background:rgba(245,158,11,0.16);">🛒 شراء</a>
+                        <a href="item-ledger.php?item=${encodeURIComponent(it.name)}" class="act-pill" style="color:#38bdf8;background:rgba(56,189,248,0.16);">🏷️ كرت الصنف</a>
+                    </td>
+                </tr>
+            `;
+        }).join('');
+    }
+
+    const mBody = document.getElementById('goods-matrix-tbody');
+    const rows = [
+        ...G_STATE.deadItems.slice(0, 6).map(x => ({ ...x, tag: '🧊 راكد (فئة C)', col: '#fb7185', act: 'تخفيض 8% أو دمجه في عرض ترويجي' })),
+        ...G_STATE.starItems.slice(0, 6).map(x => ({ ...x, tag: '⭐ نجمي (فئة A)', col: '#34d399', act: `مباع (${fmtG(x.sold)}) — حافظ على مخزون أمان مضاعف` }))
+    ];
+    if (rows.length === 0) {
+        mBody.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:20px;color:#94a3b8;">لا توجد أصناف راكدة حالياً.</td></tr>`;
+    } else {
+        mBody.innerHTML = rows.map(it => `
+            <tr>
+                <td style="font-weight:800;color:#fff;">${it.name}</td>
+                <td>${fmtG(it.qty)}</td>
+                <td style="font-weight:800;color:#22d3ee;">${fmtG(Math.max(0, it.qty) * it.cost)} ${cur}</td>
+                <td><span style="color:${it.col};font-weight:800;">${it.tag}</span></td>
+                <td style="font-size:0.77rem;color:#cbd5e1;">${it.act}</td>
+            </tr>
+        `).join('');
+    }
+}
+
+function askGoodsAI(topic) {
+    const out = document.getElementById('goods-ai-output');
+    out.classList.add('visible');
+    const cur = G_STATE.currency;
+    const s0 = G_STATE.shortages[0];
+    const d0 = G_STATE.deadItems[0];
+    const st0 = G_STATE.starItems[0];
+
+    let html = `<h4 style="margin:0 0 8px;color:#a7f3d0;">📦 التوصية التنفيذية لمستشار البضائع والمخازن AI:</h4><ul style="margin:0;padding-right:18px;">`;
+    if (topic === 'eoq') {
+        html += `<li><strong>خطة الشراء الفوري (EOQ):</strong> لديك <strong>${G_STATE.shortages.length} صنف</strong> وصل لحد الطلب ${s0 ? `(أهمها: <strong>${s0.name}</strong> برصيد ${fmtG(s0.qty)})` : ''}. اضغط زر (🛒 شراء) بجانب الصنف في الجدول أدناه لتحويله إلى فاتورة مشتريات جاهزة.</li>`;
+    } else if (topic === 'deadstock') {
+        html += `<li><strong>خطة تسييل الرواكد:</strong> إجمالي رأس المال المجمد في البضائع الراكدة <strong>${fmtG(G_STATE.deadValue)} ${cur}</strong> عبر <strong>${G_STATE.deadItems.length} صنف</strong> ${d0 ? `(أكبرها: <strong>${d0.name}</strong>)` : ''}. تسييل 30% منها يحرر <strong>${fmtG(G_STATE.deadValue * 0.3)} ${cur}</strong> نقداً.</li>`;
+    } else if (topic === 'bundling') {
+        html += `<li><strong>ابتكار الحزم البيعية (Smart Bundling):</strong> اربط الصنف الراكد ${d0 ? `(<strong>${d0.name}</strong>)` : ''} مع الصنف النجمي الأكثر طلباً ${st0 ? `(<strong>${st0.name}</strong>)` : ''} في فاتورة مبيعات واحدة بخصم مشترك 5% لتصريف المخزون الراكد فوراً.</li>`;
+    } else if (topic === 'shrinkage') {
+        html += `<li><strong>ضبط الأرصدة السالبة والجرد:</strong> تم رصد <strong>${G_STATE.negatives.length} صنف برصيد سالب</strong>. افتح (شاشة التسوية الجردية) أو سجل فواتير المشتريات المعلقة لتصحيح الأرصدة.</li>`;
+    } else {
+        html += `<li><strong>ملخص هندسة المخزون:</strong> القيمة الإجمالية <strong>${fmtG(G_STATE.totalValue)} ${cur}</strong>، النواقص الحرجة <strong>${G_STATE.shortages.length} صنف</strong>، والأصناف النجمية السريعة <strong>${G_STATE.starItems.length} صنف</strong>.</li>`;
+    }
+    html += `</ul>`;
+    out.innerHTML = html;
+}
+
+function exportGoodsAdvisorCSV() {
+    const rows = [
+        ['تقرير مستشار الذكاء الاصطناعي للبضائع والمخازن', new Date().toLocaleString('ar-EG')],
+        ['المحرك المخزني', 'الحالة', 'التفاصيل والتوصية'],
+        ...G_STATE.engines.map(e => [e.title, e.badge, e.desc])
+    ];
+    const csv = '\uFEFF' + rows.map(r => r.map(v => `"${String(v ?? '').replace(/"/g, '""')}"`).join(',')).join('\r\n');
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8;' }));
+    a.download = 'AI_Goods_Advisor_' + new Date().toISOString().slice(0, 10) + '.csv';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+}
+
+document.addEventListener('DOMContentLoaded', initGoodsAdvisor);
+</script>
+<script defer src="js/app.js?v=20261016_v28"></script>
 </body>
 </html>

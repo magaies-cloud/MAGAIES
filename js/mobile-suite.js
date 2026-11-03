@@ -58,51 +58,8 @@
     let isPrivacyActive = false;
 
     // Accounts Database with NON-ZERO vs ZERO Balances (Unified Chart of Accounts)
-    const masterAccountsList = [
-      // 1. العملاء والمدينون
-      { id: 1, name: "شركة النيل للاستيراد", category: "customer", type: "عميل", balanceNum: 4250, balanceFormatted: "$4,250", sdgFormatted: "11,900,000 ج.س", nature: "مدين (عليه دين لنا)", natureClass: "text-rose-400 bg-rose-950/60 border-rose-500/30" },
-      { id: 2, name: "محلات الصادق للتوزيع", category: "customer", type: "عميل", balanceNum: 9150, balanceFormatted: "$9,150", sdgFormatted: "25,620,000 ج.س", nature: "مدين (عليه دين لنا)", natureClass: "text-rose-400 bg-rose-950/60 border-rose-500/30" },
-      { id: 3, name: "مؤسسة التاج التجارية", category: "customer", type: "عميل", balanceNum: 8200, balanceFormatted: "$8,200", sdgFormatted: "22,960,000 ج.س", nature: "مدين (عليه دين لنا)", natureClass: "text-rose-400 bg-rose-950/60 border-rose-500/30" },
-      { id: 4, name: "أسواق البركة المركزية", category: "customer", type: "عميل", balanceNum: 5800, balanceFormatted: "$5,800", sdgFormatted: "16,240,000 ج.س", nature: "مدين (عليه دين لنا)", natureClass: "text-rose-400 bg-rose-950/60 border-rose-500/30" },
-      { id: 5, name: "وكالة الهدى للشحن", category: "customer", type: "عميل", balanceNum: 4350, balanceFormatted: "$4,350", sdgFormatted: "12,180,000 ج.س", nature: "مدين (عليه دين لنا)", natureClass: "text-rose-400 bg-rose-950/60 border-rose-500/30" },
-      { id: 20, name: "شركة همس للتجارة العامة", category: "customer", type: "عميل", balanceNum: 7400, balanceFormatted: "$7,400", sdgFormatted: "20,720,000 ج.س", nature: "مدين (عليه دين لنا)", natureClass: "text-rose-400 bg-rose-950/60 border-rose-500/30" },
-      { id: 21, name: "سوبرماركت الواحة التجاري", category: "customer", type: "عميل", balanceNum: 3900, balanceFormatted: "$3,900", sdgFormatted: "10,920,000 ج.س", nature: "مدين (عليه دين لنا)", natureClass: "text-rose-400 bg-rose-950/60 border-rose-500/30" },
-
-      // 2. الموردون والدائنون
-      { id: 6, name: "مطاحن الخرطوم للغلال", category: "vendor", type: "مورد", balanceNum: 18300, balanceFormatted: "$18,300", sdgFormatted: "51,240,000 ج.س", nature: "دائن (له مستحقات علينا)", natureClass: "text-cyan-400 bg-cyan-950/60 border-cyan-500/30" },
-      { id: 7, name: "مصانع سيقا للزيوت", category: "vendor", type: "مورد", balanceNum: 13850, balanceFormatted: "$13,850", sdgFormatted: "38,780,000 ج.س", nature: "دائن (له مستحقات علينا)", natureClass: "text-cyan-400 bg-cyan-950/60 border-cyan-500/30" },
-      { id: 22, name: "شركة دال الهندسية", category: "vendor", type: "مورد", balanceNum: 22100, balanceFormatted: "$22,100", sdgFormatted: "61,880,000 ج.س", nature: "دائن (له مستحقات علينا)", natureClass: "text-cyan-400 bg-cyan-950/60 border-cyan-500/30" },
-      { id: 23, name: "مجموعة البرير الصناعية", category: "vendor", type: "مورد", balanceNum: 15400, balanceFormatted: "$15,400", sdgFormatted: "43,120,000 ج.س", nature: "دائن (له مستحقات علينا)", natureClass: "text-cyan-400 bg-cyan-950/60 border-cyan-500/30" },
-      { id: 24, name: "مصنع باعبود للتجارة", category: "vendor", type: "مورد", balanceNum: 11200, balanceFormatted: "$11,200", sdgFormatted: "31,360,000 ج.س", nature: "دائن (له مستحقات علينا)", natureClass: "text-cyan-400 bg-cyan-950/60 border-cyan-500/30" },
-
-      // 3. البنوك والمصارف
-      { id: 8, name: "بنك الخرطوم (الحساب الجاري)", category: "cash", type: "بنك", balanceNum: 28400, balanceFormatted: "$28,400", sdgFormatted: "79,520,000 ج.س", nature: "رصيد بنكي متاح", natureClass: "text-emerald-400 bg-emerald-950/60 border-emerald-500/30" },
-      { id: 9, name: "بنك فيصل الإسلامي", category: "cash", type: "بنك", balanceNum: 21500, balanceFormatted: "$21,500", sdgFormatted: "60,200,000 ج.س", nature: "رصيد بنكي متاح", natureClass: "text-emerald-400 bg-emerald-950/60 border-emerald-500/30" },
-      { id: 15, name: "تطبيق بنكك (الحساب المباشر)", category: "cash", type: "بنك", balanceNum: 19500, balanceFormatted: "$19,500", sdgFormatted: "54,600,000 ج.س", nature: "رصيد بنكي متاح", natureClass: "text-emerald-400 bg-emerald-950/60 border-emerald-500/30" },
-      { id: 16, name: "بنك أم درمان الوطني", category: "cash", type: "بنك", balanceNum: 16400, balanceFormatted: "$16,400", sdgFormatted: "45,920,000 ج.س", nature: "رصيد بنكي متاح", natureClass: "text-emerald-400 bg-emerald-950/60 border-emerald-500/30" },
-      { id: 17, name: "بنك الخليج", category: "cash", type: "بنك", balanceNum: 9800, balanceFormatted: "$9,800", sdgFormatted: "27,440,000 ج.س", nature: "رصيد بنكي متاح", natureClass: "text-emerald-400 bg-emerald-950/60 border-emerald-500/30" },
-
-      // 4. الخزن النقدية ونقاط البيع
-      { id: 10, name: "الخزينة الرئيسية (الإدارة)", category: "cash", type: "خزينة", balanceNum: 8950, balanceFormatted: "$8,950", sdgFormatted: "25,060,000 ج.س", nature: "نقدية بالصندوق", natureClass: "text-amber-400 bg-amber-950/60 border-amber-500/30" },
-      { id: 11, name: "خزينة صالة المعرض", category: "cash", type: "خزينة", balanceNum: 5200, balanceFormatted: "$5,200", sdgFormatted: "14,560,000 ج.س", nature: "نقدية بالصندوق", natureClass: "text-amber-400 bg-amber-950/60 border-amber-500/30" },
-      { id: 18, name: "خزينة التحصيل الميداني", category: "cash", type: "خزينة", balanceNum: 3400, balanceFormatted: "$3,400", sdgFormatted: "9,520,000 ج.س", nature: "نقدية بالصندوق", natureClass: "text-amber-400 bg-amber-950/60 border-amber-500/30" },
-      { id: 19, name: "عهدة كاشير المبيعات", category: "cash", type: "خزينة", balanceNum: 2100, balanceFormatted: "$2,100", sdgFormatted: "5,880,000 ج.س", nature: "نقدية بالصندوق", natureClass: "text-amber-400 bg-amber-950/60 border-amber-500/30" },
-
-      // 5. المصروفات والتشغيل
-      { id: 12, name: "مصروفات الوقود والترحيل", category: "expense", type: "مصروف", balanceNum: 3120, balanceFormatted: "$3,120", sdgFormatted: "8,736,000 ج.س", nature: "رصيد منصرفات تراكمي", natureClass: "text-purple-400 bg-purple-950/60 border-purple-500/30" },
-      { id: 25, name: "نثريات ومصروفات تشغيلية", category: "expense", type: "مصروف", balanceNum: 4800, balanceFormatted: "$4,800", sdgFormatted: "13,440,000 ج.س", nature: "رصيد منصرفات تراكمي", natureClass: "text-purple-400 bg-purple-950/60 border-purple-500/30" },
-      { id: 26, name: "مرتبات وسلفيات موظفين", category: "expense", type: "مصروف", balanceNum: 6200, balanceFormatted: "$6,200", sdgFormatted: "17,360,000 ج.س", nature: "رصيد منصرفات تراكمي", natureClass: "text-purple-400 bg-purple-950/60 border-purple-500/30" },
-      { id: 27, name: "رسوم شحن وتفريغ", category: "expense", type: "مصروف", balanceNum: 2500, balanceFormatted: "$2,500", sdgFormatted: "7,000,000 ج.س", nature: "رصيد منصرفات تراكمي", natureClass: "text-purple-400 bg-purple-950/60 border-purple-500/30" },
-
-      // 6. الذمم والشركاء والأمانات
-      { id: 28, name: "جاري الشريك محمد", category: "partner", type: "شريك", balanceNum: 35000, balanceFormatted: "$35,000", sdgFormatted: "98,000,000 ج.س", nature: "جاري شريك (دائن)", natureClass: "text-indigo-400 bg-indigo-950/60 border-indigo-500/30" },
-      { id: 29, name: "جاري الشريك أحمد", category: "partner", type: "شريك", balanceNum: 28000, balanceFormatted: "$28,000", sdgFormatted: "78,400,000 ج.س", nature: "جاري شريك (دائن)", natureClass: "text-indigo-400 bg-indigo-950/60 border-indigo-500/30" },
-      { id: 30, name: "عهدة المبيعات والذمم", category: "partner", type: "ذمم", balanceNum: 5600, balanceFormatted: "$5,600", sdgFormatted: "15,680,000 ج.س", nature: "عهدة معلقة (مدين)", natureClass: "text-indigo-400 bg-indigo-950/60 border-indigo-500/30" },
-
-      // ZERO-BALANCE ACCOUNTS (FILTERED OUT AUTOMATICALLY)
-      { id: 13, name: "شركة الأمل للتجارة (مسدد)", category: "customer", type: "عميل", balanceNum: 0, balanceFormatted: "$0", sdgFormatted: "0 ج.س", nature: "مسدد", natureClass: "" },
-      { id: 14, name: "مورد التعبئة الحديثة (مسدد)", category: "vendor", type: "مورد", balanceNum: 0, balanceFormatted: "$0", sdgFormatted: "0 ج.س", nature: "مسدد", natureClass: "" }
-    ];
+    let masterAccountsList = (window.MAGAIEES_REAL_DB && Array.isArray(window.MAGAIEES_REAL_DB.master_accounts)) ? window.MAGAIEES_REAL_DB.master_accounts : [];
+    window.masterAccountsList = masterAccountsList;
 
     // ========================================================
     // COMPREHENSIVE INTER-ACCOUNT FINANCIAL TRANSFER ENGINE
@@ -14888,11 +14845,36 @@ async function commitOpSales(andPay = false) {
     // ═════════════════════════════════════════════════════════════════════
     window.SuiteApprovalInbox = {
       isOpen: false,
-      requests: [
-        { id: 'APP-901', type: 'تجاوز حد ائتماني', title: 'شركة النيلين للتجارة — فاتورة آجلة #INV-9088', usd: 1850, by: 'كاشير المبيعات (أحمد)', badgeColor: 'amber' },
-        { id: 'APP-902', type: 'خصم خاص 8%', title: 'خصم جملة نقدي — مؤسسة النور للمقاولات', usd: 320, by: 'مشرف الصالة', badgeColor: 'cyan' },
-        { id: 'APP-903', type: 'تسوية جرد مخزني', title: 'إتلاف 3 كراتين تالفة — مستودع السجانة الرئيسي', usd: 145, by: 'أمين المخزن', badgeColor: 'rose' }
-      ],
+      requests: [],
+      syncFromRealDb(data) {
+        if (!data) return;
+        const list = [];
+        if (Array.isArray(data.aging_debtors)) {
+          data.aging_debtors.slice(0, 2).forEach((d, idx) => {
+            list.push({
+              id: "CRED-" + (idx + 1),
+              type: "?????? ??? ???????",
+              title: d.name + " ? ??????? ????? (" + Number(d.amountSdg || 0).toLocaleString("en-US") + " ?.?)",
+              usd: Math.round(Number(d.amountUsd || 0)),
+              by: "???? ??????? ?????????? AI",
+              badgeColor: "amber"
+            });
+          });
+        }
+        if (Array.isArray(data.inbound_bank_receipts) && data.inbound_bank_receipts.length > 0) {
+          const r = data.inbound_bank_receipts[0];
+          list.push({
+            id: r.ref || "BNK-1",
+            type: "????? ???? ????????",
+            title: (r.sender || "????") + " ? " + (r.app || "????") + " #" + (r.ref || ""),
+            usd: Math.round(Number(r.amountUsd || 0)),
+            by: "?????? ????????? ???????",
+            badgeColor: "cyan"
+          });
+        }
+        this.requests = list;
+        this.render();
+      },
 
       init() {
         try {
@@ -15166,3 +15148,203 @@ async function commitOpSales(andPay = false) {
 
 
 
+
+
+// ============================================================================
+// 🔤 MAGAIEES MOBILE OPHTHALMIC TYPOGRAPHY & FONT SCALING STUDIO ("الخطوط وراحة النظر")
+// ============================================================================
+(function() {
+  const FONT_KEY = 'magaies_mobile_font_family';
+  const SCALE_PCT_KEY = 'magaies_mobile_font_scale_pct';
+  const LEGACY_SCALE_KEY = 'magaies_font_scale';
+  const VALID_FONTS = ['default', 'ibm_plex', 'readex_pro'];
+
+  const SCALE_LABELS = {
+    90: '90% (مدمج)',
+    95: '95% (شبه مدمج)',
+    100: '100% (قياسي)',
+    105: '105% (متوسط+)',
+    110: '110% (مريح للنظر)',
+    115: '115% (واضح)',
+    120: '120% (كبير)',
+    125: '125% (كبير لضعاف النظر)'
+  };
+
+  function getSavedFont() {
+    try {
+      const f = localStorage.getItem(FONT_KEY) || localStorage.getItem('magaiees_font_family') || 'default';
+      return VALID_FONTS.includes(f) ? f : 'default';
+    } catch (e) {
+      return 'default';
+    }
+  }
+
+  function getSavedScalePct() {
+    try {
+      let pct = parseInt(localStorage.getItem(SCALE_PCT_KEY) || '0', 10);
+      if (!pct || isNaN(pct)) {
+        const legacy = parseInt(localStorage.getItem(LEGACY_SCALE_KEY) || '2', 10);
+        const map = { 1: 90, 2: 100, 3: 110, 4: 125 };
+        pct = map[legacy] || 100;
+      }
+      return Math.min(125, Math.max(90, pct));
+    } catch (e) {
+      return 100;
+    }
+  }
+
+  function pctToLegacyLevel(pct) {
+    if (pct <= 92) return 1;
+    if (pct <= 104) return 2;
+    if (pct <= 116) return 3;
+    return 4;
+  }
+
+  function applyMobileTypography(fontKey, scalePct) {
+    const root = document.documentElement;
+    if (!root) return;
+
+    // 1. Font Family
+    if (!fontKey || fontKey === 'default') {
+      root.removeAttribute('data-mobile-font');
+      root.removeAttribute('data-magaiees-font');
+    } else {
+      root.setAttribute('data-mobile-font', fontKey);
+      root.setAttribute('data-magaiees-font', fontKey);
+    }
+
+    // 2. Font Scale Percentage
+    const pct = Math.min(125, Math.max(90, parseInt(scalePct, 10) || 100));
+    const ratio = (pct / 100).toFixed(3);
+    const lvl = pctToLegacyLevel(pct);
+
+    root.style.setProperty('--mobile-font-scale', ratio);
+    root.setAttribute('data-mobile-scale-pct', String(pct));
+    root.setAttribute('data-font-scale', String(lvl));
+    root.style.fontSize = (16 * (pct / 100)).toFixed(2) + 'px';
+    currentFontScale = lvl;
+  }
+
+  function syncMobileTypographyUI() {
+    const fontKey = getSavedFont();
+    const pct = getSavedScalePct();
+    const labelText = SCALE_LABELS[pct] || (pct + '%');
+
+    // Sync Font Option Cards/Buttons
+    document.querySelectorAll('[data-mobile-font-opt]').forEach(el => {
+      const k = el.getAttribute('data-mobile-font-opt');
+      const isAct = (k === fontKey);
+      el.style.borderColor = isAct ? '#22d3ee' : 'rgba(51, 65, 85, 0.8)';
+      el.style.boxShadow = isAct ? '0 0 14px rgba(34, 211, 238, 0.25)' : 'none';
+      const badge = el.querySelector('.mobile-font-badge');
+      if (badge) {
+        badge.classList.toggle('hidden', !isAct);
+      }
+    });
+
+    // Sync Scale Sliders & Badges
+    ['mobileFontScaleSlider', 'mobileModalFontScaleSlider'].forEach(id => {
+      const sl = document.getElementById(id);
+      if (sl && parseInt(sl.value, 10) !== pct) sl.value = pct;
+    });
+    ['mobileFontScalePctBadge', 'mobileModalFontScaleBadge'].forEach(id => {
+      const b = document.getElementById(id);
+      if (b) b.textContent = labelText;
+    });
+    const hdrBadge = document.getElementById('fontSizeBadge');
+    if (hdrBadge) hdrBadge.textContent = pct + '%';
+
+    // Sync Quick Scale Preset Buttons (90, 100, 110, 125)
+    document.querySelectorAll('[data-mobile-scale-btn]').forEach(btn => {
+      const bPct = parseInt(btn.getAttribute('data-mobile-scale-btn'), 10);
+      const isAct = (bPct === pct);
+      btn.style.background = isAct ? '#0891b2' : 'rgba(15, 23, 42, 0.9)';
+      btn.style.borderColor = isAct ? '#22d3ee' : 'rgba(51, 65, 85, 0.85)';
+      btn.style.color = isAct ? '#ffffff' : '#cbd5e1';
+    });
+  }
+
+  window.MobileTypographyStudio = {
+    setFont(fontKey, silent) {
+      const valid = VALID_FONTS.includes(fontKey) ? fontKey : 'default';
+      try {
+        localStorage.setItem(FONT_KEY, valid);
+        localStorage.setItem('magaiees_font_family', valid);
+      } catch (e) {}
+      applyMobileTypography(valid, getSavedScalePct());
+      syncMobileTypographyUI();
+      if (typeof triggerHapticPulse === 'function') triggerHapticPulse(25);
+      if (!silent && typeof showFloatingToast === 'function') {
+        const names = {
+          'default': 'الخط الافتراضي (الحالي)',
+          'ibm_plex': 'خط IBM Plex Sans Arabic (وضوح الأرقام والشاشات الضعيفة)',
+          'readex_pro': 'خط Readex Pro (طبي مريح للعين وبدون نظارة)'
+        };
+        showFloatingToast('🔤 تم تفعيل: ' + (names[valid] || valid));
+      }
+    },
+    setScalePct(scalePct, silent) {
+      const pct = Math.min(125, Math.max(90, parseInt(scalePct, 10) || 100));
+      const lvl = pctToLegacyLevel(pct);
+      try {
+        localStorage.setItem(SCALE_PCT_KEY, String(pct));
+        localStorage.setItem(LEGACY_SCALE_KEY, String(lvl));
+        localStorage.setItem('magaiees_font_scale', String(pct));
+      } catch (e) {}
+      applyMobileTypography(getSavedFont(), pct);
+      syncMobileTypographyUI();
+      if (!silent) {
+        if (typeof triggerHapticPulse === 'function') triggerHapticPulse(20);
+        if (typeof showFloatingToast === 'function') {
+          showFloatingToast('🔎 حجم النص والعرض: ' + (SCALE_LABELS[pct] || (pct + '%')));
+        }
+      }
+    },
+    resetDefaults() {
+      try {
+        localStorage.setItem(FONT_KEY, 'default');
+        localStorage.setItem('magaiees_font_family', 'default');
+        localStorage.setItem(SCALE_PCT_KEY, '100');
+        localStorage.setItem(LEGACY_SCALE_KEY, '2');
+        localStorage.setItem('magaiees_font_scale', '100');
+        localStorage.setItem('magaies_font_bold', 'false');
+      } catch (e) {}
+      isHeavyBold = false;
+      document.documentElement.removeAttribute('data-font-weight');
+      const boldBtn = document.getElementById('fontBoldToggleBtn');
+      if (boldBtn) boldBtn.classList.remove('bold-btn-active');
+      applyMobileTypography('default', 100);
+      syncMobileTypographyUI();
+      if (typeof triggerHapticPulse === 'function') triggerHapticPulse(35);
+      if (typeof showFloatingToast === 'function') {
+        showFloatingToast('🔄 تمت إعادة الخط وحجم النص للوضع الافتراضي (100%)');
+      }
+    },
+    openModal() {
+      const quickDrawer = document.getElementById('suiteQuickThemeDrawer');
+      if (quickDrawer) quickDrawer.classList.add('hidden');
+      const modal = document.getElementById('modalMobileTypographyStudio');
+      if (modal) {
+        modal.classList.remove('hidden');
+        syncMobileTypographyUI();
+      }
+    },
+    syncUI: syncMobileTypographyUI
+  };
+
+  // Override cycleFontSize to step through [90, 100, 110, 125]
+  window.cycleFontSize = function() {
+    const steps = [90, 100, 110, 125];
+    const cur = getSavedScalePct();
+    const idx = steps.indexOf(cur);
+    const next = steps[(idx + 1) % steps.length];
+    window.MobileTypographyStudio.setScalePct(next, false);
+  };
+
+  // Initialize immediately
+  applyMobileTypography(getSavedFont(), getSavedScalePct());
+  document.addEventListener('DOMContentLoaded', () => {
+    applyMobileTypography(getSavedFont(), getSavedScalePct());
+    syncMobileTypographyUI();
+  });
+})();

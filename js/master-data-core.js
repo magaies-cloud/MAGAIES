@@ -1243,7 +1243,9 @@
                     <td>${w.location || '-'}</td>
                     <td>${stBadge}</td>
                     <td>${w.securityLevel || 1}</td>
-                    <td>
+                    <td style="white-space:nowrap;">
+                        <button class="btn-text" style="color:#34d399; font-weight:800; margin-left:6px;" onclick="window.location.href='warehouse-ledger.php?warehouse='+encodeURIComponent('${(w.name || '').replace(/'/g, "\\'")}')" title="فتح دفتر حركات المخزن">📊 دفتر المخزن</button>
+                        <button class="btn-text" style="color:#fbbf24; font-weight:800; margin-left:6px;" onclick="window.location.href='inventory-stocktake.php'" title="المطابقة والجرد الفعلي للمخزن">📋 جرد</button>
                         <button class="btn-text" style="color:#38bdf8; font-weight:bold;" onclick="editWarehouse('${w.id}')">✏️ تعديل</button>
                         <button class="btn-text" style="color:var(--danger-color); font-weight:bold; margin-right:10px;" onclick="deleteWarehouse('${w.id}')">🗑️ حذف</button>
                     </td>
@@ -2710,7 +2712,7 @@
                     <td style="text-align:center; cursor:pointer;" ondblclick="startInlineMasterEdit(this, 'customer_limit', '${c.id}', ${parseFloat(c.creditLimit) || 0})" title="انقر مرتين لتعديل حد الائتمان مباشرة">${(c.creditLimit || 0).toLocaleString()} ${c.currency || 'SDG'} <small style="opacity:0.45;">✏️</small></td>
                     <td style="font-size:0.85rem; text-align:center;">${c.contactPerson || '-'}</td>
                     <td style="text-align:center;">${c.securityLevel || 1}</td>
-                    <td style="text-align:center; white-space:nowrap;"><button class="btn-text" style="color:#fbbf24; font-weight:800; margin-left:5px;" onclick="openEntityDrillDownStatementModal('customer', '${c.id}')" title="كشف الحساب التفصيلي والحركات (Drill-Down)">📊</button><button class="btn-text" style="color:#34d399; font-weight:800; margin-left:6px;" onclick="openEntityQrCardModal('customer', '${c.id}')" title="بطاقة QR">🪪</button><button class="btn-text" style="color:#38bdf8; font-weight:800;" onclick="editCustomer('${c.id}')">✏️ تعديل</button><button class="btn-text" style="color:var(--danger-color); font-weight:800; margin-right:8px;" onclick="deleteCustomer('${c.id}')">🗑️ حذف</button></td>
+                    <td style="text-align:center; white-space:nowrap;"><button class="btn-text" style="color:#fbbf24; font-weight:800; margin-left:5px;" onclick="openEntityDrillDownStatementModal('customer', '${c.id}')" title="كشف الحساب التفصيلي والحركات (Drill-Down)">📊</button><button class="btn-text" style="color:#38bdf8; font-weight:800; margin-left:5px;" onclick="window.location.href='account-statement.php?partner='+encodeURIComponent('${(c.name || '').replace(/'/g, "\\'")}')" title="كشف الحساب الرسمي الشامل">📄</button><button class="btn-text" style="color:#c084fc; font-weight:800; margin-left:5px;" onclick="window.location.href='customer-portfolio.php'" title="محفظة العميل 360°">💼</button><button class="btn-text" style="color:#34d399; font-weight:800; margin-left:6px;" onclick="openEntityQrCardModal('customer', '${c.id}')" title="بطاقة QR">🪪</button><button class="btn-text" style="color:#38bdf8; font-weight:800;" onclick="editCustomer('${c.id}')">✏️ تعديل</button><button class="btn-text" style="color:var(--danger-color); font-weight:800; margin-right:8px;" onclick="deleteCustomer('${c.id}')">🗑️ حذف</button></td>
                 </tr>`);
             });
             if (!query && customers.length > maxShow) {
@@ -3120,7 +3122,7 @@
                     <td style="text-align:center;">${balDisplay}</td>
                     <td style="text-align:center; cursor:pointer;" ondblclick="startInlineMasterEdit(this, 'supplier_limit', '${s.id}', ${parseFloat(s.creditLimit) || 0})">${(s.creditLimit || 0).toLocaleString()} SDG <small style="opacity:0.45;">✏️</small></td>
                     <td style="text-align:center;">${s.securityLevel || 1}</td>
-                    <td style="text-align:center; white-space:nowrap;"><button class="btn-text" style="color:#fbbf24; font-weight:800; margin-left:5px;" onclick="openEntityDrillDownStatementModal('supplier', '${s.id}')" title="كشف الحساب التفصيلي والحركات (Drill-Down)">📊</button><button class="btn-text" style="color:#34d399; font-weight:800; margin-left:6px;" onclick="openEntityQrCardModal('supplier', '${s.id}')" title="بطاقة QR">🪪</button><button class="btn-text" style="color:#38bdf8; font-weight:800;" onclick="editSupplier('${s.id}')">✏️ تعديل</button><button class="btn-text" style="color:var(--danger-color); font-weight:800; margin-right:8px;" onclick="deleteSupplier('${s.id}')">🗑️ حذف</button></td>
+                    <td style="text-align:center; white-space:nowrap;"><button class="btn-text" style="color:#fbbf24; font-weight:800; margin-left:5px;" onclick="openEntityDrillDownStatementModal('supplier', '${s.id}')" title="كشف الحساب التفصيلي والحركات (Drill-Down)">📊</button><button class="btn-text" style="color:#38bdf8; font-weight:800; margin-left:5px;" onclick="window.location.href='account-statement.php?partner='+encodeURIComponent('${(s.name || '').replace(/'/g, "\\'")}')" title="كشف الحساب الرسمي الشامل">📄</button><button class="btn-text" style="color:#f59e0b; font-weight:800; margin-left:5px;" onclick="window.location.href='supplier_reliability.php'" title="تقييم وموثوقية المورد 360°">🏭</button><button class="btn-text" style="color:#34d399; font-weight:800; margin-left:6px;" onclick="openEntityQrCardModal('supplier', '${s.id}')" title="بطاقة QR">🪪</button><button class="btn-text" style="color:#38bdf8; font-weight:800;" onclick="editSupplier('${s.id}')">✏️ تعديل</button><button class="btn-text" style="color:var(--danger-color); font-weight:800; margin-right:8px;" onclick="deleteSupplier('${s.id}')">🗑️ حذف</button></td>
                 </tr>`);
             });
             if (!query && suppliers.length > maxShowSup) {
@@ -3269,17 +3271,26 @@
                 );
             }
 
-            tbody.innerHTML = employees.map(emp => `<tr>
-                    <td>${emp.name}</td>
-                    <td>${emp.role}</td>
-                    <td>${emp.phone||'-'}</td>
-                    <td>${emp.securityLevel}</td>
-                    <td>${emp.status}</td>
-                    <td>
+            const roleMapAr = { 'admin': '👑 مدير نظام', 'accountant': '📊 محاسب مالي', 'cashier': '💰 أمين خزينة / كاشير', 'storekeeper': '📦 أمين مخزن', 'sales': '🛒 مسؤول مبيعات', 'viewer': '👁️ مراقب / مستعرض' };
+            tbody.innerHTML = employees.map(emp => {
+                const roleBadge = roleMapAr[emp.role] || emp.role || '-';
+                const stBadge = (emp.status === 'active' || emp.status === 'نشط')
+                    ? '<span style="background:rgba(16,185,129,0.16); color:#34d399; padding:2px 8px; border-radius:8px; font-size:0.78rem; font-weight:800;">🟢 نشط</span>'
+                    : '<span style="background:rgba(239,68,68,0.16); color:#f87171; padding:2px 8px; border-radius:8px; font-size:0.78rem; font-weight:800;">🔴 موقوف</span>';
+                return `<tr>
+                    <td style="font-weight:bold;">${emp.name || emp.fullName || emp.username || '-'}</td>
+                    <td><span style="background:rgba(56,189,248,0.12); color:#38bdf8; padding:2px 8px; border-radius:6px; font-size:0.8rem; font-weight:800;">${roleBadge}</span></td>
+                    <td style="direction:ltr; font-family:monospace;">${emp.phone||'-'}</td>
+                    <td>${emp.securityLevel || 1}</td>
+                    <td>${stBadge}</td>
+                    <td style="white-space:nowrap;">
+                        <button class="btn-text" style="color:#34d399; font-weight:800; margin-left:6px;" onclick="window.location.href='payroll.php'" title="مسير الرواتب والاستحقاقات">💵 الرواتب</button>
+                        <button class="btn-text" style="color:#fbbf24; font-weight:800; margin-left:6px;" onclick="window.location.href='jobs.php'" title="المهام التنفيذية للموظف">📋 المهام</button>
                         <button class="btn-text" style="color:#a855f7; font-weight:bold; margin-left:8px;" onclick="editEmployee('${emp.id}')">✏️ تعديل</button>
                         <button class="btn-text" style="color:var(--danger-color); font-weight:bold;" onclick="deleteEmployee('${emp.id}')">🗑️ حذف</button>
                     </td>
-                </tr>`).join('');
+                </tr>`;
+            }).join('');
         }
         
         function deleteEmployee(id) {
@@ -3516,23 +3527,30 @@
                 );
             }
             let chequesList = [];
-            try { chequesList = JSON.parse(localStorage.getItem('elsajana_md_c11_cheques') || '[]') || []; } catch (_) {}
+            try {
+                const c1 = JSON.parse(localStorage.getItem('erp_checks_v1') || '[]') || [];
+                const c2 = JSON.parse(localStorage.getItem('elsajana_md_c11_cheques') || '[]') || [];
+                chequesList = [...c1, ...c2];
+            } catch (_) {}
             tbody.innerHTML = banks.map(b => {
                 const typeLabel = '🏦 حساب بنكي';
-                const liveBal = parseFloat(b.currentBalance ?? b.balance ?? b.openingBalance) || 0;
+                const liveBal = (typeof window.computeLiveEntityLedgerBalance === 'function')
+                    ? window.computeLiveEntityLedgerBalance('bank', b)
+                    : (parseFloat(b.currentBalance ?? b.balance ?? b.openingBalance) || 0);
                 const balFormatted = liveBal.toLocaleString('en-US', { minimumFractionDigits: 2 });
-                const pendingChq = chequesList.filter(c => c && (c.bankId === b.id || c.bankName === b.name) && (c.status === 'portfolio' || c.status === 'under_collection'));
+                const pendingChq = chequesList.filter(c => c && (c.bankId === b.id || c.bankName === b.name || c.bank === b.name) && (c.status === 'portfolio' || c.status === 'under_collection' || c.status === 'في الخزينة' || c.status === 'تحت التحصيل'));
                 const pendingBadge = pendingChq.length > 0
-                    ? ` <span style="background:rgba(245,158,11,0.18);color:#fde047;border:1px solid rgba(245,158,11,0.45);padding:1px 6px;border-radius:6px;font-size:0.72rem;font-weight:900;" title="شيكات بالحافظة/تحت التحصيل لا تؤثر على الرصيد الفعلي إلا بعد التحصيل">📝 حافظة: ${pendingChq.length}</span>`
+                    ? ` <span onclick="window.location.href='checks-cycle.php'" style="background:rgba(245,158,11,0.18);color:#fde047;border:1px solid rgba(245,158,11,0.45);padding:1px 6px;border-radius:6px;font-size:0.72rem;font-weight:900;cursor:pointer;" title="شيكات بالحافظة/تحت التحصيل — اضغط لفتح دورة الشيكات">📝 حافظة: ${pendingChq.length}</span>`
                     : '';
                 return `<tr>
                     <td style="color:#38bdf8; font-weight:bold;">${b.id}</td>
                     <td style="font-weight:bold;">${b.name} <br><small style="color:#94a3b8;">${b.branch || ''}</small></td>
                     <td>${typeLabel}${pendingBadge}</td>
                     <td><span class="badge" style="background:rgba(56,189,248,0.2); color:#38bdf8; padding:3px 8px; border-radius:4px;">${b.currency || 'SDG'}</span></td>
-                    <td style="font-weight:bold; color:#34d399;">${balFormatted}</td>
-                    <td>
-                        <button class="btn-text" style="color:#fbbf24; margin-left:6px;" onclick="if(typeof window.openMdChequePortfolioModal==='function')window.openMdChequePortfolioModal('${b.id}')" title="حافظة ودورة الشيكات لهذا البنك">📝 شيكات</button>
+                    <td style="font-weight:bold; color:#34d399; cursor:pointer; text-decoration:underline dotted;" onclick="openEntityDrillDownStatementModal('bank', '${b.id}')" title="اضغط لفتح كشف حركات البنك التفصيلي">${balFormatted}</td>
+                    <td style="white-space:nowrap;">
+                        <button class="btn-text" style="color:#34d399; margin-left:6px; font-weight:800;" onclick="openEntityDrillDownStatementModal('bank', '${b.id}')" title="كشف حركات البنك التفصيلي">📊 كشف</button>
+                        <button class="btn-text" style="color:#fbbf24; margin-left:6px; font-weight:800;" onclick="window.location.href='checks-cycle.php'" title="حافظة ودورة الشيكات لهذا البنك">📝 الشيكات</button>
                         <button class="btn-text" style="color:#38bdf8;" onclick="editBank('${b.id}')">✏️ تعديل</button>
                         <button class="btn-text" style="color:var(--danger-color); margin-right:10px;" onclick="deleteBank('${b.id}')">🗑️ حذف</button>
                     </td>
@@ -3719,7 +3737,9 @@
             }
             tbody.innerHTML = safes.map(b => {
                 const typeLabel = '💰 خزينة';
-                const actualBalNum = parseFloat(b.currentBalance ?? b.balance ?? b.openingBalance) || 0;
+                const actualBalNum = (typeof window.computeLiveEntityLedgerBalance === 'function')
+                    ? window.computeLiveEntityLedgerBalance('safe', b)
+                    : (parseFloat(b.currentBalance ?? b.balance ?? b.openingBalance) || 0);
                 const isBlindRole = (window.__mdActiveRole === 'cashier' || window.__mdActiveRole === 'sales' || window.__mdC12BlindMaskActive === true);
                 const balFormatted = isBlindRole
                     ? '<span style="color:#fbbf24;font-weight:900;" title="مخفي طبقاً لنظام الجرد الأعمى (الدستور 12)">🙈 مخفي للجرد الأعمى</span>'
@@ -3729,8 +3749,10 @@
                     <td style="font-weight:bold;">${b.name}</td>
                     <td>${typeLabel}</td>
                     <td><span class="badge" style="background:rgba(74,222,128,0.2); color:#4ade80; padding:3px 8px; border-radius:4px;">${b.currency || 'SDG'}</span></td>
-                    <td style="font-weight:bold; font-family:monospace;">${balFormatted}</td>
-                    <td>
+                    <td style="font-weight:bold; font-family:monospace; cursor:pointer; text-decoration:underline dotted;" onclick="openEntityDrillDownStatementModal('safe', '${b.id}')" title="اضغط لفتح كشف حركات الخزينة التفصيلي">${balFormatted}</td>
+                    <td style="white-space:nowrap;">
+                        <button class="btn-text" style="color:#34d399; margin-left:6px; font-weight:800;" onclick="openEntityDrillDownStatementModal('safe', '${b.id}')" title="كشف حركات الخزينة التفصيلي">📊 الحركات</button>
+                        <button class="btn-text" style="color:#38bdf8; margin-left:6px; font-weight:800;" onclick="window.location.href='vouchers-hub.php'" title="مركز السندات المالية">🧾 السندات</button>
                         <button class="btn-text" style="color:#fde047; margin-left:8px; font-weight:900;" onclick="if(typeof window.openMdBlindCashClosingModal==='function') window.openMdBlindCashClosingModal('${b.id}')">🙈 جرد أعمى</button>
                         <button class="btn-text" style="color:#38bdf8;" onclick="editSafe('${b.id}')">✏️ تعديل</button>
                         <button class="btn-text" style="color:var(--danger-color); margin-right:10px;" onclick="deleteSafe('${b.id}')">🗑️ حذف</button>
@@ -4136,9 +4158,21 @@
             const totalEl = document.getElementById('kpi-total-items');
             if(totalEl) totalEl.innerText = items.length + ' صنف';
             
+            const resolveItemTotalStock = (it) => {
+                if (!it) return 0;
+                if (typeof it.stock === 'object' && it.stock !== null) {
+                    const sumObj = Object.values(it.stock).reduce((s, v) => s + (parseFloat(v) || 0), 0);
+                    if (sumObj > 0) return sumObj;
+                } else if (it.stock !== undefined && it.stock !== null && it.stock !== '') {
+                    const numStock = parseFloat(it.stock);
+                    if (!isNaN(numStock)) return numStock;
+                }
+                return parseFloat(it.openingQty ?? (it.units && it.units[0] ? it.units[0].stock : 0)) || 0;
+            };
+
             let lowStock = 0;
             items.forEach(i => {
-                let stock = parseFloat(i.stock ?? i.openingQty ?? (i.units && i.units[0] ? i.units[0].stock : 0)) || 0;
+                let stock = resolveItemTotalStock(i);
                 let reorder = parseFloat(i.reorderLevel || i.minLimit || 5) || 5;
                 if (stock <= reorder) lowStock++;
             });
@@ -4163,7 +4197,7 @@
             paginatedItems.forEach(i => {
                 let bu = i.baseUnit || (i.units && i.units[0] ? i.units[0].unitName : '-');
                 let unitsCount = Array.isArray(i.units) && i.units.length > 1 ? ` <span style="background:rgba(168,85,247,0.18);color:#d8b4fe;border:1px solid rgba(168,85,247,0.4);padding:1px 6px;border-radius:6px;font-size:0.72rem;font-weight:800;" title="متعدد الوحدات (${i.units.length} وحدات)">📐×${i.units.length}</span>` : '';
-                let stockVal = parseFloat(i.stock ?? i.openingQty ?? (i.units && i.units[0] ? i.units[0].stock : 0)) || 0;
+                let stockVal = resolveItemTotalStock(i);
                 let reservedVal = parseFloat(i.reservedQty || 0) || 0;
                 let netAvail = Math.max(0, stockVal - reservedVal);
                 let reorderLvl = parseFloat(i.reorderLevel || i.minLimit || 5) || 5;
@@ -4178,7 +4212,7 @@
                 const marginBadge = isMarginWarn ? ` <span style="background:rgba(245,158,11,0.2); color:#fbbf24; border:1px solid rgba(245,158,11,0.45); padding:1px 6px; border-radius:6px; font-size:0.72rem; font-weight:800;" title="تنبيه تسعير: سعر البيع صفر أو أقل/يساوي التكلفة (${cost.toLocaleString()})">⚠️ راجع السعر</span>` : '';
                 const badge = i.status === 'inactive' ? '<span style="color:var(--danger-color); font-size:0.8rem; font-weight:bold; background:rgba(239,68,68,0.1); padding:3px 8px; border-radius:6px;">🔴 موقوف</span>' : '<span style="color:var(--success-color); font-size:0.8rem; font-weight:bold; background:rgba(52,211,153,0.1); padding:3px 8px; border-radius:6px;">🟢 نشط</span>';
                 const subCat = i.subCategory ? ' <small style="color:var(--text-secondary);">(' + i.subCategory + ')</small>' : '';
-                rowsHtmlItems.push(`<tr class="item-row"><td class="item-id-cell" style="font-weight:bold; color:#38bdf8;">${i.id}</td><td class="item-name-cell" style="font-weight:bold;">${i.name}${subCat}</td><td><span style="background:rgba(255,255,255,0.05); padding:3px 8px; border-radius:6px; font-size:0.85rem;">${i.category || '-'}</span></td><td>${bu}${unitsCount}${stockPill}</td><td style="font-weight:bold; color:var(--success-color); cursor:pointer;" ondblclick="startInlineMasterEdit(this, 'item_price', '${i.id}', ${price})" title="انقر مرتين للتعديل المباشر لسعر البيع مثل Excel ثم اضغط Enter">${price.toLocaleString()} SDG <small style="opacity:0.45;">✏️</small>${marginBadge}</td><td>${badge}</td><td><button class="btn-text" style="color:#34d399; font-size:1rem; margin-left:5px;" onclick="if(typeof window.openMdInspectionAndPartialReceiptModal==='function')window.openMdInspectionAndPartialReceiptModal('${i.id}')" title="فحص واستلام بضاعة (سليم / تالف / مرفوض)">🔬</button><button class="btn-text" style="color:#38bdf8; font-size:1.05rem; margin-left:6px;" onclick="openItemPriceHistoryModal('${i.id}')" title="سجل تاريخ الأسعار">📜</button><button class="btn-text" style="color:#a855f7; font-size:1.1rem; margin-left:8px;" onclick="editItem('${i.id}')" title="تعديل">✏️</button><button class="btn-text" style="color:var(--danger-color); font-size:1.1rem;" onclick="deleteItem('${i.id}')" title="حذف">🗑️</button></td></tr>`);
+                rowsHtmlItems.push(`<tr class="item-row"><td class="item-id-cell" style="font-weight:bold; color:#38bdf8;">${i.id}</td><td class="item-name-cell" style="font-weight:bold;">${i.name}${subCat}</td><td><span style="background:rgba(255,255,255,0.05); padding:3px 8px; border-radius:6px; font-size:0.85rem;">${i.category || '-'}</span></td><td>${bu}${unitsCount}${stockPill}</td><td style="font-weight:bold; color:var(--success-color); cursor:pointer;" ondblclick="startInlineMasterEdit(this, 'item_price', '${i.id}', ${price})" title="انقر مرتين للتعديل المباشر لسعر البيع مثل Excel ثم اضغط Enter">${price.toLocaleString()} SDG <small style="opacity:0.45;">✏️</small>${marginBadge}</td><td>${badge}</td><td style="white-space:nowrap;"><button class="btn-text" style="color:#fbbf24; font-size:1rem; margin-left:5px;" onclick="window.location.href='item-ledger.php?item='+encodeURIComponent('${(i.name || '').replace(/'/g, "\\'")}')" title="فتح كرت الصنف التفصيلي وحركاته">📦</button><button class="btn-text" style="color:#34d399; font-size:1rem; margin-left:5px;" onclick="if(typeof window.openMdInspectionAndPartialReceiptModal==='function')window.openMdInspectionAndPartialReceiptModal('${i.id}')" title="فحص واستلام بضاعة (سليم / تالف / مرفوض)">🔬</button><button class="btn-text" style="color:#38bdf8; font-size:1.05rem; margin-left:6px;" onclick="openItemPriceHistoryModal('${i.id}')" title="سجل تاريخ الأسعار">📜</button><button class="btn-text" style="color:#a855f7; font-size:1.1rem; margin-left:8px;" onclick="editItem('${i.id}')" title="تعديل">✏️</button><button class="btn-text" style="color:var(--danger-color); font-size:1.1rem;" onclick="deleteItem('${i.id}')" title="حذف">🗑️</button></td></tr>`);
             });
             tbody.innerHTML = rowsHtmlItems.join('');
             
@@ -5538,7 +5572,9 @@
                     <td style="color:#38bdf8; font-weight:bold;">${c.id}</td>
                     <td style="font-weight:bold;">${c.name || c.title || ''}</td>
                     <td>${c.desc || ''}</td>
-                    <td>
+                    <td style="white-space:nowrap;">
+                        <button class="btn-text" style="color:#34d399; font-weight:800; margin-left:6px;" onclick="window.openCostCenterDrillDownModal('${c.id}')" title="كشف حركات ومصروفات وإيرادات مركز التكلفة">📊 كشف المركز</button>
+                        <button class="btn-text" style="color:#fbbf24; font-weight:800; margin-left:6px;" onclick="window.location.href='financial-reports.php'" title="التقارير المالية الموحدة">📈 التقارير</button>
                         <button class="btn-text" style="color:#38bdf8;" onclick="editCostCenter('${c.id}')">✏️ تعديل</button>
                         <button class="btn-text" style="color:var(--danger-color); margin-right:8px;" onclick="deleteCostCenter('${c.id}')">🗑️ حذف</button>
                     </td>
@@ -7899,7 +7935,27 @@ window.executeSmartClipboardImport = function () {
         };
 
         try {
-            if (!isSup) {
+            const isBankOrSafe = (entityType === 'bank' || entityType === 'safe');
+            if (isBankOrSafe) {
+                const vouchers = JSON.parse(localStorage.getItem('erp_vouchers_v1') || '[]') || [];
+                vouchers.forEach(v => {
+                    if (!matchesEntity(v, ['safeId', 'bankId', 'treasuryId', 'fromAccount', 'toAccount', 'accountId'], ['safeName', 'bankName', 'treasuryName', 'paymentMethodName'])) return;
+                    const amt = round2(v.amount ?? v.total ?? 0);
+                    if (amt <= 0) return;
+                    const isReceipt = (v.type === 'receipt' || v.voucherType === 'receipt' || String(v.type || '').includes('قبض'));
+                    const docNo = v.voucherNo || v.voucherNumber || v.number || v.id || 'VCH';
+                    const dedupKey = `BS_${isReceipt ? 'REC' : 'PAY'}_${docNo}_${amt}`;
+                    if (seenDocKeys.has(dedupKey)) return;
+                    seenDocKeys.add(dedupKey);
+                    const dt = (v.date || v.createdAt || '').toString().slice(0, 10) || new Date().toISOString().slice(0, 10);
+                    rows.push({
+                        date: dt, docNo, type: isReceipt ? 'إيداع / قبض' : 'سحب / صرف',
+                        debit: isReceipt ? amt : 0, credit: isReceipt ? 0 : amt,
+                        note: v.description || v.notes || v.note || (v.partyName || v.entityName || ''),
+                        raw: v
+                    });
+                });
+            } else if (!isSup) {
                 const sales = JSON.parse(localStorage.getItem('erp_sales_invoices_v1') || localStorage.getItem('erp_invoices_v1') || '[]') || [];
                 sales.forEach(inv => {
                     if (!matchesEntity(inv, ['customerId', 'clientId', 'entityId', 'customer', 'client'], ['customerName', 'clientName', 'customer', 'client'])) return;
@@ -7914,14 +7970,29 @@ window.executeSmartClipboardImport = function () {
                         rows.push({ date: dt, docNo: `${docNo}-سداد`, type: 'سداد فاتورة', debit: 0, credit: paid, note: 'دفعة مسددة مع الفاتورة', raw: inv });
                     }
                 });
+                const salesReturns = JSON.parse(localStorage.getItem('erp_sales_returns_v1') || '[]') || [];
+                salesReturns.forEach(sr => {
+                    if (!matchesEntity(sr, ['customerId', 'clientId', 'entityId', 'customer'], ['customerName', 'clientName', 'customer'])) return;
+                    const total = round2(sr.netTotal ?? sr.grandTotal ?? sr.total ?? sr.amount ?? 0);
+                    if (total > 0) {
+                        const dt = (sr.date || sr.createdAt || '').toString().slice(0, 10) || new Date().toISOString().slice(0, 10);
+                        const docNo = sr.returnNo || sr.invoiceNo || sr.id || 'SR';
+                        rows.push({ date: dt, docNo, type: 'مرتجع مبيعات', debit: 0, credit: total, note: sr.notes || 'مرتجع بضاعة من العميل', raw: sr });
+                    }
+                });
             } else {
-                const purchases = JSON.parse(localStorage.getItem('erp_purchase_invoices_v1') || localStorage.getItem('erp_purchases_v1') || '[]') || [];
-                purchases.forEach(pur => {
+                const p1 = JSON.parse(localStorage.getItem('erp_purchases_v1') || '[]') || [];
+                const p2 = JSON.parse(localStorage.getItem('erp_purchase_invoices_v1') || '[]') || [];
+                const seenPur = new Set();
+                [...p1, ...p2].forEach(pur => {
+                    if (!pur) return;
+                    const docNo = pur.invoiceNo || pur.invoiceNumber || pur.number || pur.id || 'PUR';
+                    if (seenPur.has(docNo)) return;
+                    seenPur.add(docNo);
                     if (!matchesEntity(pur, ['supplierId', 'vendorId', 'entityId', 'supplier', 'customer'], ['supplierName', 'vendorName', 'supplier', 'customer'])) return;
                     const total = round2(pur.netTotal ?? pur.grandTotal ?? pur.total ?? pur.amount ?? 0);
                     const paid = round2(pur.paidAmount ?? pur.paid ?? ((pur.paymentType === 'cash' || pur.paymentMethod === 'cash') ? total : 0));
                     const dt = (pur.date || pur.createdAt || '').toString().slice(0, 10) || new Date().toISOString().slice(0, 10);
-                    const docNo = pur.invoiceNo || pur.invoiceNumber || pur.number || pur.id || 'PUR';
                     if (total > 0) {
                         rows.push({ date: dt, docNo, type: 'فاتورة مشتريات', debit: 0, credit: total, note: pur.notes || 'توريد مشتريات', raw: pur });
                     }
@@ -7929,73 +8000,111 @@ window.executeSmartClipboardImport = function () {
                         rows.push({ date: dt, docNo: `${docNo}-صرف`, type: 'سداد للمورد', debit: paid, credit: 0, note: 'دفعة مسددة للمورد', raw: pur });
                     }
                 });
+                const purReturns = JSON.parse(localStorage.getItem('erp_purchase_returns_v1') || '[]') || [];
+                purReturns.forEach(pr => {
+                    if (!matchesEntity(pr, ['supplierId', 'vendorId', 'entityId', 'supplier'], ['supplierName', 'vendorName', 'supplier'])) return;
+                    const total = round2(pr.netTotal ?? pr.grandTotal ?? pr.total ?? pr.amount ?? 0);
+                    if (total > 0) {
+                        const dt = (pr.date || pr.createdAt || '').toString().slice(0, 10) || new Date().toISOString().slice(0, 10);
+                        const docNo = pr.returnNo || pr.invoiceNo || pr.id || 'PR';
+                        rows.push({ date: dt, docNo, type: 'مرتجع مشتريات', debit: total, credit: 0, note: pr.notes || 'رد بضاعة للمورد', raw: pr });
+                    }
+                });
             }
 
-            // Collect Single & Multi Receipts
-            const recKeys = ['erp_single_receipts_v1', 'erp_receipts_v1'];
-            recKeys.forEach(rk => {
-                const recs = JSON.parse(localStorage.getItem(rk) || '[]') || [];
-                if (!Array.isArray(recs)) return;
-                recs.forEach(r => {
-                    if (!matchesEntity(r, ['fromAccount', 'accountId', 'partyId', 'customerId', 'supplierId', 'entityId'], ['fromAccountName', 'partyName', 'customerName', 'supplierName', 'entityName'])) return;
-                    const amt = round2(r.amount ?? r.total ?? 0);
-                    if (amt <= 0) return;
-                    const docNo = r.voucherNo || r.voucherNumber || r.number || r.id || 'REC';
-                    const dedupKey = `REC_${docNo}_${amt}`;
-                    if (seenDocKeys.has(dedupKey)) return;
-                    seenDocKeys.add(dedupKey);
-                    const dt = (r.date || r.createdAt || '').toString().slice(0, 10) || new Date().toISOString().slice(0, 10);
-                    rows.push({
-                        date: dt, docNo, type: 'سند قبض',
-                        debit: 0, credit: amt,
-                        note: r.description || r.notes || r.note || 'تحصيل نقدي / بنكي',
-                        raw: r
+            if (!isBankOrSafe) {
+                // Collect Single & Multi Receipts
+                const recKeys = ['erp_single_receipts_v1', 'erp_receipts_v1'];
+                recKeys.forEach(rk => {
+                    const recs = JSON.parse(localStorage.getItem(rk) || '[]') || [];
+                    if (!Array.isArray(recs)) return;
+                    recs.forEach(r => {
+                        if (!matchesEntity(r, ['fromAccount', 'accountId', 'partyId', 'customerId', 'supplierId', 'entityId'], ['fromAccountName', 'partyName', 'customerName', 'supplierName', 'entityName'])) return;
+                        const amt = round2(r.amount ?? r.total ?? 0);
+                        if (amt <= 0) return;
+                        const docNo = r.voucherNo || r.voucherNumber || r.number || r.id || 'REC';
+                        const dedupKey = `REC_${docNo}_${amt}`;
+                        if (seenDocKeys.has(dedupKey)) return;
+                        seenDocKeys.add(dedupKey);
+                        const dt = (r.date || r.createdAt || '').toString().slice(0, 10) || new Date().toISOString().slice(0, 10);
+                        rows.push({
+                            date: dt, docNo, type: 'سند قبض',
+                            debit: 0, credit: amt,
+                            note: r.description || r.notes || r.note || 'تحصيل نقدي / بنكي',
+                            raw: r
+                        });
                     });
                 });
-            });
 
-            // Collect Single & Multi Payments
-            const payKeys = ['erp_single_payments_v1', 'erp_payments_v1'];
-            payKeys.forEach(pk => {
-                const pays = JSON.parse(localStorage.getItem(pk) || '[]') || [];
-                if (!Array.isArray(pays)) return;
-                pays.forEach(p => {
-                    if (!matchesEntity(p, ['toAccount', 'accountId', 'partyId', 'customerId', 'supplierId', 'entityId'], ['toAccountName', 'partyName', 'customerName', 'supplierName', 'entityName'])) return;
-                    const amt = round2(p.amount ?? p.total ?? 0);
-                    if (amt <= 0) return;
-                    const docNo = p.voucherNo || p.voucherNumber || p.number || p.id || 'PAY';
-                    const dedupKey = `PAY_${docNo}_${amt}`;
-                    if (seenDocKeys.has(dedupKey)) return;
-                    seenDocKeys.add(dedupKey);
-                    const dt = (p.date || p.createdAt || '').toString().slice(0, 10) || new Date().toISOString().slice(0, 10);
-                    rows.push({
-                        date: dt, docNo, type: 'سند صرف',
-                        debit: amt, credit: 0,
-                        note: p.description || p.notes || p.note || 'صرف نقدي / بنكي',
-                        raw: p
+                // Collect Single & Multi Payments
+                const payKeys = ['erp_single_payments_v1', 'erp_payments_v1'];
+                payKeys.forEach(pk => {
+                    const pays = JSON.parse(localStorage.getItem(pk) || '[]') || [];
+                    if (!Array.isArray(pays)) return;
+                    pays.forEach(p => {
+                        if (!matchesEntity(p, ['toAccount', 'accountId', 'partyId', 'customerId', 'supplierId', 'entityId'], ['toAccountName', 'partyName', 'customerName', 'supplierName', 'entityName'])) return;
+                        const amt = round2(p.amount ?? p.total ?? 0);
+                        if (amt <= 0) return;
+                        const docNo = p.voucherNo || p.voucherNumber || p.number || p.id || 'PAY';
+                        const dedupKey = `PAY_${docNo}_${amt}`;
+                        if (seenDocKeys.has(dedupKey)) return;
+                        seenDocKeys.add(dedupKey);
+                        const dt = (p.date || p.createdAt || '').toString().slice(0, 10) || new Date().toISOString().slice(0, 10);
+                        rows.push({
+                            date: dt, docNo, type: 'سند صرف',
+                            debit: amt, credit: 0,
+                            note: p.description || p.notes || p.note || 'صرف نقدي / بنكي',
+                            raw: p
+                        });
                     });
                 });
-            });
 
-            const vouchers = JSON.parse(localStorage.getItem('erp_vouchers_v1') || '[]') || [];
-            vouchers.forEach(v => {
-                if (!matchesEntity(v, ['entityId', 'customerId', 'supplierId', 'accountId', 'partyId', 'fromAccount', 'toAccount'], ['entityName', 'customerName', 'supplierName', 'partyName'])) return;
-                const amt = round2(v.amount ?? v.total ?? 0);
-                if (amt <= 0) return;
-                const isReceipt = (v.type === 'receipt' || v.voucherType === 'receipt' || String(v.type || '').includes('قبض'));
-                const docNo = v.voucherNo || v.voucherNumber || v.number || v.id || 'VCH';
-                const dedupKey = `${isReceipt ? 'REC' : 'PAY'}_${docNo}_${amt}`;
-                if (seenDocKeys.has(dedupKey)) return;
-                seenDocKeys.add(dedupKey);
-                const dt = (v.date || v.createdAt || '').toString().slice(0, 10) || new Date().toISOString().slice(0, 10);
-                rows.push({
-                    date: dt,
-                    docNo,
-                    type: isReceipt ? 'سند قبض' : 'سند صرف',
-                    debit: isReceipt ? 0 : amt,
-                    credit: isReceipt ? amt : 0,
-                    note: v.description || v.notes || v.note || '',
-                    raw: v
+                const vouchers = JSON.parse(localStorage.getItem('erp_vouchers_v1') || '[]') || [];
+                vouchers.forEach(v => {
+                    if (!matchesEntity(v, ['entityId', 'customerId', 'supplierId', 'accountId', 'partyId', 'fromAccount', 'toAccount'], ['entityName', 'customerName', 'supplierName', 'partyName'])) return;
+                    const amt = round2(v.amount ?? v.total ?? 0);
+                    if (amt <= 0) return;
+                    const isReceipt = (v.type === 'receipt' || v.voucherType === 'receipt' || String(v.type || '').includes('قبض'));
+                    const docNo = v.voucherNo || v.voucherNumber || v.number || v.id || 'VCH';
+                    const dedupKey = `${isReceipt ? 'REC' : 'PAY'}_${docNo}_${amt}`;
+                    if (seenDocKeys.has(dedupKey)) return;
+                    seenDocKeys.add(dedupKey);
+                    const dt = (v.date || v.createdAt || '').toString().slice(0, 10) || new Date().toISOString().slice(0, 10);
+                    rows.push({
+                        date: dt,
+                        docNo,
+                        type: isReceipt ? 'سند قبض' : 'سند صرف',
+                        debit: isReceipt ? 0 : amt,
+                        credit: isReceipt ? amt : 0,
+                        note: v.description || v.notes || v.note || '',
+                        raw: v
+                    });
+                });
+            }
+
+            // Collect Journal Vouchers (including Netting JV-NET-..., Check Cycle JV-CHK-..., and Manual JVs)
+            const jvs = JSON.parse(localStorage.getItem('erp_journal_vouchers_v1') || '[]') || [];
+            jvs.forEach(jv => {
+                if (!jv || jv.deleted || !Array.isArray(jv.lines)) return;
+                const docNo = jv.voucherNo || jv.id || 'JV';
+                const dt = (jv.date || jv.createdAt || '').toString().slice(0, 10) || new Date().toISOString().slice(0, 10);
+                jv.lines.forEach((ln, lIdx) => {
+                    const accStr = String(ln.accountName || ln.account || ln.partyName || '').trim().toLowerCase();
+                    const idStr = String(ln.accountId || ln.partyId || ln.entityId || '').trim();
+                    const isHit = (entId && idStr === entId) || (entName && accStr && (accStr === entName || accStr.includes(entName)));
+                    if (!isHit) return;
+                    const d = round2(ln.debit || 0);
+                    const c = round2(ln.credit || 0);
+                    if (d <= 0 && c <= 0) return;
+                    const dedupKey = `JV_${docNo}_${lIdx}_${d}_${c}`;
+                    if (seenDocKeys.has(dedupKey)) return;
+                    seenDocKeys.add(dedupKey);
+                    rows.push({
+                        date: dt, docNo, type: 'قيد يومية / تسوية',
+                        debit: d, credit: c,
+                        note: ln.description || jv.description || jv.notes || 'قيد محاسبي',
+                        raw: jv
+                    });
                 });
             });
         } catch (e) {}
@@ -8009,7 +8118,7 @@ window.executeSmartClipboardImport = function () {
         const isSup = (entityType === 'supplier' || entityType === 'sup');
         const data = window.collectEntityLedgerMovements(entityType, entity);
         if (data.rows.length === 0) {
-            const fallback = parseFloat(entity.currentBalance);
+            const fallback = parseFloat(entity.currentBalance ?? entity.balance ?? entity.openingBalance);
             if (!isNaN(fallback) && fallback !== 0) return round2(fallback);
             return data.openingNet;
         }
@@ -8023,7 +8132,14 @@ window.executeSmartClipboardImport = function () {
 
     window.openEntityDrillDownStatementModal = function (entityType, entityId) {
         const isSup = (entityType === 'supplier' || entityType === 'sup');
-        const listKey = isSup ? 'erp_suppliers_v1' : 'erp_customers_v1';
+        const listKeyMap = {
+            'supplier': 'erp_suppliers_v1',
+            'sup': 'erp_suppliers_v1',
+            'customer': 'erp_customers_v1',
+            'bank': 'erp_banks_v1',
+            'safe': 'erp_safes_v1'
+        };
+        const listKey = listKeyMap[entityType] || 'erp_customers_v1';
         let list = [];
         try { list = JSON.parse(localStorage.getItem(listKey) || '[]') || []; } catch (e) {}
         const entity = list.find(x => x && String(x.id) === String(entityId));
@@ -8056,7 +8172,8 @@ window.executeSmartClipboardImport = function () {
             modal = document.getElementById('md-entity-drilldown-modal');
         }
         window.__mdActiveDrillDown = { entityType, entity };
-        document.getElementById('md-dd-title').textContent = `📊 كشف حساب وحركات ${isSup ? 'المورد' : 'العميل'}: ${entity.name} (${entity.currency || 'SDG'})`;
+        const typeTitleAr = entityType === 'bank' ? 'البنك' : (entityType === 'safe' ? 'الخزينة' : (isSup ? 'المورد' : 'العميل'));
+        document.getElementById('md-dd-title').textContent = `📊 كشف حساب وحركات ${typeTitleAr}: ${entity.name} (${entity.currency || 'SDG'})`;
         document.getElementById('md-dd-from').value = '';
         document.getElementById('md-dd-to').value = '';
         document.getElementById('md-dd-search').value = '';
@@ -8683,4 +8800,228 @@ window.executeSmartClipboardImport = function () {
         if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', startConstObserver);
         else startConstObserver();
     }
+
+    // ══════════════════════════════════════════════════════════════════════════
+    // 📊 كشف حركات ومصروفات وإيرادات مركز التكلفة 360°
+    // ══════════════════════════════════════════════════════════════════════════
+    window.openCostCenterDrillDownModal = function (ccId) {
+        let ccs = [];
+        try { ccs = JSON.parse(localStorage.getItem('erp_cost_centers_v1') || localStorage.getItem('erp_jobs_v1') || '[]') || []; } catch (e) {}
+        const cc = ccs.find(x => x && String(x.id) === String(ccId)) || { id: ccId, name: ccId };
+        const ccName = String(cc.name || cc.title || ccId).trim().toLowerCase();
+
+        const rows = [];
+        let totExpense = 0, totRevenue = 0;
+        try {
+            const vouchers = JSON.parse(localStorage.getItem('erp_vouchers_v1') || '[]') || [];
+            vouchers.forEach(v => {
+                if (!v || v.deleted) return;
+                const vCc = String(v.costCenterId || v.costCenter || v.jobId || '').trim().toLowerCase();
+                if (vCc !== String(ccId).toLowerCase() && (!ccName || vCc !== ccName)) return;
+                const amt = parseFloat(v.amount ?? v.total) || 0;
+                const isRec = (v.type === 'receipt' || String(v.type || '').includes('قبض'));
+                if (isRec) totRevenue += amt; else totExpense += amt;
+                rows.push({ date: (v.date || '').slice(0, 10), doc: v.voucherNo || v.id || 'VCH', type: isRec ? 'سند قبض (إيراد)' : 'سند صرف (مصروف)', exp: isRec ? 0 : amt, rev: isRec ? amt : 0, note: v.description || v.notes || '-' });
+            });
+            const jvs = JSON.parse(localStorage.getItem('erp_journal_vouchers_v1') || '[]') || [];
+            jvs.forEach(jv => {
+                if (!jv || jv.deleted || !Array.isArray(jv.lines)) return;
+                jv.lines.forEach(ln => {
+                    const lCc = String(ln.costCenterId || ln.costCenter || jv.costCenter || '').trim().toLowerCase();
+                    if (lCc !== String(ccId).toLowerCase() && (!ccName || lCc !== ccName)) return;
+                    const d = parseFloat(ln.debit) || 0;
+                    const c = parseFloat(ln.credit) || 0;
+                    totExpense += d; totRevenue += c;
+                    rows.push({ date: (jv.date || '').slice(0, 10), doc: jv.voucherNo || jv.id || 'JV', type: 'قيد يومية', exp: d, rev: c, note: ln.description || jv.description || '-' });
+                });
+            });
+        } catch (e) {}
+
+        let modal = document.getElementById('md-cc-drilldown-modal');
+        if (!modal) {
+            document.body.insertAdjacentHTML('beforeend', `
+                <div id="md-cc-drilldown-modal" class="md-child-modal" style="display:none; position:fixed; inset:0; z-index:999999; background:rgba(2,6,23,0.86); backdrop-filter:blur(8px); align-items:center; justify-content:center; padding:16px; direction:rtl; font-family:'Tajawal',sans-serif;">
+                    <div class="md-child-modal-card" style="width:100%; max-width:780px; background:#0f172a; border:2px solid #38bdf8; border-radius:16px; overflow:hidden; box-shadow:0 20px 55px rgba(0,0,0,0.85);">
+                        <div style="padding:14px 18px; background:rgba(56,189,248,0.14); border-bottom:1px solid rgba(56,189,248,0.3); display:flex; justify-content:space-between; align-items:center;">
+                            <h3 id="md-cc-dd-title" style="margin:0; font-size:1.02rem; font-weight:900; color:#38bdf8;">📊 كشف حركات مركز التكلفة</h3>
+                            <button type="button" onclick="document.getElementById('md-cc-drilldown-modal').style.display='none'" style="background:rgba(239,68,68,0.2); color:#fca5a5; border:1px solid rgba(239,68,68,0.4); border-radius:8px; padding:4px 10px; font-weight:800; cursor:pointer;">✖</button>
+                        </div>
+                        <div id="md-cc-dd-body" style="padding:16px 18px; max-height:70vh; overflow-y:auto;"></div>
+                    </div>
+                </div>
+            `);
+            modal = document.getElementById('md-cc-drilldown-modal');
+        }
+        document.getElementById('md-cc-dd-title').textContent = `📊 كشف مركز التكلفة: ${cc.name || cc.title || ccId} (${cc.id})`;
+        document.getElementById('md-cc-dd-body').innerHTML = `
+            <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:14px;">
+                <div style="padding:10px; border-radius:10px; background:rgba(239,68,68,0.12); border:1px solid rgba(239,68,68,0.3); text-align:center;">
+                    <div style="font-size:0.78rem; color:#fca5a5;">إجمالي المصروفات / المدين</div>
+                    <div style="font-size:1.1rem; font-weight:900; color:#f87171; font-family:monospace;">${totExpense.toLocaleString()} SDG</div>
+                </div>
+                <div style="padding:10px; border-radius:10px; background:rgba(16,185,129,0.12); border:1px solid rgba(16,185,129,0.3); text-align:center;">
+                    <div style="font-size:0.78rem; color:#6ee7b7;">إجمالي الإيرادات / الدائن</div>
+                    <div style="font-size:1.1rem; font-weight:900; color:#34d399; font-family:monospace;">${totRevenue.toLocaleString()} SDG</div>
+                </div>
+                <div style="padding:10px; border-radius:10px; background:rgba(56,189,248,0.12); border:1px solid rgba(56,189,248,0.3); text-align:center;">
+                    <div style="font-size:0.78rem; color:#7dd3fc;">صافي مركز التكلفة</div>
+                    <div style="font-size:1.1rem; font-weight:900; color:#38bdf8; font-family:monospace;">${(totRevenue - totExpense).toLocaleString()} SDG</div>
+                </div>
+            </div>
+            ${rows.length === 0 ? '<div style="padding:18px; text-align:center; color:#94a3b8; font-weight:700;">لا توجد قيود أو سندات مرتبطة بمركز التكلفة هذا حتى الآن. يمكنك ربطه من شاشة السندات أو قيد اليومية.</div>' : `
+            <table class="pro-table" style="width:100%; font-size:0.82rem;">
+                <thead><tr><th>التاريخ</th><th>المستند</th><th>النوع</th><th>مصروف / مدين</th><th>إيراد / دائن</th><th>البيان</th></tr></thead>
+                <tbody>${rows.map(r => `<tr><td>${r.date}</td><td style="font-family:monospace; color:#38bdf8;">${r.doc}</td><td>${r.type}</td><td style="color:#f87171; font-family:monospace;">${r.exp.toLocaleString()}</td><td style="color:#34d399; font-family:monospace;">${r.rev.toLocaleString()}</td><td>${r.note}</td></tr>`).join('')}</tbody>
+            </table>`}
+        `;
+        modal.style.display = 'flex';
+    };
+
+    // ══════════════════════════════════════════════════════════════════════════
+    // 🤖 المستشار الذكي والتنبؤي الشامل للبيانات الأساسية (AI Master Data & Predictive Advisor 360°)
+    // ══════════════════════════════════════════════════════════════════════════
+    window.autoFixNegativeItemMarginsAI = function () {
+        let items = [];
+        try { items = JSON.parse(localStorage.getItem('erp_items_v1') || '[]') || []; } catch (e) {}
+        let fixed = 0;
+        items.forEach(it => {
+            if (!it || it.deleted) return;
+            const cost = parseFloat(it.costPrice || it.cost || it.openingValue || (it.units && it.units[0] ? it.units[0].purchasePrice : 0)) || 0;
+            const price = parseFloat(it.sellingPrice || (it.units && it.units[0] ? it.units[0].cashPrice : 0)) || 0;
+            if (cost > 0 && price <= cost) {
+                const newPrice = Math.ceil(cost * 1.15);
+                it.sellingPrice = newPrice;
+                if (Array.isArray(it.units) && it.units[0]) it.units[0].cashPrice = newPrice;
+                fixed++;
+            }
+        });
+        if (fixed > 0) {
+            if (typeof setMasterLocalData === 'function') setMasterLocalData('erp_items_v1', items, false);
+            else localStorage.setItem('erp_items_v1', JSON.stringify(items));
+            if (typeof renderItems === 'function') renderItems();
+            window.openMasterDataAIPredictiveModal();
+            if (typeof showToast === 'function') showToast(`✅ تم تصحيح تسعير ${fixed} صنف تلقائياً بهامش ربح آمن (+15%)`, 'success');
+        }
+    };
+
+    window.openMasterDataAIPredictiveModal = function () {
+        let warehouses = [], customers = [], suppliers = [], banks = [], safes = [], items = [], employees = [], ccs = [], sales = [];
+        try { warehouses = (JSON.parse(localStorage.getItem('erp_warehouses_v1') || '[]') || []).filter(x => x && !x.deleted); } catch (e) {}
+        try { customers = (JSON.parse(localStorage.getItem('erp_customers_v1') || '[]') || []).filter(x => x && !x.deleted); } catch (e) {}
+        try { suppliers = (JSON.parse(localStorage.getItem('erp_suppliers_v1') || '[]') || []).filter(x => x && !x.deleted); } catch (e) {}
+        try { banks = (JSON.parse(localStorage.getItem('erp_banks_v1') || '[]') || []).filter(x => x && !x.deleted); } catch (e) {}
+        try { safes = (JSON.parse(localStorage.getItem('erp_safes_v1') || '[]') || []).filter(x => x && !x.deleted); } catch (e) {}
+        try { items = (JSON.parse(localStorage.getItem('erp_items_v1') || '[]') || []).filter(x => x && !x.deleted); } catch (e) {}
+        try { employees = (JSON.parse(localStorage.getItem('erp_users_v1') || '[]') || []).filter(x => x && !x.deleted); } catch (e) {}
+        try { ccs = (JSON.parse(localStorage.getItem('erp_cost_centers_v1') || localStorage.getItem('erp_jobs_v1') || '[]') || []).filter(x => x && !x.deleted); } catch (e) {}
+        try { sales = (JSON.parse(localStorage.getItem('erp_sales_invoices_v1') || localStorage.getItem('erp_invoices_v1') || '[]') || []).filter(x => x && !x.deleted); } catch (e) {}
+
+        // 1. Predictive Stock & Pricing Analysis
+        let badMarginItems = 0, lowStockItems = 0, totalStockValue = 0;
+        const salesQtyByItem = {};
+        sales.forEach(inv => {
+            (inv.items || []).forEach(ln => {
+                const k = String(ln.itemId || ln.name || '').trim().toLowerCase();
+                if (k) salesQtyByItem[k] = (salesQtyByItem[k] || 0) + (parseFloat(ln.qty || ln.quantity) || 0);
+            });
+        });
+
+        const stockoutPredictions = [];
+        items.forEach(it => {
+            const stock = (typeof it.stock === 'object' && it.stock !== null)
+                ? Object.values(it.stock).reduce((s, v) => s + (parseFloat(v) || 0), 0)
+                : (parseFloat(it.stock ?? it.openingQty ?? (it.units && it.units[0] ? it.units[0].stock : 0)) || 0);
+            const cost = parseFloat(it.costPrice || it.cost || it.openingValue || (it.units && it.units[0] ? it.units[0].purchasePrice : 0)) || 0;
+            const price = parseFloat(it.sellingPrice || (it.units && it.units[0] ? it.units[0].cashPrice : 0)) || 0;
+            const reorder = parseFloat(it.reorderLevel || it.minLimit || 5) || 5;
+            totalStockValue += stock * cost;
+            if (cost > 0 && price <= cost) badMarginItems++;
+            if (stock <= reorder) lowStockItems++;
+            const soldQty = salesQtyByItem[String(it.id || '').toLowerCase()] || salesQtyByItem[String(it.name || '').trim().toLowerCase()] || 0;
+            const dailyVel = soldQty / 30;
+            if (dailyVel > 0 && stock > 0) {
+                const daysLeft = Math.round(stock / dailyVel);
+                if (daysLeft <= 14 && stockoutPredictions.length < 4) {
+                    stockoutPredictions.push(`${it.name} (متبقي ${stock} — يكفي ~${daysLeft} يوم)`);
+                }
+            }
+        });
+
+        // 2. Predictive Credit & Dual-Role Partners Analysis
+        let overLimitCustomers = 0, missingPhones = 0;
+        const supNamesSet = new Set(suppliers.map(s => String(s.name || '').trim().toLowerCase()));
+        let dualRoleCount = 0;
+        customers.forEach(c => {
+            const bal = typeof window.computeLiveEntityLedgerBalance === 'function' ? window.computeLiveEntityLedgerBalance('customer', c) : (parseFloat(c.currentBalance) || 0);
+            const lim = parseFloat(c.creditLimit) || 0;
+            if (lim > 0 && bal > lim) overLimitCustomers++;
+            if (!c.phone && !c.whatsapp) missingPhones++;
+            if (supNamesSet.has(String(c.name || '').trim().toLowerCase())) dualRoleCount++;
+        });
+        suppliers.forEach(s => { if (!s.phone && !s.whatsapp) missingPhones++; });
+
+        let modal = document.getElementById('md-ai-predictive-modal');
+        if (!modal) {
+            document.body.insertAdjacentHTML('beforeend', `
+                <div id="md-ai-predictive-modal" class="md-child-modal" style="display:none; position:fixed; inset:0; z-index:999999; background:rgba(2,6,23,0.88); backdrop-filter:blur(10px); align-items:center; justify-content:center; padding:16px; direction:rtl; font-family:'Tajawal',sans-serif;">
+                    <div class="md-child-modal-card" style="width:100%; max-width:860px; max-height:90vh; background:#0f172a; border:2px solid #8b5cf6; border-radius:18px; overflow:hidden; box-shadow:0 25px 65px rgba(0,0,0,0.85); display:flex; flex-direction:column;">
+                        <div style="padding:14px 20px; background:linear-gradient(135deg,rgba(139,92,246,0.25),rgba(56,189,248,0.15)); border-bottom:1.5px solid rgba(139,92,246,0.4); display:flex; justify-content:space-between; align-items:center;">
+                            <h3 style="margin:0; font-size:1.08rem; font-weight:900; color:#e9d5ff;">🤖 المستشار الذكي والتنبؤي للبيانات الأساسية (AI Master Data & Predictive Advisor 360°)</h3>
+                            <button type="button" onclick="document.getElementById('md-ai-predictive-modal').style.display='none'" style="background:rgba(239,68,68,0.2); color:#fca5a5; border:1px solid rgba(239,68,68,0.45); border-radius:8px; padding:4px 12px; font-weight:800; cursor:pointer;">✖ إغلاق</button>
+                        </div>
+                        <div id="md-ai-predictive-body" style="padding:18px 20px; overflow-y:auto; display:flex; flex-direction:column; gap:14px;"></div>
+                    </div>
+                </div>
+            `);
+            modal = document.getElementById('md-ai-predictive-modal');
+        }
+
+        document.getElementById('md-ai-predictive-body').innerHTML = `
+            <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:10px;">
+                <div style="padding:12px; border-radius:12px; background:rgba(56,189,248,0.1); border:1px solid rgba(56,189,248,0.3);">
+                    <div style="font-size:0.76rem; color:#93c5fd;">📦 الأصناف والمخازن</div>
+                    <div style="font-size:1.05rem; font-weight:900; color:#f8fafc; margin-top:4px;">${items.length} صنف / ${warehouses.length} مخزن</div>
+                    <div style="font-size:0.75rem; color:#34d399; margin-top:3px;">قيمة المخزون: ${Math.round(totalStockValue).toLocaleString()} SDG</div>
+                </div>
+                <div style="padding:12px; border-radius:12px; background:rgba(168,85,247,0.1); border:1px solid rgba(168,85,247,0.3);">
+                    <div style="font-size:0.76rem; color:#d8b4fe;">🤝 العملاء والموردون</div>
+                    <div style="font-size:1.05rem; font-weight:900; color:#f8fafc; margin-top:4px;">${customers.length} عميل / ${suppliers.length} مورد</div>
+                    <div style="font-size:0.75rem; color:#fbbf24; margin-top:3px;">مشترك للمقاصة: ${dualRoleCount} شريك</div>
+                </div>
+                <div style="padding:12px; border-radius:12px; background:rgba(16,185,129,0.1); border:1px solid rgba(16,185,129,0.3);">
+                    <div style="font-size:0.76rem; color:#6ee7b7;">🏦 البنوك والخزائن</div>
+                    <div style="font-size:1.05rem; font-weight:900; color:#f8fafc; margin-top:4px;">${banks.length} بنك / ${safes.length} خزينة</div>
+                    <div style="font-size:0.75rem; color:#38bdf8; margin-top:3px;">مربوطة بدفتر الأستاذ 100%</div>
+                </div>
+                <div style="padding:12px; border-radius:12px; background:rgba(245,158,11,0.1); border:1px solid rgba(245,158,11,0.3);">
+                    <div style="font-size:0.76rem; color:#fde047;">👥 الموظفون ومراكز التكلفة</div>
+                    <div style="font-size:1.05rem; font-weight:900; color:#f8fafc; margin-top:4px;">${employees.length} موظف / ${ccs.length} مركز</div>
+                    <div style="font-size:0.75rem; color:#cbd5e1; margin-top:3px;">نواقص الهواتف: ${missingPhones}</div>
+                </div>
+            </div>
+
+            <div style="padding:14px; border-radius:12px; background:rgba(15,23,42,0.75); border:1px solid rgba(139,92,246,0.35);">
+                <h4 style="margin:0 0 10px 0; color:#c084fc; font-size:0.95rem;">🔮 التنبؤات الذكية والتوصيات الفورية (Predictive ERP Intelligence):</h4>
+                <ul style="margin:0; padding-right:18px; color:#e2e8f0; font-size:0.85rem; line-height:1.8;">
+                    <li><b>تحليل التسعير وهوامش الربح:</b> ${badMarginItems > 0 ? `<span style="color:#fbbf24; font-weight:800;">يوجد ${badMarginItems} صنف سعر بيعها أقل أو يساوي التكلفة!</span> <button type="button" onclick="window.autoFixNegativeItemMarginsAI()" style="margin-right:8px; padding:2px 10px; border-radius:6px; background:#10b981; color:#fff; border:none; font-weight:800; cursor:pointer; font-size:0.76rem;">⚡ تصحيح تلقائي (+15%)</button>` : '<span style="color:#34d399; font-weight:800;">✅ كافة الأصناف المسعّرة تحقق هامش ربح إيجابي سليم.</span>'}</li>
+                    <li><b>التنبؤ بنفاد المخزون (Stockout Forecast):</b> يوجد <b>${lowStockItems}</b> صنف وصل لحد الطلب.${stockoutPredictions.length > 0 ? ` توقع النفاد القريب حسب سرعة المبيعات: <span style="color:#fca5a5;">${stockoutPredictions.join(' ، ')}</span>.` : ''}</li>
+                    <li><b>مخاطر الائتمان والمقاصة:</b> ${overLimitCustomers > 0 ? `<span style="color:#f87171; font-weight:800;">يوجد ${overLimitCustomers} عميل تجاوزوا سقف الائتمان المسموح.</span>` : '<span style="color:#34d399;">لا يوجد تجاوز خطير لسقوف الائتمان.</span>'} ${dualRoleCount > 0 ? `كما يوجد <b>${dualRoleCount}</b> شريك يعمل كعميل ومورد معاً جاهز لتسوية المقاصة بضغطة زر.` : ''}</li>
+                </ul>
+            </div>
+
+            <div style="display:flex; gap:8px; flex-wrap:wrap; justify-content:space-between; align-items:center; padding-top:6px; border-top:1px solid rgba(148,163,184,0.2);">
+                <div style="display:flex; gap:6px; flex-wrap:wrap;">
+                    <button type="button" onclick="document.getElementById('md-ai-predictive-modal').style.display='none'; openOpeningEquilibriumModal();" style="padding:7px 12px; border-radius:8px; background:rgba(16,185,129,0.18); color:#34d399; border:1px solid rgba(16,185,129,0.45); font-weight:800; font-size:0.8rem; cursor:pointer;">⚖️ معالج القيد الافتتاحي</button>
+                    <button type="button" onclick="document.getElementById('md-ai-predictive-modal').style.display='none'; openBulkPriceUpdaterModal();" style="padding:7px 12px; border-radius:8px; background:rgba(245,158,11,0.18); color:#fbbf24; border:1px solid rgba(245,158,11,0.45); font-weight:800; font-size:0.8rem; cursor:pointer;">📈 تحديث الأسعار الجماعي</button>
+                    <button type="button" onclick="document.getElementById('md-ai-predictive-modal').style.display='none'; window.openMdHealthAndDuplicateScannerModal();" style="padding:7px 12px; border-radius:8px; background:rgba(56,189,248,0.18); color:#38bdf8; border:1px solid rgba(56,189,248,0.45); font-weight:800; font-size:0.8rem; cursor:pointer;">🔍 فاحص التكرارات والنواقص</button>
+                </div>
+                <div style="display:flex; gap:6px; flex-wrap:wrap;">
+                    <a href="ai_executive_advisor.php" style="padding:7px 12px; border-radius:8px; background:linear-gradient(135deg,#8b5cf6,#6d28d9); color:#fff; text-decoration:none; font-weight:800; font-size:0.8rem;">🧠 المستشار التنفيذي الشامل</a>
+                    <a href="ai_goods_advisor.php" style="padding:7px 12px; border-radius:8px; background:rgba(59,130,246,0.2); color:#93c5fd; border:1px solid rgba(59,130,246,0.4); text-decoration:none; font-weight:800; font-size:0.8rem;">📦 مستشار البضائع التنبؤي</a>
+                    <a href="credit_limits_dashboard.php" style="padding:7px 12px; border-radius:8px; background:rgba(239,68,68,0.18); color:#fca5a5; border:1px solid rgba(239,68,68,0.4); text-decoration:none; font-weight:800; font-size:0.8rem;">🛡️ مراقبة الائتمان</a>
+                </div>
+            </div>
+        `;
+        modal.style.display = 'flex';
+    };
 })();

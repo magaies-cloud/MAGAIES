@@ -328,7 +328,7 @@
         :root.light-theme .text-sky-400, :root.light-theme span[style*="color: #38bdf8"], :root.light-theme span[style*="color:#38bdf8"] { color: #0284c7 !important; }
         :root.light-theme .text-purple-400, :root.light-theme span[style*="color: #c084fc"], :root.light-theme span[style*="color:#c084fc"] { color: #7c3aed !important; }
         :root.light-theme .text-amber-400, :root.light-theme span[style*="color: #fbbf24"], :root.light-theme span[style*="color:#fbbf24"] { color: #b45309 !important; }
-\n</style>
+</style>
 </head>
 <body>
 
@@ -342,10 +342,15 @@
         
         <?php $header_theme_class = 'header-theme-reports'; include 'includes/header.php'; ?>
 
-        <div style="margin-top: 15px; margin-bottom: 10px;">
+        <div style="margin-top: 15px; margin-bottom: 14px; display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:10px;">
             <a href="analytics.php" onclick="window.location.href='analytics.php'; return false;" style="display: inline-flex; align-items: center; gap: 8px; background: rgba(251, 191, 36, 0.1); border: 1.5px solid #fbbf24; color: #fbbf24; padding: 8px 20px; border-radius: 50px; text-decoration: none; font-weight: bold; font-size: 14px; transition: all 0.3s; box-shadow: 0 0 15px rgba(251, 191, 36, 0.2);" onmouseover="this.style.background='#fbbf24'; this.style.color='#000';" onmouseout="this.style.background='rgba(251, 191, 36, 0.1)'; this.style.color='#fbbf24';">
                 <i class="fa-solid fa-arrow-right"></i> ↩️ رجوع للشاشة السابقة (التقارير الرئيسية)
             </a>
+            <div style="display:flex; flex-wrap:wrap; gap:8px;">
+                <a href="general-ledger.php" style="text-decoration:none; padding:7px 14px; border-radius:10px; background:rgba(168,85,247,0.16); border:1px solid rgba(168,85,247,0.4); color:#c084fc; font-weight:800; font-size:0.84rem;">📓 دفتر الأستاذ العام</a>
+                <a href="journal-voucher.php" style="text-decoration:none; padding:7px 14px; border-radius:10px; background:rgba(56,189,248,0.16); border:1px solid rgba(56,189,248,0.4); color:#38bdf8; font-weight:800; font-size:0.84rem;">➕ قيد يومية جديد</a>
+                <a href="ai_executive_advisor.php" style="text-decoration:none; padding:7px 14px; border-radius:10px; background:linear-gradient(135deg,#059669,#10b981); color:#fff; font-weight:900; font-size:0.84rem;">🤖 المدقق المحاسبي التنفيذي AI</a>
+            </div>
         </div>
 
         <!-- 4. Final Statements Grid -->
@@ -371,13 +376,23 @@
                 </div>
             </a>
 
-            <!-- 3. قيود اليومية -->
-            <a href="journal-voucher.php" data-href="journal-voucher.php" onclick="window.location.href='journal-voucher.php'" class="bento-card" style="--glow-color: rgba(251, 191, 36, 0.65);">
-                <span class="badge">مفعل</span>
-                <div class="card-icon-wrapper">✍️</div>
+            <!-- 3. قائمة التدفقات النقدية (IAS 7) -->
+            <a href="cashflow_modern.php" data-href="cashflow_modern.php" onclick="window.location.href='cashflow_modern.php'" class="bento-card" style="--glow-color: rgba(16, 185, 129, 0.65);">
+                <span class="badge badge-new">IAS 7</span>
+                <div class="card-icon-wrapper">💸</div>
                 <div class="card-content">
-                    <h3 class="card-title">قيود اليومية</h3>
-                    <p class="card-desc">مراجعة كافة قيود التسوية والقيود اليدوية والآلية (القيد المزدوج).</p>
+                    <h3 class="card-title">قائمة التدفقات النقدية (IAS 7)</h3>
+                    <p class="card-desc">يفصل السيولة النقدية الداخلة والخارجة للأنشطة التشغيلية والاستثمارية والتمويلية.</p>
+                </div>
+            </a>
+
+            <!-- 4. سجل القيود اليومية العامة -->
+            <a href="journal.php" data-href="journal.php" onclick="window.location.href='journal.php'" class="bento-card" style="--glow-color: rgba(251, 191, 36, 0.65);">
+                <span class="badge">مفعل 360°</span>
+                <div class="card-icon-wrapper">📒</div>
+                <div class="card-content">
+                    <h3 class="card-title">سجل القيود اليومية العامة</h3>
+                    <p class="card-desc">مراجعة كافة قيود التسوية والقيود اليدوية والآلية (القيد المزدوج) مع إنشاء قيد جديد.</p>
                 </div>
             </a>
 

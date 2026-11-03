@@ -777,5 +777,67 @@ $net_capital_after_zakat = $net_total_capital_all - $zakat_amount;
     <!-- System Scripts for Sidebar & Theme Integration -->
     <script defer src="js/localforage.min.js"></script>
     <script defer src="js/app.js?v=20261016_v28"></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', function hydrateZakatInventoryFromLocalStorage() {
+        try {
+            const items = (JSON.parse(localStorage.getItem('erp_items_v1') || '[]')).filter(x => !x.deleted);
+            if (!items.length) return;
+            const purchases = (JSON.parse(localStorage.getItem('erp_purchase_invoices_v1') || '[]')).filter(x => !x.deleted);
+            const sales = (JSON.parse(localStorage.getItem('erp_sales_invoices_v1') || '[]')).filter(x => !x.deleted && !x.wasSplit && x.status !== 'draft' && x.status !== 'preliminary' && x.saleType !== 'preliminary');
+            const stockMap = {};
+            items.forEach(it => { stockMap[String(it.id)] = parseFloat(it.openingBalance || it.opening_balance || it.openingQty || 0); });
+            purchases.forEach(inv => {
+                (inv.items || inv.lines || []).forEach(l => {
+                    const id = String(l.itemId || l.productId || '');
+                    const q = l.customBaseQty !== undefined ? (parseFloat(l.customBaseQty) || 0) : ((parseFloat(l.quantity) || 0) * (parseFloat(l.customFactor || l.factor) || 1));
+                    if (inv.isReturn) stockMap[id] = (stockMap[id] || 0) - Math.abs(q);
+                    else if (inv.isAdjustment) stockMap[id] = (stockMap[id] || 0) + q;
+                    else stockMap[id] = (stockMap[id] || 0) + Math.abs(q);
+                });
+            });
+            sales.forEach(inv => {
+                if (inv.saleType === 'reserved' && inv.deliveryStatus !== 'delivered') return;
+                (inv.items || []).forEach(l => {
+                    const id = String(l.itemId || '');
+                    const q = l.customBaseQty !== undefined ? (parseFloat(l.customBaseQty) || 0) : ((parseFloat(l.quantity) || 0) * (parseFloat(l.customFactor || l.factor) || 1));
+                    if (inv.isReturn) stockMap[id] = (stockMap[id] || 0) + Math.abs(q);
+                    else stockMap[id] = (stockMap[id] || 0) - Math.abs(q);
+                });
+            });
+            const sec4Table = document.querySelector('#sec-4 table tbody');
+            const sec4Foot = document.querySelector('#sec-4 table tfoot');
+            if (!sec4Table) return;
+            let totalQty = 0, totalCost = 0, totalSell = 0, html = '';
+            items.forEach(it => {
+                const qty = Math.max(0, stockMap[String(it.id)] || 0);
+                const cost = parseFloat(it.costPrice || it.buyPrice || it.openingValue || (parseFloat(it.sellingPrice || it.price || 0) * 0.8) || 0);
+                const sell = parseFloat(it.sellingPrice || (it.units && it.units[0] ? it.units[0].cashPrice : 0) || it.price || cost);
+                const cTot = qty * cost;
+                const sTot = qty * sell;
+                totalQty += qty; totalCost += cTot; totalSell += sTot;
+                html += `<tr>
+                    <td class="font-bold">${it.name || 'صنف'}</td>
+                    <td class="text-slate-400">${it.category || 'عام'}</td>
+                    <td>${it.baseUnit || it.unit || 'وحدة'}</td>
+                    <td class="num-font font-bold text-amber-400">${qty.toLocaleString('en-US', {maximumFractionDigits:2})}</td>
+                    <td class="num-font">${cost.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2})}</td>
+                    <td class="num-font text-sky-400">${sell.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2})}</td>
+                    <td class="num-font font-bold">${cTot.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2})}</td>
+                    <td class="num-font font-bold text-emerald-400">${sTot.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2})}</td>
+                </tr>`;
+            });
+            sec4Table.innerHTML = html;
+            if (sec4Foot) {
+                sec4Foot.innerHTML = `<tr class="bg-black/20 dark:bg-black/40 font-black text-base">
+                    <td colspan="3" class="text-left font-bold">إجمالي تقييم المخزون المجمع (محدث لحظياً من حركات المخازن والتسويات):</td>
+                    <td class="num-font text-amber-400">${totalQty.toLocaleString('en-US', {maximumFractionDigits:2})}</td>
+                    <td colspan="2"></td>
+                    <td class="num-font">${totalCost.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2})}</td>
+                    <td class="num-font text-emerald-400">${totalSell.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2})}</td>
+                </tr>`;
+            }
+        } catch(e) { console.warn('Zakat inventory sync error:', e); }
+    });
+    </script>
 </body>
 </html>

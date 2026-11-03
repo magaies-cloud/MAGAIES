@@ -1338,8 +1338,13 @@ html.grn-ophthalmic-comfort-active body {
                 <!-- السطر الأول (الأعلى): حالة الشاشة + البوابة اللوجستية + زر التحويل + عداد الأذونات + الفلاتر المحاسبية (الكل، التاريخ من وإلى مع أيقونة التقويم يمين التاريخ، المورد، المستودع، البحث) -->
                 <div class="neo-card-title">
                     <div id="hub-top-bar-items">
-                        <span id="hub-title-text">قيد الاستلام</span>
-                        <a href="smart-logistics.php?mode=purchases" id="btn-grn-logistics-portal" class="btn-action">البوابة اللوجستية</a>
+                                                <span id="hub-title-text">قيد الاستلام</span><a href="smart-logistics.php?mode=purchases" id="btn-grn-logistics-portal" class="btn-action" style="text-decoration:none;">📥 بوابة استلام المشتريات</a>
+                        <div id="grn-3level-bar" style="display:inline-flex; align-items:center; gap:4px; background:rgba(2,6,23,0.75); padding:3px 6px; border-radius:10px; border:1px solid rgba(56,189,248,0.35);">
+                            <button type="button" id="grn-lvl-1" onclick="window.setGrnReceiptLevel && window.setGrnReceiptLevel(1)" style="padding:3px 9px; border-radius:7px; font-size:0.74rem; font-weight:900; cursor:pointer; border:1px solid #c4b5fd; background:linear-gradient(135deg,#7c3aed,#4f46e5); color:#fff;">👑 1. المدير</button>
+                            <button type="button" id="grn-lvl-2" onclick="window.setGrnReceiptLevel && window.setGrnReceiptLevel(2)" style="padding:3px 9px; border-radius:7px; font-size:0.74rem; font-weight:900; cursor:pointer; border:1px solid transparent; background:transparent; color:#cbd5e1;">🏢 2. مدير المخزن</button>
+                            <button type="button" id="grn-lvl-3" onclick="window.setGrnReceiptLevel && window.setGrnReceiptLevel(3)" style="padding:3px 9px; border-radius:7px; font-size:0.74rem; font-weight:900; cursor:pointer; border:1px solid transparent; background:transparent; color:#cbd5e1;">📦 3. المخزنجي (QR)</button>
+                        </div>
+                        
                         <div class="uiverse-switch demo3" title="اضغط للتبديل بين البضاعة قيد الاستلام والأذونات المستلمة">
                             <input type="checkbox" id="uiverse-toggle" onchange="toggleHubViewBySwitch(this.checked)">
                             <label><i></i></label>
@@ -1388,7 +1393,7 @@ html.grn-ophthalmic-comfort-active body {
                 <div id="grn-hub-filters-bar" class="grn-logistics-bar" style="margin-bottom: 10px; padding: 8px 12px; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: space-between;">
                     <div id="grn-cross-screen-nav" class="grn-nav-links-bar">
                         <a href="purchase.php" class="grn-nav-pill" title="فتح شاشة فواتير المشتريات">فواتير المشتريات</a>
-                        <a href="warehouse-inventory.php" class="grn-nav-pill" title="فتح شاشة جرد وأرصدة المستودعات">أرصدة المخازن</a>
+                        <a href="inventory-movement.php" class="grn-nav-pill" title="فتح شاشة جرد وأرصدة المستودعات">أرصدة المخازن</a>
                         <a href="item-ledger.php" class="grn-nav-pill" title="فتح كشف حركة الصنف التفصيلي">حركة الصنف</a>
                         <a href="warehouse-ledger.php" class="grn-nav-pill" title="فتح دفتر أستاذ المخزن">دفتر أستاذ المخزن</a>
                         <a href="inventory-stocktake.php" class="grn-nav-pill" title="فتح شاشة الجرد الفعلي والتسويات">الجرد والتسويات</a>
@@ -4081,11 +4086,13 @@ html.grn-ophthalmic-comfort-active body {
             navBar.id = 'grn-cross-screen-nav';
             navBar.className = 'grn-nav-links-bar';
             navBar.innerHTML = `
-                <a href="purchase.php" class="grn-nav-pill" title="فتح شاشة فواتير المشتريات">فواتير المشتريات</a>
-                <a href="warehouse-inventory.php" class="grn-nav-pill" title="فتح شاشة جرد وأرصدة المستودعات">أرصدة المخازن</a>
-                <a href="item-ledger.php" class="grn-nav-pill" title="فتح كشف حركة الصنف التفصيلي">حركة الصنف</a>
-                <a href="warehouse-ledger.php" class="grn-nav-pill" title="فتح دفتر أستاذ المخزن">دفتر أستاذ المخزن</a>
-                <a href="inventory-stocktake.php" class="grn-nav-pill" title="فتح شاشة الجرد الفعلي والتسويات">الجرد والتسويات</a>
+                <a href="purchase.php" class="grn-nav-pill" title="فتح شاشة فواتير المشتريات">💵 فواتير المشتريات</a>
+                <a href="smart-logistics.php?mode=purchases" class="grn-nav-pill" title="فتح بوابة استلام المشتريات الذكية">📥 بوابة استلام المشتريات</a>
+                <a href="purchase-return.php" class="grn-nav-pill" title="فتح شاشة مرتجع المشتريات">↩️ مرتجع المشتريات</a>
+                <a href="supplier_reliability.php" class="grn-nav-pill" title="فتح مؤشر اعتمادية وموثوقية الموردين 360°">🤝 اعتمادية الموردين 360°</a>
+                <a href="inventory-movement.php" class="grn-nav-pill" title="فتح شاشة جرد وأرصدة المستودعات">📦 أرصدة المخازن</a>
+                <a href="item-ledger.php" class="grn-nav-pill" title="فتح كشف حركة الصنف التفصيلي">📊 حركة الصنف</a>
+                <a href="warehouse-ledger.php" class="grn-nav-pill" title="فتح دفتر أستاذ المخزن">🏢 دفتر أستاذ المخزن</a>
             `;
             hubFilterBar.insertBefore(navBar, hubFilterBar.firstChild);
         }
@@ -4720,6 +4727,9 @@ html.grn-ophthalmic-comfort-active body {
                 const parentIdx = freshPurchases.findIndex(p => p && !p.isGRN && !p.isReturn && String(p.invoiceNo || p.id) === String(activeInvId));
                 if (parentIdx > -1) {
                     freshPurchases[parentIdx].receiptStatus = isFullyReceivedNow ? 'received' : 'partially_received';
+                    if (savedGrnObj && savedGrnObj.id) {
+                        freshPurchases[parentIdx].grnNo = savedGrnObj.id;
+                    }
                     if (isFullyReceivedNow) {
                         freshPurchases[parentIdx].status = 'received';
                     } else if (freshPurchases[parentIdx].status === 'received') {
@@ -5512,10 +5522,10 @@ html.grn-ophthalmic-comfort-active body {
             });
         };
 
-        // 10. Deep-Link Handler: Support ?id=Z26... or ?id=PUR-... or ?invoice=... from item-ledger.php, warehouse-ledger.php, purchase.php
+        // 10. Deep-Link Handler: Support ?inv=... or ?id=Z26... or ?id=PUR-... or ?invoice=... from item-ledger.php, warehouse-ledger.php, purchase.php
         function handleIncomingDeepLink() {
             const params = new URLSearchParams(window.location.search);
-            const targetId = (params.get('id') || params.get('invoice') || params.get('grn') || '').trim();
+            const targetId = (params.get('inv') || params.get('id') || params.get('invoice') || params.get('grn') || '').trim();
             if (!targetId) return;
 
             if (pendingMap && pendingMap[targetId]) {
@@ -5620,7 +5630,7 @@ html.grn-ophthalmic-comfort-active body {
                             '🧾 تقرير المشتريات وكشف حساب المورد (- خصم التالف والنقص)'
                         ],
                         screens: [
-                            '🏛️ شاشة أرصدة المخازن (warehouse-inventory.php) (+ زيادة فورية)',
+                            '🏛️ شاشة أرصدة المخازن (inventory-movement.php) (+ زيادة فورية)',
                             '🧾 شاشة فواتير المشتريات (purchase.php) (تحديث المطابقة الثلاثية)',
                             '⚖️ شاشة الجرد والتسويات وكشف حساب المورد'
                         ],

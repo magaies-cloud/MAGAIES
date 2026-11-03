@@ -687,6 +687,9 @@ $page_title = 'دفتر الأستاذ (SGL) - Launcher';
         
         <!-- Controls: Preview Studio & WhatsApp Dispatch -->
         <div class="no-print" style="display: flex; gap: 8px; align-items: center; border-right: 1px solid rgba(255,255,255,0.12); padding-right: 14px; margin-right: 2px; flex-wrap: wrap;">
+            <button type="button" class="royal-crystal-btn luxury-action-btn" onclick="toggleGLCreditProfileDrawer()" title="تحليل الجدارة الائتمانية والتمركز المالي للحساب في السوق" style="padding: 8px 14px; border-radius: 10px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; background: linear-gradient(135deg, rgba(168,85,247,0.25), rgba(56,189,248,0.2)); border: 1px solid rgba(168,85,247,0.5); color: #e9d5ff; font-weight: 800;">
+                <span style="font-size: 1.05rem;">🛡️</span> التمركز والملف الائتماني
+            </button>
             <button type="button" class="royal-crystal-btn royal-btn-print luxury-action-btn" onclick="window.print()" title="طباعة كشف الحساب الحالي" style="padding: 8px 16px; border-radius: 10px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
                 <span style="font-size: 1.1rem;">🖨️</span> طباعة الكشف
             </button>
@@ -704,6 +707,20 @@ $page_title = 'دفتر الأستاذ (SGL) - Launcher';
                     <path fill-rule="evenodd" clip-rule="evenodd" d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" fill="#ffffff"/>
                 </svg>
             </button>
+        </div>
+    </div>
+
+    <!-- ── Collapsible V2 Credit Profile & Market Debt Concentration Drawer ── -->
+    <div id="gl-v2-credit-drawer" class="no-print" style="display:none; margin-bottom:20px; background:linear-gradient(135deg, rgba(30,41,59,0.92), rgba(15,23,42,0.96)); border:1.5px solid rgba(168,85,247,0.45); border-radius:16px; padding:18px 22px; box-shadow:0 12px 32px rgba(0,0,0,0.4);">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; border-bottom:1px solid rgba(255,255,255,0.08); padding-bottom:10px;">
+            <h4 style="margin:0; font-size:1.05rem; font-weight:900; color:#c084fc; display:flex; align-items:center; gap:8px;">
+                <span>🛡️</span> الملف الائتماني للحساب وتمركز مديونية السوق (مدمج من النسخة المطورة V2)
+            </h4>
+            <button type="button" onclick="toggleGLCreditProfileDrawer()" style="background:rgba(239,68,68,0.15); border:1px solid rgba(239,68,68,0.4); color:#f87171; border-radius:8px; padding:4px 10px; cursor:pointer; font-weight:bold;">✕ إغلاق</button>
+        </div>
+        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap:18px;">
+            <div id="gl-v2-profile-box" style="background:rgba(0,0,0,0.25); border:1px solid rgba(56,189,248,0.2); border-radius:12px; padding:14px;"></div>
+            <div id="gl-v2-concentration-box" style="background:rgba(0,0,0,0.25); border:1px solid rgba(168,85,247,0.2); border-radius:12px; padding:14px;"></div>
         </div>
     </div>
 
@@ -1026,6 +1043,88 @@ document.addEventListener('DOMContentLoaded', function() {
     document.addEventListener('DOMContentLoaded', scanAndCleanCells);
     window.addEventListener('load', scanAndCleanCells);
 })();
+</script>
+<script>
+function toggleGLCreditProfileDrawer() {
+    const drawer = document.getElementById('gl-v2-credit-drawer');
+    if (!drawer) return;
+    const isHidden = drawer.style.display === 'none';
+    drawer.style.display = isHidden ? 'block' : 'none';
+    if (isHidden) renderGLCreditProfileAndConcentration();
+}
+
+function renderGLCreditProfileAndConcentration() {
+    const profEl = document.getElementById('gl-v2-profile-box');
+    const concEl = document.getElementById('gl-v2-concentration-box');
+    if (!profEl || !concEl) return;
+
+    const custs = (JSON.parse(localStorage.getItem('erp_customers_v1') || '[]')).filter(c => !c.deleted);
+    const checks = (JSON.parse(localStorage.getItem('erp_checks_v1') || '[]')).filter(c => !c.deleted);
+    const usdRate = parseFloat(window.SYSTEM_USD_RATE || localStorage.getItem('erp_usd_rate') || 600);
+
+    let totalMarketDebt = 0;
+    const debtors = [];
+    custs.forEach(c => {
+        const bal = parseFloat(c.currentBalance ?? c.balance ?? c.ledger ?? 0) || 0;
+        if (bal > 0) {
+            totalMarketDebt += bal;
+            debtors.push({ id: c.id, name: c.name || 'عميل', debt: bal, creditLimit: parseFloat(c.creditLimit || 0) || 0 });
+        }
+    });
+    debtors.sort((a, b) => b.debt - a.debt);
+
+    const selectedAccId = document.getElementById('filter-account')?.value || 'ALL';
+    const chipName = document.getElementById('chip-name')?.textContent?.trim() || 'جميع الحسابات (الكل)';
+    const cleanId = String(selectedAccId).replace(/^cust-|^supp-/, '');
+    const matchCust = custs.find(c => String(c.id) === cleanId || c.name === chipName);
+
+    const curBal = matchCust ? (parseFloat(matchCust.currentBalance ?? matchCust.balance ?? 0) || 0) : totalMarketDebt;
+    const sharePct = totalMarketDebt > 0 ? ((Math.max(0, curBal) / totalMarketDebt) * 100).toFixed(1) : '0.0';
+    const bouncedCount = checks.filter(ch => (String(ch.customerId || ch.customer) === cleanId) && (String(ch.status).toUpperCase() === 'BOUNCED' || ch.status === 'مرتجع')).length;
+    const pendingCount = checks.filter(ch => (String(ch.customerId || ch.customer) === cleanId) && (String(ch.status).toUpperCase() === 'PENDING' || ch.status === 'معلق')).length;
+
+    profEl.innerHTML = `
+        <div style="font-weight:900; color:#38bdf8; margin-bottom:10px; font-size:0.95rem;">👤 بطاقة الجدارة الائتمانية: ${matchCust ? matchCust.name : chipName}</div>
+        <div style="display:flex; flex-direction:column; gap:8px; font-size:0.86rem;">
+            <div style="display:flex; justify-content:space-between; border-bottom:1px solid rgba(255,255,255,0.06); padding-bottom:5px;">
+                <span style="color:#94a3b8;">الرصيد القائم (محلي / أجنبي):</span>
+                <strong style="color:#f8fafc;">${curBal.toLocaleString('en-US')} SDG <span style="color:#34d399;">($${(curBal / usdRate).toLocaleString('en-US', {maximumFractionDigits:2})})</span></strong>
+            </div>
+            <div style="display:flex; justify-content:space-between; border-bottom:1px solid rgba(255,255,255,0.06); padding-bottom:5px;">
+                <span style="color:#94a3b8;">حصة الحساب من إجمالي ديون السوق:</span>
+                <strong style="color:#c084fc;">${sharePct}%</strong>
+            </div>
+            <div style="display:flex; justify-content:space-between; border-bottom:1px solid rgba(255,255,255,0.06); padding-bottom:5px;">
+                <span style="color:#94a3b8;">الشيكات المعلقة / المرتجعة:</span>
+                <strong style="color:${bouncedCount > 0 ? '#f87171' : '#34d399'};">${pendingCount} معلقة | ${bouncedCount} مرتجعة</strong>
+            </div>
+            <div style="display:flex; justify-content:space-between;">
+                <span style="color:#94a3b8;">سقف الائتمان المسموح:</span>
+                <strong style="color:#fbbf24;">${matchCust && matchCust.creditLimit ? Number(matchCust.creditLimit).toLocaleString('en-US') + ' SDG' : 'غير محدد'}</strong>
+            </div>
+        </div>
+    `;
+
+    const top5 = debtors.slice(0, 5);
+    const colors = ['#f43f5e', '#38bdf8', '#f59e0b', '#10b981', '#a855f7'];
+    concEl.innerHTML = `
+        <div style="font-weight:900; color:#c084fc; margin-bottom:10px; font-size:0.95rem;">🍩 التمركز الائتماني لأكبر مديونيات السوق</div>
+        ${top5.length === 0 ? '<div style="color:#94a3b8; font-size:0.85rem; padding:15px 0; text-align:center;">لا توجد مديونيات قائمة حالياً</div>' : top5.map((d, i) => {
+            const pct = totalMarketDebt > 0 ? ((d.debt / totalMarketDebt) * 100).toFixed(1) : 0;
+            return `
+                <div style="margin-bottom:8px;">
+                    <div style="display:flex; justify-content:space-between; font-size:0.82rem; margin-bottom:3px;">
+                        <span style="font-weight:700; color:#f1f5f9;">${i+1}. ${d.name}</span>
+                        <span style="font-weight:800; color:${colors[i % colors.length]};">${d.debt.toLocaleString('en-US')} SDG (${pct}%)</span>
+                    </div>
+                    <div style="width:100%; height:6px; background:rgba(255,255,255,0.08); border-radius:8px; overflow:hidden;">
+                        <div style="width:${Math.min(100, pct)}%; height:100%; background:${colors[i % colors.length]}; border-radius:8px;"></div>
+                    </div>
+                </div>
+            `;
+        }).join('')}
+    `;
+}
 </script>
 </body>
 </html>

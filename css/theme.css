@@ -2050,3 +2050,251 @@ html[data-theme="exec_gray"] body .input-group {
 }
 
 
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   🔤 MAGAIEES OPHTHALMIC TYPOGRAPHY & DYNAMIC FONT SCALING ENGINE (2026)
+   - Option 1: default (الخط الافتراضي الحالي - يترك البرنامج بوضعه وأوزانه الحالية تماماً)
+   - Option 2: ibm_plex ("IBM Plex Sans Arabic" - 300, 400, 500, 600, 700)
+   - Option 3: readex_pro ("Readex Pro" - 300, 400, 500, 600, 700)
+   - Option 4: almarai ("Almarai" - 300, 400, 700, 800)
+   ═══════════════════════════════════════════════════════════════════════════════ */
+@import url('https://fonts.googleapis.com/css2?family=Almarai:wght@300;400;700;800&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=Readex+Pro:wght@300;400;500;600;700&display=swap');
+
+:root {
+    --magaiees-font-scale: 1;
+}
+
+/* ── Dynamic Root REM & Proportional Scaling (Font Scaling 80% - 140%) ── */
+html[data-magaiees-scaled="true"] {
+    font-size: calc(16px * var(--magaiees-font-scale, 1)) !important;
+}
+
+html[data-magaiees-scaled="true"] body {
+    font-size: calc(1rem * var(--magaiees-font-scale, 1));
+}
+
+html[data-magaiees-scaled="true"] table td,
+html[data-magaiees-scaled="true"] table th,
+html[data-magaiees-scaled="true"] .sidebar-text,
+html[data-magaiees-scaled="true"] input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+html[data-magaiees-scaled="true"] select,
+html[data-magaiees-scaled="true"] textarea,
+html[data-magaiees-scaled="true"] label,
+html[data-magaiees-scaled="true"] .tab-btn,
+html[data-magaiees-scaled="true"] .sub-tab-btn,
+html[data-magaiees-scaled="true"] .btn,
+html[data-magaiees-scaled="true"] .action-btn {
+    font-size: calc(0.95rem * var(--magaiees-font-scale, 1)) !important;
+}
+
+/* ── Font Option Definitions & Optical Weight Mapping ── */
+html[data-magaiees-font="ibm_plex"] {
+    --magaiees-active-font: 'IBM Plex Sans Arabic', 'Inter', sans-serif;
+    --magaiees-fw-light: 300;
+    --magaiees-fw-regular: 400;
+    --magaiees-fw-medium: 500;
+    --magaiees-fw-semibold: 600;
+    --magaiees-fw-bold: 700;
+    --magaiees-fw-extrabold: 700;
+    --magaiees-letter-spacing: 0.1px;
+    --magaiees-line-height: 1.62;
+}
+
+html[data-magaiees-font="readex_pro"] {
+    --magaiees-active-font: 'Readex Pro', 'Inter', sans-serif;
+    --magaiees-fw-light: 300;
+    --magaiees-fw-regular: 400;
+    --magaiees-fw-medium: 500;
+    --magaiees-fw-semibold: 600;
+    --magaiees-fw-bold: 700;
+    --magaiees-fw-extrabold: 700;
+    --magaiees-letter-spacing: 0.15px;
+    --magaiees-line-height: 1.65;
+}
+
+html[data-magaiees-font="almarai"] {
+    --magaiees-active-font: 'Almarai', 'Inter', sans-serif;
+    --magaiees-fw-light: 300;
+    --magaiees-fw-regular: 400;
+    --magaiees-fw-medium: 700;
+    --magaiees-fw-semibold: 700;
+    --magaiees-fw-bold: 700;
+    --magaiees-fw-extrabold: 800;
+    --magaiees-letter-spacing: 0.2px;
+    --magaiees-line-height: 1.65;
+}
+
+/* ── Universal Application for the 3 New Fonts Across All Screens & Components ── */
+html[data-magaiees-font="ibm_plex"] body,
+html[data-magaiees-font="readex_pro"] body,
+html[data-magaiees-font="almarai"] body,
+html[data-magaiees-font="ibm_plex"] body :not(.fa):not(.fas):not(.far):not(.fab):not(.fa-solid):not(.fa-regular):not(.fa-brands):not([class*="fa-"]):not(.material-icons):not(i),
+html[data-magaiees-font="readex_pro"] body :not(.fa):not(.fas):not(.far):not(.fab):not(.fa-solid):not(.fa-regular):not(.fa-brands):not([class*="fa-"]):not(.material-icons):not(i),
+html[data-magaiees-font="almarai"] body :not(.fa):not(.fas):not(.far):not(.fab):not(.fa-solid):not(.fa-regular):not(.fa-brands):not([class*="fa-"]):not(.material-icons):not(i) {
+    font-family: var(--magaiees-active-font) !important;
+    -webkit-font-smoothing: antialiased !important;
+    -moz-osx-font-smoothing: grayscale !important;
+    text-rendering: optimizeLegibility !important;
+}
+
+/* ── Ophthalmic Eye-Comfort Contrast on Dark Screens (#F1F5F9 soft alabaster white instead of glaring #FFF) ── */
+html.dark-theme[data-magaiees-font="ibm_plex"] body,
+html.dark-theme[data-magaiees-font="readex_pro"] body,
+html.dark-theme[data-magaiees-font="almarai"] body,
+html.dark-theme[data-magaiees-font="ibm_plex"] body table td,
+html.dark-theme[data-magaiees-font="readex_pro"] body table td,
+html.dark-theme[data-magaiees-font="almarai"] body table td,
+html.dark-theme[data-magaiees-font="ibm_plex"] body p,
+html.dark-theme[data-magaiees-font="readex_pro"] body p,
+html.dark-theme[data-magaiees-font="almarai"] body p {
+    color: #F1F5F9;
+}
+
+/* ── 1. Main Titles, Executive Headings & Grand Totals (Bold / Extra-Bold) ── */
+html[data-magaiees-font="ibm_plex"] body h1,
+html[data-magaiees-font="ibm_plex"] body h2,
+html[data-magaiees-font="ibm_plex"] body .setting-title,
+html[data-magaiees-font="ibm_plex"] body .page-title,
+html[data-magaiees-font="ibm_plex"] body .modal-title,
+html[data-magaiees-font="ibm_plex"] body tfoot td,
+html[data-magaiees-font="ibm_plex"] body .total-row td,
+html[data-magaiees-font="readex_pro"] body h1,
+html[data-magaiees-font="readex_pro"] body h2,
+html[data-magaiees-font="readex_pro"] body .setting-title,
+html[data-magaiees-font="readex_pro"] body .page-title,
+html[data-magaiees-font="readex_pro"] body .modal-title,
+html[data-magaiees-font="readex_pro"] body tfoot td,
+html[data-magaiees-font="readex_pro"] body .total-row td,
+html[data-magaiees-font="almarai"] body h1,
+html[data-magaiees-font="almarai"] body h2,
+html[data-magaiees-font="almarai"] body .setting-title,
+html[data-magaiees-font="almarai"] body .page-title,
+html[data-magaiees-font="almarai"] body .modal-title,
+html[data-magaiees-font="almarai"] body tfoot td,
+html[data-magaiees-font="almarai"] body .total-row td {
+    font-weight: var(--magaiees-fw-extrabold) !important;
+    line-height: 1.45 !important;
+    letter-spacing: var(--magaiees-letter-spacing) !important;
+}
+
+/* ── 2. Section Subheaders, Sidebar Menu, Table Headers & Primary Buttons (Semi-Bold) ── */
+html[data-magaiees-font="ibm_plex"] body h3,
+html[data-magaiees-font="ibm_plex"] body h4,
+html[data-magaiees-font="ibm_plex"] body table th,
+html[data-magaiees-font="ibm_plex"] body thead td,
+html[data-magaiees-font="ibm_plex"] body .sidebar-text,
+html[data-magaiees-font="ibm_plex"] body .panel-title,
+html[data-magaiees-font="ibm_plex"] body label,
+html[data-magaiees-font="ibm_plex"] body button,
+html[data-magaiees-font="ibm_plex"] body .btn,
+html[data-magaiees-font="ibm_plex"] body .tab-btn,
+html[data-magaiees-font="readex_pro"] body h3,
+html[data-magaiees-font="readex_pro"] body h4,
+html[data-magaiees-font="readex_pro"] body table th,
+html[data-magaiees-font="readex_pro"] body thead td,
+html[data-magaiees-font="readex_pro"] body .sidebar-text,
+html[data-magaiees-font="readex_pro"] body .panel-title,
+html[data-magaiees-font="readex_pro"] body label,
+html[data-magaiees-font="readex_pro"] body button,
+html[data-magaiees-font="readex_pro"] body .btn,
+html[data-magaiees-font="readex_pro"] body .tab-btn,
+html[data-magaiees-font="almarai"] body h3,
+html[data-magaiees-font="almarai"] body h4,
+html[data-magaiees-font="almarai"] body table th,
+html[data-magaiees-font="almarai"] body thead td,
+html[data-magaiees-font="almarai"] body .sidebar-text,
+html[data-magaiees-font="almarai"] body .panel-title,
+html[data-magaiees-font="almarai"] body label,
+html[data-magaiees-font="almarai"] body button,
+html[data-magaiees-font="almarai"] body .btn,
+html[data-magaiees-font="almarai"] body .tab-btn {
+    font-weight: var(--magaiees-fw-semibold) !important;
+    line-height: 1.45 !important;
+}
+
+/* ── 3. Accounting Rows, Account Statements & Form Inputs (Medium / Balanced Eye-Comfort Weight) ── */
+html[data-magaiees-font="ibm_plex"] body tbody td,
+html[data-magaiees-font="ibm_plex"] body input,
+html[data-magaiees-font="ibm_plex"] body select,
+html[data-magaiees-font="ibm_plex"] body textarea,
+html[data-magaiees-font="readex_pro"] body tbody td,
+html[data-magaiees-font="readex_pro"] body input,
+html[data-magaiees-font="readex_pro"] body select,
+html[data-magaiees-font="readex_pro"] body textarea,
+html[data-magaiees-font="almarai"] body tbody td,
+html[data-magaiees-font="almarai"] body input,
+html[data-magaiees-font="almarai"] body select,
+html[data-magaiees-font="almarai"] body textarea {
+    font-weight: var(--magaiees-fw-medium) !important;
+    line-height: var(--magaiees-line-height) !important;
+}
+
+/* ── 4. Secondary Descriptions, Subtitles & Hints (Regular / Light) ── */
+html[data-magaiees-font="ibm_plex"] body small,
+html[data-magaiees-font="ibm_plex"] body .text-muted,
+html[data-magaiees-font="ibm_plex"] body .hint,
+html[data-magaiees-font="readex_pro"] body small,
+html[data-magaiees-font="readex_pro"] body .text-muted,
+html[data-magaiees-font="readex_pro"] body .hint,
+html[data-magaiees-font="almarai"] body small,
+html[data-magaiees-font="almarai"] body .text-muted,
+html[data-magaiees-font="almarai"] body .hint {
+    font-weight: var(--magaiees-fw-regular) !important;
+    line-height: 1.55 !important;
+}
+
+/* ── 5. Ruler-Precision Financial Numbers Alignment (Tabular Nums) Across All Zoom Levels ── */
+html[data-magaiees-font="ibm_plex"] body table td,
+html[data-magaiees-font="ibm_plex"] body table th,
+html[data-magaiees-font="ibm_plex"] body .num,
+html[data-magaiees-font="ibm_plex"] body [data-num],
+html[data-magaiees-font="ibm_plex"] body input[type="number"],
+html[data-magaiees-font="readex_pro"] body table td,
+html[data-magaiees-font="readex_pro"] body table th,
+html[data-magaiees-font="readex_pro"] body .num,
+html[data-magaiees-font="readex_pro"] body [data-num],
+html[data-magaiees-font="readex_pro"] body input[type="number"],
+html[data-magaiees-font="almarai"] body table td,
+html[data-magaiees-font="almarai"] body table th,
+html[data-magaiees-font="almarai"] body .num,
+html[data-magaiees-font="almarai"] body [data-num],
+html[data-magaiees-font="almarai"] body input[type="number"],
+html[data-magaiees-scaled="true"] body table td,
+html[data-magaiees-scaled="true"] body .num {
+    font-variant-numeric: tabular-nums !important;
+    font-feature-settings: "tnum" 1 !important;
+}
+
+/* ── 6. Button Elasticity & Anti-Truncation (منع اقتطاع النصوص أو ظهور ... داخل الأزرار الفرعية) ── */
+html[data-magaiees-font="ibm_plex"] body button,
+html[data-magaiees-font="ibm_plex"] body .btn,
+html[data-magaiees-font="ibm_plex"] body .action-btn,
+html[data-magaiees-font="ibm_plex"] body .tab-btn,
+html[data-magaiees-font="ibm_plex"] body .sub-tab-btn,
+html[data-magaiees-font="ibm_plex"] body .c-btn-small,
+html[data-magaiees-font="readex_pro"] body button,
+html[data-magaiees-font="readex_pro"] body .btn,
+html[data-magaiees-font="readex_pro"] body .action-btn,
+html[data-magaiees-font="readex_pro"] body .tab-btn,
+html[data-magaiees-font="readex_pro"] body .sub-tab-btn,
+html[data-magaiees-font="readex_pro"] body .c-btn-small,
+html[data-magaiees-font="almarai"] body button,
+html[data-magaiees-font="almarai"] body .btn,
+html[data-magaiees-font="almarai"] body .action-btn,
+html[data-magaiees-font="almarai"] body .tab-btn,
+html[data-magaiees-font="almarai"] body .sub-tab-btn,
+html[data-magaiees-font="almarai"] body .c-btn-small,
+html[data-magaiees-scaled="true"] body button,
+html[data-magaiees-scaled="true"] body .btn,
+html[data-magaiees-scaled="true"] body .action-btn,
+html[data-magaiees-scaled="true"] body .tab-btn,
+html[data-magaiees-scaled="true"] body .sub-tab-btn,
+html[data-magaiees-scaled="true"] body .c-btn-small {
+    text-overflow: clip !important;
+    overflow: visible !important;
+    height: auto !important;
+    min-height: 36px;
+    white-space: normal !important;
+    word-break: keep-all;
+    line-height: 1.38 !important;
+}

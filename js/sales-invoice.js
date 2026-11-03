@@ -124,7 +124,7 @@ function commitInvoiceNumber(type) {
 document.addEventListener('DBReady', () => {
     window.refreshAllMasterData = function() {
         // Load real customer data from master-data
-        let localCusts = window.getAllSalesInvoices().filter(x => !x.deleted);
+        let localCusts = (JSON.parse(localStorage.getItem('erp_customers_v1') || '[]')).filter(x => !x.deleted);
         if (window.MagaieesPermissions && typeof window.MagaieesPermissions.filterEntitiesByClearance === 'function') {
             localCusts = window.MagaieesPermissions.filterEntitiesByClearance(localCusts);
         }
@@ -140,8 +140,8 @@ document.addEventListener('DBReady', () => {
             CUSTOMERS.unshift({ id:'walk-in', name:'زبون نقدي (Walk-in)', ledger:0, checks:0, creditLimit:0, status:'active' });
         }
 
-        const rawItems = window.getAllSalesInvoices().filter(x => !x.deleted);
-        const invData = window.getAllSalesInvoices();
+        const rawItems = (JSON.parse(localStorage.getItem('erp_items_v1') || '[]')).filter(x => !x.deleted);
+        const invData = JSON.parse(localStorage.getItem('erp_inventory_v1') || '[]');
         
         if (rawItems.length === 0) {
             console.warn('تنبيه: لا توجد أصناف في النظام! يرجى إضافة الأصناف من شاشة (البيانات الأساسية) أولاً.');
@@ -261,7 +261,20 @@ function togglePaymentAccount() {
     
     let banks = [];
     try {
-        banks = window.getAllSalesInvoices();
+        const unified = JSON.parse(localStorage.getItem('erp_banks_safes_v1') || '[]');
+        const safesOnly = JSON.parse(localStorage.getItem('erp_safes_v1') || '[]').map(s => ({ ...s, type: s.type || 'safe', name: s.name || s.safeName || 'خزينة' }));
+        const banksOnly = JSON.parse(localStorage.getItem('erp_banks_v1') || '[]').map(b => ({ ...b, type: b.type || 'bank', name: b.name || b.bankName || 'بنك' }));
+        const map = new Map();
+        [...unified, ...safesOnly, ...banksOnly].forEach(acc => {
+            if (acc && acc.id && !acc.deleted) map.set(String(acc.id), acc);
+        });
+        banks = Array.from(map.values());
+        if (banks.length === 0) {
+            banks = [
+                { id: 'safe-main', name: 'الخزينة الرئيسية', type: 'safe' },
+                { id: 'bank-khartoum', name: 'بنك الخرطوم (بنكك)', type: 'bank' }
+            ];
+        }
     } catch(e) {}
     
     banks.forEach(b => {
@@ -1501,76 +1514,21 @@ function submitInvoice(ignoreWarnings = false) {
     const paymentMethod = document.getElementById('hdr-payment-method').value;
     const cust = CUSTOMERS.find(c => c.id === custId);
 
-    // --- Hard Block: 2 Unpaid Credit Invoices ---
-    if (paymentMethod === 'credit' && cust && cust.id !== 'walk-in') {
-        const debt = cust.ledger || 0;
-        if (debt > 0) {
-            let allSales = window.getAllSalesInvoices();
-            const creditInvs = allSales.filter(inv => (inv.customer === cust.id || inv.customerId === cust.id) && inv.paymentMethod === 'credit');
-            creditInvs.reverse(); // Newest first
-
-            let remainingDebt = debt;
-            let unpaidCount = 0;
-
-            for (const inv of creditInvs) {
-                let invTotal = inv.grandTotal;
-                if (invTotal === undefined) {
-                    invTotal = inv.items ? inv.items.reduce((sum, item) => sum + ((item.quantity||0) * (item.price||0)), 0) : 0;
-                }
-                remainingDebt -= invTotal;
-                unpaidCount++;
-                if (remainingDebt <= 0) break;
-            }
-
-            if (unpaidCount >= 2) {
-                // Hard block!
-                const existing = document.getElementById('confirm-warning-overlay');
-                if (existing) existing.remove();
-                
-                alert(`❌ حظر ائتماني صارم!\nالعميل (${cust.name}) لديه ${unpaidCount} فواتير آجلة سابقة لم يقم بسدادها بالكامل.\nيجب سداد الديون القديمة أولاً لإنشاء فاتورة آجلة جديدة.`);
-                return;
-            }
-        }
-    }
-    // ---------------------------------------------
-
+    // --- Sales Return Validation: Ensure returned qty does not exceed original invoice qty (if linked) ---
     let warnings = [];
-
     if (!ignoreWarnings) {
-        // Stock availability check
-        const mainWh = document.getElementById('hdr-warehouse').value;
         for (const row of rows) {
             const item = ITEMS.find(i => String(i.id) === String(row.itemId));
             if (!item) continue;
-            const calcs = getRowCalcs(row);
-            if (calcs.availQty !== '—' && calcs.availQty !== undefined && calcs.baseQty > calcs.availQty) {
-                const diff = calcs.baseQty - calcs.availQty;
-                warnings.push(`الصنف "<strong>${item.name}</strong>" تجاوز المخزون المتاح. (سوف يدخل بالسالب بمقدار <strong>${fmtNum(diff)} ${item.baseUnit || 'وحدة أساسية'}</strong>)`);
+            if (row.origMaxQty !== undefined && row.origMaxQty > 0 && row.quantity > row.origMaxQty) {
+                warnings.push(`الصنف "<strong>${item.name}</strong>": الكمية المرتجعة (<strong>${fmtNum(row.quantity)}</strong>) أكبر من الكمية المباعة في الفاتورة الأصلية (<strong>${fmtNum(row.origMaxQty)}</strong>).`);
             }
         }
-
-        // Credit check for non-cash customers
-        const custId = document.getElementById('hdr-customer').value;
-        const cust = CUSTOMERS.find(c => c.id === custId);
-        if (cust && cust.id !== 'walk-in' && cust.creditLimit > 0) {
-            const totalDebt = cust.ledger + cust.checks;
-            const remaining = cust.creditLimit - totalDebt;
-            const grandLocEl = document.getElementById('t-grand-dynamic-loc');
-            const grand = grandLocEl ? parseNum(grandLocEl.textContent) : 0;
-            if (grand > remaining) {
-                const diff = grand - remaining;
-                const cur = getCurrency();
-                warnings.push(`الفاتورة تتجاوز حد الائتمان. (المبلغ سيتجاوز الحد بمقدار <strong>${fmtNum(diff)} ${cur}</strong>)`);
-            }
-        }
-
         if (warnings.length > 0) {
             showConfirmWarningModal(warnings);
             return;
         }
     }
-
-    
     const _docDateStr = document.getElementById('hdr-date') ? document.getElementById('hdr-date').value : new Date().toISOString().split('T')[0];
     if (!window.canCreateRecord(_docDateStr)) return;
 
@@ -1669,6 +1627,11 @@ function submitInvoice(ignoreWarnings = false) {
         vatAmount: parseNum(document.getElementById('t-tax-loc')?.value || 0),
         discount: parseNum(document.getElementById('t-discount-loc')?.value || 0),
         grandTotal: grandTotal,
+        origInvoiceNo: document.getElementById('hdr-orig-inv-no') ? document.getElementById('hdr-orig-inv-no').value.trim() : '',
+        returnReason: document.getElementById('hdr-return-reason') ? document.getElementById('hdr-return-reason').value : 'أخرى',
+        returnCondition: document.getElementById('hdr-return-condition') ? document.getElementById('hdr-return-condition').value : 'good',
+        isReturn: true,
+        type: 'return',
         status: 'confirmed'
     };
 
@@ -1740,9 +1703,11 @@ function submitInvoice(ignoreWarnings = false) {
         }
     }
 
-    // Restore to local inventory cache and live objects
+    // Restore to local inventory cache and live objects (erp_inventory_v1 + erp_items_v1)
     let currentInvData = JSON.parse(localStorage.getItem('erp_inventory_v1')) || [];
+    let erpItemsMaster = JSON.parse(localStorage.getItem('erp_items_v1') || '[]');
     const mainWh = document.getElementById('hdr-warehouse').value;
+    const returnCond = document.getElementById('hdr-return-condition')?.value || 'good';
     for (const row of rows) {
         const item = ITEMS.find(i => String(i.id) === String(row.itemId));
         if (!item) continue;
@@ -1750,22 +1715,49 @@ function submitInvoice(ignoreWarnings = false) {
         const whId = row.warehouseId || mainWh;
         const whName = WAREHOUSES.find(w => w.id === whId)?.name || 'المخزن الرئيسي';
         
-        let itemInv = currentInvData.find(inv => String(inv.itemId) === String(row.itemId) && inv.warehouse === whName);
-        if (itemInv) {
-            // Add baseQty because this is a return
-            itemInv.qty = (parseFloat(itemInv.qty) || parseFloat(itemInv.quantity) || 0) + calcs.baseQty;
-        } else {
-            currentInvData.push({ itemId: row.itemId, warehouse: whName, qty: calcs.baseQty, minQty: 10 });
+        if (returnCond === 'good') {
+            let itemInv = currentInvData.find(inv => String(inv.itemId) === String(row.itemId) && inv.warehouse === whName);
+            if (itemInv) {
+                itemInv.qty = (parseFloat(itemInv.qty) || parseFloat(itemInv.quantity) || 0) + calcs.baseQty;
+            } else {
+                currentInvData.push({ itemId: row.itemId, warehouse: whName, qty: calcs.baseQty, minQty: 10 });
+            }
+            if (item.actualStock && item.actualStock[whId] !== undefined) {
+                item.actualStock[whId] += calcs.baseQty;
+            } else if (item.actualStock) {
+                item.actualStock[whId] = calcs.baseQty;
+            }
         }
-        
-        // Update live ITEMS array
-        if (item.actualStock && item.actualStock[whId] !== undefined) {
-            item.actualStock[whId] += calcs.baseQty;
-        } else if (item.actualStock) {
-            item.actualStock[whId] = calcs.baseQty;
+
+        const mIdx = erpItemsMaster.findIndex(x => String(x.id) === String(row.itemId));
+        if (mIdx !== -1) {
+            const mItem = erpItemsMaster[mIdx];
+            if (!mItem.stock || typeof mItem.stock !== 'object') mItem.stock = {};
+            if (returnCond === 'good') {
+                mItem.stock[whId] = (parseFloat(mItem.stock[whId]) || 0) + calcs.baseQty;
+                if (mItem.actualStock && typeof mItem.actualStock === 'object') {
+                    mItem.actualStock[whId] = (parseFloat(mItem.actualStock[whId]) || 0) + calcs.baseQty;
+                }
+                const totalReal = Object.entries(mItem.stock)
+                    .filter(([k]) => k !== 'PENDING_RECEIPT')
+                    .reduce((acc, [, v]) => acc + (parseFloat(v) || 0), 0);
+                mItem.currentStock = totalReal;
+                mItem.quantity = totalReal;
+                if (Array.isArray(mItem.units) && mItem.units[0]) {
+                    mItem.units[0].stock = totalReal;
+                }
+            } else {
+                if (!mItem.damagedStock || typeof mItem.damagedStock !== 'object') mItem.damagedStock = {};
+                mItem.damagedStock[whId] = (parseFloat(mItem.damagedStock[whId]) || 0) + calcs.baseQty;
+            }
+            erpItemsMaster[mIdx] = mItem;
         }
     }
     localStorage.setItem('erp_inventory_v1', JSON.stringify(currentInvData));
+    localStorage.setItem('erp_items_v1', JSON.stringify(erpItemsMaster));
+    if (typeof window.logSystemAction === 'function') {
+        window.logSystemAction('اعتماد مرتجع مبيعات (Credit Note)', 'المبيعات', committedNo, `مرتجع مبيعات رقم ${committedNo} بقيمة ${fmtNum(grandTotal)} ${cur} (${returnCond === 'good' ? 'سليم للمخزن' : 'تالف للفحص'})`);
+    }
 
     // Show professional success modal (we can pass the warnings array so it still shows them if desired)
     // To grab the actual warnings to display in success modal, we need to generate them again if ignoreWarnings is true.
@@ -1786,7 +1778,7 @@ function submitInvoice(ignoreWarnings = false) {
         if (cust && cust.id !== 'walk-in' && cust.creditLimit > 0) {
             const totalDebt = cust.ledger + cust.checks;
             const remaining = cust.creditLimit - totalDebt;
-            const grand = parseNum(document.getElementById('t-grand').textContent);
+            const grand = parseNum((document.getElementById('t-grand-dynamic-loc')?.textContent || document.getElementById('footer-grand')?.textContent || '0'));
             if (grand > remaining) {
                 const diff = grand - remaining;
                 const cur = getCurrency();
@@ -1796,7 +1788,7 @@ function submitInvoice(ignoreWarnings = false) {
     }
 
     if (usedAccountName) {
-        showToast(`تمت إضافة ${fmtNum(grandAmount)} ${cur} إلى رصيد: ${usedAccountName}`, 'success', 5000);
+        showToast(`💸 تم صرف مبلغ الاسترداد (${fmtNum(grandAmount)} ${cur}) للعميل من حساب: ${usedAccountName}`, 'success', 5000);
     }
 
     onSuccessNewInvoice(false);
@@ -1899,7 +1891,6 @@ function executeDeleteTransaction() {
     const currentInvNo = document.getElementById('hdr-inv-no').value;
     if (!currentInvNo) return;
 
-    // Retrieve old invoice to revert its effects
     let oldInvStr = localStorage.getItem('erp_inv_' + currentInvNo);
     let oldInv = null;
     if (oldInvStr) {
@@ -1914,35 +1905,43 @@ function executeDeleteTransaction() {
     if (!oldInv) {
         localStorage.removeItem('erp_draft_' + currentInvNo);
         onSuccessNewInvoice(); 
-        showToast('🗑️ تم مسح بيانات الفاتورة', 'success');
+        showToast('🗑️ تم مسح مسودة المرتجع', 'success');
         return;
     }
     const grandAmount = parseFloat(oldInv.grandTotal) || 0;
 
-    // 1. Revert Customer Balance (if credit)
+    // 1. Revert Customer Balance (since return subtracted debt, deleting the return adds it back)
     if (oldInv.paymentMethod === 'credit' && oldInv.customer && oldInv.customer !== 'walk-in') {
-        let customers = window.getAllSalesInvoices().filter(x => !x.deleted);
-        const cIdx = customers.findIndex(c => c.id === oldInv.customer);
+        let customers = (JSON.parse(localStorage.getItem('erp_customers_v1') || '[]')).filter(x => !x.deleted);
+        const cIdx = customers.findIndex(c => String(c.id) === String(oldInv.customer));
         if (cIdx > -1) {
             let currentBalance = parseFloat(customers[cIdx].currentBalance) || 0;
-            customers[cIdx].currentBalance = currentBalance - grandAmount; // Revert debt
+            customers[cIdx].currentBalance = currentBalance + grandAmount;
             localStorage.setItem('erp_customers_v1', JSON.stringify(customers));
         }
     }
 
-    // 2. Revert Bank/Safe Balance (if cash)
+    // 2. Revert Bank/Safe Balance (since return paid cash out, deleting the return restores cash)
     if (oldInv.paymentMethod !== 'credit' && oldInv.paymentAccountId) {
-        let banks = window.getAllSalesInvoices();
-        const bIdx = banks.findIndex(b => b.id === oldInv.paymentAccountId);
+        let banks = JSON.parse(localStorage.getItem('erp_banks_v1') || '[]');
+        const bIdx = banks.findIndex(b => String(b.id) === String(oldInv.paymentAccountId));
         if (bIdx > -1) {
             let currentBalance = parseFloat(banks[bIdx].currentBalance) || 0;
-            banks[bIdx].currentBalance = currentBalance - grandAmount; // Revert cash receipt
+            banks[bIdx].currentBalance = currentBalance + grandAmount;
             localStorage.setItem('erp_banks_v1', JSON.stringify(banks));
+        } else {
+            let safes = JSON.parse(localStorage.getItem('erp_safes_v1') || '[]');
+            const sIdx = safes.findIndex(s => String(s.id) === String(oldInv.paymentAccountId));
+            if (sIdx > -1) {
+                let currentBalance = parseFloat(safes[sIdx].currentBalance) || 0;
+                safes[sIdx].currentBalance = currentBalance + grandAmount;
+                localStorage.setItem('erp_safes_v1', JSON.stringify(safes));
+            }
         }
     }
 
-    // 3. Revert Inventory
-    let currentInvData = window.getAllSalesInvoices();
+    // 3. Revert Inventory (since return added stock in, deleting the return deducts it back)
+    let currentInvData = JSON.parse(localStorage.getItem('erp_inventory_v1') || '[]');
     const mainWh = oldInv.warehouse || 'wh-001';
     if (oldInv.items && Array.isArray(oldInv.items)) {
         for (const row of oldInv.items) {
@@ -1950,45 +1949,38 @@ function executeDeleteTransaction() {
             if (!item) continue;
             
             let selectedUnitFactor = row.customFactor !== undefined ? row.customFactor : 1;
-            let baseQty = 0;
-            if (row.customBaseQty !== undefined) {
-                baseQty = row.customBaseQty;
-            } else {
-                baseQty = item ? row.quantity * selectedUnitFactor * item.conversionFactor : 0;
-            }
+            let baseQty = row.customBaseQty !== undefined ? row.customBaseQty : (item ? row.quantity * selectedUnitFactor * item.conversionFactor : 0);
 
             const whId = row.warehouseId || mainWh;
             const whName = WAREHOUSES.find(w => w.id === whId)?.name || 'المخزن الرئيسي';
             
-            let itemInv = currentInvData.find(inv => inv.itemId === row.itemId && inv.warehouse === whName);
+            let itemInv = currentInvData.find(inv => String(inv.itemId) === String(row.itemId) && inv.warehouse === whName);
             if (itemInv) {
-                itemInv.qty = (parseFloat(itemInv.qty) || parseFloat(itemInv.quantity) || 0) + baseQty;
-            } else {
-                currentInvData.push({ itemId: row.itemId, warehouse: whName, qty: baseQty, minQty: 10 });
+                itemInv.qty = Math.max(0, (parseFloat(itemInv.qty) || parseFloat(itemInv.quantity) || 0) - baseQty);
             }
-            
             if (item.actualStock && item.actualStock[whId] !== undefined) {
-                item.actualStock[whId] += baseQty;
+                item.actualStock[whId] = Math.max(0, item.actualStock[whId] - baseQty);
             }
         }
     }
     localStorage.setItem('erp_inventory_v1', JSON.stringify(currentInvData));
 
-    // 4. Remove from sales invoices list
-    let allSales = window.getAllSalesInvoices();
+    // 4. Mark deleted in sales invoices list
+    let allSales = JSON.parse(localStorage.getItem('erp_sales_invoices_v1') || '[]');
     const salesIdx = allSales.findIndex(inv => inv.invoiceNo === currentInvNo);
-    if(salesIdx > -1) { allSales[salesIdx].deleted = true; allSales[salesIdx].updatedAt = Date.now(); }
-    localStorage.setItem('erp_sales_invoices_v1', JSON.stringify(allSales));
+    if (salesIdx > -1) {
+        allSales[salesIdx].deleted = true;
+        allSales[salesIdx].updatedAt = Date.now();
+        localStorage.setItem('erp_sales_invoices_v1', JSON.stringify(allSales));
+    }
 
-    // 5. Delete individual records
     localStorage.removeItem('erp_inv_' + currentInvNo);
     localStorage.removeItem('erp_draft_' + currentInvNo);
 
-    // Reset Form
-    onSuccessNewInvoice(); 
-    showToast('🗑️ تم حذف الفاتورة وإلغاء جميع تأثيراتها المالية والمخزنية بنجاح', 'success');
+    onSuccessNewInvoice();
+    if (typeof updateSalesReturnHistoryCount === 'function') updateSalesReturnHistoryCount();
+    showToast('🗑️ تم حذف إشعار المرتجع وإلغاء جميع تأثيراته المالية والمخزنية بنجاح', 'success');
 }
-
 // ════════════════════════════════════════
 //  SUCCESS MODAL
 // ════════════════════════════════════════
@@ -2057,14 +2049,15 @@ function onSuccessNewInvoice(closeModalFlag = true) {
     document.getElementById('hdr-customer').value = '';
     document.getElementById('hdr-customer-search').value = '';
     document.getElementById('inv-notes').value = '';
-    document.getElementById('discount-amt').value = '0';
-    document.getElementById('discount-pct').value = '0';
-    document.getElementById('tax-amt').value = '0';
-    document.getElementById('tax-pct').value = '0';
-    document.getElementById('addition-amt').value = '0';
-    document.getElementById('addition-pct').value = '0';
-    document.getElementById('t-labor').value = '0';
-    document.getElementById('t-transport').value = '0';
+    ['discount-amt','discount-pct','tax-amt','tax-pct','addition-amt','addition-pct','t-labor','t-transport'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = '0';
+    });
+    if (document.getElementById('hdr-orig-inv-no')) document.getElementById('hdr-orig-inv-no').value = '';
+    if (document.getElementById('hdr-description')) document.getElementById('hdr-description').value = '';
+    const badge = document.getElementById('sr-linked-badge');
+    if (badge) { badge.style.display = 'none'; badge.textContent = ''; }
+    if (typeof updateSalesReturnHistoryCount === 'function') updateSalesReturnHistoryCount();
     onCustomerChange();
 
     // Show the NEXT invoice number (peeked, not committed)
@@ -2242,7 +2235,7 @@ function generatePrintArea(type) {
     const custName = document.getElementById('hdr-customer-search').value || (type === 'sales' ? 'عميل نقدي' : 'مورد نقدي');
     const invNo = document.getElementById('hdr-inv-no').value;
     const invDate = document.getElementById('hdr-date').value;
-    const grandTotal = document.getElementById('t-grand').textContent;
+    const grandTotal = (document.getElementById('t-grand-dynamic-loc')?.textContent || document.getElementById('footer-grand')?.textContent || '0');
     const currency = getCurrency();
 
     let html = '';
@@ -2310,7 +2303,7 @@ function generatePrintArea(type) {
             if (w) whName = w.name;
         }
         
-        let noteTitle = type === 'sales' ? 'إذن صرف مخزني' : 'إذن استلام مخزني';
+        let noteTitle = 'إذن استلام مرتجع مخزني (إدخال بضاعة مستردة للمخزن)';
 
         html += `
         <div class="print-page" style="padding: 20px; direction: rtl; font-family: 'Cairo', Tahoma, Arial;">
@@ -2410,3 +2403,301 @@ function toggleGPS() {
 
 
 
+
+
+// ════════════════════════════════════════════════════════════════════════
+//  WORLD-CLASS SALES RETURN HUB (استدعاء فواتير المبيعات + سجل المرتجعات)
+// ════════════════════════════════════════════════════════════════════════
+let currentSrHubMode = 'editor';
+
+function openModal(id) {
+    const el = document.getElementById(id);
+    if (el) el.classList.add('visible');
+}
+
+function closeModal(id) {
+    const el = document.getElementById(id);
+    if (el) el.classList.remove('visible');
+}
+
+function updateSalesReturnHistoryCount() {
+    const countEl = document.getElementById('sr-history-count');
+    if (!countEl) return;
+    try {
+        const all = window.getAllSalesInvoices().filter(inv => !inv.deleted && (inv.type === 'return' || inv.isReturn === true || String(inv.invoiceNo || '').startsWith('RET') || String(inv.invoiceNo || '').startsWith('SR')));
+        countEl.textContent = all.length;
+    } catch (e) {
+        countEl.textContent = '0';
+    }
+}
+
+function toggleSalesReturnHub(mode) {
+    currentSrHubMode = mode;
+    ['editor', 'invoices', 'history'].forEach(m => {
+        const btn = document.getElementById('btn-sr-mode-' + m);
+        if (btn) btn.classList.toggle('active', m === mode);
+    });
+    const drawer = document.getElementById('sr-hub-drawer');
+    if (!drawer) return;
+    if (mode === 'editor') {
+        drawer.classList.remove('open');
+        return;
+    }
+    drawer.classList.add('open');
+    const titleEl = document.getElementById('sr-hub-title');
+    if (titleEl) {
+        titleEl.innerHTML = mode === 'invoices'
+            ? '🔍 اختر فاتورة مبيعات أصلية لاسترداد بضاعتها (استرداد كلي أو جزئي بضغطة واحدة)'
+            : '📋 سجل مرتجعات المبيعات وإشعارات الدائن المعتمدة';
+    }
+    renderSalesReturnHubTable();
+}
+
+function renderSalesReturnHubTable() {
+    const thead = document.getElementById('sr-hub-thead');
+    const tbody = document.getElementById('sr-hub-tbody');
+    const searchVal = (document.getElementById('sr-hub-search')?.value || '').trim().toLowerCase();
+    if (!thead || !tbody) return;
+
+    const allInvs = window.getAllSalesInvoices().filter(inv => !inv.deleted);
+
+    if (currentSrHubMode === 'invoices') {
+        thead.innerHTML = `
+            <tr>
+                <th>رقم الفاتورة</th>
+                <th>التاريخ</th>
+                <th>اسم العميل</th>
+                <th>عدد الأصناف</th>
+                <th>إجمالي الفاتورة</th>
+                <th>طريقة الدفع</th>
+                <th style="text-align:center;">إجراء الاسترداد</th>
+            </tr>
+        `;
+        const salesOnly = allInvs.filter(inv => inv.type !== 'return' && !inv.isReturn);
+        const filtered = salesOnly.filter(inv => {
+            if (!searchVal) return true;
+            const cObj = CUSTOMERS.find(c => String(c.id) === String(inv.customer || inv.customerId));
+            const cName = (inv.customerName || cObj?.name || 'عميل نقدي').toLowerCase();
+            const no = String(inv.invoiceNo || inv.id || '').toLowerCase();
+            return no.includes(searchVal) || cName.includes(searchVal);
+        }).slice(0, 60);
+
+        if (filtered.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:22px; color:#94a3b8;">لا توجد فواتير مبيعات مطابقة للبحث</td></tr>`;
+            return;
+        }
+
+        tbody.innerHTML = filtered.map(inv => {
+            const invNo = inv.invoiceNo || inv.id || '—';
+            const cObj = CUSTOMERS.find(c => String(c.id) === String(inv.customer || inv.customerId));
+            const cName = inv.customerName || cObj?.name || 'عميل نقدي';
+            const itemsArr = inv.items || inv.products || [];
+            const total = fmtNum(parseFloat(inv.grandTotal || inv.total || 0));
+            const cur = inv.currency || 'SDG';
+            const payLabel = inv.paymentMethod === 'credit' ? 'آجل (ذمم)' : (inv.paymentMethod === 'bank' ? 'بنكي' : 'نقدي');
+            return `
+                <tr>
+                    <td style="font-weight:900; color:#38bdf8;">#${invNo}</td>
+                    <td>${inv.date || '—'}</td>
+                    <td style="font-weight:700;">${cName}</td>
+                    <td><span style="padding:2px 8px; border-radius:12px; background:rgba(56,189,248,0.12); color:#38bdf8; font-weight:700;">${itemsArr.length} أصناف</span></td>
+                    <td style="font-weight:800; color:#10b981;">${total} ${cur}</td>
+                    <td>${payLabel}</td>
+                    <td style="text-align:center;">
+                        <button type="button" class="sr-mode-btn active" style="padding:4px 12px; font-size:0.78rem;" onclick="pullFromSalesInvoice('${String(invNo).replace(/'/g, "\\'")}')">
+                            ↩️ استدعاء للاسترداد الكلي / الجزئي
+                        </button>
+                    </td>
+                </tr>
+            `;
+        }).join('');
+    } else {
+        thead.innerHTML = `
+            <tr>
+                <th>رقم إشعار المرتجع</th>
+                <th>التاريخ</th>
+                <th>العميل</th>
+                <th>الفاتورة الأصلية</th>
+                <th>سبب المرتجع</th>
+                <th>قيمة الاسترداد</th>
+                <th style="text-align:center;">إجراءات</th>
+            </tr>
+        `;
+        const returnsOnly = allInvs.filter(inv => inv.type === 'return' || inv.isReturn === true);
+        const filtered = returnsOnly.filter(inv => {
+            if (!searchVal) return true;
+            const cObj = CUSTOMERS.find(c => String(c.id) === String(inv.customer || inv.customerId));
+            const cName = (inv.customerName || cObj?.name || '').toLowerCase();
+            const no = String(inv.invoiceNo || inv.id || '').toLowerCase();
+            const orig = String(inv.origInvoiceNo || '').toLowerCase();
+            return no.includes(searchVal) || cName.includes(searchVal) || orig.includes(searchVal);
+        }).slice(0, 60);
+
+        if (filtered.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:22px; color:#94a3b8;">لا توجد مرتجعات مبيعات محفوظة حتى الآن</td></tr>`;
+            return;
+        }
+
+        tbody.innerHTML = filtered.map(inv => {
+            const invNo = inv.invoiceNo || inv.id || '—';
+            const cObj = CUSTOMERS.find(c => String(c.id) === String(inv.customer || inv.customerId));
+            const cName = inv.customerName || cObj?.name || 'عميل نقدي';
+            const total = fmtNum(parseFloat(inv.grandTotal || inv.total || 0));
+            const cur = inv.currency || 'SDG';
+            return `
+                <tr>
+                    <td style="font-weight:900; color:#34d399;">#${invNo}</td>
+                    <td>${inv.date || '—'}</td>
+                    <td style="font-weight:700;">${cName}</td>
+                    <td style="color:#38bdf8;">${inv.origInvoiceNo ? '#' + inv.origInvoiceNo : 'مرتجع مباشر'}</td>
+                    <td>${inv.returnReason || '—'}</td>
+                    <td style="font-weight:800; color:#f87171;">${total} ${cur}</td>
+                    <td style="text-align:center; display:flex; gap:6px; justify-content:center;">
+                        <button type="button" class="sr-mode-btn" style="padding:4px 10px; font-size:0.76rem;" onclick="loadInvoiceFromStorage('${String(invNo).replace(/'/g, "\\'")}'); toggleSalesReturnHub('editor');">
+                            👁️ عرض / تعديل
+                        </button>
+                    </td>
+                </tr>
+            `;
+        }).join('');
+    }
+}
+
+function pullFromSalesInvoice(origInvNo) {
+    const allSales = window.getAllSalesInvoices();
+    const orig = allSales.find(inv => String(inv.invoiceNo) === String(origInvNo) || String(inv.id) === String(origInvNo));
+    if (!orig) {
+        showToast('⚠️ لم يتم العثور على الفاتورة الأصلية', 'warning');
+        return;
+    }
+
+    // Reset current return editor as a NEW return linked to origInvNo
+    currentViewedInvoiceNo = null;
+    const nextReturnNo = peekNextInvoiceNumber(currentSaleType);
+    document.getElementById('inv-number').textContent = nextReturnNo;
+    document.getElementById('hdr-inv-no').value = nextReturnNo;
+
+    if (document.getElementById('hdr-orig-inv-no')) {
+        document.getElementById('hdr-orig-inv-no').value = orig.invoiceNo || orig.id || '';
+    }
+    if (document.getElementById('hdr-description')) {
+        document.getElementById('hdr-description').value = `مرتجع مبيعات واسترداد بضاعة من الفاتورة رقم #${orig.invoiceNo || orig.id}`;
+    }
+    if (orig.warehouse && document.getElementById('hdr-warehouse')) {
+        document.getElementById('hdr-warehouse').value = orig.warehouse;
+    }
+    if (orig.currency && document.getElementById('hdr-currency')) {
+        document.getElementById('hdr-currency').value = orig.currency;
+    }
+    if (orig.paymentMethod && document.getElementById('hdr-payment-method')) {
+        document.getElementById('hdr-payment-method').value = orig.paymentMethod;
+        togglePaymentAccount();
+    }
+
+    const custId = orig.customer || orig.customerId;
+    if (custId) {
+        const c = CUSTOMERS.find(x => String(x.id) === String(custId));
+        if (c) {
+            selectCustomer(c.id, c.name);
+        } else if (orig.customerName) {
+            document.getElementById('hdr-customer').value = custId;
+            document.getElementById('hdr-customer-search').value = orig.customerName;
+        }
+    }
+
+    rows = [];
+    rowIdCounter = 0;
+    const itemsList = orig.items || orig.products || [];
+    itemsList.forEach(i => {
+        addRow();
+        const r = rows[rows.length - 1];
+        const itemId = i.itemId || i.id || i.item_id;
+        const selectedUnit = i.selectedUnit || i.unit || i.unitName;
+        const customFactor = i.customFactor !== undefined ? i.customFactor : i.factor;
+        const quantity = i.quantity !== undefined ? i.quantity : (i.qty !== undefined ? i.qty : 0);
+        const price = i.price !== undefined ? i.price : (i.rate !== undefined ? i.rate : 0);
+        const warehouseId = i.warehouseId || i.warehouse || '';
+
+        if (itemId) updateRow(r.id, 'itemId', itemId);
+        if (selectedUnit) updateRow(r.id, 'selectedUnit', selectedUnit);
+        if (customFactor !== undefined) updateRow(r.id, 'customFactor', customFactor);
+        if (quantity !== undefined) {
+            updateRow(r.id, 'quantity', quantity);
+            r.origMaxQty = parseFloat(quantity) || 0;
+        }
+        if (price !== undefined) updateRow(r.id, 'price', price);
+        if (warehouseId) updateRow(r.id, 'warehouseId', warehouseId);
+    });
+
+    const badge = document.getElementById('sr-linked-badge');
+    if (badge) {
+        badge.style.display = 'inline-flex';
+        badge.textContent = `🔗 مرتبط بالفاتورة الأصلية #${orig.invoiceNo || orig.id}`;
+    }
+
+    renderGrid();
+    recalcAll();
+    toggleSalesReturnHub('editor');
+    showToast(`✅ تم استدعاء بنود الفاتورة #${orig.invoiceNo || orig.id} — يمكنك تعديل الكميات للاسترداد الجزئي أو اعتماد الاسترداد الكلي`, 'success', 4500);
+}
+
+function printSalesReturnCreditNote() {
+    if (rows.length === 0) {
+        showToast('⚠️ أضف أصنافاً للمرتجع أولاً قبل الطباعة', 'warning');
+        return;
+    }
+    generatePrintArea('sales');
+    window.print();
+}
+
+function shareSalesReturnWhatsApp() {
+    if (rows.length === 0) {
+        showToast('⚠️ لا توجد أصناف في المرتجع لمشاركتها عبر واتساب', 'warning');
+        return;
+    }
+    const invNo = document.getElementById('hdr-inv-no')?.value || document.getElementById('inv-number')?.textContent || '';
+    const origNo = document.getElementById('hdr-orig-inv-no')?.value || 'مباشر';
+    const custName = document.getElementById('hdr-customer-search')?.value || 'عميلنا الكريم';
+    const reason = document.getElementById('hdr-return-reason')?.value || 'استرداد بضاعة';
+    const grand = document.getElementById('t-grand-dynamic-loc')?.textContent || document.getElementById('footer-grand')?.textContent || '0';
+    const cur = getCurrency();
+
+    let itemsText = rows.map((r, idx) => {
+        const item = ITEMS.find(i => String(i.id) === String(r.itemId));
+        const name = item ? item.name : 'صنف';
+        const calcs = getRowCalcs(r);
+        return `${idx + 1}. ${name} — الكمية: ${r.quantity} ${r.selectedUnit || ''} × ${fmtNum(r.price)} = ${fmtNum(calcs.total)} ${cur}`;
+    }).join('\n');
+
+    const msg = `↩️ *إشعار دائن — مرتجع مبيعات واسترداد بضائع*\n`
+        + `━━━━━━━━━━━━━━━━━━━━\n`
+        + `📄 *رقم الإشعار:* #${invNo}\n`
+        + `🔗 *الفاتورة الأصلية:* #${origNo}\n`
+        + `👤 *العميل:* ${custName}\n`
+        + `📌 *سبب الاسترداد:* ${reason}\n`
+        + `📅 *التاريخ:* ${document.getElementById('hdr-date')?.value || ''}\n`
+        + `━━━━━━━━━━━━━━━━━━━━\n`
+        + `📦 *الأصناف المستردة:*\n${itemsText}\n`
+        + `━━━━━━━━━━━━━━━━━━━━\n`
+        + `💰 *إجمالي قيمة الاسترداد:* ${grand} ${cur}\n`
+        + `✅ تم قيد المرتجع واستلام البضاعة في المخزن.`;
+
+    const custId = document.getElementById('hdr-customer')?.value;
+    const custObj = CUSTOMERS.find(c => String(c.id) === String(custId));
+    const phone = custObj && custObj.phone ? String(custObj.phone).replace(/[^0-9]/g, '') : '';
+    const waUrl = phone
+        ? `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`
+        : `https://wa.me/?text=${encodeURIComponent(msg)}`;
+    window.open(waUrl, '_blank');
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(() => {
+        updateSalesReturnHistoryCount();
+        const params = new URLSearchParams(window.location.search);
+        const invParam = (params.get('inv') || params.get('id') || params.get('invoice') || '').trim();
+        if (invParam && typeof pullFromSalesInvoice === 'function') {
+            pullFromSalesInvoice(invParam);
+        }
+    }, 300);
+});

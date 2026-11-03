@@ -2046,6 +2046,44 @@
                 </div>
             </div>
 
+            <!-- شريط الربط الشامل والذكاء الاصطناعي التنبؤي للبيانات الأساسية 360° -->
+            <div id="md-smart-ai-command-bar" style="display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; padding:10px 14px; margin-bottom:12px; border-radius:14px; border:1.5px solid rgba(56,189,248,0.32); background:linear-gradient(135deg, rgba(15,23,42,0.88), rgba(30,27,75,0.72)); box-shadow:0 8px 24px rgba(0,0,0,0.22);">
+                <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+                    <button type="button" onclick="window.openMasterDataAIPredictiveModal()" style="height:34px; padding:0 13px; border-radius:9px; background:linear-gradient(135deg,#8b5cf6,#6d28d9); color:#fff !important; border:1px solid rgba(192,132,252,0.55); font-size:0.82rem; font-weight:900; cursor:pointer; display:inline-flex; align-items:center; gap:6px; box-shadow:0 4px 12px rgba(139,92,246,0.3);">
+                        <span>🤖</span> <span>المستشار الذكي والتنبؤي AI</span>
+                    </button>
+                    <button type="button" onclick="openOpeningEquilibriumModal()" style="height:34px; background:rgba(16,185,129,0.16); color:#34d399; border:1px solid rgba(16,185,129,0.45); padding:0 11px; border-radius:9px; font-size:0.8rem; font-weight:800; cursor:pointer; display:inline-flex; align-items:center; gap:5px;" title="فحص وموازنة الأرصدة الافتتاحية وتوليد القيد الافتتاحي">
+                        <span>⚖️</span> <span>توازن الافتتاحي</span>
+                    </button>
+                    <button type="button" onclick="openBulkPriceUpdaterModal()" style="height:34px; background:rgba(245,158,11,0.16); color:#fbbf24; border:1px solid rgba(245,158,11,0.45); padding:0 11px; border-radius:9px; font-size:0.8rem; font-weight:800; cursor:pointer; display:inline-flex; align-items:center; gap:5px;" title="تحديث أسعار الأصناف جماعياً بنسبة أو مبلغ">
+                        <span>📈</span> <span>تحديث الأسعار</span>
+                    </button>
+                    <button type="button" onclick="window.openMdHealthAndDuplicateScannerModal()" style="height:34px; background:rgba(56,189,248,0.15); color:#38bdf8; border:1px solid rgba(56,189,248,0.4); padding:0 11px; border-radius:9px; font-size:0.8rem; font-weight:800; cursor:pointer; display:inline-flex; align-items:center; gap:5px;" title="فحص التكرارات والنواقص في الأقسام الثمانية">
+                        <span>🔍</span> <span>فحص التكرارات</span>
+                    </button>
+                    <button type="button" onclick="exportActiveTabToExcel()" style="height:34px; background:rgba(16,185,129,0.14); color:#34d399; border:1px solid rgba(16,185,129,0.38); padding:0 10px; border-radius:9px; font-size:0.79rem; font-weight:800; cursor:pointer; display:inline-flex; align-items:center; gap:4px;">
+                        <span>📤</span> <span>تصدير Excel</span>
+                    </button>
+                    <button type="button" onclick="triggerActiveTabExcelImport()" style="height:34px; background:rgba(56,189,248,0.14); color:#38bdf8; border:1px solid rgba(56,189,248,0.38); padding:0 10px; border-radius:9px; font-size:0.79rem; font-weight:800; cursor:pointer; display:inline-flex; align-items:center; gap:4px;">
+                        <span>📥</span> <span>استيراد Excel</span>
+                    </button>
+                    <button type="button" onclick="openActiveTabPrintAndShareModal()" style="height:34px; background:rgba(148,163,184,0.14); color:#e2e8f0; border:1px solid rgba(148,163,184,0.35); padding:0 10px; border-radius:9px; font-size:0.79rem; font-weight:800; cursor:pointer; display:inline-flex; align-items:center; gap:4px;">
+                        <span>🖨️</span> <span>طباعة</span>
+                    </button>
+                    <button type="button" onclick="window.openMdQuickJumpPaletteModal()" style="height:34px; background:rgba(56,189,248,0.12); color:#7dd3fc; border:1px solid rgba(56,189,248,0.35); padding:0 10px; border-radius:9px; font-size:0.79rem; font-weight:800; cursor:pointer; display:inline-flex; align-items:center; gap:4px;" title="بحث فوري شامل في كافة البيانات الأساسية (Ctrl+K)">
+                        <span>⚡</span> <span>بحث شامل</span>
+                    </button>
+                </div>
+                <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+                    <a href="balances_modern_hub.php" style="height:32px; padding:0 10px; border-radius:8px; background:rgba(16,185,129,0.14); color:#34d399; border:1px solid rgba(16,185,129,0.35); font-size:0.76rem; font-weight:800; text-decoration:none; display:inline-flex; align-items:center; gap:4px;">⚖️ الأرصدة والمقاصة</a>
+                    <a href="account-statement.php" style="height:32px; padding:0 10px; border-radius:8px; background:rgba(56,189,248,0.14); color:#38bdf8; border:1px solid rgba(56,189,248,0.35); font-size:0.76rem; font-weight:800; text-decoration:none; display:inline-flex; align-items:center; gap:4px;">📑 كشف حساب</a>
+                    <a href="customer-portfolio.php" style="height:32px; padding:0 10px; border-radius:8px; background:rgba(168,85,247,0.14); color:#d8b4fe; border:1px solid rgba(168,85,247,0.35); font-size:0.76rem; font-weight:800; text-decoration:none; display:inline-flex; align-items:center; gap:4px;">💼 محفظة العملاء</a>
+                    <a href="supplier_reliability.php" style="height:32px; padding:0 10px; border-radius:8px; background:rgba(245,158,11,0.14); color:#fbbf24; border:1px solid rgba(245,158,11,0.35); font-size:0.76rem; font-weight:800; text-decoration:none; display:inline-flex; align-items:center; gap:4px;">🏭 موثوقية الموردين</a>
+                    <a href="inventory-report.php" style="height:32px; padding:0 10px; border-radius:8px; background:rgba(59,130,246,0.14); color:#93c5fd; border:1px solid rgba(59,130,246,0.35); font-size:0.76rem; font-weight:800; text-decoration:none; display:inline-flex; align-items:center; gap:4px;">📦 مركز المخازن</a>
+                    <a href="general-ledger.php" style="height:32px; padding:0 10px; border-radius:8px; background:rgba(236,72,153,0.14); color:#f9a8d4; border:1px solid rgba(236,72,153,0.35); font-size:0.76rem; font-weight:800; text-decoration:none; display:inline-flex; align-items:center; gap:4px;">📒 دفتر الأستاذ</a>
+                </div>
+            </div>
+
             <!-- شريط الفواتير والبطاقات المعلقة المصغر (One-Click Park & Resume — البند 4 من الدستور الثامن) -->
             <div id="md-c8-parked-strip" style="display:none; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:10px; padding:7px 12px; border-radius:11px; background:rgba(245,158,11,0.12); border:2px solid #f59e0b;"></div>
 

@@ -2681,6 +2681,10 @@ window.DB_UNIVERSAL_MAX_SEQ = <?php echo (int)$UNIVERSAL_MAX_SEQ; ?>;
                         <span id="inbound-receipts-badge-count" style="background: #ef4444; color: #ffffff; padding: 1px 7px; border-radius: 10px; font-size: 0.75rem; font-weight: 900; box-shadow: 0 0 8px rgba(239,68,68,0.8); display: inline-block;">0</span>
                     </button>
 
+                    <!-- جسر الانتقال السريع لشاشة حركة مالية وبوابة المعاملات -->
+                    <a href="single-cash-payment.php" class="btn crystal-btn" style="height: 51px; padding: 0 14px; border-radius: 12px; font-weight: 800; font-size: 0.92rem; background: linear-gradient(135deg, rgba(244, 63, 94, 0.25), rgba(159, 18, 57, 0.4)); border: 1.5px solid #f43f5e !important; color: #ffe4e6; display: inline-flex; align-items: center; gap: 6px; text-decoration: none; flex-shrink: 0;" title="الانتقال السريع إلى شاشة حركة مالية مفردة">
+                        <span>💸</span> <span>حركة مالية</span>
+                    </a>
                     <!-- أدوات البرامج المحاسبية العالمية (توزيع المبالغ / لصق إكسل / قوالب متكررة) -->
                     <div style="display: flex; align-items: center; gap: 6px; flex-shrink: 0; margin-right: auto;">
                         <button type="button" class="btn crystal-btn" onclick="if(typeof window.openEqualSplitModal === 'function') window.openEqualSplitModal()" style="height: 51px; padding: 0 14px; border-radius: 12px; font-weight: 800; font-size: 0.92rem; background: linear-gradient(135deg, rgba(245, 158, 11, 0.25), rgba(180, 83, 9, 0.4)); border: 1.5px solid #fbbf24 !important; color: #fef08a; display: inline-flex; align-items: center; gap: 5px; cursor: pointer;" title="توزيع مبلغ إجمالي بالتساوي أو بالنسب على الحسابات المضافة">
@@ -4114,6 +4118,7 @@ window.DB_UNIVERSAL_MAX_SEQ = <?php echo (int)$UNIVERSAL_MAX_SEQ; ?>;
     <script defer src="js/app.js?v=20261016_v28"></script>
     <script defer src="js/promissory-flight-animation.js?v=<?= time() ?>"></script>
     <script defer src="js/master-banks-helper.js?v=<?= file_exists('js/master-banks-helper.js') ? filemtime('js/master-banks-helper.js') : '1' ?>"></script>
+    <script defer src="js/voucher-qr-barcode-suite.js?v=20261103"></script>
     <script defer src="js/multi-cash-payment.js?v=<?= time() ?>"></script>
     <script>
     let hasWarnedAboutEdit = false;
@@ -4176,7 +4181,7 @@ window.DB_UNIVERSAL_MAX_SEQ = <?php echo (int)$UNIVERSAL_MAX_SEQ; ?>;
         if(document.referrer) {
             window.history.back();
         } else {
-            window.location.href = 'dashboard-pro.php';
+            window.location.href = 'magaiees_unified_dashboard.php';
         }
     }
     </script>

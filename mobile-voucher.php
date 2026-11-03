@@ -1633,10 +1633,8 @@ $currenciesData = [
   
   <!-- Local Fast Assets with Instant 0ms Load & CDN Fallback -->
   <link rel="stylesheet" href="css/all.min.css">
-  <link rel="stylesheet" href="css/tailwind.min.css">
-  <script src="js/tailwind.min.js"></script>
-  <script>if(typeof tailwind==="undefined"){document.write('<script src="https://cdn.tailwindcss.com"><\/script>');}</script>
-  <script src="js/magaies-offline-sync.js?v=2026_10_16_v23"></script>
+  <link rel="stylesheet" href="css/mobile-tailwind.min.css?v=2026_11_03_fast">
+  <script src="js/magaies-offline-sync.js?v=2026_10_16_v23" defer></script>
   
   <!-- Google Fonts: Cairo (Arabic) + Top 3 Clear Number Fonts (JetBrains Mono, Inter, Montserrat) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">

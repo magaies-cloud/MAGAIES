@@ -227,6 +227,23 @@ $header_theme_class = "header-theme-inventory";
         let invDb = [];
         let itemsDb = [];
 
+                function exportSummaryExcel() {
+            let csv = "\uFEFF#,كود الصنف,اسم الصنف,المخزن,رصيد افتتاحي,إجمالي الوارد (+),إجمالي المنصرف (-),الرصيد الختامي,قيمة المخزون (SDG)\n";
+            document.querySelectorAll('#inventory-tbody tr').forEach(tr => {
+                const tds = tr.querySelectorAll('td');
+                if (tds.length >= 9) {
+                    const vals = [0,1,2,3,4,5,6,7,8].map(i => '"' + (tds[i].innerText || '').replace(/\s+/g,' ').trim().replace(/"/g,'""') + '"');
+                    csv += vals.join(',') + "\n";
+                }
+            });
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.setAttribute('download', `inventory_summary_${new Date().toISOString().split('T')[0]}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
         function fmtNum(n) {
             if (n === undefined || n === null || isNaN(n)) return '0';
             const num = Number(n);
@@ -344,18 +361,27 @@ $header_theme_class = "header-theme-inventory";
 
             let purchases = JSON.parse(localStorage.getItem('erp_purchase_invoices_v1')) || [];
             purchases = purchases.filter(x => !x.deleted);
+            let pReturns = (JSON.parse(localStorage.getItem('erp_purchase_returns_v1') || '[]') || []).filter(x => x && !x.deleted && !x.reversed);
+            const seenPRet = new Set(purchases.map(p => String(p.id || p.invoiceNo || '')));
+            pReturns.forEach(pr => {
+                const rid = String(pr.id || pr.returnNo || '');
+                if (rid && !seenPRet.has(rid)) purchases.push({ ...pr, id: rid, invoiceNo: rid, isReturn: true });
+            });
             
             let sales = JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || [];
-            sales = sales.filter(x => !x.deleted && x.saleType !== 'preliminary' && x.status !== 'preliminary' && (x.saleType !== 'reserved' || x.deliveryStatus === 'delivered'));
+            sales = sales.filter(x => !x.deleted && !x.wasSplit && x.saleType !== 'preliminary' && x.status !== 'preliminary' && x.status !== 'draft' && (x.saleType !== 'reserved' || x.deliveryStatus === 'delivered'));
 
             // 1. Process Purchases & Adjustments
             purchases.forEach(inv => {
+                let rawHdrWh = inv.warehouseId || inv.warehouse;
+                if (rawHdrWh === 'PENDING_RECEIPT') return;
                 let invDate = new Date(inv.date || inv.invoiceDate || inv.receiveDate || inv.createdAt);
-                let hdrWhName = getWarehouseName(inv.warehouseId || inv.warehouse);
+                let hdrWhName = getWarehouseName(rawHdrWh);
                 const isReturn = inv.isReturn === true;
                 const isAdjustment = inv.isAdjustment === true;
 
                 (inv.items || inv.lines || []).forEach(line => {
+                    if (line.warehouseId === 'PENDING_RECEIPT') return;
                     let lineWhName = line.warehouseId ? getWarehouseName(line.warehouseId) : hdrWhName;
                     let itemId = String(line.itemId || line.productId);
                     let key = itemId + '|' + lineWhName;

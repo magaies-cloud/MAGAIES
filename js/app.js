@@ -192,7 +192,7 @@ JSON.parse = function(val) {
         'erp_settings_v1', 'erp_warehouses_v1', 'erp_banks_v1', 'erp_safes_v1', 'erp_categories_v1',
         'erp_roles_v1', 'erp_checks_v1', 'erp_gl_v1', 'erp_single_receipts_v1',
         'erp_single_payments_v1', 'erp_partners_v1', 'erp_employees_v1',
-        'erp_payroll_v1', 'erp_reserved_sales_v1', 'erp_delivery_notes_v1',
+        'erp_payroll_v1', 'erp_reserved_sales_v1', 'erp_delivery_notes_v1', 'erp_warehouse_transfers_v1', 'erp_inventory_adjustments_v1',
         'erp_accounts_v1',
         'erp_jobs_v1',
         'erp_audit_logs'
@@ -1671,59 +1671,17 @@ JSON.parse = function(val) {
             `;
             document.body.appendChild(overlay);
         } else {
-            // Show neat non-blocking status pill for pushes (saves)
-            let widget = document.getElementById('sync-status-widget');
-            if (!widget) {
-                widget = document.createElement('div');
-                widget.id = 'sync-status-widget';
-                widget.style.cssText = `
-                    position: fixed; bottom: 20px; right: 20px;
-                    background: rgba(15, 23, 42, 0.85);
-                    border: 1px solid rgba(168, 85, 247, 0.4);
-                    color: #fff; padding: 10px 18px; border-radius: 12px;
-                    font-family: Tajawal, sans-serif; font-size: 0.85rem; font-weight: bold;
-                    display: flex; align-items: center; gap: 8px; z-index: 999999;
-                    box-shadow: 0 8px 24px rgba(0,0,0,0.35);
-                    backdrop-filter: blur(10px);
-                    transition: all 0.3s ease;
-                    transform: translateY(0);
-                    opacity: 1;
-                `;
-                document.body.appendChild(widget);
-            }
-            widget.style.display = 'flex';
-            widget.style.opacity = '1';
-            widget.style.transform = 'translateY(0)';
-            widget.innerHTML = `
-                <div style="width: 14px; height: 14px; border: 2px solid rgba(168, 85, 247, 0.2); border-top-color: #c084fc; border-radius: 50%; animation: spin 1s linear infinite;"></div>
-                <span>${message}</span>
-            `;
+            // Non-blocking sync is silent (status is tracked in top header shield)
+            const w = document.getElementById('sync-status-widget');
+            if (w) w.style.display = 'none';
         }
     }
 
     function hideSyncOverlay(success = true) {
-        // Remove full screen overlay if exists
         const overlay = document.getElementById('sync-strict-overlay');
         if (overlay) overlay.remove();
-        
-        // Hide/update status widget
         const widget = document.getElementById('sync-status-widget');
-        if (widget) {
-            if (success) {
-                widget.innerHTML = `
-                    <span style="color: #34d399; font-weight: bold; display: flex; align-items: center; gap: 4px;">✓ تم المزامنة مع السيرفر</span>
-                `;
-                setTimeout(() => {
-                    widget.style.opacity = '0';
-                    widget.style.transform = 'translateY(10px)';
-                    setTimeout(() => {
-                        widget.style.display = 'none';
-                    }, 300);
-                }, 2000);
-            } else {
-                widget.style.display = 'none';
-            }
-        }
+        if (widget) widget.style.display = 'none';
     }
 
     const pushToCloud = window.pushToCloud = function(force = false) {
@@ -2199,31 +2157,52 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // --- 0. Global Audit Logging Engine ---
-    window.logSystemAction = function(actionType, moduleName, description) {
-        const userStr = localStorage.getItem('user');
-        if (!userStr) return;
-        const user = JSON.parse(userStr);
-        let logs = JSON.parse(localStorage.getItem('erp_audit_logs') || '[]');
-        
-        const newLog = {
-            id: 'log_' + Date.now(),
-            userId: user.id,
-            userName: user.fullName || user.username,
-            actionType: actionType, 
-            module: moduleName,
-            description: description,
-            timestamp: Date.now()
-        };
-        
-        logs.unshift(newLog); // add to top
-        
-        // 14-Day Purge Logic
-        const fourteenDaysMs = 14 * 24 * 60 * 60 * 1000;
-        const now = Date.now();
-        logs = logs.filter(l => (now - l.timestamp) <= fourteenDaysMs);
-        
-        localStorage.setItem('erp_audit_logs', JSON.stringify(logs));
+    // --- 0. Global Audit Logging Engine (Unified 3-arg & 4-arg + Hash Chain + Cloud Sync) ---
+    window.logSystemAction = function(actionType, moduleName, arg3, arg4) {
+        try {
+            const userStr = localStorage.getItem('user');
+            const user = userStr ? JSON.parse(userStr) : { id: 1, username: 'admin', fullName: 'مدير النظام' };
+            let logs = JSON.parse(localStorage.getItem('erp_audit_logs') || '[]');
+            if (!Array.isArray(logs)) logs = [];
+            let docId = '';
+            let description = '';
+            if (arg4 !== undefined) {
+                docId = String(arg3 || '');
+                description = String(arg4 || '');
+            } else {
+                description = String(arg3 || '');
+                const m = description.match(/([A-Z]+-[0-9A-Za-z-]+|#\d+|\b\d{3,}\b)/);
+                if (m) docId = m[1];
+            }
+            const now = Date.now();
+            const prevHash = logs.length > 0 ? (logs[0].hash || 'GENESIS_00000000') : 'GENESIS_00000000';
+            const rawString = prevHash + '|' + (user.id || 1) + '|' + actionType + '|' + moduleName + '|' + docId + '|' + description + '|' + now;
+            let hashNum = 0;
+            for (let i = 0; i < rawString.length; i++) {
+                hashNum = ((hashNum << 5) - hashNum) + rawString.charCodeAt(i);
+                hashNum |= 0;
+            }
+            const currentHash = 'SHA256_' + Math.abs(hashNum).toString(16).padStart(8, '0').toUpperCase() + '_' + now.toString(36).toUpperCase();
+            const newLog = {
+                id: 'log_' + now + '_' + Math.random().toString(36).substr(2, 4),
+                userId: user.id || 1,
+                userName: user.fullName || user.username || 'مدير النظام',
+                userRole: user.role || 'admin',
+                actionType: actionType,
+                module: moduleName,
+                docId: docId,
+                description: description,
+                timestamp: now,
+                prevHash: prevHash,
+                hash: currentHash
+            };
+            logs.unshift(newLog);
+            const ninetyDaysMs = 90 * 24 * 60 * 60 * 1000;
+            logs = logs.filter(l => (now - (l.timestamp || now)) <= ninetyDaysMs).slice(0, 2500);
+            localStorage.setItem('erp_audit_logs', JSON.stringify(logs));
+            window.dispatchEvent(new CustomEvent('AuditLogAdded', { detail: newLog }));
+            fetch('api/log_audit.php', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(newLog) }).catch(() => {});
+        } catch (err) {}
     };
 
     // --- 1. Global Authentication & Permission Middleware ---

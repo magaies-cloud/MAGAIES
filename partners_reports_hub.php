@@ -322,47 +322,61 @@ $header_theme_class = 'header-theme-reports';
             <p>منظومة تقارير الشركاء والعملاء تم تطويرها بأسلوب V2 العالمي لتمنحك رؤية فورية ودقيقة لكل الحسابات.</p>
         </div>
 
-        <!-- شبكة الـ 6 تقارير الخاصة بالعملاء والموردين V2 -->
+        <!-- شبكة الـ 6 تقارير الخاصة بالعملاء والموردين V2 (مرتبة عالمياً بدون تكرار) -->
         <div class="reports-grid">
 
-            <!-- 1. بطاقة الموقف المالي للعملاء -->
-            <a href="customer-portfolio.php" class="report-card" style="--accent-color: #f59e0b; --shadow-color: 245, 158, 11;">
+            <!-- 1. كشف حساب تفصيلي للشركاء -->
+            <a href="account-statement.php" class="report-card" style="--accent-color: #38bdf8; --shadow-color: 56, 189, 248;">
                 <div class="live-badge"><span class="live-dot"></span>مفعل (Live)</div>
-                <div class="card-icon">💼</div>
-                <div class="card-title">بطاقة الموقف المالي للعملاء</div>
-                <div class="card-desc">لوحة تحليل شاملة لرصد مواقف العملاء وأداء التحصيل والمديونيات مع مؤشرات الأداء الرئيسية (KPI).</div>
-                <div class="ai-badge">● مؤشر أداء التحصيل السريع</div>
+                <div class="card-icon">📑</div>
+                <div class="card-title">كشف حساب تفصيلي للشركاء</div>
+                <div class="card-desc">كشف حركات تفصيلي بالتاريخ والرصيد التراكمي للعملاء والموردين مع الطباعة والمشاركة عبر واتساب.</div>
+                <div class="ai-badge">● كشف حساب تحليلي ومطابقة فورية</div>
             </a>
 
+            <!-- 2. حساب مديونية الأرصدة الشامل -->
+            <a href="combined_receivables.php" class="report-card" style="--accent-color: #6366f1; --shadow-color: 99, 102, 241;">
+                <div class="live-badge"><span class="live-dot"></span>مفعل (Live)</div>
+                <div class="card-icon">📊</div>
+                <div class="card-title">حساب مديونية الأرصدة الشامل</div>
+                <div class="card-desc">تقرير موحد يجمع مديونيات العملاء ومستحقات الموردين مع تحليل التعرض والتركز الائتماني.</div>
+                <div class="ai-badge">● المديونية الموحدة وتحليل التعرض</div>
+            </a>
 
-
-
-
-            <!-- 4. أعمار المديونية (Aging) -->
+            <!-- 3. تقرير أعمار الديون والمتأخرات -->
             <a href="aging-report.php" class="report-card" style="--accent-color: #ff007f; --shadow-color: 255, 0, 127;">
                 <div class="live-badge"><span class="live-dot"></span>مفعل (Live)</div>
                 <div class="card-icon">⌛</div>
-                <div class="card-title">أعمار المديونية (Aging)</div>
+                <div class="card-title">تقرير أعمار الديون والمتأخرات</div>
                 <div class="card-desc">تحليل المتأخرات وفترات الاستحقاق لمراقبة الديون وتحديد الديون المشكوك في تحصيلها.</div>
                 <div class="ai-badge">● كاشف الديون المشكوك في تحصيلها</div>
             </a>
 
-            <!-- 5. التقرير الصحي المالي ومعدلات الأمان -->
-            <a href="financial_health.php?currency=<?php echo $selected_currency; ?>" class="report-card" style="--accent-color: #00ff7f; --shadow-color: 0, 255, 127;">
+            <!-- 4. محفظة العملاء والموردين وبطاقة الموقف المالي 360° -->
+            <a href="customer-portfolio.php" class="report-card" style="--accent-color: #f59e0b; --shadow-color: 245, 158, 11;">
                 <div class="live-badge"><span class="live-dot"></span>مفعل (Live)</div>
-                <div class="card-icon">🛡️</div>
-                <div class="card-title">التقرير الصحي المالي ومعدلات الأمان</div>
-                <div class="card-desc">مؤشرات الأمان المالي، فترات التحصيل (DSO)، وتحليل سيولة السوق لمواجهة المخاطر المحتملة.</div>
-                <div class="ai-badge">● تحليل السيولة ومخاطر السوق</div>
+                <div class="card-icon">💼</div>
+                <div class="card-title">محفظة العملاء والموردين وبطاقة الموقف المالي 360°</div>
+                <div class="card-desc">المنظومة الموحدة للموقف المالي للعملاء والموردين، الشيكات، مصفوفة الولاء (RFM)، ورادار منع انقطاع الزبائن (AI Churn).</div>
+                <div class="ai-badge">● مؤشر أداء التحصيل السريع</div>
             </a>
 
-            <!-- 6. بطاقة العملاء الماليين وتحليل التعرض -->
-            <a href="customer_exposure.php" class="report-card" style="--accent-color: #6366f1; --shadow-color: 99, 102, 241;">
+            <!-- 5. مراقبة السقوف الائتمانية للعملاء -->
+            <a href="credit_limits_dashboard.php" class="report-card" style="--accent-color: #10b981; --shadow-color: 16, 185, 129;">
                 <div class="live-badge"><span class="live-dot"></span>مفعل (Live)</div>
-                <div class="card-icon">📊</div>
-                <div class="card-title">بطاقة العملاء الماليين وتحليل التعرض</div>
-                <div class="card-desc">تقرير مالي متكامل يوضح حدود الائتمان ومعدل التعرض المالي ونسبة التركز للعملاء الماليين.</div>
-                <div class="ai-badge">● تحليل عمق الائتمان ومعدل التعرض</div>
+                <div class="card-icon">🛡️</div>
+                <div class="card-title">مراقبة السقوف الائتمانية للعملاء</div>
+                <div class="card-desc">متابعة حدود الائتمان المسموحة لكل عميل والتنبيه الفوري عند اقتراب أو تجاوز السقف الائتماني.</div>
+                <div class="ai-badge">● حارس السقوف الائتمانية والمخاطر</div>
+            </a>
+
+            <!-- 6. منظومة اعتمادية وموثوقية الموردين وثبات الأسعار 360° -->
+            <a href="supplier_reliability.php" class="report-card" style="--accent-color: #a855f7; --shadow-color: 168, 85, 247;">
+                <div class="live-badge"><span class="live-dot"></span>مفعل (Live)</div>
+                <div class="card-icon">🤝</div>
+                <div class="card-title">منظومة اعتمادية وموثوقية الموردين وثبات الأسعار 360°</div>
+                <div class="card-desc">تحليل أداء الموردين، دقة التوريد والاستلام، وحجم التعاملات المالية مع كل مورد.</div>
+                <div class="ai-badge">● مؤشر كفاءة والتزام الموردين</div>
             </a>
 
         </div>

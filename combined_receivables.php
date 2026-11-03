@@ -191,9 +191,9 @@ if (!function_exists('convertReportAmount')) {
         <?php endif; ?>
     </style>
 </head>
-<body class="<?php echo $layout_mode === 'premium' ? 'text-slate-100' : 'text-slate-800'; ?>
+<body class="<?php echo $layout_mode === 'premium' ? 'text-slate-100' : 'text-slate-800'; ?> min-h-screen">
     <div class="page-container">
-        <?php include "includes/header.php"; ?> min-h-screen p-6">
+        <?php include "includes/header.php"; ?>
 
     <div class="max-w-7xl mx-auto">
 
@@ -209,6 +209,31 @@ if (!function_exists('convertReportAmount')) {
         <?php if ($layout_mode === 'premium'): ?>
         <!-- ==================== العرض العالمي الفخم ==================== -->
         
+                <!-- شريط التحكم الفوري والفلترة والطباعة -->
+        <div class="premium-card p-5 rounded-2xl mb-6 flex flex-wrap justify-between items-center gap-4 no-print">
+            <div>
+                <h1 class="text-xl font-black text-sky-400 flex items-center gap-2 m-0">
+                    <span>⚖️</span> حساب مديونية الأرصدة الشامل وتقييم المخاطرة (الأستاذ + الشيكات)
+                </h1>
+                <p class="text-xs text-slate-400 mt-1 m-0">يجمع بين رصيد العميل/المورد في دفتر الأستاذ العام والشيكات المعلقة بالعملتين المحلية (SDG) والأجنبية (USD) مع تقييم حالة الأمان</p>
+            </div>
+            <div class="flex flex-wrap items-center gap-2">
+                <input type="text" id="cr-search-input" oninput="window.filterCombinedReceivables()" placeholder="🔍 ابحث باسم العميل أو المورد..." class="px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-900/80 border border-slate-700 text-slate-100 outline-none" style="min-width:210px;">
+                <select id="cr-type-filter" onchange="window.filterCombinedReceivables()" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-900/80 border border-slate-700 text-slate-100 outline-none">
+                    <option value="ALL">الكل (عملاء + موردين)</option>
+                    <option value="CUSTOMER">👥 العملاء فقط</option>
+                    <option value="SUPPLIER">🛍️ الموردين فقط</option>
+                </select>
+                <div class="flex bg-slate-900/80 rounded-xl p-1 border border-slate-700">
+                    <a href="?currency=BOTH&layout=<?php echo htmlspecialchars($layout_mode); ?>" class="px-2.5 py-1 rounded-lg text-xs font-bold <?php echo $selected_currency === 'BOTH' ? 'bg-sky-500 text-slate-950' : 'text-slate-400'; ?>">SDG + USD</a>
+                    <a href="?currency=SDG&layout=<?php echo htmlspecialchars($layout_mode); ?>" class="px-2.5 py-1 rounded-lg text-xs font-bold <?php echo $selected_currency === 'SDG' ? 'bg-sky-500 text-slate-950' : 'text-slate-400'; ?>">SDG</a>
+                    <a href="?currency=USD&layout=<?php echo htmlspecialchars($layout_mode); ?>" class="px-2.5 py-1 rounded-lg text-xs font-bold <?php echo $selected_currency === 'USD' ? 'bg-sky-500 text-slate-950' : 'text-slate-400'; ?>">USD</a>
+                </div>
+                <button type="button" onclick="window.print()" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold cursor-pointer border-0">🖨️ طباعة</button>
+                <a href="aging-report.php" class="px-3 py-1.5 bg-rose-600 hover:bg-rose-500 text-white rounded-xl text-xs font-bold no-underline">⏳ أعمار الديون وسقوف الائتمان</a> <a href="smart_reports_hub.php" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-600 text-slate-200 rounded-xl text-xs font-bold no-underline">↩️ البوابة</a>
+            </div>
+        </div>
+
         <!-- كروت المؤشرات المضيئة -->
         <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
             <!-- 1. إجمالي مديونية العملاء -->
@@ -292,9 +317,11 @@ if (!function_exists('convertReportAmount')) {
                             <th class="p-4 font-bold text-emerald-400">شيكات واردة (معلقة)</th>
                             <th class="p-4 font-bold text-amber-400">شيكات صادرة (معلقة)</th>
                             <th class="p-4 font-bold text-indigo-300">المديونية الشاملة</th>
+                            <th class="p-4 font-bold text-center">تقييم المخاطرة</th>
+                            <th class="p-4 font-bold text-center no-print">إجراء</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-slate-800/50">
+                    <tbody id="cr-tbody" class="divide-y divide-slate-800/50">
                         <?php foreach ($report_data as $row): ?>
                         <tr class="hover:bg-slate-800/20 transition-colors">
                             <!-- اسم الحساب -->
@@ -463,5 +490,158 @@ if (!function_exists('convertReportAmount')) {
 
     </div>
     <script defer src="js/app.js?v=20261016_v28"></script>
+    <style>
+        html[data-theme="warm_cream"] body, html[data-theme="ultra_white"] body, html[data-theme="exec_gray"] body {
+            background: var(--bg-primary, #f8fafc) !important;
+            color: #0f172a !important;
+        }
+        html[data-theme="warm_cream"] .premium-card, html[data-theme="ultra_white"] .premium-card, html[data-theme="exec_gray"] .premium-card {
+            background: #ffffff !important;
+            color: #0f172a !important;
+            border: 1px solid #cbd5e1 !important;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.05) !important;
+        }
+        html[data-theme="warm_cream"] .text-slate-100, html[data-theme="ultra_white"] .text-slate-100, html[data-theme="exec_gray"] .text-slate-100 {
+            color: #0f172a !important;
+        }
+        @media print { .no-print { display: none !important; } }
+    </style>
+    <script>
+    (function() {
+        const selectedCur = <?php echo json_encode($selected_currency); ?>;
+        const rate = parseFloat(window.SYSTEM_USD_RATE || localStorage.getItem('erp_usd_rate') || 600);
+
+        function fmt(n, d = 0) {
+            return Number(n || 0).toLocaleString('en-US', { minimumFractionDigits: d, maximumFractionDigits: d });
+        }
+
+        function buildHybridData() {
+            const tbody = document.getElementById('cr-tbody');
+            if (!tbody) return;
+
+            const custs = (JSON.parse(localStorage.getItem('erp_customers_v1') || '[]')).filter(x => !x.deleted);
+            const supps = (JSON.parse(localStorage.getItem('erp_suppliers_v1') || '[]')).filter(x => !x.deleted);
+            const checks = (JSON.parse(localStorage.getItem('erp_checks_v1') || '[]')).filter(x => !x.deleted);
+
+            if (custs.length === 0 && supps.length === 0 && tbody.children.length > 0) return;
+
+            const map = new Map();
+            custs.forEach(c => {
+                const bal = parseFloat(c.currentBalance ?? c.balance ?? c.ledger ?? 0) || 0;
+                map.set('C_' + c.id, {
+                    id: c.id,
+                    name: c.name || 'عميل',
+                    phone: c.phone || '',
+                    type: 'CUSTOMER',
+                    creditLimit: parseFloat(c.creditLimit || 0) || 0,
+                    ledger: bal,
+                    inChecks: parseFloat(c.checks || 0) || 0,
+                    outChecks: 0
+                });
+            });
+            supps.forEach(s => {
+                const bal = parseFloat(s.currentBalance ?? s.balance ?? 0) || 0;
+                map.set('S_' + s.id, {
+                    id: s.id,
+                    name: s.name || 'مورد',
+                    phone: s.phone || '',
+                    type: 'SUPPLIER',
+                    creditLimit: 0,
+                    ledger: -Math.abs(bal),
+                    inChecks: 0,
+                    outChecks: 0
+                });
+            });
+            checks.forEach(chk => {
+                const st = String(chk.status || '').toUpperCase();
+                if (st && st !== 'PENDING' && st !== 'معلق' && st !== 'تحت التحصيل') return;
+                const amt = parseFloat(chk.amount || 0) || 0;
+                const cid = chk.customerId || chk.customer;
+                const sid = chk.supplierId || chk.supplier;
+                if (cid && map.has('C_' + cid)) map.get('C_' + cid).inChecks += amt;
+                if (sid && map.has('S_' + sid)) map.get('S_' + sid).outChecks += amt;
+            });
+
+            const rows = Array.from(map.values()).filter(r => Math.abs(r.ledger) > 0 || r.inChecks > 0 || r.outChecks > 0);
+            if (rows.length === 0) return;
+
+            let totRec = 0, totPay = 0, totIn = 0, totOut = 0;
+            rows.forEach(r => {
+                if (r.ledger > 0) totRec += r.ledger;
+                else totPay += Math.abs(r.ledger);
+                totIn += r.inChecks;
+                totOut += r.outChecks;
+            });
+
+            const h3s = document.querySelectorAll('.premium-card h3.text-2xl');
+            const renderAmt = (val) => {
+                if (selectedCur === 'SDG') return fmt(val, 0) + ' SDG';
+                if (selectedCur === 'USD') return fmt(val / rate, 2) + ' USD';
+                return fmt(val, 0) + ' SDG <span class="text-xs block text-slate-400 mt-1">' + fmt(val / rate, 2) + ' USD</span>';
+            };
+            if (h3s.length >= 4) {
+                h3s[0].innerHTML = renderAmt(totRec);
+                h3s[1].innerHTML = renderAmt(totIn);
+                h3s[2].innerHTML = renderAmt(totRec + totIn);
+                h3s[3].innerHTML = renderAmt(totPay + totOut);
+            }
+
+            const renderCell = (val) => {
+                if (selectedCur === 'SDG') return fmt(val, 0) + ' SDG';
+                if (selectedCur === 'USD') return fmt(val / rate, 2) + ' USD';
+                return `<div>${fmt(val, 0)} <span class="text-xs text-slate-400">SDG</span></div><div class="text-xs text-slate-400">${fmt(val / rate, 2)} USD</div>`;
+            };
+
+            tbody.innerHTML = rows.map(r => {
+                const combined = r.ledger + r.inChecks - r.outChecks;
+                let riskBadge = '<span class="px-2.5 py-1 text-xs font-bold rounded-lg bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">✓ آمن ومستقر</span>';
+                if (r.type === 'CUSTOMER') {
+                    if ((r.creditLimit > 0 && combined > r.creditLimit) || combined > rate * 4000) {
+                        riskBadge = '<span class="px-2.5 py-1 text-xs font-bold rounded-lg bg-rose-500/15 text-rose-400 border border-rose-500/30">🚨 مخاطرة عالية</span>';
+                    } else if (combined > rate * 1500) {
+                        riskBadge = '<span class="px-2.5 py-1 text-xs font-bold rounded-lg bg-amber-500/15 text-amber-400 border border-amber-500/30">⚠️ انتباه / متوسط</span>';
+                    }
+                }
+                const stmtHref = `account-statement.php?id=${encodeURIComponent(r.id)}&type=${r.type.toLowerCase()}`;
+                return `
+                    <tr class="cr-row hover:bg-slate-800/20 transition-colors" data-type="${r.type}" data-name="${r.name.toLowerCase()}">
+                        <td class="p-4 font-bold text-slate-100 flex items-center gap-3">
+                            <span class="w-2.5 h-2.5 rounded-full ${r.type === 'CUSTOMER' ? 'bg-emerald-500' : 'bg-amber-500'}"></span>
+                            ${r.name}
+                        </td>
+                        <td class="p-4 text-center">
+                            <span class="px-2.5 py-1 rounded-lg text-xs font-bold ${r.type === 'CUSTOMER' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-amber-500/10 text-amber-400 border border-amber-500/20'}">
+                                ${r.type === 'CUSTOMER' ? 'عميل' : 'مورد'}
+                            </span>
+                        </td>
+                        <td class="p-4 font-bold">${renderCell(r.ledger)}</td>
+                        <td class="p-4 text-emerald-400 font-bold">${renderCell(r.inChecks)}</td>
+                        <td class="p-4 text-amber-500 font-bold">${renderCell(r.outChecks)}</td>
+                        <td class="p-4 font-black ${combined >= 0 ? 'text-indigo-400' : 'text-amber-500'}">${renderCell(combined)}</td>
+                        <td class="p-4 text-center">${riskBadge}</td>
+                        <td class="p-4 text-center no-print">
+                            <a href="${stmtHref}" class="px-2.5 py-1 rounded-lg text-xs font-bold bg-sky-500/15 text-sky-400 border border-sky-500/30 no-underline">📑 كشف حساب</a>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        window.filterCombinedReceivables = function() {
+            const q = (document.getElementById('cr-search-input')?.value || '').trim().toLowerCase();
+            const tf = document.getElementById('cr-type-filter')?.value || 'ALL';
+            document.querySelectorAll('#cr-tbody tr').forEach(tr => {
+                const name = (tr.getAttribute('data-name') || tr.innerText || '').toLowerCase();
+                const tp = tr.getAttribute('data-type') || 'ALL';
+                const matchName = !q || name.includes(q);
+                const matchType = tf === 'ALL' || tp === tf;
+                tr.style.display = (matchName && matchType) ? '' : 'none';
+            });
+        };
+
+        document.addEventListener('DOMContentLoaded', () => setTimeout(buildHybridData, 150));
+        document.addEventListener('DBReady', buildHybridData);
+    })();
+    </script>
 </body>
 </html>

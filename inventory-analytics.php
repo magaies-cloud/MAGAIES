@@ -139,6 +139,7 @@ $header_theme_class = "header-theme-inventory";
         :root.light-theme .kpi-title { color: #334155 !important; }
         :root.light-theme .sub-btn.active { color: #fff !important; }
     </style>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body class="no-page-transition">
     <div class="ambient-bg"><div class="orb orb-1"></div><div class="orb orb-2"></div></div>
@@ -182,11 +183,42 @@ $header_theme_class = "header-theme-inventory";
             <!-- Sub Navigation -->
             <div class="sub-nav">
                 <button class="sub-btn active" onclick="switchTab('profitability', this)">💰 تقرير ربحية الأصناف</button>
+                <button class="sub-btn" onclick="switchTab('visuals', this)">📊 الرسوم البيانية والتوزيع المرئي</button>
                 <button class="sub-btn" onclick="switchTab('aging', this)">⏳ أعمار المخزون (الراكد)</button>
                 <button class="sub-btn" onclick="switchTab('abc', this)">🎯 تحليل ABC العالمي</button>
             </div>
 
             <!-- Views Container -->
+            <div id="view-visuals" class="view-section" style="display: none;">
+                <div class="kpi-row">
+                    <div class="kpi-card c-blue">
+                        <div class="kpi-title">إجمالي قيمة المخزون التقديرية</div>
+                        <div class="kpi-val" id="kpi-vis-total-val">0 <span>SDG</span></div>
+                    </div>
+                    <div class="kpi-card c-purple">
+                        <div class="kpi-title">إجمالي الأصناف المسجلة</div>
+                        <div class="kpi-val" id="kpi-vis-total-items">0 <span>صنف</span></div>
+                    </div>
+                    <div class="kpi-card c-rose">
+                        <div class="kpi-title">أصناف تحت حد الخطر (نواقص)</div>
+                        <div class="kpi-val" id="kpi-vis-danger-items">0 <span>صنف</span></div>
+                    </div>
+                </div>
+                <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap:18px; margin-bottom:18px;">
+                    <div class="table-panel" style="padding:18px;">
+                        <h3 style="margin:0 0 12px; color:#38bdf8; font-size:1rem; font-weight:900;">🍕 توزيع قيمة المخزون حسب الفئات والمخازن</h3>
+                        <div style="height:290px; position:relative;"><canvas id="visCategoryPieChart"></canvas></div>
+                    </div>
+                    <div class="table-panel" style="padding:18px;">
+                        <h3 style="margin:0 0 12px; color:#10b981; font-size:1rem; font-weight:900;">🍩 حالة توفر الأرصدة والمخاطر</h3>
+                        <div style="height:290px; position:relative;"><canvas id="visStatusDonutChart"></canvas></div>
+                    </div>
+                </div>
+                <div class="table-panel" style="padding:18px;">
+                    <h3 style="margin:0 0 12px; color:#fbbf24; font-size:1rem; font-weight:900;">📊 أعلى 10 أصناف من حيث القيمة المالية المجمدة بالمخازن</h3>
+                    <div style="height:340px; position:relative;"><canvas id="visTopItemsBarChart"></canvas></div>
+                </div>
+            </div>
             <div id="view-profitability" class="view-section">
                 <div class="kpi-row">
                     <div class="kpi-card c-emerald">
@@ -314,7 +346,7 @@ $header_theme_class = "header-theme-inventory";
         function initAnalytics() {
             itemsDb = JSON.parse(localStorage.getItem('erp_items_v1')) || [];
             let sales = JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || [];
-            salesDb = sales.filter(x => !x.deleted && x.saleType !== 'preliminary' && x.status !== 'preliminary');
+            salesDb = sales.filter(x => !x.deleted && !x.wasSplit && x.saleType !== 'preliminary' && x.status !== 'preliminary' && x.status !== 'draft');
             
             // Generate basic actual inventory mapping
             let actualStockMap = {}; 
@@ -394,6 +426,7 @@ $header_theme_class = "header-theme-inventory";
             runProfitabilityAnalysis();
             runAgingAnalysis();
             runABCAnalysis();
+            runVisualChartsAnalysis();
         }
 
         if (window.APP_READY) {
@@ -648,6 +681,83 @@ $header_theme_class = "header-theme-inventory";
             document.getElementById('kpi-abc-a').innerHTML = `${cA} <span>صنف</span>`;
             document.getElementById('kpi-abc-b').innerHTML = `${cB} <span>صنف</span>`;
             document.getElementById('kpi-abc-c').innerHTML = `${cC} <span>صنف</span>`;
+        }
+                let _visPieInst = null, _visDonutInst = null, _visBarInst = null;
+        function runVisualChartsAnalysis() {
+            let totalVal = 0, dangerCount = 0, okCount = 0, warnCount = 0;
+            let catMap = {};
+            let itemValues = [];
+            (itemsDb || []).forEach(it => {
+                let qty = inventoryDb[String(it.id)] || 0;
+                let minQ = parseFloat(it.reorderLevel || it.minQuantity || it.minQty || 10);
+                let unitCost = lastPurchasePriceMap[String(it.id)] || parseFloat(it.costPrice || it.buyPrice || it.price || 0);
+                let val = Math.max(0, qty) * unitCost;
+                totalVal += val;
+                if (qty <= 0) dangerCount++;
+                else if (qty <= minQ) { warnCount++; dangerCount++; }
+                else okCount++;
+                let cat = it.category || 'عام';
+                catMap[cat] = (catMap[cat] || 0) + val;
+                if (val > 0) itemValues.push({ name: it.name || it.code || 'صنف', val: val });
+            });
+            const elVal = document.getElementById('kpi-vis-total-val');
+            const elItems = document.getElementById('kpi-vis-total-items');
+            const elDanger = document.getElementById('kpi-vis-danger-items');
+            if (elVal) elVal.innerHTML = `${totalVal.toLocaleString(undefined,{maximumFractionDigits:0})} <span>SDG</span>`;
+            if (elItems) elItems.innerHTML = `${(itemsDb || []).length} <span>صنف</span>`;
+            if (elDanger) elDanger.innerHTML = `${dangerCount} <span>صنف</span>`;
+
+            if (typeof Chart === 'undefined') return;
+            const pieCanvas = document.getElementById('visCategoryPieChart');
+            const donutCanvas = document.getElementById('visStatusDonutChart');
+            const barCanvas = document.getElementById('visTopItemsBarChart');
+            if (pieCanvas) {
+                if (_visPieInst) _visPieInst.destroy();
+                const cLabels = Object.keys(catMap).length ? Object.keys(catMap) : ['عام'];
+                const cData = Object.keys(catMap).length ? Object.values(catMap) : [1];
+                _visPieInst = new Chart(pieCanvas.getContext('2d'), {
+                    type: 'pie',
+                    data: { labels: cLabels, datasets: [{ data: cData, backgroundColor: ['#38bdf8','#34d399','#fbbf24','#c084fc','#f472b6','#f87171'] }] },
+                    options: { responsive: true, maintainAspectRatio: false }
+                });
+            }
+            if (donutCanvas) {
+                if (_visDonutInst) _visDonutInst.destroy();
+                _visDonutInst = new Chart(donutCanvas.getContext('2d'), {
+                    type: 'doughnut',
+                    data: { labels: ['رصيد آمن','تحت حد الطلب','نافد / صفر'], datasets: [{ data: [okCount, warnCount, Math.max(0, dangerCount - warnCount)], backgroundColor: ['#10b981','#fbbf24','#ef4444'] }] },
+                    options: { responsive: true, maintainAspectRatio: false, cutout: '65%' }
+                });
+            }
+            if (barCanvas) {
+                if (_visBarInst) _visBarInst.destroy();
+                itemValues.sort((a,b) => b.val - a.val);
+                const top10 = itemValues.slice(0, 10);
+                _visBarInst = new Chart(barCanvas.getContext('2d'), {
+                    type: 'bar',
+                    data: { labels: top10.map(x => x.name), datasets: [{ label: 'القيمة المالية (SDG)', data: top10.map(x => x.val), backgroundColor: '#38bdf8', borderRadius: 6 }] },
+                    options: { responsive: true, maintainAspectRatio: false }
+                });
+            }
+        }
+
+        function exportAnalyticsExcel() {
+            const activeSection = Array.from(document.querySelectorAll('.view-section')).find(el => el.style.display !== 'none');
+            if (!activeSection) return;
+            const table = activeSection.querySelector('table');
+            if (!table) return alert('يرجى اختيار تبويب جدولي (الربحية / الأعمار / ABC) لتصديره إلى Excel.');
+            let csv = "\uFEFF";
+            table.querySelectorAll('tr').forEach(tr => {
+                const cols = Array.from(tr.querySelectorAll('th, td')).map(c => '"' + (c.innerText || '').replace(/\s+/g,' ').trim().replace(/"/g,'""') + '"');
+                if (cols.length) csv += cols.join(',') + "\n";
+            });
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.setAttribute('download', `inventory_analytics_${activeSection.id}_${new Date().toISOString().split('T')[0]}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
         }
         function previewAnalyticsReport() {
             const activeSection = Array.from(document.querySelectorAll('.view-section')).find(el => el.style.display !== 'none');

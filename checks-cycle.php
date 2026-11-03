@@ -12,6 +12,38 @@
 })();
 </script>
 <head>
+<script>
+(function initScreenMaster7ThemeEarly() {
+  var raw = localStorage.getItem('magaies_active_theme') || 
+            localStorage.getItem('magaiees_global_theme') || 
+            localStorage.getItem('magaiees_mobile_theme') || 
+            localStorage.getItem('ui_theme') || 
+            'warm_cream';
+  var aliasMap = {
+    'warm-alabaster': 'warm_cream', 'beige': 'warm_cream', 'ivory': 'warm_cream', 'light-linen': 'warm_cream',
+    'pure-platinum': 'ultra_white', 'offwhite': 'ultra_white', 'white': 'ultra_white', 'light': 'ultra_white',
+    'pearl-platinum': 'exec_gray', 'nordic-paper': 'warm_cream', 'solar_contrast': 'warm_cream',
+    'midnight-executive': 'midnight_obsidian', 'navy-kohl': 'midnight_obsidian', 'royal-blue': 'midnight_obsidian', 'ocean-navy': 'midnight_obsidian', 'navy': 'midnight_obsidian',
+    'sepia-brown': 'mocha_brown', 'desert-mocha': 'mocha_brown', 'brown': 'mocha_brown',
+    'obsidian-charcoal': 'pure_oled', 'midnight': 'pure_oled', 'black': 'pure_oled', 'dark': 'pure_oled',
+    'twilight-indigo': 'slate_twilight', 'emerald-forest': 'slate_twilight', 'forest': 'slate_twilight'
+  };
+  var activeKey = aliasMap[raw] || raw;
+  var valid7 = ['warm_cream', 'ultra_white', 'exec_gray', 'midnight_obsidian', 'mocha_brown', 'pure_oled', 'slate_twilight'];
+  if (!valid7.includes(activeKey)) activeKey = 'warm_cream';
+  var isLight = ['warm_cream', 'ultra_white', 'exec_gray'].includes(activeKey);
+  document.documentElement.setAttribute('data-theme', activeKey);
+  if (isLight) document.documentElement.classList.add('light-theme');
+  else document.documentElement.classList.remove('light-theme');
+  document.addEventListener("DOMContentLoaded", function() {
+    if (document.body) {
+      document.body.setAttribute('data-theme', activeKey);
+      if (isLight) document.body.classList.add('light-theme');
+      else document.body.classList.remove('light-theme');
+    }
+  });
+})();
+</script>
     <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -339,6 +371,48 @@
                 <!-- Unified Header -->
         <?php $header_theme_class = 'header-theme-sales'; ?>
         <?php include 'includes/header.php'; ?>
+
+        <!-- Cross-Integration & Command Bar -->
+        <div style="display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:10px; background:var(--surface-color); border:1px solid var(--glass-border); border-radius:14px; padding:12px 16px; margin-bottom:14px;">
+            <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                <span style="font-weight:900; font-size:0.9rem; color:var(--primary-accent);">💳 دورة الشيكات والأوراق التجارية 360°:</span>
+                <a href="vouchers-hub.php" style="text-decoration:none; padding:5px 11px; border-radius:8px; background:rgba(59,130,246,0.14); border:1px solid rgba(59,130,246,0.35); color:#60a5fa; font-size:0.78rem; font-weight:800;">💰 مركز السندات</a>
+                <a href="posting-accounts.php" style="text-decoration:none; padding:5px 11px; border-radius:8px; background:rgba(56,189,248,0.14); border:1px solid rgba(56,189,248,0.35); color:#38bdf8; font-size:0.78rem; font-weight:800;">🔄 ترحيل الحسابات</a>
+                <a href="journal.php" style="text-decoration:none; padding:5px 11px; border-radius:8px; background:rgba(168,85,247,0.14); border:1px solid rgba(168,85,247,0.35); color:#c084fc; font-size:0.78rem; font-weight:800;">📒 القيود اليومية</a>
+                <a href="aging-report.php" style="text-decoration:none; padding:5px 11px; border-radius:8px; background:rgba(244,63,94,0.14); border:1px solid rgba(244,63,94,0.35); color:#fb7185; font-size:0.78rem; font-weight:800;">⏳ أعمار الديون</a>
+                <a href="ai_money_advisor.php" style="text-decoration:none; padding:5px 11px; border-radius:8px; background:rgba(16,185,129,0.14); border:1px solid rgba(16,185,129,0.35); color:#34d399; font-size:0.78rem; font-weight:800;">🤖 مستشار السيولة AI</a>
+            </div>
+            <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                <button type="button" onclick="openAddCheckModal()" style="padding:7px 14px; border-radius:9px; background:linear-gradient(135deg,#2563eb,#1d4ed8); border:none; color:#fff; font-family:'Tajawal',sans-serif; font-size:0.82rem; font-weight:800; cursor:pointer;">➕ تسجيل شيك جديد</button>
+                <button type="button" onclick="openChecksAIRadarModal()" style="padding:7px 14px; border-radius:9px; background:linear-gradient(135deg,#059669,#10b981); border:none; color:#fff; font-family:'Tajawal',sans-serif; font-size:0.82rem; font-weight:800; cursor:pointer;">🤖 رادار استحقاق ومخاطر الشيكات AI</button>
+                <button type="button" onclick="printCheckBordereau()" style="padding:7px 14px; border-radius:9px; background:rgba(245,158,11,0.18); border:1px solid rgba(245,158,11,0.45); color:#fbbf24; font-family:'Tajawal',sans-serif; font-size:0.82rem; font-weight:800; cursor:pointer;">🖨️ طباعة حافظة شيكات QR</button>
+            </div>
+        </div>
+
+        <!-- Live Checks Portfolio KPI Strip -->
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(210px, 1fr)); gap:12px; margin-bottom:16px;">
+            <div style="background:var(--surface-color); border:1px solid rgba(59,130,246,0.3); border-right:4px solid #3b82f6; border-radius:12px; padding:12px 15px;">
+                <div style="font-size:0.78rem; color:var(--text-secondary); font-weight:700;">📥 أوراق قبض (في الخزينة / للتحصيل)</div>
+                <div id="chk-kpi-in-pending" style="font-size:1.25rem; font-weight:900; color:#3b82f6; margin-top:4px;">0 SDG</div>
+                <div id="chk-kpi-in-pending-sub" style="font-size:0.74rem; color:var(--text-secondary);">0 شيك مقبوض</div>
+            </div>
+            <div style="background:var(--surface-color); border:1px solid rgba(245,158,11,0.3); border-right:4px solid #f59e0b; border-radius:12px; padding:12px 15px;">
+                <div style="font-size:0.78rem; color:var(--text-secondary); font-weight:700;">📤 أوراق دفع مستحقة للموردين</div>
+                <div id="chk-kpi-out-pending" style="font-size:1.25rem; font-weight:900; color:#f59e0b; margin-top:4px;">0 SDG</div>
+                <div id="chk-kpi-out-pending-sub" style="font-size:0.74rem; color:var(--text-secondary);">0 شيك صادر</div>
+            </div>
+            <div style="background:var(--surface-color); border:1px solid rgba(16,185,129,0.3); border-right:4px solid #10b981; border-radius:12px; padding:12px 15px;">
+                <div style="font-size:0.78rem; color:var(--text-secondary); font-weight:700;">✅ شيكات محصلة ومصروفة بنجاح</div>
+                <div id="chk-kpi-cleared" style="font-size:1.25rem; font-weight:900; color:#10b981; margin-top:4px;">0 SDG</div>
+                <div id="chk-kpi-cleared-sub" style="font-size:0.74rem; color:var(--text-secondary);">0 شيك مكتمل</div>
+            </div>
+            <div style="background:var(--surface-color); border:1px solid rgba(239,68,68,0.3); border-right:4px solid #ef4444; border-radius:12px; padding:12px 15px;">
+                <div style="font-size:0.78rem; color:var(--text-secondary); font-weight:700;">🚨 شيكات مرتجعة أو متأخرة الاستحقاق</div>
+                <div id="chk-kpi-bounced" style="font-size:1.25rem; font-weight:900; color:#ef4444; margin-top:4px;">0 SDG</div>
+                <div id="chk-kpi-bounced-sub" style="font-size:0.74rem; color:var(--text-secondary);">0 شيك متعثر</div>
+            </div>
+        </div>
+
         <!-- Tabs -->
         <div class="tabs-container">
             <button class="tab-btn active" onclick="switchTab('incoming')" id="tab-incoming">
@@ -351,6 +425,10 @@
 
         <!-- Filters -->
         <div class="filters-panel">
+            <div class="filter-group">
+                <label>بحث سريع (رقم الشيك / المستفيد / البنك)</label>
+                <input type="text" class="filter-input" id="filter-search" placeholder="🔍 ابحث برقم الشيك أو اسم العميل/المورد أو البنك..." oninput="renderTable()">
+            </div>
             <div class="filter-group">
                 <label>تصفية حسب الحالة (Status)</label>
                 <select class="filter-input" id="filter-status" onchange="renderTable()">
@@ -383,6 +461,7 @@
                         <th>المبلغ (Amount)</th>
                         <th>تاريخ الاستحقاق (Due Date)</th>
                         <th>الحالة (Status)</th>
+                        <th>إجراءات سريعة</th>
                     </tr>
                 </thead>
                 <tbody id="checks-tbody">

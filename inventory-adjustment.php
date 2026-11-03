@@ -356,7 +356,14 @@ $header_theme_class = "header-theme-inventory";
                             <input type="text" id="tr-notes" class="f-input" style="width: 100%;" placeholder="مثال: تحويل عاجل لتغطية طلبيات فرع السجانة...">
                         </div>
 
-                        <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 10px;">
+                                                <div id="tr-cart-container" style="display:none; background:rgba(0,0,0,0.3); border:1px solid rgba(56,189,248,0.25); border-radius:12px; padding:12px;">
+                            <div style="font-size:0.82rem; font-weight:800; color:#38bdf8; margin-bottom:8px;">📦 قائمة الأصناف المضافة لسند المناقلة:</div>
+                            <div id="tr-cart-rows" style="display:flex; flex-direction:column; gap:6px;"></div>
+                        </div>
+                        <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 10px; flex-wrap: wrap;">
+                            <button type="button" onclick="addTransferItemToCart()" class="btn-action-sub" style="border-color:rgba(56,189,248,0.4); color:#38bdf8;">
+                                <span>➕</span> إضافة الصنف لقائمة المناقلة (متعدد الأصناف)
+                            </button>
                             <button type="button" onclick="executeWarehouseTransfer()" class="btn-action-main" style="background: linear-gradient(135deg, #0284c7, #0369a1); box-shadow: 0 4px 15px rgba(2,132,199,0.4);">
                                 <span>🚀</span> اعتماد وتنفيذ التحويل الفوري
                             </button>
@@ -509,6 +516,10 @@ $header_theme_class = "header-theme-inventory";
             buildInventorySnapshot();
             loadAdjustmentItems();
             loadTransferHistory();
+            const urlTab = new URLSearchParams(window.location.search).get('tab');
+            if (urlTab === 'transfer' || urlTab === 'history' || urlTab === 'adj') {
+                switchMainTab(urlTab);
+            }
         }
 
         function refreshData() {
@@ -520,18 +531,21 @@ $header_theme_class = "header-theme-inventory";
         function buildInventorySnapshot() {
             const items = itemsDb;
             const purchases = (getStorageData('erp_purchase_invoices_v1') || []).filter(i => !i.deleted);
-            const sales = (getStorageData('erp_sales_invoices_v1') || []).filter(i => !i.deleted && i.status !== 'draft');
+            const sales = (getStorageData('erp_sales_invoices_v1') || []).filter(i => !i.deleted && !i.wasSplit && i.status !== 'draft' && i.status !== 'preliminary' && i.saleType !== 'preliminary');
             const transfers = (getStorageData('erp_warehouse_transfers_v1') || []).filter(i => !i.deleted && i.status !== 'cancelled');
             
             const balances = {};
+            const getWhName = (idOrName) => {
+                if (!idOrName) return warehousesDb[0] ? warehousesDb[0].name : 'المخزن الرئيسي';
+                const w = warehousesDb.find(x => String(x.id) === String(idOrName) || x.name === idOrName);
+                return w ? w.name : idOrName;
+            };
             
-            // 1. Initial / Base stock
+            // 1. Opening Balance only (so adjustments in erp_purchase_invoices_v1 are never double-counted)
             items.forEach(item => {
                 const cost = parseFloat(item.costPrice || item.buyPrice || item.cost || item.price || 0);
-                const defaultWh = item.defaultWarehouse || (warehousesDb[0] ? warehousesDb[0].name : 'المخزن الرئيسي');
-                
-                // If item has explicit stock, initialize it
-                const stockQty = parseFloat(item.stock || item.quantity || item.openingBalance || 0);
+                const defaultWh = getWhName(item.openingBalanceWarehouseId || item.warehouseId || item.warehouse || item.defaultWarehouse);
+                const openQty = parseFloat(item.openingBalance || item.opening_balance || 0);
                 const key = item.id + '_' + defaultWh;
                 balances[key] = {
                     itemId: item.id,
@@ -540,49 +554,57 @@ $header_theme_class = "header-theme-inventory";
                     category: item.category || 'عام',
                     warehouse: defaultWh,
                     costPrice: cost,
-                    qty: stockQty
+                    qty: openQty
                 };
             });
             
-            // 2. Purchases (+ In, - Out for returns)
+            // 2. Purchases & Adjustments (+ In, - Out for returns)
             purchases.forEach(inv => {
-                const w = inv.warehouseName || inv.warehouse || inv.warehouse_id || (warehousesDb[0] ? warehousesDb[0].name : 'المخزن الرئيسي');
+                const hdrWh = getWhName(inv.warehouseName || inv.warehouse || inv.warehouseId || inv.warehouse_id);
                 (inv.items || inv.lines || []).forEach(l => {
-                    const q = parseFloat(l.quantity || 0) * (parseFloat(l.factor || l.customFactor || 1));
-                    const key = (l.itemId || l.id) + '_' + w;
+                    const w = l.warehouseId ? getWhName(l.warehouseId) : hdrWh;
+                    const q = l.customBaseQty !== undefined ? (parseFloat(l.customBaseQty) || 0) : ((parseFloat(l.quantity || 0)) * (parseFloat(l.factor || l.customFactor || 1)));
+                    const key = (l.itemId || l.productId || l.id) + '_' + w;
                     if (!balances[key]) {
-                        balances[key] = { itemId: l.itemId || l.id, code: l.itemCode || '-', name: l.itemName || l.name, category: 'عام', warehouse: w, qty: 0, costPrice: parseFloat(l.costPrice || l.price || 0) };
+                        const itObj = items.find(x => String(x.id) === String(l.itemId || l.productId || l.id)) || {};
+                        balances[key] = { itemId: l.itemId || l.productId || l.id, code: itObj.code || l.itemCode || '-', name: itObj.name || l.itemName || l.name || 'صنف', category: itObj.category || 'عام', warehouse: w, qty: 0, costPrice: parseFloat(l.costPrice || l.price || itObj.costPrice || 0) };
                     }
-                    if (inv.isReturn) balances[key].qty -= q; else balances[key].qty += q;
+                    if (inv.isReturn) balances[key].qty -= Math.abs(q);
+                    else if (inv.isAdjustment) balances[key].qty += q;
+                    else balances[key].qty += Math.abs(q);
                 });
             });
             
             // 3. Sales (- Out, + In for returns)
             sales.forEach(inv => {
-                const w = inv.warehouseName || inv.warehouse || inv.warehouse_id || (warehousesDb[0] ? warehousesDb[0].name : 'المخزن الرئيسي');
+                if (inv.saleType === 'reserved' && inv.deliveryStatus !== 'delivered') return;
+                const hdrWh = getWhName(inv.deliveryWarehouse || inv.warehouseName || inv.warehouse || inv.warehouse_id);
                 (inv.items || []).forEach(l => {
-                    const q = parseFloat(l.quantity || 0) * (parseFloat(l.factor || l.customFactor || 1));
+                    const w = l.warehouseId ? getWhName(l.warehouseId) : hdrWh;
+                    const q = l.customBaseQty !== undefined ? (parseFloat(l.customBaseQty) || 0) : ((parseFloat(l.quantity || 0)) * (parseFloat(l.factor || l.customFactor || 1)));
                     const key = (l.itemId || l.id) + '_' + w;
                     if (!balances[key]) {
-                        balances[key] = { itemId: l.itemId || l.id, code: l.itemCode || '-', name: l.itemName || l.name, category: 'عام', warehouse: w, qty: 0, costPrice: 0 };
+                        const itObj = items.find(x => String(x.id) === String(l.itemId || l.id)) || {};
+                        balances[key] = { itemId: l.itemId || l.id, code: itObj.code || l.itemCode || '-', name: itObj.name || l.itemName || l.name || 'صنف', category: itObj.category || 'عام', warehouse: w, qty: 0, costPrice: parseFloat(itObj.costPrice || 0) };
                     }
-                    if (inv.isReturn) balances[key].qty += q; else balances[key].qty -= q;
+                    if (inv.isReturn) balances[key].qty += Math.abs(q); else balances[key].qty -= Math.abs(q);
                 });
             });
             
             // 4. Transfers (- From, + To)
             transfers.forEach(tr => {
-                const wFrom = tr.fromWarehouse;
-                const wTo = tr.toWarehouse;
+                const wFrom = getWhName(tr.fromWarehouse);
+                const wTo = getWhName(tr.toWarehouse);
                 (tr.items || []).forEach(l => {
-                    const q = parseFloat(l.quantity || 0);
+                    const q = l.customBaseQty !== undefined ? (parseFloat(l.customBaseQty) || 0) : (parseFloat(l.quantity || 0) * (parseFloat(l.factor || l.customFactor || 1)));
                     const kFrom = (l.itemId || l.id) + '_' + wFrom;
                     const kTo = (l.itemId || l.id) + '_' + wTo;
+                    const itObj = items.find(x => String(x.id) === String(l.itemId || l.id)) || {};
                     
-                    if (!balances[kFrom]) balances[kFrom] = { itemId: l.itemId || l.id, code: l.itemCode || '-', name: l.itemName || l.name, category: 'عام', warehouse: wFrom, qty: 0, costPrice: 0 };
+                    if (!balances[kFrom]) balances[kFrom] = { itemId: l.itemId || l.id, code: itObj.code || l.itemCode || '-', name: itObj.name || l.itemName || l.name || 'صنف', category: itObj.category || 'عام', warehouse: wFrom, qty: 0, costPrice: parseFloat(itObj.costPrice || 0) };
                     balances[kFrom].qty -= q;
                     
-                    if (!balances[kTo]) balances[kTo] = { itemId: l.itemId || l.id, code: l.itemCode || '-', name: l.itemName || l.name, category: 'عام', warehouse: wTo, qty: 0, costPrice: 0 };
+                    if (!balances[kTo]) balances[kTo] = { itemId: l.itemId || l.id, code: itObj.code || l.itemCode || '-', name: itObj.name || l.itemName || l.name || 'صنف', category: itObj.category || 'عام', warehouse: wTo, qty: 0, costPrice: parseFloat(itObj.costPrice || 0) };
                     balances[kTo].qty += q;
                 });
             });
@@ -806,17 +828,84 @@ $header_theme_class = "header-theme-inventory";
             adjustments.unshift(adjustmentRecord);
             setStorageData('erp_inventory_adjustments_v1', adjustments);
 
-            // 2. Update Master Item Balances
-            const masterItems = getStorageData('erp_items_v1') || [];
+                        // 2. Sync Adjustment Voucher to erp_purchase_invoices_v1 so all warehouse ledgers & stocktake screens reflect it immediately
+            const allPurchases = getStorageData('erp_purchase_invoices_v1') || [];
+            allPurchases.unshift({
+                id: voucherId,
+                invoiceNo: voucherId,
+                isAdjustment: true,
+                warehouse: targetWh,
+                warehouseId: targetWh,
+                date: adjDate,
+                notes: 'إذن تسوية جردية معتمد #' + voucherId,
+                grandTotal: adjustmentRecord.netValue,
+                status: 'completed',
+                items: changedItems.map(i => ({
+                    itemId: i.itemId,
+                    name: i.name,
+                    quantity: i.actualQty - i.qty,
+                    customBaseQty: i.actualQty - i.qty,
+                    customFactor: 1,
+                    price: i.costPrice || 0,
+                    total: (i.actualQty - i.qty) * (i.costPrice || 0),
+                    notes: i.reason || 'تسوية جرد دوري'
+                })),
+                createdAt: new Date().toISOString()
+            });
+            setStorageData('erp_purchase_invoices_v1', allPurchases);
+
+            // 3. Update erp_inventory_v1 cache & erp_items_v1 stock
+            const currentInvData = getStorageData('erp_inventory_v1') || [];
+            const allItemsMaster = getStorageData('erp_items_v1') || [];
             changedItems.forEach(ch => {
-                const it = masterItems.find(m => String(m.id) === String(ch.itemId));
-                if (it) {
-                    it.stock = ch.actualQty;
-                    it.actualStock = ch.actualQty;
-                    if (ch.costPrice) it.costPrice = ch.costPrice;
+                const diff = ch.actualQty - ch.qty;
+                const entry = currentInvData.find(inv => String(inv.itemId) === String(ch.itemId) && inv.warehouse === targetWh);
+                if (entry) entry.qty = ch.actualQty;
+                else currentInvData.push({ itemId: ch.itemId, warehouse: targetWh, qty: ch.actualQty, minQty: 10 });
+
+                const dbIt = allItemsMaster.find(i => i && String(i.id) === String(ch.itemId));
+                if (dbIt) {
+                    if (!dbIt.stock || typeof dbIt.stock !== 'object') dbIt.stock = {};
+                    dbIt.stock[targetWh] = ch.actualQty;
+                    dbIt.qty = (parseFloat(dbIt.qty || dbIt.stockQty || 0) || 0) + diff;
+                    dbIt.stockQty = dbIt.qty;
                 }
             });
-            setStorageData('erp_items_v1', masterItems);
+            setStorageData('erp_inventory_v1', currentInvData);
+            setStorageData('erp_items_v1', allItemsMaster);
+
+            // 4. Post Official Accounting Journal Voucher in erp_journal_vouchers_v1
+            try {
+                const netVal = adjustmentRecord.netValue || 0;
+                const absVal = Math.abs(netVal);
+                if (absVal > 0) {
+                    const jvList = getStorageData('erp_journal_vouchers_v1') || [];
+                    const isSurplus = netVal >= 0;
+                    const debitAcc = isSurplus ? `ح/ مخزون البضاعة - ${targetWh}` : `ح/ مصروف عجز وتوالف المخزون - ${targetWh}`;
+                    const creditAcc = isSurplus ? `ح/ أرباح وفروقات الجرد المخزني (فائض)` : `ح/ مخزون البضاعة - ${targetWh}`;
+                    const jvNo = 'JV-' + voucherId;
+                    jvList.unshift({
+                        id: jvNo,
+                        voucherNo: jvNo,
+                        date: adjDate,
+                        description: `قيد تسوية جردية معتمد رقم [${voucherId}] للمستودع (${targetWh}) — (${changedItems.length} أصناف)`,
+                        totalDebit: absVal,
+                        totalCredit: absVal,
+                        isPosted: true,
+                        source: 'inventory_adjustment',
+                        lines: [
+                            { accountName: debitAcc, debit: absVal, credit: 0, note: `تسوية مخزنية ${voucherId}` },
+                            { accountName: creditAcc, debit: 0, credit: absVal, note: `تسوية مخزنية ${voucherId}` }
+                        ],
+                        createdAt: new Date().toISOString()
+                    });
+                    setStorageData('erp_journal_vouchers_v1', jvList);
+                }
+                if (typeof window.logSystemAction === 'function') {
+                    window.logSystemAction('اعتماد تسوية جردية', `إذن تسوية مخزنية رقم ${voucherId} لمستودع ${targetWh} بصافي قيمة ${netVal.toLocaleString()} SDG`);
+                }
+            } catch(eJv) {}
+            if (typeof window.rebuildGLEntries === 'function') { try { window.rebuildGLEntries(); } catch(e){} }
 
             alert(`✅ تم اعتماد وحفظ إذن التسوية [${voucherId}] بنجاح!\nتم تعديل أرصدة ${changedItems.length} صنف.`);
             
@@ -868,6 +957,63 @@ $header_theme_class = "header-theme-inventory";
             stockInput.value = rec ? rec.qty.toLocaleString() : '0';
         }
 
+                let transferCartItems = [];
+        function addTransferItemToCart() {
+            const fromWh = document.getElementById('tr-from-wh').value;
+            const itemId = document.getElementById('tr-item-select').value;
+            const qty = parseFloat(document.getElementById('tr-qty').value);
+            if (!fromWh) return alert('الرجاء اختيار مستودع المصدر أولاً!');
+            if (!itemId) return alert('الرجاء اختيار الصنف!');
+            if (isNaN(qty) || qty <= 0) return alert('الرجاء إدخال كمية صحيحة أكبر من صفر!');
+            const srcRec = currentInvDb.find(r => r.warehouse === fromWh && String(r.itemId) === String(itemId));
+            const availableStock = srcRec ? srcRec.qty : 0;
+            const existingInCart = transferCartItems.filter(x => String(x.itemId) === String(itemId)).reduce((s, x) => s + x.quantity, 0);
+            if ((qty + existingInCart) > availableStock) {
+                return alert(`⚠️ إجمالي الكمية المطلوبة (${qty + existingInCart}) يتجاوز الرصيد المتاح بالمستودع (${availableStock})!`);
+            }
+            const itemObj = itemsDb.find(i => String(i.id) === String(itemId)) || { name: 'صنف', code: '-' };
+            const existing = transferCartItems.find(x => String(x.itemId) === String(itemId));
+            if (existing) {
+                existing.quantity += qty;
+            } else {
+                transferCartItems.push({
+                    itemId: itemId,
+                    itemCode: itemObj.code || '-',
+                    itemName: itemObj.name,
+                    quantity: qty,
+                    costPrice: parseFloat(itemObj.costPrice || itemObj.cost || 0)
+                });
+            }
+            document.getElementById('tr-qty').value = '';
+            renderTransferCart();
+        }
+
+        function removeTransferCartItem(idx) {
+            transferCartItems.splice(idx, 1);
+            renderTransferCart();
+        }
+
+        function renderTransferCart() {
+            const wrap = document.getElementById('tr-cart-container');
+            const rowsEl = document.getElementById('tr-cart-rows');
+            if (!wrap || !rowsEl) return;
+            if (transferCartItems.length === 0) {
+                wrap.style.display = 'none';
+                rowsEl.innerHTML = '';
+                return;
+            }
+            wrap.style.display = 'block';
+            rowsEl.innerHTML = transferCartItems.map((it, idx) => `
+                <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(255,255,255,0.04); padding:6px 10px; border-radius:8px; font-size:0.84rem;">
+                    <span><strong>${it.itemName}</strong> (${it.itemCode})</span>
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        <span style="color:#fbbf24; font-weight:900;">${it.quantity} وحدة</span>
+                        <button type="button" onclick="removeTransferCartItem(${idx})" style="background:none; border:none; color:#ef4444; cursor:pointer; font-weight:900;">✕</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
         function executeWarehouseTransfer() {
             const fromWh = document.getElementById('tr-from-wh').value;
             const toWh = document.getElementById('tr-to-wh').value;
@@ -878,21 +1024,36 @@ $header_theme_class = "header-theme-inventory";
 
             if (!fromWh || !toWh) return alert('الرجاء اختيار مستودع المصدر ومستودع المستلم!');
             if (fromWh === toWh) return alert('لا يمكن التحويل لنفس المستودع! يرجى اختيار مستودعين مختلفين.');
-            if (!itemId) return alert('الرجاء اختيار الصنف المراد تحويله!');
-            if (isNaN(qty) || qty <= 0) return alert('الرجاء إدخال كمية تحويل صحيحة أكبر من صفر!');
 
-            const srcRec = currentInvDb.find(r => r.warehouse === fromWh && String(r.itemId) === String(itemId));
-            const availableStock = srcRec ? srcRec.qty : 0;
-            if (qty > availableStock) {
-                return alert(`⚠️ الكمية المطلوبة (${qty}) تتجاوز الرصيد المتاح بالمستودع (${availableStock})!`);
+            let itemsToTransfer = [...transferCartItems];
+            if (itemId && !isNaN(qty) && qty > 0) {
+                const srcRec = currentInvDb.find(r => r.warehouse === fromWh && String(r.itemId) === String(itemId));
+                const availableStock = srcRec ? srcRec.qty : 0;
+                const existingInCart = itemsToTransfer.filter(x => String(x.itemId) === String(itemId)).reduce((s, x) => s + x.quantity, 0);
+                if ((qty + existingInCart) > availableStock) {
+                    return alert(`⚠️ الكمية المطلوبة (${qty + existingInCart}) تتجاوز الرصيد المتاح بالمستودع (${availableStock})!`);
+                }
+                const itemObj = itemsDb.find(i => String(i.id) === String(itemId)) || { name: 'صنف', code: '-' };
+                itemsToTransfer.push({
+                    itemId: itemId,
+                    itemCode: itemObj.code || '-',
+                    itemName: itemObj.name,
+                    quantity: qty,
+                    costPrice: parseFloat(itemObj.costPrice || itemObj.cost || 0)
+                });
             }
 
-            const itemObj = itemsDb.find(i => String(i.id) === String(itemId)) || { name: 'صنف', code: '-' };
+            if (itemsToTransfer.length === 0) {
+                return alert('الرجاء اختيار صنف وإدخال كمية التحويل أو إضافة أصناف لقائمة المناقلة!');
+            }
+
             const transferId = 'TRF-' + Date.now().toString().slice(-6);
+            const totalQty = itemsToTransfer.reduce((s, i) => s + (parseFloat(i.quantity) || 0), 0);
 
             const transfers = getStorageData('erp_warehouse_transfers_v1') || [];
             const newTransfer = {
                 id: transferId,
+                transferNo: transferId,
                 fromWarehouse: fromWh,
                 toWarehouse: toWh,
                 fromName: fromWh,
@@ -900,15 +1061,9 @@ $header_theme_class = "header-theme-inventory";
                 date: date,
                 reference: transferId,
                 notes: notes,
-                items: [{
-                    itemId: itemId,
-                    itemCode: itemObj.code || '-',
-                    itemName: itemObj.name,
-                    quantity: qty,
-                    costPrice: parseFloat(itemObj.costPrice || itemObj.cost || 0)
-                }],
-                totalItems: 1,
-                totalQty: qty,
+                items: itemsToTransfer,
+                totalItems: itemsToTransfer.length,
+                totalQty: totalQty,
                 createdAt: new Date().toISOString(),
                 status: 'completed'
             };
@@ -916,13 +1071,66 @@ $header_theme_class = "header-theme-inventory";
             transfers.unshift(newTransfer);
             setStorageData('erp_warehouse_transfers_v1', transfers);
 
+            // Update erp_inventory_v1 & erp_items_v1 per-warehouse balances + Post Internal Transfer GL Entry
+            try {
+                const invCache = getStorageData('erp_inventory_v1') || [];
+                const allItemsMaster = getStorageData('erp_items_v1') || [];
+                let totalTransferCost = 0;
+
+                itemsToTransfer.forEach(trIt => {
+                    const q = parseFloat(trIt.quantity) || 0;
+                    const c = parseFloat(trIt.costPrice) || 0;
+                    totalTransferCost += (q * c);
+
+                    let srcEntry = invCache.find(inv => String(inv.itemId) === String(trIt.itemId) && inv.warehouse === fromWh);
+                    if (srcEntry) srcEntry.qty = Math.max(0, (parseFloat(srcEntry.qty) || 0) - q);
+
+                    let dstEntry = invCache.find(inv => String(inv.itemId) === String(trIt.itemId) && inv.warehouse === toWh);
+                    if (dstEntry) dstEntry.qty = (parseFloat(dstEntry.qty) || 0) + q;
+                    else invCache.push({ itemId: trIt.itemId, warehouse: toWh, qty: q, minQty: 10 });
+
+                    const dbIt = allItemsMaster.find(i => i && String(i.id) === String(trIt.itemId));
+                    if (dbIt) {
+                        if (!dbIt.stock || typeof dbIt.stock !== 'object') dbIt.stock = {};
+                        dbIt.stock[fromWh] = Math.max(0, (parseFloat(dbIt.stock[fromWh]) || 0) - q);
+                        dbIt.stock[toWh] = (parseFloat(dbIt.stock[toWh]) || 0) + q;
+                    }
+                });
+                setStorageData('erp_inventory_v1', invCache);
+                setStorageData('erp_items_v1', allItemsMaster);
+
+                if (totalTransferCost > 0) {
+                    const jvList = getStorageData('erp_journal_vouchers_v1') || [];
+                    const jvNo = 'JV-' + transferId;
+                    jvList.unshift({
+                        id: jvNo,
+                        voucherNo: jvNo,
+                        date: date,
+                        description: `قيد مناقلة مخزنية داخلية رقم [${transferId}] من (${fromWh}) إلى (${toWh}) — (${totalQty} وحدة)`,
+                        totalDebit: totalTransferCost,
+                        totalCredit: totalTransferCost,
+                        isPosted: true,
+                        source: 'warehouse_transfer',
+                        lines: [
+                            { accountName: `ح/ مخزون البضاعة - ${toWh}`, debit: totalTransferCost, credit: 0, note: `استلام مناقلة مخزنية ${transferId}` },
+                            { accountName: `ح/ مخزون البضاعة - ${fromWh}`, debit: 0, credit: totalTransferCost, note: `صرف مناقلة مخزنية ${transferId}` }
+                        ],
+                        createdAt: new Date().toISOString()
+                    });
+                    setStorageData('erp_journal_vouchers_v1', jvList);
+                }
+                if (typeof window.logSystemAction === 'function') {
+                    window.logSystemAction('مناقلة وتحويل مخزني', `سند تحويل مخزني ${transferId} من ${fromWh} إلى ${toWh} بإجمالي ${totalQty} وحدة`);
+                }
+            } catch(eTrf) {}
+
             alert(`✅ تم تنفيذ التحويل المخزني بنجاح!\n` +
                   `رقم السند: ${transferId}\n` +
-                  `الصنف: ${itemObj.name}\n` +
-                  `الكمية: ${qty} وحدة\n` +
+                  `عدد الأصناف: ${itemsToTransfer.length} صنف (إجمالي ${totalQty} وحدة)\n` +
                   `من: ${fromWh} ⬅️ إلى: ${toWh}`);
 
-            // Reset form & update snapshots
+            transferCartItems = [];
+            renderTransferCart();
             document.getElementById('tr-qty').value = '';
             document.getElementById('tr-notes').value = '';
             buildInventorySnapshot();
@@ -955,6 +1163,7 @@ $header_theme_class = "header-theme-inventory";
                     <div style="text-align: left;">
                         <span style="font-size: 0.72rem; color: #38bdf8; font-weight: 800; font-family: monospace; display: block;">${t.id || t.reference}</span>
                         <span style="font-size: 0.7rem; color: #64748b;">${t.date}</span>
+                        <button type="button" onclick="printTransferVoucherById('${t.id || t.reference}')" style="margin-top:4px; background:rgba(56,189,248,0.15); border:1px solid rgba(56,189,248,0.35); color:#38bdf8; border-radius:6px; padding:2px 8px; font-size:0.7rem; font-weight:800; cursor:pointer; display:block;">🖨️ طباعة السند</button>
                     </div>
                 </div>`;
             });
@@ -987,12 +1196,31 @@ $header_theme_class = "header-theme-inventory";
                     <td style="text-align:center; font-weight:900; font-family:monospace; color:${net >= 0 ? '#10b981' : '#ef4444'}">
                         ${net > 0 ? '+' : ''}${net.toLocaleString(undefined, {maximumFractionDigits:2})} SDG
                     </td>
-                    <td style="font-size:0.8rem; color:#94a3b8;">معتمد ومرحل</td>
+                    <td><button type="button" onclick="printAdjustmentVoucherById('${adj.id}')" style="background:rgba(249,115,22,0.15); border:1px solid rgba(249,115,22,0.35); color:#fb923c; border-radius:6px; padding:4px 10px; font-size:0.75rem; font-weight:800; cursor:pointer;">🖨️ طباعة المحضر</button></td>
                 </tr>`;
             });
             tbody.innerHTML = html;
         }
 
+                function printTransferVoucherById(trId) {
+            const transfers = getStorageData('erp_warehouse_transfers_v1') || [];
+            const tr = transfers.find(x => (x.id || x.reference) === trId);
+            if (!tr) return;
+            const rows = (tr.items || []).map((it, i) => `<tr><td style="padding:8px;border:1px solid #cbd5e1;text-align:center;">${i+1}</td><td style="padding:8px;border:1px solid #cbd5e1;">${it.itemCode || it.itemId}</td><td style="padding:8px;border:1px solid #cbd5e1;font-weight:bold;">${it.itemName || it.name}</td><td style="padding:8px;border:1px solid #cbd5e1;text-align:center;font-weight:bold;">${it.quantity}</td></tr>`).join('');
+            const w = window.open('', '_blank', 'width=850,height=700');
+            w.document.write(`<html dir="rtl" lang="ar"><head><meta charset="UTF-8"><title>سند مناقلة مخزنية #${trId}</title><style>body{font-family:'Tajawal',sans-serif;padding:30px;color:#0f172a;}table{width:100%;border-collapse:collapse;margin-top:20px;}th{background:#f1f5f9;padding:10px;border:1px solid #cbd5e1;}</style></head><body><h2 style="text-align:center;margin-bottom:5px;">🔄 سند تحويل ومناقلة بضاعة بين المستودعات</h2><p style="text-align:center;color:#475569;margin-top:0;">رقم السند: <strong>${trId}</strong> | التاريخ: <strong>${tr.date || ''}</strong></p><div style="display:flex;justify-content:space-between;background:#f8fafc;padding:12px 18px;border:1px solid #cbd5e1;border-radius:8px;font-weight:bold;"><span>من مستودع (المصدر): ${tr.fromWarehouse}</span><span>⬅️</span><span>إلى مستودع (المستلم): ${tr.toWarehouse}</span></div><table><thead><tr><th>#</th><th>كود الصنف</th><th>اسم الصنف</th><th>الكمية المحولة</th></tr></thead><tbody>${rows}</tbody></table><p style="margin-top:15px;"><strong>ملاحظات:</strong> ${tr.notes || '-'}</p><div style="display:flex;justify-content:space-between;margin-top:50px;font-weight:bold;"><span>توقيع أمين مستودع المصدر: ....................</span><span>توقيع المستلم: ....................</span><span>اعتماد المدير: ....................</span></div><script>window.onload=function(){window.print();}</script></body></html>`);
+            w.document.close();
+        }
+
+        function printAdjustmentVoucherById(adjId) {
+            const adjustments = getStorageData('erp_inventory_adjustments_v1') || [];
+            const adj = adjustments.find(x => x.id === adjId);
+            if (!adj) return;
+            const rows = (adj.items || []).map((it, i) => `<tr><td style="padding:8px;border:1px solid #cbd5e1;text-align:center;">${i+1}</td><td style="padding:8px;border:1px solid #cbd5e1;">${it.code || it.itemId}</td><td style="padding:8px;border:1px solid #cbd5e1;font-weight:bold;">${it.name || ''}</td><td style="padding:8px;border:1px solid #cbd5e1;text-align:center;">${it.bookQty ?? '-'}</td><td style="padding:8px;border:1px solid #cbd5e1;text-align:center;font-weight:bold;">${it.actualQty ?? '-'}</td><td style="padding:8px;border:1px solid #cbd5e1;text-align:center;font-weight:bold;color:${(it.diffQty||it.quantity||0)>=0?'#059669':'#dc2626'};">${it.diffQty ?? it.quantity ?? 0}</td><td style="padding:8px;border:1px solid #cbd5e1;text-align:center;">${(it.diffValue || it.total || 0).toLocaleString()} SDG</td><td style="padding:8px;border:1px solid #cbd5e1;">${it.reason || it.notes || ''}</td></tr>`).join('');
+            const w = window.open('', '_blank', 'width=900,height=700');
+            w.document.write(`<html dir="rtl" lang="ar"><head><meta charset="UTF-8"><title>محضر تسوية جردية #${adjId}</title><style>body{font-family:'Tajawal',sans-serif;padding:30px;color:#0f172a;}table{width:100%;border-collapse:collapse;margin-top:20px;font-size:0.9rem;}th{background:#f1f5f9;padding:10px;border:1px solid #cbd5e1;}</style></head><body><h2 style="text-align:center;margin-bottom:5px;">⚖️ محضر وإذن تسوية جردية للمخزون</h2><p style="text-align:center;color:#475569;margin-top:0;">رقم الإذن: <strong>${adjId}</strong> | المستودع: <strong>${adj.warehouse}</strong> | التاريخ: <strong>${adj.date}</strong></p><table><thead><tr><th>#</th><th>الكود</th><th>اسم الصنف</th><th>الرصيد الدفتري</th><th>الجرد الفعلي</th><th>الفرق</th><th>الأثر المالي</th><th>السبب</th></tr></thead><tbody>${rows}</tbody></table><p style="margin-top:15px;font-weight:bold;">صافي الأثر المالي للتسوية: ${(adj.netValue || 0).toLocaleString()} SDG</p><div style="display:flex;justify-content:space-between;margin-top:50px;font-weight:bold;"><span>لجنة الجرد / المخزنجي: ....................</span><span>المراجع المالي: ....................</span><span>اعتماد الإدارة: ....................</span></div><script>window.onload=function(){window.print();}</script></body></html>`);
+            w.document.close();
+        }
         function clearAdjustmentHistory() {
             if (confirm('هل أنت متأكد من رغبتك في مسح سجل التسويات؟')) {
                 setStorageData('erp_inventory_adjustments_v1', []);

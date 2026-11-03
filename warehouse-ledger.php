@@ -854,9 +854,18 @@
             // 1. Get Purchases & Adjustments
             let purchases = getStorageList('erp_purchase_invoices_v1');
             purchases = purchases.filter(x => !x.deleted);
+            let pReturns = getStorageList('erp_purchase_returns_v1').filter(x => x && !x.deleted && !x.reversed);
+            const seenPIds = new Set(purchases.map(p => String(p.id || p.invoiceNo || '')));
+            pReturns.forEach(pr => {
+                const rid = String(pr.id || pr.returnNo || '');
+                if (rid && !seenPIds.has(rid)) {
+                    purchases.push({ ...pr, id: rid, invoiceNo: rid, isReturn: true });
+                }
+            });
             purchases.forEach(inv => {
                 (inv.items || inv.lines || []).forEach(line => {
                     let wh = getWarehouseId(line.warehouseId || inv.warehouseId || inv.warehouse);
+                    if (wh === 'PENDING_RECEIPT') return;
                     if (isWarehouseMatch(warehouseId, wh)) {
                         let itemId = line.itemId || line.productId;
                         let itemObj = getItem(itemId);
@@ -921,6 +930,7 @@
                 
                 (inv.items || []).forEach(line => {
                     let lineWh = getWarehouseId(inv.deliveryWarehouse || line.warehouseId || hdrWh);
+                    if (lineWh === 'PENDING_RECEIPT') return;
                     
                     if (isWarehouseMatch(warehouseId, lineWh)) {
                         if (inv.saleType === 'reserved' && inv.deliveryStatus !== 'delivered') {
@@ -934,7 +944,7 @@
                         let baseQty = (line.customBaseQty !== undefined) ? (parseFloat(line.customBaseQty) || 0) : (origQty * origFactor);
 
                         let permitNo = inv.orderNo || inv.soNumber || inv.quotationNo || inv.dispatchOrderNo || inv.permitNo || inv.invoiceNo || '-';
-                        let docTarget = `sales-invoice.php?id=${inv.id || inv.invoiceNo}`;
+                        let docTarget = inv.isReturn ? `sales-invoice.php?id=${inv.id || inv.invoiceNo}` : `direct-sales.php?id=${inv.id || inv.invoiceNo}`;
 
                         let typeCode = 'out';
                         let typeName = inv.isSplit ? `فاتورة مبيعات مقسمة (أصل #${inv.rootInvoice || inv.parentInvoice} • تقسيم #${inv.splitBatchNo || 1})` : 'فاتورة مبيعات';
@@ -993,7 +1003,7 @@
                             ref: tr.transferNo || tr.id || '-',
                             permitNo: tr.transferNo || '-',
                             docId: tr.id,
-                            docTarget: `warehouse-transfers.php?id=${tr.id}`,
+                            docTarget: `inventory-adjustment.php?tab=transfer&id=${tr.id}`,
                             itemId: itemId,
                             itemName: itemObj ? itemObj.name : (line.name || 'صنف غير معروف'),
                             unit: line.unitName || line.unit || (itemObj ? (itemObj.baseUnit || itemObj.unit) : 'وحدة'),
@@ -1012,7 +1022,7 @@
                             ref: tr.transferNo || tr.id || '-',
                             permitNo: tr.transferNo || '-',
                             docId: tr.id,
-                            docTarget: `warehouse-transfers.php?id=${tr.id}`,
+                            docTarget: `inventory-adjustment.php?tab=transfer&id=${tr.id}`,
                             itemId: itemId,
                             itemName: itemObj ? itemObj.name : (line.name || 'صنف غير معروف'),
                             unit: line.unitName || line.unit || (itemObj ? (itemObj.baseUnit || itemObj.unit) : 'وحدة'),

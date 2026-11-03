@@ -45,18 +45,34 @@
                 {
                     id: 'direct_sales',
                     file: 'direct-sales.php',
-                    title: 'المبيعات المباشرة ونقاط البيع (POS)',
+                    title: 'فاتورة تقسيم وتسليم المبيعات (POS / Direct Split)',
                     icon: 'fa-cart-shopping',
-                    desc: 'إصدار فواتير الكاشير، نقاط البيع السريعة، والباركود',
+                    desc: 'إصدار فواتير الكاشير، نقاط البيع السريعة، وتقسيم التسليم الفوري',
                     supportedActions: ['new', 'save', 'edit', 'delete', 'print', 'share', 'preview']
                 },
                 {
                     id: 'sales_invoice',
                     file: 'sales-invoice.php',
-                    title: 'فواتير المبيعات الآجلة والائتمانية',
-                    icon: 'fa-receipt',
-                    desc: 'إصدار فواتير البيع الآجل وحسابات العملاء',
+                    title: 'فاتورة المبيعات الشاملة والآجلة (Sales Invoice)',
+                    icon: 'fa-file-invoice-dollar',
+                    desc: 'إصدار فواتير المبيعات النقدية والآجلة، الباركود، والعملات المتعددة',
                     supportedActions: ['new', 'save', 'edit', 'delete', 'print', 'share', 'preview']
+                },
+                {
+                    id: 'sales_return',
+                    file: 'sales-return.php',
+                    title: 'مرتجع المبيعات واسترداد البضائع',
+                    icon: 'fa-rotate-left',
+                    desc: 'إصدار مرتجعات المبيعات واسترداد البضائع للمخازن',
+                    supportedActions: ['new', 'save', 'edit', 'delete', 'return', 'print', 'share', 'preview']
+                },
+                {
+                    id: 'smart_logistics_sales',
+                    file: 'smart-logistics.php',
+                    title: 'بوابة التسليم والاستلام الذكية (Smart Logistics)',
+                    icon: 'fa-truck-fast',
+                    desc: 'بوابة تسليم المبيعات واستلام المشتريات اللوجستية الموحدة',
+                    supportedActions: ['new', 'save', 'edit', 'receive', 'print', 'share']
                 },
                 {
                     id: 'reserved_sales',
@@ -64,6 +80,14 @@
                     title: 'حجوزات المبيعات وعروض الأسعار',
                     icon: 'fa-bookmark',
                     desc: 'عروض الأسعار المبدئية وحجز البضائع للعملاء',
+                    supportedActions: ['new', 'save', 'edit', 'delete', 'print', 'share']
+                },
+                {
+                    id: 'credit_note',
+                    file: 'credit-note.php',
+                    title: 'إشعار دائن للعملاء (Credit Note)',
+                    icon: 'fa-file-circle-minus',
+                    desc: 'إصدار إشعارات الدائن والخصومات المكتسبة للعملاء',
                     supportedActions: ['new', 'save', 'edit', 'delete', 'print', 'share']
                 },
                 {
@@ -85,7 +109,7 @@
                 {
                     id: 'customer_portfolio',
                     file: 'customer-portfolio.php',
-                    title: 'محفظة وتحليلات العملاء والمديونيات',
+                    title: 'محفظة وتحليلات العملاء والمديونيات 360°',
                     icon: 'fa-users',
                     desc: 'كشف مديونيات العملاء والتحليلات الائتمانية',
                     supportedActions: ['print', 'share', 'export', 'preview']
@@ -105,7 +129,7 @@
             categoryName: 'المشتريات واستلام واسترداد البضائع',
             categoryIcon: 'fa-bag-shopping',
             color: '#fbbf24',
-            desc: 'فواتير المشتريات، استلام الشحنات، ومرتجعات البضائع للموردين',
+            desc: 'فواتير المشتريات، استلام الشحنات، الاستيراد، ومرتجعات البضائع للموردين',
             screens: [
                 {
                     id: 'purchase',
@@ -124,6 +148,14 @@
                     supportedActions: ['new', 'save', 'edit', 'receive', 'print']
                 },
                 {
+                    id: 'import_shipment',
+                    file: 'import-shipment.php',
+                    title: 'شاشة الاستيراد والشحنات والاعتمادات (Landed Cost)',
+                    icon: 'fa-ship',
+                    desc: 'إدارة الشحنات الخارجية وتوزيع مصاريف الجمارك والشحن على التكلفة',
+                    supportedActions: ['new', 'save', 'edit', 'delete', 'print', 'export']
+                },
+                {
                     id: 'purchase_return',
                     file: 'purchase-return.php',
                     title: 'استرداد البضائع (مرتجع المشتريات)',
@@ -132,9 +164,17 @@
                     supportedActions: ['new', 'save', 'edit', 'delete', 'return', 'print', 'share']
                 },
                 {
+                    id: 'debit_note',
+                    file: 'debit-note.php',
+                    title: 'إشعار مدين للموردين (Debit Note)',
+                    icon: 'fa-file-circle-plus',
+                    desc: 'إصدار إشعارات المدين وتسويات خصم الموردين',
+                    supportedActions: ['new', 'save', 'edit', 'delete', 'print', 'share']
+                },
+                {
                     id: 'supplier_reliability',
                     file: 'supplier_reliability.php',
-                    title: 'اعتمادية وموثوقية الموردين',
+                    title: 'اعتمادية وموثوقية الموردين 360°',
                     icon: 'fa-award',
                     desc: 'تقييم الالتزام بالمواعيد والجودة والأسعار',
                     supportedActions: ['print', 'export', 'preview']
@@ -455,6 +495,22 @@
                     supportedActions: ['print', 'export', 'preview']
                 },
                 {
+                    id: 'warehouse_ledger',
+                    file: 'warehouse-ledger.php',
+                    title: 'دفتر حركة وأستاذ المخزن (Warehouse Ledger)',
+                    icon: 'fa-warehouse',
+                    desc: 'كشف تفصيلي لحركة المستودع بالوارد والمنصرف والأرصدة',
+                    supportedActions: ['print', 'export', 'preview']
+                },
+                {
+                    id: 'inventory_analytics',
+                    file: 'inventory-analytics.php',
+                    title: 'التحليلات الذكية للمخازن ودوران الأصناف',
+                    icon: 'fa-chart-column',
+                    desc: 'تحليل ABC ودوران المخزون والأصناف الراكدة',
+                    supportedActions: ['print', 'export', 'preview']
+                },
+                {
                     id: 'visual_analytics',
                     file: 'visual-analytics.php',
                     title: 'التحليل المرئي ثلاثي الأبعاد للمخزون',
@@ -554,6 +610,14 @@
                     supportedActions: ['preview', 'print', 'export']
                 },
                 {
+                    id: 'ai_executive_advisor',
+                    file: 'ai_executive_advisor.php',
+                    title: 'المستشار المالي والتنفيذي الذكي (AI Executive)',
+                    icon: 'fa-microchip',
+                    desc: 'تحليل الربحية، الملاءة المالية، والتوصيات الاستراتيجية العليا',
+                    supportedActions: ['preview', 'print', 'export']
+                },
+                {
                     id: 'smart_reports_hub',
                     file: 'smart_reports_hub.php',
                     title: 'مركز التقارير المالية الذكية (AI Hub)',
@@ -601,6 +665,22 @@
                     icon: 'fa-book-quran',
                     desc: 'فتاوى البيوع والربا والخيارات الفقهية والتجارة الإلكترونية',
                     supportedActions: ['preview', 'print']
+                },
+                {
+                    id: 'tool_quran_studio_tab',
+                    file: 'engineering_tools.php?tab=quran_mp3',
+                    title: 'استوديو القرآن الكريم MP3 والبث الحي (241 قارئ)',
+                    icon: 'fa-headphones',
+                    desc: 'استوديو التلاوات الخاشعة وإذاعات القرآن والسنة النبوية في الخلفية',
+                    supportedActions: ['preview']
+                },
+                {
+                    id: 'tool_wellness_tab',
+                    file: 'engineering_tools.php?tab=wellness',
+                    title: 'واحة الدعم النفسي والذهني والترفيهي الذكي للموظفين',
+                    icon: 'fa-brain',
+                    desc: 'مدرب التنفس وتفريغ الضغط، مؤقت التركيز وراحة العين، المستشار النفسي الذكي، وألعاب تنشيط الذاكرة المحاسبية',
+                    supportedActions: ['preview']
                 },
                 {
                     id: 'background_player',
@@ -654,10 +734,26 @@
                 {
                     id: 'jobs',
                     file: 'jobs.php',
-                    title: 'إدارة المهام وسير العمل الإداري',
+                    title: 'إدارة المهام وسير العمل الإداري 360°',
                     icon: 'fa-list-check',
                     desc: 'تتبع المهام المعلقة والموكلة للموظفين',
                     supportedActions: ['new', 'save', 'edit', 'delete']
+                },
+                {
+                    id: 'payroll',
+                    file: 'payroll.php',
+                    title: 'مسير الرواتب والأجور وشؤون الموظفين',
+                    icon: 'fa-money-check-dollar',
+                    desc: 'إعداد وصرف الرواتب الشهرية والسلفيات والاستقطاعات',
+                    supportedActions: ['new', 'save', 'edit', 'delete', 'print', 'approve']
+                },
+                {
+                    id: 'data_reset',
+                    file: 'data-reset.php',
+                    title: 'تصفير وتهيئة بيانات النظام (منطقة الخطر)',
+                    icon: 'fa-triangle-exclamation',
+                    desc: 'إفراغ الحركات التجريبية وإعادة ضبط المصنع بحماية مشفرة',
+                    supportedActions: ['delete', 'approve']
                 }
             ]
         }
@@ -714,10 +810,13 @@
 
     // E. Tools & Sharia Rights
     const TOOLS_RIGHTS = [
-        { id: 'tool_inheritance', title: 'استخدام حاسبة الميراث الشرعي وتوزيع التركات', icon: 'fa-scale-balanced' },
+        { id: 'tool_ai_assistant', title: 'استخدام المساعد الذكي التفاعلي والتنبؤ بالذكاء الاصطناعي', icon: 'fa-robot' },
+        { id: 'tool_quran_studio', title: 'فتح وتشغيل استوديو القرآن الكريم MP3 (241 قارئ)', icon: 'fa-headphones' },
+        { id: 'tool_tv', title: 'تشغيل والتحكم في البث الحي للقنوات والإذاعات وشاشة التلفاز', icon: 'fa-tv' },
+        { id: 'tool_wellness', title: 'استخدام واحة الدعم النفسي والذهني والترفيهي للموظفين', icon: 'fa-brain' },
+        { id: 'tool_inheritance', title: 'استخدام حاسبة الميراث الشرعي وتوزيع التركات والزكاة', icon: 'fa-scale-balanced' },
         { id: 'tool_fatwa', title: 'تصفح واستخدام موسوعة فتاوى البيوع الفقهية', icon: 'fa-book-quran' },
-        { id: 'tool_tv', title: 'تشغيل والتحكم في شاشة التلفزيون الرقمية (POS TV)', icon: 'fa-tv' },
-        { id: 'tool_eng', title: 'استخدام الحاسبات والمقاييس الهندسية', icon: 'fa-ruler-combined' }
+        { id: 'tool_eng', title: 'استخدام الحاسبات الهندسية ومفاتيح البنوك وفحص الكشوفات', icon: 'fa-ruler-combined' }
     ];
 
     // ═════════════════════════════════════════════════════════════════════
@@ -933,7 +1032,7 @@
                 'alerts_manager.php': true,
                 'alarm.php': true,
                 'ai_goods_advisor.php': true,
-                'ai_money_advisor.php': true,
+                'ai_money_advisor.php': true, 'ai_advisor.php': true,
                 'smart_reports_hub.php': true,
                 'partners_reports_hub.php': true,
                 'engineering_tools.php': true,
@@ -1103,7 +1202,7 @@
                 'alerts_manager.php': true,
                 'alarm.php': true,
                 'ai_goods_advisor.php': true,
-                'ai_money_advisor.php': true,
+                'ai_money_advisor.php': true, 'ai_advisor.php': true,
                 'smart_reports_hub.php': true,
                 'partners_reports_hub.php': true,
                 'engineering_tools.php': true,
@@ -1417,7 +1516,7 @@
                 'direct-sales.php': true,
                 'sales-invoice.php': true,
                 'purchase.php': true,
-                'ai_money_advisor.php': true
+                'ai_money_advisor.php': true, 'ai_advisor.php': true
             },
             screenButtons: {
                 'single-cash-payment.php': { new: true, save: true, edit: true, delete: false, print: true, share: true, preview: true },
@@ -2671,10 +2770,17 @@
         // 2. Button Security Check
         applyScreenButtonSecurity(currentFile, user);
 
+        // 2.5 Global Links, Sidebar, Flyout & Cross-Screen Navigation Security Enforcer
+        enforceGlobalLinksAndNavigationSecurity(user);
+
+        // 2.6 Accounting Period Lock Date Guard
+        enforceAccountingPeriodLockGuard(currentFile, user);
+
         // 3. Data Clearance & High-Security Accounts Enforcement
         enforceDataClearance(user);
 
-        // 4. Specialized Screen Security Handlers
+        // 4. Specialized Screen Security Handlers + Global Helper Tools Security
+        applyToolsSecurity(user);
         if (currentFile === 'magaiees_unified_dashboard.php' || currentFile === 'dashboard-pro.php') {
             applyDashboardSecurity(user);
         } else if (currentFile === 'posting-accounts.php') {
@@ -2683,30 +2789,149 @@
             applyMasterDataSecurity(user);
         } else if (currentFile === 'alerts_manager.php') {
             applyAlertsSecurity(user);
-        } else if (currentFile === 'engineering_tools.php') {
-            applyToolsSecurity(user);
         }
     }
 
     function showAccessDeniedUI(currentFile) {
         document.body.innerHTML = `
             <div style="min-height:100vh; display:flex; align-items:center; justify-content:center; background:#030712; font-family:'Tajawal', sans-serif; direction:rtl; padding:20px;">
-                <div style="background:rgba(17,24,39,0.92); backdrop-filter:blur(25px); border:1px solid rgba(239,68,68,0.4); border-radius:24px; padding:45px 35px; max-width:550px; text-align:center; box-shadow:0 25px 60px -10px rgba(0,0,0,0.9);">
+                <div style="background:rgba(17,24,39,0.92); backdrop-filter:blur(25px); border:1px solid rgba(239,68,68,0.4); border-radius:24px; padding:45px 35px; max-width:580px; text-align:center; box-shadow:0 25px 60px -10px rgba(0,0,0,0.9);">
                     <div style="width:85px; height:85px; margin:0 auto 20px; background:rgba(239,68,68,0.12); border:2px solid #ef4444; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:2.8rem; color:#ef4444; box-shadow:0 0 30px rgba(239,68,68,0.3);">
                         <i class="fa-solid fa-ban"></i>
                     </div>
                     <h2 style="color:#ffffff; font-size:1.9rem; margin-bottom:12px; font-weight:900;">غير مصرح لك بالدخول</h2>
                     <p style="color:#94a3b8; font-size:1.05rem; line-height:1.7; margin-bottom:25px;">
-                        تم تقييد ظهور ودخول هذه الشاشة (<span style="color:#38bdf8; font-weight:800; direction:ltr; display:inline-block;">${currentFile}</span>) بحسب مصفوفة الصلاحيات المحددة لحسابك. يرجى التواصل مع مدير النظام.
+                        تم تقييد ظهور ودخول هذه الشاشة (<span style="color:#38bdf8; font-weight:800; direction:ltr; display:inline-block;">${currentFile}</span>) بحسب مصفوفة الصلاحيات المحددة لحسابك. يرجى التواصل مع مدير النظام أو طلب تجاوز فوري برمز المدير (PIN).
                     </p>
-                    <div style="display:flex; gap:12px; justify-content:center;">
-                        <a href="magaiees_unified_dashboard.php" style="background:linear-gradient(135deg, #38bdf8, #0284c7); color:#030712; text-decoration:none; padding:12px 28px; border-radius:12px; font-weight:800; font-size:1rem; display:inline-flex; align-items:center; gap:8px; box-shadow:0 0 20px rgba(56,189,248,0.4);">
+                    <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
+                        <a href="magaiees_unified_dashboard.php" style="background:linear-gradient(135deg, #38bdf8, #0284c7); color:#030712; text-decoration:none; padding:12px 24px; border-radius:12px; font-weight:800; font-size:0.95rem; display:inline-flex; align-items:center; gap:8px; box-shadow:0 0 20px rgba(56,189,248,0.4);">
                             <i class="fa-solid fa-house"></i> العودة للرئيسية
                         </a>
+                        <button type="button" onclick="window.MagaieesPermissions && window.MagaieesPermissions.requestManagerApproval('تجاوز صلاحية دخول شاشة: ${currentFile}', function(){ sessionStorage.setItem('temp_screen_unlock_${currentFile}', '1'); location.reload(); })" style="background:rgba(245,158,11,0.16); color:#fbbf24; border:1px solid rgba(245,158,11,0.45); padding:12px 22px; border-radius:12px; font-weight:800; font-size:0.95rem; cursor:pointer; display:inline-flex; align-items:center; gap:8px; font-family:'Tajawal',sans-serif;">
+                            <i class="fa-solid fa-key"></i> فتح مؤقت برمز المدير (PIN)
+                        </button>
                     </div>
                 </div>
             </div>
         `;
+    }
+
+    function enforceGlobalLinksAndNavigationSecurity(user) {
+        if (!user || isCurrentUserAdmin(user)) return;
+
+        const inspectElementTarget = (el) => {
+            if (!el || el.getAttribute('data-perm-nav-checked') === '1') return;
+            el.setAttribute('data-perm-nav-checked', '1');
+
+            let targetHref = el.getAttribute('href') || '';
+            if (!targetHref || targetHref === '#' || targetHref.startsWith('javascript:')) {
+                const onclickAttr = el.getAttribute('onclick') || '';
+                const m = onclickAttr.match(/['"]([a-zA-Z0-9_\-\s]+\.php(?:\?[^'"]*)?)['"]/);
+                if (m) targetHref = m[1];
+            }
+            if (!targetHref) return;
+
+            const cleanFile = targetHref.split('/').pop().split('?')[0].split('#')[0].trim();
+            if (!cleanFile || !cleanFile.endsWith('.php') || cleanFile === 'login.php' || cleanFile === 'index.php') return;
+
+            // Check temporary manager unlock
+            if (sessionStorage.getItem('temp_screen_unlock_' + cleanFile) === '1') return;
+
+            // Check both Screen catalog and Report catalog
+            const isKnownScreen = SYSTEM_SCREENS_CATALOG.some(s => s.file === cleanFile);
+            const isKnownReport = SYSTEM_REPORTS_CATALOG.some(r => r.id === cleanFile);
+
+            let allowed = true;
+            if (isKnownScreen) {
+                allowed = canUserAccessScreen(cleanFile, user);
+            } else if (isKnownReport) {
+                allowed = canUserViewReport(cleanFile, user);
+            }
+
+            if (!allowed) {
+                el.setAttribute('data-perm-link-locked', cleanFile);
+                el.style.opacity = '0.55';
+                el.title = (el.title ? el.title + ' — ' : '') + '🔒 مقيد حسب صلاحيات حسابك';
+                if (!el.querySelector('.perm-lock-badge')) {
+                    const badge = document.createElement('span');
+                    badge.className = 'perm-lock-badge';
+                    badge.style.cssText = 'margin-right:4px; font-size:0.75rem; color:#f87171;';
+                    badge.textContent = '🔒';
+                    el.appendChild(badge);
+                }
+                el.addEventListener('click', function(e) {
+                    if (sessionStorage.getItem('temp_screen_unlock_' + cleanFile) === '1') return;
+                    e.preventDefault();
+                    e.stopPropagation();
+                    if (typeof requestManagerApproval === 'function') {
+                        requestManagerApproval('فتح شاشة/تقرير مقيد: ' + cleanFile, function() {
+                            sessionStorage.setItem('temp_screen_unlock_' + cleanFile, '1');
+                            window.location.href = targetHref;
+                        });
+                    } else {
+                        alert('🔒 عذراً، لا تملك صلاحية فتح (' + cleanFile + ') بحسب مصفوفة الصلاحيات.');
+                    }
+                }, true);
+            }
+        };
+
+        try {
+            document.querySelectorAll('a[href], button[onclick*=".php"], [data-href*=".php"]').forEach(inspectElementTarget);
+        } catch (e) {}
+    }
+
+    function checkAccountingPeriodLock(docDateStr) {
+        try {
+            const cfg = JSON.parse(localStorage.getItem('erp_settings_v1') || '{}');
+            const lockDate = cfg.accountingLockDate || '';
+            if (!lockDate) return { locked: false, lockDate: null };
+            const checkDate = (docDateStr || new Date().toISOString().slice(0, 10)).slice(0, 10);
+            if (checkDate <= lockDate) {
+                return {
+                    locked: true,
+                    lockDate: lockDate,
+                    message: `🔒 الفترة المحاسبية مغلقة حتى تاريخ (${lockDate}). يمنع إضافة أو تعديل أو حذف مستندات بتاريخ سابق أو مساوٍ لتاريخ الإغلاق إلا بتفويض المدير العام.`
+                };
+            }
+            return { locked: false, lockDate: lockDate };
+        } catch (e) {
+            return { locked: false, lockDate: null };
+        }
+    }
+
+    function enforceAccountingPeriodLockGuard(currentFile, user) {
+        try {
+            const cfg = JSON.parse(localStorage.getItem('erp_settings_v1') || '{}');
+            if (!cfg.accountingLockDate) return;
+            const financialScreens = [
+                'pos.php', 'direct-sales.php', 'sales-invoice.php', 'purchase.php', 'returns.php',
+                'sales-return.php', 'single-cash-payment.php', 'multi-cash-payment.php',
+                'vouchers-hub.php', 'journal-voucher.php', 'journal.php', 'posting-accounts.php'
+            ];
+            if (!financialScreens.includes(currentFile)) return;
+
+            document.addEventListener('click', function(e) {
+                const btn = e.target.closest('#btn-save, .btn-save, .btn-save-invoice, #btn-save-voucher, .btn-delete, #btn-delete');
+                if (!btn) return;
+                if (sessionStorage.getItem('temp_period_lock_override') === '1') return;
+
+                const dateInput = document.querySelector('input[type="date"]');
+                const docDate = dateInput ? dateInput.value : new Date().toISOString().slice(0, 10);
+                const status = checkAccountingPeriodLock(docDate);
+                if (status.locked) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    if (typeof requestManagerApproval === 'function') {
+                        requestManagerApproval(status.message, function() {
+                            sessionStorage.setItem('temp_period_lock_override', '1');
+                            btn.click();
+                        });
+                    } else {
+                        alert(status.message);
+                    }
+                }
+            }, true);
+        } catch (e) {}
     }
 
     function applyScreenButtonSecurity(currentFile, user) {
@@ -2896,15 +3121,30 @@
         }
     }
 
-    // Specialized Tools Handler for engineering_tools.php
+    // Specialized Tools Handler for engineering_tools.php & Global Media/AI Controls
     function applyToolsSecurity(user) {
         if (isCurrentUserAdmin(user)) return;
 
         if (!canUserUseTool('tool_inheritance', user)) {
-            document.querySelectorAll('button[onclick*="inheritance"], #tab-inheritance').forEach(el => el.style.display = 'none');
+            document.querySelectorAll('button[onclick*="inheritance"], [onclick*="switchSuite(\'inheritance\'"], [onclick*="switchSuite(\'zakat\'"], #tab-inheritance, #suite-sec-inheritance, #suite-sec-zakat').forEach(el => el.style.display = 'none');
         }
         if (!canUserUseTool('tool_fatwa', user)) {
-            document.querySelectorAll('button[onclick*="fatwa"], #tab-fatwa').forEach(el => el.style.display = 'none');
+            document.querySelectorAll('button[onclick*="fatwa"], [onclick*="switchSuite(\'fiqh\'"], #tab-fatwa, #suite-sec-fiqh').forEach(el => el.style.display = 'none');
+        }
+        if (!canUserUseTool('tool_tv', user)) {
+            document.querySelectorAll('#sacred-media-wrapper, #header-media-control-wrap, #suite-sec-tv_majd, #suite-sec-tv_makkah, #suite-sec-tv_madinah').forEach(el => el.style.display = 'none');
+        }
+        if (!canUserUseTool('tool_quran_studio', user)) {
+            document.querySelectorAll('#quick-media-btn-quran_mp3, #tab-pill-quran_mp3, #suite-sec-quran_mp3').forEach(el => el.style.display = 'none');
+        }
+        if (!canUserUseTool('tool_wellness', user)) {
+            document.querySelectorAll('#tab-pill-wellness, #suite-sec-wellness').forEach(el => el.style.display = 'none');
+        }
+        if (!canUserUseTool('tool_ai_assistant', user)) {
+            document.querySelectorAll('#chatbot-toggle-btn, .chatbot-fab, [onclick*="openToolsAIPredictiveModal"]').forEach(el => el.style.display = 'none');
+        }
+        if (!canUserUseTool('tool_eng', user)) {
+            document.querySelectorAll('[onclick*="switchSuite(\'steel\'"], [onclick*="switchSuite(\'concrete\'"], [onclick*="switchSuite(\'solar\'"], [onclick*="switchSuite(\'freight\'"], [onclick*="switchSuite(\'units\'"], [onclick*="switchSuite(\'banks\'"], [onclick*="switchSuite(\'reconciliation\'"]').forEach(el => el.style.display = 'none');
         }
     }
 
@@ -2950,24 +3190,23 @@
                         u.allowedReports = {};
                         changed = true;
                     }
-                } else if (u.allowedScreens && typeof u.allowedScreens === 'object') {
-                    coreScreensToUnblock.forEach(scr => {
-                        if (u.allowedScreens[scr] === false) {
-                            u.allowedScreens[scr] = true;
+                    if (!u.permissions || typeof u.permissions !== 'object') {
+                        u.permissions = {};
+                        changed = true;
+                    }
+                    allMods.forEach(m => {
+                        if (!u.permissions[m] || u.permissions[m].view === false) {
+                            u.permissions[m] = Object.assign({}, fullMod);
                             changed = true;
                         }
                     });
-                }
-                if (!u.permissions || typeof u.permissions !== 'object') {
-                    u.permissions = {};
-                    changed = true;
-                }
-                allMods.forEach(m => {
-                    if (!u.permissions[m] || u.permissions[m].view === false) {
-                        u.permissions[m] = Object.assign({}, fullMod);
+                } else {
+                    if (!u.permissions || typeof u.permissions !== 'object') {
+                        u.permissions = {};
+                        allMods.forEach(m => { u.permissions[m] = Object.assign({}, fullMod); });
                         changed = true;
                     }
-                });
+                }
                 return changed;
             };
 
@@ -6166,6 +6405,8 @@
         canUserManageAlert,
         canUserUseTool,
         enforceScreenSecurity,
+        enforceGlobalLinksAndNavigationSecurity,
+        checkAccountingPeriodLock,
         applyScreenButtonSecurity,
         applyDashboardSecurity,
         applyPostingSecurity,

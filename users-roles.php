@@ -266,54 +266,30 @@
                                 </select>
                             </div>
                             
-                            <!-- 3 Restrictions in one row -->
-                            <div style="grid-column: 1 / -1; display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin-top: 10px;">
-                                
-                                <!-- Geofencing -->
-                                <div class="input-group" style="background: rgba(15, 76, 129, 0.05); padding: 10px; border-radius: 8px; border: 1px dashed var(--primary-accent);">
-                                    <label style="display: flex; align-items: center; gap: 8px; font-weight: 800; color: var(--primary-accent); font-size: 0.85rem;">
-                                        <input type="checkbox" id="user-geo-restricted" class="perm-checkbox" onchange="toggleGeoFields()">
-                                        📍 تقييد جغرافي (GPS)
-                                    </label>
-                                    <div id="geo-fields" style="display: none; margin-top: 10px; gap: 10px; flex-direction: column;">
-                                        <input type="number" id="user-geo-lat" step="any" placeholder="خط العرض" style="padding: 5px; font-size: 0.8rem;">
-                                        <input type="number" id="user-geo-lng" step="any" placeholder="خط الطول" style="padding: 5px; font-size: 0.8rem;">
-                                        <input type="number" id="user-geo-radius" value="100" min="10" placeholder="النطاق (م)" style="padding: 5px; font-size: 0.8rem;">
-                                        <button type="button" class="btn-cancel" style="padding: 5px; font-size: 0.8rem; border-color: var(--primary-accent); color: var(--primary-accent);" onclick="getCurrentGPS()">🎯 تحديد موقعي الحالي</button>
-                                    </div>
+                            <!-- Legacy duplicate Geo/Device/Time inputs hidden (Unified inside Permissions Studio below) -->
+                            <div style="display: none;">
+                                <input type="checkbox" id="user-geo-restricted">
+                                <div id="geo-fields">
+                                    <input type="number" id="user-geo-lat" step="any">
+                                    <input type="number" id="user-geo-lng" step="any">
+                                    <input type="number" id="user-geo-radius" value="100">
                                 </div>
-
-                                <!-- Device Binding -->
-                                <div class="input-group" style="background: rgba(239, 68, 68, 0.05); padding: 10px; border-radius: 8px; border: 1px dashed #ef4444;">
-                                    <label style="display: flex; align-items: center; gap: 8px; font-weight: 800; color: #ef4444; font-size: 0.85rem;">
-                                        <input type="checkbox" id="user-device-restricted" class="perm-checkbox" onchange="toggleDeviceFields()">
-                                        💻 تقييد بجهاز محدد
-                                    </label>
-                                    <div id="device-fields" style="display: none; margin-top: 10px;">
-                                        <input type="text" id="user-device-uuid" placeholder="المعرف الفريد (UUID)" style="padding: 5px; font-size: 0.8rem;">
-                                    </div>
+                                <input type="checkbox" id="user-device-restricted">
+                                <div id="device-fields">
+                                    <input type="text" id="user-device-uuid">
                                 </div>
-
-                                <!-- Time Restrictions -->
-                                <div class="input-group" style="background: rgba(245, 158, 11, 0.05); padding: 10px; border-radius: 8px; border: 1px dashed #f59e0b;">
-                                    <label style="display: flex; align-items: center; gap: 8px; font-weight: 800; color: #f59e0b; font-size: 0.85rem;">
-                                        <input type="checkbox" id="user-time-restricted" class="perm-checkbox" onchange="toggleTimeFields()">
-                                        ⏱️ تقييد بالوقت والأيام
-                                    </label>
-                                    <div id="time-fields" style="display: none; margin-top: 10px; gap: 10px; flex-direction: column;">
-                                        <div style="display: flex; gap: 10px;">
-                                            <div style="flex: 1;"><label style="font-size: 0.75rem;">من</label><input type="time" id="user-time-from" value="08:00" style="padding: 5px; font-size: 0.8rem;"></div>
-                                            <div style="flex: 1;"><label style="font-size: 0.75rem;">إلى</label><input type="time" id="user-time-to" value="17:00" style="padding: 5px; font-size: 0.8rem;"></div>
-                                        </div>
-                                        <div style="display:flex; flex-wrap: wrap; gap: 5px; margin-top: 5px; font-size: 0.75rem;" id="user-allowed-days">
-                                            <label><input type="checkbox" value="0" checked> ح</label>
-                                            <label><input type="checkbox" value="1" checked> ن</label>
-                                            <label><input type="checkbox" value="2" checked> ث</label>
-                                            <label><input type="checkbox" value="3" checked> ر</label>
-                                            <label><input type="checkbox" value="4" checked> خ</label>
-                                            <label><input type="checkbox" value="5"> ج</label>
-                                            <label><input type="checkbox" value="6" checked> س</label>
-                                        </div>
+                                <input type="checkbox" id="user-time-restricted">
+                                <div id="time-fields">
+                                    <input type="time" id="user-time-from" value="08:00">
+                                    <input type="time" id="user-time-to" value="17:00">
+                                    <div id="user-allowed-days">
+                                        <input type="checkbox" value="0" checked>
+                                        <input type="checkbox" value="1" checked>
+                                        <input type="checkbox" value="2" checked>
+                                        <input type="checkbox" value="3" checked>
+                                        <input type="checkbox" value="4" checked>
+                                        <input type="checkbox" value="5">
+                                        <input type="checkbox" value="6" checked>
                                     </div>
                                 </div>
                             </div>

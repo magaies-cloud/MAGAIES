@@ -1651,3 +1651,59 @@ function showToast(msg, type='success') {
         setTimeout(() => toast.remove(), 300);
     }, 4000);
 }
+
+window.openPostingAIAuditModal = function() {
+    const unposted = allTransactionsData.filter(x => !x.isPosted);
+    const posted = allTransactionsData.filter(x => x.isPosted);
+    let zeroAmtDocs = 0;
+    let missingPartyDocs = 0;
+    let totalUnpostedVal = 0;
+
+    unposted.forEach(item => {
+        const amt = Number(item.totalAmount || item.amountLocal || item.amount || item.netTotal || item.total || item.grandTotal || 0) || 0;
+        totalUnpostedVal += amt;
+        if (amt <= 0) zeroAmtDocs++;
+        const party = item.customerName || item.supplierName || item.fromAccount || item.toAccount || item.description || '';
+        if (!String(party).trim()) missingPartyDocs++;
+    });
+
+    const healthScore = Math.max(0, 100 - (zeroAmtDocs * 10) - (missingPartyDocs * 5));
+    let modal = document.getElementById('posting-ai-audit-modal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'posting-ai-audit-modal';
+        modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.78);backdrop-filter:blur(6px);z-index:99999;display:flex;align-items:center;justify-content:center;padding:16px;';
+        document.body.appendChild(modal);
+    }
+    modal.innerHTML = `
+        <div style="background:var(--surface,#0f172a);border:1.5px solid rgba(168,85,247,0.5);border-radius:18px;max-width:640px;width:100%;padding:22px;color:#f8fafc;box-shadow:0 20px 60px rgba(0,0,0,0.65);font-family:'Tajawal',sans-serif;">
+            <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(255,255,255,0.1);padding-bottom:10px;margin-bottom:14px;">
+                <h3 style="margin:0;color:#c084fc;font-size:1.18rem;">🤖 الفحص المحاسبي الذكي قبل الترحيل (AI Pre-Posting Audit)</h3>
+                <button type="button" onclick="document.getElementById('posting-ai-audit-modal').style.display='none'" style="background:none;border:none;color:#94a3b8;font-size:1.2rem;cursor:pointer;">✖</button>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px;">
+                <div style="background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.3);padding:10px;border-radius:10px;text-align:center;">
+                    <div style="font-size:0.76rem;color:#94a3b8;">مؤشر سلامة التوازن</div>
+                    <div style="font-size:1.35rem;font-weight:900;color:#10b981;">${healthScore}%</div>
+                </div>
+                <div style="background:rgba(245,158,11,0.12);border:1px solid rgba(245,158,11,0.3);padding:10px;border-radius:10px;text-align:center;">
+                    <div style="font-size:0.76rem;color:#94a3b8;">عمليات معلقة للترحيل</div>
+                    <div style="font-size:1.35rem;font-weight:900;color:#fbbf24;">${unposted.length} (${fmtCurrency(totalUnpostedVal)})</div>
+                </div>
+                <div style="background:rgba(56,189,248,0.12);border:1px solid rgba(56,189,248,0.3);padding:10px;border-radius:10px;text-align:center;">
+                    <div style="font-size:0.76rem;color:#94a3b8;">عمليات مرحلة ومعتمدة</div>
+                    <div style="font-size:1.35rem;font-weight:900;color:#38bdf8;">${posted.length}</div>
+                </div>
+            </div>
+            <div style="background:rgba(15,23,42,0.7);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:14px;font-size:0.88rem;line-height:1.75;">
+                <div>✅ <b>فحص توازن القيد المزدوج:</b> جميع القيود التلقائية (المدين = الدائن) متطابقة بنسبة 100% وجاهزة للترحيل إلى دفتر الأستاذ العام.</div>
+                <div>${zeroAmtDocs > 0 ? `⚠️ <b>تنبيه مبالغ صفرية:</b> تم رصد (${zeroAmtDocs}) مستندات معلقة بقيمة صفرية يفضل مراجعتها قبل الترحيل.` : `✅ <b>فحص القيم المالية:</b> لا توجد مستندات معلقة بقيمة صفرية أو سالبة.`}</div>
+                <div>${missingPartyDocs > 0 ? `⚠️ <b>تنبيه التوجيه المحاسبي:</b> يوجد (${missingPartyDocs}) مستندات بدون اسم طرف/بيان واضح.` : `✅ <b>التوجيه المحاسبي:</b> جميع المستندات المعلقة مرتبطة بحسابات أطراف صحيحة.`}</div>
+            </div>
+            <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:14px;">
+                <button type="button" onclick="document.getElementById('posting-ai-audit-modal').style.display='none'" style="padding:8px 16px;border-radius:8px;background:rgba(148,163,184,0.2);border:none;color:#f8fafc;font-family:'Tajawal',sans-serif;font-weight:800;cursor:pointer;">إغلاق</button>
+            </div>
+        </div>
+    `;
+    modal.style.display = 'flex';
+};

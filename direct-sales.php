@@ -3464,19 +3464,47 @@ try {
     <!-- ═══ SALES HUB VIEW (UNIFIED SALES, DELIVERY & SPLIT COMMAND CENTER) ═══ -->
     <div id="sales-hub-view" class="animate-fade" style="display: flex; flex-direction: column; height: 100%; gap: 16px; padding: 0 5px;">
         <!-- Action Cards -->
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(195px, 1fr)); gap: 14px;">
             <button onclick="openInvoiceEditor('pending_delivery')" class="hub-action-card card-blue animate-scale stagger-1">
                 <div class="icon">➕</div>
                 <div class="text-content">
-                    <div class="title">فاتورة مبيعات جديدة</div>
-                    <div class="subtitle">إصدار فاتورة مبيعات (تظهر فوراً بالجدول للتسليم أو التقسيم)</div>
+                    <div class="title">فاتورة مبيعات</div>
                 </div>
             </button>
-            <button onclick="openInvoiceEditor('preliminary')" class="hub-action-card card-purple animate-scale stagger-2">
+            <button onclick="window.location.href='sales-delivery.php'" class="hub-action-card card-green animate-scale stagger-2">
+                <div class="icon">📤</div>
+                <div class="text-content">
+                    <div class="title">بوابة تسليم المبيعات</div>
+                </div>
+            </button>
+            <button onclick="if(typeof window.openDeliveryHub === 'function') window.openDeliveryHub();" class="hub-action-card card-teal animate-scale stagger-2" style="background: linear-gradient(135deg, rgba(16,185,129,0.2), rgba(5,150,105,0.35)); border: 1px solid rgba(52,211,153,0.5);">
+                <div class="icon">✂️</div>
+                <div class="text-content">
+                    <div class="title">فاتورة تقسيم وتسليم المبيعات</div>
+                </div>
+            </button>
+            <button onclick="window.location.href='sales-invoice.php'" class="hub-action-card card-orange animate-scale stagger-3">
+                <div class="icon">↩️</div>
+                <div class="text-content">
+                    <div class="title">مرتجع مبيعات</div>
+                </div>
+            </button>
+            <button onclick="openInvoiceEditor('preliminary')" class="hub-action-card card-purple animate-scale stagger-4">
                 <div class="icon">📋</div>
                 <div class="text-content">
                     <div class="title">فاتورة مبدئية</div>
-                    <div class="subtitle">عرض أسعار / غير ملزمة</div>
+                </div>
+            </button>
+            <button onclick="window.location.href='reserved-sales.php'" class="hub-action-card card-purple animate-scale stagger-4">
+                <div class="icon">🔖</div>
+                <div class="text-content">
+                    <div class="title">حجوزات المبيعات</div>
+                </div>
+            </button>
+            <button onclick="if(window.openSalesAIAuditModal) window.openSalesAIAuditModal();" class="hub-action-card animate-scale stagger-4" style="background: linear-gradient(135deg, rgba(99,102,241,0.22), rgba(168,85,247,0.38)); border: 1px solid rgba(168,85,247,0.55); cursor: pointer;">
+                <div class="icon">🤖</div>
+                <div class="text-content">
+                    <div class="title" style="color: #e9d5ff; font-weight: 800;">رادار ربحية المبيعات والائتمان AI</div>
                 </div>
             </button>
         </div>
@@ -8615,8 +8643,7 @@ try {
                             <button type="button" onclick="const d=document.getElementById('gdn-hub-cols-drawer'); if(d) d.style.display=(d.style.display==='none'?'flex':'none');" class="gdn-kinetic-btn" style="background:rgba(168,85,247,0.18); border:1px solid rgba(192,132,252,0.45); color:#e9d5ff;" title="إظهار أو إخفاء شريط ضبط الكولومات (الأعمدة محفوظة تلقائياً)">
                                 ⚙️ ضبط الكولومات (محفوظ ✅)
                             </button>
-                            <a href="sales-delivery.php" class="gdn-kinetic-btn" style="background:rgba(56,189,248,0.14); border:1px solid rgba(56,189,248,0.35); color:#38bdf8; text-decoration:none;">🚛 بوابة الصرف (كلاسيكي)</a>
-                            <a href="smart-logistics.php?mode=sales" class="gdn-kinetic-btn" style="background:linear-gradient(135deg,rgba(16,185,129,0.28),rgba(14,165,233,0.28)); border:1.5px solid #34d399; color:#ffffff; text-decoration:none; box-shadow:0 0 14px rgba(16,185,129,0.35);">🚀 البوابة الموحدة الذكية</a>
+                            <a href="sales-delivery.php" class="gdn-kinetic-btn" style="background:linear-gradient(135deg,rgba(16,185,129,0.28),rgba(14,165,233,0.28)); border:1.5px solid #34d399; color:#ffffff; text-decoration:none; box-shadow:0 0 14px rgba(16,185,129,0.35);">📤 بوابة تسليم المبيعات</a>
                             <button onclick="toggleDeliverySunlightMode()" id="gdn-sunlight-btn" class="gdn-kinetic-btn" style="background:#fef08a; color:#000000; border:none;" title="وضع الشمس للمخزنجي (F4)">☀️</button>
                         </div>
                     </div>
@@ -16974,6 +17001,116 @@ try {
             window.openSplit16ConstitutionsAuditModal();
         }
     });
+
+    // ── AI SALES PROFITABILITY & CREDIT EXPOSURE RADAR 360° ──
+    window.openSalesAIAuditModal = function() {
+        let fxRate = 2700;
+        try {
+            const curCfg = JSON.parse(localStorage.getItem('erp_currencies_v1') || '[]');
+            const usd = Array.isArray(curCfg) ? curCfg.find(c => String(c.code || '').toUpperCase() === 'USD') : null;
+            const r = parseFloat(usd?.exchangeRate || localStorage.getItem('erp_exchange_rate_usd') || localStorage.getItem('usd_rate') || 2700);
+            if (r > 0) fxRate = r;
+        } catch (e) {}
+
+        let itemsPool = [];
+        try { itemsPool = JSON.parse(localStorage.getItem('erp_items_v1') || '[]'); } catch (e) {}
+        let allSales = [];
+        try { allSales = JSON.parse(localStorage.getItem('erp_sales_invoices_v1') || '[]'); } catch (e) {}
+        const validSales = allSales.filter(s => s && !s.deleted && s.saleType !== 'preliminary' && !s.isReturn);
+
+        let totalRevenue = 0;
+        let totalCost = 0;
+        const itemStats = {};
+
+        validSales.slice(-40).forEach(inv => {
+            const rate = (inv.currency && inv.currency !== 'SDG') ? (parseFloat(inv.exchangeRate) || fxRate) : 1;
+            (inv.items || []).forEach(ln => {
+                const master = itemsPool.find(x => String(x.id) === String(ln.itemId)) || {};
+                const factor = parseFloat(ln.customFactor || ln.factor || 1) || 1;
+                const qtyBase = (parseFloat(ln.quantity || ln.qty) || 0) * factor;
+                if (qtyBase <= 0) return;
+                const sellUnitSdg = ((parseFloat(ln.price || ln.unitPrice) || 0) * rate) / factor;
+                const costUnitSdg = parseFloat(master.averageCost || master.costPrice || master.lastPurchaseCost || 0) || (sellUnitSdg * 0.82);
+                const rev = sellUnitSdg * qtyBase;
+                const cst = costUnitSdg * qtyBase;
+                totalRevenue += rev;
+                totalCost += cst;
+                const key = String(ln.itemId || master.name || ln.name || 'صنف');
+                if (!itemStats[key]) {
+                    itemStats[key] = { name: master.name || ln.itemName || ln.name || 'صنف', qty: 0, rev: 0, cost: 0 };
+                }
+                itemStats[key].qty += qtyBase;
+                itemStats[key].rev += rev;
+                itemStats[key].cost += cst;
+            });
+        });
+
+        const netProfit = totalRevenue - totalCost;
+        const overallMarginPct = totalRevenue > 0 ? ((netProfit / totalRevenue) * 100) : 0;
+        const statList = Object.values(itemStats).sort((a, b) => (b.rev - b.cost) - (a.rev - a.cost));
+
+        let modal = document.getElementById('sales-ai-audit-modal');
+        if (modal) modal.remove();
+        modal = document.createElement('div');
+        modal.id = 'sales-ai-audit-modal';
+        modal.style.cssText = 'position:fixed;inset:0;background:rgba(2,6,23,0.86);backdrop-filter:blur(8px);z-index:999999;display:flex;align-items:center;justify-content:center;padding:18px;direction:rtl;font-family:Tajawal,sans-serif;';
+
+        const rowsHtml = statList.length === 0
+            ? '<tr><td colspan="6" style="padding:26px;text-align:center;color:#94a3b8;font-weight:700;">لا توجد فواتير مبيعات كافية لتحليل هامش الربح حتى الآن.</td></tr>'
+            : statList.map(st => {
+                const prof = st.rev - st.cost;
+                const mPct = st.rev > 0 ? ((prof / st.rev) * 100) : 0;
+                const badge = prof < 0
+                    ? '<span style="background:rgba(239,68,68,0.2);color:#fca5a5;border:1px solid rgba(239,68,68,0.45);padding:2px 8px;border-radius:8px;font-size:0.74rem;font-weight:800;">🚨 بيع بأقل من التكلفة!</span>'
+                    : (mPct < 8
+                        ? '<span style="background:rgba(245,158,11,0.2);color:#fde68a;border:1px solid rgba(245,158,11,0.45);padding:2px 8px;border-radius:8px;font-size:0.74rem;font-weight:800;">⚠️ هامش منخفض</span>'
+                        : '<span style="background:rgba(16,185,129,0.2);color:#6ee7b7;border:1px solid rgba(16,185,129,0.45);padding:2px 8px;border-radius:8px;font-size:0.74rem;font-weight:800;">✅ ربحية ممتازة</span>');
+                return `<tr style="border-bottom:1px solid rgba(148,163,184,0.12);">
+                    <td style="padding:9px 12px;font-weight:800;color:#f8fafc;">${st.name}</td>
+                    <td style="padding:9px 12px;text-align:center;color:#cbd5e1;font-weight:700;">${Math.round(st.qty).toLocaleString('en-US')}</td>
+                    <td style="padding:9px 12px;text-align:center;color:#38bdf8;font-weight:800;">${Math.round(st.rev).toLocaleString('en-US')}</td>
+                    <td style="padding:9px 12px;text-align:center;color:#94a3b8;font-weight:700;">${Math.round(st.cost).toLocaleString('en-US')}</td>
+                    <td style="padding:9px 12px;text-align:center;color:${prof >= 0 ? '#34d399' : '#f87171'};font-weight:900;">${Math.round(prof).toLocaleString('en-US')} (${mPct.toFixed(1)}%)</td>
+                    <td style="padding:9px 12px;text-align:center;">${badge}</td>
+                </tr>`;
+            }).join('');
+
+        modal.innerHTML = `
+            <div style="background:linear-gradient(145deg,#0f172a,#1e1b4b);border:1px solid rgba(168,85,247,0.45);border-radius:18px;width:100%;max-width:920px;max-height:88vh;display:flex;flex-direction:column;box-shadow:0 24px 60px rgba(0,0,0,0.65);overflow:hidden;">
+                <div style="padding:16px 22px;background:rgba(15,23,42,0.8);border-bottom:1px solid rgba(168,85,247,0.25);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+                    <div>
+                        <div style="font-size:1.12rem;font-weight:900;color:#e9d5ff;">🤖 رادار ربحية المبيعات وحماية الائتمان الذكي (AI Sales Profit & Credit Guard 360°)</div>
+                        <div style="font-size:0.8rem;color:#94a3b8;margin-top:3px;">صافي الربح التقديري: <strong style="color:#34d399;">${Math.round(netProfit).toLocaleString('en-US')} SDG ($${(netProfit / fxRate).toFixed(1)})</strong> | متوسط الهامش: <strong style="color:#38bdf8;">${overallMarginPct.toFixed(1)}%</strong></div>
+                    </div>
+                    <button onclick="document.getElementById('sales-ai-audit-modal').remove()" style="background:rgba(239,68,68,0.16);border:1px solid rgba(239,68,68,0.45);color:#fca5a5;padding:6px 14px;border-radius:8px;cursor:pointer;font-weight:800;">✖ إغلاق</button>
+                </div>
+                <div style="padding:16px 22px;overflow-y:auto;flex:1;">
+                    <table style="width:100%;border-collapse:collapse;font-size:0.85rem;">
+                        <thead>
+                            <tr style="background:rgba(30,41,59,0.85);color:#cbd5e1;border-bottom:1px solid rgba(148,163,184,0.2);">
+                                <th style="padding:10px;text-align:right;">الصنف</th>
+                                <th style="padding:10px;text-align:center;">الكمية المباعة</th>
+                                <th style="padding:10px;text-align:center;">إجمالي المبيعات (SDG)</th>
+                                <th style="padding:10px;text-align:center;">التكلفة التقديرية</th>
+                                <th style="padding:10px;text-align:center;">صافي الربح والهامش</th>
+                                <th style="padding:10px;text-align:center;">تشخيص AI</th>
+                            </tr>
+                        </thead>
+                        <tbody>${rowsHtml}</tbody>
+                    </table>
+                </div>
+                <div style="padding:14px 22px;background:rgba(15,23,42,0.85);border-top:1px solid rgba(168,85,247,0.22);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+                    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                        <a href="customer-portfolio.php" style="text-decoration:none;background:rgba(56,189,248,0.16);border:1px solid rgba(56,189,248,0.45);color:#38bdf8;padding:8px 14px;border-radius:9px;font-weight:800;font-size:0.84rem;">👥 محفظة العملاء وولاء RFM 360°</a>
+                        <a href="aging-report.php" style="text-decoration:none;background:rgba(245,158,11,0.16);border:1px solid rgba(251,191,36,0.45);color:#fbbf24;padding:8px 14px;border-radius:9px;font-weight:800;font-size:0.84rem;">⏳ أعمار الديون ومخاطر الائتمان</a>
+                        <a href="reserved-sales.php" style="text-decoration:none;background:rgba(168,85,247,0.16);border:1px solid rgba(168,85,247,0.45);color:#d8b4fe;padding:8px 14px;border-radius:9px;font-weight:800;font-size:0.84rem;">🔖 إدارة حجوزات المبيعات</a>
+                    </div>
+                    <button onclick="document.getElementById('sales-ai-audit-modal').remove()" style="background:linear-gradient(135deg,#10b981,#059669);border:none;color:#fff;padding:8px 18px;border-radius:9px;cursor:pointer;font-weight:900;">تم الاطلاع</button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+    };
 })();
 </script>
 </body>

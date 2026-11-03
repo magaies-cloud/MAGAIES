@@ -795,72 +795,85 @@
     <?php $header_theme_class = 'header-theme-reports'; ?>
     <?php include 'includes/header.php'; ?>
 
-    <!-- Desktop/Mobile Premium Reports Bento Grid (Rearranged under header) -->
+    <!-- شريط الذكاء الاصطناعي والربط الموحد للتقارير 360° -->
+    <div style="display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:10px; background:rgba(15,23,42,0.82); border:1px solid rgba(56,189,248,0.3); border-radius:16px; padding:12px 16px; margin-bottom:18px;">
+        <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+            <span style="font-weight:900; font-size:0.9rem; color:#38bdf8;">🤖 منظومة الذكاء الاصطناعي والربط الشامل للتقارير:</span>
+            <a href="ai_executive_advisor.php" style="text-decoration:none; padding:5px 11px; border-radius:8px; background:rgba(168,85,247,0.16); border:1px solid rgba(168,85,247,0.4); color:#c084fc; font-size:0.78rem; font-weight:800;">👑 المستشار التنفيذي الشامل AI</a>
+            <a href="ai_money_advisor.php" style="text-decoration:none; padding:5px 11px; border-radius:8px; background:rgba(16,185,129,0.16); border:1px solid rgba(16,185,129,0.4); color:#34d399; font-size:0.78rem; font-weight:800;">💰 مستشار الأموال والسيولة AI</a>
+            <a href="ai_goods_advisor.php" style="text-decoration:none; padding:5px 11px; border-radius:8px; background:rgba(56,189,248,0.16); border:1px solid rgba(56,189,248,0.4); color:#38bdf8; font-size:0.78rem; font-weight:800;">📦 مستشار البضائع والمخازن AI</a>
+            <a href="smart_inventory_report.php" style="text-decoration:none; padding:5px 11px; border-radius:8px; background:rgba(245,158,11,0.16); border:1px solid rgba(245,158,11,0.4); color:#fbbf24; font-size:0.78rem; font-weight:800;">📊 الـ 20 تقرير مخزني ذكي</a>
+            <a href="daily_master_report.php" style="text-decoration:none; padding:5px 11px; border-radius:8px; background:rgba(244,63,94,0.16); border:1px solid rgba(244,63,94,0.4); color:#fb7185; font-size:0.78rem; font-weight:800;">📅 التقرير اليومي الشامل</a>
+        </div>
+        <button type="button" onclick="showDailyReportModal()" style="padding:7px 14px; border-radius:10px; background:linear-gradient(135deg,#7c3aed,#9333ea); border:none; color:#fff; font-family:'Tajawal',sans-serif; font-size:0.82rem; font-weight:900; cursor:pointer; box-shadow:0 4px 12px rgba(124,58,237,0.3);">⚡ معاينة موجز اليومية الفوري</button>
+    </div>
+
+    <!-- Desktop/Mobile Premium Reports Bento Grid (Ordered by Global Accounting Hierarchy) -->
     <div class="quick-reports-grid" style="animation: slideDown 0.6s cubic-bezier(0.16, 1, 0.3, 1); display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px;">
-        <!-- 1. General Accounts Reports Hub Button -->
-        <a href="general_accounts_hub.php" class="quick-report-card" style="--glow-color: rgba(251, 191, 36, 0.65); --glow-bg: rgba(251, 191, 36, 0.12);">
+        <!-- 1. دفتر الأستاذ العام (الموحد الشامل) -->
+        <a href="general-ledger.php" class="quick-report-card" style="--glow-color: rgba(251, 191, 36, 0.75); --glow-bg: rgba(251, 191, 36, 0.15); border: 1.5px solid rgba(251, 191, 36, 0.4);">
             <div class="icon-wrap">📓</div>
             <div class="card-info">
-                <h4>تقرير الحسابات العامة</h4>
-                <p>مركز الحسابات العامة: دفتر الأستاذ العام (GL) وحسابات الأرصدة المجمعة.</p>
+                <h4>دفتر الأستاذ العام (GL)</h4>
+                <p>السجل المحاسبي الرئيسي: شجرة الحسابات، كشف الحركات التفصيلي، والملف الائتماني الموحد.</p>
             </div>
         </a>
 
-        <!-- 2. Modern Balances & Measures Hub Button -->
-        <a href="balances_modern_hub.php" class="quick-report-card" style="--glow-color: rgba(56, 189, 248, 0.65); --glow-bg: rgba(56, 189, 248, 0.12);">
-            <div class="icon-wrap">⚖️</div>
+        <!-- 2. حساب الأرصدة الأساسية -->
+        <a href="mainbalances-report.php" class="quick-report-card" style="--glow-color: rgba(16, 185, 129, 0.75); --glow-bg: rgba(16, 185, 129, 0.15); border: 1.5px solid rgba(16, 185, 129, 0.4);">
+            <div class="icon-wrap">🧮</div>
             <div class="card-info">
-                <h4>مركز الأرصدة والمقاييس الموحد</h4>
-                <p>متابعة أرصدة المقاييس، حسابات العملاء والموردين، كشوفات الحساب التفاعلية وميزان المراجعة.</p>
+                <h4>حساب الأرصدة الأساسية</h4>
+                <p>جميع العملاء والحسابات دفعة واحدة بالعملة الأجنبية (USD) والعملة المحلية (SDG).</p>
             </div>
         </a>
 
-        <!-- 3. Final Statements & Accounting Reports Button -->
+        <!-- 3. General Accounts Reports Hub Button -->
+        <a href="general_accounts_hub.php" class="quick-report-card" style="--glow-color: rgba(245, 158, 11, 0.65); --glow-bg: rgba(245, 158, 11, 0.12);">
+            <div class="icon-wrap">🗂️</div>
+            <div class="card-info">
+                <h4>تقرير الحسابات العامة</h4>
+                <p>بوابة الحسابات العامة: الأستاذ العام، الأرصدة الأساسية، اليومية الشاملة وأعمار الديون.</p>
+            </div>
+        </a>
+
+        <!-- 4. Final Statements & Accounting Reports Button -->
         <a href="financial-reports.php" class="quick-report-card" style="--glow-color: rgba(251, 191, 36, 0.65); --glow-bg: rgba(251, 191, 36, 0.12);">
             <div class="icon-wrap">🏛️</div>
             <div class="card-info">
                 <h4>القوائم الختامية والمحاسبية</h4>
-                <p>ميزان المراجعة، قائمة الأرباح والخسائر، قيود اليومية ودفتر الأستاذ العام.</p>
+                <p>ميزان المراجعة، قائمة الأرباح والخسائر، التدفقات النقدية، قيود اليومية والزكاة.</p>
             </div>
         </a>
 
-
-
-        <!-- 5. Smart Reports Hub V2 -->
-        <a href="smart_reports_hub.php" class="quick-report-card" style="--glow-color: rgba(6, 182, 212, 0.65); --glow-bg: rgba(6, 182, 212, 0.12);">
-            <div class="icon-wrap">🚀</div>
+        <!-- 5. Modern Balances & Measures Hub Button -->
+        <a href="balances_modern_hub.php" class="quick-report-card" style="--glow-color: rgba(56, 189, 248, 0.65); --glow-bg: rgba(56, 189, 248, 0.12);">
+            <div class="icon-wrap">⚖️</div>
             <div class="card-info">
-                <h4>بوابة التقارير الذكية V2</h4>
-                <p>مركز التقارير المحاسبية المتقدم للتدفقات النقدية ونقطة التعادل.</p>
+                <h4>مركز الأرصدة ومقاصة الحسابات</h4>
+                <p>مقاصة وتسوية الحسابات، مطابقة أرصدة الشركاء وميزان المراجعة التفاعلي.</p>
             </div>
         </a>
 
-        <!-- 6. Inventory & Warehouses Report Button -->
-        <a href="inventory-report.php" class="quick-report-card" style="--glow-color: rgba(16, 185, 129, 0.65); --glow-bg: rgba(16, 185, 129, 0.12);">
-            <div class="icon-wrap">📦</div>
-            <div class="card-info">
-                <h4>تقارير المخازن والمستودعات</h4>
-                <p>جرد أرصدة المستودعات وحركة الأصناف.</p>
-            </div>
-        </a>
-
-        <!-- 7. Customers & Suppliers Report Hub Button -->
+        <!-- 6. Customers & Suppliers Report Hub Button -->
         <a href="partners_reports_hub.php" class="quick-report-card" style="--glow-color: rgba(139, 92, 246, 0.65); --glow-bg: rgba(139, 92, 246, 0.12);">
             <div class="icon-wrap">🤝</div>
             <div class="card-info">
                 <h4>تقارير العملاء والموردين</h4>
-                <p>مركز التقارير الشامل: الموقف المالي، كشف الحساب، الأرصدة والتحليل الصحي.</p>
+                <p>كشف حساب الشركاء، المديونية الشاملة، أعمار الديون، السقوف الائتمانية وتقييم الموردين.</p>
+            </div>
+        </a>
+
+        <!-- 7. Smart Reports Hub V2 -->
+        <a href="smart_reports_hub.php" class="quick-report-card" style="--glow-color: rgba(6, 182, 212, 0.65); --glow-bg: rgba(6, 182, 212, 0.12);">
+            <div class="icon-wrap">🚀</div>
+            <div class="card-info">
+                <h4>بوابة التقارير الذكية V2</h4>
+                <p>تحليلات الربحية، نقطة التعادل، دوران المخزون، والتنبؤ المالي الذكي.</p>
             </div>
         </a>
     </div>
-
-
-
-    
-    
-
-    
-    <style>
+<style>
         .reports-directory-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
@@ -1036,9 +1049,9 @@
             <div class="chart-header">
                 <div class="chart-title">حركة المبيعات والمشتريات</div>
                 <div class="chart-actions">
-                    <button class="chart-btn active">7 أيام</button>
-                    <button class="chart-btn">شهر</button>
-                    <button class="chart-btn">سنة</button>
+                    <button class="chart-btn active" onclick="setAnalyticsChartRange(7, this)">7 أيام</button>
+                    <button class="chart-btn" onclick="setAnalyticsChartRange(30, this)">شهر</button>
+                    <button class="chart-btn" onclick="setAnalyticsChartRange(365, this)">سنة</button>
                 </div>
             </div>
             <div class="chart-container">
@@ -1074,7 +1087,16 @@
         window.location.reload();
     });
 
-    function initAIAnalytics() {
+    let _analyticsSalesChartInstance = null;
+    let _analyticsProductsChartInstance = null;
+    window.setAnalyticsChartRange = function(days, btn) {
+        if (btn && btn.parentElement) {
+            btn.parentElement.querySelectorAll('.chart-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+        }
+        initAIAnalytics(days);
+    };
+    function initAIAnalytics(rangeDays = 7) {
         // 1. Fetch Data
         const sales = (JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || []).filter(x => !x.deleted && x.saleType !== 'preliminary' && x.status !== 'preliminary');
         const purchases = (JSON.parse(localStorage.getItem('erp_purchase_invoices_v1')) || []).filter(x => !x.deleted && !x.isGRN && !x.isReturn);
@@ -1091,23 +1113,29 @@
             return [y, m, day].join('-');
         };
 
-        // 2. Aggregate Sales vs Purchases (Last 7 Days)
+        // 2. Aggregate Sales vs Purchases (7 Days / 30 Days / 12 Months)
         let dates = [];
         let salesData = [];
         let purchasesData = [];
-        for (let i = 6; i >= 0; i--) {
-            let d = new Date();
-            d.setDate(d.getDate() - i);
-            let dStr = formatDate(d);
-            dates.push(d.toLocaleDateString('ar-EG', { weekday: 'short' }));
-            
-            // Sum sales for this day
-            let daySales = sales.filter(s => s.date === dStr && s.status !== 'cancelled').reduce((sum, s) => sum + (parseFloat(s.grandTotal) || 0), 0);
-            salesData.push(daySales);
-
-            // Sum purchases for this day
-            let dayPurchases = purchases.filter(p => p.date === dStr && p.status !== 'cancelled').reduce((sum, p) => sum + (parseFloat(p.grandTotal) || 0), 0);
-            purchasesData.push(dayPurchases);
+        if (rangeDays === 365) {
+            for (let i = 11; i >= 0; i--) {
+                let d = new Date();
+                d.setMonth(d.getMonth() - i);
+                let ym = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+                dates.push(d.toLocaleDateString('ar-EG', { month: 'short', year: '2-digit' }));
+                salesData.push(sales.filter(s => String(s.date || '').startsWith(ym) && s.status !== 'cancelled').reduce((sum, s) => sum + (parseFloat(s.grandTotal) || 0), 0));
+                purchasesData.push(purchases.filter(p => String(p.date || '').startsWith(ym) && p.status !== 'cancelled').reduce((sum, p) => sum + (parseFloat(p.grandTotal) || 0), 0));
+            }
+        } else {
+            let daysCount = rangeDays === 30 ? 30 : 7;
+            for (let i = daysCount - 1; i >= 0; i--) {
+                let d = new Date();
+                d.setDate(d.getDate() - i);
+                let dStr = formatDate(d);
+                dates.push(daysCount === 7 ? d.toLocaleDateString('ar-EG', { weekday: 'short' }) : d.toLocaleDateString('ar-EG', { day: 'numeric', month: 'short' }));
+                salesData.push(sales.filter(s => s.date === dStr && s.status !== 'cancelled').reduce((sum, s) => sum + (parseFloat(s.grandTotal) || 0), 0));
+                purchasesData.push(purchases.filter(p => p.date === dStr && p.status !== 'cancelled').reduce((sum, p) => sum + (parseFloat(p.grandTotal) || 0), 0));
+            }
         }
 
         // 3. Top Products Aggregation
@@ -1149,7 +1177,7 @@
         gradientPurchases.addColorStop(0, 'rgba(236, 72, 153, 0.4)');
         gradientPurchases.addColorStop(1, 'rgba(236, 72, 153, 0.0)');
 
-        new Chart(ctxFlow, {
+        if (_analyticsSalesChartInstance) _analyticsSalesChartInstance.destroy(); _analyticsSalesChartInstance = new Chart(ctxFlow, {
             type: 'line',
             data: {
                 labels: dates,
@@ -1210,7 +1238,7 @@
         });
 
         const ctxProducts = document.getElementById('productsChart').getContext('2d');
-        new Chart(ctxProducts, {
+        if (_analyticsProductsChartInstance) _analyticsProductsChartInstance.destroy(); _analyticsProductsChartInstance = new Chart(ctxProducts, {
             type: 'doughnut',
             data: {
                 labels: topProductLabels,
@@ -1348,6 +1376,7 @@
         const multiReceipts = JSON.parse(localStorage.getItem('erp_receipts_v1')) || [];
         const jvs = JSON.parse(localStorage.getItem('erp_journal_vouchers_v1')) || [];
         const customers = JSON.parse(localStorage.getItem('erp_customers_v1')) || [];
+        const suppliers = JSON.parse(localStorage.getItem('erp_suppliers_v1')) || [];
 
         // Filter by Date
         const todaySales = sales.filter(x => x.date === dateStr);
@@ -1359,10 +1388,10 @@
         const todayJvs = jvs.filter(x => x.date === dateStr && !x.deleted);
 
         // Sum KPIs
-        const totalSalesAmt = todaySales.reduce((sum, x) => sum + (parseFloat(x.grandTotal) || 0), 0);
-        const totalPurchasesAmt = todayPurchases.reduce((sum, x) => sum + (parseFloat(x.grandTotal) || 0), 0);
-        const totalReceiptsAmt = todayReceipts.reduce((sum, x) => sum + (parseFloat(x.amount) || 0), 0) + todayMultiReceipts.reduce((sum, x) => sum + (parseFloat(x.totalAmount) || 0), 0);
-        const totalPaymentsAmt = todayPayments.reduce((sum, x) => sum + (parseFloat(x.amount) || 0), 0) + todayMultiPayments.reduce((sum, x) => sum + (parseFloat(x.totalAmount) || 0), 0);
+        const totalSalesAmt = todaySales.reduce((sum, x) => sum + (parseFloat(x.grandTotal || x.totalAmount || x.total) || 0), 0);
+        const totalPurchasesAmt = todayPurchases.reduce((sum, x) => sum + (parseFloat(x.grandTotal || x.totalAmount || x.total) || 0), 0);
+        const totalReceiptsAmt = todayReceipts.reduce((sum, x) => sum + (parseFloat(x.amount || x.amountLocal || x.totalAmount) || 0), 0) + todayMultiReceipts.reduce((sum, x) => sum + (parseFloat(x.totalAmount || x.amount) || 0), 0);
+        const totalPaymentsAmt = todayPayments.reduce((sum, x) => sum + (parseFloat(x.amount || x.amountLocal || x.totalAmount) || 0), 0) + todayMultiPayments.reduce((sum, x) => sum + (parseFloat(x.totalAmount || x.amount) || 0), 0);
         const netFlow = totalReceiptsAmt - totalPaymentsAmt;
 
         // Build Financial Table HTML
@@ -1371,50 +1400,50 @@
             finRows += `
                 <tr>
                     <td><span style="background:rgba(16,185,129,0.15); color:#10b981; padding:3px 8px; border-radius:6px; font-size:0.8rem; font-weight:700;">سند قبض مفرد</span></td>
-                    <td>#${x.id || '-'}</td>
+                    <td>#${x.voucherNo || x.id || '-'}</td>
                     <td>${x.description || x.notes || 'قبض نقدية'}</td>
-                    <td>${resolveClientName(x.customer || x.clientId, customers)}</td>
-                    <td><strong style="color:#10b981;">+${(parseFloat(x.amount) || 0).toLocaleString()} SDG</strong></td>
+                    <td>${resolveClientName(x.customer || x.clientId || x.fromAccount, customers)}</td>
+                    <td><strong style="color:#10b981;">+${(parseFloat(x.amount || x.amountLocal || x.totalAmount) || 0).toLocaleString()} SDG</strong></td>
                 </tr>`;
         });
         todayMultiReceipts.forEach(x => {
             finRows += `
                 <tr>
                     <td><span style="background:rgba(16,185,129,0.15); color:#10b981; padding:3px 8px; border-radius:6px; font-size:0.8rem; font-weight:700;">سند قبض مجمع</span></td>
-                    <td>#${x.id || '-'}</td>
+                    <td>#${x.voucherNo || x.id || '-'}</td>
                     <td>${x.notes || 'قبض مجمع'}</td>
                     <td>-</td>
-                    <td><strong style="color:#10b981;">+${(parseFloat(x.totalAmount) || 0).toLocaleString()} SDG</strong></td>
+                    <td><strong style="color:#10b981;">+${(parseFloat(x.totalAmount || x.amount) || 0).toLocaleString()} SDG</strong></td>
                 </tr>`;
         });
         todayPayments.forEach(x => {
             finRows += `
                 <tr>
                     <td><span style="background:rgba(244,63,94,0.15); color:#f43f5e; padding:3px 8px; border-radius:6px; font-size:0.8rem; font-weight:700;">سند صرف مفرد</span></td>
-                    <td>#${x.id || '-'}</td>
+                    <td>#${x.voucherNo || x.id || '-'}</td>
                     <td>${x.description || x.notes || 'صرف نقدية'}</td>
-                    <td>${resolveClientName(x.customer || x.clientId, customers)}</td>
-                    <td><strong style="color:#f43f5e;">-${(parseFloat(x.amount) || 0).toLocaleString()} SDG</strong></td>
+                    <td>${resolveClientName(x.customer || x.clientId || x.toAccount, customers)}</td>
+                    <td><strong style="color:#f43f5e;">-${(parseFloat(x.amount || x.amountLocal || x.totalAmount) || 0).toLocaleString()} SDG</strong></td>
                 </tr>`;
         });
         todayMultiPayments.forEach(x => {
             finRows += `
                 <tr>
                     <td><span style="background:rgba(244,63,94,0.15); color:#f43f5e; padding:3px 8px; border-radius:6px; font-size:0.8rem; font-weight:700;">سند صرف مجمع</span></td>
-                    <td>#${x.id || '-'}</td>
+                    <td>#${x.voucherNo || x.id || '-'}</td>
                     <td>${x.notes || 'صرف مجمع'}</td>
                     <td>-</td>
-                    <td><strong style="color:#f43f5e;">-${(parseFloat(x.totalAmount) || 0).toLocaleString()} SDG</strong></td>
+                    <td><strong style="color:#f43f5e;">-${(parseFloat(x.totalAmount || x.amount) || 0).toLocaleString()} SDG</strong></td>
                 </tr>`;
         });
         todayJvs.forEach(x => {
             finRows += `
                 <tr>
                     <td><span style="background:rgba(168,85,247,0.15); color:#a855f7; padding:3px 8px; border-radius:6px; font-size:0.8rem; font-weight:700;">قيد محاسبي</span></td>
-                    <td>#${x.id || '-'}</td>
-                    <td>${x.statement || 'قيد يومية'}</td>
+                    <td>#${x.voucherNo || x.id || '-'}</td>
+                    <td>${x.description || x.statement || 'قيد يومية'}</td>
                     <td>-</td>
-                    <td><strong>${(parseFloat(x.totalAmount) || 0).toLocaleString()} SDG</strong></td>
+                    <td><strong>${(parseFloat(x.totalDebit || x.totalAmount || x.amount) || 0).toLocaleString()} SDG</strong></td>
                 </tr>`;
         });
 
@@ -1429,11 +1458,11 @@
             invRows += `
                 <tr>
                     <td><span style="background:rgba(52,211,153,0.15); color:#34d399; padding:3px 8px; border-radius:6px; font-size:0.8rem; font-weight:700;">فاتورة مبيعات</span></td>
-                    <td>#${x.invoiceNo || '-'}</td>
-                    <td>${resolveClientName(x.customer || x.customerId, customers)}</td>
+                    <td>#${x.invoiceNo || x.id || '-'}</td>
+                    <td>${x.customerName || resolveClientName(x.customer || x.customerId, customers)}</td>
                     <td>${x.paymentMethod === 'credit' ? 'آجل 💳' : 'نقداً 💵'}</td>
                     <td><span style="font-size:0.8rem; color:#cbd5e1;">${itemsList || '-'}</span></td>
-                    <td><strong style="color:#34d399;">${(parseFloat(x.grandTotal) || 0).toLocaleString()} SDG</strong></td>
+                    <td><strong style="color:#34d399;">${(parseFloat(x.grandTotal || x.totalAmount || x.total) || 0).toLocaleString()} SDG</strong></td>
                 </tr>`;
         });
         todayPurchases.forEach(x => {
@@ -1441,11 +1470,11 @@
             invRows += `
                 <tr>
                     <td><span style="background:rgba(245,158,11,0.15); color:#f59e0b; padding:3px 8px; border-radius:6px; font-size:0.8rem; font-weight:700;">فاتورة مشتريات</span></td>
-                    <td>#${x.invoiceNo || '-'}</td>
-                    <td>${resolveClientName(x.customer || x.customerId, customers)}</td>
+                    <td>#${x.invoiceNo || x.id || '-'}</td>
+                    <td>${x.supplierName || resolveClientName(x.supplier || x.supplierId || x.customer, suppliers)}</td>
                     <td>${x.paymentMethod === 'credit' ? 'آجل 💳' : 'نقداً 💵'}</td>
                     <td><span style="font-size:0.8rem; color:#cbd5e1;">${itemsList || '-'}</span></td>
-                    <td><strong style="color:#f59e0b;">${(parseFloat(x.grandTotal) || 0).toLocaleString()} SDG</strong></td>
+                    <td><strong style="color:#f59e0b;">${(parseFloat(x.grandTotal || x.totalAmount || x.total) || 0).toLocaleString()} SDG</strong></td>
                 </tr>`;
         });
 

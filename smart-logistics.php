@@ -1,4 +1,4 @@
-<?php $page_title = 'بوابة الاستلام والتسليم الذكية الموحدة — الأيقونة اللوجستية الشاملة (GRN ⇄ GDN)'; ?>
+﻿<?php $page_title = 'بوابة الاستلام والتسليم الذكية الموحدة — الأيقونة اللوجستية الشاملة (GRN ⇄ GDN)'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <script src="js/lang.js"></script>
@@ -401,9 +401,74 @@
         .sl-badge-pending { background: rgba(245, 158, 11, 0.18); color: #fcd34d; border: 1px solid rgba(245, 158, 11, 0.45); }
         .sl-badge-partial { background: rgba(56, 189, 248, 0.18); color: #7dd3fc; border: 1px solid rgba(56, 189, 248, 0.45); }
         .sl-badge-done { background: rgba(16, 185, 129, 0.2); color: #6ee7b7; border: 1px solid rgba(16, 185, 129, 0.5); }
+        /* ── 3-LEVEL DEDUCTION & SPLITTING ROLE PILLS (المدير / مدير المخزن / المخزنجي QR) ── */
+        .sl-level-bar {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: rgba(2, 6, 23, 0.78);
+            padding: 3px 5px;
+            border-radius: 11px;
+            border: 1.5px solid rgba(148, 163, 184, 0.3);
+        }
+        .sl-level-pill {
+            padding: 4px 10px;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            font-weight: 900;
+            cursor: pointer;
+            border: 1px solid transparent;
+            background: transparent;
+            color: #cbd5e1;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-family: 'Cairo', 'Tajawal', sans-serif !important;
+        }
+        .sl-level-pill:hover { color: #ffffff; background: rgba(255, 255, 255, 0.08); }
+        .sl-level-pill.active-lvl-1 {
+            background: linear-gradient(135deg, #7c3aed, #4f46e5);
+            color: #ffffff;
+            border-color: #c4b5fd;
+            box-shadow: 0 0 12px rgba(124, 58, 237, 0.45);
+        }
+        .sl-level-pill.active-lvl-2 {
+            background: linear-gradient(135deg, #0284c7, #0369a1);
+            color: #ffffff;
+            border-color: #7dd3fc;
+            box-shadow: 0 0 12px rgba(2, 132, 199, 0.45);
+        }
+        .sl-level-pill.active-lvl-3 {
+            background: linear-gradient(135deg, #059669, #047857);
+            color: #ffffff;
+            border-color: #6ee7b7;
+            box-shadow: 0 0 12px rgba(16, 185, 129, 0.45);
+        }
+        html[data-magaies-theme="warm_cream"] body, body[data-magaies-theme="warm_cream"] {
+            background: #f5efe6 !important; color: #2c221e !important;
+            --sl-card-bg: linear-gradient(155deg, rgba(251, 247, 240, 0.96) 0%, rgba(243, 235, 222, 0.98) 100%);
+            --sl-header-grad: linear-gradient(135deg, #ede3d2 0%, #f7f2e9 60%, #e6d8c3 100%);
+            --sl-unit-box-bg: linear-gradient(145deg, #ffffff 0%, #f3ece0 100%);
+            --sl-grid-font-color: #1e293b;
+        }
+        html[data-magaies-theme="ultra_white"] body, body[data-magaies-theme="ultra_white"], body.light-theme {
+            background: #f8fafc !important; color: #0f172a !important;
+            --sl-card-bg: linear-gradient(155deg, rgba(255, 255, 255, 0.98) 0%, rgba(241, 245, 249, 0.98) 100%);
+            --sl-header-grad: linear-gradient(135deg, #e2e8f0 0%, #ffffff 60%, #f1f5f9 100%);
+            --sl-unit-box-bg: linear-gradient(145deg, #ffffff 0%, #f1f5f9 100%);
+            --sl-grid-font-color: #0f172a;
+        }
+        html[data-magaies-theme="exec_gray"] body, body[data-magaies-theme="exec_gray"] {
+            background: #e2e8f0 !important; color: #0f172a !important;
+            --sl-card-bg: linear-gradient(155deg, rgba(248, 250, 252, 0.96) 0%, rgba(226, 232, 240, 0.98) 100%);
+            --sl-header-grad: linear-gradient(135deg, #cbd5e1 0%, #f1f5f9 60%, #dbeafe 100%);
+            --sl-unit-box-bg: linear-gradient(145deg, #ffffff 0%, #e2e8f0 100%);
+            --sl-grid-font-color: #0f172a;
+        }
     </style>
 </head>
-<body data-logistics-mode="<?php echo (isset($_GET['mode']) && $_GET['mode'] === 'purchases') ? 'purchases' : 'sales'; ?>">
+<body data-logistics-mode="<?php echo (isset($_GET['mode']) && (!isset($_GET['mode']) || $_GET['mode'] === 'purchases')) ? 'purchases' : 'sales'; ?>">
 
     <div class="toast-container" id="toast-container"></div>
     <script defer src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
@@ -415,20 +480,26 @@
              ═══════════════════════════════════════════════════════════════════ -->
         <div id="sl-top-cockpit-bar" class="sl-glass-card" style="background: var(--sl-header-grad); padding: 6px 14px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
             <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-                <a href="dashboard-pro.php" class="sl-btn" style="text-decoration:none; color:#38bdf8; border-color:rgba(56,189,248,0.4); padding:6px 11px; font-size:0.8rem;">🏠 الرئيسية</a>
+                <a href="magaiees_unified_dashboard.php" class="sl-btn" style="text-decoration:none; color:#38bdf8; border-color:rgba(56,189,248,0.4); padding:6px 11px; font-size:0.8rem;">🏠 الرئيسية</a>
                 <a id="sl-classic-sales-btn" href="sales-delivery.php" class="sl-btn" style="text-decoration:none; color:#6ee7b7; border-color:rgba(16,185,129,0.4); padding:6px 11px; font-size:0.8rem;" title="النظام الكلاسيكي لتسليم المبيعات">📤 تسليم المبيعات</a>
                 <a id="sl-classic-purchases-btn" href="purchase-receipt.php" class="sl-btn" style="text-decoration:none; color:#7dd3fc; border-color:rgba(14,165,233,0.4); padding:6px 11px; font-size:0.8rem;" title="النظام الكلاسيكي لاستلام المشتريات">📥 استلام المشتريات</a>
 
                 <div style="margin-right: 4px;">
                     <h1 style="margin: 0; font-size: 1.05rem; font-weight: 900; color: #ffffff; display: flex; align-items: center; gap: 6px; text-shadow: 0 2px 10px rgba(0,0,0,0.5);">
-                        <span id="sl-main-title-icon"><?php echo (isset($_GET['mode']) && $_GET['mode'] === 'purchases') ? '📥' : '📤'; ?></span>
-                        <span id="sl-main-title-text"><?php echo (isset($_GET['mode']) && $_GET['mode'] === 'purchases') ? 'بوابة استلام المشتريات وتقسيمها الذكية (وارد — GRN)' : 'بوابة تسليم المبيعات وتقسيمها الذكية (صادر — GDN)'; ?></span>
+                        <span id="sl-main-title-icon"><?php echo (isset($_GET['mode']) && (!isset($_GET['mode']) || $_GET['mode'] === 'purchases')) ? '📥' : '📤'; ?></span>
+                        <span id="sl-main-title-text"><?php echo (isset($_GET['mode']) && (!isset($_GET['mode']) || $_GET['mode'] === 'purchases')) ? 'بوابة استلام المشتريات وتقسيمها الذكية (وارد — GRN)' : 'بوابة تسليم المبيعات وتقسيمها الذكية (صادر — GDN)'; ?></span>
                     </h1>
                 </div>
             </div>
 
-            <!-- MOBILE QR LASER BRIDGE + SMART LOCK GUARD + ROYAL QUARTET DOCKED HARMONIOUSLY INSIDE -->
+            <!-- 3-LEVEL DEDUCTION & SPLITTING ROLE BAR + MOBILE QR LASER BRIDGE + ROYAL QUARTET -->
             <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                <div class="sl-level-bar" title="المستويات الثلاثة للاستلام والتقسيم والاعتماد">
+                    <span style="font-size:0.72rem; font-weight:900; color:#94a3b8; padding:0 4px;">🎯 مستوى الصلاحية:</span>
+                    <button type="button" id="sl-lvl-btn-1" class="sl-level-pill active-lvl-1" onclick="setSlDeductionLevel(1)">👑 1. المدير</button>
+                    <button type="button" id="sl-lvl-btn-2" class="sl-level-pill" onclick="setSlDeductionLevel(2)">🏢 2. مدير المخزن</button>
+                    <button type="button" id="sl-lvl-btn-3" class="sl-level-pill" onclick="setSlDeductionLevel(3)">📦 3. المخزنجي (QR)</button>
+                </div>
                 <div style="display:flex; align-items:center; gap:5px; background:rgba(2,6,23,0.75); padding:4px 9px; border-radius:10px; border:1px solid rgba(148,163,184,0.3);">
                     <span style="font-size:0.74rem; font-weight:900; color:#cbd5e1;">🛡️ حارس الـ QR:</span>
                     <select id="sl-qr-guard-mode" class="sl-input" style="padding:3px 8px !important; font-size:0.74rem !important; height:auto;">
@@ -743,6 +814,12 @@
                 </div>
 
                 <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                                        <button type="button" id="sl-btn-split-ab" onclick="openSlInvoiceSplitBoard()" class="sl-btn" style="background: rgba(236,72,153,0.18); border-color: #f472b6; color: #fbcfe8;" title="تقسيم الدفعة إلى نصفين (50% / 50%) أو تقسيم الفاتورة">
+                        ✂️ تقسيم الدفعة (أ / ب)
+                    </button>
+                    <button type="button" id="sl-btn-focus-mode" onclick="toggleSlStorekeeperFocus()" class="sl-btn" style="background: rgba(245,158,11,0.18); border-color: #fbbf24; color: #fde68a;" title="وضع راحة وتركيز المخزنجي: إخفاء الأعمدة الثانوية وتكبير خانات الكميات">
+                        🎯 وضع تركيز المخزنجي
+                    </button>
                     <button type="button" onclick="fillAllSlQuantities(1)" class="sl-btn" style="background: rgba(16,185,129,0.2); border-color: #34d399; color: #6ee7b7;">
                         ⚡ تعبئة كامل المتبقي (100%)
                     </button>
@@ -834,6 +911,9 @@
                 </button>
                 <button type="button" id="sl-btn-undo" onclick="undoSlTransaction()" class="sl-btn" style="background: rgba(239,68,68,0.16); border-color: rgba(239,68,68,0.45); color: #fca5a5;">
                     ↩️ إلغاء وعكس الحركة المخزنية
+                </button>
+                                <button type="button" id="sl-btn-admin-l4" onclick="executeSlAdminClosureL4()" class="sl-btn" style="display:none; background: linear-gradient(135deg, #8b5cf6, #6d28d9); border-color: #c4b5fd; color: #ffffff; box-shadow: 0 6px 18px rgba(139,92,246,0.4);">
+                    👑 اعتماد إداري نهائي (L4)
                 </button>
                 <button type="button" id="sl-btn-execute" onclick="executeSlTransaction()" class="sl-btn" style="padding: 11px 28px; font-size: 1rem; background: linear-gradient(135deg, var(--sl-primary), var(--sl-primary-dark)); border-color: var(--sl-primary-light); color: #ffffff; box-shadow: 0 8px 25px var(--sl-primary-glow);">
                     🚀 تأكيد واعتماد التسليم والصرف الآن
@@ -957,7 +1037,7 @@
     <script defer src="js/app.js?v=20261016_v28"></script>
     <script defer src="js/print-engine.js"></script>
     <script defer src="js/magaies-smart-guide.js?v=20261102_clean1"></script>
-    <script defer src="js/smart-logistics.js?v=20261102_clean1"></script>
+    <script defer src="js/smart-logistics.js?v=20261103_v4"></script>
     <script src="js/global_background_media.js?v=20261022_v23" defer></script>
     <script src="js/magaiees_back.js?v=20261022_v23" defer></script>
 </body>

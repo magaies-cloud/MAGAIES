@@ -908,3 +908,214 @@
 })();
 
 
+
+// 🔤 AUTO-BOOTSTRAP UNIVERSAL OPHTHALMIC TYPOGRAPHY & FONT SCALING ENGINE ACROSS ALL SCREENS
+(function() {
+    if (window.MagaieesTypography) return;
+
+    const FONT_KEY_STORAGE = 'magaiees_font_family';
+    const SCALE_KEY_STORAGE = 'magaiees_font_scale';
+    const VALID_FONTS = ['default', 'ibm_plex', 'readex_pro', 'almarai'];
+
+    function ensureGoogleFontsAndFallbackCSS() {
+        const inject = () => {
+            if (!document.head) return;
+            if (!document.getElementById('magaiees-google-fonts-pack')) {
+                const link = document.createElement('link');
+                link.id = 'magaiees-google-fonts-pack';
+                link.rel = 'stylesheet';
+                link.href = 'https://fonts.googleapis.com/css2?family=Almarai:wght@300;400;700;800&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=Readex+Pro:wght@300;400;500;600;700&display=swap';
+                document.head.appendChild(link);
+            }
+            if (!document.getElementById('magaiees-typography-universal-style')) {
+                const st = document.createElement('style');
+                st.id = 'magaiees-typography-universal-style';
+                st.textContent = `
+                    html[data-magaiees-font="ibm_plex"] { --magaiees-active-font: 'IBM Plex Sans Arabic', 'Inter', sans-serif; }
+                    html[data-magaiees-font="readex_pro"] { --magaiees-active-font: 'Readex Pro', 'Inter', sans-serif; }
+                    html[data-magaiees-font="almarai"] { --magaiees-active-font: 'Almarai', 'Inter', sans-serif; }
+                    html[data-magaiees-font="ibm_plex"] body,
+                    html[data-magaiees-font="readex_pro"] body,
+                    html[data-magaiees-font="almarai"] body,
+                    html[data-magaiees-font="ibm_plex"] body :not(.fa):not(.fas):not(.far):not(.fab):not(.fa-solid):not(.fa-regular):not(.fa-brands):not([class*="fa-"]):not(.material-icons):not(i):not(.font-preview-sample),
+                    html[data-magaiees-font="readex_pro"] body :not(.fa):not(.fas):not(.far):not(.fab):not(.fa-solid):not(.fa-regular):not(.fa-brands):not([class*="fa-"]):not(.material-icons):not(i):not(.font-preview-sample),
+                    html[data-magaiees-font="almarai"] body :not(.fa):not(.fas):not(.far):not(.fab):not(.fa-solid):not(.fa-regular):not(.fa-brands):not([class*="fa-"]):not(.material-icons):not(i):not(.font-preview-sample) {
+                        font-family: var(--magaiees-active-font) !important;
+                        -webkit-font-smoothing: antialiased !important;
+                        -moz-osx-font-smoothing: grayscale !important;
+                    }
+                    html[data-magaiees-scaled="true"] {
+                        font-size: calc(16px * var(--magaiees-font-scale, 1)) !important;
+                    }
+                `;
+                document.head.appendChild(st);
+            }
+        };
+        if (document.head) inject();
+        else document.addEventListener('DOMContentLoaded', inject, { once: true });
+    }
+
+    function getSavedFont() {
+        try {
+            const f = localStorage.getItem(FONT_KEY_STORAGE) || 'default';
+            return VALID_FONTS.includes(f) ? f : 'default';
+        } catch (e) {
+            return 'default';
+        }
+    }
+
+    function getSavedScale() {
+        try {
+            const s = parseInt(localStorage.getItem(SCALE_KEY_STORAGE) || '100', 10);
+            if (isNaN(s)) return 100;
+            return Math.min(140, Math.max(80, s));
+        } catch (e) {
+            return 100;
+        }
+    }
+
+    function applyToDOM(fontKey, scalePct) {
+        const root = document.documentElement;
+        if (!root) return;
+
+        // 1. Apply Font Family
+        if (!fontKey || fontKey === 'default') {
+            root.removeAttribute('data-magaiees-font');
+            root.style.removeProperty('--magaiees-active-font');
+        } else {
+            root.setAttribute('data-magaiees-font', fontKey);
+        }
+
+        // 2. Apply Dynamic Root Font Scaling
+        const pct = Math.min(140, Math.max(80, parseInt(scalePct, 10) || 100));
+        const ratio = (pct / 100).toFixed(3);
+        root.style.setProperty('--magaiees-font-scale', ratio);
+
+        if (pct === 100) {
+            root.removeAttribute('data-magaiees-scaled');
+            root.style.fontSize = '';
+        } else {
+            root.setAttribute('data-magaiees-scaled', 'true');
+            root.style.fontSize = (16 * (pct / 100)).toFixed(2) + 'px';
+        }
+    }
+
+    function syncUIControls() {
+        const currentFont = getSavedFont();
+        const currentScale = getSavedScale();
+
+        // Update 4 Font Cards
+        document.querySelectorAll('[data-magaiees-font-card]').forEach(card => {
+            const key = card.getAttribute('data-magaiees-font-card');
+            const isActive = (key === currentFont);
+            card.classList.toggle('active-font-card', isActive);
+            card.style.borderColor = isActive ? '#38bdf8' : 'rgba(255,255,255,0.12)';
+            card.style.boxShadow = isActive ? '0 0 25px rgba(56, 189, 248, 0.28), inset 0 0 15px rgba(56, 189, 248, 0.1)' : 'none';
+            const badge = card.querySelector('.font-active-badge');
+            if (badge) {
+                badge.style.display = isActive ? 'inline-flex' : 'none';
+            }
+            const radio = card.querySelector('.font-radio-indicator');
+            if (radio) {
+                radio.style.background = isActive ? '#38bdf8' : 'transparent';
+                radio.style.borderColor = isActive ? '#38bdf8' : '#64748b';
+            }
+        });
+
+        // Update Scale Slider & Labels
+        const slider = document.getElementById('magaiees-font-scale-slider');
+        if (slider && parseInt(slider.value, 10) !== currentScale) {
+            slider.value = currentScale;
+        }
+        const badgeVal = document.getElementById('magaiees-font-scale-val');
+        if (badgeVal) {
+            badgeVal.textContent = currentScale + '%';
+        }
+        const pxLabel = document.getElementById('magaiees-font-scale-px');
+        if (pxLabel) {
+            pxLabel.textContent = Math.round(16 * (currentScale / 100)) + 'px';
+        }
+
+        // Update Quick Preset Buttons (90%, 100%, 115%, 130%)
+        document.querySelectorAll('[data-magaiees-scale-preset]').forEach(btn => {
+            const p = parseInt(btn.getAttribute('data-magaiees-scale-preset'), 10);
+            const isMatch = (p === currentScale);
+            btn.style.background = isMatch ? 'linear-gradient(135deg, #0284c7, #2563eb)' : 'rgba(15, 23, 42, 0.75)';
+            btn.style.borderColor = isMatch ? '#38bdf8' : 'rgba(255,255,255,0.15)';
+            btn.style.color = isMatch ? '#ffffff' : '#cbd5e1';
+            btn.style.boxShadow = isMatch ? '0 4px 14px rgba(56, 189, 248, 0.35)' : 'none';
+        });
+
+        // Sync legacy select in tab-ui if present
+        const legacySel = document.getElementById('cfg-font-size');
+        if (legacySel) {
+            const approxPx = String(Math.round(16 * (currentScale / 100)));
+            if (['14', '16', '18', '20'].includes(approxPx)) {
+                legacySel.value = approxPx;
+            }
+        }
+    }
+
+    window.MagaieesTypography = {
+        setFont: function(fontKey, silent) {
+            const valid = VALID_FONTS.includes(fontKey) ? fontKey : 'default';
+            try { localStorage.setItem(FONT_KEY_STORAGE, valid); } catch (e) {}
+            applyToDOM(valid, getSavedScale());
+            syncUIControls();
+            if (!silent && typeof window.showToast === 'function') {
+                const names = {
+                    'default': 'الخط الافتراضي (الحالي)',
+                    'ibm_plex': 'خط IBM Plex Sans Arabic',
+                    'readex_pro': 'خط Readex Pro',
+                    'almarai': 'خط Almarai (المراعي)'
+                };
+                window.showToast('تم تفعيل ' + (names[valid] || valid) + ' وتعميمه على كافة الشاشات', 'success');
+            }
+        },
+        setScale: function(scalePct, silent) {
+            const pct = Math.min(140, Math.max(80, parseInt(scalePct, 10) || 100));
+            try { localStorage.setItem(SCALE_KEY_STORAGE, String(pct)); } catch (e) {}
+            applyToDOM(getSavedFont(), pct);
+            syncUIControls();
+            if (!silent && typeof window.showToast === 'function') {
+                window.showToast('تم ضبط حجم الخط والعرض على ' + pct + '%', 'info');
+            }
+        },
+        stepScale: function(delta) {
+            const next = Math.min(140, Math.max(80, getSavedScale() + (parseInt(delta, 10) || 0)));
+            this.setScale(next, true);
+        },
+        resetDefaults: function() {
+            try {
+                localStorage.setItem(FONT_KEY_STORAGE, 'default');
+                localStorage.setItem(SCALE_KEY_STORAGE, '100');
+            } catch (e) {}
+            applyToDOM('default', 100);
+            syncUIControls();
+            if (typeof window.showToast === 'function') {
+                window.showToast('تمت إعادة ضبط الخط وحجم العرض إلى الوضع الافتراضي الأصلي (100%)', 'success');
+            }
+        },
+        getState: function() {
+            return { font: getSavedFont(), scale: getSavedScale() };
+        },
+        syncUI: syncUIControls
+    };
+
+    // Execute immediately before paint
+    ensureGoogleFontsAndFallbackCSS();
+    applyToDOM(getSavedFont(), getSavedScale());
+
+    document.addEventListener('DOMContentLoaded', function() {
+        ensureGoogleFontsAndFallbackCSS();
+        applyToDOM(getSavedFont(), getSavedScale());
+        syncUIControls();
+    });
+
+    window.addEventListener('storage', function(ev) {
+        if (ev.key === FONT_KEY_STORAGE || ev.key === SCALE_KEY_STORAGE) {
+            applyToDOM(getSavedFont(), getSavedScale());
+            syncUIControls();
+        }
+    });
+})();

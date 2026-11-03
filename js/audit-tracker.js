@@ -829,4 +829,44 @@
         }
     });
 
+    // 7. Automatic Storage Interceptor so every ERP operation echoes into Audit Trail
+    const WATCHED_ERP_KEYS = {
+        'erp_sales_invoices_v1': { module: 'المبيعات والفواتير', label: 'فاتورة مبيعات' },
+        'erp_purchase_invoices_v1': { module: 'المشتريات والتوريد', label: 'فاتورة مشتريات' },
+        'erp_single_payments_v1': { module: 'المعاملات المالية والسندات', label: 'سند حركة مالية' },
+        'erp_single_receipts_v1': { module: 'المعاملات المالية والسندات', label: 'سند قبض مالي' },
+        'erp_payments_v1': { module: 'المعاملات المالية والسندات', label: 'سند صرف مجمع' },
+        'erp_receipts_v1': { module: 'المعاملات المالية والسندات', label: 'سند قبض مجمع' },
+        'erp_journal_entries_v1': { module: 'القيود والأستاذ العام', label: 'قيد يومية محاسبي' },
+        'erp_inventory_adjustments_v1': { module: 'المخازن والجرد', label: 'تسوية جرد مخزني' },
+        'erp_warehouse_transfers_v1': { module: 'المخازن والتحويلات', label: 'إذن تحويل مخزني' },
+        'erp_checks_v1': { module: 'الشيكات والبنوك', label: 'شيك مصرفي' }
+    };
+    const _origSetItem = Storage.prototype.setItem;
+    Storage.prototype.setItem = function(key, value) {
+        let oldCount = null;
+        if (this === localStorage && WATCHED_ERP_KEYS[key]) {
+            try {
+                const prev = JSON.parse(localStorage.getItem(key) || '[]');
+                if (Array.isArray(prev)) oldCount = prev.length;
+            } catch (e) {}
+        }
+        _origSetItem.apply(this, arguments);
+        if (this === localStorage && WATCHED_ERP_KEYS[key] && oldCount !== null && window.logSystemAction) {
+            try {
+                const next = JSON.parse(value || '[]');
+                if (Array.isArray(next)) {
+                    const meta = WATCHED_ERP_KEYS[key];
+                    if (next.length > oldCount) {
+                        const newest = next[next.length - 1] || next[0] || {};
+                        const docNo = newest.invoiceNo || newest.voucherNo || newest.entryNo || newest.transferNo || newest.checkNo || newest.id || '';
+                        const amt = newest.netTotal || newest.totalAmount || newest.total || newest.amount || '';
+                        window.logSystemAction('إضافة مستند', meta.module, String(docNo), 'إصدار وحفظ ' + meta.label + ' رقم (' + (docNo || 'جديد') + ')' + (amt ? ' بقيمة ' + Number(amt).toLocaleString() : ''));
+                    } else if (next.length < oldCount) {
+                        window.logSystemAction('حذف مستند', meta.module, '', 'حذف أو إلغاء ' + meta.label + ' من سجل ' + meta.module);
+                    }
+                }
+            } catch (e) {}
+        }
+    };
 })();

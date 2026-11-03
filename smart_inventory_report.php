@@ -201,7 +201,7 @@ try {
                 <a href="ai_goods_advisor.php" class="px-5 py-2.5 bg-cyan-950/60 hover:bg-cyan-900/80 text-cyan-300 border border-cyan-500/40 rounded-xl text-xs font-black transition-all shadow-lg shadow-cyan-500/10 hover:shadow-cyan-500/30 flex items-center gap-2 group">
                     <i class="fa-solid fa-microchip text-cyan-400 group-hover:scale-125 transition-transform duration-300"></i> مستشعر الـ AI الاستراتيجي للبضائع
                 </a>
-                <a href="alerts_manager.php" class="px-5 py-2.5 bg-red-950/40 hover:bg-red-900/40 text-red-400 border border-red-500/20 rounded-xl text-xs font-bold transition-all shadow-md flex items-center gap-2">
+                <a href="alarm.php" class="px-5 py-2.5 bg-red-950/40 hover:bg-red-900/40 text-red-400 border border-red-500/20 rounded-xl text-xs font-bold transition-all shadow-md flex items-center gap-2">
                     <i class="fa-solid fa-bell"></i> ضبط تنبيهات المخازن الذكية
                 </a>
             </div>
@@ -213,7 +213,7 @@ try {
         <div class="stat-card p-6 rounded-2xl flex justify-between items-center" style="--card-accent: #06b6d4; --card-accent-alpha: rgba(6,182,212,0.4); --card-glow: rgba(6,182,212,0.15);">
             <div>
                 <span class="text-[11px] text-slate-400 font-bold block uppercase tracking-wider">حجم بضاعة العنابر الحالية (حقيقي)</span>
-                <span class="text-3xl font-black text-cyan-400 mt-2 block font-mono"><?php echo number_format($total_tons); ?> <span class="text-sm font-normal text-slate-500">طن</span></span>
+                <span class="text-3xl font-black text-cyan-400 mt-2 block font-mono"><span id="sir-live-tons"><?php echo number_format($total_tons); ?></span> <span class="text-sm font-normal text-slate-500">وحدة / طن</span></span>
             </div>
             <div class="p-4 bg-cyan-950/40 text-cyan-400 rounded-2xl text-xl border border-cyan-500/10 shadow-inner"><i class="fa-solid fa-cubes"></i></div>
         </div>
@@ -221,7 +221,7 @@ try {
         <div class="stat-card p-6 rounded-2xl flex justify-between items-center" style="--card-accent: #10b981; --card-accent-alpha: rgba(16,185,129,0.4); --card-glow: rgba(16,185,129,0.15);">
             <div>
                 <span class="text-[11px] text-slate-400 font-bold block uppercase tracking-wider">صافي العائد المالي الفعلي للأصناف</span>
-                <span class="text-3xl font-black text-emerald-400 mt-2 block font-mono"><?php echo number_format($total_profit, 2); ?> <span class="text-sm font-normal text-slate-500">SDG</span></span>
+                <span class="text-3xl font-black text-emerald-400 mt-2 block font-mono"><span id="sir-live-profit"><?php echo number_format($total_profit, 2); ?></span> <span class="text-sm font-normal text-slate-500">SDG</span></span>
             </div>
             <div class="p-4 bg-emerald-950/40 text-emerald-400 rounded-2xl text-xl border border-emerald-500/10 shadow-inner"><i class="fa-solid fa-money-bill-trend-up"></i></div>
         </div>
@@ -229,7 +229,7 @@ try {
         <div class="stat-card p-6 rounded-2xl flex justify-between items-center" style="--card-accent: #ef4444; --card-accent-alpha: rgba(239,68,68,0.4); --card-glow: rgba(239,68,68,0.15);">
             <div>
                 <span class="text-[11px] text-slate-400 font-bold block uppercase tracking-wider">أصناف تحت حد الأمان الأدنى حالياً</span>
-                <span class="text-3xl font-black text-red-400 mt-2 block font-mono"><?php echo $critical_count; ?> <span class="text-sm font-normal text-slate-500">صنف حرج</span></span>
+                <span class="text-3xl font-black text-red-400 mt-2 block font-mono"><span id="sir-live-critical"><?php echo $critical_count; ?></span> <span class="text-sm font-normal text-slate-500">صنف حرج</span></span>
             </div>
             <div class="p-4 bg-red-950/40 text-red-400 rounded-2xl text-xl border border-red-500/10 shadow-inner"><i class="fa-solid fa-triangle-exclamation"></i></div>
         </div>
@@ -257,6 +257,36 @@ try {
                 <span>تشغيل مستشعر الـ AI الاستراتيجي</span>
                 <i class="fa-solid fa-arrow-left text-xs"></i>
             </a>
+        </div>
+    </div>
+
+        <!-- شريط البحث الفوري والابتكارات الـ 10 لبوابة المخازن الذكية AI -->
+    <div style="background:rgba(15,23,42,0.88);border:1px solid rgba(56,189,248,0.3);border-radius:20px;padding:18px 22px;margin-bottom:24px;">
+        <div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px;">
+            <div style="display:flex;align-items:center;gap:10px;">
+                <span style="font-size:1.4rem;">🚀</span>
+                <div>
+                    <h3 style="margin:0;font-size:1.05rem;font-weight:900;color:#22d3ee;">مصفوفة الابتكارات الذكية الـ 10 للمخازن + البحث الفوري في الـ 20 تقريراً</h3>
+                    <span style="font-size:0.76rem;color:#94a3b8;">مرتبطة مع مستشار البضائع AI وحركات البضائع والجرد والمشتريات</span>
+                </div>
+            </div>
+            <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;">
+                <input type="text" id="sir-search-input" oninput="filter20Reports(this.value)" placeholder="🔍 ابحث في الـ 20 تقريراً (مثال: رواكد، دوران، ABC، عجز...)" style="background:#070b14;border:1.5px solid rgba(34,211,238,0.4);border-radius:10px;padding:7px 14px;color:#fff;font-size:0.82rem;min-width:250px;">
+                <button type="button" onclick="exportSmartInvSummaryCSV()" style="background:linear-gradient(135deg,#059669,#0d9488);border:1px solid #34d399;color:#fff;padding:7px 14px;border-radius:10px;font-weight:800;font-size:0.8rem;cursor:pointer;">📥 تصدير Excel</button>
+                <button type="button" onclick="window.print()" style="background:rgba(30,41,59,0.9);border:1px solid rgba(255,255,255,0.2);color:#fff;padding:7px 14px;border-radius:10px;font-weight:800;font-size:0.8rem;cursor:pointer;">🖨️ طباعة</button>
+            </div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px;font-size:0.78rem;">
+            <a href="ai_goods_advisor.php" style="background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.35);border-radius:12px;padding:10px 12px;color:#a7f3d0;text-decoration:none;font-weight:800;">1. 🤖 محرك الكمية الاقتصادية للطلب (EOQ)</a>
+            <a href="inv_rep3_deadstock.php" style="background:rgba(168,85,247,0.12);border:1px solid rgba(168,85,247,0.35);border-radius:12px;padding:10px 12px;color:#e9d5ff;text-decoration:none;font-weight:800;">2. 🧊 محرك تسييل الرواكد والأموال المجمدة</a>
+            <a href="inv_rep19_abc.php" style="background:rgba(34,211,238,0.12);border:1px solid rgba(34,211,238,0.35);border-radius:12px;padding:10px 12px;color:#cffafe;text-decoration:none;font-weight:800;">3. ⭐ مصفوفة باريتو للأصناف الذهبية (ABC)</a>
+            <a href="inv_rep14_gmroii.php" style="background:rgba(245,158,11,0.12);border:1px solid rgba(245,158,11,0.35);border-radius:12px;padding:10px 12px;color:#fef08a;text-decoration:none;font-weight:800;">4. 💰 العائد الاستثماري للمخزون (GMROII)</a>
+            <a href="inv_rep2_coverage.php" style="background:rgba(56,189,248,0.12);border:1px solid rgba(56,189,248,0.35);border-radius:12px;padding:10px 12px;color:#bae6fd;text-decoration:none;font-weight:800;">5. ⏳ رادار أيام التغطية ونفاد البضاعة</a>
+            <a href="inv_rep17_shrinkage.php" style="background:rgba(244,63,94,0.12);border:1px solid rgba(244,63,94,0.35);border-radius:12px;padding:10px 12px;color:#fecdd3;text-decoration:none;font-weight:800;">6. 🔍 كاشف العجز والرصيد السالب والجرد</a>
+            <a href="inv_rep12_cost_variance.php" style="background:rgba(251,146,60,0.12);border:1px solid rgba(251,146,60,0.35);border-radius:12px;padding:10px 12px;color:#fed7aa;text-decoration:none;font-weight:800;">7. ⚖️ رادار انحراف التكلفة المرجحة للشراء</a>
+            <a href="inventory-adjustment.php?tab=transfer" style="background:rgba(52,211,153,0.12);border:1px solid rgba(52,211,153,0.35);border-radius:12px;padding:10px 12px;color:#d1fae5;text-decoration:none;font-weight:800;">8. 🔄 موازن أرصدة العنابر والمناقلات</a>
+            <a href="inv_rep16_market_drop.php" style="background:rgba(236,72,153,0.12);border:1px solid rgba(236,72,153,0.35);border-radius:12px;padding:10px 12px;color:#fbcfe8;text-decoration:none;font-weight:800;">9. 📉 درع الحماية من هبوط أسعار السوق</a>
+            <a href="inv_rep20_simulator.php" style="background:rgba(129,140,248,0.12);border:1px solid rgba(129,140,248,0.35);border-radius:12px;padding:10px 12px;color:#e0e7ff;text-decoration:none;font-weight:800;">10. 🎛️ محاكي سيناريوهات النواقص والطلب</a>
         </div>
     </div>
 

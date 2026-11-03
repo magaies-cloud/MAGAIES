@@ -267,50 +267,70 @@ $header_theme_class = 'header-theme-reports';
             <p>مركز متخصص يتيح الاستعراض الفوري والتحليل المحاسبي الشامل لدفتر الأستاذ العام وحسابات الأرصدة.</p>
         </div>
 
-        <!-- شبكة الأيقونات الأربع: دفتر الأستاذ العام، حسابات الأرصدة، تقرير اليومية الشامل، وأعمار الديون -->
+        <!-- شبكة تقارير الحسابات العامة بالترتيب المحاسبي العالمي -->
         <div class="reports-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px;">
 
-            <!-- 1. دفتر الأستاذ العام -->
-            <a href="general-ledger.php" class="report-card" style="--accent-color: #fbbf24; --shadow-color: 251, 191, 36;">
-                <div class="live-badge"><span class="live-dot"></span>مفعل (Live)</div>
+            <!-- 1. دفتر الأستاذ العام (الموحد الشامل V1 + V2) -->
+            <a href="general-ledger.php" class="report-card" style="--accent-color: #fbbf24; --shadow-color: 251, 191, 36; border: 2px solid rgba(251, 191, 36, 0.5);">
+                <div class="live-badge"><span class="live-dot"></span>الركيزة الأولى (GL + V2)</div>
                 <div class="card-icon">📓</div>
                 <div class="card-title">دفتر الأستاذ العام (GL)</div>
-                <div class="card-desc">تفاصيل العمليات المالية المقيدة، الحسابات التفصيلية، ومتابعة شجرة الحسابات بدقة عالية.</div>
-                <div class="ai-badge">● مراقبة أرصدة شجرة الحسابات</div>
+                <div class="card-desc">تفاصيل كافة العمليات المقيدة، الحسابات التفصيلية، شجرة الحسابات، مع الملف والتمركز الائتماني المدمج.</div>
+                <div class="ai-badge">● مراقبة شجرة الحسابات + التمركز الائتماني</div>
             </a>
 
-            <!-- 2. مركز الأرصدة والمقاييس الموحد -->
+            <!-- 2. حساب الأرصدة الأساسية -->
+            <a href="mainbalances-report.php" class="report-card" style="--accent-color: #10b981; --shadow-color: 16, 185, 129; border: 2px solid rgba(16, 185, 129, 0.5);">
+                <div class="live-badge" style="background: rgba(16, 185, 129, 0.15); color: #10b981; border-color: rgba(16, 185, 129, 0.3);"><span class="live-dot" style="background-color: #10b981;"></span>الركيزة الثانية (USD + SDG)</div>
+                <div class="card-icon">🧮</div>
+                <div class="card-title">حساب الأرصدة الأساسية</div>
+                <div class="card-desc">كشف شامل لجميع العملاء والحسابات دفعة واحدة يوضح الأرصدة بالعملة الأجنبية (USD) والعملة المحلية (SDG).</div>
+                <div class="ai-badge" style="border-color: #10b981; color: #10b981;">● الأرصدة الشاملة (أجنبي USD + محلي SDG)</div>
+            </a>
+
+            <!-- 3. كشف حساب تفصيلي للشركاء -->
+            <a href="account-statement.php" class="report-card" style="--accent-color: #6366f1; --shadow-color: 99, 102, 241;">
+                <div class="live-badge"><span class="live-dot"></span>مفعل (Live)</div>
+                <div class="card-icon">📑</div>
+                <div class="card-title">كشف حساب تفصيلي للشركاء</div>
+                <div class="card-desc">كشف حركات تفصيلي بالتاريخ والرصيد التراكمي للعملاء والموردين والحسابات مع الطباعة والمشاركة.</div>
+                <div class="ai-badge">● كشف حساب تحليلي ومطابقة فورية</div>
+            </a>
+
+            <!-- 4. حساب مديونية الأرصدة الشامل -->
+            <a href="combined_receivables.php" class="report-card" style="--accent-color: #06b6d4; --shadow-color: 6, 182, 212;">
+                <div class="live-badge"><span class="live-dot"></span>مفعل (Live)</div>
+                <div class="card-icon">📊</div>
+                <div class="card-title">حساب مديونية الأرصدة الشامل</div>
+                <div class="card-desc">المديونية الموحدة للعملاء والموردين وتحليل التعرض والتركز الائتماني في شاشة واحدة.</div>
+                <div class="ai-badge">● المديونية الموحدة وتحليل التعرض</div>
+            </a>
+
+            <!-- 5. تقرير أعمار الديون والمتأخرات -->
+            <a href="aging-report.php" class="report-card" style="--accent-color: #ff007f; --shadow-color: 255, 0, 127;">
+                <div class="live-badge"><span class="live-dot"></span>مفعل (Live)</div>
+                <div class="card-icon">⌛</div>
+                <div class="card-title">تقرير أعمار الديون والمتأخرات</div>
+                <div class="card-desc">تحليل المتأخرات وفترات الاستحقاق (30/60/90+ يوم) لمراقبة الديون وتحصيل المتأخرات.</div>
+                <div class="ai-badge">● كاشف المتأخرات والديون الحرجة</div>
+            </a>
+
+            <!-- 6. مركز الأرصدة ومقاصة الحسابات -->
             <a href="balances_modern_hub.php" class="report-card" style="--accent-color: #38bdf8; --shadow-color: 56, 189, 248;">
                 <div class="live-badge"><span class="live-dot"></span>مفعل (Live)</div>
                 <div class="card-icon">⚖️</div>
-                <div class="card-title">مركز الأرصدة والمقاييس الموحد</div>
-                <div class="card-desc">استعراض أرصدة المقاييس، حسابات العملاء والموردين، كشوفات الحساب التفاعلية وميزان المراجعة.</div>
-                <div class="ai-badge">● أرصدة فورية وتدقيق تفاعلي</div>
+                <div class="card-title">مركز الأرصدة ومقاصة الحسابات</div>
+                <div class="card-desc">استعراض أرصدة الحسابات، تسوية ومقاصة مديونية الشركاء، وميزان المراجعة التفاعلي السريع.</div>
+                <div class="ai-badge">● أرصدة فورية ومقاصة تفاعلية</div>
             </a>
+
+            <!-- 7. تقرير اليومية الشامل -->
             <a href="daily_master_report.php" class="report-card" style="--accent-color: #a855f7; --shadow-color: 168, 85, 247;">
                 <div class="live-badge"><span class="live-dot"></span>مفعل (Live)</div>
                 <div class="card-icon">📅</div>
                 <div class="card-title">تقرير اليومية الشامل</div>
                 <div class="card-desc">كشف رقابي موسع لجميع العمليات المالية والسندات وفواتير البيع والشراء والمستودعات.</div>
                 <div class="ai-badge">● الرقابة اليومية وتدقيق الحركة</div>
-            </a>
-
-            <!-- 4. أعمار الديون ومراقبة المتأخرات -->
-            <a href="aging-report.php" class="report-card" style="--accent-color: #ff007f; --shadow-color: 255, 0, 127;">
-                <div class="live-badge"><span class="live-dot"></span>مفعل (Live)</div>
-                <div class="card-icon">⌛</div>
-                <div class="card-title">أعمار الديون (مراقبة المتأخرات)</div>
-                <div class="card-desc">تحليل المتأخرات وفترات الاستحقاق لمراقبة الديون وتحديد الديون المعدومة وقيد التحصيل.</div>
-                <div class="ai-badge">● كاشف المتأخرات والديون المعدومة</div>
-            </a>
-
-            <!-- 5. حساب الارصده الاساسية -->
-            <a href="mainbalances-report.php" class="report-card" style="--accent-color: #10b981; --shadow-color: 16, 185, 129;">
-                <div class="live-badge" style="background: rgba(16, 185, 129, 0.15); color: #10b981; border-color: rgba(16, 185, 129, 0.3);"><span class="live-dot" style="background-color: #10b981;"></span>تجريبي 1 (Demo)</div>
-                <div class="card-icon">🧮</div>
-                <div class="card-title">حساب الارصده الاساسية</div>
-                <div class="card-desc">نسخة استرشادية وتجريبية مخصصة لمراجعة وتقييم الأرصدة المالية بأسلوب وقوالب عرض معدلة.</div>
-                <div class="ai-badge" style="border-color: #10b981; color: #10b981;">● نموذج مخصص ومعدل v1</div>
             </a>
 
         </div>

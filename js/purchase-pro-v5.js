@@ -3101,6 +3101,7 @@ function submitInvoice(ignoreWarnings = false) {
         items: enrichedItems,
         notes: invNotesStr,
         status: 'confirmed',
+        receiptStatus: (!rawMainWh || rawMainWh === 'PENDING_RECEIPT') ? 'pending_receipt' : 'received',
         total: grandAmount,
         netTotal: grandAmount,
         subtotal: grandAmount,
@@ -3438,7 +3439,7 @@ function submitInvoice(ignoreWarnings = false) {
             item.cost = item.costPrice;
             item.purchasePrice = item.lastPurchaseCost || item.costPrice;
             const updatedTotalStock = item.stock && typeof item.stock === 'object'
-                ? Object.values(item.stock).reduce((a, b) => (parseFloat(a) || 0) + (parseFloat(b) || 0), 0)
+                ? Object.entries(item.stock).filter(([k]) => k !== 'PENDING_RECEIPT').reduce((a, [, b]) => (parseFloat(a) || 0) + (parseFloat(b) || 0), 0)
                 : (parseFloat(item.stock) || 0) + baseQty;
             item.currentStock = updatedTotalStock;
             item.quantity = updatedTotalStock;
@@ -3739,7 +3740,7 @@ function postInvoice(invoiceNo) {
             item.cost = item.costPrice;
             item.purchasePrice = item.lastPurchaseCost || item.costPrice;
             const updatedTotalStock = item.stock && typeof item.stock === 'object'
-                ? Object.values(item.stock).reduce((a, b) => (parseFloat(a) || 0) + (parseFloat(b) || 0), 0)
+                ? Object.entries(item.stock).filter(([k]) => k !== 'PENDING_RECEIPT').reduce((a, [, b]) => (parseFloat(a) || 0) + (parseFloat(b) || 0), 0)
                 : (parseFloat(item.stock) || 0) + baseQty;
             item.currentStock = updatedTotalStock;
             item.quantity = updatedTotalStock;
@@ -6114,5 +6115,183 @@ window.getPurchaseInvoiceDataForWA = function(invoiceNo = null) {
         notes: document.getElementById('inv-notes')?.value || ''
     };
 };
+
+// ── AI PURCHASE PRICE SPIKE GUARD & SELLING PRICE MARGIN UPDATER 360° ──
+window.openPurchaseAIAuditModal = function() {
+    let fxRate = 2700;
+    try {
+        const curCfg = JSON.parse(localStorage.getItem('erp_currencies_v1') || '[]');
+        const usd = Array.isArray(curCfg) ? curCfg.find(c => String(c.code || '').toUpperCase() === 'USD') : null;
+        const r = parseFloat(usd?.exchangeRate || localStorage.getItem('erp_exchange_rate_usd') || localStorage.getItem('usd_rate') || 2700);
+        if (r > 0) fxRate = r;
+    } catch (e) {}
+
+    const activeRows = (typeof rows !== 'undefined' && Array.isArray(rows)) ? rows.filter(r => r && r.itemId && (parseFloat(r.quantity) || 0) > 0) : [];
+    let itemsPool = [];
+    try { itemsPool = JSON.parse(localStorage.getItem('erp_items_v1') || '[]'); } catch (e) {}
+
+    // If no active rows in editor, analyze latest purchase invoice from erp_purchase_invoices_v1
+    let sourceLabel = 'الفاتورة الحالية قيد التحرير';
+    let targetLines = [];
+    if (activeRows.length > 0) {
+        const invCur = (typeof getCurrency === 'function') ? getCurrency() : (document.getElementById('hdr-currency')?.value || 'SDG');
+        const invRate = invCur !== 'SDG' ? (parseFloat(document.getElementById('hdr-exchange-rate')?.value) || fxRate) : 1;
+        targetLines = activeRows.map(r => {
+            const master = itemsPool.find(x => String(x.id) === String(r.itemId)) || {};
+            const factor = parseFloat(r.customFactor || r.unitFactor || 1) || 1;
+            const unitCostLocal = ((parseFloat(r.price) || 0) * invRate) / factor;
+            return {
+                itemId: r.itemId,
+                name: master.name || r.name || 'صنف',
+                baseUnit: master.baseUnit || r.selectedUnit || 'وحدة',
+                qty: (parseFloat(r.quantity) || 0) * factor,
+                newCostSdg: unitCostLocal,
+                oldCostSdg: parseFloat(master.averageCost || master.costPrice || master.lastPurchaseCost || 0) || unitCostLocal,
+                currentSellSdg: parseFloat(master.salePrice || master.sellingPrice || master.price || 0) || 0
+            };
+        });
+    } else {
+        let allPur = [];
+        try { allPur = JSON.parse(localStorage.getItem('erp_purchase_invoices_v1') || '[]'); } catch (e) {}
+        const validPur = allPur.filter(p => p && !p.deleted && !p.isGRN && !p.isReturn && Array.isArray(p.items) && p.items.length > 0);
+        if (validPur.length > 0) {
+            const latest = validPur[validPur.length - 1];
+            sourceLabel = 'آخر فاتورة مشتريات مسجلة (#' + (latest.invoiceNo || latest.id || '') + ')';
+            const invRate = (latest.currency && latest.currency !== 'SDG') ? (parseFloat(latest.exchangeRate) || fxRate) : 1;
+            targetLines = (latest.items || []).map(r => {
+                const master = itemsPool.find(x => String(x.id) === String(r.itemId)) || {};
+                const factor = parseFloat(r.customFactor || r.factor || 1) || 1;
+                const unitCostLocal = ((parseFloat(r.price || r.unitPrice) || 0) * invRate) / factor;
+                return {
+                    itemId: r.itemId || master.id,
+                    name: master.name || r.itemName || r.name || 'صنف',
+                    baseUnit: master.baseUnit || r.unit || 'وحدة',
+                    qty: (parseFloat(r.quantity || r.qty) || 0) * factor,
+                    newCostSdg: unitCostLocal,
+                    oldCostSdg: parseFloat(master.averageCost || master.costPrice || master.lastPurchaseCost || 0) || unitCostLocal,
+                    currentSellSdg: parseFloat(master.salePrice || master.sellingPrice || master.price || 0) || 0
+                };
+            });
+        }
+    }
+
+    let modal = document.getElementById('purchase-ai-audit-modal');
+    if (modal) modal.remove();
+    modal = document.createElement('div');
+    modal.id = 'purchase-ai-audit-modal';
+    modal.style.cssText = 'position:fixed;inset:0;background:rgba(2,6,23,0.85);backdrop-filter:blur(8px);z-index:999999;display:flex;align-items:center;justify-content:center;padding:18px;direction:rtl;font-family:Tajawal,sans-serif;';
+
+    const defaultMarginPct = 18;
+    const rowsHtml = targetLines.length === 0
+        ? '<tr><td colspan="7" style="text-align:center;padding:26px;color:#94a3b8;font-weight:700;">أضف أصنافاً في الفاتورة أو سجل فاتورة مشتريات لتحليل تكلفة الاستيراد وهامش الربح الذكي.</td></tr>'
+        : targetLines.map((ln, idx) => {
+            const diffPct = ln.oldCostSdg > 0 ? (((ln.newCostSdg - ln.oldCostSdg) / ln.oldCostSdg) * 100) : 0;
+            const suggestedSell = Math.ceil(ln.newCostSdg * (1 + defaultMarginPct / 100));
+            const isLossRisk = ln.currentSellSdg > 0 && ln.currentSellSdg <= ln.newCostSdg;
+            const badge = isLossRisk
+                ? '<span style="background:rgba(239,68,68,0.2);color:#fca5a5;border:1px solid rgba(239,68,68,0.45);padding:2px 8px;border-radius:8px;font-size:0.72rem;font-weight:800;">🚨 سعر البيع أقل من التكلفة!</span>'
+                : (diffPct > 10
+                    ? `<span style="background:rgba(245,158,11,0.2);color:#fcd34d;border:1px solid rgba(245,158,11,0.45);padding:2px 8px;border-radius:8px;font-size:0.72rem;font-weight:800;">⚠️ قفزة سعر +${diffPct.toFixed(1)}%</span>`
+                    : '<span style="background:rgba(16,185,129,0.18);color:#6ee7b7;border:1px solid rgba(16,185,129,0.4);padding:2px 8px;border-radius:8px;font-size:0.72rem;font-weight:800;">✅ مستقر</span>');
+            return `<tr style="border-bottom:1px solid rgba(148,163,184,0.12);">
+                <td style="padding:10px;font-weight:800;color:#f8fafc;">${ln.name} <span style="color:#94a3b8;font-size:0.75rem;">(${ln.baseUnit})</span></td>
+                <td style="padding:10px;text-align:center;color:#94a3b8;font-weight:700;">${Math.round(ln.oldCostSdg).toLocaleString('en-US')}</td>
+                <td style="padding:10px;text-align:center;color:#38bdf8;font-weight:900;">${Math.round(ln.newCostSdg).toLocaleString('en-US')} <div style="font-size:0.7rem;color:#a855f7;">$${(ln.newCostSdg / fxRate).toFixed(2)}</div></td>
+                <td style="padding:10px;text-align:center;">${badge}</td>
+                <td style="padding:10px;text-align:center;color:${isLossRisk ? '#f87171' : '#cbd5e1'};font-weight:800;">${Math.round(ln.currentSellSdg).toLocaleString('en-US')}</td>
+                <td style="padding:10px;text-align:center;">
+                    <input type="number" class="ai-sell-price-input" data-item-id="${ln.itemId}" data-base-cost="${ln.newCostSdg}" value="${suggestedSell}" style="width:125px;padding:6px 10px;border-radius:8px;background:rgba(15,23,42,0.9);border:1px solid rgba(52,211,153,0.5);color:#34d399;font-weight:900;text-align:center;">
+                </td>
+            </tr>`;
+        }).join('');
+
+    modal.innerHTML = `
+        <div style="background:linear-gradient(145deg,#0f172a,#1e1b4b);border:1px solid rgba(168,85,247,0.45);border-radius:18px;width:100%;max-width:920px;max-height:88vh;display:flex;flex-direction:column;box-shadow:0 24px 60px rgba(0,0,0,0.65);overflow:hidden;">
+            <div style="padding:16px 22px;background:rgba(15,23,42,0.75);border-bottom:1px solid rgba(168,85,247,0.25);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+                <div>
+                    <div style="font-size:1.12rem;font-weight:900;color:#e9d5ff;display:flex;align-items:center;gap:8px;">🤖 رادار فحص أسعار الشراء وتحديث هامش البيع الذكي (AI Margin Guard 360°)</div>
+                    <div style="font-size:0.8rem;color:#94a3b8;margin-top:3px;">المصدر: <strong style="color:#38bdf8;">${sourceLabel}</strong> | سعر الصرف المعتمد: <strong style="color:#34d399;">1 USD = ${fxRate.toLocaleString('en-US')} SDG</strong></div>
+                </div>
+                <div style="display:flex;align-items:center;gap:8px;">
+                    <label style="font-size:0.82rem;color:#cbd5e1;font-weight:800;">هامش الربح المستهدف %:</label>
+                    <input type="number" id="ai-target-margin-pct" value="${defaultMarginPct}" min="1" max="500" oninput="window.recalcAISuggestedSellingPrices(this.value)" style="width:72px;padding:5px 8px;border-radius:8px;background:#0f172a;border:1px solid #a855f7;color:#f8fafc;font-weight:900;text-align:center;">
+                    <button onclick="document.getElementById('purchase-ai-audit-modal').remove()" style="background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.4);color:#fca5a5;padding:6px 12px;border-radius:8px;cursor:pointer;font-weight:800;">✖ إغلاق</button>
+                </div>
+            </div>
+            <div style="padding:16px 22px;overflow-y:auto;flex:1;">
+                <table style="width:100%;border-collapse:collapse;font-size:0.86rem;">
+                    <thead>
+                        <tr style="background:rgba(30,41,59,0.85);color:#cbd5e1;border-bottom:1px solid rgba(148,163,184,0.2);">
+                            <th style="padding:10px;text-align:right;">الصنف / الوحدة</th>
+                            <th style="padding:10px;text-align:center;">التكلفة السابقة</th>
+                            <th style="padding:10px;text-align:center;">التكلفة الجديدة (SDG / USD)</th>
+                            <th style="padding:10px;text-align:center;">تشخيص AI</th>
+                            <th style="padding:10px;text-align:center;">سعر البيع الحالي</th>
+                            <th style="padding:10px;text-align:center;">سعر البيع المقترح</th>
+                        </tr>
+                    </thead>
+                    <tbody>${rowsHtml}</tbody>
+                </table>
+            </div>
+            <div style="padding:14px 22px;background:rgba(15,23,42,0.85);border-top:1px solid rgba(168,85,247,0.22);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+                <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                    <button onclick="window.location.href='supplier_reliability.php'" style="background:rgba(245,158,11,0.16);border:1px solid rgba(245,158,11,0.45);color:#fbbf24;padding:8px 14px;border-radius:9px;cursor:pointer;font-weight:800;font-family:Tajawal,sans-serif;">🤝 مؤشر اعتمادية الموردين 360°</button>
+                    <button onclick="window.location.href='smart-logistics.php?mode=purchases'" style="background:rgba(14,165,233,0.16);border:1px solid rgba(56,189,248,0.45);color:#38bdf8;padding:8px 14px;border-radius:9px;cursor:pointer;font-weight:800;font-family:Tajawal,sans-serif;">📥 بوابة استلام المشتريات</button>
+                </div>
+                <button onclick="window.applyPurchaseSellingPricesAI()" style="background:linear-gradient(135deg,#10b981,#059669);border:none;color:#fff;padding:9px 20px;border-radius:10px;cursor:pointer;font-weight:900;font-family:Tajawal,sans-serif;box-shadow:0 4px 15px rgba(16,185,129,0.35);">💾 اعتماد وتحديث أسعار البيع في دليل الأصناف فوراً</button>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(modal);
+};
+
+window.recalcAISuggestedSellingPrices = function(marginPct) {
+    const pct = parseFloat(marginPct) || 0;
+    document.querySelectorAll('#purchase-ai-audit-modal .ai-sell-price-input').forEach(inp => {
+        const baseCost = parseFloat(inp.getAttribute('data-base-cost')) || 0;
+        if (baseCost > 0) {
+            inp.value = Math.ceil(baseCost * (1 + pct / 100));
+        }
+    });
+};
+
+window.applyPurchaseSellingPricesAI = function() {
+    const inputs = document.querySelectorAll('#purchase-ai-audit-modal .ai-sell-price-input');
+    if (!inputs.length) return;
+    let itemsPool = [];
+    try { itemsPool = JSON.parse(localStorage.getItem('erp_items_v1') || '[]'); } catch (e) {}
+    let updatedCount = 0;
+    inputs.forEach(inp => {
+        const id = inp.getAttribute('data-item-id');
+        const newSell = parseFloat(inp.value) || 0;
+        if (!id || newSell <= 0) return;
+        const item = itemsPool.find(x => String(x.id) === String(id));
+        if (item) {
+            item.salePrice = newSell;
+            item.sellingPrice = newSell;
+            item.price = newSell;
+            if (Array.isArray(item.units) && item.units[0]) {
+                item.units[0].salePrice = newSell;
+                item.units[0].price = newSell;
+            }
+            updatedCount++;
+        }
+    });
+    if (updatedCount > 0) {
+        localStorage.setItem('erp_items_v1', JSON.stringify(itemsPool));
+        if (typeof ITEMS !== 'undefined' && Array.isArray(ITEMS)) {
+            ITEMS.splice(0, ITEMS.length, ...itemsPool);
+        }
+        if (typeof window.logSystemAction === 'function') {
+            window.logSystemAction('تحديث أسعار البيع بالذكاء الاصطناعي', 'المشتريات / التسعير الذكي', 'AI-MARGIN', `تم تحديث أسعار البيع لعدد ${updatedCount} صنف بناءً على تكلفة الشراء الجديدة`);
+        }
+        if (typeof showToast === 'function') {
+            showToast(`✅ تم تحديث أسعار البيع لـ ${updatedCount} صنف في دليل الأصناف والمبيعات بنجاح!`, 'success');
+        }
+    }
+    const modal = document.getElementById('purchase-ai-audit-modal');
+    if (modal) modal.remove();
+};
+
 
 

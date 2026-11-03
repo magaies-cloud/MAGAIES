@@ -3,9 +3,11 @@
 // Visual Symmetry with Strict Functional & Accounting Isolation
 // ============================================================================
 
-let slCurrentMode = localStorage.getItem('sl_active_mode_v1') || 'sales'; // 'sales' | 'purchases'
+let slCurrentMode = 'sales'; // 'sales' | 'purchases'
 let slRegistryFilter = 'pending'; // 'pending' | 'partial' | 'done' | 'notes' | 'all'
 let slCurrentDoc = null;
+let slDeductionLevel = parseInt(localStorage.getItem('sl_deduction_level_v1') || '1', 10); // 1: Manager, 2: Warehouse Mgr, 3: Storekeeper QR
+let slStorekeeperFocus = false;
 let slCurrentPhoto = null;
 let slHtml5QrCode = null;
 let slBridgePollTimer = null;
@@ -169,6 +171,13 @@ function resolveSlItemMeta(it) {
     const hasMultiUnits = factor > 1 || normStr(unit) !== normStr(baseUnit);
     const code = it.code || it.itemCode || (master ? (master.code || master.barcode || master.id) : (itemId || '---'));
 
+    let tonRefHint = '';
+    const nCheck = normStr(name);
+    if (/سيخ|حديد|لينيه|لينية/.test(nCheck) && /طن/.test(normStr(unit))) {
+        if (/3\s*لين|8\s*مم|8\s*ملي/.test(nCheck)) tonRefHint = 'طن عددي = 135 سيخة | طن وزني = 166 سيخة';
+        else if (/4\s*لين|10\s*مم|12\s*مم/.test(nCheck)) tonRefHint = 'طن عددي = 92 سيخة | طن وزني = 110 سيخة';
+        else if (/5\s*لين|16\s*مم/.test(nCheck)) tonRefHint = 'طن عددي = 52 سيخة | طن وزني = 59 سيخة';
+    }
     return {
         itemId: master ? master.id : (itemId || name),
         name,
@@ -180,7 +189,8 @@ function resolveSlItemMeta(it) {
         baseQty: +(qty * factor).toFixed(2),
         price,
         total,
-        hasMultiUnits
+        hasMultiUnits,
+        tonRefHint
     };
 }
 
@@ -339,7 +349,7 @@ function getProcessedSalesInvoices() {
 
 // ── MODE SWITCHER (CHAMELEON VISUAL + FUNCTIONAL ISOLATION) ──────────────────
 function switchLogisticsMode(mode, silent = false) {
-    if (mode !== 'sales' && mode !== 'purchases') mode = 'sales';
+    mode = 'sales';
     slCurrentMode = mode;
     localStorage.setItem('sl_active_mode_v1', mode);
     document.body.setAttribute('data-logistics-mode', mode);
@@ -688,6 +698,11 @@ function loadSlDocument(queryNo, focusItemIdx = null) {
     if (wNotes)   wNotes.value   = doc.warehouseNotes || doc.notes || '';
     if (pNotes)   pNotes.value   = doc.personalNotes || '';
 
+    const btnL4 = document.getElementById('sl-btn-admin-l4');
+    if (btnL4) {
+        const showL4 = isSales && slDeductionLevel === 1 && (doc.deliveryStatus === 'Delivered_Pending_Admin' || doc._slStatus === 'done') && doc.deliveryStatus !== 'Admin_Closed';
+        btnL4.style.display = showL4 ? 'inline-flex' : 'none';
+    }
     renderSlItemsGrid();
     renderSlRegistry();
 
@@ -755,6 +770,7 @@ function renderSlItemsGrid() {
                     <span class="sl-badge" style="background:rgba(56,189,248,0.12); color:#7dd3fc; border:1px solid rgba(56,189,248,0.3);">
                         1 ${meta.unit} = ${meta.factor} ${meta.baseUnit}
                     </span>
+                    ${meta.tonRefHint ? `<div style="font-size:0.68rem; color:#fde68a; font-weight:800; margin-top:4px;">⚖️ ${meta.tonRefHint}</div>` : ''}
                 </td>
 
                 <td style="text-align:center; font-weight:900; font-size:1.05rem; color:#e2e8f0;">
@@ -830,9 +846,16 @@ function renderSlItemsGrid() {
                 </td>
 
                 <td style="text-align:center;" id="sl-row-status-cell-${idx}">
-                    ${slCurrentDoc._slStatus === 'done'
-                        ? `<span class="sl-badge sl-badge-done">✅ مكتمل</span>`
-                        : `<span class="sl-badge sl-badge-pending">⚡ جاهز</span>`}
+                    <div style="display:flex; flex-direction:column; align-items:center; gap:5px;">
+                        ${slCurrentDoc._slStatus === 'done'
+                            ? `<span class="sl-badge sl-badge-done">✅ مكتمل</span>`
+                            : `<span class="sl-badge sl-badge-pending">⚡ جاهز</span>`}
+                        ${slCurrentDoc._slStatus !== 'done' ? (
+                            row._isSplitChild
+                                ? `<button type="button" onclick="mergeSlSplitRow(${idx})" class="sl-btn" style="padding:3px 8px; font-size:0.7rem; background:rgba(239,68,68,0.18); border-color:#f87171; color:#fca5a5;" title="دمج هذا السطر الفرعي مع السطر الأصلي">✕ دمج</button>`
+                                : `<button type="button" onclick="splitSlItemRow(${idx})" class="sl-btn" style="padding:3px 8px; font-size:0.7rem; background:rgba(56,189,248,0.16); border-color:#38bdf8; color:#7dd3fc;" title="تقسيم هذا الصنف بين مخزنين أو دفعتين في نفس اللحظة">✂️ قسّم لمخزنين</button>`
+                        ) : ''}
+                    </div>
                 </td>
             </tr>
         `;
@@ -990,9 +1013,12 @@ function executeSlSalesDelivery() {
 
     let isPartialDelivery = false;
     const deliveredItemsPayload = [];
-    const items = inv.items || inv.rows || [];
+    const docRows = (slCurrentDoc && Array.isArray(slCurrentDoc.items) && slCurrentDoc.items.length)
+        ? slCurrentDoc.items
+        : (inv.items || inv.rows || []);
 
-    items.forEach((item, idx) => {
+    const updatedInvItems = [];
+    docRows.forEach((item, idx) => {
         const meta = resolveSlItemMeta(item);
         const origQty = meta.qty;
         const prevDel = wasAlreadyDone ? 0 : (parseFloat(item.deliveredQty || 0) || 0);
@@ -1004,20 +1030,26 @@ function executeSlSalesDelivery() {
             if (!isNaN(parsed)) deliverNow = Math.min(maxRem, Math.max(0, parsed));
         }
 
-        const rowWhId = whSelects[idx]?.value || masterWhId;
+        const rowWhId = whSelects[idx]?.value || item.warehouseId || masterWhId;
         const rowWhObj = whs.find(w => String(w.id) === String(rowWhId)) || whs[0];
 
-        item.deliveredQty = +(prevDel + deliverNow).toFixed(4);
-        item.warehouseId = rowWhObj.id;
-        item.warehouseName = rowWhObj.name;
-
-        if (item.deliveredQty < origQty - 0.0001) {
+        const nextDelQty = +(prevDel + deliverNow).toFixed(4);
+        if (nextDelQty < origQty - 0.0001) {
             isPartialDelivery = true;
         }
 
+        const cleanRow = { ...item };
+        delete cleanRow._isSplitChild;
+        delete cleanRow._parentIdx;
+        delete cleanRow._tempExecQty;
+        cleanRow.deliveredQty = nextDelQty;
+        cleanRow.warehouseId = rowWhObj.id;
+        cleanRow.warehouseName = rowWhObj.name;
+        updatedInvItems.push(cleanRow);
+
         if (deliverNow > 0) {
             deliveredItemsPayload.push({
-                ...item,
+                ...cleanRow,
                 name: meta.name,
                 itemName: meta.name,
                 unit: meta.unit,
@@ -1025,10 +1057,13 @@ function executeSlSalesDelivery() {
                 quantity: deliverNow,
                 orderedQty: origQty,
                 warehouseId: rowWhObj.id,
-                warehouseName: rowWhObj.name
+                warehouseName: rowWhObj.name,
+                deductedByLevel: slDeductionLevel
             });
         }
     });
+    inv.items = updatedInvItems;
+    inv.deliveredByLevel = slDeductionLevel;
 
     if (!deliveredItemsPayload.length) {
         showSlToast('⚠️ يرجى تحديد كمية أكبر من صفر للصرف والتسليم', 'warning');
@@ -1240,12 +1275,37 @@ function executeSlPurchaseReceipt() {
             const mItem = erpItems[masterIdx];
             if (!mItem.stock || typeof mItem.stock !== 'object') mItem.stock = {};
             if (!mItem.actualStock || typeof mItem.actualStock !== 'object') mItem.actualStock = {};
-            mItem.stock[whId] = (parseFloat(mItem.stock[whId]) || 0) + parseFloat(gItem.quantity || 0);
-            mItem.actualStock[whId] = (parseFloat(mItem.actualStock[whId]) || 0) + parseFloat(gItem.quantity || 0);
-            if (mItem.quantity !== undefined) {
-                mItem.quantity = (parseFloat(mItem.quantity) || 0) + parseFloat(gItem.quantity || 0);
+            // Deduct from PENDING_RECEIPT bucket if present
+            if (mItem.stock['PENDING_RECEIPT'] !== undefined) {
+                mItem.stock['PENDING_RECEIPT'] = Math.max(0, (parseFloat(mItem.stock['PENDING_RECEIPT']) || 0) - baseQtyToAdd);
+            }
+            if (mItem.actualStock['PENDING_RECEIPT'] !== undefined) {
+                mItem.actualStock['PENDING_RECEIPT'] = Math.max(0, (parseFloat(mItem.actualStock['PENDING_RECEIPT']) || 0) - baseQtyToAdd);
+            }
+            mItem.stock[whId] = (parseFloat(mItem.stock[whId]) || 0) + baseQtyToAdd;
+            mItem.actualStock[whId] = (parseFloat(mItem.actualStock[whId]) || 0) + baseQtyToAdd;
+            const realWhStock = Object.entries(mItem.stock)
+                .filter(([k]) => k !== 'PENDING_RECEIPT')
+                .reduce((acc, [, v]) => acc + (parseFloat(v) || 0), 0);
+            mItem.currentStock = realWhStock;
+            mItem.quantity = realWhStock;
+            if (Array.isArray(mItem.units) && mItem.units[0]) {
+                mItem.units[0].stock = realWhStock;
+            }
+            if (parseFloat(gItem.price) > 0) {
+                const unitCostBase = parseFloat(gItem.price) / (parseFloat(gItem.factor) || 1);
+                mItem.lastPurchaseCost = unitCostBase;
+                if (!mItem.costPrice || mItem.costPrice <= 0) mItem.costPrice = unitCostBase;
             }
             erpItems[masterIdx] = mItem;
+        }
+        // Also deduct from PENDING_RECEIPT row in erp_inventory_v1 if present
+        let pendingInv = inventory.find(inv =>
+            (String(inv.itemId || inv.id) === String(gItem.itemId) || String(inv.name || '').trim() === gItem.name.trim()) &&
+            (String(inv.warehouse) === 'PENDING_RECEIPT' || String(inv.warehouseId) === 'PENDING_RECEIPT')
+        );
+        if (pendingInv) {
+            pendingInv.qty = Math.max(0, (parseFloat(pendingInv.qty || pendingInv.quantity || 0) - baseQtyToAdd));
         }
     });
 
@@ -1292,6 +1352,9 @@ function executeSlPurchaseReceipt() {
     allPurchases.push(grnRecord);
 
     localStorage.setItem('erp_purchase_invoices_v1', JSON.stringify(allPurchases));
+    if (typeof window.logSystemAction === 'function') {
+        window.logSystemAction('استلام بضاعة من البوابة الذكية (GRN)', 'المشتريات / المخازن', grnId, `إصدار مذكرة استلام ${grnId} لفاتورة المشتريات #${invNo}`);
+    }
     if (typeof window.pushToCloud === 'function') window.pushToCloud(true);
 
     try {
@@ -1379,6 +1442,9 @@ function undoSlTransaction() {
         }
 
         localStorage.setItem('erp_purchase_invoices_v1', JSON.stringify(allPurchases));
+    if (typeof window.logSystemAction === 'function') {
+        window.logSystemAction('تحديث استلام مشتريات (GRN)', 'المشتريات / المخازن', String(invNo || ''), `تحديث حالة استلام فاتورة المشتريات #${invNo}`);
+    }
         localStorage.setItem('erp_inventory_v1', JSON.stringify(inventory));
 
         loadSlDocument(invNo);
@@ -1773,6 +1839,177 @@ function shareSlWhatsApp() {
     window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
 }
 
+
+// ── 3-LEVEL DEDUCTION & SPLITTING ENGINE (1: المدير، 2: مدير المخزن، 3: المخزنجي بالـ QR) ──
+function setSlDeductionLevel(lvl, silent = false) {
+    slDeductionLevel = parseInt(lvl, 10) || 1;
+    localStorage.setItem('sl_deduction_level_v1', slDeductionLevel);
+
+    [1, 2, 3].forEach(n => {
+        const btn = document.getElementById('sl-lvl-btn-' + n);
+        if (btn) {
+            btn.className = 'sl-level-pill' + (n === slDeductionLevel ? (' active-lvl-' + n) : '');
+        }
+    });
+
+    const priceChk = document.getElementById('sl-col-chk-price');
+    const specChk = document.getElementById('sl-col-chk-spec');
+    const prevChk = document.getElementById('sl-col-chk-prev');
+    const splitAbBtn = document.getElementById('sl-btn-split-ab');
+    const verifyBadge = document.getElementById('sl-verify-badge');
+
+    if (slDeductionLevel === 1) {
+        slStorekeeperFocus = false;
+        if (specChk) specChk.checked = true;
+        if (prevChk) prevChk.checked = true;
+        if (splitAbBtn) splitAbBtn.style.display = '';
+        if (verifyBadge) verifyBadge.innerHTML = '👑 المستوى 1: صلاحية المدير الكاملة';
+        if (!silent) showSlToast('👑 المستوى 1 (المدير العام): صلاحية كاملة للتقسيم المالي والمخزني واعتماد الإغلاق الإداري L4', 'success', 2600);
+    } else if (slDeductionLevel === 2) {
+        slStorekeeperFocus = false;
+        if (priceChk) priceChk.checked = false;
+        if (specChk) specChk.checked = true;
+        if (prevChk) prevChk.checked = true;
+        if (splitAbBtn) splitAbBtn.style.display = '';
+        if (verifyBadge) verifyBadge.innerHTML = '🏢 المستوى 2: تقسيم وتوزيع مدير المخزن';
+        if (!silent) showSlToast('🏢 المستوى 2 (مدير المخزن): تقسيم الأصناف وتوزيعها على المخازن والدفعات واعتماد الصرف/التوريد', 'success', 2600);
+    } else {
+        slStorekeeperFocus = true;
+        if (priceChk) priceChk.checked = false;
+        if (specChk) specChk.checked = false;
+        if (prevChk) prevChk.checked = true;
+        if (splitAbBtn) splitAbBtn.style.display = 'none';
+        const autoQr = document.getElementById('sl-auto-execute-qr');
+        if (autoQr) autoQr.checked = true;
+        if (verifyBadge) verifyBadge.innerHTML = '📦 المستوى 3: خصم المخزنجي الفوري بالـ QR';
+        if (!silent) showSlToast('📦 المستوى 3 (المخزنجي + QR): تم تفعيل وضع الراحة والتركيز الميداني — مرّر الباركود للخصم الفوري في جزء مخزنك!', 'success', 2800);
+    }
+
+    applySlColVisibility();
+    if (slCurrentDoc) loadSlDocument(slCurrentDoc.invoiceNo);
+}
+
+function toggleSlStorekeeperFocus() {
+    slStorekeeperFocus = !slStorekeeperFocus;
+    const priceChk = document.getElementById('sl-col-chk-price');
+    const specChk = document.getElementById('sl-col-chk-spec');
+    if (slStorekeeperFocus) {
+        if (priceChk) priceChk.checked = false;
+        if (specChk) specChk.checked = false;
+        applySlTypography(17, '#ffffff');
+        showSlToast('🎯 تم تفعيل وضع تركيز المخزنجي (تكبير الأرقام وإخفاء الأعمدة الثانوية لراحة العين)', 'success', 2400);
+    } else {
+        if (specChk) specChk.checked = true;
+        applySlTypography(15, '#f8fafc');
+        showSlToast('👁️ تم استعادة العرض الكامل لجميع الأعمدة', 'success', 2000);
+    }
+    applySlColVisibility();
+}
+
+function splitSlItemRow(idx) {
+    if (!slCurrentDoc || !Array.isArray(slCurrentDoc.items) || !slCurrentDoc.items[idx]) return;
+    const priInputs = document.querySelectorAll('.sl-qty-primary-input');
+    const whSelects = document.querySelectorAll('.sl-row-wh-select');
+    const whs = getSlWarehouses();
+
+    slCurrentDoc.items.forEach((it, i) => {
+        if (priInputs[i]) it._tempExecQty = parseFloat(priInputs[i].value) || 0;
+        if (whSelects[i]) it.warehouseId = whSelects[i].value;
+    });
+
+    const parentRow = slCurrentDoc.items[idx];
+    const meta = resolveSlItemMeta(parentRow);
+    const curExec = parentRow._tempExecQty !== undefined ? parentRow._tempExecQty : (parseFloat(parentRow.remainingQty ?? meta.qty) || meta.qty);
+    if (curExec <= 0) {
+        showSlToast('⚠️ الكمية المتبقية في هذا السطر صفر — لا يمكن تقسيمها', 'warning');
+        return;
+    }
+
+    const half1 = +(curExec / 2).toFixed(2);
+    const half2 = +(curExec - half1).toFixed(2);
+
+    const curWhId = parentRow.warehouseId || document.getElementById('sl-master-warehouse')?.value || whs[0].id;
+    const altWh = whs.find(w => String(w.id) !== String(curWhId)) || whs[0];
+
+    parentRow.qty = +(half1 + (parseFloat(parentRow.deliveredQty || parentRow.receivedQty || 0) || 0)).toFixed(4);
+    parentRow.quantity = parentRow.qty;
+    parentRow.remainingQty = half1;
+
+    const childRow = {
+        ...JSON.parse(JSON.stringify(parentRow)),
+        qty: half2,
+        quantity: half2,
+        deliveredQty: 0,
+        receivedQty: 0,
+        remainingQty: half2,
+        warehouseId: altWh.id,
+        warehouseName: altWh.name,
+        _isSplitChild: true,
+        _parentIdx: idx
+    };
+
+    slCurrentDoc.items.splice(idx + 1, 0, childRow);
+    renderSlItemsGrid();
+    showSlToast(`✂️ تم تقسيم الصنف (${meta.name}) إلى دفعتين/مخزنين (${half1} + ${half2} ${meta.unit})`, 'success');
+}
+
+function mergeSlSplitRow(idx) {
+    if (!slCurrentDoc || !Array.isArray(slCurrentDoc.items) || !slCurrentDoc.items[idx]) return;
+    const child = slCurrentDoc.items[idx];
+    const parent = slCurrentDoc.items[idx - 1];
+    if (parent) {
+        const childRem = parseFloat(child.remainingQty ?? child.qty ?? 0) || 0;
+        parent.qty = +((parseFloat(parent.qty || 0) || 0) + childRem).toFixed(4);
+        parent.quantity = parent.qty;
+        parent.remainingQty = +((parseFloat(parent.remainingQty || 0) || 0) + childRem).toFixed(4);
+    }
+    slCurrentDoc.items.splice(idx, 1);
+    renderSlItemsGrid();
+    showSlToast('🔗 تم دمج السطر الفرعي مع السطر الأصلي بنجاح', 'success', 2000);
+}
+
+function executeSlAdminClosureL4() {
+    if (!slCurrentDoc) return;
+    const invNo = String(slCurrentDoc.invoiceNo);
+    if (slCurrentMode === 'sales') {
+        const allSales = JSON.parse(localStorage.getItem('erp_sales_invoices_v1') || '[]');
+        const idx = allSales.findIndex(i => String(i.invoiceNo || i.id) === invNo);
+        if (idx === -1) return;
+        allSales[idx].deliveryStatus = 'Admin_Closed';
+        allSales[idx].status = 'Admin_Closed';
+        allSales[idx].isDelivered = true;
+        allSales[idx].adminClosedAt = new Date().toISOString();
+        localStorage.setItem('erp_sales_invoices_v1', JSON.stringify(allSales));
+        localStorage.setItem('erp_inv_' + invNo, JSON.stringify(allSales[idx]));
+        if (typeof window.logSystemAction === 'function') {
+            window.logSystemAction('اعتماد إداري نهائي L4 (مبيعات)', 'المبيعات / المخازن', invNo, `إغلاق إداري نهائي لإذن صرف الفاتورة #${invNo}`);
+        }
+        loadSlDocument(invNo);
+        showSlToast(`👑 تم الاعتماد الإداري النهائي وإغلاق إذن المنصرف للفاتورة #${invNo} (L4)`, 'success');
+    } else {
+        const allPurchases = JSON.parse(localStorage.getItem('erp_purchase_invoices_v1') || '[]');
+        const idx = allPurchases.findIndex(p => !p.isGRN && !p.isReturn && String(p.invoiceNo || p.id) === invNo);
+        if (idx === -1) return;
+        allPurchases[idx].receiptStatus = 'Admin_Closed';
+        allPurchases[idx].status = 'Admin_Closed';
+        allPurchases[idx].adminClosedAt = new Date().toISOString();
+        localStorage.setItem('erp_purchase_invoices_v1', JSON.stringify(allPurchases));
+        if (typeof window.logSystemAction === 'function') {
+            window.logSystemAction('اعتماد إداري نهائي L4 (مشتريات)', 'المشتريات / المخازن', invNo, `إغلاق إداري نهائي لإذن استلام فاتورة المشتريات #${invNo}`);
+        }
+        loadSlDocument(invNo);
+        showSlToast(`👑 تم الاعتماد الإداري النهائي وإغلاق إذن استلام المشتريات #${invNo} (L4)`, 'success');
+    }
+}
+
+function openSlInvoiceSplitBoard() {
+    if (slCurrentMode === 'sales') {
+        const invParam = slCurrentDoc ? `&inv=${encodeURIComponent(slCurrentDoc.invoiceNo)}` : '';
+        window.location.href = `direct-sales.php?action=split${invParam}`;
+    } else {
+        fillAllSlQuantities(0.5);
+    }
+}
 // ── CLOUD SYNC & INITIALIZATION ──────────────────────────────────────────────
 async function refreshAllSlData() {
     try {
@@ -1816,6 +2053,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     switchLogisticsMode(slCurrentMode, true);
+    setSlDeductionLevel(slDeductionLevel, true);
     startSlMobileBridgeListener();
 
     const qrParam = params.get('qr_deliver') || params.get('inv');

@@ -222,11 +222,184 @@
                     const target = e.target;
                     if (!target) return;
 
-                    if (target.id === 'selling-price' || target.id === 'cost-price') {
+                    if (target.id === 'selling-price' || target.id === 'cost-price' || target.id === 'item-selling-price' || target.id === 'item-cost-price') {
                         self.checkMasterItemPrice();
                     }
                 }, true);
             }
+
+            // 4. Purchases & GRN screens listeners
+            if (page.includes('purchase') || page.includes('smart-logistics')) {
+                document.addEventListener('change', function(e) {
+                    const target = e.target;
+                    if (!target) return;
+                    if (target.classList.contains('pur-price-input') || target.name === 'purchase_price' || (target.id && target.id.includes('cost'))) {
+                        const row = target.closest('tr') || target.parentElement;
+                        const prevCostEl = row ? row.querySelector('[data-prev-cost]') : null;
+                        const prevCost = prevCostEl ? parseFloat(prevCostEl.getAttribute('data-prev-cost')) : 0;
+                        const newCost = parseFloat(target.value) || 0;
+                        if (prevCost > 0 && newCost > prevCost * 1.25) {
+                            self.showAlertBanner('⚠️ تنبيه مشتريات: سعر الشراء المدخل (' + newCost.toLocaleString() + ') يرتفع بأكثر من 25% عن آخر تكلفة معتمدة (' + prevCost.toLocaleString() + ')!', 'warning');
+                        }
+                    }
+                }, true);
+            }
+
+            // 5. Inventory Stocktake & Adjustment listeners
+            if (page.includes('inventory') || page.includes('stocktake') || page.includes('warehouse')) {
+                document.addEventListener('change', function(e) {
+                    const target = e.target;
+                    if (!target) return;
+                    if (target.classList.contains('actual-qty-input') || (target.id && target.id.includes('actual'))) {
+                        const val = parseFloat(target.value);
+                        if (!isNaN(val) && val < 0) {
+                            target.classList.add('erp-alert-highlight-danger');
+                            self.showAlertBanner('🚨 تنبيه جرد مخزني: لا يمكن إدخال كمية جرد فعلي سالبة (' + val + ')!', 'danger');
+                        }
+                    }
+                }, true);
+            }
+
+            // 6. Journal Voucher & Accounting Balance Guard
+            if (page.includes('journal') || page.includes('posting')) {
+                document.addEventListener('click', function(e) {
+                    const btn = e.target.closest('button');
+                    if (!btn) return;
+                    if (btn.textContent && (btn.textContent.includes('حفظ القيد') || btn.textContent.includes('ترحيل'))) {
+                        const debEl = document.getElementById('total-debit') || document.getElementById('jv-total-debit');
+                        const credEl = document.getElementById('total-credit') || document.getElementById('jv-total-credit');
+                        if (debEl && credEl) {
+                            const d = parseFloat(String(debEl.textContent || debEl.value || '0').replace(/,/g, '')) || 0;
+                            const c = parseFloat(String(credEl.textContent || credEl.value || '0').replace(/,/g, '')) || 0;
+                            if (Math.abs(d - c) > 0.05) {
+                                self.showAlertBanner('🚨 حارس التوازن المحاسبي: القيد غير متوازن! إجمالي المدين (' + d.toLocaleString() + ') لا يطابق الدائن (' + c.toLocaleString() + ').', 'danger');
+                            }
+                        }
+                    }
+                }, true);
+            }
+
+            // 7. Universal Keyboard Shortcut (Alt+A) & Sidebar Guardian Live Badge across ALL screens
+            document.addEventListener('keydown', function(e) {
+                if (e.altKey && (e.key === 'a' || e.key === 'A' || e.key === 'ش')) {
+                    e.preventDefault();
+                    self.openQuickGuardianModal();
+                }
+            });
+            setTimeout(() => self.syncGlobalSidebarAlertBadge(), 350);
+            window.addEventListener('storage', () => self.syncGlobalSidebarAlertBadge());
+        },
+
+        computeUniversalLiveRisks: function() {
+            const risks = [];
+            try {
+                const items = JSON.parse(localStorage.getItem('erp_items_v1') || '[]').filter(i => i && !i.deleted);
+                let negStock = 0, zeroStock = 0, belowCost = 0;
+                items.forEach(it => {
+                    let q = 0;
+                    if (typeof it.stock === 'object' && it.stock !== null) {
+                        q = Object.values(it.stock).reduce((a, b) => a + (parseFloat(b) || 0), 0);
+                    } else {
+                        q = parseFloat(it.stock ?? it.quantity ?? it.stockQuantity ?? it.openingQty ?? 0) || 0;
+                    }
+                    const cost = parseFloat(it.costPrice ?? it.avgCost ?? it.purchasePrice ?? it.cost ?? 0) || 0;
+                    const price = parseFloat(it.sellingPrice ?? it.price ?? 0) || 0;
+                    if (q < 0) negStock++;
+                    else if (q === 0) zeroStock++;
+                    if (cost > 0 && price > 0 && price <= cost) belowCost++;
+                });
+                if (negStock > 0) risks.push({ sev: 'RED', msg: `🚨 يوجد (${negStock}) صنف برصيد مخزني سالب يتطلب تسوية جردية`, href: 'inventory-stocktake.php' });
+                if (belowCost > 0) risks.push({ sev: 'RED', msg: `🚨 يوجد (${belowCost}) صنف سعر بيعه أقل أو يساوي التكلفة`, href: 'master-data.php?tab=items' });
+                if (zeroStock > 0) risks.push({ sev: 'YELLOW', msg: `⚠️ يوجد (${zeroStock}) صنف نافد (رصيد 0) في المخازن`, href: 'inventory-report.php' });
+
+                const p1 = JSON.parse(localStorage.getItem('erp_purchases_v1') || '[]');
+                const p2 = JSON.parse(localStorage.getItem('erp_purchase_invoices_v1') || '[]');
+                const unrec = [...p1, ...p2].filter(p => p && !p.deleted && p.status === 'PENDING_RECEIPT');
+                if (unrec.length > 0) risks.push({ sev: 'YELLOW', msg: `🚛 يوجد (${unrec.length}) فاتورة مشتريات بانتظار الاستلام المخزني (GRN)`, href: 'smart-logistics.php?mode=purchases' });
+
+                const custs = JSON.parse(localStorage.getItem('erp_customers_v1') || '[]').filter(c => c && !c.deleted);
+                let overLim = 0;
+                custs.forEach(c => {
+                    const b = parseFloat(c.currentBalance ?? c.balance ?? 0) || 0;
+                    const l = parseFloat(c.creditLimit ?? 0) || 0;
+                    if (l > 0 && b > l) overLim++;
+                });
+                if (overLim > 0) risks.push({ sev: 'RED', msg: `🚨 يوجد (${overLim}) عميل تجاوزوا السقف الائتماني المسموح`, href: 'credit_limits_dashboard.php' });
+
+                const chks = JSON.parse(localStorage.getItem('erp_checks_v1') || '[]').filter(c => c && !c.deleted);
+                const today = new Date().toISOString().slice(0, 10);
+                let bounced = 0, overdue = 0;
+                chks.forEach(c => {
+                    const st = String(c.status || '');
+                    const due = String(c.dueDate || '').slice(0, 10);
+                    if (st.includes('مرتد')) bounced++;
+                    else if ((st.includes('خزينة') || st.includes('تحصيل')) && due && due < today) overdue++;
+                });
+                if (bounced > 0) risks.push({ sev: 'RED', msg: `🚨 يوجد (${bounced}) شيك مرتد في حافظة الشيكات`, href: 'checks-cycle.php' });
+                if (overdue > 0) risks.push({ sev: 'YELLOW', msg: `⏰ يوجد (${overdue}) شيك متأخر تجاوز تاريخ الاستحقاق`, href: 'checks-cycle.php' });
+            } catch (e) {}
+            return risks;
+        },
+
+        syncGlobalSidebarAlertBadge: function() {
+            try {
+                const risks = this.computeUniversalLiveRisks();
+                const total = risks.length;
+                const red = risks.filter(r => r.sev === 'RED').length;
+                const alarmLinks = document.querySelectorAll('a[href*="alarm.php"], [data-href*="alarm.php"]');
+                alarmLinks.forEach(a => {
+                    let badge = a.querySelector('.erp-guard-live-badge');
+                    if (total > 0) {
+                        if (!badge) {
+                            badge = document.createElement('span');
+                            badge.className = 'erp-guard-live-badge';
+                            badge.style.cssText = 'margin-right:auto; background:' + (red > 0 ? '#ef4444' : '#f59e0b') + '; color:#fff; font-size:0.68rem; font-weight:900; padding:1px 6px; border-radius:999px; box-shadow:0 0 10px rgba(239,68,68,0.6);';
+                            a.appendChild(badge);
+                        }
+                        badge.textContent = total;
+                    } else if (badge) {
+                        badge.remove();
+                    }
+                });
+            } catch (e) {}
+        },
+
+        openQuickGuardianModal: function() {
+            const risks = this.computeUniversalLiveRisks();
+            let modal = document.getElementById('erp-universal-guardian-modal');
+            if (!modal) {
+                document.body.insertAdjacentHTML('beforeend', `
+                    <div id="erp-universal-guardian-modal" style="display:none; position:fixed; inset:0; z-index:999999; background:rgba(2,6,23,0.85); backdrop-filter:blur(8px); align-items:center; justify-content:center; padding:16px; direction:rtl; font-family:'Cairo','Tajawal',sans-serif;">
+                        <div style="width:100%; max-width:680px; background:#0f172a; border:2px solid #f43f5e; border-radius:18px; overflow:hidden; box-shadow:0 25px 60px rgba(0,0,0,0.85);">
+                            <div style="padding:14px 18px; background:linear-gradient(135deg,rgba(244,63,94,0.22),rgba(15,23,42,0.9)); border-bottom:1px solid rgba(244,63,94,0.4); display:flex; justify-content:space-between; align-items:center;">
+                                <h3 style="margin:0; font-size:1rem; font-weight:900; color:#fda4af;">🛡️ رادار الحارس الأمين الفوري (مربوط بكافة الشاشات والتقارير)</h3>
+                                <button type="button" onclick="document.getElementById('erp-universal-guardian-modal').style.display='none'" style="background:rgba(239,68,68,0.2); color:#fca5a5; border:1px solid rgba(239,68,68,0.4); border-radius:8px; padding:4px 10px; font-weight:800; cursor:pointer;">✖</button>
+                            </div>
+                            <div id="erp-universal-guardian-body" style="padding:16px 18px; max-height:65vh; overflow-y:auto; display:flex; flex-direction:column; gap:10px;"></div>
+                            <div style="padding:12px 18px; background:rgba(15,23,42,0.95); border-top:1px solid rgba(148,163,184,0.2); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+                                <span style="font-size:0.75rem; color:#94a3b8; font-weight:700;">💡 اختصار الفتح السريع من أي شاشة: <kbd style="background:#1e293b; padding:2px 6px; border-radius:4px; color:#38bdf8;">Alt + A</kbd></span>
+                                <div style="display:flex; gap:8px;">
+                                    <a href="alarm.php?pillar=AI" style="padding:6px 12px; border-radius:8px; background:linear-gradient(135deg,#8b5cf6,#6d28d9); color:#fff; text-decoration:none; font-weight:800; font-size:0.78rem;">🤖 مركز التنبؤ بالمخاطر AI</a>
+                                    <a href="alarm.php" style="padding:6px 12px; border-radius:8px; background:#f43f5e; color:#fff; text-decoration:none; font-weight:800; font-size:0.78rem;">🔔 فتح مصفوفة الـ 88 قاعدة</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `);
+                modal = document.getElementById('erp-universal-guardian-modal');
+            }
+            const body = document.getElementById('erp-universal-guardian-body');
+            if (risks.length === 0) {
+                body.innerHTML = `<div style="padding:20px; text-align:center; color:#34d399; font-weight:800;">✅ جميع الشاشات والأرصدة والمخازن والشيكات آمنة ومطابقة 100% حالياً.</div>`;
+            } else {
+                body.innerHTML = risks.map(r => `
+                    <div style="padding:10px 14px; border-radius:12px; background:${r.sev === 'RED' ? 'rgba(244,63,94,0.14)' : 'rgba(245,158,11,0.14)'}; border:1px solid ${r.sev === 'RED' ? 'rgba(244,63,94,0.4)' : 'rgba(245,158,11,0.4)'}; display:flex; justify-content:space-between; align-items:center; gap:10px;">
+                        <span style="color:#f8fafc; font-size:0.84rem; font-weight:800;">${r.msg}</span>
+                        <a href="${r.href}" style="padding:5px 10px; border-radius:8px; background:rgba(15,23,42,0.9); color:#38bdf8; border:1px solid rgba(56,189,248,0.4); text-decoration:none; font-size:0.75rem; font-weight:800; white-space:nowrap;">معالجة ↗</a>
+                    </div>
+                `).join('');
+            }
+            modal.style.display = 'flex';
         },
 
         getCurrentInvoiceNumber: function() {

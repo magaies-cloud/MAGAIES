@@ -2420,11 +2420,13 @@ try {
 
             <!-- Unified Smart Logistics Portal -->
             <button onclick="window.location.href='smart-logistics.php?mode=purchases'" class="hub-action-card card-teal" style="border-color: rgba(56,189,248,0.55); box-shadow: 0 0 22px rgba(14,165,233,0.3);">
-                <div class="icon">🚀</div>
+                <div class="icon">📥</div>
                 <div class="text-content">
-                    <div class="title">بوابة الاستلام</div>
+                    <div class="title">بوابة استلام المشتريات</div>
                 </div>
             </button>
+
+
 
             <!-- Purchase Return -->
             <button onclick="window.location.href='purchase-return.php'" class="hub-action-card card-pink">
@@ -2442,11 +2444,27 @@ try {
                 </div>
             </button>
 
+            <!-- Supplier Reliability 360 Card -->
+            <button onclick="window.location.href='supplier_reliability.php'" class="hub-action-card" style="background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(217, 119, 6, 0.35)); border: 1px solid rgba(251, 191, 36, 0.5); cursor: pointer;">
+                <div class="icon" style="filter: drop-shadow(0 0 8px rgba(251, 191, 36, 0.6));">🤝</div>
+                <div class="text-content">
+                    <div class="title" style="color: #fbbf24; font-weight: 800;">اعتمادية الموردين 360°</div>
+                </div>
+            </button>
+
             <!-- OCR Scanner Card -->
             <button onclick="triggerInvoiceOCR()" class="hub-action-card" style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(5, 150, 105, 0.35)); border: 1px solid rgba(52, 211, 153, 0.5); cursor: pointer;">
                 <div class="icon" style="filter: drop-shadow(0 0 8px rgba(52, 211, 153, 0.6));">📷</div>
                 <div class="text-content">
                     <div class="title" style="color: #34d399; font-weight: 800;">مسح فاتورة</div>
+                </div>
+            </button>
+
+            <!-- AI Price Spike & Selling Margin Radar -->
+            <button onclick="if(window.openPurchaseAIAuditModal) window.openPurchaseAIAuditModal();" class="hub-action-card" style="background: linear-gradient(135deg, rgba(99, 102, 241, 0.22), rgba(168, 85, 247, 0.38)); border: 1px solid rgba(168, 85, 247, 0.55); cursor: pointer;">
+                <div class="icon" style="filter: drop-shadow(0 0 8px rgba(168, 85, 247, 0.6));">🤖</div>
+                <div class="text-content">
+                    <div class="title" style="color: #d8b4fe; font-weight: 800;">رادار الأسعار وهامش البيع AI</div>
                 </div>
             </button>
         </div>
@@ -3032,7 +3050,11 @@ try {
                     <div class="custom-dropdown-list" id="quick-item-dropdown-list" style="text-align:right; top: 100%; left: 0; right: 0; position: absolute;"></div>
                 </div>
             </div>
-            <div style="display:flex; align-items:center; gap:6px;">
+            <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+                <button type="button" onclick="if(window.openPurchaseAIAuditModal) window.openPurchaseAIAuditModal();" style="background: linear-gradient(135deg, rgba(168,85,247,0.22), rgba(99,102,241,0.35)); border: 1px solid rgba(168,85,247,0.6); color: #e9d5ff; border-radius: 9px; height: 36px; padding: 0 12px; display: inline-flex; align-items: center; gap: 6px; cursor: pointer; font-weight: 800; font-size: 0.85rem; white-space: nowrap; transition: all 0.2s; box-shadow: 0 2px 10px rgba(168,85,247,0.2);" title="تحليل تكلفة الاستيراد ومقارنة أسعار المورد وتحديث سعر البيع بهامش ربح ذكي">
+                    <span>🤖</span>
+                    <span>رادار الأسعار وتحديث هامش البيع AI</span>
+                </button>
                 <button type="button" onclick="openGridSettingsModal()" style="background: linear-gradient(135deg, rgba(56,189,248,0.18), rgba(37,99,235,0.28)); border: 1px solid rgba(56,189,248,0.55); color: #38bdf8; border-radius: 9px; height: 36px; padding: 0 14px; display: inline-flex; align-items: center; gap: 7px; cursor: pointer; font-weight: 800; font-size: 0.9rem; white-space: nowrap; transition: all 0.2s; box-shadow: 0 2px 10px rgba(56,189,248,0.2);" title="تخصيص الجدول">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
                     <span>تخصيص الجدول</span>
@@ -3512,7 +3534,7 @@ try {
             <div class="toolbar-actions" style="display: flex; gap: 7px; width: 100%; align-items: center; flex-wrap: nowrap;">
                 
                 <!-- Exit Button -->
-                <button type="button" class="btn-action royal-crystal-btn royal-btn-exit btn-exit" style="flex: 0.78 1 0%; min-width: 0; height: 44px; font-weight: 900; border-radius: 11px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 5px; white-space: nowrap; padding: 0 9px;" onclick="if(typeof showPurchaseHub === 'function' && document.getElementById('purchase-hub-view')) { showPurchaseHub(); } else if(typeof magaieesGoBack === 'function') { magaieesGoBack(); } else { window.location.href='dashboard-pro.php'; }" title="الخروج والرجوع لبوابة المشتريات أو الرئيسية">
+                <button type="button" class="btn-action royal-crystal-btn royal-btn-exit btn-exit" style="flex: 0.78 1 0%; min-width: 0; height: 44px; font-weight: 900; border-radius: 11px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 5px; white-space: nowrap; padding: 0 9px;" onclick="if(typeof showPurchaseHub === 'function' && document.getElementById('purchase-hub-view')) { showPurchaseHub(); } else if(typeof magaieesGoBack === 'function') { magaieesGoBack(); } else { window.location.href='magaiees_unified_dashboard.php'; }" title="الخروج والرجوع لبوابة المشتريات أو الرئيسية">
                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
                     <span class="btn-fit-label">خروج</span>
                 </button>
@@ -3899,7 +3921,7 @@ try {
                     if (document.referrer && document.referrer.indexOf('general-ledger.php') !== -1) { 
                         history.back(); 
                     } else { 
-                        window.location.href = 'dashboard-pro.php'; 
+                        window.location.href = 'magaiees_unified_dashboard.php'; 
                     } 
                 };
                 backBtn.innerHTML = '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"></path><polyline points="12 19 5 12 12 5"></polyline></svg>';
@@ -4240,21 +4262,30 @@ try {
                 // Status badge
                 let statusBadge = '';
                 const st = inv.status || 'confirmed';
+                const recSt = inv.receiptStatus || '';
                 const isProforma = inv.saleType === 'proforma' || String(inv.invoiceNo || '').startsWith('PF');
                 if (isProforma) {
                     statusBadge = '<span style="background:rgba(168,85,247,0.18); color:#d8b4fe; padding:3px 10px; border-radius:12px; font-size:0.75rem; font-weight:700; border:1px solid rgba(168,85,247,0.4);">📋 مبدئية</span>';
+                } else if (st === 'received' || recSt === 'received') {
+                    statusBadge = '<span style="background:rgba(16,185,129,0.2); color:#34d399; padding:3px 10px; border-radius:12px; font-size:0.75rem; font-weight:800; border:1px solid rgba(16,185,129,0.45);">✅ مستلمة بالكامل</span>';
+                } else if (st === 'partial_received' || recSt === 'partial_received' || recSt === 'partially_received') {
+                    statusBadge = '<span style="background:rgba(56,189,248,0.18); color:#38bdf8; padding:3px 10px; border-radius:12px; font-size:0.75rem; font-weight:800; border:1px solid rgba(56,189,248,0.45);">📦 مستلمة جزئياً</span>';
                 } else if (st === 'posted') {
                     statusBadge = '<span style="background:rgba(16,185,129,0.15); color:#34d399; padding:3px 10px; border-radius:12px; font-size:0.75rem; font-weight:700; border:1px solid rgba(16,185,129,0.3);">🔒 مرحلة</span>';
                 } else if (st === 'confirmed') {
                     statusBadge = '<span style="background:rgba(251,191,36,0.15); color:#fbbf24; padding:3px 10px; border-radius:12px; font-size:0.75rem; font-weight:700; border:1px solid rgba(251,191,36,0.3);">⏳ مؤكدة</span>';
                 } else if (st === 'draft') {
                     statusBadge = '<span style="background:rgba(148,163,184,0.15); color:#94a3b8; padding:3px 10px; border-radius:12px; font-size:0.75rem; font-weight:700; border:1px solid rgba(148,163,184,0.3);">📝 مسودة</span>';
+                } else {
+                    statusBadge = `<span style="background:rgba(148,163,184,0.15); color:#e2e8f0; padding:3px 10px; border-radius:12px; font-size:0.75rem; font-weight:700;">${st}</span>`;
                 }
 
                 const invCurrency = inv.currency || 'SDG';
                 const convertBtnHtml = isProforma
-                    ? `<button onclick="convertHubProformaToDirect('${inv.invoiceNo}')" style="background:rgba(16,185,129,0.15); border:1px solid rgba(16,185,129,0.45); color:#34d399; border-radius:6px; width:34px; height:34px; cursor:pointer; margin-left:4px; display:inline-flex; align-items:center; justify-content:center;" title="تحويل لفاتورة مشتريات">🔄</button>`
-                    : '';
+                    ? `<button onclick="convertHubProformaToDirect('${inv.invoiceNo}')" style="background:rgba(16,185,129,0.15); border:1px solid rgba(16,185,129,0.45); color:#34d399; border-radius:6px; width:32px; height:32px; cursor:pointer; margin-left:3px; display:inline-flex; align-items:center; justify-content:center;" title="تحويل لفاتورة مشتريات">🔄</button>`
+                    : `<button onclick="window.location.href='smart-logistics.php?mode=purchases&inv=${encodeURIComponent(inv.invoiceNo)}'" style="background:rgba(14,165,233,0.15); border:1px solid rgba(56,189,248,0.45); color:#38bdf8; border-radius:6px; width:32px; height:32px; cursor:pointer; margin-left:3px; display:inline-flex; align-items:center; justify-content:center;" title="فتح في بوابة استلام المشتريات الذكية">📥</button>
+                       <button onclick="window.location.href='purchase-receipt.php?inv=${encodeURIComponent(inv.invoiceNo)}'" style="background:rgba(16,185,129,0.15); border:1px solid rgba(16,185,129,0.4); color:#34d399; border-radius:6px; width:32px; height:32px; cursor:pointer; margin-left:3px; display:inline-flex; align-items:center; justify-content:center;" title="إصدار إذن استلام مخزني (GRN)">🚛</button>
+                       <button onclick="window.location.href='purchase-return.php?inv=${encodeURIComponent(inv.invoiceNo)}'" style="background:rgba(244,63,94,0.12); border:1px solid rgba(244,63,94,0.35); color:#fb7185; border-radius:6px; width:32px; height:32px; cursor:pointer; margin-left:3px; display:inline-flex; align-items:center; justify-content:center;" title="مرتجع مشتريات">↩️</button>`;
 
                 tr.innerHTML = `
                     <td style="text-align:right; font-weight:800; color:var(--gold-primary);">${inv.invoiceNo}</td>
@@ -4263,11 +4294,11 @@ try {
                     <td style="text-align:right; color:var(--text-dim);">${itemText}</td>
                     <td style="text-align:center; font-weight:900; direction:ltr; color:#fff;">${fmtNum(inv.totals?.grandTotal || inv.grandTotal || 0)} <span style="color:#a855f7; font-weight:700;">${invCurrency}</span></td>
                     <td style="text-align:center;">${statusBadge}</td>
-                    <td style="text-align:center; font-weight:600; color:var(--text-dim);">${getWarehouseName(inv.warehouse)}</td>
-                    <td style="text-align:center;">
+                    <td style="text-align:center; font-weight:600; color:var(--text-dim);">${getWarehouseName(inv.warehouse)}${inv.grnNo ? `<div style="font-size:0.68rem; color:#34d399; font-weight:800;">GRN: ${inv.grnNo}</div>` : ''}</td>
+                    <td style="text-align:center; white-space:nowrap;">
                         ${convertBtnHtml}
-                        <button onclick="editHubTransaction('${inv.invoiceNo}')" style="background:rgba(56,189,248,0.1); border:1px solid rgba(56,189,248,0.3); color:#38bdf8; border-radius:6px; width:34px; height:34px; cursor:pointer; margin-left:4px; display:inline-flex; align-items:center; justify-content:center;" title="تعديل / عرض">👁️</button>
-                        <button onclick="deleteHubTransaction('${inv.invoiceNo}')" style="background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.3); color:#ef4444; border-radius:6px; width:34px; height:34px; cursor:pointer; display:inline-flex; align-items:center; justify-content:center;" title="حذف">🗑️</button>
+                        <button onclick="editHubTransaction('${inv.invoiceNo}')" style="background:rgba(56,189,248,0.1); border:1px solid rgba(56,189,248,0.3); color:#38bdf8; border-radius:6px; width:32px; height:32px; cursor:pointer; margin-left:3px; display:inline-flex; align-items:center; justify-content:center;" title="تعديل / عرض">👁️</button>
+                        <button onclick="deleteHubTransaction('${inv.invoiceNo}')" style="background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.3); color:#ef4444; border-radius:6px; width:32px; height:32px; cursor:pointer; display:inline-flex; align-items:center; justify-content:center;" title="حذف">🗑️</button>
                     </td>
                 `;
                 fragment.appendChild(tr);

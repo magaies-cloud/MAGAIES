@@ -389,6 +389,14 @@ async function saveUser() {
     };
     if (window.MagaieesPermissions && typeof window.MagaieesPermissions.collectStudioPermissionsData === 'function') {
         studioPerms = window.MagaieesPermissions.collectStudioPermissionsData();
+        if (studioPerms.geoRestricted !== undefined) geoRestricted = studioPerms.geoRestricted;
+        if (studioPerms.geoLat !== undefined) geoLat = studioPerms.geoLat;
+        if (studioPerms.geoLng !== undefined) geoLng = studioPerms.geoLng;
+        if (studioPerms.geoRadius !== undefined) geoRadius = studioPerms.geoRadius;
+        if (studioPerms.timeRestricted !== undefined) timeRestricted = studioPerms.timeRestricted;
+        if (studioPerms.timeFrom !== undefined) timeFrom = studioPerms.timeFrom;
+        if (studioPerms.timeTo !== undefined) timeTo = studioPerms.timeTo;
+        if (Array.isArray(studioPerms.allowedDays)) allowedDays = studioPerms.allowedDays;
     }
 
     let hasError = false;

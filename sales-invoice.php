@@ -186,6 +186,110 @@
         .tot-toggle-btn.active { background: rgba(56, 189, 248, 0.2); border-color: rgba(56, 189, 248, 0.5); color: #38bdf8; font-weight: bold; }
         .tot-input { transition: all 0.2s; }
         body.cur-sdg .hide-if-sdg { display: none !important; }
+        /* ── World-Class Sales Return Hub & 7-Theme Support ── */
+        .sr-mode-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            flex-wrap: wrap;
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.12), rgba(15, 23, 42, 0.85));
+            border: 1px solid rgba(16, 185, 129, 0.35);
+            border-radius: 12px;
+            padding: 10px 16px;
+            margin-bottom: 14px;
+        }
+        .sr-mode-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 7px 14px;
+            border-radius: 9px;
+            font-family: 'Cairo', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 800;
+            cursor: pointer;
+            border: 1px solid rgba(255,255,255,0.12);
+            background: rgba(255,255,255,0.05);
+            color: var(--text-primary, #f8fafc);
+            transition: all 0.2s ease;
+        }
+        .sr-mode-btn:hover, .sr-mode-btn.active {
+            background: rgba(16, 185, 129, 0.22);
+            border-color: #10b981;
+            color: #34d399;
+            transform: translateY(-1px);
+        }
+        .sr-hub-drawer {
+            display: none;
+            background: rgba(15, 23, 42, 0.95);
+            border: 1px solid rgba(56, 189, 248, 0.35);
+            border-radius: 14px;
+            padding: 16px;
+            margin-bottom: 16px;
+            box-shadow: 0 12px 32px rgba(0,0,0,0.35);
+        }
+        .sr-hub-drawer.open { display: block; }
+        .sr-hub-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.86rem;
+            text-align: right;
+        }
+        .sr-hub-table th {
+            padding: 10px 12px;
+            background: rgba(255,255,255,0.05);
+            color: #38bdf8;
+            font-weight: 800;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .sr-hub-table td {
+            padding: 9px 12px;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            color: var(--text-primary, #f1f5f9);
+        }
+        .sr-hub-table tr:hover td {
+            background: rgba(56, 189, 248, 0.06);
+        }
+        html[data-theme="warm_cream"] .sr-mode-bar,
+        html[data-theme="ultra_white"] .sr-mode-bar,
+        html[data-theme="exec_gray"] .sr-mode-bar {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(255, 255, 255, 0.95)) !important;
+            border-color: rgba(16, 185, 129, 0.4) !important;
+        }
+        html[data-theme="warm_cream"] .sr-mode-btn,
+        html[data-theme="ultra_white"] .sr-mode-btn,
+        html[data-theme="exec_gray"] .sr-mode-btn {
+            background: rgba(15, 23, 42, 0.05) !important;
+            color: #1e293b !important;
+            border-color: rgba(15, 23, 42, 0.15) !important;
+        }
+        html[data-theme="warm_cream"] .sr-mode-btn.active,
+        html[data-theme="ultra_white"] .sr-mode-btn.active,
+        html[data-theme="exec_gray"] .sr-mode-btn.active {
+            background: rgba(16, 185, 129, 0.18) !important;
+            color: #047857 !important;
+            border-color: #059669 !important;
+        }
+        html[data-theme="warm_cream"] .sr-hub-drawer,
+        html[data-theme="ultra_white"] .sr-hub-drawer,
+        html[data-theme="exec_gray"] .sr-hub-drawer {
+            background: #ffffff !important;
+            color: #0f172a !important;
+            border-color: #cbd5e1 !important;
+        }
+        html[data-theme="warm_cream"] .sr-hub-table th,
+        html[data-theme="ultra_white"] .sr-hub-table th,
+        html[data-theme="exec_gray"] .sr-hub-table th {
+            background: #f1f5f9 !important;
+            color: #0f172a !important;
+        }
+        html[data-theme="warm_cream"] .sr-hub-table td,
+        html[data-theme="ultra_white"] .sr-hub-table td,
+        html[data-theme="exec_gray"] .sr-hub-table td {
+            color: #1e293b !important;
+            border-bottom-color: #e2e8f0 !important;
+        }
     </style>
 </head>
 <body>
@@ -199,34 +303,6 @@
 
     <!-- Toast Container -->
     <div class="toast-container" id="toast-container"></div>
-
-    <!-- --- Add Customer Modal --- -->
-    <div class="modal-overlay" id="add-customer-modal">
-        <div class="modal-card">
-            <div class="modal-header">
-                <h3>إضافة عميل جديد</h3>
-                <button class="modal-close" onclick="closeModal('add-customer-modal')">×</button>
-            </div>
-            <div class="modal-body">
-                <div class="form-group">
-                    <label class="label">اسم العميل</label>
-                    <input type="text" class="ctrl-input" id="new-cust-name" placeholder="اسم العميل...">
-                </div>
-                <div class="form-group">
-                    <label class="label">رقم الهاتف</label>
-                    <input type="tel" class="ctrl-input" id="new-cust-phone" placeholder="09XXXXXXXX">
-                </div>
-                <div class="form-group">
-                    <label class="label">سقف ائتمان العميل (الحد الأقصى)</label>
-                    <input type="text" inputmode="decimal" class="ctrl-input" id="new-cust-credit" placeholder="0" onfocus="this.select()" onblur="this.value=fmtNum(parseNum(this.value))">
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-ghost" onclick="closeModal('add-customer-modal')">إلغاء الأمر</button>
-                <button class="btn btn-primary" onclick="addNewCustomer()">✓ حفظ العميل</button>
-            </div>
-        </div>
-    </div>
 
     <div class="pos-wrapper">
 
@@ -248,7 +324,10 @@
                     تسليم المبيعات (المنصرف)
                 </a>
                 <a href="sales-invoice.php" data-href="sales-invoice.php" onclick="window.location.href='sales-invoice.php'" class="action-tab active" style="text-decoration:none;">
-                    <span class="tab-icon">↩️</span><span class="tab-label">مرتجع مبيعات (مردود)</span>
+                    <span class="tab-icon">↩️</span><span class="tab-label">مرتجع المبيعات واسترداد البضائع</span>
+                </a>
+                <a href="customer-portfolio.php" data-href="customer-portfolio.php" onclick="window.location.href='customer-portfolio.php'" class="action-tab" style="text-decoration:none; color:#38bdf8;">
+                    <span class="tab-icon">👥</span><span class="tab-label">محفظة العملاء 360°</span>
                 </a>
             </div>
             <div class="top-bar-meta" style="display:flex; align-items:center; gap:10px;">
@@ -259,7 +338,7 @@
                     <button class="btn-icon" style="padding:4px; color:var(--text-muted); cursor:pointer; background:none; border:none; transition: color 0.2s;" onmouseover="this.style.color='#38bdf8'" onmouseout="this.style.color='var(--text-muted)'" onclick="loadPreviousInvoice()" title="الفاتورة السابقة">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
                     </button>
-                    <div class="inv-badge" id="inv-number" style="margin:0 5px;"><?php echo $voucher_no; ?></div>
+                    <div class="inv-badge" id="inv-number" style="margin:0 5px;"><?php echo htmlspecialchars((string)($voucher_no ?? 'SR-000001')); ?></div>
                     <button class="btn-icon" style="padding:4px; color:var(--text-muted); cursor:pointer; background:none; border:none; transition: color 0.2s;" onmouseover="this.style.color='#38bdf8'" onmouseout="this.style.color='var(--text-muted)'" onclick="loadNextInvoice()" title="الفاتورة التالية">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
                     </button>
@@ -288,49 +367,122 @@
             </div>
         </div>
 
+                <!-- --- 1.5 SALES RETURN HUB BAR (استدعاء الفواتير وسجل المرتجعات) --- -->
+        <div class="sr-mode-bar">
+            <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+                <span style="font-weight:900; font-size:0.95rem; color:#10b981; display:inline-flex; align-items:center; gap:6px;">
+                    ↩️ بوابة مرتجع المبيعات واسترداد البضائع (Credit Note):
+                </span>
+                <button type="button" class="sr-mode-btn active" id="btn-sr-mode-editor" onclick="toggleSalesReturnHub('editor')">
+                    📝 تحرير مرتجع واسترداد بضاعة
+                </button>
+                <button type="button" class="sr-mode-btn" id="btn-sr-mode-invoices" onclick="toggleSalesReturnHub('invoices')">
+                    🔍 استدعاء فاتورة مبيعات للاسترداد (كلي / جزئي)
+                </button>
+                <button type="button" class="sr-mode-btn" id="btn-sr-mode-history" onclick="toggleSalesReturnHub('history')">
+                    📋 سجل مرتجعات المبيعات المعتمدة (<span id="sr-history-count">0</span>)
+                </button>
+            </div>
+            <div style="display:flex; align-items:center; gap:8px;">
+                <span id="sr-linked-badge" style="display:none; padding:4px 10px; border-radius:20px; background:rgba(56,189,248,0.15); border:1px solid rgba(56,189,248,0.4); color:#38bdf8; font-size:0.8rem; font-weight:800;"></span>
+                <button type="button" class="sr-mode-btn" style="padding:5px 12px; font-size:0.8rem;" onclick="onSuccessNewInvoice()">
+                    ✨ مرتجع جديد
+                </button>
+            </div>
+        </div>
+
+        <!-- --- COLLAPSIBLE HUB DRAWER (فواتير المبيعات القابلة للاسترداد / سجل المرتجعات) --- -->
+        <div class="sr-hub-drawer" id="sr-hub-drawer">
+            <div style="display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:12px; flex-wrap:wrap;">
+                <h3 id="sr-hub-title" style="margin:0; font-size:1rem; font-weight:900; color:#38bdf8;">🔍 اختر فاتورة مبيعات لاسترداد بضاعتها (كلياً أو جزئياً)</h3>
+                <div style="display:flex; align-items:center; gap:8px; flex:1; max-width:420px;">
+                    <input type="text" class="ctrl-input" id="sr-hub-search" placeholder="ابحث برقم الفاتورة، اسم العميل، أو الصنف..." oninput="renderSalesReturnHubTable()" style="flex:1; padding:6px 12px; font-size:0.85rem;">
+                    <button type="button" class="btn btn-ghost" style="padding:6px 12px;" onclick="toggleSalesReturnHub('editor')">✕ إغلاق</button>
+                </div>
+            </div>
+            <div style="max-height:320px; overflow-y:auto; border-radius:10px; border:1px solid rgba(255,255,255,0.08);">
+                <table class="sr-hub-table">
+                    <thead id="sr-hub-thead"></thead>
+                    <tbody id="sr-hub-tbody"></tbody>
+                </table>
+            </div>
+        </div>
+
         <!-- --- 2. HEADER SECTION (Two Columns) --- -->
         <div class="header-grid">
-            <!-- Right Column: Basic Invoice Data -->
+            <!-- Right Column: Basic Return Data -->
             <div class="panel" id="invoice-data-panel" style="z-index: 60;">
-                <div class="panel-title">البيانات الأساسية</div>
+                <div class="panel-title">بيانات مرتجع المبيعات واسترداد البضائع</div>
                 <div class="header-form">
-                    <!-- Invoice No and Date moved to top left bar -->
                     <div class="ctrl-group">
-                        <label class="label">اسم العميل</label>
+                        <label class="label">اسم العميل (المسترد منه)</label>
                         <div class="custom-dropdown">
                             <div class="custom-dropdown-input-wrap">
                                 <input type="text" class="ctrl-input" id="hdr-customer-search" placeholder="ابحث عن اسم العميل..." onfocus="showCustomerDropdown()" onblur="hideCustomerDropdownDelayed()" oninput="filterCustomerDropdown()" style="padding-left: 95px !important;">
                                 <button type="button" id="hdr-customer-ledger-btn" onclick="openGeneralLedgerForAccount(document.getElementById('hdr-customer').value)" class="crystal-btn-sm btn-blue-glass" style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); z-index: 5; font-size: 0.8rem; padding: 4px 8px; height: 32px; display: none;" title="دفتر الأستاذ العام">📖 دفتر الأستاذ</button>
                                 <input type="hidden" id="hdr-customer" onchange="onCustomerChange()">
-                                <div class="custom-dropdown-list" id="customer-dropdown-list">
-                                    <!-- Populated via JS -->
-                                </div>
+                                <div class="custom-dropdown-list" id="customer-dropdown-list"></div>
                             </div>
-                            <button class="btn-icon-add" onclick="openModal('add-customer-modal')" title="إضافة عميل جديد">+</button>
+                            <button class="btn-icon-add" type="button" onclick="openModal('add-customer-modal')" title="إضافة عميل جديد">+</button>
                         </div>
                     </div>
+
                     <div class="ctrl-group">
-                        <label class="label">طريقة الدفع</label>
+                        <label class="label">الفاتورة الأصلية المرجعية</label>
+                        <div style="display:flex; gap:6px;">
+                            <input type="text" class="ctrl-input" id="hdr-orig-inv-no" placeholder="رقم الفاتورة الأصلية (اختياري)..." style="flex:1;">
+                            <button type="button" class="btn btn-ghost" onclick="toggleSalesReturnHub('invoices')" title="اختيار من فواتير المبيعات" style="padding:0 10px; font-size:0.8rem; white-space:nowrap; border:1px solid rgba(56,189,248,0.4); color:#38bdf8;">🔍 استدعاء</button>
+                        </div>
+                    </div>
+
+                    <div class="ctrl-group">
+                        <label class="label">طريقة التسوية المالية للمرتجع</label>
                         <select class="ctrl-input" id="hdr-payment-method" onchange="togglePaymentAccount()">
-                            <option value="credit">آجل (ذمم مدينة)</option>
-                            <option value="cash">نقدي مباشر</option>
-                            <option value="bank">تحويل بنكي (شبكة)</option>
-                            <option value="cheque">شيك</option>
+                            <option value="credit">خصم من مديونية العميل (إشعار دائن آجل)</option>
+                            <option value="cash">رد نقدي فوري للعميل (صرف من الخزينة)</option>
+                            <option value="bank">تحويل بنكي مسترد للعميل</option>
+                            <option value="cheque">شيك مسترد للعميل</option>
                         </select>
                     </div>
+
                     <div class="ctrl-group" id="payment-account-group">
-                        <label class="label">تاريخ الدفع / الاستحقاق</label>
-                        <select class="ctrl-input" id="hdr-payment-account">
-                            <!-- Populated dynamically -->
-                        </select>
+                        <label class="label">حساب الصرف / الاسترداد (الخزينة أو البنك)</label>
+                        <select class="ctrl-input" id="hdr-payment-account"></select>
                     </div>
+
                     <div class="ctrl-group" id="hdr-due-date-group" style="display: none;">
-                        <label class="label" style="color: var(--danger-color);">سقف ائتمان العميل (الحد الأقصى)</label>
+                        <label class="label" style="color: #10b981;">تاريخ التسوية / الاستحقاق</label>
                         <input type="date" class="ctrl-input" id="hdr-due-date">
                     </div>
+
+                    <div class="ctrl-group">
+                        <label class="label">سبب المرتجع / الاسترداد</label>
+                        <select class="ctrl-input" id="hdr-return-reason">
+                            <option value="تلف أو عيب مصنعي">تلف أو عيب مصنعي</option>
+                            <option value="عدم مطابقة المواصفات">عدم مطابقة المواصفات</option>
+                            <option value="فائض عن حاجة العميل">فائض عن حاجة العميل</option>
+                            <option value="خطأ في الفوترة أو التسعير">خطأ في الفوترة أو التسعير</option>
+                            <option value="انتهاء صلاحية / استبدال">انتهاء صلاحية / استبدال</option>
+                            <option value="أخرى">أخرى (توضح في البيان)</option>
+                        </select>
+                    </div>
+
+                    <div class="ctrl-group">
+                        <label class="label">حالة البضاعة المستردة</label>
+                        <select class="ctrl-input" id="hdr-return-condition">
+                            <option value="good">سليمة — تضاف للمخزون الصالح ✅</option>
+                            <option value="damaged">تالفة / معيبة — فحص ومراجعة ⚠️</option>
+                        </select>
+                    </div>
+
+                    <div class="ctrl-group">
+                        <label class="label">المخزن المستلم للبضاعة المستردة</label>
+                        <select class="ctrl-input" id="hdr-warehouse" onchange="onMainWarehouseChange()"></select>
+                    </div>
+
                     <div class="ctrl-group">
                         <label class="label">العملة</label>
-                        <select class="ctrl-input system-currency-select" id="hdr-currency" onchange="document.getElementById('hdr-exchange-rate').disabled = false; document.getElementById('hdr-exchange-rate').value = (this.value === 'SDG' || this.value === 'USD') ? (window.SYSTEM_USD_RATE || 5999) : (typeof window.getExchangeRateForCurrency === 'function' ? window.getExchangeRateForCurrency(this.value) : ''); recalcAll();"
+                        <select class="ctrl-input system-currency-select" id="hdr-currency" onchange="document.getElementById('hdr-exchange-rate').disabled = false; document.getElementById('hdr-exchange-rate').value = (this.value === 'SDG' || this.value === 'USD') ? (window.SYSTEM_USD_RATE || 5999) : (typeof window.getExchangeRateForCurrency === 'function' ? window.getExchangeRateForCurrency(this.value) : ''); recalcAll();">
                             <option value="SDG">جنيه سوداني محلي (SDG)</option>
                             <option value="USD">دولار أمريكي أجنبي (USD)</option>
                             <option value="SAR">ريال سعودي أجنبي (SAR)</option>
@@ -338,19 +490,12 @@
                             <option value="EGP">جنيه مصري أجنبي (EGP)</option>
                         </select>
                     </div>
+
                     <div class="ctrl-group">
                         <label class="label">سعر الصرف (مقابل المحلي)</label>
                         <input type="number" class="ctrl-input" id="hdr-exchange-rate" value="<?php echo htmlspecialchars((string)($systemUsdRate ?? 5999)); ?>" placeholder="سعر الصرف" oninput="this.dataset.userEdited='1'; recalcAll()">
                     </div>
-                    <div class="ctrl-group ctrl-full">
-                        <label class="label">البيان / الوصف</label>
-                        <input type="text" class="ctrl-input" id="hdr-description" placeholder="شرح الفاتورة...">
-                    </div>
-                    <div class="ctrl-group">
-                        <label class="label">المخزن الرئيسي</label>
-                        <select class="ctrl-input" id="hdr-warehouse" onchange="onMainWarehouseChange()">
-                        </select>
-                    </div>
+
                     <div class="ctrl-group">
                         <label class="label">مركز التكلفة</label>
                         <select class="ctrl-input" id="hdr-cost-center">
@@ -358,41 +503,45 @@
                             <option value="cc-002">فرع السوق</option>
                         </select>
                     </div>
+
+                    <div class="ctrl-group ctrl-full">
+                        <label class="label">البيان / تفاصيل الاسترداد</label>
+                        <input type="text" class="ctrl-input" id="hdr-description" placeholder="اكتب شرح أو تفاصيل إشعار الدائن ومرتجع المبيعات...">
+                    </div>
                 </div>
             </div>
 
             <!-- Left Column: Customer Financial Status -->
             <div class="panel financial-panel" id="financial-panel">
-                <div class="panel-title">الأرصدة المالية للعميل</div>
+                <div class="panel-title">المركز المالي للعميل وأثر المرتجع</div>
                 <div class="fin-grid">
                     <div class="fin-card">
-                        <div class="fin-label">رصيد العميل</div>
+                        <div class="fin-label">رصيد الدفتر الحالي</div>
                         <div class="fin-value" id="fin-ledger">0</div>
                     </div>
                     <div class="fin-card">
-                        <div class="fin-label">رصيد العميل</div>
+                        <div class="fin-label">الشيكات المؤجلة</div>
                         <div class="fin-value" id="fin-checks">0</div>
                     </div>
                     <div class="fin-card warn">
-                        <div class="fin-label">الضريبة الإضافية</div>
+                        <div class="fin-label">إجمالي المديونية الحالية</div>
                         <div class="fin-value" id="fin-total-debt">0</div>
                     </div>
                     <div class="fin-card success">
-                        <div class="fin-label">رقم الفاتورة</div>
+                        <div class="fin-label">سقف الائتمان المعتمد</div>
                         <div class="fin-value" id="fin-credit-limit">0</div>
                     </div>
                     <div class="fin-card highlight">
-                        <div class="fin-label">الرصيد المتاح</div>
+                        <div class="fin-label">المديونية بعد خصم المرتجع</div>
                         <div class="fin-value" id="fin-remaining">0</div>
                     </div>
                 </div>
                 <div class="fin-status" id="fin-status-msg">
-                    <span class="status-dot neutral"></span> تم فتح شاشة الإرجاع
+                    <span class="status-dot neutral"></span> جاهز لتسجيل مرتجع مبيعات واسترداد البضاعة للمخزن
                 </div>
             </div>
         </div>
-
-        <!-- --- 3. DATA GRID (Invoice Items Table) --- -->
+<!-- --- 3. DATA GRID (Invoice Items Table) --- -->
         <div class="panel" id="items-panel" style="z-index: 50;">
             <div class="panel-header-row" style="display: flex; align-items: center;">
                 <div class="panel-title">بنود الفاتورة</div>
@@ -409,7 +558,9 @@
                     </div>
                 </div>
 
-                </div>
+                <button type="button" class="btn btn-primary btn-sm" onclick="addRow()" id="add-row-btn" style="margin-right: auto;">
+                    <span>+</span> إضافة صنف للمرتجع
+                </button>
             </div>
 
             <!-- Desktop Table -->
@@ -556,13 +707,43 @@
         <!-- --- STICKY FOOTER --- -->
         <div class="sticky-footer">
             <div class="footer-total">
-                <span class="ft-label">المجموع:</span>
+                <span class="ft-label">إجمالي قيمة الاسترداد (إشعار دائن):</span>
                 <span class="ft-value" id="footer-grand">0</span>
             </div>
-            <div class="footer-actions">
-                <button class="btn btn-ghost" style="color: #f87171; border: 1px solid rgba(239,68,68,0.2);" onclick="confirmDeleteTransaction()">حذف هذا المردود</button>
-                <button class="btn btn-ghost" onclick="saveDraft()">العودة بدون حفظ</button>
-                <button class="btn btn-success" onclick="submitInvoice()">✓ اعتماد المردود</button>
+            <div class="footer-actions" style="display:flex; gap:8px; flex-wrap:wrap;">
+                <button type="button" class="btn btn-ghost" style="color: #f87171; border: 1px solid rgba(239,68,68,0.25);" onclick="confirmDeleteTransaction()">🗑️ حذف المرتجع</button>
+                <button type="button" class="btn btn-ghost" onclick="saveDraft()">💾 حفظ مسودة</button>
+                <button type="button" class="btn btn-ghost" style="color: #38bdf8; border: 1px solid rgba(56,189,248,0.3);" onclick="printSalesReturnCreditNote()">🖨️ طباعة إشعار دائن</button>
+                <button type="button" class="btn btn-ghost" style="color: #34d399; border: 1px solid rgba(16,185,129,0.3);" onclick="shareSalesReturnWhatsApp()">📲 إشعار واتساب</button>
+                <button type="button" class="btn btn-success" onclick="submitInvoice()">✓ اعتماد المرتجع واسترداد البضاعة</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Add New Customer -->
+    <div class="modal-overlay" id="add-customer-modal">
+        <div class="modal-card" style="max-width:440px;">
+            <div class="modal-header">
+                <h3>👤 إضافة عميل جديد</h3>
+                <button type="button" class="modal-close" onclick="closeModal('add-customer-modal')">✕</button>
+            </div>
+            <div class="modal-body" style="display:flex; flex-direction:column; gap:12px;">
+                <div class="ctrl-group">
+                    <label class="label">اسم العميل</label>
+                    <input type="text" class="ctrl-input" id="new-cust-name" placeholder="الاسم الكامل للعميل...">
+                </div>
+                <div class="ctrl-group">
+                    <label class="label">رقم الهاتف (واتساب)</label>
+                    <input type="text" class="ctrl-input" id="new-cust-phone" placeholder="09xxxxxxxx">
+                </div>
+                <div class="ctrl-group">
+                    <label class="label">سقف الائتمان المسموح</label>
+                    <input type="number" class="ctrl-input" id="new-cust-credit" value="0" placeholder="0">
+                </div>
+            </div>
+            <div class="modal-footer" style="display:flex; justify-content:flex-end; gap:8px;">
+                <button type="button" class="btn btn-ghost" onclick="closeModal('add-customer-modal')">إلغاء</button>
+                <button type="button" class="btn btn-primary" onclick="addNewCustomer()">✓ حفظ العميل</button>
             </div>
         </div>
     </div>

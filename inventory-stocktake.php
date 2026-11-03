@@ -823,7 +823,7 @@ $header_theme_class = "header-theme-inventory";
             });
 
             // 2. Sales & Reserved
-            let sales = getStorageList('erp_sales_invoices_v1').filter(x => !x.deleted && x.saleType !== 'preliminary' && x.status !== 'preliminary');
+            let sales = getStorageList('erp_sales_invoices_v1').filter(x => !x.deleted && !x.wasSplit && x.saleType !== 'preliminary' && x.status !== 'preliminary' && x.status !== 'draft');
             sales.forEach(inv => {
                 let hdrWh = getWarehouseName(inv.warehouse);
                 (inv.items || []).forEach(line => {
@@ -1268,20 +1268,35 @@ $header_theme_class = "header-theme-inventory";
             const targetWh = document.getElementById('stocktake-warehouse-select')?.value;
             const stDate = document.getElementById('stocktake-date')?.value || new Date().toISOString().split('T')[0];
             const adjustments = [];
+            let netDiffValue = 0;
 
             document.querySelectorAll('.st-count-input').forEach(input => {
                 const itemId = input.dataset.itemId;
                 const bookQty = parseFloat(input.dataset.bookQty) || 0;
+                const costPrice = parseFloat(input.dataset.cost) || 0;
                 const actualCount = parseFloat(input.value) || 0;
                 const diff = actualCount - bookQty;
                 if (Math.abs(diff) > 0.0001) {
                     const item = itemsDb.find(i => String(i.id) === String(itemId));
+                    const lineVal = diff * costPrice;
+                    netDiffValue += lineVal;
                     adjustments.push({
                         itemId: itemId,
-                        quantity: Math.abs(diff),
+                        code: item ? (item.code || item.id) : itemId,
+                        name: item ? item.name : 'صنف',
+                        bookQty: bookQty,
+                        actualQty: actualCount,
+                        diffQty: diff,
+                        quantity: diff,
                         customBaseQty: diff,
+                        customFactor: 1,
+                        costPrice: costPrice,
+                        price: costPrice,
+                        total: lineVal,
+                        diffValue: lineVal,
                         unit: item ? (item.baseUnit || item.unit || 'وحدة') : 'وحدة',
                         factor: 1,
+                        reason: diff > 0 ? `تسوية جردية بالزيادة للمخزن ${targetWh}` : `تسوية جردية بالعجز للمخزن ${targetWh}`,
                         notes: diff > 0 ? `تسوية جردية بالزيادة للمخزن ${targetWh}` : `تسوية جردية بالعجز للمخزن ${targetWh}`
                     });
                 }
@@ -1292,16 +1307,23 @@ $header_theme_class = "header-theme-inventory";
                 return;
             }
 
-            if (!confirm(`هل أنت متأكد من ترحيل إذن التسوية الجردية لـ (${adjustments.length}) أصناف؟`)) return;
+            if (!confirm(`هل أنت متأكد من ترحيل إذن التسوية الجردية لـ (${adjustments.length}) أصناف بصافي أثر مالي (${fmtNum(netDiffValue)} SDG)؟`)) return;
 
+            const voucherNo = `ADJ-${Date.now().toString().slice(-6)}`;
             const adjVoucher = {
-                id: `ADJ-${Date.now()}`,
-                invoiceNo: `ADJ-${Date.now().toString().slice(-6)}`,
+                id: voucherNo,
+                invoiceNo: voucherNo,
                 date: stDate,
                 warehouse: targetWh,
+                warehouseId: targetWh,
                 isAdjustment: true,
+                currency: 'SDG',
+                exchangeRate: 1,
+                grandTotal: netDiffValue,
+                total: netDiffValue,
                 items: adjustments,
                 notes: `إذن تسوية جردية شاملة لمخزن ${targetWh}`,
+                status: 'completed',
                 createdAt: new Date().toISOString()
             };
 
@@ -1309,7 +1331,79 @@ $header_theme_class = "header-theme-inventory";
             purchases.unshift(adjVoucher);
             localStorage.setItem('erp_purchase_invoices_v1', JSON.stringify(purchases));
 
-            alert('تم ترحيل وحفظ إذن التسوية الجردية بنجاح!');
+            // Update erp_items_v1 & erp_inventory_v1 physical balances immediately
+            try {
+                let allItems = getStorageList('erp_items_v1');
+                let invCache = getStorageList('erp_inventory_v1');
+                adjustments.forEach(adj => {
+                    let dbIt = allItems.find(i => i && String(i.id) === String(adj.itemId));
+                    if (dbIt) {
+                        if (!dbIt.stock || typeof dbIt.stock !== 'object') dbIt.stock = {};
+                        dbIt.stock[targetWh] = adj.actualQty;
+                        dbIt.qty = (parseFloat(dbIt.qty || dbIt.stockQty || 0) || 0) + adj.diffQty;
+                        dbIt.stockQty = dbIt.qty;
+                    }
+                    let invEntry = invCache.find(inv => inv && String(inv.itemId) === String(adj.itemId) && inv.warehouse === targetWh);
+                    if (invEntry) invEntry.qty = adj.actualQty;
+                    else invCache.push({ itemId: adj.itemId, warehouse: targetWh, qty: adj.actualQty, minQty: 10 });
+                });
+                localStorage.setItem('erp_items_v1', JSON.stringify(allItems));
+                localStorage.setItem('erp_inventory_v1', JSON.stringify(invCache));
+            } catch(eSync) {}
+
+            // Post official Double-Entry Accounting Journal Voucher in erp_journal_vouchers_v1
+            try {
+                let jvList = getStorageList('erp_journal_vouchers_v1');
+                const absVal = Math.abs(netDiffValue);
+                if (absVal > 0) {
+                    const isSurplus = netDiffValue >= 0;
+                    const debitAcc = isSurplus ? `ح/ مخزون البضاعة - ${targetWh}` : `ح/ مصروف عجز وتوالف المخزون - ${targetWh}`;
+                    const creditAcc = isSurplus ? `ح/ أرباح وفروقات الجرد المخزني (فائض)` : `ح/ مخزون البضاعة - ${targetWh}`;
+                    const jvNo = 'JV-' + voucherNo;
+                    jvList.unshift({
+                        id: jvNo,
+                        voucherNo: jvNo,
+                        date: stDate,
+                        description: `قيد تسوية جردية شامل رقم [${voucherNo}] لمستودع (${targetWh}) — عدد الأصناف (${adjustments.length})`,
+                        totalDebit: absVal,
+                        totalCredit: absVal,
+                        isPosted: true,
+                        source: 'inventory_stocktake',
+                        lines: [
+                            { accountName: debitAcc, debit: absVal, credit: 0, note: `إذن تسوية جرد ${voucherNo}` },
+                            { accountName: creditAcc, debit: 0, credit: absVal, note: `إذن تسوية جرد ${voucherNo}` }
+                        ],
+                        createdAt: new Date().toISOString()
+                    });
+                    localStorage.setItem('erp_journal_vouchers_v1', JSON.stringify(jvList));
+                }
+                if (typeof window.logSystemAction === 'function') {
+                    window.logSystemAction('اعتماد جرد وتسوية مخزنية', `إذن تسوية جردية رقم ${voucherNo} لمستودع ${targetWh} بصافي أثر مالي ${fmtNum(netDiffValue)} SDG`);
+                }
+            } catch(eJv) {}
+
+            // Also sync to erp_inventory_adjustments_v1 so it appears in inventory-adjustment.php History tab
+            let adjHistory = getStorageList('erp_inventory_adjustments_v1');
+            adjHistory.unshift({
+                id: voucherNo,
+                date: stDate,
+                warehouse: targetWh,
+                itemsCount: adjustments.length,
+                totalShortage: adjustments.filter(i => i.diffQty < 0).reduce((s, i) => s + Math.abs(i.diffQty), 0),
+                totalSurplus: adjustments.filter(i => i.diffQty > 0).reduce((s, i) => s + i.diffQty, 0),
+                netValue: netDiffValue,
+                items: adjustments,
+                createdAt: new Date().toISOString(),
+                status: 'applied'
+            });
+            localStorage.setItem('erp_inventory_adjustments_v1', JSON.stringify(adjHistory));
+
+            // Rebuild GL so Trial Balance, P&L, and General Ledger update immediately
+            if (typeof window.rebuildGLEntries === 'function') {
+                try { window.rebuildGLEntries(); } catch(e){}
+            }
+
+            alert(`✅ تم ترحيل وحفظ إذن التسوية الجردية [${voucherNo}] وتوليد القيد المحاسبي بنجاح!`);
             closeStocktakeModal();
             loadData();
             applyFilters();

@@ -522,21 +522,20 @@ $header_theme_class = 'header-theme-reports';
         <div class="welcome-header">
             <h1>مركز التقارير المحاسبية والذكاء المالي V2</h1>
             <p>تقارير جيل 2026 تم تدقيقها وتطويرها بواسطة خبراء الأنظمة والمحاسبة الدولية لتمنحك رؤية فورية.</p>
+            <div style="display:flex; flex-wrap:wrap; justify-content:center; gap:10px; margin-top:16px;">
+                <a href="analytics.php" style="text-decoration:none; padding:7px 15px; border-radius:50px; background:rgba(56,189,248,0.15); border:1px solid #38bdf8; color:#38bdf8; font-size:0.84rem; font-weight:800;">📊 التقارير المالية الرئيسية</a>
+                <a href="ai_executive_advisor.php" style="text-decoration:none; padding:7px 15px; border-radius:50px; background:rgba(168,85,247,0.18); border:1px solid #c084fc; color:#e9d5ff; font-size:0.84rem; font-weight:800;">👑 المستشار التنفيذي الشامل AI</a>
+                <a href="ai_money_advisor.php" style="text-decoration:none; padding:7px 15px; border-radius:50px; background:rgba(16,185,129,0.18); border:1px solid #34d399; color:#34d399; font-size:0.84rem; font-weight:800;">💰 مستشار الأموال والسيولة AI</a>
+                <a href="ai_goods_advisor.php" style="text-decoration:none; padding:7px 15px; border-radius:50px; background:rgba(245,158,11,0.18); border:1px solid #fbbf24; color:#fbbf24; font-size:0.84rem; font-weight:800;">📦 مستشار البضائع والمخازن AI</a>
+                <a href="smart_inventory_report.php" style="text-decoration:none; padding:7px 15px; border-radius:50px; background:rgba(6,182,212,0.18); border:1px solid #22d3ee; color:#22d3ee; font-size:0.84rem; font-weight:800;">🏢 الـ 20 تقرير مخزني ذكي</a>
+                <a href="financial-reports.php" style="text-decoration:none; padding:7px 15px; border-radius:50px; background:rgba(244,63,94,0.18); border:1px solid #fb7185; color:#fb7185; font-size:0.84rem; font-weight:800;">🏛️ القوائم الختامية والزكاة</a>
+            </div>
         </div>
 
 
 
-        <!-- شبكة الـ 6 تقارير العالمية والحديثة -->
+        <!-- شبكة تقارير الذكاء المالي والتحليل المتقدم V2 (بدون تكرار مع دفتر الأستاذ العام) -->
         <div class="reports-grid">
-
-            <!-- 0. دفتر الأستاذ العام المطور والذكي V2 -->
-            <a href="general_ledger_v2.php" class="report-card" style="--accent-color: #3b82f6; --shadow-color: 59, 130, 246;">
-                <div class="live-badge"><span class="live-dot"></span>متصل لحظياً (Live)</div>
-                <div class="card-icon">📖</div>
-                <div class="card-title">دفتر الأستاذ العام المطور والذكي V2</div>
-                <div class="card-desc">مراجعة فورية ومراقبة العمليات الحسابية والقيود اليومية تلقائياً للحد من الأخطاء البشرية.</div>
-                <div class="ai-badge">● كاشف الأخطاء والتدقيق الآلي</div>
-            </a>
 
             <!-- 1. كاشف التدفقات النقدية الفعلي -->
             <a href="cashflow_modern.php" class="report-card" style="--accent-color: #00ff7f; --shadow-color: 0, 255, 127;">
@@ -592,21 +591,21 @@ $header_theme_class = 'header-theme-reports';
                 <div class="ai-badge">● فحص السلامة المالية المعتمد</div>
             </a>
 
-            <!-- 7. محلل الأرصدة الشامل (خزائن، بنوك، موردين) -->
+            <!-- 7. مركز الأرصدة ومقاصة الحسابات -->
             <a href="balances_modern_hub.php" class="report-card" style="--accent-color: #00ffff; --shadow-color: 0, 255, 255;">
                 <div class="live-badge"><span class="live-dot"></span>متصل لحظياً (Live)</div>
                 <div class="card-icon">🏦</div>
-                <div class="card-title">محلل الأرصدة الشامل (خزائن، بنوك، موردين)</div>
+                <div class="card-title">مركز الأرصدة ومقاصة الحسابات</div>
                 <div class="card-desc">عرض الأرصدة المجمعة وتفصيل النقدية الحالية بالبنوك المحلية والصندوق ومستحقات الموردين.</div>
                 <div class="ai-badge">● كاشف السيولة الحية</div>
             </a>
 
-            <!-- 8. مراقب سقوف الائتمان والمديونية العامه -->
-            <a href="credit_limits_dashboard.php" class="report-card" style="--accent-color: #ff0055; --shadow-color: 255, 0, 85;">
+            <!-- 8. منظومة أعمار الديون والحقوق وسقوف الائتمان الذكية -->
+            <a href="aging-report.php" class="report-card" style="--accent-color: #ff0055; --shadow-color: 255, 0, 85;">
                 <div class="live-badge"><span class="live-dot"></span>متصل لحظياً (Live)</div>
                 <div class="card-icon">⚠️</div>
-                <div class="card-title">مراقب سقوف الائتمان والمديونية العامه</div>
-                <div class="card-desc">مراقبة سقوف المديونية للعملاء وتنبيهات فورية عند تجاوز الحد الائتماني المسموح به.</div>
+                <div class="card-title">منظومة أعمار الديون والحقوق وسقوف الائتمان الذكية</div>
+                <div class="card-desc">تحليل أعمار ديون العملاء والموردين (30/60/90/+90 يوم) ومراقبة سقوف الائتمان والتنبؤ بالتحصيل ومخصص الديون IFRS-9.</div>
                 <div class="ai-badge">● كاشف تجاوز الحدود الائتمانية</div>
             </a>
 
@@ -619,11 +618,11 @@ $header_theme_class = 'header-theme-reports';
                 <div class="ai-badge">● كاشف الشيكات المقارن</div>
             </a>
 
-            <!-- 10. مؤشر موثوقية وثبات أسعار الموردين -->
+            <!-- 10. منظومة اعتمادية وموثوقية الموردين وثبات الأسعار 360° -->
             <a href="supplier_reliability.php" class="report-card" style="--accent-color: #a855f7; --shadow-color: 168, 85, 247;">
                 <div class="live-badge"><span class="live-dot"></span>متصل لحظياً (Live)</div>
                 <div class="card-icon">🤝</div>
-                <div class="card-title">مؤشر موثوقية وثبات أسعار الموردين</div>
+                <div class="card-title">منظومة اعتمادية وموثوقية الموردين وثبات الأسعار 360°</div>
                 <div class="card-desc">تحليل أداء الموردين وحجم طلبيات التوريد وحساب تقلبات الأسعار لمعرفة المورد الأكثر استقراراً.</div>
                 <div class="ai-badge">● مؤشر موثوقية الموردين</div>
             </a>
@@ -655,23 +654,7 @@ $header_theme_class = 'header-theme-reports';
                 <div class="ai-badge">● بورصة الحديد وتوقعات الأسعار</div>
             </a>
 
-            <!-- 14. تقرير مديونيات الأرصدة الاستراتيجي (Customer Exposure) -->
-            <a href="customer_exposure.php" class="report-card" style="--accent-color: #fbbf24; --shadow-color: 251, 191, 36;">
-                <div class="live-badge"><span class="live-dot"></span>متصل لحظياً (Live)</div>
-                <div class="card-icon">🎚️</div>
-                <div class="card-title">تقرير مديونيات الأرصدة الاستراتيجي</div>
-                <div class="card-desc">تحليل حجم المخاطرة الكلية لمديونيات العملاء (الأستاذ + الشيكات) وتقييم حالة الأمان لكل عميل.</div>
-                <div class="ai-badge">● تقرير التعرض المالي للعملاء</div>
-            </a>
 
-            <!-- 15. مركز تخصيص وإدارة التنبيهات الذكية (Alerts Manager) -->
-            <a href="alerts_manager.php" class="report-card" style="--accent-color: #ef4444; --shadow-color: 239, 68, 68;">
-                <div class="live-badge"><span class="live-dot"></span>متصل لحظياً (Live)</div>
-                <div class="card-icon">🔔</div>
-                <div class="card-title">إدارة وتخصيص التنبيهات الذكية</div>
-                <div class="card-desc">تحكم كامل في قواعد الأمان والإنذار المبكر وضبط عتبات ومستويات التحذير المالي الحرج.</div>
-                <div class="ai-badge">● محرك التحكم في التنبيهات</div>
-            </a>
 
             <!-- 16. معدل دوران الزبائن -->
             <a href="customer_churn.php" class="report-card" style="--accent-color: #f97316; --shadow-color: 249, 115, 22;">

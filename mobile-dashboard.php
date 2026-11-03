@@ -53,9 +53,10 @@ if (!file_exists($suiteFile)) {
 
 if (file_exists($suiteFile)) {
     $mtime = filemtime($suiteFile);
-    $etag = '"' . md5($mtime . '-' . filesize($suiteFile)) . '"';
+    $etag = '"' . md5($mtime . '-' . filesize($suiteFile) . '-v26') . '"';
 
     header('Content-Type: text/html; charset=UTF-8');
+    header('Vary: Accept-Encoding');
     header('X-Content-Type-Options: nosniff');
     header('X-Frame-Options: SAMEORIGIN');
     header('Referrer-Policy: strict-origin-when-cross-origin');

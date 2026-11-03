@@ -1291,6 +1291,12 @@
             
             // 1. Get Purchases & Adjustments
             let purchases = getStorageList('erp_purchase_invoices_v1').filter(x => !x.deleted);
+            let pReturns = getStorageList('erp_purchase_returns_v1').filter(x => x && !x.deleted && !x.reversed);
+            const seenPRet = new Set(purchases.map(p => String(p.id || p.invoiceNo || '')));
+            pReturns.forEach(pr => {
+                const rid = String(pr.id || pr.returnNo || '');
+                if (rid && !seenPRet.has(rid)) purchases.push({ ...pr, id: rid, invoiceNo: rid, isReturn: true });
+            });
             purchases.forEach(inv => {
                 (inv.items || inv.lines || []).forEach(line => {
                     if (isItemMatch(line)) {

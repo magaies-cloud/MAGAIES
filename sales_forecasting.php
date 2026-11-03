@@ -938,6 +938,23 @@ if (!function_exists('convertReportAmount')) {
         }
 
         // ====== تشغيل حركة العدادات بعد تحميل الصفحة ======
+                function exportForecastExcel() {
+            const rows = [['الشهر / الفترة', 'المبيعات الفعلية', 'التنبؤ الذكي (AI)']];
+            const nAct = chartData.numActual || 0;
+            (chartData.labels || []).forEach((lbl, idx) => {
+                const act = idx < nAct ? (chartData.actual[idx] ?? '') : '';
+                const fc  = idx >= nAct ? (chartData.forecast[idx - nAct] ?? '') : '';
+                rows.push([lbl, act, fc]);
+            });
+            const csv = '\uFEFF' + rows.map(r => r.map(v => '"' + String(v ?? '').replace(/"/g, '""') + '"').join(',')).join('\r\n');
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'AI_Sales_Forecast_' + new Date().toISOString().slice(0,10) + '.csv';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        }
         document.addEventListener('DOMContentLoaded', animateCounters);
     </script>
     </div>

@@ -2496,6 +2496,18 @@ $pdo = getDBConnection();
             <div class="tools-cmd-clearance"></div>
 
             <div class="tools-cmd-actions">
+                <button type="button" onclick="window.openToolsAIPredictiveModal()" class="tools-cmd-btn" style="background:linear-gradient(135deg,#8b5cf6,#6d28d9); color:#fff; border-color:rgba(192,132,252,0.55);" title="فتح المستشار الذكي والتنبؤي للأدوات الهندسية والمالية والشرعية">
+                    <span class="text-purple-200"><i class="fa-solid fa-robot"></i></span>
+                    <span>🤖 المستشار التنبؤي AI</span>
+                </button>
+                <button type="button" onclick="window.syncAllCalculatorsWithLiveERP(true)" class="tools-cmd-btn" style="border-color:rgba(16,185,129,0.5);" title="سحب أرصدة المخزون والسيولة والديون وسعر الصرف الحي من النظام إلى الحاسبات">
+                    <span class="text-emerald-400"><i class="fa-solid fa-bolt"></i></span>
+                    <span>⚡ سحب بيانات النظام</span>
+                </button>
+                <button type="button" onclick="window.shareActiveCalculatorWhatsApp()" class="tools-cmd-btn" style="border-color:rgba(52,211,153,0.45);" title="مشاركة نتائج الحاسبة المفتوحة حالياً عبر واتساب">
+                    <span class="text-emerald-400"><i class="fa-brands fa-whatsapp"></i></span>
+                    <span>📲 واتساب</span>
+                </button>
                 <button type="button" onclick="toggleSacredMediaBar()" id="btn-toggle-media" class="tools-cmd-btn" title="إظهار / إخفاء شريط الإذاعات والبث المباشر">
                     <span class="text-amber-400"><i class="fa-solid fa-tower-broadcast"></i></span>
                     <span>استوديو البث (12)</span>
@@ -2505,6 +2517,22 @@ $pdo = getDBConnection();
                     <span class="text-emerald-400"><i class="fa-solid fa-print"></i></span>
                     <span>طباعة الحسابات</span>
                 </button>
+            </div>
+        </div>
+
+        <!-- 🔗 شريط الربط الشامل بين الأدوات المساعدة وكافة شاشات وتقارير النظام 360° 🔗 -->
+        <div class="no-print mb-3" style="display:flex; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap; padding:9px 14px; border-radius:16px; background:rgba(15,23,42,0.88); border:1.5px solid rgba(236,72,153,0.32);">
+            <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+                <span style="font-size:0.76rem; font-weight:900; color:#f472b6;">🔗 تكامل الأدوات مع الشاشات والتقارير:</span>
+                <a href="magaiees_unified_dashboard.php" class="px-2.5 py-1 rounded-lg text-xs font-black bg-slate-900 text-sky-300 border border-sky-500/30 hover:bg-slate-800">🏠 لوحة التحكم</a>
+                <a href="master-data.php" class="px-2.5 py-1 rounded-lg text-xs font-black bg-slate-900 text-cyan-300 border border-cyan-500/30 hover:bg-slate-800">🏛️ البيانات الأساسية</a>
+                <a href="sales-invoice.php" class="px-2.5 py-1 rounded-lg text-xs font-black bg-slate-900 text-emerald-300 border border-emerald-500/30 hover:bg-slate-800">🛒 فواتير المبيعات</a>
+                <a href="purchase.php" class="px-2.5 py-1 rounded-lg text-xs font-black bg-slate-900 text-orange-300 border border-orange-500/30 hover:bg-slate-800">🚛 فواتير المشتريات</a>
+                <a href="inventory-report.php" class="px-2.5 py-1 rounded-lg text-xs font-black bg-slate-900 text-purple-300 border border-purple-500/30 hover:bg-slate-800">📦 مركز المخازن</a>
+                <a href="vouchers-hub.php" class="px-2.5 py-1 rounded-lg text-xs font-black bg-slate-900 text-teal-300 border border-teal-500/30 hover:bg-slate-800">💰 مركز السندات</a>
+                <a href="financial-reports.php" class="px-2.5 py-1 rounded-lg text-xs font-black bg-slate-900 text-amber-300 border border-amber-500/30 hover:bg-slate-800">📈 التقارير المالية</a>
+                <a href="payroll.php" class="px-2.5 py-1 rounded-lg text-xs font-black bg-slate-900 text-fuchsia-300 border border-fuchsia-500/30 hover:bg-slate-800">💵 مسير الرواتب</a>
+                <a href="alarm.php" class="px-2.5 py-1 rounded-lg text-xs font-black bg-slate-900 text-rose-300 border border-rose-500/30 hover:bg-slate-800">🛡️ الحارس الأمين (88)</a>
             </div>
         </div>
 
@@ -2807,6 +2835,20 @@ $pdo = getDBConnection();
                 <div class="suite-pill-title">⚖️ فحص الكشوفات</div>
                 <div class="suite-pill-sub">كشوفات الحساب والدفاتر وشيتات الإكسيل</div>
             </div>
+
+            <!-- 13. استوديو القرآن الكريم والبث الحي -->
+            <div class="suite-pill-card" style="--p-color:#06b6d4; --p-border:rgba(6,182,212,0.6);" onclick="switchSuite('quran_mp3', this)" id="tab-pill-quran_mp3">
+                <div class="suite-pill-icon"><i class="fa-solid fa-headphones text-cyan-400"></i></div>
+                <div class="suite-pill-title">🎧 استوديو القرآن</div>
+                <div class="suite-pill-sub">287 مصحفاً و241 قارئ بالخلفية</div>
+            </div>
+
+            <!-- 14. واحة الدعم النفسي والذهني والترفيهي للموظفين -->
+            <div class="suite-pill-card" style="--p-color:#c084fc; --p-border:rgba(192,132,252,0.65);" onclick="switchSuite('wellness', this)" id="tab-pill-wellness">
+                <div class="suite-pill-icon"><i class="fa-solid fa-brain text-purple-400"></i></div>
+                <div class="suite-pill-title">🧠 الواحة النفسية</div>
+                <div class="suite-pill-sub">دعم ذهني، تنفس، وألعاب محاسبية</div>
+            </div>
         </div>
 
         <!-- ════════════════════════════════════════════════════════════════ -->
@@ -2908,6 +2950,10 @@ $pdo = getDBConnection();
                             <span class="text-xs text-slate-400 font-bold block">📊 ملخص الكمية المطلوبة</span>
                             <span class="text-xl font-black text-emerald-400 mt-1 block font-mono" id="res_total_summary">0 قطعة = 0.00 طن</span>
                         </div>
+                        <div class="flex flex-wrap gap-2 pt-1">
+                            <button type="button" onclick="window.sendCalcToSalesOrPurchase('steel','sales')" class="flex-1 py-2 px-3 rounded-xl bg-pink-600/20 hover:bg-pink-600/35 text-pink-200 border border-pink-500/40 text-xs font-black cursor-pointer">🧾 تحويل لفاتورة مبيعات ↗</button>
+                            <a href="inventory-report.php" class="flex-1 text-center py-2 px-3 rounded-xl bg-amber-600/20 hover:bg-amber-600/35 text-amber-200 border border-amber-500/40 text-xs font-black">📦 فحص رصيد الحديد بالمخزن ↗</a>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -3007,6 +3053,10 @@ $pdo = getDBConnection();
                                 <span class="text-cyan-400 text-base block font-mono" id="res_tiles_glue">0 كيس</span>
                             </div>
                         </div>
+                        <div class="flex flex-wrap gap-2 pt-1">
+                            <button type="button" onclick="window.sendCalcToSalesOrPurchase('concrete','sales')" class="flex-1 py-2 px-3 rounded-xl bg-purple-600/20 hover:bg-purple-600/35 text-purple-200 border border-purple-500/40 text-xs font-black cursor-pointer">🧾 عرض سعر مواد بناء ↗</button>
+                            <a href="reserved-sales.php" class="flex-1 text-center py-2 px-3 rounded-xl bg-emerald-600/20 hover:bg-emerald-600/35 text-emerald-200 border border-emerald-500/40 text-xs font-black">📑 حجز مقايسة مشروع ↗</a>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -3102,6 +3152,10 @@ $pdo = getDBConnection();
                             <span class="text-xs text-slate-400 font-bold block">🔋 سعة بنك البطاريات المطلوب</span>
                             <span class="text-2xl font-black text-sky-400 mt-1 block font-mono" id="res_battery_ah">0 Ah</span>
                         </div>
+                        <div class="flex flex-wrap gap-2 pt-1">
+                            <button type="button" onclick="window.sendCalcToSalesOrPurchase('solar','sales')" class="flex-1 py-2 px-3 rounded-xl bg-amber-600/20 hover:bg-amber-600/35 text-amber-200 border border-amber-500/40 text-xs font-black cursor-pointer">🧾 عرض سعر منظومة شمسية ↗</button>
+                            <a href="inventory-report.php" class="flex-1 text-center py-2 px-3 rounded-xl bg-emerald-600/20 hover:bg-emerald-600/35 text-emerald-200 border border-emerald-500/40 text-xs font-black">📦 فحص الألواح والبطاريات ↗</a>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -3189,6 +3243,10 @@ $pdo = getDBConnection();
                         <div class="calc-result-box" style="border-color: rgba(245, 158, 11, 0.3);">
                             <span class="text-xs text-slate-400 font-bold block">📈 نسبة المصاريف المضافة إلى الشراء</span>
                             <span class="text-2xl font-black text-amber-400 mt-1 block font-mono" id="res_overhead_pct">%0</span>
+                        </div>
+                        <div class="flex flex-wrap gap-2 pt-1">
+                            <a href="import-shipment.php" class="flex-1 text-center py-2 px-3 rounded-xl bg-sky-600/20 hover:bg-sky-600/35 text-sky-200 border border-sky-500/40 text-xs font-black">🚢 شاشة استيراد بضائع ↗</a>
+                            <a href="purchase.php" class="flex-1 text-center py-2 px-3 rounded-xl bg-emerald-600/20 hover:bg-emerald-600/35 text-emerald-200 border border-emerald-500/40 text-xs font-black">🛒 فاتورة مشتريات ↗</a>
                         </div>
                     </div>
                 </div>
@@ -22777,6 +22835,10 @@ $pdo = getDBConnection();
                             <span class="text-4xl font-black text-emerald-400 mt-1 block font-mono" id="res_zakat_due">0 SDG</span>
                             <span class="text-xs text-emerald-200/90 font-bold mt-1 block">ربع العشر من وعاء التجارة والسيولة</span>
                         </div>
+                        <div class="flex flex-wrap gap-2 pt-1">
+                            <button type="button" onclick="window.syncAllCalculatorsWithLiveERP(true)" class="flex-1 py-2 px-3 rounded-xl bg-emerald-600/25 hover:bg-emerald-600/40 text-emerald-200 border border-emerald-500/40 text-xs font-black cursor-pointer">⚡ سحب أرصدة النظام الحية</button>
+                            <button type="button" onclick="window.postZakatToJournalEntry()" class="flex-1 py-2 px-3 rounded-xl bg-sky-600/25 hover:bg-sky-600/40 text-sky-200 border border-sky-500/40 text-xs font-black cursor-pointer">📒 ترحيل قيد زكاة لليومية</button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -22834,6 +22896,10 @@ $pdo = getDBConnection();
                             <span class="text-xs text-slate-400 font-bold block">💵 صافي الأرباح الشهرية المتوقعة</span>
                             <span class="text-3xl font-black text-emerald-400 mt-1 block font-mono" id="res_net_profit_month">0 SDG</span>
                             <span class="text-xs text-emerald-300/80 font-bold mt-1 block" id="res_margin_markup_info">هامش الربح: %0 | الإضافة: %0</span>
+                        </div>
+                        <div class="flex flex-wrap gap-2 pt-1">
+                            <a href="financial-reports.php" class="flex-1 text-center py-2 px-3 rounded-xl bg-rose-600/20 hover:bg-rose-600/35 text-rose-200 border border-rose-500/40 text-xs font-black">📈 قائمة الدخل والأرباح ↗</a>
+                            <a href="ai_executive_advisor.php" class="flex-1 text-center py-2 px-3 rounded-xl bg-purple-600/20 hover:bg-purple-600/35 text-purple-200 border border-purple-500/40 text-xs font-black">🤖 المستشار المالي AI ↗</a>
                         </div>
                     </div>
                 </div>
@@ -22898,6 +22964,10 @@ $pdo = getDBConnection();
                         <div class="calc-result-box" style="border-color: rgba(16, 185, 129, 0.4);">
                             <span class="text-xs text-slate-400 font-bold block">💵 إجمالي المستحقات النهائية للموظف</span>
                             <span class="text-3xl font-black text-emerald-400 mt-1 block font-mono" id="res_total_hr_due">0 SDG</span>
+                        </div>
+                        <div class="flex flex-wrap gap-2 pt-1">
+                            <a href="payroll.php" class="flex-1 text-center py-2 px-3 rounded-xl bg-fuchsia-600/20 hover:bg-fuchsia-600/35 text-fuchsia-200 border border-fuchsia-500/40 text-xs font-black">💵 مسير الرواتب ↗</a>
+                            <a href="single-cash-payment.php" class="flex-1 text-center py-2 px-3 rounded-xl bg-emerald-600/20 hover:bg-emerald-600/35 text-emerald-200 border border-emerald-500/40 text-xs font-black">🧾 سند صرف مستحقات ↗</a>
                         </div>
                     </div>
                 </div>
@@ -24324,6 +24394,195 @@ $pdo = getDBConnection();
             </div>
         </div>
 
+        <!-- ════════════════════════════════════════════════════════════════ -->
+        <!-- 15. SUITE: EMPLOYEE PSYCHOLOGICAL, MENTAL WELLNESS & EDUTAINMENT -->
+        <!--     (واحة الدعم النفسي والذهني والسيكولوجي والترفيهي للموظفين)    -->
+        <!-- ════════════════════════════════════════════════════════════════ -->
+        <div id="suite-sec-wellness" class="suite-section anim-suite hidden space-y-8">
+            <div class="glass-panel-v3 p-6 sm:p-8" style="--border-color: rgba(192, 132, 252, 0.65); border-radius: 32px; background: linear-gradient(160deg, rgba(17, 10, 38, 0.96), rgba(6, 9, 22, 0.99)); box-shadow: 0 20px 60px rgba(0,0,0,0.85), 0 0 35px rgba(168, 85, 247, 0.22);">
+                
+                <!-- Suite Header -->
+                <div class="flex flex-wrap items-center justify-between gap-6 pb-6 mb-8 border-b border-purple-500/30">
+                    <div class="flex items-center gap-4">
+                        <span class="w-16 h-16 rounded-2xl bg-purple-500/20 border-2 border-purple-400/60 flex items-center justify-center text-purple-300 text-3xl shadow-xl">
+                            <i class="fa-solid fa-brain"></i>
+                        </span>
+                        <div>
+                            <h2 class="text-2xl sm:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-300 via-pink-200 to-cyan-300">
+                                🧠 واحة الدعم النفسي والذهني والترفيهي الذكي للموظفين
+                            </h2>
+                            <p class="text-sm sm:text-base text-slate-200 font-bold mt-1">
+                                منظومة عالمية متكاملة لتجديد الطاقة الذهنية، تفريغ ضغط الحسابات، حماية البصر، وتنشيط الذاكرة والبديهة المحاسبية بالذكاء الاصطناعي
+                            </p>
+                        </div>
+                    </div>
+                    <div class="flex flex-wrap items-center gap-2.5">
+                        <button type="button" onclick="openQuranMp3Studio()" class="px-4 py-2.5 rounded-xl bg-cyan-500/20 hover:bg-cyan-500 text-cyan-200 hover:text-slate-950 border border-cyan-500/40 font-black text-xs transition cursor-pointer">
+                            🎧 تلاوة تبعث السكينة
+                        </button>
+                        <button type="button" onclick="window.triggerWellnessAIBoost()" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-black text-xs shadow-lg transition cursor-pointer">
+                            🤖 روشتة الذكاء النفسي الفورية
+                        </button>
+                    </div>
+                </div>
+
+                <!-- ROW 1: AI PSYCHOLOGICAL COACH & 4-7-8 BREATHING BIO-FEEDBACK -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                    
+                    <!-- 1. AI Organizational Psychologist & Mood Coach -->
+                    <div class="p-6 rounded-3xl bg-slate-950/90 border-2 border-purple-500/45 shadow-2xl space-y-4">
+                        <div class="flex items-center justify-between border-b border-white/10 pb-3">
+                            <h3 class="text-lg font-black text-purple-300 flex items-center gap-2">
+                                <i class="fa-solid fa-user-doctor text-pink-400"></i>
+                                <span>المستشار النفسي والسيكولوجي الذكي (AI Mood & Stress Coach)</span>
+                            </h3>
+                            <span class="text-[11px] bg-purple-500/20 text-purple-200 px-2.5 py-1 rounded-lg border border-purple-400/40 font-bold">دعم فوري</span>
+                        </div>
+                        <p class="text-xs text-slate-300 font-bold">اختر شعورك الحالي ليقدم لك المستشار النفسي الذكي خطة فورية لاستعادة التوازن والتركيز:</p>
+                        <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+                            <button type="button" onclick="selectWellnessMood('burnout')" class="p-3 rounded-xl bg-slate-900 hover:bg-purple-950/80 border border-purple-500/30 text-right transition cursor-pointer">
+                                <div class="text-base">😓 ضغط وإرهاق</div>
+                                <div class="text-[11px] text-slate-400 font-bold">كثرة الفواتير والقيود</div>
+                            </button>
+                            <button type="button" onclick="selectWellnessMood('anxiety')" class="p-3 rounded-xl bg-slate-900 hover:bg-amber-950/80 border border-amber-500/30 text-right transition cursor-pointer">
+                                <div class="text-base">😰 توتر المطابقة</div>
+                                <div class="text-[11px] text-slate-400 font-bold">قلق الجرد أو الصندوق</div>
+                            </button>
+                            <button type="button" onclick="selectWellnessMood('fog')" class="p-3 rounded-xl bg-slate-900 hover:bg-sky-950/80 border border-sky-500/30 text-right transition cursor-pointer">
+                                <div class="text-base">🤯 تشتت ذهني</div>
+                                <div class="text-[11px] text-slate-400 font-bold">صعوبة التركيز بالأرقام</div>
+                            </button>
+                            <button type="button" onclick="selectWellnessMood('eyestrain')" class="p-3 rounded-xl bg-slate-900 hover:bg-emerald-950/80 border border-emerald-500/30 text-right transition cursor-pointer">
+                                <div class="text-base">👁️ إجهاد بصري</div>
+                                <div class="text-[11px] text-slate-400 font-bold">طول النظر للشاشة</div>
+                            </button>
+                            <button type="button" onclick="selectWellnessMood('motivation')" class="p-3 rounded-xl bg-slate-900 hover:bg-rose-950/80 border border-rose-500/30 text-right transition cursor-pointer">
+                                <div class="text-base">⚡ أحتاج تحفيزاً</div>
+                                <div class="text-[11px] text-slate-400 font-bold">تجديد الشغف والهمة</div>
+                            </button>
+                            <button type="button" onclick="selectWellnessMood('peace')" class="p-3 rounded-xl bg-slate-900 hover:bg-teal-950/80 border border-teal-500/30 text-right transition cursor-pointer">
+                                <div class="text-base">🌙 سكينة وطمأنينة</div>
+                                <div class="text-[11px] text-slate-400 font-bold">راحة القلب والروح</div>
+                            </button>
+                        </div>
+                        <div id="wellness-ai-prescription-box" class="p-4 rounded-2xl bg-gradient-to-r from-purple-950/60 to-slate-900 border border-purple-400/40 text-sm text-slate-100 leading-relaxed space-y-2">
+                            <div class="font-black text-purple-300">💡 التوجيه النفسي والعملي:</div>
+                            <p id="wellness-ai-prescription-text" class="text-xs sm:text-sm text-slate-200 font-bold">
+                                مرحباً بك في واحة التوازن النفسي. تذكر أن دقة المحاسب وصفاء ذهنه يبدآن من راحته النفسية؛ اختر حالتك أعلاه للحصول على توجيه علمي وعملي مخصص لك.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- 2. 4-7-8 Guided Breathing & Focus Timer -->
+                    <div class="p-6 rounded-3xl bg-slate-950/90 border-2 border-cyan-500/45 shadow-2xl space-y-5 flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center justify-between border-b border-white/10 pb-3 mb-4">
+                                <h3 class="text-lg font-black text-cyan-300 flex items-center gap-2">
+                                    <i class="fa-solid fa-wind text-cyan-400"></i>
+                                    <span>مدرب التنفس العميق (4-7-8) ومؤقت البومودورو وراحة العين</span>
+                                </h3>
+                                <span id="breathing-cycles-badge" class="text-[11px] bg-cyan-500/20 text-cyan-200 px-2.5 py-1 rounded-lg border border-cyan-400/40 font-bold">الدورات: 0</span>
+                            </div>
+
+                            <!-- Interactive Breathing Orb -->
+                            <div class="flex flex-col sm:flex-row items-center gap-6 bg-slate-900/80 p-4 rounded-2xl border border-cyan-500/30">
+                                <div id="wellness-breathing-orb" onclick="toggleWellnessBreathing()" style="width:110px; height:110px; border-radius:50%; background:radial-gradient(circle, rgba(6,182,212,0.55), rgba(15,23,42,0.95)); border:3px solid #22d3ee; box-shadow:0 0 25px rgba(6,182,212,0.45); display:flex; align-items:center; justify-content:center; text-align:center; cursor:pointer; transition:all 1s ease; flex-shrink:0;">
+                                    <span id="wellness-breathing-label" class="text-xs font-black text-cyan-100 px-2">اضغط لبدء التنفس 🧘‍♂️</span>
+                                </div>
+                                <div class="space-y-2 flex-1">
+                                    <div id="wellness-breathing-instruction" class="text-sm font-black text-cyan-200">تقنية (4-7-8) لتهدئة الجهاز العصبي خلال 60 ثانية</div>
+                                    <p class="text-xs text-slate-400 font-bold">شهيق من الأنف (4 ثوانٍ) ⬅️ حبس النفس لامتصاص الأكسجين (7 ثوانٍ) ⬅️ زفير بطيء لتفريغ التوتر (8 ثوانٍ).</p>
+                                    <div class="flex flex-wrap gap-2 pt-1">
+                                        <button type="button" onclick="toggleWellnessBreathing()" id="btn-toggle-breathing" class="px-4 py-1.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-black text-xs cursor-pointer transition">▶️ ابدأ جلسة التنفس</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Pomodoro & 20-20-20 Eye Care Timer -->
+                        <div class="bg-slate-900/90 p-4 rounded-2xl border border-emerald-500/35 flex flex-wrap items-center justify-between gap-4">
+                            <div>
+                                <div class="text-xs font-black text-emerald-300">⏱️ مؤقت التركيز الذهني وحماية البصر (Pomodoro & 20-20-20)</div>
+                                <div id="wellness-pomo-status" class="text-[11px] text-slate-400 font-bold mt-0.5">جلسة عمل مركزة بدون تشتت (25 دقيقة)</div>
+                            </div>
+                            <div id="wellness-pomo-display" class="text-2xl font-black text-emerald-300 font-mono bg-slate-950 px-4 py-1.5 rounded-xl border border-emerald-500/40">25:00</div>
+                            <div class="flex flex-wrap gap-1.5">
+                                <button type="button" onclick="startWellnessTimer(1500, '🎯 جلسة تركيز عميق (25 دقيقة)')" class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-black cursor-pointer">25د تركيز</button>
+                                <button type="button" onclick="startWellnessTimer(300, '☕ استراحة ذهنية وتمدد (5 دقائق)')" class="px-3 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-500 text-white text-xs font-black cursor-pointer">5د راحة</button>
+                                <button type="button" onclick="startWellnessTimer(20, '👁️ انظر لهدف بعيد 6 أمتار لإراحة عضلة العين (20 ثانية)')" class="px-3 py-1.5 rounded-lg bg-sky-600 hover:bg-sky-500 text-white text-xs font-black cursor-pointer">20ث للعين 👁️</button>
+                                <button type="button" onclick="stopWellnessTimer()" class="px-2.5 py-1.5 rounded-lg bg-rose-900/70 text-rose-200 text-xs font-black cursor-pointer">⏹️</button>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- ROW 2: SMART ENTERTAINMENT & ACCOUNTING BRAIN AGILITY GAMES -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    
+                    <!-- Game 1: Mental Math & Accounting Agility Sprint -->
+                    <div class="p-6 rounded-3xl bg-slate-950/90 border-2 border-amber-500/45 shadow-2xl space-y-4">
+                        <div class="flex items-center justify-between border-b border-white/10 pb-3">
+                            <h3 class="text-lg font-black text-amber-300 flex items-center gap-2">
+                                <i class="fa-solid fa-gamepad text-amber-400"></i>
+                                <span>لعبة تحدي البرق الحسابي للمحاسبين (Mental Math Arena)</span>
+                            </h3>
+                            <div class="flex items-center gap-2 text-xs font-black">
+                                <span class="bg-amber-500/20 text-amber-300 px-2.5 py-1 rounded-lg border border-amber-500/40">النقاط: <span id="math-game-score">0</span></span>
+                                <span class="bg-emerald-500/20 text-emerald-300 px-2.5 py-1 rounded-lg border border-emerald-500/40">أعلى رقم: <span id="math-game-best">0</span></span>
+                            </div>
+                        </div>
+                        <p class="text-xs text-slate-300 font-bold">نشّط بديهتك المحاسبية وسرعة حساب الخصومات والضرائب والأرباح في ثوانٍ!</p>
+                        <div class="p-5 rounded-2xl bg-slate-900 border border-amber-500/30 text-center space-y-4">
+                            <div id="math-game-question" class="text-2xl sm:text-3xl font-black text-amber-200 tracking-wide">اضغط "سؤال جديد" لبدء التحدي ⚡</div>
+                            <div id="math-game-options" class="grid grid-cols-2 sm:grid-cols-4 gap-2.5"></div>
+                            <div id="math-game-feedback" class="text-xs font-black text-emerald-400 min-h-[18px]"></div>
+                            <button type="button" onclick="nextWellnessMathQuestion()" class="px-6 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-slate-950 font-black text-xs cursor-pointer shadow-lg">
+                                🎲 سؤال محاسبي جديد
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Game 2: Audit Discrepancy Spotter & Daily Positive Wisdom -->
+                    <div class="p-6 rounded-3xl bg-slate-950/90 border-2 border-emerald-500/45 shadow-2xl space-y-4 flex flex-col justify-between">
+                        <div class="space-y-4">
+                            <div class="flex items-center justify-between border-b border-white/10 pb-3">
+                                <h3 class="text-lg font-black text-emerald-300 flex items-center gap-2">
+                                    <i class="fa-solid fa-magnifying-glass-chart text-emerald-400"></i>
+                                    <span>لعبة قناص الفروقات الرقابية وفراسة المدقق (Audit Spotter)</span>
+                                </h3>
+                                <span class="text-xs font-black bg-emerald-500/20 text-emerald-300 px-2.5 py-1 rounded-lg border border-emerald-500/40">دقة الملاحظة: <span id="audit-game-score">0</span></span>
+                            </div>
+                            <div class="p-4 rounded-2xl bg-slate-900 border border-emerald-500/30 text-center space-y-3">
+                                <div class="text-xs text-slate-400 font-bold">هل الرصيدان/الرقمان المرجعيان متطابقان تماماً أم يوجد فرق خفي؟</div>
+                                <div id="audit-game-pair" class="grid grid-cols-1 sm:grid-cols-2 gap-3 font-mono text-lg font-black text-sky-200 bg-slate-950 p-3 rounded-xl border border-slate-800" dir="ltr">
+                                    <span>INV-2026-884920</span>
+                                    <span>INV-2026-884920</span>
+                                </div>
+                                <div class="flex justify-center gap-3">
+                                    <button type="button" onclick="answerAuditSpotter(true)" class="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs cursor-pointer">✅ متطابقان تماماً</button>
+                                    <button type="button" onclick="answerAuditSpotter(false)" class="px-5 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-black text-xs cursor-pointer">⚠️ يوجد اختلاف!</button>
+                                    <button type="button" onclick="nextAuditSpotterRound()" class="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-black text-xs cursor-pointer">🔄</button>
+                                </div>
+                                <div id="audit-game-feedback" class="text-xs font-black text-amber-300 min-h-[18px]"></div>
+                            </div>
+                        </div>
+
+                        <!-- Daily Inspiration & Humorous Accounting Boost -->
+                        <div class="p-4 rounded-2xl bg-gradient-to-r from-emerald-950/60 to-slate-900 border border-emerald-500/40 flex items-center justify-between gap-3">
+                            <div>
+                                <div class="text-xs font-black text-emerald-300">🌟 إشراقة وحكمة اليوم لفريق العمل:</div>
+                                <div id="wellness-daily-quote" class="text-xs text-slate-200 font-bold mt-1">«الإتقان في العمل عبادة، وابتسامتك في وجه المراجع والعميل تفتح أبواب الرزق والبركة.»</div>
+                            </div>
+                            <button type="button" onclick="nextWellnessQuote()" class="px-3 py-2 rounded-xl bg-emerald-500/20 hover:bg-emerald-500 text-emerald-200 hover:text-slate-950 border border-emerald-500/40 text-xs font-black shrink-0 cursor-pointer">✨ حكمة جديدة</button>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+
         <div class="text-center text-xs text-slate-500 font-bold mt-4 mb-8 no-print">
             نظام Al-Sajana Smart ERP 2026 · منصة المساعدات والحاسبات الهندسية والتجارية ومفاتيح البنوك والبث الإسلامي المبارك
         </div>
@@ -24943,6 +25202,13 @@ $pdo = getDBConnection();
         }
 
         playPersistentMedia('audio', audioUrl, title, { channelKey: 'quran_mp3', surahNum: surahNum, reciterId: reciter.id });
+        // Sync studio audio player UI bar without double audio output
+        const studioPlayer = document.getElementById('main-quran-audio-player');
+        if (studioPlayer) {
+            studioPlayer.muted = true;
+            studioPlayer.src = audioUrl;
+            studioPlayer.play().catch(() => {});
+        }
         if (typeof showFiqhToast === 'function') showFiqhToast('▶️ جاري تشغيل سورة ' + surah.name + ' بصوت ' + reciter.name + ' في الخلفية');
     }
 
@@ -25255,31 +25521,58 @@ $pdo = getDBConnection();
     window.renderQuickChannelVisuals = renderQuickChannelVisuals;
 
     function playTvChannel(channelKey) {
-        if (typeof window.playTvChannel === 'function') {
+        if (window.top && window.top !== window.self && typeof window.top.playTvChannel === 'function') {
+            window.top.playTvChannel(channelKey);
+            return;
+        }
+        if (typeof window.quickHeaderPlay === 'function' && window.playTvChannel !== playTvChannel) {
             window.playTvChannel(channelKey);
+            return;
+        }
+        const ch = TV_CHANNELS_DATA[channelKey];
+        if (ch && typeof window.playPersistentMedia === 'function' && window.playPersistentMedia !== playPersistentMedia) {
+            window.playPersistentMedia('audio', ch.audioUrl, ch.title, {
+                channelKey: channelKey,
+                backupAudioUrl: ch.backupAudioUrl,
+                sub: ch.sub
+            });
         }
     }
 
     function playPersistentMedia(type, sourceUrl, title, extraMeta) {
-        if (typeof window.playPersistentMedia === 'function') {
+        if (window.top && window.top !== window.self && typeof window.top.playPersistentMedia === 'function') {
+            window.top.playPersistentMedia(type, sourceUrl, title, extraMeta);
+            return;
+        }
+        if (typeof window.playPersistentMedia === 'function' && window.playPersistentMedia !== playPersistentMedia) {
             window.playPersistentMedia(type, sourceUrl, title, extraMeta);
         }
     }
 
     function stopPersistentMedia() {
-        if (typeof window.stopPersistentMedia === 'function') {
+        if (typeof window.quickHeaderStop === 'function') {
+            window.quickHeaderStop();
+        } else if (typeof window.stopPersistentMedia === 'function' && window.stopPersistentMedia !== stopPersistentMedia) {
             window.stopPersistentMedia();
+        }
+        const studioPlayer = document.getElementById('main-quran-audio-player');
+        if (studioPlayer) {
+            try { studioPlayer.pause(); } catch (e) {}
         }
         activeQuickChannel = null;
         renderQuickChannelVisuals(null);
     }
 
     function switchSuite(suiteId, el) {
+        if (suiteId === 'fatwa') suiteId = 'fiqh';
         document.querySelectorAll('.suite-section').forEach(sec => sec.classList.add('hidden'));
         document.querySelectorAll('.suite-pill-card').forEach(btn => btn.classList.remove('active'));
 
         const targetSec = document.getElementById('suite-sec-' + suiteId);
         if (targetSec) targetSec.classList.remove('hidden');
+        if (!el) {
+            el = document.getElementById('tab-pill-' + suiteId) || document.querySelector('[onclick*="switchSuite(\'' + suiteId + '\'"]');
+        }
         if (el) el.classList.add('active');
 
         if (suiteId === 'quran_mp3') {
@@ -25298,8 +25591,257 @@ $pdo = getDBConnection();
             if (typeof initReconciliationSuite === 'function') {
                 initReconciliationSuite();
             }
+        } else if (suiteId === 'wellness') {
+            if (typeof window.initWellnessSuite === 'function') {
+                window.initWellnessSuite();
+            }
         }
     }
+    window.switchSuite = switchSuite;
+
+    // ════════════════════════════════════════════════════════════════════════════
+    // 🧠 EMPLOYEE PSYCHOLOGICAL, MENTAL WELLNESS & EDUTAINMENT CONTROLLERS
+    // ════════════════════════════════════════════════════════════════════════════
+    var _wellnessBreathingTimer = null;
+    var _wellnessBreathingActive = false;
+    var _wellnessBreathingCycles = 0;
+    var _wellnessPomoTimer = null;
+    var _wellnessPomoSeconds = 1500;
+    var _wellnessMathAnswer = null;
+    var _wellnessMathScore = 0;
+    var _wellnessAuditMatch = true;
+    var _wellnessAuditScore = 0;
+
+    window.initWellnessSuite = function() {
+        const best = localStorage.getItem('erp_wellness_math_best') || '0';
+        const bestEl = document.getElementById('math-game-best');
+        if (bestEl) bestEl.textContent = best;
+        if (_wellnessMathAnswer === null) window.nextWellnessMathQuestion();
+        window.nextAuditSpotterRound();
+    };
+
+    window.selectWellnessMood = function(moodKey) {
+        const prescriptions = {
+            burnout: '💆‍♂️ <strong>وصفة تفريغ ضغط العمل المحاسبي:</strong> خذ استراحة 3 دقائق بعيداً عن لوحة المفاتيح، اشرب كوب ماء، وابدأ دورة تنفس (4-7-8) على اليسار. قسّم المهام المتبقية إلى دفعات صغيرة (كل 5 فواتير على حدة) ولا تجمع المراجعة والإدخال في نفس اللحظة.',
+            anxiety: '🛡️ <strong>وصفة طمأنينة المطابقة والجرد:</strong> القلق طبيعي لدى المحاسب الدقيق! استخدم أداة "فحص الكشوفات" في التبويب رقم 12 لمطابقة أي كشف آلياً في ثوانٍ بدون إجهاد، وتأكد أن كل حركة موثقة في سجل الرقابة.',
+            fog: '⚡ <strong>وصفة استعادة التركيز الذهني:</strong> التشتت يحدث بسبب تعدد النوافذ. شغل مؤقت التركيز العميق (25 دقيقة) على مهمة واحدة فقط، وجرّب جولة سريعة في "لعبة البرق الحسابي" بالأسفل لتنشيط الفص الجبهي للمخ.',
+            eyestrain: '👁️ <strong>وصفة حماية البصر الفورية (قاعدة 20-20-20):</strong> اضغط زر (20ث للعين 👁️) على اليسار الآن، وانظر إلى أبعد نقطة في الغرفة لمدة 20 ثانية مع الرمش ببطء 10 مرات لترطيب القرنية وإرخاء عضلة العدسة.',
+            motivation: '🚀 <strong>شحنة تحفيز وطاقة إيجابية:</strong> تذكر أن عملك المالي والمحاسبي المتقن هو العمود الفقري لنجاح المؤسسة وحفظ الحقوق والأمانات. كل رقم تضبطه هو أمانة تؤجر عليها!',
+            peace: '🌙 <strong>وصفة السكينة والانشراح:</strong> «أَلَا بِذِكْرِ اللَّهِ تَطْمَئِنُّ الْقُلُوبُ» — قمنا بتجهيز تلاوة خاشعة وإذاعة القرآن الكريم والسنة النبوية لتعمل في الخلفية بهدوء أثناء عملك.'
+        };
+        const box = document.getElementById('wellness-ai-prescription-text');
+        if (box) box.innerHTML = prescriptions[moodKey] || prescriptions.peace;
+    };
+
+    window.triggerWellnessAIBoost = function() {
+        const hour = new Date().getHours();
+        const shiftAdvice = hour >= 15
+            ? 'أنت الآن في الفترة المسائية؛ يوصي المستشار النفسي الذكي بتمرين تنفس لمدة دقيقة وتخفيف سطوع الشاشة وتفعيل وضع راحة العين.'
+            : 'أنت في ذروة النشاط الذهني الصباحي؛ هذا أفضل وقت لإنجاز القيود والتسويات المعقدة قبل المهام الروتينية.';
+        const box = document.getElementById('wellness-ai-prescription-text');
+        if (box) {
+            box.innerHTML = `🤖 <strong>تحليل الذكاء النفسي اللحظي:</strong> ${shiftAdvice}`;
+        }
+        if (typeof showFiqhToast === 'function') showFiqhToast('🧠 تم توليد الروشتة النفسية والذهنية الذكية');
+    };
+
+    window.toggleWellnessBreathing = function() {
+        const orb = document.getElementById('wellness-breathing-orb');
+        const lbl = document.getElementById('wellness-breathing-label');
+        const inst = document.getElementById('wellness-breathing-instruction');
+        const btn = document.getElementById('btn-toggle-breathing');
+        if (_wellnessBreathingActive) {
+            _wellnessBreathingActive = false;
+            clearTimeout(_wellnessBreathingTimer);
+            if (orb) orb.style.transform = 'scale(1)';
+            if (lbl) lbl.textContent = 'اضغط لبدء التنفس 🧘‍♂️';
+            if (inst) inst.textContent = 'تم إيقاف جلسة التنفس — يمكنك معاودة البدء في أي وقت.';
+            if (btn) btn.textContent = '▶️ ابدأ جلسة التنفس';
+            return;
+        }
+        _wellnessBreathingActive = true;
+        if (btn) btn.textContent = '⏹️ إيقاف التنفس';
+
+        const runCycle = () => {
+            if (!_wellnessBreathingActive) return;
+            // Phase 1: Inhale 4s
+            if (orb) {
+                orb.style.transition = 'all 4s ease-in-out';
+                orb.style.transform = 'scale(1.22)';
+                orb.style.borderColor = '#38bdf8';
+            }
+            if (lbl) lbl.textContent = 'شهيق عميق... (4ث)';
+            if (inst) inst.textContent = '🌬️ خذ شهيقاً عميقاً وهادئاً من الأنف لمدة 4 ثوانٍ...';
+
+            _wellnessBreathingTimer = setTimeout(() => {
+                if (!_wellnessBreathingActive) return;
+                // Phase 2: Hold 7s
+                if (orb) {
+                    orb.style.transition = 'all 0.5s ease';
+                    orb.style.borderColor = '#fbbf24';
+                }
+                if (lbl) lbl.textContent = 'احبس النفس... (7ث)';
+                if (inst) inst.textContent = '⏳ احبس النفس بهدوء لتوزيع الأكسجين وتهدئة النبض (7 ثوانٍ)...';
+
+                _wellnessBreathingTimer = setTimeout(() => {
+                    if (!_wellnessBreathingActive) return;
+                    // Phase 3: Exhale 8s
+                    if (orb) {
+                        orb.style.transition = 'all 8s ease-in-out';
+                        orb.style.transform = 'scale(0.92)';
+                        orb.style.borderColor = '#10b981';
+                    }
+                    if (lbl) lbl.textContent = 'زفير بطيء... (8ث)';
+                    if (inst) inst.textContent = '🍃 أخرج الهواء ببطء من الفم وفرّغ معه كل ضغط العمل (8 ثوانٍ)...';
+
+                    _wellnessBreathingTimer = setTimeout(() => {
+                        if (!_wellnessBreathingActive) return;
+                        _wellnessBreathingCycles++;
+                        const badge = document.getElementById('breathing-cycles-badge');
+                        if (badge) badge.textContent = 'الدورات: ' + _wellnessBreathingCycles;
+                        runCycle();
+                    }, 8000);
+                }, 7000);
+            }, 4000);
+        };
+        runCycle();
+    };
+
+    window.startWellnessTimer = function(seconds, statusLabel) {
+        clearInterval(_wellnessPomoTimer);
+        _wellnessPomoSeconds = seconds;
+        const st = document.getElementById('wellness-pomo-status');
+        if (st && statusLabel) st.textContent = statusLabel;
+        const disp = document.getElementById('wellness-pomo-display');
+        const renderTime = () => {
+            const m = Math.floor(_wellnessPomoSeconds / 60);
+            const s = _wellnessPomoSeconds % 60;
+            if (disp) disp.textContent = String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
+        };
+        renderTime();
+        _wellnessPomoTimer = setInterval(() => {
+            _wellnessPomoSeconds--;
+            if (_wellnessPomoSeconds <= 0) {
+                clearInterval(_wellnessPomoTimer);
+                if (disp) disp.textContent = '00:00';
+                if (typeof showFiqhToast === 'function') showFiqhToast('🔔 انتهى المؤقت بنجاح! أحسنت الالتزام.');
+                return;
+            }
+            renderTime();
+        }, 1000);
+    };
+
+    window.stopWellnessTimer = function() {
+        clearInterval(_wellnessPomoTimer);
+        const disp = document.getElementById('wellness-pomo-display');
+        if (disp) disp.textContent = '25:00';
+    };
+
+    window.nextWellnessMathQuestion = function() {
+        const types = ['add', 'sub', 'disc', 'vat'];
+        const t = types[Math.floor(Math.random() * types.length)];
+        let qText = '';
+        let ans = 0;
+        if (t === 'add') {
+            const a = (Math.floor(Math.random() * 45) + 15) * 10;
+            const b = (Math.floor(Math.random() * 35) + 12) * 10;
+            ans = a + b;
+            qText = `كم إجمالي سندين: ${a} + ${b} ؟`;
+        } else if (t === 'sub') {
+            const a = (Math.floor(Math.random() * 60) + 40) * 10;
+            const b = (Math.floor(Math.random() * 30) + 10) * 10;
+            ans = a - b;
+            qText = `عميل عليه ${a} سدد ${b} — كم المتبقي؟`;
+        } else if (t === 'disc') {
+            const price = (Math.floor(Math.random() * 9) + 2) * 1000;
+            const pct = [5, 10, 15, 20, 25][Math.floor(Math.random() * 5)];
+            ans = price - (price * pct / 100);
+            qText = `فاتورة بـ ${price} بخصم ${pct}% — كم الصافي؟`;
+        } else {
+            const cost = (Math.floor(Math.random() * 8) + 2) * 500;
+            const margin = [10, 20, 30][Math.floor(Math.random() * 3)];
+            ans = cost + (cost * margin / 100);
+            qText = `صنف تكلفته ${cost} بربح ${margin}% — كم سعر البيع؟`;
+        }
+        _wellnessMathAnswer = ans;
+        const qEl = document.getElementById('math-game-question');
+        if (qEl) qEl.textContent = qText;
+
+        const opts = new Set([ans]);
+        while (opts.size < 4) {
+            const delta = (Math.floor(Math.random() * 7) - 3) * 50 || 100;
+            if (ans + delta > 0) opts.add(ans + delta);
+        }
+        const shuffled = Array.from(opts).sort(() => Math.random() - 0.5);
+        const box = document.getElementById('math-game-options');
+        if (box) {
+            box.innerHTML = shuffled.map(v => `
+                <button type="button" onclick="answerWellnessMath(${v})" class="py-2.5 px-3 rounded-xl bg-slate-800 hover:bg-amber-500 hover:text-slate-950 text-amber-200 font-black text-base border border-amber-500/30 transition cursor-pointer">${v}</button>
+            `).join('');
+        }
+    };
+
+    window.answerWellnessMath = function(val) {
+        const fb = document.getElementById('math-game-feedback');
+        if (Number(val) === Number(_wellnessMathAnswer)) {
+            _wellnessMathScore += 10;
+            const scEl = document.getElementById('math-game-score');
+            if (scEl) scEl.textContent = _wellnessMathScore;
+            const prevBest = parseInt(localStorage.getItem('erp_wellness_math_best') || '0', 10);
+            if (_wellnessMathScore > prevBest) {
+                localStorage.setItem('erp_wellness_math_best', String(_wellnessMathScore));
+                const bestEl = document.getElementById('math-game-best');
+                if (bestEl) bestEl.textContent = _wellnessMathScore;
+            }
+            if (fb) fb.innerHTML = '<span class="text-emerald-400">✅ إجابة صحيحة وسريعة! (+10 نقاط)</span>';
+            setTimeout(() => window.nextWellnessMathQuestion(), 500);
+        } else {
+            if (fb) fb.innerHTML = `<span class="text-rose-400">❌ حاول مجدداً! الإجابة الصحيحة كانت (${_wellnessMathAnswer})</span>`;
+        }
+    };
+
+    window.nextAuditSpotterRound = function() {
+        const baseNum = Math.floor(100000 + Math.random() * 900000);
+        const prefix = ['INV-2026-', 'RV-904-', 'ACC-110-', 'PO-772-'][Math.floor(Math.random() * 4)];
+        const left = prefix + baseNum;
+        let right = left;
+        _wellnessAuditMatch = Math.random() > 0.5;
+        if (!_wellnessAuditMatch) {
+            const chars = String(baseNum).split('');
+            const idx = Math.floor(Math.random() * chars.length);
+            chars[idx] = String((parseInt(chars[idx], 10) + 1) % 10);
+            right = prefix + chars.join('');
+        }
+        const pairBox = document.getElementById('audit-game-pair');
+        if (pairBox) {
+            pairBox.innerHTML = `<span class="p-2 bg-slate-900 rounded-lg">${left}</span><span class="p-2 bg-slate-900 rounded-lg">${right}</span>`;
+        }
+    };
+
+    window.answerAuditSpotter = function(userSaysMatch) {
+        const fb = document.getElementById('audit-game-feedback');
+        if (userSaysMatch === _wellnessAuditMatch) {
+            _wellnessAuditScore += 10;
+            const sc = document.getElementById('audit-game-score');
+            if (sc) sc.textContent = _wellnessAuditScore;
+            if (fb) fb.innerHTML = '<span class="text-emerald-400">🎯 عين صقر رقابية! ملاحظة دقيقة (+10)</span>';
+        } else {
+            if (fb) fb.innerHTML = '<span class="text-rose-400">⚠️ دقق النظر! كان هناك فرق في الأرقام.</span>';
+        }
+        setTimeout(() => window.nextAuditSpotterRound(), 600);
+    };
+
+    window.nextWellnessQuote = function() {
+        const quotes = [
+            '«الإتقان في العمل عبادة، وابتسامتك في وجه المراجع والعميل تفتح أبواب الرزق والبركة.»',
+            '«المحاسب الناجح يجمع بين دقة الرقم، وأمانة الضمير، وهدوء الأعصاب عند ضغط الإقفال.»',
+            '«راحة ذهنك لـ 5 دقائق كل ساعة تضاعف سرعة إنجازك وتمنع 90% من الأخطاء الحسابية.»',
+            '«تذكر: كل قيد متوازن تضبطه اليوم هو لبنة في صرح نجاح المؤسسة واستقرارها المالي.»',
+            '«طرفة محاسبية: المحاسب الوحيد الذي ينام قرير العين هو من تطابق عنده ميزان المراجعة من أول مرة! 😊»'
+        ];
+        const el = document.getElementById('wellness-daily-quote');
+        if (el) el.textContent = quotes[Math.floor(Math.random() * quotes.length)];
+    };
 
     // ── Fiqh Sub-Tabs Controller ──
     
@@ -26621,6 +27163,496 @@ $pdo = getDBConnection();
         }
     };
 
+    // ════════════════════════════════════════════════════════════════
+    // UNIVERSAL CALCULATOR ENGINES (STEEL, CONCRETE, SOLAR, FREIGHT,
+    // UNITS, ZAKAT, FEASIBILITY, GRATUITY) + ERP LIVE SYNC + AI ADVISOR
+    // ════════════════════════════════════════════════════════════════
+
+    window._lastAppliedSteelPreset = '';
+
+    window.calculateSteel = function() {
+        const typeEl = document.getElementById('steel_product_type');
+        const presetEl = document.getElementById('steel_preset_size');
+        const wEl = document.getElementById('steel_width_mm');
+        const hEl = document.getElementById('steel_height_mm');
+        const tEl = document.getElementById('steel_thickness_mm');
+        const lEl = document.getElementById('steel_length_m');
+        const qtyEl = document.getElementById('steel_target_qty');
+        const unitEl = document.getElementById('steel_target_unit');
+        if (!wEl || !lEl) return;
+
+        const preset = presetEl ? presetEl.value : 'custom';
+        if (preset !== 'custom' && preset !== window._lastAppliedSteelPreset) {
+            window._lastAppliedSteelPreset = preset;
+            const presets = {
+                'rebar_8mm':  { type: 'rebar', w: 8,  h: 8,  t: 8,   l: 12 },
+                'rebar_10mm': { type: 'rebar', w: 10, h: 10, t: 10,  l: 12 },
+                'rebar_12mm': { type: 'rebar', w: 12, h: 12, t: 12,  l: 12 },
+                'rebar_16mm': { type: 'rebar', w: 16, h: 16, t: 16,  l: 12 },
+                'rebar_20mm': { type: 'rebar', w: 20, h: 20, t: 20,  l: 12 },
+                'rebar_25mm': { type: 'rebar', w: 25, h: 25, t: 25,  l: 12 },
+                'rebar_32mm': { type: 'rebar', w: 32, h: 32, t: 32,  l: 12 },
+                '4x8_1.5':    { type: 'pipe_rect', w: 80, h: 40, t: 1.5, l: 6 },
+                '4x8_2.0':    { type: 'pipe_rect', w: 80, h: 40, t: 2.0, l: 6 },
+                '2x4_1.5':    { type: 'pipe_rect', w: 40, h: 20, t: 1.5, l: 6 },
+                '2x4_2.0':    { type: 'pipe_rect', w: 40, h: 20, t: 2.0, l: 6 },
+                'zinc_0.3':   { type: 'sheet_zinc', w: 900, h: 1, t: 0.30, l: 3.0 },
+                'zinc_0.4':   { type: 'sheet_zinc', w: 900, h: 1, t: 0.40, l: 3.0 }
+            };
+            if (presets[preset]) {
+                if (typeEl) typeEl.value = presets[preset].type;
+                wEl.value = presets[preset].w;
+                if (hEl) hEl.value = presets[preset].h;
+                if (tEl) tEl.value = presets[preset].t;
+                lEl.value = presets[preset].l;
+            }
+        }
+
+        const pType = typeEl ? typeEl.value : 'rebar';
+        const w = Math.max(0.1, parseFloat(wEl.value) || 12);
+        const h = Math.max(0.1, parseFloat(hEl ? hEl.value : w) || 12);
+        const t = Math.max(0.05, parseFloat(tEl ? tEl.value : w) || 1.5);
+        const len = Math.max(0.1, parseFloat(lEl.value) || 12);
+        const targetQty = Math.max(0.01, parseFloat(qtyEl ? qtyEl.value : 1) || 1);
+        const targetUnit = unitEl ? unitEl.value : 'ton';
+
+        let weightPerPieceKg = 0;
+        if (pType === 'rebar') {
+            // ISO formula: D^2 / 162.2 * L
+            weightPerPieceKg = ((w * w) / 162.2) * len;
+        } else if (pType === 'pipe_rect') {
+            // Rectangular hollow section: 2*(W+H - 2*t) * t * 0.00785 * L
+            weightPerPieceKg = 2 * ((w + h) - 2 * t) * t * 0.00785 * len;
+        } else if (pType === 'pipe_round') {
+            // Round pipe: (D - t) * t * 0.02466 * L
+            weightPerPieceKg = Math.max(0.1, (w - t)) * t * 0.02466 * len;
+        } else if (pType === 'sheet_zinc') {
+            // Sheet/Zinc: Width(m) * Length(m) * Thickness(mm) * 7.85 * 1.12 corrugation factor
+            weightPerPieceKg = (w / 1000) * len * t * 7.85 * 1.12;
+        } else {
+            // Beam / Channel approximation
+            weightPerPieceKg = ((w * t + 2 * h * t) * 0.00785) * len;
+        }
+
+        weightPerPieceKg = Math.max(0.05, weightPerPieceKg);
+        const piecesPerTon = 1000 / weightPerPieceKg;
+
+        let totalPcs = 0;
+        let totalTons = 0;
+        if (targetUnit === 'ton') {
+            totalTons = targetQty;
+            totalPcs = targetQty * piecesPerTon;
+        } else {
+            totalPcs = targetQty;
+            totalTons = (targetQty * weightPerPieceKg) / 1000;
+        }
+
+        const elPcsTon = document.getElementById('res_pieces_per_ton');
+        const elWPiece = document.getElementById('res_weight_per_piece');
+        const elSummary = document.getElementById('res_total_summary');
+        if (elPcsTon) elPcsTon.textContent = Math.round(piecesPerTon).toLocaleString('en-US');
+        if (elWPiece) elWPiece.textContent = weightPerPieceKg.toFixed(2) + ' kg';
+        if (elSummary) elSummary.textContent = Math.ceil(totalPcs).toLocaleString('en-US') + ' قطعة = ' + totalTons.toFixed(3) + ' طن';
+    };
+
+    window.calculateConcrete = function() {
+        const type = (document.getElementById('concrete_type')?.value) || 'beam_slab';
+        const area = Math.max(0, parseFloat(document.getElementById('concrete_area')?.value) || 0);
+        const thickCm = Math.max(5, parseFloat(document.getElementById('concrete_thickness')?.value) || 15);
+        const floors = Math.max(1, parseFloat(document.getElementById('concrete_floors')?.value) || 1);
+        const rebarRatio = Math.max(40, parseFloat(document.getElementById('concrete_rebar_ratio')?.value) || 110);
+        const wallArea = Math.max(0, parseFloat(document.getElementById('wall_area_m2')?.value) || 0);
+        const tilesArea = Math.max(0, parseFloat(document.getElementById('tiles_area_m2')?.value) || 0);
+
+        let mult = 1.25; // beam factor
+        if (type === 'hordy') mult = 0.85;
+        else if (type === 'flat_slab') mult = 1.15;
+        else if (type === 'building_skeleton') mult = 2.15;
+
+        const concreteM3 = area * (thickCm / 100) * floors * mult;
+        const rebarTons = (concreteM3 * rebarRatio) / 1000;
+        const cementBags = Math.ceil(concreteM3 * 7); // 7 bags (350kg) per m3
+        const wallBlocks = Math.ceil(wallArea * 12.5 * floors); // 12.5 blocks per m2
+        const tilesBoxes = Math.ceil((tilesArea * floors * 1.05) / 1.44);
+        const tilesGlue = Math.ceil((tilesArea * floors) / 4.5);
+
+        const setTxt = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+        setTxt('res_concrete_m3', concreteM3.toFixed(2) + ' m³');
+        setTxt('res_rebar_tons', rebarTons.toFixed(2) + ' طن');
+        setTxt('res_cement_bags', cementBags.toLocaleString('en-US') + ' كيس');
+        setTxt('res_wall_blocks', wallBlocks.toLocaleString('en-US') + ' حبة');
+        setTxt('res_tiles_boxes', tilesBoxes.toLocaleString('en-US') + ' كرتونة');
+        setTxt('res_tiles_glue', tilesGlue.toLocaleString('en-US') + ' كيس');
+    };
+
+    window.toggleSolarMode = function() {
+        const mode = document.getElementById('solar_sys_mode')?.value || 'home';
+        const homeDiv = document.getElementById('solar_home_inputs');
+        const pumpDiv = document.getElementById('solar_pump_inputs');
+        if (mode === 'pump') {
+            if (homeDiv) homeDiv.classList.add('hidden');
+            if (pumpDiv) pumpDiv.classList.remove('hidden');
+        } else {
+            if (homeDiv) homeDiv.classList.remove('hidden');
+            if (pumpDiv) pumpDiv.classList.add('hidden');
+        }
+        window.calculateSolar();
+    };
+
+    window.calculateSolar = function() {
+        const mode = document.getElementById('solar_sys_mode')?.value || 'home';
+        const setTxt = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+        if (mode === 'pump') {
+            const hp = Math.max(1, parseFloat(document.getElementById('solar_pump_hp_val')?.value) || 10);
+            const depth = Math.max(10, parseFloat(document.getElementById('solar_well_depth_m')?.value) || 70);
+            const panelW = Math.max(100, parseFloat(document.getElementById('solar_pump_panel_w')?.value) || 550);
+            const pumpKw = hp * 0.746;
+            const vfdKw = Math.ceil(pumpKw * 1.35 * 10) / 10;
+            const requiredPvW = pumpKw * (1.45 + (depth > 80 ? 0.15 : 0)) * 1000;
+            const panels = Math.ceil(requiredPvW / panelW);
+            setTxt('res_inverter_kw', vfdKw.toFixed(1) + ' kW VFD');
+            setTxt('res_panel_count', panels.toLocaleString('en-US') + ' لوح (' + panelW + 'W)');
+            setTxt('res_battery_ah', 'تشغيل نهاري مباشر (بدون بطاريات)');
+        } else {
+            const ac = Math.max(0, parseFloat(document.getElementById('solar_ac_count')?.value) || 0);
+            const fridge = Math.max(0, parseFloat(document.getElementById('solar_fridge_count')?.value) || 0);
+            const lightsW = Math.max(0, parseFloat(document.getElementById('solar_lights_watt')?.value) || 0);
+            const nightH = Math.max(1, parseFloat(document.getElementById('solar_night_hours')?.value) || 8);
+            const panelW = Math.max(100, parseFloat(document.getElementById('solar_panel_watt')?.value) || 550);
+            const batType = document.getElementById('solar_bat_type')?.value || 'lithium';
+
+            const peakLoadW = (ac * 1450) + (fridge * 250) + lightsW;
+            const invKw = Math.max(3, Math.ceil((peakLoadW * 1.3) / 1000));
+            const nightEnergyWh = ((ac * 1100 * 0.65) + (fridge * 160 * 0.7) + lightsW) * nightH;
+            const dod = batType === 'lithium' ? 0.85 : 0.55;
+            const batAh48V = Math.ceil(nightEnergyWh / (48 * dod));
+            const totalDailyWh = nightEnergyWh * 1.45;
+            const panels = Math.max(2, Math.ceil(totalDailyWh / (panelW * 5.2)));
+
+            setTxt('res_inverter_kw', invKw + ' kW (48V)');
+            setTxt('res_panel_count', panels + ' لوح (' + panelW + 'W)');
+            setTxt('res_battery_ah', batAh48V + ' Ah / 48V (' + ((batAh48V * 48) / 1000).toFixed(1) + ' kWh)');
+        }
+    };
+
+    window.calculateFreight = function() {
+        const fob = Math.max(0, parseFloat(document.getElementById('freight_fob_usd')?.value) || 0);
+        const sea = Math.max(0, parseFloat(document.getElementById('freight_sea_usd')?.value) || 0);
+        const custPct = Math.max(0, parseFloat(document.getElementById('freight_customs_pct')?.value) || 0);
+        const clearUsd = Math.max(0, parseFloat(document.getElementById('freight_clearance_usd')?.value) || 0);
+        const inlandUsd = Math.max(0, parseFloat(document.getElementById('freight_inland_usd')?.value) || 0);
+        const fx = Math.max(1, parseFloat(document.getElementById('freight_fx_rate')?.value) || 600);
+
+        const cifUsd = fob + sea;
+        const customsUsd = cifUsd * (custPct / 100);
+        const totalLandedUsd = cifUsd + customsUsd + clearUsd + inlandUsd;
+        const totalLandedSdg = totalLandedUsd * fx;
+        const overheadPct = fob > 0 ? (((totalLandedUsd - fob) / fob) * 100) : 0;
+
+        const setTxt = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+        setTxt('res_landed_usd', '$' + Math.round(totalLandedUsd).toLocaleString('en-US'));
+        setTxt('res_landed_sdg', Math.round(totalLandedSdg).toLocaleString('en-US') + ' SDG');
+        setTxt('res_overhead_pct', '%' + overheadPct.toFixed(1));
+    };
+
+    window.convertUnits = function(source) {
+        const setVal = (id, val) => { const el = document.getElementById(id); if (el) el.value = Number(val.toFixed(3)); };
+        if (source === 'sqm' || source === 'feddan' || source === 'qirat') {
+            let sqm = 0;
+            if (source === 'sqm') sqm = parseFloat(document.getElementById('unit_sqm')?.value) || 0;
+            else if (source === 'feddan') sqm = (parseFloat(document.getElementById('unit_feddan')?.value) || 0) * 4200;
+            else if (source === 'qirat') sqm = (parseFloat(document.getElementById('unit_qirat')?.value) || 0) * 175;
+            if (source !== 'sqm') setVal('unit_sqm', sqm);
+            if (source !== 'feddan') setVal('unit_feddan', sqm / 4200);
+            if (source !== 'qirat') setVal('unit_qirat', sqm / 175);
+        } else if (source === 'inch' || source === 'mm' || source === 'foot') {
+            let mm = 0;
+            if (source === 'inch') mm = (parseFloat(document.getElementById('unit_inch')?.value) || 0) * 25.4;
+            else if (source === 'mm') mm = parseFloat(document.getElementById('unit_mm')?.value) || 0;
+            else if (source === 'foot') mm = (parseFloat(document.getElementById('unit_foot')?.value) || 0) * 304.8;
+            if (source !== 'inch') setVal('unit_inch', mm / 25.4);
+            if (source !== 'mm') setVal('unit_mm', mm);
+            if (source !== 'foot') setVal('unit_foot', mm / 304.8);
+        } else if (source === 'kg' || source === 'ton' || source === 'qantar') {
+            let kg = 0;
+            if (source === 'kg') kg = parseFloat(document.getElementById('unit_kg')?.value) || 0;
+            else if (source === 'ton') kg = (parseFloat(document.getElementById('unit_ton')?.value) || 0) * 1000;
+            else if (source === 'qantar') kg = (parseFloat(document.getElementById('unit_qantar')?.value) || 0) * 45.3592;
+            if (source !== 'kg') setVal('unit_kg', kg);
+            if (source !== 'ton') setVal('unit_ton', kg / 1000);
+            if (source !== 'qantar') setVal('unit_qantar', kg / 45.3592);
+        }
+    };
+
+    window.calculateZakat = function() {
+        const inv = Math.max(0, parseFloat(document.getElementById('zakat_inventory_val')?.value) || 0);
+        const cash = Math.max(0, parseFloat(document.getElementById('zakat_cash_val')?.value) || 0);
+        const debtsIn = Math.max(0, parseFloat(document.getElementById('zakat_debts_in')?.value) || 0);
+        const debtsOut = Math.max(0, parseFloat(document.getElementById('zakat_debts_out')?.value) || 0);
+        const goldGram = Math.max(1, parseFloat(document.getElementById('gold_gram_price')?.value) || 80000);
+
+        const nisabVal = 85 * goldGram;
+        const pool = Math.max(0, (inv + cash + debtsIn) - debtsOut);
+        const reachedNisab = pool >= nisabVal;
+        const zakatDue = reachedNisab ? (pool * 0.025) : 0;
+
+        const elPool = document.getElementById('res_zakat_pool');
+        const elStatus = document.getElementById('res_nisab_status');
+        const elDue = document.getElementById('res_zakat_due');
+
+        if (elPool) elPool.textContent = Math.round(pool).toLocaleString('en-US') + ' SDG';
+        if (elStatus) {
+            elStatus.textContent = reachedNisab
+                ? ('بلغ النصاب الشرعي (' + Math.round(nisabVal).toLocaleString('en-US') + ' SDG) ✓')
+                : ('لم يبلغ النصاب الشرعي (' + Math.round(nisabVal).toLocaleString('en-US') + ' SDG) — لا تجب الزكاة');
+            elStatus.className = reachedNisab ? 'text-xs text-emerald-300 font-bold mt-1 block' : 'text-xs text-amber-300 font-bold mt-1 block';
+        }
+        if (elDue) elDue.textContent = Math.round(zakatDue).toLocaleString('en-US') + ' SDG';
+    };
+
+    window.calculateFeasibility = function() {
+        const fixed = Math.max(0, parseFloat(document.getElementById('fe_fixed_costs')?.value) || 0);
+        const price = Math.max(0, parseFloat(document.getElementById('fe_unit_price')?.value) || 0);
+        const cost = Math.max(0, parseFloat(document.getElementById('fe_unit_cost')?.value) || 0);
+        const qty = Math.max(0, parseFloat(document.getElementById('fe_expected_qty')?.value) || 0);
+
+        const contrib = price - cost;
+        const beUnits = contrib > 0 ? Math.ceil(fixed / contrib) : 0;
+        const beRev = beUnits * price;
+        const netProfit = (contrib * qty) - fixed;
+        const marginPct = price > 0 ? ((contrib / price) * 100) : 0;
+        const markupPct = cost > 0 ? ((contrib / cost) * 100) : 0;
+
+        const setTxt = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+        setTxt('res_breakeven_units', contrib > 0 ? (beUnits.toLocaleString('en-US') + ' قطعة') : 'سعر البيع أقل من التكلفة!');
+        setTxt('res_breakeven_revenue', Math.round(beRev).toLocaleString('en-US') + ' SDG مبيعات للتعادل');
+        setTxt('res_net_profit_month', (netProfit >= 0 ? '+' : '') + Math.round(netProfit).toLocaleString('en-US') + ' SDG');
+        setTxt('res_margin_markup_info', 'هامش الربح: %' + marginPct.toFixed(1) + ' | الإضافة: %' + markupPct.toFixed(1));
+    };
+
+    window.calculateGratuity = function() {
+        const salary = Math.max(0, parseFloat(document.getElementById('hr_basic_salary')?.value) || 0);
+        const years = Math.max(0, parseFloat(document.getElementById('hr_service_years')?.value) || 0);
+        const reason = document.getElementById('hr_end_reason')?.value || 'contract_end';
+        const leaveDays = Math.max(0, parseFloat(document.getElementById('hr_leave_days')?.value) || 0);
+
+        // First 5 years: half month per year; beyond 5 years: full month per year
+        const first5 = Math.min(5, years) * (salary * 0.5);
+        const after5 = Math.max(0, years - 5) * salary;
+        let gratuity = first5 + after5;
+
+        if (reason === 'resignation') {
+            if (years < 2) gratuity = 0;
+            else if (years < 5) gratuity *= (1 / 3);
+            else if (years < 10) gratuity *= (2 / 3);
+        }
+
+        const leaveAmount = (salary / 30) * leaveDays;
+        const totalDue = gratuity + leaveAmount;
+
+        const setTxt = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+        setTxt('res_gratuity_amount', Math.round(gratuity).toLocaleString('en-US') + ' SDG');
+        setTxt('res_leave_amount', Math.round(leaveAmount).toLocaleString('en-US') + ' SDG');
+        setTxt('res_total_hr_due', Math.round(totalDue).toLocaleString('en-US') + ' SDG');
+    };
+
+    // ── Live ERP Sync into Engineering & Financial Calculators ──
+    window.syncAllCalculatorsWithLiveERP = function(showToastFlag) {
+        try {
+            const items = JSON.parse(localStorage.getItem('erp_master_items_v1') || '[]');
+            const customers = JSON.parse(localStorage.getItem('erp_master_customers_v1') || '[]');
+            const suppliers = JSON.parse(localStorage.getItem('erp_master_suppliers_v1') || '[]');
+            const safes = JSON.parse(localStorage.getItem('erp_master_safes_v1') || '[]');
+            const banks = JSON.parse(localStorage.getItem('erp_master_banks_v1') || '[]');
+
+            let invVal = 0;
+            if (Array.isArray(items)) {
+                items.forEach(it => {
+                    let st = 0;
+                    if (typeof it.stock === 'object' && it.stock !== null) {
+                        st = Object.values(it.stock).reduce((a, b) => a + (parseFloat(b) || 0), 0);
+                    } else {
+                        st = parseFloat(it.stock ?? it.qty ?? 0) || 0;
+                    }
+                    const price = parseFloat(it.sell_price ?? it.price ?? it.cost ?? 0) || 0;
+                    if (st > 0 && price > 0) invVal += (st * price);
+                });
+            }
+
+            let cashVal = 0;
+            [...(Array.isArray(safes) ? safes : []), ...(Array.isArray(banks) ? banks : [])].forEach(s => {
+                cashVal += Math.max(0, parseFloat(s.balance ?? s.opening_balance ?? 0) || 0);
+            });
+
+            let recVal = 0;
+            if (Array.isArray(customers)) {
+                customers.forEach(c => { recVal += Math.max(0, parseFloat(c.balance ?? c.debit ?? 0) || 0); });
+            }
+
+            let payVal = 0;
+            if (Array.isArray(suppliers)) {
+                suppliers.forEach(s => { payVal += Math.max(0, parseFloat(s.balance ?? s.credit ?? 0) || 0); });
+            }
+
+            if (invVal > 0 && document.getElementById('zakat_inventory_val')) document.getElementById('zakat_inventory_val').value = Math.round(invVal);
+            if (cashVal > 0 && document.getElementById('zakat_cash_val')) document.getElementById('zakat_cash_val').value = Math.round(cashVal);
+            if (recVal > 0 && document.getElementById('zakat_debts_in')) document.getElementById('zakat_debts_in').value = Math.round(recVal);
+            if (payVal > 0 && document.getElementById('zakat_debts_out')) document.getElementById('zakat_debts_out').value = Math.round(payVal);
+
+            const fx = parseFloat(localStorage.getItem('magaiees_usd_rate') || localStorage.getItem('erp_usd_rate') || '0');
+            if (fx > 100 && document.getElementById('freight_fx_rate')) {
+                document.getElementById('freight_fx_rate').value = fx;
+            }
+
+            window.calculateSteel();
+            window.calculateConcrete();
+            window.calculateSolar();
+            window.calculateFreight();
+            window.calculateZakat();
+            window.calculateFeasibility();
+            window.calculateGratuity();
+
+            if (showToastFlag && typeof window.showToast === 'function') {
+                window.showToast('✅ تم سحب أرصدة المخازن والسيولة والذمم وسعر الصرف من النظام الحي بنجاح!');
+            }
+        } catch(e) {
+            console.warn('ERP Sync warning:', e);
+        }
+    };
+
+    // ── Post Zakat Accrual directly to Journal Vouchers ──
+    window.postZakatToJournalEntry = function() {
+        window.calculateZakat();
+        const dueTxt = document.getElementById('res_zakat_due')?.textContent || '0';
+        const dueVal = parseFloat(dueTxt.replace(/[^\d.]/g, '')) || 0;
+        if (dueVal <= 0) {
+            alert('⚠️ مقدار الزكاة الحالي (0 SDG). يرجى التحقق من بلوغ النصاب الشرعي أولاً.');
+            return;
+        }
+        try {
+            const jvs = JSON.parse(localStorage.getItem('erp_journal_vouchers_v1') || '[]');
+            const newJv = {
+                id: 'JV-ZAKAT-' + Date.now().toString().slice(-6),
+                voucher_no: 'JV-ZKT-' + new Date().toISOString().slice(0,10).replace(/-/g,''),
+                date: new Date().toISOString().slice(0,10),
+                description: 'إثبات استحقاق الزكاة الشرعية لعروض التجارة والسيولة (2.5% ربع العشر)',
+                total_debit: Math.round(dueVal),
+                total_credit: Math.round(dueVal),
+                status: 'posted',
+                source: 'engineering_tools_zakat',
+                lines: [
+                    { account_code: '5401', account_name: 'مصروف الزكاة الشرعية', debit: Math.round(dueVal), credit: 0, note: 'استحقاق زكاة الحول' },
+                    { account_code: '2205', account_name: 'مخصص الزكاة الشرعية المستحقة', debit: 0, credit: Math.round(dueVal), note: 'مخصص زكاة واجب الصرف' }
+                ]
+            };
+            jvs.unshift(newJv);
+            localStorage.setItem('erp_journal_vouchers_v1', JSON.stringify(jvs));
+            if (confirm('✅ تم إنشاء وترحيل قيد استحقاق الزكاة الشرعية بمبلغ (' + Math.round(dueVal).toLocaleString('en-US') + ' SDG) بنجاح!\n\nهل تود فتح شاشة الدفتر اليومي العام الآن لمراجعة القيد؟')) {
+                window.location.href = 'journal.php';
+            }
+        } catch(e) {
+            alert('حدث خطأ أثناء ترحيل القيد: ' + e.message);
+        }
+    };
+
+    // ── Send Engineering Calculation directly to Sales Quotation / Invoice ──
+    window.sendCalcToSalesOrPurchase = function(calcType, targetScreen) {
+        let summary = '';
+        if (calcType === 'steel') {
+            summary = 'مقايسة حديد: ' + (document.getElementById('res_total_summary')?.textContent || '');
+        } else if (calcType === 'concrete') {
+            summary = 'مقايسة خرسانة وتشطيبات: خرسانة ' + (document.getElementById('res_concrete_m3')?.textContent || '') + ' + تسليح ' + (document.getElementById('res_rebar_tons')?.textContent || '');
+        } else if (calcType === 'solar') {
+            summary = 'منظومة طاقة شمسية: إنفرتر ' + (document.getElementById('res_inverter_kw')?.textContent || '') + ' + ألواح ' + (document.getElementById('res_panel_count')?.textContent || '');
+        }
+        try {
+            localStorage.setItem('erp_pending_engineering_quote', JSON.stringify({
+                type: calcType,
+                summary: summary,
+                timestamp: new Date().toISOString()
+            }));
+        } catch(e) {}
+        window.location.href = (targetScreen === 'purchase' ? 'purchase.php' : 'sales-invoice.php') + '?from_tools=' + encodeURIComponent(calcType);
+    };
+
+    // ── Share Active Calculator Summary via WhatsApp ──
+    window.shareActiveCalculatorWhatsApp = function() {
+        const msg = [
+            '📐 *تقرير مركز الأدوات الهندسية والمالية والشرعية — السجانة ERP*',
+            '• حديد التسليح: ' + (document.getElementById('res_total_summary')?.textContent || '—'),
+            '• الخرسانة والتشطيبات: ' + (document.getElementById('res_concrete_m3')?.textContent || '—') + ' | حديد: ' + (document.getElementById('res_rebar_tons')?.textContent || '—'),
+            '• الطاقة الشمسية: ' + (document.getElementById('res_inverter_kw')?.textContent || '—') + ' | ' + (document.getElementById('res_panel_count')?.textContent || '—'),
+            '• تكلفة الاستيراد الواصلة: ' + (document.getElementById('res_landed_usd')?.textContent || '—') + ' (' + (document.getElementById('res_landed_sdg')?.textContent || '—') + ')',
+            '• الوعاء الزكوي والزكاة: ' + (document.getElementById('res_zakat_pool')?.textContent || '—') + ' ⬅️ الزكاة: ' + (document.getElementById('res_zakat_due')?.textContent || '—'),
+            '• نقطة التعادل وصافي الربح: ' + (document.getElementById('res_breakeven_units')?.textContent || '—') + ' | ربح متوقع: ' + (document.getElementById('res_net_profit_month')?.textContent || '—')
+        ].join('\n');
+        window.open('https://wa.me/?text=' + encodeURIComponent(msg), '_blank');
+    };
+
+    // ── AI Predictive Advisor Modal for Engineering, Financial & Sharia Suites ──
+    window.openToolsAIPredictiveModal = function() {
+        window.syncAllCalculatorsWithLiveERP(false);
+        const existing = document.getElementById('tools-ai-predictive-modal');
+        if (existing) existing.remove();
+
+        const zakatPool = document.getElementById('res_zakat_pool')?.textContent || '0 SDG';
+        const zakatDue = document.getElementById('res_zakat_due')?.textContent || '0 SDG';
+        const breakEven = document.getElementById('res_breakeven_units')?.textContent || '0 قطعة';
+        const netProfit = document.getElementById('res_net_profit_month')?.textContent || '0 SDG';
+        const landedPct = document.getElementById('res_overhead_pct')?.textContent || '%0';
+
+        const modal = document.createElement('div');
+        modal.id = 'tools-ai-predictive-modal';
+        modal.style.cssText = 'position:fixed;inset:0;z-index:99999999;background:rgba(2,6,23,0.88);backdrop-filter:blur(14px);display:flex;align-items:center;justify-content:center;padding:16px;';
+        modal.innerHTML = `
+            <div dir="rtl" style="width:100%;max-width:780px;background:linear-gradient(145deg,#0f172a,#020617);border:1.5px solid rgba(168,85,247,0.5);border-radius:24px;box-shadow:0 25px 60px rgba(0,0,0,0.9);overflow:hidden;color:#f8fafc;font-family:'Cairo',sans-serif;">
+                <div style="padding:16px 22px;background:linear-gradient(90deg,rgba(88,28,135,0.45),rgba(15,23,42,0.95));border-bottom:1px solid rgba(168,85,247,0.3);display:flex;align-items:center;justify-content:space-between;">
+                    <div style="display:flex;align-items:center;gap:10px;">
+                        <span style="font-size:24px;">🤖</span>
+                        <div>
+                            <h3 style="margin:0;font-size:17px;font-weight:900;color:#e9d5ff;">المستشار الهندسي والمالي والشرعي التنبؤي (AI Advisor 360°)</h3>
+                            <p style="margin:0;font-size:11px;color:#cbd5e1;">تحليل تنبؤي متكامل يربط الحاسبات الهندسية والزكاة والجدوى والمطابقة ببيانات السجانة الحية</p>
+                        </div>
+                    </div>
+                    <button onclick="document.getElementById('tools-ai-predictive-modal').remove()" style="background:rgba(244,63,94,0.2);color:#fda4af;border:1px solid rgba(244,63,94,0.4);border-radius:10px;padding:4px 12px;font-weight:900;cursor:pointer;">✕ إغلاق</button>
+                </div>
+                <div style="padding:20px;max-height:78vh;overflow-y:auto;display:flex;flex-direction:column;gap:14px;">
+                    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;">
+                        <div style="background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.3);border-radius:14px;padding:12px;">
+                            <div style="font-size:11px;color:#6ee7b7;font-weight:700;">⚖️ الوعاء الزكوي الحي</div>
+                            <div style="font-size:16px;font-weight:900;color:#fff;margin-top:4px;">${zakatPool}</div>
+                            <div style="font-size:11px;color:#34d399;margin-top:2px;">الزكاة: ${zakatDue}</div>
+                        </div>
+                        <div style="background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.3);border-radius:14px;padding:12px;">
+                            <div style="font-size:11px;color:#fcd34d;font-weight:700;">🎯 نقطة التعادل الشهرية</div>
+                            <div style="font-size:16px;font-weight:900;color:#fff;margin-top:4px;">${breakEven}</div>
+                            <div style="font-size:11px;color:#fbbf24;margin-top:2px;">صافي الربح: ${netProfit}</div>
+                        </div>
+                        <div style="background:rgba(56,189,248,0.1);border:1px solid rgba(56,189,248,0.3);border-radius:14px;padding:12px;">
+                            <div style="font-size:11px;color:#7dd3fc;font-weight:700;">🚢 معامل تكلفة الاستيراد</div>
+                            <div style="font-size:16px;font-weight:900;color:#fff;margin-top:4px;">${landedPct} فوق FOB</div>
+                            <div style="font-size:11px;color:#38bdf8;margin-top:2px;">مربوط بسعر الصرف الحي</div>
+                        </div>
+                    </div>
+                    <div style="background:rgba(15,23,42,0.85);border:1px solid rgba(148,163,184,0.25);border-radius:16px;padding:14px;font-size:12.5px;line-height:1.8;">
+                        <div style="font-weight:900;color:#c084fc;margin-bottom:6px;">💡 توصيات الذكاء الاصطناعي التنبؤية (AI Actionable Insights):</div>
+                        <ul style="margin:0;padding-right:18px;color:#e2e8f0;">
+                            <li><strong>تسعير الحديد ومواد البناء:</strong> مع نسبة مصاريف الاستيراد الحالية (${landedPct})، يُوصى بتحديث هامش الربح في <a href="master-data.php" style="color:#38bdf8;text-decoration:underline;">البيانات الأساسية</a> بحيث لا يقل عن 18% لتغطية تذبذب العملة.</li>
+                            <li><strong>الحوكمة الشرعية والزكوية:</strong> تم ربط حاسبة الزكاة آلياً بمخزون البضاعة والسيولة والذمم؛ يمكنك ترحيل قيد استحقاق الزكاة (${zakatDue}) مباشرة إلى <a href="journal.php" style="color:#34d399;text-decoration:underline;">الدفتر اليومي العام</a> بضغطة زر.</li>
+                            <li><strong>المطابقة الذكية والرقابة:</strong> استخدم قسم <strong>المطابقة الذكية للإكسل</strong> مع <a href="alarm.php" style="color:#f43f5e;text-decoration:underline;">الحارس الأمين للتنبيهات</a> لكشف أي فروقات بين كشوفات البنوك والدفاتر.</li>
+                        </ul>
+                    </div>
+                    <div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-end;">
+                        <button onclick="window.syncAllCalculatorsWithLiveERP(true);document.getElementById('tools-ai-predictive-modal').remove();" style="padding:8px 14px;border-radius:12px;background:rgba(16,185,129,0.25);color:#a7f3d0;border:1px solid rgba(16,185,129,0.5);font-size:12px;font-weight:900;cursor:pointer;">⚡ تحديث الحسابات من النظام الحي</button>
+                        <button onclick="window.postZakatToJournalEntry()" style="padding:8px 14px;border-radius:12px;background:rgba(56,189,248,0.25);color:#bae6fd;border:1px solid rgba(56,189,248,0.5);font-size:12px;font-weight:900;cursor:pointer;">📒 ترحيل قيد الزكاة لليومية</button>
+                        <button onclick="document.getElementById('tools-ai-predictive-modal').remove();if(typeof toggleAIChat==='function')toggleAIChat();" style="padding:8px 14px;border-radius:12px;background:linear-gradient(135deg,#7c3aed,#4f46e5);color:#fff;border:none;font-size:12px;font-weight:900;cursor:pointer;">💬 فتح المساعد التفاعلي الشامل</button>
+                    </div>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+    };
+
     document.addEventListener('DOMContentLoaded', function() {
         try {
             if (localStorage.getItem('magaiees_tools_media_bar') === 'closed') {
@@ -26632,6 +27664,17 @@ $pdo = getDBConnection();
                 if (btn) btn.classList.remove('active');
             }
         } catch(e) {}
+
+        // Initialize all 8 engineering & financial calculators immediately on page load
+        setTimeout(function() {
+            window.syncAllCalculatorsWithLiveERP(false);
+            const params = new URLSearchParams(window.location.search);
+            if (params.get('action') === 'chatbot') {
+                setTimeout(function() {
+                    if (typeof window.toggleAIChat === 'function') window.toggleAIChat();
+                }, 400);
+            }
+        }, 120);
     });
 
 </script>

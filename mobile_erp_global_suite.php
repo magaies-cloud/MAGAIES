@@ -1,8 +1,8 @@
 <?php
-require_once __DIR__ . '/db_bridge.php';
-require_once __DIR__ . '/mobile_auth_guard.php';
-
-$pdo = getDBConnection();
-$authUser = requireMobileAuth($pdo, false);
-
-require_once __DIR__ . '/mobile_erp_global_suite.html';
+/**
+ * ═════════════════════════════════════════════════════════════════════
+ * 📱 MAGAIEES ERP 2026 - UNIFIED MOBILE SUITE GATEWAY ALIAS
+ * ═════════════════════════════════════════════════════════════════════
+ * تم توحيد هذه البوابة مع mobile-dashboard.php لمنع التكرار البرمجي
+ */
+require __DIR__ . '/mobile-dashboard.php';

@@ -13,6 +13,38 @@
 })();
 </script>
 <head>
+<script>
+(function initScreenMaster7ThemeEarly() {
+  var raw = localStorage.getItem('magaies_active_theme') || 
+            localStorage.getItem('magaiees_global_theme') || 
+            localStorage.getItem('magaiees_mobile_theme') || 
+            localStorage.getItem('ui_theme') || 
+            'warm_cream';
+  var aliasMap = {
+    'warm-alabaster': 'warm_cream', 'beige': 'warm_cream', 'ivory': 'warm_cream', 'light-linen': 'warm_cream',
+    'pure-platinum': 'ultra_white', 'offwhite': 'ultra_white', 'white': 'ultra_white', 'light': 'ultra_white',
+    'pearl-platinum': 'exec_gray', 'nordic-paper': 'warm_cream', 'solar_contrast': 'warm_cream',
+    'midnight-executive': 'midnight_obsidian', 'navy-kohl': 'midnight_obsidian', 'royal-blue': 'midnight_obsidian', 'ocean-navy': 'midnight_obsidian', 'navy': 'midnight_obsidian',
+    'sepia-brown': 'mocha_brown', 'desert-mocha': 'mocha_brown', 'brown': 'mocha_brown',
+    'obsidian-charcoal': 'pure_oled', 'midnight': 'pure_oled', 'black': 'pure_oled', 'dark': 'pure_oled',
+    'twilight-indigo': 'slate_twilight', 'emerald-forest': 'slate_twilight', 'forest': 'slate_twilight'
+  };
+  var activeKey = aliasMap[raw] || raw;
+  var valid7 = ['warm_cream', 'ultra_white', 'exec_gray', 'midnight_obsidian', 'mocha_brown', 'pure_oled', 'slate_twilight'];
+  if (!valid7.includes(activeKey)) activeKey = 'warm_cream';
+  var isLight = ['warm_cream', 'ultra_white', 'exec_gray'].includes(activeKey);
+  document.documentElement.setAttribute('data-theme', activeKey);
+  if (isLight) document.documentElement.classList.add('light-theme');
+  else document.documentElement.classList.remove('light-theme');
+  document.addEventListener("DOMContentLoaded", function() {
+    if (document.body) {
+      document.body.setAttribute('data-theme', activeKey);
+      if (isLight) document.body.classList.add('light-theme');
+      else document.body.classList.remove('light-theme');
+    }
+  });
+})();
+</script>
     <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -1050,15 +1082,26 @@
                 <button type="button" onclick="if(window.InboundBankakManager){InboundBankakManager.toggleDrawer(true); InboundBankakManager.setFilter('awaiting_approval');}" style="height:38px; padding:0 14px; border-radius:10px; background:linear-gradient(135deg, rgba(16,185,129,0.22), rgba(5,150,105,0.15)); border:1px solid rgba(16,185,129,0.5); color:#34d399; font-family:'Tajawal',sans-serif; font-size:0.85rem; font-weight:900; cursor:pointer; display:inline-flex; align-items:center; gap:6px; white-space:nowrap; box-shadow:0 4px 12px rgba(16,185,129,0.15);">
                     <span>📥</span> <span>صينية استلام إشعارات الواتساب</span>
                 </button>
+                <button type="button" onclick="if(window.openPostingAIAuditModal) window.openPostingAIAuditModal()" style="height:38px; padding:0 14px; border-radius:10px; background:linear-gradient(135deg, rgba(168,85,247,0.25), rgba(124,58,237,0.18)); border:1px solid rgba(192,132,252,0.55); color:#e9d5ff; font-family:'Tajawal',sans-serif; font-size:0.85rem; font-weight:900; cursor:pointer; display:inline-flex; align-items:center; gap:6px; white-space:nowrap;">
+                    <span>🤖</span> <span>الفحص المحاسبي الذكي قبل الترحيل AI</span>
+                </button>
             </div>
-            <div class="type-filters" id="type-filters">
-                <button class="type-chip active" id="type-all" onclick="setType('all')">الكل</button>
-                <button class="type-chip" id="type-whatsapp" onclick="setType('whatsapp')" style="border-color:rgba(16,185,129,0.45); color:#34d399;">📲 إشعارات واتساب</button>
-                <button class="type-chip" id="type-sales" onclick="setType('sales')">مبيعات</button>
-                <button class="type-chip" id="type-purchases" onclick="setType('purchases')">مشتريات</button>
-                <button class="type-chip" id="type-receipt" onclick="setType('receipt')">سندات قبض</button>
-                <button class="type-chip" id="type-payment" onclick="setType('payment')">سندات صرف</button>
-                <button class="type-chip" id="type-journal" onclick="setType('journal')">قيود يومية</button>
+            <div class="type-filters" id="type-filters" style="justify-content:space-between; flex-wrap:wrap;">
+                <div style="display:flex; gap:6px; flex-wrap:wrap;">
+                    <button class="type-chip active" id="type-all" onclick="setType('all')">الكل</button>
+                    <button class="type-chip" id="type-whatsapp" onclick="setType('whatsapp')" style="border-color:rgba(16,185,129,0.45); color:#34d399;">📲 إشعارات واتساب</button>
+                    <button class="type-chip" id="type-sales" onclick="setType('sales')">مبيعات</button>
+                    <button class="type-chip" id="type-purchases" onclick="setType('purchases')">مشتريات</button>
+                    <button class="type-chip" id="type-receipt" onclick="setType('receipt')">سندات قبض</button>
+                    <button class="type-chip" id="type-payment" onclick="setType('payment')">سندات صرف</button>
+                    <button class="type-chip" id="type-journal" onclick="setType('journal')">قيود يومية</button>
+                </div>
+                <div style="display:flex; gap:6px; flex-wrap:wrap; align-items:center;">
+                    <a href="vouchers-hub.php" style="text-decoration:none; padding:4px 10px; border-radius:8px; background:rgba(59,130,246,0.14); border:1px solid rgba(59,130,246,0.35); color:#60a5fa; font-size:0.76rem; font-weight:800;">💰 مركز السندات</a>
+                    <a href="journal.php" style="text-decoration:none; padding:4px 10px; border-radius:8px; background:rgba(168,85,247,0.14); border:1px solid rgba(168,85,247,0.35); color:#c084fc; font-size:0.76rem; font-weight:800;">📒 القيود اليومية</a>
+                    <a href="general-ledger.php" style="text-decoration:none; padding:4px 10px; border-radius:8px; background:rgba(56,189,248,0.14); border:1px solid rgba(56,189,248,0.35); color:#38bdf8; font-size:0.76rem; font-weight:800;">📖 دفتر الأستاذ</a>
+                    <a href="checks-cycle.php" style="text-decoration:none; padding:4px 10px; border-radius:8px; background:rgba(245,158,11,0.14); border:1px solid rgba(245,158,11,0.35); color:#fbbf24; font-size:0.76rem; font-weight:800;">💳 دورة الشيكات</a>
+                </div>
             </div>
         </div>
 

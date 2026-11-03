@@ -1713,8 +1713,8 @@ input:checked + .slider:before { transform: translateX(20px); }
         if(currentRowRef) {
             let page = 'journal-voucher.php';
             if (currentRowRef.startsWith('INV')) page = 'sales-invoice.php';
-            else if (currentRowRef.startsWith('RCP')) page = 'cash-receipt.php';
-            else if (currentRowRef.startsWith('EXP') || currentRowRef.startsWith('PAY')) page = 'payment-voucher.php';
+            else if (currentRowRef.startsWith('RCP')) page = 'single-cash-payment.php?type=receipt';
+            else if (currentRowRef.startsWith('EXP') || currentRowRef.startsWith('PAY')) page = 'single-cash-payment.php';
             
             window.open(page + '?id=' + encodeURIComponent(currentRowRef), '_blank');
         }
@@ -1725,8 +1725,8 @@ input:checked + .slider:before { transform: translateX(20px); }
         if(currentRowRef) {
             let page = 'journal-voucher.php';
             if (currentRowRef.startsWith('INV')) page = 'sales-invoice.php';
-            else if (currentRowRef.startsWith('RCP')) page = 'cash-receipt.php';
-            else if (currentRowRef.startsWith('EXP') || currentRowRef.startsWith('PAY')) page = 'payment-voucher.php';
+            else if (currentRowRef.startsWith('RCP')) page = 'single-cash-payment.php?type=receipt';
+            else if (currentRowRef.startsWith('EXP') || currentRowRef.startsWith('PAY')) page = 'single-cash-payment.php';
             
             window.open(page + '?id=' + encodeURIComponent(currentRowRef) + '&print=true', '_blank');
         }

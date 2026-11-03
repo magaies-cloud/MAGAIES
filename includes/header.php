@@ -249,6 +249,8 @@ window._cachedGlobalRate = window.SYSTEM_USD_RATE;
         }
     });
 </script>
+<link id="magaiees-google-fonts-pack" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Almarai:wght@300;400;700;800&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=Readex+Pro:wght@300;400;500;600;700&display=swap">
+<script>(function(){try{var f=localStorage.getItem('magaiees_font_family')||'default',s=parseInt(localStorage.getItem('magaiees_font_scale')||'100',10)||100,r=document.documentElement;if(f&&f!=='default'&&['ibm_plex','readex_pro','almarai'].indexOf(f)!==-1)r.setAttribute('data-magaiees-font',f);else r.removeAttribute('data-magaiees-font');r.style.setProperty('--magaiees-font-scale',(s/100).toFixed(3));if(s!==100){r.setAttribute('data-magaiees-scaled','true');r.style.fontSize=(16*(s/100)).toFixed(2)+'px';}else{r.removeAttribute('data-magaiees-scaled');r.style.fontSize='';}}catch(e){}})();</script>
 <link rel="stylesheet" href="css/theme.css?v=<?= file_exists(__DIR__ . '/../css/theme.css') ? filemtime(__DIR__ . '/../css/theme.css') : '12' ?>">
 <link rel="stylesheet" href="css/magaiees-royal-buttons.css?v=<?= file_exists(__DIR__ . '/../css/magaiees-royal-buttons.css') ? filemtime(__DIR__ . '/../css/magaiees-royal-buttons.css') : time() ?>">
 <script>
