@@ -2637,25 +2637,114 @@ $_hdrSyncSig = md5(count($_hdrSyncCustomers) . ':' . count($_hdrSyncBanks) . ':'
         if (!window.__elsajanaC15HeaderInheritanceBound) {
             window.__elsajanaC15HeaderInheritanceBound = true;
             try {
+                // 1. حقن القالب الهندسي السيادي الموحد لتنصيف الشاشة بالليزر بعد الشريط الجانبي (الهامش الأيمن === الهامش الأيسر) وتوحيد الخطوط (+2)
+                if (!document.getElementById('magaies-sovereign-edge-to-edge-css')) {
+                    var sovStyle = document.createElement('style');
+                    sovStyle.id = 'magaies-sovereign-edge-to-edge-css';
+                    sovStyle.textContent =
+                        ':root { --global-master-scale: 1; --global-master-font-px: 15px; --sb-collapsed: 62px; --sb-expanded: 240px; }\n' +
+                        'html { box-sizing: border-box !important; width: 100% !important; max-width: 100% !important; min-width: 0 !important; margin: 0 !important; padding: 0 !important; -webkit-font-smoothing: antialiased; text-rendering: geometricPrecision; }\n' +
+                        'body { box-sizing: border-box !important; width: 100% !important; max-width: 100% !important; min-width: 0 !important; margin-inline: auto !important; padding-inline: 0 !important; display: flex !important; flex-direction: column !important; align-items: center !important; justify-content: flex-start !important; }\n' +
+                        'html.has-sidebar body:not(.no-sidebar), body.has-sidebar:not(.no-sidebar) { margin-right: var(--sb-collapsed, 62px) !important; margin-left: 0 !important; width: calc(100% - var(--sb-collapsed, 62px)) !important; max-width: calc(100% - var(--sb-collapsed, 62px)) !important; }\n' +
+                        'html.has-sidebar body.sidebar-open:not(.no-sidebar), body.has-sidebar.sidebar-open:not(.no-sidebar) { margin-right: var(--sb-expanded, 240px) !important; margin-left: 0 !important; width: calc(100% - var(--sb-expanded, 240px)) !important; max-width: calc(100% - var(--sb-expanded, 240px)) !important; }\n' +
+                        '#sales-proportional-root, #grn-proportional-root, #md-proportional-root, .dash-main, main.md-content-area, #purchase-editor-view, #sl-main-wrapper, .main-container, .page-container { box-sizing: border-box !important; width: calc(100% - 24px) !important; max-width: calc(100% - 24px) !important; min-width: 0 !important; margin-inline: auto !important; margin-left: auto !important; margin-right: auto !important; transform-origin: top center !important; }\n' +
+                        'body:not([data-zoomed-high="1"]) { overflow-x: hidden !important; }\n' +
+                        'body[data-zoomed-high="1"] { overflow-x: auto !important; overflow-y: auto !important; }\n';
+                    document.head.appendChild(sovStyle);
+                }
+
+                var MASTER_SCALE_KEY = 'magaies_global_master_scale_v1';
                 var c15Key = 'elsajana_global_screen_scale_v15';
-                var applyCrossScale = function(s) {
+                var mdScaleKey = 'magaies_erp_global_proportional_scale_v15';
+                var grnScaleKey = 'elsajana_grn_zoom_scale';
+                var slFc1Key = 'magaies_sl_fc1_scale_6_8';
+                var GLOBAL_FONT_KEY = 'magaies_global_font_px';
+                var viewportBc = ('BroadcastChannel' in window) ? new BroadcastChannel('magaies_global_viewport_font_singleton_v1') : null;
+
+                window.applyGlobalSovereignMasterScale = function(s, skipSave) {
                     var val = parseFloat(s);
-                    if (isNaN(val) || val < 0.65 || val > 1.35) return;
+                    if (isNaN(val) || val < 0.25 || val > 10.0) return;
+                    val = Math.round(val * 100) / 100;
+                    document.documentElement.style.setProperty('--global-master-scale', String(val));
                     document.documentElement.style.setProperty('--grn-zoom-scale', String(val));
                     document.documentElement.style.setProperty('--elsajana-global-scale', String(val));
-                    var mainEl = document.querySelector('.dash-main') || document.querySelector('#purchase-editor-view') || document.querySelector('main');
-                    if (mainEl && val !== 1) {
-                        mainEl.style.marginLeft = 'auto';
-                        mainEl.style.marginRight = 'auto';
+                    document.documentElement.style.setProperty('--md-c1-zoom-scale', String(val));
+
+                    if (!skipSave) {
+                        try {
+                            localStorage.setItem(MASTER_SCALE_KEY, String(val));
+                            localStorage.setItem(c15Key, String(val));
+                            localStorage.setItem(mdScaleKey, String(val));
+                            localStorage.setItem(grnScaleKey, String(val));
+                            localStorage.setItem(slFc1Key, String(val));
+                            if (viewportBc) viewportBc.postMessage({ type: 'SCALE_SYNC', scale: val });
+                        } catch (e) {}
+                    }
+
+                    if (document.body) {
+                        if (val > 1.02) document.body.setAttribute('data-zoomed-high', '1');
+                        else document.body.removeAttribute('data-zoomed-high');
+                    }
+
+                    // إذا كانت الشاشة تحتوي على محركها الخاص (مثل master-data.php) يتم استدعاؤه بتناغم
+                    if (typeof window.setMdProportionalZoom === 'function' && !window.__inMdZoomSync) {
+                        window.__inMdZoomSync = true;
+                        try { window.setMdProportionalZoom(val, 0, true); } catch (e) {}
+                        window.__inMdZoomSync = false;
+                        return;
+                    }
+
+                    var mainEl = document.querySelector('#sales-proportional-root') || document.querySelector('#grn-proportional-root') || document.querySelector('#md-proportional-root') || document.querySelector('.dash-main') || document.querySelector('#purchase-editor-view') || document.querySelector('#sl-main-wrapper') || document.querySelector('main');
+                    if (mainEl) {
+                        mainEl.style.boxSizing = 'border-box';
                         mainEl.style.transformOrigin = 'top center';
-                        mainEl.style.transform = 'scale(' + val + ')';
+                        mainEl.style.marginInline = 'auto';
+                        if (Math.abs(val - 1) < 0.01) {
+                            mainEl.style.zoom = '';
+                            mainEl.style.transform = '';
+                            mainEl.style.width = 'calc(100% - 24px)';
+                            mainEl.style.maxWidth = 'calc(100% - 24px)';
+                            mainEl.style.margin = '0 auto';
+                        } else {
+                            mainEl.style.transformOrigin = 'top center';
+                            mainEl.style.transform = 'scale(' + val + ')';
+                            mainEl.style.width = 'calc(100% - 24px)';
+                            mainEl.style.maxWidth = 'calc(100% - 24px)';
+                            mainEl.style.margin = '0 auto';
+                        }
                     }
                 };
-                var savedScale = localStorage.getItem(c15Key) || localStorage.getItem('elsajana_grn_zoom_scale');
-                if (savedScale) applyCrossScale(savedScale);
+
+                var savedScale = localStorage.getItem(MASTER_SCALE_KEY) || localStorage.getItem(mdScaleKey) || localStorage.getItem(c15Key) || localStorage.getItem(grnScaleKey) || localStorage.getItem(slFc1Key);
+                if (savedScale) window.applyGlobalSovereignMasterScale(savedScale, true);
+
                 window.addEventListener('storage', function(ev) {
-                    if (ev.key === c15Key || ev.key === 'elsajana_grn_zoom_scale') applyCrossScale(ev.newValue);
+                    if (ev.key === MASTER_SCALE_KEY || ev.key === c15Key || ev.key === mdScaleKey || ev.key === grnScaleKey || ev.key === slFc1Key) {
+                        window.applyGlobalSovereignMasterScale(ev.newValue, true);
+                    } else if (ev.key === GLOBAL_FONT_KEY && ev.newValue) {
+                        document.documentElement.style.setProperty('--global-master-font-px', parseInt(ev.newValue, 10) + 'px');
+                    }
                 });
+                if (viewportBc) {
+                    viewportBc.onmessage = function(ev) {
+                        if (ev.data && ev.data.type === 'SCALE_SYNC' && ev.data.scale) {
+                            window.applyGlobalSovereignMasterScale(ev.data.scale, true);
+                        } else if (ev.data && ev.data.type === 'FONT_SYNC' && ev.data.fontPx) {
+                            document.documentElement.style.setProperty('--global-master-font-px', parseInt(ev.data.fontPx, 10) + 'px');
+                        }
+                    };
+                }
+
+                // دعم التكبير والتصغير الخارق بـ (Ctrl + رولة الماوس) حتى 10 أضعاف (10x) في جميع شاشات البرنامج
+                window.addEventListener('wheel', function(ev) {
+                    if (ev.ctrlKey && typeof window.setMdProportionalZoom !== 'function') {
+                        ev.preventDefault();
+                        var cur = parseFloat(localStorage.getItem(MASTER_SCALE_KEY) || '1') || 1;
+                        var step = cur >= 2 ? (ev.deltaY < 0 ? 0.25 : -0.25) : (ev.deltaY < 0 ? 0.08 : -0.08);
+                        var nextVal = Math.min(10.0, Math.max(0.25, Math.round((cur + step) * 100) / 100));
+                        window.applyGlobalSovereignMasterScale(nextVal, false);
+                    }
+                }, { passive: false });
             } catch (e) {}
         }
         if (/account-statement\.php/i.test(window.location.pathname)) {

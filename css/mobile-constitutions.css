@@ -1542,3 +1542,58 @@
       background: #F1F5F9 !important;
       border: 1.25px solid rgba(0, 0, 0, 0.20) !important;
     }
+
+
+    /* ============================================================================
+       ⚡ دستور السرعة والمسحة السحرية (وزن الريشة — Ultra-Featherweight 0ms Engine)
+       1. Zero-Cost GPU Rendering (إلغاء الضبابية الزجاجية الثقيلة والظلال المتراكمة)
+       2. True Zero-Render Pruning for Closed Modals & Hidden Tabs (content-visibility: hidden)
+       3. Laser-Centered Proportional Viewport & Subtle Purchase-Grade Borders
+       ============================================================================ */
+    *, *::before, *::after,
+    .glass-card, .glass-card-interactive, .row2-glass-tile, .flagship-tile, .op-btn,
+    .mg-fluid-bottom-sheet, [id^="modal"], [id$="Modal"], #mgSmartGuideNanoHud,
+    #mgInlineAccountingKeypadBar, #mgThumbCommandDock {
+      backdrop-filter: none !important;
+      -webkit-backdrop-filter: none !important;
+    }
+
+    /* تفريغ الشاشات الوليدة والتبويبات المغلقة من حسابات المعالج وكرت الشاشة (0 RAM / 0 GPU Layout) */
+    .hidden[id^="modal"],
+    .hidden[id$="Modal"],
+    .hidden.mg-fluid-bottom-sheet,
+    .tab-pane.hidden,
+    #mgDualMatchHalfScreenDrawer.hidden,
+    #mgAppSwitcherBlurCurtain.hidden,
+    #mgSmartGuideNanoHud.hidden,
+    #mgInlineAccountingKeypadBar.hidden,
+    #accountingNumpadDrawer.hidden {
+      display: none !important;
+      content-visibility: hidden !important;
+      contain: strict !important;
+      pointer-events: none !important;
+    }
+
+    /* تسريع رسم البطاقات والأزرار بفيزياء 60fps-120fps على أضعف هاتف (2010) */
+    .op-btn, .flagship-tile, .row2-glass-tile, .alert-card {
+      contain: layout style;
+      will-change: auto;
+    }
+
+    /* تمركز ليزري دقيق (100% Laser Dead-Center Alignment) مع تكبير/تصغير الرولة المتناسق */
+    body {
+      margin-left: auto !important;
+      margin-right: auto !important;
+      align-items: center !important;
+    }
+    .mobile-app-wrapper {
+      margin-left: auto !important;
+      margin-right: auto !important;
+      transform-origin: top center !important;
+      zoom: var(--mg-viewport-scale, 1);
+    }
+    [id^="modalOp"]:not(.hidden) > div:first-child {
+      margin-left: auto !important;
+      margin-right: auto !important;
+      zoom: var(--mg-viewport-scale, 1);
+    }

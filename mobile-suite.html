@@ -15,7 +15,7 @@
   <title>نظام الإدارة المحاسبية العالمي - Antigravity Mobile ERP</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link id="mobile-google-fonts-pack" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=Readex+Pro:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link id="mobile-google-fonts-pack" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=Readex+Pro:wght@300;400;500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
   <script>
     (function initMobileTypographyEarly() {
       try {
@@ -41,12 +41,11 @@
   </script>
   <link rel="stylesheet" href="css/all.min.css">
   <link rel="stylesheet" href="css/tailwind.min.css">
-  <script src="js/tailwind.min.js"></script>
-  <script>if(typeof tailwind==="undefined"){document.write('<script src="https://cdn.tailwindcss.com"><\/script>');}</script>
-  <link rel="stylesheet" href="css/magaiees-royal-buttons.css?v=2026_10_16_royal_v26">
-  <script src="js/pwa-manager.js?v=2026_10_16_royal_v26" defer></script>
-  <script src="js/magaies-offline-sync.js?v=2026_10_16_royal_v26"></script>
-  <script src="js/magaiees-royal-buttons.js?v=2026_10_16_royal_v26" defer></script>
+  <script src="js/tailwind.min.js" defer></script>
+  <link rel="stylesheet" href="css/magaiees-royal-buttons.css?v=2026_11_04_fw0ms">
+  <script src="js/pwa-manager.js?v=2026_11_04_fw0ms" defer></script>
+  <script src="js/magaies-offline-sync.js?v=2026_11_04_fw0ms" defer></script>
+  <script src="js/magaiees-royal-buttons.js?v=2026_11_04_fw0ms" defer></script>
   <script>
     (function enforceAuthGate() {
     var token = localStorage.getItem('authToken') || localStorage.getItem('saas_token');
@@ -150,8 +149,8 @@
   })();
   </script>
   <!-- External Modular Stylesheet (Split for Fast Caching & Maintainability) -->
-  <link rel="stylesheet" href="css/mobile-suite.css?v=2026_11_03_v26">
-  <link rel="stylesheet" href="css/mobile-constitutions.css?v=2026_11_03_v26">
+  <link rel="stylesheet" href="css/mobile-suite.css?v=2026_11_04_fw0ms">
+  <link rel="stylesheet" href="css/mobile-constitutions.css?v=2026_11_04_fw0ms">
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen p-2 md:p-6 flex flex-col justify-start items-center">
 
@@ -4529,7 +4528,7 @@
           <div class="flex items-center gap-1.5 w-full">
             <button type="button" id="btnPurVoiceMic" onclick="SuitePurchasePOS.toggleVoiceFeed()" 
                     class="w-9 h-9 rounded-xl flex items-center justify-center text-sm shadow-lg transition-all duration-200 active:scale-90 relative shrink-0 cursor-pointer" 
-                    style="background: linear-gradient(135deg, rgba(245, 158, 11, 0.3), rgba(217, 119, 6, 0.15)); border: 1.5px solid rgba(245, 158, 11, 0.6); backdrop-filter: blur(8px); box-shadow: 0 0 12px rgba(245, 158, 11, 0.35);" 
+                    style="background: linear-gradient(135deg, rgba(245, 158, 11, 0.3), rgba(217, 119, 6, 0.15)); border: 1.5px solid rgba(245, 158, 11, 0.6); box-shadow: 0 0 12px rgba(245, 158, 11, 0.35);" 
                     title="مايك التسجيل الصوتي الذكي للمشتريات">
               <i class="fa-solid fa-microphone text-amber-300"></i>
               <span id="purMicPulseDot" class="hidden absolute -top-1 -right-1 w-2.5 h-2.5 bg-rose-500 rounded-full animate-ping"></span>
@@ -7640,7 +7639,7 @@
       </div>
   </div>
   
-  <script src="js/mobile-suite.js?v=2026_11_03_v26"></script>
+  <script src="js/mobile-suite.js?v=2026_11_04_fw0ms" defer></script>
   
   <!-- ============================================================================ -->
   <!-- 🏛️ الدستور الأول لنسخة الجوال (1 من 10): البوابة المزدوجة، الواجهة العالمية  -->
@@ -8605,7 +8604,7 @@
        🏦🛡️ WORLD-CLASS UNIFIED CHEQUE PORTFOLIO & AI BANK RECONCILIATION HUB (6×1)
        يدمج: #modalChecks + #modalTodayChecks + #subViewChecks + #subViewSettlement + #mgDualMatchHalfScreenDrawer + #mgChequeAndBankGuardModal
        ============================================================================ -->
-  <div id="mgChequeAndBankGuardModal" class="hidden fixed inset-0 z-[100400] bg-slate-950/90 backdrop-blur-md flex items-end sm:items-center justify-center p-1.5 sm:p-4 mg-fluid-bottom-sheet" dir="rtl" onclick="if(event.target === this) document.getElementById('mgChequeAndBankGuardModal').classList.add('hidden');">
+  <div id="mgChequeAndBankGuardModal" class="hidden fixed inset-0 z-[100400] bg-slate-950/95 flex items-end sm:items-center justify-center p-1.5 sm:p-4 mg-fluid-bottom-sheet" dir="rtl" onclick="if(event.target === this) document.getElementById('mgChequeAndBankGuardModal').classList.add('hidden');">
     <div class="w-full sm:max-w-2xl rounded-t-3xl sm:rounded-3xl bg-slate-950 border border-cyan-500/50 p-3.5 shadow-[0_0_55px_rgba(6,182,212,0.28)] max-h-[95vh] flex flex-col space-y-2.5 text-right overflow-hidden">
       <div class="mg-sheet-pill-handle"></div>
 
@@ -9033,6 +9032,6 @@
 </div>
 
   
-  <script src="js/mobile-constitutions.js?v=2026_11_03_v16"></script>
+  <script src="js/mobile-constitutions.js?v=2026_11_04_fw0ms" defer></script>
 </body>
 </html>

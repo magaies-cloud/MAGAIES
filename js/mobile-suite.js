@@ -13391,39 +13391,27 @@ async function commitOpSales(andPay = false) {
           .catch(function() { syncMagaieesNetUI(false); });
       }, 45000);
 
-      // 4. Kinetic micro-gestures & tactile vibrations for top bar icons, Row 2 glass tiles & operation buttons
-      var allInteractiveTiles = document.querySelectorAll('.flagship-tile, .row2-glass-tile, .op-btn');
-      allInteractiveTiles.forEach(function(tile) {
-        tile.addEventListener('pointerenter', function() {
+      // 4. Unified Single Delegated Event Bus for all interactive tiles & operation buttons (0 RAM overhead)
+      if (!window.__mgUnifiedTileTouchBound) {
+        window.__mgUnifiedTileTouchBound = true;
+        var activeTouchTile = null;
+        document.addEventListener('touchstart', function(e) {
+          var tile = e.target && e.target.closest ? e.target.closest('.flagship-tile, .row2-glass-tile, .op-btn, .crystal-flagship-btn') : null;
+          if (!tile) return;
+          activeTouchTile = tile;
           tile.classList.add('touch-active');
-          if (typeof triggerHapticPulse === 'function') {
-            triggerHapticPulse(10);
-          } else if (navigator.vibrate) {
-            try { navigator.vibrate(10); } catch(e){}
-          }
-        });
-
-        tile.addEventListener('pointerleave', function() {
-          tile.classList.remove('touch-active');
-        });
-
-        tile.addEventListener('touchstart', function() {
-          tile.classList.add('touch-active');
-          if (typeof triggerHapticPulse === 'function') {
-            triggerHapticPulse(15);
-          } else if (navigator.vibrate) {
-            try { navigator.vibrate(15); } catch(e){}
-          }
+          if (typeof triggerHapticPulse === 'function') triggerHapticPulse(12);
         }, { passive: true });
 
-        tile.addEventListener('touchend', function() {
-          setTimeout(function() { tile.classList.remove('touch-active'); }, 220);
-        }, { passive: true });
-
-        tile.addEventListener('touchcancel', function() {
-          tile.classList.remove('touch-active');
-        }, { passive: true });
-      });
+        var clearTouchTile = function() {
+          if (!activeTouchTile) return;
+          var t = activeTouchTile;
+          activeTouchTile = null;
+          setTimeout(function() { t.classList.remove('touch-active'); }, 180);
+        };
+        document.addEventListener('touchend', clearTouchTile, { passive: true });
+        document.addEventListener('touchcancel', clearTouchTile, { passive: true });
+      }
     }
 
     /* ═══════════════════════════════════════════════════════════════════
@@ -14853,10 +14841,10 @@ async function commitOpSales(andPay = false) {
           data.aging_debtors.slice(0, 2).forEach((d, idx) => {
             list.push({
               id: "CRED-" + (idx + 1),
-              type: "?????? ??? ???????",
-              title: d.name + " ? ??????? ????? (" + Number(d.amountSdg || 0).toLocaleString("en-US") + " ?.?)",
+              type: "تجاوز سقف ائتمان",
+              title: d.name + " • مديونية قائمة (" + Number(d.amountSdg || 0).toLocaleString("en-US") + " ج.س)",
               usd: Math.round(Number(d.amountUsd || 0)),
-              by: "???? ??????? ?????????? AI",
+              by: "رادار الائتمان الذكي AI",
               badgeColor: "amber"
             });
           });
@@ -14865,10 +14853,10 @@ async function commitOpSales(andPay = false) {
           const r = data.inbound_bank_receipts[0];
           list.push({
             id: r.ref || "BNK-1",
-            type: "????? ???? ????????",
-            title: (r.sender || "????") + " ? " + (r.app || "????") + " #" + (r.ref || ""),
+            type: "إشعار بنكي للمطابقة",
+            title: (r.sender || "عميل") + " • " + (r.app || "بنكك") + " #" + (r.ref || ""),
             usd: Math.round(Number(r.amountUsd || 0)),
-            by: "?????? ????????? ???????",
+            by: "المطابقة البنكية الذكية",
             badgeColor: "cyan"
           });
         }

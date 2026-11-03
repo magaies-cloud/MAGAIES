@@ -1232,11 +1232,12 @@
         } catch (e) {}
       },
 
-      // 1️⃣ & 4️⃣ مسح مقاسات الخطوط العشوائية المكتوبة داخل العناصر (Inline font-size) وتطبيق الاحتواء المرن (Zero-Truncation)
+      // 1️⃣ & 4️⃣ مسح مقاسات الخطوط العشوائية المكتوبة داخل العناصر (Inline font-size) وتطبيق الاحتواء المرن (Zero-Truncation) فقط على الشاشة الظاهرة (0ms Lazy Scope)
       enforceUnifiedTypographyAndZeroTruncation(rootEl) {
-        const scope = rootEl || document;
+        const scope = (rootEl && rootEl !== document) ? rootEl : (document.querySelector('.mobile-app-wrapper') || document.body);
+        if (!scope) return;
 
-        // إزالة inline font-size العشوائية داخل الشاشات والنوافذ الوليدة لتسري المقاسات القياسية الموحدة
+        // إزالة inline font-size العشوائية داخل النطاق النشط فقط لتسري المقاسات القياسية الموحدة
         scope.querySelectorAll('[style*="font-size"]').forEach(el => {
           if (el.dataset.mgFontAutoScaled === '1') return;
           el.style.removeProperty('font-size');
@@ -1252,7 +1253,7 @@
           }
         });
 
-        // تطبيق الاحتواء المرن (Zero-Truncation Auto-Fit) على كافة الحقول النصية والرقمية
+        // تطبيق الاحتواء المرن (Zero-Truncation Auto-Fit) على الحقول الظاهرة فقط
         scope.querySelectorAll('input[type="text"], input[type="number"], select, .privacy-mask').forEach(el => {
           this.autoFitFieldContent(el);
         });
@@ -3860,12 +3861,18 @@
         return steps;
       },
 
-      // 4️⃣ تشغيل المرشد الذكي من زر "المرشد" العلوي الحصري
+      // 4️⃣ تشغيل المرشد الذكي من زر "المرشد" العلوي الحصري (يوقظ مراقب التغييرات عند الطلب فقط — 0% CPU Idle)
       startSmartGuide() {
         this.scanAndBuildGuideSteps();
         this.isActive = true;
         this.isPaused = false;
         this.currentIndex = 0;
+
+        if (this.domObserver) {
+          try {
+            this.domObserver.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['class'] });
+          } catch (e) {}
+        }
 
         const hud = document.getElementById('mgSmartGuideNanoHud');
         const mapBox = document.getElementById('mgNanoSvgMapContainer');
@@ -3889,6 +3896,9 @@
       stopGuide() {
         this.isActive = false;
         this.isPaused = false;
+        if (this.domObserver) {
+          try { this.domObserver.disconnect(); } catch (e) {}
+        }
         clearTimeout(this.autoAdvanceTimer);
         if (window.speechSynthesis) {
           try { window.speechSynthesis.cancel(); } catch (e) {}
@@ -4164,9 +4174,12 @@
           }, 280);
         });
 
-        try {
-          this.domObserver.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['class'] });
-        } catch (e) {}
+        // 🛑 دستور السرعة (وزن الريشة 0ms): المراقب في سبات تام (0% CPU Idle) ولا يعمل إلا عند ضغط زر "المرشد"
+        if (this.isActive) {
+          try {
+            this.domObserver.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['class'] });
+          } catch (e) {}
+        }
 
         if (window.speechSynthesis) {
           window.speechSynthesis.onvoiceschanged = () => {
@@ -6389,10 +6402,16 @@
           }
         });
 
-        ['touchstart', 'keydown', 'click', 'scroll'].forEach(evName => {
-          document.addEventListener(evName, () => {
-            if (!this.isIdleLocked) this.resetIdleTimer();
-          }, { passive: true });
+        let lastIdleResetTs = 0;
+        const throttledIdleReset = () => {
+          if (this.isIdleLocked) return;
+          const now = Date.now();
+          if (now - lastIdleResetTs < 4000) return;
+          lastIdleResetTs = now;
+          this.resetIdleTimer();
+        };
+        ['touchstart', 'keydown', 'click'].forEach(evName => {
+          document.addEventListener(evName, throttledIdleReset, { passive: true });
         });
         this.resetIdleTimer();
       },
@@ -13180,7 +13199,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const el = document.getElementById(id);
         if (!el) return;
         el.setAttribute('data-original', str);
-        el.textContent = isPriv ? '??????' : str;
+        el.textContent = isPriv ? '••••••' : str;
       };
 
       setEl('mgBentoLiquidityVal', fmtUsd(s.readyLiquidity, false));
@@ -13207,7 +13226,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (!drawer) return;
       this.drawerOpen = (typeof forceOpen === 'boolean') ? forceOpen : drawer.classList.contains('hidden');
       drawer.classList.toggle('hidden', !this.drawerOpen);
-      if (btn) btn.textContent = this.drawerOpen ? '????? ??????? ?' : '??? ??????? ?';
+      if (btn) btn.textContent = this.drawerOpen ? 'إخفاء التفاصيل ▴' : 'عرض التفاصيل ▾';
       if (this.drawerOpen) drawer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     },
 
@@ -13221,11 +13240,11 @@ document.addEventListener('DOMContentLoaded', () => {
       const s = this.state;
       const topDebtor = (db.aging_debtors && db.aging_debtors[0]) ? db.aging_debtors[0] : null;
       const msg =
-        `?? ??????? ??????? ???? ?? ????? ???????? (?????? AI):\n` +
-        `? ??????? ??????? ???????: ${k.total_liquidity_sdg || ('$'+Math.round(s.readyLiquidity).toLocaleString())} (${k.total_banks_count || 0} ???? + ${k.total_safes_count || 0} ?????).\n` +
-        `? ?????? ?????? ???????? ????????: ${k.total_sales_count || 0} ?????? ????? ${k.total_sales_amount_sdg || '0 ?.?'}.\n` +
-        `? ????? ???????: ${k.total_receivables_sdg || '0 ?.?'} (${this.state.debtorsCount} ???? ????)` +
-        (topDebtor ? ` ? ???? ???????: ${topDebtor.name} (${Number(topDebtor.amountSdg).toLocaleString()} ?.?).` : '.');
+        `🤖 التشخيص المالي الذكي من قاعدة البيانات (مقاييس AI):\n` +
+        `• السيولة النقدية الجاهزة: ${k.total_liquidity_sdg || ('$'+Math.round(s.readyLiquidity).toLocaleString())} (${k.total_banks_count || 0} بنوك + ${k.total_safes_count || 0} خزائن).\n` +
+        `• إجمالي فواتير المبيعات المعتمدة: ${k.total_sales_count || 0} فاتورة بقيمة ${k.total_sales_amount_sdg || '0 ج.س'}.\n` +
+        `• مديونية العملاء: ${k.total_receivables_sdg || '0 ج.س'} (${this.state.debtorsCount} عميل مدين)` +
+        (topDebtor ? ` — أعلى مديونية: ${topDebtor.name} (${Number(topDebtor.amountSdg).toLocaleString()} ج.س).` : '.');
       if (typeof showToast === 'function') {
         showToast(msg);
       } else if (window.showModernToast) {
@@ -13294,8 +13313,8 @@ document.addEventListener('DOMContentLoaded', () => {
           creditLimitUsd: Number(d.creditLimitUsd || 10000),
           lastPaymentDate: d.lastPaymentDate || '2026-10-20',
           stmtCode: 'DB-' + (idx + 1),
-          tafqeet: (Number(d.amountSdg || 0)).toLocaleString('en-US') + ' ???? ?????? ??? ?? ???',
-          statusNote: d.riskNote || '???? ???? ???? ?????? ????????'
+          tafqeet: (Number(d.amountSdg || 0)).toLocaleString('en-US') + ' جنيه سوداني فقط لا غير',
+          statusNote: d.riskNote || 'رصيد فعلي معتمد بقاعدة البيانات'
         }));
         if (this.debtors.length > 0 && !this.debtors.some(x => x.id === this.selectedDebtorId)) {
           this.selectedDebtorId = this.debtors[0].id;
@@ -13330,7 +13349,7 @@ document.addEventListener('DOMContentLoaded', () => {
             id: m.ref || ('MV-' + mIdx),
             date: m.date || '2026-10-24',
             kind: m.type === 'receipt' || m.type === 'payment' ? 'payment' : 'invoice',
-            title: (m.typeLabel || '????') + ' #' + (m.ref || mIdx),
+            title: (m.typeLabel || 'حركة') + ' #' + (m.ref || mIdx),
             note: m.desc || '',
             debit: Number(m.debitUsd || 0),
             credit: Number(m.creditUsd || 0)
@@ -13340,7 +13359,7 @@ document.addEventListener('DOMContentLoaded', () => {
               id: 'OPEN-DB',
               date: '2026-01-01',
               kind: 'opening',
-              title: '???? ????? ?? ????? ????????',
+              title: 'رصيد معتمد من قاعدة البيانات',
               note: acc.sdgFormatted || '',
               debit: isVendor ? 0 : balUsd,
               credit: isVendor ? balUsd : 0
@@ -13351,7 +13370,7 @@ document.addEventListener('DOMContentLoaded', () => {
             code: acc.code || ('ACC-' + (100 + idx)),
             name: acc.name,
             category: acc.category || 'customer',
-            typeLabel: acc.typeLabel || acc.type || '????',
+            typeLabel: acc.typeLabel || acc.type || 'عميل',
             phone: acc.phone || '',
             creditLimitUsd: Number(acc.creditLimit || 15000),
             openUsd: balUsd,
@@ -13376,7 +13395,7 @@ document.addEventListener('DOMContentLoaded', () => {
           ref: t.ref,
           sender: t.sender,
           amount: Number(t.amount || 0),
-          app: t.app || '???? (BOK)',
+          app: t.app || 'بنكك (BOK)',
           date: t.date,
           status: t.status === 'verified' || t.status === 'matched' ? 'matched' : 'pending'
         }));
@@ -13386,15 +13405,15 @@ document.addEventListener('DOMContentLoaded', () => {
         this.cheques = data.cheques_portfolio.map((c, idx) => ({
           id: String(c.id || ('chq_' + idx)),
           no: String(c.chequeNo || c.id || (1000 + idx)),
-          drawer: c.drawer || '????',
-          bank: c.bank || '??? ???????',
-          branch: c.branch || '???????',
+          drawer: c.drawer || 'عميل',
+          bank: c.bank || 'بنك الخرطوم',
+          branch: c.branch || 'الرئيسي',
           amount: Number(c.amountUsd || 0),
           currency: 'USD',
           dueDate: c.dueDate || todayStr,
           dueToday: (c.dueDate === todayStr),
           stage: 1,
-          note: '??? ???? ????????'
+          note: 'شيك فعلي بالحافظة'
         }));
       }
       this.updateRadarBadges();
@@ -13414,7 +13433,7 @@ document.addEventListener('DOMContentLoaded', () => {
           id: p.id || ('ai_db_' + idx),
           category: p.category || 'liquidity',
           severity: p.severity === 'rose' ? 'critical' : (p.severity === 'amber' ? 'high' : 'medium'),
-          badge: '?? ' + (p.badge || '????? ???? ??????? ?????'),
+          badge: '🤖 ' + (p.badge || 'توصية ذكاء اصطناعي فورية'),
           badgeColor: p.severity === 'rose'
             ? 'bg-rose-500/20 text-rose-300 border-rose-500/40'
             : (p.severity === 'amber' ? 'bg-amber-500/20 text-amber-300 border-amber-500/40' : 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'),
@@ -13422,7 +13441,7 @@ document.addEventListener('DOMContentLoaded', () => {
           desc: p.detail,
           confidence: '98%',
           actions: [
-            { label: p.actionLabel || '????? ??????? ????', fn: p.actionJs || "window.PWAManager.syncRealData(true)" }
+            { label: p.actionLabel || 'تنفيذ التوصية الآن', fn: p.actionJs || "window.PWAManager.syncRealData(true)" }
           ]
         }));
       }
@@ -13430,5 +13449,46 @@ document.addEventListener('DOMContentLoaded', () => {
         this.renderAiPredictions();
       }
     };
+  }
+
+  // ⚡ دستور السرعة والمسحة السحرية (وزن الريشة — Featherweight 0ms Unified Wheel & Zero-Mount Engine)
+  if (!window.__mgFeatherweightUnifiedBusLoaded) {
+    window.__mgFeatherweightUnifiedBusLoaded = true;
+
+    // 1. رولة الماوس المتناسقة (Ctrl + Wheel Proportional Zoom 0.5x..2.5x) مع بقاء الشاشة في المنتصف الليزري الدقيق
+    window.addEventListener('wheel', function(e) {
+      if (!e.ctrlKey) return;
+      e.preventDefault();
+      if (!window.MgConstitution2) return;
+      const prof = window.MgConstitution2.getProfile();
+      const cur = parseFloat(prof.scale) || 1.0;
+      const step = e.deltaY < 0 ? 0.05 : -0.05;
+      const next = Math.min(2.5, Math.max(0.5, Math.round((cur + step) * 100) / 100));
+      window.MgConstitution2.setViewportScale(next);
+    }, { passive: false });
+
+    // 2. تفريغ القوائم الديناميكية للشاشات الوليدة فور إغلاقها (Instant Inner-DOM Unmount = 0 RAM)
+    const DYNAMIC_MODAL_LIST_MAP = {
+      mgChequeAndBankGuardModal: ['mgChequePortfolioLiveList', 'mgVerifiedTransfersList'],
+      mgGrandContinuumAndAdditionsModal: ['mgIllustratedGuideCardsContainer'],
+      mgOfflineSyncEngineModal: ['mgCrdtAtomicLogList']
+    };
+
+    if (typeof window.closeModal === 'function' && !window.closeModal.__mgZeroMountHooked) {
+      const origClose = window.closeModal;
+      const wrappedClose = function(modalId) {
+        const res = origClose.apply(this, arguments);
+        const listIds = DYNAMIC_MODAL_LIST_MAP[modalId];
+        if (listIds) {
+          listIds.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.innerHTML = '';
+          });
+        }
+        return res;
+      };
+      wrappedClose.__mgZeroMountHooked = true;
+      window.closeModal = wrappedClose;
+    }
   }
 })();

@@ -350,65 +350,69 @@ function commitInvoiceNumber(type) {
 //  INIT
 // ════════════════════════════════════════
 function initSalesApp() {
-    // ────── MIGRATE OLD INVOICE NUMBERS TO S+YYMM+SEQ ──────
-    try {
-        let allInv = JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || [];
-        const sRx = /^S\d{8}$/;
-        let hasOld = false;
-        for (const inv of allInv) {
-            const no = String(inv.invoiceNo || '');
-            if (no && no !== 'preliminary' && !no.startsWith('PRE-') && !sRx.test(no)) {
-                hasOld = true; break;
-            }
-        }
-        if (hasOld) {
-            const byMonth = {};
-            allInv.forEach(inv => {
+    const isFirstInit = !window._salesAppInitialized;
+    window._salesAppInitialized = true;
+
+    // ────── MIGRATE OLD INVOICE NUMBERS TO S+YYMM+SEQ (Once per session) ──────
+    if (!window._salesMigrationDone) {
+        window._salesMigrationDone = true;
+        try {
+            let allInv = JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || [];
+            const sRx = /^S\d{8}$/;
+            let hasOld = false;
+            for (const inv of allInv) {
                 const no = String(inv.invoiceNo || '');
-                if (no === 'preliminary' || no.startsWith('PRE-')) return;
-                const d = (inv.date || inv.createdAt) ? new Date(inv.date || inv.createdAt) : new Date();
-                const vd = isNaN(d.getTime()) ? new Date() : d;
-                const yymm = String(vd.getFullYear()).substring(2, 4) + String(vd.getMonth() + 1).padStart(2, '0');
-                if (!byMonth[yymm]) byMonth[yymm] = { s: [], old: [] };
-                if (sRx.test(no)) { byMonth[yymm].s.push(inv); } else { byMonth[yymm].old.push(inv); }
-            });
-            const idMap = {};
-            for (const yymm of Object.keys(byMonth)) {
-                const { s, old } = byMonth[yymm];
-                if (old.length === 0) continue;
-                const dp = 'S' + yymm;
-                let mx = 0;
-                s.forEach(inv => { const sq = parseInt(String(inv.invoiceNo).substring(5), 10); if (!isNaN(sq) && sq > mx) mx = sq; });
-                old.sort((a, b) => { const c = (a.date||a.createdAt||'').localeCompare(b.date||b.createdAt||''); return c !== 0 ? c : (a.time||'').localeCompare(b.time||''); });
-                old.forEach(inv => {
-                    mx++;
-                    const oldNo = inv.invoiceNo;
-                    const newNo = dp + String(mx).padStart(4, '0');
-                    idMap[oldNo] = newNo;
-                    inv.invoiceNo = newNo;
-                    if (inv.id === oldNo) inv.id = newNo;
-                    // Migrate detail keys
-                    ['erp_inv_', 'erp_draft_'].forEach(pfx => {
-                        const oldData = localStorage.getItem(pfx + oldNo);
-                        if (oldData) {
-                            try {
-                                const p = JSON.parse(oldData);
-                                p.invoiceNo = newNo;
-                                if (p.id === oldNo) p.id = newNo;
-                                localStorage.setItem(pfx + newNo, JSON.stringify(p));
-                                localStorage.removeItem(pfx + oldNo);
-                            } catch(e) {}
-                        }
-                    });
+                if (no && no !== 'preliminary' && !no.startsWith('PRE-') && !sRx.test(no)) {
+                    hasOld = true; break;
+                }
+            }
+            if (hasOld) {
+                const byMonth = {};
+                allInv.forEach(inv => {
+                    const no = String(inv.invoiceNo || '');
+                    if (no === 'preliminary' || no.startsWith('PRE-')) return;
+                    const d = (inv.date || inv.createdAt) ? new Date(inv.date || inv.createdAt) : new Date();
+                    const vd = isNaN(d.getTime()) ? new Date() : d;
+                    const yymm = String(vd.getFullYear()).substring(2, 4) + String(vd.getMonth() + 1).padStart(2, '0');
+                    if (!byMonth[yymm]) byMonth[yymm] = { s: [], old: [] };
+                    if (sRx.test(no)) { byMonth[yymm].s.push(inv); } else { byMonth[yymm].old.push(inv); }
                 });
+                const idMap = {};
+                for (const yymm of Object.keys(byMonth)) {
+                    const { s, old } = byMonth[yymm];
+                    if (old.length === 0) continue;
+                    const dp = 'S' + yymm;
+                    let mx = 0;
+                    s.forEach(inv => { const sq = parseInt(String(inv.invoiceNo).substring(5), 10); if (!isNaN(sq) && sq > mx) mx = sq; });
+                    old.sort((a, b) => { const c = (a.date||a.createdAt||'').localeCompare(b.date||b.createdAt||''); return c !== 0 ? c : (a.time||'').localeCompare(b.time||''); });
+                    old.forEach(inv => {
+                        mx++;
+                        const oldNo = inv.invoiceNo;
+                        const newNo = dp + String(mx).padStart(4, '0');
+                        idMap[oldNo] = newNo;
+                        inv.invoiceNo = newNo;
+                        if (inv.id === oldNo) inv.id = newNo;
+                        ['erp_inv_', 'erp_draft_'].forEach(pfx => {
+                            const oldData = localStorage.getItem(pfx + oldNo);
+                            if (oldData) {
+                                try {
+                                    const p = JSON.parse(oldData);
+                                    p.invoiceNo = newNo;
+                                    if (p.id === oldNo) p.id = newNo;
+                                    localStorage.setItem(pfx + newNo, JSON.stringify(p));
+                                    localStorage.removeItem(pfx + oldNo);
+                                } catch(e) {}
+                            }
+                        });
+                    });
+                }
+                if (Object.keys(idMap).length > 0) {
+                    localStorage.setItem('erp_sales_invoices_v1', JSON.stringify(allInv));
+                }
             }
-            if (Object.keys(idMap).length > 0) {
-                localStorage.setItem('erp_sales_invoices_v1', JSON.stringify(allInv));
-                console.log('[initSalesApp Migration] Converted old invoice numbers:', idMap);
-            }
+        } catch(e) {
+            console.error('[initSalesApp Migration] Error:', e);
         }
-    } catch(e) {
-        console.error('[initSalesApp Migration] Error:', e);
     }
     // ────── END MIGRATION ──────
     try {
@@ -446,7 +450,7 @@ function initSalesApp() {
             });
         }
 
-                // Load Master Data Items
+        // Load Master Data Items with O(N+M) Map indexing
         let rawItems = [];
         let invData = [];
         try {
@@ -457,24 +461,36 @@ function initSalesApp() {
             }
             invData = JSON.parse(localStorage.getItem('erp_inventory_v1')) || [];
         } catch(e) { console.error(e); }
+
+        const whByName = new Map();
+        WAREHOUSES.forEach(w => { if (w && w.name) whByName.set(w.name, w.id); });
+        const invByItemId = new Map();
+        if (Array.isArray(invData)) {
+            for (let i = 0; i < invData.length; i++) {
+                const inv = invData[i];
+                if (!inv || !inv.itemId) continue;
+                let arr = invByItemId.get(inv.itemId);
+                if (!arr) { arr = []; invByItemId.set(inv.itemId, arr); }
+                arr.push(inv);
+            }
+        }
         
         ITEMS = [];
         if (Array.isArray(rawItems)) {
             rawItems.forEach(item => {
-                if (!item || !item.id) return;
+                if (!item || !item.id || item.status === 'inactive') return;
                 
                 let actualStockMap = {};
                 let reservedStockMap = {};
                 
-                if (Array.isArray(invData)) {
-                    let itemInv = invData.filter(inv => inv && inv.itemId === item.id);
-                    itemInv.forEach(inv => {
-                        if (!inv) return;
-                        let wh = WAREHOUSES.find(w => w && w.name === inv.warehouse);
-                        let whId = wh ? wh.id : 'w-main';
+                const itemInv = invByItemId.get(item.id);
+                if (itemInv) {
+                    for (let j = 0; j < itemInv.length; j++) {
+                        const inv = itemInv[j];
+                        const whId = whByName.get(inv.warehouse) || 'w-main';
                         actualStockMap[whId] = (actualStockMap[whId] || 0) + (parseFloat(inv.qty) || parseFloat(inv.quantity) || 0);
                         reservedStockMap[whId] = (reservedStockMap[whId] || 0) + (parseFloat(inv.reservedQuantity) || 0);
-                    });
+                    }
                 }
 
                 // Clean price
@@ -501,64 +517,93 @@ function initSalesApp() {
                 });
             });
         }
-        ITEMS = ITEMS.filter(item => item && item.status !== 'inactive');
-        console.log('[initSalesApp] Loaded ' + ITEMS.length + ' items. Items with >1 units:', ITEMS.filter(i => i.unitsArray && i.unitsArray.length > 1).length);
-        ITEMS.slice(0, 3).forEach(i => console.log('  Item: ' + i.name + ' → ' + (i.unitsArray||[]).map(u=>u.name).join(', ')));
 
-
-                populateDropdowns();
-        populatePaymentAccounts();
-        initMultiPaymentSystem();
-        initHeader();
-        if (window.renderDocumentUserBadge) {
-            window.renderDocumentUserBadge('sales-user-audit-container', {}, true);
-        }
-
-        if (rows.length === 0) {
-            addRow(true);
-            recalcAll();
+        if (isFirstInit) {
+            populateDropdowns();
+            populatePaymentAccounts();
+            initMultiPaymentSystem();
+            initHeader();
+            if (window.renderDocumentUserBadge) {
+                window.renderDocumentUserBadge('sales-user-audit-container', {}, true);
+            }
+            if (rows.length === 0) {
+                addRow(true);
+                recalcAll();
+            } else {
+                renderGrid();
+            }
         } else {
-            renderGrid();
-        }
-        if (typeof loadHubTransactions === 'function') loadHubTransactions();
-
-        // Background sync latest items & units from MySQL unconditionally
-        fetch('api/get_master_data.php').then(r => r.json()).then(res => {
-            if (res && res.success && res.data) {
-                if (Array.isArray(res.data.units) && res.data.units.length > 0) {
-                    localStorage.setItem('erp_global_units_v1', JSON.stringify(res.data.units));
-                }
-                if (Array.isArray(res.data.items) && res.data.items.length > 0) {
-                    localStorage.setItem('erp_items_v1', JSON.stringify(res.data.items));
-                    res.data.items.forEach(dbItem => {
-                        let existing = ITEMS.find(i => String(i.id) === String(dbItem.id));
-                        const baseUnit = dbItem.baseUnit || dbItem.mainUnit || dbItem.unit || 'سيخه';
-                        const unitsArr = extractItemUnits(dbItem);
-                        if (!existing) {
-                            ITEMS.push({
-                                id: dbItem.id,
-                                name: dbItem.name || 'صنف',
-                                unit: baseUnit,
-                                baseUnit: baseUnit,
-                                conversionFactor: 1,
-                                bundleFactor: parseFloat(dbItem.bundleFactor) || 1,
-                                price: parseFloat(dbItem.sellingPrice || dbItem.price || 0) || 0,
-                                actualStock: {},
-                                reservedStock: {},
-                                units: dbItem.units || [],
-                                unitsArray: unitsArr,
-                                maxDiscount: dbItem.maxDiscount || 0,
-                                status: dbItem.status || 'active'
-                            });
-                        } else {
-                            existing.units = dbItem.units || existing.units;
-                            existing.unitsArray = unitsArr;
-                        }
-                    });
-                    renderGrid();
+            // Preserve user's active selections on background cloud sync
+            const whSel = document.getElementById('hdr-warehouse');
+            const prevWh = whSel ? whSel.value : '';
+            if (whSel) {
+                whSel.innerHTML = '';
+                WAREHOUSES.forEach(w => {
+                    if (w) {
+                        const o = document.createElement('option');
+                        o.value = w.id; o.textContent = w.name;
+                        whSel.appendChild(o);
+                    }
+                });
+                if (prevWh && WAREHOUSES.some(w => w && String(w.id) === String(prevWh))) {
+                    whSel.value = prevWh;
                 }
             }
-        }).catch(err => console.error('[Master Data Sync Error]:', err));
+            populatePaymentAccounts();
+        }
+
+        const hubViewEl = document.getElementById('sales-hub-view');
+        if (typeof loadHubTransactions === 'function' && hubViewEl && hubViewEl.style.display !== 'none') {
+            loadHubTransactions();
+        }
+
+        // Background sync latest items & units from MySQL once per page load
+        if (!window._masterDataFetchedOnce) {
+            window._masterDataFetchedOnce = true;
+            fetch('api/get_master_data.php').then(r => r.json()).then(res => {
+                if (res && res.success && res.data) {
+                    if (Array.isArray(res.data.units) && res.data.units.length > 0) {
+                        localStorage.setItem('erp_global_units_v1', JSON.stringify(res.data.units));
+                    }
+                    if (Array.isArray(res.data.items) && res.data.items.length > 0) {
+                        localStorage.setItem('erp_items_v1', JSON.stringify(res.data.items));
+                        const itemById = new Map();
+                        ITEMS.forEach(i => itemById.set(String(i.id), i));
+                        res.data.items.forEach(dbItem => {
+                            if (!dbItem || dbItem.status === 'inactive') return;
+                            let existing = itemById.get(String(dbItem.id));
+                            const baseUnit = dbItem.baseUnit || dbItem.mainUnit || dbItem.unit || 'سيخه';
+                            const unitsArr = extractItemUnits(dbItem);
+                            if (!existing) {
+                                ITEMS.push({
+                                    id: dbItem.id,
+                                    name: dbItem.name || 'صنف',
+                                    unit: baseUnit,
+                                    baseUnit: baseUnit,
+                                    conversionFactor: 1,
+                                    bundleFactor: parseFloat(dbItem.bundleFactor) || 1,
+                                    price: parseFloat(dbItem.sellingPrice || dbItem.price || 0) || 0,
+                                    actualStock: {},
+                                    reservedStock: {},
+                                    units: dbItem.units || [],
+                                    unitsArray: unitsArr,
+                                    maxDiscount: dbItem.maxDiscount || 0,
+                                    status: dbItem.status || 'active'
+                                });
+                            } else {
+                                existing.units = dbItem.units || existing.units;
+                                existing.unitsArray = unitsArr;
+                            }
+                        });
+                        const activeEl = document.activeElement;
+                        const isTypingInGrid = activeEl && activeEl.closest && activeEl.closest('#grid-body');
+                        if (!isTypingInGrid && rows.some(r => r && r.itemId)) {
+                            renderGrid();
+                        }
+                    }
+                }
+            }).catch(err => console.error('[Master Data Sync Error]:', err));
+        }
     } catch(globalErr) {
         console.error("Critical error during initSalesApp:", globalErr);
     }
@@ -5866,21 +5911,81 @@ window.renderSplitGenealogyBadge = function(invOrNo, compact = false) {
     </div>`;
 };
 
+let _splitStoreFastCache = {
+    salesRaw: null, salesList: [], maxSplitSeq: 0,
+    itemsRaw: null, itemsList: [], itemsById: new Map(), itemsByName: new Map(),
+    invRaw: null, invList: []
+};
+
+function _getSplitCachedSales() {
+    const raw = localStorage.getItem('erp_sales_invoices_v1');
+    if (raw !== _splitStoreFastCache.salesRaw) {
+        _splitStoreFastCache.salesRaw = raw;
+        let maxSeq = 0;
+        try {
+            const arr = JSON.parse(raw || '[]');
+            _splitStoreFastCache.salesList = Array.isArray(arr) ? arr : [];
+            _splitStoreFastCache.salesList.forEach(inv => {
+                if (!inv) return;
+                if (inv.splitBatchNo && parseInt(inv.splitBatchNo, 10) > maxSeq) {
+                    maxSeq = parseInt(inv.splitBatchNo, 10);
+                }
+                const rawNo = String(inv.invoiceNo || inv.id || '');
+                const m = rawNo.match(/^[^\/]+\/(\d+)\/\d+$/);
+                if (m && parseInt(m[1], 10) > maxSeq) {
+                    maxSeq = parseInt(m[1], 10);
+                }
+            });
+        } catch (e) {
+            _splitStoreFastCache.salesList = [];
+        }
+        _splitStoreFastCache.maxSplitSeq = maxSeq;
+    }
+    return _splitStoreFastCache.salesList;
+}
+
+function _getSplitCachedItems() {
+    const raw = localStorage.getItem('erp_items_v1');
+    if (raw !== _splitStoreFastCache.itemsRaw) {
+        _splitStoreFastCache.itemsRaw = raw;
+        _splitStoreFastCache.itemsById.clear();
+        _splitStoreFastCache.itemsByName.clear();
+        try {
+            const arr = JSON.parse(raw || '[]');
+            _splitStoreFastCache.itemsList = Array.isArray(arr) ? arr : [];
+            _splitStoreFastCache.itemsList.forEach(i => {
+                if (!i) return;
+                if (i.id != null) _splitStoreFastCache.itemsById.set(String(i.id), i);
+                const nm = String(i.name || '').trim();
+                if (nm) _splitStoreFastCache.itemsByName.set(nm, i);
+            });
+        } catch (e) {
+            _splitStoreFastCache.itemsList = [];
+        }
+    }
+    return _splitStoreFastCache;
+}
+
+function _getSplitCachedInventory() {
+    const raw = localStorage.getItem('erp_inventory_v1');
+    if (raw !== _splitStoreFastCache.invRaw) {
+        _splitStoreFastCache.invRaw = raw;
+        try {
+            const arr = JSON.parse(raw || '[]');
+            _splitStoreFastCache.invList = Array.isArray(arr) ? arr : [];
+        } catch (e) {
+            _splitStoreFastCache.invList = [];
+        }
+    }
+    return _splitStoreFastCache.invList;
+}
+
 window.getNextSplitSequenceNo = function() {
     let maxSeq = parseInt(localStorage.getItem('erp_sales_split_seq_v1') || '0', 10) || 0;
-    try {
-        const allSales = JSON.parse(localStorage.getItem('erp_sales_invoices_v1') || '[]');
-        allSales.forEach(inv => {
-            if (inv.splitBatchNo && parseInt(inv.splitBatchNo, 10) > maxSeq) {
-                maxSeq = parseInt(inv.splitBatchNo, 10);
-            }
-            const rawNo = String(inv.invoiceNo || inv.id || '');
-            const m = rawNo.match(/^[^\/]+\/(\d+)\/\d+$/);
-            if (m && parseInt(m[1], 10) > maxSeq) {
-                maxSeq = parseInt(m[1], 10);
-            }
-        });
-    } catch (e) {}
+    _getSplitCachedSales();
+    if (_splitStoreFastCache.maxSplitSeq > maxSeq) {
+        maxSeq = _splitStoreFastCache.maxSplitSeq;
+    }
     return maxSeq + 1;
 };
 
@@ -5889,13 +5994,11 @@ window.resolveSplitItemUnitMeta = function(item) {
     let masterItem = richMeta ? richMeta.master : null;
     if (!masterItem) {
         try {
-            const itemsList = (typeof ITEMS !== 'undefined' && Array.isArray(ITEMS) && ITEMS.length)
-                ? ITEMS
-                : JSON.parse(localStorage.getItem('erp_items_v1') || '[]');
-            masterItem = itemsList.find(i =>
-                String(i.id) === String(item.itemId || item.id) ||
-                String(i.name || '').trim() === String(item.itemName || item.name || '').trim()
-            );
+            const ic = _getSplitCachedItems();
+            const idKey = String(item.itemId || item.id || '');
+            const nmKey = String(item.itemName || item.name || '').trim();
+            masterItem = (idKey ? ic.itemsById.get(idKey) : null) ||
+                         (nmKey ? ic.itemsByName.get(nmKey) : null);
         } catch (e) {}
     }
 
@@ -5927,7 +6030,7 @@ window.resolveSplitItemUnitMeta = function(item) {
     let minQty = parseFloat(masterItem && (masterItem.minQty || masterItem.reorderLevel) || 10) || 10;
     const whName = (window.activeSplitInvoice && window.activeSplitInvoice.warehouseName) || item.warehouseName || 'المخزن الرئيسي';
     try {
-        const invData = JSON.parse(localStorage.getItem('erp_inventory_v1') || '[]');
+        const invData = _getSplitCachedInventory();
         const whRec = invData.find(r => (String(r.itemId) === String(item.itemId || item.id) || String(r.itemName || '') === name) && (!r.warehouse || r.warehouse === whName));
         if (whRec) {
             availableStock = parseFloat(whRec.qty ?? whRec.quantity ?? availableStock) || availableStock;
@@ -6923,14 +7026,19 @@ function updateSplitCalculations() {
     const cardsContainer = document.getElementById('split-cards-grid-container') || document.getElementById('split-subtotal-a')?.closest('div[style*="grid-template-columns"]');
     if (cardsContainer) {
         cardsContainer.id = 'split-cards-grid-container';
+        let _uiAccDisc = 0, _uiAccTax = 0;
         cardsContainer.innerHTML = Array.from({ length: S }, (_, s) => {
+            const isLast = (s === S - 1);
             const pal = getSplitPalette(s);
             const secNo = `${rootNo}/${splitSeq}/${s + 1}`;
-            const sub = secSubtotals[s];
-            const ratio = totalSplitSubtotal > 0 ? (sub / totalSplitSubtotal) : 0;
-            const disc = originalDiscount * ratio;
-            const tax = originalTax * ratio;
-            const grand = Math.max(0, sub - disc + tax);
+            const sub = +secSubtotals[s].toFixed(2);
+            const ratio = totalSplitSubtotal > 0 ? (sub / totalSplitSubtotal) : (1 / S);
+            const disc = isLast ? +Math.max(0, originalDiscount - _uiAccDisc).toFixed(2) : +(originalDiscount * ratio).toFixed(2);
+            const tax = isLast ? +Math.max(0, originalTax - _uiAccTax).toFixed(2) : +(originalTax * ratio).toFixed(2);
+            _uiAccDisc += disc; _uiAccTax += tax;
+            const grand = Math.max(0, +(sub - disc + tax).toFixed(2));
+            const subIdAttr = s === 0 ? 'id="split-subtotal-a"' : (s === 1 ? 'id="split-subtotal-b"' : `id="split-subtotal-s${s}"`);
+            const grandIdAttr = s === 0 ? 'id="split-grand-a"' : (s === 1 ? 'id="split-grand-b"' : `id="split-grand-s${s}"`);
             const metaInfo = window._splitSectionMeta[s] || {};
             const recVal = (metaInfo.receiverName ?? metaInfo.receiver ?? (inv.receiverName || inv.customerName || '')).replace(/"/g, '&quot;');
             const trkVal = (metaInfo.truckPlate ?? metaInfo.truck ?? (inv.truckPlate || '')).replace(/"/g, '&quot;');
@@ -6959,7 +7067,7 @@ function updateSplitCalculations() {
                         </div>
                         <div style="display:flex; justify-content:space-between; color:#cbd5e1; font-weight:700;">
                             <span>الإجمالي قبل الخصم:</span>
-                            <span style="font-family:'Outfit',monospace; font-weight:800;">${sub.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})} ${currency}</span>
+                            <span ${subIdAttr} style="font-family:'Outfit',monospace; font-weight:800;">${sub.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})} ${currency}</span>
                         </div>
                         ${(originalDiscount > 0 || originalTax > 0) ? `
                         <div style="display:flex; justify-content:space-between; color:#94a3b8; font-size:0.78rem;">
@@ -6968,7 +7076,7 @@ function updateSplitCalculations() {
                         </div>` : ''}
                         <div style="display:flex; justify-content:space-between; font-weight:900; color:${pal.color}; font-size:1.12rem; border-top:1px solid rgba(255,255,255,0.08); padding-top:4px;">
                             <span>الصافي النهائي:</span>
-                            <span style="font-family:'Outfit',monospace;">${grand.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})} ${currency}</span>
+                            <span ${grandIdAttr} style="font-family:'Outfit',monospace;">${grand.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})} ${currency}</span>
                         </div>
                         <div class="c8-tafqeet-line" style="font-size:0.74rem; font-weight:800; color:#a7f3d0; background:rgba(16,185,129,0.08); border:1px dashed rgba(16,185,129,0.35); border-radius:7px; padding:3px 8px; text-align:center;">
                             🗣️ ${window.tafqeetSplitAmountArabic ? window.tafqeetSplitAmountArabic(grand, currency) : ''}
@@ -8046,17 +8154,17 @@ document.addEventListener('DOMContentLoaded', () => {
     if (invoiceId) {
         setTimeout(() => {
             if (typeof loadInvoiceFromStorage === 'function') loadInvoiceFromStorage(invoiceId);
-        }, 500);
-    } else if (actionParam === 'delivery' || actionParam === 'gdn' || actionParam === 'split') {
+        }, 120);
+    } else if (actionParam === 'delivery' || actionParam === 'gdn') {
         setTimeout(() => {
             if (typeof openDeliveryHub === 'function') openDeliveryHub();
-        }, 50);
+        }, 20);
+    } else if (actionParam === 'split') {
+        if (typeof openSplitInvoiceView === 'function') openSplitInvoiceView(true);
     } else if (actionParam === 'new' || actionParam === 'direct' || actionParam === 'pending_delivery' || actionParam === 'preliminary' || actionParam === 'proforma') {
-        setTimeout(() => {
-            if (typeof openInvoiceEditor === 'function') {
-                openInvoiceEditor(actionParam === 'new' || actionParam === 'direct' ? 'pending_delivery' : (actionParam === 'proforma' ? 'preliminary' : actionParam));
-            }
-        }, 100);
+        if (typeof openInvoiceEditor === 'function') {
+            openInvoiceEditor(actionParam === 'new' || actionParam === 'direct' ? 'pending_delivery' : (actionParam === 'proforma' ? 'preliminary' : actionParam), false, true);
+        }
     }
 });
 

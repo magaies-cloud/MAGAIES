@@ -1438,30 +1438,38 @@
         },
 
         initAutoFitVoucherObserver() {
+            const voucherIds = ['inv-number', 'voucher-number', 'finTransferVoucherNo', 'finTransferCashReceiptNo'];
+            const hasAnyVoucherEl = () => voucherIds.some(id => !!document.getElementById(id));
             const runFit = () => {
+                if (!hasAnyVoucherEl()) return;
                 if (this._fitTimer) clearTimeout(this._fitTimer);
                 this._fitTimer = setTimeout(() => {
                     this.autoFitVoucherNumbers();
                 }, 80);
             };
-            this.autoFitVoucherNumbers();
+            if (hasAnyVoucherEl()) this.autoFitVoucherNumbers();
             window.addEventListener('resize', runFit, { passive: true });
             document.addEventListener('input', (e) => {
-                if (e && e.target && (e.target.id === 'inv-number' || e.target.id === 'voucher-number' || e.target.id === 'finTransferVoucherNo' || e.target.id === 'finTransferCashReceiptNo')) {
+                if (e && e.target && voucherIds.includes(e.target.id)) {
                     runFit();
                 }
             }, { capture: true, passive: true });
 
             if (typeof MutationObserver !== 'undefined') {
                 const startObs = () => {
-                    if (!document.body) return;
-                    const obs = new MutationObserver(() => runFit());
-                    obs.observe(document.body, {
-                        childList: true,
-                        subtree: true,
-                        characterData: true,
-                        attributes: true,
-                        attributeFilter: ['value']
+                    voucherIds.forEach(id => {
+                        const el = document.getElementById(id);
+                        if (el && !el.dataset.voucherFitObserved) {
+                            el.dataset.voucherFitObserved = '1';
+                            const obs = new MutationObserver(() => runFit());
+                            obs.observe(el, {
+                                childList: true,
+                                characterData: true,
+                                subtree: true,
+                                attributes: true,
+                                attributeFilter: ['value']
+                            });
+                        }
                     });
                 };
                 if (document.body) startObs();

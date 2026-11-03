@@ -71,10 +71,32 @@ function playSlTone(type = 'ok') {
     } catch (e) {}
 }
 
+// ── FAST IN-MEMORY CACHE FOR LOCALSTORAGE (PREVENTS 1000x JSON.parse IN LOOPS) ──
+const _slStoreCache = {};
+function getSlCachedStore(key, fallback = []) {
+    const now = Date.now();
+    const hit = _slStoreCache[key];
+    if (hit && (now - hit.ts) < 350) {
+        return hit.data;
+    }
+    let parsed = fallback;
+    try {
+        const raw = localStorage.getItem(key);
+        parsed = raw ? JSON.parse(raw) : fallback;
+    } catch (e) {
+        parsed = fallback;
+    }
+    _slStoreCache[key] = { ts: now, data: parsed };
+    return parsed;
+}
+function invalidateSlStoreCache() {
+    for (const k in _slStoreCache) delete _slStoreCache[k];
+}
+
 // ── WAREHOUSE, PARTY & ITEM META RESOLUTION ──────────────────────────────────
 function getSlWarehouses() {
-    let whs = [];
-    try { whs = JSON.parse(localStorage.getItem('erp_warehouses_v1')) || []; } catch (e) {}
+    let whs = getSlCachedStore('erp_warehouses_v1', []);
+    if (!Array.isArray(whs)) whs = [];
     whs = whs.filter(w => w && w.id !== 'PENDING_RECEIPT' && !String(w.name || '').includes('قيد الاستلام'));
     if (!whs.length) {
         whs = [
@@ -89,21 +111,22 @@ function resolveSlPartyName(inv, mode = slCurrentMode) {
     if (!inv) return '---';
     if (mode === 'purchases') {
         const raw = inv.supplierName || inv.vendorName || inv.supplier || inv.customerName || inv.customer || '';
-        const contacts = JSON.parse(localStorage.getItem('erp_contacts_v1') || '[]');
-        const suppliers = JSON.parse(localStorage.getItem('erp_suppliers_v1') || '[]');
-        const found = [...contacts, ...suppliers].find(c => String(c.id) === String(raw) || String(c.name) === String(raw));
+        const contacts = getSlCachedStore('erp_contacts_v1', []);
+        const suppliers = getSlCachedStore('erp_suppliers_v1', []);
+        const found = [...contacts, ...suppliers].find(c => c && (String(c.id) === String(raw) || String(c.name) === String(raw)));
         return found ? found.name : (raw || 'مورد عام');
     } else {
         const raw = inv.customerName || inv.clientName || inv.customer || '';
-        const customers = JSON.parse(localStorage.getItem('erp_customers_v1') || '[]');
-        const contacts = JSON.parse(localStorage.getItem('erp_contacts_v1') || '[]');
-        const found = [...customers, ...contacts].find(c => String(c.id) === String(raw) || String(c.name) === String(raw));
+        const customers = getSlCachedStore('erp_customers_v1', []);
+        const contacts = getSlCachedStore('erp_contacts_v1', []);
+        const found = [...customers, ...contacts].find(c => c && (String(c.id) === String(raw) || String(c.name) === String(raw)));
         return found ? found.name : (raw || 'عميل نقدي');
     }
 }
 
 function resolveSlItemMeta(it) {
-    const erpItems = JSON.parse(localStorage.getItem('erp_items_v1') || '[]');
+    if (!it) it = {};
+    const erpItems = getSlCachedStore('erp_items_v1', []);
     const itemId = it.itemId || it.id || '';
     const rawName = String(it.itemName || it.name || '').trim();
     const normStr = (s) => String(s || '').trim()
@@ -114,9 +137,11 @@ function resolveSlItemMeta(it) {
 
     const normRawName = normStr(rawName);
     const master = erpItems.find(x =>
-        (itemId && String(x.id) === String(itemId)) ||
-        (rawName && String(x.name || '').trim() === rawName) ||
-        (normRawName && normStr(x.name) === normRawName)
+        x && (
+            (itemId && String(x.id) === String(itemId)) ||
+            (rawName && String(x.name || '').trim() === rawName) ||
+            (normRawName && normStr(x.name) === normRawName)
+        )
     );
 
     const name = rawName || (master ? master.name : (itemId || 'صنف عام'));
@@ -197,10 +222,11 @@ function resolveSlItemMeta(it) {
 function getSlItemStockInWarehouse(itemMeta, whIdOrName) {
     const whs = getSlWarehouses();
     const whObj = whs.find(w => String(w.id) === String(whIdOrName) || String(w.name) === String(whIdOrName)) || whs[0];
-    const invList = JSON.parse(localStorage.getItem('erp_inventory_v1') || '[]');
-    const erpItems = JSON.parse(localStorage.getItem('erp_items_v1') || '[]');
+    const invList = getSlCachedStore('erp_inventory_v1', []);
+    const erpItems = getSlCachedStore('erp_items_v1', []);
 
     const entry = invList.find(x =>
+        x &&
         (String(x.itemId || x.id) === String(itemMeta.itemId) || String(x.name || '').trim() === itemMeta.name.trim()) &&
         (String(x.warehouseId || x.warehouse) === String(whObj.id) || String(x.warehouse || x.warehouseId) === String(whObj.name))
     );
@@ -208,7 +234,7 @@ function getSlItemStockInWarehouse(itemMeta, whIdOrName) {
         return +parseFloat(entry.qty || 0).toFixed(2);
     }
 
-    const master = erpItems.find(x => String(x.id) === String(itemMeta.itemId) || String(x.name || '').trim() === itemMeta.name.trim());
+    const master = erpItems.find(x => x && (String(x.id) === String(itemMeta.itemId) || String(x.name || '').trim() === itemMeta.name.trim()));
     if (master && master.stock && master.stock[whObj.id] !== undefined) {
         return +parseFloat(master.stock[whObj.id] || 0).toFixed(2);
     }
@@ -299,7 +325,8 @@ function getProcessedPurchaseInvoices() {
 }
 
 function getProcessedSalesInvoices() {
-    const allSales = JSON.parse(localStorage.getItem('erp_sales_invoices_v1') || '[]').filter(i => i && !i.deleted && i.status !== 'draft' && i.status !== 'proforma');
+    const rawSales = getSlCachedStore('erp_sales_invoices_v1', []);
+    const allSales = (Array.isArray(rawSales) ? rawSales : []).filter(i => i && !i.deleted && i.status !== 'draft' && i.status !== 'proforma');
     return allSales.map(inv => {
         const invNo = String(inv.invoiceNo || inv.id || '');
         const items = inv.items || inv.rows || [];
@@ -469,23 +496,23 @@ function setSlRegistryFilter(filter) {
 }
 
 function renderSlRegistry() {
-    const salesList = getProcessedSalesInvoices();
-    const purchasesList = getProcessedPurchaseInvoices();
+    const isSales = (slCurrentMode === 'sales');
+    const salesList = isSales ? getProcessedSalesInvoices() : [];
+    const purchasesList = !isSales ? getProcessedPurchaseInvoices() : [];
 
-    // Update top mode switcher badges always
-    const salesPendingCount = salesList.filter(i => i._slStatus === 'pending' || i._slStatus === 'partial').length;
-    const purPendingCount = purchasesList.filter(i => i._slStatus === 'pending' || i._slStatus === 'partial').length;
+    // Update top mode switcher badges without unnecessary cross-mode full scans
+    const salesPendingCount = isSales ? salesList.filter(i => i._slStatus === 'pending' || i._slStatus === 'partial').length : 0;
+    const purPendingCount = !isSales ? purchasesList.filter(i => i._slStatus === 'pending' || i._slStatus === 'partial').length : 0;
     const sb = document.getElementById('sl-tab-sales-badge');
     const pb = document.getElementById('sl-tab-purchases-badge');
-    if (sb) sb.textContent = salesPendingCount;
-    if (pb) pb.textContent = purPendingCount;
+    if (sb && isSales) sb.textContent = salesPendingCount;
+    if (pb && !isSales) pb.textContent = purPendingCount;
 
-    const isSales = (slCurrentMode === 'sales');
     const sourceList = isSales ? salesList : purchasesList;
 
     const allNotes = isSales
-        ? JSON.parse(localStorage.getItem('erp_delivery_notes_v1') || '[]').filter(n => n && !n.deleted)
-        : JSON.parse(localStorage.getItem('erp_purchase_invoices_v1') || '[]').filter(n => n && !n.deleted && n.isGRN);
+        ? (getSlCachedStore('erp_delivery_notes_v1', []) || []).filter(n => n && !n.deleted)
+        : (getSlCachedStore('erp_purchase_invoices_v1', []) || []).filter(n => n && !n.deleted && n.isGRN);
 
     const kpiPending = sourceList.filter(i => i._slStatus === 'pending').length;
     const kpiPartial = sourceList.filter(i => i._slStatus === 'partial').length;
@@ -990,6 +1017,7 @@ function executeSlTransaction() {
 }
 
 function executeSlSalesDelivery() {
+    invalidateSlStoreCache();
     const allSales = JSON.parse(localStorage.getItem('erp_sales_invoices_v1') || '[]');
     const invNo = String(slCurrentDoc.invoiceNo);
     const invIdx = allSales.findIndex(i => String(i.invoiceNo || i.id) === invNo);
@@ -1011,6 +1039,37 @@ function executeSlSalesDelivery() {
         inv.deliveryStatus === 'Admin_Closed'
     );
 
+    if (wasAlreadyDone) {
+        // Update logistics metadata only without duplicate stock deduction or corrupting deliveredQty
+        inv.receiverName = document.getElementById('sl-receiver-name')?.value.trim() || resolveSlPartyName(inv, 'sales');
+        inv.driverName = document.getElementById('sl-driver-name')?.value.trim() || '';
+        inv.truckPlate = document.getElementById('sl-truck-plate')?.value.trim() || '';
+        inv.gatePassNo = document.getElementById('sl-gate-pass-no')?.value.trim() || '';
+        inv.warehouseNotes = document.getElementById('sl-warehouse-notes')?.value.trim() || '';
+        inv.personalNotes = document.getElementById('sl-personal-notes')?.value.trim() || '';
+        if (slCurrentPhoto) inv.attachmentBase64 = slCurrentPhoto;
+
+        allSales[invIdx] = inv;
+        localStorage.setItem('erp_sales_invoices_v1', JSON.stringify(allSales));
+        localStorage.setItem('erp_inv_' + invNo, JSON.stringify(inv));
+
+        let deliveryNotes = JSON.parse(localStorage.getItem('erp_delivery_notes_v1') || '[]');
+        const noteIdx = deliveryNotes.findIndex(n => String(n.invoiceNo || n.relatedInvoice) === invNo);
+        if (noteIdx !== -1) {
+            deliveryNotes[noteIdx].receiverName = inv.receiverName;
+            deliveryNotes[noteIdx].driverName = inv.driverName;
+            deliveryNotes[noteIdx].truckPlate = inv.truckPlate;
+            deliveryNotes[noteIdx].gatePassNo = inv.gatePassNo;
+            deliveryNotes[noteIdx].notes = inv.warehouseNotes;
+            deliveryNotes[noteIdx].personalNotes = inv.personalNotes;
+            localStorage.setItem('erp_delivery_notes_v1', JSON.stringify(deliveryNotes));
+        }
+        invalidateSlStoreCache();
+        loadSlDocument(invNo);
+        showSlToast(`✅ الفاتورة #${invNo} منصرفة بالكامل مسبقاً — تم حفظ تحديثات السائق والبوابة والملاحظات (لإعادة الصرف اضغط إلغاء الصرف أولاً)`, 'success');
+        return true;
+    }
+
     let isPartialDelivery = false;
     const deliveredItemsPayload = [];
     const docRows = (slCurrentDoc && Array.isArray(slCurrentDoc.items) && slCurrentDoc.items.length)
@@ -1021,7 +1080,7 @@ function executeSlSalesDelivery() {
     docRows.forEach((item, idx) => {
         const meta = resolveSlItemMeta(item);
         const origQty = meta.qty;
-        const prevDel = wasAlreadyDone ? 0 : (parseFloat(item.deliveredQty || 0) || 0);
+        const prevDel = parseFloat(item.deliveredQty || 0) || 0;
         const maxRem = Math.max(0, +(origQty - prevDel).toFixed(4));
         let deliverNow = maxRem;
 
@@ -1042,7 +1101,10 @@ function executeSlSalesDelivery() {
         delete cleanRow._isSplitChild;
         delete cleanRow._parentIdx;
         delete cleanRow._tempExecQty;
+        cleanRow.qty = origQty;
+        cleanRow.quantity = origQty;
         cleanRow.deliveredQty = nextDelQty;
+        cleanRow.remainingQty = Math.max(0, +(origQty - nextDelQty).toFixed(4));
         cleanRow.warehouseId = rowWhObj.id;
         cleanRow.warehouseName = rowWhObj.name;
         updatedInvItems.push(cleanRow);
@@ -1062,61 +1124,62 @@ function executeSlSalesDelivery() {
             });
         }
     });
-    inv.items = updatedInvItems;
-    inv.deliveredByLevel = slDeductionLevel;
 
     if (!deliveredItemsPayload.length) {
         showSlToast('⚠️ يرجى تحديد كمية أكبر من صفر للصرف والتسليم', 'warning');
         return false;
     }
 
+    inv.items = updatedInvItems;
+    if (Array.isArray(inv.rows)) inv.rows = updatedInvItems;
+    inv.deliveredByLevel = slDeductionLevel;
+
     // Deduct stock from erp_inventory_v1 and erp_items_v1 (- Stock Out)
-    if (!wasAlreadyDone) {
-        let inventory = JSON.parse(localStorage.getItem('erp_inventory_v1') || '[]');
-        let erpItems = JSON.parse(localStorage.getItem('erp_items_v1') || '[]');
+    let inventory = JSON.parse(localStorage.getItem('erp_inventory_v1') || '[]');
+    let erpItems = JSON.parse(localStorage.getItem('erp_items_v1') || '[]');
 
-        deliveredItemsPayload.forEach(dItem => {
-            const deductQty = parseFloat(dItem.qty || 0);
-            const itemNameClean = String(dItem.name || '').trim();
-            const whId = dItem.warehouseId;
+    deliveredItemsPayload.forEach(dItem => {
+        const deductQty = parseFloat(dItem.qty || 0);
+        const itemNameClean = String(dItem.name || '').trim();
+        const whId = dItem.warehouseId;
 
-            let invEntry = inventory.find(x =>
-                (String(x.id || x.itemId) === String(dItem.itemId || dItem.id) || String(x.name || '').trim() === itemNameClean) &&
-                (String(x.warehouseId || x.warehouse) === String(whId) || String(x.warehouse) === String(dItem.warehouseName))
-            );
-            if (invEntry) {
-                invEntry.qty = (parseFloat(invEntry.qty || 0) - deductQty);
-            } else {
-                inventory.push({
-                    id: dItem.itemId || dItem.id || Date.now(),
-                    itemId: dItem.itemId || dItem.id,
-                    name: itemNameClean,
-                    warehouseId: whId,
-                    warehouse: dItem.warehouseName,
-                    qty: -deductQty,
-                    unit: dItem.unit || 'قطعة'
-                });
+        let invEntry = inventory.find(x =>
+            x &&
+            (String(x.id || x.itemId) === String(dItem.itemId || dItem.id) || String(x.name || '').trim() === itemNameClean) &&
+            (String(x.warehouseId || x.warehouse) === String(whId) || String(x.warehouse) === String(dItem.warehouseName))
+        );
+        if (invEntry) {
+            invEntry.qty = +(parseFloat(invEntry.qty || 0) - deductQty).toFixed(4);
+        } else {
+            inventory.push({
+                id: dItem.itemId || dItem.id || Date.now(),
+                itemId: dItem.itemId || dItem.id,
+                name: itemNameClean,
+                warehouseId: whId,
+                warehouse: dItem.warehouseName,
+                qty: -deductQty,
+                unit: dItem.unit || 'قطعة'
+            });
+        }
+
+        const masterIdx = erpItems.findIndex(x =>
+            x && (String(x.id) === String(dItem.itemId || dItem.id) || String(x.name || '').trim() === itemNameClean)
+        );
+        if (masterIdx !== -1) {
+            const mItem = erpItems[masterIdx];
+            if (!mItem.stock || typeof mItem.stock !== 'object') mItem.stock = {};
+            if (!mItem.actualStock || typeof mItem.actualStock !== 'object') mItem.actualStock = {};
+            mItem.stock[whId] = +((parseFloat(mItem.stock[whId]) || 0) - deductQty).toFixed(4);
+            mItem.actualStock[whId] = +((parseFloat(mItem.actualStock[whId]) || 0) - deductQty).toFixed(4);
+            if (mItem.quantity !== undefined) {
+                mItem.quantity = +((parseFloat(mItem.quantity) || 0) - deductQty).toFixed(4);
             }
+            erpItems[masterIdx] = mItem;
+        }
+    });
 
-            const masterIdx = erpItems.findIndex(x =>
-                String(x.id) === String(dItem.itemId || dItem.id) || String(x.name || '').trim() === itemNameClean
-            );
-            if (masterIdx !== -1) {
-                const mItem = erpItems[masterIdx];
-                if (!mItem.stock || typeof mItem.stock !== 'object') mItem.stock = {};
-                if (!mItem.actualStock || typeof mItem.actualStock !== 'object') mItem.actualStock = {};
-                mItem.stock[whId] = (parseFloat(mItem.stock[whId]) || 0) - deductQty;
-                mItem.actualStock[whId] = (parseFloat(mItem.actualStock[whId]) || 0) - deductQty;
-                if (mItem.quantity !== undefined) {
-                    mItem.quantity = (parseFloat(mItem.quantity) || 0) - deductQty;
-                }
-                erpItems[masterIdx] = mItem;
-            }
-        });
-
-        localStorage.setItem('erp_inventory_v1', JSON.stringify(inventory));
-        localStorage.setItem('erp_items_v1', JSON.stringify(erpItems));
-    }
+    localStorage.setItem('erp_inventory_v1', JSON.stringify(inventory));
+    localStorage.setItem('erp_items_v1', JSON.stringify(erpItems));
 
     const nowIso = new Date().toISOString();
     const gdnNo = inv.deliveryNo || ('GDN-' + Date.now().toString().slice(-6));
@@ -1170,6 +1233,7 @@ function executeSlSalesDelivery() {
     let deliveryNotes = JSON.parse(localStorage.getItem('erp_delivery_notes_v1') || '[]');
     deliveryNotes.unshift(gdnRecord);
     localStorage.setItem('erp_delivery_notes_v1', JSON.stringify(deliveryNotes));
+    invalidateSlStoreCache();
 
     try {
         fetch('api/mirror_sync.php?action=save_delivery_note', {
@@ -1378,7 +1442,10 @@ function quickExecuteFullSlDoc(invNo) {
 
 // ── UNDO / REVERSE TRANSACTION ───────────────────────────────────────────────
 function undoSlTransaction() {
-    if (!slCurrentDoc) return;
+    if (!slCurrentDoc) {
+        showSlToast('⚠️ اختر مستنداً من السجل العلوي أولاً لإلغاء حركته', 'warning');
+        return;
+    }
     const invNo = String(slCurrentDoc.invoiceNo);
     const isSales = (slCurrentMode === 'sales');
 
@@ -1386,38 +1453,68 @@ function undoSlTransaction() {
         return;
     }
 
+    invalidateSlStoreCache();
     if (isSales) {
         const allSales = JSON.parse(localStorage.getItem('erp_sales_invoices_v1') || '[]');
         const idx = allSales.findIndex(i => String(i.invoiceNo || i.id) === invNo);
         if (idx === -1) return;
         const inv = allSales[idx];
-        const whId = inv.deliveredWarehouse || inv.warehouseId || inv.warehouse || getSlWarehouses()[0].id;
+        const fallbackWhId = inv.deliveredWarehouse || inv.warehouseId || inv.warehouse || getSlWarehouses()[0].id;
         let inventory = JSON.parse(localStorage.getItem('erp_inventory_v1') || '[]');
+        let erpItems = JSON.parse(localStorage.getItem('erp_items_v1') || '[]');
 
-        (inv.items || []).forEach(it => {
-            const retQty = parseFloat(it.deliveredQty || it.qty || 0) || 0;
+        (inv.items || inv.rows || []).forEach(it => {
+            const retQty = parseFloat(it.deliveredQty || 0) || 0;
             it.deliveredQty = 0;
+            it.remainingQty = parseFloat(it.qty ?? it.quantity ?? 0) || 0;
+            if (retQty <= 0) return;
+
+            const rowWhId = it.warehouseId || fallbackWhId;
             const meta = resolveSlItemMeta(it);
+            const itemNameClean = String(meta.name || '').trim();
+
             const entry = inventory.find(x =>
-                (String(x.id || x.itemId) === String(meta.itemId) || String(x.name || '').trim() === meta.name.trim()) &&
-                String(x.warehouseId || x.warehouse) === String(whId)
+                x &&
+                (String(x.id || x.itemId) === String(meta.itemId) || String(x.name || '').trim() === itemNameClean) &&
+                (String(x.warehouseId || x.warehouse) === String(rowWhId) || String(x.warehouse) === String(it.warehouseName || ''))
             );
-            if (entry) entry.qty = (parseFloat(entry.qty || 0) + retQty);
+            if (entry) {
+                entry.qty = +((parseFloat(entry.qty || 0) || 0) + retQty).toFixed(4);
+            }
+
+            const masterIdx = erpItems.findIndex(x =>
+                x && (String(x.id) === String(meta.itemId) || String(x.name || '').trim() === itemNameClean)
+            );
+            if (masterIdx !== -1) {
+                const mItem = erpItems[masterIdx];
+                if (!mItem.stock || typeof mItem.stock !== 'object') mItem.stock = {};
+                if (!mItem.actualStock || typeof mItem.actualStock !== 'object') mItem.actualStock = {};
+                mItem.stock[rowWhId] = +((parseFloat(mItem.stock[rowWhId]) || 0) + retQty).toFixed(4);
+                mItem.actualStock[rowWhId] = +((parseFloat(mItem.actualStock[rowWhId]) || 0) + retQty).toFixed(4);
+                if (mItem.quantity !== undefined) {
+                    mItem.quantity = +((parseFloat(mItem.quantity) || 0) + retQty).toFixed(4);
+                }
+                erpItems[masterIdx] = mItem;
+            }
         });
 
         inv.isDelivered = false;
         inv.deliveryStatus = 'pending';
         inv.status = 'pending_delivery';
+        if (Array.isArray(inv.rows)) inv.rows = inv.items;
         allSales[idx] = inv;
         localStorage.setItem('erp_sales_invoices_v1', JSON.stringify(allSales));
+        localStorage.setItem('erp_inv_' + invNo, JSON.stringify(inv));
         localStorage.setItem('erp_inventory_v1', JSON.stringify(inventory));
+        localStorage.setItem('erp_items_v1', JSON.stringify(erpItems));
 
         let delNotes = JSON.parse(localStorage.getItem('erp_delivery_notes_v1') || '[]');
         delNotes = delNotes.filter(n => String(n.invoiceNo || n.relatedInvoice) !== invNo);
         localStorage.setItem('erp_delivery_notes_v1', JSON.stringify(delNotes));
+        invalidateSlStoreCache();
 
         loadSlDocument(invNo);
-        showSlToast(`↩️ تم إلغاء صرف الفاتورة #${invNo} وإعادة الكميات للمخزن`, 'warning');
+        showSlToast(`↩️ تم إلغاء صرف الفاتورة #${invNo} وإعادة الكميات للمخازن بدقة`, 'warning');
     } else {
         let allPurchases = JSON.parse(localStorage.getItem('erp_purchase_invoices_v1') || '[]');
         const grnsToUndo = allPurchases.filter(p => p && !p.deleted && p.isGRN && String(p.originalInvoiceId) === invNo);
@@ -1427,6 +1524,7 @@ function undoSlTransaction() {
             (grn.items || []).forEach(gItem => {
                 const revQty = parseFloat(gItem.customBaseQty || gItem.quantity || 0) || 0;
                 const entry = inventory.find(x =>
+                    x &&
                     String(x.itemId || x.id) === String(gItem.itemId) &&
                     (String(x.warehouse) === String(gItem.warehouseName) || String(x.warehouseId) === String(gItem.warehouseId))
                 );
@@ -1442,10 +1540,11 @@ function undoSlTransaction() {
         }
 
         localStorage.setItem('erp_purchase_invoices_v1', JSON.stringify(allPurchases));
-    if (typeof window.logSystemAction === 'function') {
-        window.logSystemAction('تحديث استلام مشتريات (GRN)', 'المشتريات / المخازن', String(invNo || ''), `تحديث حالة استلام فاتورة المشتريات #${invNo}`);
-    }
+        if (typeof window.logSystemAction === 'function') {
+            window.logSystemAction('تحديث استلام مشتريات (GRN)', 'المشتريات / المخازن', String(invNo || ''), `تحديث حالة استلام فاتورة المشتريات #${invNo}`);
+        }
         localStorage.setItem('erp_inventory_v1', JSON.stringify(inventory));
+        invalidateSlStoreCache();
 
         loadSlDocument(invNo);
         showSlToast(`↩️ تم إلغاء استلام فاتورة المشتريات #${invNo} وعكس الرصيد المخزني`, 'warning');
@@ -1573,29 +1672,48 @@ function processSlContinuousQr(rawText) {
     }
 }
 
+let slBridgePollInFlight = false;
+
 function startSlLocalCamera() {
     const ph = document.getElementById('sl-camera-placeholder');
     const wrap = document.getElementById('sl-qr-reader-wrap');
     if (ph) ph.style.display = 'none';
     if (wrap) wrap.style.display = 'flex';
 
+    const bootQrScanner = () => {
+        if (typeof Html5Qrcode === 'undefined') {
+            showSlToast('⚠️ مكتبة الكاميرا غير متوفرة حالياً — استخدم ربط كاميرا الجوال', 'warning');
+            stopSlLocalCamera();
+            return;
+        }
+        if (slHtml5QrCode) {
+            try { slHtml5QrCode.stop().catch(() => {}); } catch (e) {}
+        }
+        slHtml5QrCode = new Html5Qrcode('sl-qr-reader');
+        slHtml5QrCode.start(
+            { facingMode: 'environment' },
+            { fps: 15, qrbox: { width: 230, height: 230 } },
+            (decodedText) => processSlContinuousQr(decodedText),
+            () => {}
+        ).catch(() => {
+            showSlToast('⚠️ تعذر فتح كاميرا الجهاز — استخدم زر ربط كاميرا الجوال', 'warning');
+            stopSlLocalCamera();
+        });
+    };
+
     if (typeof Html5Qrcode === 'undefined') {
-        showSlToast('⚠️ مكتبة الكاميرا قيد التحميل، استخدم ربط كاميرا الجوال', 'warning');
+        const script = document.createElement('script');
+        script.src = 'https://unpkg.com/html5-qrcode';
+        script.async = true;
+        script.onload = bootQrScanner;
+        script.onerror = () => {
+            showSlToast('⚠️ تعذر تحميل مكتبة الكاميرا — استخدم ربط كاميرا الجوال', 'warning');
+            stopSlLocalCamera();
+        };
+        document.head.appendChild(script);
         return;
     }
-    if (slHtml5QrCode) {
-        try { slHtml5QrCode.stop().catch(() => {}); } catch (e) {}
-    }
-    slHtml5QrCode = new Html5Qrcode('sl-qr-reader');
-    slHtml5QrCode.start(
-        { facingMode: 'environment' },
-        { fps: 15, qrbox: { width: 230, height: 230 } },
-        (decodedText) => processSlContinuousQr(decodedText),
-        () => {}
-    ).catch(() => {
-        showSlToast('⚠️ تعذر فتح كاميرا الجهاز — استخدم زر ربط كاميرا الجوال', 'warning');
-        stopSlLocalCamera();
-    });
+    bootQrScanner();
 }
 
 function stopSlLocalCamera() {
@@ -1635,7 +1753,7 @@ async function openSlMobileBridgeModal() {
     const openLink = document.getElementById('sl-bridge-open-link');
     if (openLink) openLink.href = mobileGunUrl;
 
-    startSlMobileBridgeListener();
+    startSlMobileBridgeListener(true);
 }
 
 function closeSlMobileBridgeModal() {
@@ -1643,7 +1761,7 @@ function closeSlMobileBridgeModal() {
     if (modal) modal.style.display = 'none';
 }
 
-function startSlMobileBridgeListener() {
+function startSlMobileBridgeListener(enableHttpPoll = false) {
     if (!slBroadcastChannel) {
         try {
             slBroadcastChannel = new BroadcastChannel('elsajana_qr_live_bridge');
@@ -1657,8 +1775,10 @@ function startSlMobileBridgeListener() {
         } catch (e) {}
     }
 
-    if (slBridgePollTimer) return;
+    if (!enableHttpPoll || slBridgePollTimer) return;
     slBridgePollTimer = setInterval(async () => {
+        if (slBridgePollInFlight || document.hidden || !navigator.onLine) return;
+        slBridgePollInFlight = true;
         try {
             const res = await fetch(`api/qr_live_bridge.php?action=poll&channel=${encodeURIComponent(SL_BRIDGE_CHANNEL)}`);
             const data = await res.json();
@@ -1690,8 +1810,11 @@ function startSlMobileBridgeListener() {
                     })
                 }).catch(() => {});
             }
-        } catch (e) {}
-    }, 600);
+        } catch (e) {
+        } finally {
+            slBridgePollInFlight = false;
+        }
+    }, 1400);
 }
 
 // ── PHOTO PROOF, TYPOGRAPHY & COLUMN CUSTOMIZATION ───────────────────────────
@@ -1919,29 +2042,38 @@ function splitSlItemRow(idx) {
 
     const parentRow = slCurrentDoc.items[idx];
     const meta = resolveSlItemMeta(parentRow);
-    const curExec = parentRow._tempExecQty !== undefined ? parentRow._tempExecQty : (parseFloat(parentRow.remainingQty ?? meta.qty) || meta.qty);
-    if (curExec <= 0) {
+    const prevDel = parseFloat(parentRow.deliveredQty || parentRow.receivedQty || 0) || 0;
+    const remQty = Math.max(0, +((parseFloat(parentRow.qty ?? meta.qty) || meta.qty) - prevDel).toFixed(4));
+    if (remQty <= 0) {
         showSlToast('⚠️ الكمية المتبقية في هذا السطر صفر — لا يمكن تقسيمها', 'warning');
         return;
     }
 
-    const half1 = +(curExec / 2).toFixed(2);
-    const half2 = +(curExec - half1).toFixed(2);
+    const typedQty = parentRow._tempExecQty !== undefined ? parentRow._tempExecQty : remQty;
+    const part1 = (typedQty > 0 && typedQty < remQty) ? +typedQty.toFixed(4) : +(remQty / 2).toFixed(2);
+    const part2 = +(remQty - part1).toFixed(4);
+
+    if (part2 <= 0) {
+        showSlToast('⚠️ الكمية صغيرة جداً للتقسيم بين سطرين', 'warning');
+        return;
+    }
 
     const curWhId = parentRow.warehouseId || document.getElementById('sl-master-warehouse')?.value || whs[0].id;
     const altWh = whs.find(w => String(w.id) !== String(curWhId)) || whs[0];
 
-    parentRow.qty = +(half1 + (parseFloat(parentRow.deliveredQty || parentRow.receivedQty || 0) || 0)).toFixed(4);
+    parentRow.qty = +(prevDel + part1).toFixed(4);
     parentRow.quantity = parentRow.qty;
-    parentRow.remainingQty = half1;
+    parentRow.remainingQty = part1;
+    parentRow._tempExecQty = part1;
 
     const childRow = {
         ...JSON.parse(JSON.stringify(parentRow)),
-        qty: half2,
-        quantity: half2,
+        qty: part2,
+        quantity: part2,
         deliveredQty: 0,
         receivedQty: 0,
-        remainingQty: half2,
+        remainingQty: part2,
+        _tempExecQty: part2,
         warehouseId: altWh.id,
         warehouseName: altWh.name,
         _isSplitChild: true,
@@ -1950,7 +2082,7 @@ function splitSlItemRow(idx) {
 
     slCurrentDoc.items.splice(idx + 1, 0, childRow);
     renderSlItemsGrid();
-    showSlToast(`✂️ تم تقسيم الصنف (${meta.name}) إلى دفعتين/مخزنين (${half1} + ${half2} ${meta.unit})`, 'success');
+    showSlToast(`✂️ تم تقسيم الصنف (${meta.name}) بدقة محاسبية إلى دفعتين/مخزنين (${part1} + ${part2} = ${remQty} ${meta.unit})`, 'success');
 }
 
 function mergeSlSplitRow(idx) {
@@ -1962,6 +2094,7 @@ function mergeSlSplitRow(idx) {
         parent.qty = +((parseFloat(parent.qty || 0) || 0) + childRem).toFixed(4);
         parent.quantity = parent.qty;
         parent.remainingQty = +((parseFloat(parent.remainingQty || 0) || 0) + childRem).toFixed(4);
+        delete parent._tempExecQty;
     }
     slCurrentDoc.items.splice(idx, 1);
     renderSlItemsGrid();
@@ -1970,6 +2103,7 @@ function mergeSlSplitRow(idx) {
 
 function executeSlAdminClosureL4() {
     if (!slCurrentDoc) return;
+    invalidateSlStoreCache();
     const invNo = String(slCurrentDoc.invoiceNo);
     if (slCurrentMode === 'sales') {
         const allSales = JSON.parse(localStorage.getItem('erp_sales_invoices_v1') || '[]');
@@ -1981,6 +2115,7 @@ function executeSlAdminClosureL4() {
         allSales[idx].adminClosedAt = new Date().toISOString();
         localStorage.setItem('erp_sales_invoices_v1', JSON.stringify(allSales));
         localStorage.setItem('erp_inv_' + invNo, JSON.stringify(allSales[idx]));
+        invalidateSlStoreCache();
         if (typeof window.logSystemAction === 'function') {
             window.logSystemAction('اعتماد إداري نهائي L4 (مبيعات)', 'المبيعات / المخازن', invNo, `إغلاق إداري نهائي لإذن صرف الفاتورة #${invNo}`);
         }
@@ -1994,6 +2129,7 @@ function executeSlAdminClosureL4() {
         allPurchases[idx].status = 'Admin_Closed';
         allPurchases[idx].adminClosedAt = new Date().toISOString();
         localStorage.setItem('erp_purchase_invoices_v1', JSON.stringify(allPurchases));
+        invalidateSlStoreCache();
         if (typeof window.logSystemAction === 'function') {
             window.logSystemAction('اعتماد إداري نهائي L4 (مشتريات)', 'المشتريات / المخازن', invNo, `إغلاق إداري نهائي لإذن استلام فاتورة المشتريات #${invNo}`);
         }
@@ -2003,20 +2139,44 @@ function executeSlAdminClosureL4() {
 }
 
 function openSlInvoiceSplitBoard() {
-    if (slCurrentMode === 'sales') {
-        const invParam = slCurrentDoc ? `&inv=${encodeURIComponent(slCurrentDoc.invoiceNo)}` : '';
-        window.location.href = `direct-sales.php?action=split${invParam}`;
-    } else {
-        fillAllSlQuantities(0.5);
+    if (!slCurrentDoc) {
+        const list = (slCurrentMode === 'sales') ? getProcessedSalesInvoices() : getProcessedPurchaseInvoices();
+        const firstPending = list.find(i => i._slStatus === 'pending' || i._slStatus === 'partial') || list[0];
+        if (firstPending) {
+            loadSlDocument(firstPending.invoiceNo);
+        } else {
+            showSlToast('⚠️ اختر فاتورة من السجل العلوي أولاً لتقسيمها إلى دفعتين (أ / ب)', 'warning');
+            return;
+        }
     }
+    fillAllSlQuantities(0.5);
+    showSlToast(`✂️ تم تقسيم الفاتورة #${slCurrentDoc.invoiceNo} إلى دفعتين (أ: 50% جاهزة للصرف الآن ⇄ ب: 50% متبقية) — يمكنك أيضاً تقسيم أي سطر لمخزنين!`, 'success', 3400);
 }
+
 // ── CLOUD SYNC & INITIALIZATION ──────────────────────────────────────────────
 async function refreshAllSlData() {
+    invalidateSlStoreCache();
     try {
         const [salesRes, purRes] = await Promise.allSettled([
             fetch('api/mirror_sync.php?action=get_recent_sales&_t=' + Date.now()),
             fetch('api/mirror_sync.php?action=get_recent_purchases&_t=' + Date.now())
         ]);
+        if (salesRes.status === 'fulfilled' && salesRes.value.ok) {
+            const sData = await salesRes.value.json();
+            if (sData && sData.success && Array.isArray(sData.sales)) {
+                let allSales = JSON.parse(localStorage.getItem('erp_sales_invoices_v1') || '[]');
+                let sChanged = false;
+                sData.sales.forEach(remoteInv => {
+                    const rNo = remoteInv.invoiceNo || remoteInv.id;
+                    if (!rNo) return;
+                    if (!allSales.some(s => String(s.invoiceNo || s.id) === String(rNo))) {
+                        allSales.unshift(remoteInv);
+                        sChanged = true;
+                    }
+                });
+                if (sChanged) localStorage.setItem('erp_sales_invoices_v1', JSON.stringify(allSales));
+            }
+        }
         if (purRes.status === 'fulfilled' && purRes.value.ok) {
             const pData = await purRes.value.json();
             if (pData && pData.success && Array.isArray(pData.purchases)) {
@@ -2034,6 +2194,7 @@ async function refreshAllSlData() {
             }
         }
     } catch (e) {}
+    invalidateSlStoreCache();
     populateSlWarehouseSelects();
     renderSlRegistry();
     showSlToast('🔄 تم تحديث البيانات ومزامنة السجل بنجاح', 'success', 1800);
@@ -2054,10 +2215,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     switchLogisticsMode(slCurrentMode, true);
     setSlDeductionLevel(slDeductionLevel, true);
-    startSlMobileBridgeListener();
+    startSlMobileBridgeListener(false);
 
     const qrParam = params.get('qr_deliver') || params.get('inv');
     if (qrParam) {
-        setTimeout(() => processSlContinuousQr(qrParam), 300);
+        setTimeout(() => processSlContinuousQr(qrParam), 150);
     }
 });

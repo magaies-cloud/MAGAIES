@@ -1330,7 +1330,7 @@
     }
 
     let isPrewarmingNow = false;
-    // Pre-warm all guide steps sequentially in the background so 100% genuine male voice is cached without socket collisions!
+    // Pre-warm at most the first 2 guide steps on demand when the Smart Guide is opened so Apache/PHP workers are never saturated!
     async function prewarmGuideAudio(guideKey = 'smart-logistics', dialect = selectedMaleProfile) {
         if (isPrewarmingNow) return;
         const data = window.MagaiesSmartGuides && window.MagaiesSmartGuides[guideKey];
@@ -1338,7 +1338,8 @@
         isPrewarmingNow = true;
         try {
             const allSteps = [...data.autopilotSteps, ...(typeof SALES_ONLY_STEPS !== 'undefined' && guideKey === 'smart-logistics' ? SALES_ONLY_STEPS : [])];
-            for (let idx = 0; idx < allSteps.length; idx++) {
+            const maxWarm = Math.min(allSteps.length, 2);
+            for (let idx = 0; idx < maxWarm; idx++) {
                 const st = allSteps[idx];
                 const txt = resolveStepSpeech(st, dialect, idx === 0);
                 const cacheKey = `${dialect}|${txt.trim()}`;
@@ -2980,9 +2981,26 @@
         return null;
     };
 
+    const _lastSmartGuideDomSyncByKey = {};
+    function resolveActiveGuideKeyFast() {
+        if ((window.location.pathname.includes('master-data') || document.querySelector('.md-tabs-sidebar')) && window.MagaiesSmartGuides['master-data']) return 'master-data';
+        if ((window.location.pathname.includes('purchase-receipt.php') || document.getElementById('recent-grns-container')) && window.MagaiesSmartGuides['purchase-receipt']) return 'purchase-receipt';
+        if ((window.location.pathname.includes('purchase.php') || document.getElementById('purchase-editor-view') || document.getElementById('purchase-hub-view')) && window.MagaiesSmartGuides['purchase-direct']) return 'purchase-direct';
+        const splitViewEl = document.getElementById('split-invoice-view');
+        if ((window.location.search.includes('action=split') || (splitViewEl && splitViewEl.style.display !== 'none')) && window.MagaiesSmartGuides['sales-split']) return 'sales-split';
+        if ((window.location.pathname.includes('direct-sales.php') || document.getElementById('invoice-editor-view') || document.getElementById('sales-hub-view')) && window.MagaiesSmartGuides['sales-direct']) return 'sales-direct';
+        if (window.location.pathname.includes('smart-logistics') || window.location.pathname.includes('sales-delivery') || document.getElementById('sl-top-cockpit-bar')) return 'smart-logistics';
+        if (document.getElementById('from-account-search') || window.location.pathname.includes('single-cash-payment')) return 'single-cash-payment';
+        if (window.location.pathname.includes('multi-cash-payment') && window.MagaiesSmartGuides['multi-cash-payment']) return 'multi-cash-payment';
+        return currentGuideKey || 'smart-logistics';
+    }
+
     window.syncDynamicDomElementsIntoSmartGuide = function (guideKey) {
-        const isSlScreen = window.location.pathname.includes('smart-logistics') || !!document.getElementById('sl-top-cockpit-bar');
+        const isSlScreen = window.location.pathname.includes('smart-logistics') || window.location.pathname.includes('sales-delivery') || !!document.getElementById('sl-top-cockpit-bar');
         const key = guideKey || (isSlScreen ? 'smart-logistics' : (currentGuideKey || 'master-data'));
+        const nowTs = Date.now();
+        if (_lastSmartGuideDomSyncByKey[key] && (nowTs - _lastSmartGuideDomSyncByKey[key]) < 15000) return;
+        _lastSmartGuideDomSyncByKey[key] = nowTs;
         const data = window.MagaiesSmartGuides && window.MagaiesSmartGuides[key];
         if (!data) return;
         data.buttonsDict = Array.isArray(data.buttonsDict) ? data.buttonsDict : [];
@@ -5753,7 +5771,9 @@
         }
 
         if (isAutopilotRunning || isPickElementModeActive) return;
-        const activeHoverKey = buildUniversalScreenGuideIfNeeded() || 'smart-logistics';
+        const btnCandidate = e.target && e.target.closest ? e.target.closest('button, a.btn, .sl-btn, .msg-quartet-btn') : null;
+        if (!btnCandidate) return;
+        const activeHoverKey = resolveActiveGuideKeyFast() || 'smart-logistics';
         const data = window.MagaiesSmartGuides && (window.MagaiesSmartGuides[activeHoverKey] || window.MagaiesSmartGuides['smart-logistics']);
         if (!data || !Array.isArray(data.buttonsDict)) return;
 
@@ -5815,13 +5835,9 @@
         prewarmGuideAudio(key, selectedMaleProfile);
     };
 
-    // Inject the fixed square launcher immediately on DOM ready and pre-warm audio for the current screen!
+    // Inject the fixed square launcher immediately on DOM ready without background TTS storms or subtree MutationObserver loops
     function prewarmActiveScreenOnReady() {
         ensureFixedSquareLauncher();
-        setTimeout(() => {
-            const activeKey = buildUniversalScreenGuideIfNeeded() || 'smart-logistics';
-            prewarmGuideAudio(activeKey, selectedMaleProfile);
-        }, 450);
     }
 
     if (document.readyState === 'loading') {
@@ -5832,34 +5848,7 @@
 
     window.addEventListener('load', () => {
         ensureFixedSquareLauncher();
-        setTimeout(() => {
-            const activeKey = buildUniversalScreenGuideIfNeeded() || 'smart-logistics';
-            prewarmGuideAudio(activeKey, selectedMaleProfile);
-        }, 600);
     });
-
-    // 🔄 Universal Live DOM Watcher: auto-updates the Smart Guide on ANY screen when new buttons/fields are added
-    if (typeof MutationObserver !== 'undefined') {
-        let guideSyncTimer = null;
-        const guideDomObserver = new MutationObserver((mutations) => {
-            let added = false;
-            for (const m of mutations) {
-                if (m.addedNodes && m.addedNodes.length > 0) { added = true; break; }
-            }
-            if (!added) return;
-            if (guideSyncTimer) clearTimeout(guideSyncTimer);
-            guideSyncTimer = setTimeout(() => {
-                if (typeof window.syncDynamicDomElementsIntoSmartGuide === 'function') {
-                    window.syncDynamicDomElementsIntoSmartGuide();
-                }
-            }, 250);
-        });
-        const attachGuideObserver = () => {
-            if (document.body) guideDomObserver.observe(document.body, { childList: true, subtree: true });
-        };
-        if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', attachGuideObserver);
-        else attachGuideObserver();
-    }
 
     // ══════════════════════════════════════════════════════════════════════════
     // 📐 الدستور الخامس عشر والأخير (15/15 — محرك التوريث العابر لجميع الشاشات والشاشات الوليدة):
