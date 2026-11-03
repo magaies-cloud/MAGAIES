@@ -2347,7 +2347,7 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
             document.body.removeChild(link);
         }
 
-        let currentTenantsPage = 1;
+        // currentTenantsPage is declared above (line 2165)
         const tenantsPerPage = 50;
 
         function filterTenants() { 
@@ -2641,7 +2641,7 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
         
         function renderGlobalPaymentsPagination() {
             const totalPages = Math.ceil(totalGPaymentsCount / gPaymentsPageSize) || 1;
-            document.getElementById('gpayments-page-indicator').innerText = \`الصفحة \${currentGPaymentsPage} من \${totalPages}\`;
+            document.getElementById('gpayments-page-indicator').innerText = `الصفحة ${currentGPaymentsPage} من ${totalPages}`;
             document.getElementById('btn-gpayments-prev').disabled = currentGPaymentsPage === 1;
             document.getElementById('btn-gpayments-next').disabled = currentGPaymentsPage === totalPages;
         }

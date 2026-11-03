@@ -17382,11 +17382,11 @@ html.grn-ophthalmic-comfort-active body {
                         <span class="font-black text-teal-300">🔗 الروابط الذرية والتسميع المحاسبي الفوري:</span>
                         <div class="flex flex-wrap items-center gap-1.5">
                             <a href="purchase.php" class="px-2.5 py-1 rounded-lg bg-slate-950 hover:bg-emerald-950 text-emerald-300 border border-emerald-500/40 font-bold">🛒 فاتورة المشتريات</a>
-                            <a href="purchase-orders.php" class="px-2.5 py-1 rounded-lg bg-slate-950 hover:bg-sky-950 text-sky-300 border border-sky-500/40 font-bold">📋 أوامر الشراء (PO)</a>
+                            <a href="purchase.php" class="px-2.5 py-1 rounded-lg bg-slate-950 hover:bg-sky-950 text-sky-300 border border-sky-500/40 font-bold">📋 أوامر الشراء (PO)</a>
                             <a href="purchase-return.php" class="px-2.5 py-1 rounded-lg bg-slate-950 hover:bg-rose-950 text-rose-300 border border-rose-500/40 font-bold">↩️ مرتجع المشتريات</a>
                             <a href="inventory.php" class="px-2.5 py-1 rounded-lg bg-slate-950 hover:bg-amber-950 text-amber-300 border border-amber-500/40 font-bold">📦 أرصدة المخازن</a>
                             <a href="account-statement.php" class="px-2.5 py-1 rounded-lg bg-slate-950 hover:bg-indigo-950 text-indigo-300 border border-indigo-500/40 font-bold">📑 كشف حساب المورد</a>
-                            <a href="sales.php" class="px-2.5 py-1 rounded-lg bg-slate-950 hover:bg-teal-950 text-teal-300 border border-teal-500/40 font-bold">💰 شاشة المبيعات</a>
+                            <a href="direct-sales.php" class="px-2.5 py-1 rounded-lg bg-slate-950 hover:bg-teal-950 text-teal-300 border border-teal-500/40 font-bold">💰 شاشة المبيعات</a>
                         </div>
                     </div>
                 `;

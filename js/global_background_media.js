@@ -27,6 +27,8 @@
     'use strict';
 
     const STORAGE_KEY = 'elsajana_global_media_state';
+    const _curPage = ((window.location.pathname || '').toLowerCase().split('/').pop() || 'index.php');
+    if (['', 'index.php', 'index.html', 'login.php', 'login.html', 'register.php', 'saas-admin.php', 'saas-admin.html'].includes(_curPage)) return;
     const BROADCAST_CHANNEL_NAME = 'elsajana_media_broadcast';
     const isTopWindow = (window.self === window.top);
 

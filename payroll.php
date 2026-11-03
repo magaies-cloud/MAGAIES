@@ -333,7 +333,7 @@
             const now = new Date();
             const yr  = now.getFullYear();
             const mo  = String(now.getMonth() + 1).padStart(2, '0');
-            document.getElementById('payroll-month').value = \`\${yr}-\${mo}\`;
+            document.getElementById('payroll-month').value = `${yr}-${mo}`;
             loadPayroll();
         });
 
@@ -350,12 +350,12 @@
         function renderEmployees() {
             const container = document.getElementById('employees-container');
             if (employees.length === 0) {
-                container.innerHTML = \`
+                container.innerHTML = `
                     <div style="text-align:center; padding:40px; color:var(--text-secondary);">
                         <div style="font-size:3rem; margin-bottom:16px;">👥</div>
                         <p>لا توجد بيانات موظفين مسجلة.</p>
                         <p style="font-size:0.85rem;">اضغط "إضافة موظف جديد" للبدء.</p>
-                    </div>\`;
+                    </div>`;
                 return;
             }
 
@@ -364,43 +364,43 @@
                 const isPaid = !!rec;
                 const net    = isPaid ? rec.net : emp.salary || 0;
 
-                return \`
+                return `
                 <div class="employee-card glass-panel">
                     <div class="emp-header">
                         <div>
-                            <div class="emp-name">\${emp.name}</div>
-                            <div class="emp-role">\${emp.role || 'موظف'}</div>
+                            <div class="emp-name">${emp.name}</div>
+                            <div class="emp-role">${emp.role || 'موظف'}</div>
                         </div>
-                        <span class="emp-status \${isPaid ? 'paid' : 'unpaid'}">
-                            \${isPaid ? '✓ مدفوع' : '✗ غير مدفوع'}
+                        <span class="emp-status ${isPaid ? 'paid' : 'unpaid'}">
+                            ${isPaid ? '✓ مدفوع' : '✗ غير مدفوع'}
                         </span>
                     </div>
                     <div class="emp-grid">
                         <div class="emp-field">
                             <span class="emp-field-label">الراتب الأساسي</span>
-                            <span class="emp-field-value">\${(emp.salary || 0).toLocaleString()} SDG</span>
+                            <span class="emp-field-value">${(emp.salary || 0).toLocaleString()} SDG</span>
                         </div>
                         <div class="emp-field">
                             <span class="emp-field-label">الصافي المستحق</span>
-                            <span class="emp-field-value \${isPaid ? 'green' : ''}">\${isPaid ? net.toLocaleString() + ' SDG' : '-'}</span>
+                            <span class="emp-field-value ${isPaid ? 'green' : ''}">${isPaid ? net.toLocaleString() + ' SDG' : '-'}</span>
                         </div>
                         <div class="emp-field">
                             <span class="emp-field-label">حالة الدفع</span>
-                            <span class="emp-field-value">\${isPaid ? new Date(rec.paidAt).toLocaleDateString('ar-SD') : '-'}</span>
+                            <span class="emp-field-value">${isPaid ? new Date(rec.paidAt).toLocaleDateString('ar-SD') : '-'}</span>
                         </div>
                     </div>
                     <div style="display:flex; gap:8px;">
-                        <button class="btn-pay \${isPaid ? 'paid-btn' : ''}"
-                            onclick="openPayModal('\${emp.id}', '\${emp.name}', \${emp.salary || 0})"
-                            \${isPaid ? 'disabled' : ''}>
-                            \${isPaid ? 'تم الدفع' : 'تسجيل دفع الراتب'}
+                        <button class="btn-pay ${isPaid ? 'paid-btn' : ''}"
+                            onclick="openPayModal('${emp.id}', '${emp.name}', ${emp.salary || 0})"
+                            ${isPaid ? 'disabled' : ''}>
+                            ${isPaid ? 'تم الدفع' : 'تسجيل دفع الراتب'}
                         </button>
-                        <button onclick="deleteEmployee('\${emp.id}')"
+                        <button onclick="deleteEmployee('${emp.id}')"
                             style="padding:10px; border-radius:8px; background:rgba(239,68,68,0.1); color:#f87171; border:1px solid rgba(239,68,68,0.3); cursor:pointer;" title="حذف">
                             🗑️
                         </button>
                     </div>
-                </div>\`;
+                </div>`;
             }).join('');
         }
 
@@ -432,7 +432,7 @@
             const banks = JSON.parse(localStorage.getItem('erp_banks_v1') || '[]');
             const sel = document.getElementById('pay-account');
             sel.innerHTML = banks.filter(b => b.type === 'safe')
-                .map(b => \`<option value="\${b.id}">\${b.name}</option>\`).join('');
+                .map(b => `<option value="${b.id}">${b.name}</option>`).join('');
             if (sel.options.length === 0) {
                 sel.innerHTML = '<option value="default">الخزينة الرئيسية</option>';
             }
@@ -490,14 +490,14 @@
             // Audit log
             const emp = employees.find(e => e.id === empId);
             if (window.logSystemAction) {
-                window.logSystemAction('Payroll', 'finance', \`صرف راتب \${emp?.name || empId} بقيمة \${net.toLocaleString()} SDG لشهر \${currentMonth}\`);
+                window.logSystemAction('Payroll', 'finance', `صرف راتب ${emp?.name || empId} بقيمة ${net.toLocaleString()} SDG لشهر ${currentMonth}`);
             }
 
             closePayModal();
             loadPayroll();
 
             if (window.showToast) {
-                window.showToast(\`✓ تم دفع راتب \${emp?.name || ''} بنجاح\`, 'success');
+                window.showToast(`✓ تم دفع راتب ${emp?.name || ''} بنجاح`, 'success');
             }
         }
 
@@ -535,7 +535,7 @@
             loadPayroll();
 
             if (window.logSystemAction) {
-                window.logSystemAction('Employee Add', 'finance', \`تم إضافة الموظف \${name}\`);
+                window.logSystemAction('Employee Add', 'finance', `تم إضافة الموظف ${name}`);
             }
         }
 
