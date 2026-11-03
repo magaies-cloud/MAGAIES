@@ -3272,7 +3272,7 @@ $currenciesData = [
         <span id="linkedInvoiceBannerText" class="truncate text-indigo-200">مرتبط بفاتورة #---</span>
       </div>
       <div class="flex items-center gap-1 shrink-0">
-        <a href="sales-pos.html" id="linkedInvoiceReturnLink" class="px-2 py-0.5 rounded-lg bg-indigo-600/80 hover:bg-indigo-500 text-white text-[10px] font-black border border-indigo-400/50 transition">
+        <a href="sales-pos.php" id="linkedInvoiceReturnLink" class="px-2 py-0.5 rounded-lg bg-indigo-600/80 hover:bg-indigo-500 text-white text-[10px] font-black border border-indigo-400/50 transition">
           العودة للفاتورة ↩
         </a>
         <button type="button" onclick="clearLinkedInvoiceRef()" class="w-5 h-5 rounded-md bg-slate-800 hover:bg-red-900/60 text-slate-300 hover:text-white flex items-center justify-center text-[10px]" title="إلغاء ربط الفاتورة">✕</button>

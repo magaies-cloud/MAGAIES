@@ -43,8 +43,8 @@ foreach ($subdomains as $sub) {
     $wwwDomain = "www." . $domain;
     
     if (!is_dir("/etc/letsencrypt/live/$domain")) {
-        echo "[" . date('Y-m-d H:i:s') . "] Generating SSL for $domain and $wwwDomain...\n";
-        $cmd = "certbot certonly --webroot -w /var/www/magaees -d " . escapeshellarg($domain) . " -d " . escapeshellarg($wwwDomain) . " --non-interactive --agree-tos --email C00105@gmail.com";
+        echo "[" . date('Y-m-d H:i:s') . "] Generating SSL for $domain...\n";
+        $cmd = "certbot certonly --webroot -w /var/www/magaees -d " . escapeshellarg($domain) . " --non-interactive --agree-tos --email C00105@gmail.com";
         system($cmd, $retval);
         
         if ($retval === 0) {

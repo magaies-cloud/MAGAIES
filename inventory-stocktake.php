@@ -16,7 +16,7 @@ $header_theme_class = "header-theme-inventory";
     <link rel="stylesheet" href="css/theme.css?v=20261029_fast">
     <link rel="stylesheet" href="css/components.css?v=20261029_fast">
     <link rel="stylesheet" href="css/report-ribbon.css?v=1787182249">
-    <link rel="stylesheet" href="css/inventory.css?v=20261029_fast">
+    <link rel="stylesheet" href="css/design-system.css?v=20261029_fast">
     
     <style>
         :root {

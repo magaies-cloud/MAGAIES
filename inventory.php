@@ -236,24 +236,39 @@
             const searchBox = document.getElementById('search-box');
             const container = document.getElementById('inventory-container');
 
-            // Fetch function (now calling the real Backend API)
+            // Fetch function (reads from ERP items storage + API fallback)
             const fetchInventory = async (query) => {
                 try {
                     container.innerHTML = '<div class="no-results">جاري التحميل...</div>';
-                    
-                    // In a real scenario, we'd encode the query
-                    const url = query 
-                        ? \`http://localhost:3000/api/v1/inventory/search/\${encodeURIComponent(query)}\`
-                        : \`http://localhost:3000/api/v1/inventory/search/all\`; // Assuming 'all' returns everything
-                    
-                    const response = await fetch(url, {
-                        headers: {
-                            'x-device-uuid': 'DEV-MODE-2026' // Bypass enabled in Dev Mode
-                        }
+                    const q = (query || '').trim().toLowerCase();
+                    let rawItems = [];
+                    try {
+                        rawItems = JSON.parse(localStorage.getItem('erp_items_v1') || '[]');
+                    } catch (e) { rawItems = []; }
+                    if ((!Array.isArray(rawItems) || rawItems.length === 0) && navigator.onLine) {
+                        try {
+                            const res = await fetch('api/items_search.php?q=' + encodeURIComponent(q));
+                            if (res.ok) {
+                                const json = await res.json();
+                                if (Array.isArray(json)) rawItems = json;
+                                else if (Array.isArray(json.items)) rawItems = json.items;
+                            }
+                        } catch (e) {}
+                    }
+                    const mapped = (Array.isArray(rawItems) ? rawItems : []).map((it, i) => {
+                        const physical = Number(it.physical ?? it.qty ?? it.quantity ?? it.stock ?? 0) || 0;
+                        const reserved = Number(it.reserved ?? 0) || 0;
+                        const available = Number(it.available ?? (physical - reserved)) || 0;
+                        return {
+                            name: it.name || it.itemName || ('صنف #' + (i + 1)),
+                            sku: it.sku || it.code || it.barcode || ('SKU-' + (it.id || (i + 1))),
+                            physical,
+                            reserved,
+                            available
+                        };
                     });
-
-                    if (!response.ok) throw new Error('Network response was not ok');
-                    return await response.json();
+                    if (!q) return mapped;
+                    return mapped.filter(it => it.name.toLowerCase().includes(q) || String(it.sku).toLowerCase().includes(q));
                 } catch (error) {
                     console.error('Fetch error:', error);
                     return [];
@@ -268,32 +283,32 @@
                 }
 
                 data.forEach(item => {
-                    const availablePercent = (item.available / item.physical) * 100;
+                    const availablePercent = item.physical > 0 ? Math.min(100, Math.max(0, (item.available / item.physical) * 100)) : 0;
                     const card = document.createElement('div');
                     card.className = 'inventory-card glass-panel';
-                    card.innerHTML = \`
+                    card.innerHTML = `
                         <div class="product-info">
-                            <div class="product-name">\${item.name}</div>
-                            <div class="product-sku">\${item.sku}</div>
+                            <div class="product-name">${item.name}</div>
+                            <div class="product-sku">${item.sku}</div>
                         </div>
                         <div class="balance-grid">
                             <div class="balance-item">
-                                <span class="balance-val val-physical">\${item.physical.toLocaleString()}</span>
+                                <span class="balance-val val-physical">${item.physical.toLocaleString()}</span>
                                 <span class="balance-label">الفعلي</span>
                             </div>
                             <div class="balance-item">
-                                <span class="balance-val val-reserved">\${item.reserved.toLocaleString()}</span>
+                                <span class="balance-val val-reserved">${item.reserved.toLocaleString()}</span>
                                 <span class="balance-label">المحجوز</span>
                             </div>
                             <div class="balance-item">
-                                <span class="balance-val val-available">\${item.available.toLocaleString()}</span>
+                                <span class="balance-val val-available">${item.available.toLocaleString()}</span>
                                 <span class="balance-label">المتوفر</span>
                             </div>
                         </div>
                         <div class="stock-progress-container">
-                            <div class="stock-progress-bar" style="width: \${availablePercent}%"></div>
+                            <div class="stock-progress-bar" style="width: ${availablePercent}%"></div>
                         </div>
-                    \`;
+                    `;
                     container.appendChild(card);
                 });
             };
