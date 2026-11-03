@@ -1,0 +1,1544 @@
+/* =========================================================================
+ * MAGAIEES MOBILE ERP - CONSTITUTIONS 1-10 & CONTINUUM STYLES (EXTRACTED)
+ * ========================================================================= */
+
+/* ═══════════════════════════════════════════════════════════════════════════
+       1. الفارق الجوهري العالمي بين (✨ الواجهة العصرية Bento) و(🏛️ الكلاسيكية الدفترية)
+       ═══════════════════════════════════════════════════════════════════════════ */
+    /* أ) الواجهة العصرية العالمية (Apple Wallet / Revolut Ultra / Stripe Bento 2-Col Luxury) */
+    body.mg-ui-modern #operationsGrid {
+      display: grid !important;
+      grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+      gap: 8px !important;
+      padding: 4px 2px !important;
+    }
+    body.mg-ui-modern #opCategoryTabs {
+      display: flex !important; /* إظهار شريط الفرز العالمي للأقسام والتبويبات دائماً بوضوح وسلاسة */
+    }
+    body.mg-ui-modern #operationsGrid .op-btn {
+      border-radius: 16px !important;
+      background: var(--m-bg-card, #0f172a) !important;
+      border: 1.5px solid var(--m-border, rgba(56, 189, 248, 0.28)) !important;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.16) !important;
+      padding: 8px 6px !important;
+      min-height: 74px !important;
+      position: relative !important;
+      display: flex !important;
+      flex-direction: column !important;
+      align-items: center !important;
+      justify-content: center !important;
+      gap: 4px !important;
+      text-align: center !important;
+      transform: translateZ(0);
+    }
+    body.mg-ui-modern #operationsGrid .op-btn > div:first-child {
+      width: 38px !important;
+      height: 38px !important;
+      border-radius: 12px !important;
+      margin-bottom: 0 !important;
+      flex-shrink: 0 !important;
+      border: 1.5px solid var(--m-border, rgba(255, 255, 255, 0.2)) !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+    }
+    body.mg-ui-modern #operationsGrid .op-btn > span {
+      font-size: 11.5px !important;
+      font-weight: 900 !important;
+      line-height: 1.25 !important;
+      width: 100% !important;
+      text-align: center !important;
+      color: var(--m-text-primary, #ffffff) !important;
+    }
+    body.mg-ui-modern #operationsGrid .op-btn .mg-op-subhint {
+      display: none !important;
+      font-size: 9.5px !important;
+      font-weight: 800 !important;
+      color: var(--m-text-muted, #94a3b8) !important;
+      margin-top: 2px !important;
+    }
+    body.mg-ui-modern #operationsGrid .op-btn .mg-classic-code-badge {
+      display: none !important;
+    }
+
+    /* ب) الواجهة الكلاسيكية المحاسبية المعتادة (Classic Dense Accounting Ledger 3-Col Sheet) */
+    body.mg-ui-classic #operationsGrid {
+      display: grid !important;
+      grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+      gap: 6px !important;
+      padding: 2px 0 !important;
+    }
+    body.mg-ui-classic #opCategoryTabs {
+      display: flex !important;
+    }
+    body.mg-ui-classic #operationsGrid .op-btn {
+      border-radius: 8px !important;
+      background: var(--m-bg-card, #0b1120) !important;
+      border: 1.5px solid var(--m-border, rgba(148, 163, 184, 0.35)) !important;
+      box-shadow: none !important;
+      padding: 8px 6px !important;
+      min-height: 68px !important;
+      position: relative !important;
+      display: flex !important;
+      flex-direction: column !important;
+      align-items: center !important;
+      justify-content: center !important;
+      text-align: center !important;
+    }
+    body.mg-ui-classic #operationsGrid .op-btn > div:first-child {
+      width: 28px !important;
+      height: 28px !important;
+      border-radius: 6px !important;
+      margin-bottom: 4px !important;
+    }
+    body.mg-ui-classic #operationsGrid .op-btn > span {
+      color: var(--m-text-primary, #ffffff) !important;
+      font-weight: 900 !important;
+    }
+    body.mg-ui-classic #operationsGrid .op-btn .mg-op-subhint {
+      display: none !important;
+    }
+    body.mg-ui-classic #operationsGrid .op-btn .mg-classic-code-badge {
+      display: inline-block !important;
+      position: absolute !important;
+      top: 3px !important;
+      left: 4px !important;
+      font-family: monospace !important;
+      font-size: 8.5px !important;
+      font-weight: 900 !important;
+      color: #d97706 !important;
+      background: rgba(245, 158, 11, 0.16) !important;
+      padding: 0 3px !important;
+      border-radius: 4px !important;
+    }
+
+    /* 🎨 تقيد صارم وكامل بجميع السمات السبع (الأبيض الناصع، البيج الكريمي، البلاتيني، البني الموكا، الكحلي، الأسود، الرمادي) مع وضوح أسماء الأيقونات 100% */
+    /* 1. سمة الأبيض الناصع (pure-platinum) */
+    html[data-theme="pure-platinum"] body.mg-ui-modern #operationsGrid .op-btn,
+    html[data-theme="pure-platinum"] body.mg-ui-classic #operationsGrid .op-btn,
+    body[data-theme="pure-platinum"] #operationsGrid .op-btn {
+      background: #FFFFFF !important;
+      border: 2px solid #334155 !important;
+      box-shadow: 0 3px 10px rgba(15, 23, 42, 0.08) !important;
+    }
+    html[data-theme="pure-platinum"] #operationsGrid .op-btn > div:first-child,
+    body[data-theme="pure-platinum"] #operationsGrid .op-btn > div:first-child {
+      background: #F1F5F9 !important;
+      border: 1.5px solid #64748B !important;
+    }
+    html[data-theme="pure-platinum"] #operationsGrid .op-btn > span,
+    body[data-theme="pure-platinum"] #operationsGrid .op-btn > span {
+      color: #000000 !important;
+      text-shadow: none !important;
+      font-weight: 900 !important;
+    }
+    html[data-theme="pure-platinum"] #operationsGrid .op-btn .mg-op-subhint,
+    body[data-theme="pure-platinum"] #operationsGrid .op-btn .mg-op-subhint {
+      color: #1E293B !important;
+      font-weight: 800 !important;
+    }
+    html[data-theme="pure-platinum"] #operationsGrid .op-btn i,
+    html[data-theme="pure-platinum"] #operationsGrid .op-btn svg,
+    body[data-theme="pure-platinum"] #operationsGrid .op-btn i,
+    body[data-theme="pure-platinum"] #operationsGrid .op-btn svg {
+      color: #0F172A !important;
+      stroke: #0F172A !important;
+      filter: none !important;
+    }
+
+    /* 2. سمة البيج الكريمي (warm-alabaster) */
+    html[data-theme="warm-alabaster"] body.mg-ui-modern #operationsGrid .op-btn,
+    html[data-theme="warm-alabaster"] body.mg-ui-classic #operationsGrid .op-btn,
+    body[data-theme="warm-alabaster"] #operationsGrid .op-btn {
+      background: linear-gradient(145deg, #FFFDF9 0%, #F5EBE0 100%) !important;
+      border: 2px solid #8B6F4E !important;
+      box-shadow: 0 3px 10px rgba(67, 40, 24, 0.10) !important;
+    }
+    html[data-theme="warm-alabaster"] #operationsGrid .op-btn > div:first-child,
+    body[data-theme="warm-alabaster"] #operationsGrid .op-btn > div:first-child {
+      background: #EDE0D4 !important;
+      border: 1.5px solid #8B6F4E !important;
+    }
+    html[data-theme="warm-alabaster"] #operationsGrid .op-btn > span,
+    body[data-theme="warm-alabaster"] #operationsGrid .op-btn > span {
+      color: #1C1917 !important;
+      text-shadow: none !important;
+      font-weight: 900 !important;
+    }
+    html[data-theme="warm-alabaster"] #operationsGrid .op-btn .mg-op-subhint,
+    body[data-theme="warm-alabaster"] #operationsGrid .op-btn .mg-op-subhint {
+      color: #4A321E !important;
+      font-weight: 800 !important;
+    }
+    html[data-theme="warm-alabaster"] #operationsGrid .op-btn i,
+    html[data-theme="warm-alabaster"] #operationsGrid .op-btn svg,
+    body[data-theme="warm-alabaster"] #operationsGrid .op-btn i,
+    body[data-theme="warm-alabaster"] #operationsGrid .op-btn svg {
+      color: #291D12 !important;
+      stroke: #291D12 !important;
+      filter: none !important;
+    }
+
+    /* 3. سمة البلاتيني النهاري (pearl-platinum) */
+    html[data-theme="pearl-platinum"] body.mg-ui-modern #operationsGrid .op-btn,
+    html[data-theme="pearl-platinum"] body.mg-ui-classic #operationsGrid .op-btn,
+    body[data-theme="pearl-platinum"] #operationsGrid .op-btn {
+      background: linear-gradient(145deg, #FFFFFF 0%, #E2E8F0 100%) !important;
+      border: 1.5px solid #475569 !important;
+      box-shadow: 0 3px 10px rgba(15, 23, 42, 0.08) !important;
+    }
+    html[data-theme="pearl-platinum"] #operationsGrid .op-btn > div:first-child,
+    body[data-theme="pearl-platinum"] #operationsGrid .op-btn > div:first-child {
+      background: #E2E8F0 !important;
+      border: 1.5px solid #64748B !important;
+    }
+    html[data-theme="pearl-platinum"] #operationsGrid .op-btn > span,
+    body[data-theme="pearl-platinum"] #operationsGrid .op-btn > span {
+      color: #0F172A !important;
+      text-shadow: none !important;
+      font-weight: 900 !important;
+    }
+    html[data-theme="pearl-platinum"] #operationsGrid .op-btn .mg-op-subhint,
+    body[data-theme="pearl-platinum"] #operationsGrid .op-btn .mg-op-subhint {
+      color: #334155 !important;
+      font-weight: 800 !important;
+    }
+    html[data-theme="pearl-platinum"] #operationsGrid .op-btn i,
+    html[data-theme="pearl-platinum"] #operationsGrid .op-btn svg,
+    body[data-theme="pearl-platinum"] #operationsGrid .op-btn i,
+    body[data-theme="pearl-platinum"] #operationsGrid .op-btn svg {
+      color: #0F172A !important;
+      stroke: #0F172A !important;
+      filter: none !important;
+    }
+
+    /* 4. سمة البني الموكا الفاخر (sepia-brown) */
+    html[data-theme="sepia-brown"] body.mg-ui-modern #operationsGrid .op-btn,
+    html[data-theme="sepia-brown"] body.mg-ui-classic #operationsGrid .op-btn,
+    body[data-theme="sepia-brown"] #operationsGrid .op-btn {
+      background: linear-gradient(135deg, #36241B 0%, #231610 100%) !important;
+      border: 1.5px solid #D97706 !important;
+      box-shadow: 0 6px 14px rgba(0, 0, 0, 0.45) !important;
+    }
+    html[data-theme="sepia-brown"] #operationsGrid .op-btn > div:first-child,
+    body[data-theme="sepia-brown"] #operationsGrid .op-btn > div:first-child {
+      background: rgba(217, 119, 6, 0.22) !important;
+      border: 1.5px solid rgba(251, 191, 36, 0.5) !important;
+    }
+    html[data-theme="sepia-brown"] #operationsGrid .op-btn > span,
+    body[data-theme="sepia-brown"] #operationsGrid .op-btn > span {
+      color: #FFFBEB !important;
+      font-weight: 900 !important;
+    }
+    html[data-theme="sepia-brown"] #operationsGrid .op-btn .mg-op-subhint,
+    body[data-theme="sepia-brown"] #operationsGrid .op-btn .mg-op-subhint {
+      color: #FDE68A !important;
+    }
+    html[data-theme="sepia-brown"] #operationsGrid .op-btn i,
+    html[data-theme="sepia-brown"] #operationsGrid .op-btn svg,
+    body[data-theme="sepia-brown"] #operationsGrid .op-btn i,
+    body[data-theme="sepia-brown"] #operationsGrid .op-btn svg {
+      color: #FBBF24 !important;
+      stroke: #FBBF24 !important;
+    }
+
+    /* 5. سمة الأسود OLED (obsidian-charcoal) وسمة الرمادي الداكن (twilight-indigo) */
+    html[data-theme="obsidian-charcoal"] body.mg-ui-modern #operationsGrid .op-btn,
+    html[data-theme="obsidian-charcoal"] body.mg-ui-classic #operationsGrid .op-btn {
+      background: #09090B !important;
+      border: 1.5px solid #3F3F46 !important;
+    }
+    html[data-theme="twilight-indigo"] body.mg-ui-modern #operationsGrid .op-btn,
+    html[data-theme="twilight-indigo"] body.mg-ui-classic #operationsGrid .op-btn {
+      background: #27272A !important;
+      border: 1.5px solid #52525B !important;
+    }
+    html[data-theme="obsidian-charcoal"] #operationsGrid .op-btn > span,
+    html[data-theme="twilight-indigo"] #operationsGrid .op-btn > span,
+    html[data-theme="midnight-executive"] #operationsGrid .op-btn > span {
+      color: #FFFFFF !important;
+      font-weight: 900 !important;
+    }
+    html[data-theme="obsidian-charcoal"] #operationsGrid .op-btn .mg-op-subhint,
+    html[data-theme="twilight-indigo"] #operationsGrid .op-btn .mg-op-subhint,
+    html[data-theme="midnight-executive"] #operationsGrid .op-btn .mg-op-subhint {
+      color: #CBD5E1 !important;
+    }
+
+    /* 2. بطاقات النبض المالي العلوية للواجهة العصرية (بسيطة ومتقيدة بألوان السمات) */
+    #mgModernGlanceCards {
+      display: none;
+      transform: translateZ(0);
+    }
+    body.mg-ui-modern #mgModernGlanceCards {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 6px;
+      margin-bottom: 6px;
+    }
+    .mg-glance-card {
+      border-radius: 14px;
+      padding: 7px 8px;
+      position: relative;
+      overflow: hidden;
+      background: var(--m-bg-card, #0f172a) !important;
+      border: 1.5px solid var(--m-border, rgba(56, 189, 248, 0.32)) !important;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.14);
+      transform: translateZ(0);
+      cursor: pointer;
+    }
+    html[data-theme="pure-platinum"] .mg-glance-card,
+    html[data-theme="warm-alabaster"] .mg-glance-card,
+    html[data-theme="pearl-platinum"] .mg-glance-card {
+      background: var(--m-bg-card, #FFFFFF) !important;
+      border: 1.5px solid var(--m-border, #64748B) !important;
+      box-shadow: 0 2px 8px rgba(15, 23, 42, 0.06) !important;
+    }
+    html[data-theme="pure-platinum"] .mg-glance-card span,
+    html[data-theme="warm-alabaster"] .mg-glance-card span,
+    html[data-theme="pearl-platinum"] .mg-glance-card span {
+      color: var(--m-text-primary, #0F172A) !important;
+    }
+    html[data-theme="sepia-brown"] .mg-glance-card {
+      background: linear-gradient(135deg, #36241B 0%, #231610 100%) !important;
+      border: 1.5px solid #D97706 !important;
+    }
+    html[data-theme="sepia-brown"] .mg-glance-card span {
+      color: #FFFBEB !important;
+    }
+
+    /* 3. الهالة اللونية النفسية للاختصارات (مع الحفاظ على وضوح السمة) + معادلات الأشعة اللانهائية Display-P3 / 120Hz+ */
+    body[data-mg-aura="emerald"] #operationsGrid .op-btn { box-shadow: 0 3px 10px rgba(16, 185, 129, 0.14) !important; }
+    body[data-mg-aura="amber"]   #operationsGrid .op-btn { box-shadow: 0 3px 10px rgba(245, 158, 11, 0.14) !important; }
+    body[data-mg-aura="cyan"]    #operationsGrid .op-btn { box-shadow: 0 3px 10px rgba(6, 182, 212, 0.14) !important; }
+    body[data-mg-aura="purple"]  #operationsGrid .op-btn { box-shadow: 0 3px 10px rgba(168, 85, 247, 0.14) !important; }
+    body[data-mg-aura="rose"]    #operationsGrid .op-btn { box-shadow: 0 3px 10px rgba(244, 63, 94, 0.14) !important; }
+
+    @media (color-gamut: p3) {
+      body.mg-ui-modern #operationsGrid .op-btn > div:first-child {
+        box-shadow: inset 0 1px 1px color(display-p3 1 1 1 / 0.22), 0 2px 8px color(display-p3 0.02 0.72 0.85 / 0.18);
+      }
+      body[data-mg-aura="emerald"] #operationsGrid .op-btn { border-color: color(display-p3 0.06 0.78 0.52 / 0.48) !important; }
+      body[data-mg-aura="amber"]   #operationsGrid .op-btn { border-color: color(display-p3 0.96 0.65 0.06 / 0.48) !important; }
+      body[data-mg-aura="cyan"]    #operationsGrid .op-btn { border-color: color(display-p3 0.02 0.75 0.92 / 0.48) !important; }
+      body[data-mg-aura="purple"]  #operationsGrid .op-btn { border-color: color(display-p3 0.68 0.35 0.98 / 0.48) !important; }
+      body[data-mg-aura="rose"]    #operationsGrid .op-btn { border-color: color(display-p3 0.96 0.25 0.38 / 0.48) !important; }
+    }
+    body.mg-ui-modern #operationsGrid .op-btn > div:first-child svg,
+    body.mg-ui-modern #operationsGrid .op-btn > div:first-child i {
+      transform: scale(1.16) translateZ(0);
+      shape-rendering: geometricPrecision;
+    }
+
+    /* 4. تبسيط الشاشة العصرية (إخفاء الشريط العائم السفلي الإضافي لمنع التشتت) */
+    #mgThumbCommandDock {
+      display: none !important;
+    }
+    body.mg-ui-modern .app-main-content {
+      padding-bottom: 84px !important;
+    }
+
+    /* 5. الشاشات الوليدة والفرعية (Fluid Bottom Sheets & Progressive Disclosure) */
+    .mg-fluid-bottom-sheet > div:first-child {
+      border-top-left-radius: 24px !important;
+      border-top-right-radius: 24px !important;
+      animation: mgFluidSheetUp 0.18s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      transform: translateZ(0);
+    }
+    @keyframes mgFluidSheetUp {
+      from { transform: translateY(24px); opacity: 0.85; }
+      to   { transform: translateY(0); opacity: 1; }
+    }
+    .mg-sheet-pill-handle {
+      width: 42px;
+      height: 4px;
+      border-radius: 999px;
+      background: rgba(148, 163, 184, 0.45);
+      margin: 6px auto 2px auto;
+    }
+
+    /* 6. وضع الوصول بيد واحدة للإبهام (One-Handed Thumb Reachability Mode) */
+    body.mg-one-hand-reach .app-shell-container {
+      transform: translateY(24vh) !important;
+      transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+      border-top: 2px solid #38bdf8 !important;
+      border-top-left-radius: 24px !important;
+      border-top-right-radius: 24px !important;
+    }
+    #mgOneHandTopBanner {
+      display: none;
+    }
+    body.mg-one-hand-reach #mgOneHandTopBanner {
+      display: flex;
+    }
+
+    /* منع التمرير الأفقي في كافة الشاشات الفرعية والوليدة */
+    .app-main-content, [id^="modalOp"] {
+      overflow-x: hidden !important;
+    }
+
+:root {
+      --mg-std-title-size: 14.5px;
+      --mg-std-label-size: 12px;
+      --mg-std-input-size: 16px;
+      --mg-std-num-size: 22px;
+      --mg-std-btn-size: 12px;
+      --mg-viewport-scale: 1;
+      --mg-soft-border-dark: rgba(255, 255, 255, 0.22);
+      --mg-soft-border-light: rgba(0, 0, 0, 0.20);
+    }
+
+    /* ════════════════════════════════════════════════════════════════════════════
+       1️⃣ الأمر الحاسم (1): هندسة الحواف والفواصل الراقية خفيفة الحدة ونقل ضبط المشتريات
+       إلغاء الحواف البيضاء الصارخة في الغامق أو السوداء الحادة في الفاتح، واعتماد
+       rgba(255, 255, 255, 0.22) للغامق و rgba(0, 0, 0, 0.20) للفاتح مستقلة عن لون الخط
+       ════════════════════════════════════════════════════════════════════════════ */
+
+    /* السمات الغامقة (Dark Themes): حواف وفواصل راقية خفيفة الحدة rgba(255, 255, 255, 0.22) */
+    html:not([data-theme="warm-alabaster"]):not([data-theme="warm_cream"]):not([data-theme="pure-platinum"]):not([data-theme="ultra_white"]):not([data-theme="pearl-platinum"]):not([data-theme="exec_gray"]):not([data-theme="beige"]):not([data-theme="ivory"]):not([data-theme="offwhite"]):not([data-theme="light-linen"]):not([data-theme="nordic-paper"]):not([data-theme-mode="light"]) {
+      --m-border: rgba(255, 255, 255, 0.22) !important;
+      --m-border-strong: rgba(255, 255, 255, 0.28) !important;
+    }
+
+    html:not([data-theme="warm-alabaster"]):not([data-theme="warm_cream"]):not([data-theme="pure-platinum"]):not([data-theme="ultra_white"]):not([data-theme="pearl-platinum"]):not([data-theme="exec_gray"]):not([data-theme="beige"]):not([data-theme="ivory"]):not([data-theme="offwhite"]):not([data-theme="light-linen"]):not([data-theme="nordic-paper"]):not([data-theme-mode="light"])
+    :is(
+      #modalOpSales,
+      #modalOpPurchase,
+      [id^="modalOp"],
+      .app-main-content
+    ) :is(
+      .pos-zone-1, .pos-zone-2, .pos-zone-3, .pos-zone-4, .pos-zone-5, .pos-zone-6,
+      #suiteSalesItemBox, #suitePurItemBox,
+      .pos-field-interactive,
+      .pos-field-customer, .pos-field-warehouse, .pos-field-costcenter,
+      .pos-field-item, .pos-field-unit, .pos-field-qty, .pos-field-price,
+      .pos-field-gross, .pos-field-tax, .pos-field-discount, .pos-field-labor,
+      .pos-field-total, .pos-field-note,
+      .glow-input-field,
+      #salesRateContainer, #purRateContainer,
+      #opSalesInvoiceSwipeBox, #opPurInvoiceSwipeBox,
+      .glass-base, .banner-strip
+    ) {
+      border: 1.25px solid rgba(255, 255, 255, 0.22) !important;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.05) !important;
+    }
+
+    /* السمات الفاتحة (Light Themes): حواف وفواصل راقية خفيفة الحدة rgba(0, 0, 0, 0.20) */
+    :is(
+      html[data-theme="warm-alabaster"],
+      html[data-theme="warm_cream"],
+      html[data-theme="pure-platinum"],
+      html[data-theme="ultra_white"],
+      html[data-theme="pearl-platinum"],
+      html[data-theme="exec_gray"],
+      html[data-theme="beige"],
+      html[data-theme="ivory"],
+      html[data-theme="offwhite"],
+      html[data-theme="light-linen"],
+      html[data-theme="nordic-paper"],
+      html[data-theme-mode="light"]
+    ) {
+      --m-border: rgba(0, 0, 0, 0.20) !important;
+      --m-border-strong: rgba(0, 0, 0, 0.26) !important;
+    }
+
+    :is(
+      html[data-theme="warm-alabaster"],
+      html[data-theme="warm_cream"],
+      html[data-theme="pure-platinum"],
+      html[data-theme="ultra_white"],
+      html[data-theme="pearl-platinum"],
+      html[data-theme="exec_gray"],
+      html[data-theme="beige"],
+      html[data-theme="ivory"],
+      html[data-theme="offwhite"],
+      html[data-theme="light-linen"],
+      html[data-theme="nordic-paper"],
+      html[data-theme-mode="light"]
+    ) :is(
+      #modalOpSales,
+      #modalOpPurchase,
+      [id^="modalOp"],
+      .app-main-content
+    ) :is(
+      .pos-zone-1, .pos-zone-2, .pos-zone-3, .pos-zone-4, .pos-zone-5, .pos-zone-6,
+      #suiteSalesItemBox, #suitePurItemBox,
+      .pos-field-interactive,
+      .pos-field-customer, .pos-field-warehouse, .pos-field-costcenter,
+      .pos-field-item, .pos-field-unit, .pos-field-qty, .pos-field-price,
+      .pos-field-gross, .pos-field-tax, .pos-field-discount, .pos-field-labor,
+      .pos-field-total, .pos-field-note,
+      .glow-input-field,
+      #salesRateContainer, #purRateContainer,
+      #opSalesInvoiceSwipeBox, #opPurInvoiceSwipeBox,
+      .glass-base, .banner-strip
+    ) {
+      border: 1.25px solid rgba(0, 0, 0, 0.20) !important;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.6) !important;
+    }
+
+    /* الحفاظ على متانة سُمك الخطوط والأيقونات (+2) */
+    .app-shell-container i,
+    .app-shell-container svg,
+    [id^="modalOp"] i,
+    [id^="modalOp"] svg {
+      stroke-width: 2.4px !important;
+    }
+
+    /* ════════════════════════════════════════════════════════════════════════════
+       2️⃣ الأمر الحاسم (2): قانون تباين نصوص الكتابة ومنع انقلاب منطقة الكتابة السوداء
+       في السمة الغامقة: خلفية الخانة #000000 ثابتة ونص #FFFFFF صريح حتى مع :focus و autofill
+       في السمة الفاتحة: نص #000000 صريح على خلفية فاتحة مريحة
+       ════════════════════════════════════════════════════════════════════════════ */
+
+    /* أ) السمات الغامقة: قفل منطقة الكتابة بالأسود الصريح #000000 والنص بالأبيض الصريح #FFFFFF */
+    html:not([data-theme="warm-alabaster"]):not([data-theme="warm_cream"]):not([data-theme="pure-platinum"]):not([data-theme="ultra_white"]):not([data-theme="pearl-platinum"]):not([data-theme="exec_gray"]):not([data-theme="beige"]):not([data-theme="ivory"]):not([data-theme="offwhite"]):not([data-theme="light-linen"]):not([data-theme="nordic-paper"]):not([data-theme-mode="light"])
+    :is(
+      .pos-field-interactive,
+      #modalOpSales .pos-field-interactive,
+      #modalOpPurchase .pos-field-interactive,
+      [id^="modalOp"] .pos-field-interactive
+    ) {
+      background-color: #000000 !important;
+      background: #000000 !important;
+      color: #FFFFFF !important;
+    }
+
+    html:not([data-theme="warm-alabaster"]):not([data-theme="warm_cream"]):not([data-theme="pure-platinum"]):not([data-theme="ultra_white"]):not([data-theme="pearl-platinum"]):not([data-theme="exec_gray"]):not([data-theme="beige"]):not([data-theme="ivory"]):not([data-theme="offwhite"]):not([data-theme="light-linen"]):not([data-theme="nordic-paper"]):not([data-theme-mode="light"])
+    :is(
+      input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):not([type="date"]):not([type="file"]),
+      select,
+      textarea
+    ),
+    html:not([data-theme="warm-alabaster"]):not([data-theme="warm_cream"]):not([data-theme="pure-platinum"]):not([data-theme="ultra_white"]):not([data-theme="pearl-platinum"]):not([data-theme="exec_gray"]):not([data-theme="beige"]):not([data-theme="ivory"]):not([data-theme="offwhite"]):not([data-theme="light-linen"]):not([data-theme="nordic-paper"]):not([data-theme-mode="light"])
+    :is(
+      input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):not([type="date"]):not([type="file"]):focus,
+      input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):not([type="date"]):not([type="file"]):active,
+      input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):not([type="date"]):not([type="file"]):-webkit-autofill,
+      select:focus,
+      textarea:focus
+    ) {
+      background-color: #000000 !important;
+      color: #FFFFFF !important;
+      -webkit-box-shadow: 0 0 0 1000px #000000 inset !important;
+      -webkit-text-fill-color: #FFFFFF !important;
+      caret-color: #FFFFFF !important;
+    }
+
+    /* نصوص وعناوين السمة الغامقة باللون الأبيض الصريح #FFFFFF */
+    html:not([data-theme="warm-alabaster"]):not([data-theme="warm_cream"]):not([data-theme="pure-platinum"]):not([data-theme="ultra_white"]):not([data-theme="pearl-platinum"]):not([data-theme="exec_gray"]):not([data-theme="beige"]):not([data-theme="ivory"]):not([data-theme="offwhite"]):not([data-theme="light-linen"]):not([data-theme="nordic-paper"]):not([data-theme-mode="light"])
+    :is(#modalOpSales, #modalOpPurchase, [id^="modalOp"]) :is(label, h1, h2, h3, h4, th, td) {
+      color: #FFFFFF !important;
+    }
+
+    /* ب) السمات الفاتحة: جميع نصوص الكتابة والأرقام والعناوين بالأسود الصريح #000000 على خلفية فاتحة مريحة */
+    :is(
+      html[data-theme="warm-alabaster"],
+      html[data-theme="warm_cream"],
+      html[data-theme="pure-platinum"],
+      html[data-theme="ultra_white"],
+      html[data-theme="pearl-platinum"],
+      html[data-theme="exec_gray"],
+      html[data-theme="beige"],
+      html[data-theme="ivory"],
+      html[data-theme="offwhite"],
+      html[data-theme="light-linen"],
+      html[data-theme="nordic-paper"],
+      html[data-theme-mode="light"]
+    ) :is(
+      .pos-field-interactive,
+      #modalOpSales .pos-field-interactive,
+      #modalOpPurchase .pos-field-interactive,
+      [id^="modalOp"] .pos-field-interactive
+    ) {
+      background-color: #FFFFFF !important;
+      background: #FFFFFF !important;
+      color: #000000 !important;
+    }
+
+    :is(
+      html[data-theme="warm-alabaster"],
+      html[data-theme="warm_cream"],
+      html[data-theme="pure-platinum"],
+      html[data-theme="ultra_white"],
+      html[data-theme="pearl-platinum"],
+      html[data-theme="exec_gray"],
+      html[data-theme="beige"],
+      html[data-theme="ivory"],
+      html[data-theme="offwhite"],
+      html[data-theme="light-linen"],
+      html[data-theme="nordic-paper"],
+      html[data-theme-mode="light"]
+    ) :is(
+      input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):not([type="date"]):not([type="file"]),
+      input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):not([type="date"]):not([type="file"]):focus,
+      input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):not([type="date"]):not([type="file"]):-webkit-autofill,
+      select,
+      select:focus,
+      textarea,
+      textarea:focus
+    ) {
+      background-color: #FFFFFF !important;
+      color: #000000 !important;
+      -webkit-box-shadow: 0 0 0 1000px #FFFFFF inset !important;
+      -webkit-text-fill-color: #000000 !important;
+      caret-color: #000000 !important;
+    }
+
+    :is(
+      html[data-theme="warm-alabaster"],
+      html[data-theme="warm_cream"],
+      html[data-theme="pure-platinum"],
+      html[data-theme="ultra_white"],
+      html[data-theme="pearl-platinum"],
+      html[data-theme="exec_gray"],
+      html[data-theme="beige"],
+      html[data-theme="ivory"],
+      html[data-theme="offwhite"],
+      html[data-theme="light-linen"],
+      html[data-theme="nordic-paper"],
+      html[data-theme-mode="light"]
+    ) :is(
+      #modalOpSales, #modalOpPurchase, [id^="modalOp"], .app-main-content
+    ) :is(label, h1, h2, h3, h4, th, td, .privacy-mask, #opSalesInvoiceNoPill, #opPurchaseNoPill, #opSalesHeaderDatePill, #opPurHeaderDatePill) {
+      color: #000000 !important;
+      -webkit-text-fill-color: #000000 !important;
+      text-shadow: none !important;
+    }
+
+    /* ════════════════════════════════════════════════════════════════════════════
+       3️⃣ الأمر الحاسم (3): وضع "وضوح شمس السوق الساطعة" (Outdoor Market Sunlight)
+       تباين كريستالي ساطع في الشمس المباشرة وعلى الهواتف القديمة ضعيفة الإضاءة
+       ════════════════════════════════════════════════════════════════════════════ */
+    html[data-sunlight-mode="true"] body {
+      filter: contrast(1.08) !important;
+    }
+    html[data-sunlight-mode="true"] :is(.glass-base, .banner-strip, .glass-card-interactive, .op-btn, .pos-zone-1, .pos-zone-2, .pos-zone-3, .pos-zone-4, .pos-zone-5, .pos-zone-6, .pos-field-interactive) {
+      border: 1.5px solid rgba(255, 255, 255, 0.28) !important;
+      box-shadow: none !important;
+    }
+    html[data-sunlight-mode="true"][data-theme="warm-alabaster"] :is(.glass-base, .banner-strip, .op-btn, .pos-zone-1, .pos-zone-2, .pos-zone-3, .pos-zone-4, .pos-field-interactive),
+    html[data-sunlight-mode="true"][data-theme="pure-platinum"] :is(.glass-base, .banner-strip, .op-btn, .pos-zone-1, .pos-zone-2, .pos-zone-3, .pos-zone-4, .pos-field-interactive),
+    html[data-sunlight-mode="true"][data-theme="pearl-platinum"] :is(.glass-base, .banner-strip, .op-btn, .pos-zone-1, .pos-zone-2, .pos-zone-3, .pos-zone-4, .pos-field-interactive) {
+      background: #FFFFFF !important;
+      border: 1.5px solid rgba(0, 0, 0, 0.25) !important;
+      color: #000000 !important;
+    }
+    html[data-sunlight-mode="true"] :is(input, select, textarea, span, label, h1, h2, h3, h4, button) {
+      font-weight: 900 !important;
+      text-shadow: none !important;
+    }
+
+    /* ════════════════════════════════════════════════════════════════════════════
+       4️⃣ الأمر الحاسم (4): القفل الحديدي لتوحيد الخطوط ومقاسات الخطوط ومنع القص
+       (Zero-Truncation & Unified Standard Font Sizes)
+       ════════════════════════════════════════════════════════════════════════════ */
+    /* توحيد مقاس العناوين */
+    :is(.app-main-content, [id^="modalOp"]) :is(h1, h2, h3, h4) {
+      font-size: var(--mg-std-title-size, 14.5px) !important;
+      font-weight: 900 !important;
+      line-height: 1.3 !important;
+    }
+    /* توحيد مقاس أسماء الحقول (Labels) */
+    :is(.app-main-content, [id^="modalOp"]) label {
+      font-size: var(--mg-std-label-size, 12px) !important;
+      font-weight: 800 !important;
+      line-height: 1.25 !important;
+    }
+    /* توحيد مقاس داخل الخانات والجداول */
+    :is(.app-main-content, [id^="modalOp"]) :is(
+      input:not(.pos-thick-bold-num):not(#purQtyInput):not(#purPriceInput):not(#salesQtyInput):not(#salesPriceInput):not(#salesItemGrossTotal):not(#purItemGrossTotal),
+      select,
+      textarea,
+      table td,
+      table th
+    ) {
+      font-size: var(--mg-std-input-size, 16px) !important;
+      font-weight: 900 !important;
+    }
+    /* توحيد مقاس الخانات الرقمية المحاسبية (الكمية، السعر، الجملة، الإجمالي) */
+    :is(#modalOpSales, #modalOpPurchase, [id^="modalOp"]) :is(
+      .pos-thick-bold-num,
+      #salesQtyInput, #salesPriceInput, #salesItemGrossTotal,
+      #purQtyInput, #purPriceInput, #purItemGrossTotal
+    ) {
+      font-size: var(--mg-std-num-size, 22px) !important;
+      font-weight: 900 !important;
+      line-height: 1.15 !important;
+    }
+    /* توحيد مقاس الأزرار */
+    :is(.app-main-content, [id^="modalOp"]) :is(button:not(.flagship-tile):not(.row2-glass-tile), .royal-btn) {
+      font-size: var(--mg-std-btn-size, 12px) !important;
+      font-weight: 900 !important;
+    }
+
+    /* نظام الاحتواء المرن ومنع قص الأسماء والمبالغ (Zero-Truncation) */
+    :is(#modalOpSales, #modalOpPurchase, [id^="modalOp"], .app-main-content) :is(
+      #salesCustomerInput, #purchaseSupplierInput,
+      #salesWarehouseInput, #purchaseWarehouseInput,
+      #salesCostCenterInput, #purCostCenterDisplayName,
+      #salesItemSearchInput, #purItemSearchInput,
+      #salesNotesInput, #purNotesInput,
+      .privacy-mask, .mg-sticky-total-val, .mg-sticky-tafqeet-val
+    ) {
+      text-overflow: clip !important;
+      overflow: visible !important;
+      white-space: normal !important;
+      word-break: break-word !important;
+    }
+
+    /* ════════════════════════════════════════════════════════════════════════════
+       5️⃣ الأمر الحاسم (5): حفظ آخر مقاس وتناسب مضبوط لشاشة الجوال وتوريثه
+       ════════════════════════════════════════════════════════════════════════════ */
+    .mobile-app-wrapper,
+    [id^="modalOp"] > div:first-child {
+      transform-origin: top center;
+      box-sizing: border-box !important;
+    }
+
+    /* ════════════════════════════════════════════════════════════════════════════
+       6️⃣ الأمر الحاسم (6): الحارس الذكي لرفع الخانة النشطة فوق كيبورد الجوال
+       ════════════════════════════════════════════════════════════════════════════ */
+    body.mg-keyboard-open [id^="modalOp"] > div:first-child,
+    body.mg-keyboard-open .app-main-content {
+      padding-bottom: var(--mg-kb-clearance, 42vh) !important;
+      scroll-padding-bottom: var(--mg-kb-clearance, 42vh) !important;
+    }
+    body.mg-keyboard-open .mg-sticky-progressive-bar {
+      position: fixed !important;
+      left: 8px !important;
+      right: 8px !important;
+      bottom: var(--mg-kb-offset, 0px) !important;
+      z-index: 100500 !important;
+      border-radius: 16px !important;
+      border: 1.5px solid rgba(56, 189, 248, 0.45) !important;
+    }
+    .mg-active-typing-field {
+      outline: 2px solid rgba(56, 189, 248, 0.65) !important;
+      outline-offset: 1px !important;
+    }
+
+/* 1️⃣ إلغاء تحديث المتصفح الخاطئ عند السحب للأسفل نهائياً (Disable Pull-to-Refresh 100%) */
+    html, body, .app-shell-container, .app-main-content, [id^="modalOp"] {
+      overscroll-behavior-y: none !important;
+      overscroll-behavior-x: none !important;
+    }
+
+    /* 2️⃣ شريط الأزرار البديلة الظاهرة للإيماءات العشر (Visible Fallback Bar for Anti-Ghost-Touch Mode) */
+    #mgGestureFallbackBar {
+      background: linear-gradient(90deg, rgba(2, 6, 23, 0.96), rgba(15, 23, 42, 0.96)) !important;
+      border-bottom: 1.25px solid var(--mg-c2-border-soft, rgba(255, 255, 255, 0.22)) !important;
+    }
+    :is(html[data-theme="pure-platinum"], html[data-theme="warm-alabaster"], html[data-theme="pearl-platinum"], html[data-theme="light"], body.theme-light) #mgGestureFallbackBar {
+      background: linear-gradient(90deg, #FFFFFF, #F1F5F9) !important;
+      border-bottom: 1.25px solid rgba(0, 0, 0, 0.20) !important;
+    }
+    :is(html[data-theme="pure-platinum"], html[data-theme="warm-alabaster"], html[data-theme="pearl-platinum"]) #mgGestureFallbackBar button {
+      color: #0F172A !important;
+      background: #F8FAFC !important;
+      border-color: rgba(0, 0, 0, 0.22) !important;
+    }
+
+    /* 3️⃣ تأثيرات سحب السطر لليمين (إجراءات السطر) ولليسار (حذف السطر السريع) */
+    .mg-swipeable-row {
+      position: relative;
+      transition: transform 0.16s cubic-bezier(0.16, 1, 0.3, 1);
+      touch-action: pan-y;
+    }
+    .mg-row-action-drawer {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      margin-top: 4px;
+      padding: 4px 6px;
+      border-radius: 10px;
+      background: rgba(15, 23, 42, 0.95);
+      border: 1px solid rgba(56, 189, 248, 0.35);
+    }
+    :is(html[data-theme="pure-platinum"], html[data-theme="warm-alabaster"], html[data-theme="pearl-platinum"], html[data-theme="light"], body.theme-light) .mg-row-action-drawer {
+      background: #F1F5F9;
+      border: 1px solid rgba(0, 0, 0, 0.20);
+    }
+
+    /* 4️⃣ نافذة النقل والمطابقة المزدوجة في نصف الشاشة (بنكك / فوري / واتساب) */
+    #mgDualMatchHalfScreenDrawer {
+      height: 48vh;
+      max-height: 430px;
+      box-shadow: 0 12px 35px rgba(0, 0, 0, 0.75);
+      border-bottom: 2px solid #38bdf8 !important;
+    }
+
+    /* 5️⃣ تطهير الأزرار من الشروحات النصية الحشوية الزائدة */
+    .mg-decluttered-btn .btn-verbose-subtext,
+    .op-btn small.verbose-hint {
+      display: none !important;
+    }
+
+/* 1️⃣ هندسة الشاشتين العالمية (iPhone 18 / Galaxy Fold Split-Continuum: يمين البرنامج الكامل بجميع أيقوناته | شمال سطح مكتب الجوال الحر أو نسخة مستنسخة من البرنامج) */
+    :root {
+      --mg-split-right-w: 50vw;
+      --mg-split-left-w: 50vw;
+      --mg-split-top-h: 50dvh;
+      --mg-split-bot-h: 50dvh;
+      --mg-right-zoom: 1;
+      --mg-left-zoom: 1;
+    }
+
+    /* أ) وضع الانقسام العرضي القياسي (اليمين: شاشة البرنامج الكاملة | الشمال: سطح مكتب الجوال الحر / استنساخ البرنامج) */
+    body.mg-split-landscape .mobile-app-wrapper,
+    body.mg-split-landscape .app-shell-container {
+      position: fixed !important;
+      top: 0 !important;
+      right: 0 !important;
+      left: auto !important;
+      width: var(--mg-split-right-w, 50vw) !important;
+      max-width: var(--mg-split-right-w, 50vw) !important;
+      min-width: 28vw !important;
+      height: 100dvh !important;
+      max-height: 100dvh !important;
+      margin: 0 !important;
+      border-radius: 0 !important;
+      overflow-y: auto !important;
+      overflow-x: hidden !important;
+      z-index: 9990 !important;
+      zoom: var(--mg-right-zoom, 1);
+    }
+    body.mg-split-landscape [id^="modalOp"]:not(.hidden) {
+      position: fixed !important;
+      top: 0 !important;
+      right: 0 !important;
+      left: auto !important;
+      width: var(--mg-split-right-w, 50vw) !important;
+      max-width: var(--mg-split-right-w, 50vw) !important;
+      height: 100dvh !important;
+      max-height: 100dvh !important;
+      margin: 0 !important;
+      overflow-y: auto !important;
+    }
+    body.mg-split-landscape #mgInAppSplitWorkspace {
+      display: flex !important;
+      position: fixed !important;
+      top: 0 !important;
+      bottom: 0 !important;
+      left: 0 !important;
+      right: auto !important;
+      width: var(--mg-split-left-w, 50vw) !important;
+      max-width: var(--mg-split-left-w, 50vw) !important;
+      height: 100dvh !important;
+      max-height: 100dvh !important;
+      z-index: 9994 !important;
+      border-right: 3px solid #38bdf8 !important;
+      border-top: none !important;
+      box-shadow: 8px 0 28px rgba(0, 0, 0, 0.55) !important;
+    }
+    /* عكس النصفين في الوضع العرضي (يمين ↔ شمال) */
+    body.mg-split-landscape.mg-split-swapped .mobile-app-wrapper,
+    body.mg-split-landscape.mg-split-swapped .app-shell-container,
+    body.mg-split-landscape.mg-split-swapped [id^="modalOp"]:not(.hidden) {
+      right: auto !important;
+      left: 0 !important;
+    }
+    body.mg-split-landscape.mg-split-swapped #mgInAppSplitWorkspace {
+      left: auto !important;
+      right: 0 !important;
+      border-right: none !important;
+      border-left: 3px solid #38bdf8 !important;
+    }
+
+    /* ب) وضع الانقسام الطولي بالتناصف (الأعلى: البرنامج | الأسفل: سطح مكتب الجوال / استنساخ البرنامج) */
+    body.mg-split-vertical .mobile-app-wrapper,
+    body.mg-split-vertical .app-shell-container {
+      position: fixed !important;
+      top: 0 !important;
+      left: 0 !important;
+      right: 0 !important;
+      width: 100vw !important;
+      max-width: 100vw !important;
+      height: var(--mg-split-top-h, 50dvh) !important;
+      max-height: var(--mg-split-top-h, 50dvh) !important;
+      min-height: 25dvh !important;
+      margin: 0 auto !important;
+      border-radius: 0 !important;
+      overflow-y: auto !important;
+      z-index: 9990 !important;
+      zoom: var(--mg-right-zoom, 1);
+    }
+    body.mg-split-vertical [id^="modalOp"]:not(.hidden) {
+      top: 0 !important;
+      bottom: auto !important;
+      height: var(--mg-split-top-h, 50dvh) !important;
+      max-height: var(--mg-split-top-h, 50dvh) !important;
+      overflow-y: auto !important;
+    }
+    body.mg-split-vertical #mgInAppSplitWorkspace {
+      display: flex !important;
+      position: fixed !important;
+      top: var(--mg-split-top-h, 50dvh) !important;
+      bottom: 0 !important;
+      left: 0 !important;
+      right: 0 !important;
+      width: 100vw !important;
+      max-width: 100vw !important;
+      height: var(--mg-split-bot-h, 50dvh) !important;
+      max-height: var(--mg-split-bot-h, 50dvh) !important;
+      z-index: 9994 !important;
+      border-top: 3px solid #38bdf8 !important;
+      box-shadow: 0 -8px 28px rgba(0, 0, 0, 0.55) !important;
+    }
+    body.mg-split-vertical.mg-split-swapped .mobile-app-wrapper,
+    body.mg-split-vertical.mg-split-swapped .app-shell-container,
+    body.mg-split-vertical.mg-split-swapped [id^="modalOp"]:not(.hidden) {
+      top: var(--mg-split-bot-h, 50dvh) !important;
+    }
+    body.mg-split-vertical.mg-split-swapped #mgInAppSplitWorkspace {
+      top: 0 !important;
+      bottom: auto !important;
+      border-top: none !important;
+      border-bottom: 3px solid #38bdf8 !important;
+    }
+
+    /* 🎯 الأمر الحاسم (1): إخفاء الشعار والأزرار العلوية والسفلية تماماً عند قلب الموبايل بالعرض أو وضع النصفين (0px Header Overhead & 100dvh Full Top-to-Bottom Operation Area) */
+    #mgSplitCompactFocusBar {
+      display: none;
+    }
+    #mgLandscapeFloatingHeaderTrigger {
+      display: none;
+    }
+    @media (orientation: landscape) and (max-height: 560px) {
+      body:not(.mg-landscape-header-peek) header.app-main-header,
+      body:not(.mg-landscape-header-peek) #mgGestureFallbackBar,
+      body:not(.mg-landscape-header-peek) .bottom-glass-nav {
+        display: none !important;
+        height: 0 !important;
+        min-height: 0 !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        overflow: hidden !important;
+      }
+      body:not(.mg-landscape-header-peek) .app-main-content,
+      body:not(.mg-landscape-header-peek) [id^="modalOp"]:not(.hidden),
+      body:not(.mg-landscape-header-peek) [id^="modalOp"]:not(.hidden) > div:first-child {
+        top: 0 !important;
+        height: 100dvh !important;
+        max-height: 100dvh !important;
+        padding-top: 4px !important;
+        padding-bottom: 16px !important;
+      }
+      #mgLandscapeFloatingHeaderTrigger {
+        display: flex !important;
+      }
+    }
+    body.mg-split-landscape:not(.mg-landscape-header-peek) header.app-main-header,
+    body.mg-split-landscape:not(.mg-landscape-header-peek) #mgGestureFallbackBar,
+    body.mg-split-landscape:not(.mg-landscape-header-peek) .bottom-glass-nav {
+      display: none !important;
+      height: 0 !important;
+      min-height: 0 !important;
+      padding: 0 !important;
+      margin: 0 !important;
+    }
+    body.mg-split-landscape #mgLandscapeFloatingHeaderTrigger {
+      display: flex !important;
+    }
+    /* طبقة الأزرار والشعار العائمة عند الطلب (On-Demand Floating Header Overlay) */
+    body.mg-landscape-header-peek header.app-main-header {
+      display: block !important;
+      position: fixed !important;
+      top: 0 !important;
+      right: 0 !important;
+      width: var(--mg-split-right-w, 100vw) !important;
+      z-index: 100200 !important;
+      background: rgba(2, 6, 23, 0.97) !important;
+      box-shadow: 0 14px 36px rgba(0, 0, 0, 0.85) !important;
+      border-bottom: 2px solid #38bdf8 !important;
+      max-height: 85dvh !important;
+      overflow-y: auto !important;
+    }
+    body.mg-split-landscape .app-main-content {
+      padding: 4px 5px 18px 5px !important;
+      height: 100dvh !important;
+      max-height: 100dvh !important;
+    }
+    body.mg-split-landscape #operationsGrid {
+      grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+      gap: 4px !important;
+    }
+    body.mg-split-landscape #operationsGrid .op-btn {
+      padding: 5px 4px !important;
+      min-height: 56px !important;
+      border-radius: 12px !important;
+      gap: 3px !important;
+    }
+    body.mg-split-landscape #operationsGrid .op-btn > div:first-child {
+      width: 26px !important;
+      height: 26px !important;
+      border-radius: 8px !important;
+      margin-bottom: 2px !important;
+    }
+    body.mg-split-landscape #operationsGrid .op-btn > span {
+      font-size: 9.5px !important;
+      line-height: 1.15 !important;
+    }
+    /* وضع المنطقة الحرة الكاملة 100% من الأول للآخر بدون أشرطة (Edge-to-Edge Free Half) */
+    #mgInAppSplitWorkspace.mg-free-edge-to-edge {
+      padding: 0 !important;
+    }
+    #mgInAppSplitWorkspace.mg-free-edge-to-edge > div:first-child,
+    #mgInAppSplitWorkspace.mg-free-edge-to-edge #mgCloneErpStageWrap > div:first-child {
+      display: none !important;
+    }
+    #mgInAppSplitWorkspace.mg-free-edge-to-edge #mgFreeViewportMainStage {
+      margin-top: 0 !important;
+      border: 0 !important;
+      border-radius: 0 !important;
+      height: 100dvh !important;
+    }
+    /* مقبض التحجيم السلس بين الشاشتين (iPhone 18 Split Pill Handle) */
+    #mgSplitCenterResizer {
+      display: none;
+    }
+    body.mg-split-landscape #mgSplitCenterResizer {
+      display: flex !important;
+      position: fixed !important;
+      top: 50% !important;
+      left: var(--mg-split-left-w, 50vw) !important;
+      transform: translate(-50%, -50%) !important;
+      width: 14px !important;
+      height: 64px !important;
+      border-radius: 999px !important;
+      background: linear-gradient(180deg, #38bdf8, #0284c7) !important;
+      border: 2px solid #ffffff !important;
+      box-shadow: 0 0 18px rgba(56, 189, 248, 0.85) !important;
+      z-index: 9999 !important;
+      cursor: ew-resize !important;
+      align-items: center !important;
+      justify-content: center !important;
+      touch-action: none !important;
+    }
+    /* تقيد الشاشة الثانية الحرة بالسمة المختارة */
+    #mgInAppSplitWorkspace {
+      background: var(--m-bg-deep, #020617) !important;
+      color: var(--m-text-primary, #f8fafc) !important;
+    }
+    html[data-theme="pure-platinum"] #mgInAppSplitWorkspace,
+    html[data-theme="warm-alabaster"] #mgInAppSplitWorkspace,
+    html[data-theme="pearl-platinum"] #mgInAppSplitWorkspace {
+      background: var(--m-bg-deep, #F8FAFC) !important;
+      color: var(--m-text-primary, #0F172A) !important;
+    }
+    html[data-theme="sepia-brown"] #mgInAppSplitWorkspace {
+      background: #1C120C !important;
+      color: #FFFBEB !important;
+    }
+    /* بطاقات تطبيقات سطح مكتب الجوال الذكي (iPhone 18 App Icons) */
+    .mg-phone-app-tile {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      padding: 8px 4px;
+      border-radius: 16px;
+      background: rgba(15, 23, 42, 0.82);
+      border: 1.5px solid rgba(148, 163, 184, 0.24);
+      cursor: pointer;
+      transition: transform 0.14s ease, border-color 0.14s ease, box-shadow 0.14s ease;
+      text-align: center;
+    }
+    .mg-phone-app-tile:active,
+    .mg-phone-app-tile:hover {
+      transform: scale(1.04);
+      border-color: #38bdf8;
+      box-shadow: 0 6px 16px rgba(56, 189, 248, 0.3);
+    }
+    html[data-theme="pure-platinum"] .mg-phone-app-tile,
+    html[data-theme="warm-alabaster"] .mg-phone-app-tile,
+    html[data-theme="pearl-platinum"] .mg-phone-app-tile {
+      background: #FFFFFF !important;
+      border: 1.5px solid #94A3B8 !important;
+      color: #0F172A !important;
+    }
+    /* بطاقات الفرز العالمي للأقسام */
+    .mg-dept-header-banner {
+      grid-column: 1 / -1;
+      padding: 7px 10px;
+      border-radius: 14px;
+      margin-top: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+      border: 1.5px solid rgba(56, 189, 248, 0.4);
+      background: linear-gradient(90deg, rgba(15, 23, 42, 0.95), rgba(30, 41, 59, 0.9));
+    }
+    html[data-theme="pure-platinum"] .mg-dept-header-banner,
+    html[data-theme="warm-alabaster"] .mg-dept-header-banner,
+    html[data-theme="pearl-platinum"] .mg-dept-header-banner {
+      background: #F1F5F9 !important;
+      border: 2px solid #334155 !important;
+      color: #0F172A !important;
+    }
+
+    /* تكيف تلقائي عند فتح شاشة مزدوجة حقيقية من نظام الجوال نفسه (Native OS Split-Screen) */
+    @media (max-width: 500px) and (max-height: 520px) {
+      header.app-main-header {
+        padding: 4px 6px !important;
+      }
+    }
+
+    /* 2️⃣ البصمة المكانية واللونية الموحدة للأزرار (Unified Button DNA) + الإضاءة السفلية (Bottom Under-Glow) */
+    .mg-btn-dna-save,
+    .mg-sticky-commit-btn,
+    button[onclick*="commitOpSales"],
+    button[onclick*="commitOpPurchase"] {
+      min-height: 42px !important;
+      border-radius: 14px !important;
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+      color: #022c22 !important;
+      font-weight: 900 !important;
+      border: 1.5px solid rgba(110, 231, 183, 0.65) !important;
+      box-shadow: 0 7px 18px -3px rgba(16, 185, 129, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.35) !important;
+      transition: transform 0.14s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.14s ease !important;
+    }
+
+    .mg-btn-dna-edit,
+    .mg-row-act-edit {
+      min-height: 36px !important;
+      border-radius: 12px !important;
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.22), rgba(217, 119, 6, 0.32)) !important;
+      color: #fde68a !important;
+      border: 1.25px solid rgba(251, 191, 36, 0.55) !important;
+      box-shadow: 0 6px 15px -3px rgba(245, 158, 11, 0.4) !important;
+    }
+
+    .mg-btn-dna-delete,
+    .mg-row-act-del {
+      min-height: 36px !important;
+      border-radius: 12px !important;
+      background: linear-gradient(135deg, rgba(225, 29, 72, 0.24), rgba(190, 18, 60, 0.36)) !important;
+      color: #fecdd3 !important;
+      border: 1.25px solid rgba(251, 113, 133, 0.6) !important;
+      box-shadow: 0 6px 15px -3px rgba(225, 29, 72, 0.45) !important;
+      margin-right: auto !important;
+    }
+
+    /* 3️⃣ الإيماءات الحركية والضوئية والإضاءة السفلية للأزرار (Touch Scale 1.03 + Bottom Under-Glow) */
+    button:not(:disabled),
+    .op-btn,
+    .flagship-tile {
+      transition: transform 0.14s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.14s ease, border-color 0.14s ease !important;
+      will-change: transform;
+    }
+    button:not(:disabled):hover,
+    button:not(:disabled):active,
+    .op-btn:active,
+    .flagship-tile:active {
+      transform: scale(1.03) !important;
+      box-shadow: 0 8px 20px -4px rgba(56, 189, 248, 0.55), 0 0 12px rgba(56, 189, 248, 0.35) !important;
+    }
+
+    /* قفل الحفظ مرة واحدة فقط (Single-Save Lock Visual State) */
+    button[data-mg-save-locked="1"] {
+      opacity: 0.65 !important;
+      pointer-events: none !important;
+      filter: saturate(0.6);
+    }
+
+    /* 4️⃣ اللمعات الضوئية المتحركة الزجاجية فائقة الخفة (بدون حجب التمرير العمودي في النوافذ) */
+    .mg-glass-sheen-card,
+    .glance-card-modern {
+      position: relative;
+      overflow: hidden;
+    }
+    .glass-base {
+      position: relative;
+    }
+
+    /* 🚀 ضمان التمرير العمودي فائق السلاسة ( للأعلى والأسفل 100% ) في كافة شاشات العمليات والنوافذ المنبثقة */
+    .app-main-content,
+    [id^="modalOp"] > .glass-base,
+    [id^="modalOp"] > div:first-child,
+    [id^="modal"] > .glass-base,
+    [id$="Modal"] > .glass-base,
+    .mg-fluid-bottom-sheet > div:first-child,
+    .glass-base.overflow-y-auto,
+    .overflow-y-auto,
+    [id^="mgSplitSubTab_"] {
+      overflow-y: auto !important;
+      overflow-x: hidden !important;
+      -webkit-overflow-scrolling: touch !important;
+      touch-action: pan-y pinch-zoom !important;
+      overscroll-behavior-y: contain !important;
+      scroll-behavior: smooth;
+    }
+    [id^="modalOp"] {
+      overflow-y: auto !important;
+      -webkit-overflow-scrolling: touch !important;
+      touch-action: pan-y pinch-zoom !important;
+    }
+    [id^="modalOp"] > .glass-base,
+    [id^="modalOp"] > div:first-child {
+      max-height: 92dvh !important;
+      scrollbar-width: thin !important;
+      scrollbar-color: rgba(56, 189, 248, 0.55) rgba(15, 23, 42, 0.4) !important;
+    }
+    [id^="modalOp"] > .glass-base::-webkit-scrollbar,
+    [id^="modalOp"] > div:first-child::-webkit-scrollbar,
+    .app-main-content::-webkit-scrollbar {
+      width: 5px !important;
+    }
+    [id^="modalOp"] > .glass-base::-webkit-scrollbar-thumb,
+    [id^="modalOp"] > div:first-child::-webkit-scrollbar-thumb,
+    .app-main-content::-webkit-scrollbar-thumb {
+      background: rgba(56, 189, 248, 0.55) !important;
+      border-radius: 9999px !important;
+    }
+    /* ضمان تمرير النوافذ بسلاسة تامة حتى أثناء تفعيل وضع الشاشتين بالتناصف (50% / 50%) */
+    body.mg-split-vertical:not(.mg-split-swapped) [id^="modalOp"] {
+      top: 0 !important;
+      bottom: 50dvh !important;
+      height: 50dvh !important;
+    }
+    body.mg-split-vertical.mg-split-swapped [id^="modalOp"] {
+      top: 50dvh !important;
+      bottom: 0 !important;
+      height: 50dvh !important;
+    }
+    body.mg-split-vertical [id^="modalOp"] > .glass-base,
+    body.mg-split-vertical [id^="modalOp"] > div:first-child {
+      max-height: 46dvh !important;
+    }
+    body.mg-split-landscape [id^="modalOp"] > .glass-base,
+    body.mg-split-landscape [id^="modalOp"] > div:first-child {
+      max-height: 94dvh !important;
+      width: 100% !important;
+    }
+    .mg-glass-sheen-card::after,
+    .glance-card-modern::after {
+      content: "";
+      position: absolute;
+      top: -50%;
+      left: -60%;
+      width: 40%;
+      height: 200%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.09), transparent);
+      transform: rotate(25deg) translate3d(0, 0, 0);
+      animation: mgGlassSheenSweep 7s infinite ease-in-out;
+      pointer-events: none;
+    }
+    @keyframes mgGlassSheenSweep {
+      0%, 75% { transform: rotate(25deg) translate3d(-120%, 0, 0); }
+      100%    { transform: rotate(25deg) translate3d(420%, 0, 0); }
+    }
+
+    /* 5️⃣ تأثير الاهتزاز الأفقي السريع للخانة الخاطئة (Invalid Field Shake Effect) */
+    @keyframes mgInvalidFieldShake {
+      0%, 100% { transform: translateX(0); }
+      20%      { transform: translateX(-8px); }
+      40%      { transform: translateX(8px); }
+      60%      { transform: translateX(-6px); }
+      80%      { transform: translateX(6px); }
+    }
+    .mg-field-error-shake {
+      animation: mgInvalidFieldShake 0.42s cubic-bezier(0.36, 0.07, 0.19, 0.97) both !important;
+      border-color: #f43f5e !important;
+      box-shadow: 0 0 0 3px rgba(244, 63, 94, 0.45) !important;
+    }
+
+/* 1️⃣ إخفاء أي أزرار فرعية للمرشد داخل الشاشة والاعتماد حصرياً على زر "المرشد" العلوي */
+    .sub-guide-btn,
+    [data-sub-guide-trigger],
+    #mgGestureFallbackBar button[onclick*="openGestureIllustratedGuide"] {
+      display: none !important;
+    }
+
+    /* زر "المرشد" العلوي الحصري في شريط الجوال الأعلى وداخل ترويسة الشاشات الوليدة */
+    #mgTopExclusiveSmartGuideBtn,
+    .mg-modal-top-exclusive-guide-btn {
+      background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%) !important;
+      color: #020617 !important;
+      border: 1.5px solid #fde68a !important;
+      box-shadow: 0 4px 14px rgba(245, 158, 11, 0.45) !important;
+      font-weight: 900 !important;
+    }
+    #mgTopExclusiveSmartGuideBtn.mg-guide-active,
+    .mg-modal-top-exclusive-guide-btn.mg-guide-active {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+      color: #022c22 !important;
+      border-color: #a7f3d0 !important;
+      box-shadow: 0 0 18px rgba(16, 185, 129, 0.7) !important;
+    }
+
+    /* 2️⃣ كبسولة التحكم النانو العائمة للجوال (Mobile Nano-HUD — لا تحجب مليمتراً واحداً من خانات العمل وتبتعد تلقائياً) */
+    #mgSmartGuideNanoHud {
+      position: fixed;
+      bottom: 6px;
+      left: 6px;
+      right: 6px;
+      z-index: 10005;
+      background: rgba(2, 6, 23, 0.96) !important;
+      border: 1.5px solid rgba(56, 189, 248, 0.55) !important;
+      border-radius: 16px !important;
+      padding: 5px 8px !important;
+      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.85) !important;
+      backdrop-filter: blur(10px);
+      transition: top 0.2s ease, bottom 0.2s ease;
+    }
+    /* الابتعاد التلقائي للأعلى إذا كان العنصر المشروح في أسفل الشاشة */
+    #mgSmartGuideNanoHud.mg-nano-dock-top {
+      bottom: auto !important;
+      top: 6px !important;
+    }
+    /* الوضع فائق التصغير (Micro-Pill) بلمسة واحدة */
+    #mgSmartGuideNanoHud.mg-nano-minimized #mgNanoBodyDetails,
+    #mgSmartGuideNanoHud.mg-nano-minimized #mgNanoSvgMapContainer {
+      display: none !important;
+    }
+    html[data-theme="light"] #mgSmartGuideNanoHud,
+    body.theme-light #mgSmartGuideNanoHud {
+      background: rgba(255, 255, 255, 0.98) !important;
+      border: 1.5px solid rgba(2, 132, 199, 0.5) !important;
+      color: #000000 !important;
+    }
+
+    /* 3️⃣ البؤرة الضوئية الموجهة للعنصر قيد الشرح (Spotlight Ring) */
+    .mg-guide-spotlight-active {
+      position: relative;
+      z-index: 9990 !important;
+      outline: 3px solid #fbbf24 !important;
+      outline-offset: 2px !important;
+      box-shadow: 0 0 0 5px rgba(251, 191, 36, 0.35), 0 0 22px rgba(56, 189, 248, 0.65) !important;
+      border-radius: 12px !important;
+      transition: outline 0.18s ease, box-shadow 0.18s ease !important;
+    }
+
+/* 1️⃣ الطب البصري لشاشة الجوال: تثبيت عمود الاسم (Sticky Column) أثناء التمرير الأفقي */
+    .mg-sticky-table-wrap,
+    .overflow-x-auto {
+      position: relative;
+      -webkit-overflow-scrolling: touch;
+    }
+    table th:first-child,
+    table td:first-child,
+    .mg-sticky-name-col {
+      position: sticky !important;
+      right: 0 !important;
+      z-index: 11 !important;
+      background-color: #091024 !important;
+      box-shadow: -3px 0 8px rgba(0, 0, 0, 0.45) !important;
+    }
+    html[data-theme="light"] table th:first-child,
+    html[data-theme="light"] table td:first-child,
+    body.theme-light table th:first-child,
+    body.theme-light table td:first-child {
+      background-color: #F8FAFC !important;
+      box-shadow: -3px 0 8px rgba(0, 0, 0, 0.12) !important;
+    }
+
+    /* 2️⃣ التدرج البصري التبادلي للأسطر (Zebra Striping) + إضاءة السطر النشط بالكامل لمنع انزلاق العين */
+    table tbody tr:nth-child(even),
+    .invoice-item-row:nth-child(even),
+    .ledger-row-card:nth-child(even) {
+      background-color: rgba(30, 41, 59, 0.42) !important;
+    }
+    html[data-theme="light"] table tbody tr:nth-child(even),
+    body.theme-light table tbody tr:nth-child(even) {
+      background-color: rgba(226, 232, 240, 0.55) !important;
+    }
+
+    table tbody tr:hover,
+    table tbody tr:focus-within,
+    table tbody tr.mg-active-eye-row,
+    .invoice-item-row:focus-within,
+    .ledger-row-card.mg-active-eye-row {
+      background-color: rgba(14, 165, 233, 0.22) !important;
+      outline: 1.5px solid rgba(56, 189, 248, 0.7) !important;
+    }
+
+    /* 3️⃣ محاذاة الأرقام عمودياً بالمسطرة (Tabular Numerals) لمنع تراقص الخانات */
+    input[type="number"],
+    input[type="tel"],
+    .font-mono,
+    .privacy-mask,
+    table td,
+    [id*="Total"],
+    [id*="Amount"],
+    [id*="Price"],
+    [id*="Qty"] {
+      font-variant-numeric: tabular-nums lining-nums !important;
+      font-feature-settings: "tnum" 1, "lnum" 1 !important;
+    }
+
+    /* 4️⃣ تسريع العرض الافتراضي لـ 100,000 سجل (Virtual Content Visibility 0ms) */
+    .virtual-row-100k,
+    table tbody tr,
+    .ledger-row-card,
+    .transaction-item-card {
+      content-visibility: auto;
+      contain-intrinsic-size: auto 44px;
+    }
+
+/* 1️⃣ شريط الكيبورد المحاسبي السريع فوق كيبورد الجوال (Inline Math & Accounting Keypad) */
+    #mgInlineAccountingKeypadBar {
+      position: fixed;
+      left: 6px;
+      right: 6px;
+      bottom: calc(var(--mg-kb-offset, 0px) + 6px);
+      z-index: 10002;
+      background: rgba(2, 6, 23, 0.97) !important;
+      border: 1.5px solid rgba(56, 189, 248, 0.6) !important;
+      border-radius: 16px !important;
+      padding: 5px 8px !important;
+      box-shadow: 0 -8px 25px rgba(0, 0, 0, 0.8) !important;
+    }
+    html[data-theme="light"] #mgInlineAccountingKeypadBar,
+    body.theme-light #mgInlineAccountingKeypadBar {
+      background: rgba(255, 255, 255, 0.98) !important;
+      border: 1.5px solid rgba(2, 132, 199, 0.55) !important;
+      color: #000000 !important;
+    }
+
+    /* 2️⃣ إطار كهرماني نابض لحارس الأصفار الزائدة (Fat-Finger Outlier Guard) */
+    @keyframes mgFatFingerAmberPulse {
+      0%, 100% {
+        box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.9), 0 0 16px rgba(245, 158, 11, 0.6);
+        border-color: #f59e0b !important;
+      }
+      50% {
+        box-shadow: 0 0 0 5px rgba(251, 191, 36, 0.45), 0 0 24px rgba(245, 158, 11, 0.85);
+        border-color: #fde68a !important;
+      }
+    }
+    .mg-fat-finger-amber-pulse {
+      animation: mgFatFingerAmberPulse 1.1s infinite ease-in-out !important;
+    }
+
+    /* 3️⃣ خط المسح الليزري في عدسة الكاميرا للباركود (0.2s Laser Scanner Line) */
+    @keyframes mgLaserScanSweep {
+      0%, 100% { top: 12%; }
+      50%      { top: 86%; }
+    }
+    #mgLaserScanLine {
+      position: absolute;
+      left: 8%;
+      right: 8%;
+      height: 2.5px;
+      background: linear-gradient(90deg, transparent, #ef4444, #fbbf24, #ef4444, transparent);
+      box-shadow: 0 0 12px #ef4444;
+      animation: mgLaserScanSweep 1.6s infinite ease-in-out;
+    }
+
+.mg-erp-depth-strip {
+      background: linear-gradient(90deg, rgba(15, 23, 42, 0.96), rgba(30, 41, 59, 0.96)) !important;
+      border: 1.25px solid var(--mg-c2-border-soft, rgba(255, 255, 255, 0.22)) !important;
+      border-radius: 14px !important;
+    }
+    html[data-theme="light"] .mg-erp-depth-strip,
+    body.theme-light .mg-erp-depth-strip {
+      background: #F8FAFC !important;
+      border: 1.25px solid rgba(0, 0, 0, 0.20) !important;
+    }
+
+/* الالتزام الصارم بالحواف الراقية خفيفة الحدة وثبات لون خانة الكتابة في كافة نوافذ الشيكات والبنوك */
+    #mgChequeAndBankGuardModal input:not([type="checkbox"]):not([type="radio"]):not([type="file"]),
+    #mgChequeAndBankGuardModal select,
+    #mgChequeAndBankGuardModal textarea {
+      border: 1.25px solid var(--mg-c2-border-soft, rgba(255, 255, 255, 0.22)) !important;
+      background-color: var(--mg-c2-input-bg, #000000) !important;
+      color: var(--mg-c2-input-text, #FFFFFF) !important;
+      -webkit-text-fill-color: var(--mg-c2-input-text, #FFFFFF) !important;
+      font-weight: 800 !important;
+    }
+    #mgChequeAndBankGuardModal .mg-c9-soft-box {
+      border: 1.25px solid var(--mg-c2-border-soft, rgba(255, 255, 255, 0.22)) !important;
+    }
+
+/* 1️⃣ ستارة التعتيم التلقائي عند التنقل بين التطبيقات (App-Switcher Blur Shield) */
+    #mgAppSwitcherBlurCurtain {
+      backdrop-filter: blur(26px) !important;
+      -webkit-backdrop-filter: blur(26px) !important;
+      background: rgba(2, 6, 23, 0.94) !important;
+    }
+
+    /* 2️⃣ البصمة المائية الرقمية الخفية لمنع تسريب وتصوير الشاشة (Forensic Micro-Watermark) */
+    #mgForensicMicroWatermark {
+      position: fixed;
+      inset: 0;
+      z-index: 9991;
+      pointer-events: none !important;
+      user-select: none !important;
+      overflow: hidden;
+      opacity: 0.045;
+      display: flex;
+      flex-wrap: wrap;
+      align-content: space-around;
+      justify-content: space-around;
+      transform: rotate(-22deg) scale(1.15);
+      font-size: 11px;
+      font-weight: 900;
+      font-family: monospace;
+      color: #38bdf8;
+    }
+
+    /* 3️⃣ حماية الشاشات الحساسة ضد النسخ العشوائي */
+    #mgSecurityAndBlackBoxModal input:not([type="checkbox"]):not([type="radio"]),
+    #mgSecurityAndBlackBoxModal select,
+    #mgSecurityAndBlackBoxModal textarea {
+      border: 1.25px solid var(--mg-c2-border-soft, rgba(255, 255, 255, 0.22)) !important;
+      background-color: var(--mg-c2-input-bg, #000000) !important;
+      color: var(--mg-c2-input-text, #FFFFFF) !important;
+      -webkit-text-fill-color: var(--mg-c2-input-text, #FFFFFF) !important;
+    }
+
+    /* 4️⃣ تنسيق الطباعة الحرارية 80mm و A4 والعلامة المائية القطرية لبدل الفاقد */
+    @media print {
+      body[data-mg-print-mode="thermal80"] {
+        width: 80mm !important;
+        margin: 0 !important;
+        padding: 2mm !important;
+      }
+      #mgDuplicatePrintWatermarkOverlay {
+        display: flex !important;
+      }
+    }
+
+/* 1️⃣ إصلاح تكدس أزرار الشريط العلوي على الشاشات الصغيرة عبر التمرير الأفقي فائق السلاسة */
+    #mgDualGatewayInnerBar > div {
+      flex-wrap: nowrap !important;
+      overflow-x: auto !important;
+      -webkit-overflow-scrolling: touch !important;
+      scrollbar-width: none !important;
+    }
+    #mgDualGatewayInnerBar > div::-webkit-scrollbar {
+      display: none !important;
+    }
+
+    /* 2️⃣ منع التداخل بين شريط الكيبورد المحاسبي وكبسولة المرشد النانو عند عملهما معاً */
+    body:has(#mgSmartGuideNanoHud:not(.hidden)) #mgInlineAccountingKeypadBar {
+      bottom: calc(var(--mg-kb-offset, 0px) + 94px) !important;
+    }
+
+    /* 3️⃣ المعادلات الشعاعية اللانهائية (2010 -> ∞) + تفريغ الشاشة 100% عند قلب الجوال بالعرض */
+    svg, svg * {
+      vector-effect: non-scaling-stroke;
+      shape-rendering: geometricPrecision;
+    }
+    @media (orientation: landscape) and (max-height: 540px) {
+      #mgPeaceOfMindCapsule,
+      .mg-dept-header-banner {
+        display: none !important;
+      }
+    }
+
+    /* شريط الأدوات الوليدة المدمج داخل شاشات الفواتير (شاشة داخل شاشة) */
+    .mg-inmodal-subscreens-bar {
+      background: rgba(2, 6, 23, 0.92) !important;
+      border: 1.25px solid var(--mg-c2-border-soft, rgba(255, 255, 255, 0.22)) !important;
+      border-radius: 14px !important;
+      padding: 5px 8px !important;
+    }
+    html[data-theme="light"] .mg-inmodal-subscreens-bar,
+    body.theme-light .mg-inmodal-subscreens-bar {
+      background: #F1F5F9 !important;
+      border: 1.25px solid rgba(0, 0, 0, 0.20) !important;
+    }
