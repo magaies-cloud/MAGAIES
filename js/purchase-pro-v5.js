@@ -2079,6 +2079,7 @@ function updateRowCalcs(id) {
     const bundleEl = document.querySelector(`[data-bundle="${id}"]`);
     const shilaEl = document.querySelector(`[data-shila="${id}"]`);
     const shilaRemEl = document.querySelector(`[data-shila-rem="${id}"]`);
+    const qtyEl = document.querySelector(`[data-qty-input="${id}"]`);
     const priceEl = document.querySelector(`[data-price-input="${id}"]`);
     const fcPriceEl = document.querySelector(`[data-fcprice-input="${id}"]`);
     const totalFcEl = document.querySelector(`[data-total-fc="${id}"]`);
@@ -2088,6 +2089,7 @@ function updateRowCalcs(id) {
     if (bundleEl) bundleEl.textContent = fmtNum(calcs.bundles, 'shila');
     if (shilaEl) shilaEl.textContent = fmtNum(calcs.shilaQty, 'shila');
     if (shilaRemEl) shilaRemEl.textContent = fmtNum(calcs.shilaRem, 'shila-rem');
+    if (qtyEl && document.activeElement !== qtyEl && row.quantity) qtyEl.value = fmtNum(row.quantity, 'quantity');
     if (priceEl && document.activeElement !== priceEl) priceEl.value = fmtNum(row.price, 'price');
 
     const isBaseSDG = document.getElementById('hdr-currency').value === 'SDG';
@@ -2119,31 +2121,31 @@ function updateRowCalcs(id) {
             const diffPct = ((curPrice - refPrice) / refPrice) * 100;
             priceHintEl.style.display = 'block';
             if (diffPct >= 15) {
-                const msg = `🚨 تنبيه رقابي حرج: السعر (${fmtNum(curPrice)}) يتجاوز المرجعي (${fmtNum(refPrice)}) بنسبة +${diffPct.toFixed(1)}%`;
+                const msg = `🚨 تنبيه رقابي حرج: السعر (${fmtNum(curPrice)}) مرتفع عن المرجعي (${fmtNum(refPrice)}) بنسبة +${diffPct.toFixed(1)}%`;
                 priceHintEl.setAttribute('data-lamp-state', 'red');
                 priceHintEl.setAttribute('data-audit-msg', msg);
-                priceHintEl.innerHTML = `<span class="btn-icon pur-price-lamp lamp-red"></span><span class="btn-icon pur-price-subtxt">+${Math.round(diffPct)}% (${fmtNum(refPrice)})</span>`;
+                priceHintEl.innerHTML = `<span class="btn-icon pur-price-lamp lamp-red"></span><span class="btn-icon pur-price-subtxt">▲ +${Math.round(diffPct)}% (${fmtNum(refPrice)})</span>`;
                 priceHintEl.title = msg + ' — اضغط للتفاصيل وسجل الأسعار';
                 if (priceEl) priceEl.style.borderColor = 'rgba(244, 63, 94, 0.85)';
             } else if (diffPct > 1) {
-                const msg = `⚠️ تنبيه: السعر (${fmtNum(curPrice)}) أعلى من المرجعي (${fmtNum(refPrice)}) بنسبة +${diffPct.toFixed(1)}%`;
+                const msg = `⚠️ تنبيه: السعر (${fmtNum(curPrice)}) مرتفع عن المرجعي (${fmtNum(refPrice)}) بنسبة +${diffPct.toFixed(1)}%`;
                 priceHintEl.setAttribute('data-lamp-state', 'amber');
                 priceHintEl.setAttribute('data-audit-msg', msg);
-                priceHintEl.innerHTML = `<span class="btn-icon pur-price-lamp lamp-amber"></span><span class="btn-icon pur-price-subtxt">+${Math.round(diffPct)}% (${fmtNum(refPrice)})</span>`;
+                priceHintEl.innerHTML = `<span class="btn-icon pur-price-lamp lamp-amber"></span><span class="btn-icon pur-price-subtxt">▲ +${Math.round(diffPct)}% (${fmtNum(refPrice)})</span>`;
                 priceHintEl.title = msg + ' — اضغط للتفاصيل وسجل الأسعار';
                 if (priceEl) priceEl.style.borderColor = 'rgba(245, 158, 11, 0.75)';
             } else if (diffPct < -1) {
-                const msg = `✅ وفرة سعرية: السعر (${fmtNum(curPrice)}) أقل من المرجعي (${fmtNum(refPrice)}) بنسبة ${Math.abs(diffPct).toFixed(1)}%`;
+                const msg = `✅ وفرة سعرية: السعر (${fmtNum(curPrice)}) نازل عن المرجعي (${fmtNum(refPrice)}) بنسبة ${Math.abs(diffPct).toFixed(1)}%`;
                 priceHintEl.setAttribute('data-lamp-state', 'green');
                 priceHintEl.setAttribute('data-audit-msg', msg);
-                priceHintEl.innerHTML = `<span class="btn-icon pur-price-lamp lamp-green"></span><span class="btn-icon pur-price-subtxt">-${Math.round(Math.abs(diffPct))}% (${fmtNum(refPrice)})</span>`;
+                priceHintEl.innerHTML = `<span class="btn-icon pur-price-lamp lamp-green"></span><span class="btn-icon pur-price-subtxt">▼ -${Math.round(Math.abs(diffPct))}% (${fmtNum(refPrice)})</span>`;
                 priceHintEl.title = msg + ' — اضغط للتفاصيل وسجل الأسعار';
                 if (priceEl) priceEl.style.borderColor = '';
             } else {
                 const msg = `ℹ️ مطابق للسعر المرجعي للصنف (${fmtNum(refPrice)})`;
                 priceHintEl.setAttribute('data-lamp-state', 'blue');
                 priceHintEl.setAttribute('data-audit-msg', msg);
-                priceHintEl.innerHTML = `<span class="btn-icon pur-price-lamp lamp-blue"></span><span class="btn-icon pur-price-subtxt">${fmtNum(refPrice)}</span>`;
+                priceHintEl.innerHTML = `<span class="btn-icon pur-price-lamp lamp-blue"></span><span class="btn-icon pur-price-subtxt">= ${fmtNum(refPrice)}</span>`;
                 priceHintEl.title = msg + ' — اضغط لعرض سجل الأسعار';
                 if (priceEl) priceEl.style.borderColor = '';
             }
@@ -2417,9 +2419,9 @@ function renderGrid() {
             </td>
             
             <td data-col-id="quantity" style="text-align: center; vertical-align: middle;">
-                <input type="text" inputmode="decimal" class="g-input" data-qty-input="${row.id}" value="${row.quantity || ''}" placeholder="0"
+                <input type="text" inputmode="decimal" class="g-input" data-qty-input="${row.id}" value="${row.quantity ? fmtNum(row.quantity, 'quantity') : ''}" placeholder="0"
                     onfocus="this.select()" oninput="updateRow(${row.id},'quantity',this.value); if(window.autoFitSingleInput) window.autoFitSingleInput(this);"
-                    onblur="this.value=parseNum(this.value)||''; if(window.autoFitSingleInput) window.autoFitSingleInput(this);" style="text-align: center; width: 100%; margin: 0 auto; display: block;">
+                    onblur="this.value=parseNum(this.value)?fmtNum(parseNum(this.value),'quantity'):''; if(window.autoFitSingleInput) window.autoFitSingleInput(this);" style="text-align: center; width: 100%; margin: 0 auto; display: block;">
             </td>
             <td data-col-id="price" style="text-align: center; position: relative; vertical-align: middle;">
                 <input type="text" inputmode="decimal" class="g-input" data-price-input="${row.id}" value="${fmtNum(row.price, 'price')}"
@@ -5094,24 +5096,24 @@ function addBankTransferRow(existingData = null) {
     const isFirst = container.children.length === 0;
     
     const labelHtml = isFirst 
-        ? `<div style="display: flex; align-items: center; justify-content: flex-start; color: #67e8f9; font-weight: 900; font-size: 0.95rem; gap: 6px; text-shadow: 0 0 8px rgba(6, 182, 212, 0.4);"><span>🏦</span> بنكي</div>`
+        ? `<div class="pay-method-row-lbl" style="display: flex; align-items: center; justify-content: flex-start; color: #67e8f9; font-weight: 900; font-size: 1.05rem; gap: 6px; text-shadow: 0 0 8px rgba(6, 182, 212, 0.4);"><span>🏦</span> بنكي</div>`
         : `<div></div>`;
 
     const actionBtn = isFirst
         ? `<button type="button" onclick="addBankTransferRow()" style="background: rgba(6,182,212,0.15); border: 1.5px solid #06b6d4; color: #06b6d4; border-radius: 50%; width: 26px; height: 26px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; padding: 0; outline: none; transition: 0.2s;" onmouseover="this.style.background='rgba(6,182,212,0.3)'" onmouseout="this.style.background='rgba(6,182,212,0.15)'" title="إضافة تحويل بنكي">+</button>`
         : `<button type="button" onclick="document.getElementById('${rowId}').remove(); onPaymentAmountInput();" style="background: rgba(239,68,68,0.15); border: 1.5px solid #ef4444; color: #ef4444; border-radius: 50%; width: 26px; height: 26px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; padding: 0; padding-bottom: 2px; outline: none; transition: 0.2s;" onmouseover="this.style.background='rgba(239,68,68,0.3)'" onmouseout="this.style.background='rgba(239,68,68,0.15)'" title="حذف">×</button>`;
 
-    const inputStyle = "background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(6, 182, 212, 0.4); border-radius: 8px; text-align: center; font-size: 1.05rem; color: #e2e8f0; height: 60px; outline: none; padding: 0 8px; width: 100%; transition: all 0.3s ease;";
-    const amountStyle = "background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(6, 182, 212, 0.5); border-radius: 8px; text-align: center; font-size: 2.25rem; font-weight: 800; color: #fff; height: 60px; outline: none; padding: 0 8px; font-family: 'Tajawal', sans-serif; width: 100%; transition: all 0.3s ease;";
+    const inputStyle = "background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(6, 182, 212, 0.4); border-radius: 8px; text-align: center; font-size: 1.05rem; color: #e2e8f0; height: 60px; outline: none; padding: 0 8px; width: 100%; min-width: 0; box-sizing: border-box; transition: all 0.2s ease;";
+    const amountStyle = "background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(6, 182, 212, 0.5); border-radius: 8px; text-align: center; font-size: 2.35rem; font-weight: 900; color: #fff; height: 60px; outline: none; padding: 0 8px; font-family: 'Tajawal', sans-serif; width: 100%; min-width: 0; box-sizing: border-box; transition: all 0.2s ease;";
 
     const rowHtml = `
-        <div class="payment-row-item" id="${rowId}" style="display: grid; grid-template-columns: 85px 1.5fr 1.2fr 1.2fr 2fr 30px; gap: 8px; align-items: center; width: 100%; margin-bottom: 6px;">
+        <div class="payment-row-item" id="${rowId}" style="display: grid; grid-template-columns: 85px 22% 18% 18% minmax(0, 1fr) 30px; gap: 10px; align-items: center; width: 100%; margin-bottom: 6px;">
             ${labelHtml}
             <input type="number" class="v-input ctrl-input bt-amount-input dynamic-focus-input dynamic-focus-amount" value="${existingData ? Math.round(parseFloat(existingData.amount)) : ''}" step="1" oninput="onPaymentAmountInput()" placeholder="المبلغ" style="${amountStyle}">
             <select class="v-input ctrl-input bt-bank-select" style="${inputStyle}">
                 ${banksHtml}
             </select>
-            <input type="text" maxlength="20" class="v-input ctrl-input bt-ref-input dynamic-focus-input dynamic-focus-number" value="${existingData?.chequeNo || existingData?.reference || ''}" placeholder="رقم التحويلة" style="${inputStyle}">
+            <input type="text" maxlength="20" class="v-input ctrl-input bt-ref-input dynamic-focus-input dynamic-focus-number" value="${existingData?.chequeNo || existingData?.reference || ''}" placeholder="رقم التحويلة" style="${amountStyle}">
             <input type="text" class="v-input ctrl-input bt-note-input" value="${existingData?.notes || ''}" placeholder="بيان التحويل" style="${inputStyle}">
             <div style="display: flex; justify-content: center; align-items: center; width: 100%;">
                 ${actionBtn}
@@ -5153,26 +5155,28 @@ function addChequeRow(existingData = null) {
     const isFirst = container.children.length === 0;
 
     const labelHtml = isFirst 
-        ? `<div style="display: flex; align-items: center; justify-content: flex-start; color: #d8b4fe; font-weight: 900; font-size: 0.95rem; gap: 6px; text-shadow: 0 0 8px rgba(168, 85, 247, 0.4);"><span>✍️</span> شيك</div>`
+        ? `<div class="pay-method-row-lbl" style="display: flex; align-items: center; justify-content: flex-start; color: #d8b4fe; font-weight: 900; font-size: 1.05rem; gap: 6px; text-shadow: 0 0 8px rgba(168, 85, 247, 0.4);"><span>✍️</span> شيك</div>`
         : `<div></div>`;
 
     const actionBtn = isFirst
         ? `<button type="button" onclick="addChequeRow()" style="background: rgba(168,85,247,0.15); border: 1.5px solid #a855f7; color: #a855f7; border-radius: 50%; width: 26px; height: 26px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; padding: 0; outline: none; transition: 0.2s;" onmouseover="this.style.background='rgba(168,85,247,0.3)'" onmouseout="this.style.background='rgba(168,85,247,0.15)'" title="إضافة شيك">+</button>`
         : `<button type="button" onclick="document.getElementById('${rowId}').remove(); onPaymentAmountInput();" style="background: rgba(239,68,68,0.15); border: 1.5px solid #ef4444; color: #ef4444; border-radius: 50%; width: 26px; height: 26px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; padding: 0; padding-bottom: 2px; outline: none; transition: 0.2s;" onmouseover="this.style.background='rgba(239,68,68,0.3)'" onmouseout="this.style.background='rgba(239,68,68,0.15)'" title="حذف">×</button>`;
 
-    const inputStyle = "background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(168, 85, 247, 0.4); border-radius: 8px; text-align: center; font-size: 1.05rem; color: #e2e8f0; height: 60px; outline: none; padding: 0 8px; width: 100%; transition: all 0.3s ease;";
-    const amountStyle = "background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(168, 85, 247, 0.5); border-radius: 8px; text-align: center; font-size: 2.25rem; font-weight: 800; color: #fff; height: 60px; outline: none; padding: 0 8px; font-family: 'Tajawal', sans-serif; width: 100%; transition: all 0.3s ease;";
+    const inputStyle = "background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(168, 85, 247, 0.4); border-radius: 8px; text-align: center; font-size: 1.05rem; color: #e2e8f0; height: 60px; outline: none; padding: 0 8px; width: 100%; min-width: 0; box-sizing: border-box; transition: all 0.2s ease;";
+    const amountStyle = "background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(168, 85, 247, 0.5); border-radius: 8px; text-align: center; font-size: 2.35rem; font-weight: 900; color: #fff; height: 60px; outline: none; padding: 0 8px; font-family: 'Tajawal', sans-serif; width: 100%; min-width: 0; box-sizing: border-box; transition: all 0.2s ease;";
 
     const rowHtml = `
-        <div class="payment-row-item" id="${rowId}" style="display: grid; grid-template-columns: 85px 1.5fr 1.2fr 1.2fr 1fr 1fr 30px; gap: 8px; align-items: center; width: 100%; margin-bottom: 6px;">
+        <div class="payment-row-item" id="${rowId}" style="display: grid; grid-template-columns: 85px 22% 18% 18% minmax(0, 1fr) 30px; gap: 10px; align-items: center; width: 100%; margin-bottom: 6px;">
             ${labelHtml}
             <input type="number" class="v-input ctrl-input ch-amount-input dynamic-focus-input dynamic-focus-amount" value="${existingData ? Math.round(parseFloat(existingData.amount)) : ''}" step="1" oninput="onPaymentAmountInput()" onblur="const v=parseNum(this.value); const cont=document.getElementById('cheques-list'); if((!this.value || v<=0) && cont && cont.querySelectorAll('.payment-row-item').length>1){ this.closest('.payment-row-item').remove(); onPaymentAmountInput(); }" placeholder="المبلغ" style="${amountStyle}">
             <select class="v-input ctrl-input ch-bank-select" style="${inputStyle}">
                 ${banksHtml}
             </select>
-            <input type="text" maxlength="20" class="v-input ctrl-input ch-no-input dynamic-focus-input dynamic-focus-number" value="${existingData?.chequeNo || ''}" placeholder="رقم الشيك" style="${inputStyle}">
-            <input type="date" class="v-input ctrl-input ch-date-input" value="${existingData?.dueDate || today}" placeholder="mm/dd/yyyy" style="${inputStyle}">
-            <input type="text" class="v-input ctrl-input bt-note-input" value="${existingData?.notes || ''}" placeholder="بيان الشيك" style="${inputStyle}">
+            <input type="text" maxlength="20" class="v-input ctrl-input ch-no-input dynamic-focus-input dynamic-focus-number" value="${existingData?.chequeNo || ''}" placeholder="رقم الشيك" style="${amountStyle}">
+            <div style="display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px; width: 100%; min-width: 0;">
+                <input type="date" class="v-input ctrl-input ch-date-input" value="${existingData?.dueDate || today}" placeholder="mm/dd/yyyy" style="${inputStyle}">
+                <input type="text" class="v-input ctrl-input bt-note-input" value="${existingData?.notes || ''}" placeholder="بيان الشيك" style="${inputStyle}">
+            </div>
             <div style="display: flex; justify-content: center; align-items: center; width: 100%;">
                 ${actionBtn}
             </div>
@@ -6182,49 +6186,52 @@ window.openPurchaseAIAuditModal = function() {
     if (modal) modal.remove();
     modal = document.createElement('div');
     modal.id = 'purchase-ai-audit-modal';
-    modal.style.cssText = 'position:fixed;inset:0;background:rgba(2,6,23,0.85);backdrop-filter:blur(8px);z-index:999999;display:flex;align-items:center;justify-content:center;padding:18px;direction:rtl;font-family:Tajawal,sans-serif;';
+    const isLight = document.documentElement.classList.contains('light-theme');
+    modal.style.cssText = `position:fixed;inset:0;background:${isLight ? 'rgba(15,23,42,0.55)' : 'rgba(2,6,23,0.85)'};backdrop-filter:blur(8px);z-index:999999;display:flex;align-items:center;justify-content:center;padding:18px;direction:rtl;font-family:Tajawal,sans-serif;`;
 
     const defaultMarginPct = 18;
+    const ink = isLight ? '#140c06' : '#f8fafc';
+    const subInk = isLight ? '#334155' : '#94a3b8';
     const rowsHtml = targetLines.length === 0
-        ? '<tr><td colspan="7" style="text-align:center;padding:26px;color:#94a3b8;font-weight:700;">أضف أصنافاً في الفاتورة أو سجل فاتورة مشتريات لتحليل تكلفة الاستيراد وهامش الربح الذكي.</td></tr>'
+        ? `<tr><td colspan="7" style="text-align:center;padding:26px;color:${ink};font-weight:900;">أضف أصنافاً في الفاتورة أو سجل فاتورة مشتريات لتحليل تكلفة الاستيراد وهامش الربح الذكي.</td></tr>`
         : targetLines.map((ln, idx) => {
             const diffPct = ln.oldCostSdg > 0 ? (((ln.newCostSdg - ln.oldCostSdg) / ln.oldCostSdg) * 100) : 0;
             const suggestedSell = Math.ceil(ln.newCostSdg * (1 + defaultMarginPct / 100));
             const isLossRisk = ln.currentSellSdg > 0 && ln.currentSellSdg <= ln.newCostSdg;
             const badge = isLossRisk
-                ? '<span style="background:rgba(239,68,68,0.2);color:#fca5a5;border:1px solid rgba(239,68,68,0.45);padding:2px 8px;border-radius:8px;font-size:0.72rem;font-weight:800;">🚨 سعر البيع أقل من التكلفة!</span>'
+                ? `<span style="background:${isLight ? '#fee2e2' : 'rgba(239,68,68,0.2)'};color:${isLight ? '#991b1b' : '#fca5a5'};border:1.5px solid #ef4444;padding:2px 8px;border-radius:8px;font-size:0.75rem;font-weight:900;">🚨 سعر البيع أقل من التكلفة!</span>`
                 : (diffPct > 10
-                    ? `<span style="background:rgba(245,158,11,0.2);color:#fcd34d;border:1px solid rgba(245,158,11,0.45);padding:2px 8px;border-radius:8px;font-size:0.72rem;font-weight:800;">⚠️ قفزة سعر +${diffPct.toFixed(1)}%</span>`
-                    : '<span style="background:rgba(16,185,129,0.18);color:#6ee7b7;border:1px solid rgba(16,185,129,0.4);padding:2px 8px;border-radius:8px;font-size:0.72rem;font-weight:800;">✅ مستقر</span>');
-            return `<tr style="border-bottom:1px solid rgba(148,163,184,0.12);">
-                <td style="padding:10px;font-weight:800;color:#f8fafc;">${ln.name} <span style="color:#94a3b8;font-size:0.75rem;">(${ln.baseUnit})</span></td>
-                <td style="padding:10px;text-align:center;color:#94a3b8;font-weight:700;">${Math.round(ln.oldCostSdg).toLocaleString('en-US')}</td>
-                <td style="padding:10px;text-align:center;color:#38bdf8;font-weight:900;">${Math.round(ln.newCostSdg).toLocaleString('en-US')} <div style="font-size:0.7rem;color:#a855f7;">$${(ln.newCostSdg / fxRate).toFixed(2)}</div></td>
+                    ? `<span style="background:${isLight ? '#fef3c7' : 'rgba(245,158,11,0.2)'};color:${isLight ? '#92400e' : '#fcd34d'};border:1.5px solid #f59e0b;padding:2px 8px;border-radius:8px;font-size:0.75rem;font-weight:900;">⚠️ قفزة سعر +${diffPct.toFixed(1)}%</span>`
+                    : `<span style="background:${isLight ? '#d1fae5' : 'rgba(16,185,129,0.18)'};color:${isLight ? '#065f46' : '#6ee7b7'};border:1.5px solid #10b981;padding:2px 8px;border-radius:8px;font-size:0.75rem;font-weight:900;">✅ مستقر</span>`);
+            return `<tr style="border-bottom:1.5px solid ${isLight ? 'rgba(154,88,34,0.28)' : 'rgba(148,163,184,0.12)'};background:${isLight ? (idx % 2 === 0 ? '#ffffff' : '#fbf7ef') : 'transparent'};">
+                <td style="padding:10px;font-weight:900;color:${ink};">${ln.name} <span style="color:${subInk};font-size:0.78rem;">(${ln.baseUnit})</span></td>
+                <td style="padding:10px;text-align:center;color:${ink};font-weight:800;">${Math.round(ln.oldCostSdg).toLocaleString('en-US')}</td>
+                <td style="padding:10px;text-align:center;color:${isLight ? '#0369a1' : '#38bdf8'};font-weight:900;">${Math.round(ln.newCostSdg).toLocaleString('en-US')} <div style="font-size:0.74rem;color:${isLight ? '#6b21a8' : '#a855f7'};">$${(ln.newCostSdg / fxRate).toFixed(2)}</div></td>
                 <td style="padding:10px;text-align:center;">${badge}</td>
-                <td style="padding:10px;text-align:center;color:${isLossRisk ? '#f87171' : '#cbd5e1'};font-weight:800;">${Math.round(ln.currentSellSdg).toLocaleString('en-US')}</td>
+                <td style="padding:10px;text-align:center;color:${isLossRisk ? (isLight ? '#b91c1c' : '#f87171') : ink};font-weight:900;">${Math.round(ln.currentSellSdg).toLocaleString('en-US')}</td>
                 <td style="padding:10px;text-align:center;">
-                    <input type="number" class="ai-sell-price-input" data-item-id="${ln.itemId}" data-base-cost="${ln.newCostSdg}" value="${suggestedSell}" style="width:125px;padding:6px 10px;border-radius:8px;background:rgba(15,23,42,0.9);border:1px solid rgba(52,211,153,0.5);color:#34d399;font-weight:900;text-align:center;">
+                    <input type="number" class="ai-sell-price-input" data-item-id="${ln.itemId}" data-base-cost="${ln.newCostSdg}" value="${suggestedSell}" style="width:125px;padding:6px 10px;border-radius:8px;background:${isLight ? '#ffffff' : 'rgba(15,23,42,0.9)'};border:2px solid ${isLight ? '#9a5822' : 'rgba(52,211,153,0.5)'};color:${isLight ? '#140c06' : '#34d399'};font-weight:900;text-align:center;">
                 </td>
             </tr>`;
         }).join('');
 
     modal.innerHTML = `
-        <div style="background:linear-gradient(145deg,#0f172a,#1e1b4b);border:1px solid rgba(168,85,247,0.45);border-radius:18px;width:100%;max-width:920px;max-height:88vh;display:flex;flex-direction:column;box-shadow:0 24px 60px rgba(0,0,0,0.65);overflow:hidden;">
-            <div style="padding:16px 22px;background:rgba(15,23,42,0.75);border-bottom:1px solid rgba(168,85,247,0.25);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+        <div style="background:${isLight ? 'linear-gradient(145deg,#faf6ee,#f3e9d6)' : 'linear-gradient(145deg,#0f172a,#1e1b4b)'};border:2px solid ${isLight ? '#9a5822' : 'rgba(168,85,247,0.45)'};border-radius:18px;width:100%;max-width:920px;max-height:88vh;display:flex;flex-direction:column;box-shadow:0 24px 60px rgba(0,0,0,0.45);overflow:hidden;color:${ink};">
+            <div style="padding:16px 22px;background:${isLight ? 'linear-gradient(180deg,#f3e9d6,#eadbc2)' : 'rgba(15,23,42,0.75)'};border-bottom:2px solid ${isLight ? '#9a5822' : 'rgba(168,85,247,0.25)'};display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
                 <div>
-                    <div style="font-size:1.12rem;font-weight:900;color:#e9d5ff;display:flex;align-items:center;gap:8px;">🤖 رادار فحص أسعار الشراء وتحديث هامش البيع الذكي (AI Margin Guard 360°)</div>
-                    <div style="font-size:0.8rem;color:#94a3b8;margin-top:3px;">المصدر: <strong style="color:#38bdf8;">${sourceLabel}</strong> | سعر الصرف المعتمد: <strong style="color:#34d399;">1 USD = ${fxRate.toLocaleString('en-US')} SDG</strong></div>
+                    <div style="font-size:1.12rem;font-weight:900;color:${isLight ? '#140c06' : '#e9d5ff'};display:flex;align-items:center;gap:8px;">🤖 رادار فحص أسعار الشراء وتحديث هامش البيع الذكي (AI Margin Guard 360°)</div>
+                    <div style="font-size:0.82rem;color:${subInk};margin-top:3px;font-weight:800;">المصدر: <strong style="color:${isLight ? '#0369a1' : '#38bdf8'};">${sourceLabel}</strong> | سعر الصرف المعتمد: <strong style="color:${isLight ? '#047857' : '#34d399'};">1 USD = ${fxRate.toLocaleString('en-US')} SDG</strong></div>
                 </div>
                 <div style="display:flex;align-items:center;gap:8px;">
-                    <label style="font-size:0.82rem;color:#cbd5e1;font-weight:800;">هامش الربح المستهدف %:</label>
-                    <input type="number" id="ai-target-margin-pct" value="${defaultMarginPct}" min="1" max="500" oninput="window.recalcAISuggestedSellingPrices(this.value)" style="width:72px;padding:5px 8px;border-radius:8px;background:#0f172a;border:1px solid #a855f7;color:#f8fafc;font-weight:900;text-align:center;">
-                    <button onclick="document.getElementById('purchase-ai-audit-modal').remove()" style="background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.4);color:#fca5a5;padding:6px 12px;border-radius:8px;cursor:pointer;font-weight:800;">✖ إغلاق</button>
+                    <label style="font-size:0.85rem;color:${ink};font-weight:900;">هامش الربح المستهدف %:</label>
+                    <input type="number" id="ai-target-margin-pct" value="${defaultMarginPct}" min="1" max="500" oninput="window.recalcAISuggestedSellingPrices(this.value)" style="width:72px;padding:5px 8px;border-radius:8px;background:${isLight ? '#ffffff' : '#0f172a'};border:2px solid ${isLight ? '#9a5822' : '#a855f7'};color:${ink};font-weight:900;text-align:center;">
+                    <button onclick="document.getElementById('purchase-ai-audit-modal').remove()" style="background:${isLight ? '#fee2e2' : 'rgba(239,68,68,0.15)'};border:1.5px solid #ef4444;color:${isLight ? '#991b1b' : '#fca5a5'};padding:6px 12px;border-radius:8px;cursor:pointer;font-weight:900;">✖ إغلاق</button>
                 </div>
             </div>
             <div style="padding:16px 22px;overflow-y:auto;flex:1;">
-                <table style="width:100%;border-collapse:collapse;font-size:0.86rem;">
+                <table style="width:100%;border-collapse:collapse;font-size:0.88rem;">
                     <thead>
-                        <tr style="background:rgba(30,41,59,0.85);color:#cbd5e1;border-bottom:1px solid rgba(148,163,184,0.2);">
+                        <tr style="background:${isLight ? 'linear-gradient(180deg,#f3e9d6,#eadbc2)' : 'rgba(30,41,59,0.85)'};color:${ink};border-bottom:2px solid ${isLight ? '#9a5822' : 'rgba(148,163,184,0.2)'};font-weight:900;">
                             <th style="padding:10px;text-align:right;">الصنف / الوحدة</th>
                             <th style="padding:10px;text-align:center;">التكلفة السابقة</th>
                             <th style="padding:10px;text-align:center;">التكلفة الجديدة (SDG / USD)</th>
@@ -6236,10 +6243,10 @@ window.openPurchaseAIAuditModal = function() {
                     <tbody>${rowsHtml}</tbody>
                 </table>
             </div>
-            <div style="padding:14px 22px;background:rgba(15,23,42,0.85);border-top:1px solid rgba(168,85,247,0.22);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+            <div style="padding:14px 22px;background:${isLight ? 'linear-gradient(180deg,#f3e9d6,#eadbc2)' : 'rgba(15,23,42,0.85)'};border-top:2px solid ${isLight ? '#9a5822' : 'rgba(168,85,247,0.22)'};display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
                 <div style="display:flex;gap:8px;flex-wrap:wrap;">
-                    <button onclick="window.location.href='supplier_reliability.php'" style="background:rgba(245,158,11,0.16);border:1px solid rgba(245,158,11,0.45);color:#fbbf24;padding:8px 14px;border-radius:9px;cursor:pointer;font-weight:800;font-family:Tajawal,sans-serif;">🤝 مؤشر اعتمادية الموردين 360°</button>
-                    <button onclick="window.location.href='smart-logistics.php?mode=purchases'" style="background:rgba(14,165,233,0.16);border:1px solid rgba(56,189,248,0.45);color:#38bdf8;padding:8px 14px;border-radius:9px;cursor:pointer;font-weight:800;font-family:Tajawal,sans-serif;">📥 بوابة استلام المشتريات</button>
+                    <button onclick="window.location.href='supplier_reliability.php'" style="background:${isLight ? '#fef3c7' : 'rgba(245,158,11,0.16)'};border:1.5px solid #d97706;color:${isLight ? '#78350f' : '#fbbf24'};padding:8px 14px;border-radius:9px;cursor:pointer;font-weight:900;font-family:Tajawal,sans-serif;">🤝 مؤشر اعتمادية الموردين 360°</button>
+                    <button onclick="window.location.href='smart-logistics.php?mode=purchases'" style="background:${isLight ? '#e0f2fe' : 'rgba(14,165,233,0.16)'};border:1.5px solid #0284c7;color:${isLight ? '#0c4a6e' : '#38bdf8'};padding:8px 14px;border-radius:9px;cursor:pointer;font-weight:900;font-family:Tajawal,sans-serif;">📥 بوابة استلام المشتريات</button>
                 </div>
                 <button onclick="window.applyPurchaseSellingPricesAI()" style="background:linear-gradient(135deg,#10b981,#059669);border:none;color:#fff;padding:9px 20px;border-radius:10px;cursor:pointer;font-weight:900;font-family:Tajawal,sans-serif;box-shadow:0 4px 15px rgba(16,185,129,0.35);">💾 اعتماد وتحديث أسعار البيع في دليل الأصناف فوراً</button>
             </div>

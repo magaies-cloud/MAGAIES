@@ -132,7 +132,7 @@ try {
     <link rel="stylesheet" href="css/components.css?v=20260723_v14">
     <link rel="stylesheet" href="css/sales-invoice.css?v=20261101_crystal">
     <link rel="stylesheet" href="css/print-invoice.css">
-    <link rel="stylesheet" href="css/purchase-module-v2.css?v=20261029_fast">
+    <link rel="stylesheet" href="css/purchase-module-v2.css?v=<?php echo file_exists('css/purchase-module-v2.css') ? filemtime('css/purchase-module-v2.css') : '20261104_v2'; ?>">
     <style>
         @keyframes magicalInvoiceSlideUp {
             from { opacity: 0; transform: translateY(30px) scale(0.98); }
@@ -2112,13 +2112,15 @@ try {
         :root.light-theme .modal-overlay h3,
         :root.light-theme .modal-overlay h4,
         :root.light-theme .modal-overlay label,
-        :root.light-theme .modal-overlay span,
+        :root.light-theme .modal-overlay span:not(.col-custom-color-preview),
         :root.light-theme .modal-overlay .v-label,
         :root.light-theme .modal-overlay .modal-close,
         :root.light-theme #grid-settings-modal h3,
         :root.light-theme #grid-settings-modal h4,
         :root.light-theme #grid-settings-modal label,
-        :root.light-theme #grid-settings-modal span,
+        :root.light-theme #grid-settings-modal span:not(.col-custom-color-preview),
+        :root.light-theme #grid-settings-modal button:not([onclick*="saveAndApplyGridSettingsToDB"]),
+        :root.light-theme #grid-settings-modal #col-settings-list button,
         :root.light-theme #share-popup-menu button,
         :root.light-theme #share-popup-menu span,
         :root.light-theme #auto-send-purchase-dropdown-menu span,
@@ -2126,6 +2128,8 @@ try {
         :root.light-theme #payment-panel span:not(.pay-toggle-btn.active *),
         :root.light-theme #pay-credit-section span,
         :root.light-theme #pay-cash-section div,
+        :root.light-theme #pay-bank-section div,
+        :root.light-theme #pay-cheque-section div,
         :root.light-theme #purchase-hub-view th,
         :root.light-theme #purchase-hub-view td,
         :root.light-theme #purchase-hub-view td span,
@@ -2138,6 +2142,17 @@ try {
             -webkit-text-fill-color: #000000 !important;
             font-weight: 900 !important;
             text-shadow: none !important;
+        }
+        :root.light-theme #grid-settings-modal #col-settings-list button {
+            background: #dfd2bc !important;
+            border: 1.5px solid #78350f !important;
+            color: #000000 !important;
+            -webkit-text-fill-color: #000000 !important;
+            font-weight: 900 !important;
+        }
+        :root.light-theme #grid-settings-modal #col-settings-list button:hover:not(:disabled) {
+            background: #f59e0b !important;
+            border-color: #000000 !important;
         }
         :root.light-theme .modal-overlay input:not([type="color"]):not([type="range"]),
         :root.light-theme .modal-overlay select,
@@ -2211,6 +2226,63 @@ try {
         :root.light-theme #col-context-menu div {
             color: #000000 !important;
             font-weight: 800 !important;
+        }
+        :root.light-theme #purchase-ai-audit-modal > div,
+        :root.light-theme #price-history-overlay .modal-card,
+        :root.light-theme #barcode-scanner-modal > div,
+        :root.light-theme #pur-light-tone-popover {
+            background: linear-gradient(145deg, #faf6ee 0%, #f3e9d6 100%) !important;
+            color: #140c06 !important;
+            border: 2px solid #9a5822 !important;
+            box-shadow: 0 18px 45px rgba(120, 53, 15, 0.22) !important;
+        }
+        :root.light-theme #purchase-ai-audit-modal > div > div:first-child,
+        :root.light-theme #purchase-ai-audit-modal > div > div:last-child,
+        :root.light-theme # purchase-ai-audit-modal thead tr,
+        :root.light-theme #purchase-ai-audit-modal thead tr,
+        :root.light-theme #price-history-overlay thead tr {
+            background: linear-gradient(180deg, #f3e9d6 0%, #eadbc2 100%) !important;
+            border-color: #9a5822 !important;
+            color: #140c06 !important;
+        }
+        :root.light-theme #purchase-ai-audit-modal div,
+        :root.light-theme #purchase-ai-audit-modal span,
+        :root.light-theme #purchase-ai-audit-modal label,
+        :root.light-theme #purchase-ai-audit-modal strong,
+        :root.light-theme #purchase-ai-audit-modal th,
+        :root.light-theme #purchase-ai-audit-modal td,
+        :root.light-theme #price-history-overlay th,
+        :root.light-theme #price-history-overlay td,
+        :root.light-theme #price-history-overlay strong,
+        :root.light-theme #price-history-overlay span,
+        :root.light-theme #pur-light-tone-popover div,
+        :root.light-theme #pur-light-tone-popover span {
+            color: #140c06 !important;
+            -webkit-text-fill-color: #140c06 !important;
+            font-weight: 800 !important;
+            text-shadow: none !important;
+        }
+        :root.light-theme #purchase-ai-audit-modal tbody tr {
+            background: #ffffff !important;
+            border-bottom: 1.5px solid rgba(154, 88, 34, 0.3) !important;
+        }
+        :root.light-theme #purchase-ai-audit-modal tbody tr:nth-child(even) {
+            background: #fbf7ef !important;
+        }
+        :root.light-theme #purchase-ai-audit-modal input,
+        :root.light-theme #purchase-ai-audit-modal .ai-sell-price-input {
+            background: #ffffff !important;
+            color: #140c06 !important;
+            -webkit-text-fill-color: #140c06 !important;
+            border: 2px solid #9a5822 !important;
+            font-weight: 900 !important;
+        }
+        :root.light-theme #purchase-ai-audit-modal button:not([onclick*="applyPurchaseSellingPricesAI"]) {
+            background: linear-gradient(180deg, #fffdf9 0%, #f3e5c8 100%) !important;
+            border: 2px solid #9a5822 !important;
+            color: #140c06 !important;
+            -webkit-text-fill-color: #140c06 !important;
+            font-weight: 900 !important;
         }
 
         /* ═══ 7. الدستور الرابع (Constitution 4): +2 Stroke/Border/Icon Thickness, Zero Input Color-Inversion & Stepped Ambient Contrast ═══ */
@@ -2537,25 +2609,27 @@ try {
 
         <!-- Recent Transactions Table -->
         <div class="neo-card" style="flex: 1; display: flex; flex-direction: column; overflow: hidden; margin-bottom: 15px;">
-            <div class="neo-card-title" style="font-size: 1.1rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 12px; margin-bottom: 12px;">
-                <div style="display: flex; align-items: center; gap: 12px;">
-                    <span>📦 سجل المشتريات</span>
+            <div class="neo-card-title" style="font-size: 1.15rem; font-weight: 900; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; border-bottom: 2px solid rgba(56,189,248,0.25); padding-bottom: 12px; margin-bottom: 12px;">
+                <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                    <span style="font-size: 1.22rem; font-weight: 900;">📦 سجل فواتير المشتريات</span>
+                    <button type="button" onclick="if(window.openPurchaseAIAuditModal) window.openPurchaseAIAuditModal();" style="height: 34px; padding: 0 13px; border-radius: 9px; background: linear-gradient(135deg, #7c3aed, #4f46e5); border: 2px solid #c4b5fd; color: #ffffff !important; font-size: 0.85rem; font-weight: 900; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 3px 10px rgba(124,58,237,0.35);">🤖 الذكاء الاصطناعي للأسعار</button>
+                    <button type="button" onclick="if(typeof openGridSettingsModal==='function') openGridSettingsModal();" style="height: 34px; padding: 0 13px; border-radius: 9px; background: linear-gradient(135deg, #0284c7, #0369a1); border: 2px solid #7dd3fc; color: #ffffff !important; font-size: 0.85rem; font-weight: 900; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">⚙️ التخصيص</button>
                 </div>
-                <div id="hub-summary-bar" style="display: flex; gap: 18px; font-size: 0.85rem; color: #94a3b8; font-weight: 600;"></div>
+                <div id="hub-summary-bar" style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 0.9rem; font-weight: 900;"></div>
             </div>
             
             <div class="grid-scroll-wrap" style="flex: 1; margin-top: 10px;">
-                <table class="pos-grid" style="width: 100%;">
+                <table class="pos-grid" id="hub-pos-grid" style="width: 100%;">
                     <thead>
                         <tr>
-                            <th style="text-align:right;">رقم الفاتورة</th>
-                            <th style="text-align:right;">التاريخ</th>
-                            <th style="text-align:right;">المورد</th>
-                            <th style="text-align:right;">الصنف</th>
-                            <th style="text-align:center;">الإجمالي</th>
-                            <th style="text-align:center;">الحالة</th>
-                            <th style="text-align:center;">المخزن</th>
-                            <th style="text-align:center;">الإجراءات</th>
+                            <th style="text-align:right;">📄 الرقم</th>
+                            <th style="text-align:right;">📅 التاريخ</th>
+                            <th style="text-align:right;">👤 المورد</th>
+                            <th style="text-align:right;">📦 الأصناف</th>
+                            <th style="text-align:center;">💰 الجملة (ج.س / $)</th>
+                            <th style="text-align:center;">⏳ الحالة</th>
+                            <th style="text-align:center;">🏢 المخزن</th>
+                            <th style="text-align:center;">⚡ الإجراءات</th>
                         </tr>
                     </thead>
                     <tbody id="hub-transactions-body">
@@ -3380,13 +3454,13 @@ try {
 
                         <!-- Cash payment box (Visible by default) -->
                         <div id="pay-cash-section" style="background: radial-gradient(circle at top left, rgba(16, 185, 129, 0.35), rgba(16, 185, 129, 0.15)); border: 3px solid rgba(16, 185, 129, 0.9); box-shadow: 0 0 25px rgba(16, 185, 129, 0.4), inset 0 0 15px rgba(16, 185, 129, 0.3); border-radius: 12px; padding: 12px 15px; margin-bottom: 10px; display: flex; flex-direction: column; width: 100%;">
-                            <div class="payment-row-item" style="display: grid; grid-template-columns: 85px 1.5fr 1.2fr 1.2fr 2fr 30px; gap: 8px; align-items: center; width: 100%; margin-bottom: 0px;">
-                                <div style="display: flex; align-items: center; justify-content: flex-start; color: #6ee7b7; font-weight: 900; font-size: 0.95rem; gap: 6px; text-shadow: 0 0 8px rgba(16, 185, 129, 0.4);"><span>💵</span> كاش</div>
-                                <input type="number" class="v-input ctrl-input dynamic-focus-input dynamic-focus-amount" id="pay-cash-amount" value="0" step="1" oninput="onPaymentAmountInput()" placeholder="المبلغ" style="background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(16, 185, 129, 0.5); border-radius: 8px; text-align: center; font-size: 2.25rem; font-weight: 800; color: #ffffff; height: 60px; outline: none; padding: 0 8px; font-family: 'Tajawal', sans-serif; width: 100%; box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);">
-                                <select class="v-input ctrl-input" id="hdr-payment-account" style="background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(16, 185, 129, 0.4); border-radius: 8px; text-align: center; font-size: 0.95rem; color: #e2e8f0; height: 60px; outline: none; padding: 0 8px; width: 100%;">
+                            <div class="payment-row-item" style="display: grid; grid-template-columns: 85px 22% 18% 18% minmax(0, 1fr) 30px; gap: 10px; align-items: center; width: 100%; margin-bottom: 0px;">
+                                <div class="pay-method-row-lbl" style="display: flex; align-items: center; justify-content: flex-start; color: #6ee7b7; font-weight: 900; font-size: 1.05rem; gap: 6px; text-shadow: 0 0 8px rgba(16, 185, 129, 0.4);"><span>💵</span> كاش</div>
+                                <input type="number" class="v-input ctrl-input dynamic-focus-input dynamic-focus-amount" id="pay-cash-amount" value="0" step="1" oninput="onPaymentAmountInput()" placeholder="المبلغ" style="background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(16, 185, 129, 0.5); border-radius: 8px; text-align: center; font-size: 2.35rem; font-weight: 900; color: #ffffff; height: 60px; outline: none; padding: 0 8px; font-family: 'Tajawal', sans-serif; width: 100%; min-width: 0; box-sizing: border-box; box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);">
+                                <select class="v-input ctrl-input" id="hdr-payment-account" style="background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(16, 185, 129, 0.4); border-radius: 8px; text-align: center; font-size: 1.05rem; color: #e2e8f0; height: 60px; outline: none; padding: 0 8px; width: 100%; min-width: 0; box-sizing: border-box;">
                                 </select>
-                                <input type="text" class="v-input ctrl-input" id="pay-cash-ref" placeholder="رقم المرجع" style="background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(16, 185, 129, 0.4); border-radius: 8px; text-align: center; font-size: 0.95rem; color: #e2e8f0; height: 60px; outline: none; padding: 0 8px; width: 100%;">
-                                <input type="text" class="v-input ctrl-input" id="pay-cash-note" placeholder="الملحوظة" style="background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(16, 185, 129, 0.4); border-radius: 8px; text-align: center; font-size: 0.95rem; color: #e2e8f0; height: 60px; outline: none; padding: 0 8px; width: 100%;">
+                                <input type="text" class="v-input ctrl-input dynamic-focus-input dynamic-focus-number" id="pay-cash-ref" placeholder="رقم المرجع" style="background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(16, 185, 129, 0.4); border-radius: 8px; text-align: center; font-size: 2.35rem; font-weight: 900; color: #e2e8f0; height: 60px; outline: none; padding: 0 8px; width: 100%; min-width: 0; box-sizing: border-box;">
+                                <input type="text" class="v-input ctrl-input" id="pay-cash-note" placeholder="الملحوظة" style="background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(16, 185, 129, 0.4); border-radius: 8px; text-align: center; font-size: 1.05rem; color: #e2e8f0; height: 60px; outline: none; padding: 0 8px; width: 100%; min-width: 0; box-sizing: border-box;">
                                 <div></div>
                             </div>
                         </div>
@@ -4247,18 +4321,36 @@ try {
                        <button onclick="window.location.href='purchase-receipt.php?inv=${encodeURIComponent(inv.invoiceNo)}'" style="background:rgba(16,185,129,0.15); border:1px solid rgba(16,185,129,0.4); color:#34d399; border-radius:6px; width:32px; height:32px; cursor:pointer; margin-left:3px; display:inline-flex; align-items:center; justify-content:center;" title="إصدار إذن استلام مخزني (GRN)">🚛</button>
                        <button onclick="window.location.href='purchase-return.php?inv=${encodeURIComponent(inv.invoiceNo)}'" style="background:rgba(244,63,94,0.12); border:1px solid rgba(244,63,94,0.35); color:#fb7185; border-radius:6px; width:32px; height:32px; cursor:pointer; margin-left:3px; display:inline-flex; align-items:center; justify-content:center;" title="مرتجع مشتريات">↩️</button>`;
 
+                const rawGrand = parseFloat(inv.totals?.grandTotal || inv.grandTotal || 0) || 0;
+                const exRate = (typeof window.getHubExchangeRate === 'function' ? window.getHubExchangeRate() : 2650) || 2650;
+                const dispGrand = window._hubShowInUsd
+                    ? ('$' + (invCurrency === 'USD' ? rawGrand : rawGrand / exRate).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }))
+                    : (fmtNum(invCurrency === 'USD' ? rawGrand * exRate : rawGrand) + ' <span class="hub-curr-tag" style="color:#a855f7; font-weight:900;">ج.س</span>');
+                const supResolvedName = inv.supplierName || getSupplierName(inv.customer || inv.customerId || inv.supplierId) || 'مورد غير محدد';
+                const supResolvedId = inv.customer || inv.customerId || inv.supplierId || '';
+
                 tr.innerHTML = `
-                    <td style="text-align:right; font-weight:800; color:var(--gold-primary);">${inv.invoiceNo}</td>
-                    <td style="text-align:right; color:var(--text-dim);">${new Date(inv.timestamp || inv.date).toLocaleString('ar-EG-u-nu-latn')}</td>
-                    <td style="text-align:right; font-weight:600;">${inv.supplierName || getSupplierName(inv.customer || inv.customerId || inv.supplierId) || 'مورد غير محدد'}</td>
-                    <td style="text-align:right; color:var(--text-dim);">${itemText}</td>
-                    <td style="text-align:center; font-weight:900; direction:ltr; color:#fff;">${fmtNum(inv.totals?.grandTotal || inv.grandTotal || 0)} <span style="color:#a855f7; font-weight:700;">${invCurrency}</span></td>
+                    <td class="hub-col-invno" style="text-align:right; font-weight:900; font-size:1.22rem; font-family:'Outfit','Cairo',sans-serif; color:var(--gold-primary);">${inv.invoiceNo}</td>
+                    <td class="hub-col-date" style="text-align:right; font-weight:900; font-size:1.05rem; font-family:'Outfit','Cairo',sans-serif;">${new Date(inv.timestamp || inv.date).toLocaleString('ar-EG-u-nu-latn')}</td>
+                    <td class="hub-col-supplier" style="text-align:right; font-weight:900; font-size:1.02rem;">
+                        <div style="display:flex; align-items:center; justify-content:space-between; gap:6px;">
+                            <span>${supResolvedName}</span>
+                            <button type="button" onclick="event.stopPropagation(); window.open('suppliers.php?ledger=${encodeURIComponent(supResolvedId)}','_blank');" title="كشف حساب المورد (أستاذ)" style="height:26px; padding:0 8px; border-radius:6px; background:linear-gradient(135deg,#0284c7,#0369a1); border:1.5px solid #38bdf8; color:#fff !important; font-size:0.74rem; font-weight:900; cursor:pointer; flex-shrink:0;">📖 أستاذ</button>
+                        </div>
+                    </td>
+                    <td class="hub-col-items" style="text-align:right; font-weight:800;">${itemText}</td>
+                    <td class="hub-col-total" style="text-align:center; font-weight:900; font-size:1.18rem; font-family:'Outfit','Cairo',sans-serif; direction:ltr;">
+                        <span style="display:inline-flex; align-items:center; gap:6px;">
+                            <span class="pur-price-lamp ${rawGrand > 0 ? 'lamp-green' : 'lamp-amber'}" style="width:16px !important; height:16px !important; min-width:16px !important;"></span>
+                            <span>${dispGrand}</span>
+                        </span>
+                    </td>
                     <td style="text-align:center;">${statusBadge}</td>
-                    <td style="text-align:center; font-weight:600; color:var(--text-dim);">${getWarehouseName(inv.warehouse)}${inv.grnNo ? `<div style="font-size:0.68rem; color:#34d399; font-weight:800;">GRN: ${inv.grnNo}</div>` : ''}</td>
+                    <td class="hub-col-wh" style="text-align:center; font-weight:900;">${getWarehouseName(inv.warehouse)}${inv.grnNo ? `<div style="font-size:0.72rem; color:#10b981; font-weight:900;">GRN: ${inv.grnNo}</div>` : ''}</td>
                     <td style="text-align:center; white-space:nowrap;">
                         ${convertBtnHtml}
-                        <button onclick="editHubTransaction('${inv.invoiceNo}')" style="background:rgba(56,189,248,0.1); border:1px solid rgba(56,189,248,0.3); color:#38bdf8; border-radius:6px; width:32px; height:32px; cursor:pointer; margin-left:3px; display:inline-flex; align-items:center; justify-content:center;" title="تعديل / عرض">👁️</button>
-                        <button onclick="deleteHubTransaction('${inv.invoiceNo}')" style="background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.3); color:#ef4444; border-radius:6px; width:32px; height:32px; cursor:pointer; display:inline-flex; align-items:center; justify-content:center;" title="حذف">🗑️</button>
+                        <button onclick="editHubTransaction('${inv.invoiceNo}')" style="background:rgba(56,189,248,0.16); border:1.5px solid rgba(56,189,248,0.45); color:#38bdf8; border-radius:6px; width:32px; height:32px; cursor:pointer; margin-left:3px; display:inline-flex; align-items:center; justify-content:center;" title="تعديل / عرض">👁️</button>
+                        <button onclick="deleteHubTransaction('${inv.invoiceNo}')" style="background:rgba(239,68,68,0.16); border:1.5px solid rgba(239,68,68,0.45); color:#ef4444; border-radius:6px; width:32px; height:32px; cursor:pointer; display:inline-flex; align-items:center; justify-content:center;" title="حذف">🗑️</button>
                     </td>
                 `;
                 fragment.appendChild(tr);
@@ -4270,12 +4362,17 @@ try {
             let summaryEl = document.getElementById('hub-summary-bar');
             if (!summaryEl) return;
             const total = invoices.length;
-            const totalAmount = invoices.reduce((sum, inv) => sum + (parseFloat(inv.grandTotal) || 0), 0);
+            const totalAmount = invoices.reduce((sum, inv) => sum + (parseFloat(inv.totals?.grandTotal || inv.grandTotal) || 0), 0);
+            const exRate = (typeof window.getHubExchangeRate === 'function' ? window.getHubExchangeRate() : 2650) || 2650;
+            const totalUsd = totalAmount / exRate;
+            const currBtnLbl = window._hubShowInUsd ? 'دولار ⇄' : 'جنيه ⇄';
             summaryEl.innerHTML = `
-                <span style="display:inline-flex; align-items:center; gap:5px;">📊 <strong>${total}</strong> فاتورة</span>
-                <span style="display:inline-flex; align-items:center; gap:5px; color:#34d399;">🔒 <strong>${postedCount}</strong> مرحلة</span>
-                <span style="display:inline-flex; align-items:center; gap:5px; color:#fbbf24;">⏳ <strong>${pendingCount}</strong> بانتظار</span>
-                <span style="display:inline-flex; align-items:center; gap:5px; color:#a855f7;">💰 <strong>${fmtNum(totalAmount)}</strong> إجمالي</span>
+                <span class="hub-sum-cap" style="background:linear-gradient(135deg,#334155,#1e293b); border:2px solid #94a3b8; color:#fff !important; padding:4px 11px; border-radius:9px; display:inline-flex; align-items:center; gap:5px; font-weight:900;">📊 الفواتير: <strong style="color:#fff !important; font-size:1.1rem; font-family:'Outfit';">${total}</strong></span>
+                <span class="hub-sum-cap" style="background:linear-gradient(135deg,#059669,#047857); border:2px solid #6ee7b7; color:#fff !important; padding:4px 11px; border-radius:9px; display:inline-flex; align-items:center; gap:5px; font-weight:900;">🔒 المرحلة: <strong style="color:#fff !important; font-size:1.1rem; font-family:'Outfit';">${postedCount}</strong></span>
+                <span class="hub-sum-cap" style="background:linear-gradient(135deg,#d97706,#b45309); border:2px solid #fcd34d; color:#fff !important; padding:4px 11px; border-radius:9px; display:inline-flex; align-items:center; gap:5px; font-weight:900;">⏳ الانتظار: <strong style="color:#fff !important; font-size:1.1rem; font-family:'Outfit';">${pendingCount}</strong></span>
+                <span class="hub-sum-cap" style="background:linear-gradient(135deg,#e11d48,#be123c); border:2px solid #fda4af; color:#fff !important; padding:4px 12px; border-radius:9px; display:inline-flex; align-items:center; gap:5px; font-weight:900;">💰 الجملة (ج.س): <strong style="color:#fff !important; font-size:1.18rem; font-family:'Outfit';">${fmtNum(totalAmount)}</strong></span>
+                <span class="hub-sum-cap" style="background:linear-gradient(135deg,#0284c7,#0369a1); border:2px solid #7dd3fc; color:#fff !important; padding:4px 12px; border-radius:9px; display:inline-flex; align-items:center; gap:5px; font-weight:900;">💵 بالدولار ($): <strong style="color:#fff !important; font-size:1.18rem; font-family:'Outfit';">$${totalUsd.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})}</strong></span>
+                <button type="button" id="hub-fin-curr-toggle-btn" onclick="window.toggleHubSummaryCurrency && window.toggleHubSummaryCurrency()" style="height:32px; padding:0 12px; border-radius:9px; background:linear-gradient(135deg,#7c3aed,#5b21b6); border:2px solid #c4b5fd; color:#fff !important; font-weight:900; font-size:0.84rem; cursor:pointer; display:inline-flex; align-items:center; gap:5px;">💱 ${currBtnLbl}</button>
             `;
         }
 
@@ -5300,9 +5397,9 @@ document.addEventListener('DOMContentLoaded', () => {
                             <div>
                                 <label style="color:#cbd5e1; font-weight:bold; font-size:0.85rem; display:block; margin-bottom:4px;">لون خط هذا العمود:</label>
                                 <div style="display:flex; gap:8px; align-items:center;">
-                                    <input type="color" id="sel-col-color" oninput="onSelectedColPropChange('color', this.value)" style="border:none; width:45px; height:34px; cursor:pointer; background:transparent; border-radius:6px;">
-                                    <input type="text" id="sel-col-color-text" oninput="onSelectedColPropChange('color', this.value); document.getElementById('sel-col-color').value=this.value;" style="width:85px; background:#0f172a; border:1px solid rgba(255,255,255,0.2); border-radius:6px; color:#fff; padding:5px; text-align:center; font-family:monospace; font-size:0.85rem;">
-                                    <button type="button" onclick="onSelectedColPropChange('color', '#ffffff'); document.getElementById('sel-col-color').value='#ffffff'; document.getElementById('sel-col-color-text').value='#ffffff';" style="background:rgba(255,255,255,0.1); border:none; border-radius:6px; padding:5px 8px; font-size:0.75rem; color:#fff; cursor:pointer;">أبيض</button>
+                                    <input type="color" id="sel-col-color" oninput="document.getElementById('sel-col-color-text').value=this.value; onSelectedColPropChange('color', this.value);" onchange="document.getElementById('sel-col-color-text').value=this.value; onSelectedColPropChange('color', this.value);" style="border:none; width:45px; height:34px; cursor:pointer; background:transparent; border-radius:6px;">
+                                    <input type="text" id="sel-col-color-text" oninput="if(/^#[0-9a-fA-F]{6}$/.test(this.value.trim())){document.getElementById('sel-col-color').value=this.value.trim();} onSelectedColPropChange('color', this.value.trim());" onchange="onSelectedColPropChange('color', this.value.trim());" style="width:85px; background:#0f172a; border:1px solid rgba(255,255,255,0.2); border-radius:6px; color:#fff; padding:5px; text-align:center; font-family:monospace; font-size:0.85rem;">
+                                    <button type="button" onclick="const defC = document.documentElement.classList.contains('light-theme') ? '#120500' : '#ffffff'; onSelectedColPropChange('color', defC); document.getElementById('sel-col-color').value=defC; document.getElementById('sel-col-color-text').value=defC;" style="background:rgba(255,255,255,0.1); border:none; border-radius:6px; padding:5px 8px; font-size:0.75rem; color:#fff; cursor:pointer;">افتراضي</button>
                                 </div>
                             </div>
 
@@ -5607,28 +5704,33 @@ document.addEventListener('DOMContentLoaded', () => {
                 populateSelectedColPanel();
             };
 
+            const isLightNow = document.documentElement.classList.contains('light-theme');
             const colColor = col.color || tempGridConfig.fontColor || '#ffffff';
+            const displayColColor = (isLightNow && ['#ffffff', '#fff'].includes(String(colColor).toLowerCase())) ? '#000000' : colColor;
             const colSize = col.fontSize || tempGridConfig.fontSize || 16;
             const colWidth = col.width || '100px';
+            const btnBg = isLightNow ? '#dfd2bc' : 'rgba(255,255,255,0.1)';
+            const btnClr = isLightNow ? '#000000' : '#ffffff';
+            const btnBrd = isLightNow ? '1.5px solid #78350f' : 'none';
 
             item.innerHTML = `
                 <!-- Move ▲ ▼ & Checkbox & Name -->
                 <div style="display:flex; align-items:center; gap:8px; flex:1;">
                     <div style="display:flex; flex-direction:column; gap:2px;">
-                        <button type="button" onclick="moveModalColumn(${index}, 'up'); event.stopPropagation();" style="background:rgba(255,255,255,0.1); border:none; border-radius:4px; width:22px; height:18px; cursor:pointer; color:#fff; font-size:0.65rem; display:flex; align-items:center; justify-content:center;" ${index === 0 ? 'disabled style="opacity:0.2;"' : ''}>▲</button>
-                        <button type="button" onclick="moveModalColumn(${index}, 'down'); event.stopPropagation();" style="background:rgba(255,255,255,0.1); border:none; border-radius:4px; width:22px; height:18px; cursor:pointer; color:#fff; font-size:0.65rem; display:flex; align-items:center; justify-content:center;" ${index === tempGridConfig.columns.length - 1 ? 'disabled style="opacity:0.2;"' : ''}>▼</button>
+                        <button type="button" class="col-move-arrow-btn" onclick="moveModalColumn(${index}, 'up'); event.stopPropagation();" style="background:${btnBg}; border:${btnBrd}; border-radius:4px; width:24px; height:19px; cursor:pointer; color:${btnClr}; -webkit-text-fill-color:${btnClr}; font-weight:900; font-size:0.72rem; display:flex; align-items:center; justify-content:center; ${index === 0 ? 'opacity:0.25;' : ''}" ${index === 0 ? 'disabled' : ''}>▲</button>
+                        <button type="button" class="col-move-arrow-btn" onclick="moveModalColumn(${index}, 'down'); event.stopPropagation();" style="background:${btnBg}; border:${btnBrd}; border-radius:4px; width:24px; height:19px; cursor:pointer; color:${btnClr}; -webkit-text-fill-color:${btnClr}; font-weight:900; font-size:0.72rem; display:flex; align-items:center; justify-content:center; ${index === tempGridConfig.columns.length - 1 ? 'opacity:0.25;' : ''}" ${index === tempGridConfig.columns.length - 1 ? 'disabled' : ''}>▼</button>
                     </div>
                     
                     <input type="checkbox" id="modal-col-chk-${col.id}" ${col.visible ? 'checked' : ''} onchange="toggleModalColVis(${index}, this.checked); event.stopPropagation();" style="cursor:pointer; width:17px; height:17px; accent-color:#10b981;">
                     <div style="display:flex; flex-direction:column;">
-                        <span style="font-weight:bold; font-size:0.95rem; color:${colColor};">${col.name}</span>
-                        <span style="font-size:0.75rem; color:#94a3b8;">${colWidth} | ${colSize}px</span>
+                        <span class="col-custom-color-preview" style="font-weight:900; font-size:0.95rem; color:${displayColColor}; -webkit-text-fill-color:${displayColColor};">${col.name}</span>
+                        <span style="font-size:0.75rem; color:${isLightNow ? '#334155' : '#94a3b8'};">${colWidth} | ${colSize}px</span>
                     </div>
                 </div>
 
                 <!-- Active Indicator Badge -->
                 <div style="display:flex; align-items:center; gap:6px;">
-                    <div style="width:14px; height:14px; border-radius:50%; background:${colColor}; border:1px solid rgba(255,255,255,0.4);" title="لون الخط"></div>
+                    <div style="width:14px; height:14px; border-radius:50%; background:${colColor}; border:1.5px solid ${isLightNow ? '#000' : 'rgba(255,255,255,0.4)'};" title="لون الخط"></div>
                     ${isSelected ? '<span style="font-size:0.75rem; color:#38bdf8; font-weight:bold; background:rgba(56,189,248,0.2); padding:2px 6px; border-radius:4px;">👈 محدد</span>' : ''}
                 </div>
             `;
@@ -5669,7 +5771,14 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!col) return;
 
         col[prop] = val;
+        if (prop === 'color') col.customColor = true;
         renderModalColumnsList();
+        window.CurrentGridConfig = JSON.parse(JSON.stringify(tempGridConfig));
+        if (typeof applyGridSettings === 'function') applyGridSettings();
+        if (prop === 'decimals' || prop === 'thousandSep' || prop === 'name') {
+            if (typeof renderGrid === 'function') renderGrid();
+            if (typeof recalcAll === 'function') recalcAll();
+        }
     };
 
     window.applySelectedColStyleToAll = function() {
@@ -5679,12 +5788,14 @@ document.addEventListener('DOMContentLoaded', () => {
         tempGridConfig.columns.forEach(col => {
             if (sourceCol.fontSize) col.fontSize = sourceCol.fontSize;
             if (sourceCol.fontWeight) col.fontWeight = sourceCol.fontWeight;
-            if (sourceCol.color) col.color = sourceCol.color;
+            if (sourceCol.color) { col.color = sourceCol.color; col.customColor = true; }
             if (sourceCol.align) col.align = sourceCol.align;
         });
 
         renderModalColumnsList();
         populateSelectedColPanel();
+        window.CurrentGridConfig = JSON.parse(JSON.stringify(tempGridConfig));
+        if (typeof applyGridSettings === 'function') applyGridSettings();
         showToast("⚡ تم نسخ حجم وسُمك ولون ومحاذاة العمود المحدد إلى كافة الأعمدة بنجاح", "info", 3000);
     };
 
@@ -5713,6 +5824,31 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     function readModalGeneralSettings() {
+        const col = tempGridConfig && tempGridConfig.columns ? tempGridConfig.columns[selectedColIndex] : null;
+        if (col) {
+            const nmEl = document.getElementById('sel-col-name');
+            const fsEl = document.getElementById('sel-col-fontsize');
+            const fwEl = document.getElementById('sel-col-fontweight');
+            const clTxtEl = document.getElementById('sel-col-color-text');
+            const clEl = document.getElementById('sel-col-color');
+            const alEl = document.getElementById('sel-col-align');
+            const wdEl = document.getElementById('sel-col-width');
+            const dcEl = document.getElementById('sel-col-decimals');
+            const tsEl = document.getElementById('sel-col-thousandsep');
+            if (nmEl && nmEl.value.trim()) col.name = nmEl.value.trim();
+            if (fsEl && parseInt(fsEl.value)) col.fontSize = parseInt(fsEl.value);
+            if (fwEl) col.fontWeight = fwEl.value;
+            const pickedClr = (clTxtEl && clTxtEl.value.trim()) ? clTxtEl.value.trim() : (clEl ? clEl.value : '');
+            if (pickedClr) {
+                if (col.color !== pickedClr) col.customColor = true;
+                col.color = pickedClr;
+            }
+            if (alEl && alEl.value) col.align = alEl.value;
+            if (wdEl && parseInt(wdEl.value)) col.width = parseInt(wdEl.value) + 'px';
+            if (dcEl) col.decimals = dcEl.value !== '' ? parseInt(dcEl.value) : '';
+            if (tsEl && tsEl.value) col.thousandSep = tsEl.value;
+        }
+        tempGridConfig.grid_id = 'purchase_grid';
         tempGridConfig.fontFamily = document.getElementById('grid-setting-font-family').value;
         tempGridConfig.fontSize = parseInt(document.getElementById('grid-setting-font-size').value) || 16;
         tempGridConfig.fontWeight = document.getElementById('grid-setting-font-weight').value;
@@ -5725,6 +5861,7 @@ document.addEventListener('DOMContentLoaded', () => {
     window.previewGridSettings = function() {
         readModalGeneralSettings();
         window.CurrentGridConfig = JSON.parse(JSON.stringify(tempGridConfig));
+        try { localStorage.setItem('erp_grid_config_purchase_grid', JSON.stringify(window.CurrentGridConfig)); } catch (_e) {}
         applyGridSettings();
         if (typeof renderGrid === 'function') renderGrid();
         if (typeof recalcAll === 'function') recalcAll();
@@ -5734,13 +5871,16 @@ document.addEventListener('DOMContentLoaded', () => {
     window.saveAndApplyGridSettingsToDB = async function() {
         readModalGeneralSettings();
         window.CurrentGridConfig = JSON.parse(JSON.stringify(tempGridConfig));
+        window.CurrentGridConfig.grid_id = 'purchase_grid';
+        try { localStorage.setItem('erp_grid_config_purchase_grid', JSON.stringify(window.CurrentGridConfig)); } catch (_e) {}
         
         applyGridSettings();
         if (typeof renderGrid === 'function') renderGrid();
         if (typeof recalcAll === 'function') recalcAll();
         
-        await saveGridConfigToDB(window.CurrentGridConfig);
         closeGridSettingsModal();
+        await saveGridConfigToDB(window.CurrentGridConfig);
+        if (typeof showToast === 'function') showToast("✅ تم حفظ وتطبيق تخصيص الجدول نهائياً بنجاح", "success", 2500);
     };
 
     window.loadGridConfigFromDB = async function(forceRemote) {
@@ -5948,15 +6088,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (col.visible === false || col.visible === 'false' || col.visible === 0) return;
                 const isNumCol = ['quantity', 'price', 'available', 'total', 'shila', 'shilaRem', 'fcPrice', 'totalFc'].includes(String(col.id));
                 const rawBase = parseFloat(col.fontSize) || parseFloat(cfg.fontSize) || 18;
-                const basePx = isNumCol ? Math.max(rawBase + 5, 24.5) : rawBase;
-                const weight = isNumCol ? '900' : (col.fontWeight || cfg.fontWeight || '800');
+                const basePx = rawBase;
+                const weight = col.fontWeight || cfg.fontWeight || '800';
 
                 // 1. Fit Column Header (th) to basePx (scale down slightly only if column is too narrow for header word)
                 const th = table.querySelector(`thead th[data-col-id="${col.id}"]`);
                 if (th && col.id !== 'action') {
                     const thText = (th.textContent || col.name || '').trim();
                     const thAvailW = Math.max(36, (th.clientWidth || parseInt(col.width) || 100) - 18);
-                    let thPx = Math.min(rawBase, 21);
+                    let thPx = Math.min(rawBase, 26);
                     if (thText && thAvailW > 25) {
                         while (thPx > 12 && measureTextWidthPx(thText, `800 ${thPx}px ${fontFam}`) > thAvailW) {
                             thPx -= 0.5;
@@ -5992,7 +6132,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     ctrl.style.setProperty('font-size', targetPx + 'px', 'important');
                 });
             });
-            ['pay-credit-amount', 'pay-cash-amount'].forEach(id => {
+            ['pay-credit-amount'].forEach(id => {
                 const el = document.getElementById(id);
                 if (el && typeof window.autoFitSingleInput === 'function') window.autoFitSingleInput(el);
             });
@@ -6010,11 +6150,10 @@ document.addEventListener('DOMContentLoaded', () => {
             if (el.classList && el.classList.contains('g-input')) {
                 const td = el.closest('td[data-col-id]');
                 colId = td ? td.getAttribute('data-col-id') : '';
-                const isNumCol = ['quantity', 'price', 'available', 'total', 'shila', 'shilaRem', 'fcPrice', 'totalFc'].includes(String(colId));
                 const cfg = window.CurrentGridConfig;
                 const colCfg = (cfg && cfg.columns) ? cfg.columns.find(c => String(c.id) === String(colId)) : null;
                 const rawBase = parseFloat(colCfg?.fontSize) || parseFloat(cfg?.fontSize) || 18;
-                base = isNumCol ? Math.max(rawBase + 5, 24.5) : rawBase;
+                base = rawBase;
             }
             const floorPx = minPx || 7.5;
             const boxW = el.clientWidth || (el.parentElement ? el.parentElement.clientWidth : 150) || 150;
@@ -6042,8 +6181,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!style) {
             style = document.createElement('style');
             style.id = 'dynamic-grid-style';
-            document.head.appendChild(style);
         }
+        (document.body || document.head).appendChild(style);
         
         const globalFont = cfg.fontFamily || "'Cairo', sans-serif";
         const globalSize = (cfg.fontSize || 16) + 'px';
@@ -6084,68 +6223,66 @@ document.addEventListener('DOMContentLoaded', () => {
                     : `width: auto !important; min-width: 180px !important;`;
                 let align = col.align ? col.align : globalAlign;
                 let fontSize = col.fontSize ? (String(col.fontSize).replace('px','') + 'px') : globalSize;
-                let colColorRaw = col.color ? col.color : globalColorRaw;
-                let color = (colColorRaw.toLowerCase() === '#ffffff' || colColorRaw.toLowerCase() === '#fff') ? 'var(--text-primary, #ffffff)' : colColorRaw;
+                let colColorRaw = String(col.color ? col.color : globalColorRaw).trim();
+                let colColorLc = colColorRaw.toLowerCase();
+                let isDefDarkClr = ['#ffffff', '#fff', '#ffdc7a', '#facc15', '#fe9095', '#38bdf8', '#94a3b8'].includes(colColorLc) && !col.customColor;
+                let darkColor = (colColorLc === '#ffffff' || colColorLc === '#fff') ? '#ffffff' : colColorRaw;
+                let lightColor = isDefDarkClr ? '#120500' : ((colColorLc === '#ffffff' || colColorLc === '#fff') ? '#120500' : colColorRaw);
                 let fontWeight = col.fontWeight ? col.fontWeight : globalWeight;
                 let flexJustify = (align === 'center') ? 'center' : ((align === 'right') ? 'flex-start' : 'flex-end');
                 
                 css += `
-                    body #pos-grid thead tr th[data-col-id="${col.id}"] {
-                        display: table-cell !important;
-                        ${widthCss}
-                        text-align: ${align} !important;
-                        font-size: ${fontSize} !important;
-                        font-weight: ${fontWeight === 'normal' ? '800' : fontWeight} !important;
-                        color: ${col.color && col.color.toLowerCase() !== '#ffffff' ? color : '#38bdf8'} !important; text-align: center !important;
+                    html body #purchase-editor-view #pos-grid#pos-grid thead tr th[data-col-id="${col.id}"] {
+                        display: table-cell !important; ${widthCss} text-align: ${align} !important;
+                        color: ${darkColor} !important; -webkit-text-fill-color: ${darkColor} !important;
+                        font-size: ${fontSize} !important; font-weight: ${fontWeight === 'normal' ? '800' : fontWeight} !important;
                     }
-                    body #pos-grid tbody tr td[data-col-id="${col.id}"] {
-                        display: table-cell !important;
-                        ${widthCss}
-                        text-align: ${align} !important;
-                        color: ${color} !important;
-                        font-size: ${fontSize} !important;
-                        font-weight: ${fontWeight} !important;
+                    html body #purchase-editor-view #pos-grid#pos-grid tbody tr td[data-col-id="${col.id}"] {
+                        display: table-cell !important; ${widthCss} text-align: ${align} !important;
+                        color: ${darkColor} !important; -webkit-text-fill-color: ${darkColor} !important;
+                        font-size: ${fontSize} !important; font-weight: ${fontWeight} !important;
                     }
-                    body #pos-grid tbody tr td[data-col-id="${col.id}"] input:not(.is-zero-val),
-                    body #pos-grid tbody tr td[data-col-id="${col.id}"] select:not(.is-default-hint),
-                    body #pos-grid tbody tr td[data-col-id="${col.id}"] span:not(.btn-icon):not(.add-row-btn):not(.is-zero-val),
-                    body #pos-grid tbody tr td[data-col-id="${col.id}"] .g-input:not(.is-zero-val),
-                    body #pos-grid tbody tr td[data-col-id="${col.id}"] .g-select:not(.is-default-hint),
-                    body #pos-grid tbody tr td[data-col-id="${col.id}"] .g-readonly:not(.is-zero-val),
-                    body #pos-grid tbody tr td[data-col-id="${col.id}"] .avail-val:not(.is-zero-val),
-                    body #pos-grid tbody tr td[data-col-id="${col.id}"] .total-val:not(.is-zero-val),
-                    body #pos-grid tbody tr td[data-col-id="${col.id}"] .row-num {
-                        text-align: ${align} !important;
-                        color: ${color} !important;
-                        font-size: ${fontSize} !important;
-                        font-weight: ${fontWeight} !important;
+                    html body #purchase-editor-view #pos-grid#pos-grid tbody tr td[data-col-id="${col.id}"] input.g-input,
+                    html body #purchase-editor-view #pos-grid#pos-grid tbody tr td[data-col-id="${col.id}"] input.g-input.is-zero-val:not(:focus),
+                    html body #purchase-editor-view #pos-grid#pos-grid tbody tr td[data-col-id="${col.id}"] input.g-input:hover,
+                    html body #purchase-editor-view #pos-grid#pos-grid tbody tr td[data-col-id="${col.id}"] input.g-input:focus,
+                    html body #purchase-editor-view #pos-grid#pos-grid tbody tr td[data-col-id="${col.id}"] select.g-select,
+                    html body #purchase-editor-view #pos-grid#pos-grid tbody tr td[data-col-id="${col.id}"] select.g-select.is-default-hint:not(:focus),
+                    html body #purchase-editor-view #pos-grid#pos-grid tbody tr td[data-col-id="${col.id}"] select.g-select:hover,
+                    html body #purchase-editor-view #pos-grid#pos-grid tbody tr td[data-col-id="${col.id}"] select.g-select:focus,
+                    html body #purchase-editor-view #pos-grid#pos-grid tbody tr td[data-col-id="${col.id}"] .avail-val,
+                    html body #purchase-editor-view #pos-grid#pos-grid tbody tr td[data-col-id="${col.id}"] .avail-val.is-zero-val,
+                    html body #purchase-editor-view #pos-grid#pos-grid tbody tr td[data-col-id="${col.id}"] .total-val,
+                    html body #purchase-editor-view #pos-grid#pos-grid tbody tr td[data-col-id="${col.id}"] .total-val.is-zero-val,
+                    html body #purchase-editor-view #pos-grid#pos-grid tbody tr td[data-col-id="${col.id}"] .row-num {
+                        text-align: ${align} !important; text-align-last: ${align} !important; justify-content: ${flexJustify} !important;
+                        color: ${darkColor} !important; -webkit-text-fill-color: ${darkColor} !important;
+                        font-size: ${fontSize} !important; font-weight: ${fontWeight} !important;
                     }
-                    body #pos-grid tbody tr td[data-col-id="${col.id}"] input.is-zero-val,
-                    body #pos-grid tbody tr td[data-col-id="${col.id}"] select.is-default-hint,
-                    body #pos-grid tbody tr td[data-col-id="${col.id}"] .total-val.is-zero-val,
-                    body #pos-grid tbody tr td[data-col-id="${col.id}"] .avail-val.is-zero-val {
-                        text-align: ${align} !important;
-                        font-size: ${fontSize} !important;
+                    :root.light-theme body #purchase-editor-view #pos-grid#pos-grid thead tr th[data-col-id="${col.id}"] {
+                        color: ${lightColor} !important; -webkit-text-fill-color: ${lightColor} !important;
+                        font-weight: ${fontWeight === 'normal' ? '900' : fontWeight} !important; text-align: ${align} !important;
                     }
-                    :root.light-theme body #pos-grid thead tr th[data-col-id="${col.id}"] {
-                        color: #000000 !important;
-                        font-weight: 900 !important;
+                    :root.light-theme body #purchase-editor-view #pos-grid#pos-grid tbody tr td[data-col-id="${col.id}"],
+                    :root.light-theme body #purchase-editor-view #pos-grid#pos-grid tbody tr td[data-col-id="${col.id}"] input.g-input,
+                    :root.light-theme body #purchase-editor-view #pos-grid#pos-grid tbody tr td[data-col-id="${col.id}"] input.g-input.is-zero-val:not(:focus),
+                    :root.light-theme body #purchase-editor-view #pos-grid#pos-grid tbody tr td[data-col-id="${col.id}"] input.g-input:hover,
+                    :root.light-theme body #purchase-editor-view #pos-grid#pos-grid tbody tr td[data-col-id="${col.id}"] input.g-input:focus,
+                    :root.light-theme body #purchase-editor-view #pos-grid#pos-grid tbody tr td[data-col-id="${col.id}"] select.g-select,
+                    :root.light-theme body #purchase-editor-view #pos-grid#pos-grid tbody tr td[data-col-id="${col.id}"] select.g-select.is-default-hint:not(:focus),
+                    :root.light-theme body #purchase-editor-view #pos-grid#pos-grid tbody tr td[data-col-id="${col.id}"] select.g-select:hover,
+                    :root.light-theme body #purchase-editor-view #pos-grid#pos-grid tbody tr td[data-col-id="${col.id}"] select.g-select:focus,
+                    :root.light-theme body #purchase-editor-view #pos-grid#pos-grid tbody tr td[data-col-id="${col.id}"] .total-val,
+                    :root.light-theme body #purchase-editor-view #pos-grid#pos-grid tbody tr td[data-col-id="${col.id}"] .total-val.is-zero-val,
+                    :root.light-theme body #purchase-editor-view #pos-grid#pos-grid tbody tr td[data-col-id="${col.id}"] .avail-val,
+                    :root.light-theme body #purchase-editor-view #pos-grid#pos-grid tbody tr td[data-col-id="${col.id}"] .avail-val.is-zero-val,
+                    :root.light-theme body #purchase-editor-view #pos-grid#pos-grid tbody tr td[data-col-id="${col.id}"] .row-num {
+                        color: ${lightColor} !important; -webkit-text-fill-color: ${lightColor} !important;
+                        font-size: ${fontSize} !important; font-weight: ${fontWeight === 'normal' ? '400' : fontWeight} !important;
+                        text-align: ${align} !important; text-align-last: ${align} !important; justify-content: ${flexJustify} !important;
                     }
-                    :root.light-theme body #pos-grid tbody tr td[data-col-id="${col.id}"] input:not(.is-zero-val),
-                    :root.light-theme body #pos-grid tbody tr td[data-col-id="${col.id}"] input:focus,
-                    :root.light-theme body #pos-grid tbody tr td[data-col-id="${col.id}"] select:not(.is-default-hint),
-                    :root.light-theme body #pos-grid tbody tr td[data-col-id="${col.id}"] select:focus,
-                    :root.light-theme body #pos-grid tbody tr td[data-col-id="${col.id}"] .total-val:not(.is-zero-val),
-                    :root.light-theme body #pos-grid tbody tr td[data-col-id="${col.id}"] .avail-val:not(.is-zero-val),
-                    :root.light-theme body #pos-grid tbody tr td[data-col-id="${col.id}"] .row-num {
-                        color: #000000 !important;
-                        -webkit-text-fill-color: #000000 !important;
-                        font-weight: 900 !important;
-                    }
-                    body #pos-grid tbody tr td[data-col-id="${col.id}"]:not([data-col-id="item"]):not([data-col-id="action"]) > div {
-                        display: flex;
-                        justify-content: ${flexJustify} !important;
-                        align-items: center;
+                    html body #purchase-editor-view #pos-grid#pos-grid tbody tr td[data-col-id="${col.id}"]:not([data-col-id="item"]):not([data-col-id="action"]) > div {
+                        display: flex; justify-content: ${flexJustify} !important; align-items: center;
                     }
                 `;
             }
@@ -10105,7 +10242,7 @@ document.addEventListener('DOMContentLoaded', () => {
         html body #purchase-editor-view #hdr-date::-webkit-datetime-edit, html body #purchase-editor-view #pay-credit-due-date::-webkit-datetime-edit { font-size: 1.38rem !important; font-weight: 900 !important; font-family: 'Outfit', 'Tajawal', sans-serif !important; }
         html body #purchase-editor-view #pay-credit-due-date { flex: 1 1 190px !important; min-width: 185px !important; width: auto !important; height: 48px !important; padding: 0 8px !important; text-align: center !important; }
         /* Lock Quantity, Price, Available, Unit, Warehouse & Total on the EXACT same vertical level with comfortable room */
-        html body #purchase-editor-view #pos-grid tbody tr td { vertical-align: middle !important; padding: 7px 5px 18px 5px !important; }
+        html body #purchase-editor-view #pos-grid tbody tr td { vertical-align: middle !important; padding: 7px 5px 22px 5px !important; }
         html body #purchase-editor-view #pos-grid tbody tr td input.g-input,
         html body #purchase-editor-view #pos-grid tbody tr td select.g-select,
         html body #purchase-editor-view #pos-grid tbody tr td .avail-val,
@@ -10114,40 +10251,51 @@ document.addEventListener('DOMContentLoaded', () => {
             padding: 0 5px !important; margin: 0 auto !important; box-sizing: border-box !important;
             vertical-align: middle !important; display: flex !important; align-items: center !important; justify-content: center !important; text-align: center !important;
         }
-        html body #purchase-editor-view #pos-grid tbody tr td[data-col-id="price"] input.g-input { padding-left: 28px !important; padding-right: 5px !important; }
+        html body #purchase-editor-view #pos-grid tbody tr td[data-col-id="price"] input.g-input,
+        html body #purchase-editor-view #pos-grid tbody tr td[data-col-id="price"]:hover input.g-input,
+        html body #purchase-editor-view #pos-grid tbody tr td[data-col-id="price"] input.g-input:hover,
+        html body #purchase-editor-view #pos-grid tbody tr td[data-col-id="price"] input.g-input:focus { padding-left: 34px !important; padding-right: 5px !important; transform: none !important; }
         html body #purchase-editor-view #pos-grid tbody tr td[data-col-id="item"] input.g-input { display: block !important; text-align: right !important; padding-right: 10px !important; }
-        /* Larger Side-Mounted 3D Lamp + Under-Number Reference/Variance Subtext (اللمبة أكبر بجانب الرقم + أرقام المرجع والنسبة تحت الرقم مباشرة وبخط أوضح) */
-        html body #purchase-editor-view #pos-grid tbody tr td[data-col-id="price"] .pur-price-audit-pill {
-            position: static !important; width: auto !important; height: auto !important; padding: 0 !important;
+        /* Larger Side-Mounted 3D Lamp (+40% = 20px, Zero Hover Jitter) + Clean Under-Number Reference/Variance Text with Up/Down Arrows */
+        html body #purchase-editor-view #pos-grid tbody tr td[data-col-id="price"] .pur-price-audit-pill,
+        html body #purchase-editor-view #pos-grid tbody tr td[data-col-id="price"] .pur-price-audit-pill:hover,
+        html body #purchase-editor-view #pos-grid tbody tr td[data-col-id="price"] .pur-price-audit-pill:active {
+            position: static !important; width: 0 !important; height: 0 !important; padding: 0 !important; margin: 0 !important;
             background: transparent !important; border: none !important; box-shadow: none !important; pointer-events: none !important;
+            transform: none !important; transition: none !important;
         }
-        html body #purchase-editor-view #pos-grid tbody tr td[data-col-id="price"] .pur-price-lamp {
-            position: absolute !important; left: 10px !important; top: 29px !important; transform: translateY(-50%) !important;
-            width: 14px !important; height: 14px !important; min-width: 14px !important; min-height: 14px !important;
+        html body #purchase-editor-view #pos-grid tbody tr td[data-col-id="price"] .pur-price-lamp,
+        html body #purchase-editor-view #pos-grid tbody tr td[data-col-id="price"] .pur-price-lamp:hover,
+        html body #purchase-editor-view #pos-grid tbody tr td[data-col-id="price"] .pur-price-lamp:active {
+            position: absolute !important; left: 9px !important; top: 19px !important; transform: none !important;
+            width: 20px !important; height: 20px !important; min-width: 20px !important; min-height: 20px !important;
             border-radius: 50% !important; display: inline-block !important; cursor: pointer !important; pointer-events: auto !important; z-index: 30 !important;
-            border: 1.8px solid rgba(255,255,255,0.92) !important; transition: transform 0.18s ease !important;
+            border: 2.2px solid rgba(255,255,255,0.95) !important; transition: filter 0.15s ease, box-shadow 0.15s ease !important;
         }
-        html body #purchase-editor-view #pos-grid tbody tr td[data-col-id="price"] .pur-price-lamp:hover { transform: translateY(-50%) scale(1.22) !important; }
-        .pur-price-lamp.lamp-red { background: radial-gradient(circle at 35% 35%, #fecdd3, #ff1e42 52%, #881337) !important; box-shadow: 0 0 10px #ff1e42, 0 0 16px rgba(244,63,94,0.9), inset 0 1.5px 2px #ffffff !important; }
-        .pur-price-lamp.lamp-amber { background: radial-gradient(circle at 35% 35%, #fef08a, #f59e0b 52%, #92400e) !important; box-shadow: 0 0 10px #fbbf24, 0 0 16px rgba(245,158,11,0.9), inset 0 1.5px 2px #ffffff !important; }
-        .pur-price-lamp.lamp-green { background: radial-gradient(circle at 35% 35%, #a7f3d0, #10b981 52%, #064e3b) !important; box-shadow: 0 0 10px #10b981, 0 0 16px rgba(16,185,129,0.9), inset 0 1.5px 2px #ffffff !important; }
-        .pur-price-lamp.lamp-blue { background: radial-gradient(circle at 35% 35%, #bae6fd, #0ea5e9 52%, #0c4a6e) !important; box-shadow: 0 0 10px #38bdf8, 0 0 16px rgba(14,165,233,0.9), inset 0 1.5px 2px #ffffff !important; }
-        html body #purchase-editor-view #pos-grid tbody tr td[data-col-id="price"] .pur-price-subtxt {
+        html body #purchase-editor-view #pos-grid tbody tr td[data-col-id="price"] .pur-price-lamp:hover { filter: brightness(1.18) !important; }
+        .pur-price-lamp.lamp-red { background: radial-gradient(circle at 35% 35%, #fecdd3, #ff1e42 52%, #881337) !important; box-shadow: 0 0 14px #ff1e42, 0 0 22px rgba(244,63,94,0.95), inset 0 2px 3px #ffffff !important; }
+        .pur-price-lamp.lamp-amber { background: radial-gradient(circle at 35% 35%, #fef08a, #f59e0b 52%, #92400e) !important; box-shadow: 0 0 13px #fbbf24, 0 0 20px rgba(245,158,11,0.92), inset 0 2px 3px #ffffff !important; }
+        .pur-price-lamp.lamp-green { background: radial-gradient(circle at 35% 35%, #a7f3d0, #10b981 52%, #064e3b) !important; box-shadow: 0 0 13px #10b981, 0 0 20px rgba(16,185,129,0.92), inset 0 2px 3px #ffffff !important; }
+        .pur-price-lamp.lamp-blue { background: radial-gradient(circle at 35% 35%, #bae6fd, #0ea5e9 52%, #0c4a6e) !important; box-shadow: 0 0 13px #38bdf8, 0 0 20px rgba(14,165,233,0.92), inset 0 2px 3px #ffffff !important; }
+        html body #purchase-editor-view #pos-grid tbody tr td[data-col-id="price"] .pur-price-subtxt,
+        html body #purchase-editor-view #pos-grid tbody tr td[data-col-id="price"] .pur-price-subtxt:hover,
+        html body #purchase-editor-view #pos-grid tbody tr td[data-col-id="price"] .pur-price-subtxt:active {
             position: absolute !important; bottom: 1px !important; left: 50% !important; transform: translateX(-50%) !important;
-            height: 16px !important; min-height: 16px !important; max-height: 16px !important; padding: 0 7px !important; border-radius: 999px !important;
+            height: 20px !important; min-height: 20px !important; max-height: 20px !important; width: auto !important; padding: 0 4px !important; border-radius: 0 !important;
             display: inline-flex !important; align-items: center !important; justify-content: center !important;
-            font-size: 0.76rem !important; font-weight: 800 !important; line-height: 1 !important; white-space: nowrap !important; direction: ltr !important;
-            cursor: pointer !important; pointer-events: auto !important; z-index: 26 !important;
-            background: rgba(15,23,42,0.85) !important; border: 1px solid rgba(255,255,255,0.32) !important; color: #fef08a !important; -webkit-text-fill-color: #fef08a !important;
-            box-shadow: 0 1px 4px rgba(0,0,0,0.3) !important;
+            font-size: 0.94rem !important; font-weight: 900 !important; line-height: 1 !important; white-space: nowrap !important; direction: ltr !important;
+            cursor: pointer !important; pointer-events: auto !important; z-index: 26 !important; transition: none !important;
+            background: transparent !important; border: none !important; box-shadow: none !important; color: #fef08a !important; -webkit-text-fill-color: #fef08a !important;
         }
         :root.light-theme body #purchase-editor-view #pos-grid tbody tr td[data-col-id="price"] .pur-price-subtxt {
-            background: rgba(255,255,255,0.95) !important; border: 1.2px solid rgba(92,40,8,0.45) !important; color: #0f172a !important; -webkit-text-fill-color: #0f172a !important;
+            background: transparent !important; border: none !important; box-shadow: none !important; color: #0f172a !important; -webkit-text-fill-color: #0f172a !important;
         }
-        html body #purchase-editor-view #pos-grid tbody tr td[data-col-id="price"] .pur-price-audit-pill[data-lamp-state="red"] .pur-price-subtxt { color: #e11d48 !important; -webkit-text-fill-color: #e11d48 !important; border-color: #fb7185 !important; }
-        html:not(.light-theme) body #purchase-editor-view #pos-grid tbody tr td[data-col-id="price"] .pur-price-audit-pill[data-lamp-state="red"] .pur-price-subtxt { color: #fecdd3 !important; -webkit-text-fill-color: #fecdd3 !important; background: rgba(136,19,55,0.88) !important; }
-        html body #purchase-editor-view #pos-grid tbody tr td[data-col-id="price"] .pur-price-audit-pill[data-lamp-state="green"] .pur-price-subtxt { color: #047857 !important; -webkit-text-fill-color: #047857 !important; border-color: #34d399 !important; }
-        html:not(.light-theme) body #purchase-editor-view #pos-grid tbody tr td[data-col-id="price"] .pur-price-audit-pill[data-lamp-state="green"] .pur-price-subtxt { color: #a7f3d0 !important; -webkit-text-fill-color: #a7f3d0 !important; background: rgba(6,78,59,0.88) !important; }
+        html body #purchase-editor-view #pos-grid tbody tr td[data-col-id="price"] .pur-price-audit-pill[data-lamp-state="red"] .pur-price-subtxt { color: #e11d48 !important; -webkit-text-fill-color: #e11d48 !important; }
+        html:not(.light-theme) body #purchase-editor-view #pos-grid tbody tr td[data-col-id="price"] .pur-price-audit-pill[data-lamp-state="red"] .pur-price-subtxt { color: #ff4d6d !important; -webkit-text-fill-color: #ff4d6d !important; background: transparent !important; }
+        html body #purchase-editor-view #pos-grid tbody tr td[data-col-id="price"] .pur-price-audit-pill[data-lamp-state="amber"] .pur-price-subtxt { color: #b45309 !important; -webkit-text-fill-color: #b45309 !important; }
+        html:not(.light-theme) body #purchase-editor-view #pos-grid tbody tr td[data-col-id="price"] .pur-price-audit-pill[data-lamp-state="amber"] .pur-price-subtxt { color: #fbbf24 !important; -webkit-text-fill-color: #fbbf24 !important; background: transparent !important; }
+        html body #purchase-editor-view #pos-grid tbody tr td[data-col-id="price"] .pur-price-audit-pill[data-lamp-state="green"] .pur-price-subtxt { color: #047857 !important; -webkit-text-fill-color: #047857 !important; }
+        html:not(.light-theme) body #purchase-editor-view #pos-grid tbody tr td[data-col-id="price"] .pur-price-audit-pill[data-lamp-state="green"] .pur-price-subtxt { color: #34d399 !important; -webkit-text-fill-color: #34d399 !important; background: transparent !important; }
         html body #print-invoice-frame .promissory-note-container,
         :root.light-theme body #print-invoice-frame .promissory-note-container {
             background: #ffffff !important; color: #000000 !important; -webkit-text-fill-color: #000000 !important; border: 2.5px double #0f172a !important;
@@ -10159,6 +10307,69 @@ document.addEventListener('DOMContentLoaded', () => {
         html body #print-invoice-frame .promissory-note-container span,
         html body #print-invoice-frame .promissory-note-container strong {
             color: #000000 !important; -webkit-text-fill-color: #000000 !important; font-weight: 800 !important; text-shadow: none !important;
+        }
+        html body #inline-totals-container { display: none !important; }
+        html body #grid-foot .pur-compact-tot-card #toggles-area {
+            display: inline-flex !important; flex-wrap: nowrap !important; gap: 8px !important; align-items: center !important; max-width: none !important; margin-left: 10px !important;
+        }
+        html body #purchase-editor-view #payment-panel .payment-row-item {
+            display: grid !important;
+            grid-template-columns: 85px 22% 18% 18% minmax(0, 1fr) 30px !important;
+            gap: 10px !important;
+            align-items: center !important;
+            width: 100% !important;
+            box-sizing: border-box !important;
+        }
+        html body #purchase-editor-view #payment-panel .payment-row-item input,
+        html body #purchase-editor-view #payment-panel .payment-row-item select {
+            width: 100% !important; min-width: 0 !important; max-width: 100% !important; box-sizing: border-box !important; margin: 0 !important;
+        }
+        :root.light-theme body #purchase-editor-view #pay-cash-section .payment-row-item > div:first-child,
+        :root.light-theme body #purchase-editor-view #pay-bank-section .payment-row-item > div:first-child,
+        :root.light-theme body #purchase-editor-view #pay-cheque-section .payment-row-item > div:first-child,
+        :root.light-theme body #purchase-editor-view #payment-panel .pay-method-row-lbl,
+        :root.light-theme body #purchase-editor-view #payment-panel .pay-method-row-lbl span {
+            color: #090300 !important; -webkit-text-fill-color: #090300 !important; font-weight: 900 !important; font-size: 1.05rem !important; text-shadow: none !important;
+        }
+        html body #purchase-editor-view #payment-panel #pay-cash-amount:not(:focus),
+        html body #purchase-editor-view #payment-panel #pay-cash-ref:not(:focus),
+        html body #purchase-editor-view #payment-panel #bank-transfers-list input.bt-amount-input:not(:focus),
+        html body #purchase-editor-view #payment-panel #bank-transfers-list input.bt-ref-input:not(:focus),
+        html body #purchase-editor-view #payment-panel #cheques-list input.ch-amount-input:not(:focus),
+        html body #purchase-editor-view #payment-panel #cheques-list input.ch-no-input:not(:focus),
+        :root.light-theme body #purchase-editor-view #payment-panel #pay-cash-amount:not(:focus),
+        :root.light-theme body #purchase-editor-view #payment-panel #pay-cash-ref:not(:focus),
+        :root.light-theme body #purchase-editor-view #payment-panel #bank-transfers-list input.bt-amount-input:not(:focus),
+        :root.light-theme body #purchase-editor-view #payment-panel #bank-transfers-list input.bt-ref-input:not(:focus),
+        :root.light-theme body #purchase-editor-view #payment-panel #cheques-list input.ch-amount-input:not(:focus),
+        :root.light-theme body #purchase-editor-view #payment-panel #cheques-list input.ch-no-input:not(:focus) {
+            font-size: 2.35rem !important; font-weight: 900 !important;
+            width: 100% !important; min-width: 0 !important; margin-right: 0 !important; height: 60px !important;
+            box-sizing: border-box !important;
+        }
+        html body #purchase-editor-view #payment-panel #pay-cash-amount:focus,
+        html body #purchase-editor-view #payment-panel #pay-cash-ref:focus,
+        html body #purchase-editor-view #payment-panel #bank-transfers-list input.bt-amount-input:focus,
+        html body #purchase-editor-view #payment-panel #bank-transfers-list input.bt-ref-input:focus,
+        html body #purchase-editor-view #payment-panel #cheques-list input.ch-amount-input:focus,
+        html body #purchase-editor-view #payment-panel #cheques-list input.ch-no-input:focus,
+        :root.light-theme body #purchase-editor-view #payment-panel #pay-cash-amount:focus,
+        :root.light-theme body #purchase-editor-view #payment-panel #pay-cash-ref:focus,
+        :root.light-theme body #purchase-editor-view #payment-panel #bank-transfers-list input.bt-amount-input:focus,
+        :root.light-theme body #purchase-editor-view #payment-panel #bank-transfers-list input.bt-ref-input:focus,
+        :root.light-theme body #purchase-editor-view #payment-panel #cheques-list input.ch-amount-input:focus,
+        :root.light-theme body #purchase-editor-view #payment-panel #cheques-list input.ch-no-input:focus {
+            font-size: 2.80rem !important; font-weight: 900 !important; letter-spacing: 0.5px !important;
+            width: 100% !important; min-width: 0 !important; margin-right: 0 !important; height: 64px !important;
+            box-sizing: border-box !important;
+        }
+        html body #purchase-editor-view #payment-panel #pay-cash-amount::placeholder,
+        html body #purchase-editor-view #payment-panel #pay-cash-ref::placeholder,
+        html body #purchase-editor-view #payment-panel #bank-transfers-list input.bt-amount-input::placeholder,
+        html body #purchase-editor-view #payment-panel #bank-transfers-list input.bt-ref-input::placeholder,
+        html body #purchase-editor-view #payment-panel #cheques-list input.ch-amount-input::placeholder,
+        html body #purchase-editor-view #payment-panel #cheques-list input.ch-no-input::placeholder {
+            font-size: 1.15rem !important; font-weight: 700 !important; letter-spacing: 0 !important;
         }
         </style>
         <script id="pur-fin-strip-and-tfoot-organizer">
@@ -10345,6 +10556,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     const lbl = document.getElementById('lbl-grand-dynamic');
                     const loc = document.getElementById('t-grand-dynamic-loc');
                     const fc = document.getElementById('t-grand-dynamic-fc');
+                    const toggles = document.getElementById('toggles-area');
                     if (lbl && loc && fc) {
                         loc.classList.remove('hide-if-sdg');
                         fc.classList.remove('hide-if-sdg');
@@ -10356,6 +10568,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         tdFull.style.cssText = 'border: none !important; padding: 10px 0 4px 0 !important; text-align: left !important; vertical-align: middle !important;';
                         const card = document.createElement('div');
                         card.className = 'pur-compact-tot-card';
+                        if (toggles) card.appendChild(toggles);
                         card.appendChild(lbl);
                         const valsWrap = document.createElement('div');
                         valsWrap.style.cssText = 'display: inline-flex; direction: rtl; flex-wrap: nowrap; gap: 14px; align-items: center; justify-content: flex-end;';
@@ -10498,8 +10711,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     pop.id = 'pur-light-tone-popover';
                     pop.style.cssText = 'position:fixed;z-index:9999999;background:linear-gradient(145deg,#0f172a,#1e293b);border:2px solid #fbbf24;border-radius:14px;padding:10px;box-shadow:0 18px 42px rgba(0,0,0,0.85),0 0 22px rgba(245,158,11,0.35);min-width:245px;direction:rtl;font-family:Tajawal,Cairo,sans-serif;';
                     document.body.appendChild(pop);
-                    document.addEventListener('click', (e) => { if (pop.style.display !== 'none' && !pop.contains(e.target)) pop.style.display = 'none'; });
+                    document.addEventListener('click', (e) => {
+                        const isThemeBtn = e.target && e.target.closest && e.target.closest('.msg-quartet-qtheme, .theme-toggle-btn, .msg-quartet-themes, #magaiees-master-themes-btn');
+                        if (pop.style.display !== 'none' && !pop.contains(e.target) && !isThemeBtn) pop.style.display = 'none';
+                    });
                 }
+                if (pop.style.display === 'block') { pop.style.display = 'none'; return; }
                 const isDarkNow = !document.documentElement.classList.contains('light-theme');
                 const cur = isDarkNow ? 'dark_midnight' : (document.documentElement.getAttribute('data-light-tone') || 'ivory_default');
                 pop.innerHTML = '<div style="color:#fde047;font-weight:900;font-size:0.92rem;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid rgba(255,255,255,0.15);display:flex;justify-content:space-between;align-items:center;"><span>🎨 مظاهر ونغمات النظام</span><span style="font-size:0.75rem;color:#94a3b8;">ثابتة في كل الشاشات</span></div>' +
@@ -10509,19 +10726,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 pop.style.left = Math.max(12, Math.min(window.innerWidth - 260, r.left)) + 'px';
                 pop.style.display = 'block';
             };
-            let _holdTimer = null, _holdTriggered = false;
-            document.addEventListener('pointerdown', function(e) {
-                const btn = e.target.closest && e.target.closest('.msg-quartet-qtheme, .theme-toggle-btn, .msg-quartet-themes, #magaiees-master-themes-btn');
-                if (!btn) return;
-                _holdTriggered = false;
-                clearTimeout(_holdTimer);
-                _holdTimer = setTimeout(() => { _holdTriggered = true; window.openPurchaseLightTonePopover(btn); }, 480);
-            }, true);
-            ['pointerup', 'pointerleave', 'pointercancel'].forEach(evName => {
-                document.addEventListener(evName, () => clearTimeout(_holdTimer), true);
-            });
             document.addEventListener('click', function(e) {
-                if (_holdTriggered) { _holdTriggered = false; e.preventDefault(); e.stopImmediatePropagation(); }
+                const btn = e.target && e.target.closest && e.target.closest('.msg-quartet-qtheme, .theme-toggle-btn, .msg-quartet-themes, #magaiees-master-themes-btn');
+                if (!btn) return;
+                e.preventDefault();
+                e.stopImmediatePropagation();
+                window.openPurchaseLightTonePopover(btn);
             }, true);
             document.addEventListener('contextmenu', function(e) {
                 const btn = e.target.closest && e.target.closest('.msg-quartet-qtheme, .theme-toggle-btn');
@@ -10557,5 +10767,150 @@ document.addEventListener('DOMContentLoaded', () => {
             }, { passive: true });
         })();
         </script>
+    <!-- ══════════════════════════════════════════════════════════════════════════
+         PURCHASE DESIGN CONSTITUTION 2027 — HUB VIEW (#purchase-hub-view)
+         9 Tones + 3px Sculpted Borders + Crisp White Inputs + Dual Currency Toggle
+         ══════════════════════════════════════════════════════════════════════════ -->
+    <style id="purchase-hub-constitution-2027-style">
+        /* 1. Royal Dark (dark_midnight) on #purchase-hub-view */
+        html:not(.light-theme) #purchase-hub-view {
+            background: #010308 !important;
+            color: #ffffff !important;
+        }
+        html:not(.light-theme) #purchase-hub-view .neo-card,
+        html:not(.light-theme) #purchase-hub-view .smart-filter-bar {
+            background: linear-gradient(145deg, #1b3159 0%, #132341 100%) !important;
+            border: 2.5px solid rgba(56, 189, 248, 0.78) !important;
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.85), inset 0 1.5px 0 rgba(255, 255, 255, 0.22) !important;
+            border-radius: 16px !important;
+        }
+        html:not(.light-theme) #purchase-hub-view .hub-action-card {
+            background: linear-gradient(145deg, #1d345e 0%, #132240 100%) !important;
+            border: 2px solid rgba(56, 189, 248, 0.65) !important;
+            box-shadow: 0 8px 22px rgba(0, 0, 0, 0.65) !important;
+        }
+        html:not(.light-theme) #purchase-hub-view .hub-action-card .title {
+            color: #ffffff !important;
+            font-weight: 900 !important;
+            font-size: 1.05rem !important;
+        }
+        html:not(.light-theme) #purchase-hub-view #hub-filter-type,
+        html:not(.light-theme) #purchase-hub-view #hub-filter-value {
+            background: #0b1120 !important;
+            color: #ffffff !important;
+            border: 2px solid #38bdf8 !important;
+            font-weight: 900 !important;
+        }
+        html:not(.light-theme) #purchase-hub-view #hub-pos-grid thead th {
+            background: #0d182c !important;
+            color: #ffffff !important;
+            font-weight: 900 !important;
+            font-size: 0.98rem !important;
+            border-bottom: 2.5px solid #38bdf8 !important;
+        }
+        html:not(.light-theme) #purchase-hub-view #hub-transactions-body tr td {
+            color: #ffffff !important;
+            font-weight: 900 !important;
+            border-bottom: 1px solid rgba(56, 189, 248, 0.22) !important;
+        }
+
+        /* 2. All 8 Light Tones (--lt-* variables, 3px sculpted borders, pure white inputs, pitch-black 900 text) */
+        html.light-theme #purchase-hub-view {
+            background: var(--lt-bg-main, #f3ead8) !important;
+            color: var(--lt-text, #120500) !important;
+        }
+        html.light-theme #purchase-hub-view .neo-card,
+        html.light-theme #purchase-hub-view .smart-filter-bar {
+            background: var(--lt-bg-card, #e8dbc3) !important;
+            border: 3px solid var(--lt-border, #5c2808) !important;
+            box-shadow: 0 8px 22px rgba(45, 20, 5, 0.15), inset 0 1.5px 0 rgba(255, 255, 255, 0.75) !important;
+            color: var(--lt-text, #120500) !important;
+            border-radius: 16px !important;
+        }
+        html.light-theme #purchase-hub-view .hub-action-card {
+            background: var(--lt-bg-subcard, #dfd0b5) !important;
+            border: 3px solid var(--lt-border, #5c2808) !important;
+            box-shadow: 0 5px 14px rgba(45, 20, 5, 0.14), inset 0 1px 0 rgba(255, 255, 255, 0.8) !important;
+        }
+        html.light-theme #purchase-hub-view .hub-action-card:hover {
+            background: #ffffff !important;
+            transform: translateY(-2px);
+        }
+        html.light-theme #purchase-hub-view .hub-action-card .title {
+            color: var(--lt-text, #120500) !important;
+            -webkit-text-fill-color: var(--lt-text, #120500) !important;
+            font-weight: 900 !important;
+            font-size: 1.06rem !important;
+            text-shadow: none !important;
+        }
+        html.light-theme #purchase-hub-view #hub-filter-type,
+        html.light-theme #purchase-hub-view #hub-filter-value {
+            background: #ffffff !important;
+            color: #000000 !important;
+            -webkit-text-fill-color: #000000 !important;
+            border: 2.5px solid var(--lt-border, #5c2808) !important;
+            font-weight: 900 !important;
+            font-size: 1rem !important;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.06) !important;
+        }
+        html.light-theme #purchase-hub-view .filter-time-group {
+            background: var(--lt-bg-subcard, #dfd0b5) !important;
+            border: 2px solid var(--lt-border, #5c2808) !important;
+        }
+        html.light-theme #purchase-hub-view .hub-time-btn {
+            color: var(--lt-text, #120500) !important;
+            font-weight: 900 !important;
+        }
+        html.light-theme #purchase-hub-view #hub-pos-grid thead,
+        html.light-theme #purchase-hub-view #hub-pos-grid thead tr,
+        html.light-theme #purchase-hub-view #hub-pos-grid thead th {
+            background: var(--lt-bg-header, #d6c3a5) !important;
+            color: var(--lt-text, #120500) !important;
+            -webkit-text-fill-color: var(--lt-text, #120500) !important;
+            font-weight: 900 !important;
+            font-size: 0.98rem !important;
+            border-bottom: 3px solid var(--lt-border, #5c2808) !important;
+        }
+        html.light-theme #purchase-hub-view #hub-transactions-body tr {
+            background: #ffffff !important;
+        }
+        html.light-theme #purchase-hub-view #hub-transactions-body tr:nth-child(even) {
+            background: var(--lt-bg-subcard, #f5ebd8) !important;
+        }
+        html.light-theme #purchase-hub-view #hub-transactions-body tr td,
+        html.light-theme #purchase-hub-view #hub-transactions-body tr td span:not(.pur-price-lamp) {
+            color: #000000 !important;
+            -webkit-text-fill-color: #000000 !important;
+            font-weight: 900 !important;
+            border-bottom: 1.5px solid var(--lt-border, #5c2808) !important;
+        }
+        html.light-theme #purchase-hub-view #hub-transactions-body tr td.hub-col-invno {
+            color: #0369a1 !important;
+            -webkit-text-fill-color: #0369a1 !important;
+        }
+        html.light-theme #purchase-hub-view .hub-sum-cap,
+        html.light-theme #purchase-hub-view .hub-sum-cap strong,
+        html.light-theme #purchase-hub-view #hub-fin-curr-toggle-btn {
+            color: #ffffff !important;
+            -webkit-text-fill-color: #ffffff !important;
+        }
+    </style>
+
+    <script id="purchase-hub-constitution-2027-script">
+    (function() {
+        window._hubShowInUsd = false;
+        window.getHubExchangeRate = function() {
+            const elRate = document.getElementById('hdr-exchange-rate');
+            if (elRate && parseFloat(elRate.value) > 1) return parseFloat(elRate.value);
+            const saved = parseFloat(localStorage.getItem('magaies_usd_exchange_rate') || localStorage.getItem('usd_exchange_rate') || '2650');
+            return (saved && saved > 1) ? saved : 2650;
+        };
+        window.toggleHubSummaryCurrency = function() {
+            window._hubShowInUsd = !window._hubShowInUsd;
+            if (typeof filterHubTransactions === 'function') filterHubTransactions();
+            else if (typeof loadHubTransactions === 'function') loadHubTransactions();
+        };
+    })();
+    </script>
 </body>
 </html>

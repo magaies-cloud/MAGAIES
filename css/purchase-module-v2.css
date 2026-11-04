@@ -500,42 +500,46 @@ table.pos-grid td {
     flex: none !important;
 }
 .dynamic-focus-input {
-    font-size: 4.9rem !important;
-    color: #000000 !important;
-    height: 90px !important;
-    transition: font-size 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), letter-spacing 0.3s ease, height 0.3s ease, color 0.3s ease, width 0.3s ease !important;
+    font-size: 2.35rem !important;
+    height: 60px !important;
+    transition: font-size 0.2s ease, letter-spacing 0.2s ease, height 0.2s ease, color 0.2s ease, box-shadow 0.2s ease !important;
+}
+.dynamic-focus-input::placeholder {
+    font-size: 1.15rem !important;
+    font-weight: 700 !important;
+    letter-spacing: 0 !important;
 }
 .dynamic-focus-input:focus {
     position: relative !important;
-    z-index: 1000 !important;
+    z-index: 10 !important;
+    font-size: 2.80rem !important;
+    height: 64px !important;
     font-weight: 900 !important;
-    letter-spacing: 2px !important;
-    box-shadow: 0 15px 50px rgba(0,0,0,0.9), 0 0 25px rgba(251, 191, 36, 0.6) !important;
+    letter-spacing: 0.5px !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    margin-right: 0 !important;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.6), 0 0 20px rgba(251, 191, 36, 0.5) !important;
 }
 .dynamic-focus-amount:focus {
-    font-size: 3rem !important;
-    height: 80px !important;
-    width: 350px !important;
-    min-width: 350px !important;
-    color: #fbbf24 !important; /* Yellow */
-    margin-right: -20px !important;
+    font-size: 2.80rem !important;
+    height: 64px !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    color: #fbbf24 !important;
+    margin-right: 0 !important;
 }
-.dynamic-focus-number:focus {
-    font-size: 3rem !important;
-    height: 80px !important;
-    width: 350px !important;
-    min-width: 350px !important;
-    color: #38bdf8 !important; /* Sky Blue */
-    margin-right: -20px !important;
-}
-.transfer-no.dynamic-focus-input:focus, .bt-ref-input.dynamic-focus-input:focus {
-    font-size: 3rem !important;
-    height: 80px !important;
-    width: 350px !important;
-    min-width: 350px !important;
-    max-width: none !important;
-    margin-right: -20px !important;
-    letter-spacing: 1px !important;
+.dynamic-focus-number:focus,
+.transfer-no.dynamic-focus-input:focus,
+.bt-ref-input.dynamic-focus-input:focus,
+.ch-no-input.dynamic-focus-input:focus {
+    font-size: 2.80rem !important;
+    height: 64px !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    color: #38bdf8 !important;
+    margin-right: 0 !important;
+    letter-spacing: 0.5px !important;
 }
 
 

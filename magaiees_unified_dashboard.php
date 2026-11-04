@@ -1197,17 +1197,20 @@ function switchToMobileEdition() {
                 </div>
             </div>
 
-            <!-- Live Exchange Rate & Currency Command Strip -->
-            <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; background: rgba(9, 13, 22, 0.85); border: 1px solid rgba(245, 158, 11, 0.45); padding: 5px 12px; border-radius: 12px;">
-                <span style="font-size: 0.78rem; font-weight: 900; color: #fbbf24;">💱 سعر الصرف:</span>
-                <strong id="dash-live-fx-badge" onclick="openDashboardFXModal()" style="cursor:pointer; color: #38bdf8; font-family: 'Outfit', sans-serif; font-size: 0.88rem; background: rgba(56,189,248,0.12); padding: 2px 9px; border-radius: 8px; border: 1px solid rgba(56,189,248,0.3);" title="انقر لفتح بورصة ومحول سعر الصرف الفوري">1 USD = 1 SDG</strong>
-                <button type="button" id="dash-cur-toggle-btn" onclick="toggleDashboardCurrency()" style="background: linear-gradient(135deg, rgba(16,185,129,0.22), rgba(6,182,212,0.22)); border: 1px solid #10b981; color: #34d399; border-radius: 8px; padding: 4px 10px; font-family: 'Tajawal', sans-serif; font-size: 0.76rem; font-weight: 900; cursor: pointer;" title="تبديل عملة عرض المؤشرات بين العملة الأساسية والأجنبية">
-                    عرض المؤشرات: SDG 🇸🇩
+            <!-- Live Exchange Rate & Purchase Constitution 2027 Currency Command Strip -->
+            <div class="dash-fx-strip-2027" style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; background: rgba(9, 13, 22, 0.85); border: 2px solid rgba(245, 158, 11, 0.55); padding: 6px 14px; border-radius: 12px;">
+                <span style="font-size: 0.84rem; font-weight: 900; color: #fbbf24;">💱 الصرف:</span>
+                <strong id="dash-live-fx-badge" onclick="openDashboardFXModal()" style="cursor:pointer; color: #38bdf8; font-family: 'Outfit', sans-serif; font-size: 0.98rem; font-weight: 900; background: rgba(56,189,248,0.14); padding: 3px 10px; border-radius: 8px; border: 1.5px solid rgba(56,189,248,0.4);" title="انقر لفتح بورصة ومحول سعر الصرف الفوري">1 USD = 1 SDG</strong>
+                <button type="button" id="dash-cur-toggle-btn" onclick="toggleDashboardCurrency()" style="background: linear-gradient(135deg, #7c3aed, #5b21b6); border: 2px solid #c4b5fd; color: #ffffff !important; border-radius: 9px; padding: 5px 14px; font-family: 'Cairo', 'Tajawal', sans-serif; font-size: 0.86rem; font-weight: 900; cursor: pointer; box-shadow: 0 3px 10px rgba(124,58,237,0.35);" title="تبديل عملة عرض المؤشرات بين الجنيه والدولار">
+                    💱 جنيه ⇄ دولار (SDG)
                 </button>
-                <button type="button" onclick="openDashboardFXModal()" style="background: rgba(245,158,11,0.2); border: 1px solid #f59e0b; color: #fbbf24; border-radius: 8px; padding: 4px 10px; font-family: 'Tajawal', sans-serif; font-size: 0.76rem; font-weight: 900; cursor: pointer;" title="فتح مركز إدارة سعر الصرف وحاسبة العملات">
-                    ⚙️ بورصة ومحول الصرف
+                <button type="button" onclick="openDashboardFXModal()" style="background: linear-gradient(135deg, #d97706, #b45309); border: 2px solid #fcd34d; color: #ffffff !important; border-radius: 9px; padding: 5px 12px; font-family: 'Cairo', 'Tajawal', sans-serif; font-size: 0.82rem; font-weight: 900; cursor: pointer;" title="فتح مركز إدارة سعر الصرف وحاسبة العملات">
+                    ⚙️ الصرف
                 </button>
-                <a href="jobs.php" style="background: rgba(168,85,247,0.2); border: 1px solid #a855f7; color: #e9d5ff; border-radius: 8px; padding: 4px 10px; font-family: 'Tajawal', sans-serif; font-size: 0.76rem; font-weight: 900; text-decoration: none;" title="فتح مركز المهام والأعمال التنفيذية 360°">
+                <a href="general-ledger.php" style="background: linear-gradient(135deg, #0284c7, #0369a1); border: 2px solid #7dd3fc; color: #ffffff !important; border-radius: 9px; padding: 5px 12px; font-family: 'Cairo', 'Tajawal', sans-serif; font-size: 0.82rem; font-weight: 900; text-decoration: none;" title="فتح دفتر الأستاذ العام وكشوفات الحسابات">
+                    📖 أستاذ
+                </a>
+                <a href="jobs.php" style="background: linear-gradient(135deg, #059669, #047857); border: 2px solid #6ee7b7; color: #ffffff !important; border-radius: 9px; padding: 5px 12px; font-family: 'Cairo', 'Tajawal', sans-serif; font-size: 0.82rem; font-weight: 900; text-decoration: none;" title="فتح مركز المهام والأعمال التنفيذية 360°">
                     💼 المهام (<span id="dash-top-jobs-count">0</span>)
                 </a>
             </div>
@@ -3606,5 +3609,199 @@ function switchToMobileEdition() {
 </script>
 <script src="js/magaies-offline-sync.js?v=20261014"></script>
 <script src="js/unified-brain.js?v=20260722"></script>
+    <!-- ══════════════════════════════════════════════════════════════════════════
+         PURCHASE DESIGN CONSTITUTION 2027 — UNIFIED DASHBOARD
+         9 Tones + 3px Sculpted Borders + 3D KPI Capsules + Radar Lamps + FX Toggle
+         ══════════════════════════════════════════════════════════════════════════ -->
+    <style id="dashboard-purchase-constitution-2027-style">
+        /* 1. Royal Dark (dark_midnight) Canvas, Stepped Cards & Pure White 900 Text */
+        html:not(.light-theme) body,
+        html:not(.light-theme) .dash-main {
+            background: #010308 !important;
+            color: #ffffff !important;
+        }
+        html:not(.light-theme) .glass-panel,
+        html:not(.light-theme) #qa-bar-container,
+        html:not(.light-theme) #category-hubs-container {
+            background: linear-gradient(145deg, #1b3159 0%, #12213d 100%) !important;
+            border: 2.5px solid rgba(56, 189, 248, 0.72) !important;
+            box-shadow: 0 10px 28px rgba(0, 0, 0, 0.78), inset 0 1.5px 0 rgba(255, 255, 255, 0.22) !important;
+        }
+        html:not(.light-theme) .kpi-cards .spotlight-card {
+            background: linear-gradient(145deg, #1e3663 0%, #152647 100%) !important;
+            border: 2.5px solid rgba(56, 189, 248, 0.78) !important;
+            padding: 10px 14px !important;
+            border-radius: 12px !important;
+        }
+        html:not(.light-theme) .kpi-cards .kpi-title,
+        html:not(.light-theme) .glass-panel h3 {
+            color: #ffffff !important;
+            font-weight: 900 !important;
+        }
+        html:not(.light-theme) .kpi-cards .kpi-val {
+            font-size: 1.32rem !important;
+            font-weight: 900 !important;
+            font-family: 'Outfit', 'Cairo', sans-serif !important;
+        }
+        html:not(.light-theme) .premium-table thead th {
+            background: #0d182c !important;
+            color: #ffffff !important;
+            font-weight: 900 !important;
+            border-bottom: 2.5px solid #38bdf8 !important;
+        }
+        html:not(.light-theme) .premium-table tbody td {
+            color: #ffffff !important;
+            font-weight: 900 !important;
+        }
+
+        /* 2. All 8 Light Tones (--lt-* variables, 3px sculpted borders, pure white inputs, pitch-black 900 text) */
+        html.light-theme body,
+        html.light-theme .dash-main {
+            background: var(--lt-bg-main, #f3ead8) !important;
+            color: var(--lt-text, #120500) !important;
+            font-weight: 900 !important;
+        }
+        html.light-theme .ambient-bg {
+            opacity: 0.12 !important;
+        }
+        html.light-theme .glass-panel,
+        html.light-theme #qa-bar-container,
+        html.light-theme #category-hubs-container,
+        html.light-theme #category-dropdown-popover,
+        html.light-theme #screens-dropdown-menu,
+        html.light-theme #notifications-dropdown .glass-panel {
+            background: var(--lt-bg-card, #e8dbc3) !important;
+            border: 3px solid var(--lt-border, #5c2808) !important;
+            box-shadow: 0 8px 22px rgba(45, 20, 5, 0.15), inset 0 1.5px 0 rgba(255, 255, 255, 0.75) !important;
+            color: var(--lt-text, #120500) !important;
+        }
+        html.light-theme .dash-fx-strip-2027 {
+            background: var(--lt-bg-subcard, #dfd0b5) !important;
+            border: 2.5px solid var(--lt-border, #5c2808) !important;
+        }
+        html.light-theme .dash-fx-strip-2027 > span {
+            color: var(--lt-text, #120500) !important;
+        }
+        html.light-theme #dash-live-fx-badge {
+            background: #ffffff !important;
+            color: #0369a1 !important;
+            border: 2px solid var(--lt-border, #5c2808) !important;
+        }
+        html.light-theme .kpi-cards .spotlight-card {
+            background: #ffffff !important;
+            border: 3px solid var(--lt-border, #5c2808) !important;
+            padding: 10px 14px !important;
+            border-radius: 12px !important;
+            box-shadow: 0 5px 14px rgba(45, 20, 5, 0.12) !important;
+        }
+        html.light-theme .kpi-cards .kpi-title,
+        html.light-theme .glass-panel h3,
+        html.light-theme #qa-bar-container div,
+        html.light-theme #category-hubs-container div {
+            color: var(--lt-text, #120500) !important;
+            -webkit-text-fill-color: var(--lt-text, #120500) !important;
+            font-weight: 900 !important;
+        }
+        html.light-theme .kpi-cards .kpi-val {
+            font-size: 1.34rem !important;
+            font-weight: 900 !important;
+            font-family: 'Outfit', 'Cairo', sans-serif !important;
+        }
+        html.light-theme #kpi-sales { color: #0369a1 !important; -webkit-text-fill-color: #0369a1 !important; }
+        html.light-theme #kpi-vault-liquidity,
+        html.light-theme #kpi-liquidity { color: #047857 !important; -webkit-text-fill-color: #047857 !important; }
+        html.light-theme #kpi-monthly-profit { color: #6d28d9 !important; -webkit-text-fill-color: #6d28d9 !important; }
+        html.light-theme #kpi-inventory { color: #b45309 !important; -webkit-text-fill-color: #b45309 !important; }
+        html.light-theme #kpi-alerts { color: #be123c !important; -webkit-text-fill-color: #be123c !important; }
+
+        html.light-theme #qa-single-row-grid > *,
+        html.light-theme #category-hubs-grid > *,
+        html.light-theme .qa-master-btn {
+            background: var(--lt-bg-subcard, #dfd0b5) !important;
+            border: 2.5px solid var(--lt-border, #5c2808) !important;
+            color: var(--lt-text, #120500) !important;
+            font-weight: 900 !important;
+        }
+        html.light-theme #qa-single-row-grid > * span,
+        html.light-theme #category-hubs-grid > * span,
+        html.light-theme .qa-master-btn .btn-text {
+            color: var(--lt-text, #120500) !important;
+            -webkit-text-fill-color: var(--lt-text, #120500) !important;
+            font-weight: 900 !important;
+        }
+        html.light-theme input[type="text"],
+        html.light-theme input[type="number"],
+        html.light-theme input[type="search"],
+        html.light-theme select {
+            background: #ffffff !important;
+            color: #000000 !important;
+            border: 2.5px solid var(--lt-border, #5c2808) !important;
+            font-weight: 900 !important;
+        }
+        html.light-theme .premium-table thead th {
+            background: var(--lt-bg-header, #d6c3a5) !important;
+            color: var(--lt-text, #120500) !important;
+            font-weight: 900 !important;
+            border-bottom: 3px solid var(--lt-border, #5c2808) !important;
+        }
+        html.light-theme .premium-table tbody tr {
+            background: #ffffff !important;
+        }
+        html.light-theme .premium-table tbody tr:nth-child(even) {
+            background: var(--lt-bg-subcard, #f5ebd8) !important;
+        }
+        html.light-theme .premium-table tbody td {
+            color: #000000 !important;
+            font-weight: 900 !important;
+            border-bottom: 1.5px solid var(--lt-border, #5c2808) !important;
+        }
+
+        /* 3. 20px 3D Price/Status Radar Lamp (.pur-price-lamp) */
+        .pur-price-lamp {
+            width: 18px !important;
+            height: 18px !important;
+            min-width: 18px !important;
+            border-radius: 50% !important;
+            display: inline-block !important;
+            border: 2px solid rgba(255, 255, 255, 0.85) !important;
+            flex-shrink: 0 !important;
+        }
+        .pur-price-lamp.lamp-green { background: radial-gradient(circle at 32% 32%, #6ee7b7, #10b981 55%, #065f46 100%) !important; box-shadow: 0 0 10px rgba(16, 185, 129, 0.75) !important; }
+        .pur-price-lamp.lamp-red   { background: radial-gradient(circle at 32% 32%, #fda4af, #ef4444 55%, #991b1b 100%) !important; box-shadow: 0 0 10px rgba(239, 68, 68, 0.8) !important; }
+        .pur-price-lamp.lamp-amber { background: radial-gradient(circle at 32% 32%, #fde68a, #f59e0b 55%, #92400e 100%) !important; box-shadow: 0 0 10px rgba(245, 158, 11, 0.75) !important; }
+        .pur-price-lamp.lamp-blue  { background: radial-gradient(circle at 32% 32%, #93c5fd, #3b82f6 55%, #1e40af 100%) !important; box-shadow: 0 0 10px rgba(59, 130, 246, 0.75) !important; }
+    </style>
+
+    <script id="dashboard-purchase-constitution-2027-script">
+    (function() {
+        function decorateDashboardKPIsWithLamps() {
+            const kpiConfigs = [
+                { id: 'kpi-sales', lamp: 'lamp-blue' },
+                { id: 'kpi-vault-liquidity', lamp: 'lamp-green' },
+                { id: 'kpi-liquidity', lamp: 'lamp-green' },
+                { id: 'kpi-monthly-profit', lamp: 'lamp-blue' },
+                { id: 'kpi-inventory', lamp: 'lamp-amber' },
+                { id: 'kpi-alerts', lamp: 'lamp-red' }
+            ];
+            kpiConfigs.forEach(cfg => {
+                const valEl = document.getElementById(cfg.id);
+                if (!valEl) return;
+                const card = valEl.closest('.spotlight-card');
+                if (!card || card.querySelector('.pur-price-lamp')) return;
+                const iconBg = card.querySelector('.kpi-icon-bg');
+                if (iconBg) {
+                    const lamp = document.createElement('span');
+                    lamp.className = 'pur-price-lamp ' + cfg.lamp;
+                    iconBg.parentNode.insertBefore(lamp, iconBg);
+                }
+            });
+        }
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', decorateDashboardKPIsWithLamps);
+        } else {
+            decorateDashboardKPIsWithLamps();
+        }
+    })();
+    </script>
 </body>
 </html>

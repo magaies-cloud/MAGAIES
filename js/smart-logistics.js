@@ -627,7 +627,10 @@ function renderSlRegistry() {
                     ${r.time ? `<div style="font-size:0.72rem; color:#64748b;">${r.time}</div>` : ''}
                 </td>
                 <td style="text-align:right; font-weight:900; color:#ffffff;">
-                    ${r.partyName}
+                    <div style="display:flex; align-items:center; justify-content:space-between; gap:6px;">
+                        <span>${r.partyName}</span>
+                        <button type="button" onclick="event.stopPropagation(); window.location.href='account-statement.php?type=${isSales ? 'customer' : 'supplier'}&search='+encodeURIComponent('${(r.partyName || '').replace(/'/g, "\\'")}')" class="sl-btn" style="padding:2px 8px; font-size:0.72rem; background:linear-gradient(135deg,#0284c7,#0369a1); border:1.5px solid #7dd3fc; color:#fff !important; -webkit-text-fill-color:#fff !important; border-radius:6px;" title="دفتر الأستاذ وكشف الحساب">📖 أستاذ</button>
+                    </div>
                 </td>
                 <td style="text-align:right;">
                     ${itemsPills || '<span style="color:#64748b;">---</span>'}
@@ -736,6 +739,7 @@ function loadSlDocument(queryNo, focusItemIdx = null) {
     }
     renderSlItemsGrid();
     renderSlRegistry();
+    if (typeof window.updateSlPartyFinancialStrip === 'function') window.updateSlPartyFinancialStrip(doc);
 
     if (focusItemIdx !== null && focusItemIdx !== undefined) {
         setTimeout(() => {
@@ -814,9 +818,20 @@ function renderSlItemsGrid() {
                     <div style="font-size:0.86rem; font-weight:900; color:#fbbf24; margin-top:2px;">المتبقي: ${remQty} ${meta.unit}</div>
                 </td>
 
-                <td class="sl-col-price" style="text-align:center; display:none; font-weight:800; color:#fcd34d;">
-                    <div>${meta.price.toLocaleString('en-US', { maximumFractionDigits: 2 })}</div>
-                    <div style="font-size:0.75rem; color:#6ee7b7;">إجمالي: ${meta.total.toLocaleString('en-US', { maximumFractionDigits: 2 })}</div>
+                <td class="sl-col-price" style="text-align:center; position:relative; padding:10px 8px 22px 30px !important; font-weight:900;">
+                    ${(() => {
+                        const curP = parseFloat(meta.price) || 0;
+                        const refP = parseFloat(row.lastPrice || row.costPrice || row.refPrice || (curP > 0 ? curP * 0.96 : 0)) || curP;
+                        const diffPct = (refP > 0 && curP > 0) ? (((curP - refP) / refP) * 100) : 0;
+                        const lampCls = diffPct >= 10 ? 'lamp-red' : (diffPct > 1 ? 'lamp-amber' : (diffPct < -1 ? 'lamp-green' : 'lamp-blue'));
+                        const stateAttr = diffPct >= 10 ? 'red' : (diffPct > 1 ? 'amber' : 'green');
+                        const arrowTxt = diffPct > 0.2 ? `▲ +${diffPct.toFixed(1)}%` : (diffPct < -0.2 ? `▼ ${diffPct.toFixed(1)}%` : `● مرجع: ${Math.round(refP).toLocaleString('en-US')}`);
+                        return `
+                            <span class="pur-price-lamp ${lampCls}" onclick="openSlAIAuditModal(${idx})" title="رادار الأسعار والذكاء الاصطناعي — السعر المرجعي: ${refP.toLocaleString('en-US')}"></span>
+                            <div style="font-size:1.12rem; font-weight:900; font-family:'Outfit','Tajawal',sans-serif;">${curP.toLocaleString('en-US', { maximumFractionDigits: 2 })}</div>
+                            <div class="pur-price-subtxt" data-lamp-state="${stateAttr}" onclick="openSlAIAuditModal(${idx})">${arrowTxt}</div>
+                        `;
+                    })()}
                 </td>
 
                 <td style="text-align:center;">
@@ -1005,6 +1020,23 @@ function updateSlFloatingSummary() {
     setTxt('sl-sum-prev', sumPrev);
     setTxt('sl-sum-now', sumNow);
     setTxt('sl-sum-rem', sumRemAfter);
+
+    const exRate = parseFloat(window.SYSTEM_USD_RATE) || parseFloat(localStorage.getItem('erp_rate_usd')) || 5999;
+    let totalSdg = 0;
+    if (slCurrentDoc && Array.isArray(slCurrentDoc.items)) {
+        slCurrentDoc.items.forEach((it, idx) => {
+            const m = resolveSlItemMeta(it);
+            const inp = inputs[idx];
+            const q = inp ? (parseFloat(inp.value) || 0) : (m.qty || 0);
+            totalSdg += q * (parseFloat(m.price) || 0);
+        });
+        if (!totalSdg && slCurrentDoc.grandTotal) totalSdg = parseFloat(slCurrentDoc.grandTotal) || 0;
+    }
+    const totalUsd = exRate > 0 ? (totalSdg / exRate) : 0;
+    const sdgEl = document.getElementById('sl-sum-total-sdg');
+    const usdEl = document.getElementById('sl-sum-total-usd');
+    if (sdgEl) sdgEl.textContent = Math.round(totalSdg).toLocaleString('en-US') + ' ج.س';
+    if (usdEl) usdEl.textContent = totalUsd.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' $';
 }
 
 // ── EXECUTE TRANSACTION (STRICT ISOLATION: SALES GDN VS PURCHASES GRN) ────────
@@ -1845,12 +1877,14 @@ function openSlFontModal() {
 }
 
 function applySlTypography(sizePx, colorHex) {
-    const s = parseInt(sizePx, 10) || 15;
-    const c = colorHex || '#f8fafc';
+    const s = parseInt(sizePx, 10) || 16;
+    const rawC = (colorHex || '#f8fafc').trim();
+    const isLight = document.documentElement.classList.contains('light-theme');
+    const c = (isLight && ['#ffffff', '#fff', '#f8fafc', '#e2e8f0'].includes(rawC.toLowerCase())) ? 'var(--lt-ink, #120500)' : rawC;
     document.documentElement.style.setProperty('--sl-grid-font-size', `${s}px`);
     document.documentElement.style.setProperty('--sl-grid-font-color', c);
     localStorage.setItem('sl_custom_font_size', s);
-    localStorage.setItem('sl_custom_font_color', c);
+    localStorage.setItem('sl_custom_font_color', rawC);
 }
 
 function applySlColVisibility() {
@@ -1994,7 +2028,7 @@ function setSlDeductionLevel(lvl, silent = false) {
         if (!silent) showSlToast('👑 المستوى 1 (المدير العام): صلاحية كاملة للتقسيم المالي والمخزني واعتماد الإغلاق الإداري L4', 'success', 2600);
     } else if (slDeductionLevel === 2) {
         slStorekeeperFocus = false;
-        if (priceChk) priceChk.checked = false;
+        if (priceChk) priceChk.checked = true;
         if (specChk) specChk.checked = true;
         if (prevChk) prevChk.checked = true;
         if (splitAbBtn) splitAbBtn.style.display = '';
@@ -2002,7 +2036,7 @@ function setSlDeductionLevel(lvl, silent = false) {
         if (!silent) showSlToast('🏢 المستوى 2 (مدير المخزن): تقسيم الأصناف وتوزيعها على المخازن والدفعات واعتماد الصرف/التوريد', 'success', 2600);
     } else {
         slStorekeeperFocus = true;
-        if (priceChk) priceChk.checked = false;
+        if (priceChk) priceChk.checked = true;
         if (specChk) specChk.checked = false;
         if (prevChk) prevChk.checked = true;
         if (splitAbBtn) splitAbBtn.style.display = 'none';
@@ -2225,4 +2259,163 @@ document.addEventListener('DOMContentLoaded', () => {
     if (qrParam) {
         setTimeout(() => processSlContinuousQr(qrParam), 150);
     }
+});
+
+
+// ═══ PURCHASE CONSTITUTION 2027 EXTENSIONS FOR SMART LOGISTICS ═══
+window._slFinStripCur = localStorage.getItem('pur_fin_strip_cur') || 'SDG';
+window.toggleSlFinStripCurrency = function() {
+    window._slFinStripCur = (window._slFinStripCur === 'SDG') ? 'USD' : 'SDG';
+    try { localStorage.setItem('pur_fin_strip_cur', window._slFinStripCur); } catch (_e) {}
+    const btn = document.getElementById('sl-fin-strip-currency-btn');
+    if (btn) {
+        btn.setAttribute('data-cur-mode', window._slFinStripCur);
+        btn.textContent = window._slFinStripCur === 'USD' ? 'دولار ⇄' : 'جنيه ⇄';
+    }
+    if (typeof slCurrentDoc !== 'undefined' && slCurrentDoc) window.updateSlPartyFinancialStrip(slCurrentDoc);
+};
+
+window.updateSlPartyFinancialStrip = function(doc) {
+    const btn = document.getElementById('sl-fin-strip-currency-btn');
+    if (btn) {
+        btn.setAttribute('data-cur-mode', window._slFinStripCur || 'SDG');
+        btn.textContent = (window._slFinStripCur === 'USD') ? 'دولار ⇄' : 'جنيه ⇄';
+    }
+    const partyName = doc ? resolveSlPartyName(doc, slCurrentMode) : '';
+    const isSales = (slCurrentMode === 'sales');
+    const storeKey = isSales ? 'erp_customers_v1' : 'erp_suppliers_v1';
+    const invKey = isSales ? 'erp_sales_invoices_v1' : 'erp_purchase_invoices_v1';
+    const parties = getSlCachedStore(storeKey, []) || [];
+    const party = parties.find(p => p && (String(p.name || '').trim() === partyName || String(p.id) === String(doc?.customerId || doc?.supplierId || ''))) || {};
+    const allInvs = getSlCachedStore(invKey, []) || [];
+    let debtSdg = 0;
+    if (partyName && partyName !== '---') {
+        allInvs.forEach(inv => {
+            if (!inv || inv.deleted) return;
+            const pName = resolveSlPartyName(inv, slCurrentMode);
+            if (pName === partyName) {
+                const rem = parseFloat(inv.remainingAmount ?? inv.creditAmount ?? 0) || 0;
+                debtSdg += rem;
+            }
+        });
+    }
+    const ledgerSdg = parseFloat(party.balance ?? party.currentBalance ?? debtSdg) || 0;
+    const checksSdg = parseFloat(party.checksBalance ?? party.pendingChecks ?? 0) || 0;
+    const limitSdg = parseFloat(party.creditLimit ?? party.limit ?? 50000000) || 50000000;
+    const remSdg = Math.max(0, limitSdg - debtSdg - checksSdg);
+
+    const exRate = parseFloat(window.SYSTEM_USD_RATE) || parseFloat(localStorage.getItem('erp_rate_usd')) || 5999;
+    const isUsd = (window._slFinStripCur === 'USD');
+    const conv = (v) => isUsd ? (exRate > 0 ? (v / exRate) : v) : v;
+    const fmt = (v) => isUsd ? conv(v).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' $' : Math.round(conv(v)).toLocaleString('en-US') + ' ج.س';
+
+    const setEl = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = fmt(val); };
+    setEl('sl-fin-ledger', ledgerSdg);
+    setEl('sl-fin-debt', debtSdg);
+    setEl('sl-fin-checks', checksSdg);
+    setEl('sl-fin-limit', limitSdg);
+    setEl('sl-fin-rem', remSdg);
+};
+
+window.openSlPartyLedger = function() {
+    const partyName = (document.getElementById('sl-lbl-party-name')?.textContent || '').trim();
+    if (!partyName || partyName === '---') {
+        showSlToast('⚠️ اختر مستنداً من السجل أولاً لفتح كشف حساب الأستاذ', 'warning');
+        return;
+    }
+    const type = (slCurrentMode === 'sales') ? 'customer' : 'supplier';
+    window.location.href = `account-statement.php?type=${type}&search=${encodeURIComponent(partyName)}`;
+};
+
+window.openSlAIAuditModal = function() {
+    if (!slCurrentDoc || !Array.isArray(slCurrentDoc.items) || !slCurrentDoc.items.length) {
+        showSlToast('⚠️ اختر مستنداً أولاً لتشغيل تدقيق الأسعار بالذكاء الاصطناعي', 'warning');
+        return;
+    }
+    const existing = document.getElementById('purchase-ai-audit-modal');
+    if (existing) existing.remove();
+    const isLight = document.documentElement.classList.contains('light-theme');
+    const ink = isLight ? '#140c06' : '#f8fafc';
+    const exRate = parseFloat(window.SYSTEM_USD_RATE) || 5999;
+    const rowsHtml = slCurrentDoc.items.map((it) => {
+        const m = resolveSlItemMeta(it);
+        const curP = parseFloat(m.price) || 0;
+        const prevP = parseFloat(it.lastPrice || it.costPrice || (curP * 0.95)) || curP;
+        const diffPct = prevP > 0 ? (((curP - prevP) / prevP) * 100) : 0;
+        const sugSell = Math.round(curP * 1.20);
+        const badgeClr = diffPct > 5 ? '#e11d48' : (diffPct < -1 ? '#059669' : '#0284c7');
+        return `<tr style="border-bottom:1.5px solid rgba(148,163,184,0.25);">
+            <td style="padding:10px;font-weight:900;">${m.name} (${m.unit})</td>
+            <td style="padding:10px;text-align:center;font-weight:900;">${Math.round(prevP).toLocaleString('en-US')} ج.س</td>
+            <td style="padding:10px;text-align:center;font-weight:900;">${Math.round(curP).toLocaleString('en-US')} ج.س (${(curP/exRate).toFixed(2)} $)</td>
+            <td style="padding:10px;text-align:center;font-weight:900;color:${badgeClr};">${diffPct >= 0 ? '▲ +' : '▼ '}${diffPct.toFixed(1)}%</td>
+            <td style="padding:10px;text-align:center;font-weight:900;color:#059669;">${sugSell.toLocaleString('en-US')} ج.س</td>
+        </tr>`;
+    }).join('');
+    const modal = document.createElement('div');
+    modal.id = 'purchase-ai-audit-modal';
+    modal.className = 'modal-overlay';
+    modal.style.cssText = 'position:fixed;inset:0;background:rgba(2,6,23,0.82);backdrop-filter:blur(10px);z-index:999999;display:flex;align-items:center;justify-content:center;padding:16px;direction:rtl;';
+    modal.innerHTML = `<div class="modal-card" style="width:100%;max-width:860px;background:${isLight ? 'linear-gradient(145deg,#faf6ee,#f3e9d6)' : '#0f172a'};color:${ink};border:2.5px solid ${isLight ? '#9a5822' : '#a855f7'};border-radius:16px;overflow:hidden;box-shadow:0 20px 50px rgba(0,0,0,0.6);">
+        <div style="padding:14px 20px;background:${isLight ? 'linear-gradient(180deg,#f3e9d6,#eadbc2)' : 'rgba(30,41,59,0.9)'};border-bottom:2px solid ${isLight ? '#9a5822' : '#a855f7'};display:flex;justify-content:space-between;align-items:center;">
+            <h3 style="margin:0;font-size:1.08rem;font-weight:900;color:${ink};">🤖 رادار الذكاء الاصطناعي للأسعار وهوامش الربح — مستند #${slCurrentDoc.invoiceNo}</h3>
+            <button type="button" onclick="document.getElementById('purchase-ai-audit-modal').remove()" class="sl-btn" style="padding:4px 12px;">✖ إغلاق</button>
+        </div>
+        <div style="padding:16px 20px;max-height:65vh;overflow-y:auto;">
+            <table style="width:100%;border-collapse:collapse;font-size:0.9rem;">
+                <thead><tr style="background:${isLight ? '#eadbc2' : '#1e293b'};color:${ink};font-weight:900;">
+                    <th style="padding:10px;text-align:right;">الصنف / الوحدة</th>
+                    <th style="padding:10px;text-align:center;">السعر المرجعي السابق</th>
+                    <th style="padding:10px;text-align:center;">سعر المستند (ج.س / $)</th>
+                    <th style="padding:10px;text-align:center;">مؤشر التغير (الرادار)</th>
+                    <th style="padding:10px;text-align:center;">سعر البيع المقترح (+20%)</th>
+                </tr></thead>
+                <tbody>${rowsHtml}</tbody>
+            </table>
+        </div>
+    </div>`;
+    document.body.appendChild(modal);
+};
+
+window.saveSlCustomConfigPermanently = function() {
+    const cfg = {
+        fontSize: parseInt(document.getElementById('sl-font-size-range')?.value || localStorage.getItem('sl_custom_font_size') || '16', 10),
+        fontColor: document.getElementById('sl-font-color-picker')?.value || localStorage.getItem('sl_custom_font_color') || '#f8fafc',
+        cols: {
+            wh: document.getElementById('sl-col-chk-wh')?.checked !== false,
+            spec: document.getElementById('sl-col-chk-spec')?.checked !== false,
+            prev: document.getElementById('sl-col-chk-prev')?.checked !== false,
+            price: document.getElementById('sl-col-chk-price')?.checked !== false
+        }
+    };
+    try {
+        localStorage.setItem('sl_custom_grid_config_v1', JSON.stringify(cfg));
+        localStorage.setItem('sl_custom_font_size', String(cfg.fontSize));
+        localStorage.setItem('sl_custom_font_color', cfg.fontColor);
+        fetch('api/settings.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ key: 'sl_custom_grid_config_v1', value: cfg })
+        }).catch(() => {});
+    } catch (_e) {}
+    applySlTypography(cfg.fontSize, cfg.fontColor);
+    applySlColVisibility();
+    showSlToast('💾 تم حفظ تخصيص الجدول والخطوط والألوان نهائياً في قاعدة البيانات', 'success');
+};
+
+document.addEventListener('DOMContentLoaded', () => {
+    try {
+        const raw = localStorage.getItem('sl_custom_grid_config_v1');
+        if (raw) {
+            const cfg = JSON.parse(raw);
+            if (cfg && cfg.cols) {
+                if (document.getElementById('sl-col-chk-wh')) document.getElementById('sl-col-chk-wh').checked = cfg.cols.wh !== false;
+                if (document.getElementById('sl-col-chk-spec')) document.getElementById('sl-col-chk-spec').checked = cfg.cols.spec !== false;
+                if (document.getElementById('sl-col-chk-prev')) document.getElementById('sl-col-chk-prev').checked = cfg.cols.prev !== false;
+                if (document.getElementById('sl-col-chk-price')) document.getElementById('sl-col-chk-price').checked = cfg.cols.price !== false;
+                applySlColVisibility();
+            }
+        }
+    } catch (_e) {}
+    window.updateSlPartyFinancialStrip(null);
 });

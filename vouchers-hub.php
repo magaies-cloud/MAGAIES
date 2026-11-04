@@ -529,31 +529,33 @@
                 <a href="payroll.php" style="text-decoration:none; padding:5px 11px; border-radius:8px; background:rgba(245,158,11,0.14); border:1px solid rgba(245,158,11,0.35); color:#fbbf24; font-size:0.78rem; font-weight:800;">💼 مسير الرواتب والأجور</a>
                 <a href="audit-log.php" style="text-decoration:none; padding:5px 11px; border-radius:8px; background:rgba(148,163,184,0.14); border:1px solid rgba(148,163,184,0.35); color:#cbd5e1; font-size:0.78rem; font-weight:800;">🛡️ الرقابة وسجل التدقيق</a>
             </div>
-            <div style="display:flex; align-items:center; gap:8px;">
+            <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                <button type="button" id="vh-tone-picker-btn" onclick="if(window.openPurchaseLightTonePopover) window.openPurchaseLightTonePopover(this);" style="padding:5px 12px; border-radius:8px; background:linear-gradient(135deg,#1e3a8a,#1d4ed8); border:2px solid #93c5fd; color:#fff; font-family:'Tajawal',sans-serif; font-size:0.8rem; font-weight:900; cursor:pointer; box-shadow:0 3px 8px rgba(29,78,216,0.3);">🎨 النغمة</button>
+                <button type="button" id="vh-fin-currency-toggle" onclick="if(window.toggleVouchersHubCurrency) window.toggleVouchersHubCurrency();" style="padding:5px 12px; border-radius:8px; background:linear-gradient(135deg,#f59e0b,#d97706); border:2px solid #fde68a; color:#000; font-family:'Tajawal',sans-serif; font-size:0.8rem; font-weight:900; cursor:pointer; box-shadow:0 3px 8px rgba(245,158,11,0.3);">💱 جنيه ⇄ دولار</button>
                 <span id="hub-fx-badge" style="padding:5px 12px; border-radius:8px; background:rgba(245,158,11,0.15); border:1px solid rgba(245,158,11,0.4); color:#fbbf24; font-size:0.8rem; font-weight:900;">💱 1 USD = 600 SDG</span>
                 <button type="button" onclick="window.location.href='ai_money_advisor.php'" style="padding:6px 13px; border-radius:8px; background:linear-gradient(135deg,#059669,#10b981); border:none; color:#fff; font-family:'Tajawal',sans-serif; font-size:0.8rem; font-weight:900; cursor:pointer; box-shadow:0 4px 12px rgba(16,185,129,0.25);">🤖 تشخيص السيولة والمخاطر AI</button>
             </div>
         </div>
-        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(210px, 1fr)); gap:10px;">
-            <div style="background:var(--surface, rgba(18,15,25,0.82)); border:1px solid rgba(16,185,129,0.3); border-right:4px solid #10b981; border-radius:12px; padding:10px 14px;">
-                <div style="font-size:0.76rem; color:var(--text-secondary, #94a3b8); font-weight:700;">📥 إجمالي المقبوضات المسجلة</div>
-                <div id="hub-kpi-receipts" style="font-size:1.22rem; font-weight:900; color:#10b981; margin-top:2px;">0 SDG</div>
-                <div id="hub-kpi-receipts-sub" style="font-size:0.72rem; color:var(--text-muted, #64748b); font-weight:700;">0 سند قبض</div>
+        <div class="vh-kpi-strip" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(210px, 1fr)); gap:10px;">
+            <div class="vh-kpi-card vh-kpi-emerald" style="background:var(--surface, rgba(18,15,25,0.82)); border:1px solid rgba(16,185,129,0.3); border-right:4px solid #10b981; border-radius:12px; padding:10px 14px;">
+                <div class="vh-kpi-lbl" style="font-size:0.76rem; color:var(--text-secondary, #94a3b8); font-weight:700;">📥 إجمالي المقبوضات المسجلة</div>
+                <div id="hub-kpi-receipts" class="vh-kpi-val" style="font-size:1.45rem; font-weight:900; color:#10b981; margin-top:2px;">0 SDG</div>
+                <div id="hub-kpi-receipts-sub" class="vh-kpi-sub" style="font-size:0.72rem; color:var(--text-muted, #64748b); font-weight:700;">0 سند قبض</div>
             </div>
-            <div style="background:var(--surface, rgba(18,15,25,0.82)); border:1px solid rgba(244,63,94,0.3); border-right:4px solid #f43f5e; border-radius:12px; padding:10px 14px;">
-                <div style="font-size:0.76rem; color:var(--text-secondary, #94a3b8); font-weight:700;">📤 إجمالي المدفوعات المسجلة</div>
-                <div id="hub-kpi-payments" style="font-size:1.22rem; font-weight:900; color:#f43f5e; margin-top:2px;">0 SDG</div>
-                <div id="hub-kpi-payments-sub" style="font-size:0.72rem; color:var(--text-muted, #64748b); font-weight:700;">0 سند صرف</div>
+            <div class="vh-kpi-card vh-kpi-crimson" style="background:var(--surface, rgba(18,15,25,0.82)); border:1px solid rgba(244,63,94,0.3); border-right:4px solid #f43f5e; border-radius:12px; padding:10px 14px;">
+                <div class="vh-kpi-lbl" style="font-size:0.76rem; color:var(--text-secondary, #94a3b8); font-weight:700;">📤 إجمالي المدفوعات المسجلة</div>
+                <div id="hub-kpi-payments" class="vh-kpi-val" style="font-size:1.45rem; font-weight:900; color:#f43f5e; margin-top:2px;">0 SDG</div>
+                <div id="hub-kpi-payments-sub" class="vh-kpi-sub" style="font-size:0.72rem; color:var(--text-muted, #64748b); font-weight:700;">0 سند صرف</div>
             </div>
-            <div style="background:var(--surface, rgba(18,15,25,0.82)); border:1px solid rgba(56,189,248,0.3); border-right:4px solid #38bdf8; border-radius:12px; padding:10px 14px;">
-                <div style="font-size:0.76rem; color:var(--text-secondary, #94a3b8); font-weight:700;">🏦 صافي التدفق النقدي والخزائن</div>
-                <div id="hub-kpi-netflow" style="font-size:1.22rem; font-weight:900; color:#38bdf8; margin-top:2px;">0 SDG</div>
-                <div id="hub-kpi-netflow-sub" style="font-size:0.72rem; color:var(--text-muted, #64748b); font-weight:700;">مؤشر السيولة الفوري</div>
+            <div class="vh-kpi-card vh-kpi-sky" style="background:var(--surface, rgba(18,15,25,0.82)); border:1px solid rgba(56,189,248,0.3); border-right:4px solid #38bdf8; border-radius:12px; padding:10px 14px;">
+                <div class="vh-kpi-lbl" style="font-size:0.76rem; color:var(--text-secondary, #94a3b8); font-weight:700;">🏦 صافي التدفق النقدي والخزائن</div>
+                <div id="hub-kpi-netflow" class="vh-kpi-val" style="font-size:1.45rem; font-weight:900; color:#38bdf8; margin-top:2px;">0 SDG</div>
+                <div id="hub-kpi-netflow-sub" class="vh-kpi-sub" style="font-size:0.72rem; color:var(--text-muted, #64748b); font-weight:700;">مؤشر السيولة الفوري</div>
             </div>
-            <div style="background:var(--surface, rgba(18,15,25,0.82)); border:1px solid rgba(245,158,11,0.3); border-right:4px solid #f59e0b; border-radius:12px; padding:10px 14px; cursor:pointer;" onclick="window.location.href='checks-cycle.php'">
-                <div style="font-size:0.76rem; color:var(--text-secondary, #94a3b8); font-weight:700;">💳 الشيكات والقيود اليومية</div>
-                <div id="hub-kpi-checks" style="font-size:1.22rem; font-weight:900; color:#f59e0b; margin-top:2px;">0 شيك / 0 قيد</div>
-                <div id="hub-kpi-checks-sub" style="font-size:0.72rem; color:var(--text-muted, #64748b); font-weight:700;">انقر لفتح دورة الشيكات ←</div>
+            <div class="vh-kpi-card vh-kpi-amber" style="background:var(--surface, rgba(18,15,25,0.82)); border:1px solid rgba(245,158,11,0.3); border-right:4px solid #f59e0b; border-radius:12px; padding:10px 14px; cursor:pointer;" onclick="window.location.href='checks-cycle.php'">
+                <div class="vh-kpi-lbl" style="font-size:0.76rem; color:var(--text-secondary, #94a3b8); font-weight:700;">💳 الشيكات والقيود اليومية</div>
+                <div id="hub-kpi-checks" class="vh-kpi-val" style="font-size:1.45rem; font-weight:900; color:#f59e0b; margin-top:2px;">0 شيك / 0 قيد</div>
+                <div id="hub-kpi-checks-sub" class="vh-kpi-sub" style="font-size:0.72rem; color:var(--text-muted, #64748b); font-weight:700;">انقر لفتح دورة الشيكات ←</div>
             </div>
         </div>
     </div>
@@ -837,11 +839,13 @@
                 const elNet = document.getElementById('hub-kpi-netflow');
                 const elNetSub = document.getElementById('hub-kpi-netflow-sub');
                 const elChk = document.getElementById('hub-kpi-checks');
-                if (elRec) elRec.textContent = `${recSum.toLocaleString()} SDG`;
+                if (elRec) { elRec.dataset.rawSdg = recSum; elRec.classList.toggle('is-zero-val', recSum === 0); elRec.textContent = `${recSum.toLocaleString()} SDG`; }
                 if (elRecSub) elRecSub.textContent = `${recCnt} سند قبض (≈ $${Math.round(recSum / fxRate).toLocaleString()})`;
-                if (elPay) elPay.textContent = `${paySum.toLocaleString()} SDG`;
+                if (elPay) { elPay.dataset.rawSdg = paySum; elPay.classList.toggle('is-zero-val', paySum === 0); elPay.textContent = `${paySum.toLocaleString()} SDG`; }
                 if (elPaySub) elPaySub.textContent = `${payCnt} سند صرف (≈ $${Math.round(paySum / fxRate).toLocaleString()})`;
                 if (elNet) {
+                    elNet.dataset.rawSdg = netFlow;
+                    elNet.classList.toggle('is-zero-val', netFlow === 0);
                     elNet.textContent = `${netFlow.toLocaleString()} SDG`;
                     elNet.style.color = netFlow >= 0 ? '#10b981' : '#f43f5e';
                 }
@@ -937,17 +941,20 @@
                 // Store full voucher data for reliable drill-down
                 try { sessionStorage.setItem('_hub_voucher_' + rowIdx, JSON.stringify(x)); } catch(e) {}
                 
+                const rawAmt = Number(x.amount || x.totalAmount || x.amountLocal || 0) || 0;
+                const ledgerTarget = (toName && toName !== 'متعدد' && toName !== '-') ? toName : ((fromName && fromName !== 'متعدد' && fromName !== '-') ? fromName : '');
                 return `
                 <tr style="border-bottom: 1px solid var(--border, rgba(255,255,255,0.05)); transition: 0.2s; cursor: pointer;" onmouseover="this.style.background='var(--surface-hover, rgba(255,255,255,0.05))'" onmouseout="this.style.background='transparent'">
-                    <td style="padding: 12px 10px; font-weight: bold; color: ${x._color}; text-decoration: underline;" onclick="editHubVoucher('${vid}', '${x._source}', ${rowIdx})" title="انقر لتعديل السند">${vid || '-'}</td>
-                    <td style="padding: 12px 10px;"><span style="background: ${x._color}20; color: ${x._color}; padding: 3px 8px; border-radius: 6px; font-size: 0.85rem; font-weight: 700;">${x._type}</span></td>
-                    <td style="padding: 12px 10px; color: var(--text-secondary, #cbd5e1); font-weight: 600;">${!isNaN(x._date.getTime()) ? x._date.toLocaleDateString('en-GB') : '-'}</td>
-                    <td style="padding: 12px 10px; color: var(--text-secondary, #cbd5e1); font-weight: 600;">${x.description || x.notes || x.statement || '-'}</td>
-                    <td style="padding: 12px 10px; color: var(--text-secondary, #cbd5e1); font-weight: 600;">${fromName}</td>
-                    <td style="padding: 12px 10px; color: var(--text-secondary, #cbd5e1); font-weight: 600;">${toName}</td>
-                    <td style="padding: 12px 10px; font-weight: 800; color: var(--text-primary, #fff);">${(x.amount || x.totalAmount || x.amountLocal || 0).toLocaleString()}</td>
-                    <td style="padding: 12px 10px; color: var(--text-secondary, #cbd5e1); font-size: 0.85rem;"><span style="background: rgba(167,139,250,0.15); color: var(--primary-accent, #7c3aed); padding: 2px 8px; border-radius: 6px; font-weight: 700;">👤 ${userName}</span></td>
+                    <td style="padding: 12px 10px; font-weight: 900; color: ${x._color}; text-decoration: underline;" onclick="editHubVoucher('${vid}', '${x._source}', ${rowIdx})" title="انقر لتعديل السند">${vid || '-'}</td>
+                    <td style="padding: 12px 10px;"><span style="background: ${x._color}20; color: ${x._color}; padding: 3px 8px; border-radius: 6px; font-size: 0.85rem; font-weight: 900;">${x._type}</span></td>
+                    <td style="padding: 12px 10px; color: var(--text-secondary, #cbd5e1); font-weight: 800;">${!isNaN(x._date.getTime()) ? x._date.toLocaleDateString('en-GB') : '-'}</td>
+                    <td style="padding: 12px 10px; color: var(--text-secondary, #cbd5e1); font-weight: 800;">${x.description || x.notes || x.statement || '-'}</td>
+                    <td style="padding: 12px 10px; color: var(--text-secondary, #cbd5e1); font-weight: 800;">${fromName}</td>
+                    <td style="padding: 12px 10px; color: var(--text-secondary, #cbd5e1); font-weight: 800;">${toName}</td>
+                    <td class="vh-amt-cell ${rawAmt === 0 ? 'is-zero-val' : ''}" data-raw-sdg="${rawAmt}" style="padding: 12px 10px; font-weight: 900; font-family:'Outfit',monospace; font-size:1.05rem; color: var(--text-primary, #fff);">${rawAmt.toLocaleString()}</td>
+                    <td style="padding: 12px 10px; color: var(--text-secondary, #cbd5e1); font-size: 0.85rem;"><span style="background: rgba(167,139,250,0.15); color: var(--primary-accent, #7c3aed); padding: 2px 8px; border-radius: 6px; font-weight: 900;">👤 ${userName}</span></td>
                     <td style="padding: 12px 10px; white-space: nowrap;">
+                        <button type="button" onclick="window.location.href='general-ledger.php?search=' + encodeURIComponent('${String(ledgerTarget).replace(/'/g, "\\'")}')" title="كشف حساب / دفتر الأستاذ" style="background: linear-gradient(135deg,#0284c7,#0369a1); color: #fff; border: 1.5px solid #bae6fd; border-radius: 6px; padding: 4px 8px; cursor: pointer; margin-left: 4px; font-family: 'Tajawal', sans-serif; font-weight: 900;">📖 أستاذ</button>
                         <button onclick="showHubVoucherQR(${rowIdx})" title="عرض الباركود ورمز QR للسند" style="background: rgba(168,85,247,0.14); color: #c084fc; border: 1px solid rgba(168,85,247,0.35); border-radius: 4px; padding: 4px 7px; cursor: pointer; margin-left: 4px; font-family: 'Tajawal', sans-serif; font-weight: 700;">🔳 QR</button>
                         <button onclick="sendHubVoucherWA(${rowIdx})" title="إرسال إشعار السند عبر واتساب" style="background: rgba(16,185,129,0.14); color: #34d399; border: 1px solid rgba(16,185,129,0.35); border-radius: 4px; padding: 4px 7px; cursor: pointer; margin-left: 4px; font-family: 'Tajawal', sans-serif; font-weight: 700;">💬 واتساب</button>
                         <button onclick="editHubVoucher('${vid}', '${x._source}', ${rowIdx})" style="background: rgba(56,189,248,0.12); color: var(--blue, #0284c7); border: 1px solid rgba(56,189,248,0.35); border-radius: 4px; padding: 4px 8px; cursor: pointer; margin-left: 4px; font-family: 'Tajawal', sans-serif; font-weight: 700;">تعديل</button>
@@ -1279,6 +1286,100 @@
                 if (sortableInstance) sortableInstance.option('disabled', true);
             }
         }
+    </script>
+    <style id="vh-purchase-constitution-2027">
+        :root, html.light-theme, body.light-theme { --lt-bg-main: #e4d7c5; --lt-bg-card: #f2eadf; --lt-bg-strip: #d8c8b2; --lt-bg-input: #ffffff; --lt-border: #85684a; --lt-text: #120500; --lt-subtext: #2a1004; }
+        html.light-theme[data-light-tone="royal_bronze"], body.light-theme[data-light-tone="royal_bronze"] { --lt-bg-main: #d8c3a5; --lt-bg-card: #eae0d2; --lt-bg-strip: #cbb28f; --lt-bg-input: #ffffff; --lt-border: #705232; --lt-text: #120500; }
+        html.light-theme[data-light-tone="platinum_gray"], body.light-theme[data-light-tone="platinum_gray"] { --lt-bg-main: #cbd5e1; --lt-bg-card: #e2e8f0; --lt-bg-strip: #b8c4d4; --lt-bg-input: #ffffff; --lt-border: #475569; --lt-text: #020617; }
+        html.light-theme[data-light-tone="crystal_silver"], body.light-theme[data-light-tone="crystal_silver"] { --lt-bg-main: #dcdfe4; --lt-bg-card: #eef0f4; --lt-bg-strip: #cfd4dc; --lt-bg-input: #ffffff; --lt-border: #64748b; --lt-text: #000000; }
+        html.light-theme[data-light-tone="sage_pearl"], body.light-theme[data-light-tone="sage_pearl"] { --lt-bg-main: #cfded6; --lt-bg-card: #e3ece7; --lt-bg-strip: #bed2c7; --lt-bg-input: #ffffff; --lt-border: #3d6b58; --lt-text: #021a10; }
+        html.light-theme[data-light-tone="sky_alabaster"], body.light-theme[data-light-tone="sky_alabaster"] { --lt-bg-main: #cad9e8; --lt-bg-card: #e1ebf5; --lt-bg-strip: #b7cce0; --lt-bg-input: #ffffff; --lt-border: #3b668c; --lt-text: #031526; }
+        html.light-theme[data-light-tone="warm_mocha_dark"], body.light-theme[data-light-tone="warm_mocha_dark"] { --lt-bg-main: #c7b299; --lt-bg-card: #dcd0c0; --lt-bg-strip: #b89f82; --lt-bg-input: #ffffff; --lt-border: #593e25; --lt-text: #120500; }
+        html.light-theme[data-light-tone="deep_slate_dark"], body.light-theme[data-light-tone="deep_slate_dark"] { --lt-bg-main: #b0bec5; --lt-bg-card: #cfd8dc; --lt-bg-strip: #90a4ae; --lt-bg-input: #ffffff; --lt-border: #37474f; --lt-text: #000000; }
+        html:not(.light-theme) body, html:not(.light-theme) .ambient-bg { background: #010308 !important; color: #ffffff !important; }
+        html:not(.light-theme) .premium-header, html:not(.light-theme) .premium-card, html:not(.light-theme) .vh-kpi-card { background: #152342 !important; border: 2px solid #2b4570 !important; color: #ffffff !important; box-shadow: 0 8px 22px rgba(0,0,0,0.6) !important; }
+        html:not(.light-theme) #hub-voucher-search, html:not(.light-theme) #hub-type-filter { background: #0b1120 !important; color: #ffffff !important; border: 2px solid #38bdf8 !important; font-weight: 900 !important; }
+        html.light-theme body, html.light-theme .ambient-bg { background: var(--lt-bg-main) !important; color: var(--lt-text) !important; }
+        html.light-theme .premium-header, html.light-theme .premium-card, html.light-theme .recent-transactions-card { background: var(--lt-bg-card) !important; border: 3px solid var(--lt-border) !important; color: var(--lt-text) !important; box-shadow: 0 6px 18px rgba(0,0,0,0.12) !important; }
+        html.light-theme .v-title, html.light-theme .recent-transactions-card h3, html.light-theme table.pro-table th, html.light-theme table.pro-table td { color: var(--lt-text) !important; font-weight: 900 !important; }
+        html.light-theme table.pro-table thead tr, html.light-theme table.pro-table th { background: var(--lt-bg-strip) !important; border-bottom: 3px solid var(--lt-border) !important; font-size: 0.96rem !important; }
+        html.light-theme #hub-voucher-search, html.light-theme #hub-type-filter { background: #ffffff !important; color: #120500 !important; border: 2.5px solid var(--lt-border) !important; font-weight: 900 !important; }
+        .vh-kpi-card { border-radius: 14px !important; box-shadow: 0 4px 12px rgba(0,0,0,0.25) !important; }
+        .vh-kpi-emerald { background: linear-gradient(135deg, #065f46, #047857) !important; border: 2px solid #34d399 !important; }
+        .vh-kpi-crimson { background: linear-gradient(135deg, #9f1239, #be123c) !important; border: 2px solid #fb7185 !important; }
+        .vh-kpi-sky { background: linear-gradient(135deg, #075985, #0369a1) !important; border: 2px solid #38bdf8 !important; }
+        .vh-kpi-amber { background: linear-gradient(135deg, #92400e, #b45309) !important; border: 2px solid #fbbf24 !important; }
+        .vh-kpi-card .vh-kpi-lbl, .vh-kpi-card .vh-kpi-val, .vh-kpi-card .vh-kpi-sub { color: #ffffff !important; font-weight: 900 !important; }
+        .vh-kpi-card .vh-kpi-val { font-size: 1.58rem !important; font-family: 'Outfit', 'Tajawal', monospace !important; }
+        .is-zero-val { opacity: 0.38 !important; }
+    </style>
+    <script>
+    (function(){
+        const TONES = [
+            { id: 'ivory_default', label: 'عاجي ملكي (افتراضي)', swatch: '#e4d7c5', isDark: false },
+            { id: 'royal_bronze', label: 'برونزي دافئ', swatch: '#d8c3a5', isDark: false },
+            { id: 'platinum_gray', label: 'بلاتينيوم صخري', swatch: '#cbd5e1', isDark: false },
+            { id: 'crystal_silver', label: 'فضي كريستال', swatch: '#dcdfe4', isDark: false },
+            { id: 'sage_pearl', label: 'لؤلؤي عشبي', swatch: '#cfded6', isDark: false },
+            { id: 'sky_alabaster', label: 'مرمر سماوي', swatch: '#cad9e8', isDark: false },
+            { id: 'warm_mocha_dark', label: 'موكا غامق دافئ', swatch: '#c7b299', isDark: false },
+            { id: 'deep_slate_dark', label: 'رصاصي داكن', swatch: '#b0bec5', isDark: false },
+            { id: 'dark_midnight', label: 'الوضع الليلي الملكي', swatch: '#010308', isDark: true }
+        ];
+        window.applyPurchaseLightTone = function(toneId) {
+            const t = TONES.find(x => x.id === toneId) || TONES[0];
+            localStorage.setItem('magaies_light_tone', t.id);
+            document.cookie = 'magaies_light_tone=' + t.id + ';path=/;max-age=31536000';
+            if (t.isDark) {
+                document.documentElement.classList.remove('light-theme');
+                if (document.body) document.body.classList.remove('light-theme');
+                document.documentElement.removeAttribute('data-light-tone');
+                if (document.body) document.body.removeAttribute('data-light-tone');
+                localStorage.setItem('magaies_active_theme', 'midnight_obsidian');
+            } else {
+                document.documentElement.classList.add('light-theme');
+                if (document.body) document.body.classList.add('light-theme');
+                document.documentElement.setAttribute('data-light-tone', t.id);
+                if (document.body) document.body.setAttribute('data-light-tone', t.id);
+                localStorage.setItem('magaies_active_theme', 'warm_cream');
+            }
+        };
+        window.openPurchaseLightTonePopover = function(btnEl) {
+            let pop = document.getElementById('vh-tone-popover-2027');
+            if (pop) { pop.remove(); return; }
+            pop = document.createElement('div');
+            pop.id = 'vh-tone-popover-2027';
+            pop.style.cssText = 'position:fixed;top:64px;left:24px;z-index:999999;background:#152342;border:3px solid #38bdf8;border-radius:14px;padding:12px;width:270px;box-shadow:0 16px 40px rgba(0,0,0,0.65);display:grid;grid-template-columns:1fr;gap:6px;direction:rtl;';
+            const cur = localStorage.getItem('magaies_light_tone') || 'ivory_default';
+            TONES.forEach(t => {
+                const b = document.createElement('button');
+                b.type = 'button';
+                b.style.cssText = 'display:flex;align-items:center;gap:10px;padding:7px 10px;border-radius:8px;border:2px solid ' + (cur === t.id ? '#fbbf24' : '#334155') + ';background:#0b1120;color:#fff;font-family:Tajawal,sans-serif;font-weight:900;font-size:0.86rem;cursor:pointer;text-align:right;';
+                b.innerHTML = `<span style="width:20px;height:20px;border-radius:50%;background:${t.swatch};border:2px solid #fff;display:inline-block;"></span><span>${t.label}</span>`;
+                b.onclick = () => { window.applyPurchaseLightTone(t.id); pop.remove(); };
+                pop.appendChild(b);
+            });
+            document.body.appendChild(pop);
+        };
+        let vhCurMode = 'SDG';
+        window.toggleVouchersHubCurrency = function() {
+            vhCurMode = (vhCurMode === 'SDG') ? 'USD' : 'SDG';
+            const fx = Number(localStorage.getItem('erp_exchange_rate_usd') || localStorage.getItem('usd_exchange_rate') || 600) || 600;
+            const btn = document.getElementById('vh-fin-currency-toggle');
+            if (btn) btn.textContent = vhCurMode === 'USD' ? '💱 دولار ($) ⇄ جنيه' : '💱 جنيه (ج.س) ⇄ دولار';
+            ['hub-kpi-receipts', 'hub-kpi-payments', 'hub-kpi-netflow'].forEach(id => {
+                const el = document.getElementById(id);
+                if (!el || el.dataset.rawSdg === undefined) return;
+                const raw = Number(el.dataset.rawSdg) || 0;
+                el.textContent = vhCurMode === 'USD' ? ('$' + (raw / fx).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })) : (raw.toLocaleString() + ' SDG');
+            });
+            document.querySelectorAll('.vh-amt-cell').forEach(td => {
+                const raw = Number(td.dataset.rawSdg) || 0;
+                td.textContent = vhCurMode === 'USD' ? ('$' + (raw / fx).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })) : raw.toLocaleString();
+            });
+        };
+        window.applyPurchaseLightTone(localStorage.getItem('magaies_light_tone') || 'ivory_default');
+    })();
     </script>
 </body>
 </html>

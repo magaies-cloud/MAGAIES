@@ -19172,5 +19172,6 @@ try {
     setInterval(function() { if (!document.hidden) window.refreshSalesFc2LiveResultSummary(); }, 6000);
 })();
 </script>
+<script src="js/split-purchase-constitution-2027.js?v=2027"></script>
 </body>
 </html>

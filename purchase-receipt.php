@@ -1386,6 +1386,21 @@ html.grn-ophthalmic-comfort-active body {
                     </div>
                 </div>
 
+                <!-- شريط الرصيد والملخص المالي لبوابة الاستلام (دستور المشتريات 2027: جنيه ⇄ دولار + الذكاء الاصطناعي + التخصيص) -->
+                <div id="grn-hub-fin-strip" class="grn-fin-strip-2027" style="margin-bottom: 10px; padding: 8px 14px; border-radius: 12px; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: space-between; background: rgba(15, 23, 42, 0.78); border: 2px solid rgba(56, 189, 248, 0.35);">
+                    <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                        <span class="grn-fin-cap" style="background: linear-gradient(135deg, #d97706, #b45309); border: 2px solid #fcd34d; color: #ffffff !important; padding: 4px 12px; border-radius: 9px; font-weight: 900; font-size: 0.86rem; display: inline-flex; align-items: center; gap: 6px;">📦 قيد الاستلام: <strong id="grn-hub-stat-pending" style="font-size: 1.22rem; font-family: 'Outfit', sans-serif; color: #ffffff !important;">0</strong></span>
+                        <span class="grn-fin-cap" style="background: linear-gradient(135deg, #059669, #047857); border: 2px solid #6ee7b7; color: #ffffff !important; padding: 4px 12px; border-radius: 9px; font-weight: 900; font-size: 0.86rem; display: inline-flex; align-items: center; gap: 6px;">✅ أذونات مستلمة: <strong id="grn-hub-stat-received" style="font-size: 1.22rem; font-family: 'Outfit', sans-serif; color: #ffffff !important;">0</strong></span>
+                        <span class="grn-fin-cap" style="background: linear-gradient(135deg, #e11d48, #be123c); border: 2px solid #fda4af; color: #ffffff !important; padding: 4px 13px; border-radius: 9px; font-weight: 900; font-size: 0.86rem; display: inline-flex; align-items: center; gap: 6px;">💰 قيمة المعلق (ج.س): <strong id="grn-hub-stat-val-sdg" style="font-size: 1.25rem; font-family: 'Outfit', sans-serif; color: #ffffff !important;">0 ج.س</strong></span>
+                        <span class="grn-fin-cap" style="background: linear-gradient(135deg, #0284c7, #0369a1); border: 2px solid #7dd3fc; color: #ffffff !important; padding: 4px 13px; border-radius: 9px; font-weight: 900; font-size: 0.86rem; display: inline-flex; align-items: center; gap: 6px;">💵 بالدولار ($): <strong id="grn-hub-stat-val-usd" style="font-size: 1.25rem; font-family: 'Outfit', sans-serif; color: #ffffff !important;">$0.00</strong></span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 7px; flex-wrap: wrap;">
+                        <button type="button" id="grn-hub-curr-btn" onclick="window.toggleGrnHubCurrency && window.toggleGrnHubCurrency()" style="height: 34px; padding: 0 13px; border-radius: 9px; background: linear-gradient(135deg, #7c3aed, #5b21b6); border: 2px solid #c4b5fd; color: #ffffff !important; font-weight: 900; font-size: 0.86rem; cursor: pointer; display: inline-flex; align-items: center; gap: 5px;">💱 <span id="grn-hub-curr-lbl">جنيه ⇄</span></button>
+                        <button type="button" onclick="window.openGrnAIAuditModal && window.openGrnAIAuditModal()" style="height: 34px; padding: 0 13px; border-radius: 9px; background: linear-gradient(135deg, #6d28d9, #4f46e5); border: 2px solid #c4b5fd; color: #ffffff !important; font-weight: 900; font-size: 0.84rem; cursor: pointer; display: inline-flex; align-items: center; gap: 5px;">🤖 الذكاء الاصطناعي للأسعار</button>
+                        <button type="button" onclick="openGridSettings()" style="height: 34px; padding: 0 13px; border-radius: 9px; background: linear-gradient(135deg, #0284c7, #0369a1); border: 2px solid #7dd3fc; color: #ffffff !important; font-weight: 900; font-size: 0.84rem; cursor: pointer; display: inline-flex; align-items: center; gap: 5px;">⚙️ التخصيص</button>
+                    </div>
+                </div>
+
                 <!-- السطر الثاني (الذي يليه): شريط الشاشات والتقارير المخزنية (الكتابة فقط بدون علامات صغيرة) + أدوات التصدير والطباعة -->
                 <div id="grn-hub-filters-bar" class="grn-logistics-bar" style="margin-bottom: 10px; padding: 8px 12px; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: space-between;">
                     <div id="grn-cross-screen-nav" class="grn-nav-links-bar">
@@ -1405,15 +1420,15 @@ html.grn-ophthalmic-comfort-active body {
                 
                 <div id="hub-pending-container">
                     <div class="grid-scroll-wrap">
-                        <table class="pos-grid">
+                        <table class="pos-grid" id="grn-hub-pending-table">
                             <thead>
                                 <tr>
-                                    <th style="text-align:right;">رقم الفاتورة الأصلي</th>
-                                    <th style="text-align:right;">التاريخ</th>
-                                    <th style="text-align:right;">المورد</th>
-                                    <th style="text-align:center;">الصنف</th>
-                                    <th style="text-align:center;">إجمالي الأصناف المعلقة</th>
-                                    <th style="text-align:center;">إجراء</th>
+                                    <th style="text-align:right;">📄 الرقم</th>
+                                    <th style="text-align:right;">📅 التاريخ</th>
+                                    <th style="text-align:right;">👤 المورد</th>
+                                    <th style="text-align:center;">📦 الأصناف</th>
+                                    <th style="text-align:center;">🔢 المعلق / القيمة</th>
+                                    <th style="text-align:center;">⚡ إجراء</th>
                                 </tr>
                             </thead>
                             <tbody id="invoices-tbody">
@@ -1439,24 +1454,51 @@ html.grn-ophthalmic-comfort-active body {
 
         <!-- View 2: Editor (Receive Items — Zero-Scroll Balanced Layout) -->
         <div class="view-container" id="view-editor" style="gap: 10px; animation: fadeIn 0.2s ease-out;">
-            <!-- Header Metadata Bar -->
-            <div class="grn-meta-bar" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; background: rgba(30, 41, 59, 0.4); border: 1px solid rgba(255,255,255,0.05); padding: 10px 18px; border-radius: 14px; backdrop-filter: blur(10px);">
-                <div style="display: flex; flex-direction: column; gap: 4px;">
-                    <span style="color: #94a3b8; font-size: 0.8rem; font-weight: 600;">رقم الفاتورة</span>
-                    <span id="lbl-inv-no" style="color: #38bdf8; font-size: 1.2rem; font-weight: 800; font-family: 'Outfit';"></span>
+            <!-- Header Metadata Bar + Purchase Constitution 2027 Financial Strip -->
+            <div class="grn-meta-bar" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(175px, 1fr)); gap: 10px; background: rgba(30, 41, 59, 0.4); border: 2px solid rgba(56,189,248,0.28); padding: 10px 18px; border-radius: 14px; backdrop-filter: blur(10px); align-items: center;">
+                <div style="display: flex; flex-direction: column; gap: 3px;">
+                    <span class="grn-meta-lbl" style="color: #94a3b8; font-size: 0.85rem; font-weight: 900;">📄 الرقم:</span>
+                    <span id="lbl-inv-no" style="color: #38bdf8; font-size: 1.58rem; font-weight: 900; font-family: 'Outfit', 'Cairo', sans-serif; line-height: 1.1;"></span>
                 </div>
-                <div style="display: flex; flex-direction: column; gap: 4px; border-right: 1px solid rgba(255,255,255,0.05); padding-right: 15px;">
-                    <span style="color: #94a3b8; font-size: 0.8rem; font-weight: 600;">المورد</span>
-                    <span id="lbl-supplier" style="color: #fff; font-size: 1.1rem; font-weight: 700;">-</span>
+                <div style="display: flex; flex-direction: column; gap: 3px; border-right: 1px solid rgba(255,255,255,0.08); padding-right: 15px; position: relative; padding-left: 78px;">
+                    <span class="grn-meta-lbl" style="color: #94a3b8; font-size: 0.85rem; font-weight: 900;">👤 المورد</span>
+                    <span id="lbl-supplier" style="color: #fff; font-size: 1.18rem; font-weight: 900; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">-</span>
+                    <button type="button" id="grn-supplier-ledger-btn" onclick="window.openGrnSupplierLedger && window.openGrnSupplierLedger()" title="كشف حساب المورد (أستاذ)" style="position: absolute; left: 8px; top: 50%; transform: translateY(-50%) !important; height: 32px; padding: 0 11px; border-radius: 8px; background: linear-gradient(135deg, #0284c7, #0369a1); border: 2px solid #38bdf8; color: #ffffff !important; font-size: 0.82rem; font-weight: 900; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; box-shadow: 0 3px 8px rgba(2,132,199,0.35);">📖 أستاذ</button>
                 </div>
-                <div style="display: flex; flex-direction: column; gap: 4px; border-right: 1px solid rgba(255,255,255,0.05); padding-right: 15px;">
-                    <span style="color: #94a3b8; font-size: 0.8rem; font-weight: 600;">تاريخ ووقت الفاتورة</span>
-                    <span id="lbl-date" style="color: #fff; font-size: 1.1rem; font-weight: 700; font-family: 'Outfit';">-</span>
+                <div style="display: flex; flex-direction: column; gap: 3px; border-right: 1px solid rgba(255,255,255,0.08); padding-right: 15px;">
+                    <span class="grn-meta-lbl" style="color: #94a3b8; font-size: 0.85rem; font-weight: 900;">📅 التاريخ</span>
+                    <span id="lbl-date" style="color: #fff; font-size: 1.38rem; font-weight: 900; font-family: 'Outfit', 'Cairo', sans-serif; line-height: 1.15;">-</span>
                 </div>
-                <div style="display: flex; flex-direction: column; gap: 4px; border-right: 1px solid rgba(255,255,255,0.05); padding-right: 15px;">
-                    <span style="color: #94a3b8; font-size: 0.8rem; font-weight: 600;">منشئ الفاتورة</span>
-                    <span id="lbl-creator" style="color: #a855f7; font-size: 1.1rem; font-weight: 700;">-</span>
+                <div style="display: flex; flex-direction: column; gap: 3px; border-right: 1px solid rgba(255,255,255,0.08); padding-right: 15px;">
+                    <span class="grn-meta-lbl" style="color: #94a3b8; font-size: 0.85rem; font-weight: 900;">🛡️ المنشئ</span>
+                    <span id="lbl-creator" style="color: #a855f7; font-size: 1.12rem; font-weight: 900;">-</span>
                 </div>
+            </div>
+            <!-- Supplier Financial Strip (Purchase Constitution 2027: الرصيد | المديونية | الشيكات | الحد | المتاح + زر جنيه ⇄ دولار) -->
+            <div id="grn-party-fin-strip" class="grn-fin-strip-2027" style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; padding: 7px 14px; border-radius: 12px; background: rgba(15, 23, 42, 0.78); border: 2px solid rgba(56, 189, 248, 0.32);">
+                <div class="grn-fin-cap cap-balance" style="background: linear-gradient(135deg, #334155, #1e293b); border: 2px solid #94a3b8; border-radius: 9px; padding: 4px 12px; display: inline-flex; align-items: center; gap: 6px; color: #ffffff !important;">
+                    <span style="font-size: 0.82rem; font-weight: 900; opacity: 0.92;">الرصيد:</span>
+                    <strong id="grn-fin-balance" style="font-size: 1.25rem; font-weight: 900; font-family: 'Outfit', sans-serif;">0</strong>
+                </div>
+                <div class="grn-fin-cap cap-debt" style="background: linear-gradient(135deg, #e11d48, #be123c); border: 2px solid #fda4af; border-radius: 9px; padding: 4px 12px; display: inline-flex; align-items: center; gap: 6px; color: #ffffff !important;">
+                    <span style="font-size: 0.82rem; font-weight: 900; opacity: 0.95;">المديونية:</span>
+                    <strong id="grn-fin-debt" style="font-size: 1.25rem; font-weight: 900; font-family: 'Outfit', sans-serif;">0</strong>
+                </div>
+                <div class="grn-fin-cap cap-cheques" style="background: linear-gradient(135deg, #d97706, #b45309); border: 2px solid #fcd34d; border-radius: 9px; padding: 4px 12px; display: inline-flex; align-items: center; gap: 6px; color: #ffffff !important;">
+                    <span style="font-size: 0.82rem; font-weight: 900; opacity: 0.95;">الشيكات:</span>
+                    <strong id="grn-fin-cheques" style="font-size: 1.25rem; font-weight: 900; font-family: 'Outfit', sans-serif;">0</strong>
+                </div>
+                <div class="grn-fin-cap cap-limit" style="background: linear-gradient(135deg, #0284c7, #0369a1); border: 2px solid #7dd3fc; border-radius: 9px; padding: 4px 12px; display: inline-flex; align-items: center; gap: 6px; color: #ffffff !important;">
+                    <span style="font-size: 0.82rem; font-weight: 900; opacity: 0.95;">الحد:</span>
+                    <strong id="grn-fin-limit" style="font-size: 1.25rem; font-weight: 900; font-family: 'Outfit', sans-serif;">مفتوح</strong>
+                </div>
+                <div class="grn-fin-cap cap-avail" style="background: linear-gradient(135deg, #059669, #047857); border: 2px solid #6ee7b7; border-radius: 9px; padding: 4px 14px; display: inline-flex; align-items: center; gap: 6px; color: #ffffff !important; box-shadow: 0 3px 10px rgba(5,150,105,0.35);">
+                    <span style="font-size: 0.85rem; font-weight: 900;">المتاح:</span>
+                    <strong id="grn-fin-avail" style="font-size: 1.48rem; font-weight: 900; font-family: 'Outfit', sans-serif;">مفتوح</strong>
+                </div>
+                <button type="button" id="grn-fin-strip-currency-btn" onclick="window.toggleGrnFinStripCurrency && window.toggleGrnFinStripCurrency()" title="تحويل شريط الرصيد والمديونية والإجمالي بين الجنيه والدولار" style="margin-right: auto; height: 34px; padding: 0 14px; border-radius: 9px; background: linear-gradient(135deg, #7c3aed, #5b21b6); border: 2px solid #c4b5fd; color: #ffffff !important; font-size: 0.9rem; font-weight: 900; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 3px 10px rgba(124,58,237,0.35);">
+                    <span>💱</span><span id="grn-fin-curr-lbl">جنيه ⇄</span>
+                </button>
             </div>
 
             <div class="editor-layout" style="display: flex; flex-direction: column; gap: 15px; flex: 1; width: 100%; min-height: 0;">
@@ -1475,6 +1517,9 @@ html.grn-ophthalmic-comfort-active body {
                             </button>
                             <button class="btn-action grn-btn-save-primary" style="padding: 10px 22px; font-size: 0.96rem; font-weight: 900; display:inline-flex; align-items:center; justify-content:center; gap:8px; border-radius:10px; background: linear-gradient(135deg, #10b981, #059669); box-shadow: 0 4px 15px rgba(16,185,129,0.4); border: 2.2px solid #34d399; color: #fff; cursor: pointer;" onclick="saveReceiptNote()">
                                 <span>💾</span><span>اعتماد الاستلام</span><kbd class="grn-kbd-badge">F10</kbd>
+                            </button>
+                            <button type="button" class="btn-action" id="btn-grn-ai-prices" style="padding: 9px 14px; font-size: 0.88rem; border-radius: 10px; background: linear-gradient(135deg, #7c3aed, #4f46e5); border: 2px solid #c4b5fd; color: #ffffff !important; font-weight: 900; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 4px 12px rgba(124,58,237,0.35);" onclick="window.openGrnAIAuditModal && window.openGrnAIAuditModal()">
+                                <span>🤖</span><span>الذكاء الاصطناعي للأسعار</span>
                             </button>
                             <button class="btn-action" style="padding: 9px 14px; font-size: 0.88rem; border-radius: 10px; background: rgba(56, 189, 248, 0.15); border: 2px solid rgba(56, 189, 248, 0.4); color: #38bdf8; font-weight: 800; display: inline-flex; align-items: center; gap: 6px;" onclick="openGridSettings()">
                                 <span>⚙️</span><span>تنسيق الجدول</span>
@@ -1528,9 +1573,14 @@ html.grn-ophthalmic-comfort-active body {
                             <span id="lbl-total-received-qty" style="color: #38bdf8; font-weight: 800; font-family: 'Outfit', sans-serif; font-size: 1.3rem;">0</span>
                         </div>
 
-                        <div style="background: rgba(30, 41, 59, 0.8); border: 1px solid rgba(250, 204, 21, 0.3); padding: 8px 18px; border-radius: 12px; display: flex; align-items: center; gap: 10px;">
-                            <span style="color: #94a3b8; font-size: 0.85rem;">القيمة المستلمة:</span>
-                            <span id="lbl-total-received-val" style="color: #facc15; font-weight: 800; font-family: 'Outfit', sans-serif; font-size: 1.25rem;">0 SDG</span>
+                        <div class="grn-tot-capsule-sdg" style="background: rgba(30, 41, 59, 0.85); border: 2px solid rgba(250, 204, 21, 0.55); padding: 8px 18px; border-radius: 12px; display: flex; align-items: center; gap: 10px;">
+                            <span style="color: #94a3b8; font-size: 0.88rem; font-weight: 900;">القيمة المستلمة (ج.س):</span>
+                            <span id="lbl-total-received-val" style="color: #facc15; font-weight: 900; font-family: 'Outfit', sans-serif; font-size: 1.48rem;">0 ج.س</span>
+                        </div>
+
+                        <div class="grn-tot-capsule-usd" style="background: rgba(6, 78, 59, 0.85); border: 2px solid #34d399; padding: 8px 18px; border-radius: 12px; display: flex; align-items: center; gap: 10px;">
+                            <span style="color: #a7f3d0; font-size: 0.88rem; font-weight: 900;">الإجمالي بالدولار ($):</span>
+                            <span id="lbl-total-received-val-usd" style="color: #ffffff; font-weight: 900; font-family: 'Outfit', sans-serif; font-size: 1.42rem;">$0.00</span>
                         </div>
                     </div>
 
@@ -1953,20 +2003,36 @@ html.grn-ophthalmic-comfort-active body {
                     
                     const totalPendingItems = Object.values(invData.lines).length;
                     const itemNames = Object.values(invData.lines).map(line => getItemName(line.itemId)).join('، ');
+                    const pendingValSdg = Object.values(invData.lines).reduce((acc, l) => acc + ((parseFloat(l.pendingQty) || 0) * (parseFloat(l.price) || 0)), 0);
+                    const exRate = (typeof window.getGrnActiveExchangeRate === 'function' ? window.getGrnActiveExchangeRate() : 2650) || 2650;
+                    const valText = window._grnHubInUsd
+                        ? ('$' + (pendingValSdg / exRate).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }))
+                        : (Math.round(pendingValSdg).toLocaleString('en-US') + ' ج.س');
 
                     const tr = document.createElement('tr');
                     tr.innerHTML = `
-                        <td style="text-align:right; font-family:'Outfit'; color:#38bdf8; font-weight:700; cursor:pointer;" onclick="window.openGrnDrillDownModal && window.openGrnDrillDownModal('${id}')" ondblclick="window.open('purchase.php?id=${id}', '_blank')" title="انقر لمعاينة أصل الفاتورة (Drill-Down) أو انقر مرتين لفتحها في شاشة المشتريات">🔍 ${id}</td>
-                        <td style="text-align:right; font-family:'Outfit';">${new Date(invData.date).toLocaleDateString('en-GB')}</td>
-                        <td style="text-align:right; font-weight:700;">${supName}</td>
-                        <td style="text-align:center; font-weight:600; font-size:0.85rem; max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${itemNames}">${itemNames}</td>
-                        <td style="text-align:center; font-family:'Outfit'; font-weight:800;">${totalPendingItems} صنف</td>
+                        <td class="grn-hub-col-inv" style="text-align:right; font-family:'Outfit','Cairo',sans-serif; color:#38bdf8; font-size:1.22rem; font-weight:900; cursor:pointer;" onclick="window.openGrnDrillDownModal && window.openGrnDrillDownModal('${id}')" ondblclick="window.open('purchase.php?id=${id}', '_blank')" title="انقر لمعاينة أصل الفاتورة (Drill-Down) أو انقر مرتين لفتحها في شاشة المشتريات">📄 ${id}</td>
+                        <td style="text-align:right; font-family:'Outfit','Cairo',sans-serif; font-size:1.05rem; font-weight:900;">${new Date(invData.date).toLocaleDateString('en-GB')}</td>
+                        <td style="text-align:right; font-weight:900; font-size:1.02rem;">
+                            <div style="display:flex; align-items:center; justify-content:space-between; gap:6px;">
+                                <span>${supName}</span>
+                                <button type="button" onclick="event.stopPropagation(); window.open('suppliers.php?ledger=${encodeURIComponent(invData.supplierId || '')}','_blank');" title="كشف حساب المورد (أستاذ)" style="height:26px; padding:0 8px; border-radius:6px; background:linear-gradient(135deg,#0284c7,#0369a1); border:1.5px solid #38bdf8; color:#fff !important; font-size:0.75rem; font-weight:900; cursor:pointer; flex-shrink:0;">📖 أستاذ</button>
+                            </div>
+                        </td>
+                        <td style="text-align:center; font-weight:900; font-size:0.95rem; max-width: 240px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${itemNames}">📦 ${itemNames}</td>
+                        <td style="text-align:center; font-family:'Outfit','Cairo',sans-serif; font-weight:900; font-size:1.05rem;">
+                            <span style="display:inline-flex; align-items:center; gap:6px;">
+                                <span class="pur-price-lamp ${pendingValSdg > 0 ? 'lamp-green' : 'lamp-blue'}"></span>
+                                <span>${totalPendingItems} صنف (${valText})</span>
+                            </span>
+                        </td>
                         <td style="text-align:center;">
-                            <button class="btn-action" style="padding:6px 15px; font-size:0.8rem;" onclick="openReceiptEditor('${id}')">استلام البضاعة</button>
+                            <button class="btn-action" style="padding:7px 16px; font-size:0.9rem; font-weight:900; background:linear-gradient(135deg,#10b981,#059669); border:2px solid #34d399; color:#ffffff !important; border-radius:9px;" onclick="openReceiptEditor('${id}')">🚛 استلام البضاعة</button>
                         </td>
                     `;
                     tbody.appendChild(tr);
                 });
+                if (typeof window.updateGrnHubFinStrip === 'function') window.updateGrnHubFinStrip(filteredIds);
                 
                 let loadMoreBtn = document.getElementById('pending-load-more');
                 if (!loadMoreBtn) {
@@ -2052,6 +2118,7 @@ html.grn-ophthalmic-comfort-active body {
 
             document.getElementById('view-hub').classList.remove('active');
             document.getElementById('view-editor').classList.add('active');
+            if (typeof window.updateGrnSupplierFinStrip === 'function') window.updateGrnSupplierFinStrip(invData.supplierId);
             renderReceiptLines();
             renderRecentGRNs(invId);
         }
@@ -2076,10 +2143,16 @@ html.grn-ophthalmic-comfort-active body {
             const elItems = document.getElementById('lbl-total-received-items');
             const elQty = document.getElementById('lbl-total-received-qty');
             const elVal = document.getElementById('lbl-total-received-val');
+            const elValUsd = document.getElementById('lbl-total-received-val-usd');
 
             if (elItems) elItems.textContent = totalItems + ' أصناف';
             if (elQty) elQty.textContent = fmtNum(totalQty);
-            if (elVal) elVal.textContent = fmtNum(totalVal) + ' SDG';
+            if (elVal) elVal.textContent = fmtNum(totalVal) + ' ج.س';
+            if (elValUsd) {
+                const rate = (typeof window.getGrnActiveExchangeRate === 'function' ? window.getGrnActiveExchangeRate() : 2650) || 2650;
+                const usdVal = totalVal / rate;
+                elValUsd.textContent = '$' + usdVal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            }
         }
 
 
@@ -2215,7 +2288,10 @@ html.grn-ophthalmic-comfort-active body {
                         <div style="${getColStyleObj('origQty').boxStyle}" class="grn-col-origQty" title="كمية الشراء الأصلية بالفاتورة">${fmtColVal('origQty', line.origQty || line.maxPending)}</div>
                     </td>
                     <td style="padding: 4px 3px;">
-                        <div style="${getColStyleObj('item', 'right').boxStyle}; text-overflow: ellipsis; white-space: nowrap; overflow: hidden;" class="grn-col-item" title="${getItemName(line.itemId)}">📦 ${getItemName(line.itemId)}</div>
+                        <div style="${getColStyleObj('item', 'right').boxStyle}; justify-content: space-between; gap: 6px; overflow: hidden;" class="grn-col-item" title="${getItemName(line.itemId)}">
+                            <span style="text-overflow: ellipsis; white-space: nowrap; overflow: hidden; display: inline-flex; align-items: center; gap: 5px;">📦 ${getItemName(line.itemId)}</span>
+                            ${typeof window.buildGrnPriceRadarBadgeHtml === 'function' ? window.buildGrnPriceRadarBadgeHtml(line) : ''}
+                        </div>
                     </td>
                     <td style="padding: 4px 3px;">
                         <div style="${getColStyleObj('unit').boxStyle}" class="grn-col-unit">${line.unitName || line.unit || '—'}</div>
@@ -16845,7 +16921,7 @@ html.grn-ophthalmic-comfort-active body {
                     // مسح أي inline font-size متضارب داخل منطقة العمليات والشاشات الوليدة لتوحيد الخطوط بالملليمتر
                     root.querySelectorAll('.dash-main label, .dash-main input, .dash-main select, .dash-main table th, .dash-main table td, [id$="-modal"] label, [id$="-modal"] input, [id$="-modal"] select, [id$="-modal"] table th, [id$="-modal"] table td').forEach(el => {
                         if (el.style && el.style.fontSize) {
-                            el.style.removeProperty('font-size');
+                            /* keep Purchase Constitution 2027 font sizes */
                         }
                     });
 
@@ -18997,6 +19073,546 @@ html.grn-ophthalmic-comfort-active body {
             setTimeout(initGrnFc2All, 350);
         }
         setInterval(window.refreshGrnFc2LiveResultSummary, 3500);
+    })();
+    </script>
+    <!-- ══════════════════════════════════════════════════════════════════════════
+         PURCHASE DESIGN CONSTITUTION 2027 — APPLIED TO PURCHASE-RECEIPT.PHP
+         9 Tones + Sculpted Borders + Financial Strip + Price Radar + AI Audit
+         ══════════════════════════════════════════════════════════════════════════ -->
+    <style id="grn-purchase-constitution-2027-style">
+        /* Hide legacy experimental command bar so #view-hub matches Purchase Constitution 2027 cleanly */
+        #grn-fc1-ai-command-bar { display: none !important; }
+
+        /* 1. Royal Dark (dark_midnight) Stepped Surfaces & Pure White Typography */
+        html:not(.light-theme) body,
+        html:not(.light-theme) #grn-proportional-root {
+            background: #010308 !important;
+            color: #ffffff !important;
+        }
+        html:not(.light-theme) #view-hub .neo-card,
+        html:not(.light-theme) #view-hub .neo-card-title,
+        html:not(.light-theme) #grn-hub-fin-strip,
+        html:not(.light-theme) #grn-hub-filters-bar,
+        html:not(.light-theme) #view-editor .grn-meta-bar,
+        html:not(.light-theme) #view-editor .neo-card-title,
+        html:not(.light-theme) #view-editor .grid-scroll-wrap,
+        html:not(.light-theme) #view-editor .editor-bottom-bar,
+        html:not(.light-theme) #grn-party-fin-strip {
+            background: linear-gradient(180deg, #172a4a 0%, #111e36 100%) !important;
+            border: 2.5px solid #38bdf8 !important;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.65) !important;
+        }
+        html:not(.light-theme) .pos-grid thead,
+        html:not(.light-theme) .pos-grid thead tr th {
+            background: #0d182c !important;
+            color: #ffffff !important;
+            font-weight: 900 !important;
+            font-size: 1rem !important;
+            border-bottom: 2.5px solid #38bdf8 !important;
+        }
+        html:not(.light-theme) #invoices-tbody tr td {
+            background: #13223f !important;
+            color: #ffffff !important;
+            font-weight: 900 !important;
+            font-size: 1rem !important;
+            border-bottom: 1.5px solid rgba(56, 189, 248, 0.28) !important;
+        }
+        html:not(.light-theme) #items-tbody input.qty-input,
+        html:not(.light-theme) #items-tbody input.factor-input,
+        html:not(.light-theme) #items-tbody input.notes-input,
+        html:not(.light-theme) #items-tbody select.wh-select,
+        html:not(.light-theme) #search-inv,
+        html:not(.light-theme) #grn-filter-date-from,
+        html:not(.light-theme) #grn-filter-date-to,
+        html:not(.light-theme) #grn-filter-supplier,
+        html:not(.light-theme) #grn-filter-warehouse {
+            background: #0b1120 !important;
+            color: #ffffff !important;
+            border: 2px solid #38bdf8 !important;
+            font-weight: 900 !important;
+        }
+
+        /* 2. All 8 Light Tones (--lt-* variables, 3px sculpted borders, pure white inputs, pitch-black 900 text) */
+        html.light-theme body,
+        html.light-theme #grn-proportional-root {
+            background: var(--lt-bg-main, #f3ead8) !important;
+            color: var(--lt-text, #120500) !important;
+            font-weight: 900 !important;
+        }
+        html.light-theme #view-hub .neo-card,
+        html.light-theme #view-editor .grn-meta-bar,
+        html.light-theme #view-editor .neo-card-title,
+        html.light-theme #view-editor .grid-scroll-wrap,
+        html.light-theme #view-editor .editor-bottom-bar,
+        html.light-theme #grn-party-fin-strip,
+        html.light-theme #recent-grns-container > div {
+            background: var(--lt-bg-card, #e8dbc3) !important;
+            border: 3px solid var(--lt-border, #5c2808) !important;
+            box-shadow: 0 6px 18px rgba(45, 20, 5, 0.14) !important;
+            color: var(--lt-text, #120500) !important;
+        }
+        html.light-theme #view-hub .neo-card-title,
+        html.light-theme #grn-hub-fin-strip,
+        html.light-theme #grn-hub-filters-bar {
+            background: var(--lt-bg-subcard, #dfd0b5) !important;
+            border: 2.5px solid var(--lt-border, #5c2808) !important;
+            border-radius: 12px !important;
+            color: var(--lt-text, #120500) !important;
+        }
+        html.light-theme #grn-cross-screen-nav .grn-nav-pill {
+            background: #ffffff !important;
+            color: var(--lt-text, #120500) !important;
+            border: 2px solid var(--lt-border, #5c2808) !important;
+            font-weight: 900 !important;
+        }
+        html.light-theme #view-editor .grn-meta-bar span,
+        html.light-theme #view-editor .neo-card-title span:not(.grn-kbd-badge),
+        html.light-theme #view-hub #hub-title-text,
+        html.light-theme #view-hub h2,
+        html.light-theme #view-hub h3,
+        html.light-theme #view-hub label {
+            color: var(--lt-text, #120500) !important;
+            font-weight: 900 !important;
+        }
+        html.light-theme #lbl-inv-no {
+            color: #0369a1 !important;
+            font-size: 1.58rem !important;
+            font-weight: 900 !important;
+        }
+        html.light-theme #lbl-date,
+        html.light-theme #lbl-supplier {
+            color: #000000 !important;
+            font-weight: 900 !important;
+        }
+        html.light-theme .pos-grid thead,
+        html.light-theme .pos-grid thead tr,
+        html.light-theme .pos-grid thead tr th {
+            background: var(--lt-bg-header, #d6c3a5) !important;
+            color: var(--lt-text, #120500) !important;
+            -webkit-text-fill-color: var(--lt-text, #120500) !important;
+            font-weight: 900 !important;
+            font-size: 1rem !important;
+            border-bottom: 3px solid var(--lt-border, #5c2808) !important;
+        }
+        html.light-theme #invoices-tbody tr td,
+        html.light-theme #items-tbody .grn-col-origQty,
+        html.light-theme #items-tbody .grn-col-item,
+        html.light-theme #items-tbody .grn-col-unit,
+        html.light-theme #items-tbody .grn-col-qty,
+        html.light-theme #items-tbody .grn-col-pendingBase,
+        html.light-theme #items-tbody .grn-col-baseQty {
+            background: #ffffff !important;
+            color: #000000 !important;
+            -webkit-text-fill-color: #000000 !important;
+            border: 2px solid var(--lt-border, #5c2808) !important;
+            font-weight: 900 !important;
+            font-size: 1.02rem !important;
+        }
+        html.light-theme #invoices-tbody tr:nth-child(even) td {
+            background: var(--lt-bg-subcard, #f5ebd8) !important;
+        }
+        html.light-theme #invoices-tbody tr td.grn-hub-col-inv {
+            color: #0369a1 !important;
+            -webkit-text-fill-color: #0369a1 !important;
+            font-size: 1.22rem !important;
+        }
+        html.light-theme #items-tbody input.qty-input,
+        html.light-theme #items-tbody input.factor-input,
+        html.light-theme #items-tbody input.notes-input,
+        html.light-theme #items-tbody select.wh-select,
+        html.light-theme #search-inv,
+        html.light-theme #grn-filter-date-from,
+        html.light-theme #grn-filter-date-to,
+        html.light-theme #grn-filter-supplier,
+        html.light-theme #grn-filter-warehouse {
+            background: #ffffff !important;
+            color: #000000 !important;
+            -webkit-text-fill-color: #000000 !important;
+            border: 2.5px solid var(--lt-border, #5c2808) !important;
+            font-weight: 900 !important;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.06) !important;
+        }
+        html.light-theme .grn-fin-cap,
+        html.light-theme .grn-fin-cap strong,
+        html.light-theme .grn-fin-cap span {
+            color: #ffffff !important;
+            -webkit-text-fill-color: #ffffff !important;
+        }
+        html.light-theme .editor-bottom-bar > div > div {
+            background: #ffffff !important;
+            border: 2.5px solid var(--lt-border, #5c2808) !important;
+            color: #000000 !important;
+        }
+        html.light-theme .editor-bottom-bar > div > div span {
+            color: #120500 !important;
+            font-weight: 900 !important;
+        }
+        html.light-theme #lbl-total-received-items { color: #047857 !important; }
+        html.light-theme #lbl-total-received-qty { color: #0369a1 !important; }
+        html.light-theme #lbl-total-received-val { color: #b45309 !important; }
+        html.light-theme .grn-tot-capsule-usd {
+            background: linear-gradient(135deg, #065f46, #047857) !important;
+            border: 2.5px solid #064e3b !important;
+        }
+        html.light-theme .grn-tot-capsule-usd span,
+        html.light-theme #lbl-total-received-val-usd {
+            color: #ffffff !important;
+            -webkit-text-fill-color: #ffffff !important;
+        }
+
+        /* 3. Faint Zeros (.is-zero-val) & Crisp Active Typing */
+        input.is-zero-val:not(:focus) {
+            opacity: 0.38 !important;
+        }
+        input.qty-input:focus,
+        input.factor-input:focus {
+            opacity: 1 !important;
+            transform: scale(1.02);
+            border-color: #0284c7 !important;
+            box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.28) !important;
+        }
+
+        /* 4. Fixed Centered Ledger Button (Zero Jitter on Hover) */
+        #grn-supplier-ledger-btn,
+        #grn-supplier-ledger-btn:hover,
+        #grn-supplier-ledger-btn:active {
+            position: absolute !important;
+            left: 8px !important;
+            top: 50% !important;
+            transform: translateY(-50%) !important;
+        }
+
+        /* 5. 20px 3D Price Radar Lamp & Red/Green Up/Down Variance Subtext */
+        .pur-price-lamp {
+            width: 20px !important;
+            height: 20px !important;
+            min-width: 20px !important;
+            border-radius: 50% !important;
+            display: inline-block !important;
+            vertical-align: middle !important;
+            cursor: pointer !important;
+            border: 2px solid rgba(255, 255, 255, 0.85) !important;
+            flex-shrink: 0 !important;
+        }
+        .pur-price-lamp.lamp-green {
+            background: radial-gradient(circle at 32% 32%, #6ee7b7, #10b981 55%, #065f46 100%) !important;
+            box-shadow: 0 0 10px rgba(16, 185, 129, 0.75), inset 0 2px 3px rgba(255,255,255,0.6) !important;
+        }
+        .pur-price-lamp.lamp-red {
+            background: radial-gradient(circle at 32% 32%, #fda4af, #ef4444 55%, #991b1b 100%) !important;
+            box-shadow: 0 0 12px rgba(239, 68, 68, 0.85), inset 0 2px 3px rgba(255,255,255,0.6) !important;
+        }
+        .pur-price-lamp.lamp-amber {
+            background: radial-gradient(circle at 32% 32%, #fde68a, #f59e0b 55%, #92400e 100%) !important;
+            box-shadow: 0 0 10px rgba(245, 158, 11, 0.75), inset 0 2px 3px rgba(255,255,255,0.6) !important;
+        }
+        .pur-price-lamp.lamp-blue {
+            background: radial-gradient(circle at 32% 32%, #93c5fd, #3b82f6 55%, #1e40af 100%) !important;
+            box-shadow: 0 0 10px rgba(59, 130, 246, 0.75), inset 0 2px 3px rgba(255,255,255,0.6) !important;
+        }
+        .pur-price-subtxt {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 0.78rem !important;
+            font-weight: 900 !important;
+            padding: 2px 7px;
+            border-radius: 6px;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+        .pur-price-subtxt.var-up {
+            background: rgba(239, 68, 68, 0.16);
+            color: #ef4444 !important;
+            border: 1.5px solid rgba(239, 68, 68, 0.45);
+        }
+        .pur-price-subtxt.var-down {
+            background: rgba(16, 185, 129, 0.16);
+            color: #10b981 !important;
+            border: 1.5px solid rgba(16, 185, 129, 0.45);
+        }
+        .pur-price-subtxt.var-same {
+            background: rgba(59, 130, 246, 0.14);
+            color: #3b82f6 !important;
+            border: 1.5px solid rgba(59, 130, 246, 0.38);
+        }
+        html.light-theme .pur-price-subtxt.var-up { background: #fee2e2 !important; color: #b91c1c !important; border-color: #ef4444 !important; }
+        html.light-theme .pur-price-subtxt.var-down { background: #d1fae5 !important; color: #047857 !important; border-color: #10b981 !important; }
+        html.light-theme .pur-price-subtxt.var-same { background: #dbeafe !important; color: #1d4ed8 !important; border-color: #3b82f6 !important; }
+
+        /* 6. Child & Grandchild Modals (#grid-settings-modal, #grn-ai-audit-modal, etc.) */
+        html.light-theme #grid-settings-modal .modal-card,
+        html.light-theme #grn-ai-audit-modal .grn-ai-modal-card {
+            background: var(--lt-bg-card, #e8dbc3) !important;
+            border: 3px solid var(--lt-border, #5c2808) !important;
+            color: var(--lt-text, #120500) !important;
+        }
+        html.light-theme #grid-settings-modal label,
+        html.light-theme #grid-settings-modal h3,
+        html.light-theme #grid-settings-modal span {
+            color: var(--lt-text, #120500) !important;
+            font-weight: 900 !important;
+        }
+        html.light-theme #grid-settings-modal select,
+        html.light-theme #grid-settings-modal input[type="text"],
+        html.light-theme #grid-settings-modal input[type="number"] {
+            background: #ffffff !important;
+            color: #000000 !important;
+            border: 2px solid var(--lt-border, #5c2808) !important;
+            font-weight: 900 !important;
+        }
+    </style>
+
+    <!-- AI Price Audit Modal (Purchase Constitution 2027) -->
+    <div id="grn-ai-audit-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.72); backdrop-filter:blur(6px); z-index:100020; align-items:center; justify-content:center; padding:16px;">
+        <div class="grn-ai-modal-card" style="width:820px; max-width:96vw; max-height:88vh; display:flex; flex-direction:column; background:#111e36; border:3px solid #7c3aed; border-radius:18px; padding:20px; box-shadow:0 20px 50px rgba(0,0,0,0.65); color:#ffffff;">
+            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid rgba(124,58,237,0.35); padding-bottom:12px; margin-bottom:14px;">
+                <h3 style="margin:0; font-size:1.3rem; font-weight:900; display:flex; align-items:center; gap:8px;">
+                    <span>🤖</span><span>رادار الذكاء الاصطناعي لمراجعة أسعار وتكلفة أصناف الاستلام</span>
+                </h3>
+                <button type="button" onclick="document.getElementById('grn-ai-audit-modal').style.display='none'" style="background:#ef4444; color:#fff; border:none; border-radius:8px; width:34px; height:34px; font-weight:900; cursor:pointer;">✕</button>
+            </div>
+            <div id="grn-ai-audit-body" style="overflow-y:auto; flex:1; padding-right:4px;"></div>
+        </div>
+    </div>
+
+    <script id="grn-purchase-constitution-2027-script">
+    (function() {
+        window._grnFinStripInUsd = false;
+        window._grnHubInUsd = false;
+        window._grnCurrentSupplierId = null;
+
+        window.getGrnActiveExchangeRate = function() {
+            const saved = parseFloat(localStorage.getItem('magaies_usd_exchange_rate') || localStorage.getItem('usd_exchange_rate') || '2650');
+            return (saved && saved > 1) ? saved : 2650;
+        };
+
+        // Ensure our Constitution 2027 style always sits at the very end of <head> after any dynamic style injection
+        function ensureConstitutionStyleLast() {
+            const oldC15 = document.getElementById('grn-c15-master-constitution-styles');
+            if (oldC15) oldC15.remove();
+            const st = document.getElementById('grn-purchase-constitution-2027-style');
+            if (st && document.head && document.head.lastElementChild !== st) {
+                document.head.appendChild(st);
+            }
+        }
+        ensureConstitutionStyleLast();
+        setTimeout(ensureConstitutionStyleLast, 450);
+
+        // Hub Financial Strip Updater + Currency Toggle (#view-hub)
+        window.updateGrnHubFinStrip = function(filteredIds) {
+            try {
+                const ids = Array.isArray(filteredIds) ? filteredIds : (typeof pendingMap !== 'undefined' ? Object.keys(pendingMap) : []);
+                let totalPendingValSdg = 0;
+                ids.forEach(id => {
+                    const invObj = (typeof pendingMap !== 'undefined' && pendingMap[id]) ? pendingMap[id] : null;
+                    if (invObj && invObj.lines) {
+                        Object.values(invObj.lines).forEach(l => {
+                            totalPendingValSdg += (parseFloat(l.pendingQty) || 0) * (parseFloat(l.price) || 0);
+                        });
+                    }
+                });
+                const rcvCount = (typeof grnsDb !== 'undefined' && Array.isArray(grnsDb)) ? grnsDb.length : 0;
+                const rate = window.getGrnActiveExchangeRate();
+                const usdVal = totalPendingValSdg / rate;
+
+                const elP = document.getElementById('grn-hub-stat-pending');
+                const elR = document.getElementById('grn-hub-stat-received');
+                const elSdg = document.getElementById('grn-hub-stat-val-sdg');
+                const elUsd = document.getElementById('grn-hub-stat-val-usd');
+                const elLbl = document.getElementById('grn-hub-curr-lbl');
+
+                if (elP) elP.textContent = ids.length;
+                if (elR) elR.textContent = rcvCount;
+                if (elSdg) elSdg.textContent = Math.round(totalPendingValSdg).toLocaleString('en-US') + ' ج.س';
+                if (elUsd) elUsd.textContent = '$' + usdVal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                if (elLbl) elLbl.textContent = window._grnHubInUsd ? 'دولار ⇄' : 'جنيه ⇄';
+            } catch (e) {}
+        };
+
+        window.toggleGrnHubCurrency = function() {
+            window._grnHubInUsd = !window._grnHubInUsd;
+            if (typeof renderPendingInvoices === 'function') renderPendingInvoices(false);
+        };
+
+        // 1. Price Radar 3D Lamp + Red/Green Arrow Builder for Receipt Lines
+        window.buildGrnPriceRadarBadgeHtml = function(line) {
+            try {
+                const curPrice = parseFloat(line.price) || 0;
+                let refPrice = curPrice;
+                let stockBal = 0;
+                if (typeof itemsDb !== 'undefined' && Array.isArray(itemsDb)) {
+                    const it = itemsDb.find(i => String(i.id) === String(line.itemId) || i.name === line.itemId);
+                    if (it) {
+                        refPrice = parseFloat(it.costPrice || it.buyPrice || it.lastBuyPrice || it.price || curPrice) || curPrice;
+                        stockBal = parseFloat(it.stock || it.qty || it.balance || 0) || 0;
+                    }
+                }
+                if (curPrice <= 0 && refPrice <= 0) {
+                    return `<span class="pur-price-lamp lamp-blue" title="رصيد الصنف: ${stockBal}"></span>`;
+                }
+                const diff = curPrice - refPrice;
+                const pct = refPrice > 0 ? Math.round((Math.abs(diff) / refPrice) * 100) : 0;
+                let lampCls = 'lamp-green';
+                let subCls = 'var-same';
+                let arrowHtml = `● ${curPrice.toLocaleString('en-US')}`;
+                if (diff > 0.01) {
+                    lampCls = pct >= 15 ? 'lamp-red' : 'lamp-amber';
+                    subCls = 'var-up';
+                    arrowHtml = `▲ +${pct}% (${curPrice.toLocaleString('en-US')})`;
+                } else if (diff < -0.01) {
+                    lampCls = 'lamp-green';
+                    subCls = 'var-down';
+                    arrowHtml = `▼ -${pct}% (${curPrice.toLocaleString('en-US')})`;
+                }
+                return `<span style="display:inline-flex; align-items:center; gap:5px; flex-shrink:0;" onclick="window.openGrnAIAuditModal && window.openGrnAIAuditModal()">
+                    <span class="pur-price-subtxt ${subCls}" title="سعر الفاتورة: ${curPrice.toLocaleString('en-US')} | آخر تكلفة مرجعية: ${refPrice.toLocaleString('en-US')} | الرصيد: ${stockBal}">${arrowHtml}</span>
+                    <span class="pur-price-lamp ${lampCls}" title="رادار السعر — انقر لفتح تحليل الذكاء الاصطناعي للأسعار"></span>
+                </span>`;
+            } catch (e) {
+                return '';
+            }
+        };
+
+        // 2. Supplier Financial Strip Live Updater + SDG/USD Toggle
+        window.updateGrnSupplierFinStrip = function(supplierId) {
+            if (supplierId !== undefined && supplierId !== null) {
+                window._grnCurrentSupplierId = supplierId;
+            }
+            const supId = window._grnCurrentSupplierId;
+            let balance = 0, debt = 0, cheques = 0, limit = 0;
+            if (typeof suppliersDb !== 'undefined' && Array.isArray(suppliersDb) && supId) {
+                const s = suppliersDb.find(x => String(x.id) === String(supId) || x.name === supId);
+                if (s) {
+                    balance = parseFloat(s.balance ?? s.currentBalance ?? 0) || 0;
+                    debt = parseFloat(s.debt ?? Math.max(0, balance)) || 0;
+                    cheques = parseFloat(s.cheques ?? s.pendingCheques ?? 0) || 0;
+                    limit = parseFloat(s.creditLimit ?? s.limit ?? 0) || 0;
+                }
+            }
+            const rate = window.getGrnActiveExchangeRate();
+            const isUsd = !!window._grnFinStripInUsd;
+            const conv = (v) => isUsd ? ('$' + (v / rate).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })) : (Math.round(v).toLocaleString('en-US') + ' ج.س');
+
+            const elBal = document.getElementById('grn-fin-balance');
+            const elDebt = document.getElementById('grn-fin-debt');
+            const elChq = document.getElementById('grn-fin-cheques');
+            const elLim = document.getElementById('grn-fin-limit');
+            const elAvl = document.getElementById('grn-fin-avail');
+            const elBtn = document.getElementById('grn-fin-curr-lbl');
+
+            if (elBal) elBal.textContent = conv(balance);
+            if (elDebt) elDebt.textContent = conv(debt);
+            if (elChq) elChq.textContent = conv(cheques);
+            if (elLim) elLim.textContent = limit > 0 ? conv(limit) : 'مفتوح';
+            if (elAvl) elAvl.textContent = limit > 0 ? conv(Math.max(0, limit - debt - cheques)) : 'مفتوح';
+            if (elBtn) elBtn.textContent = isUsd ? 'دولار ⇄' : 'جنيه ⇄';
+        };
+
+        window.toggleGrnFinStripCurrency = function() {
+            window._grnFinStripInUsd = !window._grnFinStripInUsd;
+            window.updateGrnSupplierFinStrip();
+        };
+
+        window.openGrnSupplierLedger = function() {
+            const supId = window._grnCurrentSupplierId || '';
+            const url = supId ? ('suppliers.php?ledger=' + encodeURIComponent(supId)) : 'suppliers.php';
+            window.open(url, '_blank');
+        };
+
+        // 3. AI Price Audit Modal (Works in both Hub & Editor views)
+        window.openGrnAIAuditModal = function() {
+            const modal = document.getElementById('grn-ai-audit-modal');
+            const body = document.getElementById('grn-ai-audit-body');
+            if (!modal || !body) return;
+            let lines = (typeof receiptLines !== 'undefined' && Array.isArray(receiptLines) && receiptLines.length) ? receiptLines : [];
+            if (!lines.length && typeof pendingMap !== 'undefined') {
+                Object.values(pendingMap).slice(0, 10).forEach(inv => {
+                    if (inv && inv.lines) {
+                        Object.values(inv.lines).forEach(l => lines.push(l));
+                    }
+                });
+            }
+            if (!lines.length) {
+                body.innerHTML = `<div style="padding:24px; text-align:center; font-weight:900; font-size:1.1rem;">لا توجد أصناف قيد الاستلام حالياً لمراجعتها بالذكاء الاصطناعي.</div>`;
+            } else {
+                let rowsHtml = lines.map((l, idx) => {
+                    const name = (typeof getItemName === 'function') ? getItemName(l.itemId) : l.itemId;
+                    const curP = parseFloat(l.price) || 0;
+                    let refP = curP, sellP = Math.round(curP * 1.18);
+                    if (typeof itemsDb !== 'undefined' && Array.isArray(itemsDb)) {
+                        const it = itemsDb.find(i => String(i.id) === String(l.itemId) || i.name === l.itemId);
+                        if (it) {
+                            refP = parseFloat(it.costPrice || it.buyPrice || curP) || curP;
+                            sellP = parseFloat(it.sellPrice || it.price || Math.round(curP * 1.18)) || Math.round(curP * 1.18);
+                        }
+                    }
+                    const diff = curP - refP;
+                    const pct = refP > 0 ? Math.round((Math.abs(diff) / refP) * 100) : 0;
+                    const statusBadge = diff > 0.01
+                        ? `<span class="pur-price-subtxt var-up">▲ ارتفع +${pct}%</span>`
+                        : (diff < -0.01 ? `<span class="pur-price-subtxt var-down">▼ انخفض -${pct}%</span>` : `<span class="pur-price-subtxt var-same">● مستقر</span>`);
+                    const lampCls = diff > 0.01 ? (pct >= 15 ? 'lamp-red' : 'lamp-amber') : 'lamp-green';
+                    return `<tr style="border-bottom:1px solid rgba(148,163,184,0.25);">
+                        <td style="padding:10px; font-weight:900;">${idx + 1}</td>
+                        <td style="padding:10px; font-weight:900;">📦 ${name}</td>
+                        <td style="padding:10px; text-align:center; font-family:'Outfit'; font-weight:900;">${refP.toLocaleString('en-US')}</td>
+                        <td style="padding:10px; text-align:center; font-family:'Outfit'; font-weight:900;">${curP.toLocaleString('en-US')}</td>
+                        <td style="padding:10px; text-align:center;">${statusBadge} <span class="pur-price-lamp ${lampCls}"></span></td>
+                        <td style="padding:10px; text-align:center; font-family:'Outfit'; font-weight:900; color:#10b981;">${sellP.toLocaleString('en-US')}</td>
+                    </tr>`;
+                }).join('');
+                body.innerHTML = `<table style="width:100%; border-collapse:collapse;">
+                    <thead>
+                        <tr style="background:rgba(124,58,237,0.18); border-bottom:2px solid #7c3aed;">
+                            <th style="padding:10px; text-align:right;">#</th>
+                            <th style="padding:10px; text-align:right;">الصنف</th>
+                            <th style="padding:10px; text-align:center;">آخر تكلفة</th>
+                            <th style="padding:10px; text-align:center;">سعر الفاتورة</th>
+                            <th style="padding:10px; text-align:center;">رادار التغير</th>
+                            <th style="padding:10px; text-align:center;">سعر البيع المقترح</th>
+                        </tr>
+                    </thead>
+                    <tbody>${rowsHtml}</tbody>
+                </table>`;
+            }
+            modal.style.display = 'flex';
+        };
+
+        // 4. Sync Faint Zero Class (.is-zero-val) & Color Picker Input Events
+        function syncGrnZeroInputs() {
+            document.querySelectorAll('#items-tbody input.qty-input, #items-tbody input.factor-input').forEach(inp => {
+                const v = parseFloat(inp.value);
+                if (!inp.value || v === 0) inp.classList.add('is-zero-val');
+                else inp.classList.remove('is-zero-val');
+            });
+        }
+        document.addEventListener('input', function(e) {
+            if (e.target && (e.target.classList.contains('qty-input') || e.target.classList.contains('factor-input'))) {
+                const v = parseFloat(e.target.value);
+                if (!e.target.value || v === 0) e.target.classList.add('is-zero-val');
+                else e.target.classList.remove('is-zero-val');
+            }
+            if (e.target && e.target.id === 'grid-text-color' && typeof syncColorFromPicker === 'function') {
+                syncColorFromPicker(e.target.value);
+            }
+        });
+
+        const origRenderLines = window.renderReceiptLines;
+        if (typeof origRenderLines === 'function' && !origRenderLines._constitutionWrapped) {
+            const wrapped = function() {
+                const res = origRenderLines.apply(this, arguments);
+                syncGrnZeroInputs();
+                if (typeof updateSummary === 'function') updateSummary();
+                return res;
+            };
+            wrapped._constitutionWrapped = true;
+            window.renderReceiptLines = wrapped;
+        }
+        setTimeout(() => {
+            syncGrnZeroInputs();
+            window.updateGrnHubFinStrip();
+        }, 350);
     })();
     </script>
 </body>
