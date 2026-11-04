@@ -1441,7 +1441,7 @@ function switchToMobileEdition() {
 
     <!-- Scripts -->
     <script defer src="js/localforage.min.js"></script>
-    <script defer src="js/app.js?v=20261103_v29"></script>
+    <script defer src="js/app.js?v=20261104_v30"></script>
     <script>
         // Spotlight Effect Mouse Tracker (throttled to 60fps)
         let _spotlightTick = false;
@@ -2930,7 +2930,7 @@ function switchToMobileEdition() {
                 border: '#34d399',
                 screens: [
                     { href: 'single-cash-payment.php', label: 'حركة مالية (صرف وقبض مفرد)', icon: 'fa-money-bill-transfer', color: '#f87171', border: '#ef4444', bg: 'rgba(248, 113, 113, 0.2)' },
-                    { href: 'multi-cash-payment.php', label: 'صرف وقبض مجمع (متعدد الجهات)', icon: 'fa-money-bill-wave', color: '#fbbf24', border: '#f59e0b', bg: 'rgba(251, 191, 36, 0.2)' },
+                    { href: 'multi-cash-payment.php', label: 'حركة مالية مجمعة', icon: 'fa-money-bill-wave', color: '#fbbf24', border: '#f59e0b', bg: 'rgba(251, 191, 36, 0.2)' },
                     { href: 'checks-cycle.php', label: 'دورة إدارة الشيكات', icon: 'fa-money-check-dollar', color: '#38bdf8', border: '#38bdf8', bg: 'rgba(56, 189, 248, 0.2)' },
                     { href: 'vouchers-hub.php', label: 'بوابة المعاملات المالية الشاملة', icon: 'fa-vault', color: '#34d399', border: '#10b981', bg: 'rgba(16, 185, 129, 0.2)' }
                 ]

@@ -193,7 +193,7 @@
                     href: 'single-cash-payment.php'
                 },
                 {
-                    title: 'صرف وقبض مجمع',
+                    title: 'حركة مالية مجمعة',
                     icon: '🧾',
                     color: '#fb923c',
                     rgb: '251, 146, 60',

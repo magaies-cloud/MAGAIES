@@ -79,6 +79,7 @@ window.ConcurrencyLockManager = {
             return;
         }
         this.currentVoucherNo = cleanNo;
+        if (navigator.onLine === false) return;
 
         try {
             const fd = new FormData();
@@ -89,22 +90,23 @@ window.ConcurrencyLockManager = {
             fd.append('user_id', this.getUserId());
             fd.append('session_id', this.tabSessionId);
 
-            const resp = await fetch('multi-cash-payment.php', { method: 'POST', body: fd });
+            const ctrl = typeof AbortController !== 'undefined' ? new AbortController() : null;
+            const timer = ctrl ? setTimeout(() => ctrl.abort(), 1200) : null;
+            const resp = await fetch('multi-cash-payment.php', { method: 'POST', body: fd, signal: ctrl ? ctrl.signal : undefined });
+            if (timer) clearTimeout(timer);
             const data = await resp.json();
 
             if (data && data.is_locked) {
-                // Another accountant owns this lock!
                 this.isLockedByOther = true;
                 this.showWarningBadge(data.locked_by, data.elapsed_sec);
                 this.stopHeartbeat();
             } else {
-                // Lock successfully acquired or renewed for this session
                 this.isLockedByOther = false;
                 this.hideWarningBadge();
                 this.startHeartbeat();
             }
         } catch(e) {
-            console.warn('Concurrency lock check network warning:', e);
+            // Silent fallback on 2G/offline so UI never stalls
         }
     },
 
@@ -600,12 +602,14 @@ window.fmtNum = function(num, dec = null, hasComma = true) {
 // Helper: Clean commas for calculation
 const cleanNum = (str) => Number(String(str).replace(/,/g, '')) || 0;
 
-// Helper: Restrict input to numbers and decimal point only
+// Helper: Restrict input to numbers, decimal point, and inline math operators (+ - * / ( ))
 function restrictToNumbers(el) {
-    let val = el.value.replace(/[^0-9.,]/g, '');
-    const parts = val.split('.');
-    if (parts.length > 2) {
-        val = parts[0] + '.' + parts.slice(1).join('').replace(/\./g, '');
+    let val = el.value.replace(/[^0-9.,+\-*/()]/g, '');
+    if (!/[+\-*/()]/.test(val)) {
+        const parts = val.split('.');
+        if (parts.length > 2) {
+            val = parts[0] + '.' + parts.slice(1).join('').replace(/\./g, '');
+        }
     }
     if (el.value !== val) {
         el.value = val;
@@ -1076,9 +1080,7 @@ window.recalcBlockTotal = function(blockId) {
 
 // ═══ Add/Remove Bank Transfer Rows ═══
 window.addBankRow = function(blockId) {
-    console.log('addBankRow called with blockId:', blockId);
     const container = document.getElementById(`bank-rows-${blockId}`);
-    console.log('bank container found:', !!container, `bank-rows-${blockId}`);
     if (!container) return;
     const row = document.createElement('div');
     row.className = 'bank-row';
@@ -1115,9 +1117,7 @@ window.removeBankRow = function(btn, blockId) {
 
 // ═══ Add/Remove Cheque Rows ═══
 window.addChequeRow = function(blockId) {
-    console.log('addChequeRow called with blockId:', blockId);
     const container = document.getElementById(`cheque-rows-${blockId}`);
-    console.log('cheque container found:', !!container, `cheque-rows-${blockId}`);
     if (!container) return;
     const row = document.createElement('div');
     row.className = 'cheque-row';
@@ -1238,8 +1238,15 @@ document.addEventListener('click', function(e) {
     }
 });
 
-// Number formatting utility
+// Number formatting utility (with Inline Math Expression support)
 window.formatWhileTyping = function(input) {
+    const raw = String(input.value || '');
+    // If user is typing a math expression (e.g. 1500+2500 or 50*12), preserve operators until Enter/=/blur
+    if (/[+*/()]/.test(raw) || /\d-\d/.test(raw)) {
+        const cleanedMath = raw.replace(/[^0-9.,+\-*/()\s]/g, '');
+        if (input.value !== cleanedMath) input.value = cleanedMath;
+        return;
+    }
     let cursor = input.selectionStart;
     let oldLength = input.value.length;
     let val = input.value.replace(/[^0-9.-]/g, '');
@@ -1248,7 +1255,9 @@ window.formatWhileTyping = function(input) {
     input.value = parts.join('.');
     let newLength = input.value.length;
     let newCursor = cursor + (newLength - oldLength);
-    if (newCursor > 0) input.setSelectionRange(newCursor, newCursor);
+    if (newCursor > 0) {
+        try { input.setSelectionRange(newCursor, newCursor); } catch(e) {}
+    }
 };
 
 // Handle oninput for sub-amount fields (via delegation)
@@ -1630,72 +1639,51 @@ function showCenterError(msg, type = 'default') {
 }
 
 
-function showToast(msg, type='success') {
+function showToast(msg, type = 'success', duration = null, targetEl = null) {
     const container = document.getElementById('toast-container');
     if (!container) return;
+    // الدستور الثالث (الأمر 5): رسائل النجاح تظهر لثانيتين (2000ms) وتختفي تلقائياً دون إيقاف عمل المحاسب
+    const effDuration = duration || (type === 'success' ? 2000 : (type === 'error' ? 3200 : 2500));
     const toast = document.createElement('div');
     toast.className = `toast ${type}`;
-    const icons = { success:'✔️', error:'✖️', info:'ℹ️' };
-    toast.innerHTML = `<span>${icons[type] || '🔔'}</span> <span>${msg}</span>`;
-    container.appendChild(toast);
-    setTimeout(() => {
+    const icons = { success: '✅', error: '🚨', info: '🔔', warning: '⚠️' };
+    toast.innerHTML = `
+        <span class="btn-icon" style="font-size:1.2rem;">${icons[type] || '🔔'}</span>
+        <span style="flex:1; line-height:1.4;">${msg}</span>
+        <span class="toast-progress-bar" style="animation-duration: ${effDuration}ms;"></span>
+    `;
+    toast.title = 'انقر لإغلاق الإشعار فوراً';
+    toast.onclick = function() {
         toast.classList.add('hide');
-        setTimeout(() => toast.remove(), 400);
-    }, 4000);
-}
+        setTimeout(() => toast.remove(), 220);
+    };
+    container.appendChild(toast);
 
-/* --- Context Menu and Dynamic Columns Logic --- */
-function toggleColumn(colClass, isVisible) {
-    const table = document.getElementById('voucher-table');
-    if (!table) return;
-    if (isVisible) {
-        table.classList.add('show-col-' + colClass);
-    } else {
-        table.classList.remove('show-col-' + colClass);
-    }
-    // Save preference
-    const prefs = JSON.parse(localStorage.getItem('multiVoucherColPrefs') || '{}');
-    prefs[colClass] = isVisible;
-    localStorage.setItem('multiVoucherColPrefs', JSON.stringify(prefs));
-}
-
-function loadColumnPrefs() {
-    const prefs = JSON.parse(localStorage.getItem('multiVoucherColPrefs') || '{}');
-    const menu = document.getElementById('column-context-menu');
-    if (menu) {
-        const checkboxes = menu.querySelectorAll('input[type="checkbox"]');
-        checkboxes.forEach(cb => {
-            if (prefs[cb.value] === true) {
-                cb.checked = true;
-                toggleColumn(cb.value, true);
-            }
-        });
-    }
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-    loadColumnPrefs();
-    
-    // Right click on table header
-    const tableHeader = document.getElementById('table-header');
-    const contextMenu = document.getElementById('column-context-menu');
-    
-    if (tableHeader && contextMenu) {
-        tableHeader.addEventListener('contextmenu', (e) => {
-            e.preventDefault();
-            contextMenu.style.top = e.pageY + 'px';
-            contextMenu.style.left = e.pageX + 'px';
-            contextMenu.classList.add('active');
-        });
-    }
-
-    // Click anywhere else to hide context menu
-    document.addEventListener('click', (e) => {
-        if (contextMenu && !contextMenu.contains(e.target) && e.target !== tableHeader && (!tableHeader || !tableHeader.contains(e.target))) {
-            contextMenu.classList.remove('active');
+    // نبضة اهتزازية تفاعلية (Haptic Feedback) + هز الخانة التي فيها الخطأ (Shake Effect)
+    try {
+        if (navigator.vibrate) {
+            navigator.vibrate(type === 'error' ? [30, 40, 30] : 12);
         }
-    });
-});
+    } catch (e) {}
+
+    if (type === 'error' && targetEl && targetEl.classList) {
+        targetEl.classList.remove('shake-error');
+        void targetEl.offsetWidth;
+        targetEl.classList.add('shake-error');
+        try {
+            targetEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            targetEl.focus();
+            if (typeof targetEl.select === 'function') targetEl.select();
+        } catch (e) {}
+    }
+
+    setTimeout(() => {
+        if (toast.parentNode) {
+            toast.classList.add('hide');
+            setTimeout(() => toast.remove(), 280);
+        }
+    }, effDuration);
+}
 
 /* --- Footer Actions --- */
 function resetVoucher() {
@@ -1725,6 +1713,12 @@ function resetVoucher() {
     calcTotal();
     loadNextMultiVoucherNumber();
     formDirty = false;
+    if (window.McpAutoDraftEngine && typeof window.McpAutoDraftEngine.clear === 'function') {
+        window.McpAutoDraftEngine.clear();
+    }
+    if (typeof window.applySmartDefaultMainAccount === 'function') {
+        window.applySmartDefaultMainAccount();
+    }
     
     // Re-enable save button
     const saveBtn = document.getElementById('btn-save');
@@ -1741,385 +1735,6 @@ function resetVoucher() {
     }
 }
 
-window.printVoucher = function() {
-    // Extract Voucher Document info
-    const voucherTypeSel = document.getElementById('voucher-type');
-    let voucherType = 'حركة مالية';
-    if (voucherTypeSel) {
-        const val = voucherTypeSel.value;
-        voucherType = (val === 'payment') ? 'حركة صرف' : (val === 'receipt' ? 'حركة قبض' : 'حركة مالية');
-    }
-    const voucherNo = (document.getElementById('voucher-no-display')?.value || document.getElementById('voucher-no')?.value || '').trim();
-    const voucherDate = document.getElementById('voucher-date') ? document.getElementById('voucher-date').value : '';
-    
-    // Extract Main Account
-    const mainAccountSearchEl = document.getElementById('main-account-search');
-    const mainAccount = mainAccountSearchEl ? mainAccountSearchEl.value : '';
-    
-    // Extract Description, Currency, Rate, Totals
-    const voucherDesc = document.getElementById('voucher-desc') ? document.getElementById('voucher-desc').value : '';
-    const currencySel = document.getElementById('currency');
-    const currency = currencySel ? (currencySel.options[currencySel.selectedIndex]?.text || currencySel.value) : '';
-    const exchangeRate = document.getElementById('exchange-rate') ? document.getElementById('exchange-rate').value : '1.0';
-    const amountLocal = document.getElementById('amount-local-hdr') ? document.getElementById('amount-local-hdr').value : '0.00';
-    const amountForeign = document.getElementById('amount-foreign') ? document.getElementById('amount-foreign').value : '0.00';
-
-    // Retrieve User and Company Info
-    let userName = 'مدير النظام';
-    let tenantId = 'default';
-    const userStr = localStorage.getItem('erp_currentUser') || localStorage.getItem('user');
-    if (userStr) {
-        try {
-            const u = JSON.parse(userStr);
-            userName = u.fullName || u.username || userName;
-            if (u.tenant_id) tenantId = u.tenant_id;
-        } catch(e) {}
-    }
-    
-    const prefix = 'tenant_' + tenantId + '_';
-    let cfg = {};
-    try {
-        cfg = JSON.parse(localStorage.getItem(prefix + 'erp_settings_v1') || '{}');
-    } catch(e) {}
-    
-    const companyLogo = cfg.logoBase64 || '';
-    const companyName = cfg.companyName || 'اسم الشركة';
-
-    // Current print date and time
-    const printDateTime = new Date().toLocaleDateString('en-GB') + ' ' + new Date().toLocaleTimeString('en-US', {hour: '2-digit', minute: '2-digit', second: '2-digit'});
-
-    // Build Table Rows from entryItems or fallback to DOM blocks
-    let entryItems = [];
-    if (typeof currentVoucherIndex !== 'undefined' && currentVoucherIndex >= 0 && typeof currentVoucherList !== 'undefined' && currentVoucherList[currentVoucherIndex] && currentVoucherList[currentVoucherIndex].items) {
-        entryItems = currentVoucherList[currentVoucherIndex].items;
-    } else {
-        const blocks = document.querySelectorAll('.account-block');
-        blocks.forEach(block => {
-            const bId = block.getAttribute('data-block-id');
-            const searchInput = document.getElementById(`account-${bId}-search`);
-            const accName = searchInput ? searchInput.value.trim() : '';
-            const amtVal = parseFloat(cleanNum(document.getElementById(`amount-${bId}`)?.value || 0)) || 0;
-            const stmtVal = document.getElementById(`statement-${bId}`)?.value || '';
-            const ccVal = document.getElementById(`cost-center-${bId}`)?.value || '';
-            if (accName || amtVal > 0) {
-                entryItems.push({
-                    accountName: accName,
-                    amount: amtVal,
-                    statement: stmtVal,
-                    costCenter: ccVal,
-                    paymentMethod: 'hybrid'
-                });
-            }
-        });
-    }
-
-    let tableHtml = `
-        <table class="print-table">
-            <thead>
-                <tr>
-                    <th>م</th>
-                    <th>الحساب / الجهة المستفيدة</th>
-                    <th>المبلغ</th>
-                    <th>البيان التفصيلي</th>
-                    <th>مركز التكلفة / المشروع</th>
-                    <th>طريقة الدفع</th>
-                </tr>
-            </thead>
-            <tbody>
-    `;
-    let totalAmt = 0;
-    if (entryItems.length > 0) {
-        entryItems.forEach((item, idx) => {
-            totalAmt += (parseFloat(item.amount) || 0);
-            const pmLabel = item.paymentMethod === 'cash' ? 'نقدي' :
-                            item.paymentMethod === 'bank' ? 'تحويل بنكي' :
-                            item.paymentMethod === 'cheque' ? 'شيك' : 'متعدد';
-            const ccLabel = item.costCenter || item.costCenterName || '-';
-            tableHtml += `
-                <tr>
-                    <td>${idx + 1}</td>
-                    <td>${item.accountName || item.account || '-'}</td>
-                    <td style="font-weight: bold; color: #1e293b;">${fmtNum(item.amount)}</td>
-                    <td>${item.statement || ''}</td>
-                    <td style="color: #0284c7; font-weight: 600;">${ccLabel}</td>
-                    <td>${pmLabel}</td>
-                </tr>
-            `;
-        });
-    }
-    tableHtml += `
-            </tbody>
-            <tfoot>
-                <tr>
-                    <td colspan="2" style="text-align: left; font-weight: bold;">الإجمالي:</td>
-                    <td style="font-weight: bold; color: #059669; font-size: 1.1rem;">${totalAmt.toLocaleString('en-US', {minimumFractionDigits:2})}</td>
-                    <td colspan="3"></td>
-                </tr>
-            </tfoot>
-        </table>
-    `;
-
-    // Build Payment Methods Summary
-    const payMethodRadio = document.querySelector('input[name="payment_method"]:checked');
-    const payMethodVal = payMethodRadio ? payMethodRadio.value : 'cash';
-    
-    let payMethodLabel = 'نقدي';
-    if (payMethodVal === 'check') payMethodLabel = 'شيك';
-    else if (payMethodVal === 'mobile') payMethodLabel = 'تحويل بنكي';
-    else if (payMethodVal === 'hybrid') payMethodLabel = 'متعدد (تحويل وشيك)';
-    
-    let paymentHtml = `<div class="payment-section"><h3 class="section-title">طريقة الدفع: ${payMethodLabel}</h3>`;
-    
-    if (payMethodVal === 'cash') {
-        const cashAmt = document.getElementById('cash-amount') ? document.getElementById('cash-amount').value : '';
-        paymentHtml += `<p style="font-size: 1.1rem;"><strong>المبلغ النقدي:</strong> <span style="font-family: monospace; font-weight: bold; color: #059669;">${cashAmt}</span></p>`;
-    } else if (payMethodVal === 'mobile') {
-        paymentHtml += `<table class="print-table" style="margin-top:10px;">
-            <thead><tr><th>المبلغ</th><th>رقم التحويل</th><th>البيان</th></tr></thead><tbody>`;
-        const transfers = document.querySelectorAll('.transfer-row');
-        transfers.forEach(tr => {
-            const tAmt = tr.querySelector('.transfer-amount')?.value || '';
-            const tNo = tr.querySelector('.transfer-no')?.value || '';
-            const tNote = tr.querySelector('.transfer-note')?.value || '';
-            paymentHtml += `<tr><td style="font-weight: bold;">${tAmt}</td><td>${tNo}</td><td>${tNote}</td></tr>`;
-        });
-        paymentHtml += `</tbody></table>`;
-    } else if (payMethodVal === 'check') {
-        paymentHtml += `<table class="print-table" style="margin-top:10px;">
-            <thead><tr><th>المبلغ</th><th>اسم البنك</th><th>رقم الشيك</th><th>تاريخ الاستحقاق</th></tr></thead><tbody>`;
-        const cheques = document.querySelectorAll('.cheque-row');
-        cheques.forEach(cr => {
-            const cAmt = cr.querySelector('.cheque-amount')?.value || '';
-            const cBranch = cr.querySelector('.cheque-branch')?.value || '';
-            const cNo = cr.querySelector('.cheque-no')?.value || '';
-            const cDate = cr.querySelector('.cheque-date')?.value || '';
-            paymentHtml += `<tr><td style="font-weight: bold;">${cAmt}</td><td>${cBranch}</td><td>${cNo}</td><td dir="ltr">${cDate}</td></tr>`;
-        });
-        paymentHtml += `</tbody></table>`;
-    } else if (payMethodVal === 'hybrid') {
-        paymentHtml += `<h4>التحويلات البنكية</h4>`;
-        paymentHtml += `<table class="print-table" style="margin-top:10px; margin-bottom: 20px;">
-            <thead><tr><th>المبلغ</th><th>رقم التحويل</th><th>البيان</th></tr></thead><tbody>`;
-        const transfers = document.querySelectorAll('.transfer-row');
-        transfers.forEach(tr => {
-            const tAmt = tr.querySelector('.transfer-amount')?.value || '';
-            const tNo = tr.querySelector('.transfer-no')?.value || '';
-            const tNote = tr.querySelector('.transfer-note')?.value || '';
-            paymentHtml += `<tr><td style="font-weight: bold;">${tAmt}</td><td>${tNo}</td><td>${tNote}</td></tr>`;
-        });
-        paymentHtml += `</tbody></table>`;
-        
-        paymentHtml += `<h4>الشيكات</h4>`;
-        paymentHtml += `<table class="print-table" style="margin-top:10px;">
-            <thead><tr><th>المبلغ</th><th>اسم البنك</th><th>رقم الشيك</th><th>تاريخ الاستحقاق</th></tr></thead><tbody>`;
-        const cheques = document.querySelectorAll('.cheque-row');
-        cheques.forEach(cr => {
-            const cAmt = cr.querySelector('.cheque-amount')?.value || '';
-            const cBranch = cr.querySelector('.cheque-branch')?.value || '';
-            const cNo = cr.querySelector('.cheque-no')?.value || '';
-            const cDate = cr.querySelector('.cheque-date')?.value || '';
-            paymentHtml += `<tr><td style="font-weight: bold;">${cAmt}</td><td>${cBranch}</td><td>${cNo}</td><td dir="ltr">${cDate}</td></tr>`;
-        });
-        paymentHtml += `</tbody></table>`;
-    }
-    paymentHtml += `</div>`;
-
-    const logoHtml = companyLogo ? `<img src="${companyLogo}" alt="Logo" style="max-height: 80px; max-width: 150px; object-fit: contain;">` : `<div style="width: 80px; height: 80px; background: #e2e8f0; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #94a3b8; font-weight: bold;">شعار الشركة</div>`;
-
-    const html = `
-        <style>
-            .print-container {
-                max-width: 800px;
-                margin: 0 auto;
-                background: #fff;
-                padding: 30px;
-                border-radius: 8px;
-                color: #1e293b;
-            }
-            .header-flex {
-                display: flex;
-                justify-content: space-between;
-                align-items: flex-start;
-                border-bottom: 2px solid #0ea5e9;
-                padding-bottom: 15px;
-                margin-bottom: 25px;
-            }
-            .company-info h1 {
-                margin: 0 0 5px 0;
-                font-size: 1.5rem;
-                color: #0ea5e9;
-            }
-            .voucher-title {
-                text-align: center;
-                background: rgba(14, 165, 233, 0.1);
-                color: #0ea5e9;
-                padding: 8px 18px;
-                border-radius: 6px;
-                font-size: 1.4rem;
-                font-weight: 800;
-                margin: 0;
-            }
-            .meta-grid {
-                display: grid;
-                grid-template-columns: repeat(2, 1fr);
-                gap: 15px;
-                margin-bottom: 25px;
-                background: #f1f5f9;
-                padding: 15px;
-                border-radius: 8px;
-                border: 1px solid #e2e8f0;
-            }
-            .meta-item {
-                display: flex;
-                flex-direction: column;
-                gap: 4px;
-            }
-            .meta-label {
-                font-size: 0.85rem;
-                color: #64748b;
-                font-weight: 700;
-            }
-            .meta-val {
-                font-size: 1rem;
-                font-weight: bold;
-                color: #1e293b;
-            }
-            .highlight-val {
-                color: #10b981;
-                font-family: monospace;
-                font-size: 1.15rem;
-            }
-            .print-table {
-                width: 100%;
-                border-collapse: collapse;
-                margin-bottom: 25px;
-            }
-            .print-table th, .print-table td {
-                padding: 10px 12px;
-                border: 1px solid #cbd5e1;
-                text-align: right;
-                font-size: 0.95rem;
-            }
-            .print-table th {
-                background: #f8fafc;
-                font-weight: 800;
-                color: #1e293b;
-            }
-            .print-table tbody tr:nth-child(even) {
-                background: #fdfdfd;
-            }
-            .section-title {
-                border-bottom: 2px solid #e2e8f0;
-                padding-bottom: 6px;
-                margin-bottom: 12px;
-                color: #0ea5e9;
-                font-size: 1.1rem;
-            }
-            .signatures {
-                display: flex;
-                justify-content: space-between;
-                margin-top: 40px;
-                padding-top: 20px;
-            }
-            .sig-box {
-                text-align: center;
-                width: 200px;
-            }
-            .sig-line {
-                border-bottom: 1px dashed #64748b;
-                margin-bottom: 8px;
-                height: 35px;
-            }
-        </style>
-        <div class="print-container">
-            <div class="header-flex">
-                <div class="company-info">
-                    <h1>${companyName}</h1>
-                    <div style="color: #64748b; font-size: 0.85rem;">تاريخ ووقت الطباعة: ${printDateTime}</div>
-                </div>
-                <div>${logoHtml}</div>
-            </div>
-
-            <div style="display: flex; justify-content: center; margin-top: -50px; margin-bottom: 25px;">
-                <h2 class="voucher-title">${voucherType} مجمعة</h2>
-            </div>
-
-            <div class="meta-grid">
-                <div class="meta-item">
-                    <span class="meta-label">رقم المستند</span>
-                    <span class="meta-val">${voucherNo || '-'}</span>
-                </div>
-                <div class="meta-item">
-                    <span class="meta-label">تاريخ المستند</span>
-                    <span class="meta-val" dir="ltr">${voucherDate}</span>
-                </div>
-                <div class="meta-item">
-                    <span class="meta-label">حساب الاستلاف / الدفع (الرئيسي)</span>
-                    <span class="meta-val">${mainAccount}</span>
-                </div>
-                <div class="meta-item">
-                    <span class="meta-label">المستخدم / الموظف</span>
-                    <span class="meta-val">${userName}</span>
-                </div>
-                <div class="meta-item" style="grid-column: 1 / -1;">
-                    <span class="meta-label">البيان العام / الوصف</span>
-                    <span class="meta-val">${voucherDesc || '---'}</span>
-                </div>
-            </div>
-
-            <div class="meta-grid" style="background: rgba(16, 185, 129, 0.05); border-color: rgba(16, 185, 129, 0.2);">
-                <div class="meta-item">
-                    <span class="meta-label">العملة والتعادل</span>
-                    <span class="meta-val">${currency} (سعر الصرف: ${exchangeRate})</span>
-                </div>
-                <div class="meta-item">
-                    <span class="meta-label" style="color: #10b981;">الإجمالي بالمحلي</span>
-                    <span class="meta-val highlight-val">${amountLocal}</span>
-                </div>
-                <div class="meta-item">
-                    <span class="meta-label" style="color: #ef4444;">الإجمالي بالأجنبي</span>
-                    <span class="meta-val highlight-val" style="color: #ef4444;">${amountForeign}</span>
-                </div>
-            </div>
-
-            <h3 class="section-title">تفاصيل الحسابات المستفيدة</h3>
-            ${tableHtml}
-
-            ${paymentHtml}
-
-            <div class="signatures">
-                <div class="sig-box">
-                    <div class="sig-line"></div>
-                    <div class="meta-label">توقيع المستلم</div>
-                </div>
-                <div class="sig-box">
-                    <div class="sig-line"></div>
-                    <div class="meta-label">توقيع المحاسب / ${userName}</div>
-                </div>
-                <div class="sig-box">
-                    <div class="sig-line"></div>
-                    <div class="meta-label">الاعتماد / المدير</div>
-                </div>
-            </div>
-
-            <!-- User Tracking & Accountability Print Footer -->
-            <div style="margin-top: 15px; border-top: 1px dashed #cbd5e1; padding-top: 6px; font-size: 0.72rem; color: #475569; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; background: #f8fafc; padding: 4px 8px; border-radius: 6px; border: 1px solid #e2e8f0;">
-                <span>👤 المستخدم (معد الحركة): <strong>${(typeof currentVoucherList !== 'undefined' && typeof currentVoucherIndex !== 'undefined' && currentVoucherIndex >= 0 && currentVoucherList[currentVoucherIndex]) ? (currentVoucherList[currentVoucherIndex].createdByName || currentVoucherList[currentVoucherIndex].createdByUsername || currentVoucherList[currentVoucherIndex].createdBy || userName) : userName}</strong>${(typeof currentVoucherList !== 'undefined' && typeof currentVoucherIndex !== 'undefined' && currentVoucherIndex >= 0 && currentVoucherList[currentVoucherIndex] && currentVoucherList[currentVoucherIndex].updatedByName) ? ' | عُدلت بواسطة: <strong>' + currentVoucherList[currentVoucherIndex].updatedByName + '</strong>' : ''} | طُبع بواسطة: <strong>${userName}</strong> | وقت الطباعة: ${printDateTime}</span>
-                <span style="font-weight: 800; color: #0284c7;">نظام مقاييس المحاسبي الموحد ⚡</span>
-            </div>
-        </div>
-    `;
-
-    const bodyEl = document.getElementById('preview-modal-body');
-    const modalEl = document.getElementById('print-preview-modal');
-    if (bodyEl && modalEl) {
-        bodyEl.innerHTML = html;
-        modalEl.style.display = 'flex';
-    } else {
-        alert('حدث خطأ في عرض نافذة المعاينة المنبثقة.');
-    }
-}
-
 window.closePrintPreviewModal = function() {
     const modalEl = document.getElementById('print-preview-modal');
     if (modalEl) {
@@ -2127,14 +1742,48 @@ window.closePrintPreviewModal = function() {
     }
 };
 
+window.resetInlineDeleteConfirm = function() {
+    if (window._mcpDeleteConfirmInterval) {
+        clearInterval(window._mcpDeleteConfirmInterval);
+        window._mcpDeleteConfirmInterval = null;
+    }
+    window._mcpDeleteConfirmPending = false;
+    const delBtn = document.getElementById('btn-delete');
+    const delLbl = document.getElementById('btn-delete-label');
+    if (delBtn) delBtn.classList.remove('confirming-delete-active');
+    if (delLbl) delLbl.textContent = 'حذف';
+};
+
 async function confirmDelete() {
     const voucherNoEl = document.getElementById('voucher-no-display');
     const voucherNo = voucherNoEl ? voucherNoEl.value : '';
     if (!voucherNo) {
-        showToast('لا يوجد مستند لحذفه.', 'error');
+        showToast('لا يوجد مستند لحذفه.', 'error', 2600, voucherNoEl);
         return;
     }
-    if (!confirm('⚠️ هل أنت متأكد من رغبتك في حذف هذا المستند نهائياً؟\nرقم المستند: ' + voucherNo + '\n\nلا يمكن التراجع عن هذا الإجراء!')) return;
+
+    // التأكيد المدمج السريع داخل زر الحذف المعزول (Inline Fast Confirmation — الدستور الثالث الأمر 2 و 5)
+    if (!window._mcpDeleteConfirmPending) {
+        window._mcpDeleteConfirmPending = true;
+        const delBtn = document.getElementById('btn-delete');
+        const delLbl = document.getElementById('btn-delete-label');
+        if (delBtn) delBtn.classList.add('confirming-delete-active');
+        let remSec = 3;
+        if (delLbl) delLbl.textContent = `تأكيد الحذف؟ (${remSec}ث)`;
+        showToast(`⚠️ اضغط على زر (حذف) مرة ثانية خلال 3 ثوانٍ لتأكيد حذف السند رقم ${voucherNo}`, 'warning', 3200);
+        if (window._mcpDeleteConfirmInterval) clearInterval(window._mcpDeleteConfirmInterval);
+        window._mcpDeleteConfirmInterval = setInterval(() => {
+            remSec--;
+            if (remSec > 0) {
+                if (delLbl) delLbl.textContent = `تأكيد الحذف؟ (${remSec}ث)`;
+            } else {
+                window.resetInlineDeleteConfirm();
+            }
+        }, 1000);
+        return;
+    }
+
+    window.resetInlineDeleteConfirm();
     
     const type = document.getElementById('voucher-type').value;
     const storageKey = type === 'payment' ? 'erp_payments_v1' : 'erp_receipts_v1';
@@ -2223,13 +1872,26 @@ async function _saveVoucherCore() {
             saveBtn.innerHTML = originalBtnHTML;
         }
     }
-    // Helper to highlight field with red border and shake
+    // Helper to highlight field with red border, horizontal Shake Effect, smooth scroll, focus & select (Constitution 3 Directive 5)
     function highlightError(el) {
         if (!el) return;
-        el.style.border = '2px solid #ef4444';
-        el.style.boxShadow = '0 0 12px rgba(239,68,68,0.5)';
+        el.style.border = '2.5px solid #ef4444';
+        el.style.boxShadow = '0 0 16px rgba(239,68,68,0.65)';
+        el.classList.remove('shake-error');
+        void el.offsetWidth;
+        el.classList.add('shake-error');
+        try {
+            if (navigator.vibrate) navigator.vibrate([30, 40, 30]);
+            el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            el.focus();
+            if (typeof el.select === 'function') el.select();
+        } catch(e) {}
         if (typeof shakeElement === 'function') shakeElement(el);
-        setTimeout(() => { el.style.border = ''; el.style.boxShadow = ''; }, 4000);
+        setTimeout(() => {
+            el.style.border = '';
+            el.style.boxShadow = '';
+            el.classList.remove('shake-error');
+        }, 2500);
     }
 
     const type = document.getElementById('voucher-type').value;
@@ -2238,8 +1900,8 @@ async function _saveVoucherCore() {
     const mainAccSearchEl = document.getElementById('main-account-search');
     const mainAccount = (mainAccInput && (mainAccInput.getAttribute('data-id') || mainAccInput.value)) || (mainAccSearchEl ? mainAccSearchEl.value.trim() : '');
     if (!mainAccount) {
-        showToast(type === 'payment' ? 'يرجى اختيار الحساب الرئيسي (من حساب - الصرف) في الأعلى' : 'يرجى اختيار الحساب الرئيسي (إلى حساب - الاستلام) في الأعلى', 'error');
-        if (mainAccSearchEl) { highlightError(mainAccSearchEl); mainAccSearchEl.focus(); }
+        showToast(type === 'payment' ? 'يرجى اختيار الحساب الرئيسي (من حساب)' : 'يرجى اختيار الحساب الرئيسي (إلى حساب)', 'error');
+        if (mainAccSearchEl) highlightError(mainAccSearchEl);
         reEnableSave();
         return;
     }
@@ -2266,14 +1928,25 @@ async function _saveVoucherCore() {
         const costCenterId = (ccIdInput && ccIdInput.value) ? ccIdInput.value.trim() : costCenter;
         
         if (!accountName || (!accountId && !accountName)) { 
-            showToast('يرجى تحديد جميع الحسابات', 'error'); 
+            showToast('يرجى تحديد الحساب الفرعي', 'error'); 
             if(accountSearch) highlightError(accountSearch);
             reEnableSave(); 
             return; 
         }
         if (amount <= 0) { 
             showToast('المبلغ يجب أن يكون أكبر من الصفر', 'error'); 
-            highlightError(document.getElementById(`amount-${id}`));
+            const cashCont = document.getElementById(`cash-container-${id}`);
+            const bankCont = document.getElementById(`bank-container-${id}`);
+            const chequeCont = document.getElementById(`cheque-container-${id}`);
+            let firstAmtInput = null;
+            if (cashCont && cashCont.style.display !== 'none') firstAmtInput = cashCont.querySelector('.block-cash-amount');
+            else if (bankCont && bankCont.style.display !== 'none') firstAmtInput = bankCont.querySelector('.block-bank-amount');
+            else if (chequeCont && chequeCont.style.display !== 'none') firstAmtInput = chequeCont.querySelector('.block-cheque-amount');
+            if (!firstAmtInput && typeof window.toggleBlockPaymentMethod === 'function') {
+                window.toggleBlockPaymentMethod(id, 'cash');
+                firstAmtInput = block.querySelector('.block-cash-amount');
+            }
+            highlightError(firstAmtInput || document.getElementById(`amount-${id}`));
             reEnableSave(); 
             return; 
         }
@@ -2313,14 +1986,14 @@ async function _saveVoucherCore() {
                 
                 if (amt > 0) {
                     if (!tno) {
-                        showCenterError(`الحساب ${accountName} - السطر ${i + 1}:<br><br>يرجى إدخال رقم حساب التحويل البنكي!`, 'empty');
+                        showToast(`يرجى إدخال رقم التحويلة البنكية للحساب (${accountName})`, 'error');
                         highlightError(row.querySelector('.block-transfer-no-input'));
                         hasInvalidTransfer = true;
                         break;
                     }
                     const cleanDigits = String(tno).replace(/\D/g, '');
                     if (cleanDigits.length < 6) {
-                        showCenterError(`رقم التحويل البنكي للحساب ( ${accountName} - السطر ${i + 1} ) غير صالح!<br><br>يحتوي على ${cleanDigits.length} أرقام فقط. يشترط النظام 6 أرقام على الأقل، ويمنع الحفظ نهائياً لأي تحويلة أقل من 6 أرقام.`, 'short');
+                        showToast(`رقم التحويل البنكي للحساب (${accountName}) يجب أن لا يقل عن 6 أرقام`, 'error');
                         highlightError(row.querySelector('.block-transfer-no-input'));
                         hasInvalidTransfer = true;
                         break;
@@ -2372,13 +2045,13 @@ async function _saveVoucherCore() {
                 
                 if (amt > 0) {
                     if (!bank) {
-                        showCenterError(`الحساب ${accountName} - السطر ${i + 1}:<br><br>يرجى إدخال اسم البنك الخاص بالشيك!`, 'empty');
+                        showToast(`يرجى إدخال اسم بنك الشيك للحساب (${accountName})`, 'error');
                         highlightError(row.querySelector('.block-cheque-bank-input'));
                         hasInvalidCheque = true;
                         break;
                     }
                     if (!no) {
-                        showCenterError(`الحساب ${accountName} - السطر ${i + 1}:<br><br>يرجى إدخال رقم الشيك!`, 'empty');
+                        showToast(`يرجى إدخال رقم الشيك للحساب (${accountName})`, 'error');
                         highlightError(row.querySelector('.block-cheque-no-input'));
                         hasInvalidCheque = true;
                         break;
@@ -2456,25 +2129,25 @@ async function _saveVoucherCore() {
         }
     }
 
-    // Enterprise Idempotency Verification with server to prevent microsecond double commits
+    // 0ms Local Idempotency Verification + Non-Blocking Background Check (2G Resilience - Article 2)
+    window._localCommittedIdempotencyKeys = window._localCommittedIdempotencyKeys || new Set();
     if (window.IdempotencyGuard) {
-        try {
-            const currentKey = window.IdempotencyGuard.getKey();
-            const fd = new FormData();
-            fd.append('action', 'verify_idempotency');
-            fd.append('idempotency_key', currentKey);
-            fd.append('voucher_no', vNo);
-            fd.append('user_name', window.ConcurrencyLockManager ? window.ConcurrencyLockManager.getUserName() : 'محاسب');
-
-            const chkResp = await fetch('multi-cash-payment.php', { method: 'POST', body: fd });
-            const chkData = await chkResp.json();
-            if (chkData && chkData.duplicate) {
-                showToast('⚠️ تنبيه: تم استلام هذا السند مسبقاً وتأمينه ضد التكرار اللحظي (Idempotency Protection)', 'warning');
-                reEnableSave();
-                return;
-            }
-        } catch(e) {
-            console.warn('Idempotency check network warning:', e);
+        const currentKey = window.IdempotencyGuard.getKey();
+        if (window._localCommittedIdempotencyKeys.has(currentKey)) {
+            showToast('⚠️ تم حفظ هذا السند مسبقاً وتأمينه ضد التكرار اللحظي', 'warning');
+            reEnableSave();
+            return;
+        }
+        window._localCommittedIdempotencyKeys.add(currentKey);
+        if (navigator.onLine !== false) {
+            try {
+                const fd = new FormData();
+                fd.append('action', 'verify_idempotency');
+                fd.append('idempotency_key', currentKey);
+                fd.append('voucher_no', vNo);
+                fd.append('user_name', window.ConcurrencyLockManager ? window.ConcurrencyLockManager.getUserName() : 'محاسب');
+                fetch('multi-cash-payment.php', { method: 'POST', body: fd }).catch(() => {});
+            } catch(e) {}
         }
     }
 
@@ -2575,6 +2248,9 @@ async function _saveVoucherCore() {
             window.pushToCloud(true);
         }
         try {
+            if (window.McpMicroSyncEngine && typeof window.McpMicroSyncEngine.enqueue === 'function') {
+                window.McpMicroSyncEngine.enqueue(voucher);
+            }
             if (!navigator.onLine && window.MagaiesOffline && typeof window.MagaiesOffline.enqueue === 'function') {
                 window.MagaiesOffline.enqueue('finance', voucher, vNo);
             }
@@ -2616,6 +2292,9 @@ async function _saveVoucherCore() {
         
         // Clear dirty flag so user doesn't get unsaved changes warning on exit
         if (typeof formDirty !== 'undefined') formDirty = false;
+        if (window.McpAutoDraftEngine && typeof window.McpAutoDraftEngine.clear === 'function') {
+            window.McpAutoDraftEngine.clear();
+        }
 
         const mainAccName = document.getElementById('main-account-search') ? document.getElementById('main-account-search').value : 'الحساب الرئيسي';
         const subNames = voucher.items.map(i => i.accountName).join(' و ');
@@ -2891,7 +2570,7 @@ function renderAccountDropdown(type, filter = '') {
             div.innerHTML = `
                 <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
                     <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-                        <span style="font-weight: bold; color: #fff;">${highlightedName}</span>
+                        <span class="dropdown-item-title" style="font-weight: bold;">${highlightedName}</span>
                         ${codeBadges.join('')}
                     </div>
                     ${typeTag}
@@ -2914,6 +2593,21 @@ function renderAccountDropdown(type, filter = '') {
             note.innerText = `عرض أول 50 حساب من أصل ${totalFound}. يرجى تضييق نطاق البحث.`;
             listEl.appendChild(note);
         }
+
+        // Quick-Add Account row inside dropdown (Article 9)
+        const quickAddDiv = document.createElement('div');
+        quickAddDiv.className = 'custom-dropdown-item';
+        quickAddDiv.style.cssText = 'padding: 9px 12px; cursor: pointer; background: rgba(16, 185, 129, 0.14); border-top: 1.5px dashed rgba(16, 185, 129, 0.45); color: #10b981; font-weight: 900; font-size: 0.9rem; display: flex; align-items: center; justify-content: space-between;';
+        const prefillText = (filter || '').trim();
+        quickAddDiv.innerHTML = `<span>➕ ${prefillText ? `إضافة حساب جديد باسم "${prefillText}"...` : 'إضافة حساب جديد فوراً (عميل / مورد / خزينة / بنك / مصروف)...'}</span><span style="font-size:0.78rem; padding:2px 7px; border-radius:6px; background:rgba(16,185,129,0.2);">فوري ⚡</span>`;
+        quickAddDiv.onmousedown = (e) => {
+            e.stopPropagation();
+            e.preventDefault();
+            if (typeof window.openQuickAddAccountModal === 'function') {
+                window.openQuickAddAccountModal(type, prefillText);
+            }
+        };
+        listEl.appendChild(quickAddDiv);
 
     } catch (e) {
         console.error('Error rendering accounts:', e);
@@ -2998,16 +2692,20 @@ window.selectAccount = function(type, id, name) {
     }
 };
 
-if (!window.normalizeArabic) {
-    window.normalizeArabic = function(text) {
-        if (!text) return '';
-        return text.toString()
-            .replace(/[أإآ]/g, 'ا')
-            .replace(/ة/g, 'ه')
-            .replace(/ى/g, 'ي')
-            .toLowerCase();
-    };
-}
+window.normalizeArabic = function(text) {
+    if (!text) return '';
+    return text.toString()
+        .replace(/[\u064B-\u065F\u0670\u0640]/g, '')
+        .replace(/[أإآٱ]/g, 'ا')
+        .replace(/ة/g, 'ه')
+        .replace(/[ىئ]/g, 'ي')
+        .replace(/ؤ/g, 'و')
+        .replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d))
+        .replace(/[۰-۹]/g, d => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d))
+        .replace(/\s+/g, ' ')
+        .trim()
+        .toLowerCase();
+};
 
 // ═══════════════════════════════════════════════════════
 // Custom Dropdown Logic for Analytical Cost Centers & Projects
@@ -3202,7 +2900,7 @@ function renderCostCenterDropdown(blockId, filter = '') {
 
         const highName = window.highlightSearchMatches ? window.highlightSearchMatches(c.name, filter) : c.name;
         div.innerHTML = `
-            <div style="font-weight:700; color:#ffffff; font-size:0.92rem; text-overflow:ellipsis; overflow:hidden; white-space:nowrap;">${highName}</div>
+            <div class="dropdown-item-title" style="font-weight:700; font-size:0.92rem; text-overflow:ellipsis; overflow:hidden; white-space:nowrap;">${highName}</div>
             ${tagBadge}
         `;
         div.onmousedown = (e) => {
@@ -4091,7 +3789,7 @@ window.removeTransferRow = function(btn) {
     }
 };
 
-window.addChequeRow = function(branch = '', no = '', date = '', amt = 0) {
+window.addLegacyHeaderChequeRow = function(branch = '', no = '', date = '', amt = 0) {
     const container = document.getElementById('cheques-container');
     if (!container) return;
 
@@ -4425,10 +4123,14 @@ window.checkTransferDuplicate = async function(tno, currentVoucherId) {
     for (let key of keys) {
         let vouchers = [];
         try {
-            // Using localStorage since all vouchers are typically stored there, but fallback to localforage just in case
-            vouchers = JSON.parse(localStorage.getItem(key)) || [];
-            if (!vouchers.length && typeof localforage !== 'undefined') {
-                vouchers = (await localforage.getItem(key)) || [];
+            const raw = localStorage.getItem(key);
+            if (raw !== null) {
+                vouchers = JSON.parse(raw) || [];
+            } else if (typeof localforage !== 'undefined') {
+                vouchers = (await Promise.race([
+                    localforage.getItem(key),
+                    new Promise(r => setTimeout(() => r([]), 120))
+                ])) || [];
             }
         } catch(e) { continue; }
         
@@ -4607,33 +4309,76 @@ window.saveNumberProperties = function() {
     }
 };
 
-// --- Custom Keyboard Navigation Flow (Enter & Ctrl+Enter) ---
+// --- Cursor Silk-Flow Keyboard Navigation Engine (انسيابية الكيرسر المطلقة) ---
+function focusFirstActiveAmountInBlock(block) {
+    if (!block) return;
+    const blockId = block.getAttribute('data-block-id') || block.id.replace('block-', '');
+    const cashDet = document.getElementById(`cash-details-${blockId}`);
+    const bankDet = document.getElementById(`bank-details-${blockId}`);
+    const chqDet = document.getElementById(`cheque-details-${blockId}`);
+
+    if (cashDet && cashDet.style.display !== 'none') {
+        const el = block.querySelector('.block-cash-amount');
+        if (el) { el.focus(); el.select(); return; }
+    }
+    if (bankDet && bankDet.style.display !== 'none') {
+        const el = block.querySelector('.block-bank-amount');
+        if (el) { el.focus(); el.select(); return; }
+    }
+    if (chqDet && chqDet.style.display !== 'none') {
+        const el = block.querySelector('.block-cheque-amount');
+        if (el) { el.focus(); el.select(); return; }
+    }
+    if (typeof window.toggleBlockPaymentMethod === 'function') {
+        window.toggleBlockPaymentMethod(blockId, 'cash');
+    }
+    setTimeout(() => {
+        const el = block.querySelector('.block-cash-amount, .block-bank-amount, .block-cheque-amount');
+        if (el) { el.focus(); el.select(); }
+    }, 30);
+}
+
+function focusNextBlockOrSave(block, forceNewBlock) {
+    if (forceNewBlock && typeof window.addAccountBlock === 'function') {
+        window.addAccountBlock();
+        setTimeout(() => {
+            const blocks = document.querySelectorAll('.account-block');
+            const lastBlock = blocks[blocks.length - 1];
+            const acctSearch = lastBlock ? lastBlock.querySelector('.block-account-search') : null;
+            if (acctSearch) { acctSearch.focus(); acctSearch.select(); }
+        }, 40);
+        return;
+    }
+    if (block && block.nextElementSibling && block.nextElementSibling.classList.contains('account-block')) {
+        const nextAcct = block.nextElementSibling.querySelector('.block-account-search');
+        if (nextAcct) { nextAcct.focus(); nextAcct.select(); return; }
+    }
+    const saveBtn = document.getElementById('btn-save');
+    if (saveBtn) saveBtn.focus();
+}
+
 document.addEventListener('keydown', function(e) {
     const active = document.activeElement;
     if (!active) return;
 
-    // --- Ctrl + Enter : Switch to Cheque Mode ---
-    if (e.ctrlKey && e.key === 'Enter') {
+    // --- Alt + N : Quick-Add Account or Cost Center for Active Field ---
+    if (e.altKey && (e.key === 'n' || e.key === 'N' || e.key === 'ى')) {
         e.preventDefault();
-        const block = active.closest('.account-block');
-        if (block) {
-            const chequeBtn = block.querySelector('.block-btn-cheque');
-            if (chequeBtn) {
-                // Click it to ensure it opens
-                chequeBtn.click();
-                setTimeout(() => {
-                    const chequeAmount = block.querySelector('.block-cheque-amount');
-                    if (chequeAmount) {
-                        chequeAmount.focus();
-                        chequeAmount.select();
-                    }
-                }, 100);
-            }
+        if (active.classList.contains('block-cost-center')) {
+            const block = active.closest('.account-block');
+            const bid = block ? block.getAttribute('data-block-id') : '1';
+            if (typeof window.openQuickAddCostCenterModal === 'function') window.openQuickAddCostCenterModal(bid);
+        } else if (active.classList.contains('block-account-search')) {
+            const prefix = active.id.replace('-search', '');
+            if (typeof window.openQuickAddAccountModal === 'function') window.openQuickAddAccountModal(prefix, active.value);
+        } else {
+            if (typeof window.openQuickAddAccountModal === 'function') window.openQuickAddAccountModal('main-account', active.id === 'main-account-search' ? active.value : '');
         }
         return;
     }
 
-    if (e.key === 'Enter' && e.ctrlKey) {
+    // --- Ctrl + Enter : Switch to Cheque Mode ---
+    if (e.ctrlKey && e.key === 'Enter') {
         const block = active.closest('.account-block');
         if (block) {
             e.preventDefault();
@@ -4642,317 +4387,272 @@ document.addEventListener('keydown', function(e) {
             if (btnCheque && !btnCheque.classList.contains('active')) {
                 if (typeof window.toggleBlockPaymentMethod === 'function') {
                     window.toggleBlockPaymentMethod(blockId, 'cheque');
+                } else {
+                    btnCheque.click();
                 }
             }
             setTimeout(() => {
                 const amtEl = block.querySelector('.block-cheque-amount');
                 if (amtEl) { amtEl.focus(); amtEl.select(); }
-            }, 50);
+            }, 40);
         }
         return;
     }
 
     if (e.key === 'Enter' && !e.ctrlKey) {
-        
-        // 1. main-account-search -> account-search input of first block
+        // 0. Header sequence: voucher-no-display -> voucher-date -> voucher-ref -> main-account-search -> currency -> voucher-desc -> first block
+        if (active.id === 'voucher-no-display') {
+            e.preventDefault();
+            const dt = document.getElementById('voucher-date');
+            if (dt) dt.focus();
+            return;
+        }
+        if (active.id === 'voucher-date') {
+            e.preventDefault();
+            const ref = document.getElementById('voucher-ref');
+            if (ref) { ref.focus(); ref.select(); }
+            return;
+        }
+        if (active.id === 'voucher-ref') {
+            e.preventDefault();
+            const mainAcc = document.getElementById('main-account-search');
+            if (mainAcc) { mainAcc.focus(); mainAcc.select(); }
+            return;
+        }
+        if (active.id === 'currency' || active.id === 'exchange-rate') {
+            e.preventDefault();
+            const vDesc = document.getElementById('voucher-desc');
+            if (vDesc) { vDesc.focus(); vDesc.select(); }
+            return;
+        }
+        if (active.id === 'voucher-desc') {
+            e.preventDefault();
+            const firstAccount = document.querySelector('.block-account-search');
+            if (firstAccount) { firstAccount.focus(); firstAccount.select(); }
+            return;
+        }
+
+        // 1. main-account-search -> select item if dropdown open, then move to voucher-desc or first block
         if (active.id === 'main-account-search') {
+            e.preventDefault();
             const list = document.getElementById('main-account-dropdown-list');
             if (list && list.style.display !== 'none' && list.innerHTML.trim() !== '') {
-                // Dropdown is open. Auto-select first item and jump to first receiving account
-                e.preventDefault();
-                const firstItem = list.querySelector('.custom-dropdown-item');
-                if (firstItem) {
-                    const id = firstItem.dataset.id;
-                    const name = firstItem.dataset.name;
+                const chosen = list.querySelector('.custom-dropdown-item.keyboard-active') || list.querySelector('.custom-dropdown-item');
+                if (chosen) {
+                    const id = chosen.dataset.id;
+                    const name = chosen.dataset.name;
                     if (id && name && typeof selectAccount === 'function') {
                         selectAccount('main-account', id, name);
                     }
                 }
-                setTimeout(() => {
-                    const firstAccount = document.querySelector('.block-account-search');
-                    if (firstAccount) {
-                        firstAccount.focus();
-                        firstAccount.select();
-                        const blockId = firstAccount.id.replace(/^account-|-search$/g, '');
-                        if (typeof showAccountDropdown === 'function') {
-                            showAccountDropdown('account-' + blockId);
-                        }
-                    }
-                }, 100);
-                return;
-            } else {
-                // Second enter (dropdown closed) jumps to first account search
-                e.preventDefault();
+            }
+            setTimeout(() => {
+                const vDesc = document.getElementById('voucher-desc');
                 const firstAccount = document.querySelector('.block-account-search');
-                if (firstAccount) {
+                if (vDesc && !vDesc.value.trim() && !e.shiftKey) {
+                    vDesc.focus();
+                    vDesc.select();
+                } else if (firstAccount) {
                     firstAccount.focus();
                     firstAccount.select();
-                    const blockId = firstAccount.id.replace(/^account-|-search$/g, '');
-                    if (typeof showAccountDropdown === 'function') {
-                        showAccountDropdown('account-' + blockId);
-                    }
                 }
-                return;
-            }
-        }
-        
-        // 2. amount-* -> account-*-search
-        if (active.classList.contains('block-total-amount')) {
-            e.preventDefault();
-            const block = active.closest('.account-block');
-            if (block) {
-                const acctSearch = block.querySelector('.block-account-search');
-                if (acctSearch) { acctSearch.focus(); acctSearch.select(); }
-            }
+            }, 35);
             return;
         }
 
-        // 3. account-*-search -> bank amount
+        // 2. block-account-search -> select item if dropdown open, then move to statement-{ID}
         if (active.classList.contains('block-account-search')) {
+            e.preventDefault();
             const type = active.id.replace('-search', '');
-            const listId = type + '-dropdown-list';
-            const list = document.getElementById(listId);
+            const list = document.getElementById(type + '-dropdown-list');
             if (list && list.style.display !== 'none' && list.innerHTML.trim() !== '') {
-                // Dropdown open, auto-select first item
-                e.preventDefault();
-                const firstItem = list.querySelector('.custom-dropdown-item');
-                if (firstItem) {
-                    const id = firstItem.dataset.id;
-                    const name = firstItem.dataset.name;
+                const chosen = list.querySelector('.custom-dropdown-item.keyboard-active') || list.querySelector('.custom-dropdown-item');
+                if (chosen) {
+                    const id = chosen.dataset.id;
+                    const name = chosen.dataset.name;
                     if (id && name && typeof selectAccount === 'function') {
                         selectAccount(type, id, name);
                     }
                 }
-                return; 
-            } else {
-                e.preventDefault();
-                const block = active.closest('.account-block');
-                if (block) {
-                    const blockId = block.getAttribute('data-block-id') || block.id.replace('block-', '');
-                    const btnBank = block.querySelector('.block-btn-bank');
-                    if (btnBank && !btnBank.classList.contains('active')) {
-                        if (typeof window.toggleBlockPaymentMethod === 'function') {
-                            window.toggleBlockPaymentMethod(blockId, 'bank');
-                        }
-                    }
-                    setTimeout(() => {
-                        const amtEl = block.querySelector('.block-bank-amount');
-                        if (amtEl ) { amtEl.focus(); amtEl.select(); }
-                    }, 50);
-                }
-                return;
             }
-        }
-
-        // 4. bank toggle -> bank amount
-        if (active.classList.contains('block-btn-bank')) {
-            setTimeout(() => {
-                const block = active.closest('.account-block');
-                if (block) {
-                    const amt = block.querySelector('.block-bank-amount');
-                    if (amt && amt.offsetParent !== null) {
-                        amt.focus();
-                        amt.select();
-                    }
-                }
-            }, 50);
-            return;
-        }
-
-        if (active.classList.contains('block-btn-cheque')) {
-            setTimeout(() => {
-                const block = active.closest('.account-block');
-                if (block) {
-                    const amt = block.querySelector('.block-cheque-amount');
-                    if (amt && amt.offsetParent !== null) {
-                        amt.focus();
-                        amt.select();
-                    }
-                }
-            }, 50);
-            return;
-        }
-
-        // 5. statement-* -> create new block and focus its account search
-        if (active.id && active.id.startsWith('statement-')) {
-            e.preventDefault();
-            if (typeof window.addAccountBlock === 'function') {
-                window.addAccountBlock();
+            const block = active.closest('.account-block');
+            if (block) {
+                const blockId = block.getAttribute('data-block-id') || block.id.replace('block-', '');
                 setTimeout(() => {
-                    const blocks = document.querySelectorAll('.account-block');
-                    if (blocks.length > 0) {
-                        const lastBlock = blocks[blocks.length - 1];
-                        const acctSearch = lastBlock.querySelector('.block-account-search');
-                        if (acctSearch) {
-                            acctSearch.focus();
-                            acctSearch.select();
-                        }
-                    }
-                }, 100);
-            }
-            return;
-        }
-        
-        // --- Bank Details Navigation ---
-        // 6. bank amount -> bank name
-        if (active.classList.contains('block-bank-amount')) {
-            e.preventDefault();
-            const row = active.closest('.bank-row');
-            if (row) {
-                const nameInp = row.querySelector('.block-bank-name-input');
-                if (nameInp) { nameInp.focus(); nameInp.select(); }
-            }
-            return;
-        }
-        
-        // 7. bank name -> transfer no
-        if (active.classList.contains('block-bank-name-input')) {
-            e.preventDefault();
-            const row = active.closest('.bank-row');
-            if (row) {
-                const trNo = row.querySelector('.block-transfer-no-input');
-                if (trNo) { trNo.focus(); trNo.select(); }
+                    const stmtEl = document.getElementById(`statement-${blockId}`);
+                    if (stmtEl) { stmtEl.focus(); stmtEl.select(); }
+                    else focusFirstActiveAmountInBlock(block);
+                }, 35);
             }
             return;
         }
 
-        // 8. transfer no -> bank desc
-        if (active.classList.contains('block-transfer-no-input')) {
-            e.preventDefault();
-            const row = active.closest('.bank-row');
-            if (row) {
-                const desc = row.querySelector('.block-bank-desc-input');
-                if (desc) { desc.focus(); desc.select(); }
-                else {
-                    const block = active.closest('.account-block');
-                    if (block) {
-                        const btn = block.querySelector('[data-action="add-bank-row"]');
-                        if (btn) btn.focus();
-                    }
-                }
-            }
-            return;
-        }
-        
-        // 9. bank desc -> trigger add bank row and focus amount
-        if (active.classList.contains('block-bank-desc-input')) {
+        // 3. statement-* -> cost-center-{ID}
+        if (active.id && active.id.startsWith('statement-')) {
             e.preventDefault();
             const block = active.closest('.account-block');
             if (block) {
+                const blockId = block.getAttribute('data-block-id') || active.id.replace('statement-', '');
+                const ccEl = document.getElementById(`cost-center-${blockId}`);
+                if (ccEl) { ccEl.focus(); ccEl.select(); }
+                else focusFirstActiveAmountInBlock(block);
+            }
+            return;
+        }
+
+        // 4. cost-center-* -> select item if dropdown open, then move to active payment amount in block
+        if (active.classList.contains('block-cost-center')) {
+            e.preventDefault();
+            const block = active.closest('.account-block');
+            if (block) {
+                const blockId = block.getAttribute('data-block-id') || active.id.replace('cost-center-', '');
+                const ccList = document.getElementById(`cost-center-${blockId}-dropdown-list`);
+                if (ccList && ccList.style.display !== 'none' && ccList.innerHTML.trim() !== '') {
+                    const chosen = ccList.querySelector('.custom-dropdown-item.keyboard-active') || ccList.querySelector('.custom-dropdown-item');
+                    if (chosen && chosen.dataset.name && typeof selectCostCenter === 'function') {
+                        selectCostCenter(blockId, chosen.dataset.id || chosen.dataset.name, chosen.dataset.name);
+                    }
+                    ccList.style.display = 'none';
+                    ccList.classList.remove('show');
+                }
+                setTimeout(() => focusFirstActiveAmountInBlock(block), 30);
+            }
+            return;
+        }
+
+        // 5. Cash Details Navigation
+        if (active.classList.contains('block-cash-amount')) {
+            e.preventDefault();
+            if (typeof window.evaluateMcpInlineMath === 'function') window.evaluateMcpInlineMath(active);
+            const row = active.closest('.cash-row');
+            const desc = row ? row.querySelector('.block-cash-desc-input') : null;
+            if (desc) { desc.focus(); desc.select(); }
+            return;
+        }
+        if (active.classList.contains('block-cash-desc-input')) {
+            e.preventDefault();
+            const block = active.closest('.account-block');
+            if (block) {
+                const blockId = block.getAttribute('data-block-id');
+                const bankDet = document.getElementById(`bank-details-${blockId}`);
+                const chqDet = document.getElementById(`cheque-details-${blockId}`);
+                if (bankDet && bankDet.style.display !== 'none') {
+                    const bAmt = block.querySelector('.block-bank-amount');
+                    if (bAmt) { bAmt.focus(); bAmt.select(); return; }
+                }
+                if (chqDet && chqDet.style.display !== 'none') {
+                    const cAmt = block.querySelector('.block-cheque-amount');
+                    if (cAmt) { cAmt.focus(); cAmt.select(); return; }
+                }
+                focusNextBlockOrSave(block, e.shiftKey);
+            }
+            return;
+        }
+
+        // 6. Bank Details Navigation
+        if (active.classList.contains('block-bank-amount')) {
+            e.preventDefault();
+            if (typeof window.evaluateMcpInlineMath === 'function') window.evaluateMcpInlineMath(active);
+            const row = active.closest('.bank-row');
+            const nameInp = row ? row.querySelector('.block-bank-name-input') : null;
+            if (nameInp) { nameInp.focus(); nameInp.select(); }
+            return;
+        }
+        if (active.classList.contains('block-bank-name-input')) {
+            e.preventDefault();
+            const row = active.closest('.bank-row');
+            const trNo = row ? row.querySelector('.block-transfer-no-input') : null;
+            if (trNo) { trNo.focus(); trNo.select(); }
+            return;
+        }
+        if (active.classList.contains('block-transfer-no-input')) {
+            e.preventDefault();
+            const row = active.closest('.bank-row');
+            const desc = row ? row.querySelector('.block-bank-desc-input') : null;
+            if (desc) { desc.focus(); desc.select(); }
+            return;
+        }
+        if (active.classList.contains('block-bank-desc-input')) {
+            e.preventDefault();
+            const row = active.closest('.bank-row');
+            const block = active.closest('.account-block');
+            if (e.shiftKey && block) {
                 const btn = block.querySelector('[data-action="add-bank-row"]');
                 if (btn) {
                     btn.click();
                     setTimeout(() => {
                         const bankAmts = block.querySelectorAll('.block-bank-amount');
-                        if (bankAmts.length > 0) {
-                            bankAmts[bankAmts.length - 1].focus();
-                            bankAmts[bankAmts.length - 1].select();
-                        }
-                    }, 50);
+                        if (bankAmts.length > 0) { bankAmts[bankAmts.length - 1].focus(); bankAmts[bankAmts.length - 1].select(); }
+                    }, 40);
+                    return;
                 }
+            }
+            if (row && row.nextElementSibling && row.nextElementSibling.classList.contains('bank-row')) {
+                const nextAmt = row.nextElementSibling.querySelector('.block-bank-amount');
+                if (nextAmt) { nextAmt.focus(); nextAmt.select(); return; }
+            }
+            if (block) {
+                const blockId = block.getAttribute('data-block-id');
+                const chqDet = document.getElementById(`cheque-details-${blockId}`);
+                if (chqDet && chqDet.style.display !== 'none') {
+                    const cAmt = block.querySelector('.block-cheque-amount');
+                    if (cAmt) { cAmt.focus(); cAmt.select(); return; }
+                }
+                focusNextBlockOrSave(block, false);
             }
             return;
         }
 
-        // Handle enter on 'add-bank-row' button to focus new amount
-        if (active.getAttribute('data-action') === 'add-bank-row') {
-            setTimeout(() => {
-                const block = active.closest('.account-block');
-                if (block) {
-                    const bankAmts = block.querySelectorAll('.block-bank-amount');
-                    if (bankAmts.length > 0) {
-                        bankAmts[bankAmts.length - 1].focus();
-                        bankAmts[bankAmts.length - 1].select();
-                    }
-                }
-            }, 50);
-            return;
-        }
-
-        // --- Cheque Details Navigation ---
-        // 10. cheque amount -> cheque bank name
+        // 7. Cheque Details Navigation
         if (active.classList.contains('block-cheque-amount')) {
             e.preventDefault();
+            if (typeof window.evaluateMcpInlineMath === 'function') window.evaluateMcpInlineMath(active);
             const row = active.closest('.cheque-row');
-            if (row) {
-                const nameInp = row.querySelector('.block-cheque-bank-input');
-                if (nameInp) { nameInp.focus(); nameInp.select(); }
-            }
+            const nameInp = row ? row.querySelector('.block-cheque-bank-input') : null;
+            if (nameInp) { nameInp.focus(); nameInp.select(); }
             return;
         }
-
-        // 11. cheque name -> cheque no
         if (active.classList.contains('block-cheque-bank-input')) {
             e.preventDefault();
             const row = active.closest('.cheque-row');
-            if (row) {
-                const chqNo = row.querySelector('.block-cheque-no-input');
-                if (chqNo) { chqNo.focus(); chqNo.select(); }
-            }
+            const chqNo = row ? row.querySelector('.block-cheque-no-input') : null;
+            if (chqNo) { chqNo.focus(); chqNo.select(); }
             return;
         }
-
-        // 12. cheque no -> cheque date
         if (active.classList.contains('block-cheque-no-input')) {
             e.preventDefault();
             const row = active.closest('.cheque-row');
-            if (row) {
-                const chqDate = row.querySelector('.block-cheque-date-input');
-                if (chqDate) { chqDate.focus(); }
-            }
+            const chqDate = row ? row.querySelector('.block-cheque-date-input') : null;
+            if (chqDate) chqDate.focus();
             return;
         }
-
-        // 13. cheque date -> cheque desc
         if (active.classList.contains('block-cheque-date-input')) {
             e.preventDefault();
             const row = active.closest('.cheque-row');
-            if (row) {
-                const desc = row.querySelector('.block-cheque-desc-input');
-                if (desc) { desc.focus(); desc.select(); }
-                else {
-                    const block = active.closest('.account-block');
-                    if (block) {
-                        const btn = block.querySelector('[data-action="add-cheque-row"]');
-                        if (btn) btn.focus();
-                    }
-                }
-            }
+            const desc = row ? row.querySelector('.block-cheque-desc-input') : null;
+            if (desc) { desc.focus(); desc.select(); }
             return;
         }
-
-        // 14. cheque desc -> trigger add cheque row and focus amount
         if (active.classList.contains('block-cheque-desc-input')) {
             e.preventDefault();
+            const row = active.closest('.cheque-row');
             const block = active.closest('.account-block');
-            if (block) {
+            if (e.shiftKey && block) {
                 const btn = block.querySelector('[data-action="add-cheque-row"]');
                 if (btn) {
                     btn.click();
                     setTimeout(() => {
                         const chqAmts = block.querySelectorAll('.block-cheque-amount');
-                        if (chqAmts.length > 0) {
-                            chqAmts[chqAmts.length - 1].focus();
-                            chqAmts[chqAmts.length - 1].select();
-                        }
-                    }, 50);
+                        if (chqAmts.length > 0) { chqAmts[chqAmts.length - 1].focus(); chqAmts[chqAmts.length - 1].select(); }
+                    }, 40);
+                    return;
                 }
             }
-            return;
-        }
-
-        // Handle enter on 'add-cheque-row' button to focus new amount
-        if (active.getAttribute('data-action') === 'add-cheque-row') {
-            setTimeout(() => {
-                const block = active.closest('.account-block');
-                if (block) {
-                    const chqAmts = block.querySelectorAll('.block-cheque-amount');
-                    if (chqAmts.length > 0) {
-                        chqAmts[chqAmts.length - 1].focus();
-                        chqAmts[chqAmts.length - 1].select();
-                    }
-                }
-            }, 50);
+            if (row && row.nextElementSibling && row.nextElementSibling.classList.contains('cheque-row')) {
+                const nextAmt = row.nextElementSibling.querySelector('.block-cheque-amount');
+                if (nextAmt) { nextAmt.focus(); nextAmt.select(); return; }
+            }
+            focusNextBlockOrSave(block, false);
             return;
         }
     }
@@ -6243,14 +5943,19 @@ window.generateBarcodeSVG = function(vNo) {
 window._waQrCache = window._waQrCache || {};
 window.getVoucherQRCode = async function(text) {
     if (window._waQrCache[text]) return window._waQrCache[text];
-    try {
-        const res = await fetch(`api_index.php?r=wa-tenant&endpoint=generate-qr&text=${encodeURIComponent(text)}`);
-        const data = await res.json();
-        if (data && data.success && data.dataUrl) {
-            window._waQrCache[text] = data.dataUrl;
-            return data.dataUrl;
-        }
-    } catch(e) {}
+    if (navigator.onLine !== false) {
+        try {
+            const ctrl = typeof AbortController !== 'undefined' ? new AbortController() : null;
+            const timer = ctrl ? setTimeout(() => ctrl.abort(), 850) : null;
+            const res = await fetch(`api_index.php?r=wa-tenant&endpoint=generate-qr&text=${encodeURIComponent(text)}`, { signal: ctrl ? ctrl.signal : undefined });
+            if (timer) clearTimeout(timer);
+            const data = await res.json();
+            if (data && data.success && data.dataUrl) {
+                window._waQrCache[text] = data.dataUrl;
+                return data.dataUrl;
+            }
+        } catch(e) {}
+    }
     const fallbackUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(text)}`;
     window._waQrCache[text] = fallbackUrl;
     return fallbackUrl;
@@ -7548,7 +7253,7 @@ window.syncWAAutoDispatchUI = function() {
             if (autoSendIcon) autoSendIcon.innerHTML = '💾';
             if (autoSendLabel) autoSendLabel.textContent = 'إرسال تلقائي:';
             if (autoSendPill) {
-                autoSendPill.textContent = 'معطّل (حفظ فقط)';
+                autoSendPill.textContent = 'معطّل';
                 autoSendPill.style.background = 'rgba(148, 163, 184, 0.25)';
                 autoSendPill.style.color = '#cbd5e1';
                 autoSendPill.style.boxShadow = 'none';
@@ -7558,17 +7263,18 @@ window.syncWAAutoDispatchUI = function() {
 
     if (saveBtn && !window.IdempotencyGuard?.isSaving && !saveBtn.disabled) {
         if (s.enabled) {
-            saveBtn.title = 'حفظ واعتماد السند وإرسال الكمبيالة مباشرة عبر الواتساب ⚡';
+            saveBtn.title = 'حفظ السند وإرسال الإشعار عبر الواتساب (F10) ⚡';
             saveBtn.innerHTML = `
                 <span>✅</span>
-                <span>حفظ وإرسال السند</span>
-                <span style="font-size: 0.8rem; background: rgba(0,0,0,0.28); padding: 1px 7px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.3); font-weight: 800;">⚡ إرسال</span>
+                <span>حفظ وإرسال</span>
+                <kbd class="shortcut-kbd">F10</kbd>
             `;
         } else {
-            saveBtn.title = 'حفظ واعتماد وترحيل السند المالي فقط في النظام (بدون إرسال)';
+            saveBtn.title = 'حفظ وترحيل السند المالي (F10)';
             saveBtn.innerHTML = `
                 <span>✅</span>
-                <span>حفظ واعتماد السند</span>
+                <span>حفظ السند</span>
+                <kbd class="shortcut-kbd">F10</kbd>
             `;
         }
     }
@@ -8094,8 +7800,8 @@ window.executeWASend = async function(method = 'gateway') {
                     alertEl.style.color = '#f87171';
                     alertEl.innerHTML = '⚠️ خادم الواتساب غير مربوط حالياً. يرجى مسح رمز الاستجابة (QR) أولاً.';
                 }
-                const wantsQR = confirm('خادم الواتساب غير مربوط حالياً. هل تريد فتح نافذة الربط (QR) الآن؟');
-                if (wantsQR && typeof openWAModal === 'function') {
+                showToast('⚠️ خادم الواتساب غير مربوط حالياً — تم فتح نافذة الربط الذكي (QR) فوراً', 'warning', 3200);
+                if (typeof openWAModal === 'function') {
                     openWAModal();
                 }
                 return;
@@ -8279,8 +7985,8 @@ window.executeWASend = async function(method = 'gateway') {
                     alertEl.style.color = '#f87171';
                     alertEl.innerHTML = '⚠️ خادم الواتساب غير متصل. يرجى ربط الحساب بالباركود أولاً.';
                 }
-                const wantsQR = confirm('خادم الواتساب غير مربوط حالياً. هل تريد فتح نافذة الربط (QR) الآن؟');
-                if (wantsQR && typeof openWAModal === 'function') {
+                showToast('⚠️ خادم الواتساب غير مربوط حالياً — تم فتح نافذة الربط الذكي (QR) فوراً', 'warning', 3200);
+                if (typeof openWAModal === 'function') {
                     openWAModal();
                 }
                 return;
@@ -8571,8 +8277,8 @@ window.executeBatchWASend = async function() {
                 statusText.style.color = '#f87171';
                 statusText.textContent = '⚠️ خادم الواتساب غير مربوط حالياً. يرجى مسح رمز الاستجابة (QR) أولاً.';
             }
-            const wantsQR = confirm('خادم الواتساب غير مربوط حالياً. هل تريد فتح نافذة الربط (QR) الآن؟');
-            if (wantsQR && typeof openWAModal === 'function') {
+            showToast('⚠️ خادم الواتساب غير مربوط حالياً — تم فتح نافذة الربط الذكي (QR) فوراً', 'warning', 3200);
+            if (typeof openWAModal === 'function') {
                 openWAModal();
             }
             return;
@@ -8871,36 +8577,7 @@ window.updateMcpWorldSummaryBar = function() {
     }
 })();
 
-// 4. Keyboard Navigation Support for Cash Input (نقدي 💵)
-document.addEventListener('keydown', function(e) {
-    const active = document.activeElement;
-    if (!active) return;
-
-    if (e.key === 'Enter' && !e.ctrlKey) {
-        if (active.classList.contains('block-cash-amount')) {
-            e.preventDefault();
-            const row = active.closest('.cash-row');
-            const desc = row ? row.querySelector('.block-cash-desc-input') : null;
-            if (desc) { desc.focus(); desc.select(); }
-            return;
-        }
-        if (active.classList.contains('block-cash-desc-input')) {
-            e.preventDefault();
-            if (typeof window.addAccountBlock === 'function') {
-                window.addAccountBlock();
-                setTimeout(() => {
-                    const blocks = document.querySelectorAll('.account-block');
-                    if (blocks.length > 0) {
-                        const lastBlock = blocks[blocks.length - 1];
-                        const acctSearch = lastBlock.querySelector('.block-account-search');
-                        if (acctSearch) { acctSearch.focus(); acctSearch.select(); }
-                    }
-                }, 80);
-            }
-            return;
-        }
-    }
-}, true);
+// 4. (تم دمج تنقل الكاش ضمن محرك الكيرسر الحريري الموحد Cursor Silk-Flow Engine)
 
 // 5. Comprehensive Bank-Certified Print Preview Overhaul (شامل لكل التحويلات والشيكات والنقدي والتفقيط)
 window.printVoucher = function() {
@@ -9251,19 +8928,18 @@ window.openExcelPasteModal = function() {
     modal.id = 'mcp-excel-modal';
     modal.style.cssText = 'position:fixed; inset:0; background:rgba(0,0,0,0.78); backdrop-filter:blur(8px); z-index:999999; display:flex; align-items:center; justify-content:center; direction:rtl;';
     modal.innerHTML = `
-        <div style="background:linear-gradient(145deg, #0f172a, #1e293b); border:2px solid #38bdf8; border-radius:16px; padding:24px; width:94%; max-width:650px; color:#fff; box-shadow:0 20px 50px rgba(0,0,0,0.85);">
-            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(255,255,255,0.12); padding-bottom:12px; margin-bottom:14px;">
-                <h3 style="margin:0; color:#38bdf8; font-size:1.2rem; display:flex; align-items:center; gap:8px;"><span>📋</span> <span>استيراد ولصق دفعة حسابات ومبالغ من Excel</span></h3>
+        <div style="background:linear-gradient(145deg, #0f172a, #1e293b); border:2px solid #38bdf8; border-radius:16px; padding:20px; width:94%; max-width:620px; color:#fff; box-shadow:0 20px 50px rgba(0,0,0,0.85);">
+            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(255,255,255,0.12); padding-bottom:10px; margin-bottom:12px;">
+                <h3 style="margin:0; color:#38bdf8; font-size:1.15rem; display:flex; align-items:center; gap:8px;"><span>📋</span> <span>لصق دفعة من Excel</span></h3>
                 <button type="button" onclick="document.getElementById('mcp-excel-modal').remove()" style="background:none; border:none; color:#94a3b8; font-size:1.2rem; cursor:pointer;">✕</button>
             </div>
-            <p style="margin:0 0 10px 0; font-size:0.86rem; color:#cbd5e1; line-height:1.5;">
-                انسخ الجدول من Excel أو النص والصقه هنا (كل سطر يمثل جهة):<br>
-                <code style="color:#fef08a;">اسم الحساب   |   المبلغ   |   رقم التحويلة (اختياري)   |   البيان (اختياري)</code>
+            <p style="margin:0 0 8px 0; font-size:0.84rem; color:#cbd5e1;">
+                <code style="color:#fef08a;">اسم الحساب | المبلغ | رقم التحويلة (اختياري) | البيان (اختياري)</code>
             </p>
-            <textarea id="mcp-excel-textarea" rows="8" placeholder="مثال:\nشركة أسمنت عطبرة\t250000\t884920\tدفعة تحت الحساب\nأحمد محمد علي\t75000\t\tعهدة نقدية" style="width:100%; border-radius:10px; border:1.5px solid #38bdf8; background:#090d16; color:#f8fafc; padding:12px; font-family:monospace; font-size:0.95rem; box-sizing:border-box; resize:vertical;"></textarea>
-            <div style="display:flex; gap:10px; margin-top:14px;">
-                <button type="button" onclick="window.executeExcelPasteImport()" style="flex:1; height:46px; border-radius:10px; border:none; background:linear-gradient(135deg, #0284c7, #0369a1); color:#fff; font-weight:900; font-size:1.05rem; cursor:pointer;">🚀 تفريغ وإنشاء البطاقات فوراً</button>
-                <button type="button" onclick="document.getElementById('mcp-excel-modal').remove()" style="height:46px; padding:0 18px; border-radius:10px; border:1px solid #475569; background:transparent; color:#cbd5e1; font-weight:800; cursor:pointer;">إلغاء</button>
+            <textarea id="mcp-excel-textarea" rows="7" placeholder="مثال:\nشركة أسمنت عطبرة\t250000\t884920\tدفعة تحت الحساب\nأحمد محمد علي\t75000\t\tعهدة نقدية" style="width:100%; border-radius:10px; border:2px solid #38bdf8; background:#090d16; color:#f8fafc; padding:12px; font-family:monospace; font-size:0.95rem; box-sizing:border-box; resize:vertical;"></textarea>
+            <div style="display:flex; gap:10px; margin-top:12px;">
+                <button type="button" onclick="window.executeExcelPasteImport()" style="flex:1; height:44px; border-radius:10px; border:none; background:linear-gradient(135deg, #0284c7, #0369a1); color:#fff; font-weight:900; font-size:1.02rem; cursor:pointer;">🚀 استيراد الدفعة</button>
+                <button type="button" onclick="document.getElementById('mcp-excel-modal').remove()" style="height:44px; padding:0 18px; border-radius:10px; border:1px solid #475569; background:transparent; color:#cbd5e1; font-weight:800; cursor:pointer;">إلغاء</button>
             </div>
         </div>
     `;
@@ -9516,3 +9192,1133 @@ window.quickSettlePartyBalance = function(bid, amt) {
         targetInp.dispatchEvent(new Event('input', { bubbles: true }));
     }
 };
+
+// ═══════════════════════════════════════════════════════════════════════════════════════════
+// الدستور الأول (Constitution 1): منظومة التزامن الفوري، الإضافة السريعة، التظليل التلقائي، والاختصارات
+// ═══════════════════════════════════════════════════════════════════════════════════════════
+
+// 1. نافذة الإضافة الفورية للحسابات من داخل الشاشة (Quick-Add Account Modal - Article 9)
+window.openQuickAddAccountModal = function(targetPrefix, prefillName = '') {
+    window._mcpQuickAddTargetPrefix = targetPrefix || 'main-account';
+    let modal = document.getElementById('mcp-quick-add-account-modal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'mcp-quick-add-account-modal';
+        modal.style.cssText = 'position:fixed; inset:0; background:rgba(0,0,0,0.75); backdrop-filter:blur(6px); z-index:100005; display:none; align-items:center; justify-content:center; direction:rtl;';
+        modal.innerHTML = `
+            <div style="background:linear-gradient(135deg,#0f172a,#1e293b); border:2px solid #10b981; border-radius:16px; padding:20px 22px; width:92%; max-width:440px; box-shadow:0 20px 50px rgba(0,0,0,0.7); color:#fff; font-family:'Tajawal',sans-serif;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; border-bottom:1px solid rgba(255,255,255,0.12); padding-bottom:10px;">
+                    <h3 style="margin:0; color:#34d399; font-size:1.18rem; font-weight:900;">➕ إضافة حساب جديد فوراً</h3>
+                    <button type="button" onclick="document.getElementById('mcp-quick-add-account-modal').style.display='none'" style="background:transparent; border:none; color:#ef4444; font-size:1.3rem; cursor:pointer;">✖</button>
+                </div>
+                <div style="display:flex; flex-direction:column; gap:10px;">
+                    <div>
+                        <label style="font-size:0.9rem; font-weight:800; color:#fbbf24; display:block; margin-bottom:4px;">نوع الحساب:</label>
+                        <select id="mcp-qa-type" class="form-input" style="width:100%; height:42px; font-weight:800; border-radius:10px; border:1.5px solid #10b981; background:#090d16; color:#fff; padding:0 10px;">
+                            <option value="customer">👤 عميل</option>
+                            <option value="supplier">🏢 مورد</option>
+                            <option value="expense">💸 مصروف / حساب عام</option>
+                            <option value="safe">🗄️ خزينة</option>
+                            <option value="bank">🏦 بنك</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label style="font-size:0.9rem; font-weight:800; color:#38bdf8; display:block; margin-bottom:4px;">اسم الحساب:</label>
+                        <input type="text" id="mcp-qa-name" class="form-input" placeholder="الاسم الكامل للحساب..." style="width:100%; height:42px; font-size:1.05rem; font-weight:900; border-radius:10px; border:1.5px solid #38bdf8; background:#090d16; color:#fff; padding:0 12px;">
+                    </div>
+                    <div>
+                        <label style="font-size:0.9rem; font-weight:800; color:#a7f3d0; display:block; margin-bottom:4px;">رقم الواتساب / الهاتف (اختياري):</label>
+                        <input type="tel" id="mcp-qa-phone" class="form-input" placeholder="مثال: 0912345678" style="width:100%; height:40px; font-size:1rem; font-weight:800; direction:ltr; text-align:right; border-radius:10px; border:1.5px solid rgba(16,185,129,0.5); background:#090d16; color:#fff; padding:0 12px;">
+                    </div>
+                    <div style="display:flex; gap:10px; margin-top:6px;">
+                        <button type="button" onclick="window.saveQuickAddAccountModal()" style="flex:1; height:44px; border-radius:10px; border:none; background:linear-gradient(135deg,#10b981,#059669); color:#fff; font-weight:900; font-size:1.02rem; cursor:pointer;">✅ حفظ واختيار فوراً</button>
+                        <button type="button" onclick="document.getElementById('mcp-quick-add-account-modal').style.display='none'" style="height:44px; padding:0 16px; border-radius:10px; border:1px solid #475569; background:#1e293b; color:#cbd5e1; font-weight:800; cursor:pointer;">إلغاء</button>
+                    </div>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+    }
+    const typeSel = document.getElementById('mcp-qa-type');
+    const nameInp = document.getElementById('mcp-qa-name');
+    const phoneInp = document.getElementById('mcp-qa-phone');
+    if (typeSel) {
+        typeSel.value = (targetPrefix === 'main-account') ? 'safe' : 'customer';
+    }
+    if (nameInp) {
+        const searchEl = document.getElementById(targetPrefix + '-search');
+        nameInp.value = prefillName || (searchEl && !document.getElementById(targetPrefix)?.value ? searchEl.value.trim() : '');
+    }
+    if (phoneInp) phoneInp.value = '';
+    modal.style.display = 'flex';
+    setTimeout(() => { if (nameInp) { nameInp.focus(); nameInp.select(); } }, 40);
+};
+
+window.saveQuickAddAccountModal = function() {
+    const type = document.getElementById('mcp-qa-type')?.value || 'customer';
+    const name = (document.getElementById('mcp-qa-name')?.value || '').trim();
+    const phone = (document.getElementById('mcp-qa-phone')?.value || '').trim();
+    if (!name) {
+        showToast('يرجى كتابة اسم الحساب', 'error');
+        const nameInp = document.getElementById('mcp-qa-name');
+        if (nameInp) nameInp.focus();
+        return;
+    }
+    const getTenantKey = window.getTenantKey || ((k) => k);
+    const rawId = Date.now().toString().slice(-7);
+    let storageKey = 'erp_customers_v1';
+    let prefix = 'cust-';
+    let newRecord = { id: rawId, name: name, phone: phone, whatsapp: phone, balance: 0, openingBalance: 0, createdAt: new Date().toISOString() };
+
+    if (type === 'supplier') {
+        storageKey = 'erp_suppliers_v1';
+        prefix = 'supp-';
+    } else if (type === 'safe') {
+        storageKey = 'erp_safes_v1';
+        prefix = 'safe-';
+    } else if (type === 'bank') {
+        storageKey = 'erp_banks_v1';
+        prefix = 'bank-';
+    } else if (type === 'expense') {
+        storageKey = 'erp_accounts_v1';
+        prefix = 'exp-';
+        newRecord.code = '5' + rawId.slice(-4);
+        newRecord.type = 'expense';
+    }
+
+    const tKey = getTenantKey(storageKey);
+    let list = [];
+    try { list = JSON.parse(localStorage.getItem(tKey) || localStorage.getItem(storageKey) || '[]'); } catch(e) { list = []; }
+    if (!Array.isArray(list)) list = [];
+    list.push(newRecord);
+    try {
+        localStorage.setItem(tKey, JSON.stringify(list));
+        localStorage.setItem(storageKey, JSON.stringify(list));
+    } catch(e) {}
+
+    if (typeof buildAccountsArray === 'function') buildAccountsArray();
+    const modal = document.getElementById('mcp-quick-add-account-modal');
+    if (modal) modal.style.display = 'none';
+
+    const targetPrefix = window._mcpQuickAddTargetPrefix || 'main-account';
+    const finalId = prefix + rawId;
+    if (typeof window.selectAccount === 'function') {
+        window.selectAccount(targetPrefix, finalId, name);
+    }
+    if (typeof window.pushToCloud === 'function') {
+        try { window.pushToCloud(true); } catch(e) {}
+    }
+    showToast(`✔️ تم إنشاء واختيار الحساب "${name}" فوراً`, 'success');
+    // انتقال الكيرسر الحريري تلقائياً للخانة التالية بعد الإضافة السريعة
+    setTimeout(() => {
+        if (targetPrefix === 'main-account') {
+            const descEl = document.getElementById('voucher-desc');
+            if (descEl) { descEl.focus(); descEl.select(); }
+        } else if (targetPrefix.startsWith('account-')) {
+            const bid = targetPrefix.replace('account-', '');
+            const stmtEl = document.getElementById(`statement-${bid}`);
+            if (stmtEl) { stmtEl.focus(); stmtEl.select(); }
+        }
+    }, 45);
+};
+
+// 2. محرك التزامن الأوتوماتيكي الفوري للموبايل واللابتوب والأوفلاين (Micro-Packet Auto-Sync - Article 3)
+window.McpMicroSyncEngine = (function() {
+    const QUEUE_KEY = 'erp_mcp_micro_sync_queue_v1';
+    let bc = null;
+    try {
+        if (typeof BroadcastChannel !== 'undefined') {
+            bc = new BroadcastChannel('magaies_erp_sync_channel');
+            bc.onmessage = function(ev) {
+                if (ev && ev.data && ev.data.type === 'MCP_VOUCHER_SYNC') {
+                    if (typeof buildAccountsArray === 'function') buildAccountsArray();
+                    if (typeof window.updateAllLiveBalances === 'function') window.updateAllLiveBalances();
+                }
+            };
+        }
+    } catch(e) {}
+
+    function getQueue() {
+        try { return JSON.parse(localStorage.getItem(QUEUE_KEY) || '[]'); } catch(e) { return []; }
+    }
+    function saveQueue(q) {
+        try { localStorage.setItem(QUEUE_KEY, JSON.stringify(q.slice(-50))); } catch(e) {}
+    }
+
+    function enqueue(voucher) {
+        if (!voucher) return;
+        const q = getQueue().filter(item => item && item.voucherNo !== voucher.voucherNo);
+        q.push({
+            voucherNo: voucher.voucherNo,
+            type: voucher.type,
+            voucher: voucher,
+            queuedAt: Date.now()
+        });
+        saveQueue(q);
+        try {
+            if (bc) bc.postMessage({ type: 'MCP_VOUCHER_SYNC', voucherNo: voucher.voucherNo, timestamp: Date.now() });
+        } catch(e) {}
+        if (navigator.onLine !== false) {
+            flushNow();
+        }
+    }
+
+    let isFlushing = false;
+    async function flushNow() {
+        if (isFlushing || navigator.onLine === false) return;
+        const q = getQueue();
+        if (!q.length) return;
+        isFlushing = true;
+        try {
+            if (typeof window.pushToCloud === 'function') {
+                await Promise.resolve(window.pushToCloud(true));
+            }
+            if (window.MagaiesOffline && typeof window.MagaiesOffline.flush === 'function') {
+                window.MagaiesOffline.flush();
+            }
+            saveQueue([]);
+        } catch(e) {
+            // Keep in queue for next micro-window of connectivity
+        } finally {
+            isFlushing = false;
+        }
+    }
+
+    window.addEventListener('online', () => { setTimeout(flushNow, 50); });
+    document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible' && navigator.onLine !== false) {
+            flushNow();
+        }
+    });
+    window.addEventListener('storage', (ev) => {
+        if (ev.key === 'erp_payments_v1' || ev.key === 'erp_receipts_v1' || (ev.key && ev.key.endsWith('_erp_payments_v1'))) {
+            if (typeof window.updateAllLiveBalances === 'function') window.updateAllLiveBalances();
+        }
+    });
+    setTimeout(flushNow, 400);
+
+    return { enqueue, flushNow };
+})();
+
+// 3. التظليل التلقائي للأرقام (Auto-Select on Focus/Click - Article 4)
+(function initMcpAutoSelectAndKeyboardErgonomics() {
+    const numericSelector = '#exchange-rate, .block-cash-amount, .block-bank-amount, .block-cheque-amount, .block-sub-amount, .transfer-amount, .cheque-amount, #mcp-split-total-input';
+
+    document.addEventListener('focusin', function(e) {
+        const t = e.target;
+        if (t && t.matches && t.matches(numericSelector) && !t.readOnly) {
+            setTimeout(() => { try { t.select(); } catch(err) {} }, 10);
+        }
+    });
+
+    document.addEventListener('mouseup', function(e) {
+        const t = e.target;
+        if (t && t.matches && t.matches(numericSelector) && !t.readOnly && document.activeElement === t) {
+            try { t.select(); } catch(err) {}
+        }
+    });
+
+    // 4. اختصارات لوحة المفاتيح القياسية (F10 حفظ، F2 مستند جديد، الأسهم للقوائم المنسدلة - Articles 4 & 9)
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'F10') {
+            e.preventDefault();
+            if (typeof window.saveVoucher === 'function') window.saveVoucher();
+            return;
+        }
+        if (e.key === 'F2') {
+            e.preventDefault();
+            if (typeof window.resetVoucher === 'function') window.resetVoucher();
+            return;
+        }
+
+        // التنقل بالأسهم داخل أي قائمة منسدلة مفتوحة (.custom-dropdown-list.show)
+        const openList = document.querySelector('.custom-dropdown-list.show');
+        if (openList && openList.style.display !== 'none') {
+            const items = Array.from(openList.querySelectorAll('.custom-dropdown-item'));
+            if (!items.length) return;
+            let idx = items.findIndex(el => el.classList.contains('keyboard-active'));
+
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                items.forEach(el => el.classList.remove('keyboard-active'));
+                idx = (idx + 1) % items.length;
+                items[idx].classList.add('keyboard-active');
+                items[idx].scrollIntoView({ block: 'nearest' });
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                items.forEach(el => el.classList.remove('keyboard-active'));
+                idx = (idx <= 0) ? (items.length - 1) : (idx - 1);
+                items[idx].classList.add('keyboard-active');
+                items[idx].scrollIntoView({ block: 'nearest' });
+            } else if (e.key === 'Enter' && idx > -1) {
+                e.preventDefault();
+                e.stopPropagation();
+                items[idx].dispatchEvent(new MouseEvent('mousedown', { bubbles: true }));
+            } else if (e.key === 'Escape') {
+                openList.classList.remove('show');
+                openList.style.display = 'none';
+            }
+        } else if (e.key === 'Escape') {
+            const qaModal = document.getElementById('mcp-quick-add-account-modal');
+            if (qaModal && qaModal.style.display !== 'none') qaModal.style.display = 'none';
+            const qaCcModal = document.getElementById('mcp-quick-add-cc-modal');
+            if (qaCcModal && qaCcModal.style.display !== 'none') qaCcModal.style.display = 'none';
+        }
+    });
+
+    // 5. حماية المدخلات من الضياع المفاجئ (Unsaved Changes Protection - Article 9)
+    window.addEventListener('beforeunload', function(e) {
+        if (typeof formDirty !== 'undefined' && formDirty) {
+            e.preventDefault();
+            e.returnValue = '';
+        }
+    });
+})();
+
+// ═══════════════════════════════════════════════════════════════════════════════════════════
+// الدستور الثاني (Constitution 2 of 14): الخفة القصوى (2G / 0ms)، سلاسة الكيرسر، التحصين ضد الانهيار، والـ 4 إضافات العالمية
+// ═══════════════════════════════════════════════════════════════════════════════════════════
+
+// 1. درع التحصين الشامل ضد الانهيار والتعليق (Global Error Boundary & Anti-Freeze Shield - Directive 5)
+window.McpErrorBoundary = (function() {
+    function recoverSaveButtonIfStuck() {
+        try {
+            if (window.IdempotencyGuard && window.IdempotencyGuard.isSaving) {
+                window.IdempotencyGuard.isSaving = false;
+            }
+            const saveBtn = document.getElementById('btn-save');
+            if (saveBtn && saveBtn.disabled) {
+                saveBtn.disabled = false;
+                saveBtn.style.opacity = '1';
+                saveBtn.style.pointerEvents = 'auto';
+                if (typeof window.syncWAAutoDispatchUI === 'function') {
+                    window.syncWAAutoDispatchUI();
+                }
+            }
+        } catch (err) {}
+    }
+
+    window.addEventListener('error', function(ev) {
+        console.warn('[McpErrorBoundary] Caught runtime error safely:', ev?.message || ev);
+        recoverSaveButtonIfStuck();
+    });
+
+    window.addEventListener('unhandledrejection', function(ev) {
+        console.warn('[McpErrorBoundary] Caught unhandled promise rejection safely:', ev?.reason || ev);
+        recoverSaveButtonIfStuck();
+    });
+
+    return { recoverSaveButtonIfStuck };
+})();
+
+// 2. الإضافة العالمية الأولى (1): حاسبة العمليات الفورية داخل خانات المبالغ (Inline Math Expression Evaluator 🧮)
+window.evaluateMcpInlineMath = function(inputEl) {
+    if (!inputEl || inputEl.readOnly) return false;
+    const raw = String(inputEl.value || '').replace(/,/g, '').replace(/=/g, '').trim();
+    if (!raw) return false;
+    // Check if it contains math operators (+, *, /, or - after a digit)
+    if (!(/[+*/]/.test(raw) || /\d\s*-\s*\d/.test(raw))) return false;
+    // Security check: only digits, decimal points, whitespace, parentheses, and + - * /
+    if (!/^[0-9.+\-*/()\s]+$/.test(raw)) return false;
+
+    try {
+        // Safe arithmetic evaluation using Function after strict regex whitelist
+        const result = Function('"use strict"; return (' + raw + ')')();
+        if (typeof result === 'number' && isFinite(result) && result >= 0) {
+            const rounded = Math.round(result * 100) / 100;
+            inputEl.value = typeof window.fmtNum === 'function' ? window.fmtNum(rounded, null, true) : String(rounded);
+            const block = inputEl.closest('.account-block');
+            if (block) {
+                const bid = block.getAttribute('data-block-id');
+                if (typeof recalcBlockTotal === 'function') recalcBlockTotal(bid);
+                if (typeof window.updateBlockTafqeetAndTier === 'function') window.updateBlockTafqeetAndTier(bid);
+            }
+            if (typeof calcTotal === 'function') calcTotal();
+            if (typeof showToast === 'function') {
+                showToast(`🧮 ${raw} = ${inputEl.value}`, 'info', 1800);
+            }
+            return true;
+        }
+    } catch (err) {
+        // Ignore incomplete expression
+    }
+    return false;
+};
+
+// تفعيل حاسبة المبالغ الفورية عند الضغط على (=) أو فقدان التركيز (blur)
+document.addEventListener('keydown', function(e) {
+    const t = e.target;
+    if (!t || !t.matches) return;
+    if (t.matches('.block-cash-amount, .block-bank-amount, .block-cheque-amount, .block-sub-amount, .transfer-amount, .cheque-amount, #mcp-split-total-input, #exchange-rate')) {
+        if (e.key === '=') {
+            e.preventDefault();
+            window.evaluateMcpInlineMath(t);
+        }
+    }
+}, true);
+
+document.addEventListener('focusout', function(e) {
+    const t = e.target;
+    if (!t || !t.matches) return;
+    if (t.matches('.block-cash-amount, .block-bank-amount, .block-cheque-amount, .block-sub-amount, .transfer-amount, .cheque-amount, #mcp-split-total-input, #exchange-rate')) {
+        window.evaluateMcpInlineMath(t);
+    }
+});
+
+// 3. الإضافة العالمية الثانية (2): الحفظ التلقائي للمسودة في 0ms والاسترجاع بضغطة واحدة (Auto-Draft Persistence & Recovery ↺)
+window.McpAutoDraftEngine = (function() {
+    const DRAFT_KEY = 'erp_mcp_active_draft_v1';
+    let saveTimer = null;
+
+    function getDraftKey() {
+        return (typeof window.getTenantKey === 'function') ? window.getTenantKey(DRAFT_KEY) : DRAFT_KEY;
+    }
+
+    function captureSnapshot() {
+        try {
+            const type = document.getElementById('voucher-type')?.value || 'payment';
+            const mainAcc = document.getElementById('main-account')?.getAttribute('data-id') || document.getElementById('main-account')?.value || '';
+            const mainAccName = document.getElementById('main-account-search')?.value.trim() || '';
+            const desc = document.getElementById('voucher-desc')?.value.trim() || '';
+            const currency = document.getElementById('currency')?.value || 'SDG';
+
+            const blocksData = [];
+            let hasMeaningfulData = false;
+
+            document.querySelectorAll('.account-block').forEach(block => {
+                const bid = block.getAttribute('data-block-id');
+                const accName = document.getElementById(`account-${bid}-search`)?.value.trim() || '';
+                const accId = document.getElementById(`account-${bid}-id`)?.value || '';
+                const stmt = document.getElementById(`statement-${bid}`)?.value.trim() || '';
+                const cc = document.getElementById(`cost-center-${bid}`)?.value.trim() || '';
+                const ccId = document.getElementById(`cost-center-${bid}-id`)?.value.trim() || '';
+                const cashAmt = cleanNum(block.querySelector('.block-cash-amount')?.value || 0);
+                const cashDesc = block.querySelector('.block-cash-desc-input')?.value.trim() || '';
+
+                const bankRows = [];
+                block.querySelectorAll('.bank-row').forEach(r => {
+                    const bAmt = cleanNum(r.querySelector('.block-bank-amount')?.value || 0);
+                    const bName = r.querySelector('.block-bank-name-input')?.value.trim() || '';
+                    const bTr = r.querySelector('.block-transfer-no-input')?.value.trim() || '';
+                    const bDesc = r.querySelector('.block-bank-desc-input')?.value.trim() || '';
+                    if (bAmt > 0 || bName || bTr) bankRows.push({ amount: bAmt, bankName: bName, transferNo: bTr, desc: bDesc });
+                });
+
+                const chequeRows = [];
+                block.querySelectorAll('.cheque-row').forEach(r => {
+                    const cAmt = cleanNum(r.querySelector('.block-cheque-amount')?.value || 0);
+                    const cBank = r.querySelector('.block-cheque-bank-input')?.value.trim() || '';
+                    const cNo = r.querySelector('.block-cheque-no-input')?.value.trim() || '';
+                    const cDate = r.querySelector('.block-cheque-date-input')?.value || '';
+                    const cDesc = r.querySelector('.block-cheque-desc-input')?.value.trim() || '';
+                    if (cAmt > 0 || cBank || cNo) chequeRows.push({ amount: cAmt, bank: cBank, no: cNo, date: cDate, desc: cDesc });
+                });
+
+                if (accName || cashAmt > 0 || bankRows.length > 0 || chequeRows.length > 0 || stmt) {
+                    hasMeaningfulData = true;
+                    blocksData.push({
+                        accountName: accName,
+                        accountId: accId,
+                        statement: stmt,
+                        costCenter: cc,
+                        costCenterId: ccId,
+                        cashAmount: cashAmt,
+                        cashDesc: cashDesc,
+                        bankRows: bankRows,
+                        chequeRows: chequeRows
+                    });
+                }
+            });
+
+            if (!hasMeaningfulData && !desc) return;
+
+            const payload = {
+                savedAt: Date.now(),
+                type,
+                mainAccount: mainAcc,
+                mainAccountName: mainAccName,
+                description: desc,
+                currency,
+                blocks: blocksData
+            };
+            localStorage.setItem(getDraftKey(), JSON.stringify(payload));
+        } catch (err) {}
+    }
+
+    function scheduleSave() {
+        if (saveTimer) clearTimeout(saveTimer);
+        saveTimer = setTimeout(captureSnapshot, 260);
+    }
+
+    function clear() {
+        if (saveTimer) clearTimeout(saveTimer);
+        try { localStorage.removeItem(getDraftKey()); } catch (err) {}
+        const btn = document.getElementById('btn-mcp-draft-restore');
+        if (btn) btn.style.display = 'none';
+    }
+
+    function checkExistingDraftOnLoad() {
+        try {
+            const raw = localStorage.getItem(getDraftKey());
+            if (!raw) return;
+            const draft = JSON.parse(raw);
+            if (!draft || !Array.isArray(draft.blocks) || draft.blocks.length === 0) return;
+            const btn = document.getElementById('btn-mcp-draft-restore');
+            if (btn) {
+                btn.style.display = 'inline-flex';
+                btn.title = `استرجاع مسودة غير محفوظة (${draft.blocks.length} حساب)`;
+            }
+        } catch (err) {}
+    }
+
+    function restore() {
+        try {
+            const raw = localStorage.getItem(getDraftKey());
+            if (!raw) {
+                if (typeof showToast === 'function') showToast('لا توجد مسودة محفوظة للاسترجاع', 'info');
+                return;
+            }
+            const draft = JSON.parse(raw);
+            if (!draft || !Array.isArray(draft.blocks)) return;
+
+            if (typeof executeSetVoucherType === 'function' && draft.type) {
+                executeSetVoucherType(draft.type);
+            }
+            if (draft.mainAccountName) {
+                const mainInp = document.getElementById('main-account');
+                if (mainInp) {
+                    mainInp.value = draft.mainAccountName;
+                    mainInp.setAttribute('data-id', draft.mainAccount || draft.mainAccountName);
+                }
+                const mainSearch = document.getElementById('main-account-search');
+                if (mainSearch) mainSearch.value = draft.mainAccountName;
+            }
+            if (draft.description) {
+                const descEl = document.getElementById('voucher-desc');
+                if (descEl) descEl.value = draft.description;
+            }
+            if (draft.currency) {
+                const currEl = document.getElementById('currency');
+                if (currEl) currEl.value = draft.currency;
+            }
+
+            const container = document.getElementById('accounts-blocks-container');
+            if (container) container.innerHTML = '';
+            blockCounter = 0;
+
+            draft.blocks.forEach(b => {
+                window.addAccountBlock();
+                const blocks = document.querySelectorAll('.account-block');
+                const lastBlock = blocks[blocks.length - 1];
+                if (!lastBlock) return;
+                const bid = lastBlock.getAttribute('data-block-id');
+
+                const sEl = document.getElementById(`account-${bid}-search`);
+                if (sEl) sEl.value = b.accountName || '';
+                const idEl = document.getElementById(`account-${bid}-id`);
+                if (idEl) idEl.value = b.accountId || '';
+                const hiddenAcc = document.getElementById(`account-${bid}`);
+                if (hiddenAcc) {
+                    hiddenAcc.value = b.accountName || '';
+                    hiddenAcc.setAttribute('data-id', b.accountId || '');
+                }
+                const stEl = document.getElementById(`statement-${bid}`);
+                if (stEl) stEl.value = b.statement || '';
+                const ccEl = document.getElementById(`cost-center-${bid}`);
+                if (ccEl) ccEl.value = b.costCenter || '';
+                const ccIdEl = document.getElementById(`cost-center-${bid}-id`);
+                if (ccIdEl) ccIdEl.value = b.costCenterId || '';
+
+                if (b.cashAmount > 0 || b.cashDesc) {
+                    window.toggleBlockPaymentMethod(bid, 'cash');
+                    const cAmt = lastBlock.querySelector('.block-cash-amount');
+                    const cDesc = lastBlock.querySelector('.block-cash-desc-input');
+                    if (cAmt && b.cashAmount > 0) cAmt.value = fmtNum(b.cashAmount);
+                    if (cDesc && b.cashDesc) cDesc.value = b.cashDesc;
+                }
+
+                if (Array.isArray(b.bankRows) && b.bankRows.length > 0) {
+                    window.toggleBlockPaymentMethod(bid, 'bank');
+                    const bankCont = lastBlock.querySelector('.bank-rows-container');
+                    b.bankRows.forEach((br, rIdx) => {
+                        if (rIdx > 0) {
+                            const addBtn = lastBlock.querySelector('[data-action="add-bank-row"]');
+                            if (addBtn) addBtn.click();
+                        }
+                        const rows = bankCont ? bankCont.querySelectorAll('.bank-row') : [];
+                        const row = rows[rIdx];
+                        if (row) {
+                            const bAmt = row.querySelector('.block-bank-amount');
+                            const bName = row.querySelector('.block-bank-name-input');
+                            const bTr = row.querySelector('.block-transfer-no-input');
+                            const bDesc = row.querySelector('.block-bank-desc-input');
+                            if (bAmt && br.amount > 0) bAmt.value = fmtNum(br.amount);
+                            if (bName) bName.value = br.bankName || '';
+                            if (bTr) bTr.value = br.transferNo || '';
+                            if (bDesc) bDesc.value = br.desc || '';
+                        }
+                    });
+                }
+
+                if (Array.isArray(b.chequeRows) && b.chequeRows.length > 0) {
+                    window.toggleBlockPaymentMethod(bid, 'cheque');
+                    const chqCont = lastBlock.querySelector('.cheque-rows-container');
+                    b.chequeRows.forEach((cr, rIdx) => {
+                        if (rIdx > 0) {
+                            const addBtn = lastBlock.querySelector('[data-action="add-cheque-row"]');
+                            if (addBtn) addBtn.click();
+                        }
+                        const rows = chqCont ? chqCont.querySelectorAll('.cheque-row') : [];
+                        const row = rows[rIdx];
+                        if (row) {
+                            const cAmt = row.querySelector('.block-cheque-amount');
+                            const cBank = row.querySelector('.block-cheque-bank-input');
+                            const cNo = row.querySelector('.block-cheque-no-input');
+                            const cDate = row.querySelector('.block-cheque-date-input');
+                            const cDesc = row.querySelector('.block-cheque-desc-input');
+                            if (cAmt && cr.amount > 0) cAmt.value = fmtNum(cr.amount);
+                            if (cBank) cBank.value = cr.bank || '';
+                            if (cNo) cNo.value = cr.no || '';
+                            if (cDate && cr.date) cDate.value = cr.date;
+                            if (cDesc) cDesc.value = cr.desc || '';
+                        }
+                    });
+                }
+
+                if (typeof recalcBlockTotal === 'function') recalcBlockTotal(bid);
+            });
+
+            if (typeof calcTotal === 'function') calcTotal();
+            const btn = document.getElementById('btn-mcp-draft-restore');
+            if (btn) btn.style.display = 'none';
+            if (typeof showToast === 'function') {
+                showToast('↺ تم استرجاع المسودة بنجاح (0ms)', 'success');
+            }
+        } catch (err) {
+            console.error('Draft restore error:', err);
+        }
+    }
+
+    document.addEventListener('input', function(e) {
+        if (e.target && e.target.closest && e.target.closest('.main-container')) {
+            scheduleSave();
+        }
+    });
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => setTimeout(checkExistingDraftOnLoad, 180));
+    } else {
+        setTimeout(checkExistingDraftOnLoad, 180);
+    }
+
+    return { scheduleSave, clear, restore, checkExistingDraftOnLoad };
+})();
+
+window.restoreMcpAutoDraft = function() {
+    if (window.McpAutoDraftEngine && typeof window.McpAutoDraftEngine.restore === 'function') {
+        window.McpAutoDraftEngine.restore();
+    }
+};
+
+// 4. الإضافة العالمية الثالثة (3): نافذة الإضافة الفورية لمركز تكلفة / مشروع (➕) وتكرار الكتلة السريع (📑 تكرار)
+window.openQuickAddCostCenterModal = function(blockId) {
+    window._mcpQuickAddCCBlockId = blockId;
+    let modal = document.getElementById('mcp-quick-add-cc-modal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'mcp-quick-add-cc-modal';
+        modal.style.cssText = 'position:fixed; inset:0; background:rgba(0,0,0,0.75); backdrop-filter:blur(6px); z-index:100006; display:none; align-items:center; justify-content:center; direction:rtl;';
+        modal.innerHTML = `
+            <div style="background:linear-gradient(135deg,#0f172a,#1e293b); border:2px solid #f59e0b; border-radius:16px; padding:20px 22px; width:92%; max-width:420px; box-shadow:0 20px 50px rgba(0,0,0,0.75); color:#fff; font-family:'Tajawal',sans-serif;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; border-bottom:1px solid rgba(255,255,255,0.12); padding-bottom:10px;">
+                    <h3 style="margin:0; color:#fbbf24; font-size:1.15rem; font-weight:900;">🏗️ إضافة مركز تكلفة / مشروع فوراً</h3>
+                    <button type="button" onclick="document.getElementById('mcp-quick-add-cc-modal').style.display='none'" style="background:transparent; border:none; color:#ef4444; font-size:1.3rem; cursor:pointer;">✖</button>
+                </div>
+                <div style="display:flex; flex-direction:column; gap:10px;">
+                    <div>
+                        <label style="font-size:0.9rem; font-weight:800; color:#fbbf24; display:block; margin-bottom:4px;">اسم مركز التكلفة / المشروع:</label>
+                        <input type="text" id="mcp-qa-cc-name" class="form-input" placeholder="مثال: مشروع أبراج النيل / فرع الخرطوم..." style="width:100%; height:42px; font-size:1.05rem; font-weight:900; border-radius:10px; border:2px solid #f59e0b; background:#090d16; color:#fff; padding:0 12px;">
+                    </div>
+                    <div>
+                        <label style="font-size:0.9rem; font-weight:800; color:#38bdf8; display:block; margin-bottom:4px;">كود المركز (اختياري):</label>
+                        <input type="text" id="mcp-qa-cc-code" class="form-input" placeholder="مثال: CC-105" style="width:100%; height:40px; font-size:0.98rem; font-weight:800; border-radius:10px; border:2px solid rgba(56,189,248,0.5); background:#090d16; color:#fff; padding:0 12px;">
+                    </div>
+                    <div style="display:flex; gap:10px; margin-top:6px;">
+                        <button type="button" onclick="window.saveQuickAddCostCenter()" style="flex:1; height:44px; border-radius:10px; border:none; background:linear-gradient(135deg,#f59e0b,#d97706); color:#fff; font-weight:900; font-size:1.02rem; cursor:pointer;">✅ حفظ واختيار فوراً</button>
+                        <button type="button" onclick="document.getElementById('mcp-quick-add-cc-modal').style.display='none'" style="height:44px; padding:0 16px; border-radius:10px; border:1px solid #475569; background:#1e293b; color:#cbd5e1; font-weight:800; cursor:pointer;">إلغاء</button>
+                    </div>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+    }
+    const nameInp = document.getElementById('mcp-qa-cc-name');
+    const codeInp = document.getElementById('mcp-qa-cc-code');
+    const ccField = document.getElementById(`cost-center-${blockId}`);
+    if (nameInp) nameInp.value = (ccField && !document.getElementById(`cost-center-${blockId}-id`)?.value) ? ccField.value.trim() : '';
+    if (codeInp) codeInp.value = 'CC-' + String(Date.now()).slice(-4);
+    modal.style.display = 'flex';
+    setTimeout(() => { if (nameInp) { nameInp.focus(); nameInp.select(); } }, 40);
+};
+
+window.saveQuickAddCostCenter = function() {
+    const name = (document.getElementById('mcp-qa-cc-name')?.value || '').trim();
+    const code = (document.getElementById('mcp-qa-cc-code')?.value || '').trim() || ('CC-' + String(Date.now()).slice(-4));
+    if (!name) {
+        if (typeof showToast === 'function') showToast('يرجى كتابة اسم مركز التكلفة أو المشروع', 'error');
+        const nameInp = document.getElementById('mcp-qa-cc-name');
+        if (nameInp) nameInp.focus();
+        return;
+    }
+    const getTenantKey = window.getTenantKey || ((k) => k);
+    const newId = 'cc-' + Date.now().toString().slice(-6);
+    const newCC = { id: newId, code: code, name: name, status: 'active', createdAt: new Date().toISOString() };
+
+    ['erp_cost_centers_v1', 'cost_centers'].forEach(k => {
+        try {
+            const tk = getTenantKey(k);
+            const arr = JSON.parse(localStorage.getItem(tk) || localStorage.getItem(k) || '[]');
+            if (Array.isArray(arr)) {
+                arr.push(newCC);
+                localStorage.setItem(tk, JSON.stringify(arr));
+                localStorage.setItem(k, JSON.stringify(arr));
+            }
+        } catch (err) {}
+    });
+
+    if (typeof buildCostCentersArray === 'function') buildCostCentersArray();
+    const modal = document.getElementById('mcp-quick-add-cc-modal');
+    if (modal) modal.style.display = 'none';
+
+    const bid = window._mcpQuickAddCCBlockId;
+    if (bid && typeof window.selectCostCenter === 'function') {
+        window.selectCostCenter(`cost-center-${bid}`, newId, name);
+    } else if (bid) {
+        const inp = document.getElementById(`cost-center-${bid}`);
+        const idInp = document.getElementById(`cost-center-${bid}-id`);
+        if (inp) inp.value = name;
+        if (idInp) idInp.value = newId;
+    }
+
+    if (typeof showToast === 'function') {
+        showToast(`🏗️ تم إنشاء واختيار مركز التكلفة "${name}" فوراً`, 'success');
+    }
+
+    // انتقال الكيرسر الحريري لخانة المبلغ النشطة في نفس الكتلة
+    setTimeout(() => {
+        const block = bid ? document.querySelector(`.account-block[data-block-id="${bid}"]`) : null;
+        if (block && typeof window.focusFirstActiveAmountInBlock === 'function') {
+            window.focusFirstActiveAmountInBlock(block);
+        }
+    }, 45);
+};
+
+// تكرار الكتلة السريع (Duplicate Account Block 📑)
+window.duplicateAccountBlock = function(sourceBlockId) {
+    const srcBlock = document.querySelector(`.account-block[data-block-id="${sourceBlockId}"]`);
+    if (!srcBlock || typeof window.addAccountBlock !== 'function') return;
+
+    const accName = document.getElementById(`account-${sourceBlockId}-search`)?.value || '';
+    const accId = document.getElementById(`account-${sourceBlockId}-id`)?.value || '';
+    const stmt = document.getElementById(`statement-${sourceBlockId}`)?.value || '';
+    const ccName = document.getElementById(`cost-center-${sourceBlockId}`)?.value || '';
+    const ccId = document.getElementById(`cost-center-${sourceBlockId}-id`)?.value || '';
+    const cashActive = document.getElementById(`pm-cash-${sourceBlockId}`)?.classList.contains('active');
+    const bankActive = document.getElementById(`pm-bank-${sourceBlockId}`)?.classList.contains('active');
+    const chequeActive = document.getElementById(`pm-cheque-${sourceBlockId}`)?.classList.contains('active');
+    const cashAmt = srcBlock.querySelector('.block-cash-amount')?.value || '';
+    const cashDesc = srcBlock.querySelector('.block-cash-desc-input')?.value || '';
+
+    window.addAccountBlock();
+    const blocks = document.querySelectorAll('.account-block');
+    const newBlock = blocks[blocks.length - 1];
+    if (!newBlock) return;
+    const newBid = newBlock.getAttribute('data-block-id');
+
+    if (accName && typeof window.selectAccount === 'function') {
+        window.selectAccount(`account-${newBid}`, accId || accName, accName);
+    }
+    const newStmt = document.getElementById(`statement-${newBid}`);
+    if (newStmt) newStmt.value = stmt;
+    const newCc = document.getElementById(`cost-center-${newBid}`);
+    if (newCc) newCc.value = ccName;
+    const newCcId = document.getElementById(`cost-center-${newBid}-id`);
+    if (newCcId) newCcId.value = ccId;
+
+    if (cashActive) {
+        const dstCashActive = document.getElementById(`pm-cash-${newBid}`)?.classList.contains('active');
+        if (!dstCashActive) window.toggleBlockPaymentMethod(newBid, 'cash');
+        const cAmtEl = newBlock.querySelector('.block-cash-amount');
+        const cDescEl = newBlock.querySelector('.block-cash-desc-input');
+        if (cAmtEl) cAmtEl.value = cashAmt;
+        if (cDescEl) cDescEl.value = cashDesc;
+    }
+    if (bankActive) {
+        const dstBankActive = document.getElementById(`pm-bank-${newBid}`)?.classList.contains('active');
+        if (!dstBankActive) window.toggleBlockPaymentMethod(newBid, 'bank');
+        const srcBankRow = srcBlock.querySelector('.bank-row');
+        const dstBankRow = newBlock.querySelector('.bank-row');
+        if (srcBankRow && dstBankRow) {
+            const bAmt = srcBankRow.querySelector('.block-bank-amount')?.value || '';
+            const bName = srcBankRow.querySelector('.block-bank-name-input')?.value || '';
+            const bDesc = srcBankRow.querySelector('.block-bank-desc-input')?.value || '';
+            if (dstBankRow.querySelector('.block-bank-amount')) dstBankRow.querySelector('.block-bank-amount').value = bAmt;
+            if (dstBankRow.querySelector('.block-bank-name-input')) dstBankRow.querySelector('.block-bank-name-input').value = bName;
+            if (dstBankRow.querySelector('.block-bank-desc-input')) dstBankRow.querySelector('.block-bank-desc-input').value = bDesc;
+        }
+    }
+    if (chequeActive) {
+        const dstChequeActive = document.getElementById(`pm-cheque-${newBid}`)?.classList.contains('active');
+        if (!dstChequeActive) window.toggleBlockPaymentMethod(newBid, 'cheque');
+        const srcChqRow = srcBlock.querySelector('.cheque-row');
+        const dstChqRow = newBlock.querySelector('.cheque-row');
+        if (srcChqRow && dstChqRow) {
+            const cAmt = srcChqRow.querySelector('.block-cheque-amount')?.value || '';
+            const cBank = srcChqRow.querySelector('.block-cheque-bank-input')?.value || '';
+            const cDate = srcChqRow.querySelector('.block-cheque-date-input')?.value || '';
+            const cDesc = srcChqRow.querySelector('.block-cheque-desc-input')?.value || '';
+            if (dstChqRow.querySelector('.block-cheque-amount')) dstChqRow.querySelector('.block-cheque-amount').value = cAmt;
+            if (dstChqRow.querySelector('.block-cheque-bank-input')) dstChqRow.querySelector('.block-cheque-bank-input').value = cBank;
+            if (dstChqRow.querySelector('.block-cheque-date-input')) dstChqRow.querySelector('.block-cheque-date-input').value = cDate;
+            if (dstChqRow.querySelector('.block-cheque-desc-input')) dstChqRow.querySelector('.block-cheque-desc-input').value = cDesc;
+        }
+    }
+
+    if (typeof recalcBlockTotal === 'function') recalcBlockTotal(newBid);
+    if (typeof calcTotal === 'function') calcTotal();
+    if (typeof showToast === 'function') showToast('📑 تم تكرار بطاقة الحساب بنجاح', 'info', 1500);
+
+    setTimeout(() => {
+        const searchInp = document.getElementById(`account-${newBid}-search`);
+        if (searchInp) {
+            searchInp.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            searchInp.focus();
+            searchInp.select();
+        }
+    }, 40);
+};
+
+// دعم الكيرسر (Enter) داخل نوافذ الإضافة السريعة الوليدة (#mcp-quick-add-account-modal و #mcp-quick-add-cc-modal)
+document.addEventListener('keydown', function(e) {
+    if (e.key !== 'Enter') return;
+    const t = e.target;
+    if (!t) return;
+
+    if (t.id === 'mcp-qa-type') {
+        e.preventDefault();
+        const n = document.getElementById('mcp-qa-name');
+        if (n) { n.focus(); n.select(); }
+    } else if (t.id === 'mcp-qa-name') {
+        e.preventDefault();
+        const p = document.getElementById('mcp-qa-phone');
+        if (p) { p.focus(); p.select(); }
+    } else if (t.id === 'mcp-qa-phone') {
+        e.preventDefault();
+        if (typeof window.saveQuickAddAccountModal === 'function') window.saveQuickAddAccountModal();
+    } else if (t.id === 'mcp-qa-cc-name') {
+        e.preventDefault();
+        if (typeof window.saveQuickAddCostCenter === 'function') window.saveQuickAddCostCenter();
+    } else if (t.id === 'mcp-qa-cc-code') {
+        e.preventDefault();
+        if (typeof window.saveQuickAddCostCenter === 'function') window.saveQuickAddCostCenter();
+    }
+});
+
+// 5. القيم الافتراضية الذكية للحساب الرئيسي والتاريخ (Smart Default Values - Directive 2)
+window.applySmartDefaultMainAccount = function() {
+    try {
+        const dateEl = document.getElementById('voucher-date');
+        if (dateEl && !dateEl.value) {
+            dateEl.value = new Date().toISOString().split('T')[0];
+        }
+        const mainInp = document.getElementById('main-account');
+        const mainSearch = document.getElementById('main-account-search');
+        if (!mainInp || !mainSearch) return;
+        if (mainInp.value || mainSearch.value.trim()) return;
+
+        if (Array.isArray(ACCOUNTS) && ACCOUNTS.length === 0 && typeof buildAccountsArray === 'function') {
+            buildAccountsArray();
+        }
+        if (!Array.isArray(ACCOUNTS) || ACCOUNTS.length === 0) return;
+
+        // البحث عن الخزينة الرئيسية أو أول خزينة نشطة كقيمة افتراضية ذكية
+        const primarySafe = ACCOUNTS.find(a => a.category === 'خزينة' && (a.name.includes('رئيسي') || a.name.includes('عام')))
+            || ACCOUNTS.find(a => a.category === 'خزينة');
+        if (primarySafe && typeof window.selectAccount === 'function') {
+            window.selectAccount('main-account', primarySafe.id, primarySafe.name);
+        }
+    } catch (err) {}
+};
+
+// 6. الإضافة العالمية الرابعة (4): مؤشر حالة الشبكة والخفة القصوى (2G / 0ms Live Badge) وتناسب الأبعاد مع (Ctrl + الرولة)
+(function initMcp2GStatusAndZoomEngine() {
+    function update2GBadge() {
+        const badge = document.getElementById('mcp-2g-resilience-badge');
+        if (!badge) return;
+        const isOnline = navigator.onLine !== false;
+        if (isOnline) {
+            badge.innerHTML = '⚡ 0ms';
+            badge.style.background = 'rgba(16, 185, 129, 0.14)';
+            badge.style.borderColor = '#10b981';
+            badge.style.color = '#34d399';
+        } else {
+            badge.innerHTML = '📡 2G/أوفلاين (0ms)';
+            badge.style.background = 'rgba(245, 158, 11, 0.18)';
+            badge.style.borderColor = '#f59e0b';
+            badge.style.color = '#fbbf24';
+        }
+    }
+
+    window.addEventListener('online', update2GBadge);
+    window.addEventListener('offline', update2GBadge);
+
+    // تناسب الأبعاد الذكي مع (Ctrl + الرولة) مع الحفاظ على سُمك الحواف والخطوط (Directive 6)
+    const ZOOM_KEY = 'mcp_ui_zoom_scale_v1';
+    let currentZoom = parseFloat(localStorage.getItem(ZOOM_KEY) || '1') || 1;
+    function applyZoom(z) {
+        currentZoom = Math.min(1.25, Math.max(0.80, Math.round(z * 100) / 100));
+        document.documentElement.style.setProperty('--mcp-zoom-scale', String(currentZoom));
+        const mainCont = document.querySelector('.main-container');
+        if (mainCont) {
+            mainCont.style.zoom = String(currentZoom);
+        }
+        try { localStorage.setItem(ZOOM_KEY, String(currentZoom)); } catch (e) {}
+    }
+
+    if (currentZoom !== 1) {
+        setTimeout(() => applyZoom(currentZoom), 50);
+    }
+
+    window.addEventListener('wheel', function(e) {
+        if (e.ctrlKey) {
+            e.preventDefault();
+            const delta = e.deltaY < 0 ? 0.04 : -0.04;
+            applyZoom(currentZoom + delta);
+        }
+    }, { passive: false });
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => {
+            update2GBadge();
+            setTimeout(() => {
+                if (typeof window.applySmartDefaultMainAccount === 'function') {
+                    window.applySmartDefaultMainAccount();
+                }
+            }, 120);
+        });
+    } else {
+        update2GBadge();
+        setTimeout(() => {
+            if (typeof window.applySmartDefaultMainAccount === 'function') {
+                window.applySmartDefaultMainAccount();
+            }
+        }, 120);
+    }
+})();
+
+// =========================================================================
+// الدستور الثالث (3 من 14): محرك البصمة الموحدة للأزرار، الإيماءات الحسية،
+// الإرسال الفوري لرسالة الواتساب المفهرسة بضغطة واحدة، ومنظومة الرسائل القياسية
+// =========================================================================
+
+// 1. إلغاء نوافذ alert التقليدية المزعجة وتحويلها للرسائل الطائرة القياسية الأنيقة
+(function unifyBrowserAlertsToToasts() {
+    if (window._mcpAlertOverriddenV3) return;
+    window._mcpAlertOverriddenV3 = true;
+    const nativeAlert = window.alert;
+    window.alert = function(msg) {
+        const text = String(msg || '').trim();
+        if (!text) return;
+        const isErr = /خطأ|فشل|تعذر|يرجى|تنبيه|غير/.test(text);
+        if (typeof window.showToast === 'function') {
+            window.showToast(text, isErr ? 'error' : 'warning', isErr ? 3500 : 2400);
+        } else if (typeof nativeAlert === 'function') {
+            nativeAlert(text);
+        }
+    };
+})();
+
+// 2. زر التعديل القياسي الموحد (#btn-edit / F4) — ينقل التركيز لحقل التعديل الفوري أو يفعل وضع التعديل للسند
+window.triggerUnifiedEditMode = function() {
+    try {
+        if (typeof window.resetInlineDeleteConfirm === 'function') {
+            window.resetInlineDeleteConfirm();
+        }
+        const firstBlockInput = document.querySelector('.account-block input[id^="amount-input-"]:not([disabled])')
+            || document.querySelector('#main-account-search:not([disabled])')
+            || document.querySelector('#general-note:not([disabled])');
+
+        if (typeof currentVoucherId !== 'undefined' && currentVoucherId) {
+            showToast(`✏️ وضع تعديل السند رقم (#${currentVoucherId}) نشط — عدّل أي مبلغ أو حساب ثم اضغط حفظ (F10)`, 'warning', 2400);
+        } else {
+            showToast('✏️ وضع التحرير السريع نشط — عدّل الخانات مباشرة ثم اضغط حفظ (F10)', 'info', 2000);
+        }
+
+        if (firstBlockInput) {
+            firstBlockInput.focus({ preventScroll: true });
+            if (typeof firstBlockInput.select === 'function') {
+                try { firstBlockInput.select(); } catch (e) {}
+            }
+            firstBlockInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    } catch (e) {
+        console.warn('triggerUnifiedEditMode error:', e);
+    }
+};
+
+// 3. الإضافة العالمية الثانية (2 من 4) + البند 6: الإرسال الفوري المباشر للرسالة المفهرسة عبر واتساب بضغطة واحدة (1-Click Direct Indexed WhatsApp Launcher 💬⚡)
+window.launchOneClickIndexedWhatsApp = function(specificBlockId) {
+    try {
+        let phoneRaw = '';
+        const phoneInput = document.getElementById('wa-voucher-phone');
+        if (phoneInput && phoneInput.value.trim()) {
+            phoneRaw = phoneInput.value.trim();
+        }
+
+        const vNum = document.getElementById('voucher-number')?.value || 'جديد';
+        const vDate = document.getElementById('voucher-date')?.value || new Date().toISOString().slice(0, 10);
+        const curEl = document.getElementById('currency');
+        const curName = curEl?.options?.[curEl.selectedIndex]?.dataset?.name || curEl?.value || 'جنيه';
+        const mainAccName = document.getElementById('main-account-search')?.value?.trim() || 'الحساب الرئيسي';
+        const mainNote = document.getElementById('general-note')?.value?.trim() || 'حركة مالية مجمعة';
+        const isReceipt = (typeof currentTransactionType !== 'undefined' && currentTransactionType === 'receipt');
+        const docTitle = isReceipt ? 'إشعار سند قبض مالي معتمد' : 'إشعار سند صرف مالي معتمد';
+
+        const blocks = specificBlockId
+            ? [document.getElementById(`block-${specificBlockId}`)].filter(Boolean)
+            : Array.from(document.querySelectorAll('.account-block'));
+
+        const lines = [];
+        let totalSum = 0;
+
+        blocks.forEach((b, idx) => {
+            const bid = b.id.replace('block-', '');
+            const accName = document.getElementById(`account-search-${bid}`)?.value?.trim() || '';
+            const amtRaw = parseFloat(String(document.getElementById(`amount-input-${bid}`)?.value || '0').replace(/,/g, '')) || 0;
+            const note = document.getElementById(`note-${bid}`)?.value?.trim() || mainNote;
+            const balText = document.getElementById(`balance-${bid}`)?.innerText?.trim() || '';
+            const accId = document.getElementById(`account-value-${bid}`)?.value || '';
+
+            if (!phoneRaw && accId && Array.isArray(window.ACCOUNTS)) {
+                const foundAcc = window.ACCOUNTS.find(a => String(a.id) === String(accId));
+                if (foundAcc && foundAcc.phone) phoneRaw = String(foundAcc.phone).trim();
+            }
+
+            if (accName || amtRaw > 0) {
+                totalSum += amtRaw;
+                const formattedAmt = typeof window.formatNumberWithCommas === 'function'
+                    ? window.formatNumberWithCommas(amtRaw.toFixed(2))
+                    : amtRaw.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                lines.push(
+                    `🔹 *البند (${idx + 1}):* ${accName || 'غير محدد'}\n` +
+                    `   💵 المبلغ: *${formattedAmt} ${curName}*\n` +
+                    (balText ? `   📊 ${balText}\n` : '') +
+                    (note ? `   📝 البيان: ${note}` : '')
+                );
+            }
+        });
+
+        const formattedTotal = typeof window.formatNumberWithCommas === 'function'
+            ? window.formatNumberWithCommas(totalSum.toFixed(2))
+            : totalSum.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+        const tafqeetText = (typeof window.tafqeet === 'function' && totalSum > 0)
+            ? window.tafqeet(totalSum, curEl?.value || 'SDG')
+            : '';
+
+        const indexedMessage =
+            `🏛️ *مقاييس ERP — ${docTitle}*\n` +
+            `━━━━━━━━━━━━━━━━━━━━\n` +
+            `📌 *رقم السند:* #${vNum}\n` +
+            `📅 *التاريخ:* ${vDate}\n` +
+            `🏦 *الحساب الرئيسي:* ${mainAccName}\n` +
+            `━━━━━━━━━━━━━━━━━━━━\n` +
+            (lines.length > 0 ? lines.join('\n────────────────────\n') + '\n━━━━━━━━━━━━━━━━━━━━\n' : '') +
+            `💰 *الإجمالي الكلي:* *${formattedTotal} ${curName}*\n` +
+            (tafqeetText ? `✍️ *التفقيط:* فقط ${tafqeetText} لا غير\n` : '') +
+            `━━━━━━━━━━━━━━━━━━━━\n` +
+            `✅ *تم التوثيق الآلي عبر منظومة مقاييس المالية*`;
+
+        if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+            navigator.clipboard.writeText(indexedMessage).catch(() => {});
+        }
+
+        let cleanPhone = String(phoneRaw || '').replace(/[^\d]/g, '');
+        if (cleanPhone.startsWith('00')) cleanPhone = cleanPhone.slice(2);
+        if (cleanPhone.startsWith('0') && cleanPhone.length === 10) {
+            cleanPhone = '249' + cleanPhone.slice(1);
+        }
+
+        const encodedText = encodeURIComponent(indexedMessage);
+        const waUrl = cleanPhone.length >= 9
+            ? `https://wa.me/${cleanPhone}?text=${encodedText}`
+            : `https://wa.me/?text=${encodedText}`;
+
+        window.open(waUrl, '_blank', 'noopener,noreferrer');
+        showToast('تم تجهيز ونسخ الرسالة المفهرسة بفواصل الآلاف وفتح واتساب فوراً', 'success', 2000);
+    } catch (err) {
+        console.error('launchOneClickIndexedWhatsApp error:', err);
+        showToast('تعذر فتح رابط واتساب المباشر', 'error', 2800);
+    }
+};
+
+// 4. الإضافة العالمية الثالثة (3 من 4): محرك النبضات اللمسية والبصرية التفاعلي للأزرار (Tactile Haptic & Visual Pulse Engine) + اختصارات الأزرار القياسية
+(function initMcpConstitution3TactileAndShortcuts() {
+    if (window._mcpConstitution3TactileBound) return;
+    window._mcpConstitution3TactileBound = true;
+
+    const BTN_SELECTOR = '.btn, .header-action-btn, .add-account-btn, .remove-btn, .wa-Input-btn, .btn-modal-cancel, .btn-modal-confirm, .voucher-nav-btn, .type-option';
+
+    document.addEventListener('pointerdown', function(e) {
+        const btn = e.target.closest(BTN_SELECTOR);
+        if (!btn || btn.disabled) return;
+
+        // اهتزاز لمسي خفيف وفخم (Tactile Haptic Feedback) على الأجهزة الداعمة
+        if (navigator.vibrate) {
+            try { navigator.vibrate(10); } catch (err) {}
+        }
+
+        // نبضة ضوئية لحظية (Visual Tactile Pulse) دون تحريك أو رج العناصر المجاورة
+        btn.classList.remove('mcp-tactile-pulse');
+        void btn.offsetWidth;
+        btn.classList.add('mcp-tactile-pulse');
+        setTimeout(() => btn.classList.remove('mcp-tactile-pulse'), 320);
+    }, { passive: true });
+
+    // إلغاء وضع التأكيد المدمج للحذف عند النقر خارج زر الحذف
+    document.addEventListener('pointerdown', function(e) {
+        const delBtn = document.getElementById('btn-delete');
+        if (delBtn && delBtn.dataset.confirmArmed === '1' && !delBtn.contains(e.target)) {
+            if (typeof window.resetInlineDeleteConfirm === 'function') {
+                window.resetInlineDeleteConfirm();
+            }
+        }
+    }, { passive: true });
+
+    // اختصارات لوحة المفاتيح القياسية الموحدة للأزرار الرئيسية (F4 تعديل، F9 معاينة، Alt+W واتساب، Esc إلغاء تأكيد الحذف)
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            const delBtn = document.getElementById('btn-delete');
+            if (delBtn && delBtn.dataset.confirmArmed === '1' && typeof window.resetInlineDeleteConfirm === 'function') {
+                window.resetInlineDeleteConfirm();
+            }
+        } else if (e.key === 'F4') {
+            e.preventDefault();
+            if (typeof window.triggerUnifiedEditMode === 'function') {
+                window.triggerUnifiedEditMode();
+            }
+        } else if (e.key === 'F9') {
+            e.preventDefault();
+            if (typeof window.previewTransaction === 'function') {
+                window.previewTransaction();
+            }
+        } else if (e.altKey && (e.key === 'w' || e.key === 'W' || e.key === 'ص')) {
+            e.preventDefault();
+            if (typeof window.openBatchWhatsAppModal === 'function') {
+                window.openBatchWhatsAppModal();
+            }
+        }
+    });
+})();
+
+

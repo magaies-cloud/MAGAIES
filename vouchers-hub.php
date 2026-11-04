@@ -588,7 +588,7 @@
                 <div class="icon-wrapper">
                     <span class="v-icon">🧾</span>
                 </div>
-                <h3 class="v-title">صرف وقبض مجمع</h3>
+                <h3 class="v-title">حركة مالية مجمعة</h3>
                 <div class="v-footer">
                     <span class="v-arrow" style="background: #f97316; color: #fff;">←</span>
                 </div>
