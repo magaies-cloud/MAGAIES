@@ -3,7 +3,7 @@
 // Visual Symmetry with Strict Functional & Accounting Isolation
 // ============================================================================
 
-let slCurrentMode = 'sales'; // 'sales' | 'purchases'
+let slCurrentMode = (new URLSearchParams(window.location.search).get('mode') === 'purchases' || (document.body && document.body.getAttribute('data-logistics-mode') === 'purchases')) ? 'purchases' : 'sales'; // 'sales' | 'purchases'
 let slRegistryFilter = 'pending'; // 'pending' | 'partial' | 'done' | 'notes' | 'all'
 let slCurrentDoc = null;
 let slDeductionLevel = parseInt(localStorage.getItem('sl_deduction_level_v1') || '1', 10); // 1: Manager, 2: Warehouse Mgr, 3: Storekeeper QR
@@ -376,7 +376,11 @@ function getProcessedSalesInvoices() {
 
 // ── MODE SWITCHER (CHAMELEON VISUAL + FUNCTIONAL ISOLATION) ──────────────────
 function switchLogisticsMode(mode, silent = false) {
-    mode = 'sales';
+    if (mode !== 'purchases' && mode !== 'sales') {
+        const urlMode = new URLSearchParams(window.location.search).get('mode');
+        const bodyMode = document.body ? document.body.getAttribute('data-logistics-mode') : '';
+        mode = (urlMode === 'purchases' || bodyMode === 'purchases') ? 'purchases' : 'sales';
+    }
     slCurrentMode = mode;
     localStorage.setItem('sl_active_mode_v1', mode);
     document.body.setAttribute('data-logistics-mode', mode);
@@ -386,41 +390,41 @@ function switchLogisticsMode(mode, silent = false) {
 
     const isSales = (mode === 'sales');
 
-    // Update dynamic labels across the entire cockpit
+    // Update dynamic labels across the entire cockpit (concise & clean)
     const setTxt = (id, txt) => { const el = document.getElementById(id); if (el) el.textContent = txt; };
     setTxt('sl-main-title-icon', isSales ? '📤' : '📥');
     setTxt('sl-main-title-text', isSales
-        ? 'بوابة تسليم المبيعات وتقسيمها الذكية (صادر — GDN)'
-        : 'بوابة استلام المشتريات وتقسيمها الذكية (وارد — GRN)');
-    setTxt('sl-kpi-lbl-pending', isSales ? '⏳ فواتير مبيعات جاهزة للصرف (قيد التسليم)' : '⏳ فواتير مشتريات بانتظار الاستلام المخزني');
-    setTxt('sl-kpi-lbl-partial', isSales ? '🌗 مسلّمة جزئياً على دفعات' : '🌗 مستلمة جزئياً على دفعات');
-    setTxt('sl-kpi-lbl-done', isSales ? '✅ أذونات مبيعات منصرفة ومكتملة' : '✅ فواتير مشتريات مستلمة بالكامل');
-    setTxt('sl-kpi-lbl-notes', isSales ? '📊 إجمالي أذونات الصرف الرسمية (GDN)' : '📊 إجمالي مذكرات الاستلام الرسمية (GRN)');
+        ? 'بوابة تسليم المبيعات'
+        : 'بوابة استلام المشتريات');
+    setTxt('sl-kpi-lbl-pending', isSales ? '⏳ قيد التسليم' : '⏳ قيد الاستلام');
+    setTxt('sl-kpi-lbl-partial', isSales ? '🌗 مسلّمة جزئياً' : '🌗 مستلمة جزئياً');
+    setTxt('sl-kpi-lbl-done', isSales ? '✅ مكتملة الصرف' : '✅ مكتملة الاستلام');
+    setTxt('sl-kpi-lbl-notes', isSales ? '📊 سجل أذونات الصرف (GDN)' : '📊 سجل مذكرات الاستلام (GRN)');
 
     setTxt('sl-registry-title', isSales
-        ? 'السجل الذكي الفوري لفواتير وأذونات المبيعات (صادر 📤 — خصم مخزني)'
-        : 'السجل الذكي الفوري لفواتير ومذكرات استلام المشتريات (وارد 📥 — إضافة مخزنية)');
-    setTxt('sl-reg-th-party', isSales ? '👤 العميل والمستلم' : '🏢 المورد والمسلّم');
-    setTxt('sl-lbl-party-title', isSales ? '👤 العميل صاحب الفاتورة' : '🏢 المورد صاحب الفاتورة');
-    setTxt('sl-lbl-wh-select', isSales ? '🏢 مخزن الصرف الافتراضي (للكل):' : '🏢 مخزن الاستلام الافتراضي (للكل):');
-    setTxt('sl-lbl-receiver', isSales ? '🤝 اسم المستلم الفعلي للبضاعة:' : '🤝 أمين المخزن المستلم / المندوب:');
+        ? 'سجل فواتير وأذونات المبيعات'
+        : 'سجل فواتير وأذونات المشتريات');
+    setTxt('sl-reg-th-party', isSales ? '👤 العميل' : '🏢 المورد');
+    setTxt('sl-lbl-party-title', isSales ? '👤 العميل' : '🏢 المورد');
+    setTxt('sl-lbl-wh-select', isSales ? '🏢 مخزن الصرف:' : '🏢 مخزن الاستلام:');
+    setTxt('sl-lbl-receiver', isSales ? '🤝 المستلم:' : '🤝 أمين المخزن المستلم:');
     setTxt('sl-th-dual-action', isSales
-        ? '📤 كمية الصرف والتسليم الآن (بالوحدة الأساسية ⇄ أو بالوحدة الفرعية)'
-        : '📥 كمية الاستلام والتوريد الآن (بالوحدة الأساسية ⇄ أو بالوحدة الفرعية)');
-    setTxt('sl-summary-mode-badge', isSales ? '📤 وضع تسليم المبيعات (صادر GDN)' : '📥 وضع استلام المشتريات (وارد GRN)');
+        ? '📤 الكمية المسلّمة الآن (أساسية ⇄ فرعية)'
+        : '📥 الكمية المستلمة الآن (أساسية ⇄ فرعية)');
+    setTxt('sl-summary-mode-badge', isSales ? '📤 تسليم المبيعات (GDN)' : '📥 استلام المشتريات (GRN)');
 
     const btnExec = document.getElementById('sl-btn-execute');
     if (btnExec) {
         btnExec.innerHTML = isSales
-            ? '🚚 تأكيد واعتماد التسليم وخصم المخزون الآن (GDN)'
-            : '📥 تأكيد واعتماد الاستلام وإضافة المخزون الآن (GRN)';
+            ? '🚚 اعتماد التسليم وخصم المخزون'
+            : '📥 اعتماد الاستلام وإضافة المخزون';
     }
 
     const btnUndo = document.getElementById('sl-btn-undo');
     if (btnUndo) {
         btnUndo.innerHTML = isSales
-            ? '↩️ إلغاء الصرف وإعادة البضاعة للمخزن'
-            : '↩️ إلغاء الاستلام وخصم البضاعة من المخزن';
+            ? '↩️ إلغاء الصرف'
+            : '↩️ إلغاء الاستلام';
     }
 
     if (!silent) {

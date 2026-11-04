@@ -389,6 +389,29 @@
 .layout-compact .inv-signatures { margin-top: 15px; gap: 20px; }
 .layout-compact .inv-company-name { font-size: 1rem; }
 
+/* Promissory Note & Credit Preview Button High-Contrast Enforcement (Light & Dark Themes) */
+html body #print-invoice-frame .promissory-note-container,
+:root.light-theme body #print-invoice-frame .promissory-note-container {
+    background: #ffffff !important; color: #000000 !important; -webkit-text-fill-color: #000000 !important; border: 2.5px double #0f172a !important;
+}
+html body #print-invoice-frame .promissory-note-container *,
+:root.light-theme body #print-invoice-frame .promissory-note-container * {
+    color: #000000 !important; -webkit-text-fill-color: #000000 !important; font-weight: 800 !important; text-shadow: none !important;
+}
+:root.light-theme body #pay-credit-section button[onclick*="previewCurrentPromissoryNote"],
+:root.light-theme body #pay-credit-section .btn-action {
+    background: linear-gradient(180deg, #fffbeb 0%, #fef3c7 52%, #fde68a 100%) !important;
+    border: 2px solid #92400e !important; border-bottom: 3px solid #451a03 !important;
+    color: #000000 !important; -webkit-text-fill-color: #000000 !important;
+    font-weight: 900 !important; font-size: 0.92rem !important; text-shadow: none !important;
+    box-shadow: 0 4px 12px rgba(146, 64, 14, 0.22), inset 0 1.5px 0 #ffffff !important;
+}
+:root.light-theme body #pay-credit-section button[onclick*="previewCurrentPromissoryNote"]:hover,
+:root.light-theme body #pay-credit-section .btn-action:hover {
+    background: linear-gradient(180deg, #fef3c7 0%, #fde68a 55%, #fcd34d 100%) !important;
+    border-color: #451a03 !important; color: #000000 !important; -webkit-text-fill-color: #000000 !important;
+}
+
 /* ══════════════════════════════════════════════════════════
    @MEDIA PRINT — Final paper output
    ══════════════════════════════════════════════════════════ */

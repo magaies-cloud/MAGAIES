@@ -2102,7 +2102,7 @@ function updateRowCalcs(id) {
         availEl.className = 'g-readonly avail-val';
     }
 
-    // Smart Tactical Price Variance Indicator (مؤشر الرقابة الذكية على سعر الشراء + تنبيه +15%)
+    // Smart Tactical Price Variance LED Lamp & Under-Price Badge (لمبة رقابية مضيئة + شارة أنيقة تحت السعر مباشرة)
     const priceHintEl = document.querySelector(`[data-price-hint="${id}"]`);
     if (priceHintEl) {
         let refPrice = getLastPurchasePriceForItem(row.itemId, row.selectedUnit);
@@ -2117,41 +2117,43 @@ function updateRowCalcs(id) {
         const curPrice = parseNum(row.price);
         if (row.itemId && refPrice > 0 && curPrice > 0) {
             const diffPct = ((curPrice - refPrice) / refPrice) * 100;
-            priceHintEl.style.display = 'inline-flex';
+            priceHintEl.style.display = 'block';
             if (diffPct >= 15) {
-                priceHintEl.style.setProperty('color', '#fef08a', 'important');
-                priceHintEl.style.setProperty('background', 'linear-gradient(135deg, rgba(225, 29, 72, 0.88), rgba(185, 28, 28, 0.92))', 'important');
-                priceHintEl.style.setProperty('border-color', 'rgba(251, 191, 36, 0.75)', 'important');
-                priceHintEl.textContent = `⚠️ +${Math.round(diffPct)}%`;
-                priceHintEl.title = `🚨 تنبيه رقابي حرج: سعر الشراء الجديد (${fmtNum(curPrice)}) يتجاوز آخر تكلفة مرجعية (${fmtNum(refPrice)}) بنسبة +${diffPct.toFixed(1)}% (أعلى من سقف 15%)!`;
-                if (priceEl) priceEl.style.borderColor = 'rgba(244, 63, 94, 0.75)';
+                const msg = `🚨 تنبيه رقابي حرج: السعر (${fmtNum(curPrice)}) يتجاوز المرجعي (${fmtNum(refPrice)}) بنسبة +${diffPct.toFixed(1)}%`;
+                priceHintEl.setAttribute('data-lamp-state', 'red');
+                priceHintEl.setAttribute('data-audit-msg', msg);
+                priceHintEl.innerHTML = `<span class="btn-icon pur-price-lamp lamp-red"></span><span class="btn-icon pur-price-subtxt">+${Math.round(diffPct)}% (${fmtNum(refPrice)})</span>`;
+                priceHintEl.title = msg + ' — اضغط للتفاصيل وسجل الأسعار';
+                if (priceEl) priceEl.style.borderColor = 'rgba(244, 63, 94, 0.85)';
             } else if (diffPct > 1) {
-                priceHintEl.style.setProperty('color', '#fb7185', 'important');
-                priceHintEl.style.setProperty('background', 'rgba(244, 63, 94, 0.22)', 'important');
-                priceHintEl.style.setProperty('border-color', 'rgba(244, 63, 94, 0.55)', 'important');
-                priceHintEl.textContent = `↑ +${Math.round(diffPct)}%`;
-                priceHintEl.title = `تنبيه رقابي: السعر أعلى من السعر المرجعي (${fmtNum(refPrice)}) بنسبة ${diffPct.toFixed(1)}%`;
-                if (priceEl) priceEl.style.borderColor = '';
+                const msg = `⚠️ تنبيه: السعر (${fmtNum(curPrice)}) أعلى من المرجعي (${fmtNum(refPrice)}) بنسبة +${diffPct.toFixed(1)}%`;
+                priceHintEl.setAttribute('data-lamp-state', 'amber');
+                priceHintEl.setAttribute('data-audit-msg', msg);
+                priceHintEl.innerHTML = `<span class="btn-icon pur-price-lamp lamp-amber"></span><span class="btn-icon pur-price-subtxt">+${Math.round(diffPct)}% (${fmtNum(refPrice)})</span>`;
+                priceHintEl.title = msg + ' — اضغط للتفاصيل وسجل الأسعار';
+                if (priceEl) priceEl.style.borderColor = 'rgba(245, 158, 11, 0.75)';
             } else if (diffPct < -1) {
-                priceHintEl.style.setProperty('color', '#34d399', 'important');
-                priceHintEl.style.setProperty('background', 'rgba(16, 185, 129, 0.22)', 'important');
-                priceHintEl.style.setProperty('border-color', 'rgba(16, 185, 129, 0.55)', 'important');
-                priceHintEl.textContent = `↓ ${Math.round(diffPct)}%`;
-                priceHintEl.title = `وفرة سعرية: السعر أقل من السعر المرجعي (${fmtNum(refPrice)}) بنسبة ${Math.abs(diffPct).toFixed(1)}%`;
+                const msg = `✅ وفرة سعرية: السعر (${fmtNum(curPrice)}) أقل من المرجعي (${fmtNum(refPrice)}) بنسبة ${Math.abs(diffPct).toFixed(1)}%`;
+                priceHintEl.setAttribute('data-lamp-state', 'green');
+                priceHintEl.setAttribute('data-audit-msg', msg);
+                priceHintEl.innerHTML = `<span class="btn-icon pur-price-lamp lamp-green"></span><span class="btn-icon pur-price-subtxt">-${Math.round(Math.abs(diffPct))}% (${fmtNum(refPrice)})</span>`;
+                priceHintEl.title = msg + ' — اضغط للتفاصيل وسجل الأسعار';
                 if (priceEl) priceEl.style.borderColor = '';
             } else {
-                priceHintEl.style.setProperty('color', '#38bdf8', 'important');
-                priceHintEl.style.setProperty('background', 'rgba(56, 189, 248, 0.16)', 'important');
-                priceHintEl.style.setProperty('border-color', 'rgba(56, 189, 248, 0.4)', 'important');
-                priceHintEl.textContent = `= مرجعي`;
-                priceHintEl.title = `مطابق للسعر المرجعي للصنف (${fmtNum(refPrice)}) — اضغط لعرض سجل الأسعار`;
+                const msg = `ℹ️ مطابق للسعر المرجعي للصنف (${fmtNum(refPrice)})`;
+                priceHintEl.setAttribute('data-lamp-state', 'blue');
+                priceHintEl.setAttribute('data-audit-msg', msg);
+                priceHintEl.innerHTML = `<span class="btn-icon pur-price-lamp lamp-blue"></span><span class="btn-icon pur-price-subtxt">${fmtNum(refPrice)}</span>`;
+                priceHintEl.title = msg + ' — اضغط لعرض سجل الأسعار';
                 if (priceEl) priceEl.style.borderColor = '';
             }
         } else {
             priceHintEl.style.display = 'none';
+            priceHintEl.removeAttribute('data-lamp-state');
             if (priceEl) priceEl.style.borderColor = '';
         }
     }
+    if (typeof window.autoFitGridCells === 'function') window.autoFitGridCells();
 
     // Mobile
     const mTotal = document.querySelector(`[data-m-total="${id}"]`);
@@ -2414,17 +2416,17 @@ function renderGrid() {
                 </select>
             </td>
             
-            <td data-col-id="quantity" style="text-align: center;">
+            <td data-col-id="quantity" style="text-align: center; vertical-align: middle;">
                 <input type="text" inputmode="decimal" class="g-input" data-qty-input="${row.id}" value="${row.quantity || ''}" placeholder="0"
-                    onfocus="this.select()" oninput="updateRow(${row.id},'quantity',this.value)"
-                    onblur="this.value=parseNum(this.value)||''" style="text-align: center; width: 100%; margin: 0 auto; display: block;">
+                    onfocus="this.select()" oninput="updateRow(${row.id},'quantity',this.value); if(window.autoFitSingleInput) window.autoFitSingleInput(this);"
+                    onblur="this.value=parseNum(this.value)||''; if(window.autoFitSingleInput) window.autoFitSingleInput(this);" style="text-align: center; width: 100%; margin: 0 auto; display: block;">
             </td>
-            <td data-col-id="price" style="text-align: center; position: relative;">
+            <td data-col-id="price" style="text-align: center; position: relative; vertical-align: middle;">
                 <input type="text" inputmode="decimal" class="g-input" data-price-input="${row.id}" value="${fmtNum(row.price, 'price')}"
-                    onfocus="this.select()" oninput="updateRow(${row.id},'price',this.value)"
-                    onblur="this.value=fmtNum(parseNum(this.value), 'price')" 
-                    style="text-align: center; width: 100%;">
-                <span class="btn-icon" data-price-hint="${row.id}" onclick="if(typeof showPriceHistory==='function') showPriceHistory(${row.id}, 'purchase')" style="display:none; align-items:center; gap:2px; position:absolute; top:2px; left:10px; font-size:0.68rem !important; font-weight:800 !important; padding:1px 6px; border-radius:10px; border:1px solid transparent; cursor:pointer; z-index:15; backdrop-filter:blur(6px); direction:ltr; line-height:1.2;"></span>
+                    onfocus="this.select()" oninput="updateRow(${row.id},'price',this.value); if(window.autoFitSingleInput) window.autoFitSingleInput(this);"
+                    onblur="this.value=fmtNum(parseNum(this.value), 'price'); if(window.autoFitSingleInput) window.autoFitSingleInput(this);" 
+                    style="text-align: center; width: 100%; margin: 0 auto; display: block;">
+                <span class="btn-icon pur-price-audit-pill" data-price-hint="${row.id}" onclick="if(this.getAttribute('data-audit-msg') && typeof showToast==='function') showToast(this.getAttribute('data-audit-msg'), this.getAttribute('data-lamp-state')?.startsWith('red') ? 'warning' : 'info', 4500); if(typeof showPriceHistory==='function') showPriceHistory(${row.id}, 'purchase')" style="display:none;"></span>
             </td>
             <td data-col-id="warehouse" style="text-align: center;">
                 <select class="g-select" onchange="updateRow(${row.id},'warehouseId',this.value); if(window.autoFitGridCells) window.autoFitGridCells();" tabindex="-1" style="text-align: center; width: 100%;">
@@ -5301,6 +5303,7 @@ function recalcPaymentSummary(isRevertCall = false) {
     const creditInput = document.getElementById('pay-credit-amount');
     if (creditInput) {
         creditInput.value = Math.round(creditAmt);
+        if (typeof window.autoFitSingleInput === 'function') window.autoFitSingleInput(creditInput);
     }
     
     // Collapse credit section if it becomes zero, showing it again if > 0

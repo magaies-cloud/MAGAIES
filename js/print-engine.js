@@ -429,10 +429,10 @@ window.InvoicePrinter = (function () {
         const amtTypeLabel = isFull ? 'كامل قيمة' : 'الجزء المتبقي من قيمة';
         
         return `
-            <div class="promissory-note-container" style="direction: rtl; text-align: right; font-family: 'Cairo', sans-serif; padding: 40px; background: #fff; color: #1e293b; max-width: 800px; margin: 0 auto; border: 2px double #cbd5e1; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
+            <div class="promissory-note-container" style="direction: rtl; text-align: right; font-family: 'Cairo', sans-serif; padding: 40px; background: #ffffff; color: #000000; font-weight: 800; max-width: 800px; margin: 0 auto; border: 2.5px double #0f172a; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.08);">
                 <div style="text-align: center; border-bottom: 2px solid #0f172a; padding-bottom: 15px; margin-bottom: 25px;">
                     <h2 style="margin: 0; font-size: 1.8rem; font-weight: 900; color: #0f172a;">📜 سند لأمر / كمبيالة إقرار دين</h2>
-                    <p style="margin: 5px 0 0 0; color: #64748b; font-size: 0.95rem;">محرر وفقاً للأنظمة واللوائح المعمول بها</p>
+                    <p style="margin: 5px 0 0 0; color: #0f172a; font-weight: 800; font-size: 0.95rem;">محرر وفقاً للأنظمة واللوائح المعمول بها</p>
                 </div>
                 
                 <div style="display: flex; justify-content: space-between; margin-bottom: 30px; font-size: 0.95rem; background: #f8fafc; padding: 15px; border-radius: 6px; border: 1px solid #e2e8f0;">
@@ -441,7 +441,7 @@ window.InvoicePrinter = (function () {
                     <div>المكان: <strong>الفرع الرئيسي</strong></div>
                 </div>
                 
-                <div style="font-size: 1.1rem; line-height: 1.8; color: #334155; margin-bottom: 40px; text-align: justify;">
+                <div style="font-size: 1.12rem; line-height: 1.85; color: #000000; font-weight: 800; margin-bottom: 40px; text-align: justify;">
                     أنا الموقع أدناه المدين/ <strong>${data.customerName || data.customer || '..............................................................'}</strong>
                     <br>
                     أقر وأعترف بكامل أهليتي المعتبرة شرعاً وقانوناً بأنني مدين لـ: <strong>${companyName}</strong>
@@ -470,7 +470,7 @@ window.InvoicePrinter = (function () {
                     </div>
                 </div>
                 
-                <div style="text-align: center; margin-top: 40px; font-size: 0.8rem; color: #94a3b8; border-top: 1px solid #e2e8f0; padding-top: 15px;">
+                <div style="text-align: center; margin-top: 40px; font-size: 0.85rem; color: #0f172a; font-weight: 800; border-top: 1.5px solid #334155; padding-top: 15px;">
                     تم إنشاء هذا السند تلقائياً عبر نظام المبيعات. يحق للمؤسسة اتخاذ الإجراءات القانونية اللازمة في حال عدم السداد في الموعد المحدد.
                 </div>
             </div>

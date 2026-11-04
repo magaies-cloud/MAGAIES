@@ -38,7 +38,7 @@ header("Pragma: no-cache");
             // Clear any previous tenant cached data if switching companies
             const prevTenantId = localStorage.getItem('currentTenantId');
             if (tenantId && prevTenantId && String(prevTenantId) !== String(tenantId)) {
-                const keysToKeep = ['saas_admin_token', 'device_uuid', 'theme', 'ui_lang'];
+                const keysToKeep = ['saas_admin_token', 'device_uuid', 'theme', 'ui_lang', 'magaies_active_theme', 'magaiees_global_theme', 'magaiees_mobile_theme', 'ui_theme', 'erp_theme', 'magaies_light_tone', 'pur_light_tone_palette'];
                 const saved = {};
                 keysToKeep.forEach(k => {
                     const v = localStorage.getItem(k);

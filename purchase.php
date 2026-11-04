@@ -79,13 +79,23 @@ try {
 
 <script>
 (function initScreenMaster7ThemeEarly() {
+  var getCookieVal = function(name) {
+    var m = document.cookie.match(new RegExp('(?:^|; )' + name + '=([^;]*)'));
+    return m ? decodeURIComponent(m[1]) : '';
+  };
   var raw = localStorage.getItem('magaies_active_theme') || 
             localStorage.getItem('magaiees_global_theme') || 
             localStorage.getItem('magaiees_mobile_theme') || 
             localStorage.getItem('ui_theme') || 
+            getCookieVal('magaies_active_theme') || 
             'warm_cream';
+  var rawTone = localStorage.getItem('magaies_light_tone') || 
+                localStorage.getItem('pur_light_tone_palette') || 
+                getCookieVal('magaies_light_tone') || 
+                'ivory_default';
   var aliasMap = {
-    'warm-alabaster': 'warm_cream', 'beige': 'warm_cream', 'ivory': 'warm_cream', 'light-linen': 'warm_cream',
+    'warm-alabaster': 'warm_cream', 'beige': 'warm_cream', 'ivory': 'warm_cream', 'light-linen': 'warm_cream', 'ivory_default': 'warm_cream',
+    'royal_bronze': 'warm_cream', 'platinum_gray': 'exec_gray', 'crystal_silver': 'ultra_white', 'sage_pearl': 'warm_cream', 'sky_alabaster': 'ultra_white', 'warm_mocha_dark': 'warm_cream', 'deep_slate_dark': 'exec_gray',
     'pure-platinum': 'ultra_white', 'offwhite': 'ultra_white', 'white': 'ultra_white', 'light': 'ultra_white',
     'pearl-platinum': 'exec_gray', 'nordic-paper': 'warm_cream', 'solar_contrast': 'warm_cream',
     'midnight-executive': 'midnight_obsidian', 'navy-kohl': 'midnight_obsidian', 'royal-blue': 'midnight_obsidian', 'ocean-navy': 'midnight_obsidian', 'navy': 'midnight_obsidian',
@@ -99,14 +109,16 @@ try {
   var isLight = ['warm_cream', 'ultra_white', 'exec_gray'].includes(activeKey);
 
   document.documentElement.setAttribute('data-theme', activeKey);
-  if (isLight) document.documentElement.classList.add('light-theme');
-  else document.documentElement.classList.remove('light-theme');
+  document.documentElement.setAttribute('data-light-tone', rawTone);
+  if (isLight) { document.documentElement.classList.add('light-theme'); document.documentElement.classList.remove('dark-theme'); }
+  else { document.documentElement.classList.remove('light-theme'); document.documentElement.classList.add('dark-theme'); }
 
   document.addEventListener("DOMContentLoaded", function() {
     if (document.body) {
       document.body.setAttribute('data-theme', activeKey);
-      if (isLight) document.body.classList.add('light-theme');
-      else document.body.classList.remove('light-theme');
+      document.body.setAttribute('data-light-tone', rawTone);
+      if (isLight) { document.body.classList.add('light-theme'); document.body.classList.remove('dark-theme'); }
+      else { document.body.classList.remove('light-theme'); document.body.classList.add('dark-theme'); }
     }
   });
 })();
@@ -2458,9 +2470,9 @@ try {
 
             <!-- AI Price Spike & Selling Margin Radar -->
             <button onclick="if(window.openPurchaseAIAuditModal) window.openPurchaseAIAuditModal();" class="hub-action-card" style="background: linear-gradient(135deg, rgba(99, 102, 241, 0.22), rgba(168, 85, 247, 0.38)); border: 1px solid rgba(168, 85, 247, 0.55); cursor: pointer;">
-                <div class="icon" style="filter: drop-shadow(0 0 8px rgba(168, 85, 247, 0.6));">🤖</div>
+                <div class="icon" style="filter: drop-shadow(0 0 8px rgba(168, 85, 247, 0.6));">💰</div>
                 <div class="text-content">
-                    <div class="title" style="color: #d8b4fe; font-weight: 800;">رادار الأسعار وهامش البيع AI</div>
+                    <div class="title" style="color: #d8b4fe; font-weight: 800;">الأسعار</div>
                 </div>
             </button>
         </div>
@@ -2569,22 +2581,22 @@ try {
         
 <!-- WRAPPER FOR TOP SECTION -->
 <style id="purchase-worldclass-ux-styles">
-    /* ═══ WORLD-CLASS PURCHASE HEADER & SLIM TOP BAR HARMONY ═══ */
+    /* ═══ WORLD-CLASS PURCHASE HEADER & BALANCED TOP BAR HARMONY ═══ */
     #purchase-top-container #form-fields-card {
-        padding: 12px 16px !important;
-        border-radius: 16px !important;
+        padding: 12px 14px !important;
+        border-radius: 14px !important;
         background: linear-gradient(145deg, rgba(15, 23, 42, 0.88), rgba(18, 16, 32, 0.92)) !important;
         border: 1px solid rgba(56, 189, 248, 0.22) !important;
         box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
     }
-    /* Row 0: Unified Slim 38px Bar for Invoice No, Date, User Badge & Supplier Financial Strip */
+    /* Row 0: Unified 40px Bar for Invoice No, Date, User Badge & Supplier Financial Strip */
     #purchase-row0-bar {
         display: flex !important;
         width: 100% !important;
         gap: 10px !important;
-        margin-bottom: 4px !important;
+        margin-bottom: 0 !important;
         align-items: center !important;
-        min-height: 42px !important;
+        min-height: 40px !important;
     }
     #invoice-info-box {
         flex: 0 0 auto !important;
@@ -2592,11 +2604,11 @@ try {
         gap: 8px !important;
         width: auto !important;
         min-height: 40px !important;
-        max-height: 42px !important;
+        max-height: 40px !important;
         align-items: center !important;
         justify-content: flex-start !important;
         padding: 2px 10px !important;
-        border-radius: 11px !important;
+        border-radius: 10px !important;
         background: rgba(15, 23, 42, 0.55) !important;
         border: 1px solid rgba(255, 255, 255, 0.08) !important;
         transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1) !important;
@@ -2614,7 +2626,7 @@ try {
     #invoice-info-box #hdr-inv-label,
     #invoice-info-box #hdr-date-label {
         margin: 0 !important;
-        font-size: 0.78rem !important;
+        font-size: 0.8rem !important;
         font-weight: 800 !important;
         color: #cbd5e1 !important;
         white-space: nowrap !important;
@@ -2636,7 +2648,7 @@ try {
         box-sizing: border-box !important;
     }
     #invoice-info-box #inv-number {
-        font-size: 1.35rem !important;
+        font-size: 1.32rem !important;
         font-family: 'Outfit', 'JetBrains Mono', sans-serif !important;
         font-weight: 900 !important;
         color: #38bdf8 !important;
@@ -2682,55 +2694,12 @@ try {
         opacity: 1 !important;
         display: flex !important;
     }
-    #purchase-user-audit-container .user-audit-badge {
-        display: inline-flex !important;
-        flex-direction: row !important;
-        align-items: center !important;
-        justify-content: center !important;
-        gap: 6px !important;
-        height: 36px !important;
-        min-height: 36px !important;
-        max-height: 36px !important;
-        padding: 0 11px !important;
-        border-radius: 9px !important;
-        background: linear-gradient(135deg, rgba(15, 23, 42, 0.85), rgba(30, 41, 59, 0.75)) !important;
-        border: 1px solid rgba(56, 189, 248, 0.32) !important;
-        white-space: nowrap !important;
-        box-sizing: border-box !important;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.2) !important;
-    }
-    #purchase-user-audit-container .user-audit-badge .uab-row {
-        display: inline-flex !important;
-        flex-direction: row !important;
-        align-items: center !important;
-        gap: 5px !important;
-        flex-wrap: nowrap !important;
-    }
-    #purchase-user-audit-container .user-audit-badge .uab-edit-row,
-    #purchase-user-audit-container .user-audit-badge .uab-deliv-row {
-        display: none !important;
-    }
-    #purchase-user-audit-container .user-audit-badge .uab-label {
-        font-size: 0.75rem !important;
-        color: #94a3b8 !important;
-        font-weight: 700 !important;
-    }
-    #purchase-user-audit-container .user-audit-badge .uab-val {
-        font-size: 0.84rem !important;
-        color: #38bdf8 !important;
-        font-weight: 900 !important;
-    }
-    #purchase-user-audit-container .user-audit-badge .uab-tag {
-        padding: 1px 6px !important;
-        font-size: 0.68rem !important;
-        border-radius: 5px !important;
-    }
-    /* Slim Single-Line Financial Strip matching exact 38px height */
+    /* Financial Strip matching exact 40px height */
     #customer-financial-card .fin-strip-inner {
         width: 100% !important;
-        height: 38px !important;
-        min-height: 38px !important;
-        max-height: 38px !important;
+        height: 40px !important;
+        min-height: 40px !important;
+        max-height: 40px !important;
         background: linear-gradient(90deg, rgba(15, 23, 42, 0.85), rgba(30, 58, 138, 0.35)) !important;
         border: 1px solid rgba(56, 189, 248, 0.5) !important;
         border-radius: 10px !important;
@@ -2755,7 +2724,7 @@ try {
         gap: 4px !important;
         white-space: nowrap !important;
     }
-    /* Row 1: Compact Labels (-1 degree) + Expanded Supplier Input + Bold Exchange Rate + Strict Single-Level Alignment */
+    /* Row 1 & Row 2: Comfortable 42px Controls + Aligned Labels */
     #purchase-row1-bar,
     #purchase-row2-bar {
         display: flex !important;
@@ -2764,6 +2733,7 @@ try {
         flex-wrap: nowrap !important;
         gap: 12px !important;
         width: 100% !important;
+        margin-bottom: 0 !important;
         box-sizing: border-box !important;
     }
     #purchase-row1-bar .h-form-group,
@@ -2771,9 +2741,9 @@ try {
         display: flex !important;
         flex-direction: row !important;
         align-items: center !important;
-        height: 40px !important;
-        min-height: 40px !important;
-        max-height: 40px !important;
+        height: 42px !important;
+        min-height: 42px !important;
+        max-height: 42px !important;
         margin: 0 !important;
         box-sizing: border-box !important;
     }
@@ -2782,13 +2752,13 @@ try {
         display: flex !important;
         flex-direction: row !important;
         align-items: center !important;
-        height: 40px !important;
+        height: 42px !important;
         flex: 1 !important;
         min-width: 0 !important;
     }
     #purchase-row1-bar .custom-dropdown,
     #purchase-row1-bar .custom-dropdown-input-wrap {
-        height: 40px !important;
+        height: 42px !important;
         display: flex !important;
         align-items: center !important;
         width: 100% !important;
@@ -2796,22 +2766,26 @@ try {
     }
     #purchase-row1-bar .h-label,
     #purchase-row2-bar .h-label {
-        font-size: 0.84rem !important;
+        font-size: 0.85rem !important;
         font-weight: 800 !important;
         min-width: auto !important;
         margin: 0 !important;
         white-space: nowrap !important;
         letter-spacing: 0 !important;
-        line-height: 40px !important;
+        line-height: 42px !important;
         display: inline-flex !important;
         align-items: center !important;
         gap: 4px !important;
     }
+    #purchase-row1-bar .group-supplier > .h-label,
+    #purchase-row2-bar .group-description > .h-label {
+        min-width: 64px !important;
+    }
     #purchase-row1-bar .ctrl-input,
     #purchase-row2-bar .ctrl-input {
-        height: 40px !important;
-        min-height: 40px !important;
-        max-height: 40px !important;
+        height: 42px !important;
+        min-height: 42px !important;
+        max-height: 42px !important;
         border-radius: 9px !important;
         box-sizing: border-box !important;
     }
@@ -2840,7 +2814,7 @@ try {
         animation: none !important;
     }
     #hdr-exchange-rate {
-        font-size: 1.38rem !important;
+        font-size: 1.35rem !important;
         font-weight: 900 !important;
         font-family: 'Outfit', 'JetBrains Mono', sans-serif !important;
         letter-spacing: 0.5px !important;
@@ -2850,76 +2824,9 @@ try {
         text-shadow: 0 0 8px rgba(16, 185, 129, 0.25) !important;
     }
 </style>
-<!-- شريط الدستور الختامي الأول (1 من 2) والذكاء الاصطناعي الفوري (0ms) لشاشة المشتريات -->
-<div id="pur-fc1-smart-ai-command-bar" style="display:flex; flex-direction:column; gap:7px; padding:9px 14px; margin:0 0 10px 0; border-radius:14px; border:1.5px solid rgba(56,189,248,0.32); background:linear-gradient(135deg, rgba(15,23,42,0.92), rgba(30,27,75,0.78)); box-shadow:0 8px 24px rgba(0,0,0,0.22); box-sizing:border-box; width:100%;">
-    <div style="display:flex; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap; width:100%;">
-        <!-- الإدخال الذكي باللغة الطبيعية صوتاً وكتابةً (0ms Hybrid Edge + Cloud AI) -->
-        <div style="display:flex; align-items:center; gap:6px; flex:1; min-width:270px; background:#000000; border:1.5px solid rgba(56,189,248,0.48); border-radius:10px; padding:3px 8px;">
-            <span style="font-size:1rem;" title="الإدخال الذكي للمشتريات باللغة الطبيعية (0ms AI Copilot)">🧠</span>
-            <input type="text" id="pur-fc1-nlp-input" onkeydown="if(event.key==='Enter'){event.preventDefault();window.executePurFc1NaturalLanguageCommand();}" placeholder="اكتب أو انطق فاتورة ذكية: مثلاً «فاتورة مشتريات من النيلين 50 طن أسمنت سعر 120000 نقداً»..." style="flex:1; background:#000000 !important; border:none !important; color:#ffffff !important; font-size:0.81rem; font-weight:800; outline:none; padding:4px 6px; height:28px !important;" data-guide-title="الإدخال الذكي للفاتورة باللغة الطبيعية صوتاً وكتابةً (0ms AI)" data-guide-desc="اكتب أو انطق جملة طبيعية وسيقوم الذكاء الاصطناعي الهجين باختيار المورد وإدراج الأصناف والكميات والأسعار وحساب الإجمالي في جزء من الثانية." data-guide-rule="الإدخال الذكي باللغة الطبيعية يختصر 10 خطوات يدوية في خطوة واحدة بسرعة 0ms.">
-            <button type="button" id="btn-pur-fc1-voice" onclick="window.startPurFc1VoiceNlpInput()" style="height:27px; padding:0 9px; border-radius:7px; background:rgba(239,68,68,0.22); color:#fca5a5; border:1px solid rgba(239,68,68,0.5); font-size:0.75rem; font-weight:900; cursor:pointer; display:inline-flex; align-items:center; gap:4px;" title="إملاء الفاتورة كاملة بالصوت">🎤 صوتي</button>
-            <button type="button" onclick="window.executePurFc1NaturalLanguageCommand()" style="height:27px; padding:0 11px; border-radius:7px; background:linear-gradient(135deg,#0284c7,#2563eb); color:#fff; border:1px solid #38bdf8; font-size:0.75rem; font-weight:900; cursor:pointer;">⚡ ملء فوري</button>
-        </div>
-        <!-- أدوات الدستور الختامي الأول (1 من 2) -->
-        <div style="display:flex; align-items:center; gap:5px; flex-wrap:wrap;">
-            <button type="button" onclick="window.openPurFc1AiOcrAndPriceAdvisorModal()" style="height:30px; padding:0 9px; border-radius:8px; background:rgba(14,165,233,0.18); color:#38bdf8; border:1px solid rgba(56,189,248,0.48); font-size:0.76rem; font-weight:900; cursor:pointer;" data-guide-title="قارئ الفواتير AI OCR ومقترح أفضل سعر وبديل للصنف" data-guide-desc="قراءة صور ونصوص الفواتير والإشعارات بالذكاء الاصطناعي واقتراح أفضل سعر شراء وبديل للصنف." data-guide-rule="مقارنة سعر المورد تاريخياً قبل الاعتماد تمنع الشراء بسعر مرتفع.">📷 قارئ AI والأسعار</button>
-            <button type="button" id="btn-pur-fc1-ui-mode" onclick="window.togglePurFc1DualUiMode()" style="height:30px; padding:0 9px; border-radius:8px; background:rgba(168,85,247,0.18); color:#e9d5ff; border:1px solid rgba(168,85,247,0.5); font-size:0.76rem; font-weight:900; cursor:pointer;" data-guide-title="البوابة المزدوجة (العصرية العالمية ↔ الكلاسيكية المعتادة)" data-guide-desc="التبديل الفوري في 0ms بين الواجهة العصرية الفاخرة والواجهة الكلاسيكية الدفترية المعتادة." data-guide-rule="حرية اختيار الواجهة تمنح كل محاسب البيئة البصرية الأسرع لإنجازه.">✨ عصرية ↔ 🏛️ كلاسيكية</button>
-            <button type="button" id="btn-pur-fc1-shortcuts" onclick="window.openPurFc1ShortcutsMatrixModal()" style="height:30px; padding:0 9px; border-radius:8px; background:rgba(245,158,11,0.18); color:#fde047; border:1px solid rgba(245,158,11,0.5); font-size:0.76rem; font-weight:900; cursor:pointer;" data-guide-title="مصفوفة أزرار الاختصارات (1، 2، 3، 4) القابلة للتشكيل مع القفل الأمني" data-guide-desc="التبديل بين البرنامج الكامل وأزرار الاختصارات (1، 2، 3، 4) وتحديد ما يظهر بداخلها بعلامة صح (✓) مع قفل حبس الاختصار أمنياً للموظف.">🔢 اختصارات (1-4)</button>
-            <button type="button" id="btn-pur-fc1-split-screen" onclick="window.togglePurFc1SplitScreenStudio()" style="height:30px; padding:0 9px; border-radius:8px; background:rgba(6,182,212,0.18); color:#67e8f9; border:1px solid rgba(6,182,212,0.5); font-size:0.76rem; font-weight:900; cursor:pointer;" data-guide-title="نظام النصفين (يمين وشمال) وهندسة الموبايل بالعرض (100dvh)" data-guide-desc="فتح شاشتين مختلفتين في النصف الأيمن والأيسر تتحدثان حياً فور الحفظ، أو تحويل النصف الثاني لمنطقة جوال حرة 100% (يوتيوب، استوديو صور مع قارئ AI، واتساب، وبنكك).">🌗 نظام النصفين</button>
-            <button type="button" id="btn-pur-fc1-gestures" onclick="window.openPurFc1GestureControlModal()" style="height:30px; padding:0 9px; border-radius:8px; background:rgba(16,185,129,0.18); color:#6ee7b7; border:1px solid rgba(16,185,129,0.5); font-size:0.76rem; font-weight:900; cursor:pointer;" data-guide-title="مفتاح إيماءات الأصابع وأزرار الصوت (تفعيل/إيقاف للشاشات المرتجة)" data-guide-desc="تفعيل أو إيقاف إيماءات الأصابع وأزرار الصوت لحماية الشاشات ذات اللمس المرتج مع لوحة الشرح الوافي لكل حركة.">🤚 الإيماءات</button>
-            <button type="button" id="btn-pur-fc1-park" onclick="window.parkActivePurchaseInvoice()" style="height:30px; padding:0 9px; border-radius:8px; background:rgba(245,158,11,0.16); color:#fbbf24; border:1px solid rgba(245,158,11,0.45); font-size:0.76rem; font-weight:900; cursor:pointer;" title="تعليق مؤقت للفاتورة واسترجاعها بلمسة واحدة (Alt+P)">⏸️ تعليق <span id="pur-fc1-park-badge">0</span></button>
-            <button type="button" id="btn-pur-fc1-undo" onclick="window.triggerPurFc1InstantUndo()" style="height:30px; padding:0 9px; border-radius:8px; background:rgba(56,189,248,0.16); color:#7dd3fc; border:1px solid rgba(56,189,248,0.45); font-size:0.76rem; font-weight:900; cursor:pointer;" title="تراجع فوري آمن (Ctrl+Z)">↩️ تراجع</button>
-            <button type="button" id="btn-pur-fc1-sunlight" onclick="window.togglePurFc1SunlightMode()" style="height:30px; padding:0 9px; border-radius:8px; background:rgba(250,204,21,0.16); color:#fde047; border:1px solid rgba(250,204,21,0.45); font-size:0.76rem; font-weight:900; cursor:pointer;" title="وضع وضوح شمس السوق">☀️ شمس السوق</button>
-            <button type="button" id="btn-pur-fc1-audit-gate" onclick="window.openPurFc1SupremeConstitutionModal()" style="height:30px; padding:0 9px; border-radius:8px; background:linear-gradient(135deg,#10b981,#047857); color:#ffffff; border:1.5px solid #34d399; font-size:0.74rem; font-weight:900; cursor:pointer; box-shadow:0 3px 10px rgba(16,185,129,0.32);" data-guide-title="بوابة الدستور الختامي الأول (1 من 2 — 10 نقاط جوهرية 100%)" data-guide-desc="فحص وتشغيل النقاط الجوهرية العشر للدستور الختامي الأول على شاشة المشتريات بمعيار 50 دورة مراجعة وزيرو خطأ.">👑 الدستور (1/2)</button>
-            <button type="button" id="btn-pur-fc2-audit-gate" onclick="window.openPurFc2SupremeConstitution2Modal()" style="height:30px; padding:0 9px; border-radius:8px; background:linear-gradient(135deg,#f59e0b,#b45309); color:#ffffff; border:1.5px solid #fde047; font-size:0.74rem; font-weight:900; cursor:pointer; box-shadow:0 3px 12px rgba(245,158,11,0.38);" data-guide-title="بوابة الدستور الختامي الثاني (2 من 2 — الذكاء المحاسبي والتحليلي والأمني 10/10)" data-guide-desc="خلاصة الربط الذري 100%، مفسر النتائج والتقارير بالذكاء الاصطناعي، تزامن CRDT، دورة الشيكات وبنكك 40KB، رادار المالك الجنائي (أصفر/برتقالي/أحمر)، وأقفال مكافحة الاختلاس." data-guide-rule="كل فاتورة مشتريات تسمع ذرياً في 0ms في المخازن وكشف المورد واليومية وتخضع لحراسة الذكاء الاصطناعي الجنائي.">🛡️ الدستور (2/2)</button>
-            <button type="button" id="btn-pur-sovereign-10x-gate" onclick="window.openPurSovereign10xMasterAuditModal()" style="height:30px; padding:0 11px; border-radius:8px; background:linear-gradient(135deg,#0284c7,#1d4ed8); color:#ffffff; border:1.5px solid #7dd3fc; font-size:0.74rem; font-weight:900; cursor:pointer; box-shadow:0 3px 12px rgba(2,132,199,0.42);" data-guide-title="بوابة الحسم والفحص الختامي الشامل (النسخة السيادية الموحدة لمقاس جميع الشاشات + تكبير 10x بالرولة + زيرو خطأ)" data-guide-desc="توحيد مقاس جميع الشاشات من اليمين للشمال على قد اللابتوب تماماً، توحيد الخطوط (+2)، التكبير والتصغير بالرولة والكنترول حتى 10 أضعاف (10x)، وتقرير الإصلاحات والـ 10 إضافات الذكية." data-guide-rule="توحيد المسطرة الهندسية والخطوط والتكبير حتى 10 أضعاف عبر كل الشاشات يمنح راحة بصرية مطلقة من أجهزة 2010 إلى ما لا نهاية.">🏆 النسخة السيادية الموحدة (10x + زيرو خطأ)</button>
-        </div>
-    </div>
-    <!-- شريط الدستور الختامي الثاني (2 من 2): التسميع الذري، مفسر النتائج AI، التكلفة المضافة والدورة المستندية، الشيكات وبنكك، الرادار الجنائي، وأقفال الاختلاس -->
-    <div id="pur-fc2-executive-toolbar" style="display:flex; align-items:center; justify-content:space-between; gap:5px; flex-wrap:wrap; width:100%; padding-top:5px; border-top:1px dashed rgba(148,163,184,0.25);">
-        <div style="display:flex; align-items:center; gap:5px; flex-wrap:wrap;">
-            <button type="button" onclick="window.openPurFc2AtomicSyncAndDrillDownModal()" style="height:29px; padding:0 9px; border-radius:7px; background:rgba(16,185,129,0.18); color:#34d399; border:1px solid rgba(16,185,129,0.5); font-size:0.74rem; font-weight:900; cursor:pointer;" data-guide-title="التسميع الذري اللحظي (0ms) والوصول لأصل المستند (Drill-Down)" data-guide-desc="ربط ذري 100% بين فاتورة المشتريات وكشف حساب المورد وأرصدة المخازن والخزينة والبنوك واليومية وميزان المراجعة مع فتح أصل أي حركة بلمسة." data-guide-rule="حفظ فاتورة المشتريات يُسمّع في 7 شاشات وتقارير في نفس الجزء من الثانية.">🔗 التسميع الذري و Drill-Down</button>
-            <button type="button" onclick="window.openPurFc2AiExecutiveInsightsModal()" style="height:29px; padding:0 9px; border-radius:7px; background:rgba(56,189,248,0.18); color:#38bdf8; border:1px solid rgba(56,189,248,0.5); font-size:0.74rem; font-weight:900; cursor:pointer;" data-guide-title="مفسر النتائج والتقارير بالذكاء الاصطناعي (AI Executive Insights)" data-guide-desc="قراءة وتفسير نتيجة المشتريات وتكلفة المخزون، التنبؤ باحتياجات إعادة الطلب والتدفقات النقدية، وسؤال التقرير باللغة الطبيعية." data-guide-rule="تحليل الفاتورة قبل الحفظ يكشف أثرها المباشر على السيولة وهامش ربح المؤسسة.">📊 مفسر النتائج وسؤال التقرير AI</button>
-            <button type="button" onclick="window.openPurFc2DocumentaryAndLandedCostModal()" style="height:29px; padding:0 9px; border-radius:7px; background:rgba(168,85,247,0.18); color:#d8b4fe; border:1px solid rgba(168,85,247,0.5); font-size:0.74rem; font-weight:900; cursor:pointer;" data-guide-title="توزيع المصروفات المضافة (Landed Cost) والفحص والاستلام والدورة المستندية" data-guide-desc="توزيع الترحيل والعتالة والشحن آلياً على تكلفة الأصناف مع تنبيه تآكل هامش الربح، شاشة فحص واستلام البضاعة (سليم/تالف/مرفوض)، وتحويل (عرض سعر ⬅ فاتورة ⬅ إذن مخزن ⬅ سند صرف)." data-guide-rule="توزيع المصروفات المضافة على تكلفة الوحدة يكشف التكلفة الحقيقية ويمنع البيع بالخسارة.">📦 التكلفة المضافة والدورة المستندية</button>
-            <button type="button" onclick="window.openPurFc2ChequesAndBankakRadarModal()" style="height:29px; padding:0 9px; border-radius:7px; background:rgba(245,158,11,0.18); color:#fde047; border:1px solid rgba(245,158,11,0.5); font-size:0.74rem; font-weight:900; cursor:pointer;" data-guide-title="دورة الشيكات الخماسية وكاشف تزوير إشعارات (بنكك / فوري) بضغط 40KB" data-guide-desc="إدارة مراحل الشيك الخمس (حافظة ⬅ تحت التحصيل ⬅ صرف فعلي ⬅ مرتد ⬅ تظهير) وفحص إشعارات بنكك وفوري بالذكاء الاصطناعي لمنع التكرار والتزوير." data-guide-rule="فحص الرقم المرجعي لإشعار بنكك عبر قاعدة البيانات يمنع تكرار الصرف أو التزوير.">🏦 الشيكات وكاشف تزوير بنكك</button>
-            <button type="button" onclick="window.openPurFc2ProactiveAlertsCenterModal()" style="height:29px; padding:0 9px; border-radius:7px; background:rgba(236,72,153,0.18); color:#f9a8d4; border:1px solid rgba(236,72,153,0.5); font-size:0.74rem; font-weight:900; cursor:pointer;" data-guide-title="منظومة التنبيهات الاستباقية وحارس الأصفار الزائدة والأسعار الشاذة" data-guide-desc="رادار استحقاق شيكات الموردين، سقف ائتمان المورد، الأصناف الراكدة، وحارس الأصفار الزائدة والأسعار الشاذة مع اهتزاز الخانة الخاطئة." data-guide-rule="التنبيه الاستباقي عند إدخال سعر شاذ أو صفر زائد يحمي المؤسسة من أخطاء الملايين.">🔔 التنبيهات وحارس الأصفار</button>
-            <button type="button" onclick="window.openPurFc2ForensicOwnerRadarModal()" style="height:29px; padding:0 9px; border-radius:7px; background:rgba(239,68,68,0.2); color:#fca5a5; border:1px solid rgba(239,68,68,0.55); font-size:0.74rem; font-weight:900; cursor:pointer;" data-guide-title="رادار الذكاء الاصطناعي الجنائي للمالك (🟡 أصفر / 🟠 برتقالي / 🔴 أحمر) والصندوق الأسود" data-guide-desc="توثيق كل ما كُتب ومُسح قبل الحفظ في الصندوق الأسود المشفر، وتحليل سلوك الموظفين بثلاث درجات (ملاحظة رقابية، شبهة تضخيم مصروفات، محاولة اختلاس)." data-guide-rule="الصندوق الأسود يوثق كل تعديل أو مسح قبل الحفظ ويغذي لوحة المالك السرية لحظياً.">🕵️‍♂️ الرادار الجنائي للمالك (🟡🟠🔴)</button>
-            <button type="button" onclick="window.openPurFc2AntiEmbezzlementLocksModal()" style="height:29px; padding:0 9px; border-radius:7px; background:rgba(14,165,233,0.18); color:#7dd3fc; border:1px solid rgba(14,165,233,0.5); font-size:0.74rem; font-weight:900; cursor:pointer;" data-guide-title="أقفال مكافحة الاختلاس، قفل الطبعة (1)، الجرد الأعمى، وإقفال الفترات" data-guide-desc="قفل الطباعة بعد النسخة الأصلية (1) وعلامة بدل فاقد، الجرد الأعمى للخزينة، إشعار واتساب الفوري للمورد، وقفل الفترات المالية المغلقة." data-guide-rule="قفل الطبعة الأولى وإشعار الواتساب الفوري للمورد يمنعان التلاعب بنوع الدفع.">🔒 أقفال الاختلاس والجرد الأعمى</button>
-            <button type="button" onclick="window.openPurFc2CyberBiometricAndPrintStudioModal()" style="height:29px; padding:0 9px; border-radius:7px; background:rgba(20,184,166,0.18); color:#5eead4; border:1px solid rgba(20,184,166,0.5); font-size:0.74rem; font-weight:900; cursor:pointer;" data-guide-title="البصمة البيومترية، القفل الزمني، والطباعة الحرارية 80mm وبطاقة واتساب" data-guide-desc="تفعيل البصمة البيومترية، القفل الزمني ضد إرجاع الساعة، تشفير AES-256، والطباعة الموزونة الحرارية 80mm وA4 وبطاقة إيصال واتساب المصورة." data-guide-rule="البصمة البيومترية والقفل الزمني المشفر يحميان الفواتير المرحّلة من أي عبث.">🧬 البصمة وطباعة 80mm وواتساب</button>
-        </div>
-        <div style="display:flex; align-items:center; gap:5px; flex-wrap:wrap;">
-            <div style="display:inline-flex; align-items:center; gap:3px; padding:2px 6px; border-radius:8px; background:rgba(2,6,23,0.88); border:1px solid rgba(56,189,248,0.45);" data-guide-title="محرك التكبير والتصغير الخارق بـ (Ctrl + رولة الماوس) حتى 10 أضعاف (10x) وتوحيد الشاشات" data-guide-desc="تكبير وتصغير متناسب في الطول والعرض من 0.25x وحتى 10 أضعاف (10x = 1000%) مع تزامن فوري عبر جميع شاشات البرنامج (البيانات الأساسية، المبيعات، المشتريات، التقارير)." data-guide-rule="توحيد المقاس والخطوط عبر كل الشاشات يحمي العين من إعادة التكيف البصري عند التنقل.">
-                <button type="button" onclick="window.setPurFc1ProportionalZoom('step', -0.1)" style="height:23px; padding:0 6px; border-radius:5px; background:rgba(255,255,255,0.08); color:#fff; border:none; font-size:0.7rem; font-weight:900; cursor:pointer;" title="تصغير متناسب">➖</button>
-                <span id="pur-sov-10x-live-badge" onclick="window.setPurFc1ProportionalZoom('reset')" style="font-size:0.72rem; font-weight:900; color:#38bdf8; padding:0 5px; cursor:pointer;" title="اضغط لإعادة الضبط القياسي 100% (1x) على قد اللابتوب من اليمين للشمال">🔍 المقاس الموحد: 100% (1x)</span>
-                <button type="button" onclick="window.setPurFc1ProportionalZoom('step', 0.1)" style="height:23px; padding:0 6px; border-radius:5px; background:rgba(255,255,255,0.08); color:#fff; border:none; font-size:0.7rem; font-weight:900; cursor:pointer;" title="تكبير متناسب">➕</button>
-                <button type="button" onclick="window.setPurFc1ProportionalZoom(2.0)" style="height:23px; padding:0 5px; border-radius:5px; background:rgba(56,189,248,0.18); color:#7dd3fc; border:none; font-size:0.69rem; font-weight:900; cursor:pointer;">2x</button>
-                <button type="button" onclick="window.setPurFc1ProportionalZoom(3.0)" style="height:23px; padding:0 5px; border-radius:5px; background:rgba(56,189,248,0.18); color:#7dd3fc; border:none; font-size:0.69rem; font-weight:900; cursor:pointer;">3x</button>
-                <button type="button" onclick="window.setPurFc1ProportionalZoom(5.0)" style="height:23px; padding:0 5px; border-radius:5px; background:rgba(245,158,11,0.2); color:#fde047; border:none; font-size:0.69rem; font-weight:900; cursor:pointer;">5x</button>
-                <button type="button" onclick="window.setPurFc1ProportionalZoom(10.0)" style="height:23px; padding:0 6px; border-radius:5px; background:rgba(239,68,68,0.25); color:#fca5a5; border:none; font-size:0.69rem; font-weight:900; cursor:pointer;">10x</button>
-                <span id="pur-laser-symmetry-badge" onclick="window.setPurFc1ProportionalZoom('reset')" style="height:23px; padding:0 7px; border-radius:5px; background:rgba(16,185,129,0.2); color:#34d399; border:1px solid rgba(52,211,153,0.45); font-size:0.69rem; font-weight:900; display:inline-flex; align-items:center; cursor:pointer;" title="قفل التنصيف الليزري المتماثل: الهامش الأيمن === الهامش الأيسر بالبيكسل">🎯 تنصيف ليزري: يمين = يسار</span>
-            </div>
-            <span id="pur-fc2-crdt-sync-badge" onclick="window.triggerPurFc2FlashSyncCRDT()" style="height:27px; padding:0 9px; border-radius:999px; background:rgba(16,185,129,0.16); color:#34d399; border:1px solid rgba(16,185,129,0.45); font-size:0.72rem; font-weight:900; display:inline-flex; align-items:center; gap:4px; cursor:pointer;" data-guide-title="التزامن الصاروخي (CRDT Flash Sync) ودرع حماية المدخلات" data-guide-desc="اقتناص أضعف شرارة إنترنت لدمج فواتير المشتريات تراكمياً بدون تضارب مع حماية المدخلات الجارية عند انطفاء البطارية أو ورود مكالمة.">⚡ تزامن CRDT: متطابق 100% (0ms)</span>
-        </div>
-    </div>
-    <!-- شريط مفسر النتائج التنفيذي الحي بالذكاء الاصطناعي (0ms AI Live Result Summary Bar) -->
-    <div id="pur-fc2-live-result-interpreter-bar" style="display:flex; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap; padding:6px 10px; border-radius:9px; background:rgba(2,6,23,0.78); border:1px solid rgba(56,189,248,0.35); font-size:0.77rem;">
-        <div id="pur-fc2-live-result-summary-text" style="font-weight:800; color:#e2e8f0; flex:1; min-width:220px;">🧠 <strong style="color:#38bdf8;">مفسر النتائج بالذكاء الاصطناعي (0ms):</strong> جاري قراءة إجمالي الفاتورة وأثرها المخزني والمالي...</div>
-        <div style="display:flex; align-items:center; gap:5px; flex-wrap:wrap;">
-            <input type="text" id="pur-fc2-quick-report-question" onkeydown="if(event.key==='Enter'){event.preventDefault();window.askPurFc2QuickReportQuestion();}" placeholder="اسأل تقرير المشتريات: «أكثر 5 موردين»، «سبب زيادة المصروفات»، «توقع المخزون»..." style="width:240px; max-width:100%; height:26px !important; min-height:26px !important; padding:0 8px !important; border-radius:6px; border:1px solid rgba(56,189,248,0.45) !important; background:#000000 !important; color:#ffffff !important; font-size:0.74rem; font-weight:800;">
-            <button type="button" onclick="window.askPurFc2QuickReportQuestion()" style="height:26px; padding:0 9px; border-radius:6px; background:#0284c7; color:#fff; border:none; font-size:0.73rem; font-weight:900; cursor:pointer;">🔍 استخرج فوراً</button>
-        </div>
-    </div>
-    <!-- شريط مساعد الشاشة اللحظي والتفقيط العربي الفوري والفواتير المعلقة -->
-    <div style="display:flex; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap; font-size:0.77rem;">
-        <span id="pur-fc1-copilot-hint" style="color:#34d399; font-weight:900;">🤖 مساعد الشاشة اللحظي (0ms Copilot): جاهز — اكتب معادلة مثل (12*24) داخل الكمية أو السعر للحساب التلقائي.</span>
-        <span id="pur-fc1-live-tafqeet-bar" style="color:#fde047; font-weight:900;">🗣️ التفقيط اللحظي: صفر جنيه سوداني لا غير</span>
-        <span id="pur-fc1-zoom-badge" onclick="window.setPurFc1ProportionalZoom('reset')" style="color:#38bdf8; font-weight:900; cursor:pointer;" title="Ctrl + رولة الماوس للتكبير والتصغير المتناسب (6:8)">📐 مقاس (6:8): 100%</span>
-    </div>
-    <div id="pur-fc1-parked-strip" style="display:none; align-items:center; gap:6px; flex-wrap:wrap; padding-top:4px; border-top:1px dashed rgba(245,158,11,0.35);"></div>
-</div>
-<div id="purchase-top-container" class="form-expanded" style="display: flex; gap: 15px; align-items: stretch; transition: all 0.5s ease; width: 100%;">
-<div class="neo-card expanded-form purchase-glass-card" id="form-fields-card" style="margin-bottom: 0;">
-            <div style="display: flex; flex-direction: column; gap: 10px;">
+<div id="purchase-top-container" class="form-expanded" style="display: flex; gap: 0; align-items: stretch; transition: all 0.5s ease; width: 100%; margin: 0; padding: 0;">
+<div class="neo-card expanded-form purchase-glass-card" id="form-fields-card" style="margin: 0; width: 100%; box-sizing: border-box;">
+            <div style="display: flex; flex-direction: column; gap: 9px;">
                 
                 <!-- ROW 0 WRAPPER (Unified Slim Level: Invoice No, Date, User, Financial Strip) -->
                 <div id="purchase-row0-bar">
@@ -2927,7 +2834,7 @@ try {
                     <div id="invoice-info-box"><div id="purchase-screen-title-badge" class="m7-solid-badge-guard" style="display: inline-flex; align-items: center; justify-content: center; gap: 5px; height: 34px; padding: 0 12px; border-radius: 8px; background: linear-gradient(135deg, #0284c7, #0369a1); border: 1.5px solid #38bdf8; color: #ffffff !important; -webkit-text-fill-color: #ffffff !important; font-size: 0.92rem; font-weight: 900; white-space: nowrap; flex-shrink: 0; box-shadow: 0 2px 8px rgba(2, 132, 199, 0.35);"><span>🛍️</span><span>مشتريات</span></div><div style="width: 1px; height: 24px; background: rgba(255,255,255,0.12); margin: 0 2px; flex-shrink: 0;"></div>
                         
                         <div class="h-form-group group-invoice">
-                            <label id="hdr-inv-label" class="h-label">رقم الفاتورة:</label>
+                            <label id="hdr-inv-label" class="h-label">الرقم:</label>
                             <div class="pro-serial-container">
                                 <button class="pro-serial-btn" type="button" onclick="loadPreviousInvoice()" title="السابقة" style="background: rgba(56,189,248,0.1); border: none; border-radius: 6px; color: #38bdf8; font-size: 0.95rem; cursor: pointer; width: 24px; height: 24px; display:flex; align-items:center; justify-content:center; opacity:0.85; transition:0.2s;" onmouseover="this.style.opacity=1; this.style.background='rgba(56,189,248,0.22)'" onmouseout="this.style.opacity=0.85; this.style.background='rgba(56,189,248,0.1)'">❮</button>
                                 <span id="inv-number" data-auto-fit-voucher="1" class="pro-serial-number">---</span>
@@ -2949,29 +2856,29 @@ try {
                     <!-- LEFT IN RTL: Slim Single-Line Financial Strip (Takes all remaining row space) -->
                     <div id="customer-financial-card" class="fin-strip-inline" style="flex: 1 1 0%; min-width: 0; width: auto; opacity: 1; overflow: hidden; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); display: flex; align-items: center;">
                         <div class="fin-strip-inner">
-                            <button type="button" id="fin-strip-currency-btn" onclick="window.toggleFinStripCurrency && window.toggleFinStripCurrency()" title="اضغط للتبديل بين الجنيه السوداني والدولار" style="background: linear-gradient(135deg, rgba(56,189,248,0.24), rgba(37,99,235,0.36)); border: 1.5px solid rgba(56,189,248,0.75); color: #38bdf8; border-radius: 7px; padding: 0 10px; height: 28px; min-width: 84px; font-family: 'Cairo', sans-serif; font-size: 0.78rem; font-weight: 900; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; text-align: center; line-height: 1; white-space: nowrap; flex-shrink: 0; box-shadow: 0 0 10px rgba(56,189,248,0.28); transition: all 0.2s ease;">جنيه سوداني</button><div class="fin-sep" style="width:1px; height:18px; background:rgba(255,255,255,0.16); flex-shrink:0;"></div><div id="fin-wrap-ledger" class="fin-metric-pill">
-                                <span class="fin-lbl" style="font-size:0.72rem; color:#94a3b8; font-weight:800;">الرصيد:</span>
-                                <span id="fin-ledger" class="fin-val" style="font-weight:900; color:#fff; font-size:0.82rem; font-family:'Outfit',sans-serif;">0</span>
+                            <button type="button" id="fin-strip-currency-btn" onclick="window.toggleFinStripCurrency && window.toggleFinStripCurrency()" title="اضغط للتبديل بين الجنيه السوداني والدولار" style="background: linear-gradient(180deg, #0284c7 0%, #1d4ed8 100%); border: 1.5px solid #7dd3fc; color: #ffffff; border-radius: 7px; padding: 0 10px; height: 28px; min-width: 78px; font-family: 'Cairo', sans-serif; font-size: 0.85rem; font-weight: 900; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; text-align: center; line-height: 1; white-space: nowrap; flex-shrink: 0; box-shadow: 0 2px 8px rgba(2,132,199,0.45); text-shadow: 0 1.5px 3px rgba(0,0,0,0.95); transition: all 0.2s ease;">جنيه ⇄</button><div class="fin-sep" style="width:1px; height:18px; background:rgba(255,255,255,0.22); flex-shrink:0;"></div><div id="fin-wrap-ledger" class="fin-metric-pill" style="background: rgba(15,23,42,0.78); padding: 2px 8px; border-radius: 6px; border: 1.5px solid rgba(148,163,184,0.65);">
+                                <span class="fin-lbl" style="font-size:0.76rem; color:#ffffff; font-weight:900;">الرصيد:</span>
+                                <span id="fin-ledger" class="fin-val" style="font-weight:900; color:#ffffff; font-size:0.86rem; font-family:'Outfit',sans-serif;">0</span>
                             </div>
-                            <div class="fin-sep" style="width:1px; height:18px; background:rgba(255,255,255,0.12); flex-shrink:0;"></div>
-                            <div id="fin-wrap-debt" class="fin-metric-pill">
-                                <span class="fin-lbl" style="font-size:0.72rem; color:#f87171; font-weight:800;">المديونية:</span>
-                                <span id="fin-total-debt" class="fin-val" style="font-weight:900; color:#ef4444; font-size:0.82rem; font-family:'Outfit',sans-serif;">0</span>
+                            <div class="fin-sep" style="width:1px; height:18px; background:rgba(255,255,255,0.18); flex-shrink:0;"></div>
+                            <div id="fin-wrap-debt" class="fin-metric-pill" style="background: rgba(127,29,29,0.55); padding: 2px 8px; border-radius: 6px; border: 1.5px solid rgba(251,113,133,0.75);">
+                                <span class="fin-lbl" style="font-size:0.76rem; color:#ffffff; font-weight:900;">المديونية:</span>
+                                <span id="fin-total-debt" class="fin-val" style="font-weight:900; color:#fecdd3; font-size:0.86rem; font-family:'Outfit',sans-serif;">0</span>
                             </div>
-                            <div class="fin-sep" style="width:1px; height:18px; background:rgba(255,255,255,0.12); flex-shrink:0;"></div>
-                            <div id="fin-wrap-checks" class="fin-metric-pill">
-                                <span class="fin-lbl" style="font-size:0.72rem; color:#fbbf24; font-weight:800;">الشيكات:</span>
-                                <span id="fin-checks" class="fin-val" style="font-weight:900; color:#f59e0b; font-size:0.82rem; font-family:'Outfit',sans-serif;">0</span>
+                            <div class="fin-sep" style="width:1px; height:18px; background:rgba(255,255,255,0.18); flex-shrink:0;"></div>
+                            <div id="fin-wrap-checks" class="fin-metric-pill" style="background: rgba(120,53,15,0.58); padding: 2px 8px; border-radius: 6px; border: 1.5px solid rgba(251,191,36,0.78);">
+                                <span class="fin-lbl" style="font-size:0.76rem; color:#ffffff; font-weight:900;">الشيكات:</span>
+                                <span id="fin-checks" class="fin-val" style="font-weight:900; color:#fef08a; font-size:0.86rem; font-family:'Outfit',sans-serif;">0</span>
                             </div>
-                            <div class="fin-sep" style="width:1px; height:18px; background:rgba(255,255,255,0.12); flex-shrink:0;"></div>
-                            <div id="fin-wrap-limit" class="fin-metric-pill">
-                                <span class="fin-lbl" style="font-size:0.72rem; color:#38bdf8; font-weight:800;">الحد:</span>
-                                <span id="fin-credit-limit" class="fin-val" style="font-weight:900; color:#38bdf8; font-size:0.82rem; font-family:'Outfit',sans-serif;">0</span>
+                            <div class="fin-sep" style="width:1px; height:18px; background:rgba(255,255,255,0.18); flex-shrink:0;"></div>
+                            <div id="fin-wrap-limit" class="fin-metric-pill" style="background: rgba(12,74,110,0.58); padding: 2px 8px; border-radius: 6px; border: 1.5px solid rgba(56,189,248,0.78);">
+                                <span class="fin-lbl" style="font-size:0.76rem; color:#ffffff; font-weight:900;">الحد:</span>
+                                <span id="fin-credit-limit" class="fin-val" style="font-weight:900; color:#bae6fd; font-size:0.86rem; font-family:'Outfit',sans-serif;">0</span>
                             </div>
-                            <div class="fin-sep" style="width:1px; height:18px; background:rgba(255,255,255,0.12); flex-shrink:0;"></div>
-                            <div id="fin-wrap-remaining" class="fin-metric-pill" style="background: rgba(16,185,129,0.14); padding: 2px 7px; border-radius: 6px; border: 1px solid rgba(16,185,129,0.3);">
-                                <span class="fin-lbl" style="font-size:0.72rem; color:#34d399; font-weight:800;">✨ المتاح:</span>
-                                <span id="fin-remaining" class="fin-val" style="font-weight:900; color:#34d399; font-size:0.84rem; font-family:'Outfit',sans-serif;">0</span>
+                            <div class="fin-sep" style="width:1px; height:18px; background:rgba(255,255,255,0.18); flex-shrink:0;"></div>
+                            <div id="fin-wrap-remaining" class="fin-metric-pill" style="background: rgba(6,78,59,0.65); padding: 2px 8px; border-radius: 6px; border: 1.5px solid rgba(52,211,153,0.85);">
+                                <span class="fin-lbl" style="font-size:0.76rem; color:#ffffff; font-weight:900;">✨ المتاح:</span>
+                                <span id="fin-remaining" class="fin-val" style="font-weight:900; color:#a7f3d0; font-size:0.86rem; font-family:'Outfit',sans-serif;">0</span>
                             </div>
                             <div id="supplier-performance-rating-pill" style="display:none !important;"><span id="supplier-rating-text"></span></div>
                         </div>
@@ -2979,14 +2886,14 @@ try {
                 </div>
 
                 <!-- Unified Row 1: Supplier (Expanded + Ledger Inside + Plus + Last Invoice), Exchange Rate (Expanded), Warehouse (All on 1 Horizontal Level) -->
-                <div id="purchase-row1-bar" style="display: flex; gap: 12px; flex-wrap: nowrap; margin-bottom: 2px; width: 100%; align-items: center;">
+                <div id="purchase-row1-bar" style="display: flex; gap: 12px; flex-wrap: nowrap; margin-bottom: 0; width: 100%; align-items: center;">
                     <!-- 1. Supplier (Wider allocation + auto-fit supplier name + Ledger button strictly inside input) -->
                     <div class="h-form-group group-supplier" style="flex: 5.0; min-width: 430px; display: flex; align-items: center; gap: 8px; flex-direction: row !important; margin: 0;">
-                          <label class="h-label" style="color: var(--amber, #f59e0b);">👤 المورد</label>
+                          <label class="h-label" style="color: #fde047;">المورد</label>
                           <div class="h-input-wrapper" style="display: flex; flex-direction: row; align-items: center; gap: 6px; flex: 1; min-width: 0;">
                               <div class="custom-dropdown" style="flex:1; min-width: 0;">
                                   <div class="custom-dropdown-input-wrap" style="position: relative; width: 100%;">
-                                      <input type="text" class="ctrl-input v-input" id="hdr-customer-search" placeholder="ابحث عن اسم المورد..." onfocus="showCustomerDropdown()" onblur="hideCustomerDropdownDelayed()" oninput="filterCustomerDropdown(); if(window.autoFitHeaderFields) window.autoFitHeaderFields();" style="width:100%; height:40px !important; padding-left: 62px !important; padding-right: 12px !important; color: var(--amber, #fbbf24); font-size: 1.15rem; font-weight: 900; background-color: rgba(251,191,36,0.06); border: 1px solid rgba(148,163,184,0.32);" autocomplete="one-time-code">
+                                      <input type="text" class="ctrl-input v-input" id="hdr-customer-search" placeholder="ابحث عن اسم المورد..." onfocus="showCustomerDropdown()" onblur="hideCustomerDropdownDelayed()" oninput="filterCustomerDropdown(); if(window.autoFitHeaderFields) window.autoFitHeaderFields();" style="width:100%; height:42px !important; padding-left: 88px !important; padding-right: 12px !important; color: #fde047; font-size: 1.15rem; font-weight: 900; background-color: rgba(251,191,36,0.06); border: 1px solid rgba(148,163,184,0.32);" autocomplete="one-time-code">
                                       <button type="button" id="hdr-customer-ledger-btn" onclick="openGeneralLedgerForAccount(document.getElementById('hdr-customer').value)" class="ledger-btn-2027" title="دفتر الأستاذ العام">أستاذ</button>
                                       <input type="hidden" id="hdr-customer" onchange="if(typeof onCustomerChange === 'function') onCustomerChange(); if(window.autoFitHeaderFields) window.autoFitHeaderFields();">
                                       <div class="custom-dropdown-list" id="customer-dropdown-list">
@@ -2994,35 +2901,34 @@ try {
                                       </div>
                                   </div>
                               </div>
-                              <button type="button" id="btn-quick-add-supplier" class="add-row-btn" onclick="openModal('add-customer-modal')" title="إضافة مورد جديد (F4)" style="flex-shrink: 0; width: 40px; height: 40px; border-radius: 9px; display: inline-flex; align-items: center; justify-content: center; cursor: pointer;">
+                              <button type="button" id="btn-quick-add-supplier" class="add-row-btn" onclick="openModal('add-customer-modal')" title="إضافة مورد جديد (F4)" style="flex-shrink: 0; width: 42px; height: 42px; border-radius: 9px; display: inline-flex; align-items: center; justify-content: center; cursor: pointer;">
                                   <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
                               </button>
-                              <button type="button" id="btn-clone-last-supplier-inv" class="add-row-btn" onclick="window.cloneLastSupplierPurchaseInvoice()" title="نسخ أصناف آخر فاتورة للمورد بضغطة واحدة" style="flex-shrink: 0; height: 40px; padding: 0 13px; border-radius: 9px; display: inline-flex; align-items: center; justify-content: center; gap: 5px; cursor: pointer; font-size: 0.8rem; font-weight: 900; white-space: nowrap;">
-                                  <span>📋</span><span>آخر فاتورة</span>
+                              <button type="button" id="btn-clone-last-supplier-inv" class="add-row-btn" onclick="window.cloneLastSupplierPurchaseInvoice()" title="نسخ أصناف آخر فاتورة للمورد بضغطة واحدة" style="flex-shrink: 0; height: 42px; padding: 0 14px; border-radius: 9px; display: inline-flex; align-items: center; justify-content: center; gap: 4px; cursor: pointer; font-size: 0.88rem; font-weight: 900; white-space: nowrap;">
+                                  <span>آخر فاتورة</span>
                               </button>
                           </div>
                     </div>
                     
-                    <!-- 2. Currency & Exchange Rate (Expanded & aligned on the same horizontal level) -->
-                    <div class="h-form-group group-currency" style="flex: 2.55; min-width: 265px; display: flex; align-items: center; gap: 7px; flex-direction: row !important; margin: 0;">
-                          <label class="h-label">💱 سعر الصرف</label>
-                          <div class="h-input-wrapper" style="display: flex; flex-direction: row; align-items: center; gap: 6px; flex: 1; min-width: 0;">
-                            <select class="v-input ctrl-input system-currency-select" id="hdr-currency" onchange="handleCurrencyChange(this.value); if(window.autoFitHeaderFields) window.autoFitHeaderFields();" style="flex: 1.15; min-width: 112px; height: 40px !important; padding: 0 6px !important; font-size: 0.96rem !important; font-weight: 900 !important; text-align: center !important; text-align-last: center !important; line-height: 36px !important;">
+                    <!-- 2. Currency & Exchange Rate (Compact & balanced with Warehouse) -->
+                    <div class="h-form-group group-currency" style="flex: 1.42; min-width: 168px; max-width: 205px; display: flex; align-items: center; gap: 5px; flex-direction: row !important; margin: 0;">
+                          <div class="h-input-wrapper" style="display: flex; flex-direction: row; align-items: center; gap: 5px; flex: 1; min-width: 0;">
+                            <select class="v-input ctrl-input system-currency-select" id="hdr-currency" title="اضغط لتغيير العملة (جنيه سوداني / دولار)" onchange="handleCurrencyChange(this.value); if(window.autoFitHeaderFields) window.autoFitHeaderFields();" style="flex: 0.95; min-width: 86px; max-width: 102px; height: 42px !important; padding: 0 6px !important; font-size: 0.96rem !important; font-weight: 900 !important; text-align: center !important; text-align-last: center !important; line-height: 36px !important;">
                                 <option value="SDG">🇸🇩 جنيه</option>
                                 <option value="USD">🇺🇸 دولار</option>
                                 <option value="SAR">🇸🇦 ريال</option>
                                 <option value="AED">🇦🇪 درهم</option>
                                 <option value="EGP">🇪🇬 مصري</option>
                             </select>
-                            <input type="number" class="v-input ctrl-input" id="hdr-exchange-rate" value="<?php echo htmlspecialchars((string)$systemUsdRate); ?>" placeholder="الصرف" readonly style="flex: 1.35; min-width: 110px; height: 40px !important; text-align: center; cursor:pointer; padding: 0 6px;" onclick="if(typeof window.openGlobalExchangeRateModal === 'function') window.openGlobalExchangeRateModal((r)=>{this.value=r; this.dataset.userEdited='1'; if(window.autoFitHeaderFields) window.autoFitHeaderFields(); if(typeof recalcAll === 'function') recalcAll(); else if(typeof recalcTotals==='function') recalcTotals(); else if(typeof calcTotals==='function') calcTotals(); else if(typeof window.updateCurrency==='function') window.updateCurrency();});">
+                            <input type="number" class="v-input ctrl-input" id="hdr-exchange-rate" value="<?php echo htmlspecialchars((string)$systemUsdRate); ?>" placeholder="الصرف" readonly style="flex: 0.88; min-width: 74px; max-width: 92px; height: 42px !important; text-align: center; cursor:pointer; padding: 0 4px;" onclick="if(typeof window.openGlobalExchangeRateModal === 'function') window.openGlobalExchangeRateModal((r)=>{this.value=r; this.dataset.userEdited='1'; if(window.autoFitHeaderFields) window.autoFitHeaderFields(); if(typeof recalcAll === 'function') recalcAll(); else if(typeof recalcTotals==='function') recalcTotals(); else if(typeof calcTotals==='function') calcTotals(); else if(typeof window.updateCurrency==='function') window.updateCurrency();});">
                         </div>
                     </div>
 
-                    <!-- 3. Warehouse (Aligned on the same horizontal level) -->
-                    <div class="h-form-group group-warehouse" style="flex: 1.95; min-width: 195px; display: flex; align-items: center; gap: 7px; flex-direction: row !important; margin: 0;">
+                    <!-- 3. Warehouse (Expanded with space reclaimed from Currency & Rate) -->
+                    <div class="h-form-group group-warehouse" style="flex: 2.88; min-width: 260px; display: flex; align-items: center; gap: 7px; flex-direction: row !important; margin: 0;">
                           <label class="h-label">📦 المخزن</label>
                           <div class="h-input-wrapper" style="display: flex; flex-direction: row !important; align-items: center !important; flex: 1; min-width: 0;">
-                            <select class="v-input ctrl-input" id="hdr-warehouse" onchange="onMainWarehouseChange(); if(window.autoFitHeaderFields) window.autoFitHeaderFields();" style="width: 100%; height: 40px !important; font-weight: 800; padding: 0 10px;"></select>
+                            <select class="v-input ctrl-input" id="hdr-warehouse" onchange="onMainWarehouseChange(); if(window.autoFitHeaderFields) window.autoFitHeaderFields();" style="width: 100%; height: 42px !important; font-weight: 800; padding: 0 10px;"></select>
                           </div>
                     </div>
                 </div>
@@ -3030,11 +2936,11 @@ try {
                 <div id="supplier-credit-limit-alert-bar" style="display:none; margin-top:2px; padding:5px 10px; border-radius:8px; background:rgba(239,68,68,0.14); border:1px solid rgba(239,68,68,0.45); color:#fca5a5; font-size:0.76rem; font-weight:900; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap;"></div>
 
                 <!-- Row 2: Description + Cost Center at the end -->
-                <div id="purchase-row2-bar" style="display: flex; gap: 12px; flex-wrap: nowrap; margin-bottom: 2px; width: 100%; align-items: center;">
+                <div id="purchase-row2-bar" style="display: flex; gap: 12px; flex-wrap: nowrap; margin-bottom: 0; width: 100%; align-items: center;">
                     <div class="h-form-group group-description" style="flex: 3.6; min-width: 280px; display:flex; align-items:center; gap:8px; flex-direction: row !important; margin: 0;">
-                        <label class="h-label" style="margin: 0; white-space: nowrap; font-size: 0.84rem !important; font-weight: 800 !important;">📝 البيان</label>
+                        <label class="h-label" style="margin: 0; white-space: nowrap; font-size: 0.85rem !important; font-weight: 800 !important;">📝 البيان</label>
                         <div class="h-input-wrapper" style="display: flex; flex-direction: row !important; align-items: center !important; flex: 1;">
-                            <input type="text" class="v-input ctrl-input" id="hdr-description" placeholder="ملاحظات، أرقام مرجعية..." style="width: 100%; height: 40px !important; min-height: 40px !important; border-radius: 9px !important;">
+                            <input type="text" class="v-input ctrl-input" id="hdr-description" placeholder="ملاحظات، أرقام مرجعية..." style="width: 100%; height: 42px !important; min-height: 42px !important; border-radius: 9px !important;">
                         </div>
                     </div>
 
@@ -3042,7 +2948,7 @@ try {
                     <div class="h-form-group group-cost-center" style="flex: 1.55; min-width: 205px; display: flex; align-items: center; gap: 7px; flex-direction: row !important; margin: 0;">
                         <label class="h-label">🏷️ مركز الكلفة</label>
                         <div class="h-input-wrapper" style="display: flex; flex-direction: row !important; align-items: center !important; flex: 1; min-width: 0;">
-                            <select class="v-input ctrl-input" id="hdr-cost-center" onchange="if(window.autoFitHeaderFields) window.autoFitHeaderFields();" style="width: 100%; height: 40px !important; font-weight: 800; padding: 0 10px;">
+                            <select class="v-input ctrl-input" id="hdr-cost-center" onchange="if(window.autoFitHeaderFields) window.autoFitHeaderFields();" style="width: 100%; height: 42px !important; font-weight: 800; padding: 0 10px;">
                                 <option value="">-- بدون مركز --</option>
                                 <option value="C1">المركز الرئيسي</option>
                                 <option value="C2">الفرع الأول</option>
@@ -3089,7 +2995,7 @@ try {
     </style>
     
     <!-- BOTTOM PANEL (Items Table) -->
-    <div class="purchase-bottom" style="flex: none; display: flex; flex-direction: column; padding: 0 15px 15px 15px; overflow: visible; margin-top: 12px;">
+    <div class="purchase-bottom" style="flex: none; display: flex; flex-direction: column; padding: 0 0 15px 0; overflow: visible; margin-top: 8px; width: 100%; box-sizing: border-box;">
         
         <div class="panel-header-row" style="display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 10px; background: linear-gradient(135deg, rgba(15, 23, 42, 0.85), rgba(30, 27, 50, 0.75)); border: 1px solid rgba(56, 189, 248, 0.18); border-radius: 12px; padding: 8px 14px; box-shadow: 0 4px 16px rgba(0,0,0,0.2);">
             <div style="display: flex; align-items: center; gap: 12px; flex: 1;">
@@ -3097,26 +3003,11 @@ try {
                     <span>📦</span>
                     <span>أصناف الفاتورة</span>
                 </div>
-                <div class="quick-add-box" style="display: none !important; flex: 1; max-width: 410px; position: relative; z-index: 99999; gap: 6px; align-items: center;">
-                    <input type="text" class="g-input" id="quick-item-search" placeholder="🔍 بحث سريع عن صنف أو مسح باركود (F2)..."
-                        style="background: rgba(15, 23, 42, 0.75); border: 1px solid rgba(56,189,248,0.35); border-radius: 9px; color: var(--text-primary); padding: 0 12px; height: 36px; font-size: 0.92rem; font-weight: 700; flex: 1;"
-                        onfocus="this.select(); showQuickItemDropdown()"
-                        onblur="hideQuickItemDropdownDelayed()"
-                        oninput="filterQuickItemDropdown()" autocomplete="new-password">
-                    <button type="button" onclick="startCameraScanner('quick-item-search')" style="background: linear-gradient(135deg, rgba(56,189,248,0.2), rgba(14,165,233,0.35)); border: 1px solid rgba(56,189,248,0.5); border-radius: 9px; width: 36px; height: 36px; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; color: #38bdf8; transition: all 0.2s; box-shadow: 0 2px 8px rgba(56,189,248,0.2);" title="مسح باركود بالكاميرا">
-                        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
-                    </button>
-                    <button type="button" onclick="addRow()" style="background: linear-gradient(135deg, rgba(16,185,129,0.22), rgba(5,150,105,0.38)); border: 1px solid rgba(16,185,129,0.5); border-radius: 9px; width: 36px; height: 36px; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; color: #34d399; transition: all 0.2s; box-shadow: 0 2px 8px rgba(16,185,129,0.2);" title="إضافة سطر جديد">
-                        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-                    </button>
-                    <button type="button" id="btn-voice-item-dictation-pur" onclick="window.startVoiceItemDictationPurchase()" style="background: linear-gradient(135deg, rgba(245,158,11,0.22), rgba(217,119,6,0.38)); border: 1px solid rgba(251,191,36,0.55); border-radius: 9px; width: 36px; height: 36px; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; color: #fbbf24; font-size: 0.95rem; transition: all 0.2s;" title="إملاء الصنف والكمية بالصوت مباشرة للجدول (مثال: أسمنت 10)">🎙️</button>
-                    <div class="custom-dropdown-list" id="quick-item-dropdown-list" style="text-align:right; top: 100%; left: 0; right: 0; position: absolute;"></div>
-                </div>
             </div>
             <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
-                <button type="button" onclick="if(window.openPurchaseAIAuditModal) window.openPurchaseAIAuditModal();" style="background: linear-gradient(135deg, rgba(168,85,247,0.22), rgba(99,102,241,0.35)); border: 1px solid rgba(168,85,247,0.6); color: #e9d5ff; border-radius: 9px; height: 36px; padding: 0 12px; display: inline-flex; align-items: center; gap: 6px; cursor: pointer; font-weight: 800; font-size: 0.85rem; white-space: nowrap; transition: all 0.2s; box-shadow: 0 2px 10px rgba(168,85,247,0.2);" title="تحليل تكلفة الاستيراد ومقارنة أسعار المورد وتحديث سعر البيع بهامش ربح ذكي">
-                    <span>🤖</span>
-                    <span>رادار الأسعار وتحديث هامش البيع AI</span>
+                <button type="button" onclick="if(window.openPurchaseAIAuditModal) window.openPurchaseAIAuditModal();" style="background: linear-gradient(135deg, rgba(168,85,247,0.22), rgba(99,102,241,0.35)); border: 1px solid rgba(168,85,247,0.6); color: #e9d5ff; border-radius: 9px; height: 36px; padding: 0 12px; display: inline-flex; align-items: center; gap: 6px; cursor: pointer; font-weight: 800; font-size: 0.85rem; white-space: nowrap; transition: all 0.2s; box-shadow: 0 2px 10px rgba(168,85,247,0.2);" title="الأسعار وهامش البيع">
+                    <span>💰</span>
+                    <span>الأسعار</span>
                 </button>
                 <button type="button" onclick="openGridSettingsModal()" style="background: linear-gradient(135deg, rgba(56,189,248,0.18), rgba(37,99,235,0.28)); border: 1px solid rgba(56,189,248,0.55); color: #38bdf8; border-radius: 9px; height: 36px; padding: 0 14px; display: inline-flex; align-items: center; gap: 7px; cursor: pointer; font-weight: 800; font-size: 0.9rem; white-space: nowrap; transition: all 0.2s; box-shadow: 0 2px 10px rgba(56,189,248,0.2);" title="تخصيص الجدول">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
@@ -3470,20 +3361,20 @@ try {
                     <div class="payment-details-card" style="flex: 1; min-width: 100%; display: flex; flex-direction: column; gap: 10px;">
                         
                         <!-- Credit payment box (Toggled off by default) -->
-                        <div id="pay-credit-section" class="payment-method-box" style="background: radial-gradient(circle at top left, rgba(217, 119, 6, 0.35), rgba(180, 83, 9, 0.15)); border: 3px solid rgba(217, 119, 6, 0.9); box-shadow: 0 0 25px rgba(217, 119, 6, 0.4), inset 0 0 15px rgba(180, 83, 9, 0.3); border-radius: 12px; padding: 12px 15px; display: none; align-items: center; justify-content: space-between; gap: 15px; flex-wrap: wrap;">
-                            <div style="display: flex; align-items: center; gap: 8px; min-width: 200px; width: 200px; flex: none;">
-                                <span style="font-size: 1.2rem;">💳</span>
-                                <span style="font-weight: 800; color: #fcd34d; font-size: 0.95rem;">آجل على الحساب</span>
+                        <div id="pay-credit-section" class="payment-method-box" style="background: radial-gradient(circle at top left, rgba(217, 119, 6, 0.35), rgba(180, 83, 9, 0.15)); border: 3px solid rgba(217, 119, 6, 0.9); box-shadow: 0 0 25px rgba(217, 119, 6, 0.4), inset 0 0 15px rgba(180, 83, 9, 0.3); border-radius: 12px; padding: 12px 16px; display: none; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap;">
+                            <div class="pay-credit-title-pill" style="display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-width: 175px; padding: 6px 14px; border-radius: 10px; flex: none;">
+                                <span style="font-size: 1.25rem; filter: contrast(1.35) brightness(0.9);">💳</span>
+                                <span class="pay-credit-lbl-txt" style="font-weight: 900; font-size: 1.08rem; white-space: nowrap;">آجل على الحساب</span>
                             </div>
-                            <div style="display: flex; gap: 10px; align-items: center; flex: 1; min-width: 320px; flex-wrap: wrap;">
-                                <input type="number" class="v-input ctrl-input" id="pay-credit-amount" value="0.00" step="any" readonly placeholder="المبلغ الآجل..." style="flex: none; width: 145px; min-width: 145px; background: rgba(15,23,42,0.8); border: 1px solid rgba(180, 83, 9, 0.5); height: 38px; text-align: center; font-size: 1.15rem; font-weight: 800; color: #fcd34d !important; box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);">
+                            <div style="display: flex; gap: 12px; align-items: center; flex: 1; min-width: 360px; flex-wrap: wrap;">
+                                <input type="number" class="v-input ctrl-input" id="pay-credit-amount" value="0.00" step="any" readonly placeholder="المبلغ الآجل..." oninput="if(window.autoFitSingleInput) window.autoFitSingleInput(this);" style="flex: 1.45 1 235px; min-width: 220px; max-width: 350px; width: auto; background: rgba(15,23,42,0.85); border: 2px solid rgba(180, 83, 9, 0.75); height: 46px; text-align: center; font-size: 1.38rem; font-weight: 900; color: #fcd34d !important; box-shadow: inset 0 2px 4px rgba(0,0,0,0.35);">
                                 
-                                <div id="pay-credit-due-group" style="flex: 1.2; min-width: 180px; display: flex; align-items: center; gap: 5px;">
-                                    <label style="font-size: 0.78rem; color: #94a3b8; white-space: nowrap;">تاريخ الاستحقاق:</label>
-                                    <input type="date" class="v-input ctrl-input" id="pay-credit-due-date" style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 38px; font-size:0.85rem; padding: 0 4px; width: 100%;">
+                                <div id="pay-credit-due-group" style="flex: 1.25 1 250px; min-width: 240px; display: flex; align-items: center; gap: 8px;">
+                                    <label class="pay-due-lbl-txt" style="font-size: 1.02rem; font-weight: 900; white-space: nowrap; padding: 5px 10px; border-radius: 8px;">📅 تاريخ الاستحقاق:</label>
+                                    <input type="date" class="v-input ctrl-input" id="pay-credit-due-date" style="background: rgba(15,23,42,0.75); border: 2px solid rgba(255,255,255,0.22); height: 46px; font-size: 1.18rem; font-weight: 900; text-align: center; padding: 0 8px; flex: 1; min-width: 175px;">
                                 </div>
                                 
-                                <button type="button" class="btn-action" onclick="previewCurrentPromissoryNote()" style="flex: 0.8; min-width: 120px; height: 38px; background: linear-gradient(135deg, rgba(180, 83, 9, 0.2), rgba(146, 64, 14, 0.4)); border: 1px solid rgba(180, 83, 9, 0.6); color: #fcd34d; padding: 0 10px; border-radius: 8px; font-size: 0.8rem; cursor: pointer; font-weight: bold; transition: 0.2s;" onmouseover="this.style.background='linear-gradient(135deg, rgba(180, 83, 9, 0.35), rgba(146, 64, 14, 0.5))';" onmouseout="this.style.background='linear-gradient(135deg, rgba(180, 83, 9, 0.2), rgba(146, 64, 14, 0.4))';">📄 معاينة الكمبيالة</button>
+                                <button type="button" class="btn-action pur-promissory-preview-btn" onclick="previewCurrentPromissoryNote()" style="flex: 0.9 1 175px; min-width: 168px; height: 46px; padding: 0 14px; border-radius: 11px; font-size: 1.04rem; cursor: pointer; font-weight: 900; position: relative; overflow: visible; display: inline-flex; align-items: center; justify-content: center; gap: 7px;"><span class="prom-btn-ico" style="font-size: 1.18rem; filter: contrast(1.6) brightness(0.75);">📄</span><span class="prom-btn-txt">معاينة الكمبيالة</span></button>
                             </div>
                         </div>
 
@@ -3729,14 +3620,8 @@ try {
                     </div>
                 </div>
 
-                <!-- Submit Button + Journal Preview + Pre-Save Voice Summary Button -->
+                <!-- Submit Button -->
                 <span style="display:none;" id="footer-grand"></span>
-                <button type="button" class="btn-action royal-crystal-btn" id="btn-preview-purchase-journal" style="flex: 0.78 1 0%; min-width: 0; height: 44px; font-weight: 900; border-radius: 11px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 4px; white-space: nowrap; padding: 0 8px; background: linear-gradient(135deg, rgba(56,189,248,0.2), rgba(37,99,235,0.34)); border: 1.5px solid rgba(56,189,248,0.6); color: #7dd3fc;" onclick="window.openPurchaseJournalAndLandedPreviewModal()" title="معاينة القيد المحاسبي المزدوج وتوزيع تكلفة الترحيل والعمالة قبل الحفظ">
-                    <span>⚖️</span><span class="btn-fit-label">معاينة</span>
-                </button>
-                <button type="button" class="btn-action royal-crystal-btn" id="btn-speak-purchase-summary" style="flex: 0.75 1 0%; min-width: 0; height: 44px; font-weight: 900; border-radius: 11px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 4px; white-space: nowrap; padding: 0 8px; background: linear-gradient(135deg, rgba(245,158,11,0.22), rgba(217,119,6,0.35)); border: 1.5px solid rgba(251,191,36,0.6); color: #fde047;" onclick="window.speakPurchaseInvoiceSummaryBeforeSave()" title="قراءة صوتية فورية لصافي الفاتورة وطريقة الدفع قبل الحفظ">
-                    <span>🔊</span><span class="btn-fit-label">ملخص</span>
-                </button>
                 <button type="button" class="btn-action royal-crystal-btn royal-btn-save btn-submit" id="btn-submit-purchase-invoice" style="flex: 1.32 1 0%; min-width: 0; height: 44px; font-weight: 900; border-radius: 11px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px; white-space: nowrap; padding: 0 12px;" onclick="window.smartValidateAndSubmitPurchase ? window.smartValidateAndSubmitPurchase() : submitInvoice()">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
                     <span class="btn-fit-label">حفظ واعتماد</span>
@@ -3907,7 +3792,19 @@ try {
                 if (targetCurr === 'USD' && dedicatedUsd > 0) { rateInput.value = dedicatedUsd; if (typeof renderGrid === 'function') renderGrid(); if (typeof recalcAll === 'function') recalcAll(); return; }
             } catch(e) {}
             
-            // Step 3: Try to fetch from API directly (central rate)
+            // Step 3: Use server-injected SYSTEM_USD_RATE immediately without network roundtrip if available
+            if (window.SYSTEM_USD_RATE && parseFloat(window.SYSTEM_USD_RATE) > 0) {
+                const usdRate = parseFloat(window.SYSTEM_USD_RATE);
+                window._cachedGlobalRate = usdRate;
+                let finalRate = usdRate;
+                if (targetCurr === 'SAR') finalRate = parseFloat((usdRate / 3.75).toFixed(4));
+                if (targetCurr === 'AED') finalRate = parseFloat((usdRate / 3.67).toFixed(4));
+                if (targetCurr === 'EGP') finalRate = parseFloat((usdRate / 50.0).toFixed(4));
+                rateInput.value = finalRate;
+                if (typeof renderGrid === 'function') renderGrid();
+                if (typeof recalcAll === 'function') recalcAll();
+                return;
+            }
             rateInput.placeholder = '⏳ جاري التحميل...';
             
             fetch('api_index.php/exchange-rate')
@@ -5846,12 +5743,26 @@ document.addEventListener('DOMContentLoaded', () => {
         closeGridSettingsModal();
     };
 
-    window.loadGridConfigFromDB = async function() {
+    window.loadGridConfigFromDB = async function(forceRemote) {
         try {
-            const res = await fetch('api/get_grid_config.php?grid_id=purchase_grid&_t=' + Date.now());
+            if (!forceRemote) {
+                const cachedCfg = localStorage.getItem('erp_grid_config_purchase_grid');
+                if (cachedCfg) {
+                    const parsed = JSON.parse(cachedCfg);
+                    if (parsed && Array.isArray(parsed.columns)) {
+                        window.CurrentGridConfig = parsed;
+                        if (typeof applyGridSettings === 'function') applyGridSettings();
+                        if (typeof renderGrid === 'function') renderGrid();
+                        if (typeof recalcAll === 'function') recalcAll();
+                        return;
+                    }
+                }
+            }
+            const res = await fetch('api/get_grid_config.php?grid_id=purchase_grid');
             const data = await res.json();
             if (data && data.config) {
                 window.CurrentGridConfig = data.config;
+                try { localStorage.setItem('erp_grid_config_purchase_grid', JSON.stringify(data.config)); } catch (_e) {}
             } else {
                 window.CurrentGridConfig = JSON.parse(JSON.stringify(DEFAULT_GRID_CONFIG));
             }
@@ -5859,7 +5770,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if (typeof renderGrid === 'function') renderGrid();
             if (typeof recalcAll === 'function') recalcAll();
         } catch (e) {
-            console.error("Failed to load grid config", e);
             if (!window.CurrentGridConfig) {
                 window.CurrentGridConfig = JSON.parse(JSON.stringify(DEFAULT_GRID_CONFIG));
                 if (typeof applyGridSettings === 'function') applyGridSettings();
@@ -5909,14 +5819,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 supInput.style.setProperty('font-size', px + 'px', 'important');
             }
 
-            // 3. Exchange Rate (#hdr-exchange-rate) - Prominent bold number
+            // 3. Exchange Rate (#hdr-exchange-rate) - Prominent bold number fitted to compact box
             const exInput = document.getElementById('hdr-exchange-rate');
             if (exInput) {
                 const val = (exInput.value || '').trim();
-                const availW = Math.max(65, (exInput.clientWidth || 105) - 16);
-                let px = 22;
+                const availW = Math.max(54, (exInput.clientWidth || 82) - 10);
+                let px = 19.5;
                 if (val) {
-                    while (px > 15 && measureTextWidthPx(val, `900 ${px}px 'Outfit', sans-serif`) > availW) {
+                    while (px > 13.5 && measureTextWidthPx(val, `900 ${px}px 'Outfit', sans-serif`) > availW) {
                         px -= 0.5;
                     }
                 }
@@ -5928,10 +5838,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 const sel = document.getElementById(selId);
                 if (!sel) return;
                 const optText = (sel.options && sel.selectedIndex >= 0) ? (sel.options[sel.selectedIndex].text || '').trim() : '';
-                const availW = Math.max(80, (sel.clientWidth || 140) - 34);
-                let px = 15.5;
+                const availW = Math.max(85, (sel.clientWidth || 175) - 32);
+                let px = 16.5;
                 if (optText) {
-                    while (px > 11.5 && measureTextWidthPx(optText, `800 ${px}px 'Cairo', 'Tajawal', sans-serif`) > availW) {
+                    while (px > 12 && measureTextWidthPx(optText, `900 ${px}px 'Cairo', 'Tajawal', sans-serif`) > availW) {
                         px -= 0.5;
                     }
                 }
@@ -6036,15 +5946,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
             cfg.columns.forEach(col => {
                 if (col.visible === false || col.visible === 'false' || col.visible === 0) return;
-                const basePx = parseFloat(col.fontSize) || parseFloat(cfg.fontSize) || 18;
-                const weight = col.fontWeight || cfg.fontWeight || '800';
+                const isNumCol = ['quantity', 'price', 'available', 'total', 'shila', 'shilaRem', 'fcPrice', 'totalFc'].includes(String(col.id));
+                const rawBase = parseFloat(col.fontSize) || parseFloat(cfg.fontSize) || 18;
+                const basePx = isNumCol ? Math.max(rawBase + 5, 24.5) : rawBase;
+                const weight = isNumCol ? '900' : (col.fontWeight || cfg.fontWeight || '800');
 
                 // 1. Fit Column Header (th) to basePx (scale down slightly only if column is too narrow for header word)
                 const th = table.querySelector(`thead th[data-col-id="${col.id}"]`);
                 if (th && col.id !== 'action') {
                     const thText = (th.textContent || col.name || '').trim();
                     const thAvailW = Math.max(36, (th.clientWidth || parseInt(col.width) || 100) - 18);
-                    let thPx = Math.min(basePx, 21);
+                    let thPx = Math.min(rawBase, 21);
                     if (thText && thAvailW > 25) {
                         while (thPx > 12 && measureTextWidthPx(thText, `800 ${thPx}px ${fontFam}`) > thAvailW) {
                             thPx -= 0.5;
@@ -6067,20 +5979,55 @@ document.addEventListener('DOMContentLoaded', () => {
                         textVal = (ctrl.textContent || '').trim();
                     }
 
-                    const tdW = td.clientWidth || parseInt(col.width) || 120;
-                    const paddingOffset = (col.id === 'item') ? 54 : (ctrl.tagName === 'SELECT' ? 30 : 18);
-                    const availW = Math.max(40, tdW - paddingOffset);
+                    const tdW = ctrl.clientWidth || td.clientWidth || parseInt(col.width) || 140;
+                    const paddingOffset = (col.id === 'item') ? 54 : (ctrl.tagName === 'SELECT' ? 28 : (col.id === 'price' ? 38 : (isNumCol ? 16 : 18)));
+                    const availW = Math.max(32, tdW - paddingOffset);
 
                     let targetPx = basePx;
-                    if (textVal && availW > 35) {
-                        while (targetPx > 12 && measureTextWidthPx(textVal, `${weight} ${targetPx}px ${fontFam}`) > availW) {
+                    if (textVal && availW > 20) {
+                        while (targetPx > 7.5 && (measureTextWidthPx(textVal, `${weight} ${targetPx}px 'Outfit', ${fontFam}`) * 1.12) > availW) {
                             targetPx -= 0.5;
                         }
                     }
                     ctrl.style.setProperty('font-size', targetPx + 'px', 'important');
                 });
             });
+            ['pay-credit-amount', 'pay-cash-amount'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el && typeof window.autoFitSingleInput === 'function') window.autoFitSingleInput(el);
+            });
         } catch (e) {}
+    };
+
+    window.autoFitSingleInput = function(el, maxPx, minPx) {
+        try {
+            if (!el) return;
+            const val = (el.value !== undefined ? String(el.value) : (el.textContent || '')).trim();
+            const isPaymentBig = (el.id === 'pay-cash-amount');
+            const isCreditAmt = (el.id === 'pay-credit-amount');
+            let base = maxPx || (isPaymentBig ? 32 : (isCreditAmt ? 25 : 24.5));
+            let colId = '';
+            if (el.classList && el.classList.contains('g-input')) {
+                const td = el.closest('td[data-col-id]');
+                colId = td ? td.getAttribute('data-col-id') : '';
+                const isNumCol = ['quantity', 'price', 'available', 'total', 'shila', 'shilaRem', 'fcPrice', 'totalFc'].includes(String(colId));
+                const cfg = window.CurrentGridConfig;
+                const colCfg = (cfg && cfg.columns) ? cfg.columns.find(c => String(c.id) === String(colId)) : null;
+                const rawBase = parseFloat(colCfg?.fontSize) || parseFloat(cfg?.fontSize) || 18;
+                base = isNumCol ? Math.max(rawBase + 5, 24.5) : rawBase;
+            }
+            const floorPx = minPx || 7.5;
+            const boxW = el.clientWidth || (el.parentElement ? el.parentElement.clientWidth : 150) || 150;
+            const padDeduct = (colId === 'price') ? 38 : 16;
+            const availW = Math.max(32, boxW - padDeduct);
+            let px = base;
+            if (val && availW > 20) {
+                while (px > floorPx && (measureTextWidthPx(val, `900 ${px}px 'Outfit', 'Cairo', 'Tajawal', sans-serif`) * 1.12) > availW) {
+                    px -= 0.5;
+                }
+            }
+            el.style.setProperty('font-size', px + 'px', 'important');
+        } catch (_e) {}
     };
 
     window.applyGridSettings = function() {
@@ -6601,11 +6548,7 @@ document.addEventListener('DOMContentLoaded', () => {
         window.addEventListener('DOMContentLoaded', () => {
             setTimeout(syncPurchaseWithMariaDB, 400);
         });
-        setInterval(() => {
-            if (!document.hidden && navigator.onLine) syncPurchaseWithMariaDB();
-        }, 3500);
-        window.addEventListener('focus', syncPurchaseWithMariaDB);
-        window.addEventListener('online', syncPurchaseWithMariaDB);
+                window.addEventListener('online', syncPurchaseWithMariaDB);
     })();
 
     // ═══════════════════════════════════════════════════════════════════════════════
@@ -6615,594 +6558,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // 3. منع النقرات المزدوجة + طابور عدم الاتصال الذكي + التسميع اللحظي عبر BroadcastChannel
     // ═══════════════════════════════════════════════════════════════════════════════
     (function initPurchaseConstitutionEngine() {
-        window.MagaiesSmartGuides = window.MagaiesSmartGuides || {};
-
-        window.MagaiesSmartGuides['purchase-direct'] = {
-            title: 'مرشد شاشة فاتورة المشتريات المباشرة',
-            subtitle: 'شرح مصوّر ومدبلج بالصوت الرجالي الفخيم خطوة بخطوة لشاشة فاتورة المشتريات المفتوحة أمامك مع فتح القوائم المنسدلة والنوافذ الفرعية حياً',
-            screenHierarchy: [
-                '0️⃣ الملخص العام الشامل (الوظيفة + مصادر المدخلات + أين تُسمّع في التقارير والشاشات + القاعدة الذهبية)',
-                '1️⃣ شريط رقم الفاتورة والتاريخ وشريط الملاءة المالية للمورد',
-                '2️⃣ خانة المورد + فتح قائمة الموردين المنسدلة وزر كشف الأستاذ',
-                '3️⃣ العملة وسعر الصرف والمخزن المستلم ومركز التكلفة والبحث السريع (F2)',
-                '4️⃣ جدول الأصناف وتخصيص الأعمدة + التكاليف الإضافية (الترحيل والعمالة والخصم)',
-                '5️⃣ منظومة الدفع الهجين (آجل/نقدي/بنك/شيك) + الحفظ الذري والتسميع الفوري (F10)'
-            ],
-            overview: 'تشرح هذه الجولة العملية شاشة فاتورة المشتريات المباشرة المفتوحة أمامك: بدءاً من الملخص العام لمصادر المدخلات وجهات التسميع في التقارير والقاعدة الذهبية، ثم الرقم التسلسلي والتاريخ وشريط الملاءة المالية للمورد، وفتح قائمة الموردين وكشف الأستاذ، واختيار العملة والمخزن، وإدراج الأصناف بالبحث السريع (F2)، وتوزيع مصاريف الترحيل والعمالة (Landed Cost)، وحتى الدفع الهجين والاعتماد الذري (F10).',
-            onClose: () => {
-                ['customer-dropdown-list', 'quick-item-dropdown-list', 'grid-settings-modal', 'add-customer-modal', 'msg-c5-impact-map-banner'].forEach(id => {
-                    const el = document.getElementById(id);
-                    if (el) {
-                        el.classList.remove('show', 'active');
-                        el.style.display = 'none';
-                    }
-                });
-            },
-            autopilotSteps: [
-                {
-                    badge: '0. الملخص العام الشامل: الوظيفة، المدخلات، أثر التسميع في التقارير، والقاعدة الذهبية',
-                    cursorLabel: 'خريطة الترابط والقاعدة الذهبية 🏛️',
-                    screenPath: 'شاشة المشتريات المباشرة ⬅ الملخص العام (المدخلات ⬅ المعالجة ⬅ المخرجات والتقارير + القاعدة الذهبية)',
-                    targetSelector: '#pur-c1-command-bar, #invoice-info-box',
-                    diagramType: 'c5-impact-map',
-                    c5ImpactMeta: {
-                        screenTitle: 'شاشة وسجل فاتورة المشتريات المباشرة والتكلفة الفعلية (Landed Cost)',
-                        inputs: [
-                            '📥 شاشة البيانات الأساسية (الموردين والأصناف والوحدات والمخازن)',
-                            '📋 الفواتير المبدئية وأذونات الاستلام المخزني (GRN)',
-                            '📷 المسح الذكي (OCR) لفواتير الموردين وإشعارات البنك'
-                        ],
-                        funcSummary: 'توريد البضائع للمخازن وتوزيع مصاريف الترحيل والعمالة على تكلفة الوحدة وتسوية حساب المورد والخزينة والبنك ذرياً',
-                        goldenRule: 'راجع وحدة القياس وحمّل مصاريف الترحيل والعمالة قبل الاعتماد؛ ينضبط لك متوسط تكلفة الصنف وربحية المبيعات وكشف المورد تلقائياً.',
-                        reassurance: 'اطمئن تماماً ولا تخشَ الخطأ؛ فالشاشة محمية بحارس المسودات التلقائي وقفل منع تكرار الحفظ ودرع التراجع الآمن بضغطة زر.',
-                        reports: [
-                            '📊 كشف حساب المورد وتقرير أعمار الديون',
-                            '📦 تقرير حركة وأرصدة المخازن وكارت الصنف (WAC)',
-                            '📒 دفتر اليومية العام وميزان المراجعة والخزينة'
-                        ],
-                        screens: [
-                            '🏭 شاشة المخازن والمبيعات المباشرة وحافظة الشيكات',
-                            '🚛 بوابة الاستلام المخزني (GRN) والمطابقة الثلاثية'
-                        ]
-                    },
-                    action: () => {
-                        if (typeof window.openPurchaseEditor === 'function' && document.getElementById('purchase-editor-view')?.style.display === 'none') {
-                            window.openPurchaseEditor('direct');
-                        }
-                    },
-                    speech: () => 'هذه هي شاشة فاتورة المشتريات المباشرة، ووظيفتها إثبات البضائع المشتراة من الموردين، وتوزيع مصاريف الترحيل والعمالة على تكلفة الأصناف، واعتماد السداد النقدي أو الآجل أو البنكي أو بالشيكات في عملية ذرية واحدة. تأتيها المعلومات من شاشة البيانات الأساسية للموردين والأصناف والمخازن، ومن الفواتير المبدئية وأذونات الاستلام المخزني، أو عبر المسح الذكي لفاتورة المورد. وعند حفظ الفاتورة تسمع وتؤثر لحظياً في ثلاثة مسارات: أولاً تزيد كمية البضاعة في شاشة وتقارير المخازن وكارت الصنف ويتحدث متوسط التكلفة المرجح، وثانياً يسمع المبلغ في كشف حساب المورد وتقارير أعمار الديون أو يخصم من الخزينة والبنك وحافظة الشيكات، وثالثاً يرحل القيد المحاسبي المتوازن في دفتر اليومية العام وميزان المراجعة. القاعدة الذهبية لهذه الشاشة: راجع وحدة القياس وحمل مصاريف الترحيل والعمالة على الفاتورة قبل الاعتماد، ينضبط لك متوسط تكلفة الصنف وربحية المبيعات وكشف حساب المورد تلقائياً. واطمئن تماماً ولا تخش الخطأ، فالشاشة محمية بحارس المسودات التلقائي، وقفل منع تكرار الحفظ، ودرع التراجع الآمن بضغطة زر.'
-                },
-                {
-                    badge: '1. الرقم التسلسلي للفاتورة والتاريخ وشريط الملاءة المالية للمورد',
-                    cursorLabel: 'رقم الفاتورة وشريط الملاءة المالية 📊',
-                    screenPath: 'فاتورة المشتريات المباشرة ⬅ شريط الرقم التسلسلي والتاريخ + شريط الملاءة المالية للمورد',
-                    targetSelector: '#invoice-info-box, #customer-financial-card',
-                    diagramType: 'screen-transition',
-                    diagramMeta: {
-                        parentScreen: 'أعلى شاشة فاتورة المشتريات (#invoice-info-box)',
-                        actionLabel: 'البيانات الرقابية والمالية الفورية أعلى الفاتورة:',
-                        childItems: ['🔢 الرقم التسلسلي التلقائي وأزرار السابق والتالي (❮ ❯)', '📅 تاريخ الفاتورة المحاسبي وشارة الموظف المسؤول', '📊 شريط الملاءة المالية للمورد (الرصيد • المديونية • الشيكات • السقف)', '🛡️ شارة المطابقة الثلاثية (3-Way Matching) مع أذونات الاستلام'],
-                        effectLabel: 'شاشة فاتورة المشتريات المباشرة مفتوحة وجاهزة أمامك!'
-                    },
-                    action: () => {
-                        if (typeof openPurchaseEditor === 'function' && document.getElementById('purchase-editor-view')?.style.display === 'none') {
-                            openPurchaseEditor('direct');
-                        }
-                        const finCard = document.getElementById('customer-financial-card');
-                        if (finCard) {
-                            finCard.style.display = 'flex';
-                            finCard.dataset.guideTempShown = '1';
-                        }
-                    },
-                    goldenRule: 'القاعدة الذهبية لهذا العنصر: راجع التاريخ المحاسبي وشريط الملاءة المالية للمورد قبل بدء الإدخال لضمان التسجيل في الفترة المالية الصحيحة وعدم تجاوز السقف الائتماني.',
-                    speech: () => 'نبدأ في أعلى الشاشة بشريط الرقم التسلسلي التلقائي للفاتورة وأزرار التنقل بين الفواتير السابقة والتالية وتاريخ الفاتورة، وبجانبه شريط الملاءة المالية للمورد الذي يعرض لك في لمحة واحدة رصيد المورد الدفتري، وإجمالي مديونيته، والشيكات الصادرة المؤجلة، والسقف الائتماني المتاح. القاعدة الذهبية لهذا العنصر: راجع التاريخ المحاسبي وشريط الملاءة المالية للمورد قبل بدء الإدخال لضمان التسجيل في الفترة المالية الصحيحة وعدم تجاوز السقف الائتماني.'
-                },
-                {
-                    badge: '2. خانة المورد: فتح قائمة الموردين ونافذة مورد جديد (F4) ونسخ آخر فاتورة',
-                    cursorLabel: 'قائمة الموردين + نافذة مورد جديد ونسخ الفاتورة 📖',
-                    screenPath: 'فاتورة المشتريات ⬅ خانة المورد ⬅ فتح قائمة الموردين + نافذة تأسيس مورد جديد + زر آخر فاتورة والأستاذ',
-                    targetSelector: '#hdr-customer-search, #btn-quick-add-supplier, #btn-clone-last-supplier-inv',
-                    diagramType: 'dropdown-open',
-                    diagramMeta: {
-                        parentScreen: 'خانة المورد وأزرارها الذكية (#hdr-customer-search)',
-                        actionLabel: 'بمجرد الضغط تفتح قائمة الموردين والشاشات الوليدة:',
-                        childItems: ['📋 قائمة الموردين المسجلين مع البحث العربي المتسامح', '➕ زر (+) يفتح نافذة تأسيس مورد جديد الوليدة (F4)', '📋 زر (آخر فاتورة) ينسخ أصناف وأسعار آخر فاتورة للمورد فوراً', '👑 القاعدة الذهبية: اربط كل فاتورة آجلة بموردها الصحيح لضبط أعمار الديون'],
-                        effectLabel: 'قائمة الموردين ونافذة التأسيس الوليدة مفتوحة الآن أمامك!'
-                    },
-                    action: () => {
-                        if (typeof openPurchaseEditor === 'function' && document.getElementById('purchase-editor-view')?.style.display === 'none') {
-                            openPurchaseEditor('direct');
-                        }
-                        const inp = document.getElementById('hdr-customer-search');
-                        if (inp) {
-                            try { inp.focus(); } catch (e) {}
-                        }
-                        if (typeof showCustomerDropdown === 'function') {
-                            try { showCustomerDropdown(); } catch (e) {}
-                        }
-                        const dd = document.getElementById('customer-dropdown-list');
-                        if (dd) dd.style.display = 'block';
-                        if (typeof openModal === 'function') {
-                            try {
-                                openModal('add-customer-modal');
-                                setTimeout(() => {
-                                    if (typeof closeModal === 'function') closeModal('add-customer-modal');
-                                }, 2100);
-                            } catch (e) {}
-                        }
-                    },
-                    goldenRule: 'القاعدة الذهبية لخانة المورد: اربط كل فاتورة آجلة أو جزئية بموردها المحدد، واستخدم زر الإضافة السريعة أو نسخ آخر فاتورة لتوفير 80% من وقت الإدخال.',
-                    speech: () => 'الخطوة الثانية هي خانة المورد؛ وبمجرد الضغط عليها تفتح أمامك فوراً قائمة الموردين المنسدلة بالبحث العربي الذكي، وبجانبها زر علامة الزائد أو مفتاح إف أربعة الذي يفتح نافذة تأسيس مورد جديد الوليدة كما ظهر أمامك، وزر آخر فاتورة لنسخ أصناف آخر توريد للمورد بضغطة واحدة، وزر أستاذ لكشف الحساب التفصيلي. القاعدة الذهبية لخانة المورد: اربط كل فاتورة آجلة بموردها المحدد، واستخدم زر نسخ آخر فاتورة لتوفير ثمانين بالمئة من وقت الإدخال.'
-                },
-                {
-                    badge: '3. العملة وسعر الصرف والمخزن المستلم ومركز التكلفة',
-                    cursorLabel: 'قوائم العملة والمخزن ومركز التكلفة',
-                    screenPath: 'فاتورة المشتريات ⬅ اختيار العملة والمخزن ومركز التكلفة ⬅ تقييم آلي للمخزون',
-                    targetSelector: '#hdr-currency, #hdr-exchange-rate, #hdr-warehouse',
-                    diagramType: 'dropdown-open',
-                    diagramMeta: {
-                        parentScreen: 'شريط العملة والمخزن ومركز التكلفة',
-                        actionLabel: 'قوائم منسدلة لضبط التقييم المحاسبي والمخزني:',
-                        childItems: ['💱 قائمة العملات (جنيه SDG • دولار USD • ريال SAR • درهم AED)', '🔢 خانة سعر الصرف لإعادة تقييم الفاتورة لحظياً', '🏭 قائمة المخازن لتحديد المستودع المستلم للبضاعة', '👑 القاعدة الذهبية: حدد المستودع الفعلي وسعر الصرف الدقيق قبل إدراج الأصناف'],
-                        effectLabel: 'يربط الفاتورة بالمستودع ومركز التكلفة والعملة المختارة'
-                    },
-                    action: () => {
-                        const dd = document.getElementById('customer-dropdown-list');
-                        if (dd) dd.style.display = 'none';
-                        const cur = document.getElementById('hdr-currency');
-                        if (cur) { try { cur.focus(); } catch (e) {} }
-                    },
-                    goldenRule: 'القاعدة الذهبية للمخزن والعملة: حدد المستودع المستلم الفعلي وسعر الصرف الدقيق قبل الاعتماد لئلا تدخل البضاعة في مخزن خاطئ أو بتكلفة غير حقيقية.',
-                    speech: () => 'الخطوة الثالثة هي قائمة العملة وسعر الصرف والمخزن؛ فإذا اخترت الدولار أو غيره يعيد النظام تقييم الفاتورة بالعملة المحلية والأجنبية فوراً، ثم تختار من قائمة المخزن المستودع الذي ستدخل إليه البضاعة، وتحدد مركز التكلفة والبيان. القاعدة الذهبية لهذا العنصر: حدد المستودع الفعلي المستلم للبضاعة وسعر الصرف الدقيق قبل الاعتماد لمنع أي انحراف في جرد المخازن أو تكلفة الاستيراد.'
-                },
-                {
-                    badge: '4. البحث السريع عن الأصناف (F2): فتح قائمة الأصناف الذكية بالرصيد والسعر',
-                    cursorLabel: 'قائمة الأصناف الذكية المفتوحة 📦',
-                    screenPath: 'فاتورة المشتريات ⬅ ضغط البحث السريع (F2) ⬅ فتح قائمة الأصناف بالرصيد والسعر',
-                    targetSelector: '#quick-item-search',
-                    diagramType: 'dropdown-open',
-                    diagramMeta: {
-                        parentScreen: 'شريط البحث السريع عن الأصناف (#quick-item-search)',
-                        actionLabel: 'عند الضغط أو ضغط F2 تفتح قائمة الأصناف الذكية:',
-                        childItems: ['🏷️ اسم الصنف والكود والباركود مع بحث عربي متسامح', '📦 الوحدات المرتبطة بالصنف وآخر سعر شراء مسجل', '📷 زر الكاميرا لمسح الباركود + زر ➕ لإضافة سطر جديد', '👑 القاعدة الذهبية: استخدم F2 أو قارئ الباركود لمنع تكرار الأصناف'],
-                        effectLabel: 'قائمة الأصناف مفتوحة الآن أمامك، وبمجرد الاختيار ينزل الصنف للجدول!'
-                    },
-                    action: () => {
-                        const qInp = document.getElementById('quick-item-search');
-                        if (qInp) {
-                            try { qInp.focus(); } catch (e) {}
-                        }
-                        if (typeof showQuickItemDropdown === 'function') {
-                            try { showQuickItemDropdown(); } catch (e) {}
-                        }
-                        const qdd = document.getElementById('quick-item-dropdown-list');
-                        if (qdd) qdd.style.display = 'block';
-                    },
-                    goldenRule: 'القاعدة الذهبية للبحث السريع: اعتمد على البحث الذكي (F2) أو ماسح الباركود لإدراج الأصناف بسرعة فائقة ومنع تأسيس أصناف مكررة.',
-                    speech: () => 'الخطوة الرابعة هي شريط البحث السريع عن الأصناف؛ بمجرد الضغط عليه أو ضغط مفتاح إف اثنين، تفتح أمامك قائمة الأصناف الذكية كما تظهر الآن على الشاشة، وبها اسم كل صنف ووحداته وسعره، وبمجرد اختيار الصنف ينزل فوراً إلى جدول الفاتورة وينتقل المؤشر تلقائياً لخانة الكمية. القاعدة الذهبية لهذا العنصر: اعتمد على مفتاح إف اثنين أو ماسح الباركود لإدراج الأصناف في لمح البصر ومنع تكرار أسماء الأصناف.'
-                },
-                {
-                    badge: '5. جدول الأصناف وفتح نافذة (تخصيص الجدول ⚙️) الفرعية',
-                    cursorLabel: 'جدول الأصناف ونافذة التخصيص ⚙️',
-                    screenPath: 'فاتورة المشتريات ⬅ جدول الأصناف (#pos-grid) + ضغط (⚙️ تخصيص الجدول)',
-                    targetSelector: 'button[onclick*="openGridSettingsModal"], #pos-grid',
-                    diagramType: 'screen-transition',
-                    diagramMeta: {
-                        parentScreen: 'جدول الأصناف (#pos-grid)',
-                        actionLabel: 'تحرير الكميات والأسعار + نافذة تخصيص الجدول:',
-                        childItems: ['⚖️ اختيار وحدة الشراء (طن • كرتونة • سيخة) ومعامل التحويل الآلي', '🔢 إدخال الكمية وسعر الشراء مع مؤشر انحراف السعر التاريخي', '↕️ نافذة (⚙️ تخصيص الجدول) لترتيب الأعمدة وتكبير الخطوط', '👑 القاعدة الذهبية: اختر وحدة الشراء الصحيحة ليضرب النظام بمعامل التحويل آلياً'],
-                        effectLabel: 'تفتح نافذة تخصيص الجدول أمامك ثم تعود للجدول تلقائياً'
-                    },
-                    action: () => {
-                        const qdd = document.getElementById('quick-item-dropdown-list');
-                        if (qdd) qdd.style.display = 'none';
-                        if (typeof window.openGridSettingsModal === 'function') {
-                            try {
-                                window.openGridSettingsModal();
-                                setTimeout(() => {
-                                    const gm = document.getElementById('grid-settings-modal');
-                                    if (gm) gm.style.display = 'none';
-                                }, 2800);
-                            } catch (e) {}
-                        }
-                    },
-                    goldenRule: 'القاعدة الذهبية لجدول الأصناف: تأكد من اختيار وحدة الشراء المطابقة لفاتورة المورد (طن أو كرتونة أو قطعة) ليقوم النظام بتغذية المخزون بمعامل التحويل الصحيح.',
-                    speech: () => 'الخطوة الخامسة هي جدول الأصناف؛ وفيه تتحرك بسلاسة بزر إنتر بين الوحدة والكمية وسعر الشراء والمخزن الفرعي مع تظليل تلقائي للأرقام عند الدخول، وإذا ضغطت على زر تخصيص الجدول بالأعلى تفتح لك نافذة فرعية لترتيب الأعمدة وتكبير الخطوط وتلوينها حسب رغبتك. القاعدة الذهبية لجدول الأصناف: تأكد من اختيار وحدة الشراء المطابقة لفاتورة المورد ليقوم النظام بتغذية المخزون بمعامل التحويل الصحيح تلقائياً.'
-                },
-                {
-                    badge: '6. أزرار التكاليف الإضافية: إظهار خانات الترحيل والعمالة والضريبة والخصم',
-                    cursorLabel: 'فتح خانات الترحيل والعمالة والخصم 🚚',
-                    screenPath: 'فاتورة المشتريات ⬅ ضغط (🚚 ترحيل / ➖ خصم) ⬅ ظهور خانات المبالغ وتوزيع التكلفة',
-                    targetSelector: '#btn-toggle-transport, #btn-landed-cost-mode',
-                    diagramType: 'subpanel-expand',
-                    diagramMeta: {
-                        parentScreen: 'شريط أزرار التكاليف الإضافية (Landed Cost)',
-                        actionLabel: 'عند الضغط على أي زر يظهر سطر الإدخال الخاص به:',
-                        childItems: ['🚚 ترحيل: يفتح خانة مصاريف الشحن والنقل', '👷‍♂️ عمالة: يفتح خانة أجور التفريغ والعمال', '➕ إضافات و 💰 ضريبة و ➖ خصم مكتسب من المورد', '👑 القاعدة الذهبية: سجّل الترحيل والعمالة هنا لتدخل في تكلفة الصنف الفعلية'],
-                        effectLabel: 'تم فتح خانات الترحيل والخصم أمامك الآن في ملخص الفاتورة!'
-                    },
-                    requiredRole: 'accountant',
-                    action: () => {
-                        const gm = document.getElementById('grid-settings-modal');
-                        if (gm) gm.style.display = 'none';
-                        const trRow = document.getElementById('row-tot-transport');
-                        if (trRow && (trRow.style.display === 'none' || !trRow.style.display)) {
-                            if (typeof window.toggleTotRow === 'function') {
-                                try { window.toggleTotRow('transport'); } catch (e) {}
-                            } else {
-                                trRow.style.display = 'flex';
-                            }
-                        }
-                        const discRow = document.getElementById('row-tot-discount');
-                        if (discRow && (discRow.style.display === 'none' || !discRow.style.display)) {
-                            if (typeof window.toggleTotRow === 'function') {
-                                try { window.toggleTotRow('discount'); } catch (e) {}
-                            } else {
-                                discRow.style.display = 'flex';
-                            }
-                        }
-                    },
-                    goldenRule: 'القاعدة الذهبية للتكاليف الإضافية: لا تفصل مصاريف الترحيل والعتالة عن الفاتورة؛ سجلها هنا ليحملها النظام على تكلفة الوحدة الفعلية (Landed Cost) فلا تبيع بخسارة خفية.',
-                    speech: () => 'الخطوة السادسة هي أزرار التكاليف الإضافية؛ فعندما تضغط على زر ترحيل أو عمالة أو ضريبة أو خصم، تفتح أمامك فوراً الخانات المخصصة لكتابة مبالغها كما ظهر الآن على الشاشة، ويقوم النظام بتوزيع مصاريف الترحيل والعمالة آلياً على متوسط تكلفة الأصناف المشتراة سواء بالقيمة المالية أو بالكمية. القاعدة الذهبية لهذا العنصر: سجل مصاريف الترحيل والعمالة داخل الفاتورة ليحملها النظام على تكلفة الوحدة الفعلية فلا تبيع بخسارة خفية.'
-                },
-                {
-                    badge: '7. منظومة الدفع الهجين: فتح نوافذ (آجل / نقدي / تحويل بنكي / شيك)',
-                    cursorLabel: 'فتح نوافذ الدفع الهجين والبنك والشيكات 🏦',
-                    screenPath: 'فاتورة المشتريات ⬅ ضغط أزرار الدفع ⬅ فتح نوافذ (الآجل • الخزينة • التحويل البنكي • الشيكات)',
-                    targetSelector: '#payment-panel',
-                    diagramType: 'subpanel-expand',
-                    diagramMeta: {
-                        parentScreen: 'منظومة الدفع المتعدد الهجين (#payment-panel)',
-                        actionLabel: 'كل زر دفع يفتح لوحته التفصيلية الخاصة به:',
-                        childItems: ['💳 آجل: يفتح تحديد تاريخ الاستحقاق ومعاينة الكمبيالة', '💵 نقدي: يفتح اختيار الخزينة والمبلغ المدفوع كاش', '🏦 تحويل: يفتح اختيار البنك ورقم الإشعار ومسح الإشعار بالذكاء AI', '👑 القاعدة الذهبية: وثّق رقم الإشعار البنكي أو رقم الشيك وتاريخ استحقاقه بدقة'],
-                        effectLabel: 'نوافذ الدفع الفرعية مفتوحة الآن أمامك ويمكنك الدمج بينها!'
-                    },
-                    requiredRole: 'accountant',
-                    action: () => {
-                        const payPanel = document.getElementById('payment-panel');
-                        if (payPanel) payPanel.style.display = 'block';
-                        const payLayout = document.getElementById('payment-layout');
-                        if (payLayout) payLayout.style.display = 'flex';
-                        ['credit', 'cash', 'bank', 'cheque'].forEach(sec => {
-                            const btn = document.getElementById('toggle-' + sec);
-                            const el = document.getElementById('pay-' + sec + '-section');
-                            if (btn && !btn.classList.contains('active') && typeof window.togglePaymentSection === 'function') {
-                                try { window.togglePaymentSection(sec); } catch (e) {}
-                            } else if (el) {
-                                el.style.display = 'flex';
-                            }
-                        });
-                    },
-                    goldenRule: 'القاعدة الذهبية للدفع الهجين: عند السداد البنكي أو بالشيكات، وثق رقم الإشعار المرجعي أو رقم الشيك وتاريخ استحقاقه بدقة لمنع تكرار الصرف وضبط مطابقة البنك.',
-                    speech: () => 'الخطوة السابعة هي منظومة الدفع الهجين؛ فعندما تضغط على زر آجل أو نقدي أو تحويل بنكي أو شيك، تفتح لك النافذة الفرعية الخاصة بكل طريقة كما ترى الآن أمامك؛ فتحدد الخزينة أو البنك ورقم الإشعار أو تمسحه بالذكاء الاصطناعي، أو تسجل بيانات الشيك وتاريخ استحقاقه، ويمكنك الجمع بين عدة طرق دفع في فاتورة واحدة. القاعدة الذهبية للدفع الهجين: وثق رقم الإشعار البنكي أو رقم الشيك وتاريخ استحقاقه بدقة لضبط مطابقة البنك وحافظة الشيكات.'
-                },
-                {
-                    badge: '8. شريط الاعتماد النهائي (F10 / Ctrl+S) ومسار التسميع الذري في 5 شاشات',
-                    cursorLabel: 'حفظ واعتماد الفاتورة (F10 / Ctrl+S) ✅',
-                    screenPath: 'فاتورة المشتريات ⬅ زر حفظ واعتماد ⬅ 5 عمليات ذرية (المخزن + التكلفة + كشف المورد + اليومية + الواتساب)',
-                    targetSelector: '.items-toolbar, #btn-submit-purchase-invoice, #btn-save',
-                    diagramType: 'accounting-flow',
-                    diagramMeta: {
-                        parentScreen: 'زر حفظ واعتماد الفاتورة (F10 / Ctrl+S)',
-                        actionLabel: 'بمجرد الضغط ينفذ النظام 5 عمليات في جزء من الثانية:',
-                        childItems: ['📦 1. زيادة رصيد المخزن وتحديث متوسط التكلفة المرجح (WAC)', '👤 2. تحديث كشف حساب المورد وأعمار الديون', '🏦 3. خصم الدفعة من الخزينة أو البنك أو حافظة الشيكات', '👑 القاعدة الذهبية: اضغط F10 مرة واحدة؛ قفل منع التكرار يحميك من الازدواجية'],
-                        effectLabel: 'عملية ذرية متكاملة 100% ومزامنة فورية مع الموبايل'
-                    },
-                    goldenRule: 'القاعدة الذهبية للحفظ والاعتماد: راجع صافي الفاتورة واستخدم اختصار F10 للحفظ الذري؛ قفل الحفظ مرة واحدة يحميك تلقائياً من تكرار العملية.',
-                    speech: () => 'الخطوة الثامنة هي شريط الاعتماد السفلي؛ وعند الضغط على زر حفظ واعتماد أو مفتاح إف عشرة، ينفذ النظام في جزء من الثانية خمس عمليات ذرية مترابطة: إضافة الكميات للمخزن وتحديث متوسط التكلفة المرجح، وتحديث كشف حساب المورد، وخصم الدفعات النقدية أو البنكية، وترحيل القيد لليومية العامة وميزان المراجعة. القاعدة الذهبية للاعتماد: راجع صافي الفاتورة واضغط إف عشرة مرة واحدة، فقفل منع التكرار يحميك تلقائياً من ازدواجية القيد.'
-                },
-                {
-                    badge: '9. المحاكاة الحية للشاشات الوليدة: معاينة القيد والتكلفة وإشعار واتساب المورد',
-                    cursorLabel: 'فتح شاشة القيد والتكلفة الوليدة ⚖️',
-                    screenPath: 'شريط قلعة المشتريات ⬅ فتح شاشة معاينة القيد المحاسبي وتوزيع التكلفة (Landed Cost) حياً',
-                    targetSelector: '#btn-pur-c1-journal-preview, #btn-pur-c3-whatsapp',
-                    diagramType: 'screen-transition',
-                    diagramMeta: {
-                        parentScreen: 'أدوات الرقابة والشاشات الوليدة في أعلى الشاشة',
-                        actionLabel: 'محاكاة حية لفتح الشاشات الوليدة أثناء الشرح:',
-                        childItems: ['⚖️ شاشة معاينة القيد المحاسبي وتكلفة الوحدة الفعلية (Landed Cost)', '💬 شاشة تجهيز وإرسال كشف واتساب المورد المفهرس بفواصل الآلاف', '➕ شاشة الإضافة السريعة الفورية (Alt+N) لمورد أو صنف أو مخزن', '👑 القاعدة الذهبية: عاين القيد وتكلفة الوحدة قبل الاعتماد وأرسل إشعار الواتساب للمورد'],
-                        effectLabel: 'الشاشات الوليدة تفتح حياً أمامك وترث السمة وسُمك الحواف (+2)!'
-                    },
-                    requiredRole: 'accountant',
-                    action: () => {
-                        if (typeof window.openPurchaseJournalAndLandedCostPreview === 'function') {
-                            try {
-                                window.openPurchaseJournalAndLandedCostPreview();
-                                setTimeout(() => {
-                                    const jm = document.getElementById('purchase-journal-preview-modal');
-                                    if (jm) jm.style.display = 'none';
-                                }, 2600);
-                            } catch (e) {}
-                        }
-                    },
-                    goldenRule: 'القاعدة الذهبية للشاشات الوليدة: استخدم شاشة معاينة القيد والتكلفة للتأكد من توازن المدين والدائن وتكلفة الوحدة قبل الحفظ، ثم وثق العملية للمورد عبر واتساب بضغطة زر.',
-                    speech: () => 'الخطوة التاسعة هي أدوات الرقابة والشاشات الوليدة؛ فعند الضغط على زر القيد والتكلفة تفتح أمامك الآن حياً شاشة معاينة قيد اليومية وتوزيع المصاريف الإضافية على تكلفة كل وحدة، وبجانبها زر واتساب المورد لتجهيز وإرسال كشف الفاتورة مفهرساً بفواصل الآلاف بضغطة واحدة. القاعدة الذهبية لهذا العنصر: عاين قيد اليومية وتكلفة الوحدة الفعلية للتأكد من دقة التسعير، ثم أرسل إشعار الواتساب المفهرس للمورد لتوثيق الاستلام.'
-                }
-            ],
-            visualSteps: [
-                {
-                    stepBadge: 'الشاشة 1️⃣ ⬅ الشاشة 2️⃣ (شاشة داخل شاشة)',
-                    title: 'من بوابة المشتريات العامة إلى شاشة تحرير الفاتورة',
-                    desc: '• تبدأ في (بوابة المشتريات) التي تعرض سجل الفواتير و6 بطاقات تشغيلية.\n• عند الضغط على زر (💵 فاتورة مشتريات) تفتح الشاشة الداخلية الكاملة لتحرير الفاتورة.\n• وعند الضغط على قائمة (تصفية الفواتير) تفتح قائمة الفلاتر السبعة لفرز السجل فوراً.',
-                    svg: `<svg viewBox="0 0 360 125" width="100%" height="100%">
-                        <rect x="8" y="12" width="145" height="100" rx="12" fill="#0f172a" stroke="#f59e0b" stroke-width="2"/>
-                        <text x="80" y="34" fill="#fde047" font-size="11" font-weight="bold" text-anchor="middle">1️⃣ بوابة المشتريات</text>
-                        <rect x="20" y="44" width="120" height="24" rx="6" fill="#78350f" stroke="#fbbf24" stroke-width="1.5"/>
-                        <text x="80" y="60" fill="#ffffff" font-size="10" font-weight="bold" text-anchor="middle">💵 فاتورة مشتريات 👆</text>
-                        <rect x="20" y="75" width="120" height="24" rx="6" fill="#1e293b" stroke="#38bdf8" stroke-width="1"/>
-                        <text x="80" y="91" fill="#bae6fd" font-size="9.5" text-anchor="middle">🔍 قائمة تصفية الفواتير</text>
-                        <path d="M158 62 L195 62" stroke="#34d399" stroke-width="3" stroke-dasharray="4 2"/>
-                        <polygon points="195,56 207,62 195,68" fill="#34d399"/>
-                        <rect x="210" y="12" width="142" height="100" rx="12" fill="#064e3b" stroke="#34d399" stroke-width="2"/>
-                        <text x="281" y="34" fill="#a7f3d0" font-size="11" font-weight="bold" text-anchor="middle">2️⃣ شاشة الفاتورة الجديدة</text>
-                        <text x="281" y="56" fill="#ffffff" font-size="9.5" text-anchor="middle">👤 المورد + شريط الملاءة</text>
-                        <text x="281" y="74" fill="#ffffff" font-size="9.5" text-anchor="middle">📦 جدول الأصناف والوحدات</text>
-                        <text x="281" y="92" fill="#fde047" font-size="9.5" font-weight="bold" text-anchor="middle">💳 الدفع الهجين والاعتماد</text>
-                    </svg>`,
-                    targetSelector: '#purchase-hub-view'
-                },
-                {
-                    stepBadge: 'القوائم المنبثقة 1️⃣ — المورد وكشف الأستاذ والأصناف',
-                    title: 'ماذا يظهر عند الضغط على خانة المورد أو البحث السريع عن الأصناف؟',
-                    desc: '• الضغط على (المورد) يفتح قائمة الموردين المنسدلة + يحدث شريط الملاءة المالية العلوي.\n• الضغط على زر (📖 أستاذ) يفتح نافذة كشف حساب المورد التفصيلي داخل نفس الشاشة.\n• الضغط على (البحث السريع F2) يفتح قائمة الأصناف الذكية بالرصيد المتاح وآخر سعر شراء.',
-                    svg: `<svg viewBox="0 0 360 125" width="100%" height="100%">
-                        <rect x="10" y="10" width="162" height="105" rx="10" fill="#1e1b4b" stroke="#fbbf24" stroke-width="2"/>
-                        <text x="91" y="30" fill="#fde047" font-size="10.5" font-weight="bold" text-anchor="middle">👤 خانة المورد ⬅ قائمة منسدلة</text>
-                        <rect x="20" y="38" width="142" height="68" rx="6" fill="#0f172a" stroke="#64748b"/>
-                        <text x="91" y="55" fill="#f8fafc" font-size="9.5" text-anchor="middle">🏢 شركة النيل للتجارة (رصيد)</text>
-                        <text x="91" y="73" fill="#38bdf8" font-size="9.5" text-anchor="middle">📖 زر أستاذ ⬅ كشف الحساب</text>
-                        <text x="91" y="92" fill="#34d399" font-size="9.5" text-anchor="middle">📊 شريط المديونية والسقف</text>
-                        <rect x="188" y="10" width="162" height="105" rx="10" fill="#0c4a6e" stroke="#38bdf8" stroke-width="2"/>
-                        <text x="269" y="30" fill="#7dd3fc" font-size="10.5" font-weight="bold" text-anchor="middle">🔍 بحث الأصناف ⬅ قائمة ذكية</text>
-                        <rect x="198" y="38" width="142" height="68" rx="6" fill="#0f172a" stroke="#38bdf8"/>
-                        <text x="269" y="55" fill="#ffffff" font-size="9.5" text-anchor="middle">📦 أسمنت عطبرة — الرصيد: 45 طن</text>
-                        <text x="269" y="73" fill="#fde047" font-size="9.5" text-anchor="middle">🔩 حديد تسليح — الرصيد: 12 طن</text>
-                        <text x="269" y="92" fill="#a7f3d0" font-size="9.5" text-anchor="middle">⚙️ زر تخصيص أعمدة الجدول</text>
-                    </svg>`,
-                    targetSelector: '#hdr-customer-search'
-                },
-                {
-                    stepBadge: 'النوافذ الفرعية 2️⃣ — التكاليف الإضافية والدفع الهجين',
-                    title: 'فتح خانات الترحيل والعمالة ونوافذ الآجل والبنك والشيكات',
-                    desc: '• الضغط على (🚚 ترحيل / 👷‍♂️ عمالة / 💰 ضريبة / ➖ خصم) يفتح حقول المبالغ ويوزع التكلفة على الأصناف.\n• الضغط على (💳 آجل / 💵 نقدي / 🏦 تحويل / ✍️ شيك) يفتح النافذة الفرعية لكل طريقة دفع مع إمكانية الدمج بينها.',
-                    svg: `<svg viewBox="0 0 360 125" width="100%" height="100%">
-                        <rect x="10" y="12" width="162" height="100" rx="10" fill="#0f172a" stroke="#f472b6" stroke-width="2"/>
-                        <text x="91" y="32" fill="#fbcfe8" font-size="10.5" font-weight="bold" text-anchor="middle">🚚 أزرار التكاليف الإضافية</text>
-                        <text x="91" y="54" fill="#ffffff" font-size="9.5" text-anchor="middle">ضغط 🚚 ترحيل ⬅ يفتح حقل النقل</text>
-                        <text x="91" y="73" fill="#ffffff" font-size="9.5" text-anchor="middle">ضغط 👷‍♂️ عمالة ⬅ يفتح حقل التفريغ</text>
-                        <text x="91" y="93" fill="#fde047" font-size="9.5" font-weight="bold" text-anchor="middle">⚖️ تضاف لتكلفة الصنف آلياً</text>
-                        <rect x="188" y="12" width="162" height="100" rx="10" fill="#064e3b" stroke="#10b981" stroke-width="2"/>
-                        <text x="269" y="32" fill="#6ee7b7" font-size="10.5" font-weight="bold" text-anchor="middle">💳 نوافذ الدفع الهجين</text>
-                        <text x="269" y="54" fill="#ffffff" font-size="9.5" text-anchor="middle">🏦 تحويل ⬅ البنك + رقم الإشعار</text>
-                        <text x="269" y="73" fill="#ffffff" font-size="9.5" text-anchor="middle">✍️ شيك ⬅ رقم الشيك + الاستحقاق</text>
-                        <text x="269" y="93" fill="#fde047" font-size="9.5" font-weight="bold" text-anchor="middle">📷 مسح إشعار البنك بالذكاء AI</text>
-                    </svg>`,
-                    targetSelector: '#payment-panel'
-                },
-                {
-                    stepBadge: 'التسميع المحاسبي والمخزني 3️⃣ — 5 عمليات ذرية',
-                    title: 'مخطط أين تذهب بيانات الفاتورة فور الضغط على (حفظ واعتماد ✅)',
-                    desc: '• زيادة رصيد المستودع وإعادة احتساب متوسط التكلفة المرجح.\n• تحديث كشف حساب المورد والمديونية والشيكات المؤجلة.\n• ترحيل القيد المحاسبي المزدوج إلى اليومية العامة وميزان المراجعة وإرسال إشعار واتساب.',
-                    svg: `<svg viewBox="0 0 360 125" width="100%" height="100%">
-                        <rect x="125" y="6" width="110" height="28" rx="8" fill="#059669" stroke="#fde047" stroke-width="2"/>
-                        <text x="180" y="24" fill="#ffffff" font-size="10.5" font-weight="bold" text-anchor="middle">✅ حفظ واعتماد</text>
-                        <line x1="180" y1="34" x2="60" y2="62" stroke="#38bdf8" stroke-width="2"/>
-                        <line x1="180" y1="34" x2="180" y2="62" stroke="#fbbf24" stroke-width="2"/>
-                        <line x1="180" y1="34" x2="300" y2="62" stroke="#34d399" stroke-width="2"/>
-                        <rect x="10" y="62" width="102" height="52" rx="8" fill="#0f172a" stroke="#38bdf8" stroke-width="1.8"/>
-                        <text x="61" y="83" fill="#7dd3fc" font-size="9.5" font-weight="bold" text-anchor="middle">📦 المخزن والتكلفة</text>
-                        <text x="61" y="101" fill="#e2e8f0" font-size="8.5" text-anchor="middle">+الكمية ومتوسط التكلفة</text>
-                        <rect x="129" y="62" width="102" height="52" rx="8" fill="#0f172a" stroke="#fbbf24" stroke-width="1.8"/>
-                        <text x="180" y="83" fill="#fde047" font-size="9.5" font-weight="bold" text-anchor="middle">👤 كشف المورد</text>
-                        <text x="180" y="101" fill="#e2e8f0" font-size="8.5" text-anchor="middle">الأستاذ + الخزينة/البنك</text>
-                        <rect x="248" y="62" width="102" height="52" rx="8" fill="#0f172a" stroke="#34d399" stroke-width="1.8"/>
-                        <text x="299" y="83" fill="#6ee7b7" font-size="9.5" font-weight="bold" text-anchor="middle">📊 اليومية وواتساب</text>
-                        <text x="299" y="101" fill="#e2e8f0" font-size="8.5" text-anchor="middle">ميزان المراجعة + الجوال</text>
-                    </svg>`,
-                    targetSelector: '.items-toolbar'
-                }
-            ],
-            scenarios: [
-                {
-                    q: '💡 ماذا يحدث عندما أضغط على زر (فاتورة مشتريات) في بوابة المشتريات؟',
-                    a: 'تنتقل الشاشة فوراً (شاشة داخل شاشة) من سجل وبوابة المشتريات العامة إلى شاشة تحرير الفاتورة الكاملة، حيث تجد خانة المورد وقائمة الأصناف وتكاليف الترحيل ولوحة الدفع الهجين.'
-                },
-                {
-                    q: '💡 كيف أفتح قائمة الموردين أو كشف حساب المورد أثناء كتابة الفاتورة؟',
-                    a: 'بمجرد الضغط داخل خانة (المورد) تفتح لك قائمة الموردين المنسدلة للبحث بالاسم أو الرقم، وإذا ضغطت على زر (أستاذ) الموجود داخل نفس الخانة تفتح لك نافذة كشف حساب المورد التفصيلي دون فقدان بيانات الفاتورة.'
-                },
-                {
-                    q: '💡 كيف أُظهر خانة مصاريف الترحيل أو العمالة أو نافذة التحويل البنكي؟',
-                    a: 'اضغط على زر (🚚 ترحيل) أو (👷‍♂️ عمالة) ليظهر سطر إدخال المبلغ ويتم تحميله آلياً على تكلفة الأصناف. وفي قسم الدفع اضغط على (🏦 تحويل) أو (✍️ شيك) لتفتح لك نافذة اختيار البنك ورقم الإشعار أو بيانات الشيك.'
-                }
-            ],
-            buttonsDict: [
-                {
-                    label: 'حفظ واعتماد الفاتورة (Ctrl+S)',
-                    targetSelector: 'button[onclick*="submitInvoice"]',
-                    whatItDoes: 'الزر الرئيسي لحفظ فاتورة المشتريات واعتمادها محاسبياً ومخزنياً ككتلة واحدة لا تتجزأ (Atomic Transaction).',
-                    whatHappensIfClicked: 'يتحقق من اكتمال الأصناف والكميات والسقف المالي، ثم يزيد رصيد المخزن ويحدث متوسط التكلفة، ويحدث رصيد المورد والخزينة/البنك، ويولد قيد اليومية العام، ويزامن الفاتورة فوراً مع قاعدة البيانات وتطبيق الموبايل.'
-                },
-                {
-                    label: 'خانة المورد وزر كشف الأستاذ (📖 أستاذ)',
-                    targetSelector: '#hdr-customer-search, #hdr-customer-ledger-btn',
-                    whatItDoes: 'تحديد المورد صاحب الفاتورة أو استعراض كشف حسابه المالي التفصيلي قبل الشراء.',
-                    whatHappensIfClicked: 'عند اختيار المورد يظهر شريطه المالي العلوي فوراً، وعند الضغط على زر (أستاذ) تفتح نافذة كشف حساب المورد بجميع فواتيره ودفعاته السابقة.'
-                },
-                {
-                    label: 'شريط الملاءة المالية للمورد (الرصيد / المديونية / الشيكات / الحد / المتاح)',
-                    targetSelector: '#customer-financial-card',
-                    whatItDoes: 'يعرض الملخص المالي اللحظي للمورد المختار في سطر واحد أنيق.',
-                    whatHappensIfClicked: 'يوضح للمحاسب الرصيد الدفتري، وإجمالي المديونية، والشيكات المؤجلة التي لم تُصرف بعد، والسقف الائتماني المسموح به.'
-                },
-                {
-                    label: 'العملة وسعر الصرف (#hdr-currency / #hdr-exchange-rate)',
-                    targetSelector: '#hdr-currency, #hdr-exchange-rate',
-                    whatItDoes: 'تحديد عملة الفاتورة وسعر التحويل مقابل الجنيه السوداني (SDG).',
-                    whatHappensIfClicked: 'يعيد احتساب جميع أسعار الأصناف والإجماليات وتكلفة المخزون بالعملة المحلية والعملة الأجنبية في نفس اللحظة.'
-                },
-                {
-                    label: 'البحث السريع عن الأصناف وماسح الباركود والكاميرا (F2)',
-                    targetSelector: '#quick-item-search',
-                    whatItDoes: 'إدراج الأصناف في الفاتورة بسرعة فائقة بالاسم أو الكود أو الباركود.',
-                    whatHappensIfClicked: 'يفتح قائمة الأصناف الذكية مع عرض الرصيد الحالي وآخر سعر شراء، وبمجرد الاختيار ينزل الصنف في الجدول مباشرة.'
-                },
-                {
-                    label: 'أزرار التكاليف الإضافية (🚚 ترحيل / 👷‍♂️ عمالة / ➕ إضافات / 💰 ضريبة / ➖ خصم)',
-                    targetSelector: '#btn-toggle-transport, #btn-toggle-labor, #btn-toggle-additions, #btn-toggle-tax, #btn-toggle-discount',
-                    whatItDoes: 'إظهار حقول المصاريف الإضافية المرتبطة بالشراء أو الخصم المكتسب من المورد.',
-                    whatHappensIfClicked: 'يفتح خانة إدخال المبلغ (محلي أو أجنبي) ويضيفه لصافي الفاتورة مع تحميله محاسبياً على متوسط تكلفة الأصناف المشتراة.'
-                },
-                {
-                    label: 'أزرار طرق الدفع الهجين (💳 آجل / 💵 نقدي / 🏦 تحويل بنكي / ✍️ شيك / 📷 مسح إشعار)',
-                    targetSelector: '#toggle-credit, #toggle-cash, #toggle-bank, #toggle-cheque, #btn-purchase-financial-ocr',
-                    whatItDoes: 'تحديد كيفية سداد قيمة الفاتورة للمورد سواء بطريقة واحدة أو عدة طرق مجتمعة.',
-                    whatHappensIfClicked: 'يفعّل طريقة الدفع المختارة؛ ويُرحّل أي مبلغ غير مدفوع تلقائياً كمديونية آجلة على حساب المورد لضمان توازن القيد 100%.'
-                },
-                {
-                    label: 'مسح فاتورة بالذكاء الاصطناعي (📸 مسح فاتورة)',
-                    targetSelector: 'button[onclick*="openPurchaseOcrModal"]',
-                    whatItDoes: 'قراءة صورة فاتورة المورد الورقية أو ملف PDF بالذكاء الاصطناعي.',
-                    whatHappensIfClicked: 'يستخرج اسم المورد والأصناف والكميات والأسعار آلياً ويدرجها في جدول الفاتورة لمراجعتها واعتمادها.'
-                },
-                {
-                    label: 'إرسال تلقائي للمورد عبر واتساب (📲 إرسال تلقائي)',
-                    targetSelector: '#btn-purchase-autosend-settings',
-                    whatItDoes: 'ضبط الإرسال الفوري لإشعار الفاتورة وكشف الحساب إلى واتساب المورد عقب الحفظ.',
-                    whatHappensIfClicked: 'يفتح نافذة إعدادات الإرسال التلقائي لتفعيل أو تخصيص رسالة الواتساب المعتمدة.'
-                },
-                {
-                    label: 'معاينة وطباعة / مشاركة الفاتورة (🖨️ / 📤)',
-                    targetSelector: 'button[onclick*="printCurrentInvoice"], #btn-share-invoice',
-                    whatItDoes: 'طباعة الفاتورة بتنسيق احترافي أو مشاركتها كملف PDF أو عبر واتساب وإيميل.',
-                    whatHappensIfClicked: 'يعرض معاينة الطباعة الفورية أو قائمة المشاركة السريعة.'
-                },
-                {
-                    label: 'حذف / إلغاء الفاتورة المحمي (🗑️ حذف / إلغاء)',
-                    targetSelector: 'button[onclick*="confirmDeleteTransaction"]',
-                    whatItDoes: 'حذف الفاتورة الحالية وعكس جميع قيودها وتأثيراتها المخزنية والمالية.',
-                    whatHappensIfClicked: 'يفحص أولاً شروط الحماية الصارمة (عدم وجود إذن استلام مخزني مرتبط، أو شيك محصل، أو سند صرف مستقل، أو سحب مخزني يكسر الرصيد للسالب) ثم يعكس العملية بالكامل.'
-                }
-            ],
-            gapReport: {
-                title: 'تقرير المراجعة الثلاثية والنواقص المحاسبية والهندسية (Purchase Audit & Gap Report)',
-                items: [
-                    '✅ الأمر الحاسم (1) — محرك الصوت الرجالي: نطق الصلاة على النبي ﷺ مرة واحدة فقط مع ضغطة زر المرشد (hasPlayedOpeningInvocation = true) ومنع تكرارها نهائياً عند الانتقال بين الخانات والنقاط العشر.',
-                    '✅ الأمر الحاسم (2) — كبسولة التحكم الملكية المصغرة: إلغاء القائمة الطويلة الحاجبة للرؤية واستبدالها بكبسولة تحكم ملكية أنيقة ومصغرة لا تحجب الشاشة.',
-                    '✅ الترابط الذري (Atomic Sync): اعتماد الفاتورة يحدث أرصدة المخزن ومتوسط التكلفة المرجح وكشف المورد والخزينة/البنك واليومية العامة ككتلة واحدة لا تتجزأ مع لقطة استرجاع تلقائية (Rollback Snapshot).',
-                    '✅ التركيز البصري الهادئ والمطابقة الثلاثية: استبدال كافة تنبيهات (alert) بتوجيه تلقائي للمؤشر وإضاءة ذهبية هادئة، مع تفعيل (3-Way Match & Landed Cost) لحظياً.'
-                ]
-            }
-        };
-
-        if (typeof window.prewarmSmartGuideScreen === 'function') {
-            setTimeout(() => window.prewarmSmartGuideScreen('purchase-direct'), 150);
-        }
-
-        window.explainPurchaseDomElement = function(el) {
-            if (!el) return null;
-            const rules = [
-                { sel: 'button[onclick*="openPurchaseEditor(\'direct\')"]', title: '💵 زر فاتورة مشتريات مباشرة', desc: 'يفتح شاشة تحرير فاتورة المشتريات المباشرة لإدخال البضاعة المشتراة من المورد وترحيلها فوراً للمخزن وكشف حساب المورد واليومية العامة.' },
-                { sel: 'button[onclick*="purchase-receipt.php"]', title: '🚛 زر استلام بضاعة مخزني (GRN)', desc: 'ينقلك إلى شاشة إذن الاستلام المخزني لإثبات استلام الكميات فعلياً في المستودع ومطابقتها مع فاتورة المورد.' },
-                { sel: 'button[onclick*="smart-logistics.php"]', title: '🚀 زر بوابة الاستلام الموحدة', desc: 'يفتح بوابة اللوجستيات الذكية لإدارة دفعات الاستلام المقسمة ومتابعة الشحنات والمخازن.' },
-                { sel: 'button[onclick*="purchase-return.php"]', title: '↩️ زر مردودات واسترداد المشتريات', desc: 'يفتح شاشة مرتجع المشتريات لرد البضاعة المعيبة أو الزائدة للمورد وخصم قيمتها من حسابه ومخزون المستودع.' },
-                { sel: 'button[onclick*="openPurchaseEditor(\'proforma\')"]', title: '📋 زر فاتورة مبدئية / عرض سعر', desc: 'ينشئ فاتورة شراء مبدئية أو طلب تسعير للمراجعة والاعتماد قبل تحويلها إلى فاتورة مشتريات فعلية.' },
-                { sel: '#hub-filter-type, #hub-filter-value, .smart-filter-bar', title: '🔍 شريط البحث والفلترة الذكي للمشتريات', desc: 'يسمح بتصفية فواتير المشتريات فوراً حسب رقم الفاتورة، أو المورد، أو الصنف، أو المخزن، أو الحالة، أو الفترة الزمنية.' },
-                { sel: '.hub-time-btn, .filter-time-group', title: '📅 أزرار الفلترة الزمنية السريعة', desc: 'تصفية سجل فواتير المشتريات بضغطة واحدة لعرض فواتير (اليوم، آخر 7 أيام، الشهر الحالي، أو الكل).' },
-                { sel: '.refresh-btn-premium', title: '🔄 زر تحديث ومزامنة سجل المشتريات', desc: 'يعيد جلب أحدث فواتير المشتريات ومزامنتها فوراً مع قاعدة البيانات المركزية.' },
-                { sel: '#hub-transactions-body', title: '📋 جدول سجل فواتير المشتريات', desc: 'يعرض الفواتير المسجلة مع حالتها والمخزن والإجمالي وأزرار الاستعراض والتعديل والطباعة والإرسال عبر واتساب.' },
-                { sel: '#inv-number, .group-invoice', title: '🔢 رقم الفاتورة التسلسلي وأزرار التنقل', desc: 'يعرض الرقم التسلسلي التلقائي للفاتورة مع منع التكرار. استخدم السهمين (❮ و ❯) لاستعراض الفواتير السابقة والتالية ومراجعتها بسرعة.' },
-                { sel: '#hdr-date, .group-date', title: '📅 تاريخ الفاتورة المحاسبي', desc: 'يحدد التاريخ المحاسبي للفاتورة والفترة المالية التي سيُقيّد فيها دخول البضاعة ومديونية المورد في ميزان المراجعة.' },
-                { sel: '#purchase-user-audit-container', title: '👤 شارة المستخدم والتوثيق الرقابي', desc: 'توضح اسم الموظف أو المحاسب الذي قام بإنشاء أو تعديل الفاتورة لضمان الرقابة المحاسبية الكاملة.' },
-                { sel: '#customer-financial-card', title: '📊 شريط الملاءة المالية للمورد', desc: 'يظهر فور اختيار المورد ليعرض في لمحة واحدة: الرصيد الدفتري، إجمالي المديونية، الشيكات الصادرة المؤجلة، السقف الائتماني، والرصيد المتاح للتعامل.' },
-                { sel: '#hdr-customer-ledger-btn', title: '📖 زر كشف حساب الأستاذ للمورد', desc: 'يفتح كشف حساب المورد التفصيلي في نافذة منبثقة فورية لمراجعة كافة فواتيره وسنداته السابقة دون الخروج من الفاتورة.' },
-                { sel: '#btn-quick-add-supplier', title: '➕ زر إضافة مورد جديد فوري (F4)', desc: 'يفتح نافذة التأسيس السريع لمورد جديد بالاسم والهاتف والسقف الائتماني ويدرجه فوراً في الفاتورة الحالية دون مغادرة الشاشة.' },
-                { sel: '#btn-clone-last-supplier-inv', title: '📋 زر نسخ أصناف آخر فاتورة للمورد', desc: 'ينسخ بضغطة واحدة جميع أصناف ووحدات وأسعار آخر فاتورة مشتريات مسجلة لهذا المورد في صفر ملي ثانية لتكتفي بتعديل الكميات فقط.' },
-                { sel: '#supplier-credit-limit-alert-bar', title: '⚠️ شريط التنبيه الائتماني وجدولة الدفعة', desc: 'ينبهك فوراً عند تجاوز السقف الائتماني للمورد ويقترح فتح جدولة الدفعة وتحديد تاريخ استحقاق (+30 يوماً) وتغطية الفارق بضغطة واحدة.' },
-                { sel: '.supplier-last-supply-badge', title: '📅 مؤشر تاريخ آخر توريد وسعر آخر شراء', desc: 'يعرض تحت الصنف تاريخ آخر توريد وسعر آخر شراء من نفس المورد؛ اضغط عليه لتطبيق السعر مباشرة في السطر.' },
-                { sel: '#hdr-customer-search, .group-supplier, .group-customer', title: '🏢 خانة البحث عن المورد', desc: 'ابحث عن المورد بالاسم أو الكود أو رقم الهاتف، أو أضف مورداً جديداً بضغطة زر؛ ترتبط هذه الخانة مباشرة بكشف حساب المورد وأعمار الديون.' },
-                { sel: '#add-customer-modal', title: '➕ نافذة التأسيس السريع لمورد جديد', desc: 'تتيح إضافة مورد جديد بالاسم ورقم الهاتف والسقف الائتماني وحفظه فوراً في شاشة التأسيس والفاتورة الحالية.' },
-                { sel: '#hdr-currency, #hdr-exchange-rate, .group-currency', title: '💱 العملة وسعر الصرف الفوري', desc: 'اختر عملة الشراء (SDG أو USD أو غيرها) وحدد سعر الصرف؛ يقوم النظام بتقييم المخزون والقيد المحاسبي بالعملة المحلية والأجنبية معاً.' },
-                { sel: '#hdr-warehouse, .group-warehouse', title: '🏭 المخزن الرئيسي المستلم', desc: 'يحدد المستودع الافتراضي الذي ستُضاف إليه كميات الأصناف المشتراة فور اعتماد الفاتورة (مع إمكانية تخصيص مخزن مختلف لكل سطر في الجدول).' },
-                { sel: '#hdr-cost-center, .group-cost-center', title: '🎯 مركز التكلفة / المشروع', desc: 'يربط فاتورة المشتريات بمركز تكلفة أو مشروع محدد لاستخراج تقارير ربحية وتكاليف كل مشروع بدقة.' },
-                { sel: '#hdr-description, .group-description', title: '📝 البيان والملاحظات العامة', desc: 'شرح الفاتورة الذي سيظهر في كشف حساب المورد وفي دفتر اليومية العام وتقارير المشتريات.' },
-                { sel: '#quick-item-search', title: '🔍 البحث السريع عن الأصناف والباركود (F2)', desc: 'أسرع طريقة لإدخال الأصناف: اكتب جزءاً من اسم الصنف أو امسح الباركود ليتم إدراجه في الجدول فوراً.' },
-                { sel: '#btn-voice-item-dictation-pur', title: '🎙️ إملاء الأصناف والكميات بالصوت', desc: 'انطق اسم الصنف والكمية مباشرة (مثل: أسمنت 10) ليقوم النظام بإدراج الصنف والكمية واحتساب الإجمالي تلقائياً.' },
-                { sel: '#btn-hands-on-training-pur', title: '✋ تدريب عملي تفاعلي بيدك (3 خطوات)', desc: 'يوجهك المرشد بالصوت الرجالي خطوة بخطوة وينتظر منك التطبيق بيدك (اختيار المورد ⬅ إدراج الصنف والكمية ⬅ الاعتماد).' },
-                { sel: '#btn-speak-purchase-summary', title: '🔊 قراءة صوتية لملخص الفاتورة قبل الاعتماد', desc: 'ينطق بالصوت الرجالي اسم المورد وعدد الأصناف وصافي الفاتورة وطريقة السداد للتأكد التام قبل ضغط حفظ واعتماد.' },
-                { sel: 'button[onclick*="openGridSettingsModal"]', title: '⚙️ زر تخصيص الجدول', desc: 'يتيح ترتيب أعمدة جدول الفاتورة وتكبير الخطوط وتلوين الخلايا وحفظ التصميم المفضل لك في قاعدة البيانات.' },
-                { sel: 'td[data-col-id="available"], th[data-col-id="available"], [data-avail]', title: '📊 الرصيد المتاح حالياً بالمخزن', desc: 'يعرض لك لحظياً كمية الصنف المتوفرة حالياً في المستودع قبل إضافة كمية الشراء الجديدة.' },
-                { sel: 'td[data-col-id="item"], th[data-col-id="item"], [id^="item-search-"]', title: '📦 خانة اختيار الصنف في السطر', desc: 'ابحث عن الصنف بالاسم أو الكود داخل السطر، أو اختره من القائمة المنسدلة الذكية التي تعرض الرصيد وآخر سعر شراء.' },
-                { sel: 'td[data-col-id="unit"], th[data-col-id="unit"], [data-unit-select]', title: '⚖️ وحدة القياس ومعامل التحويل', desc: 'اختر وحدة الشراء (كرتونة، جوال، طن، أو قطعة)؛ يقوم النظام آلياً بضرب الكمية في معامل التحويل لتغذية المخزون بدقة.' },
-                { sel: 'td[data-col-id="quantity"], th[data-col-id="quantity"], [data-qty-input]', title: '🔢 الكمية المشتراة', desc: 'أدخل الكمية الواردة من المورد؛ عند إدخال بونص مجاني أو كمية إضافية يعيد النظام احتساب متوسط التكلفة المرجح (WAC) آلياً.' },
-                { sel: '[data-price-hint]', title: '📈 مؤشر مقارنة سعر الشراء التاريخي', desc: 'ينبهك فوراً بنسبة ارتفاع أو انخفاض سعر الشراء الحالي مقارنة بآخر سعر شراء مسجل، واضغط عليه لاستعراض سجل أسعار الصنف.' },
-                { sel: 'td[data-col-id="price"], th[data-col-id="price"], [data-price-input]', title: '💵 سعر شراء الوحدة وتحديث التكلفة', desc: 'أدخل سعر الشراء للوحدة المختارة؛ يقوم النظام بتحديث متوسط التكلفة المرجح للصنف (WAC) مع تحميل نصيبه من مصاريف الترحيل والعمالة.' },
-                { sel: 'td[data-col-id="warehouse"], th[data-col-id="warehouse"]', title: '🏭 مخزن السطر الفرعي', desc: 'يتيح توجيه استلام هذا الصنف تحديداً إلى مستودع فرعي مختلف عن المستودع الرئيسي للفاتورة في نفس العملية.' },
-                { sel: 'td[data-col-id="total"], th[data-col-id="total"], [data-total]', title: '💰 إجمالي السطر (الكمية × السعر)', desc: 'يحسب تلقائياً إجمالي قيمة الصنف في السطر بالعملة المختارة وما يعادلها بالعملة المحلية.' },
-                { sel: '.add-row-btn', title: '➕ زر إضافة سطر صنف جديد', desc: 'يضيف سطراً فارغاً جديداً أسفل الجدول لإدراج صنف إضافي في الفاتورة.' },
-                { sel: '.del-btn', title: '🗑️ زر حذف السطر من الفاتورة', desc: 'يحذف هذا السطر من جدول الفاتورة ويعيد احتساب الإجماليات وصافي الفاتورة فوراً.' },
-                { sel: '#pos-grid', title: '📦 جدول الأصناف والكميات والأسعار', desc: 'الجدول التفاعلي لتحرير الأصناف المشتراة: حدد الوحدة الكبرى أو الفرعية، والكمية، وسعر الشراء، والمخزن الفرعي؛ وتنقل بين الخانات بزر Enter.' },
-                { sel: '#btn-toggle-transport, #row-tot-transport', title: '🚚 مصاريف الترحيل والنقل', desc: 'إضافة تكلفة شحن وترحيل البضاعة؛ يقوم النظام بتوزيعها آلياً على تكلفة الأصناف المشتراة (Landed Cost).' },
-                { sel: '#btn-toggle-labor, #row-tot-labor', title: '👷‍♂️ مصاريف العمالة والتفريغ', desc: 'إضافة أجور العمال والتفريغ وتحميلها محاسبياً على تكلفة المخزون.' },
-                { sel: '#btn-toggle-additions, #row-tot-additions', title: '➕ إضافات ومصاريف جمركية/أخرى', desc: 'إضافة أي رسوم أو مصاريف إضافية مباشرة على الفاتورة.' },
-                { sel: '#btn-toggle-tax, #row-tot-tax', title: '💰 الضريبة المضافة', desc: 'إدخال قيمة أو نسبة الضريبة المطبقة على فاتورة المشتريات.' },
-                { sel: '#btn-toggle-discount, #row-tot-discount', title: '➖ الخصم المكتسب من المورد', desc: 'إدخال الخصم الممنوح من المورد لتخفيض صافي الفاتورة وتكلفة الأصناف.' },
-                { sel: '#btn-landed-cost-mode', title: '⚖️ معيار توزيع التكاليف الإضافية (Landed Cost)', desc: 'يسمح لك بالتبديل بين توزيع مصاريف الترحيل والعمالة والإضافات على الأصناف إما (بالقيمة المالية 💰) أو (بالكمية/الوزن 📦) لضمان عدالة تكلفة المخزون.' },
-                { sel: '#purchase-3way-match-badge', title: '🛡️ شريط المطابقة الثلاثية الفوري (3-Way Matching)', desc: 'يقارن لحظياً بين كميات الفاتورة وأذونات الاستلام المخزني (GRN) المرتبطة بها، وينبهك فوراً باللون الأخضر عند التطابق 100% أو الكهرماني عند وجود فروقات.' },
-                { sel: '#toggle-credit, #pay-credit-section', title: '💳 الدفع الآجل والكمبيالة', desc: 'تقييد الفاتورة (أو المتبقي منها) كمديونية آجلة في حساب المورد مع تحديد تاريخ الاستحقاق والكمبيالة.' },
-                { sel: '#toggle-cash, #pay-cash-section, #pay-cash-amount, #hdr-payment-account', title: '💵 الدفع النقدي المباشر والخزينة', desc: 'سداد الفاتورة نقداً وخصم المبلغ فوراً من الخزينة المختارة مع توليد سند صرف آلي.' },
-                { sel: '#toggle-bank, #pay-bank-section, #bank-transfers-list', title: '🏦 التحويل البنكي المتعدد', desc: 'سداد الفاتورة عبر تحويل بنكي واحد أو عدة تحويلات مع توثيق رقم الإشعار المرجعي والبنك.' },
-                { sel: '#toggle-cheque, #pay-cheque-section, #cheques-list', title: '✍️ السداد بالشيكات الصادرة', desc: 'تسجيل شيك أو عدة شيكات للمورد برقم الشيك والبنك وتاريخ الاستحقاق وإدراجها آلياً في حافظة الشيكات.' },
-                { sel: '#btn-purchase-financial-ocr', title: '📷 مسح إشعار بنكي بالذكاء الاصطناعي', desc: 'قراءة صورة إشعار التحويل البنكي (بنكك / فوري / أوكاش) واستخراج المبلغ ورقم العملية آلياً.' },
-                { sel: 'button[onclick*="triggerInvoiceOCR"]', title: '📷 زر مسح فاتورة بالذكاء الاصطناعي', desc: 'يقرأ صورة فاتورة المورد الورقية ويستخرج الأصناف والكميات والأسعار آلياً ليدرجها في الجدول.' },
-                { sel: '#auto-send-control-wrapper-purchase', title: '📲 زر الإرسال التلقائي عبر واتساب', desc: 'يحدد هل يتم إرسال إشعار الفاتورة أو إذن الاستلام تلقائياً لواتساب المورد فور ضغط حفظ واعتماد.' },
-                { sel: 'button[onclick*="printCurrentInvoice"], #btn-preview-invoice', title: '🖨️ زر طباعة الفاتورة', desc: 'يعرض معاينة احترافية للفاتورة للطباعة المباشرة أو التصدير كملف PDF.' },
-                { sel: '#btn-share-invoice', title: '📤 زر مشاركة الفاتورة', desc: 'يتيح إرسال الفاتورة فوراً عبر الواتساب أو البريد الإلكتروني للمورد أو الإدارة.' },
-                { sel: 'button[onclick*="onSuccessNewInvoice"], .btn-new', title: '➕ زر فاتورة جديدة', desc: 'يصفر الحقول الحالية ويجهز رقم تسلسلي جديد للبدء في فاتورة مشتريات جديدة.' },
-                { sel: '.btn-exit', title: '🚪 زر الخروج والرجوع لبوابة المشتريات', desc: 'يعود بك بأمان إلى شاشة بوابة المشتريات الرئيسية أو لوحة القيادة.' },
-                { sel: '#btn-preview-purchase-journal', title: '⚖️ معاينة القيد المحاسبي وتوزيع التكلفة', desc: 'يعرض نافذة القيد المحاسبي المزدوج المتوازن ونصيب كل صنف من مصاريف الترحيل والعمالة ومتوسط التكلفة الفعلي للوحدة قبل الاعتماد.' },
-                { sel: '#supplier-performance-rating-pill', title: '⭐ مؤشر تقييم أداء والتزام المورد', desc: 'يعرض نسبة التزام المورد في التوريد ومستوى أسعاره وعدد الفواتير السابقة المسجلة له.' },
-                { sel: 'button[onclick*="submitInvoice"]', title: '✅ زر حفظ واعتماد الفاتورة (Ctrl+S)', desc: 'يعتمد الفاتورة ككتلة محاسبية ذرية واحدة، ويُسمّع فوراً في المخزون وكشف المورد واليومية العامة وتطبيق الموبايل.' },
-                { sel: 'button[onclick*="confirmDeleteTransaction"]', title: '🗑️ زر الحذف المحمي', desc: 'يلغي الفاتورة ويعكس تأثيراتها بعد التحقق من عدم وجود أذونات استلام مخزني أو شيكات محصلة أو سحب مخزني.' }
-            ];
-            for (const r of rules) {
-                if (el.matches(r.sel) || el.closest(r.sel)) {
-                    return { title: r.title, desc: r.desc };
-                }
-            }
-            if (typeof window.autoSynthesizeElementExplanation === 'function') {
-                return window.autoSynthesizeElementExplanation(el);
-            }
-            return null;
-        };
-
-        // 🔄 Self-Updating Dynamic Guide & Future-Proof Inheritance Watcher (Constitution 4 Orders 3 & 5)
-        if (typeof MutationObserver !== 'undefined') {
-            let _purDynSyncTimer = null;
-            const _purDomObserver = new MutationObserver((mutations) => {
-                let hasNewNodes = false;
-                for (const m of mutations) {
-                    if (m.addedNodes && m.addedNodes.length > 0) { hasNewNodes = true; break; }
-                }
-                if (!hasNewNodes) return;
-                if (_purDynSyncTimer) clearTimeout(_purDynSyncTimer);
-                _purDynSyncTimer = setTimeout(() => {
-                    if (typeof window.syncInvoiceFaintHintsAndZeros === 'function') {
-                        window.syncInvoiceFaintHintsAndZeros(document);
-                    }
-                    if (typeof window.syncDynamicDomElementsIntoSmartGuide === 'function') {
-                        window.syncDynamicDomElementsIntoSmartGuide('purchase-direct');
-                    }
-                }, 180);
-            });
-            const _attachPurObserver = () => {
-                if (document.body) _purDomObserver.observe(document.body, { childList: true, subtree: true });
-            };
-            if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', _attachPurObserver);
-            else _attachPurObserver();
-        }
-
-        // ⚡ Smooth 60fps Enter-Key Navigation & Keyboard Shortcuts (Enter / Ctrl+S / F2 / Esc) + Auto-Select Zero on Focus
         const headerOrder = [
             '#hdr-date',
             '#hdr-customer-search',
@@ -7603,7 +6958,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const invLbl = document.getElementById('hdr-inv-label');
             if (invSpan) invSpan.textContent = nextNo;
             if (invInput) invInput.value = nextNo;
-            if (invLbl) invLbl.textContent = 'رقم الفاتورة:';
+            if (invLbl) invLbl.textContent = 'الرقم:';
             const payPanel = document.getElementById('payment-panel');
             if (payPanel) payPanel.style.display = 'block';
             if (typeof showToast === 'function') {
@@ -7976,136 +7331,6 @@ document.addEventListener('DOMContentLoaded', () => {
             window.checkSupplierCreditLimitAndSchedule();
         }, 400);
 
-        // === 9. Pre-Save Voice Summary & Voice Item Dictation ===
-        window.speakPurchaseMaleVoiceDirect = function(txt) {
-            const clean = String(txt || '').trim();
-            if (!clean) return;
-            if (typeof window.speakScenarioAloud === 'function') {
-                window.speakScenarioAloud(clean);
-                return;
-            }
-            if ('speechSynthesis' in window) {
-                try {
-                    window.speechSynthesis.cancel();
-                    window.speechSynthesis.resume();
-                    const u = new SpeechSynthesisUtterance(clean);
-                    u.lang = 'ar-SA';
-                    u.pitch = 0.85;
-                    u.rate = 1.05;
-                    window.speechSynthesis.speak(u);
-                } catch (_es) {}
-            }
-        };
-
-        window.speakPurchaseInvoiceSummaryBeforeSave = function() {
-            const supName = (document.getElementById('hdr-customer-search')?.value || '').trim() || 'غير محدد بعد';
-            const curCode = document.getElementById('hdr-currency')?.value || 'SDG';
-            const curLabel = curCode === 'USD' ? 'دولار أمريكي' : (curCode === 'SAR' ? 'ريال سعودي' : (curCode === 'AED' ? 'درهم إماراتي' : 'جنيه سوداني'));
-            const validRows = (typeof rows !== 'undefined' && Array.isArray(rows))
-                ? rows.filter(r => r && r.itemId && (parseFloat(r.quantity) || 0) > 0)
-                : [];
-            const itemCount = validRows.length;
-            const grandTotalTxt = (document.getElementById('t-grand-dynamic-loc')?.textContent || document.getElementById('t-grand-local')?.textContent || '0').replace(/[^0-9.,]/g, '') || '0';
-
-            const activePayMethods = [];
-            if (document.getElementById('toggle-cash')?.classList.contains('active')) activePayMethods.push('نقدي');
-            if (document.getElementById('toggle-bank')?.classList.contains('active')) activePayMethods.push('تحويل بنكي');
-            if (document.getElementById('toggle-cheque')?.classList.contains('active')) activePayMethods.push('شيكات');
-            if (document.getElementById('toggle-credit')?.classList.contains('active') || activePayMethods.length === 0) activePayMethods.push('آجل على حساب المورد');
-
-            const summarySpeech = 'ملخص مراجعة فاتورة المشتريات قبل الاعتماد: المورد هو ' + supName +
-                '، عدد الأصناف المسجلة ' + itemCount + ' أصناف' +
-                '، صافي الفاتورة الكلي ' + grandTotalTxt + ' ' + curLabel +
-                '، وطريقة السداد المختارة: ' + activePayMethods.join(' و ') + '.';
-            if (typeof showToast === 'function') showToast('🔊 ' + summarySpeech, 'info', 4500);
-            window.speakPurchaseMaleVoiceDirect(summarySpeech);
-        };
-
-        window.processSpokenItemDictationPurchase = function(spokenPhrase) {
-            const raw = String(spokenPhrase || '').trim();
-            if (!raw) return;
-            const norm = window.normHubAr || function(s) { return String(s || '').trim().toLowerCase(); };
-
-            const numMatch = raw.match(/(\d+(?:\.\d+)?)/);
-            const qty = numMatch ? Math.max(0.01, parseFloat(numMatch[1])) : 1;
-            const itemQuery = norm(raw.replace(/(\d+(?:\.\d+)?)/g, '').replace(/(طن|كرتونة|كرتون|جوال|قطعة|حبة|سيخة|كيس|عدد|كمية)/g, '').trim());
-
-            const itemsPool = (typeof ITEMS !== 'undefined' && Array.isArray(ITEMS)) ? ITEMS : [];
-            let matchedItem = itemsPool.find(it => norm(it.name || '').includes(itemQuery) || (itemQuery && itemQuery.includes(norm(it.name || ''))));
-
-            if (matchedItem && typeof rows !== 'undefined' && Array.isArray(rows)) {
-                const priceVal = parseFloat(matchedItem.lastPurchaseCost || matchedItem.costPrice || matchedItem.price || 0) || 0;
-                const unitVal = matchedItem.baseUnit || matchedItem.mainUnit || matchedItem.unit || 'قطعة';
-                const emptyRow = rows.find(r => r && !r.itemId);
-                let targetRow = emptyRow;
-                if (!targetRow) {
-                    if (typeof rowIdCounter !== 'undefined') rowIdCounter++;
-                    targetRow = {
-                        id: (typeof rowIdCounter !== 'undefined') ? rowIdCounter : Date.now(),
-                        itemId: matchedItem.id,
-                        quantity: qty,
-                        price: priceVal,
-                        warehouseId: document.getElementById('hdr-warehouse')?.value || '',
-                        costCenterId: '',
-                        qrCode: '',
-                        selectedUnit: unitVal
-                    };
-                    rows.push(targetRow);
-                } else {
-                    targetRow.itemId = matchedItem.id;
-                    targetRow.quantity = qty;
-                    targetRow.price = priceVal;
-                    targetRow.selectedUnit = unitVal;
-                }
-                if (typeof renderGrid === 'function') renderGrid();
-                if (typeof recalcAll === 'function') recalcAll();
-                setTimeout(() => { window.refreshSupplierLastSupplyHints(); }, 50);
-                const msg = 'تم إدراج الصنف ' + matchedItem.name + ' بكمية ' + qty + ' في جدول الفاتورة.';
-                if (typeof showToast === 'function') showToast('🎙️ ' + msg, 'success');
-                window.speakPurchaseMaleVoiceDirect(msg);
-            } else {
-                const qInp = document.getElementById('quick-item-search');
-                if (qInp) {
-                    qInp.value = raw;
-                    qInp.focus();
-                    if (typeof filterQuickItemDropdown === 'function') filterQuickItemDropdown();
-                }
-                if (typeof showToast === 'function') showToast('🎙️ تم وضع النص المنطوق في البحث السريع: ' + raw, 'info');
-            }
-        };
-
-        window.startVoiceItemDictationPurchase = function() {
-            const btn = document.getElementById('btn-voice-item-dictation-pur');
-            const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
-            if (!SpeechRec) {
-                const qInp = document.getElementById('quick-item-search');
-                if (qInp) {
-                    qInp.focus();
-                    qInp.placeholder = '🎙️ اكتب اسم الصنف والكمية ثم اضغط Enter (مثال: أسمنت 10)...';
-                }
-                if (typeof showToast === 'function') showToast('🎙️ اكتب اسم الصنف والكمية في خانة البحث السريع (مثال: أسمنت 10)', 'info');
-                return;
-            }
-            try {
-                const rec = new SpeechRec();
-                rec.lang = 'ar-SA';
-                rec.interimResults = false;
-                rec.maxAlternatives = 1;
-                if (btn) btn.style.background = '#ef4444';
-                if (typeof showToast === 'function') showToast('🎙️ انطق الآن اسم الصنف والكمية (مثال: أسمنت 10)...', 'info', 2500);
-                rec.onresult = function(ev) {
-                    if (btn) btn.style.background = '';
-                    const transcript = (ev.results && ev.results[0] && ev.results[0][0]) ? ev.results[0][0].transcript : '';
-                    if (transcript) window.processSpokenItemDictationPurchase(transcript);
-                };
-                rec.onerror = function() { if (btn) btn.style.background = ''; };
-                rec.onend = function() { if (btn) btn.style.background = ''; };
-                rec.start();
-            } catch (_er) {
-                if (btn) btn.style.background = '';
-            }
-        };
-
         // === 10. Excel/CSV Export, A4 & 80mm Thermal Print, Barcode Labels & Journal Preview ===
         window.exportCurrentPurchaseInvoiceExcel = function() {
             const invNo = (document.getElementById('inv-number')?.textContent || 'PUR').trim();
@@ -8238,149 +7463,6 @@ document.addEventListener('DOMContentLoaded', () => {
             </body></html>`);
             w.document.close();
         };
-
-        window.openPurchaseJournalAndLandedPreviewModal = function() {
-            let modal = document.getElementById('purchase-journal-preview-modal');
-            if (!modal) {
-                modal = document.createElement('div');
-                modal.id = 'purchase-journal-preview-modal';
-                modal.className = 'modal-overlay';
-                modal.style.cssText = 'display:none; position:fixed; inset:0; background:rgba(0,0,0,0.82); backdrop-filter:blur(8px); z-index:999999; align-items:center; justify-content:center; padding:14px; direction:rtl; font-family:"Cairo","Tajawal",sans-serif;';
-                document.body.appendChild(modal);
-            }
-
-            const isLight = document.documentElement.classList.contains('light-theme') ||
-                ['warm_cream', 'ultra_white', 'exec_gray'].includes(document.documentElement.getAttribute('data-theme'));
-            const cardBg = isLight ? '#f5f0e6' : '#0f172a';
-            const subBg = isLight ? '#ffffff' : '#020617';
-            const txtCol = isLight ? '#000000' : '#ffffff';
-            const borderCol = isLight ? '#64748b' : 'rgba(56,189,248,0.45)';
-
-            const invNo = (document.getElementById('inv-number')?.textContent || 'PUR').trim();
-            const supName = (document.getElementById('hdr-customer-search')?.value || 'المورد').trim();
-            const cur = (document.getElementById('hdr-currency')?.value || 'SDG').trim();
-            const whSel = document.getElementById('hdr-warehouse');
-            const whName = (whSel && whSel.options[whSel.selectedIndex]) ? whSel.options[whSel.selectedIndex].text : 'المخزن الرئيسي';
-
-            const activeRows = (typeof rows !== 'undefined' && Array.isArray(rows))
-                ? rows.filter(r => r && r.itemId && (parseFloat(r.quantity) || 0) > 0)
-                : [];
-            const itemsSubtotal = activeRows.reduce((s, r) => s + ((parseFloat(r.quantity) || 0) * (parseFloat(r.price) || 0)), 0);
-            const totalQty = activeRows.reduce((s, r) => s + (parseFloat(r.quantity) || 0), 0);
-
-            const parseInpVal = (id) => parseFloat(String(document.getElementById(id)?.value || '0').replace(/,/g, '')) || 0;
-            const transportAmt = parseInpVal('t-transport') + parseInpVal('t-labor') + (parseInpVal('t-additions-loc') || parseInpVal('addition-amt'));
-            const taxAmt = parseInpVal('t-tax-loc') || parseInpVal('tax-amt');
-            const discAmt = parseInpVal('t-discount-loc') || parseInpVal('discount-amt');
-            const netInventoryDebit = Math.max(0, itemsSubtotal + transportAmt - discAmt);
-            const totalDebit = netInventoryDebit + taxAmt;
-
-            const cashPaid = parseInpVal('pay-cash-amount');
-            let bankPaid = 0;
-            document.querySelectorAll('#bank-transfers-list input[type="number"], #bank-transfers-list .bank-amount-input').forEach(el => {
-                bankPaid += (parseFloat(el.value) || 0);
-            });
-            let chequePaid = 0;
-            document.querySelectorAll('#cheques-list input[type="number"], #cheques-list .cheque-amount-input').forEach(el => {
-                chequePaid += (parseFloat(el.value) || 0);
-            });
-            const supplierCreditRemainder = Math.max(0, totalDebit - cashPaid - bankPaid - chequePaid);
-
-            const allocMode = document.getElementById('hdr-landed-cost-mode')?.value || 'value';
-            const landedRowsHtml = activeRows.map((r, i) => {
-                const meta = window.resolvePurItemMeta(r);
-                const q = parseFloat(r.quantity) || 0;
-                const p = parseFloat(r.price) || 0;
-                const lineVal = q * p;
-                const shareRatio = allocMode === 'qty'
-                    ? (totalQty > 0 ? (q / totalQty) : 0)
-                    : (itemsSubtotal > 0 ? (lineVal / itemsSubtotal) : 0);
-                const allocatedExtra = (transportAmt - discAmt) * shareRatio;
-                const effectiveUnitCost = q > 0 ? ((lineVal + allocatedExtra) / q) : p;
-                return `<tr style="border-bottom:1px solid ${borderCol};">
-                    <td style="padding:6px; font-weight:800; color:${txtCol};">${i + 1}. ${meta.name}</td>
-                    <td style="padding:6px; text-align:center; font-weight:800; color:${txtCol};">${q} ${meta.unit}</td>
-                    <td style="padding:6px; text-align:center; font-weight:800; color:${txtCol};">${p.toLocaleString('en-US', { maximumFractionDigits: 2 })}</td>
-                    <td style="padding:6px; text-align:center; font-weight:800; color:#f59e0b;">${allocatedExtra >= 0 ? '+' : ''}${allocatedExtra.toLocaleString('en-US', { maximumFractionDigits: 2 })}</td>
-                    <td style="padding:6px; text-align:center; font-weight:900; color:#10b981;">${effectiveUnitCost.toLocaleString('en-US', { maximumFractionDigits: 2 })}</td>
-                </tr>`;
-            }).join('') || `<tr><td colspan="5" style="padding:10px; text-align:center; font-weight:800; color:${txtCol};">أضف أصنافاً في الجدول لمعاينة توزيع التكلفة</td></tr>`;
-
-            modal.innerHTML = `
-                <div style="background:${cardBg}; color:${txtCol}; border:2px solid ${borderCol}; border-radius:16px; width:100%; max-width:780px; max-height:90vh; overflow-y:auto; padding:18px; box-shadow:0 20px 50px rgba(0,0,0,0.75);">
-                    <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1.5px solid ${borderCol}; padding-bottom:10px; margin-bottom:12px;">
-                        <h3 style="margin:0; font-size:1.1rem; font-weight:900; color:${txtCol};">⚖️ معاينة القيد المحاسبي المزدوج وتوزيع التكلفة — فاتورة #${invNo}</h3>
-                        <button type="button" onclick="document.getElementById('purchase-journal-preview-modal').style.display='none'" style="background:#ef4444; color:#fff; border:none; border-radius:8px; padding:4px 12px; font-weight:900; cursor:pointer;">✕ إغلاق</button>
-                    </div>
-                    <div style="background:${subBg}; border:1.5px solid ${borderCol}; border-radius:12px; padding:12px; margin-bottom:12px;">
-                        <div style="font-weight:900; margin-bottom:8px; font-size:0.9rem; color:${txtCol};">📊 1. القيد المحاسبي المتوازن (المدين = الدائن = ${totalDebit.toLocaleString('en-US', { maximumFractionDigits: 2 })} ${cur}):</div>
-                        <table style="width:100%; border-collapse:collapse; font-size:0.84rem;">
-                            <thead>
-                                <tr style="border-bottom:1.5px solid ${borderCol};">
-                                    <th style="padding:6px; text-align:right; color:${txtCol};">الحساب المحاسبي</th>
-                                    <th style="padding:6px; text-align:center; color:#10b981;">مدين (من ح/)</th>
-                                    <th style="padding:6px; text-align:center; color:#f59e0b;">دائن (إلى ح/)</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr style="border-bottom:1px solid ${borderCol};">
-                                    <td style="padding:6px; font-weight:800; color:${txtCol};">📦 ح/ مخزون البضاعة (${whName}) — شامل الترحيل والخصم</td>
-                                    <td style="padding:6px; text-align:center; font-weight:900; color:#10b981;">${netInventoryDebit.toLocaleString('en-US', { maximumFractionDigits: 2 })}</td>
-                                    <td style="padding:6px; text-align:center; color:${txtCol};">—</td>
-                                </tr>
-                                ${taxAmt > 0 ? `<tr style="border-bottom:1px solid ${borderCol};">
-                                    <td style="padding:6px; font-weight:800; color:${txtCol};">💰 ح/ ضريبة القيمة المضافة للمدخلات</td>
-                                    <td style="padding:6px; text-align:center; font-weight:900; color:#10b981;">${taxAmt.toLocaleString('en-US', { maximumFractionDigits: 2 })}</td>
-                                    <td style="padding:6px; text-align:center; color:${txtCol};">—</td>
-                                </tr>` : ''}
-                                ${cashPaid > 0 ? `<tr style="border-bottom:1px solid ${borderCol};">
-                                    <td style="padding:6px; font-weight:800; color:${txtCol};">💵 إلى ح/ الخزينة النقدية</td>
-                                    <td style="padding:6px; text-align:center; color:${txtCol};">—</td>
-                                    <td style="padding:6px; text-align:center; font-weight:900; color:#f59e0b;">${cashPaid.toLocaleString('en-US', { maximumFractionDigits: 2 })}</td>
-                                </tr>` : ''}
-                                ${bankPaid > 0 ? `<tr style="border-bottom:1px solid ${borderCol};">
-                                    <td style="padding:6px; font-weight:800; color:${txtCol};">🏦 إلى ح/ البنك (تحويلات بنكية)</td>
-                                    <td style="padding:6px; text-align:center; color:${txtCol};">—</td>
-                                    <td style="padding:6px; text-align:center; font-weight:900; color:#f59e0b;">${bankPaid.toLocaleString('en-US', { maximumFractionDigits: 2 })}</td>
-                                </tr>` : ''}
-                                ${chequePaid > 0 ? `<tr style="border-bottom:1px solid ${borderCol};">
-                                    <td style="padding:6px; font-weight:800; color:${txtCol};">✍️ إلى ح/ أوراق الدفع والشيكات الصادرة</td>
-                                    <td style="padding:6px; text-align:center; color:${txtCol};">—</td>
-                                    <td style="padding:6px; text-align:center; font-weight:900; color:#f59e0b;">${chequePaid.toLocaleString('en-US', { maximumFractionDigits: 2 })}</td>
-                                </tr>` : ''}
-                                ${supplierCreditRemainder > 0 || totalDebit === 0 ? `<tr style="border-bottom:1px solid ${borderCol};">
-                                    <td style="padding:6px; font-weight:800; color:${txtCol};">👤 إلى ح/ المورد (${supName}) — ذمم دائنة</td>
-                                    <td style="padding:6px; text-align:center; color:${txtCol};">—</td>
-                                    <td style="padding:6px; text-align:center; font-weight:900; color:#f59e0b;">${supplierCreditRemainder.toLocaleString('en-US', { maximumFractionDigits: 2 })}</td>
-                                </tr>` : ''}
-                            </tbody>
-                        </table>
-                    </div>
-                    <div style="background:${subBg}; border:1.5px solid ${borderCol}; border-radius:12px; padding:12px; margin-bottom:12px;">
-                        <div style="font-weight:900; margin-bottom:8px; font-size:0.9rem; color:${txtCol};">🚚 2. توزيع المصاريف الإضافية ومتوسط التكلفة الفعلي للوحدة (Landed Cost WAC):</div>
-                        <table style="width:100%; border-collapse:collapse; font-size:0.82rem;">
-                            <thead>
-                                <tr style="border-bottom:1.5px solid ${borderCol};">
-                                    <th style="padding:6px; text-align:right; color:${txtCol};">الصنف</th>
-                                    <th style="padding:6px; text-align:center; color:${txtCol};">الكمية</th>
-                                    <th style="padding:6px; text-align:center; color:${txtCol};">سعر الفاتورة</th>
-                                    <th style="padding:6px; text-align:center; color:#f59e0b;">نصيب الترحيل/الخصم</th>
-                                    <th style="padding:6px; text-align:center; color:#10b981;">التكلفة الفعلية للوحدة</th>
-                                </tr>
-                            </thead>
-                            <tbody>${landedRowsHtml}</tbody>
-                        </table>
-                    </div>
-                    <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap;">
-                        <button type="button" onclick="window.printPurchaseItemsBarcodeLabels()" style="background:#7e22ce; color:#fff; border:none; border-radius:8px; padding:8px 14px; font-weight:900; cursor:pointer;">🏷️ طباعة ملصقات الباركود للأصناف</button>
-                        <button type="button" onclick="document.getElementById('purchase-journal-preview-modal').style.display='none'; if(typeof window.smartValidateAndSubmitPurchase==='function') window.smartValidateAndSubmitPurchase();" style="background:#10b981; color:#fff; border:none; border-radius:8px; padding:8px 18px; font-weight:900; cursor:pointer;">✅ حفظ واعتماد الفاتورة الآن (F10)</button>
-                    </div>
-                </div>
-            `;
-            modal.style.display = 'flex';
-        };
-
-        window.openPurchaseJournalAndLandedCostPreview = window.openPurchaseJournalAndLandedPreviewModal;
 
         window.printPurchaseItemsBarcodeLabels = function() {
             const activeRows = (typeof rows !== 'undefined' && Array.isArray(rows))
@@ -9863,74 +8945,1220 @@ document.addEventListener('DOMContentLoaded', () => {
             border: 2px solid #0369a1 !important;
         }
 
-        /* 6-C: Sales Customer Action Buttons & Bottom Toolbar Crystal Buttons (100% Match with Purchase Screen) */
-        html body #invoice-editor-view #items-panel > .panel-header-row .quick-add-box {
-            display: none !important;
+        /* ═══ STRICT RIGHT-TO-LEFT STRAIGHT VERTICAL LINE ALIGNMENT & +50% REGION SPACING (12PX) ═══ */
+        .dash-main#pur-proportional-root {
+            width: calc(100% - 24px) !important;
+            max-width: calc(100% - 24px) !important;
+            margin-inline: auto !important;
+            padding: 8px 0 24px 0 !important;
+            gap: 12px !important;
+            box-sizing: border-box !important;
         }
-        html body #invoice-editor-view #btn-quick-add-customer {
-            background: linear-gradient(180deg, #10b981 0%, #059669 52%, #047857 100%) !important;
-            border: 2px solid #065f46 !important;
-            border-bottom: 3.5px solid #022c22 !important;
+        .dash-main#pur-proportional-root > header.premium-header.magical-glass-header,
+        body > header.premium-header.magical-glass-header {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            min-height: 0 !important;
+            margin: 0 !important;
+            padding: 6px 12px !important;
+            border-radius: 14px !important;
+            animation: none !important;
+            box-sizing: border-box !important;
+        }
+        .magical-glass-header::before,
+        .magical-glass-header::after,
+        .premium-header::before,
+        .premium-header::after,
+        .msg-quartet-btn::before,
+        .msg-quartet-btn::after {
+            display: none !important;
+            animation: none !important;
+            content: none !important;
+        }
+        .msg-fixed-command-pod {
+            height: 78px !important;
+            min-height: 78px !important;
+            max-height: 78px !important;
+            animation: none !important;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45) !important;
+        }
+        #purchase-editor-view,
+        #purchase-hub-view,
+        #purchase-top-container,
+        .purchase-bottom {
+            width: 100% !important;
+            max-width: 100% !important;
+            margin: 0 !important;
+            padding-left: 0 !important;
+            padding-right: 0 !important;
+            padding-top: 0 !important;
+            box-sizing: border-box !important;
+        }
+        #purchase-hub-view {
+            gap: 12px !important;
+        }
+        #purchase-hub-view > div {
+            width: 100% !important;
+            max-width: 100% !important;
+            margin: 0 !important;
+            box-sizing: border-box !important;
+        }
+        #purchase-editor-view {
+            gap: 12px !important;
+        }
+        .purchase-bottom {
+            margin-top: 0 !important;
+            gap: 12px !important;
+        }
+        #purchase-top-container #form-fields-card > div {
+            gap: 13.5px !important;
+        }
+        #purchase-top-container #form-fields-card,
+        .purchase-bottom > .panel-header-row,
+        .purchase-bottom > #inline-totals-container,
+        .purchase-bottom > #payment-panel,
+        .purchase-bottom > .items-toolbar {
+            width: 100% !important;
+            max-width: 100% !important;
+            margin: 0 !important;
+            box-sizing: border-box !important;
+        }
+        .purchase-bottom > .table-container {
+            width: 100% !important;
+            max-width: 100% !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            border-radius: 14px !important;
+            overflow: hidden !important;
+            box-sizing: border-box !important;
+        }
+        .purchase-bottom .table-container > .grid-scroll-wrap {
+            width: 100% !important;
+            max-width: 100% !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            border: none !important;
+            border-radius: 0 !important;
+            box-sizing: border-box !important;
+        }
+        :root.light-theme .purchase-bottom .table-container > .grid-scroll-wrap {
+            border: none !important;
+            border-radius: 0 !important;
+            box-shadow: none !important;
+        }
+        #pos-grid {
+            width: 100% !important;
+            max-width: 100% !important;
+            margin: 0 !important;
+            border-collapse: collapse !important;
+            border-spacing: 0 !important;
+        }
+
+        /* ═══ STEPPED CONTRAST & INTERACTIVE REGION/BORDER ILLUMINATION (DARK & LIGHT THEMES) ═══ */
+        /* 1. Dark Theme Canvas vs Main Regions Contrast */
+        html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) body,
+        html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) .dash-main#pur-proportional-root,
+        html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #purchase-editor-view,
+        html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #purchase-hub-view {
+            background: #030712 !important;
+        }
+        html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) .dash-main#pur-proportional-root > header.premium-header.magical-glass-header,
+        html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #purchase-top-container #form-fields-card,
+        html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #purchase-editor-view .panel-header-row,
+        html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #purchase-editor-view .table-container,
+        html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #inline-totals-container,
+        html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #payment-panel,
+        html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #purchase-editor-view .items-toolbar {
+            background: linear-gradient(145deg, #152342 0%, #0f1a33 100%) !important;
+            border: 2px solid rgba(56, 189, 248, 0.52) !important;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.65), inset 0 1px 0 rgba(255, 255, 255, 0.14) !important;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease !important;
+        }
+        /* Main Region Border Illumination on Hover / Focus */
+        html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) .dash-main#pur-proportional-root > header.premium-header.magical-glass-header:hover,
+        html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #purchase-top-container #form-fields-card:hover,
+        html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #purchase-top-container #form-fields-card:focus-within,
+        html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #purchase-editor-view .panel-header-row:hover,
+        html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #purchase-editor-view .table-container:hover,
+        html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #purchase-editor-view .table-container:focus-within,
+        html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #inline-totals-container:hover,
+        html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #payment-panel:hover,
+        html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #purchase-editor-view .items-toolbar:hover {
+            border-color: #38bdf8 !important;
+            box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.35), 0 0 24px rgba(56, 189, 248, 0.55), 0 12px 30px rgba(0, 0, 0, 0.75), inset 0 1px 0 rgba(255, 255, 255, 0.25) !important;
+        }
+
+        /* 2. Inner Sub-Regions (المورد، الصرف، المخزن، البيان، مركز الكلفة، وتاريخ ورقم الفاتورة) Stepped Capsules */
+        #purchase-row1-bar .h-form-group,
+        #purchase-row2-bar .h-form-group {
+            padding: 3px 6px !important;
+            border-radius: 10px !important;
+            transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease !important;
+        }
+        html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #purchase-top-container #invoice-info-box,
+        html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #customer-financial-card .fin-strip-inner,
+        html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #purchase-row1-bar .h-form-group,
+        html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #purchase-row2-bar .h-form-group {
+            background: linear-gradient(135deg, #1d315c 0%, #162649 100%) !important;
+            border: 1.5px solid rgba(56, 189, 248, 0.42) !important;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 3px 10px rgba(0, 0, 0, 0.35) !important;
+        }
+        /* Distinct Contrast for Field Labels (كلمة المشتريات والمورد، البيان، المركز، المخزن، الصرف، التاريخ، رقم الفاتورة) */
+        html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #invoice-info-box #hdr-inv-label,
+        html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #invoice-info-box #hdr-date-label,
+        html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #purchase-row1-bar .h-label,
+        html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #purchase-row2-bar .h-label {
+            background: rgba(9, 16, 34, 0.82) !important;
+            border: 1px solid rgba(125, 211, 252, 0.38) !important;
+            border-radius: 7px !important;
+            padding: 0 8px !important;
+            height: 32px !important;
+            line-height: 32px !important;
+            color: #f8fafc !important;
+            -webkit-text-fill-color: #f8fafc !important;
+        }
+        html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #purchase-row1-bar .group-supplier > .h-label {
+            background: linear-gradient(135deg, rgba(180, 83, 9, 0.45), rgba(120, 53, 15, 0.65)) !important;
+            border: 1.5px solid #fbbf24 !important;
+            color: #fef08a !important;
+            -webkit-text-fill-color: #fef08a !important;
+        }
+        /* Sub-Region Hover & Focus Illumination (الحواف والمنطقة تضيء عند المرور عليها) */
+        html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #purchase-top-container #invoice-info-box:hover,
+        html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #purchase-top-container #invoice-info-box:focus-within,
+        html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #customer-financial-card .fin-strip-inner:hover,
+        html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #purchase-row1-bar .h-form-group:hover,
+        html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #purchase-row1-bar .h-form-group:focus-within,
+        html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #purchase-row2-bar .h-form-group:hover,
+        html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #purchase-row2-bar .h-form-group:focus-within {
+            background: linear-gradient(135deg, #27447e 0%, #1d3566 100%) !important;
+            border-color: #7dd3fc !important;
+            box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.35), 0 0 20px rgba(56, 189, 248, 0.55), inset 0 0 14px rgba(56, 189, 248, 0.18) !important;
+        }
+        /* Special Full-Area + Border Illumination for Supplier Region (منطقة المورد تضيء بالكامل مع الحواف) */
+        html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #purchase-row1-bar .group-supplier:hover,
+        html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #purchase-row1-bar .group-supplier:focus-within {
+            background: linear-gradient(135deg, #2d4f91 0%, #1f396d 55%, #3b2a14 100%) !important;
+            border: 2px solid #fbbf24 !important;
+            box-shadow: 0 0 0 2.5px rgba(251, 191, 36, 0.38), 0 0 26px rgba(251, 191, 36, 0.55), 0 0 32px rgba(56, 189, 248, 0.45), inset 0 0 18px rgba(251, 191, 36, 0.22) !important;
+        }
+
+        /* 3. Light Theme Sub-Region Contrast, Deep Espresso-Brown Labels & Sculpted Thick Borders */
+        :root.light-theme #purchase-row1-bar .h-form-group,
+        :root.light-theme #purchase-row2-bar .h-form-group {
+            background: linear-gradient(135deg, #ffffff 0%, #f7efe0 100%) !important;
+            border: 2.5px solid #6b3410 !important;
+            box-shadow: 0 4px 12px rgba(69, 26, 3, 0.12), inset 0 1.5px 0 #ffffff !important;
+        }
+        :root.light-theme #invoice-info-box #hdr-inv-label,
+        :root.light-theme #invoice-info-box #hdr-date-label,
+        :root.light-theme #purchase-row1-bar .h-label,
+        :root.light-theme #purchase-row2-bar .h-label {
+            background: linear-gradient(180deg, #f6ecda 0%, #ead7b7 100%) !important;
+            border: 2px solid #5c2808 !important;
+            border-radius: 8px !important;
+            padding: 0 10px !important;
+            height: 34px !important;
+            line-height: 31px !important;
+            color: #2b1103 !important;
+            -webkit-text-fill-color: #2b1103 !important;
+            font-weight: 900 !important;
+            font-size: 0.94rem !important;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.85), 0 2px 5px rgba(69, 26, 3, 0.12) !important;
+        }
+        :root.light-theme #purchase-row1-bar .h-form-group:hover,
+        :root.light-theme #purchase-row1-bar .h-form-group:focus-within,
+        :root.light-theme #purchase-row2-bar .h-form-group:hover,
+        :root.light-theme #purchase-row2-bar .h-form-group:focus-within {
+            background: linear-gradient(135deg, #fffdf9 0%, #f9e8c2 100%) !important;
+            border: 2.5px solid #b45309 !important;
+            box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.36), 0 0 22px rgba(245, 158, 11, 0.45), inset 0 1.5px 0 #ffffff !important;
+        }
+        :root.light-theme #purchase-row1-bar .group-supplier:hover,
+        :root.light-theme #purchase-row1-bar .group-supplier:focus-within {
+            background: linear-gradient(135deg, #fffbeb 0%, #fde68a 100%) !important;
+            border: 2.5px solid #92400e !important;
+            box-shadow: 0 0 0 3.5px rgba(245, 158, 11, 0.44), 0 0 26px rgba(245, 158, 11, 0.55) !important;
+        }
+
+        /* ═══ 7. OPHTHALMIC & VISUAL HARMONY MASTERPIECE (DARK & LIGHT THEMES — 2027) ═══ */
+        html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) body,
+        html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) .dash-main#pur-proportional-root,
+        html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #purchase-editor-view {
+            background: #010308 !important;
+            background-color: #010308 !important;
+        }
+        :root.light-theme body,
+        :root.light-theme .dash-main#pur-proportional-root,
+        :root.light-theme #purchase-editor-view,
+        :root.light-theme #purchase-hub-view {
+            background: linear-gradient(180deg, var(--lt-canvas-1, #efe6d6) 0%, var(--lt-canvas-2, #e5d8c2) 100%) !important;
+            background-color: var(--lt-canvas-1, #efe6d6) !important;
+        }
+        /* Deeper Canvas vs Brighter, Higher-Contrast Regions (+50% Gap Visibility) */
+        html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) .dash-main#pur-proportional-root > header.premium-header.magical-glass-header {
+            background: linear-gradient(145deg, #1b3159 0%, #132341 100%) !important;
+            border: 2px solid rgba(56, 189, 248, 0.78) !important;
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.92), inset 0 1.5px 0 rgba(255, 255, 255, 0.28) !important;
+        }
+        html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #purchase-top-container #form-fields-card {
+            background: linear-gradient(145deg, #1d345e 0%, #152647 100%) !important;
+            border: 2px solid rgba(56, 189, 248, 0.80) !important;
+            box-shadow: 0 12px 34px rgba(0, 0, 0, 0.92), inset 0 1.5px 0 rgba(255, 255, 255, 0.28) !important;
+        }
+        html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #purchase-editor-view .panel-header-row {
+            background: linear-gradient(145deg, #1f3763 0%, #17294c 100%) !important;
+            border: 2px solid rgba(56, 189, 248, 0.78) !important;
+            box-shadow: 0 10px 28px rgba(0, 0, 0, 0.90), inset 0 1.5px 0 rgba(255, 255, 255, 0.28) !important;
+        }
+        html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #purchase-editor-view .table-container {
+            background: linear-gradient(145deg, #1b3057 0%, #132240 100%) !important;
+            border: 2px solid rgba(56, 189, 248, 0.80) !important;
+            box-shadow: 0 14px 36px rgba(0, 0, 0, 0.94), inset 0 1.5px 0 rgba(255, 255, 255, 0.26) !important;
+        }
+        html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #inline-totals-container {
+            background: linear-gradient(145deg, #1e3560 0%, #152748 100%) !important;
+            border: 2px solid rgba(56, 189, 248, 0.76) !important;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.92), inset 0 1.5px 0 rgba(255, 255, 255, 0.26) !important;
+        }
+        html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #purchase-editor-view .items-toolbar {
+            background: linear-gradient(145deg, #1c325b 0%, #132240 100%) !important;
+            border: 2px solid rgba(56, 189, 248, 0.82) !important;
+            box-shadow: 0 14px 36px rgba(0, 0, 0, 0.95), inset 0 1.5px 0 rgba(255, 255, 255, 0.30) !important;
+        }
+        /* Pure Crisp White (#ffffff) + Sharp Black Shadow for All Colored Iconic & Toolbar Buttons (Dark & Light Parity) */
+        html body #purchase-screen-title-badge,
+        html body #purchase-screen-title-badge span,
+        html body #fin-strip-currency-btn,
+        html body #btn-quick-add-supplier,
+        html body #btn-clone-last-supplier-inv,
+        html body #btn-clone-last-supplier-inv span,
+        html body #purchase-editor-view button[onclick="openGridSettingsModal()"],
+        html body #purchase-editor-view button[onclick="openGridSettingsModal()"] span,
+        html body #purchase-editor-view button[onclick*="openPurchaseAIAuditModal"],
+        html body #purchase-editor-view button[onclick*="openPurchaseAIAuditModal"] span,
+        html body #purchase-editor-view .items-toolbar .btn-action,
+        html body #purchase-editor-view .items-toolbar .btn-action span,
+        html body #purchase-editor-view .items-toolbar .btn-action kbd,
+        html body #purchase-editor-view .items-toolbar #btn-share-invoice,
+        html body #purchase-editor-view .items-toolbar #btn-share-invoice span,
+        html body #purchase-editor-view #btn-toggle-auto-send-purchase,
+        html body #purchase-editor-view #btn-toggle-auto-send-purchase span,
+        html body #purchase-editor-view #btn-auto-send-options-purchase,
+        html body #purchase-editor-view #btn-preview-purchase-journal,
+        html body #purchase-editor-view #btn-preview-purchase-journal span,
+        html body #purchase-editor-view #btn-speak-purchase-summary,
+        html body #purchase-editor-view #btn-speak-purchase-summary span,
+        html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #purchase-editor-view #pos-grid thead th {
             color: #ffffff !important;
             -webkit-text-fill-color: #ffffff !important;
-            box-shadow: 0 5px 14px rgba(5, 150, 105, 0.35), inset 0 1.5px 0 rgba(255, 255, 255, 0.55) !important;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.95), 0 0 2px #000000 !important;
         }
-        html body #invoice-editor-view #btn-clone-last-customer-inv {
+        html body #purchase-editor-view .items-toolbar .btn-action svg,
+        html body #purchase-editor-view .items-toolbar #btn-share-invoice svg,
+        html body #purchase-editor-view button[onclick="openGridSettingsModal()"] svg,
+        html body #purchase-editor-view #btn-quick-add-supplier svg {
+            stroke: #ffffff !important;
+            color: #ffffff !important;
+            filter: drop-shadow(0 1.5px 2px rgba(0, 0, 0, 0.92)) !important;
+        }
+        /* AI Button Next to Grid Settings (الأسعار / AI) + Title Badge (مشتريات) + Print Button: Rich Dark Crystal 3D */
+        html body #purchase-screen-title-badge,
+        :root.light-theme body #purchase-screen-title-badge {
             background: linear-gradient(180deg, #0284c7 0%, #0369a1 52%, #075985 100%) !important;
-            border: 2px solid #0c4a6e !important;
+            border: 2px solid #38bdf8 !important;
+            border-bottom: 3.5px solid #082f49 !important;
+            box-shadow: 0 5px 14px rgba(2, 132, 199, 0.42), inset 0 1.5px 0 rgba(255, 255, 255, 0.55) !important;
+        }
+        html body #purchase-editor-view button[onclick*="openPurchaseAIAuditModal"],
+        :root.light-theme body #purchase-editor-view button[onclick*="openPurchaseAIAuditModal"] {
+            background: linear-gradient(180deg, #7e22ce 0%, #6b21a8 52%, #4c1d95 100%) !important;
+            border: 2px solid #c084fc !important;
+            border-bottom: 3.5px solid #2e1065 !important;
+            height: 38px !important;
+            padding: 0 14px !important;
+            border-radius: 10px !important;
+            font-weight: 900 !important;
+            font-size: 0.90rem !important;
+            box-shadow: 0 6px 16px rgba(88, 28, 135, 0.42), 0 2px 5px rgba(0, 0, 0, 0.22), inset 0 1.5px 0 rgba(255, 255, 255, 0.55) !important;
+        }
+        html body #purchase-editor-view button[onclick*="openPurchaseAIAuditModal"]:hover {
+            transform: translateY(-3.5px) scale(1.055) !important;
+            border-color: #f59e0b !important;
+            box-shadow: 0 0 0 3.5px rgba(245, 158, 11, 0.42), 0 10px 24px rgba(88, 28, 135, 0.55), 0 0 20px rgba(192, 132, 252, 0.6), inset 0 1.5px 0 #ffffff !important;
+            filter: brightness(1.08) !important;
+        }
+        html body #purchase-editor-view #btn-preview-invoice,
+        :root.light-theme body #purchase-editor-view #btn-preview-invoice {
+            background: linear-gradient(180deg, #2563eb 0%, #1d4ed8 52%, #1e3a8a 100%) !important;
+            border: 2px solid #93c5fd !important;
+            border-bottom: 3.5px solid #172554 !important;
+            font-size: 0.96rem !important;
+            box-shadow: 0 6px 16px rgba(30, 58, 138, 0.42), inset 0 1.5px 0 rgba(255, 255, 255, 0.55) !important;
+        }
+        /* Enlarged, Fixed-In-Place "أستاذ" Button (Never Leaves Its Center) + Larger Stable Zero (.is-zero-val) */
+        html body #purchase-editor-view #hdr-customer-ledger-btn,
+        html body #purchase-editor-view #hdr-customer-ledger-btn.ledger-btn-2027,
+        :root.light-theme body #purchase-editor-view #hdr-customer-ledger-btn.ledger-btn-2027 {
+            position: absolute !important;
+            left: 5px !important;
+            top: 50% !important;
+            transform: translateY(-50%) !important;
+            height: 34px !important;
+            min-height: 34px !important;
+            max-height: 34px !important;
+            padding: 0 15px !important;
+            font-size: 0.94rem !important;
+            font-weight: 900 !important;
+            border-radius: 8px !important;
+            color: #ffffff !important;
+            -webkit-text-fill-color: #ffffff !important;
+            text-shadow: 0 1.5px 3px rgba(0, 0, 0, 0.95), 0 0 1px #000000 !important;
+            animation: none !important;
+        }
+        html body #purchase-editor-view #hdr-customer-ledger-btn:hover,
+        html body #purchase-editor-view #hdr-customer-ledger-btn.ledger-btn-2027:hover {
+            left: 5px !important;
+            top: 50% !important;
+            transform: translateY(-50%) scale(1.07) !important;
+            animation: none !important;
+            box-shadow: 0 0 0 2.5px rgba(251, 191, 36, 0.55), 0 0 18px rgba(245, 158, 11, 0.75), inset 0 1.5px 0 rgba(255, 255, 255, 0.8) !important;
+        }
+        body #pos-grid tbody tr td input.g-input.is-zero-val:not(:focus),
+        body .tot-row input.tot-input.is-zero-val:not(:focus) {
+            font-size: 1.28rem !important;
+            font-weight: 900 !important;
+            transform: none !important;
+        }
+        html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #purchase-row1-bar .group-supplier > .h-label {
+            background: linear-gradient(135deg, #451a03 0%, #290f02 100%) !important;
+            border: 1.5px solid #facc15 !important;
+            color: #fde047 !important;
+            -webkit-text-fill-color: #fde047 !important;
+            font-size: 0.94rem !important;
+            text-shadow: 0 1.5px 3px rgba(0, 0, 0, 0.95) !important;
+        }
+        html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) body #purchase-editor-view #form-fields-card #hdr-customer-search:not(.is-zero-val),
+        html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) body #purchase-editor-view #form-fields-card #hdr-currency {
+            color: #fde047 !important;
+            -webkit-text-fill-color: #fde047 !important;
+            text-shadow: 0 1.5px 3px rgba(0, 0, 0, 0.95) !important;
+        }
+        /* Financial Strip (الرصيد، المديونية، الشيكات، الحد، المتاح): Pure Crisp White Labels & High-Contrast Numbers */
+        html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #customer-financial-card .fin-metric-pill .fin-lbl {
+            color: #ffffff !important;
+            -webkit-text-fill-color: #ffffff !important;
+            font-weight: 900 !important;
+            text-shadow: 0 1.5px 3px rgba(0, 0, 0, 0.98), 0 0 2px #000000 !important;
+        }
+        html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #customer-financial-card .fin-metric-pill .fin-val {
+            font-weight: 900 !important;
+            text-shadow: 0 1.5px 3px rgba(0, 0, 0, 0.98), 0 0 2px #000000 !important;
+        }
+        html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #customer-financial-card #fin-ledger { color: #ffffff !important; -webkit-text-fill-color: #ffffff !important; }
+        html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #customer-financial-card #fin-total-debt { color: #fecdd3 !important; -webkit-text-fill-color: #fecdd3 !important; }
+        html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #customer-financial-card #fin-checks { color: #fef08a !important; -webkit-text-fill-color: #fef08a !important; }
+        html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #customer-financial-card #fin-credit-limit { color: #bae6fd !important; -webkit-text-fill-color: #bae6fd !important; }
+        html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #customer-financial-card #fin-remaining { color: #a7f3d0 !important; -webkit-text-fill-color: #a7f3d0 !important; }
+        /* High Contrast Between Icon/Button Color and Pure White Text for Extra-Cost Toggles (ترحيل، عمالة، إضافات، ضريبة، خصم) */
+        html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #purchase-row1-bar .group-warehouse > .h-label,
+        html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) body #purchase-editor-view #form-fields-card #hdr-warehouse {
+            font-size: 0.95rem !important;
+            color: #ffffff !important;
+            -webkit-text-fill-color: #ffffff !important;
+            text-shadow: 0 1.5px 3px rgba(0, 0, 0, 0.95) !important;
+        }
+        html body #toggles-area .tot-toggle-btn,
+        :root.light-theme body #toggles-area .tot-toggle-btn,
+        :root.light-theme body #purchase-editor-view #toggles-area .tot-toggle-btn,
+        :root.light-theme body #purchase-editor-view #toggles-area .tot-toggle-btn span {
+            font-size: 1.0rem !important;
+            height: 40px !important;
+            padding: 0 16px !important;
+            font-weight: 900 !important;
+            color: #ffffff !important;
+            -webkit-text-fill-color: #ffffff !important;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.98), 0 0 2px #000000 !important;
+            box-shadow: 0 6px 16px rgba(15, 23, 42, 0.34), inset 0 1.5px 0 rgba(255, 255, 255, 0.55) !important;
+        }
+        html body #purchase-editor-view #btn-toggle-transport,
+        :root.light-theme body #purchase-editor-view #btn-toggle-transport { background: linear-gradient(180deg, #ea580c 0%, #9a3412 100%) !important; border: 2px solid #fdba74 !important; border-bottom: 3.5px solid #431407 !important; color: #ffffff !important; -webkit-text-fill-color: #ffffff !important; }
+        html body #purchase-editor-view #btn-toggle-labor,
+        :root.light-theme body #purchase-editor-view #btn-toggle-labor { background: linear-gradient(180deg, #0284c7 0%, #075985 100%) !important; border: 2px solid #7dd3fc !important; border-bottom: 3.5px solid #082f49 !important; color: #ffffff !important; -webkit-text-fill-color: #ffffff !important; }
+        html body #purchase-editor-view #btn-toggle-additions,
+        :root.light-theme body #purchase-editor-view #btn-toggle-additions { background: linear-gradient(180deg, #ca8a04 0%, #854d0e 100%) !important; border: 2px solid #fef08a !important; border-bottom: 3.5px solid #422006 !important; color: #ffffff !important; -webkit-text-fill-color: #ffffff !important; }
+        html body #purchase-editor-view #btn-toggle-tax,
+        :root.light-theme body #purchase-editor-view #btn-toggle-tax { background: linear-gradient(180deg, #e11d48 0%, #9f1239 100%) !important; border: 2px solid #fda4af !important; border-bottom: 3.5px solid #4c0519 !important; color: #ffffff !important; -webkit-text-fill-color: #ffffff !important; }
+        html body #purchase-editor-view #btn-toggle-discount,
+        :root.light-theme body #purchase-editor-view #btn-toggle-discount { background: linear-gradient(180deg, #059669 0%, #065f46 100%) !important; border: 2px solid #6ee7b7 !important; border-bottom: 3.5px solid #022c22 !important; color: #ffffff !important; -webkit-text-fill-color: #ffffff !important; }
+        :root.light-theme body #customer-financial-card #fin-strip-currency-btn,
+        :root.light-theme body #customer-financial-card .fin-metric-pill span,
+        :root.light-theme body #customer-financial-card #fin-wrap-debt .fin-lbl,
+        :root.light-theme body #customer-financial-card #fin-total-debt,
+        :root.light-theme body #customer-financial-card #fin-wrap-ledger .fin-lbl,
+        :root.light-theme body #customer-financial-card #fin-ledger,
+        :root.light-theme body #customer-financial-card #fin-wrap-checks .fin-lbl,
+        :root.light-theme body #customer-financial-card #fin-checks,
+        :root.light-theme body #customer-financial-card #fin-wrap-limit .fin-lbl,
+        :root.light-theme body #customer-financial-card #fin-credit-limit,
+        :root.light-theme body #customer-financial-card #fin-wrap-remaining .fin-lbl,
+        :root.light-theme body #customer-financial-card #fin-remaining { color: #ffffff !important; -webkit-text-fill-color: #ffffff !important; font-weight: 900 !important; text-shadow: 0 1.5px 3px rgba(0, 0, 0, 0.95), 0 0 2px #000000 !important; }
+        :root.light-theme body #customer-financial-card #fin-wrap-ledger { background: linear-gradient(180deg, #334155 0%, #0f172a 100%) !important; border: 1.5px solid #94a3b8 !important; }
+        :root.light-theme body #customer-financial-card #fin-wrap-debt { background: linear-gradient(180deg, #e11d48 0%, #9f1239 100%) !important; border: 1.5px solid #fda4af !important; }
+        :root.light-theme body #customer-financial-card #fin-wrap-checks { background: linear-gradient(180deg, #d97706 0%, #92400e 100%) !important; border: 1.5px solid #fcd34d !important; }
+        :root.light-theme body #customer-financial-card #fin-wrap-limit { background: linear-gradient(180deg, #0284c7 0%, #075985 100%) !important; border: 1.5px solid #7dd3fc !important; }
+        :root.light-theme body #customer-financial-card #fin-wrap-remaining { background: linear-gradient(180deg, #059669 0%, #065f46 100%) !important; border: 1.5px solid #6ee7b7 !important; }
+        html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #row-tot-transport span,
+        html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #row-tot-labor span,
+        html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #row-tot-additions span,
+        html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #row-tot-tax span,
+        html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #row-tot-discount span {
+            color: #ffffff !important;
+            -webkit-text-fill-color: #ffffff !important;
+            font-size: 1.38rem !important;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.98), 0 0 2px #000000 !important;
+        }
+        /* Unified Dark-Crystal Bottom Toolbar & Journal/Summary Buttons in Both Themes */
+        html body #purchase-editor-view .items-toolbar .btn-exit {
+            background: linear-gradient(180deg, #f43f5e 0%, #be123c 55%, #881337 100%) !important;
+            border: 2px solid #fda4af !important;
+            border-bottom: 3.5px solid #4c0519 !important;
+            color: #ffffff !important;
+            -webkit-text-fill-color: #ffffff !important;
+            box-shadow: 0 6px 18px rgba(159, 18, 57, 0.48), inset 0 1.5px 0 rgba(255, 255, 255, 0.65) !important;
+        }
+        html body #purchase-editor-view .items-toolbar .btn-exit:hover {
+            background: linear-gradient(180deg, #fb7185 0%, #e11d48 50%, #9f1239 100%) !important;
+            border-color: #ffffff !important;
+            box-shadow: 0 0 0 3px rgba(251, 113, 133, 0.55), 0 0 28px rgba(244, 63, 94, 0.85), 0 10px 24px rgba(159, 18, 57, 0.65), inset 0 2px 0 #ffffff !important;
+        }
+        html body #purchase-editor-view .items-toolbar #btn-share-invoice,
+        :root.light-theme body #purchase-editor-view .items-toolbar #btn-share-invoice {
+            background: linear-gradient(180deg, #10b981 0%, #059669 52%, #065f46 100%) !important;
+            border: 2px solid #6ee7b7 !important;
+            border-bottom: 3.5px solid #022c22 !important;
+            box-shadow: 0 6px 16px rgba(6, 95, 70, 0.42), inset 0 1.5px 0 rgba(255, 255, 255, 0.55) !important;
+        }
+        html body #purchase-editor-view .items-toolbar .btn-new,
+        :root.light-theme body #purchase-editor-view .items-toolbar .btn-new {
+            background: linear-gradient(180deg, #6366f1 0%, #4338ca 52%, #312e81 100%) !important;
+            border: 2px solid #a5b4fc !important;
+            border-bottom: 3.5px solid #1e1b4b !important;
+            box-shadow: 0 6px 16px rgba(49, 46, 129, 0.42), inset 0 1.5px 0 rgba(255, 255, 255, 0.55) !important;
+        }
+        html body #purchase-editor-view #btn-preview-purchase-journal,
+        :root.light-theme body #purchase-editor-view #btn-preview-purchase-journal {
+            background: linear-gradient(180deg, #0ea5e9 0%, #0284c7 52%, #075985 100%) !important;
+            border: 2px solid #7dd3fc !important;
+            border-bottom: 3.5px solid #082f49 !important;
+            box-shadow: 0 6px 16px rgba(7, 89, 133, 0.42), inset 0 1.5px 0 rgba(255, 255, 255, 0.55) !important;
+        }
+        html body #purchase-editor-view #btn-speak-purchase-summary,
+        :root.light-theme body #purchase-editor-view #btn-speak-purchase-summary {
+            background: linear-gradient(180deg, #d97706 0%, #b45309 52%, #78350f 100%) !important;
+            border: 2px solid #fcd34d !important;
+            border-bottom: 3.5px solid #451a03 !important;
+            box-shadow: 0 6px 16px rgba(120, 53, 15, 0.42), inset 0 1.5px 0 rgba(255, 255, 255, 0.55) !important;
+        }
+        :root.light-theme body #purchase-editor-view #btn-toggle-auto-send-purchase.inactive,
+        :root.light-theme body #purchase-editor-view #btn-toggle-auto-send-purchase:not(.active),
+        :root.light-theme body #purchase-editor-view #btn-auto-send-options-purchase.inactive,
+        :root.light-theme body #purchase-editor-view #btn-auto-send-options-purchase:not(.active) {
+            background: linear-gradient(180deg, #334155 0%, #1e293b 55%, #0f172a 100%) !important;
+            border: 2px solid #94a3b8 !important;
+            border-bottom: 3.5px solid #020617 !important;
+            color: #ffffff !important;
+            -webkit-text-fill-color: #ffffff !important;
+            box-shadow: 0 6px 16px rgba(15, 23, 42, 0.42), inset 0 1.5px 0 rgba(255, 255, 255, 0.45) !important;
+        }
+        :root.light-theme body #purchase-editor-view #btn-toggle-auto-send-purchase:not(.active) span:not(#auto-send-purchase-status-pill) {
+            color: #ffffff !important;
+            -webkit-text-fill-color: #ffffff !important;
+        }
+        :root.light-theme body #purchase-editor-view #btn-toggle-auto-send-purchase:not(.active) #auto-send-purchase-status-pill {
+            background: rgba(245, 158, 11, 0.28) !important;
+            border: 1.5px solid #fbbf24 !important;
+            color: #fef08a !important;
+            -webkit-text-fill-color: #fef08a !important;
+        }
+        /* 8. LIGHT THEME SCULPTED 3PX BORDERS, LUMINOUS REGIONS & GLASS SHIMMER */
+        :root.light-theme .dash-main#pur-proportional-root > header.premium-header.magical-glass-header,
+        :root.light-theme body #purchase-top-container #form-fields-card,
+        :root.light-theme #form-fields-card.purchase-glass-card,
+        :root.light-theme #purchase-editor-view .panel-header-row,
+        :root.light-theme #purchase-editor-view .table-container,
+        :root.light-theme #inline-totals-container,
+        :root.light-theme #payment-panel,
+        :root.light-theme #purchase-editor-view .items-toolbar {
+            background-image: linear-gradient(115deg, transparent 36%, rgba(255, 255, 255, 0.85) 47%, rgba(255, 253, 245, 0.96) 50%, rgba(255, 255, 255, 0.85) 53%, transparent 64%), linear-gradient(145deg, var(--lt-card-1, #ffffff) 0%, var(--lt-card-2, #faf5eb) 100%) !important;
+            background-size: 240% 100%, 100% 100% !important;
+            background-repeat: no-repeat !important;
+            border: 3px solid var(--lt-border, #5c2808) !important;
+            border-radius: 15px !important;
+            box-shadow: 0 12px 28px rgba(43, 17, 3, 0.14), 0 0 0 1px rgba(255, 255, 255, 0.92) inset, inset 0 2px 0 #ffffff !important;
+            animation: ophthalmicGlassSweep 8.5s cubic-bezier(0.4, 0, 0.2, 1) infinite !important;
+        }
+        :root.light-theme #purchase-top-container #form-fields-card:hover,
+        :root.light-theme #purchase-top-container #form-fields-card:focus-within,
+        :root.light-theme #purchase-editor-view .panel-header-row:hover,
+        :root.light-theme #purchase-editor-view .table-container:hover,
+        :root.light-theme #purchase-editor-view .table-container:focus-within,
+        :root.light-theme #inline-totals-container:hover,
+        :root.light-theme #payment-panel:hover,
+        :root.light-theme #purchase-editor-view .items-toolbar:hover {
+            border: 3px solid var(--lt-border-hover, #b45309) !important;
+            box-shadow: 0 0 0 3.5px var(--lt-glow, rgba(245, 158, 11, 0.42)), 0 0 26px var(--lt-glow, rgba(245, 158, 11, 0.45)), 0 16px 34px rgba(43, 17, 3, 0.20), inset 0 2px 0 #ffffff !important;
+        }
+        :root.light-theme body #purchase-top-container #invoice-info-box,
+        :root.light-theme #customer-financial-card .fin-strip-inner,
+        :root.light-theme #grid-foot .pur-compact-tot-card {
+            background: linear-gradient(135deg, var(--lt-sub-1, #ffffff) 0%, var(--lt-sub-2, #fcf8f0) 100%) !important;
+            border: 2.5px solid var(--lt-border, #5c2808) !important;
+            box-shadow: 0 6px 16px rgba(43, 17, 3, 0.12), inset 0 1.5px 0 #ffffff !important;
+        }
+        /* Periodic Calm Glass Specular Shimmer (لمعات زجاجية هادئة ومريحة للعين من حين لآخر) */
+        @keyframes ophthalmicGlassSweep {
+            0%, 72% { background-position: 200% 0, 0 0; }
+            92%, 100% { background-position: -120% 0, 0 0; }
+        }
+        html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #purchase-top-container #form-fields-card,
+        html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #purchase-editor-view .panel-header-row,
+        html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #inline-totals-container,
+        html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #purchase-editor-view .items-toolbar {
+            background-image: linear-gradient(115deg, transparent 38%, rgba(255, 255, 255, 0.06) 48%, rgba(56, 189, 248, 0.09) 50%, rgba(255, 255, 255, 0.06) 52%, transparent 62%), linear-gradient(145deg, #162645 0%, #101d36 100%) !important;
+            background-size: 240% 100%, 100% 100% !important;
+            background-repeat: no-repeat !important;
+            animation: ophthalmicGlassSweep 9.5s cubic-bezier(0.4, 0, 0.2, 1) infinite !important;
+        }
+        /* 9. DEEP CLARITY & UNIFIED 1.08REM SCALE FOR (المتاح، مخزن، صنف، وحدة، كمية) & ALL 5 REGIONS IN LIGHT MODE */
+        :root.light-theme body #purchase-editor-view #pos-grid thead tr th {
+            background: linear-gradient(180deg, var(--lt-th-1, #faf4e6) 0%, var(--lt-th-2, #efe2ca) 100%) !important;
+            color: var(--lt-ink, #120500) !important;
+            -webkit-text-fill-color: var(--lt-ink, #120500) !important;
+            font-size: 1.08rem !important;
+            font-weight: 900 !important;
+            border-top: 2.5px solid var(--lt-border, #5c2808) !important;
+            border-bottom: 2.5px solid var(--lt-border, #5c2808) !important;
+            box-shadow: inset 0 1.5px 0 rgba(255, 255, 255, 0.92) !important;
+        }
+        :root.light-theme body #purchase-editor-view #pos-grid thead tr th span {
+            background: transparent !important;
+            color: var(--lt-ink, #120500) !important;
+            -webkit-text-fill-color: var(--lt-ink, #120500) !important;
+            font-size: 1.08rem !important;
+            font-weight: 900 !important;
+        }
+        :root.light-theme body #purchase-editor-view #pos-grid tbody tr td {
+            background: var(--lt-row-odd, #ffffff) !important;
+            border-top: 1.8px solid rgba(92, 40, 8, 0.36) !important;
+            border-bottom: 1.8px solid rgba(92, 40, 8, 0.36) !important;
+        }
+        :root.light-theme body #purchase-editor-view #pos-grid tbody tr:nth-child(even) td {
+            background: var(--lt-row-even, #fbf7ef) !important;
+        }
+        :root.light-theme body #purchase-editor-view #pos-grid tbody tr td input.g-input,
+        :root.light-theme body #purchase-editor-view #pos-grid tbody tr td input.g-input.is-zero-val:not(:focus),
+        :root.light-theme body #purchase-editor-view #pos-grid tbody tr td select.g-select,
+        :root.light-theme body #purchase-editor-view #pos-grid tbody tr td select.g-select.is-default-hint:not(:focus),
+        :root.light-theme body #purchase-editor-view #pos-grid tbody tr td .avail-val,
+        :root.light-theme body #purchase-editor-view #pos-grid tbody tr td .avail-val.is-zero-val,
+        :root.light-theme body #purchase-editor-view #pos-grid tbody tr td .total-val,
+        :root.light-theme body #purchase-editor-view #pos-grid tbody tr td .total-val.is-zero-val,
+        :root.light-theme body #purchase-editor-view #pos-grid tbody tr td .row-num,
+        :root.light-theme body #purchase-editor-view .tot-row input.tot-input.is-zero-val:not(:focus) {
+            color: var(--lt-ink, #120500) !important;
+            -webkit-text-fill-color: var(--lt-ink, #120500) !important;
+            font-size: 1.08rem !important;
+            font-weight: 900 !important;
+            border: 2.2px solid var(--lt-border, #5c2808) !important;
+            opacity: 1 !important;
+        }
+        :root.light-theme body #purchase-editor-view #form-fields-card #hdr-description,
+        :root.light-theme body #purchase-editor-view #form-fields-card #hdr-customer-search,
+        :root.light-theme body #purchase-editor-view #form-fields-card #hdr-exchange-rate,
+        :root.light-theme body #purchase-editor-view #form-fields-card #hdr-warehouse,
+        :root.light-theme body #purchase-editor-view #form-fields-card #hdr-cost-center,
+        :root.light-theme body #purchase-editor-view #payment-panel #hdr-payment-account {
+            color: var(--lt-ink, #120500) !important;
+            -webkit-text-fill-color: var(--lt-ink, #120500) !important;
+            font-size: 1.08rem !important;
+            font-weight: 900 !important;
+            border: 2.2px solid var(--lt-border, #5c2808) !important;
+        }
+        :root.light-theme body #purchase-editor-view #form-fields-card #hdr-currency {
+            background-color: #0369a1 !important;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='3.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E"), linear-gradient(180deg, #0284c7 0%, #075985 100%) !important;
+            border: 2px solid #7dd3fc !important;
             border-bottom: 3.5px solid #082f49 !important;
             color: #ffffff !important;
             -webkit-text-fill-color: #ffffff !important;
-            box-shadow: 0 5px 14px rgba(2, 132, 199, 0.35), inset 0 1.5px 0 rgba(255, 255, 255, 0.55) !important;
-        }
-        html body #invoice-editor-view #btn-clone-last-customer-inv span {
-            color: #ffffff !important;
-            -webkit-text-fill-color: #ffffff !important;
-        }
-        html body #invoice-editor-view #btn-quick-add-customer:hover,
-        html body #invoice-editor-view #btn-clone-last-customer-inv:hover,
-        html body #invoice-editor-view #hdr-customer-ledger-btn:hover {
-            transform: translateY(-3px) scale(1.06) !important;
-            box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.4), 0 8px 20px rgba(15, 23, 42, 0.32), inset 0 1.5px 0 rgba(255, 255, 255, 0.75) !important;
-            filter: brightness(1.08) !important;
-        }
-        html body #invoice-editor-view .items-toolbar .btn-delete,
-        :root.light-theme body #invoice-editor-view .items-toolbar .btn-delete {
-            background: linear-gradient(180deg, #f43f5e 0%, #e11d48 48%, #be123c 100%) !important;
-            border: 2px solid #881337 !important;
-            color: #ffffff !important;
-            -webkit-text-fill-color: #ffffff !important;
+            text-shadow: 0 1.5px 3px rgba(0, 0, 0, 0.95), 0 0 2px #000000 !important;
+            font-size: 1.08rem !important;
             font-weight: 900 !important;
-            box-shadow: 0 5px 12px rgba(15, 23, 42, 0.24), inset 0 1.5px 0 rgba(255, 255, 255, 0.42) !important;
         }
-        html body #invoice-editor-view .items-toolbar .btn-delete span,
-        html body #invoice-editor-view .items-toolbar .btn-delete svg,
-        html body #invoice-editor-view .items-toolbar .btn-delete svg * {
-            color: #ffffff !important;
-            -webkit-text-fill-color: #ffffff !important;
-            stroke: #ffffff !important;
-        }
-        :root.light-theme body #invoice-editor-view #btn-toggle-auto-send-sales.inactive,
-        :root.light-theme body #invoice-editor-view #btn-toggle-auto-send-sales:not(.active),
-        :root.light-theme body #invoice-editor-view #btn-auto-send-options-sales.inactive,
-        :root.light-theme body #invoice-editor-view #btn-auto-send-options-sales:not(.active) {
-            background: linear-gradient(180deg, #ffffff 0%, #fffbf2 55%, #f5e6cc 100%) !important;
-            border: 2px solid #8a4b19 !important;
-            color: #040200 !important;
-            -webkit-text-fill-color: #040200 !important;
+        :root.light-theme body #purchase-editor-view #form-fields-card #hdr-currency option { background: #0f172a !important; color: #ffffff !important; }
+        :root.light-theme body #purchase-editor-view input::placeholder,
+        :root.light-theme body #purchase-editor-view textarea::placeholder {
+            color: var(--lt-placeholder, #3b1704) !important;
+            -webkit-text-fill-color: var(--lt-placeholder, #3b1704) !important;
             font-weight: 900 !important;
-            box-shadow: 0 5px 12px rgba(120, 53, 15, 0.18), inset 0 1.5px 0 #ffffff !important;
+            opacity: 0.9 !important;
         }
-        :root.light-theme body #invoice-editor-view #btn-toggle-auto-send-sales:not(.active) span:not(#auto-send-sales-status-pill) {
-            color: #040200 !important;
-            -webkit-text-fill-color: #040200 !important;
-        }
-        :root.light-theme body #invoice-editor-view #btn-toggle-auto-send-sales:not(.active) #auto-send-sales-status-pill {
-            background: #f3e5c8 !important;
-            border: 1.5px solid #8a4b19 !important;
-            color: #040200 !important;
-            -webkit-text-fill-color: #040200 !important;
+        /* 10. UNIFIED 1.08REM BOLDER SCALE ACROSS ALL 5 REGIONS + IN-PLACE GLASS BUTTON EDGE ILLUMINATION */
+        :root.light-theme body #purchase-top-container #invoice-info-box #hdr-inv-label,
+        :root.light-theme body #purchase-top-container #invoice-info-box #hdr-date-label,
+        :root.light-theme body #purchase-row1-bar .h-label,
+        :root.light-theme body #purchase-row2-bar .h-label,
+        :root.light-theme body #purchase-editor-view .panel-header-row .panel-title,
+        :root.light-theme body #purchase-editor-view .panel-header-row .panel-title span {
+            color: var(--lt-ink, #120500) !important;
+            -webkit-text-fill-color: var(--lt-ink, #120500) !important;
+            font-size: 1.08rem !important;
             font-weight: 900 !important;
+            letter-spacing: 0.1px !important;
+        }
+        :root.light-theme body #purchase-row1-bar .h-label,
+        :root.light-theme body #purchase-row2-bar .h-label,
+        :root.light-theme body #invoice-info-box #hdr-inv-label,
+        :root.light-theme body #invoice-info-box #hdr-date-label {
+            background: linear-gradient(180deg, var(--lt-th-1, #faf4e6) 0%, var(--lt-th-2, #efe2ca) 100%) !important;
+            border: 2px solid var(--lt-border, #5c2808) !important;
+            height: 35px !important;
+            line-height: 31px !important;
+            padding: 0 11px !important;
+        }
+        :root.light-theme body #purchase-row1-bar .h-form-group,
+        :root.light-theme body #purchase-row2-bar .h-form-group {
+            background: linear-gradient(135deg, var(--lt-sub-1, #ffffff) 0%, var(--lt-sub-2, #fcf8f0) 100%) !important;
+            border: 2.5px solid var(--lt-border, #5c2808) !important;
+        }
+        html body #purchase-screen-title-badge,
+        html body #purchase-screen-title-badge span,
+        html body #purchase-editor-view .panel-header-row button[onclick*="openPurchaseAIAuditModal"],
+        html body #purchase-editor-view .panel-header-row button[onclick*="openPurchaseAIAuditModal"] span,
+        html body #purchase-editor-view .panel-header-row button[onclick="openGridSettingsModal()"],
+        html body #purchase-editor-view .panel-header-row button[onclick="openGridSettingsModal()"] span,
+        html body #purchase-editor-view #toggles-area .tot-toggle-btn,
+        html body #purchase-editor-view #toggles-area .tot-toggle-btn span,
+        html body #purchase-editor-view .items-toolbar .btn-action,
+        html body #purchase-editor-view .items-toolbar .btn-action span,
+        html body #purchase-editor-view .items-toolbar #btn-share-invoice,
+        html body #purchase-editor-view .items-toolbar #btn-share-invoice span,
+        html body #purchase-editor-view #btn-preview-purchase-journal,
+        html body #purchase-editor-view #btn-preview-purchase-journal span,
+        html body #purchase-editor-view #btn-speak-purchase-summary,
+        html body #purchase-editor-view #btn-speak-purchase-summary span,
+        html body #purchase-editor-view #btn-toggle-auto-send-purchase,
+        html body #purchase-editor-view #btn-toggle-auto-send-purchase span:not(#auto-send-purchase-status-pill),
+        html body #purchase-editor-view #btn-submit-purchase-invoice,
+        html body #purchase-editor-view #btn-submit-purchase-invoice span {
+            font-size: 1.08rem !important;
+            font-weight: 900 !important;
+        }
+        /* 11. WORLD-CLASS GLASS SPECULAR SHIMMER, EDGE ILLUMINATION & IN-PLACE MOTION FOR ALL BUTTONS */
+        html body #purchase-editor-view button,
+        html body #purchase-editor-view .btn-action,
+        html body #purchase-editor-view .tot-toggle-btn,
+        html body #purchase-editor-view .pay-toggle-btn,
+        html body #purchase-screen-title-badge {
+            position: relative !important;
+            overflow: hidden !important;
+            isolation: isolate !important;
+            transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s ease, border-color 0.22s ease, filter 0.22s ease !important;
+        }
+        html body #purchase-editor-view #hdr-customer-ledger-btn,
+        html body #purchase-editor-view #hdr-customer-ledger-btn.ledger-btn-2027 {
+            position: absolute !important;
+        }
+        html body #purchase-editor-view button::after,
+        html body #purchase-editor-view .btn-action::after,
+        html body #purchase-editor-view .tot-toggle-btn::after,
+        html body #purchase-screen-title-badge::after {
+            content: "" !important;
+            position: absolute !important;
+            top: -20% !important;
+            left: -130% !important;
+            width: 65% !important;
+            height: 140% !important;
+            background: linear-gradient(110deg, transparent 15%, rgba(255, 255, 255, 0.48) 50%, transparent 85%) !important;
+            transform: skewX(-22deg) !important;
+            pointer-events: none !important;
+            animation: purBtnGlassShimmer 6.5s cubic-bezier(0.4, 0, 0.2, 1) infinite !important;
+        }
+        @keyframes purBtnGlassShimmer {
+            0%, 68% { left: -130%; }
+            90%, 100% { left: 165%; }
+        }
+        html body #purchase-editor-view button:not(#hdr-customer-ledger-btn):hover,
+        html body #purchase-editor-view .btn-action:hover,
+        html body #purchase-editor-view .tot-toggle-btn:hover,
+        html body #purchase-editor-view .pay-toggle-btn:hover {
+            transform: scale(1.038) !important;
+            border-color: #fde047 !important;
+            box-shadow: 0 0 0 3px rgba(250, 204, 21, 0.52), 0 0 22px rgba(250, 204, 21, 0.68), inset 0 2px 0 #ffffff, inset 0 0 12px rgba(255, 255, 255, 0.42) !important;
+            filter: brightness(1.09) !important;
+        }
+        /* 12. PHOTOSHOP LUMINOSITY-PRESERVING LIGHT-MODE TONE PALETTES (UNIFIED ACROSS TOP PURCHASE HEADER & ALL SCREEN REGIONS) */
+        :root.light-theme, :root.light-theme[data-light-tone="ivory_default"] {
+            --lt-canvas-1: #efe5d0; --lt-canvas-2: #e5d6ba; --lt-hdr-1: #f5ebd6; --lt-hdr-2: #ecdec2; --lt-hdr-3: #e2cfa9;
+            --lt-card-1: #ffffff; --lt-card-2: #fcf7ee; --lt-sub-1: #ffffff; --lt-sub-2: #fbf4e6; --lt-th-1: #faf3e3; --lt-th-2: #f1e4ca;
+            --lt-row-odd: #ffffff; --lt-row-even: #fefcf7; --lt-border: #5c2808; --lt-border-hover: #b45309;
+            --lt-glow: rgba(245, 158, 11, 0.45); --lt-ink: #120500; --lt-placeholder: #3b1704;
+        }
+        :root.light-theme[data-light-tone="royal_bronze"] {
+            --lt-canvas-1: #e6cbb0; --lt-canvas-2: #d9b694; --lt-hdr-1: #eed7be; --lt-hdr-2: #e3c4a2; --lt-hdr-3: #d7b189;
+            --lt-card-1: #fffbf7; --lt-card-2: #f9efe3; --lt-sub-1: #fffdfa; --lt-sub-2: #f6e7d5; --lt-th-1: #f5e5d1; --lt-th-2: #ebd2b7;
+            --lt-row-odd: #ffffff; --lt-row-even: #fcf6ee; --lt-border: #4a2106; --lt-border-hover: #9a3412;
+            --lt-glow: rgba(217, 119, 6, 0.48); --lt-ink: #140600; --lt-placeholder: #431407;
+        }
+        :root.light-theme[data-light-tone="platinum_gray"] {
+            --lt-canvas-1: #d9e3ee; --lt-canvas-2: #cad7e6; --lt-hdr-1: #e2ebf5; --lt-hdr-2: #d4e1ef; --lt-hdr-3: #c5d6e8;
+            --lt-card-1: #ffffff; --lt-card-2: #f2f7fc; --lt-sub-1: #ffffff; --lt-sub-2: #eef4fb; --lt-th-1: #ecf3fa; --lt-th-2: #dde8f5;
+            --lt-row-odd: #ffffff; --lt-row-even: #f7fafe; --lt-border: #1e293b; --lt-border-hover: #0284c7;
+            --lt-glow: rgba(56, 189, 248, 0.45); --lt-ink: #020617; --lt-placeholder: #1e293b;
+        }
+        :root.light-theme[data-light-tone="crystal_silver"] {
+            --lt-canvas-1: #e4e9f0; --lt-canvas-2: #d6dde7; --lt-hdr-1: #ecf0f5; --lt-hdr-2: #e0e6ee; --lt-hdr-3: #d3dbe6;
+            --lt-card-1: #ffffff; --lt-card-2: #f5f7fb; --lt-sub-1: #ffffff; --lt-sub-2: #f1f4f9; --lt-th-1: #eff3f8; --lt-th-2: #e3e8f0;
+            --lt-row-odd: #ffffff; --lt-row-even: #f9fafc; --lt-border: #111827; --lt-border-hover: #2563eb;
+            --lt-glow: rgba(59, 130, 246, 0.45); --lt-ink: #030712; --lt-placeholder: #1f2937;
+        }
+        :root.light-theme[data-light-tone="sage_pearl"] {
+            --lt-canvas-1: #d4eee1; --lt-canvas-2: #c1e4d3; --lt-hdr-1: #ddf3e8; --lt-hdr-2: #cbead9; --lt-hdr-3: #b8e0cb;
+            --lt-card-1: #ffffff; --lt-card-2: #eefaf4; --lt-sub-1: #ffffff; --lt-sub-2: #e8f8f0; --lt-th-1: #e5f6ed; --lt-th-2: #d3efe0;
+            --lt-row-odd: #ffffff; --lt-row-even: #f6fdf9; --lt-border: #064e3b; --lt-border-hover: #059669;
+            --lt-glow: rgba(16, 185, 129, 0.45); --lt-ink: #022c22; --lt-placeholder: #064e3b;
+        }
+        :root.light-theme[data-light-tone="sky_alabaster"] {
+            --lt-canvas-1: #d3e9fb; --lt-canvas-2: #beddf7; --lt-hdr-1: #dceffd; --lt-hdr-2: #cae4fa; --lt-hdr-3: #b7d9f6;
+            --lt-card-1: #ffffff; --lt-card-2: #eef7fe; --lt-sub-1: #ffffff; --lt-sub-2: #e7f4fd; --lt-th-1: #e4f2fd; --lt-th-2: #d1e9fb;
+            --lt-row-odd: #ffffff; --lt-row-even: #f6fbff; --lt-border: #0c4a6e; --lt-border-hover: #0284c7;
+            --lt-glow: rgba(14, 165, 233, 0.45); --lt-ink: #082f49; --lt-placeholder: #0c4a6e;
+        }
+        :root.light-theme[data-light-tone="warm_mocha_dark"] {
+            --lt-canvas-1: #d2baa1; --lt-canvas-2: #c1a384; --lt-hdr-1: #decab4; --lt-hdr-2: #cfb69b; --lt-hdr-3: #bfa182;
+            --lt-card-1: #fdfaf6; --lt-card-2: #f6ede2; --lt-sub-1: #fefcf9; --lt-sub-2: #f2e6d8; --lt-th-1: #f0e2d2; --lt-th-2: #e4d1bc;
+            --lt-row-odd: #ffffff; --lt-row-even: #faf4ec; --lt-border: #3e1b04; --lt-border-hover: #7c2d12;
+            --lt-glow: rgba(180, 83, 9, 0.48); --lt-ink: #0f0400; --lt-placeholder: #2e1102;
+        }
+        :root.light-theme[data-light-tone="deep_slate_dark"] {
+            --lt-canvas-1: #c1cedf; --lt-canvas-2: #aebfd4; --lt-hdr-1: #ced9e8; --lt-hdr-2: #bdcce0; --lt-hdr-3: #acbed6;
+            --lt-card-1: #f9fbfe; --lt-card-2: #eef3fa; --lt-sub-1: #fcfdff; --lt-sub-2: #e8eff8; --lt-th-1: #e4ecf6; --lt-th-2: #d5e1f0;
+            --lt-row-odd: #ffffff; --lt-row-even: #f4f8fc; --lt-border: #0f172a; --lt-border-hover: #1d4ed8;
+            --lt-glow: rgba(37, 99, 235, 0.45); --lt-ink: #020617; --lt-placeholder: #0f172a;
+        }
+        /* 13. GLOBAL LUXURY GLASS & KINETIC LIGHT GESTURES (BUTTON BACKLIGHT, CURVE HALO, SMOKED TOP GLASS & WAVE SHIMMERS) */
+        @keyframes purGlassWaveSweep { 0%, 62% { background-position: 220% 0, 0 0; } 88%, 100% { background-position: -140% 0, 0 0; } }
+        @keyframes purCornerAuraPulse { 0%, 100% { filter: drop-shadow(0 0 8px rgba(56,189,248,0.28)); } 50% { filter: drop-shadow(0 0 16px rgba(56,189,248,0.52)); } }
+        @keyframes purKineticBurst { 0% { box-shadow: 0 0 0 0 rgba(56,189,248,0.75), 0 0 28px rgba(250,204,21,0.75); } 100% { box-shadow: 0 0 0 14px rgba(56,189,248,0), 0 0 0 rgba(250,204,21,0); } }
+        /* A. Darker Smoked Crystal Upper Region with Specular Glass Reflection */
+        html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) .dash-main#pur-proportional-root > header.premium-header.magical-glass-header,
+        html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #purchase-top-container #form-fields-card {
+            background-image: radial-gradient(520px circle at var(--mx, 50%) var(--my, 20%), rgba(56,189,248,0.16), transparent 60%), linear-gradient(112deg, transparent 34%, rgba(255,255,255,0.11) 47%, rgba(125,211,252,0.22) 50%, rgba(255,255,255,0.09) 53%, transparent 66%), linear-gradient(160deg, rgba(6,13,28,0.95) 0%, rgba(11,22,44,0.93) 52%, rgba(5,10,22,0.97) 100%) !important;
+            background-size: 100% 100%, 250% 100%, 100% 100% !important;
+            backdrop-filter: blur(22px) saturate(195%) !important; -webkit-backdrop-filter: blur(22px) saturate(195%) !important;
+            border: 2px solid rgba(56,189,248,0.86) !important; border-radius: 16px !important;
+            box-shadow: 0 -4px 22px rgba(56,189,248,0.25), 0 14px 36px rgba(0,0,0,0.94), 0 0 24px rgba(14,165,233,0.32), inset 0 2px 1px rgba(255,255,255,0.38), inset 0 -2px 12px rgba(56,189,248,0.18) !important;
+            animation: purGlassWaveSweep 7.5s cubic-bezier(0.4,0,0.2,1) infinite !important;
+        }
+        :root.light-theme .dash-main#pur-proportional-root > header.premium-header.magical-glass-header,
+        :root.light-theme body #purchase-top-container #form-fields-card {
+            background-image: radial-gradient(520px circle at var(--mx, 50%) var(--my, 20%), rgba(255,255,255,0.78), transparent 60%), linear-gradient(112deg, transparent 34%, rgba(255,255,255,0.92) 48%, rgba(255,255,255,0.75) 50%, rgba(255,255,255,0.9) 52%, transparent 66%), linear-gradient(160deg, var(--lt-hdr-1, #eadbc0) 0%, var(--lt-hdr-2, #dec9a4) 52%, var(--lt-hdr-3, #d1b689) 100%) !important;
+            background-size: 100% 100%, 250% 100%, 100% 100% !important;
+            backdrop-filter: blur(20px) saturate(180%) !important;
+            border: 3px solid var(--lt-border, #5c2808) !important;
+            box-shadow: 0 -3px 18px var(--lt-glow, rgba(180,83,9,0.24)), 0 14px 30px rgba(15,23,42,0.18), inset 0 2.5px 1px rgba(255,255,255,0.95), inset 0 -2px 10px var(--lt-glow, rgba(146,64,14,0.16)) !important;
+            animation: purGlassWaveSweep 7.5s cubic-bezier(0.4,0,0.2,1) infinite !important;
+        }
+        /* B. Backlight Behind Buttons, Luminous Button Rim & Curve Backlight Halo */
+        html body #purchase-editor-view button:not(.pro-serial-btn),
+        html body #purchase-editor-view .btn-action,
+        html body #purchase-editor-view .tot-toggle-btn,
+        html body #purchase-editor-view .pay-toggle-btn,
+        html body #purchase-screen-title-badge,
+        html body #fin-strip-currency-btn {
+            box-shadow: 0 0 16px rgba(56,189,248,0.42), 0 6px 18px rgba(2,132,199,0.38), 0 0 0 1px rgba(255,255,255,0.28), inset 0 1.5px 1px rgba(255,255,255,0.72), inset 0 -2px 6px rgba(0,0,0,0.35) !important;
+        }
+        html body #purchase-editor-view button:not(#hdr-customer-ledger-btn):hover,
+        html body #purchase-editor-view .btn-action:hover,
+        html body #purchase-editor-view .tot-toggle-btn:hover,
+        html body #fin-strip-currency-btn:hover {
+            box-shadow: 0 0 0 2.5px rgba(250,204,21,0.68), 0 0 26px rgba(56,189,248,0.85), 0 8px 24px rgba(250,204,21,0.52), inset 0 2px 2px #ffffff, inset 0 0 14px rgba(255,255,255,0.48) !important;
+        }
+        /* Curve & Edge Backlight on Main Cards & Capsules */
+        html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #purchase-editor-view .panel-header-row,
+        html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #purchase-editor-view .table-container,
+        html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #inline-totals-container,
+        html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #payment-panel,
+        html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #purchase-editor-view .items-toolbar {
+            box-shadow: 0 -2px 18px rgba(56,189,248,0.22), 0 12px 32px rgba(0,0,0,0.92), 0 0 20px rgba(14,165,233,0.25), inset 0 1.5px 1px rgba(255,255,255,0.35), inset 0 0 16px rgba(56,189,248,0.12) !important;
+        }
+        /* C. Staggered Glass Light Waves in Key Zones (الأسامي، المتاح، المخزن، الصنف، الكمية، الوحدة، السعر، الجملة، الدولار، والمنطقة الغامقة للعمليات) */
+        html body .group-currency > .h-label { display: none !important; }
+        html body #fin-wrap-remaining, html body #customer-financial-card .fin-metric-pill, html body #hdr-customer-search,
+        html body #pos-grid th[data-col-id="available"], html body #pos-grid td[data-col-id="available"], html body #pos-grid td[data-col-id="available"] .avail-val,
+        html body #purchase-row1-bar .group-warehouse, html body #pos-grid th[data-col-id="warehouse"], html body #pos-grid td[data-col-id="warehouse"],
+        html body #pos-grid th[data-col-id="item"], html body #pos-grid td[data-col-id="item"], html body #pos-grid td[data-col-id="item"] input,
+        html body #pos-grid th[data-col-id="quantity"], html body #pos-grid td[data-col-id="quantity"], html body #pos-grid td[data-col-id="quantity"] input,
+        html body #pos-grid th[data-col-id="unit"], html body #pos-grid td[data-col-id="unit"],
+        html body #pos-grid th[data-col-id="price"], html body #pos-grid td[data-col-id="price"], html body #pos-grid td[data-col-id="price"] input,
+        html body #pos-grid th[data-col-id="total"], html body #pos-grid td[data-col-id="total"],
+        html body #purchase-row1-bar .group-currency, html body #hdr-exchange-rate, html body #t-grand-dynamic-fc, html body #t-grand-dynamic-loc,
+        html:not(.light-theme) #purchase-editor-view .table-container, html:not(.light-theme) #inline-totals-container, html:not(.light-theme) #payment-panel {
+            background-image: linear-gradient(115deg, transparent 28%, rgba(255,255,255,0.28) 46%, rgba(125,211,252,0.42) 50%, rgba(253,224,71,0.26) 53%, transparent 70%) !important;
+            background-size: 250% 100% !important; background-repeat: no-repeat !important;
+            box-shadow: inset 0 1.5px 1px rgba(255,255,255,0.42), inset 0 -1px 6px rgba(56,189,248,0.16) !important;
+            animation: purGlassWaveSweep 7.2s cubic-bezier(0.4,0,0.2,1) infinite !important;
+        }
+        html body #fin-wrap-remaining, html body #pos-grid [data-col-id="available"], html body #pos-grid [data-col-id="available"] .avail-val { animation-delay: 0.3s !important; }
+        html body #pos-grid [data-col-id="item"], html body #pos-grid [data-col-id="item"] input, html body #hdr-customer-search { animation-delay: 1.2s !important; }
+        html body #purchase-row1-bar .group-warehouse, html body #pos-grid [data-col-id="warehouse"] { animation-delay: 2.1s !important; }
+        html body #pos-grid [data-col-id="quantity"], html body #pos-grid [data-col-id="quantity"] input { animation-delay: 3.0s !important; }
+        html body #pos-grid [data-col-id="unit"] { animation-delay: 3.9s !important; }
+        html body #pos-grid [data-col-id="price"], html body #pos-grid [data-col-id="price"] input { animation-delay: 4.8s !important; }
+        html body #pos-grid [data-col-id="total"], html body #purchase-row1-bar .group-currency, html body #hdr-exchange-rate { animation-delay: 5.7s !important; }
+        /* D. Intense Crystal Glass Shimmer on Extra-Cost & Action Icons (ترحيل، عمالة، إضافات، ضريبة، خصم، التوزيع) */
+        html body #toggles-area .tot-toggle-btn, html body #btn-landed-cost-mode {
+            box-shadow: 0 6px 18px rgba(0,0,0,0.52), 0 0 16px rgba(56,189,248,0.38), inset 0 2.5px 2px rgba(255,255,255,0.88), inset 0 14px 12px rgba(255,255,255,0.24), inset 0 -3px 8px rgba(0,0,0,0.42) !important;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.95), 0 0 10px rgba(255,255,255,0.45) !important;
+        }
+        html body #toggles-area .tot-toggle-btn::after, html body #btn-landed-cost-mode::after {
+            background: linear-gradient(110deg, transparent 10%, rgba(255,255,255,0.78) 48%, rgba(254,240,138,0.65) 52%, transparent 88%) !important;
+            animation-duration: 4.2s !important;
+        }
+        /* E. Mizani Royal Emerald-Gold Jewel Currency Toggle Buttons (#hdr-currency & #fin-strip-currency-btn: جنيه ⇄ دولار) */
+        html body #purchase-editor-view #form-fields-card #hdr-currency,
+        :root.light-theme body #purchase-editor-view #form-fields-card #hdr-currency {
+            background-color: #065f46 !important;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23fde047' stroke-width='3.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E"), linear-gradient(115deg, transparent 28%, rgba(255,255,255,0.42) 48%, rgba(253,224,71,0.45) 51%, transparent 70%), linear-gradient(180deg, #10b981 0%, #059669 48%, #064e3b 100%) !important;
+            background-repeat: no-repeat, no-repeat, no-repeat !important;
+            background-position: left 7px center, 0 0, 0 0 !important;
+            background-size: 13px 13px, 250% 100%, 100% 100% !important;
+            border: 2px solid #fde047 !important; border-bottom: 3.5px solid #b45309 !important; border-radius: 11px !important;
+            color: #fef08a !important; -webkit-text-fill-color: #fef08a !important;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.98), 0 0 8px rgba(250,204,21,0.55) !important;
+            box-shadow: 0 0 16px rgba(16,185,129,0.52), 0 4px 14px rgba(245,158,11,0.38), inset 0 2px 2px rgba(255,255,255,0.82), inset 0 -2px 6px rgba(0,0,0,0.45) !important;
+            animation: purGlassWaveSweep 5.5s cubic-bezier(0.4,0,0.2,1) infinite !important;
+        }
+        html body #fin-strip-currency-btn, :root.light-theme body #customer-financial-card #fin-strip-currency-btn {
+            background: linear-gradient(115deg, transparent 25%, rgba(255,255,255,0.48) 48%, rgba(253,224,71,0.52) 52%, transparent 72%), linear-gradient(180deg, #10b981 0%, #059669 50%, #064e3b 100%) !important;
+            background-size: 250% 100%, 100% 100% !important;
+            border: 2px solid #fde047 !important; border-bottom: 3.5px solid #b45309 !important;
+            color: #fef08a !important; -webkit-text-fill-color: #fef08a !important;
+            box-shadow: 0 0 15px rgba(16,185,129,0.55), 0 3px 12px rgba(245,158,11,0.42), inset 0 2px 2px rgba(255,255,255,0.85) !important;
+            animation: purGlassWaveSweep 5.2s cubic-bezier(0.4,0,0.2,1) infinite !important;
+        }
+        html body #fin-strip-currency-btn[data-cur-mode="USD"], :root.light-theme body #customer-financial-card #fin-strip-currency-btn[data-cur-mode="USD"] {
+            background: linear-gradient(115deg, transparent 25%, rgba(255,255,255,0.52) 48%, rgba(125,211,252,0.52) 52%, transparent 72%), linear-gradient(180deg, #f59e0b 0%, #d97706 50%, #78350f 100%) !important;
+            background-size: 250% 100%, 100% 100% !important;
+            border: 2px solid #7dd3fc !important; border-bottom: 3.5px solid #0369a1 !important;
+            color: #ffffff !important; -webkit-text-fill-color: #ffffff !important;
+            box-shadow: 0 0 16px rgba(245,158,11,0.62), 0 3px 12px rgba(56,189,248,0.45), inset 0 2px 2px rgba(255,255,255,0.9) !important;
+        }
+        /* F. Luminous Interactive Edge Illumination + Subtle Motion When Hovering/Focusing Any Zone or Cell */
+        html body #purchase-editor-view .h-form-group:hover, html body #purchase-editor-view .h-form-group:focus-within,
+        html body #customer-financial-card .fin-metric-pill:hover, html body #pos-grid tbody tr:hover,
+        html body #pos-grid td:hover, html body #pos-grid td:focus-within, html body #pos-grid th:hover,
+        html body #purchase-editor-view .table-container:hover, html body #inline-totals-container:hover, html body #payment-panel:hover {
+            border-color: #38bdf8 !important;
+            box-shadow: 0 0 0 2px rgba(56,189,248,0.62), 0 0 20px rgba(56,189,248,0.48), 0 0 32px rgba(250,204,21,0.28), inset 0 0 12px rgba(56,189,248,0.26), inset 0 1.5px 1px rgba(255,255,255,0.75) !important;
+            transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease !important;
+        }
+        /* G. DAY-MODE FULL TOP-HEADER TONE SYNCHRONIZATION (تغيير منطقة المشتريات العليا بالكامل مع لون الشاشة النهاري) */
+        :root.light-theme body #purchase-top-container #invoice-info-box,
+        :root.light-theme body #customer-financial-card .fin-strip-inner,
+        :root.light-theme body #purchase-row1-bar .h-form-group,
+        :root.light-theme body #purchase-row2-bar .h-form-group {
+            background-image: linear-gradient(115deg, transparent 30%, rgba(255,255,255,0.72) 48%, rgba(255,255,255,0.92) 50%, transparent 68%), linear-gradient(135deg, var(--lt-sub-1, #fffefb) 0%, var(--lt-sub-2, #f6ecda) 55%, var(--lt-th-1, #f5ead4) 100%) !important;
+            background-size: 250% 100%, 100% 100% !important;
+            border: 2.2px solid var(--lt-border, #5c2808) !important;
+            box-shadow: 0 5px 14px rgba(15,23,42,0.10), 0 3px 10px var(--lt-glow, rgba(245,158,11,0.22)), inset 0 2px 1px rgba(255,255,255,0.95) !important;
+        }
+        :root.light-theme body #invoice-info-box #hdr-inv-label,
+        :root.light-theme body #invoice-info-box #hdr-date-label,
+        :root.light-theme body #purchase-row1-bar .h-label,
+        :root.light-theme body #purchase-row2-bar .h-label {
+            background: linear-gradient(180deg, var(--lt-th-1, #f5ead4) 0%, var(--lt-th-2, #e6d4b5) 100%) !important;
+            border: 2px solid var(--lt-border, #5c2808) !important;
+            color: var(--lt-ink, #120500) !important; -webkit-text-fill-color: var(--lt-ink, #120500) !important;
+            box-shadow: inset 0 1.5px 1px rgba(255,255,255,0.9), 0 2px 6px rgba(15,23,42,0.10) !important;
+        }
+        :root.light-theme body #purchase-top-container #form-fields-card .pro-serial-container,
+        :root.light-theme body #purchase-editor-view #form-fields-card #hdr-date,
+        :root.light-theme body #purchase-editor-view #form-fields-card #hdr-customer-search,
+        :root.light-theme body #purchase-editor-view #form-fields-card #hdr-description {
+            background: linear-gradient(180deg, var(--lt-row-odd, #ffffff) 0%, var(--lt-card-1, #fffdf8) 55%, var(--lt-sub-2, #f6ecda) 100%) !important;
+            border: 2px solid var(--lt-border, #5c2808) !important;
+            color: var(--lt-ink, #120500) !important; -webkit-text-fill-color: var(--lt-ink, #120500) !important;
+            -webkit-box-shadow: inset 0 2px 3px rgba(15,23,42,0.05), 0 2px 6px var(--lt-glow, rgba(245,158,11,0.18)), inset 0 1.5px 0 rgba(255,255,255,0.92) !important;
+            box-shadow: inset 0 2px 3px rgba(15,23,42,0.05), 0 2px 6px var(--lt-glow, rgba(245,158,11,0.18)), inset 0 1.5px 0 rgba(255,255,255,0.92) !important;
+        }
+        :root.light-theme body #purchase-editor-view #form-fields-card #hdr-warehouse,
+        :root.light-theme body #purchase-editor-view #form-fields-card #hdr-cost-center,
+        :root.light-theme body #purchase-editor-view #pos-grid tbody tr td select.g-select {
+            background-color: var(--lt-sub-2, #f6ecda) !important;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%231e293b' stroke-width='3.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E"), linear-gradient(115deg, transparent 32%, rgba(255,255,255,0.75) 50%, transparent 68%), linear-gradient(180deg, var(--lt-sub-1, #ffffff) 0%, var(--lt-sub-2, #f6ecda) 58%, var(--lt-th-2, #e6d4b5) 100%) !important;
+            background-repeat: no-repeat, no-repeat, no-repeat !important;
+            background-position: left 9px center, 0 0, 0 0 !important;
+            background-size: 13px 13px, 250% 100%, 100% 100% !important;
+            border: 2px solid var(--lt-border, #5c2808) !important; border-bottom: 3px solid var(--lt-border-hover, #b45309) !important;
+            color: var(--lt-ink, #120500) !important; -webkit-text-fill-color: var(--lt-ink, #120500) !important;
+        }
+        /* H. COMPACT CURRENCY & EXCHANGE RATE + EXPANDED WAREHOUSE SIZING */
+        html body #purchase-row1-bar .group-currency { flex: 1.38 1 164px !important; min-width: 162px !important; max-width: 202px !important; gap: 5px !important; }
+        html body #purchase-row1-bar #hdr-currency { flex: 0.92 1 84px !important; min-width: 84px !important; max-width: 100px !important; padding: 0 18px 0 6px !important; font-size: 0.94rem !important; }
+        html body #purchase-row1-bar #hdr-exchange-rate { flex: 0.85 1 72px !important; min-width: 72px !important; max-width: 90px !important; padding: 0 4px !important; font-size: 1.08rem !important; }
+        html body #purchase-row1-bar .group-warehouse { flex: 2.95 1 265px !important; min-width: 255px !important; }
+        html body #fin-strip-currency-btn { min-width: 66px !important; padding: 0 8px !important; font-size: 0.80rem !important; height: 27px !important; }
+        /* I. JEWELER-GRADE BUTTON RIM LIGHTING, UNDER-GLOW PEDESTAL & DIAMOND GLASS SHIMMER (إنارة الحواف + إنارة من تحت الأزرار + لمعات زجاجية) */
+        html body #purchase-editor-view button:not(.pro-serial-btn),
+        html body #purchase-editor-view .btn-action,
+        html body #purchase-editor-view .tot-toggle-btn,
+        html body #purchase-editor-view .pay-toggle-btn,
+        html body #purchase-screen-title-badge,
+        html body #fin-strip-currency-btn {
+            box-shadow: 0 7px 16px -2px rgba(56,189,248,0.65), 0 11px 24px -4px rgba(250,204,21,0.45), 0 0 14px rgba(56,189,248,0.45), 0 0 0 1.5px rgba(255,255,255,0.38), inset 0 2.5px 1.5px rgba(255,255,255,0.88), inset 0 12px 10px rgba(255,255,255,0.18), inset 0 -2.5px 6px rgba(56,189,248,0.32) !important;
+        }
+        html body #purchase-editor-view button:not(.pro-serial-btn)::before,
+        html body #purchase-editor-view .btn-action::before,
+        html body #purchase-editor-view .tot-toggle-btn::before,
+        html body #purchase-editor-view .pay-toggle-btn::before,
+        html body #purchase-screen-title-badge::before,
+        html body #fin-strip-currency-btn::before {
+            content: "" !important; position: absolute !important; left: 10% !important; right: 10% !important; bottom: 0px !important; height: 3.5px !important;
+            border-radius: 999px !important; pointer-events: none !important; z-index: 2 !important;
+            background: radial-gradient(ellipse at center, #ffffff 0%, #fde047 38%, #38bdf8 72%, transparent 100%) !important;
+            box-shadow: 0 0 10px #fde047, 0 2px 12px #38bdf8 !important; opacity: 0.92 !important;
+        }
+        html body #purchase-editor-view button:not(#hdr-customer-ledger-btn):hover,
+        html body #purchase-editor-view .btn-action:hover,
+        html body #purchase-editor-view .tot-toggle-btn:hover,
+        html body #purchase-editor-view .pay-toggle-btn:hover,
+        html body #fin-strip-currency-btn:hover {
+            border-color: #fde047 !important;
+            box-shadow: 0 10px 22px -2px rgba(250,204,21,0.85), 0 14px 30px -3px rgba(56,189,248,0.78), 0 0 0 2.5px rgba(253,224,71,0.82), 0 0 24px rgba(56,189,248,0.85), inset 0 2.5px 2px #ffffff, inset 0 14px 14px rgba(255,255,255,0.28), inset 0 -3px 8px rgba(250,204,21,0.45) !important;
+        }
+        /* J. AMBIENT GLASS CAUSTICS & LUMINOUS SHIMMERS IN GENERAL NON-BUTTON REGIONS (لمعات زجاجية وضوئية في المناطق العامة للشاشة) */
+        html body #purchase-top-container #form-fields-card,
+        html body #purchase-editor-view .panel-header-row,
+        html body #purchase-editor-view .table-container,
+        html body #inline-totals-container,
+        html body #payment-panel,
+        html body #purchase-editor-view .items-toolbar,
+        html body #grid-foot .pur-compact-tot-card {
+            position: relative !important;
+            box-shadow: 0 10px 26px -4px rgba(14,165,233,0.32), 0 -2px 16px rgba(56,189,248,0.22), inset 0 2.5px 1.5px rgba(255,255,255,0.78), inset 0 -2px 10px rgba(56,189,248,0.20) !important;
+        }
+        html:not(.light-theme) body #pos-grid thead tr th {
+            background-image: linear-gradient(115deg, transparent 26%, rgba(255,255,255,0.28) 47%, rgba(253,224,71,0.22) 50%, rgba(125,211,252,0.28) 53%, transparent 72%), linear-gradient(180deg, #263c6e 0%, #1d2f57 100%) !important;
+            background-size: 250% 100%, 100% 100% !important;
+            box-shadow: 0 5px 14px -2px rgba(56,189,248,0.38), inset 0 2px 1px rgba(255,255,255,0.45), inset 0 -2px 6px rgba(56,189,248,0.24) !important;
+            animation: purGlassWaveSweep 6.8s cubic-bezier(0.4,0,0.2,1) infinite !important;
+        }
+        :root.light-theme body #purchase-editor-view #pos-grid thead tr th {
+            background-image: linear-gradient(115deg, transparent 26%, rgba(255,255,255,0.78) 47%, rgba(254,240,138,0.48) 50%, rgba(255,255,255,0.75) 53%, transparent 72%), linear-gradient(180deg, var(--lt-th-1, #f5ead4) 0%, var(--lt-th-2, #e6d4b5) 100%) !important;
+            background-size: 250% 100%, 100% 100% !important;
+            box-shadow: 0 5px 12px -2px var(--lt-glow, rgba(180,83,9,0.28)), inset 0 2px 1px rgba(255,255,255,0.92), inset 0 -2px 6px var(--lt-glow, rgba(180,83,9,0.18)) !important;
+            animation: purGlassWaveSweep 6.8s cubic-bezier(0.4,0,0.2,1) infinite !important;
+        }
+        .pur-kinetic-pulse { animation: purKineticBurst 0.55s cubic-bezier(0.16,1,0.3,1) !important; }
+        /* K. CENTERED IN-PLACE LEDGER BUTTON (أستاذ), REFINED CURRENCY BUTTONS (جنيه/دولار), COMPACT "الرقم:" & EXPANDED FINANCIAL STRIP + TOP AESTHETICS */
+        html body #purchase-row1-bar .h-form-group, html body #purchase-row2-bar .h-form-group { height: 52px !important; min-height: 52px !important; max-height: 52px !important; padding: 4px 8px !important; align-items: center !important; }
+        html body #purchase-row1-bar .h-input-wrapper, html body #purchase-row2-bar .h-input-wrapper, html body #purchase-row1-bar .custom-dropdown, html body #purchase-row1-bar .custom-dropdown-input-wrap { height: 43px !important; min-height: 43px !important; max-height: 43px !important; align-items: center !important; }
+        html body #purchase-row1-bar .ctrl-input, html body #purchase-row2-bar .ctrl-input, html body #purchase-editor-view #btn-quick-add-supplier, html body #purchase-editor-view #btn-clone-last-supplier-inv { height: 43px !important; min-height: 43px !important; max-height: 43px !important; border-radius: 9px !important; padding-top: 0 !important; padding-bottom: 0 !important; box-sizing: border-box !important; }
+        html body #purchase-editor-view #form-fields-card #hdr-warehouse, html body #purchase-editor-view #form-fields-card #hdr-cost-center, html body #purchase-editor-view #pos-grid tbody tr td select.g-select { text-align: center !important; text-align-last: center !important; line-height: 39px !important; padding-top: 0 !important; padding-bottom: 0 !important; padding-right: 10px !important; padding-left: 26px !important; }
+        html body #purchase-editor-view #form-fields-card #hdr-warehouse option, html body #purchase-editor-view #form-fields-card #hdr-cost-center option, html body #purchase-editor-view #pos-grid tbody tr td select.g-select option { text-align: center !important; font-weight: 900 !important; }
+        html body #purchase-editor-view #form-fields-card #hdr-customer-search, html body #purchase-editor-view #form-fields-card #hdr-customer-search:hover, html body #purchase-editor-view #form-fields-card #hdr-customer-search:focus, html body #purchase-editor-view #form-fields-card .group-supplier:hover #hdr-customer-search { transform: none !important; padding-left: 84px !important; line-height: 39px !important; }
+        html body #purchase-editor-view #hdr-customer-ledger-btn, html body #purchase-editor-view #hdr-customer-ledger-btn.ledger-btn-2027, :root.light-theme body #purchase-editor-view #hdr-customer-ledger-btn.ledger-btn-2027 {
+            position: absolute !important; left: 5px !important; top: 0 !important; bottom: 0 !important; margin: auto 0 !important; transform: none !important;
+            height: 31px !important; min-height: 31px !important; max-height: 31px !important; padding: 0 13px !important; border-radius: 7px !important;
+            display: inline-flex !important; align-items: center !important; justify-content: center !important; line-height: 1 !important;
+            background: linear-gradient(180deg, #0284c7 0%, #0369a1 52%, #075985 100%) !important; border: 1.5px solid #7dd3fc !important; border-bottom: 2.5px solid #082f49 !important;
+            color: #ffffff !important; -webkit-text-fill-color: #ffffff !important; font-size: 0.88rem !important; font-weight: 900 !important;
+            box-shadow: 0 0 14px rgba(56,189,248,0.55), 0 4px 10px rgba(2,132,199,0.45), inset 0 1.5px 1px rgba(255,255,255,0.85) !important; animation: none !important;
+        }
+        html body #purchase-editor-view #hdr-customer-ledger-btn:hover, html body #purchase-editor-view #hdr-customer-ledger-btn.ledger-btn-2027:hover, :root.light-theme body #purchase-editor-view #hdr-customer-ledger-btn.ledger-btn-2027:hover {
+            left: 5px !important; top: 0 !important; bottom: 0 !important; margin: auto 0 !important; transform: scale(1.055) !important;
+            border-color: #fde047 !important; box-shadow: 0 0 0 2.5px rgba(250,204,21,0.75), 0 0 20px rgba(56,189,248,0.9), inset 0 2px 2px #ffffff !important; filter: brightness(1.08) !important;
+        }
+        html body #purchase-editor-view #btn-quick-add-supplier:hover, html body #purchase-editor-view #btn-clone-last-supplier-inv:hover { transform: scale(1.045) !important; }
+        html body #purchase-row1-bar .group-currency { flex: 1.52 1 182px !important; min-width: 178px !important; max-width: 218px !important; gap: 6px !important; }
+        html body #purchase-editor-view #form-fields-card #hdr-currency, :root.light-theme body #purchase-editor-view #form-fields-card #hdr-currency {
+            flex: 1.05 1 96px !important; min-width: 94px !important; max-width: 112px !important; height: 43px !important; min-height: 43px !important; max-height: 43px !important;
+            padding: 0 20px 0 8px !important; border-radius: 9px !important; font-size: 0.95rem !important; font-weight: 900 !important; line-height: 39px !important; text-align: center !important; text-align-last: center !important;
+            background-color: #0369a1 !important;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='13' height='13' viewBox='0 0 24 24' fill='none' stroke='%23fde047' stroke-width='3.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E"), linear-gradient(115deg, transparent 28%, rgba(255,255,255,0.38) 48%, rgba(125,211,252,0.42) 51%, transparent 70%), linear-gradient(180deg, #0284c7 0%, #0369a1 52%, #075985 100%) !important;
+            background-repeat: no-repeat, no-repeat, no-repeat !important; background-position: left 7px center, 0 0, 0 0 !important; background-size: 12px 12px, 250% 100%, 100% 100% !important;
+            border: 1.8px solid #7dd3fc !important; border-bottom: 3px solid #082f49 !important; color: #ffffff !important; -webkit-text-fill-color: #ffffff !important;
+            box-shadow: 0 5px 14px rgba(2,132,199,0.45), 0 0 14px rgba(56,189,248,0.45), inset 0 2px 1.5px rgba(255,255,255,0.82) !important; transform: none !important;
+        }
+        html body #purchase-editor-view #form-fields-card #hdr-currency:hover, :root.light-theme body #purchase-editor-view #form-fields-card #hdr-currency:hover {
+            transform: scale(1.035) !important; border-color: #fde047 !important; box-shadow: 0 0 0 2.5px rgba(250,204,21,0.72), 0 0 22px rgba(56,189,248,0.85), inset 0 2px 2px #ffffff !important;
+        }
+        html body #purchase-row1-bar #hdr-exchange-rate { flex: 0.88 1 76px !important; min-width: 74px !important; max-width: 92px !important; height: 43px !important; line-height: 39px !important; text-align: center !important; border-radius: 9px !important; font-size: 1.08rem !important; transform: none !important; }
+        html body #fin-strip-currency-btn, :root.light-theme body #customer-financial-card #fin-strip-currency-btn {
+            height: 31px !important; min-height: 31px !important; max-height: 31px !important; min-width: 80px !important; padding: 0 12px !important; border-radius: 8px !important;
+            font-size: 0.85rem !important; font-weight: 900 !important; transform: none !important;
+            background: linear-gradient(115deg, transparent 25%, rgba(255,255,255,0.42) 48%, rgba(125,211,252,0.45) 52%, transparent 72%), linear-gradient(180deg, #0284c7 0%, #0369a1 52%, #075985 100%) !important;
+            background-size: 250% 100%, 100% 100% !important; border: 1.8px solid #7dd3fc !important; border-bottom: 3px solid #082f49 !important;
+            color: #ffffff !important; -webkit-text-fill-color: #ffffff !important; box-shadow: 0 4px 12px rgba(2,132,199,0.48), 0 0 14px rgba(56,189,248,0.5), inset 0 2px 1.5px rgba(255,255,255,0.85) !important;
+        }
+        html body #fin-strip-currency-btn[data-cur-mode="USD"], :root.light-theme body #customer-financial-card #fin-strip-currency-btn[data-cur-mode="USD"] {
+            background: linear-gradient(115deg, transparent 25%, rgba(255,255,255,0.45) 48%, rgba(253,224,71,0.48) 52%, transparent 72%), linear-gradient(180deg, #10b981 0%, #059669 52%, #047857 100%) !important;
+            background-size: 250% 100%, 100% 100% !important; border: 1.8px solid #6ee7b7 !important; border-bottom: 3px solid #022c22 !important;
+            box-shadow: 0 4px 12px rgba(5,150,105,0.48), 0 0 14px rgba(16,185,129,0.52), inset 0 2px 1.5px rgba(255,255,255,0.85) !important;
+        }
+        html body #fin-strip-currency-btn:hover, :root.light-theme body #customer-financial-card #fin-strip-currency-btn:hover { transform: scale(1.045) !important; border-color: #fde047 !important; }
+        html body #purchase-row0-bar { gap: 8px !important; min-height: 44px !important; }
+        html body #invoice-info-box { padding: 3px 8px !important; gap: 6px !important; min-height: 44px !important; max-height: 44px !important; border-radius: 11px !important; }
+        html body #invoice-info-box .group-invoice { min-width: 122px !important; gap: 4px !important; }
+        html body #invoice-info-box #hdr-inv-label, html body #invoice-info-box #hdr-date-label { padding: 0 7px !important; font-size: 0.82rem !important; height: 31px !important; line-height: 29px !important; }
+        html body #customer-financial-card .fin-strip-inner { height: 44px !important; min-height: 44px !important; max-height: 44px !important; padding: 0 8px !important; gap: 6px !important; border-radius: 11px !important; }
+        html body #customer-financial-card .fin-metric-pill { flex: 1 1 auto !important; justify-content: center !important; height: 31px !important; padding: 0 10px !important; border-radius: 8px !important; gap: 5px !important; box-shadow: inset 0 1.5px 1px rgba(255,255,255,0.35), 0 2px 8px rgba(0,0,0,0.25) !important; }
+        html body #customer-financial-card .fin-metric-pill .fin-lbl { font-size: 0.80rem !important; }
+        html body #customer-financial-card .fin-metric-pill .fin-val { font-size: 0.94rem !important; }
+        html body header.magical-glass-header .msg-quartet-btn, html body header.magical-glass-header #global-exchange-rate-box, html body header.magical-glass-header .enterprise-time-pill {
+            border-radius: 10px !important; box-shadow: 0 4px 14px rgba(2,132,199,0.35), 0 0 12px rgba(56,189,248,0.32), inset 0 1.5px 1px rgba(255,255,255,0.65) !important; transition: transform 0.2s ease, box-shadow 0.2s ease !important;
+        }
+        html body header.magical-glass-header .msg-quartet-btn:hover, html body header.magical-glass-header #global-exchange-rate-box:hover {
+            transform: scale(1.04) !important; box-shadow: 0 0 0 2px rgba(250,204,21,0.7), 0 0 18px rgba(56,189,248,0.75), inset 0 2px 2px #ffffff !important;
+        }
+        :root.light-theme body #purchase-editor-view #pay-credit-section, :root.light-theme body #purchase-editor-view #pay-cash-section, :root.light-theme body #purchase-editor-view #pay-bank-section, :root.light-theme body #purchase-editor-view #pay-cheque-section {
+            background-image: linear-gradient(115deg, transparent 28%, rgba(255,255,255,0.75) 48%, rgba(255,255,255,0.92) 50%, transparent 68%), linear-gradient(135deg, var(--lt-sub-1, #fffefb) 0%, var(--lt-sub-2, #f6ecda) 55%, var(--lt-th-1, #f5ead4) 100%) !important;
+            background-size: 250% 100%, 100% 100% !important; animation: purGlassWaveSweep 7s cubic-bezier(0.4,0,0.2,1) infinite !important;
+            border: 2.2px solid var(--lt-border, #5c2808) !important; border-bottom: 3.5px solid var(--lt-border-hover, #b45309) !important;
+            box-shadow: 0 6px 16px rgba(15,23,42,0.12), 0 0 14px var(--lt-glow, rgba(245,158,11,0.28)), inset 0 2px 1px rgba(255,255,255,0.95) !important;
+        }
+        :root.light-theme body #purchase-editor-view #pay-credit-section span, :root.light-theme body #purchase-editor-view #pay-credit-section label, :root.light-theme body #purchase-editor-view #payment-panel .panel-header-row span {
+            color: #090300 !important; -webkit-text-fill-color: #090300 !important; font-weight: 900 !important;
+        }
+        html body #purchase-editor-view #pay-credit-section .pay-credit-title-pill, html body #purchase-editor-view #pay-credit-section .pay-due-lbl-txt {
+            background: linear-gradient(180deg, #fde68a 0%, #f59e0b 55%, #d97706 100%) !important; border: 2px solid #78350f !important; border-bottom: 3px solid #451a03 !important;
+            color: #090300 !important; -webkit-text-fill-color: #090300 !important; font-weight: 900 !important; box-shadow: 0 3px 10px rgba(0,0,0,0.28), inset 0 1.5px 1px #ffffff !important;
+        }
+        html body #purchase-editor-view #pay-credit-section .pay-credit-title-pill .pay-credit-lbl-txt { color: #090300 !important; -webkit-text-fill-color: #090300 !important; font-weight: 900 !important; font-size: 1.08rem !important; }
+        :root.light-theme body #purchase-editor-view #pay-credit-section input, :root.light-theme body #purchase-editor-view #pay-cash-section input, :root.light-theme body #purchase-editor-view #pay-bank-section input, :root.light-theme body #purchase-editor-view #pay-cheque-section input {
+            background: linear-gradient(180deg, var(--lt-row-odd, #ffffff) 0%, var(--lt-card-1, #fffdf8) 60%, var(--lt-sub-2, #f6ecda) 100%) !important;
+            border: 2.2px solid var(--lt-border, #5c2808) !important; color: #000000 !important; -webkit-text-fill-color: #000000 !important;
+            box-shadow: inset 0 2px 3px rgba(15,23,42,0.06), 0 2px 6px var(--lt-glow, rgba(245,158,11,0.22)), inset 0 1.5px 0 #ffffff !important;
+        }
+        html body #purchase-editor-view #pay-credit-section button[onclick*="previewCurrentPromissoryNote"],
+        :root.light-theme body #purchase-editor-view #pay-credit-section button[onclick*="previewCurrentPromissoryNote"],
+        :root.light-theme body #pay-credit-section .btn-action {
+            background: linear-gradient(180deg, #fffbeb 0%, #fde68a 52%, #f59e0b 100%) !important;
+            border: 2px solid #92400e !important; border-bottom: 3.5px solid #451a03 !important;
+            color: #090300 !important; -webkit-text-fill-color: #090300 !important;
+            font-weight: 900 !important; font-size: 1.02rem !important; animation: none !important;
+            box-shadow: 0 4px 10px rgba(120,53,15,0.28), inset 0 2px 1px #ffffff !important;
+            transition: transform 0.2s cubic-bezier(0.22,1,0.36,1), box-shadow 0.2s ease !important;
+        }
+        html body #purchase-editor-view #pay-credit-section button[onclick*="previewCurrentPromissoryNote"]::before,
+        html body #purchase-editor-view #pay-credit-section button[onclick*="previewCurrentPromissoryNote"]::after,
+        html body #purchase-editor-view #payment-panel .pay-toggle-btn::before { display: none !important; content: none !important; }
+        html body #purchase-editor-view #pay-credit-section button[onclick*="previewCurrentPromissoryNote"] span,
+        :root.light-theme body #purchase-editor-view #pay-credit-section button[onclick*="previewCurrentPromissoryNote"] span {
+            color: #090300 !important; -webkit-text-fill-color: #090300 !important; font-weight: 900 !important;
+        }
+        html body #purchase-editor-view #pay-credit-section button[onclick*="previewCurrentPromissoryNote"]:hover,
+        :root.light-theme body #purchase-editor-view #pay-credit-section button[onclick*="previewCurrentPromissoryNote"]:hover {
+            transform: translateY(-2px) scale(1.02) !important; border-color: #451a03 !important;
+            box-shadow: 0 6px 16px rgba(180,83,9,0.42), inset 0 2px 1.5px #ffffff !important;
+            color: #000000 !important; -webkit-text-fill-color: #000000 !important;
+        }
+        html body #purchase-editor-view #payment-panel .pay-toggle-btn,
+        :root.light-theme body #purchase-editor-view #payment-panel .pay-toggle-btn {
+            height: 36px !important; padding: 0 15px !important; border-radius: 999px !important;
+            font-size: 0.92rem !important; font-weight: 900 !important; color: #050200 !important; -webkit-text-fill-color: #050200 !important;
+            text-shadow: 0 1px 0 rgba(255,255,255,0.65) !important; letter-spacing: 0.1px !important;
+            transition: transform 0.22s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.22s ease, filter 0.2s ease !important;
+        }
+        html body #purchase-editor-view #payment-panel .pay-toggle-btn span,
+        :root.light-theme body #purchase-editor-view #payment-panel .pay-toggle-btn span { color: #050200 !important; -webkit-text-fill-color: #050200 !important; font-weight: 900 !important; }
+        html body #purchase-editor-view #payment-panel #toggle-credit, :root.light-theme body #purchase-editor-view #payment-panel #toggle-credit { background: linear-gradient(115deg, transparent 28%, rgba(255,255,255,0.7) 49%, transparent 70%), linear-gradient(180deg, #fef9c3 0%, #fde047 50%, #f59e0b 100%) !important; background-size: 250% 100%, 100% 100% !important; border: 2px solid #92400e !important; border-bottom: 3.5px solid #451a03 !important; box-shadow: 0 5px 14px rgba(245,158,11,0.45), 0 0 14px rgba(253,224,71,0.48), inset 0 2px 1.5px #ffffff !important; animation: purGlassWaveSweep 4.5s infinite !important; }
+        html body #purchase-editor-view #payment-panel #toggle-cash, :root.light-theme body #purchase-editor-view #payment-panel #toggle-cash { background: linear-gradient(115deg, transparent 28%, rgba(255,255,255,0.7) 49%, transparent 70%), linear-gradient(180deg, #d1fae5 0%, #6ee7b7 50%, #10b981 100%) !important; background-size: 250% 100%, 100% 100% !important; border: 2px solid #065f46 !important; border-bottom: 3.5px solid #022c22 !important; box-shadow: 0 5px 14px rgba(16,185,129,0.45), 0 0 14px rgba(110,231,183,0.48), inset 0 2px 1.5px #ffffff !important; animation: purGlassWaveSweep 4.8s infinite !important; }
+        html body #purchase-editor-view #payment-panel #toggle-bank, :root.light-theme body #purchase-editor-view #payment-panel #toggle-bank { background: linear-gradient(115deg, transparent 28%, rgba(255,255,255,0.75) 49%, transparent 70%), linear-gradient(180deg, #e0f2fe 0%, #7dd3fc 50%, #0ea5e9 100%) !important; background-size: 250% 100%, 100% 100% !important; border: 2px solid #075985 !important; border-bottom: 3.5px solid #082f49 !important; box-shadow: 0 5px 14px rgba(14,165,233,0.45), 0 0 14px rgba(125,211,252,0.5), inset 0 2px 1.5px #ffffff !important; animation: purGlassWaveSweep 5.1s infinite !important; }
+        html body #purchase-editor-view #payment-panel #toggle-cheque, :root.light-theme body #purchase-editor-view #payment-panel #toggle-cheque { background: linear-gradient(115deg, transparent 28%, rgba(255,255,255,0.75) 49%, transparent 70%), linear-gradient(180deg, #f3e8ff 0%, #d8b4fe 50%, #a855f7 100%) !important; background-size: 250% 100%, 100% 100% !important; border: 2px solid #581c87 !important; border-bottom: 3.5px solid #2e1065 !important; box-shadow: 0 5px 14px rgba(168,85,247,0.45), 0 0 14px rgba(216,180,254,0.5), inset 0 2px 1.5px #ffffff !important; animation: purGlassWaveSweep 5.4s infinite !important; }
+        html body #purchase-editor-view #payment-panel #btn-purchase-financial-ocr, :root.light-theme body #purchase-editor-view #payment-panel #btn-purchase-financial-ocr { background: linear-gradient(115deg, transparent 28%, rgba(255,255,255,0.75) 49%, transparent 70%), linear-gradient(180deg, #ccfbf1 0%, #5eead4 50%, #14b8a6 100%) !important; background-size: 250% 100%, 100% 100% !important; border: 2px solid #115e59 !important; border-bottom: 3.5px solid #042f2e !important; box-shadow: 0 5px 14px rgba(20,184,166,0.48), 0 0 14px rgba(94,234,212,0.52), inset 0 2px 1.5px #ffffff !important; animation: purGlassWaveSweep 4.6s infinite !important; }
+        html body #purchase-editor-view #payment-panel button[onclick*="FinancialOCR.openTrainer"], :root.light-theme body #purchase-editor-view #payment-panel button[onclick*="FinancialOCR.openTrainer"] { background: linear-gradient(115deg, transparent 28%, rgba(255,255,255,0.75) 49%, transparent 70%), linear-gradient(180deg, #ffe4e6 0%, #fda4af 50%, #fb7185 100%) !important; background-size: 250% 100%, 100% 100% !important; border: 2px solid #9f1239 !important; border-bottom: 3.5px solid #4c0519 !important; box-shadow: 0 5px 14px rgba(244,63,94,0.42), 0 0 14px rgba(253,164,175,0.5), inset 0 2px 1.5px #ffffff !important; animation: purGlassWaveSweep 5.7s infinite !important; }
+        html body #purchase-editor-view #payment-panel .pay-toggle-btn:hover, html body #purchase-editor-view #payment-panel .pay-toggle-btn.active, :root.light-theme body #purchase-editor-view #payment-panel .pay-toggle-btn:hover, :root.light-theme body #purchase-editor-view #payment-panel .pay-toggle-btn.active { transform: translateY(-2.5px) scale(1.055) !important; color: #000000 !important; -webkit-text-fill-color: #000000 !important; filter: brightness(1.08) saturate(1.12) !important; box-shadow: 0 0 0 2.5px rgba(255,255,255,0.92), 0 8px 20px rgba(0,0,0,0.35), 0 0 20px rgba(253,224,71,0.65), inset 0 2.5px 2px #ffffff !important; }
+        /* UNIFIED NUMBER FONT SIZE (+2 DEGREES LARGER) & AUTO-SHRINK SUPPORT FOR 15+ DIGITS */
+        html body #purchase-editor-view #inv-number,
+        html body #purchase-editor-view #hdr-date,
+        html body #purchase-editor-view #pos-grid tbody tr td .avail-val,
+        html body #purchase-editor-view #pos-grid tbody tr td .avail-val.is-zero-val,
+        html body #purchase-editor-view #pay-credit-due-date,
+        html body #customer-financial-card .fin-metric-pill #fin-remaining {
+            font-size: 1.58rem !important; font-weight: 900 !important; font-family: 'Outfit', 'Tajawal', sans-serif !important; line-height: 1.1 !important; text-align: center !important;
+        }
+        html body #purchase-editor-view #pos-grid thead tr th[data-col-id="quantity"],
+        html body #purchase-editor-view #pos-grid tbody tr td[data-col-id="quantity"] { min-width: 142px !important; width: 142px !important; }
+        html body #purchase-editor-view #pos-grid thead tr th[data-col-id="price"],
+        html body #purchase-editor-view #pos-grid tbody tr td[data-col-id="price"],
+        html body #purchase-editor-view #pos-grid thead tr th[data-col-id="total"],
+        html body #purchase-editor-view #pos-grid tbody tr td[data-col-id="total"] { min-width: 172px !important; width: 172px !important; }
+        html body #purchase-editor-view #pay-credit-amount {
+            flex: 1.45 1 245px !important; min-width: 230px !important; max-width: 360px !important; width: auto !important; height: 48px !important;
+            font-weight: 900 !important; font-family: 'Outfit', 'Tajawal', sans-serif !important; text-align: center !important; padding: 0 10px !important;
+        }
+        html body #purchase-editor-view #hdr-date { min-width: 172px !important; padding: 0 8px !important; text-align: center !important; }
+        html body #purchase-editor-view #hdr-date::-webkit-datetime-edit, html body #purchase-editor-view #pay-credit-due-date::-webkit-datetime-edit { font-size: 1.38rem !important; font-weight: 900 !important; font-family: 'Outfit', 'Tajawal', sans-serif !important; }
+        html body #purchase-editor-view #pay-credit-due-date { flex: 1 1 190px !important; min-width: 185px !important; width: auto !important; height: 48px !important; padding: 0 8px !important; text-align: center !important; }
+        /* Lock Quantity, Price, Available, Unit, Warehouse & Total on the EXACT same vertical level with comfortable room */
+        html body #purchase-editor-view #pos-grid tbody tr td { vertical-align: middle !important; padding: 7px 5px 18px 5px !important; }
+        html body #purchase-editor-view #pos-grid tbody tr td input.g-input,
+        html body #purchase-editor-view #pos-grid tbody tr td select.g-select,
+        html body #purchase-editor-view #pos-grid tbody tr td .avail-val,
+        html body #purchase-editor-view #pos-grid tbody tr td .total-val {
+            height: 45px !important; min-height: 45px !important; max-height: 45px !important; line-height: 41px !important;
+            padding: 0 5px !important; margin: 0 auto !important; box-sizing: border-box !important;
+            vertical-align: middle !important; display: flex !important; align-items: center !important; justify-content: center !important; text-align: center !important;
+        }
+        html body #purchase-editor-view #pos-grid tbody tr td[data-col-id="price"] input.g-input { padding-left: 28px !important; padding-right: 5px !important; }
+        html body #purchase-editor-view #pos-grid tbody tr td[data-col-id="item"] input.g-input { display: block !important; text-align: right !important; padding-right: 10px !important; }
+        /* Larger Side-Mounted 3D Lamp + Under-Number Reference/Variance Subtext (اللمبة أكبر بجانب الرقم + أرقام المرجع والنسبة تحت الرقم مباشرة وبخط أوضح) */
+        html body #purchase-editor-view #pos-grid tbody tr td[data-col-id="price"] .pur-price-audit-pill {
+            position: static !important; width: auto !important; height: auto !important; padding: 0 !important;
+            background: transparent !important; border: none !important; box-shadow: none !important; pointer-events: none !important;
+        }
+        html body #purchase-editor-view #pos-grid tbody tr td[data-col-id="price"] .pur-price-lamp {
+            position: absolute !important; left: 10px !important; top: 29px !important; transform: translateY(-50%) !important;
+            width: 14px !important; height: 14px !important; min-width: 14px !important; min-height: 14px !important;
+            border-radius: 50% !important; display: inline-block !important; cursor: pointer !important; pointer-events: auto !important; z-index: 30 !important;
+            border: 1.8px solid rgba(255,255,255,0.92) !important; transition: transform 0.18s ease !important;
+        }
+        html body #purchase-editor-view #pos-grid tbody tr td[data-col-id="price"] .pur-price-lamp:hover { transform: translateY(-50%) scale(1.22) !important; }
+        .pur-price-lamp.lamp-red { background: radial-gradient(circle at 35% 35%, #fecdd3, #ff1e42 52%, #881337) !important; box-shadow: 0 0 10px #ff1e42, 0 0 16px rgba(244,63,94,0.9), inset 0 1.5px 2px #ffffff !important; }
+        .pur-price-lamp.lamp-amber { background: radial-gradient(circle at 35% 35%, #fef08a, #f59e0b 52%, #92400e) !important; box-shadow: 0 0 10px #fbbf24, 0 0 16px rgba(245,158,11,0.9), inset 0 1.5px 2px #ffffff !important; }
+        .pur-price-lamp.lamp-green { background: radial-gradient(circle at 35% 35%, #a7f3d0, #10b981 52%, #064e3b) !important; box-shadow: 0 0 10px #10b981, 0 0 16px rgba(16,185,129,0.9), inset 0 1.5px 2px #ffffff !important; }
+        .pur-price-lamp.lamp-blue { background: radial-gradient(circle at 35% 35%, #bae6fd, #0ea5e9 52%, #0c4a6e) !important; box-shadow: 0 0 10px #38bdf8, 0 0 16px rgba(14,165,233,0.9), inset 0 1.5px 2px #ffffff !important; }
+        html body #purchase-editor-view #pos-grid tbody tr td[data-col-id="price"] .pur-price-subtxt {
+            position: absolute !important; bottom: 1px !important; left: 50% !important; transform: translateX(-50%) !important;
+            height: 16px !important; min-height: 16px !important; max-height: 16px !important; padding: 0 7px !important; border-radius: 999px !important;
+            display: inline-flex !important; align-items: center !important; justify-content: center !important;
+            font-size: 0.76rem !important; font-weight: 800 !important; line-height: 1 !important; white-space: nowrap !important; direction: ltr !important;
+            cursor: pointer !important; pointer-events: auto !important; z-index: 26 !important;
+            background: rgba(15,23,42,0.85) !important; border: 1px solid rgba(255,255,255,0.32) !important; color: #fef08a !important; -webkit-text-fill-color: #fef08a !important;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.3) !important;
+        }
+        :root.light-theme body #purchase-editor-view #pos-grid tbody tr td[data-col-id="price"] .pur-price-subtxt {
+            background: rgba(255,255,255,0.95) !important; border: 1.2px solid rgba(92,40,8,0.45) !important; color: #0f172a !important; -webkit-text-fill-color: #0f172a !important;
+        }
+        html body #purchase-editor-view #pos-grid tbody tr td[data-col-id="price"] .pur-price-audit-pill[data-lamp-state="red"] .pur-price-subtxt { color: #e11d48 !important; -webkit-text-fill-color: #e11d48 !important; border-color: #fb7185 !important; }
+        html:not(.light-theme) body #purchase-editor-view #pos-grid tbody tr td[data-col-id="price"] .pur-price-audit-pill[data-lamp-state="red"] .pur-price-subtxt { color: #fecdd3 !important; -webkit-text-fill-color: #fecdd3 !important; background: rgba(136,19,55,0.88) !important; }
+        html body #purchase-editor-view #pos-grid tbody tr td[data-col-id="price"] .pur-price-audit-pill[data-lamp-state="green"] .pur-price-subtxt { color: #047857 !important; -webkit-text-fill-color: #047857 !important; border-color: #34d399 !important; }
+        html:not(.light-theme) body #purchase-editor-view #pos-grid tbody tr td[data-col-id="price"] .pur-price-audit-pill[data-lamp-state="green"] .pur-price-subtxt { color: #a7f3d0 !important; -webkit-text-fill-color: #a7f3d0 !important; background: rgba(6,78,59,0.88) !important; }
+        html body #print-invoice-frame .promissory-note-container,
+        :root.light-theme body #print-invoice-frame .promissory-note-container {
+            background: #ffffff !important; color: #000000 !important; -webkit-text-fill-color: #000000 !important; border: 2.5px double #0f172a !important;
+        }
+        html body #print-invoice-frame .promissory-note-container h2,
+        html body #print-invoice-frame .promissory-note-container h4,
+        html body #print-invoice-frame .promissory-note-container p,
+        html body #print-invoice-frame .promissory-note-container div,
+        html body #print-invoice-frame .promissory-note-container span,
+        html body #print-invoice-frame .promissory-note-container strong {
+            color: #000000 !important; -webkit-text-fill-color: #000000 !important; font-weight: 800 !important; text-shadow: none !important;
         }
         </style>
         <script id="pur-fin-strip-and-tfoot-organizer">
@@ -9953,9 +10181,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 const c = cur || window.getFinStripCurrency();
                 btn.setAttribute('data-cur-mode', c);
                 if (c === 'USD') {
-                    btn.textContent = '💵 دولار ⇄';
+                    btn.textContent = 'دولار ⇄';
                 } else {
-                    btn.textContent = '💱 جنيه سوداني ⇄';
+                    btn.textContent = 'جنيه ⇄';
                 }
             };
             window.toggleFinStripCurrency = function() {
@@ -10208,1397 +10436,126 @@ document.addEventListener('DOMContentLoaded', () => {
             window.syncFinStripCurrencyBtnUI();
             window.normalizePurchaseTfootLayout();
         })();
-
-        // =====================================================================
-        // 👑 الدستور الختامي الأول (1 من 2 — المحدث بالذكاء الاصطناعي الشامل)
-        // لشاشة المشتريات المباشرة والفرعية والوليدة (purchase.php?action=direct)
-        // 10 نقاط جوهرية تعمل 100% بمعيار زيرو خطأ (0ms Hybrid Edge + Cloud AI)
-        // =====================================================================
-        (function initPurchaseFinalConstitution1Of2() {
-            var PUR_FC1_UI_KEY = 'magaies_pur_fc1_dual_ui_mode_v1';
-            var PUR_FC1_SUNLIGHT_KEY = 'magaies_pur_fc1_sunlight_v1';
-            var PUR_FC1_SHORTCUTS_KEY = 'magaies_pur_fc1_shortcuts_matrix_v1';
-            var PUR_FC1_GESTURES_KEY = 'magaies_pur_fc1_gestures_enabled_v1';
-            var PUR_FC1_PARKED_KEY = 'magaies_pur_fc1_parked_invoices_v1';
-            var PUR_FC1_UNDO_STACK = [];
-            var PUR_SCALE_KEY = 'magaies_global_master_scale_v1';
-            var currentPurZoom = parseFloat(localStorage.getItem(PUR_SCALE_KEY) || localStorage.getItem('magaies_pur_c1_aspect_zoom') || '1') || 1;
-            if (currentPurZoom < 0.25 || currentPurZoom > 10.0) currentPurZoom = 1;
-
-            // نافذة دستورية موحدة تَرِث السمة والمقاس وتغلق بـ Esc
-            window.openPurFc1ConstitutionalModal = function(modalId, titleText, bodyHtml, maxWidthPx) {
-                var existing = document.getElementById(modalId);
-                if (existing) existing.remove();
-                var overlay = document.createElement('div');
-                overlay.id = modalId;
-                overlay.className = 'pur-fc1-modal-overlay';
-                overlay.style.cssText = 'position:fixed;inset:0;z-index:999995;background:rgba(2,6,23,0.82);backdrop-filter:blur(12px);display:flex;align-items:center;justify-content:center;padding:16px;';
-                var card = document.createElement('div');
-                card.className = 'pur-fc1-modal-card';
-                card.style.cssText = 'width:100%;max-width:' + (maxWidthPx || 820) + 'px;max-height:90vh;overflow-y:auto;border-radius:18px;background:linear-gradient(145deg,rgba(15,23,42,0.97),rgba(2,6,23,0.98));border:2px solid rgba(56,189,248,0.5);box-shadow:0 24px 60px rgba(0,0,0,0.85);color:#f8fafc;padding:18px;font-family:inherit;direction:rtl;';
-                card.innerHTML =
-                    '<div style="display:flex;justify-content:space-between;align-items:center;padding-bottom:12px;margin-bottom:14px;border-bottom:1px solid rgba(255,255,255,0.15);">' +
-                        '<h3 style="margin:0;font-size:1.05rem;font-weight:900;color:#38bdf8;">' + titleText + '</h3>' +
-                        '<button type="button" onclick="document.getElementById(\'' + modalId + '\').remove()" style="width:32px;height:32px;border-radius:8px;background:rgba(239,68,68,0.2);color:#fca5a5;border:1px solid rgba(239,68,68,0.5);font-weight:900;cursor:pointer;">✕</button>' +
-                    '</div>' +
-                    '<div>' + bodyHtml + '</div>';
-                overlay.appendChild(card);
-                overlay.addEventListener('click', function(ev) { if (ev.target === overlay) overlay.remove(); });
-                document.body.appendChild(overlay);
-            };
-
-            function notifyPurToast(msg, type) {
-                if (typeof showToast === 'function') showToast(msg, type || 'success');
-                else if (typeof window.showPurchaseToast === 'function') window.showPurchaseToast(msg, type || 'success');
-            }
-
-            // 1. حقن الهندسة البصرية، قفل الخانات السوداء (#000000) ونص (#FFFFFF)، الفواصل الموزونة (0.22/0.20)، شمس السوق، وتثبيت عمود الاسم (Sticky)
-            function injectPurFc1Styles() {
-                if (document.getElementById('pur-fc1-supreme-styles')) return;
-                var st = document.createElement('style');
-                st.id = 'pur-fc1-supreme-styles';
-                st.textContent =
-                    '/* الدستور الختامي الأول للمشتريات — الهندسة البصرية وفواصل المشتريات وثبات لون الكتابة */\n' +
-                    'html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #purchase-editor-view input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),\n' +
-                    'html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #purchase-editor-view select,\n' +
-                    'html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #purchase-editor-view textarea,\n' +
-                    'html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) .pur-fc1-modal-card input,\n' +
-                    'html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) .pur-fc1-modal-card select,\n' +
-                    'html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) .pur-fc1-modal-card textarea {\n' +
-                    '    background-color: #000000 !important; color: #FFFFFF !important; -webkit-text-fill-color: #FFFFFF !important;\n' +
-                    '    border: 1.5px solid rgba(255, 255, 255, 0.22) !important; font-weight: 800 !important;\n' +
-                    '}\n' +
-                    ':root.light-theme #purchase-editor-view input:not([type="checkbox"]):not([type="radio"]),\n' +
-                    ':root.light-theme #purchase-editor-view select,\n' +
-                    ':root.light-theme #purchase-editor-view textarea {\n' +
-                    '    color: #000000 !important; -webkit-text-fill-color: #000000 !important; border: 1.5px solid rgba(0, 0, 0, 0.20) !important; font-weight: 800 !important;\n' +
-                    '}\n' +
-                    'html[data-pur-sunlight="1"] body { filter: contrast(1.16) brightness(1.04) !important; }\n' +
-                    'body[data-pur-ui="classic"] #form-fields-card, body[data-pur-ui="classic"] .items-toolbar { border-radius: 6px !important; backdrop-filter: none !important; box-shadow: none !important; border: 2px solid #64748b !important; }\n' +
-                    '/* تثبيت عمود اسم الصنف (Sticky Column) وتدرج الأسطر وإضاءة السطر النشط */\n' +
-                    '#pos-grid tbody tr:nth-child(even) { background-color: rgba(255, 255, 255, 0.025); }\n' +
-                    '#pos-grid tbody tr:focus-within { background-color: rgba(56, 189, 248, 0.14) !important; outline: 1.5px solid rgba(56, 189, 248, 0.55); }\n' +
-                    '#pos-grid th:nth-child(2), #pos-grid td:nth-child(2) { position: sticky; right: 0; z-index: 4; }\n' +
-                    '/* توحيد إضاءة الأزرار السفلية (Under-Glow) في منطقة الإبهام */\n' +
-                    '#btn-submit-purchase-invoice, #btn-delete-purchase-invoice, #btn-preview-invoice {\n' +
-                    '    box-shadow: 0 6px 18px -2px rgba(16, 185, 129, 0.45), inset 0 1px 0 rgba(255,255,255,0.28) !important;\n' +
-                    '}\n' +
-                    '/* هندسة الموبايل المقلوب بالعرض (100dvh) وإخفاء الأشرطة العلوية */\n' +
-                    '@media screen and (max-height: 520px) and (orientation: landscape) {\n' +
-                    '    body:not(.pur-fc1-show-headers) header.premium-header, body:not(.pur-fc1-show-headers) #pur-fc1-smart-ai-command-bar { display: none !important; height: 0 !important; }\n' +
-                    '    #purchase-editor-view { min-height: 100dvh !important; padding-top: 2px !important; }\n' +
-                    '    #pur-fc1-floating-landscape-btn { display: inline-flex !important; }\n' +
-                    '}\n' +
-                    '/* نظام النصفين (يمين وشمال) */\n' +
-                    'body.pur-fc1-split-active { display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 8px !important; align-items: start !important; }\n' +
-                    '#pur-fc1-split-pane { display: none; height: 96vh; position: sticky; top: 2vh; border-radius: 14px; border: 2px solid #38bdf8; background: #0f172a; overflow: hidden; z-index: 990; flex-direction: column; }\n' +
-                    'body.pur-fc1-split-active #pur-fc1-split-pane { display: flex !important; }\n';
-                document.head.appendChild(st);
-            }
-
-            // زر عائم شفاف للموبايل بالعرض (100dvh)
-            function ensurePurLandscapeFloatingPill() {
-                if (document.getElementById('pur-fc1-floating-landscape-btn') || !document.body) return;
-                var btn = document.createElement('button');
-                btn.id = 'pur-fc1-floating-landscape-btn';
-                btn.type = 'button';
-                btn.innerHTML = '⚙️ الشريط';
-                btn.style.cssText = 'display:none;position:fixed;top:6px;left:8px;z-index:99999;height:26px;padding:0 9px;border-radius:999px;background:rgba(15,23,42,0.68);color:#38bdf8;border:1px solid rgba(56,189,248,0.5);font-size:0.72rem;font-weight:900;cursor:pointer;backdrop-filter:blur(6px);';
-                btn.onclick = function() { document.body.classList.toggle('pur-fc1-show-headers'); };
-                document.body.appendChild(btn);
-            }
-
-            // 2. النقطة الجوهرية (1): الإدخال الذكي باللغة الطبيعية صوتاً وكتابةً (0ms Hybrid Edge + Cloud AI)
-            function normalizeArabicDigits(str) {
-                var ar = '٠١٢٣٤٥٦٧٨٩', fa = '۰۱۲۳۴۵۶۷۸۹';
-                return String(str || '').replace(/[٠-٩]/g, function(d) { return ar.indexOf(d); })
-                                        .replace(/[۰-۹]/g, function(d) { return fa.indexOf(d); });
-            }
-
-            window.executePurFc1NaturalLanguageCommand = function(customText) {
-                var inp = document.getElementById('pur-fc1-nlp-input');
-                var raw = normalizeArabicDigits(customText != null ? customText : (inp ? inp.value : '')).trim();
-                if (!raw) {
-                    notifyPurToast('اكتب أو انطق جملة ذكية مثل: «فاتورة مشتريات من شركة النيلين 50 أسمنت سعر 120000»', 'warning');
-                    return;
-                }
-                // استخراج اسم المورد والكمية والسعر والصنف
-                var qtyMatch = raw.match(/(\d+(?:\.\d+)?)\s*(?:طن|كرتونة|كيس|قطعة|حبة|شوال|جركن|علبة|وحدة|كمية)?/);
-                var priceMatch = raw.match(/(?:سعر|بسعر|تكلفة|بـ)\s*(\d+(?:\.\d+)?)/);
-                var suppMatch = raw.match(/(?:من|مورد|لشركة|شركة)\s+([^\d\s]+(?:\s+[^\d\s]+)?)/);
-
-                var qtyVal = qtyMatch ? parseFloat(qtyMatch[1]) : 10;
-                var priceVal = priceMatch ? parseFloat(priceMatch[1]) : 50000;
-                var suppName = suppMatch ? suppMatch[1].trim() : 'مورد عام';
-
-                // تعبئة المورد والبيان
-                var suppInput = document.getElementById('hdr-customer-search');
-                if (suppInput) {
-                    suppInput.value = suppName;
-                    suppInput.dispatchEvent(new Event('input', { bubbles: true }));
-                }
-                var descInput = document.getElementById('hdr-description');
-                if (descInput) {
-                    descInput.value = 'إدخال ذكي باللغة الطبيعية: ' + raw;
-                }
-
-                // تعبئة أول سطر متاح في جدول الأصناف
-                var firstItemSearch = document.querySelector('#pos-grid input[id^="item-search-"]');
-                if (!firstItemSearch && typeof window.addRow === 'function') {
-                    window.addRow();
-                    firstItemSearch = document.querySelector('#pos-grid input[id^="item-search-"]');
-                }
-                if (firstItemSearch) {
-                    var rowId = firstItemSearch.id.replace('item-search-', '');
-                    var itemName = raw.replace(/(?:فاتورة|مشتريات|شراء|من|مورد|سعر|بسعر|كمية|\d+)/g, ' ').replace(/\s+/g, ' ').trim() || 'صنف مشتريات';
-                    firstItemSearch.value = itemName;
-                    var qEl = document.getElementById('qty-' + rowId) || firstItemSearch.closest('tr').querySelector('input[id^="qty-"]');
-                    var pEl = document.getElementById('price-' + rowId) || firstItemSearch.closest('tr').querySelector('input[id^="price-"]');
-                    if (qEl) { qEl.value = qtyVal; qEl.dispatchEvent(new Event('input', { bubbles: true })); }
-                    if (pEl) { pEl.value = priceVal; pEl.dispatchEvent(new Event('input', { bubbles: true })); }
-                }
-                if (typeof window.recalcAll === 'function') window.recalcAll();
-                else if (typeof window.calcTotals === 'function') window.calcTotals();
-                window.updatePurFc1LiveTafqeet();
-                notifyPurToast('⚡ تم تحليل الجملة الذكية وملء المورد والصنف والكمية والسعر وحساب الإجمالي في 0ms!', 'success');
-            };
-
-            window.startPurFc1VoiceNlpInput = function() {
-                var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-                var btn = document.getElementById('btn-pur-fc1-voice');
-                if (!SR) {
-                    var sample = 'فاتورة مشتريات من شركة النيلين 25 أسمنت سعر 115000';
-                    var inp = document.getElementById('pur-fc1-nlp-input');
-                    if (inp) inp.value = sample;
-                    window.executePurFc1NaturalLanguageCommand(sample);
-                    return;
-                }
-                var rec = new SR();
-                rec.lang = 'ar-SA';
-                if (btn) btn.textContent = '🔴 استماع...';
-                rec.onresult = function(e) {
-                    var t = e.results[0][0].transcript;
-                    var inp = document.getElementById('pur-fc1-nlp-input');
-                    if (inp) inp.value = t;
-                    window.executePurFc1NaturalLanguageCommand(t);
-                };
-                rec.onend = function() { if (btn) btn.textContent = '🎤 صوتي'; };
-                rec.start();
-            };
-
-            // قارئ الفواتير AI OCR ومقترح أفضل سعر وبديل للصنف
-            window.openPurFc1AiOcrAndPriceAdvisorModal = function() {
-                var html =
-                    '<div style="display:flex;flex-direction:column;gap:12px;">' +
-                        '<div style="padding:12px;border-radius:11px;background:rgba(14,165,233,0.12);border:1.5px solid #38bdf8;">' +
-                            '<div style="font-weight:900;color:#38bdf8;margin-bottom:6px;">📷 1. القراءة البصرية الذكية للفواتير والإشعارات (AI OCR) وتفريغها في الجدول</div>' +
-                            '<textarea id="pur-fc1-ocr-paste" rows="2" placeholder="الصق نص فاتورة المورد أو إشعار الواتساب هنا، أو استخدم زر مسح الفاتورة بالكاميرا..." style="width:100%;padding:8px;border-radius:8px;font-size:0.8rem;"></textarea>' +
-                            '<div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;">' +
-                                '<button type="button" onclick="window.executePurFc1NaturalLanguageCommand(document.getElementById(\'pur-fc1-ocr-paste\').value || \'فاتورة مشتريات من مورد الصفا 30 حديد تسليح سعر 420000\');document.getElementById(\'pur-fc1-ai-ocr-modal\').remove();" style="height:34px;padding:0 13px;border-radius:8px;background:#0284c7;color:#fff;border:none;font-weight:900;cursor:pointer;">⚡ تفريغ النص في الفاتورة فوراً (0ms)</button>' +
-                                '<button type="button" onclick="document.getElementById(\'pur-fc1-ai-ocr-modal\').remove();if(typeof triggerInvoiceOCR===\'function\')triggerInvoiceOCR();" style="height:34px;padding:0 13px;border-radius:8px;background:#059669;color:#fff;border:none;font-weight:900;cursor:pointer;">📷 تشغيل كاميرا قارئ الفواتير AI OCR</button>' +
-                            '</div>' +
-                        '</div>' +
-                        '<div style="padding:12px;border-radius:11px;background:rgba(168,85,247,0.12);border:1.5px solid #a855f7;">' +
-                            '<div style="font-weight:900;color:#d8b4fe;margin-bottom:6px;">💡 2. المستشار الذكي لأفضل سعر شراء والبديل الأوفر للصنف</div>' +
-                            '<div style="font-size:0.82rem;line-height:1.7;">• يقوم الذكاء الاصطناعي بمقارنة سعر المورد الحالي مع آخر 5 فواتير مشتريات، وينبهك فوراً إذا زاد السعر عن المتوسط التاريخي مع اقتراح المورد البديل الأرخص.</div>' +
-                            '<button type="button" onclick="document.getElementById(\'pur-fc1-ai-ocr-modal\').remove();if(typeof window.openPurchaseAIAuditModal===\'function\')window.openPurchaseAIAuditModal();" style="margin-top:8px;height:34px;padding:0 13px;border-radius:8px;background:#7c3aed;color:#fff;border:none;font-weight:900;cursor:pointer;">🤖 فتح رادار مقارنة أسعار الموردين وهامش البيع AI</button>' +
-                        '</div>' +
-                    '</div>';
-                window.openPurFc1ConstitutionalModal('pur-fc1-ai-ocr-modal', '📷 القراءة الذكية AI OCR ومقترح أفضل سعر وبديل للصنف', html, 780);
-            };
-
-            // 3. النقطة الجوهرية (4 و 5): شمس السوق + التناسب الهندسي الموحد (6:8) وحفظ وتوريث المقاس
-            window.togglePurFc1SunlightMode = function() {
-                var cur = document.documentElement.getAttribute('data-pur-sunlight') === '1';
-                if (cur) {
-                    document.documentElement.removeAttribute('data-pur-sunlight');
-                    localStorage.setItem(PUR_FC1_SUNLIGHT_KEY, '0');
-                    notifyPurToast('تم إيقاف وضع شمس السوق والعودة للتباين القياسي.', 'success');
-                } else {
-                    document.documentElement.setAttribute('data-pur-sunlight', '1');
-                    localStorage.setItem(PUR_FC1_SUNLIGHT_KEY, '1');
-                    notifyPurToast('☀️ تم تفعيل وضع وضوح شمس السوق لسطوع فائق تحت أشعة الشمس!', 'success');
-                }
-            };
-
-            window.setPurFc1ProportionalZoom = function(modeOrVal, delta) {
-                if (modeOrVal === 'reset') currentPurZoom = 1;
-                else if (modeOrVal === 'step') currentPurZoom = Math.min(10.0, Math.max(0.25, Math.round((currentPurZoom + (delta || 0)) * 100) / 100));
-                else if (typeof modeOrVal === 'number') currentPurZoom = Math.min(10.0, Math.max(0.25, Math.round(modeOrVal * 100) / 100));
-
-                try {
-                    localStorage.setItem(PUR_SCALE_KEY, String(currentPurZoom));
-                    localStorage.setItem('magaies_pur_c1_aspect_zoom', String(currentPurZoom));
-                    localStorage.setItem('elsajana_global_screen_scale_v15', String(currentPurZoom));
-                    localStorage.setItem('elsajana_grn_zoom_scale', String(currentPurZoom));
-                } catch (e) {}
-
-                var rootEl = document.getElementById('pur-proportional-root') || document.querySelector('.dash-main');
-                if (rootEl) {
-                    if (Math.abs(currentPurZoom - 1) < 0.01) {
-                        rootEl.style.transform = '';
-                        rootEl.style.width = 'calc(100% - 24px)';
-                        rootEl.style.maxWidth = 'calc(100% - 24px)';
-                        rootEl.style.margin = '0 auto';
-                    } else {
-                        rootEl.style.transformOrigin = 'top center';
-                        rootEl.style.transform = 'scale(' + currentPurZoom + ')';
-                        rootEl.style.width = 'calc(100% - 24px)';
-                        rootEl.style.maxWidth = 'calc(100% - 24px)';
-                        rootEl.style.margin = '0 auto';
-                    }
-                }
-                if (typeof window.verifyPurLaserCenterSymmetry === 'function') {
-                    window.verifyPurLaserCenterSymmetry();
-                }
-                var b = document.getElementById('pur-fc1-zoom-badge');
-                if (b) b.textContent = '📐 مقاس (6:8): ' + Math.round(currentPurZoom * 100) + '%';
-            };
-
-            // 4. النقطة الجوهرية (6): البوابة المزدوجة (العصرية ↔ الكلاسيكية) ومصفوفة الاختصارات (1-4)
-            window.togglePurFc1DualUiMode = function() {
-                var cur = document.body.getAttribute('data-pur-ui') || 'modern';
-                var next = cur === 'modern' ? 'classic' : 'modern';
-                document.body.setAttribute('data-pur-ui', next);
-                localStorage.setItem(PUR_FC1_UI_KEY, next);
-                notifyPurToast(next === 'classic' ? '🏛️ تم التبديل الفوري (0ms) إلى الواجهة الكلاسيكية الدفترية!' : '✨ تم التبديل الفوري (0ms) إلى الواجهة العصرية العالمية الفاخرة!', 'success');
-            };
-
-            window.openPurFc1ShortcutsMatrixModal = function() {
-                var cfg = {};
-                try { cfg = JSON.parse(localStorage.getItem(PUR_FC1_SHORTCUTS_KEY) || '{}'); } catch (e) {}
-                var locked = !!cfg.locked;
-                var html =
-                    '<div style="display:flex;flex-direction:column;gap:12px;">' +
-                        '<div style="padding:11px;border-radius:10px;background:rgba(245,158,11,0.14);border:1.5px solid #f59e0b;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">' +
-                            '<div style="font-size:0.82rem;font-weight:800;">🔢 اختر وضع العرض بين (البرنامج الكامل) أو أزرار الاختصارات القابلة للتشكيل (1، 2، 3، 4) بعلامة صح (✓) مع قفل حبس الموظف أمنياً:</div>' +
-                            '<button type="button" onclick="window.togglePurFc1ShortcutLock()" style="height:32px;padding:0 12px;border-radius:8px;background:' + (locked ? '#dc2626' : '#059669') + ';color:#fff;border:none;font-weight:900;cursor:pointer;">' + (locked ? '🔒 مقفل أمنياً برمز PIN (اضغط للفتح)' : '🔓 قفل حبس الاختصار للموظف') + '</button>' +
-                        '</div>' +
-                        '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:8px;">' +
-                            '<button type="button" onclick="window.applyPurFc1ShortcutPreset(0)" style="padding:10px;border-radius:10px;background:rgba(16,185,129,0.18);color:#34d399;border:1.5px solid #10b981;font-weight:900;cursor:pointer;">🌐 البرنامج الكامل (100%)</button>' +
-                            '<button type="button" onclick="window.applyPurFc1ShortcutPreset(1)" style="padding:10px;border-radius:10px;background:rgba(56,189,248,0.16);color:#38bdf8;border:1.5px solid #38bdf8;font-weight:900;cursor:pointer;">✓ اختصار (1): إدخال سريع للمشتريات</button>' +
-                            '<button type="button" onclick="window.applyPurFc1ShortcutPreset(2)" style="padding:10px;border-radius:10px;background:rgba(168,85,247,0.16);color:#d8b4fe;border:1.5px solid #a855f7;font-weight:900;cursor:pointer;">✓ اختصار (2): فحص واستلام مخزني</button>' +
-                            '<button type="button" onclick="window.applyPurFc1ShortcutPreset(3)" style="padding:10px;border-radius:10px;background:rgba(245,158,11,0.16);color:#fde047;border:1.5px solid #f59e0b;font-weight:900;cursor:pointer;">✓ اختصار (3): تسعير وتكلفة مضافة</button>' +
-                            '<button type="button" onclick="window.applyPurFc1ShortcutPreset(4)" style="padding:10px;border-radius:10px;background:rgba(236,72,153,0.16);color:#f9a8d4;border:1.5px solid #ec4899;font-weight:900;cursor:pointer;">✓ اختصار (4): مراجعة واعتماد المدير</button>' +
-                        '</div>' +
-                    '</div>';
-                window.openPurFc1ConstitutionalModal('pur-fc1-shortcuts-modal', '🔢 مصفوفة أزرار الاختصارات القابلة للتشكيل (1، 2، 3، 4) والقفل الأمني', html, 780);
-            };
-
-            window.togglePurFc1ShortcutLock = function() {
-                var cfg = {};
-                try { cfg = JSON.parse(localStorage.getItem(PUR_FC1_SHORTCUTS_KEY) || '{}'); } catch (e) {}
-                cfg.locked = !cfg.locked;
-                localStorage.setItem(PUR_FC1_SHORTCUTS_KEY, JSON.stringify(cfg));
-                notifyPurToast(cfg.locked ? '🔒 تم قفل الاختصار أمنياً للموظف!' : '🔓 تم فك قفل الاختصار.', 'success');
-                window.openPurFc1ShortcutsMatrixModal();
-            };
-
-            window.applyPurFc1ShortcutPreset = function(slot) {
-                var cfg = {};
-                try { cfg = JSON.parse(localStorage.getItem(PUR_FC1_SHORTCUTS_KEY) || '{}'); } catch (e) {}
-                if (cfg.locked && slot !== cfg.slot) {
-                    notifyPurToast('🔒 هذا الجهاز مقفل أمنياً على الاختصار المحدد للموظف!', 'error');
-                    return;
-                }
-                cfg.slot = slot;
-                localStorage.setItem(PUR_FC1_SHORTCUTS_KEY, JSON.stringify(cfg));
-                var row2 = document.getElementById('purchase-row2-bar');
-                if (row2) row2.style.display = (slot === 1) ? 'none' : 'flex';
-                notifyPurToast(slot === 0 ? '🌐 تم تفعيل وضع البرنامج الكامل 100%!' : ('✓ تم تفعيل وضع الاختصار رقم (' + slot + ') بنجاح!'), 'success');
-                var m = document.getElementById('pur-fc1-shortcuts-modal');
-                if (m) m.remove();
-            };
-
-            // 5. النقطة الجوهرية (7): نظام النصفين (يمين وشمال — شاشة ثانية حية أو منطقة جوال حرة 100%)
-            window.togglePurFc1SplitScreenStudio = function() {
-                var pane = document.getElementById('pur-fc1-split-pane');
-                if (!pane && document.body) {
-                    pane = document.createElement('div');
-                    pane.id = 'pur-fc1-split-pane';
-                    pane.innerHTML =
-                        '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:#1e293b;border-bottom:1px solid rgba(56,189,248,0.35);gap:6px;flex-wrap:wrap;">' +
-                            '<div style="font-weight:900;color:#38bdf8;font-size:0.82rem;">🌗 النصف الثاني الحي (شاشة ERP ثانية / منطقة الجوال الحرة 100%)</div>' +
-                            '<div style="display:flex;gap:4px;flex-wrap:wrap;">' +
-                                '<button type="button" onclick="window.setPurFc1SplitTarget(\'account-statement.php\')" style="padding:3px 8px;border-radius:6px;background:#0284c7;color:#fff;border:none;font-size:0.72rem;font-weight:800;cursor:pointer;">📑 كشف حساب المورد</button>' +
-                                '<button type="button" onclick="window.setPurFc1SplitTarget(\'inventory-report.php\')" style="padding:3px 8px;border-radius:6px;background:#059669;color:#fff;border:none;font-size:0.72rem;font-weight:800;cursor:pointer;">📦 أرصدة المخازن</button>' +
-                                '<button type="button" onclick="window.setPurFc1SplitTarget(\'sales.php\')" style="padding:3px 8px;border-radius:6px;background:#7c3aed;color:#fff;border:none;font-size:0.72rem;font-weight:800;cursor:pointer;">🛒 المبيعات</button>' +
-                                '<button type="button" onclick="window.setPurFc1SplitTarget(\'FREE_ZONE\')" style="padding:3px 8px;border-radius:6px;background:#d97706;color:#fff;border:none;font-size:0.72rem;font-weight:800;cursor:pointer;">📱 منطقة الجوال الحرة</button>' +
-                                '<button type="button" onclick="document.body.classList.remove(\'pur-fc1-split-active\')" style="padding:3px 8px;border-radius:6px;background:#dc2626;color:#fff;border:none;font-size:0.72rem;font-weight:800;cursor:pointer;">✕</button>' +
-                            '</div>' +
-                        '</div>' +
-                        '<div id="pur-fc1-split-body" style="flex:1;display:flex;flex-direction:column;overflow:auto;">' +
-                            '<iframe id="pur-fc1-split-iframe" src="account-statement.php" style="width:100%;height:100%;border:none;flex:1;"></iframe>' +
-                        '</div>';
-                    document.body.appendChild(pane);
-                }
-                document.body.classList.toggle('pur-fc1-split-active');
-            };
-
-            window.setPurFc1SplitTarget = function(target) {
-                var body = document.getElementById('pur-fc1-split-body');
-                if (!body) return;
-                if (target === 'FREE_ZONE') {
-                    body.innerHTML =
-                        '<div style="padding:14px;display:flex;flex-direction:column;gap:10px;color:#fff;">' +
-                            '<div style="font-weight:900;color:#fde047;">📱 منطقة الجوال الحرة 100% (استوديو الصور مع قارئ الإشعارات AI، واتساب، بنكك، يوتيوب)</div>' +
-                            '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">' +
-                                '<button type="button" onclick="window.openPurFc1AiOcrAndPriceAdvisorModal()" style="padding:12px;border-radius:10px;background:rgba(14,165,233,0.2);color:#38bdf8;border:1px solid #38bdf8;font-weight:900;cursor:pointer;">📷 استوديو الصور وقارئ إشعارات AI</button>' +
-                                '<button type="button" onclick="window.open(\'https://web.whatsapp.com\',\'_blank\')" style="padding:12px;border-radius:10px;background:rgba(16,185,129,0.2);color:#34d399;border:1px solid #10b981;font-weight:900;cursor:pointer;">💬 واتساب الموردين</button>' +
-                                '<button type="button" onclick="window.openPurFc1AiOcrAndPriceAdvisorModal()" style="padding:12px;border-radius:10px;background:rgba(245,158,11,0.2);color:#fde047;border:1px solid #f59e0b;font-weight:900;cursor:pointer;">🏦 فحص إشعار بنكك / فوري</button>' +
-                                '<button type="button" onclick="window.open(\'https://www.youtube.com\',\'_blank\')" style="padding:12px;border-radius:10px;background:rgba(239,68,68,0.2);color:#fca5a5;border:1px solid #ef4444;font-weight:900;cursor:pointer;">▶️ يوتيوب وشروحات الفيديو</button>' +
-                            '</div>' +
-                        '</div>';
-                } else {
-                    body.innerHTML = '<iframe src="' + target + '" style="width:100%;height:100%;border:none;flex:1;"></iframe>';
-                }
-            };
-
-            // 6. النقطة الجوهرية (8): مفتاح التحكم في إيماءات الأصابع وأزرار الصوت للشاشات المرتجة
-            function isPurGesturesEnabled() {
-                return localStorage.getItem(PUR_FC1_GESTURES_KEY) !== '0';
-            }
-
-            window.openPurFc1GestureControlModal = function() {
-                var en = isPurGesturesEnabled();
-                var html =
-                    '<div style="display:flex;flex-direction:column;gap:10px;">' +
-                        '<div style="padding:12px;border-radius:11px;background:rgba(16,185,129,0.14);border:1.5px solid #10b981;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">' +
-                            '<div style="font-weight:900;">🤚 حالة إيماءات الأصابع وأزرار الصوت (حماية الشاشات ذات اللمس المرتج): <span style="color:' + (en ? '#34d399' : '#fca5a5') + ';">' + (en ? 'مفعلة 100%' : 'موقوفة لحماية الشاشة المرتجة') + '</span></div>' +
-                            '<button type="button" onclick="localStorage.setItem(\'' + PUR_FC1_GESTURES_KEY + '\',\'' + (en ? '0' : '1') + '\');window.openPurFc1GestureControlModal();" style="height:34px;padding:0 14px;border-radius:8px;background:' + (en ? '#dc2626' : '#059669') + ';color:#fff;border:none;font-weight:900;cursor:pointer;">' + (en ? '⏸️ إيقاف الإيماءات للشاشات المرتجة' : '▶️ تفعيل الإيماءات') + '</button>' +
-                        '</div>' +
-                        '<div style="padding:10px;border-radius:9px;background:rgba(15,23,42,0.7);border:1px solid rgba(56,189,248,0.35);font-size:0.81rem;line-height:1.8;">' +
-                            '• <strong>لمسة بإصبعين (2-Finger Tap):</strong> إخفاء/إظهار الأرصدة والمديونية فوراً بعلامة (****) للخصوصية.<br>' +
-                            '• <strong>لمسة بـ 3 أصابع (3-Finger Tap):</strong> تعليق الفاتورة مؤقتاً أو التراجع الفوري.<br>' +
-                            '• <strong>أزرار الصوت (Volume Up / Down):</strong> التنقل السريع بين أسطر الأصناف أو التكبير المريح.' +
-                        '</div>' +
-                    '</div>';
-                window.openPurFc1ConstitutionalModal('pur-fc1-gestures-modal', '🤚 مفتاح التحكم في إيماءات الأصابع وأزرار الصوت', html, 740);
-            };
-
-            // 7. النقطة الجوهرية (2 و 9): التعليق المؤقت (Alt+P)، التراجع (Ctrl+Z)، الحاسبة داخل الخانات (12*24)، والتفقيط اللحظي
-            function numberToSimpleArabicWords(num) {
-                var n = Math.round(Math.abs(parseFloat(num || 0) || 0));
-                if (n === 0) return 'صفر جنيه سوداني لا غير';
-                return n.toLocaleString('ar-EG') + ' جنيه سوداني فقط لا غير';
-            }
-
-            window.updatePurFc1LiveTafqeet = function() {
-                var bar = document.getElementById('pur-fc1-live-tafqeet-bar');
-                if (!bar) return;
-                var grandEl = document.getElementById('t-grand-dynamic-loc') || document.getElementById('footer-grand');
-                var rawNum = grandEl ? parseFloat(String(grandEl.textContent || '0').replace(/[^\d.]/g, '')) : 0;
-                bar.textContent = '🗣️ التفقيط اللحظي: ' + numberToSimpleArabicWords(rawNum);
-            };
-
-            window.parkActivePurchaseInvoice = function() {
-                var supp = (document.getElementById('hdr-customer-search') || {}).value || 'مورد بدون اسم';
-                var desc = (document.getElementById('hdr-description') || {}).value || '';
-                var list = [];
-                try { list = JSON.parse(localStorage.getItem(PUR_FC1_PARKED_KEY) || '[]'); } catch (e) {}
-                list.unshift({ id: Date.now(), supplier: supp, desc: desc, time: new Date().toLocaleTimeString('ar-EG') });
-                localStorage.setItem(PUR_FC1_PARKED_KEY, JSON.stringify(list.slice(0, 10)));
-                renderPurFc1ParkedStrip();
-                notifyPurToast('⏸️ تم تعليق الفاتورة مؤقتاً في الشريط العلوي لخدمة المورد المستعجل!', 'success');
-            };
-
-            function renderPurFc1ParkedStrip() {
-                var strip = document.getElementById('pur-fc1-parked-strip');
-                var badge = document.getElementById('pur-fc1-park-badge');
-                var list = [];
-                try { list = JSON.parse(localStorage.getItem(PUR_FC1_PARKED_KEY) || '[]'); } catch (e) {}
-                if (badge) badge.textContent = String(list.length);
-                if (!strip) return;
-                if (!list.length) { strip.style.display = 'none'; return; }
-                strip.style.display = 'flex';
-                strip.innerHTML = '<span style="font-size:0.75rem;color:#fde047;font-weight:900;">⏸️ فواتير معلقة:</span>' +
-                    list.map(function(p, idx) {
-                        return '<button type="button" onclick="window.resumePurFc1ParkedInvoice(' + idx + ')" style="padding:2px 8px;border-radius:6px;background:rgba(245,158,11,0.22);color:#fde047;border:1px solid #f59e0b;font-size:0.73rem;font-weight:800;cursor:pointer;">🔄 استرجاع: ' + p.supplier + ' (' + p.time + ')</button>';
-                    }).join('');
-            }
-
-            window.resumePurFc1ParkedInvoice = function(idx) {
-                var list = [];
-                try { list = JSON.parse(localStorage.getItem(PUR_FC1_PARKED_KEY) || '[]'); } catch (e) {}
-                var item = list[idx];
-                if (!item) return;
-                var suppEl = document.getElementById('hdr-customer-search');
-                var descEl = document.getElementById('hdr-description');
-                if (suppEl) suppEl.value = item.supplier;
-                if (descEl) descEl.value = item.desc;
-                list.splice(idx, 1);
-                localStorage.setItem(PUR_FC1_PARKED_KEY, JSON.stringify(list));
-                renderPurFc1ParkedStrip();
-                notifyPurToast('▶️ تم استرجاع الفاتورة المعلقة (' + item.supplier + ') بالكامل!', 'success');
-            };
-
-            window.triggerPurFc1InstantUndo = function() {
-                var last = PUR_FC1_UNDO_STACK.pop();
-                if (last && last.el) {
-                    last.el.value = last.val;
-                    last.el.dispatchEvent(new Event('input', { bubbles: true }));
-                    notifyPurToast('↩️ تم التراجع واستعادة القيمة السابقة فوراً!', 'success');
-                } else {
-                    notifyPurToast('↩️ سجل التراجع جاهز لحماية مدخلاتك.', 'success');
-                }
-            };
-
-            // الحاسبة الذكية داخل خانات الكمية والسعر (12*24) وتحويل الأرقام العربية (١٢٣ ⬅ 123)
-            document.addEventListener('change', function(ev) {
-                var t = ev.target;
-                if (!t || t.tagName !== 'INPUT') return;
-                var v = normalizeArabicDigits(t.value);
-                if (/^[\d.+\-*/()\s]+$/.test(v) && /[+*\/-]/.test(v)) {
+        (function() {
+            const TONES = [
+                { id: 'dark_midnight',   name: 'داكن كحلي ملكي (Dark)',   bg: '#0f172a', fg: '#1e293b', brd: '#38bdf8', isDark: true, themeKey: 'midnight_obsidian' },
+                { id: 'ivory_default',   name: 'عاجي دافئ (فاتح افتراضي)', bg: '#d9c39e', fg: '#f3e5ab', brd: '#854d0e', themeKey: 'warm_cream' },
+                { id: 'royal_bronze',    name: 'برونزي ملكي فاخر',      bg: '#b07239', fg: '#d9a066', brd: '#78350f', themeKey: 'warm_cream' },
+                { id: 'platinum_gray',   name: 'رمادي بلاتيني احترافي', bg: '#64748b', fg: '#94a3b8', brd: '#334155', themeKey: 'exec_gray' },
+                { id: 'crystal_silver',  name: 'فضي جليدي ناصع',        bg: '#cbd5e1', fg: '#e2e8f0', brd: '#64748b', themeKey: 'ultra_white' },
+                { id: 'sage_pearl',      name: 'لؤلؤي زمردي هادئ',      bg: '#10b981', fg: '#6ee7b7', brd: '#047857', themeKey: 'warm_cream' },
+                { id: 'sky_alabaster',   name: 'سماوي لازوردي فاتح',    bg: '#0284c7', fg: '#38bdf8', brd: '#0369a1', themeKey: 'ultra_white' },
+                { id: 'warm_mocha_dark', name: 'موكا صحراوي غامق',      bg: '#6b4226', fg: '#9c6b43', brd: '#451a03', themeKey: 'warm_cream' },
+                { id: 'deep_slate_dark', name: 'رصاصي فحمي غامق',       bg: '#334155', fg: '#475569', brd: '#0f172a', themeKey: 'exec_gray' }
+            ];
+            window.applyPurchaseLightTone = function(toneId, notify) {
+                const t = TONES.find(x => x.id === toneId) || TONES[1];
+                if (t.isDark) {
+                    document.documentElement.setAttribute('data-theme', t.themeKey);
+                    if (document.body) document.body.setAttribute('data-theme', t.themeKey);
+                    document.documentElement.classList.remove('light-theme');
+                    document.documentElement.classList.add('dark-theme');
+                    if (document.body) { document.body.classList.remove('light-theme'); document.body.classList.add('dark-theme'); }
                     try {
-                        var res = Function('"use strict";return (' + v + ')')();
-                        if (isFinite(res)) {
-                            PUR_FC1_UNDO_STACK.push({ el: t, val: t.value });
-                            t.value = Math.round(res * 100) / 100;
-                            t.dispatchEvent(new Event('input', { bubbles: true }));
-                            notifyPurToast('🧮 الحاسبة المدمجة: ' + v + ' = ' + t.value, 'success');
-                        }
-                    } catch (e) {}
+                        ['magaies_active_theme','magaiees_global_theme','magaiees_mobile_theme','ui_theme'].forEach(k => localStorage.setItem(k, t.themeKey));
+                        localStorage.setItem('erp_theme', 'dark');
+                        document.cookie = 'magaies_active_theme=' + encodeURIComponent(t.themeKey) + '; path=/; max-age=315360000; SameSite=Lax';
+                    } catch (_e) {}
+                    if (notify && typeof window.applyMasterTheme === 'function') window.applyMasterTheme(t.themeKey, true);
+                    if (notify && typeof showToast === 'function') showToast('🌙 تم تثبيت المظهر الداكن في كل البرنامج: ' + t.name, 'success', 2600);
+                    return;
                 }
-                setTimeout(window.updatePurFc1LiveTafqeet, 60);
+                document.documentElement.setAttribute('data-light-tone', t.id);
+                if (document.body) document.body.setAttribute('data-light-tone', t.id);
+                try {
+                    localStorage.setItem('pur_light_tone_palette', t.id);
+                    localStorage.setItem('magaies_light_tone', t.id);
+                    document.cookie = 'magaies_light_tone=' + encodeURIComponent(t.id) + '; path=/; max-age=315360000; SameSite=Lax';
+                } catch (_e) {}
+                if (notify) {
+                    const targetTheme = t.themeKey || 'warm_cream';
+                    document.documentElement.setAttribute('data-theme', targetTheme);
+                    if (document.body) document.body.setAttribute('data-theme', targetTheme);
+                    document.documentElement.classList.add('light-theme');
+                    document.documentElement.classList.remove('dark-theme');
+                    if (document.body) { document.body.classList.add('light-theme'); document.body.classList.remove('dark-theme'); }
+                    try {
+                        ['magaies_active_theme','magaiees_global_theme','magaiees_mobile_theme','ui_theme'].forEach(k => localStorage.setItem(k, targetTheme));
+                        localStorage.setItem('erp_theme', 'light');
+                        document.cookie = 'magaies_active_theme=' + encodeURIComponent(targetTheme) + '; path=/; max-age=315360000; SameSite=Lax';
+                    } catch (_e) {}
+                    if (typeof window.applyMasterTheme === 'function') window.applyMasterTheme(targetTheme, false);
+                    window.dispatchEvent(new CustomEvent('themeChanged', { detail: { theme: targetTheme, tone: t.id, isLight: true } }));
+                    if (typeof showToast === 'function') showToast('🎨 تم تثبيت المظهر في كل البرنامج: ' + t.name, 'success', 2600);
+                }
+            };
+            const savedTone = localStorage.getItem('magaies_light_tone') || localStorage.getItem('pur_light_tone_palette') || document.documentElement.getAttribute('data-light-tone') || 'ivory_default';
+            window.applyPurchaseLightTone(savedTone, false);
+            window.openPurchaseLightTonePopover = function(anchorEl) {
+                let pop = document.getElementById('pur-light-tone-popover');
+                if (!pop) {
+                    pop = document.createElement('div');
+                    pop.id = 'pur-light-tone-popover';
+                    pop.style.cssText = 'position:fixed;z-index:9999999;background:linear-gradient(145deg,#0f172a,#1e293b);border:2px solid #fbbf24;border-radius:14px;padding:10px;box-shadow:0 18px 42px rgba(0,0,0,0.85),0 0 22px rgba(245,158,11,0.35);min-width:245px;direction:rtl;font-family:Tajawal,Cairo,sans-serif;';
+                    document.body.appendChild(pop);
+                    document.addEventListener('click', (e) => { if (pop.style.display !== 'none' && !pop.contains(e.target)) pop.style.display = 'none'; });
+                }
+                const isDarkNow = !document.documentElement.classList.contains('light-theme');
+                const cur = isDarkNow ? 'dark_midnight' : (document.documentElement.getAttribute('data-light-tone') || 'ivory_default');
+                pop.innerHTML = '<div style="color:#fde047;font-weight:900;font-size:0.92rem;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid rgba(255,255,255,0.15);display:flex;justify-content:space-between;align-items:center;"><span>🎨 مظاهر ونغمات النظام</span><span style="font-size:0.75rem;color:#94a3b8;">ثابتة في كل الشاشات</span></div>' +
+                    TONES.map(t => `<button type="button" onclick="window.applyPurchaseLightTone('${t.id}',true);document.getElementById('pur-light-tone-popover').style.display='none';" style="width:100%;display:flex;align-items:center;gap:10px;padding:7px 10px;margin-bottom:5px;border-radius:9px;cursor:pointer;background:${cur===t.id?'rgba(245,158,11,0.25)':'rgba(255,255,255,0.06)'};border:1.5px solid ${cur===t.id?'#fbbf24':'rgba(255,255,255,0.12)'};color:#ffffff;font-weight:900;font-size:0.88rem;text-align:right;"><span style="width:28px;height:28px;border-radius:7px;background:linear-gradient(135deg,${t.fg} 0%,${t.bg} 100%);border:2px solid ${t.brd};box-shadow:inset 0 1px 2px rgba(255,255,255,0.45),0 2px 5px rgba(0,0,0,0.4);flex-shrink:0;"></span><span style="flex:1;">${t.name}</span>${cur===t.id?'<span style="color:#fde047;">✓</span>':''}</button>`).join('');
+                const r = anchorEl ? anchorEl.getBoundingClientRect() : { bottom: 60, left: 20 };
+                pop.style.top = Math.max(10, Math.min(window.innerHeight - 435, r.bottom + 8)) + 'px';
+                pop.style.left = Math.max(12, Math.min(window.innerWidth - 260, r.left)) + 'px';
+                pop.style.display = 'block';
+            };
+            let _holdTimer = null, _holdTriggered = false;
+            document.addEventListener('pointerdown', function(e) {
+                const btn = e.target.closest && e.target.closest('.msg-quartet-qtheme, .theme-toggle-btn, .msg-quartet-themes, #magaiees-master-themes-btn');
+                if (!btn) return;
+                _holdTriggered = false;
+                clearTimeout(_holdTimer);
+                _holdTimer = setTimeout(() => { _holdTriggered = true; window.openPurchaseLightTonePopover(btn); }, 480);
             }, true);
-
-            // اختصارات الكيبورد الشاملة (Alt+P للتعليق، Ctrl+Z للتراجع، Esc لإغلاق النوافذ)
-            document.addEventListener('keydown', function(ev) {
-                if (ev.altKey && (ev.key === 'p' || ev.key === 'P' || ev.key === 'ح')) {
-                    ev.preventDefault();
-                    window.parkActivePurchaseInvoice();
-                } else if (ev.ctrlKey && (ev.key === 'z' || ev.key === 'Z' || ev.key === 'ئ') && document.activeElement && document.activeElement.tagName !== 'INPUT') {
-                    ev.preventDefault();
-                    window.triggerPurFc1InstantUndo();
-                } else if (ev.key === 'Escape') {
-                    var topModal = document.querySelector('.pur-fc1-modal-overlay');
-                    if (topModal) topModal.remove();
-                }
+            ['pointerup', 'pointerleave', 'pointercancel'].forEach(evName => {
+                document.addEventListener(evName, () => clearTimeout(_holdTimer), true);
             });
-
-            // 8. النقطة الجوهرية (10): بوابة المراجعة الختامية الشاملة للدستور الأول (10/10 — 50x Zero-Error)
-            window.openPurFc1SupremeConstitutionModal = function() {
-                var pts = [
-                    '1. تطويع الذكاء الاصطناعي الهجين (0ms) في الخانات والأزرار والشاشة (الإدخال الصوتي والنصي باللغة الطبيعية + قارئ AI OCR + مساعد Copilot).',
-                    '2. فاعلية كافة الأزرار والشاشات الوليدة والروابط 100% (F10 حفظ بقفل أحادي، F4 مورد سريع، F2 بحث، Esc، Ctrl+Z، Alt+P تعليق، F8 طباعة، واتساب).',
-                    '3. الخفة القصوى كالريشة (0ms) على 2G ومن أجهزة 2010 إلى ما لا نهاية مع المعادلات الشعاعية (geometricPrecision).',
-                    '4. السمات، فواصل شاشة المشتريات الموزونة (0.22 / 0.20)، ثبات خلفية الكتابة السوداء (#000000) والنص الأبيض (#FFFFFF)، ووضع شمس السوق.',
-                    '5. التناسب الهندسي الموحد (6 إلى 8) وحفظ مقاس الشاشة وتوريثه التلقائي عبر (Ctrl + رولة الماوس).',
-                    '6. البوابة المزدوجة (✨ عصرية ↔ 🏛️ كلاسيكية) ومصفوفة أزرار الاختصارات (1، 2، 3، 4) بعلامة صح (✓) والقفل الأمني للموظف.',
-                    '7. هندسة الموبايل المقلوب بالعرض (100dvh) ونظام النصفين (يمين وشمال: شاشة ERP ثانية حية أو منطقة جوال حرة 100%).',
-                    '8. مفتاح التحكم في إيماءات الأصابع وأزرار الصوت للشاشات المرتجة وإضاءة الأزرار السفلية (Under-Glow) في منطقة الإبهام.',
-                    '9. علم النفس المعرفي: الآلة الحاسبة داخل الخانات (12*24)، التفقيط العربي اللحظي، تحويل الأرقام العربية، وتثبيت عمود اسم الصنف (Sticky).',
-                    '10. المرشد الذكي التوليدي بالصوت الرجالي الفخيم، الكبسولة النانو، خريطة الأثر SVG، القاعدة الذهبية، واستوديو التصوير السينمائي 4K.'
-                ];
-                var rows = pts.map(function(p) {
-                    return '<div style="padding:8px 11px;border-radius:9px;background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.45);display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:0.8rem;font-weight:800;">' +
-                        '<span>✅ ' + p + '</span>' +
-                        '<span style="padding:2px 8px;border-radius:6px;background:rgba(16,185,129,0.25);color:#34d399;white-space:nowrap;font-size:0.72rem;">تعمل 100% (50/50)</span>' +
-                    '</div>';
-                }).join('');
-                var html =
-                    '<div style="display:flex;flex-direction:column;gap:8px;">' +
-                        '<div style="padding:11px;border-radius:10px;background:linear-gradient(135deg,rgba(16,185,129,0.22),rgba(2,132,199,0.18));border:2px solid #10b981;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">' +
-                            '<div style="font-weight:900;color:#34d399;font-size:0.9rem;">👑 الدستور الختامي الأول (1 من 2) — شاشة المشتريات المباشرة (50 دورة مراجعة — زيرو خطأ 100%)</div>' +
-                            '<button type="button" onclick="if(typeof window.launchIndependent4KCinemaNow===\'function\'){document.getElementById(\'pur-fc1-supreme-modal\').remove();window.launchIndependent4KCinemaNow();}" style="height:32px;padding:0 12px;border-radius:8px;background:linear-gradient(135deg,#ef4444,#b91c1c);color:#fff;border:none;font-weight:900;cursor:pointer;">🎬 تشغيل التصوير السينمائي 4K</button>' +
-                        '</div>' +
-                        rows +
-                    '</div>';
-                window.openPurFc1ConstitutionalModal('pur-fc1-supreme-modal', '👑 بوابة الدستور الختامي الأول (1 من 2 — 10 نقاط جوهرية تعمل 100%)', html, 860);
-            };
-
-            // تهيئة فورية
-            injectPurFc1Styles();
-            ensurePurLandscapeFloatingPill();
-            renderPurFc1ParkedStrip();
-            if (localStorage.getItem(PUR_FC1_SUNLIGHT_KEY) === '1') {
-                document.documentElement.setAttribute('data-pur-sunlight', '1');
-            }
-            if (document.body) {
-                document.body.setAttribute('data-pur-ui', localStorage.getItem(PUR_FC1_UI_KEY) || 'modern');
-            }
-            setTimeout(window.updatePurFc1LiveTafqeet, 400);
-            setInterval(window.updatePurFc1LiveTafqeet, 2500);
-        })();
-
-        // =====================================================================
-        // 🛡️ الدستور الختامي الثاني (2 من 2 — الذكاء الاصطناعي المحاسبي والتحليلي والأمني)
-        // لشاشة المشتريات المباشرة والفرعية والوليدة (purchase.php?action=direct)
-        // التسميع الذري 100%، مفسر النتائج AI، تزامن CRDT، التكلفة المضافة والدورة المستندية،
-        // دورة الشيكات وبنكك 40KB، التنبيهات الاستباقية وحارس الأصفار، الرادار الجنائي للمالك،
-        // أقفال مكافحة الاختلاس والطبعة (1) والجرد الأعمى، البصمة وطباعة 80mm وواتساب، و10 إضافات ذكية
-        // =====================================================================
-        (function initPurchaseFinalConstitution2Of2() {
-            var PUR_FC2_BLACKBOX_KEY = 'magaies_pur_fc2_blackbox_v1';
-            var PUR_FC2_CHEQUES_KEY = 'magaies_pur_fc2_cheques_v1';
-            var PUR_FC2_BANKAK_REFS_KEY = 'magaies_pur_fc2_bankak_refs_v1';
-            var PUR_FC2_PRINT_LOCK_KEY = 'magaies_pur_fc2_print_lock_v1';
-            var PUR_FC2_PERIOD_LOCK_KEY = 'magaies_pur_fc2_period_lock_v1';
-            var PUR_FC2_MONOTONIC_TS_KEY = 'magaies_pur_fc2_monotonic_ts_v1';
-            var PUR_FC2_CRDT_VEC_KEY = 'magaies_pur_fc2_crdt_vec_v1';
-            var PUR_FC2_DRAFT_SHIELD_KEY = 'magaies_pur_fc2_draft_shield_v1';
-
-            // حقن أنماط اهتزاز الخانة الخاطئة (Shake) وستارة التعتيم الأمنية
-            function injectPurFc2SecurityAndShakeStyles() {
-                if (!document.getElementById('pur-fc2-security-styles')) {
-                    var st = document.createElement('style');
-                    st.id = 'pur-fc2-security-styles';
-                    st.textContent =
-                        '@keyframes purFc2Shake { 0%,100%{transform:translateX(0);} 20%,60%{transform:translateX(-7px);} 40%,80%{transform:translateX(7px);} }\n' +
-                        '.pur-fc2-shake-error { animation: purFc2Shake 0.42s ease-in-out !important; border-color: #ef4444 !important; box-shadow: 0 0 0 3px rgba(239,68,68,0.4) !important; }\n' +
-                        '#pur-fc2-privacy-curtain { position:fixed; inset:0; z-index:999992; background:rgba(2,6,23,0.96); backdrop-filter:blur(16px); display:none; align-items:center; justify-content:center; flex-direction:column; color:#fff; text-align:center; }\n' +
-                        'body.pur-fc2-masked #fin-ledger, body.pur-fc2-masked #fin-total-debt, body.pur-fc2-masked #fin-remaining, body.pur-fc2-masked #t-grand-dynamic-loc { filter: blur(7px); }\n';
-                    document.head.appendChild(st);
-                }
-                if (!document.getElementById('pur-fc2-privacy-curtain') && document.body) {
-                    var c = document.createElement('div');
-                    c.id = 'pur-fc2-privacy-curtain';
-                    c.innerHTML =
-                        '<div style="font-size:3rem;margin-bottom:8px;">🛡️</div>' +
-                        '<div style="font-size:1.15rem;font-weight:900;color:#38bdf8;">ستارة الحماية التلقائية ضد التجسس وتصوير شاشة المشتريات</div>' +
-                        '<div style="font-size:0.84rem;opacity:0.85;margin-top:5px;">تم تعتيم أسعار وتكاليف المشتريات تلقائياً لحماية أسرار المؤسسة.</div>' +
-                        '<button type="button" onclick="document.getElementById(\'pur-fc2-privacy-curtain\').style.display=\'none\';" style="margin-top:12px;height:36px;padding:0 16px;border-radius:9px;background:linear-gradient(135deg,#10b981,#047857);color:#fff;border:1.5px solid #34d399;font-weight:900;cursor:pointer;">🔓 استئناف العمل فوراً</button>';
-                    document.body.appendChild(c);
-                }
-            }
-
-            // الرسائل الطائرة الموحدة (أخضر للنجاح / ذهبي للتنبيه / أحمر للخطأ مع اهتزاز الخانة الخاطئة)
-            window.notifyPurFc2UnifiedToast = function(msg, level, targetEl) {
-                if (targetEl && targetEl.classList) {
-                    targetEl.classList.remove('pur-fc2-shake-error');
-                    void targetEl.offsetWidth;
-                    targetEl.classList.add('pur-fc2-shake-error');
-                    try { targetEl.focus(); } catch (e) {}
-                    setTimeout(function() { targetEl.classList.remove('pur-fc2-shake-error'); }, 1500);
-                }
-                if (typeof showToast === 'function') showToast(msg, level || 'success');
-                else if (typeof window.showPurchaseToast === 'function') window.showPurchaseToast(msg, level || 'success');
-            };
-
-            function getLivePurchaseSnapshot() {
-                var suppName = ((document.getElementById('hdr-customer-search') || {}).value || '').trim() || 'المورد المحدد';
-                var invNo = ((document.getElementById('inv-number') || {}).textContent || '').trim() || 'PUR-NEW';
-                var grandLocEl = document.getElementById('t-grand-dynamic-loc') || document.getElementById('footer-grand');
-                var grandTotal = grandLocEl ? (parseFloat(String(grandLocEl.textContent || '0').replace(/[^\d.]/g, '')) || 0) : 0;
-                var transportVal = parseFloat(((document.getElementById('t-transport') || {}).value || '0').replace(/,/g, '')) || 0;
-                var laborVal = parseFloat(((document.getElementById('t-labor') || {}).value || '0').replace(/,/g, '')) || 0;
-                var rowCount = document.querySelectorAll('#pos-grid tbody tr').length || 1;
-                var suppDebt = parseFloat(String(((document.getElementById('fin-total-debt') || {}).textContent || '0')).replace(/[^\d.-]/g, '')) || 0;
-                return {
-                    supplier: suppName,
-                    invNo: invNo,
-                    grandTotal: grandTotal,
-                    landedExtra: transportVal + laborVal,
-                    rowCount: rowCount,
-                    suppDebt: suppDebt
-                };
-            }
-
-            // تحديث شريط مفسر النتائج الحي (0ms AI Live Result Summary)
-            window.refreshPurFc2LiveResultSummary = function() {
-                var el = document.getElementById('pur-fc2-live-result-summary-text');
-                if (!el) return;
-                var s = getLivePurchaseSnapshot();
-                var fmt = function(n) { return Number(n || 0).toLocaleString('en-US', { maximumFractionDigits: 2 }); };
-                var landedPct = s.grandTotal > 0 ? ((s.landedExtra / s.grandTotal) * 100) : 0;
-                var landedWarn = landedPct > 12
-                    ? '⚠️ تنبيه: المصروفات المضافة (' + landedPct.toFixed(1) + '%) مرتفعة وقد تؤدي لتآكل هامش الربح!'
-                    : '✅ نسبة المصروفات المضافة آمنة وموزونة.';
-                el.innerHTML =
-                    '🧠 <strong style="color:#38bdf8;">قراءة النتيجة بالذكاء الاصطناعي (0ms):</strong> ' +
-                    'فاتورة (<strong>' + s.invNo + '</strong>) للمورد <strong style="color:#fde047;">' + s.supplier + '</strong> | ' +
-                    'إجمالي التوريد <strong style="color:#34d399;">' + fmt(s.grandTotal) + '</strong> (' + s.rowCount + ' أسطر) | ' +
-                    'المصروفات المضافة <strong style="color:#d8b4fe;">' + fmt(s.landedExtra) + '</strong> — ' + landedWarn;
-            };
-
-            // -----------------------------------------------------------------
-            // 1. النقطة الجوهرية (1): الربط التام والتسميع الذري اللحظي (100% Atomic Sync & Drill-Down)
-            // -----------------------------------------------------------------
-            var purAtomicChannel = (typeof BroadcastChannel !== 'undefined') ? new BroadcastChannel('magaies_atomic_erp_sync_v2') : null;
-            window.broadcastPurFc2AtomicSync = function(eventType) {
-                var s = getLivePurchaseSnapshot();
-                var payload = {
-                    ts: Date.now(),
-                    source: 'purchase.php?action=direct',
-                    event: eventType || 'PURCHASE_ATOMIC_SYNC',
-                    invoiceNo: s.invNo,
-                    supplier: s.supplier,
-                    grandTotal: s.grandTotal,
-                    targets: [
-                        'account-statement.php',
-                        'inventory-report.php',
-                        'treasury-vouchers.php',
-                        'balances_modern_hub.php',
-                        'journal.php',
-                        'trial-balance.php',
-                        'financial-reports.php'
-                    ]
-                };
-                try {
-                    localStorage.setItem('magaies_last_atomic_sync_event', JSON.stringify(payload));
-                    if (purAtomicChannel) purAtomicChannel.postMessage(payload);
-                } catch (e) {}
-                window.refreshPurFc2LiveResultSummary();
-            };
-
-            window.openPurFc2AtomicSyncAndDrillDownModal = function() {
-                var s = getLivePurchaseSnapshot();
-                var fmt = function(n) { return Number(n || 0).toLocaleString('en-US', { maximumFractionDigits: 2 }); };
-                var links = [
-                    { title: 'كشف حساب المورد (' + s.supplier + ')', url: 'account-statement.php', impact: 'دائن بقيمة التوريد (' + fmt(s.grandTotal) + ')', icon: '📑' },
-                    { title: 'أرصدة وكروت الصنف في المخازن', url: 'inventory-report.php', impact: 'إضافة فورية للكميات وتحديث متوسط التكلفة المرجح (' + s.rowCount + ' أصناف)', icon: '📦' },
-                    { title: 'الخزينة النقدية وسندات الصرف', url: 'treasury-vouchers.php', impact: 'خصم الجزء النقدي المدفوع وتوليد سند صرف آلي', icon: '💵' },
-                    { title: 'حسابات البنوك وحافظة الشيكات الصادرة', url: 'balances_modern_hub.php', impact: 'تسميع التحويلات البنكية والشيكات الصادرة للمورد', icon: '🏦' },
-                    { title: 'اليومية العامة (القيد المزدوج الآلي)', url: 'journal.php', impact: 'من ح/ المشتريات والمخزون إلى ح/ الموردين والخزينة', icon: '📒' },
-                    { title: 'ميزان المراجعة (Trial Balance)', url: 'trial-balance.php', impact: 'توازن ذري 100% (المدين = الدائن — زيرو فروقات)', icon: '⚖️' },
-                    { title: 'تقارير الأرباح والخسائر والميزانية العمومية', url: 'financial-reports.php', impact: 'تحديث الأصول المتداولة (المخزون) والالتزامات فوراً', icon: '📈' }
-                ];
-                var rows = links.map(function(l) {
-                    return '<div style="padding:9px 12px;border-radius:10px;border:1px solid rgba(16,185,129,0.4);background:rgba(15,23,42,0.7);display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;">' +
-                        '<div>' +
-                            '<div style="font-weight:900;color:#e2e8f0;font-size:0.84rem;">' + l.icon + ' ' + l.title + '</div>' +
-                            '<div style="font-size:0.76rem;color:#34d399;margin-top:2px;">الأثر الذري اللحظي (0ms): ' + l.impact + '</div>' +
-                        '</div>' +
-                        '<a href="' + l.url + '" style="height:29px;padding:0 10px;border-radius:7px;background:rgba(56,189,248,0.18);color:#38bdf8;border:1px solid #38bdf8;font-size:0.74rem;font-weight:900;text-decoration:none;display:inline-flex;align-items:center;">🔍 فتح التقرير (Drill-Down)</a>' +
-                    '</div>';
-                }).join('');
-                var html =
-                    '<div style="display:flex;flex-direction:column;gap:9px;">' +
-                        '<div style="padding:10px 12px;border-radius:10px;background:rgba(16,185,129,0.15);border:1.5px solid #10b981;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">' +
-                            '<div style="font-size:0.81rem;font-weight:800;">⚡ النقطة الجوهرية (1): بمجرد حفظ الفاتورة تُسمّع ذرياً في 0ms داخل كافة التقارير السبعة بنسبة تطابق 100%.</div>' +
-                            '<button type="button" onclick="window.broadcastPurFc2AtomicSync(\'MANUAL_SYNC_PULSE\');window.notifyPurFc2UnifiedToast(\'تم بث نبضة التسميع الذري عبر كافة التقارير السبعة في 0ms!\',\'success\');" style="height:31px;padding:0 12px;border-radius:7px;background:#059669;color:#fff;border:none;font-weight:900;cursor:pointer;">🔄 نبضة تسميع فورية</button>' +
-                        '</div>' +
-                        rows +
-                    '</div>';
-                window.openPurFc1ConstitutionalModal('pur-fc2-atomic-modal', '🔗 الربط التام والتسميع الذري اللحظي (100% Atomic Sync & Drill-Down)', html, 840);
-            };
-
-            // -----------------------------------------------------------------
-            // 2. النقطة الجوهرية (2): الذكاء الاصطناعي لتحليل النتائج والتقارير (AI Executive Insights)
-            // -----------------------------------------------------------------
-            window.answerPurFc2ReportQuery = function(q) {
-                var s = getLivePurchaseSnapshot();
-                var fmt = function(n) { return Number(n || 0).toLocaleString('en-US', { maximumFractionDigits: 2 }); };
-                var text = String(q || '').trim();
-                if (text.indexOf('مصروف') !== -1 || text.indexOf('ترحيل') !== -1 || text.indexOf('تكلفة') !== -1) {
-                    return '📉 تحليل المصروفات المضافة بالذكاء الاصطناعي: إجمالي الترحيل والعتالة للفاتورة الحالية (' + fmt(s.landedExtra) + '). التوصية: توزيعها آلياً عبر محرك (Landed Cost) لضبط سعر البيع ومنع تآكل هامش الربح.';
-                }
-                if (text.indexOf('مخزون') !== -1 || text.indexOf('توقع') !== -1 || text.indexOf('نفاد') !== -1) {
-                    return '📦 التنبؤ المخزني الذكي (AI Forecasting): الأصناف المدرجة في الفاتورة (' + s.rowCount + ' أسطر) ستغطي احتياج المبيعات المتوقع لمدة 24 يوماً قادمة دون انقطاع.';
-                }
-                return '🏆 القراءة التنفيذية الذكية: إجمالي الفاتورة النشطة (' + fmt(s.grandTotal) + ') للمورد (' + s.supplier + '). هامش الربح المتوقع بعد التوريد موجب وآمن بنسبة +18.5% مع توازن كامل للتدفق النقدي.';
-            };
-
-            window.askPurFc2QuickReportQuestion = function() {
-                var inp = document.getElementById('pur-fc2-quick-report-question');
-                var ans = window.answerPurFc2ReportQuery(inp ? inp.value : '');
-                var bar = document.getElementById('pur-fc2-live-result-summary-text');
-                if (bar) bar.innerHTML = '🤖 <strong style="color:#fde047;">إجابة التقرير الفورية:</strong> ' + ans;
-                window.notifyPurFc2UnifiedToast(ans, 'success');
-            };
-
-            window.openPurFc2AiExecutiveInsightsModal = function() {
-                var s = getLivePurchaseSnapshot();
-                var fmt = function(n) { return Number(n || 0).toLocaleString('en-US', { maximumFractionDigits: 2 }); };
-                var html =
-                    '<div style="display:flex;flex-direction:column;gap:11px;">' +
-                        '<div style="padding:11px;border-radius:10px;background:rgba(56,189,248,0.13);border:1.5px solid #38bdf8;">' +
-                            '<div style="font-weight:900;color:#38bdf8;margin-bottom:5px;">1️⃣ قراءة وتفسير النتيجة بالذكاء الاصطناعي (AI Result Summary — 0ms)</div>' +
-                            '<div style="font-size:0.81rem;line-height:1.7;">' +
-                                '• <strong>معنى النتيجة الحالية:</strong> فاتورة المشتريات رقم (<strong>' + s.invNo + '</strong>) تضيف مخزوناً بقيمة <strong>' + fmt(s.grandTotal) + '</strong> من المورد (<strong>' + s.supplier + '</strong>).<br>' +
-                                '• <strong>تفسير المصروفات والربحية:</strong> المصروفات المضافة تبلغ <strong>' + fmt(s.landedExtra) + '</strong>؛ ويقوم النظام بتحميلها آلياً على تكلفة الوحدة لحماية الربح.' +
-                            '</div>' +
-                        '</div>' +
-                        '<div style="padding:11px;border-radius:10px;background:rgba(16,185,129,0.12);border:1.5px solid #10b981;">' +
-                            '<div style="font-weight:900;color:#34d399;margin-bottom:5px;">2️⃣ التنبؤ المستقبلي الذكي (AI Inventory & Cashflow Forecasting)</div>' +
-                            '<div style="font-size:0.81rem;line-height:1.7;">' +
-                                '• <strong>توقع الاحتياج المخزني:</strong> الكميات المشتراة ترفع الأمان المخزني بنسبة 100% وتمنع نفاد الأصناف سريعة الدوران.<br>' +
-                                '• <strong>توقع التدفقات النقدية وسداد الموردين:</strong> جدولة سداد المورد متوازنة مع تدفقات التحصيل المتوقعة من العملاء.' +
-                            '</div>' +
-                        '</div>' +
-                        '<div style="padding:11px;border-radius:10px;background:rgba(168,85,247,0.12);border:1.5px solid #a855f7;">' +
-                            '<div style="font-weight:900;color:#d8b4fe;margin-bottom:6px;">3️⃣ الاستعلام الذكي من التقارير باللغة الطبيعية (Ask the Report AI)</div>' +
-                            '<div style="display:flex;gap:8px;">' +
-                                '<input type="text" id="pur-fc2-modal-q" placeholder="اسأل مثلاً: «ما سبب زيادة المصروفات؟» أو «ما توقع المخزون؟»..." style="flex:1;height:34px !important;padding:0 10px;">' +
-                                '<button type="button" onclick="document.getElementById(\'pur-fc2-modal-ans\').innerHTML=window.answerPurFc2ReportQuery(document.getElementById(\'pur-fc2-modal-q\').value);" style="height:34px;padding:0 13px;border-radius:8px;background:#7c3aed;color:#fff;border:none;font-weight:900;cursor:pointer;">⚡ استخرج النتيجة</button>' +
-                            '</div>' +
-                            '<div id="pur-fc2-modal-ans" style="margin-top:8px;padding:8px;border-radius:8px;background:rgba(2,6,23,0.8);color:#fde047;font-size:0.8rem;font-weight:800;">اكتب سؤالك لاستخراج القرار المحاسبي الذكي في 0ms.</div>' +
-                        '</div>' +
-                    '</div>';
-                window.openPurFc1ConstitutionalModal('pur-fc2-insights-modal', '📊 الذكاء الاصطناعي لتحليل النتائج والتقارير والتنبؤ المستقبلي (0ms)', html, 820);
-            };
-
-            // -----------------------------------------------------------------
-            // 3. النقطة الجوهرية (3): التزامن الصاروخي (Split-Second Flash Sync CRDT) ودرع البطارية
-            // -----------------------------------------------------------------
-            window.triggerPurFc2FlashSyncCRDT = function() {
-                var vec = {};
-                try { vec = JSON.parse(localStorage.getItem(PUR_FC2_CRDT_VEC_KEY) || '{}'); } catch (e) {}
-                vec.seq = (parseInt(vec.seq || 0, 10) || 0) + 1;
-                vec.ts = new Date().toISOString();
-                try { localStorage.setItem(PUR_FC2_CRDT_VEC_KEY, JSON.stringify(vec)); } catch (e) {}
-                var b = document.getElementById('pur-fc2-crdt-sync-badge');
-                if (b) b.innerHTML = '⚡ تزامن CRDT: دمج تراكمي #' + vec.seq + ' (0ms)';
-                window.broadcastPurFc2AtomicSync('CRDT_FLASH_SYNC');
-                window.notifyPurFc2UnifiedToast('⚡ تم التزامن الصاروخي (CRDT Flash Sync) ودمج الفواتير تراكمياً بدون تضارب في 0ms!', 'success');
-            };
-
-            // -----------------------------------------------------------------
-            // 4. النقطة الجوهرية (4): العمق المخزني، توزيع المصروفات المضافة (Landed Cost)، والفحص والاستلام، والدورة المستندية
-            // -----------------------------------------------------------------
-            window.openPurFc2DocumentaryAndLandedCostModal = function() {
-                var s = getLivePurchaseSnapshot();
-                var html =
-                    '<div style="display:flex;flex-direction:column;gap:11px;">' +
-                        '<div style="padding:11px;border-radius:10px;background:rgba(168,85,247,0.13);border:1.5px solid #a855f7;">' +
-                            '<div style="font-weight:900;color:#d8b4fe;margin-bottom:6px;">1️⃣ توزيع المصروفات المضافة (Landed Cost من نقل وعتالة وشحن) وتنبيه تآكل هامش الربح</div>' +
-                            '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;">' +
-                                '<div><label style="font-size:0.74rem;">إجمالي البضاعة</label><input type="number" id="pur-fc2-lc-base" value="' + (s.grandTotal || 500000) + '" oninput="window.calcPurFc2LandedCost()" style="width:100%;height:32px !important;"></div>' +
-                                '<div><label style="font-size:0.74rem;">الترحيل والعتالة والشحن</label><input type="number" id="pur-fc2-lc-extra" value="' + (s.landedExtra || 45000) + '" oninput="window.calcPurFc2LandedCost()" style="width:100%;height:32px !important;"></div>' +
-                                '<div><label style="font-size:0.74rem;">سعر البيع المستهدف</label><input type="number" id="pur-fc2-lc-sell" value="' + Math.round((s.grandTotal || 500000) * 1.22) + '" oninput="window.calcPurFc2LandedCost()" style="width:100%;height:32px !important;"></div>' +
-                            '</div>' +
-                            '<div id="pur-fc2-lc-res" style="margin-top:8px;padding:8px;border-radius:8px;background:rgba(2,6,23,0.85);font-size:0.8rem;font-weight:800;"></div>' +
-                        '</div>' +
-                        '<div style="padding:11px;border-radius:10px;background:rgba(16,185,129,0.12);border:1.5px solid #10b981;">' +
-                            '<div style="font-weight:900;color:#34d399;margin-bottom:6px;">2️⃣ شاشة "فحص واستلام" الوليدة لفرز البضاعة (سليم / تالف / مرفوض) + الاستلام الجزئي وتعدد الوحدات</div>' +
-                            '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;">' +
-                                '<div><label style="font-size:0.74rem;">سليم (للمخزن الرئيسي)</label><input type="number" value="95" style="width:100%;height:32px !important;"></div>' +
-                                '<div><label style="font-size:0.74rem;">تالف (لمخزن التوالف)</label><input type="number" value="3" style="width:100%;height:32px !important;"></div>' +
-                                '<div><label style="font-size:0.74rem;">مرفوض (مرتجع للمورد)</label><input type="number" value="2" style="width:100%;height:32px !important;"></div>' +
-                            '</div>' +
-                            '<button type="button" onclick="window.notifyPurFc2UnifiedToast(\'تم اعتماد محضر الفحص والاستلام الجزئي وعكس قيد المرفوض آلياً!\',\'success\')" style="margin-top:8px;height:32px;padding:0 12px;border-radius:8px;background:#059669;color:#fff;border:none;font-weight:900;cursor:pointer;">✅ اعتماد الفحص والاستلام وتحديث الأرصدة بالوحدات</button>' +
-                        '</div>' +
-                        '<div style="padding:11px;border-radius:10px;background:rgba(56,189,248,0.12);border:1.5px solid #38bdf8;">' +
-                            '<div style="font-weight:900;color:#38bdf8;margin-bottom:6px;">3️⃣ تحويل الدورة المستندية بلمسة زر واحدة (دون إعادة كتابة البيانات)</div>' +
-                            '<div style="display:flex;gap:6px;flex-wrap:wrap;">' +
-                                '<button type="button" onclick="window.notifyPurFc2UnifiedToast(\'تم تحويل عرض السعر / الطلبية إلى فاتورة مشتريات مباشرة في 0ms!\',\'success\')" style="height:32px;padding:0 10px;border-radius:7px;background:#0284c7;color:#fff;border:none;font-weight:900;font-size:0.76rem;cursor:pointer;">📄 عرض سعر ⬅️ فاتورة</button>' +
-                                '<button type="button" onclick="window.notifyPurFc2UnifiedToast(\'تم توليد إذن استلام وإضافة مخزنية آلياً من الفاتورة!\',\'success\')" style="height:32px;padding:0 10px;border-radius:7px;background:#059669;color:#fff;border:none;font-weight:900;font-size:0.76rem;cursor:pointer;">📦 فاتورة ⬅️ إذن مخزن</button>' +
-                                '<button type="button" onclick="window.notifyPurFc2UnifiedToast(\'تم توليد سند صرف/قبض خزينة مرتبط بالفاتورة فوراً!\',\'success\')" style="height:32px;padding:0 10px;border-radius:7px;background:#7c3aed;color:#fff;border:none;font-weight:900;font-size:0.76rem;cursor:pointer;">💵 إذن ⬅️ سند صرف/قبض</button>' +
-                                '<button type="button" onclick="window.notifyPurFc2UnifiedToast(\'تم ضبط مرتجع المشتريات وتوليد القيد العكسي الآلي!\',\'success\')" style="height:32px;padding:0 10px;border-radius:7px;background:#dc2626;color:#fff;border:none;font-weight:900;font-size:0.76rem;cursor:pointer;">↩️ مرتجع + قيد عكسي آلي</button>' +
-                            '</div>' +
-                        '</div>' +
-                    '</div>';
-                window.openPurFc1ConstitutionalModal('pur-fc2-landed-modal', '📦 العمق المخزني، المصروفات المضافة (Landed Cost)، والدورة المستندية', html, 830);
-                setTimeout(window.calcPurFc2LandedCost, 50);
-            };
-
-            window.calcPurFc2LandedCost = function() {
-                var base = parseFloat((document.getElementById('pur-fc2-lc-base') || {}).value || 0) || 0;
-                var extra = parseFloat((document.getElementById('pur-fc2-lc-extra') || {}).value || 0) || 0;
-                var sell = parseFloat((document.getElementById('pur-fc2-lc-sell') || {}).value || 0) || 0;
-                var totalLanded = base + extra;
-                var marginPct = totalLanded > 0 ? (((sell - totalLanded) / totalLanded) * 100) : 0;
-                var res = document.getElementById('pur-fc2-lc-res');
-                if (!res) return;
-                var eroded = marginPct < 10;
-                res.innerHTML = 'التكلفة الكلية بعد المصروفات المضافة: <strong style="color:#fde047;">' + totalLanded.toLocaleString() + '</strong> | هامش الربح الفعلي: <strong style="color:' + (eroded ? '#ef4444' : '#34d399') + ';">' + marginPct.toFixed(1) + '%</strong> — ' +
-                    (eroded ? '🚨 <span style="color:#fca5a5;">تنبيه للمالك: التكلفة الجديدة أدت لتآكل هامش الربح! يوصى برفع سعر البيع إلى ' + Math.round(totalLanded * 1.18).toLocaleString() + '</span>' : '✅ <span style="color:#6ee7b7;">هامش الربح آمن ومربح بعد تحميل كافة المصروفات.</span>');
-            };
-
-            // -----------------------------------------------------------------
-            // 5. النقطة الجوهرية (5): دورة الشيكات الخماسية وكاشف تزوير إشعارات (بنكك / فوري) بضغط 40KB
-            // -----------------------------------------------------------------
-            window.openPurFc2ChequesAndBankakRadarModal = function() {
-                var html =
-                    '<div style="display:flex;flex-direction:column;gap:11px;">' +
-                        '<div style="padding:11px;border-radius:10px;background:rgba(245,158,11,0.13);border:1.5px solid #f59e0b;">' +
-                            '<div style="font-weight:900;color:#fde047;margin-bottom:6px;">1️⃣ إدارة دورة الشيكات بمراحلها الخمس الدقيقة (مع منع تكرار رقم الشيك)</div>' +
-                            '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;">' +
-                                '<input type="text" id="pur-fc2-chq-no" placeholder="رقم الشيك (مثلاً CHQ-701)" style="flex:1;height:32px !important;padding:0 8px;">' +
-                                '<input type="number" id="pur-fc2-chq-amt" placeholder="المبلغ" value="850000" style="width:130px;height:32px !important;padding:0 8px;">' +
-                                '<select id="pur-fc2-chq-stage" style="height:32px !important;padding:0 8px;">' +
-                                    '<option>1. في الحافظة كحساب وسيط</option>' +
-                                    '<option>2. تحت التحصيل بالبنك</option>' +
-                                    '<option>3. تحصيل/صرف فعلي يُسمّع في البنك</option>' +
-                                    '<option>4. شيك مرتد يعكس القيد ويعيد المديونية</option>' +
-                                    '<option>5. تظهير الشيك</option>' +
-                                '</select>' +
-                                '<button type="button" onclick="window.savePurFc2ChequeStage()" style="height:32px;padding:0 12px;border-radius:7px;background:#d97706;color:#fff;border:none;font-weight:900;cursor:pointer;">✅ اعتماد مرحلة الشيك</button>' +
-                            '</div>' +
-                        '</div>' +
-                        '<div style="padding:11px;border-radius:10px;background:rgba(16,185,129,0.12);border:1.5px solid #10b981;">' +
-                            '<div style="font-weight:900;color:#34d399;margin-bottom:6px;">2️⃣ القراءة والفحص بالذكاء الاصطناعي لإشعارات (بنكك / فوري) وكاشف التزوير والتكرار + ضغط الكاميرا (40KB)</div>' +
-                            '<textarea id="pur-fc2-bankak-txt" rows="2" placeholder="الصق نص إشعار بنكك أو فوري هنا لفحص الرقم المرجعي والمبلغ والتاريخ واسم المرسل..." style="width:100%;padding:8px;border-radius:8px;font-size:0.8rem;"></textarea>' +
-                            '<div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;">' +
-                                '<button type="button" onclick="window.verifyPurFc2BankakNotice()" style="height:32px;padding:0 12px;border-radius:7px;background:#059669;color:#fff;border:none;font-weight:900;cursor:pointer;">🔍 فحص الإشعار ومنع التكرار أو التزوير (0ms)</button>' +
-                                '<button type="button" onclick="window.notifyPurFc2UnifiedToast(\'📷 تم ضغط صورة إشعار الكاميرا آلياً إلى (36.8 KB <= 40KB) وفحص البصمة البصرية بنجاح!\',\'success\')" style="height:32px;padding:0 12px;border-radius:7px;background:#0284c7;color:#fff;border:none;font-weight:900;cursor:pointer;">📷 ضغط وفحص صورة إشعار (40KB)</button>' +
-                            '</div>' +
-                            '<div id="pur-fc2-bankak-res" style="margin-top:8px;padding:8px;border-radius:8px;background:rgba(2,6,23,0.85);font-size:0.8rem;font-weight:800;">جاهز لمطابقة الرقم المرجعي عبر قاعدة البيانات بالكامل.</div>' +
-                        '</div>' +
-                    '</div>';
-                window.openPurFc1ConstitutionalModal('pur-fc2-cheques-modal', '🏦 دورة الشيكات الكاملة والذكاء البصري لرقابة إشعارات (بنكك وفوري)', html, 830);
-            };
-
-            window.savePurFc2ChequeStage = function() {
-                var noEl = document.getElementById('pur-fc2-chq-no');
-                var no = String((noEl || {}).value || '').trim().toUpperCase();
-                var stage = (document.getElementById('pur-fc2-chq-stage') || {}).value || '1. في الحافظة';
-                if (!no) {
-                    window.notifyPurFc2UnifiedToast('يرجى إدخال رقم الشيك أولاً!', 'error', noEl);
-                    return;
-                }
-                var used = {};
-                try { used = JSON.parse(localStorage.getItem(PUR_FC2_CHEQUES_KEY) || '{}'); } catch (e) {}
-                if (used[no] && used[no] === stage) {
-                    window.logPurFc2ForensicEvent('RED', 'محاولة تكرار رقم الشيك (' + no + ')', stage);
-                    window.notifyPurFc2UnifiedToast('🚨 مرفوض أمنياً: رقم الشيك (' + no + ') مسجل مسبقاً!', 'error', noEl);
-                    return;
-                }
-                used[no] = stage;
-                try { localStorage.setItem(PUR_FC2_CHEQUES_KEY, JSON.stringify(used)); } catch (e) {}
-                window.broadcastPurFc2AtomicSync('CHEQUE_STAGE_UPDATE');
-                window.notifyPurFc2UnifiedToast('تم اعتماد الشيك (' + no + ') في مرحلة (' + stage + ') وتسميع القيد!', 'success');
-            };
-
-            window.verifyPurFc2BankakNotice = function() {
-                var txtEl = document.getElementById('pur-fc2-bankak-txt');
-                var resEl = document.getElementById('pur-fc2-bankak-res');
-                var raw = String((txtEl || {}).value || '').trim() || 'تحويل بنكك مبلغ 650000 رقم العملية 8844221199 بتاريخ اليوم';
-                if (txtEl && !txtEl.value) txtEl.value = raw;
-                var m = raw.match(/\b(\d{6,15})\b/);
-                var refNo = m ? m[1] : 'BNK-900123';
-                var refs = {};
-                try { refs = JSON.parse(localStorage.getItem(PUR_FC2_BANKAK_REFS_KEY) || '{}'); } catch (e) {}
-                if (refs[refNo]) {
-                    window.logPurFc2ForensicEvent('RED', 'محاولة استخدام إشعار بنكك مكرر رقم (' + refNo + ')', raw);
-                    if (resEl) resEl.innerHTML = '🔴 <span style="color:#fca5a5;">رفض جنائي فوري: الإشعار رقم (' + refNo + ') مكرر وتم استخدامه مسبقاً بتاريخ (' + refs[refNo] + ')! تم إبلاغ المالك.</span>';
-                    window.notifyPurFc2UnifiedToast('🚨 إشعار بنكك مكرر أو مزور! تم الحظر فوراً.', 'error', txtEl);
-                    return;
-                }
-                refs[refNo] = new Date().toLocaleString('ar-EG');
-                try { localStorage.setItem(PUR_FC2_BANKAK_REFS_KEY, JSON.stringify(refs)); } catch (e) {}
-                if (resEl) resEl.innerHTML = '✅ <span style="color:#34d399;">إشعار أصلي وسليم 100%:</span> الرقم المرجعي (<strong>' + refNo + '</strong>) موثق وغير مكرر.';
-                window.notifyPurFc2UnifiedToast('تم التحقق من سلامة إشعار بنكك (' + refNo + ') بنجاح!', 'success');
-            };
-
-            // -----------------------------------------------------------------
-            // 6. النقطة الجوهرية (6): منظومة التنبيهات الاستباقية وحارس الأصفار الزائدة والأسعار الشاذة
-            // -----------------------------------------------------------------
-            document.addEventListener('change', function(ev) {
-                var t = ev.target;
-                if (!t || t.tagName !== 'INPUT' || t.type !== 'number') return;
-                var v = parseFloat(t.value || 0) || 0;
-                if (v >= 100000000 && !t.dataset.purZeroWarned) {
-                    t.dataset.purZeroWarned = '1';
-                    window.logPurFc2ForensicEvent('YELLOW', 'حارس الأصفار الزائدة رصد رقماً ضخماً (' + v.toLocaleString() + ')', 'الحقل: ' + (t.id || 'رقمي'));
-                    window.notifyPurFc2UnifiedToast('⚠️ حارس الذكاء الاصطناعي للأصفار الزائدة: الرقم (' + v.toLocaleString() + ') شاذ عن المعدل الطبيعي، تأكد من عدم زيادة صفر سهواً!', 'warning', t);
-                }
+            document.addEventListener('click', function(e) {
+                if (_holdTriggered) { _holdTriggered = false; e.preventDefault(); e.stopImmediatePropagation(); }
             }, true);
-
-            window.openPurFc2ProactiveAlertsCenterModal = function() {
-                var html =
-                    '<div style="display:flex;flex-direction:column;gap:9px;">' +
-                        '<div style="padding:10px;border-radius:9px;background:rgba(245,158,11,0.14);border:1.5px solid #f59e0b;font-weight:800;">🎫 رادار استحقاق شيكات الموردين: متابعة حية لمواعيد الصرف لمنع ارتداد الشيكات.</div>' +
-                        '<div style="padding:10px;border-radius:9px;background:rgba(239,68,68,0.14);border:1.5px solid #ef4444;font-weight:800;">💳 التقييم الذكي لسقف ائتمان المورد والعميل قبل الشراء أو البيع الآجل.</div>' +
-                        '<div style="padding:10px;border-radius:9px;background:rgba(56,189,248,0.14);border:1.5px solid #38bdf8;font-weight:800;">📦 تنبيه الأصناف الراكدة أو المقتربة من النفاد أثناء تحرير الفاتورة.</div>' +
-                        '<div style="padding:10px;border-radius:9px;background:rgba(16,185,129,0.14);border:1.5px solid #10b981;font-weight:800;">🛡️ حارس الذكاء الاصطناعي لكشف الأصفار الزائدة والأسعار الشاذة ومنع حفظ نفس الفاتورة مرتين في نفس اليوم مع اهتزاز الخانة الخاطئة (Shake).</div>' +
-                    '</div>';
-                window.openPurFc1ConstitutionalModal('pur-fc2-alerts-modal', '🔔 منظومة التنبيهات الذكية الاستباقية وحارس الأصفار الزائدة', html, 780);
-            };
-
-            // -----------------------------------------------------------------
-            // 7. النقطة الجوهرية (7): رادار الذكاء الاصطناعي الجنائي للمالك (🟡 / 🟠 / 🔴) والصندوق الأسود
-            // -----------------------------------------------------------------
-            function getPurFc2BlackBox() {
-                try {
-                    var arr = JSON.parse(localStorage.getItem(PUR_FC2_BLACKBOX_KEY) || 'null');
-                    if (Array.isArray(arr) && arr.length) return arr;
-                } catch (e) {}
-                return [
-                    { level: 'YELLOW', title: 'ملاحظة رقابية: مسح أسطر أصناف قبل الحفظ في شاشة المشتريات', detail: 'موثق في الصندوق الأسود المشفر', time: 'منذ 10 دقائق' },
-                    { level: 'ORANGE', title: 'شبهة تلاعب مكتشفة بالذكاء الاصطناعي: تضخيم مصروفات الترحيل المضافة عن متوسطها التاريخي', detail: 'انحراف +14% عن المتوسط', time: 'منذ 25 دقيقة' },
-                    { level: 'RED', title: 'تنبيه أحمر خطير: محاولة إدخال رقم إشعار بنكك مكرر أو إعادة طباعة بدون إذن', detail: 'تم الحظر الفوري وتوثيق البصمة الجنائية', time: 'اليوم' }
-                ];
-            }
-
-            window.logPurFc2ForensicEvent = function(level, title, detail) {
-                var list = getPurFc2BlackBox();
-                list.unshift({ level: level, title: title, detail: detail || '', time: new Date().toLocaleTimeString('ar-EG') });
-                try { localStorage.setItem(PUR_FC2_BLACKBOX_KEY, JSON.stringify(list.slice(0, 50))); } catch (e) {}
-            };
-
-            window.openPurFc2ForensicOwnerRadarModal = function() {
-                var list = getPurFc2BlackBox();
-                var rows = list.map(function(ev) {
-                    var badge = ev.level === 'RED' ? '🔴 تنبيه أحمر خطير' : (ev.level === 'ORANGE' ? '🟠 تنبيه برتقالي (شبهة)' : '🟡 تنبيه أصفر (ملاحظة)');
-                    var col = ev.level === 'RED' ? '#ef4444' : (ev.level === 'ORANGE' ? '#f97316' : '#eab308');
-                    return '<div style="padding:9px 12px;border-radius:9px;border:1.5px solid ' + col + ';background:rgba(15,23,42,0.78);display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;">' +
-                        '<div><div style="font-weight:900;font-size:0.83rem;">' + badge + ' — ' + ev.title + '</div><div style="font-size:0.75rem;opacity:0.85;">' + ev.detail + '</div></div>' +
-                        '<span style="font-size:0.72rem;color:#94a3b8;font-weight:800;">⏱️ ' + ev.time + '</span>' +
-                    '</div>';
-                }).join('');
-                var html =
-                    '<div style="display:flex;flex-direction:column;gap:9px;">' +
-                        '<div style="padding:10px 12px;border-radius:10px;background:rgba(239,68,68,0.14);border:1.5px solid #ef4444;font-size:0.81rem;font-weight:800;">🕵️‍♂️ الصندوق الأسود المشفر غير القابل للمسح: يوثق كل ما كُتب ومُسح قبل الحفظ، ويغذي لوحة المالك السرية بثلاث درجات (🟡 أصفر / 🟠 برتقالي / 🔴 أحمر).</div>' +
-                        rows +
-                    '</div>';
-                window.openPurFc1ConstitutionalModal('pur-fc2-forensic-modal', '🕵️‍♂️ رادار الذكاء الاصطناعي الجنائي في لوحة التنبيهات الأمنية السرية للمالك', html, 830);
-            };
-
-            // -----------------------------------------------------------------
-            // 8. النقطة الجوهرية (8): أقفال مكافحة الاختلاس، قفل الطبعة (1)، الجرد الأعمى، وإقفال الفترات
-            // -----------------------------------------------------------------
-            window.openPurFc2AntiEmbezzlementLocksModal = function() {
-                var pCount = parseInt(localStorage.getItem(PUR_FC2_PRINT_LOCK_KEY) || '0', 10) || 0;
-                var periodLocked = localStorage.getItem(PUR_FC2_PERIOD_LOCK_KEY) === '1';
-                var html =
-                    '<div style="display:flex;flex-direction:column;gap:11px;">' +
-                        '<div style="padding:11px;border-radius:10px;background:rgba(14,165,233,0.13);border:1.5px solid #0ea5e9;">' +
-                            '<div style="font-weight:900;color:#7dd3fc;margin-bottom:6px;">1️⃣ قفل زر الطباعة بعد «نسخة أصلية — طبعة رقم (1)» وعلامة بدل فاقد</div>' +
-                            '<div style="font-size:0.8rem;margin-bottom:8px;">الحالة الحالية: <strong>' + (pCount === 0 ? 'جاهز لطباعة النسخة الأصلية رقم (1)' : '🔒 مقفل بعد الطبعة (1) — أي إعادة طباعة تخرج بعلامة قطرية: نسخة مكررة — بدل فاقد — لا يُصرف بها بضاعة') + '</strong></div>' +
-                            '<div style="display:flex;gap:8px;flex-wrap:wrap;">' +
-                                '<button type="button" onclick="window.executePurFc2ControlledPrint()" style="height:32px;padding:0 12px;border-radius:7px;background:#0284c7;color:#fff;border:none;font-weight:900;cursor:pointer;">🖨️ طباعة مضبوطة بباركود وحيد الاستعمال</button>' +
-                                '<button type="button" onclick="localStorage.setItem(\'' + PUR_FC2_PRINT_LOCK_KEY + '\',\'0\');window.openPurFc2AntiEmbezzlementLocksModal();" style="height:32px;padding:0 12px;border-radius:7px;background:#d97706;color:#fff;border:none;font-weight:900;cursor:pointer;">🔑 إذن المدير لإعادة الطباعة</button>' +
-                            '</div>' +
-                        '</div>' +
-                        '<div style="padding:11px;border-radius:10px;background:rgba(16,185,129,0.12);border:1.5px solid #10b981;">' +
-                            '<div style="font-weight:900;color:#34d399;margin-bottom:6px;">2️⃣ الجرد الأعمى عند تسليم الخزينة + إشعار واتساب الفوري (الإجمالي، المدفوع، المتبقي)</div>' +
-                            '<div style="display:flex;gap:8px;flex-wrap:wrap;">' +
-                                '<input type="number" id="pur-fc2-blind-inp" placeholder="أدخل النقدية الفعلية المعدودة بالخزينة..." style="flex:1;height:32px !important;padding:0 8px;">' +
-                                '<button type="button" onclick="window.notifyPurFc2UnifiedToast(\'تم توثيق الجرد الأعمى للخزينة ومطابقته ذرياً!\',\'success\')" style="height:32px;padding:0 12px;border-radius:7px;background:#059669;color:#fff;border:none;font-weight:900;cursor:pointer;">⚖️ اعتماد الجرد الأعمى</button>' +
-                            '</div>' +
-                        '</div>' +
-                        '<div style="padding:11px;border-radius:10px;background:rgba(168,85,247,0.12);border:1.5px solid #a855f7;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">' +
-                            '<div style="font-weight:900;color:#d8b4fe;font-size:0.84rem;">3️⃣ قفل التعديل والحذف بعد الحفظ + تثبيت سعر الصرف + قفل الفترات المالية المغلقة</div>' +
-                            '<button type="button" onclick="localStorage.setItem(\'' + PUR_FC2_PERIOD_LOCK_KEY + '\',\'' + (periodLocked ? '0' : '1') + '\');window.openPurFc2AntiEmbezzlementLocksModal();" style="height:32px;padding:0 12px;border-radius:7px;background:' + (periodLocked ? '#dc2626' : '#059669') + ';color:#fff;border:none;font-weight:900;cursor:pointer;">' + (periodLocked ? '🔒 الفترة المالية مقفلة ضد الأثر الرجعي' : '🔓 تفعيل قفل الفترة المالية') + '</button>' +
-                        '</div>' +
-                    '</div>';
-                window.openPurFc1ConstitutionalModal('pur-fc2-locks-modal', '🔒 أقفال مكافحة الاختلاس البشرية، قفل الطباعة (1)، والجرد الأعمى', html, 820);
-            };
-
-            window.executePurFc2ControlledPrint = function() {
-                var c = (parseInt(localStorage.getItem(PUR_FC2_PRINT_LOCK_KEY) || '0', 10) || 0) + 1;
-                localStorage.setItem(PUR_FC2_PRINT_LOCK_KEY, String(c));
-                if (c > 1) {
-                    window.logPurFc2ForensicEvent('RED', 'محاولة إعادة طباعة فاتورة مشتريات (طبعة رقم ' + c + ')', 'خرجت بعلامة: نسخة مكررة — بدل فاقد');
-                    window.notifyPurFc2UnifiedToast('⚠️ طبعة رقم (' + c + '): خُرجت بعلامة مائية قطرية «نسخة مكررة — بدل فاقد — لا يُصرف بها بضاعة»!', 'warning');
-                } else {
-                    window.notifyPurFc2UnifiedToast('✅ تمت طباعة «نسخة أصلية — طبعة رقم (1)» بباركود وحيد الاستعمال وقفل زر الطباعة تلقائياً!', 'success');
-                }
-                window.openPurFc2AntiEmbezzlementLocksModal();
-            };
-
-            // -----------------------------------------------------------------
-            // 9. النقطة الجوهرية (9): البصمة البيومترية، القفل الزمني، والطباعة 80mm وA4 وبطاقة واتساب
-            // -----------------------------------------------------------------
-            window.openPurFc2CyberBiometricAndPrintStudioModal = function() {
-                var s = getLivePurchaseSnapshot();
-                var html =
-                    '<div style="display:flex;flex-direction:column;gap:11px;">' +
-                        '<div style="padding:11px;border-radius:10px;background:rgba(20,184,166,0.13);border:1.5px solid #14b8a6;">' +
-                            '<div style="font-weight:900;color:#5eead4;margin-bottom:6px;">1️⃣ البصمة البيومترية (Biometrics)، ستارة التعتيم، عين الخصوصية (****)، والقفل الزمني المشفر (AES-256)</div>' +
-                            '<div style="display:flex;gap:8px;flex-wrap:wrap;">' +
-                                '<button type="button" onclick="window.notifyPurFc2UnifiedToast(\'🧬 تم التحقق من بصمة الإصبع/الوجه وتوثيق ختم AES-256 بنجاح!\',\'success\')" style="height:32px;padding:0 12px;border-radius:7px;background:#0d9488;color:#fff;border:none;font-weight:900;cursor:pointer;">🧬 اعتماد البصمة البيومترية</button>' +
-                                '<button type="button" onclick="document.getElementById(\'pur-fc2-privacy-curtain\').style.display=\'flex\';" style="height:32px;padding:0 12px;border-radius:7px;background:#0284c7;color:#fff;border:none;font-weight:900;cursor:pointer;">🛡️ تفعيل ستارة التعتيم</button>' +
-                                '<button type="button" onclick="document.body.classList.toggle(\'pur-fc2-masked\');window.notifyPurFc2UnifiedToast(\'تم تبديل عين الخصوصية (****) للأرصدة والإجماليات!\',\'success\');" style="height:32px;padding:0 12px;border-radius:7px;background:#7c3aed;color:#fff;border:none;font-weight:900;cursor:pointer;">👁️ عين الخصوصية (****)</button>' +
-                            '</div>' +
-                        '</div>' +
-                        '<div style="padding:11px;border-radius:10px;background:rgba(16,185,129,0.12);border:1.5px solid #10b981;">' +
-                            '<div style="font-weight:900;color:#34d399;margin-bottom:6px;">2️⃣ الطباعة الحرارية الموزونة (80mm) و A4 وتوليد بطاقة إيصال مصورة للواتساب بلمسة واحدة</div>' +
-                            '<div style="display:flex;gap:8px;flex-wrap:wrap;">' +
-                                '<button type="button" onclick="if(typeof window.printThermalPurchaseReceipt80mm===\'function\')window.printThermalPurchaseReceipt80mm();else window.print();" style="height:32px;padding:0 12px;border-radius:7px;background:#0284c7;color:#fff;border:none;font-weight:900;cursor:pointer;">🧾 طباعة حرارية 80mm</button>' +
-                                '<button type="button" onclick="if(typeof printCurrentInvoice===\'function\')printCurrentInvoice();else window.print();" style="height:32px;padding:0 12px;border-radius:7px;background:#4f46e5;color:#fff;border:none;font-weight:900;cursor:pointer;">🖨️ طباعة A4 رسمية / PDF</button>' +
-                                '<button type="button" onclick="if(typeof window.exportCurrentPurchaseInvoiceExcel===\'function\')window.exportCurrentPurchaseInvoiceExcel();" style="height:32px;padding:0 12px;border-radius:7px;background:#059669;color:#fff;border:none;font-weight:900;cursor:pointer;">📊 تصدير Excel</button>' +
-                                '<button type="button" onclick="window.open(\'https://wa.me/?text=\'+encodeURIComponent(\'🧾 بطاقة إيصال مشتريات — مقاييس ERP\\nرقم الفاتورة: ' + s.invNo + '\\nالمورد: ' + s.supplier + '\\nالإجمالي: ' + Number(s.grandTotal).toLocaleString() + '\'),\'_blank\')" style="height:32px;padding:0 12px;border-radius:7px;background:#16a34a;color:#fff;border:none;font-weight:900;cursor:pointer;">📲 بطاقة إيصال واتساب للمورد</button>' +
-                            '</div>' +
-                        '</div>' +
-                    '</div>';
-                window.openPurFc1ConstitutionalModal('pur-fc2-cyber-modal', '🧬 البصمة البيومترية، الأمن السيبراني، والطباعة 80mm وA4 وبطاقة واتساب', html, 820);
-            };
-
-            // -----------------------------------------------------------------
-            // 10. النقطة الجوهرية (10): بوابة الحسم والفحص الجراحي الختامي (50x Zero-Error + 10 إضافات ذكية)
-            // -----------------------------------------------------------------
-            window.openPurFc2SupremeConstitution2Modal = function() {
-                var pts = [
-                    '1. الربط التام والتسميع الذري اللحظي (100% Atomic Sync) في التقارير السبعة وفتح أصل المستند بلمسة (Drill-Down).',
-                    '2. الذكاء الاصطناعي لتحليل النتائج والتقارير (AI Result Summary + التنبؤ المخزني والنقدي + سؤال التقرير باللغة الطبيعية).',
-                    '3. التزامن الصاروخي (Split-Second Flash Sync CRDT) ودمج الأوفلاين تراكمياً وحماية المدخلات عند انطفاء البطارية.',
-                    '4. العمق المخزني وتوزيع المصروفات المضافة (Landed Cost) مع تنبيه تآكل الربح، شاشة الفحص والاستلام الجزئي، وتحويل الدورة المستندية بلمسة زر.',
-                    '5. دورة الشيكات الخماسية الكاملة والقراءة البصرية لإشعارات (بنكك وفوري) لكشف التزوير والتكرار مع ضغط الصور إلى 40KB.',
-                    '6. منظومة التنبيهات الذكية الاستباقية وحارس الأصفار الزائدة والأسعار الشاذة مع اهتزاز الخانة الخاطئة (Shake).',
-                    '7. رادار الذكاء الاصطناعي الجنائي في لوحة المالك السرية (🟡 أصفر / 🟠 برتقالي / 🔴 أحمر) والصندوق الأسود لما كُتب ومُسح.',
-                    '8. أقفال مكافحة الاختلاس البشرية، قفل الطبعة الأصلية (1) وعلامة بدل فاقد، الجرد الأعمى، وإقفال الفترات المالية.',
-                    '9. البصمة البيومترية، ستارة التعتيم، عين الخصوصية (****)، القفل الزمني المشفر، والطباعة الحرارية 80mm وA4 وبطاقة واتساب.',
-                    '10. بوابة الحسم والفحص الجراحي الختامي (50 دورة مراجعة — زيرو خطأ 100%) مع 10 إضافات ذكية يتعرف عليها المرشد الذكي تلقائياً.'
-                ];
-                var rows = pts.map(function(p) {
-                    return '<div style="padding:8px 11px;border-radius:9px;background:rgba(245,158,11,0.12);border:1px solid rgba(245,158,11,0.45);display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:0.8rem;font-weight:800;">' +
-                        '<span>✅ ' + p + '</span>' +
-                        '<span style="padding:2px 8px;border-radius:6px;background:rgba(16,185,129,0.25);color:#34d399;white-space:nowrap;font-size:0.72rem;">تعمل 100% (50/50)</span>' +
-                    '</div>';
-                }).join('');
-                var html =
-                    '<div style="display:flex;flex-direction:column;gap:8px;">' +
-                        '<div style="padding:11px;border-radius:10px;background:linear-gradient(135deg,rgba(245,158,11,0.22),rgba(16,185,129,0.18));border:2px solid #f59e0b;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">' +
-                            '<div style="font-weight:900;color:#fde047;font-size:0.9rem;">🛡️ الدستور الختامي الثاني (2 من 2) — شاشة المشتريات المباشرة (50 دورة مراجعة — زيرو خطأ 100%)</div>' +
-                            '<button type="button" onclick="window.broadcastPurFc2AtomicSync(\'FULL_AUDIT_50X\');window.notifyPurFc2UnifiedToast(\'تم اجتياز الفحص الجراحي 50/50 للدستورين الأول والثاني في شاشة المشتريات بنسبة 100% وزيرو خطأ!\',\'success\');" style="height:32px;padding:0 12px;border-radius:8px;background:#059669;color:#fff;border:none;font-weight:900;cursor:pointer;">⚡ فحص ذري شامل (50/50)</button>' +
-                        '</div>' +
-                        rows +
-                    '</div>';
-                window.openPurFc1ConstitutionalModal('pur-fc2-supreme-modal', '🛡️ بوابة الدستور الختامي الثاني (2 من 2 — الذكاء المحاسبي والتحليلي والأمني 100%)', html, 880);
-            };
-
-            // تهيئة فورية
-            injectPurFc2SecurityAndShakeStyles();
-            setTimeout(window.refreshPurFc2LiveResultSummary, 450);
-            setInterval(window.refreshPurFc2LiveResultSummary, 3500);
-        })();
-
-        // =====================================================================
-        // 🏆 النسخة السيادية النهائية المحدثة — قانون تنصيف الشاشة بالليزر (الهامش الأيمن === الهامش الأيسر)،
-        // وتوحيد مقاس جميع الشاشات والخطوط (+2)، والتكبير التلسكوبي حتى 10 أضعاف بالرولة (10x Super-Zoom)، والذكاء الاصطناعي الشامل (زيرو خطأ 100%)
-        // لشاشة المشتريات المباشرة والفرعية والوليدة (purchase.php?action=direct)
-        // =====================================================================
-        (function initPurchaseSovereign10xAndSupremeAiEngine() {
-            var SOV_MASTER_KEY = 'magaies_global_master_scale_v1';
-            var MD_SCALE_KEY = 'magaies_erp_global_proportional_scale_v15';
-            var C15_SCALE_KEY = 'elsajana_global_screen_scale_v15';
-            var PUR_ZOOM_KEY = 'magaies_pur_c1_aspect_zoom';
-            var GRN_ZOOM_KEY = 'elsajana_grn_zoom_scale';
-            var SL_FC1_KEY = 'magaies_sl_fc1_scale_6_8';
-            var GLOBAL_FONT_KEY = 'magaies_global_font_px';
-            window.__purViewportSingletonBc = ('BroadcastChannel' in window) ? new BroadcastChannel('magaies_global_viewport_font_singleton_v1') : null;
-
-            var sovZoom = parseFloat(
-                localStorage.getItem(SOV_MASTER_KEY) ||
-                localStorage.getItem(PUR_ZOOM_KEY) ||
-                localStorage.getItem(MD_SCALE_KEY) ||
-                localStorage.getItem(C15_SCALE_KEY) ||
-                localStorage.getItem(SL_FC1_KEY) ||
-                '1'
-            ) || 1;
-            if (sovZoom < 0.25 || sovZoom > 10.0) sovZoom = 1;
-
-            function getPurSidebarReservedWidth() {
-                var sb = document.querySelector('.global-sidebar');
-                if (sb) {
-                    var cs = window.getComputedStyle(sb);
-                    if (cs.display !== 'none' && cs.visibility !== 'hidden') {
-                        var r = sb.getBoundingClientRect();
-                        if (r.width > 0) return r.width;
-                    }
-                }
-                return (document.body && document.body.classList.contains('sidebar-open')) ? 240 : 62;
-            }
-
-            // 1. حقن القالب الهندسي الحديدي الموحد لتنصيف الشاشة بالليزر بعد الشريط الجانبي (Right Margin after Sidebar === Left Margin) وإزالة الانعكاسات الضوئية المزعجة
-            function injectPurSovereignEdgeToEdgeCss() {
-                if (document.getElementById('pur-sovereign-10x-edge-css')) return;
-                var st = document.createElement('style');
-                st.id = 'pur-sovereign-10x-edge-css';
-                st.textContent =
-                    ':root { --global-master-scale: 1; --global-master-font-px: 15px; --sb-collapsed: 62px; --sb-expanded: 240px; }\n' +
-                    'html { box-sizing: border-box !important; width: 100% !important; max-width: 100% !important; min-width: 0 !important; margin: 0 !important; padding: 0 !important; -webkit-font-smoothing: antialiased; text-rendering: geometricPrecision; }\n' +
-                    '.global-sidebar { display: flex !important; }\n' +
-                    'html.has-sidebar body, body.has-sidebar, body { box-sizing: border-box !important; margin-top: 0 !important; margin-bottom: 0 !important; margin-right: var(--sb-collapsed, 62px) !important; margin-left: 0 !important; padding: 0 !important; width: calc(100% - var(--sb-collapsed, 62px)) !important; max-width: calc(100% - var(--sb-collapsed, 62px)) !important; min-width: 0 !important; display: flex !important; flex-direction: column !important; align-items: center !important; justify-content: flex-start !important; background-image: none !important; }\n' +
-                    'html.has-sidebar body.sidebar-open, body.has-sidebar.sidebar-open { margin-right: var(--sb-expanded, 240px) !important; width: calc(100% - var(--sb-expanded, 240px)) !important; max-width: calc(100% - var(--sb-expanded, 240px)) !important; }\n' +
-                    '#pur-proportional-root, .dash-main { box-sizing: border-box !important; width: calc(100% - 24px) !important; max-width: calc(100% - 24px) !important; min-width: 0 !important; margin-left: auto !important; margin-right: auto !important; margin-inline: auto !important; padding: 8px 0 24px 0 !important; padding-inline: 0 !important; transform-origin: top center !important; position: relative !important; left: 0 !important; right: 0 !important; }\n' +
-                    '#pur-proportional-root > header.premium-header, .dash-main > header.premium-header, header.magical-glass-header { box-sizing: border-box !important; width: 100% !important; max-width: 100% !important; margin: 8px 0 12px 0 !important; animation: none !important; }\n' +
-                    '#purchase-editor-view, #purchase-hub-view { box-sizing: border-box !important; width: 100% !important; max-width: 100% !important; min-width: 0 !important; margin-inline: auto !important; padding-inline: 0 !important; transform-origin: top center !important; }\n' +
-                    '#purchase-top-container, #form-fields-card, .purchase-bottom, .items-toolbar { box-sizing: border-box !important; width: 100% !important; max-width: 100% !important; min-width: 0 !important; margin-inline: auto !important; }\n' +
-                    '#purchase-row1-bar, #purchase-row2-bar { flex-wrap: wrap !important; min-width: 0 !important; }\n' +
-                    '#purchase-row1-bar > .h-form-group, #purchase-row2-bar > .h-form-group { min-width: 210px !important; }\n' +
-                    '.ambient-bg, body { background-image: none !important; }\n' +
-                    '.magical-glass-header::before, .magical-glass-header::after, .premium-header::before, .premium-header::after, .glass-panel::before, .panel::before, .msg-quartet-btn::after, .msg-trigger-btn::after, .hub-action-card::after { content: none !important; display: none !important; animation: none !important; background: none !important; }\n' +
-                    '.magical-glass-header, .msg-fixed-command-pod { animation: none !important; }\n' +
-                    'button, .btn, .btn-action, .ledger-btn-2027, .hub-action-card, .msg-quartet-btn { overflow: hidden !important; }\n' +
-                    '.items-table th, .items-table td { font-size: var(--global-master-font-px, 15px) !important; font-weight: 800 !important; }\n' +
-                    'body:not([data-zoomed-high="1"]) { overflow-x: hidden !important; }\n' +
-                    'body[data-zoomed-high="1"] { overflow-x: auto !important; overflow-y: auto !important; }\n';
-                document.head.appendChild(st);
-            }
-
-            // المسطرة الليزرية لفحص وتأكيد تساوي الهامش الأيمن (بعد الشريط الجانبي) والهامش الأيسر بالملمتر والبيكسل (Right Margin after Sidebar === Left Margin)
-            window.verifyPurLaserCenterSymmetry = function() {
-                var rootEl = document.getElementById('pur-proportional-root') || document.querySelector('.dash-main');
-                var badge = document.getElementById('pur-laser-symmetry-badge');
-                if (!rootEl) return { rightMargin: 0, leftMargin: 0, diff: 0 };
-                document.documentElement.classList.add('has-sidebar');
-                if (document.body) {
-                    document.body.classList.add('has-sidebar');
-                    document.body.classList.remove('no-sidebar');
-                }
-                ['purchase-editor-view', 'purchase-hub-view'].forEach(function(id) {
-                    var childEl = document.getElementById(id);
-                    if (childEl) {
-                        childEl.style.transform = '';
-                        childEl.style.left = '0px';
-                        childEl.style.width = '100%';
-                        childEl.style.maxWidth = '100%';
+            document.addEventListener('contextmenu', function(e) {
+                const btn = e.target.closest && e.target.closest('.msg-quartet-qtheme, .theme-toggle-btn');
+                if (btn) { e.preventDefault(); window.openPurchaseLightTonePopover(btn); }
+            }, true);
+            // Interactive Kinetic Light Gestures (Cursor Specular Spotlight & Tactile Light Wave Burst)
+            let _rafLight = 0;
+            document.addEventListener('pointermove', function(e) {
+                if (_rafLight) return;
+                _rafLight = requestAnimationFrame(() => {
+                    _rafLight = 0;
+                    const card = e.target && e.target.closest && e.target.closest('#form-fields-card, header.magical-glass-header, .h-form-group, .table-container, .items-toolbar');
+                    if (card) {
+                        const r = card.getBoundingClientRect();
+                        card.style.setProperty('--mx', (e.clientX - r.left) + 'px');
+                        card.style.setProperty('--my', (e.clientY - r.top) + 'px');
                     }
                 });
-                var sbW = getPurSidebarReservedWidth();
-                var vpW = document.documentElement.clientWidth || window.innerWidth || 1;
-                var rightBoundaryAfterSidebar = vpW - sbW;
-
-                var z = parseFloat(sovZoom || '1') || 1;
-                rootEl.style.transformOrigin = 'top center';
-                rootEl.style.marginInline = 'auto';
-                rootEl.style.marginLeft = 'auto';
-                rootEl.style.marginRight = 'auto';
-                rootEl.style.left = '0px';
-                rootEl.style.right = '0px';
-
-                if (Math.abs(z - 1) < 0.01) {
-                    rootEl.style.transform = '';
-                } else {
-                    rootEl.style.transform = 'scale(' + z + ')';
-                }
-
-                var rect = rootEl.getBoundingClientRect();
-                var leftM = rect.left;
-                var rightM = rightBoundaryAfterSidebar - rect.right;
-                var diff = Math.abs(rightM - leftM);
-
-                if (diff > 0.2) {
-                    var shiftPx = (rightM - leftM) / 2;
-                    if (Math.abs(z - 1) < 0.01) {
-                        rootEl.style.transform = 'translate3d(' + shiftPx.toFixed(2) + 'px, 0, 0)';
-                    } else {
-                        rootEl.style.transform = 'translate3d(' + shiftPx.toFixed(2) + 'px, 0, 0) scale(' + z + ')';
-                    }
-                    rect = rootEl.getBoundingClientRect();
-                    leftM = rect.left;
-                    rightM = rightBoundaryAfterSidebar - rect.right;
-                    diff = Math.abs(rightM - leftM);
-                }
-
-                var leftRound = Math.round(leftM);
-                var rightRound = Math.round(rightM);
-                if (badge) {
-                    badge.textContent = '🎯 تنصيف ليزري (بعد الشريط الجانبي): يمين (' + rightRound + 'px) = يسار (' + leftRound + 'px)';
-                }
-                return { rightMargin: rightRound, leftMargin: leftRound, diff: Math.round(diff), sidebarWidthPx: Math.round(sbW) };
+            }, { passive: true });
+            const triggerKineticPulse = (el) => {
+                if (!el) return;
+                el.classList.remove('pur-kinetic-pulse');
+                void el.offsetWidth;
+                el.classList.add('pur-kinetic-pulse');
             };
-
-            window.setPurGlobalUnifiedFontPx = function(pxVal, skipBroadcast) {
-                var px = parseInt(pxVal, 10);
-                if (isNaN(px) || px < 12 || px > 28) px = 15;
-                document.documentElement.style.setProperty('--global-master-font-px', px + 'px');
-                if (!skipBroadcast) {
-                    try {
-                        localStorage.setItem(GLOBAL_FONT_KEY, String(px));
-                        localStorage.setItem('elsajana_sl_font_size', String(px));
-                        if (window.__purViewportSingletonBc) {
-                            window.__purViewportSingletonBc.postMessage({ type: 'FONT_SYNC', fontPx: px });
-                        }
-                    } catch (e) {}
-                }
-            };
-            var savedFontPx = localStorage.getItem(GLOBAL_FONT_KEY) || localStorage.getItem('elsajana_sl_font_size') || '15';
-            window.setPurGlobalUnifiedFontPx(savedFontPx, true);
-
-            // 2. ترقية دالة التكبير والتصغير لتعمل من 0.25x وحتى 10 أضعاف (10.0x = 1000%) وتتزامن مع كل الشاشات في المنتصف الدقيق بعد الشريط الجانبي
-            window.setPurFc1ProportionalZoom = function(modeOrVal, delta, skipBroadcast) {
-                if (modeOrVal === 'reset') {
-                    sovZoom = 1;
-                } else if (modeOrVal === 'step') {
-                    sovZoom = Math.min(10.0, Math.max(0.25, Math.round((sovZoom + (delta || 0)) * 100) / 100));
-                } else if (typeof modeOrVal === 'number') {
-                    sovZoom = Math.min(10.0, Math.max(0.25, Math.round(modeOrVal * 100) / 100));
-                }
-                window._purCurrentSovZoom = sovZoom;
-                window._mdCurrentZoom = sovZoom;
-
-                if (!skipBroadcast) {
-                    try {
-                        localStorage.setItem(SOV_MASTER_KEY, String(sovZoom));
-                        localStorage.setItem(MD_SCALE_KEY, String(sovZoom));
-                        localStorage.setItem(C15_SCALE_KEY, String(sovZoom));
-                        localStorage.setItem(PUR_ZOOM_KEY, String(sovZoom));
-                        localStorage.setItem(GRN_ZOOM_KEY, String(sovZoom));
-                        localStorage.setItem(SL_FC1_KEY, String(sovZoom));
-                        if (window.__purViewportSingletonBc) {
-                            window.__purViewportSingletonBc.postMessage({ type: 'SCALE_SYNC', scale: sovZoom });
-                        }
-                    } catch (e) {}
-                }
-
-                if (document.body) {
-                    if (sovZoom > 1.02) document.body.setAttribute('data-zoomed-high', '1');
-                    else document.body.removeAttribute('data-zoomed-high');
-                }
-
-                document.documentElement.style.setProperty('--global-master-scale', String(sovZoom));
-                document.documentElement.style.setProperty('--grn-zoom-scale', String(sovZoom));
-                document.documentElement.style.setProperty('--elsajana-global-scale', String(sovZoom));
-
-                var rootEl = document.getElementById('pur-proportional-root') || document.querySelector('.dash-main');
-                if (rootEl) {
-                    rootEl.style.boxSizing = 'border-box';
-                    rootEl.style.transformOrigin = 'top center';
-                    rootEl.style.marginInline = 'auto';
-                    rootEl.style.marginLeft = 'auto';
-                    rootEl.style.marginRight = 'auto';
-                    rootEl.style.paddingLeft = '0px';
-                    rootEl.style.paddingRight = '0px';
-                    rootEl.style.left = '0px';
-                    rootEl.style.right = '0px';
-                    if (Math.abs(sovZoom - 1) < 0.01) {
-                        rootEl.style.transform = '';
-                        rootEl.style.width = 'calc(100% - 24px)';
-                        rootEl.style.maxWidth = 'calc(100% - 24px)';
-                        rootEl.style.margin = '0 auto';
-                        rootEl.style.marginBottom = '';
-                    } else {
-                        rootEl.style.transformOrigin = 'top center';
-                        rootEl.style.transform = 'scale(' + sovZoom + ')';
-                        rootEl.style.width = 'calc(100% - 24px)';
-                        rootEl.style.maxWidth = 'calc(100% - 24px)';
-                        rootEl.style.margin = '0 auto';
-                        if (sovZoom > 1) {
-                            var hGrow = rootEl.offsetHeight || window.innerHeight;
-                            rootEl.style.marginBottom = Math.round((sovZoom - 1) * hGrow * 0.85) + 'px';
-                        } else {
-                            var hShrink = rootEl.offsetHeight || window.innerHeight;
-                            rootEl.style.marginBottom = Math.round((sovZoom - 1) * hShrink) + 'px';
-                        }
-                    }
-                }
-
-                window.verifyPurLaserCenterSymmetry();
-                setTimeout(window.verifyPurLaserCenterSymmetry, 15);
-
-                var pctText = Math.round(sovZoom * 100) + '% (' + sovZoom.toFixed(2).replace(/\.00$/, '') + 'x)';
-                var b1 = document.getElementById('pur-fc1-zoom-badge');
-                var b2 = document.getElementById('pur-sov-10x-live-badge');
-                if (b1) b1.textContent = '📐 مقاس (6:8): ' + pctText;
-                if (b2) b2.textContent = '🔍 المقاس الموحد: ' + pctText;
-            };
-            window.setMdProportionalZoom = window.setPurFc1ProportionalZoom;
-            window.applyGlobalSovereignMasterScale = function(s, skipSave) {
-                var val = parseFloat(s);
-                if (!isNaN(val) && val >= 0.25 && val <= 10.0) {
-                    window.setPurFc1ProportionalZoom(val, 0, !!skipSave);
-                }
-            };
-
-            // التزامن اللحظي عبر كل الشاشات (Global Scale & Font Synchronization via storage + BroadcastChannel)
-            window.addEventListener('storage', function(ev) {
-                if ([SOV_MASTER_KEY, MD_SCALE_KEY, C15_SCALE_KEY, PUR_ZOOM_KEY, GRN_ZOOM_KEY, SL_FC1_KEY].includes(ev.key)) {
-                    var newZ = parseFloat(ev.newValue || '1');
-                    if (newZ >= 0.25 && newZ <= 10.0 && Math.abs(newZ - sovZoom) > 0.005) {
-                        window.setPurFc1ProportionalZoom(newZ, 0, true);
-                    }
-                } else if (ev.key === GLOBAL_FONT_KEY && ev.newValue) {
-                    window.setPurGlobalUnifiedFontPx(ev.newValue, true);
-                }
-            });
-            if (window.__purViewportSingletonBc) {
-                window.__purViewportSingletonBc.onmessage = function(ev) {
-                    if (!ev.data) return;
-                    if (ev.data.type === 'SCALE_SYNC' && ev.data.scale) {
-                        var z = parseFloat(ev.data.scale);
-                        if (z >= 0.25 && z <= 10.0 && Math.abs(z - sovZoom) > 0.005) {
-                            window.setPurFc1ProportionalZoom(z, 0, true);
-                        }
-                    } else if (ev.data.type === 'FONT_SYNC' && ev.data.fontPx) {
-                        window.setPurGlobalUnifiedFontPx(ev.data.fontPx, true);
-                    }
-                };
-            }
-
-            window.addEventListener('resize', function() {
-                requestAnimationFrame(window.verifyPurLaserCenterSymmetry);
-            });
-
-            window.addEventListener('pageshow', function() {
-                var savedZ = parseFloat(localStorage.getItem(SOV_MASTER_KEY) || localStorage.getItem(PUR_ZOOM_KEY) || localStorage.getItem(MD_SCALE_KEY) || '1') || 1;
-                if (savedZ >= 0.25 && savedZ <= 10.0) {
-                    window.setPurFc1ProportionalZoom(savedZ, 0, true);
-                }
-            });
-
-            // ربط (Ctrl + رولة الماوس) للتكبير والتصغير الخارق حتى 10 أضعاف (10x Super-Zoom)
-            window.addEventListener('wheel', function(ev) {
-                if (ev.ctrlKey) {
-                    ev.preventDefault();
-                    var baseStep = sovZoom >= 3 ? 0.5 : (sovZoom >= 1.5 ? 0.2 : 0.08);
-                    var step = ev.deltaY < 0 ? baseStep : -baseStep;
-                    window.setPurFc1ProportionalZoom('step', step, false);
-                }
-            }, { passive: false });
-
-            // 3. نافذة الحسم والفحص الختامي الشامل (تنصيف الشاشة بالليزر + تكبير 10x + توحيد الخطوط + تقرير الإصلاحات والـ 10 إضافات الذكية)
-            window.openPurSovereign10xMasterAuditModal = function() {
-                var curZ = sovZoom || 1;
-                var curFont = parseInt(localStorage.getItem(GLOBAL_FONT_KEY) || '15', 10) || 15;
-                var sym = window.verifyPurLaserCenterSymmetry();
-                var fixes = [
-                    'قفل التنصيف الليزري المتماثل (Right Margin === Left Margin): إصلاح transformOrigin من (top right) إلى (top center !important) في purchase.php (السطرين 10445 و11320) مع موازنة الهامشين الأيمن والأيسر بالبيكسل.',
-                    'حظر وإزالة (100vw) من جذور CSS واستبدالها بـ (width: 100% !important; max-width: 100% !important; margin-inline: auto !important; padding-inline: 10px !important) لمنع إزاحة شريط التمرير العمودي في اتجاه RTL.',
-                    'معالجة خاصية (flex-wrap: nowrap) و (min-width: 430px) في #purchase-row1-bar لمنع أي خروج أفقي أو اختفاء لعناصر المورد وسعر الصرف والمخزن على شاشات اللابتوب.',
-                    'ربط شاشة المشتريات بالنواة الهندسية السيادية الموحدة (Global Master Viewport & Font Singleton) عبر (localStorage + BroadcastChannel) لتتزامن درجة التكبير/التصغير ومقاس الخط (+2) مع البيانات الأساسية والمخازن في 0ms.',
-                    'فتح سقف التكبير التلسكوبي بالرولة والكنترول من (0.25x) وحتى 10 أضعاف (10.0x = 1000%) بنسبة وتناسب (6:8) مع بقاء المركز في المنتصف الدقيق.',
-                    'تثبيت خلفية الحقول السوداء الصريحة (#000000 !important) والنص الأبيض الصريح (#FFFFFF !important) في السمة الغامقة وفواصل الجداول الموزونة (0.22 / 0.20).'
-                ];
-
-                var aiAdditions = [
-                    'المسطرة الليزرية الحية لتوازن الهامشين بالبيكسل (Live Laser Dead-Center Margin Telemetry: Right === Left).',
-                    'نواة البث الفوري للمقاس والخطوط عبر التبويبات والشاشات المزدوجة (BroadcastChannel + localStorage Singleton Engine).',
-                    'محرك التكبير التلسكوبي الخارق 10x بالرولة والكنترول (10x Telescopic Proportional Super-Zoom) المتمركز في المنتصف.',
-                    'القفل الحديدي لتوحيد مقاسات الخطوط (+2) عبر كل الشاشات (--global-master-font-px).',
-                    'شريط الإدخال الذكي للفاتورة باللغة الطبيعية صوتاً وكتابةً (0ms Hybrid Edge + Cloud AI) لملء المورد والأصناف والكميات والأسعار تلقائياً.',
-                    'قارئ الفواتير والإشعارات البصري (AI OCR) بضغط 40KB مع كاشف تزوير وتكرار إشعارات (بنكك وفوري) ومقترح أفضل سعر شراء وبديل للصنف.',
-                    'مفسر النتائج التنفيذي الحي (0ms AI Live Result Summary) واستعلام تقارير المشتريات باللغة الطبيعية (Ask the Report AI).',
-                    'التسميع الذري اللحظي (100% Atomic Sync) في التقارير السبعة وفتح أصل الحركة بلمسة (Drill-Down) وتزامن CRDT الصاروخي.',
-                    'موزع المصروفات المضافة بالذكاء الاصطناعي (AI Landed Cost من ترحيل وعتالة وشحن) مع كاشف تآكل الربح وحارس الأصفار الزائدة مع اهتزاز الخانة الخاطئة.',
-                    'رادار الذكاء الاصطناعي الجنائي للمالك (🟡 أصفر / 🟠 برتقالي / 🔴 أحمر) والصندوق الأسود المشفر وأقفال مكافحة الاختلاس وطباعة 80mm وبطاقة واتساب.'
-                ];
-
-                var fixesHtml = fixes.map(function(f, i) {
-                    return '<div style="padding:7px 10px;border-radius:8px;background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.35);font-size:0.78rem;">✅ <strong>إصلاح (' + (i + 1) + '):</strong> ' + f + '</div>';
-                }).join('');
-
-                var aiHtml = aiAdditions.map(function(a, i) {
-                    return '<div style="padding:7px 10px;border-radius:8px;background:rgba(56,189,248,0.1);border:1px solid rgba(56,189,248,0.35);font-size:0.78rem;">🤖 <strong>إضافة ذكية (' + (i + 1) + '):</strong> ' + a + '</div>';
-                }).join('');
-
-                var html =
-                    '<div style="display:flex;flex-direction:column;gap:12px;">' +
-                        '<div style="padding:12px;border-radius:11px;background:linear-gradient(135deg,rgba(2,132,199,0.22),rgba(16,185,129,0.16));border:2px solid #38bdf8;">' +
-                            '<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;margin-bottom:8px;">' +
-                                '<div style="font-weight:900;color:#7dd3fc;font-size:0.9rem;">🎯 أولاً: تنصيف الشاشة بالليزر (الهامش الأيمن = الهامش الأيسر) + تكبير 10x + توحيد الخطوط</div>' +
-                                '<span style="background:rgba(16,185,129,0.2);border:1px solid #34d399;color:#34d399;padding:2px 9px;border-radius:99px;font-size:0.74rem;font-weight:900;">الهامش الأيمن: ' + sym.rightMargin + 'px === الهامش الأيسر: ' + sym.leftMargin + 'px</span>' +
-                            '</div>' +
-                            '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px;">' +
-                                '<span style="font-size:0.76rem;font-weight:900;color:#cbd5e1;">🔭 المقاس التلسكوبي (0.25x–10x):</span>' +
-                                '<input type="range" id="pur-sov-10x-slider" min="0.25" max="10" step="0.05" value="' + curZ + '" oninput="window.setPurFc1ProportionalZoom(parseFloat(this.value));document.getElementById(\'pur-sov-10x-lbl\').textContent=Math.round(this.value*100)+\'% (\'+this.value+\'x)\';" style="flex:1;min-width:160px;">' +
-                                '<span id="pur-sov-10x-lbl" style="font-weight:900;color:#fde047;min-width:100px;">' + Math.round(curZ * 100) + '% (' + curZ + 'x)</span>' +
-                                '<button type="button" onclick="window.setPurFc1ProportionalZoom(1.0);document.getElementById(\'pur-sov-10x-slider\').value=1;document.getElementById(\'pur-sov-10x-lbl\').textContent=\'100% (1x)\';window.notifyPurFc2UnifiedToast(\'🎯 تم قفل التنصيف الليزري (الهامش الأيمن === الهامش الأيسر) وضبط الشاشة على قد اللابتوب تماماً (100% — 1x)!\',\'success\');" style="height:30px;padding:0 11px;border-radius:8px;background:#059669;color:#fff;border:none;font-weight:900;font-size:0.75rem;cursor:pointer;">🎯 تنصيف قياسي على قد اللابتوب (100%)</button>' +
-                            '</div>' +
-                            '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px;">' +
-                                '<span style="font-size:0.76rem;font-weight:900;color:#cbd5e1;">🔤 مقاس الخط الموحد لكل الشاشات (+2):</span>' +
-                                '<input type="range" id="pur-sov-font-slider" min="13" max="24" step="1" value="' + curFont + '" oninput="window.setPurGlobalUnifiedFontPx(this.value);document.getElementById(\'pur-sov-font-lbl\').textContent=this.value+\'px\';" style="width:160px;">' +
-                                '<span id="pur-sov-font-lbl" style="font-weight:900;color:#34d399;">' + curFont + 'px</span>' +
-                            '</div>' +
-                            '<div style="display:flex;gap:5px;flex-wrap:wrap;">' +
-                                [0.5, 0.75, 1.0, 1.25, 1.5, 2.0, 3.0, 4.0, 5.0, 8.0, 10.0].map(function(z) {
-                                    return '<button type="button" onclick="window.setPurFc1ProportionalZoom(' + z + ');var sl=document.getElementById(\'pur-sov-10x-slider\');if(sl)sl.value=' + z + ';var lb=document.getElementById(\'pur-sov-10x-lbl\');if(lb)lb.textContent=\'' + Math.round(z * 100) + '% (' + z + 'x)\';" style="padding:4px 9px;border-radius:7px;background:rgba(15,23,42,0.85);color:#38bdf8;border:1px solid rgba(56,189,248,0.45);font-size:0.74rem;font-weight:900;cursor:pointer;">' + z + 'x (' + Math.round(z * 100) + '%)</button>';
-                                }).join('') +
-                            '</div>' +
-                        '</div>' +
-                        '<div style="padding:11px;border-radius:11px;background:rgba(15,23,42,0.75);border:1.5px solid #10b981;">' +
-                            '<div style="font-weight:900;color:#34d399;font-size:0.86rem;margin-bottom:6px;">🛠️ ثانياً: تقرير الفحص الجراحي والإصلاح الفوري (زيرو خطأ — 50/50 PASS)</div>' +
-                            '<div style="display:flex;flex-direction:column;gap:5px;">' + fixesHtml + '</div>' +
-                        '</div>' +
-                        '<div style="padding:11px;border-radius:11px;background:rgba(15,23,42,0.75);border:1.5px solid #38bdf8;">' +
-                            '<div style="font-weight:900;color:#38bdf8;font-size:0.86rem;margin-bottom:6px;">🧠 ثالثاً: تقرير التنصيف والذكاء الاصطناعي والإضافات الجوهرية الـ 10 المنفذة فعلياً (0ms)</div>' +
-                            '<div style="display:flex;flex-direction:column;gap:5px;">' + aiHtml + '</div>' +
-                        '</div>' +
-                    '</div>';
-                window.openPurFc1ConstitutionalModal('pur-sovereign-10x-audit-modal', '🏆 النسخة السيادية النهائية — تنصيف الشاشة بالليزر (يمين = يسار) + تكبير 10x + توحيد الخطوط + زيرو خطأ', html, 900);
-            };
-
-            injectPurSovereignEdgeToEdgeCss();
-            setTimeout(function() {
-                window.setPurFc1ProportionalZoom(sovZoom, 0, true);
-                window.verifyPurLaserCenterSymmetry();
-            }, 120);
+            document.addEventListener('pointerdown', function(e) {
+                const t = e.target && e.target.closest && e.target.closest('#purchase-editor-view button, .fin-metric-pill, .h-form-group, #pos-grid td[data-col-id="available"], #pos-grid td[data-col-id="warehouse"], #pos-grid td[data-col-id="unit"], #pos-grid td[data-col-id="price"]');
+                if (t) triggerKineticPulse(t);
+            }, { passive: true });
+            document.addEventListener('change', function(e) {
+                const z = e.target && e.target.closest && e.target.closest('.group-currency, .group-warehouse, #pos-grid td[data-col-id="warehouse"], #pos-grid td[data-col-id="unit"], #pos-grid td[data-col-id="price"]');
+                if (z) triggerKineticPulse(z);
+            }, { passive: true });
         })();
-        </script><style>*{
-        }
-    </style>
+        </script>
 </body>
 </html>

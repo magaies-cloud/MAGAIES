@@ -178,7 +178,7 @@ JSON.parse = function(val) {
     window.getTenantKey = function(baseKey) {
         const strKey = String(baseKey || '');
         // Keys that are NOT tenant-specific (global session settings only)
-        const globalKeys = ['authToken', 'user', 'tenant_id', 'erp_theme', 'erp_lang', 'currentTenantId', 'session_active', 'deviceUuid', 'elsajana_global_media_state', 'magaies_dirty_keys_v1'];
+        const globalKeys = ['authToken', 'user', 'tenant_id', 'erp_theme', 'ui_theme', 'pur_light_tone_palette', 'magaies_light_tone', 'erp_lang', 'currentTenantId', 'session_active', 'deviceUuid', 'elsajana_global_media_state', 'magaies_dirty_keys_v1'];
         if (globalKeys.includes(strKey) || strKey.startsWith('magaies_') || strKey.startsWith('magaiees_')) return strKey;
         // If already prefixed, return as-is
         if (strKey.startsWith('tenant_')) return strKey;
@@ -1237,7 +1237,7 @@ JSON.parse = function(val) {
 
         if (this === localStorage) {
             const tenantKey = window.getTenantKey(key);
-            const isGlobalOrOfflineKey = ['authToken', 'user', 'tenant_id', 'erp_theme', 'erp_rate_usd'].includes(key) ||
+            const isGlobalOrOfflineKey = ['authToken', 'user', 'tenant_id', 'erp_theme', 'ui_theme', 'pur_light_tone_palette', 'magaies_light_tone', 'erp_rate_usd'].includes(key) ||
                 String(key).startsWith('magaies_') || String(key).startsWith('magaiees_');
             
             // Save to In-Memory Proxy
@@ -1262,7 +1262,7 @@ JSON.parse = function(val) {
                 console.warn("localStorage quota exceeded for key", key, ". Auto-cleaning...");
                 // Auto-cleanup: find and remove largest non-essential localStorage entries
                 try {
-                    const protectedKeys = ['authToken', 'user', 'tenant_id', 'erp_settings_v1', 'session_active', 'tenant_currencies_locked', 'magaies_offline_queue', DIRTY_KEYS_STORAGE_KEY];
+                    const protectedKeys = ['authToken', 'user', 'tenant_id', 'erp_theme', 'ui_theme', 'pur_light_tone_palette', 'magaies_light_tone', 'magaies_active_theme', 'magaiees_global_theme', 'erp_settings_v1', 'session_active', 'tenant_currencies_locked', 'magaies_offline_queue', DIRTY_KEYS_STORAGE_KEY];
                     const currentTenantKey = tenantKey; // don't delete what we're trying to save
                     
                     // Collect all entries with sizes

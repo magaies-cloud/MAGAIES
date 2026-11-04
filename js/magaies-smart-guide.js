@@ -571,30 +571,28 @@
             z-index: 999990 !important;
         }
 
-        /* Each 4-Button Pod (2 on top, 2 on bottom inside a glowing royal rectangle — Reduced outer margins & taller inner buttons) */
+        /* Each 4-Button Pod (2 on top, 2 on bottom inside a clean rectangle matching 78px header height) */
         .msg-fixed-command-pod {
             width: 223px !important;
             min-width: 223px !important;
             max-width: 223px !important;
-            height: 70px !important;
-            min-height: 70px !important;
-            max-height: 70px !important;
-            padding: 3px 4px !important;
+            height: 78px !important;
+            min-height: 78px !important;
+            max-height: 78px !important;
+            padding: 4px 5px !important;
             border-radius: 13px !important;
             background: linear-gradient(160deg, rgba(2, 6, 23, 0.96) 0%, rgba(15, 23, 42, 0.98) 55%, rgba(23, 15, 48, 0.96) 100%) !important;
-            border: 1.5px solid rgba(251, 191, 36, 0.85) !important;
-            box-shadow: 0 7px 21px rgba(0, 0, 0, 0.85), 0 0 16px rgba(251, 191, 36, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.22) !important;
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
+            border: 1.5px solid rgba(251, 191, 36, 0.75) !important;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45) !important;
             display: grid !important;
             grid-template-columns: 1fr 1fr !important;
             grid-template-rows: 1fr 1fr !important;
-            gap: 3px !important;
+            gap: 4px !important;
             direction: rtl !important;
             font-family: 'Cairo', 'Tajawal', sans-serif !important;
             box-sizing: border-box !important;
             flex-shrink: 0 !important;
-            animation: msgStarPodGlow 3.5s ease-in-out infinite alternate;
+            animation: none !important;
         }
         .msg-fixed-command-pod.pod-smart-guide {
             grid-template-areas:
@@ -615,26 +613,15 @@
                 "search qtheme";
         }
 
-        @keyframes msgStarPodGlow {
-            0% {
-                border-color: rgba(251, 191, 36, 0.78);
-                box-shadow: 0 7px 21px rgba(0, 0, 0, 0.8), 0 0 14px rgba(251, 191, 36, 0.28);
-            }
-            100% {
-                border-color: #fef08a;
-                box-shadow: 0 9px 25px rgba(0, 0, 0, 0.88), 0 0 21px rgba(251, 191, 36, 0.58), 0 0 30px rgba(56, 189, 248, 0.28);
-            }
-        }
-
-        /* Unified Button Styling Across All Pods (Increased height to fill pod & minimize margins) */
+        /* Unified Button Styling Across All Pods (Zero glare/reflection) */
         .msg-quartet-btn {
             position: relative !important;
             width: 100% !important;
             height: 100% !important;
-            min-height: 29.5px !important;
-            max-height: 31px !important;
-            padding: 2px 5.5px !important;
-            border-radius: 8.5px !important;
+            min-height: 31px !important;
+            max-height: 33px !important;
+            padding: 2px 6px !important;
+            border-radius: 8px !important;
             display: flex !important;
             align-items: center !important;
             justify-content: space-between !important;
@@ -643,29 +630,20 @@
             overflow: hidden !important;
             box-sizing: border-box !important;
             font-family: 'Cairo', 'Tajawal', sans-serif !important;
-            transition: transform 0.2s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.2s ease, border-color 0.2s ease, filter 0.2s ease !important;
+            box-shadow: none !important;
+            transition: transform 0.18s ease, border-color 0.18s ease !important;
             text-align: center !important;
         }
-        .msg-quartet-btn::after {
-            content: '';
-            position: absolute;
-            top: -60%;
-            left: -130%;
-            width: 70%;
-            height: 220%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.38), transparent);
-            transform: rotate(25deg);
-            animation: msgOpticalSweep 3.8s ease-in-out infinite;
-            pointer-events: none;
-        }
-        @keyframes msgOpticalSweep {
-            0% { left: -130%; }
-            45%, 100% { left: 160%; }
+        .msg-quartet-btn::after,
+        .msg-quartet-btn::before {
+            display: none !important;
+            animation: none !important;
+            content: none !important;
         }
         .msg-quartet-btn:hover {
-            transform: translateY(-1px) scale(1.02) !important;
+            transform: translateY(-1px) !important;
             border-color: #ffffff !important;
-            filter: brightness(1.15) !important;
+            box-shadow: none !important;
         }
         .msg-quartet-btn:active {
             transform: scale(0.96) !important;
@@ -3369,6 +3347,76 @@
         modal.style.display = 'flex';
     };
 
+    const GLOBAL_ERP_TONES = [
+        { id: 'dark_midnight',   name: 'داكن كحلي ملكي (Dark)',   bg: '#0f172a', fg: '#1e293b', brd: '#38bdf8', isDark: true, themeKey: 'midnight_obsidian' },
+        { id: 'ivory_default',   name: 'عاجي دافئ (فاتح افتراضي)', bg: '#d9c39e', fg: '#f3e5ab', brd: '#854d0e', themeKey: 'warm_cream' },
+        { id: 'royal_bronze',    name: 'برونزي ملكي فاخر',      bg: '#b07239', fg: '#d9a066', brd: '#78350f', themeKey: 'warm_cream' },
+        { id: 'platinum_gray',   name: 'رمادي بلاتيني احترافي', bg: '#64748b', fg: '#94a3b8', brd: '#334155', themeKey: 'exec_gray' },
+        { id: 'crystal_silver',  name: 'فضي جليدي ناصع',        bg: '#cbd5e1', fg: '#e2e8f0', brd: '#64748b', themeKey: 'ultra_white' },
+        { id: 'sage_pearl',      name: 'لؤلؤي زمردي هادئ',      bg: '#10b981', fg: '#6ee7b7', brd: '#047857', themeKey: 'warm_cream' },
+        { id: 'sky_alabaster',   name: 'سماوي لازوردي فاتح',    bg: '#0284c7', fg: '#38bdf8', brd: '#0369a1', themeKey: 'ultra_white' },
+        { id: 'warm_mocha_dark', name: 'موكا صحراوي غامق',      bg: '#6b4226', fg: '#9c6b43', brd: '#451a03', themeKey: 'warm_cream' },
+        { id: 'deep_slate_dark', name: 'رصاصي فحمي غامق',       bg: '#334155', fg: '#475569', brd: '#0f172a', themeKey: 'exec_gray' }
+    ];
+
+    function ensureGlobalErpToneStylesAndRestore() {
+        if (!document.getElementById('magaies-universal-tone-engine')) {
+            const st = document.createElement('style');
+            st.id = 'magaies-universal-tone-engine';
+            st.textContent = `
+                :root.light-theme, :root.light-theme[data-light-tone="ivory_default"] { --lt-canvas-1:#dfd0b4; --lt-canvas-2:#d2be9a; --lt-hdr-1:#eadbc0; --lt-hdr-2:#dec9a4; --lt-hdr-3:#d1b689; --lt-card-1:#fffdf8; --lt-card-2:#f7efe0; --lt-sub-1:#fffefb; --lt-sub-2:#f6ecda; --lt-th-1:#f5ead4; --lt-th-2:#e6d4b5; --lt-row-odd:#ffffff; --lt-row-even:#fdf9f0; --lt-border:#5c2808; --lt-border-hover:#b45309; --lt-ink:#120500; }
+                :root.light-theme[data-light-tone="royal_bronze"] { --lt-canvas-1:#d4b08c; --lt-canvas-2:#c29970; --lt-hdr-1:#e2be98; --lt-hdr-2:#d4a679; --lt-hdr-3:#c48f5c; --lt-card-1:#fdf6ee; --lt-card-2:#f3e2ce; --lt-sub-1:#fef9f3; --lt-sub-2:#efd8be; --lt-th-1:#edd5ba; --lt-th-2:#dfbda0; --lt-row-odd:#fffcf8; --lt-row-even:#f9efe2; --lt-border:#4a2106; --lt-border-hover:#9a3412; --lt-ink:#140600; --bg-color:#d4b08c !important; --bg-main:#d4b08c !important; --bg-secondary:#e2be98 !important; --surface:#fdf6ee !important; }
+                :root.light-theme[data-light-tone="platinum_gray"] { --lt-canvas-1:#c2d0e0; --lt-canvas-2:#aebfd4; --lt-hdr-1:#cfdeee; --lt-hdr-2:#bccfe4; --lt-hdr-3:#a8bfd9; --lt-card-1:#f7faff; --lt-card-2:#e6eef8; --lt-sub-1:#fafdff; --lt-sub-2:#e1ebf6; --lt-th-1:#dee9f6; --lt-th-2:#cbdbed; --lt-row-odd:#ffffff; --lt-row-even:#f1f6fc; --lt-border:#1e293b; --lt-border-hover:#0284c7; --lt-ink:#020617; --bg-color:#c2d0e0 !important; --bg-main:#c2d0e0 !important; --bg-secondary:#cfdeee !important; --surface:#f7faff !important; }
+                :root.light-theme[data-light-tone="crystal_silver"] { --lt-canvas-1:#d2d8e2; --lt-canvas-2:#bfc7d4; --lt-hdr-1:#dfe4ec; --lt-hdr-2:#cfd6e2; --lt-hdr-3:#bec7d5; --lt-card-1:#fafbfd; --lt-card-2:#edf1f7; --lt-sub-1:#ffffff; --lt-sub-2:#e7ecf3; --lt-th-1:#e5eaf1; --lt-th-2:#d5dce7; --lt-row-odd:#ffffff; --lt-row-even:#f4f6f9; --lt-border:#111827; --lt-border-hover:#2563eb; --lt-ink:#030712; --bg-color:#d2d8e2 !important; --bg-main:#d2d8e2 !important; --bg-secondary:#dfe4ec !important; --surface:#fafbfd !important; }
+                :root.light-theme[data-light-tone="sage_pearl"] { --lt-canvas-1:#bce0ce; --lt-canvas-2:#a4d1bb; --lt-hdr-1:#c8ead9; --lt-hdr-2:#b0ddca; --lt-hdr-3:#98cfb8; --lt-card-1:#f4fcf8; --lt-card-2:#e0f5ec; --lt-sub-1:#f9fefb; --lt-sub-2:#d8f2e6; --lt-th-1:#d4f0e3; --lt-th-2:#bfe6d4; --lt-row-odd:#ffffff; --lt-row-even:#eefaf4; --lt-border:#064e3b; --lt-border-hover:#059669; --lt-ink:#022c22; --bg-color:#bce0ce !important; --bg-main:#bce0ce !important; --bg-secondary:#c8ead9 !important; --surface:#f4fcf8 !important; }
+                :root.light-theme[data-light-tone="sky_alabaster"] { --lt-canvas-1:#bad9f5; --lt-canvas-2:#a2caed; --lt-hdr-1:#c7e3fb; --lt-hdr-2:#afd4f5; --lt-hdr-3:#96c4ee; --lt-card-1:#f4faff; --lt-card-2:#dfeffd; --lt-sub-1:#f9fcff; --lt-sub-2:#d6ebfc; --lt-th-1:#d2e9fc; --lt-th-2:#bdddf9; --lt-row-odd:#ffffff; --lt-row-even:#eef7ff; --lt-border:#0c4a6e; --lt-border-hover:#0284c7; --lt-ink:#082f49; --bg-color:#bad9f5 !important; --bg-main:#bad9f5 !important; --bg-secondary:#c7e3fb !important; --surface:#f4faff !important; }
+                :root.light-theme[data-light-tone="warm_mocha_dark"] { --lt-canvas-1:#b89878; --lt-canvas-2:#a3805e; --lt-hdr-1:#ccb094; --lt-hdr-2:#ba9878; --lt-hdr-3:#a8825e; --lt-card-1:#faf3ea; --lt-card-2:#eee0cf; --lt-sub-1:#fdf8f2; --lt-sub-2:#e8d6c1; --lt-th-1:#e5d1ba; --lt-th-2:#d6bc9f; --lt-row-odd:#fdfaf6; --lt-row-even:#f5ebe0; --lt-border:#3e1b04; --lt-border-hover:#7c2d12; --lt-ink:#0f0400; --bg-color:#b89878 !important; --bg-main:#b89878 !important; --bg-secondary:#ccb094 !important; --surface:#faf3ea !important; }
+                :root.light-theme[data-light-tone="deep_slate_dark"] { --lt-canvas-1:#a3b4ca; --lt-canvas-2:#8da1bb; --lt-hdr-1:#b8c7dc; --lt-hdr-2:#a2b5cf; --lt-hdr-3:#8ca3c1; --lt-card-1:#f2f6fc; --lt-card-2:#e2eaf5; --lt-sub-1:#f7faff; --lt-sub-2:#dbe5f2; --lt-th-1:#d6e1f0; --lt-th-2:#c3d2e6; --lt-row-odd:#fbfdff; --lt-row-even:#edf3fa; --lt-border:#0f172a; --lt-border-hover:#1d4ed8; --lt-ink:#020617; --bg-color:#a3b4ca !important; --bg-main:#a3b4ca !important; --bg-secondary:#b8c7dc !important; --surface:#f2f6fc !important; }
+            `;
+            document.head.appendChild(st);
+        }
+        const getCk = (n) => { const m = document.cookie.match(new RegExp('(?:^|; )' + n + '=([^;]*)')); return m ? decodeURIComponent(m[1]) : ''; };
+        const savedTheme = localStorage.getItem('magaies_active_theme') || localStorage.getItem('magaiees_global_theme') || getCk('magaies_active_theme') || '';
+        const savedTone = localStorage.getItem('magaies_light_tone') || localStorage.getItem('pur_light_tone_palette') || getCk('magaies_light_tone') || 'ivory_default';
+        if (savedTone) {
+            document.documentElement.setAttribute('data-light-tone', savedTone);
+            if (document.body) document.body.setAttribute('data-light-tone', savedTone);
+        }
+        if (savedTheme) {
+            const isL = ['warm_cream', 'ultra_white', 'exec_gray'].includes(savedTheme);
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            document.documentElement.classList.toggle('light-theme', isL);
+            document.documentElement.classList.toggle('dark-theme', !isL);
+            if (document.body) {
+                document.body.setAttribute('data-theme', savedTheme);
+                document.body.classList.toggle('light-theme', isL);
+                document.body.classList.toggle('dark-theme', !isL);
+            }
+        }
+    }
+    ensureGlobalErpToneStylesAndRestore();
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', ensureGlobalErpToneStylesAndRestore);
+
+    window.applyGlobalErpToneOrTheme = function (toneId, notify) {
+        if (typeof window.applyPurchaseLightTone === 'function') {
+            window.applyPurchaseLightTone(toneId, notify);
+            return;
+        }
+        const t = GLOBAL_ERP_TONES.find(x => x.id === toneId) || GLOBAL_ERP_TONES[1];
+        if (t.isDark) {
+            window.applyUniversalQuartetTheme(t.themeKey, false);
+            return;
+        }
+        document.documentElement.setAttribute('data-light-tone', t.id);
+        if (document.body) document.body.setAttribute('data-light-tone', t.id);
+        try {
+            localStorage.setItem('magaies_light_tone', t.id);
+            localStorage.setItem('pur_light_tone_palette', t.id);
+            document.cookie = 'magaies_light_tone=' + encodeURIComponent(t.id) + '; path=/; max-age=315360000; SameSite=Lax';
+        } catch (_e) {}
+        window.applyUniversalQuartetTheme(t.themeKey || 'warm_cream', true);
+    };
+
     window.applyUniversalQuartetTheme = function (themeKey, isLight) {
         if (typeof window.applyMasterTheme === 'function') {
             window.applyMasterTheme(themeKey);
@@ -3377,11 +3425,14 @@
             if (document.body) document.body.setAttribute('data-theme', themeKey);
             document.documentElement.classList.toggle('light-theme', !!isLight);
             document.documentElement.classList.toggle('dark-theme', !isLight);
+            if (document.body) {
+                document.body.classList.toggle('light-theme', !!isLight);
+                document.body.classList.toggle('dark-theme', !isLight);
+            }
             try {
-                localStorage.setItem('magaies_active_theme', themeKey);
-                localStorage.setItem('magaiees_global_theme', themeKey);
-                localStorage.setItem('ui_theme', themeKey);
+                ['magaies_active_theme','magaiees_global_theme','magaiees_mobile_theme','ui_theme'].forEach(k => localStorage.setItem(k, themeKey));
                 localStorage.setItem('erp_theme', isLight ? 'light' : 'dark');
+                document.cookie = 'magaies_active_theme=' + encodeURIComponent(themeKey) + '; path=/; max-age=315360000; SameSite=Lax';
             } catch (e) {}
         }
         const m = document.getElementById('msg-universal-7themes-modal');
@@ -3414,13 +3465,32 @@
         }
     };
 
-    window.triggerQuartetQuickTheme = function () {
-        if (typeof window.toggleTheme === 'function') {
-            window.toggleTheme();
-        } else {
-            const isCurrentlyLight = document.documentElement.classList.contains('light-theme');
-            window.applyUniversalQuartetTheme(isCurrentlyLight ? 'midnight_obsidian' : 'warm_cream', !isCurrentlyLight);
+    window.openUniversalErpTonePopover = function (anchorEl) {
+        if (typeof window.openPurchaseLightTonePopover === 'function') {
+            window.openPurchaseLightTonePopover(anchorEl);
+            return;
         }
+        let pop = document.getElementById('pur-light-tone-popover');
+        if (!pop) {
+            pop = document.createElement('div');
+            pop.id = 'pur-light-tone-popover';
+            pop.style.cssText = 'position:fixed;z-index:9999999;background:linear-gradient(145deg,#0f172a,#1e293b);border:2px solid #fbbf24;border-radius:14px;padding:10px;box-shadow:0 18px 42px rgba(0,0,0,0.85),0 0 22px rgba(245,158,11,0.35);min-width:245px;direction:rtl;font-family:Tajawal,Cairo,sans-serif;';
+            document.body.appendChild(pop);
+            document.addEventListener('click', (e) => { if (pop.style.display !== 'none' && !pop.contains(e.target)) pop.style.display = 'none'; });
+        }
+        const isDarkNow = !document.documentElement.classList.contains('light-theme');
+        const cur = isDarkNow ? 'dark_midnight' : (document.documentElement.getAttribute('data-light-tone') || 'ivory_default');
+        pop.innerHTML = '<div style="color:#fde047;font-weight:900;font-size:0.92rem;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid rgba(255,255,255,0.15);display:flex;justify-content:space-between;align-items:center;"><span>🎨 مظاهر ونغمات النظام</span><span style="font-size:0.75rem;color:#94a3b8;">ثابتة في كل الشاشات</span></div>' +
+            GLOBAL_ERP_TONES.map(t => `<button type="button" onclick="window.applyGlobalErpToneOrTheme('${t.id}',true);document.getElementById('pur-light-tone-popover').style.display='none';" style="width:100%;display:flex;align-items:center;gap:10px;padding:7px 10px;margin-bottom:5px;border-radius:9px;cursor:pointer;background:${cur===t.id?'rgba(245,158,11,0.25)':'rgba(255,255,255,0.06)'};border:1.5px solid ${cur===t.id?'#fbbf24':'rgba(255,255,255,0.12)'};color:#ffffff;font-weight:900;font-size:0.88rem;text-align:right;"><span style="width:28px;height:28px;border-radius:7px;background:linear-gradient(135deg,${t.fg} 0%,${t.bg} 100%);border:2px solid ${t.brd};box-shadow:inset 0 1px 2px rgba(255,255,255,0.45),0 2px 5px rgba(0,0,0,0.4);flex-shrink:0;"></span><span style="flex:1;">${t.name}</span>${cur===t.id?'<span style="color:#fde047;">✓</span>':''}</button>`).join('');
+        const r = anchorEl ? anchorEl.getBoundingClientRect() : { bottom: 60, left: 20 };
+        pop.style.top = Math.max(10, Math.min(window.innerHeight - 435, r.bottom + 8)) + 'px';
+        pop.style.left = Math.max(12, Math.min(window.innerWidth - 260, r.left)) + 'px';
+        pop.style.display = 'block';
+    };
+
+    window.triggerQuartetQuickTheme = function (anchorEl) {
+        const btn = anchorEl || document.querySelector('.msg-quartet-qtheme');
+        window.openUniversalErpTonePopover(btn);
     };
 
     function isMainDashboardScreen() {
@@ -3648,20 +3718,8 @@
             document.body.appendChild(pod);
         }
 
-        // Keep the 4 buttons accessible when scrolling deep down long tables/reports
-        if (!window.__msgQuartetScrollBound) {
-            window.__msgQuartetScrollBound = true;
-            window.addEventListener('scroll', function () {
-                const currentPod = document.getElementById('msg-universal-fixed-launcher');
-                if (!currentPod || !currentPod.classList.contains('is-docked-in-header')) return;
-                const sy = window.scrollY || window.pageYOffset || 0;
-                if (sy > 140) {
-                    currentPod.classList.add('is-scroll-floating');
-                } else {
-                    currentPod.classList.remove('is-scroll-floating');
-                }
-            }, { passive: true });
-        }
+        // Keep the 4 buttons permanently docked inside the top header so they scroll naturally with the header title
+        pod.classList.remove('is-scroll-floating');
 
         if (typeof window.syncHeaderPopoverUI === 'function') {
             try { window.syncHeaderPopoverUI(); } catch (e) {}
