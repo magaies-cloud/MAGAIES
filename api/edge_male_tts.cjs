@@ -9,7 +9,116 @@ const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
 const https = require('https');
-const WebSocket = require('ws');
+const tls = require('tls');
+class NativeTlsWebSocket {
+    constructor(urlStr, options = {}) {
+        this.url = new URL(urlStr);
+        this.headers = options.headers || {};
+        this.listeners = { open: [], message: [], close: [], error: [] };
+        this.isClosed = false;
+        this._connect();
+    }
+    on(event, fn) { if (this.listeners[event]) this.listeners[event].push(fn); }
+    _emit(event, ...args) { (this.listeners[event] || []).forEach(fn => { try { fn(...args); } catch (e) {} }); }
+    _connect() {
+        const port = Number(this.url.port) || 443;
+        const host = this.url.hostname;
+        const wsKey = crypto.randomBytes(16).toString('base64');
+        this.socket = tls.connect({ host, port, servername: host, rejectUnauthorized: false }, () => {
+            const pathWithQuery = (this.url.pathname || '/') + (this.url.search || '');
+            const reqLines = [
+                `GET ${pathWithQuery} HTTP/1.1`,
+                `Host: ${host}`,
+                `Upgrade: websocket`,
+                `Connection: Upgrade`,
+                `Sec-WebSocket-Key: ${wsKey}`,
+                `Sec-WebSocket-Version: 13`
+            ];
+            for (const [k, v] of Object.entries(this.headers)) reqLines.push(`${k}: ${v}`);
+            reqLines.push('', '');
+            this.socket.write(reqLines.join('\r\n'));
+        });
+        let handshakeDone = false, rxBuffer = Buffer.alloc(0), fragOpcode = 0, fragChunks = [];
+        this.socket.on('data', (chunk) => {
+            rxBuffer = Buffer.concat([rxBuffer, chunk]);
+            if (!handshakeDone) {
+                const headerEnd = rxBuffer.indexOf('\r\n\r\n');
+                if (headerEnd === -1) return;
+                const headerBlock = rxBuffer.subarray(0, headerEnd).toString('utf8');
+                rxBuffer = rxBuffer.subarray(headerEnd + 4);
+                if (!headerBlock.startsWith('HTTP/1.1 101') && !headerBlock.startsWith('HTTP/1.0 101')) {
+                    this._emit('error', new Error('WS Handshake Failed: ' + headerBlock.split('\r\n')[0]));
+                    this.close();
+                    return;
+                }
+                handshakeDone = true;
+                this._emit('open');
+            }
+            while (rxBuffer.length >= 2) {
+                const b0 = rxBuffer[0], b1 = rxBuffer[1], fin = (b0 & 0x80) !== 0, opcode = b0 & 0x0f, masked = (b1 & 0x80) !== 0;
+                let payloadLen = b1 & 0x7f, offset = 2;
+                if (payloadLen === 126) {
+                    if (rxBuffer.length < 4) return;
+                    payloadLen = rxBuffer.readUInt16BE(2); offset = 4;
+                } else if (payloadLen === 127) {
+                    if (rxBuffer.length < 10) return;
+                    payloadLen = Number(rxBuffer.readBigUInt64BE(2)); offset = 10;
+                }
+                const maskLen = masked ? 4 : 0;
+                if (rxBuffer.length < offset + maskLen + payloadLen) return;
+                let payload = rxBuffer.subarray(offset + maskLen, offset + maskLen + payloadLen);
+                if (masked) {
+                    const maskKey = rxBuffer.subarray(offset, offset + 4);
+                    const unmasked = Buffer.alloc(payload.length);
+                    for (let i = 0; i < payload.length; i++) unmasked[i] = payload[i] ^ maskKey[i & 3];
+                    payload = unmasked;
+                }
+                rxBuffer = rxBuffer.subarray(offset + maskLen + payloadLen);
+                if (opcode === 0x08) { this.close(); return; }
+                else if (opcode === 0x09) { this._sendFrame(0x0a, payload); }
+                else if (opcode === 0x01 || opcode === 0x02 || opcode === 0x00) {
+                    if (opcode !== 0x00) { fragOpcode = opcode; fragChunks = [payload]; }
+                    else { fragChunks.push(payload); }
+                    if (fin) {
+                        const fullPayload = Buffer.concat(fragChunks);
+                        const isBinary = (fragOpcode === 0x02);
+                        fragChunks = [];
+                        this._emit('message', fullPayload, isBinary);
+                    }
+                }
+            }
+        });
+        this.socket.on('close', () => { if (!this.isClosed) { this.isClosed = true; this._emit('close'); } });
+        this.socket.on('error', (err) => { this._emit('error', err); });
+    }
+    _sendFrame(opcode, payloadBuf) {
+        if (this.isClosed || !this.socket || this.socket.destroyed) return;
+        const len = payloadBuf.length;
+        let headerLen = 2;
+        if (len >= 126 && len <= 65535) headerLen = 4;
+        else if (len > 65535) headerLen = 10;
+        const frame = Buffer.alloc(headerLen + 4 + len);
+        frame[0] = 0x80 | (opcode & 0x0f);
+        if (len < 126) frame[1] = 0x80 | len;
+        else if (len <= 65535) { frame[1] = 0x80 | 126; frame.writeUInt16BE(len, 2); }
+        else { frame[1] = 0x80 | 127; frame.writeBigUInt64BE(BigInt(len), 2); }
+        const mask = crypto.randomBytes(4);
+        mask.copy(frame, headerLen);
+        for (let i = 0; i < len; i++) frame[headerLen + 4 + i] = payloadBuf[i] ^ mask[i & 3];
+        try { this.socket.write(frame); } catch (e) {}
+    }
+    send(data) {
+        const buf = Buffer.isBuffer(data) ? data : Buffer.from(String(data), 'utf8');
+        this._sendFrame(Buffer.isBuffer(data) ? 0x02 : 0x01, buf);
+    }
+    close() {
+        if (this.isClosed) return;
+        this.isClosed = true;
+        try { this._sendFrame(0x08, Buffer.alloc(0)); this.socket.end(); this.socket.destroy(); } catch (e) {}
+        this._emit('close');
+    }
+}
+const WebSocket = NativeTlsWebSocket;
 
 const TRUSTED_CLIENT_TOKEN = '6A5AA1D4EAFF4E9FB37E23D68491D6F4';
 const CHROMIUM_FULL_VERSION = '143.0.3650.75';
@@ -265,7 +374,7 @@ function getRealUnixSeconds(forceRefresh = false) {
     }
 
     return new Promise((resolve) => {
-        const req = https.request('https://www.bing.com/', { method: 'HEAD', timeout: 2500 }, (res) => {
+        const req = https.request('https://www.bing.com/', { method: 'HEAD', timeout: 2500, rejectUnauthorized: false }, (res) => {
             if (res.headers && res.headers.date) {
                 const parsed = Date.parse(res.headers.date);
                 if (!isNaN(parsed)) {

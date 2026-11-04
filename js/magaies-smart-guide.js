@@ -1212,11 +1212,11 @@
         let txt = String(rawText || '').trim();
         if (!txt) return '';
         txt = txt
-            .replace(/^اللَّهُمَّ\s+صَلِّ\s+وَسَلِّمْ\s+عَلَى\s+نَبِيِّنَا\s+مُحَمَّدٍ[.،\s]*/g, '')
-            .replace(/^اللَّهُمَّ\s+صَلِّ\s+عَلَى\s+مُحَمَّدٍ\s+وَعَلَى\s+آلِ\s+مُحَمَّدٍ[.،\s]*/g, '')
-            .replace(/^اللهم\s+صل\s+وسلم\s+على\s+نبينا\s+محمد[.،\s]*/g, '')
-            .replace(/^اللهم\s+صل\s+على\s+محمد\s+وعلى\s+آل\s+محمد[.،\s]*/g, '')
-            .replace(/^اللهم\s+صل\s+على\s+سيدنا\s+محمد[.،\s]*/g, '')
+            .replace(/اللَّهُمَّ\s+صَلِّ\s+وَسَلِّمْ\s+عَلَى\s+نَبِيِّنَا\s+مُحَمَّدٍ[.،\s]*/g, '')
+            .replace(/اللَّهُمَّ\s+صَلِّ\s+عَلَى\s+مُحَمَّدٍ\s+وَعَلَى\s+آلِ\s+مُحَمَّدٍ[.،\s]*/g, '')
+            .replace(/اللهم\s+صل\s+وسلم\s+على\s+نبينا\s+محمد[.،\s]*/g, '')
+            .replace(/اللهم\s+صل\s+على\s+محمد\s+وعلى\s+آل\s+محمد[.،\s]*/g, '')
+            .replace(/اللهم\s+صل\s+على\s+سيدنا\s+محمد[.،\s]*/g, '')
             .replace(/شرح\s+من\s+الألف\s+(إلى|الى|ل)\s*الياء/g, '')
             .replace(/من\s+الألف\s+(إلى|الى|ل)\s*الياء/g, '')
             .replace(/من\s+الالف\s+(إلى|الى|ل)\s*الياء/g, '')
@@ -1577,7 +1577,7 @@
     }
 
     let _browserSpeechKeepAliveTimer = null;
-    function speakWithBrowserMaleFallback(text, onEndCallback, dialect = selectedMaleProfile, allowOpeningOnce = false) {
+    function speakWithBrowserMaleFallback(text, onEndCallback, dialect = selectedMaleProfile, allowOpeningOnce = false, alreadyFormatted = false) {
         if (!('speechSynthesis' in window)) {
             if (onEndCallback) setTimeout(onEndCallback, 2500);
             return;
@@ -1589,7 +1589,7 @@
             }
             window.speechSynthesis.cancel();
             window.speechSynthesis.resume();
-            const cleanText = ensureLeadingSalawat(text, allowOpeningOnce);
+            const cleanText = alreadyFormatted ? String(text || '').trim() : ensureLeadingSalawat(text, allowOpeningOnce);
             const utter = new SpeechSynthesisUtterance(cleanText);
             window.__activeGuideUtterance = utter;
             utter.lang = dialect === 'egyptian' ? 'ar-EG' : 'ar-SA';
@@ -1677,7 +1677,7 @@
             startBufferAtOffset(0);
         } catch (err) {
             if (reqId !== currentSpeechRequestId) return;
-            speakWithBrowserMaleFallback(finalSpokenText, onEndCallback, dialect, false);
+            speakWithBrowserMaleFallback(finalSpokenText, onEndCallback, dialect, false, true);
         }
     }
 
@@ -3037,7 +3037,7 @@
             });
             // Only append auto-discovered buttons to autopilotSteps when the screen doesn't already have a curated deep functional walkthrough OR when explicitly marked as a dynamic button
             const isExplicitDynamicBtn = btn.getAttribute && btn.getAttribute('data-c5-dynamic-btn') === '1';
-            const hasCuratedDeepWalkthrough = ['sales-direct', 'sales-split', 'purchase-direct', 'purchase-receipt', 'master-data', 'smart-logistics'].includes(key);
+            const hasCuratedDeepWalkthrough = ['sales-direct', 'sales-split', 'purchase-direct', 'purchase-receipt', 'master-data', 'smart-logistics', 'multi-cash-payment', 'single-cash-payment'].includes(key);
             if (!hasCuratedDeepWalkthrough || isExplicitDynamicBtn) {
                 const dynStep = {
                     badge: `✨ أداة مضافة — ${cleanLbl}`,
@@ -4091,11 +4091,17 @@
             window.stopMagaies4KCinemaMode();
         }
         window.__MUTE_LEGACY_GUIDE_AUDIO__ = false;
+        unlockBrowserAudioEnginesSync();
         stopCurrentSpeech();
         ensureGuideDomElements();
         const resolvedKey = guideKey || buildUniversalScreenGuideIfNeeded();
         currentGuideKey = resolvedKey;
         window.__mdInteractiveGuideActive = true;
+        // أمر حاسم (2، 3، 5): في شاشة الحركة المالية المجمعة يبدأ الشرح التطبيقي الحي فوراً (طوالي في 0ms) عبر الكبسولة المصغرة دون أي قائمة حاجبة للرؤية
+        if (resolvedKey === 'multi-cash-payment' || window.location.pathname.includes('multi-cash-payment')) {
+            window.startLiveAutopilotSimulation('all');
+            return;
+        }
         window.stopLiveAutopilotSimulation();
         window.__mdInteractiveGuideActive = true;
         window.openSmartGuideEncyclopediaModal(resolvedKey);
@@ -4462,14 +4468,28 @@
             'ds-quick-item-modal',
             'ds-warranty-qr-modal',
             'auto-send-sales-dropdown-menu',
-            'msg-c5-impact-map-banner'
+            'msg-c5-impact-map-banner',
+            'main-account-dropdown-list',
+            'account-1-dropdown-list',
+            'cost-center-1-dropdown-list',
+            'auto-send-dropdown-menu',
+            'mcp-quick-add-account-modal',
+            'mcp-split-modal',
+            'mcp-excel-modal',
+            'mcp-templates-modal',
+            'inbound-receipts-drawer',
+            'wa-voucher-modal',
+            'print-preview-modal'
         ].forEach(id => {
             const m = document.getElementById(id);
             if (m && !(preserveContainerEl && m.contains(preserveContainerEl))) {
                 m.style.display = 'none';
-                m.classList.remove('active');
+                m.classList.remove('active', 'open');
             }
         });
+        if (typeof window.cleanupMultiCashGuidePopups === 'function') {
+            try { window.cleanupMultiCashGuidePopups(preserveContainerEl); } catch (e) {}
+        }
     }
 
     function triggerLiveChildScreenPreviewForElement(el) {
@@ -4520,7 +4540,13 @@
             'openSlC14TripleSealCertificateModal',
             'openSlC15FinalMasteryModal',
             'openSlC16ZeroErrorMasterAuditModal',
-            'openSlFontModal'
+            'openSlFontModal',
+            'openEqualSplitModal',
+            'openExcelPasteModal',
+            'openBatchTemplatesModal',
+            'openQuickAddAccountModal',
+            'toggleInboundReceiptsDrawer',
+            'toggleAutoSendDropdown'
         ];
         for (const fnName of previewFns) {
             if (onclick.includes(fnName) && typeof window[fnName] === 'function') {
@@ -4985,10 +5011,11 @@
             if (e.target.closest('#msg-live-coach-bar, #msg-smart-hover-tooltip, #msg-universal-fixed-launcher, #msg-universal-modal, #msg-c5-impact-map-banner')) {
                 return;
             }
-            const jumpTarget = e.target.closest('button, a, input, select, textarea, .md-tab-btn, .pro-field-card, .input-group, .sl-kpi-card, .sl-mode-tab, .sl-unit-box, [onclick], th');
+            const jumpTarget = e.target.closest('button, a, input, select, textarea, .md-tab-btn, .pro-field-card, .input-group, .sl-kpi-card, .sl-mode-tab, .sl-unit-box, .account-block, .voucher-type-btn, .crystal-btn, #grand-tafqeet-container, #mcp-world-summary-bar, [onclick], th');
             if (!jumpTarget) return;
             if (typeof window.isElementAllowedForCurrentUserRole === 'function' && !window.isElementAllowedForCurrentUserRole(jumpTarget)) return;
-            const info = (typeof window.explainSmartLogisticsDomElement === 'function' && window.explainSmartLogisticsDomElement(jumpTarget))
+            const info = (typeof window.explainMultiCashPaymentDomElement === 'function' && window.explainMultiCashPaymentDomElement(jumpTarget))
+                || (typeof window.explainSmartLogisticsDomElement === 'function' && window.explainSmartLogisticsDomElement(jumpTarget))
                 || (typeof window.explainMasterDataDomElement === 'function' && window.explainMasterDataDomElement(jumpTarget))
                 || (typeof window.explainDirectSalesDomElement === 'function' && window.explainDirectSalesDomElement(jumpTarget))
                 || (typeof window.explainPurchaseDomElement === 'function' && window.explainPurchaseDomElement(jumpTarget))
@@ -5052,6 +5079,13 @@
             if (slInfo && slInfo.title) {
                 matchedTitle = slInfo.title;
                 matchedDesc = slInfo.desc;
+            }
+        }
+        if (!matchedTitle && activeGuideKey === 'multi-cash-payment' && typeof window.explainMultiCashPaymentDomElement === 'function') {
+            const mcpInfo = window.explainMultiCashPaymentDomElement(el);
+            if (mcpInfo && mcpInfo.title) {
+                matchedTitle = mcpInfo.title;
+                matchedDesc = mcpInfo.desc;
             }
         }
 
@@ -5451,7 +5485,33 @@
         }
     ];
 
+    const MULTI_CASH_QUIZ_STEPS = [
+        {
+            tabSel: null,
+            openFn: null,
+            targetSel: '#main-account-search, #btn-payment, #btn-receipt',
+            badge: '🎯 اختبار (1/3): أشر على (الحساب الرئيسي أو نوع الحركة المجمعة)',
+            prompt: 'أهلاً بك في الاختبار التطبيقي لشاشة الحركة المالية المجمعة! السؤال الأول: حرّك الماوس أو اضغط على خانة الحساب الرئيسي للصرف أو الاستلام في أعلى الشاشة.'
+        },
+        {
+            tabSel: null,
+            openFn: null,
+            targetSel: '#accounts-blocks-container .block-account-search, .account-block',
+            badge: '🎯 اختبار (2/3): أشر على (كتلة الحساب الفرعي أو طرق الدفع)',
+            prompt: 'أحسنت إجابة صحيحة! السؤال الثاني: حرّك الماوس أو اضغط على خانة الحساب الفرعي المستفيد أو أزرار نقدي وتحويل وشيك داخل الكتلة.'
+        },
+        {
+            tabSel: null,
+            openFn: null,
+            targetSel: '#btn-save, #mcp-world-summary-bar',
+            badge: '🎯 اختبار (3/3): أشر على (زر حفظ واعتماد السند F10 أو شريط الملخص)',
+            prompt: 'ممتاز جداً! السؤال الثالث والأخير: حرّك الماوس أو اضغط على زر حفظ واعتماد السند إف عشرة في الشريط السفلي.'
+        }
+    ];
+
     function getActiveQuizStepsList() {
+        const isMcp = (currentGuideKey === 'multi-cash-payment' || window.location.pathname.includes('multi-cash-payment') || !!document.getElementById('accounts-blocks-container'));
+        if (isMcp) return MULTI_CASH_QUIZ_STEPS;
         const isSl = (currentGuideKey === 'smart-logistics' || window.location.pathname.includes('smart-logistics') || !!document.getElementById('sl-top-cockpit-bar'));
         if (isSl) return SMART_LOGISTICS_QUIZ_STEPS;
         const isPur = (currentGuideKey === 'purchase-direct' || window.location.pathname.includes('purchase.php') || !!document.getElementById('purchase-editor-view'));
@@ -5737,14 +5797,15 @@
     let lastHoverInspectedEl = null;
     document.addEventListener('mouseover', function (e) {
         if (window.__MUTE_LEGACY_GUIDE_AUDIO__ || window.__CINEMA_4K_ACTIVE__) return;
-        // 👑 Interactive Hover Inspection ("الشرح التفاعلي عند التأشير بالمؤشر") when Guide is active on master-data.php, purchase.php, direct-sales.php, purchase-receipt.php & smart-logistics.php
-        if (window.__mdInteractiveGuideActive && (typeof window.explainMasterDataDomElement === 'function' || typeof window.explainPurchaseDomElement === 'function' || typeof window.explainDirectSalesDomElement === 'function' || typeof window.explainPurchaseReceiptDomElement === 'function' || typeof window.explainSmartLogisticsDomElement === 'function')) {
+        // 👑 Interactive Hover Inspection ("الشرح التفاعلي عند التأشير بالمؤشر") when Guide is active on master-data.php, purchase.php, direct-sales.php, purchase-receipt.php, smart-logistics.php & multi-cash-payment.php
+        if (window.__mdInteractiveGuideActive && (typeof window.explainMasterDataDomElement === 'function' || typeof window.explainPurchaseDomElement === 'function' || typeof window.explainDirectSalesDomElement === 'function' || typeof window.explainPurchaseReceiptDomElement === 'function' || typeof window.explainSmartLogisticsDomElement === 'function' || typeof window.explainMultiCashPaymentDomElement === 'function')) {
             if (isAutopilotRunning && !isPickElementModeActive && (Date.now() - lastAutopilotStepStartTs < 1600)) return;
             if (e.target.closest('#msg-live-coach-bar, #msg-smart-hover-tooltip, #msg-universal-fixed-launcher')) return;
-            const inspectTarget = e.target.closest('button, a, input, select, textarea, .md-tab-btn, .pro-field-card, .input-group, .h-form-group, .hub-action-card, .fin-metric-pill, .tot-toggle-btn, .pay-toggle-btn, #customer-financial-card, #fin-strip, #purchase-3way-match-badge, .uiverse-switch, .grn-qc-pill, .grn-nav-pill, .grn-col-origQty, .grn-col-item, .grn-col-unit, .grn-col-qty, .grn-col-pendingBase, .grn-col-baseQty, .grn-progress-wrap, .grn-meta-bar > div, .sl-mode-tab, .sl-kpi-card, .sl-unit-box, th');
+            const inspectTarget = e.target.closest('button, a, input, select, textarea, .md-tab-btn, .pro-field-card, .input-group, .h-form-group, .hub-action-card, .fin-metric-pill, .tot-toggle-btn, .pay-toggle-btn, #customer-financial-card, #fin-strip, #purchase-3way-match-badge, .uiverse-switch, .grn-qc-pill, .grn-nav-pill, .grn-col-origQty, .grn-col-item, .grn-col-unit, .grn-col-qty, .grn-col-pendingBase, .grn-col-baseQty, .grn-progress-wrap, .grn-meta-bar > div, .sl-mode-tab, .sl-kpi-card, .sl-unit-box, .account-block, .voucher-type-btn, .crystal-btn, #grand-tafqeet-container, #mcp-world-summary-bar, th');
             if (!inspectTarget || inspectTarget === lastHoverInspectedEl) return;
             if (isMdQuickQuizActive && checkMdQuickQuizHit(inspectTarget)) return;
-            const mdInfo = (typeof window.explainSmartLogisticsDomElement === 'function' && window.explainSmartLogisticsDomElement(inspectTarget))
+            const mdInfo = (typeof window.explainMultiCashPaymentDomElement === 'function' && window.explainMultiCashPaymentDomElement(inspectTarget))
+                || (typeof window.explainSmartLogisticsDomElement === 'function' && window.explainSmartLogisticsDomElement(inspectTarget))
                 || (typeof window.explainPurchaseReceiptDomElement === 'function' && window.explainPurchaseReceiptDomElement(inspectTarget))
                 || (typeof window.explainDirectSalesDomElement === 'function' && window.explainDirectSalesDomElement(inspectTarget))
                 || (typeof window.explainPurchaseDomElement === 'function' && window.explainPurchaseDomElement(inspectTarget))
