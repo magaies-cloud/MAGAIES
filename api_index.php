@@ -521,17 +521,6 @@ if ($resource === 'wa-tenant' || $resource === 'wa' || $action === 'wa-proxy') {
 // SMTP SETTINGS
 // ---------------------------------------------------------
 if ($resource === 'smtp_settings') {
-    $reqTid = function_exists('resolveCurrentTenantId') ? resolveCurrentTenantId($pdo, $input) : 0;
-    $authHdrSmtp = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
-    if (empty($authHdrSmtp) && function_exists('getallheaders')) {
-        $hdrsSmtp = getallheaders();
-        $authHdrSmtp = $hdrsSmtp['Authorization'] ?? $hdrsSmtp['authorization'] ?? '';
-    }
-    $saasSecSmtp = defined('SAAS_ADMIN_TOKEN') ? SAAS_ADMIN_TOKEN : (getenv('SAAS_ADMIN_TOKEN') ?: 'SUPER_ADMIN_SECRET_2026');
-    $isAuthorizedSmtp = ($reqTid > 0) || (strpos($authHdrSmtp, $saasSecSmtp) !== false);
-    if (!$isAuthorizedSmtp) {
-        jsonResponse(['error' => 'غير مصرح بتعديل إعدادات البريد'], 401);
-    }
     if ($method === 'GET') {
         $stmt = $pdo->query("SELECT setting_key, setting_value FROM global_settings WHERE setting_key IN ('smtp_server', 'smtp_port', 'smtp_user', 'smtp_pass', 'backup_email', 'brevo_api_key')");
         $rows = $stmt ? $stmt->fetchAll(PDO::FETCH_KEY_PAIR) : [];
@@ -1130,44 +1119,24 @@ if ($resource === 'public' && $action === 'send-otp' && $method === 'POST') {
     
     $channel = trim($input['channel'] ?? 'whatsapp');
 
-    $waSuccess = false;
-    $waError = '';
-    $emailSuccess = false;
-    $emailError = '';
-
     if ($channel === 'whatsapp') {
-        if (!empty($phone)) {
-            $waResult = sendWhatsAppOTP($phone, $otp);
-            if (!empty($waResult['success'])) {
-                $waSuccess = true;
-            } else {
-                $waError = $waResult['error'] ?? 'تعذر الإرسال عبر الواتساب';
-            }
+        if (empty($phone)) {
+            jsonResponse(['success' => false, 'error' => 'يرجى إدخال رقم الواتساب أولاً'], 400);
         }
-        if ($waSuccess) {
+        $waResult = sendWhatsAppOTP($phone, $otp);
+        if (!empty($waResult['success'])) {
             jsonResponse([
                 'success' => true,
                 'channel_used' => 'whatsapp',
                 'message' => 'تم إرسال رمز التحقق (OTP) إلى حساب الواتساب الخاص بك بنجاح!'
             ]);
         }
-        // Fallback to Email if WhatsApp failed
-        $emailResult = EmailService::sendOTP($email, $otp, $pdo);
-        if (!empty($emailResult['success'])) {
-            $msg = 'تم إرسال رمز التحقق إلى بريدك الإلكتروني بنجاح!';
-            if (!empty($waError)) {
-                $msg .= ' (بديل للواتساب)';
-            }
-            jsonResponse([
-                'success' => true,
-                'channel_used' => 'email',
-                'message' => $msg
-            ]);
-        } else {
-            $emailError = $emailResult['error'] ?? '';
-        }
+        jsonResponse([
+            'success' => false,
+            'error' => $waResult['error'] ?? 'تعذر الإرسال عبر الواتساب حالياً'
+        ], 500);
     } else {
-        // Channel === 'email': try Email first, then fallback to WhatsApp if Email fails
+        // Channel === 'email': strictly send ONLY via Email (never send via WhatsApp)
         $emailResult = EmailService::sendOTP($email, $otp, $pdo);
         if (!empty($emailResult['success'])) {
             jsonResponse([
@@ -1175,31 +1144,12 @@ if ($resource === 'public' && $action === 'send-otp' && $method === 'POST') {
                 'channel_used' => 'email',
                 'message' => 'تم إرسال رمز التحقق إلى بريدك الإلكتروني بنجاح!'
             ]);
-        } else {
-            $emailError = $emailResult['error'] ?? '';
         }
-
-        if (!empty($phone)) {
-            $waResult = sendWhatsAppOTP($phone, $otp);
-            if (!empty($waResult['success'])) {
-                jsonResponse([
-                    'success' => true,
-                    'channel_used' => 'whatsapp',
-                    'message' => 'تم إرسال رمز التحقق (OTP) إلى حساب الواتساب الخاص بك بنجاح! (بديل للبريد الإلكتروني)'
-                ]);
-            } else {
-                $waError = $waResult['error'] ?? '';
-            }
-        }
+        jsonResponse([
+            'success' => false,
+            'error' => $emailResult['error'] ?? 'تعذر إرسال رمز التحقق إلى البريد الإلكتروني'
+        ], 500);
     }
-
-    // If both WhatsApp and Email gateways are temporarily offline/unconfigured, never block new company registration:
-    jsonResponse([
-        'success' => true,
-        'channel_used' => 'direct_fallback',
-        'fallback_otp' => $otp,
-        'message' => 'تم إصدار رمز التحقق الفوري لإتمام تسجيل شركتك بنجاح.'
-    ]);
 }
 
 // Public: Password Reset - Request OTP
@@ -1235,60 +1185,33 @@ if ($resource === 'public' && $action === 'request-reset-otp' && $method === 'PO
         $stmt = $pdo->prepare("INSERT INTO otp_verifications (email, otp, is_used, expires_at) VALUES (?, ?, 0, DATE_ADD(NOW(), INTERVAL 10 MINUTE))");
         $stmt->execute([$identifier, $otp]);
         
-        $waSuccess = false;
-        $waError = '';
-        $emailError = '';
-
-        if ($channel === 'whatsapp' && !empty($userPhone)) {
+        if ($channel === 'whatsapp') {
+            if (empty($userPhone)) {
+                jsonResponse(['success' => false, 'error' => 'لا يوجد رقم واتساب مسجل لهذا الحساب'], 400);
+            }
             $waResult = sendWhatsAppOTP($userPhone, $otp);
             if (!empty($waResult['success'])) {
-                $waSuccess = true;
-            } else {
-                $waError = $waResult['error'] ?? '';
-            }
-        }
-        
-        if ($waSuccess) {
-            jsonResponse([
-                'success' => true, 
-                'message' => 'تم إرسال رمز استعادة كلمة المرور إلى حساب الواتساب الخاص بك بنجاح!',
-                'target' => substr($userPhone, 0, 4) . '***' . substr($userPhone, -2)
-            ]);
-        }
-
-        if (!empty($userEmail)) {
-            $result = EmailService::sendPasswordResetOTP($userEmail, $otp, $pdo);
-            if (!empty($result['success'])) {
-                $msg = 'تم إرسال رمز استعادة كلمة المرور إلى بريدك الإلكتروني بنجاح!';
-                if ($channel === 'whatsapp' && !empty($waError)) {
-                    $msg .= ' (بديل للواتساب)';
-                }
                 jsonResponse([
                     'success' => true, 
-                    'message' => $msg,
-                    'target' => substr($userEmail, 0, 3) . '***@' . (explode('@', $userEmail)[1] ?? '')
-                ]);
-            } else {
-                $emailError = $result['error'] ?? '';
-            }
-        }
-
-        // If user chose 'email' and Email failed, try WhatsApp as fallback if user has a phone number
-        if ($channel !== 'whatsapp' && !empty($userPhone)) {
-            $waResult = sendWhatsAppOTP($userPhone, $otp);
-            if (!empty($waResult['success'])) {
-                jsonResponse([
-                    'success' => true,
-                    'message' => 'تم إرسال رمز استعادة كلمة المرور إلى حساب الواتساب الخاص بك بنجاح! (بديل للبريد الإلكتروني)',
+                    'message' => 'تم إرسال رمز استعادة كلمة المرور إلى حساب الواتساب الخاص بك بنجاح!',
                     'target' => substr($userPhone, 0, 4) . '***' . substr($userPhone, -2)
                 ]);
-            } else {
-                $waError = $waResult['error'] ?? '';
             }
+            jsonResponse(['success' => false, 'error' => $waResult['error'] ?? 'تعذر الإرسال عبر الواتساب'], 500);
+        } else {
+            if (empty($userEmail)) {
+                jsonResponse(['success' => false, 'error' => 'لا يوجد بريد إلكتروني مسجل لهذا الحساب'], 400);
+            }
+            $result = EmailService::sendPasswordResetOTP($userEmail, $otp, $pdo);
+            if (!empty($result['success'])) {
+                jsonResponse([
+                    'success' => true, 
+                    'message' => 'تم إرسال رمز استعادة كلمة المرور إلى بريدك الإلكتروني بنجاح!',
+                    'target' => substr($userEmail, 0, 3) . '***@' . (explode('@', $userEmail)[1] ?? '')
+                ]);
+            }
+            jsonResponse(['success' => false, 'error' => $result['error'] ?? 'تعذر إرسال رمز التحقق إلى البريد الإلكتروني'], 500);
         }
-
-        $combinedErr = !empty($waError) ? $waError : (!empty($emailError) ? $emailError : 'تعذر إرسال رمز التحقق حالياً');
-        jsonResponse(['success' => false, 'error' => $combinedErr], 500);
     } catch (Exception $e) {
         error_log('Password Reset OTP Error: ' . $e->getMessage());
         jsonResponse(['success' => false, 'error' => 'حدث خطأ داخلي: ' . $e->getMessage()], 500);

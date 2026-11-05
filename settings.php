@@ -36,10 +36,20 @@ if (isset($_GET['action'])) {
                 $tenant['plan_name'] = $planName;
             }
 
-            $stmtS = $pdo->prepare("SELECT data FROM settings WHERE tenant_id = ? ORDER BY id DESC LIMIT 1");
-            $stmtS->execute([$GLOBAL_TENANT_ID]);
-            $rawSettings = $stmtS->fetchColumn();
-            $settingsData = $rawSettings ? json_decode($rawSettings, true) : null;
+            $settingsData = null;
+            try {
+                $stmtS = $pdo->prepare("SELECT data FROM settings WHERE tenant_id = ? ORDER BY id DESC LIMIT 1");
+                $stmtS->execute([$GLOBAL_TENANT_ID]);
+                $rawSettings = $stmtS->fetchColumn();
+                $settingsData = $rawSettings ? json_decode($rawSettings, true) : null;
+            } catch (Exception $e) {
+                try {
+                    $stmtG = $pdo->prepare("SELECT setting_value FROM global_settings WHERE setting_key = ? LIMIT 1");
+                    $stmtG->execute(['tenant_' . (int)$GLOBAL_TENANT_ID . '_erp_settings_v1']);
+                    $rawSettings = $stmtG->fetchColumn();
+                    $settingsData = $rawSettings ? json_decode($rawSettings, true) : null;
+                } catch (Exception $e2) {}
+            }
 
             echo json_encode([
                 'success' => true,
@@ -95,18 +105,40 @@ if (isset($_GET['action'])) {
                 } catch (Exception $e) {}
             }
             
-            // Sync full settings payload into settings table
+            // Sync full settings payload into global_settings and settings table
             $jsonStr = json_encode($input, JSON_UNESCAPED_UNICODE);
-            $stmtCheck = $pdo->prepare("SELECT id FROM settings WHERE tenant_id = ? LIMIT 1");
-            $stmtCheck->execute([$GLOBAL_TENANT_ID]);
-            $existingId = $stmtCheck->fetchColumn();
-            if ($existingId) {
-                $stmtUpS = $pdo->prepare("UPDATE settings SET data = ?, updated_at = NOW() WHERE id = ?");
-                $stmtUpS->execute([$jsonStr, $existingId]);
-            } else {
-                $stmtIns = $pdo->prepare("INSERT INTO settings (tenant_id, data, created_at, updated_at) VALUES (?, ?, NOW(), NOW())");
-                $stmtIns->execute([$GLOBAL_TENANT_ID, $jsonStr]);
-            }
+            try {
+                $stmtG = $pdo->prepare("INSERT INTO global_settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = ?");
+                $stmtG->execute(['tenant_' . (int)$GLOBAL_TENANT_ID . '_erp_settings_v1', $jsonStr, $jsonStr]);
+                if (isset($input['smtpServer'])) {
+                    $stmtG->execute(['smtp_server', trim((string)$input['smtpServer']), trim((string)$input['smtpServer'])]);
+                }
+                if (isset($input['smtpPort'])) {
+                    $stmtG->execute(['smtp_port', trim((string)$input['smtpPort']), trim((string)$input['smtpPort'])]);
+                }
+                if (isset($input['smtpUser'])) {
+                    $stmtG->execute(['smtp_user', trim((string)$input['smtpUser']), trim((string)$input['smtpUser'])]);
+                }
+                if (!empty($input['smtpPass']) && $input['smtpPass'] !== '********') {
+                    $stmtG->execute(['smtp_pass', trim((string)$input['smtpPass']), trim((string)$input['smtpPass'])]);
+                }
+                if (isset($input['backupEmail'])) {
+                    $stmtG->execute(['backup_email', trim((string)$input['backupEmail']), trim((string)$input['backupEmail'])]);
+                }
+            } catch (Exception $e) {}
+
+            try {
+                $stmtCheck = $pdo->prepare("SELECT id FROM settings WHERE tenant_id = ? LIMIT 1");
+                $stmtCheck->execute([$GLOBAL_TENANT_ID]);
+                $existingId = $stmtCheck->fetchColumn();
+                if ($existingId) {
+                    $stmtUpS = $pdo->prepare("UPDATE settings SET data = ?, updated_at = NOW() WHERE id = ?");
+                    $stmtUpS->execute([$jsonStr, $existingId]);
+                } else {
+                    $stmtIns = $pdo->prepare("INSERT INTO settings (tenant_id, data, created_at, updated_at) VALUES (?, ?, NOW(), NOW())");
+                    $stmtIns->execute([$GLOBAL_TENANT_ID, $jsonStr]);
+                }
+            } catch (Exception $e) {}
             
             // If user session exists, update company_name there too
             if (session_status() === PHP_SESSION_NONE) {

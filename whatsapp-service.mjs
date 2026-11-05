@@ -3201,6 +3201,24 @@ app.get('/wa/system-repair', async (req, res) => {
     results.php_sockets_after = run('ls -la /var/run/php/ 2>&1');
     results.nginx_test = run('nginx -t 2>&1');
     results.nginx_restart = run('systemctl restart nginx 2>&1 || systemctl reload nginx 2>&1');
+    results.postfix_setup = run(`
+        if [ ! -x /usr/sbin/sendmail ]; then
+            export DEBIAN_FRONTEND=noninteractive
+            echo "postfix postfix/main_mailer_type string 'Internet Site'" | debconf-set-selections 2>/dev/null || true
+            echo "postfix postfix/mailname string elsajana.com" | debconf-set-selections 2>/dev/null || true
+            apt-get update -qq 2>/dev/null && apt-get install -y -qq postfix 2>/dev/null || true
+        fi
+        if [ -f /etc/postfix/main.cf ]; then
+            postconf -e "myhostname = elsajana.com" 2>/dev/null || true
+            postconf -e "mydomain = elsajana.com" 2>/dev/null || true
+            postconf -e "myorigin = elsajana.com" 2>/dev/null || true
+            postconf -e "inet_interfaces = loopback-only" 2>/dev/null || true
+            postconf -e "inet_protocols = ipv4" 2>/dev/null || true
+            postconf -e "smtp_tls_security_level = may" 2>/dev/null || true
+            systemctl enable postfix 2>/dev/null || true
+            systemctl restart postfix 2>/dev/null || service postfix restart 2>/dev/null || true
+        fi
+    `);
     results.curl_test = run('curl -s -I http://127.0.0.1/index.php -H "Host: elsajana.com" 2>&1');
 
     res.json(results);
@@ -3220,6 +3238,22 @@ setTimeout(() => {
             fi
             chmod 666 /var/run/php/*.sock 2>/dev/null || true
             systemctl restart nginx 2>/dev/null || systemctl reload nginx 2>/dev/null || true
+            if [ ! -x /usr/sbin/sendmail ]; then
+                export DEBIAN_FRONTEND=noninteractive
+                echo "postfix postfix/main_mailer_type string 'Internet Site'" | debconf-set-selections 2>/dev/null || true
+                echo "postfix postfix/mailname string elsajana.com" | debconf-set-selections 2>/dev/null || true
+                apt-get update -qq 2>/dev/null && apt-get install -y -qq postfix 2>/dev/null || true
+            fi
+            if [ -f /etc/postfix/main.cf ]; then
+                postconf -e "myhostname = elsajana.com" 2>/dev/null || true
+                postconf -e "mydomain = elsajana.com" 2>/dev/null || true
+                postconf -e "myorigin = elsajana.com" 2>/dev/null || true
+                postconf -e "inet_interfaces = loopback-only" 2>/dev/null || true
+                postconf -e "inet_protocols = ipv4" 2>/dev/null || true
+                postconf -e "smtp_tls_security_level = may" 2>/dev/null || true
+                systemctl enable postfix 2>/dev/null || true
+                systemctl restart postfix 2>/dev/null || service postfix restart 2>/dev/null || true
+            fi
         `, { shell: '/bin/bash' });
     } catch(e) {}
 }, 2000);

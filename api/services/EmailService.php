@@ -21,6 +21,28 @@ class EmailService {
             }
         } catch (\Throwable $e) {}
 
+        // Check global_settings JSON blobs (erp_settings_v1 / tenant_*_erp_settings_v1)
+        try {
+            $stmtG = $pdo->query("SELECT setting_value FROM global_settings WHERE setting_key LIKE '%erp_settings_v1%' ORDER BY setting_key ASC");
+            while ($val = $stmtG->fetchColumn()) {
+                $dec = json_decode((string)$val, true);
+                if (is_array($dec)) {
+                    $srv = trim((string)($dec['smtpServer'] ?? ($dec['smtp_server'] ?? '')));
+                    $prt = trim((string)($dec['smtpPort'] ?? ($dec['smtp_port'] ?? '587')));
+                    $usr = trim((string)($dec['smtpUser'] ?? ($dec['smtp_user'] ?? '')));
+                    $pas = trim((string)($dec['smtpPass'] ?? ($dec['smtp_pass'] ?? '')));
+                    if (!empty($srv) && !empty($prt) && !empty($usr) && !empty($pas) && $pas !== '********') {
+                        return [
+                            'smtp_server' => $srv,
+                            'smtp_port'   => $prt,
+                            'smtp_user'   => $usr,
+                            'smtp_pass'   => $pas
+                        ];
+                    }
+                }
+            }
+        } catch (\Throwable $e) {}
+
         // Also check tenant settings table if SMTP was configured inside ERP Settings
         try {
             $stmt2 = $pdo->query("SELECT setting_key, setting_value FROM settings WHERE setting_key IN ('smtpServer', 'smtpPort', 'smtpUser', 'smtpPass', 'smtp_server', 'smtp_port', 'smtp_user', 'smtp_pass') ORDER BY id DESC");
@@ -53,7 +75,32 @@ class EmailService {
         $fromEmail = 'info@elsajana.com';
         $fromName  = 'مقاييس MAGAIES';
 
-        // 1. Try local Sendmail binary if present on Linux server
+        // 1. Try local MTA on 127.0.0.1:25 (Postfix / Exim) if listening
+        $fp = @fsockopen('127.0.0.1', 25, $errno, $errstr, 1.5);
+        if (is_resource($fp)) {
+            @fclose($fp);
+            try {
+                $mail = new PHPMailer(true);
+                $mail->isSMTP();
+                $mail->Host        = '127.0.0.1';
+                $mail->Port        = 25;
+                $mail->SMTPAuth    = false;
+                $mail->SMTPAutoTLS = false;
+                $mail->Hostname    = 'elsajana.com';
+                $mail->CharSet     = 'UTF-8';
+                $mail->Timeout     = 6;
+                $mail->setFrom($fromEmail, $fromName);
+                $mail->addAddress($email);
+                $mail->isHTML(true);
+                $mail->Subject = $subject;
+                $mail->Body    = $htmlContent;
+                if ($mail->send()) {
+                    return ['success' => true, 'message' => 'تم إرسال الإيميل بنجاح'];
+                }
+            } catch (\Throwable $e) {}
+        }
+
+        // 2. Try local Sendmail binary if present on Linux server
         if (stristr(PHP_OS, 'WIN') === false && (@is_executable('/usr/sbin/sendmail') || @is_executable('/usr/lib/sendmail'))) {
             try {
                 $mail = new PHPMailer(true);
@@ -70,41 +117,58 @@ class EmailService {
             } catch (\Throwable $e) {}
         }
 
-        // 2. Try local MTA on 127.0.0.1:25 (Postfix / Exim) if listening
-        $fp = @fsockopen('127.0.0.1', 25, $errno, $errstr, 1.5);
-        if (is_resource($fp)) {
-            @fclose($fp);
-            try {
-                $mail = new PHPMailer(true);
-                $mail->isSMTP();
-                $mail->Host        = '127.0.0.1';
-                $mail->Port        = 25;
-                $mail->SMTPAuth    = false;
-                $mail->SMTPAutoTLS = false;
-                $mail->CharSet     = 'UTF-8';
-                $mail->Timeout     = 5;
-                $mail->setFrom($fromEmail, $fromName);
-                $mail->addAddress($email);
-                $mail->isHTML(true);
-                $mail->Subject = $subject;
-                $mail->Body    = $htmlContent;
-                if ($mail->send()) {
-                    return ['success' => true, 'message' => 'تم إرسال الإيميل بنجاح'];
+        // 3. Try Direct MX SMTP Delivery to recipient's mail server (Port 25)
+        $atPos = strrpos($email, '@');
+        if ($atPos !== false) {
+            $domain = substr($email, $atPos + 1);
+            $mxHosts = [];
+            $mxWeights = [];
+            if (@getmxrr($domain, $mxHosts, $mxWeights) && !empty($mxHosts)) {
+                if (!empty($mxWeights) && count($mxWeights) === count($mxHosts)) {
+                    array_multisort($mxWeights, SORT_ASC, $mxHosts);
                 }
-            } catch (\Throwable $e) {}
+                foreach (array_slice($mxHosts, 0, 2) as $mxHost) {
+                    try {
+                        $mail = new PHPMailer(true);
+                        $mail->isSMTP();
+                        $mail->Host        = $mxHost;
+                        $mail->Port        = 25;
+                        $mail->SMTPAuth    = false;
+                        $mail->SMTPAutoTLS = true;
+                        $mail->Hostname    = 'elsajana.com';
+                        $mail->CharSet     = 'UTF-8';
+                        $mail->Timeout     = 6;
+                        $mail->SMTPOptions = [
+                            'ssl' => [
+                                'verify_peer'       => false,
+                                'verify_peer_name'  => false,
+                                'allow_self_signed' => true
+                            ]
+                        ];
+                        $mail->setFrom($fromEmail, $fromName);
+                        $mail->addAddress($email);
+                        $mail->isHTML(true);
+                        $mail->Subject = $subject;
+                        $mail->Body    = $htmlContent;
+                        if ($mail->send()) {
+                            return ['success' => true, 'message' => 'تم إرسال الإيميل بنجاح'];
+                        }
+                    } catch (\Throwable $e) {}
+                }
+            }
         }
 
-        // 3. Try native PHP mail()
-        $headers  = "MIME-Version: 1.0\r\n";
-        $headers .= "Content-Type: text/html; charset=UTF-8\r\n";
-        $headers .= "From: MAGAIES <{$fromEmail}>\r\n";
-        $headers .= "Reply-To: {$fromEmail}\r\n";
+        // 4. Try native PHP mail() with LF headers for Linux MTA compatibility
+        $headers  = "MIME-Version: 1.0\n";
+        $headers .= "Content-Type: text/html; charset=UTF-8\n";
+        $headers .= "From: MAGAIES <{$fromEmail}>\n";
+        $headers .= "Reply-To: {$fromEmail}\n";
         $mailSent = @mail($email, $subject, $htmlContent, $headers, "-f{$fromEmail}");
         if ($mailSent) {
             return ['success' => true, 'message' => 'تم الإرسال بنجاح (mail)'];
         }
 
-        return ['success' => false, 'error' => 'تعذر إرسال البريد الإلكتروني حالياً. يرجى التأكد من إعدادات البريد (SMTP) أو استخدام الواتساب.'];
+        return ['success' => false, 'error' => 'تعذر إرسال البريد الإلكتروني حالياً. يرجى التأكد من إعدادات البريد (SMTP).'];
     }
 
     private static function sendViaPHPMailer($smtp, $email, $subject, $htmlContent) {
