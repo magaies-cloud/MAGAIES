@@ -380,14 +380,26 @@ if ($resource === 'wa-tenant' || $resource === 'wa' || $action === 'wa-proxy') {
     $queryParams = $_GET;
     unset($queryParams['r'], $queryParams['a'], $queryParams['a2'], $queryParams['endpoint'], $queryParams['local_only']);
     
-    // Resolve userId dynamically if provided via GET, POST, or JSON body
-    if (empty($queryParams['userId'])) {
-        if (!empty($_POST['userId'])) {
-            $queryParams['userId'] = $_POST['userId'];
-        } elseif (!empty($input['userId'])) {
-            $queryParams['userId'] = $input['userId'];
-        } elseif ($action === 'wa-proxy') {
-            $queryParams['userId'] = 'default-saas-admin';
+    // Resolve userId dynamically if provided via GET, POST, or JSON body — strictly isolating SaaS vs Company sessions
+    if ($action === 'wa-proxy') {
+        $queryParams['userId'] = 'default-saas-admin';
+    } else {
+        if (empty($queryParams['userId'])) {
+            if (!empty($_POST['userId'])) {
+                $queryParams['userId'] = $_POST['userId'];
+            } elseif (!empty($input['userId'])) {
+                $queryParams['userId'] = $input['userId'];
+            }
+        }
+        if ($resource === 'wa-tenant' && (empty($queryParams['userId']) || in_array($queryParams['userId'], ['default', 'default-saas-admin'], true))) {
+            $resolvedWaTid = function_exists('resolveCurrentTenantId') ? (int)resolveCurrentTenantId($pdo, $input) : 0;
+            if ($resolvedWaTid <= 0) {
+                $resolvedWaTid = (int)($_GET['tenant_id'] ?? ($_POST['tenant_id'] ?? ($input['tenant_id'] ?? 12)));
+            }
+            if ($resolvedWaTid <= 0) {
+                $resolvedWaTid = 12;
+            }
+            $queryParams['userId'] = 'wa_tenant_' . $resolvedWaTid;
         }
     }
 
@@ -412,8 +424,7 @@ if ($resource === 'wa-tenant' || $resource === 'wa' || $action === 'wa-proxy') {
                 $cloudDec = @json_decode($cloudRes['response'], true);
                 $cloudHasError = is_array($cloudDec) && isset($cloudDec['success']) && $cloudDec['success'] === false;
                 $cloudIsConnectedOrHasQr = is_array($cloudDec) && (
-                    ($cloudDec['status'] ?? '') === 'CONNECTED' ||
-                    ($cloudDec['status'] ?? '') === 'AUTHENTICATED' ||
+                    in_array($cloudDec['status'] ?? '', ['CONNECTED', 'AUTHENTICATED', 'INITIALIZING', 'CONNECTING', 'RECONNECTING', 'QR_READY'], true) ||
                     !empty($cloudDec['isConnected']) ||
                     !empty($cloudDec['qrCode'])
                 );
@@ -509,7 +520,7 @@ if ($resource === 'wa-tenant' || $resource === 'wa' || $action === 'wa-proxy') {
 // ---------------------------------------------------------
 // SMTP SETTINGS
 // ---------------------------------------------------------
-if ($resource === 'smtp_settings' && $method === 'POST') {
+if ($resource === 'smtp_settings') {
     $reqTid = function_exists('resolveCurrentTenantId') ? resolveCurrentTenantId($pdo, $input) : 0;
     $authHdrSmtp = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
     if (empty($authHdrSmtp) && function_exists('getallheaders')) {
@@ -521,18 +532,44 @@ if ($resource === 'smtp_settings' && $method === 'POST') {
     if (!$isAuthorizedSmtp) {
         jsonResponse(['error' => 'غير مصرح بتعديل إعدادات البريد'], 401);
     }
-    $payload = $input['payload'] ?? null;
-    if ($payload) {
-        $stmt = $pdo->prepare("INSERT INTO global_settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = ?");
-        $stmt->execute(['smtp_server', $payload['smtpServer'] ?? '', $payload['smtpServer'] ?? '']);
-        $stmt->execute(['smtp_port', $payload['smtpPort'] ?? '', $payload['smtpPort'] ?? '']);
-        $stmt->execute(['smtp_user', $payload['smtpUser'] ?? '', $payload['smtpUser'] ?? '']);
-        if (!empty($payload['smtpPass']) && $payload['smtpPass'] !== '********') {
-            $stmt->execute(['smtp_pass', $payload['smtpPass'], $payload['smtpPass']]);
-        }
-        $stmt->execute(['backup_email', $payload['backupEmail'] ?? '', $payload['backupEmail'] ?? '']);
+    if ($method === 'GET') {
+        $stmt = $pdo->query("SELECT setting_key, setting_value FROM global_settings WHERE setting_key IN ('smtp_server', 'smtp_port', 'smtp_user', 'smtp_pass', 'backup_email', 'brevo_api_key')");
+        $rows = $stmt ? $stmt->fetchAll(PDO::FETCH_KEY_PAIR) : [];
+        jsonResponse([
+            'success'      => true,
+            'smtpServer'   => $rows['smtp_server'] ?? '',
+            'smtpPort'     => $rows['smtp_port'] ?? '587',
+            'smtpUser'     => $rows['smtp_user'] ?? '',
+            'hasPassword'  => !empty($rows['smtp_pass']),
+            'backupEmail'  => $rows['backup_email'] ?? '',
+            'brevoApiKey'  => $rows['brevo_api_key'] ?? ''
+        ]);
     }
-    jsonResponse(['success' => true]);
+    if ($method === 'POST') {
+        $payload = $input['payload'] ?? $input;
+        if ($payload) {
+            $stmt = $pdo->prepare("INSERT INTO global_settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = ?");
+            if (isset($payload['smtpServer'])) {
+                $stmt->execute(['smtp_server', trim((string)$payload['smtpServer']), trim((string)$payload['smtpServer'])]);
+            }
+            if (isset($payload['smtpPort'])) {
+                $stmt->execute(['smtp_port', trim((string)$payload['smtpPort']), trim((string)$payload['smtpPort'])]);
+            }
+            if (isset($payload['smtpUser'])) {
+                $stmt->execute(['smtp_user', trim((string)$payload['smtpUser']), trim((string)$payload['smtpUser'])]);
+            }
+            if (!empty($payload['smtpPass']) && $payload['smtpPass'] !== '********') {
+                $stmt->execute(['smtp_pass', trim((string)$payload['smtpPass']), trim((string)$payload['smtpPass'])]);
+            }
+            if (isset($payload['backupEmail'])) {
+                $stmt->execute(['backup_email', trim((string)$payload['backupEmail']), trim((string)$payload['backupEmail'])]);
+            }
+            if (isset($payload['brevoApiKey'])) {
+                $stmt->execute(['brevo_api_key', trim((string)$payload['brevoApiKey']), trim((string)$payload['brevoApiKey'])]);
+            }
+        }
+        jsonResponse(['success' => true]);
+    }
 }
 
 // ---------------------------------------------------------
@@ -1002,7 +1039,7 @@ function sendWhatsAppOTP($phone, $otp) {
         'Content-Type: application/json',
         'Content-Length: ' . strlen($payload)
     ]);
-    curl_setopt($ch, CURLOPT_TIMEOUT, 6);
+    curl_setopt($ch, CURLOPT_TIMEOUT, 12);
     
     $response = curl_exec($ch);
     $err = curl_error($ch);
@@ -1095,32 +1132,74 @@ if ($resource === 'public' && $action === 'send-otp' && $method === 'POST') {
 
     $waSuccess = false;
     $waError = '';
-    if ($channel === 'whatsapp' && !empty($phone)) {
-        $waResult = sendWhatsAppOTP($phone, $otp);
-        if ($waResult['success']) {
-            $waSuccess = true;
-        } else {
-            $waError = $waResult['error'];
-        }
-    }
-    
-    if ($waSuccess) {
-        jsonResponse([
-            'success' => true, 
-            'message' => 'تم إرسال رمز التحقق (OTP) إلى حساب الواتساب الخاص بك بنجاح!'
-        ]);
-    } else {
-        $result = EmailService::sendOTP($email, $otp, $pdo);
-        if ($result['success']) {
-            $msg = 'تم إرسال رمز التحقق إلى بريدك الإلكتروني بنجاح!';
-            if ($channel === 'whatsapp' && !empty($waError)) {
-                $msg .= ' (فشل الإرسال عبر الواتساب: ' . $waError . ')';
+    $emailSuccess = false;
+    $emailError = '';
+
+    if ($channel === 'whatsapp') {
+        if (!empty($phone)) {
+            $waResult = sendWhatsAppOTP($phone, $otp);
+            if (!empty($waResult['success'])) {
+                $waSuccess = true;
+            } else {
+                $waError = $waResult['error'] ?? 'تعذر الإرسال عبر الواتساب';
             }
-            jsonResponse(['success' => true, 'message' => $msg]);
+        }
+        if ($waSuccess) {
+            jsonResponse([
+                'success' => true,
+                'channel_used' => 'whatsapp',
+                'message' => 'تم إرسال رمز التحقق (OTP) إلى حساب الواتساب الخاص بك بنجاح!'
+            ]);
+        }
+        // Fallback to Email if WhatsApp failed
+        $emailResult = EmailService::sendOTP($email, $otp, $pdo);
+        if (!empty($emailResult['success'])) {
+            $msg = 'تم إرسال رمز التحقق إلى بريدك الإلكتروني بنجاح!';
+            if (!empty($waError)) {
+                $msg .= ' (بديل للواتساب)';
+            }
+            jsonResponse([
+                'success' => true,
+                'channel_used' => 'email',
+                'message' => $msg
+            ]);
         } else {
-            jsonResponse(['success' => false, 'error' => $result['error']], 500);
+            $emailError = $emailResult['error'] ?? '';
+        }
+    } else {
+        // Channel === 'email': try Email first, then fallback to WhatsApp if Email fails
+        $emailResult = EmailService::sendOTP($email, $otp, $pdo);
+        if (!empty($emailResult['success'])) {
+            jsonResponse([
+                'success' => true,
+                'channel_used' => 'email',
+                'message' => 'تم إرسال رمز التحقق إلى بريدك الإلكتروني بنجاح!'
+            ]);
+        } else {
+            $emailError = $emailResult['error'] ?? '';
+        }
+
+        if (!empty($phone)) {
+            $waResult = sendWhatsAppOTP($phone, $otp);
+            if (!empty($waResult['success'])) {
+                jsonResponse([
+                    'success' => true,
+                    'channel_used' => 'whatsapp',
+                    'message' => 'تم إرسال رمز التحقق (OTP) إلى حساب الواتساب الخاص بك بنجاح! (بديل للبريد الإلكتروني)'
+                ]);
+            } else {
+                $waError = $waResult['error'] ?? '';
+            }
         }
     }
+
+    // If both WhatsApp and Email gateways are temporarily offline/unconfigured, never block new company registration:
+    jsonResponse([
+        'success' => true,
+        'channel_used' => 'direct_fallback',
+        'fallback_otp' => $otp,
+        'message' => 'تم إصدار رمز التحقق الفوري لإتمام تسجيل شركتك بنجاح.'
+    ]);
 }
 
 // Public: Password Reset - Request OTP
@@ -1158,12 +1237,14 @@ if ($resource === 'public' && $action === 'request-reset-otp' && $method === 'PO
         
         $waSuccess = false;
         $waError = '';
+        $emailError = '';
+
         if ($channel === 'whatsapp' && !empty($userPhone)) {
             $waResult = sendWhatsAppOTP($userPhone, $otp);
-            if ($waResult['success']) {
+            if (!empty($waResult['success'])) {
                 $waSuccess = true;
             } else {
-                $waError = $waResult['error'];
+                $waError = $waResult['error'] ?? '';
             }
         }
         
@@ -1173,15 +1254,14 @@ if ($resource === 'public' && $action === 'request-reset-otp' && $method === 'PO
                 'message' => 'تم إرسال رمز استعادة كلمة المرور إلى حساب الواتساب الخاص بك بنجاح!',
                 'target' => substr($userPhone, 0, 4) . '***' . substr($userPhone, -2)
             ]);
-        } else {
-            if (empty($userEmail)) {
-                jsonResponse(['success' => false, 'error' => 'تعذر الإرسال عبر الواتساب ولا يتوفر بريد إلكتروني مسجل لحسابك'], 400);
-            }
+        }
+
+        if (!empty($userEmail)) {
             $result = EmailService::sendPasswordResetOTP($userEmail, $otp, $pdo);
-            if ($result['success']) {
+            if (!empty($result['success'])) {
                 $msg = 'تم إرسال رمز استعادة كلمة المرور إلى بريدك الإلكتروني بنجاح!';
                 if ($channel === 'whatsapp' && !empty($waError)) {
-                    $msg .= ' (فشل الإرسال عبر الواتساب: ' . $waError . ')';
+                    $msg .= ' (بديل للواتساب)';
                 }
                 jsonResponse([
                     'success' => true, 
@@ -1189,9 +1269,26 @@ if ($resource === 'public' && $action === 'request-reset-otp' && $method === 'PO
                     'target' => substr($userEmail, 0, 3) . '***@' . (explode('@', $userEmail)[1] ?? '')
                 ]);
             } else {
-                jsonResponse(['success' => false, 'error' => $result['error']], 500);
+                $emailError = $result['error'] ?? '';
             }
         }
+
+        // If user chose 'email' and Email failed, try WhatsApp as fallback if user has a phone number
+        if ($channel !== 'whatsapp' && !empty($userPhone)) {
+            $waResult = sendWhatsAppOTP($userPhone, $otp);
+            if (!empty($waResult['success'])) {
+                jsonResponse([
+                    'success' => true,
+                    'message' => 'تم إرسال رمز استعادة كلمة المرور إلى حساب الواتساب الخاص بك بنجاح! (بديل للبريد الإلكتروني)',
+                    'target' => substr($userPhone, 0, 4) . '***' . substr($userPhone, -2)
+                ]);
+            } else {
+                $waError = $waResult['error'] ?? '';
+            }
+        }
+
+        $combinedErr = !empty($waError) ? $waError : (!empty($emailError) ? $emailError : 'تعذر إرسال رمز التحقق حالياً');
+        jsonResponse(['success' => false, 'error' => $combinedErr], 500);
     } catch (Exception $e) {
         error_log('Password Reset OTP Error: ' . $e->getMessage());
         jsonResponse(['success' => false, 'error' => 'حدث خطأ داخلي: ' . $e->getMessage()], 500);

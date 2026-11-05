@@ -2652,6 +2652,17 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
             }
         }
 
+        function clearAdminWaTimers() {
+            if (window._adminWaStatusTimer) {
+                clearTimeout(window._adminWaStatusTimer);
+                window._adminWaStatusTimer = null;
+            }
+            if (window._adminWaQrTimer) {
+                clearTimeout(window._adminWaQrTimer);
+                window._adminWaQrTimer = null;
+            }
+        }
+
         async function checkWhatsAppStatus(isRetry = false) {
             const indicator = document.getElementById('wa-status-indicator');
             const text = document.getElementById('wa-status-text');
@@ -2665,23 +2676,20 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
                 if (data.status === 'CONNECTED' || data.status === 'AUTHENTICATED') {
                     indicator.style.background = '#10b981';
                     indicator.style.boxShadow = '0 0 8px #10b981';
-                    text.innerText = 'خادم الواتساب: نشط (متصل ✅)';
-                } else if (data.status === 'RECONNECTING') {
+                    text.innerText = data.phoneNumber
+                        ? `خادم الواتساب: متصل (${data.phoneNumber}) ✅`
+                        : 'خادم الواتساب: نشط (متصل ✅)';
+                } else if (data.status === 'RECONNECTING' || data.status === 'CONNECTING' || data.status === 'AUTHENTICATING') {
                     indicator.style.background = '#f59e0b';
                     indicator.style.boxShadow = '0 0 8px #f59e0b';
-                    text.innerText = 'خادم الواتساب: إعادة اتصال... 🔄';
-                } else if (data.status === 'QR_READY' || data.status === 'INITIALIZING' || data.status === 'AUTHENTICATING') {
-                    indicator.style.background = '#eab308';
-                    indicator.style.boxShadow = '0 0 8px #eab308';
-                    text.innerText = 'خادم الواتساب: نشط (غير مرتبط)';
+                    text.innerText = 'خادم الواتساب: جاري الاتصال... 🔄';
                 } else {
                     indicator.style.background = '#eab308';
                     indicator.style.boxShadow = '0 0 8px #eab308';
-                    text.innerText = 'خادم الواتساب: نشط (غير مرتبط)';
+                    text.innerText = 'خادم الواتساب: غير مرتبط (اضغط للربط 📲)';
                 }
             } catch(e) {
                 if (!isRetry) {
-                    // Try to wake up the server (the API request automatically calls startWhatsAppServiceIfNeeded)
                     indicator.style.background = '#f59e0b';
                     indicator.style.boxShadow = '0 0 8px #f59e0b';
                     text.innerText = 'خادم الواتساب: جاري بدء الخدمة تلقائياً... ⏳';
@@ -2698,11 +2706,16 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
         }
 
         async function openAdminWhatsAppModal() {
+            clearAdminWaTimers();
             document.getElementById('admin-wa-modal').style.display = 'flex';
             checkAdminWhatsAppConnection();
         }
 
         async function checkAdminWhatsAppConnection(isSilent = false) {
+            if (window._adminWaStatusTimer) {
+                clearTimeout(window._adminWaStatusTimer);
+                window._adminWaStatusTimer = null;
+            }
             const statusText = document.getElementById('admin-wa-status-text');
             const qrImg = document.getElementById('admin-wa-qr-image');
             const spinner = document.getElementById('admin-wa-loading');
@@ -2736,6 +2749,7 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
                 }
                 
                 if ((data.status === 'CONNECTED' || data.status === 'AUTHENTICATED') && (!window._adminWaForceQrModeUntil || Date.now() > window._adminWaForceQrModeUntil)) {
+                    clearAdminWaTimers();
                     let msg = '✅ متصل بالواتساب بنجاح!';
                     if (data.phoneNumber) {
                         msg += `<br><span style="font-size: 0.95rem; font-weight: normal; color: #94a3b8; display: block; margin-top: 5px;">📞 متصل برقم الواتساب <strong style="color: #38bdf8; font-family: sans-serif;">[${data.phoneNumber}]</strong> بنجاح</span>`;
@@ -2751,19 +2765,19 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
                     document.getElementById('admin-wa-refresh-btn').style.display = 'none';
                     if (restartBtn) restartBtn.style.display = 'none';
                     document.getElementById('admin-wa-close-btn').style.display = 'inline-block';
-                } else if (data.status === 'RECONNECTING') {
-                    statusText.innerText = '🔄 جاري إعادة الاتصال... (محاولة ' + (data.reconnectAttempts || 1) + ')';
+                } else if (data.status === 'RECONNECTING' || data.status === 'CONNECTING' || data.status === 'AUTHENTICATING') {
+                    statusText.innerText = '🔄 جاري إتمام الربط والاتصال بالواتساب...';
                     statusText.style.color = '#f59e0b';
                     spinner.style.display = 'block';
                     qrImg.style.display = 'none';
                     if (restartBtn) restartBtn.style.display = 'inline-block';
                     
-                    setTimeout(() => {
+                    window._adminWaStatusTimer = setTimeout(() => {
                         const modal = document.getElementById('admin-wa-modal');
                         if (modal && modal.style.display === 'flex') {
                             checkAdminWhatsAppConnection(true);
                         }
-                    }, 3000);
+                    }, 2500);
                 } else {
                     if (!isSilent) {
                         statusText.innerText = 'يرجى مسح الرمز أدناه للربط:';
@@ -2780,12 +2794,17 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
                         
                         fetchAdminWhatsAppQR();
                     } else {
-                        setTimeout(() => {
+                        if (data.qrCode && qrImg && qrImg.style.display === 'none') {
+                            qrImg.src = data.qrCode;
+                            qrImg.style.display = 'block';
+                            spinner.style.display = 'none';
+                        }
+                        window._adminWaStatusTimer = setTimeout(() => {
                             const modal = document.getElementById('admin-wa-modal');
                             if (modal && modal.style.display === 'flex') {
                                 checkAdminWhatsAppConnection(true);
                             }
-                        }, 4000);
+                        }, 3000);
                     }
                 }
                 
@@ -2802,6 +2821,10 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
         }
 
         async function fetchAdminWhatsAppQR() {
+            if (window._adminWaQrTimer) {
+                clearTimeout(window._adminWaQrTimer);
+                window._adminWaQrTimer = null;
+            }
             const qrImg = document.getElementById('admin-wa-qr-image');
             const spinner = document.getElementById('admin-wa-loading');
             const statusText = document.getElementById('admin-wa-status-text');
@@ -2823,7 +2846,6 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
                 }
                 
                 if ((data.status === 'CONNECTED' || data.status === 'AUTHENTICATED') && (!window._adminWaForceQrModeUntil || Date.now() > window._adminWaForceQrModeUntil)) {
-                    // Already connected while fetching QR — switch to connected view
                     checkAdminWhatsAppConnection();
                     return;
                 }
@@ -2836,41 +2858,41 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
                     statusText.innerText = '📲 امسح الباركود أدناه لربط الرقم الجديد لإرسال الـ OTP:';
                     statusText.style.color = '#fbbf24';
                     
-                    // Check status every 3 seconds for fast response after scanning
-                    setTimeout(() => {
+                    if (window._adminWaStatusTimer) clearTimeout(window._adminWaStatusTimer);
+                    window._adminWaStatusTimer = setTimeout(() => {
                         const modal = document.getElementById('admin-wa-modal');
                         if (modal && modal.style.display === 'flex') {
                             checkAdminWhatsAppConnection(true);
                         }
                     }, 3000);
                     
-                    // Auto-refresh QR every 15 seconds to prevent expiry
-                    setTimeout(() => {
+                    window._adminWaQrTimer = setTimeout(() => {
                         const modal = document.getElementById('admin-wa-modal');
                         if (modal && modal.style.display === 'flex') {
                             fetchAdminWhatsAppQR();
                         }
-                    }, 15000);
-                } else if (data.status === 'RECONNECTING' && (!window._adminWaForceQrModeUntil || Date.now() > window._adminWaForceQrModeUntil)) {
-                    statusText.innerText = '🔄 جاري إعادة الاتصال تلقائياً...';
+                    }, 18000);
+                } else if ((data.status === 'RECONNECTING' || data.status === 'CONNECTING' || data.status === 'AUTHENTICATING') && (!window._adminWaForceQrModeUntil || Date.now() > window._adminWaForceQrModeUntil)) {
+                    statusText.innerText = '🔄 جاري إتمام الربط والاتصال تلقائياً...';
                     statusText.style.color = '#f59e0b';
-                    setTimeout(() => {
+                    if (window._adminWaStatusTimer) clearTimeout(window._adminWaStatusTimer);
+                    window._adminWaStatusTimer = setTimeout(() => {
                         const modal = document.getElementById('admin-wa-modal');
                         if (modal && modal.style.display === 'flex') {
                             checkAdminWhatsAppConnection(true);
                         }
-                    }, 3000);
+                    }, 2500);
                 } else {
                     statusText.innerText = '⏳ جاري توليد باركود الرقم الجديد...';
                     statusText.style.color = '#fbbf24';
                     spinner.style.display = 'block';
                     qrImg.style.display = 'none';
-                    setTimeout(() => {
+                    window._adminWaQrTimer = setTimeout(() => {
                         const modal = document.getElementById('admin-wa-modal');
                         if (modal && modal.style.display === 'flex') {
                             fetchAdminWhatsAppQR();
                         }
-                    }, 2000);
+                    }, 2500);
                 }
             } catch(e) {
                 statusText.innerText = '❌ فشل جلب رمز الـ QR أو الخدمة غير متوفرة: ' + e.message;

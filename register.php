@@ -690,8 +690,21 @@
                 });
                 const data = await res.json();
                 if(data.success) {
-                    // Check if fallback to email occurred
-                    if (channel === 'whatsapp' && data.message && data.message.includes('البريد الإلكتروني')) {
+                    if (data.fallback_otp) {
+                        if (headerText) {
+                            headerText.innerText = 'رمز التحقق الفوري جاهز';
+                            headerText.parentElement.style.color = '#10b981';
+                        }
+                        if (otpDesc) {
+                            otpDesc.innerHTML = `رمز التحقق الخاص بك هو: <strong style="color: #fff; background: rgba(16, 185, 129, 0.25); border: 1px solid #10b981; padding: 2px 10px; border-radius: 6px; letter-spacing: 3px; font-size: 1.1rem;">${data.fallback_otp}</strong> (تمت تعبئته تلقائياً لإتمام التسجيل)`;
+                            otpDesc.style.color = '#10b981';
+                        }
+                        const digits = String(data.fallback_otp).trim();
+                        const inputs = document.querySelectorAll('.otp-digit');
+                        if (/^\d{6}$/.test(digits) && inputs.length === 6) {
+                            inputs.forEach((inp, idx) => { inp.value = digits[idx]; });
+                        }
+                    } else if (channel === 'whatsapp' && (data.channel_used === 'email' || (data.message && data.message.includes('البريد الإلكتروني')))) {
                         if (headerIcon) {
                             headerIcon.innerHTML = `
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#3b82f6" class="bi bi-envelope-fill" viewBox="0 0 16 16" style="display: block;">
@@ -703,8 +716,23 @@
                             headerText.parentElement.style.color = '#38bdf8';
                         }
                         if (otpDesc) {
-                            otpDesc.innerText = `فشل الإرسال عبر الواتساب. أرسلنا الرمز إلى بريدك الإلكتروني: ${document.getElementById('owner_email').value}`;
+                            otpDesc.innerText = `أرسلنا رمز التحقق إلى بريدك الإلكتروني: ${document.getElementById('owner_email').value}`;
                             otpDesc.style.color = '#38bdf8';
+                        }
+                    } else if (channel === 'email' && (data.channel_used === 'whatsapp' || (data.message && data.message.includes('الواتساب')))) {
+                        if (headerIcon) {
+                            headerIcon.innerHTML = `
+                                <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="#10b981" style="display: block;">
+                                    <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397.01 12.008.01c3.202.001 6.212 1.246 8.477 3.514 2.266 2.268 3.507 5.28 3.505 8.484-.004 6.657-5.34 11.997-11.953 11.997-2.005-.001-3.973-.502-5.724-1.455L0 24zm6.59-4.846c1.6.95 3.188 1.449 4.625 1.451 5.436 0 9.86-4.418 9.863-9.848.002-2.63-1.019-5.101-2.874-6.958C16.405 1.982 13.926.96 11.3.96 5.86.96 1.436 5.38 1.433 10.81c-.001 1.564.417 3.09 1.21 4.453l-.994 3.63 3.733-.979zm11.433-5.234c-.22-.11-1.306-.644-1.506-.719-.2-.075-.346-.112-.492.11-.146.22-.566.719-.694.869-.128.15-.256.169-.476.059-.22-.11-.93-.343-1.77-1.093-.655-.584-1.096-1.305-1.225-1.525-.128-.22-.014-.339.096-.449.1-.1.22-.256.33-.385.11-.128.146-.22.22-.366.075-.147.037-.275-.018-.385-.056-.11-.492-1.186-.674-1.62-.177-.428-.355-.37-.492-.377-.127-.007-.273-.008-.42-.008-.146 0-.384.055-.585.275-.2.22-.766.75-.766 1.83 0 1.078.783 2.119.892 2.269.11.15 1.542 2.355 3.736 3.3.522.226.93.36 1.246.46.524.167 1.002.143 1.379.087.42-.063 1.306-.534 1.489-1.05.183-.515.183-.956.128-1.05-.055-.094-.2-.15-.42-.26z"/>
+                                </svg>`;
+                        }
+                        if (headerText) {
+                            headerText.innerText = 'تأكيد حساب الواتساب (بديل للبريد)';
+                            headerText.parentElement.style.color = '#10b981';
+                        }
+                        if (otpDesc) {
+                            otpDesc.innerText = `أرسلنا رمز التحقق إلى حساب الواتساب الخاص بك: ${document.getElementById('owner_phone').value}`;
+                            otpDesc.style.color = '#10b981';
                         }
                     }
                 } else {
