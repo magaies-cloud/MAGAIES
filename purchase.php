@@ -83,17 +83,18 @@ try {
     var m = document.cookie.match(new RegExp('(?:^|; )' + name + '=([^;]*)'));
     return m ? decodeURIComponent(m[1]) : '';
   };
-  var raw = localStorage.getItem('magaies_active_theme') || 
+  var raw = getCookieVal('magaies_active_theme') ||
+            localStorage.getItem('magaies_active_theme') || 
             localStorage.getItem('magaiees_global_theme') || 
             localStorage.getItem('magaiees_mobile_theme') || 
             localStorage.getItem('ui_theme') || 
-            getCookieVal('magaies_active_theme') || 
             'warm_cream';
-  var rawTone = localStorage.getItem('magaies_light_tone') || 
+  var rawTone = getCookieVal('magaies_light_tone') ||
+                localStorage.getItem('magaies_light_tone') || 
                 localStorage.getItem('pur_light_tone_palette') || 
-                getCookieVal('magaies_light_tone') || 
                 'ivory_default';
   var aliasMap = {
+    'dark_midnight': 'midnight_obsidian', 'dark_mocha': 'mocha_brown', 'dark_oled': 'pure_oled', 'dark_slate': 'slate_twilight',
     'warm-alabaster': 'warm_cream', 'beige': 'warm_cream', 'ivory': 'warm_cream', 'light-linen': 'warm_cream', 'ivory_default': 'warm_cream',
     'royal_bronze': 'warm_cream', 'platinum_gray': 'exec_gray', 'crystal_silver': 'ultra_white', 'sage_pearl': 'warm_cream', 'sky_alabaster': 'ultra_white', 'warm_mocha_dark': 'warm_cream', 'deep_slate_dark': 'exec_gray',
     'pure-platinum': 'ultra_white', 'offwhite': 'ultra_white', 'white': 'ultra_white', 'light': 'ultra_white',
@@ -103,10 +104,11 @@ try {
     'obsidian-charcoal': 'pure_oled', 'midnight': 'pure_oled', 'black': 'pure_oled', 'dark': 'pure_oled',
     'twilight-indigo': 'slate_twilight', 'emerald-forest': 'slate_twilight', 'forest': 'slate_twilight'
   };
-  var activeKey = aliasMap[raw] || raw;
+  var activeKey = (rawTone && aliasMap[rawTone]) ? aliasMap[rawTone] : (aliasMap[raw] || raw);
   var valid7 = ['warm_cream', 'ultra_white', 'exec_gray', 'midnight_obsidian', 'mocha_brown', 'pure_oled', 'slate_twilight'];
   if (!valid7.includes(activeKey)) activeKey = 'warm_cream';
   var isLight = ['warm_cream', 'ultra_white', 'exec_gray'].includes(activeKey);
+  if (!isLight) rawTone = 'dark_midnight';
 
   document.documentElement.setAttribute('data-theme', activeKey);
   document.documentElement.setAttribute('data-light-tone', rawTone);
@@ -10662,54 +10664,44 @@ document.addEventListener('DOMContentLoaded', () => {
                 { id: 'deep_slate_dark', name: 'رصاصي فحمي غامق',       bg: '#334155', fg: '#475569', brd: '#0f172a', themeKey: 'exec_gray' }
             ];
             window.applyPurchaseLightTone = function(toneId, notify) {
-                const t = TONES.find(x => x.id === toneId) || TONES[1];
-                if (t.isDark) {
-                    document.documentElement.setAttribute('data-theme', t.themeKey);
-                    if (document.body) document.body.setAttribute('data-theme', t.themeKey);
-                    document.documentElement.classList.remove('light-theme');
-                    document.documentElement.classList.add('dark-theme');
-                    if (document.body) { document.body.classList.remove('light-theme'); document.body.classList.add('dark-theme'); }
-                    try {
-                        ['magaies_active_theme','magaiees_global_theme','magaiees_mobile_theme','ui_theme'].forEach(k => localStorage.setItem(k, t.themeKey));
-                        localStorage.setItem('erp_theme', 'dark');
-                        document.cookie = 'magaies_active_theme=' + encodeURIComponent(t.themeKey) + '; path=/; max-age=315360000; SameSite=Lax';
-                    } catch (_e) {}
-                    if (notify && typeof window.applyMasterTheme === 'function') window.applyMasterTheme(t.themeKey, true);
-                    if (notify && typeof showToast === 'function') showToast('🌙 تم تثبيت المظهر الداكن في كل البرنامج: ' + t.name, 'success', 2600);
-                    return;
-                }
+                const t = TONES.find(x => x.id === toneId) || (['dark_midnight','midnight_obsidian','dark','pure_oled'].includes(toneId) ? TONES[0] : TONES[1]);
+                const targetTheme = t.isDark ? 'midnight_obsidian' : (t.themeKey || 'warm_cream');
                 document.documentElement.setAttribute('data-light-tone', t.id);
-                if (document.body) document.body.setAttribute('data-light-tone', t.id);
+                document.documentElement.setAttribute('data-theme', targetTheme);
+                document.documentElement.classList.toggle('light-theme', !t.isDark);
+                document.documentElement.classList.toggle('dark-theme', !!t.isDark);
+                if (document.body) {
+                    document.body.setAttribute('data-light-tone', t.id);
+                    document.body.setAttribute('data-theme', targetTheme);
+                    document.body.classList.toggle('light-theme', !t.isDark);
+                    document.body.classList.toggle('dark-theme', !!t.isDark);
+                }
                 try {
+                    document.cookie = 'magaies_light_tone=' + encodeURIComponent(t.id) + '; path=/; max-age=315360000; SameSite=Lax';
+                    document.cookie = 'magaies_active_theme=' + encodeURIComponent(targetTheme) + '; path=/; max-age=315360000; SameSite=Lax';
                     localStorage.setItem('pur_light_tone_palette', t.id);
                     localStorage.setItem('magaies_light_tone', t.id);
-                    document.cookie = 'magaies_light_tone=' + encodeURIComponent(t.id) + '; path=/; max-age=315360000; SameSite=Lax';
+                    ['magaies_active_theme','magaiees_global_theme','magaiees_mobile_theme','ui_theme'].forEach(k => localStorage.setItem(k, targetTheme));
+                    localStorage.setItem('erp_theme', t.isDark ? 'dark' : 'light');
                 } catch (_e) {}
                 if (notify) {
-                    const targetTheme = t.themeKey || 'warm_cream';
-                    document.documentElement.setAttribute('data-theme', targetTheme);
-                    if (document.body) document.body.setAttribute('data-theme', targetTheme);
-                    document.documentElement.classList.add('light-theme');
-                    document.documentElement.classList.remove('dark-theme');
-                    if (document.body) { document.body.classList.add('light-theme'); document.body.classList.remove('dark-theme'); }
-                    try {
-                        ['magaies_active_theme','magaiees_global_theme','magaiees_mobile_theme','ui_theme'].forEach(k => localStorage.setItem(k, targetTheme));
-                        localStorage.setItem('erp_theme', 'light');
-                        document.cookie = 'magaies_active_theme=' + encodeURIComponent(targetTheme) + '; path=/; max-age=315360000; SameSite=Lax';
-                    } catch (_e) {}
                     if (typeof window.applyMasterTheme === 'function') window.applyMasterTheme(targetTheme, false);
-                    window.dispatchEvent(new CustomEvent('themeChanged', { detail: { theme: targetTheme, tone: t.id, isLight: true } }));
-                    if (typeof showToast === 'function') showToast('🎨 تم تثبيت المظهر في كل البرنامج: ' + t.name, 'success', 2600);
+                    window.dispatchEvent(new CustomEvent('themeChanged', { detail: { theme: targetTheme, tone: t.id, isLight: !t.isDark } }));
+                    if (typeof showToast === 'function') showToast((t.isDark ? '🌙 ' : '🎨 ') + 'تم تثبيت المظهر في كل البرنامج: ' + t.name, 'success', 2600);
                 }
             };
-            const savedTone = localStorage.getItem('magaies_light_tone') || localStorage.getItem('pur_light_tone_palette') || document.documentElement.getAttribute('data-light-tone') || 'ivory_default';
+            const getCkTone = () => { const m = document.cookie.match(/(?:^|; )magaies_light_tone=([^;]*)/); return m ? decodeURIComponent(m[1]) : ''; };
+            const savedTone = getCkTone() || localStorage.getItem('magaies_light_tone') || localStorage.getItem('pur_light_tone_palette') || document.documentElement.getAttribute('data-light-tone') || 'ivory_default';
             window.applyPurchaseLightTone(savedTone, false);
             window.openPurchaseLightTonePopover = function(anchorEl) {
+                if (typeof window.openUniversalErpTonePopover === 'function' && window.openUniversalErpTonePopover !== window.openPurchaseLightTonePopover) {
+                    window.openUniversalErpTonePopover(anchorEl);
+                    return;
+                }
                 let pop = document.getElementById('pur-light-tone-popover');
                 if (!pop) {
                     pop = document.createElement('div');
                     pop.id = 'pur-light-tone-popover';
-                    pop.style.cssText = 'position:fixed;z-index:9999999;background:linear-gradient(145deg,#0f172a,#1e293b);border:2px solid #fbbf24;border-radius:14px;padding:10px;box-shadow:0 18px 42px rgba(0,0,0,0.85),0 0 22px rgba(245,158,11,0.35);min-width:245px;direction:rtl;font-family:Tajawal,Cairo,sans-serif;';
                     document.body.appendChild(pop);
                     document.addEventListener('click', (e) => {
                         const isThemeBtn = e.target && e.target.closest && e.target.closest('.msg-quartet-qtheme, .theme-toggle-btn, .msg-quartet-themes, #magaiees-master-themes-btn');
@@ -10718,12 +10710,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 if (pop.style.display === 'block') { pop.style.display = 'none'; return; }
                 const isDarkNow = !document.documentElement.classList.contains('light-theme');
+                pop.style.cssText = 'position:fixed;z-index:9999999;background:' + (isDarkNow ? 'linear-gradient(145deg,#0f172a,#1e293b)' : 'linear-gradient(145deg,#fffbf2,#f3ead8)') + ';border:2px solid #fbbf24;border-radius:14px;padding:10px;box-shadow:0 18px 42px rgba(0,0,0,0.65),0 0 22px rgba(245,158,11,0.35);min-width:255px;direction:rtl;font-family:Tajawal,Cairo,sans-serif;';
                 const cur = isDarkNow ? 'dark_midnight' : (document.documentElement.getAttribute('data-light-tone') || 'ivory_default');
-                pop.innerHTML = '<div style="color:#fde047;font-weight:900;font-size:0.92rem;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid rgba(255,255,255,0.15);display:flex;justify-content:space-between;align-items:center;"><span>🎨 مظاهر ونغمات النظام</span><span style="font-size:0.75rem;color:#94a3b8;">ثابتة في كل الشاشات</span></div>' +
-                    TONES.map(t => `<button type="button" onclick="window.applyPurchaseLightTone('${t.id}',true);document.getElementById('pur-light-tone-popover').style.display='none';" style="width:100%;display:flex;align-items:center;gap:10px;padding:7px 10px;margin-bottom:5px;border-radius:9px;cursor:pointer;background:${cur===t.id?'rgba(245,158,11,0.25)':'rgba(255,255,255,0.06)'};border:1.5px solid ${cur===t.id?'#fbbf24':'rgba(255,255,255,0.12)'};color:#ffffff;font-weight:900;font-size:0.88rem;text-align:right;"><span style="width:28px;height:28px;border-radius:7px;background:linear-gradient(135deg,${t.fg} 0%,${t.bg} 100%);border:2px solid ${t.brd};box-shadow:inset 0 1px 2px rgba(255,255,255,0.45),0 2px 5px rgba(0,0,0,0.4);flex-shrink:0;"></span><span style="flex:1;">${t.name}</span>${cur===t.id?'<span style="color:#fde047;">✓</span>':''}</button>`).join('');
+                const hdrCol = isDarkNow ? '#fde047' : '#000000';
+                pop.innerHTML = `<div style="color:${hdrCol}!important;-webkit-text-fill-color:${hdrCol}!important;font-weight:900;font-size:0.92rem;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid rgba(148,163,184,0.35);display:flex;justify-content:space-between;align-items:center;"><span>🎨 السمات ونغمات النظام (9)</span><span style="font-size:0.75rem;color:${isDarkNow?'#94a3b8':'#000000'}!important;-webkit-text-fill-color:${isDarkNow?'#94a3b8':'#000000'}!important;">موحد 100%</span></div>` +
+                    TONES.map(t => {
+                        const txtCol = t.isDark ? '#ffffff' : '#000000';
+                        const btnBg = t.isDark ? `linear-gradient(135deg,${t.fg} 0%,${t.bg} 100%)` : `linear-gradient(135deg,#ffffff 0%,${t.fg} 100%)`;
+                        return `<button type="button" data-tone-dark="${t.isDark?'1':'0'}" onclick="window.applyPurchaseLightTone('${t.id}',true);document.getElementById('pur-light-tone-popover').style.display='none';" style="width:100%;display:flex;align-items:center;gap:10px;padding:7px 10px;margin-bottom:5px;border-radius:9px;cursor:pointer;background:${btnBg}!important;border:${cur===t.id?'2.5px solid #d97706':'1.5px solid '+t.brd}!important;color:${txtCol}!important;-webkit-text-fill-color:${txtCol}!important;font-weight:900;font-size:0.88rem;text-align:right;"><span style="width:28px;height:28px;border-radius:7px;background:linear-gradient(135deg,${t.fg} 0%,${t.bg} 100%);border:2px solid ${t.brd};flex-shrink:0;"></span><span style="flex:1;color:${txtCol}!important;-webkit-text-fill-color:${txtCol}!important;">${t.name}</span>${cur===t.id?`<span style="color:${t.isDark?'#fde047':'#047857'}!important;-webkit-text-fill-color:${t.isDark?'#fde047':'#047857'}!important;">✓</span>`:''}</button>`;
+                    }).join('');
                 const r = anchorEl ? anchorEl.getBoundingClientRect() : { bottom: 60, left: 20 };
-                pop.style.top = Math.max(10, Math.min(window.innerHeight - 435, r.bottom + 8)) + 'px';
-                pop.style.left = Math.max(12, Math.min(window.innerWidth - 260, r.left)) + 'px';
+                pop.style.top = Math.max(10, Math.min(window.innerHeight - 450, r.bottom + 8)) + 'px';
+                pop.style.left = Math.max(12, Math.min(window.innerWidth - 280, r.left)) + 'px';
                 pop.style.display = 'block';
             };
             document.addEventListener('click', function(e) {

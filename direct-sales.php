@@ -61,8 +61,9 @@ try {
     }
     if (Array.isArray(window._PRELOADED_ITEMS) && window._PRELOADED_ITEMS.length > 0) {
         const iStr = JSON.stringify(window._PRELOADED_ITEMS);
-        localStorage.setItem('erp_items_v1', iStr);
-        if (tId) localStorage.setItem('tenant_' + tId + '_erp_items_v1', iStr);
+        try { localStorage.removeItem("erp_items_v1"); } catch(_e) {}
+        if (tId) localStorage.setItem("tenant_" + tId + "_erp_items_v1", iStr);
+        else localStorage.setItem("erp_items_v1", iStr);
     }
 } catch(e) {}
 </script>
@@ -79,34 +80,38 @@ try {
 
 <script>
 (function initScreenMaster7ThemeEarly() {
-  var raw = localStorage.getItem('magaies_active_theme') || 
-            localStorage.getItem('magaiees_global_theme') || 
-            localStorage.getItem('magaiees_mobile_theme') || 
-            localStorage.getItem('ui_theme') || 
-            'warm_cream';
+  var getCk = function(n) { var m = document.cookie.match(new RegExp("(?:^|; )" + n + "=([^;]*)")); return m ? decodeURIComponent(m[1]) : ""; };
+  var rawTone = getCk("magaies_light_tone") || localStorage.getItem("magaies_light_tone") || localStorage.getItem("pur_light_tone_palette") || "";
+  var raw = getCk("magaies_active_theme") || localStorage.getItem("magaies_active_theme") || localStorage.getItem("magaiees_global_theme") || localStorage.getItem("magaiees_mobile_theme") || localStorage.getItem("ui_theme") || "warm_cream";
   var aliasMap = {
-    'warm-alabaster': 'warm_cream', 'beige': 'warm_cream', 'ivory': 'warm_cream', 'light-linen': 'warm_cream',
-    'pure-platinum': 'ultra_white', 'offwhite': 'ultra_white', 'white': 'ultra_white', 'light': 'ultra_white',
-    'pearl-platinum': 'exec_gray', 'nordic-paper': 'warm_cream', 'solar_contrast': 'warm_cream',
-    'midnight-executive': 'midnight_obsidian', 'navy-kohl': 'midnight_obsidian', 'royal-blue': 'midnight_obsidian', 'ocean-navy': 'midnight_obsidian', 'navy': 'midnight_obsidian',
-    'sepia-brown': 'mocha_brown', 'desert-mocha': 'mocha_brown', 'brown': 'mocha_brown',
-    'obsidian-charcoal': 'pure_oled', 'midnight': 'pure_oled', 'black': 'pure_oled', 'dark': 'pure_oled',
-    'twilight-indigo': 'slate_twilight', 'emerald-forest': 'slate_twilight', 'forest': 'slate_twilight'
+    "dark_midnight": "midnight_obsidian", "dark_mocha": "mocha_brown", "dark_oled": "pure_oled", "dark_slate": "slate_twilight",
+    "ivory_default": "warm_cream", "royal_bronze": "warm_cream", "platinum_gray": "exec_gray", "crystal_silver": "ultra_white",
+    "sage_pearl": "warm_cream", "sky_alabaster": "ultra_white", "warm_mocha_dark": "warm_cream", "deep_slate_dark": "exec_gray",
+    "warm-alabaster": "warm_cream", "beige": "warm_cream", "ivory": "warm_cream", "light-linen": "warm_cream",
+    "pure-platinum": "ultra_white", "offwhite": "ultra_white", "white": "ultra_white", "light": "ultra_white",
+    "pearl-platinum": "exec_gray", "nordic-paper": "warm_cream", "solar_contrast": "warm_cream",
+    "midnight-executive": "midnight_obsidian", "navy-kohl": "midnight_obsidian", "royal-blue": "midnight_obsidian", "ocean-navy": "midnight_obsidian", "navy": "midnight_obsidian",
+    "sepia-brown": "mocha_brown", "desert-mocha": "mocha_brown", "brown": "mocha_brown",
+    "obsidian-charcoal": "pure_oled", "midnight": "pure_oled", "black": "pure_oled", "dark": "pure_oled",
+    "twilight-indigo": "slate_twilight", "emerald-forest": "slate_twilight", "forest": "slate_twilight"
   };
-  var activeKey = aliasMap[raw] || raw;
-  var valid7 = ['warm_cream', 'ultra_white', 'exec_gray', 'midnight_obsidian', 'mocha_brown', 'pure_oled', 'slate_twilight'];
-  if (!valid7.includes(activeKey)) activeKey = 'warm_cream';
-  var isLight = ['warm_cream', 'ultra_white', 'exec_gray'].includes(activeKey);
+  var activeKey = (rawTone && aliasMap[rawTone]) ? aliasMap[rawTone] : (aliasMap[raw] || raw);
+  var valid7 = ["warm_cream", "ultra_white", "exec_gray", "midnight_obsidian", "mocha_brown", "pure_oled", "slate_twilight"];
+  if (!valid7.includes(activeKey)) activeKey = "warm_cream";
+  var isLight = ["warm_cream", "ultra_white", "exec_gray"].includes(activeKey);
+  var effTone = isLight ? (rawTone && rawTone !== "dark_midnight" ? rawTone : "ivory_default") : "dark_midnight";
 
-  document.documentElement.setAttribute('data-theme', activeKey);
-  if (isLight) document.documentElement.classList.add('light-theme');
-  else document.documentElement.classList.remove('light-theme');
+  document.documentElement.setAttribute("data-theme", activeKey);
+  document.documentElement.setAttribute("data-light-tone", effTone);
+  if (isLight) { document.documentElement.classList.add("light-theme"); document.documentElement.classList.remove("dark-theme"); }
+  else { document.documentElement.classList.remove("light-theme"); document.documentElement.classList.add("dark-theme"); }
 
   document.addEventListener("DOMContentLoaded", function() {
     if (document.body) {
-      document.body.setAttribute('data-theme', activeKey);
-      if (isLight) document.body.classList.add('light-theme');
-      else document.body.classList.remove('light-theme');
+      document.body.setAttribute("data-theme", activeKey);
+      document.body.setAttribute("data-light-tone", effTone);
+      if (isLight) { document.body.classList.add("light-theme"); document.body.classList.remove("dark-theme"); }
+      else { document.body.classList.remove("light-theme"); document.body.classList.add("dark-theme"); }
     }
   });
 })();
@@ -17388,14 +17393,14 @@ try {
             'html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #form-fields-card,\n' +
             'html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) .sales-glass-card,\n' +
             'html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #items-panel {\n' +
-            '    background: linear-gradient(160deg, #0b1120 0%, #0f172a 100%) !important;\n' +
+            '    background: linear-gradient(160deg, var(--dk-card-1, #0b1120) 0%, var(--dk-card-2, #0f172a) 100%) !important; border-color: var(--dk-border, rgba(255,255,255,0.22)) !important;\n' +
             '    backdrop-filter: none !important; -webkit-backdrop-filter: none !important;\n' +
             '}\n' +
             ':root.light-theme #form-fields-card, :root.light-theme .sales-glass-card, :root.light-theme #items-panel,\n' +
             'html[data-theme="warm_cream"] #form-fields-card, html[data-theme="warm_cream"] #items-panel,\n' +
             'html[data-theme="ultra_white"] #form-fields-card, html[data-theme="ultra_white"] #items-panel,\n' +
             'html[data-theme="exec_gray"] #form-fields-card, html[data-theme="exec_gray"] #items-panel {\n' +
-            '    background: #faf6ee !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important;\n' +
+            '    background: linear-gradient(180deg, var(--lt-card-1, #faf6ee) 0%, var(--lt-card-2, #f1e6d2) 100%) !important; border: 2px solid var(--lt-border, #5c2808) !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important;\n' +
             '}\n' +
             'button, .btn, .btn-action, .hub-action-card, .msg-quartet-btn, .kinetic-glow-arm, .royal-crystal-btn, .global-nav-pill { overflow: hidden !important; isolation: isolate !important; }\n' +
             '.kinetic-glow-arm:not(:hover)::after, .royal-crystal-btn:not(:hover)::after { opacity: 0 !important; animation: none !important; }\n' +
@@ -17423,7 +17428,7 @@ try {
             ':root.light-theme #sales-proportional-root textarea:focus {\n' +
             '    background-color: #FFFFFF !important; color: #000000 !important; -webkit-text-fill-color: #000000 !important;\n' +
             '    -webkit-box-shadow: 0 0 0 1000px #FFFFFF inset !important; box-shadow: 0 0 0 1000px #FFFFFF inset !important;\n' +
-            '    border: 2px solid #9a5822 !important; font-weight: 800 !important; caret-color: #000000 !important;\n' +
+            '    border: 2.5px solid var(--lt-border, #5c2808) !important; font-weight: 900 !important; caret-color: #000000 !important;\n' +
             '}\n' +
             'html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #pos-grid th,\n' +
             'html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #pos-grid td,\n' +
@@ -17555,9 +17560,9 @@ try {
         overlay.className = 'sales-fc1-modal-overlay';
         overlay.style.cssText = 'position:fixed;inset:0;z-index:2147483645;background:rgba(2,6,23,0.82);backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;padding:16px;direction:rtl;font-family:Cairo,Tajawal,sans-serif;';
         var z = Math.min(1.5, Math.max(0.75, parseFloat(salesSovZoom || 1) || 1));
-        var cardBg = isLight ? '#faf6ee' : '#0f172a';
+        var cardBg = isLight ? 'var(--lt-card-1, #faf6ee)' : 'var(--dk-card-1, #0f172a)';
         var cardFg = isLight ? '#000000' : '#f8fafc';
-        var cardBorder = isLight ? '2px solid rgba(0,0,0,0.20)' : '2px solid rgba(255,255,255,0.22)';
+        var cardBorder = isLight ? '2.5px solid var(--lt-border, #5c2808)' : '2px solid var(--dk-border, rgba(255,255,255,0.22))';
         var card = document.createElement('div');
         card.className = 'sales-fc1-modal-card';
         card.style.cssText = 'width:100%;max-width:' + (maxWidthPx || 840) + 'px;max-height:88vh;overflow-y:auto;border-radius:16px;background:' + cardBg + ';color:' + cardFg + ';border:' + cardBorder + ';box-shadow:0 24px 60px rgba(0,0,0,0.85);padding:18px;transform:scale(' + z + ');transform-origin:center center;';
@@ -17699,6 +17704,8 @@ try {
                 }
             } else if (ev.data.type === 'FONT_SYNC' && ev.data.fontPx) {
                 window.setSalesGlobalUnifiedFontPx(ev.data.fontPx, true);
+            } else if (ev.data.type === 'TONE_SYNC' && ev.data.tone && typeof window.setSalesLightTone === 'function') {
+                window.setSalesLightTone(ev.data.tone, true);
             }
         };
     }
@@ -17723,6 +17730,7 @@ try {
                     '<button type="button" onclick="window.executeSalesFc1NaturalLanguageCommand()" style="height:27px;padding:0 11px;border-radius:7px;background:linear-gradient(135deg,#0284c7,#2563eb);color:#fff;border:1px solid #38bdf8;font-size:0.75rem;font-weight:900;cursor:pointer;">⚡ ملء فوري</button>' +
                 '</div>' +
                 '<div style="display:flex;align-items:center;gap:5px;flex-wrap:wrap;">' +
+                    '<button type="button" id="btn-sales-fc1-theme-12" onclick="if(typeof window.toggleSalesThemeToneMenu===\'function\'){window.toggleSalesThemeToneMenu(event);}else if(typeof window.openPurchaseThemeModal===\'function\'){window.openPurchaseThemeModal();}" style="height:30px;padding:0 10px;border-radius:8px;background:rgba(16,185,129,0.20);color:#34d399;border:1.5px solid rgba(16,185,129,0.55);font-size:0.75rem;font-weight:900;cursor:pointer;" data-guide-title="المظهر ونغمات النظام (12 لوناً وسمة + 4 نغمات صوتية من شاشة المشتريات)" data-guide-desc="فتح لوحة المظهر ونغمات النظام المعتمدة في شاشة المشتريات بجميع ألوانها الـ 12 (8 فاتحة + 4 داكنة/معدنية) مع مزامنة ألوان ومقاسات الخطوط (+2) لحظياً في 0ms." data-guide-rule="توحيد المظهر ونغمات النظام وألوان الخطوط بين المشتريات والمبيعات والشاشات المنبثقة.">🎨 المظهر (12)</button>' +
                     '<button type="button" id="btn-sales-fc1-ocr" onclick="window.openSalesFc1AiOcrAndPriceAdvisorModal()" style="height:30px;padding:0 9px;border-radius:8px;background:rgba(14,165,233,0.18);color:#38bdf8;border:1px solid rgba(56,189,248,0.48);font-size:0.75rem;font-weight:900;cursor:pointer;" data-guide-title="قارئ الإشعارات والصور AI OCR ومقترح أفضل سعر وبديل للصنف" data-guide-desc="قراءة صور الطلبيات وإشعارات الواتساب وتوزيع النصوص المنسوخة تلقائياً مع اقتراح أفضل سعر بيع وبديل للصنف." data-guide-rule="اقتراح البديل الأوفر والسعر الأمثل يرفع ربحية المبيعات ويمنع ضياع البيعة.">📷 قارئ AI والمستشار</button>' +
                     '<button type="button" id="btn-sales-fc1-paste" onclick="window.openSalesFc1SmartPasteModal()" style="height:30px;padding:0 9px;border-radius:8px;background:rgba(168,85,247,0.18);color:#e9d5ff;border:1px solid rgba(168,85,247,0.5);font-size:0.75rem;font-weight:900;cursor:pointer;" data-guide-title="زر التوزيع الذكي للنصوص المنسوخة (AI Smart Paste)" data-guide-desc="لصق طلبية العميل من واتساب أو إكسل ليقوم الذكاء الاصطناعي بتفريغ الأصناف والكميات في الفاتورة فوراً.">📋 توزيع ذكي</button>' +
                     '<button type="button" id="btn-sales-fc1-ui-mode" onclick="window.toggleSalesFc1DualUiMode()" style="height:30px;padding:0 9px;border-radius:8px;background:rgba(139,92,246,0.18);color:#ddd6fe;border:1px solid rgba(139,92,246,0.48);font-size:0.75rem;font-weight:900;cursor:pointer;" data-guide-title="البوابة المزدوجة (العصرية العالمية ↔ الكلاسيكية المعتادة)" data-guide-desc="التبديل الفوري في 0ms بين الواجهة العصرية الفاخرة والواجهة الكلاسيكية الدفترية المعتادة.">✨ عصرية ↔ 🏛️ كلاسيكية</button>' +
@@ -19172,6 +19180,6 @@ try {
     setInterval(function() { if (!document.hidden) window.refreshSalesFc2LiveResultSummary(); }, 6000);
 })();
 </script>
-<script src="js/split-purchase-constitution-2027.js?v=2027"></script>
+<script src="js/split-purchase-constitution-2027.js?v=2027_12tones_v2"></script>
 </body>
 </html>

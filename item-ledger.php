@@ -220,6 +220,31 @@
 
         /* Universal Light Theme Overrides */
         :root.light-theme body { background-color: var(--bg-dark); color: var(--text-primary); }
+        :root.light-theme .preset-pill-btn,
+        :root.light-theme .ribbon-actions-group .ribbon-btn {
+            background: linear-gradient(135deg, #ffffff, #f1f5f9) !important;
+            color: #000000 !important;
+            -webkit-text-fill-color: #000000 !important;
+            border: 1.5px solid #475569 !important;
+            font-weight: 900 !important;
+        }
+        :root.light-theme .preset-pill-btn.active {
+            background: linear-gradient(135deg, #d1fae5, #a7f3d0) !important;
+            color: #064e3b !important;
+            -webkit-text-fill-color: #064e3b !important;
+            border-color: #059669 !important;
+        }
+        :root.light-theme .preset-pill-btn .preset-num {
+            background: #e2e8f0 !important;
+            color: #000000 !important;
+            -webkit-text-fill-color: #000000 !important;
+            border-color: #64748b !important;
+        }
+        :root.light-theme .ribbon-actions-group .ribbon-btn span {
+            color: #000000 !important;
+            -webkit-text-fill-color: #000000 !important;
+            font-weight: 900 !important;
+        }
         :root.light-theme .glass-panel,
         :root.light-theme .premium-card,
         :root.light-theme .filters-bar,
@@ -247,7 +272,54 @@
         :root.light-theme input, :root.light-theme select {
             background: #ffffff !important;
             color: #000000 !important;
-            border: 1px solid rgba(0, 0, 0, 0.18) !important;
+            -webkit-text-fill-color: #000000 !important;
+            border: 1.5px solid #475569 !important;
+            font-weight: 800 !important;
+        }
+        :root.light-theme .filters-bar label,
+        :root.light-theme .filters-bar span,
+        :root.light-theme .kpi-title,
+        :root.light-theme .kpi-title * {
+            color: #000000 !important;
+            -webkit-text-fill-color: #000000 !important;
+            font-weight: 900 !important;
+        }
+        :root.light-theme .filters-bar button {
+            background: #f1f5f9 !important;
+            color: #000000 !important;
+            -webkit-text-fill-color: #000000 !important;
+            border: 1.5px solid #475569 !important;
+            font-weight: 900 !important;
+        }
+        :root.light-theme .kpi-val div[style*="background"] {
+            background: #f8fafc !important;
+            border: 1.5px solid #94a3b8 !important;
+            color: #000000 !important;
+        }
+        :root.light-theme .kpi-val span,
+        :root.light-theme .kpi-val strong,
+        :root.light-theme .dash-table td span,
+        :root.light-theme .dash-table td div,
+        :root.light-theme .dash-table th * {
+            color: #000000 !important;
+            -webkit-text-fill-color: #000000 !important;
+            font-weight: 800 !important;
+        }
+        :root.light-theme .dash-table td span[style*="background"] {
+            background: #f1f5f9 !important;
+            border-color: #64748b !important;
+        }
+        :root.light-theme #item-ledger-studio-drawer,
+        :root.light-theme #item-ledger-preview-modal .glass-panel,
+        :root.light-theme #item-ledger-studio-drawer div[style*="background"] {
+            background: #ffffff !important;
+            color: #000000 !important;
+            border-color: #cbd5e1 !important;
+        }
+        :root.light-theme #item-ledger-studio-drawer *,
+        :root.light-theme #item-ledger-preview-modal .glass-panel h3,
+        :root.light-theme #item-ledger-preview-modal .glass-panel span {
+            color: #000000 !important;
         }
         :root.light-theme .kpi-card.c-pink .kpi-val { color: #be185d !important; }
         :root.light-theme .kpi-card.c-emerald .kpi-val { color: #047857 !important; }

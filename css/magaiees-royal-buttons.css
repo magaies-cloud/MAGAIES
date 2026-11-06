@@ -402,7 +402,6 @@
 .royal-btn-exit,
 .crystal-btn.btn-exit,
 .items-toolbar .btn-exit,
-.md-tab-btn.tab-exit,
 #btnBackVoucher {
     --btn-glow: var(--royal-exit-glow);
     --btn-border: var(--royal-exit-border);

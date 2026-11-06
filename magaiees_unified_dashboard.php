@@ -2851,18 +2851,18 @@ function switchToMobileEdition() {
         // ═════════════════════════════════════════════════════════════════════
         const DOMAIN_CATEGORIES = [
             {
-                id: 'cat_accounting',
-                title: 'الحسابات والمالية',
-                icon: 'fa-file-invoice-dollar',
-                color: '#38bdf8',
-                bg: 'rgba(56, 189, 248, 0.2)',
-                border: '#38bdf8',
+                id: 'cat_purchases',
+                title: 'المشتريات والموردين',
+                icon: 'fa-bag-shopping',
+                color: '#fbbf24',
+                bg: 'rgba(251, 191, 36, 0.2)',
+                border: '#fbbf24',
                 screens: [
-                    { href: 'account-statement.php', label: 'كشف حساب شريك', icon: 'fa-file-invoice-dollar', color: '#38bdf8', border: '#38bdf8', bg: 'rgba(56, 189, 248, 0.2)' },
-                    { href: 'general-ledger.php', label: 'دفتر الأستاذ العام', icon: 'fa-book-bookmark', color: '#60a5fa', border: '#3b82f6', bg: 'rgba(59, 130, 246, 0.2)' },
-                    { href: 'trial-balance.php', label: 'ميزان المراجعة', icon: 'fa-scale-balanced', color: '#34d399', border: '#10b981', bg: 'rgba(16, 185, 129, 0.2)' },
-                    { href: 'pl-statement.php', label: 'قائمة الأرباح والخسائر', icon: 'fa-chart-line', color: '#c084fc', border: '#a855f7', bg: 'rgba(168, 85, 247, 0.2)' },
-                    { href: 'posting-accounts.php', label: 'دليل وشجرة الحسابات', icon: 'fa-sitemap', color: '#fbbf24', border: '#f59e0b', bg: 'rgba(251, 191, 36, 0.2)' },
+                    { href: 'purchase.php', label: 'فواتير المشتريات', icon: 'fa-bag-shopping', color: '#fbbf24', border: '#fbbf24', bg: 'rgba(251, 191, 36, 0.2)' },
+                    { href: 'smart-logistics.php?mode=purchases', label: 'بوابة استلام المشتريات الذكية', icon: 'fa-truck-Moving', color: '#22d3ee', border: '#06b6d4', bg: 'rgba(6, 182, 212, 0.2)' },
+                    { href: 'purchase-receipt.php', label: 'استلام شحنات المشتريات', icon: 'fa-box-open', color: '#34d399', border: '#10b981', bg: 'rgba(16, 185, 129, 0.2)' },
+                    { href: 'purchase-return.php', label: 'مرتجعات المشتريات', icon: 'fa-rotate-left', color: '#f87171', border: '#ef4444', bg: 'rgba(248, 113, 113, 0.2)' },
+                    { href: 'supplier_reliability.php', label: 'اعتمادية وموثوقية الموردين 360°', icon: 'fa-handshake-angle', color: '#c084fc', border: '#a855f7', bg: 'rgba(168, 85, 247, 0.2)' },
                 ]
             },
             {
@@ -2877,21 +2877,6 @@ function switchToMobileEdition() {
                     { href: 'sales-invoice.php', label: 'مرتجع المبيعات واسترداد البضائع', icon: 'fa-receipt', color: '#34d399', border: '#10b981', bg: 'rgba(16, 185, 129, 0.2)' },
                     { href: 'sales-delivery.php', label: 'بوابة تسليم المبيعات', icon: 'fa-truck-ramp-box', color: '#f87171', border: '#ef4444', bg: 'rgba(248, 113, 113, 0.2)' },
                     { href: 'reserved-sales.php', label: 'حجوزات المبيعات', icon: 'fa-bookmark', color: '#fbbf24', border: '#f59e0b', bg: 'rgba(251, 191, 36, 0.2)' }
-                ]
-            },
-            {
-                id: 'cat_purchases',
-                title: 'المشتريات والموردين',
-                icon: 'fa-bag-shopping',
-                color: '#fbbf24',
-                bg: 'rgba(251, 191, 36, 0.2)',
-                border: '#fbbf24',
-                screens: [
-                    { href: 'purchase.php', label: 'فواتير المشتريات', icon: 'fa-bag-shopping', color: '#fbbf24', border: '#fbbf24', bg: 'rgba(251, 191, 36, 0.2)' },
-                    { href: 'smart-logistics.php?mode=purchases', label: 'بوابة استلام المشتريات الذكية', icon: 'fa-truck-Moving', color: '#22d3ee', border: '#06b6d4', bg: 'rgba(6, 182, 212, 0.2)' },
-                    { href: 'purchase-receipt.php', label: 'استلام شحنات المشتريات', icon: 'fa-box-open', color: '#34d399', border: '#10b981', bg: 'rgba(16, 185, 129, 0.2)' },
-                    { href: 'purchase-return.php', label: 'مرتجعات المشتريات', icon: 'fa-rotate-left', color: '#f87171', border: '#ef4444', bg: 'rgba(248, 113, 113, 0.2)' },
-                    { href: 'supplier_reliability.php', label: 'اعتمادية وموثوقية الموردين 360°', icon: 'fa-handshake-angle', color: '#c084fc', border: '#a855f7', bg: 'rgba(168, 85, 247, 0.2)' },
                 ]
             },
             {
@@ -2910,23 +2895,8 @@ function switchToMobileEdition() {
                 ]
             },
             {
-                id: 'cat_balances',
-                title: 'المقاييس والأرصدة والتقارير',
-                icon: 'fa-scale-balanced',
-                color: '#f472b6',
-                bg: 'rgba(244, 114, 182, 0.2)',
-                border: '#f472b6',
-                screens: [
-                    { href: 'mainbalances-report.php', label: 'حساب الأرصدة الأساسية', icon: 'fa-scale-balanced', color: '#10b981', border: '#10b981', bg: 'rgba(16, 185, 129, 0.2)' },
-                    { href: 'balances_modern_hub.php', label: 'مركز الأرصدة ومقاصة الحسابات', icon: 'fa-chart-pie', color: '#fbbf24', border: '#f59e0b', bg: 'rgba(251, 191, 36, 0.2)' },
-                    { href: 'combined_receivables.php', label: 'حساب مديونية الأرصدة الشامل', icon: 'fa-hand-holding-dollar', color: '#38bdf8', border: '#38bdf8', bg: 'rgba(56, 189, 248, 0.2)' },
-                    { href: 'aging-report.php', label: 'أعمار الديون والحقوق وسقوف الائتمان', icon: 'fa-clock-rotate-left', color: '#f87171', border: '#ef4444', bg: 'rgba(248, 113, 113, 0.2)' },
-                    { href: 'daily_master_report.php', label: 'التقرير اليومي الشامل', icon: 'fa-calendar-day', color: '#c084fc', border: '#a855f7', bg: 'rgba(168, 85, 247, 0.2)' }
-                ]
-            },
-            {
                 id: 'cat_treasury',
-                title: 'الخزن والبنوك والسيولة',
+                title: 'المعاملات المالية والخزن والبنوك',
                 icon: 'fa-vault',
                 color: '#34d399',
                 bg: 'rgba(52, 211, 153, 0.2)',
@@ -2934,8 +2904,41 @@ function switchToMobileEdition() {
                 screens: [
                     { href: 'single-cash-payment.php', label: 'حركة مالية (صرف وقبض مفرد)', icon: 'fa-money-bill-transfer', color: '#f87171', border: '#ef4444', bg: 'rgba(248, 113, 113, 0.2)' },
                     { href: 'multi-cash-payment.php', label: 'حركة مالية مجمعة', icon: 'fa-money-bill-wave', color: '#fbbf24', border: '#f59e0b', bg: 'rgba(251, 191, 36, 0.2)' },
+                    { href: 'journal-voucher.php', label: 'قيد يومية', icon: 'fa-file-signature', color: '#a855f7', border: '#a855f7', bg: 'rgba(168, 85, 247, 0.2)' },
+                    { href: 'posting-accounts.php', label: 'ترحيل الحسابات', icon: 'fa-arrows-rotate', color: '#38bdf8', border: '#38bdf8', bg: 'rgba(56, 189, 248, 0.2)' },
                     { href: 'checks-cycle.php', label: 'دورة إدارة الشيكات', icon: 'fa-money-check-dollar', color: '#38bdf8', border: '#38bdf8', bg: 'rgba(56, 189, 248, 0.2)' },
                     { href: 'vouchers-hub.php', label: 'بوابة المعاملات المالية الشاملة', icon: 'fa-vault', color: '#34d399', border: '#10b981', bg: 'rgba(16, 185, 129, 0.2)' }
+                ]
+            },
+            {
+                id: 'cat_accounting',
+                title: 'الحسابات والمالية',
+                icon: 'fa-file-invoice-dollar',
+                color: '#38bdf8',
+                bg: 'rgba(56, 189, 248, 0.2)',
+                border: '#38bdf8',
+                screens: [
+                    { href: 'general-ledger.php', label: 'دفتر الأستاذ العام', icon: 'fa-book-bookmark', color: '#60a5fa', border: '#3b82f6', bg: 'rgba(59, 130, 246, 0.2)' },
+                    { href: 'account-statement.php', label: 'كشف حساب شريك', icon: 'fa-file-invoice-dollar', color: '#38bdf8', border: '#38bdf8', bg: 'rgba(56, 189, 248, 0.2)' },
+                    { href: 'trial-balance.php', label: 'ميزان المراجعة', icon: 'fa-scale-balanced', color: '#34d399', border: '#10b981', bg: 'rgba(16, 185, 129, 0.2)' },
+                    { href: 'pl-statement.php', label: 'قائمة الأرباح والخسائر', icon: 'fa-chart-line', color: '#c084fc', border: '#a855f7', bg: 'rgba(168, 85, 247, 0.2)' },
+                    { href: 'posting-accounts.php', label: 'دليل وشجرة الحسابات', icon: 'fa-sitemap', color: '#fbbf24', border: '#f59e0b', bg: 'rgba(251, 191, 36, 0.2)' },
+                ]
+            },
+            {
+                id: 'cat_balances',
+                title: 'المقاييس والأرصدة والتقارير',
+                icon: 'fa-scale-balanced',
+                color: '#f472b6',
+                bg: 'rgba(244, 114, 182, 0.2)',
+                border: '#f472b6',
+                screens: [
+                    { href: 'general-ledger.php', label: 'دفتر الأستاذ العام (GL)', icon: 'fa-book-bookmark', color: '#fbbf24', border: '#f59e0b', bg: 'rgba(251, 191, 36, 0.2)' },
+                    { href: 'mainbalances-report.php', label: 'حساب الأرصدة الأساسية', icon: 'fa-scale-balanced', color: '#10b981', border: '#10b981', bg: 'rgba(16, 185, 129, 0.2)' },
+                    { href: 'daily_master_report.php', label: 'التقرير اليومي الشامل', icon: 'fa-calendar-day', color: '#c084fc', border: '#a855f7', bg: 'rgba(168, 85, 247, 0.2)' },
+                    { href: 'combined_receivables.php', label: 'حساب مديونية الأرصدة الشامل', icon: 'fa-hand-holding-dollar', color: '#38bdf8', border: '#38bdf8', bg: 'rgba(56, 189, 248, 0.2)' },
+                    { href: 'balances_modern_hub.php', label: 'مركز الأرصدة ومقاصة الحسابات', icon: 'fa-chart-pie', color: '#fbbf24', border: '#f59e0b', bg: 'rgba(251, 191, 36, 0.2)' },
+                    { href: 'aging-report.php', label: 'أعمار الديون والحقوق وسقوف الائتمان', icon: 'fa-clock-rotate-left', color: '#f87171', border: '#ef4444', bg: 'rgba(248, 113, 113, 0.2)' }
                 ]
             },
             {

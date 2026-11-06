@@ -1868,15 +1868,25 @@ function runReport() {
             filtered = filtered.filter(t => t && t.isPosted === false);
         }
 
-        // Smart Search
+        // Smart Search (Tolerant Arabic Normalization — Constitution 2 of 14)
         if (smartSearch) {
+            const normAr = (s) => String(s || '').toLowerCase()
+                .replace(/[\u064B-\u065F\u0670\u0640]/g, '')
+                .replace(/[أإآٱ]/g, 'ا')
+                .replace(/ة/g, 'ه')
+                .replace(/ى/g, 'ي')
+                .replace(/[ؤئ]/g, 'ء')
+                .replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d))
+                .trim();
+            const qNorm = normAr(smartSearch);
+            const qTokens = qNorm.split(/\s+/).filter(Boolean);
             filtered = filtered.filter(t => {
                 if (!t) return false;
-                return (t.statement || '').toLowerCase().includes(smartSearch) ||
-                       (t.additionalNote || '').toLowerCase().includes(smartSearch) ||
-                       (String(t.ref) || '').toLowerCase().includes(smartSearch) ||
-                       (t.checkNo || '').toLowerCase().includes(smartSearch) ||
-                       (t.transferNo || '').toLowerCase().includes(smartSearch);
+                const hay = normAr([
+                    t.statement, t.additionalNote, t.ref, t.checkNo,
+                    t.transferNo, t.bankName, t.accountName, t.account, t.counterAccount
+                ].join(' '));
+                return qTokens.every(tok => hay.includes(tok));
             });
         }
 
@@ -2447,7 +2457,7 @@ window.navigateToOriginalVoucher = function(type, ref) {
         if (typeof showToast === 'function') {
             showToast('لا يوجد سند مرتبط بهذا السطر (رصيد افتتاحي)', 'warning');
         } else {
-            alert('لا يوجد سند مرتبط بهذا السطر');
+            if (typeof window.glShowStandardToast === 'function') window.glShowStandardToast('⚠️ لا يوجد سند مرتبط بهذا السطر (رصيد افتتاحي)', 'warning'); else if (typeof showToast === 'function') showToast('لا يوجد سند مرتبط بهذا السطر', 'warning');
         }
         return;
     }
@@ -3129,7 +3139,7 @@ async function openPreviewDesign() {
         window.location.href = 'preview-ledger.php';
     } catch (e) {
         console.error(e);
-        alert('حدث خطأ غير متوقع: ' + e.message);
+        if (typeof window.glShowStandardToast === 'function') window.glShowStandardToast('❌ حدث خطأ غير متوقع: ' + e.message, 'error'); else if (typeof showToast === 'function') showToast('حدث خطأ غير متوقع: ' + e.message, 'error');
     }
 }
 
@@ -3192,7 +3202,7 @@ async function openPresetModal(presetIndex, presetName, isLocked = false) {
         await prepareLedgerPreviewData();
     } catch (e) {
         console.error(e);
-        alert('حدث خطأ غير متوقع: ' + e.message);
+        if (typeof window.glShowStandardToast === 'function') window.glShowStandardToast('❌ حدث خطأ غير متوقع: ' + e.message, 'error'); else if (typeof showToast === 'function') showToast('حدث خطأ غير متوقع: ' + e.message, 'error');
         return;
     }
 
@@ -3326,7 +3336,7 @@ window.shareCurrentLedgerReport = async function(presetIndex = 0, presetName = '
         if (typeof showToast === 'function') {
             showToast('✅ تم نسخ كشف الحساب ورابط المعاينة إلى الحافظة', 'success');
         } else {
-            alert('✅ تم نسخ كشف الحساب ورابط المعاينة إلى الحافظة بنجاح.');
+            if (typeof window.glShowStandardToast === 'function') window.glShowStandardToast('✅ تم نسخ كشف الحساب ورابط المعاينة إلى الحافظة بنجاح', 'success'); else if (typeof showToast === 'function') showToast('✅ تم نسخ كشف الحساب ورابط المعاينة إلى الحافظة', 'success');
         }
     }
 };

@@ -909,13 +909,27 @@
 
 
 
-// 🔤 AUTO-BOOTSTRAP UNIVERSAL OPHTHALMIC TYPOGRAPHY & FONT SCALING ENGINE ACROSS ALL SCREENS
+// 🔤 AUTO-BOOTSTRAP 7-LEVEL OPHTHALMIC & PSYCHOLOGICAL TYPOGRAPHY ENGINE ACROSS ALL SCREENS
 (function() {
     if (window.MagaieesTypography) return;
 
     const FONT_KEY_STORAGE = 'magaiees_font_family';
     const SCALE_KEY_STORAGE = 'magaiees_font_scale';
+    const WEIGHT_KEY_STORAGE = 'magaiees_font_weight';
+    const HIERARCHY_KEY_STORAGE = 'magaiees_typography_hierarchy_v1';
+    const PRESET_KEY_STORAGE = 'magaiees_typography_preset';
+
     const VALID_FONTS = ['default', 'ibm_plex', 'readex_pro', 'almarai'];
+    const VALID_LEVEL_FONTS = ['inherit', 'default', 'ibm_plex', 'readex_pro', 'almarai'];
+    const VALID_WEIGHTS = ['auto', '400', '500', '600', '700', '800'];
+    const LEVELS = ['sidebar', 'flyout', 'titles', 'modals', 'details', 'tables', 'mobile'];
+    const BASE_PX_MAP = { sidebar: 15, flyout: 14, titles: 22, modals: 16, details: 15, tables: 15, mobile: 16 };
+    const FONT_CSS_MAP = {
+        'default': "'Tajawal', 'Cairo', sans-serif",
+        'ibm_plex': "'IBM Plex Sans Arabic', 'Inter', sans-serif",
+        'readex_pro': "'Readex Pro', 'Inter', sans-serif",
+        'almarai': "'Almarai', 'Inter', sans-serif"
+    };
 
     function ensureGoogleFontsAndFallbackCSS() {
         const inject = () => {
@@ -934,9 +948,7 @@
                     html[data-magaiees-font="ibm_plex"] { --magaiees-active-font: 'IBM Plex Sans Arabic', 'Inter', sans-serif; }
                     html[data-magaiees-font="readex_pro"] { --magaiees-active-font: 'Readex Pro', 'Inter', sans-serif; }
                     html[data-magaiees-font="almarai"] { --magaiees-active-font: 'Almarai', 'Inter', sans-serif; }
-                    html[data-magaiees-font="ibm_plex"] body,
-                    html[data-magaiees-font="readex_pro"] body,
-                    html[data-magaiees-font="almarai"] body,
+                    html[data-magaiees-font="ibm_plex"] body, html[data-magaiees-font="readex_pro"] body, html[data-magaiees-font="almarai"] body,
                     html[data-magaiees-font="ibm_plex"] body :not(.fa):not(.fas):not(.far):not(.fab):not(.fa-solid):not(.fa-regular):not(.fa-brands):not([class*="fa-"]):not(.material-icons):not(i):not(.font-preview-sample),
                     html[data-magaiees-font="readex_pro"] body :not(.fa):not(.fas):not(.far):not(.fab):not(.fa-solid):not(.fa-regular):not(.fa-brands):not([class*="fa-"]):not(.material-icons):not(i):not(.font-preview-sample),
                     html[data-magaiees-font="almarai"] body :not(.fa):not(.fas):not(.far):not(.fab):not(.fa-solid):not(.fa-regular):not(.fa-brands):not([class*="fa-"]):not(.material-icons):not(i):not(.font-preview-sample) {
@@ -944,9 +956,23 @@
                         -webkit-font-smoothing: antialiased !important;
                         -moz-osx-font-smoothing: grayscale !important;
                     }
-                    html[data-magaiees-scaled="true"] {
-                        font-size: calc(16px * var(--magaiees-font-scale, 1)) !important;
-                    }
+                    html[data-magaiees-scaled="true"] { font-size: calc(16px * var(--magaiees-font-scale, 1)) !important; }
+                    html[data-mg-master-weight] body, html[data-mg-master-weight] body td, html[data-mg-master-weight] body p, html[data-mg-master-weight] body span:not(.badge) { font-weight: var(--mg-master-weight) !important; }
+                    html[data-mg-lvl-sidebar="1"] .global-sidebar .sidebar-text { font-size: calc(0.95rem * var(--mg-lvl-sidebar-scale, 1)) !important; font-weight: var(--mg-lvl-sidebar-weight, 700) !important; font-family: var(--mg-lvl-sidebar-font, var(--magaiees-active-font, inherit)) !important; }
+                    html[data-mg-lvl-sidebar="1"] .global-sidebar .sidebar-logo-text { font-size: calc(1.05rem * var(--mg-lvl-sidebar-scale, 1)) !important; font-weight: var(--mg-lvl-sidebar-weight, 800) !important; font-family: var(--mg-lvl-sidebar-font, var(--magaiees-active-font, inherit)) !important; }
+                    html[data-mg-lvl-flyout="1"] #magaiees-panoramic-flyout .pf-header-title { font-size: calc(0.92rem * var(--mg-lvl-flyout-scale, 1)) !important; font-weight: var(--mg-lvl-flyout-weight, 800) !important; font-family: var(--mg-lvl-flyout-font, var(--magaiees-active-font, inherit)) !important; }
+                    html[data-mg-lvl-flyout="1"] #magaiees-panoramic-flyout .pf-card-title { font-size: calc(0.85rem * var(--mg-lvl-flyout-scale, 1)) !important; font-weight: var(--mg-lvl-flyout-weight, 800) !important; font-family: var(--mg-lvl-flyout-font, var(--magaiees-active-font, inherit)) !important; }
+                    html[data-mg-lvl-flyout="1"] #magaiees-panoramic-flyout .pf-card-sub { font-size: calc(0.72rem * var(--mg-lvl-flyout-scale, 1)) !important; font-weight: var(--mg-lvl-flyout-weight-sub, 700) !important; font-family: var(--mg-lvl-flyout-font, var(--magaiees-active-font, inherit)) !important; }
+                    html[data-mg-lvl-titles="1"] body h1, html[data-mg-lvl-titles="1"] body .page-title, html[data-mg-lvl-titles="1"] body .magical-glass-header h1, html[data-mg-lvl-titles="1"] body .magical-glass-header h2 { font-size: calc(1.45rem * var(--mg-lvl-titles-scale, 1)) !important; font-weight: var(--mg-lvl-titles-weight, 800) !important; font-family: var(--mg-lvl-titles-font, var(--magaiees-active-font, inherit)) !important; }
+                    html[data-mg-lvl-titles="1"] body h2, html[data-mg-lvl-titles="1"] body h3, html[data-mg-lvl-titles="1"] body .md-card-title, html[data-mg-lvl-titles="1"] body .setting-title, html[data-mg-lvl-titles="1"] body .panel-title, html[data-mg-lvl-titles="1"] body .section-title, html[data-mg-lvl-titles="1"] body .card-title { font-size: calc(1.2rem * var(--mg-lvl-titles-scale, 1)) !important; font-weight: var(--mg-lvl-titles-weight, 800) !important; font-family: var(--mg-lvl-titles-font, var(--magaiees-active-font, inherit)) !important; }
+                    html[data-mg-lvl-titles="1"] body .md-tab-btn, html[data-mg-lvl-titles="1"] body .tab-btn, html[data-mg-lvl-titles="1"] body .sub-tab-btn { font-size: calc(0.95rem * var(--mg-lvl-titles-scale, 1)) !important; font-weight: var(--mg-lvl-titles-weight, 800) !important; font-family: var(--mg-lvl-titles-font, var(--magaiees-active-font, inherit)) !important; }
+                    html[data-mg-lvl-modals="1"] body .modal-title, html[data-mg-lvl-modals="1"] body .modal-header h2, html[data-mg-lvl-modals="1"] body .modal-header h3, html[data-mg-lvl-modals="1"] body [id*="Modal"] h3, html[data-mg-lvl-modals="1"] body [id*="modal"] h3, html[data-mg-lvl-modals="1"] body .swal2-title { font-size: calc(1.22rem * var(--mg-lvl-modals-scale, 1)) !important; font-weight: var(--mg-lvl-modals-weight, 800) !important; font-family: var(--mg-lvl-modals-font, var(--magaiees-active-font, inherit)) !important; }
+                    html[data-mg-lvl-modals="1"] body .modal-content, html[data-mg-lvl-modals="1"] body .modal-body, html[data-mg-lvl-modals="1"] body .modal-body label, html[data-mg-lvl-modals="1"] body .modal-body input, html[data-mg-lvl-modals="1"] body .modal-body select, html[data-mg-lvl-modals="1"] body .modal-body button, html[data-mg-lvl-modals="1"] body [id*="Modal"] label, html[data-mg-lvl-modals="1"] body [id*="Modal"] input, html[data-mg-lvl-modals="1"] body [id*="Modal"] select { font-size: calc(0.95rem * var(--mg-lvl-modals-scale, 1)) !important; font-weight: var(--mg-lvl-modals-weight, 600) !important; font-family: var(--mg-lvl-modals-font, var(--magaiees-active-font, inherit)) !important; }
+                    html[data-mg-lvl-details="1"] body label, html[data-mg-lvl-details="1"] body .input-group label, html[data-mg-lvl-details="1"] body .form-group label, html[data-mg-lvl-details="1"] body .field-label { font-size: calc(0.9rem * var(--mg-lvl-details-scale, 1)) !important; font-weight: var(--mg-lvl-details-weight, 700) !important; font-family: var(--mg-lvl-details-font, var(--magaiees-active-font, inherit)) !important; }
+                    html[data-mg-lvl-details="1"] body input:not([type="checkbox"]):not([type="radio"]):not([type="range"]), html[data-mg-lvl-details="1"] body select, html[data-mg-lvl-details="1"] body textarea, html[data-mg-lvl-details="1"] body .form-control, html[data-mg-lvl-details="1"] body p, html[data-mg-lvl-details="1"] body .btn, html[data-mg-lvl-details="1"] body .action-btn, html[data-mg-lvl-details="1"] body .btn-add { font-size: calc(0.95rem * var(--mg-lvl-details-scale, 1)) !important; font-weight: var(--mg-lvl-details-weight, 600) !important; font-family: var(--mg-lvl-details-font, var(--magaiees-active-font, inherit)) !important; }
+                    html[data-mg-lvl-tables="1"] body table th, html[data-mg-lvl-tables="1"] body thead td, html[data-mg-lvl-tables="1"] body .pro-table th, html[data-mg-lvl-tables="1"] body .data-table th { font-size: calc(0.94rem * var(--mg-lvl-tables-scale, 1)) !important; font-weight: var(--mg-lvl-tables-weight, 800) !important; font-family: var(--mg-lvl-tables-font, var(--magaiees-active-font, inherit)) !important; }
+                    html[data-mg-lvl-tables="1"] body table tbody td, html[data-mg-lvl-tables="1"] body .pro-table td, html[data-mg-lvl-tables="1"] body .data-table td, html[data-mg-lvl-tables="1"] body .num, html[data-mg-lvl-tables="1"] body [data-num] { font-size: calc(0.95rem * var(--mg-lvl-tables-scale, 1)) !important; font-weight: var(--mg-lvl-tables-weight, 600) !important; font-family: var(--mg-lvl-tables-font, var(--magaiees-active-font, inherit)) !important; }
+                    html[data-mg-lvl-tables="1"] body table tfoot td, html[data-mg-lvl-tables="1"] body table tfoot th, html[data-mg-lvl-tables="1"] body .total-row td { font-size: calc(1.02rem * var(--mg-lvl-tables-scale, 1)) !important; font-weight: var(--mg-lvl-tables-weight, 800) !important; font-family: var(--mg-lvl-tables-font, var(--magaiees-active-font, inherit)) !important; }
                 `;
                 document.head.appendChild(st);
             }
@@ -959,38 +985,75 @@
         try {
             const f = localStorage.getItem(FONT_KEY_STORAGE) || 'default';
             return VALID_FONTS.includes(f) ? f : 'default';
-        } catch (e) {
-            return 'default';
-        }
+        } catch (e) { return 'default'; }
     }
 
     function getSavedScale() {
         try {
             const s = parseInt(localStorage.getItem(SCALE_KEY_STORAGE) || '100', 10);
-            if (isNaN(s)) return 100;
-            return Math.min(140, Math.max(80, s));
-        } catch (e) {
-            return 100;
-        }
+            return isNaN(s) ? 100 : Math.min(150, Math.max(80, s));
+        } catch (e) { return 100; }
     }
 
-    function applyToDOM(fontKey, scalePct) {
+    function getSavedWeight() {
+        try {
+            const w = localStorage.getItem(WEIGHT_KEY_STORAGE) || 'auto';
+            return VALID_WEIGHTS.includes(w) ? w : 'auto';
+        } catch (e) { return 'auto'; }
+    }
+
+    function getDefaultHierarchy() {
+        const obj = {};
+        LEVELS.forEach(k => { obj[k] = { scale: 100, weight: 'auto', font: 'inherit' }; });
+        return obj;
+    }
+
+    function getSavedHierarchy() {
+        const base = getDefaultHierarchy();
+        try {
+            const raw = JSON.parse(localStorage.getItem(HIERARCHY_KEY_STORAGE) || '{}');
+            LEVELS.forEach(k => {
+                if (raw && raw[k]) {
+                    const sc = parseInt(raw[k].scale, 10);
+                    base[k].scale = isNaN(sc) ? 100 : Math.min(150, Math.max(75, sc));
+                    base[k].weight = VALID_WEIGHTS.includes(String(raw[k].weight)) ? String(raw[k].weight) : 'auto';
+                    base[k].font = VALID_LEVEL_FONTS.includes(String(raw[k].font)) ? String(raw[k].font) : 'inherit';
+                }
+            });
+        } catch (e) {}
+        return base;
+    }
+
+    function saveHierarchy(h) {
+        try {
+            localStorage.setItem(HIERARCHY_KEY_STORAGE, JSON.stringify(h));
+            if (h.mobile && h.mobile.scale) {
+                const effMob = Math.min(130, Math.max(85, Math.round((getSavedScale() * h.mobile.scale) / 100)));
+                localStorage.setItem('magaies_mobile_font_scale_pct', String(effMob));
+            }
+        } catch (e) {}
+    }
+
+    function applyToDOM(fontKey, scalePct, masterWeight, hierarchyObj) {
         const root = document.documentElement;
         if (!root) return;
 
-        // 1. Apply Font Family
+        // 1. Global Font Family
         if (!fontKey || fontKey === 'default') {
             root.removeAttribute('data-magaiees-font');
             root.style.removeProperty('--magaiees-active-font');
         } else {
             root.setAttribute('data-magaiees-font', fontKey);
+            if (FONT_CSS_MAP[fontKey]) root.style.setProperty('--magaiees-active-font', FONT_CSS_MAP[fontKey]);
         }
 
-        // 2. Apply Dynamic Root Font Scaling
-        const pct = Math.min(140, Math.max(80, parseInt(scalePct, 10) || 100));
+        // 2. Global Scale
+        const pct = Math.min(150, Math.max(80, parseInt(scalePct, 10) || 100));
         const ratio = (pct / 100).toFixed(3);
+        const masterPx = (15 * (pct / 100)).toFixed(1) + 'px';
         root.style.setProperty('--magaiees-font-scale', ratio);
-
+        root.style.setProperty('--global-master-font-px', masterPx);
+        try { localStorage.setItem('magaies_global_font_px', String(Math.round(15 * (pct / 100)))); } catch (e) {}
         if (pct === 100) {
             root.removeAttribute('data-magaiees-scaled');
             root.style.fontSize = '';
@@ -998,13 +1061,82 @@
             root.setAttribute('data-magaiees-scaled', 'true');
             root.style.fontSize = (16 * (pct / 100)).toFixed(2) + 'px';
         }
+
+        // 3. Global Master Weight
+        const mw = masterWeight || getSavedWeight();
+        if (mw && mw !== 'auto') {
+            root.setAttribute('data-mg-master-weight', mw);
+            root.style.setProperty('--mg-master-weight', mw);
+        } else {
+            root.removeAttribute('data-mg-master-weight');
+            root.style.removeProperty('--mg-master-weight');
+        }
+
+        // 4. 7 Architectural Levels
+        const h = hierarchyObj || getSavedHierarchy();
+        LEVELS.forEach(lvl => {
+            const cfg = h[lvl] || { scale: 100, weight: 'auto', font: 'inherit' };
+            const sc = Math.min(150, Math.max(75, parseInt(cfg.scale, 10) || 100));
+            const wt = cfg.weight || 'auto';
+            const fn = cfg.font || 'inherit';
+
+            if (sc !== 100 || wt !== 'auto' || fn !== 'inherit') {
+                root.setAttribute('data-mg-lvl-' + lvl, '1');
+                root.style.setProperty('--mg-lvl-' + lvl + '-scale', (sc / 100).toFixed(3));
+                if (wt !== 'auto') {
+                    root.style.setProperty('--mg-lvl-' + lvl + '-weight', wt);
+                    root.style.setProperty('--mg-lvl-' + lvl + '-weight-sub', wt === '800' ? '700' : wt);
+                } else {
+                    root.style.removeProperty('--mg-lvl-' + lvl + '-weight');
+                    root.style.removeProperty('--mg-lvl-' + lvl + '-weight-sub');
+                }
+                if (fn !== 'inherit' && FONT_CSS_MAP[fn]) {
+                    root.style.setProperty('--mg-lvl-' + lvl + '-font', FONT_CSS_MAP[fn]);
+                } else {
+                    root.style.removeProperty('--mg-lvl-' + lvl + '-font');
+                }
+            } else {
+                root.removeAttribute('data-mg-lvl-' + lvl);
+                root.style.removeProperty('--mg-lvl-' + lvl + '-scale');
+                root.style.removeProperty('--mg-lvl-' + lvl + '-weight');
+                root.style.removeProperty('--mg-lvl-' + lvl + '-weight-sub');
+                root.style.removeProperty('--mg-lvl-' + lvl + '-font');
+            }
+        });
+
+        updateLivePreviewSimulator(fontKey, pct, mw, h);
+    }
+
+    function updateLivePreviewSimulator(fontKey, masterScale, masterWeight, h) {
+        const simRoot = document.getElementById('mg-live-hierarchy-sim');
+        if (!simRoot) return;
+        const globalFam = FONT_CSS_MAP[fontKey || getSavedFont()] || FONT_CSS_MAP['default'];
+        const mRatio = (masterScale || 100) / 100;
+
+        LEVELS.forEach(lvl => {
+            const cfg = (h && h[lvl]) ? h[lvl] : { scale: 100, weight: 'auto', font: 'inherit' };
+            const lRatio = (cfg.scale || 100) / 100;
+            const fam = (cfg.font && cfg.font !== 'inherit' && FONT_CSS_MAP[cfg.font]) ? FONT_CSS_MAP[cfg.font] : globalFam;
+            const wt = (cfg.weight && cfg.weight !== 'auto') ? cfg.weight : (masterWeight && masterWeight !== 'auto' ? masterWeight : (lvl === 'titles' || lvl === 'flyout' ? '800' : (lvl === 'sidebar' || lvl === 'modals' ? '700' : '600')));
+            const basePx = BASE_PX_MAP[lvl] || 15;
+            const finalPx = (basePx * mRatio * lRatio).toFixed(1) + 'px';
+
+            document.querySelectorAll('[data-mg-sim-zone="' + lvl + '"]').forEach(el => {
+                el.style.fontFamily = fam;
+                el.style.fontSize = finalPx;
+                el.style.fontWeight = wt;
+            });
+        });
     }
 
     function syncUIControls() {
         const currentFont = getSavedFont();
         const currentScale = getSavedScale();
+        const currentWeight = getSavedWeight();
+        const h = getSavedHierarchy();
+        const activePreset = localStorage.getItem(PRESET_KEY_STORAGE) || '';
 
-        // Update 4 Font Cards
+        // 1. Update 4 Font Cards
         document.querySelectorAll('[data-magaiees-font-card]').forEach(card => {
             const key = card.getAttribute('data-magaiees-font-card');
             const isActive = (key === currentFont);
@@ -1012,9 +1144,7 @@
             card.style.borderColor = isActive ? '#38bdf8' : 'rgba(255,255,255,0.12)';
             card.style.boxShadow = isActive ? '0 0 25px rgba(56, 189, 248, 0.28), inset 0 0 15px rgba(56, 189, 248, 0.1)' : 'none';
             const badge = card.querySelector('.font-active-badge');
-            if (badge) {
-                badge.style.display = isActive ? 'inline-flex' : 'none';
-            }
+            if (badge) badge.style.display = isActive ? 'inline-flex' : 'none';
             const radio = card.querySelector('.font-radio-indicator');
             if (radio) {
                 radio.style.background = isActive ? '#38bdf8' : 'transparent';
@@ -1022,21 +1152,24 @@
             }
         });
 
-        // Update Scale Slider & Labels
+        // 2. Update Master Scale Slider & Labels
         const slider = document.getElementById('magaiees-font-scale-slider');
-        if (slider && parseInt(slider.value, 10) !== currentScale) {
-            slider.value = currentScale;
-        }
+        if (slider && parseInt(slider.value, 10) !== currentScale) slider.value = currentScale;
         const badgeVal = document.getElementById('magaiees-font-scale-val');
-        if (badgeVal) {
-            badgeVal.textContent = currentScale + '%';
-        }
+        if (badgeVal) badgeVal.textContent = currentScale + '%';
         const pxLabel = document.getElementById('magaiees-font-scale-px');
-        if (pxLabel) {
-            pxLabel.textContent = Math.round(16 * (currentScale / 100)) + 'px';
-        }
+        if (pxLabel) pxLabel.textContent = (16 * (currentScale / 100)).toFixed(1) + 'px';
 
-        // Update Quick Preset Buttons (90%, 100%, 115%, 130%)
+        // 3. Update Master Weight Buttons
+        document.querySelectorAll('[data-mg-master-weight-btn]').forEach(btn => {
+            const w = btn.getAttribute('data-mg-master-weight-btn');
+            const isAct = (w === currentWeight);
+            btn.style.background = isAct ? 'linear-gradient(135deg, #0284c7, #2563eb)' : 'rgba(15, 23, 42, 0.78)';
+            btn.style.borderColor = isAct ? '#38bdf8' : 'rgba(255,255,255,0.14)';
+            btn.style.color = isAct ? '#ffffff' : '#cbd5e1';
+        });
+
+        // 4. Update Quick Scale Presets (90%, 100%, 115%, 130%)
         document.querySelectorAll('[data-magaiees-scale-preset]').forEach(btn => {
             const p = parseInt(btn.getAttribute('data-magaiees-scale-preset'), 10);
             const isMatch = (p === currentScale);
@@ -1046,75 +1179,248 @@
             btn.style.boxShadow = isMatch ? '0 4px 14px rgba(56, 189, 248, 0.35)' : 'none';
         });
 
-        // Sync legacy select in tab-ui if present
-        const legacySel = document.getElementById('cfg-font-size');
-        if (legacySel) {
-            const approxPx = String(Math.round(16 * (currentScale / 100)));
-            if (['14', '16', '18', '20'].includes(approxPx)) {
-                legacySel.value = approxPx;
+        // 5. Update Professor Clinical Preset Cards
+        document.querySelectorAll('[data-mg-clinical-preset]').forEach(card => {
+            const pid = card.getAttribute('data-mg-clinical-preset');
+            const isAct = (pid === activePreset);
+            card.style.borderColor = isAct ? '#34d399' : 'rgba(255,255,255,0.12)';
+            card.style.boxShadow = isAct ? '0 0 22px rgba(16, 185, 129, 0.28)' : 'none';
+        });
+
+        // 6. Sync all 7 Architectural Level Cards
+        LEVELS.forEach(lvl => {
+            const cfg = h[lvl] || { scale: 100, weight: 'auto', font: 'inherit' };
+            const scSlider = document.getElementById('mg-lvl-slider-' + lvl);
+            if (scSlider && parseInt(scSlider.value, 10) !== cfg.scale) scSlider.value = cfg.scale;
+
+            const scBadge = document.getElementById('mg-lvl-val-' + lvl);
+            if (scBadge) scBadge.textContent = cfg.scale + '%';
+
+            const pxBadge = document.getElementById('mg-lvl-px-' + lvl);
+            if (pxBadge) {
+                const effPx = ((BASE_PX_MAP[lvl] || 15) * (currentScale / 100) * (cfg.scale / 100)).toFixed(1);
+                pxBadge.textContent = effPx + 'px';
+            }
+
+            const fontSel = document.getElementById('mg-lvl-font-' + lvl);
+            if (fontSel && fontSel.value !== cfg.font) fontSel.value = cfg.font;
+
+            document.querySelectorAll('[data-mg-lvl-weight-btn="' + lvl + '"]').forEach(btn => {
+                const w = btn.getAttribute('data-weight');
+                const isAct = (w === cfg.weight);
+                btn.style.background = isAct ? 'linear-gradient(135deg, #0ea5e9, #2563eb)' : 'rgba(2, 6, 23, 0.65)';
+                btn.style.borderColor = isAct ? '#38bdf8' : 'rgba(255,255,255,0.14)';
+                btn.style.color = isAct ? '#ffffff' : '#94a3b8';
+            });
+        });
+
+        updateLivePreviewSimulator(currentFont, currentScale, currentWeight, h);
+    }
+
+    const CLINICAL_PRESETS = {
+        'standard_golden': {
+            title: 'التوازن الهرمي الذهبي القياسي (100%)',
+            font: 'default', scale: 100, weight: 'auto',
+            levels: {
+                sidebar: { scale: 100, weight: '700', font: 'inherit' },
+                flyout:  { scale: 100, weight: '800', font: 'inherit' },
+                titles:  { scale: 105, weight: '800', font: 'inherit' },
+                modals:  { scale: 100, weight: '600', font: 'inherit' },
+                details: { scale: 100, weight: '600', font: 'inherit' },
+                tables:  { scale: 100, weight: '600', font: 'inherit' },
+                mobile:  { scale: 100, weight: 'auto', font: 'inherit' }
+            }
+        },
+        'ophthalmic_comfort': {
+            title: 'الروشتة الطبية لراحة العين وعدم الإجهاد (Readex Pro + IBM Plex)',
+            font: 'readex_pro', scale: 105, weight: '500',
+            levels: {
+                sidebar: { scale: 104, weight: '600', font: 'readex_pro' },
+                flyout:  { scale: 105, weight: '700', font: 'readex_pro' },
+                titles:  { scale: 108, weight: '700', font: 'readex_pro' },
+                modals:  { scale: 105, weight: '500', font: 'readex_pro' },
+                details: { scale: 106, weight: '500', font: 'readex_pro' },
+                tables:  { scale: 108, weight: '600', font: 'ibm_plex' },
+                mobile:  { scale: 106, weight: '500', font: 'readex_pro' }
+            }
+        },
+        'accounting_bold': {
+            title: 'التباين المحاسبي المكثف والتخين بدون نظارة (Almarai + IBM Plex Bold)',
+            font: 'almarai', scale: 112, weight: '700',
+            levels: {
+                sidebar: { scale: 110, weight: '800', font: 'almarai' },
+                flyout:  { scale: 112, weight: '800', font: 'almarai' },
+                titles:  { scale: 115, weight: '800', font: 'almarai' },
+                modals:  { scale: 110, weight: '700', font: 'almarai' },
+                details: { scale: 112, weight: '700', font: 'ibm_plex' },
+                tables:  { scale: 114, weight: '700', font: 'ibm_plex' },
+                mobile:  { scale: 112, weight: '700', font: 'almarai' }
+            }
+        },
+        'laptop_compact': {
+            title: 'العرض البانورامي المدمج لشاشات اللابتوب (IBM Plex Crisp)',
+            font: 'ibm_plex', scale: 96, weight: '500',
+            levels: {
+                sidebar: { scale: 95,  weight: '600', font: 'ibm_plex' },
+                flyout:  { scale: 96,  weight: '700', font: 'ibm_plex' },
+                titles:  { scale: 100, weight: '700', font: 'ibm_plex' },
+                modals:  { scale: 98,  weight: '600', font: 'ibm_plex' },
+                details: { scale: 97,  weight: '500', font: 'ibm_plex' },
+                tables:  { scale: 96,  weight: '600', font: 'ibm_plex' },
+                mobile:  { scale: 100, weight: '600', font: 'ibm_plex' }
             }
         }
-    }
+    };
 
     window.MagaieesTypography = {
         setFont: function(fontKey, silent) {
             const valid = VALID_FONTS.includes(fontKey) ? fontKey : 'default';
-            try { localStorage.setItem(FONT_KEY_STORAGE, valid); } catch (e) {}
-            applyToDOM(valid, getSavedScale());
+            try {
+                localStorage.setItem(FONT_KEY_STORAGE, valid);
+                localStorage.setItem('magaies_mobile_font_family', valid);
+            } catch (e) {}
+            applyToDOM(valid, getSavedScale(), getSavedWeight(), getSavedHierarchy());
             syncUIControls();
             if (!silent && typeof window.showToast === 'function') {
                 const names = {
-                    'default': 'الخط الافتراضي (الحالي)',
-                    'ibm_plex': 'خط IBM Plex Sans Arabic',
-                    'readex_pro': 'خط Readex Pro',
-                    'almarai': 'خط Almarai (المراعي)'
+                    'default': 'الخط الافتراضي (Tajawal / Cairo)',
+                    'ibm_plex': 'خط IBM Plex Sans Arabic المؤسسي',
+                    'readex_pro': 'خط Readex Pro الطبي المريح للعين',
+                    'almarai': 'خط Almarai (المراعي) فائق الوضوح'
                 };
                 window.showToast('تم تفعيل ' + (names[valid] || valid) + ' وتعميمه على كافة الشاشات', 'success');
             }
         },
         setScale: function(scalePct, silent) {
-            const pct = Math.min(140, Math.max(80, parseInt(scalePct, 10) || 100));
-            try { localStorage.setItem(SCALE_KEY_STORAGE, String(pct)); } catch (e) {}
-            applyToDOM(getSavedFont(), pct);
+            const pct = Math.min(150, Math.max(80, parseInt(scalePct, 10) || 100));
+            try {
+                localStorage.setItem(SCALE_KEY_STORAGE, String(pct));
+                localStorage.setItem('magaies_mobile_font_scale_pct', String(Math.min(130, Math.max(85, pct))));
+            } catch (e) {}
+            applyToDOM(getSavedFont(), pct, getSavedWeight(), getSavedHierarchy());
             syncUIControls();
             if (!silent && typeof window.showToast === 'function') {
-                window.showToast('تم ضبط حجم الخط والعرض على ' + pct + '%', 'info');
+                window.showToast('تم ضبط مقياس الخط العام على ' + pct + '% في كافة الشاشات', 'info');
             }
         },
         stepScale: function(delta) {
-            const next = Math.min(140, Math.max(80, getSavedScale() + (parseInt(delta, 10) || 0)));
-            this.setScale(next, true);
+            const next = Math.min(150, Math.max(80, getSavedScale() + (parseInt(delta, 10) || 0)));
+            this.setScale(next, false);
         },
-        resetDefaults: function() {
+        setMasterWeight: function(weight, silent) {
+            const w = VALID_WEIGHTS.includes(String(weight)) ? String(weight) : 'auto';
+            try { localStorage.setItem(WEIGHT_KEY_STORAGE, w); } catch (e) {}
+            applyToDOM(getSavedFont(), getSavedScale(), w, getSavedHierarchy());
+            syncUIControls();
+            if (!silent && typeof window.showToast === 'function') {
+                const wLabels = { 'auto': 'تلقائي ذكي', '400': 'عادي (Regular)', '500': 'متوسط مريح (Medium)', '600': 'شبه تخين (Semi-Bold)', '700': 'تخين (Bold)', '800': 'تخين جداً (Extra-Bold)' };
+                window.showToast('تم ضبط سماكة الخط العام: ' + (wLabels[w] || w), 'success');
+            }
+        },
+        setLevelScale: function(levelKey, scalePct, silent) {
+            if (!LEVELS.includes(levelKey)) return;
+            const h = getSavedHierarchy();
+            h[levelKey].scale = Math.min(150, Math.max(75, parseInt(scalePct, 10) || 100));
+            saveHierarchy(h);
+            applyToDOM(getSavedFont(), getSavedScale(), getSavedWeight(), h);
+            syncUIControls();
+            if (!silent && typeof window.showToast === 'function') {
+                window.showToast('تم تحديث مقاس المستوى إلى ' + h[levelKey].scale + '%', 'info');
+            }
+        },
+        stepLevelScale: function(levelKey, delta) {
+            if (!LEVELS.includes(levelKey)) return;
+            const h = getSavedHierarchy();
+            const next = Math.min(150, Math.max(75, (h[levelKey].scale || 100) + (parseInt(delta, 10) || 0)));
+            this.setLevelScale(levelKey, next, false);
+        },
+        setLevelWeight: function(levelKey, weight, silent) {
+            if (!LEVELS.includes(levelKey)) return;
+            const h = getSavedHierarchy();
+            h[levelKey].weight = VALID_WEIGHTS.includes(String(weight)) ? String(weight) : 'auto';
+            saveHierarchy(h);
+            applyToDOM(getSavedFont(), getSavedScale(), getSavedWeight(), h);
+            syncUIControls();
+            if (!silent && typeof window.showToast === 'function') {
+                const wLabels = { 'auto': 'تلقائي', '400': 'عادي', '500': 'متوسط مريح', '600': 'شبه تخين', '700': 'تخين (Bold)', '800': 'تخين جداً' };
+                window.showToast('تم ضبط سماكة المستوى: ' + (wLabels[h[levelKey].weight] || h[levelKey].weight), 'success');
+            }
+        },
+        setLevelFont: function(levelKey, fontKey, silent) {
+            if (!LEVELS.includes(levelKey)) return;
+            const h = getSavedHierarchy();
+            h[levelKey].font = VALID_LEVEL_FONTS.includes(String(fontKey)) ? String(fontKey) : 'inherit';
+            saveHierarchy(h);
+            applyToDOM(getSavedFont(), getSavedScale(), getSavedWeight(), h);
+            syncUIControls();
+            if (!silent && typeof window.showToast === 'function') {
+                window.showToast('تم تخصيص نوع الخط لهذا المستوى بنجاح', 'success');
+            }
+        },
+        resetLevel: function(levelKey, silent) {
+            if (!LEVELS.includes(levelKey)) return;
+            const h = getSavedHierarchy();
+            h[levelKey] = { scale: 100, weight: 'auto', font: 'inherit' };
+            saveHierarchy(h);
+            applyToDOM(getSavedFont(), getSavedScale(), getSavedWeight(), h);
+            syncUIControls();
+            if (!silent && typeof window.showToast === 'function') {
+                window.showToast('تمت إعادة ضبط هذا المستوى إلى الوضع القياسي (100%)', 'info');
+            }
+        },
+        applyClinicalPreset: function(presetId) {
+            const p = CLINICAL_PRESETS[presetId];
+            if (!p) return;
             try {
-                localStorage.setItem(FONT_KEY_STORAGE, 'default');
-                localStorage.setItem(SCALE_KEY_STORAGE, '100');
+                localStorage.setItem(PRESET_KEY_STORAGE, presetId);
+                localStorage.setItem(FONT_KEY_STORAGE, p.font);
+                localStorage.setItem('magaies_mobile_font_family', p.font);
+                localStorage.setItem(SCALE_KEY_STORAGE, String(p.scale));
+                localStorage.setItem('magaies_mobile_font_scale_pct', String(Math.min(130, Math.max(85, p.scale))));
+                localStorage.setItem(WEIGHT_KEY_STORAGE, p.weight);
+                saveHierarchy(p.levels);
             } catch (e) {}
-            applyToDOM('default', 100);
+            applyToDOM(p.font, p.scale, p.weight, p.levels);
             syncUIControls();
             if (typeof window.showToast === 'function') {
-                window.showToast('تمت إعادة ضبط الخط وحجم العرض إلى الوضع الافتراضي الأصلي (100%)', 'success');
+                window.showToast('🩺 تم تطبيق: ' + p.title, 'success');
+            }
+        },
+        resetDefaults: function() {
+            const defH = getDefaultHierarchy();
+            try {
+                localStorage.setItem(FONT_KEY_STORAGE, 'default');
+                localStorage.setItem('magaies_mobile_font_family', 'default');
+                localStorage.setItem(SCALE_KEY_STORAGE, '100');
+                localStorage.setItem('magaies_mobile_font_scale_pct', '100');
+                localStorage.setItem(WEIGHT_KEY_STORAGE, 'auto');
+                localStorage.removeItem(PRESET_KEY_STORAGE);
+                saveHierarchy(defH);
+            } catch (e) {}
+            applyToDOM('default', 100, 'auto', defH);
+            syncUIControls();
+            if (typeof window.showToast === 'function') {
+                window.showToast('تمت إعادة ضبط جميع الخطوط والمستويات السبعة إلى الوضع الافتراضي الأصلي (100%)', 'success');
             }
         },
         getState: function() {
-            return { font: getSavedFont(), scale: getSavedScale() };
+            return { font: getSavedFont(), scale: getSavedScale(), weight: getSavedWeight(), hierarchy: getSavedHierarchy() };
         },
         syncUI: syncUIControls
     };
 
-    // Execute immediately before paint
     ensureGoogleFontsAndFallbackCSS();
-    applyToDOM(getSavedFont(), getSavedScale());
+    applyToDOM(getSavedFont(), getSavedScale(), getSavedWeight(), getSavedHierarchy());
 
     document.addEventListener('DOMContentLoaded', function() {
         ensureGoogleFontsAndFallbackCSS();
-        applyToDOM(getSavedFont(), getSavedScale());
+        applyToDOM(getSavedFont(), getSavedScale(), getSavedWeight(), getSavedHierarchy());
         syncUIControls();
     });
 
     window.addEventListener('storage', function(ev) {
-        if (ev.key === FONT_KEY_STORAGE || ev.key === SCALE_KEY_STORAGE) {
-            applyToDOM(getSavedFont(), getSavedScale());
+        if ([FONT_KEY_STORAGE, SCALE_KEY_STORAGE, WEIGHT_KEY_STORAGE, HIERARCHY_KEY_STORAGE].includes(ev.key)) {
+            applyToDOM(getSavedFont(), getSavedScale(), getSavedWeight(), getSavedHierarchy());
             syncUIControls();
         }
     });

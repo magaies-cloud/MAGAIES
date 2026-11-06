@@ -1439,16 +1439,24 @@ try {
                 <div style="display: flex; align-items: center; gap: 14px; background: rgba(2, 6, 23, 0.6); padding: 16px 20px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.08); margin-bottom: 18px;">
                     <button type="button" onclick="window.MagaieesTypography && window.MagaieesTypography.stepScale(-5)" title="تصغير الخط (-5%)" style="width: 44px; height: 44px; border-radius: 12px; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.18); color: #f1f5f9; font-size: 1.35rem; font-weight: 900; cursor: pointer; display: flex; align-items: center; justify-content: center;">−</button>
                     <div style="flex: 1; display: flex; flex-direction: column; gap: 6px;">
-                        <input type="range" id="magaiees-font-scale-slider" min="85" max="135" step="1" value="100" oninput="window.MagaieesTypography && window.MagaieesTypography.setScale(this.value, true)" onchange="window.MagaieesTypography && window.MagaieesTypography.setScale(this.value, false)" style="width: 100%; accent-color: #38bdf8; cursor: pointer; height: 8px;">
+                        <input type="range" id="magaiees-font-scale-slider" min="80" max="150" step="1" value="100" oninput="window.MagaieesTypography && window.MagaieesTypography.setScale(this.value, true)" onchange="window.MagaieesTypography && window.MagaieesTypography.setScale(this.value, false)" style="width: 100%; accent-color: #38bdf8; cursor: pointer; height: 8px;">
                         <div style="display: flex; justify-content: space-between; font-size: 0.78rem; color: #94a3b8; font-variant-numeric: tabular-nums;">
-                            <span>85%</span>
-                            <span>90% (صغير)</span>
-                            <span>100% (قياسي)</span>
-                            <span>115% (كبير)</span>
-                            <span>130% (كبير جداً)</span>
+                            <span>80%</span><span>90% (مدمج)</span><span>100% (قياسي)</span><span>115% (كبير)</span><span>130% (واضح جداً)</span><span>150% (فائق)</span>
                         </div>
                     </div>
                     <button type="button" onclick="window.MagaieesTypography && window.MagaieesTypography.stepScale(5)" title="تكبير الخط (+5%)" style="width: 44px; height: 44px; border-radius: 12px; background: rgba(56, 189, 248, 0.18); border: 1px solid rgba(56, 189, 248, 0.45); color: #38bdf8; font-size: 1.35rem; font-weight: 900; cursor: pointer; display: flex; align-items: center; justify-content: center;">+</button>
+                </div>
+
+                <!-- Master Weight Control (سماكة الخط العام: عادي أو تخين) -->
+                <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; background: rgba(2, 6, 23, 0.55); padding: 12px 16px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.08); margin-bottom: 16px;">
+                    <span style="color: #e2e8f0; font-weight: 800; font-size: 0.92rem;">⚖️ سماكة الخط العام (عادي / تخين لكافة الشاشات):</span>
+                    <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                        <button type="button" data-mg-master-weight-btn="auto" onclick="window.MagaieesTypography && window.MagaieesTypography.setMasterWeight('auto')" style="padding: 7px 14px; border-radius: 9px; border: 1px solid #38bdf8; background: linear-gradient(135deg, #0284c7, #2563eb); color: #fff; font-weight: 700; font-size: 0.84rem; cursor: pointer;">تلقائي متوازن</button>
+                        <button type="button" data-mg-master-weight-btn="400" onclick="window.MagaieesTypography && window.MagaieesTypography.setMasterWeight('400')" style="padding: 7px 14px; border-radius: 9px; border: 1px solid rgba(255,255,255,0.14); background: rgba(15,23,42,0.78); color: #cbd5e1; font-weight: 400; font-size: 0.84rem; cursor: pointer;">عادي (Regular 400)</button>
+                        <button type="button" data-mg-master-weight-btn="500" onclick="window.MagaieesTypography && window.MagaieesTypography.setMasterWeight('500')" style="padding: 7px 14px; border-radius: 9px; border: 1px solid rgba(255,255,255,0.14); background: rgba(15,23,42,0.78); color: #cbd5e1; font-weight: 500; font-size: 0.84rem; cursor: pointer;">متوسط طبي (Medium 500)</button>
+                        <button type="button" data-mg-master-weight-btn="700" onclick="window.MagaieesTypography && window.MagaieesTypography.setMasterWeight('700')" style="padding: 7px 14px; border-radius: 9px; border: 1px solid rgba(255,255,255,0.14); background: rgba(15,23,42,0.78); color: #cbd5e1; font-weight: 700; font-size: 0.84rem; cursor: pointer;">تخين (Bold 700)</button>
+                        <button type="button" data-mg-master-weight-btn="800" onclick="window.MagaieesTypography && window.MagaieesTypography.setMasterWeight('800')" style="padding: 7px 14px; border-radius: 9px; border: 1px solid rgba(255,255,255,0.14); background: rgba(15,23,42,0.78); color: #cbd5e1; font-weight: 800; font-size: 0.84rem; cursor: pointer;">تخين جداً (Extra-Bold 800)</button>
+                    </div>
                 </div>
 
                 <!-- Quick Preset Levels (مستويات سريعة) -->
@@ -1468,6 +1476,75 @@ try {
                 </div>
             </div>
 
+            <!-- 2.5 Professor's Clinical & Psychological Presets + 7-Level Architectural Typography Studio -->
+            <?php
+            $mgPresets = [
+                ['id'=>'standard_golden','icon'=>'⚖️','title'=>'1. التوازن الذهبي القياسي (100%)','desc'=>'تدرج بصري متناغم من العناوين العلوية (105% تخين) إلى التفاصيل والجداول (100% متوسط) لراحة ذهنية فورية.'],
+                ['id'=>'ophthalmic_comfort','icon'=>'🩺','title'=>'2. روشتة الطب البصري لعدم إجهاد العين','desc'=>'توزيع خط Readex Pro للتفاصيل والشريط مع IBM Plex للجداول بوزن متوسط مريح (500) يمنع إجهاد عضلة العين.'],
+                ['id'=>'accounting_bold','icon'=>'👓','title'=>'3. التباين المحاسبي التخين (بدون نظارة)','desc'=>'خط المراعي Almarai العريض (Bold 700/800) للعناوين والشريط والمنبثق مع تكبير متدرج واضح للشاشات البعيدة.'],
+                ['id'=>'laptop_compact','icon'=>'💻','title'=>'4. العرض البانورامي المدمج لشاشات اللابتوب','desc'=>'خط IBM Plex بهندسة رشيقة (96%) للشريط الجانبي والجداول لاحتواء أكبر قدر من الأعمدة المحاسبية دون ازدحام.']
+            ];
+            $mgLevels = [
+                ['key'=>'sidebar','icon'=>'🧭','name'=>'المستوى 1: الشريط الجانبي الرئيسي (Sidebar)','base'=>15,'color'=>'#38bdf8','desc'=>'يتحكم في قوائم الشريط الجانبي الأيمن وشعار النظام في كل الشاشات.'],
+                ['key'=>'flyout','icon'=>'🚀','name'=>'المستوى 2: الشريط المنبثق من الجانبي (Panoramic Flyout)','base'=>14,'color'=>'#a855f7','desc'=>'يتحكم في البطاقات والاختصارات المنبثقة عند المرور على الشريط الجانبي.'],
+                ['key'=>'titles','icon'=>'👑','name'=>'المستوى 3: عناوين الشاشات والأقسام (كالمخازن والموردين واللوحة الرئيسية)','base'=>22,'color'=>'#f59e0b','desc'=>'يتحكم في العناوين العلوية، عناوين البطاقات (🏢 المخازن، 🏭 الموردين)، والتبويبات الرئيسية.'],
+                ['key'=>'modals','icon'=>'🪟','name'=>'المستوى 4: الشاشات والنوافذ المنبثقة والفرعية (Modals & Popups)','base'=>16,'color'=>'#ec4899','desc'=>'يتحكم في جميع النوافذ المنبثقة، بطاقات الإضافة السريعة، وحوارات التأكيد.'],
+                ['key'=>'details','icon'=>'📝','name'=>'المستوى 5: التفاصيل الداخلية وحقول البيانات والأزرار','base'=>15,'color'=>'#10b981','desc'=>'يتحكم في الحقول الداخلية للمخازن والموردين والأصناف والفواتير والتسميات والأزرار.'],
+                ['key'=>'tables','icon'=>'📊','name'=>'المستوى 6: الجداول المحاسبية، الفواتير، والتقارير المالية','base'=>15,'color'=>'#06b6d4','desc'=>'يتحكم في رؤوس وخلايا الجداول، كشوفات الحساب، الأرقام المحاسبية، والإجماليات.'],
+                ['key'=>'mobile','icon'=>'📱','name'=>'المستوى 7: شاشات الجوال والتابلت (Mobile Suite & Responsive)','base'=>16,'color'=>'#8b5cf6','desc'=>'يعمم الضبط ويتحكم في مقياس وسماكة ونوع الخط على كافة شاشات الجوال.']
+            ];
+            ?>
+            <div class="glass-panel" style="margin-bottom: 24px; padding: 26px; border-radius: 20px; background: linear-gradient(145deg, rgba(15, 23, 42, 0.94), rgba(2, 6, 23, 0.98)); border-right: 4px solid #a855f7; border: 1px solid rgba(168, 85, 247, 0.32);">
+                <div style="margin-bottom: 18px;">
+                    <h3 style="margin: 0; color: #f1f5f9; font-size: 1.25rem; font-weight: 800;">🩺 روشتات البروفيسور الطبية والنفسية + التحكم الهرمي على 7 مستويات (من الأعلى للأسفل ومن الأساس للجانبي)</h3>
+                    <p style="margin: 4px 0 0; color: #94a3b8; font-size: 0.9rem;">اختر روشتة جاهزة بضغطة زر أو خصص كل مستوى في الشاشة (الشريط الجانبي، المنبثق، العناوين، النوافذ، التفاصيل، الجداول، والجوال) بنوع خط ومقاس وسماكة (عادي / تخين) مستقلة.</p>
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; margin-bottom: 22px;">
+                    <?php foreach ($mgPresets as $pr): ?>
+                    <div data-mg-clinical-preset="<?= $pr['id'] ?>" onclick="window.MagaieesTypography && window.MagaieesTypography.applyClinicalPreset('<?= $pr['id'] ?>')" style="cursor: pointer; padding: 14px 16px; border-radius: 14px; background: rgba(15, 23, 42, 0.85); border: 1.5px solid rgba(255,255,255,0.12); transition: all 0.2s;">
+                        <div style="font-weight: 800; color: #38bdf8; font-size: 0.95rem; margin-bottom: 5px;"><?= $pr['icon'] ?> <?= $pr['title'] ?></div>
+                        <div style="font-size: 0.8rem; color: #cbd5e1; line-height: 1.5;"><?= $pr['desc'] ?></div>
+                    </div>
+                    <?php endforeach; ?>
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 16px;">
+                    <?php foreach ($mgLevels as $lv): $k = $lv['key']; ?>
+                    <div style="padding: 16px; border-radius: 16px; background: rgba(2, 6, 23, 0.72); border: 1px solid rgba(255,255,255,0.1); border-right: 4px solid <?= $lv['color'] ?>; display: flex; flex-direction: column; gap: 11px;">
+                        <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px;">
+                            <div style="font-weight: 800; color: #f8fafc; font-size: 0.98rem;"><?= $lv['icon'] ?> <?= $lv['name'] ?></div>
+                            <button type="button" onclick="window.MagaieesTypography && window.MagaieesTypography.resetLevel('<?= $k ?>')" title="إعادة ضبط هذا المستوى (100%)" style="padding: 3px 9px; border-radius: 8px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15); color: #94a3b8; font-size: 0.75rem; cursor: pointer;">↺ 100%</button>
+                        </div>
+                        <div style="font-size: 0.78rem; color: #94a3b8;"><?= $lv['desc'] ?></div>
+                        <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; background: rgba(15,23,42,0.75); padding: 7px 10px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.07);">
+                            <span style="font-size: 0.8rem; color: #cbd5e1; font-weight: 700;">🔤 نوع الخط للمستوى:</span>
+                            <select id="mg-lvl-font-<?= $k ?>" onchange="window.MagaieesTypography && window.MagaieesTypography.setLevelFont('<?= $k ?>', this.value)" style="background: #020617; color: #38bdf8; border: 1px solid rgba(56,189,248,0.4); border-radius: 8px; padding: 4px 8px; font-size: 0.8rem; font-weight: 700; cursor: pointer;">
+                                <option value="inherit">🔗 مرتبط بالخط العام (تلقائي)</option><option value="default">1. الخط الافتراضي (Tajawal)</option><option value="ibm_plex">2. خط IBM Plex Sans Arabic</option><option value="readex_pro">3. خط Readex Pro الطبي</option><option value="almarai">4. خط Almarai (المراعي)</option>
+                            </select>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <button type="button" onclick="window.MagaieesTypography && window.MagaieesTypography.stepLevelScale('<?= $k ?>', -4)" style="width: 32px; height: 32px; border-radius: 8px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.16); color: #fff; font-weight: 900; cursor: pointer;">−</button>
+                            <input type="range" id="mg-lvl-slider-<?= $k ?>" min="75" max="150" step="1" value="100" oninput="window.MagaieesTypography && window.MagaieesTypography.setLevelScale('<?= $k ?>', this.value, true)" onchange="window.MagaieesTypography && window.MagaieesTypography.setLevelScale('<?= $k ?>', this.value, false)" style="flex: 1; accent-color: <?= $lv['color'] ?>; cursor: pointer;">
+                            <button type="button" onclick="window.MagaieesTypography && window.MagaieesTypography.stepLevelScale('<?= $k ?>', 4)" style="width: 32px; height: 32px; border-radius: 8px; background: rgba(56,189,248,0.18); border: 1px solid rgba(56,189,248,0.4); color: #38bdf8; font-weight: 900; cursor: pointer;">+</button>
+                            <span id="mg-lvl-val-<?= $k ?>" style="min-width: 44px; text-align: center; font-weight: 900; color: #38bdf8; font-size: 0.88rem;">100%</span>
+                            <span id="mg-lvl-px-<?= $k ?>" style="min-width: 44px; text-align: center; font-weight: 800; color: #34d399; font-size: 0.8rem;"><?= $lv['base'] ?>px</span>
+                        </div>
+                        <div style="display: flex; align-items: center; justify-content: space-between; gap: 4px; flex-wrap: wrap;">
+                            <?php foreach ([['auto','تلقائي'],['400','عادي'],['500','متوسط'],['700','تخين Bold'],['800','تخين جداً']] as $wb): ?>
+                            <button type="button" data-mg-lvl-weight-btn="<?= $k ?>" data-weight="<?= $wb[0] ?>" onclick="window.MagaieesTypography && window.MagaieesTypography.setLevelWeight('<?= $k ?>', '<?= $wb[0] ?>')" style="flex: 1; padding: 5px 6px; border-radius: 7px; border: 1px solid rgba(255,255,255,0.14); background: rgba(2,6,23,0.65); color: #94a3b8; font-size: 0.76rem; font-weight: <?= $wb[0]==='auto'?'700':$wb[0] ?>; cursor: pointer;"><?= $wb[1] ?></button>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
+                    <?php endforeach; ?>
+                </div>
+                <!-- Live 7-Level Screen Architecture Simulator -->
+                <div id="mg-live-hierarchy-sim" style="margin-top: 20px; padding: 16px; border-radius: 14px; background: rgba(2, 6, 23, 0.85); border: 1px solid rgba(56, 189, 248, 0.3); display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px;">
+                    <div style="padding: 10px; border-radius: 10px; background: rgba(15,23,42,0.9); border-right: 3px solid #38bdf8;"><div style="font-size:0.72rem;color:#64748b;">🧭 معاينة الجانبي:</div><div data-mg-sim-zone="sidebar" style="color:#f1f5f9;">📦 البيانات الأساسية والمخازن</div></div>
+                    <div style="padding: 10px; border-radius: 10px; background: rgba(15,23,42,0.9); border-right: 3px solid #a855f7;"><div style="font-size:0.72rem;color:#64748b;">🚀 معاينة المنبثق الجانبي:</div><div data-mg-sim-zone="flyout" style="color:#e9d5ff;">⚡ اختصار سريع: كشف الموردين</div></div>
+                    <div style="padding: 10px; border-radius: 10px; background: rgba(15,23,42,0.9); border-right: 3px solid #f59e0b;"><div style="font-size:0.72rem;color:#64748b;">👑 معاينة عنوان الشاشة:</div><div data-mg-sim-zone="titles" style="color:#fde68a;">🏢 إدارة المخازن والموردين</div></div>
+                    <div style="padding: 10px; border-radius: 10px; background: rgba(15,23,42,0.9); border-right: 3px solid #ec4899;"><div style="font-size:0.72rem;color:#64748b;">🪟 معاينة النافذة المنبثقة:</div><div data-mg-sim-zone="modals" style="color:#fbcfe8;">➕ نافذة إضافة مخزن / مورد</div></div>
+                    <div style="padding: 10px; border-radius: 10px; background: rgba(15,23,42,0.9); border-right: 3px solid #10b981;"><div style="font-size:0.72rem;color:#64748b;">📝 معاينة التفاصيل والحقول:</div><div data-mg-sim-zone="details" style="color:#a7f3d0;">اسم المخزن: مستودع مقاييس الرئيسي</div></div>
+                </div>
+            </div>
             <!-- 3. Live Optical & Financial Statement Preview (معاينة حية للأوزان والأرقام المحاسبية) -->
             <div class="glass-panel" style="padding: 24px; border-radius: 20px; background: rgba(15, 23, 42, 0.85); border: 1px solid rgba(255,255,255,0.12);">
                 <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-bottom: 14px;">

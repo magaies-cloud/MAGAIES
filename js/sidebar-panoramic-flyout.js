@@ -207,18 +207,18 @@
                     href: 'journal-voucher.php'
                 },
                 {
-                    title: 'دورة الشيكات',
-                    icon: '💳',
-                    color: '#fbbf24',
-                    rgb: '251, 191, 36',
-                    href: 'checks-cycle.php'
-                },
-                {
                     title: 'ترحيل الحسابات',
                     icon: '🔄',
                     color: '#38bdf8',
                     rgb: '56, 189, 248',
                     href: 'posting-accounts.php'
+                },
+                {
+                    title: 'دورة الشيكات',
+                    icon: '💳',
+                    color: '#fbbf24',
+                    rgb: '251, 191, 36',
+                    href: 'checks-cycle.php'
                 },
                 {
                     title: 'مستشار AI للأموال والسيولة',
@@ -303,88 +303,23 @@
         },
 
         'analytics.php': {
-            title: 'تقارير مالية',
+            title: 'التقارير المالية والتحليلات',
             icon: '📊',
             accent: '#38bdf8',
             accentRgb: '56, 189, 248',
             items: [
-                {
-                    title: 'دفتر الأستاذ العام',
-                    icon: '📓',
-                    color: '#a855f7',
-                    rgb: '168, 85, 247',
-                    href: 'general-ledger.php'
-                },
-                {
-                    title: 'حساب الأرصدة الأساسية',
-                    icon: '🧮',
-                    color: '#10b981',
-                    rgb: '16, 185, 129',
-                    href: 'mainbalances-report.php'
-                },
-                {
-                    title: 'تقرير الحسابات العامة',
-                    icon: '📂',
-                    color: '#fbbf24',
-                    rgb: '251, 191, 36',
-                    href: 'general_accounts_hub.php'
-                },
-                {
-                    title: 'القوائم الختامية والمحاسبية',
-                    icon: '🏛️',
-                    color: '#34d399',
-                    rgb: '52, 211, 153',
-                    href: 'financial-reports.php'
-                },
-                {
-                    title: 'كشف حساب تفصيلي',
-                    icon: '📑',
-                    color: '#f472b6',
-                    rgb: '244, 114, 182',
-                    href: 'account-statement.php'
-                },
-                {
-                    title: 'حساب مديونية الأرصدة الشامل',
-                    icon: '⚖️',
-                    color: '#38bdf8',
-                    rgb: '56, 189, 248',
-                    href: 'combined_receivables.php'
-                },
-                {
-                    title: 'أعمار الديون والحقوق وسقوف الائتمان',
-                    icon: '⏳',
-                    color: '#f87171',
-                    rgb: '248, 113, 113',
-                    href: 'aging-report.php'
-                },
-                {
-                    title: 'مركز الأرصدة ومقاصة الحسابات',
-                    icon: '🔄',
-                    color: '#22d3ee',
-                    rgb: '34, 211, 238',
-                    href: 'balances_modern_hub.php'
-                },
-                {
-                    title: 'التقرير اليومي الشامل',
-                    icon: '📅',
-                    color: '#fb923c',
-                    rgb: '251, 146, 60',
-                    href: 'daily_master_report.php'
-                },
-                {
-                    title: 'تقارير العملاء والموردين',
-                    icon: '🤝',
-                    color: '#a78bfa',
-                    rgb: '167, 139, 250',
-                    href: 'partners_reports_hub.php'
-                },
-                {
-                    title: 'بوابة التقارير الذكية (IAS 7)',
-                    icon: '🚀',
-                    color: '#60a5fa',
-                    rgb: '96, 165, 250',
-                    href: 'smart_reports_hub.php'
-                }
+                { title: 'دفتر الأستاذ العام (GL)', icon: '📓', color: '#fbbf24', rgb: '251, 191, 36', href: 'general-ledger.php' },
+                { title: 'حساب الأرصدة الأساسية', icon: '🧮', color: '#10b981', rgb: '16, 185, 129', href: 'mainbalances-report.php' },
+                { title: 'التقرير اليومي الشامل', icon: '📅', color: '#fb923c', rgb: '251, 146, 60', href: 'daily_master_report.php' },
+                { title: 'حساب مديونية الأرصدة الشامل', icon: '⚖️', color: '#38bdf8', rgb: '56, 189, 248', href: 'combined_receivables.php' },
+                { title: 'كشف حساب تفصيلي للشركاء', icon: '📑', color: '#f472b6', rgb: '244, 114, 182', href: 'account-statement.php' },
+                { title: 'أعمار الديون وسقوف الائتمان', icon: '⏳', color: '#f87171', rgb: '248, 113, 113', href: 'aging-report.php' },
+                { title: 'مركز الأرصدة ومقاصة الحسابات', icon: '🔄', color: '#22d3ee', rgb: '34, 211, 238', href: 'balances_modern_hub.php' },
+                { title: 'القوائم الختامية والزكاة', icon: '🏛️', color: '#34d399', rgb: '52, 211, 153', href: 'financial-reports.php' },
+                { title: 'تقارير ومحفظة العملاء والموردين', icon: '🤝', color: '#a78bfa', rgb: '167, 139, 250', href: 'partners_reports_hub.php' },
+                { title: 'بوابة التقارير الذكية (IAS 7)', icon: '🚀', color: '#60a5fa', rgb: '96, 165, 250', href: 'smart_reports_hub.php' },
+                { title: 'التحليل المرئي الشامل و ABC', icon: '📈', color: '#ec4899', rgb: '236, 72, 153', href: 'inventory-analytics.php' },
+                { title: 'الجرد الشامل وملخص الحركات', icon: '🔍', color: '#c084fc', rgb: '192, 132, 252', href: 'inventory-stocktake.php' }
             ]
         },
         'master-data.php': {
@@ -792,7 +727,7 @@
                 position: fixed;
                 right: calc(var(--sb-expanded, 240px) + 10px);
                 top: 18px;
-                width: min(470px, calc(100vw - 260px));
+                width: min(565px, calc(100vw - 255px));
                 z-index: 999998;
                 direction: rtl;
                 font-family: 'Tajawal', 'Cairo', sans-serif;
@@ -1031,24 +966,36 @@
                 color: var(--card-color, #38bdf8);
             }
 
-            /* Card Title — Small, Clean Font matching Dashboard Buttons */
+            /* Card Title + Optional Smaller Second Line (No Truncation) */
             .pf-card-body {
                 min-width: 0;
                 flex: 1;
                 display: flex;
-                align-items: center;
+                flex-direction: column;
+                justify-content: center;
+                gap: 1px;
             }
             .pf-card-title {
                 display: block;
                 width: 100%;
-                font-size: 0.84rem !important;
-                font-weight: 800 !important;
+                font-size: calc(0.85rem * var(--mg-lvl-flyout-scale, 1)) !important;
+                font-weight: var(--mg-lvl-flyout-weight, 800) !important;
+                font-family: var(--mg-lvl-flyout-font, var(--magaiees-active-font, inherit)) !important;
                 color: var(--text-primary, #ffffff) !important;
                 line-height: 1.25;
-                white-space: nowrap;
-                overflow: hidden;
-                text-overflow: ellipsis;
+                white-space: normal;
                 text-shadow: none !important;
+            }
+            .pf-card-sub {
+                display: block;
+                width: 100%;
+                font-size: calc(0.72rem * var(--mg-lvl-flyout-scale, 1)) !important;
+                font-weight: var(--mg-lvl-flyout-weight-sub, 700) !important;
+                font-family: var(--mg-lvl-flyout-font, var(--magaiees-active-font, inherit)) !important;
+                color: var(--card-color, #94a3b8) !important;
+                opacity: 0.92;
+                line-height: 1.2;
+                white-space: normal;
             }
             html.light-theme .pf-card-title,
             html[data-theme="warm_cream"] .pf-card-title,
@@ -1056,6 +1003,9 @@
             html[data-theme="exec_gray"] .pf-card-title {
                 color: var(--text-primary, #1c1917) !important;
                 text-shadow: none !important;
+            }
+            html.light-theme .pf-card-sub {
+                color: #334155 !important;
             }
 
             @media print {
@@ -1197,12 +1147,19 @@
                 card.style.setProperty('--card-rgb', item.rgb || menuConfig.accentRgb);
                 card.style.setProperty('--card-idx', idx);
 
+                const cleanTitle = String(item.title || '').replace(/^\d+[\.\-\)]\s*/, '').trim();
+                const words = cleanTitle.split(/\s+/);
+                const maxFirstLineWords = 3;
+                const mainLine = words.slice(0, maxFirstLineWords).join(' ');
+                const subLine = words.length > maxFirstLineWords ? words.slice(maxFirstLineWords).join(' ') : (item.sub || '');
+
                 card.innerHTML = `
                     <div class="pf-card-icon-wrap">
                         <div class="pf-card-icon-box">${item.icon}</div>
                     </div>
                     <div class="pf-card-body">
-                        <span class="pf-card-title">${item.title}</span>
+                        <span class="pf-card-title">${mainLine}</span>
+                        ${subLine ? `<span class="pf-card-sub">${subLine}</span>` : ''}
                     </div>
                 `;
 

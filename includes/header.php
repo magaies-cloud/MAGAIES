@@ -172,21 +172,23 @@ window._cachedGlobalRate = window.SYSTEM_USD_RATE;
     // 🎨 تطبيق فوري ومبكر لأحد السمات السبعة المعتمدة (7 Master Themes)
     // ═══════════════════════════════════════════════════════════════════
     (function initMaster7ThemeEarly() {
-        var rawTheme = localStorage.getItem('magaies_active_theme') || 
-                       localStorage.getItem('magaiees_global_theme') || 
-                       localStorage.getItem('ui_theme') || 
-                       'warm_cream';
+        var getCk = function(n) { var m = document.cookie.match(new RegExp("(?:^|; )" + n + "=([^;]*)")); return m ? decodeURIComponent(m[1]) : ""; };
+        var savedTone = getCk("magaies_light_tone") || localStorage.getItem("magaies_light_tone") || localStorage.getItem("pur_light_tone_palette") || "";
+        var rawTheme = getCk("magaies_active_theme") || localStorage.getItem("magaies_active_theme") || localStorage.getItem("magaiees_global_theme") || localStorage.getItem("ui_theme") || "warm_cream";
         var aliasMap = {
-            'warm-alabaster': 'warm_cream', 'beige': 'warm_cream', 'ivory': 'warm_cream', 'light-linen': 'warm_cream',
-            'pure-platinum': 'ultra_white', 'offwhite': 'ultra_white', 'white': 'ultra_white', 'light': 'ultra_white',
-            'pearl-platinum': 'exec_gray', 'nordic-paper': 'warm_cream', 'solar_contrast': 'warm_cream',
-            'midnight-executive': 'midnight_obsidian', 'navy-kohl': 'midnight_obsidian', 'royal-blue': 'midnight_obsidian', 'ocean-navy': 'midnight_obsidian', 'navy': 'midnight_obsidian',
-            'sepia-brown': 'mocha_brown', 'desert-mocha': 'mocha_brown', 'brown': 'mocha_brown',
-            'obsidian-charcoal': 'pure_oled', 'midnight': 'pure_oled', 'black': 'pure_oled', 'dark': 'pure_oled',
-            'twilight-indigo': 'slate_twilight', 'emerald-forest': 'slate_twilight', 'forest': 'slate_twilight',
-            'theme-imperial': 'warm_cream'
+            "dark_midnight": "midnight_obsidian", "dark_mocha": "mocha_brown", "dark_oled": "pure_oled", "dark_slate": "slate_twilight",
+            "ivory_default": "warm_cream", "royal_bronze": "warm_cream", "platinum_gray": "exec_gray", "crystal_silver": "ultra_white",
+            "sage_pearl": "warm_cream", "sky_alabaster": "ultra_white", "warm_mocha_dark": "warm_cream", "deep_slate_dark": "exec_gray",
+            "warm-alabaster": "warm_cream", "beige": "warm_cream", "ivory": "warm_cream", "light-linen": "warm_cream",
+            "pure-platinum": "ultra_white", "offwhite": "ultra_white", "white": "ultra_white", "light": "ultra_white",
+            "pearl-platinum": "exec_gray", "nordic-paper": "warm_cream", "solar_contrast": "warm_cream",
+            "midnight-executive": "midnight_obsidian", "navy-kohl": "midnight_obsidian", "royal-blue": "midnight_obsidian", "ocean-navy": "midnight_obsidian", "navy": "midnight_obsidian",
+            "sepia-brown": "mocha_brown", "desert-mocha": "mocha_brown", "brown": "mocha_brown",
+            "obsidian-charcoal": "pure_oled", "midnight": "pure_oled", "black": "pure_oled", "dark": "pure_oled",
+            "twilight-indigo": "slate_twilight", "emerald-forest": "slate_twilight", "forest": "slate_twilight",
+            "theme-imperial": "warm_cream"
         };
-        var activeKey = aliasMap[rawTheme] || rawTheme;
+        var activeKey = (savedTone && aliasMap[savedTone]) ? aliasMap[savedTone] : (aliasMap[rawTheme] || rawTheme);
         var valid7 = ['warm_cream', 'ultra_white', 'exec_gray', 'midnight_obsidian', 'mocha_brown', 'pure_oled', 'slate_twilight'];
         if (!valid7.includes(activeKey)) activeKey = 'warm_cream';
 
@@ -250,7 +252,7 @@ window._cachedGlobalRate = window.SYSTEM_USD_RATE;
     });
 </script>
 <link id="magaiees-google-fonts-pack" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Almarai:wght@300;400;700;800&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=Readex+Pro:wght@300;400;500;600;700&display=swap">
-<script>(function(){try{var f=localStorage.getItem('magaiees_font_family')||'default',s=parseInt(localStorage.getItem('magaiees_font_scale')||'100',10)||100,r=document.documentElement;if(f&&f!=='default'&&['ibm_plex','readex_pro','almarai'].indexOf(f)!==-1)r.setAttribute('data-magaiees-font',f);else r.removeAttribute('data-magaiees-font');r.style.setProperty('--magaiees-font-scale',(s/100).toFixed(3));if(s!==100){r.setAttribute('data-magaiees-scaled','true');r.style.fontSize=(16*(s/100)).toFixed(2)+'px';}else{r.removeAttribute('data-magaiees-scaled');r.style.fontSize='';}}catch(e){}})();</script>
+<script>(function(){try{var f=localStorage.getItem('magaiees_font_family')||'default',s=parseInt(localStorage.getItem('magaiees_font_scale')||'100',10)||100,w=localStorage.getItem('magaiees_font_weight')||'auto',r=document.documentElement,fm={'default':"'Tajawal','Cairo',sans-serif",'ibm_plex':"'IBM Plex Sans Arabic','Inter',sans-serif",'readex_pro':"'Readex Pro','Inter',sans-serif",'almarai':"'Almarai','Inter',sans-serif"};if(f&&f!=='default'&&fm[f]){r.setAttribute('data-magaiees-font',f);r.style.setProperty('--magaiees-active-font',fm[f]);}else{r.removeAttribute('data-magaiees-font');r.style.removeProperty('--magaiees-active-font');}if(w&&w!=='auto'){r.setAttribute('data-mg-master-weight',w);r.style.setProperty('--mg-master-weight',w);}else{r.removeAttribute('data-mg-master-weight');r.style.removeProperty('--mg-master-weight');}r.style.setProperty('--magaiees-font-scale',(s/100).toFixed(3));if(s!==100){r.setAttribute('data-magaiees-scaled','true');r.style.fontSize=(16*(s/100)).toFixed(2)+'px';}else{r.removeAttribute('data-magaiees-scaled');r.style.fontSize='';}var h=JSON.parse(localStorage.getItem('magaiees_typography_hierarchy_v1')||'{}'),lvls=['sidebar','flyout','titles','modals','details','tables','mobile'];for(var i=0;i<lvls.length;i++){var k=lvls[i],c=h[k]||{};var ls=parseInt(c.scale||100,10)||100,lw=c.weight||'auto',lf=c.font||'inherit';if(ls!==100||lw!=='auto'||lf!=='inherit'){r.setAttribute('data-mg-lvl-'+k,'1');r.style.setProperty('--mg-lvl-'+k+'-scale',(ls/100).toFixed(3));if(lw!=='auto'){r.style.setProperty('--mg-lvl-'+k+'-weight',lw);r.style.setProperty('--mg-lvl-'+k+'-weight-sub',lw);}else{r.style.removeProperty('--mg-lvl-'+k+'-weight');r.style.removeProperty('--mg-lvl-'+k+'-weight-sub');}if(lf!=='inherit'&&fm[lf])r.style.setProperty('--mg-lvl-'+k+'-font',fm[lf]);else r.style.removeProperty('--mg-lvl-'+k+'-font');}else{r.removeAttribute('data-mg-lvl-'+k);r.style.removeProperty('--mg-lvl-'+k+'-scale');r.style.removeProperty('--mg-lvl-'+k+'-weight');r.style.removeProperty('--mg-lvl-'+k+'-font');}}}catch(e){}})();</script>
 <link rel="stylesheet" href="css/theme.css?v=<?= file_exists(__DIR__ . '/../css/theme.css') ? filemtime(__DIR__ . '/../css/theme.css') : '12' ?>">
 <link rel="stylesheet" href="css/magaiees-royal-buttons.css?v=<?= file_exists(__DIR__ . '/../css/magaiees-royal-buttons.css') ? filemtime(__DIR__ . '/../css/magaiees-royal-buttons.css') : time() ?>">
 <script>
@@ -279,8 +281,8 @@ window._cachedGlobalRate = window.SYSTEM_USD_RATE;
         ['magaiees_unified_dashboard.php','لوحة التحكم','#22d3ee','dash'],
         ['purchase.php','المشتريات','#fb923c','pur'],
         ['direct-sales.php','المبيعات','#34d399','sal'],
-        ['vouchers-hub.php','المعاملات المالية','#fbbf24','fin'],
         ['inventory-report.php','المخازن','#a78bfa','inv'],
+        ['vouchers-hub.php','المعاملات المالية','#fbbf24','fin'],
         ['analytics.php','تقارير مالية','#38bdf8','rep'],
         ['master-data.php','البيانات الأساسية','#f472b6','mas'],
         ['alarm.php','التنبيهات','#f87171','alr'],
@@ -2320,6 +2322,11 @@ html body .fin-val {
     text-shadow: none !important;
     filter: none !important;
 }
+html:not(.light-theme), html:not(.light-theme)[data-light-tone="dark_midnight"] { --dk-card-1: #0f172a; --dk-card-2: #152342; --dk-sub-1: #0b1120; --dk-border: #38bdf8; }
+html:not(.light-theme)[data-light-tone="pure_oled"], html[data-theme="pure_oled"] { --dk-card-1: #010308; --dk-card-2: #090d16; --dk-sub-1: #000000; --dk-border: #0284c7; }
+html:not(.light-theme)[data-light-tone="mocha_brown"], html[data-theme="mocha_brown"] { --dk-card-1: #1f120d; --dk-card-2: #3e2723; --dk-sub-1: #140b07; --dk-border: #f59e0b; }
+html:not(.light-theme)[data-light-tone="slate_twilight"], html[data-theme="slate_twilight"] { --dk-card-1: #1e293b; --dk-card-2: #334155; --dk-sub-1: #0f172a; --dk-border: #94a3b8; }
+html:not(.light-theme) .modal-card, html:not(.light-theme) .modal-content, html:not(.light-theme) .md-child-modal-card, html:not(.light-theme) .md-c1-modal-card, html:not(.light-theme) #md-rightclick-def-menu, html:not(.light-theme) #msg-smart-hover-tooltip { background: linear-gradient(145deg, var(--dk-card-1, #0f172a) 0%, var(--dk-card-2, #152342) 100%) !important; border: 2px solid var(--dk-border, #38bdf8) !important; color: #ffffff !important; }
 html.light-theme, html.light-theme[data-light-tone="ivory_default"] { --lt-canvas-1: #dfd0b4; --lt-canvas-2: #d2be9a; --lt-card-1: #fffdf8; --lt-card-2: #f7efe0; --lt-sub-1: #fffefb; --lt-sub-2: #f6ecda; --lt-border: #5c2808; --lt-ink: #120500; }
 html.light-theme[data-light-tone="royal_bronze"] { --lt-canvas-1: #d4b08c; --lt-canvas-2: #c29970; --lt-card-1: #fdf6ee; --lt-card-2: #f3e2ce; --lt-sub-1: #fef9f3; --lt-sub-2: #efd8be; --lt-border: #4a2106; --lt-ink: #140600; --bg-color: #d4b08c !important; --bg-main: #d4b08c !important; --bg-secondary: #e2be98 !important; --surface: #fdf6ee !important; }
 html.light-theme[data-light-tone="platinum_gray"] { --lt-canvas-1: #c2d0e0; --lt-canvas-2: #aebfd4; --lt-card-1: #f7faff; --lt-card-2: #e6eef8; --lt-sub-1: #fafdff; --lt-sub-2: #e1ebf6; --lt-border: #1e293b; --lt-ink: #020617; --bg-color: #c2d0e0 !important; --bg-main: #c2d0e0 !important; --bg-secondary: #cfdeee !important; --surface: #f7faff !important; }
@@ -2342,6 +2349,11 @@ html.light-theme .panel,
 html.light-theme .glass-panel,
 html.light-theme .modal-card,
 html.light-theme .modal-content,
+html.light-theme .md-child-modal-card,
+html.light-theme .md-c1-modal-card,
+html.light-theme #md-rightclick-def-menu,
+html.light-theme #msg-smart-hover-tooltip,
+html.light-theme #md-col-context-popover,
 html.light-theme .sidebar,
 html.light-theme .app-sidebar {
     background: linear-gradient(145deg, var(--lt-card-1, #faf6ee) 0%, var(--lt-card-2, #f5ede0) 100%) !important;
@@ -2385,13 +2397,16 @@ const MASTER_7_THEMES_INFO = {
 };
 
 const MASTER_7_THEME_ALIASES = {
-    'warm_cream': 'warm_cream', 'beige': 'warm_cream', 'warm-alabaster': 'warm_cream', 'light': 'warm_cream',
-    'ultra_white': 'ultra_white', 'pure-platinum': 'ultra_white', 'white': 'ultra_white',
-    'exec_gray': 'exec_gray', 'pearl-platinum': 'exec_gray',
-    'midnight_obsidian': 'midnight_obsidian', 'midnight-executive': 'midnight_obsidian', 'navy-kohl': 'midnight_obsidian', 'navy': 'midnight_obsidian', 'dark': 'midnight_obsidian',
-    'mocha_brown': 'mocha_brown', 'sepia-brown': 'mocha_brown', 'desert-mocha': 'mocha_brown', 'brown': 'mocha_brown',
-    'pure_oled': 'pure_oled', 'obsidian-charcoal': 'pure_oled', 'midnight': 'pure_oled', 'black': 'pure_oled',
-    'slate_twilight': 'slate_twilight', 'twilight-indigo': 'slate_twilight', 'slate': 'slate_twilight'
+    "dark_midnight": "midnight_obsidian", "dark_mocha": "mocha_brown", "dark_oled": "pure_oled", "dark_slate": "slate_twilight",
+    "ivory_default": "warm_cream", "royal_bronze": "warm_cream", "platinum_gray": "exec_gray", "crystal_silver": "ultra_white",
+    "sage_pearl": "warm_cream", "sky_alabaster": "ultra_white", "warm_mocha_dark": "warm_cream", "deep_slate_dark": "exec_gray",
+    "warm_cream": "warm_cream", "beige": "warm_cream", "warm-alabaster": "warm_cream", "light": "warm_cream",
+    "ultra_white": "ultra_white", "pure-platinum": "ultra_white", "white": "ultra_white",
+    "exec_gray": "exec_gray", "pearl-platinum": "exec_gray",
+    "midnight_obsidian": "midnight_obsidian", "midnight-executive": "midnight_obsidian", "navy-kohl": "midnight_obsidian", "navy": "midnight_obsidian", "dark": "midnight_obsidian",
+    "mocha_brown": "mocha_brown", "sepia-brown": "mocha_brown", "desert-mocha": "mocha_brown", "brown": "mocha_brown",
+    "pure_oled": "pure_oled", "obsidian-charcoal": "pure_oled", "midnight": "pure_oled", "black": "pure_oled",
+    "slate_twilight": "slate_twilight", "twilight-indigo": "slate_twilight", "slate": "slate_twilight"
 };
 
 function normalizeMaster7ThemeKey(k) {
@@ -2417,7 +2432,8 @@ function ensureMaster7OverrideLast() {
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', function() {
         ensureMaster7OverrideLast();
-        var cur = normalizeMaster7ThemeKey(document.documentElement.getAttribute('data-theme') || localStorage.getItem('magaies_active_theme'));
+        var ckT = (document.cookie.match(/(?:^|; )magaies_light_tone=([^;]*)/)||[])[1] || "";
+        var cur = normalizeMaster7ThemeKey(decodeURIComponent(ckT) || document.documentElement.getAttribute("data-light-tone") || document.documentElement.getAttribute("data-theme") || localStorage.getItem("magaies_active_theme"));
         applyMasterTheme(cur, false);
     });
 } else {

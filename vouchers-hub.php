@@ -1345,21 +1345,10 @@
             }
         };
         window.openPurchaseLightTonePopover = function(btnEl) {
-            let pop = document.getElementById('vh-tone-popover-2027');
-            if (pop) { pop.remove(); return; }
-            pop = document.createElement('div');
-            pop.id = 'vh-tone-popover-2027';
-            pop.style.cssText = 'position:fixed;top:64px;left:24px;z-index:999999;background:#152342;border:3px solid #38bdf8;border-radius:14px;padding:12px;width:270px;box-shadow:0 16px 40px rgba(0,0,0,0.65);display:grid;grid-template-columns:1fr;gap:6px;direction:rtl;';
-            const cur = localStorage.getItem('magaies_light_tone') || 'ivory_default';
-            TONES.forEach(t => {
-                const b = document.createElement('button');
-                b.type = 'button';
-                b.style.cssText = 'display:flex;align-items:center;gap:10px;padding:7px 10px;border-radius:8px;border:2px solid ' + (cur === t.id ? '#fbbf24' : '#334155') + ';background:#0b1120;color:#fff;font-family:Tajawal,sans-serif;font-weight:900;font-size:0.86rem;cursor:pointer;text-align:right;';
-                b.innerHTML = `<span style="width:20px;height:20px;border-radius:50%;background:${t.swatch};border:2px solid #fff;display:inline-block;"></span><span>${t.label}</span>`;
-                b.onclick = () => { window.applyPurchaseLightTone(t.id); pop.remove(); };
-                pop.appendChild(b);
-            });
-            document.body.appendChild(pop);
+            if (typeof window.openUniversalErpTonePopover === "function" && window.openUniversalErpTonePopover !== window.openPurchaseLightTonePopover) {
+                window.openUniversalErpTonePopover(btnEl);
+                return;
+            }
         };
         let vhCurMode = 'SDG';
         window.toggleVouchersHubCurrency = function() {
@@ -1378,7 +1367,8 @@
                 td.textContent = vhCurMode === 'USD' ? ('$' + (raw / fx).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })) : raw.toLocaleString();
             });
         };
-        window.applyPurchaseLightTone(localStorage.getItem('magaies_light_tone') || 'ivory_default');
+        const getCkVh = () => { const m = document.cookie.match(/(?:^|; )magaies_light_tone=([^;]*)/); return m ? decodeURIComponent(m[1]) : ""; };
+        window.applyPurchaseLightTone(getCkVh() || localStorage.getItem("magaies_light_tone") || "ivory_default");
     })();
     </script>
 </body>

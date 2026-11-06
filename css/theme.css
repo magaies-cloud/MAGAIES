@@ -2298,3 +2298,51 @@ html[data-magaiees-scaled="true"] body .c-btn-small {
     word-break: keep-all;
     line-height: 1.38 !important;
 }
+
+
+/* ── 7-Level Architectural Ophthalmic Typography Hierarchy (2026) ── */
+:root {
+    --mg-lvl-sidebar-scale: 1;
+    --mg-lvl-flyout-scale: 1;
+    --mg-lvl-titles-scale: 1;
+    --mg-lvl-modals-scale: 1;
+    --mg-lvl-details-scale: 1;
+    --mg-lvl-tables-scale: 1;
+    --mg-lvl-mobile-scale: 1;
+}
+html[data-mg-master-weight] body { font-weight: var(--mg-master-weight) !important; }
+
+/* Level 1: Sidebar (الشريط الجانبي الرئيسي) */
+html[data-mg-lvl-sidebar="1"] .global-sidebar .sidebar-text { font-size: calc(0.95rem * var(--mg-lvl-sidebar-scale, 1)) !important; font-weight: var(--mg-lvl-sidebar-weight, 700) !important; font-family: var(--mg-lvl-sidebar-font, var(--magaiees-active-font, inherit)) !important; }
+html[data-mg-lvl-sidebar="1"] .global-sidebar .sidebar-logo-text { font-size: calc(1.05rem * var(--mg-lvl-sidebar-scale, 1)) !important; font-weight: var(--mg-lvl-sidebar-weight, 800) !important; font-family: var(--mg-lvl-sidebar-font, var(--magaiees-active-font, inherit)) !important; }
+
+/* Level 2: Flyout & Sub-menus (الشريط المنبثق البانورامي والقوائم الفرعية) */
+html[data-mg-lvl-flyout="1"] #magaiees-panoramic-flyout .pf-header-title { font-size: calc(0.92rem * var(--mg-lvl-flyout-scale, 1)) !important; font-weight: var(--mg-lvl-flyout-weight, 800) !important; font-family: var(--mg-lvl-flyout-font, var(--magaiees-active-font, inherit)) !important; }
+html[data-mg-lvl-flyout="1"] #magaiees-panoramic-flyout .pf-card-title { font-size: calc(0.85rem * var(--mg-lvl-flyout-scale, 1)) !important; font-weight: var(--mg-lvl-flyout-weight, 800) !important; font-family: var(--mg-lvl-flyout-font, var(--magaiees-active-font, inherit)) !important; }
+html[data-mg-lvl-flyout="1"] #magaiees-panoramic-flyout .pf-card-sub { font-size: calc(0.72rem * var(--mg-lvl-flyout-scale, 1)) !important; font-weight: var(--mg-lvl-flyout-weight-sub, 700) !important; font-family: var(--mg-lvl-flyout-font, var(--magaiees-active-font, inherit)) !important; }
+
+/* Level 3: Main Screen Titles & Section Headers (عناوين الشاشات والأقسام كالمخازن والموردين واللوحة الرئيسية) */
+html[data-mg-lvl-titles="1"] body h1, html[data-mg-lvl-titles="1"] body .page-title, html[data-mg-lvl-titles="1"] body .magical-glass-header h1, html[data-mg-lvl-titles="1"] body .magical-glass-header h2 { font-size: calc(1.45rem * var(--mg-lvl-titles-scale, 1)) !important; font-weight: var(--mg-lvl-titles-weight, 800) !important; font-family: var(--mg-lvl-titles-font, var(--magaiees-active-font, inherit)) !important; }
+html[data-mg-lvl-titles="1"] body h2, html[data-mg-lvl-titles="1"] body h3, html[data-mg-lvl-titles="1"] body .md-card-title, html[data-mg-lvl-titles="1"] body .setting-title, html[data-mg-lvl-titles="1"] body .panel-title, html[data-mg-lvl-titles="1"] body .section-title, html[data-mg-lvl-titles="1"] body .card-title { font-size: calc(1.2rem * var(--mg-lvl-titles-scale, 1)) !important; font-weight: var(--mg-lvl-titles-weight, 800) !important; font-family: var(--mg-lvl-titles-font, var(--magaiees-active-font, inherit)) !important; }
+html[data-mg-lvl-titles="1"] body .md-tab-btn, html[data-mg-lvl-titles="1"] body .tab-btn, html[data-mg-lvl-titles="1"] body .sub-tab-btn { font-size: calc(0.95rem * var(--mg-lvl-titles-scale, 1)) !important; font-weight: var(--mg-lvl-titles-weight, 800) !important; font-family: var(--mg-lvl-titles-font, var(--magaiees-active-font, inherit)) !important; }
+
+/* Level 4: Popups, Modals & Sub-Dialogs (الشاشات والنوافذ المنبثقة والفرعية) */
+html[data-mg-lvl-modals="1"] body .modal-title, html[data-mg-lvl-modals="1"] body .modal-header h2, html[data-mg-lvl-modals="1"] body .modal-header h3, html[data-mg-lvl-modals="1"] body [id*="Modal"] h3, html[data-mg-lvl-modals="1"] body [id*="modal"] h3, html[data-mg-lvl-modals="1"] body .swal2-title { font-size: calc(1.22rem * var(--mg-lvl-modals-scale, 1)) !important; font-weight: var(--mg-lvl-modals-weight, 800) !important; font-family: var(--mg-lvl-modals-font, var(--magaiees-active-font, inherit)) !important; }
+html[data-mg-lvl-modals="1"] body .modal-content, html[data-mg-lvl-modals="1"] body .modal-body, html[data-mg-lvl-modals="1"] body .modal-body label, html[data-mg-lvl-modals="1"] body .modal-body input, html[data-mg-lvl-modals="1"] body .modal-body select, html[data-mg-lvl-modals="1"] body .modal-body button, html[data-mg-lvl-modals="1"] body [id*="Modal"] label, html[data-mg-lvl-modals="1"] body [id*="Modal"] input, html[data-mg-lvl-modals="1"] body [id*="Modal"] select, html[data-mg-lvl-modals="1"] body .swal2-html-container { font-size: calc(0.95rem * var(--mg-lvl-modals-scale, 1)) !important; font-weight: var(--mg-lvl-modals-weight, 600) !important; font-family: var(--mg-lvl-modals-font, var(--magaiees-active-font, inherit)) !important; }
+
+/* Level 5: Inner Details, Form Inputs, Labels & Buttons (التفاصيل الداخلية وحقول المخازن والموردين والأصناف) */
+html[data-mg-lvl-details="1"] body label, html[data-mg-lvl-details="1"] body .input-group label, html[data-mg-lvl-details="1"] body .form-group label, html[data-mg-lvl-details="1"] body .field-label { font-size: calc(0.9rem * var(--mg-lvl-details-scale, 1)) !important; font-weight: var(--mg-lvl-details-weight, 700) !important; font-family: var(--mg-lvl-details-font, var(--magaiees-active-font, inherit)) !important; }
+html[data-mg-lvl-details="1"] body input:not([type="checkbox"]):not([type="radio"]):not([type="range"]), html[data-mg-lvl-details="1"] body select, html[data-mg-lvl-details="1"] body textarea, html[data-mg-lvl-details="1"] body .form-control, html[data-mg-lvl-details="1"] body p, html[data-mg-lvl-details="1"] body .btn, html[data-mg-lvl-details="1"] body .action-btn, html[data-mg-lvl-details="1"] body .btn-add { font-size: calc(0.95rem * var(--mg-lvl-details-scale, 1)) !important; font-weight: var(--mg-lvl-details-weight, 600) !important; font-family: var(--mg-lvl-details-font, var(--magaiees-active-font, inherit)) !important; }
+
+/* Level 6: Accounting Tables, Financial Statements & Reports (الجداول المحاسبية والتقارير وكشوفات الحساب) */
+html[data-mg-lvl-tables="1"] body table th, html[data-mg-lvl-tables="1"] body thead td, html[data-mg-lvl-tables="1"] body .pro-table th, html[data-mg-lvl-tables="1"] body .data-table th { font-size: calc(0.94rem * var(--mg-lvl-tables-scale, 1)) !important; font-weight: var(--mg-lvl-tables-weight, 800) !important; font-family: var(--mg-lvl-tables-font, var(--magaiees-active-font, inherit)) !important; }
+html[data-mg-lvl-tables="1"] body table tbody td, html[data-mg-lvl-tables="1"] body .pro-table td, html[data-mg-lvl-tables="1"] body .data-table td, html[data-mg-lvl-tables="1"] body .num, html[data-mg-lvl-tables="1"] body [data-num] { font-size: calc(0.95rem * var(--mg-lvl-tables-scale, 1)) !important; font-weight: var(--mg-lvl-tables-weight, 600) !important; font-family: var(--mg-lvl-tables-font, var(--magaiees-active-font, inherit)) !important; }
+html[data-mg-lvl-tables="1"] body table tfoot td, html[data-mg-lvl-tables="1"] body table tfoot th, html[data-mg-lvl-tables="1"] body .total-row td { font-size: calc(1.02rem * var(--mg-lvl-tables-scale, 1)) !important; font-weight: var(--mg-lvl-tables-weight, 800) !important; font-family: var(--mg-lvl-tables-font, var(--magaiees-active-font, inherit)) !important; }
+
+/* Level 7: Mobile & Responsive Viewports (شاشات الجوال والتابلت والتطبيق الكفي) */
+@media (max-width: 900px) {
+    html[data-mg-lvl-mobile="1"] { font-size: calc(16px * var(--magaiees-font-scale, 1) * var(--mg-lvl-mobile-scale, 1)) !important; }
+    html[data-mg-lvl-mobile="1"] body { font-weight: var(--mg-lvl-mobile-weight, inherit) !important; font-family: var(--mg-lvl-mobile-font, var(--magaiees-active-font, inherit)) !important; }
+}
+html[data-mobile-scale-pct][data-mg-lvl-mobile="1"] { font-size: calc(16px * var(--magaiees-font-scale, 1) * var(--mg-lvl-mobile-scale, 1)) !important; }
+html[data-mobile-scale-pct][data-mg-lvl-mobile="1"] body { font-weight: var(--mg-lvl-mobile-weight, inherit) !important; font-family: var(--mg-lvl-mobile-font, var(--magaiees-active-font, inherit)) !important; }

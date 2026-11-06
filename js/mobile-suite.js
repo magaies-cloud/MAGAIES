@@ -15145,7 +15145,7 @@ async function commitOpSales(andPay = false) {
   const FONT_KEY = 'magaies_mobile_font_family';
   const SCALE_PCT_KEY = 'magaies_mobile_font_scale_pct';
   const LEGACY_SCALE_KEY = 'magaies_font_scale';
-  const VALID_FONTS = ['default', 'ibm_plex', 'readex_pro'];
+  const VALID_FONTS = ['default', 'ibm_plex', 'readex_pro', 'almarai'];
 
   const SCALE_LABELS = {
     90: '90% (مدمج)',
@@ -15160,7 +15160,9 @@ async function commitOpSales(andPay = false) {
 
   function getSavedFont() {
     try {
-      const f = localStorage.getItem(FONT_KEY) || localStorage.getItem('magaiees_font_family') || 'default';
+      const h = JSON.parse(localStorage.getItem('magaiees_typography_hierarchy_v1') || '{}');
+      const mf = (h.mobile && h.mobile.font && h.mobile.font !== 'inherit') ? h.mobile.font : '';
+      const f = mf || localStorage.getItem('magaiees_font_family') || localStorage.getItem(FONT_KEY) || 'default';
       return VALID_FONTS.includes(f) ? f : 'default';
     } catch (e) {
       return 'default';
@@ -15169,13 +15171,13 @@ async function commitOpSales(andPay = false) {
 
   function getSavedScalePct() {
     try {
-      let pct = parseInt(localStorage.getItem(SCALE_PCT_KEY) || '0', 10);
+      let pct = parseInt(localStorage.getItem(SCALE_PCT_KEY) || localStorage.getItem('magaiees_font_scale') || '0', 10);
       if (!pct || isNaN(pct)) {
         const legacy = parseInt(localStorage.getItem(LEGACY_SCALE_KEY) || '2', 10);
         const map = { 1: 90, 2: 100, 3: 110, 4: 125 };
         pct = map[legacy] || 100;
       }
-      return Math.min(125, Math.max(90, pct));
+      return Math.min(135, Math.max(85, pct));
     } catch (e) {
       return 100;
     }

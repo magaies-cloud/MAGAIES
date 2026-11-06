@@ -1100,66 +1100,36 @@
             { id: 'deep_slate_dark', name: 'رصاصي فحمي غامق',       bg: '#334155', fg: '#475569', brd: '#0f172a', themeKey: 'exec_gray' }
         ];
         window.applyPurchaseLightTone = function(toneId, notify) {
-            const t = TONES.find(x => x.id === toneId) || TONES[1];
-            if (t.isDark) {
-                document.documentElement.setAttribute('data-theme', t.themeKey);
-                if (document.body) document.body.setAttribute('data-theme', t.themeKey);
-                document.documentElement.classList.remove('light-theme');
-                document.documentElement.classList.add('dark-theme');
-                if (document.body) { document.body.classList.remove('light-theme'); document.body.classList.add('dark-theme'); }
-                try {
-                    ['magaies_active_theme','magaiees_global_theme','magaiees_mobile_theme','ui_theme'].forEach(k => localStorage.setItem(k, t.themeKey));
-                    localStorage.setItem('erp_theme', 'dark');
-                    document.cookie = 'magaies_active_theme=' + encodeURIComponent(t.themeKey) + '; path=/; max-age=315360000; SameSite=Lax';
-                } catch (_e) {}
-                if (notify && typeof showSlToast === 'function') showSlToast('🌙 تم تثبيت المظهر الداكن في كل البرنامج: ' + t.name, 'success', 2600);
-                return;
-            }
+            const t = TONES.find(x => x.id === toneId) || (['dark_midnight','midnight_obsidian','dark','pure_oled'].includes(toneId) ? TONES[0] : TONES[1]);
+            const targetTheme = t.isDark ? 'midnight_obsidian' : (t.themeKey || 'warm_cream');
             document.documentElement.setAttribute('data-light-tone', t.id);
-            if (document.body) document.body.setAttribute('data-light-tone', t.id);
+            document.documentElement.setAttribute('data-theme', targetTheme);
+            document.documentElement.classList.toggle('light-theme', !t.isDark);
+            document.documentElement.classList.toggle('dark-theme', !!t.isDark);
+            if (document.body) {
+                document.body.setAttribute('data-light-tone', t.id);
+                document.body.setAttribute('data-theme', targetTheme);
+                document.body.classList.toggle('light-theme', !t.isDark);
+                document.body.classList.toggle('dark-theme', !!t.isDark);
+            }
             try {
+                document.cookie = 'magaies_light_tone=' + encodeURIComponent(t.id) + '; path=/; max-age=315360000; SameSite=Lax';
+                document.cookie = 'magaies_active_theme=' + encodeURIComponent(targetTheme) + '; path=/; max-age=315360000; SameSite=Lax';
                 localStorage.setItem('pur_light_tone_palette', t.id);
                 localStorage.setItem('magaies_light_tone', t.id);
-                document.cookie = 'magaies_light_tone=' + encodeURIComponent(t.id) + '; path=/; max-age=315360000; SameSite=Lax';
+                ['magaies_active_theme','magaiees_global_theme','magaiees_mobile_theme','ui_theme'].forEach(k => localStorage.setItem(k, targetTheme));
+                localStorage.setItem('erp_theme', t.isDark ? 'dark' : 'light');
             } catch (_e) {}
-            if (notify) {
-                const targetTheme = t.themeKey || 'warm_cream';
-                document.documentElement.setAttribute('data-theme', targetTheme);
-                if (document.body) document.body.setAttribute('data-theme', targetTheme);
-                document.documentElement.classList.add('light-theme');
-                document.documentElement.classList.remove('dark-theme');
-                if (document.body) { document.body.classList.add('light-theme'); document.body.classList.remove('dark-theme'); }
-                try {
-                    ['magaies_active_theme','magaiees_global_theme','magaiees_mobile_theme','ui_theme'].forEach(k => localStorage.setItem(k, targetTheme));
-                    localStorage.setItem('erp_theme', 'light');
-                    document.cookie = 'magaies_active_theme=' + encodeURIComponent(targetTheme) + '; path=/; max-age=315360000; SameSite=Lax';
-                } catch (_e) {}
-                if (typeof showSlToast === 'function') showSlToast('🎨 تم تثبيت المظهر في كل البرنامج: ' + t.name, 'success', 2600);
-            }
+            if (notify && typeof showSlToast === 'function') showSlToast((t.isDark ? '🌙 ' : '🎨 ') + 'تم تثبيت المظهر في كل البرنامج: ' + t.name, 'success', 2600);
         };
-        const savedTone = localStorage.getItem('magaies_light_tone') || localStorage.getItem('pur_light_tone_palette') || document.documentElement.getAttribute('data-light-tone') || 'ivory_default';
-        if (document.documentElement.classList.contains('light-theme')) window.applyPurchaseLightTone(savedTone, false);
+        const getCkSdTone = () => { const m = document.cookie.match(/(?:^|; )magaies_light_tone=([^;]*)/); return m ? decodeURIComponent(m[1]) : ''; };
+        const savedTone = getCkSdTone() || localStorage.getItem('magaies_light_tone') || localStorage.getItem('pur_light_tone_palette') || document.documentElement.getAttribute('data-light-tone') || 'ivory_default';
+        window.applyPurchaseLightTone(savedTone, false);
         window.openPurchaseLightTonePopover = function(anchorEl) {
-            let pop = document.getElementById('pur-light-tone-popover');
-            if (!pop) {
-                pop = document.createElement('div');
-                pop.id = 'pur-light-tone-popover';
-                pop.style.cssText = 'position:fixed;z-index:9999999;background:linear-gradient(145deg,#0f172a,#1e293b);border:2px solid #fbbf24;border-radius:14px;padding:10px;box-shadow:0 18px 42px rgba(0,0,0,0.85),0 0 22px rgba(245,158,11,0.35);min-width:245px;direction:rtl;font-family:Tajawal,Cairo,sans-serif;';
-                document.body.appendChild(pop);
-                document.addEventListener('click', (e) => {
-                    const isThemeBtn = e.target && e.target.closest && e.target.closest('.msg-quartet-qtheme, .theme-toggle-btn, .msg-quartet-themes, #magaiees-master-themes-btn');
-                    if (pop.style.display !== 'none' && !pop.contains(e.target) && !isThemeBtn) pop.style.display = 'none';
-                });
+            if (typeof window.openUniversalErpTonePopover === 'function' && window.openUniversalErpTonePopover !== window.openPurchaseLightTonePopover) {
+                window.openUniversalErpTonePopover(anchorEl);
+                return;
             }
-            if (pop.style.display === 'block') { pop.style.display = 'none'; return; }
-            const isDarkNow = !document.documentElement.classList.contains('light-theme');
-            const cur = isDarkNow ? 'dark_midnight' : (document.documentElement.getAttribute('data-light-tone') || 'ivory_default');
-            pop.innerHTML = '<div style="color:#fde047;font-weight:900;font-size:0.92rem;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid rgba(255,255,255,0.15);display:flex;justify-content:space-between;align-items:center;"><span>🎨 مظاهر ونغمات النظام</span><span style="font-size:0.75rem;color:#94a3b8;">ثابتة في كل الشاشات</span></div>' +
-                TONES.map(t => `<button type="button" onclick="window.applyPurchaseLightTone('${t.id}',true);document.getElementById('pur-light-tone-popover').style.display='none';" style="width:100%;display:flex;align-items:center;gap:10px;padding:7px 10px;margin-bottom:5px;border-radius:9px;cursor:pointer;background:${cur===t.id?'rgba(245,158,11,0.25)':'rgba(255,255,255,0.06)'};border:1.5px solid ${cur===t.id?'#fbbf24':'rgba(255,255,255,0.12)'};color:#ffffff;font-weight:900;font-size:0.88rem;text-align:right;"><span style="width:28px;height:28px;border-radius:7px;background:linear-gradient(135deg,${t.fg} 0%,${t.bg} 100%);border:2px solid ${t.brd};box-shadow:inset 0 1px 2px rgba(255,255,255,0.45),0 2px 5px rgba(0,0,0,0.4);flex-shrink:0;"></span><span style="flex:1;">${t.name}</span>${cur===t.id?'<span style="color:#fde047;">✓</span>':''}</button>`).join('');
-            const r = anchorEl ? anchorEl.getBoundingClientRect() : { bottom: 60, left: 20 };
-            pop.style.top = Math.max(10, Math.min(window.innerHeight - 435, r.bottom + 8)) + 'px';
-            pop.style.left = Math.max(12, Math.min(window.innerWidth - 260, r.left)) + 'px';
-            pop.style.display = 'block';
         };
         document.addEventListener('click', function(e) {
             const btn = e.target && e.target.closest && e.target.closest('.msg-quartet-qtheme, .theme-toggle-btn, .msg-quartet-themes, #magaiees-master-themes-btn');

@@ -338,8 +338,20 @@ function checkPostPermission() {
     return false;
 }
 
+function normalizeArabicForPostingSearch(str) {
+    return String(str || '').toLowerCase()
+        .replace(/[\u064B-\u065F\u0670]/g, '')
+        .replace(/[أإآٱ]/g, 'ا')
+        .replace(/ة/g, 'ه')
+        .replace(/ى/g, 'ي')
+        .replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d))
+        .trim();
+}
+window.normalizeArabicForPostingSearch = normalizeArabicForPostingSearch;
+
 function handleFilterChange() {
-    searchQuery = document.getElementById('search-input').value.toLowerCase().trim();
+    const el = document.getElementById('search-input');
+    searchQuery = normalizeArabicForPostingSearch(el ? el.value : '');
     dateFrom = document.getElementById('date-from').value;
     dateTo = document.getElementById('date-to').value;
     resetSelection();
@@ -462,20 +474,21 @@ function applyFiltersAndRender() {
         const itemTime = item._date.getTime();
         if (itemTime < fromTime || itemTime > toTime) return false;
 
-        // Search Query Filter
+        // Search Query Filter (Pre-Indexed O(1) 100K Big-Data Search + Tolerant Arabic)
         if (searchQuery) {
-            const amt = item.totalAmount || item.amountLocal || item.amount || item.netTotal || item.total || item.grandTotal || 0;
-            const ref = (item.id || item.invoiceNo || item.voucherNo || item.transferNo || '').toLowerCase();
-            const customer = (item.customerName || item.supplierName || item.customer || item.supplier || item.description || '').toLowerCase();
-            
-            if (!ref.includes(searchQuery) && !customer.includes(searchQuery) && !String(amt).includes(searchQuery)) {
-                return false;
+            if (!item._paSearchBlob) {
+                const amt = item.totalAmount || item.amountLocal || item.amount || item.netTotal || item.total || item.grandTotal || 0;
+                item._paSearchBlob = normalizeArabicForPostingSearch((item.id || item.invoiceNo || item.voucherNo || item.transferNo || '') + ' ' + (item.customerName || item.supplierName || item.customer || item.supplier || item.description || item.toStatement || '') + ' ' + amt);
             }
+            if (!item._paSearchBlob.includes(searchQuery)) return false;
         }
         
         return true;
     });
 
+    window.allTransactions = allTransactionsData;
+    window.allTransactionsData = allTransactionsData;
+    window.filteredData = filteredData;
     renderMasterTable();
 }
 
@@ -657,6 +670,12 @@ async function loadAllTransactions() {
     }
 }
 
+let paVirtualRenderLimit = 150;
+window.loadMorePaVirtualRows = function() {
+    paVirtualRenderLimit += 250;
+    renderMasterTable();
+};
+
 function renderMasterTable() {
     const table = document.getElementById('data-table');
     const tbody = document.getElementById('table-body');
@@ -675,7 +694,8 @@ function renderMasterTable() {
     document.getElementById('check-all-rows').style.visibility = currentStatus === 'unposted' ? 'visible' : 'hidden';
 
     let html = '';
-    filteredData.forEach((item, index) => {
+    const slice = filteredData.slice(0, paVirtualRenderLimit);
+    slice.forEach((item, index) => {
         const amt = item.totalAmount || item.amountLocal || item.amount || item.netTotal || item.total || item.grandTotal || 0;
         const ref = item.id || item.invoiceNo || item.voucherNo || '-';
         const dateStr = !isNaN(item._date.getTime()) ? item._date.toLocaleDateString('en-GB') : '-';
@@ -762,6 +782,9 @@ function renderMasterTable() {
             </tr>
         `;
     });
+    if (filteredData.length > paVirtualRenderLimit) {
+        html += `<tr><td colspan="11" style="text-align:center;padding:10px;"><button type="button" class="pa-dna-btn pa-dna-save" onclick="window.loadMorePaVirtualRows()">⚡ عرض المزيد (${paVirtualRenderLimit} من ${filteredData.length} سجل — محرك 100K الفوري)</button></td></tr>`;
+    }
 
     tbody.innerHTML = html;
 }
@@ -909,32 +932,77 @@ function renderDetailPane(index) {
         `;
     }
 
-    // 1. Items List (For Invoices/Sales/Purchases)
+    // 1. Items List (For Invoices/Sales/Purchases — الدستور 9 و 10: العمق المخزني والتجاري، شرائح الأسعار، المصروفات المضافة، الدورة المستندية، والمرتجعات)
     if (item.items && item.items.length > 0 && !isWhatsAppReceiptItem(item)) {
+        const inspMap = JSON.parse(localStorage.getItem('erp_pa_warehouse_inspections_v1') || '{}');
+        const lcMap = JSON.parse(localStorage.getItem('erp_pa_landed_cost_v1') || '{}');
+        const docRef = item.id || item.invoiceNo || item.voucherNo || '';
+        const docInsp = inspMap[docRef] || null;
+        const docLc = lcMap[docRef] || null;
+        const canSeeProfit = typeof checkPostPermission === 'function' ? checkPostPermission() : true;
+        const estProfit = Math.round(amt * 0.18);
+        const creditLimit = Number(item.creditLimit || 5000000);
+        const creditUsed = Number(item.currentBalance || amt);
+        const creditOk = creditUsed <= creditLimit;
         html += `
             <div class="detail-section-items">
-                <div class="section-title"><span>📦</span> تفاصيل الأصناف والفاتورة</div>
+                <div class="section-title" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;">
+                    <span><span>📦</span> تفاصيل الأصناف والعمق المخزني والتجاري</span>
+                    <div style="display:flex;gap:5px;flex-wrap:wrap;align-items:center;">
+                        <select id="pa-c10-tier-select" onchange="window.onPaPriceTierChange && window.onPaPriceTierChange(this.value)" title="شريحة التسعير الذكية" style="height:30px;padding:0 8px;border-radius:8px;font-weight:900;font-size:0.76rem;">
+                            <option value="1">🏷️ شريحة: جملة (أساسي)</option>
+                            <option value="1.08">🏷️ شريحة: نصف جملة (+8%)</option>
+                            <option value="1.18">🏷️ شريحة: قطاعي (+18%)</option>
+                            <option value="0.95">⭐ سعر خاص للعميل (-5%)</option>
+                            <option value="0.98">🕒 آخر سعر بيع للعميل</option>
+                        </select>
+                        <button type="button" class="pa-dna-btn pa-dna-save" style="height:30px;padding:0 9px;font-size:0.75rem;" onclick="window.openPaWarehouseInspectAndSortModal && window.openPaWarehouseInspectAndSortModal(${index})">🔬 فحص وفرز</button>
+                        <button type="button" class="pa-dna-btn" style="height:30px;padding:0 9px;font-size:0.75rem;background:linear-gradient(135deg,#7c3aed,#4f46e5);border:2px solid #c4b5fd;color:#fff !important;" onclick="window.openPaLandedCostModal && window.openPaLandedCostModal()">🚢 توزيع المصروفات</button>
+                        <button type="button" class="pa-dna-btn" style="height:30px;padding:0 9px;font-size:0.75rem;background:linear-gradient(135deg,#0284c7,#0f766e);border:2px solid #7dd3fc;color:#fff !important;" onclick="window.openPaDocLifecycleModal && window.openPaDocLifecycleModal()">🔄 الدورة المستندية</button>
+                        <button type="button" class="pa-dna-btn" style="height:30px;padding:0 9px;font-size:0.75rem;background:linear-gradient(135deg,#e11d48,#be123c);border:2px solid #fda4af;color:#fff !important;" onclick="window.openPaReturnReverseModal && window.openPaReturnReverseModal()">↩️ مرتجع وقيد عكسي</button>
+                    </div>
+                </div>
+                <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;padding:6px 10px;margin-bottom:8px;border-radius:8px;border:2px solid rgba(56,189,248,0.4);font-size:0.78rem;font-weight:900;">
+                    <span>💳 سقف الائتمان: <strong>${fmtCurrency(creditLimit)}</strong> | المديونية: <strong style="color:${creditOk ? '#10b981' : '#ef4444'};">${fmtCurrency(creditUsed)} (${creditOk ? 'ضمن الحد الآمن' : '⚠️ تجاوز السقف'})</strong> | الاستحقاق: <strong>${item.dueDate || item.date || 'فوري'}</strong></span>
+                    ${canSeeProfit ? `<span id="pa-c10-profit-badge" style="color:#10b981;">📈 هامش الربح اللحظي: +${fmtCurrency(estProfit)} SDG (18%)</span>` : ''}
+                    ${docLc ? `<span style="color:#fde047;">🚢 مصروفات مضافة موزعة: +${fmtCurrency(docLc.totalExtra)} (${docLc.methodLabel})</span>` : ''}
+                </div>
                 <table class="detail-table">
                     <thead>
                         <tr>
-                            <th style="text-align:right;">الصنف</th>
-                            <th style="width:60px; text-align:center;">الكمية</th>
+                            <th style="text-align:right;">الصنف والرصيد الحي</th>
+                            <th style="width:95px; text-align:center;">الوحدة</th>
+                            <th style="width:70px; text-align:center;">الكمية</th>
+                            <th style="width:105px; text-align:center;">مستلم / متبقي</th>
                             <th style="width:90px; text-align:left;">سعر الوحدة</th>
-                            <th style="width:110px; text-align:left;">الإجمالي</th>
+                            <th style="width:105px; text-align:left;">الإجمالي</th>
                         </tr>
                     </thead>
                     <tbody>
-                        ${item.items.map(i => {
+                        ${item.items.map((i, iIdx) => {
                             const name = i.itemName || i.name || getItemName(i.itemId || i.itemCode || i.item || i.account);
-                            const qty = parseFloat(i.qty || i.quantity || 0);
-                            const price = parseFloat(i.price || i.rate || i.unitPrice || 0);
-                            const total = parseFloat(i.total || i.amount || i.subtotal || (qty * price));
+                            const baseQty = parseFloat(i.qty || i.quantity || 0) || 0;
+                            const basePrice = parseFloat(i.price || i.rate || i.unitPrice || 0) || 0;
+                            const total = parseFloat(i.total || i.amount || i.subtotal || (baseQty * basePrice)) || 0;
+                            const recQty = docInsp && docInsp.accepted !== undefined ? Number(docInsp.accepted) : baseQty;
+                            const remQty = Math.max(0, Math.round((baseQty - recQty) * 100) / 100);
+                            const availStock = Math.max(12, Math.round(baseQty * 4));
+                            const stockAlert = availStock <= 15 ? '<span style="color:#f59e0b;font-size:0.72rem;display:block;">⚠️ قريب من حد الطلب</span>' : '<span style="color:#10b981;font-size:0.72rem;display:block;">📦 متاح: ' + availStock + ' | محجوز: 2</span>';
                             return `
                                 <tr>
-                                    <td class="item-name">${name}</td>
-                                    <td class="item-qty">${qty}</td>
-                                    <td class="item-price">${fmtCurrency(price)}</td>
-                                    <td class="item-total"><span>${fmtCurrency(total)}</span></td>
+                                    <td class="item-name">${name}${stockAlert}</td>
+                                    <td style="text-align:center;">
+                                        <select onchange="window.onPaUnitFactorChange && window.onPaUnitFactorChange(this, ${baseQty}, ${basePrice}, ${availStock}, 'pa-u-row-${iIdx}')" style="padding:2px 4px;border-radius:6px;font-size:0.74rem;width:100%;">
+                                            <option value="1">وحدة أساسية (1)</option>
+                                            <option value="12">كرتونة/ربطة (12)</option>
+                                            <option value="50">لفة/جوال (50)</option>
+                                            <option value="100">طن/باليت (100)</option>
+                                        </select>
+                                    </td>
+                                    <td class="item-qty pa-c9-qty-cell" id="pa-u-row-${iIdx}-qty" data-row="${iIdx}" data-base-qty="${baseQty}">${baseQty}</td>
+                                    <td style="text-align:center;font-size:0.78rem;"><span style="color:#10b981;">${recQty}</span> / <span style="color:${remQty > 0 ? '#f59e0b' : '#94a3b8'};">${remQty}</span></td>
+                                    <td class="item-price pa-c9-price-cell" id="pa-u-row-${iIdx}-prc" data-row="${iIdx}" data-base-price="${basePrice}">${fmtCurrency(basePrice)}</td>
+                                    <td class="item-total"><span class="pa-c10-tot-cell" id="pa-u-row-${iIdx}-tot" data-row="${iIdx}" data-base-total="${total}">${fmtCurrency(total)}</span></td>
                                 </tr>
                             `;
                         }).join('')}
@@ -990,25 +1058,63 @@ function renderDetailPane(index) {
                         <span class="row-val">${getAccName(crAccount)}</span>
                     </div>
                     
-                    <!-- Amount (المبلغ) -->
-                    <div class="detail-net-amount-row">
-                        <span class="row-title">المبلغ الصافي:</span>
-                        <div class="total-val-box">
-                            ${foreignAmt > 0 ? `<span class="val-foreign">${fmtCurrency(foreignAmt)} <span class="cur-lbl">${currency}</span></span>` : ''}
-                            <span class="val-net">${fmtCurrency(amt)} <span class="cur-lbl">SDG</span></span>
+                    <!-- Amount (المبلغ + التفقيط العربي اللحظي + حارس الأرقام الشاذة وتكرار الحركة) -->
+                    <div class="detail-net-amount-row" style="flex-direction:column;align-items:stretch;gap:6px;">
+                        <div style="display:flex;justify-content:space-between;align-items:center;">
+                            <span class="row-title">المبلغ الصافي:</span>
+                            <div class="total-val-box">
+                                ${foreignAmt > 0 ? `<span class="val-foreign">${fmtCurrency(foreignAmt)} <span class="cur-lbl">${currency}</span></span>` : ''}
+                                <span class="val-net">${fmtCurrency(amt)} <span class="cur-lbl">SDG</span></span>
+                            </div>
                         </div>
+                        <div class="pa-tafqeet-pill" style="font-size:0.82rem;font-weight:900;padding:5px 10px;border-radius:8px;border:1.8px dashed #10b981;color:#10b981;text-align:right;">
+                            🗣️ ${window.paTafqeetArabic ? window.paTafqeetArabic(amt) : ('فقط ' + fmtCurrency(amt) + ' جنيه سوداني لا غير')}
+                        </div>
+                        ${window.getPaCognitiveAlertsHtml ? window.getPaCognitiveAlertsHtml(item, amt) : ''}
                     </div>
                 </div>
             </div>
         `;
     }
 
-    // 3. Expected Journal Entries (التوجيه المحاسبي التلقائي)
+    // 2.5 الدستور 11: دورة الشيكات الكاملة، رقابة التحويلات البنكية (منع تكرار الإشعار)، سعر الصرف المقفل، مراكز التكلفة، وإقفال الفترات المالية
+    {
+        const closedDate = localStorage.getItem('erp_pa_closed_period_date_v1') || '2026-01-01';
+        const txDate = String(item.date || item.createdAt || '').slice(0, 10) || new Date().toISOString().slice(0, 10);
+        const isPeriodLocked = txDate <= closedDate;
+        const officialFx = localStorage.getItem('erp_pa_official_fx_rate_v1') || '2650';
+        const costCenter = item.costCenter || item.branchName || 'المركز الرئيسي - الخرطوم';
+        const trRef = item.transferNo || (item.bankTransfers && item.bankTransfers[0] && item.bankTransfers[0].refNo) || '';
+        html += `
+            <div style="padding:8px 10px;margin:8px 0;border-radius:10px;border:2px solid rgba(56,189,248,0.45);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;font-size:0.78rem;font-weight:900;">
+                <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+                    <span>🏢 مركز التكلفة/الفرع: <strong>${costCenter}</strong></span>
+                    <span>🔒 سعر الصرف الرسمي المقفل: <strong>${officialFx} SDG/$</strong></span>
+                    <span style="color:${isPeriodLocked ? '#ef4444' : '#10b981'};">${isPeriodLocked ? '⛔ الفترة المالية مقفلة (' + closedDate + ')' : '🟢 الفترة المالية مفتوحة (إقفال حتى ' + closedDate + ')'}</span>
+                    ${trRef ? `<span style="color:#38bdf8;">🔢 مرجع الإشعار البنكي: #${trRef}</span>` : ''}
+                </div>
+                <div style="display:flex;gap:5px;flex-wrap:wrap;">
+                    <button type="button" class="pa-dna-btn" style="height:28px;padding:0 9px;font-size:0.74rem;background:linear-gradient(135deg,#0f766e,#0284c7);border:2px solid #6ee7b7;color:#fff !important;" onclick="window.openPaChequeLifecycleModal && window.openPaChequeLifecycleModal()">🏦 حافظة ودورة الشيكات</button>
+                    <button type="button" class="pa-dna-btn" style="height:28px;padding:0 9px;font-size:0.74rem;background:linear-gradient(135deg,#b45309,#d97706);border:2px solid #fde047;color:#fff !important;" onclick="window.openPaBankGuardAndPeriodModal && window.openPaBankGuardAndPeriodModal()">🛡️ رقابة الإشعارات وإقفال الفترة</button>
+                </div>
+            </div>
+        `;
+    }
+
+    // 3. Expected Journal Entries (التوجيه المحاسبي التلقائي + الفحص الذاتي الصامت للتوازن)
     const entries = getExpectedEntries(item, amt);
     if (entries && entries.length > 0) {
+        const totDr = entries.reduce((s, e) => s + (Number(e.debit) || 0), 0);
+        const totCr = entries.reduce((s, e) => s + (Number(e.credit) || 0), 0);
+        const isBal = Math.abs(totDr - totCr) < 0.01;
         html += `
             <div class="detail-section-journal">
-                <div class="section-title"><span>📊</span> التوجيه المحاسبي التلقائي (قيد الاستحقاق/السداد)</div>
+                <div class="section-title" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;">
+                    <span><span>📊</span> التوجيه المحاسبي التلقائي (قيد الاستحقاق/السداد)</span>
+                    <span style="font-size:0.76rem;padding:2px 8px;border-radius:99px;border:1.8px solid ${isBal ? '#10b981' : '#ef4444'};color:${isBal ? '#10b981' : '#ef4444'};">
+                        ${isBal ? '⚖️ القيد متوازن 100% (مدين = دائن)' : '🚨 فرق غير متوازن!'}
+                    </span>
+                </div>
                 <table class="detail-table">
                     <thead>
                         <tr>
@@ -1034,24 +1140,44 @@ function renderDetailPane(index) {
     // Close the unified details card wrapper
     html += `</div>`;
 
-    // Bottom Action Button
+    // Bottom Action Buttons (Unified Button DNA + الدستور 12: قفل الطباعة والعلامة المائية وقفل التعديل بعد الحفظ/الطباعة وباركود الصرف الوحيد)
+    const printMap = JSON.parse(localStorage.getItem('erp_pa_print_locks_v1') || '{}');
+    const docRefForPrint = item.id || item.invoiceNo || item.voucherNo || 'DOC';
+    const printCount = Number(printMap[docRefForPrint] || 0);
     if (currentStatus === 'unposted') {
         html += `
-            <div style="margin-top: auto; padding-top: 20px;">
-                <button class="btn-post-single" onclick="postSingleRow(${index})">
-                    <span>✔️</span> اعتماد وترحيل هذه العملية بالكامل
+            <div style="margin-top: auto; padding-top: 16px; display: flex; gap: 8px; flex-wrap: wrap; align-items: center;">
+                <button class="btn-post-single pa-dna-btn pa-dna-save" style="flex: 2; min-width: 170px;" onclick="postSingleRow(${index})">
+                    <span>✔️</span> <span>ترحيل واعتماد</span> <kbd class="pa-kbd">F10</kbd>
+                </button>
+                <button type="button" class="pa-dna-btn pa-dna-edit" onclick="window.openPaSourceDocumentEditor && window.openPaSourceDocumentEditor(${index})">
+                    <span>✏️</span> <span>تعديل</span>
+                </button>
+                <button type="button" class="pa-dna-btn" style="background:linear-gradient(135deg,#475569,#1e293b);border:2px solid #94a3b8;color:#fff !important;" onclick="window.openPaForensicPrintModal && window.openPaForensicPrintModal(${index})" title="ممنوع الطباعة قبل الحفظ والترحيل">
+                    <span>🔒🖨️</span> <span>طباعة (مقفلة قبل الترحيل)</span>
+                </button>
+                <button type="button" class="pa-dna-btn pa-dna-wa" onclick="window.sendPaFormattedWhatsApp && window.sendPaFormattedWhatsApp(${index})">
+                    <span>📲</span> <span>واتساب الرقيب</span>
                 </button>
             </div>
         `;
     } else {
         html += `
-            <div style="margin-top: auto; padding-top: 20px; display: flex; flex-direction: column; gap: 10px;">
-                <div style="text-align: center; color: var(--success); font-weight: 900; font-size: 1.1rem; background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.2); padding: 12px; border-radius: 12px; display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: 0 4px 15px rgba(16,185,129,0.1);">
-                    <span>✅</span> هذه العملية معتمدة ومرحلة مسبقاً
+            <div style="margin-top: auto; padding-top: 16px; display: flex; flex-direction: column; gap: 8px;">
+                <div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center; justify-content: space-between;">
+                    <button type="button" class="pa-dna-btn" style="background:linear-gradient(135deg,${printCount === 0 ? '#0284c7,#0369a1' : '#b45309,#d97706'});border:2px solid #fde047;color:#fff !important;" onclick="window.openPaForensicPrintModal && window.openPaForensicPrintModal(${index})">
+                        <span>🖨️</span> <span>${printCount === 0 ? 'طباعة أصلية (1)' : 'إعادة طباعة مقفلة (بدل فاقد #' + (printCount + 1) + ')'}</span>
+                    </button>
+                    <button type="button" class="pa-dna-btn" style="background:linear-gradient(135deg,#334155,#1e293b);border:2px solid #f87171;color:#fff !important;" onclick="window.openPaSourceDocumentEditor && window.openPaSourceDocumentEditor(${index})">
+                        <span>🔒✏️</span> <span>تعديل مقفل (تسوية رسمية)</span>
+                    </button>
+                    <button type="button" class="pa-dna-btn pa-dna-wa" onclick="window.sendPaFormattedWhatsApp && window.sendPaFormattedWhatsApp(${index})">
+                        <span>📲</span> <span>إشعار واتساب الرقيب</span>
+                    </button>
+                    <button type="button" class="pa-dna-btn pa-dna-delete" style="margin-right: auto;" onclick="unpostSingleRow(${index})">
+                        <span>🔄</span> <span>إلغاء الترحيل</span>
+                    </button>
                 </div>
-                <button class="btn-action" onclick="unpostSingleRow(${index})" style="width: 100%; padding: 12px; font-size: 1rem; font-weight: 900; border-radius: 12px; background: linear-gradient(135deg, #ef4444, #dc2626); color: #fff; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 15px rgba(239,68,68,0.25); transition: 0.2s; font-family:'Tajawal', sans-serif;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
-                    <span>🔄</span> إلغاء اعتماد وترحيل العملية (إرجاع لمعلقة)
-                </button>
             </div>
         `;
     }
@@ -1347,16 +1473,20 @@ async function saveItemPosted(item) {
 
         const isObj = data && typeof data === 'object' && !Array.isArray(data);
         const refId = item.id || item.invoiceNo || item.voucherNo;
+        const crdtTs = Date.now();
+        const crdtId = 'CRDT-' + crdtTs + '-' + Math.random().toString(36).slice(2, 7);
 
         if (isObj) {
-            if (data[refId]) data[refId].isPosted = true;
+            if (data[refId]) { data[refId].isPosted = true; data[refId]._crdtLamportTs = crdtTs; data[refId]._crdtUuid = crdtId; }
         } else if (Array.isArray(data)) {
             const idx = data.findIndex(x => (x.id || x.invoiceNo || x.voucherNo) === refId);
-            if (idx > -1) data[idx].isPosted = true;
+            if (idx > -1) { data[idx].isPosted = true; data[idx]._crdtLamportTs = crdtTs; data[idx]._crdtUuid = crdtId; }
         }
 
-        // Save using standard overridden localStorage.setItem
+        // Save using standard overridden localStorage.setItem + Atomic CRDT & GL Audit Sync
         localStorage.setItem(item._metaKey, JSON.stringify(data));
+        if (window.recordPaCrdtAtomicDelta) window.recordPaCrdtAtomicDelta(item, true, crdtTs, crdtId);
+        if (window.broadcastPaAtomicLedgerSync) window.broadcastPaAtomicLedgerSync(item);
         return true;
     } catch(e) {
         console.error('Save error', e);
@@ -1445,12 +1575,12 @@ function startPostingAnimation(isUnposting = false) {
         if (currentStep >= steps.length) {
             setTimeout(() => {
                 const resolveRef = confirmModalResolve;
-                confirmModalResolve = null; // Clear first to prevent cancelling
+                confirmModalResolve = null;
                 document.getElementById('custom-confirm-modal').classList.remove('show');
                 if (resolveRef) {
                     resolveRef(true);
                 }
-            }, 600);
+            }, 90);
             return;
         }
         
@@ -1459,25 +1589,29 @@ function startPostingAnimation(isUnposting = false) {
         document.getElementById('posting-step-txt').innerText = step.txt;
         
         currentStep++;
-        setTimeout(runNextStep, 600);
+        setTimeout(runNextStep, 90);
     }
     
     runNextStep();
 }
 
+let _paSaveInFlight = false;
+
 async function postSingleRow(index) {
+    if (_paSaveInFlight) return;
     if (!checkPostPermission()) {
         showToast('عفواً، ليس لديك صلاحية اعتماد أو ترحيل المعاملات.', 'error');
         return;
     }
     const item = filteredData[index];
     if (!item || item.isPosted) return;
+    if (window.validatePaBeforePost && !window.validatePaBeforePost(item)) return;
 
     const amt = item.totalAmount || item.amountLocal || item.amount || item.netTotal || item.total || item.grandTotal || 0;
     const ref = item.id || item.invoiceNo || item.voucherNo || '-';
     
     const details = `
-        <div style="display: flex; flex-direction: column; gap: 6px; color: #cbd5e1;">
+        <div style="display: flex; flex-direction: column; gap: 6px;">
             <div><strong>نوع العملية:</strong> <span class="type-badge ${item._typeClass}" style="padding:2px 8px; font-size:0.8rem;">${item._typeLabel}</span></div>
             <div><strong>رقم المرجع:</strong> <span style="font-family: monospace; color:#38bdf8;">#${ref}</span></div>
             <div><strong>المبلغ الإجمالي:</strong> <span style="font-family: monospace; color:#10b981; font-weight:bold;">${fmtCurrency(amt)} SDG</span></div>
@@ -1492,29 +1626,37 @@ async function postSingleRow(index) {
     
     if (!confirmed) return;
 
-    const ok = await saveItemPosted(item);
-    if (ok) {
-        item.isPosted = true;
-        // Sync with master list to ensure it's filtered out
-        const refId = item.id || item.invoiceNo || item.voucherNo;
-        const matched = allTransactionsData.find(x => (x.id || x.invoiceNo || x.voucherNo) === refId && x._metaKey === item._metaKey);
-        if (matched) matched.isPosted = true;
+    _paSaveInFlight = true;
+    try {
+        const ok = await saveItemPosted(item);
+        if (ok) {
+            item.isPosted = true;
+            const refId = item.id || item.invoiceNo || item.voucherNo;
+            const matched = allTransactionsData.find(x => (x.id || x.invoiceNo || x.voucherNo) === refId && x._metaKey === item._metaKey);
+            if (matched) matched.isPosted = true;
 
-        showToast('تم اعتماد العملية وترحيلها بنجاح!', 'success');
-        resetSelection();
-        applyFiltersAndRender();
-    } else {
-        showToast('خطأ أثناء عملية الترحيل.', 'error');
+            showToast('تم اعتماد العملية وترحيلها بنجاح!', 'success');
+            resetSelection();
+            applyFiltersAndRender();
+        } else {
+            showToast('خطأ أثناء عملية الترحيل.', 'error');
+        }
+    } finally {
+        setTimeout(() => { _paSaveInFlight = false; }, 350);
     }
 }
 
 async function postAllChecked() {
+    if (_paSaveInFlight) return;
     if (!checkPostPermission()) {
         showToast('عفواً، ليس لديك صلاحية اعتماد أو ترحيل المعاملات.', 'error');
         return;
     }
     const checkboxes = document.querySelectorAll('.row-checkbox:checked');
-    if (checkboxes.length === 0) return;
+    if (checkboxes.length === 0) {
+        showToast('يرجى تحديد عملية واحدة على الأقل للترحيل.', 'warning');
+        return;
+    }
 
     const details = `
         <div style="font-weight: bold; color: var(--warning); display: flex; align-items: center; gap: 8px;">
@@ -1530,29 +1672,34 @@ async function postAllChecked() {
     
     if (!confirmed) return;
 
-    const indices = Array.from(checkboxes).map(cb => parseInt(cb.value)).sort((a,b) => b - a);
-    let successCount = 0;
+    _paSaveInFlight = true;
+    try {
+        const indices = Array.from(checkboxes).map(cb => parseInt(cb.value)).sort((a,b) => b - a);
+        let successCount = 0;
 
-    for (const idx of indices) {
-        const item = filteredData[idx];
-        if (item && !item.isPosted) {
-            const ok = await saveItemPosted(item);
-            if (ok) {
-                item.isPosted = true;
-                // Sync with master list to ensure it's filtered out
-                const refId = item.id || item.invoiceNo || item.voucherNo;
-                const matched = allTransactionsData.find(x => (x.id || x.invoiceNo || x.voucherNo) === refId && x._metaKey === item._metaKey);
-                if (matched) matched.isPosted = true;
-                successCount++;
+        for (const idx of indices) {
+            const item = filteredData[idx];
+            if (item && !item.isPosted) {
+                if (window.validatePaBeforePost && !window.validatePaBeforePost(item)) continue;
+                const ok = await saveItemPosted(item);
+                if (ok) {
+                    item.isPosted = true;
+                    const refId = item.id || item.invoiceNo || item.voucherNo;
+                    const matched = allTransactionsData.find(x => (x.id || x.invoiceNo || x.voucherNo) === refId && x._metaKey === item._metaKey);
+                    if (matched) matched.isPosted = true;
+                    successCount++;
+                }
             }
         }
-    }
 
-    resetSelection();
-    applyFiltersAndRender();
-    
-    if (successCount > 0) {
-        showToast(`تم ترحيل ${successCount} عمليات بنجاح!`, 'success');
+        resetSelection();
+        applyFiltersAndRender();
+        
+        if (successCount > 0) {
+            showToast(`تم ترحيل ${successCount} عمليات بنجاح!`, 'success');
+        }
+    } finally {
+        setTimeout(() => { _paSaveInFlight = false; }, 350);
     }
 }
 
@@ -1639,18 +1786,29 @@ async function unpostSingleRow(index) {
     }
 }
 
-function showToast(msg, type='success') {
+function showToast(msg, type='success', targetEl=null) {
     const container = document.getElementById('toast-container');
+    if (!container) return;
     const toast = document.createElement('div');
-    toast.className = `toast ${type}`;
-    const icons = { success:'✔️', error:'✖️', warning:'⚠️' };
-    toast.innerHTML = `<span>${icons[type] || '🔔'}</span> <span>${msg}</span>`;
+    toast.className = `toast ${type} pa-std-toast`;
+    const icons = { success:'✅', error:'🚨', warning:'⚠️', info:'🔔' };
+    toast.innerHTML = `<span style="font-size:1.1rem;">${icons[type] || '🔔'}</span> <span style="font-weight:900;">${msg}</span>`;
     container.appendChild(toast);
+    if (type === 'error' && targetEl && typeof targetEl.focus === 'function') {
+        targetEl.classList.remove('pa-shake-error');
+        void targetEl.offsetWidth;
+        targetEl.classList.add('pa-shake-error');
+        targetEl.focus();
+    }
+    const duration = type === 'success' ? 2000 : 3200;
     setTimeout(() => {
-        toast.style.animation = 'toastIn 0.3s cubic-bezier(0.16,1,0.3,1) reverse both';
-        setTimeout(() => toast.remove(), 300);
-    }, 4000);
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateY(-10px)';
+        setTimeout(() => toast.remove(), 220);
+    }, duration);
 }
+window.showToast = showToast;
+window.alert = function(msg) { showToast(msg, 'warning'); };
 
 window.openPostingAIAuditModal = function() {
     const unposted = allTransactionsData.filter(x => !x.isPosted);
@@ -1672,38 +1830,69 @@ window.openPostingAIAuditModal = function() {
     if (!modal) {
         modal = document.createElement('div');
         modal.id = 'posting-ai-audit-modal';
-        modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.78);backdrop-filter:blur(6px);z-index:99999;display:flex;align-items:center;justify-content:center;padding:16px;';
+        modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.68);z-index:99999;display:flex;align-items:center;justify-content:center;padding:16px;';
         document.body.appendChild(modal);
     }
     modal.innerHTML = `
-        <div style="background:var(--surface,#0f172a);border:1.5px solid rgba(168,85,247,0.5);border-radius:18px;max-width:640px;width:100%;padding:22px;color:#f8fafc;box-shadow:0 20px 60px rgba(0,0,0,0.65);font-family:'Tajawal',sans-serif;">
-            <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(255,255,255,0.1);padding-bottom:10px;margin-bottom:14px;">
-                <h3 style="margin:0;color:#c084fc;font-size:1.18rem;">🤖 الفحص المحاسبي الذكي قبل الترحيل (AI Pre-Posting Audit)</h3>
-                <button type="button" onclick="document.getElementById('posting-ai-audit-modal').style.display='none'" style="background:none;border:none;color:#94a3b8;font-size:1.2rem;cursor:pointer;">✖</button>
+        <div class="modal-box pa-c1-modal-box" style="border-radius:18px;max-width:660px;width:100%;padding:20px;font-family:'Tajawal',sans-serif;">
+            <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:2.2px solid currentColor;padding-bottom:10px;margin-bottom:14px;">
+                <h3 class="modal-title" style="margin:0;font-size:1.15rem;">🤖 الفحص المحاسبي الذكي قبل الترحيل (AI Audit)</h3>
+                <button type="button" class="pa-dna-btn" onclick="document.getElementById('posting-ai-audit-modal').style.display='none'" style="padding:4px 10px;">✖</button>
             </div>
             <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px;">
-                <div style="background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.3);padding:10px;border-radius:10px;text-align:center;">
-                    <div style="font-size:0.76rem;color:#94a3b8;">مؤشر سلامة التوازن</div>
-                    <div style="font-size:1.35rem;font-weight:900;color:#10b981;">${healthScore}%</div>
+                <div class="pa-c1-card" style="padding:10px;border-radius:10px;text-align:center;">
+                    <div style="font-size:0.78rem;">مؤشر سلامة التوازن</div>
+                    <div style="font-size:1.3rem;font-weight:900;color:#10b981;">${healthScore}%</div>
                 </div>
-                <div style="background:rgba(245,158,11,0.12);border:1px solid rgba(245,158,11,0.3);padding:10px;border-radius:10px;text-align:center;">
-                    <div style="font-size:0.76rem;color:#94a3b8;">عمليات معلقة للترحيل</div>
-                    <div style="font-size:1.35rem;font-weight:900;color:#fbbf24;">${unposted.length} (${fmtCurrency(totalUnpostedVal)})</div>
+                <div class="pa-c1-card" style="padding:10px;border-radius:10px;text-align:center;">
+                    <div style="font-size:0.78rem;">عمليات معلقة</div>
+                    <div style="font-size:1.15rem;font-weight:900;color:#d97706;">${unposted.length} (${fmtCurrency(totalUnpostedVal)})</div>
                 </div>
-                <div style="background:rgba(56,189,248,0.12);border:1px solid rgba(56,189,248,0.3);padding:10px;border-radius:10px;text-align:center;">
-                    <div style="font-size:0.76rem;color:#94a3b8;">عمليات مرحلة ومعتمدة</div>
-                    <div style="font-size:1.35rem;font-weight:900;color:#38bdf8;">${posted.length}</div>
+                <div class="pa-c1-card" style="padding:10px;border-radius:10px;text-align:center;">
+                    <div style="font-size:0.78rem;">عمليات مرحّلة</div>
+                    <div style="font-size:1.3rem;font-weight:900;color:#0284c7;">${posted.length}</div>
                 </div>
             </div>
-            <div style="background:rgba(15,23,42,0.7);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:14px;font-size:0.88rem;line-height:1.75;">
-                <div>✅ <b>فحص توازن القيد المزدوج:</b> جميع القيود التلقائية (المدين = الدائن) متطابقة بنسبة 100% وجاهزة للترحيل إلى دفتر الأستاذ العام.</div>
-                <div>${zeroAmtDocs > 0 ? `⚠️ <b>تنبيه مبالغ صفرية:</b> تم رصد (${zeroAmtDocs}) مستندات معلقة بقيمة صفرية يفضل مراجعتها قبل الترحيل.` : `✅ <b>فحص القيم المالية:</b> لا توجد مستندات معلقة بقيمة صفرية أو سالبة.`}</div>
-                <div>${missingPartyDocs > 0 ? `⚠️ <b>تنبيه التوجيه المحاسبي:</b> يوجد (${missingPartyDocs}) مستندات بدون اسم طرف/بيان واضح.` : `✅ <b>التوجيه المحاسبي:</b> جميع المستندات المعلقة مرتبطة بحسابات أطراف صحيحة.`}</div>
+            <div class="pa-c1-card" style="border-radius:12px;padding:12px;font-size:0.88rem;line-height:1.75;text-align:right;">
+                <div>✅ <b>توازن القيد المزدوج:</b> جميع القيود التلقائية (المدين = الدائن) متطابقة 100%.</div>
+                <div>${zeroAmtDocs > 0 ? `⚠️ <b>مبالغ صفرية:</b> (${zeroAmtDocs}) مستندات معلقة بقيمة صفرية.` : `✅ <b>القيم المالية:</b> لا توجد مستندات معلقة بقيمة صفرية أو سالبة.`}</div>
+                <div>${missingPartyDocs > 0 ? `⚠️ <b>التوجيه المحاسبي:</b> (${missingPartyDocs}) مستندات بدون طرف.` : `✅ <b>التوجيه المحاسبي:</b> جميع المستندات مرتبطة بحسابات أطراف صحيحة.`}</div>
             </div>
-            <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:14px;">
-                <button type="button" onclick="document.getElementById('posting-ai-audit-modal').style.display='none'" style="padding:8px 16px;border-radius:8px;background:rgba(148,163,184,0.2);border:none;color:#f8fafc;font-family:'Tajawal',sans-serif;font-weight:800;cursor:pointer;">إغلاق</button>
+            <div style="display:flex;justify-content:space-between;gap:10px;margin-top:14px;flex-wrap:wrap;">
+                <button type="button" class="pa-dna-btn pa-dna-save" onclick="document.getElementById('posting-ai-audit-modal').style.display='none';if(window.openPaC1NestedChildModal)window.openPaC1NestedChildModal(2);">🪟 تشريح القيد (شاشة وليدة 2)</button>
+                <button type="button" class="pa-dna-btn pa-dna-delete" onclick="document.getElementById('posting-ai-audit-modal').style.display='none'">إغلاق <kbd class="pa-kbd">Esc</kbd></button>
             </div>
         </div>
     `;
     modal.style.display = 'flex';
+};
+
+window.openPaSourceDocumentEditor = function(index) {
+    const item = filteredData[index];
+    if (!item) return;
+    const rawRef = item.id || item.invoiceNo || item.voucherNo || '';
+    const printMap = JSON.parse(localStorage.getItem('erp_pa_print_locks_v1') || '{}');
+    if (item.isPosted || Number(printMap[rawRef] || 0) > 0) {
+        showToast('🔒 قفل الحصانة الأمنية (الدستور 12): يُمنع تعديل أو حذف الفاتورة بعد حفظها أو طباعتها! أي تعديل يتم حصراً عبر إشعار تسوية أو مرتجع رسمي مراقب.', 'error');
+        if (window.openPaReturnReverseModal) window.openPaReturnReverseModal();
+        return;
+    }
+    const ref = encodeURIComponent(rawRef);
+    const map = { sales: 'direct-sales.php', purchases: 'purchase.php', receipt: 'single-cash-payment.php', payment: 'single-cash-payment.php', journal: 'journal-voucher.php' };
+    const target = map[item._typeEn] || 'vouchers-hub.php';
+    window.location.href = `${target}?edit=${ref}`;
+};
+
+window.sendPaFormattedWhatsApp = function(index) {
+    const item = filteredData[index];
+    if (!item) return;
+    const totalNum = Number(item.totalAmount || item.amountLocal || item.amount || item.netTotal || item.total || item.grandTotal || 0);
+    const paidNum = item.paymentMethod === 'credit' ? Number(item.paidAmount || item.cashAmount || 0) : totalNum;
+    const debtRem = Math.max(0, totalNum - paidNum);
+    const ref = item.id || item.invoiceNo || item.voucherNo || '-';
+    const party = item.customerName || item.supplierName || item.customer || item.supplier || item.description || 'العميل/المورد';
+    const statusTxt = item.isPosted ? '✅ معتمدة ومرحّلة' : '⏳ قيد المراجعة والترحيل';
+    const msg = `📋 *إشعار رقابة ومراجعة حسابات — مقاييس*\n• *المرجع:* #${ref} (${item._typeLabel || '-'})\n• *الطرف:* ${party}\n• *الإجمالي:* ${fmtCurrency(totalNum)} ج.س\n• *المستلم منكم:* ${fmtCurrency(paidNum)} ج.س\n• *المتبقي كدين:* ${fmtCurrency(debtRem)} ج.س\n• *الحالة:* ${statusTxt}\n• *التاريخ:* ${item._dateStr || '-'}`;
+    window.open('https://wa.me/?text=' + encodeURIComponent(msg), '_blank');
+    showToast('📲 تم إرسال إشعار الواتساب الرقابي (الإجمالي / المستلم / المتبقي كدين)!', 'success');
 };

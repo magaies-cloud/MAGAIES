@@ -78,7 +78,10 @@
         }
         html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) input::placeholder,
         html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) textarea::placeholder {
-            color: rgba(255, 255, 255, 0.65) !important;
+            color: #64748b !important;
+            -webkit-text-fill-color: #64748b !important;
+            font-weight: 500 !important;
+            opacity: 1 !important;
         }
 
         :root.light-theme body,
@@ -86,14 +89,14 @@
         html[data-theme="warm_cream"] body,
         html[data-theme="ultra_white"] body,
         html[data-theme="exec_gray"] body {
-            background-color: #d6c7aa !important;
-            color: #000000 !important;
+            background: linear-gradient(155deg, var(--lt-canvas-1, #dfd0b4) 0%, var(--lt-canvas-2, #d2be9a) 100%) !important;
+            color: var(--lt-ink, #120500) !important;
         }
         :root.light-theme .ambient-bg,
         html[data-theme="warm_cream"] .ambient-bg,
         html[data-theme="ultra_white"] .ambient-bg,
         html[data-theme="exec_gray"] .ambient-bg {
-            background: radial-gradient(circle at 50% 50%, #dfd1b8 0%, #cfc0a3 100%) !important;
+            background: radial-gradient(circle at 50% 50%, var(--lt-canvas-1, #dfd1b8) 0%, var(--lt-canvas-2, #cfc0a3) 100%) !important;
         }
         :root.light-theme .panel,
         :root.light-theme .neo-card,
@@ -135,10 +138,10 @@
         html[data-theme="exec_gray"] #admin-wa-policy-panel-cust,
         html[data-theme="exec_gray"] #admin-wa-policy-panel-sup,
         html[data-theme="exec_gray"] .md-child-modal-card {
-            background: #e4d7be !important;
-            border: 2px solid #8c7b65 !important;
-            color: #000000 !important;
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.09) !important;
+            background: linear-gradient(145deg, var(--lt-card-1, #fdf6ee) 0%, var(--lt-card-2, #f3e2ce) 100%) !important;
+            border: 2px solid var(--lt-border, #5c2808) !important;
+            color: var(--lt-ink, #120500) !important;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12) !important;
         }
         :root.light-theme .md-content-area *,
         :root.light-theme .md-child-modal *,
@@ -159,21 +162,35 @@
         :root.light-theme .md-content-area div[style*="background:rgba(15,23,42"],
         :root.light-theme .md-content-area div[style*="background: rgba(0,0,0"],
         :root.light-theme .md-content-area div[style*="background:rgba(0,0,0"],
+        :root.light-theme .md-child-modal div[style*="background:#0f172a"],
+        :root.light-theme .md-child-modal div[style*="background: #0f172a"],
+        :root.light-theme .md-child-modal div[style*="background:rgba(15,23,42"],
+        :root.light-theme .md-child-modal div[style*="background: rgba(15, 23, 42"],
+        :root.light-theme .md-child-modal div[style*="background:rgba(2,6,23"],
+        :root.light-theme .md-child-modal div[style*="background: rgba(2, 6, 23"],
+        :root.light-theme .md-child-modal div[style*="background:rgba(30,41,59"],
+        :root.light-theme .md-child-modal div[style*="background: rgba(30, 41, 59"],
+        :root.light-theme .md-child-modal div[style*="background: rgba(0,0,0"],
+        :root.light-theme .md-child-modal div[style*="background:rgba(0,0,0"],
         :root.light-theme #master-data-delete-modal div[style*="background: rgba(0,0,0"],
         :root.light-theme #master-data-delete-modal div[style*="background:rgba(0,0,0"],
         html[data-theme="warm_cream"] .md-content-area div[style*="background: rgba(15, 23, 42"],
         html[data-theme="warm_cream"] .md-content-area div[style*="background:rgba(15,23,42"],
         html[data-theme="warm_cream"] .md-content-area div[style*="background: rgba(0,0,0"],
         html[data-theme="warm_cream"] .md-content-area div[style*="background:rgba(0,0,0"] {
-            background: rgba(0, 0, 0, 0.04) !important;
-            border-color: rgba(0, 0, 0, 0.14) !important;
+            background: linear-gradient(145deg, var(--lt-sub-1, #fef9f3) 0%, var(--lt-sub-2, #efd8be) 100%) !important;
+            border-color: var(--lt-border, #5c2808) !important;
+            color: var(--lt-ink, #120500) !important;
         }
         :root.light-theme input::placeholder,
         :root.light-theme textarea::placeholder,
         html[data-theme="warm_cream"] input::placeholder,
         html[data-theme="ultra_white"] input::placeholder,
         html[data-theme="exec_gray"] input::placeholder {
-            color: rgba(0, 0, 0, 0.55) !important;
+            color: #9ca3af !important;
+            -webkit-text-fill-color: #9ca3af !important;
+            font-weight: 500 !important;
+            opacity: 1 !important;
         }
         :root.light-theme td, :root.light-theme th, :root.light-theme tr {
             color: #000000 !important;
@@ -195,28 +212,40 @@
             border: 1px solid rgba(0, 0, 0, 0.22) !important;
         }
         :root.light-theme .md-tabs-sidebar {
-            background: rgba(255, 255, 255, 0.92) !important;
+            background: rgba(255, 255, 255, 0.85) !important;
             backdrop-filter: blur(20px);
-            border: 1px solid rgba(0, 0, 0, 0.12) !important;
+            border: 1px solid rgba(0, 0, 0, 0.08) !important;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
         }
         :root.light-theme .md-tab-btn {
-            background: #ffffff !important;
-            border-color: var(--tab-border-color, rgba(0,0,0,0.2)) !important;
+            background: linear-gradient(145deg, #ffffff 0%, var(--lt-bg-strip, #e2e8f0) 100%) !important;
+            border-color: var(--tab-border-color, rgba(0,0,0,0.22)) !important;
             color: #000000 !important;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.04);
-            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            -webkit-text-fill-color: #000000 !important;
+            -webkit-text-stroke: 0px transparent !important;
+            text-shadow: none !important;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.10), inset 0 2px 1px rgba(255,255,255,0.55), inset 0 -4px 10px rgba(15,23,42,0.18) !important;
+            transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
         }
-        :root.light-theme .md-tab-btn .md-tab-label {
+        :root.light-theme .md-tab-btn:hover {
+            background: linear-gradient(135deg, var(--lt-bg-card, #ffffff) 0%, var(--tab-border-color, #38bdf8) 140%) !important;
             color: #000000 !important;
+            -webkit-text-fill-color: #000000 !important;
+            -webkit-text-stroke: 0px transparent !important;
+            text-shadow: none !important;
+            transform: none !important;
+            box-shadow: 0 8px 22px var(--tab-glow-color), inset 0 2px 2px rgba(255,255,255,0.6), inset 0 -5px 12px rgba(0,0,0,0.22) !important;
+            border-color: #000000 !important;
         }
-        :root.light-theme .md-tab-btn:hover,
         :root.light-theme .md-tab-btn.active {
-            background: var(--tab-active-bg, linear-gradient(135deg, #3b82f6, #60a5fa)) !important;
-            border-color: var(--tab-border-color, transparent) !important;
+            background: linear-gradient(135deg, var(--lt-bg-card, #ffffff) 0%, var(--tab-border-color, #38bdf8) 140%) !important;
+            border-color: #000000 !important;
             color: #000000 !important;
-            box-shadow: 0 8px 25px var(--tab-glow-color, rgba(59, 130, 246, 0.35)) !important;
-            transform: scale(1.03) translateY(-1px);
+            -webkit-text-fill-color: #000000 !important;
+            -webkit-text-stroke: 0px transparent !important;
+            text-shadow: none !important;
+            box-shadow: 0 8px 24px var(--tab-glow-color), 0 0 18px var(--tab-glow-color), inset 0 2px 2px rgba(255,255,255,0.65), inset 0 -5px 12px rgba(0,0,0,0.25) !important;
+            transform: none !important;
         }
         :root.light-theme .md-sidebar-panel,
         :root.light-theme .md-content-panel {
@@ -340,84 +369,118 @@
             -webkit-backdrop-filter: blur(25px);
             border: 2px solid rgba(255, 255, 255, 0.1);
             border-radius: 20px;
-            padding: clamp(6px, 0.75vw, 12px);
-            display: flex;
-            flex-direction: row;
-            align-items: stretch;
-            justify-content: space-between;
-            overflow: visible;
-            gap: clamp(4px, 0.65vw, 10px);
+            padding: 10px 12px;
+            display: grid !important;
+            grid-template-columns: repeat(9, minmax(0, 1fr)) !important;
+            align-items: stretch !important;
+            gap: 10px !important;
             box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5), inset 0 1px 2px rgba(255, 255, 255, 0.1);
             margin-bottom: 5px;
-            width: 100%;
-            box-sizing: border-box;
         }
+        .md-tabs-sidebar > div[style*="flex"] { display: none !important; }
 
         .md-tab-btn {
             position: relative;
-            flex: 1 1 0;
-            min-width: 0;
-            min-height: clamp(44px, 4vw, 60px);
-            background: rgba(255, 255, 255, 0.04);
-            backdrop-filter: blur(14px);
-            -webkit-backdrop-filter: blur(14px);
-            border: 3.8px solid var(--tab-border-color, rgba(255, 255, 255, 0.2));
-            border-radius: 14px;
-            padding: clamp(4px, 0.45vw, 8px) clamp(4px, 0.55vw, 10px);
-            font-size: clamp(0.9rem, 1.65vw, 1.7rem);
-            font-weight: 900;
-            line-height: 1.1;
-            color: #e2e8f0;
+            width: 100% !important;
+            min-width: 0 !important;
+            height: 50px !important;
+            min-height: 50px !important;
+            max-height: 50px !important;
+            padding: 0 8px !important;
+            box-sizing: border-box !important;
+            background: var(--tab-hover-bg, linear-gradient(135deg, rgba(30, 41, 59, 0.78), rgba(15, 23, 42, 0.92)));
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 3px solid var(--tab-border-color, rgba(255, 255, 255, 0.35)) !important;
+            border-radius: 14px !important;
+            font-size: calc(1.04rem * var(--mg-lvl-titles-scale, 1)) !important;
+            font-weight: var(--mg-lvl-titles-weight, var(--mg-master-weight, 900)) !important;
+            font-family: var(--mg-lvl-titles-font, var(--magaiees-active-font, var(--md-font-sans))) !important;
+            color: #ffffff !important;
+            -webkit-text-fill-color: #ffffff !important;
+            -webkit-text-stroke: 0px transparent !important;
+            text-shadow: none !important;
             cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            gap: 0;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            gap: 7px !important;
             white-space: nowrap;
             overflow: hidden;
-            transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.35s ease, background 0.35s ease, border-color 0.35s ease;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35), inset 0 2px 1px rgba(255, 255, 255, 0.55), inset 0 -6px 12px rgba(0, 0, 0, 0.28) !important;
             z-index: 1;
-            box-sizing: border-box;
         }
 
-        .md-tab-btn.tab-costcenters {
-            flex: 1.42 1 0;
+        /* تأثير اللمعة الزجاجية الكريستالية من الداخل */
+        .md-tab-btn::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image:
+                radial-gradient(circle at 22% 28%, rgba(255, 255, 255, 0.95) 1.6px, transparent 2px),
+                radial-gradient(circle at 76% 24%, rgba(255, 255, 255, 0.9) 1.4px, transparent 2px),
+                radial-gradient(circle at 48% 68%, rgba(255, 255, 255, 0.85) 1.5px, transparent 2px),
+                linear-gradient(125deg, transparent 22%, rgba(255, 255, 255, 0.25) 45%, rgba(255, 255, 255, 0.45) 50%, rgba(255, 255, 255, 0.2) 55%, transparent 78%);
+            background-size: 55px 55px, 42px 42px, 48px 48px, 220% 220%;
+            background-repeat: repeat, repeat, repeat, no-repeat;
+            opacity: 0.28;
+            pointer-events: none;
+            z-index: -1;
+            animation: glitterShimmer 3.2s infinite linear;
         }
-
+        .md-tab-btn:hover::after,
+        .md-tab-btn.active::after {
+            opacity: 0.38;
+            animation: glitterShimmer 2s infinite linear;
+        }
+        @keyframes glitterShimmer {
+            0% { background-position: 0 0, 0 0, 0 0, -120% -120%; }
+            100% { background-position: 55px 55px, -42px 42px, 48px -48px, 220% 220%; }
+        }
+        /* القبة الزجاجية الكريستالية الداخلية الساطعة */
+        .md-tab-btn::before {
+            content: '';
+            position: absolute;
+            inset: 1px 2px 52% 2px;
+            border-radius: 11px 11px 55% 55% / 11px 11px 35% 35%;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.26) 0%, rgba(255, 255, 255, 0.08) 55%, rgba(255, 255, 255, 0.0) 100%);
+            pointer-events: none;
+            z-index: -1;
+        }
         .md-tab-icon {
-            display: none !important;
-        }
-
-        .md-tab-label {
+            font-size: 1.22rem;
             display: inline-block;
+            flex-shrink: 0;
+            transition: transform 0.25s ease;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.65));
             position: relative;
             z-index: 4;
-            font-weight: 900;
-            line-height: 1.1;
-            white-space: nowrap;
-            text-align: center;
-            pointer-events: none;
-            transform-origin: center center;
+            -webkit-text-stroke: 0px transparent !important;
         }
-
         .md-tab-btn:hover {
-            transform: translateY(-2px);
+            transform: none !important;
             color: #ffffff !important;
+            -webkit-text-fill-color: #ffffff !important;
+            -webkit-text-stroke: 0px transparent !important;
+            text-shadow: none !important;
             border-color: var(--tab-border-color) !important;
-            box-shadow: 0 6px 16px var(--tab-glow-color) !important;
-            background: var(--tab-hover-bg) !important;
+            box-shadow: 0 10px 24px var(--tab-glow-color), 0 0 16px var(--tab-glow-color), inset 0 2px 2px rgba(255,255,255,0.92), inset 0 14px 18px -6px rgba(255,255,255,0.55), inset 0 -5px 12px rgba(0,0,0,0.25) !important;
+            background: var(--tab-active-bg) !important;
             z-index: 10;
         }
-
+        .md-tab-btn:hover .md-tab-icon { transform: none !important; }
         .md-tab-btn.active {
             color: #ffffff !important;
+            -webkit-text-fill-color: #ffffff !important;
+            -webkit-text-stroke: 0px transparent !important;
+            text-shadow: none !important;
             background: var(--tab-active-bg) !important;
             border-color: var(--tab-border-color) !important;
-            box-shadow: 0 6px 20px var(--tab-glow-color), inset 0 1px 2px rgba(255,255,255,0.35) !important;
-            transform: translateY(-1px);
+            box-shadow: 0 10px 26px var(--tab-glow-color), 0 0 20px var(--tab-glow-color), inset 0 2px 2px rgba(255,255,255,0.95), inset 0 15px 20px -6px rgba(255,255,255,0.6), inset 0 -5px 12px rgba(0,0,0,0.28) !important;
+            transform: none !important;
         }
+        .md-tab-btn.active .md-tab-icon { transform: none !important; }
 
         /* 🎨 تخصيص الألوان والحدود والإضاءة العاكسة لكل تبويب */
         
@@ -493,20 +556,20 @@
             --tab-active-bg: linear-gradient(135deg, #dc2626, #f87171);
         }
 
-        /* التوافق التام مع الوضع الفاتح Light Theme */
+        /* التوافق التام مع الوضع الفاتح Light Theme — لمعة زجاجية كريستالية من الداخل */
         :root.light-theme .md-tabs-sidebar {
-            background: rgba(255, 255, 255, 0.8) !important;
-            border-color: rgba(0, 0, 0, 0.1) !important;
+            background: rgba(255, 255, 255, 0.85) !important;
+            border-color: rgba(0, 0, 0, 0.14) !important;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08) !important;
         }
-        :root.light-theme .md-tab-btn {
-            color: #000000 !important;
-            background: rgba(255, 255, 255, 0.96) !important;
-            border: 2.2px solid #000000 !important;
-        }
+        :root.light-theme .md-tab-btn,
         :root.light-theme .md-tab-btn:hover,
         :root.light-theme .md-tab-btn.active {
             color: #000000 !important;
+            -webkit-text-fill-color: #000000 !important;
+            -webkit-text-stroke: 0px transparent !important;
+            text-shadow: none !important;
+            transform: none !important;
         }
 
         .md-content-area { flex: 1; display: flex; flex-direction: column; width: 100%; box-sizing: border-box; }
@@ -561,17 +624,17 @@
            3. توحيد ارتفاع وعرض الخانات والأزرار والجداول والـ Padding والـ Border-Radius
            ═══════════════════════════════════════════════════════════════════════════ */
         :root {
-            --md-font-sans: 'Cairo', 'Tajawal', sans-serif;
-            --md-font-num: 'Outfit', 'Cairo', monospace;
-            --md-fs-title: 1.05rem;      /* المستوى 1: العناوين الرئيسية للأقسام والبطاقات */
-            --md-fs-label: 0.84rem;      /* المستوى 2: عناوين الحقول ورؤوس أعمدة الجداول */
-            --md-fs-input: 0.94rem;      /* المستوى 3: النصوص داخل الخانات والقوائم والجداول والأزرار */
-            --md-fs-num: 1.04rem;        /* المستوى 4: الأرقام والأرصدة والإجماليات والأكواد */
-            --md-ctrl-h: 40px;           /* ارتفاع موحد لجميع الخانات والقوائم المنسدلة */
-            --md-btn-h: 38px;            /* ارتفاع موحد لجميع الأزرار التنفيذية */
-            --md-radius-ctrl: 10px;      /* حواف موحدة للخانات والأزرار */
-            --md-radius-card: 14px;      /* حواف موحدة للبطاقات والحاويات */
-            --md-icon-size: 1rem;        /* مقاس موحد لجميع الأيقونات */
+            --md-font-sans: var(--magaiees-active-font, 'Cairo', 'Tajawal', sans-serif);
+            --md-font-num: var(--mg-lvl-tables-font, var(--magaiees-active-font, 'Outfit', 'Cairo', monospace));
+            --md-fs-title: calc(1.08rem * var(--mg-lvl-titles-scale, 1));      /* المستوى 3: العناوين الرئيسية للأقسام والبطاقات كالمخازن والموردين */
+            --md-fs-label: calc(0.85rem * var(--mg-lvl-details-scale, 1));     /* المستوى 5: عناوين الحقول والتفاصيل الداخلية */
+            --md-fs-input: calc(0.94rem * var(--mg-lvl-details-scale, 1));     /* المستوى 5: النصوص داخل الخانات والقوائم والأزرار */
+            --md-fs-num: calc(1.04rem * var(--mg-lvl-tables-scale, 1));        /* المستوى 6: الأرقام والأرصدة والإجماليات والأكواد */
+            --md-ctrl-h: calc(40px * var(--mg-lvl-details-scale, 1));          /* ارتفاع متجاوب للخانات */
+            --md-btn-h: calc(38px * var(--mg-lvl-details-scale, 1));           /* ارتفاع متجاوب للأزرار */
+            --md-radius-ctrl: 10px;
+            --md-radius-card: 14px;
+            --md-icon-size: calc(1rem * var(--mg-lvl-titles-scale, 1));
         }
 
         body, .dash-main, .glass-panel, .tab-content, button, input, select, textarea {
@@ -590,9 +653,9 @@
         #form-mode-indicator,
         #bank-form-title,
         #safe-form-title {
-            font-family: var(--md-font-sans) !important;
+            font-family: var(--mg-lvl-titles-font, var(--md-font-sans)) !important;
             font-size: var(--md-fs-title) !important;
-            font-weight: 900 !important;
+            font-weight: var(--mg-lvl-titles-weight, var(--mg-master-weight, 900)) !important;
             line-height: 1.35 !important;
             margin: 0 !important;
             display: inline-flex;
@@ -604,9 +667,9 @@
         .pro-field-card .pro-field-label,
         label,
         table.pro-table th {
-            font-family: var(--md-font-sans) !important;
+            font-family: var(--mg-lvl-details-font, var(--md-font-sans)) !important;
             font-size: var(--md-fs-label) !important;
-            font-weight: 800 !important;
+            font-weight: var(--mg-lvl-details-weight, var(--mg-master-weight, 800)) !important;
             line-height: 1.3 !important;
             letter-spacing: 0 !important;
         }
@@ -629,9 +692,9 @@
         .form-control,
         .search-input,
         .system-currency-select {
-            font-family: var(--md-font-sans) !important;
+            font-family: var(--mg-lvl-details-font, var(--md-font-sans)) !important;
             font-size: var(--md-fs-input) !important;
-            font-weight: 700 !important;
+            font-weight: var(--mg-lvl-details-weight, var(--mg-master-weight, 700)) !important;
             height: var(--md-ctrl-h) !important;
             min-height: var(--md-ctrl-h) !important;
             max-height: var(--md-ctrl-h) !important;
@@ -990,16 +1053,6 @@
             white-space: nowrap !important;
             overflow: hidden !important;
         }
-        .md-tab-btn {
-            font-family: var(--md-font-sans) !important;
-            font-size: 1.02rem !important;
-            font-weight: 900 !important;
-            height: 46px !important;
-            min-height: 46px !important;
-            max-height: 46px !important;
-            border-radius: 12px !important;
-            border-width: 2px !important;
-        }
         .pro-field-card span.pro-field-badge {
             display: none !important;
         }
@@ -1314,8 +1367,8 @@
         }
         html:not(.light-theme):not([data-theme="light"]):not([data-theme="pearl-white"]):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) .md-child-modal-card,
         html:not(.light-theme):not([data-theme="light"]):not([data-theme="pearl-white"]):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) .md-c1-modal-card {
-            background: #162038 !important;
-            border-color: rgba(148, 163, 184, 0.28) !important;
+            background: linear-gradient(145deg, var(--dk-card-1, #0f172a) 0%, var(--dk-card-2, #152342) 100%) !important;
+            border: 2px solid var(--dk-border, #38bdf8) !important;
             color: #ffffff !important;
         }
         :root.light-theme .md-child-modal-card,
@@ -1330,9 +1383,9 @@
         html[data-theme="ultra_white"] .md-c1-modal-card,
         html[data-theme="exec_gray"] .md-child-modal-card,
         html[data-theme="exec_gray"] .md-c1-modal-card {
-            background: #f4efe4 !important;
-            border-color: #cbd5e1 !important;
-            color: #000000 !important;
+            background: linear-gradient(145deg, var(--lt-card-1, #fdf6ee) 0%, var(--lt-card-2, #f3e2ce) 100%) !important;
+            border: 2px solid var(--lt-border, #4a2106) !important;
+            color: var(--lt-ink, #140600) !important;
         }
         :root.light-theme .md-child-modal-card *,
         :root.light-theme .md-c1-modal-card *,
@@ -1503,7 +1556,7 @@
         }
         .btn-add:hover, .btn-action:hover, .btn-text:hover, .btn-c3-save:hover,
         #md-c1-command-bar button:hover, .pro-table button:hover {
-            transform: scale(1.03) !important;
+            transform: none !important;
             border-color: #38bdf8 !important;
             box-shadow: 0 8px 18px -4px rgba(56, 189, 248, 0.45), 0 0 12px rgba(56, 189, 248, 0.28) !important;
             z-index: 2;
@@ -1513,7 +1566,7 @@
             box-shadow: 0 8px 20px -4px rgba(16, 185, 129, 0.55), 0 0 14px rgba(16, 185, 129, 0.35) !important;
         }
         .btn-c3-cancel:hover {
-            transform: scale(1.03) !important;
+            transform: none !important;
             border-color: #ef4444 !important;
             box-shadow: 0 8px 18px -4px rgba(239, 68, 68, 0.45), 0 0 12px rgba(239, 68, 68, 0.3) !important;
         }
@@ -1621,25 +1674,7 @@
 
         /* 🛡️ الدستور الثامن (8 من 14): علم النفس المعرفي، التفقيط اللحظي، حارس الأرقام الشاذة، شريط التعليق، ونفق التركيز البصري */
         .md-c8-tafqeet-pill {
-            margin-top: 5px;
-            padding: 4px 10px;
-            border-radius: 8px;
-            font-size: 0.78rem;
-            font-weight: 900;
-            background: rgba(16, 185, 129, 0.13);
-            border: 1.8px solid rgba(16, 185, 129, 0.45);
-            color: #34d399;
-            line-height: 1.45;
-            display: none;
-        }
-        :root.light-theme .md-c8-tafqeet-pill,
-        html[data-theme="light"] .md-c8-tafqeet-pill,
-        html[data-theme="warm_cream"] .md-c8-tafqeet-pill,
-        html[data-theme="ultra_white"] .md-c8-tafqeet-pill,
-        html[data-theme="exec_gray"] .md-c8-tafqeet-pill {
-            background: rgba(16, 185, 129, 0.18) !important;
-            border: 2px solid #047857 !important;
-            color: #000000 !important;
+            display: none !important;
         }
         @keyframes mdC8AmberPulse {
             0%, 100% { box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.55), 0 0 14px rgba(245, 158, 11, 0.35); }
@@ -1689,8 +1724,8 @@
 
         /* 1. تباين قوي جداً بين الخلفية الحاضنة (.md-card / نماذج الإدخال) وبين المربعات (.input-group / .pro-field-card) */
         html:not(.light-theme):not([data-theme="light"]):not([data-theme="pearl-white"]):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) .md-card {
-            background: #060b16 !important;
-            border: 2px solid rgba(56, 189, 248, 0.35) !important;
+            background: var(--dk-bg-card, #060b16) !important;
+            border: 2px solid var(--dk-border, rgba(56, 189, 248, 0.35)) !important;
             box-shadow: 0 12px 30px rgba(0, 0, 0, 0.65), 0 0 12px rgba(56, 189, 248, 0.12) !important;
         }
         html:not(.light-theme):not([data-theme="light"]):not([data-theme="pearl-white"]):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #warehouse-form,
@@ -1702,23 +1737,23 @@
         html:not(.light-theme):not([data-theme="light"]):not([data-theme="pearl-white"]):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #employee-form,
         html:not(.light-theme):not([data-theme="light"]):not([data-theme="pearl-white"]):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #costcenter-form,
         html:not(.light-theme):not([data-theme="light"]):not([data-theme="pearl-white"]):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) .neon-glass-panel {
-            background: #0a1122 !important;
-            border: 2px solid rgba(56, 189, 248, 0.48) !important;
+            background: var(--dk-bg-card, #0a1122) !important;
+            border: 2px solid var(--dk-border, rgba(56, 189, 248, 0.48)) !important;
             box-shadow: 0 14px 32px rgba(0, 0, 0, 0.7), 0 0 16px rgba(56, 189, 248, 0.16), inset 0 0 24px rgba(0, 0, 0, 0.6) !important;
         }
 
         /* المربعات داخل النموذج في الوضع الداكن: لون أفتح وبارز بوضوح شديد عن الخلفية مع حواف منيرة */
         html:not(.light-theme):not([data-theme="light"]):not([data-theme="pearl-white"]):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) .input-group,
         html:not(.light-theme):not([data-theme="light"]):not([data-theme="pearl-white"]):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) .pro-field-card {
-            background: linear-gradient(145deg, #273e68, #1d3052) !important;
-            border: 2px solid rgba(56, 189, 248, 0.68) !important;
+            background: var(--dk-bg-strip, linear-gradient(145deg, #273e68, #1d3052)) !important;
+            border: 2px solid var(--dk-border, rgba(56, 189, 248, 0.68)) !important;
             box-shadow: 0 6px 14px rgba(0, 0, 0, 0.48), 0 0 10px rgba(56, 189, 248, 0.25), inset 0 1px 1px rgba(255, 255, 255, 0.22) !important;
             position: relative !important;
             transition: transform 0.22s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.22s ease, border-color 0.22s ease, background 0.22s ease !important;
         }
         html:not(.light-theme):not([data-theme="light"]):not([data-theme="pearl-white"]):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) .input-group:nth-child(even),
         html:not(.light-theme):not([data-theme="light"]):not([data-theme="pearl-white"]):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) .pro-field-card:nth-child(even) {
-            background: linear-gradient(145deg, #22375d, #192947) !important;
+            background: var(--dk-bg-strip, linear-gradient(145deg, #22375d, #192947)) !important;
         }
 
         /* تباين قوي في الوضع الفاتح بين الخلفية الحاضنة والمربعات */
@@ -1748,8 +1783,8 @@
         html[data-theme="exec_gray"] #customer-form,
         html[data-theme="exec_gray"] #supplier-form,
         html[data-theme="exec_gray"] #item-form {
-            background: #cbb692 !important;
-            border: 2px solid #5c4a35 !important;
+            background: var(--lt-bg-card, #cbb692) !important;
+            border: 2.5px solid var(--lt-border, #5c4a35) !important;
             box-shadow: 0 10px 26px rgba(0, 0, 0, 0.14), inset 0 0 16px rgba(0, 0, 0, 0.06) !important;
         }
         :root.light-theme .input-group,
@@ -1762,8 +1797,8 @@
         html[data-theme="ultra_white"] .pro-field-card,
         html[data-theme="exec_gray"] .input-group,
         html[data-theme="exec_gray"] .pro-field-card {
-            background: #fdfaf2 !important;
-            border: 2px solid #0284c7 !important;
+            background: var(--lt-bg-strip, #fdfaf2) !important;
+            border: 2.2px solid var(--lt-border, #0284c7) !important;
             box-shadow: 0 5px 14px rgba(0, 0, 0, 0.14), 0 0 8px rgba(2, 132, 199, 0.22) !important;
             position: relative !important;
             transition: transform 0.22s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.22s ease, border-color 0.22s ease, background 0.22s ease !important;
@@ -1778,7 +1813,7 @@
         html[data-theme="ultra_white"] .pro-field-card:nth-child(even),
         html[data-theme="exec_gray"] .input-group:nth-child(even),
         html[data-theme="exec_gray"] .pro-field-card:nth-child(even) {
-            background: #f6efe0 !important;
+            background: var(--lt-bg-strip, #f6efe0) !important;
         }
 
         /* 2. عند مرور المؤشر (Hover) أو وجود الكيرسر داخل المربع (Focus-Within):
@@ -1901,76 +1936,16 @@
         <?php $header_theme_class = 'header-theme-masterdata'; include 'includes/header.php'; ?>
 
         <aside class="md-tabs-sidebar">
-            <button class="md-tab-btn tab-warehouses active" onclick="openTab(event, 'tab-warehouses')"><span class="md-tab-label">المخازن</span></button>
-            <button class="md-tab-btn tab-customers" onclick="openTab(event, 'tab-customers')"><span class="md-tab-label">العملاء</span></button>
-            <button class="md-tab-btn tab-suppliers" onclick="openTab(event, 'tab-suppliers')"><span class="md-tab-label">الموردين</span></button>
-            <button class="md-tab-btn tab-banks" onclick="openTab(event, 'tab-banks')"><span class="md-tab-label">البنوك</span></button>
-            <button class="md-tab-btn tab-safes" onclick="openTab(event, 'tab-safes')"><span class="md-tab-label">الخزن</span></button>
-            <button class="md-tab-btn tab-items" onclick="openTab(event, 'tab-items')"><span class="md-tab-label">الأصناف</span></button>
-            <button class="md-tab-btn tab-employees" onclick="openTab(event, 'tab-employees')"><span class="md-tab-label">الموظفين</span></button>
-            <button class="md-tab-btn tab-costcenters" onclick="openTab(event, 'tab-costcenters')"><span class="md-tab-label">مركز التكلفة</span></button>
-            <button class="md-tab-btn tab-exit" onclick="goBackOrExit()"><span class="md-tab-label">خروج</span></button>
+            <button class="md-tab-btn tab-warehouses active" onclick="openTab(event, 'tab-warehouses')"><span class="md-tab-icon">🏢</span> المخازن</button>
+            <button class="md-tab-btn tab-customers" onclick="openTab(event, 'tab-customers')"><span class="md-tab-icon">👥</span> العملاء</button>
+            <button class="md-tab-btn tab-suppliers" onclick="openTab(event, 'tab-suppliers')"><span class="md-tab-icon">🏭</span> الموردين</button>
+            <button class="md-tab-btn tab-banks" onclick="openTab(event, 'tab-banks')"><span class="md-tab-icon">🏦</span> البنوك</button>
+            <button class="md-tab-btn tab-safes" onclick="openTab(event, 'tab-safes')"><span class="md-tab-icon">💰</span> الخزائن</button>
+            <button class="md-tab-btn tab-items" onclick="openTab(event, 'tab-items')"><span class="md-tab-icon">📦</span> الأصناف</button>
+            <button class="md-tab-btn tab-employees" onclick="openTab(event, 'tab-employees')"><span class="md-tab-icon">👤</span> الموظفين</button>
+            <button class="md-tab-btn tab-costcenters" onclick="openTab(event, 'tab-costcenters')">مراكز التكلفة</button>
+            <button class="md-tab-btn tab-exit" onclick="goBackOrExit()"><span class="md-tab-icon">🚪</span> خروج</button>
         </aside>
-
-        <script>
-        (function initMasterDataProportionalTabLabels() {
-            function fitMasterDataTabButtons() {
-                var sidebar = document.querySelector('.md-tabs-sidebar');
-                if (!sidebar) return;
-                var buttons = sidebar.querySelectorAll('.md-tab-btn');
-                if (!buttons.length) return;
-
-                for (var i = 0; i < buttons.length; i++) {
-                    var btn = buttons[i];
-                    var label = btn.querySelector('.md-tab-label');
-                    if (!label) continue;
-
-                    var btnW = btn.clientWidth;
-                    var btnH = btn.clientHeight;
-                    if (btnW <= 0 || btnH <= 0) continue;
-
-                    label.style.transform = 'none';
-                    label.style.fontSize = '20px';
-                    var textWAt20 = label.scrollWidth || label.offsetWidth || 1;
-
-                    var availW = Math.max(14, btnW * 0.85);
-                    var availH = Math.max(12, btnH * 0.52);
-
-                    var fontByW = (20 * availW) / textWAt20;
-                    var fontByH = availH;
-                    var targetFont = Math.max(7, Math.min(fontByW, fontByH, 32));
-                    label.style.fontSize = targetFont.toFixed(2) + 'px';
-
-                    var finalTextW = label.scrollWidth || label.offsetWidth || 0;
-                    var maxAllowedW = btnW * 0.90;
-                    if (finalTextW > maxAllowedW && finalTextW > 0) {
-                        var ratio = maxAllowedW / finalTextW;
-                        label.style.transform = 'scale(' + ratio.toFixed(3) + ')';
-                    }
-                }
-            }
-
-            fitMasterDataTabButtons();
-            window.addEventListener('resize', fitMasterDataTabButtons);
-            window.addEventListener('load', fitMasterDataTabButtons);
-            if (window.visualViewport) {
-                window.visualViewport.addEventListener('resize', fitMasterDataTabButtons);
-            }
-            if (document.fonts && document.fonts.ready) {
-                document.fonts.ready.then(fitMasterDataTabButtons).catch(function(){});
-            }
-            if (typeof ResizeObserver !== 'undefined') {
-                var ro = new ResizeObserver(function() {
-                    requestAnimationFrame(fitMasterDataTabButtons);
-                });
-                var sb = document.querySelector('.md-tabs-sidebar');
-                if (sb) {
-                    ro.observe(sb);
-                    sb.querySelectorAll('.md-tab-btn').forEach(function(b) { ro.observe(b); });
-                }
-            }
-        })();
-        </script>
 
         <main class="md-content-area">
             
@@ -2043,8 +2018,11 @@
                 </div>
             </div>
 
-            <!-- شريط الربط الشامل والذكاء الاصطناعي التنبؤي للبيانات الأساسية 360° + الدستور الختامي الأول (1 من 2) -->
-            <div id="md-smart-ai-command-bar" style="display:flex; flex-direction:column; gap:8px; padding:10px 14px; margin-bottom:12px; border-radius:14px; border:1.5px solid rgba(56,189,248,0.32); background:linear-gradient(135deg, rgba(15,23,42,0.92), rgba(30,27,75,0.78)); box-shadow:0 8px 24px rgba(0,0,0,0.22);">
+            <!-- شريط أدوات علوي (تم إخفاؤه لأن كل قسم يحتوي على بحثه وأدواته الخاصة في مكانه الصحيح) -->
+            <div id="md-clean-organized-bar" style="display:none !important;"></div>
+
+            <!-- شريط الربط الشامل والذكاء الاصطناعي التنبؤي للبيانات الأساسية 360° (تم إخفاؤه لتطهير الشاشة من الأزرار غير المفهومة) -->
+            <div id="md-smart-ai-command-bar" style="display:none !important;">
                 <!-- الصف الأول: الإدخال الذكي باللغة الطبيعية صوتاً وكتابةً (0ms Hybrid Edge + Cloud AI) + البوابة المزدوجة والاختصارات (1-4) -->
                 <div style="display:flex; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap; width:100%;">
                     <div style="display:flex; align-items:center; gap:6px; flex:1; min-width:280px; background:rgba(2,6,23,0.85); border:1.5px solid rgba(56,189,248,0.45); border-radius:10px; padding:4px 8px;">
@@ -2196,11 +2174,11 @@
                     <!-- أزرار التحكم المباشر لواتساب العملاء -->
                     <div id="admin-wa-policy-panel-cust" style="margin-bottom: 14px; border: 1px solid rgba(168, 85, 247, 0.3); border-radius: 12px; background: rgba(15, 23, 42, 0.65); padding: 10px 14px;">
                         <div style="display: flex; justify-content: flex-end; align-items: center; flex-wrap: wrap; gap: 8px;">
-                            <button type="button" onclick="bulkSetEntityStatementMode('customer', 'detailed')" style="height: 32px; background: rgba(16, 185, 129, 0.16); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.4); padding: 0 12px; border-radius: 8px; font-size: 0.78rem; font-weight: 800; cursor: pointer;">📊 كشف للكل</button>
-                            <button type="button" onclick="bulkSetEntityStatementMode('customer', 'balance_only')" style="height: 32px; background: rgba(245, 158, 11, 0.16); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.4); padding: 0 12px; border-radius: 8px; font-size: 0.78rem; font-weight: 800; cursor: pointer;">💰 رصيد للكل</button>
-                            <button type="button" onclick="bulkSetEntityStatementMode('customer', 'disabled')" style="height: 32px; background: rgba(239, 68, 68, 0.14); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.35); padding: 0 12px; border-radius: 8px; font-size: 0.78rem; font-weight: 800; cursor: pointer;">🔒 إيقاف الكل</button>
-                            <button type="button" onclick="bulkGenerateEntityPins('customer')" style="height: 32px; background: rgba(56, 189, 248, 0.16); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.4); padding: 0 12px; border-radius: 8px; font-size: 0.78rem; font-weight: 800; cursor: pointer;">🔐 توليد باسورد</button>
-                            <button type="button" onclick="toggleAdminWaPolicyDrawer()" style="height: 32px; background: rgba(168, 85, 247, 0.2); color: #d8b4fe; border: 1px solid rgba(168, 85, 247, 0.45); padding: 0 12px; border-radius: 8px; font-size: 0.78rem; font-weight: 800; cursor: pointer;">⚙️ السياسة</button>
+                            <button type="button" onclick="bulkSetEntityStatementMode('customer', 'detailed')" data-md-tip-title="📊 كشف للكل (السماح للكل من الواتساب)" data-md-tip="يسمح لجميع العملاء بطلب واستلام كشف حساب مفصل بجميع الحركات والفواتير تلقائياً عبر الواتساب." style="height: 32px; background: rgba(16, 185, 129, 0.16); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.4); padding: 0 12px; border-radius: 8px; font-size: 0.78rem; font-weight: 800; cursor: pointer;">📊 كشف للكل</button>
+                            <button type="button" onclick="bulkSetEntityStatementMode('customer', 'balance_only')" data-md-tip-title="💰 رصيد للكل (طلب الرصيد عبر الواتساب)" data-md-tip="يسمح لجميع العملاء بطلب معرفة الرصيد النهائي فقط عبر الواتساب دون إرسال تفاصيل الفواتير." style="height: 32px; background: rgba(245, 158, 11, 0.16); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.4); padding: 0 12px; border-radius: 8px; font-size: 0.78rem; font-weight: 800; cursor: pointer;">💰 رصيد للكل</button>
+                            <button type="button" onclick="bulkSetEntityStatementMode('customer', 'disabled')" data-md-tip-title="🔒 إيقاف الكل (إيقاف الرد الآلي بالواتساب)" data-md-tip="يوقف جميع العملاء من طلب الرصيد أو كشف الحساب عبر الواتساب." style="height: 32px; background: rgba(239, 68, 68, 0.14); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.35); padding: 0 12px; border-radius: 8px; font-size: 0.78rem; font-weight: 800; cursor: pointer;">🔒 إيقاف الكل</button>
+                            <button type="button" onclick="bulkGenerateEntityPins('customer')" data-md-tip-title="🔐 توليد باسورد للكل" data-md-tip="يقوم بتوليد رقم سري (باسورد) فريد تلقائياً لجميع العملاء لاستخدامه عند طلب كشف الحساب أو الرصيد عبر الواتساب." style="height: 32px; background: rgba(56, 189, 248, 0.16); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.4); padding: 0 12px; border-radius: 8px; font-size: 0.78rem; font-weight: 800; cursor: pointer;">🔐 توليد باسورد</button>
+                            <button type="button" onclick="toggleAdminWaPolicyDrawer()" data-md-tip-title="⚙️ سياسة الصلاحيات العامة للواتساب" data-md-tip="فتح وإغلاق لوحة سياسة الصلاحيات الشاملة (صلاحية الكشف، طريقة اعتماد الإشعارات، البنك الافتراضي، التحقق الأمني، ونطاق الكشف)." style="height: 32px; background: rgba(168, 85, 247, 0.2); color: #d8b4fe; border: 1px solid rgba(168, 85, 247, 0.45); padding: 0 12px; border-radius: 8px; font-size: 0.78rem; font-weight: 800; cursor: pointer;">⚙️ السياسة</button>
                         </div>
 
                         <div class="admin-wa-policy-drawer" style="display: none; margin-top: 12px; padding-top: 12px; border-top: 1px dashed rgba(168, 85, 247, 0.3);">
@@ -2282,48 +2260,48 @@
                                 <input type="hidden" id="cust-account-no" value="">
                                 <input type="hidden" id="cust-opening-debit" value="0">
                                 <input type="hidden" id="cust-opening-credit" value="0">
-                                <div style="display: inline-flex; align-items: center; background: rgba(15, 23, 42, 0.85); border: 1px solid rgba(148, 163, 184, 0.3); border-radius: 10px; padding: 3px; gap: 4px; height: 36px; box-sizing: border-box;">
-                                    <button type="button" id="cust-mode-btn-disabled" onclick="setFormStatementMode('cust', 'disabled', true)" style="height: 28px; padding: 0 9px; border-radius: 7px; border: 1px solid transparent; font-size: 0.74rem; font-weight: 800; cursor: pointer;">🔒 موقوف</button>
-                                    <button type="button" id="cust-mode-btn-balance_only" onclick="setFormStatementMode('cust', 'balance_only', true)" style="height: 28px; padding: 0 9px; border-radius: 7px; border: 1px solid transparent; font-size: 0.74rem; font-weight: 800; cursor: pointer;">💰 الرصيد</button>
-                                    <button type="button" id="cust-mode-btn-detailed" onclick="setFormStatementMode('cust', 'detailed', true)" style="height: 28px; padding: 0 9px; border-radius: 7px; border: 1px solid transparent; font-size: 0.74rem; font-weight: 800; cursor: pointer;">📊 كشف</button>
+                                <div class="md-entity-seg-group" style="display: inline-flex; align-items: center; background: rgba(15, 23, 42, 0.85); border: 2px solid rgba(148, 163, 184, 0.5); border-radius: 10px; padding: 3px; gap: 4px; height: 36px; box-sizing: border-box;">
+                                    <button type="button" id="cust-mode-btn-disabled" class="md-entity-seg-btn" onclick="setFormStatementMode('cust', 'disabled', true)" data-md-tip-title="🔒 موقوف" data-md-tip="إيقاف هذا العميل من التعامل وطلب الرصيد أو كشف الحساب عبر الواتساب." style="height: 28px; padding: 0 9px; border-radius: 7px; border: 1.6px solid rgba(148, 163, 184, 0.42); font-size: 0.74rem; font-weight: 800; cursor: pointer;">🔒 موقوف</button>
+                                    <button type="button" id="cust-mode-btn-balance_only" class="md-entity-seg-btn" onclick="setFormStatementMode('cust', 'balance_only', true)" data-md-tip-title="💰 الرصيد فقط" data-md-tip="يسمح لهذا العميل بطلب الرصيد الإجمالي فقط من الواتساب دون تفاصيل الحركات." style="height: 28px; padding: 0 9px; border-radius: 7px; border: 1.6px solid rgba(148, 163, 184, 0.42); font-size: 0.74rem; font-weight: 800; cursor: pointer;">💰 الرصيد</button>
+                                    <button type="button" id="cust-mode-btn-detailed" class="md-entity-seg-btn" onclick="setFormStatementMode('cust', 'detailed', true)" data-md-tip-title="📊 كشف حساب" data-md-tip="يسمح لهذا العميل بطلب كشف حساب مفصل عن طريق الواتساب." style="height: 28px; padding: 0 9px; border-radius: 7px; border: 1.6px solid rgba(148, 163, 184, 0.42); font-size: 0.74rem; font-weight: 800; cursor: pointer;">📊 كشف</button>
                                 </div>
-                                <div style="display: inline-flex; align-items: center; background: rgba(15, 23, 42, 0.85); border: 1px solid rgba(16, 185, 129, 0.35); border-radius: 10px; padding: 3px; gap: 4px; height: 36px; box-sizing: border-box;">
-                                    <button type="button" id="cust-rcpt-btn-auto_post" onclick="setFormReceiptApprovalMode('cust', 'auto_post', true)" style="height: 28px; padding: 0 9px; border-radius: 7px; border: 1px solid transparent; font-size: 0.74rem; font-weight: 800; cursor: pointer;">⚡ اعتماد فوري</button>
-                                    <button type="button" id="cust-rcpt-btn-review_first" onclick="setFormReceiptApprovalMode('cust', 'review_first', true)" style="height: 28px; padding: 0 9px; border-radius: 7px; border: 1px solid transparent; font-size: 0.74rem; font-weight: 800; cursor: pointer;">👁️ مراجعة</button>
+                                <div class="md-entity-seg-group" style="display: inline-flex; align-items: center; background: rgba(15, 23, 42, 0.85); border: 2px solid rgba(16, 185, 129, 0.55); border-radius: 10px; padding: 3px; gap: 4px; height: 36px; box-sizing: border-box;">
+                                    <button type="button" id="cust-rcpt-btn-auto_post" class="md-entity-seg-btn" onclick="setFormReceiptApprovalMode('cust', 'auto_post', true)" data-md-tip-title="⚡ الاعتماد الفوري للإشعارات" data-md-tip="الإشعارات البنكية التي يرسلها هذا العميل (أو مناديبُه) عبر الواتساب تُعتمد اعتماداً فورياً وتُقيد في حسابه تلقائياً." style="height: 28px; padding: 0 9px; border-radius: 7px; border: 1.6px solid rgba(148, 163, 184, 0.42); font-size: 0.74rem; font-weight: 800; cursor: pointer;">⚡ اعتماد فوري</button>
+                                    <button type="button" id="cust-rcpt-btn-review_first" class="md-entity-seg-btn" onclick="setFormReceiptApprovalMode('cust', 'review_first', true)" data-md-tip-title="👁️ مراجعة الإشعارات قبل الاعتماد" data-md-tip="الإشعارات البنكية التي يرسلها هذا العميل عبر الواتساب تُحفظ للمراجعة أولاً قبل اعتمادها وترحيلها في الحساب." style="height: 28px; padding: 0 9px; border-radius: 7px; border: 1.6px solid rgba(148, 163, 184, 0.42); font-size: 0.74rem; font-weight: 800; cursor: pointer;">👁️ مراجعة</button>
                                 </div>
                                 <div style="display:inline-flex; align-items:center; gap:4px;">
-                                    <select id="cust-default-bank-id" class="entity-default-bank-select" style="height: 36px; background: rgba(15, 23, 42, 0.9); color: #fcd34d; border: 1px solid rgba(245, 158, 11, 0.4); border-radius: 10px; padding: 0 10px; font-size: 0.78rem; font-weight: 800; max-width: 175px;">
+                                    <select id="cust-default-bank-id" class="entity-default-bank-select" data-md-tip-title="🏦 البنك الافتراضي للعميل" data-md-tip="البنك الافتراضي المخصص لهذا العميل؛ حينما يرسل إشعار تحويل عبر الواتساب يُعتمد ويُودع المبلغ في هذا البنك تلقائياً." style="height: 36px; background: rgba(15, 23, 42, 0.9); color: #fcd34d; border: 2px solid rgba(245, 158, 11, 0.6); border-radius: 10px; padding: 0 10px; font-size: 0.78rem; font-weight: 800; max-width: 175px;">
                                         <option value="">🏦 البنك الافتراضي</option>
                                     </select>
-                                    <button type="button" class="btn-text" onclick="quickAddBankModal('cust-default-bank-id')" style="height:36px !important; min-height:36px !important; padding:0 8px !important;">➕</button>
+                                    <button type="button" class="btn-text md-hdr-pill-btn" onclick="quickAddBankModal('cust-default-bank-id')" data-md-tip-title="➕ إضافة بنك جديد" data-md-tip="فتح نافذة سريعة لتعريف بنك جديد واختياره كبنك افتراضي للعميل." style="height:36px !important; min-height:36px !important; padding:0 10px !important; border: 2px solid rgba(245, 158, 11, 0.55) !important;">➕</button>
                                 </div>
-                                <button type="button" onclick="openEntityQrCardModal('cust')" style="height: 36px; background: rgba(16, 185, 129, 0.18); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.45); padding: 0 12px; border-radius: 10px; cursor: pointer; font-size: 0.8rem; font-weight: 800;">🪪 بطاقة QR</button>
-                                <button type="button" onclick="copyCurrentFormWhatsAppCard('cust')" style="height: 36px; background: rgba(168, 85, 247, 0.18); color: #e9d5ff; border: 1px solid rgba(168, 85, 247, 0.45); padding: 0 12px; border-radius: 10px; cursor: pointer; font-size: 0.8rem; font-weight: 800;">📋 نسخ البطاقة</button>
-                                <button type="button" onclick="clearCustomerForm()" class="btn-action" style="height: 36px; background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.35); padding: 0 12px; border-radius: 10px; cursor: pointer; font-size: 0.8rem; font-weight: 800;">🔄 جديد <span class="kbd-hint">F2</span></button>
+                                <button type="button" class="md-hdr-pill-btn" onclick="openEntityQrCardModal('cust')" data-md-tip-title="🪪 بطاقة QR الذكية للعميل" data-md-tip="تفتح بطاقة تعريف العميل المحتوية على رمز QR والرقم السري وكود الحساب لطباعتها أو مشاركتها مع العميل." style="height: 36px; background: rgba(16, 185, 129, 0.18); color: #34d399; border: 2px solid rgba(16, 185, 129, 0.65); padding: 0 12px; border-radius: 10px; cursor: pointer; font-size: 0.8rem; font-weight: 800;">🪪 بطاقة QR</button>
+                                <button type="button" class="md-hdr-pill-btn" onclick="copyCurrentFormWhatsAppCard('cust')" data-md-tip-title="📋 نسخ البطاقة" data-md-tip="ينسخ بطاقة بيانات العميل شاملة الرقم السري وأوامر طلب الكشف والرصيد جاهزة للصق والإرسال للعميل في الواتساب." style="height: 36px; background: rgba(168, 85, 247, 0.18); color: #e9d5ff; border: 2px solid rgba(168, 85, 247, 0.65); padding: 0 12px; border-radius: 10px; cursor: pointer; font-size: 0.8rem; font-weight: 800;">📋 نسخ البطاقة</button>
+                                <button type="button" onclick="clearCustomerForm()" class="btn-action md-hdr-pill-btn" data-md-tip-title="🔄 عميل جديد (F2)" data-md-tip="تفريغ نموذج البيانات لبدء إضافة عميل جديد." style="height: 36px; background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 2px solid rgba(56, 189, 248, 0.55); padding: 0 12px; border-radius: 10px; cursor: pointer; font-size: 0.8rem; font-weight: 800;">🔄 جديد <span class="kbd-hint">F2</span></button>
                             </div>
                         </div>
 
                         <div class="pro-entity-grid">
                             <div class="pro-field-card accent-sky" style="grid-column: span 2;">
-                                <label class="pro-field-label" style="color: #38bdf8 !important;">
+                                <label class="pro-field-label">
                                     <span>👤 اسم العميل *</span>
                                 </label>
                                 <input type="text" id="cust-name" placeholder="اسم العميل أو الشركة">
                             </div>
 
-                            <div class="pro-field-card accent-purple">
-                                <label class="pro-field-label" style="color: #d8b4fe !important;">
-                                    <span>🔐 الرقم السري</span>
-                                    <button type="button" onclick="generateRandomFormPin('cust')" class="pro-field-badge" style="background:rgba(168,85,247,0.32); color:#fff; border:1px solid rgba(168,85,247,0.6); cursor:pointer;">🎲 توليد</button>
+                            <div class="pro-field-card accent-purple" data-md-tip-title="🔐 الرقم السري للعميل (باسورد الواتساب)" data-md-tip="الرقم السري الخاص بالعميل (3 أرقام) يُضاف قبله آخر رقمين من رقم الواتساب ليصبح 5 أرقام عند طلب كشف الحساب أو الرصيد من رقم آخر غير مسجل.">
+                                <label class="pro-field-label">
+                                    <span>🔐 الرقم السري (3 أرقام)</span>
+                                    <button type="button" onclick="generateRandomFormPin('cust')" data-md-tip-title="🎲 توليد رقم سري" data-md-tip="توليد رقم سري جديد تلقائياً لهذا العميل." class="pro-field-badge" style="background:rgba(168,85,247,0.32); color:#fff; border:1.8px solid rgba(168,85,247,0.75); cursor:pointer;">🎲 توليد</button>
                                 </label>
-                                <input type="text" id="cust-statement-pin" class="pro-num-input" maxlength="8" oninput="updateCombinedPinPreview('cust')" placeholder="532" style="color: #e9d5ff !important;">
+                                <input type="text" id="cust-statement-pin" class="pro-num-input" maxlength="8" oninput="updateCombinedPinPreview('cust')" placeholder="677">
                             </div>
 
-                            <div class="pro-field-card accent-whatsapp">
-                                <label class="pro-field-label" style="color: #4ade80 !important;">
+                            <div class="pro-field-card accent-whatsapp" data-md-tip-title="💬 رقم واتساب العميل الأساسي" data-md-tip="مثال: العميل (محمد) حينما يرسل إشعار تحويل أو يطلب كشف الحساب أو الرصيد من رقم الواتساب المسجل له هنا، يتعرف عليه النظام تلقائياً فيُضاف الإشعار في حسابه ويستلم كشف الحساب أو الرصيد فوراً.">
+                                <label class="pro-field-label">
                                     <span>💬 رقم الواتساب</span>
                                 </label>
-                                <input type="text" id="cust-whatsapp" class="pro-num-input" oninput="document.getElementById('cust-phone').value = this.value" placeholder="00249123000000">
+                                <input type="text" id="cust-whatsapp" class="pro-num-input" oninput="document.getElementById('cust-phone').value = this.value; if(typeof updateCombinedPinPreview==='function') updateCombinedPinPreview('cust');" placeholder="00249123000000">
                             </div>
 
                             <div class="pro-field-card">
@@ -2335,7 +2313,7 @@
 
                             <div class="pro-field-card">
                                 <label class="pro-field-label">
-                                    <span style="color: #fca5a5;">🛑 حد الائتمان</span>
+                                    <span>🛑 حد الائتمان</span>
                                 </label>
                                 <input type="number" id="cust-limit" class="pro-num-input" placeholder="0.00">
                             </div>
@@ -2433,22 +2411,22 @@
                         </div>
 
                         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 12px; margin-top: 6px;">
-                            <div style="padding: 10px 14px; border: 1px solid rgba(56, 189, 248, 0.25); border-radius: 10px; background: rgba(15, 23, 42, 0.4);">
+                            <div style="padding: 10px 14px; border: 1px solid rgba(56, 189, 248, 0.25); border-radius: 10px; background: rgba(15, 23, 42, 0.4);" data-md-tip-title="📱 أرقام المناديب والتابعين للعميل" data-md-tip="كل مندوب يُضاف رقمه هنا يتمتع بنفس صلاحيات حساب العميل تماماً؛ فمثلاً إذا أضفت (المندوب علي) برقم هاتفه هنا، فحينما يرسل (علي) إشعار تحويل أو يطلب كشف حساب أو رصيداً من رقمه المعتمد، يُضاف الإشعار في حساب العميل الأساسي ويصله كشف حساب أو رصيد العميل فوراً.">
                                 <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px;">
                                     <h4 style="margin: 0; color: #38bdf8; display:flex; align-items:center; gap:6px; font-size: 0.9rem; font-weight: 800;">
                                         <span>📱</span> <span>أرقام المناديب والتابعين</span>
                                     </h4>
-                                    <button type="button" onclick="addCustomerSubPhone()" style="height: 30px; background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.35); padding: 0 12px; border-radius: 8px; cursor: pointer; font-size: 0.78rem; font-weight: 800;">+ إضافة رقم</button>
+                                    <button type="button" onclick="addCustomerSubPhone()" data-md-tip-title="➕ إضافة رقم مندوب أو تابع" data-md-tip="إضافة رقم واتساب لمندوب أو موظف تابع لهذا العميل؛ أي رسالة أو إشعار أو طلب كشف/رصيد يُرسل من رقم المندوب المعتمد هنا يُعامل كأنه مرسل من العميل نفسه ويُقيد في حسابه مباشرة." style="height: 30px; background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.35); padding: 0 12px; border-radius: 8px; cursor: pointer; font-size: 0.78rem; font-weight: 800;">+ إضافة رقم</button>
                                 </div>
                                 <div id="cust-sub-phones-container" style="display: flex; flex-direction: column; gap: 8px; margin-top: 8px;"></div>
                             </div>
 
-                            <div style="padding: 10px 14px; border: 1px solid rgba(16, 185, 129, 0.25); border-radius: 10px; background: rgba(15, 23, 42, 0.4);">
+                            <div style="padding: 10px 14px; border: 1px solid rgba(16, 185, 129, 0.25); border-radius: 10px; background: rgba(15, 23, 42, 0.4);" data-md-tip-title="🏦 الحسابات البنكية للعميل" data-md-tip="تسجيل أرقام حسابات العميل البنكية للتعرف التلقائي عليها ومطابقتها عند استلام التحويلات.">
                                 <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px;">
                                     <h4 style="margin: 0; color: #34d399; display:flex; align-items:center; gap:6px; font-size: 0.9rem; font-weight: 800;">
                                         <span>🏦</span> <span>الحسابات البنكية</span>
                                     </h4>
-                                    <button type="button" onclick="addCustomerBankAccount()" style="height: 30px; background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.35); padding: 0 12px; border-radius: 8px; cursor: pointer; font-size: 0.78rem; font-weight: 800;">+ إضافة حساب</button>
+                                    <button type="button" onclick="addCustomerBankAccount()" data-md-tip-title="➕ إضافة حساب بنكي للعميل" data-md-tip="إضافة بيانات حساب بنكي خاص بالعميل (اسم البنك، الفرع، ورقم الحساب)." style="height: 30px; background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.35); padding: 0 12px; border-radius: 8px; cursor: pointer; font-size: 0.78rem; font-weight: 800;">+ إضافة حساب</button>
                                 </div>
                                 <div id="cust-bank-accounts-container" style="display: flex; flex-direction: column; gap: 8px; margin-top: 8px;"></div>
                             </div>
@@ -2486,11 +2464,11 @@
                     <!-- أزرار التحكم المباشر لواتساب الموردين -->
                     <div id="admin-wa-policy-panel-sup" style="margin-bottom: 14px; border: 1px solid rgba(168, 85, 247, 0.3); border-radius: 12px; background: rgba(15, 23, 42, 0.65); padding: 10px 14px;">
                         <div style="display: flex; justify-content: flex-end; align-items: center; flex-wrap: wrap; gap: 8px;">
-                            <button type="button" onclick="bulkSetEntityStatementMode('supplier', 'detailed')" style="height: 32px; background: rgba(16, 185, 129, 0.16); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.4); padding: 0 12px; border-radius: 8px; font-size: 0.78rem; font-weight: 800; cursor: pointer;">📊 كشف للكل</button>
-                            <button type="button" onclick="bulkSetEntityStatementMode('supplier', 'balance_only')" style="height: 32px; background: rgba(245, 158, 11, 0.16); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.4); padding: 0 12px; border-radius: 8px; font-size: 0.78rem; font-weight: 800; cursor: pointer;">💰 رصيد للكل</button>
-                            <button type="button" onclick="bulkSetEntityStatementMode('supplier', 'disabled')" style="height: 32px; background: rgba(239, 68, 68, 0.14); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.35); padding: 0 12px; border-radius: 8px; font-size: 0.78rem; font-weight: 800; cursor: pointer;">🔒 إيقاف الكل</button>
-                            <button type="button" onclick="bulkGenerateEntityPins('supplier')" style="height: 32px; background: rgba(56, 189, 248, 0.16); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.4); padding: 0 12px; border-radius: 8px; font-size: 0.78rem; font-weight: 800; cursor: pointer;">🔐 توليد باسورد</button>
-                            <button type="button" onclick="toggleAdminWaPolicyDrawer()" style="height: 32px; background: rgba(168, 85, 247, 0.2); color: #d8b4fe; border: 1px solid rgba(168, 85, 247, 0.45); padding: 0 12px; border-radius: 8px; font-size: 0.78rem; font-weight: 800; cursor: pointer;">⚙️ السياسة</button>
+                            <button type="button" onclick="bulkSetEntityStatementMode('supplier', 'detailed')" data-md-tip-title="📊 كشف للكل (السماح للكل من الواتساب)" data-md-tip="يسمح لجميع الموردين بطلب واستلام كشف حساب مفصل بجميع الحركات والفواتير تلقائياً عبر الواتساب." style="height: 32px; background: rgba(16, 185, 129, 0.16); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.4); padding: 0 12px; border-radius: 8px; font-size: 0.78rem; font-weight: 800; cursor: pointer;">📊 كشف للكل</button>
+                            <button type="button" onclick="bulkSetEntityStatementMode('supplier', 'balance_only')" data-md-tip-title="💰 رصيد للكل (طلب الرصيد عبر الواتساب)" data-md-tip="يسمح لجميع الموردين بطلب معرفة الرصيد النهائي فقط عبر الواتساب دون إرسال تفاصيل الفواتير." style="height: 32px; background: rgba(245, 158, 11, 0.16); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.4); padding: 0 12px; border-radius: 8px; font-size: 0.78rem; font-weight: 800; cursor: pointer;">💰 رصيد للكل</button>
+                            <button type="button" onclick="bulkSetEntityStatementMode('supplier', 'disabled')" data-md-tip-title="🔒 إيقاف الكل (إيقاف الرد الآلي بالواتساب)" data-md-tip="يوقف جميع الموردين من طلب الرصيد أو كشف الحساب عبر الواتساب." style="height: 32px; background: rgba(239, 68, 68, 0.14); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.35); padding: 0 12px; border-radius: 8px; font-size: 0.78rem; font-weight: 800; cursor: pointer;">🔒 إيقاف الكل</button>
+                            <button type="button" onclick="bulkGenerateEntityPins('supplier')" data-md-tip-title="🔐 توليد باسورد للكل" data-md-tip="يقوم بتوليد رقم سري (باسورد) فريد تلقائياً لجميع الموردين لاستخدامه عند طلب كشف الحساب أو الرصيد عبر الواتساب." style="height: 32px; background: rgba(56, 189, 248, 0.16); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.4); padding: 0 12px; border-radius: 8px; font-size: 0.78rem; font-weight: 800; cursor: pointer;">🔐 توليد باسورد</button>
+                            <button type="button" onclick="toggleAdminWaPolicyDrawer()" data-md-tip-title="⚙️ سياسة الصلاحيات العامة للواتساب" data-md-tip="فتح وإغلاق لوحة سياسة الصلاحيات الشاملة (صلاحية الكشف، طريقة اعتماد الإشعارات، البنك الافتراضي، التحقق الأمني، ونطاق الكشف)." style="height: 32px; background: rgba(168, 85, 247, 0.2); color: #d8b4fe; border: 1px solid rgba(168, 85, 247, 0.45); padding: 0 12px; border-radius: 8px; font-size: 0.78rem; font-weight: 800; cursor: pointer;">⚙️ السياسة</button>
                         </div>
 
                         <div class="admin-wa-policy-drawer" style="display: none; margin-top: 12px; padding-top: 12px; border-top: 1px dashed rgba(168, 85, 247, 0.3);">
@@ -2572,48 +2550,48 @@
                                 <input type="hidden" id="sup-account-no" value="">
                                 <input type="hidden" id="sup-opening-debit" value="0">
                                 <input type="hidden" id="sup-opening-credit" value="0">
-                                <div style="display: inline-flex; align-items: center; background: rgba(15, 23, 42, 0.85); border: 1px solid rgba(148, 163, 184, 0.3); border-radius: 10px; padding: 3px; gap: 4px; height: 36px; box-sizing: border-box;">
-                                    <button type="button" id="sup-mode-btn-disabled" onclick="setFormStatementMode('sup', 'disabled', true)" style="height: 28px; padding: 0 9px; border-radius: 7px; border: 1px solid transparent; font-size: 0.74rem; font-weight: 800; cursor: pointer;">🔒 موقوف</button>
-                                    <button type="button" id="sup-mode-btn-balance_only" onclick="setFormStatementMode('sup', 'balance_only', true)" style="height: 28px; padding: 0 9px; border-radius: 7px; border: 1px solid transparent; font-size: 0.74rem; font-weight: 800; cursor: pointer;">💰 الرصيد</button>
-                                    <button type="button" id="sup-mode-btn-detailed" onclick="setFormStatementMode('sup', 'detailed', true)" style="height: 28px; padding: 0 9px; border-radius: 7px; border: 1px solid transparent; font-size: 0.74rem; font-weight: 800; cursor: pointer;">📊 كشف</button>
+                                <div class="md-entity-seg-group" style="display: inline-flex; align-items: center; background: rgba(15, 23, 42, 0.85); border: 2px solid rgba(148, 163, 184, 0.5); border-radius: 10px; padding: 3px; gap: 4px; height: 36px; box-sizing: border-box;">
+                                    <button type="button" id="sup-mode-btn-disabled" class="md-entity-seg-btn" onclick="setFormStatementMode('sup', 'disabled', true)" title="إيقاف هذا المورد من التعامل وطلب الرصيد أو الكشف بالواتساب" data-md-tip-title="🔒 موقوف" data-md-tip="إيقاف هذا المورد من التعامل وطلب الرصيد أو كشف الحساب عبر الواتساب." style="height: 28px; padding: 0 9px; border-radius: 7px; border: 1.6px solid rgba(148, 163, 184, 0.42); font-size: 0.74rem; font-weight: 800; cursor: pointer;">🔒 موقوف</button>
+                                    <button type="button" id="sup-mode-btn-balance_only" class="md-entity-seg-btn" onclick="setFormStatementMode('sup', 'balance_only', true)" title="يسمح لهذا المورد بطلب الرصيد فقط من الواتساب" data-md-tip-title="💰 الرصيد فقط" data-md-tip="يسمح لهذا المورد بطلب الرصيد الإجمالي فقط من الواتساب دون تفاصيل الحركات." style="height: 28px; padding: 0 9px; border-radius: 7px; border: 1.6px solid rgba(148, 163, 184, 0.42); font-size: 0.74rem; font-weight: 800; cursor: pointer;">💰 الرصيد</button>
+                                    <button type="button" id="sup-mode-btn-detailed" class="md-entity-seg-btn" onclick="setFormStatementMode('sup', 'detailed', true)" title="يسمح لهذا المورد بطلب كشف حساب عن طريق الواتساب" data-md-tip-title="📊 كشف حساب" data-md-tip="يسمح لهذا المورد بطلب كشف حساب مفصل عن طريق الواتساب." style="height: 28px; padding: 0 9px; border-radius: 7px; border: 1.6px solid rgba(148, 163, 184, 0.42); font-size: 0.74rem; font-weight: 800; cursor: pointer;">📊 كشف</button>
                                 </div>
-                                <div style="display: inline-flex; align-items: center; background: rgba(15, 23, 42, 0.85); border: 1px solid rgba(16, 185, 129, 0.35); border-radius: 10px; padding: 3px; gap: 4px; height: 36px; box-sizing: border-box;">
-                                    <button type="button" id="sup-rcpt-btn-auto_post" onclick="setFormReceiptApprovalMode('sup', 'auto_post', true)" style="height: 28px; padding: 0 9px; border-radius: 7px; border: 1px solid transparent; font-size: 0.74rem; font-weight: 800; cursor: pointer;">⚡ اعتماد فوري</button>
-                                    <button type="button" id="sup-rcpt-btn-review_first" onclick="setFormReceiptApprovalMode('sup', 'review_first', true)" style="height: 28px; padding: 0 9px; border-radius: 7px; border: 1px solid transparent; font-size: 0.74rem; font-weight: 800; cursor: pointer;">👁️ مراجعة</button>
+                                <div class="md-entity-seg-group" style="display: inline-flex; align-items: center; background: rgba(15, 23, 42, 0.85); border: 2px solid rgba(16, 185, 129, 0.55); border-radius: 10px; padding: 3px; gap: 4px; height: 36px; box-sizing: border-box;">
+                                    <button type="button" id="sup-rcpt-btn-auto_post" class="md-entity-seg-btn" onclick="setFormReceiptApprovalMode('sup', 'auto_post', true)" title="اعتماد الإشعارات البنكية التي يرسلها المورد اعتماداً فورياً" data-md-tip-title="⚡ الاعتماد الفوري للإشعارات" data-md-tip="الإشعارات البنكية التي يرسلها هذا المورد (أو مناديبُه) عبر الواتساب تُعتمد اعتماداً فورياً وتُقيد في حسابه تلقائياً." style="height: 28px; padding: 0 9px; border-radius: 7px; border: 1.6px solid rgba(148, 163, 184, 0.42); font-size: 0.74rem; font-weight: 800; cursor: pointer;">⚡ اعتماد فوري</button>
+                                    <button type="button" id="sup-rcpt-btn-review_first" class="md-entity-seg-btn" onclick="setFormReceiptApprovalMode('sup', 'review_first', true)" title="الإشعارات التي يرسلها المورد تُراجع قبل الاعتماد" data-md-tip-title="👁️ مراجعة الإشعارات قبل الاعتماد" data-md-tip="الإشعارات البنكية التي يرسلها هذا المورد عبر الواتساب تُحفظ للمراجعة أولاً قبل اعتمادها وترحيلها في الحساب." style="height: 28px; padding: 0 9px; border-radius: 7px; border: 1.6px solid rgba(148, 163, 184, 0.42); font-size: 0.74rem; font-weight: 800; cursor: pointer;">👁️ مراجعة</button>
                                 </div>
                                 <div style="display: inline-flex; align-items: center; gap: 4px;">
-                                    <select id="sup-default-bank-id" class="entity-default-bank-select" style="height: 36px; background: rgba(15, 23, 42, 0.9); color: #fcd34d; border: 1px solid rgba(245, 158, 11, 0.4); border-radius: 10px; padding: 0 10px; font-size: 0.78rem; font-weight: 800; max-width: 175px;">
+                                    <select id="sup-default-bank-id" class="entity-default-bank-select" title="البنك الافتراضي لهذا المورد؛ حينما يحول الإشعار يُعتمد في هذا البنك" data-md-tip-title="🏦 البنك الافتراضي للمورد" data-md-tip="البنك الافتراضي المخصص لهذا المورد؛ حينما يُرسل إشعار تحويل عبر الواتساب يُعتمد في هذا البنك تلقائياً." style="height: 36px; background: rgba(15, 23, 42, 0.9); color: #fcd34d; border: 2px solid rgba(245, 158, 11, 0.6); border-radius: 10px; padding: 0 10px; font-size: 0.78rem; font-weight: 800; max-width: 175px;">
                                         <option value="">🏦 البنك الافتراضي</option>
                                     </select>
-                                    <button type="button" onclick="quickAddBankModal('sup-default-bank-id')" style="height: 36px; padding: 0 10px; border-radius: 9px; background: rgba(245, 158, 11, 0.16); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.4); font-weight: 900; cursor: pointer;">➕</button>
+                                    <button type="button" class="md-hdr-pill-btn" onclick="quickAddBankModal('sup-default-bank-id')" title="إضافة بنك جديد سريعاً" data-md-tip-title="➕ إضافة بنك جديد" data-md-tip="فتح نافذة سريعة لتعريف بنك جديد واختياره كبنك افتراضي." style="height: 36px; padding: 0 10px; border-radius: 9px; background: rgba(245, 158, 11, 0.16); color: #fbbf24; border: 2px solid rgba(245, 158, 11, 0.55); font-weight: 900; cursor: pointer;">➕</button>
                                 </div>
-                                <button type="button" onclick="openEntityQrCardModal('sup')" style="height: 36px; background: rgba(16, 185, 129, 0.18); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.45); padding: 0 12px; border-radius: 10px; cursor: pointer; font-size: 0.8rem; font-weight: 800;">🪪 بطاقة QR</button>
-                                <button type="button" onclick="copyCurrentFormWhatsAppCard('sup')" style="height: 36px; background: rgba(168, 85, 247, 0.18); color: #e9d5ff; border: 1px solid rgba(168, 85, 247, 0.45); padding: 0 12px; border-radius: 10px; cursor: pointer; font-size: 0.8rem; font-weight: 800;">📋 نسخ البطاقة</button>
-                                <button type="button" onclick="clearSupplierForm()" class="btn-action" style="height: 36px; background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.35); padding: 0 12px; border-radius: 10px; cursor: pointer; font-size: 0.8rem; font-weight: 800;">🔄 جديد <span class="kbd-hint">F2</span></button>
+                                <button type="button" class="md-hdr-pill-btn" onclick="openEntityQrCardModal('sup')" title="عرض وطباعة بطاقة QR الخاصة بالمورد" data-md-tip-title="🪪 بطاقة QR الذكية للمورد" data-md-tip="تفتح بطاقة تعريف المورد المحتوية على رمز QR والرقم السري وكود الحساب لطباعتها أو مشاركتها." style="height: 36px; background: rgba(16, 185, 129, 0.18); color: #34d399; border: 2px solid rgba(16, 185, 129, 0.65); padding: 0 12px; border-radius: 10px; cursor: pointer; font-size: 0.8rem; font-weight: 800;">🪪 بطاقة QR</button>
+                                <button type="button" class="md-hdr-pill-btn" onclick="copyCurrentFormWhatsAppCard('sup')" title="نسخ بطاقة بيانات المورد والرقم السري لإرسالها عبر الواتساب" data-md-tip-title="📋 نسخ البطاقة" data-md-tip="ينسخ بطاقة بيانات المورد شاملة الرقم السري وأوامر طلب الكشف والرصيد جاهزة للصق والإرسال في الواتساب." style="height: 36px; background: rgba(168, 85, 247, 0.18); color: #e9d5ff; border: 2px solid rgba(168, 85, 247, 0.65); padding: 0 12px; border-radius: 10px; cursor: pointer; font-size: 0.8rem; font-weight: 800;">📋 نسخ البطاقة</button>
+                                <button type="button" onclick="clearSupplierForm()" class="btn-action md-hdr-pill-btn" title="تفريغ الحقول لإضافة مورد جديد (F2)" data-md-tip-title="🔄 مورد جديد (F2)" data-md-tip="تفريغ نموذج البيانات لبدء إضافة مورد جديد." style="height: 36px; background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 2px solid rgba(56, 189, 248, 0.55); padding: 0 12px; border-radius: 10px; cursor: pointer; font-size: 0.8rem; font-weight: 800;">🔄 جديد <span class="kbd-hint">F2</span></button>
                             </div>
                         </div>
 
                         <div class="pro-entity-grid">
                             <div class="pro-field-card accent-sky" style="grid-column: span 2;">
-                                <label class="pro-field-label" style="color: #38bdf8 !important;">
+                                <label class="pro-field-label">
                                     <span>🏭 اسم المورد *</span>
                                 </label>
                                 <input type="text" id="sup-name" placeholder="اسم المورد أو الشركة">
                             </div>
 
                             <div class="pro-field-card accent-purple">
-                                <label class="pro-field-label" style="color: #d8b4fe !important;">
-                                    <span>🔐 الرقم السري</span>
-                                    <button type="button" onclick="generateRandomFormPin('sup')" class="pro-field-badge" style="background:rgba(168,85,247,0.32); color:#fff; border:1px solid rgba(168,85,247,0.6); cursor:pointer;">🎲 توليد</button>
+                                <label class="pro-field-label">
+                                    <span>🔐 الرقم السري (3 أرقام)</span>
+                                    <button type="button" onclick="generateRandomFormPin('sup')" class="pro-field-badge" style="background:rgba(168,85,247,0.32); color:#fff; border:1.8px solid rgba(168,85,247,0.75); cursor:pointer;">🎲 توليد</button>
                                 </label>
-                                <input type="text" id="sup-statement-pin" class="pro-num-input" maxlength="8" oninput="updateCombinedPinPreview('sup')" placeholder="532" style="color: #e9d5ff !important;">
+                                <input type="text" id="sup-statement-pin" class="pro-num-input" maxlength="8" oninput="updateCombinedPinPreview('sup')" placeholder="677">
                             </div>
 
                             <div class="pro-field-card accent-whatsapp">
-                                <label class="pro-field-label" style="color: #4ade80 !important;">
+                                <label class="pro-field-label">
                                     <span>💬 رقم الواتساب</span>
                                 </label>
-                                <input type="text" id="sup-whatsapp" class="pro-num-input" oninput="document.getElementById('sup-phone').value = this.value" placeholder="00249123000000">
+                                <input type="text" id="sup-whatsapp" class="pro-num-input" oninput="document.getElementById('sup-phone').value = this.value; if(typeof updateCombinedPinPreview==='function') updateCombinedPinPreview('sup');" placeholder="00249123000000">
                             </div>
 
                             <div class="pro-field-card">
@@ -2625,7 +2603,7 @@
 
                             <div class="pro-field-card">
                                 <label class="pro-field-label">
-                                    <span style="color: #fca5a5;">🛑 حد الائتمان</span>
+                                    <span>🛑 حد الائتمان</span>
                                 </label>
                                 <input type="number" id="sup-limit" class="pro-num-input" placeholder="0.00">
                             </div>
@@ -2699,12 +2677,12 @@
                             </div>
                         </div>
 
-                        <div style="margin-top: 6px; padding: 10px 14px; border: 1px solid rgba(56, 189, 248, 0.25); border-radius: 10px; background: rgba(15, 23, 42, 0.4);">
+                        <div style="margin-top: 6px; padding: 10px 14px; border: 1px solid rgba(56, 189, 248, 0.25); border-radius: 10px; background: rgba(15, 23, 42, 0.4);" data-md-tip-title="📱 أرقام المناديب والتابعين للمورد" data-md-tip="كل مندوب يُضاف رقمه هنا يتمتع بنفس صلاحيات حساب المورد تماماً؛ فعندما يرسل المندوب إشعاراً أو يطلب كشف حساب أو رصيداً من رقمه المعتمد هنا، يُربط بالحساب الأساسي للمورد ويصله الكشف أو الرصيد فوراً.">
                             <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px;">
                                 <h4 style="margin: 0; color: #38bdf8; display:flex; align-items:center; gap:6px; font-size: 0.9rem; font-weight: 800;">
                                     <span>📱</span> <span>أرقام المناديب والتابعين</span>
                                 </h4>
-                                <button type="button" onclick="addSupplierSubPhone()" style="height: 30px; background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.35); padding: 0 12px; border-radius: 8px; cursor: pointer; font-size: 0.78rem; font-weight: 800;">+ إضافة رقم</button>
+                                <button type="button" onclick="addSupplierSubPhone()" data-md-tip-title="➕ إضافة رقم مندوب أو تابع" data-md-tip="إضافة رقم واتساب لمندوب تابع لهذا المورد؛ يتمتع المندوب بنفس صلاحية الحساب في إرسال الإشعارات وطلب الكشف والرصيد." style="height: 30px; background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.35); padding: 0 12px; border-radius: 8px; cursor: pointer; font-size: 0.78rem; font-weight: 800;">+ إضافة رقم</button>
                             </div>
                             <div id="sup-sub-phones-container" style="display: flex; flex-direction: column; gap: 8px; margin-top: 8px;"></div>
                         </div>
@@ -2748,7 +2726,7 @@
                             <button class="btn-add" onclick="openBankForm()">+ إضافة بنك <span class="kbd-hint">F2</span></button>
                         </div>
                     </div>
-                    <div id="bank-form" class="md-card" style="display: none;">
+                    <div id="bank-form" class="md-card" style="display: block;">
                         <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:15px; margin-bottom:20px;"><h4 class="neon-text-primary" style="margin:0;" id="bank-form-title">بيانات البنك</h4><button class="btn-text" style="color:var(--danger-color);" onclick="closeBankForm()">✖ إلغاء <span class="kbd-hint">Esc</span></button></div>
                         
                         <div class="form-grid">
@@ -2843,7 +2821,7 @@
                     </div>
                     <div class="table-responsive" style="overflow-x: auto;">
                         <table class="pro-table" id="safes-table">
-                            <thead><tr><th>الرقم</th><th>اسم الخزينة</th><th>النوع</th><th>العملة</th><th>الرصيد الافتتاحي</th><th>الإجراء</th></tr></thead>
+                            <thead><tr><th>الرقم</th><th>اسم الخزينة</th><th>العملة</th><th>الرصيد</th><th>الإجراء</th></tr></thead>
                             <tbody id="safes-tbody"></tbody>
                         </table>
                     </div>
@@ -2903,22 +2881,22 @@
                                                     <button type="button" onclick="updateLiveItemQRPreview(true)" style="background:rgba(168,85,247,0.16); color:#d8b4fe; border:1px solid rgba(168,85,247,0.35); border-radius:6px; padding:3px 7px; font-size:0.7rem; font-weight:bold; cursor:pointer;">🔲 QR</button>
                                                 </div>
                                             </div>
-                                            <div class="form-grid" style="flex:1; grid-template-columns: 1fr;">
-                                                <div class="input-group"><label style="color:#fff;">اسم الصنف *</label><input type="text" id="item-name-input" oninput="updateLiveItemQRPreview()" placeholder="مثال: سيخ 3 لنيه" style="border-color: rgba(56,189,248,0.5); background: rgba(0,0,0,0.3);"></div>
-                                                <div style="display:flex; gap:10px;">
-                                                    <div class="input-group" style="flex:1;"><label>الكود</label><input type="text" id="item-code" oninput="updateLiveItemQRPreview()" placeholder="تلقائي" style="color:#38bdf8; font-weight:bold;"></div>
-                                                    <div class="input-group" style="flex:1;"><label>الاسم اللاتيني</label><input type="text" id="item-name-latin" placeholder="Rebar"></div>
+                                            <div class="form-grid" style="flex:1; grid-template-columns: 1fr; gap: 12px; margin-bottom: 0;">
+                                                <div class="input-group"><label style="color:#fff; font-size:0.95rem; font-weight:900;">اسم الصنف *</label><input type="text" id="item-name-input" oninput="updateLiveItemQRPreview()" placeholder="مثال: سيخ 3 لنيه" style="width:100%; min-height:44px; font-size:1.08rem; font-weight:900; padding:8px 12px; border-color: rgba(56,189,248,0.5); background: rgba(0,0,0,0.3);"></div>
+                                                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
+                                                    <div class="input-group"><label style="font-size:0.92rem; font-weight:800;">الكود</label><input type="text" id="item-code" oninput="updateLiveItemQRPreview()" placeholder="تلقائي" style="width:100%; min-height:42px; font-size:1.02rem; padding:8px 12px; color:#38bdf8; font-weight:900;"></div>
+                                                    <div class="input-group"><label style="font-size:0.92rem; font-weight:800;">الاسم اللاتيني</label><input type="text" id="item-name-latin" placeholder="Rebar" style="width:100%; min-height:42px; font-size:1.02rem; font-weight:800; padding:8px 12px;"></div>
                                                 </div>
                                             </div>
                                         </div>
                                         
-                                        <div class="form-grid" style="margin-top: 14px;">
-                                            <div class="input-group"><label>الباركود</label><div style="display:flex; gap:5px;"><input type="text" id="item-barcode" oninput="updateLiveItemQRPreview()" placeholder="الباركود" style="flex:1;"><button type="button" class="btn-text" style="color:#38bdf8; background:rgba(56,189,248,0.14); border:1px solid rgba(56,189,248,0.35); border-radius:8px; padding:0 10px; font-weight:800;" onclick="openWebRtcBarcodeScanner('item-barcode')">📷 مسح</button></div></div>
-                                            <div class="input-group"><label>الماركة</label><input type="text" id="item-brand" placeholder="الماركة / المنشأ"></div>
-                                            <div class="input-group"><label>الفئة</label><div style="display:flex; gap:5px;"><select id="item-category" style="flex:1;"></select><button class="btn-text" style="color:#a855f7; background:rgba(168,85,247,0.1); border-radius:8px; padding:0 10px;" onclick="quickAddCategory()">➕</button></div></div>
-                                            <input type="hidden" id="item-sub-category" value="">
-                                            <div class="input-group"><label>الطبيعة</label><select id="item-nature"><option value="مخزني">📦 مخزني</option><option value="خدمي">🔧 خدمي</option><option value="تجميعي">🏗️ تجميعي</option></select></div>
-                                            <div class="input-group"><label>الحالة</label><div style="display:flex; align-items:center; gap:10px; padding:10px; background: rgba(0,0,0,0.2); border-radius: 8px;"><label class="toggle-sw"><input type="checkbox" id="item-active-toggle" checked onchange="updateToggleLabel()"><span class="toggle-sl"></span></label><span id="item-active-label" style="color:var(--success-color); font-weight:bold; font-size:0.9rem;">🟢 نشط</span></div></div>
+                                        <input type="hidden" id="item-sub-category" value="">
+                                        <div class="form-grid" style="margin-top: 16px; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin-bottom: 0;">
+                                            <div class="input-group"><label style="font-size:0.92rem; font-weight:800;">الباركود</label><div style="display:flex; gap:6px; width:100%;"><input type="text" id="item-barcode" oninput="updateLiveItemQRPreview()" placeholder="الباركود" style="flex:1; min-width:0; width:100%; min-height:44px; font-size:1.04rem; font-weight:800; padding:8px 12px;"><button type="button" class="btn-text" style="color:#38bdf8; background:rgba(56,189,248,0.14); border:1px solid rgba(56,189,248,0.35); border-radius:8px; padding:0 12px; font-weight:800; height:44px; flex-shrink:0;" onclick="openWebRtcBarcodeScanner('item-barcode')">📷 مسح</button></div></div>
+                                            <div class="input-group"><label style="font-size:0.92rem; font-weight:800;">الماركة</label><input type="text" id="item-brand" placeholder="الماركة / المنشأ" style="width:100%; min-height:44px; font-size:1.04rem; font-weight:800; padding:8px 12px;"></div>
+                                            <div class="input-group"><label style="font-size:0.92rem; font-weight:800;">الفئة</label><div style="display:flex; gap:6px; width:100%;"><select id="item-category" style="flex:1; min-width:0; width:100%; min-height:44px; font-size:1.04rem; font-weight:800; padding:6px 12px;"></select><button type="button" class="btn-text" style="color:#a855f7; background:rgba(168,85,247,0.1); border-radius:8px; padding:0 12px; height:44px; flex-shrink:0;" onclick="quickAddCategory()">➕</button></div></div>
+                                            <div class="input-group"><label style="font-size:0.92rem; font-weight:800;">الطبيعة</label><select id="item-nature" style="width:100%; min-height:44px; font-size:1.04rem; font-weight:800; padding:6px 12px;"><option value="مخزني">📦 مخزني</option><option value="خدمي">🔧 خدمي</option><option value="تجميعي">🏗️ تجميعي</option></select></div>
+                                            <div class="input-group" style="grid-column: 1 / -1;"><label style="font-size:0.92rem; font-weight:800;">الحالة</label><div style="display:flex; align-items:center; gap:10px; min-height:44px; padding:8px 14px; background: rgba(0,0,0,0.2); border-radius: 9px;"><label class="toggle-sw"><input type="checkbox" id="item-active-toggle" checked onchange="updateToggleLabel()"><span class="toggle-sl"></span></label><span id="item-active-label" style="color:var(--success-color); font-weight:800; font-size:0.98rem;">🟢 نشط</span></div></div>
                                         </div>
                                     </div>
 
@@ -3025,7 +3003,7 @@
                                     <div style="display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom: 12px; flex-wrap:wrap;">
                                         <div style="display:flex; align-items:center; gap:8px;">
                                             <span style="font-size:1.1rem;">💎</span>
-                                            <h5 style="margin:0; color:#34d399; font-weight: 900;">الضبط المؤسسي والتجاري المتقدم للصنف (الدستور 16 — Zero-Error)</h5>
+                                            <h5 style="margin:0; color:#34d399; font-weight: 900;">الضبط المؤسسي والتجاري المتقدم للأصناف</h5>
                                         </div>
                                         <span style="font-size:0.75rem; font-weight:800; color:#a7f3d0; background:rgba(16,185,129,0.14); border:1px solid rgba(16,185,129,0.4); padding:2px 9px; border-radius:999px;">حاسبة مدمجة + قفل عدم البيع بخسارة</span>
                                     </div>
@@ -3063,6 +3041,10 @@
                                     </div>
                                     <textarea id="item-description" placeholder="ملاحظات..." style="width:100%; min-height:70px; padding:12px; border-radius:10px; border:1px solid rgba(255,255,255,0.1); background:rgba(0,0,0,0.3); color:#fff; font-family:inherit; resize:vertical; box-sizing:border-box; font-size: 0.95rem; outline: none;"></textarea>
                                 </div>
+                                <div class="md-c3-form-footer" style="display:flex; justify-content:flex-end; align-items:center; gap:10px; margin-top:14px; padding-top:12px; border-top:1px solid rgba(148,163,184,0.25);">
+                                    <button type="button" onclick="openItemForm()" style="background:linear-gradient(135deg, #38bdf8, #2563eb); color:#fff; padding:9px 20px; border-radius:10px; border:none; cursor:pointer; font-weight:900; font-size:0.9rem;">🧹 جديد / تنظيف <span class="kbd-hint">F2</span></button>
+                                    <button type="button" onclick="saveItem()" style="background:linear-gradient(135deg, var(--success-color), #059669); color:#fff; padding:9px 26px; border-radius:10px; border:1px solid rgba(16,185,129,0.5); cursor:pointer; font-weight:900; font-size:0.95rem; box-shadow:0 4px 14px rgba(16,185,129,0.35);">💾 حفظ <span class="kbd-hint">F10</span></button>
+                                </div>
                             </div>
                         </div>
                         
@@ -3073,12 +3055,14 @@
                                     <input type="text" id="item-search" oninput="filterItemsTable()" placeholder="بحث بالاسم أو الكود..." style="background:transparent; border:none; color:#fff; width:100%; outline:none;">
                                 </div>
                                 <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
-                                    <span id="kpi-total-items-badge" style="background:rgba(56,189,248,0.15); color:#38bdf8; padding:6px 14px; border-radius:20px; font-weight:bold; border:1px solid rgba(56,189,248,0.3);">الأصناف: <strong id="kpi-total-items">0</strong></span>
-                                    <button type="button" onclick="openBulkPriceUpdaterModal()" style="height: 36px; background: rgba(245, 158, 11, 0.16); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.45); padding: 0 14px; border-radius: 8px; font-weight: 800; font-size: 0.82rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">📈 تعديل الأسعار</button>
-                                    <button type="button" onclick="openSmartClipboardPasteModal('item')" style="height: 36px; background: rgba(168, 85, 247, 0.16); color: #d8b4fe; border: 1px solid rgba(168, 85, 247, 0.45); padding: 0 14px; border-radius: 8px; font-weight: 800; font-size: 0.82rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">📋 لصق Excel</button>
-                                    <button type="button" id="btn-export-items-csv" onclick="exportMasterEntityCsv('item')" style="height: 36px; background: rgba(16, 185, 129, 0.14); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.4); padding: 0 14px; border-radius: 8px; font-weight: 800; font-size: 0.82rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">📥 تصدير Excel</button>
-                                    <button type="button" id="btn-import-items-csv" onclick="triggerMasterEntityCsvImport('item')" style="height: 36px; background: rgba(245, 158, 11, 0.14); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.4); padding: 0 14px; border-radius: 8px; font-weight: 800; font-size: 0.82rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">📤 استيراد Excel</button>
-                                    <button class="btn-add hover-glow" onclick="openItemForm()" style="background:linear-gradient(135deg, #38bdf8, #2563eb); padding:8px 18px; border-radius:8px; font-weight:bold; border:none; color:#fff; cursor:pointer;">+ إضافة صنف <span class="kbd-hint">F2</span></button>
+                                    <span id="kpi-total-items-badge" class="md-hdr-pill-btn" style="background:rgba(56,189,248,0.18); color:#38bdf8; padding:6px 14px; border-radius:20px; font-weight:900; border:2px solid rgba(56,189,248,0.55);">الأصناف: <strong id="kpi-total-items">0</strong></span>
+                                    <button type="button" class="md-hdr-pill-btn" onclick="window.shareMasterItemsWhatsApp && window.shareMasterItemsWhatsApp()" style="height: 36px; background: linear-gradient(135deg, rgba(16, 185, 129, 0.25), rgba(5, 150, 105, 0.38)); color: #6ee7b7; border: 2px solid #10b981; padding: 0 14px; border-radius: 10px; font-weight: 900; font-size: 0.82rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">💬 واتساب الأصناف</button>
+                                    <button type="button" class="md-hdr-pill-btn" onclick="openBulkPriceUpdaterModal()" style="height: 36px; background: linear-gradient(135deg, rgba(245, 158, 11, 0.22), rgba(217, 119, 6, 0.35)); color: #fde68a; border: 2px solid #f59e0b; padding: 0 14px; border-radius: 10px; font-weight: 900; font-size: 0.82rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">📈 تعديل الأسعار</button>
+                                    <button type="button" class="md-hdr-pill-btn" onclick="openSmartClipboardPasteModal('item')" style="height: 36px; background: linear-gradient(135deg, rgba(168, 85, 247, 0.22), rgba(126, 34, 206, 0.35)); color: #e9d5ff; border: 2px solid #a855f7; padding: 0 14px; border-radius: 10px; font-weight: 900; font-size: 0.82rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">📋 لصق Excel</button>
+                                    <button type="button" id="btn-export-items-csv" class="md-hdr-pill-btn" onclick="exportMasterEntityCsv('item')" style="height: 36px; background: linear-gradient(135deg, rgba(16, 185, 129, 0.22), rgba(4, 120, 87, 0.35)); color: #6ee7b7; border: 2px solid #10b981; padding: 0 14px; border-radius: 10px; font-weight: 900; font-size: 0.82rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">📥 تصدير Excel</button>
+                                    <button type="button" id="btn-import-items-csv" class="md-hdr-pill-btn" onclick="triggerMasterEntityCsvImport('item')" style="height: 36px; background: linear-gradient(135deg, rgba(245, 158, 11, 0.22), rgba(180, 83, 9, 0.35)); color: #fde68a; border: 2px solid #f59e0b; padding: 0 14px; border-radius: 10px; font-weight: 900; font-size: 0.82rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">📤 استيراد Excel</button>
+                                    <button class="btn-add hover-glow md-hdr-pill-btn" onclick="openItemForm()" style="background:linear-gradient(135deg, #38bdf8, #2563eb); padding:8px 18px; border-radius:10px; font-weight:900; border:2px solid #7dd3fc; color:#fff; cursor:pointer;">🧹 جديد / تنظيف <span class="kbd-hint">F2</span></button>
+                                    <button type="button" class="btn-add hover-glow md-hdr-pill-btn" onclick="saveItem()" style="background:linear-gradient(135deg, var(--success-color), #059669); padding:8px 20px; border-radius:10px; font-weight:900; border:2px solid #6ee7b7; color:#fff; cursor:pointer; box-shadow:0 4px 12px rgba(16,185,129,0.3);">💾 حفظ <span class="kbd-hint">F10</span></button>
                                 </div>
                             </div>
                             <div class="table-responsive" style="overflow-x: auto;">
@@ -3142,20 +3126,24 @@
                 <div class="md-card">
                     <div class="md-card-header" style="flex-wrap: wrap; gap: 10px;">
                         <h3 class="md-card-title">👥 الموظفين</h3>
-                        <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
-                            <div class="input-group" style="width: 260px; position: relative; margin-bottom: 0;">
+                        <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                            <div class="input-group" style="width: 240px; position: relative; margin-bottom: 0;">
                                 <span style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); font-size: 1rem; pointer-events: none;">🔍</span>
                                 <input type="text" id="employee-search-input" oninput="renderEmployees()" placeholder="بحث باسم الموظف أو الهاتف..." style="padding-right: 36px; height: 36px; border-radius: 9px;">
                             </div>
-                            <button class="btn-add" onclick="openNewEmployeeForm()">+ إضافة موظف <span class="kbd-hint">F2</span></button>
+                            <button type="button" class="md-hdr-pill-btn" onclick="window.shareMasterEmployeesWhatsApp && window.shareMasterEmployeesWhatsApp()" style="height: 36px; background: linear-gradient(135deg, rgba(16, 185, 129, 0.25), rgba(5, 150, 105, 0.38)); color: #6ee7b7; border: 2px solid #10b981; padding: 0 14px; border-radius: 10px; font-weight: 900; font-size: 0.82rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">💬 واتساب الموظفين</button>
+                            <button type="button" class="md-hdr-pill-btn" onclick="exportActiveTabToExcel()" style="height: 36px; background: linear-gradient(135deg, rgba(16, 185, 129, 0.22), rgba(4, 120, 87, 0.35)); color: #6ee7b7; border: 2px solid #10b981; padding: 0 14px; border-radius: 10px; font-weight: 900; font-size: 0.82rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">📥 تصدير Excel</button>
+                            <button type="button" class="md-hdr-pill-btn" onclick="triggerActiveTabExcelImport()" style="height: 36px; background: linear-gradient(135deg, rgba(245, 158, 11, 0.22), rgba(180, 83, 9, 0.35)); color: #fde68a; border: 2px solid #f59e0b; padding: 0 14px; border-radius: 10px; font-weight: 900; font-size: 0.82rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">📤 استيراد Excel</button>
+                            <button class="btn-add md-hdr-pill-btn" onclick="openNewEmployeeForm()">🧹 جديد / تنظيف <span class="kbd-hint">F2</span></button>
+                            <button type="button" class="btn-c3-save md-hdr-pill-btn" onclick="saveEmployee()" style="height:36px; padding:0 18px; border-radius:10px; background:linear-gradient(135deg, #10b981, #059669); color:#fff; border:2px solid #6ee7b7; font-weight:900; cursor:pointer;">💾 حفظ <span class="kbd-hint">F10</span></button>
                         </div>
                     </div>
-                    <div id="employee-form" class="md-card" style="display: none;">
-                        <h4 style="margin-top:0; color:var(--primary-accent);">بيانات الموظف</h4>
+                    <div id="employee-form" class="md-card" style="display: block;">
+                        <h4 style="margin-top:0; color:var(--primary-accent);">👥 بيانات الموظف والواتساب</h4>
                         <div class="form-grid">
                             <div class="input-group"><label>الكود</label><input type="text" id="emp-id" disabled></div>
                             <div class="input-group"><label>الاسم *</label><input type="text" id="emp-name"></div>
-                            <div class="input-group"><label>الهاتف</label><input type="text" id="emp-phone"></div>
+                            <div class="input-group"><label>💬 رقم الواتساب / الهاتف</label><input type="text" id="emp-phone" placeholder="00249123000000"></div>
                             <div class="input-group"><label>كلمة المرور</label><input type="text" id="emp-password" placeholder="كلمة المرور"></div>
                             <div class="input-group"><label>الدور</label><select id="emp-role"><option value="admin">مدير</option><option value="accountant">محاسب</option><option value="cashier">كاشير</option><option value="sales">مبيعات</option><option value="storekeeper">أمين مخزن</option></select></div>
                             <div class="input-group"><label>السرية</label><select id="emp-security"><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option></select></div>
@@ -3178,7 +3166,7 @@
             <div id="tab-costcenters" class="md-tab-content">
                 <div class="md-card">
                     <div class="md-card-header" style="flex-wrap: wrap; gap: 10px;">
-                        <h3 class="md-card-title">📊 مراكز التكلفة</h3>
+                        <h3 class="md-card-title">مراكز التكلفة</h3>
                         <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
                             <div class="input-group" style="width: 260px; position: relative; margin-bottom: 0;">
                                 <span style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); font-size: 1rem; pointer-events: none;">🔍</span>
@@ -5004,15 +4992,7 @@
             var raw = String(el.value || '').trim();
             var mathRes = window.evalMdSafeInlineMath(raw);
             var numVal = mathRes !== null ? mathRes : parseFloat(window.normalizeMdUniversalNumerals(raw, true));
-
-            if (isFinite(numVal) && Math.abs(numVal) > 0) {
-                var curr = getFieldCurrencyLabel(el);
-                var prefix = mathRes !== null ? ('🧮 ناتج المعادلة (' + raw + ' = ' + numVal.toLocaleString('en-US') + ') — ') : '🗣️ ';
-                widgets.tafEl.textContent = prefix + window.numberToArabicTafqeet(numVal, curr);
-                widgets.tafEl.style.display = 'block';
-            } else {
-                widgets.tafEl.style.display = 'none';
-            }
+            if (widgets.tafEl) widgets.tafEl.style.display = 'none';
 
             var anomalyMsg = window.checkMdFatFingerAnomaly(el, numVal);
             if (anomalyMsg) {
@@ -5398,15 +5378,7 @@
             }
 
             var bar = document.getElementById('md-c9-live-unit-converter-bar');
-            if (!bar && tbody.parentElement) {
-                bar = document.createElement('div');
-                bar.id = 'md-c9-live-unit-converter-bar';
-                bar.style.cssText = 'margin-top:10px;padding:10px 14px;border-radius:10px;border:2px solid #a855f7;background:rgba(168,85,247,0.1);font-size:0.82rem;font-weight:800;line-height:1.7;';
-                tbody.parentElement.parentElement.appendChild(bar);
-            }
-            if (bar) {
-                bar.innerHTML = summaryPills.join('<br>');
-            }
+            if (bar) bar.remove();
         };
 
         document.addEventListener('input', function(e) {
@@ -8294,11 +8266,12 @@
             st.id = 'md-c16-zero-error-laptop-css';
             st.textContent = [
                 '/* الدستور 16: فواصل الجداول والبطاقات المستقلة تماماً عن currentColor */',
-                'html:not([data-theme="light"]):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) .pro-table th,',
-                'html:not([data-theme="light"]):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) .pro-table td,',
-                'html:not([data-theme="light"]):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #units-matrix-body td {',
+                'html:not(.light-theme):not([data-theme="light"]):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) .pro-table th,',
+                'html:not(.light-theme):not([data-theme="light"]):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) .pro-table td,',
+                'html:not(.light-theme):not([data-theme="light"]):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #units-matrix-body td {',
                 '    border-color: rgba(255, 255, 255, 0.22) !important;',
                 '}',
+                'html.light-theme .pro-table th, html.light-theme .pro-table td,',
                 'html[data-theme="light"] .pro-table th, html[data-theme="light"] .pro-table td,',
                 'html[data-theme="warm_cream"] .pro-table th, html[data-theme="warm_cream"] .pro-table td,',
                 'html[data-theme="ultra_white"] .pro-table th, html[data-theme="ultra_white"] .pro-table td,',
@@ -8306,22 +8279,22 @@
                 '    border-color: rgba(0, 0, 0, 0.20) !important;',
                 '}',
                 '/* قفل الخلفية السوداء الصريحة والكتابة البيضاء داخل الخانات في السمات الغامقة */',
-                'html:not([data-theme="light"]):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) .md-content-area input:not([type="checkbox"]):not([type="radio"]):not([type="file"]),',
-                'html:not([data-theme="light"]):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) .md-content-area select,',
-                'html:not([data-theme="light"]):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) .md-content-area textarea {',
+                'html:not(.light-theme):not([data-theme="light"]):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) .md-content-area input:not([type="checkbox"]):not([type="radio"]):not([type="file"]),',
+                'html:not(.light-theme):not([data-theme="light"]):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) .md-content-area select,',
+                'html:not(.light-theme):not([data-theme="light"]):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) .md-content-area textarea {',
                 '    background-color: #000000 !important;',
                 '    color: #FFFFFF !important;',
                 '    -webkit-text-fill-color: #FFFFFF !important;',
                 '}',
-                'html:not([data-theme="light"]):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) .md-content-area input:-webkit-autofill {',
+                'html:not(.light-theme):not([data-theme="light"]):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) .md-content-area input:-webkit-autofill {',
                 '    -webkit-box-shadow: 0 0 0 1000px #000000 inset !important;',
                 '    -webkit-text-fill-color: #FFFFFF !important;',
                 '}',
-                '/* الهالة الضوئية السفلية للأزرار (Hover Under-Glow 1.03) */',
+                '/* الهالة الضوئية السفلية للأزرار (Hover Under-Glow بدون تغيير الحجم أو الظل) */',
                 '.md-content-area button:hover, .md-child-modal button:hover {',
-                '    transform: scale(1.03);',
+                '    transform: none;',
                 '    box-shadow: 0 6px 16px -3px rgba(56, 189, 248, 0.35);',
-                '    transition: transform 0.12s ease, box-shadow 0.12s ease;',
+                '    transition: box-shadow 0.12s ease;',
                 '}',
                 '/* وضع الخفة الصاروخية مع الحفاظ على حركة وإضاءة المربعات */',
                 'html.md-c16-legacy-pc-turbo *, html.md-c16-legacy-pc-turbo *::before, html.md-c16-legacy-pc-turbo *::after {',
@@ -9210,18 +9183,10 @@
             }
         };
 
-        // تهيئة فورية
+        // تهيئة فورية (بدون تفعيل اختصارات 1-4 أو إخفاء الأقسام)
         injectFc1MasterStyles();
-        ensureFloatingLandscapeToggle();
-        var savedUi = localStorage.getItem(FC1_UI_MODE_KEY) || 'modern';
-        if (document.body) document.body.setAttribute('data-fc1-ui', savedUi);
-        if (localStorage.getItem(FC1_SUNLIGHT_KEY) === '1') {
-            document.documentElement.setAttribute('data-fc1-sunlight', '1');
-        }
-        setTimeout(function() {
-            var cfg = getFc1ShortcutsConfig();
-            if (cfg.activeSlot > 0) window.applyMdFc1ShortcutSlot(cfg.activeSlot, true);
-        }, 200);
+        try { localStorage.removeItem(FC1_SHORTCUTS_KEY); } catch (_) {}
+        document.querySelectorAll('.md-tabs-sidebar .md-tab-btn, .md-tabs-nav .md-tab-btn').forEach(function(btn) { btn.style.display = ''; });
     })();
 
     // =========================================================================
@@ -10079,13 +10044,11 @@
             window.openMdFc2AtomicSyncAndDrillDownModal(rowTitle);
         });
 
-        // تهيئة فورية
+        // تهيئة فورية نظيفة بدون مؤقتات مفسر النتائج
         injectFc2StylesAndSecurityCurtain();
         verifyFc2MonotonicTimeLock();
         bindFc2DraftBatteryShield();
         bindFc2ExtraZeroAndAnomalyGuard();
-        setTimeout(window.refreshMdFc2LiveResultInterpreter, 350);
-        setInterval(window.refreshMdFc2LiveResultInterpreter, 4000);
     })();
 
     // =========================================================================
@@ -10121,12 +10084,14 @@
                 'html.has-sidebar body.sidebar-open, body.has-sidebar.sidebar-open { margin-right: var(--sb-expanded, 240px) !important; width: calc(100% - var(--sb-expanded, 240px)) !important; max-width: calc(100% - var(--sb-expanded, 240px)) !important; }\n' +
                 '#md-proportional-root, .dash-main { box-sizing: border-box !important; width: calc(100% - 24px) !important; max-width: calc(100% - 24px) !important; min-width: 0 !important; margin-left: auto !important; margin-right: auto !important; margin-inline: auto !important; padding-inline: 0 !important; padding-left: 0 !important; padding-right: 0 !important; transform-origin: top center !important; position: relative !important; left: 0 !important; right: 0 !important; }\n' +
                 '#md-proportional-root > header.premium-header, .dash-main > header.premium-header, header.magical-glass-header { box-sizing: border-box !important; width: 100% !important; max-width: 100% !important; margin: 8px 0 12px 0 !important; animation: none !important; }\n' +
-                'main.md-content-area, .md-card, .md-tab-content, .md-tabs-sidebar, #md-smart-ai-command-bar { box-sizing: border-box !important; width: 100% !important; max-width: 100% !important; min-width: 0 !important; margin-inline: auto !important; }\n' +
+                'main.md-content-area, .md-card, .md-tab-content, .md-tabs-sidebar, #md-clean-organized-bar { box-sizing: border-box !important; width: 100% !important; max-width: 100% !important; min-width: 0 !important; margin-inline: auto !important; }\n' +
+                '#md-smart-ai-command-bar, #md-fc2-executive-toolbar, #md-fc2-live-result-interpreter-bar, #md-fc1-floating-hdr-toggle, #md-c1-command-bar { display: none !important; }\n' +
                 '.ambient-bg, body { background-image: none !important; }\n' +
                 '.magical-glass-header::before, .magical-glass-header::after, .premium-header::before, .premium-header::after, .md-card-header::after, .neon-glass-panel::after, #md-c1-command-bar::after, .glass-panel::before, .panel::before, .msg-quartet-btn::after, .msg-trigger-btn::after, #md-fc2-forensic-watermark { content: none !important; display: none !important; animation: none !important; background: none !important; }\n' +
                 '.msg-fixed-command-pod { animation: none !important; }\n' +
                 'button, .btn, .btn-add, .btn-action, .btn-text, .md-tab-btn, .msg-quartet-btn { overflow: hidden !important; }\n' +
-                'table.pro-table th, table.pro-table td { font-size: var(--global-master-font-px, 15px) !important; font-weight: 800 !important; }\n' +
+                'table.pro-table th { font-size: calc(var(--global-master-font-px, 15px) * var(--mg-lvl-tables-scale, 1)) !important; font-weight: var(--mg-lvl-tables-weight, var(--mg-master-weight, 800)) !important; font-family: var(--mg-lvl-tables-font, var(--magaiees-active-font, var(--md-font-sans))) !important; }\n' +
+                'table.pro-table td { font-size: calc(var(--global-master-font-px, 15px) * var(--mg-lvl-tables-scale, 1)) !important; font-weight: var(--mg-lvl-tables-weight, var(--mg-master-weight, 700)) !important; font-family: var(--mg-lvl-tables-font, var(--magaiees-active-font, var(--md-font-sans))) !important; }\n' +
                 'body:not([data-zoomed-high="1"]) { overflow-x: hidden !important; }\n' +
                 'body[data-zoomed-high="1"] { overflow-x: auto !important; overflow-y: auto !important; }\n';
             document.head.appendChild(st);
@@ -10201,8 +10166,15 @@
             }
         };
 
-        var savedGlobalFont = localStorage.getItem(GLOBAL_FONT_KEY) || localStorage.getItem('elsajana_sl_font_size') || '15';
+        var savedScaleForFont = parseInt(localStorage.getItem('magaiees_font_scale') || '100', 10) || 100;
+        var savedGlobalFont = Math.round(15 * (savedScaleForFont / 100));
         window.setMdGlobalUnifiedFontPx(savedGlobalFont, true);
+        window.addEventListener('storage', function(ev) {
+            if (ev.key === 'magaiees_font_scale') {
+                var sc = parseInt(ev.newValue || '100', 10) || 100;
+                window.setMdGlobalUnifiedFontPx(Math.round(15 * (sc / 100)), true);
+            }
+        });
 
         if (window.__mdViewportSingletonBc) {
             window.__mdViewportSingletonBc.onmessage = function(ev) {
@@ -10316,5 +10288,305 @@
         }, 120);
     })();
     </script>
+    <script src="js/master-data-purchase-constitution-2027.js?v=2027_contrast_borders_v3"></script>
+    <script>
+    (function initMasterTablesColumnControlAndCompactEngine() {
+        var STORAGE_KEY = 'erp_md_hidden_cols_v2';
+        var COMPACT_KEYWORDS = ['السرية', 'العنوان', 'الهاتف', 'المسؤول', 'الائتمان', 'الوصف', 'النوع', 'الوزن', 'أقل سعر', 'الدور', 'الفئة'];
+        function loadMap() { try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}') || {}; } catch (_) { return {}; } }
+        function saveMap(m) { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(m)); } catch (_) {} }
+        function getTblId(tbl, idx) {
+            if (tbl.dataset.mdColTbl) return tbl.dataset.mdColTbl;
+            var id = tbl.id || (tbl.querySelector('tbody') && tbl.querySelector('tbody').id) || ('md_tbl_' + idx);
+            tbl.dataset.mdColTbl = id;
+            return id;
+        }
+        function getColNames(tbl) {
+            return Array.from(tbl.querySelectorAll('thead tr:first-child th')).map(function(th, i) {
+                var clone = th.cloneNode(true);
+                Array.from(clone.querySelectorAll('.resize-handle-left,.resize-handle-right,button')).forEach(function(el){ el.remove(); });
+                return (clone.textContent || '').replace(/\s+/g, ' ').trim() || ('عمود ' + (i + 1));
+            });
+        }
+        function applyDynamicHiddenColsCss() {
+            var st = document.getElementById('md-dynamic-hidden-cols-css');
+            if (!st) { st = document.createElement('style'); st.id = 'md-dynamic-hidden-cols-css'; document.head.appendChild(st); }
+            var map = loadMap(), rules = [
+                '.table-responsive table.pro-table { width: 100% !important; max-width: 100% !important; min-width: 0 !important; table-layout: auto !important; }',
+                '.md-col-ctrl-bar { display:flex; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap; margin-bottom:8px; padding:6px 12px; border-radius:10px; background:rgba(15,23,42,0.55); border:1px solid rgba(56,189,248,0.28); }',
+                'html.light-theme .md-col-ctrl-bar, html[data-theme="light"] .md-col-ctrl-bar { background:var(--lt-card,#f8fafc) !important; border:1.5px solid var(--lt-border,#cbd5e1) !important; color:#000 !important; }',
+                '.md-col-ctrl-btn { height:30px; padding:0 11px; border-radius:8px; font-size:0.78rem; font-weight:900; cursor:pointer; display:inline-flex; align-items:center; gap:5px; border:1px solid rgba(56,189,248,0.45); background:rgba(56,189,248,0.15); color:#38bdf8; }',
+                'html.light-theme .md-col-ctrl-btn, html[data-theme="light"] .md-col-ctrl-btn { background:#ffffff !important; color:#0f172a !important; border:1.5px solid #64748b !important; }'
+            ];
+            Object.keys(map).forEach(function(tblId) {
+                var arr = Array.isArray(map[tblId]) ? map[tblId] : [];
+                arr.forEach(function(colIdx1) {
+                    var n = parseInt(colIdx1, 10);
+                    if (n >= 1) {
+                        rules.push('table[data-md-col-tbl="' + tblId + '"] tr > th:nth-child(' + n + '), table[data-md-col-tbl="' + tblId + '"] tr > td:nth-child(' + n + ') { display: none !important; }');
+                    }
+                });
+            });
+            st.textContent = rules.join('\n');
+            updateAllToolbars();
+        }
+        function toggleCol(tblId, colIdx1, forceHide) {
+            var map = loadMap(), arr = Array.isArray(map[tblId]) ? map[tblId].slice() : [];
+            var tbl = document.querySelector('table[data-md-col-tbl="' + tblId + '"]');
+            var totalCols = tbl ? tbl.querySelectorAll('thead tr:first-child th').length : 10;
+            var pos = arr.indexOf(colIdx1);
+            var shouldHide = (typeof forceHide === 'boolean') ? forceHide : (pos === -1);
+            if (shouldHide && pos === -1) {
+                if (arr.length >= totalCols - 1) { if (typeof showToast === 'function') showToast('⚠️ يجب إبقاء عمود واحد ظاهر على الأقل', 'warning'); return; }
+                arr.push(colIdx1);
+            } else if (!shouldHide && pos > -1) {
+                arr.splice(pos, 1);
+            }
+            map[tblId] = arr;
+            saveMap(map);
+            applyDynamicHiddenColsCss();
+        }
+        window.toggleMdTableCompactMode = function(tblId) {
+            var tbl = document.querySelector('table[data-md-col-tbl="' + tblId + '"]');
+            if (!tbl) return;
+            var names = getColNames(tbl), map = loadMap(), cur = Array.isArray(map[tblId]) ? map[tblId] : [];
+            if (cur.length > 0) {
+                map[tblId] = [];
+                saveMap(map);
+                applyDynamicHiddenColsCss();
+                if (typeof showToast === 'function') showToast('🔄 تم إظهار كافة أعمدة الجدول', 'info', 1600);
+                return;
+            }
+            var toHide = [];
+            names.forEach(function(nm, idx) {
+                var c1 = idx + 1;
+                if (c1 === 1 || c1 === names.length) return;
+                if (COMPACT_KEYWORDS.some(function(k){ return nm.indexOf(k) !== -1; })) toHide.push(c1);
+            });
+            if (!toHide.length && names.length > 3) toHide.push(names.length - 1);
+            map[tblId] = toHide;
+            saveMap(map);
+            applyDynamicHiddenColsCss();
+            if (typeof showToast === 'function') showToast('⚡ تم اختصار الجدول وإخفاء (' + toHide.length + ') أعمدة ثانوية لاحتواء الشاشة', 'success', 1800);
+        };
+        window.showAllMdTableCols = function(tblId) {
+            var map = loadMap();
+            map[tblId] = [];
+            saveMap(map);
+            var tbl = document.querySelector('table[data-md-col-tbl="' + tblId + '"]');
+            if (tbl) {
+                tbl.style.width = '100%'; tbl.style.minWidth = '0'; tbl.style.tableLayout = 'auto';
+                tbl.querySelectorAll('thead th').forEach(function(th){ th.style.width = ''; th.style.minWidth = ''; th.style.maxWidth = ''; });
+            }
+            applyDynamicHiddenColsCss();
+            if (typeof showToast === 'function') showToast('✅ تم إظهار جميع الأعمدة وضبط مقاس الجدول داخل الشاشة', 'success', 1600);
+        };
+        function openColPopover(tbl, clientX, clientY, clickedCol1, clickedColName) {
+            var tblId = getTblId(tbl, 0), names = getColNames(tbl), map = loadMap(), hidden = Array.isArray(map[tblId]) ? map[tblId] : [];
+            var pop = document.getElementById('md-col-context-popover');
+            if (!pop) {
+                pop = document.createElement('div');
+                pop.id = 'md-col-context-popover';
+                pop.className = 'md-child-modal-card';
+                pop.style.cssText = 'position:fixed;z-index:9999999;min-width:265px;max-width:335px;border-radius:14px;padding:10px 12px;box-shadow:0 18px 45px rgba(0,0,0,0.75);font-family:Tajawal,sans-serif;direction:rtl;';
+                document.body.appendChild(pop);
+                if (typeof window.__makePopupElementDraggable === 'function') window.__makePopupElementDraggable(pop);
+            }
+            var isLight = document.documentElement.classList.contains('light-theme') || ['light','warm_cream','ultra_white','exec_gray'].indexOf(document.documentElement.getAttribute('data-theme') || '') > -1;
+            pop.style.background = isLight ? 'linear-gradient(145deg, var(--lt-card-1, #fdf6ee) 0%, var(--lt-card-2, #f3e2ce) 100%)' : 'linear-gradient(145deg, var(--dk-card-1, #0f172a) 0%, var(--dk-card-2, #152342) 100%)';
+            pop.style.border = isLight ? '2px solid var(--lt-border, #4a2106)' : '2px solid var(--dk-border, #38bdf8)';
+            pop.style.color = isLight ? 'var(--lt-ink, #140600)' : '#f8fafc';
+            var html = '<div class="popup-drag-handle" style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(148,163,184,0.28);padding-bottom:6px;margin-bottom:8px;cursor:grab;user-select:none;" title="اسحب لتحريك النافذة">' +
+                '<strong style="font-size:0.86rem;color:' + (isLight ? 'var(--lt-ink, #140600)' : '#fde047') + ';">✋ 👁️ التحكم في أعمدة الجدول</strong>' +
+                '<button type="button" onclick="document.getElementById(\'md-col-context-popover\').style.display=\'none\'" style="background:rgba(239,68,68,0.18);border:1px solid rgba(239,68,68,0.4);border-radius:6px;padding:1px 7px;color:inherit;font-weight:900;cursor:pointer;">✕</button></div>';
+            if (clickedCol1 >= 1 && clickedColName) {
+                var isColHidden = hidden.indexOf(clickedCol1) > -1;
+                html += '<div style="display:flex;gap:5px;margin-bottom:6px;">' +
+                    '<button type="button" id="md-ctx-quick-explain-btn" style="flex:1;text-align:center;padding:7px 8px;border-radius:8px;border:1.5px solid #38bdf8;background:linear-gradient(135deg,#0284c7,#2563eb);color:#ffffff !important;-webkit-text-fill-color:#ffffff !important;font-weight:900;font-size:0.8rem;cursor:pointer;">📖 زر الشرح</button>' +
+                    '<button type="button" id="md-ctx-quick-hide-btn" style="flex:1.2;text-align:center;padding:7px 8px;border-radius:8px;border:1px solid rgba(244,63,94,0.45);background:rgba(244,63,94,0.15);color:' + (isLight ? '#be123c' : '#fda4af') + ';font-weight:900;font-size:0.8rem;cursor:pointer;">' +
+                    (isColHidden ? '👁️ إظهار: ' : '🙈 إخفاء: ') + clickedColName + '</button></div>';
+            }
+            html += '<div style="display:flex;gap:6px;margin-bottom:8px;">' +
+                '<button type="button" onclick="window.toggleMdTableCompactMode(\'' + tblId + '\');document.getElementById(\'md-col-context-popover\').style.display=\'none\';" style="flex:1;padding:5px 8px;border-radius:7px;border:1px solid rgba(245,158,11,0.5);background:rgba(245,158,11,0.16);color:' + (isLight ? '#b45309' : '#fde047') + ';font-weight:900;font-size:0.75rem;cursor:pointer;">⚡ اختصار</button>' +
+                '<button type="button" onclick="window.showAllMdTableCols(\'' + tblId + '\');document.getElementById(\'md-col-context-popover\').style.display=\'none\';" style="flex:1;padding:5px 8px;border-radius:7px;border:1px solid rgba(16,185,129,0.5);background:rgba(16,185,129,0.16);color:' + (isLight ? '#047857' : '#34d399') + ';font-weight:900;font-size:0.75rem;cursor:pointer;">🔄 إظهار الكل</button></div>' +
+                '<div style="max-height:220px;overflow-y:auto;display:flex;flex-direction:column;gap:4px;">';
+            names.forEach(function(nm, idx) {
+                var c1 = idx + 1, vis = hidden.indexOf(c1) === -1;
+                html += '<label style="display:flex;align-items:center;gap:8px;padding:4px 7px;border-radius:6px;cursor:pointer;font-size:0.8rem;font-weight:800;background:' + (vis ? 'rgba(56,189,248,0.08)' : 'transparent') + ';">' +
+                    '<input type="checkbox" data-col-c1="' + c1 + '" ' + (vis ? 'checked' : '') + ' style="width:15px;height:15px;accent-color:#38bdf8;">' +
+                    '<span>' + nm + '</span></label>';
+            });
+            html += '</div>';
+            pop.innerHTML = html;
+            pop.style.display = 'block';
+            var qBtn = pop.querySelector('#md-ctx-quick-hide-btn');
+            if (qBtn) qBtn.onclick = function() { toggleCol(tblId, clickedCol1); pop.style.display = 'none'; };
+            var expBtn = pop.querySelector('#md-ctx-quick-explain-btn');
+            if (expBtn) expBtn.onclick = function() {
+                pop.style.display = 'none';
+                var thEl = tbl.querySelector('thead tr th:nth-child(' + clickedCol1 + ')') || tbl;
+                if (typeof window.openMdExplanationPanelGlobal === 'function') window.openMdExplanationPanelGlobal(thEl, clientX, clientY);
+            };
+            pop.querySelectorAll('input[type="checkbox"][data-col-c1]').forEach(function(cb) {
+                cb.onchange = function() { toggleCol(tblId, parseInt(cb.getAttribute('data-col-c1'), 10), !cb.checked); };
+            });
+            var left = Math.min(Math.max(10, clientX), window.innerWidth - 280);
+            var top = Math.min(Math.max(10, clientY), window.innerHeight - 320);
+            pop.style.left = left + 'px';
+            pop.style.top = top + 'px';
+        }
+        window.openMdTableColContextMenu = function(e, cell) {
+            var tbl = cell.closest('table');
+            if (!tbl) return;
+            var tr = cell.parentElement;
+            var colIdx1 = tr ? (Array.from(tr.children).indexOf(cell) + 1) : 0;
+            var names = getColNames(tbl);
+            openColPopover(tbl, e.clientX, e.clientY, colIdx1, names[colIdx1 - 1] || '');
+        };
+        function updateAllToolbars() {
+            var map = loadMap();
+            document.querySelectorAll('table.pro-table').forEach(function(tbl, idx) {
+                if (tbl.querySelector('#units-matrix-body')) {
+                    var oldWrap = tbl.closest('.table-responsive') || tbl.parentElement;
+                    if (oldWrap && oldWrap.previousElementSibling && oldWrap.previousElementSibling.classList.contains('md-col-ctrl-bar')) {
+                        oldWrap.previousElementSibling.remove();
+                    }
+                    return;
+                }
+                var tblId = getTblId(tbl, idx), names = getColNames(tbl);
+                if (names.length < 2) return;
+                var hidden = Array.isArray(map[tblId]) ? map[tblId] : [];
+                var wrap = tbl.closest('.table-responsive') || tbl.parentElement;
+                if (!wrap) return;
+                var bar = wrap.previousElementSibling;
+                if (!bar || !bar.classList.contains('md-col-ctrl-bar')) {
+                    bar = document.createElement('div');
+                    bar.className = 'md-col-ctrl-bar';
+                    wrap.parentNode.insertBefore(bar, wrap);
+                }
+                var visCount = Math.max(1, names.length - hidden.length);
+                bar.innerHTML = '<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">' +
+                    '<button type="button" class="md-col-ctrl-btn" data-act="menu">👁️ التحكم في الأعمدة (' + visCount + '/' + names.length + ')</button>' +
+                    '<button type="button" class="md-col-ctrl-btn" data-act="compact" style="border-color:rgba(245,158,11,0.5);color:#fbbf24;background:rgba(245,158,11,0.14);">' + (hidden.length > 0 ? '🔄 إلغاء الاختصار (' + hidden.length + ' مخفي)' : '⚡ اختصار الجدول') + '</button>' +
+                    (hidden.length > 0 ? '<button type="button" class="md-col-ctrl-btn" data-act="showall" style="border-color:rgba(16,185,129,0.5);color:#34d399;background:rgba(16,185,129,0.14);">👁️ إظهار الكل</button>' : '') +
+                    '</div>';
+                bar.querySelector('[data-act="menu"]').onclick = function(ev) {
+                    var r = ev.currentTarget.getBoundingClientRect();
+                    openColPopover(tbl, r.left, r.bottom + 6, 0, '');
+                };
+                bar.querySelector('[data-act="compact"]').onclick = function() { window.toggleMdTableCompactMode(tblId); };
+                var sa = bar.querySelector('[data-act="showall"]');
+                if (sa) sa.onclick = function() { window.showAllMdTableCols(tblId); };
+            });
+        }
+        document.addEventListener('mousedown', function(e) {
+            var pop = document.getElementById('md-col-context-popover');
+            if (pop && pop.style.display === 'block' && !pop.contains(e.target) && !e.target.closest('.md-col-ctrl-btn')) pop.style.display = 'none';
+        });
+        if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function(){ setTimeout(applyDynamicHiddenColsCss, 80); });
+        else setTimeout(applyDynamicHiddenColsCss, 80);
+    })();
+    </script>
+    <style id="md-light-units-inspection-contrast-2027">
+        html.light-theme #item-form div[style*="background"],
+        html.light-theme #inner-units div[style*="background"],
+        html.light-theme #md-c9-inspection-modal .md-card,
+        html.light-theme #md-c9-inspection-modal div[style*="background"] {
+            background: var(--lt-bg-card, #ffffff) !important;
+            border-color: var(--lt-border, #64748b) !important;
+            color: #000000 !important;
+        }
+        html.light-theme #item-form h5, html.light-theme #item-form label, html.light-theme #item-form span:not(.kbd-hint),
+        html.light-theme #item-form th, html.light-theme #item-form td,
+        html.light-theme #inner-units h3, html.light-theme #inner-units th, html.light-theme #inner-units td, html.light-theme #inner-units span,
+        html.light-theme #md-c9-inspection-modal h3, html.light-theme #md-c9-inspection-modal label,
+        html.light-theme #md-c9-inspection-modal th, html.light-theme #md-c9-inspection-modal td,
+        html.light-theme #md-c9-inspection-modal div, html.light-theme #md-c9-inspection-modal span {
+            color: #000000 !important;
+            -webkit-text-fill-color: #000000 !important;
+            font-weight: 800 !important;
+        }
+        html.light-theme #item-form input, html.light-theme #item-form select, html.light-theme #item-form textarea,
+        html.light-theme #inner-units input, html.light-theme #inner-units select,
+        html.light-theme #md-c9-inspection-modal input, html.light-theme #md-c9-inspection-modal select {
+            background: #ffffff !important;
+            color: #000000 !important;
+            -webkit-text-fill-color: #000000 !important;
+            border: 1.5px solid #334155 !important;
+            font-weight: 900 !important;
+        }
+        html.light-theme #item-form button[onclick*="autoGenerateMissingUnitBarcodes"],
+        html.light-theme #tab-items button[onclick*="openBulkPriceUpdaterModal"],
+        html.light-theme #tab-items button[onclick*="openSmartClipboardPasteModal"],
+        html.light-theme #tab-items #btn-export-items-csv,
+        html.light-theme #tab-items #btn-import-items-csv,
+        html.light-theme #kpi-total-items-badge, html.light-theme #kpi-total-items-badge * {
+            background: #f1f5f9 !important;
+            color: #000000 !important;
+            -webkit-text-fill-color: #000000 !important;
+            border: 1.5px solid #475569 !important;
+            font-weight: 900 !important;
+        }
+        /* Royal 3D Kinetic & Luminous Buttons for Column Control, Customer/Supplier Segmented Pills, Default Bank & Toolbars */
+        @keyframes mdBtnLightSweep {
+            0% { background-position: -150% 0, 0 0; }
+            100% { background-position: 250% 0, 0 0; }
+        }
+        html:not(.light-theme) .md-col-ctrl-bar {
+            padding: 8px 14px !important; border-radius: 13px !important;
+            background: linear-gradient(135deg, rgba(15,23,42,0.88), rgba(30,41,59,0.92)) !important;
+            border: 2px solid rgba(56,189,248,0.55) !important; box-shadow: 0 6px 18px rgba(0,0,0,0.32) !important;
+        }
+        html.light-theme .md-col-ctrl-bar {
+            padding: 8px 14px !important; border-radius: 13px !important;
+            background: var(--lt-bg-strip, #e6d7be) !important;
+            border: 2px solid var(--lt-border, #854d0e) !important;
+            color: #000000 !important;
+        }
+        .md-col-ctrl-btn, .md-hdr-pill-btn, .md-entity-seg-btn, .entity-default-bank-select,
+        #customer-form > div:first-child > h4, #supplier-form > div:first-child > h4 {
+            position: relative !important; height: 37px !important; min-height: 37px !important;
+            padding: 0 14px !important; border-radius: 11px !important; font-size: 0.84rem !important; font-weight: 900 !important;
+            display: inline-flex !important; align-items: center !important; justify-content: center !important; gap: 6px !important;
+            cursor: pointer !important; transition: all 0.22s cubic-bezier(0.22, 1, 0.36, 1) !important;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.28), inset 0 2px 2px rgba(255,255,255,0.65), inset 0 -4px 8px rgba(0,0,0,0.25) !important;
+        }
+        .md-col-ctrl-btn[data-act="menu"] {
+            background: linear-gradient(135deg, #0284c7, #0369a1) !important; color: #ffffff !important;
+            -webkit-text-fill-color: #ffffff !important; border: 2px solid #7dd3fc !important;
+        }
+        .md-col-ctrl-btn[data-act="compact"] {
+            background: linear-gradient(135deg, #d97706, #b45309) !important; color: #ffffff !important;
+            -webkit-text-fill-color: #ffffff !important; border: 2px solid #fde68a !important;
+        }
+        .md-col-ctrl-btn[data-act="showall"] {
+            background: linear-gradient(135deg, #059669, #047857) !important; color: #ffffff !important;
+            -webkit-text-fill-color: #ffffff !important; border: 2px solid #6ee7b7 !important;
+        }
+        html:not(.light-theme) .md-entity-seg-group {
+            height: 42px !important; padding: 3px 5px !important; border-radius: 13px !important; gap: 5px !important;
+            background: linear-gradient(145deg, rgba(15,23,42,0.95), rgba(30,41,59,0.9)) !important;
+            border: 2.2px solid rgba(56,189,248,0.6) !important; box-shadow: 0 4px 14px rgba(0,0,0,0.3) !important;
+        }
+        html.light-theme .md-entity-seg-group {
+            height: 42px !important; padding: 3px 5px !important; border-radius: 13px !important; gap: 5px !important;
+            background: #ffffff !important;
+            border: 2.2px solid var(--lt-border, #334155) !important;
+        }
+        .md-entity-seg-btn { height: 32px !important; min-height: 32px !important; padding: 0 11px !important; border-radius: 9px !important; }
+        #customer-form > div:first-child > h4, #supplier-form > div:first-child > h4 {
+            background: linear-gradient(135deg, #0284c7, #1d4ed8) !important; color: #ffffff !important;
+            -webkit-text-fill-color: #ffffff !important; border: 2px solid #7dd3fc !important; padding: 0 16px !important;
+        }
+        .md-col-ctrl-btn:hover, .md-hdr-pill-btn:hover, .md-entity-seg-btn:hover, .entity-default-bank-select:hover {
+            transform: none !important;
+            text-shadow: none !important;
+            box-shadow: 0 8px 20px rgba(56,189,248,0.45), 0 0 14px rgba(251,191,36,0.45), inset 0 2px 3px rgba(255,255,255,0.95) !important;
+            filter: brightness(1.08) !important;
+        }
+        .md-col-ctrl-btn:active, .md-hdr-pill-btn:active, .md-entity-seg-btn:active {
+            transform: none !important;
+        }
+    </style>
 </body>
 </html>

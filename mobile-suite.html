@@ -15,24 +15,26 @@
   <title>نظام الإدارة المحاسبية العالمي - Antigravity Mobile ERP</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link id="mobile-google-fonts-pack" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=Readex+Pro:wght@300;400;500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+  <link id="mobile-google-fonts-pack" href="https://fonts.googleapis.com/css2?family=Almarai:wght@300;400;700;800&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=Readex+Pro:wght@300;400;500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
   <script>
     (function initMobileTypographyEarly() {
       try {
-        var font = localStorage.getItem('magaies_mobile_font_family') || localStorage.getItem('magaiees_font_family') || 'default';
-        var scalePct = parseInt(localStorage.getItem('magaies_mobile_font_scale_pct') || '0', 10);
-        if (!scalePct) {
-          var legacyLvl = parseInt(localStorage.getItem('magaies_font_scale') || '2', 10);
-          var mapLvl = { 1: 90, 2: 100, 3: 110, 4: 125 };
-          scalePct = mapLvl[legacyLvl] || 100;
-        }
-        scalePct = Math.min(130, Math.max(85, scalePct));
+        var h = JSON.parse(localStorage.getItem('magaiees_typography_hierarchy_v1') || '{}');
+        var mobCfg = h.mobile || {};
+        var font = (mobCfg.font && mobCfg.font !== 'inherit' ? mobCfg.font : '') || localStorage.getItem('magaiees_font_family') || localStorage.getItem('magaies_mobile_font_family') || 'default';
+        var globalScale = parseInt(localStorage.getItem('magaiees_font_scale') || '0', 10) || parseInt(localStorage.getItem('magaies_mobile_font_scale_pct') || '100', 10) || 100;
+        var mobScale = parseInt(mobCfg.scale || '100', 10) || 100;
+        var scalePct = Math.min(135, Math.max(80, Math.round((globalScale * mobScale) / 100)));
         var root = document.documentElement;
-        if (font === 'ibm_plex' || font === 'readex_pro') {
+        if (['ibm_plex', 'readex_pro', 'almarai'].indexOf(font) !== -1) {
           root.setAttribute('data-mobile-font', font);
+          root.setAttribute('data-magaiees-font', font);
         } else {
           root.removeAttribute('data-mobile-font');
+          root.removeAttribute('data-magaiees-font');
         }
+        var wt = (mobCfg.weight && mobCfg.weight !== 'auto' ? mobCfg.weight : '') || localStorage.getItem('magaiees_font_weight') || 'auto';
+        if (wt && wt !== 'auto') { root.setAttribute('data-mg-master-weight', wt); root.style.setProperty('--mg-master-weight', wt); }
         root.style.setProperty('--mobile-font-scale', (scalePct / 100).toFixed(3));
         root.setAttribute('data-mobile-scale-pct', String(scalePct));
         root.style.fontSize = (16 * (scalePct / 100)).toFixed(2) + 'px';

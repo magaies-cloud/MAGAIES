@@ -715,6 +715,14 @@
             if (panel) panel.classList.add('active');
             const btn = (evt && evt.currentTarget) ? evt.currentTarget : document.querySelector(`.md-tab-btn[onclick*="${tabId}"]`);
             if (btn) btn.classList.add('active');
+            if (tabId === 'tab-banks') {
+                const bf = document.getElementById('bank-form');
+                if (bf && bf.style.display === 'none' && typeof openBankForm === 'function') openBankForm();
+                else if (bf) bf.style.display = 'block';
+            } else if (tabId === 'tab-employees') {
+                const ef = document.getElementById('employee-form');
+                if (ef) ef.style.display = 'block';
+            }
             requestAnimationFrame(() => {
                 if (!panel) return;
                 const firstFocus = panel.querySelector('#cust-name, #sup-name, input[id*="search"], input:not([type="hidden"]):not([disabled])');
@@ -1473,16 +1481,23 @@
             return String(seq);
         }
 
+        function getEntityFull5DigitPin(waOrPhone, rawPin) {
+            const pin3 = normalizeDigitsToAscii(rawPin || '').replace(/[^0-9]/g, '');
+            const waDigits = normalizeDigitsToAscii(waOrPhone || '').replace(/[^0-9]/g, '');
+            const last2 = waDigits.length >= 2 ? waDigits.slice(-2) : '';
+            const full5 = (pin3 && last2 && pin3.length === 3) ? (last2 + pin3) : pin3;
+            return { pin3, last2, full5 };
+        }
+        window.getEntityFull5DigitPin = getEntityFull5DigitPin;
+
         function updateCombinedPinPreview(prefix) {
             const pinEl = document.getElementById(`${prefix}-statement-pin`);
             const prevEl = document.getElementById(`${prefix}-pin-combined-preview`);
-            if (!prevEl) return;
             const rawPin = normalizeDigitsToAscii(pinEl ? pinEl.value : '').replace(/[^0-9]/g, '');
             if (pinEl && pinEl.value !== rawPin) pinEl.value = rawPin;
-            if (rawPin) {
-                prevEl.innerHTML = `الباسورد: <b style="color:#34d399; font-family:monospace; direction:ltr; display:inline-block;">${rawPin}</b>`;
-            } else {
-                prevEl.innerHTML = `فريد لكل حساب`;
+            if (prevEl) {
+                prevEl.innerHTML = '';
+                prevEl.style.display = 'none';
             }
         }
 
@@ -1576,25 +1591,30 @@
             }
         }
 
-        function buildWhatsAppCardText(isCust, name, codeNum, pin) {
-            const cleanPin = normalizeDigitsToAscii(pin || '').replace(/[^0-9]/g, '');
+        function buildWhatsAppCardText(isCust, name, codeNum, pin, waPhone = '') {
+            const info = getEntityFull5DigitPin(waPhone, pin);
+            const cleanPin = info.pin3;
+            const fullPin = info.full5 || cleanPin;
             const roleTitle = isCust ? 'عميلنا العزيز' : 'موردنا العزيز';
+            const pinExplain = (info.last2 && cleanPin.length === 3)
+                ? `🔐 الرقم السري للاستعلام (5 أرقام): *${fullPin}* (يتكون من آخر رقمين من واتسابكم *${info.last2}* + الرمز السري *${cleanPin}*)\n`
+                : (cleanPin ? `🔐 الباسورد السري الخاص بحسابكم: *${cleanPin}*\n` : '');
             return (
                 `📋 *بطاقة الخدمة الذاتية عبر الواتساب*\n` +
                 `━━━━━━━━━━━━━━\n` +
                 `مرحباً بك ${roleTitle}: *${name || 'الكريم'}*\n` +
-                (cleanPin ? `🔐 الباسورد السري الخاص بحسابكم: *${cleanPin}*\n` : '') +
+                pinExplain +
                 `━━━━━━━━━━━━━━\n` +
                 `🟢 *أولاً: من رقمكم المعتمد المسجل لدينا (مباشر بدون باسورد):*\n` +
                 `• لإرسال إشعار (أو 10 إشعارات دفعة واحدة): أرسل *صور الإشعارات فقط* وستنزل في حسابكم فوراً\n` +
                 `• لسحب كشف الحساب المفصل أرسل كلمة: *كشف*\n` +
                 `• لمعرفة الرصيد الصافي فقط أرسل كلمة: *رصيد*\n` +
-                (cleanPin
+                (fullPin
                     ? `━━━━━━━━━━━━━━\n` +
-                      `🟣 *ثانياً: من أي رقم آخر (أو لتنزيل الإشعارات في حسابكم):*\n` +
-                      `• لإرسال إشعار واحد أو 10 إشعارات دفعة واحدة: اكتب الباسورد *${cleanPin}* *مرة واحدة فقط* (إما في تعليق أول صورة، أو في رسالة قبل الصور، أو في رسالة مباشرة بعد الصور)\n` +
-                      `• لسحب كشف الحساب أرسل: *${cleanPin} كشف* (أو *${cleanPin}* فقط)\n` +
-                      `• لمعرفة الرصيد الصافي أرسل: *${cleanPin} رصيد*`
+                      `🟣 *ثانياً: من أي رقم آخر غير مسجل (أو لتنزيل الإشعارات في حسابكم):*\n` +
+                      `• لإرسال إشعار واحد أو 10 إشعارات دفعة واحدة: اكتب الرقم السري *${fullPin}* *مرة واحدة فقط* (في تعليق أول صورة أو برسالة قبل/بعد الصور)\n` +
+                      `• لسحب كشف الحساب من رقم آخر أرسل: *${fullPin} كشف* (أو *${fullPin}* فقط)\n` +
+                      `• لمعرفة الرصيد الصافي من رقم آخر أرسل: *${fullPin} رصيد*`
                     : '')
             );
         }
@@ -1610,11 +1630,13 @@
             if (!item) return;
             const codeNum = item.receiptCodeNum || '';
             const pin = item.statementPin || '';
-            const cardText = buildWhatsAppCardText(isCust, item.name, codeNum, pin);
+            const wa = item.whatsapp || item.phone || '';
+            const info = getEntityFull5DigitPin(wa, pin);
+            const cardText = buildWhatsAppCardText(isCust, item.name, codeNum, pin, wa);
 
             if (navigator.clipboard && navigator.clipboard.writeText) {
                 navigator.clipboard.writeText(cardText).then(() => {
-                    if (typeof showToast === 'function') showToast(`📋 تم نسخ بطاقة الواتساب لـ "${item.name}" (🔐 ${pin}) بنجاح`, 'success');
+                    if (typeof showToast === 'function') showToast(`📋 تم نسخ بطاقة الواتساب لـ "${item.name}" (🔐 ${info.full5 || pin}) بنجاح`, 'success');
                 });
             }
         }
@@ -1623,15 +1645,17 @@
             const isCust = prefix === 'cust';
             const name = (document.getElementById(`${prefix}-name`)?.value || '').trim();
             const codeNum = normalizeDigitsToAscii(document.getElementById(`${prefix}-receipt-code-num`)?.value || '').replace(/[^0-9]/g, '');
+            const wa = (document.getElementById(`${prefix}-whatsapp`)?.value || '').trim();
             let pin = normalizeDigitsToAscii(document.getElementById(`${prefix}-statement-pin`)?.value || '').replace(/[^0-9]/g, '');
             if (!pin) {
                 generateRandomFormPin(prefix);
                 pin = normalizeDigitsToAscii(document.getElementById(`${prefix}-statement-pin`)?.value || '').replace(/[^0-9]/g, '');
             }
-            const cardText = buildWhatsAppCardText(isCust, name || (isCust ? 'عميلنا الكريم' : 'موردنا الكريم'), codeNum, pin);
+            const info = getEntityFull5DigitPin(wa, pin);
+            const cardText = buildWhatsAppCardText(isCust, name || (isCust ? 'عميلنا الكريم' : 'موردنا الكريم'), codeNum, pin, wa);
             if (navigator.clipboard && navigator.clipboard.writeText) {
                 navigator.clipboard.writeText(cardText).then(() => {
-                    if (typeof showToast === 'function') showToast(`📋 تم نسخ بطاقة الواتساب للباسورد (🔐 ${pin}) بنجاح`, 'success');
+                    if (typeof showToast === 'function') showToast(`📋 تم نسخ بطاقة الواتساب للباسورد (🔐 ${info.full5 || pin}) بنجاح`, 'success');
                 });
             }
         }
@@ -1985,32 +2009,33 @@
 
             const btnConfigs = {
                 'auto_post': {
-                    activeBg: 'rgba(16, 185, 129, 0.24)',
+                    activeBg: 'rgba(16, 185, 129, 0.28)',
                     activeColor: '#6ee7b7',
-                    activeBorder: 'rgba(16, 185, 129, 0.6)',
-                    activeShadow: '0 0 10px rgba(16, 185, 129, 0.25)'
+                    activeBorder: 'rgba(16, 185, 129, 0.85)',
+                    activeShadow: '0 0 10px rgba(16, 185, 129, 0.3)'
                 },
                 'review_first': {
-                    activeBg: 'rgba(245, 158, 11, 0.24)',
+                    activeBg: 'rgba(245, 158, 11, 0.28)',
                     activeColor: '#fcd34d',
-                    activeBorder: 'rgba(245, 158, 11, 0.6)',
-                    activeShadow: '0 0 10px rgba(245, 158, 11, 0.25)'
+                    activeBorder: 'rgba(245, 158, 11, 0.85)',
+                    activeShadow: '0 0 10px rgba(245, 158, 11, 0.3)'
                 }
             };
 
             ['auto_post', 'review_first'].forEach(m => {
                 const btn = document.getElementById(`${prefix}-rcpt-btn-${m}`);
                 if (!btn) return;
+                btn.classList.toggle('is-active-seg', m === normalizedMode);
                 if (m === normalizedMode) {
                     const c = btnConfigs[m];
                     btn.style.background = c.activeBg;
                     btn.style.color = c.activeColor;
-                    btn.style.borderColor = c.activeBorder;
+                    btn.style.border = `2px solid ${c.activeBorder}`;
                     btn.style.boxShadow = c.activeShadow;
                 } else {
-                    btn.style.background = 'transparent';
+                    btn.style.background = 'rgba(148, 163, 184, 0.08)';
                     btn.style.color = '#64748b';
-                    btn.style.borderColor = 'transparent';
+                    btn.style.border = '1.6px solid rgba(148, 163, 184, 0.45)';
                     btn.style.boxShadow = 'none';
                 }
             });
@@ -2081,39 +2106,40 @@
 
             const btnConfigs = {
                 'disabled': {
-                    activeBg: 'rgba(239, 68, 68, 0.22)',
-                    activeColor: '#fca5a5',
-                    activeBorder: 'rgba(239, 68, 68, 0.55)',
-                    activeShadow: '0 0 10px rgba(239, 68, 68, 0.2)'
+                    activeBg: 'linear-gradient(135deg, #be123c, #e11d48)',
+                    activeColor: '#ffffff',
+                    activeBorder: '#fda4af',
+                    activeShadow: '0 4px 12px rgba(225, 29, 72, 0.45), inset 0 1px 2px rgba(255,255,255,0.65)'
                 },
                 'balance_only': {
-                    activeBg: 'rgba(245, 158, 11, 0.24)',
-                    activeColor: '#fcd34d',
-                    activeBorder: 'rgba(245, 158, 11, 0.6)',
-                    activeShadow: '0 0 10px rgba(245, 158, 11, 0.25)'
+                    activeBg: 'linear-gradient(135deg, #b45309, #d97706)',
+                    activeColor: '#ffffff',
+                    activeBorder: '#fde68a',
+                    activeShadow: '0 4px 12px rgba(217, 119, 6, 0.45), inset 0 1px 2px rgba(255,255,255,0.65)'
                 },
                 'detailed': {
-                    activeBg: 'rgba(16, 185, 129, 0.24)',
-                    activeColor: '#6ee7b7',
-                    activeBorder: 'rgba(16, 185, 129, 0.6)',
-                    activeShadow: '0 0 10px rgba(16, 185, 129, 0.25)'
+                    activeBg: 'linear-gradient(135deg, #047857, #059669)',
+                    activeColor: '#ffffff',
+                    activeBorder: '#6ee7b7',
+                    activeShadow: '0 4px 12px rgba(5, 150, 105, 0.45), inset 0 1px 2px rgba(255,255,255,0.65)'
                 }
             };
 
             ['disabled', 'balance_only', 'detailed'].forEach(m => {
                 const btn = document.getElementById(`${prefix}-mode-btn-${m}`);
                 if (!btn) return;
+                btn.classList.toggle('is-active-seg', m === normalizedMode);
                 if (m === normalizedMode) {
                     const c = btnConfigs[m];
                     btn.style.background = c.activeBg;
                     btn.style.color = c.activeColor;
-                    btn.style.borderColor = c.activeBorder;
+                    btn.style.border = `2px solid ${c.activeBorder}`;
                     btn.style.boxShadow = c.activeShadow;
                 } else {
-                    btn.style.background = 'transparent';
-                    btn.style.color = '#64748b';
-                    btn.style.borderColor = 'transparent';
-                    btn.style.boxShadow = 'none';
+                    btn.style.background = 'linear-gradient(145deg, rgba(30,41,59,0.85), rgba(15,23,42,0.92))';
+                    btn.style.color = '#e2e8f0';
+                    btn.style.border = '1.8px solid rgba(148, 163, 184, 0.55)';
+                    btn.style.boxShadow = 'inset 0 1px 1px rgba(255,255,255,0.25)';
                 }
             });
 
@@ -2255,19 +2281,20 @@
             };
 
             const effectiveRcptMode = policyRcptMode === 'review_first_all' ? 'review_first' : (policyRcptMode === 'auto_post_all' ? 'auto_post' : rcptMode);
+            const roleWord = entityType === 'supplier' ? 'المورد' : 'العميل';
             const rcptPillHtml = effectiveRcptMode === 'review_first'
-                ? `<button type="button" onclick="setEntityReceiptApprovalMode('${entityType}', '${item.id}')" style="margin-top:4px; background:rgba(245,158,11,0.2); color:#fcd34d; border:1px solid rgba(245,158,11,0.5); padding:2px 8px; border-radius:6px; font-size:0.72rem; font-weight:800; cursor:pointer; display:inline-flex; align-items:center; gap:4px;">👁️ مراجعة</button>`
-                : `<button type="button" onclick="setEntityReceiptApprovalMode('${entityType}', '${item.id}')" style="margin-top:4px; background:rgba(16,185,129,0.15); color:#6ee7b7; border:1px solid rgba(16,185,129,0.4); padding:2px 8px; border-radius:6px; font-size:0.72rem; font-weight:800; cursor:pointer; display:inline-flex; align-items:center; gap:4px;">⚡ تلقائي</button>`;
+                ? `<button type="button" onclick="setEntityReceiptApprovalMode('${entityType}', '${item.id}')" data-md-tip-title="👁️ مراجعة الإشعارات" data-md-tip="الإشعارات البنكية التي يرسلها هذا ${roleWord} تُراجع أولاً قبل اعتمادها في الحساب (اضغط للتبديل إلى الاعتماد الفوري)." style="margin-top:4px; background:rgba(245,158,11,0.2); color:#fcd34d; border:1px solid rgba(245,158,11,0.5); padding:2px 8px; border-radius:6px; font-size:0.72rem; font-weight:800; cursor:pointer; display:inline-flex; align-items:center; gap:4px;">👁️ مراجعة</button>`
+                : `<button type="button" onclick="setEntityReceiptApprovalMode('${entityType}', '${item.id}')" data-md-tip-title="⚡ الاعتماد الفوري للإشعارات" data-md-tip="الإشعارات البنكية التي يرسلها هذا ${roleWord} عبر الواتساب تُعتمد اعتماداً فورياً وتُقيد في حسابه تلقائياً (اضغط للتبديل إلى المراجعة)." style="margin-top:4px; background:rgba(16,185,129,0.15); color:#6ee7b7; border:1px solid rgba(16,185,129,0.4); padding:2px 8px; border-radius:6px; font-size:0.72rem; font-weight:800; cursor:pointer; display:inline-flex; align-items:center; gap:4px;">⚡ تلقائي</button>`;
 
             const customBankBadge = item.defaultBankName
-                ? `<div style="margin-top:2px; font-size:0.68rem; color:#fcd34d; font-weight:800;">🏦 ${item.defaultBankName}</div>`
+                ? `<div data-md-tip-title="🏦 البنك الافتراضي (${item.defaultBankName})" data-md-tip="حينما يرسل هذا ${roleWord} إشعار تحويل عبر الواتساب يُعتمد ويُودع في هذا البنك تلقائياً." style="margin-top:2px; font-size:0.68rem; color:#fcd34d; font-weight:800;">🏦 ${item.defaultBankName}</div>`
                 : '';
 
             return `
                 <div style="display:inline-flex; align-items:center; gap:3px; background:rgba(15,23,42,0.65); padding:3px; border-radius:8px; border:1px solid rgba(148,163,184,0.2);">
-                    <button type="button" onclick="setEntityStatementMode('${entityType}', '${item.id}', 'disabled')" style="${btnStyle('disabled')} padding:3px 6px; border-radius:6px; font-size:0.72rem; cursor:pointer; white-space:nowrap;">🔒 موقوف</button>
-                    <button type="button" onclick="setEntityStatementMode('${entityType}', '${item.id}', 'balance_only')" style="${btnStyle('balance_only')} padding:3px 6px; border-radius:6px; font-size:0.72rem; cursor:pointer; white-space:nowrap;">💰 الرصيد</button>
-                    <button type="button" onclick="setEntityStatementMode('${entityType}', '${item.id}', 'detailed')" style="${btnStyle('detailed')} padding:3px 6px; border-radius:6px; font-size:0.72rem; cursor:pointer; white-space:nowrap;">📊 كشف</button>
+                    <button type="button" onclick="setEntityStatementMode('${entityType}', '${item.id}', 'disabled')" data-md-tip-title="🔒 موقوف" data-md-tip="إيقاف هذا ${roleWord} من طلب الرصيد أو كشف الحساب عبر الواتساب." style="${btnStyle('disabled')} padding:3px 6px; border-radius:6px; font-size:0.72rem; cursor:pointer; white-space:nowrap;">🔒 موقوف</button>
+                    <button type="button" onclick="setEntityStatementMode('${entityType}', '${item.id}', 'balance_only')" data-md-tip-title="💰 الرصيد فقط" data-md-tip="يسمح لهذا ${roleWord} بطلب معرفة الرصيد فقط عبر الواتساب." style="${btnStyle('balance_only')} padding:3px 6px; border-radius:6px; font-size:0.72rem; cursor:pointer; white-space:nowrap;">💰 الرصيد</button>
+                    <button type="button" onclick="setEntityStatementMode('${entityType}', '${item.id}', 'detailed')" data-md-tip-title="📊 كشف حساب" data-md-tip="يسمح لهذا ${roleWord} بطلب كشف حساب مفصل عن طريق الواتساب." style="${btnStyle('detailed')} padding:3px 6px; border-radius:6px; font-size:0.72rem; cursor:pointer; white-space:nowrap;">📊 كشف</button>
                 </div>
                 <div>${rcptPillHtml}</div>
                 ${customBankBadge}
@@ -2457,15 +2484,15 @@
             const phoneVal = data ? (typeof data === 'string' ? data : (data.phone || '')) : '';
             const labelVal = data && typeof data === 'object' ? (data.label || '') : '';
             row.innerHTML = `
-                <div class="input-group" style="margin-bottom:0;">
+                <div class="input-group" style="margin-bottom:0;" data-md-tip-title="📱 خانة رقم هاتف / واتساب المندوب أو التابع" data-md-tip="اكتب هنا رقم هاتف أو واتساب المندوب أو الموظف أو الفرع التابع لهذا العميل (مثال: 0912345678). يتمتع هذا الرقم بنفس صلاحيات حساب العميل الأساسي تماماً؛ فعندما يرسل المندوب إشعار تحويل بنكي من هذا الرقم عبر الواتساب يقرؤه الذكاء الاصطناعي ويُقيده مباشرة في حساب العميل، وعندما يطلب كشف حساب أو استعلام رصيد يرد عليه البوت آلياً بكشف أو رصيد العميل حسب الصلاحية المحددة للحساب.">
                     <label style="color:#38bdf8;">📱 رقم الهاتف</label>
                     <input type="text" class="sub-phone-number" placeholder="0912345678" value="${phoneVal}" style="direction:ltr; text-align:center; font-weight:800;">
                 </div>
-                <div class="input-group" style="margin-bottom:0;">
+                <div class="input-group" style="margin-bottom:0;" data-md-tip-title="👤 خانة اسم المندوب أو صفته أو الفرع" data-md-tip="اكتب هنا اسم المندوب أو صفته الوظيفية أو اسم الفرع التابع للعميل (مثال: المندوب علي، أو محاسب الفرع، أو سائق التوصيل). يفيدك هذا الاسم في توثيق هوية المرسل داخل سجل الإشعارات الواردة وسندات القبض الآلية وكشف الحساب، لتعرف بالضبط أي مندوب قام بإرسال التحويل أو طلب الكشف.">
                     <label style="color:#94a3b8;">👤 الاسم / الصفة</label>
                     <input type="text" class="sub-phone-label" placeholder="المندوب / الفرع" value="${labelVal}">
                 </div>
-                <button type="button" class="btn-text" onclick="this.closest('.cust-sub-phone-row').remove()" style="color: #f43f5e; border-color: rgba(244,63,94,0.3); background: rgba(244,63,94,0.12);">🗑️ حذف</button>
+                <button type="button" class="btn-text" onclick="this.closest('.cust-sub-phone-row').remove()" data-md-tip-title="🗑️ زر حذف رقم المندوب من الحساب" data-md-tip="يقوم بإزالة رقم هذا المندوب وإلغاء ارتباطه بحساب العميل؛ وبعد الضغط على (💾 حفظ F10) لن يتمكن هذا الرقم من طلب كشف الحساب أو الرصيد أو إرسال إشعارات باسم هذا العميل." style="color: #f43f5e; border-color: rgba(244,63,94,0.3); background: rgba(244,63,94,0.12);">🗑️ حذف</button>
             `;
             container.appendChild(row);
         }
@@ -2659,7 +2686,9 @@
                 const q = norm(query);
                 const qCleanCode = normalizeDigitsToAscii(query).trim().replace(/^#/, '');
                 customers = customers.filter(c => {
-                    const pinStr = String(c.statementPin || '');
+                    const pInfo = getEntityFull5DigitPin(c.whatsapp || c.phone || '', c.statementPin);
+                    const pinStr = pInfo.pin3;
+                    const full5Str = pInfo.full5;
                     const subPhonesMatch = Array.isArray(c.subPhones) && c.subPhones.some(sp => {
                         const p = typeof sp === 'string' ? sp : (sp.phone || '');
                         const l = typeof sp === 'object' ? (sp.label || '') : '';
@@ -2671,6 +2700,7 @@
                            norm(c.email).includes(q) ||
                            norm(c.contactPerson).includes(q) ||
                            (pinStr && pinStr.includes(qCleanCode)) ||
+                           (full5Str && full5Str.includes(qCleanCode)) ||
                            subPhonesMatch;
                 });
             }
@@ -2694,8 +2724,15 @@
                 const agingBadge = (typeof window.computeEntityDebtAgingBadge === 'function') ? window.computeEntityDebtAgingBadge('customer', c, bal) : '';
                 const balDisplay = `<span onclick="openEntityDrillDownStatementModal('customer', '${c.id}')" style="color:${balColor}; font-weight:900; font-family:monospace; cursor:pointer; text-decoration:underline dotted;" title="اضغط لفتح كشف الحساب التفصيلي والحركات (Drill-Down)">${Math.abs(bal).toLocaleString()}</span> <small style="color:${balColor}; opacity:0.8;">${balLabel}</small>${overLimitBadge}${agingBadge}`;
                 
-                const cleanPin = normalizeDigitsToAscii(c.statementPin || '').replace(/[^0-9]/g, '');
-                const pinBadge = `<span onclick="copyEntityWhatsAppCard('customer', '${c.id}')" style="background:rgba(168,85,247,0.18); color:#e9d5ff; border:1px solid rgba(168,85,247,0.45); padding:3px 10px; border-radius:8px; font-weight:900; font-family:monospace; font-size:0.88rem; display:inline-block; cursor:pointer;">🔐 ${cleanPin || '-'} 📋</span>`;
+                const pInfo = getEntityFull5DigitPin(c.whatsapp || c.phone || '', c.statementPin);
+                const cleanPin = pInfo.pin3;
+                const pinLabelHtml = (pInfo.last2 && cleanPin.length === 3)
+                    ? `<span style="color:#4ade80;">${pInfo.last2}</span><span>${cleanPin}</span>`
+                    : (cleanPin || '-');
+                const pinTip = (pInfo.last2 && cleanPin.length === 3)
+                    ? `الرقم السري (5 أرقام): ${pInfo.full5} = آخر رقمين من الواتساب (${pInfo.last2}) + الثلاثة أرقام السرية (${cleanPin}) — اضغط للنسخ`
+                    : `الرقم السري: ${cleanPin || '-'} (أضف رقم الواتساب ليصبح 5 أرقام)`;
+                const pinBadge = `<span onclick="copyEntityWhatsAppCard('customer', '${c.id}')" title="${pinTip}" style="background:rgba(168,85,247,0.18); color:#e9d5ff; border:1px solid rgba(168,85,247,0.45); padding:3px 10px; border-radius:8px; font-weight:900; font-family:monospace; font-size:0.88rem; display:inline-block; cursor:pointer; direction:ltr;">🔐 ${pinLabelHtml} 📋</span>`;
                 
                 const subCount = Array.isArray(c.subPhones) ? c.subPhones.length : 0;
                 const subPhonesBadge = subCount > 0 ? `<div style="margin-top:3px;"><span style="background:rgba(56,189,248,0.12); color:#38bdf8; padding:1px 6px; border-radius:6px; font-size:0.72rem; font-weight:700;">📱 +${subCount}</span></div>` : '';
@@ -2735,10 +2772,10 @@
             row.style.cssText = 'display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; padding: 15px; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 8px; position: relative; animation: fadeIn 0.3s ease-out;';
             
             row.innerHTML = `
-                <div class="input-group"><label>اسم البنك</label><input type="text" autocomplete="off" list="master-banks-datalist" class="bank-name" placeholder="مثال: بنك الخرطوم" value="${data ? (data.bankName || '') : ''}"></div>
-                <div class="input-group"><label>الفرع</label><input type="text" class="bank-branch" placeholder="مثال: فرع الرياض" value="${data ? (data.branch || '') : ''}"></div>
-                <div class="input-group"><label>رقم الحساب</label><input type="text" class="bank-acc" placeholder="رقم الحساب البنكي" value="${data ? (data.accountNo || '') : ''}"></div>
-                <div class="input-group"><label>السرية</label>
+                <div class="input-group" data-md-tip-title="🏦 خانة اسم البنك الخاص بالعميل" data-md-tip="حدد أو اكتب اسم البنك أو التطبيق المصرفي الذي يتعامل به العميل (مثال: بنك الخرطوم - بنكك، أو فوري، أو أمدرمان الوطني). يُستخدم هذا البيان لمطابقة الحوالات والإشعارات الواردة من حساب العميل آلياً."><label>اسم البنك</label><input type="text" autocomplete="off" list="master-banks-datalist" class="bank-name" placeholder="مثال: بنك الخرطوم" value="${data ? (data.bankName || '') : ''}"></div>
+                <div class="input-group" data-md-tip-title="📍 خانة فرع البنك للعميل" data-md-tip="اكتب اسم الفرع البنكي الذي يتبع له حساب العميل (مثال: فرع الرياض أو الفرع الرئيسي) لتوثيق بيانات الحساب البنكي بدقة عند التحويل أو المراجعة."><label>الفرع</label><input type="text" class="bank-branch" placeholder="مثال: فرع الرياض" value="${data ? (data.branch || '') : ''}"></div>
+                <div class="input-group" data-md-tip-title="🔢 خانة رقم الحساب البنكي للعميل" data-md-tip="اكتب رقم حساب العميل البنكي أو رقم حساب تطبيق (بنكك / فوري). عندما يرسل العميل أو مندوبه إشعار تحويل يظهر فيه هذا الرقم، يتعرف عليه الذكاء الاصطناعي فوراً ويربط الإشعار بحساب العميل تلقائياً."><label>رقم الحساب</label><input type="text" class="bank-acc" placeholder="رقم الحساب البنكي" value="${data ? (data.accountNo || '') : ''}"></div>
+                <div class="input-group" data-md-tip-title="🛡️ درجة سرية الحساب البنكي للعميل" data-md-tip="تحدد مستوى الصلاحية المطلوب للاطلاع على تفاصيل رقم حساب العميل البنكي من 1 (عادي) إلى 10 (سري للغاية للإدارة العليا فقط)."><label>السرية</label>
                     <select class="bank-security">
                         <option value="1" ${data && data.securityLevel == 1 ? 'selected' : ''}>1</option>
                         <option value="2" ${data && data.securityLevel == 2 ? 'selected' : ''}>2</option>
@@ -2753,10 +2790,10 @@
                     </select>
                 </div>
                 <div class="input-group" style="display:flex; align-items:flex-end; gap: 10px;">
-                    <label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-weight:bold; color:var(--danger-color); margin-bottom:10px;">
+                    <label data-md-tip-title="⛔ خيار إيقاف الحساب البنكي للعميل" data-md-tip="عند تفعيل هذا الخيار يتم تجميد التعامل مع رقم الحساب البنكي هذا مؤقتاً دون حذفه من سجل العميل التاريخي." style="display:flex; align-items:center; gap:8px; cursor:pointer; font-weight:bold; color:var(--danger-color); margin-bottom:10px;">
                         <input type="checkbox" class="bank-deactive" style="width:18px; height:18px; accent-color:var(--danger-color);" ${data && data.isDeactivated ? 'checked' : ''}> إيقاف
                     </label>
-                    <button type="button" onclick="this.closest('.cust-bank-row').remove()" style="background: rgba(244,63,94,0.15); color: #f43f5e; border: 1px solid rgba(244,63,94,0.3); border-radius: 6px; cursor: pointer; padding: 6px 12px; margin-bottom: 5px; margin-right: auto;">🗑️ حذف</button>
+                    <button type="button" data-md-tip-title="🗑️ زر حذف الحساب البنكي للعميل" data-md-tip="يحذف سطر الحساب البنكي هذا من بطاقة العميل الحالية؛ اضغط بعدها على (💾 حفظ F10) لاعتماد التعديل." onclick="this.closest('.cust-bank-row').remove()" style="background: rgba(244,63,94,0.15); color: #f43f5e; border: 1px solid rgba(244,63,94,0.3); border-radius: 6px; cursor: pointer; padding: 6px 12px; margin-bottom: 5px; margin-right: auto;">🗑️ حذف</button>
                 </div>
             `;
             container.appendChild(row);
@@ -2888,15 +2925,15 @@
             const phoneVal = data ? (typeof data === 'string' ? data : (data.phone || '')) : '';
             const labelVal = data && typeof data === 'object' ? (data.label || '') : '';
             row.innerHTML = `
-                <div class="input-group" style="margin-bottom:0;">
+                <div class="input-group" style="margin-bottom:0;" data-md-tip-title="📱 خانة رقم هاتف / واتساب مندوب المورد" data-md-tip="اكتب هنا رقم هاتف أو واتساب المندوب أو المحاسب أو الفرع التابع لهذا المورد (مثال: 0912345678). يتمتع هذا الرقم بنفس صلاحيات حساب المورد الأساسي تماماً؛ فعندما يرسل المندوب إشعاراً أو يطلب كشف الحساب أو الرصيد من هذا الرقم عبر الواتساب، يربطه النظام فوراً بحساب المورد ويرسل له الكشف أو الرصيد تلقائياً.">
                     <label style="color:#38bdf8;">📱 رقم الهاتف</label>
                     <input type="text" class="sub-phone-number" placeholder="0912345678" value="${phoneVal}" style="direction:ltr; text-align:center; font-weight:800;">
                 </div>
-                <div class="input-group" style="margin-bottom:0;">
+                <div class="input-group" style="margin-bottom:0;" data-md-tip-title="👤 خانة اسم مندوب المورد أو صفته" data-md-tip="اكتب هنا اسم المندوب أو صفته الوظيفية أو اسم الفرع التابع للمورد (مثال: مندوب المبيعات أو محاسب الشركة) ليظهر اسمه مرتبطاً بحساب المورد في سجلات الواتساب والمطابقات المالية.">
                     <label style="color:#94a3b8;">👤 الاسم / الصفة</label>
                     <input type="text" class="sub-phone-label" placeholder="المندوب / الفرع" value="${labelVal}">
                 </div>
-                <button type="button" class="btn-text" onclick="this.closest('.sup-sub-phone-row').remove()" style="color: #f43f5e; border-color: rgba(244,63,94,0.3); background: rgba(244,63,94,0.12);">🗑️ حذف</button>
+                <button type="button" class="btn-text" data-md-tip-title="🗑️ زر حذف رقم مندوب المورد" data-md-tip="يقوم بإزالة رقم هذا المندوب وإلغاء ارتباطه بحساب المورد؛ اضغط بعدها على (💾 حفظ F10) لاعتماد التعديل." onclick="this.closest('.sup-sub-phone-row').remove()" style="color: #f43f5e; border-color: rgba(244,63,94,0.3); background: rgba(244,63,94,0.12);">🗑️ حذف</button>
             `;
             container.appendChild(row);
         }
@@ -3075,7 +3112,9 @@
                 const q = norm(query);
                 const qCleanCode = normalizeDigitsToAscii(query).trim().replace(/^#/, '');
                 suppliers = suppliers.filter(s => {
-                    const pinStr = String(s.statementPin || '');
+                    const pInfo = getEntityFull5DigitPin(s.whatsapp || s.phone || '', s.statementPin);
+                    const pinStr = pInfo.pin3;
+                    const full5Str = pInfo.full5;
                     const subPhonesMatch = Array.isArray(s.subPhones) && s.subPhones.some(sp => {
                         const p = typeof sp === 'string' ? sp : (sp.phone || '');
                         const l = typeof sp === 'object' ? (sp.label || '') : '';
@@ -3085,6 +3124,7 @@
                            norm(s.phone).includes(q) ||
                            norm(s.whatsapp).includes(q) ||
                            (pinStr && pinStr.includes(qCleanCode)) ||
+                           (full5Str && full5Str.includes(qCleanCode)) ||
                            subPhonesMatch;
                 });
             }
@@ -3105,8 +3145,15 @@
                 const agingBadgeSup = (typeof window.computeEntityDebtAgingBadge === 'function') ? window.computeEntityDebtAgingBadge('supplier', s, bal) : '';
                 const balDisplay = `<span onclick="openEntityDrillDownStatementModal('supplier', '${s.id}')" style="color:${balColor}; font-weight:900; font-family:monospace; cursor:pointer; text-decoration:underline dotted;" title="اضغط لفتح كشف الحساب التفصيلي والحركات (Drill-Down)">${Math.abs(bal).toLocaleString()}</span> <small style="color:${balColor}; opacity:0.8;">${balLabel}</small>${agingBadgeSup}`;
                 
-                const cleanPin = normalizeDigitsToAscii(s.statementPin || '').replace(/[^0-9]/g, '');
-                const pinBadge = `<span onclick="copyEntityWhatsAppCard('supplier', '${s.id}')" style="background:rgba(168,85,247,0.18); color:#e9d5ff; border:1px solid rgba(168,85,247,0.45); padding:3px 10px; border-radius:8px; font-weight:900; font-family:monospace; font-size:0.88rem; display:inline-block; cursor:pointer;">🔐 ${cleanPin || '-'} 📋</span>`;
+                const pInfo = getEntityFull5DigitPin(s.whatsapp || s.phone || '', s.statementPin);
+                const cleanPin = pInfo.pin3;
+                const pinLabelHtml = (pInfo.last2 && cleanPin.length === 3)
+                    ? `<span style="color:#4ade80;">${pInfo.last2}</span><span>${cleanPin}</span>`
+                    : (cleanPin || '-');
+                const pinTip = (pInfo.last2 && cleanPin.length === 3)
+                    ? `الرقم السري (5 أرقام): ${pInfo.full5} = آخر رقمين من الواتساب (${pInfo.last2}) + الثلاثة أرقام السرية (${cleanPin}) — اضغط للنسخ`
+                    : `الرقم السري: ${cleanPin || '-'} (أضف رقم الواتساب ليصبح 5 أرقام)`;
+                const pinBadge = `<span onclick="copyEntityWhatsAppCard('supplier', '${s.id}')" title="${pinTip}" style="background:rgba(168,85,247,0.18); color:#e9d5ff; border:1px solid rgba(168,85,247,0.45); padding:3px 10px; border-radius:8px; font-weight:900; font-family:monospace; font-size:0.88rem; display:inline-block; cursor:pointer; direction:ltr;">🔐 ${pinLabelHtml} 📋</span>`;
 
                 const subCount = Array.isArray(s.subPhones) ? s.subPhones.length : 0;
                 const subPhonesBadge = subCount > 0 ? `<div style="margin-top:3px;"><span style="background:rgba(56,189,248,0.12); color:#38bdf8; padding:1px 6px; border-radius:6px; font-size:0.72rem; font-weight:700;">📱 +${subCount}</span></div>` : '';
@@ -3284,6 +3331,7 @@
                     <td>${emp.securityLevel || 1}</td>
                     <td>${stBadge}</td>
                     <td style="white-space:nowrap;">
+                        <button class="btn-text" style="color:#10b981; font-weight:900; margin-left:6px;" onclick="window.shareSingleEmployeeWhatsApp && window.shareSingleEmployeeWhatsApp('${emp.id}')" title="مراسلة الموظف أو إرسال بياناته عبر الواتساب">💬 واتساب</button>
                         <button class="btn-text" style="color:#34d399; font-weight:800; margin-left:6px;" onclick="window.location.href='payroll.php'" title="مسير الرواتب والاستحقاقات">💵 الرواتب</button>
                         <button class="btn-text" style="color:#fbbf24; font-weight:800; margin-left:6px;" onclick="window.location.href='jobs.php'" title="المهام التنفيذية للموظف">📋 المهام</button>
                         <button class="btn-text" style="color:#a855f7; font-weight:bold; margin-left:8px;" onclick="editEmployee('${emp.id}')">✏️ تعديل</button>
@@ -3292,6 +3340,40 @@
                 </tr>`;
             }).join('');
         }
+        window.shareMasterItemsWhatsApp = function () {
+            const name = (document.getElementById('item-name')?.value || '').trim();
+            const code = (document.getElementById('item-id')?.value || '').trim();
+            const price = (document.getElementById('item-price')?.value || '').trim();
+            let msg = '';
+            if (name) {
+                msg = `📦 *بطاقة صنف*\n• الصنف: ${name}\n• الكود: ${code || '-'}\n• السعر: ${price || '0'} ج.س`;
+            } else {
+                const list = (JSON.parse(localStorage.getItem('erp_items_v1') || '[]') || []).filter(x => !x.deleted).slice(0, 30);
+                msg = `📦 *قائمة الأصناف والأسعار (${list.length})*\n` + list.map((x, idx) => `${idx + 1}. ${x.name} — ${(Number(x.sellingPrice) || 0).toLocaleString()} ج.س`).join('\n');
+            }
+            window.open('https://wa.me/?text=' + encodeURIComponent(msg), '_blank');
+        };
+        window.shareSingleEmployeeWhatsApp = function (empId) {
+            const list = (JSON.parse(localStorage.getItem('erp_users_v1') || '[]') || []).filter(x => !x.deleted);
+            const emp = list.find(x => String(x.id) === String(empId));
+            if (!emp) return;
+            const ph = String(emp.phone || '').replace(/[^0-9]/g, '');
+            const msg = `👥 *بيانات الموظف*\n• الاسم: ${emp.name || emp.username}\n• الدور: ${emp.role || '-'}\n• الهاتف: ${emp.phone || '-'}`;
+            window.open('https://wa.me/' + ph + '?text=' + encodeURIComponent(msg), '_blank');
+        };
+        window.shareMasterEmployeesWhatsApp = function () {
+            const name = (document.getElementById('emp-name')?.value || '').trim();
+            const phRaw = (document.getElementById('emp-phone')?.value || '').trim();
+            if (name) {
+                const ph = phRaw.replace(/[^0-9]/g, '');
+                const msg = `👥 *بطاقة موظف*\n• الاسم: ${name}\n• الهاتف: ${phRaw || '-'}\n• الدور: ${document.getElementById('emp-role')?.value || '-'}`;
+                window.open('https://wa.me/' + ph + '?text=' + encodeURIComponent(msg), '_blank');
+                return;
+            }
+            const list = (JSON.parse(localStorage.getItem('erp_users_v1') || '[]') || []).filter(x => !x.deleted);
+            const msg = `👥 *قائمة الموظفين (${list.length})*\n` + list.map((e, i) => `${i + 1}. ${e.name || e.username} (${e.role || '-'}) — ${e.phone || '-'}`).join('\n');
+            window.open('https://wa.me/?text=' + encodeURIComponent(msg), '_blank');
+        };
         
         function deleteEmployee(id) {
             genericDeleteEntity('employee', id);
@@ -3736,7 +3818,6 @@
                 );
             }
             tbody.innerHTML = safes.map(b => {
-                const typeLabel = '💰 خزينة';
                 const actualBalNum = (typeof window.computeLiveEntityLedgerBalance === 'function')
                     ? window.computeLiveEntityLedgerBalance('safe', b)
                     : (parseFloat(b.currentBalance ?? b.balance ?? b.openingBalance) || 0);
@@ -3747,13 +3828,9 @@
                 return `<tr>
                     <td style="color:#4ade80; font-weight:bold;">${b.id}</td>
                     <td style="font-weight:bold;">${b.name}</td>
-                    <td>${typeLabel}</td>
                     <td><span class="badge" style="background:rgba(74,222,128,0.2); color:#4ade80; padding:3px 8px; border-radius:4px;">${b.currency || 'SDG'}</span></td>
                     <td style="font-weight:bold; font-family:monospace; cursor:pointer; text-decoration:underline dotted;" onclick="openEntityDrillDownStatementModal('safe', '${b.id}')" title="اضغط لفتح كشف حركات الخزينة التفصيلي">${balFormatted}</td>
                     <td style="white-space:nowrap;">
-                        <button class="btn-text" style="color:#34d399; margin-left:6px; font-weight:800;" onclick="openEntityDrillDownStatementModal('safe', '${b.id}')" title="كشف حركات الخزينة التفصيلي">📊 الحركات</button>
-                        <button class="btn-text" style="color:#38bdf8; margin-left:6px; font-weight:800;" onclick="window.location.href='vouchers-hub.php'" title="مركز السندات المالية">🧾 السندات</button>
-                        <button class="btn-text" style="color:#fde047; margin-left:8px; font-weight:900;" onclick="if(typeof window.openMdBlindCashClosingModal==='function') window.openMdBlindCashClosingModal('${b.id}')">🙈 جرد أعمى</button>
                         <button class="btn-text" style="color:#38bdf8;" onclick="editSafe('${b.id}')">✏️ تعديل</button>
                         <button class="btn-text" style="color:var(--danger-color); margin-right:10px;" onclick="deleteSafe('${b.id}')">🗑️ حذف</button>
                     </td>
@@ -8513,12 +8590,13 @@ window.executeSmartClipboardImport = function () {
             const basePrice = parseFloat(document.getElementById('item-selling-price')?.value) || 0;
             const rows = document.querySelectorAll('#units-matrix-body tr');
             rows.forEach((tr, i) => {
-                const numInputs = tr.querySelectorAll('input[type="number"]');
-                if (numInputs.length < 4) return;
-                const factorInp = numInputs[0];
-                const cashInp = numInputs[1];
-                const creditInp = numInputs[2];
-                const minInp = numInputs[3];
+                const tds = tr.querySelectorAll('td');
+                if (tds.length < 7) return;
+                const factorInp = tds[2]?.querySelector('input');
+                const cashInp = tds[4]?.querySelector('input');
+                const creditInp = tds[5]?.querySelector('input');
+                const minInp = tds[6]?.querySelector('input');
+                if (!factorInp || !cashInp || !creditInp || !minInp) return;
                 const factor = parseFloat(factorInp.value) || 1;
                 if (i === 0 && t.id === 'item-selling-price' && basePrice > 0) {
                     cashInp.value = round2(basePrice);
@@ -8598,8 +8676,8 @@ window.executeSmartClipboardImport = function () {
         const rows = document.querySelectorAll('#units-matrix-body tr');
         let generatedCount = 0;
         rows.forEach((tr, idx) => {
-            const textInputs = tr.querySelectorAll('input[type="text"]:not([disabled])');
-            const bcInp = textInputs.length > 0 ? textInputs[textInputs.length - 1] : null;
+            const tds = tr.querySelectorAll('td');
+            const bcInp = tds[3] ? tds[3].querySelector('input') : null;
             if (!bcInp) return;
             const unitEan = (idx === 0 && mainInp && mainInp.value.trim())
                 ? mainInp.value.trim()
@@ -9024,4 +9102,265 @@ window.executeSmartClipboardImport = function () {
         `;
         modal.style.display = 'flex';
     };
+
+    // Right-Click (contextmenu) Definition & Options Menu for WhatsApp Controls, Permissions & Delegates
+    (function initMdRightClickDefinitionMenu() {
+        let menuBox = null;
+        let currentVoiceRate = parseFloat(localStorage.getItem('msg_male_speed_v6') || '1.0') || 1.0;
+
+        window.__makePopupElementDraggable = window.__makePopupElementDraggable || function(el) {
+            if (!el || el.__isDraggableBound) return;
+            el.__isDraggableBound = true;
+            let dragging = false, startX = 0, startY = 0, origLeft = 0, origTop = 0;
+            const onStart = (cx, cy, target) => {
+                if (target && target.closest && target.closest('button, input, select, textarea, a, label')) return false;
+                const r = el.getBoundingClientRect();
+                dragging = true; startX = cx; startY = cy; origLeft = r.left; origTop = r.top;
+                el.style.right = 'auto'; el.style.bottom = 'auto'; el.style.margin = '0';
+                el.style.left = origLeft + 'px'; el.style.top = origTop + 'px';
+                el.style.cursor = 'grabbing';
+                return true;
+            };
+            const onMove = (cx, cy) => {
+                if (!dragging) return;
+                const nx = Math.max(2, Math.min(window.innerWidth - 60, origLeft + (cx - startX)));
+                const ny = Math.max(2, Math.min(window.innerHeight - 40, origTop + (cy - startY)));
+                el.style.left = nx + 'px'; el.style.top = ny + 'px';
+            };
+            const onEnd = () => { if (dragging) { dragging = false; el.style.cursor = ''; } };
+            el.addEventListener('mousedown', (e) => { if (e.button === 0 && onStart(e.clientX, e.clientY, e.target)) e.preventDefault(); });
+            window.addEventListener('mousemove', (e) => onMove(e.clientX, e.clientY), { passive: true });
+            window.addEventListener('mouseup', onEnd, { passive: true });
+            el.addEventListener('touchstart', (e) => { if (e.touches.length === 1) onStart(e.touches[0].clientX, e.touches[0].clientY, e.target); }, { passive: true });
+            window.addEventListener('touchmove', (e) => { if (dragging && e.touches.length === 1) onMove(e.touches[0].clientX, e.touches[0].clientY); }, { passive: true });
+            window.addEventListener('touchend', onEnd, { passive: true });
+        };
+
+        function isLightThemeActiveNow() {
+            const h = document.documentElement;
+            const t = h.getAttribute('data-theme') || (document.body && document.body.getAttribute('data-theme')) || '';
+            return h.classList.contains('light-theme') || (document.body && document.body.classList.contains('light-theme')) || ['light','warm_cream','ultra_white','exec_gray','pearl-white'].includes(t);
+        }
+
+        function ensureMenuBox() {
+            if (menuBox) return menuBox;
+            menuBox = document.createElement('div');
+            menuBox.id = 'md-rightclick-def-menu';
+            menuBox.className = 'md-child-modal-card';
+            menuBox.style.cssText = 'position:fixed; z-index:2147483600; width:430px; max-width:94vw; padding:14px 16px; border-radius:15px; font-family:Tajawal,sans-serif; font-size:0.86rem; font-weight:800; line-height:1.68; box-shadow:0 18px 45px rgba(0,0,0,0.65); display:none; direction:rtl; text-align:right; user-select:none;';
+            document.body.appendChild(menuBox);
+            window.__makePopupElementDraggable(menuBox);
+            return menuBox;
+        }
+
+        let lastRightClickTs = 0;
+        let lastRightClickEl = null;
+        let currentSpokenFullText = '';
+
+        function stripNativeHoverTitles(root = document) {
+            root.querySelectorAll('[title]').forEach(el => {
+                const t = el.getAttribute('title');
+                if (t) el.setAttribute('data-md-orig-title', t);
+                el.removeAttribute('title');
+            });
+        }
+        if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => stripNativeHoverTitles());
+        else stripNativeHoverTitles();
+
+        window.stopMdDefPanelVoice = function() {
+            if (typeof window.stopMdExplanationPanelAudio === 'function') window.stopMdExplanationPanelAudio();
+            try { if ('speechSynthesis' in window) window.speechSynthesis.cancel(); } catch (_) {}
+            const btn = document.getElementById('md-def-mic-read-btn');
+            if (btn) btn.innerHTML = '🔊 تشغيل الصوت';
+            const pBtn = document.getElementById('md-def-pause-btn');
+            if (pBtn) pBtn.innerHTML = '⏸️ مؤقت';
+        };
+
+        window.togglePauseMdDefPanelVoice = function() {
+            const pBtn = document.getElementById('md-def-pause-btn');
+            if (typeof window.togglePauseResumeAudio === 'function') {
+                window.togglePauseResumeAudio();
+                if (pBtn) pBtn.innerHTML = (pBtn.innerHTML.includes('استئناف') ? '⏸️ مؤقت' : '▶️ استئناف');
+                return;
+            }
+            try {
+                if ('speechSynthesis' in window) {
+                    if (window.speechSynthesis.paused) { window.speechSynthesis.resume(); if (pBtn) pBtn.innerHTML = '⏸️ مؤقت'; }
+                    else if (window.speechSynthesis.speaking) { window.speechSynthesis.pause(); if (pBtn) pBtn.innerHTML = '▶️ استئناف'; }
+                }
+            } catch (_) {}
+        };
+
+        window.setMdDefPanelVoiceSpeed = function(rate) {
+            currentVoiceRate = parseFloat(rate) || 1.0;
+            localStorage.setItem('msg_male_speed_v6', currentVoiceRate.toFixed(2));
+            const isLight = isLightThemeActiveNow();
+            document.querySelectorAll('.md-voice-spd-btn').forEach(b => {
+                const isAct = Math.abs(parseFloat(b.getAttribute('data-spd')) - currentVoiceRate) < 0.05;
+                if (isLight) {
+                    b.style.background = isAct ? 'var(--lt-hdr-2, #d4a679)' : 'var(--lt-sub-1, #ffffff)';
+                    b.style.borderColor = 'var(--lt-border, #4a2106)';
+                    b.style.color = 'var(--lt-ink, #140600)';
+                } else {
+                    b.style.background = isAct ? 'rgba(56,189,248,0.32)' : 'rgba(30,41,59,0.75)';
+                    b.style.borderColor = isAct ? '#38bdf8' : 'rgba(148,163,184,0.35)';
+                    b.style.color = isAct ? '#fde047' : '#cbd5e1';
+                }
+            });
+            if (typeof window.onMsgSpeedChange === 'function') window.onMsgSpeedChange(currentVoiceRate, false);
+            window.speakMdDefPanelVoice(currentSpokenFullText);
+        };
+
+        window.speakMdDefPanelVoice = function(customText) {
+            const txt = String(customText || currentSpokenFullText || '').replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+            if (!txt) return;
+            if (typeof window.onMsgSpeedChange === 'function') window.onMsgSpeedChange(currentVoiceRate, false);
+            const btn = document.getElementById('md-def-mic-read-btn');
+            if (btn) btn.innerHTML = '🔊 يقرأ الآن...';
+            const pBtn = document.getElementById('md-def-pause-btn');
+            if (pBtn) pBtn.innerHTML = '⏸️ مؤقت';
+            const onDone = () => { const b = document.getElementById('md-def-mic-read-btn'); if (b) b.innerHTML = '🔁 إعادة الصوت'; };
+            if (typeof window.speakMdExplanationPanelText === 'function') {
+                window.speakMdExplanationPanelText(txt, onDone);
+                return;
+            }
+            try {
+                if ('speechSynthesis' in window) {
+                    window.speechSynthesis.cancel();
+                    const u = new SpeechSynthesisUtterance(txt);
+                    u.lang = 'ar-SA'; u.rate = currentVoiceRate; u.onend = onDone; u.onerror = onDone;
+                    window.speechSynthesis.speak(u);
+                }
+            } catch (_) { onDone(); }
+        };
+
+        function resolveMdElementFullExplanation(rawEl) {
+            if (!rawEl) return null;
+            const directCtrl = rawEl.closest ? rawEl.closest('button, input, select, textarea, a, th') : null;
+            const mdInfo = (typeof window.explainMasterDataDomElement === 'function' && window.explainMasterDataDomElement(directCtrl || rawEl))
+                || (typeof window.autoSynthesizeElementExplanation === 'function' && window.autoSynthesizeElementExplanation(directCtrl || rawEl));
+            const tipEl = (directCtrl && (directCtrl.hasAttribute('data-md-tip') || directCtrl.hasAttribute('data-guide-desc')))
+                ? directCtrl
+                : (rawEl.closest ? rawEl.closest('[data-md-tip], [data-guide-desc]') : null);
+            const isContainerTipOverridingButton = directCtrl && directCtrl.tagName === 'BUTTON' && tipEl && tipEl !== directCtrl && !tipEl.contains(directCtrl.parentElement);
+            const title = (!isContainerTipOverridingButton && mdInfo && mdInfo.title)
+                || (tipEl && (tipEl.getAttribute('data-md-tip-title') || tipEl.getAttribute('data-guide-title')))
+                || (rawEl.getAttribute && (rawEl.getAttribute('data-md-orig-title') || rawEl.getAttribute('placeholder')))
+                || '📖 الشرح التفصيلي الشامل';
+            const tipDesc = tipEl && (tipEl.getAttribute('data-md-tip') || tipEl.getAttribute('data-guide-desc'));
+            const mdDesc = mdInfo && mdInfo.desc;
+            const desc = (mdDesc && tipDesc && mdDesc !== tipDesc && !mdDesc.includes(tipDesc) && (!directCtrl || tipEl === directCtrl || tipEl.classList.contains('input-group') || tipEl.classList.contains('pro-field-card')))
+                ? `${mdDesc} — ${tipDesc}`
+                : (mdDesc || tipDesc || 'هذه الخانة أو الأداة مخصصة لإدخال وضبط البيانات الأساسية وحفظها مع التسميع المحاسبي والمخزني الفوري.');
+            return { title, desc };
+        }
+
+        function openMdExplanationPanelAt(targetEl, clientX, clientY) {
+            const info = resolveMdElementFullExplanation(targetEl);
+            if (!info) return;
+            const colPop = document.getElementById('md-col-context-popover');
+            if (colPop) colPop.style.display = 'none';
+            const box = ensureMenuBox();
+            const isLight = isLightThemeActiveNow();
+            box.style.background = isLight
+                ? 'linear-gradient(145deg, var(--lt-card-1, #fdf6ee) 0%, var(--lt-card-2, #f3e2ce) 100%)'
+                : 'linear-gradient(145deg, var(--dk-card-1, #0f172a) 0%, var(--dk-card-2, #152342) 100%)';
+            box.style.border = isLight ? '2.5px solid var(--lt-border, #4a2106)' : '2px solid var(--dk-border, #38bdf8)';
+            box.style.color = isLight ? 'var(--lt-ink, #140600)' : '#ffffff';
+            currentSpokenFullText = `${info.title}. ${info.desc}`;
+            const spdBtnStyle = (r) => {
+                const act = Math.abs(currentVoiceRate - r) < 0.05;
+                if (isLight) {
+                    return `flex:1;padding:5px 6px;border-radius:7px;background:${act ? 'var(--lt-hdr-2, #d4a679)' : 'var(--lt-sub-1, #ffffff)'};color:var(--lt-ink, #140600);border:1.5px solid var(--lt-border, #4a2106);font-size:0.75rem;font-weight:900;cursor:pointer;`;
+                }
+                return `flex:1;padding:5px 6px;border-radius:7px;background:${act ? 'rgba(56,189,248,0.32)' : 'rgba(30,41,59,0.75)'};color:${act ? '#fde047' : '#cbd5e1'};border:1px solid ${act ? '#38bdf8' : 'rgba(148,163,184,0.35)'};font-size:0.75rem;font-weight:900;cursor:pointer;`;
+            };
+            const descBoxStyle = isLight
+                ? 'padding:11px 13px;border-radius:10px;background:var(--lt-sub-1, #fef9f3);border:2px solid var(--lt-border, #4a2106);color:var(--lt-ink, #140600);line-height:1.75;font-size:0.87rem;font-weight:900;'
+                : 'padding:11px 13px;border-radius:10px;background:rgba(56,189,248,0.14);border:1.5px solid rgba(56,189,248,0.45);color:#ffffff;line-height:1.75;font-size:0.87rem;';
+            box.innerHTML = `
+                <div class="popup-drag-handle" title="اسحب لتحريك نافذة الشرح لأي مكان" style="display:flex;justify-content:space-between;align-items:center;gap:8px;border-bottom:1.5px solid ${isLight ? 'var(--lt-border, #4a2106)' : 'rgba(56,189,248,0.35)'};padding-bottom:8px;margin-bottom:9px;cursor:grab;">
+                    <span style="color:${isLight ? 'var(--lt-ink, #140600)' : '#fde047'};font-size:0.96rem;font-weight:900;">✋ ${info.title}</span>
+                    <button type="button" onclick="window.stopMdDefPanelVoice();document.getElementById('md-rightclick-def-menu').style.display='none'" style="background:rgba(239,68,68,0.22);color:${isLight ? '#991b1b' : '#fca5a5'};border:1px solid rgba(239,68,68,0.55);border-radius:6px;padding:2px 9px;cursor:pointer;font-weight:900;">✖</button>
+                </div>
+                <div style="display:flex;gap:5px;margin-bottom:6px;flex-wrap:wrap;">
+                    <button type="button" id="md-def-mic-read-btn" onclick="window.speakMdDefPanelVoice()" style="flex:1.3;padding:6px 9px;border-radius:8px;background:linear-gradient(135deg,#0284c7,#2563eb);color:#ffffff !important;-webkit-text-fill-color:#ffffff !important;border:1px solid #38bdf8;font-size:0.79rem;font-weight:900;cursor:pointer;">🔊 تشغيل الشرح</button>
+                    <button type="button" id="md-def-pause-btn" onclick="window.togglePauseMdDefPanelVoice()" style="flex:0.9;padding:6px 8px;border-radius:8px;background:${isLight ? 'rgba(245,158,11,0.28)' : 'rgba(245,158,11,0.2)'};color:${isLight ? '#78350f' : '#fde047'};border:1.5px solid rgba(245,158,11,0.65);font-size:0.77rem;font-weight:900;cursor:pointer;">⏸️ مؤقت</button>
+                    <button type="button" onclick="window.stopMdDefPanelVoice()" style="flex:0.9;padding:6px 8px;border-radius:8px;background:rgba(239,68,68,0.2);color:${isLight ? '#991b1b' : '#fca5a5'};border:1.5px solid rgba(239,68,68,0.55);font-size:0.77rem;font-weight:900;cursor:pointer;">⏹️ إيقاف</button>
+                </div>
+                <div style="display:flex;gap:5px;margin-bottom:10px;">
+                    <button type="button" class="md-voice-spd-btn" data-spd="0.75" onclick="window.setMdDefPanelVoiceSpeed(0.75)" style="${spdBtnStyle(0.75)}">🐢 بطيء</button>
+                    <button type="button" class="md-voice-spd-btn" data-spd="1.0" onclick="window.setMdDefPanelVoiceSpeed(1.0)" style="${spdBtnStyle(1.0)}">⚖️ عادي</button>
+                    <button type="button" class="md-voice-spd-btn" data-spd="1.28" onclick="window.setMdDefPanelVoiceSpeed(1.28)" style="${spdBtnStyle(1.28)}">⚡ سريع</button>
+                    <button type="button" class="md-voice-spd-btn" data-spd="1.5" onclick="window.setMdDefPanelVoiceSpeed(1.5)" style="${spdBtnStyle(1.5)}">🚀 سريع جداً</button>
+                </div>
+                <div style="${descBoxStyle}">${info.desc}</div>
+            `;
+            box.style.display = 'block';
+            const bw = box.offsetWidth || 430;
+            const bh = box.offsetHeight || 240;
+            let left = clientX || (window.innerWidth / 2 - bw / 2);
+            let top = clientY || (window.innerHeight / 2 - bh / 2);
+            if (left + bw > window.innerWidth - 10) left = window.innerWidth - bw - 10;
+            if (left < 10) left = 10;
+            if (top + bh > window.innerHeight - 10) top = window.innerHeight - bh - 10;
+            if (top < 6) top = 6;
+            box.style.left = left + 'px';
+            box.style.top = top + 'px';
+            window.speakMdDefPanelVoice(currentSpokenFullText);
+        }
+        window.openMdExplanationPanelGlobal = openMdExplanationPanelAt;
+
+        const EXPLAINABLE_SEL = '[data-md-tip], [data-guide-desc], .md-tab-btn, .pro-field-card, .input-group, button, input, select, textarea, th, td, a, #admin-wa-policy-panel-cust, #admin-wa-policy-panel-sup';
+
+        document.addEventListener('contextmenu', function(e) {
+            if (menuBox && menuBox.contains(e.target)) return;
+            const now = Date.now();
+            const isDoubleRight = (now - lastRightClickTs <= 650);
+            const tblTh = e.target && e.target.closest ? e.target.closest('table.pro-table th, .table-responsive table th') : null;
+            const inActionBtn = e.target && e.target.closest ? e.target.closest('button, a, input, select, textarea') : null;
+            if (tblTh && !inActionBtn && !isDoubleRight && typeof window.openMdTableColContextMenu === 'function') {
+                e.preventDefault();
+                e.stopPropagation();
+                lastRightClickTs = now;
+                window.openMdTableColContextMenu(e, tblTh);
+                return;
+            }
+            const target = e.target && e.target.closest ? e.target.closest(EXPLAINABLE_SEL) : null;
+            if (!target) return;
+            e.preventDefault();
+            lastRightClickTs = now;
+            openMdExplanationPanelAt(e.target, e.clientX, e.clientY);
+        });
+
+        document.addEventListener('dblclick', function(e) {
+            if (menuBox && menuBox.contains(e.target)) return;
+            if (e.target && e.target.closest && e.target.closest('[ondblclick*="startInlineMasterEdit"]')) return;
+            const fldTarget = e.target && e.target.closest ? e.target.closest(EXPLAINABLE_SEL) : null;
+            if (!fldTarget) return;
+            openMdExplanationPanelAt(e.target, e.clientX, e.clientY);
+        });
+
+        document.addEventListener('mousedown', function(e) {
+            if (menuBox && menuBox.style.display === 'block' && !menuBox.contains(e.target)) {
+                window.stopMdDefPanelVoice();
+                menuBox.style.display = 'none';
+            }
+        });
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && menuBox) {
+                window.stopMdDefPanelVoice();
+                menuBox.style.display = 'none';
+            }
+        });
+    })();
+
+    // Clean auto-fit table widths (prevent locked horizontal overflow)
+    (function initCleanAutoFitMasterTables() {
+        try {
+            Object.keys(localStorage).forEach(k => {
+                if (k.indexOf('erp_md_locked_col_widths_v2_') === 0) localStorage.removeItem(k);
+            });
+        } catch (_) {}
+    })();
 })();
