@@ -11,16 +11,164 @@ class EmailService {
     private static function getSmtpSettings($pdo) {
         if (!$pdo) return null;
         try {
-            $stmt = $pdo->query("SELECT setting_key, setting_value FROM global_settings WHERE setting_key IN ('smtp_server', 'smtp_port', 'smtp_user', 'smtp_pass')");
+            $stmt = $pdo->query("SELECT setting_key, setting_value FROM global_settings WHERE setting_key IN ('smtp_server', 'smtp_port', 'smtp_user', 'smtp_pass', 'smtp_from_name')");
             $settings = [];
             while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                $settings[$row['setting_key']] = $row['setting_value'];
+                $settings[$row['setting_key']] = trim((string)$row['setting_value']);
             }
             if (!empty($settings['smtp_server']) && !empty($settings['smtp_port']) && !empty($settings['smtp_user']) && !empty($settings['smtp_pass'])) {
                 return $settings;
             }
         } catch (\Throwable $e) {}
+
+        // Check global_settings JSON blobs (erp_settings_v1 / tenant_*_erp_settings_v1)
+        try {
+            $stmtG = $pdo->query("SELECT setting_value FROM global_settings WHERE setting_key LIKE '%erp_settings_v1%' ORDER BY setting_key ASC");
+            while ($val = $stmtG->fetchColumn()) {
+                $dec = json_decode((string)$val, true);
+                if (is_array($dec)) {
+                    $srv = trim((string)($dec['smtpServer'] ?? ($dec['smtp_server'] ?? '')));
+                    $prt = trim((string)($dec['smtpPort'] ?? ($dec['smtp_port'] ?? '587')));
+                    $usr = trim((string)($dec['smtpUser'] ?? ($dec['smtp_user'] ?? '')));
+                    $pas = trim((string)($dec['smtpPass'] ?? ($dec['smtp_pass'] ?? '')));
+                    if (!empty($srv) && !empty($prt) && !empty($usr) && !empty($pas) && $pas !== '********') {
+                        return [
+                            'smtp_server' => $srv,
+                            'smtp_port'   => $prt,
+                            'smtp_user'   => $usr,
+                            'smtp_pass'   => $pas
+                        ];
+                    }
+                }
+            }
+        } catch (\Throwable $e) {}
+
+        // Also check tenant settings table if SMTP was configured inside ERP Settings
+        try {
+            $stmt2 = $pdo->query("SELECT setting_key, setting_value FROM settings WHERE setting_key IN ('smtpServer', 'smtpPort', 'smtpUser', 'smtpPass', 'smtp_server', 'smtp_port', 'smtp_user', 'smtp_pass') ORDER BY id DESC");
+            $tSettings = [];
+            while ($row = $stmt2->fetch(PDO::FETCH_ASSOC)) {
+                $k = $row['setting_key'];
+                $v = trim((string)$row['setting_value']);
+                if ($v !== '' && !isset($tSettings[$k])) {
+                    $tSettings[$k] = $v;
+                }
+            }
+            $srv = $tSettings['smtp_server'] ?? ($tSettings['smtpServer'] ?? '');
+            $prt = $tSettings['smtp_port'] ?? ($tSettings['smtpPort'] ?? '');
+            $usr = $tSettings['smtp_user'] ?? ($tSettings['smtpUser'] ?? '');
+            $pas = $tSettings['smtp_pass'] ?? ($tSettings['smtpPass'] ?? '');
+            if (!empty($srv) && !empty($prt) && !empty($usr) && !empty($pas) && $pas !== '********') {
+                return [
+                    'smtp_server' => $srv,
+                    'smtp_port'   => $prt,
+                    'smtp_user'   => $usr,
+                    'smtp_pass'   => $pas
+                ];
+            }
+        } catch (\Throwable $e) {}
+
         return null;
+    }
+
+    private static function sendViaLocalTransport($email, $subject, $htmlContent) {
+        $fromEmail = 'info@elsajana.com';
+        $fromName  = 'مقاييس MAGAIES';
+
+        // 1. Try local MTA on 127.0.0.1:25 (Postfix / Exim) if listening
+        $fp = @fsockopen('127.0.0.1', 25, $errno, $errstr, 1.5);
+        if (is_resource($fp)) {
+            @fclose($fp);
+            try {
+                $mail = new PHPMailer(true);
+                $mail->isSMTP();
+                $mail->Host        = '127.0.0.1';
+                $mail->Port        = 25;
+                $mail->SMTPAuth    = false;
+                $mail->SMTPAutoTLS = false;
+                $mail->Hostname    = 'elsajana.com';
+                $mail->CharSet     = 'UTF-8';
+                $mail->Timeout     = 6;
+                $mail->setFrom($fromEmail, $fromName);
+                $mail->addAddress($email);
+                $mail->isHTML(true);
+                $mail->Subject = $subject;
+                $mail->Body    = $htmlContent;
+                if ($mail->send()) {
+                    return ['success' => true, 'message' => 'تم إرسال الإيميل بنجاح'];
+                }
+            } catch (\Throwable $e) {}
+        }
+
+        // 2. Try local Sendmail binary if present on Linux server
+        if (stristr(PHP_OS, 'WIN') === false && (@is_executable('/usr/sbin/sendmail') || @is_executable('/usr/lib/sendmail'))) {
+            try {
+                $mail = new PHPMailer(true);
+                $mail->isSendmail();
+                $mail->CharSet = 'UTF-8';
+                $mail->setFrom($fromEmail, $fromName);
+                $mail->addAddress($email);
+                $mail->isHTML(true);
+                $mail->Subject = $subject;
+                $mail->Body    = $htmlContent;
+                if ($mail->send()) {
+                    return ['success' => true, 'message' => 'تم إرسال الإيميل بنجاح'];
+                }
+            } catch (\Throwable $e) {}
+        }
+
+        // 3. Try Direct MX SMTP Delivery to recipient's mail server (Port 25)
+        $atPos = strrpos($email, '@');
+        if ($atPos !== false) {
+            $domain = substr($email, $atPos + 1);
+            $mxHosts = [];
+            $mxWeights = [];
+            if (@getmxrr($domain, $mxHosts, $mxWeights) && !empty($mxHosts)) {
+                if (!empty($mxWeights) && count($mxWeights) === count($mxHosts)) {
+                    array_multisort($mxWeights, SORT_ASC, $mxHosts);
+                }
+                foreach (array_slice($mxHosts, 0, 2) as $mxHost) {
+                    try {
+                        $mail = new PHPMailer(true);
+                        $mail->isSMTP();
+                        $mail->Host        = $mxHost;
+                        $mail->Port        = 25;
+                        $mail->SMTPAuth    = false;
+                        $mail->SMTPAutoTLS = true;
+                        $mail->Hostname    = 'elsajana.com';
+                        $mail->CharSet     = 'UTF-8';
+                        $mail->Timeout     = 6;
+                        $mail->SMTPOptions = [
+                            'ssl' => [
+                                'verify_peer'       => false,
+                                'verify_peer_name'  => false,
+                                'allow_self_signed' => true
+                            ]
+                        ];
+                        $mail->setFrom($fromEmail, $fromName);
+                        $mail->addAddress($email);
+                        $mail->isHTML(true);
+                        $mail->Subject = $subject;
+                        $mail->Body    = $htmlContent;
+                        if ($mail->send()) {
+                            return ['success' => true, 'message' => 'تم إرسال الإيميل بنجاح'];
+                        }
+                    } catch (\Throwable $e) {}
+                }
+            }
+        }
+
+        // 4. Try native PHP mail() with LF headers for Linux MTA compatibility
+        $headers  = "MIME-Version: 1.0\n";
+        $headers .= "Content-Type: text/html; charset=UTF-8\n";
+        $headers .= "From: MAGAIES <{$fromEmail}>\n";
+        $headers .= "Reply-To: {$fromEmail}\n";
+        $mailSent = @mail($email, $subject, $htmlContent, $headers, "-f{$fromEmail}");
+        if ($mailSent) {
+            return ['success' => true, 'message' => 'تم الإرسال بنجاح (mail)'];
+        }
+
+        return ['success' => false, 'error' => 'تعذر إرسال البريد الإلكتروني حالياً. يرجى التأكد من إعدادات البريد (SMTP).'];
     }
 
     private static function sendViaPHPMailer($smtp, $email, $subject, $htmlContent) {
@@ -108,10 +256,9 @@ class EmailService {
             if (!empty($smtpRes['success'])) {
                 return $smtpRes;
             }
-            // If custom SMTP failed, continue to Brevo fallback instead of aborting
         }
 
-        // 2. Fallback to Brevo
+        // 2. Try Brevo API ONLY if a valid active API key is explicitly configured
         $brevo_api_key = getenv('BREVO_API_KEY') ?: ($_ENV['BREVO_API_KEY'] ?? ($_SERVER['BREVO_API_KEY'] ?? ''));
         
         if (empty($brevo_api_key) && $pdo) {
@@ -120,69 +267,65 @@ class EmailService {
                 $stmt->execute();
                 $dbKey = $stmt->fetchColumn();
                 if (!empty($dbKey)) {
-                    $brevo_api_key = trim($dbKey);
+                    $brevo_api_key = trim((string)$dbKey);
                 }
             } catch (\Throwable $e) {}
         }
-        
-        if (empty($brevo_api_key)) {
-            $brevo_api_key = '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';
-        }
 
-        if (empty($brevo_api_key) || $brevo_api_key === 'YOUR_BREVO_API_KEY') {
-            // 3. Fallback to PHP mail()
-            $headers = "MIME-Version: 1.0\n";
-            $headers .= "Content-Type: text/html; charset=UTF-8\n";
-            $headers .= "From: MAGAIES <info@elsajana.com>\n";
-            $headers .= "Reply-To: info@elsajana.com\n";
-            
-            $mailSent = @mail($email, $subject, $htmlContent, $headers, "-finfo@elsajana.com");
-            if ($mailSent) {
-                return ['success' => true, 'message' => 'تم الإرسال بنجاح (mail)'];
-            } else {
-                return ['success' => false, 'error' => 'تعذر إرسال الإيميل، يرجى التأكد من إعدادات البريد في الخادم.'];
-            }
-        }
-        
-        // Send via Brevo API
-        $mailData = [
-            'sender' => ['name' => 'مقاييس', 'email' => 'magaiees00105@gmail.com'],
-            'to' => [['email' => $email]],
-            'subject' => $subject,
-            'htmlContent' => $htmlContent
+        $disabledLegacyKeys = [
+            'YOUR_BREVO_API_KEY',
+            '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',
+            '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'
         ];
 
-        $ch = curl_init('https://api.brevo.com/v3/smtp/email');
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($mailData));
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 12);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, [
-            'accept: application/json',
-            'api-key: ' . $brevo_api_key,
-            'content-type: application/json'
-        ]);
-        
-        $response = curl_exec($ch);
-        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        $curlErr  = curl_error($ch);
-        curl_close($ch);
+        if (!empty($brevo_api_key) && !in_array($brevo_api_key, $disabledLegacyKeys, true)) {
+            $mailData = [
+                'sender' => ['name' => 'مقاييس', 'email' => 'magaiees00105@gmail.com'],
+                'to' => [['email' => $email]],
+                'subject' => $subject,
+                'htmlContent' => $htmlContent
+            ];
 
-        if ($httpCode === 201 || $httpCode === 200) {
-            return ['success' => true, 'message' => 'تم الإرسال بنجاح'];
-        } else {
-            // Localhost offline development fallback: log email OTP locally if external internet/SMTP is unreachable
-            $reqHost = $_SERVER['HTTP_HOST'] ?? $_SERVER['SERVER_NAME'] ?? '';
-            if (strpos($reqHost, 'localhost') !== false || strpos($reqHost, '127.0.0.1') !== false || php_sapi_name() === 'cli') {
-                @file_put_contents(__DIR__ . '/../../otp_debug.log', "[" . date('Y-m-d H:i:s') . "] To: $email | Subject: $subject\n", FILE_APPEND);
-                return ['success' => true, 'message' => 'تم تجهيز الرمز محلياً (Localhost Mode)'];
+            $ch = curl_init('https://api.brevo.com/v3/smtp/email');
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_POST, true);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($mailData));
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+            curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, [
+                'accept: application/json',
+                'api-key: ' . $brevo_api_key,
+                'content-type: application/json'
+            ]);
+            
+            $response = curl_exec($ch);
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            curl_close($ch);
+
+            if ($httpCode === 201 || $httpCode === 200) {
+                return ['success' => true, 'message' => 'تم الإرسال بنجاح'];
             }
-            $resData = json_decode($response, true);
-            $errMsg = $resData['message'] ?? ($curlErr ?: 'فشل إرسال الإيميل');
-            return ['success' => false, 'error' => 'Brevo: ' . $errMsg];
+            // If Brevo fails (e.g. 401 unauthorized), continue to local transport fallback
         }
+
+        // 3. Fallback to Local Transport (Sendmail / Local Postfix / PHP mail())
+        $localRes = self::sendViaLocalTransport($email, $subject, $htmlContent);
+        if (!empty($localRes['success'])) {
+            return $localRes;
+        }
+
+        // 4. Localhost offline development fallback
+        $reqHost = $_SERVER['HTTP_HOST'] ?? $_SERVER['SERVER_NAME'] ?? '';
+        if (strpos($reqHost, 'localhost') !== false || strpos($reqHost, '127.0.0.1') !== false || php_sapi_name() === 'cli') {
+            @file_put_contents(__DIR__ . '/../../otp_debug.log', "[" . date('Y-m-d H:i:s') . "] To: $email | Subject: $subject\n", FILE_APPEND);
+            return ['success' => true, 'message' => 'تم تجهيز الرمز محلياً (Localhost Mode)'];
+        }
+
+        return [
+            'success' => false,
+            'error' => $localRes['error'] ?? 'تعذر إرسال البريد الإلكتروني حالياً. يرجى استخدام الواتساب أو مراجعة إعدادات البريد.'
+        ];
     }
 }
 

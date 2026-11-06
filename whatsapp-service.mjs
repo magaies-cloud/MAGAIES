@@ -13,6 +13,7 @@ import makeWASocket, {
     DisconnectReason,
     Browsers,
     fetchLatestBaileysVersion,
+    fetchLatestWaWebVersion,
     proto,
     downloadMediaMessage
 } from '@whiskeysockets/baileys';
@@ -379,11 +380,27 @@ class WhatsAppClient {
             }
 
             if (!globalThis.__cachedBaileysVersion) {
-                const verRes = await Promise.race([
-                    fetchLatestBaileysVersion(),
-                    new Promise(r => setTimeout(() => r({ version: [2, 3000, 1043857760] }), 1500))
-                ]).catch(() => ({ version: [2, 3000, 1043857760] }));
-                globalThis.__cachedBaileysVersion = verRes?.version || [2, 3000, 1043857760];
+                const defaultWaVersion = [2, 3000, 1053300637];
+                let resolvedVer = null;
+                if (typeof fetchLatestWaWebVersion === 'function') {
+                    const waWebRes = await Promise.race([
+                        fetchLatestWaWebVersion(),
+                        new Promise(r => setTimeout(() => r(null), 2500))
+                    ]).catch(() => null);
+                    if (waWebRes?.version && Array.isArray(waWebRes.version)) {
+                        resolvedVer = waWebRes.version;
+                    }
+                }
+                if (!resolvedVer) {
+                    const verRes = await Promise.race([
+                        fetchLatestBaileysVersion(),
+                        new Promise(r => setTimeout(() => r({ version: defaultWaVersion }), 1500))
+                    ]).catch(() => ({ version: defaultWaVersion }));
+                    if (verRes?.version && verRes.version[2] >= 1050000000) {
+                        resolvedVer = verRes.version;
+                    }
+                }
+                globalThis.__cachedBaileysVersion = resolvedVer || defaultWaVersion;
             }
             const version = globalThis.__cachedBaileysVersion;
             log(this.userId, `Using WhatsApp Web protocol version: ${version.join('.')}`);
@@ -744,8 +761,10 @@ class WhatsAppClient {
                     break;
 
                 case DisconnectReason.restartRequired:
-                    log(this.userId, 'Restart required — reconnecting immediately');
-                    this._scheduleReconnect(1000);
+                    log(this.userId, 'Restart required (post-QR scan handshake) — reconnecting immediately');
+                    this.reconnectAttempts = 0;
+                    this.lastInitTime = 0;
+                    this._scheduleReconnect(500);
                     break;
 
                 case DisconnectReason.multideviceMismatch:
@@ -3182,6 +3201,24 @@ app.get('/wa/system-repair', async (req, res) => {
     results.php_sockets_after = run('ls -la /var/run/php/ 2>&1');
     results.nginx_test = run('nginx -t 2>&1');
     results.nginx_restart = run('systemctl restart nginx 2>&1 || systemctl reload nginx 2>&1');
+    results.postfix_setup = run(`
+        if [ ! -x /usr/sbin/sendmail ]; then
+            export DEBIAN_FRONTEND=noninteractive
+            echo "postfix postfix/main_mailer_type string 'Internet Site'" | debconf-set-selections 2>/dev/null || true
+            echo "postfix postfix/mailname string elsajana.com" | debconf-set-selections 2>/dev/null || true
+            apt-get update -qq 2>/dev/null && apt-get install -y -qq postfix 2>/dev/null || true
+        fi
+        if [ -f /etc/postfix/main.cf ]; then
+            postconf -e "myhostname = elsajana.com" 2>/dev/null || true
+            postconf -e "mydomain = elsajana.com" 2>/dev/null || true
+            postconf -e "myorigin = elsajana.com" 2>/dev/null || true
+            postconf -e "inet_interfaces = loopback-only" 2>/dev/null || true
+            postconf -e "inet_protocols = ipv4" 2>/dev/null || true
+            postconf -e "smtp_tls_security_level = may" 2>/dev/null || true
+            systemctl enable postfix 2>/dev/null || true
+            systemctl restart postfix 2>/dev/null || service postfix restart 2>/dev/null || true
+        fi
+    `);
     results.curl_test = run('curl -s -I http://127.0.0.1/index.php -H "Host: elsajana.com" 2>&1');
 
     res.json(results);
@@ -3201,6 +3238,22 @@ setTimeout(() => {
             fi
             chmod 666 /var/run/php/*.sock 2>/dev/null || true
             systemctl restart nginx 2>/dev/null || systemctl reload nginx 2>/dev/null || true
+            if [ ! -x /usr/sbin/sendmail ]; then
+                export DEBIAN_FRONTEND=noninteractive
+                echo "postfix postfix/main_mailer_type string 'Internet Site'" | debconf-set-selections 2>/dev/null || true
+                echo "postfix postfix/mailname string elsajana.com" | debconf-set-selections 2>/dev/null || true
+                apt-get update -qq 2>/dev/null && apt-get install -y -qq postfix 2>/dev/null || true
+            fi
+            if [ -f /etc/postfix/main.cf ]; then
+                postconf -e "myhostname = elsajana.com" 2>/dev/null || true
+                postconf -e "mydomain = elsajana.com" 2>/dev/null || true
+                postconf -e "myorigin = elsajana.com" 2>/dev/null || true
+                postconf -e "inet_interfaces = loopback-only" 2>/dev/null || true
+                postconf -e "inet_protocols = ipv4" 2>/dev/null || true
+                postconf -e "smtp_tls_security_level = may" 2>/dev/null || true
+                systemctl enable postfix 2>/dev/null || true
+                systemctl restart postfix 2>/dev/null || service postfix restart 2>/dev/null || true
+            fi
         `, { shell: '/bin/bash' });
     } catch(e) {}
 }, 2000);
@@ -3213,6 +3266,7 @@ app.get('/wa/status', (req, res) => {
     // Auto-init if idle, failed, or logged out (user wants to reconnect or scan new QR)
     if (!client.isConnected && (client.status === 'IDLE' || client.status === 'FAILED' || client.status === 'LOGGED_OUT' || client.status === 'DISCONNECTED')) {
         client.reconnectAttempts = 0; // Reset so user-triggered retry gets fresh attempts
+        client.lastInitTime = 0;
         client.init().catch(e => logErr(client.userId, 'auto-init failed:', e.message));
     }
 
@@ -3226,6 +3280,7 @@ app.get('/wa/qr', (req, res) => {
     const client = manager.findActiveClient(requestedId);
     if (!client.isConnected && (client.status === 'IDLE' || client.status === 'FAILED' || client.status === 'LOGGED_OUT' || client.status === 'DISCONNECTED')) {
         client.reconnectAttempts = 0;
+        client.lastInitTime = 0;
         client.init().catch(e => logErr(client.userId, 'qr auto-init failed:', e.message));
     }
     res.json({
@@ -3250,10 +3305,41 @@ app.post(['/wa/send', '/wa/send-message', '/send'], upload.any(), async (req, re
     const userId  = req.body?.userId || req.query?.userId;
     let   phone   = req.body?.phone || req.query?.phone;
     const message = req.body?.message || req.query?.message || '';
-    const client  = manager.findActiveClient(userId);
+    let   client  = manager.findActiveClient(userId);
+
+    // If client is not connected yet, attempt fast auto-init / wait if credentials exist or connection is in progress
+    if (client && !client.isConnected) {
+        const credsPath = path.join(client.authFolder, 'creds.json');
+        let hasSavedIdentity = Boolean(client.phoneNumber);
+        if (!hasSavedIdentity && fs.existsSync(credsPath)) {
+            try {
+                const rawCreds = fs.readFileSync(credsPath, 'utf8');
+                hasSavedIdentity = rawCreds.includes('"me"') && rawCreds.includes('"id"');
+            } catch (_) {}
+        }
+
+        if (hasSavedIdentity && (client.status === 'IDLE' || client.status === 'FAILED' || client.status === 'DISCONNECTED')) {
+            client.reconnectAttempts = 0;
+            client.lastInitTime = 0;
+            client.init().catch(e => logErr(client.userId, 'send auto-init failed:', e.message));
+        }
+
+        if (hasSavedIdentity || client.status === 'INITIALIZING' || client.status === 'CONNECTING' || client.status === 'RECONNECTING' || client.status === 'AUTHENTICATED') {
+            for (let i = 0; i < 28; i++) {
+                if (client.isConnected) break;
+                await new Promise(r => setTimeout(r, 250));
+            }
+        }
+    }
 
     if (!client || !client.isConnected) {
-        return res.status(400).json({ success: false, error: 'WhatsApp not connected.' });
+        const isSaasOtpSession = (!userId || userId === 'default-saas-admin' || userId === 'default');
+        return res.status(400).json({
+            success: false,
+            error: isSaasOtpSession
+                ? 'رقم واتساب المنصة (SaaS) غير مرتبط حالياً. يرجى ربط رقم المنصة من لوحة تحكم SaaS Admin.'
+                : 'رقم واتساب الشركة غير مرتبط حالياً. يرجى ربط رقم الشركة من إعدادات الواتساب داخل النظام.'
+        });
     }
     if (!phone) {
         return res.status(400).json({ success: false, error: 'Phone number is required.' });
@@ -3613,15 +3699,15 @@ const server = app.listen(PORT, () => {
     if (!allowStartupConnect) {
         log('STARTUP', '☁️ Running on Windows local laptop — skipping local Baileys auto-connect so 24/7 Cloud Hub (c.elsajana.com) retains exclusive connection.');
     } else {
-        let discoveredSessions = 0;
+        let discoveredSaasAdmin = false;
         try {
             const authDirs = fs.readdirSync(AUTH_BASE_DIR);
             for (const dir of authDirs) {
-                if (dir.startsWith('baileys_auth_') && !dir.includes('_trash_')) {
+                if (dir.startsWith('baileys_auth_') && !dir.includes('_trash_') && dir !== 'baileys_auth_default') {
                     const credsFile = path.join(AUTH_BASE_DIR, dir, 'creds.json');
                     if (fs.existsSync(credsFile) && fs.statSync(credsFile).size > 10) {
                         const uid = dir.replace('baileys_auth_', '');
-                        discoveredSessions++;
+                        if (uid === 'default-saas-admin') discoveredSaasAdmin = true;
                         log('STARTUP', `Discovered existing saved WhatsApp session: ${uid}`);
                         manager.initClient(uid).catch(e => logErr(uid, 'startup auto-init failed:', e.message));
                     }
@@ -3631,8 +3717,8 @@ const server = app.listen(PORT, () => {
             logErr('STARTUP', 'Session discovery failed:', e.message);
         }
 
-        if (discoveredSessions === 0) {
-            manager.initClient('default-saas-admin');
+        if (!discoveredSaasAdmin) {
+            manager.initClient('default-saas-admin').catch(e => logErr('default-saas-admin', 'startup auto-init failed:', e.message));
         }
         healer.start();
     }

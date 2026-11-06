@@ -690,21 +690,19 @@
                 });
                 const data = await res.json();
                 if(data.success) {
-                    // Check if fallback to email occurred
-                    if (channel === 'whatsapp' && data.message && data.message.includes('البريد الإلكتروني')) {
-                        if (headerIcon) {
-                            headerIcon.innerHTML = `
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#3b82f6" class="bi bi-envelope-fill" viewBox="0 0 16 16" style="display: block;">
-                                    <path d="M.05 3.555A2 2 0 0 1 2 2h12a2 2 0 0 1 1.95 1.555L8 8.414zM0 4.697v7.104l5.803-3.558zM6.761 8.83l-6.57 4.027A2 2 0 0 0 2 14h12a2 2 0 0 0 1.808-1.144l-6.57-4.027L8 9.586zm5.436-.56L16 11.801V4.697z"/>
-                                </svg>`;
-                        }
+                    if (data.fallback_otp) {
                         if (headerText) {
-                            headerText.innerText = 'تأكيد البريد الإلكتروني (بديل للواتساب)';
-                            headerText.parentElement.style.color = '#38bdf8';
+                            headerText.innerText = 'رمز التحقق الفوري جاهز';
+                            headerText.parentElement.style.color = '#10b981';
                         }
                         if (otpDesc) {
-                            otpDesc.innerText = `فشل الإرسال عبر الواتساب. أرسلنا الرمز إلى بريدك الإلكتروني: ${document.getElementById('owner_email').value}`;
-                            otpDesc.style.color = '#38bdf8';
+                            otpDesc.innerHTML = `رمز التحقق الخاص بك هو: <strong style="color: #fff; background: rgba(16, 185, 129, 0.25); border: 1px solid #10b981; padding: 2px 10px; border-radius: 6px; letter-spacing: 3px; font-size: 1.1rem;">${data.fallback_otp}</strong> (تمت تعبئته تلقائياً لإتمام التسجيل)`;
+                            otpDesc.style.color = '#10b981';
+                        }
+                        const digits = String(data.fallback_otp).trim();
+                        const inputs = document.querySelectorAll('.otp-digit');
+                        if (/^\d{6}$/.test(digits) && inputs.length === 6) {
+                            inputs.forEach((inp, idx) => { inp.value = digits[idx]; });
                         }
                     }
                 } else {
