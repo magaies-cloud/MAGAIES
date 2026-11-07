@@ -1,0 +1,11 @@
+# Voice Constitution (all companies/users/sessions)
+- Engine: api/tts_male.php, single voice ar-SA-HamedNeural, rate -8%, pitch +0Hz (natural pitch = max clarity) (fallback ar-OM-AbdullahNeural) (deep, grand, clear male) for every dialect.
+- Playback chain (js/magaies-smart-guide.js, loaded globally via includes/header.php): lowshelf warmth, mud cut 315Hz, presence 3.3kHz, air 6.6kHz, default volume 1.65, default speed 0%.
+- Applies to double-click explanations in every module; do not add per-screen or per-user voices.
+- TTS text is sanitized (`cleanTextForMaleTts`): no emoji/symbol reading, bullets become natural pauses.
+- Every voice chain ends with a safety limiter (no clipping even at 300% volume), including the 4K recorder track.
+- Double right-click = explanation (single right-click keeps column menus/links/copy). Left double-click skips grids, text editing, resizers, canvas.
+- Explanation card highlights the capsule being spoken (image synced with voice) + `🤖 اسأل الذكاء` button (api/ai-assistant.php).
+- Recorder: 24fps, 8Mbps video, 192kbps audio, MP4 preferred, karaoke subtitles synced with the narration.
+- Studio chain (buildMaleClarityChain): HP70, chest +4.2dB@120, de-mud -3.6@300, intelligibility +1.6@1.8k, presence +4.2@3k, de-ess -2.8@7.2k, air +1.8@9.5k, LP11.5k, comp 3.2:1, limiter.
+- Exact sync: Edge WordBoundary timings saved as *.marks.json (tts_male.php?meta=1) drive guide karaoke, double-right card highlight, and recorder subtitles/progress bar.

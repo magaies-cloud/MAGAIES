@@ -1513,12 +1513,39 @@ function updateLedgerButton() {
 // ════════════════════════════════════════
 //  ITEMS DROPDOWN LOGIC
 // ════════════════════════════════════════
+function _syncPurchaseItemsFast(extraList) {
+    if (!window._purPreloadedSynced) {
+        window._purPreloadedSynced = true;
+        const pre = window._PRELOADED_ITEMS || [];
+        extraList = pre.concat(extraList || []);
+    }
+    if (!extraList || !extraList.length) return false;
+    const idMap = new Map(ITEMS.map(i => [String(i.id), i]));
+    let added = false;
+    extraList.forEach(item => {
+        if (!item || !item.id) return;
+        const key = String(item.id);
+        let existing = idMap.get(key);
+        const baseUnit = item.baseUnit || item.mainUnit || item.unit || 'قطعة';
+        const unitsArray = extractItemUnits(item);
+        let sp = String(item.sellingPrice || item.salePrice || item.price || 0).replace(/,/g, '');
+        if (!existing) {
+            existing = { id: item.id, name: item.name || 'صنف', unit: baseUnit, baseUnit, conversionFactor: 1, bundleFactor: parseFloat(item.bundleFactor) || 1, price: parseFloat(sp) || 0, actualStock: {}, reservedStock: {}, units: item.units || [], unitsArray, barcode: item.barcode || '', maxDiscount: item.maxDiscount || 0, status: item.status || 'active' };
+            ITEMS.push(existing);
+            idMap.set(key, existing);
+            added = true;
+        } else {
+            existing.units = item.units || existing.units;
+            existing.unitsArray = unitsArray;
+        }
+    });
+    return added;
+}
+
 async function renderItemDropdown(rowId, isMobile = false, filter = '') {
     const prefix = isMobile ? 'm-' : '';
     const listEl = document.getElementById(`${prefix}item-dropdown-list-${rowId}`);
     if (!listEl) return;
-    
-    listEl.innerHTML = '<div class="custom-dropdown-empty">جاري البحث...</div>';
     const term = (filter || '').toLowerCase().trim();
     const normTerm = normalizeArabic(term);
     const searchWords = normTerm ? normTerm.split(/\s+/).filter(Boolean) : [];
@@ -1532,66 +1559,15 @@ async function renderItemDropdown(rowId, isMobile = false, filter = '') {
         if (bc.includes(term) || unitBc || normCode.includes(term)) return true;
         return searchWords.every(w => normName.includes(w));
     };
-    
     try {
-        let localMatches = ITEMS;
-        if (normTerm) {
-            localMatches = ITEMS.filter(matchItemByFuzzyTerm);
-        }
-
-        let dbMatches = [];
-        try {
+        _syncPurchaseItemsFast();
+        const finalMatches = ITEMS.filter(matchItemByFuzzyTerm);
+        if (finalMatches.length === 0 && !window._purItemsApiFetched) {
+            window._purItemsApiFetched = true;
             const token = localStorage.getItem('token');
-            const headers = token ? { 'Authorization': 'Bearer ' + token } : {};
-            const res = await fetch('api/items_search.php?q=' + encodeURIComponent(term), { headers });
-            const rawMatches = await res.json();
-            if (Array.isArray(rawMatches)) {
-                dbMatches = rawMatches;
-            }
-        } catch(err) {
-            console.error('API Search Failed:', err);
+            fetch('api/items_search.php?q=' + encodeURIComponent(term), { headers: token ? { 'Authorization': 'Bearer ' + token } : {} })
+                .then(r => r.json()).then(raw => { if (Array.isArray(raw) && _syncPurchaseItemsFast(raw)) renderItemDropdown(rowId, isMobile, filter); }).catch(() => {});
         }
-        
-        const rawItems = window._PRELOADED_ITEMS || JSON.parse(localStorage.getItem('erp_items_v1')) || [];
-        
-        // Merge dbMatches and newly added rawItems
-        const allNew = [...rawItems, ...dbMatches];
-        allNew.forEach(item => {
-            if (!item || !item.id) return;
-            let existing = ITEMS.find(i => String(i.id) === String(item.id));
-            const baseUnit = item.baseUnit || item.mainUnit || item.unit || 'قطعة';
-            const unitsArray = extractItemUnits(item);
-            let sp = item.sellingPrice || item.salePrice || item.price || 0;
-            sp = sp.toString().replace(/,/g, '');
-
-            if (!existing) {
-                existing = {
-                    id: item.id,
-                    name: item.name || 'صنف',
-                    unit: baseUnit,
-                    baseUnit: baseUnit,
-                    conversionFactor: 1, 
-                    bundleFactor: parseFloat(item.bundleFactor) || 1,
-                    price: parseFloat(sp) || 0,
-                    actualStock: {},
-                    reservedStock: {},
-                    units: item.units || [],
-                    unitsArray: unitsArray,
-                    barcode: item.barcode || '',
-                    maxDiscount: item.maxDiscount || 0,
-                    status: item.status || 'active'
-                };
-                ITEMS.push(existing);
-                if (matchItemByFuzzyTerm(existing)) {
-                    localMatches.push(existing);
-                }
-            } else {
-                existing.units = item.units || existing.units;
-                existing.unitsArray = unitsArray;
-            }
-        });
-
-        const finalMatches = Array.from(new Map(localMatches.map(m => [String(m.id), m])).values());
 
         if (finalMatches.length === 0) {
             listEl.innerHTML = '<div class="custom-dropdown-empty">لا توجد نتائج مطابقة.<br><small style="color:#888;">(حاول استخدام اسم آخر)</small></div>';
@@ -1751,8 +1727,6 @@ window.handleItemSearchKeydown = handleItemSearchKeydown;
 async function renderQuickItemDropdown(filter = '') {
     const listEl = document.getElementById('quick-item-dropdown-list');
     if (!listEl) return;
-    
-    listEl.innerHTML = '<div class="custom-dropdown-empty">جاري البحث...</div>';
     const term = (filter || '').toLowerCase().trim();
     const normTerm = normalizeArabic(term);
     const searchWords = normTerm ? normTerm.split(/\s+/).filter(Boolean) : [];
@@ -1766,62 +1740,9 @@ async function renderQuickItemDropdown(filter = '') {
         if (bc.includes(term) || unitBc || normCode.includes(term)) return true;
         return searchWords.every(w => normName.includes(w));
     };
-    
     try {
-        let localMatches = ITEMS;
-        if (normTerm) {
-            localMatches = ITEMS.filter(matchItemByFuzzyTerm);
-        }
-
-        let dbMatches = [];
-        try {
-            const res = await fetch('api/items_search.php?q=' + encodeURIComponent(term));
-            const rawMatches = await res.json();
-            if (Array.isArray(rawMatches)) {
-                dbMatches = rawMatches;
-            }
-        } catch(err) {
-            console.error('API Search Failed:', err);
-        }
-        
-        const rawItems = window._PRELOADED_ITEMS || JSON.parse(localStorage.getItem('erp_items_v1')) || [];
-        const allNew = [...rawItems, ...dbMatches];
-        allNew.forEach(item => {
-            if (!item || !item.id) return;
-            let existing = ITEMS.find(i => String(i.id) === String(item.id));
-            const baseUnit = item.baseUnit || item.mainUnit || item.unit || 'قطعة';
-            const unitsArray = extractItemUnits(item);
-            let sp = item.sellingPrice || item.salePrice || item.price || 0;
-            sp = sp.toString().replace(/,/g, '');
-
-            if (!existing) {
-                existing = {
-                    id: item.id,
-                    name: item.name || 'صنف',
-                    unit: baseUnit,
-                    baseUnit: baseUnit,
-                    conversionFactor: 1, 
-                    bundleFactor: parseFloat(item.bundleFactor) || 1,
-                    price: parseFloat(sp) || 0,
-                    actualStock: {},
-                    reservedStock: {},
-                    units: item.units || [],
-                    unitsArray: unitsArray,
-                    barcode: item.barcode || '',
-                    maxDiscount: item.maxDiscount || 0,
-                    status: item.status || 'active'
-                };
-                ITEMS.push(existing);
-                if (matchItemByFuzzyTerm(existing)) {
-                    localMatches.push(existing);
-                }
-            } else {
-                existing.units = item.units || existing.units;
-                existing.unitsArray = unitsArray;
-            }
-        });
-
-        const finalMatches = Array.from(new Map(localMatches.map(m => [String(m.id), m])).values());
+        _syncPurchaseItemsFast();
+        const finalMatches = ITEMS.filter(matchItemByFuzzyTerm);
 
         if (finalMatches.length === 0) {
             listEl.innerHTML = '<div class="custom-dropdown-empty">لا توجد نتائج مطابقة.<br><small style="color:#888;">(حاول استخدام اسم آخر)</small></div>';

@@ -29,18 +29,24 @@
     'obsidian-charcoal': 'pure_oled', 'midnight': 'pure_oled', 'black': 'pure_oled', 'dark': 'pure_oled',
     'twilight-indigo': 'slate_twilight', 'emerald-forest': 'slate_twilight', 'forest': 'slate_twilight'
   };
-  var activeKey = aliasMap[raw] || raw;
+  var getCk = function(n) { var m = document.cookie.match(new RegExp("(?:^|; )" + n + "=([^;]*)")); return m ? decodeURIComponent(m[1]) : ""; };
+  var savedTone = getCk('magaies_light_tone') || localStorage.getItem('magaies_light_tone') || localStorage.getItem('pur_light_tone_palette') || '';
+  var toneToTheme = { 'dark_midnight':'midnight_obsidian','pure_oled':'pure_oled','mocha_brown':'mocha_brown','slate_twilight':'slate_twilight','ivory_default':'warm_cream','royal_bronze':'warm_cream','platinum_gray':'exec_gray','crystal_silver':'ultra_white','sage_pearl':'warm_cream','sky_alabaster':'ultra_white','rose_blossom':'warm_cream','warm_mocha_dark':'warm_cream','deep_slate_dark':'exec_gray' };
+  var activeKey = (savedTone && toneToTheme[savedTone]) ? toneToTheme[savedTone] : (aliasMap[raw] || raw);
   var valid7 = ['warm_cream', 'ultra_white', 'exec_gray', 'midnight_obsidian', 'mocha_brown', 'pure_oled', 'slate_twilight'];
   if (!valid7.includes(activeKey)) activeKey = 'warm_cream';
   var isLight = ['warm_cream', 'ultra_white', 'exec_gray'].includes(activeKey);
+  var activeTone = savedTone || (isLight ? 'ivory_default' : 'dark_midnight');
 
   document.documentElement.setAttribute('data-theme', activeKey);
+  document.documentElement.setAttribute('data-light-tone', activeTone);
   if (isLight) document.documentElement.classList.add('light-theme');
   else document.documentElement.classList.remove('light-theme');
 
   document.addEventListener("DOMContentLoaded", function() {
     if (document.body) {
       document.body.setAttribute('data-theme', activeKey);
+      document.body.setAttribute('data-light-tone', activeTone);
       if (isLight) document.body.classList.add('light-theme');
       else document.body.classList.remove('light-theme');
     }
@@ -670,9 +676,7 @@
     box-sizing: border-box !important;
     flex-shrink: 0 !important;
 }
-/* Hide any small icon badges inside Row 1 & Row 2 navigation pills so ONLY clean text appears */
-#grn-cross-screen-nav .grn-nav-pill .grn-icon-badge,
-#grn-cross-screen-nav .grn-nav-pill #grn-c7-conn-dot,
+/* Allow kinetic 3D icons inside Row 2 navigation pills */
 #hub-top-bar-items .grn-icon-badge {
     display: none !important;
 }
@@ -1144,8 +1148,8 @@ html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_whi
 /* ─── البصمة الموحدة للأزرار مع حواف خفيفة متناسقة ─── */
 html body .btn-action,
 html body .btn-action *,
-:root.light-theme .btn-action,
-:root.light-theme .btn-action * {
+html:not(.light-theme) .btn-action,
+html:not(.light-theme) .btn-action * {
     color: #ffffff !important;
     -webkit-text-fill-color: #ffffff !important;
 }
@@ -1335,11 +1339,11 @@ html.grn-ophthalmic-comfort-active body {
                 <!-- السطر الأول (الأعلى): حالة الشاشة + البوابة اللوجستية + زر التحويل + عداد الأذونات + الفلاتر المحاسبية (الكل، التاريخ من وإلى مع أيقونة التقويم يمين التاريخ، المورد، المستودع، البحث) -->
                 <div class="neo-card-title">
                     <div id="hub-top-bar-items">
-                                                <span id="hub-title-text">قيد الاستلام</span><a href="smart-logistics.php?mode=purchases" id="btn-grn-logistics-portal" class="btn-action" style="text-decoration:none;">📥 بوابة استلام المشتريات</a>
-                        <div id="grn-3level-bar" style="display:inline-flex; align-items:center; gap:4px; background:rgba(2,6,23,0.75); padding:3px 6px; border-radius:10px; border:1px solid rgba(56,189,248,0.35);">
-                            <button type="button" id="grn-lvl-1" onclick="window.setGrnReceiptLevel && window.setGrnReceiptLevel(1)" style="padding:3px 9px; border-radius:7px; font-size:0.74rem; font-weight:900; cursor:pointer; border:1px solid #c4b5fd; background:linear-gradient(135deg,#7c3aed,#4f46e5); color:#fff;">👑 1. المدير</button>
-                            <button type="button" id="grn-lvl-2" onclick="window.setGrnReceiptLevel && window.setGrnReceiptLevel(2)" style="padding:3px 9px; border-radius:7px; font-size:0.74rem; font-weight:900; cursor:pointer; border:1px solid transparent; background:transparent; color:#cbd5e1;">🏢 2. مدير المخزن</button>
-                            <button type="button" id="grn-lvl-3" onclick="window.setGrnReceiptLevel && window.setGrnReceiptLevel(3)" style="padding:3px 9px; border-radius:7px; font-size:0.74rem; font-weight:900; cursor:pointer; border:1px solid transparent; background:transparent; color:#cbd5e1;">📦 3. المخزنجي (QR)</button>
+                                                <span id="hub-title-text">قيد الاستلام</span><a href="smart-logistics.php?mode=purchases&from=purchase-receipt.php" id="btn-grn-logistics-portal" class="btn-action" style="text-decoration:none;">📥 بوابة استلام المشتريات</a>
+                        <div id="grn-3level-bar" style="display:inline-flex; align-items:center; gap:5px; background:#0f172a; padding:4px 7px; border-radius:10px; border:2px solid #38bdf8;">
+                            <button type="button" id="grn-lvl-1" class="grn-dark-surface-btn active-lvl" onclick="window.setGrnReceiptLevel && window.setGrnReceiptLevel(1)" style="padding:4px 10px; border-radius:7px; font-size:0.78rem; font-weight:900; cursor:pointer; border:1.5px solid #c4b5fd; background:linear-gradient(135deg,#7c3aed,#4f46e5); color:#ffffff !important; -webkit-text-fill-color:#ffffff !important;">👑 1. المدير</button>
+                            <button type="button" id="grn-lvl-2" class="grn-dark-surface-btn" onclick="window.setGrnReceiptLevel && window.setGrnReceiptLevel(2)" style="padding:4px 10px; border-radius:7px; font-size:0.78rem; font-weight:900; cursor:pointer; border:1.5px solid #475569; background:linear-gradient(135deg,#1e293b,#0f172a); color:#ffffff !important; -webkit-text-fill-color:#ffffff !important;">🏢 2. مدير المخزن</button>
+                            <button type="button" id="grn-lvl-3" class="grn-dark-surface-btn" onclick="window.setGrnReceiptLevel && window.setGrnReceiptLevel(3)" style="padding:4px 10px; border-radius:7px; font-size:0.78rem; font-weight:900; cursor:pointer; border:1.5px solid #475569; background:linear-gradient(135deg,#1e293b,#0f172a); color:#ffffff !important; -webkit-text-fill-color:#ffffff !important;">📦 3. المخزنجي (QR)</button>
                         </div>
                         
                         <div class="uiverse-switch demo3" title="اضغط للتبديل بين البضاعة قيد الاستلام والأذونات المستلمة">
@@ -1352,7 +1356,7 @@ html.grn-ophthalmic-comfort-active body {
                         <span class="grn-row1-divider" aria-hidden="true"></span>
 
                         <!-- الفلاتر المحاسبية الفورية في السطر الأول -->
-                        <button type="button" class="btn-action btn-cancel" style="height: 36px; padding: 0 12px; font-size: 0.80rem; border-radius: 9px; border: 1px solid rgba(56, 189, 248, 0.25);" onclick="window.resetGrnHubFilters && window.resetGrnHubFilters()" title="عرض الكل وإعادة ضبط الفلاتر">الكل</button>
+                        <button type="button" id="btn-grn-hub-reset-all" class="btn-action btn-cancel grn-light-clear-btn" style="height: 36px; padding: 0 14px; font-size: 0.84rem; font-weight: 900; border-radius: 9px; border: 2px solid rgba(56, 189, 248, 0.45);" onclick="window.resetGrnHubFilters && window.resetGrnHubFilters()" title="عرض الكل وإلغاء الفلاتر">🔄 الكل / إلغاء</button>
 
                         <div class="grn-date-input-wrap" title="من تاريخ — اضغط على علامة التقويم يمين التاريخ للاختيار">
                             <button type="button" class="grn-date-picker-btn" onclick="var el=document.getElementById('grn-filter-date-from'); if(el){if(el.showPicker)el.showPicker();else{el.focus();el.click();}}" title="اضغط لإظهار التقويم (من تاريخ)">
@@ -1404,17 +1408,17 @@ html.grn-ophthalmic-comfort-active body {
                 <!-- السطر الثاني (الذي يليه): شريط الشاشات والتقارير المخزنية (الكتابة فقط بدون علامات صغيرة) + أدوات التصدير والطباعة -->
                 <div id="grn-hub-filters-bar" class="grn-logistics-bar" style="margin-bottom: 10px; padding: 8px 12px; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: space-between;">
                     <div id="grn-cross-screen-nav" class="grn-nav-links-bar">
-                        <a href="purchase.php" class="grn-nav-pill" title="فتح شاشة فواتير المشتريات">فواتير المشتريات</a>
-                        <a href="inventory-movement.php" class="grn-nav-pill" title="فتح شاشة جرد وأرصدة المستودعات">أرصدة المخازن</a>
-                        <a href="item-ledger.php" class="grn-nav-pill" title="فتح كشف حركة الصنف التفصيلي">حركة الصنف</a>
-                        <a href="warehouse-ledger.php" class="grn-nav-pill" title="فتح دفتر أستاذ المخزن">دفتر أستاذ المخزن</a>
-                        <a href="inventory-stocktake.php" class="grn-nav-pill" title="فتح شاشة الجرد الفعلي والتسويات">الجرد والتسويات</a>
+                        <a href="purchase.php?from=purchase-receipt.php" class="grn-nav-pill grn-pill-pur" onclick="window.markGrnReturnStep && window.markGrnReturnStep()" title="فتح شاشة فواتير المشتريات (مع رجوع خطوة واحدة)"><span class="grn-pill-ic">💵</span><span>فواتير المشتريات</span></a>
+                        <a href="inventory-movement.php?from=purchase-receipt.php" class="grn-nav-pill grn-pill-inv" onclick="window.markGrnReturnStep && window.markGrnReturnStep()" title="فتح شاشة جرد وأرصدة المستودعات (مع رجوع خطوة واحدة)"><span class="grn-pill-ic">📦</span><span>أرصدة المخازن</span></a>
+                        <a href="item-ledger.php?from=purchase-receipt.php" class="grn-nav-pill grn-pill-itm" onclick="window.markGrnReturnStep && window.markGrnReturnStep()" title="فتح كشف حركة الصنف التفصيلي (مع رجوع خطوة واحدة)"><span class="grn-pill-ic">📊</span><span>حركة الصنف</span></a>
+                        <a href="warehouse-ledger.php?from=purchase-receipt.php" class="grn-nav-pill grn-pill-whl" onclick="window.markGrnReturnStep && window.markGrnReturnStep()" title="فتح دفتر أستاذ المخزن (مع رجوع خطوة واحدة)"><span class="grn-pill-ic">📖</span><span>دفتر أستاذ المخزن</span></a>
+                        <a href="inventory-stocktake.php?from=purchase-receipt.php" class="grn-nav-pill grn-pill-stk" onclick="window.markGrnReturnStep && window.markGrnReturnStep()" title="فتح شاشة مخزن الجرد الفعلي والتسويات (مع رجوع خطوة واحدة)"><span class="grn-pill-ic">⚖️</span><span>مخزن الجرد والتسوية</span></a>
                     </div>
-                    <div style="display: flex; flex-wrap: wrap; gap: 6px; align-items: center;">
-                        <button type="button" class="btn-action" style="padding: 6px 12px; font-size: 0.78rem; border-radius: 8px; background: rgba(16, 185, 129, 0.22); border: 1px solid rgba(52, 211, 153, 0.35);" onclick="window.exportGrnHubToExcel && window.exportGrnHubToExcel()" title="تصدير Excel">Excel</button>
-                        <button type="button" class="btn-action" style="padding: 6px 12px; font-size: 0.78rem; border-radius: 8px; background: rgba(14, 165, 233, 0.22); border: 1px solid rgba(56, 189, 248, 0.35);" onclick="window.printGrnHubReport && window.printGrnHubReport('a4')" title="طباعة A4 / PDF">A4 / PDF</button>
-                        <button type="button" class="btn-action" style="padding: 6px 12px; font-size: 0.78rem; border-radius: 8px; background: rgba(124, 58, 237, 0.22); border: 1px solid rgba(167, 139, 250, 0.35);" onclick="window.printGrnHubReport && window.printGrnHubReport('thermal')" title="طباعة حراري 80mm">80mm</button>
-                        <button type="button" class="btn-action" style="padding: 6px 12px; font-size: 0.78rem; border-radius: 8px; background: rgba(5, 150, 105, 0.22); border: 1px solid rgba(16, 185, 129, 0.35);" onclick="window.shareGrnHubSummaryWhatsApp && window.shareGrnHubSummaryWhatsApp()" title="مشاركة واتساب">واتساب</button>
+                    <div id="grn-hub-export-print-bar" style="display: flex; flex-wrap: wrap; gap: 7px; align-items: center;">
+                        <button type="button" id="btn-grn-hub-excel" class="btn-action grn-light-clear-btn grn-btn-excel" style="padding: 6px 14px; font-size: 0.84rem; font-weight: 900; border-radius: 9px; background: rgba(16, 185, 129, 0.25); border: 2px solid #10b981;" onclick="window.exportGrnHubToExcel && window.exportGrnHubToExcel()" title="تصدير الجدول إلى Excel">📊 Excel</button>
+                        <button type="button" id="btn-grn-hub-a4" class="btn-action grn-light-clear-btn grn-btn-a4" style="padding: 6px 14px; font-size: 0.84rem; font-weight: 900; border-radius: 9px; background: rgba(14, 165, 233, 0.25); border: 2px solid #0284c7;" onclick="window.printGrnHubReport && window.printGrnHubReport('a4')" title="طباعة تقرير A4 / PDF">📄 A4 / PDF</button>
+                        <button type="button" id="btn-grn-hub-thermal" class="btn-action grn-light-clear-btn grn-btn-thermal" style="padding: 6px 14px; font-size: 0.84rem; font-weight: 900; border-radius: 9px; background: rgba(124, 58, 237, 0.25); border: 2px solid #7c3aed;" onclick="window.printGrnHubReport && window.printGrnHubReport('thermal')" title="طباعة طابعة حرارية 80mm">🖨️ طابعة حرارية 80mm</button>
+                        <button type="button" id="btn-grn-hub-wa" class="btn-action grn-light-clear-btn grn-btn-wa" style="padding: 6px 14px; font-size: 0.84rem; font-weight: 900; border-radius: 9px; background: rgba(5, 150, 105, 0.25); border: 2px solid #059669;" onclick="window.shareGrnHubSummaryWhatsApp && window.shareGrnHubSummaryWhatsApp()" title="مشاركة التقرير عبر واتساب">💬 مشاركة واتساب</button>
                     </div>
                 </div>
                 
@@ -1524,7 +1528,7 @@ html.grn-ophthalmic-comfort-active body {
                             <button class="btn-action" style="padding: 9px 14px; font-size: 0.88rem; border-radius: 10px; background: rgba(56, 189, 248, 0.15); border: 2px solid rgba(56, 189, 248, 0.4); color: #38bdf8; font-weight: 800; display: inline-flex; align-items: center; gap: 6px;" onclick="openGridSettings()">
                                 <span>⚙️</span><span>تنسيق الجدول</span>
                             </button>
-                            <button class="btn-action btn-cancel" style="padding: 9px 14px; font-size: 0.88rem; border-radius: 10px; margin-inline-start: 6px;" onclick="showHub()">↩️ رجوع <kbd class="grn-kbd-badge">Esc</kbd></button>
+                            <button class="btn-action btn-cancel" style="padding: 9px 14px; font-size: 0.88rem; border-radius: 10px; margin-inline-start: 6px;" onclick="showHub(true)">↩️ رجوع <kbd class="grn-kbd-badge">Esc</kbd></button>
                         </div>
                     </div>
                     
@@ -1584,10 +1588,11 @@ html.grn-ophthalmic-comfort-active body {
                         </div>
                     </div>
 
-                    <div>
+                    <div id="grn-bottom-actions-group" style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
                         <button class="btn-action grn-btn-save-primary" style="padding: 11px 28px; font-size: 1.05rem; font-weight: 900; display:inline-flex; align-items:center; justify-content:center; gap:10px; border-radius:12px; background: linear-gradient(135deg, #10b981, #059669); box-shadow: 0 4px 20px rgba(16,185,129,0.4); border: 2.2px solid #34d399; color: #fff; cursor: pointer;" onclick="saveReceiptNote()">
                             <span>💾</span><span>اعتماد الاستلام</span><kbd class="grn-kbd-badge">F10</kbd>
                         </button>
+                        <button type="button" class="btn-action btn-cancel grn-light-clear-btn" style="padding: 10px 18px; font-size: 0.92rem; font-weight: 900; border-radius: 11px;" onclick="showHub(true)">↩️ رجوع للشاشة الرئيسية</button>
                     </div>
                 </div>
             </div>
@@ -1605,15 +1610,15 @@ html.grn-ophthalmic-comfort-active body {
     <script defer src="js/app.js?v=20261016_v28"></script>
     <script defer src="js/magaies-smart-guide.js?v=<?php echo file_exists('js/magaies-smart-guide.js') ? filemtime('js/magaies-smart-guide.js') : '20261030_v35'; ?>"></script>
     <script>
-        let allPurchases = [];
-        let itemsDb = [];
-        let suppliersDb = [];
-        let warehousesDb = [];
-        let usersDb = [];
-        let pendingMap = {}; // originalInvoiceId -> array of pending items
-        let currentInvoiceId = null;
-        let receiptLines = [];
-        let editingGRNId = null; // Currently edited GRN ID
+        var allPurchases = [];
+        var itemsDb = [];
+        var suppliersDb = [];
+        var warehousesDb = [];
+        var usersDb = [];
+        var pendingMap = {}; // originalInvoiceId -> array of pending items
+        var currentInvoiceId = null;
+        var receiptLines = [];
+        var editingGRNId = null; // Currently edited GRN ID
 
         // Formatting utilities
         function fmtNum(n) { return Number(n).toLocaleString('en-US', {minimumFractionDigits: 0, maximumFractionDigits: 2}); }
@@ -2016,7 +2021,7 @@ html.grn-ophthalmic-comfort-active body {
                         <td style="text-align:right; font-weight:900; font-size:1.02rem;">
                             <div style="display:flex; align-items:center; justify-content:space-between; gap:6px;">
                                 <span>${supName}</span>
-                                <button type="button" onclick="event.stopPropagation(); window.open('suppliers.php?ledger=${encodeURIComponent(invData.supplierId || '')}','_blank');" title="كشف حساب المورد (أستاذ)" style="height:26px; padding:0 8px; border-radius:6px; background:linear-gradient(135deg,#0284c7,#0369a1); border:1.5px solid #38bdf8; color:#fff !important; font-size:0.75rem; font-weight:900; cursor:pointer; flex-shrink:0;">📖 أستاذ</button>
+                                <button type="button" class="grn-pending-ledger-btn grn-light-clear-btn" onclick="event.stopPropagation(); window.open('suppliers.php?ledger='+encodeURIComponent(invData.supplierId || ''),'_blank');" title="كشف حساب المورد (أستاذ)" style="height:28px; padding:0 10px; border-radius:7px; background:linear-gradient(135deg,#0284c7,#0369a1); border:2px solid #38bdf8; color:#fff; font-size:0.78rem; font-weight:900; cursor:pointer; flex-shrink:0;">📖 أستاذ</button>
                             </div>
                         </td>
                         <td style="text-align:center; font-weight:900; font-size:0.95rem; max-width: 240px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${itemNames}">📦 ${itemNames}</td>
@@ -2027,7 +2032,10 @@ html.grn-ophthalmic-comfort-active body {
                             </span>
                         </td>
                         <td style="text-align:center;">
-                            <button class="btn-action" style="padding:7px 16px; font-size:0.9rem; font-weight:900; background:linear-gradient(135deg,#10b981,#059669); border:2px solid #34d399; color:#ffffff !important; border-radius:9px;" onclick="openReceiptEditor('${id}')">🚛 استلام البضاعة</button>
+                            <div class="grn-row-action-capsule" data-inv-id="${id}">
+                                <button type="button" class="btn-action grn-pending-inspect-btn grn-kinetic-btn grn-light-clear-btn" data-inv-id="${id}" onclick="event.stopPropagation(); if(window.triggerGrnKineticFeedback) window.triggerGrnKineticFeedback(this,'inspect'); openReceiptEditor('${id}')">📥 فحص واستلام</button>
+                                <button type="button" class="btn-action grn-quick-hub-rcv grn-kinetic-btn grn-light-clear-btn" data-inv-id="${id}" title="فحص واستلام كامل المتبقي في الفاتورة فوراً بضغطة واحدة إلى المستودع الرئيسي ⚡" onclick="event.stopPropagation(); if(window.triggerGrnKineticFeedback) window.triggerGrnKineticFeedback(this,'instant'); window.quickReceiveInvoiceFromHub('${id}')">⚡ استلام فوري</button>
+                            </div>
                         </td>
                     `;
                     tbody.appendChild(tr);
@@ -2703,15 +2711,16 @@ html.grn-ophthalmic-comfort-active body {
             localStorage.setItem('erp_purchase_invoices_v1', JSON.stringify(freshPurchases));
             allPurchases = freshPurchases; // Update local memory reference
             
-            setTimeout(() => {
+            if (window._isQuickHubReceiving) {
                 calculatePendingGoods();
-                renderPendingInvoices();
-                if (pendingMap[currentInvoiceId]) {
-                    openReceiptEditor(currentInvoiceId);
-                } else {
-                    showHub();
-                }
-            }, 1500);
+                renderPendingInvoices(false);
+            } else {
+                setTimeout(() => {
+                    calculatePendingGoods();
+                    renderPendingInvoices(false);
+                    showHub(true);
+                }, 450);
+            }
         }
 
         function renderRecentGRNs(resetCount = true) {
@@ -3748,30 +3757,13 @@ html.grn-ophthalmic-comfort-active body {
             rows.forEach(tr => {
                 const dateTd = tr.children[1];
                 const invIdTd = tr.children[0];
-                if (invIdTd && dateTd && pendingMap[invIdTd.textContent.trim()]) {
-                    const invId = invIdTd.textContent.trim();
-                    const origInv = (allPurchases || []).find(p => (p.invoiceNo || p.id) === invId) || {};
+                const capEl = tr.querySelector('[data-inv-id]');
+                const cleanInvId = (capEl && capEl.getAttribute('data-inv-id')) || (invIdTd ? invIdTd.textContent.replace(/^[^\w#\-]+/, '').trim() : '');
+                if (cleanInvId && dateTd && pendingMap[cleanInvId]) {
+                    const invId = cleanInvId;
+                    const origInv = (allPurchases || []).find(p => String(p.invoiceNo || p.id) === String(invId)) || {};
                     const rawDt = origInv.savedAt || origInv.createdAt || pendingMap[invId].date;
                     dateTd.innerHTML = window.formatSpacedDateTime(rawDt);
-                }
-                const actionBtn = tr.querySelector('button.btn-action');
-                if (actionBtn && !actionBtn.dataset.enhanced) {
-                    actionBtn.dataset.enhanced = '1';
-                    const invIdForBtn = invIdTd ? invIdTd.textContent.trim() : '';
-                    actionBtn.innerHTML = `<span class="grn-icon-badge" style="width:22px;height:22px;margin-left:6px;">📥</span> فحص واستلام`;
-                    if (invIdForBtn && actionBtn.parentNode && !actionBtn.parentNode.querySelector('.grn-quick-hub-rcv')) {
-                        actionBtn.parentNode.style.display = 'flex';
-                        actionBtn.parentNode.style.justifyContent = 'center';
-                        actionBtn.parentNode.style.gap = '6px';
-                        const fastBtn = document.createElement('button');
-                        fastBtn.type = 'button';
-                        fastBtn.className = 'btn-action grn-quick-hub-rcv';
-                        fastBtn.style.cssText = 'padding:6px 12px; font-size:0.78rem; background:linear-gradient(135deg,#10b981,#059669);';
-                        fastBtn.title = 'استلام كامل المتبقي في الفاتورة فوراً بضغطة واحدة إلى المستودع الرئيسي ⚡';
-                        fastBtn.innerHTML = '⚡ فوري';
-                        fastBtn.onclick = (ev) => { ev.stopPropagation(); window.quickReceiveInvoiceFromHub(invIdForBtn); };
-                        actionBtn.parentNode.appendChild(fastBtn);
-                    }
                 }
             });
         };
@@ -4236,17 +4228,20 @@ html.grn-ophthalmic-comfort-active body {
                     </div>
                 </div>
                 <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
-                    <button type="button" id="btn-grn-continuous-scan" class="btn-action" style="padding:9px 13px;font-size:0.84rem;border-radius:10px;background:linear-gradient(135deg,#0ea5e9,#2563eb);display:inline-flex;align-items:center;gap:5px;" onclick="window.openGrnContinuousScannerModal && window.openGrnContinuousScannerModal()" title="وضع الماسح المتصل السريع (USB / كاميرا) مع عداد صوتي وبصري فوري">
-                        <span>📡</span> ماسح متصل <span id="grn-scan-counter-pill" style="background:rgba(0,0,0,0.35);padding:1px 7px;border-radius:99px;font-family:'Outfit';font-size:0.78rem;">0</span>
+                    <button type="button" id="btn-grn-continuous-scan" class="btn-action grn-editor-tool-btn grn-tool-scan" style="padding:9px 13px;font-size:0.86rem;border-radius:11px;display:inline-flex;align-items:center;gap:6px;" onclick="window.openGrnContinuousScannerModal && window.openGrnContinuousScannerModal()" title="وضع الماسح المتصل السريع (USB / كاميرا) مع عداد صوتي وبصري فوري">
+                        <span class="grn-tool-ic">📡</span><span>ماسح متصل</span><span id="grn-scan-counter-pill" style="background:rgba(0,0,0,0.28);padding:1px 8px;border-radius:99px;font-family:'Outfit';font-size:0.8rem;font-weight:900;">0</span>
                     </button>
-                    <button type="button" id="btn-grn-weighbridge" class="btn-action" style="padding:9px 13px;font-size:0.84rem;border-radius:10px;background:linear-gradient(135deg,#d97706,#b45309);display:inline-flex;align-items:center;gap:5px;" onclick="window.openGrnWeighbridgeModal && window.openGrnWeighbridgeModal()" title="مقارنة أوزان البوليصة مع ميزان القبّان (الوزن القائم والفارغ والصافي)">
-                        <span>⚖️</span> ميزان القبّان
+                    <button type="button" id="btn-grn-weighbridge" class="btn-action grn-editor-tool-btn grn-tool-weigh" style="padding:9px 13px;font-size:0.86rem;border-radius:11px;display:inline-flex;align-items:center;gap:6px;" onclick="window.openGrnWeighbridgeModal && window.openGrnWeighbridgeModal()" title="مقارنة أوزان البوليصة مع ميزان القبّان (الوزن القائم والفارغ والصافي)">
+                        <span class="grn-tool-ic">⚖️</span><span>ميزان القبّان</span>
                     </button>
-                    <button type="button" id="btn-grn-qr-card" class="btn-action" style="padding:9px 13px;font-size:0.84rem;border-radius:10px;background:linear-gradient(135deg,#0d9488,#0f766e);display:inline-flex;align-items:center;gap:5px;" onclick="window.printCertifiedGrnQrCard && window.printCertifiedGrnQrCard()" title="إصدار بطاقة فحص واستلام مخزني PDF/QR معتمدة مع تتبع الصلاحية وموقع الرف">
-                        <span>🛡️</span> بطاقة QR
+                    <button type="button" id="btn-grn-editor-lighting" class="btn-action grn-editor-tool-btn grn-tool-light" style="padding:9px 13px;font-size:0.86rem;border-radius:11px;display:inline-flex;align-items:center;gap:6px;" onclick="window.toggleGrnEyeComfortMode && window.toggleGrnEyeComfortMode()" title="إضاءة الفحص المريحة للعين وفلتر الحماية البصرية">
+                        <span class="grn-tool-ic">💡</span><span>إضاءة</span>
                     </button>
-                    <button type="button" id="btn-grn-signature" class="btn-action" style="padding:9px 13px;font-size:0.84rem;border-radius:10px;background:linear-gradient(135deg,#6366f1,#4f46e5);display:inline-flex;align-items:center;gap:5px;" onclick="window.openGrnSignatureModal && window.openGrnSignatureModal()" title="التوقيع الإلكتروني الحي باللمس أو الماوس لأمين المستودع وسائق الشاحنة">
-                        <span>✍️</span> توقيع إلكتروني
+                    <button type="button" id="btn-grn-qr-card" class="btn-action grn-editor-tool-btn grn-tool-qr" style="padding:9px 13px;font-size:0.86rem;border-radius:11px;display:inline-flex;align-items:center;gap:6px;" onclick="window.printCertifiedGrnQrCard && window.printCertifiedGrnQrCard()" title="إصدار بطاقة فحص واستلام مخزني PDF/QR معتمدة مع تتبع الصلاحية وموقع الرف">
+                        <span class="grn-tool-ic">🛡️</span><span>بطاقة QR</span>
+                    </button>
+                    <button type="button" id="btn-grn-signature" class="btn-action grn-editor-tool-btn grn-tool-sig" style="padding:9px 13px;font-size:0.86rem;border-radius:11px;display:inline-flex;align-items:center;gap:6px;" onclick="window.openGrnSignatureModal && window.openGrnSignatureModal()" title="التوقيع الإلكتروني الحي باللمس أو الماوس لأمين المستودع وسائق الشاحنة">
+                        <span class="grn-tool-ic">✍️</span><span>توقيع إلكتروني</span>
                     </button>
                     <button type="button" id="btn-grn-landed-cost" class="btn-action" style="padding:9px 13px;font-size:0.84rem;border-radius:10px;background:linear-gradient(135deg,#0891b2,#0e7490);display:inline-flex;align-items:center;gap:5px;" onclick="window.openGrnLandedCostModal && window.openGrnLandedCostModal()" title="توزيع تكلفة النقل والتعتيق والرسوم تلقائياً على الأصناف المستلمة (Landed Cost)">
                         <span>🚚</span> تكلفة النقل
@@ -4626,7 +4621,7 @@ html.grn-ophthalmic-comfort-active body {
                 const invIdTd = tr.children[0];
                 const pendingCntTd = tr.children[4];
                 if (!invIdTd || !pendingCntTd) return;
-                const invId = invIdTd.textContent.trim();
+                const invId = invIdTd.textContent.replace(/^[^\w#\-]+/, '').trim();
                 const pData = pendingMap[invId];
                 if (!pData || !pData.lines) return;
 
@@ -4701,13 +4696,16 @@ html.grn-ophthalmic-comfort-active body {
             if (receivingItems.length === 0) {
                 return window.focusRequiredGrnElement('#items-tbody .qty-input', '⚠️ يرجى تحديد كمية استلام أكبر من صفر لصنف واحد على الأقل');
             }
+            if (window._isQuickHubReceiving) {
+                receivingItems.forEach(x => { if (!x.warehouseId) x.warehouseId = 'w-main'; });
+            }
             const hasEmptyWh = receivingItems.some(x => !x.warehouseId);
             if (hasEmptyWh) {
                 return window.focusRequiredGrnElement('#grn-bulk-wh-select, #items-tbody .wh-select', '⚠️ يرجى تحديد المستودع لجميع الأصناف المستلمة');
             }
 
             window._isSavingGRN = true;
-            const _grnBusyTimer = setTimeout(() => { window._isSavingGRN = false; }, 2200);
+            const _grnBusyTimer = setTimeout(() => { window._isSavingGRN = false; window._grnSingleSaveLocked = false; }, 1200);
 
             // 🛡️ ATOMIC SNAPSHOT (Rollback if any exception occurs)
             const _atomicKeys = [
@@ -4918,6 +4916,10 @@ html.grn-ophthalmic-comfort-active body {
                     });
                 } catch (_erb) {}
                 showToast('❌ حدث خطأ أثناء حفظ إذن الاستلام وتم التراجع التلقائي (Rollback) لحماية أرصدة المخازن', 'error');
+            } finally {
+                clearTimeout(_grnBusyTimer);
+                window._isSavingGRN = false;
+                window._grnSingleSaveLocked = false;
             }
         };
 
@@ -5060,10 +5062,37 @@ html.grn-ophthalmic-comfort-active body {
             showToast('⚡ تم تعبئة كامل الكميات المتبقية لجميع الأصناف (100%)', 'success');
         };
         window.quickReceiveInvoiceFromHub = function(invId) {
-            if (!invId || !pendingMap[invId]) return;
-            openReceiptEditor(invId);
-            window.fillAllRemainingGRNQty();
-            saveReceiptNote();
+            const cleanId = String(invId || '').trim();
+            if (!cleanId) return;
+            if (!pendingMap[cleanId]) {
+                try { calculatePendingGoods(); } catch (_e) {}
+            }
+            if (!pendingMap[cleanId]) {
+                showToast('⚠️ هذه الفاتورة مستلمة بالكامل أو غير موجودة في قائمة الانتظار', 'info');
+                return;
+            }
+            window._isQuickHubReceiving = true;
+            window._isSavingGRN = false;
+            window._grnSingleSaveLocked = false;
+            try {
+                if (typeof window.triggerGrnAudioChime === 'function') window.triggerGrnAudioChime('instant');
+                openReceiptEditor(cleanId);
+                window.fillAllRemainingGRNQty();
+                if (Array.isArray(receiptLines)) {
+                    const defWh = (Array.isArray(warehousesDb) && warehousesDb.find(w => w && w.id !== 'w-damaged')) ? warehousesDb.find(w => w && w.id !== 'w-damaged').id : 'w-main';
+                    receiptLines.forEach(l => { if (!l.warehouseId) l.warehouseId = defWh; });
+                }
+                window.saveReceiptNote(true);
+                showHub();
+                calculatePendingGoods();
+                renderPendingInvoices(false);
+                if (typeof window.updateGrnHubFinStrip === 'function') window.updateGrnHubFinStrip();
+                showToast(`⚡ تم الفحص والاستلام الفوري الكامل للفاتورة (${cleanId}) بنجاح`, 'success');
+            } finally {
+                window._isQuickHubReceiving = false;
+                window._isSavingGRN = false;
+                window._grnSingleSaveLocked = false;
+            }
         };
         window.zeroAllGRNQty = function() {
             if (!Array.isArray(receiptLines) || !receiptLines.length) return;
@@ -5571,25 +5600,22 @@ html.grn-ophthalmic-comfort-active body {
                     printBtn.className = 'btn-action grn-print-btn';
                     printBtn.style.cssText = 'padding: 4px 8px; font-size: 0.75rem; background: linear-gradient(135deg, #0284c7, #0369a1);';
                     printBtn.title = 'طباعة سند الاستلام المخزني 🖨️';
-                    printBtn.innerHTML = '🖨️';
+                    printBtn.innerHTML = '🖨️ طباعة';
                     printBtn.onclick = () => window.printGRNVoucherById(grnId);
 
                     const lblBtn = document.createElement('button');
                     lblBtn.className = 'btn-action grn-lbl-btn';
                     lblBtn.style.cssText = 'padding: 4px 8px; font-size: 0.75rem; background: linear-gradient(135deg, #7c3aed, #6d28d9);';
                     lblBtn.title = 'طباعة ملصقات باركود الدفعة والرف 🏷️';
-                    lblBtn.innerHTML = '🏷️';
+                    lblBtn.innerHTML = '🏷️ ملصقات';
                     lblBtn.onclick = () => window.printGRNBatchBarcodeLabels(grnId);
 
                     const waBtn = document.createElement('button');
                     waBtn.className = 'btn-action';
                     waBtn.style.cssText = 'padding: 4px 8px; font-size: 0.75rem; background: linear-gradient(135deg, #10b981, #059669);';
                     waBtn.title = 'مشاركة إشعار الاستلام عبر واتساب 💬';
-                    waBtn.innerHTML = '💬';
-                    waBtn.onclick = () => window.shareCurrentOrSavedGRNWhatsApp(grnId);
-
-                    btnWrap.insertBefore(waBtn, btnWrap.firstChild);
-                    btnWrap.insertBefore(lblBtn, waBtn);
+                    lblBtn.style.marginInlineEnd = '4px';
+                    btnWrap.insertBefore(lblBtn, btnWrap.firstChild);
                     btnWrap.insertBefore(printBtn, lblBtn);
                 }
             });
@@ -6687,19 +6713,20 @@ html.grn-ophthalmic-comfort-active body {
         // Inject Live Audio Readback button into Bottom Summary Bar & auto-readback on hover when guide is active
         setTimeout(() => {
             const bottomBar = document.querySelector('#view-editor .editor-bottom-bar');
-            if (bottomBar && !document.getElementById('btn-grn-audio-summary')) {
+            const actGroup = document.getElementById('grn-bottom-actions-group') || bottomBar;
+            if (actGroup && !document.getElementById('btn-grn-audio-summary')) {
                 const audioBtn = document.createElement('button');
                 audioBtn.type = 'button';
                 audioBtn.id = 'btn-grn-audio-summary';
-                audioBtn.className = 'btn-action';
-                audioBtn.style.cssText = 'padding:8px 14px; font-size:0.86rem; border-radius:10px; background:linear-gradient(135deg,#0284c7,#2563eb); color:#FFFFFF; font-weight:900; display:inline-flex; align-items:center; gap:6px;';
-                audioBtn.innerHTML = '<span>🔊</span> نطق الملخص';
+                audioBtn.className = 'btn-action grn-light-clear-btn';
+                audioBtn.style.cssText = 'padding:10px 16px; font-size:0.94rem; border-radius:11px; background:linear-gradient(135deg,#0284c7,#2563eb); border:2px solid #7dd3fc; color:#FFFFFF; font-weight:900; display:inline-flex; align-items:center; gap:7px; cursor:pointer;';
+                audioBtn.innerHTML = '<span>🔊</span><span>نطق الملخص</span>';
                 audioBtn.title = 'قراءة صوتية حية لملخص الاستلام والكميات المتبقية ونسبة الإنجاز بالصوت الرجالي';
                 audioBtn.onclick = (ev) => {
                     ev.stopPropagation();
                     window.speakLiveGrnSummaryReadback();
                 };
-                bottomBar.appendChild(audioBtn);
+                actGroup.insertBefore(audioBtn, actGroup.firstChild);
             }
         }, 400);
 
@@ -8004,11 +8031,14 @@ html.grn-ophthalmic-comfort-active body {
 
             // سريان فوري للسمة المختارة على جميع الشاشات الوليدة والمنبثقة
             window.propagateGrnThemeToChildModals = function() {
-                const activeTheme = document.documentElement.getAttribute('data-theme') || localStorage.getItem('elsajana_theme') || 'dark';
-                const isLight = document.body.classList.contains('theme-light') || ['light', 'Financial', 'desert', 'forest', 'Crimson'].includes(activeTheme);
+                const activeTheme = document.documentElement.getAttribute('data-theme') || localStorage.getItem('magaies_active_theme') || 'dark';
+                const activeTone = document.documentElement.getAttribute('data-light-tone') || localStorage.getItem('magaies_light_tone') || 'ivory_default';
+                const isLight = document.documentElement.classList.contains('light-theme') || document.body.classList.contains('light-theme');
                 document.querySelectorAll('[id$="-modal"], .modal-overlay, .grn-child-modal').forEach(mod => {
-                    mod.setAttribute('data-theme', activeTheme);
+                    if (mod.getAttribute('data-theme') !== activeTheme) mod.setAttribute('data-theme', activeTheme);
+                    if (mod.getAttribute('data-light-tone') !== activeTone) mod.setAttribute('data-light-tone', activeTone);
                     mod.classList.toggle('theme-light', isLight);
+                    mod.classList.toggle('light-theme', isLight);
                     mod.classList.toggle('theme-dark', !isLight);
                 });
             };
@@ -8695,10 +8725,10 @@ html.grn-ophthalmic-comfort-active body {
                 const mapBtn = document.createElement('button');
                 mapBtn.type = 'button';
                 mapBtn.id = 'btn-grn-c4-impact-pill';
-                mapBtn.className = 'grn-nav-pill';
+                mapBtn.className = 'grn-nav-pill grn-pill-map';
                 mapBtn.style.cssText = 'cursor:pointer; font-family:inherit;';
                 mapBtn.title = 'عرض خريطة الأثر الثلاثية (المدخلات والمخرجات) والقاعدة الذهبية للشاشة بالصوت والصورة';
-                mapBtn.innerHTML = 'خريطة الأثر والقاعدة الذهبية';
+                mapBtn.innerHTML = '<span class="grn-pill-ic">🗺️</span><span>خريطة الأثر والقاعدة الذهبية</span>';
                 mapBtn.onclick = () => window.openGrnImpactMapModal(true);
                 navBar.appendChild(mapBtn);
             }
@@ -8858,7 +8888,7 @@ html.grn-ophthalmic-comfort-active body {
                 const rolePill = document.getElementById('btn-grn-c5-role-pill');
                 if (rolePill) {
                     const roleNames = { admin: 'صلاحية: مدير النظام', warehouse_keeper: 'صلاحية: أمين مستودع', qc_inspector: 'صلاحية: فاحص جودة QC' };
-                    rolePill.innerHTML = `${roleNames[role] || roleNames.admin}`;
+                    rolePill.innerHTML = `<span class="grn-pill-ic">👑</span><span>${roleNames[role] || roleNames.admin}</span>`;
                 }
             };
 
@@ -9204,7 +9234,7 @@ html.grn-ophthalmic-comfort-active body {
                 syncBtn.className = 'grn-nav-pill';
                 syncBtn.style.cssText = 'cursor:pointer; font-family:inherit;';
                 syncBtn.title = 'رادار التزامن الصاروخي (CRDT) وخزينة IndexedDB واختبار سرعة 100,000 سجل';
-                syncBtn.innerHTML = 'رادار CRDT و 100K';
+                syncBtn.innerHTML = '<span class="grn-pill-ic">⚡</span><span>رادار CRDT و 100K</span>';
                 syncBtn.onclick = () => window.openGrnC6SyncEngineModal();
                 navBarC6.appendChild(syncBtn);
             }
@@ -9430,10 +9460,10 @@ html.grn-ophthalmic-comfort-active body {
                 const eyeBtn = document.createElement('button');
                 eyeBtn.type = 'button';
                 eyeBtn.id = 'btn-grn-c7-eye-pill';
-                eyeBtn.className = 'grn-nav-pill';
+                eyeBtn.className = 'grn-nav-pill grn-pill-eye';
                 eyeBtn.style.cssText = 'cursor:pointer; font-family:inherit;';
-                eyeBtn.title = 'تفعيل وضع الطب البصري لراحة العين (Low Blue-Light & Anti-Eye-Slip) مع مؤشر الاتصال المطمئن';
-                eyeBtn.innerHTML = `راحة العين`;
+                eyeBtn.title = 'تفعيل وضع الطب البصري لراحة العين والإضاءة المريحة';
+                eyeBtn.innerHTML = `<span class="grn-pill-ic">💡</span><span>إضاءة / راحة العين</span>`;
                 eyeBtn.onclick = () => window.toggleGrnEyeComfortMode();
                 navBarC7.appendChild(eyeBtn);
 
@@ -9882,11 +9912,17 @@ html.grn-ophthalmic-comfort-active body {
             // تأكيد وجود "مخزن التوالف والعزل" (w-damaged) في قائمة المخازن المعتمدة
             window.ensureGrnDamagedWarehouseExists = function() {
                 try {
-                    if (!Array.isArray(window.warehousesDb)) window.warehousesDb = [];
+                    if (!Array.isArray(window.warehousesDb) || window.warehousesDb.length === 0) {
+                        const rawWh = JSON.parse(localStorage.getItem('erp_warehouses_v1') || '[]');
+                        window.warehousesDb = Array.isArray(rawWh) && rawWh.length ? rawWh : [{ id: 'w-main', name: 'المخزن الرئيسي' }];
+                    }
+                    if (!window.warehousesDb.some(w => w && w.id === 'w-main')) {
+                        window.warehousesDb.unshift({ id: 'w-main', name: 'المخزن الرئيسي' });
+                    }
                     if (!window.warehousesDb.some(w => w && w.id === 'w-damaged')) {
                         window.warehousesDb.push({ id: 'w-damaged', name: '🛠️ مخزن التوالف والعزل (Scrap)' });
-                        localStorage.setItem('erp_warehouses_v1', JSON.stringify(window.warehousesDb));
                     }
+                    localStorage.setItem('erp_warehouses_v1', JSON.stringify(window.warehousesDb));
                 } catch (_ew) {}
             };
             window.ensureGrnDamagedWarehouseExists();
@@ -16757,21 +16793,21 @@ html.grn-ophthalmic-comfort-active body {
                     :root.light-theme #grn-history-table,
                     :root.light-theme .pos-grid,
                     :root.light-theme [id$="-modal"] table {
-                        border: 2px solid #9a5822 !important;
-                        background: #faf6ee !important;
+                        border: 2px solid var(--lt-border, #5c2808) !important;
+                        background: var(--lt-card-1, #fffdf8) !important;
                         border-collapse: collapse !important;
                     }
                     :root.light-theme #grn-items-table thead tr th,
                     :root.light-theme #grn-history-table thead tr th,
                     :root.light-theme .pos-grid thead tr th,
                     :root.light-theme [id$="-modal"] table thead tr th {
-                        background: linear-gradient(180deg, #f3e9d6 0%, #eadbc2 100%) !important;
+                        background: linear-gradient(180deg, var(--lt-th-1, #f5ead4) 0%, var(--lt-th-2, #e6d4b5) 100%) !important;
                         color: #000000 !important;
                         -webkit-text-fill-color: #000000 !important;
-                        border-top: 2px solid #9a5822 !important;
-                        border-bottom: 2px solid #9a5822 !important;
-                        border-left: 1.5px solid rgba(154, 88, 34, 0.35) !important;
-                        border-right: 1.5px solid rgba(154, 88, 34, 0.35) !important;
+                        border-top: 2px solid var(--lt-border, #5c2808) !important;
+                        border-bottom: 2px solid var(--lt-border, #5c2808) !important;
+                        border-left: 1.5px solid var(--lt-border, #5c2808) !important;
+                        border-right: 1.5px solid var(--lt-border, #5c2808) !important;
                         font-weight: 900 !important;
                         box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.75) !important;
                     }
@@ -16779,11 +16815,11 @@ html.grn-ophthalmic-comfort-active body {
                     :root.light-theme #grn-history-table tbody tr td,
                     :root.light-theme .pos-grid tbody tr td,
                     :root.light-theme [id$="-modal"] table tbody tr td {
-                        background: #faf6ee !important;
+                        background: var(--lt-row-odd, #ffffff) !important;
                         color: #000000 !important;
                         -webkit-text-fill-color: #000000 !important;
-                        border-top: 1.5px solid rgba(154, 88, 34, 0.32) !important;
-                        border-bottom: 1.5px solid rgba(154, 88, 34, 0.32) !important;
+                        border-top: 1.5px solid var(--lt-border, #5c2808) !important;
+                        border-bottom: 1.5px solid var(--lt-border, #5c2808) !important;
                         border-left: 1px solid rgba(148, 163, 184, 0.30) !important;
                         border-right: 1px solid rgba(148, 163, 184, 0.30) !important;
                         font-weight: 800 !important;
@@ -16792,7 +16828,7 @@ html.grn-ophthalmic-comfort-active body {
                     :root.light-theme #grn-history-table tbody tr:hover td,
                     :root.light-theme .pos-grid tbody tr:hover td,
                     :root.light-theme [id$="-modal"] table tbody tr:hover td {
-                        background: #ebe0cc !important;
+                        background: var(--lt-sub-2, #f6ecda) !important;
                     }
 
                     /* ب) السمات الغامقة (فواصل مستقلة متناسقة بلون سماوي/فضي هادئ لا يتبع currentColor أبداً) */
@@ -16858,7 +16894,7 @@ html.grn-ophthalmic-comfort-active body {
                         -webkit-box-shadow: 0 0 0 1000px #FFFFFF inset !important;
                         box-shadow: 0 0 0 1000px #FFFFFF inset !important;
                         -webkit-text-fill-color: #000000 !important;
-                        border: 2px solid #9a5822 !important;
+                        border: 2px solid var(--lt-border, #5c2808) !important;
                         caret-color: #000000 !important;
                     }
 
@@ -17658,10 +17694,8 @@ html.grn-ophthalmic-comfort-active body {
             const c4Observer = new MutationObserver(() => {
                 if (_c4ObserverTimer) clearTimeout(_c4ObserverTimer);
                 _c4ObserverTimer = setTimeout(() => {
-                    window.syncSelfUpdatingGrnGuideAndInheritance();
                     if (typeof window.autoFitGrnInputs === 'function') window.autoFitGrnInputs();
-                    if (typeof window.propagateGrnThemeToChildModals === 'function') window.propagateGrnThemeToChildModals();
-                }, 250);
+                }, 600);
             });
             c4Observer.observe(document.body, { childList: true, subtree: true });
         }
@@ -17783,7 +17817,6 @@ html.grn-ophthalmic-comfort-active body {
                 '    max-width: calc(100% - var(--sb-collapsed, 62px)) !important;\n' +
                 '    min-width: 0 !important;\n' +
                 '    display: flex !important; flex-direction: column !important; align-items: center !important; justify-content: flex-start !important;\n' +
-                '    background-image: none !important;\n' +
                 '}\n' +
                 'html.has-sidebar body.sidebar-open, body.has-sidebar.sidebar-open {\n' +
                 '    margin-right: var(--sb-expanded, 240px) !important;\n' +
@@ -17804,7 +17837,7 @@ html.grn-ophthalmic-comfort-active body {
                 '    box-sizing: border-box !important; width: 100% !important; max-width: 100% !important; margin: 8px 0 12px 0 !important; animation: none !important;\n' +
                 '}\n' +
                 '/* مسح الانعكاسات الضوئية المزعجة في الهيدر وأعلى يسار الشاشة وحصر التأثيرات داخل الأزرار فقط */\n' +
-                '.ambient-bg, body { background-image: none !important; }\n' +
+                '.ambient-bg { background-image: none !important; display: none !important; }\n' +
                 '.magical-glass-header::before, .magical-glass-header::after, .premium-header::before, .premium-header::after,\n' +
                 '.neo-card-title::after, .grn-meta-bar::after, .editor-bottom-bar::after, .glass-panel::before, .panel::before,\n' +
                 '.msg-quartet-btn::after, .msg-trigger-btn::after {\n' +
@@ -19004,9 +19037,10 @@ html.grn-ophthalmic-comfort-active body {
                             '<button type="button" onclick="window.setMdProportionalZoom(1.0);document.getElementById(\'grn-sov-10x-slider\').value=1;document.getElementById(\'grn-sov-10x-lbl\').textContent=\'100% (1x)\';window.notifyGrnFc2UnifiedToast(\'🎯 تم قفل التنصيف الليزري بعد الشريط الجانبي (الهامش الأيمن === الهامش الأيسر) وضبط الشاشة على قد اللابتوب تماماً (100% — 1x)!\',\'success\');" style="height:30px;padding:0 11px;border-radius:8px;background:#059669;color:#fff;border:none;font-weight:900;font-size:0.75rem;cursor:pointer;">🎯 تنصيف قياسي على قد اللابتوب (100%)</button>' +
                         '</div>' +
                         '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px;">' +
-                            '<span style="font-size:0.76rem;font-weight:900;color:#cbd5e1;">🔤 مقاس الخط الموحد لكل الشاشات (+2):</span>' +
-                            '<input type="range" id="grn-sov-font-slider" min="13" max="24" step="1" value="' + curFont + '" oninput="if(typeof window.setGrnGlobalUnifiedFontPx===\'function\')window.setGrnGlobalUnifiedFontPx(this.value);document.getElementById(\'grn-sov-font-lbl\').textContent=this.value+\'px\';" style="width:160px;">' +
+                            '<span style="font-size:0.76rem;font-weight:900;color:#cbd5e1;">🔤 مقاس الخط الموحد (+2):</span>' +
+                            '<input type="range" id="grn-sov-font-slider" min="13" max="24" step="1" value="' + curFont + '" oninput="if(typeof window.setGrnGlobalUnifiedFontPx===\'function\')window.setGrnGlobalUnifiedFontPx(this.value);document.getElementById(\'grn-sov-font-lbl\').textContent=this.value+\'px\';" style="width:150px;">' +
                             '<span id="grn-sov-font-lbl" style="font-weight:900;color:#34d399;">' + curFont + 'px</span>' +
+                            '<button type="button" onclick="if(typeof window.openUniversalErpTonePopover===\'function\')window.openUniversalErpTonePopover(this);" style="height:30px;padding:0 12px;border-radius:8px;background:linear-gradient(135deg,#f59e0b,#d97706);color:#000000;-webkit-text-fill-color:#000000;border:2px solid #78350f;font-weight:900;font-size:0.76rem;cursor:pointer;">🎨 المظهر ونغمات النظام (13 لوناً + 4 نغمات)</button>' +
                         '</div>' +
                         '<div style="display:flex;gap:5px;flex-wrap:wrap;">' +
                             [0.5, 0.75, 1.0, 1.25, 1.5, 2.0, 3.0, 4.0, 5.0, 8.0, 10.0].map(function(z) {
@@ -19083,10 +19117,115 @@ html.grn-ophthalmic-comfort-active body {
         /* Hide legacy experimental command bar so #view-hub matches Purchase Constitution 2027 cleanly */
         #grn-fc1-ai-command-bar { display: none !important; }
 
-        /* 1. Royal Dark (dark_midnight) Stepped Surfaces & Pure White Typography */
+        /* ══════════════════════════════════════════════════════════════════════════
+           0. 9 GLOBAL THEMES + ROSE BLOSSOM PALETTE VARIABLES (LIGHT & DARK)
+           ══════════════════════════════════════════════════════════════════════════ */
+        html:not(.light-theme), html:not(.light-theme)[data-light-tone="dark_midnight"] {
+            --dk-canvas-1: #010308; --dk-canvas-2: #060d1d;
+            --dk-card-1: #152342; --dk-card-2: #0f172a;
+            --dk-sub-1: #0b1120; --dk-sub-2: #111c35;
+            --dk-th-1: #0d182c; --dk-th-2: #091120;
+            --dk-row-odd: #13223f; --dk-row-even: #0f1b33;
+            --dk-border: #38bdf8;
+        }
+        html:not(.light-theme)[data-light-tone="pure_oled"], html[data-theme="pure_oled"] {
+            --dk-canvas-1: #000000; --dk-canvas-2: #050505;
+            --dk-card-1: #090d16; --dk-card-2: #010308;
+            --dk-sub-1: #000000; --dk-sub-2: #080c14;
+            --dk-th-1: #050811; --dk-th-2: #000000;
+            --dk-row-odd: #0a101d; --dk-row-even: #05080f;
+            --dk-border: #0284c7;
+        }
+        html:not(.light-theme)[data-light-tone="mocha_brown"], html[data-theme="mocha_brown"] {
+            --dk-canvas-1: #120906; --dk-canvas-2: #1c0f0a;
+            --dk-card-1: #2e1a12; --dk-card-2: #1f120d;
+            --dk-sub-1: #140b07; --dk-sub-2: #24140e;
+            --dk-th-1: #1c0f0a; --dk-th-2: #140b07;
+            --dk-row-odd: #26150e; --dk-row-even: #1f110b;
+            --dk-border: #f59e0b;
+        }
+        html:not(.light-theme)[data-light-tone="slate_twilight"], html[data-theme="slate_twilight"] {
+            --dk-canvas-1: #090e17; --dk-canvas-2: #0f172a;
+            --dk-card-1: #1e293b; --dk-card-2: #334155;
+            --dk-sub-1: #0f172a; --dk-sub-2: #1e293b;
+            --dk-th-1: #0f172a; --dk-th-2: #1e293b;
+            --dk-row-odd: #1e293b; --dk-row-even: #172030;
+            --dk-border: #94a3b8;
+        }
+
+        html.light-theme, html.light-theme[data-light-tone="ivory_default"], html[data-theme="warm_cream"] {
+            --lt-canvas-1: #dfd0b4; --lt-canvas-2: #d2be9a; --lt-hdr-1: #eadbc0; --lt-hdr-2: #dec9a4; --lt-hdr-3: #d1b689;
+            --lt-card-1: #fffdf8; --lt-card-2: #f7efe0; --lt-sub-1: #fffefb; --lt-sub-2: #f6ecda;
+            --lt-th-1: #f5ead4; --lt-th-2: #e6d4b5; --lt-row-odd: #ffffff; --lt-row-even: #fdf9f0;
+            --lt-btn-1: #ffffff; --lt-btn-2: #f3e3c3; --lt-accent: #b45309; --lt-pill-ic: rgba(180,83,9,0.16);
+            --lt-border: #5c2808; --lt-border-hover: #b45309; --lt-ink: #120500;
+        }
+        html.light-theme[data-light-tone="royal_bronze"] {
+            --lt-canvas-1: #d4b08c; --lt-canvas-2: #c29970; --lt-hdr-1: #e2be98; --lt-hdr-2: #d4a679; --lt-hdr-3: #c48f5c;
+            --lt-card-1: #fdf6ee; --lt-card-2: #f3e2ce; --lt-sub-1: #fef9f3; --lt-sub-2: #efd8be;
+            --lt-th-1: #edd5ba; --lt-th-2: #dfbda0; --lt-row-odd: #fffcf8; --lt-row-even: #f9efe2;
+            --lt-btn-1: #fffaf3; --lt-btn-2: #ebd0b0; --lt-accent: #9a3412; --lt-pill-ic: rgba(154,52,18,0.18);
+            --lt-border: #4a2106; --lt-border-hover: #9a3412; --lt-ink: #140600;
+        }
+        html.light-theme[data-light-tone="platinum_gray"], html[data-theme="exec_gray"]:not([data-light-tone="deep_slate_dark"]) {
+            --lt-canvas-1: #c2d0e0; --lt-canvas-2: #aebfd4; --lt-hdr-1: #cfdeee; --lt-hdr-2: #bccfe4; --lt-hdr-3: #a8bfd9;
+            --lt-card-1: #f7faff; --lt-card-2: #e6eef8; --lt-sub-1: #fafdff; --lt-sub-2: #e1ebf6;
+            --lt-th-1: #dee9f6; --lt-th-2: #cbdbed; --lt-row-odd: #ffffff; --lt-row-even: #f1f6fc;
+            --lt-btn-1: #ffffff; --lt-btn-2: #dde7f4; --lt-accent: #334155; --lt-pill-ic: rgba(51,65,85,0.15);
+            --lt-border: #1e293b; --lt-border-hover: #334155; --lt-ink: #020617;
+        }
+        html.light-theme[data-light-tone="crystal_silver"], html[data-theme="ultra_white"]:not([data-light-tone="sky_alabaster"]) {
+            --lt-canvas-1: #d2d8e2; --lt-canvas-2: #bfc7d4; --lt-hdr-1: #dfe4ec; --lt-hdr-2: #cfd6e2; --lt-hdr-3: #bec7d5;
+            --lt-card-1: #fafbfd; --lt-card-2: #edf1f7; --lt-sub-1: #ffffff; --lt-sub-2: #e7ecf3;
+            --lt-th-1: #e5eaf1; --lt-th-2: #d5dce7; --lt-row-odd: #ffffff; --lt-row-even: #f4f6f9;
+            --lt-btn-1: #ffffff; --lt-btn-2: #e2e8f0; --lt-accent: #475569; --lt-pill-ic: rgba(71,85,105,0.15);
+            --lt-border: #111827; --lt-border-hover: #334155; --lt-ink: #030712;
+        }
+        html.light-theme[data-light-tone="sage_pearl"] {
+            --lt-canvas-1: #bce0ce; --lt-canvas-2: #a4d1bb; --lt-hdr-1: #c8ead9; --lt-hdr-2: #b0ddca; --lt-hdr-3: #98cfb8;
+            --lt-card-1: #f4fcf8; --lt-card-2: #e0f5ec; --lt-sub-1: #f9fefb; --lt-sub-2: #d8f2e6;
+            --lt-th-1: #d4f0e3; --lt-th-2: #bfe6d4; --lt-row-odd: #ffffff; --lt-row-even: #eefaf4;
+            --lt-btn-1: #ffffff; --lt-btn-2: #cceee0; --lt-accent: #047857; --lt-pill-ic: rgba(4,120,87,0.16);
+            --lt-border: #064e3b; --lt-border-hover: #059669; --lt-ink: #022c22;
+        }
+        html.light-theme[data-light-tone="sky_alabaster"] {
+            --lt-canvas-1: #bad9f5; --lt-canvas-2: #a2caed; --lt-hdr-1: #c7e3fb; --lt-hdr-2: #afd4f5; --lt-hdr-3: #96c4ee;
+            --lt-card-1: #f4faff; --lt-card-2: #dfeffd; --lt-sub-1: #f9fcff; --lt-sub-2: #d6ebfc;
+            --lt-th-1: #d2e9fc; --lt-th-2: #bdddf9; --lt-row-odd: #ffffff; --lt-row-even: #eef7ff;
+            --lt-btn-1: #ffffff; --lt-btn-2: #cce6fc; --lt-accent: #0369a1; --lt-pill-ic: rgba(3,105,161,0.16);
+            --lt-border: #0c4a6e; --lt-border-hover: #0284c7; --lt-ink: #082f49;
+        }
+        html.light-theme[data-light-tone="rose_blossom"] {
+            --lt-canvas-1: #f5d0e3; --lt-canvas-2: #ebaed0; --lt-hdr-1: #fae0ee; --lt-hdr-2: #f3c6df; --lt-hdr-3: #ebadd0;
+            --lt-card-1: #fff7fb; --lt-card-2: #fce8f3; --lt-sub-1: #fffafd; --lt-sub-2: #f9dfee;
+            --lt-th-1: #f7d6e8; --lt-th-2: #efc2dc; --lt-row-odd: #ffffff; --lt-row-even: #fdf2f8;
+            --lt-btn-1: #ffffff; --lt-btn-2: #f7d4e8; --lt-accent: #be185d; --lt-pill-ic: rgba(190,24,93,0.16);
+            --lt-border: #831843; --lt-border-hover: #be185d; --lt-ink: #3b071e;
+        }
+        html.light-theme[data-light-tone="warm_mocha_dark"] {
+            --lt-canvas-1: #b89878; --lt-canvas-2: #a3805e; --lt-hdr-1: #ccb094; --lt-hdr-2: #ba9878; --lt-hdr-3: #a8825e;
+            --lt-card-1: #faf3ea; --lt-card-2: #eee0cf; --lt-sub-1: #fdf8f2; --lt-sub-2: #e8d6c1;
+            --lt-th-1: #e5d1ba; --lt-th-2: #d6bc9f; --lt-row-odd: #fdfaf6; --lt-row-even: #f5ebe0;
+            --lt-btn-1: #fdf8f2; --lt-btn-2: #e2ccb2; --lt-accent: #7c2d12; --lt-pill-ic: rgba(124,45,18,0.18);
+            --lt-border: #3e1b04; --lt-border-hover: #7c2d12; --lt-ink: #0f0400;
+        }
+        html.light-theme[data-light-tone="deep_slate_dark"] {
+            --lt-canvas-1: #a3b4ca; --lt-canvas-2: #8da1bb; --lt-hdr-1: #b8c7dc; --lt-hdr-2: #a2b5cf; --lt-hdr-3: #8ca3c1;
+            --lt-card-1: #f2f6fc; --lt-card-2: #e2eaf5; --lt-sub-1: #f7faff; --lt-sub-2: #dbe5f2;
+            --lt-th-1: #d6e1f0; --lt-th-2: #c3d2e6; --lt-row-odd: #fbfdff; --lt-row-even: #edf3fa;
+            --lt-btn-1: #f8fbff; --lt-btn-2: #d2dfef; --lt-accent: #1e293b; --lt-pill-ic: rgba(30,41,59,0.16);
+            --lt-border: #0f172a; --lt-border-hover: #1d4ed8; --lt-ink: #020617;
+        }
+
+        /* ══════════════════════════════════════════════════════════════════════════
+           1. DARK THEMES (dark_midnight / mocha_brown / pure_oled / slate_twilight)
+           ══════════════════════════════════════════════════════════════════════════ */
         html:not(.light-theme) body,
-        html:not(.light-theme) #grn-proportional-root {
-            background: #010308 !important;
+        html:not(.light-theme) .ambient-bg,
+        html:not(.light-theme) #grn-proportional-root,
+        html:not(.light-theme) .dash-main,
+        html:not(.light-theme) .view-container {
+            background: linear-gradient(155deg, var(--dk-canvas-1, #010308) 0%, var(--dk-canvas-2, #060d1d) 100%) !important;
             color: #ffffff !important;
         }
         html:not(.light-theme) #view-hub .neo-card,
@@ -19097,25 +19236,35 @@ html.grn-ophthalmic-comfort-active body {
         html:not(.light-theme) #view-editor .neo-card-title,
         html:not(.light-theme) #view-editor .grid-scroll-wrap,
         html:not(.light-theme) #view-editor .editor-bottom-bar,
-        html:not(.light-theme) #grn-party-fin-strip {
-            background: linear-gradient(180deg, #172a4a 0%, #111e36 100%) !important;
-            border: 2.5px solid #38bdf8 !important;
+        html:not(.light-theme) #grn-party-fin-strip,
+        html:not(.light-theme) .grn-logistics-bar,
+        html:not(.light-theme) .grn-scanner-bar,
+        html:not(.light-theme) .grn-c10-commercial-bar {
+            background: linear-gradient(180deg, var(--dk-card-1, #172a4a) 0%, var(--dk-card-2, #111e36) 100%) !important;
+            border: 2.5px solid var(--dk-border, #38bdf8) !important;
             box-shadow: 0 8px 24px rgba(0, 0, 0, 0.65) !important;
+            color: #ffffff !important;
         }
         html:not(.light-theme) .pos-grid thead,
         html:not(.light-theme) .pos-grid thead tr th {
-            background: #0d182c !important;
+            background: linear-gradient(180deg, var(--dk-th-1, #0d182c) 0%, var(--dk-th-2, #091120) 100%) !important;
             color: #ffffff !important;
             font-weight: 900 !important;
             font-size: 1rem !important;
-            border-bottom: 2.5px solid #38bdf8 !important;
+            border-bottom: 2.5px solid var(--dk-border, #38bdf8) !important;
         }
-        html:not(.light-theme) #invoices-tbody tr td {
-            background: #13223f !important;
+        html:not(.light-theme) #invoices-tbody tr td,
+        html:not(.light-theme) #recent-grns-container table.pos-grid tbody tr td,
+        html:not(.light-theme) #items-tbody tr td {
+            background: var(--dk-row-odd, #13223f) !important;
             color: #ffffff !important;
             font-weight: 900 !important;
             font-size: 1rem !important;
             border-bottom: 1.5px solid rgba(56, 189, 248, 0.28) !important;
+        }
+        html:not(.light-theme) #invoices-tbody tr:nth-child(even) td,
+        html:not(.light-theme) #recent-grns-container table.pos-grid tbody tr:nth-child(even) td {
+            background: var(--dk-row-even, #0f1b33) !important;
         }
         html:not(.light-theme) #items-tbody input.qty-input,
         html:not(.light-theme) #items-tbody input.factor-input,
@@ -19126,18 +19275,29 @@ html.grn-ophthalmic-comfort-active body {
         html:not(.light-theme) #grn-filter-date-to,
         html:not(.light-theme) #grn-filter-supplier,
         html:not(.light-theme) #grn-filter-warehouse {
-            background: #0b1120 !important;
+            background: var(--dk-sub-1, #0b1120) !important;
             color: #ffffff !important;
-            border: 2px solid #38bdf8 !important;
+            border: 2px solid var(--dk-border, #38bdf8) !important;
             font-weight: 900 !important;
         }
 
-        /* 2. All 8 Light Tones (--lt-* variables, 3px sculpted borders, pure white inputs, pitch-black 900 text) */
+        /* ══════════════════════════════════════════════════════════════════════════
+           2. ALL LIGHT TONES (Warm Ivory, Royal Bronze, Platinum, Silver, Sage, Sky, Rose, Mocha, Slate)
+           ══════════════════════════════════════════════════════════════════════════ */
         html.light-theme body,
-        html.light-theme #grn-proportional-root {
-            background: var(--lt-bg-main, #f3ead8) !important;
-            color: var(--lt-text, #120500) !important;
+        html.light-theme .ambient-bg,
+        html.light-theme #grn-proportional-root,
+        html.light-theme .dash-main,
+        html.light-theme .view-container {
+            background: linear-gradient(155deg, var(--lt-canvas-1, #dfd0b4) 0%, var(--lt-canvas-2, #d2be9a) 100%) !important;
+            color: var(--lt-ink, #120500) !important;
             font-weight: 900 !important;
+        }
+        html.light-theme .magical-glass-header,
+        html.light-theme .premium-header {
+            background: linear-gradient(160deg, var(--lt-hdr-1, #eadbc0) 0%, var(--lt-hdr-2, #dec9a4) 55%, var(--lt-hdr-3, #d1b689) 100%) !important;
+            border: 2.5px solid var(--lt-border, #5c2808) !important;
+            color: var(--lt-ink, #120500) !important;
         }
         html.light-theme #view-hub .neo-card,
         html.light-theme #view-editor .grn-meta-bar,
@@ -19145,33 +19305,428 @@ html.grn-ophthalmic-comfort-active body {
         html.light-theme #view-editor .grid-scroll-wrap,
         html.light-theme #view-editor .editor-bottom-bar,
         html.light-theme #grn-party-fin-strip,
-        html.light-theme #recent-grns-container > div {
-            background: var(--lt-bg-card, #e8dbc3) !important;
-            border: 3px solid var(--lt-border, #5c2808) !important;
+        html.light-theme #recent-grns-container > div,
+        html.light-theme #hub-pending-container .grid-scroll-wrap,
+        html.light-theme #hub-received-container .grid-scroll-wrap {
+            background: linear-gradient(145deg, var(--lt-card-1, #fffdf8) 0%, var(--lt-card-2, #f7efe0) 100%) !important;
+            border: 2.5px solid var(--lt-border, #5c2808) !important;
             box-shadow: 0 6px 18px rgba(45, 20, 5, 0.14) !important;
-            color: var(--lt-text, #120500) !important;
+            color: var(--lt-ink, #120500) !important;
         }
         html.light-theme #view-hub .neo-card-title,
         html.light-theme #grn-hub-fin-strip,
-        html.light-theme #grn-hub-filters-bar {
-            background: var(--lt-bg-subcard, #dfd0b5) !important;
+        html.light-theme #grn-hub-filters-bar,
+        html.light-theme .grn-logistics-bar,
+        html.light-theme .grn-scanner-bar,
+        html.light-theme .grn-c10-commercial-bar,
+        html.light-theme #grn-c9-warehouse-depth-bar,
+        html.light-theme #grn-c11-financial-bar,
+        html.light-theme #grn-c12-security-bar,
+        html.light-theme #grn-c13-cyber-bar,
+        html.light-theme #grn-c14-command-bar {
+            background: linear-gradient(145deg, var(--lt-sub-1, #fffefb) 0%, var(--lt-sub-2, #f6ecda) 100%) !important;
             border: 2.5px solid var(--lt-border, #5c2808) !important;
             border-radius: 12px !important;
-            color: var(--lt-text, #120500) !important;
+            color: var(--lt-ink, #120500) !important;
         }
-        html.light-theme #grn-cross-screen-nav .grn-nav-pill {
-            background: #ffffff !important;
-            color: var(--lt-text, #120500) !important;
+        /* Kinetic, Luminous & Visual 3D Jewel Navigation Pills (#grn-cross-screen-nav) */
+        html body #grn-cross-screen-nav {
+            display: flex !important;
+            flex-wrap: wrap !important;
+            gap: 8px !important;
+            align-items: center !important;
+        }
+        html body #grn-cross-screen-nav .grn-nav-pill {
+            position: relative !important;
+            overflow: hidden !important;
+            height: 38px !important;
+            padding: 0 14px !important;
+            border-radius: 12px !important;
+            font-size: 0.86rem !important;
+            font-weight: 900 !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            gap: 7px !important;
+            text-decoration: none !important;
+            cursor: pointer !important;
+            transition: transform 0.24s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.24s ease, border-color 0.24s ease, background 0.24s ease !important;
+        }
+        html body #grn-cross-screen-nav .grn-nav-pill::after {
+            content: "" !important;
+            position: absolute !important;
+            top: 0 !important;
+            left: -120% !important;
+            width: 65% !important;
+            height: 100% !important;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.45), transparent) !important;
+            transform: skewX(-22deg) !important;
+            transition: left 0.55s ease !important;
+            pointer-events: none !important;
+        }
+        html body #grn-cross-screen-nav .grn-nav-pill:hover::after {
+            left: 140% !important;
+        }
+        html body #grn-cross-screen-nav .grn-nav-pill:hover {
+            transform: translateY(-3px) scale(1.045) !important;
+        }
+        html body #grn-cross-screen-nav .grn-nav-pill .grn-pill-ic {
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            width: 24px !important;
+            height: 24px !important;
+            border-radius: 7px !important;
+            font-size: 0.92rem !important;
+            background: rgba(56, 189, 248, 0.18) !important;
+            border: 1px solid rgba(56, 189, 248, 0.4) !important;
+            transition: transform 0.24s ease !important;
+        }
+        html body #grn-cross-screen-nav .grn-nav-pill:hover .grn-pill-ic {
+            transform: rotate(-8deg) scale(1.14) !important;
+        }
+        html:not(.light-theme) #grn-cross-screen-nav .grn-nav-pill {
+            background: linear-gradient(145deg, #1e293b 0%, #0f172a 100%) !important;
+            border: 2px solid #38bdf8 !important;
+            color: #ffffff !important;
+            -webkit-text-fill-color: #ffffff !important;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.14) !important;
+        }
+        html:not(.light-theme) #grn-cross-screen-nav .grn-nav-pill:hover {
+            border-color: #34d399 !important;
+            box-shadow: 0 8px 22px rgba(16, 185, 129, 0.42), 0 0 14px rgba(56, 189, 248, 0.45) !important;
+        }
+        html.light-theme #grn-cross-screen-nav .grn-nav-pill,
+        html.light-theme #grn-cross-screen-nav .grn-nav-pill *,
+        html.light-theme #hub-title-text {
+            color: var(--lt-ink, #120500) !important;
+            -webkit-text-fill-color: var(--lt-ink, #120500) !important;
+            font-weight: 900 !important;
+        }
+        html.light-theme #grn-cross-screen-nav .grn-nav-pill,
+        html.light-theme #grn-cross-screen-nav .grn-nav-pill.grn-pill-pur,
+        html.light-theme #grn-cross-screen-nav .grn-nav-pill.grn-pill-inv,
+        html.light-theme #grn-cross-screen-nav .grn-nav-pill.grn-pill-itm,
+        html.light-theme #grn-cross-screen-nav .grn-nav-pill.grn-pill-whl,
+        html.light-theme #grn-cross-screen-nav .grn-nav-pill.grn-pill-stk,
+        html.light-theme #btn-grn-logistics-portal {
+            background: linear-gradient(180deg, var(--lt-btn-1, #ffffff) 0%, var(--lt-btn-2, #f3e3c3) 100%) !important;
+            border: 2.2px solid var(--lt-border, #5c2808) !important;
+            color: var(--lt-ink, #120500) !important;
+            -webkit-text-fill-color: var(--lt-ink, #120500) !important;
+            font-weight: 900 !important;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12), inset 0 1px 0 #ffffff !important;
+        }
+        html.light-theme #grn-cross-screen-nav .grn-nav-pill .grn-pill-ic {
+            background: var(--lt-pill-ic, rgba(180, 83, 9, 0.16)) !important;
+            border: 1.5px solid var(--lt-border, #5c2808) !important;
+        }
+        html.light-theme #grn-cross-screen-nav .grn-nav-pill:hover,
+        html.light-theme #btn-grn-logistics-portal:hover {
+            box-shadow: 0 8px 18px rgba(0, 0, 0, 0.22), 0 0 12px var(--lt-pill-ic, rgba(180,83,9,0.35)) !important;
+            border-color: var(--lt-border-hover, #b45309) !important;
+        }
+
+        /* ══════════════════════════════════════════════════════════════════════════
+           3. BUTTON CONTRAST, UNIFIED THEME COLORING & SCULPTED CAPSULES
+           ══════════════════════════════════════════════════════════════════════════ */
+        html body #grn-3level-bar {
+            background: #0f172a !important;
+            border: 2px solid var(--lt-border, #38bdf8) !important;
+            padding: 4px 7px !important;
+            border-radius: 10px !important;
+        }
+        html body #grn-3level-bar button,
+        html body #grn-3level-bar button *,
+        html body .grn-dark-surface-btn,
+        html body .grn-dark-surface-btn *,
+        html.light-theme #grn-hub-fin-strip button,
+        html.light-theme #grn-hub-fin-strip button *,
+        html.light-theme #grn-party-fin-strip button,
+        html.light-theme #grn-party-fin-strip button * {
+            color: #ffffff !important;
+            -webkit-text-fill-color: #ffffff !important;
+            font-weight: 900 !important;
+        }
+        html.light-theme #btn-grn-hub-reset-all,
+        html.light-theme .btn-action.btn-cancel,
+        html.light-theme #btn-grn-hub-excel,
+        html.light-theme .grn-btn-excel,
+        html.light-theme #btn-grn-hub-a4,
+        html.light-theme .grn-btn-a4,
+        html.light-theme #btn-grn-hub-thermal,
+        html.light-theme .grn-btn-thermal,
+        html.light-theme #btn-grn-hub-wa,
+        html.light-theme .grn-btn-wa,
+        html.light-theme #btn-grn-quick-add-supplier,
+        html.light-theme #btn-grn-hub-quick-wh {
+            background: linear-gradient(180deg, var(--lt-btn-1, #ffffff) 0%, var(--lt-btn-2, #f3e3c3) 100%) !important;
+            border: 2.2px solid var(--lt-border, #5c2808) !important;
+            color: var(--lt-ink, #120500) !important;
+            -webkit-text-fill-color: var(--lt-ink, #120500) !important;
+            font-weight: 900 !important;
+            box-shadow: 0 3px 9px rgba(0, 0, 0, 0.14), inset 0 1px 0 #ffffff !important;
+        }
+        .grn-row-action-capsule {
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            gap: 6px !important;
+            padding: 4px 6px !important;
+            border-radius: 12px !important;
+            background: rgba(15, 23, 42, 0.12) !important;
+            border: 1.5px solid rgba(148, 163, 184, 0.28) !important;
+        }
+        html.light-theme .grn-row-action-capsule {
+            background: var(--lt-sub-2, #f6ecda) !important;
+            border: 1.8px solid var(--lt-border, #5c2808) !important;
+        }
+        #invoices-tbody .grn-pending-inspect-btn,
+        #invoices-tbody .grn-quick-hub-rcv {
+            padding: 7px 13px !important;
+            font-size: 0.85rem !important;
+            font-weight: 900 !important;
+            border-radius: 9px !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            gap: 5px !important;
+            cursor: pointer !important;
+        }
+        html:not(.light-theme) #invoices-tbody .grn-pending-inspect-btn {
+            background: linear-gradient(135deg, #10b981, #059669) !important;
+            border: 2px solid #34d399 !important;
+            color: #ffffff !important;
+        }
+        html:not(.light-theme) #invoices-tbody .grn-quick-hub-rcv {
+            background: linear-gradient(135deg, #0284c7, #0369a1) !important;
+            border: 2px solid #38bdf8 !important;
+            color: #ffffff !important;
+        }
+        html.light-theme #invoices-tbody .grn-pending-inspect-btn,
+        html.light-theme #invoices-tbody .grn-pending-inspect-btn *,
+        html.light-theme #invoices-tbody .grn-quick-hub-rcv,
+        html.light-theme #invoices-tbody .grn-quick-hub-rcv *,
+        html.light-theme #invoices-tbody .grn-pending-ledger-btn,
+        html.light-theme #invoices-tbody button[onclick*="suppliers.php"] {
+            background: linear-gradient(180deg, var(--lt-btn-1, #ffffff) 0%, var(--lt-btn-2, #f3e3c3) 100%) !important;
+            border: 2.2px solid var(--lt-border, #5c2808) !important;
+            color: var(--lt-ink, #000000) !important;
+            -webkit-text-fill-color: var(--lt-ink, #000000) !important;
+            font-weight: 900 !important;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.14), inset 0 1px 0 #ffffff !important;
+        }
+        html.light-theme #invoices-tbody .grn-pending-inspect-btn *,
+        html.light-theme #invoices-tbody .grn-quick-hub-rcv * {
+            border: none !important;
+            background: transparent !important;
+            box-shadow: none !important;
+        }
+
+        /* D. Received GRNs View (الأذونات المستلمة - #recent-grns-container) Buttons & Table in Light Mode */
+        html.light-theme #recent-grns-container table.pos-grid tbody tr td {
+            background: var(--lt-row-odd, #ffffff) !important;
+            color: var(--lt-ink, #120500) !important;
+            -webkit-text-fill-color: var(--lt-ink, #120500) !important;
             border: 2px solid var(--lt-border, #5c2808) !important;
             font-weight: 900 !important;
         }
+        html.light-theme #recent-grns-container table.pos-grid tbody tr:nth-child(even) td {
+            background: var(--lt-row-even, #fdf9f0) !important;
+        }
+        html.light-theme #recent-grns-container button,
+        html.light-theme #recent-grns-container .btn-action,
+        html.light-theme #recent-grns-container button[onclick*="editGRN"],
+        html.light-theme #recent-grns-container button[onclick*="WhatsApp"],
+        html.light-theme #recent-grns-container button[onclick*="deleteGRN"],
+        html.light-theme #recent-grns-container .grn-c10-hub-ret-btn,
+        html.light-theme #recent-grns-container .grn-print-btn,
+        html.light-theme #recent-grns-container .grn-lbl-btn {
+            background: linear-gradient(180deg, var(--lt-btn-1, #ffffff) 0%, var(--lt-btn-2, #f3e3c3) 100%) !important;
+            border: 2.2px solid var(--lt-border, #5c2808) !important;
+            color: var(--lt-ink, #000000) !important;
+            -webkit-text-fill-color: var(--lt-ink, #000000) !important;
+            font-weight: 900 !important;
+            border-radius: 8px !important;
+            padding: 5px 11px !important;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.14), inset 0 1px 0 #ffffff !important;
+        }
+        html.light-theme #recent-grns-container button *,
+        html.light-theme #recent-grns-container .btn-action * {
+            color: var(--lt-ink, #000000) !important;
+            -webkit-text-fill-color: var(--lt-ink, #000000) !important;
+            font-weight: 900 !important;
+        }
+        html body #view-editor .grn-scanner-bar button,
+        html body #view-editor .grn-logistics-bar button,
+        html body #view-editor .neo-card-title button,
+        html body #grn-c9-staged-banner button {
+            position: relative !important;
+            overflow: hidden !important;
+            min-height: 38px !important;
+            padding: 7px 14px !important;
+            border-radius: 11px !important;
+            font-size: 0.86rem !important;
+            font-weight: 900 !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            gap: 6px !important;
+            cursor: pointer !important;
+            transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.22s ease, border-color 0.22s ease !important;
+        }
+        html body #view-editor .grn-scanner-bar button:hover,
+        html body #view-editor .grn-logistics-bar button:hover,
+        html body #view-editor .neo-card-title button:hover,
+        html body #grn-c9-staged-banner button:hover {
+            transform: translateY(-2.5px) scale(1.04) !important;
+        }
+        html:not(.light-theme) #view-editor .grn-scanner-bar button,
+        html:not(.light-theme) #view-editor .grn-logistics-bar button {
+            border: 2px solid rgba(56, 189, 248, 0.55) !important;
+            color: #ffffff !important;
+            -webkit-text-fill-color: #ffffff !important;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45) !important;
+        }
+        html.light-theme #view-editor .grn-scanner-bar button,
+        html.light-theme #view-editor .grn-logistics-bar button,
+        html.light-theme #view-editor .neo-card-title button:not(.grn-btn-save-primary),
+        html.light-theme #grn-c9-staged-banner button,
+        html.light-theme .grn-c10-commercial-bar button,
+        html.light-theme #grn-c9-warehouse-depth-bar button,
+        html.light-theme #grn-c11-financial-bar button,
+        html.light-theme #grn-c12-security-bar button,
+        html.light-theme #grn-c13-cyber-bar button,
+        html.light-theme #grn-c14-command-bar button,
+        html.light-theme #btn-grn-continuous-scan,
+        html.light-theme #btn-grn-weighbridge,
+        html.light-theme #btn-grn-editor-lighting,
+        html.light-theme #btn-grn-signature,
+        html.light-theme #btn-grn-qr-card {
+            background: linear-gradient(180deg, var(--lt-btn-1, #ffffff) 0%, var(--lt-btn-2, #f3e3c3) 100%) !important;
+            border: 2.2px solid var(--lt-border, #5c2808) !important;
+            color: var(--lt-ink, #120500) !important;
+            -webkit-text-fill-color: var(--lt-ink, #120500) !important;
+            font-weight: 900 !important;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12), inset 0 1px 0 #ffffff !important;
+        }
+        html.light-theme #view-editor .grn-scanner-bar button *,
+        html.light-theme #view-editor .grn-logistics-bar button *,
+        html.light-theme #view-editor .neo-card-title button:not(.grn-btn-save-primary) *,
+        html.light-theme #grn-c9-staged-banner button *,
+        html.light-theme .grn-c10-commercial-bar button * {
+            color: var(--lt-ink, #120500) !important;
+            -webkit-text-fill-color: var(--lt-ink, #120500) !important;
+            font-weight: 900 !important;
+        }
+        html.light-theme #btn-grn-scan-counter-pill,
+        html.light-theme #grn-scan-counter-pill {
+            background: var(--lt-sub-1, #ffffff) !important;
+            border: 1.5px solid var(--lt-border, #5c2808) !important;
+            color: var(--lt-ink, #000000) !important;
+            -webkit-text-fill-color: var(--lt-ink, #000000) !important;
+        }
+        @keyframes grnKineticRippleAnim {
+            0% { transform: scale(0.2); opacity: 0.85; }
+            100% { transform: scale(2.8); opacity: 0; }
+        }
+        @keyframes grnKineticBtnPop {
+            0% { transform: scale(1); }
+            35% { transform: scale(0.92) translateY(1px); }
+            70% { transform: scale(1.06) translateY(-2px); }
+            100% { transform: scale(1); }
+        }
+        .grn-kinetic-active-pop {
+            animation: grnKineticBtnPop 0.36s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+        }
+        .grn-kinetic-ripple-wave {
+            position: absolute !important;
+            width: 36px !important;
+            height: 36px !important;
+            border-radius: 50% !important;
+            background: radial-gradient(circle, rgba(255,255,255,0.85) 0%, rgba(56,189,248,0.45) 60%, transparent 100%) !important;
+            pointer-events: none !important;
+            animation: grnKineticRippleAnim 0.52s ease-out forwards !important;
+            z-index: 5 !important;
+        }
+        #grn-advanced-tools-drawer {
+            display: none;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center;
+            width: 100%;
+            margin-top: 8px;
+            padding: 10px 14px;
+            border-radius: 12px;
+            border: 2px dashed rgba(56, 189, 248, 0.45);
+            background: rgba(15, 23, 42, 0.35);
+        }
+        #grn-advanced-tools-drawer.open {
+            display: flex !important;
+        }
+        html.light-theme #grn-advanced-tools-drawer {
+            background: var(--lt-sub-1, #fffefb) !important;
+            border: 2px dashed var(--lt-border, #5c2808) !important;
+        }
+        html.light-theme #view-editor .grn-progress-wrap {
+            background: linear-gradient(180deg, #ffffff 0%, var(--lt-sub-1, #fffefb) 100%) !important;
+            border: 2px solid var(--lt-border, #5c2808) !important;
+            border-radius: 11px !important;
+            padding: 6px 12px !important;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08) !important;
+        }
+        html.light-theme #view-editor .grn-progress-wrap span {
+            color: var(--lt-ink, #120500) !important;
+            -webkit-text-fill-color: var(--lt-ink, #120500) !important;
+            font-weight: 900 !important;
+        }
+        html.light-theme #view-editor #grn-live-progress-pct {
+            color: #047857 !important;
+            -webkit-text-fill-color: #047857 !important;
+            font-size: 1.05rem !important;
+            font-weight: 900 !important;
+        }
+        html.light-theme #view-editor .grn-progress-track {
+            background: #e2e8f0 !important;
+            border: 1.5px solid var(--lt-border, #5c2808) !important;
+            height: 12px !important;
+        }
+        html.light-theme #grn-c9-staged-banner {
+            background: linear-gradient(145deg, var(--lt-sub-1, #fffefb) 0%, var(--lt-sub-2, #f6ecda) 100%) !important;
+            border: 2.2px solid var(--lt-border, #5c2808) !important;
+            border-radius: 12px !important;
+            padding: 10px 14px !important;
+        }
+        html.light-theme #grn-c9-staged-banner span,
+        html.light-theme #grn-c9-staged-banner strong {
+            color: var(--lt-ink, #120500) !important;
+            -webkit-text-fill-color: var(--lt-ink, #120500) !important;
+            font-weight: 900 !important;
+        }
+        html.light-theme .grn-btn-save-primary,
+        html.light-theme #btn-save-grn {
+            background: linear-gradient(180deg, #ffffff 0%, #a7f3d0 100%) !important;
+            border: 2.5px solid #047857 !important;
+            color: #022c22 !important;
+            -webkit-text-fill-color: #022c22 !important;
+            font-weight: 900 !important;
+            box-shadow: 0 4px 12px rgba(4, 120, 87, 0.25) !important;
+        }
+        html.light-theme .grn-btn-save-primary *,
+        html.light-theme #btn-save-grn * {
+            color: #022c22 !important;
+            -webkit-text-fill-color: #022c22 !important;
+        }
+
+        /* ══════════════════════════════════════════════════════════════════════════
+           4. TABLES, HEADERS & INPUTS IN LIGHT MODE (DYNAMIC 9-TONE VARIABLES)
+           ══════════════════════════════════════════════════════════════════════════ */
         html.light-theme #view-editor .grn-meta-bar span,
         html.light-theme #view-editor .neo-card-title span:not(.grn-kbd-badge),
         html.light-theme #view-hub #hub-title-text,
         html.light-theme #view-hub h2,
         html.light-theme #view-hub h3,
         html.light-theme #view-hub label {
-            color: var(--lt-text, #120500) !important;
+            color: var(--lt-ink, #120500) !important;
             font-weight: 900 !important;
         }
         html.light-theme #lbl-inv-no {
@@ -19181,35 +19736,42 @@ html.grn-ophthalmic-comfort-active body {
         }
         html.light-theme #lbl-date,
         html.light-theme #lbl-supplier {
-            color: #000000 !important;
+            color: var(--lt-ink, #000000) !important;
             font-weight: 900 !important;
+        }
+        html.light-theme .pos-grid {
+            background: var(--lt-card-1, #fffdf8) !important;
+            border: 2.5px solid var(--lt-border, #5c2808) !important;
         }
         html.light-theme .pos-grid thead,
         html.light-theme .pos-grid thead tr,
         html.light-theme .pos-grid thead tr th {
-            background: var(--lt-bg-header, #d6c3a5) !important;
-            color: var(--lt-text, #120500) !important;
-            -webkit-text-fill-color: var(--lt-text, #120500) !important;
+            background: linear-gradient(180deg, var(--lt-th-1, #f5ead4) 0%, var(--lt-th-2, #e6d4b5) 100%) !important;
+            color: var(--lt-ink, #120500) !important;
+            -webkit-text-fill-color: var(--lt-ink, #120500) !important;
             font-weight: 900 !important;
             font-size: 1rem !important;
+            border-color: var(--lt-border, #5c2808) !important;
             border-bottom: 3px solid var(--lt-border, #5c2808) !important;
         }
         html.light-theme #invoices-tbody tr td,
+        html.light-theme #items-tbody tr td,
         html.light-theme #items-tbody .grn-col-origQty,
         html.light-theme #items-tbody .grn-col-item,
         html.light-theme #items-tbody .grn-col-unit,
         html.light-theme #items-tbody .grn-col-qty,
         html.light-theme #items-tbody .grn-col-pendingBase,
         html.light-theme #items-tbody .grn-col-baseQty {
-            background: #ffffff !important;
-            color: #000000 !important;
-            -webkit-text-fill-color: #000000 !important;
+            background: var(--lt-row-odd, #ffffff) !important;
+            color: var(--lt-ink, #000000) !important;
+            -webkit-text-fill-color: var(--lt-ink, #000000) !important;
             border: 2px solid var(--lt-border, #5c2808) !important;
             font-weight: 900 !important;
             font-size: 1.02rem !important;
         }
-        html.light-theme #invoices-tbody tr:nth-child(even) td {
-            background: var(--lt-bg-subcard, #f5ebd8) !important;
+        html.light-theme #invoices-tbody tr:nth-child(even) td,
+        html.light-theme #items-tbody tr:nth-child(even) td {
+            background: var(--lt-row-even, #fdf9f0) !important;
         }
         html.light-theme #invoices-tbody tr td.grn-hub-col-inv {
             color: #0369a1 !important;
@@ -19239,12 +19801,12 @@ html.grn-ophthalmic-comfort-active body {
             -webkit-text-fill-color: #ffffff !important;
         }
         html.light-theme .editor-bottom-bar > div > div {
-            background: #ffffff !important;
+            background: var(--lt-sub-1, #ffffff) !important;
             border: 2.5px solid var(--lt-border, #5c2808) !important;
-            color: #000000 !important;
+            color: var(--lt-ink, #000000) !important;
         }
         html.light-theme .editor-bottom-bar > div > div span {
-            color: #120500 !important;
+            color: var(--lt-ink, #120500) !important;
             font-weight: 900 !important;
         }
         html.light-theme #lbl-total-received-items { color: #047857 !important; }
@@ -19260,7 +19822,9 @@ html.grn-ophthalmic-comfort-active body {
             -webkit-text-fill-color: #ffffff !important;
         }
 
-        /* 3. Faint Zeros (.is-zero-val) & Crisp Active Typing */
+        /* ══════════════════════════════════════════════════════════════════════════
+           5. FAINT ZEROS (.is-zero-val), LEDGER BUTTON & 3D PRICE RADAR LAMP
+           ══════════════════════════════════════════════════════════════════════════ */
         input.is-zero-val:not(:focus) {
             opacity: 0.38 !important;
         }
@@ -19271,8 +19835,6 @@ html.grn-ophthalmic-comfort-active body {
             border-color: #0284c7 !important;
             box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.28) !important;
         }
-
-        /* 4. Fixed Centered Ledger Button (Zero Jitter on Hover) */
         #grn-supplier-ledger-btn,
         #grn-supplier-ledger-btn:hover,
         #grn-supplier-ledger-btn:active {
@@ -19281,8 +19843,6 @@ html.grn-ophthalmic-comfort-active body {
             top: 50% !important;
             transform: translateY(-50%) !important;
         }
-
-        /* 5. 20px 3D Price Radar Lamp & Red/Green Up/Down Variance Subtext */
         .pur-price-lamp {
             width: 20px !important;
             height: 20px !important;
@@ -19340,26 +19900,139 @@ html.grn-ophthalmic-comfort-active body {
         html.light-theme .pur-price-subtxt.var-down { background: #d1fae5 !important; color: #047857 !important; border-color: #10b981 !important; }
         html.light-theme .pur-price-subtxt.var-same { background: #dbeafe !important; color: #1d4ed8 !important; border-color: #3b82f6 !important; }
 
-        /* 6. Child & Grandchild Modals (#grid-settings-modal, #grn-ai-audit-modal, etc.) */
-        html.light-theme #grid-settings-modal .modal-card,
-        html.light-theme #grn-ai-audit-modal .grn-ai-modal-card {
-            background: var(--lt-bg-card, #e8dbc3) !important;
-            border: 3px solid var(--lt-border, #5c2808) !important;
-            color: var(--lt-text, #120500) !important;
+        /* 🔊 Bottom Summary Bar & Speech Button (#btn-grn-audio-summary) Ultra-Clear Black Typography in Light Themes */
+        html.light-theme #view-editor .editor-bottom-bar,
+        html.light-theme #view-editor #grn-c8-tafqeet-bar {
+            background: linear-gradient(145deg, var(--lt-card-1, #fffdf8) 0%, var(--lt-card-2, #f7efe0) 100%) !important;
+            border: 2.5px solid var(--lt-border, #5c2808) !important;
+            color: #000000 !important;
+            box-shadow: 0 10px 26px rgba(0, 0, 0, 0.14), inset 0 2px 0 #ffffff !important;
         }
-        html.light-theme #grid-settings-modal label,
-        html.light-theme #grid-settings-modal h3,
-        html.light-theme #grid-settings-modal span {
-            color: var(--lt-text, #120500) !important;
+        html.light-theme #view-editor .editor-bottom-bar > div > div:not(.grn-tot-capsule-sdg):not(.grn-tot-capsule-usd) {
+            background: linear-gradient(135deg, #ffffff 0%, var(--lt-sub-2, #f6ecda) 100%) !important;
+            border: 2px solid var(--lt-border, #5c2808) !important;
+        }
+        html.light-theme #view-editor .editor-bottom-bar span:not(.grn-btn-save-primary *):not(.grn-tot-capsule-sdg *):not(.grn-tot-capsule-usd *),
+        html.light-theme #view-editor #grn-c8-tafqeet-bar,
+        html.light-theme #view-editor #grn-c8-tafqeet-bar span,
+        html.light-theme #view-editor #grn-c8-tafqeet-bar strong {
+            color: #000000 !important;
+            -webkit-text-fill-color: #000000 !important;
+            font-weight: 900 !important;
+            text-shadow: none !important;
+        }
+        html.light-theme #view-editor #btn-grn-audio-summary,
+        html.light-theme #view-editor #grn-bottom-actions-group button:not(.grn-btn-save-primary) {
+            background: linear-gradient(180deg, var(--lt-btn-1, #ffffff) 0%, var(--lt-btn-2, #f3e3c3) 100%) !important;
+            border: 2.2px solid var(--lt-border, #5c2808) !important;
+            color: #000000 !important;
+            -webkit-text-fill-color: #000000 !important;
+            font-weight: 900 !important;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.14), inset 0 1.5px 0 #ffffff !important;
+        }
+        html.light-theme #view-editor #btn-grn-audio-summary *,
+        html.light-theme #view-editor #grn-bottom-actions-group button:not(.grn-btn-save-primary) * {
+            color: #000000 !important;
+            -webkit-text-fill-color: #000000 !important;
+            font-weight: 900 !important;
+            text-shadow: none !important;
+        }
+        #grn-c9-staged-banner:not(.adv-visible),
+        #grn-c10-commercial-bar:not(.adv-visible) {
+            display: none !important;
+        }
+
+        /* ══════════════════════════════════════════════════════════════════════════
+           6. ALL CHILD & GRANDCHILD MODALS (100% 9-TONE + ROSE REACTIVITY)
+           ══════════════════════════════════════════════════════════════════════════ */
+        html:not(.light-theme) #grid-settings-modal .modal-card,
+        html:not(.light-theme) #grn-ai-audit-modal .grn-ai-modal-card,
+        html:not(.light-theme) .grn-child-modal-card,
+        html:not(.light-theme) .grn-fc1-modal-overlay .grn-child-modal-card,
+        html:not(.light-theme) [id$="-modal"] > div:not(.ambient-bg),
+        html:not(.light-theme) [id$="-modal"] .c14-box {
+            background: linear-gradient(145deg, var(--dk-card-1, #152342) 0%, var(--dk-card-2, #0f172a) 100%) !important;
+            border: 2.5px solid var(--dk-border, #38bdf8) !important;
+            color: #ffffff !important;
+        }
+        html.light-theme #grid-settings-modal .modal-card,
+        html.light-theme #grid-settings-modal > div,
+        html.light-theme #grn-ai-audit-modal .grn-ai-modal-card,
+        html.light-theme .grn-child-modal-card,
+        html.light-theme .grn-fc1-modal-overlay .grn-child-modal-card,
+        html.light-theme [id$="-modal"] > div:not(.ambient-bg),
+        html.light-theme [id$="-modal"] .c14-box {
+            background: linear-gradient(145deg, var(--lt-card-1, #fffdf8) 0%, var(--lt-card-2, #f7efe0) 100%) !important;
+            border: 3px solid var(--lt-border, #5c2808) !important;
+            color: var(--lt-ink, #120500) !important;
+            box-shadow: 0 18px 45px rgba(0, 0, 0, 0.25) !important;
+        }
+        html.light-theme [id$="-modal"] div[style*="background:#0f172a"],
+        html.light-theme [id$="-modal"] div[style*="background: #0f172a"],
+        html.light-theme [id$="-modal"] div[style*="background:rgba(15,23,42"],
+        html.light-theme [id$="-modal"] div[style*="background: rgba(15, 23, 42"],
+        html.light-theme [id$="-modal"] div[style*="background:rgba(2,6,23"],
+        html.light-theme [id$="-modal"] div[style*="background: rgba(2, 6, 23"],
+        html.light-theme [id$="-modal"] div[style*="background:rgba(30,41,59"],
+        html.light-theme [id$="-modal"] div[style*="background: rgba(30, 41, 59"],
+        html.light-theme .grn-child-modal-card div[style*="background"] {
+            background: linear-gradient(145deg, var(--lt-sub-1, #fffefb) 0%, var(--lt-sub-2, #f6ecda) 100%) !important;
+            border-color: var(--lt-border, #5c2808) !important;
+            color: var(--lt-ink, #120500) !important;
+        }
+        html.light-theme [id$="-modal"] h2,
+        html.light-theme [id$="-modal"] h3,
+        html.light-theme [id$="-modal"] h4,
+        html.light-theme [id$="-modal"] label,
+        html.light-theme [id$="-modal"] p,
+        html.light-theme [id$="-modal"] span:not(.pur-price-lamp),
+        html.light-theme [id$="-modal"] strong,
+        html.light-theme .grn-child-modal-card h3,
+        html.light-theme .grn-child-modal-card label,
+        html.light-theme .grn-child-modal-card span:not(.pur-price-lamp) {
+            color: var(--lt-ink, #120500) !important;
+            -webkit-text-fill-color: var(--lt-ink, #120500) !important;
             font-weight: 900 !important;
         }
-        html.light-theme #grid-settings-modal select,
-        html.light-theme #grid-settings-modal input[type="text"],
-        html.light-theme #grid-settings-modal input[type="number"] {
-            background: #ffffff !important;
-            color: #000000 !important;
+        html.light-theme [id$="-modal"] table thead tr th,
+        html.light-theme .grn-child-modal-card table thead tr th {
+            background: linear-gradient(180deg, var(--lt-th-1, #f5ead4) 0%, var(--lt-th-2, #e6d4b5) 100%) !important;
+            color: var(--lt-ink, #120500) !important;
+            -webkit-text-fill-color: var(--lt-ink, #120500) !important;
             border: 2px solid var(--lt-border, #5c2808) !important;
             font-weight: 900 !important;
+        }
+        html.light-theme [id$="-modal"] table tbody tr td,
+        html.light-theme .grn-child-modal-card table tbody tr td {
+            background: var(--lt-row-odd, #ffffff) !important;
+            color: var(--lt-ink, #120500) !important;
+            -webkit-text-fill-color: var(--lt-ink, #120500) !important;
+            border: 1.5px solid var(--lt-border, #5c2808) !important;
+            font-weight: 900 !important;
+        }
+        html.light-theme [id$="-modal"] table tbody tr:nth-child(even) td,
+        html.light-theme .grn-child-modal-card table tbody tr:nth-child(even) td {
+            background: var(--lt-row-even, #fdf9f0) !important;
+        }
+        html.light-theme [id$="-modal"] select,
+        html.light-theme [id$="-modal"] input:not([type="color"]):not([type="checkbox"]):not([type="radio"]),
+        html.light-theme [id$="-modal"] textarea,
+        html.light-theme .grn-child-modal-card select,
+        html.light-theme .grn-child-modal-card input:not([type="color"]):not([type="checkbox"]):not([type="radio"]) {
+            background: #ffffff !important;
+            color: #000000 !important;
+            -webkit-text-fill-color: #000000 !important;
+            border: 2px solid var(--lt-border, #5c2808) !important;
+            font-weight: 900 !important;
+        }
+        html.light-theme [id$="-modal"] button,
+        html.light-theme .grn-child-modal-card button {
+            background: linear-gradient(180deg, #ffffff 0%, var(--lt-sub-2, #f6ecda) 100%) !important;
+            border: 2px solid var(--lt-border, #5c2808) !important;
+            color: #000000 !important;
+            -webkit-text-fill-color: #000000 !important;
+            font-weight: 900 !important;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12) !important;
         }
     </style>
 
@@ -19387,17 +20060,265 @@ html.grn-ophthalmic-comfort-active body {
             return (saved && saved > 1) ? saved : 2650;
         };
 
-        // Ensure our Constitution 2027 style always sits at the very end of <head> after any dynamic style injection
+        // 3-Level Role Switcher (1. المدير, 2. مدير المخزن, 3. المخزنجي QR) — Dark Buttons Always Keep Crisp Light Text
+        window.setGrnReceiptLevel = function(lvl) {
+            const activeLvl = Number(lvl) || 1;
+            window._grnActiveReceiptLevel = activeLvl;
+            try { localStorage.setItem('magaies_grn_receipt_level', String(activeLvl)); } catch (_e) {}
+            [1, 2, 3].forEach(n => {
+                const btn = document.getElementById('grn-lvl-' + n);
+                if (!btn) return;
+                const isAct = (n === activeLvl);
+                btn.classList.toggle('active-lvl', isAct);
+                btn.style.background = isAct
+                    ? 'linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%)'
+                    : 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)';
+                btn.style.border = isAct ? '1.5px solid #c4b5fd' : '1.5px solid #475569';
+                btn.style.color = '#ffffff';
+                btn.style.webkitTextFillColor = '#ffffff';
+                btn.style.boxShadow = isAct ? '0 0 12px rgba(124, 58, 237, 0.55)' : 'none';
+            });
+            const names = { 1: '👑 المستوى 1: المدير (صلاحية كاملة)', 2: '🏢 المستوى 2: مدير المخزن (فحص واعتماد مخزني)', 3: '📦 المستوى 3: المخزنجي (استلام وفحص بالباركود QR)' };
+            if (typeof showToast === 'function') showToast(names[activeLvl] || names[1], 'info');
+        };
+
+        // Mark 1-Step Return to purchase-receipt.php when navigating to sibling screens
+        window.markGrnReturnStep = function() {
+            try {
+                sessionStorage.setItem('magaies_grn_return_url', window.location.href);
+                sessionStorage.setItem('magaies_grn_return_ts', String(Date.now()));
+            } catch (_e) {}
+        };
+
+        // 🔊 Kinetic, Audio & Visual Gesture Engine (فحص واستلام / استلام فوري / ماسح متصل / ميزان القبّان / رجوع)
+        window.triggerGrnAudioChime = function(mode) {
+            try {
+                const AudioCtx = window.AudioContext || window.webkitAudioContext;
+                if (!AudioCtx) return;
+                if (!window._grnAudioCtx) window._grnAudioCtx = new AudioCtx();
+                const ctx = window._grnAudioCtx;
+                if (ctx.state === 'suspended') ctx.resume();
+                const now = ctx.currentTime;
+                const notes = mode === 'instant' ? [587.33, 880, 1174.66]
+                    : mode === 'inspect' ? [523.25, 659.25, 783.99]
+                    : mode === 'scan' ? [783.99, 1046.5]
+                    : mode === 'weigh' ? [440, 554.37, 659.25]
+                    : mode === 'back' ? [587.33, 440]
+                    : [659.25, 880];
+                notes.forEach((freq, idx) => {
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    osc.type = mode === 'weigh' ? 'triangle' : 'sine';
+                    osc.frequency.setValueAtTime(freq, now + idx * 0.055);
+                    gain.gain.setValueAtTime(0.09, now + idx * 0.055);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.055 + 0.14);
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+                    osc.start(now + idx * 0.055);
+                    osc.stop(now + idx * 0.055 + 0.15);
+                });
+                if (navigator.vibrate) navigator.vibrate(18);
+            } catch (_ea) {}
+        };
+
+        window.triggerGrnKineticFeedback = function(btn, mode) {
+            if (!btn) return;
+            window.triggerGrnAudioChime(mode || 'action');
+            btn.classList.remove('grn-kinetic-active-pop');
+            void btn.offsetWidth;
+            btn.classList.add('grn-kinetic-active-pop');
+            const wave = document.createElement('span');
+            wave.className = 'grn-kinetic-ripple-wave';
+            wave.style.left = 'calc(50% - 18px)';
+            wave.style.top = 'calc(50% - 18px)';
+            btn.appendChild(wave);
+            setTimeout(() => { wave.remove(); btn.classList.remove('grn-kinetic-active-pop'); }, 540);
+        };
+
+        document.addEventListener('click', function(ev) {
+            const btn = ev.target && ev.target.closest ? ev.target.closest('#btn-grn-continuous-scan, #btn-grn-weighbridge, #btn-grn-editor-lighting, #btn-grn-fill-all, #btn-grn-zero-all, .grn-btn-save-primary, .grn-nav-pill, #view-editor .grn-scanner-bar button, #view-editor .neo-card-title button') : null;
+            if (!btn) return;
+            const id = btn.id || '';
+            const mode = id === 'btn-grn-continuous-scan' ? 'scan'
+                : id === 'btn-grn-weighbridge' ? 'weigh'
+                : (btn.classList.contains('grn-btn-save-primary') || id === 'btn-grn-fill-all') ? 'instant'
+                : (btn.getAttribute('onclick') || '').indexOf('showHub') !== -1 ? 'back'
+                : 'action';
+            window.triggerGrnKineticFeedback(btn, mode);
+        }, true);
+
+        // 🛠️ Organize & Group Cluttered Editor Buttons into Flagship Bar + Collapsible Advanced Drawer
+        window.organizeGrnButtonsAndToolbars = function() {
+            const scanBar = document.getElementById('grn-scanner-bar');
+            if (!scanBar) return;
+            let drawer = document.getElementById('grn-advanced-tools-drawer');
+            if (!drawer) {
+                drawer = document.createElement('div');
+                drawer.id = 'grn-advanced-tools-drawer';
+                scanBar.appendChild(drawer);
+            }
+            const secondaryIds = [
+                'btn-grn-qr-card', 'btn-grn-signature', 'btn-grn-landed-cost', 'btn-grn-supplier-claim',
+                'btn-grn-batch-labels', 'btn-grn-voice-cmd', 'btn-grn-mastery-quiz', 'btn-grn-expiry-radar',
+                'btn-grn-ocr-matcher', 'btn-grn-wh-heatmap', 'btn-grn-undo', 'btn-grn-park-receipt',
+                'btn-grn-c9-qc-sort-modal', 'btn-grn-c9-wh-transfer', 'btn-grn-c10-lifecycle',
+                'btn-grn-c10-return', 'btn-grn-c11-cheques', 'btn-grn-c11-governance',
+                'btn-grn-c9-staged-history', 'btn-grn-c9-stock-radar',
+                'btn-grn-c4-impact-pill', 'btn-grn-c5-role-pill', 'btn-grn-c6-sync-pill', 'btn-grn-c7-eye-pill'
+            ];
+            let movedCount = 0;
+            secondaryIds.forEach(id => {
+                const el = document.getElementById(id);
+                if (el && el.parentElement !== drawer) {
+                    drawer.appendChild(el);
+                }
+                if (el) movedCount++;
+            });
+            const toolRow = scanBar.children[3];
+            if (toolRow) {
+                let toggleBtn = document.getElementById('btn-grn-toggle-adv-drawer');
+                if (!toggleBtn) {
+                    toggleBtn = document.createElement('button');
+                    toggleBtn.type = 'button';
+                    toggleBtn.id = 'btn-grn-toggle-adv-drawer';
+                    toggleBtn.className = 'btn-action grn-light-clear-btn';
+                    toggleBtn.style.cssText = 'padding:9px 14px;font-size:0.86rem;border-radius:11px;background:linear-gradient(135deg,#4f46e5,#3730a3);border:2px solid #a5b4fc;color:#fff;font-weight:900;display:inline-flex;align-items:center;gap:6px;cursor:pointer;';
+                    toggleBtn.innerHTML = `<span>🛠️</span><span>أدوات متقدمة (${movedCount || 16}) ▾</span>`;
+                    toggleBtn.onclick = function() {
+                        const isOpen = drawer.classList.toggle('open');
+                        ['grn-c9-staged-banner', 'grn-c10-commercial-bar'].forEach(bid => {
+                            const b = document.getElementById(bid);
+                            if (b) b.classList.toggle('adv-visible', isOpen);
+                        });
+                        this.querySelector('span:last-child').textContent = isOpen ? 'إخفاء الأدوات ▲' : `أدوات متقدمة (${drawer.children.length}) ▾`;
+                    };
+                    toolRow.appendChild(toggleBtn);
+                } else if (!drawer.classList.contains('open')) {
+                    const sp = toggleBtn.querySelector('span:last-child');
+                    if (sp) sp.textContent = `أدوات متقدمة (${drawer.children.length}) ▾`;
+                }
+            }
+        };
+        setTimeout(window.organizeGrnButtonsAndToolbars, 450);
+        setTimeout(window.organizeGrnButtonsAndToolbars, 950);
+
+        // ↩️ Unified 1-Step Back Navigation Inside purchase-receipt.php (Modal -> Editor -> Hub Pending -> Exit)
+        window.handleGrnOneStepBack = function(ev) {
+            const openModals = Array.from(document.querySelectorAll('.modal-overlay, [id$="-modal"], .grn-child-modal-backdrop')).filter(m => {
+                if (m.id === 'master7ThemesModal') return false;
+                const st = window.getComputedStyle(m);
+                return st.display !== 'none' && st.visibility !== 'hidden' && st.opacity !== '0';
+            });
+            if (openModals.length > 0) {
+                if (ev) { ev.preventDefault(); ev.stopPropagation(); if (ev.stopImmediatePropagation) ev.stopImmediatePropagation(); }
+                const topModal = openModals[openModals.length - 1];
+                topModal.style.display = 'none';
+                window.triggerGrnAudioChime('back');
+                return true;
+            }
+            const ed = document.getElementById('view-editor');
+            if (ed && ed.classList.contains('active') && typeof window.showHub === 'function') {
+                if (ev) { ev.preventDefault(); ev.stopPropagation(); if (ev.stopImmediatePropagation) ev.stopImmediatePropagation(); }
+                window.triggerGrnAudioChime('back');
+                window.showHub(true);
+                if (typeof showToast === 'function') showToast('↩️ تم الرجوع خطوة واحدة إلى الشاشة الرئيسية لاستلام البضائع', 'info');
+                return true;
+            }
+            if (typeof currentHubView !== 'undefined' && currentHubView === 'received' && typeof window.toggleHubViewBySwitch === 'function') {
+                if (ev) { ev.preventDefault(); ev.stopPropagation(); if (ev.stopImmediatePropagation) ev.stopImmediatePropagation(); }
+                const sw = document.getElementById('uiverse-toggle');
+                if (sw) sw.checked = false;
+                window.triggerGrnAudioChime('back');
+                window.toggleHubViewBySwitch(false);
+                if (typeof showToast === 'function') showToast('↩️ تم الرجوع خطوة واحدة إلى قائمة قيد الاستلام', 'info');
+                return true;
+            }
+            return false;
+        };
+
+        const _origOpenReceiptEditorStep = window.openReceiptEditor;
+        if (typeof _origOpenReceiptEditorStep === 'function' && !_origOpenReceiptEditorStep._stepWrapped) {
+            const stepWrapped = function(invId) {
+                try {
+                    if (!window._isQuickHubReceiving && (!history.state || history.state.grnView !== 'editor')) {
+                        history.pushState({ grnView: 'editor', invId: invId }, '', window.location.href);
+                    }
+                } catch (_eh) {}
+                const res = _origOpenReceiptEditorStep.apply(this, arguments);
+                setTimeout(window.organizeGrnButtonsAndToolbars, 60);
+                return res;
+            };
+            stepWrapped._stepWrapped = true;
+            window.openReceiptEditor = stepWrapped;
+        }
+
+        const _origMagaieesGoBack = window.magaieesGoBack;
+        window.magaieesGoBack = function( fallbackUrl ) {
+            if (window.handleGrnOneStepBack()) return false;
+            if (typeof _origMagaieesGoBack === 'function') return _origMagaieesGoBack(fallbackUrl);
+            window.location.href = fallbackUrl || 'index.php';
+        };
+
+        document.addEventListener('click', function(ev) {
+            const backBtn = ev.target && ev.target.closest ? ev.target.closest('#magaiees-master-back-btn, .magaiees-back-btn') : null;
+            if (backBtn) {
+                if (window.handleGrnOneStepBack(ev)) return false;
+            }
+        }, true);
+
+        window.addEventListener('popstate', function(ev) {
+            const ed = document.getElementById('view-editor');
+            if (ed && ed.classList.contains('active') && typeof window.showHub === 'function') {
+                window.triggerGrnAudioChime('back');
+                window.showHub();
+            }
+        });
+
+        document.addEventListener('keydown', function(ev) {
+            if (ev.key === 'Escape' && !ev.defaultPrevented) {
+                window.handleGrnOneStepBack(ev);
+            }
+        });
+
         function ensureConstitutionStyleLast() {
-            const oldC15 = document.getElementById('grn-c15-master-constitution-styles');
-            if (oldC15) oldC15.remove();
+            ['grn-c15-master-constitution-styles', 'grn-c16-zero-error-styles'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.remove();
+            });
+            const savedTone = (document.cookie.match(/(?:^|; )magaies_light_tone=([^;]*)/)||[])[1] || localStorage.getItem('magaies_light_tone') || localStorage.getItem('pur_light_tone_palette') || '';
+            if (savedTone) {
+                const decTone = decodeURIComponent(savedTone);
+                if (document.documentElement.getAttribute('data-light-tone') !== decTone) {
+                    document.documentElement.setAttribute('data-light-tone', decTone);
+                }
+                if (document.body && document.body.getAttribute('data-light-tone') !== decTone) {
+                    document.body.setAttribute('data-light-tone', decTone);
+                }
+            }
             const st = document.getElementById('grn-purchase-constitution-2027-style');
-            if (st && document.head && document.head.lastElementChild !== st) {
-                document.head.appendChild(st);
+            const targetParent = document.body || document.head;
+            if (st && targetParent && targetParent.lastElementChild !== st) {
+                targetParent.appendChild(st);
             }
         }
         ensureConstitutionStyleLast();
-        setTimeout(ensureConstitutionStyleLast, 450);
+        setTimeout(ensureConstitutionStyleLast, 720);
+        window.addEventListener('themeChanged', function() {
+            ensureConstitutionStyleLast();
+        });
+        if (typeof BroadcastChannel !== 'undefined') {
+            try {
+                const bcTone = new BroadcastChannel('elsajana_sovereign_10x_viewport_v1');
+                bcTone.addEventListener('message', function(ev) {
+                    if (ev && ev.data && ev.data.type === 'TONE_SYNC' && ev.data.toneId) {
+                        if (typeof window.applyGlobalErpToneOrTheme === 'function') {
+                            window.applyGlobalErpToneOrTheme(ev.data.toneId, false);
+                        }
+                        ensureConstitutionStyleLast();
+                    }
+                });
+            } catch (_e) {}
+        }
 
         // Hub Financial Strip Updater + Currency Toggle (#view-hub)
         window.updateGrnHubFinStrip = function(filteredIds) {

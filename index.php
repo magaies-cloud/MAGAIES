@@ -2422,5 +2422,6 @@ $page_title = 'مقاييس (MAGAIEES) - المنظومة السحابية ال�
         setupModal('vision-modal', ['open-vision'], 'close-vision');
         setupModal('brand-modal', ['open-brand-assets', 'open-logo-guide', 'open-colors'], 'close-brand');
     </script>
+<script src="js/magaies-smart-guide.js" defer></script>
 </body>
 </html>

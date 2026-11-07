@@ -178,7 +178,7 @@ window._cachedGlobalRate = window.SYSTEM_USD_RATE;
         var aliasMap = {
             "dark_midnight": "midnight_obsidian", "dark_mocha": "mocha_brown", "dark_oled": "pure_oled", "dark_slate": "slate_twilight",
             "ivory_default": "warm_cream", "royal_bronze": "warm_cream", "platinum_gray": "exec_gray", "crystal_silver": "ultra_white",
-            "sage_pearl": "warm_cream", "sky_alabaster": "ultra_white", "warm_mocha_dark": "warm_cream", "deep_slate_dark": "exec_gray",
+            "sage_pearl": "warm_cream", "sky_alabaster": "ultra_white", "rose_blossom": "warm_cream", "warm_mocha_dark": "warm_cream", "deep_slate_dark": "exec_gray",
             "warm-alabaster": "warm_cream", "beige": "warm_cream", "ivory": "warm_cream", "light-linen": "warm_cream",
             "pure-platinum": "ultra_white", "offwhite": "ultra_white", "white": "ultra_white", "light": "ultra_white",
             "pearl-platinum": "exec_gray", "nordic-paper": "warm_cream", "solar_contrast": "warm_cream",
@@ -193,8 +193,11 @@ window._cachedGlobalRate = window.SYSTEM_USD_RATE;
         if (!valid7.includes(activeKey)) activeKey = 'warm_cream';
 
         var isLight = ['warm_cream', 'ultra_white', 'exec_gray'].includes(activeKey);
+        var validTones = ['dark_midnight', 'pure_oled', 'mocha_brown', 'slate_twilight', 'ivory_default', 'royal_bronze', 'platinum_gray', 'crystal_silver', 'sage_pearl', 'sky_alabaster', 'rose_blossom', 'warm_mocha_dark', 'deep_slate_dark'];
+        var activeTone = validTones.includes(savedTone) ? savedTone : (isLight ? 'ivory_default' : 'dark_midnight');
 
         document.documentElement.setAttribute('data-theme', activeKey);
+        document.documentElement.setAttribute('data-light-tone', activeTone);
         if (isLight) {
             document.documentElement.classList.add('light-theme');
             document.documentElement.classList.remove('dark-theme');
@@ -206,6 +209,7 @@ window._cachedGlobalRate = window.SYSTEM_USD_RATE;
         document.addEventListener("DOMContentLoaded", function() {
             if (document.body) {
                 document.body.setAttribute('data-theme', activeKey);
+                document.body.setAttribute('data-light-tone', activeTone);
                 if (isLight) {
                     document.body.classList.add('light-theme');
                     document.body.classList.remove('dark-theme');
@@ -2333,13 +2337,20 @@ html.light-theme[data-light-tone="platinum_gray"] { --lt-canvas-1: #c2d0e0; --lt
 html.light-theme[data-light-tone="crystal_silver"] { --lt-canvas-1: #d2d8e2; --lt-canvas-2: #bfc7d4; --lt-card-1: #fafbfd; --lt-card-2: #edf1f7; --lt-sub-1: #ffffff; --lt-sub-2: #e7ecf3; --lt-border: #111827; --lt-ink: #030712; --bg-color: #d2d8e2 !important; --bg-main: #d2d8e2 !important; --bg-secondary: #dfe4ec !important; --surface: #fafbfd !important; }
 html.light-theme[data-light-tone="sage_pearl"] { --lt-canvas-1: #bce0ce; --lt-canvas-2: #a4d1bb; --lt-card-1: #f4fcf8; --lt-card-2: #e0f5ec; --lt-sub-1: #f9fefb; --lt-sub-2: #d8f2e6; --lt-border: #064e3b; --lt-ink: #022c22; --bg-color: #bce0ce !important; --bg-main: #bce0ce !important; --bg-secondary: #c8ead9 !important; --surface: #f4fcf8 !important; }
 html.light-theme[data-light-tone="sky_alabaster"] { --lt-canvas-1: #bad9f5; --lt-canvas-2: #a2caed; --lt-card-1: #f4faff; --lt-card-2: #dfeffd; --lt-sub-1: #f9fcff; --lt-sub-2: #d6ebfc; --lt-border: #0c4a6e; --lt-ink: #082f49; --bg-color: #bad9f5 !important; --bg-main: #bad9f5 !important; --bg-secondary: #c7e3fb !important; --surface: #f4faff !important; }
+html.light-theme[data-light-tone="rose_blossom"] { --lt-canvas-1: #f5d0e3; --lt-canvas-2: #ebaed0; --lt-card-1: #fff7fb; --lt-card-2: #fce8f3; --lt-sub-1: #fffafd; --lt-sub-2: #f9dfee; --lt-th-1: #f7d6e8; --lt-th-2: #efc2dc; --lt-row-odd: #ffffff; --lt-row-even: #fdf2f8; --lt-border: #831843; --lt-ink: #3b071e; --bg-color: #f5d0e3 !important; --bg-main: #f5d0e3 !important; --bg-secondary: #fae0ee !important; --surface: #fff7fb !important; }
 html.light-theme[data-light-tone="warm_mocha_dark"] { --lt-canvas-1: #b89878; --lt-canvas-2: #a3805e; --lt-card-1: #faf3ea; --lt-card-2: #eee0cf; --lt-sub-1: #fdf8f2; --lt-sub-2: #e8d6c1; --lt-border: #3e1b04; --lt-ink: #0f0400; --bg-color: #b89878 !important; --bg-main: #b89878 !important; --bg-secondary: #ccb094 !important; --surface: #faf3ea !important; }
 html.light-theme[data-light-tone="deep_slate_dark"] { --lt-canvas-1: #a3b4ca; --lt-canvas-2: #8da1bb; --lt-card-1: #f2f6fc; --lt-card-2: #e2eaf5; --lt-sub-1: #f7faff; --lt-sub-2: #dbe5f2; --lt-border: #0f172a; --lt-ink: #020617; --bg-color: #a3b4ca !important; --bg-main: #a3b4ca !important; --bg-secondary: #b8c7dc !important; --surface: #f2f6fc !important; }
-html.light-theme body, html.light-theme .dash-main, html.light-theme .main-content { background: linear-gradient(155deg, var(--lt-canvas-1, #dfd0b4) 0%, var(--lt-canvas-2, #d2be9a) 100%) !important; color: var(--lt-ink, #120500) !important; }
+html.light-theme body, html.light-theme .dash-main, html.light-theme .main-content, html.light-theme .main-container, html.light-theme .page-container { background: linear-gradient(155deg, var(--lt-canvas-1, #dfd0b4) 0%, var(--lt-canvas-2, #d2be9a) 100%) !important; color: var(--lt-ink, #120500) !important; }
 html.light-theme #purchase-top-container #form-fields-card,
 html.light-theme #form-fields-card,
 html.light-theme .sales-glass-card,
 html.light-theme .purchase-glass-card,
+html.light-theme .neo-card,
+html.light-theme .card,
+html.light-theme .stat-card,
+html.light-theme .kpi-card,
+html.light-theme .filter-bar,
+html.light-theme .toolbar-card,
 html.light-theme .panel-header-row,
 html.light-theme .table-container,
 html.light-theme #inline-totals-container,
@@ -2360,6 +2371,11 @@ html.light-theme .app-sidebar {
     border: 2px solid var(--lt-border, #9a5822) !important;
     color: var(--lt-ink, #140c06) !important;
 }
+html.light-theme table thead tr th { background: linear-gradient(180deg, var(--lt-th-1, #f5ead4) 0%, var(--lt-th-2, #e6d4b5) 100%) !important; color: var(--lt-ink, #120500) !important; -webkit-text-fill-color: var(--lt-ink, #120500) !important; border-color: var(--lt-border, #5c2808) !important; font-weight: 900 !important; }
+html.light-theme table tbody tr td { background: var(--lt-row-odd, #ffffff) !important; color: var(--lt-ink, #120500) !important; -webkit-text-fill-color: var(--lt-ink, #120500) !important; font-weight: 800 !important; }
+html.light-theme table tbody tr:nth-child(even) td { background: var(--lt-row-even, #fdf9f0) !important; }
+html.light-theme h1, html.light-theme h2, html.light-theme h3, html.light-theme h4, html.light-theme label, html.light-theme .form-label, html.light-theme .page-title, html.light-theme .section-title { color: var(--lt-ink, #120500) !important; font-weight: 900 !important; }
+html.light-theme button.btn-secondary, html.light-theme button.btn-outline, html.light-theme .btn-action.btn-cancel, html.light-theme .toolbar-btn, html.light-theme .filter-btn { background: linear-gradient(180deg, #ffffff 0%, var(--lt-sub-2, #f6ecda) 100%) !important; color: var(--lt-ink, #120500) !important; -webkit-text-fill-color: var(--lt-ink, #120500) !important; border: 2px solid var(--lt-border, #5c2808) !important; font-weight: 900 !important; }
 html.light-theme .v-input,
 html.light-theme .ctrl-input,
 html.light-theme .form-input,
@@ -2399,7 +2415,7 @@ const MASTER_7_THEMES_INFO = {
 const MASTER_7_THEME_ALIASES = {
     "dark_midnight": "midnight_obsidian", "dark_mocha": "mocha_brown", "dark_oled": "pure_oled", "dark_slate": "slate_twilight",
     "ivory_default": "warm_cream", "royal_bronze": "warm_cream", "platinum_gray": "exec_gray", "crystal_silver": "ultra_white",
-    "sage_pearl": "warm_cream", "sky_alabaster": "ultra_white", "warm_mocha_dark": "warm_cream", "deep_slate_dark": "exec_gray",
+    "sage_pearl": "warm_cream", "sky_alabaster": "ultra_white", "rose_blossom": "warm_cream", "warm_mocha_dark": "warm_cream", "deep_slate_dark": "exec_gray",
     "warm_cream": "warm_cream", "beige": "warm_cream", "warm-alabaster": "warm_cream", "light": "warm_cream",
     "ultra_white": "ultra_white", "pure-platinum": "ultra_white", "white": "ultra_white",
     "exec_gray": "exec_gray", "pearl-platinum": "exec_gray",
@@ -2421,12 +2437,12 @@ function ensureMaster7OverrideLast() {
         document.body.appendChild(st);
     }
     var purSt = document.getElementById('pur-clean-theme-style');
-    if (purSt && document.body) { document.body.appendChild(purSt);
-    } else if (st && document.body && document.body.lastElementChild !== st) {
-        document.body.appendChild(st);
+    var grnSt = document.getElementById('grn-purchase-constitution-2027-style');
+    if (purSt && document.body && document.body.lastElementChild !== purSt) {
+        document.body.appendChild(purSt);
     }
-    var purSt = document.getElementById('pur-clean-theme-style');
-    if (purSt && document.body) { document.body.appendChild(purSt);
+    if (grnSt && document.body && document.body.lastElementChild !== grnSt) {
+        document.body.appendChild(grnSt);
     }
 }
 if (document.readyState === 'loading') {
@@ -2467,12 +2483,30 @@ function filterMaster7ThemeCategory(cat) {
 }
 
 function applyMasterTheme(themeKey, notify = true) {
+    var rawInput = themeKey;
     themeKey = normalizeMaster7ThemeKey(themeKey);
     var isLight = MASTER_7_THEMES_INFO[themeKey].isLight;
+    var validLightTones = ['ivory_default', 'royal_bronze', 'platinum_gray', 'crystal_silver', 'sage_pearl', 'sky_alabaster', 'rose_blossom', 'warm_mocha_dark', 'deep_slate_dark'];
+    var directToneMap = {
+        'exec_gray': 'platinum_gray', 'executive-gray': 'platinum_gray', 'gray': 'platinum_gray',
+        'ultra_white': 'crystal_silver', 'ultra-white': 'crystal_silver', 'light': 'crystal_silver',
+        'warm_cream': 'ivory_default', 'warm-cream': 'ivory_default', 'cream': 'ivory_default'
+    };
+    var ckTone = (document.cookie.match(/(?:^|; )magaies_light_tone=([^;]*)/)||[])[1] || "";
+    var storedTone = decodeURIComponent(ckTone) || localStorage.getItem('magaies_light_tone') || localStorage.getItem('pur_light_tone_palette') || '';
+    var activeTone = validLightTones.includes(rawInput)
+        ? rawInput
+        : (isLight
+            ? ((notify && directToneMap[rawInput]) ? directToneMap[rawInput] : (validLightTones.includes(storedTone) ? storedTone : (directToneMap[themeKey] || 'ivory_default')))
+            : 'dark_midnight');
 
     // Apply to DOM
     document.documentElement.setAttribute('data-theme', themeKey);
-    if (document.body) document.body.setAttribute('data-theme', themeKey);
+    document.documentElement.setAttribute('data-light-tone', activeTone);
+    if (document.body) {
+        document.body.setAttribute('data-theme', themeKey);
+        document.body.setAttribute('data-light-tone', activeTone);
+    }
 
     if (isLight) {
         document.documentElement.classList.add('light-theme');
@@ -2492,22 +2526,54 @@ function applyMasterTheme(themeKey, notify = true) {
 
     ensureMaster7OverrideLast();
 
-    // Save across all 5 unified keys for complete ecosystem consistency
+    // Save across all unified keys for complete ecosystem consistency (Cookie first + Quota-safe localStorage)
     try {
-        localStorage.setItem('magaies_active_theme', themeKey);
-        localStorage.setItem('magaiees_global_theme', themeKey);
-        localStorage.setItem('magaiees_mobile_theme', themeKey);
-        localStorage.setItem('ui_theme', themeKey);
-        localStorage.setItem('erp_theme', isLight ? 'light' : 'dark');
+        document.cookie = 'magaies_light_tone=' + encodeURIComponent(activeTone) + '; path=/; max-age=315360000; SameSite=Lax';
+        document.cookie = 'magaies_active_theme=' + encodeURIComponent(themeKey) + '; path=/; max-age=315360000; SameSite=Lax';
     } catch(e) {}
+    var _saveKey = function(k, v) {
+        try { localStorage.setItem(k, v); } catch(_e) {
+            try { ['erp_items_v1','erp_global_units_v1','erp_auto_backups','erp_audit_logs'].forEach(function(rk){ localStorage.removeItem(rk); }); localStorage.setItem(k, v); } catch(_e2) {}
+        }
+    };
+    _saveKey('magaies_light_tone', activeTone);
+    _saveKey('pur_light_tone_palette', activeTone);
+    _saveKey('magaies_active_theme', themeKey);
+    _saveKey('magaiees_global_theme', themeKey);
+    _saveKey('magaiees_mobile_theme', themeKey);
+    _saveKey('ui_theme', themeKey);
+    _saveKey('erp_theme', isLight ? 'light' : 'dark');
 
     syncMaster7ThemeActiveUI();
 
     // Broadcast event
     if (notify) {
-        window.dispatchEvent(new CustomEvent('themeChanged', { detail: { theme: themeKey, isLight: isLight } }));
+        window.dispatchEvent(new CustomEvent('themeChanged', { detail: { theme: themeKey, tone: activeTone, isLight: isLight } }));
     }
 }
+
+// 1-Step Return Pill when navigated from purchase-receipt.php (?from=purchase-receipt.php)
+document.addEventListener('DOMContentLoaded', function() {
+    try {
+        var params = new URLSearchParams(window.location.search);
+        var fromGrn = params.get('from') === 'purchase-receipt.php';
+        if (fromGrn && !document.getElementById('magaies-grn-return-one-step-btn')) {
+            var retBtn = document.createElement('button');
+            retBtn.type = 'button';
+            retBtn.id = 'magaies-grn-return-one-step-btn';
+            retBtn.innerHTML = '↩️ رجوع خطوة واحدة إلى شاشة استلام البضائع';
+            retBtn.style.cssText = 'position:fixed; bottom:20px; left:24px; z-index:999990; padding:10px 18px; border-radius:14px; font-family:Cairo,Tajawal,sans-serif; font-size:0.95rem; font-weight:900; cursor:pointer; display:inline-flex; align-items:center; gap:8px; background:linear-gradient(135deg,#f59e0b 0%,#d97706 100%); color:#000000; -webkit-text-fill-color:#000000; border:2.5px solid #78350f; box-shadow:0 10px 26px rgba(0,0,0,0.35), inset 0 2px 0 rgba(255,255,255,0.65); transition:transform 0.18s ease;';
+            retBtn.onclick = function() {
+                if (window.history.length > 1 && document.referrer && document.referrer.indexOf('purchase-receipt.php') !== -1) {
+                    window.history.back();
+                } else {
+                    window.location.href = 'purchase-receipt.php';
+                }
+            };
+            document.body.appendChild(retBtn);
+        }
+    } catch (_e) {}
+});
 
 function syncMaster7ThemeActiveUI() {
     var cur = normalizeMaster7ThemeKey(

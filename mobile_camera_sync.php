@@ -603,5 +603,6 @@ $sideLabel = $side === 'A' ? 'الطرف الأول (كشف حسابنا)' : 'ا
         // Run connectivity test on load
         window.addEventListener('DOMContentLoaded', testSyncConnection);
     </script>
+<script src="js/magaies-smart-guide.js" defer></script>
 </body>
 </html>

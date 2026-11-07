@@ -186,5 +186,6 @@ if ($isDesktopOrLaptop && $savedPref !== 'mobile') {
         <strong style="display:block; font-size:1rem; color:#fff; margin-bottom:6px;">السجانة ERP الذكي</strong>
         <span style="font-size:0.8rem; color:rgba(255,255,255,0.7);">جاري فحص دقة الشاشة وتوجيهك فوراً...</span>
     </div>
+<script src="js/magaies-smart-guide.js" defer></script>
 </body>
 </html>

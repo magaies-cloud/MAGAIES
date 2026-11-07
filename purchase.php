@@ -61,8 +61,9 @@ try {
     }
     if (Array.isArray(window._PRELOADED_ITEMS) && window._PRELOADED_ITEMS.length > 0) {
         const iStr = JSON.stringify(window._PRELOADED_ITEMS);
-        localStorage.setItem('erp_items_v1', iStr);
+        try { localStorage.removeItem('erp_items_v1'); } catch(_e) {}
         if (tId) localStorage.setItem('tenant_' + tId + '_erp_items_v1', iStr);
+        else localStorage.setItem('erp_items_v1', iStr);
     }
 } catch(e) {}
 </script>
@@ -3437,7 +3438,7 @@ try {
                     <div class="payment-details-card" style="flex: 1; min-width: 100%; display: flex; flex-direction: column; gap: 10px;">
                         
                         <!-- Credit payment box (Toggled off by default) -->
-                        <div id="pay-credit-section" class="payment-method-box" style="background: radial-gradient(circle at top left, rgba(217, 119, 6, 0.35), rgba(180, 83, 9, 0.15)); border: 3px solid rgba(217, 119, 6, 0.9); box-shadow: 0 0 25px rgba(217, 119, 6, 0.4), inset 0 0 15px rgba(180, 83, 9, 0.3); border-radius: 12px; padding: 12px 16px; display: none; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap;">
+                        <div id="pay-credit-section" class="payment-method-box" style="background: rgba(15, 23, 42, 0.96); border: 2px solid rgba(217, 119, 6, 0.85); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25); border-radius: 12px; padding: 12px 16px; display: none; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap;">
                             <div class="pay-credit-title-pill" style="display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-width: 175px; padding: 6px 14px; border-radius: 10px; flex: none;">
                                 <span style="font-size: 1.25rem; filter: contrast(1.35) brightness(0.9);">💳</span>
                                 <span class="pay-credit-lbl-txt" style="font-weight: 900; font-size: 1.08rem; white-space: nowrap;">آجل على الحساب</span>
@@ -3455,7 +3456,7 @@ try {
                         </div>
 
                         <!-- Cash payment box (Visible by default) -->
-                        <div id="pay-cash-section" style="background: radial-gradient(circle at top left, rgba(16, 185, 129, 0.35), rgba(16, 185, 129, 0.15)); border: 3px solid rgba(16, 185, 129, 0.9); box-shadow: 0 0 25px rgba(16, 185, 129, 0.4), inset 0 0 15px rgba(16, 185, 129, 0.3); border-radius: 12px; padding: 12px 15px; margin-bottom: 10px; display: flex; flex-direction: column; width: 100%;">
+                        <div id="pay-cash-section" style="background: rgba(15, 23, 42, 0.96); border: 2px solid rgba(16, 185, 129, 0.85); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25); border-radius: 12px; padding: 12px 15px; margin-bottom: 10px; display: flex; flex-direction: column; width: 100%;">
                             <div class="payment-row-item" style="display: grid; grid-template-columns: 85px 22% 18% 18% minmax(0, 1fr) 30px; gap: 10px; align-items: center; width: 100%; margin-bottom: 0px;">
                                 <div class="pay-method-row-lbl" style="display: flex; align-items: center; justify-content: flex-start; color: #6ee7b7; font-weight: 900; font-size: 1.05rem; gap: 6px; text-shadow: 0 0 8px rgba(16, 185, 129, 0.4);"><span>💵</span> كاش</div>
                                 <input type="number" class="v-input ctrl-input dynamic-focus-input dynamic-focus-amount" id="pay-cash-amount" value="0" step="1" oninput="onPaymentAmountInput()" placeholder="المبلغ" style="background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(16, 185, 129, 0.5); border-radius: 8px; text-align: center; font-size: 2.35rem; font-weight: 900; color: #ffffff; height: 60px; outline: none; padding: 0 8px; font-family: 'Tajawal', sans-serif; width: 100%; min-width: 0; box-sizing: border-box; box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);">
@@ -3468,12 +3469,12 @@ try {
                         </div>
 
                         <!-- Bank Transfers box -->
-                        <div id="pay-bank-section" style="display: none; flex-direction: column; background: radial-gradient(circle at top left, rgba(6, 182, 212, 0.35), rgba(6, 182, 212, 0.15)); border: 3px solid rgba(6, 182, 212, 0.9); box-shadow: 0 0 25px rgba(6, 182, 212, 0.4), inset 0 0 15px rgba(6, 182, 212, 0.3); border-radius: 12px; padding: 12px 15px; margin-bottom: 10px; width: 100%;">
+                        <div id="pay-bank-section" style="display: none; flex-direction: column; background: rgba(15, 23, 42, 0.96); border: 2px solid rgba(6, 182, 212, 0.85); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25); border-radius: 12px; padding: 12px 15px; margin-bottom: 10px; width: 100%;">
                             <div id="bank-transfers-list" style="display: flex; flex-direction: column; gap: 0px; width: 100%;"></div>
                         </div>
 
                         <!-- Cheques box -->
-                        <div id="pay-cheque-section" style="display: none; flex-direction: column; background: radial-gradient(circle at top left, rgba(168, 85, 247, 0.35), rgba(147, 51, 234, 0.15)); border: 3px solid rgba(168, 85, 247, 0.9); box-shadow: 0 0 25px rgba(168, 85, 247, 0.4), inset 0 0 15px rgba(147, 51, 234, 0.3); border-radius: 12px; padding: 12px 15px; margin-bottom: 10px; width: 100%;">
+                        <div id="pay-cheque-section" style="display: none; flex-direction: column; background: rgba(15, 23, 42, 0.96); border: 2px solid rgba(168, 85, 247, 0.85); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25); border-radius: 12px; padding: 12px 15px; margin-bottom: 10px; width: 100%;">
                             <div id="cheques-list" style="display: flex; flex-direction: column; gap: 0px; width: 100%;"></div>
                         </div>
                     </div>
@@ -9840,40 +9841,46 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         /* 12. PHOTOSHOP LUMINOSITY-PRESERVING LIGHT-MODE TONE PALETTES (UNIFIED ACROSS TOP PURCHASE HEADER & ALL SCREEN REGIONS) */
         :root.light-theme, :root.light-theme[data-light-tone="ivory_default"] {
-            --lt-canvas-1: #efe5d0; --lt-canvas-2: #e5d6ba; --lt-hdr-1: #f5ebd6; --lt-hdr-2: #ecdec2; --lt-hdr-3: #e2cfa9;
-            --lt-card-1: #ffffff; --lt-card-2: #fcf7ee; --lt-sub-1: #ffffff; --lt-sub-2: #fbf4e6; --lt-th-1: #faf3e3; --lt-th-2: #f1e4ca;
-            --lt-row-odd: #ffffff; --lt-row-even: #fefcf7; --lt-border: #5c2808; --lt-border-hover: #b45309;
+            --lt-canvas-1: #dfd0b4; --lt-canvas-2: #d2be9a; --lt-hdr-1: #eadbc0; --lt-hdr-2: #dec9a4; --lt-hdr-3: #d1b689;
+            --lt-card-1: #fffdf8; --lt-card-2: #f7efe0; --lt-sub-1: #fffefb; --lt-sub-2: #f6ecda; --lt-th-1: #f5ead4; --lt-th-2: #e6d4b5;
+            --lt-row-odd: #ffffff; --lt-row-even: #fdf9f0; --lt-border: #5c2808; --lt-border-hover: #b45309;
             --lt-glow: rgba(245, 158, 11, 0.45); --lt-ink: #120500; --lt-placeholder: #3b1704;
         }
         :root.light-theme[data-light-tone="royal_bronze"] {
-            --lt-canvas-1: #e6cbb0; --lt-canvas-2: #d9b694; --lt-hdr-1: #eed7be; --lt-hdr-2: #e3c4a2; --lt-hdr-3: #d7b189;
-            --lt-card-1: #fffbf7; --lt-card-2: #f9efe3; --lt-sub-1: #fffdfa; --lt-sub-2: #f6e7d5; --lt-th-1: #f5e5d1; --lt-th-2: #ebd2b7;
-            --lt-row-odd: #ffffff; --lt-row-even: #fcf6ee; --lt-border: #4a2106; --lt-border-hover: #9a3412;
+            --lt-canvas-1: #d4b08c; --lt-canvas-2: #c29970; --lt-hdr-1: #e2be98; --lt-hdr-2: #d4a679; --lt-hdr-3: #c48f5c;
+            --lt-card-1: #fdf6ee; --lt-card-2: #f3e2ce; --lt-sub-1: #fef9f3; --lt-sub-2: #efd8be; --lt-th-1: #edd5ba; --lt-th-2: #dfbda0;
+            --lt-row-odd: #fffcf8; --lt-row-even: #f9efe2; --lt-border: #4a2106; --lt-border-hover: #9a3412;
             --lt-glow: rgba(217, 119, 6, 0.48); --lt-ink: #140600; --lt-placeholder: #431407;
         }
         :root.light-theme[data-light-tone="platinum_gray"] {
-            --lt-canvas-1: #d9e3ee; --lt-canvas-2: #cad7e6; --lt-hdr-1: #e2ebf5; --lt-hdr-2: #d4e1ef; --lt-hdr-3: #c5d6e8;
-            --lt-card-1: #ffffff; --lt-card-2: #f2f7fc; --lt-sub-1: #ffffff; --lt-sub-2: #eef4fb; --lt-th-1: #ecf3fa; --lt-th-2: #dde8f5;
-            --lt-row-odd: #ffffff; --lt-row-even: #f7fafe; --lt-border: #1e293b; --lt-border-hover: #0284c7;
+            --lt-canvas-1: #c2d0e0; --lt-canvas-2: #aebfd4; --lt-hdr-1: #cfdeee; --lt-hdr-2: #bccfe4; --lt-hdr-3: #a8bfd9;
+            --lt-card-1: #f7faff; --lt-card-2: #e6eef8; --lt-sub-1: #fafdff; --lt-sub-2: #e1ebf6; --lt-th-1: #dee9f6; --lt-th-2: #cbdbed;
+            --lt-row-odd: #ffffff; --lt-row-even: #f1f6fc; --lt-border: #1e293b; --lt-border-hover: #0284c7;
             --lt-glow: rgba(56, 189, 248, 0.45); --lt-ink: #020617; --lt-placeholder: #1e293b;
         }
         :root.light-theme[data-light-tone="crystal_silver"] {
-            --lt-canvas-1: #e4e9f0; --lt-canvas-2: #d6dde7; --lt-hdr-1: #ecf0f5; --lt-hdr-2: #e0e6ee; --lt-hdr-3: #d3dbe6;
-            --lt-card-1: #ffffff; --lt-card-2: #f5f7fb; --lt-sub-1: #ffffff; --lt-sub-2: #f1f4f9; --lt-th-1: #eff3f8; --lt-th-2: #e3e8f0;
-            --lt-row-odd: #ffffff; --lt-row-even: #f9fafc; --lt-border: #111827; --lt-border-hover: #2563eb;
+            --lt-canvas-1: #d2d8e2; --lt-canvas-2: #bfc7d4; --lt-hdr-1: #dfe4ec; --lt-hdr-2: #cfd6e2; --lt-hdr-3: #bec7d5;
+            --lt-card-1: #fafbfd; --lt-card-2: #edf1f7; --lt-sub-1: #ffffff; --lt-sub-2: #e7ecf3; --lt-th-1: #e5eaf1; --lt-th-2: #d5dce7;
+            --lt-row-odd: #ffffff; --lt-row-even: #f4f6f9; --lt-border: #111827; --lt-border-hover: #2563eb;
             --lt-glow: rgba(59, 130, 246, 0.45); --lt-ink: #030712; --lt-placeholder: #1f2937;
         }
         :root.light-theme[data-light-tone="sage_pearl"] {
-            --lt-canvas-1: #d4eee1; --lt-canvas-2: #c1e4d3; --lt-hdr-1: #ddf3e8; --lt-hdr-2: #cbead9; --lt-hdr-3: #b8e0cb;
-            --lt-card-1: #ffffff; --lt-card-2: #eefaf4; --lt-sub-1: #ffffff; --lt-sub-2: #e8f8f0; --lt-th-1: #e5f6ed; --lt-th-2: #d3efe0;
-            --lt-row-odd: #ffffff; --lt-row-even: #f6fdf9; --lt-border: #064e3b; --lt-border-hover: #059669;
+            --lt-canvas-1: #bce0ce; --lt-canvas-2: #a4d1bb; --lt-hdr-1: #c8ead9; --lt-hdr-2: #b0ddca; --lt-hdr-3: #98cfb8;
+            --lt-card-1: #f4fcf8; --lt-card-2: #e0f5ec; --lt-sub-1: #f9fefb; --lt-sub-2: #d8f2e6; --lt-th-1: #d4f0e3; --lt-th-2: #bfe6d4;
+            --lt-row-odd: #ffffff; --lt-row-even: #eefaf4; --lt-border: #064e3b; --lt-border-hover: #059669;
             --lt-glow: rgba(16, 185, 129, 0.45); --lt-ink: #022c22; --lt-placeholder: #064e3b;
         }
         :root.light-theme[data-light-tone="sky_alabaster"] {
-            --lt-canvas-1: #d3e9fb; --lt-canvas-2: #beddf7; --lt-hdr-1: #dceffd; --lt-hdr-2: #cae4fa; --lt-hdr-3: #b7d9f6;
-            --lt-card-1: #ffffff; --lt-card-2: #eef7fe; --lt-sub-1: #ffffff; --lt-sub-2: #e7f4fd; --lt-th-1: #e4f2fd; --lt-th-2: #d1e9fb;
-            --lt-row-odd: #ffffff; --lt-row-even: #f6fbff; --lt-border: #0c4a6e; --lt-border-hover: #0284c7;
+            --lt-canvas-1: #bad9f5; --lt-canvas-2: #a2caed; --lt-hdr-1: #c7e3fb; --lt-hdr-2: #afd4f5; --lt-hdr-3: #96c4ee;
+            --lt-card-1: #f4faff; --lt-card-2: #dfeffd; --lt-sub-1: #f9fcff; --lt-sub-2: #d6ebfc; --lt-th-1: #d2e9fc; --lt-th-2: #bdddf9;
+            --lt-row-odd: #ffffff; --lt-row-even: #eef7ff; --lt-border: #0c4a6e; --lt-border-hover: #0284c7;
             --lt-glow: rgba(14, 165, 233, 0.45); --lt-ink: #082f49; --lt-placeholder: #0c4a6e;
+        }
+        :root.light-theme[data-light-tone="rose_blossom"] {
+            --lt-canvas-1: #f5d0e3; --lt-canvas-2: #ebaed0; --lt-hdr-1: #fae0ee; --lt-hdr-2: #f3c6df; --lt-hdr-3: #ebadd0;
+            --lt-card-1: #fff7fb; --lt-card-2: #fce8f3; --lt-sub-1: #fffafd; --lt-sub-2: #f9dfee; --lt-th-1: #f7d6e8; --lt-th-2: #efc2dc;
+            --lt-row-odd: #ffffff; --lt-row-even: #fdf2f8; --lt-border: #831843; --lt-border-hover: #be185d;
+            --lt-glow: rgba(236, 72, 153, 0.45); --lt-ink: #3b071e; --lt-placeholder: #500724;
         }
         :root.light-theme[data-light-tone="warm_mocha_dark"] {
             --lt-canvas-1: #d2baa1; --lt-canvas-2: #c1a384; --lt-hdr-1: #decab4; --lt-hdr-2: #cfb69b; --lt-hdr-3: #bfa182;
@@ -9944,7 +9951,7 @@ document.addEventListener('DOMContentLoaded', () => {
         html body #pos-grid th[data-col-id="price"], html body #pos-grid td[data-col-id="price"], html body #pos-grid td[data-col-id="price"] input,
         html body #pos-grid th[data-col-id="total"], html body #pos-grid td[data-col-id="total"],
         html body #purchase-row1-bar .group-currency, html body #hdr-exchange-rate, html body #t-grand-dynamic-fc, html body #t-grand-dynamic-loc,
-        html:not(.light-theme) #purchase-editor-view .table-container, html:not(.light-theme) #inline-totals-container, html:not(.light-theme) #payment-panel {
+        html:not(.light-theme) #purchase-editor-view .table-container, html:not(.light-theme) #inline-totals-container {
             background-image: linear-gradient(115deg, transparent 28%, rgba(255,255,255,0.28) 46%, rgba(125,211,252,0.42) 50%, rgba(253,224,71,0.26) 53%, transparent 70%) !important;
             background-size: 250% 100% !important; background-repeat: no-repeat !important;
             box-shadow: inset 0 1.5px 1px rgba(255,255,255,0.42), inset 0 -1px 6px rgba(56,189,248,0.16) !important;
@@ -10373,6 +10380,59 @@ document.addEventListener('DOMContentLoaded', () => {
         html body #purchase-editor-view #payment-panel #cheques-list input.ch-no-input::placeholder {
             font-size: 1.15rem !important; font-weight: 700 !important; letter-spacing: 0 !important;
         }
+        /* Highest Z-Index Priority for Item & Supplier/Warehouse Custom Dropdowns Above All Buttons & Totals */
+        html body #purchase-editor-view:has(.custom-dropdown-list.show) #items-panel,
+        html body #purchase-editor-view .purchase-bottom:has(.custom-dropdown-list.show),
+        html body #purchase-editor-view .table-container:has(.custom-dropdown-list.show),
+        html body #purchase-editor-view .grid-scroll-wrap:has(.custom-dropdown-list.show),
+        html body #purchase-editor-view #pos-grid:has(.custom-dropdown-list.show),
+        html body #purchase-editor-view #grid-body:has(.custom-dropdown-list.show),
+        html body #purchase-editor-view #pos-grid tbody tr:has(.custom-dropdown-list.show),
+        html body #purchase-editor-view #pos-grid tbody tr td:has(.custom-dropdown-list.show),
+        html body #purchase-editor-view .custom-dropdown:has(.custom-dropdown-list.show),
+        html body #purchase-editor-view .custom-dropdown-input-wrap:has(.custom-dropdown-list.show) {
+            position: relative !important; z-index: 2147483640 !important; overflow: visible !important;
+            transform: none !important; filter: none !important; backdrop-filter: none !important; isolation: auto !important;
+        }
+        html body #purchase-editor-view #pos-grid:has(.custom-dropdown-list.show) tbody tr:not(:has(.custom-dropdown-list.show)),
+        html body #purchase-editor-view:has(#pos-grid .custom-dropdown-list.show) #grid-foot,
+        html body #purchase-editor-view:has(#pos-grid .custom-dropdown-list.show) #toggles-area,
+        html body #purchase-editor-view:has(#pos-grid .custom-dropdown-list.show) .items-toolbar,
+        html body #purchase-editor-view:has(#pos-grid .custom-dropdown-list.show) #payment-panel {
+            z-index: 0 !important; isolation: auto !important; transform: none !important; filter: none !important; pointer-events: none !important;
+        }
+        html body #purchase-editor-view:has(#pos-grid .custom-dropdown-list.show) #grid-foot,
+        html body #purchase-editor-view:has(#pos-grid .custom-dropdown-list.show) #grid-foot tr,
+        html body #purchase-editor-view:has(#pos-grid .custom-dropdown-list.show) #grid-foot td,
+        html body #purchase-editor-view:has(#pos-grid .custom-dropdown-list.show) #grid-foot .pur-compact-tot-card,
+        html body #purchase-editor-view:has(#pos-grid .custom-dropdown-list.show) #toggles-area,
+        html body #purchase-editor-view:has(#pos-grid .custom-dropdown-list.show) #toggles-area button {
+            position: static !important; z-index: -1 !important;
+        }
+        html body #purchase-editor-view:has(#pos-grid .custom-dropdown-list.show) #toggles-area button::before,
+        html body #purchase-editor-view:has(#pos-grid .custom-dropdown-list.show) #toggles-area button::after {
+            display: none !important; content: none !important;
+        }
+        html body #purchase-editor-view .custom-dropdown-list.show {
+            position: absolute !important; z-index: 2147483647 !important; opacity: 1 !important; visibility: visible !important;
+            background: #0b1120 !important; border: 2px solid #38bdf8 !important; border-radius: 12px !important;
+            box-shadow: 0 24px 60px rgba(0,0,0,0.96), 0 0 0 2px rgba(56,189,248,0.35) !important;
+        }
+        :root.light-theme body #purchase-editor-view .custom-dropdown-list.show {
+            background: #ffffff !important; border: 2.5px solid var(--lt-border, #5c2808) !important;
+            box-shadow: 0 22px 55px rgba(18,5,0,0.42), 0 0 0 3px rgba(255,255,255,0.95) !important;
+        }
+        :root.light-theme body #purchase-editor-view .custom-dropdown-list.show .custom-dropdown-item,
+        :root.light-theme body #purchase-editor-view .custom-dropdown-list.show .dropdown-item {
+            background: #ffffff !important; color: #050200 !important; -webkit-text-fill-color: #050200 !important;
+            font-weight: 900 !important; border-bottom: 1px solid rgba(92,40,8,0.16) !important;
+        }
+        :root.light-theme body #purchase-editor-view .custom-dropdown-list.show .custom-dropdown-item:hover,
+        :root.light-theme body #purchase-editor-view .custom-dropdown-list.show .custom-dropdown-item.selected,
+        :root.light-theme body #purchase-editor-view .custom-dropdown-list.show .dropdown-item:hover,
+        :root.light-theme body #purchase-editor-view .custom-dropdown-list.show .dropdown-item.highlighted {
+            background: var(--lt-table-row-hover, #fde68a) !important; color: #000000 !important; -webkit-text-fill-color: #000000 !important;
+        }
         </style>
         <script id="pur-fin-strip-and-tfoot-organizer">
         (function() {
@@ -10653,19 +10713,23 @@ document.addEventListener('DOMContentLoaded', () => {
         })();
         (function() {
             const TONES = [
-                { id: 'dark_midnight',   name: 'داكن كحلي ملكي (Dark)',   bg: '#0f172a', fg: '#1e293b', brd: '#38bdf8', isDark: true, themeKey: 'midnight_obsidian' },
-                { id: 'ivory_default',   name: 'عاجي دافئ (فاتح افتراضي)', bg: '#d9c39e', fg: '#f3e5ab', brd: '#854d0e', themeKey: 'warm_cream' },
-                { id: 'royal_bronze',    name: 'برونزي ملكي فاخر',      bg: '#b07239', fg: '#d9a066', brd: '#78350f', themeKey: 'warm_cream' },
-                { id: 'platinum_gray',   name: 'رمادي بلاتيني احترافي', bg: '#64748b', fg: '#94a3b8', brd: '#334155', themeKey: 'exec_gray' },
-                { id: 'crystal_silver',  name: 'فضي جليدي ناصع',        bg: '#cbd5e1', fg: '#e2e8f0', brd: '#64748b', themeKey: 'ultra_white' },
-                { id: 'sage_pearl',      name: 'لؤلؤي زمردي هادئ',      bg: '#10b981', fg: '#6ee7b7', brd: '#047857', themeKey: 'warm_cream' },
-                { id: 'sky_alabaster',   name: 'سماوي لازوردي فاتح',    bg: '#0284c7', fg: '#38bdf8', brd: '#0369a1', themeKey: 'ultra_white' },
-                { id: 'warm_mocha_dark', name: 'موكا صحراوي غامق',      bg: '#6b4226', fg: '#9c6b43', brd: '#451a03', themeKey: 'warm_cream' },
-                { id: 'deep_slate_dark', name: 'رصاصي فحمي غامق',       bg: '#334155', fg: '#475569', brd: '#0f172a', themeKey: 'exec_gray' }
+                { id: 'dark_midnight',   name: 'داكن كحلي ملكي (Dark)',         bg: '#0f172a', fg: '#1e293b', brd: '#38bdf8', isDark: true, themeKey: 'midnight_obsidian' },
+                { id: 'pure_oled',       name: 'أسود ناصع للشاشات (OLED)',      bg: '#010308', fg: '#090d16', brd: '#0284c7', isDark: true, themeKey: 'pure_oled' },
+                { id: 'mocha_brown',     name: 'بني قهوة فخم (Mocha Dark)',     bg: '#1f120d', fg: '#3e2723', brd: '#f59e0b', isDark: true, themeKey: 'mocha_brown' },
+                { id: 'slate_twilight',  name: 'رمادي معدني داكن (Slate)',       bg: '#1e293b', fg: '#334155', brd: '#94a3b8', isDark: true, themeKey: 'slate_twilight' },
+                { id: 'ivory_default',   name: 'عاجي دافئ (فاتح افتراضي)',       bg: '#d9c39e', fg: '#f3e5ab', brd: '#854d0e', themeKey: 'warm_cream' },
+                { id: 'royal_bronze',    name: '👑 الذهبي الملكي (برونزي فاخر)', bg: '#b07239', fg: '#d9a066', brd: '#78350f', themeKey: 'warm_cream' },
+                { id: 'platinum_gray',   name: 'رمادي بلاتيني احترافي',          bg: '#64748b', fg: '#94a3b8', brd: '#334155', themeKey: 'exec_gray' },
+                { id: 'crystal_silver',  name: 'فضي جليدي ناصع',                 bg: '#cbd5e1', fg: '#e2e8f0', brd: '#64748b', themeKey: 'ultra_white' },
+                { id: 'sage_pearl',      name: 'لؤلؤي زمردي هادئ',               bg: '#10b981', fg: '#6ee7b7', brd: '#047857', themeKey: 'warm_cream' },
+                { id: 'sky_alabaster',   name: 'سماوي لازوردي فاتح',             bg: '#0284c7', fg: '#38bdf8', brd: '#0369a1', themeKey: 'ultra_white' },
+                { id: 'rose_blossom',    name: 'زهري ملكي ناعم (Rose)',          bg: '#ec4899', fg: '#fbcfe8', brd: '#9d174d', themeKey: 'warm_cream' },
+                { id: 'warm_mocha_dark', name: 'موكا صحراوي غامق',               bg: '#6b4226', fg: '#9c6b43', brd: '#451a03', themeKey: 'warm_cream' },
+                { id: 'deep_slate_dark', name: 'رصاصي فحمي غامق',                bg: '#334155', fg: '#475569', brd: '#0f172a', themeKey: 'exec_gray' }
             ];
             window.applyPurchaseLightTone = function(toneId, notify) {
-                const t = TONES.find(x => x.id === toneId) || (['dark_midnight','midnight_obsidian','dark','pure_oled'].includes(toneId) ? TONES[0] : TONES[1]);
-                const targetTheme = t.isDark ? 'midnight_obsidian' : (t.themeKey || 'warm_cream');
+                const t = TONES.find(x => x.id === toneId) || (['dark_midnight','midnight_obsidian','dark','pure_oled','mocha_brown','slate_twilight'].includes(toneId) ? TONES[0] : TONES[4]);
+                const targetTheme = t.themeKey || (t.isDark ? 'midnight_obsidian' : 'warm_cream');
                 document.documentElement.setAttribute('data-light-tone', t.id);
                 document.documentElement.setAttribute('data-theme', targetTheme);
                 document.documentElement.classList.toggle('light-theme', !t.isDark);
@@ -10679,11 +10743,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 try {
                     document.cookie = 'magaies_light_tone=' + encodeURIComponent(t.id) + '; path=/; max-age=315360000; SameSite=Lax';
                     document.cookie = 'magaies_active_theme=' + encodeURIComponent(targetTheme) + '; path=/; max-age=315360000; SameSite=Lax';
-                    localStorage.setItem('pur_light_tone_palette', t.id);
-                    localStorage.setItem('magaies_light_tone', t.id);
-                    ['magaies_active_theme','magaiees_global_theme','magaiees_mobile_theme','ui_theme'].forEach(k => localStorage.setItem(k, targetTheme));
-                    localStorage.setItem('erp_theme', t.isDark ? 'dark' : 'light');
                 } catch (_e) {}
+                const _s = (k, v) => { try { localStorage.setItem(k, v); } catch(_e) { try { ['erp_items_v1','erp_global_units_v1','erp_auto_backups'].forEach(rk => localStorage.removeItem(rk)); localStorage.setItem(k, v); } catch(_e2) {} } };
+                _s('pur_light_tone_palette', t.id);
+                _s('magaies_light_tone', t.id);
+                ['magaies_active_theme','magaiees_global_theme','magaiees_mobile_theme','ui_theme'].forEach(k => _s(k, targetTheme));
+                _s('erp_theme', t.isDark ? 'dark' : 'light');
                 if (notify) {
                     if (typeof window.applyMasterTheme === 'function') window.applyMasterTheme(targetTheme, false);
                     window.dispatchEvent(new CustomEvent('themeChanged', { detail: { theme: targetTheme, tone: t.id, isLight: !t.isDark } }));
@@ -10814,19 +10879,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
         /* 2. All 8 Light Tones (--lt-* variables, 3px sculpted borders, pure white inputs, pitch-black 900 text) */
         html.light-theme #purchase-hub-view {
-            background: var(--lt-bg-main, #f3ead8) !important;
-            color: var(--lt-text, #120500) !important;
+            background: linear-gradient(180deg, var(--lt-canvas-1, #dfd0b4) 0%, var(--lt-canvas-2, #d2be9a) 100%) !important;
+            color: var(--lt-ink, #120500) !important;
         }
         html.light-theme #purchase-hub-view .neo-card,
         html.light-theme #purchase-hub-view .smart-filter-bar {
-            background: var(--lt-bg-card, #e8dbc3) !important;
+            background: linear-gradient(145deg, var(--lt-card-1, #fffdf8) 0%, var(--lt-card-2, #f7efe0) 100%) !important;
             border: 3px solid var(--lt-border, #5c2808) !important;
             box-shadow: 0 8px 22px rgba(45, 20, 5, 0.15), inset 0 1.5px 0 rgba(255, 255, 255, 0.75) !important;
-            color: var(--lt-text, #120500) !important;
+            color: var(--lt-ink, #120500) !important;
             border-radius: 16px !important;
         }
         html.light-theme #purchase-hub-view .hub-action-card {
-            background: var(--lt-bg-subcard, #dfd0b5) !important;
+            background: linear-gradient(135deg, var(--lt-sub-1, #fffefb) 0%, var(--lt-sub-2, #f6ecda) 100%) !important;
             border: 3px solid var(--lt-border, #5c2808) !important;
             box-shadow: 0 5px 14px rgba(45, 20, 5, 0.14), inset 0 1px 0 rgba(255, 255, 255, 0.8) !important;
         }

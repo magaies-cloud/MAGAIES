@@ -170,12 +170,19 @@ class WhatsAppClient {
     }
 
     get isTenantSession() {
-        return /^wa_tenant_\d+$/i.test(String(this.userId || '').trim());
+        const uid = String(this.userId || '').trim();
+        if (/^wa_tenant_\d+$/i.test(uid)) return true;
+        if (typeof manager !== 'undefined' && manager && manager.clients) {
+            for (const [k, c] of manager.clients) {
+                if (/^wa_tenant_\d+$/i.test(k) && c && c.isConnected) return false;
+            }
+        }
+        return true;
     }
 
     get tenantId() {
         const m = String(this.userId || '').trim().match(/^wa_tenant_(\d+)$/i);
-        return m ? m[1] : null;
+        return m ? m[1] : '12';
     }
 
     // ─── Safe state setter with logging ────────────────────────
@@ -559,9 +566,10 @@ class WhatsAppClient {
                                     /(?:طلب\s*كشف|كشف\s*حساب|كشف\s*الحساب|كشف|حسابي|استلام\s*رصيد|استلام\s*الرصيد|طلب\s*رصيد|طلب\s*الرصيد|رصيدي|الرصيد|رصيد|معرفة\s*الرصيد|كم\s*رصيدي)/i.test(normalizedText) ||
                                     /^[\s#:\-_.,/()]*(\d{1,10}[\s#:\-_.,/()]*)?(?:ك|كاف|الكاف|حرف\s*ك|حرف\s*كاف|حرف\s*الكاف|ر|راء|الراء|حرف\s*ر|حرف\s*راء|حرف\s*الراء)([\s#:\-_.,/()]*\d{1,10})?[\s#:\-_.,/()]*$/i.test(normalizedText)
                                 );
-                                const isPinOrCodeFormat = /^(?:#|كود|باسورد|الباسورد|الرمز|حساب|سري|السري|باص|رمزي|pin|code|pass|\s)*\d{1,6}\s*$/i.test(normalizedText);
+                                const hasPinInquiryKw = /^[\s#:\-_.,/()؟?]*(?:الرقم\s*السري|رقم\s*سري|الرمز\s*السري|رمز\s*سري|السري|سري|الباسورد|باسورد|الباسوورد|باسوورد|الباص|باص|الرقم|رقم|الرمز|رمز|رمزي|نسيت\s*الباسورد|نسيت\s*الرقم\s*السري|كم\s*الباسورد|كم\s*الرقم\s*السري|طلب\s*الباسورد|طلب\s*الرقم\s*السري|ما\s*هو\s*الرقم\s*السري|ما\s*هو\s*الباسورد|عايز\s*الباسورد|اريد\s*الباسورد|password|pin|pass)[\s#:\-_.,/()؟?]*$/i.test(normalizedText);
+                                const isPinOrCodeFormat = /^(?:#|كود|الكود|باسورد|الباسورد|باسوورد|الرمز\s*السري|الرمز|رمز|حساب|الرقم\s*السري|رقم\s*سري|سري|السري|الرقم|رقم|باص|رمزي|pin|code|pass|\s)*\d[\d\s\-]{0,9}(?:#|كود|الكود|باسورد|الباسورد|سري|السري|الرقم\s*السري|الرقم|رقم|pin|code|pass|\s)*$/i.test(normalizedText);
                                 const allowFromMeQuery = msg.key.fromMe && !isBotOwnReply && textMsg.length <= 60 && (
-                                    hasStmtOrBalanceKw || isPinOrCodeFormat
+                                    hasStmtOrBalanceKw || hasPinInquiryKw || isPinOrCodeFormat
                                 );
 
                                 if (textMsg && textMsg.length <= 120 && (!msg.key.fromMe || allowFromMeQuery)) {
@@ -579,11 +587,12 @@ class WhatsAppClient {
 
                                     // Extract pure digits or prefixed routing password (e.g. "532", "#532", "باسورد 532", "كود 532", "حساب 532")
                                     let extractedPin = '';
-                                    if (/^\d{1,10}$/.test(normalizedText)) {
-                                        extractedPin = normalizedText;
-                                    } else if (!hasStmtOrBalanceKw) {
-                                        const mPin = normalizedText.match(/^(?:#|كود|باسورد|الباسورد|الرمز|حساب|سري|السري|باص|رمزي|pin|code|pass)\s*[:\-]?\s*(\d{1,10})$/i);
-                                        if (mPin) extractedPin = mPin[1];
+                                    const compactPureDigits = normalizedText.replace(/[\s\-]+/g, '');
+                                    if (/^\d{1,10}$/.test(compactPureDigits)) {
+                                        extractedPin = compactPureDigits;
+                                    } else if (!hasStmtOrBalanceKw && !hasPinInquiryKw) {
+                                        const mPin = normalizedText.match(/^(?:#|كود|الكود|باسورد|الباسورد|باسوورد|الرمز\s*السري|الرمز|رمز|حساب|الرقم\s*السري|رقم\s*سري|سري|السري|الرقم|رقم|باص|رمزي|pin|code|pass|\s)*[:\-]?\s*(\d[\d\s\-]{0,9}?)\s*(?:#|كود|الكود|باسورد|الباسورد|سري|السري|الرقم\s*السري|الرقم|رقم|pin|code|pass)*$/i);
+                                        if (mPin) extractedPin = mPin[1].replace(/[\s\-]+/g, '');
                                     }
 
                                     const pendingBatch = this.inboundBatchQueues.get(jid);
@@ -606,18 +615,20 @@ class WhatsAppClient {
                                             recentBatch.receiptIds.length > 0
                                         );
 
+                                        const pendingKw = (existingPre && existingPre.pendingKeyword && (Date.now() - existingPre.timestamp <= 90000)) ? existingPre.pendingKeyword : '';
                                         let stmtTimer = null;
                                         if (!hasActivePendingBatch && !hasUnroutedRecentBatch) {
+                                            const queryToRun = pendingKw ? `${extractedPin} ${pendingKw}` : extractedPin;
                                             stmtTimer = setTimeout(() => {
                                                 const curBatch = this.inboundBatchQueues.get(jid);
                                                 if (!curBatch || (curBatch.items.length === 0 && !curBatch.isProcessing && !(curBatch.activeDownloads > 0))) {
                                                     const curPre = this.pendingRoutingPinByJid.get(jid);
                                                     if (curPre) curPre.stmtCompleted = true;
-                                                    this._processIncomingWhatsAppStatementRequest(msg, sock, textMsg).catch(e => {
+                                                    this._processIncomingWhatsAppStatementRequest(msg, sock, queryToRun).catch(e => {
                                                         logErr(this.userId, 'Error handling incoming statement request:', e.message);
                                                     });
                                                 }
-                                            }, 80);
+                                            }, 60);
                                         }
 
                                         // Store the bare PIN in pendingRoutingPinByJid so any images or follow-up "رصيد"/"كشف" inherit this PIN
@@ -673,6 +684,15 @@ class WhatsAppClient {
                                             effectiveTextMsg = `${existingPre.pin} ${textMsg}`;
                                             existingPre.stmtCompleted = true;
                                             log(this.userId, `🔗 Combined active PIN (${existingPre.pin}) with follow-up command "${textMsg}" for ${jid}`);
+                                        } else if (!inlineDigitsMatch && hasStmtOrBalanceKw) {
+                                            this.pendingRoutingPinByJid.set(jid, {
+                                                pin: '',
+                                                pendingKeyword: textMsg,
+                                                timestamp: Date.now(),
+                                                fromBarePin: false,
+                                                stmtCompleted: false,
+                                                stmtTimer: null
+                                            });
                                         }
                                         this._processIncomingWhatsAppStatementRequest(msg, sock, effectiveTextMsg).catch(e => {
                                             logErr(this.userId, 'Error handling incoming statement request:', e.message);
@@ -2910,7 +2930,13 @@ class ClientManager {
     findActiveClient(preferredId) {
         const targetId = String(preferredId || '').trim() || 'default-saas-admin';
         const normalizedId = targetId === 'default' ? 'default-saas-admin' : targetId;
-        return this.get(normalizedId);
+        const preferred = this.get(normalizedId);
+        if (preferred && (preferred.isConnected || preferred.status === 'AUTHENTICATED')) {
+            return preferred;
+        }
+        const connected = this.getConnectedClient();
+        if (connected) return connected;
+        return preferred;
     }
 
     async initClient(userId) {
@@ -3224,8 +3250,8 @@ app.get('/wa/system-repair', async (req, res) => {
     res.json(results);
 });
 
-// Auto-trigger self-healing on boot
-setTimeout(() => {
+// Auto-trigger self-healing on boot (Linux servers only)
+if (process.platform !== 'win32') setTimeout(() => {
     try {
         exec(`
             for v in 8.3 8.2 8.1 8.0 7.4; do
@@ -3263,11 +3289,15 @@ app.get('/wa/status', (req, res) => {
     const requestedId = req.query.userId || req.body?.userId;
     const client = manager.findActiveClient(requestedId);
 
-    // Auto-init if idle, failed, or logged out (user wants to reconnect or scan new QR)
+    // Auto-init on status check only if saved credentials exist or explicit init=1 requested
     if (!client.isConnected && (client.status === 'IDLE' || client.status === 'FAILED' || client.status === 'LOGGED_OUT' || client.status === 'DISCONNECTED')) {
-        client.reconnectAttempts = 0; // Reset so user-triggered retry gets fresh attempts
-        client.lastInitTime = 0;
-        client.init().catch(e => logErr(client.userId, 'auto-init failed:', e.message));
+        const credsPath = path.join(client.authFolder, 'creds.json');
+        const hasCreds = Boolean(client.phoneNumber) || (fs.existsSync(credsPath) && fs.statSync(credsPath).size > 100);
+        if (hasCreds || req.query.init === '1') {
+            client.reconnectAttempts = 0;
+            client.lastInitTime = 0;
+            client.init().catch(e => logErr(client.userId, 'auto-init failed:', e.message));
+        }
     }
 
     res.json(client.toJSON());
@@ -3324,11 +3354,15 @@ app.post(['/wa/send', '/wa/send-message', '/send'], upload.any(), async (req, re
             client.init().catch(e => logErr(client.userId, 'send auto-init failed:', e.message));
         }
 
-        if (hasSavedIdentity || client.status === 'INITIALIZING' || client.status === 'CONNECTING' || client.status === 'RECONNECTING' || client.status === 'AUTHENTICATED') {
-            for (let i = 0; i < 28; i++) {
+        if (hasSavedIdentity || client.status === 'AUTHENTICATED') {
+            for (let i = 0; i < 12; i++) {
                 if (client.isConnected) break;
                 await new Promise(r => setTimeout(r, 250));
             }
+        }
+        if (!client.isConnected) {
+            const fallbackConn = manager.getConnectedClient();
+            if (fallbackConn) client = fallbackConn;
         }
     }
 

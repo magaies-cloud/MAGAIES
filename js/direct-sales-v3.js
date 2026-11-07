@@ -1916,7 +1916,7 @@ function onCustomerChange() {
     if (!cust || id === '') {
         ['fin-ledger','fin-checks','fin-total-debt','fin-credit-limit','fin-remaining'].forEach(el => {
             const dom = document.getElementById(el);
-            if (dom) dom.textContent = '—';
+            if (dom) dom.textContent = '0';
         });
         if (strip) strip.classList.remove('visible');
         if (badge) badge.style.display = 'none';
@@ -1924,14 +1924,18 @@ function onCustomerChange() {
         return;
     }
 
-    const totalDebt = (parseFloat(cust.ledger) || 0) + (parseFloat(cust.checks) || 0);
-    const remaining = (parseFloat(cust.creditLimit) || 0) - totalDebt;
+    const cLedger = parseFloat(cust.ledger) || 0;
+    const cChecks = parseFloat(cust.checks) || 0;
+    const cCreditLimit = parseFloat(cust.creditLimit) || 0;
+    const totalDebt = cLedger + cChecks;
+    const remaining = cCreditLimit - totalDebt;
+    const conv = (v) => (typeof window.convFinStripVal === 'function') ? window.convFinStripVal(v) : v;
 
-    if (document.getElementById('fin-ledger')) document.getElementById('fin-ledger').textContent = fmtNum(cust.ledger) + ' ' + cur;
-    if (document.getElementById('fin-checks')) document.getElementById('fin-checks').textContent = fmtNum(cust.checks) + ' ' + cur;
-    if (document.getElementById('fin-total-debt')) document.getElementById('fin-total-debt').textContent = fmtNum(totalDebt) + ' ' + cur;
-    if (document.getElementById('fin-credit-limit')) document.getElementById('fin-credit-limit').textContent = fmtNum(cust.creditLimit) + ' ' + cur;
-    if (document.getElementById('fin-remaining')) document.getElementById('fin-remaining').textContent = fmtNum(remaining) + ' ' + cur;
+    if (document.getElementById('fin-ledger')) document.getElementById('fin-ledger').textContent = fmtNum(conv(cLedger));
+    if (document.getElementById('fin-checks')) document.getElementById('fin-checks').textContent = fmtNum(conv(cChecks));
+    if (document.getElementById('fin-total-debt')) document.getElementById('fin-total-debt').textContent = fmtNum(conv(totalDebt));
+    if (document.getElementById('fin-credit-limit')) document.getElementById('fin-credit-limit').textContent = fmtNum(conv(cCreditLimit));
+    if (document.getElementById('fin-remaining')) document.getElementById('fin-remaining').textContent = fmtNum(conv(remaining));
 
     if (strip) {
         strip.classList.remove('visible');
@@ -1963,80 +1967,57 @@ function onCustomerChange() {
 // ════════════════════════════════════════
 //  ITEMS DROPDOWN LOGIC
 // ════════════════════════════════════════
+function _syncSalesItemsFast(extraList) {
+    if (!window._salesPreloadedSynced) {
+        window._salesPreloadedSynced = true;
+        const pre = window._PRELOADED_ITEMS || [];
+        extraList = pre.concat(extraList || []);
+    }
+    if (!extraList || !extraList.length) return false;
+    const idMap = new Map(ITEMS.map(i => [String(i.id), i]));
+    let added = false;
+    extraList.forEach(item => {
+        if (!item || !item.id) return;
+        const key = String(item.id);
+        let existing = idMap.get(key);
+        const baseUnit = item.baseUnit || item.mainUnit || item.unit || 'قطعة';
+        const unitsArray = extractItemUnits(item);
+        let sp = String(item.sellingPrice || item.salePrice || item.price || 0).replace(/,/g, '');
+        if (!existing) {
+            existing = { id: item.id, name: item.name || 'صنف', unit: baseUnit, baseUnit, conversionFactor: 1, bundleFactor: parseFloat(item.bundleFactor) || 1, price: parseFloat(sp) || 0, actualStock: {}, reservedStock: {}, units: item.units || [], unitsArray, barcode: item.barcode || '', maxDiscount: item.maxDiscount || 0, status: item.status || 'active' };
+            ITEMS.push(existing);
+            idMap.set(key, existing);
+            added = true;
+        } else {
+            existing.units = item.units || existing.units;
+            existing.unitsArray = unitsArray;
+        }
+    });
+    return added;
+}
+
 async function renderItemDropdown(rowId, isMobile = false, filter = '') {
     const prefix = isMobile ? 'm-' : '';
     const listEl = document.getElementById(`${prefix}item-dropdown-list-${rowId}`);
     if (!listEl) return;
-    
-    listEl.innerHTML = '<div class="custom-dropdown-empty">جاري البحث...</div>';
     const term = filter.toLowerCase().trim();
-    
     try {
-        let localMatches = ITEMS;
-        if (term) {
-            localMatches = ITEMS.filter(i => {
-                if (!i) return false;
-                const normName = (i.name || '').toLowerCase();
-                const nameWords = normName.split(' ');
-                const bcMatches = i.barcode && i.barcode.toLowerCase().includes(term);
-                const unitBcMatches = i.units && Array.isArray(i.units) && i.units.some(u => u.barcode && u.barcode.toLowerCase().includes(term));
-                return nameWords.some(w => w.startsWith(term)) || normName.includes(term) || bcMatches || unitBcMatches;
-            });
-        }
-
-        let dbMatches = [];
-        try {
+        _syncSalesItemsFast();
+        const matchFn = i => {
+            if (!i) return false;
+            if (!term) return true;
+            const normName = (i.name || '').toLowerCase();
+            const bcMatches = i.barcode && i.barcode.toLowerCase().includes(term);
+            const unitBcMatches = Array.isArray(i.units) && i.units.some(u => u.barcode && u.barcode.toLowerCase().includes(term));
+            return normName.includes(term) || bcMatches || unitBcMatches;
+        };
+        let finalMatches = ITEMS.filter(matchFn);
+        if (finalMatches.length === 0 && !window._salesItemsApiFetched) {
+            window._salesItemsApiFetched = true;
             const token = localStorage.getItem('token');
-            const headers = token ? { 'Authorization': 'Bearer ' + token } : {};
-            const res = await fetch('api/items_search.php?q=' + encodeURIComponent(term), { headers });
-            const rawMatches = await res.json();
-            if (Array.isArray(rawMatches)) {
-                dbMatches = rawMatches;
-            }
-        } catch(err) {
-            console.error('API Search Failed:', err);
+            fetch('api/items_search.php?q=' + encodeURIComponent(term), { headers: token ? { 'Authorization': 'Bearer ' + token } : {} })
+                .then(r => r.json()).then(raw => { if (Array.isArray(raw) && _syncSalesItemsFast(raw)) renderItemDropdown(rowId, isMobile, filter); }).catch(() => {});
         }
-        
-        const rawItems = window._PRELOADED_ITEMS || JSON.parse(localStorage.getItem('erp_items_v1')) || [];
-        
-        // Merge dbMatches and newly added rawItems
-        const allNew = [...rawItems, ...dbMatches];
-        allNew.forEach(item => {
-            if (!item || !item.id) return;
-            let existing = ITEMS.find(i => String(i.id) === String(item.id));
-            const baseUnit = item.baseUnit || item.mainUnit || item.unit || 'قطعة';
-            const unitsArray = extractItemUnits(item);
-            let sp = item.sellingPrice || item.salePrice || item.price || 0;
-            sp = sp.toString().replace(/,/g, '');
-
-            if (!existing) {
-                existing = {
-                    id: item.id,
-                    name: item.name || 'صنف',
-                    unit: baseUnit,
-                    baseUnit: baseUnit,
-                    conversionFactor: 1, 
-                    bundleFactor: parseFloat(item.bundleFactor) || 1,
-                    price: parseFloat(sp) || 0,
-                    actualStock: {},
-                    reservedStock: {},
-                    units: item.units || [],
-                    unitsArray: unitsArray,
-                    barcode: item.barcode || '',
-                    maxDiscount: item.maxDiscount || 0,
-                    status: item.status || 'active'
-                };
-                ITEMS.push(existing);
-                if (!term || existing.name.toLowerCase().includes(term)) {
-                    localMatches.push(existing);
-                }
-            } else {
-                existing.units = item.units || existing.units;
-                existing.unitsArray = unitsArray;
-            }
-        });
-
-        const finalMatches = Array.from(new Map(localMatches.map(m => [String(m.id), m])).values());
 
         if (finalMatches.length === 0) {
             listEl.innerHTML = '<div class="custom-dropdown-empty">لا توجد نتائج مطابقة.<br><small style="color:#888;">(حاول استخدام اسم آخر)</small></div>';
@@ -2326,72 +2307,17 @@ function handleItemSearchKeydown(event, rowId, isMobile = false) {
 async function renderQuickItemDropdown(filter = '') {
     const listEl = document.getElementById('quick-item-dropdown-list');
     if (!listEl) return;
-    
-    listEl.innerHTML = '<div class="custom-dropdown-empty">جاري البحث...</div>';
     const term = filter.toLowerCase().trim();
-    
     try {
-        let localMatches = ITEMS;
-        if (term) {
-            localMatches = ITEMS.filter(i => {
-                if (!i) return false;
-                const normName = (i.name || '').toLowerCase();
-                const nameWords = normName.split(' ');
-                const bcMatches = i.barcode && i.barcode.toLowerCase().includes(term);
-                const unitBcMatches = i.units && Array.isArray(i.units) && i.units.some(u => u.barcode && u.barcode.toLowerCase().includes(term));
-                return nameWords.some(w => w.startsWith(term)) || normName.includes(term) || bcMatches || unitBcMatches;
-            });
-        }
-
-        let dbMatches = [];
-        try {
-            const res = await fetch('api/items_search.php?q=' + encodeURIComponent(term));
-            const rawMatches = await res.json();
-            if (Array.isArray(rawMatches)) {
-                dbMatches = rawMatches;
-            }
-        } catch(err) {
-            console.error('API Search Failed:', err);
-        }
-        
-        const rawItems = window._PRELOADED_ITEMS || JSON.parse(localStorage.getItem('erp_items_v1')) || [];
-        const allNew = [...rawItems, ...dbMatches];
-        allNew.forEach(item => {
-            if (!item || !item.id) return;
-            let existing = ITEMS.find(i => String(i.id) === String(item.id));
-            const baseUnit = item.baseUnit || item.mainUnit || item.unit || 'قطعة';
-            const unitsArray = extractItemUnits(item);
-            let sp = item.sellingPrice || item.salePrice || item.price || 0;
-            sp = sp.toString().replace(/,/g, '');
-
-            if (!existing) {
-                existing = {
-                    id: item.id,
-                    name: item.name || 'صنف',
-                    unit: baseUnit,
-                    baseUnit: baseUnit,
-                    conversionFactor: 1, 
-                    bundleFactor: parseFloat(item.bundleFactor) || 1,
-                    price: parseFloat(sp) || 0,
-                    actualStock: {},
-                    reservedStock: {},
-                    units: item.units || [],
-                    unitsArray: unitsArray,
-                    barcode: item.barcode || '',
-                    maxDiscount: item.maxDiscount || 0,
-                    status: item.status || 'active'
-                };
-                ITEMS.push(existing);
-                if (!term || existing.name.toLowerCase().includes(term)) {
-                    localMatches.push(existing);
-                }
-            } else {
-                existing.units = item.units || existing.units;
-                existing.unitsArray = unitsArray;
-            }
+        _syncSalesItemsFast();
+        const finalMatches = ITEMS.filter(i => {
+            if (!i) return false;
+            if (!term) return true;
+            const normName = (i.name || '').toLowerCase();
+            const bcMatches = i.barcode && i.barcode.toLowerCase().includes(term);
+            const unitBcMatches = Array.isArray(i.units) && i.units.some(u => u.barcode && u.barcode.toLowerCase().includes(term));
+            return normName.includes(term) || bcMatches || unitBcMatches;
         });
-
-        const finalMatches = Array.from(new Map(localMatches.map(m => [String(m.id), m])).values());
 
         if (finalMatches.length === 0) {
             listEl.innerHTML = '<div class="custom-dropdown-empty">لا توجد نتائج مطابقة.<br><small style="color:#888;">(حاول استخدام اسم آخر)</small></div>';
@@ -2774,6 +2700,45 @@ function updateRowCalcs(id) {
     if (mShilaEl) mShilaEl.textContent = fmtNum(calcs.shilaQty, 'col_shila');
     if (mShilaRemEl) mShilaRemEl.textContent = fmtNum(calcs.shilaRem, 'col_shila_rem');
 
+    const priceHintEl = document.querySelector(`[data-price-hint="${id}"]`);
+    if (priceHintEl) {
+        let refPrice = 0;
+        const itRef = ITEMS.find(i => String(i.id) === String(row.itemId));
+        if (itRef) {
+            const rawSell = parseFloat(itRef.sellingPrice || itRef.price || itRef.cashPrice || itRef.lastPurchaseCost || itRef.averageCost || itRef.costPrice) || 0;
+            const uFactor = (row.customFactor !== undefined ? parseFloat(row.customFactor) : (calcs.unitFactor || 1)) || 1;
+            refPrice = (curVal === 'SDG') ? (rawSell * uFactor) : ((rawSell * uFactor) / (exRateVal || 1));
+        }
+        const curPrice = parseNum(row.price);
+        if (refPrice <= 0 && curPrice > 0) refPrice = curPrice;
+        if (row.itemId && (refPrice > 0 || curPrice > 0)) {
+            const baseRef = refPrice > 0 ? refPrice : curPrice;
+            const diffPct = baseRef > 0 ? (((curPrice - baseRef) / baseRef) * 100) : 0;
+            priceHintEl.style.display = 'block';
+            if (diffPct < -5) {
+                priceHintEl.setAttribute('data-lamp-state', 'red');
+                priceHintEl.setAttribute('data-lamp', 'red');
+                priceHintEl.innerHTML = `<span class="btn-icon pur-price-lamp lamp-red"></span><span class="btn-icon pur-price-subtxt">▼ -${Math.round(Math.abs(diffPct))}% (${fmtNum(baseRef)})</span>`;
+            } else if (diffPct < -0.5) {
+                priceHintEl.setAttribute('data-lamp-state', 'amber');
+                priceHintEl.setAttribute('data-lamp', 'amber');
+                priceHintEl.innerHTML = `<span class="btn-icon pur-price-lamp lamp-amber"></span><span class="btn-icon pur-price-subtxt">▼ -${Math.round(Math.abs(diffPct))}% (${fmtNum(baseRef)})</span>`;
+            } else if (diffPct > 0.5) {
+                priceHintEl.setAttribute('data-lamp-state', 'green');
+                priceHintEl.setAttribute('data-lamp', 'green');
+                priceHintEl.innerHTML = `<span class="btn-icon pur-price-lamp lamp-green"></span><span class="btn-icon pur-price-subtxt">▲ +${Math.round(diffPct)}% (${fmtNum(baseRef)})</span>`;
+            } else {
+                priceHintEl.setAttribute('data-lamp-state', 'blue');
+                priceHintEl.setAttribute('data-lamp', 'blue');
+                priceHintEl.innerHTML = `<span class="btn-icon pur-price-lamp lamp-blue"></span><span class="btn-icon pur-price-subtxt">● ${fmtNum(baseRef)}</span>`;
+            }
+        } else {
+            priceHintEl.style.display = 'none';
+            priceHintEl.removeAttribute('data-lamp-state');
+            priceHintEl.removeAttribute('data-lamp');
+        }
+    }
+
     if (typeof window.autoFitGridCells === 'function') {
         const trEl = totalEl ? totalEl.closest('tr') : null;
         window.autoFitGridCells(trEl || undefined);
@@ -2841,15 +2806,11 @@ function renderGrid() {
             <td data-col-id="col_qty"><input type="text" inputmode="decimal" class="g-input" value="${row.quantity || ''}" placeholder="0"
                 onfocus="this.select()" oninput="updateRow(${row.id},'quantity',this.value)"
                 onblur="this.value=parseNum(this.value)||''; checkAutoAddRow(${row.id})"></td>
-            <td data-col-id="col_price">
-                <div style="display:flex; align-items:center; gap:4px;">
-                    <input type="text" inputmode="decimal" class="g-input" data-price-input="${row.id}" value="${fmtNum(row.price, 'col_price')}"
-                        onfocus="this.select()" oninput="updateRow(${row.id},'price',this.value)"
-                        onblur="this.value=fmtNum(parseNum(this.value)); checkAutoAddRow(${row.id})" style="flex:1;">
-                    <button class="btn-icon" onclick="showPriceHistory(${row.id}, 'sales')" title="سجل أسعار الصنف للعميل" style="color:#38bdf8; background:rgba(56,189,248,0.1); border-radius:4px; padding:4px; border:1px solid rgba(56,189,248,0.2); cursor:pointer;" tabindex="-1">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-                    </button>
-                </div>
+            <td data-col-id="col_price" style="text-align: center; position: relative; vertical-align: middle;">
+                <input type="text" inputmode="decimal" class="g-input" data-price-input="${row.id}" value="${fmtNum(row.price, 'col_price')}"
+                    onfocus="this.select()" oninput="updateRow(${row.id},'price',this.value); if(window.autoFitSingleInput) window.autoFitSingleInput(this);"
+                    onblur="this.value=fmtNum(parseNum(this.value)); checkAutoAddRow(${row.id}); if(window.autoFitSingleInput) window.autoFitSingleInput(this);" style="text-align: center; width: 100%; margin: 0 auto; display: block;">
+                <span class="btn-icon pur-price-audit-pill" data-price-hint="${row.id}" onclick="if(typeof showPriceHistory==='function') showPriceHistory(${row.id}, 'sales')" style="display:none;" title="سجل أسعار الصنف للعميل"></span>
             </td>
             <td data-col-id="col_baseqty">
                 <div style="display:flex; align-items:center; gap:4px; justify-content:center;">
@@ -2975,6 +2936,7 @@ function renderGrid() {
             <div class="m-card-total" data-m-total="${row.id}">${fmtNum(calcs.total, 'col_total')} ${getCurrency()}</div>
         `;
         mCards.appendChild(card);
+        updateRowCalcs(row.id);
     });
 
     if (typeof applyGridSettings === 'function') {

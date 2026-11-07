@@ -4,14 +4,15 @@
 // ============================================================================
 (function () {
     const css = `
-    :root.light-theme, :root.light-theme[data-light-tone="ivory_default"] { --lt-canvas-1:#efe5d0; --lt-canvas-2:#e5d6ba; --lt-hdr-1:#f5ebd6; --lt-hdr-2:#ecdec2; --lt-hdr-3:#e2cfa9; --lt-card-1:#ffffff; --lt-card-2:#fcf7ee; --lt-sub-1:#ffffff; --lt-sub-2:#fbf4e6; --lt-th-1:#faf3e3; --lt-th-2:#f1e4ca; --lt-row-odd:#ffffff; --lt-row-even:#fefcf7; --lt-border:#5c2808; --lt-border-hover:#b45309; --lt-glow:rgba(245,158,11,0.45); --lt-ink:#120500; }
-    :root.light-theme[data-light-tone="royal_bronze"] { --lt-canvas-1:#e6cbb0; --lt-canvas-2:#d9b694; --lt-hdr-1:#eed7be; --lt-hdr-2:#e3c4a2; --lt-hdr-3:#d7b189; --lt-card-1:#fffbf7; --lt-card-2:#f9efe3; --lt-sub-1:#fffdfa; --lt-sub-2:#f6e7d5; --lt-th-1:#f5e5d1; --lt-th-2:#ebd2b7; --lt-row-odd:#ffffff; --lt-row-even:#fcf6ee; --lt-border:#4a2106; --lt-border-hover:#9a3412; --lt-glow:rgba(217,119,6,0.48); --lt-ink:#140600; }
-    :root.light-theme[data-light-tone="platinum_gray"] { --lt-canvas-1:#d9e3ee; --lt-canvas-2:#cad7e6; --lt-hdr-1:#e2ebf5; --lt-hdr-2:#d4e1ef; --lt-hdr-3:#c5d6e8; --lt-card-1:#ffffff; --lt-card-2:#f2f7fc; --lt-sub-1:#ffffff; --lt-sub-2:#eef4fb; --lt-th-1:#ecf3fa; --lt-th-2:#dde8f5; --lt-row-odd:#ffffff; --lt-row-even:#f7fafe; --lt-border:#1e293b; --lt-border-hover:#0284c7; --lt-glow:rgba(56,189,248,0.45); --lt-ink:#020617; }
-    :root.light-theme[data-light-tone="crystal_silver"] { --lt-canvas-1:#e4e9f0; --lt-canvas-2:#d6dde7; --lt-hdr-1:#ecf0f5; --lt-hdr-2:#e0e6ee; --lt-hdr-3:#d3dbe6; --lt-card-1:#ffffff; --lt-card-2:#f5f7fb; --lt-sub-1:#ffffff; --lt-sub-2:#f1f4f9; --lt-th-1:#eff3f8; --lt-th-2:#e3e8f0; --lt-row-odd:#ffffff; --lt-row-even:#f9fafc; --lt-border:#111827; --lt-border-hover:#2563eb; --lt-glow:rgba(59,130,246,0.45); --lt-ink:#030712; }
-    :root.light-theme[data-light-tone="sage_pearl"] { --lt-canvas-1:#d4eee1; --lt-canvas-2:#c1e4d3; --lt-hdr-1:#ddf3e8; --lt-hdr-2:#cbead9; --lt-hdr-3:#b8e0cb; --lt-card-1:#ffffff; --lt-card-2:#eefaf4; --lt-sub-1:#ffffff; --lt-sub-2:#e8f8f0; --lt-th-1:#e5f6ed; --lt-th-2:#d3efe0; --lt-row-odd:#ffffff; --lt-row-even:#f6fdf9; --lt-border:#064e3b; --lt-border-hover:#059669; --lt-glow:rgba(16,185,129,0.45); --lt-ink:#022c22; }
-    :root.light-theme[data-light-tone="sky_alabaster"] { --lt-canvas-1:#d3e9fb; --lt-canvas-2:#beddf7; --lt-hdr-1:#dceffd; --lt-hdr-2:#cae4fa; --lt-hdr-3:#b7d9f6; --lt-card-1:#ffffff; --lt-card-2:#eef7fe; --lt-sub-1:#ffffff; --lt-sub-2:#e7f4fd; --lt-th-1:#e4f2fd; --lt-th-2:#d1e9fb; --lt-row-odd:#ffffff; --lt-row-even:#f6fbff; --lt-border:#0c4a6e; --lt-border-hover:#0284c7; --lt-glow:rgba(14,165,233,0.45); --lt-ink:#082f49; }
-    :root.light-theme[data-light-tone="warm_mocha_dark"] { --lt-canvas-1:#d2baa1; --lt-canvas-2:#c1a384; --lt-hdr-1:#decab4; --lt-hdr-2:#cfb69b; --lt-hdr-3:#bfa182; --lt-card-1:#fdfaf6; --lt-card-2:#f6ede2; --lt-sub-1:#fefcf9; --lt-sub-2:#f2e6d8; --lt-th-1:#f0e2d2; --lt-th-2:#e4d1bc; --lt-row-odd:#ffffff; --lt-row-even:#faf4ec; --lt-border:#3e1b04; --lt-border-hover:#7c2d12; --lt-glow:rgba(180,83,9,0.48); --lt-ink:#0f0400; }
-    :root.light-theme[data-light-tone="deep_slate_dark"] { --lt-canvas-1:#c1cedf; --lt-canvas-2:#aebfd4; --lt-hdr-1:#ced9e8; --lt-hdr-2:#bdcce0; --lt-hdr-3:#acbed6; --lt-card-1:#f9fbfe; --lt-card-2:#eef3fa; --lt-sub-1:#fcfdff; --lt-sub-2:#e8eff8; --lt-th-1:#e4ecf6; --lt-th-2:#d5e1f0; --lt-row-odd:#ffffff; --lt-row-even:#f4f8fc; --lt-border:#0f172a; --lt-border-hover:#1d4ed8; --lt-glow:rgba(37,99,235,0.45); --lt-ink:#020617; }
+    :root.light-theme, :root.light-theme[data-light-tone="ivory_default"] { --lt-canvas-1:#dfd0b4; --lt-canvas-2:#d2be9a; --lt-hdr-1:#eadbc0; --lt-hdr-2:#dec9a4; --lt-hdr-3:#d1b689; --lt-card-1:#fffdf8; --lt-card-2:#f7efe0; --lt-sub-1:#fffefb; --lt-sub-2:#f6ecda; --lt-th-1:#f5ead4; --lt-th-2:#e6d4b5; --lt-row-odd:#fffefb; --lt-row-even:#f7efe0; --lt-border:#5c2808; --lt-border-hover:#b45309; --lt-glow:rgba(245,158,11,0.45); --lt-ink:#000000; }
+    :root.light-theme[data-light-tone="royal_bronze"] { --lt-canvas-1:#d4b08c; --lt-canvas-2:#c29970; --lt-hdr-1:#e2be98; --lt-hdr-2:#d4a679; --lt-hdr-3:#c48f5c; --lt-card-1:#fdf6ee; --lt-card-2:#f3e2ce; --lt-sub-1:#fef9f3; --lt-sub-2:#efd8be; --lt-th-1:#edd5ba; --lt-th-2:#dfbda0; --lt-row-odd:#fdf6ee; --lt-row-even:#f3e2ce; --lt-border:#4a2106; --lt-border-hover:#9a3412; --lt-glow:rgba(217,119,6,0.48); --lt-ink:#000000; }
+    :root.light-theme[data-light-tone="platinum_gray"] { --lt-canvas-1:#c2d0e0; --lt-canvas-2:#aebfd4; --lt-hdr-1:#cfdeee; --lt-hdr-2:#bccfe4; --lt-hdr-3:#a8bfd9; --lt-card-1:#f7faff; --lt-card-2:#e6eef8; --lt-sub-1:#fafdff; --lt-sub-2:#e1ebf6; --lt-th-1:#dee9f6; --lt-th-2:#cbdbed; --lt-row-odd:#f7faff; --lt-row-even:#e6eef8; --lt-border:#1e293b; --lt-border-hover:#0284c7; --lt-glow:rgba(56,189,248,0.45); --lt-ink:#000000; }
+    :root.light-theme[data-light-tone="crystal_silver"] { --lt-canvas-1:#d2d8e2; --lt-canvas-2:#bfc7d4; --lt-hdr-1:#dfe4ec; --lt-hdr-2:#cfd6e2; --lt-hdr-3:#bec7d5; --lt-card-1:#fafbfd; --lt-card-2:#edf1f7; --lt-sub-1:#ffffff; --lt-sub-2:#e7ecf3; --lt-th-1:#e5eaf1; --lt-th-2:#d5dce7; --lt-row-odd:#fafbfd; --lt-row-even:#edf1f7; --lt-border:#111827; --lt-border-hover:#2563eb; --lt-glow:rgba(59,130,246,0.45); --lt-ink:#000000; }
+    :root.light-theme[data-light-tone="sage_pearl"] { --lt-canvas-1:#bce0ce; --lt-canvas-2:#a4d1bb; --lt-hdr-1:#c8ead9; --lt-hdr-2:#b0ddca; --lt-hdr-3:#98cfb8; --lt-card-1:#f4fcf8; --lt-card-2:#e0f5ec; --lt-sub-1:#f9fefb; --lt-sub-2:#d8f2e6; --lt-th-1:#d4f0e3; --lt-th-2:#bfe6d4; --lt-row-odd:#f4fcf8; --lt-row-even:#e0f5ec; --lt-border:#064e3b; --lt-border-hover:#059669; --lt-glow:rgba(16,185,129,0.45); --lt-ink:#000000; }
+    :root.light-theme[data-light-tone="sky_alabaster"] { --lt-canvas-1:#bad9f5; --lt-canvas-2:#a2caed; --lt-hdr-1:#c7e3fb; --lt-hdr-2:#afd4f5; --lt-hdr-3:#96c4ee; --lt-card-1:#f4faff; --lt-card-2:#dfeffd; --lt-sub-1:#f9fcff; --lt-sub-2:#d6ebfc; --lt-th-1:#d2e9fc; --lt-th-2:#bdddf9; --lt-row-odd:#f4faff; --lt-row-even:#dfeffd; --lt-border:#0c4a6e; --lt-border-hover:#0284c7; --lt-glow:rgba(14,165,233,0.45); --lt-ink:#000000; }
+    :root.light-theme[data-light-tone="rose_blossom"] { --lt-canvas-1:#f5d0e3; --lt-canvas-2:#ebaed0; --lt-hdr-1:#fae0ee; --lt-hdr-2:#f3c6df; --lt-hdr-3:#ebadd0; --lt-card-1:#fff7fb; --lt-card-2:#fce8f3; --lt-sub-1:#fffafd; --lt-sub-2:#f9dfee; --lt-th-1:#f7d6e8; --lt-th-2:#efc2dc; --lt-row-odd:#fff7fb; --lt-row-even:#fce8f3; --lt-border:#831843; --lt-border-hover:#be185d; --lt-glow:rgba(236,72,153,0.45); --lt-ink:#000000; }
+    :root.light-theme[data-light-tone="warm_mocha_dark"] { --lt-canvas-1:#b89878; --lt-canvas-2:#a3805e; --lt-hdr-1:#ccb094; --lt-hdr-2:#ba9878; --lt-hdr-3:#a8825e; --lt-card-1:#faf3ea; --lt-card-2:#eee0cf; --lt-sub-1:#fdf8f2; --lt-sub-2:#e8d6c1; --lt-th-1:#e5d1ba; --lt-th-2:#d6bc9f; --lt-row-odd:#faf3ea; --lt-row-even:#eee0cf; --lt-border:#3e1b04; --lt-border-hover:#7c2d12; --lt-glow:rgba(180,83,9,0.48); --lt-ink:#000000; }
+    :root.light-theme[data-light-tone="deep_slate_dark"] { --lt-canvas-1:#a3b4ca; --lt-canvas-2:#8da1bb; --lt-hdr-1:#b8c7dc; --lt-hdr-2:#a2b5cf; --lt-hdr-3:#8ca3c1; --lt-card-1:#f2f6fc; --lt-card-2:#e2eaf5; --lt-sub-1:#f7faff; --lt-sub-2:#dbe5f2; --lt-th-1:#d6e1f0; --lt-th-2:#c3d2e6; --lt-row-odd:#f2f6fc; --lt-row-even:#e2eaf5; --lt-border:#0f172a; --lt-border-hover:#1d4ed8; --lt-glow:rgba(37,99,235,0.45); --lt-ink:#000000; }
     html:not(.light-theme), html:not(.light-theme)[data-light-tone="dark_midnight"] { --dk-canvas:#010308; --dk-card-1:#1b3159; --dk-card-2:#132341; --dk-sub:#0b1120; --dk-border:#38bdf8; }
     html:not(.light-theme)[data-light-tone="pure_oled"] { --dk-canvas:#000000; --dk-card-1:#090d16; --dk-card-2:#050811; --dk-sub:#000000; --dk-border:#0284c7; }
     html:not(.light-theme)[data-light-tone="mocha_brown"] { --dk-canvas:#140b07; --dk-card-1:#2b1810; --dk-card-2:#1f120d; --dk-sub:#120906; --dk-border:#f59e0b; }
@@ -114,10 +115,7 @@
     }
     #sales-proportional-root button, #sales-proportional-root button:hover, #sales-proportional-root button:active, #sales-proportional-root button:focus,
     .sales-fc1-modal-card button, .sales-fc1-modal-card button:hover {
-        text-shadow:none !important;
         -webkit-text-stroke:0px transparent !important;
-        transform:none !important;
-        animation:none !important;
     }
     html.light-theme #split-invoice-view input:not([type="checkbox"]):not([type="radio"]),
     html.light-theme #split-invoice-view select,
@@ -172,13 +170,14 @@
 
     function ensureSplitStyleLast() {
         let st = document.getElementById('split-purchase-constitution-2027-style');
+        const host = document.body || document.head;
         if (!st) {
             st = document.createElement('style');
             st.id = 'split-purchase-constitution-2027-style';
             st.textContent = css;
-            document.head.appendChild(st);
-        } else if (document.head && document.head.lastElementChild !== st) {
-            document.head.appendChild(st);
+            host.appendChild(st);
+        } else if (host && host.lastElementChild !== st) {
+            host.appendChild(st);
         }
     }
     ensureSplitStyleLast();
@@ -188,18 +187,19 @@
     // 12-Tone Popover Engine (8 Light + 4 Dark/Metallic) + 4 Interactive System Sound Tones
     const SOUND_TONE_KEY = 'magaies_system_sound_tone_v1';
     const TONES = [
-        { id: 'dark_midnight',   name: 'داكن كحلي ملكي (Dark)',    bg: '#0f172a', fg: '#1e293b', brd: '#38bdf8', isDark: true,  themeKey: 'midnight_obsidian' },
-        { id: 'pure_oled',       name: 'سواد مطلق فاحم (OLED)',    bg: '#000000', fg: '#090d16', brd: '#0284c7', isDark: true,  themeKey: 'pure_oled' },
-        { id: 'mocha_brown',     name: 'بني ملكي دافئ (Mocha)',    bg: '#1f120d', fg: '#3e2723', brd: '#f59e0b', isDark: true,  themeKey: 'mocha_brown' },
-        { id: 'slate_twilight',  name: 'سليت فحمي مسائي (Slate)',  bg: '#1e293b', fg: '#334155', brd: '#94a3b8', isDark: true,  themeKey: 'slate_twilight' },
-        { id: 'ivory_default',   name: 'عاجي دافئ (فاتح افتراضي)', bg: '#d9c39e', fg: '#f3e5ab', brd: '#854d0e', isDark: false, themeKey: 'warm_cream' },
-        { id: 'royal_bronze',    name: 'برونزي ملكي فاخر',       bg: '#b07239', fg: '#d9a066', brd: '#78350f', isDark: false, themeKey: 'warm_cream' },
-        { id: 'platinum_gray',   name: 'رمادي بلاتيني احترافي',  bg: '#64748b', fg: '#94a3b8', brd: '#334155', isDark: false, themeKey: 'exec_gray' },
-        { id: 'crystal_silver',  name: 'فضي جليدي ناصع',         bg: '#cbd5e1', fg: '#e2e8f0', brd: '#64748b', isDark: false, themeKey: 'ultra_white' },
-        { id: 'sage_pearl',      name: 'لؤلؤي زمردي هادئ',       bg: '#10b981', fg: '#6ee7b7', brd: '#047857', isDark: false, themeKey: 'warm_cream' },
-        { id: 'sky_alabaster',   name: 'سماوي لازوردي فاتح',     bg: '#0284c7', fg: '#38bdf8', brd: '#0369a1', isDark: false, themeKey: 'ultra_white' },
-        { id: 'warm_mocha_dark', name: 'موكا صحراوي غامق',       bg: '#6b4226', fg: '#9c6b43', brd: '#451a03', isDark: false, themeKey: 'warm_cream' },
-        { id: 'deep_slate_dark', name: 'رصاصي فحمي غامق',        bg: '#334155', fg: '#475569', brd: '#0f172a', isDark: false, themeKey: 'exec_gray' }
+        { id: 'dark_midnight',   name: 'داكن كحلي ملكي (Dark)',          bg: '#0f172a', fg: '#1e293b', brd: '#38bdf8', isDark: true,  themeKey: 'midnight_obsidian' },
+        { id: 'pure_oled',       name: 'سواد مطلق فاحم (OLED)',          bg: '#000000', fg: '#090d16', brd: '#0284c7', isDark: true,  themeKey: 'pure_oled' },
+        { id: 'mocha_brown',     name: 'بني ملكي دافئ (Mocha)',          bg: '#1f120d', fg: '#3e2723', brd: '#f59e0b', isDark: true,  themeKey: 'mocha_brown' },
+        { id: 'slate_twilight',  name: 'سليت فحمي مسائي (Slate)',        bg: '#1e293b', fg: '#334155', brd: '#94a3b8', isDark: true,  themeKey: 'slate_twilight' },
+        { id: 'ivory_default',   name: 'عاجي دافئ (فاتح افتراضي)',       bg: '#d9c39e', fg: '#f3e5ab', brd: '#854d0e', isDark: false, themeKey: 'warm_cream' },
+        { id: 'royal_bronze',    name: '👑 الذهبي الملكي (برونزي فاخر)', bg: '#b07239', fg: '#d9a066', brd: '#78350f', isDark: false, themeKey: 'warm_cream' },
+        { id: 'platinum_gray',   name: 'رمادي بلاتيني احترافي',          bg: '#64748b', fg: '#94a3b8', brd: '#334155', isDark: false, themeKey: 'exec_gray' },
+        { id: 'crystal_silver',  name: 'فضي جليدي ناصع',                 bg: '#cbd5e1', fg: '#e2e8f0', brd: '#64748b', isDark: false, themeKey: 'ultra_white' },
+        { id: 'sage_pearl',      name: 'لؤلؤي زمردي هادئ',               bg: '#10b981', fg: '#6ee7b7', brd: '#047857', isDark: false, themeKey: 'warm_cream' },
+        { id: 'sky_alabaster',   name: 'سماوي لازوردي فاتح',             bg: '#0284c7', fg: '#38bdf8', brd: '#0369a1', isDark: false, themeKey: 'ultra_white' },
+        { id: 'rose_blossom',    name: 'زهري ملكي ناعم (Rose)',          bg: '#ec4899', fg: '#fbcfe8', brd: '#9d174d', isDark: false, themeKey: 'warm_cream' },
+        { id: 'warm_mocha_dark', name: 'موكا صحراوي غامق',               bg: '#6b4226', fg: '#9c6b43', brd: '#451a03', isDark: false, themeKey: 'warm_cream' },
+        { id: 'deep_slate_dark', name: 'رصاصي فحمي غامق',                bg: '#334155', fg: '#475569', brd: '#0f172a', isDark: false, themeKey: 'exec_gray' }
     ];
     const SYSTEM_AUDIO_TONES = [
         { id: 'crystal',    name: '🔔 كريستال' },
@@ -245,11 +245,12 @@
         try {
             document.cookie = 'magaies_light_tone=' + encodeURIComponent(t.id) + '; path=/; max-age=315360000; SameSite=Lax';
             document.cookie = 'magaies_active_theme=' + encodeURIComponent(targetTheme) + '; path=/; max-age=315360000; SameSite=Lax';
-            localStorage.setItem('pur_light_tone_palette', t.id);
-            localStorage.setItem('magaies_light_tone', t.id);
-            ['magaies_active_theme', 'magaiees_global_theme', 'magaiees_mobile_theme', 'ui_theme'].forEach(k => localStorage.setItem(k, targetTheme));
-            localStorage.setItem('erp_theme', t.isDark ? 'dark' : 'light');
         } catch (_e) {}
+        const _s = (k, v) => { try { localStorage.setItem(k, v); } catch(_e) { try { ['erp_items_v1','erp_global_units_v1','erp_auto_backups'].forEach(rk => localStorage.removeItem(rk)); localStorage.setItem(k, v); } catch(_e2) {} } };
+        _s('pur_light_tone_palette', t.id);
+        _s('magaies_light_tone', t.id);
+        ['magaies_active_theme', 'magaiees_global_theme', 'magaiees_mobile_theme', 'ui_theme'].forEach(k => _s(k, targetTheme));
+        _s('erp_theme', t.isDark ? 'dark' : 'light');
         ensureSplitStyleLast();
         if (notify) {
             playSalesSystemAudioTone(1040);

@@ -80,6 +80,9 @@
 
     // 3. Global Go Back Navigation Function (Zero-Stutter Seamless Audio Navigation)
     window.magaieesGoBack = function () {
+        if (typeof window.handleGrnOneStepBack === 'function' && window.handleGrnOneStepBack()) {
+            return false;
+        }
         if (typeof window.saveGlobalMediaPlaybackPosition === 'function') {
             try { window.saveGlobalMediaPlaybackPosition(); } catch(err) {}
         }
@@ -93,6 +96,10 @@
 
         // Resolve smart fallback destination
         const getFallbackUrl = function() {
+            try {
+                const fp = new URLSearchParams(window.location.search).get('from');
+                if (fp && !fp.includes('login.php')) return fp;
+            } catch (_e) {}
             if (isAuthPage) {
                 if (document.referrer && document.referrer !== window.location.href) {
                     try {
@@ -112,6 +119,7 @@
                     }
                 } catch(e) {}
             }
+            if (pageFile === 'purchase-receipt.php') return 'purchase.php';
             return isDashboard ? '' : 'magaiees_unified_dashboard.php';
         };
 

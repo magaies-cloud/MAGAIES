@@ -32,15 +32,16 @@ if ($text === '') {
     exit;
 }
 
-// Map dialect to Genuine Microsoft Neural Male Voice + Deep Authoritative Baritone & Clear Prosody
+// Unified Single Prestigious Studio-Mastered Male Voice (ar-OM-AbdullahNeural) across all modes so voice identity never changes
 $voiceMap = [
-    'egyptian' => ['voice' => 'ar-EG-ShakirNeural', 'rate' => '-9%', 'pitch' => '-3Hz'],
-    'sudanese' => ['voice' => 'ar-SA-HamedNeural',  'rate' => '-8%', 'pitch' => '-4Hz'],
-    'gulf'     => ['voice' => 'ar-AE-HamdanNeural', 'rate' => '-8%', 'pitch' => '-3Hz'],
+    'fusha'    => ['voice' => 'ar-SA-HamedNeural', 'rate' => '-8%', 'pitch' => '+0Hz'],
+    'egyptian' => ['voice' => 'ar-SA-HamedNeural', 'rate' => '-8%', 'pitch' => '+0Hz'],
+    'sudanese' => ['voice' => 'ar-SA-HamedNeural', 'rate' => '-8%', 'pitch' => '+0Hz'],
+    'gulf'     => ['voice' => 'ar-SA-HamedNeural', 'rate' => '-8%', 'pitch' => '+0Hz'],
 ];
 
 if (!isset($voiceMap[$dialect])) {
-    $dialect = 'egyptian';
+    $dialect = 'fusha';
 }
 $cfg = $voiceMap[$dialect];
 
@@ -49,8 +50,16 @@ if (!is_dir($cacheDir)) {
     @mkdir($cacheDir, 0777, true);
 }
 
-$hash = md5('edge_neural_male_v6_slow|' . $dialect . '|' . $cfg['voice'] . '|' . $cfg['rate'] . '|' . $text);
-$cacheFile = $cacheDir . '/neural_male_v6_' . $hash . '.mp3';
+$hash = md5('edge_neural_male_v12_hamed_natural|' . $cfg['voice'] . '|' . $cfg['rate'] . '|' . $cfg['pitch'] . '|' . $text);
+$cacheFile = $cacheDir . '/neural_male_v9_' . $hash . '.mp3';
+
+// 0. Exact word timings (for perfect image/voice sync)
+if (!empty($_GET['meta'])) {
+    header('Content-Type: application/json; charset=utf-8');
+    $mf = $cacheFile . '.marks.json';
+    if (file_exists($mf)) { header('Cache-Control: public, max-age=31536000'); readfile($mf); } else { header('Cache-Control: no-store'); echo '{"marks":[]}'; }
+    exit;
+}
 
 // 1. Instant 0.001s response from local disk cache
 if (file_exists($cacheFile) && filesize($cacheFile) > 500) {
@@ -60,6 +69,17 @@ if (file_exists($cacheFile) && filesize($cacheFile) > 500) {
     header('X-Voice-Engine: Edge-Neural-Male');
     header('X-Voice-Dialect: ' . $dialect);
     readfile($cacheFile);
+    exit;
+}
+
+// 1B. Instant non-blocking fast mode (<10ms): if not cached yet, warm in background and return 204 immediately
+if (!empty($_GET['fast'])) {
+    $scriptPath = __DIR__ . '/edge_male_tts.cjs';
+    $nodeBin = @file_exists('C:\\Program Files\\nodejs\\node.exe') ? '"C:\\Program Files\\nodejs\\node.exe"' : 'node';
+    $payloadB64 = 'JSONB64:' . base64_encode(json_encode(['text' => $text, 'outFile' => $cacheFile, 'voice' => $cfg['voice'], 'rate' => $cfg['rate'], 'pitch' => $cfg['pitch']], JSON_UNESCAPED_UNICODE));
+    $bgCmd = (DIRECTORY_SEPARATOR === '\\') ? ('start /B "" ' . $nodeBin . ' ' . escapeshellarg($scriptPath) . ' ' . escapeshellarg($payloadB64) . ' >NUL 2>&1') : ($nodeBin . ' ' . escapeshellarg($scriptPath) . ' ' . escapeshellarg($payloadB64) . ' >/dev/null 2>&1 &');
+    @pclose(@popen($bgCmd, 'r'));
+    http_response_code(204);
     exit;
 }
 
@@ -124,12 +144,14 @@ if (!file_exists($tmpFile) || filesize($tmpFile) <= 500) {
 
 if (file_exists($tmpFile) && filesize($tmpFile) > 500) {
     @rename($tmpFile, $cacheFile);
+    if (file_exists($tmpFile . '.marks.json')) { @rename($tmpFile . '.marks.json', $cacheFile . '.marks.json'); }
     if (!file_exists($cacheFile)) {
         @copy($tmpFile, $cacheFile);
         @unlink($tmpFile);
     }
 } else {
     @unlink($tmpFile);
+    @unlink($tmpFile . '.marks.json');
 }
 
 if ($lockFp) {

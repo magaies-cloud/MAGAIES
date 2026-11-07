@@ -9288,11 +9288,19 @@ window.executeSmartClipboardImport = function () {
                     <button type="button" id="md-def-pause-btn" onclick="window.togglePauseMdDefPanelVoice()" style="flex:0.9;padding:6px 8px;border-radius:8px;background:${isLight ? 'rgba(245,158,11,0.28)' : 'rgba(245,158,11,0.2)'};color:${isLight ? '#78350f' : '#fde047'};border:1.5px solid rgba(245,158,11,0.65);font-size:0.77rem;font-weight:900;cursor:pointer;">⏸️ مؤقت</button>
                     <button type="button" onclick="window.stopMdDefPanelVoice()" style="flex:0.9;padding:6px 8px;border-radius:8px;background:rgba(239,68,68,0.2);color:${isLight ? '#991b1b' : '#fca5a5'};border:1.5px solid rgba(239,68,68,0.55);font-size:0.77rem;font-weight:900;cursor:pointer;">⏹️ إيقاف</button>
                 </div>
-                <div style="display:flex;gap:5px;margin-bottom:10px;">
-                    <button type="button" class="md-voice-spd-btn" data-spd="0.75" onclick="window.setMdDefPanelVoiceSpeed(0.75)" style="${spdBtnStyle(0.75)}">🐢 بطيء</button>
-                    <button type="button" class="md-voice-spd-btn" data-spd="1.0" onclick="window.setMdDefPanelVoiceSpeed(1.0)" style="${spdBtnStyle(1.0)}">⚖️ عادي</button>
-                    <button type="button" class="md-voice-spd-btn" data-spd="1.28" onclick="window.setMdDefPanelVoiceSpeed(1.28)" style="${spdBtnStyle(1.28)}">⚡ سريع</button>
-                    <button type="button" class="md-voice-spd-btn" data-spd="1.5" onclick="window.setMdDefPanelVoiceSpeed(1.5)" style="${spdBtnStyle(1.5)}">🚀 سريع جداً</button>
+                <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;padding:4px 8px;border-radius:8px;background:${isLight ? 'var(--lt-sub-1,#fff)' : 'rgba(15,23,42,0.82)'};border:1.5px solid ${isLight ? 'var(--lt-border,#4a2106)' : 'rgba(56,189,248,0.35)'};">
+                    <span style="font-size:0.74rem;font-weight:900;color:${isLight ? 'var(--lt-ink,#140600)' : '#38bdf8'};white-space:nowrap;">🔊 الصوت:</span>
+                    <button type="button" onclick="if(window.adjustMsgVoiceVolume)window.adjustMsgVoiceVolume(-0.2)" style="padding:2px 8px;border-radius:6px;background:rgba(239,68,68,0.2);color:${isLight ? '#991b1b' : '#fca5a5'};border:1px solid rgba(239,68,68,0.5);font-weight:900;cursor:pointer;">-</button>
+                    <input id="md-def-vol-slider" type="range" min="10" max="300" step="10" value="${Math.round((window.__msgUserVoiceVolume || 1.65) * 100)}" oninput="if(window.adjustMsgVoiceVolume)window.adjustMsgVoiceVolume(0, this.value/100)" style="flex:1;accent-color:#10b981;cursor:pointer;height:5px;direction:rtl !important;">
+                    <button type="button" onclick="if(window.adjustMsgVoiceVolume)window.adjustMsgVoiceVolume(0.2)" style="padding:2px 8px;border-radius:6px;background:rgba(16,185,129,0.22);color:${isLight ? '#065f46' : '#6ee7b7'};border:1px solid rgba(16,185,129,0.55);font-weight:900;cursor:pointer;">+</button>
+                    <span id="md-def-vol-lbl" style="font-size:0.75rem;font-weight:900;min-width:42px;text-align:center;color:${isLight ? 'var(--lt-ink,#140600)' : '#34d399'};">${Math.round((window.__msgUserVoiceVolume || 1.65) * 100)}%</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px;padding:4px 8px;border-radius:8px;background:${isLight ? 'var(--lt-sub-1,#fff)' : 'rgba(15,23,42,0.82)'};border:1.5px solid ${isLight ? 'var(--lt-border,#4a2106)' : 'rgba(56,189,248,0.35)'};">
+                    <span style="font-size:0.74rem;font-weight:900;color:${isLight ? 'var(--lt-ink,#140600)' : '#fde047'};white-space:nowrap;">⚡ السرعة:</span>
+                    <button type="button" onclick="if(window.adjustSpeechSpeedPctBy)window.adjustSpeechSpeedPctBy(-10,false)" style="padding:2px 8px;border-radius:6px;background:rgba(239,68,68,0.2);color:${isLight ? '#991b1b' : '#fca5a5'};border:1px solid rgba(239,68,68,0.5);font-weight:900;cursor:pointer;">-</button>
+                    <input type="range" min="-50" max="300" step="10" value="${Math.round(window.__msgSpeechSpeedPct || 0)}" oninput="if(window.setSpeechSpeedPctExact)window.setSpeechSpeedPctExact(this.value,false)" style="flex:1;accent-color:#fde047;cursor:pointer;height:5px;direction:rtl !important;">
+                    <button type="button" onclick="if(window.adjustSpeechSpeedPctBy)window.adjustSpeechSpeedPctBy(20,false)" style="padding:2px 8px;border-radius:6px;background:rgba(16,185,129,0.22);color:${isLight ? '#065f46' : '#6ee7b7'};border:1px solid rgba(16,185,129,0.55);font-weight:900;cursor:pointer;">+</button>
+                    <span id="md-def-spd-lbl" style="font-size:0.75rem;font-weight:900;min-width:48px;text-align:center;color:${isLight ? 'var(--lt-ink,#140600)' : '#fde047'};">${(window.__msgSpeechSpeedPct||0)>0?'+'+(window.__msgSpeechSpeedPct||0):(window.__msgSpeechSpeedPct||0)}%</span>
                 </div>
                 <div style="${descBoxStyle}">${info.desc}</div>
             `;
@@ -9316,7 +9324,7 @@ window.executeSmartClipboardImport = function () {
         document.addEventListener('contextmenu', function(e) {
             if (menuBox && menuBox.contains(e.target)) return;
             const now = Date.now();
-            const isDoubleRight = (now - lastRightClickTs <= 650);
+            const isDoubleRight = (now - lastRightClickTs <= 550);
             const tblTh = e.target && e.target.closest ? e.target.closest('table.pro-table th, .table-responsive table th') : null;
             const inActionBtn = e.target && e.target.closest ? e.target.closest('button, a, input, select, textarea') : null;
             if (tblTh && !inActionBtn && !isDoubleRight && typeof window.openMdTableColContextMenu === 'function') {
@@ -9329,16 +9337,17 @@ window.executeSmartClipboardImport = function () {
             const target = e.target && e.target.closest ? e.target.closest(EXPLAINABLE_SEL) : null;
             if (!target) return;
             e.preventDefault();
-            lastRightClickTs = now;
-            openMdExplanationPanelAt(e.target, e.clientX, e.clientY);
-        });
-
-        document.addEventListener('dblclick', function(e) {
-            if (menuBox && menuBox.contains(e.target)) return;
-            if (e.target && e.target.closest && e.target.closest('[ondblclick*="startInlineMasterEdit"]')) return;
-            const fldTarget = e.target && e.target.closest ? e.target.closest(EXPLAINABLE_SEL) : null;
-            if (!fldTarget) return;
-            openMdExplanationPanelAt(e.target, e.clientX, e.clientY);
+            if (!isDoubleRight) {
+                lastRightClickTs = now;
+                lastRightClickEl = target;
+                return;
+            }
+            lastRightClickTs = 0;
+            if (typeof window.showUnifiedDoubleRightClickCard === 'function') {
+                window.showUnifiedDoubleRightClickCard(e, target);
+            } else {
+                openMdExplanationPanelAt(e.target, e.clientX, e.clientY);
+            }
         });
 
         document.addEventListener('mousedown', function(e) {

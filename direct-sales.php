@@ -4097,11 +4097,11 @@ try {
     <div id="sales-row0-bar">
         <!-- RIGHT IN RTL: Title Badge, Invoice No & Date -->
         <div id="invoice-info-box">
-            <div id="sales-screen-title-badge" class="m7-solid-badge-guard" style="display: inline-flex; align-items: center; justify-content: center; gap: 5px; height: 34px; padding: 0 12px; border-radius: 8px; background: linear-gradient(135deg, #0284c7, #0369a1); border: 1.5px solid #38bdf8; color: #ffffff !important; -webkit-text-fill-color: #ffffff !important; font-size: 0.92rem; font-weight: 900; white-space: nowrap; flex-shrink: 0; box-shadow: 0 2px 8px rgba(2, 132, 199, 0.35);"><span>🛒</span><span>فاتورة مبيعات</span></div>
+            <div id="sales-screen-title-badge" class="m7-solid-badge-guard" style="display: inline-flex; align-items: center; justify-content: center; gap: 4px; height: 31px; padding: 0 10px; border-radius: 8px; background: linear-gradient(180deg, #0284c7 0%, #0369a1 52%, #075985 100%); border: 2px solid #38bdf8; border-bottom: 3px solid #082f49; color: #ffffff !important; -webkit-text-fill-color: #ffffff !important; font-size: 0.84rem; font-weight: 900; white-space: nowrap; flex-shrink: 0; box-shadow: 0 4px 12px rgba(2, 132, 199, 0.42), inset 0 1.5px 0 rgba(255, 255, 255, 0.55);"><span>🛒</span><span>مبيعات</span></div>
             <div style="width: 1px; height: 24px; background: rgba(255,255,255,0.12); margin: 0 2px; flex-shrink: 0;"></div>
 
             <div class="h-form-group group-invoice">
-                <label id="hdr-inv-label" class="h-label">رقم الفاتورة:</label>
+                <label id="hdr-inv-label" class="h-label">الرقم:</label>
                 <div class="pro-serial-container">
                     <button class="pro-serial-btn" type="button" onclick="loadPreviousInvoice()" title="السابقة" style="background: rgba(56,189,248,0.1); border: none; border-radius: 6px; color: #38bdf8; font-size: 0.95rem; cursor: pointer; width: 24px; height: 24px; display:flex; align-items:center; justify-content:center; opacity:0.85; transition:0.2s;" onmouseover="this.style.opacity=1; this.style.background='rgba(56,189,248,0.22)'" onmouseout="this.style.opacity=0.85; this.style.background='rgba(56,189,248,0.1)'">❮</button>
                     <span id="inv-number" data-auto-fit-voucher="1" class="pro-serial-number">---</span>
@@ -4124,31 +4124,31 @@ try {
         <div id="customer-financial-card" class="fin-strip-inline" style="flex: 1 1 0%; min-width: 0; width: auto; opacity: 1; overflow: hidden; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); display: flex; align-items: center;">
             <div id="fin-strip" style="display:none;"></div>
             <div class="fin-strip-inner">
-                <button type="button" id="fin-strip-currency-btn" onclick="window.toggleFinStripCurrency && window.toggleFinStripCurrency()" title="اضغط للتبديل بين الجنيه السوداني والدولار" style="background: linear-gradient(135deg, rgba(56,189,248,0.24), rgba(37,99,235,0.36)); border: 1.5px solid rgba(56,189,248,0.75); color: #38bdf8; border-radius: 7px; padding: 0 10px; height: 28px; min-width: 84px; font-family: 'Cairo', sans-serif; font-size: 0.78rem; font-weight: 900; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; text-align: center; line-height: 1; white-space: nowrap; flex-shrink: 0; box-shadow: 0 0 10px rgba(56,189,248,0.28); transition: all 0.2s ease;">جنيه سوداني</button>
-                <div class="fin-sep" style="width:1px; height:18px; background:rgba(255,255,255,0.16); flex-shrink:0;"></div>
-                <div id="fin-wrap-ledger" class="fin-metric-pill">
-                    <span class="fin-lbl" style="font-size:0.72rem; color:#94a3b8; font-weight:800;">الرصيد:</span>
-                    <span id="fin-ledger" class="fin-val" style="font-weight:900; color:#fff; font-size:0.82rem; font-family:'Outfit',sans-serif;">0</span>
+                <button type="button" id="fin-strip-currency-btn" onclick="window.toggleFinStripCurrency && window.toggleFinStripCurrency()" title="اضغط للتبديل بين الجنيه السوداني والدولار" style="background: linear-gradient(180deg, #0284c7 0%, #1d4ed8 100%); border: 1.5px solid #7dd3fc; color: #ffffff; border-radius: 7px; padding: 0 10px; height: 28px; min-width: 78px; font-family: 'Cairo', sans-serif; font-size: 0.85rem; font-weight: 900; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; text-align: center; line-height: 1; white-space: nowrap; flex-shrink: 0; box-shadow: 0 2px 8px rgba(2,132,199,0.45); text-shadow: 0 1.5px 3px rgba(0,0,0,0.95); transition: all 0.2s ease;">جنيه ⇄</button>
+                <div class="fin-sep" style="width:1px; height:18px; background:rgba(255,255,255,0.22); flex-shrink:0;"></div>
+                <div id="fin-wrap-ledger" class="fin-metric-pill" style="background: rgba(15,23,42,0.78); padding: 2px 8px; border-radius: 6px; border: 1.5px solid rgba(148,163,184,0.65);">
+                    <span class="fin-lbl" style="font-size:0.76rem; color:#ffffff; font-weight:900;">الرصيد:</span>
+                    <span id="fin-ledger" class="fin-val" style="font-weight:900; color:#ffffff; font-size:0.86rem; font-family:'Outfit',sans-serif;">0</span>
                 </div>
-                <div class="fin-sep" style="width:1px; height:18px; background:rgba(255,255,255,0.12); flex-shrink:0;"></div>
-                <div id="fin-wrap-debt" class="fin-metric-pill">
-                    <span class="fin-lbl" style="font-size:0.72rem; color:#f87171; font-weight:800;">المديونية:</span>
-                    <span id="fin-total-debt" class="fin-val" style="font-weight:900; color:#ef4444; font-size:0.82rem; font-family:'Outfit',sans-serif;">0</span>
+                <div class="fin-sep" style="width:1px; height:18px; background:rgba(255,255,255,0.18); flex-shrink:0;"></div>
+                <div id="fin-wrap-debt" class="fin-metric-pill" style="background: rgba(127,29,29,0.55); padding: 2px 8px; border-radius: 6px; border: 1.5px solid rgba(251,113,133,0.75);">
+                    <span class="fin-lbl" style="font-size:0.76rem; color:#ffffff; font-weight:900;">المديونية:</span>
+                    <span id="fin-total-debt" class="fin-val" style="font-weight:900; color:#fecdd3; font-size:0.86rem; font-family:'Outfit',sans-serif;">0</span>
                 </div>
-                <div class="fin-sep" style="width:1px; height:18px; background:rgba(255,255,255,0.12); flex-shrink:0;"></div>
-                <div id="fin-wrap-checks" class="fin-metric-pill">
-                    <span class="fin-lbl" style="font-size:0.72rem; color:#fbbf24; font-weight:800;">الشيكات:</span>
-                    <span id="fin-checks" class="fin-val" style="font-weight:900; color:#f59e0b; font-size:0.82rem; font-family:'Outfit',sans-serif;">0</span>
+                <div class="fin-sep" style="width:1px; height:18px; background:rgba(255,255,255,0.18); flex-shrink:0;"></div>
+                <div id="fin-wrap-checks" class="fin-metric-pill" style="background: rgba(120,53,15,0.58); padding: 2px 8px; border-radius: 6px; border: 1.5px solid rgba(251,191,36,0.78);">
+                    <span class="fin-lbl" style="font-size:0.76rem; color:#ffffff; font-weight:900;">الشيكات:</span>
+                    <span id="fin-checks" class="fin-val" style="font-weight:900; color:#fef08a; font-size:0.86rem; font-family:'Outfit',sans-serif;">0</span>
                 </div>
-                <div class="fin-sep" style="width:1px; height:18px; background:rgba(255,255,255,0.12); flex-shrink:0;"></div>
-                <div id="fin-wrap-limit" class="fin-metric-pill">
-                    <span class="fin-lbl" style="font-size:0.72rem; color:#38bdf8; font-weight:800;">الحد:</span>
-                    <span id="fin-credit-limit" class="fin-val" style="font-weight:900; color:#38bdf8; font-size:0.82rem; font-family:'Outfit',sans-serif;">0</span>
+                <div class="fin-sep" style="width:1px; height:18px; background:rgba(255,255,255,0.18); flex-shrink:0;"></div>
+                <div id="fin-wrap-limit" class="fin-metric-pill" style="background: rgba(12,74,110,0.58); padding: 2px 8px; border-radius: 6px; border: 1.5px solid rgba(56,189,248,0.78);">
+                    <span class="fin-lbl" style="font-size:0.76rem; color:#ffffff; font-weight:900;">الحد:</span>
+                    <span id="fin-credit-limit" class="fin-val" style="font-weight:900; color:#bae6fd; font-size:0.86rem; font-family:'Outfit',sans-serif;">0</span>
                 </div>
-                <div class="fin-sep" style="width:1px; height:18px; background:rgba(255,255,255,0.12); flex-shrink:0;"></div>
-                <div id="fin-wrap-remaining" class="fin-metric-pill" style="background: rgba(16,185,129,0.14); padding: 2px 7px; border-radius: 6px; border: 1px solid rgba(16,185,129,0.3);">
-                    <span class="fin-lbl" style="font-size:0.72rem; color:#34d399; font-weight:800;">✨ المتاح:</span>
-                    <span id="fin-remaining" class="fin-val" style="font-weight:900; color:#34d399; font-size:0.84rem; font-family:'Outfit',sans-serif;">0</span>
+                <div class="fin-sep" style="width:1px; height:18px; background:rgba(255,255,255,0.18); flex-shrink:0;"></div>
+                <div id="fin-wrap-remaining" class="fin-metric-pill" style="background: rgba(6,78,59,0.65); padding: 2px 8px; border-radius: 6px; border: 1.5px solid rgba(52,211,153,0.85);">
+                    <span class="fin-lbl" style="font-size:0.76rem; color:#ffffff; font-weight:900;">✨ المتاح:</span>
+                    <span id="fin-remaining" class="fin-val" style="font-weight:900; color:#a7f3d0; font-size:0.86rem; font-family:'Outfit',sans-serif;">0</span>
                 </div>
                 <span id="fin-status-badge" style="display:none;"><span class="status-dot neutral"></span><span id="fin-status-txt"></span></span>
             </div>
@@ -4174,22 +4174,22 @@ try {
                 <button type="button" id="btn-quick-add-customer" class="add-row-btn" onclick="openModal('add-customer-modal')" title="إضافة عميل جديد (F4)" style="flex-shrink: 0; width: 40px; height: 40px; border-radius: 9px; display: inline-flex; align-items: center; justify-content: center; cursor: pointer;">
                     <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
                 </button>
-                <button type="button" id="btn-clone-last-customer-inv" class="add-row-btn" onclick="window.cloneLastCustomerSalesInvoice && window.cloneLastCustomerSalesInvoice()" title="نسخ أصناف آخر فاتورة للعميل بضغطة واحدة" style="flex-shrink: 0; height: 40px; padding: 0 13px; border-radius: 9px; display: inline-flex; align-items: center; justify-content: center; gap: 5px; cursor: pointer; font-size: 0.8rem; font-weight: 900; white-space: nowrap;">
-                    <span>📋</span><span>آخر فاتورة</span>
+                <button type="button" id="btn-clone-last-customer-inv" class="add-row-btn" onclick="window.cloneLastCustomerSalesInvoice && window.cloneLastCustomerSalesInvoice()" title="نسخ أصناف آخر فاتورة للعميل بضغطة واحدة" style="flex-shrink: 0; height: 42px; padding: 0 14px; border-radius: 9px; display: inline-flex; align-items: center; justify-content: center; gap: 4px; cursor: pointer; font-size: 0.88rem; font-weight: 900; white-space: nowrap;">
+                    <span>آخر فاتورة</span>
                 </button>
             </div>
         </div>
 
         <!-- 2. Currency & Exchange Rate -->
-        <div class="h-form-group group-currency" style="flex: 2.55; min-width: 265px; display: flex; align-items: center; gap: 7px; flex-direction: row !important; margin: 0;">
-            <label class="h-label">💱 سعر الصرف</label>
-            <div class="h-input-wrapper" style="display: flex; flex-direction: row; align-items: center; gap: 6px; flex: 1; min-width: 0;">
-                <select class="v-input ctrl-input system-currency-select" id="hdr-currency" onchange="handleCurrencyChange(this.value); if(window.autoFitHeaderFields) window.autoFitHeaderFields();" style="flex: 1.15; min-width: 112px; height: 40px !important; padding: 0 6px !important; font-size: 0.96rem !important; font-weight: 900 !important; text-align: center !important; text-align-last: center !important; line-height: 36px !important;">
-                    <option value="SDG">🇸🇩 جنيه</option>
-                    <option value="USD">🇺🇸 دولار</option>
-                    <option value="SAR">🇸🇦 ريال</option>
-                    <option value="AED">🇦🇪 درهم</option>
-                    <option value="EGP">🇪🇬 مصري</option>
+        <div class="h-form-group group-currency" style="flex: 1.42; min-width: 168px; max-width: 205px; display: flex; align-items: center; gap: 5px; flex-direction: row !important; margin: 0;">
+            <label class="h-label" style="display:none !important;">💱 سعر الصرف</label>
+            <div class="h-input-wrapper" style="display: flex; flex-direction: row; align-items: center; gap: 5px; flex: 1; min-width: 0;">
+                <select class="v-input ctrl-input system-currency-select" id="hdr-currency" onchange="handleCurrencyChange(this.value); if(window.autoFitHeaderFields) window.autoFitHeaderFields();" style="flex: 0.95; min-width: 86px; max-width: 102px; height: 42px !important; padding: 0 6px !important; font-size: 0.96rem !important; font-weight: 900 !important; text-align: center !important; text-align-last: center !important; line-height: 36px !important;">
+                    <option value="SDG">جنيه</option>
+                    <option value="USD">دولار</option>
+                    <option value="SAR">ريال</option>
+                    <option value="AED">درهم</option>
+                    <option value="EGP">مصري</option>
                 </select>
                 <input type="number" class="v-input ctrl-input" id="hdr-exchange-rate" value="<?php echo htmlspecialchars((string)$systemUsdRate); ?>" placeholder="الصرف" readonly style="flex: 1.35; min-width: 110px; height: 40px !important; text-align: center; cursor:pointer; padding: 0 6px;" onclick="if(typeof window.openGlobalExchangeRateModal === 'function') window.openGlobalExchangeRateModal((r)=>{this.value=r; this.dataset.userEdited='1'; if(window.autoFitHeaderFields) window.autoFitHeaderFields(); if(typeof recalcAll === 'function') recalcAll(); else if(typeof recalcTotals==='function') recalcTotals(); else if(typeof calcTotals==='function') calcTotals(); else if(typeof window.updateCurrency==='function') window.updateCurrency();});">
             </div>
@@ -4241,28 +4241,24 @@ try {
 
             <!-- ══ FULL-WIDTH: جدول الأصناف ══ -->
             <div class="panel" id="items-panel" style="z-index: 50;">
-                <div class="panel-header-row" style="display: flex; align-items: center; justify-content: space-between; gap: 12px;">
-                    <div style="display: flex; align-items: center; gap: 10px; flex: 1;">
-                        <div class="panel-title" style="white-space: nowrap;">📦 أصناف الفاتورة</div>
-                        <div class="quick-add-box" style="flex: 1; max-width: 380px; position: relative; z-index: 99999; display: flex; gap: 6px; align-items: center;">
-                            <input type="text" class="g-input" id="quick-item-search" placeholder="بحث صنف أو باركود..."
-                                style="background: rgba(56,189,248,0.08); border: 1px solid rgba(56,189,248,0.35); border-radius: 8px; color: var(--text-primary); padding: 5px 10px; flex: 1;"
-                                onfocus="this.select(); showQuickItemDropdown()"
-                                onblur="hideQuickItemDropdownDelayed()"
-                                onkeydown="handleQuickItemSearchKeydown(event)"
-                                oninput="filterQuickItemDropdown()" autocomplete="new-password">
-                            <button type="button" onclick="startCameraScanner('quick-item-search')" style="background: rgba(56,189,248,0.15); border: 1px solid rgba(56,189,248,0.35); border-radius: 8px; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #38bdf8; font-size: 1.1rem;" title="مسح باركود بالكاميرا">
-                                📷
-                            </button>
-                            <button type="button" onclick="addRow()" style="background: rgba(16,185,129,0.15); border: 1px solid rgba(16,185,129,0.35); border-radius: 8px; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #10b981; font-size: 1.4rem; font-weight: bold;" title="إضافة سطر">
-                                +
-                            </button>
-                            <div class="custom-dropdown-list" id="quick-item-dropdown-list" style="text-align:right; top: 100%; left: 0; right: 0; position: absolute;"></div>
+                <div class="panel-header-row" style="display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 10px; background: linear-gradient(135deg, rgba(15, 23, 42, 0.85), rgba(30, 27, 50, 0.75)); border: 1px solid rgba(56, 189, 248, 0.18); border-radius: 12px; padding: 8px 14px; box-shadow: 0 4px 16px rgba(0,0,0,0.2);">
+                    <div style="display: flex; align-items: center; gap: 12px; flex: 1;">
+                        <div class="panel-title" style="white-space: nowrap; font-weight: 900; color: #38bdf8; font-size: 1.05rem; display: flex; align-items: center; gap: 6px; text-shadow: 0 0 10px rgba(56,189,248,0.25);">
+                            <span>📦</span>
+                            <span>أصناف الفاتورة</span>
+                        </div>
+                        <div class="quick-add-box" style="display: none !important;">
+                            <input type="text" class="g-input" id="quick-item-search" placeholder="بحث صنف أو باركود...">
+                            <div class="custom-dropdown-list" id="quick-item-dropdown-list"></div>
                         </div>
                     </div>
-                    <div>
-                        <button type="button" onclick="openGridSettingsModal()" style="background: linear-gradient(135deg, rgba(56,189,248,0.2), rgba(14,165,233,0.3)); border: 1.5px solid #38bdf8; color: #38bdf8; border-radius: 8px; padding: 6px 14px; display: flex; align-items: center; gap: 6px; cursor: pointer; font-weight: bold; font-size: 0.95rem; transition: all 0.2s; box-shadow: 0 2px 10px rgba(56,189,248,0.25);" title="تخصيص وترتيب الأعمدة والخطوط والألوان وحفظها نهائياً في قاعدة البيانات">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+                    <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+                        <button type="button" id="btn-sales-ai-prices" onclick="if(window.openSalesAIAuditModal) window.openSalesAIAuditModal();" style="background: linear-gradient(135deg, rgba(168,85,247,0.22), rgba(99,102,241,0.35)); border: 1px solid rgba(168,85,247,0.6); color: #e9d5ff; border-radius: 9px; height: 36px; padding: 0 12px; display: inline-flex; align-items: center; gap: 6px; cursor: pointer; font-weight: 800; font-size: 0.85rem; white-space: nowrap; transition: all 0.2s; box-shadow: 0 2px 10px rgba(168,85,247,0.2);" title="الأسعار وهامش البيع">
+                            <span>💰</span>
+                            <span>الأسعار</span>
+                        </button>
+                        <button type="button" onclick="openGridSettingsModal()" style="background: linear-gradient(135deg, rgba(56,189,248,0.18), rgba(37,99,235,0.28)); border: 1px solid rgba(56,189,248,0.55); color: #38bdf8; border-radius: 9px; height: 36px; padding: 0 14px; display: inline-flex; align-items: center; gap: 7px; cursor: pointer; font-weight: 800; font-size: 0.9rem; white-space: nowrap; transition: all 0.2s; box-shadow: 0 2px 10px rgba(56,189,248,0.2);" title="تخصيص الجدول">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
                             <span>تخصيص الجدول</span>
                         </button>
                     </div>
@@ -4363,6 +4359,17 @@ try {
                         <tr id="row-grand-total" data-compact-normalized="1" style="background: transparent !important; border-top: none !important;">
                             <td colspan="12" style="border: none !important; padding: 10px 0 4px 0 !important; text-align: left !important; vertical-align: middle !important;">
                                 <div class="pur-compact-tot-card">
+                                    <div id="toggles-area" style="display: inline-flex; flex-wrap: nowrap; gap: 8px; align-items: center; max-width: none; margin-left: 10px;">
+                                        <button type="button" class="tot-toggle-btn" onclick="toggleTotRow('transport')" id="btn-toggle-transport">🚚 ترحيل</button>
+                                        <button type="button" class="tot-toggle-btn" onclick="toggleTotRow('labor')" id="btn-toggle-labor">👷‍♂️ عمالة</button>
+                                        <button type="button" class="tot-toggle-btn" onclick="toggleTotRow('additions')" id="btn-toggle-additions">➕ إضافات</button>
+                                        <button type="button" class="tot-toggle-btn" onclick="toggleTotRow('tax')" id="btn-toggle-tax">💰 ضريبة</button>
+                                        <button type="button" class="tot-toggle-btn" onclick="toggleTotRow('discount')" id="btn-toggle-discount">➖ خصم</button>
+                                        <input type="hidden" id="hdr-landed-cost-mode" value="value">
+                                        <button type="button" id="btn-landed-cost-mode" onclick="this.dataset.mode=(this.dataset.mode==='qty'?'value':'qty'); document.getElementById('lbl-landed-cost-mode').textContent=(this.dataset.mode==='qty'?'بالكمية 📦':'بالقيمة 💰');" style="height: 40px; padding: 0 14px; border-radius: 9px; background: linear-gradient(180deg, #0284c7 0%, #075985 100%); border: 2px solid #7dd3fc; border-bottom: 3.5px solid #082f49; color: #ffffff; font-family: 'Cairo', sans-serif; font-size: 0.92rem; font-weight: 900; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; transition: all 0.2s ease;">
+                                            <span>⚖️ التوزيع:</span><span id="lbl-landed-cost-mode" style="color:#fde68a;">بالقيمة 💰</span>
+                                        </button>
+                                    </div>
                                     <span id="lbl-grand-dynamic">الإجمالي الكلي:</span>
                                     <div style="display: inline-flex; direction: rtl; flex-wrap: nowrap; gap: 14px; align-items: center; justify-content: flex-end;">
                                         <span class="val amount" id="t-grand-dynamic-fc" data-cur-unit="$">0.00</span>
@@ -4450,18 +4457,7 @@ try {
                     display: inline-block;
                 }
             </style>
-            <div id="inline-totals-container" style="margin-top: 15px; display: flex; justify-content: space-between; align-items: flex-start; background: rgba(15, 23, 42, 0.4); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 12px; padding: 15px;">
-                
-                <!-- Left Side (Visual Right in RTL): Toggles -->
-                <div id="toggles-area" style="display: flex; flex-wrap: wrap; gap: 8px; align-items: center; max-width: 50%;">
-                    <span style="color: #94a3b8; font-size: 0.85rem; margin-left: 10px;">إضافة مصاريف:</span>
-                    <button type="button" class="tot-toggle-btn" onclick="toggleTotRow('transport')" id="btn-toggle-transport">🚚 ترحيل</button>
-                    <button type="button" class="tot-toggle-btn" onclick="toggleTotRow('labor')" id="btn-toggle-labor">👷‍♂️ عمالة</button>
-                    <button type="button" class="tot-toggle-btn" onclick="toggleTotRow('additions')" id="btn-toggle-additions">➕ إضافات</button>
-                    <button type="button" class="tot-toggle-btn" onclick="toggleTotRow('tax')" id="btn-toggle-tax">💰 ضريبة</button>
-                    <button type="button" class="tot-toggle-btn" onclick="toggleTotRow('discount')" id="btn-toggle-discount">➖ خصم</button>
-                </div>
-
+            <div id="inline-totals-container" style="display: none !important;">
                 <!-- Right Side is now handled inside tfoot -->
                 <div id="amounts-area" style="display: none;"></div>
 
@@ -4850,7 +4846,7 @@ try {
                     <div class="payment-details-card" style="flex: 1; min-width: 100%; display: flex; flex-direction: column; gap: 10px;">
                         
                         <!-- Credit payment box (Visible by default in yellow) -->
-                        <div id="pay-credit-section" class="payment-method-box" style="background: radial-gradient(circle at top left, rgba(217, 119, 6, 0.35), rgba(180, 83, 9, 0.15)); border: 3px solid rgba(217, 119, 6, 0.9); box-shadow: 0 0 25px rgba(217, 119, 6, 0.4), inset 0 0 15px rgba(180, 83, 9, 0.3); border-radius: 12px; padding: 12px 15px; display: flex; align-items: center; justify-content: space-between; gap: 15px; flex-wrap: wrap;">
+                        <div id="pay-credit-section" class="payment-method-box" style="background: rgba(15, 23, 42, 0.96); border: 2px solid rgba(217, 119, 6, 0.85); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25); border-radius: 12px; padding: 12px 15px; display: flex; align-items: center; justify-content: space-between; gap: 15px; flex-wrap: wrap;">
                             <div style="display: flex; align-items: center; gap: 8px; min-width: 200px; width: 200px; flex: none;">
                                 <span style="font-size: 1.2rem;">💳</span>
                                 <span style="font-weight: 800; color: #fcd34d; font-size: 0.95rem;">آجل على الحساب</span>
@@ -4868,7 +4864,7 @@ try {
                         </div>
 
                         <!-- Cash payment box (Toggled off by default until chosen by user) -->
-                        <div id="pay-cash-section" style="background: radial-gradient(circle at top left, rgba(16, 185, 129, 0.35), rgba(16, 185, 129, 0.15)); border: 3px solid rgba(16, 185, 129, 0.9); box-shadow: 0 0 25px rgba(16, 185, 129, 0.4), inset 0 0 15px rgba(16, 185, 129, 0.3); border-radius: 12px; padding: 12px 15px; margin-bottom: 10px; display: none; flex-direction: column; width: 100%;">
+                        <div id="pay-cash-section" style="background: rgba(15, 23, 42, 0.96); border: 2px solid rgba(16, 185, 129, 0.85); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25); border-radius: 12px; padding: 12px 15px; margin-bottom: 10px; display: none; flex-direction: column; width: 100%;">
                             <div class="payment-row-item" style="display: grid; grid-template-columns: 85px 1.5fr 1.2fr 1.2fr 2fr 30px; gap: 8px; align-items: center; width: 100%; margin-bottom: 0px;">
                                 <div style="display: flex; align-items: center; justify-content: flex-start; color: #6ee7b7; font-weight: 900; font-size: 0.95rem; gap: 6px; text-shadow: 0 0 8px rgba(16, 185, 129, 0.4);"><span>💵</span> كاش</div>
                                 <input type="number" class="v-input ctrl-input dynamic-focus-input dynamic-focus-amount" id="pay-cash-amount" value="0" step="1" oninput="onPaymentAmountInput()" placeholder="المبلغ" style="background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(16, 185, 129, 0.5); border-radius: 8px; text-align: center; font-size: 2.25rem; font-weight: 800; color: #ffffff; height: 60px; outline: none; padding: 0 8px; font-family: 'Tajawal', sans-serif; width: 100%; box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);">
@@ -4881,12 +4877,12 @@ try {
                         </div>
 
                         <!-- Bank Transfers box -->
-                        <div id="pay-bank-section" style="display: none; flex-direction: column; background: radial-gradient(circle at top left, rgba(6, 182, 212, 0.35), rgba(6, 182, 212, 0.15)); border: 3px solid rgba(6, 182, 212, 0.9); box-shadow: 0 0 25px rgba(6, 182, 212, 0.4), inset 0 0 15px rgba(6, 182, 212, 0.3); border-radius: 12px; padding: 12px 15px; margin-bottom: 10px; width: 100%;">
+                        <div id="pay-bank-section" style="display: none; flex-direction: column; background: rgba(15, 23, 42, 0.96); border: 2px solid rgba(6, 182, 212, 0.85); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25); border-radius: 12px; padding: 12px 15px; margin-bottom: 10px; width: 100%;">
                             <div id="bank-transfers-list" style="display: flex; flex-direction: column; gap: 0px; width: 100%;"></div>
                         </div>
 
                         <!-- Cheques box -->
-                        <div id="pay-cheque-section" style="display: none; flex-direction: column; background: radial-gradient(circle at top left, rgba(168, 85, 247, 0.35), rgba(147, 51, 234, 0.15)); border: 3px solid rgba(168, 85, 247, 0.9); box-shadow: 0 0 25px rgba(168, 85, 247, 0.4), inset 0 0 15px rgba(147, 51, 234, 0.3); border-radius: 12px; padding: 12px 15px; margin-bottom: 10px; width: 100%;">
+                        <div id="pay-cheque-section" style="display: none; flex-direction: column; background: rgba(15, 23, 42, 0.96); border: 2px solid rgba(168, 85, 247, 0.85); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25); border-radius: 12px; padding: 12px 15px; margin-bottom: 10px; width: 100%;">
                             <div id="cheques-list" style="display: flex; flex-direction: column; gap: 0px; width: 100%;"></div>
                         </div>
                     </div>
@@ -5085,47 +5081,22 @@ try {
         <div class="items-toolbar">
             <div class="toolbar-actions">
                 <!-- Exit Button -->
-                <button type="button" id="btn-exit-invoice" class="btn-action royal-crystal-btn royal-btn-exit btn-exit" style="flex: 0.75; min-width: 84px;" onclick="if(typeof showSalesHub === 'function' && document.getElementById('sales-hub-view')) { showSalesHub(); } else if(typeof magaieesGoBack === 'function') { magaieesGoBack(); } else { window.location.href='dashboard-pro.php'; }" title="الخروج والرجوع لبوابة المبيعات أو الرئيسية (Esc)">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-                    <span>خروج <kbd class="c3-kbd" style="font-size:0.7rem;padding:1px 4px;border-radius:4px;background:rgba(255,255,255,0.14);">Esc</kbd></span>
+                <button type="button" id="btn-exit-invoice" class="btn-action royal-crystal-btn royal-btn-exit btn-exit" style="flex: 0.78 1 0%; min-width: 0; height: 44px; font-weight: 900; border-radius: 11px;" onclick="if(typeof showSalesHub === 'function' && document.getElementById('sales-hub-view')) { showSalesHub(); } else if(typeof magaieesGoBack === 'function') { magaieesGoBack(); } else { window.location.href='dashboard-pro.php'; }" title="الخروج والرجوع لبوابة المبيعات أو الرئيسية (Esc)">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                    <span class="btn-fit-label">خروج</span>
                 </button>
 
                 <!-- Delete / Cancel Button -->
-                <button type="button" id="btn-delete-invoice" class="btn-action royal-crystal-btn royal-btn-delete btn-delete" style="flex: 0.95; min-width: 112px; background: linear-gradient(135deg, rgba(225, 29, 72, 0.85), rgba(159, 18, 57, 0.92)) !important; border: 1px solid rgba(251, 113, 133, 0.45) !important; box-shadow: 0 4px 15px rgba(225, 29, 72, 0.28) !important;" onclick="confirmDeleteTransaction()" title="حذف أو إلغاء الفاتورة الحالية">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
-                    <span>حذف / إلغاء</span>
+                <button type="button" id="btn-delete-invoice" class="btn-action royal-crystal-btn royal-btn-delete btn-delete" style="flex: 0.85 1 0%; min-width: 0; height: 44px; font-weight: 900; border-radius: 11px; background: linear-gradient(135deg, rgba(225, 29, 72, 0.85), rgba(159, 18, 57, 0.92)) !important; border: 1px solid rgba(251, 113, 133, 0.45) !important; box-shadow: 0 4px 15px rgba(225, 29, 72, 0.28) !important;" onclick="confirmDeleteTransaction()" title="حذف أو إلغاء الفاتورة الحالية">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+                    <span class="del-btn-label btn-fit-label">حذف</span>
                 </button>
 
-                <!-- Draft Button -->
-                <button type="button" id="btn-draft-invoice" class="btn-action royal-crystal-btn royal-btn-edit btn-draft" style="flex: 0.85; min-width: 92px;" onclick="saveDraft()" title="حفظ الفاتورة كمسودة قابلة للتعديل">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
-                    <span>مسودة</span>
-                </button>
-
-                <!-- Park / Suspend Button (Alt+P) -->
-                <button type="button" id="btn-park-invoice-editor" class="btn-action royal-crystal-btn" style="flex: 0.82; min-width: 90px; background: linear-gradient(135deg, rgba(245, 158, 11, 0.25), rgba(180, 83, 9, 0.35)) !important; border: 1px solid rgba(251, 191, 36, 0.5) !important; color: #fde047 !important;" onclick="window.parkActiveSalesInvoiceFc1()" title="تعليق الفاتورة مؤقتاً لخدمة عميل مستعجل (Alt+P)">
-                    <span>⏸️ تعليق</span>
-                </button>
-
-                <!-- Instant Undo Button (Ctrl+Z) -->
-                <button type="button" id="btn-undo-invoice-editor" class="btn-action royal-crystal-btn" style="flex: 0.82; min-width: 90px; background: linear-gradient(135deg, rgba(14, 165, 233, 0.25), rgba(2, 132, 199, 0.35)) !important; border: 1px solid rgba(56, 189, 248, 0.5) !important; color: #7dd3fc !important;" onclick="window.triggerSalesFc1InstantUndo()" title="تراجع فوري عن آخر تعديل (Ctrl+Z)">
-                    <span>↩️ تراجع</span>
-                </button>
-
-                <!-- Quick Idle Lock Button (F12) -->
-                <button type="button" id="btn-lock-invoice-editor" class="btn-action royal-crystal-btn" style="flex: 0.78; min-width: 84px; background: linear-gradient(135deg, rgba(239, 68, 68, 0.22), rgba(153, 27, 27, 0.35)) !important; border: 1px solid rgba(248, 113, 113, 0.5) !important; color: #fca5a5 !important;" onclick="if(typeof window.triggerSplitQuickIdleLock === 'function') window.triggerSplitQuickIdleLock();" title="قفل الخمول السريع برمز PIN لمنع انتحال الشخصية (F12)">
-                    <span>🔒 F12</span>
-                </button>
-
-                <!-- Smart Guide Micro-HUD Button -->
-                <button type="button" id="btn-smart-guide-invoice-editor" class="btn-action royal-crystal-btn" style="flex: 0.95; min-width: 108px; background: linear-gradient(135deg, rgba(168, 85, 247, 0.28), rgba(109, 40, 217, 0.42)) !important; border: 1px solid rgba(192, 132, 252, 0.55) !important; color: #e9d5ff !important;" onclick="window.openSalesEditorSmartVoiceGuideHud()" title="المرشد الذكي بالصوت الرجالي الفخيم وخريطة الأثر SVG والقاعدة الذهبية">
-                    <span>🎙️ المرشد الذكي</span>
-                </button>
-                
                 <!-- Unified Print Studio & Preview Button -->
-                <button type="button" class="btn-action royal-crystal-btn royal-btn-print" style="flex: 1.25; min-width: 140px;" onclick="openStandalonePrintPreview();" title="استوديو الطباعة والمعاينة الحية">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
-                    <span>معاينة وطباعة</span>
+                <button type="button" id="btn-preview-invoice" class="btn-action royal-crystal-btn royal-btn-print btn-preview" style="flex: 1.05 1 0%; min-width: 0; height: 44px; font-weight: 900; border-radius: 11px;" onclick="openStandalonePrintPreview();" title="استوديو الطباعة والمعاينة الحية">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+                    <span class="btn-fit-label">طباعة</span>
+                    <kbd style="font-size:0.62rem; padding:1px 4px; border-radius:4px; background:rgba(0,0,0,0.28); border:1px solid rgba(255,255,255,0.22); font-family:monospace; color:#e2e8f0; flex-shrink:0;">F8</kbd>
                 </button>
 
                 <div class="preset-selector-container" style="flex: 1.05; min-width: 120px; display: flex; gap: 4px;">
@@ -5171,9 +5142,15 @@ try {
                 </div>
 
                 <!-- New Button: Unified Cyan-Sky Crystal Gradient -->
-                <button type="button" class="btn-action royal-crystal-btn royal-btn-new btn-new" id="btn-new-invoice" style="flex: 0.85; min-width: 88px;" onclick="onSuccessNewInvoice(false);" title="بدء فاتورة مبيعات جديدة وتفريغ الحقول (+)">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                    <span>جديد (+)</span>
+                <button type="button" class="btn-action royal-crystal-btn royal-btn-new btn-new" id="btn-new-invoice" style="flex: 0.82 1 0%; min-width: 0; height: 44px; font-weight: 900; border-radius: 11px;" onclick="onSuccessNewInvoice(false);" title="بدء فاتورة مبيعات جديدة وتفريغ الحقول (+)">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    <span class="btn-fit-label">جديد</span>
+                </button>
+
+                <!-- OCR Scanner Button -->
+                <button type="button" class="btn-action royal-crystal-btn btn-ocr" style="flex: 1.05 1 0%; min-width: 0; height: 44px; font-weight: 900; border-radius: 11px;" onclick="if(typeof triggerInvoiceOCR==='function') triggerInvoiceOCR(); else if(typeof window.openSalesFc1AiOcrAndPriceAdvisorModal==='function') window.openSalesFc1AiOcrAndPriceAdvisorModal();">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                    <span class="btn-fit-label">مسح فاتورة</span>
                 </button>
 
                 <!-- زر التحكم في الإرسال التلقائي مع الحفظ -->
@@ -6326,8 +6303,8 @@ try {
                             <div>
                                 <label style="color:#cbd5e1; font-weight:bold; font-size:0.85rem; display:block; margin-bottom:4px;">حجم خط هذا العمود:</label>
                                 <div style="display:flex; gap:8px; align-items:center;">
-                                    <input type="number" id="sel-col-fontsize" min="11" max="36" oninput="onSelectedColPropChange('fontSize', parseInt(this.value)||16)" style="width:60px; background:#0f172a; border:1px solid rgba(255,255,255,0.2); border-radius:8px; color:#fff; padding:6px; text-align:center; font-weight:bold;">
-                                    <input type="range" id="sel-col-fontsize-range" min="11" max="36" oninput="document.getElementById('sel-col-fontsize').value=this.value; onSelectedColPropChange('fontSize', parseInt(this.value));" style="flex:1; cursor:pointer; accent-color:#38bdf8;">
+                                    <input type="number" id="sel-col-fontsize" min="8" max="42" oninput="document.getElementById('sel-col-fontsize-range').value=this.value; onSelectedColPropChange('fontSize', parseInt(this.value)||14)" style="width:64px; background:#0f172a; border:1px solid rgba(255,255,255,0.2); border-radius:8px; color:#fff; padding:6px; text-align:center; font-weight:bold;">
+                                    <input type="range" id="sel-col-fontsize-range" min="8" max="42" oninput="document.getElementById('sel-col-fontsize').value=this.value; onSelectedColPropChange('fontSize', parseInt(this.value)||14);" style="flex:1; cursor:pointer; accent-color:#38bdf8;">
                                     <span style="font-size:0.8rem; color:#38bdf8; font-family:monospace;">px</span>
                                 </div>
                             </div>
@@ -6426,10 +6403,10 @@ try {
 
                             <!-- Global Font Size -->
                             <div>
-                                <label style="color:#cbd5e1; font-weight:bold; font-size:0.82rem; display:block; margin-bottom:3px;">حجم الخط العام الافتراضي:</label>
+                                <label style="color:#cbd5e1; font-weight:bold; font-size:0.82rem; display:block; margin-bottom:3px;">حجم الخط العام الافتراضي (لكل المقاسات):</label>
                                 <div style="display:flex; gap:6px; align-items:center;">
-                                    <input type="number" id="grid-setting-font-size" min="11" max="32" value="16" style="width:55px; background:#0f172a; border:1px solid rgba(255,255,255,0.2); border-radius:8px; color:#fff; padding:5px; text-align:center; font-weight:bold;">
-                                    <input type="range" min="11" max="32" value="16" oninput="document.getElementById('grid-setting-font-size').value=this.value" style="flex:1; cursor:pointer; accent-color:#38bdf8;">
+                                    <input type="number" id="grid-setting-font-size" min="8" max="42" value="16" oninput="const v=parseInt(this.value)||14; const r=document.getElementById('grid-setting-font-size-range'); if(r)r.value=v; if(window.onGlobalGridFontSizeLive)window.onGlobalGridFontSizeLive(v);" style="width:60px; background:#0f172a; border:1px solid rgba(255,255,255,0.2); border-radius:8px; color:#fff; padding:5px; text-align:center; font-weight:bold;">
+                                    <input type="range" id="grid-setting-font-size-range" min="8" max="42" value="16" oninput="const v=parseInt(this.value)||14; document.getElementById('grid-setting-font-size').value=v; if(window.onGlobalGridFontSizeLive)window.onGlobalGridFontSizeLive(v);" style="flex:1; cursor:pointer; accent-color:#38bdf8;">
                                 </div>
                             </div>
 
@@ -7093,7 +7070,37 @@ try {
                 sel.style.setProperty('font-size', px + 'px', 'important');
             });
 
-            // 6. Auto-Fit Text Inside Action & Toggle Buttons (#invoice-editor-view)
+            // 6. Auto-Fit Financial Strip Capsules (الرصيد، المديونية، الشيكات، الحد، المتاح) so all 5 + Currency Button fit 100% with compact labels & unclipped numbers
+            const finStrip = document.querySelector('#customer-financial-card .fin-strip-inner');
+            if (finStrip) {
+                const pills = Array.from(finStrip.querySelectorAll('.fin-metric-pill'));
+                const stripW = finStrip.clientWidth || 580;
+                const curBtn = document.getElementById('fin-strip-currency-btn');
+                const curBtnW = curBtn ? (curBtn.offsetWidth || 72) : 72;
+                const totalAvail = Math.max(260, stripW - curBtnW - 28);
+                const totalChars = pills.reduce((acc, p) => acc + ((p.textContent || '').replace(/\s+/g, '').length || 6), 0);
+                pills.forEach(pill => {
+                    const lbl = pill.querySelector('.fin-lbl');
+                    const val = pill.querySelector('.fin-val');
+                    const lblTxt = lbl ? (lbl.textContent || '').trim() : '';
+                    const valTxt = val ? (val.textContent || '').trim() : '';
+                    const charShare = Math.max(0.14, ((lblTxt.length + valTxt.length) || 6) / Math.max(1, totalChars));
+                    const allocW = Math.max(52, Math.floor(totalAvail * charShare));
+                    let lblPx = valTxt.length > 9 ? 9.5 : 10.5;
+                    let valPx = pill.id === 'fin-wrap-remaining' ? 15.5 : 14.0;
+                    if (valTxt.length > 8) valPx = Math.min(valPx, 12.5);
+                    if (valTxt.length > 11) valPx = Math.min(valPx, 11.0);
+                    const maxTxtW = Math.max(42, (pill.clientWidth || allocW) - 10);
+                    while (valPx > 8.5 && (measureSalesTextWidthPx(lblTxt, `900 ${lblPx}px 'Cairo', sans-serif`) + measureSalesTextWidthPx(valTxt, `900 ${valPx}px 'Outfit', sans-serif`) + 5) > maxTxtW) {
+                        valPx -= 0.5;
+                        if (lblPx > 8.5) lblPx -= 0.25;
+                    }
+                    if (lbl) lbl.style.setProperty('font-size', lblPx + 'px', 'important');
+                    if (val) val.style.setProperty('font-size', valPx + 'px', 'important');
+                });
+            }
+
+            // 7. Auto-Fit Text Inside Action & Toggle Buttons (#invoice-editor-view)
             const editorBtns = document.querySelectorAll('#invoice-editor-view .toolbar-actions .btn-action, #invoice-editor-view .pay-toggle-btn, #invoice-editor-view .tot-toggle-btn');
             editorBtns.forEach(btn => {
                 const btnW = btn.clientWidth;
@@ -7112,6 +7119,23 @@ try {
         } catch (e) {}
     };
 
+    window.onGlobalGridFontSizeLive = function(v) {
+        const px = Math.max(8, Math.min(42, parseInt(v) || 15));
+        if (typeof tempGridConfig !== 'undefined' && tempGridConfig) {
+            tempGridConfig.fontSize = px;
+            if (Array.isArray(tempGridConfig.columns)) {
+                tempGridConfig.columns.forEach(c => { c.fontSize = px; });
+            }
+            const selFs = document.getElementById('sel-col-fontsize');
+            const selFsR = document.getElementById('sel-col-fontsize-range');
+            if (selFs) selFs.value = px;
+            if (selFsR) selFsR.value = px;
+            window.CurrentGridConfig = JSON.parse(JSON.stringify(tempGridConfig));
+            if (typeof applyGridSettings === 'function') applyGridSettings();
+            if (typeof window.autoFitGridCells === 'function') window.autoFitGridCells();
+        }
+    };
+
     window.autoFitGridCells = function(targetRow) {
         try {
             const table = document.getElementById('pos-grid');
@@ -7125,15 +7149,15 @@ try {
                 const basePx = parseFloat(col.fontSize) || baseGlobalFs;
                 const weight = col.fontWeight || cfg.fontWeight || '800';
 
-                // 1. Synchronize Column Header (th) with basePx so enlarging "السعر" or "الكمية" scales both header & cell numbers
+                // 1. Synchronize Column Header (th) with basePx so enlarging/shrinking scales both header & cell numbers
                 if (!targetRow) {
                     const th = table.querySelector(`thead th[data-col-id="${col.id}"]`);
                     if (th && col.id !== 'col_del' && col.id !== 'action') {
                         const thText = (th.textContent || col.name || '').trim();
-                        const thAvailW = Math.max(36, (th.clientWidth || parseInt(col.width) || 100) - 18);
+                        const thAvailW = Math.max(28, (th.clientWidth || parseInt(col.width) || 90) - 12);
                         let thPx = basePx;
-                        if (thText && thAvailW > 25) {
-                            while (thPx > 12 && measureSalesTextWidthPx(thText, `800 ${thPx}px ${fontFam}`) > thAvailW) {
+                        if (thText && thAvailW > 20) {
+                            while (thPx > 8 && measureSalesTextWidthPx(thText, `800 ${thPx}px ${fontFam}`) > thAvailW) {
                                 thPx -= 0.5;
                             }
                         }
@@ -7158,13 +7182,13 @@ try {
                         textVal = (ctrl.textContent || '').trim();
                     }
 
-                    const tdW = td.clientWidth || parseInt(col.width) || 120;
-                    const paddingOffset = (col.id === 'col_item' || col.id === 'item') ? 48 : (ctrl.tagName === 'SELECT' ? 28 : 18);
-                    const availW = Math.max(36, tdW - paddingOffset);
+                    const tdW = td.clientWidth || parseInt(col.width) || 100;
+                    const paddingOffset = (col.id === 'col_item' || col.id === 'item') ? 24 : (ctrl.tagName === 'SELECT' ? 22 : (col.id === 'col_price' ? 28 : 12));
+                    const availW = Math.max(28, tdW - paddingOffset);
 
                     let targetPx = basePx;
-                    if (textVal && availW > 30) {
-                        while (targetPx > 12 && measureSalesTextWidthPx(textVal, `${weight} ${targetPx}px ${fontFam}`) > availW) {
+                    if (textVal && availW > 24) {
+                        while (targetPx > 8 && measureSalesTextWidthPx(textVal, `${weight} ${targetPx}px ${fontFam}`) > availW) {
                             targetPx -= 0.5;
                         }
                     }
@@ -11917,18 +11941,18 @@ try {
            â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ */
 
         /* 6-A: Stepped Lighter Backgrounds in Light Mode (ط¯ط±ط¬ط§طھ ط§ظ„ط®ظ„ظپظٹط§طھ ط§ظ„ظپط§طھط­ط© ط§ظ„ظ…طھط¯ط±ط¬ط© ظ„طھط¨ط§ظٹظ† ظپط§ط¦ظ‚) */
-        /* Degree 1: Main Screen Canvas â€” Bright Warm Porcelain-Cream (#f9f6f0) */
+        /* Degree 1: Main Screen Canvas — Dynamic 9-Tone Light Palette (--lt-canvas-1 / --lt-canvas-2) */
         :root.light-theme body,
         :root.light-theme .dash-main,
         :root.light-theme #invoice-editor-view,
         :root.light-theme #sales-hub-view,
         :root.light-theme #invoice-editor-view,
         :root.light-theme #sales-hub-view {
-            background: #f9f6f0 !important;
-            background-color: #f9f6f0 !important;
+            background: linear-gradient(180deg, var(--lt-canvas-1, #dfd0b4) 0%, var(--lt-canvas-2, #d2be9a) 100%) !important;
+            background-color: var(--lt-canvas-1, #dfd0b4) !important;
         }
 
-        /* Degree 2: Primary Regions & Panels â€” Crisp Warm Alabaster-Ivory (#ffffff -> #fcf8f0) + Sharp 2px Bronze Border */
+        /* Degree 2: Primary Regions & Panels — Dynamic 9-Tone Card Palette (--lt-card-1 / --lt-card-2) */
         :root.light-theme body #sales-top-container #form-fields-card,
         :root.light-theme body #sales-top-container #form-fields-card,
         :root.light-theme #form-fields-card.sales-glass-card,
@@ -11944,46 +11968,42 @@ try {
         :root.light-theme #payment-panel,
         :root.light-theme #invoice-editor-view .items-toolbar,
         :root.light-theme #invoice-editor-view .items-toolbar {
-            background: linear-gradient(145deg, #ffffff 0%, #fcf8f0 100%) !important;
-            border: 2px solid #8a4b19 !important;
+            background: linear-gradient(145deg, var(--lt-card-1, #fffdf8) 0%, var(--lt-card-2, #f7efe0) 100%) !important;
+            border: 2.5px solid var(--lt-border, #5c2808) !important;
             box-shadow: 0 8px 22px rgba(92, 40, 8, 0.09), inset 0 1.5px 0 #ffffff !important;
-            color: #040200 !important;
+            color: var(--lt-ink, #040200) !important;
         }
 
         /* Degree 3: Sub-Containers (Invoice Info Box, Financial Strip, Grand Total Card, Table Header) */
         :root.light-theme #invoice-info-box,
         :root.light-theme #customer-financial-card .fin-strip-inner,
         :root.light-theme #grid-foot .pur-compact-tot-card {
-            background: linear-gradient(135deg, #ffffff 0%, #fdfaf3 100%) !important;
-            border: 2px solid #8a4b19 !important;
+            background: linear-gradient(135deg, var(--lt-sub-1, #fffefb) 0%, var(--lt-sub-2, #f6ecda) 100%) !important;
+            border: 2.5px solid var(--lt-border, #5c2808) !important;
             box-shadow: 0 3px 10px rgba(92, 40, 8, 0.08), inset 0 1px 0 #ffffff !important;
-            color: #040200 !important;
+            color: var(--lt-ink, #040200) !important;
         }
         :root.light-theme #invoice-editor-view #pos-grid thead tr th,
         :root.light-theme #invoice-editor-view #pos-grid thead tr th {
-            background: linear-gradient(180deg, #f8f2e4 0%, #efe3cc 100%) !important;
-            color: #040200 !important;
-            -webkit-text-fill-color: #040200 !important;
-            border-top: 2px solid #8a4b19 !important;
-            border-bottom: 2px solid #8a4b19 !important;
+            background: linear-gradient(180deg, var(--lt-th-1, #f5ead4) 0%, var(--lt-th-2, #e6d4b5) 100%) !important;
+            color: var(--lt-ink, #040200) !important;
+            -webkit-text-fill-color: var(--lt-ink, #040200) !important;
+            border-top: 2px solid var(--lt-border, #5c2808) !important;
+            border-bottom: 2px solid var(--lt-border, #5c2808) !important;
             font-weight: 900 !important;
         }
         :root.light-theme #invoice-editor-view #pos-grid tbody tr,
-        :root.light-theme #invoice-editor-view #pos-grid tbody tr td,
-        :root.light-theme #invoice-editor-view #pos-grid tbody tr,
         :root.light-theme #invoice-editor-view #pos-grid tbody tr td {
-            background: #ffffff !important;
-            border-top: 1.5px solid rgba(138, 75, 25, 0.32) !important;
-            border-bottom: 1.5px solid rgba(138, 75, 25, 0.32) !important;
-            color: #040200 !important;
+            background: var(--lt-row-odd, #fffefb) !important;
+            border-top: 1.5px solid var(--lt-border, #5c2808) !important;
+            border-bottom: 1.5px solid var(--lt-border, #5c2808) !important;
+            color: var(--lt-ink, #000000) !important;
         }
-        :root.light-theme #invoice-editor-view #pos-grid tbody tr:nth-child(even) td,
         :root.light-theme #invoice-editor-view #pos-grid tbody tr:nth-child(even) td {
-            background: #fdfbf6 !important;
+            background: var(--lt-row-even, #f7efe0) !important;
         }
-        :root.light-theme #invoice-editor-view #pos-grid tbody tr:hover td,
         :root.light-theme #invoice-editor-view #pos-grid tbody tr:hover td {
-            background: #f6efe0 !important;
+            background: var(--lt-th-1, #f5ead4) !important;
         }
 
         /* 6-B: Darker, Deeper Typography in Light Mode (ط£ظ„ظˆط§ظ† ط§ظ„ط®ط·ظˆط· ط£ط؛ظ…ظ‚ ظˆط£ظƒط«ط± ظ‚ظˆط© ظˆظˆط¶ظˆط­ط§ظ‹) */
@@ -12023,55 +12043,20 @@ try {
             border: 2px solid #047857 !important;
             font-weight: 900 !important;
         }
-        :root.light-theme #customer-financial-card #fin-wrap-ledger .fin-lbl {
-            color: #0f172a !important;
-            -webkit-text-fill-color: #0f172a !important;
-            font-weight: 900 !important;
-        }
-        :root.light-theme #customer-financial-card #fin-ledger {
-            color: #040200 !important;
-            -webkit-text-fill-color: #040200 !important;
-            font-weight: 900 !important;
-        }
-        :root.light-theme #customer-financial-card #fin-wrap-debt .fin-lbl {
-            color: #7f1d1d !important;
-            -webkit-text-fill-color: #7f1d1d !important;
-            font-weight: 900 !important;
-        }
-        :root.light-theme #customer-financial-card #fin-total-debt {
-            color: #881337 !important;
-            -webkit-text-fill-color: #881337 !important;
-            font-weight: 900 !important;
-        }
-        :root.light-theme #customer-financial-card #fin-wrap-checks .fin-lbl {
-            color: #78350f !important;
-            -webkit-text-fill-color: #78350f !important;
-            font-weight: 900 !important;
-        }
-        :root.light-theme #customer-financial-card #fin-checks {
-            color: #451a03 !important;
-            -webkit-text-fill-color: #451a03 !important;
-            font-weight: 900 !important;
-        }
-        :root.light-theme #customer-financial-card #fin-wrap-limit .fin-lbl {
-            color: #0c4a6e !important;
-            -webkit-text-fill-color: #0c4a6e !important;
-            font-weight: 900 !important;
-        }
-        :root.light-theme #customer-financial-card #fin-credit-limit {
-            color: #082f49 !important;
-            -webkit-text-fill-color: #082f49 !important;
-            font-weight: 900 !important;
-        }
-        :root.light-theme #customer-financial-card #fin-wrap-remaining {
-            background: #d1fae5 !important;
-            border: 1.5px solid #047857 !important;
-        }
+        :root.light-theme #customer-financial-card #fin-wrap-ledger .fin-lbl,
+        :root.light-theme #customer-financial-card #fin-ledger,
+        :root.light-theme #customer-financial-card #fin-wrap-debt .fin-lbl,
+        :root.light-theme #customer-financial-card #fin-total-debt,
+        :root.light-theme #customer-financial-card #fin-wrap-checks .fin-lbl,
+        :root.light-theme #customer-financial-card #fin-checks,
+        :root.light-theme #customer-financial-card #fin-wrap-limit .fin-lbl,
+        :root.light-theme #customer-financial-card #fin-credit-limit,
         :root.light-theme #customer-financial-card #fin-wrap-remaining .fin-lbl,
         :root.light-theme #customer-financial-card #fin-remaining {
-            color: #022c22 !important;
-            -webkit-text-fill-color: #022c22 !important;
+            color: #ffffff !important;
+            -webkit-text-fill-color: #ffffff !important;
             font-weight: 900 !important;
+            text-shadow: 0 1.5px 3px rgba(0,0,0,0.95), 0 0 2px #000000 !important;
         }
         :root.light-theme #grid-foot #t-grand-dynamic-loc {
             background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%) !important;
@@ -12169,6 +12154,198 @@ try {
             border-radius: 7px !important;
             box-shadow: 0 3px 8px rgba(180, 83, 9, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.55) !important;
         }
+        html body #invoice-editor-view #sales-row1-bar .group-currency > .h-label { display: none !important; }
+        html body #sales-screen-title-badge, :root.light-theme body #sales-screen-title-badge { position: relative !important; overflow: hidden !important; isolation: isolate !important; height: 34px !important; padding: 0 12px !important; border-radius: 8px !important; gap: 5px !important; font-size: 1.08rem !important; font-weight: 900 !important; color: #ffffff !important; -webkit-text-fill-color: #ffffff !important; background: linear-gradient(115deg, transparent 26%, rgba(255,255,255,0.42) 48%, rgba(253,224,71,0.35) 52%, transparent 72%), linear-gradient(180deg, #0284c7 0%, #0369a1 52%, #075985 100%) !important; background-size: 250% 100%, 100% 100% !important; animation: purGlassWaveSweep 4.8s ease-in-out infinite !important; border: 2px solid #38bdf8 !important; border-bottom: 3.5px solid #082f49 !important; box-shadow: 0 7px 16px -2px rgba(56,189,248,0.65), 0 11px 24px -4px rgba(250,204,21,0.45), 0 0 14px rgba(56,189,248,0.45), 0 0 0 1.5px rgba(255,255,255,0.38), inset 0 2.5px 1.5px rgba(255,255,255,0.88), inset 0 12px 10px rgba(255,255,255,0.18), inset 0 -2.5px 6px rgba(56,189,248,0.32) !important; transition: transform 0.18s cubic-bezier(0.22,1,0.36,1), box-shadow 0.18s ease, filter 0.18s ease !important; }
+        html body #sales-screen-title-badge:hover, :root.light-theme body #sales-screen-title-badge:hover { transform: translateY(-2px) scale(1.04) !important; filter: brightness(1.1) saturate(1.15) !important; border-color: #fde047 !important; }
+        html body #sales-screen-title-badge span, :root.light-theme body #sales-screen-title-badge span { font-size: 1.08rem !important; font-weight: 900 !important; color: #ffffff !important; -webkit-text-fill-color: #ffffff !important; }
+        html body #sales-screen-title-badge::before, html body #invoice-editor-view #fin-strip-currency-btn::before, html body #invoice-editor-view #btn-quick-add-customer::before, html body #invoice-editor-view #btn-clone-last-customer-inv::before, html body #invoice-editor-view #hdr-customer-ledger-btn::before, html body #invoice-editor-view #btn-sales-ai-prices::before, html body #invoice-editor-view button[onclick="openGridSettingsModal()"]::before { content: "" !important; position: absolute !important; left: 10% !important; right: 10% !important; bottom: 0px !important; height: 3.5px !important; border-radius: 999px !important; pointer-events: none !important; z-index: 2 !important; background: radial-gradient(ellipse at center, #ffffff 0%, #fde047 38%, #38bdf8 72%, transparent 100%) !important; box-shadow: 0 0 10px #fde047, 0 2px 12px #38bdf8 !important; opacity: 0.92 !important; }
+        html body #sales-row1-bar .h-form-group, html body #sales-row2-bar .h-form-group { height: 52px !important; min-height: 52px !important; max-height: 52px !important; padding: 4px 8px !important; align-items: center !important; }
+        html body #sales-row1-bar .h-input-wrapper, html body #sales-row2-bar .h-input-wrapper, html body #sales-row1-bar .custom-dropdown, html body #sales-row1-bar .custom-dropdown-input-wrap { height: 43px !important; min-height: 43px !important; max-height: 43px !important; align-items: center !important; }
+        html body #sales-row1-bar .ctrl-input, html body #sales-row2-bar .ctrl-input, html body #invoice-editor-view #btn-quick-add-customer, html body #invoice-editor-view #btn-clone-last-customer-inv { height: 43px !important; min-height: 43px !important; max-height: 43px !important; border-radius: 9px !important; padding-top: 0 !important; padding-bottom: 0 !important; box-sizing: border-box !important; }
+        html body #invoice-editor-view #form-fields-card #hdr-customer-search { padding-left: 84px !important; line-height: 39px !important; transform: none !important; }
+        html body #invoice-editor-view #hdr-customer-ledger-btn, html body #invoice-editor-view #hdr-customer-ledger-btn.ledger-btn-2027, :root.light-theme body #invoice-editor-view #hdr-customer-ledger-btn.ledger-btn-2027 { position: absolute !important; left: 5px !important; top: 0 !important; bottom: 0 !important; margin: auto 0 !important; transform: none !important; overflow: hidden !important; height: 31px !important; min-height: 31px !important; max-height: 31px !important; padding: 0 13px !important; border-radius: 7px !important; display: inline-flex !important; align-items: center !important; justify-content: center !important; line-height: 1 !important; background: linear-gradient(115deg, transparent 26%, rgba(255,255,255,0.44) 48%, rgba(253,224,71,0.36) 52%, transparent 72%), linear-gradient(180deg, #0284c7 0%, #0369a1 52%, #075985 100%) !important; background-size: 250% 100%, 100% 100% !important; animation: purGlassWaveSweep 4.6s ease-in-out infinite !important; border: 1.5px solid #7dd3fc !important; border-bottom: 2.5px solid #082f49 !important; color: #ffffff !important; -webkit-text-fill-color: #ffffff !important; font-size: 0.88rem !important; font-weight: 900 !important; text-shadow: 0 1.5px 3px rgba(0,0,0,0.95), 0 0 1px #000000 !important; box-shadow: 0 0 14px rgba(56,189,248,0.55), 0 4px 10px rgba(2,132,199,0.45), inset 0 1.5px 1px rgba(255,255,255,0.85) !important; z-index: 4 !important; }
+        html body #invoice-editor-view #hdr-customer-ledger-btn:hover, html body #invoice-editor-view #hdr-customer-ledger-btn.ledger-btn-2027:hover { left: 5px !important; top: 0 !important; bottom: 0 !important; margin: auto 0 !important; transform: scale(1.06) !important; border-color: #fde047 !important; box-shadow: 0 0 0 2.5px rgba(250,204,21,0.75), 0 0 20px rgba(56,189,248,0.9), inset 0 2px 2px #ffffff !important; filter: brightness(1.1) !important; }
+        html body #invoice-editor-view #hdr-customer-ledger-btn *, html body #invoice-editor-view #hdr-customer-ledger-btn svg { color: #ffffff !important; -webkit-text-fill-color: #ffffff !important; stroke: #ffffff !important; }
+        html body #invoice-editor-view #btn-quick-add-customer { position: relative !important; overflow: hidden !important; width: 42px !important; min-width: 42px !important; height: 43px !important; border-radius: 9px !important; background: linear-gradient(115deg, transparent 26%, rgba(255,255,255,0.44) 48%, rgba(253,224,71,0.35) 52%, transparent 72%), linear-gradient(180deg, #10b981 0%, #059669 52%, #047857 100%) !important; background-size: 250% 100%, 100% 100% !important; animation: purGlassWaveSweep 5.0s ease-in-out infinite !important; border: 2px solid #065f46 !important; border-bottom: 3.5px solid #022c22 !important; color: #ffffff !important; -webkit-text-fill-color: #ffffff !important; box-shadow: 0 7px 16px -2px rgba(56,189,248,0.65), 0 11px 24px -4px rgba(250,204,21,0.45), 0 0 14px rgba(56,189,248,0.45), 0 0 0 1.5px rgba(255,255,255,0.38), inset 0 2.5px 1.5px rgba(255,255,255,0.88), inset 0 12px 10px rgba(255,255,255,0.18), inset 0 -2.5px 6px rgba(56,189,248,0.32) !important; }
+        html body #invoice-editor-view #btn-clone-last-customer-inv { position: relative !important; overflow: hidden !important; height: 43px !important; padding: 0 14px !important; border-radius: 9px !important; background: linear-gradient(115deg, transparent 26%, rgba(255,255,255,0.44) 48%, rgba(253,224,71,0.35) 52%, transparent 72%), linear-gradient(180deg, #0284c7 0%, #0369a1 52%, #075985 100%) !important; background-size: 250% 100%, 100% 100% !important; animation: purGlassWaveSweep 5.2s ease-in-out infinite !important; border: 2px solid #0c4a6e !important; border-bottom: 3.5px solid #082f49 !important; color: #ffffff !important; -webkit-text-fill-color: #ffffff !important; font-size: 0.88rem !important; font-weight: 900 !important; box-shadow: 0 7px 16px -2px rgba(56,189,248,0.65), 0 11px 24px -4px rgba(250,204,21,0.45), 0 0 14px rgba(56,189,248,0.45), 0 0 0 1.5px rgba(255,255,255,0.38), inset 0 2.5px 1.5px rgba(255,255,255,0.88), inset 0 12px 10px rgba(255,255,255,0.18), inset 0 -2.5px 6px rgba(56,189,248,0.32) !important; }
+        html body #invoice-editor-view #btn-clone-last-customer-inv * { color: #ffffff !important; -webkit-text-fill-color: #ffffff !important; }
+        html body #invoice-editor-view #btn-quick-add-customer:hover, html body #invoice-editor-view #btn-clone-last-customer-inv:hover { transform: translateY(-2.5px) scale(1.055) !important; border-color: #fde047 !important; box-shadow: 0 10px 22px -2px rgba(250,204,21,0.85), 0 14px 30px -3px rgba(56,189,248,0.78), 0 0 0 2.5px rgba(253,224,71,0.82), 0 0 24px rgba(56,189,248,0.85), inset 0 2.5px 2px #ffffff !important; }
+        html body #invoice-editor-view #form-fields-card #hdr-currency, :root.light-theme body #invoice-editor-view #form-fields-card #hdr-currency { flex: 0.92 1 84px !important; min-width: 84px !important; max-width: 100px !important; height: 43px !important; min-height: 43px !important; max-height: 43px !important; padding: 0 18px 0 6px !important; border-radius: 9px !important; font-size: 0.94rem !important; font-weight: 900 !important; line-height: 39px !important; text-align: center !important; text-align-last: center !important; appearance: none !important; -webkit-appearance: none !important; background-color: #0369a1 !important; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='13' height='13' viewBox='0 0 24 24' fill='none' stroke='%23fde047' stroke-width='3.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E"), linear-gradient(115deg, transparent 28%, rgba(255,255,255,0.42) 48%, rgba(125,211,252,0.45) 51%, transparent 70%), linear-gradient(180deg, #0284c7 0%, #0369a1 52%, #075985 100%) !important; background-repeat: no-repeat, no-repeat, no-repeat !important; background-position: left 7px center, 0 0, 0 0 !important; background-size: 12px 12px, 250% 100%, 100% 100% !important; animation: purGlassWaveSweep 5.4s ease-in-out infinite !important; border: 1.8px solid #7dd3fc !important; border-bottom: 3px solid #082f49 !important; color: #ffffff !important; -webkit-text-fill-color: #ffffff !important; box-shadow: 0 5px 14px rgba(2,132,199,0.45), 0 0 14px rgba(56,189,248,0.45), inset 0 2px 1.5px rgba(255,255,255,0.82) !important; transform: none !important; }
+        html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) body #invoice-editor-view #form-fields-card #hdr-currency { color: #fde047 !important; -webkit-text-fill-color: #fde047 !important; text-shadow: 0 1.5px 3px rgba(0,0,0,0.95) !important; }
+        html body #invoice-editor-view #form-fields-card #hdr-currency:hover, :root.light-theme body #invoice-editor-view #form-fields-card #hdr-currency:hover { transform: translateY(-2px) scale(1.04) !important; border-color: #fde047 !important; box-shadow: 0 0 0 2.5px rgba(250,204,21,0.72), 0 0 22px rgba(56,189,248,0.85), inset 0 2px 2px #ffffff !important; }
+        html body #invoice-editor-view #fin-strip-currency-btn, :root.light-theme body #customer-financial-card #fin-strip-currency-btn { position: relative !important; overflow: hidden !important; height: 31px !important; min-height: 31px !important; max-height: 31px !important; min-width: 72px !important; padding: 0 9px !important; border-radius: 8px !important; font-size: 0.82rem !important; font-weight: 900 !important; transform: none !important; background: linear-gradient(115deg, transparent 25%, rgba(255,255,255,0.46) 48%, rgba(125,211,252,0.48) 52%, transparent 72%), linear-gradient(180deg, #0284c7 0%, #0369a1 52%, #075985 100%) !important; background-size: 250% 100%, 100% 100% !important; animation: purGlassWaveSweep 4.8s ease-in-out infinite !important; border: 1.8px solid #7dd3fc !important; border-bottom: 3px solid #082f49 !important; color: #ffffff !important; -webkit-text-fill-color: #ffffff !important; box-shadow: 0 7px 16px -2px rgba(56,189,248,0.65), 0 11px 24px -4px rgba(250,204,21,0.45), 0 0 14px rgba(56,189,248,0.45), 0 0 0 1.5px rgba(255,255,255,0.38), inset 0 2.5px 1.5px rgba(255,255,255,0.88), inset 0 12px 10px rgba(255,255,255,0.18), inset 0 -2.5px 6px rgba(56,189,248,0.32) !important; }
+        html body #invoice-editor-view #fin-strip-currency-btn[data-cur-mode="USD"], :root.light-theme body #customer-financial-card #fin-strip-currency-btn[data-cur-mode="USD"] { background: linear-gradient(115deg, transparent 25%, rgba(255,255,255,0.45) 48%, rgba(253,224,71,0.48) 52%, transparent 72%), linear-gradient(180deg, #10b981 0%, #059669 52%, #047857 100%) !important; background-size: 250% 100%, 100% 100% !important; border: 1.8px solid #6ee7b7 !important; border-bottom: 3px solid #022c22 !important; box-shadow: 0 4px 12px rgba(5,150,105,0.48), 0 0 14px rgba(16,185,129,0.52), inset 0 2px 1.5px rgba(255,255,255,0.85) !important; }
+        html body #invoice-editor-view #fin-strip-currency-btn:hover, :root.light-theme body #customer-financial-card #fin-strip-currency-btn:hover { transform: translateY(-2px) scale(1.05) !important; border-color: #fde047 !important; }
+        html body #customer-financial-card .fin-strip-inner { height: 44px !important; min-height: 44px !important; max-height: 44px !important; padding: 0 5px !important; gap: 4px !important; border-radius: 11px !important; display: flex !important; flex-wrap: nowrap !important; align-items: center !important; overflow: hidden !important; }
+        html body #customer-financial-card .fin-sep { display: none !important; }
+        html body #customer-financial-card .fin-metric-pill { flex: 1 1 auto !important; min-width: max-content !important; justify-content: center !important; height: 32px !important; padding: 0 6px !important; border-radius: 8px !important; gap: 3px !important; display: inline-flex !important; align-items: center !important; white-space: nowrap !important; overflow: visible !important; background-image: linear-gradient(115deg, transparent 26%, rgba(255,255,255,0.38) 46%, rgba(125,211,252,0.48) 50%, rgba(253,224,71,0.34) 53%, transparent 72%) !important; background-size: 250% 100% !important; background-repeat: no-repeat !important; animation: purGlassWaveSweep 5.4s ease-in-out infinite !important; box-shadow: inset 0 1.5px 1px rgba(255,255,255,0.45), 0 3px 9px rgba(0,0,0,0.28) !important; transition: transform 0.18s cubic-bezier(0.22,1,0.36,1), box-shadow 0.18s ease, filter 0.18s ease !important; }
+        html body #customer-financial-card .fin-metric-pill:hover { transform: translateY(-2px) scale(1.025) !important; filter: brightness(1.1) saturate(1.14) !important; box-shadow: 0 6px 14px rgba(0,0,0,0.34), 0 0 12px rgba(250,204,21,0.50), inset 0 2px 1.5px rgba(255,255,255,0.80) !important; }
+        html body #customer-financial-card .fin-metric-pill .fin-lbl { font-size: 0.66rem !important; font-weight: 900 !important; letter-spacing: -0.2px !important; color: #ffffff !important; -webkit-text-fill-color: #ffffff !important; text-shadow: 0 1.5px 3px rgba(0,0,0,0.98), 0 0 2px #000000 !important; flex-shrink: 0 !important; }
+        html body #customer-financial-card .fin-metric-pill .fin-val { font-size: 0.88rem !important; font-weight: 900 !important; font-family: 'Outfit', 'Tajawal', sans-serif !important; text-shadow: 0 1.5px 3px rgba(0,0,0,0.98), 0 0 2px #000000 !important; overflow: visible !important; text-overflow: clip !important; }
+        html body #customer-financial-card .fin-metric-pill #fin-remaining { font-size: 0.98rem !important; font-weight: 900 !important; line-height: 1.1 !important; }
+        html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) body header.premium-header.magical-glass-header { background: linear-gradient(180deg, #172647 0%, #101b36 100%) !important; border: 2px solid rgba(56,189,248,0.42) !important; box-shadow: 0 10px 26px rgba(0,0,0,0.65), inset 0 1px 0 rgba(255,255,255,0.12) !important; }
+        html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) body .msg-quartet-btn { background: linear-gradient(145deg, #1e293b 0%, #0f172a 100%) !important; color: #ffffff !important; -webkit-text-fill-color: #ffffff !important; border: 2px solid rgba(56,189,248,0.52) !important; box-shadow: 0 4px 12px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.18) !important; }
+        :root.light-theme body header.premium-header.magical-glass-header { background: var(--lt-card-bg) !important; border: 2.5px solid var(--lt-border) !important; box-shadow: 0 6px 18px var(--lt-shadow), inset 0 1.5px 0 rgba(255,255,255,0.85) !important; }
+        :root.light-theme body .msg-quartet-btn { background: linear-gradient(180deg, #ffffff 0%, var(--lt-subcard-bg) 100%) !important; border: 2px solid var(--lt-border) !important; border-bottom: 3.5px solid var(--lt-border-strong) !important; color: var(--lt-text) !important; -webkit-text-fill-color: var(--lt-text) !important; font-weight: 900 !important; box-shadow: 0 3px 8px var(--lt-shadow), inset 0 1px 0 #ffffff !important; }
+        html body .msg-quartet-btn:hover { transform: translateY(-2px) scale(1.03) !important; border-color: #0284c7 !important; box-shadow: 0 6px 14px rgba(2,132,199,0.32), 0 0 10px rgba(56,189,248,0.45) !important; }
+        html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #customer-financial-card #fin-wrap-ledger { background-color: rgba(15,23,42,0.78) !important; border: 1.5px solid rgba(148,163,184,0.65) !important; }
+        html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #customer-financial-card #fin-wrap-debt { background-color: rgba(127,29,29,0.55) !important; border: 1.5px solid rgba(251,113,133,0.75) !important; }
+        html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #customer-financial-card #fin-wrap-checks { background-color: rgba(120,53,15,0.58) !important; border: 1.5px solid rgba(251,191,36,0.78) !important; }
+        html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #customer-financial-card #fin-wrap-limit { background-color: rgba(12,74,110,0.58) !important; border: 1.5px solid rgba(56,189,248,0.78) !important; }
+        html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #customer-financial-card #fin-wrap-remaining { background-color: rgba(6,78,59,0.65) !important; border: 1.5px solid rgba(52,211,153,0.85) !important; }
+        html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #customer-financial-card #fin-ledger { color: #ffffff !important; -webkit-text-fill-color: #ffffff !important; }
+        html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #customer-financial-card #fin-total-debt { color: #fecdd3 !important; -webkit-text-fill-color: #fecdd3 !important; }
+        html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #customer-financial-card #fin-checks { color: #fef08a !important; -webkit-text-fill-color: #fef08a !important; }
+        html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #customer-financial-card #fin-credit-limit { color: #bae6fd !important; -webkit-text-fill-color: #bae6fd !important; }
+        html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #customer-financial-card #fin-remaining { color: #a7f3d0 !important; -webkit-text-fill-color: #a7f3d0 !important; }
+        :root.light-theme body #customer-financial-card #fin-wrap-ledger { background: linear-gradient(180deg, #334155 0%, #0f172a 100%) !important; border: 1.5px solid #94a3b8 !important; }
+        :root.light-theme body #customer-financial-card #fin-wrap-debt { background: linear-gradient(180deg, #e11d48 0%, #9f1239 100%) !important; border: 1.5px solid #fda4af !important; }
+        :root.light-theme body #customer-financial-card #fin-wrap-checks { background: linear-gradient(180deg, #d97706 0%, #92400e 100%) !important; border: 1.5px solid #fcd34d !important; }
+        :root.light-theme body #customer-financial-card #fin-wrap-limit { background: linear-gradient(180deg, #0284c7 0%, #075985 100%) !important; border: 1.5px solid #7dd3fc !important; }
+        :root.light-theme body #customer-financial-card #fin-wrap-remaining { background: linear-gradient(180deg, #059669 0%, #065f46 100%) !important; border: 1.5px solid #6ee7b7 !important; }
+        :root.light-theme body #customer-financial-card .fin-metric-pill span, :root.light-theme body #customer-financial-card #fin-ledger, :root.light-theme body #customer-financial-card #fin-total-debt, :root.light-theme body #customer-financial-card #fin-checks, :root.light-theme body #customer-financial-card #fin-credit-limit, :root.light-theme body #customer-financial-card #fin-remaining { color: #ffffff !important; -webkit-text-fill-color: #ffffff !important; font-weight: 900 !important; text-shadow: 0 1.5px 3px rgba(0,0,0,0.95), 0 0 2px #000000 !important; }
+        :root.light-theme #sales-ai-audit-modal > div, :root.light-theme #price-history-overlay .modal-card { background: linear-gradient(145deg, #faf6ee 0%, #f3e9d6 100%) !important; color: #140c06 !important; border: 2px solid #9a5822 !important; box-shadow: 0 18px 45px rgba(120,53,15,0.22) !important; }
+        :root.light-theme #sales-ai-audit-modal > div > div:first-child, :root.light-theme #sales-ai-audit-modal > div > div:last-child, :root.light-theme #sales-ai-audit-modal thead tr, :root.light-theme #price-history-overlay thead tr { background: linear-gradient(180deg, #f3e9d6 0%, #eadbc2 100%) !important; border-color: #9a5822 !important; color: #140c06 !important; }
+        :root.light-theme #sales-ai-audit-modal div, :root.light-theme #sales-ai-audit-modal span, :root.light-theme #sales-ai-audit-modal label, :root.light-theme #sales-ai-audit-modal strong, :root.light-theme #sales-ai-audit-modal th, :root.light-theme #sales-ai-audit-modal td, :root.light-theme #price-history-overlay th, :root.light-theme #price-history-overlay td, :root.light-theme #price-history-overlay strong, :root.light-theme #price-history-overlay span { color: #140c06 !important; -webkit-text-fill-color: #140c06 !important; font-weight: 800 !important; text-shadow: none !important; }
+        :root.light-theme #sales-ai-audit-modal input, :root.light-theme #sales-ai-audit-modal .ai-sell-price-input { background: #ffffff !important; color: #140c06 !important; -webkit-text-fill-color: #140c06 !important; border: 2px solid #9a5822 !important; font-weight: 900 !important; }
+        html body #invoice-editor-view #items-panel, html body #invoice-editor-view .table-container, html body #invoice-editor-view .grid-scroll-wrap, html body #invoice-editor-view #inline-totals-container, html body #invoice-editor-view #payment-panel { width: 100% !important; max-width: 100% !important; min-width: 0 !important; box-sizing: border-box !important; overflow-x: hidden !important; }
+        html body #invoice-editor-view #pos-grid { width: 100% !important; max-width: 100% !important; min-width: 0 !important; table-layout: fixed !important; }
+        html body #invoice-editor-view #pos-grid th, html body #invoice-editor-view #pos-grid td { min-width: 0 !important; overflow: hidden !important; text-overflow: ellipsis !important; padding-left: 3px !important; padding-right: 3px !important; vertical-align: middle !important; }
+        html body #invoice-editor-view #pos-grid tbody tr td[data-col-id="col_price"] { position: relative !important; overflow: visible !important; padding: 7px 4px 22px 4px !important; }
+        html body #invoice-editor-view #pos-grid tbody tr td[data-col-id="col_price"] .cell-with-action { position: static !important; display: flex !important; align-items: center !important; justify-content: center !important; width: 100% !important; overflow: visible !important; }
+        html body #invoice-editor-view #pos-grid tbody tr td[data-col-id="col_price"] input.input-price { padding-left: 30px !important; padding-right: 6px !important; text-align: center !important; }
+        html body #invoice-editor-view #pos-grid tbody tr td[data-col-id="col_price"] .pur-price-audit-pill { position: static !important; width: 0 !important; height: 0 !important; padding: 0 !important; margin: 0 !important; border: none !important; background: transparent !important; box-shadow: none !important; overflow: visible !important; }
+        html body #invoice-editor-view #pos-grid tbody tr td[data-col-id="col_price"] .pur-price-lamp { position: absolute !important; left: 8px !important; top: 19px !important; transform: none !important; width: 20px !important; height: 20px !important; min-width: 20px !important; min-height: 20px !important; border-radius: 50% !important; display: inline-block !important; cursor: pointer !important; z-index: 6 !important; border: 2px solid rgba(255,255,255,0.92) !important; transition: transform 0.16s ease, box-shadow 0.16s ease !important; }
+        html body #invoice-editor-view #pos-grid tbody tr td[data-col-id="col_price"] .pur-price-lamp:hover { transform: scale(1.22) !important; }
+        html body #invoice-editor-view #pos-grid tbody tr td[data-col-id="col_price"] .pur-price-subtxt { position: absolute !important; left: 50% !important; right: auto !important; bottom: 1px !important; transform: translateX(-50%) !important; width: calc(100% - 6px) !important; height: 20px !important; display: flex !important; align-items: center !important; justify-content: center !important; font-size: 0.92rem !important; font-weight: 900 !important; font-family: 'Outfit', 'Cairo', sans-serif !important; line-height: 1 !important; white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important; pointer-events: none !important; z-index: 5 !important; direction: ltr !important; text-align: center !important; }
+        html body #invoice-editor-view #pos-grid tbody tr td[data-col-id="col_price"] .pur-price-audit-pill[data-lamp="red"] .pur-price-lamp, html body #invoice-editor-view #pos-grid tbody tr td[data-col-id="col_price"] .pur-price-audit-pill[data-lamp-state="red"] .pur-price-lamp { background: radial-gradient(circle at 32% 30%, #ffe4e6 0%, #fb7185 28%, #e11d48 68%, #881337 100%) !important; box-shadow: 0 0 0 2px rgba(225,29,72,0.32), 0 0 12px rgba(244,63,94,0.95), inset 0 2px 3px rgba(255,255,255,0.85) !important; }
+        html body #invoice-editor-view #pos-grid tbody tr td[data-col-id="col_price"] .pur-price-audit-pill[data-lamp="red"] .pur-price-subtxt, html body #invoice-editor-view #pos-grid tbody tr td[data-col-id="col_price"] .pur-price-audit-pill[data-lamp-state="red"] .pur-price-subtxt { color: #ff4d6d !important; -webkit-text-fill-color: #ff4d6d !important; }
+        html body #invoice-editor-view #pos-grid tbody tr td[data-col-id="col_price"] .pur-price-audit-pill[data-lamp="amber"] .pur-price-lamp, html body #invoice-editor-view #pos-grid tbody tr td[data-col-id="col_price"] .pur-price-audit-pill[data-lamp-state="amber"] .pur-price-lamp { background: radial-gradient(circle at 32% 30%, #fef9c3 0%, #facc15 28%, #d97706 68%, #78350f 100%) !important; box-shadow: 0 0 0 2px rgba(217,119,6,0.32), 0 0 12px rgba(245,158,11,0.95), inset 0 2px 3px rgba(255,255,255,0.85) !important; }
+        html body #invoice-editor-view #pos-grid tbody tr td[data-col-id="col_price"] .pur-price-audit-pill[data-lamp="amber"] .pur-price-subtxt, html body #invoice-editor-view #pos-grid tbody tr td[data-col-id="col_price"] .pur-price-audit-pill[data-lamp-state="amber"] .pur-price-subtxt { color: #fbbf24 !important; -webkit-text-fill-color: #fbbf24 !important; }
+        html body #invoice-editor-view #pos-grid tbody tr td[data-col-id="col_price"] .pur-price-audit-pill[data-lamp="green"] .pur-price-lamp, html body #invoice-editor-view #pos-grid tbody tr td[data-col-id="col_price"] .pur-price-audit-pill[data-lamp-state="green"] .pur-price-lamp { background: radial-gradient(circle at 32% 30%, #dcfce7 0%, #4ade80 28%, #059669 68%, #064e3b 100%) !important; box-shadow: 0 0 0 2px rgba(5,150,105,0.30), 0 0 11px rgba(16,185,129,0.9), inset 0 2px 3px rgba(255,255,255,0.85) !important; }
+        html body #invoice-editor-view #pos-grid tbody tr td[data-col-id="col_price"] .pur-price-audit-pill[data-lamp="green"] .pur-price-subtxt, html body #invoice-editor-view #pos-grid tbody tr td[data-col-id="col_price"] .pur-price-audit-pill[data-lamp-state="green"] .pur-price-subtxt { color: #34d399 !important; -webkit-text-fill-color: #34d399 !important; }
+        html body #invoice-editor-view #pos-grid tbody tr td[data-col-id="col_price"] .pur-price-audit-pill[data-lamp="blue"] .pur-price-lamp, html body #invoice-editor-view #pos-grid tbody tr td[data-col-id="col_price"] .pur-price-audit-pill[data-lamp-state="blue"] .pur-price-lamp { background: radial-gradient(circle at 32% 30%, #e0f2fe 0%, #38bdf8 28%, #0284c7 68%, #0c4a6e 100%) !important; box-shadow: 0 0 0 2px rgba(2,132,199,0.28), 0 0 10px rgba(14,165,233,0.85), inset 0 2px 3px rgba(255,255,255,0.85) !important; }
+        html body #invoice-editor-view #pos-grid tbody tr td[data-col-id="col_price"] .pur-price-audit-pill[data-lamp="blue"] .pur-price-subtxt, html body #invoice-editor-view #pos-grid tbody tr td[data-col-id="col_price"] .pur-price-audit-pill[data-lamp-state="blue"] .pur-price-subtxt { color: #38bdf8 !important; -webkit-text-fill-color: #38bdf8 !important; }
+        :root.light-theme body #invoice-editor-view #pos-grid tbody tr td[data-col-id="col_price"] .pur-price-audit-pill[data-lamp="red"] .pur-price-subtxt, :root.light-theme body #invoice-editor-view #pos-grid tbody tr td[data-col-id="col_price"] .pur-price-audit-pill[data-lamp-state="red"] .pur-price-subtxt { color: #be123c !important; -webkit-text-fill-color: #be123c !important; }
+        :root.light-theme body #invoice-editor-view #pos-grid tbody tr td[data-col-id="col_price"] .pur-price-audit-pill[data-lamp="amber"] .pur-price-subtxt, :root.light-theme body #invoice-editor-view #pos-grid tbody tr td[data-col-id="col_price"] .pur-price-audit-pill[data-lamp-state="amber"] .pur-price-subtxt { color: #b45309 !important; -webkit-text-fill-color: #b45309 !important; }
+        :root.light-theme body #invoice-editor-view #pos-grid tbody tr td[data-col-id="col_price"] .pur-price-audit-pill[data-lamp="green"] .pur-price-subtxt, :root.light-theme body #invoice-editor-view #pos-grid tbody tr td[data-col-id="col_price"] .pur-price-audit-pill[data-lamp-state="green"] .pur-price-subtxt { color: #047857 !important; -webkit-text-fill-color: #047857 !important; }
+        :root.light-theme body #invoice-editor-view #pos-grid tbody tr td[data-col-id="col_price"] .pur-price-audit-pill[data-lamp="blue"] .pur-price-subtxt, :root.light-theme body #invoice-editor-view #pos-grid tbody tr td[data-col-id="col_price"] .pur-price-audit-pill[data-lamp-state="blue"] .pur-price-subtxt { color: #0369a1 !important; -webkit-text-fill-color: #0369a1 !important; }
+        html body #invoice-editor-view #payment-panel .pay-toggle-btn {
+            height: 36px !important; padding: 0 14px !important; border-radius: 999px !important; cursor: pointer !important;
+            font-size: 0.96rem !important; font-weight: 900 !important; display: inline-flex !important; align-items: center !important; gap: 6px !important;
+            color: #050200 !important; -webkit-text-fill-color: #050200 !important;
+            transition: transform 0.16s cubic-bezier(0.22,1,0.36,1), box-shadow 0.16s ease, filter 0.16s ease !important;
+        }
+        html body #invoice-editor-view #payment-panel #toggle-credit { background: linear-gradient(180deg, #fef9c3 0%, #fde047 48%, #f59e0b 100%) !important; border: 2px solid #92400e !important; border-bottom: 3.5px solid #451a03 !important; box-shadow: 0 3px 8px rgba(217,119,6,0.25), inset 0 1.5px 0 rgba(255,255,255,0.85) !important; }
+        html body #invoice-editor-view #payment-panel #toggle-cash { background: linear-gradient(180deg, #d1fae5 0%, #6ee7b7 48%, #10b981 100%) !important; border: 2px solid #065f46 !important; border-bottom: 3.5px solid #022c22 !important; box-shadow: 0 3px 8px rgba(5,150,105,0.25), inset 0 1.5px 0 rgba(255,255,255,0.85) !important; }
+        html body #invoice-editor-view #payment-panel #toggle-bank { background: linear-gradient(180deg, #e0f2fe 0%, #7dd3fc 48%, #0ea5e9 100%) !important; border: 2px solid #075985 !important; border-bottom: 3.5px solid #082f49 !important; box-shadow: 0 3px 8px rgba(2,132,199,0.25), inset 0 1.5px 0 rgba(255,255,255,0.85) !important; }
+        html body #invoice-editor-view #payment-panel #toggle-cheque { background: linear-gradient(180deg, #f3e8ff 0%, #d8b4fe 48%, #a855f7 100%) !important; border: 2px solid #5b21b6 !important; border-bottom: 3.5px solid #2e1065 !important; box-shadow: 0 3px 8px rgba(126,34,206,0.25), inset 0 1.5px 0 rgba(255,255,255,0.85) !important; }
+        html body #invoice-editor-view #payment-panel #btn-sales-financial-ocr { background: linear-gradient(180deg, #ccfbf1 0%, #5eead4 48%, #14b8a6 100%) !important; border: 2px solid #115e59 !important; border-bottom: 3.5px solid #042f2e !important; box-shadow: 0 3px 8px rgba(13,148,136,0.25), inset 0 1.5px 0 rgba(255,255,255,0.85) !important; }
+        html body #invoice-editor-view #payment-panel button[onclick*="FinancialOCR.openTrainer"] { background: linear-gradient(180deg, #ffe4e6 0%, #fda4af 48%, #fb7185 100%) !important; border: 2px solid #9f1239 !important; border-bottom: 3.5px solid #4c0519 !important; box-shadow: 0 3px 8px rgba(225,29,72,0.25), inset 0 1.5px 0 rgba(255,255,255,0.85) !important; }
+        html body #invoice-editor-view #payment-panel .pay-toggle-btn.active { opacity: 1 !important; filter: saturate(1.15) brightness(1.04) !important; transform: translateY(-1.5px) scale(1.03) !important; box-shadow: 0 0 0 3px rgba(18,5,0,0.22), 0 6px 14px rgba(0,0,0,0.28), inset 0 2px 0 rgba(255,255,255,0.92) !important; }
+        html body #invoice-editor-view #payment-panel .pay-toggle-btn:hover { opacity: 1 !important; transform: translateY(-2px) scale(1.03) !important; filter: brightness(1.06) !important; }
+        html body #invoice-editor-view #payment-panel .pay-toggle-btn, html body #invoice-editor-view #payment-panel .pay-toggle-btn span { color: #050200 !important; -webkit-text-fill-color: #050200 !important; font-weight: 900 !important; }
+        html body #invoice-editor-view #payment-panel #pay-credit-due-group label, :root.light-theme body #invoice-editor-view #payment-panel #pay-credit-due-group label, :root.light-theme body #invoice-editor-view #payment-panel label { font-size: 0.95rem !important; font-weight: 900 !important; line-height: 1.2 !important; white-space: nowrap !important; }
+        html body #invoice-editor-view #payment-panel #pay-credit-due-date, :root.light-theme body #invoice-editor-view #payment-panel #pay-credit-due-date { font-size: 0.95rem !important; font-weight: 900 !important; height: 38px !important; padding: 0 8px !important; }
+        html body #invoice-editor-view #grid-foot .pur-compact-tot-card { display: flex !important; align-items: center !important; justify-content: space-between !important; direction: rtl !important; width: 100% !important; }
+        html body #invoice-editor-view #grid-foot .pur-compact-tot-card #toggles-area { margin-left: auto !important; margin-right: 0 !important; display: flex !important; align-items: center !important; justify-content: flex-start !important; gap: 6px !important; flex-wrap: nowrap !important; }
+        html body #invoice-editor-view #toggles-area button, html body #invoice-editor-view #toggles-area #btn-landed-cost-mode { position: relative !important; overflow: hidden !important; height: 32px !important; padding: 0 11px !important; border-radius: 8px !important; font-size: 0.86rem !important; font-weight: 900 !important; display: inline-flex !important; align-items: center !important; gap: 4px !important; cursor: pointer !important; transition: transform 0.16s cubic-bezier(0.22,1,0.36,1), box-shadow 0.16s ease, filter 0.16s ease !important; }
+        html body #invoice-editor-view #toggles-area button::after, html body #invoice-editor-view .items-toolbar .btn-action::after, html body #invoice-editor-view #btn-sales-ai-prices::after, html body #invoice-editor-view button[onclick="openGridSettingsModal()"]::after, html body #invoice-editor-view #payment-panel .pay-toggle-btn::after { content: "" !important; position: absolute !important; inset: 0 !important; background: linear-gradient(115deg, transparent 26%, rgba(255,255,255,0.42) 48%, rgba(253,224,71,0.30) 52%, transparent 72%) !important; background-size: 250% 100% !important; animation: purGlassWaveSweep 5.0s ease-in-out infinite !important; pointer-events: none !important; border-radius: inherit !important; }
+        html body #invoice-editor-view #toggles-area button:hover, html body #invoice-editor-view #toggles-area #btn-landed-cost-mode:hover { transform: translateY(-2.5px) scale(1.045) !important; filter: brightness(1.08) saturate(1.14) !important; box-shadow: 0 6px 15px rgba(0,0,0,0.32), 0 0 12px rgba(250,204,21,0.50), inset 0 1.5px 1px rgba(255,255,255,0.82) !important; }
+        html body #invoice-editor-view #toggles-area button:active { transform: translateY(1px) scale(0.97) !important; }
+        html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) body #invoice-editor-view #toggles-area button, html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) body #invoice-editor-view #toggles-area button *, html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) body #invoice-editor-view #toggles-area button span { color: #ffffff !important; -webkit-text-fill-color: #ffffff !important; font-weight: 900 !important; text-shadow: 0 1px 2px rgba(0,0,0,0.88) !important; }
+        html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) body #invoice-editor-view #btn-toggle-transport { background: linear-gradient(180deg, #ea580c 0%, #c2410c 52%, #9a3412 100%) !important; border: 1.5px solid #fb923c !important; border-bottom: 3px solid #431407 !important; box-shadow: 0 2px 6px rgba(234,88,12,0.32), inset 0 1px 0 rgba(255,255,255,0.4) !important; }
+        html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) body #invoice-editor-view #btn-toggle-labor { background: linear-gradient(180deg, #0284c7 0%, #0369a1 52%, #075985 100%) !important; border: 1.5px solid #38bdf8 !important; border-bottom: 3px solid #082f49 !important; box-shadow: 0 2px 6px rgba(2,132,199,0.32), inset 0 1px 0 rgba(255,255,255,0.4) !important; }
+        html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) body #invoice-editor-view #btn-toggle-additions { background: linear-gradient(180deg, #f59e0b 0%, #d97706 52%, #b45309 100%) !important; border: 1.5px solid #fbbf24 !important; border-bottom: 3px solid #451a03 !important; box-shadow: 0 2px 6px rgba(217,119,6,0.32), inset 0 1px 0 rgba(255,255,255,0.45) !important; }
+        html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) body #invoice-editor-view #btn-toggle-tax { background: linear-gradient(180deg, #e11d48 0%, #be123c 52%, #881337 100%) !important; border: 1.5px solid #fb7185 !important; border-bottom: 3px solid #4c0519 !important; box-shadow: 0 2px 6px rgba(225,29,72,0.32), inset 0 1px 0 rgba(255,255,255,0.4) !important; }
+        html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) body #invoice-editor-view #btn-toggle-discount { background: linear-gradient(180deg, #10b981 0%, #059669 52%, #047857 100%) !important; border: 1.5px solid #34d399 !important; border-bottom: 3px solid #064e3b !important; box-shadow: 0 2px 6px rgba(5,150,105,0.32), inset 0 1px 0 rgba(255,255,255,0.4) !important; }
+        html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) body #invoice-editor-view #btn-landed-cost-mode { background: linear-gradient(180deg, #7c3aed 0%, #6d28d9 52%, #4c1d95 100%) !important; border: 1.5px solid #a78bfa !important; border-bottom: 3px solid #2e1065 !important; box-shadow: 0 2px 6px rgba(109,40,217,0.35), inset 0 1px 0 rgba(255,255,255,0.4) !important; }
+        :root.light-theme body #invoice-editor-view #toggles-area button, :root.light-theme body #invoice-editor-view #toggles-area button *, :root.light-theme body #invoice-editor-view #toggles-area button span, :root.light-theme body #invoice-editor-view #toggles-area #btn-landed-cost-mode, :root.light-theme body #invoice-editor-view #toggles-area #btn-landed-cost-mode span, :root.light-theme body #invoice-editor-view #toggles-area #lbl-landed-cost-mode { color: #050200 !important; -webkit-text-fill-color: #050200 !important; font-weight: 900 !important; text-shadow: none !important; letter-spacing: 0 !important; }
+        :root.light-theme body #invoice-editor-view #toggles-area #btn-toggle-transport { background: linear-gradient(180deg, #ffedd5 0%, #fed7aa 48%, #fdba74 100%) !important; border: 2px solid #c2410c !important; border-bottom: 3.5px solid #7c2d12 !important; box-shadow: 0 3px 8px rgba(194,65,12,0.24), inset 0 1.5px 0 rgba(255,255,255,0.9) !important; }
+        :root.light-theme body #invoice-editor-view #toggles-area #btn-toggle-labor { background: linear-gradient(180deg, #e0f2fe 0%, #bae6fd 48%, #7dd3fc 100%) !important; border: 2px solid #0369a1 !important; border-bottom: 3.5px solid #0c4a6e !important; box-shadow: 0 3px 8px rgba(3,105,161,0.24), inset 0 1.5px 0 rgba(255,255,255,0.9) !important; }
+        :root.light-theme body #invoice-editor-view #toggles-area #btn-toggle-additions { background: linear-gradient(180deg, #fef9c3 0%, #fef08a 48%, #fde047 100%) !important; border: 2px solid #b45309 !important; border-bottom: 3.5px solid #78350f !important; box-shadow: 0 3px 8px rgba(180,83,9,0.24), inset 0 1.5px 0 rgba(255,255,255,0.9) !important; }
+        :root.light-theme body #invoice-editor-view #toggles-area #btn-toggle-tax { background: linear-gradient(180deg, #ffe4e6 0%, #fecdd3 48%, #fda4af 100%) !important; border: 2px solid #be123c !important; border-bottom: 3.5px solid #881337 !important; box-shadow: 0 3px 8px rgba(190,18,60,0.24), inset 0 1.5px 0 rgba(255,255,255,0.9) !important; }
+        :root.light-theme body #invoice-editor-view #toggles-area #btn-toggle-discount { background: linear-gradient(180deg, #d1fae5 0%, #a7f3d0 48%, #6ee7b7 100%) !important; border: 2px solid #047857 !important; border-bottom: 3.5px solid #064e3b !important; box-shadow: 0 3px 8px rgba(4,120,87,0.24), inset 0 1.5px 0 rgba(255,255,255,0.9) !important; }
+        :root.light-theme body #invoice-editor-view #toggles-area #btn-landed-cost-mode { background: linear-gradient(180deg, #f3e8ff 0%, #e9d5ff 48%, #d8b4fe 100%) !important; border: 2px solid #6d28d9 !important; border-bottom: 3.5px solid #4c1d95 !important; box-shadow: 0 3px 8px rgba(109,40,217,0.24), inset 0 1.5px 0 rgba(255,255,255,0.9) !important; }
+        html body #invoice-editor-view #btn-sales-ai-prices { position: relative !important; overflow: hidden !important; height: 34px !important; padding: 0 14px !important; border-radius: 9px !important; background: linear-gradient(180deg, #7e22ce 0%, #6b21a8 52%, #4c1d95 100%) !important; border: 1.5px solid #a855f7 !important; border-bottom: 3px solid #2e1065 !important; color: #ffffff !important; -webkit-text-fill-color: #ffffff !important; box-shadow: 0 3px 10px rgba(126,34,206,0.38), inset 0 1.5px 0 rgba(255,255,255,0.42) !important; font-size: 0.92rem !important; font-weight: 900 !important; transition: transform 0.16s cubic-bezier(0.22,1,0.36,1), box-shadow 0.16s ease, filter 0.16s ease !important; }
+        html body #invoice-editor-view button[onclick="openGridSettingsModal()"] { position: relative !important; overflow: hidden !important; height: 34px !important; padding: 0 14px !important; border-radius: 9px !important; background: linear-gradient(180deg, #2563eb 0%, #1d4ed8 52%, #1e3a8a 100%) !important; border: 1.5px solid #60a5fa !important; border-bottom: 3px solid #0f172a !important; color: #ffffff !important; -webkit-text-fill-color: #ffffff !important; box-shadow: 0 3px 10px rgba(29,78,216,0.38), inset 0 1.5px 0 rgba(255,255,255,0.42) !important; font-size: 0.92rem !important; font-weight: 900 !important; transition: transform 0.16s cubic-bezier(0.22,1,0.36,1), box-shadow 0.16s ease, filter 0.16s ease !important; }
+        html body #invoice-editor-view #btn-sales-ai-prices *, html body #invoice-editor-view button[onclick="openGridSettingsModal()"] * { color: #ffffff !important; -webkit-text-fill-color: #ffffff !important; }
+        html body #invoice-editor-view button[onclick="openGridSettingsModal()"] svg { stroke: #fde047 !important; }
+        html body #invoice-editor-view .items-toolbar .btn-action { position: relative !important; overflow: hidden !important; height: 40px !important; padding: 0 15px !important; border-radius: 10px !important; font-size: 0.98rem !important; font-weight: 900 !important; font-family: 'Cairo', 'Tajawal', sans-serif !important; letter-spacing: 0.2px !important; color: #ffffff !important; -webkit-text-fill-color: #ffffff !important; text-shadow: 0 1.5px 3px rgba(0,0,0,0.88) !important; transition: transform 0.16s cubic-bezier(0.22,1,0.36,1), box-shadow 0.16s ease, filter 0.16s ease !important; }
+        html body #invoice-editor-view .items-toolbar .btn-action *, html body #invoice-editor-view .items-toolbar .btn-action svg { color: #ffffff !important; -webkit-text-fill-color: #ffffff !important; stroke: #ffffff !important; }
+        html body #invoice-editor-view .items-toolbar .btn-action.btn-exit { background: linear-gradient(180deg, #475569 0%, #334155 52%, #0f172a 100%) !important; border: 1.5px solid #64748b !important; border-bottom: 3px solid #020617 !important; box-shadow: 0 3px 8px rgba(15,23,42,0.35), inset 0 1px 0 rgba(255,255,255,0.35) !important; }
+        html body #invoice-editor-view .items-toolbar .btn-action.btn-delete { background: linear-gradient(180deg, #e11d48 0%, #be123c 52%, #881337 100%) !important; border: 1.5px solid #fb7185 !important; border-bottom: 3px solid #4c0519 !important; box-shadow: 0 3px 8px rgba(225,29,72,0.38), inset 0 1px 0 rgba(255,255,255,0.4) !important; }
+        html body #invoice-editor-view .items-toolbar #btn-preview-invoice { background: linear-gradient(180deg, #2563eb 0%, #1d4ed8 52%, #1e3a8a 100%) !important; border: 1.5px solid #60a5fa !important; border-bottom: 3px solid #0f172a !important; box-shadow: 0 3px 8px rgba(29,78,216,0.38), inset 0 1px 0 rgba(255,255,255,0.4) !important; }
+        html body #invoice-editor-view .items-toolbar #btn-share-invoice { background: linear-gradient(180deg, #7c3aed 0%, #6d28d9 52%, #4c1d95 100%) !important; border: 1.5px solid #a78bfa !important; border-bottom: 3px solid #2e1065 !important; box-shadow: 0 3px 8px rgba(109,40,217,0.38), inset 0 1px 0 rgba(255,255,255,0.4) !important; }
+        html body #invoice-editor-view .items-toolbar .btn-action.btn-new { background: linear-gradient(180deg, #0284c7 0%, #0369a1 52%, #075985 100%) !important; border: 1.5px solid #38bdf8 !important; border-bottom: 3px solid #082f49 !important; box-shadow: 0 3px 8px rgba(2,132,199,0.38), inset 0 1px 0 rgba(255,255,255,0.4) !important; }
+        html body #invoice-editor-view .items-toolbar .btn-action.btn-ocr { background: linear-gradient(180deg, #0d9488 0%, #0f766e 52%, #115e59 100%) !important; border: 1.5px solid #2dd4bf !important; border-bottom: 3px solid #042f2e !important; box-shadow: 0 3px 8px rgba(13,148,136,0.38), inset 0 1px 0 rgba(255,255,255,0.4) !important; }
+        html body #invoice-editor-view .items-toolbar #btn-toggle-auto-send-sales { background: linear-gradient(180deg, #f59e0b 0%, #d97706 52%, #b45309 100%) !important; border: 1.5px solid #fbbf24 !important; border-bottom: 3px solid #451a03 !important; box-shadow: 0 3px 8px rgba(217,119,6,0.38), inset 0 1px 0 rgba(255,255,255,0.45) !important; }
+        html body #invoice-editor-view .items-toolbar .btn-action.btn-submit { height: 42px !important; padding: 0 22px !important; font-size: 1.04rem !important; background: linear-gradient(180deg, #10b981 0%, #059669 52%, #047857 100%) !important; border: 2px solid #34d399 !important; border-bottom: 3.5px solid #064e3b !important; box-shadow: 0 4px 12px rgba(5,150,105,0.42), inset 0 1.5px 0 rgba(255,255,255,0.48) !important; }
+        html body #invoice-editor-view .items-toolbar .btn-action:hover, html body #invoice-editor-view #btn-sales-ai-prices:hover, html body #invoice-editor-view button[onclick="openGridSettingsModal()"]:hover { transform: translateY(-2.5px) scale(1.03) !important; filter: brightness(1.1) saturate(1.12) !important; box-shadow: 0 7px 18px rgba(0,0,0,0.32), 0 0 10px rgba(255,255,255,0.35) !important; }
+        html body #invoice-editor-view .items-toolbar .btn-action:active { transform: translateY(1px) scale(0.98) !important; }
+        /* Highest Z-Index Priority for Item & Customer/Warehouse Custom Dropdowns Above All Buttons & Totals */
+        html body #invoice-editor-view #sales-top-container:has(.custom-dropdown-list.show),
+        html body #invoice-editor-view #form-fields-card:has(.custom-dropdown-list.show),
+        html body #invoice-editor-view #sales-row1-bar:has(.custom-dropdown-list.show),
+        html body #invoice-editor-view #sales-row2-bar:has(.custom-dropdown-list.show),
+        html body #invoice-editor-view .h-form-group:has(.custom-dropdown-list.show),
+        html body #invoice-editor-view .h-input-wrapper:has(.custom-dropdown-list.show),
+        html body #invoice-editor-view #items-panel:has(.custom-dropdown-list.show),
+        html body #invoice-editor-view .purchase-bottom:has(.custom-dropdown-list.show),
+        html body #invoice-editor-view .table-container:has(.custom-dropdown-list.show),
+        html body #invoice-editor-view .grid-scroll-wrap:has(.custom-dropdown-list.show),
+        html body #invoice-editor-view #pos-grid:has(.custom-dropdown-list.show),
+        html body #invoice-editor-view #grid-body:has(.custom-dropdown-list.show),
+        html body #invoice-editor-view #pos-grid tbody tr:has(.custom-dropdown-list.show),
+        html body #invoice-editor-view #pos-grid tbody tr td:has(.custom-dropdown-list.show),
+        html body #invoice-editor-view .custom-dropdown:has(.custom-dropdown-list.show),
+        html body #invoice-editor-view .custom-dropdown-input-wrap:has(.custom-dropdown-list.show) {
+            position: relative !important; z-index: 2147483645 !important; overflow: visible !important;
+            transform: none !important; filter: none !important; backdrop-filter: none !important; isolation: auto !important;
+        }
+        html body #invoice-editor-view:has(#form-fields-card .custom-dropdown-list.show) #items-panel,
+        html body #invoice-editor-view:has(#form-fields-card .custom-dropdown-list.show) .purchase-bottom,
+        html body #invoice-editor-view:has(#form-fields-card .custom-dropdown-list.show) #payment-panel,
+        html body #invoice-editor-view:has(#form-fields-card .custom-dropdown-list.show) .items-toolbar,
+        html body #invoice-editor-view #pos-grid:has(.custom-dropdown-list.show) tbody tr:not(:has(.custom-dropdown-list.show)),
+        html body #invoice-editor-view:has(#pos-grid .custom-dropdown-list.show) #grid-foot,
+        html body #invoice-editor-view:has(#pos-grid .custom-dropdown-list.show) #toggles-area,
+        html body #invoice-editor-view:has(#pos-grid .custom-dropdown-list.show) .items-toolbar,
+        html body #invoice-editor-view:has(#pos-grid .custom-dropdown-list.show) #payment-panel {
+            z-index: 0 !important; isolation: auto !important; transform: none !important; filter: none !important; pointer-events: none !important;
+        }
+        html body #invoice-editor-view:has(.custom-dropdown-list.show) #grid-foot,
+        html body #invoice-editor-view:has(.custom-dropdown-list.show) #grid-foot tr,
+        html body #invoice-editor-view:has(.custom-dropdown-list.show) #grid-foot td,
+        html body #invoice-editor-view:has(.custom-dropdown-list.show) #grid-foot .pur-compact-tot-card,
+        html body #invoice-editor-view:has(.custom-dropdown-list.show) #toggles-area,
+        html body #invoice-editor-view:has(.custom-dropdown-list.show) #toggles-area button {
+            position: static !important; z-index: -1 !important;
+        }
+        html body #invoice-editor-view:has(.custom-dropdown-list.show) #toggles-area button::before,
+        html body #invoice-editor-view:has(.custom-dropdown-list.show) #toggles-area button::after {
+            display: none !important; content: none !important;
+        }
+        html body #invoice-editor-view .custom-dropdown-list.show {
+            position: absolute !important; z-index: 2147483647 !important; opacity: 1 !important; visibility: visible !important;
+            background: #0b1120 !important; border: 2px solid #38bdf8 !important; border-radius: 12px !important;
+            box-shadow: 0 24px 60px rgba(0,0,0,0.96), 0 0 0 2px rgba(56,189,248,0.35) !important;
+        }
+        :root.light-theme body #invoice-editor-view .custom-dropdown-list.show {
+            background: #ffffff !important; border: 2.5px solid var(--lt-border, #5c2808) !important;
+            box-shadow: 0 22px 55px rgba(18,5,0,0.42), 0 0 0 3px rgba(255,255,255,0.95) !important;
+        }
+        :root.light-theme body #invoice-editor-view .custom-dropdown-list.show .custom-dropdown-item,
+        :root.light-theme body #invoice-editor-view .custom-dropdown-list.show .dropdown-item {
+            background: #ffffff !important; color: #050200 !important; -webkit-text-fill-color: #050200 !important;
+            font-weight: 900 !important; border-bottom: 1px solid rgba(92,40,8,0.16) !important;
+        }
+        :root.light-theme body #invoice-editor-view .custom-dropdown-list.show .custom-dropdown-item:hover,
+        :root.light-theme body #invoice-editor-view .custom-dropdown-list.show .custom-dropdown-item.selected,
+        :root.light-theme body #invoice-editor-view .custom-dropdown-list.show .dropdown-item:hover,
+        :root.light-theme body #invoice-editor-view .custom-dropdown-list.show .dropdown-item.highlighted {
+            background: var(--lt-table-row-hover, #fde68a) !important; color: #000000 !important; -webkit-text-fill-color: #000000 !important;
+        }
     </style>
     <script id="sales-fin-strip-and-tfoot-organizer">
     (function() {
@@ -12189,11 +12366,7 @@ try {
             if (!btn) return;
             const c = cur || window.getFinStripCurrency();
             btn.setAttribute('data-cur-mode', c);
-            if (c === 'USD') {
-                btn.textContent = '💵 دولار ⇄';
-            } else {
-                btn.textContent = '💱 جنيه سوداني ⇄';
-            }
+            btn.textContent = (c === 'USD') ? 'دولار ⇄' : 'جنيه ⇄';
         };
         window.toggleFinStripCurrency = function() {
             window._finStripCurrency = (window.getFinStripCurrency() === 'SDG') ? 'USD' : 'SDG';
@@ -12380,6 +12553,14 @@ try {
             if (curSel) {
                 curSel.addEventListener('change', () => setTimeout(() => window.formatGrandTotalsDualSdgUsd(), 30));
             }
+            const finCardEl = document.getElementById('customer-financial-card');
+            if (finCardEl && typeof MutationObserver !== 'undefined') {
+                let _finFitTimer = 0;
+                new MutationObserver(() => {
+                    cancelAnimationFrame(_finFitTimer);
+                    _finFitTimer = requestAnimationFrame(() => { if (typeof window.autoFitHeaderFields === 'function') window.autoFitHeaderFields(); });
+                }).observe(finCardEl, { childList: true, characterData: true, subtree: true });
+            }
             window.addEventListener('resize', () => window.alignGrandTotalUnderTotalColumn());
             const tableEl = document.getElementById('pos-grid');
             if (tableEl && typeof ResizeObserver !== 'undefined') {
@@ -12387,7 +12568,7 @@ try {
             }
         });
         window.syncFinStripCurrencyBtnUI();
-        setTimeout(window.formatGrandTotalsDualSdgUsd, 120);
+        setTimeout(() => { window.formatGrandTotalsDualSdgUsd(); if (typeof window.autoFitHeaderFields === 'function') window.autoFitHeaderFields(); }, 120);
     })();
     </script>
 <style id="split-constitution1-engine-style">
@@ -17149,59 +17330,82 @@ try {
         if (modal) modal.remove();
         modal = document.createElement('div');
         modal.id = 'sales-ai-audit-modal';
-        modal.style.cssText = 'position:fixed;inset:0;background:rgba(2,6,23,0.86);backdrop-filter:blur(8px);z-index:999999;display:flex;align-items:center;justify-content:center;padding:18px;direction:rtl;font-family:Tajawal,sans-serif;';
+        const isLight = document.documentElement.classList.contains('light-theme') || ['warm_cream','ultra_white','exec_gray'].includes(document.documentElement.getAttribute('data-theme'));
+        modal.style.cssText = `position:fixed;inset:0;background:${isLight ? 'rgba(15,23,42,0.55)' : 'rgba(2,6,23,0.85)'};backdrop-filter:blur(8px);z-index:999999;display:flex;align-items:center;justify-content:center;padding:18px;direction:rtl;font-family:Tajawal,sans-serif;`;
 
-        const rowsHtml = statList.length === 0
-            ? '<tr><td colspan="6" style="padding:26px;text-align:center;color:#94a3b8;font-weight:700;">لا توجد فواتير مبيعات كافية لتحليل هامش الربح حتى الآن.</td></tr>'
-            : statList.map(st => {
-                const prof = st.rev - st.cost;
-                const mPct = st.rev > 0 ? ((prof / st.rev) * 100) : 0;
-                const badge = prof < 0
-                    ? '<span style="background:rgba(239,68,68,0.2);color:#fca5a5;border:1px solid rgba(239,68,68,0.45);padding:2px 8px;border-radius:8px;font-size:0.74rem;font-weight:800;">🚨 بيع بأقل من التكلفة!</span>'
+        const defaultMarginPct = 18;
+        const ink = isLight ? '#140c06' : '#f8fafc';
+        const subInk = isLight ? '#334155' : '#94a3b8';
+        const activeRows = (typeof rows !== 'undefined' && Array.isArray(rows)) ? rows.filter(r => r && r.itemId && (parseFloat(r.quantity) || 0) > 0) : [];
+        const invCur = document.getElementById('hdr-currency')?.value || 'SDG';
+        const invRate = invCur !== 'SDG' ? (parseFloat(document.getElementById('hdr-exchange-rate')?.value) || fxRate) : 1;
+        const targetLines = activeRows.length > 0 ? activeRows.map(r => {
+            const master = itemsPool.find(x => String(x.id) === String(r.itemId)) || {};
+            const factor = parseFloat(r.customFactor || r.unitFactor || 1) || 1;
+            const curSell = ((parseFloat(r.price) || parseFloat(master.salePrice || master.price || 0)) * invRate) / factor;
+            const baseCost = parseFloat(master.averageCost || master.costPrice || master.lastPurchaseCost || 0) || (curSell * 0.82);
+            return { itemId: r.itemId, name: master.name || r.name || 'صنف', baseUnit: master.baseUnit || r.selectedUnit || 'وحدة', oldCostSdg: baseCost, newCostSdg: baseCost, currentSellSdg: curSell };
+        }) : statList.map(st => {
+            const uCost = st.qty > 0 ? (st.cost / st.qty) : 0;
+            const uSell = st.qty > 0 ? (st.rev / st.qty) : 0;
+            return { itemId: st.name, name: st.name, baseUnit: 'وحدة', oldCostSdg: uCost, newCostSdg: uCost, currentSellSdg: uSell };
+        });
+
+        const rowsHtml = targetLines.length === 0
+            ? `<tr><td colspan="6" style="padding:26px;text-align:center;color:${ink};font-weight:900;">أضف أصنافاً في الفاتورة أو سجل فاتورة مبيعات لتحليل أسعار البيع وهامش الربح الذكي.</td></tr>`
+            : targetLines.map((ln, idx) => {
+                const suggestedSell = Math.ceil(ln.newCostSdg * (1 + defaultMarginPct / 100));
+                const isLossRisk = ln.currentSellSdg > 0 && ln.currentSellSdg <= ln.newCostSdg;
+                const mPct = ln.newCostSdg > 0 ? (((ln.currentSellSdg - ln.newCostSdg) / ln.newCostSdg) * 100) : 0;
+                const badge = isLossRisk
+                    ? `<span style="background:${isLight ? '#fee2e2' : 'rgba(239,68,68,0.2)'};color:${isLight ? '#991b1b' : '#fca5a5'};border:1.5px solid #ef4444;padding:2px 8px;border-radius:8px;font-size:0.75rem;font-weight:900;">🚨 بيع بأقل من التكلفة!</span>`
                     : (mPct < 8
-                        ? '<span style="background:rgba(245,158,11,0.2);color:#fde68a;border:1px solid rgba(245,158,11,0.45);padding:2px 8px;border-radius:8px;font-size:0.74rem;font-weight:800;">⚠️ هامش منخفض</span>'
-                        : '<span style="background:rgba(16,185,129,0.2);color:#6ee7b7;border:1px solid rgba(16,185,129,0.45);padding:2px 8px;border-radius:8px;font-size:0.74rem;font-weight:800;">✅ ربحية ممتازة</span>');
-                return `<tr style="border-bottom:1px solid rgba(148,163,184,0.12);">
-                    <td style="padding:9px 12px;font-weight:800;color:#f8fafc;">${st.name}</td>
-                    <td style="padding:9px 12px;text-align:center;color:#cbd5e1;font-weight:700;">${Math.round(st.qty).toLocaleString('en-US')}</td>
-                    <td style="padding:9px 12px;text-align:center;color:#38bdf8;font-weight:800;">${Math.round(st.rev).toLocaleString('en-US')}</td>
-                    <td style="padding:9px 12px;text-align:center;color:#94a3b8;font-weight:700;">${Math.round(st.cost).toLocaleString('en-US')}</td>
-                    <td style="padding:9px 12px;text-align:center;color:${prof >= 0 ? '#34d399' : '#f87171'};font-weight:900;">${Math.round(prof).toLocaleString('en-US')} (${mPct.toFixed(1)}%)</td>
-                    <td style="padding:9px 12px;text-align:center;">${badge}</td>
+                        ? `<span style="background:${isLight ? '#fef3c7' : 'rgba(245,158,11,0.2)'};color:${isLight ? '#92400e' : '#fcd34d'};border:1.5px solid #f59e0b;padding:2px 8px;border-radius:8px;font-size:0.75rem;font-weight:900;">⚠️ هامش +${mPct.toFixed(1)}%</span>`
+                        : `<span style="background:${isLight ? '#d1fae5' : 'rgba(16,185,129,0.18)'};color:${isLight ? '#065f46' : '#6ee7b7'};border:1.5px solid #10b981;padding:2px 8px;border-radius:8px;font-size:0.75rem;font-weight:900;">✅ مستقر (+${mPct.toFixed(1)}%)</span>`);
+                return `<tr style="border-bottom:1.5px solid ${isLight ? 'rgba(154,88,34,0.28)' : 'rgba(148,163,184,0.12)'};background:${isLight ? (idx % 2 === 0 ? '#ffffff' : '#fbf7ef') : 'transparent'};">
+                    <td style="padding:10px;font-weight:900;color:${ink};">${ln.name} <span style="color:${subInk};font-size:0.78rem;">(${ln.baseUnit})</span></td>
+                    <td style="padding:10px;text-align:center;color:${ink};font-weight:800;">${Math.round(ln.oldCostSdg).toLocaleString('en-US')}</td>
+                    <td style="padding:10px;text-align:center;color:${isLight ? '#0369a1' : '#38bdf8'};font-weight:900;">${Math.round(ln.newCostSdg).toLocaleString('en-US')} <div style="font-size:0.74rem;color:${isLight ? '#6b21a8' : '#a855f7'};">$${(ln.newCostSdg / fxRate).toFixed(2)}</div></td>
+                    <td style="padding:10px;text-align:center;">${badge}</td>
+                    <td style="padding:10px;text-align:center;color:${isLossRisk ? (isLight ? '#b91c1c' : '#f87171') : ink};font-weight:900;">${Math.round(ln.currentSellSdg).toLocaleString('en-US')}</td>
+                    <td style="padding:10px;text-align:center;"><input type="number" class="ai-sell-price-input" data-item-id="${ln.itemId}" data-base-cost="${ln.newCostSdg}" value="${suggestedSell}" style="width:125px;padding:6px 10px;border-radius:8px;background:${isLight ? '#ffffff' : 'rgba(15,23,42,0.9)'};border:2px solid ${isLight ? '#9a5822' : 'rgba(52,211,153,0.5)'};color:${isLight ? '#140c06' : '#34d399'};font-weight:900;text-align:center;"></td>
                 </tr>`;
             }).join('');
 
         modal.innerHTML = `
-            <div style="background:linear-gradient(145deg,#0f172a,#1e1b4b);border:1px solid rgba(168,85,247,0.45);border-radius:18px;width:100%;max-width:920px;max-height:88vh;display:flex;flex-direction:column;box-shadow:0 24px 60px rgba(0,0,0,0.65);overflow:hidden;">
-                <div style="padding:16px 22px;background:rgba(15,23,42,0.8);border-bottom:1px solid rgba(168,85,247,0.25);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+            <div style="background:${isLight ? 'linear-gradient(145deg,#faf6ee,#f3e9d6)' : 'linear-gradient(145deg,#0f172a,#1e1b4b)'};border:2px solid ${isLight ? '#9a5822' : 'rgba(168,85,247,0.45)'};border-radius:18px;width:100%;max-width:920px;max-height:88vh;display:flex;flex-direction:column;box-shadow:0 24px 60px rgba(0,0,0,0.45);overflow:hidden;color:${ink};">
+                <div style="padding:16px 22px;background:${isLight ? 'linear-gradient(180deg,#f3e9d6,#eadbc2)' : 'rgba(15,23,42,0.75)'};border-bottom:2px solid ${isLight ? '#9a5822' : 'rgba(168,85,247,0.25)'};display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
                     <div>
-                        <div style="font-size:1.12rem;font-weight:900;color:#e9d5ff;">🤖 رادار ربحية المبيعات وحماية الائتمان الذكي (AI Sales Profit & Credit Guard 360°)</div>
-                        <div style="font-size:0.8rem;color:#94a3b8;margin-top:3px;">صافي الربح التقديري: <strong style="color:#34d399;">${Math.round(netProfit).toLocaleString('en-US')} SDG ($${(netProfit / fxRate).toFixed(1)})</strong> | متوسط الهامش: <strong style="color:#38bdf8;">${overallMarginPct.toFixed(1)}%</strong></div>
+                        <div style="font-size:1.12rem;font-weight:900;color:${isLight ? '#140c06' : '#e9d5ff'};display:flex;align-items:center;gap:8px;">🤖 رادار فحص أسعار البيع وتحديث هامش الربح الذكي (AI Margin Guard 360°)</div>
+                        <div style="font-size:0.82rem;color:${subInk};margin-top:3px;font-weight:800;">سعر الصرف المعتمد: <strong style="color:${isLight ? '#047857' : '#34d399'};">1 USD = ${fxRate.toLocaleString('en-US')} SDG</strong> | متوسط الهامش: <strong style="color:${isLight ? '#0369a1' : '#38bdf8'};">${overallMarginPct.toFixed(1)}%</strong></div>
                     </div>
-                    <button onclick="document.getElementById('sales-ai-audit-modal').remove()" style="background:rgba(239,68,68,0.16);border:1px solid rgba(239,68,68,0.45);color:#fca5a5;padding:6px 14px;border-radius:8px;cursor:pointer;font-weight:800;">✖ إغلاق</button>
+                    <div style="display:flex;align-items:center;gap:8px;">
+                        <label style="font-size:0.85rem;color:${ink};font-weight:900;">هامش الربح المستهدف %:</label>
+                        <input type="number" id="ai-target-margin-pct" value="${defaultMarginPct}" min="1" max="500" oninput="document.querySelectorAll('#sales-ai-audit-modal .ai-sell-price-input').forEach(inp=>{const b=parseFloat(inp.getAttribute('data-base-cost'))||0;if(b>0)inp.value=Math.ceil(b*(1+(parseFloat(this.value)||0)/100));})" style="width:72px;padding:5px 8px;border-radius:8px;background:${isLight ? '#ffffff' : '#0f172a'};border:2px solid ${isLight ? '#9a5822' : '#a855f7'};color:${ink};font-weight:900;text-align:center;">
+                        <button onclick="document.getElementById('sales-ai-audit-modal').remove()" style="background:${isLight ? '#fee2e2' : 'rgba(239,68,68,0.15)'};border:1.5px solid #ef4444;color:${isLight ? '#991b1b' : '#fca5a5'};padding:6px 12px;border-radius:8px;cursor:pointer;font-weight:900;">✖ إغلاق</button>
+                    </div>
                 </div>
                 <div style="padding:16px 22px;overflow-y:auto;flex:1;">
-                    <table style="width:100%;border-collapse:collapse;font-size:0.85rem;">
+                    <table style="width:100%;border-collapse:collapse;font-size:0.88rem;">
                         <thead>
-                            <tr style="background:rgba(30,41,59,0.85);color:#cbd5e1;border-bottom:1px solid rgba(148,163,184,0.2);">
-                                <th style="padding:10px;text-align:right;">الصنف</th>
-                                <th style="padding:10px;text-align:center;">الكمية المباعة</th>
-                                <th style="padding:10px;text-align:center;">إجمالي المبيعات (SDG)</th>
-                                <th style="padding:10px;text-align:center;">التكلفة التقديرية</th>
-                                <th style="padding:10px;text-align:center;">صافي الربح والهامش</th>
+                            <tr style="background:${isLight ? 'linear-gradient(180deg,#f3e9d6,#eadbc2)' : 'rgba(30,41,59,0.85)'};color:${ink};border-bottom:2px solid ${isLight ? '#9a5822' : 'rgba(148,163,184,0.2)'};font-weight:900;">
+                                <th style="padding:10px;text-align:right;">الصنف / الوحدة</th>
+                                <th style="padding:10px;text-align:center;">التكلفة السابقة</th>
+                                <th style="padding:10px;text-align:center;">التكلفة المعتمدة (SDG / USD)</th>
                                 <th style="padding:10px;text-align:center;">تشخيص AI</th>
+                                <th style="padding:10px;text-align:center;">سعر البيع الحالي</th>
+                                <th style="padding:10px;text-align:center;">سعر البيع المقترح</th>
                             </tr>
                         </thead>
                         <tbody>${rowsHtml}</tbody>
                     </table>
                 </div>
-                <div style="padding:14px 22px;background:rgba(15,23,42,0.85);border-top:1px solid rgba(168,85,247,0.22);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+                <div style="padding:14px 22px;background:${isLight ? 'linear-gradient(180deg,#f3e9d6,#eadbc2)' : 'rgba(15,23,42,0.85)'};border-top:2px solid ${isLight ? '#9a5822' : 'rgba(168,85,247,0.22)'};display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
                     <div style="display:flex;gap:8px;flex-wrap:wrap;">
-                        <a href="customer-portfolio.php" style="text-decoration:none;background:rgba(56,189,248,0.16);border:1px solid rgba(56,189,248,0.45);color:#38bdf8;padding:8px 14px;border-radius:9px;font-weight:800;font-size:0.84rem;">👥 محفظة العملاء وولاء RFM 360°</a>
-                        <a href="aging-report.php" style="text-decoration:none;background:rgba(245,158,11,0.16);border:1px solid rgba(251,191,36,0.45);color:#fbbf24;padding:8px 14px;border-radius:9px;font-weight:800;font-size:0.84rem;">⏳ أعمار الديون ومخاطر الائتمان</a>
-                        <a href="reserved-sales.php" style="text-decoration:none;background:rgba(168,85,247,0.16);border:1px solid rgba(168,85,247,0.45);color:#d8b4fe;padding:8px 14px;border-radius:9px;font-weight:800;font-size:0.84rem;">🔖 إدارة حجوزات المبيعات</a>
+                        <button onclick="window.location.href='customer-portfolio.php'" style="background:${isLight ? '#e0f2fe' : 'rgba(56,189,248,0.16)'};border:1.5px solid #0284c7;color:${isLight ? '#0c4a6e' : '#38bdf8'};padding:8px 14px;border-radius:9px;cursor:pointer;font-weight:900;font-family:Tajawal,sans-serif;">👥 محفظة العملاء وولاء RFM 360°</button>
+                        <button onclick="window.location.href='aging-report.php'" style="background:${isLight ? '#fef3c7' : 'rgba(245,158,11,0.16)'};border:1.5px solid #d97706;color:${isLight ? '#78350f' : '#fbbf24'};padding:8px 14px;border-radius:9px;cursor:pointer;font-weight:900;font-family:Tajawal,sans-serif;">⏳ أعمار الديون ومخاطر الائتمان</button>
                     </div>
-                    <button onclick="document.getElementById('sales-ai-audit-modal').remove()" style="background:linear-gradient(135deg,#10b981,#059669);border:none;color:#fff;padding:8px 18px;border-radius:9px;cursor:pointer;font-weight:900;">تم الاطلاع</button>
+                    <button onclick="document.querySelectorAll('#sales-ai-audit-modal .ai-sell-price-input').forEach(inp=>{const id=inp.getAttribute('data-item-id');const p=parseFloat(inp.value)||0;if(typeof rows!=='undefined'&&Array.isArray(rows)){rows.forEach(r=>{if(String(r.itemId)===String(id)&&p>0)r.price=p;});}});if(typeof renderGrid==='function')renderGrid();if(typeof recalcAll==='function')recalcAll();document.getElementById('sales-ai-audit-modal').remove();if(typeof showToast==='function')showToast('✅ تم اعتماد وتحديث أسعار البيع بنجاح','success');" style="background:linear-gradient(135deg,#10b981,#059669);border:none;color:#fff;padding:9px 20px;border-radius:10px;cursor:pointer;font-weight:900;font-family:Tajawal,sans-serif;box-shadow:0 4px 15px rgba(16,185,129,0.35);">💾 اعتماد وتحديث أسعار البيع فوراً</button>
                 </div>
             </div>
         `;
@@ -17280,12 +17484,9 @@ try {
             if (document.body.classList.contains('no-sidebar')) document.body.classList.remove('no-sidebar');
         }
 
-        var sbW = getSalesSidebarReservedWidth();
         var vpW = document.documentElement.clientWidth || window.innerWidth || 1;
-        var rightBoundaryAfterSidebar = vpW - sbW;
-
-        if (document.body && Math.abs(sbW - _lastSalesSbW) > 0.5) {
-            _lastSalesSbW = sbW;
+        var sbW = getSalesSidebarReservedWidth();
+        if (document.body) {
             document.body.style.setProperty('margin-right', sbW + 'px', 'important');
             document.body.style.setProperty('margin-left', '0px', 'important');
             document.body.style.setProperty('width', 'calc(100% - ' + sbW + 'px)', 'important');
@@ -17293,37 +17494,31 @@ try {
         }
 
         var z = parseFloat(salesSovZoom || '1') || 1;
-        if (Math.abs(z - _lastSalesSymZoom) > 0.005) {
+        if (Math.abs(z - _lastSalesSymZoom) > 0.005 || Math.abs(sbW - _lastSalesSbW) > 0.5) {
             _lastSalesSymZoom = z;
+            _lastSalesSbW = sbW;
             rootEl.style.setProperty('width', 'calc(100% - 24px)', 'important');
             rootEl.style.setProperty('max-width', 'calc(100% - 24px)', 'important');
             rootEl.style.transformOrigin = 'top center';
             rootEl.style.marginInline = 'auto';
             rootEl.style.position = 'relative';
+            rootEl.style.left = '0px';
             if (Math.abs(z - 1) < 0.01) {
                 rootEl.style.transform = '';
             } else {
                 rootEl.style.transform = 'scale(' + z + ')';
             }
         }
+        rootEl.style.setProperty('left', '0px', 'important');
 
         var rect = rootEl.getBoundingClientRect();
         var leftM = rect.left;
-        var rightM = rightBoundaryAfterSidebar - rect.right;
+        var rightM = (vpW - sbW) - rect.right;
         var diff = Math.abs(rightM - leftM);
-
-        if (diff > 1.5) {
-            var curLeft = parseFloat(rootEl.style.left) || 0;
-            var shiftPx = curLeft + (rightM - leftM) / 2;
-            rootEl.style.setProperty('left', shiftPx.toFixed(2) + 'px', 'important');
-            leftM += (rightM - leftM) / 2;
-            rightM = leftM;
-            diff = 0;
-        }
 
         var leftRound = Math.round(leftM);
         var rightRound = Math.round(rightM);
-        var txt = '🎯 تنصيف ليزري (بعد الشريط): يمين (' + rightRound + 'px) = يسار (' + leftRound + 'px)';
+        var txt = '🎯 تنصيف ليزري: يمين (' + rightRound + 'px) = يسار (' + leftRound + 'px)';
         if (badge && badge.textContent !== txt) badge.textContent = txt;
         if (splitBadge && splitBadge.textContent !== txt) splitBadge.textContent = txt;
         return { rightMargin: rightRound, leftMargin: leftRound, diff: Math.round(diff), sidebarWidthPx: Math.round(sbW) };
@@ -17347,18 +17542,16 @@ try {
             ':root { --global-master-scale: 1; --global-master-font-px: 15px; --sb-collapsed: 62px; --sb-expanded: 240px; }\n' +
             'html { box-sizing: border-box !important; width: 100% !important; max-width: 100% !important; min-width: 0 !important; margin: 0 !important; padding: 0 !important; -webkit-font-smoothing: antialiased; text-rendering: geometricPrecision; background-image: none !important; }\n' +
             '.global-sidebar { display: flex !important; }\n' +
-            'html.has-sidebar body, body.has-sidebar, body {\n' +
+            'html.has-sidebar body:not(.no-sidebar), body.has-sidebar:not(.no-sidebar) {\n' +
             '    box-sizing: border-box !important;\n' +
-            '    margin-top: 0 !important; margin-bottom: 0 !important;\n' +
             '    margin-right: var(--sb-collapsed, 62px) !important; margin-left: 0 !important; padding: 0 !important;\n' +
             '    width: calc(100% - var(--sb-collapsed, 62px)) !important; max-width: calc(100% - var(--sb-collapsed, 62px)) !important;\n' +
             '    min-width: 0 !important; display: flex !important; flex-direction: column !important;\n' +
             '    align-items: center !important; justify-content: flex-start !important; background-image: none !important;\n' +
             '}\n' +
-            'html.has-sidebar body.sidebar-open, body.has-sidebar.sidebar-open {\n' +
-            '    margin-right: var(--sb-expanded, 240px) !important;\n' +
-            '    width: calc(100% - var(--sb-expanded, 240px)) !important;\n' +
-            '    max-width: calc(100% - var(--sb-expanded, 240px)) !important;\n' +
+            'html.has-sidebar body.sidebar-open:not(.no-sidebar), body.has-sidebar.sidebar-open:not(.no-sidebar) {\n' +
+            '    margin-right: var(--sb-expanded, 240px) !important; margin-left: 0 !important;\n' +
+            '    width: calc(100% - var(--sb-expanded, 240px)) !important; max-width: calc(100% - var(--sb-expanded, 240px)) !important;\n' +
             '}\n' +
             '#sales-proportional-root, .dash-main {\n' +
             '    box-sizing: border-box !important;\n' +
@@ -17372,8 +17565,7 @@ try {
             '    margin-inline: 0 !important; padding-inline: 0 !important;\n' +
             '}\n' +
             '#sales-proportional-root > header.premium-header, .dash-main > header.premium-header, header.magical-glass-header {\n' +
-            '    box-sizing: border-box !important; width: 100% !important; max-width: 100% !important; margin: 8px 0 12px 0 !important; animation: none !important; overflow: hidden !important;\n' +
-            '    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35) !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important;\n' +
+            '    box-sizing: border-box !important; width: 100% !important; max-width: 100% !important; margin: 8px 0 12px 0 !important; overflow: hidden !important;\n' +
             '}\n' +
             '/* مسح الانعكاسات الضوئية الزجاجية المزعجة في الهيدر وأعلى يسار الشاشة وإلغاء شفافية البطاقات وحصر التأثيرات داخل الأزرار فقط */\n' +
             '.ambient-bg, :root.light-theme .ambient-bg { display: none !important; background: none !important; opacity: 0 !important; }\n' +
@@ -17387,7 +17579,7 @@ try {
             '.msg-quartet-btn::after, .msg-quartet-btn::before, .magaiees-back-btn::after, .magaiees-back-btn::before, .msg-trigger-btn::after {\n' +
             '    content: none !important; display: none !important; animation: none !important; background: none !important; opacity: 0 !important;\n' +
             '}\n' +
-            '.magical-glass-header, .msg-fixed-command-pod, .msg-twin-quartets-wrapper, .magaiees-back-btn, .pos-lemon-title, #dashboard-athkar-container { animation: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }\n' +
+            '.msg-fixed-command-pod, .msg-twin-quartets-wrapper, .magaiees-back-btn, .pos-lemon-title, #dashboard-athkar-container { animation: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }\n' +
             '.msg-fixed-command-pod { box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5) !important; }\n' +
             '#dashboard-athkar-container { background: linear-gradient(135deg, #022c22 0%, #064e3b 45%, #020617 100%) !important; box-shadow: 0 4px 14px rgba(0, 0, 0, 0.55) !important; }\n' +
             'html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #form-fields-card,\n' +
@@ -17408,10 +17600,10 @@ try {
             'svg, svg * { vector-effect: non-scaling-stroke; shape-rendering: geometricPrecision; }\n' +
             '/* النقطة (4): استنساخ فواصل شاشة المشتريات الموزونة (0.22 غامق / 0.20 فاتح) وثبات خلفية الكتابة السوداء (#000000) والنص الأبيض (#FFFFFF) */\n' +
             'html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #sales-proportional-root input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):not([type="hidden"]),\n' +
-            'html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #sales-proportional-root select,\n' +
+            'html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #sales-proportional-root select:not(#hdr-currency),\n' +
             'html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #sales-proportional-root textarea,\n' +
             'html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #sales-proportional-root input:focus,\n' +
-            'html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #sales-proportional-root select:focus,\n' +
+            'html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #sales-proportional-root select:not(#hdr-currency):focus,\n' +
             'html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #sales-proportional-root textarea:focus,\n' +
             'html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) .sales-fc1-modal-card input,\n' +
             'html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) .sales-fc1-modal-card select,\n' +
@@ -17421,10 +17613,10 @@ try {
             '    border: 1.5px solid rgba(255, 255, 255, 0.22) !important; font-weight: 800 !important; caret-color: #38bdf8 !important;\n' +
             '}\n' +
             ':root.light-theme #sales-proportional-root input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):not([type="hidden"]),\n' +
-            ':root.light-theme #sales-proportional-root select,\n' +
+            ':root.light-theme #sales-proportional-root select:not(#hdr-currency),\n' +
             ':root.light-theme #sales-proportional-root textarea,\n' +
             ':root.light-theme #sales-proportional-root input:focus,\n' +
-            ':root.light-theme #sales-proportional-root select:focus,\n' +
+            ':root.light-theme #sales-proportional-root select:not(#hdr-currency):focus,\n' +
             ':root.light-theme #sales-proportional-root textarea:focus {\n' +
             '    background-color: #FFFFFF !important; color: #000000 !important; -webkit-text-fill-color: #000000 !important;\n' +
             '    -webkit-box-shadow: 0 0 0 1000px #FFFFFF inset !important; box-shadow: 0 0 0 1000px #FFFFFF inset !important;\n' +
@@ -17446,20 +17638,7 @@ try {
             '#sales-proportional-root, #sales-proportional-root *, .sales-fc1-modal-card, .sales-fc1-modal-card * {\n' +
             '    font-family: \'Cairo\', \'Tajawal\', \'Segoe UI\', Tahoma, sans-serif !important;\n' +
             '}\n' +
-            '#sales-proportional-root h1, #sales-proportional-root h2, #sales-proportional-root h3, #sales-proportional-root .neo-card-title {\n' +
-            '    font-size: calc(var(--global-master-font-px, 15px) * 1.02) !important; font-weight: 900 !important; line-height: 1.4 !important;\n' +
-            '}\n' +
-            '#sales-proportional-root label, #sales-proportional-root .h-label, #sales-proportional-root .v-label, .group-supplier .h-label {\n' +
-            '    font-size: calc(var(--global-master-font-px, 15px) * 0.86) !important; font-weight: 800 !important; line-height: 1.35 !important;\n' +
-            '}\n' +
-            '#sales-proportional-root input:not([type="checkbox"]):not([type="radio"]), #sales-proportional-root select, #sales-proportional-root textarea,\n' +
-            '.group-supplier .ctrl-input, #hdr-customer-search,\n' +
-            '#pos-grid th, #pos-grid td, .pos-grid th, .pos-grid td {\n' +
-            '    font-size: calc(var(--global-master-font-px, 15px) * 0.92) !important; font-weight: 800 !important;\n' +
-            '}\n' +
-            '#sales-proportional-root button, #sales-proportional-root .btn, #sales-proportional-root .btn-action {\n' +
-            '    font-size: calc(var(--global-master-font-px, 15px) * 0.84) !important; font-weight: 900 !important;\n' +
-            '}\n' +
+            '#sales-fc1-smart-ai-command-bar, #split-fc1-ai-cockpit-bar { display: none !important; }\n' +
             'html[data-sales-sunlight="1"] body { filter: contrast(1.15) brightness(1.04) !important; }\n' +
             'body[data-sales-ui="classic"] #form-fields-card, body[data-sales-ui="classic"] .neo-card { border-radius: 6px !important; backdrop-filter: none !important; box-shadow: none !important; }\n' +
             '/* النقطة (8 و 9): الفواصل الواضحة بين الخلايا وإضاءة السطر النشط والأزرار السفلية (Under-Glow) في المحرر وبوابة تقسيم الفواتير */\n' +
@@ -17484,16 +17663,7 @@ try {
     }
 
     // تطهير أي مقاسات خطوط عشوائية فردية (Inline font-size) داخل منطقة العمليات وتقسيم الفواتير لتوحيد الخطوط 100% + آلة حاسبة مدمجة 0ms
-    window.normalizeSalesUnifiedTypographyAndMathInputs = function(root) {
-        try {
-            var scope = root || document.getElementById('sales-proportional-root') || document;
-            scope.querySelectorAll('label[style*="font-size"], .h-label[style*="font-size"], input[style*="font-size"], select[style*="font-size"], textarea[style*="font-size"]').forEach(function(el) {
-                if (el.style && el.style.fontSize) {
-                    el.style.removeProperty('font-size');
-                }
-            });
-        } catch (e) {}
-    };
+    window.normalizeSalesUnifiedTypographyAndMathInputs = function() {};
 
     // موزع المخازن وتوازن الحمولة بالذكاء الاصطناعي لبوابة تقسيم الفواتير (0ms AI Warehouse & Weight Optimizer)
     window.splitByAiWarehousePriority = function() {
@@ -17711,87 +17881,7 @@ try {
     }
 
     // 4. حقن شريط الذكاء الاصطناعي الهجين (0ms Hybrid Edge + Cloud AI) للدستور الختامي الأول (1 من 2)
-    function injectSalesFc1AiCommandBar() {
-        if (document.getElementById('sales-fc1-smart-ai-command-bar')) return;
-        var rootEl = document.getElementById('sales-proportional-root') || document.querySelector('.dash-main');
-        var hubView = document.getElementById('sales-hub-view');
-        if (!rootEl || !hubView) return;
-
-        var sym = window.verifySalesLaserCenterSymmetry();
-        var bar = document.createElement('div');
-        bar.id = 'sales-fc1-smart-ai-command-bar';
-        bar.style.cssText = 'display:flex;flex-direction:column;gap:7px;padding:10px 14px;margin:0 0 10px 0;border-radius:14px;border:1.5px solid rgba(56,189,248,0.34);background:linear-gradient(135deg,rgba(15,23,42,0.95),rgba(12,24,44,0.92));box-shadow:0 8px 24px rgba(0,0,0,0.25);box-sizing:border-box;width:100%;';
-        bar.innerHTML =
-            '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;width:100%;">' +
-                '<div style="display:flex;align-items:center;gap:6px;flex:1;min-width:270px;background:#000000;border:1.5px solid rgba(56,189,248,0.48);border-radius:10px;padding:3px 8px;">' +
-                    '<span style="font-size:1rem;" title="الإدخال الذكي للمبيعات باللغة الطبيعية صوتاً وكتابةً (0ms AI Copilot)">🧠</span>' +
-                    '<input type="text" id="sales-fc1-nlp-input" list="sales-fc1-smart-datalist" onkeydown="if(event.key===\'Enter\'){event.preventDefault();window.executeSalesFc1NaturalLanguageCommand();}" placeholder="اكتب أو انطق فاتورة ذكية: مثلاً «فاتورة مبيعات لعماد 50 طن أسمنت سعر 125000 نقداً»..." style="flex:1;background:#000000 !important;border:none !important;color:#ffffff !important;font-size:0.81rem;font-weight:800;outline:none;padding:4px 6px;height:28px !important;" data-guide-title="الإدخال الذكي لفاتورة المبيعات باللغة الطبيعية صوتاً وكتابةً (0ms AI)" data-guide-desc="اكتب أو انطق جملة طبيعية مثل (فاتورة مبيعات لعماد 50 طن أسمنت نقداً) وسيقوم الذكاء الاصطناعي بفتح الفاتورة وتعبئة العميل والصنف والكمية والسعر وحساب الإجمالي في جزء من الثانية." data-guide-rule="الإدخال الذكي باللغة الطبيعية يختصر 10 خطوات يدوية في خطوة واحدة بسرعة 0ms.">' +
-                    '<button type="button" id="btn-sales-fc1-voice" onclick="window.startSalesFc1VoiceNlpInput()" style="height:27px;padding:0 9px;border-radius:7px;background:rgba(239,68,68,0.22);color:#fca5a5;border:1px solid rgba(239,68,68,0.5);font-size:0.75rem;font-weight:900;cursor:pointer;" title="إملاء فاتورة المبيعات بالصوت">🎤 صوتي</button>' +
-                    '<button type="button" onclick="window.executeSalesFc1NaturalLanguageCommand()" style="height:27px;padding:0 11px;border-radius:7px;background:linear-gradient(135deg,#0284c7,#2563eb);color:#fff;border:1px solid #38bdf8;font-size:0.75rem;font-weight:900;cursor:pointer;">⚡ ملء فوري</button>' +
-                '</div>' +
-                '<div style="display:flex;align-items:center;gap:5px;flex-wrap:wrap;">' +
-                    '<button type="button" id="btn-sales-fc1-theme-12" onclick="if(typeof window.toggleSalesThemeToneMenu===\'function\'){window.toggleSalesThemeToneMenu(event);}else if(typeof window.openPurchaseThemeModal===\'function\'){window.openPurchaseThemeModal();}" style="height:30px;padding:0 10px;border-radius:8px;background:rgba(16,185,129,0.20);color:#34d399;border:1.5px solid rgba(16,185,129,0.55);font-size:0.75rem;font-weight:900;cursor:pointer;" data-guide-title="المظهر ونغمات النظام (12 لوناً وسمة + 4 نغمات صوتية من شاشة المشتريات)" data-guide-desc="فتح لوحة المظهر ونغمات النظام المعتمدة في شاشة المشتريات بجميع ألوانها الـ 12 (8 فاتحة + 4 داكنة/معدنية) مع مزامنة ألوان ومقاسات الخطوط (+2) لحظياً في 0ms." data-guide-rule="توحيد المظهر ونغمات النظام وألوان الخطوط بين المشتريات والمبيعات والشاشات المنبثقة.">🎨 المظهر (12)</button>' +
-                    '<button type="button" id="btn-sales-fc1-ocr" onclick="window.openSalesFc1AiOcrAndPriceAdvisorModal()" style="height:30px;padding:0 9px;border-radius:8px;background:rgba(14,165,233,0.18);color:#38bdf8;border:1px solid rgba(56,189,248,0.48);font-size:0.75rem;font-weight:900;cursor:pointer;" data-guide-title="قارئ الإشعارات والصور AI OCR ومقترح أفضل سعر وبديل للصنف" data-guide-desc="قراءة صور الطلبيات وإشعارات الواتساب وتوزيع النصوص المنسوخة تلقائياً مع اقتراح أفضل سعر بيع وبديل للصنف." data-guide-rule="اقتراح البديل الأوفر والسعر الأمثل يرفع ربحية المبيعات ويمنع ضياع البيعة.">📷 قارئ AI والمستشار</button>' +
-                    '<button type="button" id="btn-sales-fc1-paste" onclick="window.openSalesFc1SmartPasteModal()" style="height:30px;padding:0 9px;border-radius:8px;background:rgba(168,85,247,0.18);color:#e9d5ff;border:1px solid rgba(168,85,247,0.5);font-size:0.75rem;font-weight:900;cursor:pointer;" data-guide-title="زر التوزيع الذكي للنصوص المنسوخة (AI Smart Paste)" data-guide-desc="لصق طلبية العميل من واتساب أو إكسل ليقوم الذكاء الاصطناعي بتفريغ الأصناف والكميات في الفاتورة فوراً.">📋 توزيع ذكي</button>' +
-                    '<button type="button" id="btn-sales-fc1-ui-mode" onclick="window.toggleSalesFc1DualUiMode()" style="height:30px;padding:0 9px;border-radius:8px;background:rgba(139,92,246,0.18);color:#ddd6fe;border:1px solid rgba(139,92,246,0.48);font-size:0.75rem;font-weight:900;cursor:pointer;" data-guide-title="البوابة المزدوجة (العصرية العالمية ↔ الكلاسيكية المعتادة)" data-guide-desc="التبديل الفوري في 0ms بين الواجهة العصرية الفاخرة والواجهة الكلاسيكية الدفترية المعتادة.">✨ عصرية ↔ 🏛️ كلاسيكية</button>' +
-                    '<button type="button" id="btn-sales-fc1-shortcuts" onclick="window.openSalesFc1ShortcutsMatrixModal()" style="height:30px;padding:0 9px;border-radius:8px;background:rgba(245,158,11,0.18);color:#fde047;border:1px solid rgba(245,158,11,0.48);font-size:0.75rem;font-weight:900;cursor:pointer;" data-guide-title="مصفوفة أزرار الاختصارات (1، 2، 3، 4) القابلة للتشكيل بعلامة صح (✓)" data-guide-desc="التبديل بين البرنامج الكامل وأزرار الاختصارات (1-4) وتحديد ما يظهر بداخلها مع قفل حبس الاختصار أمنياً للموظف.">🔢 اختصارات (1-4)</button>' +
-                    '<button type="button" id="btn-sales-fc1-split" onclick="window.toggleSalesFc1SplitScreenStudio()" style="height:30px;padding:0 9px;border-radius:8px;background:rgba(6,182,212,0.18);color:#67e8f9;border:1px solid rgba(6,182,212,0.48);font-size:0.75rem;font-weight:900;cursor:pointer;" data-guide-title="نظام النصفين (يمين وشمال) وهندسة الموبايل بالعرض (100dvh)" data-guide-desc="فتح شاشتين مختلفتين في النصف الأيمن والأيسر تتحدثان حياً فور الحفظ، أو تحويل النصف الثاني لمنطقة جوال حرة 100% (يوتيوب، استوديو صور AI، واتساب، وبنكك).">🌗 نظام النصفين</button>' +
-                    '<button type="button" id="btn-sales-fc1-gestures" onclick="window.openSalesFc1GestureControlModal()" style="height:30px;padding:0 9px;border-radius:8px;background:rgba(16,185,129,0.18);color:#6ee7b7;border:1px solid rgba(16,185,129,0.48);font-size:0.75rem;font-weight:900;cursor:pointer;" data-guide-title="مفتاح التحكم في إيماءات الأصابع وأزرار الصوت للشاشات المرتجة" data-guide-desc="تفعيل أو إيقاف إيماءات الأصابع وأزرار الصوت لحماية الشاشات ذات اللمس المرتج مع لوحة الشرح الوافي لكل حركة.">🤚 الإيماءات</button>' +
-                    '<button type="button" id="btn-sales-fc1-park" onclick="window.parkActiveSalesInvoiceFc1()" style="height:30px;padding:0 9px;border-radius:8px;background:rgba(245,158,11,0.16);color:#fbbf24;border:1px solid rgba(245,158,11,0.45);font-size:0.75rem;font-weight:900;cursor:pointer;" title="تعليق مؤقت للفاتورة واسترجاعها بضغطة زر (Alt+P)">⏸️ تعليق <span id="sales-fc1-park-badge">0</span></button>' +
-                    '<button type="button" id="btn-sales-fc1-undo" onclick="window.triggerSalesFc1InstantUndo()" style="height:30px;padding:0 9px;border-radius:8px;background:rgba(56,189,248,0.16);color:#7dd3fc;border:1px solid rgba(56,189,248,0.45);font-size:0.75rem;font-weight:900;cursor:pointer;" title="تراجع فوري آمن (Ctrl+Z)">↩️ تراجع</button>' +
-                    '<button type="button" id="btn-sales-fc1-sunlight" onclick="window.toggleSalesFc1SunlightMode()" style="height:30px;padding:0 8px;border-radius:8px;background:rgba(250,204,21,0.16);color:#fde047;border:1px solid rgba(250,204,21,0.45);font-size:0.75rem;font-weight:900;cursor:pointer;">☀️ شمس السوق</button>' +
-                    '<button type="button" id="btn-sales-fc1-audit-gate" onclick="window.openSalesFc1SupremeConstitutionModal()" style="height:30px;padding:0 9px;border-radius:8px;background:linear-gradient(135deg,#10b981,#047857);color:#ffffff;border:1.5px solid #34d399;font-size:0.74rem;font-weight:900;cursor:pointer;box-shadow:0 3px 10px rgba(16,185,129,0.32);" data-guide-title="بوابة الدستور الختامي الأول (1 من 2 — 10 نقاط جوهرية 100%)" data-guide-desc="فحص وتشغيل النقاط الجوهرية العشر للدستور الختامي الأول على شاشة المبيعات بمعيار 50 دورة مراجعة وزيرو خطأ." data-guide-rule="تطبيق التناسب الهندسي الموحد (6:8) والذكاء الهجين 0ms يضمن سرعة ودقة المبيعات.">👑 الدستور (1/2)</button>' +
-                    '<button type="button" id="btn-sales-fc2-audit-gate" onclick="window.openSalesFc2SupremeConstitution2Modal()" style="height:30px;padding:0 9px;border-radius:8px;background:linear-gradient(135deg,#f59e0b,#b45309);color:#ffffff;border:1.5px solid #fde047;font-size:0.74rem;font-weight:900;cursor:pointer;box-shadow:0 3px 12px rgba(245,158,11,0.38);" data-guide-title="بوابة الدستور الختامي الثاني (2 من 2 — الذكاء المحاسبي والتحليلي والأمني 10/10)" data-guide-desc="خلاصة الربط الذري 100%، مفسر النتائج والتقارير بالذكاء الاصطناعي، تزامن CRDT، دورة الشيكات وبنكك 40KB، رادار المالك الجنائي (أصفر/برتقالي/أحمر)، وأقفال مكافحة الاختلاس." data-guide-rule="كل فاتورة مبيعات تسمع ذرياً في 0ms في المخازن وكشف العميل والخزينة واليومية وتخضع لحراسة الذكاء الاصطناعي الجنائي.">🛡️ الدستور (2/2)</button>' +
-                    '<button type="button" id="btn-sales-sovereign-10x-gate" onclick="window.openSalesFc2MasterAudit10AdditionsModal()" style="height:30px;padding:0 10px;border-radius:8px;background:linear-gradient(135deg,#0284c7,#1d4ed8);color:#ffffff;border:1.5px solid #7dd3fc;font-size:0.74rem;font-weight:900;cursor:pointer;box-shadow:0 3px 12px rgba(2,132,199,0.42);" data-guide-title="بوابة الحسم والفحص الختامي الشامل (تنصيف الشاشة بالليزر + تكبير 10x بالرولة + زيرو خطأ)" data-guide-desc="تقرير الإصلاحات الفورية والـ 10 إضافات الذكية المنفذة فعلياً مع تنصيف الشاشة بالليزر بعد الشريط الجانبي والتكبير حتى 10 أضعاف (10x)." data-guide-rule="بوابة الحسم تضمن عمل كافة الأزرار والمعادلات والتقارير بنسبة 100% وزيرو خطأ.">🏆 بوابة الحسم (10x + زيرو خطأ)</button>' +
-                '</div>' +
-            '</div>' +
-            '<div id="sales-fc2-executive-toolbar" style="display:flex;align-items:center;justify-content:space-between;gap:5px;flex-wrap:wrap;width:100%;padding-top:5px;border-top:1px dashed rgba(148,163,184,0.28);">' +
-                '<div style="display:flex;align-items:center;gap:5px;flex-wrap:wrap;">' +
-                    '<button type="button" onclick="window.openSalesFc2AtomicSyncAndDrillDownModal()" style="height:28px;padding:0 9px;border-radius:7px;background:rgba(16,185,129,0.18);color:#34d399;border:1px solid rgba(16,185,129,0.5);font-size:0.73rem;font-weight:900;cursor:pointer;" data-guide-title="التسميع الذري اللحظي (0ms) والوصول لأصل المستند (Drill-Down)" data-guide-desc="ربط ذري 100% بين فاتورة المبيعات وكشف حساب العميل وأرصدة المخازن والخزينة والبنوك واليومية وميزان المراجعة والأرباح والخسائر مع فتح أصل أي حركة بلمسة." data-guide-rule="حفظ فاتورة المبيعات يُسمّع في 7 شاشات وتقارير في نفس الجزء من الثانية.">🔗 التسميع الذري و Drill-Down</button>' +
-                    '<button type="button" onclick="window.openSalesFc2AiExecutiveInsightsModal()" style="height:28px;padding:0 9px;border-radius:7px;background:rgba(56,189,248,0.18);color:#38bdf8;border:1px solid rgba(56,189,248,0.5);font-size:0.73rem;font-weight:900;cursor:pointer;" data-guide-title="مفسر النتائج والتقارير بالذكاء الاصطناعي (AI Executive Insights)" data-guide-desc="قراءة وتفسير نتيجة المبيعات والربحية، التنبؤ باحتياجات المخزون وتحصيل الديون، وسؤال التقرير باللغة الطبيعية." data-guide-rule="تحليل الفاتورة قبل الحفظ يكشف أثرها المباشر على السيولة وهامش ربح المؤسسة.">📊 مفسر النتائج وسؤال التقرير AI</button>' +
-                    '<button type="button" onclick="window.openSalesFc2DocumentaryAndLandedCostModal()" style="height:28px;padding:0 9px;border-radius:7px;background:rgba(168,85,247,0.18);color:#d8b4fe;border:1px solid rgba(168,85,247,0.5);font-size:0.73rem;font-weight:900;cursor:pointer;" data-guide-title="العمق المخزني، شرائح التسعير، التكلفة المضافة (Landed Cost)، والدورة المستندية" data-guide-desc="شرائح التسعير الذكية، تعدد الوحدات، كشف تآكل الربح، فحص واستلام البضاعة، وتحويل (عرض سعر ⬅ فاتورة ⬅ إذن مخزن ⬅ سند قبض/صرف) بلمسة زر." data-guide-rule="ربط التسعير بالتكلفة المضافة الفعلية يمنع البيع بالخسارة.">📦 العمق المخزني والدورة المستندية</button>' +
-                    '<button type="button" onclick="window.openSalesFc2ChequesAndBankakRadarModal()" style="height:28px;padding:0 9px;border-radius:7px;background:rgba(245,158,11,0.18);color:#fde047;border:1px solid rgba(245,158,11,0.5);font-size:0.73rem;font-weight:900;cursor:pointer;" data-guide-title="دورة الشيكات الخماسية وكاشف تزوير إشعارات (بنكك / فوري) بضغط 40KB" data-guide-desc="إدارة مراحل الشيك الخمس (حافظة ⬅ تحت التحصيل ⬅ تحصيل فعلي ⬅ مرتد ⬅ تظهير) وفحص إشعارات بنكك وفوري بالذكاء الاصطناعي لمنع التكرار والتزوير." data-guide-rule="فحص الرقم المرجعي لإشعار بنكك عبر قاعدة البيانات يمنع تكرار الإشعار أو التزوير.">🏦 الشيكات وكاشف تزوير بنكك</button>' +
-                    '<button type="button" onclick="window.openSalesFc2ProactiveAlertsCenterModal()" style="height:28px;padding:0 9px;border-radius:7px;background:rgba(236,72,153,0.18);color:#f9a8d4;border:1px solid rgba(236,72,153,0.5);font-size:0.73rem;font-weight:900;cursor:pointer;" data-guide-title="منظومة التنبيهات الاستباقية وحارس الأصفار الزائدة والأسعار الشاذة" data-guide-desc="رادار استحقاق الشيكات، مخاطر ائتمان العميل قبل البيع الآجل، الأصناف الراكدة، وحارس الأصفار الزائدة والأسعار الشاذة مع اهتزاز الخانة الخاطئة." data-guide-rule="التنبيه الاستباقي عند تجاوز سقف ائتمان العميل أو إدخال صفر زائد يحمي أموال المؤسسة.">🔔 التنبيهات وحارس الأصفار</button>' +
-                    '<button type="button" onclick="window.openSalesFc2ForensicOwnerRadarModal()" style="height:28px;padding:0 9px;border-radius:7px;background:rgba(239,68,68,0.2);color:#fca5a5;border:1px solid rgba(239,68,68,0.55);font-size:0.73rem;font-weight:900;cursor:pointer;" data-guide-title="رادار الذكاء الاصطناعي الجنائي للمالك (🟡 أصفر / 🟠 برتقالي / 🔴 أحمر) والصندوق الأسود" data-guide-desc="توثيق كل ما كُتب ومُسح قبل الحفظ في الصندوق الأسود المشفر، وتحليل سلوك الموظفين بثلاث درجات (ملاحظة رقابية، شبهة بيع بالحد الأدنى، محاولة اختلاس)." data-guide-rule="الصندوق الأسود يوثق كل تعديل أو مسح قبل الحفظ ويغذي لوحة المالك السرية لحظياً.">🕵️‍♂️ الرادار الجنائي للمالك (🟡🟠🔴)</button>' +
-                    '<button type="button" onclick="window.openSalesFc2AntiEmbezzlementLocksModal()" style="height:28px;padding:0 9px;border-radius:7px;background:rgba(14,165,233,0.18);color:#7dd3fc;border:1px solid rgba(14,165,233,0.5);font-size:0.73rem;font-weight:900;cursor:pointer;" data-guide-title="أقفال مكافحة الاختلاس، قفل الطبعة (1)، الجرد الأعمى، وإقفال الفترات" data-guide-desc="قفل الطباعة بعد النسخة الأصلية (1) وعلامة بدل فاقد بباركود وحيد الاستعمال، الجرد الأعمى للخزينة، إشعار واتساب الفوري للعميل، وقفل الفترات المالية المغلقة." data-guide-rule="قفل الطبعة الأولى وإشعار الواتساب الفوري للعميل يمنعان التلاعب بنوع الدفع وصرف البضاعة مرتين.">🔒 أقفال الاختلاس والجرد الأعمى</button>' +
-                    '<button type="button" onclick="window.openSalesFc2CyberBiometricAndPrintStudioModal()" style="height:28px;padding:0 9px;border-radius:7px;background:rgba(20,184,166,0.18);color:#5eead4;border:1px solid rgba(20,184,166,0.5);font-size:0.73rem;font-weight:900;cursor:pointer;" data-guide-title="البصمة البيومترية، القفل الزمني، والطباعة الحرارية 80mm وبطاقة واتساب" data-guide-desc="تفعيل البصمة البيومترية، ستارة التعتيم، عين الخصوصية (****)، القفل الزمني ضد إرجاع الساعة، تشفير AES-256، والطباعة الحرارية 80mm وA4 وبطاقة إيصال واتساب." data-guide-rule="البصمة البيومترية والقفل الزمني المشفر يحميان فواتير المبيعات المرحّلة من أي عبث.">🧬 البصمة وطباعة 80mm وواتساب</button>' +
-                '</div>' +
-                '<div style="display:flex;align-items:center;gap:5px;flex-wrap:wrap;">' +
-                    '<span id="sales-fc2-crdt-sync-badge" onclick="window.triggerSalesFc2FlashSyncCRDT()" style="height:26px;padding:0 9px;border-radius:999px;background:rgba(16,185,129,0.16);color:#34d399;border:1px solid rgba(16,185,129,0.45);font-size:0.71rem;font-weight:900;display:inline-flex;align-items:center;gap:4px;cursor:pointer;" data-guide-title="التزامن الصاروخي (CRDT Flash Sync) ودرع حماية المدخلات" data-guide-desc="اقتناص أضعف شرارة إنترنت لدمج فواتير المبيعات تراكمياً بدون تضارب مع حماية المدخلات الجارية عند انطفاء البطارية أو ورود مكالمة." data-guide-rule="خوارزمية CRDT تدمج حركات المبيعات من عدة أجهزة أوفلاين تراكمياً بنسبة تطابق 100%.">⚡ تزامن CRDT: متطابق 100% (0ms)</span>' +
-                '</div>' +
-            '</div>' +
-            '<div id="sales-fc2-live-result-interpreter-bar" style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;padding:6px 10px;border-radius:9px;background:rgba(2,6,23,0.78);border:1px solid rgba(56,189,248,0.35);font-size:0.76rem;">' +
-                '<div id="sales-fc2-live-result-summary-text" style="font-weight:800;color:#e2e8f0;flex:1;min-width:220px;">🧠 <strong style="color:#38bdf8;">مفسر النتائج بالذكاء الاصطناعي (0ms):</strong> جاري قراءة إجمالي المبيعات وهامش الربح وأثرها على المخزون والسيولة...</div>' +
-                '<div style="display:flex;align-items:center;gap:5px;flex-wrap:wrap;">' +
-                    '<input type="text" id="sales-fc2-quick-report-question" onkeydown="if(event.key===\'Enter\'){event.preventDefault();window.askSalesFc2QuickReportQuestion();}" placeholder="اسأل تقرير المبيعات: «أكثر 5 عملاء ربحية»، «سبب زيادة المصروفات»، «توقع التحصيل»..." style="width:250px;max-width:100%;height:26px !important;min-height:26px !important;padding:0 8px !important;border-radius:6px;border:1px solid rgba(56,189,248,0.45) !important;background:#000000 !important;color:#ffffff !important;font-size:0.73rem;font-weight:800;">' +
-                    '<button type="button" onclick="window.askSalesFc2QuickReportQuestion()" style="height:26px;padding:0 9px;border-radius:6px;background:#0284c7;color:#fff;border:none;font-size:0.72rem;font-weight:900;cursor:pointer;" data-guide-title="الاستعلام الذكي من التقارير (Ask the Report AI)" data-guide-desc="اسأل تقرير المبيعات والأرباح باللغة الطبيعية ليستخرج لك النتيجة والقرار فوراً في 0ms." data-guide-rule="تحويل الأرقام الصامتة إلى قرارات تنفيذية فورية بلمسة واحدة.">🔍 استخرج فوراً</button>' +
-                '</div>' +
-            '</div>' +
-            '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;font-size:0.75rem;">' +
-                '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">' +
-                    '<span id="sales-fc1-copilot-hint" style="padding:2px 10px;border-radius:999px;background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.4);color:#34d399;font-weight:900;">🤖 مساعد الشاشة الذكي (0ms Copilot): جاهز — اكتب معادلة مثل (12*24) داخل الكمية أو السعر للحساب التلقائي</span>' +
-                    '<span id="sales-fc1-live-tafqeet-bar" style="padding:2px 10px;border-radius:999px;background:rgba(56,189,248,0.14);border:1px solid rgba(56,189,248,0.38);color:#fde047;font-weight:900;">🗣️ التفقيط اللحظي: صفر جنيه سوداني لا غير</span>' +
-                '</div>' +
-                '<div style="display:flex;align-items:center;gap:5px;flex-wrap:wrap;">' +
-                    '<span id="sales-laser-symmetry-badge" onclick="window.setSalesFc1ProportionalZoom(\'reset\')" style="padding:2px 9px;border-radius:999px;background:rgba(16,185,129,0.16);border:1px solid #34d399;color:#34d399;font-weight:900;cursor:pointer;" title="قفل التنصيف الليزري المتماثل بعد الشريط الجانبي: الهامش الأيمن === الهامش الأيسر">🎯 تنصيف ليزري (بعد الشريط): يمين (' + sym.rightMargin + 'px) = يسار (' + sym.leftMargin + 'px)</span>' +
-                    '<button type="button" onclick="window.setSalesFc1ProportionalZoom(\'step\', -0.1)" style="height:24px;padding:0 7px;border-radius:6px;background:#1e293b;color:#38bdf8;border:1px solid rgba(56,189,248,0.4);font-weight:900;cursor:pointer;">➖</button>' +
-                    '<span id="sales-fc1-zoom-badge" onclick="window.setSalesFc1ProportionalZoom(\'reset\')" style="color:#38bdf8;font-weight:900;cursor:pointer;" title="Ctrl + رولة الماوس للتكبير والتصغير المتناسب (6:8)">📐 مقاس (6:8): ' + Math.round(salesSovZoom * 100) + '%</span>' +
-                    '<button type="button" onclick="window.setSalesFc1ProportionalZoom(\'step\', 0.1)" style="height:24px;padding:0 7px;border-radius:6px;background:#1e293b;color:#38bdf8;border:1px solid rgba(56,189,248,0.4);font-weight:900;cursor:pointer;">➕</button>' +
-                    '<button type="button" onclick="window.setSalesFc1ProportionalZoom(2.0)" style="height:23px;padding:0 6px;border-radius:5px;background:rgba(56,189,248,0.18);color:#7dd3fc;border:none;font-size:0.69rem;font-weight:900;cursor:pointer;">2x</button>' +
-                    '<button type="button" onclick="window.setSalesFc1ProportionalZoom(3.0)" style="height:23px;padding:0 6px;border-radius:5px;background:rgba(56,189,248,0.18);color:#7dd3fc;border:none;font-size:0.69rem;font-weight:900;cursor:pointer;">3x</button>' +
-                    '<button type="button" onclick="window.setSalesFc1ProportionalZoom(5.0)" style="height:23px;padding:0 6px;border-radius:5px;background:rgba(245,158,11,0.2);color:#fde047;border:none;font-size:0.69rem;font-weight:900;cursor:pointer;">5x</button>' +
-                    '<button type="button" onclick="window.setSalesFc1ProportionalZoom(10.0)" style="height:23px;padding:0 6px;border-radius:5px;background:rgba(239,68,68,0.25);color:#fca5a5;border:none;font-size:0.69rem;font-weight:900;cursor:pointer;">10x</button>' +
-                '</div>' +
-            '</div>' +
-            '<div id="sales-fc1-parked-strip" style="display:none;align-items:center;gap:6px;flex-wrap:wrap;padding-top:4px;border-top:1px dashed rgba(245,158,11,0.35);"></div>' +
-            '<datalist id="sales-fc1-smart-datalist">' +
-                '<option value="فاتورة مبيعات لعماد 50 طن أسمنت سعر 125000 نقداً"></option>' +
-                '<option value="فاتورة مبيعات لشركة النيل 20 حديد تسليح سعر 420000 آجل"></option>' +
-                '<option value="تقسيم فاتورة"></option>' +
-            '</datalist>';
-
-        hubView.parentNode.insertBefore(bar, hubView);
-    }
+    function injectSalesFc1AiCommandBar() {}
 
     // زر عائم شفاف للموبايل المقلوب بالعرض (100dvh)
     function ensureSalesLandscapeFloatingPill() {
@@ -18180,22 +18270,31 @@ try {
         });
     }
 
-    // المرشد الذكي بالصوت الرجالي الفخيم والكبسولة المصغرة (Micro-HUD + SVG + القاعدة الذهبية + التعرف التلقائي)
+    // المرشد الذكي بالصوت الرجالي الفخيم والكبسولة المصغرة (الشرح المباشر لفاتورة المبيعات + تحكم السرعة والصوت واللهجة)
     window.speakSalesSmartGuideMaleVoice = function(text, includeSalawatOnce) {
+        if (typeof window.speakMdExplanationPanelText === 'function') {
+            var fullTxt = String(text || '').trim();
+            if (includeSalawatOnce && !window._salesGuideSalawatSpokenOnce && !fullTxt.includes('اللهم صل')) {
+                window._salesGuideSalawatSpokenOnce = true;
+                fullTxt = 'اللهم صل وسلم على نبينا محمد، الآن أشرح فاتورة المبيعات. ' + fullTxt;
+            }
+            window.speakMdExplanationPanelText(fullTxt);
+            return;
+        }
         try {
             if (!('speechSynthesis' in window)) return;
             window.speechSynthesis.cancel();
             var fullText = String(text || '').trim();
-            if (includeSalawatOnce && !window._salesGuideSalawatSpokenOnce) {
+            if (includeSalawatOnce && !window._salesGuideSalawatSpokenOnce && !fullText.includes('اللهم صل')) {
                 window._salesGuideSalawatSpokenOnce = true;
-                fullText = 'اللهم صل وسلم على نبينا محمد. ' + fullText;
+                fullText = 'اللهم صل وسلم على نبينا محمد، الآن أشرح فاتورة المبيعات. ' + fullText;
             }
             var utt = new SpeechSynthesisUtterance(fullText);
             utt.lang = 'ar-SA';
-            utt.pitch = 0.88; // صوت رجالي وقور وفخيم
-            utt.rate = 0.96;
+            utt.pitch = 0.92;
+            utt.rate = 1.00;
             var voices = window.speechSynthesis.getVoices() || [];
-            var arVoice = voices.find(function(v) { return /ar/i.test(v.lang) && /male|hamed|naayf|tarik|maged/i.test(v.name); }) ||
+            var arVoice = voices.find(function(v) { return /ar/i.test(v.lang) && /male|hamed|abdullah|shakir|naayf|tarik|maged/i.test(v.name); }) ||
                           voices.find(function(v) { return /ar/i.test(v.lang); });
             if (arVoice) utt.voice = arVoice;
             window.speechSynthesis.speak(utt);
@@ -18224,23 +18323,23 @@ try {
         }
         var steps = [
             {
-                title: '1️⃣ الشرح العام وخريطة التسميع الذري (Function + Lineage + Golden Rule)',
-                speech: 'شاشة فاتورة المبيعات المباشرة والآجلة. تأتي معلوماتها من شاشة البيانات الأساسية للعملاء والأصناف والمخازن وعروض الأسعار، وتسمع فور الحفظ في سبع جهات: كشف حساب العميل، أرصدة المخازن، الخزينة والبنوك، حافظة الشيكات، دفتر اليومية، ميزان المراجعة، والأرباح والخسائر. القاعدة الذهبية للشاشة: تحقق من سقف ائتمان العميل وهامش الربح وتطابق طريقة الدفع قبل الضغط على حفظ أف عشرة.',
+                title: '1️⃣ شرح فاتورة المبيعات: التاريخ والمخازن والعميل',
+                speech: 'اللهم صل وسلم على نبينا محمد، الآن أشرح فاتورة المبيعات. هذه منطقة التاريخ التي يُكتب فيها تاريخ اليوم، وهذا هنا يختار المخازن التي يُخصم منها البضاعة المباعة، وبجانبها منطقة اختيار العميل وزر الأستاذ لكشف حسابه التفصيلي، وشريط الرصيد والمديونية وحد الائتمان.',
                 action: null
             },
             {
-                title: '2️⃣ الشاشة الوليدة الأولى: تعدد الوحدات، الفحص والاستلام، والتكلفة المضافة',
-                speech: 'نفتح الآن حياً الشاشة الوليدة للعمق المخزني وتعدد الوحدات وتوزيع المصروفات المضافة وفحص البضاعة. القاعدة الذهبية: البيع بالوحدة الكبرى أو الفرعية يخصم تلقائياً بالمعامل الهندسي ويحذر فوراً عند تآكل هامش الربح.',
+                title: '2️⃣ جدول الأصناف وتعدد الوحدات والكميات والأسعار',
+                speech: 'وهذا جدول الأصناف والكميات والأسعار؛ تبحث فيه عن الصنف بالاسم أو الباركود، وتحدد الوحدة والكمية وسعر البيع، ويعرض لك الرصيد المتاح في المخزن وآخر سعر بيع للعميل مع حساب الإجمالي بالجنيه والدولار.',
                 action: function() { if (typeof window.openSalesFc2DocumentaryAndLandedCostModal === 'function') window.openSalesFc2DocumentaryAndLandedCostModal(); }
             },
             {
-                title: '3️⃣ الشاشة الوليدة الثانية: حافظة الشيكات الخماسية وكاشف إشعارات بنكك',
-                speech: 'نفتح الآن حياً الشاشة الوليدة لدورة الشيكات الخماسية وفحص إشعارات بنكك وفوري بالذكاء الاصطناعي. القاعدة الذهبية: فحص الرقم المرجعي للإشعار البنكي يمنع تكرار الإشعار أو التزوير بنسبة مئة بالمئة.',
+                title: '3️⃣ طرق الدفع وحافظة الشيكات وإشعارات بنكك',
+                speech: 'وهذه لوحة الدفع واعتماد الفاتورة؛ تختار منها طريقة السداد نقداً أو آجلاً أو شيك أو تحويل بنكك وفوري مع فحص الرقم المرجعي للإشعار لمنع التكرار، ثم تضغط حفظ واعتماد الفاتورة إف عشرة.',
                 action: function() { if (typeof window.openSalesFc2ChequesAndBankakRadarModal === 'function') window.openSalesFc2ChequesAndBankakRadarModal(); }
             },
             {
-                title: '4️⃣ الشاشة الوليدة الثالثة: أصل المستندات في التقارير (Drill-Down)',
-                speech: 'نفتح الآن حياً شاشة التسميع الذري والوصول الفوري لأصل المستند في التقارير السبعة. القاعدة الذهبية: كل رقم في كشف الحساب أو المخزن يفتح أصل فاتورته بلمسة واحدة دون الخروج من الشاشة.',
+                title: '4️⃣ التسميع المحاسبي والمخزني الفوري في التقارير',
+                speech: 'وفور حفظ الفاتورة تسمّع تلقائياً في كشف حساب العميل، وأرصدة المخازن، والخزينة والبنوك، ودفتر اليومية، وميزان المراجعة، والأرباح والخسائر.',
                 action: function() { if (typeof window.openSalesFc2AtomicSyncAndDrillDownModal === 'function') window.openSalesFc2AtomicSyncAndDrillDownModal(); }
             }
         ];

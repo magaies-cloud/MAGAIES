@@ -366,7 +366,7 @@ function getRealUnixSeconds(forceRefresh = false) {
         try {
             if (fs.existsSync(SKEW_CACHE_FILE)) {
                 const data = JSON.parse(fs.readFileSync(SKEW_CACHE_FILE, 'utf8'));
-                if (typeof data.skew === 'number' && Math.abs(Date.now() - data.savedAt) < 3600000) {
+                if (typeof data.skew === 'number' && Math.abs(Date.now() - data.savedAt) < 86400000) {
                     return Promise.resolve(Math.floor(Date.now() / 1000) + data.skew);
                 }
             }
@@ -416,6 +416,7 @@ function attemptWsSynthesize(text, outFile, voice, rate, pitch, unixSec) {
         });
 
         const audioBuffers = [];
+        const wordMarks = [];
         let done = false;
         const timer = setTimeout(() => {
             if (done) return;
@@ -426,16 +427,18 @@ function attemptWsSynthesize(text, outFile, voice, rate, pitch, unixSec) {
 
         ws.on('open', () => {
             const ts = new Date().toString();
-            const configMsg = `X-Timestamp:${ts}\r\nContent-Type:application/json; charset=utf-8\r\nPath:speech.config\r\n\r\n{"context":{"synthesis":{"audio":{"metadataoptions":{"sentenceBoundaryEnabled":"true","wordBoundaryEnabled":"false"},"outputFormat":"audio-24khz-48kbitrate-mono-mp3"}}}}\r\n`;
+            const configMsg = `X-Timestamp:${ts}\r\nContent-Type:application/json; charset=utf-8\r\nPath:speech.config\r\n\r\n{"context":{"synthesis":{"audio":{"metadataoptions":{"sentenceBoundaryEnabled":"true","wordBoundaryEnabled":"true"},"outputFormat":"audio-24khz-96kbitrate-mono-mp3"}}}}\r\n`;
             ws.send(configMsg);
 
             const cleanText = String(text)
                 .replace(/\u064B/g, '')
                 .replace(/&/g, '&amp;')
                 .replace(/</g, '&lt;')
-                .replace(/>/g, '&gt;');
+                .replace(/>/g, '&gt;')
+                .replace(/\s*[،؛]\s*/g, '، ')
+                .replace(/\s*\.\s*/g, '. ');
 
-            const ssml = `<speak version='1.0' xmlns='http://www.w3.org/2001/10/synthesis' xml:lang='en-US'><voice name='${voice}'><prosody pitch='${pitch}' rate='${rate}' volume='+0%'>${cleanText}</prosody></voice></speak>`;
+            const ssml = `<speak version='1.0' xmlns='http://www.w3.org/2001/10/synthesis' xml:lang='${String(voice).slice(0, 5)}'><voice name='${voice}'><prosody pitch='${pitch}' rate='${rate}' volume='+20%'>${cleanText}</prosody></voice></speak>`;
             const ssmlMsg = `X-RequestId:${ crypto.randomUUID().replace(/-/g, '') }\r\nContent-Type:application/ssml+xml\r\nX-Timestamp:${ts}Z\r\nPath:ssml\r\n\r\n${ssml}`;
             ws.send(ssmlMsg);
         });
@@ -453,6 +456,14 @@ function attemptWsSynthesize(text, outFile, voice, rate, pitch, unixSec) {
                 }
             } else {
                 const str = data.toString('utf8');
+                if (str.includes('Path:audio.metadata')) {
+                    try {
+                        const body = JSON.parse(str.slice(str.indexOf('\r\n\r\n') + 4));
+                        (body.Metadata || []).forEach(m => {
+                            if (m && m.Type === 'WordBoundary' && m.Data) wordMarks.push({ t: Math.round(m.Data.Offset / 1e4) / 1000, w: (m.Data.text && m.Data.text.Text) || '' });
+                        });
+                    } catch (e) {}
+                }
                 if (str.includes('Path:turn.end') && !done) {
                     done = true;
                     clearTimeout(timer);
@@ -462,6 +473,7 @@ function attemptWsSynthesize(text, outFile, voice, rate, pitch, unixSec) {
                         const dir = path.dirname(outFile);
                         if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
                         fs.writeFileSync(outFile, finalBuf);
+                        try { fs.writeFileSync(outFile + '.marks.json', JSON.stringify({ marks: wordMarks })); } catch (e) {}
                         resolve(finalBuf.length);
                     } else {
                         reject(new Error('Empty audio buffer'));
@@ -488,16 +500,10 @@ function attemptWsSynthesize(text, outFile, voice, rate, pitch, unixSec) {
     });
 }
 
-async function synthesizeEdgeMale(text, outFile, voice = 'ar-EG-ShakirNeural', rate = '+5%', pitch = '+0Hz') {
-    // Strictly Male Voices Only — never allow any non-male voice name
-    const allowedMaleVoices = ['ar-EG-ShakirNeural', 'ar-SA-HamedNeural', 'ar-AE-HamdanNeural'];
-    const primaryVoice = allowedMaleVoices.includes(voice) ? voice : 'ar-EG-ShakirNeural';
-    const fallbackMaleOrder = [
-        primaryVoice,
-        primaryVoice,
-        'ar-EG-ShakirNeural',
-        'ar-SA-HamedNeural'
-    ];
+async function synthesizeEdgeMale(text, outFile, voice = 'ar-OM-AbdullahNeural', rate = '+0%', pitch = '-2Hz') {
+    // Strictly Unified Prestigious Male Voice Only — locked 100% to ar-OM-AbdullahNeural so voice never changes
+    const lockedMaleVoice = voice || 'ar-SA-HamedNeural';
+    const fallbackMaleOrder = [lockedMaleVoice, lockedMaleVoice, 'ar-OM-AbdullahNeural', lockedMaleVoice];
 
     let lastErr = null;
     for (let attempt = 0; attempt < fallbackMaleOrder.length; attempt++) {

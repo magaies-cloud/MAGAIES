@@ -40,6 +40,9 @@ $activeTenantId = !empty($_GET['tenant_id']) ? (string)$_GET['tenant_id']
 if ($activeTenantId === 'default' || $activeTenantId === '0' || $activeTenantId === '1' || !is_numeric($activeTenantId)) {
     $activeTenantId = (!empty($GLOBAL_TENANT_ID) && is_numeric($GLOBAL_TENANT_ID) && (int)$GLOBAL_TENANT_ID > 1) ? (string)$GLOBAL_TENANT_ID : '12';
 }
+if (session_status() === PHP_SESSION_ACTIVE) {
+    @session_write_close();
+}
 
 // 2. Ensure Table Exists (Cached via stamp file to avoid DDL lock on every poll)
 $__inbStamp = sys_get_temp_dir() . '/magaies_inb_table_v2.stamp';
@@ -1354,9 +1357,6 @@ switch ($action) {
 
     case 'whatsapp_statement_request':
         try {
-            if (isLocalInboundLaptopEnv()) {
-                syncInboundReceiptsFromCloud($pdo, $activeTenantId, $uploadDir);
-            }
             $msgText = trim((string)($_GET['message_text'] ?? $_POST['message_text'] ?? $jsonData['message_text'] ?? $_GET['message'] ?? $_POST['message'] ?? $jsonData['message'] ?? $_GET['text'] ?? $_POST['text'] ?? $jsonData['text'] ?? ''));
             $senderPhone = trim((string)($_GET['sender_phone'] ?? $_POST['sender_phone'] ?? $jsonData['sender_phone'] ?? ''));
             $senderName = trim((string)($_GET['sender_name'] ?? $_POST['sender_name'] ?? $jsonData['sender_name'] ?? ''));
@@ -1584,10 +1584,26 @@ function resolveInboundCustomer($pdo, $tenantId, $custId = '', $custName = '', $
                     $cObj = $cRow['_parsed'] ?? (json_decode($cRow['data'], true) ?: []);
                     if (!empty($cObj['deleted'])) continue;
                     $cPin = preg_replace('/[^0-9]/', '', normalizeInboundDigits((string)($cObj['statementPin'] ?? '')));
-                    $waDigits = preg_replace('/\D/', '', normalizeInboundDigits((string)($cObj['whatsapp'] ?: ($cObj['phone'] ?? ''))));
-                    $waLast2 = (strlen($waDigits) >= 2) ? substr($waDigits, -2) : '';
-                    $full5Pin = ($waLast2 !== '' && strlen($cPin) === 3) ? ($waLast2 . $cPin) : $cPin;
-                    if ($cPin !== '' && ((string)$tok === $full5Pin || (string)$tok === $cPin)) {
+                    if ($cPin === '') continue;
+                    $candPhList = [$cObj['whatsapp'] ?? '', $cObj['phone'] ?? '', $cObj['mobile'] ?? '', $cRow['search_phone'] ?? ''];
+                    if (!empty($cObj['subPhones']) && is_array($cObj['subPhones'])) {
+                        foreach ($cObj['subPhones'] as $sp) {
+                            $candPhList[] = is_array($sp) ? ($sp['phone'] ?? '') : (string)$sp;
+                        }
+                    }
+                    $matchedPin5 = ((string)$tok === $cPin);
+                    $pin3Core = (strlen($cPin) > 3) ? substr($cPin, -3) : $cPin;
+                    foreach ($candPhList as $cPh) {
+                        $waDigits = preg_replace('/\D/', '', normalizeInboundDigits((string)$cPh));
+                        if (strlen($waDigits) >= 2) {
+                            $waLast2 = substr($waDigits, -2);
+                            if ((string)$tok === ($waLast2 . $cPin) || (string)$tok === ($cPin . $waLast2) || (string)$tok === ($waLast2 . $pin3Core) || (string)$tok === ($pin3Core . $waLast2)) {
+                                $matchedPin5 = true;
+                                break;
+                            }
+                        }
+                    }
+                    if ($matchedPin5) {
                         $fId = $cRow['frontend_id'] ?: ($cObj['id'] ?? '');
                         return [
                             'row' => $cRow,
@@ -2671,7 +2687,7 @@ function sendInboundWhatsAppNotification($tenantId, $phone, $message) {
     ], JSON_UNESCAPED_UNICODE);
 
     // Dispatch WhatsApp HTTP calls asynchronously after flushing HTTP response to the browser/caller
-    register_shutdown_function(function () use ($userId, $payload) {
+    register_shutdown_function(function () use ($userId, $payload, $phone, $message) {
         try {
             if (function_exists('finishClientResponseEarly')) {
                 finishClientResponseEarly();
@@ -2697,6 +2713,25 @@ function sendInboundWhatsAppNotification($tenantId, $phone, $message) {
                 if ($cCode === 200 && !empty($cResp)) {
                     $cDec = json_decode($cResp, true);
                     if (!empty($cDec['success'])) {
+                        return;
+                    }
+                }
+                $fbPayload = json_encode(['userId' => 'default-saas-admin', 'phone' => $phone, 'message' => $message], JSON_UNESCAPED_UNICODE);
+                $chFb = curl_init('https://c.elsajana.com/api_index.php?r=wa&endpoint=send&userId=default-saas-admin&local_only=1');
+                curl_setopt($chFb, CURLOPT_RETURNTRANSFER, true);
+                curl_setopt($chFb, CURLOPT_POST, true);
+                curl_setopt($chFb, CURLOPT_POSTFIELDS, $fbPayload);
+                curl_setopt($chFb, CURLOPT_HTTPHEADER, ['Content-Type: application/json', 'Content-Length: ' . strlen($fbPayload)]);
+                curl_setopt($chFb, CURLOPT_CONNECTTIMEOUT, 2);
+                curl_setopt($chFb, CURLOPT_TIMEOUT, 5);
+                curl_setopt($chFb, CURLOPT_SSL_VERIFYPEER, false);
+                curl_setopt($chFb, CURLOPT_SSL_VERIFYHOST, false);
+                $fbResp = curl_exec($chFb);
+                $fbCode = (int)curl_getinfo($chFb, CURLINFO_HTTP_CODE);
+                curl_close($chFb);
+                if ($fbCode === 200 && !empty($fbResp)) {
+                    $fbDec = json_decode($fbResp, true);
+                    if (!empty($fbDec['success'])) {
                         return;
                     }
                 }
@@ -3265,12 +3300,14 @@ function handleWhatsAppStatementRequest($pdo, $tenantId, $messageText, $senderPh
     // Check if the message explicitly contains statement/balance request keywords (including single-letter shortcuts 'ك'/'كاف' and 'ر'/'راء' with or without spaces) or is a direct PIN/Password
     $isShortKaf = (bool)preg_match('/^[\s#:\-_.,\/()]*(\d{1,10}[\s#:\-_.,\/()]*)?(?:ك|كاف|الكاف|حرف\s*ك|حرف\s*كاف|حرف\s*الكاف)([\s#:\-_.,\/()]*\d{1,10})?[\s#:\-_.,\/()]*$/ui', $normMsg);
     $isShortRaa = (bool)preg_match('/^[\s#:\-_.,\/()]*(\d{1,10}[\s#:\-_.,\/()]*)?(?:ر|راء|الراء|حرف\s*ر|حرف\s*راء|حرف\s*الراء)([\s#:\-_.,\/()]*\d{1,10})?[\s#:\-_.,\/()]*$/ui', $normMsg);
+    $isPinInquiryRequest = (bool)preg_match('/^[\s#:\-_.,\/()؟?]*(?:الرقم\s*السري|رقم\s*سري|الرمز\s*السري|رمز\s*سري|السري|سري|الباسورد|باسورد|الباسوورد|باسوورد|الباص|باص|الرقم|رقم|الرمز|رمز|رمزي|نسيت\s*الباسورد|نسيت\s*الرقم\s*السري|كم\s*الباسورد|كم\s*الرقم\s*السري|طلب\s*الباسورد|طلب\s*الرقم\s*السري|ما\s*هو\s*الرقم\s*السري|ما\s*هو\s*الباسورد|عايز\s*الباسورد|اريد\s*الباسورد|password|pin|pass)[\s#:\-_.,\/()؟?]*$/ui', $normMsg);
 
     $hasStatementKeyword = $isShortKaf || $isShortRaa || (bool)preg_match('/(?:طلب\s*كشف|كشف\s*حساب|كشف\s*الحساب|كشف|حسابي|استلام\s*رصيد|استلام\s*الرصيد|طلب\s*رصيد|طلب\s*الرصيد|رصيدي|الرصيد|رصيد|معرفة\s*الرصيد|كم\s*رصيدي)/ui', $normMsg);
-    $explicitBalanceOnlyRequest = $isShortRaa || ((bool)preg_match('/(?:استلام\s*رصيد|استلام\s*الرصيد|طلب\s*رصيد|طلب\s*الرصيد|رصيدي\s*فقط|معرفة\s*الرصيد\s*فقط|رصيدي|الرصيد|رصيد|كم\s*رصيدي)/ui', $normMsg) && !preg_match('/كشف/ui', $normMsg) && !$isShortKaf);
+    $explicitDetailedRequest = $isShortKaf || (bool)preg_match('/(?:طلب\s*كشف|كشف\s*حساب|كشف\s*الحساب|كشف|حسابي)/ui', $normMsg);
+    $explicitBalanceOnlyRequest = $isShortRaa || ((bool)preg_match('/(?:استلام\s*رصيد|استلام\s*الرصيد|طلب\s*رصيد|طلب\s*الرصيد|رصيدي\s*فقط|معرفة\s*الرصيد\s*فقط|رصيدي|الرصيد|رصيد|كم\s*رصيدي)/ui', $normMsg) && !$explicitDetailedRequest);
 
     // Strip common prefixes AND suffixes (so "رصيد 532", "532 رصيد", "532رصيد", "532 ر", "532ر", "ر 532", "ر532", "532 كشف", "532كشف", "كشف 532", "532 ك", "532ك", "ك 532", "ك532", "باسورد 532" all isolate "532")
-    $kwPattern = '(?:طلب\s*كشف\s*الحساب|طلب\s*كشف\s*حساب|كشف\s*الحساب|كشف\s*حساب|طلب\s*كشف|استلام\s*الرصيد|استلام\s*رصيد|طلب\s*الرصيد|طلب\s*رصيد|معرفة\s*الرصيد\s*فقط|معرفة\s*الرصيد|كم\s*رصيدي|رصيدي\s*فقط|كشف|حسابي|حساب|رصيدي|الرصيد|رصيد|حرف\s*الكاف|حرف\s*كاف|حرف\s*ك|الكاف|كاف|ك|حرف\s*الراء|حرف\s*راء|حرف\s*ر|الراء|راء|ر|باسورد|الباسورد|سري|السري|الرقم\s*السري|كود|الكود|رقم\s*الكود|رمز|الرمز|عميل|العميل|مورد|المورد|pin|code|pass|#|:|\-|\s)';
+    $kwPattern = '(?:طلب\s*كشف\s*الحساب|طلب\s*كشف\s*حساب|كشف\s*الحساب|كشف\s*حساب|طلب\s*كشف|استلام\s*الرصيد|استلام\s*رصيد|طلب\s*الرصيد|طلب\s*رصيد|معرفة\s*الرصيد\s*فقط|معرفة\s*الرصيد|كم\s*رصيدي|رصيدي\s*فقط|كشف|حسابي|حساب|رصيدي|الرصيد|رصيد|حرف\s*الكاف|حرف\s*كاف|حرف\s*ك|الكاف|كاف|ك|حرف\s*الراء|حرف\s*راء|حرف\s*ر|الراء|راء|ر|الرقم\s*السري|رقم\s*سري|الرمز\s*السري|رمز\s*سري|باسورد|الباسورد|باسوورد|الباسوورد|باص|الباص|سري|السري|الرقم|رقم|كود|الكود|رقم\s*الكود|رمز|الرمز|رمزي|عميل|العميل|مورد|المورد|password|pin|code|pass|#|:|\-|\s)';
     $cleanedToken = preg_replace('/^' . $kwPattern . '+|' . $kwPattern . '+$/ui', '', $normMsg);
     $cleanedToken = trim($cleanedToken, " \t\n\r\0\x0B#:-_.,/()");
     $compactDigitsToken = preg_replace('/[\s\-_.*#\/]+/', '', $cleanedToken);
@@ -3284,7 +3321,8 @@ function handleWhatsAppStatementRequest($pdo, $tenantId, $messageText, $senderPh
 
     $extractEntityWaLast2List = function($ent) {
         $eObj = $ent['obj'] ?? [];
-        $cand = [$eObj['whatsapp'] ?? '', $eObj['phone'] ?? '', $eObj['mobile'] ?? ''];
+        $dbRow = $ent['db_row'] ?? [];
+        $cand = [$eObj['whatsapp'] ?? '', $eObj['phone'] ?? '', $eObj['mobile'] ?? '', $dbRow['search_phone'] ?? ''];
         if (!empty($eObj['subPhones']) && is_array($eObj['subPhones'])) {
             foreach ($eObj['subPhones'] as $sp) {
                 $cand[] = is_array($sp) ? ($sp['phone'] ?? '') : (string)$sp;
@@ -3301,24 +3339,30 @@ function handleWhatsAppStatementRequest($pdo, $tenantId, $messageText, $senderPh
         return $list;
     };
 
-    // 0. PRIORITY 0: Match 5-Digit Secret Password (`last2_whatsapp + 3-digit statement_pin`, e.g., "26677")
+    // 0. PRIORITY 0: Match 5-Digit Secret Password (`last2_whatsapp + 3-digit statement_pin` OR `3-digit statement_pin + last2_whatsapp`, e.g., "26677" or "67726")
     if (!empty($compactDigitsToken)) {
         foreach ($entities as $ent) {
             $pin = $ent['statement_pin'];
             if (empty($pin)) continue;
+            $pin3Core = (strlen($pin) > 3) ? substr($pin, -3) : $pin;
             $last2List = $extractEntityWaLast2List($ent);
             $matched5 = false;
             foreach ($last2List as $l2) {
-                if ($compactDigitsToken === ($l2 . $pin)) {
+                if (
+                    $compactDigitsToken === ($l2 . $pin) ||
+                    $compactDigitsToken === ($pin . $l2) ||
+                    $compactDigitsToken === ($l2 . $pin3Core) ||
+                    $compactDigitsToken === ($pin3Core . $l2)
+                ) {
                     $matched5 = true;
                     break;
                 }
             }
-            if ($matched5 || (empty($last2List) && $compactDigitsToken === $pin) || (strlen($pin) >= 5 && $compactDigitsToken === $pin)) {
+            if ($matched5 || (empty($last2List) && $compactDigitsToken === $pin) || (strlen($pin) >= 4 && $compactDigitsToken === $pin)) {
                 $matchedEntity = $ent;
                 $pinVerified = true;
                 break;
-            } elseif ($compactDigitsToken === $pin && !empty($last2List)) {
+            } elseif (($compactDigitsToken === $pin || $compactDigitsToken === $pin3Core) && !empty($last2List)) {
                 $threeDigitPinBlocked = true;
             }
         }
@@ -3405,10 +3449,12 @@ function handleWhatsAppStatementRequest($pdo, $tenantId, $messageText, $senderPh
     $checkSenderMatchesEntityPhones = function($ent, $senderPhoneRaw) {
         $cleanSender = preg_replace('/\D/', '', normalizeInboundDigits((string)$senderPhoneRaw));
         $eObj = $ent['obj'];
+        $dbRow = $ent['db_row'] ?? [];
         $candPhones = [
             $eObj['whatsapp'] ?? '',
             $eObj['phone'] ?? '',
             $eObj['mobile'] ?? '',
+            $dbRow['search_phone'] ?? '',
             $eObj['whatsappLid'] ?? ''
         ];
         if (!empty($eObj['subPhones']) && is_array($eObj['subPhones'])) {
@@ -3458,6 +3504,74 @@ function handleWhatsAppStatementRequest($pdo, $tenantId, $messageText, $senderPh
         }
     }
 
+    // 0e. Instant Secret PIN / Password Inquiry from Registered Phone (when user writes "الرقم السري" / "السري" / "سري" / "باسورد" / "الرقم" / "رقم")
+    if ($isPinInquiryRequest && empty($compactDigitsToken)) {
+        $pinOwner = null;
+        if (!empty($senderPhone)) {
+            foreach ($entities as $ent) {
+                if ($checkSenderMatchesEntityPhones($ent, $senderPhone)['is_matched']) {
+                    $pinOwner = $ent;
+                    break;
+                }
+            }
+        }
+        if (!$pinOwner && !empty($senderName) && !str_starts_with($senderName, 'عميل واتساب')) {
+            $normSn = mb_strtolower(trim($senderName));
+            foreach ($entities as $ent) {
+                if (!empty($ent['name']) && mb_strtolower(trim($ent['name'])) === $normSn) {
+                    $pinOwner = $ent;
+                    break;
+                }
+            }
+        }
+        if ($pinOwner) {
+            $pin3 = $pinOwner['statement_pin'] ?: (string)$pinOwner['code_num'];
+            $l2List = $extractEntityWaLast2List($pinOwner);
+            $l2 = !empty($l2List) ? $l2List[0] : '';
+            $full5 = ($l2 !== '' && strlen($pin3) === 3) ? ($l2 . $pin3) : $pin3;
+            $explainLine = ($l2 !== '' && strlen($pin3) === 3)
+                ? "🔢 يتكون من آخر رقمين من واتسابكم المسجل (*{$l2}*) + الرمز السري (*{$pin3}*)\n"
+                : "";
+            return [
+                'success' => true,
+                'matched' => true,
+                'allowed' => true,
+                'access_mode' => 'pin_inquiry',
+                'render_mode' => 'pin_inquiry',
+                'entity_type' => $pinOwner['type'],
+                'entity_id' => $pinOwner['id'],
+                'entity_name' => $pinOwner['name'],
+                'code_num' => $pinOwner['code_num'],
+                'code_word' => $pinOwner['code_word'],
+                'reply_text' => "🔐 *الرقم السري (الباسورد) المعتمد لحسابكم*\n" .
+                                "━━━━━━━━━━━━━━\n" .
+                                "مرحباً بك: *{$pinOwner['name']}*\n" .
+                                "🔑 *الرقم السري (5 أرقام):* *{$full5}*\n" .
+                                "🔐 *الرمز المختصر (من رقمكم المسجل):* *{$pin3}*\n" .
+                                $explainLine .
+                                "━━━━━━━━━━━━━━\n" .
+                                "• لسحب كشف الحساب أرسل: *كشف* (أو *{$full5} كشف* من أي رقم آخر)\n" .
+                                "• لمعرفة الرصيد أرسل: *رصيد* (أو *{$full5} رصيد* من أي رقم آخر)\n" .
+                                "• لتنزيل إشعار بنكي من رقم آخر: أرفق *{$full5}* مع صورة الإشعار."
+            ];
+        }
+        return [
+            'success' => true,
+            'matched' => true,
+            'allowed' => false,
+            'blocked_reason' => 'unregistered_phone_pin_inquiry',
+            'entity_type' => 'customer',
+            'entity_id' => '',
+            'entity_name' => $senderName ?: $senderPhone,
+            'code_num' => 0,
+            'code_word' => '',
+            'reply_text' => "🔐 *استعلام الرقم السري (الباسورد)*\n" .
+                            "━━━━━━━━━━━━━━\n" .
+                            "عذراً، رقم الواتساب المرسل منه غير مسجل لدينا في بطاقة الحساب.\n" .
+                            "💡 لاستلام الرقم السري تلقائياً، يرجى إرسال كلمة *(الرقم السري)* أو *(باسورد)* من رقم الواتساب المسجل رسمياً في حسابكم."
+        ];
+    }
+
     // 1. PRIORITY 1: If user wrote ONLY "كشف" or "رصيد" (no password token), match by their Registered WhatsApp Phone!
     if (!$matchedEntity && empty($compactDigitsToken) && $hasStatementKeyword && !empty($senderPhone)) {
         foreach ($entities as $ent) {
@@ -3501,8 +3615,9 @@ function handleWhatsAppStatementRequest($pdo, $tenantId, $messageText, $senderPh
         }
     }
 
-    // 2. If user wrote a Password/Number + "كشف" or "رصيد" (e.g. "999 رصيد" or "999 كشف"), and it did NOT match any account's PIN:
-    if (!$matchedEntity && !empty($compactDigitsToken) && $hasStatementKeyword && preg_match('/^[0-9]{2,8}$/', $compactDigitsToken)) {
+    // 2. If user wrote a Password/Number (with or without "كشف"/"رصيد", e.g. "87653", "999 رصيد", "999 كشف"), and it did NOT match any account's PIN:
+    $isPurePinAttempt = (bool)preg_match('/^(?:#|كود|الكود|باسورد|الباسورد|باسوورد|الرمز\s*السري|الرمز|رمز|حساب|الرقم\s*السري|رقم\s*سري|سري|السري|الرقم|رقم|باص|رمزي|pin|code|pass|\s)*\d[\d\s\-]{1,7}(?:#|كود|الكود|باسورد|الباسورد|سري|السري|الرقم\s*السري|الرقم|رقم|pin|code|pass|\s)*$/ui', $normMsg);
+    if (!$matchedEntity && !empty($compactDigitsToken) && ($hasStatementKeyword || $isPurePinAttempt) && preg_match('/^[0-9]{2,8}$/', $compactDigitsToken)) {
         $isLocked = $checkAndRecordRateLimit('fail');
         $lockMsg = $isLocked
             ? "\n⛔ تم إيقاف المحاولات مؤقتاً لمدة 15 دقيقة بسبب تكرار إدخال رقم سري خاطئ."
@@ -3663,7 +3778,13 @@ function handleWhatsAppStatementRequest($pdo, $tenantId, $messageText, $senderPh
     }
 
     // Determine final output mode ('balance_only' vs 'detailed')
-    $renderMode = ($effectiveMode === 'balance_only' || $explicitBalanceOnlyRequest) ? 'balance_only' : 'detailed';
+    if ($explicitBalanceOnlyRequest) {
+        $renderMode = 'balance_only';
+    } elseif ($explicitDetailedRequest) {
+        $renderMode = ($masterMode === 'force_balance_only_all') ? 'balance_only' : 'detailed';
+    } else {
+        $renderMode = ($effectiveMode === 'balance_only') ? 'balance_only' : 'detailed';
+    }
 
     // Anti-Spam Cooldown: Prevent network double-delivery within 1 second without blocking interactive queries
     $enableCooldown = !isset($policy['antiSpamCooldown']) || (bool)$policy['antiSpamCooldown'];
@@ -5260,9 +5381,9 @@ function buildDetailedAccountStatementForWhatsApp($pdo, $tenantId, $entityType, 
         'issue_date' => $issueDate,
         'issue_time' => $issueTime,
         'company_name' => $companyName,
-        'company_logo' => $companyLogo,
+        'company_logo' => ($renderMode === 'balance_only' && empty($options['_inside_statement_build'])) ? $companyLogo : '',
         'stamp_text' => $stampText,
-        'stamp_image' => $stampImage,
+        'stamp_image' => ($renderMode === 'balance_only' && empty($options['_inside_statement_build'])) ? $stampImage : '',
         'entity_type' => $entityType,
         'role_title' => $roleTitle,
         'entity_name' => $entityName,

@@ -420,5 +420,6 @@ function restartMobileCamera() {
 
 window.addEventListener('DOMContentLoaded', startContinuousMobileCamera);
 </script>
+<script src="js/magaies-smart-guide.js" defer></script>
 </body>
 </html>

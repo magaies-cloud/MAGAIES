@@ -318,5 +318,6 @@ try {
         }
     }
     </script>
+<script src="js/magaies-smart-guide.js" defer></script>
 </body>
 </html>

@@ -1076,7 +1076,7 @@ function switchToMobileEdition() {
 
 
         <!-- Ultra Premium Quick Actions Bar (Top Header Row for Controls + 7 Master Buttons Below) -->
-        <div class="glass-panel" id="qa-bar-container" style="padding: 14px 18px; border-radius: 18px; border: 1.5px solid rgba(255, 255, 255, 0.1); background: var(--surface); margin-bottom: 14px; position: relative;" oncontextmenu="openQACustomizer(event); return false;">
+        <div class="glass-panel" id="qa-bar-container" style="padding: 14px 18px; border-radius: 18px; border: 1.5px solid rgba(255, 255, 255, 0.1); background: var(--surface); margin-bottom: 14px; position: relative;" oncontextmenu="if(!event.target.closest('button, a')){ openQACustomizer(event); return false; }">
             
             <!-- Top Sub-Row: Title on Right, Customize (7) & Screens Master Buttons on Left -->
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; flex-wrap: wrap; gap: 10px;">

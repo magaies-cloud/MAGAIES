@@ -317,66 +317,93 @@
             50% { border-color: #38bdf8; box-shadow: 0 0 38px rgba(56, 189, 248, 0.95), 0 0 0 9999px rgba(2, 6, 23, 0.32); }
         }
 
-        /* ── ROYAL COMPACT NON-BLOCKING GUIDE CONTROL POD (أمر حاسم 2: كبسولة Micro-HUD لا تحجب أي شيء وتتبع السمات السبع 100%) ── */
+        /* ── ROYAL SLEEK UNIFIED GUIDE STUDIO HUD (لوحة موحدة أنيقة بدون أي لوحات متراكبة فوق بعض) ── */
         .msg-live-coach-bar {
             position: fixed;
-            bottom: 12px;
-            left: 12px;
+            bottom: 14px;
+            left: 50%;
+            transform: translateX(-50%);
             z-index: 2147483540;
-            width: auto;
-            max-width: min(590px, 96vw);
-            background: linear-gradient(160deg, rgba(2, 6, 23, 0.96) 0%, rgba(15, 23, 42, 0.98) 55%, rgba(23, 15, 48, 0.96) 100%);
+            width: min(700px, 95vw);
+            background: linear-gradient(155deg, rgba(8, 15, 32, 0.97) 0%, rgba(15, 23, 42, 0.98) 60%, rgba(20, 29, 54, 0.97) 100%);
             color: #ffffff !important;
-            border: 2.2px solid rgba(251, 191, 36, 0.9) !important;
-            border-radius: 999px;
-            padding: 5px 12px;
-            box-shadow: 0 10px 28px rgba(0, 0, 0, 0.85), 0 0 18px rgba(251, 191, 36, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.22);
+            border: 2px solid rgba(56, 189, 248, 0.75) !important;
+            border-radius: 18px;
+            padding: 10px 16px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.85), 0 0 24px rgba(56, 189, 248, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.18);
             display: none;
-            flex-direction: row;
-            align-items: center;
-            gap: 6px;
+            flex-direction: column;
+            align-items: stretch;
+            gap: 8px;
             direction: rtl;
             font-family: 'Cairo', 'Tajawal', sans-serif !important;
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            transition: top 0.28s cubic-bezier(0.22, 1, 0.36, 1), bottom 0.28s cubic-bezier(0.22, 1, 0.36, 1), transform 0.22s ease;
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            transition: top 0.28s cubic-bezier(0.22, 1, 0.36, 1), bottom 0.28s cubic-bezier(0.22, 1, 0.36, 1);
         }
         .msg-live-coach-bar.docked-top {
             bottom: auto !important;
-            top: 86px !important;
-            left: 12px !important;
+            top: 14px !important;
         }
-        #msg-coach-svg-popover {
-            position: fixed;
-            bottom: 54px;
-            left: 12px;
-            z-index: 2147483535;
-            width: 315px;
-            height: 92px;
-            background: rgba(15, 23, 42, 0.96);
-            border: 2px solid #38bdf8;
-            border-radius: 14px;
-            padding: 4px 6px;
-            box-shadow: 0 12px 28px rgba(0,0,0,0.75);
-            pointer-events: none;
-            display: none;
-            overflow: hidden;
-            direction: rtl;
+        #msg-coach-svg-popover,
+        #msg-live-select-mirror,
+        #msg-pinned-audio-dock {
+            display: none !important;
+            pointer-events: none !important;
         }
-        .msg-live-coach-bar.docked-top ~ #msg-coach-svg-popover,
-        #msg-coach-svg-popover.docked-top {
-            bottom: auto !important;
-            top: 128px !important;
-            left: 12px !important;
+        .msg-micro-pill-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            height: 26px;
+            min-width: 26px;
+            padding: 0 8px;
+            border-radius: 8px;
+            font-family: 'Cairo', 'Tajawal', sans-serif !important;
+            font-size: 0.75rem;
+            font-weight: 900;
+            background: rgba(30, 41, 59, 0.85);
+            color: #f8fafc !important;
+            border: 1.5px solid rgba(148, 163, 184, 0.35);
+            cursor: pointer;
+            transition: all 0.16s ease;
+            user-select: none;
         }
-        html.light-theme #msg-coach-svg-popover,
-        body.light-theme #msg-coach-svg-popover,
-        html[data-theme="warm_cream"] #msg-coach-svg-popover,
-        html[data-theme="ultra_white"] #msg-coach-svg-popover,
-        html[data-theme="exec_gray"] #msg-coach-svg-popover {
-            background: rgba(255, 255, 255, 0.98) !important;
-            border: 2px solid #000000 !important;
-            color: #000000 !important;
+        .msg-micro-pill-btn:hover {
+            border-color: #38bdf8;
+            background: rgba(56, 189, 248, 0.2);
+            transform: translateY(-1px);
+        }
+        html.light-theme .msg-micro-pill-btn,
+        html[data-magaies-theme-mode="light"] .msg-micro-pill-btn,
+        body.light-theme .msg-micro-pill-btn {
+            background: var(--lt-sub-1, #ffffff) !important;
+            color: var(--lt-ink, #120500) !important;
+            border-color: var(--lt-border, #4a2106) !important;
+        }
+        .msg-vol-range-slider,
+        .msg-spd-range-slider {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 74px;
+            height: 6px;
+            border-radius: 99px;
+            background: linear-gradient(270deg, #0284c7, #10b981);
+            outline: none;
+            cursor: pointer;
+            direction: rtl !important;
+        }
+        .msg-vol-range-slider::-webkit-slider-thumb,
+        .msg-spd-range-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background: #ffffff;
+            border: 2px solid #0284c7;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.45);
+            cursor: grab;
         }
         /* Strict Light Theme Contrast (#000000 text on light surface) for Micro-HUD, Hover Tooltip & Live Dropdown Mirror */
         html.light-theme .msg-live-coach-bar,
@@ -997,27 +1024,26 @@
             cursor: help !important;
         }
 
-        /* Smart Hover Micro-Tooltip Capsule */
+        /* Royal Centered Explanation Studio Card (عند الضغط دبل كليك) */
         .msg-smart-hover-tooltip {
             position: fixed;
             z-index: 2147483550;
-            width: 410px;
-            max-width: 94vw;
-            background: linear-gradient(145deg, var(--dk-card-1, #0f172a), var(--dk-card-2, #152342));
-            border: 2px solid var(--dk-border, #38bdf8);
-            border-radius: 15px;
-            padding: 12px 15px;
-            box-shadow: 0 18px 45px rgba(0, 0, 0, 0.85), 0 0 22px rgba(56, 189, 248, 0.28);
+            width: min(540px, 94vw);
+            background: linear-gradient(155deg, rgba(8, 15, 32, 0.98) 0%, rgba(15, 23, 42, 0.99) 60%, rgba(21, 35, 66, 0.98) 100%);
+            border: 2px solid rgba(56, 189, 248, 0.8);
+            border-radius: 20px;
+            padding: 14px 18px;
+            box-shadow: 0 25px 65px rgba(0, 0, 0, 0.9), 0 0 32px rgba(56, 189, 248, 0.25);
             color: #ffffff;
             font-family: 'Cairo', 'Tajawal', sans-serif !important;
             direction: rtl;
             display: none;
             flex-direction: column;
-            gap: 6px;
+            gap: 10px;
             pointer-events: auto;
             user-select: none;
-            backdrop-filter: blur(14px);
-            animation: msgModalPop 0.2s ease-out;
+            backdrop-filter: blur(18px);
+            animation: msgModalPop 0.2s cubic-bezier(0.22, 1, 0.36, 1);
         }
     `;
     document.head.appendChild(styleEl);
@@ -1038,24 +1064,102 @@
     let progressTimerId = null;
     let nextStepTimeoutId = null;
 
-    let selectedMaleProfile = localStorage.getItem('msg_male_dialect_v6') || 'egyptian'; // 'egyptian' | 'sudanese' | 'gulf'
-    if (!['sudanese', 'egyptian', 'gulf'].includes(selectedMaleProfile)) {
-        selectedMaleProfile = 'egyptian';
+    let selectedMaleProfile = localStorage.getItem('msg_male_dialect_v7') || localStorage.getItem('msg_male_dialect_v6') || 'fusha';
+    if (selectedMaleProfile === 'gulf' || !['fusha', 'sudanese', 'egyptian'].includes(selectedMaleProfile)) {
+        selectedMaleProfile = 'fusha';
     }
-    let selectedSpeechRate = 1.30;
+    window.__msgAiDegree = localStorage.getItem('msg_ai_degree_v8') || 'ai_5';
+    if (!['ai_1', 'ai_2', 'ai_3', 'ai_4', 'ai_5'].includes(window.__msgAiDegree)) window.__msgAiDegree = 'ai_5';
+
+    window.__msgUserVoiceVolume = parseFloat(localStorage.getItem('msg_voice_vol_v1') || '1.65');
+    if (isNaN(window.__msgUserVoiceVolume) || window.__msgUserVoiceVolume < 0.1 || window.__msgUserVoiceVolume > 3.0) {
+        window.__msgUserVoiceVolume = 1.65;
+    }
+
+    function pctToPlaybackRate(pct) {
+        const clamped = Math.max(-50, Math.min(300, Math.round(Number(pct) || 0)));
+        return Math.max(0.50, Math.min(4.00, Number((1 + (clamped / 100)).toFixed(2))));
+    }
+    function playbackRateToPct(rate) {
+        const r = parseFloat(rate);
+        if (isNaN(r)) return 0;
+        return Math.max(-50, Math.min(300, Math.round((r - 1.0) * 100)));
+    }
+
+    window.__msgSpeechSpeedPct = 0;
+    let selectedSpeechRate = 1.00;
     try {
-        const savedRate = parseFloat(localStorage.getItem('msg_male_speed_v6'));
-        if (!isNaN(savedRate) && savedRate >= 0.75 && savedRate <= 1.60 && savedRate !== 0.92) {
-            selectedSpeechRate = savedRate;
+        const savedPct = parseInt(localStorage.getItem('msg_speech_speed_pct_v8'), 10);
+        if (!isNaN(savedPct) && savedPct >= -50 && savedPct <= 300) {
+            window.__msgSpeechSpeedPct = savedPct;
+            selectedSpeechRate = pctToPlaybackRate(savedPct);
         } else {
-            selectedSpeechRate = 1.30;
-            localStorage.setItem('msg_male_speed_v6', '1.30');
+            window.__msgSpeechSpeedPct = 0;
+            selectedSpeechRate = 1.00;
+            localStorage.setItem('msg_speech_speed_pct_v8', '0');
         }
-    } catch(e) { selectedSpeechRate = 1.30; }
+    } catch (e) {
+        window.__msgSpeechSpeedPct = 0;
+        selectedSpeechRate = 1.00;
+    }
     const decodedBufferCache = new Map();
     const rawArrayBufferCache = new Map();
+    const rawBlobUrlCache = new Map();
     const isGenuineNeuralCache = new Map();
 
+    function cleanTextForMaleTts(t) {
+        return String(t || '').replace(/<[^>]*>/g, ' ')
+            .replace(/[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\u{2B00}-\u{2BFF}\u{2190}-\u{21FF}\u{25A0}-\u{25FF}\u{FE0F}\u{20E3}\u{200D}]/gu, ' ')
+            .replace(/\s*[•|]\s*/g, '، ').replace(/\s+([،.:؛!؟])/g, '$1').replace(/([،.:؛])[\s،.:؛]*(?=[،.:؛])/g, '').replace(/\s{2,}/g, ' ').trim();
+    }
+    window.cleanTextForMaleTts = cleanTextForMaleTts;
+    function getVoiceSafetyLimiter(ctx) {
+        if (ctx.__msgVoiceLimiter) return ctx.__msgVoiceLimiter;
+        const lim = ctx.createDynamicsCompressor();
+        lim.threshold.value = -2.5; lim.knee.value = 0; lim.ratio.value = 20; lim.attack.value = 0.001; lim.release.value = 0.09;
+        lim.connect(ctx.destination);
+        ctx.__msgVoiceLimiter = lim;
+        return lim;
+    }
+    function buildMaleClarityChain(ctx, baseGain) {
+        const bq = (type, freq, gain, q) => { const b = ctx.createBiquadFilter(); b.type = type; b.frequency.value = freq; if (gain !== undefined) b.gain.value = gain; if (q) b.Q.value = q; return b; };
+        // Broadcast male voice: rumble cut, chest warmth, de-mud, intelligibility & presence, sibilance tame, air, MP3-artifact lowpass
+        const nodes = [bq('highpass', 70, undefined, 0.7), bq('lowshelf', 120, 4.2), bq('peaking', 300, -3.6, 1.2), bq('peaking', 1800, 1.6, 1.0), bq('peaking', 3000, 4.2, 0.9), bq('peaking', 7200, -2.8, 2.6), bq('highshelf', 9500, 1.8), bq('lowpass', 11500, undefined, 0.7)];
+        const comp = ctx.createDynamicsCompressor();
+        comp.threshold.value = -21; comp.knee.value = 10; comp.ratio.value = 3.2; comp.attack.value = 0.004; comp.release.value = 0.18;
+        const out = ctx.createGain();
+        out.gain.value = baseGain * (parseFloat(window.__msgUserVoiceVolume) || 1.65);
+        nodes.reduce((a, b) => { a.connect(b); return b; }).connect(comp); comp.connect(out);
+        return { input: nodes[0], output: out };
+    }
+    let activeSpokenClean = '';
+    const wordMarksCache = new Map();
+    function loadWordMarks(txt) {
+        if (!txt || wordMarksCache.has(txt)) return;
+        wordMarksCache.set(txt, []);
+        fetch(`api/tts_male.php?dialect=fusha&meta=1&text=${encodeURIComponent(txt)}`).then(r => r.ok ? r.json() : null).then(j => {
+            const raw = (j && Array.isArray(j.marks)) ? j.marks : [];
+            let pos = 0;
+            wordMarksCache.set(txt, raw.map(m => { const w = String(m.w || ''); const i = w ? txt.indexOf(w, pos) : -1; const ci = i >= 0 ? i : pos; if (i >= 0) pos = i + w.length; return { t: +m.t || 0, c: ci, l: w.length }; }));
+        }).catch(() => wordMarksCache.delete(txt));
+    }
+    function spokenCharRatio(txt, t, dur) {
+        const marks = txt ? wordMarksCache.get(txt) : null;
+        if (!marks || !marks.length || !txt.length) return dur > 0 ? Math.max(0, Math.min(1, t / dur)) : 0;
+        if (t < marks[0].t) return 0;
+        let lo = 0, hi = marks.length - 1;
+        while (lo < hi) { const mid = (lo + hi + 1) >> 1; if (marks[mid].t <= t) lo = mid; else hi = mid - 1; }
+        const m = marks[lo], n = marks[lo + 1];
+        const ci = n ? m.c + (n.c - m.c) * Math.min(1, (t - m.t) / Math.max(0.05, n.t - m.t)) : m.c + m.l * Math.min(1, (t - m.t) / 0.45);
+        return Math.max(0, Math.min(1, ci / txt.length));
+    }
+    window.__msgSpokenCharRatio = spokenCharRatio;
+    function getLiveSpeechRatio() {
+        if (window.__activeGuideUtterance && window.__msgUtterLen && 'speechSynthesis' in window && window.speechSynthesis.speaking) return Math.min(1, (window.__msgUtterCharIdx || 0) / window.__msgUtterLen);
+        if (!isAudioPlaying || !activeAudioBuffer || !activeAudioBuffer.duration) return -1;
+        return spokenCharRatio(activeSpokenClean, getCurrentAudioOffset(), activeAudioBuffer.duration);
+    }
+    window.__msgGetLiveSpeechRatio = getLiveSpeechRatio;
     function getAudioCtx() {
         if (!sharedAudioCtx) {
             sharedAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -1072,6 +1176,8 @@
 
     function getCurrentAudioOffset() {
         if (!activeAudioBuffer) return 0;
+        const _pel = window.__msgPitchPreservedAudioEl;
+        if (activeAudioBlobUrl && _pel && _pel.src === activeAudioBlobUrl && !isNaN(_pel.currentTime)) return Math.min(activeAudioBuffer.duration, Math.max(0, _pel.currentTime));
         if (isAudioPaused || !isAudioPlaying) {
             return Math.min(activeAudioBuffer.duration, Math.max(0, activeAudioOffset));
         }
@@ -1132,6 +1238,12 @@
             clearTimeout(nextStepTimeoutId);
             nextStepTimeoutId = null;
         }
+        if (window.__msgPitchPreservedAudioEl) {
+            try {
+                window.__msgPitchPreservedAudioEl.onended = null;
+                window.__msgPitchPreservedAudioEl.pause();
+            } catch (e) {}
+        }
         if (currentAudioSource) {
             try {
                 currentAudioSource.onended = null;
@@ -1143,6 +1255,13 @@
         isAudioPaused = false;
         activeAudioOffset = 0;
         stopProgressLoop();
+        if (window.__activeGuideUtterance) {
+            try {
+                window.__activeGuideUtterance.onend = null;
+                window.__activeGuideUtterance.onerror = null;
+            } catch (e) {}
+            window.__activeGuideUtterance = null;
+        }
         if ('speechSynthesis' in window) {
             try { window.speechSynthesis.cancel(); } catch (e) {}
         }
@@ -1189,18 +1308,13 @@
                 .replace(/لإدخال/g, 'عشان تدخل')
                 .replace(/لتسليم/g, 'عشان تسلم')
                 .replace(/لاستلام/g, 'عشان تستلم');
-        } else if (dialect === 'gulf') {
+        } else if (dialect === 'fusha' || dialect === 'gulf') {
             txt = txt
-                .replace(/الآن/g, 'الحين')
-                .replace(/مباشرة/g, 'سيدة')
-                .replace(/القادمة/g, 'الجاية')
-                .replace(/تريد/g, 'تبغى')
-                .replace(/أردت/g, 'بغيت')
-                .replace(/بجانبه/g, 'جنبه')
-                .replace(/أمامك/g, 'قدامك')
-                .replace(/لإدخال/g, 'عشان تدخل')
-                .replace(/لتسليم/g, 'عشان تسلم')
-                .replace(/لاستلام/g, 'عشان تستلم');
+                .replace(/دلوقتي|هسي|الحين/g, 'الآن')
+                .replace(/علطول|طوالي|سيدة/g, 'مباشرة')
+                .replace(/لوحده أوتوماتيك|براهو أوتوماتيك/g, 'تلقائياً')
+                .replace(/دوس على/g, 'اضغط على')
+                .replace(/عايز|داير|تبغى/g, 'تريد');
         }
         return txt;
     }
@@ -1255,12 +1369,13 @@
     }
 
     async function fetchAndDecodeMaleBuffer(text, dialect = selectedMaleProfile) {
-        const cleanTxt = text.trim();
-        const cacheKey = `${dialect}|${cleanTxt}`;
+        const cleanTxt = cleanTextForMaleTts(text);
+        const cacheKey = `unified_male_v9|${cleanTxt}`;
         if (decodedBufferCache.has(cacheKey)) {
             return {
                 buffer: decodedBufferCache.get(cacheKey),
-                isGenuineNeural: isGenuineNeuralCache.get(cacheKey) !== false
+                blobUrl: rawBlobUrlCache.get(cacheKey) || null,
+                isGenuineNeural: true
             };
         }
         if (inFlightBufferPromises.has(cacheKey)) {
@@ -1269,36 +1384,43 @@
 
         const taskPromise = (async () => {
             let arrayBuf = rawArrayBufferCache.get(cacheKey);
-            let isGenuine = isGenuineNeuralCache.get(cacheKey);
             if (!arrayBuf) {
                 if (typeof navigator !== 'undefined' && navigator.onLine === false) {
-                    throw new Error('Offline mode - use instant local male voice');
+                    throw new Error('Offline mode');
                 }
-                const url = `api/tts_male.php?dialect=${encodeURIComponent(dialect)}&text=${encodeURIComponent(cleanTxt)}`;
-                const ctrl = typeof AbortController !== 'undefined' ? new AbortController() : null;
-                const tid = ctrl ? setTimeout(() => ctrl.abort(), 6500) : null;
-                try {
-                    const res = await fetch(url, { signal: ctrl ? ctrl.signal : undefined });
-                    if (tid) clearTimeout(tid);
-                    if (!res.ok) throw new Error('TTS HTTP Error ' + res.status);
-                    const engineHdr = res.headers.get('X-Voice-Engine') || 'Edge-Neural-Male';
-                    isGenuine = (engineHdr === 'Edge-Neural-Male');
-                    arrayBuf = await res.arrayBuffer();
-                    if (arrayBuf && arrayBuf.byteLength > 300) {
-                        rawArrayBufferCache.set(cacheKey, arrayBuf.slice(0));
-                        isGenuineNeuralCache.set(cacheKey, isGenuine);
-                    } else {
+                const url = `api/tts_male.php?dialect=fusha&text=${encodeURIComponent(cleanTxt)}`;
+                let lastErr = null;
+                for (let attempt = 0; attempt < 2; attempt++) {
+                    const ctrl = typeof AbortController !== 'undefined' ? new AbortController() : null;
+                    const tid = ctrl ? setTimeout(() => ctrl.abort(), 16000) : null;
+                    try {
+                        const res = await fetch(url, { signal: ctrl ? ctrl.signal : undefined });
+                        if (tid) clearTimeout(tid);
+                        if (!res.ok || res.status === 204) throw new Error('TTS HTTP ' + res.status);
+                        const buf = await res.arrayBuffer();
+                        if (buf && buf.byteLength > 300) {
+                            arrayBuf = buf.slice(0);
+                            rawArrayBufferCache.set(cacheKey, arrayBuf);
+                            isGenuineNeuralCache.set(cacheKey, true);
+                            try {
+                                const blob = new Blob([arrayBuf], { type: 'audio/mpeg' });
+                                rawBlobUrlCache.set(cacheKey, URL.createObjectURL(blob));
+                            } catch (_) {}
+                            break;
+                        }
                         throw new Error('Empty TTS buffer');
+                    } catch (err) {
+                        if (tid) clearTimeout(tid);
+                        lastErr = err;
+                        if (attempt === 0) await new Promise(r => setTimeout(r, 220));
                     }
-                } catch (err) {
-                    if (tid) clearTimeout(tid);
-                    throw err;
                 }
+                if (!arrayBuf) throw (lastErr || new Error('TTS failed'));
             }
             const ctx = getAudioCtx();
             const decoded = await ctx.decodeAudioData(arrayBuf.slice(0));
             decodedBufferCache.set(cacheKey, decoded);
-            return { buffer: decoded, isGenuineNeural: isGenuine !== false };
+            return { buffer: decoded, blobUrl: rawBlobUrlCache.get(cacheKey) || null, isGenuineNeural: true };
         })();
 
         inFlightBufferPromises.set(cacheKey, taskPromise);
@@ -1322,20 +1444,9 @@
             for (let idx = 0; idx < maxWarm; idx++) {
                 const st = allSteps[idx];
                 const txt = resolveStepSpeech(st, dialect, idx === 0);
-                const cacheKey = `${dialect}|${txt.trim()}`;
-                if (txt && !rawArrayBufferCache.has(cacheKey)) {
-                    try {
-                        const res = await fetch(`api/tts_male.php?dialect=${encodeURIComponent(dialect)}&text=${encodeURIComponent(txt.trim())}`);
-                        if (res.ok) {
-                            const engineHdr = res.headers.get('X-Voice-Engine') || 'Edge-Neural-Male';
-                            const buf = await res.arrayBuffer();
-                            if (buf && buf.byteLength > 300) {
-                                rawArrayBufferCache.set(cacheKey, buf);
-                                isGenuineNeuralCache.set(cacheKey, engineHdr === 'Edge-Neural-Male');
-                            }
-                        }
-                        await new Promise(r => setTimeout(r, 90));
-                    } catch (e) {}
+                if (txt) {
+                    try { await fetchAndDecodeMaleBuffer(txt, dialect); } catch (e) {}
+                    await new Promise(r => setTimeout(r, 90));
                 }
             }
         } finally {
@@ -1343,88 +1454,76 @@
         }
     }
 
+    let activeAudioBlobUrl = null;
+    function ensurePitchPreservedStudioGraph(ctx) {
+        if (!window.__msgPitchPreservedAudioEl) {
+            const a = new Audio();
+            a.preload = 'auto';
+            a.preservesPitch = true;
+            a.mozPreservesPitch = true;
+            a.webkitPreservesPitch = true;
+            window.__msgPitchPreservedAudioEl = a;
+            try {
+                const mediaSrc = ctx.createMediaElementSource(a);
+                const chain = buildMaleClarityChain(ctx, 1.25);
+                window.__msgLiveMasterGainNode = chain.output;
+                mediaSrc.connect(chain.input);
+                chain.output.connect(getVoiceSafetyLimiter(ctx));
+            } catch (_) {}
+        }
+        return window.__msgPitchPreservedAudioEl;
+    }
+
     function startBufferAtOffset(offsetSec = 0) {
         if (!activeAudioBuffer) return;
         if (currentAudioSource) {
-            try {
-                currentAudioSource.onended = null;
-                currentAudioSource.stop();
-            } catch (e) {}
+            try { currentAudioSource.onended = null; currentAudioSource.stop(); } catch (e) {}
             currentAudioSource = null;
         }
-
         const ctx = getAudioCtx();
         const clampedOffset = Math.max(0, Math.min(offsetSec, Math.max(0, activeAudioBuffer.duration - 0.08)));
         activeAudioOffset = clampedOffset;
         activeAudioStartTime = ctx.currentTime;
         isAudioPaused = false;
         isAudioPlaying = true;
+        const calmRate = Math.max(0.50, Math.min(4.00, selectedSpeechRate || 1.00));
+
+        if (activeAudioBlobUrl) {
+            try {
+                const a = ensurePitchPreservedStudioGraph(ctx);
+                a.onended = null;
+                if (a.src !== activeAudioBlobUrl) a.src = activeAudioBlobUrl;
+                a.preservesPitch = true; a.mozPreservesPitch = true; a.webkitPreservesPitch = true;
+                a.currentTime = clampedOffset;
+                a.playbackRate = calmRate;
+                if (window.__msgLiveMasterGainNode && window.__msgLiveMasterGainNode.gain) {
+                    window.__msgUserVoiceVolume = parseFloat(localStorage.getItem('msg_voice_vol_v1') || '1.65') || 1.65;
+                    window.__msgLiveMasterGainNode.gain.value = 1.25 * window.__msgUserVoiceVolume;
+                }
+                a.onended = () => {
+                    if (!isAudioPaused) {
+                        isAudioPlaying = false;
+                        activeAudioOffset = activeAudioBuffer ? activeAudioBuffer.duration : 0;
+                        updateAudioPlayerUI();
+                        stopProgressLoop();
+                        if (activeAudioOnEnd) activeAudioOnEnd();
+                    }
+                };
+                a.play().catch(() => {});
+                startProgressLoop();
+                updateAudioPlayerUI();
+                return;
+            } catch (_) {}
+        }
 
         const source = ctx.createBufferSource();
         source.buffer = activeAudioBuffer;
+        source.detune.value = 0;
+        source.playbackRate.value = calmRate;
 
-        if (activeAudioIsGenuine) {
-            // 🎙️ 5-STAGE WORLD-CLASS DUBBING STUDIO BARITONE HD DSP CHAIN (صوت استوديوهات الدبلجة العالمية الفخيم والعميق)
-            const calmRate = Math.max(0.65, Math.min(1.65, selectedSpeechRate || 0.94));
-            const pitchCompCents = Math.round(-1200 * Math.log2(calmRate / 0.94)) - 55;
-            source.detune.value = Math.max(-480, Math.min(450, pitchCompCents));
-            source.playbackRate.value = calmRate;
-
-            // 1. Deep Dubbing Studio Sub-Warmth (عمق وفخامة الرنين الصدري الرجالي)
-            const warmLow = ctx.createBiquadFilter();
-            warmLow.type = 'lowshelf';
-            warmLow.frequency.value = 148;
-            warmLow.gain.value = 4.4;
-
-            // 2. Anti-Muffle Studio Boxiness Cut (نقاء استوديو خالٍ من أي كتمة)
-            const deMud = ctx.createBiquadFilter();
-            deMud.type = 'peaking';
-            deMud.frequency.value = 325;
-            deMud.Q.value = 1.35;
-            deMud.gain.value = -2.6;
-
-            // 3. Rich Vocal Body & Presence (دفء ووضوح مخارج الحروف العربية)
-            const vocalBody = ctx.createBiquadFilter();
-            vocalBody.type = 'peaking';
-            vocalBody.frequency.value = 1250;
-            vocalBody.Q.value = 1.1;
-            vocalBody.gain.value = 1.4;
-
-            const clarity = ctx.createBiquadFilter();
-            clarity.type = 'peaking';
-            clarity.frequency.value = 3050;
-            clarity.Q.value = 0.95;
-            clarity.gain.value = 3.8;
-
-            const crispAir = ctx.createBiquadFilter();
-            crispAir.type = 'highshelf';
-            crispAir.frequency.value = 5800;
-            crispAir.gain.value = 2.0;
-
-            // 4. Broadcast HD Studio Compressor & Calm Master Output
-            const comp = ctx.createDynamicsCompressor();
-            comp.threshold.value = -21;
-            comp.knee.value = 16;
-            comp.ratio.value = 3.5;
-            comp.attack.value = 0.004;
-            comp.release.value = 0.18;
-
-            const outGain = ctx.createGain();
-            outGain.gain.value = 1.08;
-
-            source.connect(warmLow);
-            warmLow.connect(deMud);
-            deMud.connect(vocalBody);
-            vocalBody.connect(clarity);
-            clarity.connect(crispAir);
-            crispAir.connect(comp);
-            comp.connect(outGain);
-            outGain.connect(ctx.destination);
-        } else {
-            source.detune.value = -280;
-            source.playbackRate.value = selectedSpeechRate;
-            source.connect(ctx.destination);
-        }
+        const chain = buildMaleClarityChain(ctx, 1.25);
+        window.__msgLiveMasterGainNode = chain.output;
+        source.connect(chain.input); chain.output.connect(getVoiceSafetyLimiter(ctx));
 
         currentAudioSource = source;
         source.onended = () => {
@@ -1471,12 +1570,17 @@
             await ctx.resume();
         }
         if (isAudioPlaying && !isAudioPaused) {
-            activeAudioOffset = getCurrentAudioOffset();
+            activeAudioOffset = (window.__msgPitchPreservedAudioEl && !window.__msgPitchPreservedAudioEl.paused)
+                ? window.__msgPitchPreservedAudioEl.currentTime
+                : getCurrentAudioOffset();
             isAudioPaused = true;
             isAudioPlaying = false;
             if (nextStepTimeoutId) {
                 clearTimeout(nextStepTimeoutId);
                 nextStepTimeoutId = null;
+            }
+            if (window.__msgPitchPreservedAudioEl) {
+                try { window.__msgPitchPreservedAudioEl.pause(); } catch (e) {}
             }
             if (currentAudioSource) {
                 try {
@@ -1567,6 +1671,7 @@
 
         const arVoices = voices.filter(v => /^ar/i.test(v.lang || '') || /arabic|عربي/i.test(v.name || ''));
         const nonFemaleAr = arVoices.filter(v => !femaleBlacklist.test(v.name || ''));
+        nonFemaleAr.sort((a, b) => (/natural|online|neural/i.test(b.name) ? 1 : 0) - (/natural|online|neural/i.test(a.name) ? 1 : 0));
 
         if (dialect === 'egyptian') {
             const egMale = nonFemaleAr.find(v => /shakir|eg/i.test(v.name + ' ' + v.lang) && malePreferred.test(v.name));
@@ -1580,8 +1685,9 @@
 
     let _browserSpeechKeepAliveTimer = null;
     function speakWithBrowserMaleFallback(text, onEndCallback, dialect = selectedMaleProfile, allowOpeningOnce = false, alreadyFormatted = false) {
+        const reqId = currentSpeechRequestId;
         if (!('speechSynthesis' in window)) {
-            if (onEndCallback) setTimeout(onEndCallback, 2500);
+            if (onEndCallback) setTimeout(() => { if (reqId === currentSpeechRequestId) onEndCallback(); }, 2500);
             return;
         }
         try {
@@ -1589,17 +1695,26 @@
                 clearInterval(_browserSpeechKeepAliveTimer);
                 _browserSpeechKeepAliveTimer = null;
             }
+            if (window.__activeGuideUtterance) {
+                try {
+                    window.__activeGuideUtterance.onend = null;
+                    window.__activeGuideUtterance.onerror = null;
+                } catch (_) {}
+                window.__activeGuideUtterance = null;
+            }
             window.speechSynthesis.cancel();
             window.speechSynthesis.resume();
-            const cleanText = alreadyFormatted ? String(text || '').trim() : ensureLeadingSalawat(text, allowOpeningOnce);
+            const cleanText = cleanTextForMaleTts(alreadyFormatted ? String(text || '').trim() : ensureLeadingSalawat(text, allowOpeningOnce));
             const utter = new SpeechSynthesisUtterance(cleanText);
             window.__activeGuideUtterance = utter;
+            window.__msgUtterCharIdx = 0; window.__msgUtterLen = cleanText.length;
+            utter.onboundary = (ev) => { if (ev && typeof ev.charIndex === 'number') window.__msgUtterCharIdx = ev.charIndex; };
             utter.lang = dialect === 'egyptian' ? 'ar-EG' : 'ar-SA';
             const chosenVoice = selectBestBrowserArabicMaleVoice(dialect);
             if (chosenVoice) {
                 utter.voice = chosenVoice;
                 const isExplicitMale = /shakir|hamed|hamdan|maged|tarik|naayf|male|شاكر|حامد|حمدان|ماجد|طارق|نايف/i.test(chosenVoice.name || '');
-                utter.pitch = isExplicitMale ? 0.92 : 0.72;
+                utter.pitch = isExplicitMale ? 0.80 : 0.72;
             } else {
                 utter.pitch = 0.74;
             }
@@ -1612,7 +1727,7 @@
 
             let finished = false;
             const finishOnce = () => {
-                if (finished) return;
+                if (finished || reqId !== currentSpeechRequestId) return;
                 finished = true;
                 if (_browserSpeechKeepAliveTimer) {
                     clearInterval(_browserSpeechKeepAliveTimer);
@@ -1623,7 +1738,10 @@
                 if (onEndCallback) onEndCallback();
             };
             utter.onend = finishOnce;
-            utter.onerror = finishOnce;
+            utter.onerror = (ev) => {
+                if (ev && (ev.error === 'canceled' || ev.error === 'interrupted')) return;
+                finishOnce();
+            };
             window.speechSynthesis.speak(utter);
             // Keep-alive loop prevents Chrome on Windows from auto-pausing long Arabic utterances
             _browserSpeechKeepAliveTimer = setInterval(() => {
@@ -1671,9 +1789,11 @@
             if (ctx.state === 'suspended') {
                 await ctx.resume();
             }
-            const { buffer: audioBuffer, isGenuineNeural } = await fetchAndDecodeMaleBuffer(finalSpokenText, dialect);
+            const { buffer: audioBuffer, blobUrl, isGenuineNeural } = await fetchAndDecodeMaleBuffer(finalSpokenText, dialect);
             if (reqId !== currentSpeechRequestId) return;
+            activeSpokenClean = cleanTextForMaleTts(finalSpokenText); loadWordMarks(activeSpokenClean);
             activeAudioBuffer = audioBuffer;
+            activeAudioBlobUrl = blobUrl || null;
             activeAudioIsGenuine = isGenuineNeural;
             activeAudioOnEnd = onEndCallback || null;
             startBufferAtOffset(0);
@@ -2847,9 +2967,11 @@
         try {
             const ctx = getAudioCtx();
             if (ctx.state === 'suspended') await ctx.resume();
-            const { buffer: audioBuffer, isGenuineNeural } = await fetchAndDecodeMaleBuffer(clean, selectedMaleProfile);
+            const { buffer: audioBuffer, blobUrl, isGenuineNeural } = await fetchAndDecodeMaleBuffer(clean, selectedMaleProfile);
             if (reqId !== currentSpeechRequestId) return;
+            activeSpokenClean = cleanTextForMaleTts(clean); loadWordMarks(activeSpokenClean);
             activeAudioBuffer = audioBuffer;
+            activeAudioBlobUrl = blobUrl || null;
             activeAudioIsGenuine = isGenuineNeural;
             activeAudioOnEnd = onEnd || null;
             startBufferAtOffset(0);
@@ -2966,60 +3088,254 @@
     // ══════════════════════════════════════════════════════════════════════════
     // 🧠 SELF-UPDATING DYNAMIC DOM INTROSPECTION & AUTO-SYNC ENGINE (تحديث المرشد لنفسه تلقائياً لأي زر أو خانة تُضاف مستقبلاً في أي شاشة)
     // ══════════════════════════════════════════════════════════════════════════
-    window.autoSynthesizeElementExplanation = function (el) {
-        if (!el || el === document.body || el.closest('#msg-live-coach-bar, #msg-smart-hover-tooltip, #msg-universal-fixed-launcher, #msg-universal-modal')) return null;
-        if (typeof window.isElementAllowedForCurrentUserRole === 'function' && !window.isElementAllowedForCurrentUserRole(el)) return null;
-        const customTitle = el.getAttribute && el.getAttribute('data-guide-title');
-        const customDesc = el.getAttribute && el.getAttribute('data-guide-desc');
-        const customRule = (el.getAttribute && el.getAttribute('data-golden-rule')) || 'تأكد من مراجعة البيانات المدخلة أو الخيار المحدد قبل الحفظ لضمان التسميع المحاسبي الدقيق.';
-        if (customTitle && customDesc) {
+    window.explainUnifiedDashboardDomElement = function (el) {
+        if (!el) return null;
+        const qBtn = el.closest('.msg-quartet-btn');
+        if (qBtn) {
+            if (qBtn.classList.contains('msg-quartet-guide')) return { title: '🎓 زر المرشد الذكي الشامل (المستوى الثاني)', why: 'لإرشاد المستخدم خطوة بخطوة بالصوت والمؤشر المتحرك دون الحاجة لمدرب بشري.', desc: 'يفتح نافذة المرشد الذكي لشرح الشاشة بالكامل تلقائياً، أو تفعيل وضع (اشرح جزءاً أضغط عليه)، أو التدريب العملي التفاعلي والاختبار الذكي.', ifDone: 'يتحرك المؤشر الذكي آلياً على كل عنصر في الشاشة ويشرحه صوتياً ومرئياً بالتفصيل.', ifNotDone: 'قد يفوتك اكتشاف الترابطات المحاسبية والمخزنية المتقدمة في الشاشة.', rule: 'ابدأ دائماً بضغطة المرشد عند دخول أي شاشة جديدة لأول مرة.' };
+            if (qBtn.classList.contains('msg-quartet-cinema4k') || qBtn.id === 'msg-fixed-cinema-4k-btn') return { title: '🔴 زر التسجيل السينمائي 4K هوليوود (المستوى الثالث)', why: 'لإنتاج فيديو شرح احترافي سينمائي عالي الدقة مع الإضاءة وحركة الكاميرا والصوت الإذاعي.', desc: 'يشغّل استوديو التصوير السينمائي الذكي الذي يسلط الإضاءة البؤرية ويحرك الكاميرا يميناً ويساراً مع الإدخال التلقائي الحي ويحفظ الفيديو تلقائياً.', ifDone: 'يتم تصوير جولة تدريبية كاملة وحفظها كملف فيديو جاهز للمشاركة أو المراجعة.', ifNotDone: 'لن يتم تسجيل جولة الفيديو التوثيقية للشاشة الحالية.', rule: 'استخدم التسجيل السينمائي لإنتاج شروحات مرئية فورية لأي موظف أو عميل.' };
+            if (qBtn.classList.contains('msg-quartet-mobile')) return { title: '📱 زر نسخة وتنزيل الموبايل السريعة', why: 'لتمكين المدير والمحاسب والمناديب من العمل المتنقل عبر الجوال في أي مكان.', desc: 'يفتح بوابة الجوال السريعة وتثبيت تطبيق الموبايل المباشر المتوافق مع شاشات اللمس.', ifDone: 'ينقلك فوراً لواجهة الجوال أو يبدأ تثبيت الحزمة على هاتفك.', ifNotDone: 'ستظل تعمل على واجهة سطح المكتب التقليدية فقط.', rule: 'ثبّت نسخة الموبايل لمتابعة السيولة والمبيعات والإشعارات لحظياً من جيبك.' };
+            if (qBtn.classList.contains('msg-quartet-install-app')) return { title: '💻 زر تثبيت تطبيق اللابتوب وسطح المكتب (PWA)', why: 'لتشغيل برنامج مقاييس كتطبيق سطح مكتب مستقل بأيقونة خاصة على الشاشة بدون شريط المتصفح.', desc: 'يثبّت النظام كتطبيق أصلي (Native App) يعمل بسرعة فائقة ويدعم العمل الفوري.', ifDone: 'تنزل أيقونة البرنامج مباشرة على سطح المكتب وشريط المهام.', ifNotDone: 'ستحتاج لفتح المتصفح وكتابة الرابط يدوياً في كل مرة.', rule: 'ثبّت التطبيق على جهاز الكاشير والمحاسب لسرعة فتح 0ms واستقرار تام.' };
+            if (qBtn.classList.contains('msg-quartet-install-full')) return { title: '🗄️ زر التثبيت العام للعمل أوفلاين (بدون إنترنت)', why: 'لضمان استمرار البيع والشراء والسندات حتى عند انقطاع الإنترنت أو الكهرباء.', desc: 'يقوم بتحميل وتخزين كافة شاشات وبيانات النظام محلياً داخل الجهاز مع المزامنة التلقائية فور عودة الشبكة.', ifDone: 'يصبح جهازك محصناً ضد انقطاع الإنترنت بنسبة 100%.', ifNotDone: 'قد تتعطل بعض الشاشات غير المحفوظة محلياً إذا انقطع الاتصال فجأة.', rule: 'اضغط التثبيت العام مرة واحدة بعد التحديث لضمان جاهزية العمل أوفلاين دائماً.' };
+            if (qBtn.classList.contains('msg-quartet-shield') || qBtn.id === 'desktop-sync-shield-btn') return { title: '🛡️ زر درع الحماية وسجل المزامنة التلقائية', why: 'لمراقبة أمان البيانات وحالة اتصال السحابة والنسخ الاحتياطي اللحظي.', desc: 'يعرض حالة المزامنة الحية والعمليات المحفوظة محلياً وسجل الأمان.', ifDone: 'تفتح نافذة فحص المزامنة والتأكد من تطابق كافة الفواتير والسندات.', ifNotDone: 'لن تطلع على تفاصيل العمليات المعلقة أثناء وضع الأوفلاين.', rule: 'تأكد من بقاء الدرع باللون الأخضر قبل إغلاق الوردية اليومية.' };
+            if (qBtn.classList.contains('msg-quartet-search')) return { title: '🔍 زر البحث الجنائي ومتعقب المستندات (Alt+T)', why: 'لمعرفة (مَن فعل ماذا ومتى وكيف) والوصول لأي فاتورة أو سند أو حركة في أجزاء من الثانية.', desc: 'يفتح محرك البحث الجنائي الشامل across كافة الفواتير والسندات وسجل المستخدمين.', ifDone: 'يكشف لك تاريخ المستند الكامل وأي تعديل أو حذف طرأ عليه.', ifNotDone: 'سيستغرق البحث اليدوي في الشاشات وقتاً أطول.', rule: 'استخدم الاختصار Alt+T أو هذا الزر لكشف أي عملية فوراً.' };
+            if (qBtn.classList.contains('msg-quartet-fullscreen')) return { title: '⛶ زر توسيع وملء الشاشة الكاملة', why: 'لمنحك أوسع مساحة بصرية ممكنة للجداول والفواتير والرسوم البيانية.', desc: 'يُخفي أشرطة المتصفح العلوية ويفرد شاشة البرنامج على كامل الشاشة.', ifDone: 'تتسع الشاشة وتظهر كافة الأعمدة والأرقام بوضوح فائق.', ifNotDone: 'تبقى مساحة من الشاشة مستهلكة بأشرطة المتصفح.', rule: 'فعّل ملء الشاشة أثناء العمل على الفواتير الكبيرة ولوحة القيادة.' };
+            if (qBtn.classList.contains('msg-quartet-qtheme')) return { title: '🎨 زر السمات التسع الموحدة (دستور المشتريات 2027)', why: 'لإراحة العين في الإضاءة النهارية أو الليلية بأعلى تباين ووضوح للأرقام.', desc: 'يفتح قائمة السمات المعتمدة (الداكن الملكي + 8 نغمات فاتحة وداكنة) ويحفظ اختيارك في كل الشاشات.', ifDone: 'يتحول مظهر النظام بالكامل فوراً إلى السمة المختارة.', ifNotDone: 'يظل النظام على السمة الحالية.', rule: 'اختر السمة العاجية أو البرونزية نهاراً، والملكي الداكن ليلاً لراحة عينيك.' };
+            if (qBtn.classList.contains('msg-quartet-tv') || qBtn.id === 'header-media-btn') return { title: '📺 زر التلفاز والقرآن الكريم والبث الحي', why: 'لتشغيل القرآن الكريم بأصوات كبار القراء أو القنوات المباشرة في الخلفية بدون انقطاع أثناء العمل.', desc: 'يفتح مشغل البث الصوتي والمرئي مع إمكانية فتحه في نافذة مستقلة لا تنقطع عند التنقل بين الشاشات.', ifDone: 'يبدأ البث المبارك في الخلفية مع تحكم كامل بمستوى الصوت.', ifNotDone: 'يبقى المشغل متوقفاً.', rule: 'استخدم خيار (تشغيل بنافذة مستقلة) لاستمرار التلاوة دون انقطاع أثناء التنقل.' };
+            if (qBtn.classList.contains('msg-quartet-back')) return { title: '🔙 زر الرجوع الذكي للشاشة السابقة', why: 'للعودة السريعة والآمنة إلى الشاشة التي كنت تعمل عليها أو لوحة التحكم.', desc: 'يعيدك خطوة للخلف مع حفظ سياق العمل والتنبيه في حال وجود بيانات غير محفوظة.', ifDone: 'تنتقل فوراً للشاشة السابقة.', ifNotDone: 'تبقى في الشاشة الحالية.', rule: 'استخدم زر الرجوع بدلاً من إغلاق المتصفح للحفاظ على تسلسل جلستك.' };
+        }
+        const kpiCard = el.closest('.kpi-cards .spotlight-card');
+        if (kpiCard) {
+            const kTitle = (kpiCard.querySelector('.kpi-title')?.innerText || '').trim();
+            const kVal = (kpiCard.querySelector('.kpi-val')?.innerText || '').trim();
+            const kDesc = (kpiCard.querySelector('.kpi-desc')?.innerText || '').trim();
             return {
-                title: customTitle,
-                desc: `${customDesc} 👑 القاعدة الذهبية لهذا العنصر: ${customRule}`
+                title: `📊 بطاقة مؤشر الأداء: ${kTitle} (${kVal})`,
+                why: `لمنح صاحب العمل والمدير قراءة لحظية فورية لـ (${kTitle}) دون الحاجة لفتح التقارير المطولة.`,
+                desc: `تعرض القيمة الحية الحالية (${kVal} — ${kDesc}) محسوبة تلقائياً حسب نطاق التاريخ والعملة المختارة، وعند النقر عليها تفتح الشاشة التفصيلية المرتبطة بها.`,
+                ifDone: `ينقلك البرنامج فوراً إلى الشاشة أو التقرير التفصيلي الخاص بـ (${kTitle}) لفحص كل عملية.`,
+                ifNotDone: `تكتفي بالقراءة الإجمالية السريعة من لوحة القيادة.`,
+                rule: `راقب (${kTitle}) يومياً، وبدّل النطاق الزمني (اليوم / الأسبوع / الشهر) والعملة (جنيه ⇄ دولار) لمقارنة الأداء.`
             };
         }
-        const btn = el.closest('button, a.btn, .btn-action, .md-tab-btn, .sl-btn, [onclick]');
+        const chartPanel = el.closest('.charts-grid .glass-panel, .glass-panel');
+        if (chartPanel && chartPanel.querySelector('canvas')) {
+            const cTitle = (chartPanel.querySelector('h3')?.innerText || 'الرسم البياني التحليلي').replace(/\s+/g, ' ').trim();
+            return {
+                title: `📈 الرسم البياني التفاعلي: ${cTitle}`,
+                why: `لتحويل الأرقام المحاسبية والمخزنية المعقدة إلى صورة بصرية واضحة تكشف الاتجاهات والمخاطر في ثانية واحدة.`,
+                desc: `يحلل بيانات (${cTitle}) حياً ويعرضها برسوم بيانية تفاعلية تتحدث تلقائياً مع كل فاتورة أو سند جديد.`,
+                ifDone: `عند تمرير المؤشر أو النقر على عناصر الرسم البياني تظهر لك الأرقام والنسب التفصيلية الدقيقة.`,
+                ifNotDone: `قد يصعب ملاحظة الفجوات بين المديونية والسقف الائتماني أو التدفقات النقدية بمجرد النظر للأرقام المجردة.`,
+                rule: `راجع هذا المؤشر البصري قبل اتخاذ قرارات الشراء أو منح الائتمان للعملاء.`
+            };
+        }
+        return null;
+    };
+
+    window.synthesizeSimpleVernacularAnalogy = function (cleanTitle, el) {
+        const t = String(cleanTitle || '');
+        if (/رصيد افتتاحي|أول المدة/.test(t)) return 'يُسجل فيه الرصيد السابق المرحّل قبل بدء العمل بالنظام ليظهر في أول سطر بكشف الحساب وميزان المراجعة.';
+        if (/حد الائتمان|سقف/.test(t)) return 'يحدد أقصى مديونية آجلة مسموح بها للعميل ويمنع تجاوز السقف المعتمد.';
+        if (/واتساب|رسالة|إرسال/.test(t)) return 'يرسل الفاتورة أو الإيصال أو كشف الحساب مباشرة إلى رقم واتساب العميل أو المورد.';
+        if (/حفظ|اعتماد|ترحيل|F10/.test(t)) return 'يعتمد المستند نهائياً ويرحّل أثره المالي والمخزني فوراً في الخزينة والمخزن وكشف الحساب.';
+        if (/حذف|إلغاء|مسح/.test(t)) return 'يمسح السجل إذا كان فارغاً، ويمنع حذفه إذا ارتبط بحركات مالية أو مخزنية حفاظاً على توازن الحسابات.';
+        if (/بحث|فلتر|تصفية/.test(t)) return 'يبحث ويصفي السجلات والفواتير والأصناف مباشرة بالاسم أو الرقم أو الباركود.';
+        if (/عملة|سعر الصرف|دولار|جنيه|تعادل/.test(t)) return 'يحدد عملة المعاملة وسعر الصرف ويحسب القيمة بالجنيه وبالدولار تلقائياً.';
+        if (/مرتجع|رد بضاعة/.test(t)) return 'يوثق إرجاع البضاعة ويعدّل رصيد المخزن وحساب العميل أو المورد فوراً.';
+        if (/استلام|بوابة الاستلام|GRN|توريد/.test(t)) return 'يفحص ويعتمد الكميات المستلمة فعلياً ويضيفها إلى رصيد المخزن المحدد.';
+        if (/تقسيم|تسليم|صرف بضاعة|GDN/.test(t)) return 'يقسم تسليم البضاعة على دفعات ويخصم الكمية المسلمة من المخزن ويحفظ المتبقي.';
+        if (/مبدئية|عرض سعر|تقديرية/.test(t)) return 'يصدر تسعيرة مبدئية للعميل دون خصم من المخزن أو ترحيل مالي حتى اعتمادها كفاتورة.';
+        if (/شيك|حافظة شيكات|مقاصة/.test(t)) return 'يتابع بيانات الشيك وتاريخ استحقاقه وحالة تحصيله أو صرفه في البنك.';
+        if (/قيد|يومية|أستاذ|ميزان/.test(t)) return 'يعرض الحركة المحاسبية المدينة والدائنة والرصيد التراكمي بدقة.';
+        if (/جرد|تسوية|تالف|عجز/.test(t)) return 'يطابق الرصيد الفعلي في المخزن مع الرصيد الدفتري ويعالج الفروقات بقيد رسمي.';
+        if (/طباعة|PDF|إكسل|تصدير/.test(t)) return 'يصدر نسخة جاهزة للطباعة أو ملف بي دي إف أو إكسل للمراجعة والمشاركة.';
+        if (/ذكاء|رادار|منبه|تنبيه|OCR/.test(t)) return 'يقرأ الإشعارات آلياً ويراقب الأسعار والأرصدة للتنبيه الفوري عند أي اختلاف.';
+        if (el && el.tagName === 'A') return `ينقلك مباشرة إلى (${t}) بضغطة واحدة.`;
+        if (el && el.tagName === 'SELECT') return `قائمة منسدلة تختار منها (${t}) بدقة لتسمّع في العملية الحالية.`;
+        if (el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA')) return `خانة مخصصة لإدخال (${t}) ومراجعتها وترحيلها في الحسابات تلقائياً.`;
+        return `ينفذ وظيفة (${t}) مباشرة ويحدّث البيانات والتقارير المرتبطة بها فوراً.`;
+    };
+
+    window.__msgInferExplainContext = function (el, t) {
+        const tag = el && el.tagName ? el.tagName : '';
+        const type = String((el && el.type) || '').toLowerCase();
+        const modal = el && el.closest ? el.closest('.modal, [role="dialog"], dialog, .md-modal, .popup, .overlay-modal') : null;
+        const mh = modal && modal.querySelector ? modal.querySelector('h1,h2,h3,h4,.modal-title') : null;
+        const h1 = document.querySelector('h1');
+        const scr = ((document.title || '').split(/[-|–]/)[0] || (h1 && h1.innerText) || 'الشاشة الحالية').replace(/\s+/g, ' ').trim().slice(0, 50);
+        const where = modal ? `أنت الآن داخل نافذة منبثقة${mh ? ' اسمها (' + mh.innerText.replace(/\s+/g, ' ').trim().slice(0, 40) + ')' : ''} فوق شاشة (${scr})، ولإغلاقها اضغط Esc أو زر الإغلاق.` : `أنت الآن في شاشة (${scr}).`;
+        let source, dest, steps;
+        if (tag === 'SELECT') { source = `الخيارات تأتي من قوائم جاهزة سبق تسجيلها في البيانات الأساسية أو الإعدادات، وأنت فقط تختار منها.`; dest = `اختيارك يُحفظ مع المستند، ويؤثر على كشف الحساب والأستاذ والتقارير المرتبطة.`; steps = `1) اضغط على القائمة 2) اختر السطر المناسب 3) تأكد أن الاسم الظاهر هو المطلوب ثم انتقل للخانة التالية بـ Tab.`; }
+        else if (type === 'checkbox' || type === 'radio') { source = `هذا خيار تفعيل تقرره أنت بضغطة واحدة؛ لا يحتاج كتابة.`; dest = `حالته (مفعّل أو غير مفعّل) تُحفظ وتغيّر سلوك البرنامج في هذه العملية.`; steps = `1) اضغط على المربع للتفعيل 2) اضغط مرة أخرى للإلغاء 3) راجع النتيجة على الشاشة ثم احفظ.`; }
+        else if (tag === 'INPUT' || tag === 'TEXTAREA') {
+            const ro = el.readOnly || el.disabled;
+            source = ro ? `هذه القيمة يحسبها البرنامج أو يسحبها تلقائياً من بيانات سابقة، ولا تكتبها بيدك.` : (type === 'date' ? `يضع البرنامج تاريخ اليوم تلقائياً ويمكنك تغييره عند الحاجة.` : `المعلومة تأتي منك أنت: تكتبها من المستند الورقي أو من الاتفاق مع العميل أو المورد.`);
+            dest = `بعد الحفظ تنتقل إلى قاعدة البيانات ثم تظهر في كشف الحساب ودفتر الأستاذ والتقارير ذات الصلة.`;
+            steps = ro ? `1) اقرأ القيمة فقط 2) إن كانت خاطئة عدّل الخانة المسببة لها 3) ستتحدث هذه الخانة وحدها.` : `1) اضغط داخل الخانة 2) اكتب القيمة أو اخترها 3) اضغط Tab أو Enter للانتقال 4) احفظ بـ F10 أو زر الحفظ.`;
+        }
+        else if (tag === 'BUTTON' || tag === 'A' || (el && el.getAttribute && (el.getAttribute('role') === 'button' || el.getAttribute('onclick')))) { source = `الزر لا يطلب منك معلومة جديدة؛ يعمل على البيانات الظاهرة أمامك الآن في الشاشة.`; dest = `نتيجة الضغط تظهر فوراً على الشاشة، وإن كانت عملية حفظ فتنتقل للحسابات والمخزن والتقارير.`; steps = `1) راجع البيانات أولاً 2) اضغط الزر مرة واحدة بكليك يسار 3) انتظر رسالة التأكيد ولا تكرر الضغط.`; }
+        else if (tag === 'TH' || tag === 'TD' || tag === 'TR') { source = `القيم هنا تأتي من الفواتير والسندات المحفوظة سابقاً في قاعدة البيانات، ويعرضها البرنامج لك مرتبة.`; dest = `هذه مرآة للبيانات وليست مكان إدخال؛ للتعديل افتح المستند الأصلي ثم احفظ، فيتحدث الجدول تلقائياً.`; steps = `1) اقرأ السطر 2) استخدم أزرار الإجراء في نفس السطر لفتح التفاصيل 3) استخدم البحث أو الفلتر للوصول أسرع.`; }
+        else { source = `هذه المعلومة يجمعها البرنامج تلقائياً من العمليات التي سجلتها سابقاً (فواتير، سندات، حركات مخزن).`; dest = `تُعرض لتساعدك على القراءة والمتابعة واتخاذ القرار، ولا تغيّر الحسابات إلا بتنفيذ عملية حقيقية.`; steps = `1) اقرأ العنوان 2) قارن الأرقام بما تعرفه 3) اضغط على العنصر التفاعلي المجاور لمزيد من التفاصيل.`; }
+        return { where, source, dest, steps };
+    };
+
+    window.enrichProfessor6Pillars = function (info, el) {
+        if (!info || !info.title) return info;
+        const cleanTitle = String(info.title || '').replace(/^[✋📖🎓📊📈🏢👤📦💵🏦🔍⚙️🔗]+\s*/, '').trim();
+        const rawVal = el ? (el.value || (el.selectedOptions && el.selectedOptions[0]?.text) || el.getAttribute?.('href') || el.getAttribute?.('data-href') || el.innerText || '') : '';
+        const liveVal = String(rawVal).replace(/\s+/g, ' ').trim().slice(0, 60);
+        const stateFlags = [];
+        if (el) {
+            if (el.required || el.getAttribute?.('aria-required') === 'true') stateFlags.push('إلزامي *');
+            if (el.readOnly || el.disabled) stateFlags.push('محمي للقراءة التلقائية');
+            if ((el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') && !el.value) stateFlags.push('فارغ وجاهز للإدخال');
+        }
+        const hotkeyMatch = ((el && (el.innerText || el.getAttribute?.('title') || '')) || '').match(/(F\d+|Alt\+[A-Za-z0-9]|Ctrl\+[A-Za-z0-9]|Esc|Enter)/i);
+        const hotkeyTxt = info.hotkey || (hotkeyMatch ? `اضغط (${hotkeyMatch[1]}) من لوحة المفاتيح للتنفيذ الفوري.` : 'كليك يسار للتنفيذ، ودبل كليك أو كليك يمين للشرح الذكي.');
+        const baladiTxt = info.baladi || window.synthesizeSimpleVernacularAnalogy(cleanTitle, el);
+        const whyTxt = info.why || `صُمّم (${cleanTitle}) لضبط الدقة المحاسبية والمخزنية ومنع الأخطاء اليدوية وتوفير وقت الموظف بنسبة 100%.`;
+        const whatTxt = (info.rawPillars && info.rawPillars.whatTxt) || info.baseDesc || info.desc || baladiTxt || `هذه الأداة مخصصة لـ (${cleanTitle}) وتعمل بذكاء لتحديث الحسابات والتقارير تلقائياً.`;
+        const impactTxt = info.impact || `يسمّع لحظياً في الشاشة الحالية ويرتبط مباشرة بدفتر الأستاذ العام وكشف الحساب والرصيد المخزني وميزان المراجعة.`;
+        const ifDoneTxt = info.ifDone || `يتم اعتماد الإجراء فوراً وتحديث الأرصدة والقيود المرتبطة به بأمان تام.`;
+        const ifNotTxt = info.ifNotDone || `تبقى البيانات على حالتها السابقة دون ترحيل حتى تقوم باعتمادها.`;
+        const mistakeTxt = info.mistake || `تجنب ترك (${cleanTitle}) بقيمة غير مراجعة قبل الحفظ بـ F10 لضمان تطابق الرصيد الفعلي والدفتري.`;
+        const exampleTxt = info.example || `مثال عملي: عند ضبط (${cleanTitle}) يقوم النظام آلياً بمطابقة القيمة وتحديث كشف الحساب والرصيد في جزء من الثانية.`;
+        const ruleTxt = info.rule || (el && el.getAttribute && el.getAttribute('data-golden-rule')) || `القاعدة الذهبية: راجع (${cleanTitle}) بدقة قبل الاعتماد، وسيتولى النظام ضبط القيد والرصيد تلقائياً بفرق صفر.`;
+        const liveStateTxt = liveVal ? `القيمة الحالية المسجلة الآن هي (${liveVal})${stateFlags.length ? ' — ' + stateFlags.join('، ') : ''}.` : (stateFlags.length ? `حالة العنصر الآن: ${stateFlags.join('، ')}.` : '');
+
+        const xc = window.__msgInferExplainContext(el, cleanTitle);
+        const deg = window.__msgAiDegree || 'ai_5';
+        let segments = [];
+        if (deg === 'ai_1') {
+            segments = [whatTxt, hotkeyTxt];
+        } else if (deg === 'ai_2') {
+            segments = [baladiTxt, whatTxt, ruleTxt];
+        } else if (deg === 'ai_3') {
+            segments = [whatTxt, baladiTxt, impactTxt, ...(liveStateTxt ? [liveStateTxt] : []), ruleTxt];
+        } else if (deg === 'ai_4') {
+            segments = [whatTxt, baladiTxt, impactTxt, `من أين تأتي المعلومة: ${xc.source}`, `وإلى أين تذهب: ${xc.dest}`, `لو نفذته: ${ifDoneTxt} | لو تركته: ${ifNotTxt}`, mistakeTxt, exampleTxt, ruleTxt];
+        } else {
+            segments = [
+                baladiTxt,
+                whatTxt,
+                whyTxt,
+                xc.where,
+                `من أين تأتي المعلومة: ${xc.source}`,
+                `وإلى أين تذهب: ${xc.dest}`,
+                impactTxt,
+                liveStateTxt || 'لا توجد قيمة مسجلة الآن؛ العنصر جاهز لاستقبال أول معلومة أو لتنفيذ أول أمر.',
+                `عند التنفيذ: ${ifDoneTxt} — وعند الترك: ${ifNotTxt}`,
+                mistakeTxt,
+                exampleTxt,
+                `خطوات الاستخدام للمبتدئ: ${xc.steps}`,
+                hotkeyTxt,
+                ruleTxt
+            ];
+        }
+        const uniqueSegs = [];
+        segments.forEach(s => {
+            const cleanS = String(s || '').trim();
+            if (cleanS && !uniqueSegs.some(u => u.includes(cleanS) || cleanS.includes(u))) uniqueSegs.push(cleanS);
+        });
+        const fullRichDesc = uniqueSegs.join(' • ');
+        return { title: info.title, baseDesc: whatTxt, desc: fullRichDesc, rawPillars: { baladiTxt, whyTxt, whatTxt, liveVal, liveStateTxt, impactTxt, ifDoneTxt, ifNotTxt, mistakeTxt, exampleTxt, hotkeyTxt, ruleTxt } };
+    };
+
+    window.autoSynthesizeElementExplanation = function (el) {
+        if (!el || el === document.body || el.closest('#msg-live-coach-bar, #msg-smart-hover-tooltip, #msg-universal-modal, #msg-cinema-lower-thirds')) return null;
+        const dashInfo = window.explainUnifiedDashboardDomElement ? window.explainUnifiedDashboardDomElement(el) : null;
+        if (dashInfo) return window.enrichProfessor6Pillars(dashInfo, el);
+        if (typeof window.isElementAllowedForCurrentUserRole === 'function' && !window.isElementAllowedForCurrentUserRole(el)) return null;
+        const customTitle = el.getAttribute && (el.getAttribute('data-guide-title') || el.getAttribute('data-md-title'));
+        const customDesc = el.getAttribute && (el.getAttribute('data-guide-desc') || el.getAttribute('data-md-tip'));
+        const customRule = (el.getAttribute && el.getAttribute('data-golden-rule')) || 'تأكد من مراجعة البيانات المدخلة أو الخيار المحدد قبل الحفظ لضمان التسميع المحاسبي الدقيق.';
+        if (customTitle && customDesc) {
+            return window.enrichProfessor6Pillars({ title: customTitle, desc: customDesc, rule: customRule }, el);
+        }
+        const lnk = el.closest('a[href]');
+        if (lnk && !lnk.closest('button')) {
+            const lTxt = (lnk.innerText || lnk.getAttribute('title') || lnk.getAttribute('href') || '').replace(/\s+/g, ' ').trim();
+            const href = lnk.getAttribute('href') || '';
+            if (lTxt && lTxt.length >= 2) {
+                return window.enrichProfessor6Pillars({
+                    title: `🔗 رابط انتقال: (${lTxt.slice(0, 44)})`,
+                    why: `للوصول السريع المباشر إلى (${lTxt.slice(0, 44)}) دون البحث في القوائم.`,
+                    desc: `ينقلك بضغطة واحدة إلى المسار (${href || lTxt}) مع الحفاظ على جلسة العمل النشطة.`,
+                    ifDone: `تفتح أمامك شاشة (${lTxt.slice(0, 44)}) فوراً.`,
+                    rule: customRule
+                }, lnk);
+            }
+        }
+        const btn = el.closest('button, a.btn, .btn-action, .md-tab-btn, .sl-btn, .qa-master-btn, .cat-hub-btn, .hub-action-card, .fin-metric-pill, [role="button"], [role="tab"], [onclick]');
         if (btn) {
             const bTitle = btn.getAttribute('data-guide-title') || '';
             const bDesc = btn.getAttribute('data-guide-desc') || '';
-            if (bTitle && bDesc) {
-                return {
-                    title: bTitle,
-                    desc: `${bDesc} 👑 القاعدة الذهبية لهذا العنصر: ${btn.getAttribute('data-golden-rule') || customRule}`
-                };
-            }
+            if (bTitle && bDesc) return window.enrichProfessor6Pillars({ title: bTitle, desc: bDesc, rule: btn.getAttribute('data-golden-rule') || customRule }, btn);
             const rawTxt = (btn.innerText || btn.getAttribute('title') || btn.getAttribute('aria-label') || '').replace(/\s+/g, ' ').replace(/F\d+/g, '').trim();
-            if (!rawTxt || rawTxt.length < 2) return null;
+            if (!rawTxt || rawTxt.length < 2) return window.__msgGenericFallbackInfo(btn);
             const titleHint = btn.getAttribute('title') || '';
-            return {
-                title: `زر (${rawTxt.slice(0, 42)})`,
+            return window.enrichProfessor6Pillars({
+                title: `زر (${rawTxt.slice(0, 44)})`,
                 desc: (titleHint && titleHint !== rawTxt
                     ? `${titleHint} — عند الضغط على (${rawTxt}) ينفذ النظام العملية المرتبطة به ويحدّث البيانات فوراً.`
-                    : `أمر تفاعلي لتنفيذ (${rawTxt}) مباشرة داخل الشاشة وتحديث الحسابات والسجلات المرتبطة به لحظياً.`) + ` 👑 القاعدة الذهبية لهذا العنصر: ${customRule}`
-            };
+                    : `أمر تفاعلي لتنفيذ (${rawTxt}) مباشرة داخل الشاشة وتحديث الحسابات والسجلات المرتبطة به لحظياً.`),
+                rule: customRule
+            }, btn);
         }
-        const fldWrap = el.closest('.pro-field-card, .input-group, .h-form-group');
+        const fldWrap = el.closest('.pro-field-card, .input-group, .h-form-group, .form-group, .filter-group');
         const ctrl = (el.tagName === 'INPUT' || el.tagName === 'SELECT' || el.tagName === 'TEXTAREA') ? el : (fldWrap ? fldWrap.querySelector('input, select, textarea') : null);
         if (ctrl || fldWrap) {
-            const lbl = (fldWrap?.querySelector('label, .pro-field-label, .h-label')?.innerText || ctrl?.getAttribute('placeholder') || ctrl?.getAttribute('title') || '').replace(/\s+/g, ' ').trim();
-            if (!lbl) return null;
+            const lbl = (fldWrap?.querySelector('label, .pro-field-label, .h-label')?.innerText || ctrl?.getAttribute('placeholder') || ctrl?.getAttribute('title') || ctrl?.getAttribute('name') || ctrl?.id || '').replace(/\s+/g, ' ').trim();
+            if (!lbl) return window.__msgGenericFallbackInfo(ctrl || fldWrap);
             if (ctrl && ctrl.tagName === 'SELECT') {
                 const opts = Array.from(ctrl.options || []).map(o => (o.textContent || '').trim()).filter(Boolean).slice(0, 4).join('، ');
-                return {
-                    title: `قائمة (${lbl.slice(0, 40)})`,
-                    desc: `قائمة منسدلة لاختيار (${lbl})${opts ? ` ومن خياراتها: (${opts})` : ''}، وتسمّع تلقائياً في السجل الحالي. 👑 القاعدة الذهبية لهذا العنصر: اختر التصنيف الصحيح من القائمة المنسدلة لتوجيه القيد والتقرير تلقائياً.`
-                };
+                return window.enrichProfessor6Pillars({
+                    title: `قائمة (${lbl.slice(0, 42)})`,
+                    desc: `قائمة منسدلة لاختيار (${lbl})${opts ? ` ومن خياراتها: (${opts})` : ''}، وتسمّع تلقائياً في السجل الحالي.`,
+                    rule: 'اختر التصنيف الصحيح من القائمة المنسدلة لتوجيه القيد والتقرير تلقائياً.'
+                }, ctrl);
             }
-            return {
-                title: `خانة (${lbl.slice(0, 40)})`,
-                desc: `تُستخدم لإدخال أو تعديل (${lbl}) مع التسميع اللحظي والحفظ المباشر في قاعدة البيانات. 👑 القاعدة الذهبية لهذا العنصر: ${customRule}`
-            };
+            return window.enrichProfessor6Pillars({
+                title: `خانة (${lbl.slice(0, 42)})`,
+                desc: `تُستخدم لإدخال أو تعديل (${lbl}) مع التسميع اللحظي والحفظ المباشر في قاعدة البيانات.`,
+                rule: customRule
+            }, ctrl || fldWrap);
         }
-        if (el.tagName === 'TH') {
-            const thTxt = (el.innerText || '').replace(/\s+/g, ' ').trim();
-            if (thTxt) return { title: `عمود (${thTxt})`, desc: `يعرض بيانات (${thTxt}) لكل سجل في الجدول مع إمكانية البحث والفرز الفوري. 👑 القاعدة الذهبية: راجع قيم هذا العمود للتأكد من دقة الأرصدة والأسعار المسجلة.` };
+        const thEl = el.closest('th');
+        if (thEl) {
+            const thTxt = (thEl.innerText || '').replace(/\s+/g, ' ').trim();
+            if (thTxt) return window.enrichProfessor6Pillars({ title: `عمود جدول (${thTxt})`, desc: `يعرض بيانات (${thTxt}) لكل سطر في الجدول مع إمكانية الفرز والمراجعة الفورية.`, rule: 'راجع قيم هذا العمود للتأكد من دقة الأرصدة والأسعار المسجلة.' }, thEl);
         }
-        return null;
+        const tdEl = el.closest('td');
+        if (tdEl) {
+            const tdTxt = (tdEl.innerText || '').replace(/\s+/g, ' ').trim().slice(0, 40);
+            if (tdTxt) return window.enrichProfessor6Pillars({ title: `خلية بيانات (${tdTxt})`, desc: `تعرض القيمة الفعلية المسجلة في هذا السطر من الجدول وترتبط مباشرة بالمستند الأصلي.`, rule: 'اضغط على أزرار الإجراء في نفس السطر للتعديل أو فتح كشف الحساب والتفاصيل.' }, tdEl);
+        }
+        return window.__msgGenericFallbackInfo(el);
+    };
+
+    window.__msgGenericFallbackInfo = function (el) {
+        if (!el || el === document.body || el === document.documentElement || !el.tagName) return null;
+        const tag = el.tagName.toUpperCase();
+        const clean = s => String(s || '').replace(/\s+/g, ' ').trim();
+        const near = el.closest('button, a, label, h1, h2, h3, h4, h5, h6, th, td, li, .card, .glass-panel, section, fieldset, div[class]') || el;
+        let txt = clean(el.getAttribute('aria-label') || el.getAttribute('title') || el.getAttribute('alt') || el.getAttribute('placeholder') || '');
+        if (!txt) txt = clean(near.getAttribute && (near.getAttribute('aria-label') || near.getAttribute('title')) || '');
+        if (!txt) txt = clean(near.innerText || el.textContent || '').slice(0, 44);
+        if (!txt && el.id) txt = clean(el.id.replace(/[-_]+/g, ' '));
+        if (!txt && el.name) txt = clean(String(el.name).replace(/[-_]+/g, ' '));
+        let kind = 'عنصر في الشاشة', body;
+        if (/^H[1-6]$/.test(tag)) { kind = 'عنوان قسم'; body = `هذا عنوان يخبرك أن ما تحته يخص (${txt}) فقط، حتى لا تتوه بين الأقسام.`; }
+        else if (tag === 'LABEL') { kind = 'اسم خانة'; body = `هذا الاسم يوضح ماذا تكتب في الخانة المجاورة، اضغط عليه وسينتقل المؤشر للخانة.`; }
+        else if (tag === 'IMG' || tag === 'SVG' || tag === 'I' || tag === 'PATH' || /icon|fa-|bi-/.test(String(el.className && el.className.baseVal !== undefined ? el.className.baseVal : el.className))) { kind = 'أيقونة / صورة'; body = `رمز بصري يختصر المعنى بدل الكتابة${txt ? ` ومعناه هنا (${txt})` : ''}، ويساعدك على التعرف على الوظيفة بنظرة واحدة.`; }
+        else if (el.type === 'checkbox' || el.type === 'radio') { kind = 'خيار تفعيل'; body = `مربع تفعيل: ضغطة تشغّل الخيار وضغطة ثانية تلغيه${txt ? ` (${txt})` : ''}.`; }
+        else if (tag === 'BUTTON' || tag === 'A' || el.closest('button, a, [onclick], [role="button"]')) { kind = 'زر'; body = `زر تنفيذ${txt ? ` لـ (${txt})` : ' يعتمد على رمزه الظاهر'}؛ اضغطه بكليك يسار مرة واحدة لتنفيذ المطلوب منه.`; }
+        else if (tag === 'INPUT' || tag === 'SELECT' || tag === 'TEXTAREA') { kind = 'خانة'; body = `خانة${txt ? ` خاصة بـ (${txt})` : ''} تُستخدم لإدخال معلومة أو اختيارها ثم حفظها مع المستند.`; }
+        else if (tag === 'CANVAS') { kind = 'رسم بياني'; body = `رسم يحوّل الأرقام إلى شكل مرئي لتفهم الاتجاه والفروقات بنظرة واحدة.`; }
+        else if (txt) { kind = 'معلومة معروضة'; body = `يعرض لك (${txt}) كما هي مسجلة في البرنامج الآن، للقراءة والمتابعة.`; }
+        else { kind = 'مساحة في الشاشة'; body = `منطقة تنظيم وتخطيط تجمع عناصر مرتبطة ببعضها لتبدو الشاشة مرتبة وواضحة.`; }
+        return window.enrichProfessor6Pillars({ title: `${kind}${txt ? ' (' + txt.slice(0, 40) + ')' : ''}`, desc: body, rule: 'لو لم تفهم أي عنصر، اضغط عليه كليك يمين مرتين وسيشرحه لك البرنامج بالصوت والكتابة.' }, el);
     };
 
     const _lastSmartGuideDomSyncByKey = {};
@@ -3130,20 +3446,113 @@
         });
     };
 
+    window.MagaiesSmartGuides['purchase-direct'] = {
+        title: 'شرح فاتورة المشتريات',
+        subtitle: 'شرح صوتي سلس ومريح للقلب خطوة بخطوة مع تزامن تام بالملي ثانية بين الصوت والمؤشر',
+        autopilotSteps: [
+            { badge: '1️⃣ رقم وتاريخ الفاتورة', cursorLabel: 'رقم وتاريخ الفاتورة', targetSelector: '#inv-number, #hdr-date, #invoice-info-box', action: () => { const ed = document.getElementById('purchase-editor-view'); if (ed && ed.style.display === 'none' && typeof window.openPurchaseEditor === 'function') window.openPurchaseEditor('direct'); }, speech: () => 'اللهم صل وسلم على نبينا محمد، أهلاً بك في فاتورة المشتريات. نبدأ من اليمين برقم الفاتورة المتسلسل التلقائي وبجانبه تاريخ الفاتورة، ليتوثق الشراء فوراً في دفتر اليومية وكشف الحساب بكل دقة واطمئنان.' },
+            { badge: '2️⃣ شريط الرصيد والمديونية', cursorLabel: 'شريط الرصيد وزر جنيه ⇄ دولار', targetSelector: '#customer-financial-card, #fin-strip-currency-btn', speech: () => 'وفي أعلى اليسار شريط الرصيد والمديونية؛ يعرض لك بوضوح رصيد المورد ومديونيته والشيكات والحد المتاح، مع زر التحويل اللحظي بين الجنيه والدولار.' },
+            { badge: '3️⃣ اختيار المورد والبحث الذكي', cursorLabel: 'خانة البحث عن المورد', targetSelector: '#hdr-customer-search', speech: () => 'وهنا خانة المورد؛ اكتب فيها أول حروف من اسم المورد ليظهر أمامك فوراً، وبمجرد اختياره تتحدث أرقامه في شريط الرصيد تلقائياً.' },
+            { badge: '4️⃣ زر دفتر أستاذ المورد', cursorLabel: 'زر أستاذ المورد', targetSelector: '#hdr-customer-ledger-btn', speech: () => 'وبداخل خانة المورد تجد زر الأستاذ؛ بضغطة واحدة يفتح لك كشف حساب المورد التفصيلي لتراجع حركاته السابقة وأنت مطمئن.' },
+            { badge: '5️⃣ إضافة مورد وآخر فاتورة', cursorLabel: 'إضافة مورد + نسخ آخر فاتورة', targetSelector: '#btn-quick-add-supplier, #btn-clone-last-supplier-inv', speech: () => 'وبجانبه زر علامة الزائد لتعريف مورد جديد في ثانية، ثم زر آخر فاتورة الذي ينسخ لك أصناف آخر فاتورة اشتريتها من هذا المورد لتوفر وقتك ومجهودك.' },
+            { badge: '6️⃣ العملة وسعر الصرف', cursorLabel: 'عملة الفاتورة وسعر الصرف', targetSelector: '#hdr-currency, #hdr-exchange-rate', speech: () => 'وهنا تختار عملة الفاتورة سواء بالجنيه أو الدولار أو غيرها، وبجانبها سعر الصرف المعتمد ليحسب النظام القيمة المعادلة تلقائياً.' },
+            { badge: '7️⃣ خانة المخزن المستلم', cursorLabel: 'المخزن الذي تدخل فيه البضاعة', targetSelector: '#hdr-warehouse', speech: () => 'وهذه خانة المخزن؛ تحدد منها المخزن الذي ستدخل إليه البضاعة المشتراة ليتم زيادة رصيده فور حفظ الفاتورة.' },
+            { badge: '8️⃣ البيان ومركز الكلفة', cursorLabel: 'البيان ومركز الكلفة', targetSelector: '#hdr-description, #hdr-cost-center', speech: () => 'وفي السطر الثاني تكتب أي ملاحظة أو بيان مرجعي للفاتورة، وبجانبه تحديد مركز الكلفة أو الفرع المرتبط بهذه المشتريات.' },
+            { badge: '9️⃣ ذكاء الأسعار وتخصيص الجدول', cursorLabel: 'رادار الأسعار وتخصيص الأعمدة', targetSelector: 'button[onclick*="openPurchaseAIAuditModal"], button[onclick*="openGridSettingsModal"]', speech: () => 'وفوق الجدول تجد زر الذكاء الاصطناعي لمراجعة أسعار البيع المقترحة، وبجانبه زر تخصيص الجدول لترتيب وتلوين الأعمدة وحفظها نهائياً.' },
+            { badge: '🔟 جدول الأصناف ورادار الأسعار', cursorLabel: 'جدول الأصناف والكميات والأسعار', targetSelector: '#pos-grid', speech: () => 'وهذا جدول الأصناف؛ تكتب فيه اسم الصنف وتحدد الوحدة والكمية وسعر الشراء، وتلاحظ بجانب السعر لمبة رادار الأسعار الثلاثية وأسهم الارتفاع والانخفاض عن آخر شراء.' },
+            { badge: '1️⃣1️⃣ الترحيل والإجمالي المزدوج', cursorLabel: 'الترحيل والإجمالي بالجنيه والدولار', targetSelector: '#inline-totals-container, #grid-foot', speech: () => 'وفي أسفل الجدول أزرار إضافة الترحيل والعمالة والضريبة والخصم، وبجانبها يظهر صافي الفاتورة النهائي بالجنيه وبالدولار معاً مباشرة تحت عمود الجملة.' },
+            { badge: '1️⃣2️⃣ السداد والحفظ والطباعة F10', cursorLabel: 'طريقة الدفع وحفظ الفاتورة F10', targetSelector: '#payment-panel, .items-toolbar', action: () => { const p = document.getElementById('payment-panel'); if (p) p.style.display = 'block'; }, speech: () => 'وأخيراً لوحة السداد وشريط الاعتماد؛ تختار الدفع نقداً أو آجلاً أو بنكك أو شيك، وتضغط حفظ واعتماد إف عشرة أو طباعة ومشاركة واتساب ليسمّع في المخزن والحسابات فوراً بكل أمان.' }
+        ],
+        buttonsDict: [],
+        scenarios: []
+    };
+
+    window.MagaiesSmartGuides['sales-direct'] = {
+        title: 'شرح فاتورة المبيعات',
+        subtitle: 'شرح صوتي سلس ومريح للقلب خطوة بخطوة مع تزامن تام بالملي ثانية بين الصوت والمؤشر',
+        autopilotSteps: [
+            { badge: '1️⃣ رقم وتاريخ الفاتورة', cursorLabel: 'رقم وتاريخ الفاتورة', targetSelector: '#inv-number, #hdr-date, #invoice-info-box', action: () => { const ed = document.getElementById('invoice-editor-view'); if (ed && ed.style.display === 'none' && typeof window.openInvoiceEditor === 'function') window.openInvoiceEditor('pending_delivery'); }, speech: () => 'اللهم صل وسلم على نبينا محمد، أهلاً بك في فاتورة المبيعات. نبدأ من اليمين برقم الفاتورة المتسلسل التلقائي وبجانبه تاريخ الفاتورة، لتتوثق عملية البيع فوراً في اليومية وكشف الحساب.' },
+            { badge: '2️⃣ شريط الرصيد والائتمان', cursorLabel: 'شريط الرصيد وزر جنيه ⇄ دولار', targetSelector: '#customer-financial-card, #fin-strip-currency-btn', speech: () => 'وفي أعلى اليسار شريط الرصيد والمديونية والائتمان؛ يوضح رصيد العميل ومديونيته والشيكات وحد الائتمان المتاح، مع زر التحويل اللحظي بين الجنيه والدولار.' },
+            { badge: '3️⃣ اختيار العميل والبحث الذكي', cursorLabel: 'خانة البحث عن العميل', targetSelector: '#hdr-customer-search', speech: () => 'وهنا خانة العميل؛ اكتب فيها أول حروف من اسم العميل للبحث عنه فوراً، وبمجرد اختياره تظهر أرقامه الائتمانية تلقائياً.' },
+            { badge: '4️⃣ زر دفتر أستاذ العميل', cursorLabel: 'زر أستاذ العميل', targetSelector: '#hdr-customer-ledger-btn', speech: () => 'وبداخل خانة العميل تجد زر الأستاذ؛ يفتح لك كشف حساب العميل التفصيلي بضغطة واحدة لتراجع رصيده وحركاته السابقة.' },
+            { badge: '5️⃣ إضافة عميل وآخر فاتورة', cursorLabel: 'إضافة عميل + نسخ آخر فاتورة', targetSelector: '#btn-quick-add-customer, #btn-clone-last-customer-inv', speech: () => 'وبجانبه زر علامة الزائد لإضافة عميل جديد فوراً، ثم زر آخر فاتورة الذي ينسخ لك أصناف آخر فاتورة اشتراها هذا العميل بضغطة واحدة.' },
+            { badge: '6️⃣ العملة وسعر الصرف', cursorLabel: 'عملة الفاتورة وسعر الصرف', targetSelector: '#hdr-currency, #hdr-exchange-rate', speech: () => 'وهنا تختار عملة الفاتورة وسعر الصرف المعتمد ليقوم النظام بالحساب والتحويل التلقائي بدقة تامة.' },
+            { badge: '7️⃣ خانة المخزن الصارف', cursorLabel: 'المخزن الذي تُصرف منه البضاعة', targetSelector: '#hdr-warehouse', speech: () => 'وهذه خانة المخزن؛ تحدد منها المخزن الذي ستخرج منه البضاعة المباعة ليتم خصم الكمية من رصيده تلقائياً.' },
+            { badge: '8️⃣ البيان ومركز الكلفة', cursorLabel: 'البيان ومركز الكلفة', targetSelector: '#hdr-description, #hdr-cost-center', speech: () => 'وفي السطر الثاني تدون أي ملاحظة أو بيان على الفاتورة، وبجانبه اختيار مركز الكلفة أو الفرع.' },
+            { badge: '9️⃣ البحث السريع عن الأصناف F2', cursorLabel: 'بحث الأصناف والباركود F2', targetSelector: '#quick-item-search, button[onclick*="openGridSettingsModal"]', speech: () => 'وهنا خانة البحث السريع عن الأصناف؛ اكتب اسم الصنف أو امسح الباركود لإدراجه فوراً في الجدول، وبجانبها زر تخصيص الأعمدة.' },
+            { badge: '🔟 جدول الأصناف والأسعار', cursorLabel: 'جدول الأصناف والكميات والأسعار', targetSelector: '#pos-grid', speech: () => 'وهذا جدول الأصناف؛ تحدد فيه الوحدة والكمية وسعر البيع، ويعرض لك الرصيد المتاح في المخزن ولمبة رادار الأسعار وآخر سعر بيع.' },
+            { badge: '1️⃣1️⃣ الترحيل والإجمالي المزدوج', cursorLabel: 'الترحيل والإجمالي بالجنيه والدولار', targetSelector: '#inline-totals-container, #grid-foot', speech: () => 'وفي أسفل الجدول أزرار الترحيل والخصم والضريبة، ويظهر بجانبها الإجمالي الصافي بالجنيه وبالدولار معاً تحت عمود الجملة.' },
+            { badge: '1️⃣2️⃣ الدفع واعتماد الفاتورة F10', cursorLabel: 'لوحة الدفع وحفظ الفاتورة F10', targetSelector: '#payment-panel, .items-toolbar', action: () => { const p = document.getElementById('payment-panel'); if (p) p.style.display = 'block'; }, speech: () => 'وأخيراً لوحة الدفع وشريط الاعتماد؛ تختار منها السداد نقداً أو آجلاً أو بنكك أو شيك، ثم تضغط حفظ واعتماد إف عشرة لترحيلها مباشرة وأنت مطمئن.' }
+        ],
+        buttonsDict: [],
+        scenarios: []
+    };
+
+    function explainInvoiceDomCommon(el, isPur) {
+        if (!el || !el.closest) return null;
+        const party = isPur ? 'المورد' : 'العميل';
+        const act = isPur ? 'الشراء' : 'البيع';
+        const whAct = isPur ? 'تدخل إليه البضاعة المشتراة ويزيد رصيده' : 'تخرج منه البضاعة المباعة ويُخصم من رصيده';
+        if (el.closest('#btn-clone-last-supplier-inv, #btn-clone-last-customer-inv')) return { title: `📋 زر آخر فاتورة لـ${party}`, desc: `ينسخ لك أصناف آخر فاتورة مسجلة لهذا ${party} بضغطة واحدة لتوفر وقتك ومجهودك وتعدل الكميات فقط بكل سهولة.` };
+        if (el.closest('#hdr-customer-ledger-btn')) return { title: `📖 زر دفتر أستاذ ${party}`, desc: `يفتح لك كشف حساب ${party} التفصيلي مباشرة من داخل الفاتورة لتراجع جميع حركاته السابقة ورصيده الدقيق في ثانية واحدة.` };
+        if (el.closest('#btn-quick-add-supplier, #btn-quick-add-customer')) return { title: `➕ زر إضافة ${party} جديد`, desc: `يفتح لك نافذة سريعة لتعريف ${party} جديد وإدراجه في الفاتورة فوراً دون مغادرة الشاشة.` };
+        if (el.closest('#hdr-customer-search')) return { title: `👤 خانة اختيار ${party}`, desc: `اكتب فيها أول حروف من اسم ${party} ليظهر أمامك فوراً، وبمجرد اختياره يعرض النظام رصيده ومديونيته وحد الائتمان تلقائياً.` };
+        if (el.closest('#hdr-warehouse, .group-warehouse')) return { title: `📦 خانة المخزن`, desc: `تحدد منها المخزن المعتمد الذي ${whAct} فور حفظ واعتماد الفاتورة.` };
+        if (el.closest('#hdr-currency, #hdr-exchange-rate, .group-currency')) return { title: `💱 العملة وسعر الصرف`, desc: `تختار منها عملة الفاتورة (جنيه أو دولار أو غيرها) وسعر الصرف ليحسب النظام المعادل تلقائياً بدقة تامة.` };
+        if (el.closest('#hdr-date, #inv-number')) return { title: `📅 تاريخ ورقم الفاتورة`, desc: `يوثق تاريخ حركة ${act} ورقمها المتسلسل التلقائي لترحيلها في دفتر اليومية وكشف الحساب بانتظام.` };
+        if (el.closest('#hdr-description')) return { title: `📝 خانة البيان والملاحظات`, desc: `تكتب فيها أي ملاحظات أو تفاصيل مرجعية لتظهر في كشف حساب ${party} ودفتر اليومية وعند الطباعة.` };
+        if (el.closest('#hdr-cost-center, .group-cost-center')) return { title: `🏷️ خانة مركز الكلفة`, desc: `تربط هذه الفاتورة بالفرع أو المشروع أو مركز التكلفة المختص لمتابعة أرباحه ومصاريفه بدقة.` };
+        if (el.closest('#fin-strip-currency-btn')) return { title: `🔄 زر تحويل عملة الشريط (جنيه ⇄ دولار)`, desc: `يحوّل جميع أرقام شريط الرصيد والمديونية والشيكات والمتاح أمامك لحظياً بين الجنيه السوداني والدولار.` };
+        if (el.closest('#fin-strip, #customer-financial-card')) return { title: `📊 شريط الرصيد والمديونية والائتمان`, desc: `يعرض لك بوضوح تام رصيد ${party} الحالي وإجمالي المديونية والشيكات والحد المتاح قبل اعتماد الفاتورة.` };
+        if (el.closest('#quick-item-search')) return { title: `🔍 البحث السريع عن الأصناف والباركود`, desc: `اكتب اسم الصنف أو امسح الباركود لإدراج الصنف مباشرة في جدول الفاتورة بسرعة وسلاسة.` };
+        if (el.closest('button[onclick*="openPurchaseAIAuditModal"]')) return { title: `🤖 الذكاء الاصطناعي لمراجعة الأسعار`, desc: `يراجع أسعار الشراء مقارنة بأسعار البيع الحالية ويقترح لك تعديل أسعار البيع للحفاظ على هامش ربحك فوراً.` };
+        if (el.closest('button[onclick*="openGridSettingsModal"]')) return { title: `⚙️ تخصيص أعمدة الجدول`, desc: `يتيح لك إظهار أو إخفاء وترتيب وتلوين أعمدة جدول الفاتورة وتكبير الخط وحفظ التخصيص نهائياً.` };
+        if (el.closest('#inline-totals-container, #grid-foot, .pur-compact-tot-card')) return { title: `⚖️ أزرار الترحيل والإجمالي المزدوج`, desc: `تضيف منها الترحيل أو العمالة أو الضريبة أو الخصم، وتعرض لك صافي الفاتورة النهائي بالجنيه وبالدولار معاً تحت عمود الجملة.` };
+        if (el.closest('#payment-panel, .items-toolbar, #btn-submit-purchase-invoice, #btn-submit-invoice')) return { title: `💳 السداد واعتماد الفاتورة والطباعة (F10)`, desc: `تحدد منها طريقة السداد (نقداً أو آجلاً أو بنكك أو شيك) ثم تضغط حفظ واعتماد (F10) أو طباعة ومشاركة واتساب ليسمّع في المخزن والحسابات فوراً.` };
+        if (el.closest('#pos-grid')) return { title: `📦 جدول الأصناف والكميات ورادار الأسعار`, desc: `تسجل فيه الأصناف والوحدات والكميات والأسعار، مع لمبة رادار الأسعار الثلاثية التي تنبهك لاتجاه السعر وآخر رصيد.` };
+        return null;
+    }
+    window.explainPurchaseDomElement = (el) => explainInvoiceDomCommon(el, true);
+    window.explainDirectSalesDomElement = (el) => explainInvoiceDomCommon(el, false);
+
     function buildUniversalScreenGuideIfNeeded() {
         let matchedKey = null;
         if ((window.location.pathname.includes('master-data') || document.querySelector('.md-tabs-sidebar')) && window.MagaiesSmartGuides['master-data']) {
             matchedKey = 'master-data';
+            try {
+                if (typeof window.detectActiveMasterDataTabMode === 'function' && typeof buildProfessorialMasterDataScenes === 'function') {
+                    const activeTabMode = window.detectActiveMasterDataTabMode() || 'customers';
+                    const tabScenes = buildProfessorialMasterDataScenes(activeTabMode);
+                    if (Array.isArray(tabScenes) && tabScenes.length > 0) {
+                        window.MagaiesSmartGuides['master-data'].autopilotSteps = tabScenes.map(sc => ({
+                            badge: sc.badge || 'خطوة شرح',
+                            cursorLabel: sc.title || sc.badge || 'بيان',
+                            targetSelector: sc.targetSelector || '#tab-' + activeTabMode,
+                            goldenRule: sc.goldenRule || '',
+                            action: sc.action,
+                            speech: () => (sc.speech || '') + (sc.goldenRule ? ' — ' + sc.goldenRule : '')
+                        }));
+                    }
+                }
+            } catch (_e) {}
         } else if ((window.location.pathname.includes('purchase-receipt.php') || document.getElementById('recent-grns-container')) && window.MagaiesSmartGuides['purchase-receipt']) {
             matchedKey = 'purchase-receipt';
         } else if ((window.location.pathname.includes('purchase.php') || document.getElementById('purchase-editor-view') || document.getElementById('purchase-hub-view')) && window.MagaiesSmartGuides['purchase-direct']) {
             matchedKey = 'purchase-direct';
+            const purEditor = document.getElementById('purchase-editor-view');
+            if (purEditor && purEditor.style.display === 'none' && typeof window.openPurchaseEditor === 'function') {
+                try { window.openPurchaseEditor('direct'); } catch (_) {}
+            }
         } else {
             const splitViewEl = document.getElementById('split-invoice-view');
             if ((window.location.search.includes('action=split') || (splitViewEl && splitViewEl.style.display !== 'none')) && window.MagaiesSmartGuides['sales-split']) {
                 matchedKey = 'sales-split';
             } else if ((window.location.pathname.includes('direct-sales.php') || document.getElementById('invoice-editor-view') || document.getElementById('sales-hub-view')) && window.MagaiesSmartGuides['sales-direct']) {
                 matchedKey = 'sales-direct';
+                const invEditor = document.getElementById('invoice-editor-view');
+                if (invEditor && invEditor.style.display === 'none' && typeof window.openInvoiceEditor === 'function') {
+                    try { window.openInvoiceEditor('pending_delivery'); } catch (_) {}
+                }
             } else if (window.location.pathname.includes('smart-logistics') || document.getElementById('sl-top-cockpit-bar') || document.getElementById('sl-tab-purchases') || document.getElementById('sl-tab-sales')) {
                 matchedKey = 'smart-logistics';
             } else if (document.getElementById('from-account-search') || window.location.pathname.includes('single-cash-payment')) {
@@ -3157,38 +3566,41 @@
             return matchedKey;
         }
         const pageTitle = (document.querySelector('main h1, main h2, main h3, .md-card-title, h1:not(.m7-modal-title), h2:not(.m7-modal-title), .page-title')?.textContent || document.title || 'الشاشة الحالية').trim();
-        const visibleEls = Array.from(document.querySelectorAll('button, select, a.btn, .sl-btn, .tab-btn, [role="tab"]')).filter(b => {
+        const activeViewScope = [document.getElementById('invoice-editor-view'), document.getElementById('split-invoice-view'), document.getElementById('sales-hub-view'), document.getElementById('purchase-editor-view'), document.getElementById('purchase-hub-view')].find(v => v && v.offsetParent !== null && v.style.display !== 'none') || document.querySelector('main, .dash-main, .pos-wrapper, .main-content') || document.body;
+        const visibleEls = Array.from(activeViewScope.querySelectorAll('button, select, input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]), textarea, .spotlight-card, .kpi-card, .hub-action-card, .qa-master-btn, .cat-hub-btn, .sl-btn, .tab-btn, [role="tab"]')).filter(b => {
             const r = b.getBoundingClientRect();
-            return r.width > 40 && r.height > 20 && r.top >= 0 && !b.closest('#msg-universal-fixed-launcher') && !b.closest('#msg-universal-modal') && !b.closest('#master-7-themes-modal') && !b.closest('#magaiees-dashboard-header-stack') && !b.closest('#msg-live-coach-bar');
-        }).slice(0, 8);
+            return r.width > 34 && r.height > 18 && r.top >= 0 && !b.closest('.global-sidebar, .sidebar, aside, #sidebar, .sidebar-nav, .sidebar-item, .nav-sidebar, .nav-links, #panoramic-flyout-panel, #sidebar-panoramic-flyout, .sp-flyout-panel, .sp-flyout-backdrop, nav, header.premium-header, .magical-glass-header, .msg-twin-quartets-wrapper, #sales-fc1-smart-ai-command-bar, #purchase-fc1-smart-ai-command-bar, #msg-universal-fixed-launcher, #msg-universal-modal, #master-7-themes-modal, #msg-live-coach-bar, #msg-cinema-lower-thirds, #msg-smart-hover-tooltip');
+        }).slice(0, 14);
 
         window.MagaiesSmartGuides['universal-screen'] = {
             title: `المرشد الذكي: ${pageTitle}`,
-            subtitle: 'شرح مصوّر ومدبلج بالصوت الرجالي للأزرار والقوائم والشاشات الفرعية داخل هذه الشاشة',
+            subtitle: 'شرح مصوّر ومدبلج بالصوت الرجالي وبالشرح البلدي والبروفيسوري لكل عنصر داخل الشاشة',
             autopilotSteps: visibleEls.length ? visibleEls.map((el, i) => {
                 const isSelect = el.tagName === 'SELECT';
-                const lbl = isSelect
+                const synth = window.autoSynthesizeElementExplanation ? window.autoSynthesizeElementExplanation(el) : null;
+                const lbl = (synth && synth.title) ? synth.title : (isSelect
                     ? (el.getAttribute('title') || el.options?.[0]?.text || `القائمة المنسدلة ${i + 1}`).replace(/\s+/g, ' ').trim().slice(0, 45)
-                    : (el.innerText || el.getAttribute('title') || `العنصر ${i + 1}`).replace(/\s+/g, ' ').trim().slice(0, 45);
+                    : (el.innerText || el.getAttribute('placeholder') || el.getAttribute('title') || `العنصر ${i + 1}`).replace(/\s+/g, ' ').trim().slice(0, 45));
                 if (!el.id) el.id = `msg-auto-el-${i}`;
                 const selectOpts = isSelect ? Array.from(el.options || []).slice(0, 5).map(o => o.text.trim()).filter(Boolean) : [];
+                const richSpeech = synth && synth.desc ? `${synth.title}. ${synth.desc}` : `هذا العنصر مخصص لـ (${lbl}) وينفذ وظيفته المحاسبية والتشغيلية مباشرة داخل شاشة ${pageTitle}.`;
                 return {
                     badge: `الخطوة ${i + 1} — ${lbl}`,
                     cursorLabel: lbl,
-                    screenPath: `${pageTitle} ⬅ ${isSelect ? 'فتح قائمة' : 'ضغط زر'} (${lbl})`,
+                    screenPath: `${pageTitle} ⬅ ${lbl}`,
                     targetSelector: `#${el.id}`,
                     diagramType: isSelect ? 'dropdown-open' : 'screen-hub',
                     diagramMeta: {
                         parentScreen: pageTitle,
-                        actionLabel: isSelect ? `عند الضغط على قائمة (${lbl}) تظهر الخيارات:` : `وظيفة زر (${lbl}) وأثره في الشاشة:`,
+                        actionLabel: `تفصيل وظيفة (${lbl}):`,
                         childItems: selectOpts.length ? selectOpts : [
-                            `🎯 العنصر: ${lbl}`,
-                            '👆 عند الضغط عليه ينفذ العملية أو يفتح النافذة المرتبطة به',
-                            '📊 يحدث البيانات والتقارير المرتبطة في نفس اللحظة'
+                            `🎯 ${lbl}`,
+                            (synth && synth.rawPillars && synth.rawPillars.baladiTxt) || '👆 تنفيذ فوري ومباشر بالضغط أو الإدخال',
+                            (synth && synth.rawPillars && synth.rawPillars.ruleTxt) || '📊 تحديث البيانات والتقارير المرتبطة في نفس اللحظة'
                         ],
-                        effectLabel: isSelect ? 'قائمة الخيارات مفتوحة الآن أمامك على الشاشة!' : 'تنفيذ فوري ومباشر داخل النظام'
+                        effectLabel: isSelect ? 'قائمة الخيارات مفتوحة الآن أمامك على الشاشة!' : 'تنفيذ وتسميع فوري داخل النظام'
                     },
-                    speech: () => `${ i === 0 ? SHORT_SAHIHAYN_SALAWAT + ' أهلاً بحضرتك في شاشة ' + pageTitle + '. ' : '' }${isSelect ? `هنا قائمة (${lbl})، وعند الضغط عليها تفتح أمامك قائمة الخيارات كما يظهر الآن على الشاشة لاختيار المطلوب.` : `هذا الزر مخصص لـ (${lbl})، ويمكنك الضغط عليه لتنفيذ العملية أو فتح النافذة المرتبطة به مباشرة.`}`
+                    speech: () => `${i === 0 ? SHORT_SAHIHAYN_SALAWAT + ' الآن أشرح ' + pageTitle + '. ' : ''}${richSpeech}`
                 };
             }) : [
                 {
@@ -3196,7 +3608,7 @@
                     cursorLabel: pageTitle,
                     screenPath: `${pageTitle} ⬅ جولة شاملة`,
                     targetSelector: 'body',
-                    speech: () => `${SHORT_SAHIHAYN_SALAWAT} أهلاً بحضرتك في شاشة ${pageTitle}. يمكنك استخدام وضع المؤشر الحر للضغط على أي زر في الشاشة ليقوم المرشد الذكي بشرحه لك فوراً.`
+                    speech: () => `${SHORT_SAHIHAYN_SALAWAT} الآن أشرح ${pageTitle}. يمكنك الضغط على أي عنصر في الشاشة ليقوم المرشد بشرحه مباشرة.`
                 }
             ],
             visualSteps: [
@@ -3411,15 +3823,25 @@
     };
 
     const GLOBAL_ERP_TONES = [
-        { id: 'dark_midnight',   name: 'داكن كحلي ملكي (Dark)',   bg: '#0f172a', fg: '#1e293b', brd: '#38bdf8', isDark: true,  themeKey: 'midnight_obsidian' },
-        { id: 'ivory_default',   name: 'عاجي دافئ (فاتح افتراضي)', bg: '#d9c39e', fg: '#f3e5ab', brd: '#854d0e', isDark: false, themeKey: 'warm_cream' },
-        { id: 'royal_bronze',    name: 'برونزي ملكي فاخر',      bg: '#b07239', fg: '#d9a066', brd: '#78350f', isDark: false, themeKey: 'warm_cream' },
-        { id: 'platinum_gray',   name: 'رمادي بلاتيني احترافي', bg: '#64748b', fg: '#94a3b8', brd: '#334155', isDark: false, themeKey: 'exec_gray' },
-        { id: 'crystal_silver',  name: 'فضي جليدي ناصع',        bg: '#cbd5e1', fg: '#e2e8f0', brd: '#64748b', isDark: false, themeKey: 'ultra_white' },
-        { id: 'sage_pearl',      name: 'لؤلؤي زمردي هادئ',      bg: '#10b981', fg: '#6ee7b7', brd: '#047857', isDark: false, themeKey: 'warm_cream' },
-        { id: 'sky_alabaster',   name: 'سماوي لازوردي فاتح',    bg: '#0284c7', fg: '#38bdf8', brd: '#0369a1', isDark: false, themeKey: 'ultra_white' },
-        { id: 'warm_mocha_dark', name: 'موكا صحراوي غامق',      bg: '#6b4226', fg: '#9c6b43', brd: '#451a03', isDark: false, themeKey: 'warm_cream' },
-        { id: 'deep_slate_dark', name: 'رصاصي فحمي غامق',       bg: '#334155', fg: '#475569', brd: '#0f172a', isDark: false, themeKey: 'exec_gray' }
+        { id: 'dark_midnight',   name: 'داكن كحلي ملكي (Dark)',         bg: '#0f172a', fg: '#1e293b', brd: '#38bdf8', isDark: true,  themeKey: 'midnight_obsidian' },
+        { id: 'pure_oled',       name: 'أسود ناصع للشاشات (OLED)',      bg: '#010308', fg: '#090d16', brd: '#0284c7', isDark: true,  themeKey: 'pure_oled' },
+        { id: 'mocha_brown',     name: 'بني قهوة فخم (Mocha Dark)',     bg: '#1f120d', fg: '#3e2723', brd: '#f59e0b', isDark: true,  themeKey: 'mocha_brown' },
+        { id: 'slate_twilight',  name: 'رمادي معدني داكن (Slate)',       bg: '#1e293b', fg: '#334155', brd: '#94a3b8', isDark: true,  themeKey: 'slate_twilight' },
+        { id: 'ivory_default',   name: 'عاجي دافئ (فاتح افتراضي)',       bg: '#d9c39e', fg: '#f3e5ab', brd: '#854d0e', isDark: false, themeKey: 'warm_cream' },
+        { id: 'royal_bronze',    name: '👑 الذهبي الملكي (برونزي فاخر)', bg: '#b07239', fg: '#d9a066', brd: '#78350f', isDark: false, themeKey: 'warm_cream' },
+        { id: 'platinum_gray',   name: 'رمادي بلاتيني احترافي',          bg: '#64748b', fg: '#94a3b8', brd: '#334155', isDark: false, themeKey: 'exec_gray' },
+        { id: 'crystal_silver',  name: 'فضي جليدي ناصع',                 bg: '#cbd5e1', fg: '#e2e8f0', brd: '#64748b', isDark: false, themeKey: 'ultra_white' },
+        { id: 'sage_pearl',      name: 'لؤلؤي زمردي هادئ',               bg: '#10b981', fg: '#6ee7b7', brd: '#047857', isDark: false, themeKey: 'warm_cream' },
+        { id: 'sky_alabaster',   name: 'سماوي لازوردي فاتح',             bg: '#0284c7', fg: '#38bdf8', brd: '#0369a1', isDark: false, themeKey: 'ultra_white' },
+        { id: 'rose_blossom',    name: 'زهري ملكي ناعم (Rose)',          bg: '#ec4899', fg: '#fbcfe8', brd: '#9d174d', isDark: false, themeKey: 'warm_cream' },
+        { id: 'warm_mocha_dark', name: 'موكا صحراوي غامق',               bg: '#6b4226', fg: '#9c6b43', brd: '#451a03', isDark: false, themeKey: 'warm_cream' },
+        { id: 'deep_slate_dark', name: 'رصاصي فحمي غامق',                bg: '#334155', fg: '#475569', brd: '#0f172a', isDark: false, themeKey: 'exec_gray' }
+    ];
+    const SYSTEM_AUDIO_TONES = [
+        { id: 'crystal',    name: '🔔 كريستال', freq: [880, 1320], type: 'sine' },
+        { id: 'mechanical', name: '⌨️ ميكانيكية', freq: [340, 520], type: 'triangle' },
+        { id: 'soft',       name: '🎵 هادئة',    freq: [528, 660], type: 'sine' },
+        { id: 'mute',       name: '🔇 صامت',     freq: [],         type: 'sine' }
     ];
     const DARK_TONE_ALIASES = ['dark_midnight', 'pure_oled', 'mocha_brown', 'slate_twilight', 'midnight_obsidian', 'dark'];
     function getErpCookie(n) { const m = document.cookie.match(new RegExp('(?:^|; )' + n + '=([^;]*)')); return m ? decodeURIComponent(m[1]) : ''; }
@@ -3444,6 +3866,7 @@
                 :root.light-theme[data-light-tone="crystal_silver"] { --lt-canvas-1:#d2d8e2; --lt-canvas-2:#bfc7d4; --lt-hdr-1:#dfe4ec; --lt-hdr-2:#cfd6e2; --lt-hdr-3:#bec7d5; --lt-card-1:#fafbfd; --lt-card-2:#edf1f7; --lt-sub-1:#ffffff; --lt-sub-2:#e7ecf3; --lt-th-1:#e5eaf1; --lt-th-2:#d5dce7; --lt-row-odd:#ffffff; --lt-row-even:#f4f6f9; --lt-border:#111827; --lt-border-hover:#2563eb; --lt-ink:#030712; --bg-color:#d2d8e2 !important; --bg-main:#d2d8e2 !important; --bg-secondary:#dfe4ec !important; --surface:#fafbfd !important; }
                 :root.light-theme[data-light-tone="sage_pearl"] { --lt-canvas-1:#bce0ce; --lt-canvas-2:#a4d1bb; --lt-hdr-1:#c8ead9; --lt-hdr-2:#b0ddca; --lt-hdr-3:#98cfb8; --lt-card-1:#f4fcf8; --lt-card-2:#e0f5ec; --lt-sub-1:#f9fefb; --lt-sub-2:#d8f2e6; --lt-th-1:#d4f0e3; --lt-th-2:#bfe6d4; --lt-row-odd:#ffffff; --lt-row-even:#eefaf4; --lt-border:#064e3b; --lt-border-hover:#059669; --lt-ink:#022c22; --bg-color:#bce0ce !important; --bg-main:#bce0ce !important; --bg-secondary:#c8ead9 !important; --surface:#f4fcf8 !important; }
                 :root.light-theme[data-light-tone="sky_alabaster"] { --lt-canvas-1:#bad9f5; --lt-canvas-2:#a2caed; --lt-hdr-1:#c7e3fb; --lt-hdr-2:#afd4f5; --lt-hdr-3:#96c4ee; --lt-card-1:#f4faff; --lt-card-2:#dfeffd; --lt-sub-1:#f9fcff; --lt-sub-2:#d6ebfc; --lt-th-1:#d2e9fc; --lt-th-2:#bdddf9; --lt-row-odd:#ffffff; --lt-row-even:#eef7ff; --lt-border:#0c4a6e; --lt-border-hover:#0284c7; --lt-ink:#082f49; --bg-color:#bad9f5 !important; --bg-main:#bad9f5 !important; --bg-secondary:#c7e3fb !important; --surface:#f4faff !important; }
+                :root.light-theme[data-light-tone="rose_blossom"] { --lt-canvas-1:#f5d0e3; --lt-canvas-2:#ebaed0; --lt-hdr-1:#fae0ee; --lt-hdr-2:#f3c6df; --lt-hdr-3:#ebadd0; --lt-card-1:#fff7fb; --lt-card-2:#fce8f3; --lt-sub-1:#fffafd; --lt-sub-2:#f9dfee; --lt-th-1:#f7d6e8; --lt-th-2:#efc2dc; --lt-row-odd:#ffffff; --lt-row-even:#fdf2f8; --lt-border:#831843; --lt-border-hover:#be185d; --lt-ink:#3b071e; --bg-color:#f5d0e3 !important; --bg-main:#f5d0e3 !important; --bg-secondary:#fae0ee !important; --surface:#fff7fb !important; }
                 :root.light-theme[data-light-tone="warm_mocha_dark"] { --lt-canvas-1:#b89878; --lt-canvas-2:#a3805e; --lt-hdr-1:#ccb094; --lt-hdr-2:#ba9878; --lt-hdr-3:#a8825e; --lt-card-1:#faf3ea; --lt-card-2:#eee0cf; --lt-sub-1:#fdf8f2; --lt-sub-2:#e8d6c1; --lt-th-1:#e5d1ba; --lt-th-2:#d6bc9f; --lt-row-odd:#fdfaf6; --lt-row-even:#f5ebe0; --lt-border:#3e1b04; --lt-border-hover:#7c2d12; --lt-ink:#0f0400; --bg-color:#b89878 !important; --bg-main:#b89878 !important; --bg-secondary:#ccb094 !important; --surface:#faf3ea !important; }
                 :root.light-theme[data-light-tone="deep_slate_dark"] { --lt-canvas-1:#a3b4ca; --lt-canvas-2:#8da1bb; --lt-hdr-1:#b8c7dc; --lt-hdr-2:#a2b5cf; --lt-hdr-3:#8ca3c1; --lt-card-1:#f2f6fc; --lt-card-2:#e2eaf5; --lt-sub-1:#f7faff; --lt-sub-2:#dbe5f2; --lt-th-1:#d6e1f0; --lt-th-2:#c3d2e6; --lt-row-odd:#fbfdff; --lt-row-even:#edf3fa; --lt-border:#0f172a; --lt-border-hover:#1d4ed8; --lt-ink:#020617; --bg-color:#a3b4ca !important; --bg-main:#a3b4ca !important; --bg-secondary:#b8c7dc !important; --surface:#f2f6fc !important; }
                 /* UNIVERSAL-9-TONE-INHERITANCE */
@@ -3460,12 +3883,37 @@
                 :root.light-theme .custom-dropdown-list { background: #ffffff !important; border: 2px solid var(--lt-border, #5c2808) !important; color: var(--lt-ink, #120500) !important; }
                 :root.light-theme .custom-dropdown-item, :root.light-theme .custom-dropdown-item * { color: var(--lt-ink, #120500) !important; font-weight: 800 !important; }
             `;
-            document.head.appendChild(st);
+            (document.body || document.head).appendChild(st);
+        } else if (document.body) {
+            const st = document.getElementById('magaies-universal-tone-engine');
+            const grnSt = document.getElementById('grn-purchase-constitution-2027-style');
+            if (st && st.parentElement !== document.body && !grnSt) {
+                document.body.appendChild(st);
+            }
         }
+        try {
+            const params = new URLSearchParams(window.location.search);
+            if (params.get('from') === 'purchase-receipt.php' && document.body && !document.getElementById('magaies-grn-return-one-step-btn')) {
+                const retBtn = document.createElement('button');
+                retBtn.type = 'button';
+                retBtn.id = 'magaies-grn-return-one-step-btn';
+                retBtn.innerHTML = '↩️ رجوع خطوة واحدة إلى شاشة استلام البضائع';
+                retBtn.style.cssText = 'position:fixed; bottom:20px; left:24px; z-index:999990; padding:10px 18px; border-radius:14px; font-family:Cairo,Tajawal,sans-serif; font-size:0.95rem; font-weight:900; cursor:pointer; display:inline-flex; align-items:center; gap:8px; background:linear-gradient(135deg,#f59e0b 0%,#d97706 100%); color:#000000; -webkit-text-fill-color:#000000; border:2.5px solid #78350f; box-shadow:0 10px 26px rgba(0,0,0,0.35), inset 0 2px 0 rgba(255,255,255,0.65); transition:transform 0.18s ease;';
+                retBtn.onclick = function() {
+                    if (window.history.length > 1 && document.referrer && document.referrer.indexOf('purchase-receipt.php') !== -1) {
+                        window.history.back();
+                    } else {
+                        window.location.href = 'purchase-receipt.php';
+                    }
+                };
+                document.body.appendChild(retBtn);
+            }
+        } catch (_e) {}
         const savedTone = getErpCookie('magaies_light_tone') || localStorage.getItem('magaies_light_tone') || localStorage.getItem('pur_light_tone_palette') || 'ivory_default';
         const isDark = DARK_TONE_ALIASES.includes(savedTone);
-        const normTone = isDark ? 'dark_midnight' : (GLOBAL_ERP_TONES.some(x => x.id === savedTone) ? savedTone : 'ivory_default');
-        const savedTheme = isDark ? 'midnight_obsidian' : 'warm_cream';
+        const matchedToneObj = GLOBAL_ERP_TONES.find(x => x.id === savedTone);
+        const normTone = matchedToneObj ? matchedToneObj.id : (isDark ? 'dark_midnight' : 'ivory_default');
+        const savedTheme = (matchedToneObj && matchedToneObj.themeKey) ? matchedToneObj.themeKey : (isDark ? 'midnight_obsidian' : 'warm_cream');
         document.documentElement.setAttribute('data-light-tone', normTone);
         document.documentElement.setAttribute('data-theme', savedTheme);
         document.documentElement.classList.toggle('light-theme', !isDark);
@@ -3480,10 +3928,39 @@
     ensureGlobalErpToneStylesAndRestore();
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', ensureGlobalErpToneStylesAndRestore);
 
+    window.playGlobalErpSystemSoundTone = function(soundId) {
+        const sid = soundId || localStorage.getItem('magaies_system_sound_tone') || 'crystal';
+        const st = SYSTEM_AUDIO_TONES.find(x => x.id === sid) || SYSTEM_AUDIO_TONES[0];
+        if (!st || !st.freq || !st.freq.length) return;
+        try {
+            const Ctx = window.AudioContext || window.webkitAudioContext;
+            if (!Ctx) return;
+            const ctx = new Ctx();
+            st.freq.forEach((f, idx) => {
+                const osc = ctx.createOscillator();
+                const g = ctx.createGain();
+                osc.type = st.type || 'sine';
+                osc.frequency.value = f;
+                g.gain.setValueAtTime(0.06, ctx.currentTime + idx * 0.055);
+                g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + idx * 0.055 + 0.09);
+                osc.connect(g); g.connect(ctx.destination);
+                osc.start(ctx.currentTime + idx * 0.055);
+                osc.stop(ctx.currentTime + idx * 0.055 + 0.095);
+            });
+        } catch (_e) {}
+    };
+    window.setGlobalErpSystemSoundTone = function(soundId) {
+        safeSetErpStorage('magaies_system_sound_tone', soundId);
+        try { document.cookie = 'magaies_system_sound_tone=' + encodeURIComponent(soundId) + '; path=/; max-age=315360000; SameSite=Lax'; } catch (_e) {}
+        window.playGlobalErpSystemSoundTone(soundId);
+        const st = SYSTEM_AUDIO_TONES.find(x => x.id === soundId);
+        if (st && typeof window.showToast === 'function') window.showToast('🔊 تم تفعيل نغمة النظام: ' + st.name, 'info', 2000);
+    };
+
     window.applyGlobalErpToneOrTheme = function (toneId, notify) {
         const isDark = DARK_TONE_ALIASES.includes(toneId);
-        const t = isDark ? GLOBAL_ERP_TONES[0] : (GLOBAL_ERP_TONES.find(x => x.id === toneId) || GLOBAL_ERP_TONES[1]);
-        const themeKey = t.isDark ? 'midnight_obsidian' : 'warm_cream';
+        const t = GLOBAL_ERP_TONES.find(x => x.id === toneId) || (isDark ? GLOBAL_ERP_TONES[0] : GLOBAL_ERP_TONES[4]);
+        const themeKey = t.themeKey || (t.isDark ? 'midnight_obsidian' : 'warm_cream');
         document.documentElement.setAttribute('data-light-tone', t.id);
         document.documentElement.setAttribute('data-theme', themeKey);
         document.documentElement.classList.toggle('light-theme', !t.isDark);
@@ -3498,11 +3975,19 @@
         safeSetErpStorage('pur_light_tone_palette', t.id);
         ['magaies_active_theme','magaiees_global_theme','magaiees_mobile_theme','ui_theme'].forEach(k => safeSetErpStorage(k, themeKey));
         safeSetErpStorage('erp_theme', t.isDark ? 'dark' : 'light');
+        try {
+            document.cookie = 'magaies_light_tone=' + encodeURIComponent(t.id) + '; path=/; max-age=315360000; SameSite=Lax';
+            document.cookie = 'magaies_active_theme=' + encodeURIComponent(themeKey) + '; path=/; max-age=315360000; SameSite=Lax';
+        } catch (_e) {}
         if (typeof BroadcastChannel !== 'undefined') {
             try { new BroadcastChannel('elsajana_sovereign_10x_viewport_v1').postMessage({ type: 'TONE_SYNC', toneId: t.id }); } catch(_e) {}
         }
         if (typeof window.applyPurchaseLightTone === 'function' && window.applyPurchaseLightTone !== window.applyGlobalErpToneOrTheme) {
             try { window.applyPurchaseLightTone(t.id, notify); } catch(_e) {}
+        }
+        window.dispatchEvent(new CustomEvent('themeChanged', { detail: { theme: themeKey, tone: t.id, isLight: !t.isDark } }));
+        if (notify && typeof window.showToast === 'function') {
+            window.showToast((t.isDark ? '🌙 ' : '🎨 ') + 'تم تطبيق السمة في كامل الشاشة والنوافذ: ' + t.name, 'success', 2400);
         }
     };
 
@@ -3564,19 +4049,23 @@
         }
         if (pop.style.display === 'block') { pop.style.display = 'none'; return; }
         const isDarkNow = !document.documentElement.classList.contains('light-theme');
-        pop.style.cssText = 'position:fixed;z-index:9999999;background:' + (isDarkNow ? 'linear-gradient(145deg,#0f172a,#1e293b)' : 'linear-gradient(145deg,#fffbf2,#f3ead8)') + ';border:2px solid #fbbf24;border-radius:14px;padding:10px;box-shadow:0 18px 42px rgba(0,0,0,0.65),0 0 22px rgba(245,158,11,0.35);min-width:255px;direction:rtl;font-family:Tajawal,Cairo,sans-serif;';
+        pop.style.cssText = 'position:fixed;z-index:9999999;background:' + (isDarkNow ? 'linear-gradient(145deg,#0f172a,#1e293b)' : 'linear-gradient(145deg,#fffbf2,#f3ead8)') + ';border:2px solid #fbbf24;border-radius:14px;padding:10px;box-shadow:0 18px 42px rgba(0,0,0,0.65),0 0 22px rgba(245,158,11,0.35);min-width:275px;max-height:86vh;overflow-y:auto;direction:rtl;font-family:Tajawal,Cairo,sans-serif;';
         const rawCur = getErpCookie('magaies_light_tone') || document.documentElement.getAttribute('data-light-tone') || localStorage.getItem('magaies_light_tone') || (isDarkNow ? 'dark_midnight' : 'ivory_default');
-        const cur = DARK_TONE_ALIASES.includes(rawCur) ? 'dark_midnight' : rawCur;
+        const cur = GLOBAL_ERP_TONES.some(x => x.id === rawCur) ? rawCur : (DARK_TONE_ALIASES.includes(rawCur) ? 'dark_midnight' : 'ivory_default');
+        const curSound = getErpCookie('magaies_system_sound_tone') || localStorage.getItem('magaies_system_sound_tone') || 'crystal';
         const hdrCol = isDarkNow ? '#fde047' : '#000000';
-        pop.innerHTML = `<div style="color:${hdrCol}!important;-webkit-text-fill-color:${hdrCol}!important;font-weight:900;font-size:0.92rem;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid rgba(148,163,184,0.35);display:flex;justify-content:space-between;align-items:center;"><span>🎨 السمات ونغمات النظام (9)</span><span style="font-size:0.75rem;color:${isDarkNow?'#94a3b8':'#000000'}!important;-webkit-text-fill-color:${isDarkNow?'#94a3b8':'#000000'}!important;">موحد 100%</span></div>` +
+        pop.innerHTML = `<div style="color:${hdrCol}!important;-webkit-text-fill-color:${hdrCol}!important;font-weight:900;font-size:0.9rem;margin-bottom:7px;padding-bottom:5px;border-bottom:1px solid rgba(148,163,184,0.35);display:flex;justify-content:space-between;align-items:center;"><span>🎨 المظهر ونغمات النظام (13 لوناً)</span><span style="font-size:0.72rem;color:${isDarkNow?'#94a3b8':'#000000'}!important;-webkit-text-fill-color:${isDarkNow?'#94a3b8':'#000000'}!important;">0ms موحد</span></div>` +
             GLOBAL_ERP_TONES.map(t => {
                 const txtCol = t.isDark ? '#ffffff' : '#000000';
                 const btnBg = t.isDark ? `linear-gradient(135deg,${t.fg} 0%,${t.bg} 100%)` : `linear-gradient(135deg,#ffffff 0%,${t.fg} 100%)`;
-                return `<button type="button" data-tone-dark="${t.isDark?'1':'0'}" onclick="window.applyGlobalErpToneOrTheme('${t.id}',true);document.getElementById('pur-light-tone-popover').style.display='none';" style="width:100%;display:flex;align-items:center;gap:10px;padding:7px 10px;margin-bottom:5px;border-radius:9px;cursor:pointer;background:${btnBg}!important;border:${cur===t.id?'2.5px solid #d97706':'1.5px solid '+t.brd}!important;color:${txtCol}!important;-webkit-text-fill-color:${txtCol}!important;font-weight:900;font-size:0.88rem;text-align:right;"><span style="width:28px;height:28px;border-radius:7px;background:linear-gradient(135deg,${t.fg} 0%,${t.bg} 100%);border:2px solid ${t.brd};flex-shrink:0;"></span><span style="flex:1;color:${txtCol}!important;-webkit-text-fill-color:${txtCol}!important;">${t.name}</span>${cur===t.id?`<span style="color:${t.isDark?'#fde047':'#047857'}!important;-webkit-text-fill-color:${t.isDark?'#fde047':'#047857'}!important;">✓</span>`:''}</button>`;
-            }).join('');
+                return `<button type="button" data-tone-dark="${t.isDark?'1':'0'}" onclick="window.applyGlobalErpToneOrTheme('${t.id}',true);window.playGlobalErpSystemSoundTone();document.getElementById('pur-light-tone-popover').style.display='none';" style="width:100%;display:flex;align-items:center;gap:9px;padding:6px 9px;margin-bottom:4px;border-radius:9px;cursor:pointer;background:${btnBg}!important;border:${cur===t.id?'2.5px solid #d97706':'1.5px solid '+t.brd}!important;color:${txtCol}!important;-webkit-text-fill-color:${txtCol}!important;font-weight:900;font-size:0.84rem;text-align:right;"><span style="width:24px;height:24px;border-radius:6px;background:linear-gradient(135deg,${t.fg} 0%,${t.bg} 100%);border:2px solid ${t.brd};flex-shrink:0;"></span><span style="flex:1;color:${txtCol}!important;-webkit-text-fill-color:${txtCol}!important;">${t.name}</span>${cur===t.id?`<span style="color:${t.isDark?'#fde047':'#047857'}!important;-webkit-text-fill-color:${t.isDark?'#fde047':'#047857'}!important;">✓</span>`:''}</button>`;
+            }).join('') +
+            `<div style="margin-top:7px;padding-top:6px;border-top:1px solid rgba(148,163,184,0.35);"><div style="font-size:0.78rem;font-weight:900;color:${hdrCol}!important;-webkit-text-fill-color:${hdrCol}!important;margin-bottom:5px;">🔊 نغمات النظام الصوتية التفاعلية (4):</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;">` +
+            SYSTEM_AUDIO_TONES.map(s => `<button type="button" onclick="window.setGlobalErpSystemSoundTone('${s.id}');document.getElementById('pur-light-tone-popover').style.display='none';" style="padding:5px 7px;border-radius:7px;cursor:pointer;font-weight:900;font-size:0.76rem;border:${curSound===s.id?'2px solid #10b981':'1.5px solid #64748b'}!important;background:${isDarkNow?'#1e293b':'#ffffff'}!important;color:${isDarkNow?'#ffffff':'#000000'}!important;-webkit-text-fill-color:${isDarkNow?'#ffffff':'#000000'}!important;">${s.name}${curSound===s.id?' ✓':''}</button>`).join('') +
+            `</div></div>`;
         const r = anchorEl ? anchorEl.getBoundingClientRect() : { bottom: 60, left: 20 };
-        pop.style.top = Math.max(10, Math.min(window.innerHeight - 450, r.bottom + 8)) + 'px';
-        pop.style.left = Math.max(12, Math.min(window.innerWidth - 280, r.left)) + 'px';
+        pop.style.top = Math.max(10, Math.min(window.innerHeight - 520, r.bottom + 8)) + 'px';
+        pop.style.left = Math.max(12, Math.min(window.innerWidth - 295, r.left)) + 'px';
         pop.style.display = 'block';
     };
     window.openPurchaseLightTonePopover = window.openUniversalErpTonePopover;
@@ -3693,8 +4182,8 @@
                         <span class="msg-quartet-label">الشاشة</span>
                     </button>
 
-                    <!-- 4. أسفل اليسار: السمات المعتمدة والموحدة -->
-                    <button type="button" class="msg-quartet-btn msg-quartet-qtheme" onclick="window.triggerQuartetQuickTheme(this)" title="🎨 السمات المعتمدة والموحدة (9 سمات رئيسية)">
+                    <!-- 4. أسفل اليسار: المظهر ونغمات النظام المعتمدة والموحدة -->
+                    <button type="button" class="msg-quartet-btn msg-quartet-qtheme" onclick="window.triggerQuartetQuickTheme(this)" title="🎨 المظهر ونغمات النظام المعتمدة والموحدة (13 لوناً + 4 نغمات)">
                         <span class="msg-quartet-icon-box">
                             <svg viewBox="0 0 24 24" fill="none">
                                 <path d="M12 3C7.03 3 3 6.8 3 11.5C3 16.2 7.03 20 12 20C13.66 20 15 18.66 15 17C15 16.2 14.68 15.5 14.18 14.95C13.7 14.42 14.08 13.5 14.8 13.5H16.5C19.54 13.5 22 11.04 22 8C22 5.24 17.52 3 12 3Z" fill="rgba(244,114,182,0.28)" stroke="#ffffff" stroke-width="2.1"/>
@@ -3703,7 +4192,7 @@
                                 <circle cx="16" cy="9.5" r="1.4" fill="#4ade80"/>
                             </svg>
                         </span>
-                        <span class="msg-quartet-label">السمات</span>
+                        <span class="msg-quartet-label">المظهر</span>
                     </button>
                 </div>
 
@@ -3808,12 +4297,16 @@
         }
     }
 
-    function formatSpeedPctLabel(rate) {
-        const pct = Math.round((rate || 0.92) * 100);
-        if (rate <= 0.86) return `🐢 ${pct}%`;
-        if (rate <= 0.95) return `✨ ${pct}%`;
-        if (rate <= 1.03) return `🎙️ ${pct}%`;
-        return `⚡ ${pct}%`;
+    function formatSpeedPctLabel(rateOrPct) {
+        let pct = window.__msgSpeechSpeedPct;
+        if (typeof rateOrPct === 'number' && Math.abs(rateOrPct) <= 4.5 && rateOrPct > 0) {
+            pct = playbackRateToPct(rateOrPct);
+        }
+        pct = Math.max(-50, Math.min(300, Math.round(Number(pct) || 0)));
+        if (pct < 0) return `🐢 ${pct}%`;
+        if (pct === 0) return `⚖️ 0%`;
+        if (pct <= 100) return `⚡ +${pct}%`;
+        return `🚀 +${pct}%`;
     }
 
     window.toggleCoachCapsulePosition = function () {
@@ -3874,17 +4367,30 @@
                         </div>
                     </div>
                     <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
-                        <select id="msg-voice-select" class="sl-input" onchange="window.onMsgVoiceChange(this.value)" style="padding:5px 10px !important; font-size:0.78rem !important; font-weight:900 !important;" title="اختر اللهجة والصوت الرجالي">
-                            <option value="egyptian">🇪🇬 صوت رجالي باللهجة المصرية الواضحة</option>
-                            <option value="sudanese">🇸🇩 صوت رجالي باللهجة السودانية الواضحة</option>
-                            <option value="gulf">🇸🇦 صوت رجالي باللهجة الخليجية الواضحة</option>
+                        <select id="msg-modal-ai-degree" class="sl-input" onchange="window.setMsgAiIntelligenceDegree(this.value)" style="padding:5px 10px !important; font-size:0.78rem !important; font-weight:900 !important; border-color:#f59e0b !important; color:#fde047 !important;" title="درجة الذكاء الاصطناعي ومستوى الشرح">
+                            <option value="ai_5" ${window.__msgAiDegree==='ai_5'?'selected':''}>👑 ذكاء AI (درجة 5: بروفيسور موسوعي 360°)</option>
+                            <option value="ai_4" ${window.__msgAiDegree==='ai_4'?'selected':''}>🛡️ ذكاء AI (درجة 4: رقابي وتدريبي متقدم)</option>
+                            <option value="ai_3" ${window.__msgAiDegree==='ai_3'?'selected':''}>📊 ذكاء AI (درجة 3: محاسبي وتشغيلي)</option>
+                            <option value="ai_2" ${window.__msgAiDegree==='ai_2'?'selected':''}>💡 ذكاء AI (درجة 2: شرح بلدي وميداني)</option>
+                            <option value="ai_1" ${window.__msgAiDegree==='ai_1'?'selected':''}>⚡ ذكاء AI (درجة 1: فوري مختصر)</option>
+                        </select>
+                        <select id="msg-voice-select" class="sl-input" onchange="window.onMsgVoiceChange(this.value)" style="padding:5px 10px !important; font-size:0.78rem !important; font-weight:900 !important;" title="أسلوب صياغة الشرح (الصوت رجالي فخيم موحد)">
+                            <option value="fusha">📖 صياغة بالعربية الفصحى (صوت رجالي فخيم ثابت)</option>
+                            <option value="egyptian">🇪🇬 صياغة باللهجة المصرية (صوت رجالي فخيم ثابت)</option>
+                            <option value="sudanese">🇸🇩 صياغة باللهجة السودانية (صوت رجالي فخيم ثابت)</option>
                         </select>
 
-                        <!-- WORKING SPEED ARROWS IN MODAL HEADER -->
-                        <div class="msg-speed-arrows-group" title="أسهم إبطاء وتسريع الصوت (تعمل فوراً)">
-                            <button type="button" class="msg-speed-arrow-btn" onclick="window.adjustSpeechSpeedBy(-0.08, true)" title="إبطاء سرعة الصوت">⏬ -</button>
-                            <span id="msg-modal-speed-lbl" style="font-size:0.76rem; font-weight:900; color:#fef08a; min-width:64px; text-align:center;">${formatSpeedPctLabel(selectedSpeechRate)}</span>
-                            <button type="button" class="msg-speed-arrow-btn" onclick="window.adjustSpeechSpeedBy(0.08, true)" title="تسريع سرعة الصوت">+ ⏫</button>
+                        <!-- WORKING SPEED ARROWS IN MODAL HEADER (-50% to +300%) -->
+                        <div class="msg-speed-arrows-group" title="تحكم في سرعة الصوت (من ناقص 50% إلى زائد 300%)">
+                            <button type="button" class="msg-speed-arrow-btn" onclick="window.adjustSpeechSpeedPctBy(-10, true)" title="إبطاء سرعة الصوت (حتى -50%)">🐢 ناقص -</button>
+                            <span id="msg-modal-speed-lbl" style="font-size:0.76rem; font-weight:900; color:#fef08a; min-width:64px; text-align:center;">${formatSpeedPctLabel()}</span>
+                            <button type="button" class="msg-speed-arrow-btn" onclick="window.adjustSpeechSpeedPctBy(20, true)" title="تسريع سرعة الصوت (حتى +300%)">+ زائد ⚡</button>
+                        </div>
+
+                        <div class="msg-speed-arrows-group" title="تحكم في مستوى الصوت (ناقص يقلل وزائد يزيد حتى 300%)">
+                            <button type="button" class="msg-speed-arrow-btn" onclick="window.adjustMsgVoiceVolume && window.adjustMsgVoiceVolume(-0.20)" title="تقليل الصوت">🔉 ناقص -</button>
+                            <span id="msg-modal-vol-lbl" style="font-size:0.76rem; font-weight:900; color:#34d399; min-width:52px; text-align:center;">🔊 ${Math.round((window.__msgUserVoiceVolume || 1.65) * 100)}%</span>
+                            <button type="button" class="msg-speed-arrow-btn" onclick="window.adjustMsgVoiceVolume && window.adjustMsgVoiceVolume(0.20)" title="تعلية الصوت">+ زائد 🔊</button>
                         </div>
 
                         <button type="button" onclick="window.closeSmartGuide()" class="sl-btn" style="background:rgba(239,68,68,0.22); border-color:#f87171; color:#fca5a5; padding:6px 12px;">
@@ -4028,44 +4534,62 @@
         const coachBar = document.createElement('div');
         coachBar.id = 'msg-live-coach-bar';
         coachBar.className = 'msg-live-coach-bar';
+        const initVolPct = Math.round((window.__msgUserVoiceVolume || 1.65) * 100);
+        const initSpdPct = Math.round(window.__msgSpeechSpeedPct || 0);
         coachBar.innerHTML = `
-            <div style="display:flex; align-items:center; justify-content:space-between; gap:5px; width:100%;">
-                <div style="display:flex; align-items:center; gap:5px; min-width:0;">
-                    <span id="msg-coach-mini-svg" onclick="window.toggleCoachMiniSvgPopover && window.toggleCoachMiniSvgPopover()" style="display:inline-flex; align-items:center; justify-content:center; width:22px; height:22px; flex-shrink:0; cursor:pointer;" title="إظهار/إخفاء المخطط البصري الخفيف Pure-SVG">
-                        <svg viewBox="0 0 24 24" width="20" height="20"><circle cx="12" cy="12" r="10" fill="rgba(56,189,248,0.18)" stroke="#fbbf24" stroke-width="2"/><path d="M8 12h8M13 8l4 4-4 4" stroke="#38bdf8" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                    </span>
-                    <span id="msg-coach-step-badge" style="background:linear-gradient(135deg,rgba(251,191,36,0.22),rgba(56,189,248,0.18)); border:1px solid #fbbf24; padding:2px 8px; border-radius:99px; font-size:0.72rem; font-weight:900; max-width:175px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">🎓 المرشد الذكي</span>
-                </div>
-                <div style="display:flex; align-items:center; gap:3px; flex-shrink:0;">
-                    <select id="msg-coach-voice-select" class="sl-input" onchange="window.onMsgVoiceChange(this.value)" style="padding:1px 4px !important; font-size:0.68rem !important; font-weight:900 !important; height:23px; border-radius:7px !important;" title="اللهجة الرجالية">
+            <div class="popup-drag-handle" style="display:flex; align-items:center; justify-content:space-between; gap:8px; width:100%; flex-wrap:wrap; cursor:grab; border-bottom:1px solid rgba(148,163,184,0.22); padding-bottom:6px;">
+                <div style="display:flex; align-items:center; gap:6px; min-width:0; flex-wrap:wrap;">
+                    <span id="msg-coach-step-badge" style="background:linear-gradient(135deg,rgba(251,191,36,0.22),rgba(56,189,248,0.18)); border:1.5px solid #fbbf24; padding:2px 10px; border-radius:99px; font-size:0.78rem; font-weight:900; max-width:195px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">🎓 المرشد الذكي</span>
+                    <select id="msg-coach-step-jump-sel" class="sl-input" onchange="window.jumpToAutopilotStep(parseInt(this.value,10)||0)" style="padding:1px 6px !important; font-size:0.73rem !important; font-weight:900 !important; height:26px; max-width:130px; border-radius:8px !important;" title="الانتقال لأي خطوة"><option value="0">1️⃣ الخطوة 1</option></select>
+                    <select id="msg-coach-ai-degree" class="sl-input" onchange="window.setMsgAiIntelligenceDegree(this.value)" style="padding:1px 6px !important; font-size:0.73rem !important; font-weight:900 !important; height:26px; border-radius:8px !important; border-color:#f59e0b !important; color:#fde047 !important;" title="درجة الذكاء الاصطناعي للشرح">
+                        <option value="ai_5" ${window.__msgAiDegree==='ai_5'?'selected':''}>👑 ذكاء 5 (بروفيسور)</option>
+                        <option value="ai_4" ${window.__msgAiDegree==='ai_4'?'selected':''}>🛡️ ذكاء 4 (متقدم)</option>
+                        <option value="ai_3" ${window.__msgAiDegree==='ai_3'?'selected':''}>📊 ذكاء 3 (محاسبي)</option>
+                        <option value="ai_2" ${window.__msgAiDegree==='ai_2'?'selected':''}>💡 ذكاء 2 (بلدي)</option>
+                        <option value="ai_1" ${window.__msgAiDegree==='ai_1'?'selected':''}>⚡ ذكاء 1 (مختصر)</option>
+                    </select>
+                    <select id="msg-coach-voice-select" class="sl-input" onchange="window.onMsgVoiceChange(this.value)" style="padding:1px 6px !important; font-size:0.73rem !important; font-weight:900 !important; height:26px; border-radius:8px !important;" title="أسلوب الصياغة (صوت رجالي فخيم ثابت)">
+                        <option value="fusha">📖 الفصحى</option>
                         <option value="egyptian">🇪🇬 مصري</option>
                         <option value="sudanese">🇸🇩 سوداني</option>
-                        <option value="gulf">🇸🇦 خليجي</option>
                     </select>
-                    <button type="button" onclick="window.adjustSpeechSpeedBy(-0.08, false)" class="sl-btn" style="padding:1px 5px; font-size:0.68rem; border-radius:6px; font-weight:900;" title="إبطاء سرعة الصوت">🐢-</button>
-                    <span id="msg-coach-speed-lbl" style="font-size:0.66rem; font-weight:900; min-width:30px; text-align:center;">${formatSpeedPctLabel(selectedSpeechRate)}</span>
-                    <button type="button" onclick="window.adjustSpeechSpeedBy(0.08, false)" class="sl-btn" style="padding:1px 5px; font-size:0.68rem; border-radius:6px; font-weight:900;" title="تسريع الصوت">+⚡</button>
-                    <button type="button" onclick="window.seekAudioBy(-3)" class="sl-btn" style="padding:1px 4px; font-size:0.65rem; border-radius:6px; font-weight:900;" title="تأخير 3 ثوانٍ">⏪3</button>
-                    <button type="button" onclick="window.seekAudioBy(3)" class="sl-btn" style="padding:1px 4px; font-size:0.65rem; border-radius:6px; font-weight:900;" title="تقديم 3 ثوانٍ">3⏩</button>
-                    <button type="button" onclick="window.toggleCoachMiniSvgPopover && window.toggleCoachMiniSvgPopover()" class="sl-btn" style="padding:2px 5px; font-size:0.68rem; border-radius:6px; font-weight:900;" title="المخطط التوضيحي الخفيف للخطوة (Pure-SVG)">📊</button>
-                    <button type="button" onclick="if(typeof window.startDsMasteryQuiz==='function'){window.startDsMasteryQuiz();}else if(typeof window.startQuickMasterDataQuiz==='function'){window.startQuickMasterDataQuiz();}" class="sl-btn" style="padding:2px 5px; font-size:0.68rem; border-radius:6px; font-weight:900;" title="اختبار تفاعلي سريع (Quiz)">🎯</button>
-                    <button type="button" onclick="window.stepLiveAutopilot(-1)" class="sl-btn" style="padding:2px 5px; font-size:0.68rem; border-radius:6px;" title="الخطوة السابقة">⏮️</button>
-                    <button type="button" id="msg-btn-pause-resume" onclick="window.togglePauseResumeAudio()" class="sl-btn" style="padding:2px 7px; font-size:0.7rem; background:linear-gradient(135deg,#f59e0b,#d97706); color:#020617 !important; border:none; font-weight:900; border-radius:6px;" title="إيقاف مؤقت / استئناف">⏸️</button>
-                    <button type="button" onclick="window.stepLiveAutopilot(1)" class="sl-btn" style="padding:2px 5px; font-size:0.68rem; background:#38bdf8; color:#020617 !important; border:none; font-weight:900; border-radius:6px;" title="الخطوة التالية">⏭️</button>
-                    <button type="button" onclick="window.stopLiveAutopilotSimulation()" class="sl-btn" style="padding:2px 6px; font-size:0.7rem; background:linear-gradient(135deg,#ef4444,#dc2626); color:#ffffff !important; border:1px solid #fca5a5; font-weight:900; border-radius:6px;" title="إغلاق المرشد">✕</button>
+                </div>
+                <div style="display:flex; align-items:center; gap:5px; flex-wrap:wrap;">
+                    <button type="button" onclick="window.stepLiveAutopilot(-1)" class="msg-micro-pill-btn" title="الخطوة السابقة">⏮️</button>
+                    <button type="button" id="msg-btn-pause-resume" onclick="window.togglePauseResumeAudio()" class="msg-micro-pill-btn" style="background:linear-gradient(135deg,#0284c7,#2563eb) !important; color:#ffffff !important; border-color:#38bdf8 !important; padding:0 10px;" title="تشغيل / إيقاف مؤقت">⏸️</button>
+                    <button type="button" onclick="window.stepLiveAutopilot(1)" class="msg-micro-pill-btn" title="الخطوة التالية">⏭️</button>
+                    <button type="button" onclick="window.jumpToAutopilotStep(autopilotStepIdx)" class="msg-micro-pill-btn" title="إعادة الخطوة">🔁</button>
+                    <button type="button" onclick="window.startSmartPickElementMode()" class="msg-micro-pill-btn" title="اضغط على أي عنصر ليشرحه">👆</button>
+                    <div style="display:inline-flex; align-items:center; gap:3px; background:rgba(15,23,42,0.65); padding:1px 6px; border-radius:8px; border:1px solid rgba(148,163,184,0.3);" title="سرعة الصوت (ناقص حتى -50% وزائد حتى +300%)">
+                        <span style="font-size:0.7rem; font-weight:900;">⚡</span>
+                        <button type="button" onclick="window.adjustSpeechSpeedPctBy(-10, false)" class="msg-micro-pill-btn" style="height:22px; min-width:24px; padding:0 5px;" title="إبطاء السرعة (حتى -50%)">-</button>
+                        <input id="msg-coach-spd-slider" type="range" class="msg-spd-range-slider" min="-50" max="300" step="10" value="${initSpdPct}" oninput="window.setSpeechSpeedPctExact(this.value, false)" style="width:62px;">
+                        <button type="button" onclick="window.adjustSpeechSpeedPctBy(20, false)" class="msg-micro-pill-btn" style="height:22px; min-width:24px; padding:0 5px;" title="زيادة السرعة (حتى +300%)">+</button>
+                        <span id="msg-coach-speed-lbl" style="font-size:0.72rem; font-weight:900; min-width:44px; text-align:center; color:#fde047;">${formatSpeedPctLabel()}</span>
+                    </div>
+                    <div style="display:inline-flex; align-items:center; gap:3px; background:rgba(15,23,42,0.65); padding:1px 6px; border-radius:8px; border:1px solid rgba(148,163,184,0.3);" title="قوة الصوت (ناقص يقلل وزائد يعلي حتى 300%)">
+                        <span style="font-size:0.7rem; font-weight:900;">🔊</span>
+                        <button type="button" onclick="window.adjustMsgVoiceVolume && window.adjustMsgVoiceVolume(-0.20)" class="msg-micro-pill-btn" style="height:22px; min-width:24px; padding:0 5px;" title="تقليل الصوت">-</button>
+                        <input id="msg-coach-vol-slider" type="range" class="msg-vol-range-slider" min="10" max="300" step="10" value="${initVolPct}" oninput="window.adjustMsgVoiceVolume && window.adjustMsgVoiceVolume(0, this.value/100)" style="width:62px;">
+                        <button type="button" onclick="window.adjustMsgVoiceVolume && window.adjustMsgVoiceVolume(0.20)" class="msg-micro-pill-btn" style="height:22px; min-width:24px; padding:0 5px;" title="تعلية الصوت">+</button>
+                        <span id="msg-coach-vol-lbl" style="font-size:0.71rem; font-weight:900; min-width:38px; text-align:center; color:#34d399;">${initVolPct}%</span>
+                    </div>
+                    <button type="button" onclick="window.stopLiveAutopilotSimulation()" class="msg-micro-pill-btn" style="background:rgba(239,68,68,0.22) !important; color:#fca5a5 !important; border-color:#f87171 !important;" title="إغلاق المرشد">✕</button>
                 </div>
             </div>
+            <div id="msg-coach-speech-text" style="width:100%; font-size:0.94rem; font-weight:800; line-height:1.7; text-align:center; padding:8px 14px; border-radius:12px; background:rgba(15,23,42,0.65); border:1.5px solid rgba(56,189,248,0.35); max-height:78px; overflow-y:auto;"></div>
             <!-- Hidden internal anchors preserved so zero legacy calls ever fail -->
             <div style="display:none !important;">
+                <div id="msg-coach-live-caption-strip"></div>
                 <input type="range" id="msg-audio-seek-slider" min="0" max="100" step="0.1" value="0">
                 <span id="msg-audio-time-lbl">00:00</span>
                 <select id="msg-coach-mode-select"><option value="all">all</option></select>
                 <div id="msg-step-pills-wrap"></div>
                 <div id="msg-coach-visual-stage"></div>
-                <div id="msg-coach-speech-text"></div>
             </div>
         `;
         document.body.appendChild(coachBar);
+        if (typeof window.__makePopupElementDraggable === 'function') window.__makePopupElementDraggable(coachBar);
 
         if (!document.getElementById('msg-coach-svg-popover')) {
             const svgPop = document.createElement('div');
@@ -4087,71 +4611,183 @@
     }
 
     function syncSpeedLabelsUI() {
-        const txt = formatSpeedPctLabel(selectedSpeechRate);
-        const l1 = document.getElementById('msg-modal-speed-lbl');
-        const l2 = document.getElementById('msg-dock-speed-lbl');
-        const l3 = document.getElementById('msg-coach-speed-lbl');
-        if (l1) l1.textContent = txt;
-        if (l2) l2.textContent = txt;
-        if (l3) l3.textContent = txt;
+        const txt = formatSpeedPctLabel();
+        ['msg-modal-speed-lbl', 'msg-dock-speed-lbl', 'msg-coach-speed-lbl', 'msg-tip-spd-lbl', 'msg-cinema-spd-lbl', 'md-def-spd-lbl'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.textContent = txt;
+        });
+        ['msg-tip-spd-slider', 'msg-coach-spd-slider', 'msg-cinema-spd-slider'].forEach(id => {
+            const sld = document.getElementById(id);
+            if (sld) sld.value = String(Math.round(window.__msgSpeechSpeedPct || 0));
+        });
     }
 
+    window.setMsgAiIntelligenceDegree = function (deg) {
+        if (!['ai_1', 'ai_2', 'ai_3', 'ai_4', 'ai_5'].includes(deg)) deg = 'ai_5';
+        window.__msgAiDegree = deg;
+        try { localStorage.setItem('msg_ai_degree_v8', deg); } catch (_) {}
+        ['msg-tip-ai-degree', 'msg-coach-ai-degree', 'msg-modal-ai-degree', 'msg-cinema-ai-degree', 'md-def-ai-degree'].forEach(id => {
+            const sel = document.getElementById(id);
+            if (sel) sel.value = deg;
+        });
+        const tipEl = document.getElementById('msg-smart-hover-tooltip');
+        if (tipEl && tipEl.style.display === 'flex' && window.__lastDblRightTargetEl) {
+            showGlobalSmartExplanationAt({ type: 'dblclick', target: window.__lastDblRightTargetEl }, window.__lastDblRightTargetEl);
+            return;
+        }
+        if (isAutopilotRunning) {
+            runCurrentAutopilotStep();
+            return;
+        }
+        if (window.__CINEMA_4K_ACTIVE__ && typeof window.stepCinemaSceneBy === 'function') {
+            window.stepCinemaSceneBy(0);
+        }
+    };
+
+    window.adjustMsgVoiceVolume = function (delta, exactVal) {
+        const cur = parseFloat(window.__msgUserVoiceVolume || 1.65);
+        let next = (exactVal !== undefined && exactVal !== null) ? parseFloat(exactVal) : (cur + parseFloat(delta || 0));
+        if (next > 3.000001) next = next / 100;
+        const clamped = Math.max(0.1, Math.min(3.0, Math.round((isNaN(next) ? cur : next) * 100) / 100));
+        window.__msgUserVoiceVolume = clamped;
+        try { localStorage.setItem('msg_voice_vol_v1', String(clamped)); } catch (_) {}
+        const setG = (node, base) => { if (!node || !node.gain) return; try { node.gain.setTargetAtTime(base * clamped, node.context.currentTime, 0.02); } catch (_) { node.gain.value = base * clamped; } };
+        setG(window.__msgLiveMasterGainNode, 1.25);
+        setG(window.__msgCinemaMasterGainNode, 1.35);
+        const pctTxt = `${Math.round(clamped * 100)}%`;
+        ['msg-tip-vol-lbl', 'msg-coach-vol-lbl', 'msg-modal-vol-lbl', 'msg-cinema-vol-lbl', 'md-def-vol-lbl'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.textContent = id === 'msg-modal-vol-lbl' ? `🔊 ${pctTxt}` : pctTxt;
+        });
+        ['msg-tip-vol-slider', 'msg-coach-vol-slider', 'msg-cinema-vol-slider', 'md-def-vol-slider'].forEach(id => {
+            const sld = document.getElementById(id);
+            if (sld) sld.value = String(Math.round(clamped * 100));
+        });
+    };
+
     function renderStepPillsForActiveList() {
+        const list = activeAutopilotStepsList || [];
+        const jumpSel = document.getElementById('msg-coach-step-jump-sel');
+        if (jumpSel && list.length) {
+            jumpSel.innerHTML = list.map((s, i) => `<option value="${i}" ${i === autopilotStepIdx ? 'selected' : ''}>${i + 1}/${list.length} ${(s.cursorLabel || s.badge || '').slice(0, 22)}</option>`).join('');
+        }
         const pillsWrap = document.getElementById('msg-step-pills-wrap');
         if (!pillsWrap) return;
-        const list = activeAutopilotStepsList || [];
         pillsWrap.innerHTML = list.map((_, i) => `
             <button type="button" class="msg-step-pill-btn ${i === autopilotStepIdx ? 'active' : ''}" onclick="window.jumpToAutopilotStep(${i})" title="الخطوة ${i + 1}">${i + 1}</button>
         `).join('');
     }
 
-    window.adjustSpeechSpeedBy = function (delta, playPreviewIfIdle = false) {
-        const nextRate = Math.max(0.70, Math.min(1.60, parseFloat((selectedSpeechRate + (parseFloat(delta) || 0)).toFixed(2))));
-        window.onMsgSpeedChange(nextRate, playPreviewIfIdle);
+    window.speak30SecScreenSummary = function () {
+        window.__MUTE_LEGACY_GUIDE_AUDIO__ = false;
+        const pageTitle = (document.querySelector('main h1, main h2, .md-card-title, .page-title')?.textContent || document.title || 'الشاشة الحالية').split('|')[0].trim();
+        const cntBtns = document.querySelectorAll('button, .qa-master-btn, .cat-hub-btn, .sl-btn').length;
+        const cntInputs = document.querySelectorAll('input:not([type="hidden"]), select, textarea').length;
+        const sumTxt = `ملخص شاشة (${pageTitle}) في ثلاثين ثانية: بالبلدي وببساطة هذه الشاشة هي غرفة العمليات المخصصة لإدارة ومراجعة (${pageTitle}) بدقة محاسبية ومخزنية لحظية، وتضم حالياً (${cntInputs}) خانة إدخال وفلترة و(${cntBtns}) أداة تنفيذية. القاعدة الذهبية: راجع البيانات قبل الحفظ بـ إف عشرة، ولا تخف من الخطأ فجميع العمليات محمية بدرع التوازن المحاسبي.`;
+        const badge = document.getElementById('msg-coach-step-badge');
+        if (badge) badge.textContent = `📋 ملخص: ${pageTitle.slice(0, 22)}`;
+        const cap = document.getElementById('msg-coach-live-caption-strip');
+        if (cap) { cap.style.display = 'block'; cap.textContent = sumTxt; }
+        speakArabicMaleText(adaptTextToDialect(sumTxt, selectedMaleProfile), null, selectedMaleProfile, false);
     };
 
-    window.onMsgSpeedChange = function (rateStr, playPreviewIfIdle = false) {
+    window.startUniversalHandsOnDrill = function (specificEl) {
+        window.__MUTE_LEGACY_GUIDE_AUDIO__ = false;
+        if (!specificEl && typeof window.startInteractiveHandsOnTraining === 'function' && window.location.pathname.includes('direct-sales')) { window.startInteractiveHandsOnTraining(); return; }
+        if (!specificEl && typeof window.startQuickMasterDataQuiz === 'function' && window.location.pathname.includes('master-data')) { window.startQuickMasterDataQuiz(); return; }
+        const step = (activeAutopilotStepsList && activeAutopilotStepsList[autopilotStepIdx]) || null;
+        const target = specificEl || (step && step.targetSelector && document.querySelector(step.targetSelector)) || document.querySelector('main input:not([type="hidden"]), main select, main button');
+        if (!target) return;
+        moveGhostCursorToElement(target, '🎯 اضغط أو اكتب هنا بيدك للتدريب!', true);
+        const info = window.autoSynthesizeElementExplanation ? window.autoSynthesizeElementExplanation(target) : { title: 'هذا العنصر' };
+        const badge = document.getElementById('msg-coach-step-badge');
+        if (badge) badge.textContent = `🎯 تدريب عملي: ${info.title.slice(0, 22)}`;
+        speakArabicMaleText(adaptTextToDialect(`التدريب العملي بيدك الآن: تفضل بالضغط بالماوس أو الكتابة داخل (${info.title}) المضاء أمامك باللون الذهبي لتجربته بنفسك بأمان تام.`, selectedMaleProfile), null, selectedMaleProfile, false);
+        const onHit = () => {
+            target.removeEventListener('click', onHit);
+            target.removeEventListener('focus', onHit);
+            if (typeof window.playCinemaSoftChime === 'function') window.playCinemaSoftChime();
+            speakArabicMaleText(adaptTextToDialect(`أحسنت يا بطل! تطبيق عملي ممتاز على (${info.title}).`, selectedMaleProfile), null, selectedMaleProfile, false);
+        };
+        target.addEventListener('click', onHit, { once: true });
+        target.addEventListener('focus', onHit, { once: true });
+    };
+
+    window.setSpeechSpeedPctExact = function (exactPct, playPreviewIfIdle = false) {
+        const pct = Math.max(-50, Math.min(300, Math.round(Number(exactPct) || 0)));
+        window.__msgSpeechSpeedPct = pct;
+        try { localStorage.setItem('msg_speech_speed_pct_v8', String(pct)); } catch (_) {}
+        const rate = pctToPlaybackRate(pct);
+        window.onMsgSpeedChange(rate, playPreviewIfIdle, true);
+    };
+
+    window.adjustSpeechSpeedPctBy = function (deltaPct, playPreviewIfIdle = false) {
+        const curPct = Math.round(Number(window.__msgSpeechSpeedPct) || 0);
+        const nextPct = Math.max(-50, Math.min(300, curPct + Math.round(Number(deltaPct) || 0)));
+        window.setSpeechSpeedPctExact(nextPct, playPreviewIfIdle);
+    };
+
+    window.adjustSpeechSpeedBy = function (delta, playPreviewIfIdle = false) {
+        const d = parseFloat(delta) || 0;
+        const deltaPct = Math.abs(d) <= 1.5 ? Math.round(d * 100) : Math.round(d);
+        window.adjustSpeechSpeedPctBy(deltaPct, playPreviewIfIdle);
+    };
+
+    window.onMsgSpeedChange = function (rateStr, playPreviewIfIdle = false, fromPctSetter = false) {
         const parsed = parseFloat(rateStr);
         if (isNaN(parsed)) return;
 
-        // Preserve exact audio offset before changing playbackRate so time slider never jumps!
         if (isAudioPlaying && !isAudioPaused && activeAudioBuffer) {
             const curOff = getCurrentAudioOffset();
             activeAudioOffset = curOff;
             activeAudioStartTime = getAudioCtx().currentTime;
         }
 
-        selectedSpeechRate = Math.max(0.70, Math.min(1.60, parsed));
-        localStorage.setItem('msg_male_speed_v6', selectedSpeechRate.toFixed(2));
+        selectedSpeechRate = Math.max(0.50, Math.min(4.00, parsed));
+        if (!fromPctSetter) {
+            window.__msgSpeechSpeedPct = playbackRateToPct(selectedSpeechRate);
+            try { localStorage.setItem('msg_speech_speed_pct_v8', String(window.__msgSpeechSpeedPct)); } catch (_) {}
+        }
+        localStorage.setItem('msg_male_speed_v7', selectedSpeechRate.toFixed(2));
         syncSpeedLabelsUI();
 
+        if (window.__msgPitchPreservedAudioEl && !window.__msgPitchPreservedAudioEl.paused) {
+            try {
+                window.__msgPitchPreservedAudioEl.preservesPitch = true;
+                window.__msgPitchPreservedAudioEl.playbackRate = selectedSpeechRate;
+            } catch (e) {}
+        }
         if (currentAudioSource && currentAudioSource.playbackRate) {
             try {
                 currentAudioSource.playbackRate.value = selectedSpeechRate;
-                if (activeAudioIsGenuine && currentAudioSource.detune) {
-                    const pitchCompCents = Math.round(-1200 * Math.log2(selectedSpeechRate / 0.92));
-                    currentAudioSource.detune.value = Math.max(-450, Math.min(450, pitchCompCents));
-                }
+                if (currentAudioSource.detune) currentAudioSource.detune.value = 0;
             } catch (e) {}
-        } else if (isAudioPaused && activeAudioBuffer) {
-            // If paused, resume immediately at the new speed so the user hears the arrow working!
+        }
+        if (typeof window.__applyCinemaLivePlaybackRate === 'function') {
+            window.__applyCinemaLivePlaybackRate(selectedSpeechRate);
+        }
+        if (isAudioPaused && activeAudioBuffer) {
             startBufferAtOffset(activeAudioOffset);
-        } else if (playPreviewIfIdle) {
-            const pct = Math.round(selectedSpeechRate * 100);
-            const speedMsg = selectedSpeechRate < 0.90
-                ? `تم إبطاء سرعة الصوت إلى ${pct} بالمائة ليكون الشرح هادئاً ومتأنياً.`
-                : `تم ضبط سرعة الصوت على ${pct} بالمائة.`;
+        } else if (playPreviewIfIdle && !isAudioPlaying) {
+            const pct = window.__msgSpeechSpeedPct;
+            const speedMsg = pct < 0
+                ? `تم ضبط سرعة الصوت على ناقص ${Math.abs(pct)} بالمائة.`
+                : `تم ضبط سرعة الصوت على زائد ${pct} بالمائة.`;
             speakArabicMaleText(speedMsg, null, selectedMaleProfile, false);
         }
     };
 
     window.onMsgVoiceChange = function (profileId) {
+        if (profileId === 'gulf' || !['fusha', 'egyptian', 'sudanese'].includes(profileId)) profileId = 'fusha';
         selectedMaleProfile = profileId;
+        localStorage.setItem('msg_male_dialect_v7', profileId);
         localStorage.setItem('msg_male_dialect_v6', profileId);
         const sel = document.getElementById('msg-voice-select');
         if (sel) sel.value = profileId;
         const coachSel = document.getElementById('msg-coach-voice-select');
         if (coachSel) coachSel.value = profileId;
+        const tipSel = document.getElementById('msg-tip-voice-select');
+        if (tipSel) tipSel.value = profileId;
 
         prewarmGuideAudio(currentGuideKey, profileId);
 
@@ -4159,13 +4795,18 @@
             runCurrentAutopilotStep();
             return;
         }
+        const tipEl = document.getElementById('msg-smart-hover-tooltip');
+        if (tipEl && tipEl.style.display === 'flex' && window.__lastGlobalDblRightSpeech && typeof window.speakMdExplanationPanelText === 'function') {
+            window.speakMdExplanationPanelText(adaptTextToDialect(window.__lastGlobalDblRightSpeech, profileId));
+            return;
+        }
 
         const greetings = {
-            egyptian: `يا أهلاً بحضرتك يا فندم، تم تفعيل الصوت الرجالي الهادئ والواضح، باللهجة المصرية.`,
-            sudanese: `حبابك عشرة، تم تفعيل الصوت الرجالي الهادئ والواضح، باللهجة السودانية.`,
-            gulf:     `يا هلا والله، تم تفعيل الصوت الرجالي الهادئ والواضح، باللهجة الخليجية.`
+            fusha:    `تم تفعيل الصوت الرجالي الفخيم والواضح، باللغة العربية الفصحى.`,
+            egyptian: `تم تفعيل الصوت الرجالي الفخيم والواضح، باللهجة المصرية.`,
+            sudanese: `تم تفعيل الصوت الرجالي الفخيم والواضح، باللهجة السودانية.`
         };
-        speakArabicMaleText(greetings[profileId] || greetings.egyptian, null, profileId, false);
+        speakArabicMaleText(greetings[profileId] || greetings.fusha, null, profileId, false);
     };
 
     window.openSmartGuide = function (guideKey) {
@@ -4180,14 +4821,8 @@
         const resolvedKey = guideKey || buildUniversalScreenGuideIfNeeded();
         currentGuideKey = resolvedKey;
         window.__mdInteractiveGuideActive = true;
-        // أمر حاسم (2، 3، 5): في شاشة الحركة المالية المجمعة يبدأ الشرح التطبيقي الحي فوراً (طوالي في 0ms) عبر الكبسولة المصغرة دون أي قائمة حاجبة للرؤية
-        if (resolvedKey === 'multi-cash-payment' || window.location.pathname.includes('multi-cash-payment')) {
-            window.startLiveAutopilotSimulation('all');
-            return;
-        }
-        window.stopLiveAutopilotSimulation();
-        window.__mdInteractiveGuideActive = true;
-        window.openSmartGuideEncyclopediaModal(resolvedKey);
+        // الدستور الموحد للشرح 2027: يبدأ الشرح التطبيقي الحي فوراً عبر الكبسولة المصغرة في كل الشاشات دون نافذة كبيرة حاجبة للرؤية
+        window.startLiveAutopilotSimulation('all');
     };
 
     window.openSmartGuideEncyclopediaModal = function (guideKey) {
@@ -4290,6 +4925,24 @@
 
     // ── SILKY-SMOOTH ZERO-JITTER GHOST-CURSOR ENGINE ─────────────────────────
     let currentTargetDomEl = null;
+    let _liveTargetTrackTimer = null;
+
+    function resolveBestVisibleTargetElement(selectorStr) {
+        if (!selectorStr || typeof selectorStr !== 'string') return null;
+        const parts = selectorStr.split(',').map(s => s.trim()).filter(Boolean);
+        for (const sel of parts) {
+            try {
+                const candidates = document.querySelectorAll(sel);
+                for (const c of candidates) {
+                    const r = c.getBoundingClientRect();
+                    if (r.width > 4 && r.height > 4 && window.getComputedStyle(c).visibility !== 'hidden' && window.getComputedStyle(c).display !== 'none') {
+                        return c;
+                    }
+                }
+            } catch (_) {}
+        }
+        try { return document.querySelector(selectorStr); } catch (_) { return null; }
+    }
 
     function placeCursorAndRingOnRect(el, labelText, triggerClickEffect) {
         const cursor = document.getElementById('msg-ghost-cursor');
@@ -4297,37 +4950,39 @@
         const ring = document.getElementById('msg-live-target-ring');
         if (!cursor || !ring || !el) return;
 
-        const rect = el.getBoundingClientRect();
-        const pad = 6;
+        const syncNow = () => {
+            if (!el || (!isAutopilotRunning && !window.__mdInteractiveGuideActive && !window.__CINEMA_4K_ACTIVE__)) return;
+            const rect = el.getBoundingClientRect();
+            if (rect.width < 2 && rect.height < 2) return;
+            const pad = 6;
+            ring.style.display = 'block';
+            ring.style.top = `${Math.max(4, rect.top - pad)}px`;
+            ring.style.left = `${Math.max(4, rect.left - pad)}px`;
+            ring.style.width = `${rect.width + pad * 2}px`;
+            ring.style.height = `${rect.height + pad * 2}px`;
 
-        ring.style.display = 'block';
-        ring.style.top = `${Math.max(4, rect.top - pad)}px`;
-        ring.style.left = `${Math.max(4, rect.left - pad)}px`;
-        ring.style.width = `${rect.width + pad * 2}px`;
-        ring.style.height = `${rect.height + pad * 2}px`;
+            cursor.style.display = 'block';
+            if (cursorLbl && labelText) cursorLbl.textContent = labelText;
+            cursor.style.top = `${rect.top + Math.min(rect.height / 2, 28)}px`;
+            cursor.style.left = `${rect.left + Math.min(rect.width / 2, 80)}px`;
 
-        cursor.style.display = 'block';
-        if (cursorLbl) cursorLbl.textContent = labelText || 'انظر هنا';
-        cursor.style.top = `${rect.top + Math.min(rect.height / 2, 28)}px`;
-        cursor.style.left = `${rect.left + Math.min(rect.width / 2, 80)}px`;
+            const coachBar = document.getElementById('msg-live-coach-bar');
+            if (coachBar && coachBar.dataset.userLockedPos !== '1') {
+                const viewH = window.innerHeight || document.documentElement.clientHeight;
+                if (rect.bottom > viewH - 165) {
+                    coachBar.classList.add('docked-top');
+                } else {
+                    coachBar.classList.remove('docked-top');
+                }
+            }
+        };
+        syncNow();
+        if (_liveTargetTrackTimer) clearInterval(_liveTargetTrackTimer);
+        _liveTargetTrackTimer = setInterval(syncNow, 90);
 
         if (triggerClickEffect) {
             cursor.classList.add('clicking');
             setTimeout(() => cursor.classList.remove('clicking'), 450);
-        }
-
-        // Smart Auto-Dodge: if target is in the lower 38% of the viewport, dock the capsule at top-left so it never covers the target!
-        const coachBar = document.getElementById('msg-live-coach-bar');
-        const posBtn = document.getElementById('msg-coach-pos-btn');
-        if (coachBar && coachBar.dataset.userLockedPos !== '1') {
-            const viewH = window.innerHeight || document.documentElement.clientHeight;
-            if (rect.bottom > viewH - 155) {
-                coachBar.classList.add('docked-top');
-                if (posBtn) posBtn.textContent = '⬇️ للأسفل';
-            } else {
-                coachBar.classList.remove('docked-top');
-                if (posBtn) posBtn.textContent = '⬆️ للأعلى';
-            }
         }
     }
 
@@ -4983,68 +5638,86 @@
 
     let lastAutopilotStepStartTs = 0;
 
+    let _liveKaraokeTimer = null;
+    window.__startLiveWordKaraokeAndSubTargetSync = function (speechEl, fullText, stepObj) {
+        if (_liveKaraokeTimer) { clearInterval(_liveKaraokeTimer); _liveKaraokeTimer = null; }
+        const cleanTxt = String(fullText || '').trim();
+        const words = cleanTxt ? cleanTxt.split(/\s+/) : [];
+        const esc = x => String(x).replace(/[&<>]/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[ch]));
+        const wordEnds = []; let accLen = 0;
+        words.forEach(w => { accLen += w.length + 1; wordEnds.push(accLen); });
+        const rawSel = (stepObj && stepObj.targetSelector) ? String(stepObj.targetSelector) : '';
+        const visibleSubEls = [];
+        rawSel.split(',').map(s => s.trim()).filter(Boolean).forEach(sel => {
+            try {
+                const candidate = resolveBestVisibleTargetElement(sel);
+                if (candidate && candidate !== document.body && !visibleSubEls.includes(candidate)) visibleSubEls.push(candidate);
+            } catch (_) {}
+        });
+        let lastSubIdx = 0, lastWordIdx = -1, sawAudio = false;
+        const startTs = Date.now();
+        _liveKaraokeTimer = setInterval(() => {
+            try {
+                if (isAudioPaused) return;
+                const ratio = getLiveSpeechRatio();
+                if (ratio < 0) {
+                    if (sawAudio || Date.now() - startTs > 90000) { clearInterval(_liveKaraokeTimer); _liveKaraokeTimer = null; }
+                    return;
+                }
+                sawAudio = true;
+                if (speechEl && words.length && document.body.contains(speechEl)) {
+                    let wi = wordEnds.findIndex(e => e > ratio * accLen);
+                    if (wi < 0) wi = words.length - 1;
+                    if (wi !== lastWordIdx) {
+                        lastWordIdx = wi;
+                        const donePart = esc(words.slice(0, wi).join(' ')), restPart = esc(words.slice(wi + 1).join(' '));
+                        speechEl.innerHTML = `${donePart ? `<span style="color:#94a3b8;">${donePart} </span>` : ''}<span class="msg-kar-active" style="color:#fde047;font-weight:950;text-decoration:underline;text-underline-offset:4px;background:rgba(253,224,71,0.14);border-radius:5px;padding:0 3px;">${esc(words[wi] || '')}</span>${restPart ? ` <span style="color:#ffffff;">${restPart}</span>` : ''}`;
+                        const act = speechEl.querySelector('.msg-kar-active');
+                        if (act) speechEl.scrollTop += (act.getBoundingClientRect().top - speechEl.getBoundingClientRect().top) - 22;
+                    }
+                }
+                if (visibleSubEls.length > 1) {
+                    const targetSubIdx = Math.min(visibleSubEls.length - 1, Math.floor(ratio * visibleSubEls.length));
+                    if (targetSubIdx !== lastSubIdx && visibleSubEls[targetSubIdx]) {
+                        lastSubIdx = targetSubIdx;
+                        const lbl = getSmartElementTitle(visibleSubEls[targetSubIdx]) || (stepObj && (stepObj.cursorLabel || stepObj.badge)) || 'بيان';
+                        moveGhostCursorToElement(visibleSubEls[targetSubIdx], lbl, false);
+                    }
+                }
+            } catch (_) {}
+        }, 60);
+    };
+
     function runCurrentAutopilotStep() {
         if (!isAutopilotRunning || !activeAutopilotStepsList.length) return;
         lastAutopilotStepStartTs = Date.now();
-
         cleanupGuideTempPopups();
-
         const step = activeAutopilotStepsList[autopilotStepIdx];
         if (!step) return;
-
-        // البند 5 من الدستور الخامس: تخطي الخطوات غير المتاحة لصلاحية المستخدم الحالي تلقائياً
         if (typeof window.isGuideStepAllowedForCurrentRole === 'function' && !window.isGuideStepAllowedForCurrentRole(step)) {
-            if (autopilotStepIdx + 1 < activeAutopilotStepsList.length) {
-                autopilotStepIdx++;
-                runCurrentAutopilotStep();
-            } else {
-                window.stopLiveAutopilotSimulation();
-            }
+            if (autopilotStepIdx + 1 < activeAutopilotStepsList.length) { autopilotStepIdx++; runCurrentAutopilotStep(); }
+            else { window.stopLiveAutopilotSimulation(); }
             return;
         }
-
         renderStepPillsForActiveList();
-
-        // Pre-decode the NEXT step in advance while the current step is playing!
-        const nextStep = activeAutopilotStepsList[autopilotStepIdx + 1];
-        if (nextStep) {
-            const nextTxt = resolveStepSpeech(nextStep, selectedMaleProfile, false);
-            fetchAndDecodeMaleBuffer(nextTxt, selectedMaleProfile).catch(() => {});
+        for (let lookahead = 1; lookahead <= 3; lookahead++) {
+            const nextStep = activeAutopilotStepsList[autopilotStepIdx + lookahead];
+            if (nextStep) {
+                const nextTxt = resolveStepSpeech(nextStep, selectedMaleProfile, false);
+                fetchAndDecodeMaleBuffer(nextTxt, selectedMaleProfile).catch(() => {});
+            }
         }
-
         const badge = document.getElementById('msg-coach-step-badge');
         const speechBox = document.getElementById('msg-coach-speech-text');
         const playOpeningOnceNow = (autopilotStepIdx === 0 && !hasPlayedOpeningInvocation);
-        if (playOpeningOnceNow) {
-            hasPlayedOpeningInvocation = true;
-            window.hasPlayedOpeningInvocation = true;
-        }
+        if (playOpeningOnceNow) { hasPlayedOpeningInvocation = true; window.hasPlayedOpeningInvocation = true; }
         const spoken = resolveStepSpeech(step, selectedMaleProfile, playOpeningOnceNow);
-
         if (badge) badge.textContent = `${step.badge} (${autopilotStepIdx + 1}/${activeAutopilotStepsList.length})`;
         if (speechBox) speechBox.textContent = spoken;
-
-        // Render the synchronized Dubbed Visual Diagram & Flowchart Stage!
-        renderLiveDubbedVisualStage(step, autopilotStepIdx, activeAutopilotStepsList.length);
-
-        // Execute step DOM action first if needed (opens nested screen, dropdown, or sub-panel), then move cursor smoothly!
-        if (typeof step.action === 'function') {
-            try { step.action(); } catch (e) {}
-        }
-
-        setTimeout(() => {
-            if (!isAutopilotRunning) return;
-            const el = document.querySelector(step.targetSelector) || document.body;
-            moveGhostCursorToElement(el, step.cursorLabel, true);
-
-            // If this step targets a <select> or dropdown-open diagramType (and isn't already showing custom dropdown), display the live options list on screen!
-            const cddOpen = document.getElementById('customer-dropdown-list')?.style.display === 'block';
-            const qddOpen = document.getElementById('quick-item-dropdown-list')?.style.display === 'block';
-            if (!cddOpen && !qddOpen && (el.tagName === 'SELECT' || el.querySelector?.('select') || step.diagramType === 'dropdown-open')) {
-                showLiveSelectOptionsMirror(el, step.diagramMeta?.childItems, step.cursorLabel || step.badge);
-            }
-        }, 70);
-
+        if (typeof step.action === 'function') { try { step.action(); } catch (e) {} }
+        const el = resolveBestVisibleTargetElement(step.targetSelector) || document.body;
+        moveGhostCursorToElement(el, step.cursorLabel || step.badge, true);
+        window.__startLiveWordKaraokeAndSubTargetSync(speechBox, spoken, step);
         speakArabicMaleText(spoken, () => {
             if (!isAutopilotRunning || isAudioPaused) return;
             nextStepTimeoutId = setTimeout(() => {
@@ -5890,42 +6563,228 @@
     };
 
     let hoverTooltipTimer = null;
-    function showGlobalSmartExplanationAt(e) {
-        if (document.getElementById('md-rightclick-def-menu') || window.location.pathname.includes('master-data')) return;
+    let _globalLastRightClickTs = 0;
+    window.__msgTipFontRem = 0.84;
+    function startTipPartSync(weights) {
+        if (!document.getElementById('msg-tip-sync-css')) {
+            const st = document.createElement('style'); st.id = 'msg-tip-sync-css';
+            st.textContent = '.msg-tip-part{transition:box-shadow .25s,transform .25s,opacity .25s}.msg-tip-part.msg-tip-dim{opacity:.62}.msg-tip-part.msg-tip-live{opacity:1;transform:scale(1.015);box-shadow:0 0 0 2px #fbbf24,0 6px 18px rgba(251,191,36,.35)}';
+            document.head.appendChild(st);
+        }
+        if (window.__msgTipSyncTimer) clearInterval(window.__msgTipSyncTimer);
+        const total = weights.reduce((a, b) => a + b, 0) || 1, t0 = Date.now();
+        let lastIdx = -2;
+        window.__msgTipSyncTimer = setInterval(() => {
+            const tipBox = document.getElementById('msg-smart-hover-tooltip'), box = document.getElementById('msg-tip-desc-box');
+            if (!tipBox || tipBox.style.display === 'none' || !box) { clearInterval(window.__msgTipSyncTimer); return; }
+            const frac = getLiveSpeechRatio();
+            if (frac < 0) return;
+            const pos = frac * total;
+            let acc = weights[0], idx = -1;
+            for (let i = 1; i < weights.length && pos >= acc; i++) { idx = i - 1; acc += weights[i]; }
+            if (idx === lastIdx) return;
+            lastIdx = idx;
+            box.querySelectorAll('.msg-tip-part').forEach(el => { const on = Number(el.dataset.idx) === idx; el.classList.toggle('msg-tip-live', on); el.classList.toggle('msg-tip-dim', idx >= 0 && !on); });
+            const cur = box.querySelector('.msg-tip-part[data-idx="' + idx + '"]');
+            if (cur) box.scrollTop += (cur.getBoundingClientRect().top - box.getBoundingClientRect().top) - 34;
+        }, 120);
+    }
+    window.__askAiAboutExplainedField = async function (btn) {
+        const box = document.getElementById('msg-tip-desc-box');
+        if (!box) return;
+        const t = window.__lastDblRightTargetEl, title = window.__lastGlobalDblRightTitle || '';
+        const val = (t && 'value' in t && t.type !== 'password') ? String(t.value || '').slice(0, 60) : '';
+        const esc = x => String(x).replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
+        if (btn) { btn.disabled = true; btn.textContent = '⏳ يفكر...'; }
+        try {
+            const msg = `اشرح للمحاسب بالعربية الفصحى المبسطة في 5 جمل قصيرة واضحة بدون رموز: «${title}» في شاشة «${document.title || location.pathname}»${val ? ' وقيمتها الحالية ' + val : ''}. اذكر الوظيفة، ومثالاً عملياً بالأرقام، والأثر المحاسبي، وخطأً شائعاً يجب تجنبه.`;
+            const res = await fetch('api/ai-assistant.php', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ message: msg, context: String(window.__lastGlobalDblRightSpeech || '').slice(0, 1500) }) });
+            const j = await res.json();
+            const reply = String((j && j.reply) || '').trim();
+            if (!reply) throw new Error('empty');
+            box.querySelectorAll('.msg-tip-ai-answer').forEach(x => x.remove());
+            box.insertAdjacentHTML('afterbegin', `<div class="msg-tip-ai-answer" style="margin-bottom:8px;padding:10px 12px;border-radius:10px;border-right:4px solid #a855f7;background:rgba(168,85,247,0.14);"><b style="color:#a855f7;">🤖 شرح الذكاء الاصطناعي: </b>${esc(reply)}</div>`);
+            box.scrollTop = 0;
+            if (window.__msgTipSyncTimer) clearInterval(window.__msgTipSyncTimer);
+            box.querySelectorAll('.msg-tip-part').forEach(el => el.classList.remove('msg-tip-live', 'msg-tip-dim'));
+            if (window.speakMdExplanationPanelText) window.speakMdExplanationPanelText(reply);
+        } catch (_) {
+            box.insertAdjacentHTML('afterbegin', '<div class="msg-tip-ai-answer" style="margin-bottom:8px;padding:8px 12px;border-radius:10px;border-right:4px solid #ef4444;background:rgba(239,68,68,0.12);">⚠️ تعذر الوصول للذكاء الاصطناعي الآن؛ الشرح المحلي متاح بالأسفل.</div>');
+        } finally {
+            if (btn) { btn.disabled = false; btn.textContent = '🤖 اسأل الذكاء'; }
+        }
+    };
+    function showGlobalSmartExplanationAt(e, forcedTarget) {
         const tipEl = document.getElementById('msg-smart-hover-tooltip');
         if (tipEl && tipEl.contains(e.target)) return;
-        const target = e.target && e.target.closest ? e.target.closest('button, a, input, select, textarea, .pro-field-card, .input-group, .h-form-group, th, td, [data-guide-desc]') : null;
+        let target = forcedTarget || (e.target && e.target.closest ? e.target.closest('button, a, input, select, textarea, .pro-field-card, .input-group, .h-form-group, .form-group, .spotlight-card, .kpi-card, .stat-card, .hub-action-card, .fin-metric-pill, .qa-master-btn, .cat-hub-btn, .msg-quartet-btn, .md-tab-btn, .sl-btn, .uiverse-switch, canvas, th, td, [role="button"], [role="tab"], [onclick], [data-md-tip], [data-guide-desc]') : null);
+        if (!target && !forcedTarget && e.target && e.target.nodeType === 1 && e.target !== document.body && e.target !== document.documentElement && !(e.target.closest && e.target.closest('#msg-smart-hover-tooltip, #msg-live-coach-bar, #msg-universal-modal'))) {
+            if (e.type === 'contextmenu') { target = e.target; var _genericRc = true; }
+        }
         if (!target) return;
-        if (e.type === 'contextmenu') e.preventDefault();
+        if (e.type === 'contextmenu') {
+            if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA') {
+                const hasSel = (typeof target.selectionStart === 'number' && target.selectionStart !== target.selectionEnd);
+                if (hasSel) return;
+            }
+            if (!forcedTarget) {
+                const nowR = Date.now(), lastEl = window.__msgLastRightEl;
+                const isDbl = (nowR - (window.__msgLastRightTs2 || 0)) < 650 && lastEl && (lastEl === target || lastEl.contains(target) || target.contains(lastEl));
+                window.__msgLastRightTs2 = isDbl ? 0 : nowR;
+                window.__msgLastRightEl = isDbl ? null : target;
+                if (!isDbl) {
+                    const selTxt = (window.getSelection && String(window.getSelection() || '').trim()) || '';
+                    const keepNative = selTxt || _genericRc || (target.closest && target.closest('a[href], th, .resizer, .col-resizer'));
+                    if (!keepNative) e.preventDefault();
+                    return;
+                }
+            }
+            e.preventDefault();
+            if (typeof e.stopImmediatePropagation === 'function') e.stopImmediatePropagation();
+            if (typeof e.stopPropagation === 'function') e.stopPropagation();
+            ['custom-num-menu', 'num-context-menu', 'gl-context-menu', 'md-col-context-menu', 'md-rightclick-def-panel'].forEach(id => {
+                const m = document.getElementById(id);
+                if (m) m.style.display = 'none';
+            });
+        }
         if (true) {
-            const info = (typeof window.explainMultiCashPaymentDomElement === 'function' && window.explainMultiCashPaymentDomElement(target))
+            window.__MUTE_LEGACY_GUIDE_AUDIO__ = false;
+            window.__lastDblRightTargetEl = target;
+            applyGuideSpotlight(target);
+            try { moveGhostCursorToElement(target, getSmartElementTitle(target) || 'شرح الخانة', false); } catch (_) {}
+            window.__stepNeighborFieldInCard = function (dir) {
+                const all = Array.from(document.querySelectorAll('input:not([type="hidden"]), select, textarea, button, .fin-metric-pill, .md-tab-btn')).filter(el => {
+                    const r = el.getBoundingClientRect();
+                    return r.width > 18 && r.height > 14 && window.getComputedStyle(el).display !== 'none' && window.getComputedStyle(el).visibility !== 'hidden' && !el.closest('#msg-smart-hover-tooltip, #msg-live-coach-bar, #msg-universal-modal');
+                });
+                if (!all.length) return;
+                const curIdx = all.indexOf(window.__lastDblRightTargetEl);
+                const nextIdx = (curIdx === -1) ? 0 : (curIdx + dir + all.length) % all.length;
+                showGlobalSmartExplanationAt({ type: 'dblclick', target: all[nextIdx] }, all[nextIdx]);
+            };
+            window.__focusCurrentExplainedField = function () {
+                const tipBox = document.getElementById('msg-smart-hover-tooltip');
+                if (tipBox) tipBox.style.display = 'none';
+                if (window.stopMdExplanationPanelAudio) window.stopMdExplanationPanelAudio();
+                const t = window.__lastDblRightTargetEl;
+                if (t && typeof t.focus === 'function') { try { t.focus(); if (t.select && t.tagName === 'INPUT') t.select(); } catch (_) {} }
+            };
+            const rawInfo = (typeof window.explainUnifiedDashboardDomElement === 'function' && window.explainUnifiedDashboardDomElement(target))
+                || (typeof window.explainMultiCashPaymentDomElement === 'function' && window.explainMultiCashPaymentDomElement(target))
                 || (typeof window.explainSmartLogisticsDomElement === 'function' && window.explainSmartLogisticsDomElement(target))
                 || (typeof window.explainPurchaseReceiptDomElement === 'function' && window.explainPurchaseReceiptDomElement(target))
                 || (typeof window.explainDirectSalesDomElement === 'function' && window.explainDirectSalesDomElement(target))
                 || (typeof window.explainPurchaseDomElement === 'function' && window.explainPurchaseDomElement(target))
                 || (typeof window.explainMasterDataDomElement === 'function' && window.explainMasterDataDomElement(target))
                 || (typeof window.autoSynthesizeElementExplanation === 'function' && window.autoSynthesizeElementExplanation(target));
-            if (!info) return;
+            if (!rawInfo) return;
+            const info = (typeof window.enrichProfessor6Pillars === 'function') ? window.enrichProfessor6Pillars(rawInfo, target) : rawInfo;
             const tip = getOrCreateHoverTooltipEl();
             const isLight = document.documentElement.classList.contains('light-theme') || ['light','warm_cream','ultra_white','exec_gray','pearl-white'].includes(document.documentElement.getAttribute('data-theme') || '');
-            const fullSpeech = `${info.title}. ${info.desc}`;
+            const _spParts = [info.title, ...String(info.desc || '').split(' • ').filter(Boolean)].map(x => cleanTextForMaleTts(x));
+            const fullSpeech = stripAllSalawatPrefixes(_spParts.join('. '));
+            window.__lastGlobalDblRightTitle = info.title;
             window.__lastGlobalDblRightSpeech = fullSpeech;
-            window.__setGlobalTipSpeed = function(spd) { if (window.onMsgSpeedChange) window.onMsgSpeedChange(spd, false); if (window.speakMdExplanationPanelText) window.speakMdExplanationPanelText(window.__lastGlobalDblRightSpeech); };
-            const spdBtnCss = isLight
-                ? 'flex:1;padding:5px 6px;border-radius:7px;background:var(--lt-sub-1,#ffffff);color:var(--lt-ink,#140600);border:1.5px solid var(--lt-border,#4a2106);font-size:0.74rem;font-weight:900;cursor:pointer;'
-                : 'flex:1;padding:5px 6px;border-radius:7px;background:rgba(30,41,59,0.85);color:#cbd5e1;border:1px solid rgba(148,163,184,0.35);font-size:0.74rem;font-weight:900;cursor:pointer;';
+            window.__msgUserVoiceVolume = parseFloat(localStorage.getItem('msg_voice_vol_v1') || '1.65') || 1.65;
+            window.__setGlobalTipSpeed = function(spd, isDelta) {
+                if (isDelta) {
+                    const deltaPct = Math.abs(spd) <= 1.5 ? Math.round(spd * 100) : Math.round(spd);
+                    window.adjustSpeechSpeedPctBy(deltaPct, false);
+                } else {
+                    window.setSpeechSpeedPctExact(spd, false);
+                }
+                if (!isAudioPlaying && window.speakMdExplanationPanelText) {
+                    window.speakMdExplanationPanelText(adaptTextToDialect(window.__lastGlobalDblRightSpeech, selectedMaleProfile));
+                }
+            };
+            window.__zoomGlobalTipFont = function(d) { window.__msgTipFontRem = Math.max(0.78, Math.min(1.35, (window.__msgTipFontRem || 0.96) + d)); const bx = document.getElementById('msg-tip-desc-box'); if (bx) bx.style.fontSize = window.__msgTipFontRem + 'rem'; };
+            window.__copyGlobalTipText = function(btnEl) { if (navigator.clipboard) navigator.clipboard.writeText(window.__lastGlobalDblRightSpeech || ''); if (btnEl) { const o = btnEl.textContent; btnEl.textContent = '✅'; setTimeout(() => btnEl.textContent = o, 1400); } };
             const descBoxCss = isLight
-                ? 'padding:10px 12px;border-radius:10px;background:var(--lt-sub-1,#fef9f3);border:2px solid var(--lt-border,#4a2106);color:var(--lt-ink,#140600);font-size:0.85rem;font-weight:900;line-height:1.72;'
-                : 'padding:10px 12px;border-radius:10px;background:rgba(56,189,248,0.14);border:1.5px solid rgba(56,189,248,0.45);color:#ffffff;font-size:0.85rem;font-weight:800;line-height:1.72;';
-            tip.innerHTML = `<div class="popup-drag-handle" title="اسحب لتحريك نافذة الشرح لأي مكان" style="display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;border-bottom:1.5px solid ${isLight ? 'var(--lt-border,#4a2106)' : 'rgba(56,189,248,0.35)'};padding-bottom:7px;margin-bottom:4px;cursor:grab;"><span style="font-size:0.94rem;font-weight:900;color:${isLight ? 'var(--lt-ink,#140600)' : '#fde047'};">✋ 📖 ${info.title}</span><button type="button" onclick="window.stopMdExplanationPanelAudio&&window.stopMdExplanationPanelAudio();document.getElementById('msg-smart-hover-tooltip').style.display='none'" style="background:rgba(239,68,68,0.22);color:${isLight ? '#991b1b' : '#fca5a5'};border:1px solid rgba(239,68,68,0.55);border-radius:6px;padding:1px 8px;cursor:pointer;font-weight:900;">✖</button></div><div style="display:flex;gap:5px;margin:4px 0;width:100%;"><button type="button" onclick="window.speakMdExplanationPanelText&&window.speakMdExplanationPanelText(window.__lastGlobalDblRightSpeech)" style="flex:1.25;padding:6px 8px;border-radius:8px;background:linear-gradient(135deg,#0284c7,#2563eb);color:#ffffff !important;-webkit-text-fill-color:#ffffff !important;border:1px solid #38bdf8;font-size:0.78rem;font-weight:900;cursor:pointer;">🔊 تشغيل الشرح</button><button type="button" onclick="window.togglePauseResumeAudio&&window.togglePauseResumeAudio()" style="flex:0.9;padding:6px 7px;border-radius:8px;background:rgba(245,158,11,0.25);color:${isLight ? '#78350f' : '#fde047'};border:1.5px solid rgba(245,158,11,0.6);font-size:0.75rem;font-weight:900;cursor:pointer;">⏸️ مؤقت</button><button type="button" onclick="window.stopMdExplanationPanelAudio&&window.stopMdExplanationPanelAudio()" style="flex:0.9;padding:6px 7px;border-radius:8px;background:rgba(239,68,68,0.2);color:${isLight ? '#991b1b' : '#fca5a5'};border:1.5px solid rgba(239,68,68,0.55);font-size:0.75rem;font-weight:900;cursor:pointer;">⏹️ إيقاف</button></div><div style="display:flex;gap:4px;margin-bottom:6px;width:100%;"><button type="button" onclick="window.__setGlobalTipSpeed(0.75)" style="${spdBtnCss}">🐢 بطيء</button><button type="button" onclick="window.__setGlobalTipSpeed(1.0)" style="${spdBtnCss}">⚖️ عادي</button><button type="button" onclick="window.__setGlobalTipSpeed(1.28)" style="${spdBtnCss}">⚡ سريع</button><button type="button" onclick="window.__setGlobalTipSpeed(1.5)" style="${spdBtnCss}">🚀 سريع جداً</button></div><div style="${descBoxCss}">${info.desc}</div>`;
+                ? `padding:14px 16px;border-radius:14px;background:var(--lt-sub-1,#ffffff);border:2px solid var(--lt-border,#4a2106);color:var(--lt-ink,#120500);font-size:${window.__msgTipFontRem || 0.96}rem;font-weight:900;line-height:1.85;text-align:right;max-height:270px;overflow-y:auto;`
+                : `padding:14px 16px;border-radius:14px;background:rgba(15,23,42,0.88);border:1.5px solid rgba(56,189,248,0.45);color:#ffffff;font-size:${window.__msgTipFontRem || 0.96}rem;font-weight:800;line-height:1.85;text-align:right;max-height:270px;overflow-y:auto;`;
+            const volPct = Math.round((window.__msgUserVoiceVolume || 1.65) * 100);
+            const spdPct = Math.round(window.__msgSpeechSpeedPct || 0);
+            const aiSelHtml = `<select id="msg-tip-ai-degree" onchange="window.setMsgAiIntelligenceDegree(this.value)" style="padding:2px 7px;height:26px;border-radius:8px;background:${isLight ? '#fff' : '#0f172a'};color:${isLight ? '#140600' : '#fde047'};border:1.5px solid #f59e0b;font-size:0.73rem;font-weight:900;cursor:pointer;" title="درجة الذكاء الاصطناعي ومستوى الشرح"><option value="ai_5" ${window.__msgAiDegree==='ai_5'?'selected':''}>👑 ذكاء 5 (بروفيسور 360°)</option><option value="ai_4" ${window.__msgAiDegree==='ai_4'?'selected':''}>🛡️ ذكاء 4 (متقدم)</option><option value="ai_3" ${window.__msgAiDegree==='ai_3'?'selected':''}>📊 ذكاء 3 (محاسبي)</option><option value="ai_2" ${window.__msgAiDegree==='ai_2'?'selected':''}>💡 ذكاء 2 (بلدي)</option><option value="ai_1" ${window.__msgAiDegree==='ai_1'?'selected':''}>⚡ ذكاء 1 (مختصر)</option></select>`;
+            const dialectSelHtml = `<select id="msg-tip-voice-select" onchange="if(window.onMsgVoiceChange)window.onMsgVoiceChange(this.value)" style="padding:2px 7px;height:26px;border-radius:8px;background:${isLight ? '#fff' : '#0f172a'};color:${isLight ? '#140600' : '#38bdf8'};border:1.5px solid ${isLight ? '#4a2106' : '#38bdf8'};font-size:0.73rem;font-weight:900;cursor:pointer;" title="أسلوب الصياغة (صوت رجالي فخيم ثابت)"><option value="fusha" ${selectedMaleProfile==='fusha'?'selected':''}>📖 الفصحى</option><option value="egyptian" ${selectedMaleProfile==='egyptian'?'selected':''}>🇪🇬 مصري</option><option value="sudanese" ${selectedMaleProfile==='sudanese'?'selected':''}>🇸🇩 سوداني</option></select>`;
+            let liveValBadge = '';
+            try {
+                if (target.tagName === 'SELECT' && target.options && target.selectedIndex >= 0) {
+                    const selTxt = (target.options[target.selectedIndex].text || '').trim();
+                    if (selTxt) liveValBadge = `<div style="margin-bottom:6px;padding:6px 10px;border-radius:8px;background:rgba(16,185,129,0.14);border:1px solid rgba(16,185,129,0.45);font-size:0.8rem;color:${isLight ? '#065f46' : '#6ee7b7'};">📌 الاختيار الحالي بالخانة: <b>${selTxt}</b></div>`;
+                } else if ((target.tagName === 'INPUT' || target.tagName === 'TEXTAREA') && target.type !== 'password') {
+                    const v = String(target.value || '').trim();
+                    if (v) liveValBadge = `<div style="margin-bottom:6px;padding:6px 10px;border-radius:8px;background:rgba(16,185,129,0.14);border:1px solid rgba(16,185,129,0.45);font-size:0.8rem;color:${isLight ? '#065f46' : '#6ee7b7'};">📌 القيمة المسجلة حالياً: <b>${v.slice(0, 48)}</b></div>`;
+                }
+            } catch (_) {}
+            const parts = String(info.desc || '').split(' • ').filter(Boolean);
+            const capColors = ['#10b981', '#38bdf8', '#a855f7', '#06b6d4', '#22c55e', '#f97316', '#ef4444', '#eab308', '#ec4899', '#fbbf24', '#14b8a6', '#8b5cf6', '#f43f5e', '#0ea5e9'];
+            const capIcons = ['1️⃣ 💡 بالبلدي وببساطة: ', '2️⃣ ⚙️ الوظيفة: ', '3️⃣ 🎯 لماذا وُجد: ', '4️⃣ 📍 أين أنت الآن: ', '5️⃣ 📥 من أين تأتي المعلومة: ', '6️⃣ 📤 وإلى أين تذهب: ', '7️⃣ 📊 الأثر المحاسبي: ', '8️⃣ 📡 القراءة الحية: ', '9️⃣ ⚖️ لو نفذته / لو تركته: ', '🔟 🚫 خطأ شائع: ', '1️⃣1️⃣ 🧮 مثال عملي: ', '1️⃣2️⃣ 🧭 خطوات للمبتدئ: ', '1️⃣3️⃣ ⌨️ الاختصار: ', '1️⃣4️⃣ 👑 القاعدة الذهبية: '];
+            const formattedHtml = liveValBadge + parts.map((p, idx) => `<div class="msg-tip-part" data-idx="${idx}" style="margin-bottom:6px;padding:8px 12px;border-radius:10px;border-right:4px solid ${capColors[idx % capColors.length]};background:${isLight ? 'rgba(254,249,243,0.95)' : 'rgba(2,6,23,0.72)'};"><span style="color:${capColors[idx % capColors.length]};font-weight:950;">${capIcons[idx] || '✨ '}</span>${p}</div>`).join('');
+            tip.innerHTML =
+                `<div class="popup-drag-handle" title="اسحب لتحريك النافذة" style="display:flex;align-items:center;justify-content:space-between;gap:6px;width:100%;flex-wrap:wrap;border-bottom:1.5px solid ${isLight ? 'var(--lt-border,#4a2106)' : 'rgba(56,189,248,0.35)'};padding-bottom:8px;cursor:grab;">` +
+                    `<span style="font-size:0.94rem;font-weight:900;color:${isLight ? 'var(--lt-ink,#140600)' : '#fde047'};">🎙️ ${info.title}</span>` +
+                    `<div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap;">` +
+                        `<button type="button" onclick="window.__stepNeighborFieldInCard(-1)" class="msg-micro-pill-btn" title="الخانة السابقة">⏮️</button>` +
+                        `<button type="button" onclick="window.__stepNeighborFieldInCard(1)" class="msg-micro-pill-btn" title="الخانة التالية">⏭️</button>` +
+                        `${aiSelHtml}` +
+                        `${dialectSelHtml}` +
+                        `<button type="button" onclick="window.launchSingleElementMicroCinema&&window.launchSingleElementMicroCinema(window.__lastDblRightTargetEl)" class="msg-micro-pill-btn" style="background:rgba(236,72,153,0.22)!important;color:#fbcfe8!important;border-color:#f472b6!important;" title="تصوير سينمائي بؤري لهذا العنصر">🎬 تصوير</button>` +
+                        `<button type="button" onclick="window.__askAiAboutExplainedField(this)" class="msg-micro-pill-btn" style="background:rgba(168,85,247,0.22)!important;color:#e9d5ff!important;border-color:#a855f7!important;" title="شرح إضافي مخصص بالذكاء الاصطناعي">🤖 اسأل الذكاء</button>` +
+                        `<button type="button" onclick="window.__focusCurrentExplainedField()" class="msg-micro-pill-btn" style="background:rgba(16,185,129,0.22)!important;color:#6ee7b7!important;border-color:#10b981!important;" title="طبّق بيدك في الخانة">🎯 طبّق</button>` +
+                        `<button type="button" onclick="window.__isDblRightCardPinned=false;window.stopMdExplanationPanelAudio&&window.stopMdExplanationPanelAudio();document.getElementById('msg-smart-hover-tooltip').style.display='none'" class="msg-micro-pill-btn" style="background:rgba(239,68,68,0.22)!important;color:#fca5a5!important;border-color:#f87171!important;">✕</button>` +
+                    `</div>` +
+                `</div>` +
+                `<div id="msg-tip-desc-box" style="${descBoxCss}">${formattedHtml}</div>` +
+                `<div style="display:flex;align-items:center;justify-content:space-between;gap:6px;flex-wrap:wrap;padding-top:4px;">` +
+                    `<div style="display:inline-flex;align-items:center;gap:4px;">` +
+                        `<button type="button" id="msg-tip-play-pause-btn" onclick="window.togglePauseResumeAudio&&window.togglePauseResumeAudio()" class="msg-micro-pill-btn" style="background:linear-gradient(135deg,#0284c7,#2563eb)!important;color:#fff!important;border-color:#38bdf8!important;padding:0 10px;" title="تعليق / استئناف الصوت">⏯️ الصوت</button>` +
+                        `<button type="button" onclick="window.speakMdExplanationPanelText&&window.speakMdExplanationPanelText(window.__lastGlobalDblRightSpeech)" class="msg-micro-pill-btn" title="إعادة الشرح">🔁</button>` +
+                    `</div>` +
+                    `<div style="display:inline-flex;align-items:center;gap:4px;background:${isLight ? 'rgba(0,0,0,0.06)' : 'rgba(15,23,42,0.82)'};padding:2px 7px;border-radius:9px;border:1px solid rgba(148,163,184,0.35);" title="قوة الصوت: ناقص (-) يقلل الصوت وزائد (+) يعلي الصوت حتى 300%">` +
+                        `<span style="font-size:0.71rem;font-weight:900;">🔊</span>` +
+                        `<button type="button" onclick="window.adjustMsgVoiceVolume(-0.20)" class="msg-micro-pill-btn" style="height:22px;min-width:24px;padding:0 6px;" title="تقليل الصوت (ناقص)">-</button>` +
+                        `<input id="msg-tip-vol-slider" type="range" class="msg-vol-range-slider" min="10" max="300" step="10" value="${volPct}" oninput="window.adjustMsgVoiceVolume(0,this.value/100)" style="width:66px;">` +
+                        `<button type="button" onclick="window.adjustMsgVoiceVolume(0.20)" class="msg-micro-pill-btn" style="height:22px;min-width:24px;padding:0 6px;" title="تعلية الصوت (زائد)">+</button>` +
+                        `<span id="msg-tip-vol-lbl" style="font-size:0.72rem;font-weight:900;min-width:38px;text-align:center;color:#10b981;">${volPct}%</span>` +
+                    `</div>` +
+                    `<div style="display:inline-flex;align-items:center;gap:4px;background:${isLight ? 'rgba(0,0,0,0.06)' : 'rgba(15,23,42,0.82)'};padding:2px 7px;border-radius:9px;border:1px solid rgba(148,163,184,0.35);" title="سرعة الصوت: ناقص (-) يصل إلى -50% وزائد (+) يصل إلى +300%">` +
+                        `<span style="font-size:0.71rem;font-weight:900;">⚡</span>` +
+                        `<button type="button" onclick="window.__setGlobalTipSpeed(-10,true)" class="msg-micro-pill-btn" style="height:22px;min-width:24px;padding:0 6px;" title="إبطاء سرعة الصوت (حتى -50%)">-</button>` +
+                        `<input id="msg-tip-spd-slider" type="range" class="msg-spd-range-slider" min="-50" max="300" step="10" value="${spdPct}" oninput="window.__setGlobalTipSpeed(this.value,false)" style="width:66px;">` +
+                        `<button type="button" onclick="window.__setGlobalTipSpeed(20,true)" class="msg-micro-pill-btn" style="height:22px;min-width:24px;padding:0 6px;" title="زيادة سرعة الصوت (حتى +300%)">+</button>` +
+                        `<span id="msg-tip-spd-lbl" style="font-size:0.72rem;font-weight:900;min-width:44px;text-align:center;color:#fde047;">${formatSpeedPctLabel()}</span>` +
+                    `</div>` +
+                    `<div style="display:inline-flex;align-items:center;gap:3px;">` +
+                        `<button type="button" onclick="window.__zoomGlobalTipFont(0.06)" class="msg-micro-pill-btn" style="height:22px;padding:0 6px;" title="تكبير الخط">A+</button>` +
+                        `<button type="button" onclick="window.__zoomGlobalTipFont(-0.06)" class="msg-micro-pill-btn" style="height:22px;padding:0 6px;" title="تصغير الخط">A-</button>` +
+                        `<button type="button" onclick="window.__copyGlobalTipText(this)" class="msg-micro-pill-btn" style="height:22px;padding:0 6px;" title="نسخ الشرح">📋</button>` +
+                    `</div>` +
+                `</div>`;
             tip.style.display = 'flex';
-            tip.style.top = `${Math.max(6, Math.min(window.innerHeight - 230, e.clientY))}px`;
-            tip.style.left = `${Math.max(8, Math.min(window.innerWidth - 420, e.clientX))}px`;
-            if (typeof window.speakMdExplanationPanelText === 'function') window.speakMdExplanationPanelText(fullSpeech);
+            tip.style.top = `${Math.max(20, Math.round((window.innerHeight - 350) / 2))}px`;
+            tip.style.left = `${Math.max(16, Math.round((window.innerWidth - 580) / 2))}px`;
+            tip.style.width = 'min(580px, 95vw)';
+            unlockBrowserAudioEnginesSync();
+            if (typeof window.speakMdExplanationPanelText === 'function') window.speakMdExplanationPanelText(adaptTextToDialect(fullSpeech, selectedMaleProfile));
+            startTipPartSync(_spParts.map(x => x.length + 8));
         }
     }
-    document.addEventListener('contextmenu', showGlobalSmartExplanationAt);
-    document.addEventListener('dblclick', showGlobalSmartExplanationAt);
+    window.showUnifiedDoubleRightClickCard = showGlobalSmartExplanationAt;
+    window.addEventListener('contextmenu', showGlobalSmartExplanationAt, true);
+    document.addEventListener('keydown', function (e) {
+        const tip = document.getElementById('msg-smart-hover-tooltip');
+        if (!tip || tip.style.display === 'none') return;
+        const tg = e.target;
+        if (tg && (/^(INPUT|TEXTAREA|SELECT)$/.test(tg.tagName) || tg.isContentEditable)) return;
+        if (e.key === 'Escape') { window.__isDblRightCardPinned = false; if (window.stopMdExplanationPanelAudio) window.stopMdExplanationPanelAudio(); tip.style.display = 'none'; }
+        else if (e.code === 'Space') { e.preventDefault(); if (window.togglePauseResumeAudio) window.togglePauseResumeAudio(); }
+        else if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') { e.preventDefault(); if (window.__stepNeighborFieldInCard) window.__stepNeighborFieldInCard(e.key === 'ArrowLeft' ? 1 : -1); }
+    }, true);
+    window.addEventListener('dblclick', function(e) {
+        if (e.target && e.target.closest && e.target.closest('#msg-smart-hover-tooltip, #msg-live-coach-bar, #msg-universal-modal')) return;
+        if (e.target && e.target.closest && e.target.closest('input:not([type=button]):not([type=submit]):not([type=checkbox]):not([type=radio]), textarea, [contenteditable="true"], tbody tr, th, [ondblclick], .resizer, .col-resizer, canvas, img, video')) return;
+        showGlobalSmartExplanationAt(e);
+    }, true);
     let hoverHideTimer = null;
 
     function getOrCreateHoverTooltipEl() {
@@ -6086,12 +6945,24 @@
     }, { passive: true });
 
     document.addEventListener('mousedown', function (e) {
+        if (e.button === 2 || window.__isDblRightCardPinned) return;
         const tip = document.getElementById('msg-smart-hover-tooltip');
         if (tip && tip.style.display === 'flex' && !tip.contains(e.target)) {
             if (typeof window.stopMdExplanationPanelAudio === 'function') window.stopMdExplanationPanelAudio();
             tip.style.display = 'none';
         }
     }, { passive: true });
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') {
+            window.__isDblRightCardPinned = false;
+            const tip = document.getElementById('msg-smart-hover-tooltip');
+            if (tip && tip.style.display === 'flex') { if (window.stopMdExplanationPanelAudio) window.stopMdExplanationPanelAudio(); tip.style.display = 'none'; }
+            if (window.__CINEMA_4K_ACTIVE__ && typeof window.stopMagaies4KCinemaMode === 'function') window.stopMagaies4KCinemaMode();
+        } else if (isAutopilotRunning && !e.target.closest('input, textarea, select')) {
+            if (e.key === 'PageDown') { e.preventDefault(); window.stepLiveAutopilot(1); }
+            else if (e.key === 'PageUp') { e.preventDefault(); window.stepLiveAutopilot(-1); }
+        }
+    });
     document.addEventListener('mouseout', function (e) {
         return;
         if (hoverTooltipTimer) {
@@ -6112,9 +6983,30 @@
         prewarmGuideAudio(key, selectedMaleProfile);
     };
 
-    // Inject the fixed square launcher immediately on DOM ready without background TTS storms or subtree MutationObserver loops
+    // 🔮 محرك الاكتشاف الذاتي المستقبلي لأي زر أو خانة أو شاشة تُضاف بعد شهر (Debounced Future DOM Auto-Discovery)
+    let _futureDomSyncTimer = null;
+    function initFutureDomAutoDiscoveryObserver() {
+        if (window.__msgFutureDomObserverBound || !window.MutationObserver || !document.body) return;
+        window.__msgFutureDomObserverBound = true;
+        const obs = new MutationObserver((mutations) => {
+            let hasNewNodes = false;
+            for (let i = 0; i < mutations.length; i++) {
+                if (mutations[i].addedNodes && mutations[i].addedNodes.length > 0) { hasNewNodes = true; break; }
+            }
+            if (!hasNewNodes) return;
+            if (_futureDomSyncTimer) clearTimeout(_futureDomSyncTimer);
+            _futureDomSyncTimer = setTimeout(() => {
+                if (isAutopilotRunning && typeof window.syncDynamicDomElementsIntoSmartGuide === 'function') {
+                    try { window.syncDynamicDomElementsIntoSmartGuide(currentGuideKey); } catch (_) {}
+                }
+            }, 1200);
+        });
+        obs.observe(document.body, { childList: true, subtree: true });
+    }
+
     function prewarmActiveScreenOnReady() {
         ensureFixedSquareLauncher();
+        initFutureDomAutoDiscoveryObserver();
     }
 
     if (document.readyState === 'loading') {
@@ -6348,14 +7240,11 @@
                     pointer-events: none !important;
                     transition: opacity 0.35s ease !important;
                 }
-                /* Keep top-right mini director badge subtly accessible */
-                body.msg-cinema-4k-active #msg-live-coach-bar {
-                    top: 10px !important;
-                    bottom: auto !important;
-                    left: 12px !important;
-                    right: auto !important;
-                    opacity: 0.88 !important;
-                    transform: scale(0.92);
+                /* Hide coach bar completely during Cinema mode so only 1 sleek HUD appears */
+                body.msg-cinema-4k-active #msg-live-coach-bar,
+                body.msg-cinema-4k-active #msg-coach-svg-popover,
+                body.msg-cinema-4k-active #msg-live-select-mirror {
+                    display: none !important;
                 }
                 /* Reels 9:16 Vertical Studio Frame */
                 body.msg-cinema-4k-active.msg-cinema-aspect-9-16 {
@@ -6411,49 +7300,44 @@
                     box-shadow: 0 10px 28px rgba(0, 0, 0, 0.85) !important;
                 }
 
-                /* 5. Cinematic Glassmorphic Lower-Thirds & Subtitles Bar */
+                /* 5. Compact Non-Blocking Mini Cinema Control Pod (شريط تحكم سينمائي مصغر غير حاجب للشاشة) */
                 #msg-cinema-lower-thirds {
                     position: fixed;
-                    bottom: 18px;
+                    bottom: 14px;
                     left: 50%;
                     transform: translateX(-50%);
-                    width: min(1060px, 94vw);
+                    width: min(760px, 95vw);
                     z-index: 1000015;
-                    background: linear-gradient(135deg, rgba(2, 6, 23, 0.92), rgba(15, 23, 42, 0.88), rgba(30, 27, 75, 0.90));
+                    background: linear-gradient(145deg, rgba(2, 6, 23, 0.96), rgba(15, 23, 42, 0.96));
                     backdrop-filter: blur(18px);
-                    -webkit-backdrop-filter: blur(18px);
-                    border: 2.2px solid rgba(250, 204, 21, 0.68);
-                    border-bottom: 4px solid #fde047;
-                    border-radius: 20px;
-                    padding: 12px 20px;
+                    border: 1.8px solid rgba(56, 189, 248, 0.55);
+                    border-radius: 18px;
+                    padding: 10px 14px;
                     color: #ffffff;
                     font-family: 'Cairo', 'Tajawal', sans-serif;
                     direction: rtl;
-                    box-shadow: 0 22px 65px rgba(0, 0, 0, 0.92), 0 0 35px rgba(56, 189, 248, 0.28);
+                    box-shadow: 0 20px 55px rgba(0, 0, 0, 0.85), 0 0 25px rgba(56, 189, 248, 0.2);
                     display: none;
                     flex-direction: column;
-                    gap: 6px;
+                    gap: 8px;
                     pointer-events: auto;
                 }
                 #msg-cinema-subtitle-text {
-                    font-size: 1.04rem;
-                    font-weight: 900;
+                    font-size: 0.94rem;
+                    font-weight: 800;
                     color: #f8fafc;
                     line-height: 1.55;
-                    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.95);
+                    max-height: 82px;
+                    overflow-y: auto;
+                    display: block !important;
+                    text-align: center;
+                    background: rgba(15, 23, 42, 0.72);
+                    border: 1px solid rgba(56, 189, 248, 0.32);
+                    border-radius: 12px;
+                    padding: 8px 14px;
                 }
                 #msg-cinema-golden-rule-line {
-                    font-size: 0.92rem;
-                    font-weight: 900;
-                    color: #fde047;
-                    background: linear-gradient(90deg, rgba(245, 158, 11, 0.24), rgba(16, 185, 129, 0.16));
-                    border: 1.8px solid #fbbf24;
-                    border-radius: 11px;
-                    padding: 6px 12px;
-                    text-shadow: 0 0 14px rgba(250, 204, 21, 0.55);
-                    display: flex;
-                    align-items: center;
-                    gap: 8px;
+                    display: none !important;
                 }
                 @keyframes msgCinemaSpotlightHaloPulse {
                     0%, 100% {
@@ -6484,24 +7368,52 @@
             if (!document.getElementById('msg-cinema-lower-thirds')) {
                 const lt = document.createElement('div');
                 lt.id = 'msg-cinema-lower-thirds';
+                const initVolPct = Math.round((window.__msgUserVoiceVolume || 1.65) * 100);
+                const initSpdPct = Math.round(window.__msgSpeechSpeedPct || 0);
                 lt.innerHTML = `
-                    <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; border-bottom:1px solid rgba(255,255,255,0.16); padding-bottom:5px;">
-                        <div style="display:flex; align-items:center; gap:8px;">
-                            <span id="msg-cinema-rec-dot" style="display:inline-block; width:11px; height:11px; border-radius:50%; background:#ef4444; box-shadow:0 0 12px #ef4444;"></span>
-                            <span id="msg-cinema-scene-badge" style="font-size:0.78rem; font-weight:900; color:#38bdf8; background:rgba(56,189,248,0.16); border:1.5px solid #38bdf8; padding:2px 10px; border-radius:99px;">🎬 المشهد الأول: شاشة العملاء وسقف الائتمان</span>
-                            <span id="msg-cinema-aspect-badge" style="font-size:0.74rem; font-weight:900; color:#fde047; background:rgba(245,158,11,0.18); border:1px solid #fbbf24; padding:2px 8px; border-radius:99px;">🔴 جاري التسجيل السينمائي 4K</span>
+                    <div class="popup-drag-handle" title="اسحب لتحريك الشريط" style="display:flex; align-items:center; justify-content:space-between; gap:6px; flex-wrap:wrap; cursor:grab;">
+                        <div style="display:flex; align-items:center; gap:5px; min-width:0; flex-wrap:wrap;">
+                            <span id="msg-cinema-rec-dot" style="display:inline-block; width:9px; height:9px; border-radius:50%; background:#ef4444; box-shadow:0 0 8px #ef4444; flex-shrink:0;"></span>
+                            <span id="msg-cinema-scene-badge" style="font-size:0.76rem; font-weight:900; color:#38bdf8; background:rgba(56,189,248,0.14); border:1px solid rgba(56,189,248,0.45); padding:2px 8px; border-radius:99px; max-width:190px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">🎬 المسجل الذكي</span>
+                            <select id="msg-cinema-scene-select" class="sl-input" onchange="window.jumpToCinemaSceneIndex&&window.jumpToCinemaSceneIndex(parseInt(this.value,10)||0)" style="padding:1px 6px !important; font-size:0.72rem !important; font-weight:900 !important; height:25px; max-width:145px; border-radius:8px !important;" title="القفز المباشر لأي مشهد"><option value="0">🎬 المشهد 1</option></select>
+                            <select id="msg-cinema-ai-degree" class="sl-input" onchange="window.setMsgAiIntelligenceDegree&&window.setMsgAiIntelligenceDegree(this.value)" style="padding:1px 6px !important; font-size:0.72rem !important; font-weight:900 !important; height:25px; border-radius:8px !important; border-color:#f59e0b !important; color:#fde047 !important;" title="درجة الذكاء الاصطناعي">
+                                <option value="ai_5" ${window.__msgAiDegree==='ai_5'?'selected':''}>👑 ذكاء 5 (بروفيسور)</option>
+                                <option value="ai_4" ${window.__msgAiDegree==='ai_4'?'selected':''}>🛡️ ذكاء 4 (متقدم)</option>
+                                <option value="ai_3" ${window.__msgAiDegree==='ai_3'?'selected':''}>📊 ذكاء 3 (محاسبي)</option>
+                                <option value="ai_2" ${window.__msgAiDegree==='ai_2'?'selected':''}>💡 ذكاء 2 (بلدي)</option>
+                                <option value="ai_1" ${window.__msgAiDegree==='ai_1'?'selected':''}>⚡ ذكاء 1 (مختصر)</option>
+                            </select>
+                            <span id="msg-cinema-aspect-badge" style="display:none;"></span>
                         </div>
-                        <div style="display:flex; align-items:center; gap:6px;">
-                            <button type="button" onclick="window.stopMagaies4KCinemaMode()" style="background:rgba(239,68,68,0.24); border:1.5px solid #f87171; color:#fecaca; border-radius:8px; padding:2px 10px; font-size:0.74rem; font-weight:900; cursor:pointer;">⏹️ إيقاف وحفظ الفيديو</button>
+                        <div style="display:flex; align-items:center; gap:4px; flex-wrap:wrap;">
+                            <button type="button" onclick="window.stepCinemaSceneBy&&window.stepCinemaSceneBy(-1)" class="msg-micro-pill-btn" title="المشهد السابق">⏮️</button>
+                            <button type="button" id="msg-cinema-pause-btn" onclick="window.toggleCinemaPauseResume&&window.toggleCinemaPauseResume()" class="msg-micro-pill-btn active-accent" title="تشغيل / إيقاف مؤقت">⏸️</button>
+                            <button type="button" onclick="window.stepCinemaSceneBy&&window.stepCinemaSceneBy(1)" class="msg-micro-pill-btn" title="المشهد التالي">⏭️</button>
+                            <button type="button" onclick="window.stepCinemaSceneBy&&window.stepCinemaSceneBy(0)" class="msg-micro-pill-btn" title="إعادة المشهد الحالي">🔁</button>
+                            <button type="button" id="msg-cinema-hold-btn" onclick="window.toggleCinemaSceneHold&&window.toggleCinemaSceneHold()" class="msg-micro-pill-btn" title="تثبيت المشهد الحالي وعدم الانتقال التلقائي">📌 تثبيت</button>
+                            <div style="display:inline-flex; align-items:center; gap:3px; background:rgba(15,23,42,0.82); border:1px solid rgba(148,163,184,0.32); border-radius:99px; padding:1px 6px;" title="سرعة الفيديو والصوت (من ناقص 50% إلى زائد 300%)">
+                                <span style="font-size:0.68rem; font-weight:900;">⚡</span>
+                                <button type="button" onclick="window.adjustCinemaSpeedBy&&window.adjustCinemaSpeedBy(-10)" class="msg-micro-pill-btn" style="height:20px; min-width:22px; padding:0 4px;" title="إبطاء الفيديو والصوت (حتى -50%)">-</button>
+                                <input id="msg-cinema-spd-slider" type="range" class="msg-spd-range-slider" min="-50" max="300" step="10" value="${initSpdPct}" oninput="window.setSpeechSpeedPctExact&&window.setSpeechSpeedPctExact(this.value,false)" style="width:56px;">
+                                <button type="button" onclick="window.adjustCinemaSpeedBy&&window.adjustCinemaSpeedBy(20)" class="msg-micro-pill-btn" style="height:20px; min-width:22px; padding:0 4px;" title="تسريع الفيديو والصوت (حتى +300%)">+</button>
+                                <span id="msg-cinema-spd-lbl" style="font-size:0.7rem; font-weight:900; color:#fde047; min-width:42px; text-align:center;">${formatSpeedPctLabel()}</span>
+                            </div>
+                            <div style="display:inline-flex; align-items:center; gap:3px; background:rgba(15,23,42,0.82); border:1px solid rgba(148,163,184,0.32); border-radius:99px; padding:1px 6px;" title="قوة صوت الفيديو (ناقص يقلل وزائد يعلي حتى 300%)">
+                                <button type="button" id="msg-cinema-mute-btn" onclick="window.toggleCinemaVoiceMute&&window.toggleCinemaVoiceMute()" style="background:none; border:none; color:#38bdf8; font-size:0.74rem; cursor:pointer; padding:0;">🔊</button>
+                                <button type="button" onclick="window.adjustMsgVoiceVolume&&window.adjustMsgVoiceVolume(-0.20)" class="msg-micro-pill-btn" style="height:20px; min-width:22px; padding:0 4px;" title="تقليل الصوت">-</button>
+                                <input id="msg-cinema-vol-slider" type="range" class="msg-vol-range-slider" min="10" max="300" step="10" value="${initVolPct}" oninput="window.adjustMsgVoiceVolume&&window.adjustMsgVoiceVolume(0,this.value/100)" style="width:56px;">
+                                <button type="button" onclick="window.adjustMsgVoiceVolume&&window.adjustMsgVoiceVolume(0.20)" class="msg-micro-pill-btn" style="height:20px; min-width:22px; padding:0 4px;" title="تعلية الصوت">+</button>
+                                <span id="msg-cinema-vol-lbl" style="font-size:0.7rem; font-weight:900; color:#34d399; min-width:36px; text-align:center;">${initVolPct}%</span>
+                            </div>
+                            <button type="button" id="msg-cinema-lt-rec-btn" onclick="window.startAutomaticCinema4KMediaRecorder&&window.startAutomaticCinema4KMediaRecorder();this.textContent='🔴 يسجل'" class="msg-micro-pill-btn" style="border-color:rgba(248,113,113,0.5); color:#fca5a5;" title="حفظ الفيديو">🔴 حفظ</button>
+                            <button type="button" onclick="window.stopMagaies4KCinemaMode()" class="msg-micro-pill-btn danger-btn" title="إنهاء">✕</button>
                         </div>
                     </div>
-                    <div id="msg-cinema-subtitle-text">🎬 جاهز للتصوير السينمائي التلقائي بدقة 4K...</div>
-                    <div id="msg-cinema-golden-rule-line">
-                        <span>💡 القاعدة الذهبية:</span>
-                        <span id="msg-cinema-golden-rule-text">«لا تمنح بضاعة بالآجل دون سقف ائتماني محدد، فالتجارة الناجحة تُبنى على الحزم المالي لا على العواطف.»</span>
-                    </div>
+                    <div id="msg-cinema-subtitle-text"></div>
+                    <div id="msg-cinema-golden-rule-line"><span id="msg-cinema-golden-rule-text"></span></div>
                 `;
                 document.body.appendChild(lt);
+                if (typeof window.__makePopupElementDraggable === 'function') window.__makePopupElementDraggable(lt);
             }
         }
 
@@ -6518,78 +7430,58 @@
         // ── 2. SMART CINEMATIC CAMERA (Smooth Auto-Zoom 1.6x & Pan + Spotlight Cutout) ──
         let lastIlluminatedEl = null;
         window.resetCinema4KCameraAndSpotlight = function () {
-            if (cinemaAutoZoomTimer) {
-                clearTimeout(cinemaAutoZoomTimer);
-                cinemaAutoZoomTimer = null;
-            }
-            const stg = getPrimaryScreenStageContainer();
-            if (stg && stg !== document.body) {
-                stg.classList.add('msg-cinema-camera-stage');
-                stg.style.transform = '';
-                stg.style.transformOrigin = 'top center';
-            }
-            if (lastIlluminatedEl) {
-                try { lastIlluminatedEl.classList.remove('msg-cinema-target-illuminated'); } catch (_) {}
-                lastIlluminatedEl = null;
-            }
+            if (cinemaAutoZoomTimer) { clearTimeout(cinemaAutoZoomTimer); cinemaAutoZoomTimer = null; }
+            if (window.__cinemaFocalSyncTimer) { clearInterval(window.__cinemaFocalSyncTimer); window.__cinemaFocalSyncTimer = null; }
+            document.querySelectorAll('.msg-cinema-camera-stage').forEach(s => { s.style.transform = ''; s.style.transformOrigin = 'center center'; });
+            if (lastIlluminatedEl) { try { lastIlluminatedEl.classList.remove('msg-cinema-target-illuminated'); } catch (_) {} lastIlluminatedEl = null; }
             const spot = document.getElementById('msg-cinema-spotlight-overlay');
             if (spot) spot.style.display = 'none';
+            const ring = document.getElementById('msg-live-target-ring');
+            if (ring) ring.style.display = 'none';
         };
 
         window.applyCinema4KCameraZoomAndSpotlight = function (el, step) {
             if (!isCinemaModeActive) return;
             ensureCinemaDomOverlays();
-
             if (lastIlluminatedEl && lastIlluminatedEl !== el) {
                 try { lastIlluminatedEl.classList.remove('msg-cinema-target-illuminated'); } catch (_) {}
             }
-
-            // If this is the full-screen overview or 3-Stage SVG Map step, keep camera at 1.0x wide shot!
+            if (window.__cinemaFocalSyncTimer) { clearInterval(window.__cinemaFocalSyncTimer); window.__cinemaFocalSyncTimer = null; }
             if (!el || el === document.body || (step && step.diagramType === 'c5-impact-map')) {
                 window.resetCinema4KCameraAndSpotlight();
                 return;
             }
+            try { el.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' }); } catch (_) {}
+            try { el.classList.add('msg-cinema-target-illuminated'); lastIlluminatedEl = el; } catch (_) {}
+            if (cinemaAutoZoomTimer) { clearTimeout(cinemaAutoZoomTimer); cinemaAutoZoomTimer = null; }
 
-            const rect = el.getBoundingClientRect();
-            const vw = window.innerWidth || document.documentElement.clientWidth;
-            const vh = window.innerHeight || document.documentElement.clientHeight;
-
-            // Highlight target element with golden/cyan halo
-            try {
-                el.classList.add('msg-cinema-target-illuminated');
-                lastIlluminatedEl = el;
-            } catch (_) {}
-
-            // Position radial spotlight cutout centered on the active element
-            const cx = Math.round(rect.left + rect.width / 2);
-            const cy = Math.round(rect.top + rect.height / 2);
-            const radius = Math.max(150, Math.min(390, Math.round(Math.max(rect.width, rect.height) * 0.9)));
-            const spot = document.getElementById('msg-cinema-spotlight-overlay');
-            if (spot) {
-                spot.style.display = 'block';
-                spot.style.background = `radial-gradient(circle ${radius}px at ${cx}px ${cy}px, rgba(255,255,255,0.03) 0%, rgba(15,23,42,0.22) 55%, rgba(2,6,23,0.68) 100%)`;
-            }
-
-            // Smoothly zoom (1.6x) toward the target element
-            const stg = getPrimaryScreenStageContainer();
-            if (stg && stg !== document.body) {
-                stg.classList.add('msg-cinema-camera-stage');
-                const stgRect = stg.getBoundingClientRect();
-                const originX = Math.max(15, Math.min(85, Math.round(((cx - stgRect.left) / Math.max(1, stgRect.width)) * 100)));
-                const originY = Math.max(10, Math.min(82, Math.round(((cy - stgRect.top) / Math.max(1, stgRect.height)) * 100)));
-                stg.style.transformOrigin = `${originX}% ${originY}%`;
-                stg.style.transform = `scale(${cinemaZoomScale || 1.6})`;
-
-                if (cinemaAutoZoomTimer) {
-                    clearTimeout(cinemaAutoZoomTimer);
-                    cinemaAutoZoomTimer = null;
+            const lockFocalAndCursor = () => {
+                if (!isCinemaModeActive || !el) return;
+                const rect = el.getBoundingClientRect();
+                const cx = Math.round(rect.left + rect.width / 2);
+                const cy = Math.round(rect.top + rect.height / 2);
+                const radius = Math.max(130, Math.min(380, Math.round(Math.max(rect.width, rect.height) * 0.85)));
+                const spot = document.getElementById('msg-cinema-spotlight-overlay');
+                if (spot) {
+                    spot.style.display = 'none';
+                    spot.style.background = 'none';
                 }
-                if (!(step && step.keepZoomed)) {
-                    cinemaAutoZoomTimer = setTimeout(() => {
-                        if (stg) stg.style.transform = 'scale(1)';
-                    }, 9500);
+                const ring = document.getElementById('msg-live-target-ring');
+                if (ring) {
+                    ring.style.display = 'block';
+                    ring.style.top = `${Math.max(2, rect.top - 6)}px`;
+                    ring.style.left = `${Math.max(2, rect.left - 6)}px`;
+                    ring.style.width = `${Math.max(32, rect.width + 12)}px`;
+                    ring.style.height = `${Math.max(24, rect.height + 12)}px`;
                 }
-            }
+                const cursor = document.getElementById('msg-ghost-cursor');
+                if (cursor && cursor.style.display !== 'none') {
+                    cursor.style.left = `${Math.max(24, Math.min(window.innerWidth - 40, cx))}px`;
+                    cursor.style.top = `${Math.max(24, Math.min(window.innerHeight - 40, cy))}px`;
+                }
+            };
+            lockFocalAndCursor();
+            window.__cinemaFocalSyncTimer = setInterval(lockFocalAndCursor, 60);
         };
 
         // ── 3. GHOST-ACTOR & CHARACTER-BY-CHARACTER AUTO-TYPING ──
@@ -6784,6 +7676,7 @@
         let cinemaBroadcastAudioCtx = null;
         let cinemaBroadcastAudioDest = null;
         let cinemaBroadcastBufferSource = null;
+        let cinemaSpokenClean = '';
         let cinemaStudioCanvasTimer = null;
         let isCinemaVoiceMuted = false;
 
@@ -6801,46 +7694,17 @@
         }
 
         function createBroadcastBaritoneDspChain(ctx) {
-            // 1. Deep Warmth Chest Resonance (Low-Shelf 155Hz +4.2dB)
-            const lowShelf = ctx.createBiquadFilter();
-            lowShelf.type = 'lowshelf';
-            lowShelf.frequency.value = 155;
-            lowShelf.gain.value = 4.2;
-
-            // 2. Anti-Boxiness Cut (Peaking 330Hz -2.5dB)
-            const mudCut = ctx.createBiquadFilter();
-            mudCut.type = 'peaking';
-            mudCut.frequency.value = 330;
-            mudCut.Q.value = 1.25;
-            mudCut.gain.value = -2.5;
-
-            // 3. Crisp Broadcast Articulation Presence (Peaking 3000Hz +3.4dB)
-            const presence = ctx.createBiquadFilter();
-            presence.type = 'peaking';
-            presence.frequency.value = 3000;
-            presence.Q.value = 1.0;
-            presence.gain.value = 3.4;
-
-            // 4. Studio Broadcast Compressor & Calm Master Gain (Zero clipping / zero harshness)
-            const compressor = ctx.createDynamicsCompressor();
-            compressor.threshold.value = -20;
-            compressor.knee.value = 18;
-            compressor.ratio.value = 3.8;
-            compressor.attack.value = 0.004;
-            compressor.release.value = 0.22;
-
-            const masterGain = ctx.createGain();
-            masterGain.gain.value = 0.92;
-
-            lowShelf.connect(mudCut);
-            mudCut.connect(presence);
-            presence.connect(compressor);
-            compressor.connect(masterGain);
-            masterGain.connect(ctx.destination);
+            const chain = buildMaleClarityChain(ctx, 1.35);
+            const masterGain = chain.output;
+            if (isCinemaVoiceMuted) masterGain.gain.value = 0;
+            window.__msgCinemaMasterGainNode = masterGain;
+            const lim = ctx.createDynamicsCompressor();
+            lim.threshold.value = -2.5; lim.knee.value = 0; lim.ratio.value = 20; lim.attack.value = 0.001; lim.release.value = 0.09;
+            masterGain.connect(lim); lim.connect(ctx.destination);
             if (cinemaBroadcastAudioDest) {
-                masterGain.connect(cinemaBroadcastAudioDest);
+                lim.connect(cinemaBroadcastAudioDest);
             }
-            return lowShelf;
+            return chain.input;
         }
 
         let _activeCinemaScenarioState = {
@@ -6877,15 +7741,10 @@
             if ((window.location.search.includes('action=split') || (splitView && splitView.style.display !== 'none')) && window.location.pathname.includes('direct-sales.php')) {
                 return 'sales-split';
             }
-            if (window.location.pathname.includes('direct-sales.php')) {
-                return 'sales-direct';
-            }
-            if (window.location.pathname.includes('purchase-receipt.php')) {
-                return 'purchase-receipt';
-            }
-            if (window.location.pathname.includes('smart-logistics.php')) {
-                return 'smart-logistics';
-            }
+            if (window.location.pathname.includes('direct-sales.php')) return 'sales-direct';
+            if (window.location.pathname.includes('purchase.php') || document.getElementById('purchase-editor-view')) return 'purchase-direct';
+            if (window.location.pathname.includes('purchase-receipt.php')) return 'purchase-receipt';
+            if (window.location.pathname.includes('smart-logistics.php')) return 'smart-logistics';
             const tabMap = [
                 { mode: 'supplier', sel: '#tab-suppliers.active, .md-tab-btn.tab-suppliers.active' },
                 { mode: 'customer', sel: '#tab-customers.active, .md-tab-btn.tab-customers.active' },
@@ -6990,22 +7849,40 @@
                         cctx.fillText(b.lbl, bx + 117, 171);
                     });
 
-                    // Live Form Inputs Summary Row
-                    const nameInp = document.getElementById(`${pfx}-name`) || document.getElementById('cinema-s1-cust-name');
-                    const pinInp = document.getElementById(`${pfx}-statement-pin`);
-                    const waInp = document.getElementById(`${pfx}-whatsapp`) || document.getElementById('cinema-s1-cust-phone');
-                    const opBalInp = document.getElementById(`${pfx}-opening-balance`);
-                    const limInp = document.getElementById(`${pfx}-limit`) || document.getElementById('cinema-s1-cust-limit');
-                    const curInp = document.getElementById(`${pfx}-currency`);
-
-                    const fieldBoxes = [
-                        { title: isSup ? '🏭 اسم المورد *' : '👤 اسم العميل *', val: (nameInp && nameInp.value) || (isSup ? 'شركة النخبة للتوريدات العالمية' : 'شركة البنيان المتطورة'), col: '#38bdf8', active: st.sceneIndex === 4 },
-                        { title: '🔐 الرقم السري (PIN للواتساب)', val: (pinInp && pinInp.value) || '4829', col: '#d8b4fe', active: st.sceneIndex === 4 },
-                        { title: '💬 رقم الواتساب المعتمد', val: (waInp && waInp.value) || '00249912345678', col: '#4ade80', active: st.sceneIndex === 4 },
-                        { title: '💰 الرصيد الافتتاحي (مغذي الحساب)', val: (opBalInp && opBalInp.value) || '15,000', col: '#fbbf24', active: st.sceneIndex === 5 },
-                        { title: '🛑 الحد الائتماني (حماية المال)', val: (limInp && limInp.value) || '50,000', col: '#f43f5e', active: st.sceneIndex === 5 },
-                        { title: '💱 العملة • 🟢 الحالة • 🏷️ التسعير', val: `${(curInp && curInp.value) || 'SDG'} • نشط • جملة`, col: '#34d399', active: st.sceneIndex === 6 }
-                    ];
+                    let fieldBoxes = [];
+                    if (st.mode === 'purchase-direct' || st.mode === 'sales-direct') {
+                        const isPurMode = st.mode === 'purchase-direct';
+                        const partyVal = (document.getElementById('hdr-customer-search')?.value || '').trim() || (isPurMode ? 'مورد معتمد' : 'عميل معتمد');
+                        const whSel = document.getElementById('hdr-warehouse');
+                        const whVal = (whSel && whSel.options && whSel.selectedIndex >= 0) ? whSel.options[whSel.selectedIndex].text : 'المخزن الرئيسي';
+                        const curVal = (document.getElementById('hdr-currency')?.value || 'SDG') + ' • ' + (document.getElementById('hdr-exchange-rate')?.value || '1');
+                        const dateVal = (document.getElementById('inv-number')?.textContent || '#1') + ' • ' + (document.getElementById('hdr-date')?.value || 'اليوم');
+                        const totSdg = (document.getElementById('grand-total-sdg')?.textContent || document.getElementById('lbl-grand-total')?.textContent || '0.00').trim();
+                        const totUsd = (document.getElementById('grand-total-usd')?.textContent || '0.00').trim();
+                        fieldBoxes = [
+                            { title: '📅 رقم وتاريخ الفاتورة', val: dateVal, col: '#38bdf8', active: st.sceneIndex <= 1 },
+                            { title: isPurMode ? '🏭 المورد ودفتر الأستاذ' : '👤 العميل ودفتر الأستاذ', val: partyVal, col: '#d8b4fe', active: st.sceneIndex >= 2 && st.sceneIndex <= 4 },
+                            { title: '💱 العملة وسعر الصرف', val: curVal, col: '#4ade80', active: st.sceneIndex === 5 },
+                            { title: '📦 المخزن المعتمد', val: whVal, col: '#fbbf24', active: st.sceneIndex === 6 },
+                            { title: '📊 صافي الجملة (ج.س / $)', val: `${totSdg} ج.س | ${totUsd} $`, col: '#f43f5e', active: st.sceneIndex >= 9 && st.sceneIndex <= 10 },
+                            { title: '💳 السداد والاعتماد F10', val: 'نقدي • آجل • بنكك • شيك • واتساب', col: '#34d399', active: st.sceneIndex >= 11 }
+                        ];
+                    } else {
+                        const nameInp = document.getElementById(`${pfx}-name`) || document.getElementById('cinema-s1-cust-name');
+                        const pinInp = document.getElementById(`${pfx}-statement-pin`);
+                        const waInp = document.getElementById(`${pfx}-whatsapp`) || document.getElementById('cinema-s1-cust-phone');
+                        const opBalInp = document.getElementById(`${pfx}-opening-balance`);
+                        const limInp = document.getElementById(`${pfx}-limit`) || document.getElementById('cinema-s1-cust-limit');
+                        const curInp = document.getElementById(`${pfx}-currency`);
+                        fieldBoxes = [
+                            { title: isSup ? '🏭 اسم المورد *' : '👤 اسم العميل *', val: (nameInp && nameInp.value) || (isSup ? 'شركة النخبة للتوريدات العالمية' : 'شركة البنيان المتطورة'), col: '#38bdf8', active: st.sceneIndex === 4 },
+                            { title: '🔐 الرقم السري (PIN للواتساب)', val: (pinInp && pinInp.value) || '4829', col: '#d8b4fe', active: st.sceneIndex === 4 },
+                            { title: '💬 رقم الواتساب المعتمد', val: (waInp && waInp.value) || '00249912345678', col: '#4ade80', active: st.sceneIndex === 4 },
+                            { title: '💰 الرصيد الافتتاحي (مغذي الحساب)', val: (opBalInp && opBalInp.value) || '15,000', col: '#fbbf24', active: st.sceneIndex === 5 },
+                            { title: '🛑 الحد الائتماني (حماية المال)', val: (limInp && limInp.value) || '50,000', col: '#f43f5e', active: st.sceneIndex === 5 },
+                            { title: '💱 العملة • 🟢 الحالة • 🏷️ التسعير', val: `${(curInp && curInp.value) || 'SDG'} • نشط • جملة`, col: '#34d399', active: st.sceneIndex === 6 }
+                        ];
+                    }
                     fieldBoxes.forEach((f, idx) => {
                         const colIdx = idx % 3;
                         const rowIdx = Math.floor(idx / 3);
@@ -7075,10 +7952,21 @@
                     cctx.textAlign = 'center';
                     cctx.fillStyle = '#ffffff';
                     cctx.font = '800 22px Cairo, Tajawal, sans-serif';
-                    const spokenLines = wrapCanvasTextLines(cctx, st.spokenText || '', 1720).slice(0, 4);
-                    spokenLines.forEach((ln, lIdx) => {
+                    const allLines = wrapCanvasTextLines(cctx, st.spokenText || '', 1720);
+                    const ae = cinemaBroadcastAudioEl;
+                    const prog = (ae && ae.duration && !ae.paused && !ae.ended) ? spokenCharRatio(cinemaSpokenClean, ae.currentTime, ae.duration) : 0;
+                    const lineEnds = []; let lAcc = 0;
+                    allLines.forEach(l => { lAcc += l.length + 1; lineEnds.push(lAcc); });
+                    let curLine = lineEnds.findIndex(e => e > prog * lAcc);
+                    if (curLine < 0) curLine = allLines.length - 1;
+                    const startLine = Math.max(0, Math.min(Math.max(0, allLines.length - 4), curLine - 1));
+                    allLines.slice(startLine, startLine + 4).forEach((ln, lIdx) => {
+                        const isCur = prog > 0 && (startLine + lIdx) === curLine;
+                        cctx.fillStyle = isCur ? '#fde047' : '#ffffff';
+                        cctx.font = isCur ? '900 24px Cairo, Tajawal, sans-serif' : '800 22px Cairo, Tajawal, sans-serif';
                         cctx.fillText(ln, 960, 835 + lIdx * 34);
                     });
+                    if (prog > 0) { cctx.fillStyle = '#38bdf8'; cctx.fillRect(50 + 1820 * (1 - prog), 1046, 1820 * prog, 5); }
 
                     // Golden Rule Highlight Bar
                     cctx.fillStyle = 'rgba(245,158,11,0.18)';
@@ -7093,9 +7981,9 @@
                 };
 
                 renderStudioFrame();
-                cinemaStudioCanvasTimer = setInterval(renderStudioFrame, 33);
+                cinemaStudioCanvasTimer = setInterval(renderStudioFrame, 42);
 
-                const canvasStream = canvas.captureStream(30);
+                const canvasStream = canvas.captureStream(24);
                 const combinedTracks = [...canvasStream.getVideoTracks()];
                 if (cinemaBroadcastAudioDest && cinemaBroadcastAudioDest.stream) {
                     combinedTracks.push(...cinemaBroadcastAudioDest.stream.getAudioTracks());
@@ -7103,6 +7991,7 @@
                 const combinedStream = new MediaStream(combinedTracks);
 
                 const mimeCandidates = [
+                    'video/mp4;codecs=avc1,mp4a.40.2',
                     'video/webm;codecs=vp9,opus',
                     'video/webm;codecs=vp8,opus',
                     'video/webm',
@@ -7111,7 +8000,7 @@
                 const chosenMime = mimeCandidates.find(m => typeof MediaRecorder !== 'undefined' && MediaRecorder.isTypeSupported && MediaRecorder.isTypeSupported(m)) || '';
                 cinemaRecordedChunks = [];
                 cinemaMediaRecorder = chosenMime
-                    ? new MediaRecorder(combinedStream, { mimeType: chosenMime, videoBitsPerSecond: 12000000 })
+                    ? new MediaRecorder(combinedStream, { mimeType: chosenMime, videoBitsPerSecond: 8000000, audioBitsPerSecond: 192000 })
                     : new MediaRecorder(combinedStream);
 
                 cinemaMediaRecorder.ondataavailable = (ev) => {
@@ -7210,95 +8099,85 @@
         };
 
         // Exclusive Broadcast-Grade Male News-Anchor Voice Engine (Dynamic Per-Scene Neural Male TTS Streaming)
+        let _cinemaPitchAudioGraphBound = false;
         window.speakCinema4KExclusiveVoice = function (text, onEndCallback) {
             stopCurrentSpeech();
             if ('speechSynthesis' in window) {
                 try { window.speechSynthesis.cancel(); } catch (_) {}
             }
             if (cinemaBroadcastBufferSource) {
-                try { cinemaBroadcastBufferSource.stop(); } catch (_) {}
+                try { cinemaBroadcastBufferSource.onended = null; cinemaBroadcastBufferSource.stop(); } catch (_) {}
                 cinemaBroadcastBufferSource = null;
             }
             if (cinemaBroadcastAudioEl) {
-                try {
-                    cinemaBroadcastAudioEl.onended = null;
-                    cinemaBroadcastAudioEl.pause();
-                    cinemaBroadcastAudioEl.currentTime = 0;
-                } catch (_) {}
-                cinemaBroadcastAudioEl = null;
-            }
-            if (cinemaExternalAudio) {
-                try {
-                    cinemaExternalAudio.currentTime = 0;
-                    cinemaExternalAudio.onended = () => {
-                        if (typeof onEndCallback === 'function') onEndCallback();
-                    };
-                    cinemaExternalAudio.play().catch(() => {});
-                } catch (_) {}
-                return;
+                try { cinemaBroadcastAudioEl.onended = null; cinemaBroadcastAudioEl.pause(); } catch (_) {}
             }
             const cleanText = String(text || '').trim();
-            const estDurationMs = Math.max(8000, Math.min(45000, cleanText.length * 78));
+            _cinemaPlaybackRate = Math.max(0.50, Math.min(4.00, selectedSpeechRate || _cinemaPlaybackRate || 1.0));
+            const estDurationMs = Math.max(2500, Math.min(28000, Math.round((cleanText.length * 68) / _cinemaPlaybackRate)));
             if (isCinemaVoiceMuted || !cleanText) {
                 if (typeof onEndCallback === 'function') setTimeout(onEndCallback, estDurationMs);
                 return;
             }
 
             const ctx = ensureCinemaBroadcastAudioGraph();
-            const primaryApiUrl = 'api/tts_male.php?dialect=sudanese&text=' + encodeURIComponent(cleanText);
-            const fallbackApiUrl = 'api/tts_male.php?dialect=egyptian&text=' + encodeURIComponent(cleanText);
-
-            const playContinuousBroadcastAudioUrl = (audioUrl, isFallback = false) => {
+            (async () => {
                 try {
-                    const audio = new Audio();
-                    audio.preload = 'auto';
-                    audio.crossOrigin = 'anonymous';
-                    audio.src = audioUrl;
-                    audio.playbackRate = 1.0;
-                    cinemaBroadcastAudioEl = audio;
+                    if (!ctx) throw new Error('No ctx');
+                    if (ctx.state === 'suspended') await ctx.resume();
+                    const resObj = await fetchAndDecodeMaleBuffer(cleanText, selectedMaleProfile || 'fusha');
+                    const audioBuffer = resObj && (resObj.buffer || resObj);
+                    const blobUrl = resObj && resObj.blobUrl;
+                    if (!audioBuffer) throw new Error('Fast fallback');
+                    cinemaSpokenClean = cleanTextForMaleTts(cleanText); loadWordMarks(cinemaSpokenClean);
 
-                    if (ctx) {
-                        try {
-                            if (ctx.state === 'suspended') ctx.resume();
-                            const mediaNode = ctx.createMediaElementSource(audio);
-                            const dspInput = createBroadcastBaritoneDspChain(ctx);
-                            mediaNode.connect(dspInput);
-                        } catch (_) {}
+                    if (blobUrl) {
+                        if (!cinemaBroadcastAudioEl) {
+                            cinemaBroadcastAudioEl = new Audio();
+                            cinemaBroadcastAudioEl.preload = 'auto';
+                        }
+                        if (!_cinemaPitchAudioGraphBound) {
+                            try {
+                                const mSrc = ctx.createMediaElementSource(cinemaBroadcastAudioEl);
+                                const dspIn = createBroadcastBaritoneDspChain(ctx);
+                                mSrc.connect(dspIn);
+                                _cinemaPitchAudioGraphBound = true;
+                            } catch (_) {}
+                        }
+                        if (window.__msgCinemaMasterGainNode && window.__msgCinemaMasterGainNode.gain) {
+                            window.__msgUserVoiceVolume = parseFloat(localStorage.getItem('msg_voice_vol_v1') || '1.65') || 1.65;
+                            window.__msgCinemaMasterGainNode.gain.value = isCinemaVoiceMuted ? 0 : (1.35 * window.__msgUserVoiceVolume);
+                        }
+                        cinemaBroadcastAudioEl.preservesPitch = true;
+                        cinemaBroadcastAudioEl.mozPreservesPitch = true;
+                        cinemaBroadcastAudioEl.webkitPreservesPitch = true;
+                        cinemaBroadcastAudioEl.src = blobUrl;
+                        cinemaBroadcastAudioEl.currentTime = 0;
+                        cinemaBroadcastAudioEl.playbackRate = _cinemaPlaybackRate;
+                        cinemaBroadcastAudioEl.onended = () => {
+                            if (typeof onEndCallback === 'function') onEndCallback();
+                        };
+                        await cinemaBroadcastAudioEl.play();
+                        return;
                     }
 
-                    let finished = false;
-                    const finishOnce = () => {
-                        if (finished) return;
-                        finished = true;
-                        if (cinemaBroadcastAudioEl === audio) cinemaBroadcastAudioEl = null;
-                        if (typeof onEndCallback === 'function') onEndCallback();
-                    };
-
-                    audio.onended = finishOnce;
-                    audio.onerror = () => {
-                        if (!isFallback) {
-                            playContinuousBroadcastAudioUrl(fallbackApiUrl, true);
-                        } else {
-                            setTimeout(finishOnce, estDurationMs);
+                    const src = ctx.createBufferSource();
+                    src.buffer = audioBuffer;
+                    src.playbackRate.value = _cinemaPlaybackRate;
+                    const dspInput = createBroadcastBaritoneDspChain(ctx);
+                    src.connect(dspInput);
+                    cinemaBroadcastBufferSource = src;
+                    src.onended = () => {
+                        if (cinemaBroadcastBufferSource === src) {
+                            cinemaBroadcastBufferSource = null;
+                            if (typeof onEndCallback === 'function') onEndCallback();
                         }
                     };
-
-                    const playPromise = audio.play();
-                    if (playPromise && typeof playPromise.catch === 'function') {
-                        playPromise.catch(() => {
-                            if (!isFallback) {
-                                playContinuousBroadcastAudioUrl(fallbackApiUrl, true);
-                            } else {
-                                setTimeout(finishOnce, estDurationMs);
-                            }
-                        });
-                    }
+                    src.start(0);
                 } catch (_) {
-                    if (typeof onEndCallback === 'function') setTimeout(onEndCallback, estDurationMs);
+                    speakWithBrowserMaleFallback(cleanText, onEndCallback, selectedMaleProfile || 'fusha', false, true);
                 }
-            };
-
-            playContinuousBroadcastAudioUrl(primaryApiUrl, false);
+            })();
         };
 
         // ── 7. START / STOP / TOGGLE INDEPENDENT 4K CINEMA MODE (16:9 YouTube vs 9:16 Reels) ──
@@ -7342,15 +8221,98 @@
 
         // Independent 4K Cinema + Real Video Recorder Launcher bound directly to the "تسجيل" button under "المرشد"
         // Automatically detects the active tab (Customers vs Suppliers vs other Master Data tabs)
-        window.launchIndependent4KCinemaNow = function (ratio = '16:9', forcedEntityMode = null) {
+        window.startCinema4KWithChoice = function (recordVideo = false, ratio = '16:9', forcedEntityMode = null) {
+            const chModal = document.getElementById('msg-cinema-mode-choice-modal');
+            if (chModal) chModal.style.display = 'none';
+            const isMasterScreen = window.location.pathname.includes('master-data') || !!document.querySelector('.md-tabs-sidebar');
+            const detectedMode = forcedEntityMode || (isMasterScreen ? (window.detectActiveMasterDataTabMode() || 'customer') : 'dynamic-screen');
+            window.silenceAllLegacyGuideAudioAndUI(true);
+            const badge = document.getElementById('msg-cinema-aspect-badge');
+            if (recordVideo) {
+                if (badge) badge.textContent = '🔴 جاري التسجيل السينمائي 4K وحفظ الفيديو';
+                window.startAutomaticCinema4KMediaRecorder(detectedMode);
+            } else {
+                if (badge) badge.textContent = '👁️🎬 عرض سينمائي لحظي للدراسة فقط (بدون حفظ)';
+                const fixedLbl = document.getElementById('msg-fixed-cinema-4k-label');
+                if (fixedLbl) fixedLbl.textContent = '🎬 عرض حي';
+            }
+            window.playCinemaMasterDataEntityFullScenario(detectedMode, ratio || cinemaAspectRatio || '16:9');
+        };
+
+        let _cinemaPlaybackRate = selectedSpeechRate || 1.0;
+        let _cinemaPaused = false;
+        let _cinemaHoldScene = false;
+        window.__applyCinemaLivePlaybackRate = function (rate) {
+            _cinemaPlaybackRate = Math.max(0.50, Math.min(4.00, rate || 1.0));
+            if (cinemaBroadcastAudioEl) {
+                try {
+                    cinemaBroadcastAudioEl.preservesPitch = true;
+                    cinemaBroadcastAudioEl.playbackRate = _cinemaPlaybackRate;
+                } catch (_) {}
+            }
+            if (cinemaBroadcastBufferSource && cinemaBroadcastBufferSource.playbackRate) {
+                try { cinemaBroadcastBufferSource.playbackRate.value = _cinemaPlaybackRate; } catch (_) {}
+            }
+        };
+        window.toggleCinemaSceneHold = function () {
+            _cinemaHoldScene = !_cinemaHoldScene;
+            const btn = document.getElementById('msg-cinema-hold-btn');
+            if (btn) {
+                btn.textContent = _cinemaHoldScene ? '📌 مثبت' : '📌 تثبيت';
+                btn.style.background = _cinemaHoldScene ? 'rgba(245,158,11,0.35)' : '';
+                btn.style.borderColor = _cinemaHoldScene ? '#fbbf24' : '';
+            }
+        };
+        window.toggleCinemaPauseResume = function () {
+            const btn = document.getElementById('msg-cinema-pause-btn');
+            if (cinemaBroadcastAudioEl && cinemaBroadcastAudioEl.src) {
+                if (cinemaBroadcastAudioEl.paused) {
+                    _cinemaPaused = false;
+                    cinemaBroadcastAudioEl.play().catch(() => {});
+                    if (btn) btn.textContent = '⏸️';
+                } else {
+                    _cinemaPaused = true;
+                    cinemaBroadcastAudioEl.pause();
+                    if (btn) btn.textContent = '▶️';
+                }
+                return;
+            }
+            if (cinemaBroadcastAudioCtx) {
+                if (_cinemaPaused) {
+                    _cinemaPaused = false;
+                    cinemaBroadcastAudioCtx.resume().catch(() => {});
+                    if (btn) btn.textContent = '⏸️';
+                } else {
+                    _cinemaPaused = true;
+                    cinemaBroadcastAudioCtx.suspend().catch(() => {});
+                    if (btn) btn.textContent = '▶️';
+                }
+            }
+        };
+        window.adjustCinemaSpeedBy = function (delta) {
+            const d = parseFloat(delta) || 0;
+            const deltaPct = Math.abs(d) <= 1.5 ? Math.round(d * 100) : Math.round(d);
+            window.adjustSpeechSpeedPctBy(deltaPct, false);
+        };
+        window.setGuideVoiceVolumePercent = function (pctVal) {
+            if (window.adjustMsgVoiceVolume) window.adjustMsgVoiceVolume(0, (parseFloat(pctVal) || 100) / 100);
+        };
+        window.toggleCinemaVoiceMute = function () {
+            isCinemaVoiceMuted = !isCinemaVoiceMuted;
+            if (cinemaBroadcastAudioEl) cinemaBroadcastAudioEl.muted = isCinemaVoiceMuted;
+            if (window.__msgCinemaMasterGainNode && window.__msgCinemaMasterGainNode.gain) {
+                window.__msgCinemaMasterGainNode.gain.value = isCinemaVoiceMuted ? 0 : (1.35 * (window.__msgUserVoiceVolume || 1.65));
+            }
+            const btn = document.getElementById('msg-cinema-mute-btn');
+            if (btn) btn.textContent = isCinemaVoiceMuted ? '🔇' : '🔊';
+        };
+        window.launchIndependent4KCinemaNow = function (ratio = '16:9', forcedEntityMode = null, explicitRecordChoice = null) {
             if (isCinemaModeActive || isCinemaRecording) {
                 window.stopMagaies4KCinemaMode();
                 return;
             }
-            const detectedMode = forcedEntityMode || window.detectActiveMasterDataTabMode() || 'customer';
-            window.silenceAllLegacyGuideAudioAndUI(true);
-            window.startAutomaticCinema4KMediaRecorder(detectedMode);
-            window.playCinemaMasterDataEntityFullScenario(detectedMode, ratio || cinemaAspectRatio || '16:9');
+            unlockBrowserAudioEnginesSync();
+            window.startCinema4KWithChoice(explicitRecordChoice !== false, ratio, forcedEntityMode);
         };
 
         window.startMagaies4KCinemaMode = function (ratio = '16:9', tourMode = 'all') {
@@ -7478,11 +8440,80 @@
                 try {
                     inputEl.dispatchEvent(new Event('input', { bubbles: true }));
                 } catch (_) {}
-            }, charDelayMs || 65);
+            }, Math.max(15, Math.round((charDelayMs || 42) / Math.max(0.5, _cinemaPlaybackRate || 1.0))));
         }
 
-        // ── 7C. PROFESSOR-LEVEL A-TO-Z SCENARIO BUILDER FOR CUSTOMERS, SUPPLIERS & MASTER DATA TABS ──
+        window.launchSingleElementMicroCinema = function (el) {
+            if (!el) return;
+            if (!el.id) el.id = 'msg-micro-cinema-target-' + Date.now();
+            window.__microCinemaTargetEl = el;
+            window.startCinema4KWithChoice(false, '16:9', 'single-element');
+        };
+
+        // ── 7C. PROFESSOR-LEVEL A-TO-Z SCENARIO BUILDER FOR ALL 121 ERP SCREENS ──
         function buildProfessorialMasterDataScenes(mode) {
+            if (mode === 'single-element' && window.__microCinemaTargetEl) {
+                const el = window.__microCinemaTargetEl;
+                const rawInfo = (window.explainUnifiedDashboardDomElement && window.explainUnifiedDashboardDomElement(el))
+                    || (window.autoSynthesizeElementExplanation && window.autoSynthesizeElementExplanation(el))
+                    || { title: 'عنصر تشغيلي', desc: 'ينفذ الوظيفة المخصصة له في الشاشة فوراً.' };
+                const enriched = window.enrichProfessor6Pillars ? window.enrichProfessor6Pillars(rawInfo, el) : rawInfo;
+                const cleanSpeech = stripAllSalawatPrefixes(`${enriched.title}. ${enriched.desc}`);
+                return [{
+                    badge: `🎬 تصوير بؤري خاص — ${enriched.title}`,
+                    targetSelector: `#${el.id}`,
+                    goldenRule: (enriched.rawPillars && enriched.rawPillars.ruleTxt) || 'تأكد من مراجعة البيانات قبل الاعتماد.',
+                    cards: String(enriched.desc || '').split(' • ').slice(0, 4),
+                    onEnter: () => { if (typeof window.runCinema4KGhostActorAutoType === 'function') window.runCinema4KGhostActorAutoType(el); },
+                    speech: cleanSpeech
+                }];
+            }
+            if (mode === 'dynamic-screen' || ['sales-direct', 'purchase-direct', 'purchase-receipt', 'smart-logistics'].includes(mode)) {
+                const pageTitle = (document.title || 'الشاشة الحالية').split('|')[0].trim();
+                const gKey = typeof buildUniversalScreenGuideIfNeeded === 'function' ? buildUniversalScreenGuideIfNeeded() : (typeof resolveActiveGuideKeyFast === 'function' ? resolveActiveGuideKeyFast() : null);
+                const curatedGuide = gKey && window.MagaiesSmartGuides && window.MagaiesSmartGuides[gKey];
+                const validSteps = (curatedGuide && Array.isArray(curatedGuide.autopilotSteps)) ? curatedGuide.autopilotSteps.filter(st => st.targetSelector && st.targetSelector !== 'body' && document.querySelector(st.targetSelector)?.offsetParent !== null) : [];
+                if (validSteps.length > 1 && gKey !== 'master-data') {
+                    return validSteps.slice(0, 14).map((st, idx, arr) => {
+                        const rawSp = typeof st.speech === 'function' ? st.speech() : (st.speech || st.desc || '');
+                        const cleanSp = stripAllSalawatPrefixes(String(rawSp));
+                        return {
+                            badge: `المشهد ${idx + 1} / ${arr.length} — ${st.badge || st.cursorLabel || 'خطوة تشغيلية'}`,
+                            targetSelector: st.targetSelector || 'body',
+                            goldenRule: (st.c5ImpactMeta && st.c5ImpactMeta.goldenRule) || 'راجع البيانات والكميات والأرصدة بدقة قبل الحفظ بـ F10.',
+                            cards: (st.diagramMeta && st.diagramMeta.childItems) || [st.badge || 'شرح تطبيقي حي'],
+                            onEnter: () => {
+                                if (typeof st.action === 'function') { try { st.action(); } catch (_) {} }
+                                const tEl = st.targetSelector ? document.querySelector(st.targetSelector) : null;
+                                if (tEl && typeof window.runCinema4KGhostActorAutoType === 'function') window.runCinema4KGhostActorAutoType(tEl);
+                            },
+                            speech: idx === 0 ? `اللهم صل وسلم على نبينا محمد، الآن أشرح ${pageTitle}. ${cleanSp}` : cleanSp
+                        };
+                    });
+                }
+                const activeViewScope = [document.getElementById('invoice-editor-view'), document.getElementById('split-invoice-view'), document.getElementById('sales-hub-view'), document.getElementById('purchase-editor-view'), document.getElementById('purchase-hub-view')].find(v => v && v.offsetParent !== null && v.style.display !== 'none') || document.querySelector('main, .dash-main, .pos-wrapper, .main-content') || document.body;
+                const candidates = Array.from(activeViewScope.querySelectorAll('#qa-single-row-grid .qa-master-btn, #category-hubs-grid .cat-hub-btn, #dashboard-scope-btns button, .dash-fx-strip-2027 button, .kpi-cards .spotlight-card, .kpi-card, .stat-card, .hub-action-card, .charts-grid .glass-panel, .panel-header-row button, .items-toolbar button, .h-form-group, .pro-field-card, input:not([type="hidden"]), select, button, .sl-btn')).filter(el => {
+                    if (el.closest('.global-sidebar, .sidebar, aside, #sidebar, .sidebar-nav, .sidebar-item, .nav-sidebar, .nav-links, #panoramic-flyout-panel, #sidebar-panoramic-flyout, .sp-flyout-panel, nav, header.premium-header, .msg-twin-quartets-wrapper, #sales-fc1-smart-ai-command-bar, #purchase-fc1-smart-ai-command-bar, #msg-universal-fixed-launcher, #msg-live-coach-bar, #msg-cinema-lower-thirds, #msg-cinema-mode-choice-modal')) return false;
+                    const r = el.getBoundingClientRect();
+                    return r.width > 36 && r.height > 20;
+                }).slice(0, 12);
+                return candidates.map((el, idx) => {
+                    if (!el.id) el.id = `msg-cinema-dyn-el-${idx}`;
+                    const rawInfo = (window.explainUnifiedDashboardDomElement && window.explainUnifiedDashboardDomElement(el))
+                        || (window.autoSynthesizeElementExplanation && window.autoSynthesizeElementExplanation(el))
+                        || { title: (el.innerText || 'عنصر تشغيلي').replace(/\s+/g, ' ').trim().slice(0, 45), desc: 'ينفذ الوظيفة المخصصة له في الشاشة فوراً.' };
+                    const enriched = window.enrichProfessor6Pillars ? window.enrichProfessor6Pillars(rawInfo, el) : rawInfo;
+                    const cleanSpeech = stripAllSalawatPrefixes(`${enriched.title}. ${enriched.desc}`);
+                    return {
+                        badge: `المشهد ${idx + 1} / ${candidates.length} — ${enriched.title}`,
+                        targetSelector: `#${el.id}`,
+                        goldenRule: (enriched.rawPillars && enriched.rawPillars.ruleTxt) || 'تأكد من مراجعة المؤشرات والبيانات قبل اعتماد العملية.',
+                        cards: String(enriched.desc || '').split(' • ').slice(0, 4),
+                        onEnter: () => { if (typeof window.runCinema4KGhostActorAutoType === 'function') window.runCinema4KGhostActorAutoType(el); },
+                        speech: idx === 0 ? `اللهم صل وسلم على نبينا محمد، الآن أشرح ${pageTitle}. ${cleanSpeech}` : cleanSpeech
+                    };
+                });
+            }
             const isSup = mode === 'supplier';
             const pfx = isSup ? 'sup' : 'cust';
             const entitySingular = isSup ? 'المورد' : 'العميل';
@@ -7503,7 +8534,7 @@
                         targetSelector: '#split-invoice-view, #split-invoice-select',
                         goldenRule: '«قسّم تسليم الفاتورة بدقة بالوحدتين الكبرى والصغرى؛ فكل دفعة تسليم موثقة تحمي مخزونك وحقوق عميلك.»',
                         cards: ['✂️🚚 شاشة موحدة للتقسيم والتسليم الفعلي', '📊 متابعة فورية للمسلم والمتبقي', '🏭 صرف متعدد المخازن في نفس الدفعة', '🎫 إصدار إذن صرف وتصريح بوابة QR'],
-                        speech: 'اللهم صل وسلم على نبينا محمد.. أهلاً بحضرتك في الاستوديو السينمائي لشاشة فاتورة تقسيم وتسليم المبيعات؛ البوابة الهندسية الموحدة التي تتيح لك تقسيم أي فاتورة مبيعات على دفعات متعددة وتسليمها فعلياً للعميل مع الرقابة المخزنية الكاملة.'
+                        speech: 'اللهم صل وسلم على نبينا محمد، الآن أشرح فاتورة تقسيم وتسليم المبيعات؛ والتي تتيح لك تقسيم أي فاتورة مبيعات على دفعات متعددة وتسليمها فعلياً للعميل مع الرقابة المخزنية الكاملة.'
                     },
                     {
                         badge: 'المشهد 2 / 10 — البحث الذكي بالباركود أو رقم الفاتورة أو العميل 🔍',
@@ -7742,7 +8773,25 @@
                 ];
             }
 
-            // Fallback multi-scene scenario for other Master Data tabs (Warehouses, Banks, Safes, Items, Employees, Cost Centers)
+            if (window.MagaiesSmartGuides && window.MagaiesSmartGuides[mode] && Array.isArray(window.MagaiesSmartGuides[mode].autopilotSteps) && window.MagaiesSmartGuides[mode].autopilotSteps.length > 1) {
+                return window.MagaiesSmartGuides[mode].autopilotSteps.map((st, sIdx) => {
+                    const spTxt = typeof st.speech === 'function' ? st.speech() : String(st.speech || '');
+                    return {
+                        badge: st.badge || `المشهد ${sIdx + 1}`,
+                        targetSelector: st.targetSelector || 'body',
+                        goldenRule: st.goldenRule || `«راجع ${st.cursorLabel || st.badge} بدقة لضمان سلامة الترحيل المحاسبي والمخزني الفوري.»`,
+                        cards: [
+                            `🎯 العنصر الحالي: ${st.badge}`,
+                            `🎙️ الشرح التفصيلي: ${spTxt.slice(0, 110)}`,
+                            `⚡ التزامن الذري: ارتباط مباشر مع المخزن ودفتر اليومية وكشف الحساب`,
+                            `💡 نصيحة: اضغط دبل كليك أو كليك يمين على أي خانة لشرحها منفردة في أي وقت`
+                        ],
+                        onEnter: st.action,
+                        speech: spTxt
+                    };
+                });
+            }
+
             const tabTitles = {
                 warehouse: { title: '🏭 شاشة المخازن والمستودعات من الألف إلى الياء', sel: '.md-tab-btn.tab-warehouses', inp: '#warehouse-name' },
                 bank: { title: '🏦 شاشة البنوك والتطبيقات البنكية من الألف إلى الياء', sel: '.md-tab-btn.tab-banks', inp: '#bank-name' },
@@ -7809,6 +8858,10 @@
                 lt.style.display = 'flex';
                 lt.style.zIndex = '2147483635';
             }
+            const sceneSel = document.getElementById('msg-cinema-scene-select');
+            if (sceneSel && scenes.length) {
+                sceneSel.innerHTML = scenes.map((s, i) => `<option value="${i}">🎬 ${i + 1}/${scenes.length}: ${String(s.badge || '').replace(/^المشهد\s*\d+\s*\/\s*\d+\s*—?\s*/, '').slice(0, 28)}</option>`).join('');
+            }
 
             const runSceneAtIndex = (idx) => {
                 if (!isCinemaModeActive) return;
@@ -7816,7 +8869,7 @@
                     window.resetCinema4KCameraAndSpotlight();
                     window._cinemaScene1Timers.push(setTimeout(() => {
                         window.stopMagaies4KCinemaMode();
-                    }, 1200));
+                    }, 800));
                     return;
                 }
 
@@ -7826,12 +8879,21 @@
                 _activeCinemaScenarioState.spokenText = sc.speech;
                 _activeCinemaScenarioState.goldenRule = sc.goldenRule;
                 _activeCinemaScenarioState.cards = sc.cards || [];
+                const sSel = document.getElementById('msg-cinema-scene-select');
+                if (sSel) sSel.value = String(idx);
+
+                for (let lookahead = 1; lookahead <= 3; lookahead++) {
+                    const nxtSc = scenes[idx + lookahead];
+                    if (nxtSc && nxtSc.speech) {
+                        fetchAndDecodeMaleBuffer(String(nxtSc.speech).trim(), selectedMaleProfile || 'fusha').catch(() => {});
+                    }
+                }
 
                 if (typeof sc.onEnter === 'function') {
                     try { sc.onEnter(); } catch (_) {}
                 }
 
-                const targetEl = document.querySelector(sc.targetSelector) || document.body;
+                const targetEl = resolveBestVisibleTargetElement(sc.targetSelector) || document.body;
                 updateCinema4KLowerThirds(
                     {
                         badge: sc.badge,
@@ -7854,14 +8916,30 @@
                     window.resetCinema4KCameraAndSpotlight();
                 }
 
+                if (typeof window.__startLiveWordKaraokeAndSubTargetSync === 'function') {
+                    window.__startLiveWordKaraokeAndSubTargetSync(document.getElementById('msg-cinema-subtitle-text'), sc.speech, sc);
+                }
+
                 window.speakCinema4KExclusiveVoice(sc.speech, () => {
-                    if (!isCinemaModeActive) return;
+                    if (!isCinemaModeActive || _cinemaPaused || _cinemaHoldScene) return;
+                    const stepGapMs = Math.max(80, Math.round(220 / Math.max(0.5, _cinemaPlaybackRate || 1.0)));
                     window._cinemaScene1Timers.push(setTimeout(() => {
-                        runSceneAtIndex(idx + 1);
-                    }, 450));
+                        if (!_cinemaPaused && !_cinemaHoldScene) runSceneAtIndex(idx + 1);
+                    }, stepGapMs));
                 });
             };
-
+            window.jumpToCinemaSceneIndex = function (targetIdx) {
+                if (!isCinemaModeActive) return;
+                clearCinemaIndependentTourTimers();
+                const clampedIdx = Math.max(0, Math.min(scenes.length - 1, parseInt(targetIdx, 10) || 0));
+                runSceneAtIndex(clampedIdx);
+            };
+            window.stepCinemaSceneBy = function (delta) {
+                if (!isCinemaModeActive) return;
+                clearCinemaIndependentTourTimers();
+                const nextIdx = Math.max(0, Math.min(scenes.length - 1, (_activeCinemaScenarioState.sceneIndex || 0) + delta));
+                runSceneAtIndex(nextIdx);
+            };
             runSceneAtIndex(0);
         };
 
@@ -7943,18 +9021,13 @@
                         </div>
                     </div>
 
-                    <!-- Audio Sync & External ElevenLabs MP3 Upload -->
+                    <!-- Studio AI Voice Selection (Fusha / Egyptian / Sudanese) — Zero External Audio -->
                     <div style="background:rgba(2,6,23,0.75);border:2px solid rgba(56,189,248,0.4);border-radius:14px;padding:12px;margin-bottom:14px;">
-                        <div style="font-weight:900;color:#fde047;margin-bottom:6px;font-size:0.86rem;">🎙️ هندسة ومزامنة الصوت الإذاعي الفخيم (المدمج أو ملف خارجي MP3 من ElevenLabs):</div>
-                        <div id="msg-cinema-mp3-status-lbl" style="font-size:0.8rem;color:#e2e8f0;margin-bottom:8px;">${mp3Lbl}</div>
+                        <div style="font-weight:900;color:#fde047;margin-bottom:8px;font-size:0.86rem;">🎙️ اختيار الصوت الإذاعي الفخيم بالذكاء الاصطناعي (العربية الفصحى • المصري • السوداني):</div>
                         <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
-                            <input type="file" id="msg-cinema-mp3-input" accept="audio/mp3,audio/mpeg,audio/wav,audio/*" style="display:none;" onchange="window.handleCinema4KExternalMp3Upload(event)">
-                            <button type="button" onclick="document.getElementById('msg-cinema-mp3-input').click()" style="background:linear-gradient(135deg,#0284c7,#2563eb);border:1.8px solid #7dd3fc;color:#ffffff;border-radius:10px;padding:7px 14px;font-size:0.8rem;font-weight:900;cursor:pointer;">
-                                🎵 رفع ملف صوتي خارجي (MP3 من ElevenLabs)
-                            </button>
-                            <button type="button" onclick="window.clearCinema4KExternalMp3()" style="background:rgba(148,163,184,0.16);border:1.5px solid #94a3b8;color:#e2e8f0;border-radius:10px;padding:7px 12px;font-size:0.78rem;font-weight:900;cursor:pointer;">
-                                ↺ استخدام الصوت الإذاعي البروفيسوري المدمج
-                            </button>
+                            <button type="button" onclick="window.onMsgVoiceChange('fusha')" style="background:linear-gradient(135deg,#0284c7,#1d4ed8);border:1.8px solid #7dd3fc;color:#ffffff;border-radius:10px;padding:7px 14px;font-size:0.8rem;font-weight:900;cursor:pointer;">📖 العربية الفصحى</button>
+                            <button type="button" onclick="window.onMsgVoiceChange('egyptian')" style="background:linear-gradient(135deg,#059669,#047857);border:1.8px solid #6ee7b7;color:#ffffff;border-radius:10px;padding:7px 14px;font-size:0.8rem;font-weight:900;cursor:pointer;">🇪🇬 الصوت المصري</button>
+                            <button type="button" onclick="window.onMsgVoiceChange('sudanese')" style="background:linear-gradient(135deg,#d97706,#b45309);border:1.8px solid #fcd34d;color:#ffffff;border-radius:10px;padding:7px 14px;font-size:0.8rem;font-weight:900;cursor:pointer;">🇸🇩 الصوت السوداني</button>
                         </div>
                     </div>
 
