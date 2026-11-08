@@ -118,7 +118,7 @@ bool hasStore(HasStoreRef ref) {
 String currentUserName(CurrentUserNameRef ref) {
   final user = ref.watch(authNotifierProvider).valueOrNull;
   if (user == null) return '';
-  final isArabic = ref.watch(isArabicProvider);
+  final isArabic = ref.watch(localeNotifierProvider).languageCode == 'ar';
   if (isArabic && user.nameAr != null && user.nameAr!.trim().isNotEmpty) {
     return user.nameAr!;
   }
