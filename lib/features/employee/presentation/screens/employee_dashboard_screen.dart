@@ -1,74 +1,162 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart' hide TextDirection;
 import 'package:magaiees_marketplace/features/employee/application/employee_orders_provider.dart';
 
 class EmployeeDashboardScreen extends ConsumerWidget {
   const EmployeeDashboardScreen({super.key});
 
+  Widget _dialogInfoRow(IconData icon, String label, String value, Color valueColor) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, size: 16, color: Colors.blueAccent),
+          const SizedBox(width: 8),
+          Text(
+            label,
+            style: const TextStyle(color: Colors.white60, fontSize: 13, fontWeight: FontWeight.w500),
+          ),
+          const SizedBox(width: 6),
+          Expanded(
+            child: Text(
+              value,
+              textAlign: TextAlign.start,
+              style: TextStyle(color: valueColor, fontSize: 13.5, fontWeight: FontWeight.bold),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   void _showNewOrderDialog(BuildContext context, WidgetRef ref, OrderModel order) {
+    ref.read(employeeOrdersProvider.notifier).playOrderNotificationSound();
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (ctx) => AlertDialog(
-        backgroundColor: const Color(0xFF1E293B),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-        title: const Column(
-          children: [
-            Icon(Icons.directions_car, size: 64, color: Colors.blueAccent),
-            SizedBox(height: 16),
-            Text('طلب جديد متاح!', 
-              style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold),
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text('قيمة الطلب: ${order.totalSdg} ج.س', style: const TextStyle(color: Colors.amber, fontSize: 20, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 12),
-            Text('العنوان: ${order.address}', style: const TextStyle(color: Colors.white70, fontSize: 16), textAlign: TextAlign.center),
-            const SizedBox(height: 24),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                FilledButton.tonal(
-                  style: FilledButton.styleFrom(
-                    backgroundColor: Colors.red.withValues(alpha: 0.2),
-                    foregroundColor: Colors.redAccent,
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                  ),
-                  onPressed: () {
-                    ref.read(employeeOrdersProvider.notifier).rejectOrder(order.id);
-                    Navigator.of(ctx, rootNavigator: true).pop();
-                  },
-                  child: const Text('رفض', style: TextStyle(fontSize: 18)),
+      builder: (ctx) => Directionality(
+        textDirection: TextDirection.rtl,
+        child: AlertDialog(
+          backgroundColor: const Color(0xFF1E293B),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+          title: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(Icons.radar_rounded, size: 48, color: Colors.blueAccent),
+              const SizedBox(height: 12),
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                child: const Text(
+                  'طلب جديد على رادار المقاييس',
+                  style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+                  maxLines: 1,
                 ),
-                FilledButton(
-                  style: FilledButton.styleFrom(
-                    backgroundColor: Colors.blueAccent,
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                  ),
-                  onPressed: () async {
-                    Navigator.of(ctx, rootNavigator: true).pop(); // Close dialog first
-                    final success = await ref.read(employeeOrdersProvider.notifier).acceptOrder(order.id);
-                    if (!context.mounted) return;
-                    
-                    if (success) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('مبروك! تم استلام الطلب بنجاح.'), backgroundColor: Colors.green),
-                      );
-                    } else {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('عذراً، موظف آخر قام بقبول الطلب قبلك!'), backgroundColor: Colors.orange),
-                      );
-                    }
-                  },
-                  child: const Text('قبول الطلب', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+              ),
+            ],
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF0F172A),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: Colors.blueAccent.withValues(alpha: 0.25)),
                 ),
-              ],
-            ),
-          ],
+                child: Column(
+                  children: [
+                    _dialogInfoRow(
+                      Icons.person_outline_rounded,
+                      'اسم المشتري:',
+                      order.buyerName.isNotEmpty ? order.buyerName : 'غير محدد',
+                      Colors.white,
+                    ),
+                    const Divider(color: Colors.white12, height: 12),
+                    _dialogInfoRow(
+                      Icons.tag_rounded,
+                      'رقم الطلب:',
+                      '#${order.orderNumber}',
+                      Colors.cyanAccent,
+                    ),
+                    const Divider(color: Colors.white12, height: 12),
+                    _dialogInfoRow(
+                      Icons.payments_outlined,
+                      'قيمة الطلب:',
+                      '${NumberFormat.decimalPattern('ar').format(order.totalSdg)} ج.س',
+                      Colors.amberAccent,
+                    ),
+                    const Divider(color: Colors.white12, height: 12),
+                    _dialogInfoRow(
+                      Icons.location_on_outlined,
+                      'العنوان:',
+                      order.address.isNotEmpty ? order.address : 'سوق السجانة، الخرطوم',
+                      Colors.white70,
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 20),
+              Row(
+                children: [
+                  Expanded(
+                    child: FilledButton.tonal(
+                      style: FilledButton.styleFrom(
+                        backgroundColor: Colors.red.withValues(alpha: 0.2),
+                        foregroundColor: Colors.redAccent,
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      ),
+                      onPressed: () {
+                        ref.read(employeeOrdersProvider.notifier).rejectOrder(order.id);
+                        Navigator.of(ctx, rootNavigator: true).pop();
+                      },
+                      child: const Text('رفض', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: FilledButton(
+                      style: FilledButton.styleFrom(
+                        backgroundColor: Colors.blueAccent,
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      ),
+                      onPressed: () async {
+                        Navigator.of(ctx, rootNavigator: true).pop(); // Close dialog first
+                        final success = await ref.read(employeeOrdersProvider.notifier).acceptOrder(order.id);
+                        if (!context.mounted) return;
+                        
+                        if (success) {
+                          // Switch shell navigation to orders (index 1) and tab to "طلباتي قيد التوصيل" (index 1)
+                          ref.read(employeeShellIndexProvider.notifier).state = 1;
+                          ref.read(employeeOrdersTabProvider.notifier).state = 1;
+
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('مبروك! تم استلام الطلب بنجاح وتم تحويلك إلى طلباتك قيد التوصيل.'),
+                              backgroundColor: Colors.green,
+                            ),
+                          );
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('عذراً، موظف آخر قام بقبول الطلب قبلك!'),
+                              backgroundColor: Colors.orange,
+                            ),
+                          );
+                        }
+                      },
+                      child: const Text('قبول الطلب', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -102,8 +190,23 @@ class EmployeeDashboardScreen extends ConsumerWidget {
           backgroundColor: const Color(0xFF0F172A),
           elevation: 0,
           actions: [
+            IconButton(
+              icon: const Icon(Icons.volume_up_rounded, color: Colors.amberAccent),
+              tooltip: 'اختبار نغمة إشعار مقاييس',
+              onPressed: () {
+                ref.read(employeeOrdersProvider.notifier).playOrderNotificationSound();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('🔔 تم تشغيل نغمة تنبيه مقاييس الرسمية.'), backgroundColor: Color(0xFF1E3A8A), duration: Duration(seconds: 2)),
+                );
+              },
+            ),
+            IconButton(
+              icon: const Icon(Icons.refresh_rounded, color: Colors.blueAccent),
+              tooltip: 'تحديث الرادار',
+              onPressed: () => ref.read(employeeOrdersProvider.notifier).refreshAllOrders(),
+            ),
             Container(
-              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
               decoration: BoxDecoration(
                 color: state.isAvailable ? Colors.green.withValues(alpha: 0.2) : Colors.red.withValues(alpha: 0.2),
@@ -192,7 +295,7 @@ class EmployeeDashboardScreen extends ConsumerWidget {
                               const SizedBox(width: 16),
                               Switch(
                                 value: state.isAvailable,
-                                activeColor: Colors.white,
+                                activeThumbColor: Colors.white,
                                 activeTrackColor: Colors.green,
                                 onChanged: (val) => ref.read(employeeOrdersProvider.notifier).toggleAvailability(val),
                               ),

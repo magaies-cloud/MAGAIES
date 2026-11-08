@@ -20,7 +20,9 @@ class ProductCardModel {
   final double offloadingFeePerTon;
   final String currency;
   final bool inStock;
+  final int stockQuantity;
   final bool isMagaieesExclusive;
+  final double? storeUsdRate;
   final DateTime? lastUpdated;
 
   const ProductCardModel({
@@ -45,11 +47,19 @@ class ProductCardModel {
     this.offloadingFeePerTon = 0,
     this.currency = 'SDG',
     this.inStock = true,
+    this.stockQuantity = 100,
     this.isMagaieesExclusive = false,
+    this.storeUsdRate,
     this.lastUpdated,
   });
 
   factory ProductCardModel.fromJson(Map<String, dynamic> json) {
+    final int qty = (json['stock'] as num?)?.toInt() ?? 
+                    (json['stockQuantity'] as num?)?.toInt() ?? 
+                    (json['stock_quantity'] as num?)?.toInt() ?? 
+                    100;
+    final bool active = (json['is_active'] ?? json['inStock'] ?? json['in_stock'] ?? true) == true || json['inStock'] == 1;
+    final bool available = active && qty > 0;
     return ProductCardModel(
       id: json['id']?.toString() ?? '',
       name: json['name'] ?? '',
@@ -57,12 +67,12 @@ class ProductCardModel {
       categoryId: json['categoryId']?.toString() ?? json['category_id']?.toString() ?? '1',
       categoryName: json['categoryName'] ?? json['category_name'] ?? '',
       categoryNameAr: json['categoryNameAr'] ?? json['category_name_ar'] ?? '',
-      subCategoryId: json['subCategoryId']?.toString() ?? json['sub_category_id']?.toString(),
+      subCategoryId: json['subCategoryId']?.toString() ?? json['sub_category_id']?.toString() ?? json['subcategory_id']?.toString(),
       subCategoryName: json['subCategoryName'] ?? json['sub_category_name'],
       subCategoryNameAr: json['subCategoryNameAr'] ?? json['sub_category_name_ar'],
       pricePerTon: double.tryParse(json['pricePerTon']?.toString() ?? json['price']?.toString() ?? '0') ?? 0.0,
       priceInUsd: json['priceInUsd'] != null ? double.tryParse(json['priceInUsd'].toString()) : null,
-      unit: json['unit'] ?? 'ton',
+      unit: json['unit'],
       unitAr: json['unitAr'] ?? json['unit_ar'] ?? 'طن',
       imageUrl: json['imageUrl'] ?? json['image_url'],
       merchantId: json['merchantId']?.toString() ?? json['merchant_id']?.toString() ?? '1',
@@ -71,8 +81,12 @@ class ProductCardModel {
       transportFeePerTon: double.tryParse(json['transportFeePerTon']?.toString() ?? '0') ?? 0.0,
       offloadingFeePerTon: double.tryParse(json['offloadingFeePerTon']?.toString() ?? '0') ?? 0.0,
       currency: json['currency'] ?? 'SDG',
-      inStock: (json['inStock'] ?? json['in_stock'] ?? true) == true || json['inStock'] == 1 || json['in_stock'] == 1,
+      inStock: available,
+      stockQuantity: qty,
       isMagaieesExclusive: (json['isMagaieesExclusive'] ?? json['is_magaiees_exclusive'] ?? false) == true,
+      storeUsdRate: (json['storeUsdRate'] as num?)?.toDouble() ??
+          (json['store_usd_rate'] as num?)?.toDouble() ??
+          (json['usd_exchange_rate'] as num?)?.toDouble(),
       lastUpdated: json['lastUpdated'] != null ? DateTime.tryParse(json['lastUpdated']) : null,
     );
   }
@@ -100,7 +114,9 @@ class ProductCardModel {
       'offloadingFeePerTon': offloadingFeePerTon,
       'currency': currency,
       'inStock': inStock,
+      'stock': stockQuantity,
       'isMagaieesExclusive': isMagaieesExclusive,
+      'storeUsdRate': storeUsdRate,
       'lastUpdated': lastUpdated?.toIso8601String(),
     };
   }
@@ -127,7 +143,9 @@ class ProductCardModel {
     double? offloadingFeePerTon,
     String? currency,
     bool? inStock,
+    int? stockQuantity,
     bool? isMagaieesExclusive,
+    double? storeUsdRate,
     DateTime? lastUpdated,
   }) {
     return ProductCardModel(
@@ -152,8 +170,11 @@ class ProductCardModel {
       offloadingFeePerTon: offloadingFeePerTon ?? this.offloadingFeePerTon,
       currency: currency ?? this.currency,
       inStock: inStock ?? this.inStock,
+      stockQuantity: stockQuantity ?? this.stockQuantity,
       isMagaieesExclusive: isMagaieesExclusive ?? this.isMagaieesExclusive,
+      storeUsdRate: storeUsdRate ?? this.storeUsdRate,
       lastUpdated: lastUpdated ?? this.lastUpdated,
     );
   }
 }
+

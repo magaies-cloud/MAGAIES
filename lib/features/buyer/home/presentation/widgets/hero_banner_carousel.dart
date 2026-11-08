@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:magaiees_marketplace/features/admin/application/ads_provider.dart';
+import 'package:magaiees_marketplace/features/buyer/home/application/home_provider.dart';
 
 class HeroBannerCarousel extends ConsumerStatefulWidget {
   const HeroBannerCarousel({super.key});
@@ -100,122 +101,127 @@ class _HeroBannerCarouselState extends ConsumerState<HeroBannerCarousel> {
                     ),
                   );
                 },
-                child: Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 4.0),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(16),
-                    color: Colors.grey.shade900,
-                  ),
-                  clipBehavior: Clip.antiAlias,
-                  child: Stack(
-                    fit: StackFit.expand,
-                    children: [
-                      // Background Image
-                      Image.network(
-                        ad.imageUrl.contains('unsplash') 
-                            ? 'https://picsum.photos/seed/${ad.id}/800/400' 
-                            : ad.imageUrl,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) => Container(
-                          color: Colors.grey.shade800,
-                          child: const Center(child: Icon(Icons.broken_image, color: Colors.white54, size: 40)),
-                        ),
-                      ),
-                      // Subtle gradient for text readability at the bottom
-                      Container(
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.topCenter,
-                            end: Alignment.bottomCenter,
-                            colors: [
-                              Colors.transparent,
-                              Colors.transparent,
-                              Colors.black.withValues(alpha: 0.6),
-                            ],
-                            stops: const [0.0, 0.6, 1.0],
+                child: InkWell(
+                  onTap: () {
+                    final query = ad.title.isNotEmpty ? ad.title : ad.company;
+                    ref.read(searchQueryProvider.notifier).setQuery(query);
+                  },
+                  borderRadius: BorderRadius.circular(16),
+                  child: Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 4.0),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(16),
+                      color: Colors.grey.shade900,
+                    ),
+                    clipBehavior: Clip.antiAlias,
+                    child: Stack(
+                      fit: StackFit.expand,
+                      children: [
+                        // Background Image
+                        Image.network(
+                          ad.imageUrl,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) => Container(
+                            color: Colors.grey.shade800,
+                            child: const Center(child: Icon(Icons.broken_image, color: Colors.white54, size: 40)),
                           ),
                         ),
-                      ),
-                      // Tag
-                      Positioned(
-                        top: 12,
-                        right: isRtl ? 12 : null,
-                        left: isRtl ? null : 12,
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        // Subtle gradient for text readability at the bottom
+                        Container(
                           decoration: BoxDecoration(
-                            color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.9),
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Text(
-                            ad.target, // Reusing target as the tag (e.g., "عروض حصرية")
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
+                            gradient: LinearGradient(
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                              colors: [
+                                Colors.transparent,
+                                Colors.transparent,
+                                Colors.black.withValues(alpha: 0.6),
+                              ],
+                              stops: const [0.0, 0.6, 1.0],
                             ),
                           ),
                         ),
-                      ),
-                      // Company Name & CTA
-                      Positioned(
-                        bottom: 16,
-                        right: isRtl ? 16 : null,
-                        left: isRtl ? null : 16,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              ad.company,
+                        // Tag
+                        Positioned(
+                          top: 12,
+                          right: isRtl ? 12 : null,
+                          left: isRtl ? null : 12,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                            decoration: BoxDecoration(
+                              color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.9),
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Text(
+                              ad.target, // Reusing target as the tag (e.g., "عروض حصرية")
                               style: const TextStyle(
                                 color: Colors.white,
-                                fontSize: 20,
+                                fontSize: 12,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
-                            const SizedBox(height: 4),
-                            Row(
-                              children: [
-                                Text(
-                                  isRtl ? 'تصفح منتجاتهم' : 'View Products',
-                                  style: TextStyle(
-                                    color: Colors.white.withValues(alpha: 0.9),
-                                    fontSize: 14,
-                                  ),
-                                ),
-                                const SizedBox(width: 4),
-                                Icon(
-                                  isRtl ? Icons.arrow_back : Icons.arrow_forward,
+                          ),
+                        ),
+                        // Company Name & CTA
+                        Positioned(
+                          bottom: 16,
+                          right: isRtl ? 16 : null,
+                          left: isRtl ? null : 16,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                ad.company,
+                                style: const TextStyle(
                                   color: Colors.white,
-                                  size: 14,
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
                                 ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                      // "Ad" badge (Subtle)
-                      Positioned(
-                        bottom: 12,
-                        left: isRtl ? 12 : null,
-                        right: isRtl ? null : 12,
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                          decoration: BoxDecoration(
-                            color: Colors.black.withValues(alpha: 0.5),
-                            borderRadius: BorderRadius.circular(4),
-                            border: Border.all(color: Colors.white38),
-                          ),
-                          child: Text(
-                            isRtl ? 'إعلان' : 'Ad',
-                            style: const TextStyle(
-                              color: Colors.white70,
-                              fontSize: 10,
-                            ),
+                              ),
+                              const SizedBox(height: 4),
+                              Row(
+                                children: [
+                                  Text(
+                                    isRtl ? 'تصفح العرض' : 'View Offer',
+                                    style: TextStyle(
+                                      color: Colors.white.withValues(alpha: 0.9),
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Icon(
+                                    isRtl ? Icons.arrow_back : Icons.arrow_forward,
+                                    color: Colors.white,
+                                    size: 14,
+                                  ),
+                                ],
+                              ),
+                            ],
                           ),
                         ),
-                      ),
-                    ],
+                        // "Ad" badge (Subtle)
+                        Positioned(
+                          bottom: 12,
+                          left: isRtl ? 12 : null,
+                          right: isRtl ? null : 12,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: Colors.black.withValues(alpha: 0.5),
+                              borderRadius: BorderRadius.circular(4),
+                              border: Border.all(color: Colors.white38),
+                            ),
+                            child: Text(
+                              isRtl ? 'إعلان' : 'Ad',
+                              style: const TextStyle(
+                                color: Colors.white70,
+                                fontSize: 10,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               );

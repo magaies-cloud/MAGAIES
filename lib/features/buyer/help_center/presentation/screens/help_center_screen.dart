@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:magaiees_marketplace/core/utils/app_notification.dart';
 
 class HelpCenterScreen extends StatefulWidget {
   const HelpCenterScreen({super.key});
@@ -274,8 +275,10 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
                       Expanded(
                         child: OutlinedButton.icon(
                           onPressed: () {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text(isRtl ? 'الاتصال بالرقم الموحد: 8001234567' : 'Calling 8001234567')),
+                            AppNotification.showInfo(
+                              context,
+                              isRtl ? 'الاتصال بالرقم الموحد: 8001234567' : 'Calling 8001234567',
+                              icon: Icons.call,
                             );
                           },
                           icon: const Icon(Icons.call, size: 18),
@@ -287,8 +290,10 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
                         child: FilledButton.icon(
                           style: FilledButton.styleFrom(backgroundColor: const Color(0xFF25D366)),
                           onPressed: () {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text(isRtl ? 'فتح واتساب الدعم الفني...' : 'Opening WhatsApp Support...')),
+                            AppNotification.showInfo(
+                              context,
+                              isRtl ? 'فتح واتساب الدعم الفني...' : 'Opening WhatsApp Support...',
+                              icon: Icons.chat,
                             );
                           },
                           icon: const Icon(Icons.chat, size: 18),

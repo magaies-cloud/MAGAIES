@@ -22,6 +22,7 @@ class MerchantReviewsNotifier
           .from('stores')
           .select('id')
           .eq('owner_id', merchantId)
+          .limit(1)
           .maybeSingle();
           
       if (storeRes == null) {

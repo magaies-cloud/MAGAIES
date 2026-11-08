@@ -5,19 +5,46 @@ import 'package:magaiees_marketplace/features/buyer/home/domain/models/product_c
 import 'package:magaiees_marketplace/features/buyer/home/presentation/widgets/product_card.dart';
 import 'package:magaiees_marketplace/features/buyer/wishlist/application/wishlist_provider.dart';
 
+import 'package:magaiees_marketplace/core/providers/global_settings_provider.dart';
+import 'package:magaiees_marketplace/core/utils/unit_formatter.dart';
+
 final wishlistProductsProvider = FutureProvider.autoDispose<List<ProductCardModel>>((ref) async {
   final ids = ref.watch(wishlistProvider).valueOrNull ?? {};
   if (ids.isEmpty) return [];
 
   final res = await Supabase.instance.client
       .from('products')
-      .select('*, stores(name, name_ar)')
+      .select('*, stores(name, name_ar, usd_exchange_rate)')
       .inFilter('id', ids.toList());
+
+  final platformRate = ref.read(globalSettingsProvider).platformUsdRate;
 
   return List<dynamic>.from(res).map((json) {
     final store = json['stores'] as Map<String, dynamic>?;
     final storeName = store?['name'] ?? 'Magaiees';
     final storeNameAr = store?['name_ar'] ?? 'مقاييس';
+    final storeRate = (store?['usd_exchange_rate'] as num?)?.toDouble();
+    final bool isExclusive = json['is_magaiees_exclusive'] ?? false;
+    final double effectiveRate = (!isExclusive && storeRate != null && storeRate > 0)
+        ? storeRate
+        : platformRate;
+
+    double sdg = (json['price_sdg'] as num?)?.toDouble() ?? 0.0;
+    final double? rawUsd = (json['price_usd'] as num?)?.toDouble();
+    if (sdg <= 0 && rawUsd != null && rawUsd > 0 && effectiveRate > 0) {
+      sdg = rawUsd * effectiveRate;
+    }
+    final double calculatedUsd;
+    if (sdg > 0 && effectiveRate > 0) {
+      calculatedUsd = sdg / effectiveRate;
+    } else if (rawUsd != null && rawUsd > 0) {
+      calculatedUsd = rawUsd;
+    } else {
+      calculatedUsd = 0.0;
+    }
+
+    final String cleanUnit = UnitFormatter.clean(json['unit']?.toString() ?? 'ton');
+    final String cleanUnitAr = UnitFormatter.clean(json['unit_ar']?.toString() ?? json['unit']?.toString() ?? 'طن');
 
     return ProductCardModel(
       id: json['id'] ?? '',
@@ -28,16 +55,17 @@ final wishlistProductsProvider = FutureProvider.autoDispose<List<ProductCardMode
       nameAr: json['name_ar'] ?? '',
       imageUrl: (json['images'] != null && (json['images'] as List).isNotEmpty)
           ? json['images'][0]
-          : 'https://picsum.photos/seed/${json['id']}/400/400',
-      pricePerTon: (json['price_sdg'] as num?)?.toDouble() ?? 0.0,
-      priceInUsd: (json['price_usd'] as num?)?.toDouble(),
-      unit: 'ton',
-      unitAr: 'طن',
+          : (json['image_url'] != null ? json['image_url'].toString() : null),
+      pricePerTon: sdg,
+      priceInUsd: calculatedUsd,
+      unit: cleanUnit.isNotEmpty ? cleanUnit : 'ton',
+      unitAr: cleanUnitAr.isNotEmpty ? cleanUnitAr : 'طن',
       inStock: (json['is_active'] ?? true) && (((json['stock'] as num?) ?? 0) > 0),
       merchantId: json['store_id'] ?? 'magaiees',
       storeName: storeName,
       storeNameAr: storeNameAr,
-      isMagaieesExclusive: json['is_magaiees_exclusive'] ?? false,
+      isMagaieesExclusive: isExclusive,
+      storeUsdRate: effectiveRate,
     );
   }).toList();
 });
@@ -89,7 +117,7 @@ class WishlistScreen extends ConsumerWidget {
               padding: const EdgeInsets.all(16),
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 2,
-                childAspectRatio: 0.65,
+                childAspectRatio: 0.70,
                 crossAxisSpacing: 16,
                 mainAxisSpacing: 16,
               ),

@@ -3,12 +3,20 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:magaiees_marketplace/features/chat/application/chat_provider.dart';
+import 'package:magaiees_marketplace/features/chat/presentation/screens/call_screen.dart';
 import 'package:magaiees_marketplace/features/chat/domain/models/chat_message_model.dart';
 import 'package:magaiees_marketplace/features/auth/application/auth_provider.dart';
 import 'package:intl/intl.dart' hide TextDirection;
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:magaiees_marketplace/core/utils/image_picker_helper.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:magaiees_marketplace/core/utils/notification_sound_service.dart';
+import 'package:magaiees_marketplace/core/utils/call_ringtone_service.dart';
+import 'package:magaiees_marketplace/core/utils/call_permission_helper.dart';
+import 'package:magaiees_marketplace/core/utils/name_formatter.dart';
+import 'package:magaiees_marketplace/core/services/push_notification_service.dart';
 
 class ChatMessagesScreen extends ConsumerStatefulWidget {
   final String roomId;
@@ -24,11 +32,13 @@ class _ChatMessagesScreenState extends ConsumerState<ChatMessagesScreen> {
   bool _isSending = false;
   
   Timer? _presenceTimer;
+  String? _otherUserId;
   String? _otherUserName;
   DateTime? _lastSeen;
   bool _isOnline = false;
 
   StreamSubscription? _presenceSubscription;
+  RealtimeChannel? _callSignalChannel;
   final AudioPlayer _audioPlayer = AudioPlayer();
   int _lastMessageCount = 0;
   bool _soundsEnabled = true;
@@ -36,6 +46,7 @@ class _ChatMessagesScreenState extends ConsumerState<ChatMessagesScreen> {
   @override
   void initState() {
     super.initState();
+    ChatPresence.currentRoomId = widget.roomId;
     SharedPreferences.getInstance().then((prefs) {
       _soundsEnabled = prefs.getBool('chat_sounds') ?? true;
     });
@@ -43,6 +54,7 @@ class _ChatMessagesScreenState extends ConsumerState<ChatMessagesScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _updatePresence();
       _setupPresenceStream();
+      _setupCallListener();
       
       _presenceTimer = Timer.periodic(const Duration(seconds: 15), (_) {
         _updatePresence();
@@ -74,9 +86,34 @@ class _ChatMessagesScreenState extends ConsumerState<ChatMessagesScreen> {
           .select()
           .eq('id', widget.roomId)
           .maybeSingle();
+      if (!mounted) return;
       if (roomRes == null) return;
       
-      final otherId = roomRes['buyer_id'] == user.id ? roomRes['merchant_id'] : roomRes['buyer_id'];
+      final isBuyer = roomRes['buyer_id'] == user.id;
+      final otherId = isBuyer ? roomRes['merchant_id'] : roomRes['buyer_id'];
+      _otherUserId = otherId?.toString();
+
+      // If current user is buyer and room has store_id, try to fetch store name
+      if (isBuyer && roomRes['store_id'] != null) {
+        try {
+          final storeRes = await Supabase.instance.client
+              .from('stores')
+              .select('name, name_ar')
+              .eq('id', roomRes['store_id'])
+              .maybeSingle();
+          if (storeRes != null && mounted) {
+            final sName = NameFormatter.formatName(
+              name: storeRes['name']?.toString(),
+              nameAr: storeRes['name_ar']?.toString(),
+            );
+            if (sName.isNotEmpty) {
+              setState(() {
+                _otherUserName = sName;
+              });
+            }
+          }
+        } catch (_) {}
+      }
       
       _presenceSubscription = Supabase.instance.client
           .from('users')
@@ -84,27 +121,111 @@ class _ChatMessagesScreenState extends ConsumerState<ChatMessagesScreen> {
           .eq('id', otherId)
           .listen((data) {
         if (data.isNotEmpty && mounted) {
-          final userRes = data.first;
-          setState(() {
-            _otherUserName = userRes['name'];
-            if (userRes['last_seen'] != null) {
-              _lastSeen = DateTime.tryParse(userRes['last_seen'].toString());
-              if (_lastSeen != null) {
-                _isOnline = DateTime.now().toUtc().difference(_lastSeen!).inMinutes < 2;
+          // Find the exact user because stream might return multiple rows if eq() is ignored by the SDK
+          final userRes = data.firstWhere(
+            (u) => u['id'] == otherId,
+            orElse: () => <String, dynamic>{},
+          );
+          
+          if (userRes.isNotEmpty) {
+            setState(() {
+              final formattedUserName = NameFormatter.formatName(
+                name: userRes['name']?.toString(),
+                nameAr: userRes['name_ar']?.toString(),
+              );
+              // Only overwrite if it wasn't already set to a store name, or if user is merchant
+              if (!isBuyer || _otherUserName == null || _otherUserName!.isEmpty) {
+                if (formattedUserName.isNotEmpty) {
+                  _otherUserName = formattedUserName;
+                }
               }
-            }
-          });
+              if (userRes['last_seen'] != null) {
+                _lastSeen = DateTime.tryParse(userRes['last_seen'].toString());
+                if (_lastSeen != null) {
+                  _isOnline = DateTime.now().toUtc().difference(_lastSeen!).inMinutes < 2;
+                }
+              }
+            });
+          }
         }
       });
     } catch (_) {}
   }
 
+  void _setupCallListener() {
+    // تنظيف القناة القديمة إذا وجدت
+    if (_callSignalChannel != null) {
+      try {
+        _callSignalChannel!.unsubscribe();
+        Supabase.instance.client.removeChannel(_callSignalChannel!);
+      } catch (_) {}
+      _callSignalChannel = null;
+    }
+
+    // يجب أن يكون اسم القناة متطابقاً مع اسم القناة في CallScreen
+    _callSignalChannel = Supabase.instance.client.channel('call_${widget.roomId}');
+    _callSignalChannel?.onBroadcast(event: 'webrtc_signal', callback: (payload) {
+      if (!mounted) return;
+      final senderId = payload['sender_id'];
+      final currentUser = ref.read(authNotifierProvider).valueOrNull;
+      if (currentUser == null || senderId == currentUser.id) return;
+      
+      final data = payload['data'];
+      if (data['type'] == 'join') {
+        if (CallRingtoneService.isCallActive) return;
+        // In the background the native call screen (push) rings instead
+        if (WidgetsBinding.instance.lifecycleState != AppLifecycleState.resumed) return;
+        // استخراج اسم المتصل
+        final rawCaller = data['caller_name']?.toString() ?? _otherUserName ?? '';
+        final callerName = NameFormatter.cleanPrefix(rawCaller).isNotEmpty
+            ? NameFormatter.cleanPrefix(rawCaller)
+            : 'مستخدم';
+        
+        // إزالة القناة الحالية أولاً حتى لا تتعارض مع قناة CallScreen
+        try {
+          _callSignalChannel?.unsubscribe();
+          Supabase.instance.client.removeChannel(_callSignalChannel!);
+        } catch (_) {}
+        _callSignalChannel = null;
+        
+        // فتح شاشة الاتصال الوارد الاحترافية
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => IncomingCallScreen(
+              roomId: widget.roomId,
+              callerName: callerName,
+              currentUser: currentUser,
+            ),
+          ),
+        ).then((_) {
+          CallRingtoneService.stop();
+          // بعد العودة من شاشة المكالمة، أعد تفعيل المستمع لاستقبال مكالمات جديدة
+          if (mounted) {
+            Future.delayed(const Duration(seconds: 1), () {
+              if (mounted) _setupCallListener();
+            });
+          }
+        });
+      }
+    }).subscribe();
+  }
+
   @override
   void dispose() {
+    if (ChatPresence.currentRoomId == widget.roomId) ChatPresence.currentRoomId = null;
+    CallRingtoneService.stop();
+    if (_callSignalChannel != null) {
+      try {
+        _callSignalChannel!.unsubscribe();
+        Supabase.instance.client.removeChannel(_callSignalChannel!);
+      } catch (_) {}
+    }
     _presenceSubscription?.cancel();
     _presenceTimer?.cancel();
     _messageController.dispose();
     _scrollController.dispose();
+    _audioPlayer.dispose();
     super.dispose();
   }
 
@@ -153,6 +274,47 @@ class _ChatMessagesScreenState extends ConsumerState<ChatMessagesScreen> {
     }
   }
 
+
+  Future<void> _pickAndSendImage() async {
+    final user = ref.read(authNotifierProvider).valueOrNull;
+    if (user == null) return;
+
+    final pickedFile = await ImagePickerHelper.pickImage(context, imageQuality: 70);
+    if (pickedFile == null) return;
+
+    setState(() => _isSending = true);
+    try {
+      final bytes = await pickedFile.readAsBytes();
+      final ext = pickedFile.name.split('.').last;
+      final fName = 'chat_${DateTime.now().millisecondsSinceEpoch}.$ext';
+      
+      await Supabase.instance.client.storage
+          .from('products_images')
+          .uploadBinary(fName, bytes);
+          
+      final url = Supabase.instance.client.storage
+          .from('products_images')
+          .getPublicUrl(fName);
+
+      await ChatService.sendMessage(
+        roomId: widget.roomId,
+        senderId: user.id,
+        content: url,
+        type: 'image',
+      );
+      
+      _scrollToBottom();
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isSending = false);
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final isRtl = Directionality.of(context) == TextDirection.rtl;
@@ -164,7 +326,12 @@ class _ChatMessagesScreenState extends ConsumerState<ChatMessagesScreen> {
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(_otherUserName ?? (isRtl ? 'المحادثة' : 'Conversation'), style: const TextStyle(fontSize: 16)),
+            Text(
+              NameFormatter.cleanPrefix(_otherUserName).isNotEmpty
+                  ? NameFormatter.cleanPrefix(_otherUserName)
+                  : (isRtl ? 'المحادثة' : 'Conversation'),
+              style: const TextStyle(fontSize: 16),
+            ),
             if (_otherUserName != null)
               Row(
                 children: [
@@ -188,8 +355,58 @@ class _ChatMessagesScreenState extends ConsumerState<ChatMessagesScreen> {
         ),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: () {
+            if (context.canPop()) {
+              context.pop();
+            } else {
+              context.go('/buyer/chat');
+            }
+          },
         ),
+
+                actions: [
+          IconButton(
+            icon: const Icon(Icons.call), // Internet VoIP call
+            onPressed: () async {
+              final authState = ref.read(authNotifierProvider);
+              final currentUser = authState.valueOrNull;
+              if (currentUser == null) return;
+
+              // Ensure microphone permission using international-grade UI
+              final hasPermission = await CallPermissionHelper.requestMicrophonePermission(context);
+              if (!hasPermission) return;
+
+              if (!context.mounted) return;
+
+              // إزالة مستمع المكالمات قبل فتح شاشة الاتصال لتجنب التعارض
+              try {
+                _callSignalChannel?.unsubscribe();
+                Supabase.instance.client.removeChannel(_callSignalChannel!);
+              } catch (_) {}
+              _callSignalChannel = null;
+
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => CallScreen(
+                    callID: widget.roomId,
+                    currentUser: currentUser,
+                    callerName: _otherUserName,
+                    targetUserId: _otherUserId,
+                  ),
+                ),
+              ).then((_) {
+                CallRingtoneService.stop();
+                // بعد العودة من المكالمة، أعد تفعيل المستمع
+                if (mounted) {
+                  Future.delayed(const Duration(seconds: 1), () {
+                    if (mounted) _setupCallListener();
+                  });
+                }
+              });
+            },
+          ),
+        ],
       ),
       body: Column(
         children: [
@@ -204,7 +421,7 @@ class _ChatMessagesScreenState extends ConsumerState<ChatMessagesScreen> {
                   final newMsg = messages.last;
                   final isMine = user != null && newMsg.isMine(user.id);
                   if (!isMine && _soundsEnabled && _lastMessageCount > 0) {
-                    _audioPlayer.play(AssetSource('audio/magaiees_notify.ogg'));
+                    NotificationSoundService.play();
                   }
                   _lastMessageCount = messages.length;
                   WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToBottom());
@@ -268,9 +485,15 @@ class _ChatMessagesScreenState extends ConsumerState<ChatMessagesScreen> {
               bottom: MediaQuery.of(context).padding.bottom + 8,
             ),
             child: Row(
+
               children: [
+                IconButton(
+                  onPressed: _isSending ? null : _pickAndSendImage,
+                  icon: const Icon(Icons.image, color: Colors.blue),
+                ),
                 Expanded(
                   child: Container(
+
                     decoration: BoxDecoration(
                       color: Colors.grey.shade100,
                       borderRadius: BorderRadius.circular(24),
@@ -416,13 +639,61 @@ class _MessageBubble extends StatelessWidget {
             ),
           ],
         ),
+
         child: Column(
           crossAxisAlignment:
               isMine ? CrossAxisAlignment.end : CrossAxisAlignment.start,
           children: [
-            Text(
-              message.content,
-              style: TextStyle(
+            if (message.type == 'image')
+              GestureDetector(
+                onTap: () {
+                  showDialog(
+                    context: context,
+                    builder: (context) => Dialog(
+                      child: Stack(
+                        children: [
+                          InteractiveViewer(
+                            child: Image.network(message.content, fit: BoxFit.contain),
+                          ),
+                          Positioned(
+                            top: 8,
+                            right: 8,
+                            child: IconButton(
+                              icon: const Icon(Icons.close, color: Colors.white, shadows: [Shadow(blurRadius: 2, color: Colors.black)]),
+                              onPressed: () => Navigator.pop(context),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: Image.network(
+                    message.content,
+                    width: 200,
+                    height: 200,
+                    fit: BoxFit.cover,
+                    loadingBuilder: (context, child, progress) {
+                      if (progress == null) return child;
+                      return const SizedBox(
+                        width: 200, height: 200,
+                        child: Center(child: CircularProgressIndicator()),
+                      );
+                    },
+                    errorBuilder: (context, error, stackTrace) => const SizedBox(
+                      width: 200, height: 200,
+                      child: Center(child: Icon(Icons.broken_image, size: 50)),
+                    ),
+                  ),
+                ),
+              )
+            else
+              Text(
+                message.content,
+                style: TextStyle(
+
                 color: isMine ? Colors.white : Colors.black87,
                 fontSize: 15,
               ),

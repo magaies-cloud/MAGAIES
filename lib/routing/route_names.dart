@@ -22,15 +22,22 @@ abstract final class RouteNames {
   static const String merchantAddProduct = '/merchant/add-product';
   static const String merchantOrders = '/merchant/orders';
   static const String merchantStoreSettings = '/merchant/store-settings';
+  static const String merchantTeam = '/merchant/team';
+  static const String merchantFinancialReport = '/merchant/financial-report';
   static const String merchantChat = '/merchant/chat';
 
   // === Admin Routes ===
   static const String adminSubscribers = '/admin/subscribers';
+  static const String adminSubscriberProfile = '/admin/subscribers/profile'; // Extra object is passed
   static const String adminDashboard = '/admin/dashboard';
   static const String adminAds = '/admin/ads';
   static const String adminOrders = '/admin/orders';
   static const String adminCategories = '/admin/categories';
+  static const String adminProducts = '/admin/products';
+  static const String adminServices = '/admin/services';
+  static const String adminFinance = '/admin/finance';
   static const String adminSettings = '/admin/settings';
+  static const String adminDigitalBroker = '/admin/digital-broker';
 
   // === Employee Routes ===
   static const String employeeDashboard = '/employee/dashboard';

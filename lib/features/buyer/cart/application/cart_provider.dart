@@ -1,3 +1,4 @@
+import 'package:magaiees_marketplace/core/providers/global_settings_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../domain/models/cart_item_model.dart';
 import '../domain/models/cart_model.dart';
@@ -66,32 +67,35 @@ double cartSubtotal(CartSubtotalRef ref) {
 
 @Riverpod(keepAlive: true)
 double cartTransportTotal(CartTransportTotalRef ref) {
-  final cart = ref.watch(cartNotifierProvider);
-  return cart.items.fold(0, (sum, item) => sum + (item.product.transportFeePerTon * item.quantity));
+  // Transport fees are now determined by the merchant after order placement
+  return 0.0;
 }
 
 @Riverpod(keepAlive: true)
 double cartOffloadingTotal(CartOffloadingTotalRef ref) {
-  final cart = ref.watch(cartNotifierProvider);
-  return cart.items.fold(0, (sum, item) => sum + (item.product.offloadingFeePerTon * item.quantity));
+  // Offloading fees are now determined by the merchant after order placement
+  return 0.0;
 }
 
 @Riverpod(keepAlive: true)
 double cartGrandTotal(CartGrandTotalRef ref) {
   final cart = ref.watch(cartNotifierProvider);
   final subtotal = ref.watch(cartSubtotalProvider);
-  final transport = ref.watch(cartTransportTotalProvider);
-  final offloading = ref.watch(cartOffloadingTotalProvider);
-  final totalWithVat = (subtotal + transport + offloading) * 1.15; // Assuming 15% VAT
+  // Transport and offloading are 0 at checkout
+  final settings = ref.watch(globalSettingsProvider);
+  double totalWithVat = subtotal;
+  if (settings.isTaxAndCommissionEnabled) {
+      totalWithVat += totalWithVat * (settings.vatPercent / 100.0);
+  }
   return totalWithVat - cart.discountAmount;
 }
 
 @Riverpod(keepAlive: true)
 double cartVatTotal(CartVatTotalRef ref) {
   final subtotal = ref.watch(cartSubtotalProvider);
-  final transport = ref.watch(cartTransportTotalProvider);
-  final offloading = ref.watch(cartOffloadingTotalProvider);
-  return (subtotal + transport + offloading) * 0.15; 
+  final settings = ref.watch(globalSettingsProvider);
+  if (!settings.isTaxAndCommissionEnabled) return 0.0;
+  return subtotal * (settings.vatPercent / 100.0); 
 }
 
 @Riverpod(keepAlive: true)

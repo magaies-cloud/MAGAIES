@@ -17,11 +17,12 @@ import 'package:magaiees_marketplace/routing/merchant_shell.dart';
 // Placeholder screens
 import 'package:magaiees_marketplace/features/buyer/home/presentation/screens/buyer_home_screen.dart';
 import 'package:magaiees_marketplace/features/buyer/cart/presentation/screens/cart_screen.dart';
+import 'package:magaiees_marketplace/features/admin/presentation/screens/admin_shell.dart';
 import 'package:magaiees_marketplace/features/buyer/orders/presentation/screens/buyer_orders_screen.dart';
 import 'package:magaiees_marketplace/features/buyer/profile/presentation/screens/buyer_profile_screen.dart';
 import 'package:magaiees_marketplace/features/buyer/product_detail/presentation/screens/product_detail_screen.dart';
 import 'package:magaiees_marketplace/features/buyer/category_products/presentation/screens/category_products_screen.dart';
-import 'package:magaiees_marketplace/features/buyer/home/presentation/screens/sub_categories_screen.dart';
+import 'package:magaiees_marketplace/core/enums/user_role.dart';
 import 'package:magaiees_marketplace/features/buyer/services/presentation/screens/service_providers_screen.dart';
 import 'package:magaiees_marketplace/features/buyer/help_center/presentation/screens/help_center_screen.dart';
 import 'package:magaiees_marketplace/features/buyer/checkout/presentation/screens/checkout_screen.dart';
@@ -31,11 +32,14 @@ import 'package:magaiees_marketplace/features/merchant/inventory/presentation/sc
 import 'package:magaiees_marketplace/features/merchant/add_product/presentation/screens/add_product_screen.dart';
 import 'package:magaiees_marketplace/features/merchant/orders/presentation/screens/merchant_orders_screen.dart';
 import 'package:magaiees_marketplace/features/merchant/store_management/presentation/screens/store_settings_screen.dart';
-import 'package:magaiees_marketplace/features/admin/presentation/screens/admin_shell.dart';
 import 'package:magaiees_marketplace/features/employee/presentation/screens/employee_shell.dart';
 import 'package:magaiees_marketplace/features/chat/presentation/screens/chat_rooms_screen.dart';
 import 'package:magaiees_marketplace/features/chat/presentation/screens/chat_messages_screen.dart';
-import 'package:magaiees_marketplace/core/enums/user_role.dart';
+import 'package:magaiees_marketplace/features/admin/subscribers/domain/models/subscriber_model.dart';
+import 'package:magaiees_marketplace/features/admin/subscribers/presentation/widgets/subscriber_detail_sheet.dart';
+import 'package:magaiees_marketplace/features/auth/domain/models/user_model.dart';
+import 'package:magaiees_marketplace/features/merchant/team/presentation/screens/merchant_team_screen.dart';
+import 'package:magaiees_marketplace/features/merchant/finance_report/presentation/screens/merchant_financial_report_screen.dart';
 part 'app_router.g.dart';
 
 /// Global navigator keys for shell routes.
@@ -83,13 +87,24 @@ GoRouter goRouter(GoRouterRef ref) {
                       productId: state.pathParameters['id']!,
                     ),
                   ),
-                  // Nested: Category Products
+                  // Nested: Sub Categories & Category Products
                   GoRoute(
                     path: 'category/:id',
                     builder: (context, state) => CategoryProductsScreen(
                       categoryId: state.pathParameters['id']!,
+                      subCategoryId: state.uri.queryParameters['subId'],
                       categoryName: state.uri.queryParameters['name'],
                     ),
+                    routes: [
+                      GoRoute(
+                        path: 'products',
+                        builder: (context, state) => CategoryProductsScreen(
+                          categoryId: state.pathParameters['id']!,
+                          subCategoryId: state.uri.queryParameters['subId'],
+                          categoryName: state.uri.queryParameters['name'],
+                        ),
+                      ),
+                    ],
                   ),
                   // Nested: Service Providers
                   GoRoute(
@@ -124,22 +139,7 @@ GoRouter goRouter(GoRouterRef ref) {
               ),
             ],
           ),
-          // Tab 4: Profile
-          StatefulShellBranch(
-            routes: [
-              GoRoute(
-                path: RouteNames.buyerProfile,
-                builder: (context, state) => const BuyerProfileScreen(),
-                routes: [
-                  GoRoute(
-                    path: 'help',
-                    builder: (context, state) => const HelpCenterScreen(),
-                  ),
-                ],
-              ),
-            ],
-          ),
-          // Tab 5: Chat
+          // Tab 4: Chat
           StatefulShellBranch(
             routes: [
               GoRoute(
@@ -152,6 +152,21 @@ GoRouter goRouter(GoRouterRef ref) {
                     builder: (context, state) => ChatMessagesScreen(
                       roomId: state.pathParameters['roomId']!,
                     ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          // Tab 5: Profile
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: RouteNames.buyerProfile,
+                builder: (context, state) => const BuyerProfileScreen(),
+                routes: [
+                  GoRoute(
+                    path: 'help',
+                    builder: (context, state) => const HelpCenterScreen(),
                   ),
                 ],
               ),
@@ -239,11 +254,84 @@ GoRouter goRouter(GoRouterRef ref) {
         ],
       ),
 
-      // === Admin Panel (Full Dashboard) ===
+      // === Merchant Team Screen (Full Screen) ===
+      GoRoute(
+        path: RouteNames.merchantTeam,
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (context, state) => const MerchantTeamScreen(),
+      ),
+
+      // === Merchant Financial Report Screen (Full Screen) ===
+      GoRoute(
+        path: RouteNames.merchantFinancialReport,
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (context, state) => const MerchantFinancialReportScreen(),
+      ),
+
+      // === Admin Panel Routes ===
       GoRoute(
         path: RouteNames.adminDashboard,
         parentNavigatorKey: rootNavigatorKey,
-        builder: (context, state) => const AdminShell(),
+        builder: (context, state) => const AdminShell(initialIndex: 0),
+      ),
+      GoRoute(
+        path: RouteNames.adminSubscribers,
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (context, state) => const AdminShell(initialIndex: 1),
+      ),
+      GoRoute(
+        path: RouteNames.adminSubscriberProfile,
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (context, state) {
+          final extra = state.extra;
+          if (extra is SubscriberModel) {
+            return Scaffold(
+              appBar: AppBar(title: const Text('الملف التعريفي للمشترك')),
+              body: SubscriberDetailSheet(subscriber: extra, isEmbedded: true),
+            );
+          }
+          return const AdminShell(initialIndex: 1);
+        },
+      ),
+      GoRoute(
+        path: RouteNames.adminAds,
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (context, state) => const AdminShell(initialIndex: 2),
+      ),
+      GoRoute(
+        path: RouteNames.adminOrders,
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (context, state) => const AdminShell(initialIndex: 3),
+      ),
+      GoRoute(
+        path: RouteNames.adminCategories,
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (context, state) => const AdminShell(initialIndex: 4),
+      ),
+      GoRoute(
+        path: RouteNames.adminProducts,
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (context, state) => const AdminShell(initialIndex: 5),
+      ),
+      GoRoute(
+        path: RouteNames.adminServices,
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (context, state) => const AdminShell(initialIndex: 6),
+      ),
+      GoRoute(
+        path: RouteNames.adminFinance,
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (context, state) => const AdminShell(initialIndex: 7),
+      ),
+      GoRoute(
+        path: RouteNames.adminSettings,
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (context, state) => const AdminShell(initialIndex: 8),
+      ),
+      GoRoute(
+        path: RouteNames.adminDigitalBroker,
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (context, state) => const AdminShell(initialIndex: 9),
       ),
 
       // === Employee Shell ===
@@ -253,6 +341,13 @@ GoRouter goRouter(GoRouterRef ref) {
         builder: (context, state) => const EmployeeShell(),
       ),
     ],
+    errorBuilder: (context, state) {
+      final user = ref.read(authNotifierProvider).valueOrNull;
+      if (user != null && user.role.isAdmin) {
+        return const AdminShell(initialIndex: 0);
+      }
+      return const BuyerHomeScreen();
+    },
   );
 }
 
@@ -287,6 +382,9 @@ String? _redirect(Ref ref, GoRouterState state) {
     if (user.role.isAdmin) {
       return RouteNames.adminDashboard;
     }
+    if (user.isStoreStaff) {
+      return user.canManageStoreOrders ? RouteNames.merchantOrders : RouteNames.merchantInventory;
+    }
     if (user.role == UserRole.employee) {
       return RouteNames.employeeDashboard;
     }
@@ -302,13 +400,28 @@ String? _redirect(Ref ref, GoRouterState state) {
     return RouteNames.buyerHome;
   }
 
-  // 4. Guard merchant routes — require hasStore
+  // 4. Guard merchant routes — require hasStore or isStoreStaff (admins always allowed for inspection)
   final isMerchantRoute = currentPath.startsWith('/merchant');
   if (isMerchantRoute) {
-    if (!user.hasStore) {
+    if (!user.hasStore && !user.isStoreStaff && !user.role.isAdmin) {
       // Redirect to buyer home if they don't have store access
       return RouteNames.buyerHome;
     }
+    // Prevent store staff from accessing owner-only financial, team, dashboard, and store settings routes
+    if (user.isStoreStaff) {
+      if (currentPath == RouteNames.merchantFinancialReport ||
+          currentPath == RouteNames.merchantTeam ||
+          currentPath == RouteNames.merchantDashboard ||
+          currentPath == RouteNames.merchantStoreSettings) {
+        return user.canManageStoreOrders ? RouteNames.merchantOrders : RouteNames.merchantInventory;
+      }
+    }
+  }
+
+  // 5. Guard employee routes — require platform employee or admin role (not store staff)
+  final isEmployeeRoute = currentPath.startsWith('/employee');
+  if (isEmployeeRoute && ((user.role != UserRole.employee) || user.isStoreStaff) && !user.role.isAdmin) {
+    return RouteNames.buyerHome;
   }
 
   // No redirect needed

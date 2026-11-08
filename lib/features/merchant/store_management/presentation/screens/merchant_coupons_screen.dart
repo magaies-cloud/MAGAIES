@@ -432,9 +432,9 @@ class _AddCouponDialogState extends ConsumerState<AddCouponDialog> {
                         await ref.read(merchantCouponsProvider.notifier).createCoupon(
                           _codeController.text,
                           _selectedType,
-                          double.parse(_valueController.text),
-                          double.parse(_minOrderController.text),
-                          int.parse(_limitController.text),
+                          double.tryParse(_valueController.text) ?? 0.0,
+                          double.tryParse(_minOrderController.text) ?? 0.0,
+                          int.tryParse(_limitController.text) ?? 1,
                           _selectedExpiry!,
                         );
                         if (mounted) Navigator.pop(context);

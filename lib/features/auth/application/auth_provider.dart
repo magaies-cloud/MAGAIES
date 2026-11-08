@@ -1,11 +1,9 @@
 import 'dart:async';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:magaiees_marketplace/features/auth/domain/models/user_model.dart';
 import 'package:magaiees_marketplace/features/auth/domain/repositories/auth_repository.dart';
 import 'package:magaiees_marketplace/features/auth/data/supabase_auth_repository.dart';
 import 'package:magaiees_marketplace/features/locale/application/locale_provider.dart';
-import 'package:magaiees_marketplace/routing/app_router.dart';
 
 part 'auth_provider.g.dart';
 
@@ -86,9 +84,18 @@ class AuthNotifier extends _$AuthNotifier {
     state = const AsyncData(null);
   }
 
-  /// Refresh the current session.
+  /// Refresh the current session without losing state on transient errors.
   Future<void> refreshSession() async {
-    state = await AsyncValue.guard(() => _repository.refreshSession());
+    final previousUser = state.valueOrNull;
+    try {
+      final updatedUser = await _repository.refreshSession();
+      await _repository.cacheUser(updatedUser);
+      state = AsyncData(updatedUser);
+    } catch (_) {
+      if (previousUser != null) {
+        state = AsyncData(previousUser);
+      }
+    }
   }
 }
 
@@ -111,6 +118,9 @@ bool hasStore(HasStoreRef ref) {
 String currentUserName(CurrentUserNameRef ref) {
   final user = ref.watch(authNotifierProvider).valueOrNull;
   if (user == null) return '';
-  // TODO: Check current locale and return appropriate name
+  final isArabic = ref.watch(isArabicProvider);
+  if (isArabic && user.nameAr != null && user.nameAr!.trim().isNotEmpty) {
+    return user.nameAr!;
+  }
   return user.name;
 }

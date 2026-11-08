@@ -76,3 +76,25 @@ abstract class UserModel with _$UserModel {
   factory UserModel.fromJson(Map<String, dynamic> json) =>
       _$UserModelFromJson(json);
 }
+
+extension UserModelStaffX on UserModel {
+  /// Whether this user is an employee/staff member belonging to a store.
+  bool get isStoreStaff =>
+      permissions['is_store_staff'] == true ||
+      (role == UserRole.employee && storeId != null && storeId!.isNotEmpty);
+
+  /// Whether the user can receive and manage store orders.
+  bool get canManageStoreOrders =>
+      isStoreStaff ? (permissions['can_manage_orders'] == true) : true;
+
+  /// Whether the user can manage store inventory and products.
+  bool get canManageStoreProducts =>
+      isStoreStaff ? (permissions['can_manage_products'] == true) : true;
+
+  /// Whether the user can chat with store customers.
+  bool get canChatStoreCustomers =>
+      isStoreStaff ? (permissions['can_chat_customers'] == true) : true;
+
+  /// Job title of the staff member.
+  String? get staffJobTitle => permissions['job_title']?.toString();
+}

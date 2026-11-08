@@ -49,17 +49,18 @@ class PricingNotifier extends StateNotifier<PricingState> {
   Future<void> _loadFromDb() async {
     try {
       final res = await _supabase
-          .from('gamification_settings')
-          .select('usd_exchange_rate')
-          .eq('id', 1)
+          .from('users')
+          .select('permissions')
+          .eq('role', 'admin')
+          .limit(1)
           .maybeSingle();
-      if (res != null && res['usd_exchange_rate'] != null) {
+      if (res != null && res['permissions'] != null && res['permissions']['usd_exchange_rate'] != null) {
         state = state.copyWith(
-          usdExchangeRate: (res['usd_exchange_rate'] as num).toDouble(),
+          usdExchangeRate: double.tryParse(res['permissions']['usd_exchange_rate']?.toString() ?? '') ?? 2800.0,
         );
       }
     } catch (_) {
-      // Use default rate if table/column doesn't exist yet
+      // Use default rate if table/column doesn't exist
     }
   }
 
@@ -74,12 +75,14 @@ class PricingNotifier extends StateNotifier<PricingState> {
 
   Future<void> _saveToDb() async {
     try {
-      await _supabase.from('gamification_settings').upsert({
-        'id': 1,
-        'usd_exchange_rate': state.usdExchangeRate,
-      });
+      final res = await _supabase.from('users').select('permissions').eq('role', 'admin').limit(1).maybeSingle();
+      if (res != null) {
+        final perms = (res['permissions'] as Map<String, dynamic>?) ?? {};
+        perms['usd_exchange_rate'] = state.usdExchangeRate;
+        await _supabase.from('users').update({'permissions': perms}).eq('role', 'admin');
+      }
     } catch (_) {
-      // Silently fail if column doesn't exist
+      // Silently ignore
     }
   }
 

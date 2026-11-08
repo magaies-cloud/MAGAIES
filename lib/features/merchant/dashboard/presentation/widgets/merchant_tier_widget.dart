@@ -1,17 +1,35 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:magaiees_marketplace/features/auth/domain/models/user_model.dart';
+import 'package:magaiees_marketplace/features/merchant/inventory/presentation/screens/merchant_inventory_screen.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-class MerchantTierWidget extends StatelessWidget {
+class MerchantTierWidget extends ConsumerWidget {
   final UserModel user;
+  final String? storeName;
 
-  const MerchantTierWidget({super.key, required this.user});
+  const MerchantTierWidget({super.key, required this.user, this.storeName});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final points = user.merchantPoints;
     final tier = user.merchantTier.toLowerCase();
     final isRtl = Directionality.of(context) == TextDirection.rtl;
+
+    String effectiveStoreName = (storeName ?? '').trim();
+    if (effectiveStoreName.isEmpty) {
+      final storeData = ref.watch(merchantStoreInfoProvider).valueOrNull;
+      final sName = storeData?['name']?.toString().trim() ?? '';
+      final sNameAr = storeData?['name_ar']?.toString().trim() ?? '';
+      if (isRtl) {
+        effectiveStoreName = sNameAr.isNotEmpty ? sNameAr : sName;
+      } else {
+        effectiveStoreName = sName.isNotEmpty ? sName : sNameAr;
+      }
+      if (effectiveStoreName.isEmpty) {
+        effectiveStoreName = (isRtl ? (user.storeNameAr ?? user.storeName) : (user.storeName ?? user.storeNameAr)) ?? '';
+      }
+    }
 
     String tierName;
     Color tierColor;
@@ -67,32 +85,71 @@ class MerchantTierWidget extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Row(
-                children: [
-                  Icon(tierIcon, color: tierColor, size: 32),
-                  const SizedBox(width: 8),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        isRtl ? 'تاجر $tierName' : '$tierName Merchant',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: tierColor.withOpacity(0.8).withAlpha(255),
-                        ),
+              Expanded(
+                child: Row(
+                  children: [
+                    Icon(tierIcon, color: tierColor, size: 32),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Text(
+                                isRtl ? 'تاجر $tierName' : '$tierName Merchant',
+                                style: TextStyle(
+                                  fontSize: 17,
+                                  fontWeight: FontWeight.bold,
+                                  color: tierColor.withOpacity(0.8).withAlpha(255),
+                                ),
+                              ),
+                              if (effectiveStoreName.isNotEmpty) ...[
+                                const SizedBox(width: 8),
+                                Text(
+                                  '•',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.grey.shade400,
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                Icon(
+                                  Icons.storefront_rounded,
+                                  size: 18,
+                                  color: Colors.blueGrey.shade700,
+                                ),
+                                const SizedBox(width: 4),
+                                Expanded(
+                                  child: Text(
+                                    effectiveStoreName,
+                                    style: const TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.black87,
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              ],
+                            ],
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            '$points ${isRtl ? 'نقطة' : 'Pts'}',
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black87,
+                            ),
+                          ),
+                        ],
                       ),
-                      Text(
-                        '$points ${isRtl ? 'نقطة' : 'Pts'}',
-                        style: const TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black87,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
+                    ),
+                  ],
+                ),
               ),
               IconButton(
                 icon: const Icon(Icons.help_outline, color: Colors.black54),

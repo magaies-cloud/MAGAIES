@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:magaiees_marketplace/l10n/app_localizations.dart';
 
+import 'package:magaiees_marketplace/core/utils/app_notification.dart';
+
 /// Convenience extensions on [BuildContext].
 extension ContextExtensions on BuildContext {
   /// Access localized strings.
@@ -30,13 +32,18 @@ extension ContextExtensions on BuildContext {
   /// Screen height.
   double get screenHeight => MediaQuery.sizeOf(this).height;
 
-  /// Show a snackbar.
+  /// Show a top snackbar / alert at the top of the screen.
   void showSnackBar(String message, {bool isError = false}) {
-    ScaffoldMessenger.of(this).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: isError ? colorScheme.error : null,
-      ),
-    );
+    AppNotification.show(this, message, isError: isError);
+  }
+
+  /// Show a success top notification at the top of the screen.
+  void showSuccessSnackBar(String message, {IconData? icon}) {
+    AppNotification.showSuccess(this, message, icon: icon);
+  }
+
+  /// Show an error top notification at the top of the screen.
+  void showErrorSnackBar(String message, {IconData? icon}) {
+    AppNotification.showError(this, message, icon: icon);
   }
 }

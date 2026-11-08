@@ -46,6 +46,13 @@ class AppTheme {
           ),
         ),
       ),
+      snackBarTheme: SnackBarThemeData(
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: const Color(0xFF262626),
+        contentTextStyle: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w600),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        elevation: 6,
+      ),
     );
   }
 
@@ -55,22 +62,36 @@ class AppTheme {
       useMaterial3: true,
       brightness: Brightness.dark,
       colorSchemeSeed: AppColors.primary,
-      scaffoldBackgroundColor: AppColors.surfaceDark,
+      scaffoldBackgroundColor: const Color(0xFF050B14), // Dark Black / Deep Navy
+      colorScheme: ColorScheme.fromSeed(
+        seedColor: AppColors.primary,
+        brightness: Brightness.dark,
+        surface: const Color(0xFF0F172A), // Navy Card
+      ),
       textTheme: GoogleFonts.cairoTextTheme(ThemeData.dark().textTheme),
       appBarTheme: const AppBarTheme(
         centerTitle: true,
         elevation: 0,
+        backgroundColor: Color(0xFF0F172A),
       ),
       cardTheme: CardThemeData(
-        elevation: 2,
+        elevation: 0,
+        color: const Color(0xFF0F172A),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(16),
+          side: const BorderSide(color: Color(0xFF1E293B)),
         ),
+      ),
+      snackBarTheme: SnackBarThemeData(
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: const Color(0xFF1E293B),
+        contentTextStyle: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w600),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        elevation: 6,
       ),
     );
   }
 
-  /// Merchant mode theme overlay (blue accent).
   static ThemeData get merchantTheme {
     return lightTheme.copyWith(
       colorScheme: ColorScheme.fromSeed(

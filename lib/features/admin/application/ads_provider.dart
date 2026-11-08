@@ -1,5 +1,6 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:magaiees_marketplace/core/network/supabase_safe_query.dart';
 
 part 'ads_provider.g.dart';
 
@@ -12,6 +13,7 @@ class AdModel {
   final String imageUrl;
   final String startDate;
   final String endDate;
+  final double price;
 
   AdModel({
     required this.id,
@@ -22,6 +24,7 @@ class AdModel {
     required this.imageUrl,
     required this.startDate,
     required this.endDate,
+    this.price = 0.0,
   });
 
   AdModel copyWith({
@@ -33,6 +36,7 @@ class AdModel {
     String? imageUrl,
     String? startDate,
     String? endDate,
+    double? price,
   }) {
     return AdModel(
       id: id ?? this.id,
@@ -43,6 +47,7 @@ class AdModel {
       imageUrl: imageUrl ?? this.imageUrl,
       startDate: startDate ?? this.startDate,
       endDate: endDate ?? this.endDate,
+      price: price ?? this.price,
     );
   }
 
@@ -56,6 +61,7 @@ class AdModel {
       imageUrl: json['image_url'] ?? '',
       startDate: json['start_date'] != null ? json['start_date'].toString().split(' ')[0] : '',
       endDate: json['end_date'] != null ? json['end_date'].toString().split(' ')[0] : '',
+      price: double.tryParse(json['price']?.toString() ?? '') ?? 0.0,
     );
   }
 
@@ -69,6 +75,7 @@ class AdModel {
       'image_url': imageUrl,
       'start_date': startDate,
       'end_date': endDate,
+      'price': price,
     };
   }
 }
@@ -96,15 +103,18 @@ class Ads extends _$Ads {
       channel.unsubscribe();
     });
 
-    final data = await _supabase.from('ads').select().order('created_at', ascending: false);
-    return data.map((e) => AdModel.fromJson(e)).toList();
+    final data = await safeSupabaseQuery(
+      () => _supabase.from('ads').select().order('created_at', ascending: false),
+      fallback: () => <Map<String, dynamic>>[],
+    );
+    return (data as List).map((e) => AdModel.fromJson(e as Map<String, dynamic>)).toList();
   }
 
   Future<void> addAd(AdModel ad) async {
     final previousState = state;
     state = const AsyncLoading();
     try {
-      await _supabase.from('ads').insert(ad.toJson());
+      await safeSupabaseQuery(() => _supabase.from('ads').insert(ad.toJson()));
       ref.invalidateSelf();
     } catch (e) {
       state = previousState;
@@ -118,7 +128,7 @@ class Ads extends _$Ads {
       if (state.value != null) {
         state = AsyncData(state.value!.map((ad) => ad.id == updatedAd.id ? updatedAd : ad).toList());
       }
-      await _supabase.from('ads').update(updatedAd.toJson()).eq('id', updatedAd.id);
+      await safeSupabaseQuery(() => _supabase.from('ads').update(updatedAd.toJson()).eq('id', updatedAd.id));
       ref.invalidateSelf();
     } catch (e) {
       state = previousState;
@@ -139,7 +149,7 @@ class Ads extends _$Ads {
           return ad;
         }).toList());
       }
-      await _supabase.from('ads').update({'is_active': newStatus}).eq('id', id);
+      await safeSupabaseQuery(() => _supabase.from('ads').update({'is_active': newStatus}).eq('id', id));
       ref.invalidateSelf();
     } catch (e) {
       state = previousState;
@@ -153,7 +163,7 @@ class Ads extends _$Ads {
       if (state.value != null) {
         state = AsyncData(state.value!.where((ad) => ad.id != id).toList());
       }
-      await _supabase.from('ads').delete().eq('id', id);
+      await safeSupabaseQuery(() => _supabase.from('ads').delete().eq('id', id));
       ref.invalidateSelf();
     } catch (e) {
       state = previousState;

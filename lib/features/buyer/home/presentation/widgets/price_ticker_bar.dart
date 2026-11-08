@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:magaiees_marketplace/features/buyer/home/domain/models/market_price_model.dart';
+import 'package:magaiees_marketplace/core/utils/unit_formatter.dart';
 import 'package:intl/intl.dart' hide TextDirection;
 
 class PriceTickerBar extends StatefulWidget {
@@ -73,7 +74,7 @@ class _PriceTickerBarState extends State<PriceTickerBar> with SingleTickerProvid
 
               final isRtl = Directionality.of(context) == TextDirection.rtl;
               final name = isRtl ? item.materialNameAr : item.materialName;
-              final unit = isRtl ? item.unitAr : item.unit;
+              final unit = UnitFormatter.format(item.unitAr, item.unit, isRtl: isRtl);
 
               return Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),

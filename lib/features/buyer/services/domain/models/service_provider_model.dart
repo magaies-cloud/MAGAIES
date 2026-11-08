@@ -1,4 +1,4 @@
-﻿class ServiceProviderModel {
+class ServiceProviderModel {
   final String id;
   final String name;
   final String nameAr;
@@ -50,8 +50,8 @@
       rating: (json['rating'] != null) ? (num.tryParse(json['rating'].toString())?.toDouble() ?? 5.0) : 5.0,
       reviewsCount: (json['reviews_count'] != null || json['reviewsCount'] != null) 
           ? (num.tryParse((json['reviews_count'] ?? json['reviewsCount']).toString())?.toInt() ?? 0) : 0,
-      experienceYears: json['experience_years'] ?? json['experienceYears'] ?? '',
-      priceEstimate: json['price_estimate'] ?? json['priceEstimate'] ?? '',
+      experienceYears: json['experience_years']?.toString() ?? json['experienceYears']?.toString() ?? '',
+      priceEstimate: json['price_estimate']?.toString() ?? json['priceEstimate']?.toString() ?? '',
       phone: json['phone'] ?? '',
       location: json['location'] ?? '',
       locationAr: json['location_ar'] ?? json['locationAr'] ?? '',

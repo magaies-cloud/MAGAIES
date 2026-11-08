@@ -27,7 +27,7 @@ class MaterialEstimatorBanner extends StatelessWidget {
               color: Colors.amber.withOpacity(0.2),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: const Icon(Icons.calculate_outlined, color: Colors.amber, size: 32),
+            child: const Icon(Icons.handshake_outlined, color: Colors.amber, size: 32),
           ),
           const SizedBox(width: 14),
           Expanded(
@@ -35,14 +35,14 @@ class MaterialEstimatorBanner extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  isRtl ? 'حاسبة كميات مواد البناء' : 'Construction Material Estimator',
-                  style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
+                  isRtl ? 'طلب تسعير كميات للمشاريع الكبيرة' : 'Request Bulk Quote for Projects',
+                  style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 2),
                 Text(
                   isRtl
-                      ? 'احسب أطنان الحديد والأسمنت المطلوبة لمشروعك فوراً'
-                      : 'Calculate rebar & cement tons for your project instantly',
+                      ? 'أدخل تفاصيل طلبك وسنقوم بتوفير عروض أسعار تنافسية لك'
+                      : 'Enter your request details and we will provide competitive quotes',
                   style: TextStyle(color: Colors.grey.shade400, fontSize: 11),
                 ),
               ],
@@ -59,7 +59,7 @@ class MaterialEstimatorBanner extends StatelessWidget {
               context.push('/buyer/digital-broker');
             },
             child: Text(
-              isRtl ? 'احسب الآن' : 'Estimate',
+              isRtl ? 'اطلب الآن' : 'Request Now',
               style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
             ),
           ),

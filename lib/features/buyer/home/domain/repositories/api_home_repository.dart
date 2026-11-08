@@ -1,4 +1,3 @@
-import 'package:dio/dio.dart';
 import 'package:magaiees_marketplace/core/network/api_client.dart';
 import 'package:magaiees_marketplace/core/network/api_endpoints.dart';
 import 'package:magaiees_marketplace/features/buyer/home/domain/models/product_card_model.dart';
@@ -6,6 +5,7 @@ import 'package:magaiees_marketplace/features/buyer/home/domain/models/category_
 import 'package:magaiees_marketplace/features/buyer/home/domain/models/sub_category_model.dart';
 import 'package:magaiees_marketplace/features/buyer/home/domain/models/market_price_model.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:magaiees_marketplace/core/network/supabase_safe_query.dart';
 
 class ApiHomeRepository {
   final ApiClient _apiClient;
@@ -29,7 +29,13 @@ class ApiHomeRepository {
 
   Future<List<CategoryModel>> getCategories() async {
     try {
-      final response = await Supabase.instance.client.from('categories').select('*, subcategories(*)').order('created_at', ascending: false);
+      final response = await safeSupabaseQuery(
+        () => Supabase.instance.client
+            .from('categories')
+            .select('*, subcategories(*)')
+            .order('created_at', ascending: false),
+        fallback: () => <dynamic>[],
+      );
       final List<dynamic> data = response;
       return data.map((json) {
         final subs = (json['subcategories'] as List<dynamic>? ?? []).map((sub) {
@@ -38,7 +44,9 @@ class ApiHomeRepository {
             categoryId: sub['category_id'].toString(),
             name: sub['name'] ?? '',
             nameAr: sub['name_ar'] ?? '',
+            imageUrl: sub['image_url'],
             productCount: 0,
+            isVisible: (sub['is_visible'] ?? sub['is_active'] ?? sub['isVisible']) != false,
           );
         }).toList();
 
@@ -50,6 +58,7 @@ class ApiHomeRepository {
           imageUrl: json['image_url'],
           productCount: 0,
           isExclusiveToMagaiees: json['is_magaiees_exclusive'] ?? false,
+          isVisible: (json['is_visible'] ?? json['is_active'] ?? json['isVisible']) != false,
           subCategories: subs,
         );
       }).toList();
@@ -60,7 +69,10 @@ class ApiHomeRepository {
 
   Future<List<MarketPriceModel>> getMarketPrices() async {
     try {
-      final response = await Supabase.instance.client.from('market_prices').select();
+      final response = await safeSupabaseQuery(
+        () => Supabase.instance.client.from('market_prices').select(),
+        fallback: () => <dynamic>[],
+      );
       final List<dynamic> data = response;
       return data.map((json) {
         return MarketPriceModel(

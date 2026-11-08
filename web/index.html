@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <html dir="rtl" lang="ar">
 <head>
+  <base href="$FLUTTER_BASE_HREF">
   <script>
     var path = window.location.pathname;
     var base = path.substring(0, path.lastIndexOf('/') + 1);
-    document.write('<base href="' + base + '">');
+    // dynamically ensure correct base if needed
   </script>
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
@@ -15,6 +16,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+
 
   <!-- iOS meta tags & icons -->
   <meta name="mobile-web-app-capable" content="yes">
@@ -165,15 +168,6 @@
       50% { transform: scale(1.06); opacity: 0.92; }
     }
   </style>
-  <script>
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.getRegistrations().then(function(registrations) {
-        for(let registration of registrations) {
-          registration.unregister();
-        }
-      });
-    }
-  </script>
 </head>
 <body>
   <div id="loading-container">
@@ -190,19 +184,35 @@
   </div>
 
   <script>
+    function hideLoader() {
+      var loader = document.getElementById('loading-container');
+      if (loader) {
+        loader.style.opacity = '0';
+        setTimeout(function() {
+          if (loader.parentNode) loader.parentNode.removeChild(loader);
+        }, 400);
+      }
+    }
     window.addEventListener('flutter-first-frame', function() {
-      // Small delay to let Flutter precache the logo image in memory
-      // before we remove the native splash screen, preventing X-box flash.
-      setTimeout(function() {
-        var loader = document.getElementById('loading-container');
-        if (loader) {
-          loader.style.opacity = '0';
-          setTimeout(function() {
-            loader.remove();
-          }, 400);
-        }
-      }, 300);
+      setTimeout(hideLoader, 200);
     });
+    setTimeout(hideLoader, 3500);
+
+    // Unlock AudioContext on first user interaction for Chrome Autoplay policy
+    function unlockAudioContext() {
+      try {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (AudioContext) {
+          const dummyCtx = new AudioContext();
+          dummyCtx.resume().then(function() {
+            setTimeout(function() { dummyCtx.close(); }, 200);
+          });
+        }
+      } catch(e) {}
+    }
+    window.addEventListener('click', unlockAudioContext, { once: true, capture: true });
+    window.addEventListener('touchstart', unlockAudioContext, { once: true, capture: true });
+    window.addEventListener('keydown', unlockAudioContext, { once: true, capture: true });
   </script>
   <script src="flutter_bootstrap.js" async></script>
 </body>

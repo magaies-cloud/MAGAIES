@@ -15,6 +15,7 @@ import 'package:magaiees_marketplace/features/notifications/application/notifica
 import 'package:magaiees_marketplace/features/notifications/presentation/screens/notifications_screen.dart';
 import 'package:magaiees_marketplace/features/buyer/wishlist/presentation/screens/wishlist_screen.dart';
 import 'package:go_router/go_router.dart';
+import 'package:magaiees_marketplace/core/utils/app_notification.dart';
 
 class BuyerHomeScreen extends ConsumerWidget {
   const BuyerHomeScreen({super.key});
@@ -40,10 +41,12 @@ class BuyerHomeScreen extends ConsumerWidget {
                 return const SizedBox(width: 28, height: 28);
               },
             ),
-            const SizedBox(width: 8),
-            Text(
-              isRtl ? 'منصة مقاييس' : 'Magaiees Platform',
-              style: const TextStyle(fontWeight: FontWeight.bold),
+            Flexible(
+              child: Text(
+                isRtl ? 'منصة مقاييس' : 'Magaiees Platform',
+                style: const TextStyle(fontWeight: FontWeight.bold),
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
           ],
         ),
@@ -179,24 +182,74 @@ class BuyerHomeScreen extends ConsumerWidget {
             child: FeaturedSuppliersWidget(),
           ),
 
-          // 8. Products Feed Header
+          // 8. Products Feed Header & Exclusivity Segment
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.only(left: 16.0, right: 16.0, top: 20.0, bottom: 8.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    isRtl ? 'أحدث المنتجات والمواد المعروضة' : 'Latest Products & Materials',
-                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                  switch (filteredProductsAsync) {
-                    AsyncData(:final value) => Text(
-                        isRtl ? '${value.length} منتج' : '${value.length} products',
-                        style: const TextStyle(color: Colors.grey),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        isRtl ? 'أحدث المنتجات والمواد المعروضة' : 'Latest Products & Materials',
+                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                       ),
-                    _ => const SizedBox.shrink(),
-                  }
+                      switch (filteredProductsAsync) {
+                        AsyncData(:final value) => Text(
+                            isRtl ? '${value.length} منتج' : '${value.length} products',
+                            style: const TextStyle(color: Colors.grey),
+                          ),
+                        _ => const SizedBox.shrink(),
+                      }
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+                  Consumer(
+                    builder: (context, ref, _) {
+                      final currentExclusivity = ref.watch(exclusivityFilterProvider);
+                      return Container(
+                        padding: const EdgeInsets.all(3),
+                        decoration: BoxDecoration(
+                          color: Colors.grey.shade100,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: Colors.grey.shade300),
+                        ),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: _buildHomeSegmentButton(
+                                title: isRtl ? 'الكل' : 'All',
+                                icon: Icons.all_inclusive_rounded,
+                                isSelected: currentExclusivity == 0,
+                                onTap: () => ref.read(exclusivityFilterProvider.notifier).state = 0,
+                                activeColor: Theme.of(context).primaryColor,
+                              ),
+                            ),
+                            Expanded(
+                              child: _buildHomeSegmentButton(
+                                title: isRtl ? '⭐ حصري مقاييس' : '⭐ Exclusive',
+                                icon: Icons.verified_rounded,
+                                isSelected: currentExclusivity == 1,
+                                onTap: () => ref.read(exclusivityFilterProvider.notifier).state = 1,
+                                activeColor: const Color(0xFF1E40AF),
+                              ),
+                            ),
+                            Expanded(
+                              child: _buildHomeSegmentButton(
+                                title: isRtl ? '🏪 متاجر التجار' : '🏪 Merchants',
+                                icon: Icons.storefront_rounded,
+                                isSelected: currentExclusivity == 2,
+                                onTap: () => ref.read(exclusivityFilterProvider.notifier).state = 2,
+                                activeColor: const Color(0xFF0F172A),
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
                 ],
               ),
             ),
@@ -229,7 +282,7 @@ class BuyerHomeScreen extends ConsumerWidget {
                     sliver: SliverGrid(
                       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                         crossAxisCount: 2,
-                        childAspectRatio: 0.7,
+                        childAspectRatio: 0.70,
                         crossAxisSpacing: 12,
                         mainAxisSpacing: 12,
                       ),
@@ -243,13 +296,10 @@ class BuyerHomeScreen extends ConsumerWidget {
                             },
                             onAddToCart: () {
                               ref.read(cartNotifierProvider.notifier).addProduct(product, 1);
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(isRtl ? 'تمت الإضافة إلى السلة' : 'Added to cart'),
-                                  duration: const Duration(seconds: 1),
-                                  behavior: SnackBarBehavior.floating,
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                                ),
+                              AppNotification.showSuccess(
+                                context,
+                                isRtl ? 'تمت الإضافة إلى السلة' : 'Added to cart',
+                                icon: Icons.shopping_bag_outlined,
                               );
                             },
                           );
@@ -258,7 +308,7 @@ class BuyerHomeScreen extends ConsumerWidget {
                       ),
                     ),
                   ),
-            AsyncError(:final error) => SliverToBoxAdapter(
+            AsyncError() => SliverToBoxAdapter(
                 child: Padding(
                   padding: const EdgeInsets.all(32.0),
                   child: Center(
@@ -294,6 +344,59 @@ class BuyerHomeScreen extends ConsumerWidget {
             child: SizedBox(height: 24),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildHomeSegmentButton({
+    required String title,
+    required IconData icon,
+    required bool isSelected,
+    required VoidCallback onTap,
+    required Color activeColor,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(9),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(vertical: 7),
+        decoration: BoxDecoration(
+          color: isSelected ? activeColor : Colors.transparent,
+          borderRadius: BorderRadius.circular(9),
+          boxShadow: isSelected
+              ? [
+                  BoxShadow(
+                    color: activeColor.withValues(alpha: 0.3),
+                    blurRadius: 4,
+                    offset: const Offset(0, 2),
+                  ),
+                ]
+              : null,
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              icon,
+              size: 14,
+              color: isSelected ? Colors.white : Colors.grey.shade700,
+            ),
+            const SizedBox(width: 4),
+            Flexible(
+              child: Text(
+                title,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  color: isSelected ? Colors.white : Colors.grey.shade800,
+                  fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                  fontSize: 12,
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

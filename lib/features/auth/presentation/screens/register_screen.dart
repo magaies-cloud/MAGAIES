@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:magaiees_marketplace/core/constants/app_sizes.dart';
 import 'package:magaiees_marketplace/features/auth/application/auth_provider.dart';
 import 'package:magaiees_marketplace/core/extensions/context_extensions.dart';
+import 'package:magaiees_marketplace/core/utils/data_validator.dart';
 import 'package:go_router/go_router.dart';
 
 class RegisterScreen extends ConsumerStatefulWidget {
@@ -97,12 +98,11 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                     labelText: isRtl ? 'الاسم الكامل (إنجليزي)' : 'Full Name (English)',
                     prefixIcon: const Icon(Icons.person_outline),
                   ),
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return isRtl ? 'مطلوب' : 'Required';
-                    }
-                    return null;
-                  },
+                  validator: (value) => DataValidator.validateName(
+                    value,
+                    fieldName: isRtl ? 'الاسم بالإنجليزية' : 'Full Name (English)',
+                    isRtl: isRtl,
+                  ),
                 ),
                 const SizedBox(height: AppSizes.p16),
                 
@@ -112,12 +112,11 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                     labelText: isRtl ? 'الاسم الكامل (عربي)' : 'Full Name (Arabic)',
                     prefixIcon: const Icon(Icons.person),
                   ),
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return isRtl ? 'مطلوب' : 'Required';
-                    }
-                    return null;
-                  },
+                  validator: (value) => DataValidator.validateName(
+                    value,
+                    fieldName: isRtl ? 'الاسم بالعربية' : 'Full Name (Arabic)',
+                    isRtl: isRtl,
+                  ),
                 ),
                 const SizedBox(height: AppSizes.p16),
 
@@ -128,15 +127,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                     labelText: isRtl ? 'البريد الإلكتروني' : 'Email Address',
                     prefixIcon: const Icon(Icons.email_outlined),
                   ),
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return isRtl ? 'مطلوب' : 'Required';
-                    }
-                    if (!value.contains('@')) {
-                      return isRtl ? 'بريد إلكتروني غير صالح' : 'Invalid email';
-                    }
-                    return null;
-                  },
+                  validator: (value) => DataValidator.validateEmail(value, isRtl: isRtl),
                 ),
                 const SizedBox(height: AppSizes.p16),
 
@@ -148,12 +139,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                     prefixText: '+249 ',
                     prefixIcon: const Icon(Icons.phone_outlined),
                   ),
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return isRtl ? 'مطلوب' : 'Required';
-                    }
-                    return null;
-                  },
+                  validator: (value) => DataValidator.validatePhone(value, isRtl: isRtl),
                 ),
                 const SizedBox(height: AppSizes.p16),
 
@@ -228,7 +214,15 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                 const SizedBox(height: AppSizes.p16),
 
                 TextButton(
-                  onPressed: _isLoading ? null : () => context.pop(),
+                  onPressed: _isLoading
+                      ? null
+                      : () {
+                          if (context.canPop()) {
+                            context.pop();
+                          } else {
+                            context.go('/login');
+                          }
+                        },
                   child: Text(isRtl ? 'لديك حساب بالفعل؟ تسجيل الدخول' : 'Already have an account? Login'),
                 ),
               ],

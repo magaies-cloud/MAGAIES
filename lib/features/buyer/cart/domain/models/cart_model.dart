@@ -26,7 +26,7 @@ class CartModel {
   Map<String, List<CartItemModel>> get itemsByMerchant {
     final map = <String, List<CartItemModel>>{};
     for (var item in items) {
-      final merchantId = item.product.merchantId;
+      final merchantId = item.product.isMagaieesExclusive ? 'magaiees' : item.product.merchantId;
       map.putIfAbsent(merchantId, () => []).add(item);
     }
     return map;

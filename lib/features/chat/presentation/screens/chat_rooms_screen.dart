@@ -1,15 +1,88 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:magaiees_marketplace/features/auth/application/auth_provider.dart';
 import 'package:magaiees_marketplace/features/chat/application/chat_provider.dart';
 import 'package:magaiees_marketplace/features/chat/domain/models/chat_room_model.dart';
+import 'package:magaiees_marketplace/features/chat/presentation/screens/call_screen.dart';
+import 'package:magaiees_marketplace/core/utils/call_ringtone_service.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:intl/intl.dart' hide TextDirection;
+import 'package:magaiees_marketplace/core/utils/name_formatter.dart';
 
-class ChatRoomsScreen extends ConsumerWidget {
+class ChatRoomsScreen extends ConsumerStatefulWidget {
   const ChatRoomsScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ChatRoomsScreen> createState() => _ChatRoomsScreenState();
+}
+
+class _ChatRoomsScreenState extends ConsumerState<ChatRoomsScreen> {
+  RealtimeChannel? _userCallChannel;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _setupUserCallListener();
+    });
+  }
+
+  void _setupUserCallListener() {
+    final user = ref.read(authNotifierProvider).valueOrNull;
+    if (user == null || _userCallChannel != null) return;
+
+    _userCallChannel = Supabase.instance.client.channel('user_call_${user.id}');
+    _userCallChannel?.onBroadcast(
+      event: 'webrtc_signal',
+      callback: (payload) {
+        if (!mounted) return;
+        final senderId = payload['sender_id'];
+        if (senderId == user.id) return;
+        final data = payload['data'] as Map<String, dynamic>?;
+        if (data != null && data['type'] == 'join') {
+          final roomId = data['room_id']?.toString() ?? '';
+          final callerName = data['caller_name']?.toString() ?? 'مستخدم';
+          if (roomId.isNotEmpty &&
+              !CallRingtoneService.isCallActive &&
+              WidgetsBinding.instance.lifecycleState == AppLifecycleState.resumed) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => IncomingCallScreen(
+                  roomId: roomId,
+                  callerName: callerName,
+                  currentUser: user,
+                ),
+              ),
+            ).then((_) {
+              CallRingtoneService.stop();
+            });
+          }
+        }
+      },
+    ).subscribe();
+  }
+
+  @override
+  void dispose() {
+    if (_userCallChannel != null) {
+      try {
+        _userCallChannel!.unsubscribe();
+        Supabase.instance.client.removeChannel(_userCallChannel!);
+      } catch (_) {}
+      _userCallChannel = null;
+    }
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // Re-verify call listener if user logs in or changes
+    final user = ref.watch(authNotifierProvider).valueOrNull;
+    if (user != null && _userCallChannel == null) {
+      _setupUserCallListener();
+    }
     final isRtl = Directionality.of(context) == TextDirection.rtl;
     final roomsAsync = ref.watch(chatRoomsProvider);
 
@@ -81,10 +154,10 @@ class ChatRoomsScreen extends ConsumerWidget {
           return ListView.separated(
             padding: const EdgeInsets.symmetric(vertical: 8),
             itemCount: rooms.length,
-            separatorBuilder: (_, __) => const Divider(height: 1, indent: 72),
+            separatorBuilder: (_, _) => const Divider(height: 1, indent: 72),
             itemBuilder: (context, index) {
               final room = rooms[index];
-              return _ChatRoomTile(room: room, isRtl: isRtl);
+              return _ChatRoomTile(room: room, currentUserId: user?.id ?? '', isRtl: isRtl);
             },
           );
         },
@@ -95,13 +168,28 @@ class ChatRoomsScreen extends ConsumerWidget {
 
 class _ChatRoomTile extends StatelessWidget {
   final ChatRoomModel room;
+  final String currentUserId;
   final bool isRtl;
 
-  const _ChatRoomTile({required this.room, required this.isRtl});
+  const _ChatRoomTile({required this.room, required this.currentUserId, required this.isRtl});
 
   @override
   Widget build(BuildContext context) {
-    final displayName = room.storeName ?? room.otherUserName ?? 'مستخدم';
+    // If the current user is the merchant, show the buyer's name.
+    // If the current user is the buyer, show the store's name.
+    final bool isMerchant = room.merchantId == currentUserId;
+    final String displayName;
+    if (isMerchant) {
+      final raw = room.otherUserName ?? '';
+      final cleaned = NameFormatter.cleanPrefix(raw);
+      displayName = cleaned.isNotEmpty ? cleaned : (isRtl ? 'عميل' : 'Customer');
+    } else {
+      final rawStore = (room.storeName != null && room.storeName!.isNotEmpty)
+          ? room.storeName!
+          : (room.otherUserName ?? '');
+      final cleaned = NameFormatter.cleanPrefix(rawStore);
+      displayName = cleaned.isNotEmpty ? cleaned : (isRtl ? 'متجر' : 'Store');
+    }
     final timeStr = _formatTime(room.lastMessageAt);
     final hasUnread = room.unreadCount > 0;
 

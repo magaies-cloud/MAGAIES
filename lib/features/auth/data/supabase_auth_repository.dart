@@ -1,9 +1,11 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:magaiees_marketplace/core/enums/user_role.dart';
 import 'package:magaiees_marketplace/features/auth/domain/models/user_model.dart';
 import 'package:magaiees_marketplace/features/auth/domain/repositories/auth_repository.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:magaiees_marketplace/core/network/supabase_safe_query.dart';
 
 class SupabaseAuthRepository implements AuthRepository {
   final SupabaseClient _supabase = Supabase.instance.client;
@@ -18,24 +20,126 @@ class SupabaseAuthRepository implements AuthRepository {
     required String email,
     required String password,
   }) async {
-    // 1. Authenticate with Supabase Auth
-    final response = await _supabase.auth.signInWithPassword(
-      email: email,
-      password: password,
-    );
+    final cleanInput = email.trim();
+    final cleanEmail = cleanInput.toLowerCase();
+    final cleanPass = password.trim();
 
-    if (response.user == null) {
-      throw Exception('Login failed: User not found.');
+    AuthResponse? response;
+    Object? authError;
+
+    // 1. Try standard Supabase Auth login
+    try {
+      response = await _supabase.auth.signInWithPassword(
+        email: cleanEmail,
+        password: password,
+      );
+    } catch (e) {
+      authError = e;
+      // Retry with trimmed password if different
+      if (cleanPass != password) {
+        try {
+          response = await _supabase.auth.signInWithPassword(
+            email: cleanEmail,
+            password: cleanPass,
+          );
+          authError = null;
+        } catch (e2) {
+          authError = e2;
+        }
+      }
     }
 
-    // 2. Fetch user profile from public.users table
-    final userData = await _supabase
-        .from('users')
-        .select()
-        .eq('id', response.user!.id)
-        .single();
+    // 2. If standard Auth succeeded, fetch profile from public.users (by ID first, then by email fallback)
+    if (response?.user != null) {
+      final authUser = response!.user!;
+      Map<String, dynamic>? userData = await safeSupabaseQuery(
+        () => _supabase
+            .from('users')
+            .select()
+            .eq('id', authUser.id)
+            .maybeSingle(),
+        fallback: () => null,
+      );
 
-    return _mapSupabaseDataToUserModel(userData);
+      userData ??= await safeSupabaseQuery(
+        () => _supabase
+            .from('users')
+            .select()
+            .ilike('email', cleanEmail)
+            .limit(1)
+            .maybeSingle(),
+        fallback: () => null,
+      );
+
+      // If the user exists in Supabase Auth (old account) but has no row in public.users, reconstruct it
+      if (userData == null) {
+        final meta = authUser.userMetadata ?? {};
+        final fallbackUser = {
+          'id': authUser.id,
+          'name': meta['name']?.toString() ?? cleanEmail.split('@').first,
+          'name_ar': meta['name_ar']?.toString() ?? meta['name']?.toString() ?? cleanEmail.split('@').first,
+          'email': authUser.email ?? cleanEmail,
+          'phone': meta['phone']?.toString() ?? authUser.phone ?? '',
+          'role': meta['role']?.toString() ?? 'buyer',
+        };
+        try {
+          await safeSupabaseQuery(() => _supabase.from('users').upsert(fallbackUser));
+        } catch (e) {
+          debugPrint('Could not auto-upsert missing public.users row: $e');
+        }
+        return _mapSupabaseDataToUserModel(fallbackUser);
+      }
+
+      return _mapSupabaseDataToUserModel(userData);
+    }
+
+    // 3. Fallback: Check if user exists in public.users with a temporary_pin / password
+    // (e.g., staff members created from MerchantTeamScreen or accounts migrated in public.users)
+    try {
+      Map<String, dynamic>? publicUser = await safeSupabaseQuery(
+        () => _supabase
+            .from('users')
+            .select()
+            .ilike('email', cleanEmail)
+            .limit(1)
+            .maybeSingle(),
+        fallback: () => null,
+      );
+
+      publicUser ??= await safeSupabaseQuery(
+        () => _supabase
+            .from('users')
+            .select()
+            .eq('phone', cleanInput)
+            .limit(1)
+            .maybeSingle(),
+        fallback: () => null,
+      );
+
+      if (publicUser != null) {
+        final permsRaw = publicUser['permissions'];
+        Map<String, dynamic> perms = {};
+        if (permsRaw is Map) {
+          perms = Map<String, dynamic>.from(permsRaw);
+        } else if (permsRaw is String) {
+          try {
+            perms = jsonDecode(permsRaw);
+          } catch (_) {}
+        }
+
+        final storedPin = perms['temporary_pin']?.toString() ?? perms['password']?.toString();
+        if (storedPin != null && storedPin.isNotEmpty && (storedPin == password || storedPin == cleanPass)) {
+          return _mapSupabaseDataToUserModel(publicUser);
+        }
+      }
+    } catch (e) {
+      debugPrint('Fallback public.users login check warning: $e');
+    }
+
+    if (authError != null) {
+      throw authError;
+    }
+    throw Exception('Invalid login credentials');
   }
 
   @override
@@ -59,9 +163,10 @@ class SupabaseAuthRepository implements AuthRepository {
     required String phone,
     required String password,
   }) async {
+    final cleanEmail = email.trim().toLowerCase();
     // 1. Create user in Supabase Auth
     final response = await _supabase.auth.signUp(
-      email: email,
+      email: cleanEmail,
       password: password,
     );
 
@@ -74,42 +179,87 @@ class SupabaseAuthRepository implements AuthRepository {
       'id': response.user!.id,
       'name': name,
       'name_ar': nameAr,
-      'email': email,
+      'email': cleanEmail,
       'phone': phone,
       'role': 'buyer', // Default role for new signups
     };
 
-    await _supabase.from('users').insert(newUser);
+    await safeSupabaseQuery(() => _supabase.from('users').upsert(newUser));
 
     // 3. Return mapped UserModel
-    final createdUser = await _supabase
+    final createdUser = await safeSupabaseQuery(() => _supabase
         .from('users')
         .select()
         .eq('id', response.user!.id)
-        .single();
+        .maybeSingle());
 
-    return _mapSupabaseDataToUserModel(createdUser);
+    return _mapSupabaseDataToUserModel(createdUser ?? newUser);
   }
 
   @override
   Future<void> logout() async {
-    await _supabase.auth.signOut();
+    try {
+      await _supabase.auth.signOut();
+    } catch (_) {}
     await clearCache();
   }
 
   @override
   Future<UserModel> refreshSession() async {
-    final session = _supabase.auth.currentSession;
-    if (session == null || session.isExpired) {
-      throw Exception('Session expired');
+    final cached = await getCachedUser();
+    if (cached != null && (cached.role == UserRole.guest || cached.id.startsWith('staff_'))) {
+      return cached;
     }
-    final userData = await _supabase
-        .from('users')
-        .select()
-        .eq('id', session.user.id)
-        .single();
-    
-    return _mapSupabaseDataToUserModel(userData);
+
+    try {
+      await _supabase.auth.refreshSession();
+    } catch (_) {}
+
+    final session = _supabase.auth.currentSession;
+    Map<String, dynamic>? userData;
+
+    if (session != null) {
+      try {
+        userData = await safeSupabaseQuery(() => _supabase
+            .from('users')
+            .select()
+            .eq('id', session.user.id)
+            .maybeSingle());
+      } catch (_) {}
+
+      if (userData == null && session.user.email != null && session.user.email!.isNotEmpty) {
+        try {
+          userData = await safeSupabaseQuery(() => _supabase
+              .from('users')
+              .select()
+              .ilike('email', session.user.email!.trim())
+              .limit(1)
+              .maybeSingle());
+        } catch (_) {}
+      }
+    }
+
+    if (userData == null && cached != null && cached.id.isNotEmpty) {
+      try {
+        userData = await safeSupabaseQuery(() => _supabase
+            .from('users')
+            .select()
+            .eq('id', cached.id)
+            .maybeSingle());
+      } catch (_) {}
+    }
+
+    if (userData != null) {
+      final updated = _mapSupabaseDataToUserModel(userData);
+      await cacheUser(updated);
+      return updated;
+    }
+
+    if (cached != null) {
+      return cached;
+    }
+
+    throw Exception('Session expired');
   }
 
   @override
@@ -118,12 +268,9 @@ class SupabaseAuthRepository implements AuthRepository {
     if (cachedData != null) {
       try {
         final Map<String, dynamic> jsonMap = jsonDecode(cachedData);
-        // We trust the cached user on startup to prevent aggressive logouts on refresh.
-        // API calls will naturally fail if the token is truly expired.
         return UserModel.fromJson(jsonMap);
       } catch (e) {
-        print('Error parsing cached user: $e');
-        // Ignored, let it return null
+        debugPrint('Error parsing cached user: $e');
       }
     }
     return null;
@@ -169,17 +316,24 @@ class SupabaseAuthRepository implements AuthRepository {
       } catch (_) {}
     }
 
+    final storeId = data['store_id']?.toString() ?? perms['store_id']?.toString();
+    final storeName = data['store_name']?.toString() ?? perms['store_name']?.toString();
+    final storeNameAr = data['store_name_ar']?.toString() ?? perms['store_name_ar']?.toString();
+
     return UserModel(
-      id: data['id'],
-      name: data['name'] ?? 'User',
-      nameAr: data['name_ar'],
-      email: data['email'] ?? '',
-      phone: data['phone'] ?? '',
+      id: data['id']?.toString() ?? '',
+      name: data['name']?.toString() ?? 'User',
+      nameAr: data['name_ar']?.toString(),
+      email: data['email']?.toString() ?? '',
+      phone: data['phone']?.toString() ?? '',
       role: role,
       hasStore: data['role'] == 'merchant',
+      storeId: storeId,
+      storeName: storeName,
+      storeNameAr: storeNameAr,
       permissions: perms,
-      merchantPoints: data['merchant_points'] ?? 0,
-      merchantTier: data['merchant_tier'] ?? 'beginner',
+      merchantPoints: (num.tryParse(data['merchant_points']?.toString() ?? '0') ?? 0).toInt(),
+      merchantTier: data['merchant_tier']?.toString() ?? 'beginner',
     );
   }
 }

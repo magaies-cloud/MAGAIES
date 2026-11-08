@@ -1,6 +1,6 @@
 import 'package:magaiees_marketplace/core/enums/user_role.dart';
 
-enum SubscriberStatus { active, suspended, pendingVerification }
+enum SubscriberStatus { active, suspended, pendingVerification, rejectedVerification }
 
 class SubscriberModel {
   final String id;
@@ -18,12 +18,17 @@ class SubscriberModel {
   final int totalOrders;
   final double totalSpent;
   final Map<String, dynamic> permissions;
+  final String membershipNumber;
   final int merchantPoints;
   final String merchantTier;
   final bool directPaymentEnabled;
   final String? bankName;
   final String? bankAccountName;
   final String? bankAccountNumber;
+  // Advertisers and Ads tracking
+  final int totalAdsCount;
+  final double totalAdSpend;
+  final bool isAdvertiser;
 
   const SubscriberModel({
     required this.id,
@@ -41,12 +46,16 @@ class SubscriberModel {
     this.totalOrders = 0,
     this.totalSpent = 0.0,
     this.permissions = const {},
+    this.membershipNumber = '',
     this.merchantPoints = 0,
     this.merchantTier = 'beginner',
     this.directPaymentEnabled = false,
     this.bankName,
     this.bankAccountName,
     this.bankAccountNumber,
+    this.totalAdsCount = 0,
+    this.totalAdSpend = 0.0,
+    this.isAdvertiser = false,
   });
 
   SubscriberModel copyWith({
@@ -65,12 +74,16 @@ class SubscriberModel {
     int? totalOrders,
     double? totalSpent,
     Map<String, dynamic>? permissions,
+    String? membershipNumber,
     int? merchantPoints,
     String? merchantTier,
     bool? directPaymentEnabled,
     String? bankName,
     String? bankAccountName,
     String? bankAccountNumber,
+    int? totalAdsCount,
+    double? totalAdSpend,
+    bool? isAdvertiser,
   }) {
     return SubscriberModel(
       id: id ?? this.id,
@@ -88,12 +101,16 @@ class SubscriberModel {
       totalOrders: totalOrders ?? this.totalOrders,
       totalSpent: totalSpent ?? this.totalSpent,
       permissions: permissions ?? this.permissions,
+      membershipNumber: membershipNumber ?? this.membershipNumber,
       merchantPoints: merchantPoints ?? this.merchantPoints,
       merchantTier: merchantTier ?? this.merchantTier,
       directPaymentEnabled: directPaymentEnabled ?? this.directPaymentEnabled,
       bankName: bankName ?? this.bankName,
       bankAccountName: bankAccountName ?? this.bankAccountName,
       bankAccountNumber: bankAccountNumber ?? this.bankAccountNumber,
+      totalAdsCount: totalAdsCount ?? this.totalAdsCount,
+      totalAdSpend: totalAdSpend ?? this.totalAdSpend,
+      isAdvertiser: isAdvertiser ?? this.isAdvertiser,
     );
   }
 }

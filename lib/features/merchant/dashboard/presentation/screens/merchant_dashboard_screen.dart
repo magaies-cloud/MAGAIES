@@ -1,5 +1,4 @@
 import 'dart:ui';
-import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -13,6 +12,8 @@ import 'package:intl/intl.dart' hide TextDirection;
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
+import 'package:magaiees_marketplace/core/utils/order_number_formatter.dart';
+import 'package:magaiees_marketplace/routing/route_names.dart';
 
 import 'package:magaiees_marketplace/features/merchant/inventory/presentation/screens/merchant_inventory_screen.dart';
 import 'package:magaiees_marketplace/features/merchant/dashboard/presentation/widgets/merchant_tier_widget.dart';
@@ -30,10 +31,10 @@ final merchantDashboardStatsProvider = Provider.autoDispose<AsyncValue<Map<Strin
     return const AsyncValue.loading();
   }
   if (ordersAsync.hasError) {
-    return AsyncValue.error(ordersAsync.error!, ordersAsync.stackTrace!);
+    return AsyncValue.error(ordersAsync.error!, ordersAsync.stackTrace ?? StackTrace.current);
   }
   if (inventoryAsync.hasError) {
-    return AsyncValue.error(inventoryAsync.error!, inventoryAsync.stackTrace!);
+    return AsyncValue.error(inventoryAsync.error!, inventoryAsync.stackTrace ?? StackTrace.current);
   }
 
   final orders = ordersAsync.value ?? [];
@@ -70,14 +71,11 @@ final merchantDashboardStatsProvider = Provider.autoDispose<AsyncValue<Map<Strin
         try {
           final dt = DateTime.parse(createdAtStr).toLocal();
           final orderDate = DateTime(dt.year, dt.month, dt.day);
-          final diff = now.difference(orderDate).inDays;
-          if (diff >= 0 && diff < 7) {
-            // Find index
-            for (int i = 0; i < 7; i++) {
-              if (last7DaysDates[i].isAtSameMomentAs(orderDate)) {
-                dailySales[i] += total;
-                break;
-              }
+          // Directly find the matching date in the last 7 days array
+          for (int i = 0; i < 7; i++) {
+            if (last7DaysDates[i].isAtSameMomentAs(orderDate)) {
+              dailySales[i] += total;
+              break;
             }
           }
         } catch (_) {}
@@ -151,7 +149,8 @@ class _MerchantDashboardScreenState extends ConsumerState<MerchantDashboardScree
       }
 
       final filteredOrders = allOrders.where((o) {
-        final date = DateTime.parse(o['created_at']).toLocal();
+        final date = DateTime.tryParse(o['created_at']?.toString() ?? '')?.toLocal();
+        if (date == null) return false;
         if (_startDate != null && date.isBefore(_startDate!)) return false;
         if (_endDate != null && date.isAfter(_endDate!.add(const Duration(days: 1)))) return false;
         
@@ -185,8 +184,9 @@ class _MerchantDashboardScreenState extends ConsumerState<MerchantDashboardScree
         totalReportPaid += paid;
         totalReportDebt += remaining > 0 ? remaining : 0;
         
-        final dateStr = DateFormat('yyyy-MM-dd').format(DateTime.parse(o['created_at']).toLocal());
-        final orderId = (o['id']?.toString() ?? '').substring(0, 8);
+        final createdAt = DateTime.tryParse(o['created_at']?.toString() ?? '');
+        final dateStr = createdAt != null ? DateFormat('yyyy-MM-dd').format(createdAt.toLocal()) : '---';
+        final orderId = OrderNumberFormatter.formatFromMap(o);
         
         tableData.add(
           isRtl 
@@ -223,7 +223,7 @@ class _MerchantDashboardScreenState extends ConsumerState<MerchantDashboardScree
                 pw.Row(
                   mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                   children: [
-                    _pdfMiniBox(isRtl ? 'إجمالي الإيرادات' : 'Total Revenue', stats['totalRevenue']?.toDouble() ?? 0.0, true, font, boldFont, isRtl, PdfColors.green),
+                    _pdfMiniBox(isRtl ? 'إجمالي الإيرادات' : 'Total Revenue', (stats['totalSales'] as num?)?.toDouble() ?? 0.0, true, font, boldFont, isRtl, PdfColors.green),
                     _pdfMiniBox(isRtl ? 'البضاعة (الأصناف)' : 'Active Products', (stats['activeProducts'] ?? 0).toDouble(), false, font, boldFont, isRtl, PdfColors.blue),
                     _pdfMiniBox(isRtl ? 'طلبات مكتملة' : 'Delivered Orders', (stats['deliveredOrders'] ?? 0).toDouble(), false, font, boldFont, isRtl, PdfColors.teal),
                     _pdfMiniBox(isRtl ? 'إجمالي العملاء' : 'Customers', (stats['customers'] ?? 0).toDouble(), false, font, boldFont, isRtl, PdfColors.purple),
@@ -399,7 +399,7 @@ class _MerchantDashboardScreenState extends ConsumerState<MerchantDashboardScree
                   
                   if (_reportType == 'customer' && customers.isNotEmpty) ...[
                     DropdownButtonFormField<String>(
-                      value: _selectedCustomerId,
+                      value: customers.containsKey(_selectedCustomerId) ? _selectedCustomerId : null,
                       hint: Text(isRtl ? 'اختر العميل' : 'Select Customer'),
                       decoration: const InputDecoration(border: OutlineInputBorder()),
                       items: customers.entries.map((e) => DropdownMenuItem(value: e.key, child: Text(e.value))).toList(),
@@ -550,7 +550,6 @@ class _MerchantDashboardScreenState extends ConsumerState<MerchantDashboardScree
           final totalSales = NumberFormat.decimalPattern().format(stats['totalSales']);
           final totalDebts = NumberFormat.decimalPattern().format(stats['totalDebts']);
           final recentOrders = stats['recentOrders'] as List<Map<String, dynamic>>;
-          final allOrders = stats['allOrders'] as List<Map<String, dynamic>>;
 
           return Builder(
             builder: (context) {
@@ -606,6 +605,11 @@ class _MerchantDashboardScreenState extends ConsumerState<MerchantDashboardScree
                                 },
                               ),
                               IconButton(
+                                icon: const Icon(Icons.analytics_rounded, color: Color(0xFF0F766E)),
+                                tooltip: isRtl ? 'كشف الموقف المالي الشامل ومبيعات الموظفين' : 'Comprehensive Financial Report & Staff Sales',
+                                onPressed: () => context.push(RouteNames.merchantFinancialReport),
+                              ),
+                              IconButton(
                                 icon: const Icon(Icons.picture_as_pdf, color: Colors.red),
                                 tooltip: isRtl ? 'استخراج كشف حساب' : 'Statement of Account',
                                 onPressed: () => _showReportDialog(context, stats, isRtl),
@@ -626,10 +630,16 @@ class _MerchantDashboardScreenState extends ConsumerState<MerchantDashboardScree
                       Expanded(
                         child: _buildMetricCard(
                           context,
-                          title: isRtl ? 'إجمالي المبيعات' : 'Total Sales',
+                          title: isRtl ? 'إجمالي المبيعات (المحفظة)' : 'Total Sales (Wallet)',
                           value: '$totalSales ${isRtl ? 'ج.س' : 'SDG'}',
                           icon: Icons.account_balance_wallet,
                           color: Colors.green,
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (_) => const MerchantWalletScreen()),
+                            );
+                          },
                         ),
                       ),
                       const SizedBox(width: 16),
@@ -643,6 +653,95 @@ class _MerchantDashboardScreenState extends ConsumerState<MerchantDashboardScree
                         ),
                       ),
                     ],
+                  ),
+                ),
+              ),
+
+              // Comprehensive Financial Statement & Staff Attribution Card
+              SliverPadding(
+                padding: const EdgeInsets.only(left: 16.0, right: 16.0, top: 12.0),
+                sliver: SliverToBoxAdapter(
+                  child: InkWell(
+                    onTap: () => context.push(RouteNames.merchantFinancialReport),
+                    borderRadius: BorderRadius.circular(16),
+                    child: Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          colors: [Color(0xFF0F766E), Color(0xFF115E59)],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow: [
+                          BoxShadow(
+                            color: const Color(0xFF0F766E).withOpacity(0.25),
+                            blurRadius: 10,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.15),
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(Icons.assessment_rounded, color: Colors.white, size: 26),
+                          ),
+                          const SizedBox(width: 14),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    Text(
+                                      isRtl ? 'كشف حساب الموقف المالي الشامل' : 'Comprehensive Financial Statement',
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 14.5,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 6),
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                      decoration: BoxDecoration(
+                                        color: Colors.white.withOpacity(0.2),
+                                        borderRadius: BorderRadius.circular(6),
+                                      ),
+                                      child: Text(
+                                        isRtl ? 'جديد' : 'NEW',
+                                        style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  isRtl
+                                      ? 'متابعة الوارد، المنصرف، عمولة المنصة، وتوزيع مبيعات الموظفين مع تصدير PDF'
+                                      : 'Track inflow, outflow, platform fee, & staff sales attribution with PDF export',
+                                  style: TextStyle(
+                                    color: Colors.white.withOpacity(0.85),
+                                    fontSize: 11.5,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Icon(
+                            isRtl ? Icons.arrow_back_ios_new_rounded : Icons.arrow_forward_ios_rounded,
+                            color: Colors.white70,
+                            size: 16,
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
                 ),
               ),
@@ -830,8 +929,7 @@ class _MerchantDashboardScreenState extends ConsumerState<MerchantDashboardScree
                   delegate: SliverChildBuilderDelegate(
                     (context, index) {
                       final order = recentOrders[index];
-                      final idStr = order['id']?.toString() ?? '';
-                      final orderId = idStr.length >= 8 ? idStr.substring(0, 8) : idStr;
+                      final orderId = OrderNumberFormatter.formatFromMap(order);
                       final totalAmount = NumberFormat.decimalPattern().format(double.tryParse(order['total_amount']?.toString() ?? '0') ?? 0);
                       
                       return Card(
@@ -906,17 +1004,21 @@ class _MerchantDashboardScreenState extends ConsumerState<MerchantDashboardScree
     required String value,
     required IconData icon,
     required MaterialColor color,
+    VoidCallback? onTap,
   }) {
     return ClipRRect(
       borderRadius: BorderRadius.circular(16),
       child: BackdropFilter(
         filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
-        child: Container(
-          padding: const EdgeInsets.all(16.0),
-          decoration: BoxDecoration(
-            color: color.shade50.withValues(alpha: 0.6),
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: color.shade200.withValues(alpha: 0.8), width: 1.5),
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(16),
+          child: Container(
+            padding: const EdgeInsets.all(16.0),
+            decoration: BoxDecoration(
+              color: color.shade50.withValues(alpha: 0.6),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: color.shade200.withValues(alpha: 0.8), width: 1.5),
             boxShadow: [
               BoxShadow(
                 color: color.withValues(alpha: 0.05),
@@ -969,6 +1071,7 @@ class _MerchantDashboardScreenState extends ConsumerState<MerchantDashboardScree
           ),
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 }
