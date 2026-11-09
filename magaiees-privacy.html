@@ -3,91 +3,173 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>سياسة الخصوصية - تطبيق مقاييس (Magaiees)</title>
+    <title>سياسة الخصوصية | Privacy Policy - Magaiees Marketplace</title>
     <style>
+        :root {
+            --primary: #1e40af;
+            --primary-light: #2563eb;
+            --bg: #f8fafc;
+            --card: #ffffff;
+            --text: #0f172a;
+            --muted: #475569;
+            --border: #e2e8f0;
+        }
+        * { box-sizing: border-box; }
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            line-height: 1.6;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Tahoma, Arial, sans-serif;
+            line-height: 1.75;
             margin: 0;
-            padding: 20px;
-            background-color: #f9f9f9;
-            color: #333;
+            padding: 0;
+            background-color: var(--bg);
+            color: var(--text);
         }
-        .container {
-            max-width: 800px;
-            margin: auto;
-            background: white;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-        h1, h2, h3 {
-            color: #2c3e50;
-        }
-        h1 {
+        .header {
+            background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%);
+            color: #fff;
+            padding: 44px 20px;
             text-align: center;
-            border-bottom: 2px solid #eee;
-            padding-bottom: 10px;
         }
-        p {
-            margin-bottom: 15px;
+        .header h1 { margin: 0 0 8px; font-size: 28px; }
+        .header p { margin: 0; color: #cbd5e1; font-size: 14px; }
+        .container {
+            max-width: 920px;
+            margin: 28px auto 48px;
+            padding: 0 16px;
         }
-        .contact {
-            background-color: #e8f4f8;
-            padding: 15px;
-            border-right: 4px solid #3498db;
-            margin-top: 30px;
+        .card {
+            background: var(--card);
+            padding: 32px;
+            border-radius: 16px;
+            box-shadow: 0 4px 16px rgba(15, 23, 42, 0.05);
+            border: 1px solid var(--border);
+            margin-bottom: 24px;
         }
+        h2 {
+            color: var(--primary);
+            font-size: 20px;
+            margin-top: 24px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 8px;
+        }
+        h2:first-child { margin-top: 0; }
+        ul { padding-right: 20px; }
+        .en-block {
+            direction: ltr;
+            text-align: left;
+        }
+        .en-block ul { padding-left: 20px; padding-right: 0; }
+        .contact-box {
+            background: #eff6ff;
+            border-right: 4px solid var(--primary-light);
+            padding: 18px 22px;
+            border-radius: 10px;
+            margin-top: 24px;
+        }
+        .en-block .contact-box {
+            border-right: none;
+            border-left: 4px solid var(--primary-light);
+        }
+        .phone-ltr {
+            direction: ltr;
+            unicode-bidi: embed;
+            display: inline-block;
+            font-weight: 700;
+        }
+        footer {
+            text-align: center;
+            padding: 24px;
+            color: var(--muted);
+            font-size: 13px;
+            border-top: 1px solid var(--border);
+            background: #fff;
+        }
+        a { color: var(--primary-light); text-decoration: none; font-weight: 600; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>سياسة الخصوصية (Privacy Policy)</h1>
-        <p><strong>تاريخ التحديث:</strong> 26 أغسطس 2026</p>
-        
-        <p>مرحباً بك في تطبيق <strong>مقاييس (Magaiees)</strong>. نحن نحترم خصوصيتك ونلتزم بحماية بياناتك الشخصية. توضح سياسة الخصوصية هذه كيفية جمع واستخدام وحماية المعلومات التي تقدمها لنا عند استخدامك لتطبيقنا.</p>
+    <header class="header">
+        <h1>سياسة الخصوصية — Privacy Policy</h1>
+        <p>تطبيق منصة مقاييس (Magaiees Marketplace) • آخر تحديث: نوفمبر 2026</p>
+    </header>
 
-        <h2>1. المعلومات التي نجمعها</h2>
-        <p>قد نقوم بجمع المعلومات التالية لتحسين تجربتك في التطبيق:</p>
-        <ul>
-            <li><strong>المعلومات الشخصية:</strong> مثل الاسم، وعنوان البريد الإلكتروني، ورقم الهاتف (عند التسجيل أو التواصل معنا).</li>
-            <li><strong>بيانات الاستخدام:</strong> تفاصيل حول كيفية استخدامك للتطبيق، والأعطال، وبيانات الأداء لتحسين الجودة.</li>
-            <li><strong>بيانات الجهاز:</strong> مثل نوع الجهاز، ونظام التشغيل، ومعرّف الجهاز الفريد.</li>
-        </ul>
+    <main class="container">
+        <!-- Arabic Privacy Policy -->
+        <section class="card">
+            <h2>1. مقدمة</h2>
+            <p>مرحباً بك في تطبيق <strong>مقاييس (Magaiees Marketplace)</strong>. نحن نحترم خصوصيتك ونلتزم بحماية بياناتك الشخصية وفق أعلى المعايير الأمنية ومتطلبات متجري Apple App Store و Google Play. توضح هذه السياسة أنواع البيانات التي نجمعها وكيفية استخدامها وحمايتها وحقوقك الكاملة بشأنها.</p>
 
-        <h2>2. كيف نستخدم معلوماتك</h2>
-        <p>نستخدم المعلومات التي نجمعها للأغراض التالية:</p>
-        <ul>
-            <li>تشغيل التطبيق وتقديم الخدمات المطلوبة.</li>
-            <li>تحسين تجربة المستخدم وإصلاح الأعطال.</li>
-            <li>التواصل معك وتقديم الدعم الفني.</li>
-            <li>إرسال الإشعارات والتحديثات الهامة المتعلقة بالتطبيق.</li>
-        </ul>
+            <h2>2. البيانات التي نجمعها والغرض منها</h2>
+            <ul>
+                <li><strong>بيانات الحساب والتواصل (Name, Email, Phone Number):</strong> يتم جمع الاسم، البريد الإلكتروني، ورقم الهاتف عند إنشاء حساب أو إتمام طلب شراء، وذلك لتوثيق الحساب، تسليم الطلبات، والتواصل بخصوص حالة الشحنات.</li>
+                <li><strong>بيانات الطلبات والمعاملات:</strong> تشمل المنتجات المطلوبة، عناوين التوصيل للمشاريع، وصور إيصالات التحويل البنكي المرفوعة من قبل المشتري لغرض مطابقة وتأكيد الدفع.</li>
+            </ul>
 
-        <h2>3. مشاركة المعلومات</h2>
-        <p>نحن لا نقوم ببيع أو تأجير معلوماتك الشخصية لأي أطراف خارجية. قد نشارك بعض البيانات مجهولة المصدر مع شركاء التحليلات (مثل Google Analytics) فقط بغرض تحسين أداء التطبيق.</p>
+            <h2>3. أذونات الجهاز التي يطلبها التطبيق (Device Permissions)</h2>
+            <ul>
+                <li><strong>الكاميرا (Camera):</strong> تُستخدم فقط عند رغبتك في تصوير منتج لعرضه للبيع، أو تصوير إيصال دفع بنكي، أو إجراء مكالمة فيديو مباشرة مع التاجر.</li>
+                <li><strong>الميكروفون (Microphone):</strong> يُستخدم فقط لإرسال الرسائل الصوتية وإجراء المكالمات الصوتية/المرئية المباشرة بين المشتري والتاجر داخل المحادثة.</li>
+                <li><strong>معرض الصور (Photo Library):</strong> يُستخدم لاختيار صور المنتجات، شعارات المتاجر، وإيصالات التحويل البنكي، أو حفظ الفواتير على جهازك.</li>
+                <li><strong>بصمة الوجه / الأصبع (Face ID / Biometrics):</strong> تُستخدم اختيارياً لتسجيل الدخول السريع والآمن إلى حسابك، وتتم معالجتها محلياً عبر نظام الهاتف دون تخزين أي بيانات حيوية على خوادمنا.</li>
+            </ul>
 
-        <h2>4. أمان البيانات</h2>
-        <p>نحن نتخذ كافة التدابير التقنية والأمنية المعقولة لحماية بياناتك من الوصول غير المصرح به أو التعديل أو الإفصاح أو التدمير.</p>
+            <h2>4. عدم التتبع الإعلاني وعدم بيع البيانات (No Tracking Policy)</h2>
+            <p>نؤكد التزامنا التام بأنه <strong>لا يتم بيع أو تأجير أو مشاركة بياناتك الشخصية مع أي شركات إعلانية أو أطراف ثالثة لأغراض التتبع (Zero Third-Party Tracking)</strong>. تُستخدم البيانات حصرياً لتشغيل وظائف التطبيق الأساسية (App Functionality).</p>
 
-        <h2>5. حقوق المستخدم وحذف الحساب والبيانات (Account & Data Deletion)</h2>
-        <p>يحق لك في أي وقت طلب الوصول إلى بياناتك الشخصية، أو تعديلها، أو حذف حسابك وبياناتك نهائياً:</p>
-        <ul>
-            <li><strong>الحذف من داخل التطبيق:</strong> يمكنك طلب حذف حسابك مباشرة من خلال فتح التطبيق &gt; الانتقال إلى "الملف الشخصي" &gt; الضغط على "حذف الحساب نهائياً". سيتم حذف بيانات حسابك وكلمات المرور ومعلومات الاتصال فورياً.</li>
-            <li><strong>الحذف عبر البريد الإلكتروني أو الويب:</strong> يمكنك أيضاً طلب حذف حسابك وبياناتك المرتبطة به دون الحاجة لفتح التطبيق عبر مراسلتنا على: <strong>support@elsajana.com</strong> بعنوان "طلب حذف حساب". سيتم تنفيذ الحذف بالكامل خلال 24 ساعة.</li>
-            <li><strong>البيانات التي يتم حذفها:</strong> الاسم، البريد الإلكتروني، رقم الهاتف، العناوين، وسجلات الدخول.</li>
-            <li><strong>البيانات التي قد يتم الاحتفاظ بها:</strong> سجلات المعاملات المالية والفواتير لأغراض الامتثال المحاسبي والقانوني وفق الأنظمة السارية.</li>
-        </ul>
+            <h2>5. حذف الحساب والبيانات نهائياً (Account &amp; Data Deletion)</h2>
+            <p>يحق لك في أي وقت حذف حسابك وجميع بياناتك الشخصية نهائياً:</p>
+            <ul>
+                <li><strong>الحذف الفوري من داخل التطبيق:</strong> افتح التطبيق &gt; انتقل إلى <strong>الملف الشخصي (Profile)</strong> &gt; قسم <strong>الأمان والحساب</strong> &gt; اضغط على <strong>"إلغاء أو حذف الحساب" (Delete Account)</strong> ثم أكد الحذف.</li>
+                <li><strong>الحذف عبر الويب أو الدعم المباشر:</strong> يمكنك أيضاً تقديم طلب حذف عبر <a href="support.html">صفحة الدعم الفني</a> أو مراسلتنا على البريد <span class="phone-ltr">magaiees00105@gmail.com</span> أو الرقم <span class="phone-ltr">0096899051925</span>.</li>
+            </ul>
 
-        <h2>6. التغييرات على سياسة الخصوصية</h2>
-        <p>قد نقوم بتحديث سياسة الخصوصية هذه من وقت لآخر. سنقوم بإعلامك بأي تغييرات جوهرية عن طريق نشر السياسة الجديدة في هذه الصفحة وتحديث "تاريخ التحديث".</p>
+            <div class="contact-box">
+                <strong>للتواصل والاستفسارات حول الخصوصية:</strong><br>
+                البريد الإلكتروني: <a href="mailto:magaiees00105@gmail.com">magaiees00105@gmail.com</a><br>
+                الهاتف / واتساب: <a href="tel:0096899051925" class="phone-ltr">0096899051925</a><br>
+                مركز الدعم الفني: <a href="support.html">https://magaies-cloud.github.io/MAGAIES/support.html</a>
+            </div>
+        </section>
 
-        <div class="contact">
-            <h3>7. تواصل معنا</h3>
-            <p>إذا كان لديك أي أسئلة أو استفسارات حول سياسة الخصوصية هذه، يرجى التواصل معنا عبر:</p>
-            <p><strong>البريد الإلكتروني:</strong> support@elsajana.com</p>
-            <p><strong>الموقع الإلكتروني:</strong> elsajana.com</p>
-        </div>
-    </div>
+        <!-- English Privacy Policy for Apple Review Compliance -->
+        <section class="card en-block">
+            <h2>Privacy Policy (English Version)</h2>
+            <p><strong>Magaiees Marketplace</strong> ("we", "our", or "the App") respects your privacy and is committed to protecting your personal data in full compliance with Apple App Store and Google Play policies.</p>
+
+            <h2>1. Information We Collect &amp; Purpose</h2>
+            <ul>
+                <li><strong>Contact Information (Name, Email Address, Phone Number):</strong> Collected when you register an account or place an order, strictly for <strong>App Functionality</strong> (account authentication, order fulfillment, delivery coordination, and customer support).</li>
+                <li><strong>Order &amp; Receipt Data:</strong> Delivery addresses, bulk quote specifications, and bank transfer receipt images uploaded by users to verify order payments.</li>
+            </ul>
+
+            <h2>2. Device Permissions Disclosure</h2>
+            <ul>
+                <li><strong>Camera (`NSCameraUsageDescription`):</strong> Used only when you capture product photos, photograph bank transfer receipts, or participate in live video calls between buyers and merchants.</li>
+                <li><strong>Microphone (`NSMicrophoneUsageDescription`):</strong> Used only when recording voice messages in chat or conducting real-time voice/video calls with merchants.</li>
+                <li><strong>Photo Library (`NSPhotoLibraryUsageDescription`):</strong> Used only to select and upload product images, store logos, and payment receipts, or to save order invoices.</li>
+                <li><strong>Face ID / Biometrics (`NSFaceIDUsageDescription`):</strong> Optional local authentication for quick sign-in. Biometric data is handled strictly by iOS Secure Enclave and is never transmitted or stored on our servers.</li>
+            </ul>
+
+            <h2>3. No Tracking &amp; Third-Party Sharing</h2>
+            <p>We <strong>do not track users across third-party apps or websites</strong>, and we <strong>never sell or rent your personal data</strong> to advertisers or data brokers. Data is transmitted securely over HTTPS/TLS via Supabase cloud infrastructure.</p>
+
+            <h2>4. Account &amp; Data Deletion (Apple Guideline 5.1.1(v))</h2>
+            <p>Users have full control over their data and can permanently delete their account at any time:</p>
+            <ul>
+                <li><strong>In-App Deletion:</strong> Open the app &rarr; go to <strong>Profile</strong> &rarr; <strong>Security &amp; Account</strong> &rarr; tap <strong>Delete / Deactivate Account</strong> and confirm.</li>
+                <li><strong>Web / Direct Request:</strong> Submit a deletion request via our <a href="support.html">Support Center</a> or contact us directly at <a href="mailto:magaiees00105@gmail.com">magaiees00105@gmail.com</a> or <a href="tel:0096899051925">0096899051925</a>.</li>
+            </ul>
+
+            <div class="contact-box">
+                <strong>Contact Us:</strong><br>
+                Email: <a href="mailto:magaiees00105@gmail.com">magaiees00105@gmail.com</a><br>
+                Phone / WhatsApp: <a href="tel:0096899051925">0096899051925</a> (+968 9905 1925)<br>
+                Support URL: <a href="support.html">https://magaies-cloud.github.io/MAGAIES/support.html</a>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>© 2026 Magaiees Marketplace. All Rights Reserved. | <a href="support.html">Support Center</a></p>
+    </footer>
 </body>
 </html>

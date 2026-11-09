@@ -450,10 +450,10 @@ class BuyerProfileScreen extends ConsumerWidget {
                 ListTile(
                   leading: const Icon(Icons.chat_bubble_outline, color: Colors.green),
                   title: Text(context.isRtl ? 'محادثة الدعم الفني (واتساب)' : 'WhatsApp Technical Support'),
-                  subtitle: const Text('+249 91 234 5678 / +966 50 123 4567'),
+                  subtitle: const Text('0096899051925'),
                   trailing: const Icon(Icons.arrow_forward_ios, size: 16),
                   onTap: () async {
-                    final uri = Uri.parse('https://wa.me/249912345678');
+                    final uri = Uri.parse('https://wa.me/96899051925');
                     try {
                       final launched = await launchUrl(uri, mode: LaunchMode.externalApplication);
                       if (!launched && context.mounted) {
@@ -470,18 +470,18 @@ class BuyerProfileScreen extends ConsumerWidget {
                 ListTile(
                   leading: const Icon(Icons.headset_mic_outlined, color: Colors.indigo),
                   title: Text(context.isRtl ? 'الاتصال بالرقم الموحد' : 'Customer Service Hotline'),
-                  subtitle: const Text('800 123 4567'),
+                  subtitle: const Text('0096899051925'),
                   trailing: const Icon(Icons.call, size: 18, color: Colors.indigo),
                   onTap: () async {
-                    final uri = Uri.parse('tel:8001234567');
+                    final uri = Uri.parse('tel:0096899051925');
                     try {
                       final launched = await launchUrl(uri);
                       if (!launched && context.mounted) {
-                        context.showSnackBar(context.isRtl ? 'الاتصال بخدمة العملاء: 8001234567' : 'Calling hotline: 8001234567');
+                        context.showSnackBar(context.isRtl ? 'الاتصال بخدمة العملاء: 0096899051925' : 'Calling hotline: 0096899051925');
                       }
                     } catch (_) {
                       if (context.mounted) {
-                        context.showSnackBar(context.isRtl ? 'الاتصال بخدمة العملاء: 8001234567' : 'Calling hotline: 8001234567');
+                        context.showSnackBar(context.isRtl ? 'الاتصال بخدمة العملاء: 0096899051925' : 'Calling hotline: 0096899051925');
                       }
                     }
                   },

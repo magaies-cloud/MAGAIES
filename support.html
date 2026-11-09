@@ -3,68 +3,320 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>الدعم الفني وخدمة العملاء - منصة مقاييس (Magaiees Support)</title>
+    <title>مركز الدعم الفني وخدمة العملاء | Magaiees Marketplace Support Center</title>
     <style>
+        :root {
+            --primary: #1e40af;
+            --primary-light: #2563eb;
+            --secondary: #f97316;
+            --bg: #f8fafc;
+            --card: #ffffff;
+            --text: #0f172a;
+            --muted: #475569;
+            --border: #e2e8f0;
+            --success: #16a34a;
+        }
+        * {
+            box-sizing: border-box;
+        }
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Tahoma, Arial, sans-serif;
             line-height: 1.7;
             margin: 0;
-            padding: 20px;
-            background-color: #f8fafc;
-            color: #0f172a;
+            padding: 0;
+            background-color: var(--bg);
+            color: var(--text);
+        }
+        .hero {
+            background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 60%, #2563eb 100%);
+            color: #ffffff;
+            padding: 48px 20px;
+            text-align: center;
+        }
+        .hero-badge {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.15);
+            padding: 6px 16px;
+            border-radius: 999px;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.25);
+        }
+        .hero h1 {
+            margin: 0 0 10px;
+            font-size: 28px;
+            font-weight: 800;
+        }
+        .hero p {
+            margin: 0 auto;
+            max-width: 680px;
+            color: #cbd5e1;
+            font-size: 15px;
         }
         .container {
-            max-width: 800px;
-            margin: 20px auto;
-            background: #ffffff;
-            padding: 32px;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            max-width: 960px;
+            margin: -28px auto 48px;
+            padding: 0 16px;
         }
-        h1, h2 {
-            color: #1e40af;
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
         }
-        h1 {
+        .contact-card {
+            background: var(--card);
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 10px 25px rgba(15, 23, 42, 0.06);
+            border: 1px solid var(--border);
             text-align: center;
-            border-bottom: 2px solid #e2e8f0;
-            padding-bottom: 14px;
+            transition: transform 0.2s ease;
         }
-        .card {
-            background: #eff6ff;
-            border-right: 4px solid #2563eb;
-            padding: 16px 20px;
-            border-radius: 8px;
-            margin: 20px 0;
+        .contact-card:hover {
+            transform: translateY(-2px);
         }
-        a {
-            color: #2563eb;
+        .icon-circle {
+            width: 52px;
+            height: 52px;
+            border-radius: 14px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin-bottom: 12px;
+        }
+        .bg-blue { background: #eff6ff; color: #2563eb; }
+        .bg-green { background: #f0fdf4; color: #16a34a; }
+        .bg-orange { background: #fff7ed; color: #ea580c; }
+        .contact-card h3 {
+            margin: 0 0 6px;
+            font-size: 17px;
+            color: var(--text);
+        }
+        .contact-card p {
+            margin: 0 0 14px;
+            font-size: 13px;
+            color: var(--muted);
+        }
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 14px;
             text-decoration: none;
-            font-weight: bold;
+            transition: opacity 0.2s;
+            cursor: pointer;
+            border: none;
+        }
+        .btn:hover { opacity: 0.92; }
+        .btn-primary { background: var(--primary-light); color: #fff; }
+        .btn-success { background: var(--success); color: #fff; }
+        .btn-outline { background: #f1f5f9; color: var(--text); border: 1px solid var(--border); }
+        .phone-ltr {
+            direction: ltr;
+            unicode-bidi: embed;
+            display: inline-block;
+            font-weight: 800;
+            font-size: 16px;
+            color: var(--primary);
+        }
+        .section-card {
+            background: var(--card);
+            border-radius: 16px;
+            padding: 28px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04);
+            border: 1px solid var(--border);
+        }
+        .section-title {
+            margin-top: 0;
+            color: var(--primary);
+            font-size: 20px;
+            border-bottom: 2px solid #f1f5f9;
+            padding-bottom: 12px;
+            margin-bottom: 20px;
+        }
+        .faq-item {
+            border-bottom: 1px solid var(--border);
+            padding: 14px 0;
+        }
+        .faq-item:last-child { border-bottom: none; }
+        .faq-item h4 {
+            margin: 0 0 6px;
+            font-size: 16px;
+            color: #1e293b;
+        }
+        .faq-item p {
+            margin: 0;
+            color: var(--muted);
+            font-size: 14px;
+        }
+        .form-group {
+            margin-bottom: 16px;
+        }
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 6px;
+            font-size: 14px;
+        }
+        .form-control {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1px solid #cbd5e1;
+            border-radius: 10px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+        .alert-success {
+            display: none;
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            color: #166534;
+            padding: 14px;
+            border-radius: 10px;
+            margin-top: 14px;
+            font-weight: 600;
+        }
+        .en-section {
+            direction: ltr;
+            text-align: left;
+        }
+        footer {
+            text-align: center;
+            padding: 28px 16px;
+            color: var(--muted);
+            font-size: 13px;
+            border-top: 1px solid var(--border);
+            background: #fff;
+        }
+        footer a {
+            color: var(--primary-light);
+            text-decoration: none;
+            font-weight: 600;
+            margin: 0 8px;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>مركز الدعم الفني وخدمة العملاء - منصة مقاييس (Magaiees Marketplace)</h1>
-        <p>مرحباً بك في صفحة الدعم الرسمي لتطبيق <strong>مقاييس (Magaiees Marketplace)</strong> لتجارة وتوريد مواد البناء والمعدات الهندسية.</p>
 
-        <div class="card">
-            <h2>قنوات التواصل المباشر (Direct Support Channels)</h2>
-            <p><strong>البريد الإلكتروني للدعم الفني:</strong> <a href="mailto:magaiees00105@gmail.com">magaiees00105@gmail.com</a></p>
-            <p><strong>الدعم عبر واتساب / الهاتف:</strong> +249 91 234 5678 / +966 50 123 4567</p>
-            <p><strong>ساعات العمل:</strong> على مدار الساعة طوال أيام الأسبوع (24/7)</p>
+    <header class="hero">
+        <div class="hero-badge">الدعم الرسمي المعتمد • Official App Support</div>
+        <h1>منصة مقاييس — Magaiees Marketplace</h1>
+        <p>مركز المساعدة والدعم الفني وخدمة العملاء لتجارة وتوريد مواد البناء والمعدات الهندسية<br>Customer Support &amp; Technical Help Center (iOS &amp; Android)</p>
+    </header>
+
+    <main class="container">
+        <!-- Direct Contact Cards -->
+        <div class="grid-3">
+            <div class="contact-card">
+                <div class="icon-circle bg-green">💬</div>
+                <h3>واتساب والهاتف المباشر<br><small style="font-weight:normal;color:#64748b;">WhatsApp &amp; Direct Phone</small></h3>
+                <p><span class="phone-ltr">0096899051925</span></p>
+                <a class="btn btn-success" href="https://wa.me/96899051925" target="_blank" rel="noopener">محادثة واتساب مباشرة</a>
+            </div>
+
+            <div class="contact-card">
+                <div class="icon-circle bg-blue">📞</div>
+                <h3>الاتصال الهاتفي بخدمة العملاء<br><small style="font-weight:normal;color:#64748b;">Customer Care Hotline</small></h3>
+                <p><span class="phone-ltr">+968 9905 1925</span></p>
+                <a class="btn btn-primary" href="tel:0096899051925">اتصال مباشر الآن</a>
+            </div>
+
+            <div class="contact-card">
+                <div class="icon-circle bg-orange">✉️</div>
+                <h3>البريد الإلكتروني الرسمي<br><small style="font-weight:normal;color:#64748b;">Official Support Email</small></h3>
+                <p><span class="phone-ltr">magaiees00105@gmail.com</span></p>
+                <a class="btn btn-outline" href="mailto:magaiees00105@gmail.com">إرسال بريد إلكتروني</a>
+            </div>
         </div>
 
-        <h2>الأسئلة الشائعة ومساعدة الحسابات</h2>
-        <ul>
-            <li><strong>متابعة الطلبات وإيصالات الدفع:</strong> يمكنك متابعة حالة طلباتك ورفع إيصالات التحويل البنكي مباشرة من قسم "طلباتي" داخل التطبيق.</li>
-            <li><strong>ترقية الحساب إلى تاجر:</strong> يمكنك تقديم طلب فتح متجر وتوثيق حسابك من قسم "الملف الشخصي".</li>
-            <li><strong>حذف الحساب والبيانات:</strong> يمكنك حذف حسابك وبياناتك نهائياً في أي وقت من داخل التطبيق عبر: الملف الشخصي &gt; إلغاء أو حذف الحساب، أو بمراسلتنا عبر البريد الإلكتروني أعلاه.</li>
-        </ul>
+        <!-- Arabic FAQ & Help -->
+        <section class="section-card">
+            <h2 class="section-title">الأسئلة الشائعة ودليل استخدام التطبيق (FAQ)</h2>
+            <div class="faq-item">
+                <h4>1. كيف يمكنني الشراء أو طلب تسعيرة كميات كبيرة؟</h4>
+                <p>يمكنك تصفح كافة أقسام مواد البناء كزائر أو كمستخدم مسجل، وإضافة المنتجات إلى السلة وإتمام الطلب، أو استخدام ميزة "الوسيط الرقمي" لطلب عروض أسعار للكميات والمشاريع الكبيرة مباشرة من الموردين المعتمدين.</p>
+            </div>
+            <div class="faq-item">
+                <h4>2. كيف أتابع حالة طلبي وأرفع إيصال التحويل البنكي؟</h4>
+                <p>من شاشة "طلباتي" داخل التطبيق يمكنك متابعة حالة الطلب لحظياً، إرفاق صورة إيصال التحويل البنكي عبر الكاميرا أو معرض الصور، والتواصل المباشر مع التاجر عبر المحادثة الفورية أو المكالمات الصوتية.</p>
+            </div>
+            <div class="faq-item">
+                <h4>3. كيف يمكنني ترقية حسابي إلى تاجر أو مورد معتمد؟</h4>
+                <p>انتقل إلى "الملف الشخصي" واضغط على "ترقية حسابك إلى تاجر"، ثم أدخل اسم متجرك أو شركتك وارفع صورة مستند التوثيق الرسمي ليتم تفعيل متجرك من قبل الإدارة.</p>
+            </div>
+            <div class="faq-item">
+                <h4>4. كيف يمكنني حذف حسابي وبياناتي نهائياً (Account Deletion)؟</h4>
+                <p>نوفر لك خيار الحذف الفوري من داخل التطبيق عبر الذهاب إلى: <strong>الملف الشخصي &gt; الأمان والحساب &gt; إلغاء أو حذف الحساب</strong>، ثم تأكيد الحذف. كما يمكنك طلب الحذف عبر النموذج أدناه أو بالتواصل معنا على الرقم <span class="phone-ltr">0096899051925</span> أو البريد الإلكتروني <span class="phone-ltr">magaiees00105@gmail.com</span>.</p>
+            </div>
+        </section>
 
-        <p style="text-align:center; margin-top:30px;">
-            <a href="magaiees-privacy.html">الاطلاع على سياسة الخصوصية (Privacy Policy)</a>
+        <!-- Interactive Support & Account Deletion Form -->
+        <section class="section-card">
+            <h2 class="section-title">نموذج طلب الدعم الفني / إدارة الحساب (Support &amp; Account Request Form)</h2>
+            <form id="supportForm" onsubmit="handleSupportSubmit(event)">
+                <div class="form-group">
+                    <label>الاسم الكامل / Full Name *</label>
+                    <input type="text" class="form-control" required placeholder="أدخل اسمك الكامل / Enter your full name">
+                </div>
+                <div class="form-group">
+                    <label>البريد الإلكتروني أو رقم الهاتف / Email or Phone Number *</label>
+                    <input type="text" class="form-control" required placeholder="example@mail.com / 0096899051925">
+                </div>
+                <div class="form-group">
+                    <label>نوع الطلب / Request Type *</label>
+                    <select class="form-control" required>
+                        <option value="support">استفسار أو دعم فني عام (General Technical Support)</option>
+                        <option value="order">متابعة طلب أو إيصال دفع (Order &amp; Payment Inquiry)</option>
+                        <option value="merchant">توثيق وترقية حساب تاجر (Merchant Verification)</option>
+                        <option value="delete">طلب حذف الحساب والبيانات نهائياً (Account &amp; Data Deletion Request)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>تفاصيل الرسالة / Message Details *</label>
+                    <textarea class="form-control" rows="4" required placeholder="اكتب تفاصيل طلبك أو استفسارك هنا... / Describe your inquiry here..."></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">إرسال الطلب / Submit Request</button>
+                <div id="formSuccess" class="alert-success">
+                    تم استلام طلبك بنجاح! سيقوم فريق دعم منصة مقاييس بالرد عليك خلال أقل من 24 ساعة.<br>
+                    Your request has been received! Our support team will respond within 24 hours.
+                </div>
+            </form>
+        </section>
+
+        <!-- English Support Section for Apple App Store Reviewers -->
+        <section class="section-card en-section">
+            <h2 class="section-title">English Support Overview (For iOS &amp; App Store Users)</h2>
+            <p><strong>Magaiees Marketplace</strong> is a B2B &amp; B2C digital marketplace for procuring construction materials, steel, cement, electrical, plumbing, and engineering equipment.</p>
+            <ul>
+                <li><strong>Customer Support Phone / WhatsApp:</strong> <a href="tel:0096899051925">0096899051925</a> (+968 9905 1925)</li>
+                <li><strong>Support Email:</strong> <a href="mailto:magaiees00105@gmail.com">magaiees00105@gmail.com</a></li>
+                <li><strong>Operating Hours:</strong> 24/7 Customer &amp; Technical Support</li>
+                <li><strong>In-App Account Deletion:</strong> Users can permanently delete their account at any time directly inside the iOS app by navigating to <em>Profile &rarr; Security &amp; Account &rarr; Delete / Deactivate Account</em>, or by submitting an account deletion request on this page.</li>
+            </ul>
+        </section>
+    </main>
+
+    <footer>
+        <p>© 2026 Magaiees Marketplace (منصة مقاييس). جميع الحقوق محفوظة — All Rights Reserved.</p>
+        <p>
+            <a href="magaiees-privacy.html">سياسة الخصوصية (Privacy Policy)</a> |
+            <a href="support.html">مركز الدعم (Support Center)</a> |
+            <a href="mailto:magaiees00105@gmail.com">magaiees00105@gmail.com</a> |
+            <span class="phone-ltr">0096899051925</span>
         </p>
-    </div>
+    </footer>
+
+    <script>
+        function handleSupportSubmit(e) {
+            e.preventDefault();
+            document.getElementById('formSuccess').style.display = 'block';
+            e.target.reset();
+        }
+    </script>
 </body>
 </html>
