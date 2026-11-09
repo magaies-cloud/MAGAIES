@@ -1,0 +1,1077 @@
+import 'dart:ui';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:magaiees_marketplace/core/enums/app_mode.dart';
+import 'package:magaiees_marketplace/features/mode_switch/application/mode_provider.dart';
+import 'package:magaiees_marketplace/features/merchant/orders/presentation/screens/merchant_orders_screen.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:fl_chart/fl_chart.dart';
+import 'package:magaiees_marketplace/features/auth/application/auth_provider.dart';
+import 'package:intl/intl.dart' hide TextDirection;
+import 'package:pdf/pdf.dart';
+import 'package:pdf/widgets.dart' as pw;
+import 'package:printing/printing.dart';
+import 'package:magaiees_marketplace/core/utils/order_number_formatter.dart';
+import 'package:magaiees_marketplace/routing/route_names.dart';
+
+import 'package:magaiees_marketplace/features/merchant/inventory/presentation/screens/merchant_inventory_screen.dart';
+import 'package:magaiees_marketplace/features/merchant/dashboard/presentation/widgets/merchant_tier_widget.dart';
+import 'package:magaiees_marketplace/features/merchant/dashboard/presentation/screens/merchant_wallet_screen.dart';
+import 'package:magaiees_marketplace/features/merchant/store_management/presentation/screens/merchant_coupons_screen.dart';
+import 'package:magaiees_marketplace/features/merchant/store_management/presentation/screens/merchant_reviews_screen.dart';
+import 'package:magaiees_marketplace/features/notifications/application/notifications_provider.dart';
+import 'package:magaiees_marketplace/features/notifications/presentation/screens/notifications_screen.dart';
+
+final merchantDashboardStatsProvider = Provider.autoDispose<AsyncValue<Map<String, dynamic>>>((ref) {
+  final ordersAsync = ref.watch(merchantOrdersProvider);
+  final inventoryAsync = ref.watch(merchantInventoryProvider);
+  
+  if (ordersAsync.isLoading || inventoryAsync.isLoading) {
+    return const AsyncValue.loading();
+  }
+  if (ordersAsync.hasError) {
+    return AsyncValue.error(ordersAsync.error!, ordersAsync.stackTrace ?? StackTrace.current);
+  }
+  if (inventoryAsync.hasError) {
+    return AsyncValue.error(inventoryAsync.error!, inventoryAsync.stackTrace ?? StackTrace.current);
+  }
+
+  final orders = ordersAsync.value ?? [];
+  final products = inventoryAsync.value ?? [];
+
+  double totalSales = 0;
+  double totalDebts = 0;
+  int pendingCount = 0;
+  int deliveredCount = 0;
+  Set<String> uniqueCustomers = {};
+
+  final now = DateTime.now();
+  final last7DaysDates = List.generate(7, (i) {
+    final d = now.subtract(Duration(days: 6 - i));
+    return DateTime(d.year, d.month, d.day);
+  });
+  final List<double> dailySales = List.filled(7, 0.0);
+
+  for (var order in orders) {
+    if (order['status'] != 'cancelled') {
+      final total = (num.tryParse(order['total_amount']?.toString() ?? '0') ?? 0.0).toDouble();
+      final paid = (num.tryParse(order['paid_amount']?.toString() ?? '0') ?? 0.0).toDouble();
+      
+      totalSales += total;
+      if (total - paid > 0) {
+        totalDebts += (total - paid);
+      }
+
+      final buyerId = order['buyer_id'];
+      if (buyerId != null) uniqueCustomers.add(buyerId.toString());
+
+      final createdAtStr = order['created_at'];
+      if (createdAtStr != null) {
+        try {
+          final dt = DateTime.parse(createdAtStr).toLocal();
+          final orderDate = DateTime(dt.year, dt.month, dt.day);
+          // Directly find the matching date in the last 7 days array
+          for (int i = 0; i < 7; i++) {
+            if (last7DaysDates[i].isAtSameMomentAs(orderDate)) {
+              dailySales[i] += total;
+              break;
+            }
+          }
+        } catch (_) {}
+      }
+    }
+    if (order['status'] == 'pending') {
+      pendingCount++;
+    }
+    if (order['status'] == 'delivered') {
+      deliveredCount++;
+    }
+  }
+
+  return AsyncValue.data({
+    'totalSales': totalSales,
+    'totalDebts': totalDebts,
+    'pendingOrders': pendingCount,
+    'deliveredOrders': deliveredCount,
+    'activeProducts': products.length,
+    'customers': uniqueCustomers.length,
+    'recentOrders': orders.take(5).toList(),
+    'allOrders': orders,
+    'dailySales': dailySales,
+    'last7DaysDates': last7DaysDates,
+  });
+});
+
+class MerchantDashboardScreen extends ConsumerStatefulWidget {
+  const MerchantDashboardScreen({super.key});
+
+  @override
+  ConsumerState<MerchantDashboardScreen> createState() => _MerchantDashboardScreenState();
+}
+
+class _MerchantDashboardScreenState extends ConsumerState<MerchantDashboardScreen> {
+  DateTime? _startDate;
+  DateTime? _endDate;
+  String _selectedReportStatus = 'all';
+  String _reportType = 'overview';
+  String? _selectedCustomerId;
+
+  Future<void> _generatePdfReport(BuildContext context, Map<String, dynamic> stats, bool isRtl) async {
+    // Show Loading Dialog
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => AlertDialog(
+        content: Row(
+          children: [
+            const CircularProgressIndicator(),
+            const SizedBox(width: 16),
+            Text(isRtl ? 'جاري إنشاء التقرير...' : 'Generating report...'),
+          ],
+        ),
+      ),
+    );
+
+    try {
+      final allOrders = stats['allOrders'] as List<Map<String, dynamic>>? ?? [];
+      final doc = pw.Document();
+      
+      // Load fonts
+      pw.Font font;
+      pw.Font boldFont;
+      try {
+        font = await PdfGoogleFonts.cairoRegular();
+        boldFont = await PdfGoogleFonts.cairoBold();
+      } catch (e) {
+        font = pw.Font.helvetica();
+        boldFont = pw.Font.helveticaBold();
+      }
+
+      final filteredOrders = allOrders.where((o) {
+        final date = DateTime.tryParse(o['created_at']?.toString() ?? '')?.toLocal();
+        if (date == null) return false;
+        if (_startDate != null && date.isBefore(_startDate!)) return false;
+        if (_endDate != null && date.isAfter(_endDate!.add(const Duration(days: 1)))) return false;
+        
+        if (_reportType == 'customer' && _selectedCustomerId != null) {
+          if (o['buyer_id'] != _selectedCustomerId) return false;
+        }
+
+        if (_selectedReportStatus == 'delivered') {
+          if (o['status'] != 'delivered') return false;
+        } else if (_selectedReportStatus == 'not_delivered') {
+          if (o['status'] == 'delivered' || o['status'] == 'cancelled') return false;
+        } else if (_selectedReportStatus == 'debts') {
+          final total = (num.tryParse(o['total_amount']?.toString() ?? '0') ?? 0.0).toDouble();
+          final paid = (num.tryParse(o['paid_amount']?.toString() ?? '0') ?? 0.0).toDouble();
+          if (total - paid <= 0 || o['status'] == 'cancelled') return false;
+        }
+        return true;
+      }).toList();
+
+      double totalReportSales = 0;
+      double totalReportPaid = 0;
+      double totalReportDebt = 0;
+
+      final tableData = <List<String>>[];
+      for (var o in filteredOrders) {
+        final total = (num.tryParse(o['total_amount']?.toString() ?? '0') ?? 0.0).toDouble();
+        final paid = (num.tryParse(o['paid_amount']?.toString() ?? '0') ?? 0.0).toDouble();
+        final remaining = total - paid;
+        
+        totalReportSales += total;
+        totalReportPaid += paid;
+        totalReportDebt += remaining > 0 ? remaining : 0;
+        
+        final createdAt = DateTime.tryParse(o['created_at']?.toString() ?? '');
+        final dateStr = createdAt != null ? DateFormat('yyyy-MM-dd').format(createdAt.toLocal()) : '---';
+        final orderId = OrderNumberFormatter.formatFromMap(o);
+        
+        tableData.add(
+          isRtl 
+          ? [NumberFormat('#,##0').format(remaining), NumberFormat('#,##0').format(paid), NumberFormat('#,##0').format(total), dateStr, orderId]
+          : [orderId, dateStr, NumberFormat('#,##0').format(total), NumberFormat('#,##0').format(paid), NumberFormat('#,##0').format(remaining)]
+        );
+      }
+
+      doc.addPage(
+        pw.MultiPage(
+          pageFormat: PdfPageFormat.a4,
+          build: (pw.Context context) {
+            return [
+              pw.Header(
+                level: 0,
+                child: pw.Text(
+                  isRtl 
+                    ? (_reportType == 'overview' ? 'تقرير النظرة العامة' : 'كشف حساب عميل')
+                    : (_reportType == 'overview' ? 'General Overview Report' : 'Customer Account Statement'), 
+                  style: pw.TextStyle(font: boldFont, fontSize: 24, fontWeight: pw.FontWeight.bold, color: PdfColors.blue900),
+                  textDirection: isRtl ? pw.TextDirection.rtl : pw.TextDirection.ltr,
+                ),
+              ),
+              pw.Text(
+                '${isRtl ? 'تاريخ التقرير:' : 'Generated:'} ${DateFormat('yyyy-MM-dd HH:mm').format(DateTime.now())}',
+                style: pw.TextStyle(font: font, fontSize: 12, color: PdfColors.grey700),
+                textDirection: isRtl ? pw.TextDirection.rtl : pw.TextDirection.ltr,
+              ),
+              pw.SizedBox(height: 20),
+              
+              if (_reportType == 'overview') ...[
+                pw.Text(isRtl ? 'إحصائيات عامة' : 'General Statistics', style: pw.TextStyle(font: boldFont, fontSize: 18), textDirection: isRtl ? pw.TextDirection.rtl : pw.TextDirection.ltr),
+                pw.SizedBox(height: 10),
+                pw.Row(
+                  mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                  children: [
+                    _pdfMiniBox(isRtl ? 'إجمالي الإيرادات' : 'Total Revenue', (stats['totalSales'] as num?)?.toDouble() ?? 0.0, true, font, boldFont, isRtl, PdfColors.green),
+                    _pdfMiniBox(isRtl ? 'البضاعة (الأصناف)' : 'Active Products', (stats['activeProducts'] ?? 0).toDouble(), false, font, boldFont, isRtl, PdfColors.blue),
+                    _pdfMiniBox(isRtl ? 'طلبات مكتملة' : 'Delivered Orders', (stats['deliveredOrders'] ?? 0).toDouble(), false, font, boldFont, isRtl, PdfColors.teal),
+                    _pdfMiniBox(isRtl ? 'إجمالي العملاء' : 'Customers', (stats['customers'] ?? 0).toDouble(), false, font, boldFont, isRtl, PdfColors.purple),
+                  ]
+                ),
+                pw.SizedBox(height: 20),
+              ],
+
+              pw.Text(isRtl ? 'ملخص المبالغ' : 'Amounts Summary', style: pw.TextStyle(font: boldFont, fontSize: 18), textDirection: isRtl ? pw.TextDirection.rtl : pw.TextDirection.ltr),
+              pw.SizedBox(height: 10),
+              pw.Row(
+                mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                children: [
+                  _pdfSummaryBox('Total Sales', totalReportSales, font, boldFont, isRtl, PdfColors.blue800),
+                  _pdfSummaryBox('Total Paid', totalReportPaid, font, boldFont, isRtl, PdfColors.green800),
+                  _pdfSummaryBox('Total Debt', totalReportDebt, font, boldFont, isRtl, PdfColors.red800),
+                ]
+              ),
+              pw.SizedBox(height: 20),
+              
+              pw.Text(isRtl ? 'تفاصيل الطلبات' : 'Orders Details', style: pw.TextStyle(font: boldFont, fontSize: 18), textDirection: isRtl ? pw.TextDirection.rtl : pw.TextDirection.ltr),
+              pw.SizedBox(height: 10),
+              pw.TableHelper.fromTextArray(
+                context: context,
+                border: pw.TableBorder.all(color: PdfColors.grey400, width: 0.5),
+                headerStyle: pw.TextStyle(font: boldFont, color: PdfColors.white),
+                headerDecoration: const pw.BoxDecoration(color: PdfColors.blueGrey800),
+                cellStyle: pw.TextStyle(font: font),
+                cellAlignment: pw.Alignment.center,
+                headers: isRtl 
+                    ? ['المتبقي', 'المدفوع', 'الإجمالي', 'التاريخ', 'رقم الطلب']
+                    : ['Order ID', 'Date', 'Total', 'Paid', 'Remaining'],
+                data: tableData,
+              ),
+            ];
+          },
+        ),
+      );
+
+      if (context.mounted) {
+        Navigator.of(context, rootNavigator: true).pop(); // Close loading dialog
+      }
+
+      await Printing.layoutPdf(
+        onLayout: (PdfPageFormat format) async => doc.save(),
+        name: 'Magaiees_Report_${DateFormat('yyyyMMdd').format(DateTime.now())}.pdf',
+      );
+    } catch (e) {
+      if (context.mounted) {
+        Navigator.of(context, rootNavigator: true).pop(); // Close loading
+      }
+      if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error generating PDF: $e')));
+    }
+  }
+
+  pw.Widget _pdfMiniBox(String title, double value, bool isCurrency, pw.Font font, pw.Font boldFont, bool isRtl, PdfColor color) {
+    return pw.Container(
+      width: 110,
+      padding: const pw.EdgeInsets.all(8),
+      decoration: pw.BoxDecoration(
+        color: color.shade(50),
+        border: pw.Border.all(color: color, width: 1),
+        borderRadius: const pw.BorderRadius.all(pw.Radius.circular(6)),
+      ),
+      child: pw.Column(
+        children: [
+          pw.Text(title, style: pw.TextStyle(font: font, fontSize: 10, color: color), textDirection: isRtl ? pw.TextDirection.rtl : pw.TextDirection.ltr, textAlign: pw.TextAlign.center),
+          pw.SizedBox(height: 4),
+          pw.Text(isCurrency ? NumberFormat('#,##0').format(value) : value.toInt().toString(), style: pw.TextStyle(font: boldFont, fontSize: 14, color: color)),
+        ]
+      )
+    );
+  }
+
+  pw.Widget _pdfSummaryBox(String titleEn, double value, pw.Font font, pw.Font boldFont, bool isRtl, PdfColor color) {
+    String title = titleEn;
+    if (isRtl) {
+      if (titleEn == 'Total Sales') title = 'إجمالي المباع';
+      if (titleEn == 'Total Paid') title = 'المدفوع';
+      if (titleEn == 'Total Debt') title = 'المتبقي (الديون)';
+    }
+    return pw.Container(
+      width: 150,
+      padding: const pw.EdgeInsets.all(12),
+      decoration: pw.BoxDecoration(
+        color: color.shade(100),
+        border: pw.Border.all(color: color, width: 1),
+        borderRadius: const pw.BorderRadius.all(pw.Radius.circular(8)),
+      ),
+      child: pw.Column(
+        children: [
+          pw.Text(title, style: pw.TextStyle(font: font, fontSize: 14, color: color), textDirection: isRtl ? pw.TextDirection.rtl : pw.TextDirection.ltr),
+          pw.SizedBox(height: 8),
+          pw.Text(NumberFormat('#,##0').format(value), style: pw.TextStyle(font: boldFont, fontSize: 18, color: color)),
+        ]
+      )
+    );
+  }
+
+  Future<void> _showReportDialog(BuildContext context, Map<String, dynamic> stats, bool isRtl) async {
+    final allOrders = stats['allOrders'] as List<Map<String, dynamic>>? ?? [];
+    
+    // Show Loading
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => AlertDialog(
+        content: Row(
+          children: [
+            const CircularProgressIndicator(),
+            const SizedBox(width: 16),
+            Text(isRtl ? 'جاري تحضير البيانات...' : 'Preparing data...'),
+          ],
+        ),
+      ),
+    );
+
+    // Extract unique customers
+    final Map<String, String> customers = {};
+    for (var o in allOrders) {
+      if (o['buyer_id'] != null) {
+        customers[o['buyer_id']] = o['buyer_id']; // fallback
+      }
+    }
+
+    try {
+      if (customers.isNotEmpty) {
+        final buyerIds = customers.keys.toList();
+        final usersRes = await Supabase.instance.client
+            .from('users')
+            .select('id, name')
+            .inFilter('id', buyerIds);
+        
+        for (var u in (usersRes as List)) {
+          customers[u['id'].toString()] = u['name']?.toString() ?? 'Unknown';
+        }
+      }
+    } catch (_) {}
+
+    if (context.mounted) {
+      Navigator.of(context, rootNavigator: true).pop(); // Close loading dialog
+    }
+
+    if (!context.mounted) return;
+    
+    showDialog(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (context, setState) {
+          return AlertDialog(
+            title: Text(isRtl ? 'استخراج كشف حساب / تقرير' : 'Generate Report'),
+            content: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Report Type
+                  DropdownButtonFormField<String>(
+                    value: _reportType,
+                    decoration: InputDecoration(labelText: isRtl ? 'نوع التقرير' : 'Report Type', border: const OutlineInputBorder()),
+                    items: [
+                      DropdownMenuItem(value: 'overview', child: Text(isRtl ? 'نظرة عامة (إحصائيات المتجر)' : 'General Overview')),
+                      if (customers.isNotEmpty)
+                        DropdownMenuItem(value: 'customer', child: Text(isRtl ? 'كشف حساب عميل معين' : 'Customer Account Statement')),
+                    ],
+                    onChanged: (val) {
+                      if (val != null) setState(() {
+                        _reportType = val;
+                        if (val == 'overview') _selectedCustomerId = null;
+                      });
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  
+                  if (_reportType == 'customer' && customers.isNotEmpty) ...[
+                    DropdownButtonFormField<String>(
+                      value: customers.containsKey(_selectedCustomerId) ? _selectedCustomerId : null,
+                      hint: Text(isRtl ? 'اختر العميل' : 'Select Customer'),
+                      decoration: const InputDecoration(border: OutlineInputBorder()),
+                      items: customers.entries.map((e) => DropdownMenuItem(value: e.key, child: Text(e.value))).toList(),
+                      onChanged: (val) {
+                        setState(() => _selectedCustomerId = val);
+                      },
+                    ),
+                    const SizedBox(height: 16),
+                  ],
+
+                  ListTile(
+                    title: Text(isRtl ? 'من تاريخ' : 'Start Date'),
+                    subtitle: Text(_startDate == null ? (isRtl ? 'لم يحدد' : 'Not set') : DateFormat('yyyy-MM-dd').format(_startDate!)),
+                    trailing: const Icon(Icons.calendar_today),
+                    onTap: () async {
+                      final date = await showDatePicker(
+                        context: context, initialDate: _startDate ?? DateTime.now(),
+                        firstDate: DateTime(2020), lastDate: DateTime.now(),
+                      );
+                      if (date != null) setState(() => _startDate = date);
+                    },
+                  ),
+                  ListTile(
+                    title: Text(isRtl ? 'إلى تاريخ' : 'End Date'),
+                    subtitle: Text(_endDate == null ? (isRtl ? 'لم يحدد' : 'Not set') : DateFormat('yyyy-MM-dd').format(_endDate!)),
+                    trailing: const Icon(Icons.calendar_today),
+                    onTap: () async {
+                      final date = await showDatePicker(
+                        context: context, initialDate: _endDate ?? DateTime.now(),
+                        firstDate: DateTime(2020), lastDate: DateTime.now(),
+                      );
+                      if (date != null) setState(() => _endDate = date);
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  DropdownButtonFormField<String>(
+                    value: _selectedReportStatus,
+                    decoration: InputDecoration(labelText: isRtl ? 'نوع الطلبات' : 'Order Status', border: const OutlineInputBorder()),
+                    items: [
+                      DropdownMenuItem(value: 'all', child: Text(isRtl ? 'جميع الطلبات' : 'All Orders')),
+                      DropdownMenuItem(value: 'delivered', child: Text(isRtl ? 'الطلبات المستلمة (تم التسليم)' : 'Delivered Orders')),
+                      DropdownMenuItem(value: 'not_delivered', child: Text(isRtl ? 'الطلبات قيد التنفيذ (غير مستلمة)' : 'Pending/Processing Orders')),
+                      DropdownMenuItem(value: 'debts', child: Text(isRtl ? 'ديون مستحقة (عليها متبقي)' : 'Outstanding Debts')),
+                    ],
+                    onChanged: (val) {
+                      if (val != null) setState(() => _selectedReportStatus = val);
+                    },
+                  ),
+                ],
+              ),
+            ),
+            actions: [
+              TextButton(onPressed: () => Navigator.pop(context), child: Text(isRtl ? 'إلغاء' : 'Cancel')),
+              FilledButton.icon(
+                icon: const Icon(Icons.picture_as_pdf),
+                label: Text(isRtl ? 'تصدير PDF' : 'Export PDF'),
+                style: FilledButton.styleFrom(backgroundColor: Colors.red.shade700),
+                onPressed: () {
+                  if (_reportType == 'customer' && _selectedCustomerId == null) {
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(isRtl ? 'الرجاء اختيار العميل أولاً' : 'Please select a customer')));
+                    return;
+                  }
+                  Navigator.pop(context);
+                  _generatePdfReport(context, stats, isRtl);
+                },
+              ),
+            ],
+          );
+        }
+      )
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isRtl = Directionality.of(context) == TextDirection.rtl;
+    final statsAsync = ref.watch(merchantDashboardStatsProvider);
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Image.asset(
+              'assets/images/logo_final.png', 
+              height: 28,
+              errorBuilder: (context, error, stackTrace) => const SizedBox.shrink(),
+            ),
+            const SizedBox(width: 8),
+            Text(isRtl ? 'لوحة التحكم' : 'Dashboard'),
+          ],
+        ),
+        actions: [
+          Consumer(
+            builder: (context, ref, child) {
+              final unreadCount = ref.watch(unreadNotificationsCountProvider);
+              return Stack(
+                alignment: Alignment.center,
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.notifications_outlined),
+                    tooltip: isRtl ? 'الإشعارات' : 'Notifications',
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const NotificationsScreen()),
+                      );
+                    },
+                  ),
+                  if (unreadCount > 0)
+                    Positioned(
+                      right: 8,
+                      top: 8,
+                      child: Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: const BoxDecoration(
+                          color: Colors.red,
+                          shape: BoxShape.circle,
+                        ),
+                        child: Text(
+                          unreadCount.toString(),
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
+              );
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.swap_horiz),
+            tooltip: isRtl ? 'التبديل للمشتري' : 'Switch to Buyer Mode',
+            onPressed: () {
+              ref.read(modeNotifierProvider.notifier).switchTo(AppMode.buyer);
+              context.go('/buyer/home');
+            },
+          ),
+        ],
+      ),
+      body: statsAsync.when(
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (e, s) => Center(child: Text('Error: $e')),
+        data: (stats) {
+          final totalSales = NumberFormat.decimalPattern().format(stats['totalSales']);
+          final totalDebts = NumberFormat.decimalPattern().format(stats['totalDebts']);
+          final recentOrders = stats['recentOrders'] as List<Map<String, dynamic>>;
+
+          return Builder(
+            builder: (context) {
+              final user = ref.watch(authNotifierProvider).valueOrNull;
+              
+              return CustomScrollView(
+                slivers: [
+                  if (user != null)
+                    SliverToBoxAdapter(
+                      child: MerchantTierWidget(user: user),
+                    ),
+                    
+                  SliverPadding(
+                    padding: const EdgeInsets.all(16.0),
+                    sliver: SliverToBoxAdapter(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            isRtl ? 'نظرة عامة ماليّة' : 'Financial Overview',
+                            style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                          ),
+                          Row(
+                            children: [
+                              IconButton(
+                                icon: const Icon(Icons.star, color: Colors.amber),
+                                tooltip: isRtl ? 'التقييمات والآراء' : 'Reviews & Ratings',
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(builder: (_) => const MerchantReviewsScreen()),
+                                  );
+                                },
+                              ),
+                              IconButton(
+                                icon: const Icon(Icons.local_offer, color: Colors.purple),
+                                tooltip: isRtl ? 'إدارة الكوبونات' : 'Coupons Management',
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(builder: (_) => const MerchantCouponsScreen()),
+                                  );
+                                },
+                              ),
+                              IconButton(
+                                icon: const Icon(Icons.account_balance_wallet, color: Colors.blue),
+                                tooltip: isRtl ? 'المحفظة والسحوبات' : 'Wallet & Payouts',
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(builder: (_) => const MerchantWalletScreen()),
+                                  );
+                                },
+                              ),
+                              IconButton(
+                                icon: const Icon(Icons.analytics_rounded, color: Color(0xFF0F766E)),
+                                tooltip: isRtl ? 'كشف الموقف المالي الشامل ومبيعات الموظفين' : 'Comprehensive Financial Report & Staff Sales',
+                                onPressed: () => context.push(RouteNames.merchantFinancialReport),
+                              ),
+                              IconButton(
+                                icon: const Icon(Icons.picture_as_pdf, color: Colors.red),
+                                tooltip: isRtl ? 'استخراج كشف حساب' : 'Statement of Account',
+                                onPressed: () => _showReportDialog(context, stats, isRtl),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+              
+              // Top Financial Summary
+              SliverPadding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                sliver: SliverToBoxAdapter(
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: _buildMetricCard(
+                          context,
+                          title: isRtl ? 'إجمالي المبيعات (المحفظة)' : 'Total Sales (Wallet)',
+                          value: '$totalSales ${isRtl ? 'ج.س' : 'SDG'}',
+                          icon: Icons.account_balance_wallet,
+                          color: Colors.green,
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (_) => const MerchantWalletScreen()),
+                            );
+                          },
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: _buildMetricCard(
+                          context,
+                          title: isRtl ? 'الديون والمتبقي' : 'Outstanding Debts',
+                          value: '$totalDebts ${isRtl ? 'ج.س' : 'SDG'}',
+                          icon: Icons.money_off,
+                          color: Colors.red,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+              // Comprehensive Financial Statement & Staff Attribution Card
+              SliverPadding(
+                padding: const EdgeInsets.only(left: 16.0, right: 16.0, top: 12.0),
+                sliver: SliverToBoxAdapter(
+                  child: InkWell(
+                    onTap: () => context.push(RouteNames.merchantFinancialReport),
+                    borderRadius: BorderRadius.circular(16),
+                    child: Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          colors: [Color(0xFF0F766E), Color(0xFF115E59)],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow: [
+                          BoxShadow(
+                            color: const Color(0xFF0F766E).withOpacity(0.25),
+                            blurRadius: 10,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.15),
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(Icons.assessment_rounded, color: Colors.white, size: 26),
+                          ),
+                          const SizedBox(width: 14),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    Text(
+                                      isRtl ? 'كشف حساب الموقف المالي الشامل' : 'Comprehensive Financial Statement',
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 14.5,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 6),
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                      decoration: BoxDecoration(
+                                        color: Colors.white.withOpacity(0.2),
+                                        borderRadius: BorderRadius.circular(6),
+                                      ),
+                                      child: Text(
+                                        isRtl ? 'جديد' : 'NEW',
+                                        style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  isRtl
+                                      ? 'متابعة الوارد، المنصرف، عمولة المنصة، وتوزيع مبيعات الموظفين مع تصدير PDF'
+                                      : 'Track inflow, outflow, platform fee, & staff sales attribution with PDF export',
+                                  style: TextStyle(
+                                    color: Colors.white.withOpacity(0.85),
+                                    fontSize: 11.5,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Icon(
+                            isRtl ? Icons.arrow_back_ios_new_rounded : Icons.arrow_forward_ios_rounded,
+                            color: Colors.white70,
+                            size: 16,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+
+              // Chart
+              SliverPadding(
+                padding: const EdgeInsets.only(left: 16.0, right: 16.0, top: 24.0, bottom: 8.0),
+                sliver: SliverToBoxAdapter(
+                  child: Text(
+                    isRtl ? 'المبيعات خلال آخر 7 أيام' : 'Sales - Last 7 Days',
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ),
+              SliverPadding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                sliver: SliverToBoxAdapter(
+                  child: Container(
+                    height: 250,
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 4)),
+                      ],
+                    ),
+                    child: Builder(
+                      builder: (context) {
+                        final salesData = stats['dailySales'] as List<double>;
+                        final dates = stats['last7DaysDates'] as List<DateTime>;
+                        
+                        double maxSale = 1000;
+                        for (var s in salesData) {
+                          if (s > maxSale) maxSale = s;
+                        }
+
+                        return LineChart(
+                          LineChartData(
+                            gridData: FlGridData(
+                              show: true, 
+                              drawVerticalLine: false,
+                              getDrawingHorizontalLine: (value) => FlLine(color: Colors.grey.withOpacity(0.2), strokeWidth: 1),
+                            ),
+                            titlesData: FlTitlesData(
+                              rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                              topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                              bottomTitles: AxisTitles(
+                                sideTitles: SideTitles(
+                                  showTitles: true,
+                                  reservedSize: 30,
+                                  getTitlesWidget: (value, meta) {
+                                    final index = value.toInt();
+                                    if (index < 0 || index >= 7) return const SizedBox.shrink();
+                                    final d = dates[index];
+                                    return SideTitleWidget(
+                                      meta: meta,
+                                      child: Text('${d.day}/${d.month}', style: const TextStyle(fontSize: 10, color: Colors.grey)),
+                                    );
+                                  },
+                                ),
+                              ),
+                              leftTitles: AxisTitles(
+                                sideTitles: SideTitles(
+                                  showTitles: true,
+                                  reservedSize: 40,
+                                  getTitlesWidget: (value, meta) {
+                                    if (value == 0) return const SizedBox.shrink();
+                                    return SideTitleWidget(
+                                      meta: meta,
+                                      child: Text(
+                                        value >= 1000 ? '${(value/1000).toStringAsFixed(1)}k' : value.toStringAsFixed(0),
+                                        style: const TextStyle(fontSize: 10, color: Colors.grey),
+                                      ),
+                                    );
+                                  }
+                                ),
+                              ),
+                            ),
+                            borderData: FlBorderData(show: false),
+                            minX: 0,
+                            maxX: 6,
+                            minY: 0,
+                            maxY: maxSale * 1.2,
+                            lineBarsData: [
+                              LineChartBarData(
+                                spots: List.generate(7, (i) => FlSpot(i.toDouble(), salesData[i])),
+                                isCurved: true,
+                                color: Colors.blue,
+                                barWidth: 3,
+                                isStrokeCapRound: true,
+                                dotData: const FlDotData(show: true),
+                                belowBarData: BarAreaData(
+                                  show: true,
+                                  color: Colors.blue.withOpacity(0.1),
+                                ),
+                              ),
+                            ],
+                            lineTouchData: LineTouchData(
+                              touchTooltipData: LineTouchTooltipData(
+                                getTooltipColor: (spot) => Colors.blueAccent,
+                                getTooltipItems: (touchedSpots) {
+                                  return touchedSpots.map((spot) {
+                                    final val = NumberFormat.compact().format(spot.y);
+                                    return LineTooltipItem(
+                                      '$val ${isRtl ? "ج.س" : "SDG"}',
+                                      const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                                    );
+                                  }).toList();
+                                },
+                              ),
+                            ),
+                          ),
+                        );
+                      }
+                    ),
+                  ),
+                ),
+              ),
+
+              SliverPadding(
+                padding: const EdgeInsets.only(left: 16.0, right: 16.0, top: 24.0, bottom: 8.0),
+                sliver: SliverToBoxAdapter(
+                  child: Text(
+                    isRtl ? 'إحصائيات المتجر' : 'Store Metrics',
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ),
+
+              // Store Metrics Grid
+              SliverPadding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                sliver: SliverGrid.count(
+                  crossAxisCount: 2,
+                  crossAxisSpacing: 16,
+                  mainAxisSpacing: 16,
+                  childAspectRatio: 1.8,
+                  children: [
+                    _buildMetricCard(
+                      context,
+                      title: isRtl ? 'الطلبات المعلقة' : 'Pending Orders',
+                      value: stats['pendingOrders']?.toString() ?? '0',
+                      icon: Icons.pending_actions,
+                      color: Colors.orange,
+                    ),
+                    _buildMetricCard(
+                      context,
+                      title: isRtl ? 'تم التسليم' : 'Delivered',
+                      value: stats['deliveredOrders']?.toString() ?? '0',
+                      icon: Icons.check_circle_outline,
+                      color: Colors.teal,
+                    ),
+                    _buildMetricCard(
+                      context,
+                      title: isRtl ? 'قيد النشاط' : 'Active Products',
+                      value: stats['activeProducts']?.toString() ?? '0',
+                      icon: Icons.inventory_2,
+                      color: Colors.blue,
+                    ),
+                    _buildMetricCard(
+                      context,
+                      title: isRtl ? 'العملاء' : 'Customers',
+                      value: stats['customers']?.toString() ?? '0',
+                      icon: Icons.people,
+                      color: Colors.purple,
+                    ),
+                  ],
+                ),
+              ),
+
+              SliverPadding(
+                padding: const EdgeInsets.only(left: 16.0, right: 16.0, top: 32.0, bottom: 16.0),
+                sliver: SliverToBoxAdapter(
+                  child: Text(
+                    isRtl ? 'أحدث الطلبات' : 'Recent Orders',
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ),
+
+              SliverPadding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                sliver: SliverList(
+                  delegate: SliverChildBuilderDelegate(
+                    (context, index) {
+                      final order = recentOrders[index];
+                      final orderId = OrderNumberFormatter.formatFromMap(order);
+                      final totalAmount = NumberFormat.decimalPattern().format(double.tryParse(order['total_amount']?.toString() ?? '0') ?? 0);
+                      
+                      return Card(
+                        margin: const EdgeInsets.only(bottom: 8.0),
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                          side: BorderSide(color: Colors.grey.shade200),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: ListTile(
+                          leading: CircleAvatar(
+                            backgroundColor: Colors.blue.shade50,
+                            child: Icon(Icons.shopping_bag, color: Colors.blue.shade700),
+                          ),
+                          title: Text('${isRtl ? 'طلب' : 'Order'} #$orderId', style: const TextStyle(fontWeight: FontWeight.bold)),
+                          subtitle: Text('$totalAmount ${isRtl ? 'ج.س' : 'SDG'}', style: TextStyle(color: Colors.green.shade700, fontWeight: FontWeight.w600)),
+                          trailing: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                            decoration: BoxDecoration(
+                              color: _getStatusColor(order['status']).withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Text(
+                              _getStatusLabel(order['status'], isRtl),
+                              style: TextStyle(
+                                color: _getStatusColor(order['status']).shade800,
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                    childCount: recentOrders.length,
+                  ),
+                ),
+              ),
+              const SliverToBoxAdapter(child: SizedBox(height: 32)),
+            ],
+          );
+          },
+        ); // closes Builder
+        }, // closes data: (stats) {
+      ), // closes when
+    ); // closes Scaffold
+  }
+
+  MaterialColor _getStatusColor(String? status) {
+    if (status == 'pending') return Colors.orange;
+    if (status == 'processing') return Colors.blue;
+    if (status == 'shipped') return Colors.indigo;
+    if (status == 'delivered') return Colors.green;
+    return Colors.red;
+  }
+
+  String _getStatusLabel(String? status, bool isRtl) {
+    if (isRtl) {
+      if (status == 'pending') return 'قيد الانتظار';
+      if (status == 'processing') return 'قيد المعالجة';
+      if (status == 'shipped') return 'تم الشحن';
+      if (status == 'delivered') return 'تم التسليم';
+      return 'ملغي';
+    } else {
+      return status?.toUpperCase() ?? 'PENDING';
+    }
+  }
+
+  Widget _buildMetricCard(
+    BuildContext context, {
+    required String title,
+    required String value,
+    required IconData icon,
+    required MaterialColor color,
+    VoidCallback? onTap,
+  }) {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(16),
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(16),
+          child: Container(
+            padding: const EdgeInsets.all(16.0),
+            decoration: BoxDecoration(
+              color: color.shade50.withValues(alpha: 0.6),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: color.shade200.withValues(alpha: 0.8), width: 1.5),
+            boxShadow: [
+              BoxShadow(
+                color: color.withValues(alpha: 0.05),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: Text(
+                      title,
+                      style: TextStyle(
+                        color: color.shade800,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: color.withValues(alpha: 0.2),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Icon(icon, color: color.shade700, size: 20),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                alignment: Directionality.of(context) == TextDirection.rtl ? Alignment.centerRight : Alignment.centerLeft,
+                child: Text(
+                  value,
+                  style: TextStyle(
+                    color: color.shade900,
+                    fontSize: 22,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    ),
+  );
+}
+}
